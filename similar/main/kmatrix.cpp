@@ -157,12 +157,11 @@ static void kmatrix_draw_coop_names(grs_canvas &canvas)
 	gr_string(canvas, centerscreen + FSPACX(50), fspacy40, "DEATHS");
 }
 
-static void kmatrix_status_msg (fix time, int reactor)
+static void kmatrix_status_msg(grs_canvas &canvas, const fix time, const int reactor)
 {
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
-	gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(255, 255, 255),-1);
-
-	gr_printf(*grd_curcanv, 0x8000, SHEIGHT - LINE_SPACING(*grd_curcanv), reactor
+	gr_set_curfont(canvas, GAME_FONT);
+	gr_set_fontcolor(canvas, gr_find_closest_color(255, 255, 255),-1);
+	gr_printf(canvas, 0x8000, SHEIGHT - LINE_SPACING(canvas), reactor
 		? "Waiting for players to finish level. Reactor time: T-%d"
 		: "Level finished. Wait (%d) to proceed or ESC to Quit."
 	, time);
@@ -366,9 +365,9 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 			kmatrix_redraw(km);
 			
 			if (km->playing)
-				kmatrix_status_msg(Countdown_seconds_left, 1);
+				kmatrix_status_msg(*grd_curcanv, Countdown_seconds_left, 1);
 			else
-				kmatrix_status_msg(f2i(timer_query()-km->end_time), 0);
+				kmatrix_status_msg(*grd_curcanv, f2i(timer_query()-km->end_time), 0);
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
