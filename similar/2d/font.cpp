@@ -1145,7 +1145,7 @@ static int gr_internal_string_clipped_template(grs_canvas &canvas, int x, int y,
 				if (underline)	{
 					for (uint_fast32_t i = width; i--;)
 					{
-						gr_pixel(canvas, x++, y, color);
+						gr_pixel(canvas.cv_bitmap, x++, y, color);
 					}
 				} else {
 					auto fp = proportional ? cv_font.ft_chars[letter] : cv_font.ft_data + letter * BITS_TO_BYTES(width) * cv_font.ft_h;
@@ -1175,7 +1175,7 @@ static int gr_internal_string_clipped_template(grs_canvas &canvas, int x, int y,
 							if (!bit_enabled)
 								continue;
 						}
-						gr_pixel(canvas, x, y, color);
+						gr_pixel(canvas.cv_bitmap, x, y, color);
 					}
 				}
 				}

@@ -47,11 +47,11 @@ void gr_upixel(grs_bitmap &cv_bitmap, const unsigned x, const unsigned y, const 
 	}
 }
 
-void gr_pixel(grs_canvas &canvas, const unsigned x, const unsigned y, const uint8_t color)
+void gr_pixel(grs_bitmap &cv_bitmap, const unsigned x, const unsigned y, const uint8_t color)
 {
-	if (unlikely(x >= canvas.cv_bitmap.bm_w || y >= canvas.cv_bitmap.bm_h))
+	if (unlikely(x >= cv_bitmap.bm_w || y >= cv_bitmap.bm_h))
 		return;
-	gr_upixel(canvas.cv_bitmap, x, y, color);
+	gr_upixel(cv_bitmap, x, y, color);
 }
 
 #if !DXX_USE_OGL
