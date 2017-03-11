@@ -69,13 +69,13 @@ static int org_i,org_j;
 static void build_light_table(void);
 
 // ------------------------------------------------------------------------
-static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *p3, int &mine_tiles_drawn)
+static void draw_cell(grs_canvas &canvas, const int i, const int j, cg3s_point &p0, cg3s_point &p1, cg3s_point &p2, cg3s_point &p3, int &mine_tiles_drawn)
 {
 	array<cg3s_point *, 3> pointlist;
 
-	pointlist[0] = p0;
-	pointlist[1] = p1;
-	pointlist[2] = p3;
+	pointlist[0] = &p0;
+	pointlist[1] = &p1;
+	pointlist[2] = &p3;
 	array<g3s_lrgb, 3> lrgb_list1;
 	array<g3s_uvl, 3> uvl_list1;
 	lrgb_list1[0].r = lrgb_list1[0].g = lrgb_list1[0].b = uvl_list1[0].l = LIGHTVAL(i,j);
@@ -86,18 +86,18 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 	uvl_list1[1].u = (i)*f1_0/4; uvl_list1[1].v = (j+1)*f1_0/4;
 	uvl_list1[2].u = (i+1)*f1_0/4;   uvl_list1[2].v = (j)*f1_0/4;
 
-	g3_check_and_draw_tmap(*grd_curcanv, pointlist, uvl_list1, lrgb_list1, *terrain_bm);
+	g3_check_and_draw_tmap(canvas, pointlist, uvl_list1, lrgb_list1, *terrain_bm);
 	if (terrain_outline) {
 		int lsave=Lighting_on;
 		Lighting_on=0;
 		const uint8_t color = BM_XRGB(31, 0, 0);
-		g3_draw_line(*grd_curcanv, *pointlist[0],*pointlist[1], color);
-		g3_draw_line(*grd_curcanv, *pointlist[2],*pointlist[0], color);
+		g3_draw_line(canvas, *pointlist[0],*pointlist[1], color);
+		g3_draw_line(canvas, *pointlist[2],*pointlist[0], color);
 		Lighting_on=lsave;
 	}
 
-	pointlist[0] = p1;
-	pointlist[1] = p2;
+	pointlist[0] = &p1;
+	pointlist[1] = &p2;
 	array<g3s_uvl, 3> uvl_list2;
 	array<g3s_lrgb, 3> lrgb_list2;
 	lrgb_list2[0].r = lrgb_list2[0].g = lrgb_list2[0].b = uvl_list2[0].l = LIGHTVAL(i,j+1);
@@ -108,14 +108,14 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 	uvl_list2[1].u = (i+1)*f1_0/4;   uvl_list2[1].v = (j+1)*f1_0/4;
 	uvl_list2[2].u = (i+1)*f1_0/4;   uvl_list2[2].v = (j)*f1_0/4;
 
-	g3_check_and_draw_tmap(*grd_curcanv, pointlist, uvl_list2, lrgb_list2, *terrain_bm);
+	g3_check_and_draw_tmap(canvas, pointlist, uvl_list2, lrgb_list2, *terrain_bm);
 	if (terrain_outline) {
 		int lsave=Lighting_on;
 		Lighting_on=0;
 		const uint8_t color = BM_XRGB(31, 0, 0);
-		g3_draw_line(*grd_curcanv, *pointlist[0],*pointlist[1], color);
-		g3_draw_line(*grd_curcanv, *pointlist[1],*pointlist[2], color);
-		g3_draw_line(*grd_curcanv, *pointlist[2],*pointlist[0], color);
+		g3_draw_line(canvas, *pointlist[0],*pointlist[1], color);
+		g3_draw_line(canvas, *pointlist[1],*pointlist[2], color);
+		g3_draw_line(canvas, *pointlist[2],*pointlist[0], color);
 		Lighting_on=lsave;
 	}
 
@@ -132,7 +132,7 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 		//draw_exit_model();
 		mine_tiles_drawn=-1;
 		window_rendered_data window;
-		render_mine(*grd_curcanv, exit_segnum, 0, window);
+		render_mine(canvas, exit_segnum, 0, window);
 		//if (ext_expl_playing)
 		//	draw_fireball(&external_explosion);
 	}
@@ -232,7 +232,7 @@ void render_terrain(const vms_vector &org_point,int org_2dx,int org_2dy)
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i+1,j+1)));
 
-			draw_cell(i,j,&save_row[j],&save_row[j+1],&p2,&last_p2,mine_tiles_drawn);
+			draw_cell(*grd_curcanv, i, j, save_row[j], save_row[j+1], p2, last_p2, mine_tiles_drawn);
 
 			last_p = p;
 			save_row[j] = last_p2;
@@ -252,7 +252,7 @@ void render_terrain(const vms_vector &org_point,int org_2dx,int org_2dy)
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i+1,j)));
 
-			draw_cell(i,j,&save_row[j],&save_row[j+1],&last_p2,&p2,mine_tiles_drawn);
+			draw_cell(*grd_curcanv, i, j, save_row[j], save_row[j+1], last_p2, p2, mine_tiles_drawn);
 
 			last_p = p;
 			save_row[j+1] = last_p2;
@@ -295,7 +295,7 @@ void render_terrain(const vms_vector &org_point,int org_2dx,int org_2dy)
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i,j+1)));
 
-			draw_cell(i,j,&last_p2,&p2,&save_row[j+1],&save_row[j],mine_tiles_drawn);
+			draw_cell(*grd_curcanv, i, j, last_p2, p2, save_row[j+1], save_row[j], mine_tiles_drawn);
 
 			last_p = p;
 			save_row[j] = last_p2;
@@ -315,7 +315,7 @@ void render_terrain(const vms_vector &org_point,int org_2dx,int org_2dy)
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i,j)));
 
-			draw_cell(i,j,&p2,&last_p2,&save_row[j+1],&save_row[j],mine_tiles_drawn);
+			draw_cell(*grd_curcanv, i, j, p2, last_p2, save_row[j+1], save_row[j], mine_tiles_drawn);
 
 			last_p = p;
 			save_row[j+1] = last_p2;
