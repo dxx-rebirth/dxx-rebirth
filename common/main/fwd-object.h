@@ -250,7 +250,7 @@ void reset_objects(int n_objs);
 void compress_objects();
 
 // Render an object.  Calls one of several routines based on type
-void render_object(vobjptridx_t obj);
+void render_object(grs_canvas &, vobjptridx_t obj);
 
 // draw an object that is a texture-mapped rod
 void draw_object_tmap_rod(grs_canvas &, vcobjptridx_t obj, bitmap_index bitmap, int lighted);

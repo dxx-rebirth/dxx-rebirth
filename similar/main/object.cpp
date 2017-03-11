@@ -630,7 +630,7 @@ void create_small_fireball_on_object(const vobjptridx_t objp, fix size_scale, in
 
 // -----------------------------------------------------------------------------
 //	Render an object.  Calls one of several routines based on type
-void render_object(const vobjptridx_t obj)
+void render_object(grs_canvas &canvas, const vobjptridx_t obj)
 {
 	if (unlikely(obj == Viewer))
 		return;
@@ -655,41 +655,41 @@ void render_object(const vobjptridx_t obj)
 			if ( PlayerCfg.AlphaBlendMarkers && obj->type == OBJ_MARKER ) // set nice transparency/blending for certrain objects
 			{
 				alpha = true;
-				gr_settransblend(*grd_curcanv, 10, GR_BLEND_ADDITIVE_A);
+				gr_settransblend(canvas, 10, GR_BLEND_ADDITIVE_A);
 			}
 #endif
-			draw_polygon_object(*grd_curcanv, obj);
+			draw_polygon_object(canvas, obj);
 
 			if (obj->type == OBJ_ROBOT) //"warn" robot if being shot at
 				set_robot_location_info(obj);
 			break;
 
 		case RT_MORPH:
-			draw_morph_object(*grd_curcanv, obj);
+			draw_morph_object(canvas, obj);
 			break;
 
 		case RT_FIREBALL:
 			if (PlayerCfg.AlphaBlendFireballs) // set nice transparency/blending for certrain objects
 			{
 				alpha = true;
-				gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
+				gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 			}
 
-			draw_fireball(*grd_curcanv, obj);
+			draw_fireball(canvas, obj);
 			break;
 
 		case RT_WEAPON_VCLIP:
 			if (PlayerCfg.AlphaBlendWeapons && !is_proximity_bomb_or_smart_mine(get_weapon_id(obj))) // set nice transparency/blending for certain objects
 			{
 				alpha = true;
-				gr_settransblend(*grd_curcanv, 7, GR_BLEND_ADDITIVE_A);
+				gr_settransblend(canvas, 7, GR_BLEND_ADDITIVE_A);
 			}
 
-			draw_weapon_vclip(*grd_curcanv, obj);
+			draw_weapon_vclip(canvas, obj);
 			break;
 
 		case RT_HOSTAGE:
-			draw_hostage(*grd_curcanv, obj);
+			draw_hostage(canvas, obj);
 			break;
 
 		case RT_POWERUP:
@@ -705,7 +705,7 @@ void render_object(const vobjptridx_t obj)
 					case POW_HOARD_ORB:
 #endif
 						alpha = true;
-						gr_settransblend(*grd_curcanv, 7, GR_BLEND_ADDITIVE_A);
+						gr_settransblend(canvas, 7, GR_BLEND_ADDITIVE_A);
 						break;
 					case POW_LASER:
 					case POW_KEY_BLUE:
@@ -751,17 +751,17 @@ void render_object(const vobjptridx_t obj)
 						break;
 				}
 
-			draw_powerup(*grd_curcanv, obj);
+			draw_powerup(canvas, obj);
 			break;
 
 		case RT_LASER:
 			if (PlayerCfg.AlphaBlendLasers) // set nice transparency/blending for certrain objects
 			{
 				alpha = true;
-				gr_settransblend(*grd_curcanv, 7, GR_BLEND_ADDITIVE_A);
+				gr_settransblend(canvas, 7, GR_BLEND_ADDITIVE_A);
 			}
 
-			Laser_render(*grd_curcanv, obj);
+			Laser_render(canvas, obj);
 			break;
 
 		default:
@@ -769,7 +769,7 @@ void render_object(const vobjptridx_t obj)
 	}
 
 	if (alpha)
-		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
+		gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
 
 	if ( obj->render_type != RT_NONE && Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_render_object(obj);

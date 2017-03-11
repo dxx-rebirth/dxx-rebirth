@@ -1022,7 +1022,7 @@ static void render_external_scene(fix eye_offset)
 	}
 
 	Lighting_on=0;
-	render_object(vobjptridx(ConsoleObject));
+	render_object(*grd_curcanv, vobjptridx(ConsoleObject));
 	Lighting_on=1;
 }
 

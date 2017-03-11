@@ -590,7 +590,7 @@ static void render_object_search(const vobjptridx_t obj)
 	gr_pixel(grd_curcanv->cv_bitmap, _search_x, _search_y, color);
 #endif
 	}
-	render_object(obj);
+	render_object(*grd_curcanv, obj);
 	if (gr_ugpixel(grd_curcanv->cv_bitmap,_search_x,_search_y) != 0)
 		changed=1;
 
@@ -604,7 +604,7 @@ static void render_object_search(const vobjptridx_t obj)
 	gr_pixel(grd_curcanv->cv_bitmap, _search_x, _search_y, color);
 #endif
 	}
-	render_object(obj);
+	render_object(*grd_curcanv, obj);
 	if (gr_ugpixel(grd_curcanv->cv_bitmap,_search_x,_search_y) != 1)
 		changed=1;
 
@@ -676,7 +676,7 @@ static void do_render_object(const vobjptridx_t obj, window_rendered_data &windo
 	else
 	#endif
 		//NOTE LINK TO ABOVE
-		render_object(obj);
+		render_object(*grd_curcanv, obj);
 
 	for (auto n = obj->attached_obj; n != object_none;)
 	{
@@ -686,7 +686,7 @@ static void do_render_object(const vobjptridx_t obj, window_rendered_data &windo
 		Assert(o->flags & OF_ATTACHED);
 		n = o->ctype.expl_info.next_attach;
 
-		render_object(o);
+		render_object(*grd_curcanv, o);
 	}
 
 
