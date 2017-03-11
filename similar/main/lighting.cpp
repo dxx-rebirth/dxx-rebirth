@@ -614,7 +614,7 @@ void start_lighting_frame(const vobjptr_t viewer)
 //compute the lighting for an object.  Takes a pointer to the object,
 //and possibly a rotated 3d point.  If the point isn't specified, the
 //object's center point is rotated.
-g3s_lrgb compute_object_light(const vobjptridx_t obj,const vms_vector *rotated_pnt)
+g3s_lrgb compute_object_light(const vcobjptridx_t obj, const vms_vector *rotated_pnt)
 {
 	g3s_lrgb light, seg_dl;
 	fix mlight;
