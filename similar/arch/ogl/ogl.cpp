@@ -770,10 +770,10 @@ namespace dcx {
 /*
  * Stars on heaven in exit sequence, automap objects
  */
-void g3_draw_sphere(grs_canvas &, g3s_point &pnt, fix rad, const uint8_t c)
+void g3_draw_sphere(grs_canvas &canvas, g3s_point &pnt, fix rad, const uint8_t c)
 {
 	int i;
-	const float scale = (static_cast<float>(grd_curcanv->cv_bitmap.bm_w)/grd_curcanv->cv_bitmap.bm_h);
+	const float scale = (static_cast<float>(canvas.cv_bitmap.bm_w) / canvas.cv_bitmap.bm_h);
 	GLfloat color_array[20*4];
 	
 	for (i = 0; i < 20*4; i += 4)

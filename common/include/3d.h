@@ -126,7 +126,6 @@ void g3_set_view_matrix(const vms_vector &view_pos,const vms_matrix &view_matrix
 //end the frame
 #if DXX_USE_OGL
 #define g3_end_frame() ogl_end_frame()
-#define g3_draw_sphere(C,P,R,c)	g3_draw_sphere(P,R,c)
 #else
 #define g3_end_frame()
 #endif

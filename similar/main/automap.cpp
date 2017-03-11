@@ -255,8 +255,6 @@ array<objnum_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_se
 # define automap_draw_line g3_draw_line
 #if DXX_USE_OGL
 #define DrawMarkerNumber(C,a,b,c)	DrawMarkerNumber(a,b,c)
-#define DrawMarkers(C,a)	DrawMarkers(a)
-#define draw_player(C,a,b)	draw_player(a,b)
 #define draw_all_edges(C,a)	draw_all_edges(a)
 #endif
 
