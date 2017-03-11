@@ -148,13 +148,13 @@ static void kmatrix_draw_names(grs_canvas &canvas, const playernum_array_t &sort
 	gr_string(canvas, x, fspacy(40), "K/E");
 }
 
-static void kmatrix_draw_coop_names(playernum_array_t &)
+static void kmatrix_draw_coop_names(grs_canvas &canvas)
 {
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(63, 31, 31),-1);
+	gr_set_fontcolor(canvas, BM_XRGB(63, 31, 31),-1);
 	const auto &&fspacy40 = FSPACY(40);
 	const auto centerscreen = CENTERSCREEN;
-	gr_string(*grd_curcanv, centerscreen, fspacy40, "SCORE");
-	gr_string(*grd_curcanv, centerscreen + FSPACX(50), fspacy40, "DEATHS");
+	gr_string(canvas, centerscreen, fspacy40, "SCORE");
+	gr_string(canvas, centerscreen + FSPACX(50), fspacy40, "DEATHS");
 }
 
 static void kmatrix_status_msg (fix time, int reactor)
@@ -241,7 +241,7 @@ static void kmatrix_redraw_coop()
 	gr_string(canvas,  0x8000, FSPACY(10), "COOPERATIVE SUMMARY");
 	gr_set_curfont(canvas, GAME_FONT);
 	multi_get_kill_list(sorted);
-	kmatrix_draw_coop_names(sorted);
+	kmatrix_draw_coop_names(canvas);
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
 	const auto x_callsign = fspacx(CENTERING_OFFSET(N_players));
