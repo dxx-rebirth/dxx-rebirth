@@ -69,13 +69,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define KMATRIX_VIEW_SEC 7 // Time after reactor explosion until new level - in seconds
 static void kmatrix_redraw_coop();
 
-static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
+static void kmatrix_draw_item(grs_canvas &canvas, const int i, const playernum_array_t &sorted)
 {
 	int x, y;
 
 	y = FSPACY(50+i*9);
 	const auto &&fspacx = FSPACX();
-	gr_string(*grd_curcanv, fspacx(CENTERING_OFFSET(N_players)), y, static_cast<const char *>(Players[sorted[i]].callsign));
+	gr_string(canvas, fspacx(CENTERING_OFFSET(N_players)), y, static_cast<const char *>(Players[sorted[i]].callsign));
 
 	const auto &&rgb10 = BM_XRGB(10, 10, 10);
 	const auto &&rgb25 = BM_XRGB(25, 25, 25);
@@ -88,19 +88,19 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 		{
 			if (kmij == 0)
 			{
-				gr_set_fontcolor(*grd_curcanv, rgb10, -1);
-				gr_string(*grd_curcanv, x, y, "0");
+				gr_set_fontcolor(canvas, rgb10, -1);
+				gr_string(canvas, x, y, "0");
 			}
 			else
 			{
-				gr_set_fontcolor(*grd_curcanv, rgb25, -1);
-				gr_printf(*grd_curcanv, x, y, "-%hu", kmij);
+				gr_set_fontcolor(canvas, rgb25, -1);
+				gr_printf(canvas, x, y, "-%hu", kmij);
 			}
 		}
 		else
 		{
-			gr_set_fontcolor(*grd_curcanv, kmij <= 0 ? rgb10 : rgb25, -1);
-			gr_printf(*grd_curcanv, x, y, "%hu", kmij);
+			gr_set_fontcolor(canvas, kmij <= 0 ? rgb10 : rgb25, -1);
+			gr_printf(canvas, x, y, "%hu", kmij);
 		}
 	}
 
@@ -115,8 +115,8 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 			);
 
 	x = fspacx(60 + CENTERING_OFFSET(N_players) + N_players * 25);
-	gr_set_fontcolor(*grd_curcanv, rgb25, -1);
-	gr_printf(*grd_curcanv, x, y, "%4d/%i%%", player_info.net_kills_total, eff <= 0 ? 0 : eff);
+	gr_set_fontcolor(canvas, rgb25, -1);
+	gr_printf(canvas, x, y, "%4d/%i%%", player_info.net_kills_total, eff <= 0 ? 0 : eff);
 }
 
 static void kmatrix_draw_names(playernum_array_t &sorted)
@@ -223,8 +223,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 				const auto color = get_player_or_team_color(sorted[i]);
 				gr_set_fontcolor(canvas, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b),-1);
 			}
-
-			kmatrix_draw_item( i, sorted );
+			kmatrix_draw_item(canvas, i, sorted);
 		}
 	}
 
