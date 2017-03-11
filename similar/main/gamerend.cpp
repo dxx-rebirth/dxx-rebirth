@@ -346,51 +346,51 @@ static void render_countdown_gauge(grs_canvas &canvas)
 }
 }
 
-static void game_draw_hud_stuff()
+static void game_draw_hud_stuff(grs_canvas &canvas)
 {
 #ifndef NDEBUG
-	draw_window_label(*grd_curcanv);
+	draw_window_label(canvas);
 #endif
 
-	game_draw_multi_message(*grd_curcanv);
+	game_draw_multi_message(canvas);
 
-	game_draw_marker_message(*grd_curcanv);
+	game_draw_marker_message(canvas);
 
 	if (((Newdemo_state == ND_STATE_PLAYBACK) || (Newdemo_state == ND_STATE_RECORDING)) && (PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)) {
 		int y;
 
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(27, 0, 0), -1);
+		gr_set_curfont(canvas, GAME_FONT);
+		gr_set_fontcolor(canvas, BM_XRGB(27, 0, 0), -1);
 
-		y = grd_curcanv->cv_bitmap.bm_h - (LINE_SPACING(*grd_curcanv) * 2);
+		y = canvas.cv_bitmap.bm_h - (LINE_SPACING(canvas) * 2);
 
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
-			y = grd_curcanv->cv_bitmap.bm_h / 1.2 ;
+			y = canvas.cv_bitmap.bm_h / 1.2 ;
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
 			if (Newdemo_show_percentage) {
-				gr_printf(*grd_curcanv, 0x8000, y, "%s (%d%% %s)", TXT_DEMO_PLAYBACK, newdemo_get_percent_done(), TXT_DONE);
+				gr_printf(canvas, 0x8000, y, "%s (%d%% %s)", TXT_DEMO_PLAYBACK, newdemo_get_percent_done(), TXT_DONE);
 			}
 		} else {
-			gr_printf(*grd_curcanv, 0x8000, y, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
+			gr_printf(canvas, 0x8000, y, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
 		}
 	}
 
-	render_countdown_gauge(*grd_curcanv);
+	render_countdown_gauge(canvas);
 
 	if (CGameCfg.FPSIndicator && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
-		show_framerate(*grd_curcanv);
+		show_framerate(canvas);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = Newdemo_game_mode;
 
 	auto &plrobj = get_local_plrobj();
-	draw_hud(*grd_curcanv, plrobj);
+	draw_hud(canvas, plrobj);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = GM_NORMAL;
 
 	if (Player_dead_state != player_dead_state::no)
-		player_dead_message(*grd_curcanv);
+		player_dead_message(canvas);
 }
 
 namespace dsx {
@@ -779,7 +779,7 @@ void game_render_frame_mono()
 
 	gr_set_current_canvas(&Screen_3d_window);
 	if (!no_draw_hud)
-		game_draw_hud_stuff();
+		game_draw_hud_stuff(*grd_curcanv);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	gr_set_current_canvas(NULL);
