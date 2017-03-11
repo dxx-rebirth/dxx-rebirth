@@ -400,7 +400,7 @@ static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, p
 
 }
 
-void draw_morph_object(const vobjptridx_t obj)
+void draw_morph_object(grs_canvas &canvas, const vobjptridx_t obj)
 {
 //	int save_light;
 	polymodel *po;
@@ -418,7 +418,7 @@ void draw_morph_object(const vobjptridx_t obj)
 
 	g3_start_instance_matrix(obj->pos,&obj->orient);
 	polygon_model_points robot_points;
-	draw_model(*grd_curcanv, robot_points, po, 0, obj->rtype.pobj_info.anim_angles, light, md);
+	draw_model(canvas, robot_points, po, 0, obj->rtype.pobj_info.anim_angles, light, md);
 
 	g3_done_instance();
 

@@ -58,7 +58,7 @@ constexpr unsigned MAX_MORPH_OBJECTS = 5;
 extern array<morph_data, MAX_MORPH_OBJECTS> morph_objects;
 
 void morph_start(vobjptr_t obj);
-void draw_morph_object(vobjptridx_t obj);
+void draw_morph_object(grs_canvas &, vobjptridx_t obj);
 
 //process the morphing object for one frame
 void do_morph_frame(vobjptr_t obj);

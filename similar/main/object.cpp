@@ -665,7 +665,7 @@ void render_object(const vobjptridx_t obj)
 			break;
 
 		case RT_MORPH:
-			draw_morph_object(obj);
+			draw_morph_object(*grd_curcanv, obj);
 			break;
 
 		case RT_FIREBALL:
