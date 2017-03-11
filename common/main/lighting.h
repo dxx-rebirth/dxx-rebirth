@@ -48,7 +48,9 @@ extern object *old_viewer;
 g3s_lrgb compute_object_light(vcobjptridx_t obj);
 
 // turn headlight boost on & off
-void toggle_headlight_active(void);
+namespace dsx {
+void toggle_headlight_active();
+}
 void start_lighting_frame(vobjptr_t viewer);
 #endif
 

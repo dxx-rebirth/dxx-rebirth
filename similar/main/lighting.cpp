@@ -249,9 +249,11 @@ const array<fix, 16> Obj_light_xlate{{0x1234, 0x3321, 0x2468, 0x1735,
 			    0x2123, 0x39af, 0x0f03, 0x132a,
 			    0x3123, 0x29af, 0x1f03, 0x032a
 }};
-#define MAX_HEADLIGHTS	8
+#if defined(DXX_BUILD_DESCENT_II)
+constexpr unsigned MAX_HEADLIGHTS = 8;
 static unsigned Num_headlights;
 static array<const object *, MAX_HEADLIGHTS> Headlights;
+#endif
 
 // ---------------------------------------------------------
 namespace dsx {
@@ -487,7 +489,9 @@ void set_dynamic_light(render_state_t &rstate)
 	array<segnum_t, MAX_VERTICES> vert_segnum_list;
 	static fix light_time; 
 
+#if defined(DXX_BUILD_DESCENT_II)
 	Num_headlights = 0;
+#endif
 
 	if (!Do_dynamic_light)
 		return;
@@ -539,6 +543,8 @@ void set_dynamic_light(render_state_t &rstate)
 // ---------------------------------------------------------
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+
 void toggle_headlight_active()
 {
 	auto &player_info = get_local_plrobj().ctype.player_info;
@@ -548,12 +554,6 @@ void toggle_headlight_active()
 			multi_send_flags(Player_num);
 	}
 }
-#endif
-
-#define HEADLIGHT_BOOST_SCALE 8		//how much to scale light when have headlight boost
-
-#define MAX_DIST_LOG	6							//log(MAX_DIST-expressed-as-integer)
-#define MAX_DIST		(f1_0<<MAX_DIST_LOG)	//no light beyond this dist
 
 static fix compute_headlight_light_on_object(const object_base &objp)
 {
@@ -579,9 +579,11 @@ static fix compute_headlight_light_on_object(const object_base &objp)
 				light += fixmul(fixmul(dot, dot), HEADLIGHT_SCALE)/8;
 		}
 	}
-
 	return light;
 }
+
+}
+#endif
 
 //compute the average dynamic light in a segment.  Takes the segment number
 static g3s_lrgb compute_seg_dynamic_light(const vcsegptr_t seg)
@@ -660,11 +662,13 @@ g3s_lrgb compute_object_light(const vcobjptridx_t obj)
 
 	//Finally, add in dynamic light for this segment
 	const auto &&seg_dl = compute_seg_dynamic_light(objsegp);
+#if defined(DXX_BUILD_DESCENT_II)
 	//Next, add in (NOTE: WHITE) headlight on this object
 	const fix mlight = compute_headlight_light_on_object(obj);
 	light.r += mlight;
 	light.g += mlight;
 	light.b += mlight;
+#endif
  
 	light.r += seg_dl.r;
 	light.g += seg_dl.g;
