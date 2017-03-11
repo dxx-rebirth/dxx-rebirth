@@ -19,6 +19,7 @@
 
 namespace dcx {
 
+#if DXX_USE_OGL
 class ogl_sync {
 	class sync_deleter
 	{
@@ -39,5 +40,6 @@ class ogl_sync {
 		void init(SyncGLMethod sync_method, int wait);
 		void deinit();
 };
+#endif
 
 }
