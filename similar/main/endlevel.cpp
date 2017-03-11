@@ -1129,14 +1129,14 @@ static void endlevel_render_mine(grs_canvas &canvas, fix eye_offset)
 	render_mine(canvas, start_seg_num, eye_offset, window);
 }
 
-void render_endlevel_frame(fix eye_offset)
+void render_endlevel_frame(grs_canvas &canvas, fix eye_offset)
 {
-	g3_start_frame(*grd_curcanv);
+	g3_start_frame(canvas);
 
 	if (Endlevel_sequence < EL_OUTSIDE)
-		endlevel_render_mine(*grd_curcanv, eye_offset);
+		endlevel_render_mine(canvas, eye_offset);
 	else
-		render_external_scene(*grd_curcanv, eye_offset);
+		render_external_scene(canvas, eye_offset);
 
 	g3_end_frame();
 }

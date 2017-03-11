@@ -1178,7 +1178,7 @@ namespace dsx {
 void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &window)
 {
 	if (Endlevel_sequence) {
-		render_endlevel_frame(eye_offset);
+		render_endlevel_frame(canvas, eye_offset);
 		return;
 	}
 

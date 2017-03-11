@@ -43,7 +43,7 @@ namespace dsx {
 window_event_result start_endlevel_sequence();
 }
 #endif
-void render_endlevel_frame(fix eye_offset);
+void render_endlevel_frame(grs_canvas &, fix eye_offset);
 
 void draw_exit_model(grs_canvas &);
 void free_endlevel_data();
