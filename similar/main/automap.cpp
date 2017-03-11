@@ -757,7 +757,7 @@ static void draw_automap(automap *am)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (HighlightMarker>-1 && MarkerMessage[HighlightMarker][0]!=0)
 	{
-		gr_printf(*grd_curcanv, (SWIDTH/64),(SHEIGHT/18), "Marker %d: %s",HighlightMarker+1,&MarkerMessage[(Player_num*2)+HighlightMarker][0]);
+		gr_printf(canvas, (SWIDTH/64),(SHEIGHT/18), "Marker %d: %s",HighlightMarker+1,&MarkerMessage[(Player_num*2)+HighlightMarker][0]);
 	}
 #endif
 
