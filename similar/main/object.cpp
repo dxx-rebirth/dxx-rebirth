@@ -751,7 +751,7 @@ void render_object(const vobjptridx_t obj)
 						break;
 				}
 
-			draw_powerup(obj);
+			draw_powerup(*grd_curcanv, obj);
 			break;
 
 		case RT_LASER:

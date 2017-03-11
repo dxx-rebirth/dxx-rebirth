@@ -118,10 +118,10 @@ void do_powerup_frame(const vobjptridx_t obj)
 
 namespace dcx {
 
-void draw_powerup(const object_base &obj)
+void draw_powerup(grs_canvas &canvas, const object_base &obj)
 {
 	auto &vci = obj.rtype.vclip_info;
-	draw_object_blob(*grd_curcanv, obj, Vclip[vci.vclip_num].frames[vci.framenum]);
+	draw_object_blob(canvas, obj, Vclip[vci.vclip_num].frames[vci.framenum]);
 }
 
 }

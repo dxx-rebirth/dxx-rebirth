@@ -139,7 +139,7 @@ void powerup_type_info_write(PHYSFS_File *fp, const powerup_type_info &pti);
 namespace dcx {
 
 extern unsigned N_powerup_types;
-void draw_powerup(const object_base &obj);
+void draw_powerup(grs_canvas &, const object_base &obj);
 
 }
 
