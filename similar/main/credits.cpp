@@ -124,6 +124,7 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 			break;
 			
 		case EVENT_WINDOW_DRAW:
+			{
 #if defined(DXX_BUILD_DESCENT_I)
 			timer_delay(F1_0/17);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -183,7 +184,8 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 			}
 			
 			y = cr->first_line_offset - cr->row;
-			show_fullscr(*grd_curcanv, cr->backdrop);
+			auto &canvas = *grd_curcanv;
+			show_fullscr(canvas, cr->backdrop);
 			for (uint_fast32_t j=0; j != NUM_LINES; ++j, y += ROW_SPACING)
 			{
 				l = (cr->buffer_line + j + 1 ) %  NUM_LINES;
@@ -196,7 +198,7 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 				} else
 				{
 					const auto c = s[0];
-					gr_set_curfont(*grd_curcanv, c == '$'
+					gr_set_curfont(canvas, c == '$'
 						? (++s, HUGE_FONT)
 						: (c == '*')
 							? (++s, MEDIUM3_FONT)
@@ -207,7 +209,7 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 				const auto tempp = strchr( s, '\t' );
 				if ( !tempp )	{
 					// Wacky Fast Credits thing
-					gr_string(*grd_curcanv, 0x8000, y, s);
+					gr_string(canvas, 0x8000, y, s);
 				}
 			}
 			
@@ -215,6 +217,7 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 			if (cr->row >= ROW_SPACING)
 				cr->row = 0;
 			break;
+			}
 
 		case EVENT_WINDOW_CLOSE:
 			songs_set_volume(GameCfg.MusicVolume);
