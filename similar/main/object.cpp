@@ -761,7 +761,7 @@ void render_object(const vobjptridx_t obj)
 				gr_settransblend(*grd_curcanv, 7, GR_BLEND_ADDITIVE_A);
 			}
 
-			Laser_render(obj);
+			Laser_render(*grd_curcanv, obj);
 			break;
 
 		default:
