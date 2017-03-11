@@ -391,10 +391,6 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 
 	const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv));
 	switch( item->type )	{
-		case NM_TYPE_TEXT:
-		case NM_TYPE_MENU:
-			nm_string(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
-			break;
 		case NM_TYPE_SLIDER:
 		{
 			int i;
@@ -416,11 +412,11 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 		case NM_TYPE_INPUT_MENU:
 			if (item->imenu().group == 0)
 			{
+			case NM_TYPE_TEXT:
+			case NM_TYPE_MENU:
 				nm_string(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
-			} else {
-				nm_string_inputbox(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, is_current);
+				break;
 			}
-			break;
 		case NM_TYPE_INPUT:
 			nm_string_inputbox(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, is_current);
 			break;
