@@ -68,8 +68,7 @@ void draw_vclip_object(grs_canvas &canvas, const vcobjptridx_t obj, const fix ti
 	}
 }
 
-
-void draw_weapon_vclip(const vobjptridx_t obj)
+void draw_weapon_vclip(grs_canvas &canvas, const vcobjptridx_t obj)
 {
 	int	vclip_num;
 	fix	modtime,play_time;
@@ -103,7 +102,7 @@ void draw_weapon_vclip(const vobjptridx_t obj)
 		while (modtime > play_time)
 			modtime -= play_time;
 
-	draw_vclip_object(*grd_curcanv, obj, modtime, 0, vclip_num);
+	draw_vclip_object(canvas, obj, modtime, 0, vclip_num);
 }
 
 }

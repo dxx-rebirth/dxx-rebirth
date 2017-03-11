@@ -81,7 +81,7 @@ extern array<vclip, VCLIP_MAXNUM> Vclip;
 
 // draw an object which renders as a vclip.
 void draw_vclip_object(grs_canvas &, vcobjptridx_t obj, fix timeleft, int lighted, int vclip_num);
-void draw_weapon_vclip(vobjptridx_t obj);
+void draw_weapon_vclip(grs_canvas &, vcobjptridx_t obj);
 }
 
 namespace dcx {
