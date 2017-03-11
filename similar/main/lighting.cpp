@@ -616,63 +616,56 @@ void start_lighting_frame(const vobjptr_t viewer)
 //object's center point is rotated.
 g3s_lrgb compute_object_light(const vcobjptridx_t obj)
 {
-	g3s_lrgb light, seg_dl;
-	fix mlight;
-	int objnum = obj;
+	g3s_lrgb light;
+	const vcobjidx_t objnum = obj;
 
 	//First, get static (mono) light for this segment
 	const auto &&objsegp = vcsegptr(obj->segnum);
 	light.r = light.g = light.b = objsegp->static_light;
 
+	auto &os = object_sig[objnum];
+	auto &ol = object_light[objnum];
 	//Now, maybe return different value to smooth transitions
-	if (!reset_lighting_hack && object_sig[objnum] == obj->signature)
+	if (!reset_lighting_hack && os == obj->signature)
 	{
 		fix frame_delta;
 		g3s_lrgb delta_light;
 
-		delta_light.r = light.r - object_light[objnum].r;
-		delta_light.g = light.g - object_light[objnum].g;
-		delta_light.b = light.b - object_light[objnum].b;
+		delta_light.r = light.r - ol.r;
+		delta_light.g = light.g - ol.g;
+		delta_light.b = light.b - ol.b;
 
 		frame_delta = fixmul(LIGHT_RATE,FrameTime);
 
 		if (abs(((delta_light.r+delta_light.g+delta_light.b)/3)) <= frame_delta)
 		{
-			object_light[objnum] = light;		//we've hit the goal
+			ol = light;		//we've hit the goal
 		}
 		else
 		{
 			if (((delta_light.r+delta_light.g+delta_light.b)/3) < 0)
-			{
-				light.r = object_light[objnum].r -= frame_delta;
-				light.g = object_light[objnum].g -= frame_delta;
-				light.b = object_light[objnum].b -= frame_delta;
-			}
-			else
-			{
-				light.r = object_light[objnum].r += frame_delta;
-				light.g = object_light[objnum].g += frame_delta;
-				light.b = object_light[objnum].b += frame_delta;
-			}
+				frame_delta = -frame_delta;
+			ol.r += frame_delta;
+			ol.g += frame_delta;
+			ol.b += frame_delta;
+			light = ol;
 		}
 
 	}
 	else //new object, initialize 
 	{
-		object_sig[objnum] = obj->signature;
-		object_light[objnum].r = light.r;
-		object_light[objnum].g = light.g;
-		object_light[objnum].b = light.b;
+		os = obj->signature;
+		ol = light;
 	}
 
+	//Finally, add in dynamic light for this segment
+	const auto &&seg_dl = compute_seg_dynamic_light(objsegp);
 	//Next, add in (NOTE: WHITE) headlight on this object
-	mlight = compute_headlight_light_on_object(obj);
+	const fix mlight = compute_headlight_light_on_object(obj);
 	light.r += mlight;
 	light.g += mlight;
 	light.b += mlight;
  
-	//Finally, add in dynamic light for this segment
-	seg_dl = compute_seg_dynamic_light(objsegp);
 	light.r += seg_dl.r;
 	light.g += seg_dl.g;
 	light.b += seg_dl.b;
