@@ -3159,7 +3159,7 @@ void show_HUD_names(grs_canvas &canvas)
 
 //draw all the things on the HUD
 namespace dsx {
-void draw_hud(const object &plrobj)
+void draw_hud(grs_canvas &canvas, const object &plrobj)
 {
 	auto &player_info = plrobj.ctype.player_info;
 	if (Newdemo_state == ND_STATE_RECORDING)
@@ -3182,12 +3182,12 @@ void draw_hud(const object &plrobj)
 	if (Viewer->type == OBJ_PLAYER && get_player_id(vcobjptr(Viewer)) == Player_num && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 	{
 		int	x = FSPACX(1);
-		int	y = grd_curcanv->cv_bitmap.bm_h;
+		int	y = canvas.cv_bitmap.bm_h;
 
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
+		gr_set_curfont(canvas, GAME_FONT);
+		gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 		if (Cruise_speed > 0) {
-			const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
+			const auto &&line_spacing = LINE_SPACING(canvas);
 			if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
 				if (Game_mode & GM_MULTI)
 					y -= line_spacing * 10;
@@ -3205,39 +3205,39 @@ void draw_hud(const object &plrobj)
 					y -= line_spacing * 2;
 			}
 
-			gr_printf(*grd_curcanv, x, y, "%s %2d%%", TXT_CRUISE, f2i(Cruise_speed) );
+			gr_printf(canvas, x, y, "%s %2d%%", TXT_CRUISE, f2i(Cruise_speed) );
 		}
 	}
 
 	//	Show score so long as not in rearview
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW && PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR) {
-		hud_show_score(*grd_curcanv, player_info);
+		hud_show_score(canvas, player_info);
 		if (score_time)
-			hud_show_score_added(*grd_curcanv);
+			hud_show_score_added(canvas);
 	}
 
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
-		hud_show_timer_count(*grd_curcanv);
+		hud_show_timer_count(canvas);
 
 	//	Show other stuff if not in rearview or letterbox.
 	if (!Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
 	{
-		show_HUD_names(*grd_curcanv);
+		show_HUD_names(canvas);
 
 		if (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR || PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
-			hud_show_homing_warning(*grd_curcanv, player_info.homing_object_dist);
+			hud_show_homing_warning(canvas, player_info.homing_object_dist);
 
 		const local_multires_gauge_graphic multires_gauge_graphic = {};
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
-			hud_show_energy(*grd_curcanv, player_info);
-			hud_show_shield(*grd_curcanv, plrobj);
-			hud_show_afterburner(*grd_curcanv, player_info);
-			hud_show_weapons(*grd_curcanv, plrobj);
+			hud_show_energy(canvas, player_info);
+			hud_show_shield(canvas, plrobj);
+			hud_show_afterburner(canvas, player_info);
+			hud_show_weapons(canvas, plrobj);
 #if defined(DXX_BUILD_DESCENT_I)
 			if (!PCSharePig)
 #endif
-			hud_show_keys(*grd_curcanv, player_info, multires_gauge_graphic);
-			hud_show_cloak_invuln(*grd_curcanv, player_info);
+			hud_show_keys(canvas, player_info, multires_gauge_graphic);
+			hud_show_cloak_invuln(canvas, player_info);
 
 			if (Newdemo_state==ND_STATE_RECORDING)
 				newdemo_record_player_flags(player_info.powerup_flags.get_player_flags());
@@ -3245,38 +3245,38 @@ void draw_hud(const object &plrobj)
 
 #ifndef RELEASE
 		if (!(Game_mode&GM_MULTI && Show_kill_list))
-			show_time(*grd_curcanv);
+			show_time(canvas);
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 		{
-			hud_show_flag(*grd_curcanv, player_info, multires_gauge_graphic);
-			hud_show_orbs(*grd_curcanv, player_info, multires_gauge_graphic);
+			hud_show_flag(canvas, player_info, multires_gauge_graphic);
+			hud_show_orbs(canvas, player_info, multires_gauge_graphic);
 		}
 #endif
-		HUD_render_message_frame(*grd_curcanv);
+		HUD_render_message_frame(canvas);
 
 		if (PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR)
-			hud_show_lives(*grd_curcanv, player_info, multires_gauge_graphic);
+			hud_show_lives(canvas, player_info, multires_gauge_graphic);
 		if (Game_mode&GM_MULTI && Show_kill_list)
-			hud_show_kill_list(*grd_curcanv);
+			hud_show_kill_list(canvas);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
-			show_reticle(*grd_curcanv, player_info, PlayerCfg.ReticleType, 1);
+			show_reticle(canvas, player_info, PlayerCfg.ReticleType, 1);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
 		{
-			const auto gwidth = grd_curcanv->cv_bitmap.bm_w;
-			const auto gheight = grd_curcanv->cv_bitmap.bm_h;
+			const auto gwidth = canvas.cv_bitmap.bm_w;
+			const auto gheight = canvas.cv_bitmap.bm_h;
 			auto &raw_mouse_axis = Controls.raw_mouse_axis;
-			show_mousefs_indicator(*grd_curcanv, raw_mouse_axis[0], raw_mouse_axis[1], raw_mouse_axis[2], gwidth / 2, gheight / 2, gheight / 4);
+			show_mousefs_indicator(canvas, raw_mouse_axis[0], raw_mouse_axis[1], raw_mouse_axis[2], gwidth / 2, gheight / 2, gheight / 4);
 		}
 	}
 
 	if (Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW) {
-		HUD_render_message_frame(*grd_curcanv);
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
-		gr_string(*grd_curcanv, 0x8000, grd_curcanv->cv_bitmap.bm_h - LINE_SPACING(*grd_curcanv), TXT_REAR_VIEW);
+		HUD_render_message_frame(canvas);
+		gr_set_curfont(canvas, GAME_FONT);
+		gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
+		gr_string(canvas, 0x8000, canvas.cv_bitmap.bm_h - LINE_SPACING(*grd_curcanv), TXT_REAR_VIEW);
 	}
 }
 }
