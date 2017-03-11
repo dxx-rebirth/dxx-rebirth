@@ -930,14 +930,14 @@ static int find_exit_side(const object_base &obj)
 	return best_side;
 }
 
-void draw_exit_model()
+void draw_exit_model(grs_canvas &canvas)
 {
 	int f=15,u=0;	//21;
 	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
 
 	auto model_pos = vm_vec_scale_add(mine_exit_point,mine_exit_orient.fvec,i2f(f));
 	vm_vec_scale_add2(model_pos,mine_exit_orient.uvec,i2f(u));
-	draw_polygon_model(*grd_curcanv, model_pos, &mine_exit_orient, nullptr, (mine_destroyed)?destroyed_exit_modelnum:exit_modelnum, 0, lrgb, nullptr, nullptr);
+	draw_polygon_model(canvas, model_pos, &mine_exit_orient, nullptr, (mine_destroyed)?destroyed_exit_modelnum:exit_modelnum, 0, lrgb, nullptr, nullptr);
 }
 
 static int exit_point_bmx,exit_point_bmy;
@@ -1005,7 +1005,7 @@ static void render_external_scene(fix eye_offset)
 	ogl_toggle_depth_test(1);
 #endif
 
-	draw_exit_model();
+	draw_exit_model(*grd_curcanv);
 	if (ext_expl_playing)
 	{
 		const auto alpha = PlayerCfg.AlphaBlendMineExplosion;

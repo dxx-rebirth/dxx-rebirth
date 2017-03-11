@@ -45,7 +45,7 @@ window_event_result start_endlevel_sequence();
 #endif
 void render_endlevel_frame(fix eye_offset);
 
-void draw_exit_model();
+void draw_exit_model(grs_canvas &);
 void free_endlevel_data();
 void init_endlevel();
 
