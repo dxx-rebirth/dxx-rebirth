@@ -88,9 +88,9 @@ static int	Current_color = 0;
 static color_t Erase_color;
 
 // added by Jan Bobrowski for variable-size menu screen
-static int rescale_x(int x)
+static int rescale_x(const grs_bitmap &cv_bitmap, int x)
 {
-	return x * grd_curcanv->cv_bitmap.bm_w / 320;
+	return x * cv_bitmap.bm_w / 320;
 }
 
 static int rescale_y(int y)
@@ -1020,9 +1020,9 @@ static void show_animated_bitmap(briefing *br)
 			bitmap_ptr = &GameBitmaps[bi.index];
 			PIGGY_PAGE_IN( bi );
 #if DXX_USE_OGL
-			ogl_ubitmapm_cs(*grd_curcanv, rescale_x(220), rescale_y(45), bitmap_ptr->bm_w * scale, bitmap_ptr->bm_h * scale, *bitmap_ptr, 255, F1_0);
+			ogl_ubitmapm_cs(*grd_curcanv, rescale_x(grd_curcanv->cv_bitmap, 220), rescale_y(45), bitmap_ptr->bm_w * scale, bitmap_ptr->bm_h * scale, *bitmap_ptr, 255, F1_0);
 #else
-			gr_bitmapm(*grd_curcanv, rescale_x(220), rescale_y(45), *bitmap_ptr);
+			gr_bitmapm(*grd_curcanv, rescale_x(grd_curcanv->cv_bitmap, 220), rescale_y(45), *bitmap_ptr);
 #endif
 		}
 		br->door_div_count--;
@@ -1038,8 +1038,8 @@ static void show_animated_bitmap(briefing *br)
 		grs_subcanvas_ptr bitmap_canv;
 
 		switch (br->animating_bitmap_type) {
-			case 0:		bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(220), rescale_y(45), 64, 64);	break;
-			case 1:		bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(220), rescale_y(45), 94, 94);	break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
+			case 0:		bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(grd_curcanv->cv_bitmap, 220), rescale_y(45), 64, 64);	break;
+			case 1:		bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(grd_curcanv->cv_bitmap, 220), rescale_y(45), 94, 94);	break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
 			default:	Int3(); // Impossible, illegal value for br->animating_bitmap_type
 		}
 
@@ -1120,7 +1120,7 @@ static void show_briefing_bitmap(grs_bitmap *bmp)
 	const auto h = static_cast<float>(SHEIGHT) / (hiresmode ? 480 : 200);
 	const float scale = (w < h) ? w : h;
 
-	auto bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(220), rescale_y(55), bmp->bm_w*scale, bmp->bm_h*scale);
+	auto bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(grd_curcanv->cv_bitmap, 220), rescale_y(55), bmp->bm_w*scale, bmp->bm_h*scale);
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
 	show_fullscr(*grd_curcanv, *bmp);
@@ -1130,9 +1130,9 @@ static void show_briefing_bitmap(grs_bitmap *bmp)
 //-----------------------------------------------------------------------------
 static void init_spinning_robot(briefing *br) //(int x,int y,int w,int h)
 {
-	int x = rescale_x(138);
+	const int x = rescale_x(grd_curcanv->cv_bitmap, 138);
 	int y = rescale_y(55);
-	int w = rescale_x(166);
+	const int w = rescale_x(grd_curcanv->cv_bitmap, 166);
 	int h = rescale_y(138);
 
 	br->robot_canv = gr_create_sub_canvas(*grd_curcanv, x, y, w, h);
@@ -1209,9 +1209,9 @@ static int DefineBriefingBox (const char **buf)
 	Briefing_screens[n].text_width=get_new_message_num (buf);
 	Briefing_screens[n].text_height=get_message_num (buf);  // NOTICE!!!
 
-	Briefing_screens[n].text_ulx = rescale_x(Briefing_screens[n].text_ulx);
+	Briefing_screens[n].text_ulx = rescale_x(grd_curcanv->cv_bitmap, Briefing_screens[n].text_ulx);
 	Briefing_screens[n].text_uly = rescale_y(Briefing_screens[n].text_uly);
-	Briefing_screens[n].text_width = rescale_x(Briefing_screens[n].text_width);
+	Briefing_screens[n].text_width = rescale_x(grd_curcanv->cv_bitmap, Briefing_screens[n].text_width);
 	Briefing_screens[n].text_height = rescale_y(Briefing_screens[n].text_height);
 
 	return (n);
@@ -1276,9 +1276,9 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	set_briefing_fontcolor(NULL);
 
 	br->screen = make_unique<briefing_screen>(D1_Briefing_screens[br->cur_screen]);
-	br->screen->text_ulx = rescale_x(br->screen->text_ulx);
+	br->screen->text_ulx = rescale_x(grd_curcanv->cv_bitmap, br->screen->text_ulx);
 	br->screen->text_uly = rescale_y(br->screen->text_uly);
-	br->screen->text_width = rescale_x(br->screen->text_width);
+	br->screen->text_width = rescale_x(grd_curcanv->cv_bitmap, br->screen->text_width);
 	br->screen->text_height = rescale_y(br->screen->text_height);
 	init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1302,9 +1302,9 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	{
 		br->got_z = 1;
 		br->screen = make_unique<briefing_screen>(Briefing_screens[br->cur_screen]);
-		br->screen->text_ulx = rescale_x(br->screen->text_ulx);
+		br->screen->text_ulx = rescale_x(grd_curcanv->cv_bitmap, br->screen->text_ulx);
 		br->screen->text_uly = rescale_y(br->screen->text_uly);
-		br->screen->text_width = rescale_x(br->screen->text_width);
+		br->screen->text_width = rescale_x(grd_curcanv->cv_bitmap, br->screen->text_width);
 		br->screen->text_height = rescale_y(br->screen->text_height);
 		init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 	}
