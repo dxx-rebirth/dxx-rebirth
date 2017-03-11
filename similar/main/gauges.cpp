@@ -2850,7 +2850,7 @@ void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size)
 	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 }
 
-static void hud_show_kill_list()
+static void hud_show_kill_list(grs_canvas &canvas)
 {
 	playernum_t n_players;
 	playernum_array_t player_list;
@@ -2863,7 +2863,7 @@ static void hud_show_kill_list()
 			Show_kill_list = 0;
 	}
 
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
+	gr_set_curfont(canvas, GAME_FONT);
 
 	n_players = multi_get_kill_list(player_list);
 
@@ -2883,8 +2883,8 @@ static void hud_show_kill_list()
 	if (Game_mode & GM_MULTI_COOP)
 		x1 = fspacx(31);
 
-	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
-	save_y = y = grd_curcanv->cv_bitmap.bm_h - n_left * line_spacing;
+	const auto &&line_spacing = LINE_SPACING(canvas);
+	save_y = y = canvas.cv_bitmap.bm_h - n_left * line_spacing;
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 		save_y = y -= fspacx(6);
@@ -2892,7 +2892,7 @@ static void hud_show_kill_list()
 			x1 = fspacx(33);
 	}
 
-	const auto bm_w = grd_curcanv->cv_bitmap.bm_w;
+	const auto bm_w = canvas.cv_bitmap.bm_w;
 	const auto &&bmw_x0_cockpit = bm_w - fspacx(PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT ? 53 : 60);
 	// Right edge of name, change this for width problems
 	const auto &&bmw_x1_multi = bm_w - fspacx((Game_mode & GM_MULTI_COOP) ? 27 : 15);
@@ -2947,7 +2947,7 @@ static void hud_show_kill_list()
 			color = player_rgb_normal[player_num];
 		}
 		fontcolor = BM_XRGB(color.r, color.g, color.b);
-		gr_set_fontcolor(*grd_curcanv, fontcolor, -1);
+		gr_set_fontcolor(canvas, fontcolor, -1);
 
 		if (Show_kill_list == 3)
 			name = Netgame.team_name[i];
@@ -2958,19 +2958,19 @@ static void hud_show_kill_list()
 		else
 			name = Players[player_num].callsign;	// Note link to above if!!
 		int sw, sh;
-		gr_get_string_size(*grd_curcanv->cv_font, static_cast<const char *>(name), &sw, &sh, nullptr);
+		gr_get_string_size(*canvas.cv_font, static_cast<const char *>(name), &sw, &sh, nullptr);
 		{
 			const auto b = x1 - x0 - fspacx2;
 			if (sw > b)
 				for (char *e = &name.buffer()[strlen(name)];;)
 				{
 					 *--e = 0;
-					 gr_get_string_size(*grd_curcanv->cv_font, name, &sw, nullptr, nullptr);
+					 gr_get_string_size(*canvas.cv_font, name, &sw, nullptr, nullptr);
 					 if (!(sw > b))
 						 break;
 				}
 		}
-		gr_string(*grd_curcanv, x0, y, name, sw, sh);
+		gr_string(canvas, x0, y, name, sw, sh);
 
 		auto &player_info = vcobjptr(p.objnum)->ctype.player_info;
 		if (Show_kill_list==2)
@@ -2982,16 +2982,16 @@ static void hud_show_kill_list()
 						static_cast<float>(player_info.net_killed_total) + static_cast<float>(player_info.net_kills_total)
 					) * 100.0
 				);
-			gr_printf(*grd_curcanv, x1, y, "%i%%", eff <= 0 ? 0 : eff);
+			gr_printf(canvas, x1, y, "%i%%", eff <= 0 ? 0 : eff);
 		}
 		else if (Show_kill_list == 3)
-			gr_printf(*grd_curcanv, x1,y,"%3d",team_kills[i]);
+			gr_printf(canvas, x1, y, "%3d", team_kills[i]);
 		else if (Game_mode & GM_MULTI_COOP)
-			gr_printf(*grd_curcanv, x1, y, "%-6d", vcobjptr(Players[player_num].objnum)->ctype.player_info.mission.score);
+			gr_printf(canvas, x1, y, "%-6d", vcobjptr(Players[player_num].objnum)->ctype.player_info.mission.score);
 		else if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
-			gr_printf(*grd_curcanv, x1,y,"%3d(%d)", player_info.net_kills_total, player_info.KillGoalCount);
+			gr_printf(canvas, x1, y, "%3d(%d)", player_info.net_kills_total, player_info.KillGoalCount);
 		else
-			gr_printf(*grd_curcanv, x1,y,"%3d", player_info.net_kills_total);
+			gr_printf(canvas, x1, y, "%3d", player_info.net_kills_total);
 
                 if (PlayerCfg.MultiPingHud && Show_kill_list != 3)
                 {
@@ -2999,7 +2999,7 @@ static void hud_show_kill_list()
                                 x2 = SWIDTH - (fspacx64/2);
                         else
                                 x2 = x0 + fspacx64;
-                        gr_printf(*grd_curcanv, x2,y,"%4dms",Netgame.players[player_num].ping);
+                        gr_printf(canvas, x2, y, "%4dms", Netgame.players[player_num].ping);
                 }
 
 		y += line_spacing;
@@ -3260,7 +3260,7 @@ void draw_hud(const object &plrobj)
 		if (PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR)
 			hud_show_lives(*grd_curcanv, player_info, multires_gauge_graphic);
 		if (Game_mode&GM_MULTI && Show_kill_list)
-			hud_show_kill_list();
+			hud_show_kill_list(*grd_curcanv);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
 			show_reticle(player_info, PlayerCfg.ReticleType, 1);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
