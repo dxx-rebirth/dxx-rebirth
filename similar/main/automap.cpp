@@ -227,7 +227,6 @@ array<ubyte, MAX_SEGMENTS> Automap_visited; // Segment visited list
 // Function Prototypes
 namespace dsx {
 static void adjust_segment_limit(automap *am, int SegmentLimit);
-static void draw_all_edges(automap *am);
 static void automap_build_edge_list(automap *am, int add_all_edges);
 }
 
@@ -258,11 +257,13 @@ array<objnum_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_se
 #define DrawMarkerNumber(C,a,b,c)	DrawMarkerNumber(a,b,c)
 #define DrawMarkers(C,a)	DrawMarkers(a)
 #define draw_player(C,a,b)	draw_player(a,b)
+#define draw_all_edges(C,a)	draw_all_edges(a)
 #endif
 
 // -------------------------------------------------------------
 
 namespace dsx {
+static void draw_all_edges(grs_canvas &, automap *am);
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void DrawMarkers(grs_canvas &, automap *)
 {
@@ -693,7 +694,7 @@ static void draw_automap(automap *am)
 
 	g3_set_view_matrix(am->view_position,am->viewMatrix,am->zoom);
 
-	draw_all_edges(am);
+	draw_all_edges(*grd_curcanv, am);
 
 	// Draw player...
 	const auto &self_ship_rgb = player_rgb[get_player_or_team_color(Player_num)];
@@ -1084,7 +1085,7 @@ void adjust_segment_limit(automap *am, int SegmentLimit)
 	}
 }
 
-void draw_all_edges(automap *am)	
+void draw_all_edges(grs_canvas &canvas, automap *const am)
 {
 	int j;
 	unsigned nbright = 0;
@@ -1129,7 +1130,7 @@ void draw_all_edges(automap *am)
 					const uint8_t color = (e->flags & EF_NO_FADE)
 						? e->color
 						: gr_fade_table[8][e->color];
-					g3_draw_line(*grd_curcanv, Segment_points[e->verts[0]], Segment_points[e->verts[1]], color);
+					g3_draw_line(canvas, Segment_points[e->verts[0]], Segment_points[e->verts[1]], color);
 				} 	else {
 					am->drawingListBright[nbright++] = e;
 				}
@@ -1160,7 +1161,7 @@ void draw_all_edges(automap *am)
 		const auto color = (e->flags & EF_NO_FADE)
 			? e->color
 			: gr_fade_table[f2i((F1_0 - fixdiv(dist, am->farthest_dist)) * 31)][e->color];	
-		g3_draw_line(*grd_curcanv, *p1, *p2, color);
+		g3_draw_line(canvas, *p1, *p2, color);
 	}
 }
 
