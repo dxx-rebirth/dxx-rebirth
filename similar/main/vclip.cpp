@@ -66,37 +66,27 @@ void draw_vclip_object(grs_canvas &canvas, const vcobjptridx_t obj, const fix ti
 
 void draw_weapon_vclip(grs_canvas &canvas, const vcobjptridx_t obj)
 {
-	int	vclip_num;
-	fix	modtime,play_time;
-
 	Assert(obj->type == OBJ_WEAPON);
 
-	vclip_num = Weapon_info[get_weapon_id(obj)].weapon_vclip;
-
-	modtime = obj->lifeleft;
-	play_time = Vclip[vclip_num].play_time;
+	const auto lifeleft = obj->lifeleft;
+	const auto vclip_num = Weapon_info[get_weapon_id(obj)].weapon_vclip;
+	const auto play_time = Vclip[vclip_num].play_time;
+	fix modtime = lifeleft % play_time;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	//	Special values for modtime were causing enormous slowdown for omega blobs.
-	if (modtime == IMMORTAL_TIME)
-		modtime = play_time;
-
 	if (get_weapon_id(obj) == weapon_id_type::PROXIMITY_ID) {		//make prox bombs spin out of sync
 		int objnum = obj;
 
-		modtime += (modtime * (objnum&7)) / 16;	//add variance to spin rate
+		modtime += (lifeleft * (objnum & 7)) / 16;	//add variance to spin rate
 
-		while (modtime > play_time)
+		if (modtime > play_time)
 			modtime -= play_time;
 
 		if ((objnum&1) ^ ((objnum>>1)&1))			//make some spin other way
 			modtime = play_time - modtime;
 
 	}
-	else
 #endif
-		while (modtime > play_time)
-			modtime -= play_time;
 
 	draw_vclip_object(canvas, obj, modtime, 0, Vclip[vclip_num]);
 }
