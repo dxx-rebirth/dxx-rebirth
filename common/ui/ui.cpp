@@ -49,7 +49,7 @@ int ui_init()
 	if (Initialized) return 1;
 
 	const grs_font *org_font = grd_curcanv->cv_font;
-	ui_small_font = gr_init_font( "pc6x8.fnt" );
+	ui_small_font = gr_init_font(*grd_curcanv, "pc6x8.fnt");
 	if (!ui_small_font)
 	{
 		Warning("Could not find pc6x8.fnt");

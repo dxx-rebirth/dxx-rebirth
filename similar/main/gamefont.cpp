@@ -88,11 +88,11 @@ static void gamefont_loadfont(int gf,int fi)
 {
 	if (PHYSFSX_exists(font_conf[gf].font[fi].f.name,1)){
 		gamefont_unloadfont(gf);
-		Gamefonts[gf]=gr_init_font(font_conf[gf].font[fi].f.name);
+		Gamefonts[gf] = gr_init_font(*grd_curcanv, font_conf[gf].font[fi].f.name);
 	}else {
 		if (!Gamefonts[gf]){
-			Gamefonts[gf]=gr_init_font(Gamefont_filenames_l[gf]);
 			font_conf[gf].cur=-1;
+			Gamefonts[gf] = gr_init_font(*grd_curcanv, Gamefont_filenames_l[gf]);
 		}
 		return;
 	}

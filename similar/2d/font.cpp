@@ -1023,15 +1023,15 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 	return font;
 }
 
-grs_font_ptr gr_init_font(const char *fontname)
+grs_font_ptr gr_init_font(grs_canvas &canvas, const char *fontname)
 {
 	auto font = gr_internal_init_font(fontname);
 	if (!font)
 		return {};
 
-	grd_curcanv->cv_font        = font.get();
-	grd_curcanv->cv_font_fg_color    = 0;
-	grd_curcanv->cv_font_bg_color    = 0;
+	canvas.cv_font        = font.get();
+	canvas.cv_font_fg_color    = 0;
+	canvas.cv_font_bg_color    = 0;
 	if (font->ft_flags & FT_COLOR)
 	{
 		auto e = end(open_font);

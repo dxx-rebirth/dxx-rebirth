@@ -396,7 +396,7 @@ void init_editor()
 
 	game_flush_inputs();
 	
-	editor_font = gr_init_font( "pc8x16.fnt" );
+	editor_font = gr_init_font(*grd_curcanv, "pc8x16.fnt");
 	if (!editor_font)
 	{
 		Warning("Could not find pc8x16.fnt");
