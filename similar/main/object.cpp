@@ -689,7 +689,7 @@ void render_object(const vobjptridx_t obj)
 			break;
 
 		case RT_HOSTAGE:
-			draw_hostage(obj);
+			draw_hostage(*grd_curcanv, obj);
 			break;
 
 		case RT_POWERUP:

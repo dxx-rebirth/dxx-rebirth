@@ -49,9 +49,10 @@ array<int, MAX_HOSTAGE_TYPES> Hostage_vclip_num;	// vclip num for each tpye of h
 namespace dsx {
 
 //-------------- Renders a hostage --------------------------------------------
-void draw_hostage(const vobjptridx_t obj)
+void draw_hostage(grs_canvas &canvas, const vobjptridx_t obj)
 {
-	draw_object_tmap_rod(*grd_curcanv, obj, Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum], 1);
+	auto &vci = obj->rtype.vclip_info;
+	draw_object_tmap_rod(canvas, obj, Vclip[vci.vclip_num].frames[vci.framenum], 1);
 }
 
 

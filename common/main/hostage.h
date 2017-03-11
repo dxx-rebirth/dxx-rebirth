@@ -70,7 +70,7 @@ extern array<int, MAX_HOSTAGE_TYPES> Hostage_vclip_num;    // for each type of h
 
 #ifdef dsx
 namespace dsx {
-void draw_hostage(vobjptridx_t obj);
+void draw_hostage(grs_canvas &, vobjptridx_t obj);
 void hostage_rescue();
 }
 #endif
