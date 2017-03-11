@@ -312,10 +312,10 @@ static void nm_string_slider(grs_canvas &canvas, const int w1, const int x, cons
 
 
 // Draw a left justfied string with black background.
-static void nm_string_black( int w1,int x, int y, const char * s )
+static void nm_string_black(grs_canvas &canvas, int w1, const int x, const int y, const char *const s)
 {
 	int w,h;
-	gr_get_string_size(*grd_curcanv->cv_font, s, &w, &h, nullptr);
+	gr_get_string_size(*canvas.cv_font, s, &w, &h, nullptr);
 
 	if (w1 == 0) w1 = w;
 
@@ -323,18 +323,17 @@ static void nm_string_black( int w1,int x, int y, const char * s )
 	const auto &&fspacy = FSPACY();
 	{
 		const uint8_t color = BM_XRGB(5, 5, 5);
-		gr_rect(*grd_curcanv, x - fspacx(2), y - fspacy(1), x + w1, y + h, color);
+		gr_rect(canvas, x - fspacx(2), y - fspacy(1), x + w1, y + h, color);
 	}
 	{
 		const uint8_t color = BM_XRGB(2, 2, 2);
-		gr_rect(*grd_curcanv, x - fspacx(2), y - fspacy(1), x, y + h, color);
+		gr_rect(canvas, x - fspacx(2), y - fspacy(1), x, y + h, color);
 	}
 	{
 		const uint8_t color = BM_XRGB(0, 0, 0);
-		gr_rect(*grd_curcanv, x - fspacx(1), y - fspacy(1), x + w1 - fspacx(1), y + h, color);
+		gr_rect(canvas, x - fspacx(1), y - fspacy(1), x + w1 - fspacx(1), y + h, color);
 	}
-
-	gr_string(*grd_curcanv, x, y, s, w, h);
+	gr_string(canvas, x, y, s, w, h);
 }
 
 
@@ -366,7 +365,7 @@ static void nm_string_inputbox( int w, int x, int y, const char * text, int curr
 	if ( *text == 0 )
 		w1 = 0;
 
-	nm_string_black( w, x, y, text );
+	nm_string_black(*grd_curcanv, w, x, y, text);
 
 	if ( current && timer_query() & 0x8000 )
 		gr_string(*grd_curcanv, x+w1, y, CURSOR_STRING);
