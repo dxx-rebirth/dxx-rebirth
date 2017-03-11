@@ -1094,7 +1094,7 @@ void draw_stars(grs_canvas &canvas)
 
 }
 
-static void endlevel_render_mine(fix eye_offset)
+static void endlevel_render_mine(grs_canvas &canvas, fix eye_offset)
 {
 	Viewer_eye = Viewer->pos;
 
@@ -1126,7 +1126,7 @@ static void endlevel_render_mine(fix eye_offset)
 		: Viewer->orient, Render_zoom);
 
 	window_rendered_data window;
-	render_mine(*grd_curcanv, start_seg_num, eye_offset, window);
+	render_mine(canvas, start_seg_num, eye_offset, window);
 }
 
 void render_endlevel_frame(fix eye_offset)
@@ -1134,7 +1134,7 @@ void render_endlevel_frame(fix eye_offset)
 	g3_start_frame(*grd_curcanv);
 
 	if (Endlevel_sequence < EL_OUTSIDE)
-		endlevel_render_mine(eye_offset);
+		endlevel_render_mine(*grd_curcanv, eye_offset);
 	else
 		render_external_scene(*grd_curcanv, eye_offset);
 
