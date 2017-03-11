@@ -253,49 +253,6 @@ public:
 };
 #endif
 
-class basic_show_rule_label
-{
-public:
-	static void show_item(int x1, int y, const char *label, int /* x2 */, const char * /* value */)
-	{
-		gr_string(*grd_curcanv, x1, y, label);
-	}
-};
-
-class basic_show_rule_value
-{
-public:
-	static void show_item(int /* x1 */, int y, const char * /*label */, int x2, const char *value)
-	{
-		gr_string(*grd_curcanv, x2, y, value);
-	}
-};
-
-template <typename D>
-class basic_show_rule : protected D
-{
-	using D::show_item;
-public:
-	template <typename T>
-		static void show_bool_oo(int x1, int y, int x2, const char *label, T enabled)
-		{
-			show_item(x1, y, label, x2, enabled ? "ON" : "OFF");
-		}
-	template <typename T>
-		static void show_bool_yn(int x1, int y, int x2, const char *label, T enabled)
-		{
-			show_item(x1, y, label, x2, enabled ? "YES" : "NO");
-		}
-	template <typename T1, typename T2>
-		static void show_mask_yn(int x1, int y, int x2, const char *label, T1 enabled, T2 mask)
-		{
-			show_bool_yn(x1, y, x2, label, enabled & mask);
-		}
-};
-
-typedef basic_show_rule<basic_show_rule_label> show_rule_label;
-typedef basic_show_rule<basic_show_rule_value> show_rule_value;
-
 class start_poll_menu_items
 {
 	/* The host must play */
