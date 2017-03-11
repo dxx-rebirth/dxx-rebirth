@@ -180,7 +180,7 @@ void draw_object_blob(grs_canvas &canvas, const object_base &obj, const bitmap_i
 namespace dsx {
 
 //draw an object that is a texture-mapped rod
-void draw_object_tmap_rod(grs_canvas &canvas, const vobjptridx_t obj, const bitmap_index bitmapi, int lighted)
+void draw_object_tmap_rod(grs_canvas &canvas, const vcobjptridx_t obj, const bitmap_index bitmapi, int lighted)
 {
 	g3s_lrgb light;
 	PIGGY_PAGE_IN(bitmapi);
