@@ -46,7 +46,7 @@ namespace dsx {
 array<vclip, VCLIP_MAXNUM> 				Vclip;		// General purpose vclips.
 
 //draw an object which renders as a vclip
-void draw_vclip_object(const vobjptridx_t obj,fix timeleft,int lighted, int vclip_num)
+void draw_vclip_object(grs_canvas &canvas, const vcobjptridx_t obj, const fix timeleft, const int lighted, const int vclip_num)
 {
 	int nf,bitmapnum;
 
@@ -60,10 +60,10 @@ void draw_vclip_object(const vobjptridx_t obj,fix timeleft,int lighted, int vcli
 	if (bitmapnum >= 0 )	{
 
 		if (Vclip[vclip_num].flags & VF_ROD)
-			draw_object_tmap_rod(*grd_curcanv, obj, Vclip[vclip_num].frames[bitmapnum],lighted);
+			draw_object_tmap_rod(canvas, obj, Vclip[vclip_num].frames[bitmapnum],lighted);
 		else {
 			Assert(lighted==0);		//blob cannot now be lighted
-			draw_object_blob(*grd_curcanv, obj, Vclip[vclip_num].frames[bitmapnum] );
+			draw_object_blob(canvas, obj, Vclip[vclip_num].frames[bitmapnum] );
 		}
 	}
 }
@@ -103,8 +103,7 @@ void draw_weapon_vclip(const vobjptridx_t obj)
 		while (modtime > play_time)
 			modtime -= play_time;
 
-	draw_vclip_object(obj, modtime, 0, vclip_num);
-
+	draw_vclip_object(*grd_curcanv, obj, modtime, 0, vclip_num);
 }
 
 }
