@@ -38,7 +38,7 @@ void gr_upixel(grs_canvas &canvas, const unsigned x, const unsigned y, const uin
 	{
 #if DXX_USE_OGL
 	case bm_mode::ogl:
-		ogl_upixelc(canvas, x, y, color);
+		ogl_upixelc(canvas.cv_bitmap, x, y, color);
 		return;
 #endif
 	case bm_mode::linear:
@@ -63,7 +63,7 @@ static inline void gr_bm_upixel(grs_canvas &canvas, grs_bitmap &bm, const uint_f
 	{
 #if DXX_USE_OGL
 	case bm_mode::ogl:
-		ogl_upixelc(canvas, bm.bm_x + x, bm.bm_y + y, color);
+		ogl_upixelc(canvas.cv_bitmap, bm.bm_x + x, bm.bm_y + y, color);
 		return;
 #endif
 	case bm_mode::linear:

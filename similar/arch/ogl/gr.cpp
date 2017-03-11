@@ -818,11 +818,11 @@ void gr_close()
 
 namespace dcx {
 
-void ogl_upixelc(const grs_canvas &canv, unsigned x, unsigned y, unsigned c)
+void ogl_upixelc(const grs_bitmap &cv_bitmap, unsigned x, unsigned y, unsigned c)
 {
 	GLfloat vertex_array[] = {
-		(x + canv.cv_bitmap.bm_x) / static_cast<float>(last_width),
-		static_cast<GLfloat>(1.0 - (y + canv.cv_bitmap.bm_y) / static_cast<float>(last_height))
+		(x + cv_bitmap.bm_x) / static_cast<float>(last_width),
+		static_cast<GLfloat>(1.0 - (y + cv_bitmap.bm_y) / static_cast<float>(last_height))
 	};
 	const auto cr = static_cast<GLfloat>(CPAL2Tr(c));
 	const auto cg = static_cast<GLfloat>(CPAL2Tg(c));
