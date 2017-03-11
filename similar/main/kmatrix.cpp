@@ -363,11 +363,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 			}
 
 			kmatrix_redraw(km);
-			
-			if (km->playing)
-				kmatrix_status_msg(*grd_curcanv, Countdown_seconds_left, 1);
-			else
-				kmatrix_status_msg(*grd_curcanv, f2i(timer_query()-km->end_time), 0);
+			kmatrix_status_msg(*grd_curcanv, km->playing ? Countdown_seconds_left : f2i(timer_query() - km->end_time), km->playing);
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
