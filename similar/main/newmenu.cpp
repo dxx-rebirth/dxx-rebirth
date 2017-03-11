@@ -151,7 +151,7 @@ static const char *DOWN_ARROW_MARKER(grs_canvas &canvas)
 #endif
 
 // Draws the custom menu background pcx, if available
-static void nm_draw_background1(const char * filename)
+static void nm_draw_background1(grs_canvas &canvas, const char * filename)
 {
 	int pcx_error;
 
@@ -164,7 +164,7 @@ static void nm_draw_background1(const char * filename)
 			(void)pcx_error;
 		}
 		gr_palette_load( gr_palette );
-		show_fullscr(*grd_curcanv, nm_background1);
+		show_fullscr(canvas, nm_background1);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	strcpy(last_palette_loaded,"");		//force palette load next time
@@ -1372,7 +1372,7 @@ static void newmenu_create_structure( newmenu *menu )
 	if ( menu->x < 0 ) menu->x = 0;
 	if ( menu->y < 0 ) menu->y = 0;
 
-	nm_draw_background1( menu->filename );
+	nm_draw_background1(*grd_curcanv, menu->filename);
 
 	// Update all item's x & y values.
 	range_for (auto &i, menu->item_range())
@@ -1440,7 +1440,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	}
 
 	gr_set_current_canvas( NULL );
-	nm_draw_background1(menu->filename);
+	nm_draw_background1(*grd_curcanv, menu->filename);
 	if (menu->filename == NULL)
 		nm_draw_background(menu->x-(menu->is_scroll_box?FSPACX(5):0),menu->y,menu->x+menu->w,menu->y+menu->h);
 
