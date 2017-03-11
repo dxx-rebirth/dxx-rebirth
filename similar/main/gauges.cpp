@@ -2667,7 +2667,7 @@ const array<xy, 4> cross_offsets{{
 
 //draw the reticle
 namespace dsx {
-void show_reticle(const player_info &player_info, int reticle_type, int secondary_display)
+void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticle_type, int secondary_display)
 {
 	int x,y,size;
 	int laser_ready,missile_ready;
@@ -2679,9 +2679,9 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 		 return;
 #endif
 
-	x = grd_curcanv->cv_bitmap.bm_w/2;
-	y = grd_curcanv->cv_bitmap.bm_h/2;
-	size = (grd_curcanv->cv_bitmap.bm_h / (32-(PlayerCfg.ReticleSize*4)));
+	x = canvas.cv_bitmap.bm_w/2;
+	y = canvas.cv_bitmap.bm_h/2;
+	size = (canvas.cv_bitmap.bm_h / (32-(PlayerCfg.ReticleSize*4)));
 
 	laser_ready = allowed_to_fire_laser(player_info);
 
@@ -2706,7 +2706,7 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 	Assert(cross_bm_num <= 1);
 
 	const auto color = BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]);
-	gr_settransblend(*grd_curcanv, PlayerCfg.ReticleRGBA[3], GR_BLEND_NORMAL);
+	gr_settransblend(canvas, PlayerCfg.ReticleRGBA[3], GR_BLEND_NORMAL);
 
 	[&]{
 		int x0, x1, y0, y1;
@@ -2720,17 +2720,17 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			gauge_index = RETICLE_CROSS + cross_bm_num;
 			PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
 			auto &cross = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-			hud_bitblt_free(*grd_curcanv, x + HUD_SCALE_X_AR(multires_gauge_graphic, cross_offsets[ofs].x),y + HUD_SCALE_Y_AR(multires_gauge_graphic, cross_offsets[ofs].y), HUD_SCALE_X_AR(multires_gauge_graphic, cross.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, cross.bm_h), cross);
+			hud_bitblt_free(canvas, x + HUD_SCALE_X_AR(multires_gauge_graphic, cross_offsets[ofs].x),y + HUD_SCALE_Y_AR(multires_gauge_graphic, cross_offsets[ofs].y), HUD_SCALE_X_AR(multires_gauge_graphic, cross.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, cross.bm_h), cross);
 
 			gauge_index = RETICLE_PRIMARY + primary_bm_num;
 			PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
 			auto &primary = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-			hud_bitblt_free(*grd_curcanv, x + HUD_SCALE_X_AR(multires_gauge_graphic, primary_offsets[ofs].x),y + HUD_SCALE_Y_AR(multires_gauge_graphic, primary_offsets[ofs].y), HUD_SCALE_X_AR(multires_gauge_graphic, primary.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, primary.bm_h), primary);
+			hud_bitblt_free(canvas, x + HUD_SCALE_X_AR(multires_gauge_graphic, primary_offsets[ofs].x),y + HUD_SCALE_Y_AR(multires_gauge_graphic, primary_offsets[ofs].y), HUD_SCALE_X_AR(multires_gauge_graphic, primary.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, primary.bm_h), primary);
 
 			gauge_index = RETICLE_SECONDARY + secondary_bm_num;
 			PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
 			auto &secondary = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-			hud_bitblt_free(*grd_curcanv, x + HUD_SCALE_X_AR(multires_gauge_graphic, secondary_offsets[ofs].x),y + HUD_SCALE_Y_AR(multires_gauge_graphic, secondary_offsets[ofs].y), HUD_SCALE_X_AR(multires_gauge_graphic, secondary.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, secondary.bm_h), secondary);
+			hud_bitblt_free(canvas, x + HUD_SCALE_X_AR(multires_gauge_graphic, secondary_offsets[ofs].x),y + HUD_SCALE_Y_AR(multires_gauge_graphic, secondary_offsets[ofs].y), HUD_SCALE_X_AR(multires_gauge_graphic, secondary.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, secondary.bm_h), secondary);
 			return;
 		}
 		case RET_TYPE_CLASSIC_REBOOT:
@@ -2740,10 +2740,10 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			return;
 		case RET_TYPE_X:
 			{
-			gr_uline(*grd_curcanv, i2f(x-(size/2)), i2f(y-(size/2)), i2f(x-(size/5)), i2f(y-(size/5)), color); // top-left
-			gr_uline(*grd_curcanv, i2f(x+(size/2)), i2f(y-(size/2)), i2f(x+(size/5)), i2f(y-(size/5)), color); // top-right
-			gr_uline(*grd_curcanv, i2f(x-(size/2)), i2f(y+(size/2)), i2f(x-(size/5)), i2f(y+(size/5)), color); // bottom-left
-			gr_uline(*grd_curcanv, i2f(x+(size/2)), i2f(y+(size/2)), i2f(x+(size/5)), i2f(y+(size/5)), color); // bottom-right
+			gr_uline(canvas, i2f(x-(size/2)), i2f(y-(size/2)), i2f(x-(size/5)), i2f(y-(size/5)), color); // top-left
+			gr_uline(canvas, i2f(x+(size/2)), i2f(y-(size/2)), i2f(x+(size/5)), i2f(y-(size/5)), color); // top-right
+			gr_uline(canvas, i2f(x-(size/2)), i2f(y+(size/2)), i2f(x-(size/5)), i2f(y+(size/5)), color); // bottom-left
+			gr_uline(canvas, i2f(x+(size/2)), i2f(y+(size/2)), i2f(x+(size/5)), i2f(y+(size/5)), color); // bottom-right
 			if (secondary_display && secondary_bm_num == 1)
 				x0 = i2f(x-(size/2)-(size/5)), y0 = i2f(y-(size/2)), x1 = i2f(x-(size/5)-(size/5)), y1 = i2f(y-(size/5));
 			else if (secondary_display && secondary_bm_num == 2)
@@ -2756,7 +2756,7 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			break;
 		case RET_TYPE_DOT:
 			{
-				gr_disk(*grd_curcanv, i2f(x), i2f(y), i2f(size/5), color);
+				gr_disk(canvas, i2f(x), i2f(y), i2f(size/5), color);
 			if (secondary_display && secondary_bm_num == 1)
 				x0 = i2f(x-(size/2)-(size/5)), y0 = i2f(y-(size/2)), x1 = i2f(x-(size/5)-(size/5)), y1 = i2f(y-(size/5));
 			else if (secondary_display && secondary_bm_num == 2)
@@ -2769,7 +2769,7 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			break;
 		case RET_TYPE_CIRCLE:
 			{
-				gr_ucircle(*grd_curcanv, i2f(x), i2f(y), i2f(size/4), color);
+				gr_ucircle(canvas, i2f(x), i2f(y), i2f(size/4), color);
 			if (secondary_display && secondary_bm_num == 1)
 				x0 = i2f(x-(size/2)-(size/5)), y0 = i2f(y-(size/2)), x1 = i2f(x-(size/5)-(size/5)), y1 = i2f(y-(size/5));
 			else if (secondary_display && secondary_bm_num == 2)
@@ -2782,8 +2782,8 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			break;
 		case RET_TYPE_CROSS_V1:
 			{
-			gr_uline(*grd_curcanv, i2f(x),i2f(y-(size/2)),i2f(x),i2f(y+(size/2)+1), color); // horiz
-			gr_uline(*grd_curcanv, i2f(x-(size/2)),i2f(y),i2f(x+(size/2)+1),i2f(y), color); // vert
+			gr_uline(canvas, i2f(x),i2f(y-(size/2)),i2f(x),i2f(y+(size/2)+1), color); // horiz
+			gr_uline(canvas, i2f(x-(size/2)),i2f(y),i2f(x+(size/2)+1),i2f(y), color); // vert
 			if (secondary_display && secondary_bm_num == 1)
 				x0 = i2f(x-(size/2)), y0 = i2f(y-(size/2)), x1 = i2f(x-(size/5)), y1 = i2f(y-(size/5));
 			else if (secondary_display && secondary_bm_num == 2)
@@ -2796,10 +2796,10 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			break;
 		case RET_TYPE_CROSS_V2:
 			{
-			gr_uline(*grd_curcanv, i2f(x), i2f(y-(size/2)), i2f(x), i2f(y-(size/6)), color); // vert-top
-			gr_uline(*grd_curcanv, i2f(x), i2f(y+(size/2)), i2f(x), i2f(y+(size/6)), color); // vert-bottom
-			gr_uline(*grd_curcanv, i2f(x-(size/2)), i2f(y), i2f(x-(size/6)), i2f(y), color); // horiz-left
-			gr_uline(*grd_curcanv, i2f(x+(size/2)), i2f(y), i2f(x+(size/6)), i2f(y), color); // horiz-right
+			gr_uline(canvas, i2f(x), i2f(y-(size/2)), i2f(x), i2f(y-(size/6)), color); // vert-top
+			gr_uline(canvas, i2f(x), i2f(y+(size/2)), i2f(x), i2f(y+(size/6)), color); // vert-bottom
+			gr_uline(canvas, i2f(x-(size/2)), i2f(y), i2f(x-(size/6)), i2f(y), color); // horiz-left
+			gr_uline(canvas, i2f(x+(size/2)), i2f(y), i2f(x+(size/6)), i2f(y), color); // horiz-right
 			if (secondary_display && secondary_bm_num == 1)
 				x0 = i2f(x-(size/2)), y0 = i2f(y-(size/2)), x1 = i2f(x-(size/5)), y1 = i2f(y-(size/5));
 			else if (secondary_display && secondary_bm_num == 2)
@@ -2812,8 +2812,8 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			break;
 		case RET_TYPE_ANGLE:
 			{
-			gr_uline(*grd_curcanv, i2f(x),i2f(y),i2f(x),i2f(y+(size/2)), color); // vert
-			gr_uline(*grd_curcanv, i2f(x),i2f(y),i2f(x+(size/2)),i2f(y), color); // horiz
+			gr_uline(canvas, i2f(x),i2f(y),i2f(x),i2f(y+(size/2)), color); // vert
+			gr_uline(canvas, i2f(x),i2f(y),i2f(x+(size/2)),i2f(y), color); // horiz
 			if (secondary_display && secondary_bm_num == 1)
 				x0 = i2f(x-(size/2)), y0 = i2f(y-(size/2)), x1 = i2f(x-(size/5)), y1 = i2f(y-(size/5));
 			else if (secondary_display && secondary_bm_num == 2)
@@ -2828,9 +2828,9 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 		default:
 			return;
 	}
-	gr_uline(*grd_curcanv, x0, y0, x1, y1, color);
+	gr_uline(canvas, x0, y0, x1, y1, color);
 	}();
-	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
 }
 }
 
@@ -3262,7 +3262,7 @@ void draw_hud(const object &plrobj)
 		if (Game_mode&GM_MULTI && Show_kill_list)
 			hud_show_kill_list(*grd_curcanv);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
-			show_reticle(player_info, PlayerCfg.ReticleType, 1);
+			show_reticle(*grd_curcanv, player_info, PlayerCfg.ReticleType, 1);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
 		{
 			const auto gwidth = grd_curcanv->cv_bitmap.bm_w;
@@ -3488,7 +3488,7 @@ void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rea
 
 	if (player_info)	// only non-nullptr for WBU_GUIDED
 	{
-		show_reticle(*player_info, RET_TYPE_CROSS_V1, 0);
+		show_reticle(*grd_curcanv, *player_info, RET_TYPE_CROSS_V1, 0);
 	}
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN) {

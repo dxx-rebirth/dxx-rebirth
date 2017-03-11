@@ -61,7 +61,7 @@ void draw_hud(const object &);     // draw all the HUD stuff
 void close_gauges(void);
 #ifdef dsx
 namespace dsx {
-void show_reticle(const player_info &, int reticle_type, int secondary_display);
+void show_reticle(grs_canvas &canvas, const player_info &, int reticle_type, int secondary_display);
 void show_HUD_names(grs_canvas &);
 }
 #endif

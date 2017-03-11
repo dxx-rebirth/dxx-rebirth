@@ -737,7 +737,7 @@ void game_render_frame_mono()
 		gr_string(*grd_curcanv, 0x8000, FSPACY(1), "Guided Missile View");
 
 		auto &player_info = get_local_plrobj().ctype.player_info;
-		show_reticle(player_info, RET_TYPE_CROSS_V1, 0);
+		show_reticle(*grd_curcanv, player_info, RET_TYPE_CROSS_V1, 0);
 
 		HUD_render_message_frame(*grd_curcanv);
 
