@@ -328,7 +328,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const vcobjptr_t obj, const 
 }
 
 //draw an object which renders as a polygon model
-static void draw_polygon_object(const vobjptridx_t obj)
+static void draw_polygon_object(grs_canvas &canvas, const vobjptridx_t obj)
 {
 	g3s_lrgb light;
 	glow_values_t engine_glow_value;
@@ -406,7 +406,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 
 		//fill whole array, in case simple model needs more
 		bm_ptrs.fill(Textures[obj->rtype.pobj_info.tmap_override]);
-		draw_polygon_model(*grd_curcanv, obj->pos,
+		draw_polygon_model(canvas, obj->pos,
 				   &obj->orient,
 				   obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,
@@ -456,10 +456,10 @@ static void draw_polygon_object(const vobjptridx_t obj)
 			bool draw_simple_model;
 			if (is_weapon_with_inner_model)
 			{
-				gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
+				gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				draw_simple_model = static_cast<fix>(vm_vec_dist_quick(Viewer->pos, obj->pos)) < Simple_model_threshhold_scale * F1_0*2;
 				if (draw_simple_model)
-					draw_polygon_model(*grd_curcanv, obj->pos,
+					draw_polygon_model(canvas, obj->pos,
 							   &obj->orient,
 							   obj->rtype.pobj_info.anim_angles,
 							   Weapon_info[get_weapon_id(obj)].model_num_inner,
@@ -469,7 +469,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 							   alt_textures);
 			}
 			
-			draw_polygon_model(*grd_curcanv, obj->pos,
+			draw_polygon_model(canvas, obj->pos,
 					   &obj->orient,
 					   obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
 					   obj->rtype.pobj_info.subobj_flags,
@@ -480,9 +480,9 @@ static void draw_polygon_object(const vobjptridx_t obj)
 			if (is_weapon_with_inner_model)
 			{
 #if !DXX_USE_OGL // in software rendering must draw inner model last
-				gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
+				gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				if (draw_simple_model)
-					draw_polygon_model(*grd_curcanv, obj->pos,
+					draw_polygon_model(canvas, obj->pos,
 							   &obj->orient,
 							   obj->rtype.pobj_info.anim_angles,
 							   Weapon_info[obj->id].model_num_inner,
@@ -491,11 +491,11 @@ static void draw_polygon_object(const vobjptridx_t obj)
 							   &engine_glow_value,
 							   alt_textures);
 #endif
-				gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
+				gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
 			}
 			return;
 		}
-		draw_cloaked_object(*grd_curcanv, obj, light, engine_glow_value, cloak_duration.first, cloak_duration.second, cloak_fade.first, cloak_fade.second);
+		draw_cloaked_object(canvas, obj, light, engine_glow_value, cloak_duration.first, cloak_duration.second, cloak_fade.first, cloak_fade.second);
 	}
 }
 
@@ -658,7 +658,7 @@ void render_object(const vobjptridx_t obj)
 				gr_settransblend(*grd_curcanv, 10, GR_BLEND_ADDITIVE_A);
 			}
 #endif
-			draw_polygon_object(obj);
+			draw_polygon_object(*grd_curcanv, obj);
 
 			if (obj->type == OBJ_ROBOT) //"warn" robot if being shot at
 				set_robot_location_info(obj);
