@@ -134,7 +134,7 @@ static object *endlevel_camera;
 #define FLY_SPEED i2f(50)
 
 static void do_endlevel_flythrough(flythrough_data *flydata);
-static void draw_stars();
+static void draw_stars(grs_canvas &);
 static int find_exit_side(const object_base &obj);
 static void generate_starfield();
 static void start_endlevel_flythrough(flythrough_data *flydata,const vobjptr_t obj,fix speed);
@@ -967,7 +967,7 @@ static void render_external_scene(fix eye_offset)
 	gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
 
 	g3_start_instance_matrix(vmd_zero_vector,&surface_orient);
-	draw_stars();
+	draw_stars(*grd_curcanv);
 	g3_done_instance();
 
 	{	//draw satellite
@@ -1041,7 +1041,7 @@ static void generate_starfield()
 	}
 }
 
-void draw_stars()
+void draw_stars(grs_canvas &canvas)
 {
 	int intensity=31;
 	g3s_point p;
@@ -1064,9 +1064,9 @@ void draw_stars()
 
 			g3_project_point(p);
 #if !DXX_USE_OGL
-			gr_pixel(grd_curcanv->cv_bitmap, f2i(p.p3_sx), f2i(p.p3_sy), color);
+			gr_pixel(canvas.cv_bitmap, f2i(p.p3_sx), f2i(p.p3_sy), color);
 #else
-			g3_draw_sphere(*grd_curcanv, p, F1_0 * 3, color);
+			g3_draw_sphere(canvas, p, F1_0 * 3, color);
 #endif
 		}
 	}
