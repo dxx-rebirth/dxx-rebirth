@@ -46,24 +46,20 @@ namespace dsx {
 array<vclip, VCLIP_MAXNUM> 				Vclip;		// General purpose vclips.
 
 //draw an object which renders as a vclip
-void draw_vclip_object(grs_canvas &canvas, const vcobjptridx_t obj, const fix timeleft, const int lighted, const int vclip_num)
+void draw_vclip_object(grs_canvas &canvas, const vcobjptridx_t obj, const fix timeleft, const int lighted, const vclip &vc)
 {
-	int nf,bitmapnum;
+	const auto nf = vc.num_frames;
+	int bitmapnum = (nf - f2i(fixdiv((nf - 1) * timeleft, vc.play_time))) - 1;
 
-	nf = Vclip[vclip_num].num_frames;
-
-	bitmapnum =  (nf - f2i(fixdiv( (nf-1)*timeleft,Vclip[vclip_num].play_time))) - 1;
-
-	if (bitmapnum >= Vclip[vclip_num].num_frames)
-		bitmapnum=Vclip[vclip_num].num_frames-1;
+	if (bitmapnum >= vc.num_frames)
+		bitmapnum = vc.num_frames - 1;
 
 	if (bitmapnum >= 0 )	{
-
-		if (Vclip[vclip_num].flags & VF_ROD)
-			draw_object_tmap_rod(canvas, obj, Vclip[vclip_num].frames[bitmapnum],lighted);
+		if (vc.flags & VF_ROD)
+			draw_object_tmap_rod(canvas, obj, vc.frames[bitmapnum], lighted);
 		else {
 			Assert(lighted==0);		//blob cannot now be lighted
-			draw_object_blob(canvas, obj, Vclip[vclip_num].frames[bitmapnum] );
+			draw_object_blob(canvas, obj, vc.frames[bitmapnum]);
 		}
 	}
 }
@@ -102,7 +98,7 @@ void draw_weapon_vclip(grs_canvas &canvas, const vcobjptridx_t obj)
 		while (modtime > play_time)
 			modtime -= play_time;
 
-	draw_vclip_object(canvas, obj, modtime, 0, vclip_num);
+	draw_vclip_object(canvas, obj, modtime, 0, Vclip[vclip_num]);
 }
 
 }

@@ -80,7 +80,7 @@ namespace dsx {
 extern array<vclip, VCLIP_MAXNUM> Vclip;
 
 // draw an object which renders as a vclip.
-void draw_vclip_object(grs_canvas &, vcobjptridx_t obj, fix timeleft, int lighted, int vclip_num);
+void draw_vclip_object(grs_canvas &, vcobjptridx_t obj, fix timeleft, int lighted, const vclip &);
 void draw_weapon_vclip(grs_canvas &, vcobjptridx_t obj);
 }
 
