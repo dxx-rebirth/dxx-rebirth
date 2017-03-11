@@ -675,7 +675,7 @@ void render_object(const vobjptridx_t obj)
 				gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 			}
 
-			draw_fireball(obj);
+			draw_fireball(*grd_curcanv, obj);
 			break;
 
 		case RT_WEAPON_VCLIP:

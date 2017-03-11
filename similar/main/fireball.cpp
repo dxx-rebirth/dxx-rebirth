@@ -408,10 +408,10 @@ static void object_create_debris(const object_base &parent, int subobj_num)
 	}
 }
 
-void draw_fireball(const vobjptridx_t obj)
+void draw_fireball(grs_canvas &canvas, const vcobjptridx_t obj)
 {
 	if ( obj->lifeleft > 0 )
-		draw_vclip_object(*grd_curcanv, obj, obj->lifeleft, 0, Vclip[get_fireball_id(obj)]);
+		draw_vclip_object(canvas, obj, obj->lifeleft, 0, Vclip[get_fireball_id(obj)]);
 }
 
 // --------------------------------------------------------------------------------------------------------------------

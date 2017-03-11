@@ -79,7 +79,7 @@ void explode_object(vobjptridx_t obj,fix delay_time);
 void do_explosion_sequence(vobjptr_t obj);
 void do_debris_frame(vobjptridx_t obj);      // deal with debris for this frame
 
-void draw_fireball(vobjptridx_t obj);
+void draw_fireball(grs_canvas &, vcobjptridx_t obj);
 
 void explode_wall(vsegptridx_t segnum, int sidenum);
 void do_exploding_wall_frame();
