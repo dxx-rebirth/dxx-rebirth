@@ -186,7 +186,7 @@ constexpr int gr_message_color_level=1;
 		text_ptr++; \
 		if (*text_ptr){ \
 			if (gr_message_color_level >= *(text_ptr-1)) \
-				grd_curcanv->cv_font_fg_color = static_cast<uint8_t>(*text_ptr); \
+				canvas.cv_font_fg_color = static_cast<uint8_t>(*text_ptr); \
 			text_ptr++; \
 		} \
 	} \
@@ -197,7 +197,7 @@ constexpr int gr_message_color_level=1;
 	} \
 	else if ((*text_ptr >= 0x04) && (*text_ptr <= 0x06)){ \
 		if (gr_message_color_level >= *text_ptr - 3) \
-			grd_curcanv->cv_font_fg_color= static_cast<uint8_t>(orig_color); \
+			canvas.cv_font_fg_color= static_cast<uint8_t>(orig_color); \
 		text_ptr++; \
 	}
 
@@ -223,7 +223,7 @@ static int gr_internal_string0_template(grs_canvas &canvas, const int x, int y, 
 		next_row = NULL;
 
 		if (x==0x8000) {			//centered
-			int xx = get_centered_x(*grd_curcanv, cv_font, text_ptr1);
+			int xx = get_centered_x(canvas, cv_font, text_ptr1);
 			VideoOffset1 = y * canvas.cv_bitmap.bm_rowsize + xx;
 		}
 
@@ -376,7 +376,7 @@ static int gr_internal_color_string(grs_canvas &canvas, const int x, const int y
 		xx = x;
 
 		if (xx==0x8000)			//centered
-			xx = get_centered_x(*grd_curcanv, cv_font, text_ptr);
+			xx = get_centered_x(canvas, cv_font, text_ptr);
 
 		while (*text_ptr)
 		{
@@ -635,7 +635,7 @@ static int ogl_internal_string(grs_canvas &canvas, const int x, const int y, con
 		xx = x;
 
 		if (xx==0x8000)			//centered
-			xx = get_centered_x(*grd_curcanv, cv_font, text_ptr);
+			xx = get_centered_x(canvas, cv_font, text_ptr);
 
 		while (*text_ptr)
 		{
@@ -1096,7 +1096,7 @@ static int gr_internal_string_clipped_template(grs_canvas &canvas, int x, int y,
 
 		x = x1;
 		if (x==0x8000)			//centered
-			x = get_centered_x(*grd_curcanv, cv_font, text_ptr1);
+			x = get_centered_x(canvas, cv_font, text_ptr1);
 
 		last_x = x;
 
