@@ -197,7 +197,7 @@ void draw_object_tmap_rod(grs_canvas &canvas, const vobjptridx_t obj, const bitm
 
 	if (lighted)
 	{
-		light = compute_object_light(obj,&top_p.p3_vec);
+		light = compute_object_light(obj);
 	}
 	else
 	{
@@ -340,7 +340,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 	//	If option set for bright players in netgame, brighten them!
 	light = unlikely(Netgame.BrightPlayers && (Game_mode & GM_MULTI) && obj->type == OBJ_PLAYER)
 		? g3s_lrgb{F1_0 * 2, F1_0 * 2, F1_0 * 2}
-		: compute_object_light(obj, nullptr);
+		: compute_object_light(obj);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//make robots brighter according to robot glow field
