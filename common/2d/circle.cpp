@@ -40,29 +40,29 @@ int gr_ucircle(grs_canvas &canvas, const fix xc1, const fix yc1, const fix r1, c
 	while(x<y)
 	{
 		// Draw the first octant
-		gr_upixel(canvas, xc - y, yc - x, color);
-		gr_upixel(canvas, xc + y, yc - x, color);
-		gr_upixel(canvas, xc - y, yc + x, color);
-		gr_upixel(canvas, xc + y, yc + x, color);
+		gr_upixel(canvas.cv_bitmap, xc - y, yc - x, color);
+		gr_upixel(canvas.cv_bitmap, xc + y, yc - x, color);
+		gr_upixel(canvas.cv_bitmap, xc - y, yc + x, color);
+		gr_upixel(canvas.cv_bitmap, xc + y, yc + x, color);
 
 		if (p<0)
 			p=p+(x<<2)+6;
 		else {
 			// Draw the second octant
-			gr_upixel(canvas, xc - x, yc - y, color);
-			gr_upixel(canvas, xc + x, yc - y, color);
-			gr_upixel(canvas, xc - x, yc + y, color);
-			gr_upixel(canvas, xc + x, yc + y, color);
+			gr_upixel(canvas.cv_bitmap, xc - x, yc - y, color);
+			gr_upixel(canvas.cv_bitmap, xc + x, yc - y, color);
+			gr_upixel(canvas.cv_bitmap, xc - x, yc + y, color);
+			gr_upixel(canvas.cv_bitmap, xc + x, yc + y, color);
 			p=p+((x-y)<<2)+10;
 			y--;
 		}
 		x++;
 	}
 	if(x==y) {
-		gr_upixel(canvas, xc - x, yc - y, color);
-		gr_upixel(canvas, xc + x, yc - y, color);
-		gr_upixel(canvas, xc - x, yc + y, color);
-		gr_upixel(canvas, xc + x, yc + y, color);
+		gr_upixel(canvas.cv_bitmap, xc - x, yc - y, color);
+		gr_upixel(canvas.cv_bitmap, xc + x, yc - y, color);
+		gr_upixel(canvas.cv_bitmap, xc - x, yc + y, color);
+		gr_upixel(canvas.cv_bitmap, xc + x, yc + y, color);
 	}
 	return 0;
 }

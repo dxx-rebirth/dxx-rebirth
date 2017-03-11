@@ -193,7 +193,7 @@ void gr_settransblend(grs_canvas &, int fade_level, uint8_t blend_func);
 
 // Draws a point into the current canvas in the current color and drawmode.
 void gr_pixel(grs_canvas &, unsigned x, unsigned y, uint8_t color);
-void gr_upixel(grs_canvas &, unsigned x, unsigned y, uint8_t color);
+void gr_upixel(grs_bitmap &, unsigned x, unsigned y, uint8_t color);
 
 // Gets a pixel;
 unsigned char gr_gpixel(const grs_bitmap &bitmap, unsigned x, unsigned y);

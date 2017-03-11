@@ -47,7 +47,7 @@ static void plot(grs_canvas &canvas, int x, int y, int flag, const uint8_t color
 {
 	if (flag)
 		std::swap(x, y);
-	gr_upixel(canvas, x, y, color);
+	gr_upixel(canvas.cv_bitmap, x, y, color);
 }
 
 static void gr_hline(grs_canvas &canvas, int x1, int x2, const int y, const uint8_t color)
@@ -56,7 +56,7 @@ static void gr_hline(grs_canvas &canvas, int x1, int x2, const int y, const uint
 	if (x1 > x2)
 		swap(x1,x2);
 	for (int i=x1; i<=x2; i++ )
-		gr_upixel(canvas, i, y, color);
+		gr_upixel(canvas.cv_bitmap, i, y, color);
 }
 
 static void gr_vline(grs_canvas &canvas, int y1, int y2, const int x, const uint8_t color)
@@ -64,7 +64,7 @@ static void gr_vline(grs_canvas &canvas, int y1, int y2, const int x, const uint
 	using std::swap;
 	if (y1 > y2) swap(y1,y2);
 	for (int i=y1; i<=y2; i++ )
-		gr_upixel(canvas, x, i, color);
+		gr_upixel(canvas.cv_bitmap, x, i, color);
 }
 
 static void gr_universal_uline(grs_canvas &canvas, int a1, int b1, int a2, int b2, const uint8_t color)

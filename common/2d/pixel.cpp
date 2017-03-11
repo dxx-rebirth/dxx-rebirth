@@ -32,17 +32,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-void gr_upixel(grs_canvas &canvas, const unsigned x, const unsigned y, const uint8_t color)
+void gr_upixel(grs_bitmap &cv_bitmap, const unsigned x, const unsigned y, const uint8_t color)
 {
-	switch (canvas.cv_bitmap.get_type())
+	switch (cv_bitmap.get_type())
 	{
 #if DXX_USE_OGL
 	case bm_mode::ogl:
-		ogl_upixelc(canvas.cv_bitmap, x, y, color);
+		ogl_upixelc(cv_bitmap, x, y, color);
 		return;
 #endif
 	case bm_mode::linear:
-		canvas.cv_bitmap.get_bitmap_data()[canvas.cv_bitmap.bm_rowsize * y + x] = color;
+		cv_bitmap.get_bitmap_data()[cv_bitmap.bm_rowsize * y + x] = color;
 		return;
 	}
 }
@@ -51,7 +51,7 @@ void gr_pixel(grs_canvas &canvas, const unsigned x, const unsigned y, const uint
 {
 	if (unlikely(x >= canvas.cv_bitmap.bm_w || y >= canvas.cv_bitmap.bm_h))
 		return;
-	gr_upixel(canvas, x, y, color);
+	gr_upixel(canvas.cv_bitmap, x, y, color);
 }
 
 #if !DXX_USE_OGL
