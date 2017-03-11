@@ -949,7 +949,7 @@ static fix satellite_size = i2f(400);
 #define SATELLITE_HEIGHT	((satellite_size*9)/4)		//((satellite_size*5)/2)
 
 constexpr vms_vector vmd_zero_vector{};
-static void render_external_scene(fix eye_offset)
+static void render_external_scene(grs_canvas &canvas, fix eye_offset)
 {
 #if DXX_USE_OGL
 	int orig_Render_depth = Render_depth;
@@ -964,10 +964,10 @@ static void render_external_scene(fix eye_offset)
 	g3_set_view_matrix(Viewer->pos,Viewer->orient,Render_zoom);
 
 	//g3_draw_horizon(BM_XRGB(0,0,0),BM_XRGB(16,16,16));		//,-1);
-	gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
+	gr_clear_canvas(canvas, BM_XRGB(0,0,0));
 
 	g3_start_instance_matrix(vmd_zero_vector,&surface_orient);
-	draw_stars(*grd_curcanv);
+	draw_stars(canvas);
 	g3_done_instance();
 
 	{	//draw satellite
@@ -986,7 +986,7 @@ static void render_external_scene(fix eye_offset)
 			if (! (p.p3_flags & PF_OVERFLOW)) {
 				push_interpolation_method save_im(0);
 				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
-				g3_draw_rod_tmap(*grd_curcanv, *satellite_bitmap, p, SATELLITE_WIDTH, top_pnt, SATELLITE_WIDTH, lrgb);
+				g3_draw_rod_tmap(canvas, *satellite_bitmap, p, SATELLITE_WIDTH, top_pnt, SATELLITE_WIDTH, lrgb);
 			}
 		}
 	}
@@ -999,30 +999,30 @@ static void render_external_scene(fix eye_offset)
 	ogl_toggle_depth_test(0);
 	Render_depth = (200-(vm_vec_dist_quick(mine_ground_exit_point, Viewer_eye)/F1_0))/36;
 #endif
-	render_terrain(*grd_curcanv, mine_ground_exit_point, exit_point_bmx, exit_point_bmy);
+	render_terrain(canvas, mine_ground_exit_point, exit_point_bmx, exit_point_bmy);
 #if DXX_USE_OGL
 	Render_depth = orig_Render_depth;
 	ogl_toggle_depth_test(1);
 #endif
 
-	draw_exit_model(*grd_curcanv);
+	draw_exit_model(canvas);
 	if (ext_expl_playing)
 	{
 		const auto alpha = PlayerCfg.AlphaBlendMineExplosion;
 		if (alpha) // set nice transparency/blending for the big explosion
-			gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
-		draw_fireball(*grd_curcanv, vcobjptridx(external_explosion));
+			gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
+		draw_fireball(canvas, vcobjptridx(external_explosion));
 #if DXX_USE_OGL
 		/* If !OGL, the third argument is discarded, so this call
 		 * becomes the same as the one above.
 		 */
 		if (alpha)
-			gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
+			gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
 #endif
 	}
 
 	Lighting_on=0;
-	render_object(*grd_curcanv, vobjptridx(ConsoleObject));
+	render_object(canvas, vobjptridx(ConsoleObject));
 	Lighting_on=1;
 }
 
@@ -1136,7 +1136,7 @@ void render_endlevel_frame(fix eye_offset)
 	if (Endlevel_sequence < EL_OUTSIDE)
 		endlevel_render_mine(eye_offset);
 	else
-		render_external_scene(eye_offset);
+		render_external_scene(*grd_curcanv, eye_offset);
 
 	g3_end_frame();
 }
