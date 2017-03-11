@@ -333,7 +333,7 @@ void morph_start(const vobjptr_t obj)
 
 }
 
-static void draw_model(polygon_model_points &robot_points, polymodel *pm, int submodel_num, const submodel_angles anim_angles, g3s_lrgb light, morph_data *md)
+static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, polymodel *const pm, const int submodel_num, const submodel_angles anim_angles, g3s_lrgb light, morph_data *const md)
 {
 	int facing;
 	int sort_list[MAX_SUBMODELS];
@@ -388,12 +388,12 @@ static void draw_model(polygon_model_points &robot_points, polymodel *pm, int su
 			// Hmmm... cache got flushed in the middle of paging all these in,
 			// so we need to reread them all in.
 			// Make sure that they can all fit in memory.
-			g3_draw_morphing_model(*grd_curcanv, &pm->model_data[pm->submodel_ptrs[submodel_num]], &texture_list[0], anim_angles, light, &md->morph_vecs[md->submodel_startpoints[submodel_num]], robot_points);
+			g3_draw_morphing_model(canvas, &pm->model_data[pm->submodel_ptrs[submodel_num]], &texture_list[0], anim_angles, light, &md->morph_vecs[md->submodel_startpoints[submodel_num]], robot_points);
 		}
 		else {
 			const auto &&orient = vm_angles_2_matrix(anim_angles[mn]);
 			g3_start_instance_matrix(pm->submodel_offsets[mn],&orient);
-			draw_model(robot_points,pm,mn,anim_angles,light,md);
+			draw_model(canvas, robot_points,pm,mn,anim_angles,light,md);
 			g3_done_instance();
 		}
 	}
@@ -418,7 +418,7 @@ void draw_morph_object(const vobjptridx_t obj)
 
 	g3_start_instance_matrix(obj->pos,&obj->orient);
 	polygon_model_points robot_points;
-	draw_model(robot_points,po,0,obj->rtype.pobj_info.anim_angles,light,md);
+	draw_model(*grd_curcanv, robot_points, po, 0, obj->rtype.pobj_info.anim_angles, light, md);
 
 	g3_done_instance();
 
