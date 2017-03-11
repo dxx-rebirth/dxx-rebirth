@@ -204,7 +204,7 @@ extern int Death_sequence_aborted;
 extern objnum_t Player_fired_laser_this_frame;
 
 // Draw a blob-type object, like a fireball
-void draw_object_blob(const object_base &obj, bitmap_index bitmap);
+void draw_object_blob(grs_canvas &, const object_base &obj, bitmap_index bitmap);
 }
 
 #ifdef dsx

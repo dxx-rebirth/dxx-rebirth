@@ -94,7 +94,7 @@ void Laser_render(const object_base &obj)
 					//Laser_draw_one(obj-Objects, Weapon_info[obj->id].bitmap );
 		break;
 	case WEAPON_RENDER_BLOB:
-		draw_object_blob(obj, wi.bitmap);
+		draw_object_blob(*grd_curcanv, obj, wi.bitmap);
 		break;
 	case WEAPON_RENDER_POLYMODEL:
 		break;

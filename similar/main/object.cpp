@@ -151,7 +151,7 @@ objptridx_t obj_find_first_of_type(int type)
 namespace dcx {
 
 //draw an object that has one bitmap & doesn't rotate
-void draw_object_blob(const object_base &obj, bitmap_index bmi)
+void draw_object_blob(grs_canvas &canvas, const object_base &obj, const bitmap_index bmi)
 {
 	auto &bm = GameBitmaps[bmi.index];
 	PIGGY_PAGE_IN( bmi );
@@ -172,7 +172,7 @@ void draw_object_blob(const object_base &obj, bitmap_index bmi)
 	const auto p = (bm_w > bm_h)
 		? wh(osize, fixmuldiv(osize, bm_h, bm_w))
 		: wh(fixmuldiv(osize, bm_w, bm_h), osize);
-	g3_draw_bitmap(*grd_curcanv, pos, p.first, p.second, bm);
+	g3_draw_bitmap(canvas, pos, p.first, p.second, bm);
 }
 
 }

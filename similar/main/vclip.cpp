@@ -63,11 +63,9 @@ void draw_vclip_object(const vobjptridx_t obj,fix timeleft,int lighted, int vcli
 			draw_object_tmap_rod(*grd_curcanv, obj, Vclip[vclip_num].frames[bitmapnum],lighted);
 		else {
 			Assert(lighted==0);		//blob cannot now be lighted
-
-			draw_object_blob(obj, Vclip[vclip_num].frames[bitmapnum] );
+			draw_object_blob(*grd_curcanv, obj, Vclip[vclip_num].frames[bitmapnum] );
 		}
 	}
-
 }
 
 

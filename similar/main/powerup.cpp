@@ -121,7 +121,7 @@ namespace dcx {
 void draw_powerup(const object_base &obj)
 {
 	auto &vci = obj.rtype.vclip_info;
-	draw_object_blob(obj, Vclip[vci.vclip_num].frames[vci.framenum]);
+	draw_object_blob(*grd_curcanv, obj, Vclip[vci.vclip_num].frames[vci.framenum]);
 }
 
 }
