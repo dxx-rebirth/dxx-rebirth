@@ -73,8 +73,8 @@ void draw_weapon_vclip(grs_canvas &canvas, const vcobjptridx_t obj)
 	const auto play_time = Vclip[vclip_num].play_time;
 	fix modtime = lifeleft % play_time;
 
-#if defined(DXX_BUILD_DESCENT_II)
-	if (get_weapon_id(obj) == weapon_id_type::PROXIMITY_ID) {		//make prox bombs spin out of sync
+	if (is_proximity_bomb_or_smart_mine_or_placed_mine(get_weapon_id(obj)))
+	{		//make prox bombs spin out of sync
 		int objnum = obj;
 
 		modtime += (lifeleft * (objnum & 7)) / 16;	//add variance to spin rate
@@ -86,7 +86,6 @@ void draw_weapon_vclip(grs_canvas &canvas, const vcobjptridx_t obj)
 			modtime = play_time - modtime;
 
 	}
-#endif
 
 	draw_vclip_object(canvas, obj, modtime, 0, Vclip[vclip_num]);
 }

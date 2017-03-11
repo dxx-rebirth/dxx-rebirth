@@ -23,6 +23,7 @@ What's new in 0.60
 * "Bright Players" Multiplayer option will now only affect players instead of all polygon models.
 * Improved thief bot to (hopefully) work more accurate in Multiplayer.
 * New Multiplayer GAME INFO screen that can be toggled ingame, too.
+* Proximity Bomb spin variance logic now applies also to Smart Mines and pre-placed mines.
 * Fixed some Multiplayer scoring oddities.
 * ... and many, many more bugfixes and improvements.
 

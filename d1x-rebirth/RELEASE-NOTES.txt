@@ -19,6 +19,7 @@ What's new in 0.60
 * Important packets in Mulitplayer are handled in proper order, fixing a multitude of packet-loss related issues.
 * A plethora of new Multiplayer options. [Thanks to the Retro team, A Future Pilot and many more]
 * "Bright Players" Multiplayer option will now only affect players instead of all polygon models.
+* Descent 2 Proximity Bomb spin variance now applies in Descent 1.
 * New Multiplayer GAME INFO screen that can be toggled ingame, too.
 * Fixed some Multiplayer scoring oddities.
 * ... and many, many more bugfixes and improvements.
