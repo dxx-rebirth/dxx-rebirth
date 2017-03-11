@@ -422,8 +422,8 @@ public:
 		const auto &&offsets = get_sortnorm_offsets(p);
 		auto &a = offsets.first;
 		auto &b = offsets.second;
-		g3_draw_morphing_model(p + a,model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
-		g3_draw_morphing_model(p + b,model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
+		g3_draw_morphing_model(canvas, p + a, model_bitmaps, anim_angles, model_light, new_points, Interp_point_list);
+		g3_draw_morphing_model(canvas, p + b, model_bitmaps, anim_angles, model_light, new_points, Interp_point_list);
 	}
 	using g3_interpreter_draw_base::op_rodbm;
 	void op_subcall(const uint8_t *const p)
@@ -759,9 +759,9 @@ static int nest_count;
 #endif
 
 //alternate interpreter for morphing object
-void g3_draw_morphing_model(const uint8_t *const p, grs_bitmap *const *const model_bitmaps, const submodel_angles anim_angles, const g3s_lrgb model_light, const vms_vector *new_points, polygon_model_points &Interp_point_list)
+void g3_draw_morphing_model(grs_canvas &canvas, const uint8_t *const p, grs_bitmap *const *const model_bitmaps, const submodel_angles anim_angles, const g3s_lrgb model_light, const vms_vector *new_points, polygon_model_points &Interp_point_list)
 {
-	g3_draw_morphing_model_state state(model_bitmaps, Interp_point_list, *grd_curcanv, anim_angles, model_light, new_points);
+	g3_draw_morphing_model_state state(model_bitmaps, Interp_point_list, canvas, anim_angles, model_light, new_points);
 	iterate_polymodel(p, state);
 }
 

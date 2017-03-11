@@ -57,7 +57,7 @@ static inline void g3_uninit_polygon_model(void *model_ptr)
 #ifdef dsx
 namespace dsx {
 //alternate interpreter for morphing object
-void g3_draw_morphing_model(const uint8_t *model_ptr, grs_bitmap *const *model_bitmaps, submodel_angles anim_angles, g3s_lrgb light, const vms_vector *new_points, polygon_model_points &Interp_point_list);
+void g3_draw_morphing_model(grs_canvas &, const uint8_t *model_ptr, grs_bitmap *const *model_bitmaps, submodel_angles anim_angles, g3s_lrgb light, const vms_vector *new_points, polygon_model_points &Interp_point_list);
 
 // check a polymodel for it's color and return it
 int g3_poly_get_color(const uint8_t *model_ptr);

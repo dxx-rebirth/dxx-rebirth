@@ -388,7 +388,7 @@ static void draw_model(polygon_model_points &robot_points, polymodel *pm, int su
 			// Hmmm... cache got flushed in the middle of paging all these in,
 			// so we need to reread them all in.
 			// Make sure that they can all fit in memory.
-			g3_draw_morphing_model(&pm->model_data[pm->submodel_ptrs[submodel_num]],&texture_list[0],anim_angles,light,&md->morph_vecs[md->submodel_startpoints[submodel_num]], robot_points);
+			g3_draw_morphing_model(*grd_curcanv, &pm->model_data[pm->submodel_ptrs[submodel_num]], &texture_list[0], anim_angles, light, &md->morph_vecs[md->submodel_startpoints[submodel_num]], robot_points);
 		}
 		else {
 			const auto &&orient = vm_angles_2_matrix(anim_angles[mn]);
