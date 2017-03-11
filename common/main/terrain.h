@@ -26,12 +26,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#ifdef __cplusplus
 #include "fwd-vecmat.h"
+#include "fwd-gr.h"
 
 void free_light_table();
 void free_height_array();
 void load_terrain(const char *filename);
-void render_terrain(const vms_vector &org, int org_i, int org_j);
-
-#endif
+void render_terrain(grs_canvas &, const vms_vector &org, int org_i, int org_j);
