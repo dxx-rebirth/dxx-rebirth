@@ -73,7 +73,7 @@ void HUD_clear_messages()
 namespace dsx {
 // ----------------------------------------------------------------------------
 //	Writes a message on the HUD and checks its timer.
-void HUD_render_message_frame()
+void HUD_render_message_frame(grs_canvas &canvas)
 {
 	int y;
 
@@ -91,15 +91,15 @@ void HUD_render_message_frame()
 	HUD_messages.erase_if(expired);
 
 	// display last $HUD_MAX_NUM_DISP messages on the list
+	gr_set_curfont(canvas, GAME_FONT);
 	if (!HUD_messages.empty())
 	{
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
-
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
+		gr_set_fontcolor(canvas, HUD_color, -1);
 		y = FSPACY(1);
 
-		const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
+		const auto &&line_spacing = LINE_SPACING(canvas);
 #if defined(DXX_BUILD_DESCENT_II)
 		if (PlayerCfg.GuidedInBigWindow &&
 			Guided_missile[Player_num] &&
@@ -117,14 +117,10 @@ void HUD_render_message_frame()
 		if (strlen(i->message) > 38)
 			HUD_toolong = 1;
 		for (; i != e; ++i )	{
-			gr_set_fontcolor(*grd_curcanv, HUD_color, -1);
-
-			gr_string(*grd_curcanv, 0x8000, y, &i->message[0]);
+			gr_string(canvas, 0x8000, y, &i->message[0]);
 			y += line_spacing;
 		}
 	}
-
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
 }
 }
 

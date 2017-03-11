@@ -739,7 +739,7 @@ void game_render_frame_mono()
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		show_reticle(player_info, RET_TYPE_CROSS_V1, 0);
 
-		HUD_render_message_frame();
+		HUD_render_message_frame(*grd_curcanv);
 
 		no_draw_hud=1;
 	}

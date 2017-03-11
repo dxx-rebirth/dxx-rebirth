@@ -3255,7 +3255,7 @@ void draw_hud(const object &plrobj)
 			hud_show_orbs(*grd_curcanv, player_info, multires_gauge_graphic);
 		}
 #endif
-		HUD_render_message_frame();
+		HUD_render_message_frame(*grd_curcanv);
 
 		if (PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR)
 			hud_show_lives(*grd_curcanv, player_info, multires_gauge_graphic);
@@ -3273,7 +3273,7 @@ void draw_hud(const object &plrobj)
 	}
 
 	if (Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW) {
-		HUD_render_message_frame();
+		HUD_render_message_frame(*grd_curcanv);
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 		gr_string(*grd_curcanv, 0x8000, grd_curcanv->cv_bitmap.bm_h - LINE_SPACING(*grd_curcanv), TXT_REAR_VIEW);

@@ -11,6 +11,7 @@
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "fmtcheck.h"
+#include "fwd-gr.h"
 
 #ifdef __cplusplus
 
@@ -27,7 +28,7 @@ extern int HUD_toolong;
 extern void HUD_clear_messages();
 #ifdef dsx
 namespace dsx {
-extern void HUD_render_message_frame();
+void HUD_render_message_frame(grs_canvas &);
 }
 #endif
 int HUD_init_message(int class_flag, const char * format, ... ) __attribute_format_printf(2, 3);
