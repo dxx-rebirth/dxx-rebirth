@@ -2834,20 +2834,20 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 }
 }
 
-void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size)
+void show_mousefs_indicator(grs_canvas &canvas, int mx, int my, int mz, int x, int y, int size)
 {
 	int axscale = (MOUSEFS_DELTA_RANGE*2)/size, xaxpos = x+(mx/axscale), yaxpos = y+(my/axscale), zaxpos = y+(mz/axscale);
 
-	gr_settransblend(*grd_curcanv, PlayerCfg.ReticleRGBA[3], GR_BLEND_NORMAL);
+	gr_settransblend(canvas, PlayerCfg.ReticleRGBA[3], GR_BLEND_NORMAL);
 	auto &rgba = PlayerCfg.ReticleRGBA;
 	const auto color = BM_XRGB(rgba[0], rgba[1], rgba[2]);
-	gr_uline(*grd_curcanv, i2f(xaxpos), i2f(y-(size/2)), i2f(xaxpos), i2f(y-(size/4)), color);
-	gr_uline(*grd_curcanv, i2f(xaxpos), i2f(y+(size/2)), i2f(xaxpos), i2f(y+(size/4)), color);
-	gr_uline(*grd_curcanv, i2f(x-(size/2)), i2f(yaxpos), i2f(x-(size/4)), i2f(yaxpos), color);
-	gr_uline(*grd_curcanv, i2f(x+(size/2)), i2f(yaxpos), i2f(x+(size/4)), i2f(yaxpos), color);
+	gr_uline(canvas, i2f(xaxpos), i2f(y-(size/2)), i2f(xaxpos), i2f(y-(size/4)), color);
+	gr_uline(canvas, i2f(xaxpos), i2f(y+(size/2)), i2f(xaxpos), i2f(y+(size/4)), color);
+	gr_uline(canvas, i2f(x-(size/2)), i2f(yaxpos), i2f(x-(size/4)), i2f(yaxpos), color);
+	gr_uline(canvas, i2f(x+(size/2)), i2f(yaxpos), i2f(x+(size/4)), i2f(yaxpos), color);
 	const local_multires_gauge_graphic multires_gauge_graphic{};
-	gr_uline(*grd_curcanv, i2f(x+(size/2)+HUD_SCALE_X_AR(multires_gauge_graphic, 2)), i2f(y), i2f(x+(size/2)+HUD_SCALE_X_AR(multires_gauge_graphic, 2)), i2f(zaxpos), color);
-	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
+	gr_uline(canvas, i2f(x+(size/2)+HUD_SCALE_X_AR(multires_gauge_graphic, 2)), i2f(y), i2f(x+(size/2)+HUD_SCALE_X_AR(multires_gauge_graphic, 2)), i2f(zaxpos), color);
+	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
 }
 
 static void hud_show_kill_list(grs_canvas &canvas)
@@ -3268,7 +3268,7 @@ void draw_hud(const object &plrobj)
 			const auto gwidth = grd_curcanv->cv_bitmap.bm_w;
 			const auto gheight = grd_curcanv->cv_bitmap.bm_h;
 			auto &raw_mouse_axis = Controls.raw_mouse_axis;
-			show_mousefs_indicator(raw_mouse_axis[0], raw_mouse_axis[1], raw_mouse_axis[2], gwidth / 2, gheight / 2, gheight / 4);
+			show_mousefs_indicator(*grd_curcanv, raw_mouse_axis[0], raw_mouse_axis[1], raw_mouse_axis[2], gwidth / 2, gheight / 2, gheight / 4);
 		}
 	}
 

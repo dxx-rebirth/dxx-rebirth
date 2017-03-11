@@ -65,7 +65,7 @@ void show_reticle(grs_canvas &canvas, const player_info &, int reticle_type, int
 void show_HUD_names(grs_canvas &);
 }
 #endif
-void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size);
+void show_mousefs_indicator(grs_canvas &canvas, int mx, int my, int mz, int x, int y, int size);
 
 void player_dead_message(grs_canvas &);
 //extern void say_afterburner_status(void);

@@ -766,7 +766,7 @@ static void draw_automap(automap *am)
 		const auto gwidth = canvas.cv_bitmap.bm_w;
 		const auto gheight = canvas.cv_bitmap.bm_h;
 		auto &raw_mouse_axis = am->controls.raw_mouse_axis;
-		show_mousefs_indicator(raw_mouse_axis[0], raw_mouse_axis[1], raw_mouse_axis[2], gwidth - (gheight / 8), gheight - (gheight / 8), gheight / 5);
+		show_mousefs_indicator(canvas, raw_mouse_axis[0], raw_mouse_axis[1], raw_mouse_axis[2], gwidth - (gheight / 8), gheight - (gheight / 8), gheight / 5);
 	}
 
 	am->t2 = timer_query();
