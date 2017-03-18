@@ -328,7 +328,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const vcobjptr_t obj, const 
 }
 
 //draw an object which renders as a polygon model
-static void draw_polygon_object(grs_canvas &canvas, const vobjptridx_t obj)
+static void draw_polygon_object(grs_canvas &canvas, const vcobjptridx_t obj)
 {
 	g3s_lrgb light;
 	glow_values_t engine_glow_value;
@@ -440,8 +440,7 @@ static void draw_polygon_object(grs_canvas &canvas, const vobjptridx_t obj)
 			if (obj->type == OBJ_ROBOT)
 			{
 			//	Snipers get bright when they fire.
-			ai_local		*ailp = &obj->ctype.ai_info.ail;
-			if (ailp->next_fire < F1_0/8) {
+				if (obj->ctype.ai_info.ail.next_fire < F1_0/8) {
 				if (obj->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
 				{
 					light.r = 2*light.r + F1_0;
