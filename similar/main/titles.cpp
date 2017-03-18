@@ -780,14 +780,11 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 #endif
 			}
 			br->prev_ch = 10;                           // read to eoln
-		} else if (ch == 'N') {
+		}
+		else if ((ch == 'N' && (br->animating_bitmap_type = 0, true)) ||
+				(ch == 'O' && (br->animating_bitmap_type = 1, true)))
+		{
 			br->robot_canv.reset();
-			br->animating_bitmap_type = 0;
-			br->prev_ch = 10;
-			get_message_name(br->message, br->bitmap_name, "#0");
-		} else if (ch == 'O') {
-			br->robot_canv.reset();
-			br->animating_bitmap_type = 1;
 			br->prev_ch = 10;
 			get_message_name(br->message, br->bitmap_name, "#0");
 		} else if (ch=='A') {
