@@ -51,7 +51,9 @@ extern char * get_briefing_screen( int level_num );
 #if defined(DXX_BUILD_DESCENT_II)
 void show_loading_screen(uint8_t *title_pal);
 extern void show_endgame_briefing(void);
+namespace dsx {
 extern int intro_played;
+}
 #endif
 #ifdef dsx
 namespace dsx {

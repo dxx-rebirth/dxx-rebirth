@@ -189,10 +189,6 @@ static void show_title_screen(const char * filename, int allow_keys, int from_ho
 	event_process_all();
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
-int intro_played = 0;
-#endif
-
 static void show_first_found_title_screen(const char *oem, const char *share, const char *macshare)
 {
 	const char *filename = oem;
@@ -204,6 +200,10 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 }
 
 namespace dsx {
+#if defined(DXX_BUILD_DESCENT_II)
+int intro_played;
+#endif
+
 void show_titles(void)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -309,9 +309,7 @@ void show_titles(void)
 		show_title_screen(filename, 1, 1);
 #endif
 }
-}
 
-namespace dsx {
 void show_order_form()
 {
 	if (CGameArg.SysNoTitles)
@@ -712,8 +710,6 @@ static int load_briefing_screen(briefing *br, const char *fname);
 // Process a character for the briefing,
 // including special characters preceded by a '$'.
 // Return 1 when page is finished, 0 otherwise
-}
-namespace dsx {
 static int briefing_process_char(briefing *br)
 {
 	gr_set_curfont(*grd_curcanv, GAME_FONT);
