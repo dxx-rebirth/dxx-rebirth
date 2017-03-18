@@ -83,6 +83,8 @@ static int DefineBriefingBox (const char **buf);
 #endif
 #define DEFAULT_BRIEFING_BKG		"brief03.pcx"
 
+namespace dcx {
+
 static array<color_t, MAX_BRIEFING_COLORS>	Briefing_text_colors;
 static int	Current_color = 0;
 static color_t Erase_color;
@@ -96,6 +98,16 @@ static int rescale_x(const grs_bitmap &cv_bitmap, int x)
 static int rescale_y(const grs_bitmap &cv_bitmap, int y)
 {
 	return y * cv_bitmap.bm_h / 200;
+}
+
+static int get_message_num(const char *&message)
+{
+	char *p;
+	auto num = strtoul(message, &p, 10);
+	while (*p && *p != '\n')		//	Get and drop eoln
+		++p;
+	message = p;
+	return num;
 }
 
 namespace {
@@ -197,6 +209,8 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 		(filename = macshare, PHYSFSX_exists(filename, 1))
 		)
 		show_title_screen(filename, 1, 1);
+}
+
 }
 
 namespace dsx {
@@ -558,24 +572,6 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 }
 }
 
-static int get_message_num(const char **message)
-{
-	int	num=0;
-
-	while (strlen(*message) > 0 && **message == ' ')
-		(*message)++;
-
-	while (strlen(*message) > 0 && (**message >= '0') && (**message <= '9')) {
-		num = 10*num + **message-'0';
-		(*message)++;
-	}
-
-	while (strlen(*message) > 0 && *(*message)++ != 10)		//	Get and drop eoln
-		;
-
-	return num;
-}
-
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 static void set_briefing_fontcolor (struct briefing *br);
@@ -631,7 +627,7 @@ static const char * get_briefing_message(const briefing *br, int screen_num)
 		if (ch == '$') {
 			ch = *tptr++;
 			if (ch == 'S')
-				cur_screen = get_message_num(&tptr);
+				cur_screen = get_message_num(tptr);
 		}
 	}
 
@@ -724,14 +720,14 @@ static int briefing_process_char(briefing *br)
 			br->line_adjustment=0;
 			br->prev_ch = 10;                                   // read to eoln
 		} else if (ch=='U') {
-			br->cur_screen=get_message_num(&br->message);
+			br->cur_screen = get_message_num(br->message);
 			br->screen.reset(&Briefing_screens[br->cur_screen]);
 			init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 			br->prev_ch = 10;                                   // read to eoln
 		} else
 #endif
 		if (ch == 'C') {
-			Current_color = get_message_num(&br->message)-1;
+			Current_color = get_message_num(br->message) - 1;
 			if (Current_color < 0)
 				Current_color = 0;
 			else if (Current_color > MAX_BRIEFING_COLORS-1)
@@ -743,7 +739,7 @@ static int briefing_process_char(briefing *br)
 			while (*br->message++ != 10)
 				;
 		} else if (ch == 'T') {
-			br->tab_stop = get_message_num(&br->message);
+			br->tab_stop = get_message_num(br->message);
 			br->prev_ch = 10;							//	read to eoln
 		} else if (ch == 'R') {
 			br->robot_canv.reset();
@@ -756,7 +752,7 @@ static int briefing_process_char(briefing *br)
 
 			if (EMULATING_D1) {
 				init_spinning_robot(br);
-				br->robot_num = get_message_num(&br->message);
+				br->robot_num = get_message_num(br->message);
 #if defined(DXX_BUILD_DESCENT_II)
 				while (*br->message++ != 10)
 					;
@@ -1203,7 +1199,7 @@ static int DefineBriefingBox (const char **buf)
 	Briefing_screens[n].text_ulx=get_new_message_num (buf);
 	Briefing_screens[n].text_uly=get_new_message_num (buf);
 	Briefing_screens[n].text_width=get_new_message_num (buf);
-	Briefing_screens[n].text_height=get_message_num (buf);  // NOTICE!!!
+	Briefing_screens[n].text_height = get_message_num (*buf);  // NOTICE!!!
 
 	Briefing_screens[n].text_ulx = rescale_x(grd_curcanv->cv_bitmap, Briefing_screens[n].text_ulx);
 	Briefing_screens[n].text_uly = rescale_y(grd_curcanv->cv_bitmap, Briefing_screens[n].text_uly);
