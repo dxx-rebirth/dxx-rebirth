@@ -610,7 +610,7 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void set_briefing_fontcolor (struct briefing *br);
+static void set_briefing_fontcolor(struct briefing &br);
 static int get_new_message_num(const char *&message)
 {
 	char *p;
@@ -775,7 +775,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 
 				if (br->robot_playing) {
 					RotateRobot(br->pMovie);
-					set_briefing_fontcolor (br);
+					set_briefing_fontcolor(*br);
 				}
 #endif
 			}
@@ -924,30 +924,42 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 	return 0;
 }
 
-static void set_briefing_fontcolor (briefing *br)
+#if defined(DXX_BUILD_DESCENT_I)
+static void set_briefing_fontcolor()
+#elif defined(DXX_BUILD_DESCENT_II)
+static void set_briefing_fontcolor(briefing &br)
+#endif
 {
-	Briefing_text_colors[0] = gr_find_closest_color_current( 0, 40, 0);
-	Briefing_text_colors[1] = gr_find_closest_color_current( 40, 33, 35);
-	Briefing_text_colors[2] = gr_find_closest_color_current( 8, 31, 54);
-
+	struct rgb
+	{
+		int r, g, b;
+	};
+	array<rgb, 3> colors;
 	if (EMULATING_D1) {
 		//green
-		Briefing_text_colors[0] = gr_find_closest_color_current( 0, 54, 0);
+		colors[0] = {0, 54, 0};
 		//white
-		Briefing_text_colors[1] = gr_find_closest_color_current( 42, 38, 32);
+		colors[1] = {42, 38, 32};
 		//Begin D1X addition
 		//red
-		Briefing_text_colors[2] = gr_find_closest_color_current( 63, 0, 0);
+		colors[2] = {63, 0, 0};
+	}
+	else
+	{
+		colors[0] = {0, 40, 0};
+		colors[1] = {40, 33, 35};
+		colors[2] = {8, 31, 54};
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
-	(void)br;
-#elif defined(DXX_BUILD_DESCENT_II)
-	if (br->robot_playing)
+#if defined(DXX_BUILD_DESCENT_II)
+	if (br.robot_playing)
 	{
-		Briefing_text_colors[0] = gr_find_closest_color_current( 0, 31, 0);
+		colors[0] = {0, 31, 0};
 	}
 #endif
+	Briefing_text_colors[0] = gr_find_closest_color_current(colors[0].r, colors[0].g, colors[0].b);
+	Briefing_text_colors[1] = gr_find_closest_color_current(colors[1].r, colors[1].g, colors[1].b);
+	Briefing_text_colors[2] = gr_find_closest_color_current(colors[2].r, colors[2].g, colors[2].b);
 
 	//blue
 	Briefing_text_colors[3] = gr_find_closest_color_current( 0, 0, 54);
@@ -1261,7 +1273,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	show_fullscr(*grd_curcanv, br->background);
 	gr_palette_load(gr_palette);
 
-	set_briefing_fontcolor(NULL);
+	set_briefing_fontcolor();
 
 	br->screen = make_unique<briefing_screen>(D1_Briefing_screens[br->cur_screen]);
 	br->screen->text_ulx = rescale_x(grd_curcanv->cv_bitmap, br->screen->text_ulx);
@@ -1284,7 +1296,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 
 	gr_palette_load(gr_palette);
 
-	set_briefing_fontcolor(br);
+	set_briefing_fontcolor(*br);
 
 	if (EMULATING_D1)
 	{
