@@ -29,15 +29,7 @@ enum con_priority
 	CON_DEBUG
 };
 
-#define CON_LINES_ONSCREEN 18
-#define CON_SCROLL_OFFSET  (CON_LINES_ONSCREEN - 3)
-#define CON_LINES_MAX      128
 constexpr std::size_t CON_LINE_LENGTH = 2048;
-
-#define CON_STATE_OPEN 2
-#define CON_STATE_OPENING 1
-#define CON_STATE_CLOSING -1
-#define CON_STATE_CLOSED -2
 
 struct console_buffer
 {

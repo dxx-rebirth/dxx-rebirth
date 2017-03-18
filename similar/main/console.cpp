@@ -34,9 +34,21 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+constexpr unsigned CON_LINES_ONSCREEN = 18;
+constexpr auto CON_SCROLL_OFFSET = CON_LINES_ONSCREEN - 3;
+constexpr unsigned CON_LINES_MAX = 128;
+
+enum con_state {
+	CON_STATE_CLOSING = -1,
+	CON_STATE_CLOSED = 0,
+	CON_STATE_OPENING = 1,
+	CON_STATE_OPEN = 2
+};
+
 static RAIIPHYSFS_File gamelog_fp;
 static array<console_buffer, CON_LINES_MAX> con_buffer;
-static int con_state = CON_STATE_CLOSED, con_scroll_offset = 0, con_size = 0;
+static con_state con_state;
+static int con_scroll_offset, con_size;
 
 static void con_add_buffer_line(const con_priority priority, const char *const buffer, const size_t len)
 {
