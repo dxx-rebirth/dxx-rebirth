@@ -213,7 +213,7 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 int intro_played;
-static int DefineBriefingBox(const char *&buf);
+static int DefineBriefingBox(const grs_bitmap &, const char *&buf);
 #endif
 
 void show_titles(void)
@@ -723,7 +723,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 		ch = *br->message++;
 #if defined(DXX_BUILD_DESCENT_II)
 		if (ch=='D') {
-			br->cur_screen = DefineBriefingBox(br->message);
+			br->cur_screen = DefineBriefingBox(grd_curcanv->cv_bitmap, br->message);
 			br->screen.reset(&Briefing_screens[br->cur_screen]);
 			init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 			br->line_adjustment=0;
@@ -1187,7 +1187,7 @@ static void init_new_page(briefing *br)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static int DefineBriefingBox(const char *&buf)
+static int DefineBriefingBox(const grs_bitmap &cv_bitmap, const char *&buf)
 {
 	int i=0;
 	char name[20];
@@ -1212,10 +1212,10 @@ static int DefineBriefingBox(const char *&buf)
 	Briefing_screens[n].text_width=get_new_message_num (buf);
 	Briefing_screens[n].text_height = get_message_num (buf);  // NOTICE!!!
 
-	Briefing_screens[n].text_ulx = rescale_x(grd_curcanv->cv_bitmap, Briefing_screens[n].text_ulx);
-	Briefing_screens[n].text_uly = rescale_y(grd_curcanv->cv_bitmap, Briefing_screens[n].text_uly);
-	Briefing_screens[n].text_width = rescale_x(grd_curcanv->cv_bitmap, Briefing_screens[n].text_width);
-	Briefing_screens[n].text_height = rescale_y(grd_curcanv->cv_bitmap, Briefing_screens[n].text_height);
+	Briefing_screens[n].text_ulx = rescale_x(cv_bitmap, Briefing_screens[n].text_ulx);
+	Briefing_screens[n].text_uly = rescale_y(cv_bitmap, Briefing_screens[n].text_uly);
+	Briefing_screens[n].text_width = rescale_x(cv_bitmap, Briefing_screens[n].text_width);
+	Briefing_screens[n].text_height = rescale_y(cv_bitmap, Briefing_screens[n].text_height);
 
 	return (n);
 }
