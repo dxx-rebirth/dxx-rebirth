@@ -273,9 +273,7 @@ struct flickering_light {
 	fix delay;              // time between changes
 };
 
-#define MAX_FLICKERING_LIGHTS 100
-
-typedef array<flickering_light, MAX_FLICKERING_LIGHTS> Flickering_light_array_t;
+using Flickering_light_array_t = array<flickering_light, 100>;
 extern Flickering_light_array_t Flickering_lights;
 extern unsigned Num_flickering_lights;
 extern int BigWindowSwitch;
