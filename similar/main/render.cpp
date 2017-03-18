@@ -563,7 +563,7 @@ im_so_ashamed: ;
 }
 
 #if DXX_USE_EDITOR
-static void render_object_search(const vobjptridx_t obj)
+static void render_object_search(grs_canvas &canvas, const vobjptridx_t obj)
 {
 	int changed=0;
 
@@ -583,29 +583,29 @@ static void render_object_search(const vobjptridx_t obj)
 	// Point smoothing would change the pixel to dark grey, but it MUST be black.
 	// Making a 3x3 rectangle wouldn't matter
 	// (but it only seems to draw a single pixel anyway)
-	gr_rect(*grd_curcanv, _search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1, color);
+	gr_rect(canvas, _search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1, color);
 
-	ogl_start_frame(*grd_curcanv);
+	ogl_start_frame(canvas);
 #else
-	gr_pixel(grd_curcanv->cv_bitmap, _search_x, _search_y, color);
+	gr_pixel(canvas.cv_bitmap, _search_x, _search_y, color);
 #endif
 	}
-	render_object(*grd_curcanv, obj);
-	if (gr_ugpixel(grd_curcanv->cv_bitmap,_search_x,_search_y) != 0)
+	render_object(canvas, obj);
+	if (gr_ugpixel(canvas.cv_bitmap,_search_x,_search_y) != 0)
 		changed=1;
 
 	{
 		const uint8_t color = 1;
 #if DXX_USE_OGL
 	ogl_end_frame();
-	gr_rect(*grd_curcanv, _search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1, color);
-	ogl_start_frame(*grd_curcanv);
+	gr_rect(canvas, _search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1, color);
+	ogl_start_frame(canvas);
 #else
-	gr_pixel(grd_curcanv->cv_bitmap, _search_x, _search_y, color);
+	gr_pixel(canvas.cv_bitmap, _search_x, _search_y, color);
 #endif
 	}
-	render_object(*grd_curcanv, obj);
-	if (gr_ugpixel(grd_curcanv->cv_bitmap,_search_x,_search_y) != 1)
+	render_object(canvas, obj);
+	if (gr_ugpixel(canvas.cv_bitmap,_search_x,_search_y) != 1)
 		changed=1;
 
 	if (changed) {
@@ -672,7 +672,7 @@ static void do_render_object(const vobjptridx_t obj, window_rendered_data &windo
 
 #if DXX_USE_EDITOR
 	if (_search_mode)
-		render_object_search(obj);
+		render_object_search(*grd_curcanv, obj);
 	else
 	#endif
 		//NOTE LINK TO ABOVE
