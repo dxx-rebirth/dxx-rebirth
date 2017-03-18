@@ -371,6 +371,45 @@ struct briefing_screen {
 #define	ENDING_LEVEL_NUM_REGISTER 0x7e
 
 }
+
+static void get_message_name(const char *&message, array<char, 32> &result, const char *const trailer)
+{
+	auto p = message;
+	for (; *p == ' '; ++p)
+	{
+	}
+	const auto e = std::prev(result.end(), sizeof(".bbm"));
+	auto i = result.begin();
+	char c;
+	for (; (c = *p) && c != ' ' && c != '\n'; ++p)
+	{
+		*i++ = c;
+		if (i == e)
+			/* Avoid buffer overflow; this was not present in the
+			 * original code.
+			 */
+			break;
+	}
+	/* This is inconsistent.  If the copy loop terminated on a newline,
+	 * then `p` points to the newline and the next loop is skipped.  If
+	 * the copy loop terminated on a null, the next loop is attempted,
+	 * but exits immediately.  In both those cases, `p` is unchanged.
+	 * If the copy loop terminated on any other character, the next loop
+	 * will advance `p` to point to a null (consistent with the copy
+	 * loop terminating on a null) or past the newline (inconsistent
+	 * with the copy loop).
+	 *
+	 * This inconsistency was present in the prior version of the code,
+	 * and is retained in case there exist briefings which rely on this
+	 * inconsistency.
+	 */
+	if (c != '\n')
+		while ((c = *p) && (++p, c) != '\n')		//	Get and drop eoln
+		{
+		}
+	message = p;
+	strcpy(i, trailer);
+}
 }
 
 namespace dsx {
@@ -507,7 +546,7 @@ struct briefing : ignore_window_pointer_t
 	int		robot_num;
 	grs_subcanvas_ptr	robot_canv;
 	vms_angvec	robot_angles;
-	char    bitmap_name[32];
+	array<char, 32> bitmap_name;
 	grs_main_bitmap  guy_bitmap;
 	sbyte   door_dir, door_div_count, animating_bitmap_type;
 	sbyte	prev_ch;
@@ -580,27 +619,7 @@ static int get_new_message_num(const char *&message)
 	return num;
 }
 #endif
-}
 
-static void get_message_name(const char **message, char *result)
-{
-	while (strlen(*message) > 0 && **message == ' ')
-		(*message)++;
-
-	while (strlen(*message) > 0 && (**message != ' ') && (**message != 10)) {
-		if (**message != '\n')
-			*result++ = **message;
-		(*message)++;
-	}
-
-	if (**message != 10)
-		while (strlen(*message) > 0 && *(*message)++ != 10)		//	Get and drop eoln
-			;
-
-	*result = 0;
-}
-
-namespace dsx {
 // Return a pointer to the start of text for screen #screen_num.
 static const char * get_briefing_message(const briefing *br, int screen_num)
 {
@@ -763,16 +782,14 @@ static int briefing_process_char(briefing *br)
 			br->prev_ch = 10;                           // read to eoln
 		} else if (ch == 'N') {
 			br->robot_canv.reset();
-			get_message_name(&br->message, br->bitmap_name);
-			strcat(br->bitmap_name, "#0");
 			br->animating_bitmap_type = 0;
 			br->prev_ch = 10;
+			get_message_name(br->message, br->bitmap_name, "#0");
 		} else if (ch == 'O') {
 			br->robot_canv.reset();
-			get_message_name(&br->message, br->bitmap_name);
-			strcat(br->bitmap_name, "#0");
 			br->animating_bitmap_type = 1;
 			br->prev_ch = 10;
+			get_message_name(br->message, br->bitmap_name, "#0");
 		} else if (ch=='A') {
 #if defined(DXX_BUILD_DESCENT_II)
 			br->line_adjustment=1-br->line_adjustment;
@@ -816,14 +833,13 @@ static int briefing_process_char(briefing *br)
 
 #endif
 		} else if (ch == 'B') {
-			char		bitmap_name[32];
+			array<char, 32> bitmap_name;
 			palette_array_t		temp_palette;
 			int		iff_error;
 			br->robot_canv.reset();
-			get_message_name(&br->message, bitmap_name);
-			strcat(bitmap_name, ".bbm");
+			get_message_name(br->message, bitmap_name, ".bbm");
 			br->guy_bitmap.reset();
-			iff_error = iff_read_bitmap(bitmap_name, br->guy_bitmap, &temp_palette);
+			iff_error = iff_read_bitmap(&bitmap_name[0], br->guy_bitmap, &temp_palette);
 #if defined(DXX_BUILD_DESCENT_II)
 			gr_remap_bitmap_good( br->guy_bitmap, temp_palette, -1, -1 );
 #endif
@@ -992,7 +1008,7 @@ static void show_animated_bitmap(briefing *br)
 	if (br->door_div_count) {
 		if (br->bitmap_name[0] != 0) {
 			bitmap_index bi;
-			bi = piggy_find_bitmap(br->bitmap_name);
+			bi = piggy_find_bitmap(&br->bitmap_name[0]);
 			bitmap_ptr = &GameBitmaps[bi.index];
 			PIGGY_PAGE_IN( bi );
 #if DXX_USE_OGL
@@ -1022,7 +1038,7 @@ static void show_animated_bitmap(briefing *br)
 		curcanv_save = grd_curcanv;
 		grd_curcanv = bitmap_canv.get();
 
-		pound_signp = strchr(br->bitmap_name, '#');
+		pound_signp = strchr(&br->bitmap_name[0], '#');
 		Assert(pound_signp != NULL);
 
 		dig1 = *(pound_signp+1);
@@ -1060,7 +1076,7 @@ static void show_animated_bitmap(briefing *br)
 			*(pound_signp+2) = 0;
 		}
 
-		bi = piggy_find_bitmap(br->bitmap_name);
+		bi = piggy_find_bitmap(&br->bitmap_name[0]);
 		bitmap_ptr = &GameBitmaps[bi.index];
 		PIGGY_PAGE_IN( bi );
 #if DXX_USE_OGL
