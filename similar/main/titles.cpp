@@ -74,7 +74,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr int EMULATING_D1 = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
-static int DefineBriefingBox (const char **buf);
+static int DefineBriefingBox (const char *&buf);
 #endif
 
 #define MAX_BRIEFING_COLORS     7
@@ -570,30 +570,18 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 
 	return (1);
 }
-}
 
 #if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
 static void set_briefing_fontcolor (struct briefing *br);
-
-}
-static int get_new_message_num(const char **message)
+static int get_new_message_num(const char *&message)
 {
-	int	num=0;
-
-	while (strlen(*message) > 0 && **message == ' ')
-		(*message)++;
-
-	while (strlen(*message) > 0 && (**message >= '0') && (**message <= '9')) {
-		num = 10*num + **message-'0';
-		(*message)++;
-	}
-
-	(*message)++;
-
+	char *p;
+	const auto num = strtoul(message, &p, 10);
+	message = p + 1;
 	return num;
 }
 #endif
+}
 
 static void get_message_name(const char **message, char *result)
 {
@@ -714,7 +702,7 @@ static int briefing_process_char(briefing *br)
 		ch = *br->message++;
 #if defined(DXX_BUILD_DESCENT_II)
 		if (ch=='D') {
-			br->cur_screen=DefineBriefingBox (&br->message);
+			br->cur_screen = DefineBriefingBox(br->message);
 			br->screen.reset(&Briefing_screens[br->cur_screen]);
 			init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 			br->line_adjustment=0;
@@ -1177,18 +1165,19 @@ static void init_new_page(briefing *br)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static int DefineBriefingBox (const char **buf)
+static int DefineBriefingBox(const char *&buf)
 {
-	int n,i=0;
+	int i=0;
 	char name[20];
 
-	n=get_new_message_num (buf);
+	const auto n = get_new_message_num (buf);
 
 	Assert(n < MAX_BRIEFING_SCREENS);
 
-	while (**buf!=' ') {
-		name[i++]=**buf;
-		(*buf)++;
+	while (*buf != ' ')
+	{
+		name[i++]= *buf;
+		++buf;
 	}
 
 	name[i]='\0';   // slap a delimiter on this guy
@@ -1199,7 +1188,7 @@ static int DefineBriefingBox (const char **buf)
 	Briefing_screens[n].text_ulx=get_new_message_num (buf);
 	Briefing_screens[n].text_uly=get_new_message_num (buf);
 	Briefing_screens[n].text_width=get_new_message_num (buf);
-	Briefing_screens[n].text_height = get_message_num (*buf);  // NOTICE!!!
+	Briefing_screens[n].text_height = get_message_num (buf);  // NOTICE!!!
 
 	Briefing_screens[n].text_ulx = rescale_x(grd_curcanv->cv_bitmap, Briefing_screens[n].text_ulx);
 	Briefing_screens[n].text_uly = rescale_y(grd_curcanv->cv_bitmap, Briefing_screens[n].text_uly);
