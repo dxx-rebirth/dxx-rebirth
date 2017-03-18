@@ -710,9 +710,9 @@ static int load_briefing_screen(briefing *br, const char *fname);
 // Process a character for the briefing,
 // including special characters preceded by a '$'.
 // Return 1 when page is finished, 0 otherwise
-static int briefing_process_char(briefing *br)
+static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 {
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
+	gr_set_curfont(canvas, GAME_FONT);
 	char ch = *br->message++;
 	if (ch == '$') {
 		ch = *br->message++;
@@ -877,7 +877,7 @@ static int briefing_process_char(briefing *br)
 
 			return 1;
 		} else if (ch == '$' || ch == ';') // Print a $/;
-			put_char_delay(*grd_curcanv->cv_font, br, ch);
+			put_char_delay(*canvas.cv_font, br, ch);
 	} else if (ch == '\t') {		//	Tab
 		const auto &&fspacx = FSPACX();
 		if (br->text_x - br->screen->text_ulx < fspacx(br->tab_stop))
@@ -921,7 +921,7 @@ static int briefing_process_char(briefing *br)
 			load_briefing_screen (br, HIRESMODE?"end01b.pcx":"end01.pcx");
 		}
 #endif
-		put_char_delay(*grd_curcanv->cv_font, br, ch);
+		put_char_delay(*canvas.cv_font, br, ch);
 	}
 
 	return 0;
@@ -1488,7 +1488,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			timer_delay2(50);
 
 			if (!(br->new_screen || br->new_page))
-				while (!briefing_process_char(br) && !br->delay_count)
+				while (!briefing_process_char(*grd_curcanv, br) && !br->delay_count)
 				{
 					check_text_pos(br);
 					if (br->new_page)
