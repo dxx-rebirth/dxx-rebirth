@@ -849,7 +849,7 @@ int gr_disk(grs_canvas &canvas, const fix x, const fix y, const fix r, const uin
 /*
  * Draw flat-shaded Polygon (Lasers, Drone-arms, Driller-ears)
  */
-void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, const g3s_point *const *const pointlist, const uint8_t palette_color_index)
+void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const *const pointlist, const uint8_t palette_color_index)
 {
 	struct vfloat
 	{
