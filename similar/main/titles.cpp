@@ -651,7 +651,7 @@ static int check_text_pos(briefing *br)
 	return 0;
 }
 
-static void put_char_delay(briefing *br, char ch)
+static void put_char_delay(const grs_font &cv_font, briefing *const br, const char ch)
 {
 	char str[2];
 	int	w;
@@ -672,7 +672,7 @@ static void put_char_delay(briefing *br, char ch)
 	br->streamcount++;
 
 	br->prev_ch = ch;
-	gr_get_string_size(*grd_curcanv->cv_font, str, &w, nullptr, nullptr);
+	gr_get_string_size(cv_font, str, &w, nullptr, nullptr);
 	br->text_x += w;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -861,7 +861,7 @@ static int briefing_process_char(briefing *br)
 
 			return 1;
 		} else if (ch == '$' || ch == ';') // Print a $/;
-			put_char_delay(br, ch);
+			put_char_delay(*grd_curcanv->cv_font, br, ch);
 	} else if (ch == '\t') {		//	Tab
 		const auto &&fspacx = FSPACX();
 		if (br->text_x - br->screen->text_ulx < fspacx(br->tab_stop))
@@ -905,8 +905,7 @@ static int briefing_process_char(briefing *br)
 			load_briefing_screen (br, HIRESMODE?"end01b.pcx":"end01.pcx");
 		}
 #endif
-
-		put_char_delay(br, ch);
+		put_char_delay(*grd_curcanv->cv_font, br, ch);
 	}
 
 	return 0;
