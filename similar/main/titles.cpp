@@ -77,7 +77,6 @@ constexpr int EMULATING_D1 = 1;
 static int DefineBriefingBox (const char *&buf);
 #endif
 
-#define MAX_BRIEFING_COLORS     7
 #if defined(DXX_BUILD_DESCENT_II)
 #define	SHAREWARE_ENDING_FILENAME	"ending.tex"
 #endif
@@ -85,7 +84,7 @@ static int DefineBriefingBox (const char *&buf);
 
 namespace dcx {
 
-static array<color_t, MAX_BRIEFING_COLORS>	Briefing_text_colors;
+static array<color_t, 7> Briefing_text_colors;
 static int	Current_color = 0;
 static color_t Erase_color;
 
@@ -357,6 +356,8 @@ void show_order_form()
 }
 }
 
+namespace dcx {
+namespace {
 
 //-----------------------------------------------------------------------------
 struct briefing_screen {
@@ -367,16 +368,18 @@ struct briefing_screen {
 	short   text_width, text_height;    //  width and height of text window
 };
 
-#define BRIEFING_SECRET_NUM 31          //  This must correspond to the first secret level which must come at the end of the list.
-#define BRIEFING_OFFSET_NUM 4           // This must correspond to the first level screen (ie, past the bald guy briefing screens)
-
 #define	ENDING_LEVEL_NUM_OEMSHARE 0x7f
 #define	ENDING_LEVEL_NUM_REGISTER 0x7e
 
-#if defined(DXX_BUILD_DESCENT_II)
-#define MAX_BRIEFING_SCREENS 60
+}
+}
 
-static array<briefing_screen, MAX_BRIEFING_SCREENS> Briefing_screens{{
+namespace dsx {
+namespace {
+
+#if defined(DXX_BUILD_DESCENT_II)
+
+static array<briefing_screen, 60> Briefing_screens{{
 	{"brief03.pcx",0,3,8,8,257,177}
 }}; // default=0!!!
 #endif
@@ -455,15 +458,13 @@ struct msgstream
 	char ch;
 };
 
-namespace {
-
 class briefing_screen_deleter : std::default_delete<briefing_screen>
 {
 	typedef std::default_delete<briefing_screen> base_deleter;
 public:
 	briefing_screen_deleter() = default;
 	briefing_screen_deleter(base_deleter &&b) : base_deleter(std::move(b)) {}
-	void operator()(briefing_screen *p) const
+	void operator()(briefing_screen *const p) const
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		if (p >= &Briefing_screens.front() && p <= &Briefing_screens.back())
@@ -513,7 +514,6 @@ struct briefing : ignore_window_pointer_t
 
 }
 
-namespace dsx {
 static void briefing_init(briefing *br, short level_num)
 {
 	br->level_num = level_num;
@@ -532,11 +532,9 @@ static void briefing_init(briefing *br, short level_num)
 	br->door_div_count = 0;
 	br->animating_bitmap_type = 0;
 }
-}
 
 //-----------------------------------------------------------------------------
 //	Load Descent briefing text.
-namespace dsx {
 static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &buf)
 {
 	int len, have_binary = 0;
@@ -718,8 +716,8 @@ static int briefing_process_char(briefing *br)
 			Current_color = get_message_num(br->message) - 1;
 			if (Current_color < 0)
 				Current_color = 0;
-			else if (Current_color > MAX_BRIEFING_COLORS-1)
-				Current_color = MAX_BRIEFING_COLORS-1;
+			else if (Current_color > Briefing_text_colors.size() - 1)
+				Current_color = Briefing_text_colors.size() - 1;
 			br->prev_ch = 10;
 		} else if (ch == 'F') {     // toggle flashing cursor
 			br->flashing_cursor = !br->flashing_cursor;
@@ -1172,7 +1170,7 @@ static int DefineBriefingBox(const char *&buf)
 
 	const auto n = get_new_message_num (buf);
 
-	Assert(n < MAX_BRIEFING_SCREENS);
+	assert(n < Briefing_screens.size());
 
 	while (*buf != ' ')
 	{
