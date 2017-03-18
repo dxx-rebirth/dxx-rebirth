@@ -4585,16 +4585,16 @@ static void multi_do_ranking (const playernum_t pnum, const ubyte *buf)
 		HUD_init_message(HM_MULTI, "%s has been %smoted to %s!",static_cast<const char *>(Players[pnum].callsign), rankstr, RankStrings[rank]);
 }
 
-namespace dsx {
+namespace dcx {
 
 // Decide if fire from "killer" is friendly. If yes return 1 (no harm to me) otherwise 0 (damage me)
-int multi_maybe_disable_friendly_fire(const cobjptridx_t killer)
+static int multi_maybe_disable_friendly_fire(const object_base *const killer)
 {
 	if (!(Game_mode & GM_NETWORK)) // no Multiplayer game -> always harm me!
 		return 0;
 	if (!Netgame.NoFriendlyFire) // friendly fire is activated -> harm me!
 		return 0;
-	if (killer == object_none) // no actual killer -> harm me!
+	if (!killer) // no actual killer -> harm me!
 		return 0;
 	if (killer->type != OBJ_PLAYER) // not a player -> harm me!
 		return 0;
@@ -4602,12 +4602,21 @@ int multi_maybe_disable_friendly_fire(const cobjptridx_t killer)
 		return is_coop;
 	else if (Game_mode & GM_TEAM) // team mode - find out if killer is in my team
 	{
-		if (get_team(Player_num) == get_team(get_player_id(killer))) // in my team -> don't harm me!
+		if (get_team(Player_num) == get_team(get_player_id(*killer))) // in my team -> don't harm me!
 			return 1;
 		else // opposite team -> harm me!
 			return 0;
 	}
 	return 0; // all other cases -> harm me!
+}
+
+}
+
+namespace dsx {
+
+int multi_maybe_disable_friendly_fire(const object *const killer)
+{
+	return multi_maybe_disable_friendly_fire(static_cast<const object_base *>(killer));
 }
 
 }

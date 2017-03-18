@@ -466,7 +466,7 @@ void multi_send_remobj(vobjptridx_t objnum);
 void multi_send_door_open(vcsegidx_t segnum, unsigned side, uint8_t flag);
 void multi_send_drop_weapon(vobjptridx_t objnum,int seed);
 void multi_reset_player_object(vobjptr_t objp);
-int multi_maybe_disable_friendly_fire(cobjptridx_t killer);
+int multi_maybe_disable_friendly_fire(const object *killer);
 }
 #endif
 
