@@ -38,7 +38,7 @@ static RAIIPHYSFS_File gamelog_fp;
 static array<console_buffer, CON_LINES_MAX> con_buffer;
 static int con_state = CON_STATE_CLOSED, con_scroll_offset = 0, con_size = 0;
 
-static void con_add_buffer_line(int priority, const char *buffer, size_t len)
+static void con_add_buffer_line(const con_priority priority, const char *const buffer, const size_t len)
 {
 	/* shift con_buffer for one line */
 	std::move(std::next(con_buffer.begin()), con_buffer.end(), con_buffer.begin());
@@ -50,7 +50,7 @@ static void con_add_buffer_line(int priority, const char *buffer, size_t len)
 	memcpy(&c.line,buffer, copy);
 }
 
-void (con_printf)(int priority, const char *fmt, ...)
+void (con_printf)(const con_priority priority, const char *const fmt, ...)
 {
 	va_list arglist;
 	char buffer[CON_LINE_LENGTH];
@@ -106,7 +106,7 @@ static void con_print_file(const char *buffer)
 	}
 }
 
-void con_puts(int priority, char *buffer, size_t len)
+void con_puts(const con_priority priority, char *const buffer, const size_t len)
 {
 	if (priority <= CGameArg.DbgVerbose)
 	{
@@ -117,7 +117,7 @@ void con_puts(int priority, char *buffer, size_t len)
 	}
 }
 
-void con_puts(int priority, const char *buffer, size_t len)
+void con_puts(const con_priority priority, const char *const buffer, const size_t len)
 {
 	if (priority <= CGameArg.DbgVerbose)
 	{

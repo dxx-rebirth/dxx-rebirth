@@ -19,12 +19,15 @@
 #ifdef __cplusplus
 
 /* Priority levels */
-#define CON_CRITICAL -3
-#define CON_URGENT   -2
-#define CON_HUD      -1
-#define CON_NORMAL    0
-#define CON_VERBOSE   1
-#define CON_DEBUG     2
+enum con_priority
+{
+	CON_CRITICAL = -3,
+	CON_URGENT,
+	CON_HUD,
+	CON_NORMAL,
+	CON_VERBOSE,
+	CON_DEBUG
+};
 
 #define CON_LINES_ONSCREEN 18
 #define CON_SCROLL_OFFSET  (CON_LINES_ONSCREEN - 3)
@@ -43,15 +46,15 @@ struct console_buffer
 };
 
 void con_init(void);
-void con_puts(int level, char *str, size_t len) __attribute_nonnull();
-void con_puts(int level, const char *str, size_t len) __attribute_nonnull();
+void con_puts(con_priority level, char *str, size_t len) __attribute_nonnull();
+void con_puts(con_priority level, const char *str, size_t len) __attribute_nonnull();
 template <size_t len>
-static inline void con_puts_literal(int level, const char (&str)[len])
+static inline void con_puts_literal(const con_priority level, const char (&str)[len])
 {
 	con_puts(level, str, len - 1);
 }
 #define con_puts(A1,S,...)	(con_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
-void con_printf(int level, const char *fmt, ...) __attribute_format_printf(2, 3);
+void con_printf(con_priority level, const char *fmt, ...) __attribute_format_printf(2, 3);
 #ifdef DXX_CONSTANT_TRUE
 #define DXX_CON_PRINTF_CHECK_TRAILING_NEWLINE(F)	\
 	(DXX_CONSTANT_TRUE(sizeof((F)) > 1 && (F)[sizeof((F)) - 2] == '\n') &&	\
