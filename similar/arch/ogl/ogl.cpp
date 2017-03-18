@@ -126,7 +126,8 @@ static int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc;
 
 #define OGL_BINDTEXTURE(a) glBindTexture(GL_TEXTURE_2D, a);
 
-static array<ogl_texture, OGL_TEXTURE_LIST_SIZE> ogl_texture_list;
+/* I assume this ought to be >= MAX_BITMAP_FILES in piggy.h? */
+static array<ogl_texture, 20000> ogl_texture_list;
 static int ogl_texture_list_cur;
 
 /* some function prototypes */
@@ -261,11 +262,11 @@ void ogl_smash_texture_list_internal(void){
 }
 
 ogl_texture* ogl_get_free_texture(void){
-	int i;
-	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++){
+	for (unsigned i = ogl_texture_list.size(); i--;)
+	{
 		if (ogl_texture_list[ogl_texture_list_cur].handle<=0 && ogl_texture_list[ogl_texture_list_cur].w==0)
 			return &ogl_texture_list[ogl_texture_list_cur];
-		if (++ogl_texture_list_cur>=OGL_TEXTURE_LIST_SIZE)
+		if (++ogl_texture_list_cur >= ogl_texture_list.size())
 			ogl_texture_list_cur=0;
 	}
 	Error("OGL: texture list full!\n");

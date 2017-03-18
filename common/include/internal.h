@@ -15,8 +15,6 @@
 
 #ifdef __cplusplus
 
-/* I assume this ought to be >= MAX_BITMAP_FILES in piggy.h? */
-#define OGL_TEXTURE_LIST_SIZE 20000
 
 void ogl_init_texture_list_internal(void);
 void ogl_smash_texture_list_internal(void);
