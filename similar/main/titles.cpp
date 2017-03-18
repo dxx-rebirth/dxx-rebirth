@@ -73,8 +73,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr int EMULATING_D1 = 1;
-#elif defined(DXX_BUILD_DESCENT_II)
-static int DefineBriefingBox (const char *&buf);
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -85,7 +83,7 @@ static int DefineBriefingBox (const char *&buf);
 namespace dcx {
 
 static array<color_t, 7> Briefing_text_colors;
-static int	Current_color = 0;
+static color_t *Current_color;
 static color_t Erase_color;
 
 // added by Jan Bobrowski for variable-size menu screen
@@ -215,6 +213,7 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 int intro_played;
+static int DefineBriefingBox(const char *&buf);
 #endif
 
 void show_titles(void)
@@ -458,6 +457,9 @@ struct msgstream
 	char ch;
 };
 
+#if defined(DXX_BUILD_DESCENT_I)
+using briefing_screen_deleter = std::default_delete<briefing_screen>;
+#elif defined(DXX_BUILD_DESCENT_II)
 class briefing_screen_deleter : std::default_delete<briefing_screen>
 {
 	typedef std::default_delete<briefing_screen> base_deleter;
@@ -466,13 +468,12 @@ public:
 	briefing_screen_deleter(base_deleter &&b) : base_deleter(std::move(b)) {}
 	void operator()(briefing_screen *const p) const
 	{
-#if defined(DXX_BUILD_DESCENT_II)
 		if (p >= &Briefing_screens.front() && p <= &Briefing_screens.back())
 			return;
-#endif
 		this->base_deleter::operator()(p);
 	}
 };
+#endif
 
 struct briefing : ignore_window_pointer_t
 {
@@ -599,6 +600,7 @@ static void get_message_name(const char **message, char *result)
 	*result = 0;
 }
 
+namespace dsx {
 // Return a pointer to the start of text for screen #screen_num.
 static const char * get_briefing_message(const briefing *br, int screen_num)
 {
@@ -649,7 +651,6 @@ static int check_text_pos(briefing *br)
 	return 0;
 }
 
-namespace dsx {
 static void put_char_delay(briefing *br, char ch)
 {
 	char str[2];
@@ -666,7 +667,7 @@ static void put_char_delay(briefing *br, char ch)
 		return;
 	br->messagestream[br->streamcount].x = br->text_x;
 	br->messagestream[br->streamcount].y = br->text_y;
-	br->messagestream[br->streamcount].color = Briefing_text_colors[Current_color];
+	br->messagestream[br->streamcount].color = *Current_color;
 	br->messagestream[br->streamcount].ch = ch;
 	br->streamcount++;
 
@@ -683,10 +684,8 @@ static void put_char_delay(briefing *br, char ch)
 
 	br->start_time = timer_query();
 }
-}
 
 static void init_spinning_robot(briefing *br);
-namespace dsx {
 static int load_briefing_screen(briefing *br, const char *fname);
 
 // Process a character for the briefing,
@@ -713,11 +712,12 @@ static int briefing_process_char(briefing *br)
 		} else
 #endif
 		if (ch == 'C') {
-			Current_color = get_message_num(br->message) - 1;
-			if (Current_color < 0)
-				Current_color = 0;
-			else if (Current_color > Briefing_text_colors.size() - 1)
-				Current_color = Briefing_text_colors.size() - 1;
+			auto cc = get_message_num(br->message) - 1;
+			if (cc < 0)
+				cc = 0;
+			else if (cc > Briefing_text_colors.size() - 1)
+				cc = Briefing_text_colors.size() - 1;
+			Current_color = &Briefing_text_colors[cc];
 			br->prev_ch = 10;
 		} else if (ch == 'F') {     // toggle flashing cursor
 			br->flashing_cursor = !br->flashing_cursor;
@@ -911,9 +911,7 @@ static int briefing_process_char(briefing *br)
 
 	return 0;
 }
-}
 
-namespace dsx {
 static void set_briefing_fontcolor (briefing *br)
 {
 	Briefing_text_colors[0] = gr_find_closest_color_current( 0, 40, 0);
@@ -964,11 +962,12 @@ static void redraw_messagestream(grs_canvas &canvas, const msgstream &stream, un
 	gr_string(canvas, stream.x + 1, stream.y, msgbuf);
 }
 
+namespace dsx {
 static void flash_cursor(grs_canvas &canvas, briefing *const br, const int cursor_flag)
 {
 	if (cursor_flag == 0)
 		return;
-	gr_set_fontcolor(canvas, (timer_query() % (F1_0 / 2)) > F1_0 / 4 ? Briefing_text_colors[Current_color] : Erase_color, -1);
+	gr_set_fontcolor(canvas, (timer_query() % (F1_0 / 2)) > F1_0 / 4 ? *Current_color : Erase_color, -1);
 	gr_string(canvas, br->text_x, br->text_y, "_");
 }
 
@@ -1088,6 +1087,8 @@ static void show_animated_bitmap(briefing *br)
 	}
 }
 
+}
+
 //-----------------------------------------------------------------------------
 static void show_briefing_bitmap(grs_bitmap *bmp)
 {
@@ -1106,7 +1107,8 @@ static void show_briefing_bitmap(grs_bitmap *bmp)
 }
 
 //-----------------------------------------------------------------------------
-static void init_spinning_robot(briefing *br) //(int x,int y,int w,int h)
+namespace dsx {
+static void init_spinning_robot(briefing *const br) //(int x,int y,int w,int h)
 {
 	const int x = rescale_x(grd_curcanv->cv_bitmap, 138);
 	const int y = rescale_y(grd_curcanv->cv_bitmap, 55);
@@ -1136,7 +1138,6 @@ static void show_spinning_robot_frame(briefing *br, int robot_num)
 //-----------------------------------------------------------------------------
 #define KEY_DELAY_DEFAULT       ((F1_0*20)/1000)
 
-namespace dsx {
 static void init_new_page(briefing *br)
 {
 	br->new_page = 0;
@@ -1159,7 +1160,6 @@ static void init_new_page(briefing *br)
 
 	br->start_time = 0;
 	br->delay_count = KEY_DELAY_DEFAULT;
-}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1197,13 +1197,10 @@ static int DefineBriefingBox(const char *&buf)
 }
 #endif
 
-namespace dsx {
 static void free_briefing_screen(briefing *br);
 
 //	-----------------------------------------------------------------------------
 //	loads a briefing screen
-}
-namespace dsx {
 static int load_briefing_screen(briefing *br, const char *fname)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1291,9 +1288,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 #endif
 	return 1;
 }
-}
 
-namespace dsx {
 static void free_briefing_screen(briefing *br)
 {
 	br->background.reset();
@@ -1311,9 +1306,7 @@ static void free_briefing_screen(briefing *br)
 	if (EMULATING_D1)
 		br->screen.reset();
 }
-}
 
-namespace dsx {
 static int new_briefing_screen(briefing *br, int first)
 {
 	br->new_screen = 0;
@@ -1388,7 +1381,7 @@ static int new_briefing_screen(briefing *br, int first)
 	if (br->message==NULL)
 		return 0;
 
-	Current_color = 0;
+	Current_color = &Briefing_text_colors.front();
 	br->streamcount = 0;
 	br->tab_stop = 0;
 	br->flashing_cursor = 0;
@@ -1407,11 +1400,9 @@ static int new_briefing_screen(briefing *br, int first)
 
 	return 1;
 }
-}
 
 
 //-----------------------------------------------------------------------------
-namespace dsx {
 static window_event_result briefing_handler(window *, const d_event &event, briefing *br)
 {
 	window_event_result result;
@@ -1506,7 +1497,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 
 			gr_set_curfont(*grd_curcanv, GAME_FONT);
 
-			gr_set_fontcolor(*grd_curcanv, Briefing_text_colors[Current_color], -1);
+			gr_set_fontcolor(*grd_curcanv, *Current_color, -1);
 			{
 				unsigned lastcolor = ~0u;
 				range_for (const auto b, partial_const_range(br->messagestream, br->streamcount))
@@ -1531,9 +1522,6 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 	}
 	return window_event_result::ignored;
 }
-}
-
-namespace dsx {
 
 void do_briefing_screens(const d_fname &filename, int level_num)
 {
