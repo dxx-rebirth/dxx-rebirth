@@ -372,6 +372,11 @@ struct briefing_screen {
 
 }
 
+static grs_subcanvas_ptr create_spinning_robot_sub_canvas(grs_canvas &canvas)
+{
+	return gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 138), rescale_y(canvas.cv_bitmap, 55), rescale_x(canvas.cv_bitmap, 166), rescale_y(canvas.cv_bitmap, 138));
+}
+
 static void get_message_name(const char *&message, array<char, 32> &result, const char *const trailer)
 {
 	auto p = message;
@@ -704,7 +709,7 @@ static void put_char_delay(const grs_font &cv_font, briefing *const br, const ch
 	br->start_time = timer_query();
 }
 
-static void init_spinning_robot(briefing *br);
+static void init_spinning_robot(grs_canvas &canvas, briefing &br);
 static int load_briefing_screen(briefing *br, const char *fname);
 
 // Process a character for the briefing,
@@ -756,7 +761,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 #endif
 
 			if (EMULATING_D1) {
-				init_spinning_robot(br);
+				init_spinning_robot(*grd_curcanv, *br);
 				br->robot_num = get_message_num(br->message);
 #if defined(DXX_BUILD_DESCENT_II)
 				while (*br->message++ != 10)
@@ -1132,14 +1137,9 @@ static void show_briefing_bitmap(grs_bitmap *bmp)
 
 //-----------------------------------------------------------------------------
 namespace dsx {
-static void init_spinning_robot(briefing *const br) //(int x,int y,int w,int h)
+static void init_spinning_robot(grs_canvas &canvas, briefing &br) //(int x,int y,int w,int h)
 {
-	const int x = rescale_x(grd_curcanv->cv_bitmap, 138);
-	const int y = rescale_y(grd_curcanv->cv_bitmap, 55);
-	const int w = rescale_x(grd_curcanv->cv_bitmap, 166);
-	const int h = rescale_y(grd_curcanv->cv_bitmap, 138);
-
-	br->robot_canv = gr_create_sub_canvas(*grd_curcanv, x, y, w, h);
+	br.robot_canv = create_spinning_robot_sub_canvas(canvas);
 }
 
 static void show_spinning_robot_frame(briefing *br, int robot_num)
