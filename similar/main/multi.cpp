@@ -4063,13 +4063,12 @@ void multi_send_capture_bonus (const playernum_t pnum)
 	multi_do_capture_bonus (pnum);
 }
 
-void multi_send_orb_bonus (const playernum_t pnum)
+void multi_send_orb_bonus (const playernum_t pnum, const uint8_t hoard_orbs)
 {
 	Assert (game_mode_hoard());
 
 	multibuf[1]=pnum;
-	auto &player_info = get_local_plrobj().ctype.player_info;
-	multibuf[2] = player_info.secondary_ammo[PROXIMITY_INDEX];
+	multibuf[2] = hoard_orbs;
 
 	multi_send_data<MULTI_ORB_BONUS>(multibuf,3,2);
 	multi_do_orb_bonus (pnum, multibuf);
@@ -4256,7 +4255,7 @@ static void DropOrb ()
 		Int3(); // How did we get here? Get Leighton!
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	auto &proximity = player_info.secondary_ammo[PROXIMITY_INDEX];
+	auto &proximity = player_info.hoard.orbs;
 	if (!proximity)
 	{
 		HUD_init_message_literal(HM_MULTI, "No orbs to drop!");
@@ -4273,9 +4272,7 @@ static void DropOrb ()
 	HUD_init_message_literal(HM_MULTI, "Orb dropped!");
 	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
 
-	if (game_mode_hoard())
-		multi_send_drop_flag(objnum,seed);
-
+	multi_send_drop_flag(objnum, seed);
 	-- proximity;
 
 	// If empty, tell everyone to stop drawing the box around me
@@ -4423,11 +4420,6 @@ uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned BaseAll
 		case POW_HOMING_AMMO_4:
 			return AllowedItems & NETFLAG_DOHOMING;
 		case POW_PROXIMITY_WEAPON:
-			// Special: Make all proximity bombs into shields if in
-			// hoard mode because we use the proximity slot in the
-			// player struct to signify how many orbs the player has.
-			if (game_mode_hoard())
-				return 0;
 			return AllowedItems & NETFLAG_DOPROXIM;
 		case POW_SMARTBOMB_WEAPON:
 			return AllowedItems & NETFLAG_DOSMART;
@@ -5167,10 +5159,7 @@ static void MultiLevelInv_CountPlayerInventory()
 		Current[POW_VULCAN_AMMO] += player_info.vulcan_ammo;
 		Current[POW_MISSILE_1] += player_info.secondary_ammo[CONCUSSION_INDEX];
 		Current[POW_HOMING_AMMO_1] += player_info.secondary_ammo[HOMING_INDEX];
-#if defined(DXX_BUILD_DESCENT_II)
-                        if (!(Game_mode & GM_HOARD))
-#endif
-			Current[POW_PROXIMITY_WEAPON] += player_info.secondary_ammo[PROXIMITY_INDEX];
+		Current[POW_PROXIMITY_WEAPON] += player_info.secondary_ammo[PROXIMITY_INDEX];
 		Current[POW_SMARTBOMB_WEAPON] += player_info.secondary_ammo[SMART_INDEX];
 		Current[POW_MEGA_WEAPON] += player_info.secondary_ammo[MEGA_INDEX];
 #if defined(DXX_BUILD_DESCENT_II)

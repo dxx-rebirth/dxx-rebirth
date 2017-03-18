@@ -14,6 +14,33 @@ What's new in 0.60
 * New texture filtering options! [Thanks to beware]
 * Optional timers displaying countdowns for cloak and invulnerability.
 * New tracker for Multiplayer games.
+* Players can now choose whether respawning is triggered by any input or only by pressing a weapon firing input.  This allows players using push-to-talk to speak without respawning, and allows all players to iconify the game while dead.
+* When a player exhausts an available weapon, auto-select previously acted as if the player had pressed the key to cycle to the next weapon.  Now, it starts its search at the top of the auto-select preference list.  Given three available weapons, with priorities #1, #2, and #3, if the player exhausted #2, the old behaviour was to select #3.  Now, it selects #1. (Github issue #156).
+* Fixed bug which allowed boss robots to teleport to a disallowed segment.
+* Fixed bug which caused players to disagree about boss location after teleportation.
+* Fixed a startup crash when more than 8 joysticks are present.
+* Maximum number of joysticks is unchanged at 8, but is now settable via SConf parameter `max_joysticks`; previously, a source patch was required to change this limit.  See also new SConf parameters `max_axes_per_joystick` (128), `max_buttons_per_joystick` (128), and `max_hats_per_joystick` (4).
+* Generated boss robots were able to teleport into their starting segment, even if that segment was too small.  This is no longer allowed (unless there are no segments into which it can teleport).
+* Cloaked robots dropped from other robots will now cloak, rather than rendering with their placeholder texture.
+* Internal limits on the number of destructable lights ("delta lights"; 10000 -> 32000), robot materialization centers (20 -> 128), and fuel centers (D1:50, D2: 70 -> both: 128) have been raised.
+* Robot homing weapons now pick a target when first fired.  Previously, they always began by tracking player 0.
+* Using a fusion cannon against a boss which reflects energy weapons no longer produces a multiplier effect.  The boss will now reflect only the bolts sent in.  Previously, it reflected one bolt for every frame that the shot was in contact with the boss, producing dozens of reflected bolts.  Although visually interesting, this was not the original author's intent, and the implementation had several defects.  If there is community objection, this change might be reverted or made configurable (Github issue #265; #269).
+* Fixed a bug which allowed premature Omega cannon recharging after ~9.1 hours on the same level (Github issue #262).
+* Fixed a bug which prevented Omega cannon recharging after ~4459701 years on the same level (Github issue #262).
+* Prevented undefined behaviour when a level trigger tries to open a wall where no wall exists.  This is also diagnosed to the console, so that the level author can fix the level (Github issue #236).
+* Fixed a bug where exploding players were checked for the Flash Missile special.  Normally, this was silent and harmless, but it might have produced odd results in mods which apply the Flash Missile special to low-numbered weapons.
+* Prevented undefined behaviour when guidebot cannot reach its goal object (Github issue #232).
+* Prevented undefined behaviour when reading demos written by old versions of Descent 2.  Old demos recorded trigger transition events even when no trigger was hit (Github issue #177).
+* Prevented undefined behaviour advancing to a new level while dead (Github issue #61).
+* Added diagnostic to report levels which try to trigger a robot materialization center where none exists.  Level authors should modify the level to fix the trigger.
+* The command line parser will now reject invalid command line arguments.  Previously, they were silently ignored, which could confuse users who misspelled an option (or relied on an option that was later removed or renamed).
+* Mission parser now allows comments in more places.  This fixes loading chaos.hog (Github issue #203).
+* In multiplayer games, the host can now specify players start with a higher laser level, other primary weapons, or powerups.  The host cannot grant additional secondary weapons in this way.
+* In multiplayer cooperative games, players can now choose to see the missile camera view of missiles fired by other players.  The game will still prefer a player's own missile camera over the camera of an ally.
+* Players can now choose to have auto-select be deferred if a weapon is grabbed while firing.  Previously, the choices were to skip the auto-select entirely or to perform it immediately (Github issue #97).
+* In multiplayer games, the host can now choose respawn invulnerability as a range from 0 to 4 seconds, in 0.5 second increments; previously, it was 0 seconds or 2 seconds, with no other choices (Github issue #99).
+* In multiplayer anarchy games, the host can now configure the game to prefer to spawn players at sites farther from the currently live players (Github issue #108).
+* In multiplayer games, the host can now choose to duplicate preplaced primary weapons, secondary weapons, or powerups.
 * Drastically improved positional accuracy and less latency in Multiplayer games.
 * Revamped powerup management in Multiplayer which properly handles and prevents loss and excess of powerups.
 * Important packets in Mulitplayer are handled in proper order, fixing a multitude of packet-loss related issues.
@@ -24,6 +51,7 @@ What's new in 0.60
 * Improved thief bot to (hopefully) work more accurate in Multiplayer.
 * New Multiplayer GAME INFO screen that can be toggled ingame, too.
 * Proximity Bomb spin variance logic now applies also to Smart Mines and pre-placed mines.
+* Hoard mode no longer borrows the Proximity Bomb slot for counting player orbs; Proximity Bomb powerups can now be found and used correctly in Hoard mode.
 * Fixed some Multiplayer scoring oddities.
 * ... and many, many more bugfixes and improvements.
 

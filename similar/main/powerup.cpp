@@ -177,7 +177,7 @@ void do_megawow_powerup(int quantity)
 #elif defined(DXX_BUILD_DESCENT_II)
 	player_info.Omega_charge = MAX_OMEGA_CHARGE;
 	if (game_mode_hoard())
-		secondary_ammo[PROXIMITY_INDEX] = 12;
+		player_info.hoard.orbs = player_info.max_hoard_orbs;
 	const auto laser_level = MAX_SUPER_LASER_LEVEL;
 #endif
 	if (Newdemo_state == ND_STATE_RECORDING)
@@ -713,8 +713,9 @@ int do_powerup(const vobjptridx_t obj)
 		case POW_HOARD_ORB:
 			if (game_mode_hoard())			
 			{
-				auto &proximity = player_info.secondary_ammo[PROXIMITY_INDEX];
-				if (proximity < 12) {
+				auto &proximity = player_info.hoard.orbs;
+				if (proximity < player_info.max_hoard_orbs)
+				{
 					++ proximity;
 					powerup_basic(15, 0, 15, 0, "Orb!!!");
 					player_info.powerup_flags |= PLAYER_FLAGS_FLAG;

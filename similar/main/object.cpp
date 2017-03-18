@@ -1482,8 +1482,8 @@ static void start_player_death_sequence(object &player)
 		if (game_mode_hoard())
 		{
 			auto &player_info = player.ctype.player_info;
-			auto &proximity = player_info.secondary_ammo[PROXIMITY_INDEX];
-			if (proximity < 12)
+			auto &proximity = player_info.hoard.orbs;
+			if (proximity < player_info.max_hoard_orbs)
 			{
 				const auto is_bad_kill = []{
 					auto &lplr = get_local_player();

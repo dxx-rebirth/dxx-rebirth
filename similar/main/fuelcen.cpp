@@ -785,11 +785,10 @@ void fuelcen_check_for_hoard_goal(const vcsegptr_t segp)
 	if (segp->special==SEGMENT_IS_GOAL_BLUE || segp->special==SEGMENT_IS_GOAL_RED  )	
 	{
 		auto &player_info = get_local_plrobj().ctype.player_info;
-		if (auto &proximity = player_info.secondary_ammo[PROXIMITY_INDEX])
+		if (auto &hoard_orbs = player_info.hoard.orbs)
 		{
-				multi_send_orb_bonus (Player_num);
 				player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;
-				proximity = 0;
+			multi_send_orb_bonus(Player_num, exchange(hoard_orbs, 0));
       }
 	}
 

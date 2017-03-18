@@ -944,7 +944,7 @@ static void hud_show_orbs(grs_canvas &canvas, const player_info &player_info, co
 		gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 		auto &bm = Orb_icons[multires_gauge_graphic.is_hires()];
 		hud_bitblt_free(canvas, x, y, HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
-		gr_printf(canvas, x + HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), y, " x %d", player_info.secondary_ammo[PROXIMITY_INDEX]);
+		gr_printf(canvas, x + HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), y, " x %d", player_info.hoard.orbs);
 	}
 }
 

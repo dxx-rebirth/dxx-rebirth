@@ -136,6 +136,13 @@ struct player_info
 			uint16_t hostages_rescued_total; // Total number of hostages rescued.
 			uint8_t hostages_on_board;
 		} mission;
+		struct {
+			uint8_t orbs;
+		} hoard;
+	};
+	enum
+	{
+		max_hoard_orbs = 12,
 	};
 	fix64   cloak_time;             // Time cloaked
 	fix64   invulnerable_time;      // Time invulnerable

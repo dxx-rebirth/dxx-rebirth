@@ -203,12 +203,6 @@ int which_bomb()
 {
 	//use the last one selected, unless there aren't any, in which case use
 	//the other if there are any
-
-
-   // If hoard game, only let the player drop smart mines
-	if (game_mode_hoard())
-		return SMART_MINE_INDEX;
-
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 	const auto mask = 1 << PROXIMITY_INDEX;

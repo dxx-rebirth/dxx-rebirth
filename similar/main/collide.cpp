@@ -1927,11 +1927,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		drop_armed_bomb(secondary_ammo[SMART_MINE_INDEX], weapon_id_type::SUPERPROX_ID);
 
 		//	If the player had proximity bombs, maybe arm one of them.
-
-		if ((Game_mode & GM_MULTI) && !game_mode_hoard())
-		{
-			drop_armed_bomb(secondary_ammo[PROXIMITY_INDEX], weapon_id_type::PROXIMITY_ID);
-		}
+		drop_armed_bomb(secondary_ammo[PROXIMITY_INDEX], weapon_id_type::PROXIMITY_ID);
 #endif
 
 		//	If the player dies and he has powerful lasers, create the powerups here.
@@ -1978,8 +1974,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		if (game_mode_hoard())
 		{
 			// Drop hoard orbs
-			unsigned max_count = min(secondary_ammo[PROXIMITY_INDEX], static_cast<uint8_t>(12));
-			for (int i=0; i<max_count; i++)
+			for (unsigned max_count = std::min<uint8_t>(player_info.hoard.orbs, player_info.max_hoard_orbs); max_count--;)
 				call_object_create_egg(playerobj, 1, POW_HOARD_ORB);
 		}
 #endif
@@ -2021,10 +2016,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		//	Drop the secondary weapons
 		//	Note, proximity weapon only comes in packets of 4.  So drop n/2, but a max of 3 (handled inside maybe_drop..)  Make sense?
 
-#if defined(DXX_BUILD_DESCENT_II)
-		if (!game_mode_hoard())
-#endif
-			maybe_drop_secondary_weapon_egg(playerobj, PROXIMITY_INDEX, (secondary_ammo[PROXIMITY_INDEX])/4);
+		maybe_drop_secondary_weapon_egg(playerobj, PROXIMITY_INDEX, secondary_ammo[PROXIMITY_INDEX] / 4);
 
 		maybe_drop_secondary_weapon_egg(playerobj, SMART_INDEX, secondary_ammo[SMART_INDEX]);
 		maybe_drop_secondary_weapon_egg(playerobj, MEGA_INDEX, secondary_ammo[MEGA_INDEX]);

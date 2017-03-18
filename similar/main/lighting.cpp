@@ -274,12 +274,10 @@ static g3s_lrgb compute_light_emission(const vobjptridx_t obj)
 					Headlights[Num_headlights++] = obj;
 				light_intensity = HEADLIGHT_SCALE;
 			}
-			else if (game_mode_hoard() && obj->ctype.player_info.secondary_ammo[PROXIMITY_INDEX]) // If hoard game and player, add extra light based on how many orbs you have Pulse as well.
+			else if (const auto hoard_orbs = obj->ctype.player_info.hoard.orbs) // If hoard game and player, add extra light based on how many orbs you have Pulse as well.
 			{
-				fix hoardlight;
-				hoardlight=i2f(obj->ctype.player_info.secondary_ammo[PROXIMITY_INDEX])/2; //i2f(12));
-				hoardlight++;
-				auto s = fix_sin(static_cast<fix>(GameTime64/2) & 0xFFFF); // probably a bad way to do it
+				fix hoardlight = 1 + (i2f(hoard_orbs) / 2);
+				auto s = fix_sin(static_cast<fix>(GameTime64 >> 1) & 0xFFFF); // probably a bad way to do it
 				s+=F1_0; 
 				s>>=1;
 				hoardlight=fixmul (s,hoardlight);
