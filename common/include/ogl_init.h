@@ -138,7 +138,7 @@ static inline void g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const a
 void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int alpha,int size_offs);
 namespace dcx {
 void ogl_toggle_depth_test(int enable);
-void ogl_set_blending(uint8_t);
+void ogl_set_blending(gr_blend);
 unsigned pow2ize(unsigned x);//from ogl.c
 }
 

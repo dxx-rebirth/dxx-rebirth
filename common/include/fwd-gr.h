@@ -29,9 +29,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TRANSPARENCY_COLOR   255            // palette entry of transparency color -- 255 on the PC
 #define GR_FADE_LEVELS       34u
 #define GR_FADE_OFF          GR_FADE_LEVELS // yes, max means OFF - don't screw that up
-#define GR_BLEND_NORMAL      0              // normal blending
-#define GR_BLEND_ADDITIVE_A  1              // additive alpha blending
-#define GR_BLEND_ADDITIVE_C  2              // additive color blending
+enum gr_blend {
+	GR_BLEND_NORMAL,		// normal blending
+	GR_BLEND_ADDITIVE_A,	// additive alpha blending
+	GR_BLEND_ADDITIVE_C,	// additive color blending
+};
 
 #define SWIDTH  (grd_curscreen->get_screen_width())
 #define SHEIGHT (grd_curscreen->get_screen_height())
@@ -189,7 +191,7 @@ void gr_use_palette_table(const char * filename);
 namespace dcx {
 
 // Sets transparency and blending function
-void gr_settransblend(grs_canvas &, int fade_level, uint8_t blend_func);
+void gr_settransblend(grs_canvas &, int fade_level, gr_blend blend_func);
 
 // Draws a point into the current canvas in the current color and drawmode.
 void gr_pixel(grs_bitmap &, unsigned x, unsigned y, uint8_t color);

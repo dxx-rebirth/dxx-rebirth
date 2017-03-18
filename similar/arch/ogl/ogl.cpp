@@ -1222,7 +1222,7 @@ void ogl_toggle_depth_test(int enable)
 /* 
  * set blending function
  */
-void ogl_set_blending(uint8_t cv_blend_func)
+void ogl_set_blending(const gr_blend cv_blend_func)
 {
 	GLenum s, d;
 	switch (cv_blend_func)
