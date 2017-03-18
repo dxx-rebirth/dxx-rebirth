@@ -35,13 +35,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "fwd-partial_range.h"
 
-#define MAX_CONTROLCEN_LINKS    10
-
 struct control_center_triggers : public prohibit_void_ptr<control_center_triggers>
 {
-	short   num_links;
-	array<segnum_t, MAX_CONTROLCEN_LINKS>   seg;
-	array<short, MAX_CONTROLCEN_LINKS>   side;
+	enum {
+		max_links = 10
+	};
+	uint16_t num_links;
+	array<segnum_t, max_links>   seg;
+	array<uint16_t, max_links>   side;
 };
 
 extern control_center_triggers ControlCenterTriggers;
