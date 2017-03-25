@@ -766,8 +766,6 @@ void net_udp_request_game_info_t::apply(const sockaddr &game_addr, socklen_t add
 constexpr csockaddr_dispatch_t<passthrough_static_apply<net_udp_request_game_info_t>> net_udp_request_game_info{};
 constexpr csockaddr_dispatch_t<passthrough_static_apply<net_udp_send_game_info_t>> net_udp_send_game_info{};
 
-}
-
 struct direct_join
 {
 	struct _sockaddr host_addr;
@@ -776,9 +774,25 @@ struct direct_join
 #if DXX_USE_TRACKER
 	uint16_t gameid;
 #endif
+};
+
+struct manual_join : direct_join
+{
+	array<newmenu_item, 7> m;
 	array<char, 6> hostportbuf, myportbuf;
 	array<char, 128> addrbuf;
 };
+
+struct list_join : direct_join
+{
+	enum {
+		entries = ((UDP_NETGAMES_PPAGE + 5) * 2) + 1,
+	};
+	array<newmenu_item, entries> m;
+	array<array<char, 74>, entries> ljtext;
+};
+
+}
 
 // Connect to a game host and get full info. Eventually we join!
 static int net_udp_game_connect(direct_join *const dj)
@@ -854,7 +868,7 @@ Possible reasons:\n\
 	return net_udp_do_join_game();
 }
 
-static int manual_join_game_handler(newmenu *menu,const d_event &event, direct_join *dj)
+static int manual_join_game_handler(newmenu *const menu, const d_event &event, manual_join *const dj)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 
@@ -920,7 +934,7 @@ static int manual_join_game_handler(newmenu *menu,const d_event &event, direct_j
 		case EVENT_WINDOW_CLOSE:
 			if (!Game_wind) // they cancelled
 				net_udp_close();
-			d_free(dj);
+			std::default_delete<manual_join>()(dj);
 			break;
 			
 		default:
@@ -932,14 +946,9 @@ static int manual_join_game_handler(newmenu *menu,const d_event &event, direct_j
 
 void net_udp_manual_join_game()
 {
-	direct_join *dj;
-	newmenu_item m[7];
 	int nitems = 0;
 
-	CALLOC(dj, direct_join, 1);
-	if (!dj)
-		return;
-	
+	auto dj = make_unique<manual_join>();
 	net_udp_init();
 
 	snprintf(&dj->addrbuf[0], dj->addrbuf.size(), "%s", CGameArg.MplUdpHostAddr.c_str());
@@ -948,6 +957,7 @@ void net_udp_manual_join_game()
 	reset_UDP_MyPort();
 
 	nitems = 0;
+	auto &m = dj->m;
 	nm_set_item_text(m[nitems++],"GAME ADDRESS OR HOSTNAME:");
 	nm_set_item_input(m[nitems++],dj->addrbuf);
 	nm_set_item_text(m[nitems++],"GAME PORT:");
@@ -957,12 +967,10 @@ void net_udp_manual_join_game()
 	nm_set_item_input(m[nitems++], dj->myportbuf);
 	nm_set_item_text(m[nitems++],"");
 
-	newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, manual_join_game_handler, dj, 0 );
+	newmenu_do1(nullptr, "ENTER GAME ADDRESS", nitems, &m[0], manual_join_game_handler, dj.release(), 0);
 }
 
-static char *ljtext;
-
-static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_join *dj )
+static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join *const dj)
 {
 	// Polling loop for Join Game menu
 	int newpage = 0;
@@ -1103,9 +1111,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 		}
 		case EVENT_WINDOW_CLOSE:
 		{
-			d_free(ljtext);
-			d_free(menus);
-			d_free(dj);
+			std::default_delete<list_join>()(dj);
 			if (!Game_wind)
 			{
 				net_udp_close();
@@ -1134,7 +1140,8 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 
 		if ((i+(NLPage*UDP_NETGAMES_PPAGE)) >= num_active_udp_games)
 		{
-			snprintf(menus[i+4].text, sizeof(char)*74, "%d.                                                                      ",(i+(NLPage*UDP_NETGAMES_PPAGE))+1);
+			auto &p = dj->ljtext[i];
+			snprintf(&p[0], p.size(), "%d.", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1);
 			continue;
 		}
 
@@ -1202,30 +1209,15 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 			status = "BETWEEN ";
 		
 		unsigned gamemode = Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].gamemode;
-		snprintf (menus[i+4].text,sizeof(char)*74,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",(i+(NLPage*UDP_NETGAMES_PPAGE))+1,GameName,(gamemode < sizeof(GMNamesShrt) / sizeof(GMNamesShrt[0])) ? GMNamesShrt[gamemode] : "INVALID",nplayers, Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].max_numplayers,MissName,levelname,status);
-			
-		Assert(strlen(menus[i+4].text) < 75);
+		auto &p = dj->ljtext[i];
+		snprintf(&p[0], p.size(), "%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1, GameName, (gamemode < sizeof(GMNamesShrt) / sizeof(GMNamesShrt[0])) ? GMNamesShrt[gamemode] : "INVALID", nplayers, Active_udp_games[(i + (NLPage * UDP_NETGAMES_PPAGE))].max_numplayers, MissName, levelname, status);
 	}
 	return 0;
 }
 
 void net_udp_list_join_game()
 {
-	newmenu_item *m;
-	direct_join *dj;
-
-	CALLOC(m, newmenu_item, ((UDP_NETGAMES_PPAGE+5)*2)+1);
-	if (!m)
-		return;
-	MALLOC(ljtext, char, (((UDP_NETGAMES_PPAGE+5)*2)+1)*74);
-	if (!ljtext)
-	{
-		d_free(m);
-		return;
-	}
-	CALLOC(dj, direct_join, 1);
-	if (!dj)
-		return;
+	auto dj = make_unique<list_join>();
 
 	net_udp_init();
 	const auto gamemyport = CGameArg.MplUdpMyPort;
@@ -1256,6 +1248,7 @@ void net_udp_list_join_game()
 
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(15, 15, 23),-1);
 
+	auto &m = dj->m;
 #if DXX_USE_TRACKER
 	nm_set_item_text(m[0], "\tF4/F5/F6: (Re)Scan for all/LAN/Tracker Games." );
 #else
@@ -1266,13 +1259,14 @@ void net_udp_list_join_game()
 	nm_set_item_text(m[3],  "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
 
 	for (int i = 0; i < UDP_NETGAMES_PPAGE; i++) {
-		nm_set_item_menu(m[i+4], ljtext + 74 * i);
-		snprintf(m[i+4].text,sizeof(char)*74,"%d.                                                                      ", i+1);
+		auto &p = dj->ljtext[i];
+		nm_set_item_menu(m[i + 4], &p[0]);
+		snprintf(&p[0], p.size(), "%d.", i + 1);
 	}
 	nm_set_item_text(m[UDP_NETGAMES_PPAGE+4], "\t" );
 
 	num_active_udp_changed = 1;
-	newmenu_dotiny("NETGAMES", NULL,(UDP_NETGAMES_PPAGE+5), m, 1, net_udp_list_join_poll, dj);
+	newmenu_dotiny("NETGAMES", nullptr, UDP_NETGAMES_PPAGE + 5, &m[0], 1, net_udp_list_join_poll, dj.release());
 }
 
 static void net_udp_send_sequence_packet(UDP_sequence_packet seq, const _sockaddr &recv_addr)
