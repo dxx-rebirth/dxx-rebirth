@@ -83,6 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ControlInvulTimeStr "control_invul_time"
 #define PacketsPerSecStr "PacketsPerSec"
 #define NoFriendlyFireStr "NoFriendlyFire"
+#define MouselookFlagsStr "Mouselook"
 #define TrackerStr "Tracker"
 #define NGPVersionStr "ngp version"
 
@@ -168,6 +169,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TOGGLES_FRIENDMISSILEVIEW_NAME_TEXT "friendmissileview"
 #define TOGGLES_CLOAKINVULTIMER_NAME_TEXT "cloakinvultimer"
 #define TOGGLES_RESPAWN_ANY_KEY	"respawnkey"
+#define TOGGLES_MOUSELOOK	"mouselook"
 #define GRAPHICS_HEADER_TEXT "[graphics]"
 #define GRAPHICS_ALPHAEFFECTS_NAME_TEXT "alphaeffects"
 #define GRAPHICS_DYNLIGHTCOLOR_NAME_TEXT "dynlightcolor"
@@ -215,6 +217,8 @@ int new_player_config()
 #endif
 	InitWeaponOrdering (); //setup default weapon priorities
 	PlayerCfg.ControlType=0; // Assume keyboard
+	PlayerCfg.RespawnMode = RespawnPress::Any;
+	PlayerCfg.MouselookFlags = 0;
 	PlayerCfg.KeySettings = DefaultKeySettings;
 	PlayerCfg.KeySettingsRebirth = DefaultKeySettingsRebirth;
 	kc_set_controls();
@@ -444,6 +448,7 @@ static void read_player_dxx(const char *filename)
 		}
 		else if (!strcmp(line,TOGGLES_HEADER_TEXT))
 		{
+			PlayerCfg.MouselookFlags = 0;
 			while(PHYSFSX_fgets(line,f) && strcmp(line,END_TEXT))
 			{
 				const char *value=splitword(line,'=');
@@ -478,6 +483,8 @@ static void read_player_dxx(const char *filename)
 					PlayerCfg.CloakInvulTimer = atoi(value);
 				else if (!strcmp(line, TOGGLES_RESPAWN_ANY_KEY))
 					PlayerCfg.RespawnMode = static_cast<RespawnPress>(atoi(value));
+				else if (!strcmp(line, TOGGLES_MOUSELOOK))
+					PlayerCfg.MouselookFlags = strtoul(value, 0, 10);
 			}
 		}
 		else if (!strcmp(line,GRAPHICS_HEADER_TEXT))
@@ -774,6 +781,7 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT "=%i\n",PlayerCfg.CycleAutoselectOnly);
                 PHYSFSX_printf(fout,TOGGLES_CLOAKINVULTIMER_NAME_TEXT "=%i\n",PlayerCfg.CloakInvulTimer);
 		PHYSFSX_printf(fout,TOGGLES_RESPAWN_ANY_KEY "=%i\n",static_cast<unsigned>(PlayerCfg.RespawnMode));
+		PHYSFSX_printf(fout, TOGGLES_MOUSELOOK "=%i\n", PlayerCfg.MouselookFlags);
 		PHYSFSX_printf(fout,END_TEXT "\n");
 		PHYSFSX_printf(fout,GRAPHICS_HEADER_TEXT "\n");
 		PHYSFSX_printf(fout,GRAPHICS_ALPHAEFFECTS_NAME_TEXT "=%i\n",PlayerCfg.AlphaEffects);
@@ -1439,6 +1447,8 @@ void read_netgame_profile(netgame_info *ng)
 			convert_integer(ng->PacketsPerSec, value);
 		else if (cmp(lb, eq, NoFriendlyFireStr))
 			convert_integer(ng->NoFriendlyFire, value);
+		else if (cmp(lb, eq, MouselookFlagsStr))
+			convert_integer(ng->MouselookFlags, value);
 #if DXX_USE_TRACKER
 		else if (cmp(lb, eq, TrackerStr))
 			convert_integer(ng->Tracker, value);
@@ -1477,6 +1487,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, ControlInvulTimeStr "=%i\n", ng->control_invul_time);
 	PHYSFSX_printf(file, PacketsPerSecStr "=%i\n", ng->PacketsPerSec);
 	PHYSFSX_printf(file, NoFriendlyFireStr "=%i\n", ng->NoFriendlyFire);
+	PHYSFSX_printf(file, MouselookFlagsStr "=%i\n", ng->MouselookFlags);
 #if DXX_USE_TRACKER
 	PHYSFSX_printf(file, TrackerStr "=%i\n", ng->Tracker);
 #else

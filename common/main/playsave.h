@@ -100,11 +100,19 @@ enum class RespawnPress : uint8_t
 	Fire,
 };
 
+enum MouselookMode : uint8_t
+{
+	Singleplayer = 1,
+	MPCoop = 2,
+	MPAnarchy = 4,
+};
+
 struct player_config : prohibit_void_ptr<player_config>
 {
 	ubyte ControlType;
 	HudType HudMode;
 	RespawnPress RespawnMode;
+	uint8_t MouselookFlags;
 	using primary_weapon_order = array<uint8_t, MAX_PRIMARY_WEAPONS + 1>;
 	using secondary_weapon_order = array<uint8_t, MAX_SECONDARY_WEAPONS + 1>;
 	primary_weapon_order PrimaryOrder;

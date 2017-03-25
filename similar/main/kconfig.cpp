@@ -1633,6 +1633,18 @@ static void clamp_kconfig_control_with_overrun(fix &value, const fix &bound, fix
 	clamp_symmetric_value(excess, ebound);
 }
 
+static unsigned allow_uncapped_turning()
+{
+	const auto game_mode = Game_mode;
+	if (!(game_mode & GM_MULTI))
+		return PlayerCfg.MouselookFlags & MouselookMode::Singleplayer;
+	return PlayerCfg.MouselookFlags &
+		Netgame.MouselookFlags &
+		((game_mode & GM_MULTI_COOP)
+		? MouselookMode::MPCoop
+		: MouselookMode::MPAnarchy);
+}
+
 void kconfig_read_controls(const d_event &event, int automap_flag)
 {
 	static fix64 mouse_delta_time = 0;
@@ -1941,12 +1953,15 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 	}
 
 	//----------- Clamp values between -FrameTime and FrameTime
-	clamp_kconfig_control_with_overrun(Controls.pitch_time, frametime/2, Controls.excess_pitch_time, frametime * PlayerCfg.MouseOverrun[1]);
-	clamp_kconfig_control_with_overrun(Controls.heading_time, frametime, Controls.excess_heading_time, frametime * PlayerCfg.MouseOverrun[0]);
 	clamp_kconfig_control_with_overrun(Controls.vertical_thrust_time, frametime, Controls.excess_vertical_thrust_time, frametime * PlayerCfg.MouseOverrun[3]);
 	clamp_kconfig_control_with_overrun(Controls.sideways_thrust_time, frametime, Controls.excess_sideways_thrust_time, frametime * PlayerCfg.MouseOverrun[2]);
-	clamp_kconfig_control_with_overrun(Controls.bank_time, frametime, Controls.excess_bank_time, frametime * PlayerCfg.MouseOverrun[4]);
 	clamp_kconfig_control_with_overrun(Controls.forward_thrust_time, frametime, Controls.excess_forward_thrust_time, frametime * PlayerCfg.MouseOverrun[5]);
+	if (!allow_uncapped_turning())
+	{
+		clamp_kconfig_control_with_overrun(Controls.pitch_time, frametime / 2, Controls.excess_pitch_time, frametime * PlayerCfg.MouseOverrun[1]);
+		clamp_kconfig_control_with_overrun(Controls.heading_time, frametime, Controls.excess_heading_time, frametime * PlayerCfg.MouseOverrun[0]);
+		clamp_kconfig_control_with_overrun(Controls.bank_time, frametime, Controls.excess_bank_time, frametime * PlayerCfg.MouseOverrun[4]);
+	}
 }
 
 void reset_cruise(void)

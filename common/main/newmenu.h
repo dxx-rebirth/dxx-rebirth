@@ -469,6 +469,7 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 #define DXX_MENUITEM_V_READ(TYPE,S,OPT,...)	DXX_MENUITEM_V_READ_T_##TYPE(S, OPT, ## __VA_ARGS__)
 #define DXX_MENUITEM_V_ADD_T_CHECK(S,OPT,V)	\
 	nm_set_item_checkbox(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V));
+#define DXX_MENUITEM_V_ADD_T_FCHECK(S,OPT,V,F)	DXX_MENUITEM_V_ADD_T_CHECK(S,OPT,(V) & (F))
 #define DXX_MENUITEM_V_ADD_T_RADIO(S,OPT,C,G)	\
 	nm_set_item_radio(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (C), (G));
 #define DXX_MENUITEM_V_ADD_T_NUMBER(S,OPT,V,MIN,MAX)	\
@@ -485,6 +486,15 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 	nm_set_item_input(((DXX_NEWMENU_VARIABLE)[(OPT)]),(S));
 #define DXX_MENUITEM_V_READ_T_CHECK(S,OPT,V)	\
 	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
+#define DXX_MENUITEM_V_READ_T_FCHECK(S,OPT,V,F)	\
+	( DXX_BEGIN_COMPOUND_STATEMENT {	\
+		auto &dxx_menuitem_read_fcheck_v = (V);	\
+		const auto dxx_menuitem_read_fcheck_f = (F);	\
+		if ((DXX_NEWMENU_VARIABLE)[(OPT)].value)	\
+			dxx_menuitem_read_fcheck_v |= dxx_menuitem_read_fcheck_f;	\
+		else	\
+			dxx_menuitem_read_fcheck_v &= ~dxx_menuitem_read_fcheck_f;	\
+	} DXX_END_COMPOUND_STATEMENT );
 #define DXX_MENUITEM_V_READ_T_RADIO(S,OPT,C,G)	/* handled specially */
 #define DXX_MENUITEM_V_READ_T_NUMBER(S,OPT,V,MIN,MAX)	\
 	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value;

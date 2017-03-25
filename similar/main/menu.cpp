@@ -1277,6 +1277,11 @@ class input_config_menu_items
 	DXX_MENUITEM(VERB, RADIO, "Any key", opt_respawn_any_key, PlayerCfg.RespawnMode == RespawnPress::Any, optgrp_respawn_mode)	\
 	DXX_MENUITEM(VERB, RADIO, "Fire keys (pri., sec., flare)", opt_respawn_fire_key, PlayerCfg.RespawnMode == RespawnPress::Fire, optgrp_respawn_mode)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_respawn)	\
+	DXX_MENUITEM(VERB, TEXT, "Uncapped turning in:", opt_label_mouselook_mode)	\
+	DXX_MENUITEM(VERB, CHECK, "Single player", opt_ic_mouselook_sp, PlayerCfg.MouselookFlags & MouselookMode::Singleplayer)	\
+	DXX_MENUITEM(VERB, CHECK, "Multi Coop (if host allows)", opt_ic_mouselook_mp_cooperative, PlayerCfg.MouselookFlags & MouselookMode::MPCoop)	\
+	DXX_MENUITEM(VERB, CHECK, "Multi Anarchy (if host allows)", opt_ic_mouselook_mp_anarchy, PlayerCfg.MouselookFlags & MouselookMode::MPAnarchy)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_mouselook)	\
 	DXX_MENUITEM(VERB, MENU, "GAME SYSTEM KEYS", opt_ic_help0)	\
 	DXX_MENUITEM(VERB, MENU, "NETGAME SYSTEM KEYS", opt_ic_help1)	\
 	DXX_MENUITEM(VERB, MENU, "DEMO SYSTEM KEYS", opt_ic_help2)	\
@@ -1312,6 +1317,7 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 		case EVENT_NEWMENU_CHANGED:
 		{
 			const auto citem = static_cast<const d_change_event &>(event).citem;
+			MouselookMode mousemode;
 #if DXX_MAX_JOYSTICKS
 			if (citem == opt_ic_usejoy)
 			{
@@ -1342,6 +1348,15 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 				PlayerCfg.RespawnMode = RespawnPress::Any;
 			else if (citem == opt_respawn_fire_key)
 				PlayerCfg.RespawnMode = RespawnPress::Fire;
+			else if ((citem == opt_ic_mouselook_sp && (mousemode = MouselookMode::Singleplayer, true)) ||
+				(citem == opt_ic_mouselook_mp_cooperative && (mousemode = MouselookMode::MPCoop, true)) ||
+				(citem == opt_ic_mouselook_mp_anarchy && (mousemode = MouselookMode::MPAnarchy, true)))
+			{
+				if (items[citem].value)
+					PlayerCfg.MouselookFlags |= mousemode;
+				else
+					PlayerCfg.MouselookFlags &= ~mousemode;
+			}
 			break;
 		}
 		case EVENT_NEWMENU_SELECTED:

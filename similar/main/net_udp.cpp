@@ -2514,6 +2514,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		PUT_INTEL_SHORT(buf + len, Netgame.PacketsPerSec);				len += 2;
 		buf[len] = Netgame.PacketLossPrevention;					len++;
 		buf[len] = Netgame.NoFriendlyFire;						len++;
+		buf[len] = Netgame.MouselookFlags;						len++;
 		copy_from_ntstring(buf, len, Netgame.game_name);
 		copy_from_ntstring(buf, len, Netgame.mission_title);
 		copy_from_ntstring(buf, len, Netgame.mission_name);
@@ -2543,6 +2544,11 @@ void net_udp_send_game_info_t::apply(const sockaddr &sender_addr, socklen_t send
 	dxx_sendto(sender_addr, senderlen, UDP_Socket[0], info, len, 0);
 }
 
+}
+
+static unsigned MouselookMPFlag(const unsigned game_mode)
+{
+	return (game_mode & GM_MULTI_COOP) ? MouselookMode::MPCoop : MouselookMode::MPAnarchy;
 }
 
 static void net_udp_broadcast_game_info(ubyte info_upid)
@@ -2748,6 +2754,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		Netgame.PacketsPerSec = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		Netgame.PacketLossPrevention = data[len];					len++;
 		Netgame.NoFriendlyFire = data[len];						len++;
+		Netgame.MouselookFlags = data[len];						len++;
 		copy_to_ntstring(data, len, Netgame.game_name);
 		copy_to_ntstring(data, len, Netgame.mission_title);
 		copy_to_ntstring(data, len, Netgame.mission_name);
@@ -3203,6 +3210,7 @@ constexpr unsigned reactor_invul_time_scale = 5 * reactor_invul_time_mini_scale;
 	DXX_MENUITEM(VERB, CHECK, "Bright player ships", opt_bright, Netgame.BrightPlayers)	\
 	DXX_MENUITEM(VERB, CHECK, "Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
 	DXX_MENUITEM(VERB, CHECK, "No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
+	DXX_MENUITEM(VERB, FCHECK, (Game_mode & GM_MULTI_COOP) ? "Allow coop mouselook" : "Allow anarchy mouselook", opt_mouselook, Netgame.MouselookFlags, MouselookMPFlag(Game_mode))	\
 	DXX_MENUITEM(VERB, TEXT, "", blank_4)                                     \
 	DXX_MENUITEM(VERB, TEXT, "Network Options", network_label)	               \
 	DXX_MENUITEM(VERB, TEXT, "Packets per second (" DXX_STRINGIZE_PPS(MIN_PPS) " - " DXX_STRINGIZE_PPS(MAX_PPS) ")", opt_label_pps)	\
@@ -3767,6 +3775,7 @@ window_event_result net_udp_setup_game()
 	Netgame.AllowedItems = NETFLAG_DOPOWERUP;
 	Netgame.PacketLossPrevention = 1;
 	Netgame.NoFriendlyFire = 0;
+	Netgame.MouselookFlags = 0;
 
 #if DXX_USE_TRACKER
 	Netgame.Tracker = 1;
