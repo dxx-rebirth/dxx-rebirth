@@ -336,14 +336,14 @@ static void reset_UDP_MyPort()
 	UDP_MyPort = CGameArg.MplUdpMyPort >= 1024 ? CGameArg.MplUdpMyPort : UDP_PORT_DEFAULT;
 }
 
-static bool convert_text_portstring(const char *portstring, uint16_t &outport, bool allow_privileged, bool silent)
+static bool convert_text_portstring(const array<char, 6> &portstring, uint16_t &outport, bool allow_privileged, bool silent)
 {
 	char *porterror;
-	unsigned long myport = strtoul(portstring, &porterror, 10);
+	unsigned long myport = strtoul(&portstring[0], &porterror, 10);
 	if (*porterror || static_cast<uint16_t>(myport) != myport || (!allow_privileged && myport < 1024))
 	{
 		if (!silent)
-			nm_messagebox(TXT_ERROR, 1, TXT_OK, "Illegal port \"%s\"", portstring);
+			nm_messagebox(TXT_ERROR, 1, TXT_OK, "Illegal port \"%s\"", portstring.data());
 		return false;
 	}
 	else
@@ -776,8 +776,8 @@ struct direct_join
 #if DXX_USE_TRACKER
 	uint16_t gameid;
 #endif
-	char addrbuf[128];
-	char hostportbuf[6], myportbuf[6];
+	array<char, 6> hostportbuf, myportbuf;
+	array<char, 128> addrbuf;
 };
 
 // Connect to a game host and get full info. Eventually we join!
@@ -895,7 +895,7 @@ static int manual_join_game_handler(newmenu *menu,const d_event &event, direct_j
 			if (!convert_text_portstring(dj->hostportbuf, hostport, true, false))
 				return 1;
 			// Resolve address
-			if (udp_dns_filladdr(dj->host_addr, dj->addrbuf, hostport, false, false) < 0)
+			if (udp_dns_filladdr(dj->host_addr, &dj->addrbuf[0], hostport, false, false) < 0)
 			{
 				return 1;
 			}
@@ -942,8 +942,8 @@ void net_udp_manual_join_game()
 	
 	net_udp_init();
 
-	snprintf(dj->addrbuf, sizeof(dj->addrbuf), "%s", CGameArg.MplUdpHostAddr.c_str());
-	snprintf(dj->hostportbuf, sizeof(dj->hostportbuf), "%hu", CGameArg.MplUdpHostPort ? CGameArg.MplUdpHostPort : UDP_PORT_DEFAULT);
+	snprintf(&dj->addrbuf[0], dj->addrbuf.size(), "%s", CGameArg.MplUdpHostAddr.c_str());
+	snprintf(&dj->hostportbuf[0], dj->hostportbuf.size(), "%hu", CGameArg.MplUdpHostPort ? CGameArg.MplUdpHostPort : UDP_PORT_DEFAULT);
 
 	reset_UDP_MyPort();
 
@@ -953,7 +953,7 @@ void net_udp_manual_join_game()
 	nm_set_item_text(m[nitems++],"GAME PORT:");
 	nm_set_item_input(m[nitems++], dj->hostportbuf);
 	nm_set_item_text(m[nitems++],"MY PORT:");
-	snprintf(dj->myportbuf, sizeof(dj->myportbuf), "%hu", UDP_MyPort);
+	snprintf(&dj->myportbuf[0], dj->myportbuf.size(), "%hu", UDP_MyPort);
 	nm_set_item_input(m[nitems++], dj->myportbuf);
 	nm_set_item_text(m[nitems++],"");
 
@@ -3295,7 +3295,7 @@ namespace {
 class more_game_options_menu_items
 {
 	char packstring[sizeof("99")];
-	char portstring[sizeof("65535")];
+	array<char, sizeof("65535")> portstring;
 	char srinvul[sizeof("Reactor life: 50 min")];
 	char PlayText[sizeof("Max time: 50 min")];
 	char SpawnInvulnerableText[sizeof("Invul. Time: 0.0 sec")];
@@ -3365,7 +3365,7 @@ public:
 	}
 	void update_portstring()
 	{
-		snprintf(portstring, sizeof(portstring), "%hu", UDP_MyPort);
+		snprintf(&portstring[0], portstring.size(), "%hu", UDP_MyPort);
 	}
 	void update_reactor_life_string(unsigned t)
 	{
@@ -5804,7 +5804,8 @@ static int udp_tracker_process_game( ubyte *data, int data_len, const _sockaddr 
 		return -1;
 
 	char *p0 = NULL, *p1 = NULL, *p2 = NULL, *p3 = NULL;
-	char sIP[47] = {}, sPort[6] = {};
+	char sIP[47] = {};
+	array<char, 6> sPort{};
 	uint16_t iPort = 0, TrackerGameID = 0;
 
 	// Get the IP
@@ -5823,7 +5824,7 @@ static int udp_tracker_process_game( ubyte *data, int data_len, const _sockaddr 
 		return -1;
 	if (p2-p1-1 < 1 || p2-p1-1 > sizeof(sPort))
 		return -1;
-	memcpy(sPort, p1, p2-p1-1);
+	memcpy(&sPort, p1, p2-p1-1);
 	if (!convert_text_portstring(sPort, iPort, true, true))
 		return -1;
 
@@ -5916,7 +5917,8 @@ static void udp_tracker_process_holepunch( ubyte *data, int data_len, const _soc
 		return;
 
 	char *p0, delimiter[] = "/";
-	char sIP[46] = {}, sPort[6] = {};
+	char sIP[46] = {};
+	array<char, 6> sPort{};
 	uint16_t iPort = 0;
 
 	p0 = strtok(reinterpret_cast<char *>(data), delimiter);
@@ -5927,7 +5929,7 @@ static void udp_tracker_process_holepunch( ubyte *data, int data_len, const _soc
 	p0 = strtok(NULL, delimiter);
 	if (p0 == NULL)
 		return;
-	memcpy(sPort, p0, strlen(p0));
+	memcpy(&sPort, p0, strlen(p0));
 	if (!convert_text_portstring(sPort, iPort, true, true))
 		return;
 
