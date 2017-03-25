@@ -271,6 +271,19 @@ public:
 
 }
 
+namespace dcx {
+
+static const void *get_addr_from_sockaddr(const _sockaddr &s)
+{
+#if DXX_USE_IPv6
+	if (s.sa.sa_family == AF_INET6)
+		return &s.sin6.sin6_addr;
+#endif
+	return &s.sin.sin_addr;
+}
+
+}
+
 static array<RAIIsocket, 2> UDP_Socket;
 
 static void clear_UDP_Socket()
@@ -768,15 +781,30 @@ struct direct_join
 };
 
 // Connect to a game host and get full info. Eventually we join!
-static int net_udp_game_connect(direct_join *dj)
+static int net_udp_game_connect(direct_join *const dj)
 {
 	// Get full game info so we can show it.
 
 	// Timeout after 10 seconds
 	if (timer_query() >= dj->start_time + (F1_0*10))
 	{
-		nm_messagebox(TXT_ERROR,1,TXT_OK,"No response by host.\n\nPossible reasons:\n* No game on this IP (anymore)\n* Port of Host not open\n  or different\n* Host uses a game version\n  I do not understand");
 		dj->connecting = 0;
+		char dbuf[_sockaddr::presentation_buffer_size];
+		const auto port =
+#if DXX_USE_IPv6
+			dj->host_addr.sa.sa_family == AF_INET6
+			? dj->host_addr.sin6.sin6_port
+			:
+#endif
+			dj->host_addr.sin.sin_port;
+		nm_messagebox(TXT_ERROR, 1, TXT_OK,
+"No response by host.\n\n\
+Possible reasons:\n\
+* No game on %s (anymore)\n\
+* Host port %hu is not open\n\
+* Game is hosted on a different port\n\
+* Host uses a game version\n\
+  I do not understand", inet_ntop(dj->host_addr.sa.sa_family, get_addr_from_sockaddr(dj->host_addr), dbuf, sizeof(dbuf)) ? dbuf : "address", ntohs(port));
 		return 0;
 	}
 	

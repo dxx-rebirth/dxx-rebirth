@@ -88,6 +88,9 @@ struct _sockaddr
 #define DXX_IPv6(v4,v6) v4
 #endif
 	};
+	enum {
+		presentation_buffer_size = DXX_IPv6(INET_ADDRSTRLEN, INET6_ADDRSTRLEN),
+	};
 	static int address_family()
 	{
 		return DXX_IPv6(AF_INET, AF_INET6);
