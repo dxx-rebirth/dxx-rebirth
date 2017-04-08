@@ -177,7 +177,7 @@ static void nm_draw_background1(grs_canvas &canvas, const char * filename)
 #define MENU_BACKGROUND_BITMAP (HIRESMODE?MENU_BACKGROUND_BITMAP_HIRES:MENU_BACKGROUND_BITMAP_LORES)
 
 // Draws the frame background for menus
-void nm_draw_background(int x1, int y1, int x2, int y2 )
+void nm_draw_background(grs_canvas &canvas, int x1, int y1, int x2, int y2)
 {
 	int w,h,init_sub=0;
 	static float BGScaleX=1,BGScaleY=1;
@@ -207,7 +207,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 
 	gr_palette_load( gr_palette );
 	{
-		const auto &&tmp = gr_create_sub_canvas(*grd_curcanv, x1, y1, w, h);
+		const auto &&tmp = gr_create_sub_canvas(canvas, x1, y1, w, h);
 		show_fullscr(*tmp, nm_background); // show so we load all necessary data for the sub-bitmap
 	if (!init_sub && ((nm_background_sub->bm_w != w*((static_cast<float>(nm_background.bm_w))/SWIDTH)) || (nm_background_sub->bm_h != h*((static_cast<float>(nm_background.bm_h))/SHEIGHT))))
 	{
@@ -218,18 +218,18 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	show_fullscr(*tmp, *nm_background_sub.get());
 	}
 
-	gr_settransblend(*grd_curcanv, 14, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, 14, GR_BLEND_NORMAL);
 	{
 		const uint8_t color = BM_XRGB(1, 1, 1);
 	for (w=5*BGScaleX;w>0;w--)
-		gr_urect(*grd_curcanv, x2-w, y1+w*(BGScaleY/BGScaleX), x2-w, y2-w*(BGScaleY/BGScaleX), color);//right edge
+			gr_urect(canvas, x2 - w, y1 + w * (BGScaleY / BGScaleX), x2 - w, y2 - w * (BGScaleY / BGScaleX), color);//right edge
 	}
 	{
 		const uint8_t color = BM_XRGB(0, 0, 0);
 	for (h=5*BGScaleY;h>0;h--)
-		gr_urect(*grd_curcanv, x1+h*(BGScaleX/BGScaleY), y2-h, x2-h*(BGScaleX/BGScaleY), y2-h, color);//bottom edge
+			gr_urect(canvas, x1 + h * (BGScaleX / BGScaleY), y2 - h, x2 - h * (BGScaleX / BGScaleY), y2 - h, color);//bottom edge
 	}
-	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
 }
 
 // Draw a left justfied string
@@ -1432,7 +1432,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	gr_set_current_canvas( NULL );
 	nm_draw_background1(*grd_curcanv, menu->filename);
 	if (menu->filename == NULL)
-		nm_draw_background(menu->x-(menu->is_scroll_box?FSPACX(5):0),menu->y,menu->x+menu->w,menu->y+menu->h);
+		nm_draw_background(*grd_curcanv, menu->x-(menu->is_scroll_box?FSPACX(5):0),menu->y,menu->x+menu->w,menu->y+menu->h);
 
 	gr_set_current_canvas( menu_canvas );
 
@@ -1957,7 +1957,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 		listbox_create_structure ( lb );
 
 	gr_set_current_canvas(NULL);
-	nm_draw_background( lb->box_x-BORDERX,lb->box_y-lb->title_height-BORDERY,lb->box_x+lb->box_w+BORDERX,lb->box_y+lb->height+BORDERY );
+	nm_draw_background(*grd_curcanv, lb->box_x - BORDERX, lb->box_y - lb->title_height - BORDERY,lb->box_x + lb->box_w + BORDERX, lb->box_y + lb->height + BORDERY);
 	gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
 	gr_string(*grd_curcanv, 0x8000, lb->box_y - lb->title_height, lb->title);
 

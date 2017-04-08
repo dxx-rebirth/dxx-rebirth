@@ -402,7 +402,7 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 		case EVENT_WINDOW_DRAW:
 			gr_set_current_canvas(NULL);
 			
-			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
+			nm_draw_background(*grd_curcanv, ((SWIDTH - w) / 2) - BORDERX, ((SHEIGHT - h) / 2) - BORDERY, ((SWIDTH - w) / 2) + w + BORDERX, ((SHEIGHT - h) / 2) + h + BORDERY);
 			
 			{
 			gr_set_current_canvas(window_get_canvas(*wind));

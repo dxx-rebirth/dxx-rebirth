@@ -286,7 +286,7 @@ int vnm_messagebox_aN(const char *title, const nm_messagebox_tie &tie, const cha
 newmenu_item *newmenu_get_items(newmenu *menu);
 int newmenu_get_nitems(newmenu *menu);
 int newmenu_get_citem(newmenu *menu);
-void nm_draw_background(int x1, int y1, int x2, int y2);
+void nm_draw_background(grs_canvas &, int x1, int y1, int x2, int y2);
 void nm_restore_background(int x, int y, int w, int h);
 
 extern const char *Newmenu_allowed_chars;

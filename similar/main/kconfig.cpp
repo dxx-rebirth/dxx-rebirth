@@ -882,7 +882,7 @@ static void kconfig_draw(kc_menu *menu)
 	int w = fspacx(290), h = fspacy(170);
 
 	gr_set_current_canvas(NULL);
-	nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
+	nm_draw_background(*grd_curcanv, ((SWIDTH - w) / 2) - BORDERX, ((SHEIGHT - h) / 2) - BORDERY, ((SWIDTH - w) / 2) + w + BORDERX, ((SHEIGHT - h) / 2) + h + BORDERY);
 
 	gr_set_current_canvas(window_get_canvas(*menu->wind));
 	auto &canvas = *grd_curcanv;

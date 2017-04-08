@@ -1833,7 +1833,7 @@ void show_escort_menu(const array<char, 300> &amsg)
 
 	gr_set_fontcolor(canvas, BM_XRGB(0, 28, 0), -1);
 
-	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
+	nm_draw_background(canvas, x - BORDERX, y - BORDERY, x + w + BORDERX, y + h + BORDERY);
 
 	gr_ustring(canvas, x, y, msg);
 
