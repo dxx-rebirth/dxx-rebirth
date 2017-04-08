@@ -181,8 +181,6 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 {
 	int w,h,init_sub=0;
 	static float BGScaleX=1,BGScaleY=1;
-	grs_canvas *old;
-
 	if (nm_background.bm_data == NULL)
 	{
 		int pcx_error;
@@ -207,21 +205,18 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	if (w > SWIDTH) w = SWIDTH;
 	if (h > SHEIGHT) h = SHEIGHT;
 
-	old=grd_curcanv;
-	auto tmp = gr_create_sub_canvas(*old, x1, y1, w, h);
-	gr_set_current_canvas(tmp);
 	gr_palette_load( gr_palette );
-
-	show_fullscr(*grd_curcanv, nm_background); // show so we load all necessary data for the sub-bitmap
+	{
+		const auto &&tmp = gr_create_sub_canvas(*grd_curcanv, x1, y1, w, h);
+		show_fullscr(*tmp, nm_background); // show so we load all necessary data for the sub-bitmap
 	if (!init_sub && ((nm_background_sub->bm_w != w*((static_cast<float>(nm_background.bm_w))/SWIDTH)) || (nm_background_sub->bm_h != h*((static_cast<float>(nm_background.bm_h))/SHEIGHT))))
 	{
 		init_sub=1;
 	}
 	if (init_sub)
 		nm_background_sub = gr_create_sub_bitmap(nm_background,0,0,w*((static_cast<float>(nm_background.bm_w))/SWIDTH),h*((static_cast<float>(nm_background.bm_h))/SHEIGHT));
-	show_fullscr(*grd_curcanv, *nm_background_sub.get());
-
-	gr_set_current_canvas(old);
+	show_fullscr(*tmp, *nm_background_sub.get());
+	}
 
 	gr_settransblend(*grd_curcanv, 14, GR_BLEND_NORMAL);
 	{
