@@ -286,7 +286,6 @@ int set_screen_mode(int sm)
 {
 	if ( (Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->get_screen_mode() != Game_screen_mode)) && !(sm==SCREEN_MENU) )
 	{
-		gr_set_current_canvas(NULL);
 		return 1;
 	}
 
@@ -340,9 +339,6 @@ int set_screen_mode(int sm)
 		default:
 			Error("Invalid screen mode %d",sm);
 	}
-
-	gr_set_current_canvas(NULL);
-
 	return 1;
 }
 
@@ -550,21 +546,15 @@ void save_screen_shot(int automap_flag)
 
 	write_bmp(savename, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
 #else
-	grs_canvas *screen_canv=&grd_curscreen->sc_canvas;
-	grs_canvas *save_canv;
+	grs_canvas &screen_canv = grd_curscreen->sc_canvas;
 	palette_array_t pal;
 
-	save_canv = grd_curcanv;
-	auto temp_canv = gr_create_canvas(screen_canv->cv_bitmap.bm_w,screen_canv->cv_bitmap.bm_h);
-	gr_set_current_canvas(temp_canv);
-	gr_ubitmap(*grd_curcanv, screen_canv->cv_bitmap);
-	gr_set_current_canvas(NULL);
+	const auto &&temp_canv = gr_create_canvas(screen_canv.cv_bitmap.bm_w, screen_canv.cv_bitmap.bm_h);
+	gr_ubitmap(*temp_canv, screen_canv.cv_bitmap);
 
 	gr_palette_read(pal);		//get actual palette from the hardware
 	pcx_write_bitmap(savename,&temp_canv->cv_bitmap,pal);
-	gr_set_current_canvas(screen_canv);
-	gr_ubitmap(*grd_curcanv, temp_canv->cv_bitmap);
-	gr_set_current_canvas(save_canv);
+	gr_ubitmap(screen_canv, temp_canv->cv_bitmap);
 #endif
 }
 
