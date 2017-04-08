@@ -40,16 +40,18 @@ void ogl_sync::sync_deleter::operator()(GLsync fence_func) const
 
 void ogl_sync::before_swap()
 {
-	if (fence) {
+	if (const auto local_fence = std::move(fence))
+	{
 		/// use a fence sync object to prevent the GPU from queuing up more than one frame
+		const auto waitsync = glClientWaitSyncFunc;
 		if (method == SYNC_GL_FENCE_SLEEP) {
-			while(glClientWaitSyncFunc(fence.get(), GL_SYNC_FLUSH_COMMANDS_BIT, 0ULL) == GL_TIMEOUT_EXPIRED) {
-				timer_delay_ms(wait_timeout);
+			const auto local_wait_timeout = wait_timeout;
+			while (waitsync(local_fence.get(), GL_SYNC_FLUSH_COMMANDS_BIT, 0ULL) == GL_TIMEOUT_EXPIRED) {
+				timer_delay_ms(local_wait_timeout);
 			}
 		} else {
-			glClientWaitSyncFunc(fence.get(), GL_SYNC_FLUSH_COMMANDS_BIT, 34000000ULL);
+			waitsync(local_fence.get(), GL_SYNC_FLUSH_COMMANDS_BIT, 34000000ULL);
 		}
-		fence.reset();
 	} else if (method == SYNC_GL_FINISH_BEFORE_SWAP) {
 		glFinish();
 	}
