@@ -94,7 +94,7 @@ public:
 	}
 	template <std::size_t N>
 		bm_rle_expand_range(array<uint8_t, N> &a) :
-			iter_dbits(begin(a)), end_dbits(end(a))
+			iter_dbits(a.data()), end_dbits(std::next(iter_dbits, N))
 	{
 	}
 	uint8_t *get_begin_dbits() const
