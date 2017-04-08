@@ -42,7 +42,7 @@ static void decode_row(const grs_bitmap &bmp, array<ubyte, 640> &scale_rle_data,
 
 	for (uint_fast32_t i = 0; i != y; ++i)
 		offset += bmp.bm_data[4+i];
-	gr_rle_decode({&bmp.bm_data[offset], scale_rle_data.data()}, rle_end(bmp, scale_rle_data));
+	gr_rle_decode(&bmp.bm_data[offset], scale_rle_data.data(), rle_end(bmp, scale_rle_data));
 }
 
 static void scale_up_bitmap(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )

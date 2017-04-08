@@ -50,19 +50,13 @@ static inline uint8_t *end(grs_bitmap &b)
 }
 
 template <typename T1, typename T2>
-static inline rle_position_t rle_begin(const T1 &src, T2 &dst)
-{
-	return {begin(src), begin(dst)};
-}
-
-template <typename T1, typename T2>
 static inline rle_position_t rle_end(const T1 &src, T2 &dst)
 {
 	return {end(src), end(dst)};
 }
 
 namespace dcx {
-rle_position_t gr_rle_decode(rle_position_t b, const rle_position_t e);
+uint8_t *gr_rle_decode(const uint8_t *sb, uint8_t *db, rle_position_t e);
 int gr_bitmap_rle_compress(grs_bitmap &bmp);
 void gr_rle_expand_scanline_masked(uint8_t *dest, const uint8_t *src, int x1, int x2);
 void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, int x1, int x2);

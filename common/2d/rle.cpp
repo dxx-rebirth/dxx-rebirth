@@ -50,32 +50,32 @@ static inline int IS_RLE_CODE(const uint8_t &x)
 }
 #define rle_stosb(_dest, _len, _color)	memset(_dest,_color,_len)
 
-rle_position_t gr_rle_decode(rle_position_t b, const rle_position_t e)
+uint8_t *gr_rle_decode(const uint8_t *sb, uint8_t *db, const rle_position_t e)
 {
 	using std::advance;
 	using std::distance;
-	for (; b.src != e.src;)
+	for (; sb != e.src;)
 	{
-		const uint8_t *p = b.src;
+		const uint8_t *p = sb;
 		uint8_t c;
 		for (; c = *p, !IS_RLE_CODE(c);)
 			if (++p == e.src)
-				return {e.src, b.dst};
+				return db;
 		size_t count = (c & NOT_RLE_CODE);
-		size_t cn = std::min<size_t>(distance(b.src, p), distance(b.dst, e.dst));
-		memcpy(b.dst, b.src, cn);
-		advance(b.dst, cn);
+		const size_t cn = std::min<size_t>(distance(sb, p), distance(db, e.dst));
+		memcpy(db, sb, cn);
+		advance(db, cn);
 		if (!count)
-			return {e.src, b.dst};
-		advance(b.src, cn);
-		if (b.src == e.src || b.dst == e.dst || count > static_cast<size_t>(distance(b.dst, e.dst)))
 			break;
-		if (++ b.src == e.src)
+		advance(sb, cn);
+		if (sb == e.src || db == e.dst || count > static_cast<size_t>(distance(db, e.dst)))
 			break;
-		std::fill_n(b.dst, count, *b.src++);
-		advance(b.dst, count);
+		if (++ sb == e.src)
+			break;
+		std::fill_n(db, count, *sb++);
+		advance(db, count);
 	}
-	return b;
+	return db;
 }
 
 // Given pointer to start of one scanline of rle data, uncompress it to
@@ -389,7 +389,7 @@ static void rle_expand_texture_sub(const grs_bitmap &bmp, grs_bitmap &rle_temp_b
 	rle_temp_bitmap_1.set_flags(bmp.get_flags() & (~BM_FLAG_RLE));
 
 	for (int i=0; i < bmp.bm_h; i++ ) {
-		gr_rle_decode({sbits, dbits}, rle_end(bmp, rle_temp_bitmap_1));
+		gr_rle_decode(sbits, dbits, rle_end(bmp, rle_temp_bitmap_1));
 		sbits += static_cast<int>(bmp.bm_data[4+i]);
 		dbits += bmp.bm_w;
 	}
@@ -616,12 +616,12 @@ void bm_rle_src_stride::advance_src_bits()
 
 bm_rle_expand::step_result bm_rle_expand::step_internal(uint8_t *const begin_dbits, uint8_t *const end_dbits)
 {
-	auto &&r = gr_rle_decode({src_bits, begin_dbits}, rle_position_t{end_src_bm, end_dbits});
+	const auto rd = gr_rle_decode(src_bits, begin_dbits, {end_src_bm, end_dbits});
 	/* If the destination buffer is exhausted, return without
 	 * modifying the source state.  This lets the caller retry
 	 * with a larger buffer, if desired.
 	 */
-	if (unlikely(begin_dbits == r.dst))
+	if (unlikely(begin_dbits == rd))
 		return dst_exhausted;
 	advance_src_bits();
 	return again;
