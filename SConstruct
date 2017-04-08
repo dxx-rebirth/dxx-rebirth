@@ -3994,9 +3994,9 @@ class DXXProgram(DXXCommon):
 			exe_target += PROGSUFFIX
 		if self.user_settings.register_compile_target:
 			exe_target = self._register_program(exe_target)
+			ToolchainInformation.show_partial_environ(env, lambda s, _message=message, _self=self: _message(self, s))
 		if self.user_settings.register_install_target:
 			self._register_install(self.shortname, exe_target)
-		ToolchainInformation.show_partial_environ(env, lambda s, _message=message, _self=self: _message(self, s))
 
 	def _register_program(self,exe_target):
 		env = self.env
