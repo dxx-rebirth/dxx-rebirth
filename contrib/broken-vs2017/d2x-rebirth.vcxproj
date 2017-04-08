@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -9,56 +9,62 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{F04CF765-32A1-4BE6-BEF6-F44E87B6F163}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Descent2</RootNamespace>
+    <RootNamespace>D2X-Rebirth</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)'=='Debug'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="debug.props" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)'=='Release'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>DXX_BUILD_DESCENT_II;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Link>
-      <TargetMachine>MachineX86</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>DXX_BUILD_DESCENT_II;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
+  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
@@ -74,7 +80,6 @@
     <ClCompile Include="..\..\d2x-rebirth\main\escort.cpp" />
     <ClCompile Include="..\..\d2x-rebirth\main\gamepal.cpp" />
     <ClCompile Include="..\..\d2x-rebirth\main\movie.cpp" />
-    <ClCompile Include="..\..\d2x-rebirth\main\segment.cpp" />
     <ClCompile Include="..\..\d2x-rebirth\misc\physfsrwops.cpp" />
     <ClCompile Include="..\..\similar\2d\font.cpp" />
     <ClCompile Include="..\..\similar\2d\palette.cpp" />
@@ -85,13 +90,8 @@
     <ClCompile Include="..\..\similar\arch\sdl\digi.cpp" />
     <ClCompile Include="..\..\similar\arch\sdl\digi_audio.cpp" />
     <ClCompile Include="..\..\similar\arch\sdl\digi_mixer.cpp" />
-    <ClCompile Include="..\..\similar\arch\sdl\event.cpp" />
     <ClCompile Include="..\..\similar\arch\sdl\init.cpp" />
     <ClCompile Include="..\..\similar\arch\sdl\jukebox.cpp" />
-    <ClCompile Include="..\..\similar\arch\sdl\key.cpp" />
-    <ClCompile Include="..\..\similar\arch\sdl\mouse.cpp" />
-    <ClCompile Include="..\..\similar\arch\sdl\timer.cpp" />
-    <ClCompile Include="..\..\similar\editor\autosave.cpp" />
     <ClCompile Include="..\..\similar\editor\centers.cpp" />
     <ClCompile Include="..\..\similar\editor\curves.cpp" />
     <ClCompile Include="..\..\similar\editor\eglobal.cpp" />
@@ -189,9 +189,7 @@
     <ClCompile Include="..\..\similar\main\vers_id.cpp" />
     <ClCompile Include="..\..\similar\main\wall.cpp" />
     <ClCompile Include="..\..\similar\main\weapon.cpp" />
-    <ClCompile Include="..\..\similar\mem\mem.cpp" />
     <ClCompile Include="..\..\similar\misc\args.cpp" />
-    <ClCompile Include="..\..\similar\misc\hash.cpp" />
     <ClCompile Include="..\..\similar\misc\physfsx.cpp" />
   </ItemGroup>
   <ItemGroup>
