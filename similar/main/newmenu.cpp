@@ -371,7 +371,7 @@ static void nm_string_inputbox(grs_canvas &canvas, const int w, const int x, con
 		gr_string(canvas, x + w1, y, CURSOR_STRING);
 }
 
-static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_flag, int scroll_offset )
+static void draw_item(grs_canvas &canvas, newmenu_item *item, int is_current, int tiny, int tabs_flag, int scroll_offset)
 {
 	if (tiny)
 	{
@@ -382,14 +382,14 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 			r = 57, g = 49, b = 20;
 		else
 			r = g = 29, b = 47;
-		gr_set_fontcolor(*grd_curcanv, gr_find_closest_color_current(r, g, b), -1);
+		gr_set_fontcolor(canvas, gr_find_closest_color_current(r, g, b), -1);
 	}
 	else
 	{
-		gr_set_curfont(*grd_curcanv, is_current?MEDIUM2_FONT:MEDIUM1_FONT);
+		gr_set_curfont(canvas, is_current?MEDIUM2_FONT:MEDIUM1_FONT);
         }
 
-	const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv));
+	const int line_spacing = static_cast<int>(LINE_SPACING(canvas));
 	switch( item->type )	{
 		case NM_TYPE_SLIDER:
 		{
@@ -406,7 +406,7 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 			}
 			i += snprintf(item->saved_text.data() + i, item->saved_text.size() - i, "%s", SLIDER_RIGHT);
 			item->saved_text[item->value+1+strlen(item->text)+1] = SLIDER_MARKER[0];
-			nm_string_slider(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->saved_text.data());
+			nm_string_slider(canvas, item->w, item->x, item->y - (line_spacing * scroll_offset), item->saved_text.data());
 		}
 			break;
 		case NM_TYPE_INPUT_MENU:
@@ -414,19 +414,19 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 			{
 			case NM_TYPE_TEXT:
 			case NM_TYPE_MENU:
-				nm_string(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
+				nm_string(canvas, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
 				break;
 			}
 		case NM_TYPE_INPUT:
-			nm_string_inputbox(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, is_current);
+			nm_string_inputbox(canvas, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, is_current);
 			break;
 		case NM_TYPE_CHECK:
-			nm_string(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
-			nm_rstring(*grd_curcanv, item->right_offset, item->x, item->y - (line_spacing * scroll_offset), item->value ? CHECKED_CHECK_BOX : NORMAL_CHECK_BOX);
+			nm_string(canvas, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
+			nm_rstring(canvas, item->right_offset, item->x, item->y - (line_spacing * scroll_offset), item->value ? CHECKED_CHECK_BOX : NORMAL_CHECK_BOX);
 			break;
 		case NM_TYPE_RADIO:
-			nm_string(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
-			nm_rstring(*grd_curcanv, item->right_offset, item->x, item->y - (line_spacing * scroll_offset), item->value ? CHECKED_RADIO_BOX : NORMAL_RADIO_BOX);
+			nm_string(canvas, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
+			nm_rstring(canvas, item->right_offset, item->x, item->y - (line_spacing * scroll_offset), item->value ? CHECKED_RADIO_BOX : NORMAL_RADIO_BOX);
 			break;
 		case NM_TYPE_NUMBER:
 		{
@@ -436,9 +436,9 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 				item->value = number.min_value;
 			if (item->value > number.max_value)
 				item->value = number.max_value;
-			nm_string(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
+			nm_string(canvas, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
 			snprintf(text, sizeof(text), "%d", item->value );
-			nm_rstring(*grd_curcanv, item->right_offset, item->x, item->y - (line_spacing * scroll_offset), text);
+			nm_rstring(canvas, item->right_offset, item->x, item->y - (line_spacing * scroll_offset), text);
 		}
 			break;
 	}
@@ -1463,8 +1463,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	// Redraw everything...
 	for (i=menu->scroll_offset; i<menu->max_displayable+menu->scroll_offset; i++ )
 	{
-		draw_item( &menu->items[i], (i==menu->citem && !menu->all_text),menu->tiny_mode, menu->tabs_flag, menu->scroll_offset );
-
+		draw_item(*grd_curcanv, &menu->items[i], (i==menu->citem && !menu->all_text),menu->tiny_mode, menu->tabs_flag, menu->scroll_offset);
 	}
 
 	if (menu->is_scroll_box)
