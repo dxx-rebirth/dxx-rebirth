@@ -62,7 +62,7 @@ extern int HiresGFXAvailable;
 #define CC_LSPACING_S   "\x2"   //next char specifies line spacing
 #define CC_UNDERLINE_S  "\x3"   //next char is underlined
 
-enum bm_mode
+enum bm_mode : uint8_t
 {
 	linear,
 	rgb15 = 3,	//5 bits each r,g,b stored at 16 bits
