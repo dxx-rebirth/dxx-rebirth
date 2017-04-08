@@ -458,7 +458,7 @@ static void draw_copyright()
 	auto &canvas = *grd_curcanv;
 	gr_set_curfont(canvas, GAME_FONT);
 	gr_set_fontcolor(canvas, BM_XRGB(6, 6, 6), -1);
-	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
+	const auto &&line_spacing = LINE_SPACING(canvas);
 	gr_string(canvas, 0x8000, SHEIGHT - line_spacing, TXT_COPYRIGHT);
 	gr_set_fontcolor(canvas, BM_XRGB(25, 0, 0), -1);
 	gr_string(canvas, 0x8000, SHEIGHT - (line_spacing * 2), DESCENT_VERSION);
@@ -2398,10 +2398,13 @@ static window_event_result polygon_models_viewer_handler(window *, const d_event
 			return window_event_result::handled;
 		case EVENT_WINDOW_DRAW:
 			timer_delay(F1_0/60);
-			draw_model_picture(*grd_curcanv, view_idx, &ang);
-			gr_set_curfont(*grd_curcanv, GAME_FONT);
-			gr_set_fontcolor(*grd_curcanv, BM_XRGB(255, 255, 255), -1);
-			gr_printf(*grd_curcanv, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation",view_idx,N_polygon_models-1);
+			{
+				auto &canvas = *grd_curcanv;
+				draw_model_picture(canvas, view_idx, &ang);
+				gr_set_curfont(canvas, GAME_FONT);
+				gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
+				gr_printf(canvas, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation",view_idx,N_polygon_models-1);
+			}
 			break;
 		case EVENT_WINDOW_CLOSE:
 			load_palette(MENU_PALETTE,0,1);
@@ -2470,16 +2473,19 @@ static window_event_result gamebitmaps_viewer_handler(window *, const d_event &e
 			bm = &GameBitmaps[view_idx];
 			timer_delay(F1_0/60);
 			PIGGY_PAGE_IN(bi);
-			gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
+			{
+				auto &canvas = *grd_curcanv;
+				gr_clear_canvas(canvas, BM_XRGB(0,0,0));
 #if DXX_USE_OGL
-			scale = (bm->bm_w > bm->bm_h)?(SHEIGHT/bm->bm_w)*0.8:(SHEIGHT/bm->bm_h)*0.8;
-			ogl_ubitmapm_cs(*grd_curcanv, (SWIDTH / 2) - (bm->bm_w * scale / 2), (SHEIGHT / 2) - (bm->bm_h * scale / 2), bm->bm_w * scale, bm->bm_h * scale, *bm, ogl_colors::white, F1_0);
+				scale = (bm->bm_w > bm->bm_h)?(SHEIGHT/bm->bm_w)*0.8:(SHEIGHT/bm->bm_h)*0.8;
+				ogl_ubitmapm_cs(canvas, (SWIDTH / 2) - (bm->bm_w * scale / 2), (SHEIGHT / 2) - (bm->bm_h * scale / 2), bm->bm_w * scale, bm->bm_h * scale, *bm, ogl_colors::white, F1_0);
 #else
-			gr_bitmap(*grd_curcanv, (SWIDTH / 2) - (bm->bm_w / 2), (SHEIGHT / 2) - (bm->bm_h / 2), *bm);
+				gr_bitmap(canvas, (SWIDTH / 2) - (bm->bm_w / 2), (SHEIGHT / 2) - (bm->bm_h / 2), *bm);
 #endif
-			gr_set_curfont(*grd_curcanv, GAME_FONT);
-			gr_set_fontcolor(*grd_curcanv, BM_XRGB(255, 255, 255), -1);
-			gr_printf(*grd_curcanv, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev bitmap (%i/%i)",view_idx,Num_bitmap_files-1);
+				gr_set_curfont(canvas, GAME_FONT);
+				gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
+				gr_printf(canvas, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev bitmap (%i/%i)",view_idx,Num_bitmap_files-1);
+			}
 			break;
 		case EVENT_WINDOW_CLOSE:
 			load_palette(MENU_PALETTE,0,1);
