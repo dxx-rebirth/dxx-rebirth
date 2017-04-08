@@ -4261,9 +4261,11 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 			ignore_unknown_variables = int(ignore_unknown_variables)
 		except ValueError:
 			ignore_unknown_variables = False
+		j = 'Unknown values specified on command line.%s' % \
+''.join(['\n\t%s' % k for k in unknown.keys()])
 		if not ignore_unknown_variables:
-			raise SCons.Errors.StopError('Unknown values specified on command line.' +
-''.join(['\n\t%s' % k for k in unknown.keys()]) +
+			raise SCons.Errors.StopError(j +
 '\nRemove unknown values or set ignore_unknown_variables=1 to continue.')
+		print('warning: %s\nBuild will continue, but these values have no effect.\n' % j)
 
 main(register_program)
