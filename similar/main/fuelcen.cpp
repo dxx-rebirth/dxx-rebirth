@@ -667,23 +667,20 @@ void disable_matcens(void)
 //	Give them all the right number of lives.
 void init_all_matcens(void)
 {
-#ifndef NDEBUG
 	const auto &&robot_range = partial_const_range(RobotCenters, Num_robot_centers);
-#endif
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++)
 		if (Station[i].Type == SEGMENT_IS_ROBOTMAKER) {
 			Station[i].Lives = 3;
 			Station[i].Enabled = 0;
 			Station[i].Disable_time = 0;
-#ifndef NDEBUG
-{
 			//	Make sure this fuelcen is pointed at by a matcen.
-			assert(std::find_if(robot_range.begin(), robot_range.end(), [i](const matcen_info &mi) {
+			if (std::find_if(robot_range.begin(), robot_range.end(), [i](const matcen_info &mi) {
 				return mi.fuelcen_num == i;
-			}) != robot_range.end());
-}
-#endif
-
+			}) == robot_range.end())
+			{
+				Station[i].Lives = 0;
+				LevelError("Station %" PRIuFAST32 " has type robotmaker, but no robotmaker uses it; ignoring.", i);
+			}
 		}
 
 #ifndef NDEBUG
