@@ -2167,6 +2167,22 @@ where the cast is useless.
 	freeaddrinfo(res);
 	return 0;
 ''', msg='for getaddrinfo', successflags=_successflags)
+	@_guarded_test_windows
+	def check_inet_ntop_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_INET_NTOP']}):
+		# Linux and OS X have working inet_ntop on all supported
+		# platforms.  Only Windows sometimes lacks support for this
+		# function.
+		if self.Compile(context, text='''
+#include <winsock2.h>
+#include <ws2tcpip.h>
+''', main='''
+	struct sockaddr_in sai;
+	char dbuf[64];
+	return inet_ntop(AF_INET, &sai.sin_addr, dbuf, sizeof(dbuf)) ? 0 : 1;
+''', msg='for inet_ntop', successflags=_successflags):
+			return
+		if self.user_settings.ipv6:
+			raise SCons.Errors.StopError("IPv6 enabled and inet_ntop not available: disable IPv6 or upgrade headers to support inet_ntop.")
 	@_custom_test
 	def check_timespec_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_STRUCT_TIMESPEC']}):
 		self.Compile(context, text='''

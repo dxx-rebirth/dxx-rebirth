@@ -273,13 +273,68 @@ public:
 
 namespace dcx {
 
-static const void *get_addr_from_sockaddr(const _sockaddr &s)
+static const char *dxx_ntop(const _sockaddr &sa, array<char, _sockaddr::presentation_buffer_size> &dbuf)
 {
+#ifdef WIN32
+#ifdef DXX_HAVE_INET_NTOP
+	/*
+	 * Windows and inet_ntop: copy the in_addr/in6_addr to local
+	 * variables because the Microsoft prototype lacks a const
+	 * qualifier.
+	 */
+	union {
+		in_addr ia;
 #if DXX_USE_IPv6
-	if (s.sa.sa_family == AF_INET6)
-		return &s.sin6.sin6_addr;
+		in6_addr ia6;
 #endif
-	return &s.sin.sin_addr;
+	};
+	const auto addr =
+#if DXX_USE_IPv6
+		(sa.sa.sa_family == AF_INET6)
+		? &(ia6 = sa.sin6.sin6_addr)
+		:
+#endif
+		static_cast<void *>(&(ia = sa.sin.sin_addr));
+#else
+	/*
+	 * Windows and not inet_ntop: only inet_ntoa available.
+	 *
+	 * SConf check_inet_ntop_present enforces that Windows without
+	 * inet_ntop cannot enable IPv6, so the IPv4 branch must be correct
+	 * here.
+	 *
+	 * The reverse is not true.  Windows with inet_ntop might not enable
+	 * IPv6.
+	 */
+#if DXX_USE_IPv6
+#error "IPv6 requires inet_ntop; SConf should prevent this path"
+#endif
+	dbuf.back() = 0;
+	/*
+	 * Copy the formatted string to the local buffer `dbuf` to guard
+	 * against concurrent uses of `dxx_ntop`.
+	 */
+	return reinterpret_cast<const char *>(memcpy(dbuf.data(), inet_ntoa(sa.sin.sin_addr), dbuf.size() - 1));
+#endif
+#else
+	/*
+	 * Not Windows; assume inet_ntop present.  Non-Windows platforms
+	 * declare inet_ntop with a const qualifier, so take a pointer to
+	 * the underlying data.
+	 */
+	const auto addr =
+#if DXX_USE_IPv6
+		(sa.sa.sa_family == AF_INET6)
+		? &sa.sin6.sin6_addr
+		:
+#endif
+		static_cast<const void *>(&sa.sin.sin_addr);
+#endif
+#if !defined(WIN32) || defined(DXX_HAVE_INET_NTOP)
+	if (const auto r = inet_ntop(sa.sa.sa_family, addr, dbuf.data(), dbuf.size()))
+		return r;
+	return "address";
+#endif
 }
 
 }
@@ -803,7 +858,7 @@ static int net_udp_game_connect(direct_join *const dj)
 	if (timer_query() >= dj->start_time + (F1_0*10))
 	{
 		dj->connecting = 0;
-		char dbuf[_sockaddr::presentation_buffer_size];
+		array<char, _sockaddr::presentation_buffer_size> dbuf;
 		const auto port =
 #if DXX_USE_IPv6
 			dj->host_addr.sa.sa_family == AF_INET6
@@ -818,7 +873,7 @@ Possible reasons:\n\
 * Host port %hu is not open\n\
 * Game is hosted on a different port\n\
 * Host uses a game version\n\
-  I do not understand", inet_ntop(dj->host_addr.sa.sa_family, get_addr_from_sockaddr(dj->host_addr), dbuf, sizeof(dbuf)) ? dbuf : "address", ntohs(port));
+  I do not understand", dxx_ntop(dj->host_addr, dbuf), ntohs(port));
 		return 0;
 	}
 	
