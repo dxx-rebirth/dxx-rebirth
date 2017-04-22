@@ -3016,6 +3016,7 @@ class DXXCommon(LazyObjectConstructor):
 					('words_need_alignment', self.default_words_need_alignment, 'align words at load (needed for many non-x86 systems)'),
 					('register_compile_target', True, 'report compile targets to SCons core'),
 					('register_cpp_output_targets', None, None),
+					('enable_build_failure_summary', True, 'print failed nodes and their commands'),
 					# This is intentionally undocumented.  If a bug
 					# report includes a log with this set to False, the
 					# reporter will be asked to provide a log with the
@@ -3953,14 +3954,17 @@ class DXXProgram(DXXCommon):
 		user_settings.register_variables(prefix, variables, filtered_help)
 
 	def init(self,substenv):
-		self.user_settings.read_variables(self.variables, substenv)
-		archive = DXXProgram.static_archive_construction.get(self.user_settings.builddir, None)
+		user_settings = self.user_settings
+		user_settings.read_variables(self.variables, substenv)
+		archive = DXXProgram.static_archive_construction.get(user_settings.builddir, None)
 		if archive is None:
-			DXXProgram.static_archive_construction[self.user_settings.builddir] = archive = DXXArchive(self.user_settings)
-		if self.user_settings.register_compile_target:
+			DXXProgram.static_archive_construction[user_settings.builddir] = archive = DXXArchive(user_settings)
+		if user_settings.register_compile_target:
 			self.prepare_environment(archive)
 			self.process_user_settings()
 		self.register_program()
+		if user_settings.enable_build_failure_summary:
+			self._register_build_failure_hook(archive)
 		return self.variables.GenerateHelpText(self.env)
 
 	def prepare_environment(self,archive):
@@ -3980,20 +3984,21 @@ class DXXProgram(DXXCommon):
 		)
 
 	def register_program(self):
-		exe_target = self.user_settings.program_name
+		user_settings = self.user_settings
+		exe_target = user_settings.program_name
 		if not exe_target:
 			exe_target = os.path.join(self.srcdir, self.target)
-			if self.user_settings.editor:
+			if user_settings.editor:
 				exe_target += '-editor'
-		exe_target = os.path.join(self.user_settings.builddir, exe_target)
+		exe_target = os.path.join(user_settings.builddir, exe_target)
 		env = self.env
 		PROGSUFFIX = env['PROGSUFFIX']
 		if PROGSUFFIX and not exe_target.endswith(PROGSUFFIX):
 			exe_target += PROGSUFFIX
-		if self.user_settings.register_compile_target:
+		if user_settings.register_compile_target:
 			exe_target = self._register_program(exe_target)
 			ToolchainInformation.show_partial_environ(env, lambda s, _message=message, _self=self: _message(self, s))
-		if self.user_settings.register_install_target:
+		if user_settings.register_install_target:
 			self._register_install(self.shortname, exe_target)
 
 	def _register_program(self,exe_target):
@@ -4070,6 +4075,47 @@ class DXXProgram(DXXCommon):
 		objects.append(versid_obj)
 		# finally building program...
 		return env.Program(target=exe_target, source = objects)
+
+	def _show_build_failure_summary():
+		from SCons.Script import GetBuildFailures
+		build_failures = GetBuildFailures()
+		if not build_failures:
+			return
+		node = []
+		command = []
+		total = 0
+		for f in build_failures:
+			if not f:
+				continue
+			e = f.executor
+			if not e:
+				continue
+			total = total + 1
+			e = e.get_build_env()
+			try:
+				e.__show_build_failure_summary
+			except AttributeError:
+				continue
+			node.append('\t%s\n' % f.node)
+			# Sacrifice some precision so that the printed output is
+			# valid shell input.
+			command.append('\n %s' % ' '.join(f.command))
+		if not total:
+			return
+		print("Failed target count: total=%u; targets with enable_build_failure_summary=1: %u" % (total, len(node)))
+		if node:
+			print('Failed node list:\n%sFailed command list:%s' % (''.join(node), ''.join(command)))
+
+	def _register_build_failure_hook(self,archive,show_build_failure_summary=[_show_build_failure_summary]):
+		# Always mark the environment as report-enabled.
+		# Only register the atexit hook once.
+		env = self.env
+		env.__show_build_failure_summary = None
+		archive.env.__show_build_failure_summary = None
+		if not show_build_failure_summary:
+			return
+		from atexit import register
+		register(show_build_failure_summary.pop())
 
 	def _register_install(self,dxxstr,exe_node):
 		env = self.env
