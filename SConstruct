@@ -3043,7 +3043,7 @@ class DXXCommon(LazyObjectConstructor):
 				'arguments': (
 					('CPPFLAGS', getenv('CPPFLAGS'), 'C preprocessor flags'),
 					('CXXFLAGS', getenv('CXXFLAGS'), 'C++ compiler flags'),
-					('LDFLAGS', getenv('LDFLAGS'), 'Linker flags'),
+					('LINKFLAGS', getenv('LDFLAGS'), 'Linker flags'),
 					('LIBS', getenv('LIBS'), 'Libraries to link'),
 					# These are intentionally undocumented.  They are
 					# meant for developers who know the implications of
@@ -3493,12 +3493,10 @@ class DXXCommon(LazyObjectConstructor):
 		if self.user_settings.editor:
 			add_flags['CPPPATH'] = ['common/include/editor']
 		CLVar = SCons.Util.CLVar
-		for flags in ('CPPFLAGS', 'CXXFLAGS', 'LIBS'):
+		for flags in ('CPPFLAGS', 'CXXFLAGS', 'LIBS', 'LINKFLAGS'):
 			value = getattr(self.user_settings, flags)
 			if value is not None:
 				add_flags[flags] = CLVar(value)
-		if self.user_settings.LDFLAGS:
-			add_flags['LINKFLAGS'] = CLVar(self.user_settings.LDFLAGS)
 		env.Append(**add_flags)
 		if self.user_settings.lto:
 			env.Append(CXXFLAGS = [
