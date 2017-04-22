@@ -262,7 +262,7 @@ static void do_weapon_n_item_stuff()
 	if (auto &headlight = Controls.state.headlight)
 	{
 		if (exchange(headlight, 0) & 1)
-			toggle_headlight_active ();
+			toggle_headlight_active(plrobj);
 	}
 #endif
 

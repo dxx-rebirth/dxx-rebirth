@@ -543,13 +543,13 @@ void set_dynamic_light(render_state_t &rstate)
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 
-void toggle_headlight_active()
+void toggle_headlight_active(object &player)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &player_info = player.ctype.player_info;
 	if (player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT) {
 		player_info.powerup_flags ^= PLAYER_FLAGS_HEADLIGHT_ON;
 		if (Game_mode & GM_MULTI)
-			multi_send_flags(Player_num);
+			multi_send_flags(player.id);
 	}
 }
 
