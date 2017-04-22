@@ -651,6 +651,10 @@ int main(int argc, char *argv[])
 	error_init(msgbox_error);
 	set_warn_func(msgbox_warning);
 #endif
+#ifdef WIN32
+	void d_set_exception_handler();
+	d_set_exception_handler();
+#endif
 	return dsx::main(argc, argv);
 }
 

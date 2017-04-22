@@ -1044,6 +1044,45 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 '''):
 		successflags = self.pkgconfig.merge(context, self.msgprefix, self.user_settings, 'jsoncpp', 'jsoncpp', _guess_flags)
 		self._check_system_library(context, header=_header, main=_main, lib='jsoncpp', successflags=successflags)
+	@_guarded_test_windows
+	def check_dbghelp_header(self,context,_CPPDEFINES='DXX_ENABLE_WINDOWS_MINIDUMP'):
+		windows_minidump = self.user_settings.windows_minidump
+		self._result_check_user_setting(context, windows_minidump, _CPPDEFINES, 'minidump on exception')
+		if not windows_minidump:
+			return
+		include_dbghelp_header = '''
+// <dbghelp.h> assumes that <windows.h> was included earlier and fails
+// to parse if this assumption is false
+#include <windows.h>
+#include <dbghelp.h>
+'''
+		if self.Compile(context, text=include_dbghelp_header + '''
+#include <stdexcept>
+
+using MiniDumpWriteDump_type = decltype(MiniDumpWriteDump);
+MiniDumpWriteDump_type *pMiniDumpWriteDump;
+
+[[noreturn]]
+static void terminate_handler()
+{
+	MINIDUMP_EXCEPTION_INFORMATION mei;
+	MINIDUMP_USER_STREAM musa[1];
+	MINIDUMP_USER_STREAM_INFORMATION musi;
+	EXCEPTION_POINTERS ep;
+	mei.ExceptionPointers = &ep;
+	musi.UserStreamCount = 1;
+	musi.UserStreamArray = musa;
+	(*pMiniDumpWriteDump)(GetCurrentProcess(), GetCurrentProcessId(), GetCurrentProcess(), MiniDumpWithFullMemory, &mei, &musi, nullptr);
+	ExitProcess(0);
+}
+''', main='''
+	std::set_terminate(&terminate_handler);
+''', msg='for usable header dbghelp.h'):
+			return
+		errtext = "Header dbghelp.h is parseable but cannot compile the test program."	\
+			if self.Compile(context, text=include_dbghelp_header, msg='for parseable header dbghelp.h')	\
+			else "Header dbghelp.h is missing or unusable."
+		raise SCons.Errors.StopError(errtext + "  Upgrade the Windows API header package or disable minidump support.")
 	@_custom_test
 	def check_libphysfs(self,context,_header=('physfs.h',)):
 		main = '''
@@ -3063,6 +3102,10 @@ class DXXCommon(LazyObjectConstructor):
 					('use_udp', True, 'enable UDP support'),
 					('use_tracker', True, 'enable Tracker support (requires UDP)'),
 					('verbosebuild', self.default_verbosebuild, 'print out all compiler/linker messages during building'),
+					# This is only examined for Windows targets, so
+					# there is no need to make the default value depend
+					# on the host_platform.
+					('windows_minidump', True, 'generate a minidump on unhandled C++ exception'),
 					('words_need_alignment', self.default_words_need_alignment, 'align words at load (needed for many non-x86 systems)'),
 					('register_compile_target', True, 'report compile targets to SCons core'),
 					('register_cpp_output_targets', None, None),
@@ -3705,6 +3748,7 @@ class DXXArchive(DXXCommon):
 ])
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
 		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter([
+'common/arch/win32/except.cpp',
 'common/arch/win32/messagebox.cpp'
 ])
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
