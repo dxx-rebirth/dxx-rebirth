@@ -70,6 +70,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "makesig.h"
 #include "textures.h"
+#include "d_enumerate.h"
 
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
@@ -788,6 +789,39 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_File *f)
 // Otherwise it loads the appropriate level mine.
 // returns 0=everything ok, 1=old version, -1=error
 namespace dsx {
+
+static void validate_segment_wall(const vcsegptridx_t seg, side &side, const unsigned sidenum)
+{
+	auto &rwn0 = side.wall_num;
+	const auto wn0 = rwn0;
+	auto &w0 = *vcwallptr(wn0);
+	switch (w0.type)
+	{
+		case WALL_DOOR:
+			{
+				const auto connected_seg = seg->children[sidenum];
+				if (connected_seg == segment_none)
+				{
+					rwn0 = wall_none;
+					LevelError("segment %u side %u wall %u has no child segment; removing orphan wall.", seg.get_unchecked_index(), sidenum, wn0);
+					return;
+				}
+				const auto &vcseg = vcsegptr(connected_seg);
+				const unsigned connected_side = find_connect_side(seg, vcseg);
+				const auto wn1 = vcseg->sides[connected_side].wall_num;
+				if (wn1 == wall_none)
+				{
+					rwn0 = wall_none;
+					LevelError("segment %u side %u wall %u has child segment %u side %u, but no wall; removing orphan wall.", seg.get_unchecked_index(), sidenum, wn0, connected_seg, connected_side);
+					return;
+				}
+			}
+			break;
+		default:
+			break;
+	}
+}
+
 static int load_game_data(PHYSFS_File *LoadFile)
 {
 	short game_top_fileinfo_version;
@@ -1032,9 +1066,10 @@ static int load_game_data(PHYSFS_File *LoadFile)
 	clear_transient_objects(1);		//1 means clear proximity bombs
 
 	// Make sure non-transparent doors are set correctly.
-	range_for (auto &i, partial_range(Segments, Num_segments))
-		range_for (auto &side, i.sides)
+	range_for (auto &&i, vsegptridx)
+		range_for (const auto eside, enumerate(i->sides))
 		{
+			auto &side = eside.value;
 			if (side.wall_num == wall_none)
 				continue;
 			const auto sidep = &side;
@@ -1047,6 +1082,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 					sidep->tmap_num2 = 0;
 				}
 			}
+			validate_segment_wall(i, side, eside.idx);
 		}
 
 
