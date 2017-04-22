@@ -39,20 +39,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 
 #ifdef _WIN32
-/* Require _WIN32_WINNT >= 0x0501 to enable getaddrinfo
- * Require _WIN32_WINNT >= 0x0600 to enable some useful AI_* flags
- */
-#ifdef DXX_HAVE_GETADDRINFO
-#define DXX_WIN32_MINIMUM_WIN32_WINNT	0x0600
-#else
-#define DXX_WIN32_MINIMUM_WIN32_WINNT	0x0500
-#endif
-#if defined(_WIN32_WINNT) && (_WIN32_WINNT < DXX_WIN32_MINIMUM_WIN32_WINNT)
-#undef _WIN32_WINNT
-#endif
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT DXX_WIN32_MINIMUM_WIN32_WINNT
-#endif
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <io.h>

@@ -178,17 +178,17 @@ class Git(StaticSubprocess):
 			('+' if _pcall(['diff', '--quiet', '--cached']).returncode else '')
 		)
 
-class ConfigureTests:
-	class Collector:
+class _ConfigureTests:
+	class Collector(object):
 		class RecordedTest(object):
-			__slots__ = ('desc', 'name')
+			__slots__ = ('desc', 'name', 'predicate')
 			def __init__(self,name,desc):
 				self.name = name
 				self.desc = desc
+				self.predicate = None
 
-		def __init__(self):
-			self.tests = []
-			self.record = self.tests.append
+		def __init__(self,record):
+			self.record = record
 		def __call__(self,f):
 			desc = None
 			doc = getattr(f, '__doc__', None)
@@ -198,6 +198,22 @@ class ConfigureTests:
 					desc = doc[-1][5:]
 			self.record(self.RecordedTest(f.__name__, desc))
 			return f
+
+class ConfigureTests(_ConfigureTests):
+	class Collector(_ConfigureTests.Collector):
+		def __init__(self):
+			self.tests = tests = []
+			_ConfigureTests.Collector.__init__(self, tests.append)
+
+	class GuardedCollector(_ConfigureTests.Collector):
+		__RecordedTest = _ConfigureTests.Collector.RecordedTest
+		def __init__(self,collector,guard):
+			_ConfigureTests.Collector.__init__(self, collector.record)
+			self.__guard = guard
+		def RecordedTest(self,name,desc):
+			r = self.__RecordedTest(name, desc)
+			r.predicate = self.__guard
+			return r
 
 	class Cxx11RequiredFeature(object):
 		__slots__ = ('main', 'name', 'text')
@@ -330,6 +346,7 @@ class ConfigureTests:
 					flags = guess_flags
 				_cache[cmd] = flags
 				return flags
+
 	# Force test to report failure
 	sconf_force_failure = 'force-failure'
 	# Force test to report success, and modify flags like it
@@ -341,6 +358,7 @@ class ConfigureTests:
 	expect_sconf_failure = 'failure'
 	_implicit_test = Collector()
 	_custom_test = Collector()
+	_guarded_test_windows = GuardedCollector(_custom_test, lambda user_settings: user_settings.host_platform == 'win32')
 	implicit_tests = _implicit_test.tests
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
@@ -460,6 +478,7 @@ struct %(N)s {
 		# When LTO is used, the optimizer is deferred to link time.
 		# Force all tests to be Link tests when LTO is enabled.
 		self.Compile = self.Link if user_settings.lto else self._Compile
+		self.custom_tests = [t for t in self.custom_tests if t.predicate is None or t.predicate(user_settings)]
 	def _quote_macro_value(v):
 		return v.strip().replace('\n', ' \\\n')
 	def _check_sconf_forced(self,calling_function):
@@ -970,6 +989,28 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		if use_tracker:
 			self.check_curl(context)
 			self.check_jsoncpp(context)
+
+	# Require _WIN32_WINNT >= 0x0501 to enable getaddrinfo
+	# Require _WIN32_WINNT >= 0x0600 to enable some useful AI_* flags
+	@_guarded_test_windows
+	def _check_user_CPPDEFINES__WIN32_WINNT(self,context,_msg='%s: checking whether to define _WIN32_WINNT...%s',_CPPDEFINES_WIN32_WINNT=('_WIN32_WINNT', 0x600)):
+		env = context.env
+		for f in env['CPPDEFINES']:
+			# Ignore the case that an element is a string with this
+			# value, since that would not define the macro to a
+			# useful value.  In CPPDEFINES, only a tuple of
+			# (name,number) is useful for macro _WIN32_WINNT.
+			if f[0] == '_WIN32_WINNT':
+				f = f[1]
+				context.Result(_msg % (self.msgprefix, 'no, already set in CPPDEFINES as %s' % (('%#x' if isinstance(f, int) else '%r') % f)))
+				return
+		for f in env['CPPFLAGS']:
+			if f.startswith('-D_WIN32_WINNT='):
+				context.Result(_msg % (self.msgprefix, 'no, already set in CPPFLAGS as %r' % f))
+				return
+		context.Result(_msg % (self.msgprefix, 'yes, define _WIN32_WINNT=%#x' % _CPPDEFINES_WIN32_WINNT[1]))
+		self.successful_flags['CPPDEFINES'].append(_CPPDEFINES_WIN32_WINNT)
+		self.__defined_macros += '#define %s %s\n' % (_CPPDEFINES_WIN32_WINNT[0], _CPPDEFINES_WIN32_WINNT[1])
 	@_implicit_test
 	def check_curl(self,context,
 		_header=('curl/curl.h',),
@@ -2104,13 +2145,6 @@ where the cast is useless.
 	def check_getaddrinfo_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_GETADDRINFO']}):
 		self.Compile(context, text='''
 #ifdef WIN32
-#define DXX_WIN32_MINIMUM_WIN32_WINNT	0x0600
-#if defined(_WIN32_WINNT) && (_WIN32_WINNT < DXX_WIN32_MINIMUM_WIN32_WINNT)
-#undef _WIN32_WINNT
-#endif
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT DXX_WIN32_MINIMUM_WIN32_WINNT
-#endif
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #else
