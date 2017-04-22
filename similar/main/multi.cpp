@@ -269,66 +269,6 @@ const multi_allow_powerup_text_array multi_allow_powerup_text = {{
 }};
 }
 
-void powerup_cap_state::cap_laser_powerup_level(stored_laser_level &player_level, const powerup_type_t type, const uint_fast32_t level_bias) const
-{
-	const uint_fast32_t current_in_mine = get_current(type);
-	const uint_fast32_t maximum_allowed = get_max(type);
-	const uint_fast32_t player_would_drop = player_level - level_bias;
-	if (player_would_drop + current_in_mine <= maximum_allowed)
-		return;
-	const auto capped = (current_in_mine < maximum_allowed) ? stored_laser_level(maximum_allowed - current_in_mine + level_bias) : stored_laser_level(LASER_LEVEL_1);
-	player_level = capped;
-	con_printf(CON_VERBOSE, "Capping laser due to powerup cap: current=%u max=%u was=%u capped=%u", get_current(type), get_max(type), static_cast<unsigned>(player_would_drop), static_cast<laser_level_t>(capped));
-}
-
-void powerup_cap_state::cap_laser_level(stored_laser_level &player_level) const
-{
-#if defined(DXX_BUILD_DESCENT_II)
-	if (player_level > MAX_LASER_LEVEL)
-	{
-		cap_laser_powerup_level(player_level, POW_SUPER_LASER, MAX_LASER_LEVEL);
-		return;
-	}
-#endif
-	cap_laser_powerup_level(player_level, POW_LASER, 0);
-}
-
-void powerup_cap_state::cap_secondary_ammo(powerup_type_t type, uint8_t &player_ammo) const
-{
-	const auto idx = map_powerup_type_to_index(type);
-	const uint_fast32_t current_on_player = player_ammo;
-	const uint_fast32_t current_in_mine = get_current(idx);
-	const uint_fast32_t maximum_allowed = get_max(idx);
-	if (current_on_player + current_in_mine <= maximum_allowed)
-		return;
-	const auto capped = static_cast<uint8_t>(current_in_mine < maximum_allowed ? maximum_allowed - current_in_mine : 0);
-	player_ammo = capped;
-	con_printf(CON_VERBOSE, "Capping secondary %u due to powerup cap: current=%u max=%u was=%u now=%hhu", idx, get_current(idx), get_max(idx), static_cast<unsigned>(current_on_player), capped);
-}
-
-void powerup_cap_state::cap_flag(player_flags &player_flags, const PLAYER_FLAG powerup_flag, const powerup_type_t idx) const
-{
-	if (player_flags & powerup_flag)
-		if (!can_add_mapped_powerup(idx))
-		{
-			player_flags &= ~powerup_flag;
-			con_printf(CON_VERBOSE, "Capping accessory %u due to powerup cap: current=%u max=%u", idx, get_current(idx), get_max(idx));
-		}
-}
-
-void powerup_cap_state::reset_powerup_both(powerup_type_t type)
-{
-	const auto idx = map_powerup_type_to_index(type);
-	m_powerups[idx] = 0;
-	m_max[idx] = 0;
-}
-
-void powerup_cap_state::clear()
-{
-	m_powerups = {};
-	m_max = {};
-}
-
 int GetMyNetRanking()
 {
 	int rank, eff;
@@ -4352,35 +4292,6 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 
 }
 #endif
-
-namespace dsx {
-
-constexpr int PowerupAdjustMapping[]={11,19
-#if defined(DXX_BUILD_DESCENT_II)
-	,39,41,44
-#endif
-};
-
-}
-
-bool powerup_cap_state::powerup_is_4pack(const powerup_type_t id)
-{
-	const auto e = end(PowerupAdjustMapping);
-	return std::find(begin(PowerupAdjustMapping), e, id) != e;
-}
-
-powerup_type_t powerup_cap_state::map_powerup_4pack(const powerup_type_t id)
-{
-	assert(powerup_is_4pack(id));
-	return static_cast<powerup_type_t>(id - 1);
-}
-
-powerup_type_t powerup_cap_state::map_powerup_type_to_index(const powerup_type_t id)
-{
-	if (powerup_is_4pack(id))
-		return map_powerup_4pack(id);
-	return id;
-}
 
 namespace dsx {
 
