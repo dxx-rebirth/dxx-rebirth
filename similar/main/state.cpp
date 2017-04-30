@@ -982,12 +982,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 	auto cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
 	{
-		grs_canvas * cnv_save;
-		cnv_save = grd_curcanv;
-
-		gr_set_current_canvas( cnv );
-
-		render_frame(*grd_curcanv, 0);
+		render_frame(*cnv, 0);
 
 		{
 #if DXX_USE_OGL
@@ -1013,8 +1008,6 @@ int state_save_all_sub(const char *filename, const char *desc)
 		}
 
 		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
-
-		gr_set_current_canvas(cnv_save);
 #if defined(DXX_BUILD_DESCENT_II)
 		PHYSFS_write(fp, &gr_palette[0], sizeof(gr_palette[0]), gr_palette.size());
 #endif
