@@ -791,7 +791,7 @@ constexpr fix CROSS_WIDTH = i2f(8);
 constexpr fix CROSS_HEIGHT = i2f(8);
 
 //draw outline for curside
-static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
+static void outline_seg_side(grs_canvas &canvas, const vcsegptr_t seg,int _side,int edge,int vert)
 {
 	if (!rotate_list(seg->verts).uand)
 	{		//all off screen?
@@ -801,7 +801,7 @@ static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
 
 		const uint8_t color = BM_XRGB(0, 63, 0);
 		auto &sv = Side_to_verts[_side];
-		g3_draw_line(*grd_curcanv, Segment_points[seg->verts[sv[edge]]], Segment_points[seg->verts[sv[(edge + 1)%4]]], color);
+		g3_draw_line(canvas, Segment_points[seg->verts[sv[edge]]], Segment_points[seg->verts[sv[(edge + 1)%4]]], color);
 
 		//draw a little cross at the current vert
 
@@ -812,10 +812,10 @@ static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
 //		gr_line(pnt->p3_sx-CROSS_WIDTH,pnt->p3_sy,pnt->p3_sx+CROSS_WIDTH,pnt->p3_sy);
 //		gr_line(pnt->p3_sx,pnt->p3_sy-CROSS_HEIGHT,pnt->p3_sx,pnt->p3_sy+CROSS_HEIGHT);
 
-		gr_line(*grd_curcanv, pnt->p3_sx - CROSS_WIDTH, pnt->p3_sy, pnt->p3_sx, pnt->p3_sy - CROSS_HEIGHT, color);
-		gr_line(*grd_curcanv, pnt->p3_sx, pnt->p3_sy - CROSS_HEIGHT, pnt->p3_sx + CROSS_WIDTH, pnt->p3_sy, color);
-		gr_line(*grd_curcanv, pnt->p3_sx + CROSS_WIDTH, pnt->p3_sy, pnt->p3_sx, pnt->p3_sy + CROSS_HEIGHT, color);
-		gr_line(*grd_curcanv, pnt->p3_sx, pnt->p3_sy + CROSS_HEIGHT, pnt->p3_sx - CROSS_WIDTH, pnt->p3_sy, color);
+		gr_line(canvas, pnt->p3_sx - CROSS_WIDTH, pnt->p3_sy, pnt->p3_sx, pnt->p3_sy - CROSS_HEIGHT, color);
+		gr_line(canvas, pnt->p3_sx, pnt->p3_sy - CROSS_HEIGHT, pnt->p3_sx + CROSS_WIDTH, pnt->p3_sy, color);
+		gr_line(canvas, pnt->p3_sx + CROSS_WIDTH, pnt->p3_sy, pnt->p3_sx, pnt->p3_sy + CROSS_HEIGHT, color);
+		gr_line(canvas, pnt->p3_sx, pnt->p3_sy + CROSS_HEIGHT, pnt->p3_sx - CROSS_WIDTH, pnt->p3_sy, color);
 	}
 }
 
@@ -1664,7 +1664,8 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 #if DXX_USE_EDITOR
 	#ifndef NDEBUG
 	//draw curedge stuff
-	if (Outline_mode) outline_seg_side(Cursegp,Curside,Curedge,Curvert);
+	if (Outline_mode)
+		outline_seg_side(canvas, Cursegp, Curside, Curedge, Curvert);
 	#endif
 #endif
 }
