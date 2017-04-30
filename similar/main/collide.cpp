@@ -2087,6 +2087,15 @@ void apply_damage_to_player(object &playerobj, const cobjptridx_t killer, fix da
 
 	if (get_player_id(playerobj) == Player_num) {		//is this the local player?
 		PALETTE_FLASH_ADD(f2i(damage)*4,-f2i(damage/2),-f2i(damage/2));	//flash red
+		if (playerobj.shields < 0)
+		{
+			/*
+			 * If player is already dead (but Player_dead_state has not
+			 * caught up yet), preserve the original killer data.
+			 */
+			assert(playerobj.flags & OF_SHOULD_BE_DEAD);
+			return;
+		}
 		const auto shields = (playerobj.shields -= damage);
 
 		if (shields < 0)
