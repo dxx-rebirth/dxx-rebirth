@@ -473,7 +473,7 @@ constexpr fix	Min_n0_n1_dot	= (F1_0*15/16);
 //	Render a side.
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
 namespace dsx {
-static void render_side(const vcsegptridx_t segp, const unsigned sidenum)
+static void render_side(grs_canvas &canvas, const vcsegptridx_t segp, const unsigned sidenum)
 {
 	fix		min_dot, max_dot;
 	auto wid_flags = WALL_IS_DOORWAY(segp,sidenum);
@@ -503,7 +503,7 @@ static void render_side(const vcsegptridx_t segp, const unsigned sidenum)
 	if (sidep->get_type() == SIDE_IS_QUAD) {
 
 		if (v_dot_n0 >= 0) {
-			check_render_face(*grd_curcanv, is_quad, segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+			check_render_face(canvas, is_quad, segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 		}
 	} else {
 		//	========== Mark: The change ends here. ==========
@@ -531,27 +531,27 @@ static void render_side(const vcsegptridx_t segp, const unsigned sidenum)
 			if (n0_dot_n1 < Min_n0_n1_dot)
 				goto im_so_ashamed;
 
-			check_render_face(*grd_curcanv, is_quad, segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+			check_render_face(canvas, is_quad, segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 		} else {
 im_so_ashamed: ;
 			if (sidep->get_type() == SIDE_IS_TRI_02) {
 				if (v_dot_n0 >= 0) {
-					check_render_face(*grd_curcanv, index_sequence<0, 1, 2>(), segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					check_render_face(canvas, index_sequence<0, 1, 2>(), segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 				}
 
 				if (v_dot_n1 >= 0) {
 					// want to render from vertices 0, 2, 3 on side
-					check_render_face(*grd_curcanv, index_sequence<0, 2, 3>(), segp, sidenum, 1, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					check_render_face(canvas, index_sequence<0, 2, 3>(), segp, sidenum, 1, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 				}
 			} else if (sidep->get_type() ==  SIDE_IS_TRI_13) {
 				if (v_dot_n1 >= 0) {
 					// rendering 1,2,3, so just skip 0
-					check_render_face(*grd_curcanv, index_sequence<1, 2, 3>(), segp, sidenum, 1, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					check_render_face(canvas, index_sequence<1, 2, 3>(), segp, sidenum, 1, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 				}
 
 				if (v_dot_n0 >= 0) {
 					// want to render from vertices 0,1,3
-					check_render_face(*grd_curcanv, index_sequence<0, 1, 3>(), segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					check_render_face(canvas, index_sequence<0, 1, 3>(), segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 				}
 
 			} else
@@ -773,7 +773,7 @@ static void render_segment(const vcsegptridx_t seg)
 		Automap_visited[seg]=1;
 
 		for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
-			render_side(seg, sn);
+			render_side(*grd_curcanv, seg, sn);
 	}
 
 	//draw any objects that happen to be in this segment
@@ -1587,11 +1587,11 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
                                                         if (PlayerCfg.AlphaBlendEClips && is_alphablend_eclip(TmapInfo[seg->sides[sn].tmap_num].eclip_num)) // Do NOT render geometry with blending textures. Since we've not rendered any objects, yet, they would disappear behind them.
                                                                 continue;
 							glAlphaFunc(GL_GEQUAL,0.8); // prevent ugly outlines if an object (which is rendered later) is shown behind a grate, door, etc. if texture filtering is enabled. These sides are rendered later again with normal AlphaFunc
-							render_side(seg, sn);
+							render_side(canvas, seg, sn);
 							glAlphaFunc(GL_GEQUAL,0.02);
 						}
 						else
-							render_side(seg, sn);
+							render_side(canvas, seg, sn);
 					}
 				}
 			}
@@ -1635,7 +1635,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 #endif
 							)
 						{
-							render_side(seg, sn);
+							render_side(canvas, seg, sn);
 						}
 					}
 				}
