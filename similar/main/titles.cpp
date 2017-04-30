@@ -1144,19 +1144,13 @@ static void init_spinning_robot(grs_canvas &canvas, briefing &br) //(int x,int y
 
 static void show_spinning_robot_frame(briefing *br, int robot_num)
 {
-	grs_canvas	*curcanv_save;
-
 	if (robot_num != -1) {
 		br->robot_angles.p = br->robot_angles.b = 0;
 		br->robot_angles.h += 150;
 
-		curcanv_save = grd_curcanv;
-		grd_curcanv = br->robot_canv.get();
 		Assert(Robot_info[robot_num].model_num != -1);
-		draw_model_picture(*grd_curcanv, Robot_info[robot_num].model_num, &br->robot_angles);
-		grd_curcanv = curcanv_save;
+		draw_model_picture(*br->robot_canv.get(), Robot_info[robot_num].model_num, &br->robot_angles);
 	}
-
 }
 
 //-----------------------------------------------------------------------------
