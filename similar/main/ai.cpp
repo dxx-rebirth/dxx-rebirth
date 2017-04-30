@@ -2108,7 +2108,7 @@ static void init_boss_segments(const object &boss_objp, boss_special_segment_arr
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-static void teleport_boss(const vobjptridx_t objp)
+static void teleport_boss(const vobjptridx_t objp, const vms_vector &target_pos)
 {
 	segnum_t			rand_segnum;
 	int			rand_index;
@@ -2129,7 +2129,7 @@ static void teleport_boss(const vobjptridx_t objp)
 	Last_teleport_time = GameTime64;
 
 	//	make boss point right at player
-	const auto boss_dir = vm_vec_sub(get_local_plrobj().pos, objp->pos);
+	const auto boss_dir = vm_vec_sub(target_pos, objp->pos);
 	vm_vector_2_matrix(objp->orient, boss_dir, nullptr, nullptr);
 
 	digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segp, 0, objp->pos, 0, F1_0);
@@ -2375,7 +2375,7 @@ static void do_boss_stuff(const vobjptridx_t objp)
 				GameTime64 - Last_teleport_time > Boss_teleport_interval)
 			{
 				if (ai_multiplayer_awareness(objp, 98))
-					teleport_boss(objp);
+					teleport_boss(objp, get_local_plrobj().pos);
 			} else if (Boss_hit_this_frame) {
 				Boss_hit_this_frame = 0;
 				Last_teleport_time -= Boss_teleport_interval/4;
@@ -2480,7 +2480,7 @@ static void do_boss_stuff(const vobjptridx_t objp, int player_visibility)
 				GameTime64 - Last_teleport_time > Boss_teleport_interval)
 			{
 				if (ai_multiplayer_awareness(objp, 98))
-					teleport_boss(objp);
+					teleport_boss(objp, get_local_plrobj().pos);
 			} else if (GameTime64 - Boss_hit_time > F1_0*2) {
 				Last_teleport_time -= Boss_teleport_interval/4;
 			}
