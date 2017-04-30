@@ -345,15 +345,14 @@ extern	ubyte	Last_afterburner_state;
 
 // Setup player for new level (After completion of previous level)
 #if defined(DXX_BUILD_DESCENT_I)
-void init_player_stats_level()
+void init_player_stats_level(player &plr, object &plrobj)
 #elif defined(DXX_BUILD_DESCENT_II)
-void init_player_stats_level(const secret_restore secret_flag)
+void init_player_stats_level(player &plr, object &plrobj, const secret_restore secret_flag)
 #endif
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret_flag{};
 #endif
-	auto &plr = get_local_player();
 
 	plr.level = Current_level_num;
 
@@ -362,7 +361,6 @@ void init_player_stats_level(const secret_restore secret_flag)
 		plr.hours_level = 0;
 	}
 
-	auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;
 	player_info.mission.last_score = player_info.mission.score;
 
@@ -1616,7 +1614,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 
 	automap_clear_visited();
 
-	init_player_stats_level(secret_flag);
+	init_player_stats_level(get_local_player(), get_local_plrobj(), secret_flag);
 
 #if defined(DXX_BUILD_DESCENT_I)
 	gr_use_palette_table( "palette.256" );
