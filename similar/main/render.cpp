@@ -1684,13 +1684,7 @@ int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int
 	found_seg = segment_none;
 	found_obj = object_none;
 
-	if (render_3d_in_big_window) {
-		gr_set_current_canvas(LargeView.ev_canv);
-	}
-	else {
-		gr_set_current_canvas(Canv_editor_game);
-	}
-	render_frame(*grd_curcanv, 0);
+	render_frame(*(render_3d_in_big_window ? LargeView.ev_canv : Canv_editor_game), 0);
 
 	_search_mode = 0;
 
