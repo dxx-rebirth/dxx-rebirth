@@ -74,7 +74,7 @@ static object_dialog objpage_dialog;
 //this is bad to have the extern, but this snapshot stuff is special
 
 //canvas set
-void draw_object_picture(int id, vms_angvec *orient_angles, int type)
+void draw_object_picture(grs_canvas &canvas, const unsigned id, const vms_angvec &orient_angles, const unsigned type)
 {
 
 	if (id >= Num_object_subtypes)
@@ -84,29 +84,29 @@ void draw_object_picture(int id, vms_angvec *orient_angles, int type)
 
 		case OBJ_HOSTAGE:
 			PIGGY_PAGE_IN(Vclip[Hostage_vclip_num[id]].frames[0]);
-			gr_bitmap(*grd_curcanv, 0, 0, GameBitmaps[Vclip[Hostage_vclip_num[id]].frames[0].index]);
+			gr_bitmap(canvas, 0, 0, GameBitmaps[Vclip[Hostage_vclip_num[id]].frames[0].index]);
 			break;
 
 		case OBJ_POWERUP:
 			if ( Powerup_info[id].vclip_num > -1 )	{
 				PIGGY_PAGE_IN(Vclip[Powerup_info[id].vclip_num].frames[0]);
-				gr_bitmap(*grd_curcanv, 0, 0, GameBitmaps[Vclip[Powerup_info[id].vclip_num].frames[0].index]);
+				gr_bitmap(canvas, 0, 0, GameBitmaps[Vclip[Powerup_info[id].vclip_num].frames[0].index]);
 			}
 			break;
 
 		case OBJ_PLAYER:
-			draw_model_picture(*grd_curcanv, Player_ship->model_num, *orient_angles);		// Draw a poly model below
+			draw_model_picture(canvas, Player_ship->model_num, orient_angles);		// Draw a poly model below
 			break;
 
 		case OBJ_ROBOT:
-			draw_model_picture(*grd_curcanv, Robot_info[id].model_num, *orient_angles);	// Draw a poly model below
+			draw_model_picture(canvas, Robot_info[id].model_num, orient_angles);	// Draw a poly model below
 			break;
 
 		case OBJ_CNTRLCEN:
-			draw_model_picture(*grd_curcanv, get_reactor_model_number(id), *orient_angles);
+			draw_model_picture(canvas, get_reactor_model_number(id), orient_angles);
 			break;
 		case OBJ_CLUTTER:
-			draw_model_picture(*grd_curcanv, id, *orient_angles);
+			draw_model_picture(canvas, id, orient_angles);
 			break;
 		default:
 			//Int3();	// Invalid type!!!
@@ -121,7 +121,7 @@ static int redraw_current_object()
 
 	cc = grd_curcanv;
 	gr_set_current_canvas(ObjCurrent->canvas);
-	draw_object_picture(Cur_object_id, &objpage_view_orient, Cur_object_type);
+	draw_object_picture(*grd_curcanv, Cur_object_id, objpage_view_orient, Cur_object_type);
 	gr_set_current_canvas(cc);
 	return 1;
 }
@@ -129,7 +129,7 @@ static int redraw_current_object()
 static void gr_label_box( int i)
 {
 	gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
-	draw_object_picture(i, &objpage_view_orient, Cur_object_type);
+	draw_object_picture(*grd_curcanv, i, objpage_view_orient, Cur_object_type);
 
 //	char s[20];
 //	sprintf( s, " %d ", i );

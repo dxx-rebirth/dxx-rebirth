@@ -38,6 +38,6 @@ void objpage_init( UI_DIALOG *dlg );
 void objpage_close();
 int objpage_do(const d_event &event);
 
-extern void draw_object_picture(int id, vms_angvec *orient_angles, int type);
+void draw_object_picture(grs_canvas &, unsigned id, const vms_angvec &orient_angles, unsigned type);
 
 #endif

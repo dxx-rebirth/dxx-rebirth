@@ -630,7 +630,7 @@ window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, ro
 			const auto &&obj = vobjptr(Cur_object_index);
 
 			gr_set_current_canvas( r->robotViewBox->canvas );
-			draw_object_picture(obj->id, &r->angles, obj->type );
+			draw_object_picture(*grd_curcanv, obj->id, r->angles, obj->type);
 			r->angles.h += fixmul(0x1000, DeltaTime );
 		} else {
 			// no object, so just blank out
@@ -646,7 +646,7 @@ window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, ro
 		if ((Cur_object_index != object_none ) && (Cur_goody_count > 0))	{
 			gr_set_current_canvas( r->containsViewBox->canvas );
 			if ( Cur_goody_id > -1 )
-				draw_object_picture(Cur_goody_id, &r->goody_angles, Cur_goody_type);
+				draw_object_picture(*grd_curcanv, Cur_goody_id, r->goody_angles, Cur_goody_type);
 			else
 				gr_clear_canvas(*grd_curcanv, CGREY);
 			r->goody_angles.h += fixmul(0x1000, DeltaTime );
