@@ -1120,20 +1120,15 @@ static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 }
 
 //-----------------------------------------------------------------------------
-static void show_briefing_bitmap(grs_bitmap *bmp)
+static void show_briefing_bitmap(grs_canvas &canvas, grs_bitmap *bmp)
 {
-	grs_canvas	*curcanv_save;
-
 	const bool hiresmode = HIRESMODE;
 	const auto w = static_cast<float>(SWIDTH) / (hiresmode ? 640 : 320);
 	const auto h = static_cast<float>(SHEIGHT) / (hiresmode ? 480 : 200);
 	const float scale = (w < h) ? w : h;
 
-	auto bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(grd_curcanv->cv_bitmap, 220), rescale_y(grd_curcanv->cv_bitmap, 55), bmp->bm_w*scale, bmp->bm_h*scale);
-	curcanv_save = grd_curcanv;
-	gr_set_current_canvas(bitmap_canv);
-	show_fullscr(*grd_curcanv, *bmp);
-	gr_set_current_canvas(curcanv_save);
+	auto bitmap_canv = gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 220), rescale_y(canvas.cv_bitmap, 55), bmp->bm_w*scale, bmp->bm_h*scale);
+	show_fullscr(*bitmap_canv, *bmp);
 }
 
 //-----------------------------------------------------------------------------
@@ -1504,7 +1499,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 				show_fullscr(*grd_curcanv, br->background);
 
 			if (br->guy_bitmap.bm_data)
-				show_briefing_bitmap(&br->guy_bitmap);
+				show_briefing_bitmap(*grd_curcanv, &br->guy_bitmap);
 			if (br->bitmap_name[0] != 0)
 				show_animated_bitmap(*grd_curcanv, br);
 #if defined(DXX_BUILD_DESCENT_II)
