@@ -760,7 +760,7 @@ static void project_list(const array<unsigned, 8> &pointnumlist)
 // -----------------------------------------------------------------------------------
 #if !DXX_USE_OGL
 namespace dsx {
-static void render_segment(const vcsegptridx_t seg)
+static void render_segment(grs_canvas &canvas, const vcsegptridx_t seg)
 {
 	int			sn;
 
@@ -773,7 +773,7 @@ static void render_segment(const vcsegptridx_t seg)
 		Automap_visited[seg]=1;
 
 		for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
-			render_side(*grd_curcanv, seg, sn);
+			render_side(canvas, seg, sn);
 	}
 
 	//draw any objects that happen to be in this segment
@@ -1519,7 +1519,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 				Window_clip_bot   = rw.bot;
 			}
 
-			render_segment(vcsegptridx(segnum));
+			render_segment(*grd_curcanv, vcsegptridx(segnum));
 			visited[segnum]=3;
 			if (srsm.objects.empty())
 				continue;
