@@ -1005,9 +1005,8 @@ static void flash_cursor(grs_canvas &canvas, briefing *const br, const int curso
 #define DOOR_DIV_INIT   6
 
 //-----------------------------------------------------------------------------
-static void show_animated_bitmap(briefing *br)
+static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 {
-	grs_canvas  *curcanv_save;
 	grs_bitmap	*bitmap_ptr;
 #if DXX_USE_OGL
 	float scale = 1.0;
@@ -1026,9 +1025,9 @@ static void show_animated_bitmap(briefing *br)
 			bitmap_ptr = &GameBitmaps[bi.index];
 			PIGGY_PAGE_IN( bi );
 #if DXX_USE_OGL
-			ogl_ubitmapm_cs(*grd_curcanv, rescale_x(grd_curcanv->cv_bitmap, 220), rescale_y(grd_curcanv->cv_bitmap, 45), bitmap_ptr->bm_w * scale, bitmap_ptr->bm_h * scale, *bitmap_ptr, 255, F1_0);
+			ogl_ubitmapm_cs(canvas, rescale_x(canvas.cv_bitmap, 220), rescale_y(canvas.cv_bitmap, 45), bitmap_ptr->bm_w * scale, bitmap_ptr->bm_h * scale, *bitmap_ptr, 255, F1_0);
 #else
-			gr_bitmapm(*grd_curcanv, rescale_x(grd_curcanv->cv_bitmap, 220), rescale_y(grd_curcanv->cv_bitmap, 45), *bitmap_ptr);
+			gr_bitmapm(canvas, rescale_x(canvas.cv_bitmap, 220), rescale_y(canvas.cv_bitmap, 45), *bitmap_ptr);
 #endif
 		}
 		br->door_div_count--;
@@ -1044,13 +1043,16 @@ static void show_animated_bitmap(briefing *br)
 		grs_subcanvas_ptr bitmap_canv;
 
 		switch (br->animating_bitmap_type) {
-			case 0:		bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(grd_curcanv->cv_bitmap, 220), rescale_y(grd_curcanv->cv_bitmap, 45), 64, 64);	break;
-			case 1:		bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(grd_curcanv->cv_bitmap, 220), rescale_y(grd_curcanv->cv_bitmap, 45), 94, 94);	break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
+			case 0:
+				bitmap_canv = gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 220), rescale_y(canvas.cv_bitmap, 45), 64, 64);
+				break;
+			case 1:
+				bitmap_canv = gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 220), rescale_y(canvas.cv_bitmap, 45), 94, 94);
+				break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
 			default:	Int3(); // Impossible, illegal value for br->animating_bitmap_type
 		}
 
-		curcanv_save = grd_curcanv;
-		grd_curcanv = bitmap_canv.get();
+		auto &subcanvas = *bitmap_canv.get();
 
 		pound_signp = strchr(&br->bitmap_name[0], '#');
 		Assert(pound_signp != NULL);
@@ -1094,11 +1096,10 @@ static void show_animated_bitmap(briefing *br)
 		bitmap_ptr = &GameBitmaps[bi.index];
 		PIGGY_PAGE_IN( bi );
 #if DXX_USE_OGL
-		ogl_ubitmapm_cs(*grd_curcanv, 0, 0, bitmap_ptr->bm_w*scale, bitmap_ptr->bm_h*scale, *bitmap_ptr, 255, F1_0);
+		ogl_ubitmapm_cs(subcanvas, 0, 0, bitmap_ptr->bm_w*scale, bitmap_ptr->bm_h*scale, *bitmap_ptr, 255, F1_0);
 #else
-		gr_bitmapm(*grd_curcanv, 0, 0, *bitmap_ptr);
+		gr_bitmapm(subcanvas, 0, 0, *bitmap_ptr);
 #endif
-		grd_curcanv = curcanv_save;
 
 		switch (br->animating_bitmap_type) {
 			case 0:
@@ -1505,7 +1506,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			if (br->guy_bitmap.bm_data)
 				show_briefing_bitmap(&br->guy_bitmap);
 			if (br->bitmap_name[0] != 0)
-				show_animated_bitmap(br);
+				show_animated_bitmap(*grd_curcanv, br);
 #if defined(DXX_BUILD_DESCENT_II)
 			if (br->robot_playing)
 				RotateRobot(br->pMovie);
