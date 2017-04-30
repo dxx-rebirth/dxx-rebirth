@@ -1957,11 +1957,12 @@ static window_event_result listbox_draw(window *, listbox *lb)
 		listbox_create_structure ( lb );
 
 	gr_set_current_canvas(NULL);
-	nm_draw_background(*grd_curcanv, lb->box_x - BORDERX, lb->box_y - lb->title_height - BORDERY,lb->box_x + lb->box_w + BORDERX, lb->box_y + lb->height + BORDERY);
-	gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
-	gr_string(*grd_curcanv, 0x8000, lb->box_y - lb->title_height, lb->title);
+	auto &canvas = *grd_curcanv;
+	nm_draw_background(canvas, lb->box_x - BORDERX, lb->box_y - lb->title_height - BORDERY,lb->box_x + lb->box_w + BORDERX, lb->box_y + lb->height + BORDERY);
+	gr_set_curfont(canvas, MEDIUM3_FONT);
+	gr_string(canvas, 0x8000, lb->box_y - lb->title_height, lb->title);
 
-	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
+	const auto &&line_spacing = LINE_SPACING(canvas);
 	for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
 		int y = (i - lb->first_item) * line_spacing + lb->box_y;
 		const auto &&fspacx = FSPACX();
@@ -1970,14 +1971,14 @@ static window_event_result listbox_draw(window *, listbox *lb)
 		const uint8_t color2 = BM_XRGB(2, 2, 2);
 		const uint8_t color0 = BM_XRGB(0, 0, 0);
 		if ( i >= lb->nitems )	{
-			gr_rect(*grd_curcanv, lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing, color5);
-			gr_rect(*grd_curcanv, lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing, color2);
-			gr_rect(*grd_curcanv, lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing, color0);
+			gr_rect(canvas, lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing, color5);
+			gr_rect(canvas, lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing, color2);
+			gr_rect(canvas, lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing, color0);
 		} else {
-			gr_set_curfont(*grd_curcanv, ( i == lb->citem)?MEDIUM2_FONT:MEDIUM1_FONT);
-			gr_rect(*grd_curcanv, lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing, color5);
-			gr_rect(*grd_curcanv, lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing, color2);
-			gr_rect(*grd_curcanv, lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing, color0);
+			gr_set_curfont(canvas, (i == lb->citem) ? MEDIUM2_FONT : MEDIUM1_FONT);
+			gr_rect(canvas, lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing, color5);
+			gr_rect(canvas, lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing, color2);
+			gr_rect(canvas, lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing, color0);
 
 			const char *showstr;
 			std::size_t item_len;
@@ -2020,7 +2021,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 			{
 				showstr = lb->item[i];
 			}
-			gr_string(*grd_curcanv, lb->box_x + fspacx(5), y, showstr);
+			gr_string(canvas, lb->box_x + fspacx(5), y, showstr);
 		}
 	}
 
