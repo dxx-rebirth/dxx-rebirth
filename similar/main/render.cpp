@@ -618,7 +618,7 @@ static void render_object_search(grs_canvas &canvas, const vobjptridx_t obj)
 #endif
 
 namespace dsx {
-static void do_render_object(const vobjptridx_t obj, window_rendered_data &window)
+static void do_render_object(grs_canvas &canvas, const vobjptridx_t obj, window_rendered_data &window)
 {
 #if DXX_USE_EDITOR
 	int save_3d_outline=0;
@@ -672,11 +672,11 @@ static void do_render_object(const vobjptridx_t obj, window_rendered_data &windo
 
 #if DXX_USE_EDITOR
 	if (_search_mode)
-		render_object_search(*grd_curcanv, obj);
+		render_object_search(canvas, obj);
 	else
 	#endif
 		//NOTE LINK TO ABOVE
-		render_object(*grd_curcanv, obj);
+		render_object(canvas, obj);
 
 	for (auto n = obj->attached_obj; n != object_none;)
 	{
@@ -686,7 +686,7 @@ static void do_render_object(const vobjptridx_t obj, window_rendered_data &windo
 		Assert(o->flags & OF_ATTACHED);
 		n = o->ctype.expl_info.next_attach;
 
-		render_object(*grd_curcanv, o);
+		render_object(canvas, o);
 	}
 
 
@@ -1535,7 +1535,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 				const auto save_linear_depth = exchange(Max_linear_depth, Max_linear_depth_objects);
 				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(vobjptridx(v.objnum), window);	// note link to above else
+					do_render_object(canvas, vobjptridx(v.objnum), window);	// note link to above else
 				}
 				Max_linear_depth = save_linear_depth;
 			}
@@ -1652,7 +1652,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 			{
 				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(vobjptridx(v.objnum), window);	// note link to above else
+					do_render_object(canvas, vobjptridx(v.objnum), window);	// note link to above else
 				}
 			}
 		}
