@@ -407,9 +407,9 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			{
 			gr_set_current_canvas(window_get_canvas(*wind));
 			auto &canvas = *grd_curcanv;
-			gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
+			gr_set_curfont(canvas, MEDIUM3_FONT);
 			gr_string(canvas, 0x8000, fspacy(15), TXT_HIGH_SCORES);
-			gr_set_curfont(*grd_curcanv, GAME_FONT);
+			gr_set_curfont(canvas, GAME_FONT);
 			gr_set_fontcolor(canvas, BM_XRGB(31, 26, 5), -1);
 			gr_string(canvas, fspacx( 71), fspacy(50), TXT_NAME);
 			gr_string(canvas, fspacx(122), fspacy(50), TXT_SCORE);
@@ -439,12 +439,11 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 					if (menu->looper>63) menu->looper=0;
 				}
 
-				scores_draw_item(*grd_curcanv, menu->citem, menu->citem == MAX_HIGH_SCORES
+				scores_draw_item(canvas, menu->citem, menu->citem == MAX_HIGH_SCORES
 					? &menu->last_game
 					: &menu->scores.stats[menu->citem]);
 			}
 			}
-			gr_set_current_canvas(NULL);
 			break;
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu);
