@@ -642,7 +642,6 @@ static int state_callback(newmenu *menu,const d_event &event, state_userdata *co
 	if (event.type == EVENT_NEWMENU_DRAW && (citem = newmenu_get_citem(menu)) > 0)
 	{
 		if ( sc_bmp[citem-1] )	{
-			grs_canvas *save_canv = grd_curcanv;
 			const auto &&fspacx = FSPACX();
 			const auto &&fspacy = FSPACY();
 #if !DXX_USE_OGL
@@ -650,14 +649,12 @@ static int state_callback(newmenu *menu,const d_event &event, state_userdata *co
 #else
 			auto temp_canv = gr_create_canvas(THUMBNAIL_W*2,(THUMBNAIL_H*24/10));
 #endif
-			gr_set_current_canvas(temp_canv);
 			const array<grs_point, 3> vertbuf{{
 				{0,0},
 				{0,0},
 				{i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)}
 			}};
-			scale_bitmap(*sc_bmp[citem-1].get(), vertbuf, 0, grd_curcanv->cv_bitmap);
-			gr_set_current_canvas( save_canv );
+			scale_bitmap(*sc_bmp[citem-1].get(), vertbuf, 0, temp_canv->cv_bitmap);
 #if !DXX_USE_OGL
 			gr_bitmap(*grd_curcanv, (grd_curcanv->cv_bitmap.bm_w / 2) - fspacx(THUMBNAIL_W / 2), items[0].y - 3, temp_canv->cv_bitmap);
 #else
