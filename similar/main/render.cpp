@@ -375,7 +375,7 @@ static void render_face(grs_canvas &canvas, const segment &segp, const unsigned 
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
-static void check_face(const vsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<g3s_uvl, 4> &uvl_copy)
+static void check_face(grs_canvas &canvas, const vsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<g3s_uvl, 4> &uvl_copy)
 {
 #if DXX_USE_EDITOR
 	if (_search_mode) {
@@ -402,25 +402,24 @@ static void check_face(const vsegidx_t segnum, const unsigned sidenum, const uns
 #endif
 		{
 		uint8_t color = 0;
-		gr_pixel(grd_curcanv->cv_bitmap, _search_x, _search_y, color);	//set our search pixel to color zero
+			gr_pixel(canvas.cv_bitmap, _search_x, _search_y, color);	//set our search pixel to color zero
 		}
 #if DXX_USE_OGL
-		ogl_start_frame(*grd_curcanv);
+		ogl_start_frame(canvas);
 #endif
 		{
-			const uint8_t color = 1;
 		save_lighting = Lighting_on;
 		Lighting_on = 2;
 #if DXX_USE_OGL
-		g3_draw_poly(*grd_curcanv, nv, pointlist, color);
+			const uint8_t color = 1;
+			g3_draw_poly(canvas, nv, pointlist, color);
 #else
-		(void)color;
-		g3_draw_tmap(*grd_curcanv, nv, pointlist, uvl_copy, dyn_light, *bm);
+			g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, *bm);
 #endif
 		}
 		Lighting_on = save_lighting;
 
-		if (gr_ugpixel(grd_curcanv->cv_bitmap,_search_x,_search_y) == 1) {
+		if (gr_ugpixel(canvas.cv_bitmap,_search_x,_search_y) == 1) {
 			found_seg = segnum;
 			found_obj = object_none;
 			found_side = sidenum;
@@ -428,6 +427,7 @@ static void check_face(const vsegidx_t segnum, const unsigned sidenum, const uns
 		}
 	}
 #else
+	(void)canvas;
 	(void)segnum;
 	(void)sidenum;
 	(void)facenum;
@@ -447,7 +447,7 @@ static inline void check_render_face(grs_canvas &canvas, index_sequence<N...>, c
 		{uvlp[N].u, uvlp[N].v, uvlp[N].l}...
 	}};
 	render_face(canvas, segnum, sidenum, nv, vp, tmap1, tmap2, uvl_copy, wid_flags);
-	check_face(segnum, sidenum, facenum, nv, vp, tmap1, tmap2, uvl_copy);
+	check_face(canvas, segnum, sidenum, facenum, nv, vp, tmap1, tmap2, uvl_copy);
 }
 
 template <std::size_t N0, std::size_t N1, std::size_t N2, std::size_t N3>
