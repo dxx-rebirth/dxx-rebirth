@@ -1898,23 +1898,24 @@ static window_event_result listbox_key_command(window *, const d_event &event, l
 static void listbox_create_structure( listbox *lb)
 {
 	gr_set_current_canvas(NULL);
+	auto &canvas = *grd_curcanv;
 
-	gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
+	gr_set_curfont(canvas, MEDIUM3_FONT);
 
 	lb->box_w = 0;
 	const auto &&fspacx = FSPACX();
 	range_for (auto &i, unchecked_partial_range(lb->item, lb->nitems))
 	{
 		int w;
-		gr_get_string_size(*grd_curcanv->cv_font, i, &w, nullptr, nullptr);
+		gr_get_string_size(*canvas.cv_font, i, &w, nullptr, nullptr);
 		if ( w > lb->box_w )
 			lb->box_w = w + fspacx(10);
 	}
-	lb->height = LINE_SPACING(*grd_curcanv) * LB_ITEMS_ON_SCREEN;
+	lb->height = LINE_SPACING(canvas) * LB_ITEMS_ON_SCREEN;
 
 	{
 		int w, h;
-		gr_get_string_size(*grd_curcanv->cv_font, lb->title, &w, &h, nullptr);
+		gr_get_string_size(*canvas.cv_font, lb->title, &w, &h, nullptr);
 		if ( w > lb->box_w )
 			lb->box_w = w;
 		lb->title_height = h+FSPACY(5);
@@ -1926,13 +1927,13 @@ static void listbox_create_structure( listbox *lb)
 		int w;
 
 		const auto box_w = lb->box_w = SWIDTH - (BORDERX*2);
-		gr_get_string_size(*grd_curcanv->cv_font, "O", &w, nullptr, nullptr);
+		gr_get_string_size(*canvas.cv_font, "O", &w, nullptr, nullptr);
 		lb->marquee = listbox::marquee::allocate(box_w / w);
 		lb->marquee->lasttime = timer_query();
 	}
 
-	lb->box_x = (grd_curcanv->cv_bitmap.bm_w-lb->box_w)/2;
-	lb->box_y = (grd_curcanv->cv_bitmap.bm_h-(lb->height+lb->title_height))/2 + lb->title_height;
+	lb->box_x = (canvas.cv_bitmap.bm_w - lb->box_w) / 2;
+	lb->box_y = (canvas.cv_bitmap.bm_h - (lb->height + lb->title_height)) / 2 + lb->title_height;
 	if ( lb->box_y < lb->title_height )
 		lb->box_y = lb->title_height;
 
