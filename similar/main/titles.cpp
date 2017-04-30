@@ -1482,12 +1482,14 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 		}
 
 		case EVENT_WINDOW_DRAW:
+		{
 			gr_set_current_canvas(NULL);
+			auto &canvas = *grd_curcanv;
 
 			timer_delay2(50);
 
 			if (!(br->new_screen || br->new_page))
-				while (!briefing_process_char(*grd_curcanv, br) && !br->delay_count)
+				while (!briefing_process_char(canvas, br) && !br->delay_count)
 				{
 					check_text_pos(br);
 					if (br->new_page)
@@ -1496,12 +1498,12 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			check_text_pos(br);
 
 			if (br->background.bm_data)
-				show_fullscr(*grd_curcanv, br->background);
+				show_fullscr(canvas, br->background);
 
 			if (br->guy_bitmap.bm_data)
-				show_briefing_bitmap(*grd_curcanv, &br->guy_bitmap);
+				show_briefing_bitmap(canvas, &br->guy_bitmap);
 			if (br->bitmap_name[0] != 0)
-				show_animated_bitmap(*grd_curcanv, br);
+				show_animated_bitmap(canvas, br);
 #if defined(DXX_BUILD_DESCENT_II)
 			if (br->robot_playing)
 				RotateRobot(br->pMovie);
@@ -1509,21 +1511,21 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			if (br->robot_num != -1)
 				show_spinning_robot_frame(br, br->robot_num);
 
-			gr_set_curfont(*grd_curcanv, GAME_FONT);
+			gr_set_curfont(canvas, GAME_FONT);
 
-			gr_set_fontcolor(*grd_curcanv, *Current_color, -1);
+			gr_set_fontcolor(canvas, *Current_color, -1);
 			{
 				unsigned lastcolor = ~0u;
 				range_for (const auto b, partial_const_range(br->messagestream, br->streamcount))
-					redraw_messagestream(*grd_curcanv, b, lastcolor);
+					redraw_messagestream(canvas, b, lastcolor);
 			}
 
 			if (br->new_page || br->new_screen)
-				flash_cursor(*grd_curcanv, br, br->flashing_cursor);
+				flash_cursor(canvas, br, br->flashing_cursor);
 			else if (br->flashing_cursor)
-				gr_string(*grd_curcanv, br->text_x, br->text_y, "_");
+				gr_string(canvas, br->text_x, br->text_y, "_");
 			break;
-
+		}
 		case EVENT_WINDOW_CLOSE:
 			free_briefing_screen(br);
 #if defined(DXX_BUILD_DESCENT_II)
