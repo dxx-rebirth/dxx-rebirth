@@ -2400,7 +2400,7 @@ static window_event_result polygon_models_viewer_handler(window *, const d_event
 			timer_delay(F1_0/60);
 			{
 				auto &canvas = *grd_curcanv;
-				draw_model_picture(canvas, view_idx, &ang);
+				draw_model_picture(canvas, view_idx, ang);
 				gr_set_curfont(canvas, GAME_FONT);
 				gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
 				gr_printf(canvas, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation",view_idx,N_polygon_models-1);
