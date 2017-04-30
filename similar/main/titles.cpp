@@ -710,7 +710,7 @@ static void put_char_delay(const grs_font &cv_font, briefing *const br, const ch
 }
 
 static void init_spinning_robot(grs_canvas &canvas, briefing &br);
-static int load_briefing_screen(briefing *br, const char *fname);
+static int load_briefing_screen(grs_canvas &, briefing *br, const char *fname);
 
 // Process a character for the briefing,
 // including special characters preceded by a '$'.
@@ -830,7 +830,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 
 				if ((HIRESMODE && PHYSFSX_exists(fname2,1)) || !PHYSFSX_exists(fname,1))
 					strcpy(fname,fname2);
-				load_briefing_screen (br, fname);
+				load_briefing_screen(*grd_curcanv, br, fname);
 			}
 
 #endif
@@ -862,7 +862,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			if (!br->got_z) {
 				Int3(); // Hey ryan!!!! You gotta load a screen before you start
 				// printing to it! You know, $Z !!!
-				load_briefing_screen (br, HIRESMODE?"end01b.pcx":"end01.pcx");
+				load_briefing_screen(*grd_curcanv, br, HIRESMODE ? "end01b.pcx" : "end01.pcx");
 			}
 
 			br->chattering = 0;
@@ -902,9 +902,9 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			br->text_x = br->screen->text_ulx;
 			if (br->text_y > br->screen->text_uly + br->screen->text_height) {
 #if defined(DXX_BUILD_DESCENT_I)
-				load_briefing_screen(br, D1_Briefing_screens[br->cur_screen].bs_name);
+				load_briefing_screen(*grd_curcanv, br, D1_Briefing_screens[br->cur_screen].bs_name);
 #elif defined(DXX_BUILD_DESCENT_II)
-				load_briefing_screen(br, Briefing_screens[br->cur_screen].bs_name);
+				load_briefing_screen(*grd_curcanv, br, Briefing_screens[br->cur_screen].bs_name);
 #endif
 				br->text_x = br->screen->text_ulx;
 				br->text_y = br->screen->text_uly;
@@ -920,7 +920,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			LevelError("briefing wrote to screen without using $Z to load a screen; loading default.");
 			//Int3(); // Hey ryan!!!! You gotta load a screen before you start
 			// printing to it! You know, $Z !!!
-			load_briefing_screen (br, HIRESMODE?"end01b.pcx":"end01.pcx");
+			load_briefing_screen(*grd_curcanv, br, HIRESMODE ? "end01b.pcx" : "end01.pcx");
 		}
 #endif
 		put_char_delay(*canvas.cv_font, br, ch);
@@ -1157,7 +1157,7 @@ static void init_new_page(briefing *br)
 	br->new_page = 0;
 	br->robot_num = -1;
 
-	load_briefing_screen(br, br->background_name);
+	load_briefing_screen(*grd_curcanv, br, br->background_name);
 	br->text_x = br->screen->text_ulx;
 	br->text_y = br->screen->text_uly;
 
@@ -1215,7 +1215,7 @@ static void free_briefing_screen(briefing *br);
 
 //	-----------------------------------------------------------------------------
 //	loads a briefing screen
-static int load_briefing_screen(briefing *br, const char *fname)
+static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const char *const fname)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	int pcx_error;
@@ -1260,16 +1260,16 @@ static int load_briefing_screen(briefing *br, const char *fname)
 		gr_palette[0].r = gr_palette[0].g = gr_palette[0].b = 0;
 		gr_palette[255].r = gr_palette[255].g = gr_palette[255].b = 63;
 	}
-	show_fullscr(*grd_curcanv, br->background);
+	show_fullscr(canvas, br->background);
 	gr_palette_load(gr_palette);
 
 	set_briefing_fontcolor();
 
 	br->screen = make_unique<briefing_screen>(D1_Briefing_screens[br->cur_screen]);
-	br->screen->text_ulx = rescale_x(grd_curcanv->cv_bitmap, br->screen->text_ulx);
-	br->screen->text_uly = rescale_y(grd_curcanv->cv_bitmap, br->screen->text_uly);
-	br->screen->text_width = rescale_x(grd_curcanv->cv_bitmap, br->screen->text_width);
-	br->screen->text_height = rescale_y(grd_curcanv->cv_bitmap, br->screen->text_height);
+	br->screen->text_ulx = rescale_x(canvas.cv_bitmap, br->screen->text_ulx);
+	br->screen->text_uly = rescale_y(canvas.cv_bitmap, br->screen->text_uly);
+	br->screen->text_width = rescale_x(canvas.cv_bitmap, br->screen->text_width);
+	br->screen->text_height = rescale_y(canvas.cv_bitmap, br->screen->text_height);
 	init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 #elif defined(DXX_BUILD_DESCENT_II)
 	int pcx_error;
@@ -1280,7 +1280,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 
 	if ((pcx_error = pcx_read_bitmap(fname, br->background, gr_palette))!=PCX_ERROR_NONE)
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
-	show_fullscr(*grd_curcanv, br->background);
+	show_fullscr(canvas, br->background);
 	if (EMULATING_D1 && !d_stricmp(fname, "brief03.pcx")) // HACK, FIXME: D1 missions should use their own palette (PALETTE.256), but texture replacements not complete
 		gr_use_palette_table("groupa.256");
 
@@ -1292,10 +1292,10 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	{
 		br->got_z = 1;
 		br->screen = make_unique<briefing_screen>(Briefing_screens[br->cur_screen]);
-		br->screen->text_ulx = rescale_x(grd_curcanv->cv_bitmap, br->screen->text_ulx);
-		br->screen->text_uly = rescale_y(grd_curcanv->cv_bitmap, br->screen->text_uly);
-		br->screen->text_width = rescale_x(grd_curcanv->cv_bitmap, br->screen->text_width);
-		br->screen->text_height = rescale_y(grd_curcanv->cv_bitmap, br->screen->text_height);
+		br->screen->text_ulx = rescale_x(canvas.cv_bitmap, br->screen->text_ulx);
+		br->screen->text_uly = rescale_y(canvas.cv_bitmap, br->screen->text_uly);
+		br->screen->text_width = rescale_x(canvas.cv_bitmap, br->screen->text_width);
+		br->screen->text_height = rescale_y(canvas.cv_bitmap, br->screen->text_height);
 		init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 	}
 
@@ -1343,7 +1343,7 @@ static int new_briefing_screen(briefing *br, int first)
 	if (br->cur_screen == NUM_D1_BRIEFING_SCREENS)
 		return 0;		// finished
 
-	if (!load_briefing_screen(br, D1_Briefing_screens[br->cur_screen].bs_name))
+	if (!load_briefing_screen(*grd_curcanv, br, D1_Briefing_screens[br->cur_screen].bs_name))
 		return 0;
 
 	br->message = get_briefing_message(br, D1_Briefing_screens[br->cur_screen].message_num);
@@ -1372,7 +1372,7 @@ static int new_briefing_screen(briefing *br, int first)
 		if (br->cur_screen == NUM_D1_BRIEFING_SCREENS)
 			return 0;		// finished
 
-		if (!load_briefing_screen(br, Briefing_screens[br->cur_screen].bs_name))
+		if (!load_briefing_screen(*grd_curcanv, br, Briefing_screens[br->cur_screen].bs_name))
 			return 0;
 	}
 	else if (first)
