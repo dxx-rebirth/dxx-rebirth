@@ -723,7 +723,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 		ch = *br->message++;
 #if defined(DXX_BUILD_DESCENT_II)
 		if (ch=='D') {
-			br->cur_screen = DefineBriefingBox(grd_curcanv->cv_bitmap, br->message);
+			br->cur_screen = DefineBriefingBox(canvas.cv_bitmap, br->message);
 			br->screen.reset(&Briefing_screens[br->cur_screen]);
 			init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 			br->line_adjustment=0;
@@ -761,7 +761,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 #endif
 
 			if (EMULATING_D1) {
-				init_spinning_robot(*grd_curcanv, *br);
+				init_spinning_robot(canvas, *br);
 				br->robot_num = get_message_num(br->message);
 #if defined(DXX_BUILD_DESCENT_II)
 				while (*br->message++ != 10)
