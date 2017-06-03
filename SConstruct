@@ -1358,14 +1358,32 @@ is not a bug in the test or in the compiler.
 help:assume compiler supports compile-time __builtin_constant_p
 """
 		f = '''
+/*
+ * Begin `timekeeping.i` from gcc bug #72785, comment #0.  This block
+ * provokes gcc-7 into generating an impossible code path, which then
+ * fails to link when ____ilog2_NaN is intentionally undefined.
+ */
+int a, b;
+int ____ilog2_NaN();
+static void by(void) {
+	int c = 1;
+	b = a ?: c;
+	__builtin_constant_p(b) ? b ? ____ilog2_NaN() : 0 : 0;
+}
+/*
+ * End `timekeeping.i`.
+ */
 int c(int);
-static int a(int b){
-	return __builtin_constant_p(b) ? 1 : %s;
+static int x(int y){
+	return __builtin_constant_p(y) ? 1 : %s;
 }
 '''
-		main = 'return a(1) + a(2)'
+		main = '''
+	by();
+	return x(1) + x(2);
+'''
 		Define = context.sconf.Define
-		if self.Link(context, text=f % 'c(b)', main=main, msg='whether compiler optimizes __builtin_constant_p', calling_function='optimize_builtin_constant_p'):
+		if self.Link(context, text=f % 'c(y)', main=main, msg='whether compiler optimizes __builtin_constant_p', calling_function='optimize_builtin_constant_p'):
 			Define('DXX_HAVE_BUILTIN_CONSTANT_P')
 			Define('DXX_CONSTANT_TRUE(E)', '(__builtin_constant_p((E)) && (E))')
 			dxx_builtin_constant_p = '__builtin_constant_p(A)'
@@ -3621,7 +3639,7 @@ class DXXCommon(LazyObjectConstructor):
 	def platform_settings(self):
 		# windows or *nix?
 		platform_name = self.user_settings.host_platform
-		message(self, "compiling on %s for %s into %s%s" % (sys.platform, platform_name, self.user_settings.builddir or '.',
+		message(self, "compiling on %r/%r for %r into %s%s" % (sys.platform, os.uname()[4], platform_name, self.user_settings.builddir or '.',
 			(' with prefix list %s' % str(self._argument_prefix_list)) if self._argument_prefix_list else ''))
 		return (
 			self.Win32PlatformSettings if platform_name == 'win32' else (
