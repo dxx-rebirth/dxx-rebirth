@@ -1151,7 +1151,13 @@ static void terminate_handler()
 		context.Display('%s: checking whether to enable joystick support...%s\n' % (self.msgprefix, 'yes' if user_settings.max_joysticks else 'no'))
 		# SDL2 removed CD-rom support.
 		init_cdrom = '0' if sdl2 else 'SDL_INIT_CDROM'
-		self._check_system_library(context,header=['SDL.h'],main='''
+		error_text_opengl_mismatch = 'Rebirth configured with OpenGL enabled, but SDL configured with OpenGL disabled.  Disable Rebirth OpenGL or install an SDL with OpenGL enabled.'
+		test_opengl = ('''
+#ifndef SDL_VIDEO_OPENGL
+#error "%s"
+#endif
+''' % error_text_opengl_mismatch) if user_settings.opengl else ''
+		main = '''
 	SDL_RWops *ops = reinterpret_cast<SDL_RWops *>(argv);
 #if DXX_MAX_JOYSTICKS
 #define DXX_SDL_INIT_JOYSTICK	SDL_INIT_JOYSTICK |
@@ -1159,6 +1165,7 @@ static void terminate_handler()
 #define DXX_SDL_INIT_JOYSTICK
 #endif
 	SDL_Init(DXX_SDL_INIT_JOYSTICK %s | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+%s
 #if DXX_MAX_JOYSTICKS
 	auto n = SDL_NumJoysticks();
 	(void)n;
@@ -1166,9 +1173,21 @@ static void terminate_handler()
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	SDL_FreeRW(ops);
 	SDL_Quit();
-''' % init_cdrom,
-			lib='SDL', successflags=successflags
+'''
+		e = self._soft_check_system_library(context,header=['SDL.h'],main=main
+				% (init_cdrom, test_opengl),
+			lib=('SDL with OpenGL' if test_opengl else 'SDL'), successflags=successflags
 		)
+		if not e:
+			return
+		if test_opengl:
+			e2 = self._soft_check_system_library(context,header=['SDL.h'],main=main
+					% (init_cdrom, ''),
+				lib='SDL without OpenGL', successflags=successflags
+			)
+			if not e2 and e[0] == 1:
+				e = (None, error_text_opengl_mismatch)
+		raise SCons.Errors.StopError(e[1])
 	# SDL_mixer/SDL2_mixer use the same -I line as SDL/SDL2
 	@_implicit_test
 	def check_SDL_mixer(self,context,_guess_flags={
