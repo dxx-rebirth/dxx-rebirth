@@ -361,7 +361,7 @@ static void write_exception_dump(dxx_trap_context &dtc, const unsigned pid, cons
  * Write a plain text dump of metadata and a hex dump of the faulting
  * stack.
  */
-static void write_exception_stack(const wchar_t *const filename, const unsigned pid, const uint8_t *const sp, const uint8_t *const end_sp, const std::string &what, const HANDLE h)
+static void write_exception_stack(const wchar_t *const filename, const unsigned pid, const uint8_t *const begin_sp, const uint8_t *const end_sp, const std::string &what, const HANDLE h)
 {
 	std::array<char, 4096> buf;
 	buf = {};
@@ -376,8 +376,14 @@ DXX_REPORT_TEXT_LEADER_BUILD_DATETIME "%s\n"
 DXX_REPORT_TEXT_LEADER_EXCEPTION_MESSAGE "\"%s\"\n"
 "SP: %p\n"
 "\n"
-, g_strctxuuid.data(), g_descent_version, g_descent_build_datetime, pid, filename, what.c_str(), sp
+, g_strctxuuid.data(), g_descent_version, g_descent_build_datetime, pid, filename, what.c_str(), begin_sp
 );
+	/*
+	 * end_sp is rounded down to a paragraph boundary.
+	 * Round sp the same way so that there will exist an integer N such
+	 * that (`sp` + (N * `dump_stack_stride`)) == `end_sp`.
+	 */
+	const auto sp = reinterpret_cast<const uint8_t *>(reinterpret_cast<uintptr_t>(begin_sp) & -dump_stack_stride);
 	DWORD dwWritten;
 	WriteFile(h, buf.data(), len_header_text, &dwWritten, 0);
 	for (unsigned i = 0; i < dump_stack_bytes; i += dump_stack_stride)
