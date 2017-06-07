@@ -4959,6 +4959,7 @@ static void MultiLevelInv_CountLevelPowerups()
 #endif
 						MultiLevelInv.Current[POW_VULCAN_AMMO] += objp->ctype.powerup_info.count; // add contained ammo so we do not lose this from level when used up
 						/* fall through to increment Current[pid] */
+						/*-fallthrough*/
                         case POW_LASER:
                         case POW_QUAD_FIRE:
                         case POW_SPREADFIRE_WEAPON:

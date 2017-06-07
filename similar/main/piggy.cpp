@@ -1355,6 +1355,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				if (!GameArg.EdiMacData)
 					break;
 				// otherwise, fall through...
+				/*-fallthrough*/
 			case MAC_ALIEN1_PIGSIZE:
 			case MAC_ALIEN2_PIGSIZE:
 			case MAC_FIRE_PIGSIZE:
@@ -1398,6 +1399,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				if (!GameArg.EdiMacData)
 					break;
 				// otherwise, fall through...
+				/*-fallthrough*/
 			case MAC_ALIEN1_PIGSIZE:
 			case MAC_ALIEN2_PIGSIZE:
 			case MAC_FIRE_PIGSIZE:

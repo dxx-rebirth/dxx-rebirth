@@ -600,9 +600,10 @@ static int select_next_window_function(int w)
 				break;
 			}
 			//if no ecort, fall through
+			/*-fallthrough*/
 		case CV_ESCORT:
 			Coop_view_player[w] = -1;		//force first player
-			//fall through
+			/*-fallthrough*/
 		case CV_COOP:
 			Marker_viewer_num[w] = -1;
 			if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) {
@@ -625,7 +626,8 @@ static int select_next_window_function(int w)
 				}
 				break;
 			}
-			//if not multi, fall through
+			//if not multi,
+			//-fallthrough
 		case CV_MARKER:
 		case_marker:;
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view) {	//anarchy only

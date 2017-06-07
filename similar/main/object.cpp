@@ -1666,13 +1666,19 @@ static window_event_result object_move_one(const vobjptridx_t obj)
 
 			break;
 
-		case CT_REPAIRCEN: Int3();	// -- hey! these are no longer supported!! -- do_repair_sequence(obj); break;
+		case CT_REPAIRCEN:
+			Int3();
+			// -- hey! these are no longer supported!! -- do_repair_sequence(obj);
+			break;
 
-		case CT_POWERUP: do_powerup_frame(obj); break;
+		case CT_POWERUP:
+			do_powerup_frame(obj);
+			break;
 	
 		case CT_MORPH:			//morph implies AI
 			do_morph_frame(obj);
 			//NOTE: FALLS INTO AI HERE!!!!
+			/*-fallthrough*/
 
 		case CT_AI:
 			//NOTE LINK TO CT_MORPH ABOVE!!!

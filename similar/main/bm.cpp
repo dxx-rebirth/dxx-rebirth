@@ -674,6 +674,7 @@ int load_exit_models()
 		case D1_10_BIG_PIGSIZE:
 		case D1_10_PIGSIZE:
 			Int3();             /* exit models should be in .pofs */
+			/*-fallthrough*/
 		case D1_OEM_PIGSIZE:
 		case D1_MAC_PIGSIZE:
 		case D1_MAC_SHARE_PIGSIZE:

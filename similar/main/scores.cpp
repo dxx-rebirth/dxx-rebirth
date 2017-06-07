@@ -204,6 +204,7 @@ static inline const char *get_placement_slot_string(const unsigned position)
 	{
 		default:
 			Int3();
+			/*-fallthrough*/
 		case 0: return TXT_1ST;
 		case 1: return TXT_2ND;
 		case 2: return TXT_3RD;
