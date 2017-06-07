@@ -117,7 +117,11 @@ private:
 		destroy(b, end());
 		m_count = std::distance(begin(), b);
 	}
-	array<unsigned char, sizeof(T[S])> m_bytes;
-	array_type& arrayref() { return reinterpret_cast<array_type&>(m_bytes); }
-	const array_type& arrayref() const { return reinterpret_cast<const array_type&>(m_bytes); }
+private:
+	union U {
+		array_type m_data;
+		U() {}
+	} u;
+	array_type &arrayref() { return u.m_data; }
+	const array_type &arrayref() const { return u.m_data; }
 };
