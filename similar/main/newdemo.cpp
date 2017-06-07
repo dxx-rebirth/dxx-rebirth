@@ -3905,7 +3905,14 @@ static bool guess_demo_name(ntstring<PATH_MAX - 1> &filename)
 				sbuf[2] = 0;
 			}
 			filename[i] = 0;
-			auto a = strftime(&filename[i], sizeof(filename) - i, sbuf, ptm);
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
+			const auto a = strftime(&filename[i], sizeof(filename) - i, sbuf, ptm);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 			if (a >= sizeof(filename) - i)
 				return false;
 			i += a;
