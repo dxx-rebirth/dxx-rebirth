@@ -198,7 +198,7 @@ static inline void g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cons
 	_g3_draw_poly(canvas, nv, &pointlist[0], color);
 }
 
-constexpr std::size_t MAX_POINTS_PER_POLY = 25;
+constexpr std::size_t MAX_POINTS_PER_POLY = 64;
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
@@ -212,6 +212,8 @@ static inline void g3_draw_tmap(grs_canvas &canvas, unsigned nv, const array<cg3
 	if (DXX_CONSTANT_TRUE(nv > N))
 		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_tmap_overread, "reading beyond array");
 #endif
+	if (nv > N)
+		return;
 	_g3_draw_tmap(canvas, nv, &pointlist[0], &uvl_list[0], &light_rgb[0], bm);
 }
 

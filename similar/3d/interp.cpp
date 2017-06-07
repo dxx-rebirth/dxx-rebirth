@@ -164,8 +164,8 @@ public:
 	}
 	void op_flatpoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
-		(void)nv;	// only used for Assert
-		Assert( nv < MAX_POINTS_PER_POLY );
+		if (nv > MAX_POINTS_PER_POLY)
+			return;
 		if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
 #if defined(DXX_BUILD_DESCENT_I)
 			color = (w(p+28));
@@ -287,7 +287,8 @@ public:
 	}
 	void op_flatpoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
-		Assert( nv < MAX_POINTS_PER_POLY );
+		if (nv > MAX_POINTS_PER_POLY)
+			return;
 		if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
@@ -313,7 +314,8 @@ public:
 	}
 	void op_tmappoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
-		Assert( nv < MAX_POINTS_PER_POLY );
+		if (nv > MAX_POINTS_PER_POLY)
+			return;
 		if (!(g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0))
 			return;
 		//calculate light from surface normal
@@ -387,28 +389,8 @@ public:
 	}
 	void op_tmappoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
-		/* NOTE: Kept for historical reasons.
-		int ntris;
-		//calculate light from surface normal
-		//now poke light into l values
-		array<g3s_uvl, 3> uvl_list;
-		array<g3s_lrgb, 3> lrgb_list;
-		lrgb_list.fill(get_noglow_light(p));
-		for (unsigned i = 0; i < 3; ++i)
-			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
-		array<cg3s_point *, 3> point_list;
-		unsigned i;
-		for (i = 0; i < 2; ++i)
-		{
-			point_list[i] = &Interp_point_list[wp(p+30)[i]];
-		}
-		for (ntris=nv-2;ntris;ntris--) {
-			point_list[2] = &Interp_point_list[wp(p+30)[i]];
-			i++;
-			g3_check_and_draw_tmap(point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
-			point_list[1] = point_list[2];
-		}
-		*/
+		if (nv > MAX_POINTS_PER_POLY)
+			return;
 		array<g3s_uvl, MAX_POINTS_PER_POLY> uvl_list;
 		array<g3s_lrgb, MAX_POINTS_PER_POLY> lrgb_list;
 		lrgb_list.fill(get_noglow_light(p));

@@ -132,6 +132,8 @@ static inline void g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const a
 	if (DXX_CONSTANT_TRUE(nv > N))
 		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_tmap_overread, "reading beyond array");
 #endif
+	if (nv > N)
+		return;
 	_g3_draw_tmap_2(canvas, nv, &pointlist[0], &uvl_list[0], &light_rgb[0], bmbot, bm, orient);
 }
 
