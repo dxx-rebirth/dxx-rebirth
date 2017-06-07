@@ -102,11 +102,48 @@ valptridx<trigger>::array_managed_type Triggers;
 valptridx<wall>::array_managed_type Walls;
 }
 
-template class valptridx<active_door>;
-#if defined(DXX_BUILD_DESCENT_II)
-template class valptridx<cloaking_wall>;
+/*
+ * If not specified otherwise by the user, enable full instantiation if
+ * the compiler optimizer is not enabled.  This is required because
+ * non-optimized builds contain link time references to functions that
+ * are not used.
+ *
+ * Force full instantiation for non-optimized builds so that these
+ * references are satisfied.  For optimized builds, instantiate only the
+ * classes that are known to be used.
+ */
+#ifndef DXX_VALPTRIDX_ENABLE_FULL_TEMPLATE_INSTANTIATION
+#define DXX_VALPTRIDX_ENABLE_FULL_TEMPLATE_INSTANTIATION	!(defined(__OPTIMIZE__) && __OPTIMIZE__ > 0)
 #endif
-template class valptridx<object>;
-template class valptridx<segment>;
-template class valptridx<trigger>;
-template class valptridx<wall>;
+
+#if DXX_VALPTRIDX_ENABLE_FULL_TEMPLATE_INSTANTIATION
+template class valptridx<dcx::active_door>;
+#if defined(DXX_BUILD_DESCENT_II)
+template class valptridx<dsx::cloaking_wall>;
+#endif
+template class valptridx<dsx::object>;
+template class valptridx<dsx::segment>;
+template class valptridx<dsx::trigger>;
+template class valptridx<dsx::wall>;
+
+#else
+
+#if DXX_VALPTRIDX_REPORT_ERROR_STYLE == DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_EXCEPTION
+template class valptridx<dcx::active_door>::index_range_exception;
+#if defined(DXX_BUILD_DESCENT_II)
+template class valptridx<dsx::cloaking_wall>::index_range_exception;
+#endif
+
+template class valptridx<dsx::object>::index_mismatch_exception;
+template class valptridx<dsx::object>::index_range_exception;
+template class valptridx<dsx::object>::null_pointer_exception;
+
+template class valptridx<dsx::segment>::index_mismatch_exception;
+template class valptridx<dsx::segment>::index_range_exception;
+template class valptridx<dsx::segment>::null_pointer_exception;
+
+template class valptridx<dsx::trigger>::index_range_exception;
+template class valptridx<dsx::wall>::index_range_exception;
+#endif
+
+#endif
