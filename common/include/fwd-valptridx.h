@@ -145,18 +145,30 @@ protected:
 	static inline void check_null_pointer_conversion(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_pointer_type);
 	static inline void check_null_pointer(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_pointer_type, const array_managed_type &);
 
-#define DXX_VALPTRIDX_SUBTYPE(VERB,managed_type,derived_type_prefix)	\
-	DXX_VALPTRIDX_SUBTYPE_C(VERB, managed_type, derived_type_prefix, c);	\
-	DXX_VALPTRIDX_SUBTYPE_C(VERB, managed_type, derived_type_prefix, )
+#define DXX_VALPTRIDX_FOR_EACH_VC_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, IVPREFIX)	\
+	VERB(MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, IVPREFIX, );	\
+	VERB(MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, IVPREFIX, c)
 
-#define DXX_VALPTRIDX_SUBTYPE_C(VERB,managed_type,derived_type_prefix,cprefix)	\
-	DXX_VALPTRIDX_SUBTYPE_VC(VERB, managed_type, derived_type_prefix, cprefix);	\
-	DXX_VALPTRIDX_SUBTYPE_VC(VERB, managed_type, derived_type_prefix, v##cprefix)
+#define DXX_VALPTRIDX_FOR_EACH_IV_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX)	\
+	DXX_VALPTRIDX_FOR_EACH_VC_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, );	\
+	DXX_VALPTRIDX_FOR_EACH_VC_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, v)
 
-#define DXX_VALPTRIDX_SUBTYPE_VC(VERB,managed_type,derived_type_prefix,vcprefix)	\
-	VERB(managed_type, derived_type_prefix, vcprefix, idx);	\
-	VERB(managed_type, derived_type_prefix, vcprefix, ptr);	\
-	VERB(managed_type, derived_type_prefix, vcprefix, ptridx)
+#define DXX_VALPTRIDX_FOR_EACH_IDX_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT)	\
+	DXX_VALPTRIDX_FOR_EACH_IV_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, idx)
+
+#define DXX_VALPTRIDX_FOR_EACH_PTR_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT)	\
+	DXX_VALPTRIDX_FOR_EACH_IV_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, ptr)
+
+#define DXX_VALPTRIDX_FOR_EACH_PTRIDX_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT)	\
+	DXX_VALPTRIDX_FOR_EACH_IV_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, ptridx)
+
+#define DXX_VALPTRIDX_FOR_EACH_PPI_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT)	\
+	DXX_VALPTRIDX_FOR_EACH_PTR_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT);	\
+	DXX_VALPTRIDX_FOR_EACH_PTRIDX_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT)
+
+#define DXX_VALPTRIDX_FOR_EACH_IPPI_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT)	\
+	DXX_VALPTRIDX_FOR_EACH_IDX_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT);	\
+	DXX_VALPTRIDX_FOR_EACH_PPI_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT)
 
 public:
 	/* This is a special placeholder that allows segiter to bypass the
@@ -201,10 +213,10 @@ public:
 		};
 };
 
-#define DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF(managed_type,derived_type_prefix,vcprefix,suffix)	\
-	using vcprefix##derived_type_prefix##suffix##_t = valptridx<managed_type>::vcprefix##suffix
+#define DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF(MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, IVPREFIX, MCPREFIX)	\
+	using IVPREFIX##MCPREFIX##DERIVED_TYPE_PREFIX##PISUFFIX##_t = valptridx<MANAGED_TYPE>::IVPREFIX##MCPREFIX##PISUFFIX
 #define DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(managed_type,derived_type_prefix,global_array)	\
 	extern valptridx<managed_type>::array_managed_type global_array;	\
 	static constexpr const valptridx<managed_type>::array_managed_type &get_global_array(const managed_type *) { return global_array; }	\
 	static constexpr valptridx<managed_type>::array_managed_type &get_global_array(managed_type *) { return global_array; }	\
-	DXX_VALPTRIDX_SUBTYPE(DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF, managed_type, derived_type_prefix)
+	DXX_VALPTRIDX_FOR_EACH_IPPI_TYPE(DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF, managed_type, derived_type_prefix,)
