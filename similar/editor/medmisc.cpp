@@ -284,13 +284,13 @@ int medlisp_update_screen()
 	Update_flags = UF_ALL;
 #endif
 
-if (!render_3d_in_big_window)
+	if (!render_3d_in_big_window)
 		range_for (const auto vn, Views)
 			if (vn->ev_changed || (Update_flags & (UF_WORLD_CHANGED | UF_VIEWPOINT_MOVED | UF_ED_STATE_CHANGED)))
 			{
 				draw_world(vn->ev_canv, vn, Cursegp, Big_depth);
 				vn->ev_changed = 0;
-		}
+			}
 
 	if (Update_flags & (UF_WORLD_CHANGED|UF_GAME_VIEW_CHANGED|UF_ED_STATE_CHANGED)) {
 		grs_canvas *render_canv,*show_canv;
