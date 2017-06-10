@@ -72,13 +72,11 @@ editor_view RightView = {3,1, NULL, i2f(100),{{0,0,f1_0},{0,f1_0,0},{f1_0,0,0}},
 #endif
 
 
-editor_view *Views[ORTHO_VIEWS ? 4 : 1] = {&LargeView,
+array<editor_view *, ORTHO_VIEWS ? 4 : 1> Views = {{&LargeView,
 #if ORTHO_VIEWS
 	&TopView,&FrontView,&RightView
 #endif
-	};
-
-int N_views = (sizeof(Views) / sizeof(*Views));
+	}};
 
 int	Lock_view_to_cursegp = 1;		// !0 means whenever cursegp changes, view it
 

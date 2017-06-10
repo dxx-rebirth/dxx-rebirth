@@ -167,8 +167,7 @@ enum class editor_gamestate : uint8_t
  * 
  */
 
-extern editor_view *Views[ORTHO_VIEWS ? 4 : 1];
-extern int N_views;
+extern array<editor_view *, ORTHO_VIEWS ? 4 : 1> Views;
 extern int Large_view_index;
 extern std::unique_ptr<UI_GADGET_USERBOX> LargeViewBox, GameViewBox, GroupViewBox;
 extern int Found_seg_index;				// Index in Found_segs corresponding to Cursegp
