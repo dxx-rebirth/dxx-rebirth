@@ -49,6 +49,7 @@ static RAIIPHYSFS_File gamelog_fp;
 static array<console_buffer, CON_LINES_MAX> con_buffer;
 static con_state con_state;
 static int con_scroll_offset, con_size;
+static void con_force_puts(con_priority priority, char *buffer, size_t len);
 
 static void con_add_buffer_line(const con_priority priority, const char *const buffer, const size_t len)
 {
@@ -72,7 +73,7 @@ void (con_printf)(const con_priority priority, const char *const fmt, ...)
 		va_start (arglist, fmt);
 		size_t len = vsnprintf (buffer, sizeof(buffer), fmt, arglist);
 		va_end (arglist);
-		con_puts(priority, buffer, len);
+		con_force_puts(priority, buffer, len);
 	}
 }
 
@@ -97,7 +98,7 @@ static void con_scrub_markup(char *buffer)
 	*p2 = 0;
 }
 
-static void con_print_file(const char *buffer)
+static void con_print_file(const char *const buffer)
 {
 	/* Print output to stdout */
 	puts(buffer);
@@ -105,29 +106,43 @@ static void con_print_file(const char *buffer)
 	/* Print output to gamelog.txt */
 	if (gamelog_fp)
 	{
-		struct tm *lt;
 		time_t t;
 		t=time(NULL);
-		lt=localtime(&t);
-		PHYSFSX_printf(gamelog_fp,"%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
+		int tm_hour, tm_min, tm_sec;
+		if (const auto lt = localtime(&t))
+		{
+			tm_hour = lt->tm_hour;
+			tm_min = lt->tm_min;
+			tm_sec = lt->tm_sec;
+		}
+		else
+			tm_hour = tm_min = tm_sec = -1;
 #ifdef _WIN32 // stupid hack to force DOS-style newlines
 #define DXX_LF	"\r\n"
 #else
 #define DXX_LF	"\n"
 #endif
-		PHYSFSX_printf(gamelog_fp,"%s" DXX_LF,buffer);
+		PHYSFSX_printf(gamelog_fp, "%02i:%02i:%02i %s" DXX_LF, tm_hour, tm_min, tm_sec, buffer);
+#undef DXX_LF
 	}
+}
+
+/*
+ * The caller is assumed to have checked that the priority allows this
+ * entry to be logged.
+ */
+static void con_force_puts(const con_priority priority, char *const buffer, const size_t len)
+{
+	con_add_buffer_line(priority, buffer, len);
+	con_scrub_markup(buffer);
+	/* Produce a sanitised version and send it to the console */
+	con_print_file(buffer);
 }
 
 void con_puts(const con_priority priority, char *const buffer, const size_t len)
 {
 	if (priority <= CGameArg.DbgVerbose)
-	{
-		con_add_buffer_line(priority, buffer, len);
-		con_scrub_markup(buffer);
-		/* Produce a sanitised version and send it to the console */
-		con_print_file(buffer);
-	}
+		con_force_puts(priority, buffer, len);
 }
 
 void con_puts(const con_priority priority, const char *const buffer, const size_t len)
