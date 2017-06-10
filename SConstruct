@@ -1301,6 +1301,7 @@ void a()__attribute__((%s("a called")));
 			Compile(context, text=f, main='a();', msg='whether compiler understands function __attribute__((%s))' % __attribute__, expect_failure=True)
 			macro_value = self.comment_not_supported
 		Define(macro_name, macro_value)
+		self.__defined_macros += '#define %s %s\n' % (macro_name, macro_value)
 	@_custom_test
 	def check_builtin_bswap(self,context,
 		_main='''
@@ -1481,10 +1482,105 @@ available.
 		Define = context.sconf.Define
 		Define('DXX_BEGIN_COMPOUND_STATEMENT', t[0])
 		Define('DXX_END_COMPOUND_STATEMENT', t[1])
-		Define('DXX_ALWAYS_ERROR_FUNCTION(F,S)', r'( DXX_BEGIN_COMPOUND_STATEMENT {	\
-	void F() __attribute_error(S);	\
-	F();	\
-} DXX_END_COMPOUND_STATEMENT )', '''
+	@_custom_test
+	def check_compiler_always_error_optimizer(self,context,
+	# Good case: <gcc-6 takes this path.  Declare a function with
+	# __attribute__((__error__)) and call it.
+	_macro_value_simple=_quote_macro_value('''( DXX_BEGIN_COMPOUND_STATEMENT {
+	void F() __attribute_error(S);
+	F();
+} DXX_END_COMPOUND_STATEMENT )
+'''),
+	# Bad case: >=gcc-6 takes this path.  Declare a local scope class
+	# with a static method marked __attribute__((__error__)) and call
+	# that method.
+	_macro_value_complicated=_quote_macro_value('''( DXX_BEGIN_COMPOUND_STATEMENT {
+	struct DXX_ALWAYS_ERROR_FUNCTION {
+		__attribute_error(S)
+		/* The function must be declared inline because it is a member
+		** method, but must be marked noinline to discourage gcc from
+		** inlining it.  If it is inlined, then the error message is not
+		** generated even if F() is called.
+		**
+		** To make matters worse, if this function calls an undefined
+		** global scope function with __attribute__((__error__)), the
+		** compiler retains that call even when F() is never called.  That
+		** does not produce a compile error, but does cause a link error
+		** when the intentionally undefined global function is not found.
+		**/
+		__attribute__((__noinline__))
+		static void F()
+		{
+			/* If the function body is empty, noinline is not sufficient
+			** to prevent the compiler from skipping the error message.
+			** Use a no-op asm() with clobber statements to discourage
+			** gcc from inlining F().  This is only called if the build
+			** is supposed to fail, so the clobber has no performance
+			** consequences.
+			**/
+			__asm__ __volatile__("" ::: "memory", "cc");
+		}
+	};
+	DXX_ALWAYS_ERROR_FUNCTION::F();
+} DXX_END_COMPOUND_STATEMENT )
+''')
+	):
+		'''
+Rebirth defines a macro DXX_ALWAYS_ERROR_FUNCTION that, when expanded,
+results in a call to an undefined function.  If the optimizer cannot
+prove the call to be unreachable, the build fails.  This is used to
+diagnose certain types of always-incorrect code, such as accessing
+elements beyond the end of an array.
+
+Functions declared in local scope make the name available until the end
+of the containing block.  The name is treated as if it was declared in
+the same scope as the function itself, so a name declared inside a
+function in an anonymous namespace is also considered to be in the
+anonymous namespace.
+
+Starting in gcc-6, declaring a function while in local scope in an
+anonymous namespace triggers a compiler diagnostic about "used but never
+defined" even if the optimizer proves the call to be unreachable.
+Proving the call to be unreachable would cause the function not to be
+used.  Failing to prove it to be unreachable would lead to the
+__attribute__((__error__)) marker triggering an error message from the
+compiler.  Before gcc-6, the compiler permitted such declarations
+provided that the optimizer proved the function was never called.  The
+compiler never permitted such declarations when the optimizer failed to
+prove the function was never called.
+
+This SConf test checks whether the compiler warns when that construct is
+used.  If the compiler does not warn, a simple definition of
+DXX_ALWAYS_ERROR_FUNCTION is used.  If the compiler warns, a complicated
+and fragile definition of DXX_ALWAYS_ERROR_FUNCTION is used.
+As stated in `import this`:
+
+	Simple is better than complex.
+	Complex is better than complicated.
+
+Therefore, we prefer the simple form whenever the compiler allows it,
+even though the complicated form works for both old and new compilers.
+'''
+		context.sconf.Define('DXX_ALWAYS_ERROR_FUNCTION(F,S)',
+			_macro_value_simple if self.Compile(context, text='''
+namespace {
+void f()
+{
+	(void)("i"[0] == 's' &&
+		(
+			(
+				{
+					void e() __attribute_error("");
+					e();
+				}
+			), 0
+		)
+	);
+}
+}
+''', main='f();', msg='whether compiler allows dead calls to undefined functions in the anonymous namespace')	\
+			else _macro_value_complicated
+		, '''
 Declare a function named F and immediately call it.  If gcc's
 __attribute__((__error__)) is supported, __attribute_error will expand
 to use __attribute__((__error__)) with the explanatory string S, causing
