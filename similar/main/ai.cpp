@@ -2090,7 +2090,7 @@ static void init_boss_segments(const object &boss_objp, boss_special_segment_arr
 #if DXX_USE_EDITOR
 							Selected_segs.emplace_back(csegnum);
 							#endif
-							if (a.count() >= a.size())
+							if (a.count() >= a.max_size())
 							{
 								tail = head;
 								sidenum=MAX_SIDES_PER_SEGMENT;

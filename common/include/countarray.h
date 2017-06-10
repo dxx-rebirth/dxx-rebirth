@@ -35,7 +35,7 @@ public:
 	typedef typename array_type::iterator iterator;
 	typedef typename array_type::const_iterator const_iterator;
 	typedef typename array_type::const_reference const_reference;
-	static typename array_type::size_type size() { return S; }
+	static typename array_type::size_type max_size() { return S; }
 	~count_array_t() { clear(); }
 	count_array_t &operator=(const count_array_t &rhs)
 	{
