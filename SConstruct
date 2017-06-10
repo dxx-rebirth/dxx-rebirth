@@ -2369,6 +2369,44 @@ where the cast is useless.
 		'-Wsuggest-attribute=noreturn',
 		'-Wlogical-op',
 		'-Wold-style-cast',
+		# Starting in gcc-7, Rebirth default options cause gcc to enable
+		# -Wformat-truncation automatically.  Unless proven otherwise by
+		# data flow analysis, gcc pessimistically assumes that input
+		# parameters might have their most space-consuming value (3
+		# digits for a uint8_t, 5 for uint16_t, etc.).  This causes
+		# numerous warnings for places where Rebirth allocated a buffer
+		# that is exactly big enough for the small numbers that are
+		# actually used, but the data flow analysis is unable to prove
+		# that larger numbers are not used.
+		#
+		# It would be nice to remove this option and eliminate the
+		# warnings with fixes in the code, since this test completely
+		# suppresses all -Wformat-truncation diagnostics, including any
+		# that may be true bugs.  However, gcc provides no documented
+		# way to do this that does not generate extra runtime
+		# instructions, which are unnecessary in at least some of the
+		# cases where gcc warns.
+		#
+		# In testing, setting -Wformat-truncation=1 was insufficient to
+		# silence a warning in similar/main/net_udp.cpp:
+		#
+		#	similar/main/net_udp.cpp: In static member function 'static void {anonymous}::more_game_options_menu_items::net_udp_more_game_options()':
+		#	similar/main/net_udp.cpp:3528:6: error: ' Furthest Sites' directive output may be truncated writing 15 bytes into a region of size between 14 and 16 [-Werror=format-truncation=]
+		#	 void more_game_options_menu_items::net_udp_more_game_options()
+		#	      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		#	similar/main/net_udp.cpp:3433:11: note: 'snprintf' output between 21 and 23 bytes into a destination of size 21
+		#	   snprintf(SecludedSpawnText, sizeof(SecludedSpawnText), "Use %u Furthest Sites", Netgame.SecludedSpawns + 1);
+		#	   ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		#
+		'-Wno-format-truncation',
+		# gcc-7 with -Wextra enables -Wimplicit-fallthrough, which warns
+		# for various sites in Rebirth.  All the sites where fallthrough
+		# is obviously correct are already marked to suppress this
+		# warning, but sites which require analysis are not yet marked.
+		# Suppress this warning for the benefit of users who want a
+		# clean `-Wall -Wextra -Werror` build.  At some point, this
+		# suppression should be removed and the remaining sites fixed.
+		'-Wno-implicit-fallthrough',
 	]
 	__preferred_win32_linker_options = [
 		'-Wl,--large-address-aware',
