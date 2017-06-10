@@ -110,7 +110,7 @@ void HUD_render_message_frame(grs_canvas &canvas)
 #endif
 
 		hudmsg_array_t::iterator i, e = HUD_messages.end();
-		if (HUD_messages.count() < HUD_MAX_NUM_DISP)
+		if (HUD_messages.size() < HUD_MAX_NUM_DISP)
 			i = HUD_messages.begin();
 		else
 			i = e - HUD_MAX_NUM_DISP;
@@ -177,7 +177,7 @@ static int HUD_init_message_literal_worth_showing(int class_flag, const char *me
 				i->time = F1_0*2; // keep redundant message in list
 				if (std::distance(i, e) < HUD_MAX_NUM_DISP) // if redundant message on display, update them all
 				{
-					if (HUD_messages.count() < HUD_MAX_NUM_DISP)
+					if (HUD_messages.size() < HUD_MAX_NUM_DISP)
 						i = HUD_messages.begin();
 					else
 						i = HUD_messages.end() - HUD_MAX_NUM_DISP;
@@ -189,13 +189,13 @@ static int HUD_init_message_literal_worth_showing(int class_flag, const char *me
 		}
 	}
 
-	if (HUD_messages.count() >= HUD_MAX_NUM_STOR)
+	if (HUD_messages.size() >= HUD_MAX_NUM_STOR)
 	{
 		std::move(HUD_messages.begin() + 1, HUD_messages.end(), HUD_messages.begin());
 		HUD_messages.pop_back();
 	}
 	fix t;
-	if (HUD_messages.count() + 1 < HUD_MAX_NUM_DISP)
+	if (HUD_messages.size() + 1 < HUD_MAX_NUM_DISP)
 		t = F1_0*3; // one message - display 3 secs
 	else
 	{

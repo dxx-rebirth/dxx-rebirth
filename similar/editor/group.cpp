@@ -994,10 +994,10 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	group_fileinfo.editor_offset     =   -1;
 	group_fileinfo.editor_size       =   sizeof(group_editor);
 	group_fileinfo.vertex_offset     =   -1;
-	group_fileinfo.vertex_howmany    =   vertex_ids.count();
+	group_fileinfo.vertex_howmany    =   vertex_ids.size();
 	group_fileinfo.vertex_sizeof     =   sizeof(vms_vector);
 	group_fileinfo.segment_offset    =   -1;
-	group_fileinfo.segment_howmany   =   segment_ids.count();
+	group_fileinfo.segment_howmany   =   segment_ids.size();
 	group_fileinfo.segment_sizeof    =   sizeof(segment);
 	group_fileinfo.texture_offset    =   -1;
 	group_fileinfo.texture_howmany   =   0;
@@ -1008,8 +1008,8 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 
 	//===================== SAVE HEADER INFO ========================
 
-	group_header.num_vertices        =   vertex_ids.count();
-	group_header.num_segments        =   segment_ids.count();
+	group_header.num_vertices        =   vertex_ids.size();
+	group_header.num_segments        =   segment_ids.size();
 
 	// Write the editor info
 	header_offset = PHYSFS_tell(SaveFile);

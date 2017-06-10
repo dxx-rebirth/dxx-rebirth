@@ -1264,7 +1264,8 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 
 		Found_seg_index = 0;	
 	
-		if (Found_segs.count()) {
+		if (!Found_segs.empty())
+		{
 			sort_seg_list(Found_segs,ConsoleObject->pos);
 			Cursegp = imsegptridx(Found_segs[0]);
 			med_create_new_segment_from_cursegp();

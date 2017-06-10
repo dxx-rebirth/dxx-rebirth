@@ -1551,8 +1551,9 @@ void warn_if_concave_segments(void)
 {
 	find_concave_segs();
 
-	if (Warning_segs.count()) {
-		editor_status_fmt("*** WARNING *** %d concave segments in mine! *** WARNING ***",Warning_segs.count());
+	if (!Warning_segs.empty())
+	{
+		editor_status_fmt("*** WARNING *** %d concave segments in mine! *** WARNING ***", Warning_segs.size());
     }
 }
 

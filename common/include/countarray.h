@@ -21,7 +21,7 @@ protected:
 	void clear() { m_count = 0; }
 	size_type m_count;
 public:
-	size_type count() const { return m_count; }
+	size_type size() const { return m_count; }
 	bool empty() const { return !m_count; }
 	base_count_array_t() : m_count(0) {}
 };

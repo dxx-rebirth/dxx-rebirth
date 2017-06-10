@@ -483,14 +483,14 @@ void ai_init_boss_for_ship(void)
 
 void boss_init_all_segments(const object &boss_objnum)
 {
-	if (Boss_teleport_segs.count())
+	if (!Boss_teleport_segs.empty())
 		return;	// already have boss segs
 
 	init_boss_segments(boss_objnum, Boss_gate_segs, 0, 0);
 	
 	init_boss_segments(boss_objnum, Boss_teleport_segs, 1, 0);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Boss_teleport_segs.count() < 2)
+	if (Boss_teleport_segs.size() < 2)
 		init_boss_segments(boss_objnum, Boss_teleport_segs, 1, 1);
 #endif
 }
@@ -1966,7 +1966,7 @@ imobjptridx_t gate_in_robot(int type, const vmsegptridx_t segnum)
 
 static imobjptridx_t gate_in_robot(int type)
 {
-	auto segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.count()) >> 15];
+	auto segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.size()) >> 15];
 	return gate_in_robot(type, vmsegptridx(segnum));
 }
 
@@ -2090,7 +2090,7 @@ static void init_boss_segments(const object &boss_objp, boss_special_segment_arr
 #if DXX_USE_EDITOR
 							Selected_segs.emplace_back(csegnum);
 							#endif
-							if (a.count() >= a.max_size())
+							if (a.size() >= a.max_size())
 							{
 								tail = head;
 								sidenum=MAX_SIDES_PER_SEGMENT;
@@ -2112,10 +2112,10 @@ static void teleport_boss(const vmobjptridx_t objp, const vms_vector &target_pos
 {
 	segnum_t			rand_segnum;
 	int			rand_index;
-	Assert(Boss_teleport_segs.count() > 0);
+	assert(!Boss_teleport_segs.empty());
 
 	//	Pick a random segment from the list of boss-teleportable-to segments.
-	rand_index = (d_rand() * Boss_teleport_segs.count()) >> 15;
+	rand_index = (d_rand() * Boss_teleport_segs.size()) >> 15;
 	rand_segnum = Boss_teleport_segs[rand_index];
 	Assert(rand_segnum <= Highest_segment_index);
 
@@ -4505,9 +4505,9 @@ int ai_save_state(PHYSFS_File *fp)
 		PHYSFS_write(fp, &temp, sizeof(int), 1);
 	}
 
-	unsigned Num_boss_teleport_segs = Boss_teleport_segs.count();
+	unsigned Num_boss_teleport_segs = Boss_teleport_segs.size();
 	PHYSFS_write(fp, &Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs), 1);
-	unsigned Num_boss_gate_segs = Boss_gate_segs.count();
+	unsigned Num_boss_gate_segs = Boss_gate_segs.size();
 	PHYSFS_write(fp, &Num_boss_gate_segs, sizeof(Num_boss_gate_segs), 1);
 
 	if (Num_boss_gate_segs)

@@ -716,7 +716,7 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 		fvi_info::segment_array_t::iterator i = hit_data.seglist.find(hit_seg), e = hit_data.seglist.end();
 		if (i != e)
 			hit_data.seglist.erase(++i);
-		else if (hit_data.seglist.count() < hit_data.seglist.max_size())
+		else if (hit_data.seglist.size() < hit_data.seglist.max_size())
 			hit_data.seglist.emplace_back(hit_seg);
 	}
 
@@ -784,7 +784,7 @@ static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segm
 	/* Avoid overflow.  Original code had n_segs < MAX_SEGS_VISITED-1,
 	 * so leave an extra slot on min.
 	 */
-	size_t scount = src.count(), dcount=dst.count(), count = std::min(scount, dst.max_size() - dcount - 1);
+	const size_t scount = src.size(), dcount = dst.size(), count = std::min(scount, dst.max_size() - dcount - 1);
 	std::copy(src.begin(), src.begin() + count, std::back_inserter(dst));
 }
 

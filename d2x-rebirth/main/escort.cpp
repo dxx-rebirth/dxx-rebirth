@@ -856,13 +856,12 @@ static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
 		return ESCORT_GOAL_RED_KEY;
 	else if (Control_center_destroyed == 0)
 	{
-		if (Boss_teleport_segs.count())
+		if (!Boss_teleport_segs.empty())
 			return ESCORT_GOAL_BOSS;
 		else
 			return ESCORT_GOAL_CONTROLCEN;
 	} else
 		return ESCORT_GOAL_EXIT;
-	
 }
 
 #define	MAX_ESCORT_TIME_AWAY		(F1_0*4)

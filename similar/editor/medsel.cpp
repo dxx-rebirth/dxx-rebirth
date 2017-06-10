@@ -69,14 +69,14 @@ void sort_seg_list(count_segment_array_t &segnumlist,const vms_vector &pos)
 int SortSelectedList(void)
 {
 	sort_seg_list(Selected_segs,ConsoleObject->pos);
-	editor_status_fmt("%i element selected list sorted.",Selected_segs.count());
+	editor_status_fmt("%i element selected list sorted.", Selected_segs.size());
 
 	return 1;
 }
 
 int SelectNextFoundSeg(void)
 {
-	if (++Found_seg_index >= Found_segs.count())
+	if (++Found_seg_index >= Found_segs.size())
 		Found_seg_index = 0;
 
 	Cursegp = imsegptridx(Found_segs[Found_seg_index]);
@@ -97,7 +97,7 @@ int SelectPreviousFoundSeg(void)
 	if (Found_seg_index > 0)
 		Found_seg_index--;
 	else
-		Found_seg_index = Found_segs.count()-1;
+		Found_seg_index = Found_segs.size() - 1;
 
 	Cursegp = imsegptridx(Found_segs[Found_seg_index]);
 	med_create_new_segment_from_cursegp();
