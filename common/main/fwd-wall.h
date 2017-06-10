@@ -185,19 +185,19 @@ using clwallnum_t = uint8_t;
 }
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::cloaking_wall, clwallnum_t, dsx::MAX_CLOAKING_WALLS);
 namespace dsx {
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(cloaking_wall, clwall, CloakingWalls);
+DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(cloaking_wall, clwall);
 }
 #endif
 
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::wall, wallnum_t, dcx::MAX_WALLS);
 namespace dsx {
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(wall, wall, Walls);
+DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(wall, wall);
 extern array<wclip, MAX_WALL_ANIMS> WallAnims;
 constexpr valptridx<wall>::magic_constant<0xffff> wall_none{};
 }
 
 namespace dcx {
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(active_door, actdoor, ActiveDoors);
+DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(active_door, actdoor);
 #define Num_walls Walls.get_count()
 extern unsigned Num_wall_anims;
 }

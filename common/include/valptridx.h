@@ -53,11 +53,33 @@
 #define DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 #endif
 
-namespace detail {
+#define DXX_VALPTRIDX_MC_qualifier_m
+#define DXX_VALPTRIDX_MC_qualifier_c	const
 
-class valptridx_array_type_count
+template <typename managed_type>
+class valptridx<managed_type>::array_base_count_type
 {
-	unsigned count;
+protected:
+	union {
+		unsigned count;
+		/*
+		 * Use DXX_VALPTRIDX_FOR_EACH_PPI_TYPE to generate empty union
+		 * members based on basic_{i,v}val_member_factory
+		 * specializations.
+		 */
+#define DXX_VALPTRIDX_DEFINE_MEMBER_FACTORIES(MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, IVPREFIX, MCPREFIX)	\
+		DXX_VALPTRIDX_MC_qualifier_ ## MCPREFIX	\
+		valptridx<MANAGED_TYPE>::basic_ ## IVPREFIX ## val_member_factory<	\
+			valptridx<MANAGED_TYPE>::IVPREFIX ## c ## PISUFFIX,	\
+			valptridx<MANAGED_TYPE>::IVPREFIX ## m ## PISUFFIX	\
+		> IVPREFIX ## MCPREFIX ## PISUFFIX
+		DXX_VALPTRIDX_FOR_EACH_PPI_TYPE(DXX_VALPTRIDX_DEFINE_MEMBER_FACTORIES, managed_type,,);
+#undef DXX_VALPTRIDX_DEFINE_MEMBER_FACTORIES
+	};
+	constexpr array_base_count_type() :
+		count(0)
+	{
+	}
 public:
 	unsigned get_count() const
 	{
@@ -68,8 +90,6 @@ public:
 		count = c;
 	}
 };
-
-}
 
 template <typename INTEGRAL_TYPE, std::size_t array_size_value>
 constexpr std::integral_constant<std::size_t, array_size_value> valptridx_specialized_type_parameters<INTEGRAL_TYPE, array_size_value>::array_size;
@@ -735,22 +755,27 @@ public:
 
 template <typename managed_type>
 class valptridx<managed_type>::array_managed_type :
-	public detail::valptridx_array_type_count,
-	public array<managed_type, array_size>
+	public array_base_count_type,
+	public array_base_storage_type
 {
-	using containing_type = valptridx<managed_type>;
-	using array_type = array<managed_type, array_size>;
 public:
-	using typename array_type::reference;
-	using typename array_type::const_reference;
-	using index_type = typename containing_type::index_type;
+	/*
+	 * Expose the union members that act as factory methods.  Leave the
+	 * `count` union member protected.
+	 */
+#define DXX_VALPTRIDX_ACCESS_SUBTYPE_MEMBER_FACTORIES(MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, IVPREFIX, MCPREFIX)	\
+	using array_base_count_type::IVPREFIX ## MCPREFIX ## PISUFFIX
+	DXX_VALPTRIDX_FOR_EACH_PPI_TYPE(DXX_VALPTRIDX_ACCESS_SUBTYPE_MEMBER_FACTORIES,,,);
+#undef DXX_VALPTRIDX_ACCESS_SUBTYPE_MEMBER_FACTORIES
+	using typename array_base_storage_type::reference;
+	using typename array_base_storage_type::const_reference;
 	reference operator[](const integral_type &n)
 		{
-			return array_type::operator[](n);
+			return array_base_storage_type::operator[](n);
 		}
 	const_reference operator[](const integral_type &n) const
 		{
-			return array_type::operator[](n);
+			return array_base_storage_type::operator[](n);
 		}
 	template <typename T>
 		reference operator[](const T &) const = delete;
@@ -764,48 +789,115 @@ public:
 };
 
 template <typename managed_type>
-template <typename P>
-class valptridx<managed_type>::basic_ival_global_factory
+template <typename Pc, typename Pm>
+class valptridx<managed_type>::basic_ival_member_factory
 {
 	using containing_type = valptridx<managed_type>;
-public:
-	using result_type = P;
-	basic_ival_global_factory() = default;
-	basic_ival_global_factory(const basic_ival_global_factory &) = delete;
-	basic_ival_global_factory &operator=(const basic_ival_global_factory &) = delete;
-	__attribute_warn_unused_result
-	guarded<P> check_untrusted(index_type i) const
+protected:
+	/*
+	 * These casts are well-defined:
+	 * - The reinterpret_cast is defined because
+	 *   `basic_ival_member_factory` is a base of a member of the
+	 *   anonymous union in `array_base_count_type`.
+	 * - The anonymous union in `array_base_count_type` is the only
+	 *   member of that type, so its storage must be aligned to the
+	 *   beginning of the object.
+	 * - `basic_ival_member_factory` and its derivatives are not used
+	 *   anywhere other than `array_base_count_type`, so any call to
+	 *   these methods must be on an instance used in
+	 *   `array_base_count_type`.
+	 *
+	 * - The static_cast is defined because `array_base_count_type` is a
+	 *   non-virtual base of `array_managed_type`.
+	 * - `array_base_count_type` is not used as a base for any class
+	 *   other than `array_managed_type`, nor used freestanding, so any
+	 *   instance of `array_base_count_type` must be safe to downcast to
+	 *   `array_managed_type`.
+	 */
+	constexpr const array_managed_type &get_array() const
 	{
-		if (P::check_nothrow_index(i))
-			return P(i, get_array(), static_cast<const assume_nothrow_index *>(nullptr));
-		else
-			return nullptr;
+		return static_cast<const array_managed_type &>(reinterpret_cast<const array_base_count_type &>(*this));
 	}
-	template <typename T>
-		guarded<P> check_untrusted(T &&) const = delete;
-	__attribute_warn_unused_result
-	P operator()(typename P::index_type i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
+	array_managed_type &get_array()
 	{
-		return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, get_array());
+		return static_cast<array_managed_type &>(reinterpret_cast<array_base_count_type &>(*this));
 	}
-	template <containing_type::integral_type v>
-		__attribute_warn_unused_result
-		P operator()(const containing_type::magic_constant<v> &m) const
+	template <typename P, typename A>
+		static guarded<P> check_untrusted_internal(const index_type i, A &a)
 		{
-			return P(m, get_array());
+			if (P::check_nothrow_index(i))
+				return P(i, a, static_cast<const assume_nothrow_index *>(nullptr));
+			else
+				return nullptr;
+		}
+	template <typename P, typename T, typename A>
+		static guarded<P> check_untrusted_internal(T &&, A &) = delete;
+	template <typename P, typename A>
+		__attribute_warn_unused_result
+		/* C++ does not allow `static operator()()`, so name it
+		 * `call_operator` instead.
+		 */
+		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const typename P::index_type i, A &a)
+		{
+			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, a);
+		}
+	template <typename P, containing_type::integral_type v, typename A>
+		__attribute_warn_unused_result
+		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const containing_type::magic_constant<v> &m, A &a)
+		{
+			/*
+			 * All call_operator definitions must have the macro which
+			 * defines filename/lineno, but the magic_constant overload
+			 * has no need for them.
+			 *
+			 * Cast them to void to silence the warning about unused
+			 * parameters.
+			 */
+			DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_VOID_VARS();
+			return P(m, a);
+		}
+	template <typename P, typename T, typename A>
+		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS T &&, A &a) = delete;
+	basic_ival_member_factory() = default;
+public:
+	basic_ival_member_factory(const basic_ival_member_factory &) = delete;
+	basic_ival_member_factory &operator=(const basic_ival_member_factory &) = delete;
+	void *operator &() const = delete;
+	template <typename T>
+		__attribute_warn_unused_result
+		guarded<Pc> check_untrusted(T &&t) const
+		{
+			return this->template check_untrusted_internal<Pc>(static_cast<T &&>(t), get_array());
 		}
 	template <typename T>
-		P operator()(T &&) const = delete;
-	void *operator &() const = delete;
+		__attribute_warn_unused_result
+		guarded<Pm> check_untrusted(T &&t)
+		{
+			return this->template check_untrusted_internal<Pm>(static_cast<T &&>(t), get_array());
+		}
+	template <typename T>
+		__attribute_warn_unused_result
+		Pc operator()(T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
+		{
+			return this->template call_operator<Pc>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), get_array());
+		}
+	template <typename T>
+		__attribute_warn_unused_result
+		Pm operator()(T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
+		{
+			return this->template call_operator<Pm>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), get_array());
+		}
 };
 
 template <typename managed_type>
-template <typename P>
-class valptridx<managed_type>::basic_vval_global_factory :
-	public basic_ival_global_factory<P>
+template <typename Pc, typename Pm>
+class valptridx<managed_type>::basic_vval_member_factory :
+	public basic_ival_member_factory<Pc, Pm>
 {
-	using containing_type = valptridx<managed_type>;
-	using base_type = basic_ival_global_factory<P>;
+protected:
+	using basic_ival_member_factory<Pc, Pm>::get_array;
+	using basic_ival_member_factory<Pc, Pm>::call_operator;
+	template <typename P>
 	struct iterator :
 		std::iterator<std::forward_iterator_tag, P>,
 		P
@@ -820,57 +912,95 @@ class valptridx<managed_type>::basic_vval_global_factory :
 			return *this;
 		}
 	};
+	template <typename P, typename policy, typename A>
+		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const valptridx<managed_type>::basic_idx<policy, 0> i, A &a)
+		{
+			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, a);
+		}
+	template <typename P>
+		__attribute_warn_unused_result
+		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const typename P::mutable_pointer_type p, typename P::array_managed_type &a)
+		{
+			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, a);
+		}
+	/*
+	 * When P is a const type, enable an overload that takes a const
+	 * array.  Otherwise, enable a deleted overload that takes a mutable
+	 * array.  This provides a slightly clearer error when trying to
+	 * pass a const pointer to a mutable factory.
+	 */
+	template <typename P>
+		__attribute_warn_unused_result
+		static typename std::enable_if<std::is_same<const array_managed_type, typename P::array_managed_type>::value, P>::type call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const typename P::const_pointer_type p, const array_managed_type &a)
+		{
+			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, a);
+		}
+	template <typename P>
+		static typename std::enable_if<!std::is_same<const array_managed_type, typename P::array_managed_type>::value, P>::type call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const typename P::const_pointer_type p, array_managed_type &a) = delete;
+	template <typename P, typename A>
+		static iterator<P> end_internal(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS A &a)
+		{
+			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<index_type>(a.get_count()), a, static_cast<const allow_end_construction *>(nullptr));
+		}
 public:
-	using index_type = typename containing_type::index_type;
-	using typename base_type::result_type;
-	using base_type::operator();
 	__attribute_warn_unused_result
-	P operator()(typename P::const_pointer_type p DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
-	{
-		return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, get_array(p));
-	}
-	__attribute_warn_unused_result
-	P operator()(typename P::mutable_pointer_type p DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
-	{
-		return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, get_array(p));
-	}
-	__attribute_warn_unused_result
-	typename array_managed_type::size_type count() const
+	typename array_base_storage_type::size_type count() const
 	{
 		return get_array().get_count();
 	}
 	__attribute_warn_unused_result
-	typename array_managed_type::size_type size() const
+	typename array_base_storage_type::size_type size() const
 	{
 		return get_array().size();
 	}
-	__attribute_warn_unused_result
-	iterator begin() const
-	{
-		return P(containing_type::magic_constant<0>(), get_array());
-	}
-	__attribute_warn_unused_result
-	iterator end(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS) const
-	{
-		auto &a = get_array();
-		return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<index_type>(a.get_count()), a, static_cast<const allow_end_construction *>(nullptr));
-	}
-	template <typename policy>
-		P operator()(containing_type::basic_idx<policy, 0> i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
+	template <typename T>
+		__attribute_warn_unused_result
+		Pc operator()(T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
 		{
-			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, get_array());
+			return this->template call_operator<Pc>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), get_array());
 		}
+	template <typename T>
+		__attribute_warn_unused_result
+		Pm operator()(T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
+		{
+			return this->template call_operator<Pm>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), get_array());
+		}
+	__attribute_warn_unused_result
+	iterator<Pc> begin() const
+	{
+		return Pc(valptridx<managed_type>::magic_constant<0>(), get_array());
+	}
+	__attribute_warn_unused_result
+	iterator<Pm> begin()
+	{
+		return Pm(valptridx<managed_type>::magic_constant<0>(), get_array());
+	}
+	__attribute_warn_unused_result
+	iterator<Pc> end(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS) const
+	{
+		return this->template end_internal<Pc>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS get_array());
+	}
+	__attribute_warn_unused_result
+	iterator<Pm> end(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS)
+	{
+		return this->template end_internal<Pm>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS get_array());
+	}
 };
 
-#define DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES3(MANAGED_TYPE,STORAGE_CLASS,FACTORY)	\
-	STORAGE_CLASS valptridx<MANAGED_TYPE>::basic_vval_global_factory<v##FACTORY##_t> v##FACTORY{};	\
-	STORAGE_CLASS valptridx<MANAGED_TYPE>::basic_ival_global_factory<i##FACTORY##_t> i##FACTORY{}	\
+#undef DXX_VALPTRIDX_MC_qualifier_c
+#undef DXX_VALPTRIDX_MC_qualifier_m
 
-#define DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES2(MANAGED_TYPE,STORAGE_CLASS,PREFIX)	\
-	DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES3(MANAGED_TYPE,STORAGE_CLASS,PREFIX##ptr);	\
-	DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES3(MANAGED_TYPE,STORAGE_CLASS,PREFIX##ptridx)	\
+#define DXX_VALPTRIDX_DEFINE_FACTORY(MANAGED_TYPE, GLOBAL_FACTORY, GLOBAL_ARRAY, MEMBER_FACTORY)	\
+	__attribute_unused static auto &GLOBAL_FACTORY = GLOBAL_ARRAY.MEMBER_FACTORY;	\
+	using f ## GLOBAL_FACTORY = decltype(GLOBAL_FACTORY)
 
-#define DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(P,N)	\
-	DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES2(P,__attribute_unused static,m##N);	\
-	DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES2(P,constexpr,c##N)	\
+#define DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORY(MANAGED_TYPE, DERIVED_TYPE_PREFIX, GLOBAL_ARRAY, PISUFFIX, IVPREFIX, MCPREFIX)	\
+	DXX_VALPTRIDX_DEFINE_FACTORY(MANAGED_TYPE, IVPREFIX ## MCPREFIX ## DERIVED_TYPE_PREFIX ## PISUFFIX, GLOBAL_ARRAY, IVPREFIX ## MCPREFIX ## PISUFFIX)
+
+#define DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(MANAGED_TYPE,DERIVED_TYPE_PREFIX,GLOBAL_ARRAY)	\
+	using MANAGED_TYPE ## _array = valptridx<MANAGED_TYPE>::array_managed_type;	\
+	extern MANAGED_TYPE ## _array GLOBAL_ARRAY;	\
+	namespace { namespace {	\
+	DXX_VALPTRIDX_FOR_EACH_PPI_TYPE(DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORY, MANAGED_TYPE, DERIVED_TYPE_PREFIX, GLOBAL_ARRAY);	\
+	} }
 

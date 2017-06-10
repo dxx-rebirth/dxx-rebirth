@@ -150,7 +150,7 @@ struct active_door : public prohibit_void_ptr<active_door>
 	fix     time;               // how long been opening, closing, waiting
 };
 
-DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(active_door, actdoor);
+DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(active_door, actdoor, ActiveDoors);
 
 }
 
@@ -164,10 +164,10 @@ struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
 	array<fix, 4> back_ls;      // back wall saved light values
 	fix     time;               // how long been cloaking or decloaking
 };
-DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(cloaking_wall, clwall);
+DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(cloaking_wall, clwall, CloakingWalls);
 #endif
 
-DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(wall, wall);
+DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(wall, wall, Walls);
 
 struct wclip : public prohibit_void_ptr<wclip>
 {

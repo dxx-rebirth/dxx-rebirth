@@ -562,7 +562,7 @@ struct obj_position
 
 namespace dsx {
 
-DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(object, obj);
+DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(object, obj, Objects);
 
 static inline powerup_type_t get_powerup_id(const object_base &o)
 {

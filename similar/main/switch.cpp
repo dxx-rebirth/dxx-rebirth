@@ -70,7 +70,7 @@ void trigger_init()
 #endif
 
 template <typename T1, typename T2>
-static inline void trigger_wall_op(const trigger &t, const T1 &segment_factory, const T2 &op)
+static inline void trigger_wall_op(const trigger &t, T1 &segment_factory, const T2 &op)
 {
 	for (unsigned i = 0, num_links = t.num_links; i != num_links; ++i)
 		op(segment_factory(t.seg[i]), t.side[i]);

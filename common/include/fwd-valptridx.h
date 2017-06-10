@@ -67,6 +67,7 @@
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DEFN_VARS	const char *const filename, const unsigned lineno
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS	DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DEFN_VARS,
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_PASS_VARS_	filename, lineno
+#define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_VOID_VARS()	static_cast<void>(filename), static_cast<void>(lineno)
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_PASS_VARS	, DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_PASS_VARS_
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS	DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_PASS_VARS_,
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VA(...)	DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_PASS_VARS_, ## __VA_ARGS__
@@ -75,6 +76,7 @@
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DEFN_VARS
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS
+#define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_VOID_VARS()	static_cast<void>(0)
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_PASS_VARS
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VA(...)	__VA_ARGS__
@@ -85,6 +87,7 @@ class valptridx :
 	protected valptridx_specialized_types<managed_type>::type
 {
 	using specialized_types = typename valptridx_specialized_types<managed_type>::type;
+	using specialized_types::array_size;
 	class partial_policy
 	{
 	public:
@@ -99,6 +102,8 @@ class valptridx :
 	class im;	/* allow_invalid + mutable_policy */
 	template <typename>
 		class guarded;
+	class array_base_count_type;
+	using array_base_storage_type = std::array<managed_type, array_size>;
 public:
 	class array_managed_type;
 
@@ -112,7 +117,6 @@ protected:
 	 */
 	using typename specialized_types::integral_type;
 	using index_type = integral_type;	// deprecated; should be dedicated UDT
-	using specialized_types::array_size;
 
 	/* basic_ptridx<policy> publicly inherits from basic_idx<policy> and
 	 * basic_ptr<policy>, but should not be implicitly sliced to one of
@@ -126,17 +130,13 @@ protected:
 		class basic_ptr;
 	template <typename policy>
 		class basic_ptridx;
+	template <typename Pc, typename Pm>
+		class basic_ival_member_factory;
+	template <typename Pc, typename Pm>
+		class basic_vval_member_factory;
 	class allow_end_construction;
 	class assume_nothrow_index;
 
-	static constexpr const array_managed_type &get_array(const_pointer_type p)
-	{
-		return get_global_array(p);
-	}
-	static constexpr array_managed_type &get_array(mutable_pointer_type p = mutable_pointer_type())
-	{
-		return get_global_array(p);
-	}
 	static inline void check_index_match(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_reference_type, index_type, const array_managed_type &);
 	template <template <typename> class Compare = std::less>
 	static inline index_type check_index_range(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS index_type, const array_managed_type *);
@@ -201,10 +201,6 @@ public:
 	class null_pointer_exception;
 #endif
 
-	template <typename vptr>
-		class basic_vval_global_factory;
-	template <typename ptridx>
-		class basic_ival_global_factory;
 	template <integral_type constant>
 		class magic_constant
 		{
@@ -215,8 +211,6 @@ public:
 
 #define DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF(MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, IVPREFIX, MCPREFIX)	\
 	using IVPREFIX ## MCPREFIX ## DERIVED_TYPE_PREFIX ## PISUFFIX ## _t = valptridx<MANAGED_TYPE>::IVPREFIX ## MCPREFIX ## PISUFFIX
-#define DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(MANAGED_TYPE,DERIVED_TYPE_PREFIX,GLOBAL_ARRAY)	\
-	extern valptridx<MANAGED_TYPE>::array_managed_type GLOBAL_ARRAY;	\
-	static constexpr const valptridx<MANAGED_TYPE>::array_managed_type &get_global_array(const MANAGED_TYPE *) { return GLOBAL_ARRAY; }	\
-	static constexpr valptridx<MANAGED_TYPE>::array_managed_type &get_global_array(MANAGED_TYPE *) { return GLOBAL_ARRAY; }	\
+
+#define DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(MANAGED_TYPE, DERIVED_TYPE_PREFIX)	\
 	DXX_VALPTRIDX_FOR_EACH_IPPI_TYPE(DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF, MANAGED_TYPE, DERIVED_TYPE_PREFIX,)

@@ -43,7 +43,7 @@ constexpr std::size_t MAX_SEGMENT_VERTICES = 4*MAX_SEGMENTS;
 }
 #ifdef dsx
 namespace dsx {
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(segment, seg, Segments);
+DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(segment, seg);
 
 static constexpr valptridx<segment>::magic_constant<0xfffe> segment_exit{};
 static constexpr valptridx<segment>::magic_constant<0xffff> segment_none{};
