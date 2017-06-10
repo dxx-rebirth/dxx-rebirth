@@ -240,7 +240,11 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
 
-	for (uint_fast32_t i=0;i< *nframes; i++)	{
+	const auto nf = *nframes;
+	if (nf >= bm.size())
+		return;
+	for (uint_fast32_t i = 0; i != nf; ++i)
+	{
 		snprintf(tempname, sizeof(tempname), "%s#%" PRIuFAST32, fname, i);
 		gr_remap_bitmap_good(*bm[i].get(), newpal, iff_has_transparency ? iff_transparent_color : -1, SuperX);
 		bm[i]->avg_color = compute_average_pixel(bm[i].get());
