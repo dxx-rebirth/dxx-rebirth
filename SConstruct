@@ -2776,6 +2776,14 @@ class PCHManager(object):
 						# Ignore generated header here.  PCH generation
 						# will insert it in the right order.
 						continue
+					if name == '"valptridx.tcc"':
+						# Exclude tcc file from PCH.  It is not meant to
+						# be included in every file.  Starting in gcc-7,
+						# static functions defined in valptridx.tcc
+						# generate -Wunused-function warnings if the
+						# including file does not instantiate any
+						# templates that use the static function.
+						continue
 					if header_search_path is None:
 						header_search_path = [
 							d for d in ([os.path.dirname(str(source_filenode))] + env['CPPPATH'])
