@@ -222,7 +222,7 @@ namespace dsx {
 //  0 = successful attach
 //  1 = No room in Segments[].
 //  2 = No room in Vertices[].
-int med_attach_segment(vsegptridx_t destseg, vsegptr_t newseg, int destside, int newside);
+int med_attach_segment(vmsegptridx_t destseg, vmsegptr_t newseg, int destside, int newside);
 
 // Delete a segment.
 // Deletes a segment from the global array Segments.
@@ -232,7 +232,7 @@ int med_attach_segment(vsegptridx_t destseg, vsegptr_t newseg, int destside, int
 // Return value:
 //  0 = successful deletion
 //  1 = unable to delete
-int med_delete_segment(vsegptridx_t sp);
+int med_delete_segment(vmsegptridx_t sp);
 
 // Rotate the segment *seg by the pitch, bank, heading defined by *rot, destructively
 // modifying its four free vertices in the global array Vertices.
@@ -243,13 +243,13 @@ int med_delete_segment(vsegptridx_t sp);
 //  0 = successful rotation
 //  1 = MAX_SIDES_PER_SEGMENT makes rotation illegal (connected to 0 or 2+ segments)
 //  2 = Rotation causes degeneracy, such as self-intersecting segment.
-int med_rotate_segment(vsegptridx_t seg, const vms_matrix &rotmat);
+int med_rotate_segment(vmsegptridx_t seg, const vms_matrix &rotmat);
 
 //    Create a wall which can be removed.
 //    Creates wall at sp->sides[side], making it part of segment sp
 //    Removable walls must be placed between two connected segments.  You should add the removable
 //    wall on both sides.  In fact, you really must.
-void create_removable_wall(vsegptridx_t sp, int side, int tmap_num);
+void create_removable_wall(vmsegptridx_t sp, int side, int tmap_num);
 }
 #endif
 
@@ -283,7 +283,7 @@ namespace dsx {
 //	Create a segment given center, dimensions, rotation matrix.
 //	Note that the created segment will always have planar sides and rectangular cross sections.
 //	It will be created with walls on all sides, ie not connected to anything.
-void med_create_segment(vsegptridx_t sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp);
+void med_create_segment(vmsegptridx_t sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp);
 
 //	Create New_segment with sizes found in *scale.
 void med_create_new_segment(const vms_vector &scale);
@@ -298,7 +298,7 @@ extern void med_create_new_segment_from_cursegp(void);
 //		0	bridge segment formed
 //		1	unable to form bridge because one (or both) of the sides is not open.
 //	Note that no new vertices are created by this process.
-int med_form_bridge_segment(vsegptridx_t seg1, int side1, vsegptridx_t seg2, int side2);
+int med_form_bridge_segment(vmsegptridx_t seg1, int side1, vmsegptridx_t seg2, int side2);
 }
 #endif
 
@@ -345,15 +345,15 @@ void med_extract_matrix_from_segment(vcsegptr_t sp,vms_matrix *rotmat);
 //	Assign default u,v coordinates to all sides of a segment.
 //	This routine should only be used for segments which are not connected to anything else,
 //	ie the segment created at mine creation.
-void assign_default_uvs_to_segment(vsegptridx_t segp);
-void assign_default_uvs_to_side(vsegptridx_t segp, unsigned side);
+void assign_default_uvs_to_segment(vmsegptridx_t segp);
+void assign_default_uvs_to_side(vmsegptridx_t segp, unsigned side);
 
 //	Assign u,v coordinates to con_seg, con_common_side from base_seg, base_common_side
 //	They are connected at the edge defined by the vertices abs_id1, abs_id2.
-void med_assign_uvs_to_side(vsegptridx_t con_seg, int con_common_side, vsegptr_t base_seg, int base_common_side, int abs_id1, int abs_id2);
+void med_assign_uvs_to_side(vmsegptridx_t con_seg, int con_common_side, vmsegptr_t base_seg, int base_common_side, int abs_id1, int abs_id2);
 
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
-void create_coordinate_axes_from_segment(vsegptr_t sp, array<unsigned, 16> &vertnums);
+void create_coordinate_axes_from_segment(vmsegptr_t sp, array<unsigned, 16> &vertnums);
 
 //	Set Vertex_active to number of occurrences of each vertex.
 //	Set Num_vertices.
@@ -368,24 +368,24 @@ extern	void set_vertex_counts(void);
 //		0			joint formed
 //		1			unable to form joint because one or more vertices of side2 is not free
 //		2			unable to form joint because side1 is already used
-int med_form_joint(vsegptridx_t seg1, int side1, vsegptridx_t seg2, int side2);
+int med_form_joint(vmsegptridx_t seg1, int side1, vmsegptridx_t seg2, int side2);
 }
 
 // The current texture... use by saying something=bm_lock_bitmap(CurrentTexture)
 extern int CurrentTexture;
 
 namespace dsx {
-void med_propagate_tmaps_to_segments(vsegptridx_t base_seg,vsegptridx_t con_seg, int uv_only_flag);
-void med_propagate_tmaps_to_back_side(vsegptridx_t base_seg, int back_side, int uv_only_flag);
+void med_propagate_tmaps_to_segments(vmsegptridx_t base_seg,vmsegptridx_t con_seg, int uv_only_flag);
+void med_propagate_tmaps_to_back_side(vmsegptridx_t base_seg, int back_side, int uv_only_flag);
 
 //	Find segment adjacent to sp:side.
 //	Adjacent means a segment which shares all four vertices.
 //	Return true if segment found and fill in segment in adj_sp and side in adj_side.
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
-int med_find_adjacent_segment_side(vsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side);
+int med_find_adjacent_segment_side(vmsegptridx_t sp, int side, imsegptridx_t &adj_sp, int *adj_side);
 
 // Finds the closest segment and side to sp:side.
-int med_find_closest_threshold_segment_side(vsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side, fix threshold);
+int med_find_closest_threshold_segment_side(vmsegptridx_t sp, int side, imsegptridx_t &adj_sp, int *adj_side, fix threshold);
 
 // Select previous segment.
 //	If there is a connection on the side opposite to the current side, then choose that segment.
@@ -396,7 +396,7 @@ int med_find_closest_threshold_segment_side(vsegptridx_t sp, int side, segptridx
 // If there is no connecting segment on the current side, try any segment.
 
 //	Copy texture maps in newseg to nsp.
-void copy_uvs_seg_to_seg(vsegptr_t nsp, vcsegptr_t newseg);
+void copy_uvs_seg_to_seg(vmsegptr_t nsp, vcsegptr_t newseg);
 
 //	Return true if segment is concave.
 
@@ -410,7 +410,7 @@ extern void find_concave_segs(void);
 extern void warn_if_concave_segments(void);
 
 //	Warn if segment s is concave.
-void warn_if_concave_segment(vsegptridx_t s);
+void warn_if_concave_segment(vmsegptridx_t s);
 }
 
 //	Add a vertex to the vertex list.
@@ -422,7 +422,7 @@ int med_create_duplicate_vertex(const vertex &vp);
 
 namespace dsx {
 //	Create a new segment, duplicating exactly, including vertex ids and children, the passed segment.
-segnum_t med_create_duplicate_segment(vsegptr_t sp);
+segnum_t med_create_duplicate_segment(vmsegptr_t sp);
 
 //	Returns the index of a free segment.
 //	Scans the Segments array.
@@ -543,11 +543,11 @@ void close_editor_screen(void);
 #ifdef dsx
 namespace dsx {
 //    From eobject.c
-int place_object(vsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id);
+int place_object(vmsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id);
 
 // from ksegsize.c
-void med_extract_up_vector_from_segment_side(vsegptr_t sp, int sidenum, vms_vector &vp);
-void med_extract_right_vector_from_segment_side(vsegptr_t sp, int sidenum, vms_vector &vp);
+void med_extract_up_vector_from_segment_side(vmsegptr_t sp, int sidenum, vms_vector &vp);
+void med_extract_right_vector_from_segment_side(vmsegptr_t sp, int sidenum, vms_vector &vp);
 }
 #endif
 

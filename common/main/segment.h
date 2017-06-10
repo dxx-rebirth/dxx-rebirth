@@ -233,9 +233,9 @@ struct vertex : vms_vector
 #ifdef dsx
 struct side::illegal_type : std::runtime_error
 {
-	csegptr_t m_segment;
+	icsegptr_t m_segment;
 	const side *m_side;
-	illegal_type(csegptr_t seg, const side *s) :
+	illegal_type(icsegptr_t seg, const side *s) :
 		runtime_error("illegal side type"),
 		m_segment(seg), m_side(s)
 	{

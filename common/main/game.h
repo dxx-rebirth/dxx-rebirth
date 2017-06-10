@@ -262,7 +262,7 @@ static inline int game_mode_hoard()
 	return (Game_mode & GM_HOARD);
 }
 // returns ptr to escort robot, or NULL
-objptridx_t find_escort();
+imobjptridx_t find_escort();
 
 //Flickering light system
 struct flickering_light {
@@ -280,10 +280,10 @@ extern int BigWindowSwitch;
 void compute_slide_segs();
 
 // turn flickering off (because light has been turned off)
-void disable_flicker(vsegidx_t segnum, unsigned sidenum);
+void disable_flicker(vmsegidx_t segnum, unsigned sidenum);
 
 // turn flickering off (because light has been turned on)
-void enable_flicker(vsegidx_t segnum, unsigned sidenum);
+void enable_flicker(vmsegidx_t segnum, unsigned sidenum);
 
 /*
  * reads a flickering_light structure from a PHYSFS_File
@@ -342,7 +342,7 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 };
 extern game_cheats cheats;
 
-void move_player_2_segment(vsegptridx_t seg, int side);
+void move_player_2_segment(vmsegptridx_t seg, int side);
 window *game_setup();
 window_event_result game_handler(window *wind,const d_event &event, const unused_window_userdata_t *);
 window_event_result ReadControls(const d_event &event);

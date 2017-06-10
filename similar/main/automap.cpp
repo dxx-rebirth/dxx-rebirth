@@ -363,15 +363,15 @@ static void DropMarker(const object &plrobj, const unsigned player_marker_num)
 	int marker_num = (Player_num*2)+player_marker_num;
 
 	if (MarkerObject[marker_num] != object_none)
-		obj_delete(vobjptridx(MarkerObject[marker_num]));
+		obj_delete(vmobjptridx(MarkerObject[marker_num]));
 
-	MarkerObject[marker_num] = drop_marker_object(plrobj.pos, vsegptridx(plrobj.segnum), plrobj.orient, marker_num);
+	MarkerObject[marker_num] = drop_marker_object(plrobj.pos, vmsegptridx(plrobj.segnum), plrobj.orient, marker_num);
 
 	if (Game_mode & GM_MULTI)
 		multi_send_drop_marker(Player_num, plrobj.pos, player_marker_num, MarkerMessage[marker_num]);
 }
 
-void DropBuddyMarker(const vobjptr_t objp)
+void DropBuddyMarker(const vmobjptr_t objp)
 {
 	int marker_num;
 
@@ -384,9 +384,9 @@ void DropBuddyMarker(const vobjptr_t objp)
 	snprintf(&MarkerMessage[marker_num][0], MarkerMessage[marker_num].size(), "RIP: %s", static_cast<const char *>(PlayerCfg.GuidebotName));
 
 	if (MarkerObject[marker_num] != object_none)
-		obj_delete(vobjptridx(MarkerObject[marker_num]));
+		obj_delete(vmobjptridx(MarkerObject[marker_num]));
 
-	MarkerObject[marker_num] = drop_marker_object(objp->pos, vsegptridx(objp->segnum), objp->orient, marker_num);
+	MarkerObject[marker_num] = drop_marker_object(objp->pos, vmsegptridx(objp->segnum), objp->orient, marker_num);
 }
 
 #define MARKER_SPHERE_SIZE 0x58000
@@ -715,7 +715,7 @@ static void draw_automap(automap *am)
 		}
 	}
 
-	range_for (const auto &&objp, vobjptridx)
+	range_for (const auto &&objp, vmobjptridx)
 	{
 		switch( objp->type )	{
 		case OBJ_HOSTAGE:
@@ -888,7 +888,7 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 					/* FIXME: this event should be sent to other players
 					 * so that they remove the marker.
 					 */
-					obj_delete(vobjptridx(exchange(MarkerObject[HighlightMarker], object_none)));
+					obj_delete(vmobjptridx(exchange(MarkerObject[HighlightMarker], object_none)));
 					MarkerMessage[HighlightMarker][0]=0;
 					HighlightMarker = -1;
 				}
@@ -1291,7 +1291,7 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 			auto &w = *vcwallptr(seg->sides[sn].wall_num);
 #if defined(DXX_BUILD_DESCENT_II)
 			auto trigger_num = w.trigger;
-			if (trigger_num != trigger_none && vtrgptr(trigger_num)->type == TT_SECRET_EXIT)
+			if (trigger_num != trigger_none && vmtrgptr(trigger_num)->type == TT_SECRET_EXIT)
 				{
 			    color = BM_XRGB( 29, 0, 31 );
 				no_fade = EF_NO_FADE;

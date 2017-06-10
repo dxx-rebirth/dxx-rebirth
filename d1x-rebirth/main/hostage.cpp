@@ -63,7 +63,7 @@ int hostage_is_valid( int hostage_num )	{
 	return 1;
 }
 
-int hostage_object_is_valid(const vobjptridx_t objnum)	{
+int hostage_object_is_valid(const vmobjptridx_t objnum)	{
 	if ( objnum->type != OBJ_HOSTAGE ) return 0;
 	return hostage_is_valid(get_hostage_id(objnum));
 }
@@ -77,7 +77,7 @@ static int hostage_get_next_slot()	{
 	return MAX_HOSTAGES;
 }
 
-void hostage_init_info(const vobjptridx_t objnum)
+void hostage_init_info(const vmobjptridx_t objnum)
 {
 	int i;
 
@@ -111,7 +111,7 @@ void hostage_compress_all()	{
 			newslot = hostage_get_next_slot();
 			if ( newslot < i )	{
 				Hostages[newslot] = Hostages[i];
-				set_hostage_id(vobjptr(Hostages[newslot].objnum), newslot);
+				set_hostage_id(vmobjptr(Hostages[newslot].objnum), newslot);
 				Hostages[i].objnum = object_none;
 				i = 0;		// start over
 			}

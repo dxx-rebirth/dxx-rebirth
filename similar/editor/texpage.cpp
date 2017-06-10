@@ -278,7 +278,7 @@ void do_replacements(void)
 		Assert(old_tmap_num >= 0);
 		Assert(new_tmap_num >= 0);
 
-		range_for (const auto &&segp, vsegptr)
+		range_for (const auto &&segp, vmsegptr)
 		{
 			for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 				const auto sidep = &segp->sides[sidenum];

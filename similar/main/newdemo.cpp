@@ -277,7 +277,7 @@ static void my_extract_shortpos(object_base &objp, const shortpos *const spp)
 	segnum_t segnum = spp->segment;
 	objp.segnum = segnum;
 
-	auto &v = Vertices[vsegptr(segnum)->verts[0]];
+	auto &v = Vertices[vmsegptr(segnum)->verts[0]];
 	objp.pos.x = (spp->xo << RELPOS_PRECISION) + v.x;
 	objp.pos.y = (spp->yo << RELPOS_PRECISION) + v.y;
 	objp.pos.z = (spp->zo << RELPOS_PRECISION) + v.z;
@@ -303,7 +303,7 @@ static typename tt::enable_if<tt::is_integral<T>::value, int>::type newdemo_read
 	return _newdemo_read(buffer, elsize, nelem);
 }
 
-cobjptridx_t newdemo_find_object(object_signature_t signature)
+icobjptridx_t newdemo_find_object(object_signature_t signature)
 {
 	range_for (const auto &&objp, vcobjptridx)
 	{
@@ -553,7 +553,7 @@ static void nd_read_shortpos(object_base &obj)
 object *prev_obj=NULL;      //ptr to last object read in
 
 namespace dsx {
-static void nd_read_object(const vobjptridx_t obj)
+static void nd_read_object(const vmobjptridx_t obj)
 {
 	short shortsig = 0;
 	const auto &pl_info = get_local_plrobj().ctype.player_info;
@@ -717,7 +717,7 @@ static void nd_read_object(const vobjptridx_t obj)
 					obj->flags &= ~OF_ATTACHED;
 			}
 			else
-				obj_attach(vobjptridx(prev_obj),obj);
+				obj_attach(vmobjptridx(prev_obj),obj);
 		}
 
 		break;
@@ -1151,7 +1151,7 @@ void newdemo_record_start_frame(fix frame_time )
 }
 
 namespace dsx {
-void newdemo_record_render_object(const vobjptridx_t obj)
+void newdemo_record_render_object(const vmobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
 		return;
@@ -1170,7 +1170,7 @@ void newdemo_record_render_object(const vobjptridx_t obj)
 }
 
 namespace dsx {
-void newdemo_record_viewer_object(const vobjptridx_t obj)
+void newdemo_record_viewer_object(const vmobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
 		return;
@@ -1727,7 +1727,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 		range_for (auto &i, Players)
 		{
-			const auto &&objp = vobjptr(i.objnum);
+			const auto &&objp = vmobjptr(i.objnum);
 			auto &player_info = objp->ctype.player_info;
 			player_info.powerup_flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 			DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
@@ -1759,7 +1759,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			if (purpose == PURPOSE_REWRITE)
 				nd_write_byte(N_players);
 			range_for (auto &i, partial_range(Players, N_players)) {
-				const auto &&objp = vobjptr(i.objnum);
+				const auto &&objp = vmobjptr(i.objnum);
 				auto &player_info = objp->ctype.player_info;
 				player_info.powerup_flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 				DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
@@ -1935,9 +1935,9 @@ static void newdemo_pop_ctrlcen_triggers()
 {
 	int n;
 	for (int i = 0; i < ControlCenterTriggers.num_links; i++) {
-		const auto &&seg = vsegptridx(ControlCenterTriggers.seg[i]);
+		const auto &&seg = vmsegptridx(ControlCenterTriggers.seg[i]);
 		const auto side = ControlCenterTriggers.side[i];
-		const auto &&csegp = vsegptr(seg->children[side]);
+		const auto &&csegp = vmsegptr(seg->children[side]);
 		auto cside = find_connect_side(seg, csegp);
 		const auto anim_num = vcwallptr(seg->sides[side].wall_num)->clip_num;
 		n = WallAnims[anim_num].num_frames;
@@ -1957,7 +1957,7 @@ static int newdemo_read_frame_information(int rewrite)
 	done = 0;
 
 	if (Newdemo_vcr_state != ND_STATE_PAUSED)
-		range_for (const auto &&segp, vsegptr)
+		range_for (const auto &&segp, vmsegptr)
 		{
 			segp->objects = object_none;
 		}
@@ -2007,7 +2007,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(WhichWindow);
 			if (WhichWindow&15)
 			{
-				const auto &&obj = vobjptridx(static_cast<objnum_t>(MAX_OBJECTS - 1));
+				const auto &&obj = vmobjptridx(static_cast<objnum_t>(MAX_OBJECTS - 1));
 				nd_read_object(obj);
 				if (nd_playback_v_bad_read)
 				{
@@ -2026,7 +2026,7 @@ static int newdemo_read_frame_information(int rewrite)
 			else
 #endif
 			{
-			nd_read_object(vobjptridx(Viewer));
+			nd_read_object(vmobjptridx(Viewer));
 			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
@@ -2043,7 +2043,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 				if (segnum > Highest_segment_index)
 					segnum = 0;
-				obj_link_unchecked(vobjptridx(Viewer), vsegptridx(segnum));
+				obj_link_unchecked(vmobjptridx(Viewer), vmsegptridx(segnum));
 			}
 			}
 		}
@@ -2070,7 +2070,7 @@ static int newdemo_read_frame_information(int rewrite)
 				if (segnum > Highest_segment_index)
 					break;
 
-				obj_link_unchecked(obj, vsegptridx(segnum));
+				obj_link_unchecked(obj, vmsegptridx(segnum));
 				if ((obj->type == OBJ_PLAYER) && (Newdemo_game_mode & GM_MULTI)) {
 					int player;
 
@@ -2211,7 +2211,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
 			{
 				auto &player_info = ConsoleObject->ctype.player_info;
-				wall_hit_process(player_info.powerup_flags, vsegptridx(segnum), side, damage, player, vobjptr(ConsoleObject));
+				wall_hit_process(player_info.powerup_flags, vmsegptridx(segnum), side, damage, player, vmobjptr(ConsoleObject));
 			}
 			break;
 		}
@@ -2243,7 +2243,7 @@ static int newdemo_read_frame_information(int rewrite)
 #endif
 			}
 
-                        const auto &&segp = vsegptridx(segnum);
+                        const auto &&segp = vmsegptridx(segnum);
                         /* Demo recording is buggy.  Descent records
                             * ND_EVENT_TRIGGER for every segment transition, even
                             * if there is no wall.
@@ -2272,12 +2272,12 @@ static int newdemo_read_frame_information(int rewrite)
                                                 break;
                                         }
                                         if (!truth)
-											check_trigger(segp, side, plrobj, vobjptridx(objnum), shot);
+											check_trigger(segp, side, plrobj, vmobjptridx(objnum), shot);
                                 } else if (!rewrite)
 #endif
                                 {
                                         if (Newdemo_vcr_state != ND_STATE_PAUSED)
-											check_trigger(segp, side, plrobj, vobjptridx(objnum), shot);
+											check_trigger(segp, side, plrobj, vmobjptridx(objnum), shot);
                                 }
                         }
 		}
@@ -2321,7 +2321,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 				if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 					auto segnum = obj->segnum;
-					obj_link_unchecked(obj, vsegptridx(segnum));
+					obj_link_unchecked(obj, vmsegptridx(segnum));
 				}
 			}
 			break;
@@ -2341,7 +2341,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				wall_toggle(vsegptridx(segnum), side);
+				wall_toggle(vmsegptridx(segnum), side);
 		}
 			break;
 
@@ -2622,7 +2622,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
 			{
 #if defined(DXX_BUILD_DESCENT_I)
-				check_effect_blowup(vsegptridx(segnum), side, pnt, nullptr, 0, 0);
+				check_effect_blowup(vmsegptridx(segnum), side, pnt, nullptr, 0, 0);
 #elif defined(DXX_BUILD_DESCENT_II)
 			//create a dummy object which will be the weapon that hits
 			//the monitor. the blowup code wants to know who the parent of the
@@ -2630,7 +2630,7 @@ static int newdemo_read_frame_information(int rewrite)
 				laser_parent dummy;
 				dummy.parent_type = OBJ_PLAYER;
 				dummy.parent_num = Player_num;
-				check_effect_blowup(vsegptridx(segnum), side, pnt, dummy, 0, 0);
+				check_effect_blowup(vmsegptridx(segnum), side, pnt, dummy, 0, 0);
 #endif
 			}
 			break;
@@ -2709,7 +2709,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD))
-				vsegptr(seg)->sides[side].tmap_num = vsegptr(cseg)->sides[cside].tmap_num = tmap;
+				vmsegptr(seg)->sides[side].tmap_num = vmsegptr(cseg)->sides[cside].tmap_num = tmap;
 			break;
 		}
 
@@ -2733,9 +2733,9 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD)) {
 				assert(tmap != 0);
-				auto &s0 = *vsegptr(seg);
+				auto &s0 = *vmsegptr(seg);
 				assert(s0.sides[side].tmap_num2 != 0);
-				s0.sides[side].tmap_num2 = vsegptr(cseg)->sides[cside].tmap_num2 = tmap;
+				s0.sides[side].tmap_num2 = vmsegptr(cseg)->sides[cside].tmap_num2 = tmap;
 			}
 			break;
 		}
@@ -2790,7 +2790,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(pnum);
 				break;
 			}
-			auto &player_info = vobjptr(Players[pnum].objnum)->ctype.player_info;
+			auto &player_info = vmobjptr(Players[pnum].objnum)->ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
 				player_info.net_killed_total--;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
@@ -2809,7 +2809,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(kill);
 				break;
 			}
-			auto &player_info = vobjptr(Players[pnum].objnum)->ctype.player_info;
+			auto &player_info = vmobjptr(Players[pnum].objnum)->ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				player_info.net_kills_total -= kill;
 				if (Newdemo_game_mode & GM_TEAM)
@@ -2850,7 +2850,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_string(static_cast<const char *>(new_callsign));
 				break;
 			}
-			auto &player_info = vobjptr(Players[pnum].objnum)->ctype.player_info;
+			auto &player_info = vmobjptr(Players[pnum].objnum)->ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				Players[pnum].connected = CONNECT_DISCONNECTED;
 				if (!new_player) {
@@ -3015,10 +3015,10 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				const auto &&segp = vsegptridx(segnum);
-				const auto &&csegp = vsegptr(segp->children[side]);
+				const auto &&segp = vmsegptridx(segnum);
+				const auto &&csegp = vmsegptr(segp->children[side]);
 				const auto &&cside = find_connect_side(segp, csegp);
-				const auto anim_num = vwallptr(segp->sides[side].wall_num)->clip_num;
+				const auto anim_num = vmwallptr(segp->sides[side].wall_num)->clip_num;
 				const auto t = WallAnims[anim_num].flags & WCF_TMAP1
 					? &side::tmap_num
 					: &side::tmap_num2;
@@ -3081,22 +3081,22 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 
 			{
-				auto &w = *vwallptr(front_wall_num);
+				auto &w = *vmwallptr(front_wall_num);
 				w.type = type;
 				w.state = state;
 				w.cloak_value = cloak_value;
-				auto &uvl = vsegptr(w.segnum)->sides[w.sidenum].uvls;
+				auto &uvl = vmsegptr(w.segnum)->sides[w.sidenum].uvls;
 				uvl[0].l = (static_cast<int>(l0)) << 8;
 				uvl[1].l = (static_cast<int>(l1)) << 8;
 				uvl[2].l = (static_cast<int>(l2)) << 8;
 				uvl[3].l = (static_cast<int>(l3)) << 8;
 			}
 			{
-				auto &w = *vwallptr(back_wall_num);
+				auto &w = *vmwallptr(back_wall_num);
 				w.type = type;
 				w.state = state;
 				w.cloak_value = cloak_value;
-				auto &uvl = vsegptr(w.segnum)->sides[w.sidenum].uvls;
+				auto &uvl = vmsegptr(w.segnum)->sides[w.sidenum].uvls;
 				uvl[0].l = (static_cast<int>(l0)) << 8;
 				uvl[1].l = (static_cast<int>(l1)) << 8;
 				uvl[2].l = (static_cast<int>(l2)) << 8;
@@ -3133,7 +3133,7 @@ static int newdemo_read_frame_information(int rewrite)
 					loaded_level = new_level;
 					range_for (auto &i, Players)
 					{
-						const auto &&objp = vobjptr(i.objnum);
+						const auto &&objp = vmobjptr(i.objnum);
 						auto &player_info = objp->ctype.player_info;
 						player_info.powerup_flags &= ~PLAYER_FLAGS_CLOAKED;
 						DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
@@ -3159,7 +3159,7 @@ static int newdemo_read_frame_information(int rewrite)
 				Walls.set_count(num_walls);
 				if (rewrite)
 					nd_write_int (Num_walls);
-				range_for (const auto &&wp, vwallptr)
+				range_for (const auto &&wp, vmwallptr)
 				// restore the walls
 				{
 					auto &w = *wp;
@@ -3328,7 +3328,7 @@ window_event_result newdemo_goto_end(int to_rewrite)
 			PHYSFSX_fseek(infile, -10, SEEK_END);
 			nd_read_byte(&cloaked);
 			for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++) {
-				const auto &&objp = vobjptr(Players[i].objnum);
+				const auto &&objp = vmobjptr(Players[i].objnum);
 				auto &player_info = objp->ctype.player_info;
 				if ((1 << i) & cloaked)
 				{
@@ -3359,7 +3359,7 @@ window_event_result newdemo_goto_end(int to_rewrite)
 		for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 			if (cloaked & (1 << i))
 				{
-					const auto &&objp = vobjptr(Players[i].objnum);
+					const auto &&objp = vmobjptr(Players[i].objnum);
 					objp->ctype.player_info.powerup_flags |= PLAYER_FLAGS_CLOAKED;
 				}
 	}
@@ -3425,7 +3425,7 @@ window_event_result newdemo_goto_end(int to_rewrite)
 		range_for (auto &i, partial_range(Players, N_players)) {
 			nd_read_string(i.callsign.buffer());
 			nd_read_byte(&i.connected);
-			auto &pl_info = vobjptr(i.objnum)->ctype.player_info;
+			auto &pl_info = vmobjptr(i.objnum)->ctype.player_info;
 			if (Newdemo_game_mode & GM_MULTI_COOP) {
 				nd_read_int(&pl_info.mission.score);
 			} else {
@@ -3514,7 +3514,7 @@ static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 	if (InterpolStep <= 0)
 	{
 		range_for (auto &i, partial_range(cur_objs, num_cur_objs)) {
-			range_for (const auto &&objp, vobjptr)
+			range_for (const auto &&objp, vmobjptr)
 			{
 				if (i.signature == objp->signature) {
 					sbyte render_type = i.render_type;
@@ -3594,7 +3594,7 @@ window_event_result newdemo_playback_one_frame()
 
 	range_for (auto &i, Players)
 	{
-		const auto &&objp = vobjptr(i.objnum);
+		const auto &&objp = vmobjptr(i.objnum);
 		auto &player_info = objp->ctype.player_info;
 		if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
 			player_info.cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
@@ -3738,7 +3738,7 @@ window_event_result newdemo_playback_one_frame()
 					//  interpolated position and orientation can be preserved.
 
 					range_for (auto &i, partial_const_range(cur_objs, 1 + num_objs)) {
-						range_for (const auto &&objp, vobjptr)
+						range_for (const auto &&objp, vmobjptr)
 						{
 							if (i.signature == objp->signature) {
 								objp->orient = i.orient;
@@ -3801,7 +3801,7 @@ static void newdemo_write_end()
 	nd_write_short(nd_record_v_framebytes_written - 1);
 	if (Game_mode & GM_MULTI) {
 		for (int i = 0; i < N_players; i++) {
-			const auto &&objp = vobjptr(Players[i].objnum);
+			const auto &&objp = vmobjptr(Players[i].objnum);
 			if (objp->ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
 				cloaked |= (1 << i);
 		}

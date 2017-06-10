@@ -257,7 +257,7 @@ static void do_physics_sim_rot(object_base &obj)
 }
 
 // On joining edges fvi tends to get inaccurate as hell. Approach is to check if the object interects with the wall and if so, move away from it.
-static void fix_illegal_wall_intersection(const vobjptridx_t obj)
+static void fix_illegal_wall_intersection(const vmobjptridx_t obj)
 {
 	if (!(obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT))
 		return;
@@ -300,7 +300,7 @@ public:
 //	-----------------------------------------------------------------------------------------------------------
 //Simulate a physics object for this frame
 namespace dsx {
-window_event_result do_physics_sim(const vobjptridx_t obj)
+window_event_result do_physics_sim(const vmobjptridx_t obj)
 {
 	ignore_objects_array_t ignore_obj_list;
 	int try_again;
@@ -466,7 +466,7 @@ window_event_result do_physics_sim(const vobjptridx_t obj)
 		obj->pos = ipos;
 
 		if ( iseg != obj->segnum )
-			obj_relink(obj, vsegptridx(iseg));
+			obj_relink(obj, vmsegptridx(iseg));
 
 		//if start point not in segment, move object to center of segment
 		if (get_seg_masks(obj->pos, vcsegptr(obj->segnum), 0).centermask !=0 )
@@ -475,7 +475,7 @@ window_event_result do_physics_sim(const vobjptridx_t obj)
 			if (n == segment_none)
 			{
 				//Int3();
-				if (obj->type == OBJ_PLAYER && (n = find_point_seg(obj->last_pos, vsegptridx(obj->segnum))) != segment_none)
+				if (obj->type == OBJ_PLAYER && (n = find_point_seg(obj->last_pos, vmsegptridx(obj->segnum))) != segment_none)
 				{
 					obj->pos = obj->last_pos;
 					obj_relink(obj, n);
@@ -506,7 +506,7 @@ window_event_result do_physics_sim(const vobjptridx_t obj)
 		
 				//iseg = obj->segnum;		//don't change segment
 
-				obj_relink(obj, vsegptridx(save_seg));
+				obj_relink(obj, vmsegptridx(save_seg));
 
 				moved_time = 0;
 			}
@@ -543,7 +543,7 @@ window_event_result do_physics_sim(const vobjptridx_t obj)
 				wall_part = vm_vec_dot(moved_v,hit_info.hit_wallnorm);
 
 				if ((wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0) || obj->type == OBJ_WEAPON || obj->type == OBJ_DEBRIS)
-					result = collide_object_with_wall(obj, hit_speed, vsegptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
+					result = collide_object_with_wall(obj, hit_speed, vmsegptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
 				/*
 				 * Due to the nature of this loop, it's possible that a local player may receive scrape damage multiple times in one frame.
 				 * Check if we received damage and do not apply more damage (nor produce damage sounds/flashes/bumps, etc) for the rest of the loop.
@@ -551,7 +551,7 @@ window_event_result do_physics_sim(const vobjptridx_t obj)
 				 * NOTE: Remote players will return false and never receive damage. But since we handle only one object (remote or local) per loop, this is no problem. 
 				 */
 				if (obj->type == OBJ_PLAYER && Player_ScrapeFrame == false)
-					Player_ScrapeFrame = scrape_player_on_wall(obj, vsegptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
+					Player_ScrapeFrame = scrape_player_on_wall(obj, vmsegptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
 
 				Assert( WallHitSeg != segment_none );
 				Assert( WallHitSide > -1 );
@@ -578,7 +578,7 @@ window_event_result do_physics_sim(const vobjptridx_t obj)
 
 					if (!forcefield_bounce && (obj->mtype.phys_info.flags & PF_STICK)) {		//stop moving
 
-						add_stuck_object(obj, vsegptr(WallHitSeg), WallHitSide);
+						add_stuck_object(obj, vmsegptr(WallHitSeg), WallHitSide);
 
 						vm_vec_zero(obj->mtype.phys_info.velocity);
 						obj_stopped = 1;
@@ -757,11 +757,11 @@ window_event_result do_physics_sim(const vobjptridx_t obj)
 			segnum_t n;
 
 			//Int3();
-			const auto &&obj_segp = vsegptridx(obj->segnum);
+			const auto &&obj_segp = vmsegptridx(obj->segnum);
 			if (obj->type==OBJ_PLAYER && (n = find_point_seg(obj->last_pos,obj_segp)) != segment_none)
 			{
 				obj->pos = obj->last_pos;
-				obj_relink(obj, vsegptridx(n));
+				obj_relink(obj, vmsegptridx(n));
 			}
 			else {
 				compute_segment_center(obj->pos, obj_segp);

@@ -68,7 +68,7 @@ namespace dsx {
 array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
 
 //process this powerup for this frame
-void do_powerup_frame(const vobjptridx_t obj)
+void do_powerup_frame(const vmobjptridx_t obj)
 {
 	vclip_info *vci = &obj->rtype.vclip_info;
 
@@ -107,7 +107,7 @@ void do_powerup_frame(const vobjptridx_t obj)
 	}
 
 	if (obj->lifeleft <= 0) {
-		object_create_explosion(vsegptridx(obj->segnum), obj->pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE);
+		object_create_explosion(vmsegptridx(obj->segnum), obj->pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE);
 
 		if ( Vclip[VCLIP_POWERUP_DISAPPEARANCE].sound_num > -1 )
 			digi_link_sound_to_object( Vclip[VCLIP_POWERUP_DISAPPEARANCE].sound_num, obj, 0, F1_0);
@@ -379,7 +379,7 @@ static int player_hit_powerup(player_info &player_info, const char *const desc_h
 		: (pickup.template pickup<player_flag>(powerup_flags), 1);
 }
 
-int do_powerup(const vobjptridx_t obj)
+int do_powerup(const vmobjptridx_t obj)
 {
 	int used=0;
 #if defined(DXX_BUILD_DESCENT_I)

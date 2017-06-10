@@ -54,7 +54,7 @@ extern int wall_remove();
 
 // Removes a specific side.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-int wall_remove_side(vsegptridx_t seg, short side);
+int wall_remove_side(vmsegptridx_t seg, short side);
 #endif
 
 extern int bind_wall_to_control_center();

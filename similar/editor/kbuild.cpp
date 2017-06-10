@@ -77,7 +77,7 @@ int FormJoint()
 int CreateAdjacentJoint()
 {
 	int		adj_side;
-	segptridx_t adj_sp = segment_none;
+	imsegptridx_t adj_sp = segment_none;
 
 	if (med_find_adjacent_segment_side(Cursegp, Curside, adj_sp, &adj_side)) {
 		if (Cursegp->children[Curside] != adj_sp) {
@@ -100,7 +100,7 @@ int CreateAdjacentJoint()
 int CreateSloppyAdjacentJoint()
 {
 	int		adj_side;
-	segptridx_t adj_sp = segment_none;
+	imsegptridx_t adj_sp = segment_none;
 
 	save_level("SLOPPY.LVL");
 
@@ -132,12 +132,12 @@ int CreateSloppyAdjacentJointsGroup()
 	int		done_been_a_change = 0;
 	range_for(const auto &gs, GroupList[current_group].segments)
 	{
-		auto segp = vsegptridx(gs);
+		auto segp = vmsegptridx(gs);
 
 		for (int sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 			if (!IS_CHILD(segp->children[sidenum]))
 			{
-				segptridx_t adj_sp = segment_none;
+				imsegptridx_t adj_sp = segment_none;
 				if (med_find_closest_threshold_segment_side(segp, sidenum, adj_sp, &adj_side, 5*F1_0)) {
 					if (adj_sp->group == segp->group) {
 						if (segp->children[sidenum] != adj_sp)
@@ -169,7 +169,7 @@ int CreateAdjacentJointsSegment()
 	med_combine_duplicate_vertices(Vertex_active);
 
 	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-		segptridx_t adj_sp = segment_none;
+		imsegptridx_t adj_sp = segment_none;
 		if (med_find_adjacent_segment_side(Cursegp, s, adj_sp, &adj_side))
 			if (Cursegp->children[s] != adj_sp)
 					{
@@ -193,11 +193,11 @@ int CreateAdjacentJointsAll()
 
 	med_combine_duplicate_vertices(Vertex_active);
 
-	range_for (const auto &&segp, vsegptridx)
+	range_for (const auto &&segp, vmsegptridx)
 	{
 		for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 		{
-			segptridx_t adj_sp = segment_none;
+			imsegptridx_t adj_sp = segment_none;
 			if (med_find_adjacent_segment_side(segp, s, adj_sp, &adj_side))
 				if (segp->children[s] != adj_sp)
 						med_form_joint(segp,s,adj_sp,adj_side);

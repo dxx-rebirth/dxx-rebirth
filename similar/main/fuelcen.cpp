@@ -123,7 +123,7 @@ static void reset_all_robot_centers()
 
 //------------------------------------------------------------
 // Turns a segment into a fully charged up fuel center...
-void fuelcen_create(const vsegptridx_t segp)
+void fuelcen_create(const vmsegptridx_t segp)
 {
 	int	station_type;
 
@@ -160,7 +160,7 @@ void fuelcen_create(const vsegptridx_t segp)
 //------------------------------------------------------------
 // Adds a matcen that already is a special type into the Station array.
 // This function is separate from other fuelcens because we don't want values reset.
-static void matcen_create(const vsegptridx_t segp)
+static void matcen_create(const vmsegptridx_t segp)
 {
 	int	station_type = segp->special;
 
@@ -188,7 +188,7 @@ static void matcen_create(const vsegptridx_t segp)
 
 //------------------------------------------------------------
 // Adds a segment that already is a special type into the Station array.
-void fuelcen_activate(const vsegptridx_t segp)
+void fuelcen_activate(const vmsegptridx_t segp)
 {
 	if (segp->special == SEGMENT_IS_ROBOTMAKER)
 		matcen_create( segp);
@@ -203,7 +203,7 @@ void fuelcen_activate(const vsegptridx_t segp)
 
 //------------------------------------------------------------
 //	Trigger (enable) the materialization center in segment segnum
-void trigger_matcen(const vsegptridx_t segnum)
+void trigger_matcen(const vmsegptridx_t segnum)
 {
 	const auto &segp = segnum;
 	FuelCenter	*robotcen;
@@ -248,14 +248,14 @@ void trigger_matcen(const vsegptridx_t segnum)
 //------------------------------------------------------------
 // Takes away a segment's fuel center properties.
 //	Deletes the segment point entry in the FuelCenter list.
-void fuelcen_delete(const vsegptr_t segp)
+void fuelcen_delete(const vmsegptr_t segp)
 {
 Restart: ;
 	segp->special = 0;
 
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++ )	{
 		FuelCenter &fi = Station[i];
-		if (vsegptr(fi.segnum) == segp)
+		if (vmsegptr(fi.segnum) == segp)
 		{
 
 			// If Robot maker is deleted, fix Segments and RobotCenters.
@@ -294,7 +294,7 @@ Restart: ;
 
 #define	ROBOT_GEN_TIME (i2f(5))
 
-objptridx_t  create_morph_robot( const vsegptridx_t segp, const vms_vector &object_pos, int object_id)
+imobjptridx_t  create_morph_robot( const vmsegptridx_t segp, const vms_vector &object_pos, int object_id)
 {
 
 	get_local_player().num_robots_level++;
@@ -372,7 +372,7 @@ static void robotmaker_proc(FuelCenter *const robotcen, const unsigned numrobotc
 		return;
 	}
 
-	const auto &&segp = vsegptr(robotcen->segnum);
+	const auto &&segp = vmsegptr(robotcen->segnum);
 	matcen_num = segp->matcen_num;
 
 	if ( matcen_num == -1 ) {
@@ -432,7 +432,7 @@ static void robotmaker_proc(FuelCenter *const robotcen, const unsigned numrobotc
 			//	Whack on any robot or player in the matcen segment.
 			count=0;
 			auto segnum = robotcen->segnum;
-			const auto &&csegp = vsegptr(segnum);
+			const auto &&csegp = vmsegptr(segnum);
 			range_for (const auto objp, objects_in(csegp))
 			{
 				count++;
@@ -452,7 +452,7 @@ static void robotmaker_proc(FuelCenter *const robotcen, const unsigned numrobotc
 			}
 
 			const auto &&cur_object_loc = compute_segment_center(csegp);
-			const auto &&robotcen_segp = vsegptridx(robotcen->segnum);
+			const auto &&robotcen_segp = vmsegptridx(robotcen->segnum);
 			// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
 			auto obj = object_create_explosion(robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
 
@@ -501,7 +501,7 @@ static void robotmaker_proc(FuelCenter *const robotcen, const unsigned numrobotc
 				else
 					type = legal_types[(d_rand() * num_types) / 32768];
 
-				const auto &&obj = create_morph_robot(vsegptridx(robotcen->segnum), cur_object_loc, type );
+				const auto &&obj = create_morph_robot(vmsegptridx(robotcen->segnum), cur_object_loc, type );
 				if (obj != object_none) {
 					if (Game_mode & GM_MULTI)
 						multi_send_create_robot(numrobotcen, obj, type);

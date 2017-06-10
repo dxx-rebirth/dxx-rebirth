@@ -158,7 +158,7 @@ static int PlaceHostage()	{
 		return 1;
 	}
 
-	const auto &&objp = vobjptridx(Cur_object_index);
+	const auto &&objp = vmobjptridx(Cur_object_index);
 	if (hostage_object_is_valid(objp))
 	{
 		CurrentHostageIndex	= get_hostage_id(objp);

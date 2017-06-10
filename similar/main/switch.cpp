@@ -82,7 +82,7 @@ static inline void trigger_wall_op(const trigger &t, const T1 &segment_factory, 
 // Opens doors, Blasts blast walls, turns off illusions.
 static void do_link(const trigger &t)
 {
-	trigger_wall_op(t, vsegptridx, wall_toggle);
+	trigger_wall_op(t, vmsegptridx, wall_toggle);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -90,7 +90,7 @@ namespace dsx {
 //close a door
 static void do_close_door(const trigger &t)
 {
-	trigger_wall_op(t, vsegptridx, wall_close_door);
+	trigger_wall_op(t, vmsegptridx, wall_close_door);
 }
 
 //turns lighting on.  returns true if lights were actually turned on. (they
@@ -98,7 +98,7 @@ static void do_close_door(const trigger &t)
 static int do_light_on(const trigger &t)
 {
 	int ret=0;
-	const auto op = [&ret](const vsegptridx_t segnum, const unsigned sidenum) {
+	const auto op = [&ret](const vmsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light on.  This
 			//is to keep us from turning on blown-out lights
 			if (TmapInfo[segnum->sides[sidenum].tmap_num2 & 0x3fff].lighting) {
@@ -106,7 +106,7 @@ static int do_light_on(const trigger &t)
 				enable_flicker(segnum, sidenum);
 			}
 	};
-	trigger_wall_op(t, vsegptridx, op);
+	trigger_wall_op(t, vmsegptridx, op);
 	return ret;
 }
 
@@ -115,7 +115,7 @@ static int do_light_on(const trigger &t)
 static int do_light_off(const trigger &t)
 {
 	int ret=0;
-	const auto op = [&ret](const vsegptridx_t segnum, const unsigned sidenum) {
+	const auto op = [&ret](const vmsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light off.  This
 			//is to keep us from turning off blown-out lights
 			if (TmapInfo[segnum->sides[sidenum].tmap_num2 & 0x3fff].lighting) {
@@ -123,31 +123,31 @@ static int do_light_off(const trigger &t)
 				disable_flicker(segnum, sidenum);
 			}
 	};
-	trigger_wall_op(t, vsegptridx, op);
+	trigger_wall_op(t, vmsegptridx, op);
 	return ret;
 }
 
 // Unlocks all doors linked to the switch.
 static void do_unlock_doors(const trigger &t)
 {
-	const auto op = [](const vsegptr_t segp, const unsigned sidenum) {
+	const auto op = [](const vmsegptr_t segp, const unsigned sidenum) {
 		const auto wall_num = segp->sides[sidenum].wall_num;
-		auto &w = *vwallptr(wall_num);
+		auto &w = *vmwallptr(wall_num);
 		w.flags &= ~WALL_DOOR_LOCKED;
 		w.keys = KEY_NONE;
 	};
-	trigger_wall_op(t, vsegptr, op);
+	trigger_wall_op(t, vmsegptr, op);
 }
 
 // Locks all doors linked to the switch.
 static void do_lock_doors(const trigger &t)
 {
-	const auto op = [](const vsegptr_t segp, const unsigned sidenum) {
+	const auto op = [](const vmsegptr_t segp, const unsigned sidenum) {
 		const auto wall_num = segp->sides[sidenum].wall_num;
-		auto &w = *vwallptr(wall_num);
+		auto &w = *vmwallptr(wall_num);
 		w.flags |= WALL_DOOR_LOCKED;
 	};
-	trigger_wall_op(t, vsegptr, op);
+	trigger_wall_op(t, vmsegptr, op);
 }
 
 // Changes walls pointed to by a trigger. returns true if any walls changed
@@ -158,9 +158,9 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 	for (unsigned i = 0; i < t.num_links; ++i)
 	{
 		uint8_t cside;
-		const auto &&segp = vsegptridx(t.seg[i]);
+		const auto &&segp = vmsegptridx(t.seg[i]);
 		const auto side = t.side[i];
-			segptridx_t csegp = segment_none;
+			imsegptridx_t csegp = segment_none;
 
 			if (!IS_CHILD(segp->children[side]))
 			{
@@ -168,14 +168,14 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 			}
 			else
 			{
-				csegp = segptridx(segp->children[side]);
+				csegp = imsegptridx(segp->children[side]);
 				cside = find_connect_side(segp, csegp);
 				Assert(cside != side_none);
 			}
 
 			wall *w0p;
 				const auto w0num = segp->sides[side].wall_num;
-			if (const auto &&uw0p = vwallptr.check_untrusted(w0num))
+			if (const auto &&uw0p = vmwallptr.check_untrusted(w0num))
 				w0p = *uw0p;
 			else
 			{
@@ -183,9 +183,9 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 				continue;
 			}
 			auto &wall0 = *w0p;
-			wallptr_t wall1 = nullptr;
+			imwallptr_t wall1 = nullptr;
 			if ((cside == side_none || csegp->sides[cside].wall_num == wall_none ||
-				(wall1 = vwallptr(csegp->sides[cside].wall_num))->type == new_wall_type) &&
+				(wall1 = vmwallptr(csegp->sides[cside].wall_num))->type == new_wall_type) &&
 				wall0.type == new_wall_type)
 				continue;		//already in correct state, so skip
 
@@ -254,12 +254,12 @@ static int (print_trigger_message)(int pnum, const trigger &t, int shot)
 static void do_matcen(const trigger &t)
 {
 	range_for (auto &i, partial_const_range(t.seg, t.num_links))
-		trigger_matcen(vsegptridx(i));
+		trigger_matcen(vmsegptridx(i));
 }
 
 static void do_il_on(const trigger &t)
 {
-	trigger_wall_op(t, vsegptridx, wall_illusion_on);
+	trigger_wall_op(t, vmsegptridx, wall_illusion_on);
 }
 
 namespace dsx {
@@ -268,13 +268,13 @@ static void do_il_off(const trigger &t)
 #if defined(DXX_BUILD_DESCENT_I)
 	auto &op = wall_illusion_off;
 #elif defined(DXX_BUILD_DESCENT_II)
-	const auto op = [](const vsegptridx_t &seg, unsigned side) {
+	const auto op = [](const vmsegptridx_t &seg, unsigned side) {
 		wall_illusion_off(seg, side);
 		const auto &&cp = compute_center_point_on_side(seg, side);
 		digi_link_sound_to_pos(SOUND_WALL_REMOVED, seg, side, cp, 0, F1_0);
 	};
 #endif
-	trigger_wall_op(t, vsegptridx, op);
+	trigger_wall_op(t, vmsegptridx, op);
 }
 
 // Slight variation on window_event_result meaning
@@ -289,7 +289,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 		return window_event_result::handled;
 	if ((Game_mode & GM_MULTI) && (Players[pnum].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
 		return window_event_result::handled;
-	auto &trigger = *vtrgptr(trigger_num);
+	auto &trigger = *vmtrgptr(trigger_num);
 
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)shot;
@@ -526,7 +526,7 @@ window_event_result check_trigger(const vcsegptridx_t seg, short side, object &p
 		const auto wall_num = seg->sides[side].wall_num;
 		if ( wall_num == wall_none ) return window_event_result::ignored;
 
-		const auto trigger_num = vwallptr(wall_num)->trigger;
+		const auto trigger_num = vmwallptr(wall_num)->trigger;
 		if (trigger_num == trigger_none)
 			return window_event_result::ignored;
 
@@ -537,7 +537,7 @@ window_event_result check_trigger(const vcsegptridx_t seg, short side, object &p
 		}
 
 #if defined(DXX_BUILD_DESCENT_I)
-		auto &t = *vtrgptr(trigger_num);
+		auto &t = *vmtrgptr(trigger_num);
 		if (t.flags & TRIGGER_ONE_SHOT)
 		{
 			t.flags &= ~TRIGGER_ON;
@@ -550,8 +550,8 @@ window_event_result check_trigger(const vcsegptridx_t seg, short side, object &p
 			if (cwall_num == wall_none)
 				return window_event_result::ignored;
 			
-			const auto ctrigger_num = vwallptr(cwall_num)->trigger;
-			const auto &&ct = vtrgptr(ctrigger_num);
+			const auto ctrigger_num = vmwallptr(cwall_num)->trigger;
+			const auto &&ct = vmtrgptr(ctrigger_num);
 			ct->flags &= ~TRIGGER_ON;
 		}
 #endif

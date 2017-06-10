@@ -146,13 +146,13 @@ void draw_powerup(grs_canvas &, const object_base &obj);
 //returns true if powerup consumed
 #ifdef dsx
 namespace dsx {
-int do_powerup(vobjptridx_t obj);
+int do_powerup(vmobjptridx_t obj);
 
 }
 #endif
 namespace dsx {
 //process (animate) a powerup for one frame
-void do_powerup_frame(vobjptridx_t obj);
+void do_powerup_frame(vmobjptridx_t obj);
 }
 #endif
 

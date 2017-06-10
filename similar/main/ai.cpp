@@ -89,7 +89,7 @@ using std::min;
 #define	BABY_SPIDER_ID	14
 
 namespace dsx {
-static void init_boss_segments(const object &boss_objnum, boss_special_segment_array_t &segptr, int size_check, int one_wall_hack);
+static void init_boss_segments(const object &boss_objnum, boss_special_segment_array_t &imsegptr, int size_check, int one_wall_hack);
 static void ai_multi_send_robot_position(object &objnum, int force);
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -497,7 +497,7 @@ void boss_init_all_segments(const object &boss_objnum)
 
 // ---------------------------------------------------------------------------------------------------------------------
 //	initial_mode == -1 means leave mode unchanged.
-void init_ai_object(vobjptridx_t objp, ai_behavior behavior, const segidx_t hide_segment)
+void init_ai_object(vmobjptridx_t objp, ai_behavior behavior, const imsegidx_t hide_segment)
 {
 	ai_static	*const aip = &objp->ctype.ai_info;
 	ai_local		*const ailp = &aip->ail;
@@ -585,7 +585,7 @@ void init_ai_objects(void)
 	Boss_gate_segs.clear();
 	Boss_teleport_segs.clear();
 
-	range_for (const auto &&o, vobjptridx)
+	range_for (const auto &&o, vmobjptridx)
 	{
 		if (o->type == OBJ_ROBOT && o->control_type == CT_AI)
 			init_ai_object(o, o->ctype.ai_info.behavior, o->ctype.ai_info.hide_segment);
@@ -695,7 +695,7 @@ static void ai_turn_randomly(const vms_vector &vec_to_player, object_base &obj, 
 //		2		Player is visible and in field of view.
 //	Note: Uses Believed_player_pos as player's position for cloak effect.
 //	NOTE: Will destructively modify *pos if *pos is outside the mine.
-int player_is_visible_from_object(const vobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player)
+int player_is_visible_from_object(const vmobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player)
 {
 	fix			dot;
 	fvi_query	fq;
@@ -708,7 +708,7 @@ int player_is_visible_from_object(const vobjptridx_t objp, vms_vector &pos, fix 
 
 	fq.p0						= &pos;
 	if ((pos.x != objp->pos.x) || (pos.y != objp->pos.y) || (pos.z != objp->pos.z)) {
-		const auto &&segnum = find_point_seg(pos, vsegptridx(objp->segnum));
+		const auto &&segnum = find_point_seg(pos, vmsegptridx(objp->segnum));
 		if (segnum == segment_none) {
 			fq.startseg = objp->segnum;
 			pos = objp->pos;
@@ -855,7 +855,7 @@ static void ai_frame_animation(object &objp)
 }
 
 // ----------------------------------------------------------------------------------
-static void set_next_fire_time(const vobjptr_t objp, ai_local *ailp, robot_info *robptr, int gun_num)
+static void set_next_fire_time(const vmobjptr_t objp, ai_local *ailp, robot_info *robptr, int gun_num)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)objp;
@@ -901,7 +901,7 @@ static void set_next_fire_time(const vobjptr_t objp, ai_local *ailp, robot_info 
 // ----------------------------------------------------------------------------------
 //	When some robots collide with the player, they attack.
 //	If player is cloaked, then robot probably didn't actually collide, deal with that here.
-void do_ai_robot_hit_attack(const vobjptridx_t robot, const vobjptridx_t playerobj, const vms_vector &collision_point)
+void do_ai_robot_hit_attack(const vmobjptridx_t robot, const vmobjptridx_t playerobj, const vms_vector &collision_point)
 {
 	ai_local		*ailp = &robot->ctype.ai_info.ail;
 	robot_info *robptr = &Robot_info[get_robot_id(robot)];
@@ -1029,7 +1029,7 @@ static int lead_player(const object_base &objp, const vms_vector &fire_point, co
 //	Note: Parameter vec_to_player is only passed now because guns which aren't on the forward vector from the
 //	center of the robot will not fire right at the player.  We need to aim the guns at the player.  Barring that, we cheat.
 //	When this routine is complete, the parameter vec_to_player should not be necessary.
-static void ai_fire_laser_at_player(const vobjptridx_t obj, const player_info &player_info, const vms_vector &fire_point, const int gun_num
+static void ai_fire_laser_at_player(const vmobjptridx_t obj, const player_info &player_info, const vms_vector &fire_point, const int gun_num
 #if defined(DXX_BUILD_DESCENT_II)
 									, const vms_vector &believed_player_pos
 #endif
@@ -1069,7 +1069,7 @@ static void ai_fire_laser_at_player(const vobjptridx_t obj, const player_info &p
 
 	//	If player is cloaked, maybe don't fire based on how long cloaked and randomness.
 	if (powerup_flags & PLAYER_FLAGS_CLOAKED) {
-		fix64	cloak_time = Ai_cloak_info[static_cast<objptridx_t::index_type>(obj) % MAX_AI_CLOAK_INFO].last_time;
+		fix64	cloak_time = Ai_cloak_info[static_cast<imobjptridx_t::index_type>(obj) % MAX_AI_CLOAK_INFO].last_time;
 
 		if (GameTime64 - cloak_time > CLOAK_TIME_MAX/4)
 			if (d_rand() > fixdiv(GameTime64 - cloak_time, CLOAK_TIME_MAX)/2) {
@@ -1110,7 +1110,7 @@ static void ai_fire_laser_at_player(const vobjptridx_t obj, const player_info &p
 	if (obj->ctype.ai_info.SUB_FLAGS & SUB_FLAGS_GUNSEG) {
 		//	Well, the gun point is in a different segment than the robot's center.
 		//	This is almost always ok, but it is not ok if something solid is in between.
-		const auto &&gun_segnum = find_point_seg(fire_point, vsegptridx(obj->segnum));
+		const auto &&gun_segnum = find_point_seg(fire_point, vmsegptridx(obj->segnum));
 
 		//	See if these segments are connected, which should almost always be the case.
 		const auto &&csegp = vcsegptr(obj->segnum);
@@ -1262,7 +1262,7 @@ static void move_towards_vector(object_base &objp, const vms_vector &vec_goal, i
 #if defined(DXX_BUILD_DESCENT_I)
 static
 #endif
-void move_towards_player(const vobjptr_t objp, const vms_vector &vec_to_player)
+void move_towards_player(const vmobjptr_t objp, const vms_vector &vec_to_player)
 //	vec_to_player must be normalized, or close to it.
 {
 	move_towards_vector(objp, vec_to_player, 1);
@@ -1270,7 +1270,7 @@ void move_towards_player(const vobjptr_t objp, const vms_vector &vec_to_player)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	I am ashamed of this: fast_flag == -1 means normal slide about.  fast_flag = 0 means no evasion.
-static void move_around_player(const vobjptridx_t objp, const player_flags powerup_flags, const vms_vector &vec_to_player, int fast_flag)
+static void move_around_player(const vmobjptridx_t objp, const player_flags powerup_flags, const vms_vector &vec_to_player, int fast_flag)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
 	vms_vector		evade_vector;
@@ -1346,7 +1346,7 @@ static void move_around_player(const vobjptridx_t objp, const player_flags power
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-static void move_away_from_player(const vobjptridx_t objp, const vms_vector &vec_to_player, int attack_type)
+static void move_away_from_player(const vmobjptridx_t objp, const vms_vector &vec_to_player, int attack_type)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
 
@@ -1377,7 +1377,7 @@ static void move_away_from_player(const vobjptridx_t objp, const vms_vector &vec
 //	Move towards, away_from or around player.
 //	Also deals with evasion.
 //	If the flag evade_only is set, then only allowed to evade, not allowed to move otherwise (must have mode == AIM_STILL).
-static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, fix dist_to_player, const vms_vector &vec_to_player, fix circle_distance, int evade_only, int player_visibility, const player_info &player_info)
+static void ai_move_relative_to_player(const vmobjptridx_t objp, ai_local *ailp, fix dist_to_player, const vms_vector &vec_to_player, fix circle_distance, int evade_only, int player_visibility, const player_info &player_info)
 {
 	const robot_info	*robptr = &Robot_info[get_robot_id(objp)];
 
@@ -1546,7 +1546,7 @@ static void do_firing_stuff(object &obj, const player_flags powerup_flags, int p
 
 // --------------------------------------------------------------------------------------------------------------------
 //	If a hiding robot gets bumped or hit, he decides to find another hiding place.
-void do_ai_robot_hit(const vobjptridx_t objp, player_awareness_type_t type)
+void do_ai_robot_hit(const vmobjptridx_t objp, player_awareness_type_t type)
 {
 	if (objp->control_type == CT_AI) {
 		if (type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION || type == player_awareness_type_t::PA_PLAYER_COLLISION)
@@ -1608,7 +1608,7 @@ namespace dsx {
 //	If the player is cloaked, set vec_to_player based on time player cloaked and last uncloaked position.
 //	Updates ailp->previous_visibility if player is not cloaked, in which case the previous visibility is left unchanged
 //	and is copied to player_visibility
-static void compute_vis_and_vec(const vobjptridx_t objp, const player_info &player_info, vms_vector &pos, ai_local *const ailp, vms_vector &vec_to_player, int *const player_visibility, const robot_info *const robptr, int *const flag)
+static void compute_vis_and_vec(const vmobjptridx_t objp, const player_info &player_info, vms_vector &pos, ai_local *const ailp, vms_vector &vec_to_player, int *const player_visibility, const robot_info *const robptr, int *const flag)
 {
 	const auto powerup_flags = player_info.powerup_flags;
 	if (!*flag) {
@@ -1630,7 +1630,7 @@ static void compute_vis_and_vec(const vobjptridx_t objp, const player_info &play
 			if ((ailp->next_misc_sound_time < GameTime64) && (ready_to_fire_any_weapon(robptr, ailp, F1_0)) && (dist < F1_0*20))
 			{
 				ailp->next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 1;
-				digi_link_sound_to_pos(robptr->see_sound, vsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
+				digi_link_sound_to_pos(robptr->see_sound, vmsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
 			}
 		} else {
 			//	Compute expensive stuff -- vec_to_player and player_visibility
@@ -1658,19 +1658,19 @@ static void compute_vis_and_vec(const vobjptridx_t objp, const player_info &play
 			{
 				if (ailp->previous_visibility == 0) {
 					if (ailp->time_player_seen + F1_0/2 < GameTime64) {
-						digi_link_sound_to_pos(robptr->see_sound, vsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
+						digi_link_sound_to_pos(robptr->see_sound, vmsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
 						ailp->time_player_sound_attacked = GameTime64;
 						ailp->next_misc_sound_time = GameTime64 + F1_0 + d_rand()*4;
 					}
 				} else if (ailp->time_player_sound_attacked + F1_0/4 < GameTime64) {
-					digi_link_sound_to_pos(robptr->attack_sound, vsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
+					digi_link_sound_to_pos(robptr->attack_sound, vmsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
 					ailp->time_player_sound_attacked = GameTime64;
 				}
 			} 
 
 			if ((*player_visibility == 2) && (ailp->next_misc_sound_time < GameTime64)) {
 				ailp->next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 2;
-				digi_link_sound_to_pos(robptr->attack_sound, vsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
+				digi_link_sound_to_pos(robptr->attack_sound, vmsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
 			}
 			ailp->previous_visibility = *player_visibility;
 		}
@@ -1695,7 +1695,7 @@ static void compute_vis_and_vec(const vobjptridx_t objp, const player_info &play
 // --------------------------------------------------------------------------------------------------------------------
 //	Move object one object radii from current position towards segment center.
 //	If segment center is nearer than 2 radii, move it to center.
-void move_towards_segment_center(const vobjptr_t objp)
+void move_towards_segment_center(const vmobjptr_t objp)
 {
 /* ZICO's change of 20081103:
    Make move to segment center smoother by using move_towards vector.
@@ -1714,7 +1714,7 @@ void move_towards_segment_center(const vobjptr_t objp)
 //	Brains, avoid robots, companions can open doors.
 //	objp == NULL means treat as buddy.
 int ai_door_is_openable(
-	const vobjptr_t objp,
+	const vmobjptr_t objp,
 #if defined(DXX_BUILD_DESCENT_II)
 	const player_flags powerup_flags,
 #endif
@@ -1874,7 +1874,7 @@ static int check_object_object_intersection(const vms_vector &pos, fix size, con
 // --------------------------------------------------------------------------------------------------------------------
 //	Return objnum if object created, else return -1.
 //	If pos == NULL, pick random spot in segment.
-static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, const vms_vector *pos)
+static imobjptridx_t create_gated_robot(const vmsegptridx_t segp, int object_id, const vms_vector *pos)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	const unsigned maximum_gated_robots = 2*Difficulty_level + 3;
@@ -1959,15 +1959,15 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 //	The process of him bringing in a robot takes one second.
 //	Then a robot appears somewhere near the player.
 //	Return objnum if robot successfully created, else return -1
-objptridx_t gate_in_robot(int type, const vsegptridx_t segnum)
+imobjptridx_t gate_in_robot(int type, const vmsegptridx_t segnum)
 {
 	return create_gated_robot(segnum, type, NULL);
 }
 
-static objptridx_t gate_in_robot(int type)
+static imobjptridx_t gate_in_robot(int type)
 {
 	auto segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.count()) >> 15];
-	return gate_in_robot(type, vsegptridx(segnum));
+	return gate_in_robot(type, vmsegptridx(segnum));
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -2004,7 +2004,7 @@ void create_buddy_bot(void)
 		if (robptr->companion)
 			break;
 	}
-	const auto &&segp = vsegptridx(ConsoleObject->segnum);
+	const auto &&segp = vmsegptridx(ConsoleObject->segnum);
 	const auto &&object_pos = compute_segment_center(segp);
 	create_morph_robot(segp, object_pos, buddy_id);
 }
@@ -2013,7 +2013,7 @@ void create_buddy_bot(void)
 #define	QUEUE_SIZE	256
 
 // --------------------------------------------------------------------------------------------------------------------
-//	Create list of segments boss is allowed to teleport to at segptr.
+//	Create list of segments boss is allowed to teleport to at imsegptr.
 //	Set *num_segs.
 //	Boss is allowed to teleport to segments he fits in (calls object_intersects_wall) and
 //	he can reach from his initial position (calls find_connected_distance).
@@ -2040,7 +2040,7 @@ static void init_boss_segments(const object &boss_objp, boss_special_segment_arr
 		tail = 0;
 		seg_queue[head++] = original_boss_seg;
 
-		if ((!size_check) || boss_fits_in_seg(boss_objp, vsegptridx(original_boss_seg)))
+		if ((!size_check) || boss_fits_in_seg(boss_objp, vmsegptridx(original_boss_seg)))
 		{
 			a.emplace_back(original_boss_seg);
 #if DXX_USE_EDITOR
@@ -2052,7 +2052,7 @@ static void init_boss_segments(const object &boss_objp, boss_special_segment_arr
 
 		while (tail != head) {
 			int		sidenum;
-			const auto &&segp = vsegptr(seg_queue[tail++]);
+			const auto &&segp = vmsegptr(seg_queue[tail++]);
 
 			tail &= QUEUE_SIZE-1;
 
@@ -2085,7 +2085,7 @@ static void init_boss_segments(const object &boss_objp, boss_special_segment_arr
 							if (head+QUEUE_SIZE == tail + QUEUE_SIZE-1)
 								Int3();	//	queue overflow.  Make it bigger!
 	
-						if (!size_check || boss_fits_in_seg(boss_objp, vsegptridx(csegnum))) {
+						if (!size_check || boss_fits_in_seg(boss_objp, vmsegptridx(csegnum))) {
 							a.emplace_back(csegnum);
 #if DXX_USE_EDITOR
 							Selected_segs.emplace_back(csegnum);
@@ -2108,7 +2108,7 @@ static void init_boss_segments(const object &boss_objp, boss_special_segment_arr
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-static void teleport_boss(const vobjptridx_t objp, const vms_vector &target_pos)
+static void teleport_boss(const vmobjptridx_t objp, const vms_vector &target_pos)
 {
 	segnum_t			rand_segnum;
 	int			rand_index;
@@ -2122,7 +2122,7 @@ static void teleport_boss(const vobjptridx_t objp, const vms_vector &target_pos)
 	if (Game_mode & GM_MULTI)
 		multi_send_boss_teleport(objp, rand_segnum);
 
-	const auto &&rand_segp = vsegptridx(rand_segnum);
+	const auto &&rand_segp = vmsegptridx(rand_segnum);
 	compute_segment_center(objp->pos, rand_segp);
 	obj_relink(objp, rand_segp);
 
@@ -2146,7 +2146,7 @@ static void teleport_boss(const vobjptridx_t objp, const vms_vector &target_pos)
 }
 
 //	----------------------------------------------------------------------
-void start_boss_death_sequence(const vobjptr_t objp)
+void start_boss_death_sequence(const vmobjptr_t objp)
 {
 	const robot_info	*robptr = &Robot_info[get_robot_id(objp)];
 	if (robptr->boss_flag) {
@@ -2158,7 +2158,7 @@ void start_boss_death_sequence(const vobjptr_t objp)
 
 //	----------------------------------------------------------------------------------------------------------
 #if defined(DXX_BUILD_DESCENT_I)
-static void do_boss_dying_frame(const vobjptridx_t objp)
+static void do_boss_dying_frame(const vmobjptridx_t objp)
 {
 	objp->mtype.phys_info.rotvel.x = (GameTime64 - Boss_dying_start_time)/9;
 	objp->mtype.phys_info.rotvel.y = (GameTime64 - Boss_dying_start_time)/5;
@@ -2182,13 +2182,13 @@ static void do_boss_dying_frame(const vobjptridx_t objp)
 	}
 }
 
-static int do_any_robot_dying_frame(const vobjptridx_t)
+static int do_any_robot_dying_frame(const vmobjptridx_t)
 {
 	return 0;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 //	objp points at a boss.  He was presumably just hit and he's supposed to create a bot at the hit location *pos.
-objptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos)
+imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos)
 {
 	int		boss_index;
 
@@ -2196,7 +2196,7 @@ objptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos)
 
 	Assert((boss_index >= 0) && (boss_index < NUM_D2_BOSSES));
 
-	const auto &&segnum = find_point_seg(pos, vsegptridx(objp.segnum));
+	const auto &&segnum = find_point_seg(pos, vmsegptridx(objp.segnum));
 	if (segnum == segment_none) {
 		return object_none;
 	}	
@@ -2250,7 +2250,7 @@ void start_robot_death_sequence(object &obj)
 //	General purpose robot-dies-with-death-roll-and-groan code.
 //	Return true if object just died.
 //	scale: F1_0*4 for boss, much smaller for much smaller guys
-static int do_robot_dying_frame(const vobjptridx_t objp, fix64 start_time, fix roll_duration, sbyte *dying_sound_playing, int death_sound, fix expl_scale, fix sound_scale)
+static int do_robot_dying_frame(const vmobjptridx_t objp, fix64 start_time, fix roll_duration, sbyte *dying_sound_playing, int death_sound, fix expl_scale, fix sound_scale)
 {
 	fix	sound_duration;
 
@@ -2282,7 +2282,7 @@ static int do_robot_dying_frame(const vobjptridx_t objp, fix64 start_time, fix r
 }
 
 //	----------------------------------------------------------------------
-static void do_boss_dying_frame(const vobjptridx_t objp)
+static void do_boss_dying_frame(const vmobjptridx_t objp)
 {
 	int	rval;
 
@@ -2298,7 +2298,7 @@ static void do_boss_dying_frame(const vobjptridx_t objp)
 }
 
 //	----------------------------------------------------------------------
-static int do_any_robot_dying_frame(const vobjptridx_t objp)
+static int do_any_robot_dying_frame(const vmobjptridx_t objp)
 {
 	if (objp->ctype.ai_info.dying_start_time) {
 		int	rval, death_roll;
@@ -2335,7 +2335,7 @@ static int do_any_robot_dying_frame(const vobjptridx_t objp)
 //	Return value:
 //		0	this player IS NOT allowed to move this robot.
 //		1	this player IS allowed to move this robot.
-int ai_multiplayer_awareness(const vobjptridx_t objp, int awareness_level)
+int ai_multiplayer_awareness(const vmobjptridx_t objp, int awareness_level)
 {
 	int	rval=1;
 
@@ -2360,7 +2360,7 @@ namespace dsx {
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Do special stuff for a boss.
-static void do_boss_stuff(const vobjptridx_t objp)
+static void do_boss_stuff(const vmobjptridx_t objp)
 {
 #ifndef NDEBUG
 	if (objp->shields != Prev_boss_shields) {
@@ -2407,7 +2407,7 @@ static void do_boss_stuff(const vobjptridx_t objp)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Do special stuff for a boss.
-static void do_super_boss_stuff(const vobjptridx_t objp, fix dist_to_player, int player_visibility)
+static void do_super_boss_stuff(const vmobjptridx_t objp, fix dist_to_player, int player_visibility)
 {
 	static int eclip_state = 0;
 	do_boss_stuff(objp);
@@ -2450,7 +2450,7 @@ static void do_super_boss_stuff(const vobjptridx_t objp, fix dist_to_player, int
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void do_boss_stuff(const vobjptridx_t objp, int player_visibility)
+static void do_boss_stuff(const vmobjptridx_t objp, int player_visibility)
 {
 	int	boss_id, boss_index;
 
@@ -2514,7 +2514,7 @@ static void ai_multi_send_robot_position(object &obj, int force)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Returns true if this object should be allowed to fire at the player.
-static int maybe_ai_do_actual_firing_stuff(const vobjptr_t obj, ai_static *aip)
+static int maybe_ai_do_actual_firing_stuff(const vmobjptr_t obj, ai_static *aip)
 {
 	if (Game_mode & GM_MULTI)
 		if ((aip->GOAL_STATE != AIS_FLIN) && (get_robot_id(obj) != ROBOT_BRAIN))
@@ -2525,7 +2525,7 @@ static int maybe_ai_do_actual_firing_stuff(const vobjptr_t obj, ai_static *aip)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai_local *ailp, const robot_info *robptr, const vms_vector &vec_to_player, fix dist_to_player, const vms_vector &gun_point, int player_visibility, int object_animates, const player_info &player_info, int)
+static void ai_do_actual_firing_stuff(const vmobjptridx_t obj, ai_static *aip, ai_local *ailp, const robot_info *robptr, const vms_vector &vec_to_player, fix dist_to_player, const vms_vector &gun_point, int player_visibility, int object_animates, const player_info &player_info, int)
 {
 	fix	dot;
 
@@ -2543,7 +2543,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 						{		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
-							do_ai_robot_hit_attack(obj, vobjptridx(ConsoleObject), obj->pos);
+							do_ai_robot_hit_attack(obj, vmobjptridx(ConsoleObject), obj->pos);
 						} else {
 							return;
 						}
@@ -2600,7 +2600,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 // --------------------------------------------------------------------------------------------------------------------
 //	If fire_anyway, fire even if player is not visible.  We're firing near where we believe him to be.  Perhaps he's
 //	lurking behind a corner.
-static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai_local *ailp, const robot_info *robptr, const vms_vector &vec_to_player, fix dist_to_player, vms_vector &gun_point, int player_visibility, int object_animates, const player_info &player_info, int gun_num)
+static void ai_do_actual_firing_stuff(const vmobjptridx_t obj, ai_static *aip, ai_local *ailp, const robot_info *robptr, const vms_vector &vec_to_player, fix dist_to_player, vms_vector &gun_point, int player_visibility, int object_animates, const player_info &player_info, int gun_num)
 {
 	fix	dot;
 
@@ -2627,7 +2627,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 						{		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
-							do_ai_robot_hit_attack(obj, vobjptridx(ConsoleObject), obj->pos);
+							do_ai_robot_hit_attack(obj, vmobjptridx(ConsoleObject), obj->pos);
 						} else {
 							return;
 						}
@@ -2714,7 +2714,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 						{		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
-							do_ai_robot_hit_attack(obj, vobjptridx(ConsoleObject), obj->pos);
+							do_ai_robot_hit_attack(obj, vmobjptridx(ConsoleObject), obj->pos);
 						} else {
 							return;
 						}
@@ -2785,7 +2785,7 @@ void init_ai_frame(const player_flags powerup_flags)
 // ----------------------------------------------------------------------------
 // Make a robot near the player snipe.
 #define	MNRS_SEG_MAX	70
-static void make_nearby_robot_snipe(const vobjptr_t robot, const player_flags powerup_flags)
+static void make_nearby_robot_snipe(const vmobjptr_t robot, const player_flags powerup_flags)
 {
 	array<segnum_t, MNRS_SEG_MAX> bfs_list;
 	/* Passing powerup_flags here seems wrong.  Sniping robots do not
@@ -2796,7 +2796,7 @@ static void make_nearby_robot_snipe(const vobjptr_t robot, const player_flags po
 	const auto bfs_length = create_bfs_list(robot, ConsoleObject->segnum, powerup_flags, bfs_list);
 
 	range_for (auto &i, partial_const_range(bfs_list, bfs_length)) {
-		range_for (const auto objp, objects_in(vsegptr(i)))
+		range_for (const auto objp, objects_in(vmsegptr(i)))
 		{
 			robot_info *robptr = &Robot_info[get_robot_id(objp)];
 
@@ -2817,7 +2817,7 @@ static int openable_door_on_near_path(const object &obj, const ai_static &aip)
 {
 	if (aip.path_length < 1)
 		return 0;
-	if (openable_doors_in_segment(vsegptr(obj.segnum)) != -1)
+	if (openable_doors_in_segment(vmsegptr(obj.segnum)) != -1)
 		return 1;
 	if (aip.path_length < 2)
 		return 0;
@@ -2827,12 +2827,12 @@ static int openable_door_on_near_path(const object &obj, const ai_static &aip)
 	 * sometimes the guidebot has a none.  Guard against the bogus none
 	 * until someone can track down why the guidebot does this.
 	 */
-	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none && openable_doors_in_segment(vsegptr(Point_segs[idx].segnum)) != -1)
+	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none && openable_doors_in_segment(vmsegptr(Point_segs[idx].segnum)) != -1)
 		return 1;
 	if (aip.path_length < 3)
 		return 0;
 	idx = aip.hide_index + aip.cur_path_index + 2*aip.PATH_DIR;
-	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none && openable_doors_in_segment(vsegptr(Point_segs[idx].segnum)) != -1)
+	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none && openable_doors_in_segment(vmsegptr(Point_segs[idx].segnum)) != -1)
 		return 1;
 	return 0;
 }
@@ -2892,7 +2892,7 @@ static bool skip_ai_for_time_splice(const vcobjptridx_t robot, const robot_info 
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-void do_ai_frame(const vobjptridx_t obj)
+void do_ai_frame(const vmobjptridx_t obj)
 {
 	const objnum_t &objnum = obj;
 	ai_static	*aip = &obj->ctype.ai_info;
@@ -3005,7 +3005,7 @@ void do_ai_frame(const vobjptridx_t obj)
 			vis_vec_pos = obj->pos;
 			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 			if (player_visibility) {
-				cobjptr_t min_obj = nullptr;
+				icobjptr_t min_obj = nullptr;
 				fix min_dist = F1_0*200, cur_dist;
 
 				range_for (const auto &&objp, vcobjptr)
@@ -3356,7 +3356,7 @@ _exit_cheat:
 			} else if (ailp->mode != ai_mode::AIM_STILL) {
 				int r;
 
-				r = openable_doors_in_segment(vsegptr(obj->segnum));
+				r = openable_doors_in_segment(vmsegptr(obj->segnum));
 				if (r != -1) {
 					ailp->mode = ai_mode::AIM_OPEN_DOOR;
 					aip->GOALSIDE = r;
@@ -3420,7 +3420,7 @@ _exit_cheat:
 		do_escort_frame(obj, plrobj, dist_to_player, player_visibility);
 
 		if (obj->ctype.ai_info.danger_laser_num != object_none) {
-			const auto &&dobjp = vobjptr(obj->ctype.ai_info.danger_laser_num);
+			const auto &&dobjp = vmobjptr(obj->ctype.ai_info.danger_laser_num);
 			if ((dobjp->type == OBJ_WEAPON) && (dobjp->signature == obj->ctype.ai_info.danger_laser_signature)) {
 				fix circle_distance;
 				circle_distance = robptr->circle_distance[Difficulty_level] + ConsoleObject->size;
@@ -4117,7 +4117,7 @@ static int add_awareness_event(const object_base &objp, player_awareness_type_t 
 // ----------------------------------------------------------------------------------
 // Robots will become aware of the player based on something that occurred.
 // The object (probably player or weapon) which created the awareness is objp.
-void create_awareness_event(const vobjptr_t objp, player_awareness_type_t type)
+void create_awareness_event(const vmobjptr_t objp, player_awareness_type_t type)
 {
 	// If not in multiplayer, or in multiplayer with robots, do this, else unnecessary!
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
@@ -4183,7 +4183,7 @@ static void set_player_awareness_all(void)
 
 	process_awareness_events(New_awareness);
 
-	range_for (const auto &&objp, vobjptr)
+	range_for (const auto &&objp, vmobjptr)
 	{
 		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
 		{
@@ -4298,7 +4298,7 @@ void do_ai_frame_all(void)
 		// Clear if supposed misisle camera is not a weapon, or just every so often, just in case.
 		if (((d_tick_count & 0x0f) == 0) || (Ai_last_missile_camera->type != OBJ_WEAPON)) {
 			Ai_last_missile_camera = nullptr;
-			range_for (const auto &&objp, vobjptr)
+			range_for (const auto &&objp, vmobjptr)
 			{
 				if (objp->type == OBJ_ROBOT)
 					objp->ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
@@ -4308,7 +4308,7 @@ void do_ai_frame_all(void)
 
 	// (Moved here from do_boss_stuff() because that only gets called if robot aware of player.)
 	if (Boss_dying) {
-		range_for (const auto &&objp, vobjptridx)
+		range_for (const auto &&objp, vmobjptridx)
 		{
 			if (objp->type == OBJ_ROBOT)
 				if (Robot_info[get_robot_id(objp)].boss_flag)
@@ -4639,7 +4639,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 #if DXX_USE_EDITOR
 	if (!EditorWindow)
 #endif
-		range_for (const auto &&o, vobjptridx)
+		range_for (const auto &&o, vmobjptridx)
 		{
 			if (o->type == OBJ_ROBOT)
 			{

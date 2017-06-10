@@ -47,7 +47,7 @@ extern array<segnum_t, MAX_FVI_SEGS> phys_seglist;
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #ifdef dsx
 namespace dsx {
-window_event_result do_physics_sim(vobjptridx_t obj);
+window_event_result do_physics_sim(vmobjptridx_t obj);
 
 }
 #endif

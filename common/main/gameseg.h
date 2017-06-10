@@ -156,7 +156,7 @@ segmasks get_seg_masks(const vms_vector &checkp, vcsegptr_t segnum, fix rad);
 // 2. Recursively trace through attached segments
 // 3. Check all the segmentns
 //Returns segnum if found, or -1
-segptridx_t find_point_seg(const vms_vector &p,segptridx_t segnum);
+imsegptridx_t find_point_seg(const vms_vector &p,imsegptridx_t segnum);
 
 //      ----------------------------------------------------------------------------------------------------------
 //      Determine whether seg0 and seg1 are reachable using wid_flag to go through walls.
@@ -173,7 +173,7 @@ void extract_orient_from_segment(vms_matrix *m,vcsegptr_t seg);
 //      Make a just-modified segment valid.
 //              check all sides to see how many faces they each should have (0,1,2)
 //              create new vector normals
-void validate_segment(vsegptridx_t sp);
+void validate_segment(vmsegptridx_t sp);
 
 extern void validate_segment_all(void);
 
@@ -192,7 +192,7 @@ void extract_right_vector_from_segment(vcsegptr_t sp,vms_vector &vp);
 // to the center of the top face of the segment.
 void extract_up_vector_from_segment(vcsegptr_t sp,vms_vector &vp);
 
-void create_walls_on_side(vsegptridx_t sp, int sidenum);
+void create_walls_on_side(vmsegptridx_t sp, int sidenum);
 
 void pick_random_point_in_seg(vms_vector &new_pos, vcsegptr_t sp);
 static inline vms_vector pick_random_point_in_seg(vcsegptr_t sp)
@@ -201,7 +201,7 @@ static inline vms_vector pick_random_point_in_seg(vcsegptr_t sp)
 	return pick_random_point_in_seg(v, sp), v;
 }
 
-void validate_segment_side(vsegptridx_t sp, int sidenum);
+void validate_segment_side(vmsegptridx_t sp, int sidenum);
 int check_segment_connections(void);
 unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, segment_depth_array_t &depths);
 #if defined(DXX_BUILD_DESCENT_I)

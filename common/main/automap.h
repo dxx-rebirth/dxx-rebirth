@@ -53,7 +53,7 @@ extern array<ubyte, MAX_SEGMENTS> Automap_visited;
 #include "fwd-window.h"
 
 namespace dsx {
-void DropBuddyMarker(vobjptr_t objp);
+void DropBuddyMarker(vmobjptr_t objp);
 void InitMarkerInput();
 window_event_result MarkerInputMessage(int key);
 

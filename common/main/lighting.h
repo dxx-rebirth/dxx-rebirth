@@ -53,7 +53,7 @@ namespace dsx {
 void toggle_headlight_active(object &);
 #endif
 }
-void start_lighting_frame(vobjptr_t viewer);
+void start_lighting_frame(vmobjptr_t viewer);
 #endif
 
 #endif

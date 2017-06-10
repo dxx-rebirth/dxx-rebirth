@@ -375,7 +375,7 @@ static void render_face(grs_canvas &canvas, const segment &segp, const unsigned 
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
-static void check_face(grs_canvas &canvas, const vsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<g3s_uvl, 4> &uvl_copy)
+static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<g3s_uvl, 4> &uvl_copy)
 {
 #if DXX_USE_EDITOR
 	if (_search_mode) {
@@ -563,7 +563,7 @@ im_so_ashamed: ;
 }
 
 #if DXX_USE_EDITOR
-static void render_object_search(grs_canvas &canvas, const vobjptridx_t obj)
+static void render_object_search(grs_canvas &canvas, const vmobjptridx_t obj)
 {
 	int changed=0;
 
@@ -610,7 +610,7 @@ static void render_object_search(grs_canvas &canvas, const vobjptridx_t obj)
 
 	if (changed) {
 		if (obj->segnum != segment_none)
-			Cursegp = segptridx(obj->segnum);
+			Cursegp = imsegptridx(obj->segnum);
 		found_seg = segment_none;
 		found_obj = obj;
 	}
@@ -618,7 +618,7 @@ static void render_object_search(grs_canvas &canvas, const vobjptridx_t obj)
 #endif
 
 namespace dsx {
-static void do_render_object(grs_canvas &canvas, const vobjptridx_t obj, window_rendered_data &window)
+static void do_render_object(grs_canvas &canvas, const vmobjptridx_t obj, window_rendered_data &window)
 {
 #if DXX_USE_EDITOR
 	int save_3d_outline=0;
@@ -1026,7 +1026,7 @@ public:
 	{
 		range_for (const auto t, segstate.objects)
 		{
-			const auto &&objp = vobjptr(t.objnum);
+			const auto &&objp = vmobjptr(t.objnum);
 			auto &e = (*this)[t.objnum];
 #if defined(DXX_BUILD_DESCENT_II)
 			e.objp = objp;
@@ -1187,12 +1187,12 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
       if (RenderingType==0)
    		newdemo_record_start_frame(FrameTime );
       if (RenderingType!=255)
-   		newdemo_record_viewer_object(vobjptridx(Viewer));
+   		newdemo_record_viewer_object(vmobjptridx(Viewer));
 	}
   
    //Here:
 
-	start_lighting_frame(vobjptr(Viewer));		//this is for ugly light-smoothing hack
+	start_lighting_frame(vmobjptr(Viewer));		//this is for ugly light-smoothing hack
   
 	g3_start_frame(canvas);
 
@@ -1210,10 +1210,10 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 		Viewer_eye = Viewer->pos;
 	#endif
 
-	auto start_seg_num = find_point_seg(Viewer_eye, vsegptridx(Viewer->segnum));
+	auto start_seg_num = find_point_seg(Viewer_eye, vmsegptridx(Viewer->segnum));
 
 	if (start_seg_num==segment_none)
-		start_seg_num = segptridx(Viewer->segnum);
+		start_seg_num = imsegptridx(Viewer->segnum);
 
 	g3_set_view_matrix(Viewer_eye,
 		(Rear_view && Viewer == ConsoleObject)
@@ -1236,7 +1236,7 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void update_rendered_data(window_rendered_data &window, const vobjptr_t viewer, int rear_view_flag)
+void update_rendered_data(window_rendered_data &window, const vmobjptr_t viewer, int rear_view_flag)
 {
 	window.time = timer_query();
 	window.viewer = viewer;
@@ -1535,7 +1535,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 				const auto save_linear_depth = exchange(Max_linear_depth, Max_linear_depth_objects);
 				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(canvas, vobjptridx(v.objnum), window);	// note link to above else
+					do_render_object(canvas, vmobjptridx(v.objnum), window);	// note link to above else
 				}
 				Max_linear_depth = save_linear_depth;
 			}
@@ -1652,7 +1652,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 			{
 				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(canvas, vobjptridx(v.objnum), window);	// note link to above else
+					do_render_object(canvas, vmobjptridx(v.objnum), window);	// note link to above else
 				}
 			}
 		}

@@ -623,7 +623,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 		for (segnum_t ii = 0; ii < mine_fileinfo.segment_howmany; ++ii)
 		{
-			const auto &i = vsegptridx(ii);
+			const auto &i = vmsegptridx(ii);
 
 			// Set the default values for this segment (clear to zero )
 			//memset( &Segments[i], 0, sizeof(segment) );
@@ -706,7 +706,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (mine_top_fileinfo.fileinfo_version >= 20)
-			range_for (const auto &&segp, vsegptridx)
+			range_for (const auto &&segp, vmsegptridx)
 			{
 				segment2_read(segp, LoadFile);
 				fuelcen_activate(segp);
@@ -763,8 +763,8 @@ int load_mine_data(PHYSFS_File *LoadFile)
 	for (int i=0;i<10;i++)
 		Groupside[i] = mine_editor.Groupside[i];
 
-	Cursegp = mine_editor.current_seg != -1 ? segptridx(static_cast<segnum_t>(mine_editor.current_seg)) : segptridx(segment_first);
-	Markedsegp = mine_editor.Markedsegp != -1 ? segptridx(static_cast<segnum_t>(mine_editor.Markedsegp)) : segment_none;
+	Cursegp = mine_editor.current_seg != -1 ? imsegptridx(static_cast<segnum_t>(mine_editor.current_seg)) : imsegptridx(segment_first);
+	Markedsegp = mine_editor.Markedsegp != -1 ? imsegptridx(static_cast<segnum_t>(mine_editor.Markedsegp)) : segment_none;
 
 	num_groups = 0;
 	current_group = -1;
@@ -807,7 +807,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 #define COMPILED_MINE_VERSION 0
 
-static void read_children(const vsegptr_t segp,ubyte bit_mask,PHYSFS_File *LoadFile)
+static void read_children(const vmsegptr_t segp,ubyte bit_mask,PHYSFS_File *LoadFile)
 {
 	for (int bit=0; bit<MAX_SIDES_PER_SEGMENT; bit++) {
 		if (bit_mask & (1 << bit)) {
@@ -817,14 +817,14 @@ static void read_children(const vsegptr_t segp,ubyte bit_mask,PHYSFS_File *LoadF
 	}
 }
 
-static void read_verts(const vsegptr_t segp,PHYSFS_File *LoadFile)
+static void read_verts(const vmsegptr_t segp,PHYSFS_File *LoadFile)
 {
 	// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
 	range_for (auto &i, segp->verts)
 		i = PHYSFSX_readShort(LoadFile);
 }
 
-static void read_special(const vsegptr_t segp,ubyte bit_mask,PHYSFS_File *LoadFile)
+static void read_special(const vmsegptr_t segp,ubyte bit_mask,PHYSFS_File *LoadFile)
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
 		// Read ubyte	Segments[segnum].special
@@ -844,7 +844,7 @@ static void read_special(const vsegptr_t segp,ubyte bit_mask,PHYSFS_File *LoadFi
 /*
  * reads a segment2 structure from a PHYSFS_File
  */
-static void segment2_read(const vsegptr_t s2, PHYSFS_File *fp)
+static void segment2_read(const vmsegptr_t s2, PHYSFS_File *fp)
 {
 	s2->special = PHYSFSX_readByte(fp);
 	if (s2->special >= MAX_CENTER_TYPES)
@@ -907,7 +907,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 		PHYSFSX_readVector(LoadFile, i);
 
 	for (segnum_t segnum=0; segnum < Num_segments; segnum++ )	{
-		const auto segp = vsegptr(segnum);
+		const auto segp = vmsegptr(segnum);
 
 #if DXX_USE_EDITOR
 		segp->segnum = segnum;
@@ -1016,7 +1016,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 
 	validate_segment_all();			// Fill in side type and normals.
 
-	range_for (const auto &&pi, vsegptridx)
+	range_for (const auto &&pi, vmsegptridx)
 	{
 		if (Gamesave_current_version > 5)
 			segment2_read(pi, LoadFile);

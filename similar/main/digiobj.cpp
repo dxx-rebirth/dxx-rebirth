@@ -328,7 +328,7 @@ static void digi_start_sound_object(sound_object &s)
 		N_active_sound_objects++;
 }
 
-static void digi_link_sound_common(cobjptr_t viewer, sound_object &so, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance, int soundnum, const vcsegptridx_t segnum)
+static void digi_link_sound_common(icobjptr_t viewer, sound_object &so, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance, int soundnum, const vcsegptridx_t segnum)
 {
 	so.signature=next_signature++;
 	if ( forever )

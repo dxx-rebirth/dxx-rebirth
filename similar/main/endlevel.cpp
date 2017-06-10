@@ -137,7 +137,7 @@ static void do_endlevel_flythrough(flythrough_data *flydata);
 static void draw_stars(grs_canvas &);
 static int find_exit_side(const object_base &obj);
 static void generate_starfield();
-static void start_endlevel_flythrough(flythrough_data *flydata,const vobjptr_t obj,fix speed);
+static void start_endlevel_flythrough(flythrough_data *flydata,const vmobjptr_t obj,fix speed);
 
 #if defined(DXX_BUILD_DESCENT_II)
 constexpr char movie_table[] =	{	'a','b','c',
@@ -306,11 +306,11 @@ window_event_result start_endlevel_sequence()
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Dematerialize Buddy!
-	range_for (const auto &&objp, vobjptr)
+	range_for (const auto &&objp, vmobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(objp)].companion) {
-				object_create_explosion(vsegptridx(objp->segnum), objp->pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
+				object_create_explosion(vmsegptridx(objp->segnum), objp->pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
 				objp->flags |= OF_SHOULD_BE_DEAD;
 			}
 	}
@@ -359,7 +359,7 @@ window_event_result start_endlevel_sequence()
 	{
 		//count segments in exit tunnel
 
-		const object_base &console = vobjptr(ConsoleObject);
+		const object_base &console = vmobjptr(ConsoleObject);
 		const auto exit_console_side = find_exit_side(console);
 		auto old_segnum = vcsegptridx(console.segnum);
 		auto child = old_segnum->children[exit_console_side];
@@ -424,7 +424,7 @@ window_event_result start_endlevel_sequence()
 
 	cur_fly_speed = desired_fly_speed = FLY_SPEED;
 
-	start_endlevel_flythrough(&fly_objects[0], vobjptr(ConsoleObject), cur_fly_speed);		//initialize
+	start_endlevel_flythrough(&fly_objects[0], vmobjptr(ConsoleObject), cur_fly_speed);		//initialize
 
 	HUD_init_message_literal(HM_DEFAULT, TXT_EXIT_SEQUENCE );
 
@@ -552,7 +552,7 @@ window_event_result do_endlevel_frame()
 
 	if (ext_expl_playing) {
 
-		do_explosion_sequence(vobjptr(external_explosion));
+		do_explosion_sequence(vmobjptr(external_explosion));
 
 		if (external_explosion->lifeleft < ext_expl_halflife)
 			mine_destroyed = 1;
@@ -584,7 +584,7 @@ window_event_result do_endlevel_frame()
 
 				outside_mine = 1;
 
-				const auto &&exit_segp = vsegptridx(exit_segnum);
+				const auto &&exit_segp = vmsegptridx(exit_segnum);
 				const auto &&tobj = object_create_explosion(exit_segp, mine_side_exit_point, i2f(50), VCLIP_BIG_PLAYER_EXPLOSION);
 
 				if (tobj) {
@@ -612,7 +612,7 @@ window_event_result do_endlevel_frame()
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*15);
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*15);
 
-			const auto &&segnum = find_point_seg(tpnt, vsegptridx(ConsoleObject->segnum));
+			const auto &&segnum = find_point_seg(tpnt, vmsegptridx(ConsoleObject->segnum));
 
 			if (segnum != segment_none) {
 				object_create_explosion(segnum,tpnt,i2f(20),VCLIP_BIG_PLAYER_EXPLOSION);
@@ -657,7 +657,7 @@ window_event_result do_endlevel_frame()
 			find_vector_intersection(fq, hit_data);
 
 			if (hit_data.hit_type==HIT_WALL && hit_data.hit_seg!=segment_none)
-				object_create_explosion(vsegptridx(hit_data.hit_seg), hit_data.hit_pnt, i2f(3) + d_rand() * 6, VCLIP_SMALL_EXPLOSION);
+				object_create_explosion(vmsegptridx(hit_data.hit_seg), hit_data.hit_pnt, i2f(3) + d_rand() * 6, VCLIP_SMALL_EXPLOSION);
 
 			explosion_wait2 = (0xa00 + d_rand()/8)/2;
 		}
@@ -684,7 +684,7 @@ window_event_result do_endlevel_frame()
 					Endlevel_sequence = EL_LOOKBACK;
 
 					auto objnum = obj_create(OBJ_CAMERA, 0,
-					                    vsegptridx(ConsoleObject->segnum), ConsoleObject->pos, &ConsoleObject->orient, 0, 
+					                    vmsegptridx(ConsoleObject->segnum), ConsoleObject->pos, &ConsoleObject->orient, 0, 
 					                    CT_NONE,MT_NONE,RT_NONE);
 
 					if (objnum == object_none) { //can't get object, so abort
@@ -1022,7 +1022,7 @@ static void render_external_scene(grs_canvas &canvas, fix eye_offset)
 	}
 
 	Lighting_on=0;
-	render_object(canvas, vobjptridx(ConsoleObject));
+	render_object(canvas, vmobjptridx(ConsoleObject));
 	Lighting_on=1;
 }
 
@@ -1115,7 +1115,7 @@ static void endlevel_render_mine(grs_canvas &canvas, fix eye_offset)
 		start_seg_num = exit_segnum;
 	}
 	else {
-		start_seg_num = find_point_seg(Viewer_eye, vsegptridx(Viewer->segnum));
+		start_seg_num = find_point_seg(Viewer_eye, vmsegptridx(Viewer->segnum));
 
 		if (start_seg_num==segment_none)
 			start_seg_num = Viewer->segnum;
@@ -1149,7 +1149,7 @@ void render_endlevel_frame(grs_canvas &canvas, fix eye_offset)
 #define MIN_D 0x100
 
 //if speed is zero, use default speed
-void start_endlevel_flythrough(flythrough_data *flydata,const vobjptr_t obj,fix speed)
+void start_endlevel_flythrough(flythrough_data *flydata,const vmobjptr_t obj,fix speed)
 {
 	flydata->obj = obj;
 
@@ -1173,7 +1173,7 @@ static void angvec_add2_scale(vms_angvec &dest,const vms_vector &src,fix s)
 
 void do_endlevel_flythrough(flythrough_data *flydata)
 {
-	const auto &&obj = vobjptridx(flydata->obj);
+	const auto &&obj = vmobjptridx(flydata->obj);
 	
 	vcsegidx_t old_player_seg = obj->segnum;
 
@@ -1190,7 +1190,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 	//check new player seg
 
 	update_object_seg(obj);
-	const auto &&pseg = vsegptr(obj->segnum);
+	const auto &&pseg = vmsegptr(obj->segnum);
 
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg
 		fix seg_time;
@@ -1295,7 +1295,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 #include "joy.h"
 
 #ifdef SLEW_ON		//this is a special routine for slewing around external scene
-int _do_slew_movement(const vobjptr_t obj, int check_keys )
+int _do_slew_movement(const vmobjptr_t obj, int check_keys )
 {
 	int moved = 0;
 	vms_vector svel;				//scaled velocity (per this frame)
@@ -1549,7 +1549,7 @@ try_again:
 
 	Assert(exit_segnum!=segment_none);
 
-	const auto &&exit_seg = vsegptr(exit_segnum);
+	const auto &&exit_seg = vmsegptr(exit_segnum);
 	compute_segment_center(mine_exit_point, exit_seg);
 	extract_orient_from_segment(&mine_exit_orient, exit_seg);
 	compute_center_point_on_side(mine_side_exit_point, exit_seg, exit_side);

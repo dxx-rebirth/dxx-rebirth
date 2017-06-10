@@ -150,7 +150,7 @@ static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 }
 
 #define get_local_player()	(Players[Player_num])
-#define get_local_plrobj()	(*vobjptr(get_local_player().objnum))
+#define get_local_plrobj()	(*vmobjptr(get_local_player().objnum))
 
 namespace dcx {
 

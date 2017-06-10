@@ -99,7 +99,7 @@ static int propagate_textures_common(int uv_flag, int move_flag)
 	undo_status[Autosave_count] = "Propagate Textures UNDONE.";
 	const auto c = Cursegp->children[Curside];
 	if (IS_CHILD(c))
-		med_propagate_tmaps_to_segments(Cursegp, vsegptridx(c), uv_flag);
+		med_propagate_tmaps_to_segments(Cursegp, vmsegptridx(c), uv_flag);
 
 	if (move_flag)
 		SelectCurrentSegForward();
@@ -145,7 +145,7 @@ static int is_selected_segment(segnum_t segnum)
 //	-------------------------------------------------------------------------------------
 //	Auxiliary function for PropagateTexturesSelected.
 //	Recursive parse.
-static void pts_aux(const vsegptridx_t sp, visited_segment_bitarray_t &visited)
+static void pts_aux(const vmsegptridx_t sp, visited_segment_bitarray_t &visited)
 {
 	visited[sp] = true;
 

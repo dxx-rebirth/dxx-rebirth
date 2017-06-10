@@ -166,7 +166,7 @@ window_event_result do_controlcen_dead_frame()
 #elif defined(DXX_BUILD_DESCENT_II)
 #define CC_FIREBALL_SCALE	F1_0
 #endif
-			create_small_fireball_on_object(vobjptridx(Dead_controlcen_object_num), CC_FIREBALL_SCALE, 1);
+			create_small_fireball_on_object(vmobjptridx(Dead_controlcen_object_num), CC_FIREBALL_SCALE, 1);
 
 	if (Control_center_destroyed && !Endlevel_sequence)
 		return do_countdown_frame();
@@ -268,7 +268,7 @@ window_event_result do_countdown_frame()
 //	This code is common to whether control center is implicitly imbedded in a boss,
 //	or is an object of its own.
 //	if objp == NULL that means the boss was the control center and don't set Dead_controlcen_object_num
-void do_controlcen_destroyed_stuff(const objptridx_t objp)
+void do_controlcen_destroyed_stuff(const imobjptridx_t objp)
 {
 	int i;
 
@@ -279,7 +279,7 @@ void do_controlcen_destroyed_stuff(const objptridx_t objp)
 
 	// Must toggle walls whether it is a boss or control center.
 	for (i=0;i<ControlCenterTriggers.num_links;i++)
-		wall_toggle(vsegptridx(ControlCenterTriggers.seg[i]), ControlCenterTriggers.side[i]);
+		wall_toggle(vmsegptridx(ControlCenterTriggers.seg[i]), ControlCenterTriggers.side[i]);
 
 	// And start the countdown stuff.
 	Control_center_destroyed = 1;
@@ -307,7 +307,7 @@ void do_controlcen_destroyed_stuff(const objptridx_t objp)
 
 //	-----------------------------------------------------------------------------
 //do whatever this thing does in a frame
-void do_controlcen_frame(const vobjptridx_t obj)
+void do_controlcen_frame(const vmobjptridx_t obj)
 {
 	int			best_gun_num;
 	static fix controlcen_death_silence = 0;
@@ -448,9 +448,9 @@ void do_controlcen_frame(const vobjptridx_t obj)
 //	If this level contains a boss and mode == multiplayer, do control center stuff.
 void init_controlcen_for_level(void)
 {
-	objptr_t cntrlcen_objnum = nullptr, boss_objnum = nullptr;
+	imobjptr_t cntrlcen_objnum = nullptr, boss_objnum = nullptr;
 
-	range_for (const auto &&objp, vobjptridx)
+	range_for (const auto &&objp, vmobjptridx)
 	{
 		if (objp->type == OBJ_CNTRLCEN)
 		{
@@ -476,7 +476,7 @@ void init_controlcen_for_level(void)
 	{
 		if (cntrlcen_objnum != nullptr)
 		{
-			const vobjptr_t objp = cntrlcen_objnum;
+			const vmobjptr_t objp = cntrlcen_objnum;
 			objp->type = OBJ_GHOST;
 			objp->control_type = CT_NONE;
 			objp->render_type = RT_NONE;
@@ -486,7 +486,7 @@ void init_controlcen_for_level(void)
 	else if (cntrlcen_objnum != nullptr)
 	{
 		//	Compute all gun positions.
-		const vobjptr_t objp = cntrlcen_objnum;
+		const vmobjptr_t objp = cntrlcen_objnum;
 		calc_controlcen_gun_point(objp);
 		Control_center_present = 1;
 

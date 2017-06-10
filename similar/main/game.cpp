@@ -497,9 +497,9 @@ void calc_frame_time()
 
 namespace dsx {
 
-void move_player_2_segment(const vsegptridx_t seg,int side)
+void move_player_2_segment(const vmsegptridx_t seg,int side)
 {
-	const auto &&console = vobjptridx(ConsoleObject);
+	const auto &&console = vmobjptridx(ConsoleObject);
 	compute_segment_center(console->pos,seg);
 	auto vp = compute_center_point_on_side(seg,side);
 	vm_vec_sub2(vp, console->pos);
@@ -579,7 +579,7 @@ static void do_cloak_stuff(void)
 {
 	range_for (auto &&e, enumerate(partial_range(Players, N_players)))
 	{
-		const auto &&plobj = vobjptr(e.value.objnum);
+		const auto &&plobj = vmobjptr(e.value.objnum);
 		auto &player_info = plobj->ctype.player_info;
 		auto &pl_flags = player_info.powerup_flags;
 		if (pl_flags & PLAYER_FLAGS_CLOAKED)
@@ -1177,12 +1177,12 @@ window *game_setup(void)
 #if DXX_USE_EDITOR
 	if (!Cursegp)
 	{
-		Cursegp = segptridx(segment_first);
+		Cursegp = imsegptridx(segment_first);
 		Curside = 0;
 	}
 	
 	if (vcsegptr(ConsoleObject->segnum)->segnum == segment_none)      //segment no longer exists
-		obj_relink(vobjptridx(ConsoleObject), Cursegp);
+		obj_relink(vmobjptridx(ConsoleObject), Cursegp);
 
 	if (!check_obj_seg(ConsoleObject))
 		move_player_2_segment(Cursegp,Curside);
@@ -1331,12 +1331,12 @@ array<int, 2> Marker_viewer_num{{-1,-1}};
 array<int, 2> Coop_view_player{{-1,-1}};
 
 //returns ptr to escort robot, or NULL
-objptridx_t find_escort()
+imobjptridx_t find_escort()
 {
-	range_for (const auto &&o, vobjptridx)
+	range_for (const auto &&o, vmobjptridx)
 	{
 		if (o->type == OBJ_ROBOT && Robot_info[get_robot_id(o)].companion)
-			return objptridx_t(o);
+			return imobjptridx_t(o);
 	}
 	return object_none;
 }
@@ -1435,7 +1435,7 @@ window_event_result GameProcessFrame()
 
 #if DXX_USE_EDITOR
 	check_create_player_path();
-	player_follow_path(vobjptr(ConsoleObject));
+	player_follow_path(vmobjptr(ConsoleObject));
 #endif
 
 	if (Game_mode & GM_MULTI)
@@ -1518,7 +1518,7 @@ window_event_result GameProcessFrame()
 			} else if (d_tick_step) {
 				const auto rx = (d_rand() - 16384) / 8;
 				const auto rz = (d_rand() - 16384) / 8;
-				const auto &&console = vobjptr(ConsoleObject);
+				const auto &&console = vmobjptr(ConsoleObject);
 				auto &rotvel = console->mtype.phys_info.rotvel;
 				rotvel.x += rx;
 				rotvel.z += rz;
@@ -1561,7 +1561,7 @@ window_event_result GameProcessFrame()
 #if defined(DXX_BUILD_DESCENT_II)
 void compute_slide_segs()
 {
-	range_for (const auto &&segp, vsegptr)
+	range_for (const auto &&segp, vmsegptr)
 	{
 		uint8_t slide_textures = 0;
 		for (int sidenum=0;sidenum<6;sidenum++) {
@@ -1598,7 +1598,7 @@ static void update_uv(array<uvl, 4> &uvls, uvl &i, fix a)
 //	-----------------------------------------------------------------------------
 static void slide_textures(void)
 {
-	range_for (const auto &&segp, vsegptr)
+	range_for (const auto &&segp, vmsegptr)
 	{
 		if (const auto slide_seg = segp->slide_textures)
 		{
@@ -1638,7 +1638,7 @@ static void flicker_lights()
 	{
 		if (f.timer == flicker_timer_disabled)		//disabled
 			continue;
-		const auto &&segp = vsegptridx(f.segnum);
+		const auto &&segp = vmsegptridx(f.segnum);
 		const auto sidenum = f.sidenum;
 		{
 			auto &side = segp->sides[sidenum];
@@ -1664,7 +1664,7 @@ static void flicker_lights()
 }
 
 //returns ptr to flickering light structure, or NULL if can't find
-static std::pair<Flickering_light_array_t::iterator, Flickering_light_array_t::iterator> find_flicker(const vsegidx_t segnum, const unsigned sidenum)
+static std::pair<Flickering_light_array_t::iterator, Flickering_light_array_t::iterator> find_flicker(const vmsegidx_t segnum, const unsigned sidenum)
 {
 	//see if there's already an entry for this seg/side
 	const auto &&pr = partial_range(Flickering_lights, Num_flickering_lights);
@@ -1674,7 +1674,7 @@ static std::pair<Flickering_light_array_t::iterator, Flickering_light_array_t::i
 	return {std::find_if(pr.begin(), pr.end(), predicate), pr.end()};
 }
 
-static void update_flicker(const vsegidx_t segnum, const unsigned sidenum, const fix timer)
+static void update_flicker(const vmsegidx_t segnum, const unsigned sidenum, const fix timer)
 {
 	const auto &&i = find_flicker(segnum, sidenum);
 	if (i.first != i.second)
@@ -1682,13 +1682,13 @@ static void update_flicker(const vsegidx_t segnum, const unsigned sidenum, const
 }
 
 //turn flickering off (because light has been turned off)
-void disable_flicker(const vsegidx_t segnum, const unsigned sidenum)
+void disable_flicker(const vmsegidx_t segnum, const unsigned sidenum)
 {
 	update_flicker(segnum, sidenum, flicker_timer_disabled);
 }
 
 //turn flickering off (because light has been turned on)
-void enable_flicker(const vsegidx_t segnum, const unsigned sidenum)
+void enable_flicker(const vmsegidx_t segnum, const unsigned sidenum)
 {
 	update_flicker(segnum, sidenum, 0);
 }
@@ -1751,10 +1751,10 @@ bool FireLaser(player_info &player_info)
 					if(Game_mode & GM_MULTI)
 						multi_send_play_sound(11, F1_0);
 #endif
-					const auto cobjp = vobjptridx(ConsoleObject);
+					const auto cobjp = vmobjptridx(ConsoleObject);
 					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, 0);
 				} else {
-					create_awareness_event(vobjptr(ConsoleObject), player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
+					create_awareness_event(vmobjptr(ConsoleObject), player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 					multi_digi_play_sample(SOUND_FUSION_WARMUP, F1_0);
 				}
 				Fusion_next_sound_time = GameTime64 + F1_0/8 + d_rand()/4;
@@ -1768,7 +1768,7 @@ bool FireLaser(player_info &player_info)
 //	-------------------------------------------------------------------------------------------------------
 //	If player is close enough to objnum, which ought to be a powerup, pick it up!
 //	This could easily be made difficulty level dependent.
-static void powerup_grab_cheat(object &player, const vobjptridx_t powerup)
+static void powerup_grab_cheat(object &player, const vmobjptridx_t powerup)
 {
 	fix	powerup_size;
 	fix	player_size;
@@ -1797,8 +1797,8 @@ void powerup_grab_cheat_all(void)
 		return;
 	if (Player_dead_state != player_dead_state::no)
 		return;
-	const auto &&console = vobjptr(ConsoleObject);
-	range_for (const auto objnum, objects_in(vsegptr(console->segnum)))
+	const auto &&console = vmobjptr(ConsoleObject);
+	range_for (const auto objnum, objects_in(vmsegptr(console->segnum)))
 		if (objnum->type == OBJ_POWERUP)
 			powerup_grab_cheat(console, objnum);
 }
@@ -1823,7 +1823,7 @@ static int mark_player_path_to_segment(segnum_t segnum)
 
 	Last_level_path_created = Current_level_num;
 
-	auto objp = vobjptridx(ConsoleObject);
+	auto objp = vmobjptridx(ConsoleObject);
 	if (create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, &player_path_length, 100, 0, 0, segment_none) == -1) {
 		return 0;
 	}
@@ -1841,7 +1841,7 @@ static int mark_player_path_to_segment(segnum_t segnum)
 
 		seg_center = Point_segs[player_hide_index+i].point;
 
-		const auto &&obj = obj_create(OBJ_POWERUP, POW_ENERGY, vsegptridx(Point_segs[player_hide_index+i].segnum), seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
+		const auto &&obj = obj_create(OBJ_POWERUP, POW_ENERGY, vmsegptridx(Point_segs[player_hide_index+i].segnum), seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
 		if (obj == object_none) {
 			Int3();		//	Unable to drop energy powerup for path
 			return 1;

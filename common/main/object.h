@@ -247,7 +247,7 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 	}
 	bool test_set_hitobj(const vcobjidx_t o);
 	bool test_hitobj(const vcobjidx_t o) const;
-	cobjidx_t get_last_hitobj() const
+	icobjidx_t get_last_hitobj() const
 	{
 		if (!hitobj_count)
 			/* If no elements, return object_none */
@@ -266,7 +266,7 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 	{
 		hitobj_pos = hitobj_count = 0;
 	}
-	void reset_hitobj(const cobjidx_t o)
+	void reset_hitobj(const icobjidx_t o)
 	{
 		if (o == object_none)
 		{

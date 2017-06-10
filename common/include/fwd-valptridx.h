@@ -146,11 +146,11 @@ protected:
 	static inline void check_null_pointer(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_pointer_type, const array_managed_type &);
 
 #define DXX_VALPTRIDX_FOR_EACH_VC_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, IVPREFIX)	\
-	VERB(MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, IVPREFIX, );	\
+	VERB(MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, IVPREFIX, m);	\
 	VERB(MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, IVPREFIX, c)
 
 #define DXX_VALPTRIDX_FOR_EACH_IV_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX)	\
-	DXX_VALPTRIDX_FOR_EACH_VC_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, );	\
+	DXX_VALPTRIDX_FOR_EACH_VC_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, i);	\
 	DXX_VALPTRIDX_FOR_EACH_VC_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, v)
 
 #define DXX_VALPTRIDX_FOR_EACH_IDX_TYPE(VERB, MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT)	\
@@ -178,18 +178,18 @@ public:
 	 * the lack of checking.
 	 */
 	class allow_none_construction;
+	typedef basic_ptridx<ic>	icptridx;
+	typedef basic_ptridx<im>	imptridx;
 	typedef basic_ptridx<vc>	vcptridx;
-	typedef basic_ptridx<ic>	cptridx;
-	typedef basic_ptridx<vm>	vptridx;
-	typedef basic_ptridx<im>	ptridx;
+	typedef basic_ptridx<vm>	vmptridx;
+	typedef basic_idx<ic, 0>	icidx;
+	typedef basic_idx<im, 0>	imidx;
 	typedef basic_idx<vc, 0>	vcidx;
-	typedef basic_idx<ic, 0>	cidx;
-	typedef basic_idx<vm, 0>	vidx;
-	typedef basic_idx<im, 0>	idx;
+	typedef basic_idx<vm, 0>	vmidx;
+	typedef basic_ptr<ic, 0>	icptr;
+	typedef basic_ptr<im, 0>	imptr;
 	typedef basic_ptr<vc, 0>	vcptr;
-	typedef basic_ptr<ic, 0>	cptr;
-	typedef basic_ptr<vm, 0>	vptr;
-	typedef basic_ptr<im, 0>	ptr;
+	typedef basic_ptr<vm, 0>	vmptr;
 #if DXX_VALPTRIDX_REPORT_ERROR_STYLE == DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_EXCEPTION
 	/* These exceptions can only be thrown when style is EXCEPTION.
 	 * Other reporting styles never generate them, so they are left
@@ -214,9 +214,9 @@ public:
 };
 
 #define DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF(MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, IVPREFIX, MCPREFIX)	\
-	using IVPREFIX##MCPREFIX##DERIVED_TYPE_PREFIX##PISUFFIX##_t = valptridx<MANAGED_TYPE>::IVPREFIX##MCPREFIX##PISUFFIX
-#define DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(managed_type,derived_type_prefix,global_array)	\
-	extern valptridx<managed_type>::array_managed_type global_array;	\
-	static constexpr const valptridx<managed_type>::array_managed_type &get_global_array(const managed_type *) { return global_array; }	\
-	static constexpr valptridx<managed_type>::array_managed_type &get_global_array(managed_type *) { return global_array; }	\
-	DXX_VALPTRIDX_FOR_EACH_IPPI_TYPE(DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF, managed_type, derived_type_prefix,)
+	using IVPREFIX ## MCPREFIX ## DERIVED_TYPE_PREFIX ## PISUFFIX ## _t = valptridx<MANAGED_TYPE>::IVPREFIX ## MCPREFIX ## PISUFFIX
+#define DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(MANAGED_TYPE,DERIVED_TYPE_PREFIX,GLOBAL_ARRAY)	\
+	extern valptridx<MANAGED_TYPE>::array_managed_type GLOBAL_ARRAY;	\
+	static constexpr const valptridx<MANAGED_TYPE>::array_managed_type &get_global_array(const MANAGED_TYPE *) { return GLOBAL_ARRAY; }	\
+	static constexpr valptridx<MANAGED_TYPE>::array_managed_type &get_global_array(MANAGED_TYPE *) { return GLOBAL_ARRAY; }	\
+	DXX_VALPTRIDX_FOR_EACH_IPPI_TYPE(DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF, MANAGED_TYPE, DERIVED_TYPE_PREFIX,)

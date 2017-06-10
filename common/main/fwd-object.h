@@ -214,33 +214,33 @@ void init_objects();
 
 // when an object has moved into a new segment, this function unlinks it
 // from its old segment, and links it into the new segment
-void obj_relink(vobjptridx_t objnum,vsegptridx_t newsegnum);
+void obj_relink(vmobjptridx_t objnum,vmsegptridx_t newsegnum);
 
 // for getting out of messed up linking situations (i.e. caused by demo playback)
 void obj_relink_all();
 
 // links an object into a segment's list of objects.
 // takes object number and segment number
-void obj_link(vobjptridx_t objnum,vsegptridx_t segnum);
+void obj_link(vmobjptridx_t objnum,vmsegptridx_t segnum);
 /* Link an object without checking whether the object is currently
  * unlinked.  This should be used only in cases where the caller is
  * intentionally overriding the normal linking rules (such as loading
  * objects from demos or from the network).
  */
-void obj_link_unchecked(vobjptridx_t obj, vsegptridx_t segnum);
+void obj_link_unchecked(vmobjptridx_t obj, vmsegptridx_t segnum);
 
 // unlinks an object from a segment's list of objects
 void obj_unlink(object_base &objnum);
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
-objptridx_t obj_create(object_type_t type, ubyte id, vsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, ubyte ctype, ubyte mtype, ubyte rtype);
+imobjptridx_t obj_create(object_type_t type, ubyte id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, ubyte ctype, ubyte mtype, ubyte rtype);
 
 // make a copy of an object. returs num of new object
-objptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, vsegptridx_t newsegnum);
+imobjptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, vmsegptridx_t newsegnum);
 
 // remove object from the world
-void obj_delete(vobjptridx_t objnum);
+void obj_delete(vmobjptridx_t objnum);
 
 // called after load.  Takes number of objects, and objects should be
 // compressed
@@ -250,7 +250,7 @@ void reset_objects(int n_objs);
 void compress_objects();
 
 // Render an object.  Calls one of several routines based on type
-void render_object(grs_canvas &, vobjptridx_t obj);
+void render_object(grs_canvas &, vmobjptridx_t obj);
 
 // draw an object that is a texture-mapped rod
 void draw_object_tmap_rod(grs_canvas &, vcobjptridx_t obj, bitmap_index bitmap, int lighted);
@@ -268,26 +268,26 @@ void init_player_object();
 // segs.  if not any of these, returns false, else sets obj->segnum &
 // returns true callers should really use find_vector_intersection()
 // Note: this function is in gameseg.c
-int update_object_seg(vobjptridx_t obj);
+int update_object_seg(vmobjptridx_t obj);
 
 
 // Finds what segment *obj is in, returns segment number.  If not in
 // any segment, returns -1.  Note: This function is defined in
 // gameseg.h, but object.h depends on gameseg.h, and object.h is where
 // object is defined...get it?
-segptridx_t find_object_seg(vobjptr_t obj);
+imsegptridx_t find_object_seg(vmobjptr_t obj);
 
 // go through all objects and make sure they have the correct segment
 // numbers used when debugging is on
 void fix_object_segs();
 
 // Drops objects contained in objp.
-objptridx_t object_create_robot_egg(vobjptr_t objp);
-objptridx_t object_create_robot_egg(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vsegptridx_t segnum);
+imobjptridx_t object_create_robot_egg(vmobjptr_t objp);
+imobjptridx_t object_create_robot_egg(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum);
 
 // Interface to object_create_egg, puts count objects of type type, id
 // = id in objp and then drops them.
-objptridx_t call_object_create_egg(const object_base &objp, unsigned count, int id);
+imobjptridx_t call_object_create_egg(const object_base &objp, unsigned count, int id);
 
 void dead_player_end();
 
@@ -299,11 +299,11 @@ void create_shortpos_native(shortpos *spp, vcobjptr_t objp);
 
 // Extract information from a shortpos, stuff in objp->orient
 // (matrix), objp->pos, objp->segnum
-void extract_shortpos_little(vobjptridx_t objp, const shortpos *spp);
+void extract_shortpos_little(vmobjptridx_t objp, const shortpos *spp);
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
-void create_quaternionpos(quaternionpos * qpp, vobjptr_t objp, int swap_bytes);
-void extract_quaternionpos(vobjptridx_t objp, quaternionpos *qpp, int swap_bytes);
+void create_quaternionpos(quaternionpos * qpp, vmobjptr_t objp, int swap_bytes);
+void extract_quaternionpos(vmobjptridx_t objp, quaternionpos *qpp, int swap_bytes);
 
 // delete objects, such as weapons & explosions, that shouldn't stay
 // between levels if clear_all is set, clear even proximity bombs
@@ -316,7 +316,7 @@ object_signature_t obj_get_signature();
 // Generally, obj_create() should be called to get an object, since it
 // fills in important fields and does the linking.  returns -1 if no
 // free objects
-objptridx_t obj_allocate();
+imobjptridx_t obj_allocate();
 
 // after calling init_object(), the network code has grabbed specific
 // object slots without allocating them.  Go though the objects &
@@ -326,21 +326,21 @@ void special_reset_objects();
 
 // attaches an object, such as a fireball, to another object, such as
 // a robot
-void obj_attach(vobjptridx_t parent,vobjptridx_t sub);
+void obj_attach(vmobjptridx_t parent,vmobjptridx_t sub);
 
-void create_small_fireball_on_object(vobjptridx_t objp, fix size_scale, int sound_flag);
+void create_small_fireball_on_object(vmobjptridx_t objp, fix size_scale, int sound_flag);
 window_event_result dead_player_frame();
 
 #if defined(DXX_BUILD_DESCENT_II)
 extern int Drop_afterburner_blob_flag;		//ugly hack
 // returns object number
-objptridx_t drop_marker_object(const vms_vector &pos, vsegptridx_t segnum, const vms_matrix &orient, int marker_num);
+imobjptridx_t drop_marker_object(const vms_vector &pos, vmsegptridx_t segnum, const vms_matrix &orient, int marker_num);
 
-void wake_up_rendered_objects(vobjptr_t gmissp, window_rendered_data &window);
+void wake_up_rendered_objects(vmobjptr_t gmissp, window_rendered_data &window);
 
 void fuelcen_check_for_goal(vcsegptr_t);
 #endif
-objptridx_t obj_find_first_of_type(int type);
+imobjptridx_t obj_find_first_of_type(int type);
 
 void object_rw_swap(struct object_rw *obj_rw, int swap);
 void reset_player_object();

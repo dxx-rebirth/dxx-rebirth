@@ -108,8 +108,8 @@ int robot_get_anim_state(const jointpos **jp_list_ptr,int robot_type,int gun_num
 
 #ifndef NDEBUG
 //for test, set a robot to a specific state
-static void set_robot_state(const vobjptr_t obj,int state) __attribute_used;
-static void set_robot_state(const vobjptr_t obj,int state)
+static void set_robot_state(const vmobjptr_t obj,int state) __attribute_used;
+static void set_robot_state(const vmobjptr_t obj,int state)
 {
 	int g,j,jo;
 	robot_info *ri;

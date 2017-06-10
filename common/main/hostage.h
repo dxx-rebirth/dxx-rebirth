@@ -50,8 +50,8 @@ extern array<hostage_data, MAX_HOSTAGES> Hostages;
 void hostage_init_all();
 void hostage_compress_all();
 int hostage_is_valid( int hostage_num );
-int hostage_object_is_valid(vobjptridx_t objnum);
-void hostage_init_info(vobjptridx_t objnum);
+int hostage_object_is_valid(vmobjptridx_t objnum);
+void hostage_init_info(vmobjptridx_t objnum);
 #endif
 }
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -70,7 +70,7 @@ extern array<int, MAX_HOSTAGE_TYPES> Hostage_vclip_num;    // for each type of h
 
 #ifdef dsx
 namespace dsx {
-void draw_hostage(grs_canvas &, vobjptridx_t obj);
+void draw_hostage(grs_canvas &, vmobjptridx_t obj);
 void hostage_rescue();
 }
 #endif

@@ -381,7 +381,7 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
-static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,array<fix, 6> &side_dists)
+static ubyte get_side_dists(const vms_vector &checkp,const vmsegptridx_t segnum,array<fix, 6> &side_dists)
 {
 	int			sn,facebit,sidebit;
 	ubyte			mask;
@@ -542,7 +542,7 @@ int check_segment_connections(void)
 								 vertex_list[2] != con_vertex_list[0] ||
 								 vertex_list[3] != con_vertex_list[5] ||
 								 vertex_list[5] != con_vertex_list[3]) {
-								auto &cside = vsegptr(csegnum)->sides[csidenum];
+								auto &cside = vmsegptr(csegnum)->sides[csidenum];
 								cside.set_type(5 - cside.get_type());
 							} else {
 								errors |= check_norms(seg,sidenum,0,cseg,csidenum,0);
@@ -557,7 +557,7 @@ int check_segment_connections(void)
 								 vertex_list[5] != con_vertex_list[0] ||
 								 vertex_list[2] != con_vertex_list[3] ||
 								 vertex_list[3] != con_vertex_list[2]) {
-								auto &cside = vsegptr(csegnum)->sides[csidenum];
+								auto &cside = vmsegptr(csegnum)->sides[csidenum];
 								cside.set_type(5 - cside.get_type());
 							} else {
 								errors |= check_norms(seg,sidenum,0,cseg,csidenum,1);
@@ -585,7 +585,7 @@ int	Doing_lighting_hack_flag=0;
 
 // figure out what seg the given point is in, tracing through segments
 // returns segment number, or -1 if can't find segment
-static segptridx_t trace_segs(const vms_vector &p0, const vsegptridx_t oldsegnum, int recursion_count, visited_segment_bitarray_t &visited)
+static imsegptridx_t trace_segs(const vms_vector &p0, const vmsegptridx_t oldsegnum, int recursion_count, visited_segment_bitarray_t &visited)
 {
 	int centermask;
 	array<fix, 6> side_dists;
@@ -633,7 +633,7 @@ static segptridx_t trace_segs(const vms_vector &p0, const vsegptridx_t oldsegnum
 // 2. Recursively trace through attached segments
 // 3. Check all the segmentns
 //Returns segnum if found, or -1
-segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
+imsegptridx_t find_point_seg(const vms_vector &p,const imsegptridx_t segnum)
 {
 	//allow segnum==-1, meaning we have no idea what segment point is in
 	if (segnum != segment_none) {
@@ -651,7 +651,7 @@ segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 	//	slowing down lighting, and in about 98% of cases, it would just return -1 anyway.
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
-		range_for (const auto &&segp, vsegptridx)
+		range_for (const auto &&segp, vmsegptridx)
 		{
 			if (get_seg_masks(p, segp, 0).centermask == 0)
 				return segp;
@@ -868,7 +868,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 	cur_depth = 0;
 
 	while (cur_seg != seg1) {
-		const auto &&segp = vsegptr(cur_seg);
+		const auto &&segp = vmsegptr(cur_seg);
 		for (int sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 
 			int	snum = sidenum;
@@ -999,7 +999,7 @@ void create_shortpos_native(shortpos *spp, const vcobjptr_t objp)
 	*sp++ = convert_to_byte(objp->orient.fvec.z);
 
 	spp->segment = objp->segnum;
-	const auto segp = vsegptr(objp->segnum);
+	const auto segp = vmsegptr(objp->segnum);
 	const auto &vert = Vertices[segp->verts[0]];
 	spp->xo = (objp->pos.x - vert.x) >> RELPOS_PRECISION;
 	spp->yo = (objp->pos.y - vert.y) >> RELPOS_PRECISION;
@@ -1027,7 +1027,7 @@ void create_shortpos_little(shortpos *spp, const vcobjptr_t objp)
 	}
 }
 
-void extract_shortpos_little(const vobjptridx_t objp, const shortpos *spp)
+void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 {
 	auto sp = spp->bytemat;
 
@@ -1053,11 +1053,11 @@ void extract_shortpos_little(const vobjptridx_t objp, const shortpos *spp)
 	objp->mtype.phys_info.velocity.y = (INTEL_SHORT(spp->vely) << VEL_PRECISION);
 	objp->mtype.phys_info.velocity.z = (INTEL_SHORT(spp->velz) << VEL_PRECISION);
 
-	obj_relink(objp, vsegptridx(segnum));
+	obj_relink(objp, vmsegptridx(segnum));
 }
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
-void create_quaternionpos(quaternionpos * qpp, const vobjptr_t objp, int swap_bytes)
+void create_quaternionpos(quaternionpos * qpp, const vmobjptr_t objp, int swap_bytes)
 {
 	vms_quaternion_from_matrix(&qpp->orient, &objp->orient);
 
@@ -1084,7 +1084,7 @@ void create_quaternionpos(quaternionpos * qpp, const vobjptr_t objp, int swap_by
 	}
 }
 
-void extract_quaternionpos(const vobjptridx_t objp, quaternionpos *qpp, int swap_bytes)
+void extract_quaternionpos(const vmobjptridx_t objp, quaternionpos *qpp, int swap_bytes)
 {
 	if (swap_bytes)
 	{
@@ -1111,7 +1111,7 @@ void extract_quaternionpos(const vobjptridx_t objp, quaternionpos *qpp, int swap
         
 	auto segnum = static_cast<segnum_t>(qpp->segment);
 	Assert(segnum <= Highest_segment_index);
-	obj_relink(objp, vsegptridx(segnum));
+	obj_relink(objp, vmsegptridx(segnum));
 }
 
 
@@ -1323,7 +1323,7 @@ static void assign_side_normal(vms_vector &n, const unsigned v0, const unsigned 
 namespace dsx {
 
 // -------------------------------------------------------------------------------
-static void add_side_as_2_triangles(const vsegptr_t sp, const unsigned sidenum)
+static void add_side_as_2_triangles(const vmsegptr_t sp, const unsigned sidenum)
 {
 	auto &vs = Side_to_verts[sidenum];
 	fix			dot;
@@ -1399,7 +1399,7 @@ static int sign(fix v)
 namespace dsx {
 
 // -------------------------------------------------------------------------------
-void create_walls_on_side(const vsegptridx_t sp, int sidenum)
+void create_walls_on_side(const vmsegptridx_t sp, int sidenum)
 {
 	fix	dist_to_plane;
 
@@ -1456,7 +1456,7 @@ void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 
 // -------------------------------------------------------------------------------
 //	Make a just-modified segment side valid.
-void validate_segment_side(const vsegptridx_t sp, int sidenum)
+void validate_segment_side(const vmsegptridx_t sp, int sidenum)
 {
 	auto &side = sp->sides[sidenum];
 	const auto old_tmap_num = side.tmap_num;
@@ -1546,7 +1546,7 @@ Levels 9-end: unchecked
 //	Make a just-modified segment valid.
 //		check all sides to see how many faces they each should have (0,1,2)
 //		create new vector normals
-void validate_segment(const vsegptridx_t sp)
+void validate_segment(const vmsegptridx_t sp)
 {
 	check_for_degenerate_segment(sp);
 
@@ -1562,7 +1562,7 @@ void validate_segment(const vsegptridx_t sp)
 //	For all used segments (number <= Highest_segment_index), segnum field must be != -1.
 void validate_segment_all(void)
 {
-	range_for (const auto &&segp, vsegptridx)
+	range_for (const auto &&segp, vmsegptridx)
 	{
 #if DXX_USE_EDITOR
 		if (segp->segnum != segment_none)
@@ -1634,7 +1634,7 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 
 //	------------------------------------------------------------------------------------------
 //cast static light from a segment to nearby segments
-static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vsegptridx_t segp,const vms_vector &segment_center, fix light_intensity,int recursion_depth)
+static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vmsegptridx_t segp,const vms_vector &segment_center, fix light_intensity,int recursion_depth)
 {
 	fix			dist_to_rseg;
 	segnum_t segnum=segp;
@@ -1678,7 +1678,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vs
 
 //update the static_light field in a segment, which is used for object lighting
 //this code is copied from the editor routine calim_process_all_lights()
-static void change_segment_light(const vsegptridx_t segp,int sidenum,int dir)
+static void change_segment_light(const vmsegptridx_t segp,int sidenum,int dir)
 {
 	if (WALL_IS_DOORWAY(segp, sidenum) & WID_RENDER_FLAG) {
 		side	*sidep = &segp->sides[sidenum];
@@ -1703,7 +1703,7 @@ static void change_segment_light(const vsegptridx_t segp,int sidenum,int dir)
 //	dir = -1 -> subtract light
 //	dir = 17 -> add 17x light
 //	dir =  0 -> you are dumb
-static void change_light(const vsegptridx_t segnum, const uint8_t sidenum, const int dir)
+static void change_light(const vmsegptridx_t segnum, const uint8_t sidenum, const int dir)
 {
 	const fix ds = dir * DL_SCALE;
 	const auto &&pr = partial_const_range(Dl_indices, Num_static_lights);
@@ -1714,7 +1714,7 @@ static void change_light(const vsegptridx_t segnum, const uint8_t sidenum, const
 			range_for (auto &j, partial_const_range(Delta_lights, idx, idx + i.count))
 			{
 				assert(j.sidenum < MAX_SIDES_PER_SEGMENT);
-				const auto &&segp = vsegptr(j.segnum);
+				const auto &&segp = vmsegptr(j.segnum);
 				auto &uvls = segp->sides[j.sidenum].uvls;
 				for (int k=0; k<4; k++) {
 					auto &l = uvls[k].l;
@@ -1732,7 +1732,7 @@ static void change_light(const vsegptridx_t segnum, const uint8_t sidenum, const
 //	Subtract light cast by a light source from all surfaces to which it applies light.
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 // returns 1 if lights actually subtracted, else 0
-int subtract_light(const vsegptridx_t segnum, sidenum_fast_t sidenum)
+int subtract_light(const vmsegptridx_t segnum, sidenum_fast_t sidenum)
 {
 	if (segnum->light_subtracted & (1 << sidenum)) {
 		return 0;
@@ -1747,7 +1747,7 @@ int subtract_light(const vsegptridx_t segnum, sidenum_fast_t sidenum)
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 //	You probably only want to call this after light has been subtracted.
 // returns 1 if lights actually added, else 0
-int add_light(const vsegptridx_t segnum, sidenum_fast_t sidenum)
+int add_light(const vmsegptridx_t segnum, sidenum_fast_t sidenum)
 {
 	if (!(segnum->light_subtracted & (1 << sidenum))) {
 		return 0;
@@ -1761,7 +1761,7 @@ int add_light(const vsegptridx_t segnum, sidenum_fast_t sidenum)
 //	Parse the Light_subtracted array, turning on or off all lights.
 void apply_all_changed_light(void)
 {
-	range_for (const auto &&segp, vsegptridx)
+	range_for (const auto &&segp, vmsegptridx)
 	{
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (segp->light_subtracted & (1 << j))
@@ -1804,7 +1804,7 @@ void apply_all_changed_light(void)
 //	to change the status of static light in the mine.
 void clear_light_subtracted(void)
 {
-	range_for (const auto &&segp, vsegptr)
+	range_for (const auto &&segp, vmsegptr)
 	{
 		segp->light_subtracted = 0;
 	}
@@ -1814,7 +1814,7 @@ void clear_light_subtracted(void)
 
 //	-----------------------------------------------------------------------------
 //	Do a bfs from segnum, marking slots in marked_segs if the segment is reachable.
-static void ambient_mark_bfs(const vsegptridx_t segp, visited_segment_multibit_array_t<2> &marked_segs, unsigned depth, uint_fast8_t s2f_bit)
+static void ambient_mark_bfs(const vmsegptridx_t segp, visited_segment_multibit_array_t<2> &marked_segs, unsigned depth, uint_fast8_t s2f_bit)
 {
 	/*
 	 * High first, then low: write here.
@@ -1856,7 +1856,7 @@ void set_ambient_sound_flags()
 	//	Now, all segments containing ambient lava or water sound makers are flagged.
 	//	Additionally flag all segments which are within range of them.
 	//	Mark all segments which are sources of the sound.
-	range_for (const auto &&segp, vsegptridx)
+	range_for (const auto &&segp, vmsegptridx)
 	{
 		range_for (auto &s, sound_textures)
 		{

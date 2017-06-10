@@ -822,7 +822,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 	Ignore_tmap_num2_error = 0;
 
 	//	Process walls and segment sides.
-	range_for (const auto &&segp, vsegptr)
+	range_for (const auto &&segp, vmsegptr)
 	{
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			const auto sidep = &segp->sides[sidenum];

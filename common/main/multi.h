@@ -350,8 +350,8 @@ player_flags map_granted_flags_to_player_flags(packed_spawn_granted_items grant)
 uint_fast32_t map_granted_flags_to_primary_weapon_flags(packed_spawn_granted_items grant);
 uint16_t map_granted_flags_to_vulcan_ammo(packed_spawn_granted_items grant);
 void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume);
-void multi_object_to_object_rw(vobjptr_t obj, object_rw *obj_rw);
-void multi_object_rw_to_object(object_rw *obj_rw, vobjptr_t obj);
+void multi_object_to_object_rw(vmobjptr_t obj, object_rw *obj_rw);
+void multi_object_rw_to_object(object_rw *obj_rw, vmobjptr_t obj);
 
 using GMNames_array = array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT>;
 extern const GMNames_array GMNames;
@@ -368,14 +368,14 @@ extern unsigned Net_create_loc;
 
 namespace dsx {
 
-void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objptridx_t is_bomb_objnum);
+void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, imobjptridx_t is_bomb_objnum);
 void multi_send_destroy_controlcen(objnum_t objnum, int player);
-void multi_send_position(vobjptridx_t objnum);
-void multi_send_kill(vobjptridx_t objnum);
-void multi_send_remobj(vobjptridx_t objnum);
+void multi_send_position(vmobjptridx_t objnum);
+void multi_send_kill(vmobjptridx_t objnum);
+void multi_send_remobj(vmobjptridx_t objnum);
 void multi_send_door_open(vcsegidx_t segnum, unsigned side, uint8_t flag);
-void multi_send_drop_weapon(vobjptridx_t objnum,int seed);
-void multi_reset_player_object(vobjptr_t objp);
+void multi_send_drop_weapon(vmobjptridx_t objnum,int seed);
+void multi_reset_player_object(vmobjptr_t objp);
 int multi_maybe_disable_friendly_fire(const object *killer);
 }
 #endif
@@ -456,11 +456,11 @@ void multi_send_flags(playernum_t);
 struct marker_message_text_t;
 void multi_send_drop_marker (int player,const vms_vector &position,char messagenum,const marker_message_text_t &text);
 void multi_send_markers();
-void multi_send_guided_info (vobjptr_t miss,char);
+void multi_send_guided_info (vmobjptr_t miss,char);
 void multi_send_orb_bonus(playernum_t pnum, uint8_t);
 void multi_send_got_orb(playernum_t pnum);
 void multi_send_effect_blowup(vcsegidx_t segnum, unsigned side, const vms_vector &pnt);
-void multi_send_vulcan_weapon_ammo_adjust(const vobjptridx_t objnum);
+void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum);
 }
 #ifndef RELEASE
 void multi_add_lifetime_kills(int count);

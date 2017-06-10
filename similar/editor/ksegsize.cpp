@@ -51,7 +51,7 @@ static void validate_modified_segments(void)
 	for (int v=0; v<Modified_vertex_index; v++) {
 		v0 = Modified_vertices[v];
 
-		range_for (const auto &&segp, vsegptridx)
+		range_for (const auto &&segp, vmsegptridx)
 		{
 			if (segp->segnum != segment_none)
 			{
@@ -88,7 +88,7 @@ static void scale_vert_aux(const unsigned vertex_ind, const vms_vector &vp, cons
 }
 
 // ------------------------------------------------------------------------------------------
-static void scale_vert(const vsegptr_t sp, int vertex_ind, const vms_vector &vp, fix scale_factor)
+static void scale_vert(const vmsegptr_t sp, int vertex_ind, const vms_vector &vp, fix scale_factor)
 {
 	switch (SegSizeMode) {
 		case SEGSIZEMODE_FREE:
@@ -121,7 +121,7 @@ static void scale_vert(const vsegptr_t sp, int vertex_ind, const vms_vector &vp,
 }
 
 // ------------------------------------------------------------------------------------------
-static void scale_free_verts(const vsegptr_t sp, const vms_vector &vp, int side, fix scale_factor)
+static void scale_free_verts(const vmsegptr_t sp, const vms_vector &vp, int side, fix scale_factor)
 {
 	int		vertex_ind;
 	range_for (auto &v, Side_to_verts[side])
@@ -136,7 +136,7 @@ static void scale_free_verts(const vsegptr_t sp, const vms_vector &vp, int side,
 
 // -----------------------------------------------------------------------------
 //	Make segment *sp bigger in dimension dimension by amount amount.
-static void med_scale_segment_new(const vsegptr_t sp, int dimension, fix amount)
+static void med_scale_segment_new(const vmsegptr_t sp, int dimension, fix amount)
 {
 	vms_matrix	mat;
 
@@ -174,7 +174,7 @@ static void med_scale_segment_new(const vsegptr_t sp, int dimension, fix amount)
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
-static void extract_vector_from_segment_side(const vsegptr_t sp, const unsigned side, vms_vector &vp, const unsigned vla, const unsigned vlb, const unsigned vra, const unsigned vrb)
+static void extract_vector_from_segment_side(const vmsegptr_t sp, const unsigned side, vms_vector &vp, const unsigned vla, const unsigned vlb, const unsigned vra, const unsigned vrb)
 {
 	auto &sv = Side_to_verts[side];
 	const auto v1 = vm_vec_sub(Vertices[sp->verts[sv[vra]]], Vertices[sp->verts[sv[vla]]]);
@@ -187,7 +187,7 @@ static void extract_vector_from_segment_side(const vsegptr_t sp, const unsigned 
 //	Extract the right vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the left face of the segment
 // to the center of the right face of the segment.
-void med_extract_right_vector_from_segment_side(const vsegptr_t sp, int sidenum, vms_vector &vp)
+void med_extract_right_vector_from_segment_side(const vmsegptr_t sp, int sidenum, vms_vector &vp)
 {
 	extract_vector_from_segment_side(sp, sidenum, vp, 3, 2, 0, 1);
 }
@@ -196,7 +196,7 @@ void med_extract_right_vector_from_segment_side(const vsegptr_t sp, int sidenum,
 //	Extract the up vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the bottom face of the segment
 // to the center of the top face of the segment.
-void med_extract_up_vector_from_segment_side(const vsegptr_t sp, int sidenum, vms_vector &vp)
+void med_extract_up_vector_from_segment_side(const vmsegptr_t sp, int sidenum, vms_vector &vp)
 {
 	extract_vector_from_segment_side(sp, sidenum, vp, 1, 2, 0, 3);
 }
@@ -242,7 +242,7 @@ static int segsize_common(int dimension, fix amount)
 			for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 				propagated[s]++;
                         propagated[static_cast<int>(Side_opposite[i])]--;
-			med_propagate_tmaps_to_segments(vsegptridx(c), Cursegp, 1);
+			med_propagate_tmaps_to_segments(vmsegptridx(c), Cursegp, 1);
 		}
 	}
 

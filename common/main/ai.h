@@ -96,10 +96,10 @@ struct boss_gate_segment_array_t : public boss_special_segment_array_t {};
 extern boss_teleport_segment_array_t Boss_teleport_segs;
 }
 namespace dsx {
-void create_awareness_event(vobjptr_t objp, player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
+void create_awareness_event(vmobjptr_t objp, player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
 ai_mode ai_behavior_to_mode(ai_behavior behavior);
-void do_ai_robot_hit(vobjptridx_t robot, player_awareness_type_t type);
-void init_ai_object(vobjptridx_t objp, ai_behavior initial_mode, segidx_t hide_segment);
+void do_ai_robot_hit(vmobjptridx_t robot, player_awareness_type_t type);
+void init_ai_object(vmobjptridx_t objp, ai_behavior initial_mode, imsegidx_t hide_segment);
 }
 
 namespace dcx {
@@ -112,19 +112,19 @@ extern vms_vector Believed_player_pos;
 }
 
 namespace dsx {
-void move_towards_segment_center(vobjptr_t objp);
-objptridx_t gate_in_robot(int type, vsegptridx_t segnum);
-void do_ai_frame(vobjptridx_t objp);
+void move_towards_segment_center(vmobjptr_t objp);
+imobjptridx_t gate_in_robot(int type, vmsegptridx_t segnum);
+void do_ai_frame(vmobjptridx_t objp);
 void do_ai_frame_all();
 }
 extern void create_all_paths(void);
 namespace dsx {
-void create_path_to_station(vobjptridx_t objp, int max_length);
-void ai_follow_path(vobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player);
+void create_path_to_station(vmobjptridx_t objp, int max_length);
+void ai_follow_path(vmobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player);
 void ai_turn_towards_vector(const vms_vector &vec_to_player, object_base &obj, fix rate);
 extern void init_ai_objects(void);
-void create_n_segment_path(vobjptridx_t objp, int path_length, segidx_t avoid_seg);
-void create_n_segment_path_to_door(vobjptridx_t objp, int path_length);
+void create_n_segment_path(vmobjptridx_t objp, int path_length, imsegidx_t avoid_seg);
+void create_n_segment_path_to_door(vmobjptridx_t objp, int path_length);
 }
 #endif
 namespace dcx {
@@ -140,33 +140,33 @@ static inline vms_vector make_random_vector()
 namespace dsx {
 void init_robots_for_level();
 #if defined(DXX_BUILD_DESCENT_II)
-void create_path_to_segment(vobjptridx_t objp, segnum_t goalseg, int max_length, int safety_flag);
-int polish_path(vobjptridx_t objp, point_seg *psegs, int num_points);
-void move_towards_player(vobjptr_t objp, const vms_vector &vec_to_player);
+void create_path_to_segment(vmobjptridx_t objp, segnum_t goalseg, int max_length, int safety_flag);
+int polish_path(vmobjptridx_t objp, point_seg *psegs, int num_points);
+void move_towards_player(vmobjptr_t objp, const vms_vector &vec_to_player);
 #endif
 
 // max_length is maximum depth of path to create.
 // If -1, use default: MAX_DEPTH_TO_SEARCH_FOR_PLAYER
-void create_path_to_player(vobjptridx_t objp, int max_length, int safety_flag);
-void attempt_to_resume_path(vobjptridx_t objp);
+void create_path_to_player(vmobjptridx_t objp, int max_length, int safety_flag);
+void attempt_to_resume_path(vmobjptridx_t objp);
 
 // When a robot and a player collide, some robots attack!
-void do_ai_robot_hit_attack(vobjptridx_t robot, vobjptridx_t player, const vms_vector &collision_point);
+void do_ai_robot_hit_attack(vmobjptridx_t robot, vmobjptridx_t player, const vms_vector &collision_point);
 int ai_door_is_openable(
-	vobjptr_t,
+	vmobjptr_t,
 #if defined(DXX_BUILD_DESCENT_II)
 	player_flags,
 #endif
 	vcsegptr_t segp, int sidenum);
-int player_is_visible_from_object(vobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
+int player_is_visible_from_object(vmobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
-int ai_multiplayer_awareness(vobjptridx_t objp, int awareness_level);
+int ai_multiplayer_awareness(vmobjptridx_t objp, int awareness_level);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // In escort.c
-void do_escort_frame(vobjptridx_t objp, const object &plrobj, fix dist_to_player, int player_visibility);
-void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player);
-void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player);
+void do_escort_frame(vmobjptridx_t objp, const object &plrobj, fix dist_to_player, int player_visibility);
+void do_snipe_frame(vmobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player);
+void do_thief_frame(vmobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player);
 #endif
 }
 
@@ -180,7 +180,7 @@ static inline void force_dump_ai_objects_all(const char *msg)
 #endif
 
 namespace dsx {
-void start_boss_death_sequence(vobjptr_t objp);
+void start_boss_death_sequence(vmobjptr_t objp);
 extern void ai_init_boss_for_ship(void);
 void boss_init_all_segments(const object &boss_objnum);
 
@@ -238,7 +238,7 @@ extern stolen_items_t Stolen_items;
 
 extern void  create_buddy_bot(void);
 
-objptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos);
+imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos);
 void init_ai_for_ship(void);
 
 // Amount of time since the current robot was last processed for things such as movement.
@@ -256,11 +256,11 @@ extern int Stolen_item_index;   // Used in ai.c for controlling rate of Thief fl
 void init_ai_frame(player_flags);
 
 __attribute_warn_unused_result
-std::size_t create_bfs_list(vobjptr_t robot, vcsegidx_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);
+std::size_t create_bfs_list(vmobjptr_t robot, vcsegidx_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);
 
 template <std::size_t N>
 __attribute_warn_unused_result
-std::size_t create_bfs_list(const vobjptr_t &robot, const vcsegidx_t &start_seg, const player_flags powerup_flags, array<segnum_t, N> &bfs_list)
+std::size_t create_bfs_list(const vmobjptr_t &robot, const vcsegidx_t &start_seg, const player_flags powerup_flags, array<segnum_t, N> &bfs_list)
 {
 	return create_bfs_list(robot, start_seg, powerup_flags, bfs_list.data(), N);
 }
@@ -297,13 +297,13 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 extern fix64            Boss_hit_time;
 #endif
-int create_path_points(vobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, segidx_t avoid_seg);
+int create_path_points(vmobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, imsegidx_t avoid_seg);
 
 int ai_save_state(PHYSFS_File * fp);
 int ai_restore_state(PHYSFS_File *fp, int version, int swap);
 
 #if DXX_USE_EDITOR
-void player_follow_path(vobjptr_t objp);
+void player_follow_path(vmobjptr_t objp);
 void check_create_player_path();
 #endif
 }

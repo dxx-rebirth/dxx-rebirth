@@ -91,7 +91,7 @@ static void draw_seg_objects(const vcsegptr_t seg)
 	range_for (const auto obj, objects_in(*seg))
 	{
 		auto sphere_point = g3_rotate_point(obj->pos);
-		const uint8_t color = (obj->type==OBJ_PLAYER && static_cast<const cobjptridx_t::index_type>(obj) > 0)
+		const uint8_t color = (obj->type==OBJ_PLAYER && static_cast<const icobjptridx_t::index_type>(obj) > 0)
 			? BM_XRGB(0,  25, 0)
 			: (obj == ConsoleObject
 				? PLAYER_COLOR
@@ -130,7 +130,7 @@ static void draw_segment(const vcsegptr_t seg, const uint8_t color)
 }
 
 //for looking for segment under a mouse click
-static void check_segment(const vsegptridx_t seg)
+static void check_segment(const vmsegptridx_t seg)
 {
 	auto &svp = seg->verts;
 	if (!rotate_list(svp).uand)
@@ -492,7 +492,7 @@ static void draw_special_wall(const vcsegptr_t seg, int side )
 
 // ----------------------------------------------------------------------------------------------------------------
 // Recursively parse mine structure, drawing segments.
-static void draw_mine_sub(const vsegptridx_t segnum,int depth, visited_segment_bitarray_t &visited)
+static void draw_mine_sub(const vmsegptridx_t segnum,int depth, visited_segment_bitarray_t &visited)
 {
 	if (visited[segnum]) return;		// If segment already drawn, return.
 	visited[segnum] = true;		// Say that this segment has been drawn.
@@ -546,7 +546,7 @@ static void clear_edge_list()
 }
 
 //draws an entire mine
-static void draw_mine(const vsegptridx_t mine_ptr,int depth)
+static void draw_mine(const vmsegptridx_t mine_ptr,int depth)
 {
 	visited_segment_bitarray_t visited;
 
@@ -575,7 +575,7 @@ static void draw_mine_all(int automap_flag)
 
 	n_used = 0;
 
-	range_for (const auto &&segp, vsegptridx)
+	range_for (const auto &&segp, vmsegptridx)
 	{
 		if (segp->segnum != segment_none)
 		{
@@ -754,7 +754,7 @@ static void draw_coordinate_axes(void)
 		free_vert(i);
 }
 
-void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine_ptr,int depth)
+void draw_world(grs_canvas *screen_canvas,editor_view *v,const vmsegptridx_t mine_ptr,int depth)
 {
 	vms_vector viewer_position;
 
@@ -840,7 +840,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine
 //find the segments that render at a given screen x,y
 //parms other than x,y are like draw_world
 //fills in globals N_found_segs & Found_segs
-void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine_ptr,int depth)
+void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,const vmsegptridx_t mine_ptr,int depth)
 {
 	vms_vector viewer_position;
 

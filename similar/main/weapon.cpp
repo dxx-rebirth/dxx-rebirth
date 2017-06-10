@@ -1026,7 +1026,7 @@ int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, cons
 
 void weapons_homing_all()
 {
-	range_for(auto &&objp, vobjptr)
+	range_for(auto &&objp, vmobjptr)
 		if (objp->type == OBJ_WEAPON)
 			objp->ctype.laser_info.track_goal = object_none;
 	range_for (auto &w, Weapon_info)
@@ -1102,7 +1102,7 @@ void rock_the_mine_frame(void)
 
 					//	Shake the buddy!
 					if (Buddy_objnum != object_none) {
-						const auto &&objp = vobjptr(Buddy_objnum);
+						const auto &&objp = vmobjptr(Buddy_objnum);
 						objp->mtype.phys_info.rotvel.x += rx*4;
 						objp->mtype.phys_info.rotvel.z += rz*4;
 					}
@@ -1171,7 +1171,7 @@ static void seismic_disturbance_frame(void)
 
 				//	Shake the buddy!
 				if (Buddy_objnum != object_none) {
-					const auto &&objp = vobjptr(Buddy_objnum);
+					const auto &&objp = vmobjptr(Buddy_objnum);
 					objp->mtype.phys_info.rotvel.x += rx*4;
 					objp->mtype.phys_info.rotvel.z += rz*4;
 				}
@@ -1236,7 +1236,7 @@ void process_super_mines_frame(void)
 	Super_mines_yes = 0;
 
 	for (objnum_t i=start; i<=Highest_object_index; i+=add) {
-		const auto io = vobjptridx(i);
+		const auto io = vmobjptridx(i);
 		if (likely(io->type != OBJ_WEAPON || get_weapon_id(io) != weapon_id_type::SUPERPROX_ID))
 			continue;
 		Super_mines_yes = 1;
@@ -1244,7 +1244,7 @@ void process_super_mines_frame(void)
 			continue;
 		const auto parent_num = io->ctype.laser_info.parent_num;
 		const auto &bombpos = io->pos;
-		range_for (const auto &&jo, vobjptridx)
+		range_for (const auto &&jo, vmobjptridx)
 		{
 			if (unlikely(jo == parent_num))
 				continue;
@@ -1272,7 +1272,7 @@ void process_super_mines_frame(void)
 
 //this function is for when the player intentionally drops a powerup
 //this function is based on drop_powerup()
-objptridx_t spit_powerup(const vobjptr_t spitter, int id,int seed)
+imobjptridx_t spit_powerup(const vmobjptr_t spitter, int id,int seed)
 {
 	d_srand(seed);
 
@@ -1302,7 +1302,7 @@ objptridx_t spit_powerup(const vobjptr_t spitter, int id,int seed)
 		}
 	}
 
-	const auto &&obj = obj_create(OBJ_POWERUP, id, vsegptridx(spitter->segnum), new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+	const auto &&obj = obj_create(OBJ_POWERUP, id, vmsegptridx(spitter->segnum), new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
 	if (obj == object_none)
 	{
@@ -1392,7 +1392,7 @@ void DropCurrentWeapon (player_info &player_info)
 	}
 
 	const auto seed = d_rand();
-	const auto objnum = spit_powerup(vobjptr(ConsoleObject), drop_type, seed);
+	const auto objnum = spit_powerup(vmobjptr(ConsoleObject), drop_type, seed);
 	if (objnum == object_none)
 	{
 		HUD_init_message(HM_DEFAULT, "Failed to drop %s!", weapon_name);
@@ -1550,7 +1550,7 @@ void DropSecondaryWeapon (player_info &player_info)
 
 	seed = d_rand();
 
-	auto objnum = spit_powerup(vobjptr(ConsoleObject), weapon_drop_id, seed);
+	auto objnum = spit_powerup(vmobjptr(ConsoleObject), weapon_drop_id, seed);
 
 	if (objnum == object_none)
 		return;

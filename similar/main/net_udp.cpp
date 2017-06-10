@@ -1544,7 +1544,7 @@ static void net_udp_new_player(UDP_sequence_packet *const their)
 
 	Players[pnum].connected = CONNECT_PLAYING;
 	kill_matrix[pnum] = {};
-	const auto &&objp = vobjptr(Players[pnum].objnum);
+	const auto &&objp = vmobjptr(Players[pnum].objnum);
 	auto &player_info = objp->ctype.player_info;
 	player_info.net_killed_total = 0;
 	player_info.net_kills_total = 0;
@@ -1711,7 +1711,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 		net_udp_noloss_clear_mdata_trace(player_num);
 	}
 
-	auto &obj = *vobjptr(Players[player_num].objnum);
+	auto &obj = *vmobjptr(Players[player_num].objnum);
 	auto &player_info = obj.ctype.player_info;
 	player_info.KillGoalCount = 0;
 
@@ -1787,7 +1787,7 @@ static void net_udp_process_monitor_vector(uint32_t vector)
 {
 	if (!vector)
 		return;
-	range_for (const auto &&seg, vsegptr)
+	range_for (const auto &&seg, vmsegptr)
 	{
 		int tm, ec, bm;
 		range_for (auto &j, seg->sides)
@@ -1943,7 +1943,7 @@ void net_udp_send_objects(void)
 	objnum_t i;
 	for (i = Network_send_objnum; i <= Highest_object_index; i++)
 	{
-		const auto &&objp = vobjptr(i);
+		const auto &&objp = vmobjptr(i);
 		if ((objp->type != OBJ_POWERUP) && (objp->type != OBJ_PLAYER) &&
 				(objp->type != OBJ_CNTRLCEN) && (objp->type != OBJ_GHOST) &&
 				(objp->type != OBJ_ROBOT) && (objp->type != OBJ_HOSTAGE)
@@ -1970,7 +1970,7 @@ void net_udp_send_objects(void)
 		object_buffer[loc] = owner;                                 loc += 1;
 		PUT_INTEL_INT(&object_buffer[loc], remote_objnum);            loc += 4;
 		// use object_rw to send objects for now. if object sometime contains some day contains something useful the client should know about, we should use it. but by now it's also easier to use object_rw because then we also do not need fix64 timer values.
-		multi_object_to_object_rw(vobjptr(i), reinterpret_cast<object_rw *>(&object_buffer[loc]));
+		multi_object_to_object_rw(vmobjptr(i), reinterpret_cast<object_rw *>(&object_buffer[loc]));
 		if (words_bigendian)
 			object_rw_swap(reinterpret_cast<object_rw *>(&object_buffer[loc]), 1);
 		loc += sizeof(object_rw);
@@ -2107,7 +2107,7 @@ static void net_udp_read_object_packet( ubyte *data )
 				objnum = obj_allocate();
 			}
 			if (objnum != object_none) {
-				auto obj = vobjptridx(objnum);
+				auto obj = vmobjptridx(objnum);
 				if (obj->type != OBJ_NONE)
 				{
 					obj_unlink(obj);
@@ -2122,7 +2122,7 @@ static void net_udp_read_object_packet( ubyte *data )
 				obj->attached_obj = object_none;
 				if (segnum != segment_none)
 				{
-					obj_link_unchecked(obj, vsegptridx(segnum));
+					obj_link_unchecked(obj, vmsegptridx(segnum));
 				}
 				if (obj_owner == my_pnum) 
 					map_objnum_local_to_local(objnum);
@@ -2238,7 +2238,7 @@ static void net_udp_add_player(UDP_sequence_packet *p)
 	Netgame.players[N_players].protocol.udp.addr = p->player.protocol.udp.addr;
 	Netgame.players[N_players].rank=p->player.rank;
 	Netgame.players[N_players].connected = CONNECT_PLAYING;
-	auto &obj = *vobjptr(Players[N_players].objnum);
+	auto &obj = *vmobjptr(Players[N_players].objnum);
 	auto &player_info = obj.ctype.player_info;
 	player_info.KillGoalCount = 0;
 	Players[N_players].connected = CONNECT_PLAYING;
@@ -3058,7 +3058,7 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 		tmpvar = data[len];							len++;
 		if ((Network_status != NETSTAT_PLAYING) && (Players[pnum].connected == CONNECT_PLAYING) && (tmpvar < Countdown_seconds_left))
 			Countdown_seconds_left = tmpvar;
-		auto &objp = *vobjptr(Players[pnum].objnum);
+		auto &objp = *vmobjptr(Players[pnum].objnum);
 		auto &player_info = objp.ctype.player_info;
 		player_info.net_kills_total = GET_INTEL_SHORT(&data[len]);
 		len += 2;
@@ -3093,7 +3093,7 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 
 			if (static_cast<int>(data[len]) == CONNECT_DISCONNECTED)
 				multi_disconnect_player(i);
-			auto &objp = *vobjptr(Players[i].objnum);
+			auto &objp = *vmobjptr(Players[i].objnum);
 			auto &player_info = objp.ctype.player_info;
 			Players[i].connected = data[len];				len++;
 			player_info.net_kills_total = GET_INTEL_SHORT(&data[len]);
@@ -4032,7 +4032,7 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 		}
 		Players[i].callsign = Netgame.players[i].callsign;
 		Players[i].connected = Netgame.players[i].connected;
-		auto &objp = *vobjptr(Players[i].objnum);
+		auto &objp = *vmobjptr(Players[i].objnum);
 		auto &player_info = objp.ctype.player_info;
 		player_info.net_kills_total = Netgame.player_kills[i];
 		player_info.net_killed_total = Netgame.killed[i];
@@ -4070,11 +4070,11 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 	{
 		for (int i=0; i<NumNetPlayerPositions; i++)
 		{
-			const auto o = vobjptridx(Players[i].objnum);
+			const auto o = vmobjptridx(Players[i].objnum);
 			const auto &p = Player_init[Netgame.locations[i]];
 			o->pos = p.pos;
 			o->orient = p.orient;
-			obj_relink(o, vsegptridx(p.segnum));
+			obj_relink(o, vmsegptridx(p.segnum));
 		}
 	}
 
@@ -5242,7 +5242,7 @@ void net_udp_send_pdata()
 	buf[len] = get_local_player().connected;						len++;
 
 	quaternionpos qpp{};
-	create_quaternionpos(&qpp, vobjptr(get_local_player().objnum), 0);
+	create_quaternionpos(&qpp, vmobjptr(get_local_player().objnum), 0);
 	PUT_INTEL_SHORT(&buf[len], qpp.orient.w);							len += 2;
 	PUT_INTEL_SHORT(&buf[len], qpp.orient.x);							len += 2;
 	PUT_INTEL_SHORT(&buf[len], qpp.orient.y);							len += 2;
@@ -5376,7 +5376,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 			return;
 	}
 
-	const auto TheirObj = vobjptridx(TheirObjnum);
+	const auto TheirObj = vmobjptridx(TheirObjnum);
 	Netgame.players[TheirPlayernum].LastPacketTime = timer_query();
 
         if (Players[Player_num].connected == CONNECT_DISCONNECTED || Players[Player_num].connected == CONNECT_WAITING) // do not read the packet unless the level is loaded.
@@ -5391,7 +5391,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 static void net_udp_send_smash_lights (const playernum_t pnum)
  {
   // send the lights that have been blown out
-	range_for (const auto &&segp, vsegptridx)
+	range_for (const auto &&segp, vmsegptridx)
 	{
 		if (segp->light_subtracted)
 			multi_send_light_specific(pnum, segp, segp->light_subtracted);

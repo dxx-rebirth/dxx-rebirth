@@ -77,8 +77,8 @@ static fix d_homer_tick_count = 0;
 static int Muzzle_queue_index;
 
 namespace dsx {
-static objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptridx_t tracker, int track_obj_type1, int track_obj_type2);
-static objptridx_t find_homing_object(const vms_vector &curpos, const vobjptridx_t tracker);
+static imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjptridx_t tracker, int track_obj_type1, int track_obj_type2);
+static imobjptridx_t find_homing_object(const vms_vector &curpos, const vmobjptridx_t tracker);
 
 //---------------------------------------------------------------------------------
 // Called by render code.... determines if the laser is from a robot or the
@@ -267,7 +267,7 @@ static void do_muzzle_stuff(segnum_t segnum, const vms_vector &pos)
 namespace dsx {
 
 //creates a weapon object
-static objptridx_t create_weapon_object(int weapon_type,const vsegptridx_t segnum, const vms_vector &position)
+static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t segnum, const vms_vector &position)
 {
 	int rtype=-1;
 	fix laser_radius = -1;
@@ -357,7 +357,7 @@ constexpr vm_distance OMEGA_MAX_TRACKABLE_DIST = MAX_OMEGA_DIST; //	An object mu
 
 // Delete omega blobs further away than MAX_OMEGA_DIST
 // Since last omega blob has VERY high velocity it's impossible to ensure a constant travel distance on varying FPS. So delete if they exceed their maximum distance.
-static int omega_cleanup(const vobjptridx_t weapon)
+static int omega_cleanup(const vmobjptridx_t weapon)
 {
 	if (weapon->type != OBJ_WEAPON || get_weapon_id(weapon) != weapon_id_type::OMEGA_ID)
 		return 0;
@@ -392,9 +392,9 @@ int ok_to_do_omega_damage(const vcobjptr_t weapon)
 }
 
 // ---------------------------------------------------------------------------------
-static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, const vobjptridx_t parent_objp)
+static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, const vmobjptridx_t parent_objp)
 {
-	objptridx_t  last_created_objnum = object_none;
+	imobjptridx_t  last_created_objnum = object_none;
 	fix		dist_to_goal = 0, omega_blob_dist = 0;
 	array<fix, MAX_OMEGA_BLOBS> perturb_array{};
 
@@ -554,7 +554,7 @@ void omega_charge_frame(player_info &player_info)
 // ---------------------------------------------------------------------------------
 //	*objp is the object firing the omega cannon
 //	*pos is the location from which the omega bolt starts
-static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &firing_pos, const vobjptridx_t weapon_objp)
+static void do_omega_stuff(const vmobjptridx_t parent_objp, const vms_vector &firing_pos, const vmobjptridx_t weapon_objp)
 {
 	vms_vector	goal_pos;
 	const auto pnum = get_player_id(parent_objp);
@@ -580,7 +580,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 
 	const auto &&lock_objnum = find_homing_object(firing_pos, weapon_objp);
 
-	const auto &&firing_segnum = find_point_seg(firing_pos, vsegptridx(parent_objp->segnum));
+	const auto &&firing_segnum = find_point_seg(firing_pos, vmsegptridx(parent_objp->segnum));
 
 	//	Play sound.
 	{
@@ -588,7 +588,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 	if ( parent_objp == Viewer )
 		digi_play_sample(flash_sound, F1_0);
 	else
-		digi_link_sound_to_pos(flash_sound, vsegptridx(weapon_objp->segnum), 0, weapon_objp->pos, 0, F1_0);
+		digi_link_sound_to_pos(flash_sound, vmsegptridx(weapon_objp->segnum), 0, weapon_objp->pos, 0, F1_0);
 	}
 
 	// -- if ((Last_omega_muzzle_flash_time + F1_0/4 < GameTime) || (Last_omega_muzzle_flash_time > GameTime)) {
@@ -643,7 +643,7 @@ static inline int is_laser_weapon_type(weapon_id_type weapon_type)
 // ---------------------------------------------------------------------------------
 // Initializes a laser after Fire is pressed
 //	Returns object number.
-objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, const vsegptridx_t segnum, const vobjptridx_t parent, weapon_id_type weapon_type, int make_sound )
+imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, const vmsegptridx_t segnum, const vmobjptridx_t parent, weapon_id_type weapon_type, int make_sound )
 {
 	fix parent_speed, weapon_speed;
 	fix volume;
@@ -735,7 +735,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 	if (parent->type == OBJ_ROBOT)
 		do_muzzle_stuff(segnum, position);
 
-	const objptridx_t obj = create_weapon_object(weapon_type,segnum,position);
+	const imobjptridx_t obj = create_weapon_object(weapon_type,segnum,position);
 
 	if (obj == object_none)
 	{
@@ -753,7 +753,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 		if (parent != Viewer && parent->type != OBJ_WEAPON) {
 			// Muzzle flash
 			if (weapon_info.flash_vclip > -1 )
-				object_create_muzzle_flash(vsegptridx(obj->segnum), obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
+				object_create_muzzle_flash(vmsegptridx(obj->segnum), obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
 		}
 
 		do_omega_stuff(parent, position, obj);
@@ -888,7 +888,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 #endif
 	{
 	 	const auto end_pos = vm_vec_scale_add(obj->pos, direction, (laser_length/2) );
-		const auto &&end_segnum = find_point_seg(end_pos, vsegptridx(obj->segnum));
+		const auto &&end_segnum = find_point_seg(end_pos, vmsegptridx(obj->segnum));
 		if (end_segnum != obj->segnum) {
 			if (end_segnum != segment_none) {
 				obj->pos = end_pos;
@@ -947,7 +947,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Calls Laser_create_new, but takes care of the segment and point computation for you.
-objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector &position, const vobjptridx_t parent, weapon_id_type weapon_type, int make_sound )
+imobjptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector &position, const vmobjptridx_t parent, weapon_id_type weapon_type, int make_sound )
 {
 	fvi_query	fq;
 	fvi_info		hit_data;
@@ -973,7 +973,7 @@ objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector 
 		return object_none;
 	}
 
-	return Laser_create_new(direction, hit_data.hit_pnt, vsegptridx(hit_data.hit_seg), parent, weapon_type, make_sound);
+	return Laser_create_new(direction, hit_data.hit_pnt, vmsegptridx(hit_data.hit_seg), parent, weapon_type, make_sound);
 }
 
 }
@@ -1047,7 +1047,7 @@ static fix get_scaled_min_trackable_dot()
 //	Return true if weapon *tracker is able to track object Objects[track_goal], else return false.
 //	In order for the object to be trackable, it must be within a reasonable turning radius for the missile
 //	and it must not be obstructed by a wall.
-static int object_is_trackable(const objptridx_t objp, const vobjptridx_t tracker, fix *dot)
+static int object_is_trackable(const imobjptridx_t objp, const vmobjptridx_t tracker, fix *dot)
 {
 	if (objp == object_none)
 		return 0;
@@ -1089,7 +1089,7 @@ static int object_is_trackable(const objptridx_t objp, const vobjptridx_t tracke
 }
 
 //	--------------------------------------------------------------------------------------------
-static objptridx_t call_find_homing_object_complete(const vms_vector &curpos, const vobjptridx_t tracker)
+static imobjptridx_t call_find_homing_object_complete(const vms_vector &curpos, const vmobjptridx_t tracker)
 {
 	if (Game_mode & GM_MULTI) {
 		if (tracker->ctype.laser_info.parent_type == OBJ_PLAYER) {
@@ -1114,7 +1114,7 @@ static objptridx_t call_find_homing_object_complete(const vms_vector &curpos, co
 //	--------------------------------------------------------------------------------------------
 //	Find object to home in on.
 //	Scan list of objects rendered last frame, find one that satisfies function of nearness to center and distance.
-static objptridx_t find_homing_object(const vms_vector &curpos, const vobjptridx_t tracker)
+static imobjptridx_t find_homing_object(const vms_vector &curpos, const vmobjptridx_t tracker)
 {
 	//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
 #ifndef NDEBUG
@@ -1136,7 +1136,7 @@ static objptridx_t find_homing_object(const vms_vector &curpos, const vobjptridx
 //	Can track two kinds of objects.  If you are only interested in one type, set track_obj_type2 to NULL
 //	Always track proximity bombs.  --MK, 06/14/95
 //	Make homing objects not track parent's prox bombs.
-objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptridx_t tracker, int track_obj_type1, int track_obj_type2)
+imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjptridx_t tracker, int track_obj_type1, int track_obj_type2)
 {
 	fix	max_dot = -F1_0*2;
 
@@ -1162,8 +1162,8 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 	}
 #endif
 
-	objptridx_t	best_objnum = object_none;
-	range_for (const auto &&curobjp, vobjptridx)
+	imobjptridx_t	best_objnum = object_none;
+	range_for (const auto &&curobjp, vmobjptridx)
 	{
 		int			is_proximity = 0;
 		fix			dot;
@@ -1263,7 +1263,7 @@ void calc_d_homer_tick()
 //	See if legal to keep tracking currently tracked object.  If not, see if another object is trackable.  If not, return -1,
 //	else return object number of tracking object.
 //	Computes and returns a fairly precise dot product.
-static objptridx_t track_track_goal(const objptridx_t track_goal, const vobjptridx_t tracker, fix *dot, fix tick_count)
+static imobjptridx_t track_track_goal(const imobjptridx_t track_goal, const vmobjptridx_t tracker, fix *dot, fix tick_count)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	if (object_is_trackable(track_goal, tracker, dot)) {
@@ -1330,7 +1330,7 @@ static objptridx_t track_track_goal(const objptridx_t track_goal, const vobjptri
 
 //-------------- Initializes a laser after Fire is pressed -----------------
 
-static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const fix delay_time, const int make_sound, const vms_vector &shot_orientation)
+static imobjptridx_t Laser_player_fire_spread_delay(const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const fix delay_time, const int make_sound, const vms_vector &shot_orientation)
 {
 	int			Fate;
 	vms_vector	LaserDir;
@@ -1400,7 +1400,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, const 
 		vm_vec_scale_add2(LaserDir, obj->orient.uvec, spreadu);
 	}
 
-	const auto &&objnum = Laser_create_new(LaserDir, LaserPos, vsegptridx(LaserSeg), obj, laser_type, make_sound);
+	const auto &&objnum = Laser_create_new(LaserDir, LaserPos, vmsegptridx(LaserSeg), obj, laser_type, make_sound);
 
 	if (objnum == object_none)
 		return object_none;
@@ -1491,20 +1491,20 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, const 
 }
 
 //	-----------------------------------------------------------------------------------------------------------
-static objptridx_t Laser_player_fire_spread(const vobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const int make_sound, const vms_vector &shot_orientation)
+static imobjptridx_t Laser_player_fire_spread(const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const int make_sound, const vms_vector &shot_orientation)
 {
 	return Laser_player_fire_spread_delay(obj, laser_type, gun_num, spreadr, spreadu, 0, make_sound, shot_orientation);
 }
 
 
 //	-----------------------------------------------------------------------------------------------------------
-objptridx_t Laser_player_fire(const vobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const int make_sound, const vms_vector &shot_orientation)
+imobjptridx_t Laser_player_fire(const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const int make_sound, const vms_vector &shot_orientation)
 {
 	return Laser_player_fire_spread(obj, laser_type, gun_num, 0, 0, make_sound, shot_orientation);
 }
 
 //	-----------------------------------------------------------------------------------------------------------
-void Flare_create(const vobjptridx_t obj)
+void Flare_create(const vmobjptridx_t obj)
 {
 	fix	energy_usage;
 
@@ -1575,7 +1575,7 @@ static void homing_missile_turn_towards_velocity(object_base &objp, const vms_ve
 
 //-------------------------------------------------------------------------------------------
 //sequence this laser object for this _frame_ (underscores added here to aid MK in his searching!)
-void Laser_do_weapon_sequence(const vobjptridx_t obj)
+void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 {
 	Assert(obj->control_type == CT_WEAPON);
 
@@ -1635,7 +1635,7 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 #ifdef NEWHOMER
 			if (d_homer_tick_step)
 			{
-				const auto &&track_goal = track_track_goal(objptridx(obj->ctype.laser_info.track_goal), obj, &dot, d_homer_tick_count);
+				const auto &&track_goal = track_track_goal(imobjptridx(obj->ctype.laser_info.track_goal), obj, &dot, d_homer_tick_count);
 
 				if (track_goal == get_local_player().objnum) {
 					fix	dist_to_player;
@@ -1700,7 +1700,7 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
                         }
 #else // old FPS-dependent homers - NOTE: I know this is very redundant but I want to keep the historical code 100% preserved to compare against potential changes in the above.
 			//	Make sure the object we are tracking is still trackable.
-			const auto &&track_goal = track_track_goal(objptridx(obj->ctype.laser_info.track_goal), obj, &dot, d_tick_count);
+			const auto &&track_goal = track_track_goal(imobjptridx(obj->ctype.laser_info.track_goal), obj, &dot, d_tick_count);
 
 			if (track_goal == get_local_player().objnum) {
 				fix	dist_to_player;
@@ -1900,7 +1900,7 @@ void do_laser_firing_player(object &plrobj)
 #endif
 			}
 
-			rval += do_laser_firing(vobjptridx(get_local_player().objnum), Primary_weapon, laser_level, flags, nfires, plrobj.orient.fvec);
+			rval += do_laser_firing(vmobjptridx(get_local_player().objnum), Primary_weapon, laser_level, flags, nfires, plrobj.orient.fvec);
 
 			pl_energy -= (energy_used * rval) / Weapon_info[weapon_index].fire_count;
 			if (pl_energy < 0)
@@ -1934,7 +1934,7 @@ void do_laser_firing_player(object &plrobj)
 //	Returns number of times a weapon was fired.  This is typically 1, but might be more for low frame rates.
 //	More than one shot is fired with a pseudo-delay so that players on slow machines can fire (for themselves
 //	or other players) often enough for things like the vulcan cannon.
-int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int nfires, vms_vector shot_orientation)
+int do_laser_firing(vmobjptridx_t objp, int weapon_num, int level, int flags, int nfires, vms_vector shot_orientation)
 {
 	switch (weapon_num) {
 		case primary_weapon_index_t::LASER_INDEX: {
@@ -2152,7 +2152,7 @@ bool laser_info::test_hitobj(const vcobjidx_t o) const
 
 //	-------------------------------------------------------------------------------------------
 //	if goal_obj == -1, then create random vector
-static objptridx_t create_homing_missile(const vobjptridx_t objp, const objptridx_t goal_obj, weapon_id_type objtype, int make_sound)
+static imobjptridx_t create_homing_missile(const vmobjptridx_t objp, const imobjptridx_t goal_obj, weapon_id_type objtype, int make_sound)
 {
 	vms_vector	vector_to_goal;
 	//vms_vector	goal_pos;
@@ -2166,7 +2166,7 @@ static objptridx_t create_homing_missile(const vobjptridx_t objp, const objptrid
 	}
 
 	//	Create a vector towards the goal, then add some noise to it.
-	const auto &&objnum = Laser_create_new(vector_to_goal, objp->pos, vsegptridx(objp->segnum), objp, objtype, make_sound);
+	const auto &&objnum = Laser_create_new(vector_to_goal, objp->pos, vmsegptridx(objp->segnum), objp, objtype, make_sound);
 	if (objnum != object_none)
 	{
 	// Fixed to make sure the right person gets credit for the kill
@@ -2191,7 +2191,7 @@ struct miniparent
 
 //-----------------------------------------------------------------------------
 // Create the children of a smart bomb, which is a bunch of homing missiles.
-static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t num_smart_children, const miniparent parent)
+static void create_smart_children(const vmobjptridx_t objp, const uint_fast32_t num_smart_children, const miniparent parent)
 {
 	unsigned numobjs = 0;
 	weapon_id_type blob_id;
@@ -2277,7 +2277,7 @@ static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t n
 		for (auto i = num_smart_children; i--;)
 		{
 			const auto &&sel_objnum = numobjs
-				? objptridx((numobjs == 1)
+				? imobjptridx((numobjs == 1)
 					? objlist[0]
 					: get_random_different_object())
 				: object_none;
@@ -2286,7 +2286,7 @@ static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t n
 	}
 }
 
-void create_weapon_smart_children(const vobjptridx_t objp)
+void create_weapon_smart_children(const vmobjptridx_t objp)
 {
 	const auto wid = get_weapon_id(objp);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2304,7 +2304,7 @@ void create_weapon_smart_children(const vobjptridx_t objp)
 
 #if defined(DXX_BUILD_DESCENT_II)
 
-void create_robot_smart_children(const vobjptridx_t objp, const uint_fast32_t num_smart_children)
+void create_robot_smart_children(const vmobjptridx_t objp, const uint_fast32_t num_smart_children)
 {
 	create_smart_children(objp, num_smart_children, {OBJ_ROBOT, objp});
 }
@@ -2319,7 +2319,7 @@ void release_guided_missile(int player_num)
 
 		Missile_viewer = Guided_missile[player_num];
 		if (Game_mode & GM_MULTI)
-			multi_send_guided_info(vobjptr(Missile_viewer), 1);
+			multi_send_guided_info(vmobjptr(Missile_viewer), 1);
 		if (Newdemo_state==ND_STATE_RECORDING)
 		 newdemo_record_guided_end();
 	 }
@@ -2377,7 +2377,7 @@ void do_missile_firing(int drop_bomb)
 			Missile_gun++;
 		}
 
-		const auto &&objnum = Laser_player_fire(vobjptridx(ConsoleObject), weapon_index, weapon_gun, 1, get_local_plrobj().orient.fvec);
+		const auto &&objnum = Laser_player_fire(vmobjptridx(ConsoleObject), weapon_index, weapon_gun, 1, get_local_plrobj().orient.fvec);
 
                 if (weapon != CONCUSSION_INDEX)
 			maybe_drop_net_powerup(Secondary_weapon_to_powerup[weapon], 1, 0);
@@ -2390,7 +2390,7 @@ void do_missile_firing(int drop_bomb)
 		{
 			vms_vector force_vec;
 
-			const auto &&console = vobjptr(ConsoleObject);
+			const auto &&console = vmobjptr(ConsoleObject);
 			force_vec.x = -(ConsoleObject->orient.fvec.x << 7);
 			force_vec.y = -(ConsoleObject->orient.fvec.y << 7);
 			force_vec.z = -(ConsoleObject->orient.fvec.z << 7);

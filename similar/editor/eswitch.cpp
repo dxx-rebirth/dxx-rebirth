@@ -76,7 +76,7 @@ struct trigger_dialog
 //-----------------------------------------------------------------
 // Adds a trigger to wall, and returns the trigger number. 
 // If there is a trigger already present, it returns the trigger number. (To be replaced)
-static trgnum_t add_trigger(const vsegptr_t seg, short side)
+static trgnum_t add_trigger(const vmsegptr_t seg, short side)
 {
 	trgnum_t trigger_num = Num_triggers;
 
@@ -88,10 +88,10 @@ static trgnum_t add_trigger(const vsegptr_t seg, short side)
 	if (wall_num == wall_none) {
 		wall_add_to_markedside(WALL_OPEN);
 		wall_num = seg->sides[side].wall_num;
-		wt = &vwallptr(wall_num)->trigger;
+		wt = &vmwallptr(wall_num)->trigger;
 		// Set default values first time trigger is added
 	} else {
-		auto &w = *vwallptr(wall_num);
+		auto &w = *vmwallptr(wall_num);
 		if (w.trigger != trigger_none)
 			return w.trigger;
 
@@ -99,7 +99,7 @@ static trgnum_t add_trigger(const vsegptr_t seg, short side)
 		wt = &w.trigger;
 	}
 	*wt = trigger_num;
-	const auto &&t = vtrgptr(trigger_num);
+	const auto &&t = vmtrgptr(trigger_num);
 	t->flags = {};
 	t->value = F1_0*5;
 	t->num_links = 0;
@@ -133,7 +133,7 @@ static int trigger_flag_Markedside(const TRIGGER_FLAG flag, const int value)
 		return 0;
 	}
 
-	auto &flags = vtrgptr(trigger_num)->flags;
+	auto &flags = vmtrgptr(trigger_num)->flags;
  	if (value)
 		flags |= flag;
 	else
@@ -166,7 +166,7 @@ static int bind_matcen_to_trigger() {
 		return 0;
 	}
 
-	const auto &&t = vtrgptr(trigger_num);
+	const auto &&t = vmtrgptr(trigger_num);
 	const auto link_num = t->num_links;
 	for (int i=0;i<link_num;i++)
 		if (Cursegp == t->seg[i])
@@ -213,7 +213,7 @@ int bind_wall_to_trigger() {
 		return 0;
 	}
 
-	const auto &&t = vtrgptr(trigger_num);
+	const auto &&t = vmtrgptr(trigger_num);
 	const auto link_num = t->num_links;
 	for (int i=0;i<link_num;i++)
 		if (Cursegp == t->seg[i] && Curside == t->side[i])
@@ -240,7 +240,7 @@ int remove_trigger_num(int trigger_num)
 		Triggers.set_count(Num_triggers - 1);
 		std::move(std::next(r.begin()), r.end(), r.begin());
 	
-		range_for (const auto &&w, vwallptr)
+		range_for (const auto &&w, vmwallptr)
 		{
 			auto &trigger = w->trigger;
 			if (trigger == trigger_num)
@@ -256,7 +256,7 @@ int remove_trigger_num(int trigger_num)
 	return 0;
 }
 
-int remove_trigger(const vsegptr_t seg, short side)
+int remove_trigger(const vmsegptr_t seg, short side)
 {    	
 	const auto wall_num = seg->sides[side].wall_num;
 	if (wall_num == wall_none)
@@ -276,7 +276,7 @@ static int trigger_remove()
 
 static int trigger_turn_all_ON()
 {
-	range_for (const auto t, vtrgptr)
+	range_for (const auto t, vmtrgptr)
 		t->flags &= TRIGGER_ON;
 	return 1;
 }

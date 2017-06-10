@@ -87,7 +87,7 @@ namespace dsx {
 static window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r);
 
 }
-static void call_init_ai_object(vobjptridx_t objp, ai_behavior behavior)
+static void call_init_ai_object(vmobjptridx_t objp, ai_behavior behavior)
 {
 	segnum_t	hide_segment;
 
@@ -110,7 +110,7 @@ static void call_init_ai_object(vobjptridx_t objp, ai_behavior behavior)
 static int RobotNextType()
 {
 	if (Cur_object_index != object_none )	{
-		const auto &&obj = vobjptridx(Cur_object_index);
+		const auto &&obj = vmobjptridx(Cur_object_index);
 		if (obj->type == OBJ_ROBOT)
 		{
 			obj->id++;
@@ -139,7 +139,7 @@ static int RobotNextType()
 static int RobotPrevType()
 {
 	if (Cur_object_index != object_none )	{
-		const auto &&obj = vobjptridx(Cur_object_index);
+		const auto &&obj = vmobjptridx(Cur_object_index);
 		if (obj->type == OBJ_ROBOT)
 		{
 			if (obj->id == 0 ) 
@@ -200,7 +200,7 @@ int		Cur_goody_count = 0;
 static void update_goody_info(void)
 {
 	if (Cur_object_index != object_none )	{
-		const auto &&obj = vobjptr(Cur_object_index);
+		const auto &&obj = vmobjptr(Cur_object_index);
 		if (obj->type == OBJ_ROBOT)
 		{
 			obj->contains_type = Cur_goody_type;
@@ -313,12 +313,12 @@ static int is_legal_type(int the_type)
 	return (the_type == OBJ_ROBOT) || (the_type == OBJ_CLUTTER);
 }
 
-static int is_legal_type_for_this_window(const objidx_t objnum)
+static int is_legal_type_for_this_window(const imobjidx_t objnum)
 {
 	if (objnum == object_none)
 		return 1;
 	else
-		return is_legal_type(vobjptr(objnum)->type);
+		return is_legal_type(vmobjptr(objnum)->type);
 }
 
 static int LocalObjectSelectNextinSegment(void)
@@ -335,7 +335,7 @@ static int LocalObjectSelectNextinSegment(void)
 				break;
 		}
 
-		const auto &&objp = vobjptr(Cur_object_index);
+		const auto &&objp = vmobjptr(Cur_object_index);
 		Cur_goody_type = objp->contains_type;
 		Cur_goody_id = objp->contains_id;
 		if (objp->contains_count < 0)
@@ -364,7 +364,7 @@ static int LocalObjectSelectNextinMine(void)
 				break;
 		}
 
-		const auto &&objp = vobjptr(Cur_object_index);
+		const auto &&objp = vmobjptr(Cur_object_index);
 		Cur_goody_type = objp->contains_type;
 		Cur_goody_id = objp->contains_id;
 		if (objp->contains_count < 0)
@@ -393,7 +393,7 @@ static int LocalObjectSelectPrevinMine(void)
 				break;
 		}
 
-		const auto &&objp = vobjptr(Cur_object_index);
+		const auto &&objp = vmobjptr(Cur_object_index);
 		Cur_goody_type = objp->contains_type;
 		Cur_goody_id = objp->contains_id;
 		if (objp->contains_count < 0)
@@ -442,7 +442,7 @@ static int LocalObjectPlaceObject(void)
 	if (rval == -1)
 		return -1;
 
-	const auto &&objp = vobjptr(Cur_object_index);
+	const auto &&objp = vmobjptr(Cur_object_index);
 	objp->contains_type = Cur_goody_type;
 	objp->contains_id = Cur_goody_id;
 	objp->contains_count = Cur_goody_count;
@@ -574,7 +574,7 @@ window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, ro
 		range_for (auto &i, r->initialMode)
 			ui_radio_set_value(i.get(), 0);
 		if ( Cur_object_index != object_none ) {
-			auto &behavior = vobjptr(Cur_object_index)->ctype.ai_info.behavior;
+			auto &behavior = vmobjptr(Cur_object_index)->ctype.ai_info.behavior;
 			switch (behavior)
 			{
 				case ai_behavior::AIB_STILL:
@@ -606,7 +606,7 @@ window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, ro
 		if (GADGET_PRESSED(r->initialMode[i].get()))
 		{
 			const auto b = static_cast<ai_behavior>(MIN_BEHAVIOR + i);
-			const auto &&objp = vobjptridx(Cur_object_index);
+			const auto &&objp = vmobjptridx(Cur_object_index);
 			auto &behavior = objp->ctype.ai_info.behavior;
 			if (behavior != b) {
 				behavior = b;		// Set the ai_state to the cooresponding radio button
@@ -627,7 +627,7 @@ window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, ro
 		r->time = Temp;
 
 		if (Cur_object_index != object_none )	{
-			const auto &&obj = vobjptr(Cur_object_index);
+			const auto &&obj = vmobjptr(Cur_object_index);
 
 			gr_set_current_canvas( r->robotViewBox->canvas );
 			draw_object_picture(*grd_curcanv, obj->id, r->angles, obj->type);
@@ -666,7 +666,7 @@ window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, ro
 		const char *type_text;
 
 		if (Cur_object_index != object_none) {
-			const auto &&obj = vobjptr(Cur_object_index);
+			const auto &&obj = vmobjptr(Cur_object_index);
 			Cur_goody_type = obj->contains_type;
 			Cur_goody_id = obj->contains_id;
 			if (obj->contains_count < 0)
@@ -738,8 +738,8 @@ struct object_dialog
 {
 	struct creation_context
 	{
-		vobjptr_t obj;
-		creation_context(vobjptr_t o) :
+		vmobjptr_t obj;
+		creation_context(vmobjptr_t o) :
 			obj(o)
 		{
 		}
@@ -771,7 +771,7 @@ int do_object_dialog()
 	if (Cur_object_index == object_none)
 		Cur_object_index = object_first;
 
-	auto obj = vobjptr(Cur_object_index);
+	auto obj = vmobjptr(Cur_object_index);
 	if (obj->type == OBJ_ROBOT)		//don't do this for robots
 		return 0;
 
@@ -822,7 +822,7 @@ static window_event_result object_dialog_handler(UI_DIALOG *dlg,const d_event &e
 		default:
 			break;
 	}
-	const auto &&obj = vobjptr(Cur_object_index);
+	const auto &&obj = vmobjptr(Cur_object_index);
 	int keypress = 0;
 	window_event_result rval = window_event_result::ignored;
 	

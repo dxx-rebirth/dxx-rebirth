@@ -129,7 +129,7 @@ void render_frame(grs_canvas &, fix eye_offset, window_rendered_data &);  //draw
 void render_mine(grs_canvas &, vcsegidx_t start_seg_num, fix eye_offset, window_rendered_data &);
 
 #if defined(DXX_BUILD_DESCENT_II)
-void update_rendered_data(window_rendered_data &window, vobjptr_t viewer, int rear_view_flag);
+void update_rendered_data(window_rendered_data &window, vmobjptr_t viewer, int rear_view_flag);
 #endif
 
 static inline void render_frame(grs_canvas &canvas, fix eye_offset)

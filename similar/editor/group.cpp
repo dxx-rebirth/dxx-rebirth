@@ -373,7 +373,7 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 
 	range_for (const auto &gs, group_seglist)
 	{
-		auto &sp = *vsegptr(gs);
+		auto &sp = *vmsegptr(gs);
 
 		range_for (const auto v, sp.verts)
 			vertex_list[v] = 1;
@@ -398,7 +398,7 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 }
 
 // ------------------------------------------------------------------------------------------------
-static void cgl_aux(const vsegptridx_t segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list, visited_segment_bitarray_t &visited)
+static void cgl_aux(const vmsegptridx_t segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list, visited_segment_bitarray_t &visited)
 {
 	if (ignore_list)
 		if (ignore_list->contains(segp))
@@ -416,7 +416,7 @@ static void cgl_aux(const vsegptridx_t segp, group::segment_array_type_t &seglis
 
 // ------------------------------------------------------------------------------------------------
 //	Sets Been_visited[n] if n is reachable from segp
-static void create_group_list(const vsegptridx_t segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list)
+static void create_group_list(const vmsegptridx_t segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list)
 {
 	visited_segment_bitarray_t visited;
 	cgl_aux(segp, seglistp, ignore_list, visited);
@@ -448,13 +448,13 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 	//	duplicate segments
 	range_for(const auto &gs, segments)
 	{
-		const auto &&segp = vsegptr(gs);
+		const auto &&segp = vmsegptr(gs);
 		const auto &&new_segment_id = med_create_duplicate_segment(segp);
 		new_segments.emplace_back(new_segment_id);
 		range_for (const auto objp, objects_in(segp))
 		{
 			if (objp->type != OBJ_PLAYER) {
-				const auto &&new_obj_id = obj_create_copy(objp, objp->pos, vsegptridx(new_segment_id));
+				const auto &&new_obj_id = obj_create_copy(objp, objp->pos, vmsegptridx(new_segment_id));
 				(void)new_obj_id; // FIXME!
 			}
 		}
@@ -464,7 +464,7 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 	//	and correct its vertex numbers by translating through new_vertex_ids
 	range_for(const auto &gs, new_segments)
 	{
-		auto &sp = *vsegptr(gs);
+		auto &sp = *vmsegptr(gs);
 		range_for (auto &seg, sp.children)
 		{
 			if (IS_CHILD(seg)) {
@@ -518,7 +518,7 @@ static int in_group(segnum_t segnum, int group_num)
 //	The group is copied so group_seg:group_side is incident upon base_seg:base_side.
 //	group_seg and its vertices are bashed to coincide with base_seg.
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
-static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_side, vcsegptr_t group_seg, int group_side, const vms_matrix &orient_matrix)
+static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base_side, vcsegptr_t group_seg, int group_side, const vms_matrix &orient_matrix)
 {
 	int 			x;
 	int			new_current_group;
@@ -562,7 +562,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 			v = 0;
 
 		range_for(const auto &gs, GroupList[new_current_group].segments)
-			range_for (auto &v, vsegptr(gs)->verts)
+			range_for (auto &v, vmsegptr(gs)->verts)
 				in_vertex_list[v] = 1;
 	}
 
@@ -574,7 +574,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	//group_seg = &Segments[GroupList[new_current_group].segments[0]];					// connecting segment in group has been changed, so update group_seg
 
 	{
-		const auto &&gs = vsegptr(GroupList[new_current_group].segments[gs_index]);
+		const auto &&gs = vmsegptr(GroupList[new_current_group].segments[gs_index]);
 		group_seg = gs;
 		Groupsegp[new_current_group] = gs;
 	}
@@ -582,7 +582,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 
 	range_for(const auto &gs, GroupList[new_current_group].segments)
 	{
-		auto &s = *vsegptr(gs);
+		auto &s = *vmsegptr(gs);
 		s.group = new_current_group;
 		s.special = SEGMENT_IS_NOTHING;
 		s.matcen_num = -1;
@@ -601,7 +601,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 			}
 	}
 
-	copy_uvs_seg_to_seg(vsegptr(&New_segment), group_seg);
+	copy_uvs_seg_to_seg(vmsegptr(&New_segment), group_seg);
 	
 	//	Now do the copy
 	//	First, xlate all vertices so center of group_seg:group_side is at origin
@@ -613,7 +613,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	//	Now, translate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
 	{
-		range_for (const auto objp, objects_in(vsegptr(segnum)))
+		range_for (const auto objp, objects_in(vmsegptr(segnum)))
 			vm_vec_sub2(objp->pos, srcv);
 	}
 
@@ -630,7 +630,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	//	Now, xlate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
 	{
-		range_for (const auto objp, objects_in(vsegptr(segnum)))
+		range_for (const auto objp, objects_in(vmsegptr(segnum)))
 			vm_vec_add2(objp->pos, destv);
 	}
 
@@ -640,7 +640,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	current_group = new_current_group;
 
 	//	Now, form joint on connecting sides.
-	med_form_joint(base_seg,base_side,vsegptridx(Groupsegp[current_group]),Groupside[new_current_group]);
+	med_form_joint(base_seg,base_side,vmsegptridx(Groupsegp[current_group]),Groupside[new_current_group]);
 
 	validate_selected_segments();
 	med_combine_duplicate_vertices(in_vertex_list);
@@ -655,7 +655,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 //	The group is moved so group_seg:group_side is incident upon base_seg:base_side.
 //	group_seg and its vertices are bashed to coincide with base_seg.
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
-static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_side, const vsegptridx_t group_seg, int group_side, const vms_matrix &orient_matrix, int orientation)
+static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base_side, const vmsegptridx_t group_seg, int group_side, const vms_matrix &orient_matrix, int orientation)
 {
 	int			c, d;
 	int			local_hvi;
@@ -680,11 +680,11 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 
 	//	Make a list of all vertices in group.
 	range_for(const auto &gs, GroupList[current_group].segments)
-		range_for (auto &v, vsegptr(gs)->verts)
+		range_for (auto &v, vmsegptr(gs)->verts)
 			in_vertex_list[v] = 1;
 
 	//	For all segments which are not in GroupList[current_group].segments, mark all their vertices in the out list.
-	range_for (const auto &&segp, vsegptridx)
+	range_for (const auto &&segp, vmsegptridx)
 	{
 		if (!GroupList[current_group].segments.contains(segp))
 			{
@@ -709,7 +709,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 				// Create a new vertex and assign all occurrences of vertex v in IN list to new vertex number.
 				range_for(const auto &gs, GroupList[current_group].segments)
 				{
-					auto &sp = *vsegptr(gs);
+					auto &sp = *vmsegptr(gs);
 					range_for (auto &vv, sp.verts)
 						if (vv == v)
 							vv = new_vertex_id;
@@ -717,7 +717,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 			}
 
 	range_for(const auto &gs, GroupList[current_group].segments)
-		vsegptr(gs)->group = current_group;
+		vmsegptr(gs)->group = current_group;
 
 	// Breaking connections between segments in the group and segments not in the group.
 	range_for(const auto &gs, GroupList[current_group].segments)
@@ -732,7 +732,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 					for (d=0; d<MAX_SIDES_PER_SEGMENT; d++)
 						if (IS_CHILD(csegp->children[d]))
 							{
-							const auto &&dsegp = vsegptr(csegp->children[d]);
+							const auto &&dsegp = vmsegptr(csegp->children[d]);
 							if (dsegp->group == current_group)
 								{
 								csegp->children[d] = segment_none;
@@ -745,7 +745,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 				}
 		}
 
-	copy_uvs_seg_to_seg(vsegptr(&New_segment), vcsegptr(Groupsegp[current_group]));
+	copy_uvs_seg_to_seg(vmsegptr(&New_segment), vcsegptr(Groupsegp[current_group]));
 
 	//	Now do the move
 	//	First, xlate all vertices so center of group_seg:group_side is at origin
@@ -757,7 +757,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	//	Now, move all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
 	{
-		range_for (const auto objp, objects_in(vsegptr(segnum)))
+		range_for (const auto objp, objects_in(vmsegptr(segnum)))
 			vm_vec_sub2(objp->pos, srcv);
 	}
 
@@ -774,7 +774,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	//	Now, rotate all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
 	{
-		range_for (const auto objp, objects_in(vsegptr(segnum)))
+		range_for (const auto objp, objects_in(vmsegptr(segnum)))
 			vm_vec_add2(objp->pos, destv);
 	}
 
@@ -791,7 +791,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 //	-----------------------------------------------------------------------------
 static segnum_t place_new_segment_in_world(void)
 {
-	const auto &&segnum = vsegptridx(get_free_segment_number());
+	const auto &&segnum = vmsegptridx(get_free_segment_number());
 	auto &seg = *segnum;
 	seg = New_segment;
 
@@ -810,14 +810,14 @@ static int AttachSegmentNewAng(const vms_angvec &pbh)
 	const auto newseg = place_new_segment_in_world();
 	GroupList[current_group].segments.emplace_back(newseg);
 
-	const auto &&nsegp = vsegptridx(newseg);
+	const auto &&nsegp = vmsegptridx(newseg);
 	if (!med_move_group(1, Cursegp, Curside, nsegp, AttachSide, vm_angles_2_matrix(pbh),0))
 	{
 		autosave_mine(mine_filename);
 
 		med_propagate_tmaps_to_segments(Cursegp,nsegp,0);
 		med_propagate_tmaps_to_back_side(nsegp, Side_opposite[AttachSide],0);
-		copy_uvs_seg_to_seg(vsegptr(&New_segment),nsegp);
+		copy_uvs_seg_to_seg(vmsegptr(&New_segment),nsegp);
 
 		Cursegp = nsegp;
 		Curside = Side_opposite[AttachSide];
@@ -851,7 +851,7 @@ int AttachSegmentNew(void)
 void validate_selected_segments(void)
 {
 	range_for (const auto &gs, GroupList[current_group].segments)
-		validate_segment(vsegptridx(gs));
+		validate_segment(vmsegptridx(gs));
 }
 
 // =====================================================================================
@@ -859,7 +859,7 @@ void validate_selected_segments(void)
 
 //	-----------------------------------------------------------------------------
 namespace dsx {
-void delete_segment_from_group(const vsegptridx_t segment_num, unsigned group_num)
+void delete_segment_from_group(const vmsegptridx_t segment_num, unsigned group_num)
 {
 	segment_num->group = -1;
 	GroupList[group_num].segments.erase(segment_num);
@@ -916,7 +916,7 @@ int rotate_segment_new(const vms_angvec &pbh)
 		current_group = current_group_save;
 		return 1;
 	}
-	const auto &&basesegp = vsegptridx(baseseg);
+	const auto &&basesegp = vmsegptridx(baseseg);
 	const auto &&baseseg_side = find_connect_side(newseg, basesegp);
 
 	med_extract_matrix_from_segment(newseg, &tm1);
@@ -1021,7 +1021,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	// Next 3 vars added 10/07 by JAS
 	group_editor.Groupsegp =   0;
 	if (Groupsegp[current_group]) {
-		const auto i = segment_ids.find(vsegptridx(Groupsegp[current_group]));
+		const auto i = segment_ids.find(vmsegptridx(Groupsegp[current_group]));
 		if (i != segment_ids.end())
 			group_editor.Groupsegp = std::distance(segment_ids.begin(), i);
 	} 
@@ -1046,7 +1046,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	segment_offset = PHYSFS_tell(SaveFile);
 	range_for (const auto &gs, segment_ids)
 	{
-		auto &&tseg = *vsegptr(gs);
+		auto &&tseg = *vmsegptr(gs);
 		
 		for (j=0;j<6;j++)	{
 			group::segment_array_type_t::const_iterator i = segment_ids.find(tseg.children[j]);
@@ -1229,7 +1229,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 				
 			group::segment_array_type_t::value_type s = get_free_segment_number();
 			segment_ids.emplace_back(s);
-			const auto &&segp = vsegptridx(s);
+			const auto &&segp = vmsegptridx(s);
 			*segp = tseg; 
 			segp->objects = object_none;
 
@@ -1238,7 +1238,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 		range_for (const auto &gs, segment_ids)
 		{
-			auto &segp = *vsegptr(gs);
+			auto &segp = *vmsegptr(gs);
 			// Fix vertices
 			range_for (auto &j, segp.verts)
 			{
@@ -1429,7 +1429,7 @@ int LoadGroup()
       checkforgrpext(group_filename);
 	  med_load_group(group_filename, GroupList[current_group].vertices, GroupList[current_group].segments);
 		
-	if (!med_move_group(0, Cursegp, Curside, vsegptridx(Groupsegp[current_group]), Groupside[current_group], vmd_identity_matrix, 0))
+	if (!med_move_group(0, Cursegp, Curside, vmsegptridx(Groupsegp[current_group]), Groupside[current_group], vmd_identity_matrix, 0))
 	{
 		autosave_mine(mine_filename);
 		set_view_target_from_segment(Cursegp);
@@ -1487,7 +1487,7 @@ int Degroup( void )
 	if (num_groups==0) return 0;
 
 	range_for (const auto &gs, GroupList[current_group].segments)
-		delete_segment_from_group(vsegptridx(gs), current_group);
+		delete_segment_from_group(vmsegptridx(gs), current_group);
 
 	  //	delete_segment_from_group( &Segments[GroupList[current_group].segments[i]]-Segments, current_group );
 
@@ -1556,7 +1556,7 @@ int MoveGroup(void)
 
 	med_compress_mine();
 
-	if (!med_move_group(0, Cursegp, Curside, vsegptridx(Groupsegp[current_group]), Groupside[current_group], vmd_identity_matrix, 0))
+	if (!med_move_group(0, Cursegp, Curside, vmsegptridx(Groupsegp[current_group]), Groupside[current_group], vmd_identity_matrix, 0))
 	{
 		autosave_mine(mine_filename);
 		Update_flags |= UF_WORLD_CHANGED;
@@ -1617,7 +1617,7 @@ int RotateGroup(void)
 
 	med_compress_mine();
 	
-	if (!med_move_group(0, Cursegp, Curside, vsegptridx(Groupsegp[current_group]), Groupside[current_group],
+	if (!med_move_group(0, Cursegp, Curside, vmsegptridx(Groupsegp[current_group]), Groupside[current_group],
 								vmd_identity_matrix, Group_orientation[current_group]))
 			{
 			Update_flags |= UF_WORLD_CHANGED;
@@ -1745,7 +1745,7 @@ int DeleteGroup( void )
 
 	range_for (const auto &gs, GroupList[current_group].segments)
 	{
-		const auto &&segp = vsegptridx(gs);
+		const auto &&segp = vmsegptridx(gs);
 		segp->group = -1;
 		med_delete_segment(segp);
 	}

@@ -57,16 +57,16 @@ struct morph_data : prohibit_void_ptr<morph_data>
 constexpr unsigned MAX_MORPH_OBJECTS = 5;
 extern array<morph_data, MAX_MORPH_OBJECTS> morph_objects;
 
-void morph_start(vobjptr_t obj);
-void draw_morph_object(grs_canvas &, vobjptridx_t obj);
+void morph_start(vmobjptr_t obj);
+void draw_morph_object(grs_canvas &, vmobjptridx_t obj);
 
 //process the morphing object for one frame
-void do_morph_frame(vobjptr_t obj);
+void do_morph_frame(vmobjptr_t obj);
 
 //called at the start of a level
 void init_morphs();
 
-morph_data *find_morph_data(vobjptr_t obj);
+morph_data *find_morph_data(vmobjptr_t obj);
 #endif
 
 #endif

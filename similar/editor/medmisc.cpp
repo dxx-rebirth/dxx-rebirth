@@ -131,7 +131,7 @@ int ToggleLockstep()
         //else
         //    diagnostic_message("Lock mode ON");
 
-		Cursegp = segptridx(ConsoleObject->segnum);
+		Cursegp = imsegptridx(ConsoleObject->segnum);
 		med_create_new_segment_from_cursegp();
 		set_view_target_from_segment(Cursegp);
 		Update_flags = UF_ED_STATE_CHANGED;
@@ -367,7 +367,7 @@ int ToggleAutosave()
 
 int AttachSegment()
 {
-   if (med_attach_segment(Cursegp, vsegptr(&New_segment), Curside, AttachSide)==4) // Used to be WBACK instead of Curside
+   if (med_attach_segment(Cursegp, vmsegptr(&New_segment), Curside, AttachSide)==4) // Used to be WBACK instead of Curside
         diagnostic_message("Cannot attach segment - already a connection on current side.");
    else {
 		if (Lock_view_to_cursegp)
@@ -453,7 +453,7 @@ int ClearFoundList(void)
 }
 
 // ---------------------------------------------------------------------------------------------------
-void set_view_target_from_segment(const vsegptr_t sp)
+void set_view_target_from_segment(const vmsegptr_t sp)
 {
 	if (Funky_chase_mode)
 		{

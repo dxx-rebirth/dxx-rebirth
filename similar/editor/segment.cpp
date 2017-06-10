@@ -331,13 +331,13 @@ segnum_t get_free_segment_number(void)
 
 // -------------------------------------------------------------------------------
 //	Create a new segment, duplicating exactly, including vertex ids and children, the passed segment.
-segnum_t med_create_duplicate_segment(const vsegptr_t sp)
+segnum_t med_create_duplicate_segment(const vmsegptr_t sp)
 {
 	segnum_t	segnum;
 
 	segnum = get_free_segment_number();
 
-	const auto &&nsp = vsegptr(segnum);
+	const auto &&nsp = vmsegptr(segnum);
 	*nsp = *sp;	
 	nsp->objects = object_none;
 
@@ -399,7 +399,7 @@ int med_set_vertex(const unsigned vnum, const vertex &vp)
 namespace dsx {
 
 // -------------------------------------------------------------------------------
-void create_removable_wall(const vsegptridx_t sp, int sidenum, int tmap_num)
+void create_removable_wall(const vmsegptridx_t sp, int sidenum, int tmap_num)
 {
 	create_walls_on_side(sp, sidenum);
 
@@ -570,7 +570,7 @@ static void change_vertex_occurrences(int dest, int src)
 		g.vertices.replace(src, dest);
 
 	// now scan all segments, changing occurrences of src to dest
-	range_for (const auto &&segp, vsegptr)
+	range_for (const auto &&segp, vmsegptr)
 	{
 		if (segp->segnum != segment_none)
 			range_for (auto &v, segp->verts)
@@ -631,17 +631,17 @@ static void compress_segments(void)
 				Segments[seg].segnum = segment_none;
 
 				if (Cursegp == &Segments[seg])
-					Cursegp = segptridx(hole);
+					Cursegp = imsegptridx(hole);
 
 				if (Markedsegp == &Segments[seg])
-					Markedsegp = segptridx(hole);
+					Markedsegp = imsegptridx(hole);
 
 				// Fix segments in groups
 				range_for (auto &g, partial_range(GroupList, num_groups))
 					g.segments.replace(seg, hole);
 
 				// Fix walls
-				range_for (const auto &&w, vwallptr)
+				range_for (const auto &&w, vmwallptr)
 					if (w->segnum == seg)
 						w->segnum = hole;
 
@@ -654,7 +654,7 @@ static void compress_segments(void)
 					if (f.segnum == seg)
 						f.segnum = hole;
 
-				range_for (const auto vt, vtrgptr)
+				range_for (const auto vt, vmtrgptr)
 				{
 					auto &t = *vt;
 					range_for (auto &l, partial_range(t.seg, t.num_links))
@@ -662,12 +662,12 @@ static void compress_segments(void)
 							l = hole;
 				}
 
-				auto &sp = *vsegptr(hole);
+				auto &sp = *vmsegptr(hole);
 				range_for (auto &s, sp.children)
 				{
 					if (IS_CHILD(s)) {
 						// Find out on what side the segment connection to the former seg is on in *csegp.
-						range_for (auto &t, vsegptr(s)->children)
+						range_for (auto &t, vmsegptr(s)->children)
 						{
 							if (t == seg) {
 								t = hole;					// It used to be connected to seg, so make it connected to hole
@@ -739,7 +739,7 @@ namespace dsx {
 
 // ------------------------------------------------------------------------------------------
 //	Copy texture map ids for each face in sseg to dseg.
-static void copy_tmap_ids(const vsegptr_t dseg, const vsegptr_t sseg)
+static void copy_tmap_ids(const vmsegptr_t dseg, const vmsegptr_t sseg)
 {
 	int	s;
 
@@ -757,7 +757,7 @@ static void copy_tmap_ids(const vsegptr_t dseg, const vsegptr_t sseg)
 //  2 = No room in Vertices[].
 //  3 = newside != WFRONT -- for now, the new segment must be attached at its (own) front side
 //	 4 = already a face attached on destseg:destside
-static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_t newseg, int destside, int newside,const vms_matrix &attmat)
+static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegptr_t newseg, int destside, int newside,const vms_matrix &attmat)
 {
 	vms_matrix	rotmat,rotmat2,rotmat3;
 	segnum_t			segnum;
@@ -871,7 +871,7 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 //  2 = No room in Vertices[].
 //  3 = newside != WFRONT -- for now, the new segment must be attached at its (own) front side
 //	 4 = already a face attached on side newside
-int med_attach_segment(const vsegptridx_t destseg, const vsegptr_t newseg, int destside, int newside)
+int med_attach_segment(const vmsegptridx_t destseg, const vmsegptr_t newseg, int destside, int newside)
 {
 	int		rval;
 	const auto ocursegp = Cursegp;
@@ -881,7 +881,7 @@ int med_attach_segment(const vsegptridx_t destseg, const vsegptr_t newseg, int d
 	rval = med_attach_segment_rotated(destseg,newseg,destside,newside,rotmat);
 	med_propagate_tmaps_to_segments(ocursegp,Cursegp,0);
 	med_propagate_tmaps_to_back_side(Cursegp, Side_opposite[newside],0);
-	copy_uvs_seg_to_seg(vsegptr(&New_segment), Cursegp);
+	copy_uvs_seg_to_seg(vmsegptr(&New_segment), Cursegp);
 
 	return rval;
 }
@@ -926,7 +926,7 @@ void set_vertex_counts(void)
 	Vertex_active = {};
 
 	// Count number of occurrences of each vertex.
-	range_for (const auto &&segp, vsegptr)
+	range_for (const auto &&segp, vmsegptr)
 	{
 		if (segp->segnum != segment_none)
 			range_for (auto &v, segp->verts)
@@ -942,7 +942,7 @@ void set_vertex_counts(void)
 //	Delete all vertices in segment *sp from the vertex list if they are not contained in another segment.
 //	This is kind of a dangerous routine.  It modifies the global array Vertex_active, using the field as
 //	a count.
-static void delete_vertices_in_segment(const vsegptr_t sp)
+static void delete_vertices_in_segment(const vmsegptr_t sp)
 {
 //	init_vertices();
 	set_vertex_counts();
@@ -958,7 +958,7 @@ static void delete_vertices_in_segment(const vsegptr_t sp)
 // Return value:
 //		0	successfully deleted.
 //		1	unable to delete.
-int med_delete_segment(const vsegptridx_t sp)
+int med_delete_segment(const vmsegptridx_t sp)
 {
 	segnum_t segnum = sp;
 	// Cannot delete segment if only segment.
@@ -994,7 +994,7 @@ int med_delete_segment(const vsegptridx_t sp)
 				}
 			Cursegp = csp;
 			med_create_new_segment_from_cursegp();
-			copy_uvs_seg_to_seg(vsegptr(&New_segment), Cursegp);
+			copy_uvs_seg_to_seg(vmsegptr(&New_segment), Cursegp);
 		}
 
 	sp->segnum = segment_none;										// Mark segment as inactive.
@@ -1016,7 +1016,7 @@ int med_delete_segment(const vsegptridx_t sp)
 	if (Cursegp == sp)
 		for (segnum_t s=0; s<MAX_SEGMENTS; s++)
 			if ((Segments[s].segnum != segment_none) && (s!=segnum) ) {
-				Cursegp = segptridx(s);
+				Cursegp = imsegptridx(s);
 				med_create_new_segment_from_cursegp();
 		   	break;
 			}
@@ -1045,7 +1045,7 @@ int med_delete_segment(const vsegptridx_t sp)
 
 // ------------------------------------------------------------------------------------------
 //	Copy texture maps from sseg to dseg
-static void copy_tmaps_to_segment(const vsegptr_t dseg, const vcsegptr_t sseg)
+static void copy_tmaps_to_segment(const vmsegptr_t dseg, const vcsegptr_t sseg)
 {
 	int	s;
 
@@ -1068,7 +1068,7 @@ static void copy_tmaps_to_segment(const vsegptr_t dseg, const vcsegptr_t sseg)
 //  1 = Connectivity makes rotation illegal (connected to 0 or 2+ segments)
 //  2 = Rotation causes degeneracy, such as self-intersecting segment.
 //	 3 = Unable to rotate because not connected to exactly 1 segment.
-int med_rotate_segment(const vsegptridx_t seg, const vms_matrix &rotmat)
+int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 {
         int             newside=0,destside,s;
 	int		count;
@@ -1093,12 +1093,12 @@ int med_rotate_segment(const vsegptridx_t seg, const vms_matrix &rotmat)
 		destside++;
 		
 	// Before deleting the segment, copy its texture maps to New_segment
-	copy_tmaps_to_segment(vsegptr(&New_segment), seg);
+	copy_tmaps_to_segment(vmsegptr(&New_segment), seg);
 
 	if (Curside == WFRONT)
 		Curside = WBACK;
 
-	med_attach_segment_rotated(destseg, vsegptr(&New_segment), destside, AttachSide, rotmat);
+	med_attach_segment_rotated(destseg, vmsegptr(&New_segment), destside, AttachSide, rotmat);
 
 	//	Save tmap_num on each side to restore after call to med_propagate_tmaps_to_segments and _back_side
 	//	which will change the tmap nums.
@@ -1176,7 +1176,7 @@ static int get_index_of_best_fit(const vcsegptr_t seg1, int side1, const vcsegpt
 // ----------------------------------------------------------------------------
 //	Remap uv coordinates in all sides in segment *sp which have a vertex in vp[4].
 //	vp contains absolute vertex indices.
-static void remap_side_uvs(const vsegptridx_t sp, const array<int, 4> &vp)
+static void remap_side_uvs(const vmsegptridx_t sp, const array<int, 4> &vp)
 {
 	int	s;
 
@@ -1200,7 +1200,7 @@ next_side: ;
 //		0			joint formed
 //		1			-- no, this is legal! -- unable to form joint because one or more vertices of side2 is not free
 //		2			unable to form joint because side1 is already used
-int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, int side2)
+int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2, int side2)
 {
 	int		bfi,v,s1;
 	array<int, 4> lost_vertices, remap_vertices;
@@ -1238,7 +1238,7 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 	validation_list[0] = seg2;
 
 	for (v=0; v<4; v++)
-		range_for (const auto &&segp, vsegptridx)
+		range_for (const auto &&segp, vmsegptridx)
 		{
 			if (segp->segnum != segment_none)
 				range_for (auto &sv, segp->verts)
@@ -1281,7 +1281,7 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 //		0	bridge segment formed
 //		1	unable to form bridge because one (or both) of the sides is not open.
 //	Note that no new vertices are created by this process.
-int med_form_bridge_segment(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, int side2)
+int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2, int side2)
 {
 	int			v,bfi,i;
 
@@ -1352,7 +1352,7 @@ int med_form_bridge_segment(const vsegptridx_t seg1, int side1, const vsegptridx
 //	Create a segment given center, dimensions, rotation matrix.
 //	Note that the created segment will always have planar sides and rectangular cross sections.
 //	It will be created with walls on all sides, ie not connected to anything.
-void med_create_segment(const vsegptridx_t sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp)
+void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp)
 {
 	int			f;
 	Num_segments++;
@@ -1414,7 +1414,7 @@ void med_create_segment(const vsegptridx_t sp,fix cx, fix cy, fix cz, fix length
 void med_create_new_segment(const vms_vector &scale)
 {
 	int			s,t;
-	const auto &&sp = vsegptridx(&New_segment);
+	const auto &&sp = vmsegptridx(&New_segment);
 	fix			length,width,height;
 
 	length = scale.z;
@@ -1487,7 +1487,7 @@ void init_all_vertices(void)
 
 // -----------------------------------------------------------------------------
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
-void create_coordinate_axes_from_segment(const vsegptr_t sp, array<unsigned, 16> &vertnums)
+void create_coordinate_axes_from_segment(const vmsegptr_t sp, array<unsigned, 16> &vertnums)
 {
 	vms_matrix	rotmat;
 	vms_vector t;
@@ -1558,7 +1558,7 @@ void warn_if_concave_segments(void)
 
 // -----------------------------------------------------------------------------
 //	Check segment s, if concave, warn
-void warn_if_concave_segment(const vsegptridx_t s)
+void warn_if_concave_segment(const vmsegptridx_t s)
 {
 	int	result;
 
@@ -1578,7 +1578,7 @@ void warn_if_concave_segment(const vsegptridx_t s)
 //	Adjacent means a segment which shares all four vertices.
 //	Return true if segment found and fill in segment in adj_sp and side in adj_side.
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
-int med_find_adjacent_segment_side(const vsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side)
+int med_find_adjacent_segment_side(const vmsegptridx_t sp, int side, imsegptridx_t &adj_sp, int *adj_side)
 {
 	int			s;
 	array<int, 4> abs_verts;
@@ -1588,7 +1588,7 @@ int med_find_adjacent_segment_side(const vsegptridx_t sp, int side, segptridx_t 
 		abs_verts[v] = sp->verts[Side_to_verts[side][v]];
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
-	range_for (const auto &&segp, vsegptridx)
+	range_for (const auto &&segp, vmsegptridx)
 	{
 		if (segp != sp)
 		{
@@ -1636,7 +1636,7 @@ int med_find_adjacent_segment_side(const vsegptridx_t sp, int side, segptridx_t 
 //	Find segment closest to sp:side.
 //	Return true if segment found and fill in segment in adj_sp and side in adj_side.
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
-int med_find_closest_threshold_segment_side(const vsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side, fix threshold)
+int med_find_closest_threshold_segment_side(const vmsegptridx_t sp, int side, imsegptridx_t &adj_sp, int *adj_side, fix threshold)
 {
 	int			s;
 	fix			current_dist, closest_seg_dist;
@@ -1649,7 +1649,7 @@ int med_find_closest_threshold_segment_side(const vsegptridx_t sp, int side, seg
 	closest_seg_dist = JOINT_THRESHOLD;
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
-	range_for (const auto &&segp, vsegptridx)
+	range_for (const auto &&segp, vmsegptridx)
 	{
 		if (segp != sp) 
 			for (s=0;s<MAX_SIDES_PER_SEGMENT;s++) {

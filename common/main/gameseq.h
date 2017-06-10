@@ -118,11 +118,11 @@ void open_message_window(void);
 void close_message_window(void);
 
 // create flash for player appearance
-void bash_to_shield(const vobjptr_t i);
+void bash_to_shield(const vmobjptr_t i);
 #ifdef dsx
 namespace dsx {
 void create_player_appearance_effect(const object_base &player_obj);
-void copy_defaults_to_robot(vobjptr_t objp);
+void copy_defaults_to_robot(vmobjptr_t objp);
 void gameseq_remove_unused_players();
 }
 #endif

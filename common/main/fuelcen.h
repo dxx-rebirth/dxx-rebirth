@@ -59,15 +59,15 @@ namespace dsx {
 void fuelcen_reset();
 
 // Makes a segment a fuel center.
-void fuelcen_create( vsegptridx_t segp);
+void fuelcen_create( vmsegptridx_t segp);
 // Makes a fuel center active... needs to be called when
 // a segment is loaded from disk.
-void fuelcen_activate(vsegptridx_t segp);
+void fuelcen_activate(vmsegptridx_t segp);
 // Deletes a segment as a fuel center.
-void fuelcen_delete(vsegptr_t segp);
+void fuelcen_delete(vmsegptr_t segp);
 
 // Create a matcen robot
-objptridx_t create_morph_robot(vsegptridx_t segp, const vms_vector &object_pos, int object_id);
+imobjptridx_t create_morph_robot(vmsegptridx_t segp, const vms_vector &object_pos, int object_id);
 
 // Returns the amount of fuel/shields this segment can give up.
 // Can be from 0 to 100.
@@ -144,7 +144,7 @@ extern array<FuelCenter, MAX_NUM_FUELCENS> Station;
 
 // Called when a materialization center gets triggered by the player
 // flying through some trigger!
-void trigger_matcen(vsegptridx_t segnum);
+void trigger_matcen(vmsegptridx_t segnum);
 
 extern void disable_matcens(void);
 

@@ -33,7 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern int bind_wall_to_trigger();
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-int remove_trigger(vsegptr_t seg, short side);
+int remove_trigger(vmsegptr_t seg, short side);
 #endif
 
 extern int remove_trigger_num(int trigger_num);

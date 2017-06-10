@@ -48,7 +48,7 @@ DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(segment, seg, Segments);
 static constexpr valptridx<segment>::magic_constant<0xfffe> segment_exit{};
 static constexpr valptridx<segment>::magic_constant<0xffff> segment_none{};
 static constexpr valptridx<segment>::magic_constant<0> segment_first{};
-void delete_segment_from_group(vsegptridx_t segment_num, unsigned group_num);
+void delete_segment_from_group(vmsegptridx_t segment_num, unsigned group_num);
 }
 #endif
 
@@ -135,11 +135,11 @@ extern array<dl_index, MAX_DL_INDICES> Dl_indices;
 extern array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
 extern unsigned Num_static_lights;
 
-int subtract_light(vsegptridx_t segnum, sidenum_fast_t sidenum);
-int add_light(vsegptridx_t segnum, sidenum_fast_t sidenum);
+int subtract_light(vmsegptridx_t segnum, sidenum_fast_t sidenum);
+int add_light(vmsegptridx_t segnum, sidenum_fast_t sidenum);
 void clear_light_subtracted();
 
-void segment2_read(vsegptr_t s2, PHYSFS_File *fp);
+void segment2_read(vmsegptr_t s2, PHYSFS_File *fp);
 void segment2_write(vcsegptr_t s2, PHYSFS_File *fp);
 
 void delta_light_read(delta_light *dl, PHYSFS_File *fp);

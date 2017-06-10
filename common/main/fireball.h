@@ -62,29 +62,29 @@ extern array<expl_wall, MAX_EXPLODING_WALLS> expl_wall_list;
 
 #ifdef dsx
 namespace dsx {
-objptridx_t object_create_explosion(vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
-void object_create_muzzle_flash(vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
+imobjptridx_t object_create_explosion(vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
+void object_create_muzzle_flash(vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
 
-objptridx_t object_create_badass_explosion(objptridx_t objp, vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type,
-		fix maxdamage, fix maxdistance, fix maxforce, cobjptridx_t parent);
+imobjptridx_t object_create_badass_explosion(imobjptridx_t objp, vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type,
+		fix maxdamage, fix maxdistance, fix maxforce, icobjptridx_t parent);
 
 // blows up a badass weapon, creating the badass explosion
 // return the explosion object
-void explode_badass_weapon(vobjptridx_t obj,const vms_vector &pos);
+void explode_badass_weapon(vmobjptridx_t obj,const vms_vector &pos);
 
 // blows up the player with a badass explosion
-void explode_badass_player(vobjptridx_t obj);
+void explode_badass_player(vmobjptridx_t obj);
 
-void explode_object(vobjptridx_t obj,fix delay_time);
-void do_explosion_sequence(vobjptr_t obj);
-void do_debris_frame(vobjptridx_t obj);      // deal with debris for this frame
+void explode_object(vmobjptridx_t obj,fix delay_time);
+void do_explosion_sequence(vmobjptr_t obj);
+void do_debris_frame(vmobjptridx_t obj);      // deal with debris for this frame
 
 void draw_fireball(grs_canvas &, vcobjptridx_t obj);
 
-void explode_wall(vsegptridx_t segnum, int sidenum);
+void explode_wall(vmsegptridx_t segnum, int sidenum);
 void do_exploding_wall_frame();
 void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool random_player);
-void maybe_replace_powerup_with_energy(vobjptr_t del_obj);
+void maybe_replace_powerup_with_energy(vmobjptr_t del_obj);
 }
 
 namespace dcx {
@@ -100,10 +100,10 @@ namespace dsx {
 int get_explosion_vclip(vcobjptr_t obj, explosion_vclip_stage stage);
 
 #if defined(DXX_BUILD_DESCENT_II)
-objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, vsegptridx_t segnum, bool player);
+imobjptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player);
 
 // creates afterburner blobs behind the specified object
-void drop_afterburner_blobs(vobjptr_t obj, int count, fix size_scale, fix lifetime);
+void drop_afterburner_blobs(vmobjptr_t obj, int count, fix size_scale, fix lifetime);
 
 /*
  * reads n expl_wall structs from a PHYSFS_File and swaps if specified
@@ -112,7 +112,7 @@ void expl_wall_read_n_swap(PHYSFS_File *fp, int swap, partial_range_t<expl_wall 
 extern fix	Flash_effect;
 #endif
 
-segidx_t pick_connected_segment(vcsegidx_t objp, int max_depth);
+imsegidx_t pick_connected_segment(vcsegidx_t objp, int max_depth);
 }
 #endif
 

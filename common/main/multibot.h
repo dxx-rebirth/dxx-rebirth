@@ -38,31 +38,31 @@ extern array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
 extern array<int, MAX_ROBOTS_CONTROLLED> robot_agitation, robot_fired;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-int multi_can_move_robot(vobjptridx_t objnum, int agitation);
+int multi_can_move_robot(vmobjptridx_t objnum, int agitation);
 void multi_send_robot_position(object &objnum, int fired);
-void multi_send_robot_fire(vobjptridx_t objnum, int gun_num, const vms_vector &fire);
-void multi_send_claim_robot(vobjptridx_t objnum);
-void multi_send_robot_explode(objptridx_t objnum, objnum_t killer);
+void multi_send_robot_fire(vmobjptridx_t objnum, int gun_num, const vms_vector &fire);
+void multi_send_claim_robot(vmobjptridx_t objnum);
+void multi_send_robot_explode(imobjptridx_t objnum, objnum_t killer);
 void multi_send_create_robot(int robotcen, objnum_t objnum, int type);
 #ifdef dsx
 namespace dsx {
-void multi_send_boss_teleport(vobjptridx_t bossobjnum, vcsegidx_t where);
+void multi_send_boss_teleport(vmobjptridx_t bossobjnum, vcsegidx_t where);
 }
 #endif
 void multi_send_boss_cloak(objnum_t bossobjnum);
 void multi_send_boss_start_gate(objnum_t bossobjnum);
 void multi_send_boss_stop_gate(objnum_t bossobjnum);
-void multi_send_boss_create_robot(vobjidx_t bossobjnum, vobjptridx_t objnum);
+void multi_send_boss_create_robot(vmobjidx_t bossobjnum, vmobjptridx_t objnum);
 #ifdef dsx
 namespace dsx {
-int multi_explode_robot_sub(vobjptridx_t botnum);
+int multi_explode_robot_sub(vmobjptridx_t botnum);
 }
 #endif
-void multi_drop_robot_powerups(vobjptridx_t objnum);
+void multi_drop_robot_powerups(vmobjptridx_t objnum);
 int multi_send_robot_frame(int sent);
 #ifdef dsx
 namespace dsx {
-void multi_robot_request_change(vobjptridx_t robot, int playernum);
+void multi_robot_request_change(vmobjptridx_t robot, int playernum);
 }
 #endif
 #if defined(DXX_BUILD_DESCENT_II)

@@ -44,8 +44,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-static segptridx_t OriginalSeg = segment_none;
-static segptridx_t OriginalMarkedSeg = segment_none;
+static imsegptridx_t OriginalSeg = segment_none;
+static imsegptridx_t OriginalMarkedSeg = segment_none;
 static int OriginalSide;
 static int OriginalMarkedSide;
 static array<segment *, MAX_SEGMENTS> CurveSegs;
@@ -228,7 +228,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
             enddist = vm_vec_dist(coord, p4);                  // enddist := distance from current to end point, vec_dir used as a temporary variable
             //vm_vec_normalize(vm_vec_sub(&vec_dir, &coord, &prev_point));
             vm_vec_normalized_dir(vec_dir, coord, prev_point);
-			if (!med_attach_segment(Cursegp, vsegptr(&New_segment), Curside, AttachSide))
+			if (!med_attach_segment(Cursegp, vmsegptr(&New_segment), Curside, AttachSide))
 		{
 			med_extract_matrix_from_segment(cursegp, &rotmat);                   // rotmat := matrix describing orientation of Cursegp
 			const auto tdest = vm_vec_rotate(vec_dir,rotmat);	// tdest := vec_dir in reference frame of Cursegp
@@ -265,7 +265,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
 
     if (CurveNumSegs) {
         med_form_bridge_segment( Cursegp, Side_opposite[AttachSide], Markedsegp, Markedside );
-        CurveSegs[CurveNumSegs] = vsegptr(Markedsegp->children[Markedside]);
+        CurveSegs[CurveNumSegs] = vmsegptr(Markedsegp->children[Markedside]);
         CurveNumSegs++;
 	}
 
@@ -340,7 +340,7 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
             enddist = vm_vec_dist(coord, p4);                  // enddist := distance from current to end point, vec_dir used as a temporary variable
             //vm_vec_normalize(vm_vec_sub(&vec_dir, &coord, &prev_point));
             vm_vec_normalized_dir(vec_dir, coord, prev_point);
-			if (!med_attach_segment(Cursegp, vsegptr(&New_segment), Curside, AttachSide))
+			if (!med_attach_segment(Cursegp, vmsegptr(&New_segment), Curside, AttachSide))
 			{
 				med_extract_matrix_from_segment(cursegp, &rotmat);                   // rotmat := matrix describing orientation of Cursegp
 			const auto tdest = vm_vec_rotate(vec_dir,rotmat);	// tdest := vec_dir in reference frame of Cursegp
@@ -363,7 +363,7 @@ void delete_curve() {
 	range_for (auto &i, partial_const_range(CurveSegs, CurveNumSegs))
 	{
         if (i->segnum != segment_none)
-			med_delete_segment(vsegptridx(i));
+			med_delete_segment(vmsegptridx(i));
     }
     Markedsegp = OriginalMarkedSeg;
     Markedside = OriginalMarkedSide;

@@ -233,7 +233,7 @@ static void clear_editor_status(void)
 static inline void editor_slew_init()
 {
 	Viewer = ConsoleObject;
-	slew_init(vobjptr(ConsoleObject));
+	slew_init(vmobjptr(ConsoleObject));
 	init_player_object();
 }
 
@@ -291,7 +291,7 @@ int	GotoGameScreen()
 			if (!SafetyCheck())		// if mine edited but not saved, warn the user!
 				return 0;
 
-			const auto &&console = vobjptr(get_local_player().objnum);
+			const auto &&console = vmobjptr(get_local_player().objnum);
 			ConsoleObject = Viewer = console;
 			set_player_id(console, Player_num);
 			fly_init(*ConsoleObject);
@@ -413,7 +413,7 @@ void init_editor()
 	Draw_all_segments = 1;						// Say draw all segments, not just connected ones
 	
 	if (!Cursegp)
-		Cursegp = segptridx(segment_first);
+		Cursegp = imsegptridx(segment_first);
 
 	init_autosave();
   
@@ -554,7 +554,7 @@ int fuelcen_delete_from_curseg() {
 #define SIDE_VIEW_FRAC (f1_0*8/10)	//80%
 
 
-static void move_player_2_segment_and_rotate(const vsegptridx_t seg, const unsigned side)
+static void move_player_2_segment_and_rotate(const vmsegptridx_t seg, const unsigned side)
 {
         static int edgenum=0;
 
@@ -568,7 +568,7 @@ static void move_player_2_segment_and_rotate(const vsegptridx_t seg, const unsig
 	vm_vector_2_matrix(ConsoleObject->orient,vp,&upvec,nullptr);
 //	vm_vector_2_matrix(&ConsoleObject->orient,&vp,NULL,NULL);
 
-	obj_relink(vobjptridx(ConsoleObject), seg);
+	obj_relink(vmobjptridx(ConsoleObject), seg);
 }
 
 int SetPlayerFromCursegAndRotate()
@@ -619,7 +619,7 @@ int SetPlayerFromCursegMinusOne()
 
 	auto newseg = find_point_seg(ConsoleObject->pos,Cursegp);
 	if (newseg != segment_none)
-		obj_relink(vobjptridx(ConsoleObject), newseg);
+		obj_relink(vmobjptridx(ConsoleObject), newseg);
 
 	Update_flags |= UF_ED_STATE_CHANGED | UF_GAME_VIEW_CHANGED;
 	return 1;
@@ -1009,7 +1009,7 @@ void gamestate_restore_check()
 			if (Save_position.segnum <= Highest_segment_index) {
 				ConsoleObject->pos = Save_position.pos;
 				ConsoleObject->orient = Save_position.orient;
-				obj_relink(vobjptridx(ConsoleObject), vsegptridx(Save_position.segnum));
+				obj_relink(vmobjptridx(ConsoleObject), vmsegptridx(Save_position.segnum));
 			}
 
 			Update_flags |= UF_WORLD_CHANGED;	
@@ -1106,7 +1106,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 					Update_flags |= UF_GAME_VIEW_CHANGED;
 					if (Gameview_lockstep)
 					{
-						Cursegp = segptridx(ConsoleObject->segnum);
+						Cursegp = imsegptridx(ConsoleObject->segnum);
 						med_create_new_segment_from_cursegp();
 						Update_flags |= UF_ED_STATE_CHANGED;
 					}
@@ -1266,7 +1266,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 	
 		if (Found_segs.count()) {
 			sort_seg_list(Found_segs,ConsoleObject->pos);
-			Cursegp = segptridx(Found_segs[0]);
+			Cursegp = imsegptridx(Found_segs[0]);
 			med_create_new_segment_from_cursegp();
 			if (Lock_view_to_cursegp)
 				set_view_target_from_segment(Cursegp);
@@ -1321,7 +1321,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 
 				//	See if either shift key is down and, if so, assign texture map
 				if (keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) {
-					Cursegp = segptridx(seg);
+					Cursegp = imsegptridx(seg);
 					Curside = side;
 					AssignTexture();
 					med_create_new_segment_from_cursegp();
@@ -1333,7 +1333,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 				} else if (keyd_pressed[ KEY_LAPOSTRO] ) {
 					move_object_to_mouse_click();
 				} else {
-					Cursegp = segptridx(seg);
+					Cursegp = imsegptridx(seg);
 					Curside = side;
 					med_create_new_segment_from_cursegp();
 					editor_status("Curseg and curside selected");

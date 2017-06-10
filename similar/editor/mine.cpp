@@ -429,7 +429,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 		mine_editor.Markedsegp       =   -1;
 	mine_editor.Markedside          =   Markedside;
 	for (int i=0;i<10;i++)
-		mine_editor.Groupsegp[i]	  =	vsegptridx(Groupsegp[i]);
+		mine_editor.Groupsegp[i]	  =	vmsegptridx(Groupsegp[i]);
 	for (int i=0;i<10;i++)
 		mine_editor.Groupside[i]     =	Groupside[i];
 

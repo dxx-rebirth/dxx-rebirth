@@ -298,7 +298,7 @@ static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *const obj
 
 // turn object_rw to object after reading from Savegame
 namespace dsx {
-static void state_object_rw_to_object(const object_rw *const obj_rw, const vobjptr_t obj)
+static void state_object_rw_to_object(const object_rw *const obj_rw, const vmobjptr_t obj)
 {
 	*obj = {};
 	DXX_POISON_VAR(*obj, 0xfd);
@@ -1056,7 +1056,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 #endif
 
 //Finish all morph objects
-	range_for (const auto &&objp, vobjptr)
+	range_for (const auto &&objp, vmobjptr)
 	{
 		if (objp->type != OBJ_NONE && objp->render_type == RT_MORPH)
 		{
@@ -1314,8 +1314,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 #if defined(DXX_BUILD_DESCENT_II)
 void set_pos_from_return_segment(void)
 {
-	const auto &&plobjnum = vobjptridx(get_local_player().objnum);
-	const auto &&segp = vsegptridx(Secret_return_segment);
+	const auto &&plobjnum = vmobjptridx(get_local_player().objnum);
+	const auto &&segp = vmsegptridx(Secret_return_segment);
 	compute_segment_center(plobjnum->pos, segp);
 	obj_relink(plobjnum, segp);
 	reset_player_object();
@@ -1607,7 +1607,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
 
 	//Clear out all the objects from the lvl file
-	range_for (const auto &&segp, vsegptr)
+	range_for (const auto &&segp, vmsegptr)
 	{
 		segp->objects = object_none;
 	}
@@ -1618,7 +1618,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		const int i = PHYSFSX_readSXE32(fp, swap);
 	Objects.set_count(i);
 	}
-	range_for (const auto &&objp, vobjptr)
+	range_for (const auto &&objp, vmobjptr)
 	{
 		object_rw obj_rw;
 		PHYSFS_read(fp, &obj_rw, sizeof(obj_rw), 1);
@@ -1626,12 +1626,12 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		state_object_rw_to_object(&obj_rw, objp);
 	}
 
-	range_for (const auto &&obj, vobjptridx)
+	range_for (const auto &&obj, vmobjptridx)
 	{
 		obj->rtype.pobj_info.alt_textures = -1;
 		if ( obj->type != OBJ_NONE )	{
 			const auto segnum = obj->segnum;
-			obj_link_unchecked(obj, vsegptridx(segnum));
+			obj_link_unchecked(obj, vmsegptridx(segnum));
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		//look for, and fix, boss with bogus shields
@@ -1684,7 +1684,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 	//Restore wall info
 	Walls.set_count(PHYSFSX_readSXE32(fp, swap));
-	range_for (const auto &&w, vwallptr)
+	range_for (const auto &&w, vmwallptr)
 		wall_read(fp, *w);
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1706,25 +1706,25 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 	//Restore door info
 	ActiveDoors.set_count(PHYSFSX_readSXE32(fp, swap));
-	range_for (auto &&ad, vactdoorptr)
+	range_for (auto &&ad, vmactdoorptr)
 		active_door_read(fp, ad);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (version >= 14) {		//Restore cloaking wall info
 		unsigned num_cloaking_walls = PHYSFSX_readSXE32(fp, swap);
 		CloakingWalls.set_count(num_cloaking_walls);
-		range_for (auto &&w, vclwallptr)
+		range_for (auto &&w, vmclwallptr)
 			cloaking_wall_read(w, fp);
 	}
 #endif
 
 	//Restore trigger info
 	Triggers.set_count(PHYSFSX_readSXE32(fp, swap));
-	range_for (const auto t, vtrgptr)
+	range_for (const auto t, vmtrgptr)
 		trigger_read(fp, *t);
 
 	//Restore tmap info (to temp values so we can use compiled-in tmap info to compute static_light
-	range_for (const auto &&segp, vsegptridx)
+	range_for (const auto &&segp, vmsegptridx)
 	{
 		for (unsigned j = 0; j < 6; ++j)
 		{
@@ -1895,7 +1895,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	if (version >= 16) {
 		if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 		{
-			range_for (const auto &&segp, vsegptr)
+			range_for (const auto &&segp, vmsegptr)
 			{
 				PHYSFS_read(fp, &segp->light_subtracted, sizeof(segp->light_subtracted), 1);
 			}
@@ -1909,7 +1909,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		}
 		apply_all_changed_light();
 	} else {
-		range_for (const auto &&segp, vsegptr)
+		range_for (const auto &&segp, vmsegptr)
 		{
 			segp->light_subtracted = 0;
 		}
@@ -1944,7 +1944,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	}
 
 	// static_light should now be computed - now actually set tmap info
-	range_for (const auto &&segp, vsegptridx)
+	range_for (const auto &&segp, vmsegptridx)
 	{
 		for (unsigned j = 0; j < 6; ++j)
 		{
@@ -1971,7 +1971,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 			state_read_player(fp, restore_players[i], swap, pl_info, shields);
 			
 			// make all (previous) player objects to ghosts but store them first for later remapping
-			const auto &&obj = vobjptr(restore_players[i].objnum);
+			const auto &&obj = vmobjptr(restore_players[i].objnum);
 			if (restore_players[i].connected == CONNECT_PLAYING && obj->type == OBJ_PLAYER)
 			{
 				obj->ctype.player_info = pl_info;
@@ -1996,7 +1996,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 					coop_player_got[i] = 1;
 					coop_got_nplayers++;
 
-					auto obj = vobjptridx(Players[i].objnum);
+					auto obj = vmobjptridx(Players[i].objnum);
 					// since a player always uses the same object, we just have to copy the saved object properties to the existing one. i hate you...
 					set_player_id(obj, i); // assign player object id to player number
 					obj->control_type = restore_objects[j].control_type;
@@ -2036,7 +2036,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		Netgame.level_time = PHYSFSX_readSXE32(fp, swap);
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++)
 		{
-			const auto &&objp = vobjptr(Players[i].objnum);
+			const auto &&objp = vmobjptr(Players[i].objnum);
 			auto &pi = objp->ctype.player_info;
 			Netgame.killed[i] = pi.net_killed_total;
 			Netgame.player_score[i] = pi.mission.score;

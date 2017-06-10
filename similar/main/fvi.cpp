@@ -622,7 +622,7 @@ segnum_t fvi_hit_seg2;		// what segment the hit point is in
 }
 
 namespace dsx {
-static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, const cobjptridx_t thisobjnum, const std::pair<const objnum_t *, const objnum_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited);
+static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, const icobjptridx_t thisobjnum, const std::pair<const objnum_t *, const objnum_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited);
 
 //What the hell is fvi_hit_seg for???
 
@@ -681,12 +681,12 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 
 	hit_seg2 = fvi_hit_seg2 = segment_none;
 
-	hit_type = fvi_sub(hit_pnt, hit_seg2, *fq.p0, vcsegptridx(fq.startseg), *fq.p1, fq.rad, objptridx(fq.thisobjnum), fq.ignore_obj_list, fq.flags, hit_data.seglist, segment_exit, visited);
+	hit_type = fvi_sub(hit_pnt, hit_seg2, *fq.p0, vcsegptridx(fq.startseg), *fq.p1, fq.rad, imobjptridx(fq.thisobjnum), fq.ignore_obj_list, fq.flags, hit_data.seglist, segment_exit, visited);
 	segnum_t hit_seg;
 	if (hit_seg2 != segment_none && !get_seg_masks(hit_pnt, vcsegptr(hit_seg2), 0).centermask)
 		hit_seg = hit_seg2;
 	else
-		hit_seg = find_point_seg(hit_pnt, segptridx(fq.startseg));
+		hit_seg = find_point_seg(hit_pnt, imsegptridx(fq.startseg));
 
 //MATT: TAKE OUT THIS HACK AND FIX THE BUGS!
 	if (hit_type == HIT_WALL && hit_seg==segment_none)
@@ -701,7 +701,7 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 		//because of code that deal with object with non-zero radius has
 		//problems, try using zero radius and see if we hit a wall
 
-		new_hit_type = fvi_sub(new_hit_pnt, new_hit_seg2, *fq.p0, vcsegptridx(fq.startseg), *fq.p1, 0, objptridx(fq.thisobjnum), fq.ignore_obj_list, fq.flags, hit_data.seglist, segment_exit, visited);
+		new_hit_type = fvi_sub(new_hit_pnt, new_hit_seg2, *fq.p0, vcsegptridx(fq.startseg), *fq.p1, 0, imobjptridx(fq.thisobjnum), fq.ignore_obj_list, fq.flags, hit_data.seglist, segment_exit, visited);
 		(void)new_hit_type; // FIXME! This should become hit_type, right?
 
 		if (new_hit_seg2 != segment_none) {
@@ -789,7 +789,7 @@ static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segm
 }
 
 namespace dsx {
-static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, cobjptridx_t thisobjnum, const std::pair<const objnum_t *, const objnum_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited)
+static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, icobjptridx_t thisobjnum, const std::pair<const objnum_t *, const objnum_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited)
 {
 	int startmask,endmask;	//mask of faces
 	//@@int sidemask;				//mask of sides - can be on back of face but not side

@@ -149,13 +149,13 @@ public:
 	preserve_player_object_info(const objnum_t &o) :
 		objnum(o)
 	{
-		const auto &&plr = vobjptr(objnum);
+		const auto &&plr = vmobjptr(objnum);
 		plr_shields = plr->shields;
 		plr_info = plr->ctype.player_info;
 	}
 	void restore() const
 	{
-		const auto &&plr = vobjptr(objnum);
+		const auto &&plr = vmobjptr(objnum);
 		plr->shields = plr_shields;
 		plr->ctype.player_info = plr_info;
 	}
@@ -197,7 +197,7 @@ static void verify_console_object()
 {
 	Assert(Player_num < Players.size());
 	Assert( get_local_player().objnum != object_none );
-	const auto &&console = vobjptr(get_local_player().objnum);
+	const auto &&console = vmobjptr(get_local_player().objnum);
 	ConsoleObject = console;
 	Assert(console->type == OBJ_PLAYER);
 	Assert(get_player_id(console) == Player_num);
@@ -227,7 +227,7 @@ static void gameseq_init_network_players()
 	j = 0;
 	const auto multiplayer = Game_mode & GM_MULTI;
 	const auto multiplayer_coop = Game_mode & GM_MULTI_COOP;
-	range_for (const auto &&o, vobjptridx)
+	range_for (const auto &&o, vmobjptridx)
 	{
 		const auto type = o->type;
 		if (type == OBJ_PLAYER || type == OBJ_GHOST || type == OBJ_COOP)
@@ -273,7 +273,7 @@ void gameseq_remove_unused_players()
 	{		// Note link to above if!!!
 		range_for (auto &i, partial_const_range(Players, 1u, NumNetPlayerPositions))
 		{
-			obj_delete(vobjptridx(i.objnum));
+			obj_delete(vmobjptridx(i.objnum));
 		}
 	}
 }
@@ -293,7 +293,7 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].num_robots_total = 0;
 	Players[pnum].hostages_level = 0;
 	Players[pnum].hostages_total = 0;
-	const auto &&plobj = vobjptr(Players[pnum].objnum);
+	const auto &&plobj = vmobjptr(Players[pnum].objnum);
 	auto &player_info = plobj->ctype.player_info;
 	player_info.powerup_flags = {};
 	player_info.net_killed_total = 0;
@@ -410,7 +410,7 @@ void init_player_stats_level(player &plr, object &plrobj, const secret_restore s
 void init_player_stats_new_ship(ubyte pnum)
 {
 	auto &plr = Players[pnum];
-	const auto &&plrobj = vobjptridx(plr.objnum);
+	const auto &&plrobj = vmobjptridx(plr.objnum);
 	plrobj->shields = StartingShields;
 	auto &player_info = plrobj->ctype.player_info;
 	player_info.energy = INITIAL_ENERGY;
@@ -611,7 +611,7 @@ void create_player_appearance_effect(const object_base &player_obj)
 		? vm_vec_scale_add(player_obj.pos, player_obj.orient.fvec, fixmul(player_obj.size, flash_dist))
 		: player_obj.pos;
 
-	const auto &&effect_obj = object_create_explosion(vsegptridx(player_obj.segnum), pos, player_obj.size, VCLIP_PLAYER_APPEARANCE);
+	const auto &&effect_obj = object_create_explosion(vmsegptridx(player_obj.segnum), pos, player_obj.size, VCLIP_PLAYER_APPEARANCE);
 
 	if (effect_obj) {
 		effect_obj->orient = player_obj.orient;
@@ -816,7 +816,7 @@ void InitPlayerObject()
 	}
 
 	get_local_player().objnum = object_first;
-	const auto &&console = vobjptr(get_local_player().objnum);
+	const auto &&console = vmobjptr(get_local_player().objnum);
 	ConsoleObject = console;
 	console->type				= OBJ_PLAYER;
 	set_player_id(console, Player_num);
@@ -1628,7 +1628,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 		int i;
 		for (i = 0; i < N_players; i++)
 		{
-			const auto &&plobj = vobjptr(Players[i].objnum);
+			const auto &&plobj = vmobjptr(Players[i].objnum);
 			plobj->ctype.player_info.powerup_flags |= Netgame.net_player_flags[i];
 		}
 	}
@@ -1701,7 +1701,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 
 }
 
-void (bash_to_shield)(const vobjptr_t i)
+void (bash_to_shield)(const vmobjptr_t i)
 {
 	set_powerup_id(i, POW_SHIELD_BOOST);
 }
@@ -1712,7 +1712,7 @@ namespace dsx {
 
 static void filter_objects_from_level()
  {
-	range_for (const auto &&objp, vobjptridx)
+	range_for (const auto &&objp, vmobjptridx)
 	{
 		if (objp->type==OBJ_POWERUP)
 		{
@@ -1849,7 +1849,7 @@ public:
 			{
 				if (i == player_num)
 					continue;
-				const auto &&objp = vobjptr(Players[i].objnum);
+				const auto &&objp = vmobjptr(Players[i].objnum);
 				if (objp->type != OBJ_PLAYER)
 					continue;
 				const auto dist = find_connected_distance(objp->pos, candidate_segp.absolute_sibling(objp->segnum), candidate.pos, candidate_segp, -1, WALL_IS_DOORWAY_FLAG<0>());
@@ -1927,7 +1927,7 @@ static void InitPlayerPosition(int random_flag)
 	Assert(NewPlayer < NumNetPlayerPositions);
 	ConsoleObject->pos = Player_init[NewPlayer].pos;
 	ConsoleObject->orient = Player_init[NewPlayer].orient;
-	obj_relink(vobjptridx(ConsoleObject), vsegptridx(Player_init[NewPlayer].segnum));
+	obj_relink(vmobjptridx(ConsoleObject), vmsegptridx(Player_init[NewPlayer].segnum));
 	reset_player_object();
 }
 
@@ -1937,7 +1937,7 @@ static void InitPlayerPosition(int random_flag)
 //	Initialize default parameters for one robot, copying from Robot_info to *objp.
 //	What about setting size!?  Where does that come from?
 namespace dsx {
-void copy_defaults_to_robot(const vobjptr_t objp)
+void copy_defaults_to_robot(const vmobjptr_t objp)
 {
 	robot_info	*robptr;
 	int			objid;
@@ -1980,7 +1980,7 @@ void copy_defaults_to_robot(const vobjptr_t objp)
 //	This function should be called at level load time.
 static void copy_defaults_to_robot_all(void)
 {
-	range_for (const auto &&objp, vobjptr)
+	range_for (const auto &&objp, vmobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 			copy_defaults_to_robot(objp);

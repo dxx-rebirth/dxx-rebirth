@@ -116,9 +116,9 @@ public:
 };
 
 __attribute_warn_unused_result
-static inline segment_object_range_t<vobjptridx_t> objects_in(segment &s)
+static inline segment_object_range_t<vmobjptridx_t> objects_in(segment &s)
 {
-	return segment_object_range_t<vobjptridx_t>::construct(s, vobjptridx, vsegptr);
+	return segment_object_range_t<vmobjptridx_t>::construct(s, vmobjptridx, vmsegptr);
 }
 
 __attribute_warn_unused_result

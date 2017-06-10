@@ -81,11 +81,11 @@ extern void newdemo_record_start_frame(fix frame_time );
 #ifdef dsx
 #ifdef dsx
 namespace dsx {
-void newdemo_record_render_object(vobjptridx_t  obj);
-void newdemo_record_viewer_object(vobjptridx_t  obj);
+void newdemo_record_render_object(vmobjptridx_t  obj);
+void newdemo_record_viewer_object(vmobjptridx_t  obj);
 }
 #endif
-cobjptridx_t newdemo_find_object(object_signature_t signature);
+icobjptridx_t newdemo_find_object(object_signature_t signature);
 void newdemo_record_kill_sound_linked_to_object(vcobjptridx_t);
 namespace dsx {
 void newdemo_start_playback(const char *filename);

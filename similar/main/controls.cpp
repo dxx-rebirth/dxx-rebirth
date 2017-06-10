@@ -61,7 +61,7 @@ using std::min;
 using std::max;
 
 namespace dsx {
-void read_flying_controls(const vobjptr_t obj)
+void read_flying_controls(const vmobjptr_t obj)
 {
 	fix	forward_thrust_time;
 
@@ -75,7 +75,7 @@ void read_flying_controls(const vobjptr_t obj)
 		const auto gm = Guided_missile[Player_num];
 		if (!gm)
 			return false;
-		const auto &&m = vobjptr(gm);
+		const auto &&m = vmobjptr(gm);
 		if (m->type != OBJ_WEAPON)
 			return false;
 		if (m->signature != Guided_missile_sig[Player_num])

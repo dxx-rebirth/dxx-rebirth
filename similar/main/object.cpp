@@ -123,7 +123,7 @@ void object_goto_next_viewer()
 		start_obj++;
 		if (start_obj > Highest_object_index ) start_obj = 0;
 
-		const auto &&objp = vobjptr(start_obj);
+		const auto &&objp = vmobjptr(start_obj);
 		if (objp->type != OBJ_NONE)
 		{
 			Viewer = objp;
@@ -136,9 +136,9 @@ void object_goto_next_viewer()
 }
 #endif
 
-objptridx_t obj_find_first_of_type(int type)
+imobjptridx_t obj_find_first_of_type(int type)
 {
-	range_for (const auto &&i, vobjptridx)
+	range_for (const auto &&i, vmobjptridx)
 	{
 		if (i->type==type)
 			return i;
@@ -583,7 +583,7 @@ static void set_robot_location_info(object &objp)
 }
 
 //	------------------------------------------------------------------------------------------------------------------
-void create_small_fireball_on_object(const vobjptridx_t objp, fix size_scale, int sound_flag)
+void create_small_fireball_on_object(const vmobjptridx_t objp, fix size_scale, int sound_flag)
 {
 	fix			size;
 	vms_vector	pos;
@@ -601,7 +601,7 @@ void create_small_fireball_on_object(const vobjptridx_t objp, fix size_scale, in
 	size = fixmul(size_scale, F1_0/2 + d_rand()*4/2);
 #endif
 
-	const auto &&segnum = find_point_seg(pos, vsegptridx(objp->segnum));
+	const auto &&segnum = find_point_seg(pos, vmsegptridx(objp->segnum));
 	if (segnum != segment_none) {
 		auto expl_obj = object_create_explosion(segnum, pos, size, VCLIP_SMALL_EXPLOSION);
 		if (!expl_obj)
@@ -629,7 +629,7 @@ void create_small_fireball_on_object(const vobjptridx_t objp, fix size_scale, in
 
 // -----------------------------------------------------------------------------
 //	Render an object.  Calls one of several routines based on type
-void render_object(grs_canvas &canvas, const vobjptridx_t obj)
+void render_object(grs_canvas &canvas, const vmobjptridx_t obj)
 {
 	if (unlikely(obj == Viewer))
 		return;
@@ -808,7 +808,7 @@ void reset_player_object()
 //make object0 the player, setting all relevant fields
 void init_player_object()
 {
-	const auto &&console = vobjptr(ConsoleObject);
+	const auto &&console = vmobjptr(ConsoleObject);
 	console->type = OBJ_PLAYER;
 	set_player_id(console, 0);					//no sub-types for player
 	console->signature = object_signature_t{0};			//player has zero, others start at 1
@@ -826,7 +826,7 @@ void init_objects()
 	for (objnum_t i = 0; i< MAX_OBJECTS; ++i)
 	{
 		free_obj_list[i] = i;
-		auto &obj = *vobjptr(i);
+		auto &obj = *vmobjptr(i);
 		DXX_POISON_VAR(obj, 0xfd);
 		obj.type = OBJ_NONE;
 	}
@@ -837,7 +837,7 @@ void init_objects()
 	ConsoleObject = Viewer = &Objects.front();
 
 	init_player_object();
-	obj_link_unchecked(vobjptridx(ConsoleObject), vsegptridx(segment_first));	//put in the world in segment 0
+	obj_link_unchecked(vmobjptridx(ConsoleObject), vmsegptridx(segment_first));	//put in the world in segment 0
 	num_objects = 1;						//just the player
 	Objects.set_count(1);
 }
@@ -862,7 +862,7 @@ void special_reset_objects(void)
 }
 
 //link the object into the list for its segment
-void obj_link(const vobjptridx_t obj,const vsegptridx_t segnum)
+void obj_link(const vmobjptridx_t obj,const vmsegptridx_t segnum)
 {
 	assert(obj->segnum == segment_none);
 	assert(obj->next == object_none);
@@ -870,7 +870,7 @@ void obj_link(const vobjptridx_t obj,const vsegptridx_t segnum)
 	obj_link_unchecked(obj, segnum);
 }
 
-void obj_link_unchecked(const vobjptridx_t obj,const vsegptridx_t segnum)
+void obj_link_unchecked(const vmobjptridx_t obj,const vmsegptridx_t segnum)
 {
 	obj->segnum = segnum;
 	
@@ -880,13 +880,13 @@ void obj_link_unchecked(const vobjptridx_t obj,const vsegptridx_t segnum)
 	segnum->objects = obj;
 
 	if (obj->next != object_none)
-		vobjptr(obj->next)->prev = obj;
+		vmobjptr(obj->next)->prev = obj;
 }
 
 void obj_unlink(object_base &obj)
 {
 	const auto next = obj.next;
-	/* It is a bug elsewhere if vsegptr ever fails here.  However, it is
+	/* It is a bug elsewhere if vmsegptr ever fails here.  However, it is
 	 * expensive to check, so only force verification in debug builds.
 	 *
 	 * In debug builds, always compute it, for the side effect of
@@ -895,22 +895,22 @@ void obj_unlink(object_base &obj)
 	 * In release builds, compute it when it is needed.
 	 */
 #ifndef NDEBUG
-	const auto &&segp = vsegptr(obj.segnum);
+	const auto &&segp = vmsegptr(obj.segnum);
 #endif
 	((obj.prev == object_none)
 		? (
 #ifdef NDEBUG
-			vsegptr(obj.segnum)
+			vmsegptr(obj.segnum)
 #else
 			segp
 #endif
 		)->objects
-		: vobjptr(obj.prev)->next) = next;
+		: vmobjptr(obj.prev)->next) = next;
 
 	obj.segnum = segment_none;
 
 	if (next != object_none)
-		vobjptr(next)->prev = obj.prev;
+		vmobjptr(next)->prev = obj.prev;
 	DXX_POISON_VAR(obj.next, 0xfa);
 	DXX_POISON_VAR(obj.prev, 0xfa);
 }
@@ -950,7 +950,7 @@ namespace dsx {
 //Generally, obj_create() should be called to get an object, since it
 //fills in important fields and does the linking.
 //returns -1 if no free objects
-objptridx_t obj_allocate()
+imobjptridx_t obj_allocate()
 {
 	if ( num_objects >= MAX_OBJECTS ) {
 		return object_none;
@@ -961,7 +961,7 @@ objptridx_t obj_allocate()
 	if (objnum > Highest_object_index) {
 		Objects.set_count(objnum + 1);
 	}
-	const auto &&r = vobjptridx(objnum);
+	const auto &&r = vmobjptridx(objnum);
 	assert(r->type == OBJ_NONE);
 	return r;
 }
@@ -1002,7 +1002,7 @@ static void free_object_slots(uint_fast32_t num_used)
 	if (MAX_OBJECTS - num_already_free < num_used)
 		return;
 
-	range_for (const auto &&objp, vobjptr)
+	range_for (const auto &&objp, vmobjptr)
 	{
 		if (objp->flags & OF_SHOULD_BE_DEAD)
 		{
@@ -1052,7 +1052,7 @@ static void free_object_slots(uint_fast32_t num_used)
 	auto l = [&r, &num_to_free](bool (*predicate)(const vcobjptr_t)) -> bool {
 		range_for (const auto i, r)
 		{
-			const auto &&o = vobjptr(i);
+			const auto &&o = vmobjptr(i);
 			if (predicate(o))
 			{
 				o->flags |= OF_SHOULD_BE_DEAD;
@@ -1085,7 +1085,7 @@ static void free_object_slots(uint_fast32_t num_used)
 //note that segnum is really just a suggestion, since this routine actually
 //searches for the correct segment
 //returns the object number
-objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vms_vector &pos,
+imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const vms_vector &pos,
 				const vms_matrix *orient,fix size,ubyte ctype,ubyte mtype,ubyte rtype)
 {
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
@@ -1192,7 +1192,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 
 #if DXX_USE_EDITOR
 //create a copy of an object. returns new object number
-objptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, const vsegptridx_t newsegnum)
+imobjptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, const vmsegptridx_t newsegnum)
 {
 	// Find next free object
 	const auto &&obj = obj_allocate();
@@ -1216,7 +1216,7 @@ objptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, con
 #endif
 
 //remove object from the world
-void obj_delete(const vobjptridx_t obj)
+void obj_delete(const vmobjptridx_t obj)
 {
 	Assert(obj->type != OBJ_NONE);
 	Assert(obj != ConsoleObject);
@@ -1278,7 +1278,7 @@ void dead_player_end(void)
 		newdemo_record_restore_cockpit();
 
 	Player_dead_state = player_dead_state::no;
-	obj_delete(vobjptridx(Dead_player_camera));
+	obj_delete(vmobjptridx(Dead_player_camera));
 	Dead_player_camera = NULL;
 	select_cockpit(PlayerCfg.CockpitMode[0]);
 	Viewer = Viewer_save;
@@ -1355,7 +1355,7 @@ window_event_result dead_player_frame()
 		//	If unable to create camera at time of death, create now.
 		if (Dead_player_camera == Viewer_save) {
 			const auto &player = get_local_plrobj();
-			const auto &&objnum = obj_create(OBJ_CAMERA, 0, vsegptridx(player.segnum), player.pos, &player.orient, 0, CT_NONE, MT_NONE, RT_NONE);
+			const auto &&objnum = obj_create(OBJ_CAMERA, 0, vmsegptridx(player.segnum), player.pos, &player.orient, 0, CT_NONE, MT_NONE, RT_NONE);
 
 			if (objnum != object_none)
 				Viewer = Dead_player_camera = objnum;
@@ -1407,7 +1407,7 @@ window_event_result dead_player_frame()
 
 				Player_dead_state = player_dead_state::exploded;
 				
-				const auto cobjp = vobjptridx(ConsoleObject);
+				const auto cobjp = vmobjptridx(ConsoleObject);
 				drop_player_eggs(cobjp);
 				player_info.Player_eggs_dropped = true;
 				if (Game_mode & GM_MULTI)
@@ -1430,7 +1430,7 @@ window_event_result dead_player_frame()
 			if (d_rand() < FrameTime*4) {
 				if (Game_mode & GM_MULTI)
 					multi_send_create_explosion(Player_num);
-				create_small_fireball_on_object(vobjptridx(ConsoleObject), F1_0, 1);
+				create_small_fireball_on_object(vmobjptridx(ConsoleObject), F1_0, 1);
 			}
 		}
 
@@ -1440,7 +1440,7 @@ window_event_result dead_player_frame()
 			auto &player_info = get_local_plrobj().ctype.player_info;
 			if (!player_info.Player_eggs_dropped) {
 				player_info.Player_eggs_dropped = true;
-				drop_player_eggs(vobjptridx(ConsoleObject));
+				drop_player_eggs(vmobjptridx(ConsoleObject));
 				if (Game_mode & GM_MULTI)
 				{
 					multi_send_player_deres(deres_explode);
@@ -1494,7 +1494,7 @@ static void start_player_death_sequence(object &player)
 					if (killer_objnum == object_none)
 						/* Non-player kill */
 						return true;
-					const auto &&killer_objp = vobjptr(killer_objnum);
+					const auto &&killer_objp = vmobjptr(killer_objnum);
 					if (killer_objp->type != OBJ_PLAYER)
 						return true;
 					if (!(Game_mode & GM_TEAM))
@@ -1506,7 +1506,7 @@ static void start_player_death_sequence(object &player)
 			}
 		}
 #endif
-		multi_send_kill(vobjptridx(get_local_player().objnum));
+		multi_send_kill(vmobjptridx(get_local_player().objnum));
 	}
 	
 	PaletteRedAdd = 40;
@@ -1515,7 +1515,7 @@ static void start_player_death_sequence(object &player)
 	vm_vec_zero(player.mtype.phys_info.rotthrust);
 	vm_vec_zero(player.mtype.phys_info.thrust);
 
-	const auto &&objnum = obj_create(OBJ_CAMERA, 0, vsegptridx(player.segnum), player.pos, &player.orient, 0, CT_NONE, MT_NONE, RT_NONE);
+	const auto &&objnum = obj_create(OBJ_CAMERA, 0, vmsegptridx(player.segnum), player.pos, &player.orient, 0, CT_NONE, MT_NONE, RT_NONE);
 	Viewer_save = Viewer;
 	if (objnum != object_none)
 		Viewer = Dead_player_camera = objnum;
@@ -1545,7 +1545,7 @@ static void obj_delete_all_that_should_be_dead()
 	objnum_t		local_dead_player_object=object_none;
 
 	// Move all objects
-	range_for (const auto &&objp, vobjptridx)
+	range_for (const auto &&objp, vmobjptridx)
 	{
 		if ((objp->type!=OBJ_NONE) && (objp->flags&OF_SHOULD_BE_DEAD) )	{
 			Assert(!(objp->type==OBJ_FIREBALL && objp->ctype.expl_info.delete_time!=-1));
@@ -1568,7 +1568,7 @@ static void obj_delete_all_that_should_be_dead()
 
 //when an object has moved into a new segment, this function unlinks it
 //from its old segment, and links it into the new segment
-void obj_relink(const vobjptridx_t objnum,const vsegptridx_t newsegnum)
+void obj_relink(const vmobjptridx_t objnum,const vmsegptridx_t newsegnum)
 {
 	obj_unlink(objnum);
 	obj_link_unchecked(objnum,newsegnum);
@@ -1577,19 +1577,19 @@ void obj_relink(const vobjptridx_t objnum,const vsegptridx_t newsegnum)
 // for getting out of messed up linking situations (i.e. caused by demo playback)
 void obj_relink_all(void)
 {
-	range_for (const auto &&segp, vsegptr)
+	range_for (const auto &&segp, vmsegptr)
 	{
 		segp->objects = object_none;
 	}
 	
-	range_for (const auto &&obj, vobjptridx)
+	range_for (const auto &&obj, vmobjptridx)
 	{
 		if (obj->type != OBJ_NONE)
 		{
 			auto segnum = obj->segnum;
 			if (segnum > Highest_segment_index)
 				segnum = segment_first;
-			obj_link_unchecked(obj, vsegptridx(segnum));
+			obj_link_unchecked(obj, vmsegptridx(segnum));
 		}
 	}
 }
@@ -1618,7 +1618,7 @@ int Drop_afterburner_blob_flag;		//ugly hack
 
 //--------------------------------------------------------------------
 //move an object for the current frame
-static window_event_result object_move_one(const vobjptridx_t obj)
+static window_event_result object_move_one(const vmobjptridx_t obj)
 {
 	const auto previous_segment = obj->segnum;
 	auto result = window_event_result::handled;
@@ -1626,7 +1626,7 @@ static window_event_result object_move_one(const vobjptridx_t obj)
 	obj->last_pos = obj->pos;			// Save the current position
 
 	if ((obj->type==OBJ_PLAYER) && (Player_num==get_player_id(obj)))	{
-		const auto &&segp = vsegptr(obj->segnum);
+		const auto &&segp = vmsegptr(obj->segnum);
 #if defined(DXX_BUILD_DESCENT_II)
 		if (game_mode_capture_flag())
 			fuelcen_check_for_goal(segp);
@@ -1750,7 +1750,7 @@ static window_event_result object_move_one(const vobjptridx_t obj)
 
 		if (previous_segment != obj->segnum && n_phys_segs > 1)
 		{
-			auto seg0 = vsegptridx(phys_seglist[0]);
+			auto seg0 = vmsegptridx(phys_seglist[0]);
 #if defined(DXX_BUILD_DESCENT_II)
 			int	old_level = Current_level_num;
 #endif
@@ -1885,7 +1885,7 @@ window_event_result object_move_all()
 		ConsoleObject->mtype.phys_info.flags &= ~PF_LEVELLING;
 
 	// Move all objects
-	range_for (const auto &&objp, vobjptridx)
+	range_for (const auto &&objp, vmobjptridx)
 	{
 		if ( (objp->type != OBJ_NONE) && (!(objp->flags&OF_SHOULD_BE_DEAD)) )	{
 			result = std::max(object_move_one( objp ), result);
@@ -1920,10 +1920,10 @@ void compress_objects(void)
 	//	are just removing gaps, and the last object can't be a gap.
 	for (objnum_t start_i=0;start_i<Highest_object_index;start_i++)
 	{
-		const auto &&start_objp = vobjptridx(start_i);
+		const auto &&start_objp = vmobjptridx(start_i);
 		if (start_objp->type == OBJ_NONE) {
 			auto highest = Highest_object_index;
-			const auto &&h = vobjptr(static_cast<objnum_t>(highest));
+			const auto &&h = vmobjptr(static_cast<objnum_t>(highest));
 			auto segnum_copy = h->segnum;
 
 			obj_unlink(h);
@@ -1937,9 +1937,9 @@ void compress_objects(void)
 
 			h->type = OBJ_NONE;
 
-			obj_link(start_objp, vsegptridx(segnum_copy));
+			obj_link(start_objp, vmsegptridx(segnum_copy));
 
-			while (vobjptr(static_cast<objnum_t>(--highest))->type == OBJ_NONE)
+			while (vmobjptr(static_cast<objnum_t>(--highest))->type == OBJ_NONE)
 			{
 			}
 			Objects.set_count(highest + 1);
@@ -1964,7 +1964,7 @@ void reset_objects(int n_objs)
 	for (objnum_t i = num_objects; i < MAX_OBJECTS; ++i)
 	{
 		free_obj_list[i] = i;
-		auto &obj = *vobjptr(i);
+		auto &obj = *vmobjptr(i);
 		DXX_POISON_VAR(obj, 0xfd);
 		obj.type = OBJ_NONE;
 	}
@@ -1975,16 +1975,16 @@ void reset_objects(int n_objs)
 }
 
 //Tries to find a segment for an object, using find_point_seg()
-segptridx_t find_object_seg(const vobjptr_t obj)
+imsegptridx_t find_object_seg(const vmobjptr_t obj)
 {
-	return find_point_seg(obj->pos, vsegptridx(obj->segnum));
+	return find_point_seg(obj->pos, vmsegptridx(obj->segnum));
 }
 
 
 //If an object is in a segment, set its segnum field and make sure it's
 //properly linked.  If not in any segment, returns 0, else 1.
 //callers should generally use find_vector_intersection()
-int update_object_seg(const vobjptridx_t obj)
+int update_object_seg(const vmobjptridx_t obj)
 {
 	auto newseg = find_object_seg(obj);
 	if (newseg == segment_none)
@@ -2008,7 +2008,7 @@ void set_powerup_id(object_base &o, powerup_type_t id)
 //go through all objects and make sure they have the correct segment numbers
 void fix_object_segs()
 {
-	range_for (const auto &&o, vobjptridx)
+	range_for (const auto &&o, vmobjptridx)
 	{
 		if (o->type != OBJ_NONE)
 			if (update_object_seg(o) == 0) {
@@ -2069,7 +2069,7 @@ static int object_is_clearable_weapon(const vcobjptr_t obj, int clear_all)
 //if clear_all is set, clear even proximity bombs
 void clear_transient_objects(int clear_all)
 {
-	range_for (const auto &&obj, vobjptridx)
+	range_for (const auto &&obj, vmobjptridx)
 	{
 		if (object_is_clearable_weapon(obj, clear_all) ||
 			 obj->type == OBJ_FIREBALL ||
@@ -2082,7 +2082,7 @@ void clear_transient_objects(int clear_all)
 }
 
 //attaches an object, such as a fireball, to another object, such as a robot
-void obj_attach(const vobjptridx_t parent,const vobjptridx_t sub)
+void obj_attach(const vmobjptridx_t parent,const vmobjptridx_t sub)
 {
 	Assert(sub->type == OBJ_FIREBALL);
 	Assert(sub->control_type == CT_EXPLOSION);
@@ -2095,7 +2095,7 @@ void obj_attach(const vobjptridx_t parent,const vobjptridx_t sub)
 	sub->ctype.expl_info.next_attach = parent->attached_obj;
 
 	if (sub->ctype.expl_info.next_attach != object_none)
-		vobjptr(sub->ctype.expl_info.next_attach)->ctype.expl_info.prev_attach = sub;
+		vmobjptr(sub->ctype.expl_info.next_attach)->ctype.expl_info.prev_attach = sub;
 
 	parent->attached_obj = sub;
 
@@ -2121,20 +2121,20 @@ void obj_detach_one(object &sub)
 
 	if (sub.ctype.expl_info.next_attach != object_none)
 	{
-		const auto &&o = vobjptr(sub.ctype.expl_info.next_attach);
-		assert(vobjptr(o->ctype.expl_info.prev_attach) == &sub);
+		const auto &&o = vmobjptr(sub.ctype.expl_info.next_attach);
+		assert(vmobjptr(o->ctype.expl_info.prev_attach) == &sub);
 		o->ctype.expl_info.prev_attach = sub.ctype.expl_info.prev_attach;
 	}
 
 	if (sub.ctype.expl_info.prev_attach != object_none)
 	{
-		const auto &&o = vobjptr(sub.ctype.expl_info.prev_attach);
-		assert(vobjptr(o->ctype.expl_info.next_attach) == &sub);
+		const auto &&o = vmobjptr(sub.ctype.expl_info.prev_attach);
+		assert(vmobjptr(o->ctype.expl_info.next_attach) == &sub);
 		o->ctype.expl_info.next_attach = sub.ctype.expl_info.next_attach;
 	}
 	else {
-		const auto &&o = vobjptr(sub.ctype.expl_info.attach_parent);
-		assert(vobjptr(o->attached_obj) == &sub);
+		const auto &&o = vmobjptr(sub.ctype.expl_info.attach_parent);
+		assert(vmobjptr(o->attached_obj) == &sub);
 		o->attached_obj = sub.ctype.expl_info.next_attach;
 	}
 
@@ -2147,12 +2147,12 @@ void obj_detach_one(object &sub)
 static void obj_detach_all(object_base &parent)
 {
 	while (parent.attached_obj != object_none)
-		obj_detach_one(vobjptr(parent.attached_obj));
+		obj_detach_one(vmobjptr(parent.attached_obj));
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
 //creates a marker object in the world.  returns the object number
-objptridx_t drop_marker_object(const vms_vector &pos, const vsegptridx_t segnum, const vms_matrix &orient, int marker_num)
+imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segnum, const vms_matrix &orient, int marker_num)
 {
 	Assert(Marker_model_num != -1);
 	auto obj = obj_create(OBJ_MARKER, marker_num, segnum, pos, &orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_NONE, RT_POLYOBJ);
@@ -2169,7 +2169,7 @@ objptridx_t drop_marker_object(const vms_vector &pos, const vsegptridx_t segnum,
 
 //	*viewer is a viewer, probably a missile.
 //	wake up all robots that were rendered last frame subject to some constraints.
-void wake_up_rendered_objects(const vobjptr_t viewer, window_rendered_data &window)
+void wake_up_rendered_objects(const vmobjptr_t viewer, window_rendered_data &window)
 {
 	//	Make sure that we are processing current data.
 	if (timer_query() != window.time) {
@@ -2182,7 +2182,7 @@ void wake_up_rendered_objects(const vobjptr_t viewer, window_rendered_data &wind
 	{
 		int	fcval = d_tick_count & 3;
 		if ((objnum & 3) == fcval) {
-			const auto &&objp = vobjptr(objnum);
+			const auto &&objp = vmobjptr(objnum);
 	
 			if (objp->type == OBJ_ROBOT) {
 				if (vm_vec_dist_quick(viewer->pos, objp->pos) < F1_0*100) {

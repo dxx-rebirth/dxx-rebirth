@@ -156,7 +156,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 constexpr auto weapon_none = weapon_id_type::unspecified;
 
 namespace dsx {
-static inline objptridx_t robot_create(ubyte id, vsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, ai_behavior behavior, const segidx_t hide_segment = segment_none)
+static inline imobjptridx_t robot_create(ubyte id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, ai_behavior behavior, const imsegidx_t hide_segment = segment_none)
 {
 	auto objp = obj_create(OBJ_ROBOT, id, segnum, pos, orient, size, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 	if (objp)

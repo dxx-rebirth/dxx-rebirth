@@ -114,14 +114,14 @@ extern objnum_t Dead_controlcen_object_num;
 
 namespace dsx {
 // do whatever this thing does in a frame
-void do_controlcen_frame(vobjptridx_t obj);
+void do_controlcen_frame(vmobjptridx_t obj);
 
 // Initialize control center for a level.
 // Call when a new level is started.
 void init_controlcen_for_level();
 void calc_controlcen_gun_point(object &obj);
 
-void do_controlcen_destroyed_stuff(objptridx_t objp);
+void do_controlcen_destroyed_stuff(imobjptridx_t objp);
 window_event_result do_controlcen_dead_frame();
 }
 #endif

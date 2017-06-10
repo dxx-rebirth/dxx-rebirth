@@ -52,7 +52,7 @@ object *slew_obj=NULL;	//what object is slewing, or NULL if none
 
 // -------------------------------------------------------------------
 //say start slewing with this object
-void slew_init(const vobjptr_t obj)
+void slew_init(const vmobjptr_t obj)
 {
 	slew_obj = obj;
 
@@ -82,7 +82,7 @@ void slew_reset_orient()
 
 }
 
-static int do_slew_movement(const vobjptridx_t obj, int check_keys )
+static int do_slew_movement(const vmobjptridx_t obj, int check_keys )
 {
 	int moved = 0;
 	vms_vector svel;				//scaled velocity (per this frame)
@@ -149,6 +149,6 @@ static int do_slew_movement(const vobjptridx_t obj, int check_keys )
 //do slew for this frame
 int slew_frame(int check_keys)
 {
-	return do_slew_movement(vobjptridx(slew_obj), !check_keys);
+	return do_slew_movement(vmobjptridx(slew_obj), !check_keys);
 }
 

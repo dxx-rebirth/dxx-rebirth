@@ -88,7 +88,7 @@ static void add_light_dot_square(g3s_lrgb &d, const g3s_lrgb &light, const fix &
 
 // ----------------------------------------------------------------------------------------------
 namespace dsx {
-static void apply_light(const g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg, const vms_vector &obj_pos, const unsigned n_render_vertices, array<unsigned, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list, const cobjptridx_t objnum)
+static void apply_light(const g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg, const vms_vector &obj_pos, const unsigned n_render_vertices, array<unsigned, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list, const icobjptridx_t objnum)
 {
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 	{
@@ -161,7 +161,7 @@ static void apply_light(const g3s_lrgb obj_light_emission, const vcsegptridx_t o
 
 				if (use_fcd_lighting && abs(obji_64) > F1_0*32)
 				{
-					dist = find_connected_distance(obj_pos, obj_seg, vertpos, vsegptridx(vsegnum), n_render_vertices, WID_RENDPAST_FLAG|WID_FLY_FLAG);
+					dist = find_connected_distance(obj_pos, obj_seg, vertpos, vmsegptridx(vsegnum), n_render_vertices, WID_RENDPAST_FLAG|WID_FLY_FLAG);
 					if (dist >= 0)
 						apply_light = 1;
 				}
@@ -233,7 +233,7 @@ static void cast_muzzle_flash_light(int n_render_vertices, array<unsigned, MAX_V
 			{
 				g3s_lrgb ml;
 				ml.r = ml.g = ml.b = ((FLASH_LEN_FIXED_SECONDS - time_since_flash) * FLASH_SCALE);
-				apply_light(ml, vsegptridx(i.segnum), i.pos, n_render_vertices, render_vertices, vert_segnum_list, object_none);
+				apply_light(ml, vmsegptridx(i.segnum), i.pos, n_render_vertices, render_vertices, vert_segnum_list, object_none);
 			}
 			else
 			{
@@ -257,7 +257,7 @@ static array<const object *, MAX_HEADLIGHTS> Headlights;
 
 // ---------------------------------------------------------
 namespace dsx {
-static g3s_lrgb compute_light_emission(const vobjptridx_t obj)
+static g3s_lrgb compute_light_emission(const vmobjptridx_t obj)
 {
 	int compute_color = 0;
 	float cscale = 255.0;
@@ -530,12 +530,12 @@ void set_dynamic_light(render_state_t &rstate)
 
 	cast_muzzle_flash_light(n_render_vertices, render_vertices, vert_segnum_list);
 
-	range_for (const auto &&obj, vobjptridx)
+	range_for (const auto &&obj, vmobjptridx)
 	{
 		const auto &&obj_light_emission = compute_light_emission(obj);
 
 		if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
-			apply_light(obj_light_emission, vsegptridx(obj->segnum), obj->pos, n_render_vertices, render_vertices, vert_segnum_list, obj);
+			apply_light(obj_light_emission, vmsegptridx(obj->segnum), obj->pos, n_render_vertices, render_vertices, vert_segnum_list, obj);
 	}
 }
 
@@ -606,7 +606,7 @@ object *old_viewer;
 static int reset_lighting_hack;
 #define LIGHT_RATE i2f(4) //how fast the light ramps up
 
-void start_lighting_frame(const vobjptr_t viewer)
+void start_lighting_frame(const vmobjptr_t viewer)
 {
 	reset_lighting_hack = (viewer != old_viewer);
 	old_viewer = viewer;

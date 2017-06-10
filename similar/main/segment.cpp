@@ -37,7 +37,7 @@ namespace dsx {
 /*
  * reads a segment2 structure from a PHYSFS_File
  */
-void segment2_read(const vsegptr_t s2, PHYSFS_File *fp)
+void segment2_read(const vmsegptr_t s2, PHYSFS_File *fp)
 {
 	s2->special = PHYSFSX_readByte(fp);
 	s2->matcen_num = PHYSFSX_readByte(fp);

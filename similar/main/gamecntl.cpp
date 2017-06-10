@@ -226,7 +226,7 @@ static void do_weapon_n_item_stuff()
 	{
 		Controls.state.fire_flare = 0;
 		if (allowed_to_fire_flare(player_info))
-			Flare_create(vobjptridx(ConsoleObject));
+			Flare_create(vmobjptridx(ConsoleObject));
 	}
 
 	if (allowed_to_fire_missile(player_info) && Controls.state.fire_secondary)
@@ -1004,7 +1004,7 @@ static void kill_all_robots(void)
 	//int	boss_index = -1;
 
 	// Kill all bots except for Buddy bot and boss.  However, if only boss and buddy left, kill boss.
-	range_for (const auto &&objp, vobjptr)
+	range_for (const auto &&objp, vmobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 		{
@@ -1024,7 +1024,7 @@ static void kill_all_robots(void)
 
 	// Toast the buddy if nothing else toasted!
 	if (dead_count == 0)
-		range_for (const auto &&objp, vobjptr)
+		range_for (const auto &&objp, vmobjptr)
 		{
 			if (objp->type == OBJ_ROBOT)
 				if (Robot_info[get_robot_id(objp)].companion) {
@@ -1048,7 +1048,7 @@ static void kill_and_so_forth(void)
 {
 	HUD_init_message_literal(HM_DEFAULT, "Killing, awarding, etc.!");
 
-	range_for (const auto &&o, vobjptridx)
+	range_for (const auto &&o, vmobjptridx)
 	{
 		switch (o->type) {
 			case OBJ_ROBOT:
@@ -1073,9 +1073,9 @@ static void kill_and_so_forth(void)
 			{
 				if (w->trigger == i)
 				{
-					const auto &&segp = vsegptridx(w->segnum);
+					const auto &&segp = vmsegptridx(w->segnum);
 					compute_segment_center(ConsoleObject->pos, segp);
-					obj_relink(vobjptridx(ConsoleObject), segp);
+					obj_relink(vmobjptridx(ConsoleObject), segp);
 					goto kasf_done;
 				}
 			}
@@ -1094,7 +1094,7 @@ static void kill_all_snipers(void)
 	int     dead_count=0;
 
 	//	Kill all snipers.
-	range_for (const auto &&objp, vobjptr)
+	range_for (const auto &&objp, vmobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 			if (objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
@@ -1111,7 +1111,7 @@ static void kill_thief(void) __attribute_used;
 static void kill_thief(void)
 {
 	//	Kill thief.
-	range_for (const auto &&objp, vobjptr)
+	range_for (const auto &&objp, vmobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(objp)].thief)
@@ -1126,7 +1126,7 @@ static void kill_buddy(void) __attribute_used;
 static void kill_buddy(void)
 {
 	//	Kill buddy.
-	range_for (const auto &&objp, vobjptr)
+	range_for (const auto &&objp, vmobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(objp)].companion)
@@ -1185,7 +1185,7 @@ static window_event_result HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_M:
 		{
 			static int i = 0;
-			const auto &&segp = vsegptridx(ConsoleObject->segnum);
+			const auto &&segp = vmsegptridx(ConsoleObject->segnum);
 			const auto &&new_obj = create_morph_robot(segp, compute_segment_center(segp), i);
 			if (new_obj != object_none)
 				morph_start( new_obj );
@@ -1309,7 +1309,7 @@ static window_event_result HandleTestKey(int key)
 				fly_init(*ConsoleObject);
 				Game_suspended &= ~SUSP_ROBOTS;	//robots move
 			} else {
-				slew_init(vobjptr(ConsoleObject));			//start player slewing
+				slew_init(vmobjptr(ConsoleObject));			//start player slewing
 				Game_suspended |= SUSP_ROBOTS;	//robots don't move
 			}
 			break;
@@ -1734,7 +1734,7 @@ class cheat_menu_bit_invulnerability :
 {
 public:
 	cheat_menu_bit_invulnerability(player &plr) :
-		reference_wrapper(vobjptr(plr.objnum)->ctype.player_info),
+		reference_wrapper(vmobjptr(plr.objnum)->ctype.player_info),
 		menu_bit_wrapper_t(get().powerup_flags, PLAYER_FLAGS_INVULNERABLE)
 	{
 	}
@@ -1757,7 +1757,7 @@ class cheat_menu_bit_cloak :
 {
 public:
 	cheat_menu_bit_cloak(player &plr) :
-		reference_wrapper(vobjptr(plr.objnum)->ctype.player_info),
+		reference_wrapper(vmobjptr(plr.objnum)->ctype.player_info),
 		menu_bit_wrapper_t(get().powerup_flags, PLAYER_FLAGS_CLOAKED)
 	{
 	}

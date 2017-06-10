@@ -189,7 +189,7 @@ static array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Save_pof_names;
 #endif
 
 namespace dsx {
-static void verify_object(const vobjptr_t obj)
+static void verify_object(const vmobjptr_t obj)
 {
 	obj->lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
 
@@ -350,7 +350,7 @@ static void verify_object(const vobjptr_t obj)
 
 //reads one object of the given version from the given file
 namespace dsx {
-static void read_object(const vobjptr_t obj,PHYSFS_File *f,int version)
+static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 {
 	const auto poison_obj = reinterpret_cast<uint8_t *>(&*obj);
 	const auto signature = obj_get_signature();
@@ -918,7 +918,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 
 		range_for (auto &i, partial_range(Objects, gs_num_objects))
 		{
-			const auto &&o = vobjptr(&i);
+			const auto &&o = vmobjptr(&i);
 			read_object(o, LoadFile, game_top_fileinfo_version);
 			verify_object(o);
 		}
@@ -926,7 +926,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 
 	//===================== READ WALL INFO ============================
 
-	range_for (const auto &&vw, vwallptr)
+	range_for (const auto &&vw, vmwallptr)
 	{
 		auto &nw = *vw;
 		if (game_top_fileinfo_version >= 20)
@@ -968,7 +968,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 
 	//==================== READ TRIGGER INFO ==========================
 
-	range_for (const auto vt, vtrgptr)
+	range_for (const auto vt, vmtrgptr)
 	{
 		auto &i = *vt;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1058,7 +1058,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 				i.type = OBJ_NONE;
 			}
 			else {
-				obj_link_unchecked(vobjptridx(&i), vsegptridx(objsegnum));
+				obj_link_unchecked(vmobjptridx(&i), vmsegptridx(objsegnum));
 			}
 		}
 	}
@@ -1066,14 +1066,14 @@ static int load_game_data(PHYSFS_File *LoadFile)
 	clear_transient_objects(1);		//1 means clear proximity bombs
 
 	// Make sure non-transparent doors are set correctly.
-	range_for (auto &&i, vsegptridx)
+	range_for (auto &&i, vmsegptridx)
 		range_for (const auto eside, enumerate(i->sides))
 		{
 			auto &side = eside.value;
 			if (side.wall_num == wall_none)
 				continue;
 			const auto sidep = &side;
-			auto &w = *vwallptr(side.wall_num);
+			auto &w = *vmwallptr(side.wall_num);
 			if (w.clip_num != -1)
 			{
 				if (WallAnims[w.clip_num].flags & WCF_TMAP1)
@@ -1091,7 +1091,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 	ActiveDoors.set_count(0);
 
 	//go through all walls, killing references to invalid triggers
-	range_for (const auto &&p, vwallptr)
+	range_for (const auto &&p, vmwallptr)
 	{
 		auto &w = *p;
 		if (w.trigger >= Num_triggers) {
@@ -1102,7 +1102,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 #if DXX_USE_EDITOR
 	//go through all triggers, killing unused ones
 	{
-		const auto &&wr = make_range(vwallptr);
+		const auto &&wr = make_range(vmwallptr);
 	for (uint_fast32_t i = 0;i < Num_triggers;) {
 		auto a = [i](const wall &w) { return w.trigger == i; };
 		//	Find which wall this trigger is connected to.
@@ -1121,7 +1121,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 	//	Go through all triggers, stuffing controlling_trigger field in Walls.
 	{
 #if defined(DXX_BUILD_DESCENT_II)
-		range_for (const auto &&w, vwallptr)
+		range_for (const auto &&w, vmwallptr)
 			w->controlling_trigger = -1;
 #endif
 
@@ -1142,8 +1142,8 @@ static int load_game_data(PHYSFS_File *LoadFile)
 				else if (tr.type != TT_LIGHT_OFF && tr.type != TT_LIGHT_ON)
 				{	//light triggers don't require walls
 					const auto side_num = tr.side[l];
-					auto wall_num = vsegptr(seg_num)->sides[side_num].wall_num;
-					if (const auto &&uwall = vwallptr.check_untrusted(wall_num))
+					auto wall_num = vmsegptr(seg_num)->sides[side_num].wall_num;
+					if (const auto &&uwall = vmwallptr.check_untrusted(wall_num))
 						(*uwall)->controlling_trigger = t;
 					else
 					{
@@ -1164,7 +1164,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 				const auto wallnum = segp->sides[sidenum].wall_num;
 				if (wallnum != wall_none)
 				{
-					auto &w = *vwallptr(wallnum);
+					auto &w = *vmwallptr(wallnum);
 					w.segnum = segp;
 					w.sidenum = sidenum;
 				}
@@ -1355,7 +1355,7 @@ int load_level(const char * filename_passed)
 	 */
 	if (Current_mission && !d_stricmp("Descent 2: Counterstrike!",Current_mission_longname) && !d_stricmp("d2levc-4.rl2",filename))
 	{
-		auto &s104 = *vsegptr(vsegidx_t(104));
+		auto &s104 = *vmsegptr(vmsegidx_t(104));
 		auto &s104v0 = Vertices[s104.verts[0]];
 		auto &s104s1 = s104.sides[1];
 		auto &s104s1n0 = s104s1.normals[0];
@@ -1503,7 +1503,7 @@ int create_new_mine(void)
 	Highest_vertex_index = 0;
 	Num_segments = 0;		// Number of segments in global array, will get increased in med_create_segment
 	Segments.set_count(1);
-	Cursegp = segptridx(segment_first);	// Say current segment is the only segment.
+	Cursegp = imsegptridx(segment_first);	// Say current segment is the only segment.
 	Curside = WBACK;		// The active side is the back side
 	Markedsegp = segment_none;		// Say there is no marked segment.
 	Markedside = WBACK;	//	Shouldn't matter since Markedsegp == 0, but just in case...
@@ -1521,7 +1521,7 @@ int create_new_mine(void)
 	// Create New_segment, which is the segment we will be adding at each instance.
 	med_create_new_segment({DEFAULT_X_SIZE, DEFAULT_Y_SIZE, DEFAULT_Z_SIZE});		// New_segment = Segments[0];
 	//	med_create_segment(Segments,0,0,0,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE,vm_mat_make(&m1,F1_0,0,0,0,F1_0,0,0,0,F1_0));
-	med_create_segment(vsegptridx(segment_first), 0, 0, 0, DEFAULT_X_SIZE, DEFAULT_Y_SIZE, DEFAULT_Z_SIZE, m1);
+	med_create_segment(vmsegptridx(segment_first), 0, 0, 0, DEFAULT_X_SIZE, DEFAULT_Y_SIZE, DEFAULT_Z_SIZE, m1);
 	
 	Found_segs.clear();
 	Selected_segs.clear();
@@ -1748,7 +1748,7 @@ static int save_level_sub(const char * filename)
 
 	//make sure player is in a segment
 	{
-		auto plr = vobjptridx(Players[0].objnum);
+		auto plr = vmobjptridx(Players[0].objnum);
 		if (update_object_seg(plr) == 0) {
 			if (plr->segnum > Highest_segment_index)
 				plr->segnum = segment_first;

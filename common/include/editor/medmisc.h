@@ -42,7 +42,7 @@ int DecreaseDrawDepth(void);
 int ToggleCoordAxes();
 extern int    Big_depth;
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-void set_view_target_from_segment(vsegptr_t sp);
+void set_view_target_from_segment(vmsegptr_t sp);
 #endif
 
 #endif
