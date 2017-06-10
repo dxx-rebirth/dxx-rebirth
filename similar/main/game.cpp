@@ -1327,7 +1327,7 @@ namespace dsx {
 object *Missile_viewer=NULL;
 object_signature_t Missile_viewer_sig;
 
-array<int, 2> Marker_viewer_num{{-1,-1}};
+array<unsigned, 2> Marker_viewer_num{{~0u, ~0u}};
 array<int, 2> Coop_view_player{{-1,-1}};
 
 //returns ptr to escort robot, or NULL

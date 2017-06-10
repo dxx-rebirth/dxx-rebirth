@@ -70,7 +70,7 @@ extern object_signature_t Missile_viewer_sig;
 #define CV_MARKER   4
 
 extern array<int, 2> Coop_view_player;     // left & right
-extern array<int, 2> Marker_viewer_num;    // left & right
+extern array<unsigned, 2> Marker_viewer_num;    // left & right
 }
 #endif
 

@@ -679,12 +679,20 @@ static void show_one_extra_view(const int w)
 			case CV_MARKER: {
 				char label[10];
 				RenderingType=5+(w<<4);
-				if (Marker_viewer_num[w] == -1 || MarkerObject[Marker_viewer_num[w]] == object_none) {
+				const auto mvn = Marker_viewer_num[w];
+				if (mvn >= MarkerObject.size())
+				{
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 					break;
 				}
-				snprintf(label, sizeof(label), "Marker %d", Marker_viewer_num[w] + 1);
-				do_cockpit_window_view(w, vmobjptr(MarkerObject[Marker_viewer_num[w]]), 0, WBU_MARKER, label);
+				const auto mo = MarkerObject[mvn];
+				if (mo == object_none)
+				{
+					PlayerCfg.Cockpit3DView[w] = CV_NONE;
+					break;
+				}
+				snprintf(label, sizeof(label), "Marker %u", mvn + 1);
+				do_cockpit_window_view(w, vmobjptr(mo), 0, WBU_MARKER, label);
 				break;
 			}
 			default:

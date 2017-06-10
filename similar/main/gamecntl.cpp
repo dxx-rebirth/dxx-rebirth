@@ -605,7 +605,7 @@ static int select_next_window_function(int w)
 			Coop_view_player[w] = -1;		//force first player
 			/*-fallthrough*/
 		case CV_COOP:
-			Marker_viewer_num[w] = -1;
+			Marker_viewer_num[w] = ~0u;
 			if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) {
 				PlayerCfg.Cockpit3DView[w] = CV_COOP;
 				while (1) {
@@ -632,7 +632,7 @@ static int select_next_window_function(int w)
 		case_marker:;
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view) {	//anarchy only
 				PlayerCfg.Cockpit3DView[w] = CV_MARKER;
-				if (Marker_viewer_num[w] == -1)
+				if (Marker_viewer_num[w] >= MarkerObject.size())
 					Marker_viewer_num[w] = Player_num * 2;
 				else if (Marker_viewer_num[w] == Player_num * 2)
 					Marker_viewer_num[w]++;
