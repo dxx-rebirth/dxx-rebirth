@@ -139,7 +139,6 @@ int subtract_light(vmsegptridx_t segnum, sidenum_fast_t sidenum);
 int add_light(vmsegptridx_t segnum, sidenum_fast_t sidenum);
 void clear_light_subtracted();
 
-void segment2_read(vmsegptr_t s2, PHYSFS_File *fp);
 void segment2_write(vcsegptr_t s2, PHYSFS_File *fp);
 
 void delta_light_read(delta_light *dl, PHYSFS_File *fp);

@@ -34,17 +34,6 @@ void segment_side_wall_tmap_write(PHYSFS_File *fp, const side &side)
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-/*
- * reads a segment2 structure from a PHYSFS_File
- */
-void segment2_read(const vmsegptr_t s2, PHYSFS_File *fp)
-{
-	s2->special = PHYSFSX_readByte(fp);
-	s2->matcen_num = PHYSFSX_readByte(fp);
-	s2->value = PHYSFSX_readByte(fp);
-	s2->s2_flags = PHYSFSX_readByte(fp);
-	s2->static_light = PHYSFSX_readFix(fp);
-}
 
 /*
  * reads a delta_light structure from a PHYSFS_File

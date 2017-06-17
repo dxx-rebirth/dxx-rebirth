@@ -59,6 +59,27 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int New_file_format_load = 1; // "new file format" is everything newer than d1 shareware
 
+namespace dsx {
+
+/*
+ * reads a segment2 structure from a PHYSFS_File
+ */
+static void segment2_read(segment &s2, PHYSFS_File *fp)
+{
+	s2.special = PHYSFSX_readByte(fp);
+	s2.matcen_num = PHYSFSX_readByte(fp);
+	s2.value = PHYSFSX_readByte(fp);
+	const auto s2_flags = PHYSFSX_readByte(fp);
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)s2_flags;	// descent 2 ambient sound handling
+	if (s2.special >= MAX_CENTER_TYPES)
+		s2.special = SEGMENT_IS_NOTHING; // remove goals etc.
+#elif defined(DXX_BUILD_DESCENT_II)
+	s2.s2_flags = s2_flags;
+#endif
+	s2.static_light = PHYSFSX_readFix(fp);
+}
+
 #if defined(DXX_BUILD_DESCENT_I)
 typedef segment v16_segment;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -377,6 +398,8 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	}
 }
 #endif
+
+}
 
 #if DXX_USE_EDITOR
 namespace dsx {
@@ -839,22 +862,6 @@ static void read_special(const vmsegptr_t segp,ubyte bit_mask,PHYSFS_File *LoadF
 		segp->value = 0;
 	}
 }
-
-#if defined(DXX_BUILD_DESCENT_I)
-/*
- * reads a segment2 structure from a PHYSFS_File
- */
-static void segment2_read(const vmsegptr_t s2, PHYSFS_File *fp)
-{
-	s2->special = PHYSFSX_readByte(fp);
-	if (s2->special >= MAX_CENTER_TYPES)
-		s2->special = SEGMENT_IS_NOTHING; // remove goals etc.
-	s2->matcen_num = PHYSFSX_readByte(fp);
-	s2->value = PHYSFSX_readByte(fp);
-	/*s2->s2_flags =*/ PHYSFSX_readByte(fp);	// descent 2 ambient sound handling
-	s2->static_light = PHYSFSX_readFix(fp);
-}
-#endif
 
 namespace dsx {
 int load_mine_data_compiled(PHYSFS_File *LoadFile)
