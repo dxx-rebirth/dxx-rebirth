@@ -752,7 +752,7 @@ static bool do_door_open(active_door &d)
 	{
 		int side;
 		fix time_elapsed, time_total, one_frame;
-		int i, n;
+		int i;
 
 		wall *const w = vmwallptr(d.front_wallnum[p]);
 		kill_stuck_objects(d.front_wallnum[p]);
@@ -775,7 +775,7 @@ static bool do_door_open(active_door &d)
 		d.time += FrameTime;
 
 		time_elapsed = d.time;
-		n = WallAnims[w->clip_num].num_frames;
+		const auto n = WallAnims[w->clip_num].num_frames;
 		time_total = WallAnims[w->clip_num].play_time;
 
 		one_frame = time_total/n;	
@@ -839,7 +839,7 @@ static bool do_door_close(active_door &d)
 	{
 		int side;
 		fix time_elapsed, time_total, one_frame;
-		int i, n;
+		int i;
 
 		auto &wp = *vmwallptr(p);
 
@@ -881,7 +881,7 @@ static bool do_door_close(active_door &d)
 		d.time += FrameTime;
 
 		time_elapsed = d.time;
-		n = WallAnims[wp.clip_num].num_frames;
+		const auto n = WallAnims[wp.clip_num].num_frames;
 		time_total = WallAnims[wp.clip_num].play_time;
 
 		one_frame = time_total/n;	

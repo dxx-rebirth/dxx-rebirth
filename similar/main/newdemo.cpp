@@ -1933,14 +1933,13 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 static void newdemo_pop_ctrlcen_triggers()
 {
-	int n;
 	for (int i = 0; i < ControlCenterTriggers.num_links; i++) {
 		const auto &&seg = vmsegptridx(ControlCenterTriggers.seg[i]);
 		const auto side = ControlCenterTriggers.side[i];
 		const auto &&csegp = vmsegptr(seg->children[side]);
 		auto cside = find_connect_side(seg, csegp);
 		const auto anim_num = vcwallptr(seg->sides[side].wall_num)->clip_num;
-		n = WallAnims[anim_num].num_frames;
+		const auto n = WallAnims[anim_num].num_frames;
 		const auto t = WallAnims[anim_num].flags & WCF_TMAP1
 			? &side::tmap_num
 			: &side::tmap_num2;

@@ -366,7 +366,7 @@ int gamedata_read_tbl(int pc_shareware)
 	}
 
 	range_for (auto &w, WallAnims)
-		w.num_frames = -1;
+		w.num_frames = wclip_frames_none;
 	Num_wall_anims = 0;
 
 	if (Installed)
@@ -747,7 +747,7 @@ static void bm_read_wclip(char *const arg, int skip)
 
 	if (!abm_flag)	{
 		bitmap = bm_load_sub(skip, arg);
-		if ( (WallAnims[clip_num].num_frames>-1) && (clip_count==0) )
+		if (WallAnims[clip_num].num_frames != wclip_frames_none && clip_count == 0)
 			Error( "Wall Clip %d is already used!", clip_num );
 		WallAnims[clip_num].play_time = fl2f(play_time);
 		WallAnims[clip_num].num_frames = frames;
@@ -765,7 +765,7 @@ static void bm_read_wclip(char *const arg, int skip)
 		if (clip_num >= Num_wall_anims) Num_wall_anims = clip_num+1;
 	} else {
 		unsigned nframes;
-		if ( (WallAnims[clip_num].num_frames>-1)  )
+		if (WallAnims[clip_num].num_frames != wclip_frames_none)
 			Error( "AB_Wall clip %d is already used!", clip_num );
 		abm_flag = 0;
 		array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;

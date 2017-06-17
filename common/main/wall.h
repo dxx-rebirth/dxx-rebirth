@@ -172,7 +172,7 @@ DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(wall, wall, Walls);
 struct wclip : public prohibit_void_ptr<wclip>
 {
 	fix     play_time;
-	short   num_frames;
+	uint16_t num_frames;
 	union {
 		array<int16_t, MAX_CLIP_FRAMES> frames;
 		array<int16_t, MAX_CLIP_FRAMES_D1> d1_frames;
@@ -182,6 +182,8 @@ struct wclip : public prohibit_void_ptr<wclip>
 	short   flags;
 	array<char, 13> filename;
 };
+
+constexpr uint16_t wclip_frames_none = 0xffff;
 
 static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const vcsegptr_t seg, const uint_fast32_t side)
 {

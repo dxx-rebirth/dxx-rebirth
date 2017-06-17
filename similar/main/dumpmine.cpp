@@ -745,7 +745,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 				int clip_num = Walls[sidep->wall_num].clip_num;
 				if (clip_num != -1) {
 
-					int num_frames = WallAnims[clip_num].num_frames;
+					const auto num_frames = WallAnims[clip_num].num_frames;
 
 					wall_buf[clip_num] = 1;
 

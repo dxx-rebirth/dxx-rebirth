@@ -266,7 +266,7 @@ static int PrevWall() {
 				wall_type = Num_wall_anims-1;
 			if (wall_type == w.clip_num)
 				Error("Cannot find clip for door."); 
-		} while (WallAnims[wall_type].num_frames == -1 || WallAnims[wall_type].flags & WCF_BLASTABLE);
+		} while (WallAnims[wall_type].num_frames == wclip_frames_none || WallAnims[wall_type].flags & WCF_BLASTABLE);
 	}
 	else if (w.type == WALL_BLASTABLE)
 	{
@@ -276,7 +276,7 @@ static int PrevWall() {
 				wall_type = Num_wall_anims-1;
 			if (wall_type == w.clip_num)
 				Error("Cannot find clip for blastable wall."); 
-		} while (WallAnims[wall_type].num_frames == -1 || !(WallAnims[wall_type].flags & WCF_BLASTABLE));
+		} while (WallAnims[wall_type].num_frames == wclip_frames_none || !(WallAnims[wall_type].flags & WCF_BLASTABLE));
 	}
 
 	wall_assign_door(wall_type);
@@ -305,7 +305,7 @@ static int NextWall() {
 				if (w.clip_num==-1)
 					Error("Cannot find clip for door."); 
 			}
-		} while (WallAnims[wall_type].num_frames == -1 || WallAnims[wall_type].flags & WCF_BLASTABLE);
+		} while (WallAnims[wall_type].num_frames == wclip_frames_none || WallAnims[wall_type].flags & WCF_BLASTABLE);
 	}
 	else if (w.type == WALL_BLASTABLE)
 	{
@@ -316,7 +316,7 @@ static int NextWall() {
 				if (w.clip_num==-1)
 					Error("Cannot find clip for blastable wall."); 
 			}
-		} while (WallAnims[wall_type].num_frames == -1 || !(WallAnims[wall_type].flags & WCF_BLASTABLE));
+		} while (WallAnims[wall_type].num_frames == wclip_frames_none || !(WallAnims[wall_type].flags & WCF_BLASTABLE));
 	}
 
 	wall_assign_door(wall_type);	
