@@ -106,7 +106,6 @@ struct FuelCenter : public prohibit_void_ptr<FuelCenter>
 	sbyte   Enabled;
 	sbyte   Lives;          // Number of times this can be enabled.
 	fix     Capacity;
-	fix     MaxCapacity;
 	fix     Timer;          // used in matcen for when next robot comes out
 	fix     Disable_time;   // Time until center disabled.
 };

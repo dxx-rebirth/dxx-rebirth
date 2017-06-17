@@ -149,8 +149,7 @@ void fuelcen_create(const vmsegptridx_t segp)
 
 	segp->value = Num_fuelcenters;
 	Station[Num_fuelcenters].Type = station_type;
-	Station[Num_fuelcenters].MaxCapacity = Fuelcen_max_amount;
-	Station[Num_fuelcenters].Capacity = Station[Num_fuelcenters].MaxCapacity;
+	Station[Num_fuelcenters].Capacity = Fuelcen_max_amount;
 	Station[Num_fuelcenters].segnum = segp;
 	Station[Num_fuelcenters].Timer = -1;
 	Station[Num_fuelcenters].Flag = 0;
@@ -171,7 +170,6 @@ static void matcen_create(const vmsegptridx_t segp)
 	segp->value = Num_fuelcenters;
 	Station[Num_fuelcenters].Type = station_type;
 	Station[Num_fuelcenters].Capacity = i2f(Difficulty_level + 3);
-	Station[Num_fuelcenters].MaxCapacity = Station[Num_fuelcenters].Capacity;
 
 	Station[Num_fuelcenters].segnum = segp;
 	Station[Num_fuelcenters].Timer = -1;
@@ -561,11 +559,6 @@ fix fuelcen_give_fuel(const vcsegptr_t segp, fix MaxAmountCanTake)
 		detect_escort_goal_fuelcen_accomplished();
 #endif
 
-//		if (Station[segp->value].MaxCapacity<=0)	{
-//			HUD_init_message(HM_DEFAULT, "Fuelcenter %d is destroyed.", segp->value );
-//			return 0;
-//		}
-
 //		if (Station[segp->value].Capacity<=0)	{
 //			HUD_init_message(HM_DEFAULT, "Fuelcenter %d is empty.", segp->value );
 //			return 0;
@@ -594,10 +587,7 @@ fix fuelcen_give_fuel(const vcsegptr_t segp, fix MaxAmountCanTake)
 			last_play_time = GameTime64;
 			multi_digi_play_sample(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
 		}
-
-		//HUD_init_message(HM_DEFAULT, "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
 		return amount;
-
 	} else {
 		return 0;
 	}
@@ -615,10 +605,6 @@ fix repaircen_give_shields(const vcsegptr_t segp, fix MaxAmountCanTake)
 	if (segp->special==SEGMENT_IS_REPAIRCEN) {
 		fix amount;
 //             detect_escort_goal_accomplished(-4);    //      UGLY! Hack! -4 means went through fuelcen.
-//             if (Station[segp->value].MaxCapacity<=0)        {
-//                     HUD_init_message(HM_DEFAULT, "Repaircenter %d is destroyed.", segp->value );
-//                     return 0;
-//             }
 //             if (Station[segp->value].Capacity<=0)   {
 //                     HUD_init_message(HM_DEFAULT, "Repaircenter %d is empty.", segp->value );
 //                     return 0;
@@ -643,7 +629,6 @@ fix repaircen_give_shields(const vcsegptr_t segp, fix MaxAmountCanTake)
 			multi_digi_play_sample(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
 			last_play_time = GameTime64;
 		}
-//HUD_init_message(HM_DEFAULT, "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
 		return amount;
 	} else {
 		return 0;
@@ -823,7 +808,7 @@ void matcen_info_write(PHYSFS_File *fp, const matcen_info &mi, short version)
 }
 }
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(FuelCenter, fc, (fc.Type, serial::sign_extend<int>(fc.segnum), fc.Flag, fc.Enabled, fc.Lives, serial::pad<1>(), fc.Capacity, fc.MaxCapacity, fc.Timer, fc.Disable_time, serial::pad<3 * sizeof(fix)>()));
+DEFINE_SERIAL_UDT_TO_MESSAGE(FuelCenter, fc, (fc.Type, serial::sign_extend<int>(fc.segnum), fc.Flag, fc.Enabled, fc.Lives, serial::pad<1>(), fc.Capacity, serial::pad<sizeof(fix)>(), fc.Timer, fc.Disable_time, serial::pad<3 * sizeof(fix)>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(FuelCenter, 40);
 
 void fuelcen_read(PHYSFS_File *fp, FuelCenter &fc)
