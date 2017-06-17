@@ -302,16 +302,13 @@ static void paging_touch_segment(const vcsegptr_t segp)
 
 static void paging_touch_walls()
 {
-	wclip *anim;
-
 	range_for (const auto &&wp, vcwallptr)
 	{
 		auto &w = *wp;
 		if ( w.clip_num > -1 )	{
-			anim = &WallAnims[w.clip_num];
-			for (int j=0; j < anim->num_frames; j++ ) {
-				PIGGY_PAGE_IN( Textures[anim->frames[j]] );
-			}
+			const auto &anim = WallAnims[w.clip_num];
+			range_for (auto &j, partial_range(anim.frames, anim.num_frames))
+				PIGGY_PAGE_IN(Textures[j]);
 		}
 	}
 }
