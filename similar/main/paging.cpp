@@ -105,10 +105,10 @@ static void paging_touch_object_effects( int tmap_num )
 static void paging_touch_model( int modelnum )
 {
 	const auto &pm = Polygon_models[modelnum];
-	uint_fast32_t i = pm.first_texture;
-	for (const uint_fast32_t e = i + pm.n_textures; i != e; ++i)
+	const uint_fast32_t b = pm.first_texture;
+	const uint_fast32_t e = b + pm.n_textures;
+	range_for (const auto p, partial_range(ObjBitmapPtrs, b, e))
 	{
-		const auto p = ObjBitmapPtrs[i];
 		PIGGY_PAGE_IN(ObjBitmaps[p]);
 		paging_touch_object_effects(p);
 	}
