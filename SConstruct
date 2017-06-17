@@ -2244,16 +2244,19 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 #include <SDL_endian.h>
 
 /*
- * gcc-6.x (all currently released versions) create a useless cast when
- * synthesizing constructor inheritance, then warn the user about the
- * compiler-generated cast.  Since the user did not write the cast in
- * the source, the user cannot remove the cast to eliminate the warning.
+ * Recent gcc[1] create a useless cast when synthesizing constructor
+ * inheritance, then warn the user about the compiler-generated cast.
+ * Since the user did not write the cast in the source, the user
+ * cannot remove the cast to eliminate the warning.
  *
  * The only way to avoid the problem is to avoid using constructor
  * inheritance in cases where the compiler would synthesize a useless
  * cast.
  *
  * Reported-by: zicodxx <https://github.com/dxx-rebirth/dxx-rebirth/issues/316>
+ * gcc Bugzilla: <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=70844>
+ *
+ * [1] gcc-6.x, gcc-7.x (all currently released versions)
  */
 class base
 {
