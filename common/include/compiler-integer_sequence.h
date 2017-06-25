@@ -10,20 +10,20 @@ template <std::size_t...>
 struct index_sequence {};
 #endif
 
-template <std::size_t, typename, std::size_t, typename>
+template <typename, std::size_t, typename>
 struct cat_index_sequence;
 
 template <std::size_t... N1, std::size_t A2, std::size_t... N2>
-struct cat_index_sequence<0, index_sequence<N1...>, A2, index_sequence<N2...>>
+struct cat_index_sequence<index_sequence<N1...>, A2, index_sequence<N2...>>
 {
 	typedef index_sequence<N1..., A2 + N2...> type;
 };
 
 /* Fan out to reduce template depth */
 template <std::size_t N>
-struct tree_index_sequence
+struct tree_index_sequence :
+	cat_index_sequence<typename tree_index_sequence<N / 2>::type, N / 2, typename tree_index_sequence<(N + 1) / 2>::type>
 {
-	typedef typename cat_index_sequence<0, typename tree_index_sequence<N / 2>::type, N / 2, typename tree_index_sequence<(N + 1) / 2>::type>::type type;
 };
 
 template <>
