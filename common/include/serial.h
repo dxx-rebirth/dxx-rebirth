@@ -36,22 +36,32 @@ class is_message<message<A1, Args...>> : public std::true_type
 {
 };
 
-template <typename T>
-class integral_type
+namespace detail {
+
+template <std::size_t N>
+struct maximum_size_base
 {
-	static_assert(std::is_integral<T>::value, "integral_type used on non-integral type");
-public:
-	typedef std::integral_constant<std::size_t, sizeof(T)> maximum_size_type;
+	using maximum_size_type = std::integral_constant<std::size_t, N>;
 	static constexpr maximum_size_type maximum_size = {};
 };
 
+template <std::size_t N>
+constexpr typename maximum_size_base<N>::maximum_size_type maximum_size_base<N>::maximum_size;
+
+}
+
 template <typename T>
-class enum_type
+class integral_type :
+	public detail::maximum_size_base<sizeof(T)>
+{
+	static_assert(std::is_integral<T>::value, "integral_type used on non-integral type");
+};
+
+template <typename T>
+class enum_type :
+	public detail::maximum_size_base<sizeof(T)>
 {
 	static_assert(std::is_enum<T>::value, "enum_type used on non-enum type");
-public:
-	typedef std::integral_constant<std::size_t, sizeof(T)> maximum_size_type;
-	static constexpr maximum_size_type maximum_size = {};
 };
 
 template <typename>
@@ -72,8 +82,11 @@ class is_cxx_array<const T> : public is_cxx_array<T>
 template <typename T>
 using is_generic_class = typename std::conditional<is_cxx_array<T>::value, std::false_type, std::is_class<T>>::type;
 
-template <typename Accessor, typename A1, typename A1rr = typename std::remove_reference<A1>::type>
-static inline typename std::enable_if<std::is_integral<A1rr>::value, void>::type process_buffer(Accessor &&, A1 &&);
+template <typename Accessor, typename A1>
+static inline typename std::enable_if<std::is_integral<typename std::remove_reference<A1>::type>::value, void>::type process_buffer(Accessor &&accessor, A1 &&a1)
+{
+	process_integer(std::forward<Accessor &&>(accessor), a1);
+}
 
 template <typename Accessor, typename A1, typename A1rr = typename std::remove_reference<A1>::type>
 static inline typename std::enable_if<std::is_enum<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
@@ -328,6 +341,12 @@ typename T::minimum_size_type get_minimum_size(T *);
 template <typename T>
 typename T::maximum_size_type get_minimum_size(...);
 
+template <typename T>
+struct message_dispatch_base
+{
+	using effective_type = T;
+};
+
 }
 
 template <std::size_t amount, uint8_t value = 0xcc>
@@ -452,53 +471,44 @@ template <typename T, typename = void>
 class message_dispatch_type;
 
 template <typename T>
-class message_dispatch_type<T, typename std::enable_if<std::is_integral<T>::value, void>::type>
+class message_dispatch_type<T, typename std::enable_if<std::is_integral<T>::value, void>::type> :
+	public detail::message_dispatch_base<integral_type<T>>
 {
-protected:
-	typedef integral_type<T> effective_type;
 };
 
 template <typename T>
-class message_dispatch_type<T, typename std::enable_if<std::is_enum<T>::value, void>::type>
+class message_dispatch_type<T, typename std::enable_if<std::is_enum<T>::value, void>::type> :
+	public detail::message_dispatch_base<enum_type<T>>
 {
-protected:
-	typedef enum_type<T> effective_type;
 };
 
 template <typename T>
-class message_dispatch_type<T, typename std::enable_if<is_cxx_array<T>::value, void>::type>
+class message_dispatch_type<T, typename std::enable_if<is_cxx_array<T>::value, void>::type> :
+	public detail::message_dispatch_base<array_type<T>>
 {
-protected:
-	typedef array_type<T> effective_type;
 };
 
 template <typename T>
-class message_dispatch_type<T, typename std::enable_if<is_generic_class<T>::value && !is_message<T>::value, void>::type>
+class message_dispatch_type<T, typename std::enable_if<is_generic_class<T>::value && !is_message<T>::value, void>::type> :
+	public detail::message_dispatch_base<class_type<T>>
 {
-protected:
-	typedef class_type<T> effective_type;
 };
 
 template <typename T>
-class message_type : message_dispatch_type<typename std::remove_reference<T>::type>
+class message_type :
+	message_dispatch_type<typename std::remove_reference<T>::type>::effective_type
 {
-	typedef message_dispatch_type<typename std::remove_reference<T>::type> base_type;
-	typedef typename base_type::effective_type effective_type;
+	using effective_type = typename message_dispatch_type<typename std::remove_reference<T>::type>::effective_type;
 public:
 	typedef decltype(detail::get_minimum_size<effective_type>(nullptr)) minimum_size_type;
-	typedef typename effective_type::maximum_size_type maximum_size_type;
 	static constexpr minimum_size_type minimum_size = {};
-	static constexpr maximum_size_type maximum_size = {};
+	using effective_type::maximum_size;
 };
 
-template <typename T>
-constexpr typename message_type<T>::maximum_size_type message_type<T>::maximum_size;
-
 template <typename A1>
-class message_dispatch_type<message<A1>, void>
+class message_dispatch_type<message<A1>, void> :
+	public detail::message_dispatch_base<message_type<A1>>
 {
-protected:
-	typedef message_type<A1> effective_type;
 public:
 	typedef message<A1> as_message;
 };
@@ -509,11 +519,9 @@ class class_type : public message_type<decltype(udt_to_message(std::declval<T>()
 };
 
 template <typename T, std::size_t N>
-class array_type<const array<T, N>>
+class array_type<const array<T, N>> :
+	public detail::maximum_size_base<message_type<T>::maximum_size * N>
 {
-public:
-	typedef std::integral_constant<std::size_t, message_type<T>::maximum_size * N> maximum_size_type;
-	static constexpr maximum_size_type maximum_size = {};
 };
 
 template <typename T, std::size_t N>
@@ -522,14 +530,13 @@ class array_type<array<T, N>> : public array_type<const array<T, N>>
 };
 
 template <typename A1, typename A2, typename... Args>
-class message_type<message<A1, A2, Args...>>
+class message_type<message<A1, A2, Args...>> :
+	public detail::maximum_size_base<message_type<A1>::maximum_size + message_type<message<A2, Args...>>::maximum_size>
 {
 public:
 	typedef message<A1, A2, Args...> as_message;
 	typedef std::integral_constant<std::size_t, message_type<A1>::minimum_size + message_type<message<A2, Args...>>::minimum_size> minimum_size_type;
-	typedef std::integral_constant<std::size_t, message_type<A1>::maximum_size + message_type<message<A2, Args...>>::maximum_size> maximum_size_type;
 	static constexpr minimum_size_type minimum_size = {};
-	static constexpr maximum_size_type maximum_size = {};
 };
 
 template <typename A1, typename... Args>
@@ -720,12 +727,6 @@ static inline void process_udt(Accessor &&accessor, const detail::sign_extend_ty
 	process_integer<Accessor, extended_signed_type>(static_cast<Accessor &&>(accessor), est);
 }
 
-}
-
-template <typename Accessor, typename A1, typename A1rr>
-static inline typename std::enable_if<std::is_integral<A1rr>::value, void>::type process_buffer(Accessor &&accessor, A1 &&a1)
-{
-	process_integer(std::forward<Accessor &&>(accessor), a1);
 }
 
 template <typename Accessor, typename A1, typename A1rr>
