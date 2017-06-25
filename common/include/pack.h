@@ -3,7 +3,7 @@
 #include <type_traits>
 #include "dxxsconf.h"
 
-template <typename T, typename Trc = typename std::remove_const<T>::type>
+template <typename T>
 class exact_type
 {
 	T *p;
@@ -27,7 +27,7 @@ public:
 	exact_type(T *t) : p(t) {}
 	// Conversion to the exact type is permitted
 	operator const T *() const { return p; }
-	operator Trc *() const { return p; }
+	operator typename std::remove_const<T>::type *() const { return p; }
 	bool operator==(const T *rhs) const { return p == rhs; }
 };
 
@@ -37,5 +37,5 @@ class prohibit_void_ptr
 public:
 	// Return a proxy when the address is taken
 	exact_type<T> operator&() { return static_cast<T*>(this); }
-	exact_type<T const, T> operator&() const { return static_cast<T const*>(this); }
+	exact_type<T const> operator&() const { return static_cast<T const*>(this); }
 };
