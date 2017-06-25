@@ -127,11 +127,11 @@ extern fix Cruise_speed;
 
 #if DXX_MAX_JOYSTICKS
 template <std::size_t N>
-struct joystick_text_length : tt::integral_constant<std::size_t, joystick_text_length<N / 10>::value + (N >= 10)>
+struct joystick_text_length : std::integral_constant<std::size_t, joystick_text_length<N / 10>::value + (N >= 10)>
 {
 };
 template <>
-struct joystick_text_length<0> : tt::integral_constant<std::size_t, 1>
+struct joystick_text_length<0> : std::integral_constant<std::size_t, 1>
 {
 };
 

@@ -551,7 +551,7 @@ int check_effect_blowup(const vmsegptridx_t seg,int side,const vms_vector &pnt, 
 	int tm,db;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	static constexpr tt::integral_constant<int, 0> force_blowup_flag{};
+	static constexpr std::integral_constant<int, 0> force_blowup_flag{};
 #elif defined(DXX_BUILD_DESCENT_II)
 	int trigger_check = 0, is_trigger = 0;
 	auto wall_num = seg->sides[side].wall_num;
@@ -2544,11 +2544,11 @@ void collide_two_objects(vmobjptridx_t A, vmobjptridx_t B, vms_vector &collision
 namespace {
 
 template <object_type_t A, object_type_t B>
-struct collision_result_t : public tt::conditional<(B < A), collision_result_t<B, A>, tt::integral_constant<ubyte, RESULT_NOTHING>>::type {};
+struct collision_result_t : public std::conditional<(B < A), collision_result_t<B, A>, std::integral_constant<ubyte, RESULT_NOTHING>>::type {};
 
 #define COLLISION_RESULT(type1,type2,result)	\
 	template <>	\
-	struct collision_result_t<type1, type2> : public tt::integral_constant<ubyte, result> {}
+	struct collision_result_t<type1, type2> : public std::integral_constant<ubyte, result> {}
 
 COLLISION_TABLE(DISABLE, ENABLE);
 

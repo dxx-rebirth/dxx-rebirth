@@ -39,13 +39,13 @@ static inline bool convert_integer(F *f, T &t, const char *value, int base)
 }
 
 template <typename T>
-static inline typename tt::enable_if<tt::is_signed<T>::value, bool>::type convert_integer(T &t, const char *value, int base = 10)
+static inline typename std::enable_if<std::is_signed<T>::value, bool>::type convert_integer(T &t, const char *value, int base = 10)
 {
 	return convert_integer(strtol, t, value, base);
 }
 
 template <typename T>
-static inline typename tt::enable_if<tt::is_unsigned<T>::value, bool>::type convert_integer(T &t, const char *value, int base = 10)
+static inline typename std::enable_if<std::is_unsigned<T>::value, bool>::type convert_integer(T &t, const char *value, int base = 10)
 {
 	return convert_integer(strtoul, t, value, base);
 }

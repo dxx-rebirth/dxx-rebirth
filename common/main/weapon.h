@@ -241,9 +241,9 @@ class has_weapon_result
 {
 	uint8_t m_result;
 public:
-	static constexpr auto has_weapon_flag = tt::integral_constant<uint8_t, 1>{};
-	static constexpr auto has_energy_flag = tt::integral_constant<uint8_t, 2>{};
-	static constexpr auto has_ammo_flag   = tt::integral_constant<uint8_t, 4>{};
+	static constexpr auto has_weapon_flag = std::integral_constant<uint8_t, 1>{};
+	static constexpr auto has_energy_flag = std::integral_constant<uint8_t, 2>{};
+	static constexpr auto has_ammo_flag   = std::integral_constant<uint8_t, 4>{};
 	has_weapon_result() = default;
 	constexpr has_weapon_result(uint8_t r) : m_result(r)
 	{

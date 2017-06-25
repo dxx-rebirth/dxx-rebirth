@@ -351,7 +351,7 @@ void init_player_stats_level(player &plr, object &plrobj, const secret_restore s
 #endif
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret_flag{};
+	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret_flag{};
 #endif
 
 	plr.level = Current_level_num;
@@ -1577,7 +1577,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 		last_drawn_cockpit = -1;
 	}
 #if defined(DXX_BUILD_DESCENT_I)
-	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret_flag{};
+	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret_flag{};
 #elif defined(DXX_BUILD_DESCENT_II)
         BigWindowSwitch=0;
 #endif

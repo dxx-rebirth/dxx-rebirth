@@ -86,12 +86,12 @@ struct CArg : prohibit_void_ptr<CArg>
 #if DXX_USE_SDLMIXER
 	bool SndDisableSdlMixer;
 #else
-	static constexpr tt::true_type SndDisableSdlMixer{};
+	static constexpr std::true_type SndDisableSdlMixer{};
 #endif
 #if DXX_MAX_JOYSTICKS
 	bool CtlNoJoystick;
 #else
-	static constexpr tt::true_type CtlNoJoystick{};
+	static constexpr std::true_type CtlNoJoystick{};
 #endif
 #if DXX_USE_OGL
 	bool OglFixedFont;

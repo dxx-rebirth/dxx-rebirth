@@ -849,7 +849,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 	char	filename[PATH_MAX], desc[DESC_LENGTH+1];
 
 #if defined(DXX_BUILD_DESCENT_I)
-	static constexpr tt::integral_constant<secret_save, secret_save::none> secret{};
+	static constexpr std::integral_constant<secret_save, secret_save::none> secret{};
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (Current_level_num < 0 && secret == secret_save::none)
 	{
@@ -1334,7 +1334,7 @@ int state_restore_all(const int in_game, const secret_restore secret, const char
 	int	filenum = -1;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret{};
+	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret{};
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (in_game && Current_level_num < 0 && secret == secret_restore::none)
 	{
@@ -1425,7 +1425,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	array<array<short, MAX_SIDES_PER_SEGMENT>, MAX_SEGMENTS> TempTmapNum, TempTmapNum2;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret{};
+	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret{};
 #elif defined(DXX_BUILD_DESCENT_II)
 	fix64	old_gametime = GameTime64;
 #endif

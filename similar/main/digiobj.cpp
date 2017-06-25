@@ -58,7 +58,7 @@ constexpr unsigned SOF_LINK_TO_POS = 8;		// Sound is linked to segment, pos
 constexpr unsigned SOF_PLAY_FOREVER = 16;		// Play forever (or until level is stopped), otherwise plays once
 constexpr unsigned SOF_PERMANENT = 32;		// Part of the level, like a waterfall or fan
 
-constexpr tt::integral_constant<int, -1> RAIIdigi_sound::invalid_channel;
+constexpr std::integral_constant<int, -1> RAIIdigi_sound::invalid_channel;
 constexpr unsigned MAX_SOUND_OBJECTS = 150;
 
 struct sound_object

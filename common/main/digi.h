@@ -157,7 +157,7 @@ namespace dcx {
 
 class RAIIdigi_sound
 {
-	static constexpr auto invalid_channel = tt::integral_constant<int, -1>{};
+	static constexpr auto invalid_channel = std::integral_constant<int, -1>{};
 	int channel;
 	static void stop(int channel)
 	{

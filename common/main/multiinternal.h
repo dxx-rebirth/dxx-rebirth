@@ -115,7 +115,7 @@ template <multiplayer_command_t>
 struct command_length;
 #define define_command_length(NAME,SIZE)	\
 	template <>	\
-	struct command_length<NAME> : public tt::integral_constant<unsigned, SIZE> {};
+	struct command_length<NAME> : public std::integral_constant<unsigned, SIZE> {};
 for_each_multiplayer_command(define_command_length);
 
 void _multi_send_data(const ubyte *buf, unsigned len, int priority);

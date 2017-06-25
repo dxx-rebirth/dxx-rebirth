@@ -236,7 +236,7 @@ constexpr unsigned MULTI_ALLOW_POWERUP_TEXT_LENGTH = 21;
 }
 
 #define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
-#define define_netflag_bit_mask(NAME,STR)	static constexpr auto NAME = tt::integral_constant<unsigned, (1 << BIT_##NAME)>{};
+#define define_netflag_bit_mask(NAME,STR)	static constexpr auto NAME = std::integral_constant<unsigned, (1 << BIT_##NAME)>{};
 #define define_netflag_powerup_mask(NAME,STR)	| (NAME)
 enum { for_each_netflag_value(define_netflag_bit_enum) };
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
@@ -269,7 +269,7 @@ struct packed_spawn_granted_items
 	{
 	}
 	template <unsigned U>
-		constexpr packed_spawn_granted_items(tt::integral_constant<unsigned, U>) :
+		constexpr packed_spawn_granted_items(std::integral_constant<unsigned, U>) :
 			mask(U)
 	{
 		assert_equal(U, static_cast<mask_type>(U), "truncation error");

@@ -3,7 +3,7 @@
 #include "dxxsconf.h"
 #include "compiler-type_traits.h"
 
-template <typename T, typename Trc = typename tt::remove_const<T>::type>
+template <typename T, typename Trc = typename std::remove_const<T>::type>
 class exact_type
 {
 	T *p;

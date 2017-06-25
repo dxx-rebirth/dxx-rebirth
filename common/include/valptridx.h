@@ -181,8 +181,8 @@ template <typename managed_type>
 class valptridx<managed_type>::partial_policy::require_valid
 {
 public:
-	static constexpr tt::false_type allow_nullptr{};
-	static constexpr tt::false_type check_allowed_invalid_index(index_type) { return {}; }
+	static constexpr std::false_type allow_nullptr{};
+	static constexpr std::false_type check_allowed_invalid_index(index_type) { return {}; }
 	static constexpr bool check_nothrow_index(index_type i)
 	{
 		return std::less<std::size_t>()(i, array_size);
@@ -193,7 +193,7 @@ template <typename managed_type>
 class valptridx<managed_type>::partial_policy::allow_invalid
 {
 public:
-	static constexpr tt::true_type allow_nullptr{};
+	static constexpr std::true_type allow_nullptr{};
 	static constexpr bool check_allowed_invalid_index(index_type i)
 	{
 		return i == static_cast<index_type>(~0);
@@ -205,10 +205,10 @@ public:
 };
 
 template <typename managed_type>
-constexpr tt::false_type valptridx<managed_type>::partial_policy::require_valid::allow_nullptr;
+constexpr std::false_type valptridx<managed_type>::partial_policy::require_valid::allow_nullptr;
 
 template <typename managed_type>
-constexpr tt::true_type valptridx<managed_type>::partial_policy::allow_invalid::allow_nullptr;
+constexpr std::true_type valptridx<managed_type>::partial_policy::allow_invalid::allow_nullptr;
 
 template <typename managed_type>
 template <template <typename> class policy>
@@ -225,28 +225,28 @@ public:
 template <typename managed_type>
 class valptridx<managed_type>::vc :
 	public partial_policy::require_valid,
-	public partial_policy::template apply_cv_policy<tt::add_const>
+	public partial_policy::template apply_cv_policy<std::add_const>
 {
 };
 
 template <typename managed_type>
 class valptridx<managed_type>::vm :
 	public partial_policy::require_valid,
-	public partial_policy::template apply_cv_policy<tt::remove_const>
+	public partial_policy::template apply_cv_policy<std::remove_const>
 {
 };
 
 template <typename managed_type>
 class valptridx<managed_type>::ic :
 	public partial_policy::allow_invalid,
-	public partial_policy::template apply_cv_policy<tt::add_const>
+	public partial_policy::template apply_cv_policy<std::add_const>
 {
 };
 
 template <typename managed_type>
 class valptridx<managed_type>::im :
 	public partial_policy::allow_invalid,
-	public partial_policy::template apply_cv_policy<tt::remove_const>
+	public partial_policy::template apply_cv_policy<std::remove_const>
 {
 };
 

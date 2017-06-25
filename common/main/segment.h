@@ -117,7 +117,7 @@ struct wallnum_t : prohibit_void_ptr<wallnum_t>
 	template <typename T>
 		bool operator<(const T &v) const
 		{
-			static_assert(tt::is_integral<T>::value, "non-integral wall number compared");
+			static_assert(std::is_integral<T>::value, "non-integral wall number compared");
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
 			if (__builtin_constant_p(v))
 				DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_constant_wall, "constant wall number compared");

@@ -61,9 +61,9 @@ static uint_fast32_t SOrderList (uint_fast32_t num);
 //ubyte	Default_primary_ammo_level[MAX_PRIMARY_WEAPONS] = {255, 0, 255, 255, 255};
 //ubyte	Default_secondary_ammo_level[MAX_SECONDARY_WEAPONS] = {3, 0, 0, 0, 0};
 
-constexpr tt::integral_constant<uint8_t, 1> has_weapon_result::has_weapon_flag;
-constexpr tt::integral_constant<uint8_t, 2> has_weapon_result::has_energy_flag;
-constexpr tt::integral_constant<uint8_t, 4> has_weapon_result::has_ammo_flag;
+constexpr std::integral_constant<uint8_t, 1> has_weapon_result::has_weapon_flag;
+constexpr std::integral_constant<uint8_t, 2> has_weapon_result::has_energy_flag;
+constexpr std::integral_constant<uint8_t, 4> has_weapon_result::has_ammo_flag;
 
 //	Convert primary weapons to indices in Weapon_info array.
 #if defined(DXX_BUILD_DESCENT_I)
@@ -262,7 +262,7 @@ namespace {
 class cycle_weapon_state
 {
 public:
-	static constexpr tt::integral_constant<uint8_t, 255> cycle_never_autoselect_below{};
+	static constexpr std::integral_constant<uint8_t, 255> cycle_never_autoselect_below{};
 	static constexpr char DXX_WEAPON_TEXT_NEVER_AUTOSELECT[] = "--- Never autoselect below ---";
 	__attribute_cold
 	__attribute_noreturn
@@ -278,7 +278,7 @@ public:
 		pl_info(p)
 	{
 	}
-	static constexpr tt::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> max_weapons{};
+	static constexpr std::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> max_weapons{};
 	static constexpr char reorder_title[] = "Reorder Primary";
 	static constexpr char error_weapon_list_corrupt[] = "primary weapon list corrupt";
 	static uint_fast32_t get_cycle_position(uint_fast32_t i)
@@ -336,7 +336,7 @@ public:
 		pl_info(p)
 	{
 	}
-	static constexpr tt::integral_constant<uint_fast32_t, MAX_SECONDARY_WEAPONS> max_weapons{};
+	static constexpr std::integral_constant<uint_fast32_t, MAX_SECONDARY_WEAPONS> max_weapons{};
 	static constexpr char reorder_title[] = "Reorder Secondary";
 	static constexpr char error_weapon_list_corrupt[] = "secondary weapon list corrupt";
 	static uint_fast32_t get_cycle_position(uint_fast32_t i)
@@ -369,12 +369,12 @@ public:
 	}
 };
 
-constexpr tt::integral_constant<uint8_t, 255> cycle_weapon_state::cycle_never_autoselect_below;
+constexpr std::integral_constant<uint8_t, 255> cycle_weapon_state::cycle_never_autoselect_below;
 constexpr char cycle_weapon_state::DXX_WEAPON_TEXT_NEVER_AUTOSELECT[];
-constexpr tt::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> cycle_primary_state::max_weapons;
+constexpr std::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> cycle_primary_state::max_weapons;
 constexpr char cycle_primary_state::reorder_title[];
 constexpr char cycle_primary_state::error_weapon_list_corrupt[];
-constexpr tt::integral_constant<uint_fast32_t, MAX_SECONDARY_WEAPONS> cycle_secondary_state::max_weapons;
+constexpr std::integral_constant<uint_fast32_t, MAX_SECONDARY_WEAPONS> cycle_secondary_state::max_weapons;
 constexpr char cycle_secondary_state::reorder_title[];
 constexpr char cycle_secondary_state::error_weapon_list_corrupt[];
 

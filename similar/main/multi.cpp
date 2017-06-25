@@ -89,7 +89,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-exchange.h"
 #include "partial_range.h"
 
-constexpr tt::integral_constant<int8_t, -1> owner_none{};
+constexpr std::integral_constant<int8_t, -1> owner_none{};
 
 namespace dsx {
 static void multi_reset_object_texture(object_base &objp);
@@ -5174,8 +5174,8 @@ namespace {
 
 class hoard_resources_type
 {
-	static constexpr auto invalid_bm_idx = tt::integral_constant<int, -1>{};
-	static constexpr auto invalid_snd_idx = tt::integral_constant<unsigned, ~0u>{};
+	static constexpr auto invalid_bm_idx = std::integral_constant<int, -1>{};
+	static constexpr auto invalid_snd_idx = std::integral_constant<unsigned, ~0u>{};
 public:
 	int bm_idx;
 	unsigned snd_idx;
@@ -5190,8 +5190,8 @@ public:
 	}
 };
 
-constexpr tt::integral_constant<int, -1> hoard_resources_type::invalid_bm_idx;
-constexpr tt::integral_constant<unsigned, ~0u> hoard_resources_type::invalid_snd_idx;
+constexpr std::integral_constant<int, -1> hoard_resources_type::invalid_bm_idx;
+constexpr std::integral_constant<unsigned, ~0u> hoard_resources_type::invalid_snd_idx;
 
 }
 

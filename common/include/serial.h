@@ -27,40 +27,40 @@ class message;
 
 	/* Classifiers to identify whether a type is a message<...> */
 template <typename>
-class is_message : public tt::false_type
+class is_message : public std::false_type
 {
 };
 
 template <typename A1, typename... Args>
-class is_message<message<A1, Args...>> : public tt::true_type
+class is_message<message<A1, Args...>> : public std::true_type
 {
 };
 
 template <typename T>
 class integral_type
 {
-	static_assert(tt::is_integral<T>::value, "integral_type used on non-integral type");
+	static_assert(std::is_integral<T>::value, "integral_type used on non-integral type");
 public:
-	typedef tt::integral_constant<std::size_t, sizeof(T)> maximum_size_type;
+	typedef std::integral_constant<std::size_t, sizeof(T)> maximum_size_type;
 	static constexpr maximum_size_type maximum_size = {};
 };
 
 template <typename T>
 class enum_type
 {
-	static_assert(tt::is_enum<T>::value, "enum_type used on non-enum type");
+	static_assert(std::is_enum<T>::value, "enum_type used on non-enum type");
 public:
-	typedef tt::integral_constant<std::size_t, sizeof(T)> maximum_size_type;
+	typedef std::integral_constant<std::size_t, sizeof(T)> maximum_size_type;
 	static constexpr maximum_size_type maximum_size = {};
 };
 
 template <typename>
-class is_cxx_array : public tt::false_type
+class is_cxx_array : public std::false_type
 {
 };
 
 template <typename T, std::size_t N>
-class is_cxx_array<array<T, N>> : public tt::true_type
+class is_cxx_array<array<T, N>> : public std::true_type
 {
 };
 
@@ -70,16 +70,16 @@ class is_cxx_array<const T> : public is_cxx_array<T>
 };
 
 template <typename T>
-using is_generic_class = typename tt::conditional<is_cxx_array<T>::value, tt::false_type, tt::is_class<T>>::type;
+using is_generic_class = typename std::conditional<is_cxx_array<T>::value, std::false_type, std::is_class<T>>::type;
 
-template <typename Accessor, typename A1, typename A1rr = typename tt::remove_reference<A1>::type>
+template <typename Accessor, typename A1, typename A1rr = typename std::remove_reference<A1>::type>
 static inline typename std::enable_if<std::is_integral<A1rr>::value, void>::type process_buffer(Accessor &&, A1 &&);
 
-template <typename Accessor, typename A1, typename A1rr = typename tt::remove_reference<A1>::type>
-static inline typename tt::enable_if<tt::is_enum<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
+template <typename Accessor, typename A1, typename A1rr = typename std::remove_reference<A1>::type>
+static inline typename std::enable_if<std::is_enum<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
 
-template <typename Accessor, typename A1, typename A1rr = typename tt::remove_reference<A1>::type>
-static inline typename tt::enable_if<is_generic_class<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
+template <typename Accessor, typename A1, typename A1rr = typename std::remove_reference<A1>::type>
+static inline typename std::enable_if<is_generic_class<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
 
 template <typename Accessor, typename A1>
 static typename std::enable_if<is_cxx_array<A1>::value, void>::type process_buffer(Accessor &&, A1 &);
@@ -107,10 +107,10 @@ public:
 	 * - native_endian: assume buffered data is native endian
 	 *   Copy regardless of host byte order
 	 */
-	typedef tt::integral_constant<uint16_t, 0> foreign_endian_type;
-	typedef tt::integral_constant<uint16_t, 255> little_endian_type;
-	typedef tt::integral_constant<uint16_t, 256> big_endian_type;
-	typedef tt::integral_constant<uint16_t, 257> native_endian_type;
+	typedef std::integral_constant<uint16_t, 0> foreign_endian_type;
+	typedef std::integral_constant<uint16_t, 255> little_endian_type;
+	typedef std::integral_constant<uint16_t, 256> big_endian_type;
+	typedef std::integral_constant<uint16_t, 257> native_endian_type;
 
 	static constexpr auto foreign_endian = foreign_endian_type{};
 	static constexpr auto little_endian = little_endian_type{};
@@ -147,29 +147,29 @@ static inline const T &extract_value(const wrapped_empty_value<T> &t)
 	return t.get();
 }
 
-template <typename T, typename Trr = typename tt::remove_reference<T>::type>
-using capture_type = typename tt::conditional<tt::is_lvalue_reference<T>::value,
+template <typename T, typename Trr = typename std::remove_reference<T>::type>
+using capture_type = typename std::conditional<std::is_lvalue_reference<T>::value,
 			std::reference_wrapper<Trr>,
-			typename tt::conditional<tt::is_empty<Trr>::value,
+			typename std::conditional<std::is_empty<Trr>::value,
 				wrapped_empty_value<Trr>,
 				std::tuple<Trr>
 			>::type
 		>;
 
-template <typename T, typename Trr = typename tt::remove_reference<T>::type>
+template <typename T, typename Trr = typename std::remove_reference<T>::type>
 static inline auto capture_value(Trr &t) -> decltype(std::ref(t))
 {
 	return std::ref(t);
 }
 
-template <typename T, typename Trr = typename tt::remove_reference<T>::type>
-static inline typename tt::enable_if<tt::is_empty<Trr>::value, detail::wrapped_empty_value<Trr>>::type capture_value(Trr &&t)
+template <typename T, typename Trr = typename std::remove_reference<T>::type>
+static inline typename std::enable_if<std::is_empty<Trr>::value, detail::wrapped_empty_value<Trr>>::type capture_value(Trr &&t)
 {
 	return std::forward<Trr>(t);
 }
 
-template <typename T, typename Trr = typename tt::remove_reference<T>::type>
-static inline typename tt::enable_if<!tt::is_empty<Trr>::value && tt::is_rvalue_reference<T>::value, std::tuple<Trr>>::type capture_value(Trr &&t)
+template <typename T, typename Trr = typename std::remove_reference<T>::type>
+static inline typename std::enable_if<!std::is_empty<Trr>::value && std::is_rvalue_reference<T>::value, std::tuple<Trr>>::type capture_value(Trr &&t)
 {
 	return std::tuple<Trr>{std::forward<T>(t)};
 }
@@ -258,11 +258,11 @@ union pad_storage
 	static_assert(amount % FULL_SIZE == REMAINDER_SIZE || FULL_SIZE == REMAINDER_SIZE, "padding alignment error");
 	array<uint8_t, FULL_SIZE> f;
 	array<uint8_t, REMAINDER_SIZE> p;
-	pad_storage(tt::false_type, uint8_t value)
+	pad_storage(std::false_type, uint8_t value)
 	{
 		f.fill(value);
 	}
-	pad_storage(tt::true_type, uint8_t)
+	pad_storage(std::true_type, uint8_t)
 	{
 	}
 #undef SERIAL_UDT_ROUND_UP
@@ -364,17 +364,17 @@ static inline detail::sign_extend_type<extended_signed_type, wrapped_type> sign_
 #define ASSERT_SERIAL_UDT_MESSAGE_SIZE(T, SIZE)	\
 	assert_equal(serial::class_type<T>::maximum_size, SIZE, "sizeof(" #T ") is not " #SIZE)
 
-template <typename M1, typename T1, typename M1rcv_rr = typename tt::remove_cv<typename tt::remove_reference<M1>::type>::type>
-struct udt_message_compatible_same_type : tt::is_same<M1rcv_rr, T1>
+template <typename M1, typename T1, typename M1rcv_rr = typename std::remove_cv<typename std::remove_reference<M1>::type>::type>
+struct udt_message_compatible_same_type : std::is_same<M1rcv_rr, T1>
 {
-	static_assert((tt::is_same<M1rcv_rr, T1>::value), "parameter type mismatch");
+	static_assert((std::is_same<M1rcv_rr, T1>::value), "parameter type mismatch");
 };
 
 template <bool, typename M, typename T>
 class assert_udt_message_compatible2;
 
 template <typename M, typename T>
-class assert_udt_message_compatible2<false, M, T> : public tt::false_type
+class assert_udt_message_compatible2<false, M, T> : public std::false_type
 {
 };
 
@@ -440,9 +440,9 @@ template <typename T, std::size_t N>
 union unaligned_storage
 {
 	T a;
-	typename tt::conditional<N < 4,
-		typename tt::conditional<N == 1, uint8_t, uint16_t>,
-		typename tt::conditional<N == 4, uint32_t, uint64_t>>::type::type i;
+	typename std::conditional<N < 4,
+		typename std::conditional<N == 1, uint8_t, uint16_t>,
+		typename std::conditional<N == 4, uint32_t, uint64_t>>::type::type i;
 	uint8_t u[N];
 	assert_equal(sizeof(i), N, "sizeof(i) is not N");
 	assert_equal(sizeof(a), sizeof(u), "sizeof(T) is not N");
@@ -452,37 +452,37 @@ template <typename T, typename = void>
 class message_dispatch_type;
 
 template <typename T>
-class message_dispatch_type<T, typename tt::enable_if<tt::is_integral<T>::value, void>::type>
+class message_dispatch_type<T, typename std::enable_if<std::is_integral<T>::value, void>::type>
 {
 protected:
 	typedef integral_type<T> effective_type;
 };
 
 template <typename T>
-class message_dispatch_type<T, typename tt::enable_if<tt::is_enum<T>::value, void>::type>
+class message_dispatch_type<T, typename std::enable_if<std::is_enum<T>::value, void>::type>
 {
 protected:
 	typedef enum_type<T> effective_type;
 };
 
 template <typename T>
-class message_dispatch_type<T, typename tt::enable_if<is_cxx_array<T>::value, void>::type>
+class message_dispatch_type<T, typename std::enable_if<is_cxx_array<T>::value, void>::type>
 {
 protected:
 	typedef array_type<T> effective_type;
 };
 
 template <typename T>
-class message_dispatch_type<T, typename tt::enable_if<is_generic_class<T>::value && !is_message<T>::value, void>::type>
+class message_dispatch_type<T, typename std::enable_if<is_generic_class<T>::value && !is_message<T>::value, void>::type>
 {
 protected:
 	typedef class_type<T> effective_type;
 };
 
 template <typename T>
-class message_type : message_dispatch_type<typename tt::remove_reference<T>::type>
+class message_type : message_dispatch_type<typename std::remove_reference<T>::type>
 {
-	typedef message_dispatch_type<typename tt::remove_reference<T>::type> base_type;
+	typedef message_dispatch_type<typename std::remove_reference<T>::type> base_type;
 	typedef typename base_type::effective_type effective_type;
 public:
 	typedef decltype(detail::get_minimum_size<effective_type>(nullptr)) minimum_size_type;
@@ -512,7 +512,7 @@ template <typename T, std::size_t N>
 class array_type<const array<T, N>>
 {
 public:
-	typedef tt::integral_constant<std::size_t, message_type<T>::maximum_size * N> maximum_size_type;
+	typedef std::integral_constant<std::size_t, message_type<T>::maximum_size * N> maximum_size_type;
 	static constexpr maximum_size_type maximum_size = {};
 };
 
@@ -526,8 +526,8 @@ class message_type<message<A1, A2, Args...>>
 {
 public:
 	typedef message<A1, A2, Args...> as_message;
-	typedef tt::integral_constant<std::size_t, message_type<A1>::minimum_size + message_type<message<A2, Args...>>::minimum_size> minimum_size_type;
-	typedef tt::integral_constant<std::size_t, message_type<A1>::maximum_size + message_type<message<A2, Args...>>::maximum_size> maximum_size_type;
+	typedef std::integral_constant<std::size_t, message_type<A1>::minimum_size + message_type<message<A2, Args...>>::minimum_size> minimum_size_type;
+	typedef std::integral_constant<std::size_t, message_type<A1>::maximum_size + message_type<message<A2, Args...>>::maximum_size> maximum_size_type;
 	static constexpr minimum_size_type minimum_size = {};
 	static constexpr maximum_size_type maximum_size = {};
 };
@@ -653,7 +653,7 @@ static inline void process_integer(Accessor &buffer, A1 &a1)
 }
 
 template <typename Accessor, typename A, typename T = typename A::value_type>
-static inline typename tt::enable_if<sizeof(T) == 1 && tt::is_integral<T>::value, void>::type process_array(Accessor &accessor, A &a)
+static inline typename std::enable_if<sizeof(T) == 1 && std::is_integral<T>::value, void>::type process_array(Accessor &accessor, A &a)
 {
 	std::copy_n(static_cast<typename Accessor::pointer>(accessor), a.size(), &a[0]);
 	advance(accessor, a.size());
@@ -706,7 +706,7 @@ static inline void process_integer(Accessor &buffer, const A1 &a1)
 }
 
 template <typename Accessor, typename A, typename T = typename A::value_type>
-static inline typename tt::enable_if<sizeof(T) == 1 && tt::is_integral<T>::value, void>::type process_array(Accessor &accessor, const A &a)
+static inline typename std::enable_if<sizeof(T) == 1 && std::is_integral<T>::value, void>::type process_array(Accessor &accessor, const A &a)
 {
 	std::copy_n(&a[0], a.size(), static_cast<typename Accessor::pointer>(accessor));
 	advance(accessor, a.size());
@@ -729,7 +729,7 @@ static inline typename std::enable_if<std::is_integral<A1rr>::value, void>::type
 }
 
 template <typename Accessor, typename A1, typename A1rr>
-static inline typename tt::enable_if<tt::is_enum<A1rr>::value, void>::type process_buffer(Accessor &accessor, A1 &&a1)
+static inline typename std::enable_if<std::is_enum<A1rr>::value, void>::type process_buffer(Accessor &accessor, A1 &&a1)
 {
 	using detail::check_enum;
 	process_integer(accessor, a1);
@@ -738,7 +738,7 @@ static inline typename tt::enable_if<tt::is_enum<A1rr>::value, void>::type proce
 }
 
 template <typename Accessor, typename A1, typename A1rr>
-static inline typename tt::enable_if<is_generic_class<A1rr>::value, void>::type process_buffer(Accessor &accessor, A1 &&a1)
+static inline typename std::enable_if<is_generic_class<A1rr>::value, void>::type process_buffer(Accessor &accessor, A1 &&a1)
 {
 	using detail::preprocess_udt;
 	using detail::process_udt;
@@ -749,7 +749,7 @@ static inline typename tt::enable_if<is_generic_class<A1rr>::value, void>::type 
 }
 
 template <typename Accessor, typename A, typename T = typename A::value_type>
-static typename tt::enable_if<!(sizeof(T) == 1 && tt::is_integral<T>::value), void>::type process_array(Accessor &accessor, A &a)
+static typename std::enable_if<!(sizeof(T) == 1 && std::is_integral<T>::value), void>::type process_array(Accessor &accessor, A &a)
 {
 	range_for (auto &i, a)
 		process_buffer(accessor, i);
