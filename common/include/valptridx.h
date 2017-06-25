@@ -8,10 +8,10 @@
 
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include "fwd-valptridx.h"
 #include "compiler-array.h"
 #include "compiler-static_assert.h"
-#include "compiler-type_traits.h"
 #include "pack.h"
 #include "compiler-poison.h"
 

@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <type_traits>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "fwd-event.h"
@@ -39,7 +40,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "compiler-array.h"
 #include "compiler-make_unique.h"
-#include "compiler-type_traits.h"
 #include "ntstring.h"
 
 struct grs_bitmap;

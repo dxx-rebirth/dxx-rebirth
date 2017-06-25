@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <type_traits>
 
 #include "hudmsg.h"
 #include "game.h"
@@ -51,7 +52,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfs-serial.h"
 
 #include "compiler-range_for.h"
-#include "compiler-type_traits.h"
 #include "partial_range.h"
 
 static uint_fast32_t POrderList (uint_fast32_t num);

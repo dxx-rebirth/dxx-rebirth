@@ -1,7 +1,7 @@
 #pragma once
 
+#include <type_traits>
 #include "dxxsconf.h"
-#include "compiler-type_traits.h"
 
 template <typename T, typename Trc = typename std::remove_const<T>::type>
 class exact_type

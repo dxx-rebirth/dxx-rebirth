@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <errno.h>
 #include <ctype.h>
+#include <type_traits>
 
 #include "u_mem.h"
 #include "inferno.h"
@@ -95,7 +96,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-exchange.h"
-#include "compiler-type_traits.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 

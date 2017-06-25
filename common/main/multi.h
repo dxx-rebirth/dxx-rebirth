@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <type_traits>
 #include "dxxsconf.h"
 #include "fwd-player.h"
 #include "player-callsign.h"
@@ -58,7 +59,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "ntstring.h"
 #include "compiler-static_assert.h"
-#include "compiler-type_traits.h"
 
 namespace dcx {
 

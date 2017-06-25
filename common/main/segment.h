@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <physfs.h>
+#include <type_traits>
 #include "pstypes.h"
 #include "maths.h"
 #include "vecmat.h"
@@ -42,7 +43,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "objnum.h"
 #include "pack.h"
 
-#include "compiler-type_traits.h"
 
 #ifdef dsx
 namespace dsx {

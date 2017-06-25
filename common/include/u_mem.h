@@ -20,13 +20,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <stdlib.h>
+#include <type_traits>
 
 #ifdef __cplusplus
 #include <memory>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-exchange.h"
-#include "compiler-type_traits.h"
 
 #define MEM_K 1.5	// Dynamic array growth factor
 

@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdexcept>
 #include <stdlib.h>
 #include <stdio.h>
+#include <type_traits>
 
 #include "rle.h"
 #include "inferno.h"
@@ -86,7 +87,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include "compiler-integer_sequence.h"
 #include "compiler-static_assert.h"
-#include "compiler-type_traits.h"
 
 using std::min;
 

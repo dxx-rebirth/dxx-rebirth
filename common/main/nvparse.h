@@ -12,8 +12,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <iterator>
+#include <type_traits>
 #include "dxxsconf.h"
-#include "compiler-type_traits.h"
 #include "ntstring.h"
 
 template <std::size_t N>

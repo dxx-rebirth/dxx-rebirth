@@ -17,6 +17,7 @@
 #include <memory>
 #include <string.h>
 #include <stdarg.h>
+#include <type_traits>
 
 // When PhysicsFS can *easily* be built as a framework on Mac OS X,
 // the framework form will be supported again -kreatordxx
@@ -41,7 +42,6 @@
 #include "compiler-array.h"
 #include "compiler-make_unique.h"
 #include "compiler-static_assert.h"
-#include "compiler-type_traits.h"
 #include "partial_range.h"
 
 #ifdef DXX_CONSTANT_TRUE

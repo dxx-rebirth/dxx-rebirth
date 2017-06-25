@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <type_traits>
 #include "game.h"
 #include "piggy.h"
 
@@ -37,7 +38,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-valptridx.h"
 #include "fwd-weapon.h"
 
-#include "compiler-type_traits.h"
 
 #ifdef dsx
 namespace dsx {

@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <type_traits>
 #include "dsx-ns.h"
 #ifdef dsx
 
@@ -44,7 +45,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-segment.h"
 #include <vector>
 #include <stdexcept>
-#include "compiler-type_traits.h"
 #include "fwd-object.h"
 #include "weapon.h"
 #include "powerup.h"

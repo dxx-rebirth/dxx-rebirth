@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Multiplayer robot code
  *
  */
+#include <type_traits>
 #include "multiinternal.h"
 
 #include <string.h>
@@ -56,7 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 
 #include "compiler-range_for.h"
-#include "compiler-type_traits.h"
 #include "partial_range.h"
 
 namespace dsx {

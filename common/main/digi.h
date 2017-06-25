@@ -25,6 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <type_traits>
 #include "pstypes.h"
 #include "vecmat.h"
 
@@ -34,7 +35,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-object.h"
 #include "fwd-segment.h"
 #include "compiler-exchange.h"
-#include "compiler-type_traits.h"
 
 #ifdef dsx
 namespace dcx {

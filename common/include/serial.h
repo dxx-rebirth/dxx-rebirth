@@ -11,6 +11,7 @@
 #include <functional>
 #include <initializer_list>
 #include <tuple>
+#include <type_traits>
 
 #include "dxxsconf.h"
 #include "compiler-addressof.h"
@@ -18,7 +19,6 @@
 #include "compiler-integer_sequence.h"
 #include "compiler-range_for.h"
 #include "compiler-static_assert.h"
-#include "compiler-type_traits.h"
 
 namespace serial {
 

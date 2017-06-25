@@ -12,6 +12,7 @@
 
 #include <memory>
 #include <tuple>
+#include <type_traits>
 #include "joy.h"
 #include "dxxerror.h"
 #include "timer.h"
@@ -24,7 +25,6 @@
 
 #if DXX_MAX_JOYSTICKS
 #include "compiler-integer_sequence.h"
-#include "compiler-type_traits.h"
 #include "d_enumerate.h"
 #include "partial_range.h"
 

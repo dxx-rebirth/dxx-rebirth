@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include <type_traits>
 #include "dxxerror.h"
 #include "object.h"
 #include "powerup.h"
@@ -104,7 +105,6 @@
 #endif
 
 #include "dxxsconf.h"
-#include "compiler-type_traits.h"
 
 enum multiplayer_command_t : uint8_t
 {
