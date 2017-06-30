@@ -104,19 +104,19 @@ valptridx<wall>::array_managed_type Walls;
 
 /*
  * If not specified otherwise by the user, enable full instantiation if
- * the compiler optimizer is not enabled.  This is required because
- * non-optimized builds contain link time references to functions that
- * are not used.
+ * the compiler inliner is not enabled.  This is required because
+ * non-inline builds contain link time references to functions that are
+ * not used.
  *
- * Force full instantiation for non-optimized builds so that these
- * references are satisfied.  For optimized builds, instantiate only the
- * classes that are known to be used.
+ * Force full instantiation for non-inline builds so that these
+ * references are satisfied.  For inline-enabled builds, instantiate
+ * only the classes that are known to be used.
  */
 #ifndef DXX_VALPTRIDX_ENABLE_FULL_TEMPLATE_INSTANTIATION
-#if (defined(__OPTIMIZE__) && __OPTIMIZE__ > 0)
-#define DXX_VALPTRIDX_ENABLE_FULL_TEMPLATE_INSTANTIATION	0
-#else
+#if (defined(__NO_INLINE__) && __NO_INLINE__ > 0)
 #define DXX_VALPTRIDX_ENABLE_FULL_TEMPLATE_INSTANTIATION	1
+#else
+#define DXX_VALPTRIDX_ENABLE_FULL_TEMPLATE_INSTANTIATION	0
 #endif
 #endif
 
