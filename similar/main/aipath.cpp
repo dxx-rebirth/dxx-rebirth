@@ -94,8 +94,10 @@ namespace dsx {
 //	Insert the point at the center of the side connecting two segments between the two points.
 // This is messy because we must insert into the list.  The simplest (and not too slow) way to do this is to start
 // at the end of the list and go backwards.
-static uint_fast32_t insert_center_points(point_seg *psegs, uint_fast32_t count)
+static uint_fast32_t insert_center_points(segment_array &segments, point_seg *psegs, uint_fast32_t count)
 {
+	auto &vcsegptr = segments.vcptr;
+	auto &vcsegptridx = segments.vcptridx;
 	if (count < 2)
 		return count;
 	uint_fast32_t last_point = count - 1;
@@ -114,7 +116,7 @@ static uint_fast32_t insert_center_points(point_seg *psegs, uint_fast32_t count)
 		new_point.z /= 16;
 		vm_vec_sub(psegs[2*i-1].point, center_point, new_point);
 #if defined(DXX_BUILD_DESCENT_II)
-		const auto &&segp = imsegptridx(psegs[2*i].segnum);
+		const auto &&segp = segments.imptridx(psegs[2*i].segnum);
 		const auto &&temp_segnum = find_point_seg(psegs[2*i-1].point, segp);
 		if (temp_segnum == segment_none) {
 			psegs[2*i-1].point = center_point;
@@ -152,7 +154,7 @@ static uint_fast32_t insert_center_points(point_seg *psegs, uint_fast32_t count)
 #if defined(DXX_BUILD_DESCENT_II)
 //	-----------------------------------------------------------------------------------------------------------
 //	Move points halfway to outside of segment.
-static void move_towards_outside(point_seg *psegs, int *num_points, const vmobjptridx_t objp, int rand_flag)
+static void move_towards_outside(fimsegptridx &imsegptridx, point_seg *psegs, int *num_points, const vmobjptridx_t objp, int rand_flag)
 {
 	int	i;
 	array<point_seg, 200> new_psegs;
@@ -471,7 +473,7 @@ cpp_done1: ;
 			*num_points = l_num_points;
 			return -1;
 		} else {
-			l_num_points = insert_center_points(original_psegs, l_num_points);
+			l_num_points = insert_center_points(Segments, original_psegs, l_num_points);
 		}
 	}
 
@@ -485,7 +487,7 @@ cpp_done1: ;
 //	discontinuity problems.
 	if (objp->type == OBJ_ROBOT)
 		if (Robot_info[get_robot_id(objp)].companion)
-			move_towards_outside(original_psegs, &l_num_points, objp, 0);
+			move_towards_outside(imsegptridx, original_psegs, &l_num_points, objp, 0);
 #endif
 
 #if PATH_VALIDATION
@@ -809,7 +811,7 @@ void create_n_segment_path(const vmobjptridx_t objp, int path_length, const imse
 	if (ailp->previous_visibility) {
 		if (aip->path_length) {
 			int	t_num_points = aip->path_length;
-			move_towards_outside(&Point_segs[aip->hide_index], &t_num_points, objp, 1);
+			move_towards_outside(imsegptridx, &Point_segs[aip->hide_index], &t_num_points, objp, 1);
 			aip->path_length = t_num_points;
 		}
 	}
@@ -1460,8 +1462,8 @@ void attempt_to_resume_path(const vmobjptridx_t objp)
 
 #if DXX_USE_EDITOR
 
-static void test_create_path_many(void) __attribute_used;
-static void test_create_path_many(void)
+__attribute_used
+static void test_create_path_many(fvmobjptridx &vmobjptridx, fimsegptridx &imsegptridx)
 {
 	array<point_seg, 200> point_segs;
 	short			num_points;
@@ -1474,22 +1476,20 @@ static void test_create_path_many(void)
 		Markedsegp = imsegptridx(static_cast<segnum_t>((d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX));
 		create_path_points(vmobjptridx(object_first), Cursegp, Markedsegp, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
 	}
-
 }
 
-static void test_create_path(void) __attribute_used;
-static void test_create_path(void)
+__attribute_used
+static void test_create_path(fvmobjptridx &vmobjptridx)
 {
 	array<point_seg, 200> point_segs;
 	short			num_points;
 
 	create_path_points(vmobjptridx(object_first), Cursegp, Markedsegp, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
-
 }
 
 //	For all segments in mine, create paths to all segments in mine, print results.
-static void test_create_all_paths(void) __attribute_used;
-static void test_create_all_paths(void)
+__attribute_used
+static void test_create_all_paths(fvmobjptridx &vmobjptridx, fvcsegptridx &vcsegptridx)
 {
 	short	resultant_length;
 
@@ -1640,7 +1640,7 @@ void player_follow_path(const vmobjptr_t objp)
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Create path for player from current segment to goal segment.
-static void create_player_path_to_segment(segnum_t segnum)
+static void create_player_path_to_segment(fvmobjptridx &vmobjptridx, segnum_t segnum)
 {
 	const auto objp = vmobjptridx(ConsoleObject);
 	Player_path_length=0;
@@ -1667,7 +1667,7 @@ segnum_t	Player_goal_segment = segment_none;
 void check_create_player_path(void)
 {
 	if (Player_goal_segment != segment_none)
-		create_player_path_to_segment(Player_goal_segment);
+		create_player_path_to_segment(vmobjptridx, Player_goal_segment);
 
 	Player_goal_segment = segment_none;
 }
