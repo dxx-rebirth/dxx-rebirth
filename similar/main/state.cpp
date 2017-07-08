@@ -1738,6 +1738,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	Control_center_destroyed = PHYSFSX_readSXE32(fp, swap);
 #if defined(DXX_BUILD_DESCENT_I)
 	Countdown_seconds_left = PHYSFSX_readSXE32(fp, swap);
+	Countdown_timer = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 	Countdown_timer = PHYSFSX_readSXE32(fp, swap);
 #endif
@@ -1751,16 +1752,14 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	control_center_triggers_read(&ControlCenterTriggers, fp);
 	Num_fuelcenters = PHYSFSX_readSXE32(fp, swap);
 	range_for (auto &s, partial_range(Station, Num_fuelcenters))
+	{
 		fuelcen_read(fp, s);
 #if defined(DXX_BUILD_DESCENT_I)
-	Countdown_timer = 0;
-	range_for (auto &i, partial_range(Station, Num_fuelcenters))
-	{
 		// NOTE: Usually Descent1 handles countdown by Timer value of the Reactor Station. Since we now use Descent2 code to handle countdown (which we do in case there IS NO Reactor Station which causes potential trouble in Multiplayer), let's find the Reactor here and read the timer from it.
-		if (i.Type == SEGMENT_IS_CONTROLCEN)
-			Countdown_timer = i.Timer;
-	}
+		if (s.Type == SEGMENT_IS_CONTROLCEN)
+			Countdown_timer = s.Timer;
 #endif
+	}
 
 	// Restore the control cen info
 	Control_center_been_hit = PHYSFSX_readSXE32(fp, swap);
