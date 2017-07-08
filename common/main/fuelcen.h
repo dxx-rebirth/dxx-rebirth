@@ -100,8 +100,8 @@ fix repaircen_give_shields(vcsegptr_t segp, fix MaxAmountCanTake);
 // An array of pointers to segments with fuel centers.
 struct FuelCenter : public prohibit_void_ptr<FuelCenter>
 {
-	int     Type;
 	segnum_t     segnum;
+	uint8_t     Type;
 	sbyte   Flag;
 	sbyte   Enabled;
 	sbyte   Lives;          // Number of times this can be enabled.
