@@ -535,7 +535,7 @@ void g3_draw_line(grs_canvas &canvas, const g3s_point &p0, const g3s_point &p1, 
 {
 	GLfloat color_r, color_g, color_b;
 	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	GLfloat vertex_array[] = {
+	GLfloat vertices[] = {
 		f2glf(p0.p3_vec.x), f2glf(p0.p3_vec.y), -f2glf(p0.p3_vec.z),
 		f2glf(p1.p3_vec.x), f2glf(p1.p3_vec.y), -f2glf(p1.p3_vec.z)
 	};
@@ -549,17 +549,17 @@ void g3_draw_line(grs_canvas &canvas, const g3s_point &p0, const g3s_point &p1, 
 	color_array[1] = color_array[5] = color_g;
 	color_array[2] = color_array[6] = color_b;
 	color_array[3] = color_array[7] = 1.0;
-	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
+	glVertexPointer(3, GL_FLOAT, 0, vertices);
 	glColorPointer(4, GL_FLOAT, 0, color_array);
 	glDrawArrays(GL_LINES, 0, 2);
 }
 
 }
 
-static void ogl_drawcircle(int nsides, int type, GLfloat *vertex_array)
+static void ogl_drawcircle(int nsides, int type, GLfloat *vertices)
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glVertexPointer(2, GL_FLOAT, 0, vertices);
 	glDrawArrays(type, 0, nsides);
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
@@ -568,28 +568,28 @@ static std::unique_ptr<GLfloat[]> circle_array_init(int nsides)
 {
 	int i;
 	float ang;
-	auto vertex_array = make_unique<GLfloat[]>(nsides * 2);
+	auto vertices = make_unique<GLfloat[]>(nsides * 2);
 	for(i = 0; i < nsides; i++) {
 		ang = 2.0 * M_PI * i / nsides;
-		vertex_array[i * 2] = cosf(ang);
-        	vertex_array[i * 2 + 1] = sinf(ang);
+		vertices[i * 2] = cosf(ang);
+        	vertices[i * 2 + 1] = sinf(ang);
 	}
 	
-	return vertex_array;
+	return vertices;
 }
 
 static std::unique_ptr<GLfloat[]> circle_array_init_2(int nsides, float xsc, float xo, float ysc, float yo)
 {
  	int i;
  	float ang;
-	auto vertex_array = make_unique<GLfloat[]>(nsides * 2);
+	auto vertices = make_unique<GLfloat[]>(nsides * 2);
 	for(i = 0; i < nsides; i++) {
 		ang = 2.0 * M_PI * i / nsides;
-		vertex_array[i * 2] = cosf(ang) * xsc + xo;
-		vertex_array[i * 2 + 1] = sinf(ang) * ysc + yo;
+		vertices[i * 2] = cosf(ang) * xsc + xo;
+		vertices[i * 2 + 1] = sinf(ang) * ysc + yo;
 	}
 	
-	return vertex_array;
+	return vertices;
 }
 
 void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int alpha,int size_offs)
@@ -862,9 +862,9 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
 		GLfloat r, g, b, a;
 	};
 	static_assert(sizeof(cfloat) == sizeof(GLfloat) * 4, "cfloat size wrong");
-	RAIIdmem<GLfloat[]> vertex_array, color_array;
+	RAIIdmem<GLfloat[]> vertices, color_array;
 
-	MALLOC(vertex_array, GLfloat[], nv*3);
+	MALLOC(vertices, GLfloat[], nv*3);
 	MALLOC(color_array, GLfloat[], nv*4);
 
 	r_polyc++;
@@ -876,7 +876,7 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
 		? 1.0
 		: 1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
 
-	vfloat *const varray = reinterpret_cast<vfloat *>(vertex_array.get());
+	vfloat *const varray = reinterpret_cast<vfloat *>(vertices.get());
 	cfloat *const carray = reinterpret_cast<cfloat *>(color_array.get());
 	for (unsigned c=0; c < nv; ++c)
 	{
@@ -890,7 +890,7 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
 		varray[c].z = -f2glf(p.z);
 	}
 
-	glVertexPointer(3, GL_FLOAT, 0, vertex_array.get());
+	glVertexPointer(3, GL_FLOAT, 0, vertices.get());
 	glColorPointer(4, GL_FLOAT, 0, color_array.get());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
 }
@@ -922,8 +922,8 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 		return;
 	}
 
-	RAIIdmem<GLfloat[]> vertex_array, color_array, texcoord_array;
-	MALLOC(vertex_array, GLfloat[], nv*3);
+	RAIIdmem<GLfloat[]> vertices, color_array, texcoord_array;
+	MALLOC(vertices, GLfloat[], nv*3);
 	MALLOC(color_array, GLfloat[], nv*4);
 	MALLOC(texcoord_array, GLfloat[], nv*2);
 
@@ -932,9 +932,9 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 		index3 = c * 3;
 		index4 = c * 4;
 		
-		vertex_array[index3]     = f2glf(pointlist[c]->p3_vec.x);
-		vertex_array[index3+1]   = f2glf(pointlist[c]->p3_vec.y);
-		vertex_array[index3+2]   = -f2glf(pointlist[c]->p3_vec.z);
+		vertices[index3]     = f2glf(pointlist[c]->p3_vec.x);
+		vertices[index3+1]   = f2glf(pointlist[c]->p3_vec.y);
+		vertices[index3+2]   = -f2glf(pointlist[c]->p3_vec.z);
 		if (tmap_drawer_ptr == draw_tmap_flat) {
 			color_array[index4]      = 0;
 			color_array[index4+1]    = color_array[index4];
@@ -951,7 +951,7 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 		texcoord_array[index2+1] = f2glf(uvl_list[c].v);
 	}
 	
-	glVertexPointer(3, GL_FLOAT, 0, vertex_array.get());
+	glVertexPointer(3, GL_FLOAT, 0, vertices.get());
 	glColorPointer(4, GL_FLOAT, 0, color_array.get());
 	if (tmap_drawer_ptr == draw_tmap) {
 		glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.get());  
@@ -973,8 +973,8 @@ void _g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const g3s_point *con
 {
 	int index2, index3;
 
-	RAIIdmem<GLfloat[]> vertex_array, color_array, texcoord_array;
-	MALLOC(vertex_array, GLfloat[], nv*3);
+	RAIIdmem<GLfloat[]> vertices, color_array, texcoord_array;
+	MALLOC(vertices, GLfloat[], nv*3);
 	MALLOC(color_array, GLfloat[], nv*4);
 	MALLOC(texcoord_array, GLfloat[], nv*2);
 
@@ -1044,12 +1044,12 @@ void _g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const g3s_point *con
 				break;
 		}
 		
-		vertex_array[index3]     = f2glf(pointlist[c]->p3_vec.x);
-		vertex_array[index3+1]   = f2glf(pointlist[c]->p3_vec.y);
-		vertex_array[index3+2]   = -f2glf(pointlist[c]->p3_vec.z);
+		vertices[index3]     = f2glf(pointlist[c]->p3_vec.x);
+		vertices[index3+1]   = f2glf(pointlist[c]->p3_vec.y);
+		vertices[index3+2]   = -f2glf(pointlist[c]->p3_vec.z);
 	}
 	
-	glVertexPointer(3, GL_FLOAT, 0, vertex_array.get());
+	glVertexPointer(3, GL_FLOAT, 0, vertices.get());
 	glColorPointer(4, GL_FLOAT, 0, color_array.get());
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.get());  
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
@@ -1086,7 +1086,7 @@ void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, const fix iwidth,
 	{
 		GLfloat u, v;
 	};
-	array<fvertex_t, point_count> vertex_array;
+	array<fvertex_t, point_count> vertices;
 	array<fcolor_t, point_count> color_array;
 	array<ftexcoord_t, point_count> texcoord_array;
 	const auto &v1 = vm_vec_sub(pos,View_position);
@@ -1128,11 +1128,11 @@ void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, const fix iwidth,
 		color_array[i].g = 1.0;
 		color_array[i].b = 1.0;
 		color_array[i].a = alpha;
-		vertex_array[i].x = f2glf(pv.x);
-		vertex_array[i].y = f2glf(pv.y);
-		vertex_array[i].z = vert_z;
+		vertices[i].x = f2glf(pv.x);
+		vertices[i].y = f2glf(pv.y);
+		vertices[i].z = vert_z;
 	}
-	glVertexPointer(3, GL_FLOAT, 0, vertex_array.data());
+	glVertexPointer(3, GL_FLOAT, 0, vertices.data());
 	glColorPointer(4, GL_FLOAT, 0, color_array.data());
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.data());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Replaced GL_QUADS
@@ -1147,7 +1147,7 @@ bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw,
 	GLfloat xo,yo,xs,ys,u1,v1;
 	GLfloat color_array[] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 	GLfloat texcoord_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	GLfloat vertices[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	struct bitblt_free_ogl_texture
 	{
 		ogl_texture t;
@@ -1180,14 +1180,14 @@ bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw,
 	
 	ogl_texwrap(&tex,GL_CLAMP_TO_EDGE);
 
-	vertex_array[0] = xo;
-	vertex_array[1] = yo;
-	vertex_array[2] = xo+xs;
-	vertex_array[3] = yo;
-	vertex_array[4] = xo+xs;
-	vertex_array[5] = yo-ys;
-	vertex_array[6] = xo;
-	vertex_array[7] = yo-ys;
+	vertices[0] = xo;
+	vertices[1] = yo;
+	vertices[2] = xo+xs;
+	vertices[3] = yo;
+	vertices[4] = xo+xs;
+	vertices[5] = yo-ys;
+	vertices[6] = xo;
+	vertices[7] = yo-ys;
 
 	texcoord_array[0] = u1;
 	texcoord_array[1] = v1;
@@ -1198,7 +1198,7 @@ bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw,
 	texcoord_array[6] = u1;
 	texcoord_array[7] = tex.v;
 
-	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glVertexPointer(2, GL_FLOAT, 0, vertices);
 	glColorPointer(4, GL_FLOAT, 0, color_array);
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
@@ -1928,7 +1928,7 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, int x, int y,int dw, int dh, grs_bitmap
 		v2=(bm.bm_h+bm.bm_y)/static_cast<float>(bm.gltexture->th);
 	}
 
-	const array<GLfloat, 8> vertex_array{{
+	const array<GLfloat, 8> vertices{{
 		xo, yo,
 		xf, yo,
 		xf, yf,
@@ -1940,7 +1940,7 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, int x, int y,int dw, int dh, grs_bitmap
 		u2, v2,
 		u1, v2,
 	}};
-	glVertexPointer(2, GL_FLOAT, 0, vertex_array.data());
+	glVertexPointer(2, GL_FLOAT, 0, vertices.data());
 	glColorPointer(4, GL_FLOAT, 0, color_array.data());
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.data());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
