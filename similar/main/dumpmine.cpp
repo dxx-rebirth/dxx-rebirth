@@ -213,13 +213,13 @@ static void write_exit_text(PHYSFS_File *my_file)
 
 	//	---------- Find exit triggers ----------
 	count=0;
-	for (trgnum_t i=0; i<Num_triggers; i++)
+	range_for (const auto &&t, vctrgptridx)
 	{
-		const auto &&t = vctrgptr(i);
 		if (trigger_is_exit(t))
 		{
 			int	count2;
 
+			const auto i = t.get_unchecked_index();
 			PHYSFSX_printf(my_file, "Trigger %2i, is an exit trigger with %i links.\n", i, t->num_links);
 			count++;
 			if (t->num_links != 0)
@@ -493,15 +493,14 @@ static void write_matcen_text(PHYSFS_File *my_file)
 		auto segnum = Station[fuelcen_num].segnum;
 
 		//	Find trigger for this materialization center.
-		for (trgnum_t j=0; j < Num_triggers; j++)
+		range_for (auto &&t, vctrgptridx)
 		{
-			const auto &&t = vctrgptr(j);
 			if (trigger_is_matcen(t))
 			{
 				range_for (auto &k, partial_const_range(t->seg, t->num_links))
 					if (k == segnum)
 					{
-						PHYSFSX_printf(my_file, "Trigger = %2i  ", j );
+						PHYSFSX_printf(my_file, "Trigger = %2i  ", t.get_unchecked_index());
 						trigger_count++;
 					}
 			}
