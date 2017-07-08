@@ -183,6 +183,7 @@ namespace dsx {
 void start_boss_death_sequence(vmobjptr_t objp);
 extern void ai_init_boss_for_ship(void);
 void boss_init_all_segments(const object &boss_objnum);
+void init_ai_for_ship();
 
 #if defined(DXX_BUILD_DESCENT_II)
 extern vms_vector Last_fired_upon_player_pos;
@@ -239,7 +240,6 @@ extern stolen_items_t Stolen_items;
 extern void  create_buddy_bot(void);
 
 imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos);
-void init_ai_for_ship(void);
 
 // Amount of time since the current robot was last processed for things such as movement.
 // It is not valid to use FrameTime because robots do not get moved every frame.

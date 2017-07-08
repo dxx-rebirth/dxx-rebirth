@@ -1596,10 +1596,6 @@ void do_ai_robot_hit(const vmobjptridx_t objp, player_awareness_type_t type)
 	}
 }
 
-}
-
-namespace dsx {
-
 // --------------------------------------------------------------------------------------------------------------------
 //	Note: This function could be optimized.  Surely player_is_visible_from_object would benefit from the
 //	information of a normalized vec_to_player.
@@ -2229,17 +2225,6 @@ imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos)
 	}
 
 	return newobjp;
-}
-
-// --------------------------------------------------------------------------------------------------------------------
-//	Call this each time the player starts a new ship.
-void init_ai_for_ship(void)
-{
-	range_for (auto &i, Ai_cloak_info) {
-		i.last_time = GameTime64;
-		i.last_segment = ConsoleObject->segnum;
-		i.last_position = ConsoleObject->pos;
-	}
 }
 
 //	----------------------------------------------------------------------
@@ -4072,14 +4057,12 @@ _exit_cheat:
 // ----------------------------------------------------------------------------
 void ai_do_cloak_stuff(void)
 {
-	int i;
-
-	for (i=0; i<MAX_AI_CLOAK_INFO; i++) {
-		Ai_cloak_info[i].last_position = ConsoleObject->pos;
+	range_for (auto &i, Ai_cloak_info) {
+		i.last_time = GameTime64;
 #if defined(DXX_BUILD_DESCENT_II)
-		Ai_cloak_info[i].last_segment = ConsoleObject->segnum;
+		i.last_segment = ConsoleObject->segnum;
 #endif
-		Ai_cloak_info[i].last_time = GameTime64;
+		i.last_position = ConsoleObject->pos;
 	}
 
 	// Make work for control centers.
@@ -4087,6 +4070,13 @@ void ai_do_cloak_stuff(void)
 #if defined(DXX_BUILD_DESCENT_II)
 	Believed_player_seg = Ai_cloak_info[0].last_segment;
 #endif
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+//	Call this each time the player starts a new ship.
+void init_ai_for_ship()
+{
+	ai_do_cloak_stuff();
 }
 
 // ----------------------------------------------------------------------------

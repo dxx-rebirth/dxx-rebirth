@@ -498,8 +498,8 @@ void init_player_stats_new_ship(ubyte pnum)
 		Controls.state.afterburner = 0;
 		Last_afterburner_state = 0;
 		Missile_viewer = nullptr; //reset missile camera if out there
-		init_ai_for_ship();
 #endif
+		init_ai_for_ship();
 	}
 	digi_kill_sound_linked_to_object(plrobj);
 	init_player_stats_ship(plrobj);
