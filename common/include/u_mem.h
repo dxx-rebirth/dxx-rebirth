@@ -137,9 +137,7 @@ class RAIIdmem : public std::unique_ptr<T, RAIIdmem_deleter<T>>
 {
 	typedef std::unique_ptr<T, RAIIdmem_deleter<T>> base_ptr;
 public:
-	typedef typename base_ptr::element_type element_type;
-	typedef typename base_ptr::pointer pointer;
-	static_assert(std::is_pod<element_type>::value, "RAIIdmem cannot manage non-POD");
+	static_assert(std::is_pod<typename base_ptr::element_type>::value, "RAIIdmem cannot manage non-POD");
 	DXX_INHERIT_CONSTRUCTORS(RAIIdmem, base_ptr);
 };
 

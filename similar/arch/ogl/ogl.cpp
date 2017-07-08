@@ -535,10 +535,6 @@ void g3_draw_line(grs_canvas &canvas, const g3s_point &p0, const g3s_point &p1, 
 {
 	GLfloat color_r, color_g, color_b;
 	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	GLfloat vertices[] = {
-		f2glf(p0.p3_vec.x), f2glf(p0.p3_vec.y), -f2glf(p0.p3_vec.z),
-		f2glf(p1.p3_vec.x), f2glf(p1.p3_vec.y), -f2glf(p1.p3_vec.z)
-	};
   
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY> cs;
 	OGL_DISABLE(TEXTURE_2D);
@@ -549,14 +545,16 @@ void g3_draw_line(grs_canvas &canvas, const g3s_point &p0, const g3s_point &p1, 
 	color_array[1] = color_array[5] = color_g;
 	color_array[2] = color_array[6] = color_b;
 	color_array[3] = color_array[7] = 1.0;
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
+	array<GLfloat, 6> vertices = {{
+		f2glf(p0.p3_vec.x), f2glf(p0.p3_vec.y), -f2glf(p0.p3_vec.z),
+		f2glf(p1.p3_vec.x), f2glf(p1.p3_vec.y), -f2glf(p1.p3_vec.z)
+	}};
+	glVertexPointer(3, GL_FLOAT, 0, vertices.data());
 	glColorPointer(4, GL_FLOAT, 0, color_array);
 	glDrawArrays(GL_LINES, 0, 2);
 }
 
-}
-
-static void ogl_drawcircle(int nsides, int type, GLfloat *vertices)
+static void ogl_drawcircle(const unsigned nsides, const unsigned type, GLfloat *const vertices)
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, vertices);
@@ -564,32 +562,30 @@ static void ogl_drawcircle(int nsides, int type, GLfloat *vertices)
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-static std::unique_ptr<GLfloat[]> circle_array_init(int nsides)
+static std::unique_ptr<GLfloat[]> circle_array_init(const unsigned nsides)
 {
-	int i;
-	float ang;
 	auto vertices = make_unique<GLfloat[]>(nsides * 2);
-	for(i = 0; i < nsides; i++) {
-		ang = 2.0 * M_PI * i / nsides;
+	for (unsigned i = 0; i < nsides; i++)
+	{
+		const float ang = 2.0 * M_PI * i / nsides;
 		vertices[i * 2] = cosf(ang);
-        	vertices[i * 2 + 1] = sinf(ang);
+		vertices[i * 2 + 1] = sinf(ang);
 	}
-	
 	return vertices;
 }
 
-static std::unique_ptr<GLfloat[]> circle_array_init_2(int nsides, float xsc, float xo, float ysc, float yo)
+static std::unique_ptr<GLfloat[]> circle_array_init_2(const unsigned nsides, const float xsc, const float xo, const float ysc, const float yo)
 {
- 	int i;
- 	float ang;
 	auto vertices = make_unique<GLfloat[]>(nsides * 2);
-	for(i = 0; i < nsides; i++) {
-		ang = 2.0 * M_PI * i / nsides;
+	for (unsigned i = 0; i < nsides; i++)
+	{
+		const float ang = 2.0 * M_PI * i / nsides;
 		vertices[i * 2] = cosf(ang) * xsc + xo;
 		vertices[i * 2 + 1] = sinf(ang) * ysc + yo;
 	}
-	
 	return vertices;
+}
+
 }
 
 void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int alpha,int size_offs)
@@ -775,8 +771,7 @@ void g3_draw_sphere(grs_canvas &canvas, g3s_point &pnt, fix rad, const uint8_t c
 {
 	int i;
 	const float scale = (static_cast<float>(canvas.cv_bitmap.bm_w) / canvas.cv_bitmap.bm_h);
-	GLfloat color_array[20*4];
-	
+	array<GLfloat, 20 * 4> color_array;
 	for (i = 0; i < 20*4; i += 4)
 	{
 		color_array[i] = CPAL2Tr(c);
@@ -805,7 +800,7 @@ void g3_draw_sphere(grs_canvas &canvas, g3s_point &pnt, fix rad, const uint8_t c
 	if(!sphere_va)
 		sphere_va = circle_array_init(20);
 	glEnableClientState(GL_COLOR_ARRAY);
-	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array.data());
 	ogl_drawcircle(20, GL_TRIANGLE_FAN, sphere_va.get());
 	glDisableClientState(GL_COLOR_ARRAY);
 	glPopMatrix();
@@ -862,9 +857,9 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
 		GLfloat r, g, b, a;
 	};
 	static_assert(sizeof(cfloat) == sizeof(GLfloat) * 4, "cfloat size wrong");
-	RAIIdmem<GLfloat[]> vertices, color_array;
+	RAIIdmem<GLfloat[]> color_array;
 
-	MALLOC(vertices, GLfloat[], nv*3);
+	auto &&vertices = make_unique<GLfloat[]>(nv * 3);
 	MALLOC(color_array, GLfloat[], nv*4);
 
 	r_polyc++;
@@ -890,7 +885,7 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
 		varray[c].z = -f2glf(p.z);
 	}
 
-	glVertexPointer(3, GL_FLOAT, 0, vertices.get());
+	glVertexPointer(3, GL_FLOAT, 0, varray);
 	glColorPointer(4, GL_FLOAT, 0, color_array.get());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
 }
@@ -939,14 +934,12 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 			color_array[index4]      = 0;
 			color_array[index4+1]    = color_array[index4];
 			color_array[index4+2]    = color_array[index4];
-			color_array[index4+3]    = color_alpha;
-			
 		} else { 
 			color_array[index4]      = bm.get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].r);
 			color_array[index4+1]    = bm.get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].g);
 			color_array[index4+2]    = bm.get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].b);
-			color_array[index4+3]    = color_alpha;
 		}
+		color_array[index4+3]    = color_alpha;
 		texcoord_array[index2]   = f2glf(uvl_list[c].u);
 		texcoord_array[index2+1] = f2glf(uvl_list[c].v);
 	}
@@ -1373,13 +1366,11 @@ static void ogl_filltexbuf(const palette_array_t &pal, const uint8_t *data, GLub
 			{
 				switch (type)
 				{
-					case GL_LUMINANCE_ALPHA:
-						(*(texp++)) = 255;
-						(*(texp++)) = 0;
-						break;
 					case GL_RGBA:
 						(*(texp++)) = 255;
 						(*(texp++)) = 255;
+						//-fallthrough
+					case GL_LUMINANCE_ALPHA:
 						(*(texp++)) = 255;
 						(*(texp++)) = 0; // transparent pixel
 						break;
@@ -1397,22 +1388,16 @@ static void ogl_filltexbuf(const palette_array_t &pal, const uint8_t *data, GLub
 			{
 				switch (type)
 				{
-					case GL_LUMINANCE:
-						(*(texp++))=0;
-						break;
-					case GL_LUMINANCE_ALPHA:
-						(*(texp++))=0;
-						(*(texp++))=0;
-						break;
-					case GL_RGB:
-						(*(texp++)) = 0;
-						(*(texp++)) = 0;
-						(*(texp++)) = 0;
-						break;
 					case GL_RGBA:
 						(*(texp++))=0;
+						//-fallthrough
+					case GL_RGB:
 						(*(texp++))=0;
+						//-fallthrough
+					case GL_LUMINANCE_ALPHA:
 						(*(texp++))=0;
+						//-fallthrough
+					case GL_LUMINANCE:
 						(*(texp++))=0;//transparent pixel
 						break;
 #if !DXX_USE_OGLES
@@ -1429,11 +1414,10 @@ static void ogl_filltexbuf(const palette_array_t &pal, const uint8_t *data, GLub
 			{
 				switch (type)
 				{
-					case GL_LUMINANCE://these could prolly be done to make the intensity based upon the intensity of the resulting color, but its not needed for anything (yet?) so no point. :)
-						(*(texp++))=255;
-						break;
 					case GL_LUMINANCE_ALPHA:
 						(*(texp++))=255;
+						//-fallthrough
+					case GL_LUMINANCE://these could prolly be done to make the intensity based upon the intensity of the resulting color, but its not needed for anything (yet?) so no point. :)
 						(*(texp++))=255;
 						break;
 					case GL_RGB:

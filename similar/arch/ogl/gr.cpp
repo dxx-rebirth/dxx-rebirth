@@ -820,10 +820,10 @@ namespace dcx {
 
 void ogl_upixelc(const grs_bitmap &cv_bitmap, unsigned x, unsigned y, unsigned c)
 {
-	GLfloat vertices[] = {
+	array<GLfloat, 2> vertices = {{
 		(x + cv_bitmap.bm_x) / static_cast<float>(last_width),
 		static_cast<GLfloat>(1.0 - (y + cv_bitmap.bm_y) / static_cast<float>(last_height))
-	};
+	}};
 	const auto cr = static_cast<GLfloat>(CPAL2Tr(c));
 	const auto cg = static_cast<GLfloat>(CPAL2Tg(c));
 	const auto cb = static_cast<GLfloat>(CPAL2Tb(c));
@@ -838,7 +838,7 @@ void ogl_upixelc(const grs_bitmap &cv_bitmap, unsigned x, unsigned y, unsigned c
 	glPointSize(linedotscale);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
-	glVertexPointer(2, GL_FLOAT, 0, vertices);
+	glVertexPointer(2, GL_FLOAT, 0, vertices.data());
 	glColorPointer(4, GL_FLOAT, 0, color_array);
 	glDrawArrays(GL_POINTS, 0, 1);
 	glDisableClientState(GL_VERTEX_ARRAY);
@@ -898,7 +898,6 @@ void ogl_urect(grs_canvas &canvas, const int left, const int top, const int righ
 	vertices[5] = yf;
 	vertices[6] = xf;
 	vertices[7] = yo;
-	
 	glVertexPointer(2, GL_FLOAT, 0, vertices.data());
 	glColorPointer(4, GL_FLOAT, 0, color_array.data());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
@@ -917,7 +916,6 @@ void ogl_ulinec(grs_canvas &canvas, const int left, const int top, const int rig
 		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), 1.0,
 		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), fade_alpha
 	};
-	GLfloat vertices[] = { 0.0, 0.0, 0.0, 0.0 };
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
@@ -929,12 +927,14 @@ void ogl_ulinec(grs_canvas &canvas, const int left, const int top, const int rig
  
 	OGL_DISABLE(TEXTURE_2D);
 
-	vertices[0] = xo;
-	vertices[1] = yo;
-	vertices[2] = xf;
-	vertices[3] = yf;
+	array<GLfloat, 4> vertices = {{
+		xo,
+		yo,
+		xf,
+		yf,
+	}};
 
-	glVertexPointer(2, GL_FLOAT, 0, vertices);
+	glVertexPointer(2, GL_FLOAT, 0, vertices.data());
 	glColorPointer(4, GL_FLOAT, 0, color_array);
 	glDrawArrays(GL_LINES, 0, 2);
 	glDisableClientState(GL_VERTEX_ARRAY);
@@ -947,7 +947,6 @@ static int do_pal_step;
 void ogl_do_palfx(void)
 {
 	GLfloat color_array[] = { last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0 };
-	GLfloat vertices[] = { 0,0,0,1,1,1,1,0 };
 
 	OGL_DISABLE(TEXTURE_2D);
 
@@ -961,8 +960,11 @@ void ogl_do_palfx(void)
 	}
 	else
 		return;
- 
-	glVertexPointer(2, GL_FLOAT, 0, vertices);
+
+	array<GLfloat, 8> vertices = {{
+		0, 0, 0, 1, 1, 1, 1, 0
+	}};
+	glVertexPointer(2, GL_FLOAT, 0, vertices.data());
 	glColorPointer(4, GL_FLOAT, 0, color_array);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
 	glDisableClientState(GL_VERTEX_ARRAY);
