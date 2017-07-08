@@ -3239,7 +3239,7 @@ _exit_cheat:
 		if (seg.special == SEGMENT_IS_ROBOTMAKER)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
-			if (Station[seg.value].Enabled)
+			if (Station[seg.station_idx].Enabled)
 #endif
 		{
 			ai_follow_path(obj, 1, NULL);    // 1 = player is visible, which might be a lie, but it works.

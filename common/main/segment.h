@@ -172,10 +172,8 @@ struct segment {
 	array<unsigned, MAX_VERTICES_PER_SEGMENT> verts;    // vertex ids of 4 front and 4 back vertices
 	ubyte   special;    // what type of center this is
 	sbyte   matcen_num; // which center segment is associated with.
-#if defined(DXX_BUILD_DESCENT_I)
-	short   value;
-#elif defined(DXX_BUILD_DESCENT_II)
-	sbyte   value;
+	uint8_t station_idx;
+#if defined(DXX_BUILD_DESCENT_II)
 	ubyte   s2_flags;
 #endif
 	fix     static_light;

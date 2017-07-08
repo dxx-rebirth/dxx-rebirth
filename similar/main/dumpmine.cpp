@@ -443,11 +443,11 @@ static void write_segment_text(PHYSFS_File *my_file)
 
 	range_for (const auto &&segp, vcsegptridx)
 	{
-		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(segp));
+		PHYSFSX_printf(my_file, "Segment %4hu:", static_cast<uint16_t>(segp));
 		if (segp->special != 0)
-			PHYSFSX_printf(my_file, "special = %3i (%s), value = %3i ", segp->special, Special_names[segp->special], segp->value);
+			PHYSFSX_printf(my_file, " special = %3i (%s), station_idx=%3i", segp->special, Special_names[segp->special], segp->station_idx);
 		if (segp->matcen_num != -1)
-			PHYSFSX_printf(my_file, "matcen = %3i, ", segp->matcen_num);
+			PHYSFSX_printf(my_file, " matcen = %3i", segp->matcen_num);
 		PHYSFSX_printf(my_file, "\n");
 	}
 

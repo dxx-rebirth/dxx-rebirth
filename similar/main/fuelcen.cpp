@@ -147,7 +147,7 @@ void fuelcen_create(const vmsegptridx_t segp)
 
 	Assert( Num_fuelcenters < MAX_NUM_FUELCENS );
 
-	segp->value = Num_fuelcenters;
+	segp->station_idx = Num_fuelcenters;
 	Station[Num_fuelcenters].Type = station_type;
 	Station[Num_fuelcenters].Capacity = Fuelcen_max_amount;
 	Station[Num_fuelcenters].segnum = segp;
@@ -167,7 +167,7 @@ static void matcen_create(const vmsegptridx_t segp)
 
 	Assert( Num_fuelcenters < MAX_NUM_FUELCENS );
 
-	segp->value = Num_fuelcenters;
+	segp->station_idx = Num_fuelcenters;
 	Station[Num_fuelcenters].Type = station_type;
 	Station[Num_fuelcenters].Capacity = i2f(Difficulty_level + 3);
 
@@ -281,7 +281,7 @@ Restart: ;
 			Num_fuelcenters--;
 			for (uint_fast32_t j = i; j < Num_fuelcenters; j++ )	{
 				Station[j] = Station[j+1];
-				Segments[Station[j].segnum].value = j;
+				Segments[Station[j].segnum].station_idx = j;
 			}
 			goto Restart;
 		}

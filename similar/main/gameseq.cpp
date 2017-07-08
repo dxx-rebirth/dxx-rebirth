@@ -700,11 +700,10 @@ static ushort netmisc_calc_checksum()
 #if defined(DXX_BUILD_DESCENT_I)
 		do_checksum_calc(&i.special, 1, &sum1, &sum2);
 		do_checksum_calc(reinterpret_cast<const uint8_t *>(&i.matcen_num), 1, &sum1, &sum2);
-		s = INTEL_SHORT(i.value);
-		do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 		t = INTEL_INT(i.static_light);
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&t), 4, &sum1, &sum2);
 #endif
+		do_checksum_calc(&i.station_idx, 1, &sum1, &sum2);
 	}
 	sum2 %= 255;
 	return ((sum1<<8)+ sum2);

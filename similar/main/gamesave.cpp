@@ -1011,7 +1011,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 		range_for (auto &seg, partial_const_range(Segments, Highest_segment_index + 1))
 			if (seg.special == SEGMENT_IS_ROBOTMAKER)
 				if (seg.matcen_num == i)
-					RobotCenters[i].fuelcen_num = seg.value;
+					RobotCenters[i].fuelcen_num = seg.station_idx;
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)

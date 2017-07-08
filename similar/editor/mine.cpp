@@ -537,7 +537,7 @@ static void write_special(const vcsegptr_t seg, ubyte bit_mask, PHYSFS_File *Sav
 	{
 		PHYSFSX_writeU8(SaveFile, seg->special);
 		PHYSFSX_writeU8(SaveFile, seg->matcen_num);
-		PHYSFS_writeSLE16(SaveFile, seg->value);
+		PHYSFS_writeULE16(SaveFile, seg->station_idx);
 	}
 }
 // -----------------------------------------------------------------------------
@@ -588,7 +588,7 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 				bit_mask |= (1 << sidenum);
 		}
 
-		if ((seg->special != 0) || (seg->matcen_num != 0) || (seg->value != 0))
+		if (seg->special != 0 || seg->matcen_num != 0 || seg->station_idx != station_none)
 			bit_mask |= (1 << MAX_SIDES_PER_SEGMENT);
 
 		if (New_file_format_save)

@@ -54,6 +54,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef dsx
+namespace dcx {
+constexpr uint8_t station_none = 0xff;
+}
+
 namespace dsx {
 // Destroys all fuel centers, clears segment backpointer array.
 void fuelcen_reset();

@@ -68,7 +68,8 @@ static void segment2_read(segment &s2, PHYSFS_File *fp)
 {
 	s2.special = PHYSFSX_readByte(fp);
 	s2.matcen_num = PHYSFSX_readByte(fp);
-	s2.value = PHYSFSX_readByte(fp);
+	/* station_idx overwritten by caller */
+	PHYSFSX_readByte(fp);
 	const auto s2_flags = PHYSFSX_readByte(fp);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)s2_flags;	// descent 2 ambient sound handling
@@ -686,7 +687,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 					i->verts[j] = v16_seg.verts[j];
 
 				i->special = v16_seg.special;
-				i->value = v16_seg.value;
+				i->station_idx = v16_seg.value;
 				i->s2_flags = 0;
 				i->matcen_num = v16_seg.matcen_num;
 				i->static_light = v16_seg.static_light;
@@ -855,11 +856,11 @@ static void read_special(const vmsegptr_t segp,ubyte bit_mask,PHYSFS_File *LoadF
 		// Read byte	Segments[segnum].matcen_num
 		segp->matcen_num = PHYSFSX_readByte(LoadFile);
 		// Read short	Segments[segnum].value
-		segp->value = PHYSFSX_readShort(LoadFile);
+		segp->station_idx = PHYSFSX_readShort(LoadFile);
 	} else {
 		segp->special = 0;
 		segp->matcen_num = -1;
-		segp->value = 0;
+		segp->station_idx = station_none;
 	}
 }
 

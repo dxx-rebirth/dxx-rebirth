@@ -65,7 +65,7 @@ void segment2_write(const vcsegptr_t s2, PHYSFS_File *fp)
 {
 	PHYSFSX_writeU8(fp, s2->special);
 	PHYSFSX_writeU8(fp, s2->matcen_num);
-	PHYSFSX_writeU8(fp, s2->value);
+	PHYSFSX_writeU8(fp, s2->station_idx);
 	PHYSFSX_writeU8(fp, s2->s2_flags);
 	PHYSFSX_writeFix(fp, s2->static_light);
 }
