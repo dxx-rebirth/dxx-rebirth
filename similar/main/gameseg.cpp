@@ -595,9 +595,10 @@ static imsegptridx_t trace_segs(const vms_vector &p0, const vmsegptridx_t oldseg
 		con_printf (CON_DEBUG, "trace_segs: Segment not found");
 		return segment_none;
 	}
-	if (visited [oldsegnum])
+	if (auto &&vs = visited[oldsegnum])
 		return segment_none;
-	visited[oldsegnum] = true;
+	else
+		vs = true;
 
 	centermask = get_side_dists(p0,oldsegnum,side_dists);		//check old segment
 	if (centermask == 0) // we are in the old segment
