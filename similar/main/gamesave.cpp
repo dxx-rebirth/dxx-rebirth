@@ -160,7 +160,6 @@ static int is_real_level(const char *filename)
 int Gamesave_num_players=0;
 
 #if defined(DXX_BUILD_DESCENT_I)
-int N_save_pof_names=25;
 #define MAX_POLYGON_MODELS_NEW 167
 static array<char[FILENAME_LEN], MAX_POLYGON_MODELS_NEW> Save_pof_names;
 
@@ -184,7 +183,6 @@ static int convert_polymod(int polymod) {
     return (polymod >= N_polygon_models) ? polymod % N_polygon_models : polymod;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-int N_save_pof_names;
 static array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Save_pof_names;
 #endif
 
@@ -897,11 +895,11 @@ static int load_game_data(PHYSFS_File *LoadFile)
 		Current_level_name.next()[0]=0;
 
 	if (game_top_fileinfo_version >= 19) {	//load pof names
-		N_save_pof_names = PHYSFSX_readShort(LoadFile);
-		if (N_save_pof_names != 0x614d && N_save_pof_names != 0x5547) { // "Ma"de w/DMB beta/"GU"ILE
-			Assert(N_save_pof_names < MAX_POLYGON_MODELS);
+		const unsigned N_save_pof_names = PHYSFSX_readShort(LoadFile);
+		if (N_save_pof_names < MAX_POLYGON_MODELS)
 			PHYSFS_read(LoadFile,Save_pof_names,N_save_pof_names,FILENAME_LEN);
-		}
+		else
+			LevelError("Level contains bogus N_save_pof_names %#x; ignoring", N_save_pof_names);
 	}
 
 	//===================== READ PLAYER INFO ==========================
