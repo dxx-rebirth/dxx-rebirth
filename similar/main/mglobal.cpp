@@ -41,6 +41,7 @@ unsigned Num_segments;
 // Global array of vertices, common to one mine.
 array<vertex, MAX_VERTICES> Vertices;
 valptridx<active_door>::array_managed_type ActiveDoors;
+valptridx<segment>::array_managed_type Segments;
 }
 array<g3s_point, MAX_VERTICES> Segment_points;
 
@@ -97,7 +98,6 @@ namespace dsx {
 valptridx<cloaking_wall>::array_managed_type CloakingWalls;
 #endif
 valptridx<object>::array_managed_type Objects;
-valptridx<segment>::array_managed_type Segments;
 valptridx<trigger>::array_managed_type Triggers;
 valptridx<wall>::array_managed_type Walls;
 }
@@ -126,7 +126,7 @@ template class valptridx<dcx::active_door>;
 template class valptridx<dsx::cloaking_wall>;
 #endif
 template class valptridx<dsx::object>;
-template class valptridx<dsx::segment>;
+template class valptridx<dcx::segment>;
 template class valptridx<dsx::trigger>;
 template class valptridx<dsx::wall>;
 
@@ -142,9 +142,9 @@ template class valptridx<dsx::object>::index_mismatch_exception;
 template class valptridx<dsx::object>::index_range_exception;
 template class valptridx<dsx::object>::null_pointer_exception;
 
-template class valptridx<dsx::segment>::index_mismatch_exception;
-template class valptridx<dsx::segment>::index_range_exception;
-template class valptridx<dsx::segment>::null_pointer_exception;
+template class valptridx<dcx::segment>::index_mismatch_exception;
+template class valptridx<dcx::segment>::index_range_exception;
+template class valptridx<dcx::segment>::null_pointer_exception;
 
 template class valptridx<dsx::trigger>::index_range_exception;
 template class valptridx<dsx::wall>::index_range_exception;

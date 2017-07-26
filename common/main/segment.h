@@ -152,11 +152,7 @@ struct side
 	array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
 };
 
-}
-
 #ifdef dsx
-namespace dsx {
-
 struct segment {
 #if DXX_USE_EDITOR
 	segnum_t   segnum;     // segment number, not sure what it means
@@ -165,25 +161,22 @@ struct segment {
 	objnum_t objects;    // pointer to objects in this segment
 	array<segnum_t, MAX_SIDES_PER_SEGMENT>   children;    // indices of 6 children segments, front, left, top, right, bottom, back
 	//      If bit n (1 << n) is set, then side #n in segment has had light subtracted from original (editor-computed) value.
-	ubyte light_subtracted;
-#if defined(DXX_BUILD_DESCENT_II)
+	uint8_t light_subtracted;
+	/* if DXX_BUILD_DESCENT_II */
 	uint8_t slide_textures;
-#endif
+	/* endif */
 	array<unsigned, MAX_VERTICES_PER_SEGMENT> verts;    // vertex ids of 4 front and 4 back vertices
 	ubyte   special;    // what type of center this is
 	sbyte   matcen_num; // which center segment is associated with.
 	uint8_t station_idx;
-#if defined(DXX_BUILD_DESCENT_II)
-	ubyte   s2_flags;
-#endif
+	/* if DXX_BUILD_DESCENT_II */
+	uint8_t s2_flags;
+	/* endif */
 	fix     static_light;
 	array<side, MAX_SIDES_PER_SEGMENT>    sides;       // 6 sides
 };
 
-}
 #endif
-
-namespace dcx {
 
 struct count_segment_array_t : public count_array_t<segnum_t, MAX_SEGMENTS> {};
 
@@ -200,17 +193,10 @@ struct group
 	}
 };
 
-}
-
 #ifdef dsx
 #define Highest_segment_index (Segments.get_count() - 1)
-
-namespace dsx {
 DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(segment, seg, Segments);
-}
 #endif
-
-namespace dcx {
 
 // Globals from mglobal.c
 struct vertex : vms_vector

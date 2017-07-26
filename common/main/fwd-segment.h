@@ -20,15 +20,13 @@ constexpr std::integral_constant<std::size_t, 9000> MAX_SEGMENTS{};
 using segnum_t = uint16_t;
 }
 #ifdef dsx
-namespace dsx {
+namespace dcx {
 struct segment;
 }
-DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::segment, segnum_t, MAX_SEGMENTS);
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::segment, segnum_t, MAX_SEGMENTS);
 #endif
 
 #include "fwd-valptridx.h"
-
-#include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-array.h"
 
