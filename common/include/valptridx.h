@@ -41,13 +41,13 @@
 #endif
 
 #define DXX_VALPTRIDX_CHECK(SUCCESS_CONDITION,EXCEPTION,FAILURE_STRING,...)	\
-	DXX_BEGIN_COMPOUND_STATEMENT ( {	\
+	( DXX_BEGIN_COMPOUND_STATEMENT {	\
 		const bool dxx_valptridx_check_success_condition = (SUCCESS_CONDITION);	\
 		DXX_VALPTRIDX_STATIC_CHECK(dxx_valptridx_check_success_condition, dxx_trap_##EXCEPTION, FAILURE_STRING);	\
 		static_cast<void>(	\
 			dxx_valptridx_check_success_condition || (DXX_VALPTRIDX_REPORT_ERROR_(EXCEPTION,__VA_ARGS__), 0)	\
 		);	\
-	} ) DXX_END_COMPOUND_STATEMENT
+	} DXX_END_COMPOUND_STATEMENT )
 
 #ifndef DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 #define DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
