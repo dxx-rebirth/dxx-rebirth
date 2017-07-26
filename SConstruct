@@ -3292,6 +3292,8 @@ class DXXCommon(LazyObjectConstructor):
 					('register_compile_target', True, 'report compile targets to SCons core'),
 					('register_cpp_output_targets', None, None),
 					('enable_build_failure_summary', True, 'print failed nodes and their commands'),
+					('wrap_PHYSFS_read', False, None),
+					('wrap_PHYSFS_write', False, None),
 					# This is intentionally undocumented.  If a bug
 					# report includes a log with this set to False, the
 					# reporter will be asked to provide a log with the
@@ -3993,7 +3995,37 @@ class DXXArchive(DXXCommon):
 			value = getattr(user_settings, '%s_unchecked' % flags)
 			if value:
 				add_flags[flags] += CLVar(value)
-		env.MergeFlags(self.configure_added_environment_flags)
+		# Wrapping PHYSFS_read / PHYSFS_write is only useful when
+		# Valgrind poisoning is enabled.  If Valgrind poisoning is not
+		# enabled, the wrappers are not built (unless the appropriate
+		# preprocessor define is added to $CPPFLAGS by the user).  The
+		# link will fail if wrapping is enabled, Valgrind poisoning is
+		# disabled, and the preprocessor define is not set.
+		#
+		# Only $LINKFLAGS are set here.  The preprocessor define is only
+		# relevant to 2 source files, both of which delegate it to
+		# header common/misc/vg-wrap-physfs.h, so omit it from the
+		# general options to avoid unnecessary rebuilds of other source
+		# files.
+		if user_settings.wrap_PHYSFS_read:
+			add_flags['LINKFLAGS'].extend((
+					'-Wl,--wrap,PHYSFS_read',
+					'-Wl,--wrap,PHYSFS_readSBE16',
+					'-Wl,--wrap,PHYSFS_readSBE32',
+					'-Wl,--wrap,PHYSFS_readSLE16',
+					'-Wl,--wrap,PHYSFS_readSLE32',
+					))
+		if user_settings.wrap_PHYSFS_write:
+			add_flags['LINKFLAGS'].extend((
+					'-Wl,--wrap,PHYSFS_write',
+					'-Wl,--wrap,PHYSFS_writeSBE16',
+					'-Wl,--wrap,PHYSFS_writeSBE32',
+					'-Wl,--wrap,PHYSFS_writeSLE16',
+					'-Wl,--wrap,PHYSFS_writeSLE32',
+					'-Wl,--wrap,PHYSFS_writeULE16',
+					'-Wl,--wrap,PHYSFS_writeULE32',
+					))
+		env.MergeFlags(add_flags)
 
 class DXXProgram(DXXCommon):
 	static_archive_construction = {}
