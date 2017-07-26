@@ -486,18 +486,21 @@ static int check_norms(const vcsegptr_t segp,int sidenum,int facenum,const vcseg
 	else
 		return 0;
 }
+#endif
 
 //heavy-duty error checking
 int check_segment_connections(void)
 {
 	int errors=0;
 
-	range_for (const auto &&seg, vcsegptridx)
+	range_for (const auto &&seg, vmsegptridx)
 	{
 		for (int sidenum=0;sidenum<6;sidenum++) {
+#ifndef NDEBUG
 			const auto v = create_abs_vertex_lists(seg, sidenum);
 			const auto &num_faces = v.first;
 			const auto &vertex_list = v.second;
+#endif
 			auto csegnum = seg->children[sidenum];
 			if (IS_CHILD(csegnum)) {
 				auto cseg = vcsegptr(csegnum);
@@ -505,15 +508,22 @@ int check_segment_connections(void)
 
 				if (csidenum == side_none)
 				{
+					auto &rseg = *seg;
+					auto &rcseg = *cseg;
+					const unsigned segi = seg.get_unchecked_index();
+					LevelError("Segment #%u side %u has asymmetric link to segment %u.  Coercing to segment_none; Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}, Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}.", segi, sidenum, csegnum, segi, rseg.children[0], rseg.children[1], rseg.children[2], rseg.children[3], rseg.children[4], rseg.children[5], csegnum, rcseg.children[0], rcseg.children[1], rcseg.children[2], rcseg.children[3], rcseg.children[4], rcseg.children[5]);
+					rseg.children[sidenum] = segment_none;
 					errors = 1;
 					continue;
 				}
 
+#ifndef NDEBUG
 				const auto cv = create_abs_vertex_lists(cseg, csidenum);
 				const auto &con_num_faces = cv.first;
 				const auto &con_vertex_list = cv.second;
 
 				if (con_num_faces != num_faces) {
+					LevelError("Segment #%u side %u: wrong faces: con_num_faces=%lu num_faces=%lu.", seg.get_unchecked_index(), sidenum, con_num_faces, num_faces);
 					errors = 1;
 				}
 				else
@@ -527,6 +537,7 @@ int check_segment_connections(void)
 							 vertex_list[1] != con_vertex_list[(t+3)%4] ||
 							 vertex_list[2] != con_vertex_list[(t+2)%4] ||
 							 vertex_list[3] != con_vertex_list[(t+1)%4]) {
+							LevelError("Segment #%u side %u: bad vertices.", seg.get_unchecked_index(), sidenum);
 							errors = 1;
 						}
 						else
@@ -565,14 +576,12 @@ int check_segment_connections(void)
 							}
 						}
 					}
+#endif
 			}
 		}
 	}
-
 	return errors;
-
 }
-#endif
 
 // Used to become a constant based on editor, but I wanted to be able to set
 // this for omega blob find_point_seg calls.

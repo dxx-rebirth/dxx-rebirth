@@ -1434,13 +1434,18 @@ int load_level(const char * filename_passed)
 		editor_status_fmt("Loaded NEW mine %s, \"%s\"", filename, static_cast<const char *>(Current_level_name));
 	#endif
 
-	#if !defined(NDEBUG) && !defined(COMPACT_SEGS)
+#ifdef NDEBUG
+	if (!PLAYING_BUILTIN_MISSION)
+#endif
 	if (check_segment_connections())
+	{
+#ifndef NDEBUG
 		nm_messagebox( "ERROR", 1, "Ok", 
 				"Connectivity errors detected in\n"
 				"mine.  See monochrome screen for\n"
 				"details, and contact Matt or Mike." );
 	#endif
+	}
 
 
 #if defined(DXX_BUILD_DESCENT_II)
