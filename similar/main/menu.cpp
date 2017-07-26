@@ -1031,19 +1031,21 @@ void change_res()
 	screen_mode new_mode;
 	if (i == opt_cval) // set custom resolution and aspect
 	{
+		char revert[32];
 		char *x;
+		const char *errstr;
 		unsigned long w = strtoul(crestext, &x, 10), h;
 		screen_mode cmode;
-		if (*x != 'x' || ((h = strtoul(x + 1, &x, 10)), *x))
+		if (
+			((x == crestext || *x != 'x' || !x[1] || ((h = strtoul(x + 1, &x, 10)), *x)) && (errstr = "Entered resolution must\nbe formatted as\n<number>x<number>", true)) ||
+			((w < 320 || h < 200) && (errstr = "Entered resolution must\nbe at least 320x200", true))
+			)
 		{
-			nm_messagebox(TXT_WARNING, 1, "OK", "Entered resolution is bad.\nReverting ...");
-			cmode = {};
-		}
-		else if (w < 320 || h < 200)
-		{
-			// oh oh - the resolution is too small. Revert!
-			nm_messagebox( TXT_WARNING, 1, "OK", "Entered resolution is too small.\nReverting ..." );
-			cmode = {};
+			cmode = Game_screen_mode;
+			w = SM_W(cmode);
+			h = SM_H(cmode);
+			snprintf(revert, sizeof(revert), "Revert to %lux%lu", w, h);
+			nm_messagebox_str(TXT_WARNING, revert, errstr);
 		}
 		else
 		{
@@ -1052,9 +1054,12 @@ void change_res()
 		}
 		auto casp = cmode;
 		w = strtoul(casptext, &x, 10);
-		if (*x != 'x' || ((h = strtoul(x + 1, &x, 10)), *x))
+		if (
+			((x == casptext || *x != 'x' || !x[1] || ((h = strtoul(x + 1, &x, 10)), *x)) && (errstr = "Entered aspect ratio must\nbe formatted as\n<number>x<number>", true)) ||
+			((!w || !h) && (errstr = "Entered aspect ratio must\nnot use 0 term", true))
+			)
 		{
-			nm_messagebox(TXT_WARNING, 1, "OK", "Aspect resolution is bad.\nIgnoring ...");
+			nm_messagebox_str(TXT_WARNING, "IGNORE ASPECT RATIO", errstr);
 		}
 		else
 		{
@@ -1120,6 +1125,7 @@ static void input_config_keyboard()
 		}
 	};
 #undef DXX_INPUT_CONFIG_MENU
+#undef DXX_INPUT_SENSITIVITY
 	menu_items items;
 	newmenu_do1(nullptr, "Keyboard Calibration", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
@@ -1216,8 +1222,6 @@ static void input_config_joystick()
 		}
 	};
 #undef DXX_INPUT_CONFIG_MENU
-#undef DXX_INPUT_THROTTLE_SENSITIVITY
-#undef DXX_INPUT_SENSITIVITY
 	menu_items items;
 	newmenu_do1(nullptr, "Joystick Calibration", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
@@ -1236,6 +1240,9 @@ static void input_config_joystick()
 	}
 }
 #endif
+
+#undef DXX_INPUT_THROTTLE_SENSITIVITY
+#undef DXX_INPUT_SENSITIVITY
 
 namespace {
 
