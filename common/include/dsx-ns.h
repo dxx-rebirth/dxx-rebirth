@@ -43,10 +43,18 @@
  * the output shows the comment, which explains which type of mistake is
  * being reported.
  */
-namespace dsx {	/* Force type mismatch on attempted nesting */
+namespace d1x {	/* Force type mismatch on attempted nesting */
 #	ifdef DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE
-	class dcx;	/* dcx declared inside dsx */
-	class dsx;	/* dsx declared inside dsx */
+	class dcx;	/* dcx declared inside d1x */
+	class d1x;	/* d1x declared inside d1x */
+	class d2x;	/* d2x declared inside d1x */
+#	endif
+}
+namespace d2x {	/* Force type mismatch on attempted nesting */
+#	ifdef DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE
+	class dcx;	/* dcx declared inside d2x */
+	class d1x;	/* d1x declared inside d2x */
+	class d2x;	/* d2x declared inside d2x */
 #	endif
 }
 #ifndef DXX_NO_USING_DSX
@@ -68,17 +76,21 @@ using namespace dsx;	// deprecated
  * the compiler to resolve.
  */
 class dsx;	/* dsx declared in common-only code */
+class d1x;	/* d1x declared in common-only code */
+class d2x;	/* d2x declared in common-only code */
 #endif
 
 #ifdef DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE
 namespace dcx {	/* Force type mismatch on attempted nesting */
 	class dcx;	/* dcx declared inside dcx */
-	class dsx;	/* dsx declared inside dcx */
+	class d1x;	/* d1x declared inside dcx */
+	class d2x;	/* d2x declared inside dcx */
 }
 
 namespace {
 	class dcx;	/* dcx declared inside anonymous */
-	class dsx;	/* dsx declared inside anonymous */
+	class d1x;	/* d1x declared inside anonymous */
+	class d2x;	/* d2x declared inside anonymous */
 }
 #else
 /* This empty namespace is required because, if
