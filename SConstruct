@@ -1959,14 +1959,29 @@ struct A {
 #include "compiler-exchange.h"
 '''
 		self.Cxx14Compile(context, text=f, main='return exchange(argc, 5)', msg='for C++14 exchange', successflags=_successflags)
+	implicit_tests.append(_implicit_test.RecordedTest('check_cxx14_tree_integer_sequence', "assume C++14 integer_sequence handles sequences longer than max template depth"))
 	@_custom_test
-	def check_cxx14_integer_sequence(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_INTEGER_SEQUENCE']}):
+	def check_cxx14_integer_sequence(self,context,
+			_successflags_simple={'CPPDEFINES' : ['DXX_HAVE_CXX14_INTEGER_SEQUENCE']},
+			_successflags_tree={'CPPDEFINES' : ['DXX_HAVE_CXX14_TREE_INTEGER_SEQUENCE']}
+			):
 		f = '''
 #include <utility>
 using std::integer_sequence;
 using std::index_sequence;
 '''
-		self.Cxx14Compile(context, text=f, msg='for C++14 integer_sequence', successflags=_successflags)
+		Cxx14Compile = self.Cxx14Compile
+		if Cxx14Compile(context, text=f, main='''
+/* This test could wrongly classify an implementation as depth-efficient
+** if the compiler permits very deep template instantiations.  In
+** practice, compilers limit the template depth enough that this should
+** not be an issue.
+**/
+std::make_index_sequence<10000> a;
+(void)a;
+''', msg='for depth-efficient C++14 integer_sequence', successflags=_successflags_tree):
+			return
+		Cxx14Compile(context, text=f, msg='for C++14 integer_sequence', successflags=_successflags_simple)
 	@_custom_test
 	def check_cxx14_make_unique(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_MAKE_UNIQUE']}):
 		f = '''

@@ -2,7 +2,7 @@
 #include <cstddef>
 #include "dxxsconf.h"
 
-#ifdef DXX_HAVE_CXX14_INTEGER_SEQUENCE
+#if defined(DXX_HAVE_CXX14_TREE_INTEGER_SEQUENCE) || defined(DXX_HAVE_CXX14_INTEGER_SEQUENCE)
 #include <utility>
 using std::index_sequence;
 #else
@@ -10,6 +10,10 @@ template <std::size_t...>
 struct index_sequence {};
 #endif
 
+#if defined(DXX_HAVE_CXX14_TREE_INTEGER_SEQUENCE)
+template <std::size_t N>
+using make_tree_index_sequence = std::make_index_sequence<N>;
+#else
 template <typename, std::size_t, typename>
 struct cat_index_sequence;
 
@@ -40,3 +44,4 @@ struct tree_index_sequence<1>
 
 template <std::size_t N>
 using make_tree_index_sequence = typename tree_index_sequence<N>::type;
+#endif
