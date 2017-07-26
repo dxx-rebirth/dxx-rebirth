@@ -140,7 +140,7 @@ static void powerup_grab_cheat_all();
 
 #if defined(DXX_BUILD_DESCENT_II)
 static void slide_textures(void);
-static void flicker_lights();
+static void flicker_lights(fvmsegptridx &vmsegptridx);
 #endif
 
 // Cheats
@@ -623,7 +623,7 @@ static void do_invulnerable_stuff(player_info &player_info)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void do_afterburner_stuff()
+static inline void do_afterburner_stuff(object_array &)
 {
 }
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -634,8 +634,10 @@ fix64	Time_flash_last_played;
 #define AFTERBURNER_LOOP_START	((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
 #define AFTERBURNER_LOOP_END		((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
 
-static void do_afterburner_stuff(void)
+static void do_afterburner_stuff(object_array &objects)
 {
+	auto &vmobjptr = objects.vmptr;
+	auto &vcobjptridx = objects.vcptridx;
 	static sbyte func_play = 0;
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
@@ -1398,7 +1400,7 @@ window_event_result GameProcessFrame()
 
 	update_player_stats();
 	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
-	do_afterburner_stuff();
+	do_afterburner_stuff(Objects);
 	do_cloak_stuff();
 	do_invulnerable_stuff(player_info);
 	remove_obsolete_stuck_objects();
@@ -1541,7 +1543,7 @@ window_event_result GameProcessFrame()
 #if defined(DXX_BUILD_DESCENT_II)
 	omega_charge_frame(player_info);
 	slide_textures();
-	flicker_lights();
+	flicker_lights(vmsegptridx);
 
 	//if the player is taking damage, give up guided missile control
 	if (local_player_shields_ref != player_shields)
@@ -1632,7 +1634,7 @@ unsigned Num_flickering_lights;
 
 constexpr fix flicker_timer_disabled = 0x80000000;
 
-static void flicker_lights()
+static void flicker_lights(fvmsegptridx &vmsegptridx)
 {
 	range_for (auto &f, partial_range(Flickering_lights, Num_flickering_lights))
 	{
@@ -1812,7 +1814,7 @@ int	Last_level_path_created = -1;
 //	------------------------------------------------------------------------------------------------------------------
 //	Create path for player from current segment to goal segment.
 //	Return true if path created, else return false.
-static int mark_player_path_to_segment(segnum_t segnum)
+static int mark_player_path_to_segment(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, segnum_t segnum)
 {
 	short		player_path_length=0;
 	int		player_hide_index=-1;
@@ -1865,7 +1867,7 @@ int create_special_path(void)
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (segp->children[j] == segment_exit)
 			{
-				return mark_player_path_to_segment(segp);
+				return mark_player_path_to_segment(vmobjptridx, vmsegptridx, segp);
 			}
 	}
 

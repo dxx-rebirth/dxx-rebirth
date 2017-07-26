@@ -126,9 +126,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dsx {
 static void StartNewLevelSecret(int level_num, int page_in_textures);
-static void InitPlayerPosition(int random_flag);
+static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, int random_flag);
 static void DoEndGame();
-static void filter_objects_from_level();
+static void filter_objects_from_level(fvmobjptr &vmobjptr);
 PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
 int	First_secret_visit = 1;
 }
@@ -216,17 +216,18 @@ static unsigned count_number_of_objects_of_type()
 #define count_number_of_hostages	count_number_of_objects_of_type<OBJ_HOSTAGE>
 
 //added 10/12/95: delete buddy bot if coop game.  Probably doesn't really belong here. -MT
-static void gameseq_init_network_players()
+static void gameseq_init_network_players(object_array &objects)
 {
 	int k,j;
 
 	// Initialize network player start locations and object numbers
 
-	ConsoleObject = &Objects.front();
+	ConsoleObject = &objects.front();
 	k = 0;
 	j = 0;
 	const auto multiplayer = Game_mode & GM_MULTI;
 	const auto multiplayer_coop = Game_mode & GM_MULTI_COOP;
+	auto &vmobjptridx = objects.vmptridx;
 	range_for (const auto &&o, vmobjptridx)
 	{
 		const auto type = o->type;
@@ -549,7 +550,8 @@ void update_player_stats()
 
 //go through this level and start any eclip sounds
 namespace dsx {
-static void set_sound_sources()
+
+static void set_sound_sources(fvcsegptridx &vcsegptridx)
 {
 	int sidenum;
 
@@ -786,7 +788,7 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	get_local_player() = save_player;
 
-	set_sound_sources();
+	set_sound_sources(vcsegptridx);
 
 #if DXX_USE_EDITOR
 	if (!EditorWindow)
@@ -799,7 +801,7 @@ void LoadLevel(int level_num,int page_in_textures)
 		piggy_load_level_data();
 #endif
 
-	gameseq_init_network_players();
+	gameseq_init_network_players(Objects);
 	p.restore();
 }
 }
@@ -966,7 +968,7 @@ static void StartSecretLevel()
 {
 	Assert(Player_dead_state == player_dead_state::no);
 
-	InitPlayerPosition(0);
+	InitPlayerPosition(vmobjptridx, vmsegptridx, 0);
 
 	verify_console_object();
 
@@ -1658,7 +1660,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 	init_smega_detonates();
 	init_thief_for_level();
 	if (!(Game_mode & GM_MULTI))
-		filter_objects_from_level();
+		filter_objects_from_level(vmobjptr);
 #endif
 
 	if (!(Game_mode & GM_MULTI) && !cheats.enabled)
@@ -1709,9 +1711,9 @@ void (bash_to_shield)(const vmobjptr_t i)
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 
-static void filter_objects_from_level()
+static void filter_objects_from_level(fvmobjptr &vmobjptr)
  {
-	range_for (const auto &&objp, vmobjptridx)
+	range_for (const auto &&objp, vmobjptr)
 	{
 		if (objp->type==OBJ_POWERUP)
 		{
@@ -1838,10 +1840,10 @@ class respawn_locations
 	unsigned max_usable_spawn_sites;
 	array<site, MAX_PLAYERS> sites;
 public:
-	respawn_locations()
+	respawn_locations(fvcsegptridx &vcsegptridx)
 	{
 		const auto player_num = Player_num;
-		const auto find_closest_player = [player_num](const obj_position &candidate) {
+		const auto find_closest_player = [player_num, &vcsegptridx](const obj_position &candidate) {
 			fix closest_dist = INT32_MAX;
 			const auto &&candidate_segp = vcsegptridx(candidate.segnum);
 			for (uint_fast32_t i = N_players; i--;)
@@ -1894,7 +1896,7 @@ public:
 namespace dsx {
 
 //initialize the player object position & orientation (at start of game, or new ship)
-static void InitPlayerPosition(int random_flag)
+static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, int random_flag)
 {
 	reset_cruise();
 	int NewPlayer=0;
@@ -1903,7 +1905,7 @@ static void InitPlayerPosition(int random_flag)
 		NewPlayer = Player_num;
 	else if (random_flag == 1)
 	{
-		const respawn_locations locations;
+		const respawn_locations locations(vcsegptridx);
 		if (!locations.get_usable_sites())
 			return;
 		uint_fast32_t trys=0;
@@ -1993,7 +1995,7 @@ static void StartLevel(int random_flag)
 {
 	assert(Player_dead_state == player_dead_state::no);
 
-	InitPlayerPosition(random_flag);
+	InitPlayerPosition(vmobjptridx, vmsegptridx, random_flag);
 
 	verify_console_object();
 

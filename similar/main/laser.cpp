@@ -357,7 +357,7 @@ constexpr vm_distance OMEGA_MAX_TRACKABLE_DIST = MAX_OMEGA_DIST; //	An object mu
 
 // Delete omega blobs further away than MAX_OMEGA_DIST
 // Since last omega blob has VERY high velocity it's impossible to ensure a constant travel distance on varying FPS. So delete if they exceed their maximum distance.
-static int omega_cleanup(const vmobjptridx_t weapon)
+static int omega_cleanup(fvcobjptr &vcobjptr, const vmobjptridx_t weapon)
 {
 	if (weapon->type != OBJ_WEAPON || get_weapon_id(weapon) != weapon_id_type::OMEGA_ID)
 		return 0;
@@ -554,7 +554,7 @@ void omega_charge_frame(player_info &player_info)
 // ---------------------------------------------------------------------------------
 //	*objp is the object firing the omega cannon
 //	*pos is the location from which the omega bolt starts
-static void do_omega_stuff(const vmobjptridx_t parent_objp, const vms_vector &firing_pos, const vmobjptridx_t weapon_objp)
+static void do_omega_stuff(fvcobjptr &vcobjptr, fvmsegptridx &vmsegptridx, const vmobjptridx_t parent_objp, const vms_vector &firing_pos, const vmobjptridx_t weapon_objp)
 {
 	vms_vector	goal_pos;
 	const auto pnum = get_player_id(parent_objp);
@@ -756,7 +756,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 				object_create_muzzle_flash(vmsegptridx(obj->segnum), obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
 		}
 
-		do_omega_stuff(parent, position, obj);
+		do_omega_stuff(vcobjptr, vmsegptridx, parent, position, obj);
 
 		return obj;
 	}
@@ -1263,7 +1263,7 @@ void calc_d_homer_tick()
 //	See if legal to keep tracking currently tracked object.  If not, see if another object is trackable.  If not, return -1,
 //	else return object number of tracking object.
 //	Computes and returns a fairly precise dot product.
-static imobjptridx_t track_track_goal(const imobjptridx_t track_goal, const vmobjptridx_t tracker, fix *dot, fix tick_count)
+static imobjptridx_t track_track_goal(fvcobjptr &vcobjptr, const imobjptridx_t track_goal, const vmobjptridx_t tracker, fix *dot, fix tick_count)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	if (object_is_trackable(track_goal, tracker, dot)) {
@@ -1330,7 +1330,7 @@ static imobjptridx_t track_track_goal(const imobjptridx_t track_goal, const vmob
 
 //-------------- Initializes a laser after Fire is pressed -----------------
 
-static imobjptridx_t Laser_player_fire_spread_delay(const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const fix delay_time, const int make_sound, const vms_vector &shot_orientation)
+static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const fix delay_time, const int make_sound, const vms_vector &shot_orientation)
 {
 	int			Fate;
 	vms_vector	LaserDir;
@@ -1493,7 +1493,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(const vmobjptridx_t obj, con
 //	-----------------------------------------------------------------------------------------------------------
 static imobjptridx_t Laser_player_fire_spread(const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const int make_sound, const vms_vector &shot_orientation)
 {
-	return Laser_player_fire_spread_delay(obj, laser_type, gun_num, spreadr, spreadu, 0, make_sound, shot_orientation);
+	return Laser_player_fire_spread_delay(vmsegptridx, obj, laser_type, gun_num, spreadr, spreadu, 0, make_sound, shot_orientation);
 }
 
 
@@ -1544,7 +1544,7 @@ void Flare_create(const vmobjptridx_t obj)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define	HOMING_MISSILE_SCALE	16
 
-static bool is_any_guided_missile(const vcobjptr_t obj)
+static bool is_any_guided_missile(fvcobjptr &vcobjptr, const vcobjptr_t obj)
 {
 	if (get_weapon_id(obj) != weapon_id_type::GUIDEDMISS_ID)
 		return false;
@@ -1587,7 +1587,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (omega_cleanup(obj))
+	if (omega_cleanup(vcobjptr, obj))
 		return;
 #endif
 
@@ -1611,7 +1611,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 #if defined(DXX_BUILD_DESCENT_I)
 	if (Weapon_info[get_weapon_id(obj)].homing_flag)
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (Weapon_info[get_weapon_id(obj)].homing_flag && !is_any_guided_missile(obj))
+	if (Weapon_info[get_weapon_id(obj)].homing_flag && !is_any_guided_missile(vcobjptr, obj))
 #endif
 	{
 		vms_vector		vector_to_object, temp_vec;
@@ -1635,7 +1635,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 #ifdef NEWHOMER
 			if (d_homer_tick_step)
 			{
-				const auto &&track_goal = track_track_goal(imobjptridx(obj->ctype.laser_info.track_goal), obj, &dot, d_homer_tick_count);
+				const auto &&track_goal = track_track_goal(vcobjptr, imobjptridx(obj->ctype.laser_info.track_goal), obj, &dot, d_homer_tick_count);
 
 				if (track_goal == get_local_player().objnum) {
 					fix	dist_to_player;
@@ -1700,7 +1700,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
                         }
 #else // old FPS-dependent homers - NOTE: I know this is very redundant but I want to keep the historical code 100% preserved to compare against potential changes in the above.
 			//	Make sure the object we are tracking is still trackable.
-			const auto &&track_goal = track_track_goal(imobjptridx(obj->ctype.laser_info.track_goal), obj, &dot, d_tick_count);
+			const auto &&track_goal = track_track_goalvcobjptr, (imobjptridx(obj->ctype.laser_info.track_goal), obj, &dot, d_tick_count);
 
 			if (track_goal == get_local_player().objnum) {
 				fix	dist_to_player;
@@ -2007,8 +2007,8 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, int level, int flags, in
 			Laser_player_fire( objp, weapon_id_type::PLASMA_ID, 0, 1, shot_orientation);
 			Laser_player_fire( objp, weapon_id_type::PLASMA_ID, 1, 0, shot_orientation);
 			if (nfires > 1) {
-				Laser_player_fire_spread_delay( objp, weapon_id_type::PLASMA_ID, 0, 0, 0, FrameTime/2, 1, shot_orientation);
-				Laser_player_fire_spread_delay( objp, weapon_id_type::PLASMA_ID, 1, 0, 0, FrameTime/2, 0, shot_orientation);
+				Laser_player_fire_spread_delay(vmsegptridx, objp, weapon_id_type::PLASMA_ID, 0, 0, 0, FrameTime/2, 1, shot_orientation);
+				Laser_player_fire_spread_delay(vmsegptridx, objp, weapon_id_type::PLASMA_ID, 1, 0, 0, FrameTime/2, 0, shot_orientation);
 			}
 			break;
 
@@ -2082,8 +2082,8 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, int level, int flags, in
 			Laser_player_fire( objp, weapon_id_type::PHOENIX_ID, 0, 1, shot_orientation);
 			Laser_player_fire( objp, weapon_id_type::PHOENIX_ID, 1, 0, shot_orientation);
 			if (nfires > 1) {
-				Laser_player_fire_spread_delay( objp, weapon_id_type::PHOENIX_ID, 0, 0, 0, FrameTime/2, 1, shot_orientation);
-				Laser_player_fire_spread_delay( objp, weapon_id_type::PHOENIX_ID, 1, 0, 0, FrameTime/2, 0, shot_orientation);
+				Laser_player_fire_spread_delay(vmsegptridx, objp, weapon_id_type::PHOENIX_ID, 0, 0, 0, FrameTime/2, 1, shot_orientation);
+				Laser_player_fire_spread_delay(vmsegptridx, objp, weapon_id_type::PHOENIX_ID, 1, 0, 0, FrameTime/2, 0, shot_orientation);
 			}
 			break;
 
@@ -2152,7 +2152,7 @@ bool laser_info::test_hitobj(const vcobjidx_t o) const
 
 //	-------------------------------------------------------------------------------------------
 //	if goal_obj == -1, then create random vector
-static imobjptridx_t create_homing_missile(const vmobjptridx_t objp, const imobjptridx_t goal_obj, weapon_id_type objtype, int make_sound)
+static imobjptridx_t create_homing_missile(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const imobjptridx_t goal_obj, weapon_id_type objtype, int make_sound)
 {
 	vms_vector	vector_to_goal;
 	//vms_vector	goal_pos;
@@ -2191,8 +2191,10 @@ struct miniparent
 
 //-----------------------------------------------------------------------------
 // Create the children of a smart bomb, which is a bunch of homing missiles.
-static void create_smart_children(const vmobjptridx_t objp, const uint_fast32_t num_smart_children, const miniparent parent)
+static void create_smart_children(object_array &objects, const vmobjptridx_t objp, const uint_fast32_t num_smart_children, const miniparent parent)
 {
+	auto &vcobjptridx = objects.vcptridx;
+	auto &vcobjptr = objects.vcptr;
 	unsigned numobjs = 0;
 	weapon_id_type blob_id;
 
@@ -2277,11 +2279,11 @@ static void create_smart_children(const vmobjptridx_t objp, const uint_fast32_t 
 		for (auto i = num_smart_children; i--;)
 		{
 			const auto &&sel_objnum = numobjs
-				? imobjptridx((numobjs == 1)
+				? objects.imptridx((numobjs == 1)
 					? objlist[0]
 					: get_random_different_object())
 				: object_none;
-			create_homing_missile(objp, sel_objnum, blob_id, (i==0)?1:0);
+			create_homing_missile(vmsegptridx, objp, sel_objnum, blob_id, (i==0)?1:0);
 		}
 	}
 }
@@ -2299,14 +2301,14 @@ void create_weapon_smart_children(const vmobjptridx_t objp)
 	if (wid == weapon_id_type::EARTHSHAKER_ID)
 		blast_nearby_glass(objp, Weapon_info[weapon_id_type::EARTHSHAKER_ID].strength[Difficulty_level]);
 #endif
-	create_smart_children(objp, NUM_SMART_CHILDREN, {objp->ctype.laser_info.parent_type, objp->ctype.laser_info.parent_num});
+	create_smart_children(Objects, objp, NUM_SMART_CHILDREN, {objp->ctype.laser_info.parent_type, objp->ctype.laser_info.parent_num});
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
 
 void create_robot_smart_children(const vmobjptridx_t objp, const uint_fast32_t num_smart_children)
 {
-	create_smart_children(objp, num_smart_children, {OBJ_ROBOT, objp});
+	create_smart_children(Objects, objp, num_smart_children, {OBJ_ROBOT, objp});
 }
 
 //give up control of the guided missile

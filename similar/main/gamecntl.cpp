@@ -218,8 +218,10 @@ int which_bomb()
 }
 #endif
 
-static void do_weapon_n_item_stuff()
+static void do_weapon_n_item_stuff(object_array &objects)
 {
+	auto &vmobjptridx = objects.vmptridx;
+	auto &vmobjptr = objects.vmptr;
 	auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;
 	if (Controls.state.fire_flare > 0)
@@ -1044,7 +1046,7 @@ static void kill_all_robots(void)
 //	Place player just outside exit.
 //	Kill all bots in mine.
 //	Yippee!!
-static void kill_and_so_forth(void)
+static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx)
 {
 	HUD_init_message_literal(HM_DEFAULT, "Killing, awarding, etc.!");
 
@@ -1139,7 +1141,7 @@ static void kill_buddy(void)
 #endif
 
 namespace dsx {
-static window_event_result HandleTestKey(int key)
+static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 {
 	switch (key)
 	{
@@ -1350,7 +1352,7 @@ static window_event_result HandleTestKey(int key)
 			if (Player_dead_state != player_dead_state::no)
 				return window_event_result::ignored;
 
-			kill_and_so_forth();
+			kill_and_so_forth(vmobjptridx, vmsegptridx);
 			break;
 		case KEY_DEBUGGED+KEY_G:
 			GameTime64 = (INT64_MAX) - (F1_0*10);
@@ -1587,7 +1589,7 @@ static window_event_result FinalCheats()
 
 	if (gotcha == &game_cheats::killreactor)
 	{
-		kill_and_so_forth();
+		kill_and_so_forth(vmobjptridx, vmsegptridx);
 	}
 
 	if (gotcha == &game_cheats::exitpath)
@@ -1918,7 +1920,7 @@ window_event_result ReadControls(const d_event &event)
 
 #ifndef RELEASE
 		{
-			window_event_result r = HandleTestKey(key);
+			window_event_result r = HandleTestKey(vmsegptridx, key);
 			if (r != window_event_result::ignored)
 				return r;
 		}
@@ -1950,7 +1952,7 @@ window_event_result ReadControls(const d_event &event)
 		}
 		if (Player_is_dead != player_dead_state::no)
 			return window_event_result::ignored;
-		do_weapon_n_item_stuff();
+		do_weapon_n_item_stuff(Objects);
 	}
 	return window_event_result::ignored;
 }

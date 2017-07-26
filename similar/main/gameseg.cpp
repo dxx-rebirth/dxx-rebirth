@@ -632,7 +632,7 @@ static imsegptridx_t trace_segs(const vms_vector &p0, const vmsegptridx_t oldseg
 //Tries to find a segment for a point, in the following way:
 // 1. Check the given segment
 // 2. Recursively trace through attached segments
-// 3. Check all the segmentns
+// 3. Check all the segments
 //Returns segnum if found, or -1
 imsegptridx_t find_point_seg(const vms_vector &p,const imsegptridx_t segnum)
 {

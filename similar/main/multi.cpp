@@ -630,7 +630,7 @@ void multi_sort_kill_list()
 	std::sort(range.begin(), range.end(), predicate);
 }
 
-static void print_kill_goal_tables()
+static void print_kill_goal_tables(fvcobjptr &vcobjptr)
 {
 	const auto &local_player = get_local_player();
 	const auto pnum = Player_num;
@@ -890,7 +890,7 @@ static void multi_compute_kill(const imobjptridx_t killer, const vmobjptridx_t k
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!", prepare_kill_name(killer_pnum, buf));
 			}
 
-			print_kill_goal_tables();
+			print_kill_goal_tables(vcobjptr);
 			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
 		}
@@ -1300,7 +1300,7 @@ static void kick_player(player &plr, netplayer_info &nplr)
 #endif
 }
 
-static void multi_send_message_end()
+static void multi_send_message_end(fvmobjptr &vmobjptr)
 {
 	char *mytempbuf;
 	int i;
@@ -1528,7 +1528,7 @@ window_event_result multi_message_input_sub(int key)
 			return window_event_result::handled;
 		case KEY_ENTER:
 			if ( multi_sending_message[Player_num] )
-				multi_send_message_end();
+				multi_send_message_end(vmobjptr);
 			else if ( multi_defining_message )
 				multi_define_macro_end();
 			game_flush_inputs();
@@ -1553,7 +1553,7 @@ window_event_result multi_message_input_sub(int key)
 							break;
 						}
 					}
-					multi_send_message_end();
+					multi_send_message_end(vmobjptr);
 					if ( ptext )    {
 						multi_sending_message[Player_num] = msgsend_typing;
 						multi_send_msgsend_state(msgsend_typing);
@@ -1583,7 +1583,7 @@ void multi_do_death(int)
 
 namespace dsx {
 
-static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
+static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, const uint8_t *const buf)
 {
 	ubyte weapon;
 	sbyte flags;
@@ -1680,7 +1680,7 @@ static void multi_do_message(const uint8_t *const cbuf)
 
 namespace dsx {
 
-static void multi_do_position(const playernum_t pnum, const ubyte *buf)
+static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum, const uint8_t *const buf)
 {
 	const auto obj = vmobjptridx(Players[pnum].objnum);
         int count = 1;
@@ -1732,8 +1732,10 @@ static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 	create_player_appearance_effect(obj);
 }
 
-static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
+static void multi_do_player_deres(object_array &objects, const playernum_t pnum, const uint8_t *const buf)
 {
+	auto &vmobjptridx = objects.vmptridx;
+	auto &vmobjptr = objects.vmptr;
 	// Only call this for players, not robots.  pnum is player number, not
 	// Object number.
 
@@ -1837,7 +1839,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 /*
  * Process can compute a kill. If I am a Client this might be my own one (see multi_send_kill()) but with more specific data so I can compute my kill correctly.
  */
-static void multi_do_kill(playernum_t, const ubyte *buf)
+static void multi_do_kill(object_array &objects, const uint8_t *const buf)
 {
 	int count = 1;
 	int type = static_cast<int>(buf[0]);
@@ -1876,7 +1878,7 @@ static void multi_do_kill(playernum_t, const ubyte *buf)
 		Bounty_target = buf[6];
 	}
 
-	multi_compute_kill(imobjptridx(killer), vmobjptridx(killed));
+	multi_compute_kill(objects.imptridx(killer), objects.vmptridx(killed));
 
 	if (Game_mode & GM_BOUNTY && multi_i_am_master()) // update in case if needed... we could attach this to this packet but... meh...
 		multi_send_bounty();
@@ -1886,7 +1888,7 @@ namespace dsx {
 
 //      Changed by MK on 10/20/94 to send NULL as object to net_destroy_controlcen if it got -1
 // which means not a controlcen object, but contained in another object
-static void multi_do_controlcen_destroy(const ubyte *buf)
+static void multi_do_controlcen_destroy(fimobjptridx &imobjptridx, const uint8_t *const buf)
 {
 	sbyte who;
 	objnum_t objnum = GET_INTEL_SHORT(buf + 1);
@@ -1907,7 +1909,7 @@ static void multi_do_controlcen_destroy(const ubyte *buf)
 	}
 }
 
-static void multi_do_escape(const ubyte *buf)
+static void multi_do_escape(fvmobjptridx &vmobjptridx, const uint8_t *const buf)
 {
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 	auto &plr = Players[buf[1]];
@@ -1937,7 +1939,7 @@ static void multi_do_escape(const ubyte *buf)
 	multi_make_player_ghost(buf[1]);
 }
 
-static void multi_do_remobj(const ubyte *buf)
+static void multi_do_remobj(fvmobjptr &vmobjptr, const uint8_t *const buf)
 {
 	short objnum; // which object to remove
 
@@ -2062,7 +2064,7 @@ static void multi_do_quit(const uint8_t *const buf)
 
 namespace dsx {
 
-static void multi_do_cloak(const playernum_t pnum)
+static void multi_do_cloak(fvmobjptr &vmobjptr, const playernum_t pnum)
 {
 	Assert(pnum < N_players);
 
@@ -2092,7 +2094,7 @@ static void multi_do_decloak(const playernum_t pnum)
 
 namespace dsx {
 
-static void multi_do_door_open(const ubyte *buf)
+static void multi_do_door_open(fvmwallptr &vmwallptr, const uint8_t *const buf)
 {
 	ubyte side;
 	const segnum_t segnum = GET_INTEL_SHORT(&buf[1]);
@@ -2137,7 +2139,7 @@ static void multi_do_door_open(const ubyte *buf)
 
 }
 
-static void multi_do_create_explosion(const playernum_t pnum)
+static void multi_do_create_explosion(fvmobjptridx &vmobjptridx, const playernum_t pnum)
 {
 	create_small_fireball_on_object(vmobjptridx(Players[pnum].objnum), F1_0, 1);
 }
@@ -2166,7 +2168,7 @@ static void multi_do_controlcen_fire(const ubyte *buf)
 	Laser_create_new_easy(to_target, objp->ctype.reactor_info.gun_pos[gun_num], objp, weapon_id_type::CONTROLCEN_WEAPON_NUM, 1);
 }
 
-static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
+static void multi_do_create_powerup(fvmobjptr &vmobjptr, fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
 {
 	int count = 1;
 	vms_vector new_pos;
@@ -2214,7 +2216,7 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 	object_create_explosion(segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
 }
 
-static void multi_do_play_sound(const playernum_t pnum, const ubyte *buf)
+static void multi_do_play_sound(fvcobjptridx &vcobjptridx, const playernum_t pnum, const uint8_t *const buf)
 {
 	int sound_num = buf[2];
 	fix volume = buf[3] << 12;
@@ -2228,7 +2230,7 @@ static void multi_do_play_sound(const playernum_t pnum, const ubyte *buf)
 
 }
 
-static void multi_do_score(const playernum_t pnum, const ubyte *buf)
+static void multi_do_score(fvmobjptr &vmobjptr, const playernum_t pnum, const uint8_t *const buf)
 {
 	if (pnum >= N_players)
 	{
@@ -2293,7 +2295,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	check_effect_blowup(*useg, side, hitpnt, laser, 0, 1);
 }
 
-static void multi_do_drop_marker (const playernum_t pnum, const ubyte *buf)
+static void multi_do_drop_marker(object_array &objects, fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
 {
 	int i;
 	int mesnum=buf[2];
@@ -2312,16 +2314,16 @@ static void multi_do_drop_marker (const playernum_t pnum, const ubyte *buf)
 
 	auto &mo = MarkerObject[mnum];
 	if (mo != object_none)
-		obj_delete(vmobjptridx(mo));
+		obj_delete(objects.vmptridx(mo));
 
-	const auto &&plr_objp = vcobjptr(Players[pnum].objnum);
+	const auto &&plr_objp = objects.vcptr(Players[pnum].objnum);
 	mo = drop_marker_object(position, vmsegptridx(plr_objp->segnum), plr_objp->orient, mnum);
 }
 
 }
 #endif
 
-static void multi_do_hostage_door_status(const ubyte *buf)
+static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, fvmwallptr &vmwallptr, const uint8_t *const buf)
 {
 	// Update hit point status of a door
 
@@ -3155,10 +3157,10 @@ public:
 	{
 		return m_modified.test(i);
 	}
-	void process_powerup(const object &, powerup_type_t);
+	void process_powerup(fvmsegptridx &, const object &, powerup_type_t);
 };
 
-void update_item_state::process_powerup(const object &o, const powerup_type_t id)
+void update_item_state::process_powerup(fvmsegptridx &vmsegptridx, const object &o, const powerup_type_t id)
 {
 	uint_fast32_t count;
 	switch (id)
@@ -3316,7 +3318,7 @@ void multi_prep_level_objects()
 					if (!multi_powerup_is_allowed(id, AllowedItems, SpawnGrantedItems))
 						bash_to_shield(o);
 					else
-						duplicates.process_powerup(o, id);
+						duplicates.process_powerup(vmsegptridx, o, id);
 					continue;
 			}
 		}
@@ -3578,7 +3580,7 @@ void multi_send_drop_weapon(const vmobjptridx_t objnum, int seed)
 	multi_send_data<MULTI_DROP_WEAPON>(multibuf, count, 2);
 }
 
-static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
+static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, const uint8_t *const buf)
 {
 	int ammo,remote_objnum,seed;
 	const auto powerup_id = static_cast<powerup_type_t>(buf[1]);
@@ -3615,7 +3617,7 @@ void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum)
 	}
 }
 
-static void multi_do_vulcan_weapon_ammo_adjust(const ubyte *buf)
+static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const uint8_t *const buf)
 {
 	// which object to update
 	const objnum_t objnum = GET_INTEL_SHORT(buf + 1);
@@ -3674,7 +3676,7 @@ void multi_send_guided_info (const vmobjptr_t miss,char done)
 	multi_send_data<MULTI_GUIDED>(multibuf, count, 0);
 }
 
-static void multi_do_guided (const playernum_t pnum, const ubyte *buf)
+static void multi_do_guided(fvmobjptridx &vmobjptridx, const playernum_t pnum, const uint8_t *const buf)
 {
 	int count=3;
 
@@ -3744,7 +3746,7 @@ void multi_send_wall_status_specific(const playernum_t pnum,uint16_t wallnum,uby
 	multi_send_data_direct<MULTI_WALL_STATUS>(multibuf, count, pnum, 2);
 }
 
-static void multi_do_wall_status (const ubyte *buf)
+static void multi_do_wall_status(fvmwallptr &vmwallptr, const uint8_t *const buf)
 {
 	ubyte flag,type,state;
 
@@ -3783,7 +3785,7 @@ void multi_send_kill_goal_counts()
 	multi_send_data<MULTI_KILLGOALS>(multibuf, count, 2);
 }
 
-static void multi_do_kill_goal_counts(const ubyte *buf)
+static void multi_do_kill_goal_counts(fvmobjptr &vmobjptr, const uint8_t *const buf)
 {
 	int count=1;
 
@@ -3794,7 +3796,6 @@ static void multi_do_kill_goal_counts(const ubyte *buf)
 		player_info.KillGoalCount = buf[count];
 		count++;
 	}
-
 }
 
 void multi_send_heartbeat ()
@@ -3854,7 +3855,7 @@ void multi_check_for_killgoal_winner ()
 	else
 		HUD_init_message(HM_MULTI, "%s has the best score with %d kills!", static_cast<const char *>(bestplr->callsign), highest_kill_goal_count);
 
-	print_kill_goal_tables();
+	print_kill_goal_tables(vcobjptr);
 	HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 	net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
 }
@@ -3917,7 +3918,7 @@ static void multi_do_light (const ubyte *buf)
 	}
 }
 
-static void multi_do_flags (const playernum_t pnum, const ubyte *buf)
+static void multi_do_flags(fvmobjptr &vmobjptr, const playernum_t pnum, const uint8_t *const buf)
 {
 	uint flags;
 
@@ -3941,7 +3942,7 @@ void multi_send_drop_blobs (const playernum_t pnum)
 	multi_send_data<MULTI_DROP_BLOB>(multibuf, 2, 0);
 }
 
-static void multi_do_drop_blob (const playernum_t pnum)
+static void multi_do_drop_blob(fvmobjptr &vmobjptr, const playernum_t pnum)
 {
 	drop_afterburner_blobs (vmobjptr(Players[pnum].objnum), 2, i2f(5) / 2, -1);
 }
@@ -4055,7 +4056,7 @@ void multi_do_capture_bonus(const playernum_t pnum)
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",static_cast<const char *>(Players[pnum].callsign));
 
-			print_kill_goal_tables();
+			print_kill_goal_tables(vcobjptr);
 			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
 		}
@@ -4132,7 +4133,7 @@ void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf)
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",static_cast<const char *>(Players[pnum].callsign));
 
-			print_kill_goal_tables();
+			print_kill_goal_tables(vcobjptr);
 			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
 		}
@@ -5422,61 +5423,77 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 	switch(type)
 	{
 		case MULTI_POSITION:
-			multi_do_position(pnum, buf); break;
+			multi_do_position(vmobjptridx, pnum, buf);
+			break;
 		case MULTI_REAPPEAR:
 			multi_do_reappear(pnum, buf); break;
 		case MULTI_FIRE:
 		case MULTI_FIRE_TRACK:
 		case MULTI_FIRE_BOMB:
-			multi_do_fire(pnum, buf); break;
+			multi_do_fire(vmobjptridx, pnum, buf);
+			break;
 		case MULTI_REMOVE_OBJECT:
-			multi_do_remobj(buf); break;
+			multi_do_remobj(vmobjptr, buf);
+			break;
 		case MULTI_PLAYER_DERES:
-			multi_do_player_deres(pnum, buf); break;
+			multi_do_player_deres(Objects, pnum, buf);
+			break;
 		case MULTI_MESSAGE:
 			multi_do_message(buf); break;
 		case MULTI_QUIT:
 			multi_do_quit(buf); break;
 		case MULTI_CONTROLCEN:
-			multi_do_controlcen_destroy(buf); break;
+			multi_do_controlcen_destroy(imobjptridx, buf);
+			break;
 		case MULTI_DROP_WEAPON:
-			multi_do_drop_weapon(pnum, buf); break;
+			multi_do_drop_weapon(vmobjptr, pnum, buf);
+			break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_VULWPN_AMMO_ADJ:
-			multi_do_vulcan_weapon_ammo_adjust(buf); break;
+			multi_do_vulcan_weapon_ammo_adjust(vmobjptr, buf);
+			break;
 		case MULTI_SOUND_FUNCTION:
 			multi_do_sound_function(pnum, buf); break;
 		case MULTI_MARKER:
-			multi_do_drop_marker (pnum, buf); break;
+			multi_do_drop_marker(Objects, vmsegptridx, pnum, buf);
+			break;
 		case MULTI_DROP_FLAG:
 			multi_do_drop_flag(pnum, buf); break;
 		case MULTI_GUIDED:
-			multi_do_guided (pnum, buf); break;
+			multi_do_guided (vmobjptridx, pnum, buf);
+			break;
 		case MULTI_STOLEN_ITEMS:
 			multi_do_stolen_items(buf); break;
 		case MULTI_WALL_STATUS:
-			multi_do_wall_status(buf); break;
+			multi_do_wall_status(vmwallptr, buf);
+			break;
 		case MULTI_SEISMIC:
 			multi_do_seismic (buf); break;
 		case MULTI_LIGHT:
 			multi_do_light (buf); break;
 #endif
 		case MULTI_ENDLEVEL_START:
-			multi_do_escape(buf); break;
+			multi_do_escape(vmobjptridx, buf);
+			break;
 		case MULTI_CLOAK:
-			multi_do_cloak(pnum); break;
+			multi_do_cloak(vmobjptr, pnum);
+			break;
 		case MULTI_DECLOAK:
 			multi_do_decloak(pnum); break;
 		case MULTI_DOOR_OPEN:
-			multi_do_door_open(buf); break;
+			multi_do_door_open(vmwallptr, buf);
+			break;
 		case MULTI_CREATE_EXPLOSION:
-			multi_do_create_explosion(pnum); break;
+			multi_do_create_explosion(vmobjptridx, pnum);
+			break;
 		case MULTI_CONTROLCEN_FIRE:
 			multi_do_controlcen_fire(buf); break;
 		case MULTI_CREATE_POWERUP:
-			multi_do_create_powerup(pnum, buf); break;
+			multi_do_create_powerup(vmobjptr, vmsegptridx, pnum, buf);
+			break;
 		case MULTI_PLAY_SOUND:
-			multi_do_play_sound(pnum, buf); break;
+			multi_do_play_sound(vcobjptridx, pnum, buf);
+			break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_CAPTURE_BONUS:
 			multi_do_capture_bonus(pnum); break;
@@ -5502,7 +5519,8 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_ROBOT_FIRE:
 			multi_do_robot_fire(buf); break;
 		case MULTI_SCORE:
-			multi_do_score(pnum, buf); break;
+			multi_do_score(vmobjptr, pnum, buf);
+			break;
 		case MULTI_CREATE_ROBOT:
 			multi_do_create_robot(pnum, buf); break;
 		case MULTI_TRIGGER:
@@ -5513,9 +5531,11 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_EFFECT_BLOWUP:
 			multi_do_effect_blowup(pnum, buf); break;
 		case MULTI_FLAGS:
-			multi_do_flags(pnum, buf); break;
+			multi_do_flags(vmobjptr, pnum, buf);
+			break;
 		case MULTI_DROP_BLOB:
-			multi_do_drop_blob(pnum); break;
+			multi_do_drop_blob(vmobjptr, pnum);
+			break;
 #endif
 		case MULTI_BOSS_TELEPORT:
 			multi_do_boss_teleport(pnum, buf); break;
@@ -5530,7 +5550,8 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_CREATE_ROBOT_POWERUPS:
 			multi_do_create_robot_powerups(pnum, buf); break;
 		case MULTI_HOSTAGE_DOOR:
-			multi_do_hostage_door_status(buf); break;
+			multi_do_hostage_door_status(vmsegptridx, vmwallptr, buf);
+			break;
 		case MULTI_SAVE_GAME:
 			multi_do_save_game(buf); break;
 		case MULTI_RESTORE_GAME:
@@ -5538,7 +5559,8 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_HEARTBEAT:
 			multi_do_heartbeat (buf); break;
 		case MULTI_KILLGOALS:
-			multi_do_kill_goal_counts (buf); break;
+			multi_do_kill_goal_counts(vmobjptr, buf);
+			break;
 		case MULTI_DO_BOUNTY:
 			multi_do_bounty( buf ); break;
 		case MULTI_TYPING_STATE:
@@ -5546,9 +5568,11 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_GMODE_UPDATE:
 			multi_do_gmode_update( buf ); break;
 		case MULTI_KILL_HOST:
-			multi_do_kill(pnum, buf); break;
+			multi_do_kill(Objects, buf);
+			break;
 		case MULTI_KILL_CLIENT:
-			multi_do_kill(pnum, buf); break;
+			multi_do_kill(Objects, buf);
+			break;
 		case MULTI_PLAYER_INV:
 			multi_do_player_inventory( pnum, buf ); break;
 		default:

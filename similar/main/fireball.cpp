@@ -114,7 +114,7 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 	}
 }
 
-static imobjptridx_t object_create_explosion_sub(const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
+static imobjptridx_t object_create_explosion_sub(fvmobjptridx &vmobjptridx, const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
 {
 	auto obj = obj_create( OBJ_FIREBALL,vclip_type,segnum,position,&vmd_identity_matrix,size,
 					CT_EXPLOSION,MT_NONE,RT_FIREBALL);
@@ -300,17 +300,17 @@ static imobjptridx_t object_create_explosion_sub(const imobjptridx_t objp, const
 
 void object_create_muzzle_flash(const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
 {
-	object_create_explosion_sub(object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
+	object_create_explosion_sub(vmobjptridx, object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
 imobjptridx_t object_create_explosion(const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
 {
-	return object_create_explosion_sub(object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
+	return object_create_explosion_sub(vmobjptridx, object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
 imobjptridx_t object_create_badass_explosion(const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
 {
-	const imobjptridx_t rval = object_create_explosion_sub(objp, segnum, position, size, vclip_type, maxdamage, maxdistance, maxforce, parent );
+	const imobjptridx_t rval = object_create_explosion_sub(vmobjptridx, objp, segnum, position, size, vclip_type, maxdamage, maxdistance, maxforce, parent );
 
 	if ((objp != object_none) && (objp->type == OBJ_WEAPON))
 		create_weapon_smart_children(objp);
@@ -340,7 +340,7 @@ void explode_badass_weapon(const vmobjptridx_t obj,const vms_vector &pos)
 
 }
 
-static void explode_badass_object(const vmobjptridx_t objp, fix damage, fix distance, fix force)
+static void explode_badass_object(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, fix damage, fix distance, fix force)
 {
 	const auto &&rval = object_create_badass_explosion(objp, vmsegptridx(objp->segnum), objp->pos, objp->size,
 					get_explosion_vclip(objp, explosion_vclip_stage::s0),
@@ -354,13 +354,13 @@ static void explode_badass_object(const vmobjptridx_t objp, fix damage, fix dist
 //return the explosion object
 void explode_badass_player(const vmobjptridx_t objp)
 {
-	explode_badass_object(objp, F1_0*50, F1_0*40, F1_0*150);
+	explode_badass_object(vmsegptridx, objp, F1_0*50, F1_0*40, F1_0*150);
 }
 
 
 #define DEBRIS_LIFE (f1_0 * (PERSISTENT_DEBRIS?60:2))		//lifespan in seconds
 
-static void object_create_debris(const object_base &parent, int subobj_num)
+static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &parent, int subobj_num)
 {
 	Assert(parent.type == OBJ_ROBOT || parent.type == OBJ_PLAYER);
 
@@ -531,8 +531,10 @@ imsegidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 //	For all active net players, try to create a N segment path from the player.  If possible, return that
 //	segment.  If not possible, try another player.  After a few tries, use a random segment.
 //	Don't drop if control center in segment.
-static vmsegptridx_t choose_drop_segment(playernum_t drop_pnum)
+static vmsegptridx_t choose_drop_segment(segment_array &segments, playernum_t drop_pnum)
 {
+	auto &vcsegptridx = segments.vcptridx;
+	auto &vmsegptridx = segments.vmptridx;
 	playernum_t	pnum = 0;
 	int	cur_drop_depth;
 	int	count;
@@ -610,7 +612,6 @@ static vmsegptridx_t choose_drop_segment(playernum_t drop_pnum)
 			return vmsegptridx(static_cast<segnum_t>((d_rand() * Highest_segment_index) >> 15));
 	}
 	return vmsegptridx(segnum);
-
 }
 
 //	------------------------------------------------------------------------------------------------------
@@ -656,7 +657,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 		if (objnum == object_none)
 			return;
 
-		const auto &&segnum = choose_drop_segment(pnum);
+		const auto &&segnum = choose_drop_segment(Segments, pnum);
 		const auto &&new_pos = pick_random_point_in_seg(segnum);
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
 		objnum->pos = new_pos;
@@ -1098,7 +1099,7 @@ static void explode_model(object_base &obj)
 #if defined(DXX_BUILD_DESCENT_II)
 			if (!(i == 5 && obj.type == OBJ_ROBOT && get_robot_id(obj) == 44))	//energy sucker energy part
 #endif
-				object_create_debris(obj,i);
+				object_create_debris(vmsegptridx, obj, i);
 
 		//make parent object only draw center part
 		obj.rtype.pobj_info.subobj_flags = 1;

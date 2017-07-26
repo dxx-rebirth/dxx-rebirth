@@ -274,7 +274,7 @@ static void show_netplayerinfo()
 
 fix Show_view_text_timer = -1;
 
-static void draw_window_label(grs_canvas &canvas)
+static void draw_window_label(fvcobjptridx &vcobjptridx, grs_canvas &canvas)
 {
 	if ( Show_view_text_timer > 0 )
 	{
@@ -349,7 +349,7 @@ static void render_countdown_gauge(grs_canvas &canvas)
 static void game_draw_hud_stuff(grs_canvas &canvas)
 {
 #ifndef NDEBUG
-	draw_window_label(canvas);
+	draw_window_label(vcobjptridx, canvas);
 #endif
 
 	game_draw_multi_message(canvas);

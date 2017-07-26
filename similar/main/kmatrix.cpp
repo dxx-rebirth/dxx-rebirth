@@ -67,9 +67,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CENTERING_OFFSET(x) ((300 - (70 + (x)*25 ))/2)
 #define CENTERSCREEN (SWIDTH/2)
 #define KMATRIX_VIEW_SEC 7 // Time after reactor explosion until new level - in seconds
-static void kmatrix_redraw_coop();
+static void kmatrix_redraw_coop(fvcobjptr &vcobjptr);
 
-static void kmatrix_draw_item(grs_canvas &canvas, const int i, const playernum_array_t &sorted)
+static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const int i, const playernum_array_t &sorted)
 {
 	int x, y;
 
@@ -191,7 +191,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 	
 	if (Game_mode & GM_MULTI_COOP)
 	{
-		kmatrix_redraw_coop();
+		kmatrix_redraw_coop(vcobjptr);
 	}
 	else
 	{
@@ -222,7 +222,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 				const auto color = get_player_or_team_color(sorted[i]);
 				gr_set_fontcolor(canvas, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b),-1);
 			}
-			kmatrix_draw_item(canvas, i, sorted);
+			kmatrix_draw_item(vcobjptr, canvas, i, sorted);
 		}
 	}
 
@@ -230,7 +230,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 }
 }
 
-static void kmatrix_redraw_coop()
+static void kmatrix_redraw_coop(fvcobjptr &vcobjptr)
 {
 	playernum_array_t sorted;
 

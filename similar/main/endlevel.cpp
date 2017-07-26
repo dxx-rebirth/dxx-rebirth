@@ -949,7 +949,7 @@ static fix satellite_size = i2f(400);
 #define SATELLITE_HEIGHT	((satellite_size*9)/4)		//((satellite_size*5)/2)
 
 constexpr vms_vector vmd_zero_vector{};
-static void render_external_scene(grs_canvas &canvas, fix eye_offset)
+static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas, fix eye_offset)
 {
 #if DXX_USE_OGL
 	int orig_Render_depth = Render_depth;
@@ -1094,7 +1094,7 @@ void draw_stars(grs_canvas &canvas)
 
 }
 
-static void endlevel_render_mine(grs_canvas &canvas, fix eye_offset)
+static void endlevel_render_mine(fvmsegptridx &vmsegptridx, grs_canvas &canvas, fix eye_offset)
 {
 	Viewer_eye = Viewer->pos;
 
@@ -1134,9 +1134,9 @@ void render_endlevel_frame(grs_canvas &canvas, fix eye_offset)
 	g3_start_frame(canvas);
 
 	if (Endlevel_sequence < EL_OUTSIDE)
-		endlevel_render_mine(canvas, eye_offset);
+		endlevel_render_mine(vmsegptridx, canvas, eye_offset);
 	else
-		render_external_scene(canvas, eye_offset);
+		render_external_scene(vcobjptridx, canvas, eye_offset);
 
 	g3_end_frame();
 }

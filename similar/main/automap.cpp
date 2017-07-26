@@ -263,7 +263,7 @@ array<objnum_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_se
 namespace dsx {
 static void draw_all_edges(grs_canvas &, automap *am);
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void DrawMarkers(grs_canvas &, automap *)
+static inline void DrawMarkers(fvcobjptr &, grs_canvas &, automap *)
 {
 }
 
@@ -358,7 +358,7 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap *am, unsigned num
 	}
 }
 
-static void DropMarker(const object &plrobj, const unsigned player_marker_num)
+static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, const object &plrobj, const unsigned player_marker_num)
 {
 	int marker_num = (Player_num*2)+player_marker_num;
 
@@ -391,7 +391,7 @@ void DropBuddyMarker(const vmobjptr_t objp)
 
 #define MARKER_SPHERE_SIZE 0x58000
 
-static void DrawMarkers(grs_canvas &canvas, automap *const am)
+static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap *const am)
 {
 	static int cyc=10,cycdir=1;
 
@@ -620,7 +620,7 @@ static void automap_apply_input(automap *am, const vms_matrix &plrorient, const 
 	}
 }
 
-static void draw_automap(automap *am)
+static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 {
 	int i;
 	if ( am->leave_mode==0 && am->controls.state.automap && (timer_query()-am->entry_time)>LEAVE_TIME)
@@ -699,7 +699,7 @@ static void draw_automap(automap *am)
 	const auto closest_color = BM_XRGB(self_ship_rgb.r, self_ship_rgb.g, self_ship_rgb.b);
 	draw_player(canvas, vcobjptr(get_local_player().objnum), closest_color);
 
-	DrawMarkers(canvas, am);
+	DrawMarkers(vcobjptr, canvas, am);
 	
 	// Draw player(s)...
 	if ( (Game_mode & (GM_TEAM | GM_MULTI_COOP)) || (Netgame.game_flag.show_on_map) )	{
@@ -715,7 +715,7 @@ static void draw_automap(automap *am)
 		}
 	}
 
-	range_for (const auto &&objp, vmobjptridx)
+	range_for (const auto &&objp, vcobjptr)
 	{
 		switch( objp->type )	{
 		case OBJ_HOSTAGE:
@@ -971,7 +971,7 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 				auto &plrobj = get_local_plrobj();
 				automap_apply_input(am, plrobj.orient, plrobj.pos);
 			}
-			draw_automap(am);
+			draw_automap(vcobjptr, am);
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
@@ -1257,7 +1257,7 @@ static void add_one_unknown_edge( automap *am, int va, int vb )
 		ef.first.flags |= EF_FRONTIER;		// Mark as a border edge
 }
 
-static void add_segment_edges(automap *am, const vcsegptridx_t seg)
+static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automap *am, const vcsegptridx_t seg)
 {
 	ubyte	color;
 	const auto &segnum = seg;
@@ -1420,7 +1420,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 			if (segp->segnum != segment_none)
 #endif
 			{
-				add_segment_edges(am, segp);
+				add_segment_edges(vcsegptr, vcwallptr, am, segp);
 			}
 		}
 	} else {
@@ -1431,7 +1431,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 			if (segp->segnum != segment_none)
 #endif
 				if (Automap_visited[segp]) {
-					add_segment_edges(am, segp);
+					add_segment_edges(vcsegptr, vcwallptr, am, segp);
 				}
 		}
 		range_for (const auto &&segp, vcsegptridx)
@@ -1530,7 +1530,7 @@ window_event_result MarkerInputMessage(int key)
 			break;
 		case KEY_ENTER:
 			MarkerMessage[(Player_num*2)+MarkerBeingDefined] = Marker_input;
-			DropMarker(get_local_plrobj(), MarkerBeingDefined);
+			DropMarker(vmobjptridx, vmsegptridx, get_local_plrobj(), MarkerBeingDefined);
 			LastMarkerDropped = MarkerBeingDefined;
 			/* fallthrough */
 		case KEY_F8:

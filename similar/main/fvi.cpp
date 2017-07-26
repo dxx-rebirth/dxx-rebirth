@@ -960,7 +960,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 									goto quit_looking;		//we've looked a long time, so give up
 
 								fvi_info::segment_array_t temp_seglist;
-								sub_hit_type = fvi_sub(sub_hit_point, sub_hit_seg, p0, vcsegptridx(newsegnum), p1, rad, thisobjnum, ignore_obj_list, flags, temp_seglist, startseg, visited);
+								sub_hit_type = fvi_sub(sub_hit_point, sub_hit_seg, p0, startseg.absolute_sibling(newsegnum), p1, rad, thisobjnum, ignore_obj_list, flags, temp_seglist, startseg, visited);
 
 								if (sub_hit_type != HIT_NONE) {
 

@@ -2851,7 +2851,7 @@ void show_mousefs_indicator(grs_canvas &canvas, int mx, int my, int mz, int x, i
 	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
 }
 
-static void hud_show_kill_list(grs_canvas &canvas)
+static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
 {
 	playernum_t n_players;
 	playernum_array_t player_list;
@@ -3008,7 +3008,7 @@ static void hud_show_kill_list(grs_canvas &canvas)
 }
 
 //returns true if viewer can see object
-static int see_object(const vcobjptridx_t objnum)
+static int see_object(fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
 {
 	fvi_query fq;
 	int hit_type;
@@ -3031,6 +3031,7 @@ static int see_object(const vcobjptridx_t objnum)
 
 //show names of teammates & players carrying flags
 namespace dsx {
+
 void show_HUD_names(grs_canvas &canvas)
 {
 	for (playernum_t pnum=0;pnum<N_players;pnum++)
@@ -3070,7 +3071,7 @@ void show_HUD_names(grs_canvas &canvas)
 			(is_bounty_target || ((game_mode_capture_flag() || game_mode_hoard()) && (pl_flags & PLAYER_FLAGS_FLAG)));
 #endif
 
-		if ((show_name || show_typing || show_indi) && see_object(objp))
+		if ((show_name || show_typing || show_indi) && see_object(vcobjptridx, objp))
 		{
 			auto player_point = g3_rotate_point(objp->pos);
 			if (player_point.p3_codes == 0) //on screen
@@ -3261,7 +3262,7 @@ void draw_hud(grs_canvas &canvas, const object &plrobj)
 		if (PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR)
 			hud_show_lives(canvas, player_info, multires_gauge_graphic);
 		if (Game_mode&GM_MULTI && Show_kill_list)
-			hud_show_kill_list(canvas);
+			hud_show_kill_list(vcobjptr, canvas);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
 			show_reticle(canvas, player_info, PlayerCfg.ReticleType, 1);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)

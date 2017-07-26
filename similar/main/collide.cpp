@@ -124,7 +124,7 @@ static int check_collision_delayfunc_exec()
 //	-------------------------------------------------------------------------------------------------------------
 //	The only reason this routine is called (as of 10/12/94) is so Brain guys can open doors.
 namespace dsx {
-static void collide_robot_and_wall(object &robot, const vmsegptridx_t hitseg, short hitwall, const vms_vector &)
+static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const vmsegptridx_t hitseg, short hitwall, const vms_vector &)
 {
 	const ubyte robot_id = get_robot_id(robot);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -527,7 +527,7 @@ bool scrape_player_on_wall(const vmobjptridx_t obj, const vmsegptridx_t hitseg, 
 	return false;
 }
 
-static int effect_parent_is_guidebot(const laser_parent &laser)
+static int effect_parent_is_guidebot(fvcobjptr &vcobjptr, const laser_parent &laser)
 {
 	if (laser.parent_type != OBJ_ROBOT)
 		return 0;
@@ -558,7 +558,7 @@ int check_effect_blowup(const vmsegptridx_t seg,int side,const vms_vector &pnt, 
 	db=0;
 
 	// If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
-	trigger_check = !(blower.parent_type == OBJ_PLAYER || effect_parent_is_guidebot(blower));
+	trigger_check = !(blower.parent_type == OBJ_PLAYER || effect_parent_is_guidebot(vcobjptr, blower));
 	// For Multiplayer perform an additional check to see if it's a local-player hit. If a remote player hits, a packet is expected (remote 1) which would be followed by MULTI_TRIGGER to ensure sync with the switch and the actual trigger.
 	if (Game_mode & GM_MULTI)
 		trigger_check = (!(blower.parent_type == OBJ_PLAYER && (blower.parent_num == get_local_player().objnum || remote)));
@@ -705,8 +705,10 @@ int check_effect_blowup(const vmsegptridx_t seg,int side,const vms_vector &pnt, 
 // int Show_seg_and_side = 0;
 
 namespace dsx {
-static window_event_result collide_weapon_and_wall(const vmobjptridx_t weapon, const vmsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
+static window_event_result collide_weapon_and_wall(object_array &objects, fvmsegptridx &vmsegptridx, const vmobjptridx_t weapon, const vmsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
 {
+	auto &imobjptridx = objects.imptridx;
+	auto &vcobjptr = objects.vcptr;
 	int blew_up;
 	int playernum;
 	auto result = window_event_result::handled;
@@ -715,6 +717,7 @@ static window_event_result collide_weapon_and_wall(const vmobjptridx_t weapon, c
 	if (weapon->mtype.phys_info.flags & PF_BOUNCE)
 		return window_event_result::ignored;
 #elif defined(DXX_BUILD_DESCENT_II)
+	auto &vcobjptridx = objects.vcptridx;
 	if (get_weapon_id(weapon) == weapon_id_type::OMEGA_ID)
 		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return window_event_result::ignored;
@@ -767,7 +770,7 @@ static window_event_result collide_weapon_and_wall(const vmobjptridx_t weapon, c
 
 	int	robot_escort;
 #if defined(DXX_BUILD_DESCENT_II)
-	robot_escort = effect_parent_is_guidebot(weapon->ctype.laser_info);
+	robot_escort = effect_parent_is_guidebot(vcobjptr, weapon->ctype.laser_info);
 	if (robot_escort) {
 
 		if (Game_mode & GM_MULTI)
@@ -1505,7 +1508,7 @@ static fix64 Last_time_buddy_gave_hint;
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if damage done to boss, else return false.
-static boss_weapon_collision_result do_boss_weapon_collision(const vcobjptridx_t robotptridx, object &weapon, const vms_vector &collision_point)
+static boss_weapon_collision_result do_boss_weapon_collision(fvmsegptridx &vmsegptridx, const vcobjptridx_t robotptridx, object &weapon, const vms_vector &collision_point)
 {
 	const object_base &robot = robotptridx;
 	int	d2_boss_index;
@@ -1621,7 +1624,7 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	const boss_weapon_collision_result damage_flag = (robptr->boss_flag >= BOSS_D2)
-		? do_boss_weapon_collision(robot, weapon, collision_point)
+		? do_boss_weapon_collision(vmsegptridx, robot, weapon, collision_point)
 		: boss_weapon_collision_result::normal;
 #endif
 
@@ -2643,11 +2646,14 @@ window_event_result collide_object_with_wall(const vmobjptridx_t A, fix hitspeed
 		Error( "A object of type NONE hit a wall!\n");
 		break;
 	case OBJ_PLAYER:		collide_player_and_wall(A,hitspeed,hitseg,hitwall,hitpt); break;
-	case OBJ_WEAPON:		return collide_weapon_and_wall(A,hitseg,hitwall,hitpt); break;
+		case OBJ_WEAPON:
+			return collide_weapon_and_wall(Objects, vmsegptridx, A, hitseg, hitwall, hitpt);
 	case OBJ_DEBRIS:		collide_debris_and_wall(A,hitseg,hitwall,hitpt); break;
 
 	case OBJ_FIREBALL:	break;		//collide_fireball_and_wall(A,hitspeed,hitseg,hitwall,hitpt);
-	case OBJ_ROBOT:		collide_robot_and_wall(A,hitseg,hitwall,hitpt); break;
+		case OBJ_ROBOT:
+			collide_robot_and_wall(vcwallptr, A, hitseg, hitwall, hitpt);
+			break;
 	case OBJ_HOSTAGE:		break;		//collide_hostage_and_wall(A,hitspeed,hitseg,hitwall,hitpt);
 	case OBJ_CAMERA:		break;		//collide_camera_and_wall(A,hitspeed,hitseg,hitwall,hitpt);
 	case OBJ_POWERUP:		break;		//collide_powerup_and_wall(A,hitspeed,hitseg,hitwall,hitpt);

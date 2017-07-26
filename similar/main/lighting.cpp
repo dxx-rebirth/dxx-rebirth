@@ -88,7 +88,8 @@ static void add_light_dot_square(g3s_lrgb &d, const g3s_lrgb &light, const fix &
 
 // ----------------------------------------------------------------------------------------------
 namespace dsx {
-static void apply_light(const g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg, const vms_vector &obj_pos, const unsigned n_render_vertices, array<unsigned, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list, const icobjptridx_t objnum)
+
+static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg, const vms_vector &obj_pos, const unsigned n_render_vertices, array<unsigned, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list, const icobjptridx_t objnum)
 {
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 	{
@@ -217,7 +218,7 @@ static void apply_light(const g3s_lrgb obj_light_emission, const vcsegptridx_t o
 #define FLASH_SCALE             (3*F1_0/FLASH_LEN_FIXED_SECONDS)
 
 // ----------------------------------------------------------------------------------------------
-static void cast_muzzle_flash_light(int n_render_vertices, array<unsigned, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list)
+static void cast_muzzle_flash_light(fvmsegptridx &vmsegptridx, int n_render_vertices, array<unsigned, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list)
 {
 	fix64 current_time;
 	short time_since_flash;
@@ -233,7 +234,7 @@ static void cast_muzzle_flash_light(int n_render_vertices, array<unsigned, MAX_V
 			{
 				g3s_lrgb ml;
 				ml.r = ml.g = ml.b = ((FLASH_LEN_FIXED_SECONDS - time_since_flash) * FLASH_SCALE);
-				apply_light(ml, vmsegptridx(i.segnum), i.pos, n_render_vertices, render_vertices, vert_segnum_list, object_none);
+				apply_light(vmsegptridx, ml, vmsegptridx(i.segnum), i.pos, n_render_vertices, render_vertices, vert_segnum_list, object_none);
 			}
 			else
 			{
@@ -528,14 +529,14 @@ void set_dynamic_light(render_state_t &rstate)
 		}
 	}
 
-	cast_muzzle_flash_light(n_render_vertices, render_vertices, vert_segnum_list);
+	cast_muzzle_flash_light(vmsegptridx, n_render_vertices, render_vertices, vert_segnum_list);
 
 	range_for (const auto &&obj, vmobjptridx)
 	{
 		const auto &&obj_light_emission = compute_light_emission(obj);
 
 		if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
-			apply_light(obj_light_emission, vmsegptridx(obj->segnum), obj->pos, n_render_vertices, render_vertices, vert_segnum_list, obj);
+			apply_light(vmsegptridx, obj_light_emission, vmsegptridx(obj->segnum), obj->pos, n_render_vertices, render_vertices, vert_segnum_list, obj);
 	}
 }
 

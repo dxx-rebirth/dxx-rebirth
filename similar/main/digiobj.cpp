@@ -346,7 +346,7 @@ static void digi_link_sound_common(icobjptr_t viewer, sound_object &so, const vm
 	else
 #endif
 	{
-		digi_get_sound_loc(viewer->orient, viewer->pos, vcsegptridx(viewer->segnum),
+		digi_get_sound_loc(viewer->orient, viewer->pos, segnum.absolute_sibling(viewer->segnum),
                        pos, segnum, so.max_volume,
                        &so.volume, &so.pan, so.max_distance);
 		digi_start_sound_object(so);
@@ -411,7 +411,7 @@ void digi_link_sound_to_object( int soundnum, const vcobjptridx_t objnum, int fo
 	digi_link_sound_to_object2( soundnum, objnum, forever, max_volume, vm_distance{256*F1_0});
 }
 
-static void digi_link_sound_to_pos2(int org_soundnum, const vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
+static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum, const vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
 {
 	const auto &&viewer = vcobjptr(Viewer);
 	int volume, pan;
@@ -432,7 +432,7 @@ static void digi_link_sound_to_pos2(int org_soundnum, const vcsegptridx_t segnum
 	if (!forever)
 	{
 		// Hack to keep sounds from building up...
-		digi_get_sound_loc(viewer->orient, viewer->pos, vcsegptridx(viewer->segnum), pos, segnum, max_volume, &volume, &pan, max_distance);
+		digi_get_sound_loc(viewer->orient, viewer->pos, segnum.absolute_sibling(viewer->segnum), pos, segnum, max_volume, &volume, &pan, max_distance);
 		digi_play_sample_3d(org_soundnum, pan, volume);
 		return;
 	}
@@ -451,7 +451,7 @@ static void digi_link_sound_to_pos2(int org_soundnum, const vcsegptridx_t segnum
 
 void digi_link_sound_to_pos(int soundnum, const vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume)
 {
-	digi_link_sound_to_pos2( soundnum, segnum, sidenum, pos, forever, max_volume, vm_distance{F1_0 * 256});
+	digi_link_sound_to_pos2(vcobjptr, soundnum, segnum, sidenum, pos, forever, max_volume, vm_distance{F1_0 * 256});
 }
 
 static void digi_kill_sound(sound_object &s)

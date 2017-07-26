@@ -820,8 +820,9 @@ static void validate_segment_wall(const vcsegptridx_t seg, side &side, const uns
 	}
 }
 
-static int load_game_data(PHYSFS_File *LoadFile)
+static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, PHYSFS_File *LoadFile)
 {
+	const auto &vcsegptridx = vmsegptridx;
 	short game_top_fileinfo_version;
 	int object_offset;
 	unsigned gs_num_objects;
@@ -1392,7 +1393,7 @@ int load_level(const char * filename_passed)
 	}
 
 	PHYSFSX_fseek(LoadFile,gamedata_offset,SEEK_SET);
-	game_err = load_game_data(LoadFile);
+	game_err = load_game_data(vmobjptridx, vmsegptridx, LoadFile);
 
 	if (game_err == -1) {   //error!!
 		return 3;
@@ -1699,7 +1700,7 @@ static int save_game_data(PHYSFS_File *SaveFile)
 // -----------------------------------------------------------------------------
 // Save game
 namespace dsx {
-static int save_level_sub(const char * filename)
+static int save_level_sub(fvmobjptridx &vmobjptridx, const char * filename)
 {
 	char temp_filename[PATH_MAX];
 	int minedata_offset=0,gamedata_offset=0;
@@ -1852,7 +1853,7 @@ int save_level(const char * filename)
 	//save_level_sub(filename, 0);	// just save compiled one
 
 	// Save compiled version...
-	r1 = save_level_sub(filename);
+	r1 = save_level_sub(vmobjptridx, filename);
 
 	return r1;
 }

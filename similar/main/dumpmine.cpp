@@ -96,7 +96,7 @@ const array<char[10], 7> Wall_names{{
 }
 
 static void dump_used_textures_level(PHYSFS_File *my_file, int level_num);
-static void say_totals(PHYSFS_File *my_file, const char *level_name);
+static void say_totals(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file, const char *level_name);
 
 namespace dsx {
 const array<char[9], MAX_OBJECT_TYPES> Object_type_names{{
@@ -204,7 +204,7 @@ static void warning_printf(PHYSFS_File *my_file, const char * format, ... )
 
 // ----------------------------------------------------------------------------
 namespace dsx {
-static void write_exit_text(PHYSFS_File *my_file)
+static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptridx, PHYSFS_File *my_file)
 {
 	int	j, count;
 
@@ -287,7 +287,7 @@ public:
 		label(p)
 	{
 	}
-	void check_wall(PHYSFS_File *const fp, const vcwallptridx_t wpi, const wall_key_t key)
+	void check_wall(const segment_array &segments, PHYSFS_File *const fp, const vcwallptridx_t wpi, const wall_key_t key)
 	{
 		auto &w = *wpi;
 		if (!(w.keys & key))
@@ -300,7 +300,7 @@ public:
 		}
 		else
 		{
-			const auto &&connect_side = find_connect_side(vcsegptridx(w.segnum), vcsegptr(seg));
+			const auto &&connect_side = find_connect_side(segments.vcptridx(w.segnum), segments.vcptr(seg));
 			if (connect_side == side)
 				return;
 			warning_printf(fp, "Warning: This door at seg %i, is different than the one at seg %i, side %i", w.segnum, seg, side);
@@ -331,7 +331,7 @@ public:
 }
 
 // ----------------------------------------------------------------------------
-static void write_key_text(PHYSFS_File *my_file)
+static void write_key_text(fvcobjptridx &vcobjptridx, segment_array &segments, fvcwallptridx &vcwallptridx, PHYSFS_File *my_file)
 {
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Key stuff:\n");
@@ -340,9 +340,9 @@ static void write_key_text(PHYSFS_File *my_file)
 
 	range_for (const auto &&w, vcwallptridx)
 	{
-		blue.check_wall(my_file, w, KEY_BLUE);
-		gold.check_wall(my_file, w, KEY_GOLD);
-		red.check_wall(my_file, w, KEY_RED);
+		blue.check_wall(segments, my_file, w, KEY_BLUE);
+		gold.check_wall(segments, my_file, w, KEY_GOLD);
+		red.check_wall(segments, my_file, w, KEY_RED);
 	}
 
 	blue.report_walls(my_file);
@@ -387,7 +387,7 @@ static void write_key_text(PHYSFS_File *my_file)
 }
 
 // ----------------------------------------------------------------------------
-static void write_control_center_text(PHYSFS_File *my_file)
+static void write_control_center_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 {
 	int	count, count2;
 
@@ -436,7 +436,7 @@ static void write_fuelcen_text(PHYSFS_File *my_file)
 }
 
 // ----------------------------------------------------------------------------
-static void write_segment_text(PHYSFS_File *my_file)
+static void write_segment_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 {
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Segment stuff:\n");
@@ -515,7 +515,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 
 // ----------------------------------------------------------------------------
 namespace dsx {
-static void write_wall_text(PHYSFS_File *my_file)
+static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptridx, PHYSFS_File *my_file)
 {
 	int	j;
 	array<int8_t, MAX_WALLS> wall_flags;
@@ -564,7 +564,7 @@ static void write_wall_text(PHYSFS_File *my_file)
 
 // ----------------------------------------------------------------------------
 namespace dsx {
-static void write_player_text(PHYSFS_File *my_file)
+static void write_player_text(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file)
 {
 	int	num_players=0;
 
@@ -644,7 +644,7 @@ void write_game_text_file(const char *filename)
 	}
 
 	dump_used_textures_level(my_file, 0);
-	say_totals(my_file, Gamesave_current_filename);
+	say_totals(vcobjptridx, my_file, Gamesave_current_filename);
 
 	PHYSFSX_printf(my_file, "\nNumber of segments:   %4i\n", Highest_segment_index+1);
 	PHYSFSX_printf(my_file, "Number of objects:    %4i\n", Highest_object_index+1);
@@ -654,25 +654,25 @@ void write_game_text_file(const char *filename)
 	PHYSFSX_printf(my_file, "Number of matcens:    %4i\n", Num_robot_centers);
 	PHYSFSX_printf(my_file, "\n");
 
-	write_segment_text(my_file);
+	write_segment_text(vcsegptridx, my_file);
 
 	write_fuelcen_text(my_file);
 
 	write_matcen_text(my_file);
 
-	write_player_text(my_file);
+	write_player_text(vcobjptridx, my_file);
 
-	write_wall_text(my_file);
+	write_wall_text(vcsegptridx, vcwallptridx, my_file);
 
 	write_trigger_text(my_file);
 
-	write_exit_text(my_file);
+	write_exit_text(vcsegptridx, vcwallptridx, my_file);
 
 	//	---------- Find control center segment ----------
-	write_control_center_text(my_file);
+	write_control_center_text(vcsegptridx, my_file);
 
 	//	---------- Show keyed walls ----------
-	write_key_text(my_file);
+	write_key_text(vcobjptridx, Segments, vcwallptridx, my_file);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -976,7 +976,7 @@ static void say_unused_walls(PHYSFS_File *my_file, const wall_buffer_type &tb)
 }
 #endif
 
-static void say_totals(PHYSFS_File *my_file, const char *level_name)
+static void say_totals(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file, const char *level_name)
 {
 	int	total_robots = 0;
 	int	objects_processed = 0;
@@ -1054,17 +1054,17 @@ static void say_totals_all(void)
 #if defined(DXX_BUILD_DESCENT_I)
 	for (i=0; i<NUM_SHAREWARE_LEVELS; i++) {
 		load_level(Shareware_level_names[i]);
-		say_totals(my_file, Shareware_level_names[i]);
+		say_totals(vcobjptridx, my_file, Shareware_level_names[i]);
 	}
 
 	for (i=0; i<NUM_REGISTERED_LEVELS; i++) {
 		load_level(Registered_level_names[i]);
-		say_totals(my_file, Registered_level_names[i]);
+		say_totals(vcobjptridx, my_file, Registered_level_names[i]);
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	for (i=First_dump_level; i<=Last_dump_level; i++) {
 		load_level(Adam_level_names[i]);
-		say_totals(my_file, Adam_level_names[i]);
+		say_totals(vcobjptridx, my_file, Adam_level_names[i]);
 	}
 #endif
 }
