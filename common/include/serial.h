@@ -25,6 +25,9 @@ namespace serial {
 template <typename A1, typename... Args>
 class message;
 
+template <typename>
+class message_type;
+
 	/* Classifiers to identify whether a type is a message<...> */
 template <typename>
 class is_message : public std::false_type
@@ -38,31 +41,22 @@ class is_message<message<A1, Args...>> : public std::true_type
 
 namespace detail {
 
-template <std::size_t N>
-struct maximum_size_base
+template <std::size_t maximum, std::size_t minimum = maximum>
+struct size_base
 {
-	using maximum_size_type = std::integral_constant<std::size_t, N>;
+	using maximum_size_type = std::integral_constant<std::size_t, maximum>;
+	using minimum_size_type = std::integral_constant<std::size_t, minimum>;
 	static constexpr maximum_size_type maximum_size = {};
+	static constexpr minimum_size_type minimum_size = {};
 };
 
-template <std::size_t N>
-constexpr typename maximum_size_base<N>::maximum_size_type maximum_size_base<N>::maximum_size;
+template <std::size_t maximum, std::size_t minimum>
+constexpr typename size_base<maximum, minimum>::maximum_size_type size_base<maximum, minimum>::maximum_size;
+
+template <std::size_t maximum, std::size_t minimum>
+constexpr typename size_base<maximum, minimum>::minimum_size_type size_base<maximum, minimum>::minimum_size;
 
 }
-
-template <typename T>
-class integral_type :
-	public detail::maximum_size_base<sizeof(T)>
-{
-	static_assert(std::is_integral<T>::value, "integral_type used on non-integral type");
-};
-
-template <typename T>
-class enum_type :
-	public detail::maximum_size_base<sizeof(T)>
-{
-	static_assert(std::is_enum<T>::value, "enum_type used on non-enum type");
-};
 
 template <typename>
 class is_cxx_array : public std::false_type
@@ -99,12 +93,6 @@ static typename std::enable_if<is_cxx_array<A1>::value, void>::type process_buff
 
 template <typename Accessor, typename A1, typename... Args>
 static void process_buffer(Accessor &, const message<A1, Args...> &);
-
-template <typename>
-class class_type;
-
-template <typename>
-class array_type;
 
 class endian_access
 {
@@ -332,15 +320,6 @@ static inline const T &extract_value(const std::tuple<T> &t)
 	return std::get<0>(t);
 }
 
-/* Never defined.  Used only in unevaluated context for decltype.
- * If minimum_size exists, it is used.  Otherwise, maximum_size is used.
- */
-template <typename T>
-typename T::minimum_size_type get_minimum_size(T *);
-
-template <typename T>
-typename T::maximum_size_type get_minimum_size(...);
-
 template <typename T>
 struct message_dispatch_base
 {
@@ -421,6 +400,9 @@ class assert_udt_message_compatible1<message<M1, Mn...>, std::tuple<T1, Tn...>> 
 template <typename, typename>
 class assert_udt_message_compatible;
 
+template <typename T>
+using class_type = message_type<decltype(udt_to_message(std::declval<T>()))>;
+
 template <typename C, typename T1, typename... Tn>
 class assert_udt_message_compatible<C, std::tuple<T1, Tn...>> : public assert_udt_message_compatible1<typename class_type<C>::as_message, std::tuple<T1, Tn...>>
 {
@@ -471,20 +453,19 @@ template <typename T, typename = void>
 class message_dispatch_type;
 
 template <typename T>
-class message_dispatch_type<T, typename std::enable_if<std::is_integral<T>::value, void>::type> :
-	public detail::message_dispatch_base<integral_type<T>>
-{
-};
-
-template <typename T>
-class message_dispatch_type<T, typename std::enable_if<std::is_enum<T>::value, void>::type> :
-	public detail::message_dispatch_base<enum_type<T>>
+class message_dispatch_type<T, typename std::enable_if<std::is_integral<T>::value or std::is_enum<T>::value, void>::type> :
+	public detail::message_dispatch_base<detail::size_base<sizeof(T)>>
 {
 };
 
 template <typename T>
 class message_dispatch_type<T, typename std::enable_if<is_cxx_array<T>::value, void>::type> :
-	public detail::message_dispatch_base<array_type<T>>
+	public detail::message_dispatch_base<
+		detail::size_base<
+			message_type<typename T::value_type>::maximum_size * std::tuple_size<T>::value,
+			message_type<typename T::value_type>::minimum_size * std::tuple_size<T>::value
+		>
+	>
 {
 };
 
@@ -500,9 +481,8 @@ class message_type :
 {
 	using effective_type = typename message_dispatch_type<typename std::remove_reference<T>::type>::effective_type;
 public:
-	typedef decltype(detail::get_minimum_size<effective_type>(nullptr)) minimum_size_type;
-	static constexpr minimum_size_type minimum_size = {};
 	using effective_type::maximum_size;
+	using effective_type::minimum_size;
 };
 
 template <typename A1>
@@ -513,30 +493,15 @@ public:
 	typedef message<A1> as_message;
 };
 
-template <typename T>
-class class_type : public message_type<decltype(udt_to_message(std::declval<T>()))>
-{
-};
-
-template <typename T, std::size_t N>
-class array_type<const array<T, N>> :
-	public detail::maximum_size_base<message_type<T>::maximum_size * N>
-{
-};
-
-template <typename T, std::size_t N>
-class array_type<array<T, N>> : public array_type<const array<T, N>>
-{
-};
-
 template <typename A1, typename A2, typename... Args>
 class message_type<message<A1, A2, Args...>> :
-	public detail::maximum_size_base<message_type<A1>::maximum_size + message_type<message<A2, Args...>>::maximum_size>
+	public detail::size_base<
+		message_type<A1>::maximum_size + message_type<message<A2, Args...>>::maximum_size,
+		message_type<A1>::minimum_size + message_type<message<A2, Args...>>::minimum_size
+	>
 {
 public:
 	typedef message<A1, A2, Args...> as_message;
-	typedef std::integral_constant<std::size_t, message_type<A1>::minimum_size + message_type<message<A2, Args...>>::minimum_size> minimum_size_type;
-	static constexpr minimum_size_type minimum_size = {};
 };
 
 template <typename A1, typename... Args>
