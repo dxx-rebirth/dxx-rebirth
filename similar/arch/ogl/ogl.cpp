@@ -345,13 +345,13 @@ static void ogl_bindbmtex(grs_bitmap &bm, bool edgepad){
 }
 
 //gltexture MUST be bound first
-static void ogl_texwrap(ogl_texture *gltexture,int state)
+static void ogl_texwrap(ogl_texture *const gltexture, const int state)
 {
 	if (gltexture->wrapstate != state || gltexture->numrend < 1)
 	{
+		gltexture->wrapstate = state;
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, state);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, state);
-		gltexture->wrapstate = state;
 	}
 }
 
@@ -361,49 +361,48 @@ static void ogl_texwrap(ogl_texture *gltexture,int state)
 //similarly, with the objects(esp weapons), we could just go through and cache em all instead, but that would get ones that might not even be on the level
 //TODO: doors
 
-void ogl_cache_polymodel_textures(int model_num)
+void ogl_cache_polymodel_textures(const unsigned model_num)
 {
-	polymodel *po;
-	int i;
-
-	if (model_num < 0)
+	if (model_num >= Polygon_models.size())
 		return;
-	po = &Polygon_models[model_num];
-	for (i=0;i<po->n_textures;i++)  {
-		ogl_loadbmtexture(GameBitmaps[ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index], 1);
+	const auto &po = Polygon_models[model_num];
+	unsigned i = po.first_texture;
+	const unsigned last_texture = i + po.n_textures;
+	for (; i != last_texture; ++i)
+	{
+		ogl_loadbmtexture(GameBitmaps[ObjBitmaps[ObjBitmapPtrs[i]].index], 1);
 	}
 }
 
-static void ogl_cache_vclip_textures(vclip *vc){
-	range_for (auto &i, partial_const_range(vc->frames, vc->num_frames))
+static void ogl_cache_vclip_textures(const vclip &vc)
+{
+	range_for (auto &i, partial_const_range(vc.frames, vc.num_frames))
 	{
 		PIGGY_PAGE_IN(i);
 		ogl_loadbmtexture(GameBitmaps[i.index], 0);
 	}
 }
 
-static void ogl_cache_vclipn_textures(unsigned i)
+static void ogl_cache_vclipn_textures(const unsigned i)
 {
 	if (i < Vclip.size())
-		ogl_cache_vclip_textures(&Vclip[i]);
+		ogl_cache_vclip_textures(Vclip[i]);
 }
 
-static void ogl_cache_weapon_textures(int weapon_type)
+static void ogl_cache_weapon_textures(const unsigned weapon_type)
 {
-	weapon_info *w;
-
-	if (weapon_type < 0)
+	if (weapon_type >= Weapon_info.size())
 		return;
-	w = &Weapon_info[weapon_type];
-	ogl_cache_vclipn_textures(w->flash_vclip);
-	ogl_cache_vclipn_textures(w->robot_hit_vclip);
-	ogl_cache_vclipn_textures(w->wall_hit_vclip);
-	if (w->render_type==WEAPON_RENDER_VCLIP)
-		ogl_cache_vclipn_textures(w->weapon_vclip);
-	else if (w->render_type == WEAPON_RENDER_POLYMODEL)
+	const auto &w = Weapon_info[weapon_type];
+	ogl_cache_vclipn_textures(w.flash_vclip);
+	ogl_cache_vclipn_textures(w.robot_hit_vclip);
+	ogl_cache_vclipn_textures(w.wall_hit_vclip);
+	if (w.render_type == WEAPON_RENDER_VCLIP)
+		ogl_cache_vclipn_textures(w.weapon_vclip);
+	else if (w.render_type == WEAPON_RENDER_POLYMODEL)
 	{
-		ogl_cache_polymodel_textures(w->model_num);
-		ogl_cache_polymodel_textures(w->model_num_inner);
+		ogl_cache_polymodel_textures(w.model_num);
+		ogl_cache_polymodel_textures(w.model_num_inner);
 	}
 }
 

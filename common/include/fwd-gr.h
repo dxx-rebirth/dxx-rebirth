@@ -369,6 +369,6 @@ void ogl_do_palfx();
 void ogl_init_pixel_buffers(unsigned w, unsigned h);
 void ogl_close_pixel_buffers();
 }
-void ogl_cache_polymodel_textures(int model_num);;
+void ogl_cache_polymodel_textures(unsigned model_num);
 
 #endif
