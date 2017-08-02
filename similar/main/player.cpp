@@ -22,8 +22,6 @@ void player_rw_swap(player_rw *p, int swap)
 		return;
 
 	p->objnum = SWAPINT(p->objnum);
-	p->n_packets_got = SWAPINT(p->n_packets_got);
-	p->n_packets_sent = SWAPINT(p->n_packets_sent);
 	p->flags = SWAPINT(p->flags);
 	p->energy = SWAPINT(p->energy);
 	p->shields = SWAPINT(p->shields);
