@@ -2126,19 +2126,13 @@ void obj_detach_one(object &sub)
 		o->ctype.expl_info.prev_attach = sub.ctype.expl_info.prev_attach;
 	}
 
-	if (sub.ctype.expl_info.prev_attach != object_none)
-	{
-		const auto &&o = vmobjptr(sub.ctype.expl_info.prev_attach);
-		assert(vmobjptr(o->ctype.expl_info.next_attach) == &sub);
-		o->ctype.expl_info.next_attach = sub.ctype.expl_info.next_attach;
-	}
-	else {
-		const auto &&o = vmobjptr(sub.ctype.expl_info.attach_parent);
-		assert(vmobjptr(o->attached_obj) == &sub);
-		o->attached_obj = sub.ctype.expl_info.next_attach;
-	}
+	const auto use_prev_attach = (sub.ctype.expl_info.prev_attach != object_none);
+	auto &o = *vmobjptr(use_prev_attach ? exchange(sub.ctype.expl_info.prev_attach, object_none) : sub.ctype.expl_info.attach_parent);
+	auto &update_attach = use_prev_attach ? o.ctype.expl_info.next_attach : o.attached_obj;
+	assert(vmobjptr(update_attach) == &sub);
+	update_attach = sub.ctype.expl_info.next_attach;
 
-	sub.ctype.expl_info.next_attach = sub.ctype.expl_info.prev_attach = object_none;
+	sub.ctype.expl_info.next_attach = object_none;
 	sub.flags &= ~OF_ATTACHED;
 
 }
