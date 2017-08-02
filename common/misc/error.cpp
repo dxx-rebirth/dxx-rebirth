@@ -59,11 +59,11 @@ void clear_warn_func()
 
 static void print_exit_message(const char *exit_message, size_t len)
 {
+	con_puts(CON_CRITICAL, exit_message, len);
 		if (ErrorPrintFunc)
 		{
 			(*ErrorPrintFunc)(exit_message);
 		}
-		con_puts(CON_CRITICAL, exit_message, len);
 }
 
 __noreturn
