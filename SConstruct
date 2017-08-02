@@ -1361,8 +1361,17 @@ help:assume compiler supports compile-time __builtin_constant_p
 		f = '''
 /*
  * Begin `timekeeping.i` from gcc bug #72785, comment #0.  This block
- * provokes gcc-7 into generating an impossible code path, which then
+ * provokes gcc-7 into generating a call to ____ilog2_NaN, which then
  * fails to link when ____ilog2_NaN is intentionally undefined.
+ *
+ * Older versions of gcc declare the expression to be false in
+ * this case, and do not generate the call to ____ilog2_NaN.  This looks
+ * fragile since b is provably non-zero (`b` = `a` if `a` is not zero,
+ * else = `c` = `1`, so `b` is non-zero regardless of the path used in
+ * the ternary operator), but the specific non-zero value is not
+ * provable.  However, this matches the testcase posted in gcc's
+ * Bugzilla and produces the desired results on each of gcc-5 (enable),
+ * gcc-6 (enable), and gcc-7 (disable).
  */
 int a, b;
 int ____ilog2_NaN();
@@ -1380,6 +1389,21 @@ static int x(int y){
 }
 '''
 		main = '''
+	/*
+	** Tell the compiler not to make any assumptions about the value of
+	** `a`.  In LTO mode, the compiler would otherwise prove that it
+	** knows there are no writes to `a` and therefore prove that `a`
+	** must be zero.  That proof then causes it to compile `by()` as:
+	**
+	**		b = 0 ? 0 : 1;
+	**		__builtin_constant_p(1) ? 1 ? ____ilog2_NaN() : 0 : 0;
+	**
+	** That then generates a reference to the intentionally undefined
+	** ____ilog2_NaN, causing the test to report failure.  Prevent this
+	** by telling the compiler that it cannot prove the value of `a`,
+	** forcing it not to propagate a zero `a` into `by()`.
+	**/
+	asm("" : "=rm" (a));
 	by();
 	return x(1) + x(2);
 '''
