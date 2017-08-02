@@ -4426,10 +4426,25 @@ class DXXProgram(DXXCommon):
 		versid_environ['CCACHE_NODIRECT'] = 1
 		versid_cpp = 'similar/main/vers_id.cpp'
 		versid_obj = env.StaticObject(target='%s%s%s' % (user_settings.builddir, self._apply_target_name(versid_cpp), self.env["OBJSUFFIX"]), source=versid_cpp, CPPDEFINES=versid_cppdefines, ENV=versid_environ)
+		Depends = env.Depends
+		# If $SOURCE_DATE_EPOCH is set, add its value as a shadow
+		# dependency to ensure that vers_id.cpp is rebuilt if
+		# $SOURCE_DATE_EPOCH on this run differs from $SOURCE_DATE_EPOCH
+		# on last run.  If it is unset, use None for this test, so that
+		# unset differs from all valid values.  Using a fixed value for
+		# unset means that vers_id.cpp will not be rebuilt for this
+		# dependency if $SOURCE_DATE_EPOCH was previously unset and is
+		# currently unset, regardless of when it was most recently
+		# built, but vers_id.cpp will be rebuilt if the user changes
+		# $SOURCE_DATE_EPOCH and reruns scons.
+		#
+		# The process environment is not modified, so the default None
+		# is never seen by tools that would reject it.
+		Depends(versid_obj, env.Value(os.getenv('SOURCE_DATE_EPOCH')))
 		if user_settings.versid_depend_all:
 			# Optional fake dependency to force vers_id to rebuild so
 			# that it picks up the latest timestamp.
-			env.Depends(versid_obj, objects)
+			Depends(versid_obj, objects)
 		objects.append(versid_obj)
 		# finally building program...
 		return env.Program(target=exe_target, source = objects)
