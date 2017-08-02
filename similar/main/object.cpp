@@ -1734,11 +1734,15 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 	if (obj->type == OBJ_NONE || obj->flags&OF_SHOULD_BE_DEAD)
 		return window_event_result::ignored;         // object has been deleted
 
+	bool prepare_seglist = false;
+	phys_visited_seglist phys_visited_segs;
 	switch (obj->movement_type) {
 
 		case MT_NONE:			break;				//this doesn't move
 
-		case MT_PHYSICS:		result = do_physics_sim(obj);	break;	//move by physics
+		case MT_PHYSICS:	//move by physics
+			result = do_physics_sim(obj, obj->type == OBJ_PLAYER ? (prepare_seglist = true, phys_visited_segs.nsegs = 0, &phys_visited_segs) : nullptr);
+			break;
 
 		case MT_SPINNING:		spin_object(obj); break;
 
@@ -1746,15 +1750,15 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 
 	//	If player and moved to another segment, see if hit any triggers.
 	// also check in player under a lavafall
-	if (obj->type == OBJ_PLAYER && obj->movement_type==MT_PHYSICS)	{
-
-		if (previous_segment != obj->segnum && n_phys_segs > 1)
+	if (prepare_seglist)
+	{
+		if (previous_segment != obj->segnum && phys_visited_segs.nsegs > 1)
 		{
-			auto seg0 = vmsegptridx(phys_seglist[0]);
+			auto seg0 = vmsegptridx(phys_visited_segs.seglist[0]);
 #if defined(DXX_BUILD_DESCENT_II)
 			int	old_level = Current_level_num;
 #endif
-			range_for (const auto i, partial_const_range(phys_seglist, 1u, n_phys_segs))
+			range_for (const auto i, partial_const_range(phys_visited_segs.seglist, 1u, phys_visited_segs.nsegs))
 			{
 				const auto &&seg1 = seg0.absolute_sibling(i);
 				const auto connect_side = find_connect_side(seg1, seg0);

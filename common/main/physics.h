@@ -38,16 +38,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#define FL_HOVER   2
 //#define FL_REVERSE 3
 
-// these global vars are set after a call to do_physics_sim().  Ugly, I know.
-// list of segments went through
-extern unsigned n_phys_segs;
-extern array<segnum_t, MAX_FVI_SEGS> phys_seglist;
-
 // Simulate a physics object for this frame
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+struct phys_visited_seglist
+{
+	unsigned nsegs;
+	array<segnum_t, MAX_FVI_SEGS> seglist;
+};
+
 #ifdef dsx
 namespace dsx {
-window_event_result do_physics_sim(vmobjptridx_t obj);
+window_event_result do_physics_sim(vmobjptridx_t obj, phys_visited_seglist *phys_segs);
 
 }
 #endif

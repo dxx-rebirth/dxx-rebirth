@@ -150,10 +150,6 @@ static void set_object_turnroll(object_base &obj)
 
 }
 
-//list of segments went through
-unsigned n_phys_segs;
-array<segnum_t, MAX_FVI_SEGS> phys_seglist;
-
 
 #define MAX_IGNORE_OBJS 100
 
@@ -300,7 +296,7 @@ public:
 //	-----------------------------------------------------------------------------------------------------------
 //Simulate a physics object for this frame
 namespace dsx {
-window_event_result do_physics_sim(const vmobjptridx_t obj)
+window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist *const phys_segs)
 {
 	ignore_objects_array_t ignore_obj_list;
 	int try_again;
@@ -336,8 +332,6 @@ window_event_result do_physics_sim(const vmobjptridx_t obj)
 
 	if (!(pi->velocity.x || pi->velocity.y || pi->velocity.z || pi->thrust.x || pi->thrust.y || pi->thrust.z))
 		return window_event_result::ignored;
-
-	n_phys_segs = 0;
 
 	sim_time = FrameTime;
 
@@ -416,7 +410,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj)
 		if (obj->type == OBJ_WEAPON)
 			fq.flags |= FQ_TRANSPOINT;
 
-		if (obj->type == OBJ_PLAYER)
+		if (phys_segs)
 			fq.flags |= FQ_GET_SEGLIST;
 
 		fate = find_vector_intersection(fq, hit_info);
@@ -434,16 +428,18 @@ window_event_result do_physics_sim(const vmobjptridx_t obj)
 		}
 #endif
 
-		if (obj->type == OBJ_PLAYER) {
-			if (n_phys_segs && !hit_info.seglist.empty() && phys_seglist[n_phys_segs-1]==hit_info.seglist[0])
+		if (phys_segs && !hit_info.seglist.empty())
+		{
+			auto n_phys_segs = phys_segs->nsegs;
+			if (n_phys_segs && phys_segs->seglist[n_phys_segs - 1] == hit_info.seglist[0])
 				n_phys_segs--;
-
 			range_for (const auto &hs, hit_info.seglist)
 			{
-				if (!(n_phys_segs < MAX_FVI_SEGS-1))
+				if (!(n_phys_segs < phys_segs->seglist.size() - 1))
 					break;
-				phys_seglist[n_phys_segs++] = hs;
+				phys_segs->seglist[n_phys_segs++] = hs;
 			}
+			phys_segs->nsegs = n_phys_segs;
 		}
 
 		ipos = hit_info.hit_pnt;
