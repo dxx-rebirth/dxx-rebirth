@@ -3960,14 +3960,7 @@ void multi_send_sound_function (char whichfunc, char sound)
 	count++;
 	multibuf[1]=Player_num;             count++;
 	multibuf[2]=whichfunc;              count++;
-	if (!words_bigendian)
-	{
-	*reinterpret_cast<uint32_t *>(multibuf+count)=sound;    count++;
-	}
-	else
-	{
 	multibuf[3] = sound; count++;       // this would probably work on the PC as well.  Jason?
-	}
 	multi_send_data<MULTI_SOUND_FUNCTION>(multibuf,4,2);
 }
 
