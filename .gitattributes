@@ -1,4 +1,5 @@
 * text=auto
+*.manifest text eol=crlf
 *.sln text eol=crlf
 *.vcxproj text eol=crlf
 *.props text eol=crlf

@@ -4251,6 +4251,7 @@ class DXXProgram(DXXCommon):
 			resfile = env.RES(target=j(program.user_settings.builddir, rcdir, '%s.res%s' % (program.target, env["OBJSUFFIX"])), source=j(rcdir, 'dxx-rebirth.rc'))
 			Depends = env.Depends
 			File = env.File
+			Depends(resfile, File(j(rcdir, 'dxx-rebirth.manifest')))
 			Depends(resfile, File(j(rcdir, '%s.ico' % program.target)))
 			self.platform_objects = [resfile]
 			env.Prepend(

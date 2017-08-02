@@ -13,6 +13,7 @@
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_ICON_NUMBER	"2"
 #endif
+1	RT_MANIFEST	"dxx-rebirth.manifest"
 IDI_DXX_ICON            ICON                    "d" DXX_ICON_NUMBER "x-rebirth.ico"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -43,6 +44,7 @@ BEGIN
 	"#elif defined(DXX_BUILD_DESCENT_II)\r\n"
 	"#define DXX_ICON_NUMBER	""2""\r\n"
 	"#endif\r\n"
+	"1	RT_MANIFEST	""dxx-rebirth.manifest""\r\n"
 	"IDI_DXX_ICON            ICON                    ""d"" DXX_ICON_NUMBER ""x-rebirth.ico""\r\n"
     "\0"
 END
