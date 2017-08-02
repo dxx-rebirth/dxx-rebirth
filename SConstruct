@@ -88,7 +88,7 @@ class ToolchainInformation(StaticSubprocess):
 		tool = env.subst('$CXX $CXXFLAGS $LINKFLAGS -print-prog-name=%s' % tool)
 		return tool, _qcall(tool).out.strip()
 	@staticmethod
-	def show_partial_environ(env, f):
+	def show_partial_environ(env, user_settings, f):
 		for v in (
 			'CXX',
 			'CPPDEFINES',
@@ -97,6 +97,10 @@ class ToolchainInformation(StaticSubprocess):
 			'CXXFLAGS',
 			'LIBS',
 			'LINKFLAGS',
+		) + (
+			(
+				'RCFLAGS',
+			) if user_settings.host_platform == 'win32' else ()
 		):
 			f("%s: %r" % (v, env.get(v, None)))
 		penv = env['ENV']
@@ -631,9 +635,10 @@ help:assume C++ compiler works
 		most_recent_error = None
 		Link = self.Link
 		cenv = context.env
-		use_distcc = self.user_settings.distcc
-		use_ccache = self.user_settings.ccache
-		if self.user_settings.show_tool_version:
+		user_settings = self.user_settings
+		use_distcc = user_settings.distcc
+		use_ccache = user_settings.ccache
+		if user_settings.show_tool_version:
 			CXX = cenv['CXX']
 			self._show_tool_version(context, CXX, 'C++ compiler')
 			self._show_indirect_tool_version(context, CXX, 'as', 'assembler')
@@ -657,7 +662,7 @@ help:assume C++ compiler works
 %s
 #endif
 ''' % (_crc32(s), s)
-		ToolchainInformation.show_partial_environ(cenv, lambda s, _Display=context.Display, _msgprefix=self.msgprefix: _Display("%s:\t%s\n" % (_msgprefix, s)))
+		ToolchainInformation.show_partial_environ(cenv, user_settings, lambda s, _Display=context.Display, _msgprefix=self.msgprefix: _Display("%s:\t%s\n" % (_msgprefix, s)))
 		if use_ccache:
 			if use_distcc:
 				if Link(context, text='', msg='whether ccache, distcc, C++ compiler, and linker work', calling_function='ccache_distcc_ld_works'):
@@ -3989,7 +3994,7 @@ class DXXArchive(DXXCommon):
 		self.process_user_settings()
 		self.configure_environment()
 		self.create_special_target_nodes(self)
-		ToolchainInformation.show_partial_environ(self.env, lambda s, _message=message, _self=self: _message(self, s))
+		ToolchainInformation.show_partial_environ(self.env, user_settings, lambda s, _message=message, _self=self: _message(self, s))
 
 	def configure_environment(self):
 		fs = SCons.Node.FS.get_default_fs()
@@ -4241,13 +4246,18 @@ class DXXProgram(DXXCommon):
 			user_settings.sharepath = ''
 		def adjust_environment(self,program,env):
 			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
-			rcbasename = os.path.join(program.srcdir, 'arch/win32/%s' % program.target)
-			self.platform_objects = [(env.RES(target='%s%s%s' % (program.user_settings.builddir, rcbasename, env["OBJSUFFIX"]), source='%s.rc' % rcbasename))]
+			rcdir = 'similar/arch/win32'
+			j = os.path.join
+			resfile = env.RES(target=j(program.user_settings.builddir, rcdir, '%s.res%s' % (program.target, env["OBJSUFFIX"])), source=j(rcdir, 'dxx-rebirth.rc'))
+			Depends = env.Depends
+			File = env.File
+			Depends(resfile, File(j(rcdir, '%s.ico' % program.target)))
+			self.platform_objects = [resfile]
 			env.Prepend(
 				CXXFLAGS = ['-fno-omit-frame-pointer'],
+				RCFLAGS = ['-D%s' % d for d in program.env_CPPDEFINES],
 			)
 			env.Append(
-				CPPPATH = [os.path.join(program.srcdir, 'arch/win32/include')],
 				LIBS = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL'],
 			)
 	# Settings to apply to Apple builds
@@ -4344,7 +4354,7 @@ class DXXProgram(DXXCommon):
 			exe_target += PROGSUFFIX
 		if user_settings.register_compile_target:
 			exe_target = self._register_program(exe_target)
-			ToolchainInformation.show_partial_environ(env, lambda s, _message=message, _self=self: _message(self, s))
+			ToolchainInformation.show_partial_environ(env, user_settings, lambda s, _message=message, _self=self: _message(self, s))
 		if user_settings.register_install_target:
 			self._register_install(self.shortname, exe_target)
 

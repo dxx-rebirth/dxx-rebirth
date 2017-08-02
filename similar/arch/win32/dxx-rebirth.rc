@@ -8,7 +8,12 @@
 // Generated from the TEXTINCLUDE 2 resource.
 //
 #include "afxres.h"
-IDI_DXX_ICON            ICON                    "d1x-rebirth.ico"
+#if defined(DXX_BUILD_DESCENT_I)
+#define DXX_ICON_NUMBER	"1"
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_ICON_NUMBER	"2"
+#endif
+IDI_DXX_ICON            ICON                    "d" DXX_ICON_NUMBER "x-rebirth.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -33,7 +38,12 @@ END
 2 TEXTINCLUDE
 BEGIN
     "#include ""afxres.h""\r\n"
-	"IDI_DXX_ICON            ICON                    ""d1x-rebirth.ico""\r\n"
+	"#if defined(DXX_BUILD_DESCENT_I)\r\n"
+	"#define DXX_ICON_NUMBER	""1""\r\n"
+	"#elif defined(DXX_BUILD_DESCENT_II)\r\n"
+	"#define DXX_ICON_NUMBER	""2""\r\n"
+	"#endif\r\n"
+	"IDI_DXX_ICON            ICON                    ""d"" DXX_ICON_NUMBER ""x-rebirth.ico""\r\n"
     "\0"
 END
 
