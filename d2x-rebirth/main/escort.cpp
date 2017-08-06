@@ -1443,26 +1443,43 @@ static int maybe_steal_secondary_weapon(const vmobjptr_t playerobjp, int weapon_
 static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_num)
 {
 	auto &player_info = playerobjp->ctype.player_info;
-	if (!(player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)))
-		return 0;
-	if (!weapon_index_uses_vulcan_ammo(weapon_num) || player_info.vulcan_ammo)
+	switch (static_cast<primary_weapon_index_t>(weapon_num))
+	{
+		case primary_weapon_index_t::LASER_INDEX:
+			if (!player_info.laser_level)
+				return 0;
+			break;
+		case primary_weapon_index_t::VULCAN_INDEX:
+		case primary_weapon_index_t::GAUSS_INDEX:
+			if (!player_info.vulcan_ammo)
+				return 0;
+			//-fallthrough
+		default:
+			if (!(player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)))
+				return 0;
+			break;
+	}
 	{
 		if (d_rand() < THIEF_PROBABILITY) {
 			if (weapon_num == primary_weapon_index_t::LASER_INDEX)
 			{
-				if (auto &laser_level = player_info.laser_level)
-				{
+				auto &laser_level = player_info.laser_level;
 					if (laser_level > MAX_LASER_LEVEL)
 					{
 						Stolen_items[Stolen_item_index] = POW_SUPER_LASER;
 					} else {
 						Stolen_items[Stolen_item_index] = Primary_weapon_to_powerup[weapon_num];
 					}
+					/* Laser levels are zero-based, so print the old
+					 * level, then decrement it.  Decrementing first
+					 * would produce confusing output, particularly when
+					 * the user loses the final laser powerup and drops
+					 * to level 0 lasers.
+					 */
+					const laser_level_t l = laser_level;
 					-- laser_level;
-					thief_message("%s level decreased!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
+					thief_message("%s level decreased to %u!", PRIMARY_WEAPON_NAMES(weapon_num), l);
 					digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
-					return 1;
-				}
 			}
 			else
 			{
@@ -1472,8 +1489,8 @@ static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_nu
 				thief_message("%s stolen!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
 				auto_select_primary_weapon(player_info);
 				digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
-				return 1;
 			}
+			return 1;
 		}
 	}
 
