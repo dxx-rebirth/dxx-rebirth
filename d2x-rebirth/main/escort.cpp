@@ -1404,8 +1404,6 @@ static int maybe_steal_flag_item(const vmobjptr_t playerobjp, const PLAYER_FLAG 
 			}
 			Stolen_items[Stolen_item_index] = powerup_index;
 			thief_message_str(msg);
-
-			digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 			return 1;
 		}
 	}
@@ -1432,7 +1430,6 @@ static int maybe_steal_secondary_weapon(const vmobjptr_t playerobjp, int weapon_
 				auto_select_secondary_weapon(player_info);
 
 			// -- compress_stolen_items();
-			digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 			return 1;
 		}
 
@@ -1479,7 +1476,6 @@ static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_nu
 					const laser_level_t l = laser_level;
 					-- laser_level;
 					thief_message("%s level decreased to %u!", PRIMARY_WEAPON_NAMES(weapon_num), l);
-					digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 			}
 			else
 			{
@@ -1488,7 +1484,6 @@ static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_nu
 
 				thief_message("%s stolen!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
 				auto_select_primary_weapon(player_info);
-				digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 			}
 			return 1;
 		}
@@ -1561,11 +1556,9 @@ static int attempt_to_steal_item_3(const vmobjptr_t objp, const vmobjptr_t playe
 //	----------------------------------------------------------------------------
 static int attempt_to_steal_item_2(const vmobjptr_t objp, const vmobjptr_t player_num)
 {
-	int	rval;
-
-	rval = attempt_to_steal_item_3(objp, player_num);
-
+	const auto rval = attempt_to_steal_item_3(objp, player_num);
 	if (rval) {
+		digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 		auto i = Stolen_item_index;
 		if (d_rand() > 20000)	//	Occasionally, boost the value again
 			++i;
@@ -1574,7 +1567,6 @@ static int attempt_to_steal_item_2(const vmobjptr_t objp, const vmobjptr_t playe
 			i -= size;
 		Stolen_item_index = i;
 	}
-
 	return rval;
 }
 
