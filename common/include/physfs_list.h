@@ -51,7 +51,7 @@ template <typename D>
 class PHYSFSX_counted_list_template : public PHYSFSX_uncounted_list_template<D>
 {
 	typedef PHYSFSX_uncounted_list_template<D> base_ptr;
-	typedef typename base_ptr::pointer pointer;
+	using typename base_ptr::pointer;
 	uint_fast32_t count;
 public:
 	PHYSFSX_counted_list_template() = default;

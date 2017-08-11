@@ -386,8 +386,8 @@ public:
 template <unsigned bits>
 class visited_segment_multibit_array_t : public visited_segment_mask_t<unsigned, bits>
 {
-	typedef typename visited_segment_mask_t<unsigned, bits>::array_t array_t;
-	typedef typename visited_segment_mask_t<unsigned, bits>::size_type size_type;
+	using typename visited_segment_mask_t<unsigned, bits>::array_t;
+	using typename visited_segment_mask_t<unsigned, bits>::size_type;
 	template <typename R>
 	struct tmpl_multibit_proxy_t : public visited_segment_mask_t<unsigned, bits>::template tmpl_maskproxy_t<R>
 	{

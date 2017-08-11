@@ -44,17 +44,15 @@ namespace detail {
 template <std::size_t maximum, std::size_t minimum = maximum>
 struct size_base
 {
-	using maximum_size_type = std::integral_constant<std::size_t, maximum>;
-	using minimum_size_type = std::integral_constant<std::size_t, minimum>;
-	static constexpr maximum_size_type maximum_size = {};
-	static constexpr minimum_size_type minimum_size = {};
+	static constexpr std::integral_constant<std::size_t, maximum> maximum_size = {};
+	static constexpr std::integral_constant<std::size_t, minimum> minimum_size = {};
 };
 
 template <std::size_t maximum, std::size_t minimum>
-constexpr typename size_base<maximum, minimum>::maximum_size_type size_base<maximum, minimum>::maximum_size;
+constexpr std::integral_constant<std::size_t, maximum> size_base<maximum, minimum>::maximum_size;
 
 template <std::size_t maximum, std::size_t minimum>
-constexpr typename size_base<maximum, minimum>::minimum_size_type size_base<maximum, minimum>::minimum_size;
+constexpr std::integral_constant<std::size_t, minimum> size_base<maximum, minimum>::minimum_size;
 
 }
 
@@ -232,8 +230,8 @@ struct base_bytebuffer_t : std::iterator<std::random_access_iterator_tag, T>, en
 public:
 	// Default bytebuffer_t usage to little endian
 	static uint16_t endian() { return little_endian; }
-	typedef typename std::iterator<std::random_access_iterator_tag, T>::pointer pointer;
-	typedef typename std::iterator<std::random_access_iterator_tag, T>::difference_type difference_type;
+	using typename std::iterator<std::random_access_iterator_tag, T>::pointer;
+	using typename std::iterator<std::random_access_iterator_tag, T>::difference_type;
 	base_bytebuffer_t(pointer u) : p(u) {}
 	operator pointer() const { return p; }
 	D &operator+=(difference_type d)
