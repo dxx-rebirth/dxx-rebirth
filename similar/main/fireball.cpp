@@ -809,7 +809,6 @@ void maybe_replace_powerup_with_energy(const vmobjptr_t del_obj)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define drop_powerup(id, num, init_vel, pos, segnum, player)	(drop_powerup)(id, num, init_vel, pos, segnum)
 static
 #endif
 imobjptridx_t drop_powerup(int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
@@ -892,6 +891,17 @@ imobjptridx_t drop_powerup(int id, const unsigned num, const vms_vector &init_ve
 						obj->lifeleft = (d_rand() + F1_0*3) * 64;		//	Lives for 3 to 3.5 binary minutes (a binary minute is 64 seconds)
 						if (Game_mode & GM_MULTI)
 							obj->lifeleft /= 2;
+						break;
+#if defined(DXX_BUILD_DESCENT_II)
+					case POW_OMEGA_WEAPON:
+						if (!player)
+							obj->ctype.powerup_info.count = MAX_OMEGA_CHARGE;
+						break;
+					case POW_GAUSS_WEAPON:
+#endif
+					case POW_VULCAN_WEAPON:
+						if (!player)
+							obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 						break;
 					default:
 //						if (Game_mode & GM_MULTI)
@@ -1025,20 +1035,7 @@ imobjptridx_t object_create_robot_egg(const int type, const int id, const int nu
 		}
 	}
 #endif
-	const auto &&rval = drop_robot_egg(type, id, num, init_vel, pos, segnum);
-#if defined(DXX_BUILD_DESCENT_II)
-	if (rval != object_none)
-	{
-		if (type == OBJ_POWERUP)
-		{
-			if (id == POW_VULCAN_WEAPON || id == POW_GAUSS_WEAPON)
-				rval->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
-			else if (id == POW_OMEGA_WEAPON)
-				rval->ctype.powerup_info.count = MAX_OMEGA_CHARGE;
-		}
-	}
-#endif
-	return rval;
+	return drop_robot_egg(type, id, num, init_vel, pos, segnum);
 }
 
 imobjptridx_t object_create_robot_egg(const vmobjptr_t objp)
