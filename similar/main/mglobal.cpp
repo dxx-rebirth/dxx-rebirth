@@ -131,23 +131,56 @@ template class valptridx<dsx::trigger>;
 template class valptridx<dsx::wall>;
 
 #else
+namespace {
 
-#if DXX_VALPTRIDX_REPORT_ERROR_STYLE == DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_EXCEPTION
-template class valptridx<dcx::active_door>::index_range_exception;
+	/* Explicit instantiation cannot be conditional on a truth
+	 * expression, but the exception types only need to be instantiated
+	 * if they are used.  To reduce code bloat, use
+	 * `instantiation_guard` to instantiate the real exception class if
+	 * it is used (as reported by
+	 * `valptridx<T>::report_error_uses_exception`), but otherwise
+	 * instantiate a stub class with no members.  The stub class must be
+	 * a member of a template that depends on `T` because duplicate
+	 * explicit instantiations are not allowed.  If the stub did not
+	 * depend on `T`, each type `T` that used the stubs would
+	 * instantiate the same stub.
+	 *
+	 * Hide `instantiation_guard` in an anonymous namespace to encourage
+	 * the compiler to optimize away any unused pieces of it.
+	 */
+template <typename T, bool = valptridx<T>::report_error_uses_exception::value>
+struct instantiation_guard
+{
+	using type = valptridx<T>;
+};
+
+template <typename T>
+struct instantiation_guard<T, false>
+{
+	struct type
+	{
+		struct index_mismatch_exception {};
+		struct index_range_exception {};
+		struct null_pointer_exception {};
+	};
+};
+
+}
+
+template class instantiation_guard<dcx::active_door>::type::index_range_exception;
 #if defined(DXX_BUILD_DESCENT_II)
-template class valptridx<dsx::cloaking_wall>::index_range_exception;
+template class instantiation_guard<dsx::cloaking_wall>::type::index_range_exception;
 #endif
 
-template class valptridx<dsx::object>::index_mismatch_exception;
-template class valptridx<dsx::object>::index_range_exception;
-template class valptridx<dsx::object>::null_pointer_exception;
+template class instantiation_guard<dsx::object>::type::index_mismatch_exception;
+template class instantiation_guard<dsx::object>::type::index_range_exception;
+template class instantiation_guard<dsx::object>::type::null_pointer_exception;
 
-template class valptridx<dcx::segment>::index_mismatch_exception;
-template class valptridx<dcx::segment>::index_range_exception;
-template class valptridx<dcx::segment>::null_pointer_exception;
+template class instantiation_guard<dcx::segment>::type::index_mismatch_exception;
+template class instantiation_guard<dcx::segment>::type::index_range_exception;
+template class instantiation_guard<dcx::segment>::type::null_pointer_exception;
 
-template class valptridx<dsx::trigger>::index_range_exception;
-template class valptridx<dsx::wall>::index_range_exception;
-#endif
+template class instantiation_guard<dsx::trigger>::type::index_range_exception;
+template class instantiation_guard<dsx::wall>::type::index_range_exception;
 
 #endif

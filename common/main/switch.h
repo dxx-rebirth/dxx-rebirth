@@ -160,7 +160,7 @@ struct trigger : public prohibit_void_ptr<trigger>
 };
 
 }
-DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::trigger, trgnum_t, MAX_TRIGGERS);
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, trigger, trgnum_t, MAX_TRIGGERS);
 namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(trigger, trg);
 DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(trigger, trg, Triggers);

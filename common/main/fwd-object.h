@@ -33,7 +33,7 @@ constexpr std::integral_constant<std::size_t, MAX_OBJECTS - 20> MAX_USED_OBJECTS
 namespace dsx {
 struct object;
 }
-DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::object, objnum_t, MAX_OBJECTS);
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, object, objnum_t, MAX_OBJECTS);
 #endif
 
 #include "fwd-valptridx.h"

@@ -11,7 +11,7 @@
 #include "valptridx.h"
 #include "compiler-addressof.h"
 
-#if DXX_VALPTRIDX_REPORT_ERROR_STYLE == DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_EXCEPTION
+namespace {
 namespace untyped_index_mismatch_exception
 {
 #ifdef DXX_VALPTRIDX_ENABLE_REPORT_FILENAME
@@ -31,30 +31,33 @@ namespace untyped_index_mismatch_exception
 #define REPORT_FORMAT_STRING	REPORT_STANDARD_LEADER_TEXT "pointer/index mismatch:" REPORT_STANDARD_FORMAT " index=%li expected=%p actual=%p"
 	static constexpr std::size_t report_buffer_size = REPORT_STANDARD_SIZE + (sizeof("0x0000000000000000") * 2) + sizeof("18446744073709551615");
 	__attribute_cold
+	__attribute_unused
 	static void prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array_base, const long supplied_index, const void *const expected_pointer, const void *const actual_pointer, char (&buf)[report_buffer_size], const unsigned long array_size)
 	{
 		snprintf(buf, sizeof(buf), REPORT_FORMAT_STRING, DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS REPORT_STANDARD_ARGUMENTS, supplied_index, expected_pointer, actual_pointer);
 	}
 #undef REPORT_FORMAT_STRING
-};
+}
 
 namespace untyped_index_range_exception
 {
 #define REPORT_FORMAT_STRING	REPORT_STANDARD_LEADER_TEXT "invalid index used in array subscript:" REPORT_STANDARD_FORMAT " index=%li"
 	static constexpr std::size_t report_buffer_size = REPORT_STANDARD_SIZE + sizeof("18446744073709551615");
 	__attribute_cold
+	__attribute_unused
 	static void prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array_base, const long supplied_index, char (&buf)[report_buffer_size], const unsigned long array_size)
 	{
 		snprintf(buf, sizeof(buf), REPORT_FORMAT_STRING, DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS REPORT_STANDARD_ARGUMENTS, supplied_index);
 	}
 #undef REPORT_FORMAT_STRING
-};
+}
 
 namespace untyped_null_pointer_conversion_exception
 {
 #define REPORT_FORMAT_STRING	REPORT_STANDARD_LEADER_TEXT "NULL pointer converted"
 	static constexpr std::size_t report_buffer_size = REPORT_STANDARD_SIZE;
 	__attribute_cold
+	__attribute_unused
 	static void prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS char (&buf)[report_buffer_size])
 	{
 		snprintf(buf, sizeof(buf), REPORT_FORMAT_STRING DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_PASS_VARS);
@@ -67,6 +70,7 @@ namespace untyped_null_pointer_exception
 #define REPORT_FORMAT_STRING	REPORT_STANDARD_LEADER_TEXT "NULL pointer used:" REPORT_STANDARD_FORMAT
 	static constexpr std::size_t report_buffer_size = REPORT_STANDARD_SIZE;
 	__attribute_cold
+	__attribute_unused
 	static void prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array_base, char (&buf)[report_buffer_size], const unsigned long array_size)
 	{
 		snprintf(buf, sizeof(buf), REPORT_FORMAT_STRING, DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS REPORT_STANDARD_ARGUMENTS);
@@ -76,14 +80,15 @@ namespace untyped_null_pointer_exception
 #undef REPORT_STANDARD_SIZE
 #undef REPORT_STANDARD_ARGUMENTS
 #undef REPORT_STANDARD_FORMAT
-};
+}
+}
 
 template <typename managed_type>
-void valptridx<managed_type>::index_mismatch_exception::report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type &array, const index_type supplied_index, const const_pointer_type expected_pointer, const const_pointer_type actual_pointer)
+void valptridx<managed_type>::index_mismatch_exception::report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *const array, const index_type supplied_index, const const_pointer_type expected_pointer, const const_pointer_type actual_pointer)
 {
 	using namespace untyped_index_mismatch_exception;
 	char buf[report_buffer_size];
-	prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS addressof(array), supplied_index, expected_pointer, actual_pointer, buf, array.size());
+	prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS array, supplied_index, expected_pointer, actual_pointer, buf, array_size);
 	throw index_mismatch_exception(buf);
 }
 
@@ -106,11 +111,10 @@ void valptridx<managed_type>::null_pointer_exception::report(DXX_VALPTRIDX_REPOR
 }
 
 template <typename managed_type>
-void valptridx<managed_type>::null_pointer_exception::report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type &array)
+void valptridx<managed_type>::null_pointer_exception::report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *const array)
 {
 	using namespace untyped_null_pointer_exception;
 	char buf[report_buffer_size];
-	prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS addressof(array), buf, array.size());
+	prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS array, buf, array_size);
 	throw null_pointer_exception(buf);
 }
-#endif

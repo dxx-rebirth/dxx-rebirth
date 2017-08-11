@@ -23,7 +23,7 @@ using segnum_t = uint16_t;
 namespace dcx {
 struct segment;
 }
-DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::segment, segnum_t, MAX_SEGMENTS);
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, segment, segnum_t, MAX_SEGMENTS);
 #endif
 
 #include "fwd-valptridx.h"
