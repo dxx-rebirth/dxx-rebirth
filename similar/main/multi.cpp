@@ -981,7 +981,7 @@ window_event_result multi_do_frame()
 	return multi_quit_game ? window_event_result::close : window_event_result::handled;
 }
 
-void _multi_send_data(const ubyte *buf, unsigned len, int priority)
+void _multi_send_data(const uint8_t *const buf, const unsigned len, const int priority)
 {
 	if (Game_mode & GM_NETWORK)
 	{
@@ -1020,7 +1020,7 @@ static void _multi_send_data_direct(const ubyte *buf, unsigned len, const player
 }
 
 template <multiplayer_command_t C>
-static void multi_send_data_direct(ubyte *buf, unsigned len, const playernum_t pnum, int priority)
+static void multi_send_data_direct(uint8_t *const buf, const unsigned len, const playernum_t pnum, const int priority)
 {
 	buf[0] = C;
 	unsigned expected = command_length<C>::value;
@@ -2613,7 +2613,7 @@ void multi_send_player_deres(deres_type_t type)
 #if defined(DXX_BUILD_DESCENT_I)
 #define PUT_WEAPON_FLAGS(buf,count,value)	(buf[count] = value, ++count)
 #elif defined(DXX_BUILD_DESCENT_II)
-#define PUT_WEAPON_FLAGS(buf,count,value)	((PUT_INTEL_SHORT(buf+count, value)), count+=sizeof(uint16_t))
+#define PUT_WEAPON_FLAGS(buf,count,value)	((PUT_INTEL_SHORT(&buf[count], value)), count+=sizeof(uint16_t))
 #endif
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	PUT_WEAPON_FLAGS(multibuf, count, player_info.primary_weapon_flags);
@@ -4437,7 +4437,7 @@ static void multi_do_finish_game (const ubyte *buf)
 	do_final_boss_hacks();
 }
 
-void multi_send_trigger_specific (const playernum_t pnum,char trig)
+void multi_send_trigger_specific(const playernum_t pnum, const uint8_t trig)
 {
 	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1] = trig;
@@ -4445,7 +4445,7 @@ void multi_send_trigger_specific (const playernum_t pnum,char trig)
 	multi_send_data_direct<MULTI_START_TRIGGER>(multibuf, 2, pnum, 2);
 }
 
-static void multi_do_start_trigger (const ubyte *buf)
+static void multi_do_start_trigger(const uint8_t *const buf)
 {
 	vmtrgptr(static_cast<trgnum_t>(buf[1]))->flags |= TF_DISABLED;
 }
@@ -4888,11 +4888,6 @@ void multi_send_player_inventory(int priority)
 	count++;
 	multibuf[count++] = Player_num;
 
-#if defined(DXX_BUILD_DESCENT_I)
-#define PUT_WEAPON_FLAGS(buf,count,value)	(buf[count] = value, ++count)
-#elif defined(DXX_BUILD_DESCENT_II)
-#define PUT_WEAPON_FLAGS(buf,count,value)	((PUT_INTEL_SHORT(buf+count, value)), count+=sizeof(uint16_t))
-#endif
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	PUT_WEAPON_FLAGS(multibuf, count, player_info.primary_weapon_flags);
 	multibuf[count++] = static_cast<char>(player_info.laser_level);

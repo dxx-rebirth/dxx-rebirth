@@ -33,7 +33,7 @@ namespace dsx {
 void net_udp_do_frame(int force, int listen);
 }
 #endif
-void net_udp_send_data(const ubyte * ptr, int len, int priority );
+void net_udp_send_data(const uint8_t *ptr, unsigned len, int priority);
 #ifdef dsx
 namespace dsx {
 void net_udp_leave_game();

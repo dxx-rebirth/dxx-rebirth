@@ -118,13 +118,13 @@ struct command_length;
 	struct command_length<NAME> : public std::integral_constant<unsigned, SIZE> {};
 for_each_multiplayer_command(define_command_length);
 
-void _multi_send_data(const ubyte *buf, unsigned len, int priority);
+void _multi_send_data(const uint8_t *buf, unsigned len, int priority);
 
 template <multiplayer_command_t C>
-static inline void multi_send_data(ubyte *buf, unsigned len, int priority)
+static inline void multi_send_data(uint8_t *const buf, const unsigned len, const int priority)
 {
 	buf[0] = C;
-	unsigned expected = command_length<C>::value;
+	constexpr unsigned expected = command_length<C>::value;
 #ifdef DXX_CONSTANT_TRUE
 	if (DXX_CONSTANT_TRUE(len != expected))
 		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_multi_send_data, "wrong packet size");
@@ -137,7 +137,7 @@ static inline void multi_send_data(ubyte *buf, unsigned len, int priority)
 }
 
 template <typename T>
-static inline void multi_serialize_read(const ubyte *buf, T &t)
+static inline void multi_serialize_read(const uint8_t *const buf, T &t)
 {
 	serial::reader::bytebuffer_t b(buf);
 	serial::process_buffer(b, t);
@@ -146,7 +146,7 @@ static inline void multi_serialize_read(const ubyte *buf, T &t)
 template <typename T>
 static inline void multi_serialize_write(int priority, const T &t)
 {
-	const size_t maximum_size = serial::message_type<T>::maximum_size;
+	constexpr size_t maximum_size = serial::message_type<T>::maximum_size;
 	uint8_t buf[maximum_size];
 	serial::writer::bytebuffer_t b(buf);
 	serial::process_buffer(b, t);

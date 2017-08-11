@@ -4680,7 +4680,7 @@ void net_udp_listen()
 		net_udp_listen(s);
 }
 
-void net_udp_send_data(const ubyte * ptr, int len, int priority )
+void net_udp_send_data(const uint8_t *const ptr, const unsigned len, const int priority)
 {
 	char check;
 
