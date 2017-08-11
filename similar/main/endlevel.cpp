@@ -122,7 +122,6 @@ static array<flythrough_data, MAX_FLY_OBJECTS> fly_objects;
 #define EL_CHASING		6		//chasing player to station
 
 #define SHORT_SEQUENCE	1		//if defined, end sequnce when panning starts
-//#define STATION_ENABLED	1		//if defined, load & use space station model
 
 int Endlevel_sequence = 0;
 
@@ -163,12 +162,6 @@ vms_vector satellite_pos,satellite_upvec;
 unsigned exit_modelnum,destroyed_exit_modelnum;
 
 static vms_vector station_pos{0xf8c4<<10,0x3c1c<<12,0x372<<10};
-
-#ifdef STATION_ENABLED
-static grs_bitmap *station_bitmap;
-grs_bitmap **station_bitmap_list[1];
-static unsigned station_modelnum;
-#endif
 
 static vms_vector mine_exit_point;
 static vms_vector mine_ground_exit_point;
@@ -252,13 +245,6 @@ void init_endlevel()
 	//##
 	//##load_terrain("matt5b.bbm");		//load bitmap as height array
 	//##//load_terrain("ttest2.bbm");		//load bitmap as height array
-
-	#ifdef STATION_ENABLED
-	station_bitmap = bm_load("steel3.bbm");
-	station_bitmap_list[0] = &station_bitmap;
-
-	station_modelnum = load_polygon_model("station.pof",1,station_bitmap_list,NULL);
-	#endif
 
 //!!	exit_bitmap = bm_load("steel1.bbm");
 //!!	exit_bitmap_list[0] = &exit_bitmap;
@@ -990,10 +976,6 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 			}
 		}
 	}
-
-	#ifdef STATION_ENABLED
-	draw_polygon_model(station_pos,&vmd_identity_matrix,NULL,station_modelnum,0,lrgb,NULL,NULL);
-	#endif
 
 #if DXX_USE_OGL
 	ogl_toggle_depth_test(0);
