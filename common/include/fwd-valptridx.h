@@ -73,18 +73,18 @@ protected:
 	using typename specialized_types::integral_type;
 	using index_type = integral_type;	// deprecated; should be dedicated UDT
 
-	/* basic_ptridx<policy> publicly inherits from basic_idx<policy> and
-	 * basic_ptr<policy>, but should not be implicitly sliced to one of
-	 * the base types.  To prevent slicing, basic_idx and basic_ptr take
+	/* ptridx<policy> publicly inherits from idx<policy> and
+	 * ptr<policy>, but should not be implicitly sliced to one of
+	 * the base types.  To prevent slicing, idx and ptr take
 	 * a dummy parameter that is set to 0 for freestanding use and 1
 	 * when used as a base class.
 	 */
 	template <typename policy, unsigned>
-		class basic_idx;
+		class idx;
 	template <typename policy, unsigned>
-		class basic_ptr;
+		class ptr;
 	template <typename policy>
-		class basic_ptridx;
+		class ptridx;
 	template <typename Pc, typename Pm>
 		class basic_ival_member_factory;
 	template <typename Pc, typename Pm>
@@ -144,18 +144,18 @@ public:
 	 * the lack of checking.
 	 */
 	using typename specialized_types::allow_none_construction;
-	typedef basic_ptridx<ic>	icptridx;
-	typedef basic_ptridx<im>	imptridx;
-	typedef basic_ptridx<vc>	vcptridx;
-	typedef basic_ptridx<vm>	vmptridx;
-	typedef basic_idx<ic, 0>	icidx;
-	typedef basic_idx<im, 0>	imidx;
-	typedef basic_idx<vc, 0>	vcidx;
-	typedef basic_idx<vm, 0>	vmidx;
-	typedef basic_ptr<ic, 0>	icptr;
-	typedef basic_ptr<im, 0>	imptr;
-	typedef basic_ptr<vc, 0>	vcptr;
-	typedef basic_ptr<vm, 0>	vmptr;
+	typedef ptridx<ic>	icptridx;
+	typedef ptridx<im>	imptridx;
+	typedef ptridx<vc>	vcptridx;
+	typedef ptridx<vm>	vmptridx;
+	typedef idx<ic, 0>	icidx;
+	typedef idx<im, 0>	imidx;
+	typedef idx<vc, 0>	vcidx;
+	typedef idx<vm, 0>	vmidx;
+	typedef ptr<ic, 0>	icptr;
+	typedef ptr<im, 0>	imptr;
+	typedef ptr<vc, 0>	vcptr;
+	typedef ptr<vm, 0>	vmptr;
 
 	/* Commit a DRY violation here so that tools can easily find these
 	 * types.  Strict DRY compliance would mean using a macro to
