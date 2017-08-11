@@ -105,9 +105,13 @@ struct player_rw
 	ushort  primary_weapon_flags;   // bit set indicates the player has this weapon.
 	ushort  secondary_weapon_flags; // bit set indicates the player has this weapon.
 #endif
-	ushort	laser_ammo;
-	ushort  vulcan_ammo;
-	array<uint16_t, MAX_PRIMARY_WEAPONS - 2> obsolete_primary_ammo;
+	union {
+		array<uint16_t, MAX_PRIMARY_WEAPONS> obsolete_primary_ammo;
+		struct {
+			uint16_t laser_ammo;
+			uint16_t vulcan_ammo;
+		};
+	};
 	ushort  secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
 
 #if defined(DXX_BUILD_DESCENT_II)

@@ -520,9 +520,8 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 											| (pl_info.secondary_ammo[SMISSILE4_INDEX] > 0) << SMISSILE4_INDEX	// mercury missile
 											| (pl_info.secondary_ammo[SMISSILE5_INDEX] > 0) << SMISSILE5_INDEX;	// earthshaker missile
 #endif
-	pl_rw->laser_ammo = 0;
-	pl_rw->vulcan_ammo   = pl_info.vulcan_ammo;
 	pl_rw->obsolete_primary_ammo = {};
+	pl_rw->vulcan_ammo   = pl_info.vulcan_ammo;
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		pl_rw->secondary_ammo[i] = pl_info.secondary_ammo[i];
 #if defined(DXX_BUILD_DESCENT_II)
