@@ -13,10 +13,10 @@
 #include "dsx-ns.h"
 #include "compiler-array.h"
 #include "objnum.h"
-#include "cpp-valptridx.h"
 #include "fwd-vecmat.h"
 #include "fwd-segment.h"
 #include "fwd-window.h"
+#include "fwd-valptridx.h"
 
 struct bitmap_index;
 
@@ -34,11 +34,7 @@ namespace dsx {
 struct object;
 }
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, object, objnum_t, MAX_OBJECTS);
-#endif
 
-#include "fwd-valptridx.h"
-
-#ifdef dsx
 namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(object, obj);
 
