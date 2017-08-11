@@ -62,6 +62,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
+#define BIMD1_BRIEFING_FILE		"briefing.txb"
+
 using std::min;
 
 #define MISSION_EXTENSION_DESCENT_I	".msn"
@@ -174,7 +176,7 @@ static int load_mission_d1(void)
 			for (int i=0; i < -Last_secret_level; i++)
 				snprintf(&Secret_level_names[i][0u], Secret_level_names[i].size(), "levels%1d.rdl", i+1);
 			Secret_level_table[0] = 10;
-			Briefing_text_filename = BIMD1_BRIEFING_FILE_OEM;
+			Briefing_text_filename = "briefsat.txb";
 			Ending_text_filename = BIMD1_ENDING_FILE_OEM;
 			break;
 		default:
@@ -203,7 +205,7 @@ static int load_mission_d1(void)
 			Secret_level_table[1] = 21;
 			Secret_level_table[2] = 24;
 			Briefing_text_filename = BIMD1_BRIEFING_FILE;
-			Ending_text_filename = BIMD1_ENDING_FILE;
+			Ending_text_filename = "endreg.txb";
 			break;
 	}
 
@@ -779,11 +781,11 @@ static int load_mission(const mle *mission)
 		switch (Current_mission->builtin_hogsize) {
 		case SHAREWARE_MISSION_HOGSIZE:
 		case MAC_SHARE_MISSION_HOGSIZE:
-			Briefing_text_filename = BIMD2_BRIEFING_FILE_SHARE;
+			Briefing_text_filename = "brief2.txb";
 			Ending_text_filename = BIMD2_ENDING_FILE_SHARE;
 			return load_mission_shareware();
 		case OEM_MISSION_HOGSIZE:
-			Briefing_text_filename = BIMD2_BRIEFING_FILE_OEM;
+			Briefing_text_filename = "brief2o.txb";
 			Ending_text_filename = BIMD2_ENDING_FILE_OEM;
 			return load_mission_oem();
 		default:
@@ -791,7 +793,7 @@ static int load_mission(const mle *mission)
 		case FULL_MISSION_HOGSIZE:
 		case FULL_10_MISSION_HOGSIZE:
 		case MAC_FULL_MISSION_HOGSIZE:
-			Briefing_text_filename = BIMD2_BRIEFING_FILE;
+			Briefing_text_filename = "robot.txb";
 			// continue on... (use d2.mn2 from hogfile)
 			break;
 		}
