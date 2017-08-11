@@ -42,7 +42,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-int error_init(void (*func)(const char *));    //init error system, returns 0=ok
 void Warning_puts(const char *str) __attribute_nonnull();
 void Warning(const char *fmt,...) __attribute_format_printf(1, 2);				//print out warning message to user
 #define Warning(F,...)	dxx_call_printf_checked(Warning,Warning_puts,(),(F),##__VA_ARGS__)

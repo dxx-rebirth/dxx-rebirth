@@ -27,6 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>
 
+#include "messagebox.h"
 #include "pstypes.h"
 #include "console.h"
 #include "dxxerror.h"
@@ -34,8 +35,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 
 #define MAX_MSG_LEN 2048
-
-static void (*ErrorPrintFunc)(const char *);
 
 //takes string in register, calls printf with string on stack
 static void warn_printf(const char *s)
@@ -60,10 +59,7 @@ void clear_warn_func()
 static void print_exit_message(const char *exit_message, size_t len)
 {
 	con_puts(CON_CRITICAL, exit_message, len);
-		if (ErrorPrintFunc)
-		{
-			(*ErrorPrintFunc)(exit_message);
-		}
+	msgbox_error(exit_message);
 }
 
 __noreturn
@@ -142,13 +138,6 @@ void (Warning)(const char *fmt,...)
 
 	(*warn_func)(warn_message);
 
-}
-
-//initialize error handling system, and set default message. returns 0=ok
-int error_init(void (*func)(const char *))
-{
-	ErrorPrintFunc = func;          // Set Error Print Functions
-	return 0;
 }
 
 }

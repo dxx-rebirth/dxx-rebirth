@@ -14,14 +14,16 @@
 
 #pragma once
 
-#ifdef __cplusplus
 namespace dcx {
 
 // Display a warning in a messagebox
 extern void msgbox_warning(const char *message);
 
 // Display an error in a messagebox
+#ifdef WIN32
 extern void msgbox_error(const char *message);
+#else
+#define msgbox_error(M)	(static_cast<void>(M))
+#endif
 
 }
-#endif

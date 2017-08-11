@@ -648,7 +648,6 @@ int main(int argc, char *argv[])
 	prctl(PR_SET_UNALIGN, PR_UNALIGN_NOPRINT, 0, 0, 0);
 #endif
 #else
-	error_init(msgbox_error);
 	set_warn_func(msgbox_warning);
 #endif
 #ifdef WIN32
