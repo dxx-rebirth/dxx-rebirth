@@ -768,9 +768,11 @@ static void render_segment(grs_canvas &canvas, const vcsegptridx_t seg)
 	{		//all off screen?
 
 #if defined(DXX_BUILD_DESCENT_II)
-      if (Viewer->type!=OBJ_ROBOT)
+		if (Viewer->type != OBJ_ROBOT)
 #endif
+		{
 		Automap_visited[seg]=1;
+		}
 
 		for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 			render_side(canvas, seg, sn);
