@@ -4682,6 +4682,9 @@ void net_udp_listen()
 
 void net_udp_send_data(const uint8_t *const ptr, const unsigned len, const int priority)
 {
+#if DXX_HAVE_POISON_VALGRIND
+	VALGRIND_CHECK_MEM_IS_DEFINED(ptr, len);
+#endif
 	char check;
 
 	if ((UDP_MData.mbuf_size+len) > UPID_MDATA_BUF_SIZE )

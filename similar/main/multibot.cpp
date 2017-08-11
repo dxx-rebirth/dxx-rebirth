@@ -362,7 +362,7 @@ void multi_send_claim_robot(const vmobjptridx_t objnum)
 
 void multi_send_release_robot(const vmobjptridx_t objnum)
 {
-	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
+	multi_command<MULTI_ROBOT_RELEASE> multibuf;
 	short s;
 	if (objnum->type != OBJ_ROBOT)
 	{
@@ -376,7 +376,7 @@ void multi_send_release_robot(const vmobjptridx_t objnum)
 	s = objnum_local_to_remote(objnum, reinterpret_cast<int8_t *>(&multibuf[4]));
 	PUT_INTEL_SHORT(&multibuf[2], s);
 
-	multi_send_data<MULTI_ROBOT_RELEASE>(multibuf, 5, 2);
+	multi_send_data(multibuf, 2);
 }
 
 #define MIN_ROBOT_COM_GAP F1_0/12
@@ -445,7 +445,7 @@ void multi_send_thief_frame()
 
 void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
 {
-	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
+	multi_command<MULTI_ROBOT_POSITION> multibuf;
 	int loc = 0;
 	short s;
 
@@ -471,7 +471,7 @@ void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
 	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.y);			loc += 4;
 	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.z);			loc += 4; // 46 + 5 = 51
 
-	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, loc, now?1:0);
+	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, now?1:0);
 }
 
 void multi_send_robot_position(object &obj, int force)
@@ -501,7 +501,7 @@ void multi_send_robot_position(object &obj, int force)
 
 void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vector &fire)
 {
-	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
+	multi_command<MULTI_ROBOT_FIRE> multibuf;
         // Send robot fire event
         int loc = 0;
         short s;
@@ -540,11 +540,11 @@ void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vecto
                         // Int3(); // ROB!
                         return;
                 }
-                memcpy(robot_fire_buf[slot], multibuf, loc);
+                memcpy(robot_fire_buf[slot], multibuf.data(), loc);
                 robot_fired[slot] = 1;
         }
         else
-                multi_send_data<MULTI_ROBOT_FIRE>(multibuf, loc, 1); // Not our robot, send ASAP
+                multi_send_data(multibuf, 1); // Not our robot, send ASAP
 }
 
 struct multi_explode_robot
@@ -571,7 +571,7 @@ void multi_send_robot_explode(const imobjptridx_t objnum, objnum_t killer)
 
 void multi_send_create_robot(int station, objnum_t objnum, int type)
 {
-	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
+	multi_command<MULTI_CREATE_ROBOT> multibuf;
 	// Send create robot information
 
 	int loc = 0;
@@ -584,7 +584,7 @@ void multi_send_create_robot(int station, objnum_t objnum, int type)
 
 	map_objnum_local_to_local(objnum);
 
-	multi_send_data<MULTI_CREATE_ROBOT>(multibuf, loc, 2);
+	multi_send_data(multibuf, 2);
 }
 
 struct boss_teleport
@@ -666,7 +666,7 @@ void multi_send_boss_create_robot(vmobjidx_t bossobjnum, const vmobjptridx_t obj
 namespace dsx {
 static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 {
-	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
+	multi_command<MULTI_CREATE_ROBOT_POWERUPS> multibuf;
 	// Send create robot information
 
 	int loc = 0;
@@ -711,7 +711,7 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 
 	Net_create_loc = 0;
 
-	multi_send_data<MULTI_CREATE_ROBOT_POWERUPS>(multibuf, 27, 2);
+	multi_send_data(multibuf, 2);
 }
 }
 

@@ -118,6 +118,11 @@ struct command_length;
 	struct command_length<NAME> : public std::integral_constant<unsigned, SIZE> {};
 for_each_multiplayer_command(define_command_length);
 
+template <multiplayer_command_t C>
+struct multi_command : public std::array<uint8_t, command_length<C>::value>
+{
+};
+
 void _multi_send_data(const uint8_t *buf, unsigned len, int priority);
 
 template <multiplayer_command_t C>
@@ -134,6 +139,13 @@ static inline void multi_send_data(uint8_t *const buf, const unsigned len, const
 		Error("multi_send_data: Packet type %i length: %i, expected: %i\n", C, len, expected);
 	}
 	_multi_send_data(buf, len, priority);
+}
+
+template <multiplayer_command_t C>
+static inline void multi_send_data(multi_command<C> &buf, const int priority)
+{
+	buf[0] = C;
+	_multi_send_data(buf.data(), buf.size(), priority);
 }
 
 template <typename T>
