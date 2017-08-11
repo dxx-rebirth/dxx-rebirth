@@ -373,7 +373,7 @@ void multi_send_release_robot(const vmobjptridx_t objnum)
 
 	multibuf[1] = Player_num;
 	s = objnum_local_to_remote(objnum, reinterpret_cast<int8_t *>(&multibuf[4]));
-	PUT_INTEL_SHORT(multibuf+2, s);
+	PUT_INTEL_SHORT(&multibuf[2], s);
 
 	multi_send_data<MULTI_ROBOT_RELEASE>(multibuf, 5, 2);
 }
@@ -450,24 +450,24 @@ void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
 	loc += 1;
 	multibuf[loc] = Player_num;                                            loc += 1;
 	s = objnum_local_to_remote(objnum, reinterpret_cast<int8_t *>(&multibuf[loc+2]));
-	PUT_INTEL_SHORT(multibuf+loc, s);                                      loc += 3; // 5
+	PUT_INTEL_SHORT(&multibuf[loc], s);                                      loc += 3; // 5
 
 	quaternionpos qpp{};
 	create_quaternionpos(&qpp, objnum, 0);
-	PUT_INTEL_SHORT(multibuf+loc, qpp.orient.w);			loc += 2;
-	PUT_INTEL_SHORT(multibuf+loc, qpp.orient.x);			loc += 2;
-	PUT_INTEL_SHORT(multibuf+loc, qpp.orient.y);			loc += 2;
-	PUT_INTEL_SHORT(multibuf+loc, qpp.orient.z);			loc += 2;
-	PUT_INTEL_INT(multibuf+loc, qpp.pos.x);				loc += 4;
-	PUT_INTEL_INT(multibuf+loc, qpp.pos.y);				loc += 4;
-	PUT_INTEL_INT(multibuf+loc, qpp.pos.z);				loc += 4;
-	PUT_INTEL_SHORT(multibuf+loc, qpp.segment);			loc += 2;
-	PUT_INTEL_INT(multibuf+loc, qpp.vel.x);				loc += 4;
-	PUT_INTEL_INT(multibuf+loc, qpp.vel.y);				loc += 4;
-	PUT_INTEL_INT(multibuf+loc, qpp.vel.z);				loc += 4;
-	PUT_INTEL_INT(multibuf+loc, qpp.rotvel.x);			loc += 4;
-	PUT_INTEL_INT(multibuf+loc, qpp.rotvel.y);			loc += 4;
-	PUT_INTEL_INT(multibuf+loc, qpp.rotvel.z);			loc += 4; // 46 + 5 = 51
+	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.w);			loc += 2;
+	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.x);			loc += 2;
+	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.y);			loc += 2;
+	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.z);			loc += 2;
+	PUT_INTEL_INT(&multibuf[loc], qpp.pos.x);				loc += 4;
+	PUT_INTEL_INT(&multibuf[loc], qpp.pos.y);				loc += 4;
+	PUT_INTEL_INT(&multibuf[loc], qpp.pos.z);				loc += 4;
+	PUT_INTEL_SHORT(&multibuf[loc], qpp.segment);			loc += 2;
+	PUT_INTEL_INT(&multibuf[loc], qpp.vel.x);				loc += 4;
+	PUT_INTEL_INT(&multibuf[loc], qpp.vel.y);				loc += 4;
+	PUT_INTEL_INT(&multibuf[loc], qpp.vel.z);				loc += 4;
+	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.x);			loc += 4;
+	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.y);			loc += 4;
+	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.z);			loc += 4; // 46 + 5 = 51
 
 	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, loc, now?1:0);
 }
@@ -506,7 +506,7 @@ void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vecto
                                                                         loc += 1;
         multibuf[loc] = Player_num;                                     loc += 1;
         s = objnum_local_to_remote(obj, reinterpret_cast<int8_t *>(&multibuf[loc+2]));
-        PUT_INTEL_SHORT(multibuf+loc, s);
+        PUT_INTEL_SHORT(&multibuf[loc], s);
                                                                         loc += 3;
         multibuf[loc] = gun_num;                                        loc += 1;
         if (words_bigendian)
@@ -575,7 +575,7 @@ void multi_send_create_robot(int station, objnum_t objnum, int type)
 	loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
 	multibuf[loc] = static_cast<int8_t>(station);                         loc += 1;
-	PUT_INTEL_SHORT(multibuf+loc, objnum);                  loc += 2;
+	PUT_INTEL_SHORT(&multibuf[loc], objnum);                  loc += 2;
 	multibuf[loc] = type;									loc += 1;
 
 	map_objnum_local_to_local(objnum);
@@ -671,7 +671,7 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 	multibuf[loc] = del_obj->contains_count;					loc += 1;
 	multibuf[loc] = del_obj->contains_type; 					loc += 1;
 	multibuf[loc] = del_obj->contains_id;						loc += 1;
-	PUT_INTEL_SHORT(multibuf+loc, del_obj->segnum);		        loc += 2;
+	PUT_INTEL_SHORT(&multibuf[loc], del_obj->segnum);		        loc += 2;
 	if (words_bigendian)
 	{
 		vms_vector swapped_vec;
@@ -687,7 +687,7 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 		loc += 12;
 	}
 
-	memset(multibuf+loc, -1, MAX_ROBOT_POWERUPS*sizeof(short));
+	memset(&multibuf[loc], -1, MAX_ROBOT_POWERUPS*sizeof(short));
 #if defined(DXX_BUILD_DESCENT_II)
    if (del_obj->contains_count!=Net_create_loc)
 	  Int3();  //Get Jason, a bad thing happened
@@ -699,7 +699,7 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 	}
 	range_for (const auto i, partial_const_range(Net_create_objnums, Net_create_loc))
 	{
-		PUT_INTEL_SHORT(multibuf+loc, i);
+		PUT_INTEL_SHORT(&multibuf[loc], i);
 		loc += 2;
 		map_objnum_local_to_local(i);
 	}

@@ -2487,8 +2487,8 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 
 	const auto &ownship = get_local_plrobj();
 	PUT_INTEL_INT(multibuf+6 , ownship.orient.fvec.x);
-	PUT_INTEL_INT(multibuf+10, ownship.orient.fvec.y);
-	PUT_INTEL_INT(multibuf+14, ownship.orient.fvec.z);
+	PUT_INTEL_INT(&multibuf[10], ownship.orient.fvec.y);
+	PUT_INTEL_INT(&multibuf[14], ownship.orient.fvec.z);
 
 	/*
 	 * If we fire a bomb, it's persistent. Let others know of it's objnum so host can track it's behaviour over clients (host-authority functions, D2 chaff ability).
@@ -2507,7 +2507,7 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 		short remote_laser_track = -1;
 
 		remote_laser_track = objnum_local_to_remote(laser_track, &remote_owner);
-		PUT_INTEL_SHORT(multibuf+18, remote_laser_track);
+		PUT_INTEL_SHORT(&multibuf[18], remote_laser_track);
 		multibuf[20] = remote_owner;
 		multi_send_data<MULTI_FIRE_TRACK>(multibuf, 21, 1);
 	}
@@ -2524,7 +2524,7 @@ void multi_send_destroy_controlcen(objnum_t objnum, int player)
 	else
 		HUD_init_message_literal(HM_MULTI, TXT_CONTROL_DESTROYED);
 
-	PUT_INTEL_SHORT(multibuf+1, objnum);
+	PUT_INTEL_SHORT(&multibuf[1], objnum);
 	multibuf[3] = player;
 	multi_send_data<MULTI_CONTROLCEN>(multibuf, 4, 2);
 }
@@ -2536,9 +2536,9 @@ void multi_send_drop_marker (int player,const vms_vector &position,char messagen
 	{
 		multibuf[1]=static_cast<char>(player);
 		multibuf[2]=messagenum;
-		PUT_INTEL_INT(multibuf+3, position.x);
-		PUT_INTEL_INT(multibuf+7, position.y);
-		PUT_INTEL_INT(multibuf+11, position.z);
+		PUT_INTEL_INT(&multibuf[3], position.x);
+		PUT_INTEL_INT(&multibuf[7], position.y);
+		PUT_INTEL_INT(&multibuf[11], position.z);
 		for (unsigned i = 0; i < text.size(); i++)
 			multibuf[15+i]=text[i];
 		multi_send_data<MULTI_MARKER>(multibuf, 15 + text.size(), 2);
@@ -2631,16 +2631,16 @@ void multi_send_player_deres(deres_type_t type)
 	multibuf[count++] = secondary_ammo[SMISSILE5_INDEX];
 #endif
 
-	PUT_INTEL_SHORT(multibuf+count, player_info.vulcan_ammo);
+	PUT_INTEL_SHORT(&multibuf[count], player_info.vulcan_ammo);
 	count += 2;
-	PUT_INTEL_INT(multibuf+count, player_info.powerup_flags.get_player_flags());
+	PUT_INTEL_INT(&multibuf[count], player_info.powerup_flags.get_player_flags());
 	count += 4;
 
 	multibuf[count++] = Net_create_loc;
 
 	Assert(Net_create_loc <= MAX_NET_CREATE_OBJECTS);
 
-	memset(multibuf+count, -1, MAX_NET_CREATE_OBJECTS*sizeof(short));
+	memset(&multibuf[count], -1, MAX_NET_CREATE_OBJECTS*sizeof(short));
 
 	range_for (const auto i, partial_const_range(Net_create_objnums, Net_create_loc))
 	{
@@ -2650,7 +2650,7 @@ void multi_send_player_deres(deres_type_t type)
 			continue;
 		}
 
-		PUT_INTEL_SHORT(multibuf+count, i); count += 2;
+		PUT_INTEL_SHORT(&multibuf[count], i); count += 2;
 
 		// We created these objs so our local number = the network number
 		map_objnum_local_to_local(i);
@@ -2689,7 +2689,7 @@ void multi_send_reappear()
 {
 	multi_send_position(vmobjptridx(get_local_player().objnum));
 	multibuf[1] = static_cast<char>(Player_num);
-	PUT_INTEL_SHORT(multibuf+2, get_local_player().objnum);
+	PUT_INTEL_SHORT(&multibuf[2], get_local_player().objnum);
 
 	multi_send_data<MULTI_REAPPEAR>(multibuf, 4, 2);
 }
@@ -2702,20 +2702,20 @@ void multi_send_position(const vmobjptridx_t obj)
 
 	quaternionpos qpp{};
 	create_quaternionpos(&qpp, obj, 0);
-	PUT_INTEL_SHORT(multibuf+count, qpp.orient.w);							count += 2;
-	PUT_INTEL_SHORT(multibuf+count, qpp.orient.x);							count += 2;
-	PUT_INTEL_SHORT(multibuf+count, qpp.orient.y);							count += 2;
-	PUT_INTEL_SHORT(multibuf+count, qpp.orient.z);							count += 2;
-	PUT_INTEL_INT(multibuf+count, qpp.pos.x);							count += 4;
-	PUT_INTEL_INT(multibuf+count, qpp.pos.y);							count += 4;
-	PUT_INTEL_INT(multibuf+count, qpp.pos.z);							count += 4;
-	PUT_INTEL_SHORT(multibuf+count, qpp.segment);							count += 2;
-	PUT_INTEL_INT(multibuf+count, qpp.vel.x);							count += 4;
-	PUT_INTEL_INT(multibuf+count, qpp.vel.y);							count += 4;
-	PUT_INTEL_INT(multibuf+count, qpp.vel.z);							count += 4;
-	PUT_INTEL_INT(multibuf+count, qpp.rotvel.x);							count += 4;
-	PUT_INTEL_INT(multibuf+count, qpp.rotvel.y);							count += 4;
-	PUT_INTEL_INT(multibuf+count, qpp.rotvel.z);							count += 4; // 46
+	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.w);							count += 2;
+	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.x);							count += 2;
+	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.y);							count += 2;
+	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.z);							count += 2;
+	PUT_INTEL_INT(&multibuf[count], qpp.pos.x);							count += 4;
+	PUT_INTEL_INT(&multibuf[count], qpp.pos.y);							count += 4;
+	PUT_INTEL_INT(&multibuf[count], qpp.pos.z);							count += 4;
+	PUT_INTEL_SHORT(&multibuf[count], qpp.segment);							count += 2;
+	PUT_INTEL_INT(&multibuf[count], qpp.vel.x);							count += 4;
+	PUT_INTEL_INT(&multibuf[count], qpp.vel.y);							count += 4;
+	PUT_INTEL_INT(&multibuf[count], qpp.vel.z);							count += 4;
+	PUT_INTEL_INT(&multibuf[count], qpp.rotvel.x);							count += 4;
+	PUT_INTEL_INT(&multibuf[count], qpp.rotvel.y);							count += 4;
+	PUT_INTEL_INT(&multibuf[count], qpp.rotvel.z);							count += 4; // 46
 
 	// send twice while first has priority so the next one will be attached to the next bigdata packet
 	multi_send_data<MULTI_POSITION>(multibuf, count, 1);
@@ -2740,11 +2740,11 @@ void multi_send_kill(const vmobjptridx_t objnum)
 	if (killer_objnum != object_none)
 	{
 		const auto s = objnum_local_to_remote(killer_objnum, reinterpret_cast<int8_t *>(&multibuf[count+2])); // do it with variable since INTEL_SHORT won't work on return val from function.
-		PUT_INTEL_SHORT(multibuf+count, s);
+		PUT_INTEL_SHORT(&multibuf[count], s);
 	}
 	else
 	{
-		PUT_INTEL_SHORT(multibuf+count, static_cast<int16_t>(-1));
+		PUT_INTEL_SHORT(&multibuf[count], static_cast<int16_t>(-1));
 		multibuf[count+2] = static_cast<char>(-1);
 	}
 	count += 3;
@@ -2774,7 +2774,7 @@ void multi_send_remobj(const vmobjptridx_t objnum)
 
 	remote_objnum = objnum_local_to_remote(objnum, &obj_owner);
 
-	PUT_INTEL_SHORT(multibuf+1, remote_objnum); // Map to network objnums
+	PUT_INTEL_SHORT(&multibuf[1], remote_objnum); // Map to network objnums
 
 	multibuf[3] = obj_owner;
 
@@ -2826,7 +2826,7 @@ namespace dsx {
 void multi_send_door_open(const vcsegidx_t segnum, const unsigned side, const uint8_t flag)
 {
 	// When we open a door make sure everyone else opens that door
-	PUT_INTEL_SHORT(multibuf+1, segnum );
+	PUT_INTEL_SHORT(&multibuf[1], segnum );
 	multibuf[3] = static_cast<int8_t>(side);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)flag;
@@ -2844,7 +2844,7 @@ void multi_send_door_open_specific(const playernum_t pnum, const vcsegidx_t segn
 	Assert (Game_mode & GM_NETWORK);
 	//   Assert (pnum>-1 && pnum<N_players);
 
-	PUT_INTEL_SHORT(multibuf+1, segnum);
+	PUT_INTEL_SHORT(&multibuf[1], segnum);
 	multibuf[3] = static_cast<int8_t>(side);
 	multibuf[4] = flag;
 
@@ -2893,7 +2893,7 @@ void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, obj
 	}
 	count += 12;
 	multibuf[count] = static_cast<char>(best_gun_num);                   count +=  1;
-	PUT_INTEL_SHORT(multibuf+count, objnum );     count +=  2;
+	PUT_INTEL_SHORT(&multibuf[count], objnum );     count +=  2;
 	//                                                                                                                      ------------
 	//                                                                                                                      Total  = 16
 	multi_send_data<MULTI_CONTROLCEN_FIRE>(multibuf, count, 0);
@@ -2914,8 +2914,8 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 	count += 1;
 	multibuf[count] = Player_num;                                      count += 1;
 	multibuf[count] = powerup_type;                                 count += 1;
-	PUT_INTEL_SHORT(multibuf+count, segnum );     count += 2;
-	PUT_INTEL_SHORT(multibuf+count, objnum );     count += 2;
+	PUT_INTEL_SHORT(&multibuf[count], segnum );     count += 2;
+	PUT_INTEL_SHORT(&multibuf[count], objnum );     count += 2;
 	if (words_bigendian)
 	{
 		vms_vector swapped_vec;
@@ -2992,7 +2992,7 @@ void multi_send_score()
 		count += 1;
 		multibuf[count] = Player_num;                           count += 1;
 		auto &player_info = get_local_plrobj().ctype.player_info;
-		PUT_INTEL_INT(multibuf+count, player_info.mission.score);  count += 4;
+		PUT_INTEL_INT(&multibuf[count], player_info.mission.score);  count += 4;
 		multi_send_data<MULTI_SCORE>(multibuf, count, 0);
 	}
 }
@@ -3025,11 +3025,11 @@ void multi_send_effect_blowup(const vcsegidx_t segnum, const unsigned side, cons
 	
 	count += 1;
 	multibuf[count] = Player_num;                                   count += 1;
-	PUT_INTEL_SHORT(multibuf+count, segnum);                        count += 2;
+	PUT_INTEL_SHORT(&multibuf[count], segnum);                        count += 2;
 	multibuf[count] = static_cast<int8_t>(side);                                  count += 1;
-	PUT_INTEL_INT(multibuf+count, pnt.x);                          count += 4;
-	PUT_INTEL_INT(multibuf+count, pnt.y);                          count += 4;
-	PUT_INTEL_INT(multibuf+count, pnt.z);                          count += 4;
+	PUT_INTEL_INT(&multibuf[count], pnt.x);                          count += 4;
+	PUT_INTEL_INT(&multibuf[count], pnt.y);                          count += 4;
+	PUT_INTEL_INT(&multibuf[count], pnt.z);                          count += 4;
 
 	multi_send_data<MULTI_EFFECT_BLOWUP>(multibuf, count, 0);
 }
@@ -3047,7 +3047,7 @@ void multi_send_hostage_door_status(const vcwallptridx_t w)
 	count += 1;
 	PUT_INTEL_SHORT(&multibuf[count], static_cast<wallnum_t>(w));
 	count += 2;
-	PUT_INTEL_INT(multibuf+count, w->hps);  count += 4;
+	PUT_INTEL_INT(&multibuf[count], w->hps);  count += 4;
 
 	multi_send_data<MULTI_HOSTAGE_DOOR>(multibuf, count, 0);
 }
@@ -3570,9 +3570,9 @@ void multi_send_drop_weapon(const vmobjptridx_t objnum, int seed)
 
 	count++;
 	multibuf[count++]=static_cast<char>(get_powerup_id(objp));
-	PUT_INTEL_SHORT(multibuf+count, objnum); count += 2;
-	PUT_INTEL_SHORT(multibuf+count, static_cast<uint16_t>(ammo_count)); count += 2;
-	PUT_INTEL_INT(multibuf+count, seed);
+	PUT_INTEL_SHORT(&multibuf[count], objnum); count += 2;
+	PUT_INTEL_SHORT(&multibuf[count], static_cast<uint16_t>(ammo_count)); count += 2;
+	PUT_INTEL_INT(&multibuf[count], seed);
 	count += 4;
 
 	map_objnum_local_to_local(objnum);
@@ -3602,12 +3602,12 @@ void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum)
 	sbyte obj_owner;
 	const auto remote_objnum = objnum_local_to_remote(objnum, &obj_owner);
 
-	PUT_INTEL_SHORT(multibuf+1, remote_objnum); // Map to network objnums
+	PUT_INTEL_SHORT(&multibuf[1], remote_objnum); // Map to network objnums
 
 	multibuf[3] = obj_owner;
 
 	const uint16_t ammo_count = objnum->ctype.powerup_info.count;
-	PUT_INTEL_SHORT(multibuf+4, ammo_count);
+	PUT_INTEL_SHORT(&multibuf[4], ammo_count);
 
 	multi_send_data<MULTI_VULWPN_AMMO_ADJ>(multibuf, 6, 2);
 
@@ -3738,7 +3738,7 @@ void multi_send_wall_status_specific(const playernum_t pnum,uint16_t wallnum,uby
 	//Assert (pnum>-1 && pnum<N_players);
 
 	count++;
-	PUT_INTEL_SHORT(multibuf+count, wallnum);  count+=2;
+	PUT_INTEL_SHORT(&multibuf[count], wallnum);  count+=2;
 	multibuf[count]=type;                 count++;
 	multibuf[count]=flags;                count++;
 	multibuf[count]=state;                count++;
@@ -3803,7 +3803,7 @@ void multi_send_heartbeat ()
 	if (!Netgame.PlayTimeAllowed)
 		return;
 
-	PUT_INTEL_INT(multibuf+1, ThisLevelTime);
+	PUT_INTEL_INT(&multibuf[1], ThisLevelTime);
 	multi_send_data<MULTI_HEARTBEAT>(multibuf, 5, 0);
 }
 
@@ -3891,7 +3891,7 @@ void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segn
 
 	range_for (auto &i, segnum->sides)
 	{
-		PUT_INTEL_SHORT(multibuf+count, i.tmap_num2); count+=2;
+		PUT_INTEL_SHORT(&multibuf[count], i.tmap_num2); count+=2;
 	}
 
 	multi_send_data_direct<MULTI_LIGHT>(multibuf, count, pnum, 2);
@@ -3930,7 +3930,7 @@ static void multi_do_flags(fvmobjptr &vmobjptr, const playernum_t pnum, const ui
 void multi_send_flags (const playernum_t pnum)
 {
 	multibuf[1]=pnum;
-	PUT_INTEL_INT(multibuf+2, vmobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags.get_player_flags());
+	PUT_INTEL_INT(&multibuf[2], vmobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags.get_player_flags());
  
 	multi_send_data<MULTI_FLAGS>(multibuf, 6, 2);
 }
@@ -4261,7 +4261,7 @@ void multi_send_drop_flag(const vmobjptridx_t objp, int seed)
 
 	PUT_INTEL_SHORT(&multibuf[count], objp.get_unchecked_index());
 	count += 2;
-	PUT_INTEL_INT(multibuf+count, seed);
+	PUT_INTEL_INT(&multibuf[count], seed);
 
 	map_objnum_local_to_local(objp);
 
@@ -4599,7 +4599,7 @@ static void multi_send_save_game(ubyte slot, uint id, char * desc)
 	
 	count += 1;
 	multibuf[count] = slot;				count += 1; // Save slot=0
-	PUT_INTEL_INT( multibuf+count, id );		count += 4; // Save id
+	PUT_INTEL_INT(&multibuf[count], id );		count += 4; // Save id
 	memcpy( &multibuf[count], desc, 20 );		count += 20;
 
 	multi_send_data<MULTI_SAVE_GAME>(multibuf, count, 2);
@@ -4611,7 +4611,7 @@ static void multi_send_restore_game(ubyte slot, uint id)
 	
 	count += 1;
 	multibuf[count] = slot;				count += 1; // Save slot=0
-	PUT_INTEL_INT( multibuf+count, id );		count += 4; // Save id
+	PUT_INTEL_INT(&multibuf[count], id );		count += 4; // Save id
 
 	multi_send_data<MULTI_RESTORE_GAME>(multibuf, count, 2);
 }
@@ -4865,9 +4865,9 @@ void multi_send_player_inventory(int priority)
 	multibuf[count++] = secondary_ammo[SMISSILE5_INDEX];
 #endif
 
-	PUT_INTEL_SHORT(multibuf+count, player_info.vulcan_ammo);
+	PUT_INTEL_SHORT(&multibuf[count], player_info.vulcan_ammo);
 	count += 2;
-	PUT_INTEL_INT(multibuf+count, player_info.powerup_flags.get_player_flags());
+	PUT_INTEL_INT(&multibuf[count], player_info.powerup_flags.get_player_flags());
 	count += 4;
 
 	multi_send_data<MULTI_PLAYER_INV>(multibuf, command_length<MULTI_PLAYER_INV>::value, priority);
