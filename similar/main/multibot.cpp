@@ -362,6 +362,7 @@ void multi_send_claim_robot(const vmobjptridx_t objnum)
 
 void multi_send_release_robot(const vmobjptridx_t objnum)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	short s;
 	if (objnum->type != OBJ_ROBOT)
 	{
@@ -444,6 +445,7 @@ void multi_send_thief_frame()
 
 void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	int loc = 0;
 	short s;
 
@@ -499,6 +501,7 @@ void multi_send_robot_position(object &obj, int force)
 
 void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vector &fire)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
         // Send robot fire event
         int loc = 0;
         short s;
@@ -568,6 +571,7 @@ void multi_send_robot_explode(const imobjptridx_t objnum, objnum_t killer)
 
 void multi_send_create_robot(int station, objnum_t objnum, int type)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	// Send create robot information
 
 	int loc = 0;
@@ -662,6 +666,7 @@ void multi_send_boss_create_robot(vmobjidx_t bossobjnum, const vmobjptridx_t obj
 namespace dsx {
 static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	// Send create robot information
 
 	int loc = 0;

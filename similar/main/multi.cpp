@@ -156,8 +156,6 @@ array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
 int multi_defining_message = 0;
 static int multi_message_index;
 
-ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];            // This is where multiplayer message are built
-
 static array<array<objnum_t, MAX_OBJECTS>, MAX_PLAYERS> remote_to_local;  // Remote object number for each local object
 static array<uint16_t, MAX_OBJECTS> local_to_remote;
 array<sbyte, MAX_OBJECTS> object_owner;   // Who created each object in my universe, -1 = loaded at start
@@ -1859,6 +1857,7 @@ static void multi_do_kill(object_array &objects, const uint8_t *const buf)
 	// I am host, I know what's going on so take this packet, add game_mode related info which might be necessary for kill computation and send it to everyone so they can compute their kills correctly
 	if (multi_i_am_master())
 	{
+		uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 		memcpy(multibuf, buf, 5);
 		multibuf[5] = Netgame.team_vector;
 		multibuf[6] = Bounty_target;
@@ -2469,6 +2468,7 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 		last_fireup_time = timer_query();
 	}
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[0] = static_cast<char>(MULTI_FIRE);
 	if (is_bomb_objnum != object_none)
 	{
@@ -2524,6 +2524,7 @@ void multi_send_destroy_controlcen(objnum_t objnum, int player)
 	else
 		HUD_init_message_literal(HM_MULTI, TXT_CONTROL_DESTROYED);
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	PUT_INTEL_SHORT(&multibuf[1], objnum);
 	multibuf[3] = player;
 	multi_send_data<MULTI_CONTROLCEN>(multibuf, 4, 2);
@@ -2534,6 +2535,7 @@ void multi_send_drop_marker (int player,const vms_vector &position,char messagen
 {
 	if (player<N_players)
 	{
+		uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 		multibuf[1]=static_cast<char>(player);
 		multibuf[2]=messagenum;
 		PUT_INTEL_INT(&multibuf[3], position.x);
@@ -2603,6 +2605,7 @@ void multi_send_player_deres(deres_type_t type)
 
 	multi_send_position(vmobjptridx(get_local_player().objnum));
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	count++;
 	multibuf[count++] = Player_num;
 	multibuf[count++] = type;
@@ -2676,6 +2679,7 @@ void multi_send_message()
 	int loc = 0;
 	if (Network_message_reciever != -1)
 	{
+		uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 		loc += 1;
 		multibuf[loc] = static_cast<char>(Player_num);                       loc += 1;
 		strncpy(reinterpret_cast<char *>(multibuf+loc), Network_message, MAX_MESSAGE_LEN); loc += MAX_MESSAGE_LEN;
@@ -2688,6 +2692,7 @@ void multi_send_message()
 void multi_send_reappear()
 {
 	multi_send_position(vmobjptridx(get_local_player().objnum));
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1] = static_cast<char>(Player_num);
 	PUT_INTEL_SHORT(&multibuf[2], get_local_player().objnum);
 
@@ -2702,6 +2707,7 @@ void multi_send_position(const vmobjptridx_t obj)
 
 	quaternionpos qpp{};
 	create_quaternionpos(&qpp, obj, 0);
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.w);							count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.x);							count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.y);							count += 2;
@@ -2734,6 +2740,7 @@ void multi_send_kill(const vmobjptridx_t objnum)
 	Assert(get_player_id(objnum) == Player_num);
 	const auto killer_objnum = get_local_plrobj().ctype.player_info.killer_objnum;
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 							count += 1;
 	multibuf[count] = Player_num;			count += 1;
 
@@ -2774,6 +2781,7 @@ void multi_send_remobj(const vmobjptridx_t objnum)
 
 	remote_objnum = objnum_local_to_remote(objnum, &obj_owner);
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	PUT_INTEL_SHORT(&multibuf[1], remote_objnum); // Map to network objnums
 
 	multibuf[3] = obj_owner;
@@ -2794,6 +2802,7 @@ void multi_send_quit()
 {
 	// I am quitting the game, tell the other guy the bad news.
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1] = Player_num;
 	multi_send_data<MULTI_QUIT>(multibuf, 2, 2);
 
@@ -2803,6 +2812,7 @@ void multi_send_cloak()
 {
 	// Broadcast a change in our pflags (made to support cloaking)
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1] = static_cast<char>(Player_num);
 
 	multi_send_data<MULTI_CLOAK>(multibuf, 2, 2);
@@ -2814,6 +2824,7 @@ void multi_send_decloak()
 {
 	// Broadcast a change in our pflags (made to support cloaking)
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1] = static_cast<char>(Player_num);
 
 	multi_send_data<MULTI_DECLOAK>(multibuf, 2, 2);
@@ -2825,6 +2836,7 @@ namespace dsx {
 
 void multi_send_door_open(const vcsegidx_t segnum, const unsigned side, const uint8_t flag)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	// When we open a door make sure everyone else opens that door
 	PUT_INTEL_SHORT(&multibuf[1], segnum );
 	multibuf[3] = static_cast<int8_t>(side);
@@ -2844,6 +2856,7 @@ void multi_send_door_open_specific(const playernum_t pnum, const vcsegidx_t segn
 	Assert (Game_mode & GM_NETWORK);
 	//   Assert (pnum>-1 && pnum<N_players);
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	PUT_INTEL_SHORT(&multibuf[1], segnum);
 	multibuf[3] = static_cast<int8_t>(side);
 	multibuf[4] = flag;
@@ -2867,6 +2880,7 @@ void multi_send_create_explosion(const playernum_t pnum)
 	int count = 0;
 
 	count += 1;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[count] = static_cast<int8_t>(pnum);                  count += 1;
 	//                                                                                                      -----------
 	//                                                                                                      Total size = 2
@@ -2879,6 +2893,7 @@ void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, obj
 	int count = 0;
 
 	count +=  1;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	if (words_bigendian)
 	{
 		vms_vector swapped_vec;
@@ -2912,6 +2927,7 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 	multi_send_position(vmobjptridx(get_local_player().objnum));
 
 	count += 1;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[count] = Player_num;                                      count += 1;
 	multibuf[count] = powerup_type;                                 count += 1;
 	PUT_INTEL_SHORT(&multibuf[count], segnum );     count += 2;
@@ -2973,6 +2989,7 @@ void multi_send_play_sound(const int sound_num, const fix volume)
 {
 	int count = 0;
 	count += 1;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[count] = Player_num;                                   count += 1;
 	multibuf[count] = static_cast<char>(sound_num);                      count += 1;
 	multibuf[count] = static_cast<char>(volume >> 12); count += 1;
@@ -2990,6 +3007,7 @@ void multi_send_score()
 	if (Game_mode & GM_MULTI_COOP) {
 		multi_sort_kill_list();
 		count += 1;
+		uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 		multibuf[count] = Player_num;                           count += 1;
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		PUT_INTEL_INT(&multibuf[count], player_info.mission.score);  count += 4;
@@ -3004,6 +3022,7 @@ void multi_send_trigger(const int triggernum)
 	int count = 0;
 
 	count += 1;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[count] = Player_num;                                   count += 1;
 	multibuf[count] = triggernum;            count += 1;
 
@@ -3024,6 +3043,7 @@ void multi_send_effect_blowup(const vcsegidx_t segnum, const unsigned side, cons
 	multi_do_protocol_frame(1, 0); // force packets to be sent, ensuring this packet will be attached to following MULTI_TRIGGER
 	
 	count += 1;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[count] = Player_num;                                   count += 1;
 	PUT_INTEL_SHORT(&multibuf[count], segnum);                        count += 2;
 	multibuf[count] = static_cast<int8_t>(side);                                  count += 1;
@@ -3045,6 +3065,7 @@ void multi_send_hostage_door_status(const vcwallptridx_t w)
 	assert(w->type == WALL_BLASTABLE);
 
 	count += 1;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	PUT_INTEL_SHORT(&multibuf[count], static_cast<wallnum_t>(w));
 	count += 2;
 	PUT_INTEL_INT(&multibuf[count], w->hps);  count += 4;
@@ -3569,6 +3590,7 @@ void multi_send_drop_weapon(const vmobjptridx_t objnum, int seed)
 	Assert(ammo_count < F1_0); //make sure fits in short
 
 	count++;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[count++]=static_cast<char>(get_powerup_id(objp));
 	PUT_INTEL_SHORT(&multibuf[count], objnum); count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], static_cast<uint16_t>(ammo_count)); count += 2;
@@ -3602,6 +3624,7 @@ void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum)
 	sbyte obj_owner;
 	const auto remote_objnum = objnum_local_to_remote(objnum, &obj_owner);
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	PUT_INTEL_SHORT(&multibuf[1], remote_objnum); // Map to network objnums
 
 	multibuf[3] = obj_owner;
@@ -3656,6 +3679,7 @@ void multi_send_guided_info (const vmobjptr_t miss,char done)
 	int count=0;
 
 	count++;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[count++]=static_cast<char>(Player_num);
 	multibuf[count++]=done;
 
@@ -3712,6 +3736,7 @@ void multi_send_stolen_items ()
 {
 	int count=1;
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	for (unsigned i = 0; i < Stolen_items.size(); ++i)
 	{
 		multibuf[i+1]=Stolen_items[i];
@@ -3738,6 +3763,7 @@ void multi_send_wall_status_specific(const playernum_t pnum,uint16_t wallnum,uby
 	//Assert (pnum>-1 && pnum<N_players);
 
 	count++;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	PUT_INTEL_SHORT(&multibuf[count], wallnum);  count+=2;
 	multibuf[count]=type;                 count++;
 	multibuf[count]=flags;                count++;
@@ -3775,6 +3801,7 @@ void multi_send_kill_goal_counts()
 {
 	int count=1;
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	range_for (auto &i, Players)
 	{
 		auto &obj = *vcobjptr(i.objnum);
@@ -3803,6 +3830,7 @@ void multi_send_heartbeat ()
 	if (!Netgame.PlayTimeAllowed)
 		return;
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	PUT_INTEL_INT(&multibuf[1], ThisLevelTime);
 	multi_send_data<MULTI_HEARTBEAT>(multibuf, 5, 0);
 }
@@ -3867,6 +3895,7 @@ namespace dsx {
 void multi_send_seismic(fix duration)
 {
 	int count=1;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	PUT_INTEL_INT(&multibuf[count], duration); count += sizeof(duration);
 	multi_send_data<MULTI_SEISMIC>(multibuf, count, 2);
 }
@@ -3885,6 +3914,7 @@ void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segn
 	Assert (Game_mode & GM_NETWORK);
 	//  Assert (pnum>-1 && pnum<N_players);
 
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	PUT_INTEL_SHORT(&multibuf[count], segnum);
 	count += sizeof(uint16_t);
 	*reinterpret_cast<char *>(multibuf+count)=val; count++;
@@ -3929,6 +3959,7 @@ static void multi_do_flags(fvmobjptr &vmobjptr, const playernum_t pnum, const ui
 
 void multi_send_flags (const playernum_t pnum)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1]=pnum;
 	PUT_INTEL_INT(&multibuf[2], vmobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags.get_player_flags());
  
@@ -3937,6 +3968,7 @@ void multi_send_flags (const playernum_t pnum)
 
 void multi_send_drop_blobs (const playernum_t pnum)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1]=pnum;
 
 	multi_send_data<MULTI_DROP_BLOB>(multibuf, 2, 0);
@@ -3958,6 +3990,7 @@ void multi_send_sound_function (char whichfunc, char sound)
 	int count=0;
 
 	count++;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1]=Player_num;             count++;
 	multibuf[2]=whichfunc;              count++;
 	multibuf[3] = sound; count++;       // this would probably work on the PC as well.  Jason?
@@ -3989,6 +4022,7 @@ static void multi_do_sound_function (const playernum_t pnum, const ubyte *buf)
 
 void multi_send_capture_bonus (const playernum_t pnum)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	Assert (game_mode_capture_flag());
 
 	multibuf[1]=pnum;
@@ -3999,6 +4033,7 @@ void multi_send_capture_bonus (const playernum_t pnum)
 
 void multi_send_orb_bonus (const playernum_t pnum, const uint8_t hoard_orbs)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	Assert (game_mode_hoard());
 
 	multibuf[1]=pnum;
@@ -4137,6 +4172,7 @@ void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf)
 
 void multi_send_got_flag (const playernum_t pnum)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1]=pnum;
 
 	digi_start_sound_queued (SOUND_HUD_YOU_GOT_FLAG,F1_0*2);
@@ -4147,6 +4183,7 @@ void multi_send_got_flag (const playernum_t pnum)
 
 void multi_send_got_orb (const playernum_t pnum)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1]=pnum;
 
 	digi_play_sample (SOUND_YOU_GOT_ORB,F1_0*2);
@@ -4255,6 +4292,7 @@ void DropFlag ()
 
 void multi_send_drop_flag(const vmobjptridx_t objp, int seed)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	int count=0;
 	count++;
 	multibuf[count++]=static_cast<char>(get_powerup_id(objp));
@@ -4382,6 +4420,7 @@ uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned BaseAll
 #if defined(DXX_BUILD_DESCENT_II)
 void multi_send_finish_game ()
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1]=Player_num;
 
 	multi_send_data<MULTI_FINISH_GAME>(multibuf,2,2);
@@ -4400,6 +4439,7 @@ static void multi_do_finish_game (const ubyte *buf)
 
 void multi_send_trigger_specific (const playernum_t pnum,char trig)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1] = trig;
 
 	multi_send_data_direct<MULTI_START_TRIGGER>(multibuf, 2, pnum, 2);
@@ -4460,6 +4500,7 @@ void multi_add_lifetime_killed ()
 
 void multi_send_ranking (uint8_t newrank)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1]=static_cast<char>(Player_num);
 	multibuf[2] = newrank;
 
@@ -4527,6 +4568,7 @@ void multi_send_bounty( void )
 	if ( !multi_i_am_master() )
 		return;
 	
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	/* Add opcode, target ID and how often we re-assigned */
 	multibuf[1] = static_cast<char>(Bounty_target);
 	
@@ -4598,6 +4640,7 @@ static void multi_send_save_game(ubyte slot, uint id, char * desc)
 	int count = 0;
 	
 	count += 1;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[count] = slot;				count += 1; // Save slot=0
 	PUT_INTEL_INT(&multibuf[count], id );		count += 4; // Save id
 	memcpy( &multibuf[count], desc, 20 );		count += 20;
@@ -4610,6 +4653,7 @@ static void multi_send_restore_game(ubyte slot, uint id)
 	int count = 0;
 	
 	count += 1;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[count] = slot;				count += 1; // Save slot=0
 	PUT_INTEL_INT(&multibuf[count], id );		count += 4; // Save id
 
@@ -4789,6 +4833,7 @@ static void multi_do_msgsend_state(const uint8_t *buf)
 
 void multi_send_msgsend_state(msgsend_state_t state)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1] = Player_num;
 	multibuf[2] = static_cast<char>(state);
 	
@@ -4802,6 +4847,7 @@ void multi_send_gmode_update()
 		return;
 	if (!(Game_mode & GM_TEAM || Game_mode & GM_BOUNTY)) // expand if necessary
 		return;
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	multibuf[1] = Netgame.team_vector;
 	multibuf[2] = Bounty_target;
 	
@@ -4836,6 +4882,7 @@ static void multi_do_gmode_update(const ubyte *buf)
 namespace dsx {
 void multi_send_player_inventory(int priority)
 {
+	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 	int count = 0;
 
 	count++;

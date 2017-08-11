@@ -361,7 +361,6 @@ extern const array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt;
 }
 
 namespace dcx {
-extern ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];
 extern array<objnum_t, MAX_NET_CREATE_OBJECTS> Net_create_objnums;
 extern unsigned Net_create_loc;
 }
