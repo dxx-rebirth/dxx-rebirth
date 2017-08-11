@@ -304,7 +304,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const vcobjptr_t obj, const 
 		new_light.b = fixmul(light.b,light_scale);
 		glow[0] = fixmul(glow[0],light_scale);
 		draw_polygon_model(canvas, obj->pos,
-				   &obj->orient,
+				   obj->orient,
 				   obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
 				   new_light,
@@ -315,7 +315,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const vcobjptr_t obj, const 
 		gr_settransblend(canvas, cloak_value, GR_BLEND_NORMAL);
 		g3_set_special_render(draw_tmap_flat);		//use special flat drawer
 		draw_polygon_model(canvas, obj->pos,
-				   &obj->orient,
+				   obj->orient,
 				   obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
 				   light,
@@ -407,7 +407,7 @@ static void draw_polygon_object(grs_canvas &canvas, const vcobjptridx_t obj)
 		//fill whole array, in case simple model needs more
 		bm_ptrs.fill(Textures[obj->rtype.pobj_info.tmap_override]);
 		draw_polygon_model(canvas, obj->pos,
-				   &obj->orient,
+				   obj->orient,
 				   obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,
 				   obj->rtype.pobj_info.subobj_flags,
@@ -459,7 +459,7 @@ static void draw_polygon_object(grs_canvas &canvas, const vcobjptridx_t obj)
 				draw_simple_model = static_cast<fix>(vm_vec_dist_quick(Viewer->pos, obj->pos)) < Simple_model_threshhold_scale * F1_0*2;
 				if (draw_simple_model)
 					draw_polygon_model(canvas, obj->pos,
-							   &obj->orient,
+							   obj->orient,
 							   obj->rtype.pobj_info.anim_angles,
 							   Weapon_info[get_weapon_id(obj)].model_num_inner,
 							   obj->rtype.pobj_info.subobj_flags,
@@ -469,7 +469,7 @@ static void draw_polygon_object(grs_canvas &canvas, const vcobjptridx_t obj)
 			}
 			
 			draw_polygon_model(canvas, obj->pos,
-					   &obj->orient,
+					   obj->orient,
 					   obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
 					   obj->rtype.pobj_info.subobj_flags,
 					   light,
@@ -482,7 +482,7 @@ static void draw_polygon_object(grs_canvas &canvas, const vcobjptridx_t obj)
 				gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				if (draw_simple_model)
 					draw_polygon_model(canvas, obj->pos,
-							   &obj->orient,
+							   obj->orient,
 							   obj->rtype.pobj_info.anim_angles,
 							   Weapon_info[obj->id].model_num_inner,
 							   obj->rtype.pobj_info.subobj_flags,

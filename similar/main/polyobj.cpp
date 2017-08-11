@@ -502,7 +502,7 @@ array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 
 namespace dsx {
 
-void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos,const vms_matrix *const orient,const submodel_angles anim_angles, const unsigned model_num, unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, alternate_textures alt_textures)
+void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const unsigned model_num, unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, alternate_textures alt_textures)
 {
 	polymodel *po;
 	Assert(model_num < N_polygon_models);
@@ -544,7 +544,7 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos,const vms_matr
 	// so we need to reread them all in.
 	// Make sure that they can all fit in memory.
 
-	g3_start_instance_matrix(pos,orient);
+	g3_start_instance_matrix(pos, &orient);
 
 	polygon_model_points robot_points;
 
@@ -717,7 +717,7 @@ void draw_model_picture(grs_canvas &canvas, const uint_fast32_t mn, const vms_an
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
 	const auto &&temp_orient = vm_angles_2_matrix(orient_angles);
-	draw_polygon_model(canvas, temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL);
+	draw_polygon_model(canvas, temp_pos, temp_orient, nullptr, mn, 0, lrgb, nullptr, nullptr);
 	g3_end_frame();
 }
 
