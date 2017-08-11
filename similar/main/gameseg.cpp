@@ -284,7 +284,7 @@ uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const vcseg
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
-segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix rad)
+segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const vcsegptr_t segnum, fix rad)
 {
 	int			sn,facebit,sidebit;
 	segmasks		masks{};
@@ -380,7 +380,7 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
-static ubyte get_side_dists(const vms_vector &checkp,const vmsegptridx_t segnum,array<fix, 6> &side_dists)
+static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp,const vmsegptridx_t segnum,array<fix, 6> &side_dists)
 {
 	int			sn,facebit,sidebit;
 	ubyte			mask;
@@ -607,7 +607,7 @@ static imsegptridx_t trace_segs(const vms_vector &p0, const vmsegptridx_t oldseg
 	else
 		vs = true;
 
-	centermask = get_side_dists(p0,oldsegnum,side_dists);		//check old segment
+	centermask = get_side_dists(vcvertptr, p0, oldsegnum, side_dists);		//check old segment
 	if (centermask == 0) // we are in the old segment
 		return oldsegnum; //..say so
 
@@ -661,7 +661,7 @@ imsegptridx_t find_point_seg(const vms_vector &p,const imsegptridx_t segnum)
 	if (!Doing_lighting_hack_flag) {
 		range_for (const auto &&segp, vmsegptridx)
 		{
-			if (get_seg_masks(p, segp, 0).centermask == 0)
+			if (get_seg_masks(vcvertptr, p, segp, 0).centermask == 0)
 				return segp;
 		}
 

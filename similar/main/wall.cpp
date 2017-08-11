@@ -632,7 +632,7 @@ static uint8_t check_poke(const vcobjptr_t obj, const vcsegptr_t segnum,int side
 	//note: don't let objects with zero size block door
 	if (!obj->size)
 		return 0;
-	return get_seg_masks(obj->pos, segnum, obj->size).sidemask & (1 << side);		//pokes through side!
+	return get_seg_masks(vcvertptr, obj->pos, segnum, obj->size).sidemask & (1 << side);		//pokes through side!
 }
 
 namespace dsx {

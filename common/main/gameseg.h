@@ -145,10 +145,10 @@ struct WALL_IS_DOORWAY_mask_t;
 namespace dsx {
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields
-segmasks get_seg_masks(const vms_vector &checkp, vcsegptr_t segnum, fix rad);
+segmasks get_seg_masks(fvcvertptr &, const vms_vector &checkp, vcsegptr_t segnum, fix rad);
 
 //this macro returns true if the segnum for an object is correct
-#define check_obj_seg(obj) (get_seg_masks((obj)->pos, vcsegptr((obj)->segnum), 0).centermask == 0)
+#define check_obj_seg(vcvertptr, obj) (get_seg_masks(vcvertptr, (obj)->pos, vcsegptr((obj)->segnum), 0).centermask == 0)
 
 //Tries to find a segment for a point, in the following way:
 // 1. Check the given segment

@@ -1186,7 +1186,7 @@ window *game_setup(void)
 	if (vcsegptr(ConsoleObject->segnum)->segnum == segment_none)      //segment no longer exists
 		obj_relink(vmobjptridx(ConsoleObject), Cursegp);
 
-	if (!check_obj_seg(ConsoleObject))
+	if (!check_obj_seg(vcvertptr, ConsoleObject))
 		move_player_2_segment(Cursegp,Curside);
 #endif
 

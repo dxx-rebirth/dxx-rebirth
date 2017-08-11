@@ -1094,7 +1094,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 	if (type==OBJ_DEBRIS && Debris_object_count>=Max_debris_objects && !PERSISTENT_DEBRIS)
 		return object_none;
 
-	if (get_seg_masks(pos, segnum, 0).centermask != 0)
+	if (get_seg_masks(vcvertptr, pos, segnum, 0).centermask != 0)
 	{
 		auto p = find_point_seg(pos,segnum);
 		if (p == segment_none) {
@@ -1780,7 +1780,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 
 			auto &playing = obj->ctype.player_info.lavafall_hiss_playing;
 			const auto &&segp = vcsegptr(obj->segnum);
-			if (const auto sidemask = get_seg_masks(obj->pos, segp, obj->size).sidemask)
+			if (const auto sidemask = get_seg_masks(vcvertptr, obj->pos, segp, obj->size).sidemask)
 			{
 				for (unsigned sidenum = 0; sidenum != MAX_SIDES_PER_SEGMENT; ++sidenum)
 				{

@@ -465,7 +465,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 			obj_relink(obj, vmsegptridx(iseg));
 
 		//if start point not in segment, move object to center of segment
-		if (get_seg_masks(obj->pos, vcsegptr(obj->segnum), 0).centermask !=0 )
+		if (get_seg_masks(vcvertptr, obj->pos, vcsegptr(obj->segnum), 0).centermask !=0 )
 		{
 			auto n = find_object_seg(obj);
 			if (n == segment_none)
@@ -747,7 +747,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 
 //--WE ALWYS WANT THIS IN, MATT AND MIKE DECISION ON 12/10/94, TWO MONTHS AFTER FINAL 	#ifndef NDEBUG
 	//if end point not in segment, move object to last pos, or segment center
-	if (get_seg_masks(obj->pos, vcsegptr(obj->segnum), 0).centermask != 0)
+	if (get_seg_masks(vcvertptr, obj->pos, vcsegptr(obj->segnum), 0).centermask != 0)
 	{
 		if (find_object_seg(obj)==segment_none) {
 			segnum_t n;

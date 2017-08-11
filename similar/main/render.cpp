@@ -1123,7 +1123,7 @@ static void build_object_lists(render_state_t &rstate)
 #if defined(DXX_BUILD_DESCENT_I)
 					did_migrate = 0;
 #endif
-					const uint_fast32_t sidemask = get_seg_masks(obj->pos, vcsegptr(new_segnum), obj->size).sidemask;
+					const uint_fast32_t sidemask = get_seg_masks(vcvertptr, obj->pos, vcsegptr(new_segnum), obj->size).sidemask;
 	
 					if (sidemask) {
 						int sn,sf;

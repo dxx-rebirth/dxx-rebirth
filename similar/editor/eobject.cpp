@@ -454,7 +454,7 @@ static int move_object_within_mine(const vmobjptridx_t obj, const vms_vector &ne
 {
 	range_for (const auto &&segp, vmsegptridx)
 	{
-		if (get_seg_masks(obj->pos, segp, 0).centermask == 0) {
+		if (get_seg_masks(vcvertptr, obj->pos, segp, 0).centermask == 0) {
 			int	fate;
 			fvi_info	hit_info;
 			fvi_query fq;
@@ -487,7 +487,7 @@ static int move_object_within_mine(const vmobjptridx_t obj, const vms_vector &ne
 //	Return 0 if object is in expected segment, else return 1
 static int verify_object_seg(const vmobjptridx_t objp, const vms_vector &newpos)
 {
-	const auto &&result = get_seg_masks(newpos, vcsegptr(objp->segnum), objp->size);
+	const auto &&result = get_seg_masks(vcvertptr, newpos, vcsegptr(objp->segnum), objp->size);
 	if (result.facemask == 0)
 		return 0;
 	else
@@ -707,7 +707,7 @@ template int ObjectIncreaseHeadingBig();
 
 static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &newpos)
 {
-	if (get_seg_masks(newpos, vcsegptr(objp->segnum), objp->size).facemask == 0)
+	if (get_seg_masks(vcvertptr, newpos, vcsegptr(objp->segnum), objp->size).facemask == 0)
 	{
 		objp->pos = newpos;
 	} else {
