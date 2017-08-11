@@ -1375,9 +1375,9 @@ void do_exploding_wall_frame()
 
 				const auto vertnum_list = get_side_verts(seg,sidenum);
 
-				const auto &v0 = Vertices[vertnum_list[0]];
-				const auto &v1 = Vertices[vertnum_list[1]];
-				const auto &v2 = Vertices[vertnum_list[2]];
+				auto &v0 = *vcvertptr(vertnum_list[0]);
+				auto &v1 = *vcvertptr(vertnum_list[1]);
+				auto &v2 = *vcvertptr(vertnum_list[2]);
 
 				const auto vv0 = vm_vec_sub(v0,v1);
 				const auto vv1 = vm_vec_sub(v2,v1);

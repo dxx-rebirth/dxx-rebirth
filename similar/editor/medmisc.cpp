@@ -463,7 +463,7 @@ void set_view_target_from_segment(const vmsegptr_t sp)
 	else {
 		vms_vector tv{};
 		range_for (const auto &v, sp->verts)
-			vm_vec_add2(tv, Vertices[v]);
+			vm_vec_add2(tv, vcvertptr(v));
 
 		vm_vec_scale(tv,F1_0/MAX_VERTICES_PER_SEGMENT);
 		Ed_view_target = tv;

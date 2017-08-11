@@ -208,7 +208,8 @@ static void move_towards_outside(fimsegptridx &imsegptridx, point_seg *psegs, in
 		if (vm_vec_mag_quick(e) < F1_0/2)
 	Int3();
 
-		segment_size = vm_vec_dist_quick(Vertices[Segments[segnum].verts[0]], Vertices[Segments[segnum].verts[6]]);
+		auto &segp = *vcsegptr(segnum);
+		segment_size = vm_vec_dist_quick(vcvertptr(segp.verts[0]), vcvertptr(segp.verts[6]));
 		if (segment_size > F1_0*40)
 			segment_size = F1_0*40;
 

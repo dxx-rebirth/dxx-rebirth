@@ -562,7 +562,9 @@ static void move_player_2_segment_and_rotate(const vmsegptridx_t seg, const unsi
 	auto vp = compute_center_point_on_side(seg,side);
 	vm_vec_sub2(vp,ConsoleObject->pos);
 
-	const auto upvec = vm_vec_sub(Vertices[Cursegp->verts[Side_to_verts[Curside][edgenum%4]]], Vertices[Cursegp->verts[Side_to_verts[Curside][(edgenum+3)%4]]]);
+	auto &sv = Side_to_verts[Curside];
+	auto &verts = Cursegp->verts;
+	const auto upvec = vm_vec_sub(vcvertptr(verts[sv[edgenum % 4]]), vcvertptr(verts[sv[(edgenum + 3) % 4]]));
 	edgenum++;
 
 	vm_vector_2_matrix(ConsoleObject->orient,vp,&upvec,nullptr);
@@ -583,7 +585,6 @@ int SetPlayerFromCursegAndRotate()
 //far enough away to see all of curside
 int SetPlayerFromCursegMinusOne()
 {
-	array<vms_vector, 4> corner_v;
 	array<g3s_point, 4> corner_p;
 	fix max,view_dist=f1_0*10;
         static int edgenum=0;
@@ -593,7 +594,9 @@ int SetPlayerFromCursegMinusOne()
 	const auto view_vec2 = vm_vec_copy_scale(view_vec,view_dist);
 	vm_vec_sub(ConsoleObject->pos,side_center,view_vec2);
 
-	const auto upvec = vm_vec_sub(Vertices[Cursegp->verts[Side_to_verts[Curside][edgenum%4]]], Vertices[Cursegp->verts[Side_to_verts[Curside][(edgenum+3)%4]]]);
+	auto &sv = Side_to_verts[Curside];
+	auto &verts = Cursegp->verts;
+	const auto upvec = vm_vec_sub(vcvertptr(verts[sv[edgenum % 4]]), vcvertptr(verts[sv[(edgenum + 3) % 4]]));
 	edgenum++;
 
 	vm_vector_2_matrix(ConsoleObject->orient,view_vec,&upvec,nullptr);
@@ -604,8 +607,7 @@ int SetPlayerFromCursegMinusOne()
 
 	for (unsigned i = max = 0; i < 4; ++i)
 	{
-		corner_v[i] = Vertices[Cursegp->verts[Side_to_verts[Curside][i]]];
-		g3_rotate_point(corner_p[i],corner_v[i]);
+		g3_rotate_point(corner_p[i], vcvertptr(verts[sv[i]]));
 		if (labs(corner_p[i].p3_x) > max) max = labs(corner_p[i].p3_x);
 		if (labs(corner_p[i].p3_y) > max) max = labs(corner_p[i].p3_y);
 	}

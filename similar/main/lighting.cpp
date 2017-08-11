@@ -108,7 +108,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 			range_for (const auto vertnum, vp)
 			{
 				fix			dist;
-				const auto &vertpos = Vertices[vertnum];
+				auto &vertpos = *vcvertptr(vertnum);
 				dist = vm_vec_dist_quick(obj_pos, vertpos);
 				dist = fixmul(dist/4, dist/4);
 				if (dist < abs(obji_64)) {
@@ -158,7 +158,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 
 				const auto vertnum = render_vertices[vv];
 				auto vsegnum = vert_segnum_list[vv];
-				const auto &vertpos = Vertices[vertnum];
+				auto &vertpos = *vcvertptr(vertnum);
 
 				if (use_fcd_lighting && abs(obji_64) > F1_0*32)
 				{

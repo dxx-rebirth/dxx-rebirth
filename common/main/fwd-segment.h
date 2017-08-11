@@ -70,7 +70,7 @@ constexpr fix DEFAULT_LIGHTING = 0;   // (F1_0/2)
 
 #if DXX_USE_EDITOR   //verts for the new segment
 constexpr std::size_t NUM_NEW_SEG_VERTICES = 8;
-constexpr std::size_t NEW_SEGMENT_VERTICES = MAX_SEGMENT_VERTICES;
+constexpr unsigned NEW_SEGMENT_VERTICES = MAX_SEGMENT_VERTICES;
 constexpr std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES + NUM_NEW_SEG_VERTICES;
 #else           //No editor
 constexpr std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES;
@@ -82,7 +82,21 @@ enum side_type : uint8_t;
 using wallnum_t = uint16_t;
 struct side;
 
+struct vertex;
+using vertnum_t = uint32_t;
 }
+
+/* `vertex` has only integer members, so wild reads are unlikely to
+ * cause serious harm.  It is read far more than it is written, so
+ * eliminating checking on reads saves substantial code space.
+ *
+ * Vertex indices are only taken from map data, not network data, so
+ * errors are unlikely.  Report them tersely to avoid recording the
+ * file+line of every access.
+ */
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_const_vertex undefined
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_mutable_vertex trap_terse
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, vertex, vertnum_t, MAX_VERTICES);
 
 typedef unsigned segment_type_t;
 constexpr segment_type_t SEGMENT_IS_NOTHING = 0;
@@ -102,11 +116,10 @@ constexpr std::size_t MAX_CENTER_TYPES = 7;
 #endif
 
 namespace dcx {
+DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(vertex, vert);
 struct count_segment_array_t;
 struct group;
 
-struct vertex;
-extern array<vertex, MAX_VERTICES> Vertices;
 extern unsigned Num_segments;
 extern unsigned Num_vertices;
 

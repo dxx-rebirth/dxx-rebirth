@@ -272,7 +272,6 @@ static int vnear(const vms_vector &vp1, const vms_vector &vp2)
 // vertices have been looked at without a match.  If no match, add a new vertex.
 int med_add_vertex(const vertex &vp)
 {
-	int	free_index;
 	int	count;					// number of used vertices found, for loops exits when count == Num_vertices
 
 //	set_vertex_counts();
@@ -280,17 +279,17 @@ int med_add_vertex(const vertex &vp)
 	Assert(Num_vertices < MAX_SEGMENT_VERTICES);
 
 	count = 0;
-	free_index = -1;
+	unsigned free_index = UINT32_MAX;
 	for (unsigned v = 0; v < MAX_SEGMENT_VERTICES && count < Num_vertices; ++v)
 		if (Vertex_active[v]) {
 			count++;
-			if (vnear(vp, Vertices[v])) {
+			if (vnear(vp, vcvertptr(v))) {
 				return v;
 			}
-		} else if (free_index == -1)
+		} else if (free_index == UINT32_MAX)
 			free_index = v;					// we want free_index to be the first free slot to add a vertex
 
-	if (free_index == -1)
+	if (free_index == UINT32_MAX)
 		free_index = Num_vertices;
 
 	while (Vertex_active[free_index] && (free_index < MAX_VERTICES))
@@ -298,13 +297,13 @@ int med_add_vertex(const vertex &vp)
 
 	Assert(free_index < MAX_VERTICES);
 
-	Vertices[free_index] = vp;
+	*vmvertptr(free_index) = vp;
 	Vertex_active[free_index] = 1;
 
 	Num_vertices++;
 
 	if (free_index > Highest_vertex_index)
-		Highest_vertex_index = free_index;
+		Vertices.set_count(free_index + 1);
 
 	return free_index;
 }
@@ -351,26 +350,24 @@ segnum_t med_create_duplicate_segment(const vmsegptr_t sp)
 //	This is the same as med_add_vertex, except that it does not search for the presence of the vertex.
 int med_create_duplicate_vertex(const vertex &vp)
 {
-	int	free_index;
-
 	Assert(Num_vertices < MAX_SEGMENT_VERTICES);
 
 	Do_duplicate_vertex_check = 1;
 
-	free_index = Num_vertices;
+	unsigned free_index = Num_vertices;
 
 	while (Vertex_active[free_index] && (free_index < MAX_VERTICES))
 		free_index++;
 
 	Assert(free_index < MAX_VERTICES);
 
-	Vertices[free_index] = vp;
+	*vmvertptr(free_index) = vp;
 	Vertex_active[free_index] = 1;
 
 	Num_vertices++;
 
 	if (free_index > Highest_vertex_index)
-		Highest_vertex_index = free_index;
+		Vertices.set_count(free_index + 1);
 
 	return free_index;
 }
@@ -380,16 +377,14 @@ int med_create_duplicate_vertex(const vertex &vp)
 //	Set the vertex *vp at index vnum in the global list of vertices, return its index (just for compatibility).
 int med_set_vertex(const unsigned vnum, const vertex &vp)
 {
-	Assert(vnum < MAX_VERTICES);
-
-	Vertices[vnum] = vp;
+	*vmvertptr(vnum) = vp;
 
 	// Just in case this vertex wasn't active, mark it as active.
 	if (!Vertex_active[vnum]) {
 		Vertex_active[vnum] = 1;
 		Num_vertices++;
 		if ((vnum > Highest_vertex_index) && (vnum < NEW_SEGMENT_VERTICES)) {
-			Highest_vertex_index = vnum;
+			Vertices.set_count(vnum + 1);
 		}
 	}
 
@@ -585,8 +580,7 @@ static void compress_vertices(void)
 	if (Highest_vertex_index == Num_vertices - 1)
 		return;
 
-	unsigned vert;
-	vert = Highest_vertex_index;	//MAX_SEGMENT_VERTICES-1;
+	unsigned vert = Highest_vertex_index;	//MAX_SEGMENT_VERTICES-1;
 
 	for (unsigned hole = 0; hole < vert; ++hole)
 		if (!Vertex_active[hole]) {
@@ -598,15 +592,14 @@ static void compress_vertices(void)
 
 				// Ok, hole is the index of a hole, vert is the index of a vertex which follows it.
 				// Copy vert into hole, update pointers to it.
-				Vertices[hole] = Vertices[vert];
-				
+				*vmvertptr(hole) = *vcvertptr(vert);
 				change_vertex_occurrences(hole, vert);
 
 				vert--;
 			}
 		}
 
-	Highest_vertex_index = Num_vertices-1;
+	Vertices.set_count(Num_vertices);
 }
 
 // --------------------------------------------------------------------------------------------------
@@ -700,16 +693,27 @@ static void compress_segments(void)
 //	the same vertex number to the two vertices, freeing up one of the vertices.
 void med_combine_duplicate_vertices(array<uint8_t, MAX_VERTICES> &vlp)
 {
-	for (unsigned v = 0; v < Highest_vertex_index; ++v)		// Note: ok to do to <, rather than <= because w for loop starts at v+1
+	const auto &&range = make_range(vcvertptridx);
+	// Note: ok to do to <, rather than <= because w for loop starts at v+1
+	if (range.m_begin == range.m_end)
+		return;
+	for (auto i = range.m_begin;;)
+	{
+		const auto &&v = *i;
+		if (++i == range.m_end)
+			return;
 		if (vlp[v]) {
-			const auto &vvp = Vertices[v];
-			for (unsigned w = v + 1; w <= Highest_vertex_index; ++w)
+			auto &vvp = *v;
+			auto subrange = range;
+			subrange.m_begin = i;
+			range_for (auto &&w, subrange)
 				if (vlp[w]) {	//	used to be Vertex_active[w]
-					if (vnear(vvp, Vertices[w])) {
+					if (vnear(vvp, *w)) {
 						change_vertex_occurrences(v, w);
 					}
 				}
 		}
+	}
 }
 
 // ------------------------------------------------------------------------------
@@ -831,7 +835,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegpt
 	// Now rotate the free vertices in the segment
 	array<vertex, 4> tvs;
 	for (unsigned v = 0; v < 4; ++v)
-		vm_vec_rotate(tvs[v],Vertices[newseg->verts[v+4]],rotmat2);
+		vm_vec_rotate(tvs[v], vcvertptr(newseg->verts[v + 4]), rotmat2);
 
 	// Now translate the new segment so that the center point of the attaching faces are the same.
 	const auto vc1 = compute_center_point_on_side(destseg,destside);
@@ -905,13 +909,12 @@ static void delete_vertex(const unsigned v)
 //	but then it would be called much more often than necessary, and it is a slow routine.
 static void update_num_vertices(void)
 {
-	int	v;
-
 	// Now count the number of vertices.
-	Num_vertices = 0;
-	for (v=0; v<=Highest_vertex_index; v++)
-		if (Vertex_active[v])
-			Num_vertices++;
+	unsigned n = 0;
+	range_for (const auto v, partial_range(Vertex_active, Highest_vertex_index + 1))
+		if (v)
+			++n;
+	Num_vertices = n;
 }
 
 namespace dsx {
@@ -1131,7 +1134,7 @@ static fix seg_seg_vertex_distsum(const vcsegptr_t seg1, const unsigned side1, c
 	for (unsigned secondv = 0; secondv < 4; ++secondv)
 	{
 		const unsigned firstv = (4 - secondv + (3 - firstv1)) % 4;
-		distsum += vm_vec_dist(Vertices[seg1->verts[Side_to_verts[side1][firstv]]],Vertices[seg2->verts[Side_to_verts[side2][secondv]]]);
+		distsum += vm_vec_dist(vcvertptr(seg1->verts[Side_to_verts[side1][firstv]]),vcvertptr(seg2->verts[Side_to_verts[side2][secondv]]));
 	}
 
 	return distsum;
@@ -1385,7 +1388,7 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 
 	//	Now, add the center to all vertices, placing the segment in 3 space.
 	range_for (auto &i, sp->verts)
-		vm_vec_add2(Vertices[i], cv);
+		vm_vec_add2(vmvertptr(i), cv);
 
 	//	Set scale vector.
 //	sp->scale.x = width;
@@ -1494,19 +1497,20 @@ void create_coordinate_axes_from_segment(const vmsegptr_t sp, array<unsigned, 16
 
 	med_extract_matrix_from_segment(sp,&rotmat);
 
-	compute_segment_center(Vertices[vertnums[0]],sp);
+	const auto &&v0 = vmvertptr(vertnums[0]);
+	compute_segment_center(v0, sp);
 
 	t = rotmat.rvec;
 	vm_vec_scale(t,i2f(32));
-	vm_vec_add(Vertices[vertnums[1]],Vertices[vertnums[0]],t);
+	vm_vec_add(vmvertptr(vertnums[1]), v0, t);
 
 	t = rotmat.uvec;
 	vm_vec_scale(t,i2f(32));
-	vm_vec_add(Vertices[vertnums[2]],Vertices[vertnums[0]],t);
+	vm_vec_add(vmvertptr(vertnums[2]), v0, t);
 
 	t = rotmat.fvec;
 	vm_vec_scale(t,i2f(32));
-	vm_vec_add(Vertices[vertnums[3]],Vertices[vertnums[0]],t);
+	vm_vec_add(vmvertptr(vertnums[3]), v0, t);
 }
 
 // -----------------------------------------------------------------------------
@@ -1518,9 +1522,9 @@ static int check_seg_concavity(const vcsegptr_t s)
 		for (unsigned vn = 0; vn <= 4; ++vn)
 		{
 			const auto n1 = vm_vec_normal(
-				Vertices[s->verts[sn[vn%4]]],
-				Vertices[s->verts[sn[(vn+1)%4]]],
-				Vertices[s->verts[sn[(vn+2)%4]]]);
+				vcvertptr(s->verts[sn[vn % 4]]),
+				vcvertptr(s->verts[sn[(vn + 1) % 4]]),
+				vcvertptr(s->verts[sn[(vn + 2) % 4]]));
 
 			//vm_vec_normalize(&n1);
 

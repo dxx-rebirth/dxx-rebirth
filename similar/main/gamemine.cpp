@@ -762,11 +762,11 @@ int load_mine_data(PHYSFS_File *LoadFile)
 		for (unsigned i = 0; i < mine_fileinfo.newseg_verts_howmany; ++i)
 		{
 			// Set the default values for this vertex
-			Vertices[NEW_SEGMENT_VERTICES+i].x = 1;
-			Vertices[NEW_SEGMENT_VERTICES+i].y = 1;
-			Vertices[NEW_SEGMENT_VERTICES+i].z = 1;
-			
-			if (PHYSFS_read( LoadFile, &Vertices[NEW_SEGMENT_VERTICES+i], mine_fileinfo.newseg_verts_sizeof,1 )!=1)
+			auto &v = *vmvertptr(NEW_SEGMENT_VERTICES+i);
+			v.x = 1;
+			v.y = 1;
+			v.z = 1;
+			if (PHYSFS_read(LoadFile, &v, mine_fileinfo.newseg_verts_sizeof, 1) != 1)
 				Error( "Error reading Vertices[NEW_SEGMENT_VERTICES+i] in gamemine.c" );
 
 			New_segment.verts[i] = NEW_SEGMENT_VERTICES+i;
@@ -797,16 +797,16 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 	Num_vertices = mine_fileinfo.vertex_howmany;
 	Num_segments = mine_fileinfo.segment_howmany;
-	Highest_vertex_index = Num_vertices-1;
+	Vertices.set_count(Num_vertices);
 	Segments.set_count(Num_segments);
 
 	reset_objects(1);		//one object, the player
 
 #if DXX_USE_EDITOR
-	Highest_vertex_index = MAX_SEGMENT_VERTICES-1;
+	Vertices.set_count(MAX_SEGMENT_VERTICES);
 	Segments.set_count(MAX_SEGMENTS);
 	set_vertex_counts();
-	Highest_vertex_index = Num_vertices-1;
+	Vertices.set_count(Num_vertices);
 	Segments.set_count(Num_segments);
 
 	warn_if_concave_segments();
@@ -1019,7 +1019,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 		}
 	}
 
-	Highest_vertex_index = Num_vertices-1;
+	Vertices.set_count(Num_vertices);
 	Segments.set_count(Num_segments);
 
 	validate_segment_all();			// Fill in side type and normals.

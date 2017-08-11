@@ -39,7 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 unsigned Num_segments;
 // Global array of vertices, common to one mine.
-array<vertex, MAX_VERTICES> Vertices;
+valptridx<vertex>::array_managed_type Vertices;
 valptridx<active_door>::array_managed_type ActiveDoors;
 valptridx<segment>::array_managed_type Segments;
 }
@@ -58,7 +58,6 @@ int d_tick_step = 0;  // true once every 33.33ms
 // Number of vertices in current mine (ie, Vertices, pointed to by Vp)
 
 //	Translate table to get opposite side of a face on a segment.
-unsigned Highest_vertex_index;
 
 unsigned Num_vertices;
 const array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite{{
@@ -122,6 +121,7 @@ valptridx<wall>::array_managed_type Walls;
 
 #if DXX_VALPTRIDX_ENABLE_FULL_TEMPLATE_INSTANTIATION
 template class valptridx<dcx::active_door>;
+template class valptridx<dcx::vertex>;
 #if defined(DXX_BUILD_DESCENT_II)
 template class valptridx<dsx::cloaking_wall>;
 #endif
@@ -168,6 +168,7 @@ struct instantiation_guard<T, false>
 }
 
 template class instantiation_guard<dcx::active_door>::type::index_range_exception;
+template class instantiation_guard<dcx::vertex>::type::index_range_exception;
 #if defined(DXX_BUILD_DESCENT_II)
 template class instantiation_guard<dsx::cloaking_wall>::type::index_range_exception;
 #endif

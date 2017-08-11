@@ -277,7 +277,7 @@ static void my_extract_shortpos(object_base &objp, const shortpos *const spp)
 	segnum_t segnum = spp->segment;
 	objp.segnum = segnum;
 
-	auto &v = Vertices[vmsegptr(segnum)->verts[0]];
+	auto &v = *vcvertptr(vcsegptr(segnum)->verts[0]);
 	objp.pos.x = (spp->xo << RELPOS_PRECISION) + v.x;
 	objp.pos.y = (spp->yo << RELPOS_PRECISION) + v.y;
 	objp.pos.z = (spp->zo << RELPOS_PRECISION) + v.z;

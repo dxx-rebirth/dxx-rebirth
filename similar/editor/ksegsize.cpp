@@ -77,7 +77,7 @@ static void validate_modified_segments(void)
 //	Scale vertex *vertp by vector *vp, scaled by scale factor scale_factor
 static void scale_vert_aux(const unsigned vertex_ind, const vms_vector &vp, const fix scale_factor)
 {
-	auto &vertp = Vertices[vertex_ind];
+	auto &vertp = *vmvertptr(vertex_ind);
 
 	vertp.x += fixmul(vp.x,scale_factor)/2;
 	vertp.y += fixmul(vp.y,scale_factor)/2;
@@ -177,8 +177,9 @@ static void med_scale_segment_new(const vmsegptr_t sp, int dimension, fix amount
 static void extract_vector_from_segment_side(const vmsegptr_t sp, const unsigned side, vms_vector &vp, const unsigned vla, const unsigned vlb, const unsigned vra, const unsigned vrb)
 {
 	auto &sv = Side_to_verts[side];
-	const auto v1 = vm_vec_sub(Vertices[sp->verts[sv[vra]]], Vertices[sp->verts[sv[vla]]]);
-	const auto v2 = vm_vec_sub(Vertices[sp->verts[sv[vrb]]], Vertices[sp->verts[sv[vlb]]]);
+	auto &verts = sp->verts;
+	const auto v1 = vm_vec_sub(vcvertptr(verts[sv[vra]]), vcvertptr(verts[sv[vla]]));
+	const auto v2 = vm_vec_sub(vcvertptr(verts[sv[vrb]]), vcvertptr(verts[sv[vlb]]));
 	vm_vec_add(vp, v1, v2);
 	vm_vec_scale(vp, F1_0/2);
 }

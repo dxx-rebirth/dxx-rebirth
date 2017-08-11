@@ -108,7 +108,7 @@ static void compute_center_point_on_side(vms_vector &r, const array<unsigned, MA
 	vms_vector vp;
 	vm_vec_zero(vp);
 	range_for (auto &v, Side_to_verts[side])
-		vm_vec_add2(vp, Vertices[verts[v]]);
+		vm_vec_add2(vp, vcvertptr(verts[v]));
 	vm_vec_copy_scale(r, vp, F1_0 / 4);
 }
 
@@ -117,7 +117,7 @@ static void compute_segment_center(vms_vector &r, const array<unsigned, MAX_VERT
 	vms_vector vp;
 	vm_vec_zero(vp);
 	range_for (auto &v, verts)
-		vm_vec_add2(vp, Vertices[v]);
+		vm_vec_add2(vp, vcvertptr(v));
 	vm_vec_copy_scale(r, vp, F1_0 / 8);
 }
 
@@ -312,12 +312,12 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 			int	side_count,center_count;
 
 			const auto vertnum = min(vertex_list[0],vertex_list[2]);
-			const auto &mvert = Vertices[vertnum];
+			const auto &&mvert = vcvertptr(vertnum);
 
 			auto a = vertex_list[4] < vertex_list[1]
 				? std::make_pair(vertex_list[4], &s->normals[0])
 				: std::make_pair(vertex_list[1], &s->normals[1]);
-			const auto mdist = vm_dist_to_plane(Vertices[a.first], *a.second, mvert);
+			const auto mdist = vm_dist_to_plane(vcvertptr(a.first), *a.second, mvert);
 
 			side_count = center_count = 0;
 
@@ -359,8 +359,9 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 			//use lowest point number
 			auto b = begin(vertex_list);
 			const auto vertnum = *std::min_element(b, std::next(b, 4));
+			const auto &&mvert = vcvertptr(vertnum);
 
-			const auto dist = vm_dist_to_plane(checkp, s->normals[0], Vertices[vertnum]);
+			const auto dist = vm_dist_to_plane(checkp, s->normals[0], mvert);
 			if (dist-rad < -PLANE_DIST_TOLERANCE) {
 				if (dist < -PLANE_DIST_TOLERANCE)
 					masks.centermask |= sidebit;
@@ -373,9 +374,7 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 		}
 
 	}
-
 	return masks;
-
 }
 
 //this was converted from get_seg_masks()...it fills in an array of 6
@@ -411,13 +410,12 @@ static ubyte get_side_dists(const vms_vector &checkp,const vmsegptridx_t segnum,
 			int	center_count;
 
 			const auto vertnum = min(vertex_list[0],vertex_list[2]);
-			const auto &mvert = Vertices[vertnum];
-
+			auto &mvert = *vcvertptr(vertnum);
 
 			auto a = vertex_list[4] < vertex_list[1]
 				? std::make_pair(vertex_list[4], &s->normals[0])
 				: std::make_pair(vertex_list[1], &s->normals[1]);
-			const auto mdist = vm_dist_to_plane(Vertices[a.first], *a.second, mvert);
+			const auto mdist = vm_dist_to_plane(vcvertptr(a.first), *a.second, mvert);
 
 			center_count = 0;
 
@@ -459,7 +457,7 @@ static ubyte get_side_dists(const vms_vector &checkp,const vmsegptridx_t segnum,
 			auto b = begin(vertex_list);
 			auto vertnum = *std::min_element(b, std::next(b, 4));
 
-			const auto dist = vm_dist_to_plane(checkp, s->normals[0], Vertices[vertnum]);
+			const auto dist = vm_dist_to_plane(checkp, s->normals[0], vcvertptr(vertnum));
 	
 			if (dist < -PLANE_DIST_TOLERANCE) {
 				mask |= sidebit;
@@ -999,7 +997,7 @@ void create_shortpos_native(shortpos *spp, const vcobjptr_t objp)
 
 	spp->segment = objp->segnum;
 	const auto segp = vmsegptr(objp->segnum);
-	const auto &vert = Vertices[segp->verts[0]];
+	auto &vert = *vcvertptr(segp->verts[0]);
 	spp->xo = (objp->pos.x - vert.x) >> RELPOS_PRECISION;
 	spp->yo = (objp->pos.y - vert.y) >> RELPOS_PRECISION;
 	spp->zo = (objp->pos.z - vert.z) >> RELPOS_PRECISION;
@@ -1040,19 +1038,21 @@ void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 	objp->orient.uvec.z = *sp++ << MATRIX_PRECISION;
 	objp->orient.fvec.z = *sp++ << MATRIX_PRECISION;
 
-	auto segnum = static_cast<segnum_t>(INTEL_SHORT(spp->segment));
+	const auto segnum = static_cast<segnum_t>(INTEL_SHORT(spp->segment));
 
 	Assert(segnum <= Highest_segment_index);
 
-	objp->pos.x = (INTEL_SHORT(spp->xo) << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].x;
-	objp->pos.y = (INTEL_SHORT(spp->yo) << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].y;
-	objp->pos.z = (INTEL_SHORT(spp->zo) << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].z;
+	const auto &&segp = vmsegptridx(segnum);
+	auto &vp = *vcvertptr(segp->verts[0]);
+	objp->pos.x = (INTEL_SHORT(spp->xo) << RELPOS_PRECISION) + vp.x;
+	objp->pos.y = (INTEL_SHORT(spp->yo) << RELPOS_PRECISION) + vp.y;
+	objp->pos.z = (INTEL_SHORT(spp->zo) << RELPOS_PRECISION) + vp.z;
 
 	objp->mtype.phys_info.velocity.x = (INTEL_SHORT(spp->velx) << VEL_PRECISION);
 	objp->mtype.phys_info.velocity.y = (INTEL_SHORT(spp->vely) << VEL_PRECISION);
 	objp->mtype.phys_info.velocity.z = (INTEL_SHORT(spp->velz) << VEL_PRECISION);
 
-	obj_relink(objp, vmsegptridx(segnum));
+	obj_relink(objp, segp);
 }
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
@@ -1130,8 +1130,8 @@ static void extract_vector_from_segment(const vcsegptr_t sp, vms_vector &vp, con
 	auto &verts = sp->verts;
 	for (uint_fast32_t i = 0; i != 4; ++i)
 	{
-		vm_vec_sub2(vp, Vertices[verts[start[i]]]);
-		vm_vec_add2(vp, Vertices[verts[end[i]]]);
+		vm_vec_sub2(vp, vcvertptr(verts[start[i]]));
+		vm_vec_add2(vp, vcvertptr(verts[end[i]]));
 	}
 	vm_vec_scale(vp,F1_0/4);
 }
@@ -1194,8 +1194,10 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 	//vm_vec_normalize(&vec2);
 	const auto vp1 = vp[1];
 	const auto vp2 = vp[2];
-	vm_vec_normalized_dir(vec1, Vertices[sp->verts[vp1]], Vertices[sp->verts[vp[0]]]);
-	vm_vec_normalized_dir(vec2, Vertices[sp->verts[vp2]], Vertices[sp->verts[vp1]]);
+	auto &vert1 = *vcvertptr(sp->verts[vp1]);
+	auto &vert2 = *vcvertptr(sp->verts[vp2]);
+	vm_vec_normalized_dir(vec1, vert1, vcvertptr(sp->verts[vp[0]]));
+	vm_vec_normalized_dir(vec2, vert2, vert1);
 	const auto cross0 = vm_vec_cross(vec1, vec2);
 
 	dot = vm_vec_dot(vec_to_center, cross0);
@@ -1206,8 +1208,8 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[3]]], &Vertices[sp->verts[vp[2]]]);
 	//vm_vec_normalize(&vec1);
 	//vm_vec_normalize(&vec2);
-	vm_vec_normalized_dir(vec1, Vertices[sp->verts[vp2]], Vertices[sp->verts[vp1]]);
-	vm_vec_normalized_dir(vec2, Vertices[sp->verts[vp[3]]], Vertices[sp->verts[vp2]]);
+	vm_vec_normalized_dir(vec1, vert2, vert1);
+	vm_vec_normalized_dir(vec2, vcvertptr(sp->verts[vp[3]]), vert2);
 	const auto cross1 = vm_vec_cross(vec1, vec2);
 
 	dot = vm_vec_dot(vec_to_center, cross1);
@@ -1312,7 +1314,7 @@ static void assign_side_normal(vms_vector &n, const unsigned v0, const unsigned 
 	get_verts_for_normal(vfn, v0, v1, v2, UINT32_MAX);
 	const auto &vsorted = vfn.vsorted;
 	const auto &negate_flag = vfn.negate_flag;
-	vm_vec_normal(n, Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
+	vm_vec_normal(n, vcvertptr(vsorted[0]), vcvertptr(vsorted[1]), vcvertptr(vsorted[2]));
 	if (negate_flag)
 		vm_vec_negate(n);
 }
@@ -1336,10 +1338,10 @@ static void add_side_as_2_triangles(const vmsegptr_t sp, const unsigned sidenum)
 	//	If not a wall, then triangulate so whatever is on the other side is triangulated the same (ie, between the same absoluate vertices)
 	if (!IS_CHILD(sp->children[sidenum])) {
 		auto &verts = sp->verts;
-		const auto &vvs0 = Vertices[verts[vs[0]]];
-		const auto &vvs1 = Vertices[verts[vs[1]]];
-		const auto &vvs2 = Vertices[verts[vs[2]]];
-		const auto &vvs3 = Vertices[verts[vs[3]]];
+		auto &vvs0 = *vcvertptr(verts[vs[0]]);
+		auto &vvs1 = *vcvertptr(verts[vs[1]]);
+		auto &vvs2 = *vcvertptr(verts[vs[2]]);
+		auto &vvs3 = *vcvertptr(verts[vs[3]]);
 		const auto &&norm = vm_vec_normal(vvs0, vvs1, vvs2);
 		const auto &&vec_13 =	vm_vec_sub(vvs3, vvs1);	//	vector from vertex 1 to vertex 3
 		dot = vm_vec_dot(norm, vec_13);
@@ -1400,8 +1402,6 @@ namespace dsx {
 // -------------------------------------------------------------------------------
 void create_walls_on_side(const vmsegptridx_t sp, int sidenum)
 {
-	fix	dist_to_plane;
-
 	auto &vs = Side_to_verts[sidenum];
 	const auto v0 = sp->verts[vs[0]];
 	const auto v1 = sp->verts[vs[1]];
@@ -1410,14 +1410,14 @@ void create_walls_on_side(const vmsegptridx_t sp, int sidenum)
 
 	verts_for_normal vfn;
 	get_verts_for_normal(vfn, v0, v1, v2, v3);
-	auto &vm0 = vfn.vsorted[0];
 	auto &vm1 = vfn.vsorted[1];
 	auto &vm2 = vfn.vsorted[2];
 	auto &vm3 = vfn.vsorted[3];
 	auto &negate_flag = vfn.negate_flag;
 
-	auto vn = vm_vec_normal(Vertices[vm0], Vertices[vm1], Vertices[vm2]);
-	dist_to_plane = abs(vm_dist_to_plane(Vertices[vm3], vn, Vertices[vm0]));
+	auto &vvm0 = *vcvertptr(vfn.vsorted[0]);
+	auto &&vn = vm_vec_normal(vvm0, vcvertptr(vm1), vcvertptr(vm2));
+	const fix dist_to_plane = abs(vm_dist_to_plane(vcvertptr(vm3), vn, vvm0));
 
 	if (negate_flag)
 		vm_vec_negate(vn);
@@ -1430,7 +1430,6 @@ void create_walls_on_side(const vmsegptridx_t sp, int sidenum)
 		//this code checks to see if we really should be triangulated, and
 		//de-triangulates if we shouldn't be.
 
-			fix			dist0,dist1;
 			int			s0,s1;
 
 			const auto v = create_abs_vertex_lists(sp, s, sidenum);
@@ -1438,10 +1437,10 @@ void create_walls_on_side(const vmsegptridx_t sp, int sidenum)
 
 			Assert(v.first == 2);
 
-			const auto vertnum = min(vertex_list[0],vertex_list[2]);
+			auto &vvn = *vcvertptr(min(vertex_list[0],vertex_list[2]));
 
-			dist0 = vm_dist_to_plane(Vertices[vertex_list[1]],s->normals[1],Vertices[vertnum]);
-			dist1 = vm_dist_to_plane(Vertices[vertex_list[4]],s->normals[0],Vertices[vertnum]);
+			const fix dist0 = vm_dist_to_plane(vcvertptr(vertex_list[1]), s->normals[1], vvn);
+			const fix dist1 = vm_dist_to_plane(vcvertptr(vertex_list[4]), s->normals[0], vvn);
 
 			s0 = sign(dist0);
 			s1 = sign(dist1);
@@ -1583,7 +1582,7 @@ void pick_random_point_in_seg(vms_vector &new_pos, const vcsegptr_t sp)
 {
 	compute_segment_center(new_pos, sp);
 	const unsigned vnum = (d_rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
-	auto vec2 = vm_vec_sub(Vertices[sp->verts[vnum]], new_pos);
+	auto &&vec2 = vm_vec_sub(vcvertptr(sp->verts[vnum]), new_pos);
 	vm_vec_scale(vec2, d_rand());          // d_rand() always in 0..1/2
 	vm_vec_add2(new_pos, vec2);
 }

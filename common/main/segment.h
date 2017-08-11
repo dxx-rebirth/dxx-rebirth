@@ -183,7 +183,7 @@ struct count_segment_array_t : public count_array_t<segnum_t, MAX_SEGMENTS> {};
 struct group
 {
 	struct segment_array_type_t : public count_segment_array_t {};
-	struct vertex_array_type_t : public count_array_t<int, MAX_VERTICES> {};
+	struct vertex_array_type_t : public count_array_t<unsigned, MAX_VERTICES> {};
 	segment_array_type_t segments;
 	vertex_array_type_t vertices;
 	void clear()
@@ -212,6 +212,8 @@ struct vertex : vms_vector
 	}
 };
 
+DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(vertex, vert, Vertices);
+#define Highest_vertex_index (Vertices.get_count() - 1)
 }
 
 #ifdef dsx

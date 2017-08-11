@@ -3252,7 +3252,7 @@ void update_item_state::process_powerup(fvmsegptridx &vmsegptridx, const object 
 	{
 		assert(o.movement_type == MT_NONE);
 		assert(o.render_type == RT_POWERUP);
-		const auto &&no = obj_create(OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, Vertices[seg_verts[i % seg_verts.size()]]), &vmd_identity_matrix, o.size, CT_POWERUP, MT_NONE, RT_POWERUP);
+		const auto &&no = obj_create(OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, vcvertptr(seg_verts[i % seg_verts.size()])), &vmd_identity_matrix, o.size, CT_POWERUP, MT_NONE, RT_POWERUP);
 		if (no == object_none)
 			return;
 		m_modified.set(no);

@@ -231,7 +231,7 @@ void trigger_matcen(const vmsegptridx_t segnum)
 
 	//	Create a bright object in the segment.
 	auto pos = compute_segment_center(segp);
-	const auto delta = vm_vec_sub(Vertices[segnum->verts[0]], pos);
+	const auto delta = vm_vec_sub(vcvertptr(segnum->verts[0]), pos);
 	vm_vec_scale_add2(pos, delta, F1_0/2);
 	auto objnum = obj_create( OBJ_LIGHT, 0, segnum, pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
 	if (objnum != object_none) {

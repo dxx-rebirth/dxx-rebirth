@@ -1981,7 +1981,7 @@ static int boss_fits_in_seg(const object &boss_objp, const vcsegptridx_t segp)
 			return 1;
 		if (posnum == segp->verts.size())
 			break;
-		const auto &vertex_pos = Vertices[segp->verts[posnum ++]];
+		auto &vertex_pos = *vcvertptr(segp->verts[posnum ++]);
 		vm_vec_avg(pos, vertex_pos, segcenter);
 	}
 	return 0;

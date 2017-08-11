@@ -1345,7 +1345,7 @@ int load_level(const char * filename_passed)
 	 * HACK to make this issue less visible by moving one vertex a little.
 	 */
 	if (Current_mission && !d_stricmp("Descent: First Strike",Current_mission_longname) && !d_stricmp("level19.rdl",filename) && PHYSFS_fileLength(LoadFile) == 136706)
-		Vertices[1905].z =-385*F1_0;
+		vmvertptr(1905u)->z = -385 * F1_0;
 #if defined(DXX_BUILD_DESCENT_II)
 	/* !!!HACK!!!
 	 * Descent 2 - Level 12: MAGNACORE STATION has a segment (104) with illegal dimensions.
@@ -1355,7 +1355,7 @@ int load_level(const char * filename_passed)
 	if (Current_mission && !d_stricmp("Descent 2: Counterstrike!",Current_mission_longname) && !d_stricmp("d2levc-4.rl2",filename))
 	{
 		auto &s104 = *vmsegptr(vmsegidx_t(104));
-		auto &s104v0 = Vertices[s104.verts[0]];
+		auto &s104v0 = *vmvertptr(s104.verts[0]);
 		auto &s104s1 = s104.sides[1];
 		auto &s104s1n0 = s104s1.normals[0];
 		auto &s104s1n1 = s104s1.normals[1];
@@ -1504,7 +1504,7 @@ int create_new_mine(void)
 	
 	
 	Num_vertices = 0;		// Number of vertices in global array.
-	Highest_vertex_index = 0;
+	Vertices.set_count(1);
 	Num_segments = 0;		// Number of segments in global array, will get increased in med_create_segment
 	Segments.set_count(1);
 	Cursegp = imsegptridx(segment_first);	// Say current segment is the only segment.

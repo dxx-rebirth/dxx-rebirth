@@ -494,7 +494,7 @@ static void render_side(grs_canvas &canvas, const vcsegptridx_t segp, const unsi
 		(sidep->get_type() == SIDE_IS_TRI_13)
 			? 1
 			: 0;
-	const auto tvec = vm_vec_normalized_quick(vm_vec_sub(Viewer_eye, Vertices[vertnum_list[which_vertnum]]));
+	const auto tvec = vm_vec_normalized_quick(vm_vec_sub(Viewer_eye, vcvertptr(vertnum_list[which_vertnum])));
 	auto &normals = sidep->normals;
 	const auto v_dot_n0 = vm_vec_dot(tvec, normals[0]);
 	//	========== Mark: Here is the change...beginning here: ==========
@@ -727,7 +727,7 @@ g3s_codes rotate_list(const std::size_t nv, const unsigned *const pointnumlist)
 		if (pnt.p3_last_generation != current_generation)
 		{
 			pnt.p3_last_generation = current_generation;
-			const auto &v = Vertices[pnum];
+			auto &v = *vcvertptr(pnum);
 			vertex tmpv;
 			g3_rotate_point(pnt, likely(!cheats_acid) ? v : (
 				tmpv = v,
@@ -948,7 +948,7 @@ static bool compare_child(const vcsegptridx_t seg, const vcsegptridx_t cseg, con
 {
 	const auto &cside = cseg->sides[edgeside];
 	const auto &sv = Side_to_verts[edgeside][cside.get_type() == SIDE_IS_TRI_13 ? 1 : 0];
-	const auto &temp = vm_vec_sub(Viewer_eye, Vertices[seg->verts[sv]]);
+	const auto &temp = vm_vec_sub(Viewer_eye, vcvertptr(seg->verts[sv]));
 	const auto &cnormal = cseg->sides[edgeside].normals;
 	return vm_vec_dot(cnormal[0], temp) < 0 || vm_vec_dot(cnormal[1], temp) < 0;
 }

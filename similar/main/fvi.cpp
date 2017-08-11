@@ -146,8 +146,8 @@ static uint check_point_to_face(const vms_vector &checkp, const side *s,int face
 		vec2d edgevec,checkvec;
 		fix64 d;
 
-		const vms_vector &v0 = Vertices[vertex_list[facenum*3+edge]];
-		const vms_vector &v1 = Vertices[vertex_list[facenum*3+((edge+1)%nv)]];
+		auto &v0 = *vcvertptr(vertex_list[facenum * 3 + edge]);
+		auto &v1 = *vcvertptr(vertex_list[facenum * 3 + ((edge + 1) % nv)]);
 
 		edgevec.i = v1.*ij.i - v0.*ij.i;
 		edgevec.j = v1.*ij.j - v0.*ij.j;
@@ -191,8 +191,8 @@ static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum
 
 		for (edgenum=0;!(edgemask&1);(edgemask>>=1),edgenum++);
 
-		const auto &v0 = Vertices[vertex_list[facenum*3+edgenum]];
-		const auto &v1 = Vertices[vertex_list[facenum*3+((edgenum+1)%nv)]];
+		auto &v0 = *vcvertptr(vertex_list[facenum * 3 + edgenum]);
+		auto &v1 = *vcvertptr(vertex_list[facenum * 3 + ((edgenum + 1) % nv)]);
 
 		//check if we are touching an edge or point
 
@@ -239,7 +239,6 @@ static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum
 __attribute_warn_unused_result
 static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_vector &p1,const vcsegptridx_t seg,int side,int facenum,int nv,fix rad)
 {
-	int pli;
 	const struct side *s=&seg->sides[side];
 	vms_vector norm;
 
@@ -259,7 +258,7 @@ static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_ve
 		vertnum = *std::min_element(b, std::next(b, 4));
 	}
 
-	pli = find_plane_line_intersection(newp,Vertices[vertnum],norm,p0,p1,rad);
+	auto pli = find_plane_line_intersection(newp, vcvertptr(vertnum), norm, p0, p1, rad);
 
 	if (!pli) return IT_NONE;
 
@@ -337,8 +336,8 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 
 	for (edgenum=0;!(edgemask&1);edgemask>>=1,edgenum++);
 
-	const auto &edge_v0 = Vertices[vertex_list[facenum*3+edgenum]];
-	const auto &edge_v1 = Vertices[vertex_list[facenum*3+((edgenum+1)%nv)]];
+	auto &edge_v0 = *vcvertptr(vertex_list[facenum * 3 + edgenum]);
+	auto &edge_v1 = *vcvertptr(vertex_list[facenum * 3 + ((edgenum + 1) % nv)]);
 
 	auto edge_vec = vm_vec_sub(edge_v1,edge_v0);
 
@@ -1128,13 +1127,13 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, co
 	//2. compute u,v of intersection point
 
 	//vec from 1 -> 0
-	const vms_vector &vf1 = Vertices[vn[facenum*3+1].vertex];
+	auto &vf1 = *vcvertptr(vn[facenum * 3 + 1].vertex);
 	const vec2d p1{vf1.*ii, vf1.*jj};
 
-	const vms_vector &vf0 = Vertices[vn[facenum*3+0].vertex];
+	auto &vf0 = *vcvertptr(vn[facenum * 3 + 0].vertex);
 	const vec2d vec0{vf0.*ii - p1.i, vf0.*jj - p1.j};
 	//vec from 1 -> 2
-	const vms_vector &vf2 = Vertices[vn[facenum*3+2].vertex];
+	auto &vf2 = *vcvertptr(vn[facenum * 3 + 2].vertex);
 	const vec2d vec1{vf2.*ii - p1.i, vf2.*jj - p1.j};
 
 	//vec from 1 -> checkpoint

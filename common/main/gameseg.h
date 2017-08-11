@@ -46,7 +46,6 @@ struct segmasks
 
 struct segment_depth_array_t : public array<ubyte, MAX_SEGMENTS> {};
 
-extern unsigned Highest_vertex_index;                   // Highest index in Vertices and Vertex_active, an efficiency hack
 struct side_vertnum_list_t : array<unsigned, 4> {};
 
 struct vertex_array_list_t : array<unsigned, 6> {};

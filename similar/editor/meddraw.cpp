@@ -393,7 +393,7 @@ static void add_edges(const vcsegptridx_t seg)
 				int	en;
 
 				//Note: normal check appears to be the wrong way since the normals points in, but we're looking from the outside
-				if (g3_check_normal_facing(Vertices[seg->verts[vertex_list[fn*3]]],sidep->normals[fn]))
+				if (g3_check_normal_facing(vcvertptr(seg->verts[vertex_list[fn*3]]),sidep->normals[fn]))
 					flag = ET_NOTFACING;
 				else
 					flag = ET_FACING;
@@ -691,42 +691,53 @@ static void draw_coordinate_axes(void)
 
 	create_coordinate_axes_from_segment(Cursegp,Axes_verts);
 
-	const auto xvec = vm_vec_sub(Vertices[Axes_verts[1]],Vertices[Axes_verts[0]]);
-	const auto yvec = vm_vec_sub(Vertices[Axes_verts[2]],Vertices[Axes_verts[0]]);
-	const auto zvec = vm_vec_sub(Vertices[Axes_verts[3]],Vertices[Axes_verts[0]]);
+	const auto &&av0 = vcvertptr(Axes_verts[0]);
+	const auto &&av1 = vcvertptr(Axes_verts[1]);
+	const auto &&av2 = vcvertptr(Axes_verts[2]);
+	const auto &&av3 = vcvertptr(Axes_verts[3]);
+	const auto &&av4 = vmvertptr(Axes_verts[4]);
+	const auto &&av6 = vmvertptr(Axes_verts[6]);
+	const auto &&av9 = vmvertptr(Axes_verts[9]);
+	const auto &&av10 = vmvertptr(Axes_verts[10]);
+	const auto &&av11 = vmvertptr(Axes_verts[11]);
+	const auto &&av12 = vmvertptr(Axes_verts[12]);
+	const auto &&av14 = vmvertptr(Axes_verts[14]);
+	const auto &&xvec = vm_vec_sub(av1, av0);
+	const auto &&yvec = vm_vec_sub(av2, av0);
+	const auto &&zvec = vm_vec_sub(av3, av0);
 
 	// Create the letter X
 	tvec = xvec;
-	vm_vec_add(Vertices[Axes_verts[4]],Vertices[Axes_verts[1]], vm_vec_scale(tvec,F1_0/16));
+	vm_vec_add(av4, av1, vm_vec_scale(tvec, F1_0 / 16));
 	tvec = yvec;
-	vm_vec_add2(Vertices[Axes_verts[4]], vm_vec_scale(tvec,F1_0/8));
-	vm_vec_sub(Vertices[Axes_verts[6]],Vertices[Axes_verts[4]], vm_vec_scale(tvec,F2_0));
+	vm_vec_add2(av4, vm_vec_scale(tvec, F1_0 / 8));
+	vm_vec_sub(av6, av4, vm_vec_scale(tvec, F2_0));
 	tvec = xvec;
-	vm_vec_scale(tvec,F1_0/8);
-	vm_vec_add(Vertices[Axes_verts[7]],Vertices[Axes_verts[4]],tvec);
-	vm_vec_add(Vertices[Axes_verts[5]],Vertices[Axes_verts[6]],tvec);
+	vm_vec_scale(tvec, F1_0 / 8);
+	vm_vec_add(vmvertptr(Axes_verts[7]), av4, tvec);
+	vm_vec_add(vmvertptr(Axes_verts[5]), av6, tvec);
 
 	//	Create the letter Y
 	tvec = yvec;
-	vm_vec_add(Vertices[Axes_verts[11]],Vertices[Axes_verts[2]], vm_vec_scale(tvec,F1_0/16));
-	vm_vec_add(Vertices[Axes_verts[8]],Vertices[Axes_verts[11]],tvec);
-	vm_vec_add(Vertices[Axes_verts[9]],Vertices[Axes_verts[11]], vm_vec_scale(tvec,F1_0*2));
-	vm_vec_add(Vertices[Axes_verts[10]],Vertices[Axes_verts[11]],tvec);
+	vm_vec_add(av11, av2, vm_vec_scale(tvec, F1_0 / 16));
+	vm_vec_add(vmvertptr(Axes_verts[8]), av11, tvec);
+	vm_vec_add(av9, av11, vm_vec_scale(tvec, F1_0 * 2));
+	vm_vec_add(av10, av11, tvec);
 	tvec = xvec;
-	vm_vec_scale(tvec,F1_0/16);
-	vm_vec_sub2(Vertices[Axes_verts[9]],tvec);
-	vm_vec_add2(Vertices[Axes_verts[10]],tvec);
+	vm_vec_scale(tvec, F1_0 / 16);
+	vm_vec_sub2(av9, tvec);
+	vm_vec_add2(av10, tvec);
 
 	// Create the letter Z
 	tvec = zvec;
-	vm_vec_add(Vertices[Axes_verts[12]],Vertices[Axes_verts[3]],vm_vec_scale(tvec,F1_0/16));
+	vm_vec_add(av12, av3, vm_vec_scale(tvec, F1_0 / 16));
 	tvec = yvec;
-	vm_vec_add2(Vertices[Axes_verts[12]], vm_vec_scale(tvec,F1_0/8));
-	vm_vec_sub(Vertices[Axes_verts[14]],Vertices[Axes_verts[12]], vm_vec_scale(tvec,F2_0));
+	vm_vec_add2(av12, vm_vec_scale(tvec, F1_0 / 8));
+	vm_vec_sub(av14, av12, vm_vec_scale(tvec, F2_0));
 	tvec = zvec;
-	vm_vec_scale(tvec,F1_0/8);
-	vm_vec_add(Vertices[Axes_verts[13]],Vertices[Axes_verts[12]],tvec);
-	vm_vec_add(Vertices[Axes_verts[15]],Vertices[Axes_verts[14]],tvec);
+	vm_vec_scale(tvec, F1_0 / 8);
+	vm_vec_add(vmvertptr(Axes_verts[13]), av12, tvec);
+	vm_vec_add(vmvertptr(Axes_verts[15]), av14, tvec);
 
 	rotate_list(Axes_verts);
 

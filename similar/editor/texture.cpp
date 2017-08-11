@@ -81,13 +81,12 @@ int	TexFlipY()
 //	-----------------------------------------------------------
 static int DoTexSlideLeft(int value)
 {
-	side	*sidep;
 	uvl	duvl03;
 	fix	dist;
 	auto &vp = Side_to_verts[Curside];
-	sidep = &Cursegp->sides[Curside];
+	const auto sidep = &Cursegp->sides[Curside];
 
-	dist = vm_vec_dist(Vertices[Cursegp->verts[vp[3]]], Vertices[Cursegp->verts[vp[0]]]);
+	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[3]]), vcvertptr(Cursegp->verts[vp[0]]));
 	dist *= value;
 	if (dist < F1_0/(64*value))
 		dist = F1_0/(64*value);
@@ -125,7 +124,7 @@ static int DoTexSlideUp(int value)
 	auto &vp = Side_to_verts[Curside];
 	sidep = &Cursegp->sides[Curside];
 
-	dist = vm_vec_dist(Vertices[Cursegp->verts[vp[1]]], Vertices[Cursegp->verts[vp[0]]]);
+	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[1]]), vcvertptr(Cursegp->verts[vp[0]]));
 	dist *= value;
 
 	if (dist < F1_0/(64*value))
@@ -165,7 +164,7 @@ static int DoTexSlideDown(int value)
 	auto &vp = Side_to_verts[Curside];
 	sidep = &Cursegp->sides[Curside];
 
-	dist = vm_vec_dist(Vertices[Cursegp->verts[vp[1]]], Vertices[Cursegp->verts[vp[0]]]);
+	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[1]]), vcvertptr(Cursegp->verts[vp[0]]));
 	dist *= value;
 	if (dist < F1_0/(64*value))
 		dist = F1_0/(64*value);
@@ -285,7 +284,7 @@ static int DoTexSlideRight(int value)
 	auto &vp = Side_to_verts[Curside];
 	sidep = &Cursegp->sides[Curside];
 
-	dist = vm_vec_dist(Vertices[Cursegp->verts[vp[3]]], Vertices[Cursegp->verts[vp[0]]]);
+	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[3]]), vcvertptr(Cursegp->verts[vp[0]]));
 	dist *= value;
 	if (dist < F1_0/(64*value))
 		dist = F1_0/(64*value);

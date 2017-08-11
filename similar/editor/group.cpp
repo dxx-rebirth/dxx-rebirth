@@ -388,12 +388,11 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 	}
 
 	// Do the pre-rotation xlate, do the rotation, do the post-rotation xlate
-	for (unsigned v = 0; v <= Highest_vertex_index; ++v)
+	range_for (auto &&v, vmvertptridx)
 		if (vertex_list[v]) {
-			const auto tv1 = vm_vec_sub(Vertices[v],rotate_center);
+			const auto &&tv1 = vm_vec_sub(*v, rotate_center);
 			const auto tv = vm_vec_rotate(tv1,rotmat);
-			vm_vec_add(Vertices[v],tv,rotate_center);
-
+			vm_vec_add(*v, tv, rotate_center);
 		}
 }
 
@@ -429,7 +428,6 @@ static void create_group_list(const vmsegptridx_t segp, group::segment_array_typ
 // ------------------------------------------------------------------------------------------------
 static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::segment_array_type_t &segments)
 {
-	int	new_vertex_id;
 	group::segment_array_type_t new_segments;
 	array<int, MAX_VERTICES> new_vertex_ids;		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
 
@@ -437,11 +435,11 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 	new_vertex_ids.fill(-1);
 
 	//	duplicate vertices
-	for (unsigned v = 0; v <= Highest_vertex_index; ++v)
+	range_for (auto &&v, vcvertptridx)
 	{
-		if (vertex_ids[v]) {
-			new_vertex_id = med_create_duplicate_vertex(Vertices[v]);
-			new_vertex_ids[v] = new_vertex_id;
+		if (vertex_ids[v])
+		{
+			new_vertex_ids[v] = med_create_duplicate_vertex(*v);
 		}
 	}
 
@@ -523,7 +521,6 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	int 			x;
 	int			new_current_group;
 	int 			c;
-	array<uint8_t, MAX_VERTICES> in_vertex_list;
 
 	if (IS_CHILD(base_seg->children[base_side])) {
 		editor_status("Error -- unable to copy group, base_seg:base_side must be free.");
@@ -554,13 +551,11 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	GroupList[new_current_group] = GroupList[current_group];
 
 	//	Make a list of all vertices in group.
+	array<uint8_t, MAX_VERTICES> in_vertex_list{};
 	if (group_seg == &New_segment)
 		range_for (auto &v, group_seg->verts)
 			in_vertex_list[v] = 1;
 	else {
-		range_for (auto &v, partial_range(in_vertex_list, Highest_vertex_index + 1))
-			v = 0;
-
 		range_for(const auto &gs, GroupList[new_current_group].segments)
 			range_for (auto &v, vmsegptr(gs)->verts)
 				in_vertex_list[v] = 1;
@@ -606,9 +601,9 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	//	Now do the copy
 	//	First, xlate all vertices so center of group_seg:group_side is at origin
 	const auto srcv = compute_center_point_on_side(group_seg,group_side);
-	for (unsigned v = 0; v <= Highest_vertex_index; ++v)
+	range_for (auto &&v, vmvertptridx)
 		if (in_vertex_list[v])
-			vm_vec_sub2(Vertices[v],srcv);
+			vm_vec_sub2(*v, srcv);
 
 	//	Now, translate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
@@ -623,9 +618,9 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
 	const auto destv = compute_center_point_on_side(base_seg,base_side);
-	for (unsigned v = 0; v <= Highest_vertex_index; ++v)
+	range_for (auto &&v, vmvertptridx)
 		if (in_vertex_list[v])
-			vm_vec_add2(Vertices[v],destv);
+			vm_vec_add2(*v, destv);
 
 	//	Now, xlate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
@@ -658,7 +653,6 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base_side, const vmsegptridx_t group_seg, int group_side, const vms_matrix &orient_matrix, int orientation)
 {
 	int			c, d;
-	int			local_hvi;
 
 	if (IS_CHILD(base_seg->children[base_side]))
 		if (base_seg->children[base_side] != group_seg) {
@@ -695,14 +689,12 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 
 	//	Now, for all vertices present in both the in (part of group segment) and out (part of non-group segment)
 	// create an extra copy of the vertex so we can just move the ones in the in list.
-	local_hvi = Highest_vertex_index;		//	Can't use Highest_vertex_index as loop termination because it gets increased by med_create_duplicate_vertex.
+	//	Can't use Highest_vertex_index as loop termination because it gets increased by med_create_duplicate_vertex.
 
-	for (unsigned v = 0; v <= local_hvi; ++v)
+	range_for (auto &&v, vmvertptridx)
 		if (in_vertex_list[v])
 			if (out_vertex_list[v]) {
-				int new_vertex_id;
-
-				new_vertex_id = med_create_duplicate_vertex(Vertices[v]);
+				const auto new_vertex_id = med_create_duplicate_vertex(*v);
 				in_vertex_list[v] = 0;
 				in_vertex_list[new_vertex_id] = 1;
 
@@ -750,9 +742,9 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	//	Now do the move
 	//	First, xlate all vertices so center of group_seg:group_side is at origin
 	const auto srcv = compute_center_point_on_side(group_seg,group_side);
-	for (unsigned v = 0; v <= Highest_vertex_index; ++v)
+	range_for (auto &&v, vmvertptridx)
 		if (in_vertex_list[v])
-			vm_vec_sub2(Vertices[v],srcv);
+			vm_vec_sub2(*v, srcv);
 
 	//	Now, move all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
@@ -767,9 +759,9 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
 	const auto destv = compute_center_point_on_side(base_seg,base_side);
-	for (unsigned v = 0; v <= Highest_vertex_index; ++v)
+	range_for (auto &&v, vmvertptridx)
 		if (in_vertex_list[v])
-			vm_vec_add2(Vertices[v],destv);
+			vm_vec_add2(*v, destv);
 
 	//	Now, rotate all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
@@ -796,7 +788,7 @@ static segnum_t place_new_segment_in_world(void)
 	seg = New_segment;
 
 	for (unsigned v = 0; v != MAX_VERTICES_PER_SEGMENT; ++v)
-		seg.verts[v] = med_create_duplicate_vertex(Vertices[New_segment.verts[v]]);
+		seg.verts[v] = med_create_duplicate_vertex(vcvertptr(New_segment.verts[v]));
 
 	return segnum;
 
@@ -975,7 +967,6 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	int header_offset, editor_offset, vertex_offset, segment_offset, texture_offset;
 	char ErrorMessage[100];
 	int j;
-   vms_vector tvert;
 
 	auto SaveFile = PHYSFSX_openWriteBuffered(filename);
 	if (!SaveFile)
@@ -1036,8 +1027,8 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	vertex_offset = PHYSFS_tell(SaveFile);
 	range_for (const auto &gv, vertex_ids)
 	{
-		tvert = Vertices[gv];
-		PHYSFS_write( SaveFile, &tvert, sizeof(tvert), 1); 
+		const vertex tvert = *vcvertptr(gv);
+		PHYSFS_write(SaveFile, &tvert, sizeof(tvert), 1);
 	}
 
 	//===================== SAVE SEGMENT INFO =========================

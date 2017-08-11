@@ -1110,10 +1110,10 @@ void draw_all_edges(grs_canvas &canvas, automap *const am)
 		if (!rotate_list(e->verts).uand)
 		{			//all off screen?
 			nfacing = nnfacing = 0;
-			auto &tv1 = Vertices[e->verts[0]];
+			auto &tv1 = *vcvertptr(e->verts[0]);
 			j = 0;
 			while( j<e->num_faces && (nfacing==0 || nnfacing==0) )	{
-				if (!g3_check_normal_facing( tv1, Segments[e->segnum[j]].sides[e->sides[j]].normals[0] ) )
+				if (!g3_check_normal_facing(tv1, vcsegptr(e->segnum[j])->sides[e->sides[j]].normals[0]))
 					nfacing++;
 				else
 					nnfacing++;

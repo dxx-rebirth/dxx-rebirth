@@ -737,7 +737,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 				const auto b = begin(vertex_list);
 				const auto vertnum = *std::min_element(b, std::next(b, 4));
 
-					dist = vm_dist_to_plane(start_pos, s->normals[0], Vertices[vertnum]);
+				dist = vm_dist_to_plane(start_pos, s->normals[0], vcvertptr(vertnum));
 					vm_vec_scale_add(obj->pos,start_pos,s->normals[0],obj->size-dist);
 				update_object_seg(obj);
 

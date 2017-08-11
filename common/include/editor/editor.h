@@ -474,7 +474,6 @@ void editor_status( const char *text);
 extern int MacroNumEvents;
 extern int MacroStatus;
 
-//extern	int	Highest_vertex_index;			// Highest index in Vertices and Vertex_active, an efficiency hack
 //extern	int	Highest_segment_index;			// Highest index in Segments, an efficiency hack
 extern	int	Lock_view_to_cursegp;			// !0 means whenever cursegp changes, view it
 
