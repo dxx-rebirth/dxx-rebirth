@@ -100,7 +100,7 @@ namespace dsx {
 int get_explosion_vclip(vcobjptr_t obj, explosion_vclip_stage stage);
 
 #if defined(DXX_BUILD_DESCENT_II)
-imobjptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player);
+imobjptridx_t drop_powerup(int id, unsigned num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player);
 
 // creates afterburner blobs behind the specified object
 void drop_afterburner_blobs(vmobjptr_t obj, int count, fix size_scale, fix lifetime);

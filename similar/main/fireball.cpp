@@ -809,17 +809,14 @@ void maybe_replace_powerup_with_energy(const vmobjptr_t del_obj)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define drop_powerup(type, id, num, init_vel, pos, segnum, player)	(drop_powerup)(type, id, num, init_vel, pos, segnum)
+#define drop_powerup(id, num, init_vel, pos, segnum, player)	(drop_powerup)(id, num, init_vel, pos, segnum)
 static
 #endif
-imobjptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, bool player)
+imobjptridx_t drop_powerup(int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
 {
 	imobjptridx_t	objnum = object_none;
-	vms_vector	new_pos;
-   int             count;
+	unsigned count;
 
-	switch (type) {
-		case OBJ_POWERUP:
 			for (count=0; count<num; count++) {
 				int	rand_scale;
 				auto new_velocity = init_vel;
@@ -843,7 +840,7 @@ imobjptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel
 				if ((Game_mode & GM_MULTI) && (id >= POW_KEY_BLUE) && (id <= POW_KEY_GOLD))
 					vm_vec_zero(new_velocity);
 
-				new_pos = pos;
+				auto new_pos = pos;
 //				new_pos.x += (d_rand()-16384)*8;
 //				new_pos.y += (d_rand()-16384)*8;
 //				new_pos.z += (d_rand()-16384)*8;
@@ -902,9 +899,24 @@ imobjptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel
 						break;
 				}
 			}
-			break;
+	return objnum;
+}
 
+static imobjptridx_t drop_robot_egg(const int type, const int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
+{
+	switch (type)
+	{
+		case OBJ_POWERUP:
+			return drop_powerup(id, num, init_vel, pos, segnum, false);
 		case OBJ_ROBOT:
+			break;
+		default:
+			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "ignoring invalid object type; expected OBJ_POWERUP or OBJ_ROBOT, got type=%i, id=%i"), type, id);
+			return object_none;
+	}
+	imobjptridx_t	objnum = object_none;
+	unsigned count;
+
 			for (count=0; count<num; count++) {
 				int	rand_scale;
 				auto new_velocity = vm_vec_normalized_quick(init_vel);
@@ -922,7 +934,7 @@ imobjptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel
 
 				vm_vec_normalize_quick(new_velocity);
 				vm_vec_scale(new_velocity, (F1_0*32 + old_mag) * rand_scale);
-				new_pos = pos;
+				auto new_pos = pos;
 				//	This is dangerous, could be outside mine.
 //				new_pos.x += (d_rand()-16384)*8;
 //				new_pos.y += (d_rand()-16384)*7;
@@ -941,10 +953,6 @@ imobjptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel
 					Int3();
 					return object_none;
 				}
-#if defined(DXX_BUILD_DESCENT_II)
-				if (player)
-					obj->flags |= OF_PLAYER_DROPPED;
-#endif
 
 				if (Game_mode & GM_MULTI)
 				{
@@ -978,14 +986,8 @@ imobjptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel
 			// At JasenW's request, robots which contain robots
 			// sometimes drop shields.
 			if (d_rand() > 16384)
-				drop_powerup(OBJ_POWERUP, POW_SHIELD_BOOST, 1, init_vel, pos, segnum, false);
+				drop_powerup(POW_SHIELD_BOOST, 1, init_vel, pos, segnum, false);
 #endif
-			break;
-
-		default:
-			Error("Error: Illegal type (%i) in object spawning.\n", type);
-	}
-
 	return objnum;
 }
 
@@ -1011,15 +1013,7 @@ static bool skip_create_egg_powerup(const object &player, powerup_type_t powerup
 }
 #endif
 
-// ----------------------------------------------------------------------------
-// Returns created object number.
-// If object dropped by player, set flag.
-static imobjptridx_t object_create_player_egg(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
-{
-	return drop_powerup(type, id, num, init_vel, pos, segnum, true);
-}
-
-imobjptridx_t object_create_robot_egg(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
+imobjptridx_t object_create_robot_egg(const int type, const int id, const int num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	if (!(Game_mode & GM_MULTI))
@@ -1031,7 +1025,7 @@ imobjptridx_t object_create_robot_egg(int type, int id, int num, const vms_vecto
 		}
 	}
 #endif
-	const auto rval = drop_powerup(type, id, num, init_vel, pos, segnum, false);
+	const auto &&rval = drop_robot_egg(type, id, num, init_vel, pos, segnum);
 #if defined(DXX_BUILD_DESCENT_II)
 	if (rval != object_none)
 	{
@@ -1052,15 +1046,13 @@ imobjptridx_t object_create_robot_egg(const vmobjptr_t objp)
 	return object_create_robot_egg(objp->contains_type, objp->contains_id, objp->contains_count, objp->mtype.phys_info.velocity, objp->pos, vmsegptridx(objp->segnum));
 }
 
-// -- extern int Items_destroyed;
-
 //	-------------------------------------------------------------------------------------------------------
 //	Put count objects of type type (eg, powerup), id = id (eg, energy) into *objp, then drop them!  Yippee!
 //	Returns created object number.
 imobjptridx_t call_object_create_egg(const object_base &objp, const unsigned count, const int id)
 {
 	if (count > 0) {
-		return object_create_player_egg(OBJ_POWERUP, id, count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum));
+		return drop_powerup(id, count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum), true);
 	}
 
 	return object_none;
