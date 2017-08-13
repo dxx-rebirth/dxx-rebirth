@@ -560,7 +560,13 @@ void multi_send_msgsend_state(msgsend_state_t state);
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 extern array<grs_main_bitmap, 2> Orb_icons;
-extern int PhallicLimit,PhallicMan;
+struct hoard_highest_record
+{
+	unsigned points;
+	unsigned player = UINT_MAX;
+};
+
+extern hoard_highest_record hoard_highest_record_stats;
 }
 #endif
 namespace dcx {

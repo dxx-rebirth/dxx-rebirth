@@ -140,8 +140,7 @@ fix Show_kill_list_timer = 0;
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-int PhallicLimit=0;
-int PhallicMan=-1;
+hoard_highest_record hoard_highest_record_stats;
 
 char Multi_is_guided=0;
 }
@@ -3373,8 +3372,7 @@ void multi_prep_level_player(void)
 	Assert(NumNetPlayerPositions > 0);
 
 #if defined(DXX_BUILD_DESCENT_II)
-	PhallicLimit=0;
-	PhallicMan=-1;
+	hoard_highest_record_stats = {};
 	Drop_afterburner_blob_flag=0;
 #endif
 	Bounty_target = 0;
@@ -4131,15 +4129,15 @@ void multi_do_orb_bonus(const playernum_t pnum, const uint8_t *const buf)
 				: SOUND_HUD_BLUE_GOT_GOAL
 			) : SOUND_OPPONENT_HAS_SCORED, F1_0*2);
 
-	if (bonus>PhallicLimit)
+	if (bonus > hoard_highest_record_stats.points)
 	{
+		hoard_highest_record_stats.player = pnum;
+		hoard_highest_record_stats.points = bonus;
 		if (pnum==Player_num)
 			HUD_init_message(HM_MULTI, "You have the record with %d points!",bonus);
 		else
 			HUD_init_message(HM_MULTI, "%s has the record with %d points!",static_cast<const char *>(Players[pnum].callsign),bonus);
 		digi_play_sample (SOUND_BUDDY_MET_GOAL,F1_0*2);
-		PhallicMan=pnum;
-		PhallicLimit=bonus;
 	}
 
 

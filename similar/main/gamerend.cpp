@@ -245,10 +245,10 @@ static void show_netplayerinfo()
 #if defined(DXX_BUILD_DESCENT_II)
 	if (game_mode_hoard())
 	{
-		if (PhallicMan==-1)
+		if (hoard_highest_record_stats.player >= Players.size())
 			gr_string(canvas, 0x8000, y, "There is no record yet for this level.");
 		else
-			gr_printf(canvas, 0x8000,y,"%s has the record at %d points.", static_cast<const char *>(Players[PhallicMan].callsign), PhallicLimit);
+			gr_printf(canvas, 0x8000, y, "%s has the record at %d points.", static_cast<const char *>(Players[hoard_highest_record_stats.player].callsign), hoard_highest_record_stats.points);
 	}
 	else
 #endif
