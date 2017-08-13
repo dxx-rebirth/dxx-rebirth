@@ -1096,7 +1096,7 @@ static void build_object_lists(render_state_t &rstate)
 	for (nn=0;nn < rstate.N_render_segs;nn++) {
 		const auto segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
-			range_for (const auto obj, objects_in(vcsegptr(segnum)))
+			range_for (const auto obj, objects_in(vcsegptr(segnum), vcobjptridx, vcsegptr))
 			{
 				int list_pos;
 				if (obj->type == OBJ_NONE)

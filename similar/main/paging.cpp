@@ -294,7 +294,7 @@ static void paging_touch_segment(const vcsegptr_t segp)
 		paging_touch_side( segp, sn );
 	}
 
-	range_for (const auto objp, objects_in(*segp))
+	range_for (const auto objp, objects_in(*segp, vcobjptridx, vcsegptr))
 		paging_touch_object(objp);
 }
 

@@ -670,7 +670,7 @@ static void compress_segments(void)
 				}	// end for s
 
 				//Update object segment pointers
-				range_for (const auto objp, objects_in(sp))
+				range_for (const auto objp, objects_in(sp, vmobjptridx, vmsegptr))
 				{
 					Assert(objp->segnum == seg);
 					objp->segnum = hole;
@@ -1025,7 +1025,7 @@ int med_delete_segment(const vmsegptridx_t sp)
 			}
 
 	// If deleted segment contains objects, wipe out all objects
-		range_for (const auto objnum, objects_in(*sp))
+		range_for (const auto objnum, objects_in(*sp, vmobjptridx, vmsegptr))
 		{
 			//if an object is in the seg, delete it
 			//if the object is the player, move to new curseg

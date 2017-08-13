@@ -88,7 +88,7 @@ static int	Automap_test=0;		//	Set to 1 to show wireframe in automap mode.
 
 static void draw_seg_objects(const vcsegptr_t seg)
 {
-	range_for (const auto obj, objects_in(*seg))
+	range_for (const auto obj, objects_in(*seg, vcobjptridx, vcsegptr))
 	{
 		auto sphere_point = g3_rotate_point(obj->pos);
 		const uint8_t color = (obj->type==OBJ_PLAYER && static_cast<const icobjptridx_t::index_type>(obj) > 0)

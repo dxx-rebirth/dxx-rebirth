@@ -672,7 +672,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 //	Return true if current segment contains some object.
 static icsegptr_t segment_contains_powerup(const vcsegptr_t segnum, const powerup_type_t obj_id)
 {
-	range_for (const auto objp, objects_in(segnum))
+	range_for (const auto objp, objects_in(segnum, vcobjptridx, vcsegptr))
 		if (objp->type == OBJ_POWERUP && get_powerup_id(objp) == obj_id)
 			return segnum;
 	return segment_none;

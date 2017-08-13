@@ -379,7 +379,7 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 			vertex_list[v] = 1;
 
 		//	Rotate center of all objects in group.
-		range_for (const auto objp, objects_in(sp))
+		range_for (const auto objp, objects_in(sp, vmobjptridx, vcsegptr))
 		{
 			const auto tv1 = vm_vec_sub(objp->pos,rotate_center);
 			const auto tv = vm_vec_rotate(tv1,rotmat);
@@ -449,7 +449,7 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 		const auto &&segp = vmsegptr(gs);
 		const auto &&new_segment_id = med_create_duplicate_segment(segp);
 		new_segments.emplace_back(new_segment_id);
-		range_for (const auto objp, objects_in(segp))
+		range_for (const auto objp, objects_in(segp, vmobjptridx, vmsegptr))
 		{
 			if (objp->type != OBJ_PLAYER) {
 				const auto &&new_obj_id = obj_create_copy(objp, objp->pos, vmsegptridx(new_segment_id));
@@ -608,7 +608,7 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	//	Now, translate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
 	{
-		range_for (const auto objp, objects_in(vmsegptr(segnum)))
+		range_for (const auto objp, objects_in(vmsegptr(segnum), vmobjptridx, vmsegptr))
 			vm_vec_sub2(objp->pos, srcv);
 	}
 
@@ -625,7 +625,7 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	//	Now, xlate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
 	{
-		range_for (const auto objp, objects_in(vmsegptr(segnum)))
+		range_for (const auto objp, objects_in(vmsegptr(segnum), vmobjptridx, vmsegptr))
 			vm_vec_add2(objp->pos, destv);
 	}
 
@@ -749,7 +749,7 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	//	Now, move all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
 	{
-		range_for (const auto objp, objects_in(vmsegptr(segnum)))
+		range_for (const auto objp, objects_in(vmsegptr(segnum), vmobjptridx, vmsegptr))
 			vm_vec_sub2(objp->pos, srcv);
 	}
 
@@ -766,7 +766,7 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	//	Now, rotate all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
 	{
-		range_for (const auto objp, objects_in(vmsegptr(segnum)))
+		range_for (const auto objp, objects_in(vmsegptr(segnum), vmobjptridx, vmsegptr))
 			vm_vec_add2(objp->pos, destv);
 	}
 

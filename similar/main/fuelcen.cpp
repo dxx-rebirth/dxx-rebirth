@@ -431,7 +431,7 @@ static void robotmaker_proc(fvmsegptridx &vmsegptridx, FuelCenter *const robotce
 			count=0;
 			auto segnum = robotcen->segnum;
 			const auto &&csegp = vmsegptr(segnum);
-			range_for (const auto objp, objects_in(csegp))
+			range_for (const auto objp, objects_in(csegp, vmobjptridx, vmsegptr))
 			{
 				count++;
 				if ( count > MAX_OBJECTS )	{

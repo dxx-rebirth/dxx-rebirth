@@ -63,7 +63,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static void show_objects_in_segment(const vcsegptr_t sp)
 {
-	range_for (const auto i, objects_in(sp))
+	range_for (const auto i, objects_in(sp, vcobjptridx, vcsegptr))
 		(void)i;
 }
 

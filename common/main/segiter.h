@@ -3,6 +3,7 @@
 #include "dsx-ns.h"
 #ifdef dsx
 #include <iterator>
+#include <type_traits>
 #include "dxxsconf.h"
 #include "object.h"
 #include "segment.h"
@@ -42,7 +43,15 @@ public:
 	const iterator &begin() const { return b; }
 	static iterator end() { return T(object_none, static_cast<typename T::allow_none_construction *>(nullptr)); }
 	template <typename OF, typename SF>
-		static segment_object_range_t construct(const segment &s, OF &of, SF &sf)
+		/* Use enable_if to check that the supplied SF can produce
+		 * `const segment &`.  In !NDEBUG builds, this would be
+		 * checked as a side effect of the assert conditions.  In NDEBUG
+		 * builds, it would not be checked.
+		 */
+		static typename std::enable_if<
+			std::is_same<const segment &, decltype(*std::declval<const SF &>()(segment_first))>::value,
+			segment_object_range_t
+		>::type construct(const segment &s, OF &of, SF &sf)
 		{
 			if (s.objects == object_none)
 				return end();
@@ -54,7 +63,7 @@ public:
 			/* Assert that the first object in the segment claims to be
 			 * in the segment that claims to have that object.
 			 */
-			assert(sf(o.segnum) == &s);
+			assert(&*sf(o.segnum) == &s);
 			/* Assert that the first object in the segment agrees that there
 			 * are no objects before it in the segment.
 			 */
@@ -115,16 +124,11 @@ public:
 	}
 };
 
+template <typename OF, typename SF, typename R = segment_object_range_t<decltype(std::declval<OF &>()(object_first))>>
 __attribute_warn_unused_result
-static inline segment_object_range_t<vmobjptridx_t> objects_in(segment &s)
+static inline R objects_in(const segment &s, OF &of, SF &sf)
 {
-	return segment_object_range_t<vmobjptridx_t>::construct(s, vmobjptridx, vmsegptr);
-}
-
-__attribute_warn_unused_result
-static inline segment_object_range_t<vcobjptridx_t> objects_in(const segment &s)
-{
-	return segment_object_range_t<vcobjptridx_t>::construct(s, vcobjptridx, vcsegptr);
+	return R::construct(s, of, sf);
 }
 
 }

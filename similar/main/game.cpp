@@ -1800,7 +1800,7 @@ void powerup_grab_cheat_all(void)
 	if (Player_dead_state != player_dead_state::no)
 		return;
 	const auto &&console = vmobjptr(ConsoleObject);
-	range_for (const auto objnum, objects_in(vmsegptr(console->segnum)))
+	range_for (const auto objnum, objects_in(vmsegptr(console->segnum), vmobjptridx, vmsegptr))
 		if (objnum->type == OBJ_POWERUP)
 			powerup_grab_cheat(console, objnum);
 }

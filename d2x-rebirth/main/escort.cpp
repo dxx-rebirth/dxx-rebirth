@@ -520,7 +520,7 @@ static int get_boss_id(void)
 //	"special" is used to find objects spewed by player which is hacked into flags field of powerup.
 static objnum_t exists_in_mine_2(const vcsegptr_t segp, const int objtype, const int objid, const int special)
 {
-	range_for (const auto curobjp, objects_in(segp))
+	range_for (const auto curobjp, objects_in(segp, vcobjptridx, vcsegptr))
 	{
 		const auto &objnum = curobjp;
 			if (special == ESCORT_GOAL_PLAYER_SPEW && curobjp->type == OBJ_POWERUP)

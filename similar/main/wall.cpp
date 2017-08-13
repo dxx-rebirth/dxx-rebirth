@@ -638,7 +638,7 @@ static uint8_t check_poke(const vcobjptr_t obj, const vcsegptr_t segnum,int side
 namespace dsx {
 static int is_door_side_free(const vcsegptr_t seg, int side)
 {
-	range_for (const auto &&obj, objects_in(seg))
+	range_for (const auto &&obj, objects_in(seg, vcobjptridx, vcsegptr))
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		if (obj->type == OBJ_WEAPON)

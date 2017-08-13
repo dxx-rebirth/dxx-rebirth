@@ -1860,7 +1860,7 @@ static int openable_doors_in_segment(fvcwallptr &vcwallptr, const vcsegptr_t seg
 static int check_object_object_intersection(const vms_vector &pos, fix size, const vcsegptr_t segp)
 {
 	//	If this would intersect with another object (only check those in this segment), then try to move.
-	range_for (const auto curobjp, objects_in(*segp))
+	range_for (const auto curobjp, objects_in(*segp, vcobjptridx, vcsegptr))
 	{
 		if ((curobjp->type == OBJ_PLAYER) || (curobjp->type == OBJ_ROBOT) || (curobjp->type == OBJ_CNTRLCEN)) {
 			if (vm_vec_dist_quick(pos, curobjp->pos) < size + curobjp->size)
@@ -2786,7 +2786,7 @@ static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const vmobjptr_t robot,
 	const auto bfs_length = create_bfs_list(robot, ConsoleObject->segnum, powerup_flags, bfs_list);
 
 	range_for (auto &i, partial_const_range(bfs_list, bfs_length)) {
-		range_for (const auto objp, objects_in(vmsegptr(i)))
+		range_for (const auto objp, objects_in(vmsegptr(i), vmobjptridx, vmsegptr))
 		{
 			robot_info *robptr = &Robot_info[get_robot_id(objp)];
 

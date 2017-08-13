@@ -402,7 +402,7 @@ static void write_control_center_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my
 			count++;
 			PHYSFSX_printf(my_file, "Segment %3hu is a control center.\n", static_cast<uint16_t>(segp));
 			count2 = 0;
-			range_for (const auto objp, objects_in(segp))
+			range_for (const auto objp, objects_in(segp, vcobjptridx, vcsegptr))
 			{
 				if (objp->type == OBJ_CNTRLCEN)
 					count2++;
@@ -458,7 +458,7 @@ static void write_segment_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(segp));
 		depth=0;
 			PHYSFSX_printf(my_file, "Objects: ");
-		range_for (const auto objp, objects_in(segp))
+		range_for (const auto objp, objects_in(segp, vcobjptridx, vcsegptr))
 			{
 				short objnum = objp;
 				PHYSFSX_printf(my_file, "[%8s %8s %3i] ", object_types(objp), object_ids(objp), objnum);

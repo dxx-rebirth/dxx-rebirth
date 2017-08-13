@@ -815,7 +815,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 	if (flags & FQ_CHECK_OBJS)
 	{
 		const auto &collision = CollisionResult[likely(thisobjnum != object_none) ? thisobjnum->type : 0];
-		range_for (const auto objnum, objects_in(*seg))
+		range_for (const auto objnum, objects_in(*seg, vcobjptridx, vcsegptr))
 		{
 			if (objnum->flags & OF_SHOULD_BE_DEAD)
 				continue;
