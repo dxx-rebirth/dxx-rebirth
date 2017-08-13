@@ -79,10 +79,10 @@ extern playernum_t Player_num;  // The player number who is on the console.
 }
 
 #ifdef dsx
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, player, playernum_t, MAX_PLAYERS);
 namespace dsx {
 struct player_rw;
 struct player_info;
-extern array<player, MAX_PLAYERS> Players;   // Misc player info
 void player_rw_swap(player_rw *p, int swap);
 int allowed_to_fire_flare(player_info &);
 int allowed_to_fire_missile(const player_info &);

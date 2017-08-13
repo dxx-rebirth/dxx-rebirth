@@ -2933,13 +2933,13 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
 			player_num = i;
 		else
 			player_num = player_list[i];
-		auto &p = Players[player_num];
+		auto &p = *vcplayerptr(player_num);
 
 		color_t fontcolor;
 		rgb color;
 		if (Show_kill_list == 1 || Show_kill_list==2)
 		{
-			if (Players[player_num].connected != CONNECT_PLAYING)
+			if (vcplayerptr(player_num)->connected != CONNECT_PLAYING)
 				color.r = color.g = color.b = 12;
 			else {
 				color = player_rgb[get_player_or_team_color(player_num)];
@@ -2959,7 +2959,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
 			name = "[TARGET]";
 		}
 		else
-			name = Players[player_num].callsign;	// Note link to above if!!
+			name = vcplayerptr(player_num)->callsign;	// Note link to above if!!
 		int sw, sh;
 		gr_get_string_size(*canvas.cv_font, static_cast<const char *>(name), &sw, &sh, nullptr);
 		{
@@ -2990,7 +2990,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
 		else if (Show_kill_list == 3)
 			gr_printf(canvas, x1, y, "%3d", team_kills[i]);
 		else if (Game_mode & GM_MULTI_COOP)
-			gr_printf(canvas, x1, y, "%-6d", vcobjptr(Players[player_num].objnum)->ctype.player_info.mission.score);
+			gr_printf(canvas, x1, y, "%-6d", vcobjptr(vcplayerptr(player_num)->objnum)->ctype.player_info.mission.score);
 		else if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
 			gr_printf(canvas, x1, y, "%3d(%d)", player_info.net_kills_total, player_info.KillGoalCount);
 		else
@@ -3038,7 +3038,7 @@ void show_HUD_names(grs_canvas &canvas)
 {
 	for (playernum_t pnum = 0;pnum < N_players; ++pnum)
 	{
-		if (pnum == Player_num || Players[pnum].connected != CONNECT_PLAYING)
+		if (pnum == Player_num || vcplayerptr(pnum)->connected != CONNECT_PLAYING)
 			continue;
 		// ridiculusly complex to check if we want to show something... but this is readable at least.
 
@@ -3055,7 +3055,7 @@ void show_HUD_names(grs_canvas &canvas)
 				continue;			//..so don't show name
 		}
 		else
-			objnum = Players[pnum].objnum;
+			objnum = vcplayerptr(pnum)->objnum;
 
 		const auto &&objp = vcobjptridx(objnum);
 		const auto &pl_flags = objp->ctype.player_info.powerup_flags;
@@ -3094,7 +3094,7 @@ void show_HUD_names(grs_canvas &canvas)
 					if(is_bounty_target)
 						name = "Target";
 					else if (show_name)
-						name = static_cast<const char *>(Players[pnum].callsign);
+						name = static_cast<const char *>(vcplayerptr(pnum)->callsign);
 					const char *trailer = NULL;
 					if (show_typing)
 					{

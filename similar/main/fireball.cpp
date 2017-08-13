@@ -539,7 +539,7 @@ static vmsegptridx_t choose_drop_segment(segment_array &segments, const playernu
 	int	cur_drop_depth;
 	int	count;
 	vms_vector *player_pos;
-	auto &drop_playerobj = *vmobjptr(Players[drop_pnum].objnum);
+	auto &drop_playerobj = *vmobjptr(vcplayerptr(drop_pnum)->objnum);
 
 	d_srand(static_cast<fix>(timer_query()));
 
@@ -553,9 +553,9 @@ static vmsegptridx_t choose_drop_segment(segment_array &segments, const playernu
 		pnum = (d_rand() * N_players) >> 15;
 		count = 0;
 #if defined(DXX_BUILD_DESCENT_I)
-		while (count < N_players && (Players[pnum].connected == CONNECT_DISCONNECTED || pnum == drop_pnum))
+		while (count < N_players && (vcplayerptr(pnum)->connected == CONNECT_DISCONNECTED || pnum == drop_pnum))
 #elif defined(DXX_BUILD_DESCENT_II)
-		while (count < N_players && (Players[pnum].connected == CONNECT_DISCONNECTED || pnum == drop_pnum || ((Game_mode & (GM_TEAM | GM_CAPTURE)) && get_team(pnum) == get_team(drop_pnum))))
+		while (count < N_players && (vcplayerptr(pnum)->connected == CONNECT_DISCONNECTED || pnum == drop_pnum || ((Game_mode & (GM_TEAM|GM_CAPTURE)) && (get_team(pnum)==get_team(drop_pnum)))))
 #endif
 		{
 			pnum = (pnum+1)%N_players;
@@ -567,7 +567,7 @@ static vmsegptridx_t choose_drop_segment(segment_array &segments, const playernu
 			pnum = drop_pnum;
 		}
 
-		segnum = pick_connected_segment(vcobjptr(Players[pnum].objnum)->segnum, cur_drop_depth);
+		segnum = pick_connected_segment(vcobjptr(vcplayerptr(pnum)->objnum)->segnum, cur_drop_depth);
 		if (segnum == segment_none)
 		{
 			cur_drop_depth--;
@@ -604,7 +604,7 @@ static vmsegptridx_t choose_drop_segment(segment_array &segments, const playernu
 		cur_drop_depth = BASE_NET_DROP_DEPTH;
 		while (cur_drop_depth > 0 && segnum == segment_none) // before dropping in random segment, try to find ANY segment which is connected to the player responsible for the drop so object will not spawn in inaccessible areas
 		{
-			segnum = pick_connected_segment(vcobjptr(Players[drop_pnum].objnum)->segnum, --cur_drop_depth);
+			segnum = pick_connected_segment(vcobjptr(vcplayerptr(drop_pnum)->objnum)->segnum, --cur_drop_depth);
 			if (segnum != segment_none && vcsegptr(segnum)->special == SEGMENT_IS_CONTROLCEN)
 				segnum = segment_none;
 		}
@@ -641,7 +641,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
                                         break;
                                 }
                                 failsafe_count++;
-                        } while (Players[pnum].connected != CONNECT_PLAYING);
+                        } while (vcplayerptr(pnum)->connected != CONNECT_PLAYING);
                 }
 
 //--old-- 		segnum = (d_rand() * Highest_segment_index) >> 15;
@@ -652,7 +652,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 //--old-- 			segnum /= 2;
 
 		Net_create_loc = 0;
-		const auto &&objnum = call_object_create_egg(vmobjptr(Players[pnum].objnum), 1, powerup_type);
+		const auto &&objnum = call_object_create_egg(vmobjptr(vcplayerptr(pnum)->objnum), 1, powerup_type);
 
 		if (objnum == object_none)
 			return;

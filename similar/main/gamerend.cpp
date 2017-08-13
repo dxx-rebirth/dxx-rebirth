@@ -192,7 +192,7 @@ static void show_netplayerinfo()
 	// process players table
 	for (unsigned i = 0; i < MAX_PLAYERS; ++i)
 	{
-		auto &plr = Players[i];
+		auto &plr = *vcplayerptr(i);
 		if (!plr.connected)
 			continue;
 
@@ -248,7 +248,7 @@ static void show_netplayerinfo()
 		if (hoard_highest_record_stats.player >= Players.size())
 			gr_string(canvas, 0x8000, y, "There is no record yet for this level.");
 		else
-			gr_printf(canvas, 0x8000, y, "%s has the record at %d points.", static_cast<const char *>(Players[hoard_highest_record_stats.player].callsign), hoard_highest_record_stats.points);
+			gr_printf(canvas, 0x8000, y, "%s has the record at %d points.", static_cast<const char *>(vcplayerptr(hoard_highest_record_stats.player)->callsign), hoard_highest_record_stats.points);
 	}
 	else
 #endif
@@ -672,8 +672,11 @@ static void show_one_extra_view(const int w)
 
 	         RenderingType=255; // don't handle coop stuff			
 				
-				if (player < Players.size() && Players[player].connected && ((Game_mode & GM_MULTI_COOP) || ((Game_mode & GM_TEAM) && (get_team(player) == get_team(Player_num)))))
-					do_cockpit_window_view(w, vmobjptr(Players[Coop_view_player[w]].objnum), 0, WBU_COOP, Players[Coop_view_player[w]].callsign);
+				if (player < Players.size() && vcplayerptr(player)->connected && ((Game_mode & GM_MULTI_COOP) || ((Game_mode & GM_TEAM) && (get_team(player) == get_team(Player_num)))))
+				{
+					auto &p = *vcplayerptr(player);
+					do_cockpit_window_view(w, vmobjptr(p.objnum), 0, WBU_COOP, p.callsign);
+				}
 				else {
 					do_cockpit_window_view(w,WBU_WEAPON);
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;

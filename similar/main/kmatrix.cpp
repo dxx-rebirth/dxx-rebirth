@@ -75,7 +75,8 @@ static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const int
 
 	y = FSPACY(50+i*9);
 	const auto &&fspacx = FSPACX();
-	gr_string(canvas, fspacx(CENTERING_OFFSET(N_players)), y, static_cast<const char *>(Players[sorted[i]].callsign));
+	auto &p = *vcplayerptr(sorted[i]);
+	gr_string(canvas, fspacx(CENTERING_OFFSET(N_players)), y, static_cast<const char *>(p.callsign));
 
 	const auto &&rgb10 = BM_XRGB(10, 10, 10);
 	const auto &&rgb25 = BM_XRGB(25, 25, 25);
@@ -104,7 +105,6 @@ static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const int
 		}
 	}
 
-		auto &p = Players[sorted[i]];
 		auto &player_info = vcobjptr(p.objnum)->ctype.player_info;
 		const int eff = (player_info.net_killed_total + player_info.net_kills_total <= 0)
 			? 0
@@ -131,7 +131,8 @@ static void kmatrix_draw_names(grs_canvas &canvas, const playernum_array_t &sort
 		x = fspacx(70 + CENTERING_OFFSET(N_players) + j * 25);
 
 		color_t c;
-		if (Players[sorted[j]].connected==CONNECT_DISCONNECTED)
+		auto &p = *vcplayerptr(sorted[j]);
+		if (p.connected==CONNECT_DISCONNECTED)
 			c = rgb31;
 		else
 		{
@@ -140,7 +141,7 @@ static void kmatrix_draw_names(grs_canvas &canvas, const playernum_array_t &sort
 			c = BM_XRGB(rgb.r, rgb.g, rgb.b);
 		}
 		gr_set_fontcolor(canvas, c, -1);
-		gr_printf(canvas, x, fspacy(40), "%c", Players[sorted[j]].callsign[0u]);
+		gr_printf(canvas, x, fspacy(40), "%c", p.callsign[0u]);
 	}
 
 	x = fspacx(72 + CENTERING_OFFSET(N_players) + N_players * 25);
@@ -215,7 +216,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 
 		for (int i=0; i<N_players; i++ )
 		{
-			if (Players[sorted[i]].connected==CONNECT_DISCONNECTED)
+			if (vcplayerptr(sorted[i])->connected == CONNECT_DISCONNECTED)
 				gr_set_fontcolor(canvas, gr_find_closest_color(31, 31, 31),-1);
 			else
 			{
@@ -250,7 +251,7 @@ static void kmatrix_redraw_coop(fvcobjptr &vcobjptr)
 
 	for (playernum_t i = 0; i < N_players; ++i)
 	{
-		auto &plr = Players[sorted[i]];
+		auto &plr = *vcplayerptr(sorted[i]);
 		int r, g, b;
 		if (plr.connected == CONNECT_DISCONNECTED)
 			r = g = b = 31;

@@ -1504,7 +1504,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		Game_mode = GM_NORMAL;
 		change_playernum_to(0);
 		N_players = 1;
-		org_callsign = Players[0u].callsign;
+		org_callsign = vcplayerptr(0u)->callsign;
 		if (secret == secret_restore::none)
 		{
 			InitPlayerObject();				//make sure player's object set up
@@ -1988,17 +1988,16 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 			for (unsigned j = 0; j < MAX_PLAYERS; j++)
 			{
 				// map stored players to current players depending on their unique (which we made sure) callsign
-				if (Players[i].connected == CONNECT_PLAYING && restore_players[j].connected == CONNECT_PLAYING && Players[i].callsign == restore_players[j].callsign)
+				if (vcplayerptr(i)->connected == CONNECT_PLAYING && restore_players[j].connected == CONNECT_PLAYING && vcplayerptr(i)->callsign == restore_players[j].callsign)
 				{
-					const auto sav_objnum = Players[i].objnum;
-					
-					Players[i] = restore_players[j];
-					Players[i].objnum = sav_objnum;
-					
+					auto &p = *vmplayerptr(i);
+					const auto sav_objnum = p.objnum;
+					p = restore_players[j];
+					p.objnum = sav_objnum;
 					coop_player_got[i] = 1;
 					coop_got_nplayers++;
 
-					const auto &&obj = vmobjptridx(Players[i].objnum);
+					const auto &&obj = vmobjptridx(vcplayerptr(i)->objnum);
 					// since a player always uses the same object, we just have to copy the saved object properties to the existing one. i hate you...
 					set_player_id(obj, i); // assign player object id to player number
 					obj->control_type = restore_objects[j].control_type;
@@ -2038,14 +2037,14 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		Netgame.level_time = PHYSFSX_readSXE32(fp, swap);
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++)
 		{
-			const auto &&objp = vmobjptr(Players[i].objnum);
+			const auto &&objp = vmobjptr(vcplayerptr(i)->objnum);
 			auto &pi = objp->ctype.player_info;
 			Netgame.killed[i] = pi.net_killed_total;
 			Netgame.player_score[i] = pi.mission.score;
 			Netgame.net_player_flags[i] = pi.powerup_flags;
 		}
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++) // Disconnect connected players not available in this Savegame
-			if (!coop_player_got[i] && Players[i].connected == CONNECT_PLAYING)
+			if (!coop_player_got[i] && vcplayerptr(i)->connected == CONNECT_PLAYING)
 				multi_disconnect_player(i);
 		Viewer = ConsoleObject = &get_local_plrobj(); // make sure Viewer and ConsoleObject are set up (which we skipped by not using InitPlayerObject but we need since objects changed while loading)
 		special_reset_objects(); // since we juggeled around with objects to remap coop players rebuild the index of free objects

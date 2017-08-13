@@ -42,6 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "player-flags.h"
+#include "valptridx.h"
 
 namespace dcx {
 // When this structure changes, increment the constant
@@ -75,6 +76,8 @@ struct player : public prohibit_void_ptr<player>
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
 };
 
+DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(player, player);
+DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(player, player, Players);
 }
 
 namespace dsx {
@@ -156,7 +159,7 @@ static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 
 }
 
-#define get_local_player()	(Players[Player_num])
+#define get_local_player()	(*vmplayerptr(Player_num))
 #define get_local_plrobj()	(*vmobjptr(get_local_player().objnum))
 
 namespace dcx {

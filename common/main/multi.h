@@ -368,7 +368,7 @@ extern unsigned Net_create_loc;
 namespace dsx {
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, imobjptridx_t is_bomb_objnum);
-void multi_send_destroy_controlcen(objnum_t objnum, int player);
+void multi_send_destroy_controlcen(objnum_t objnum, playernum_t player);
 void multi_send_position(vmobjptridx_t objnum);
 void multi_send_kill(vmobjptridx_t objnum);
 void multi_send_remobj(vmobjptridx_t objnum);
@@ -656,7 +656,7 @@ extern struct netgame_info Netgame;
 #endif
 
 #define multi_i_am_master()	(Player_num == 0)
-void change_playernum_to(int new_pnum);
+void change_playernum_to(playernum_t new_pnum);
 
 // Multiplayer powerup capping
 void MultiLevelInv_InitializeCount();

@@ -1468,7 +1468,7 @@ void newdemo_record_multi_connect(const unsigned pnum, const unsigned new_player
 	nd_write_byte(static_cast<int8_t>(pnum));
 	nd_write_byte(static_cast<int8_t>(new_player));
 	if (!new_player) {
-		auto &plr = Players[pnum];
+		auto &plr = *vcplayerptr(pnum);
 		nd_write_string(static_cast<const char *>(plr.callsign));
 		auto &player_info = vcobjptr(plr.objnum)->ctype.player_info;
 		nd_write_int(player_info.net_killed_total);
@@ -1503,7 +1503,7 @@ void newdemo_record_multi_score(const unsigned pnum, const int score)
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_MULTI_SCORE);
 	nd_write_byte(static_cast<int8_t>(pnum));
-	nd_write_int(score - vcobjptr(Players[pnum].objnum)->ctype.player_info.mission.score);      // called before score is changed!!!!
+	nd_write_int(score - vcobjptr(vcplayerptr(pnum)->objnum)->ctype.player_info.mission.score);      // called before score is changed!!!!
 }
 
 void newdemo_record_primary_ammo(int new_ammo)
@@ -2790,7 +2790,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(pnum);
 				break;
 			}
-			auto &player_info = vmobjptr(Players[static_cast<unsigned>(pnum)].objnum)->ctype.player_info;
+			auto &player_info = vmobjptr(vcplayerptr(static_cast<unsigned>(pnum))->objnum)->ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
 				player_info.net_killed_total--;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
@@ -2809,7 +2809,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(kill);
 				break;
 			}
-			auto &player_info = vmobjptr(Players[static_cast<unsigned>(pnum)].objnum)->ctype.player_info;
+			auto &player_info = vmobjptr(vcplayerptr(static_cast<unsigned>(pnum))->objnum)->ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				player_info.net_kills_total -= kill;
 				if (Newdemo_game_mode & GM_TEAM)
@@ -2850,7 +2850,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_string(static_cast<const char *>(new_callsign));
 				break;
 			}
-			auto &plr = Players[static_cast<unsigned>(pnum)];
+			auto &plr = *vmplayerptr(static_cast<unsigned>(pnum));
 			auto &player_info = vmobjptr(plr.objnum)->ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				plr.connected = CONNECT_DISCONNECTED;
@@ -2882,9 +2882,9 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[static_cast<unsigned>(pnum)].connected = CONNECT_DISCONNECTED;
+				vmplayerptr(static_cast<unsigned>(pnum))->connected = CONNECT_DISCONNECTED;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[static_cast<unsigned>(pnum)].connected = CONNECT_PLAYING;
+				vmplayerptr(static_cast<unsigned>(pnum))->connected = CONNECT_PLAYING;
 			break;
 		}
 
@@ -2899,14 +2899,14 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 #if defined(DXX_BUILD_DESCENT_I)
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[static_cast<unsigned>(pnum)].connected = CONNECT_DISCONNECTED;
+				vmplayerptr(static_cast<unsigned>(pnum))->connected = CONNECT_DISCONNECTED;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[static_cast<unsigned>(pnum)].connected = CONNECT_PLAYING;
+				vmplayerptr(static_cast<unsigned>(pnum))->connected = CONNECT_PLAYING;
 #elif defined(DXX_BUILD_DESCENT_II)
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[static_cast<unsigned>(pnum)].connected = CONNECT_PLAYING;
+				vmplayerptr(static_cast<unsigned>(pnum))->connected = CONNECT_PLAYING;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[static_cast<unsigned>(pnum)].connected = CONNECT_DISCONNECTED;
+				vmplayerptr(static_cast<unsigned>(pnum))->connected = CONNECT_DISCONNECTED;
 #endif
 			break;
 		}
@@ -3329,7 +3329,7 @@ window_event_result newdemo_goto_end(int to_rewrite)
 			PHYSFSX_fseek(infile, -10, SEEK_END);
 			nd_read_byte(&cloaked);
 			for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++) {
-				const auto &&objp = vmobjptr(Players[i].objnum);
+				const auto &&objp = vmobjptr(vcplayerptr(i)->objnum);
 				auto &player_info = objp->ctype.player_info;
 				if ((1 << i) & cloaked)
 				{
@@ -3360,7 +3360,7 @@ window_event_result newdemo_goto_end(int to_rewrite)
 		for (unsigned i = 0; i < MAX_PLAYERS; ++i)
 			if (cloaked & (1 << i))
 				{
-					const auto &&objp = vmobjptr(Players[i].objnum);
+					const auto &&objp = vmobjptr(vcplayerptr(i)->objnum);
 					objp->ctype.player_info.powerup_flags |= PLAYER_FLAGS_CLOAKED;
 				}
 	}
@@ -3803,7 +3803,7 @@ static void newdemo_write_end()
 	if (Game_mode & GM_MULTI) {
 		for (unsigned i = 0; i < N_players; ++i)
 		{
-			const auto &&objp = vmobjptr(Players[i].objnum);
+			const auto &&objp = vmobjptr(vcplayerptr(i)->objnum);
 			if (objp->ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
 				cloaked |= (1 << i);
 		}

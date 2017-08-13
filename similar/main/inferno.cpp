@@ -557,7 +557,7 @@ static int main(int argc, char *argv[])
 	//	to write certain data.
 	#ifdef	EDITOR
 	if (!GameArg.EdiAutoLoad.empty()) {
-		Players[0].callsign = "dummy";
+		Players[0u].callsign = "dummy";
 	} else
 	#endif
 #endif

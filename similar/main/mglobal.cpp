@@ -41,6 +41,7 @@ unsigned Num_segments;
 // Global array of vertices, common to one mine.
 valptridx<vertex>::array_managed_type Vertices;
 valptridx<active_door>::array_managed_type ActiveDoors;
+valptridx<player>::array_managed_type Players;
 valptridx<segment>::array_managed_type Segments;
 }
 array<g3s_point, MAX_VERTICES> Segment_points;
@@ -126,6 +127,7 @@ template class valptridx<dcx::vertex>;
 template class valptridx<dsx::cloaking_wall>;
 #endif
 template class valptridx<dsx::object>;
+template class valptridx<dcx::player>;
 template class valptridx<dcx::segment>;
 template class valptridx<dsx::trigger>;
 template class valptridx<dsx::wall>;
@@ -176,6 +178,8 @@ template class instantiation_guard<dsx::cloaking_wall>::type::index_range_except
 template class instantiation_guard<dsx::object>::type::index_mismatch_exception;
 template class instantiation_guard<dsx::object>::type::index_range_exception;
 template class instantiation_guard<dsx::object>::type::null_pointer_exception;
+
+template class instantiation_guard<dcx::player>::type::index_range_exception;
 
 template class instantiation_guard<dcx::segment>::type::index_mismatch_exception;
 template class instantiation_guard<dcx::segment>::type::index_range_exception;

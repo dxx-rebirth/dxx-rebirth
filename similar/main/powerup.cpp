@@ -409,7 +409,7 @@ int do_powerup(const vmobjptridx_t obj)
 		{
 			if (i == Player_num)
 				continue;
-			auto &plr = Players[i];
+			auto &plr = *vcplayerptr(i);
 			if (plr.connected != CONNECT_PLAYING)
 				continue;
 			const auto &&o = vcobjptr(plr.objnum);

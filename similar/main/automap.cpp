@@ -705,7 +705,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 		for (unsigned i = 0; i < N_players; ++i)
 		{
 			if ( (i != Player_num) && ((Game_mode & GM_MULTI_COOP) || (get_team(Player_num) == get_team(i)) || (Netgame.game_flag.show_on_map)) )	{
-				const auto &&objp = vcobjptr(Players[i].objnum);
+				const auto &&objp = vcobjptr(vcplayerptr(i)->objnum);
 				if (objp->type == OBJ_PLAYER)
 				{
 					const auto &other_ship_rgb = player_rgb[get_player_or_team_color(i)];

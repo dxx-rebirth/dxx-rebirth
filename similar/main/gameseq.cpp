@@ -166,7 +166,6 @@ public:
 namespace dsx {
 static window_event_result AdvanceLevel(int secret_flag);
 static void StartLevel(int random_flag);
-array<player, MAX_PLAYERS> Players;   // Misc player info
 }
 static void copy_defaults_to_robot_all(void);
 
@@ -239,7 +238,7 @@ static void gameseq_init_network_players(object_array &objects)
 				Player_init[k].pos = o->pos;
 				Player_init[k].orient = o->orient;
 				Player_init[k].segnum = o->segnum;
-				Players[k].objnum = o;
+				vmplayerptr(k)->objnum = o;
 				set_player_id(o, k);
 				k++;
 			}
@@ -261,7 +260,7 @@ void gameseq_remove_unused_players()
 	{
 		for (unsigned i = 0; i < NumNetPlayerPositions; ++i)
 		{
-			if ((!Players[i].connected) || (i >= N_players))
+			if ((!vcplayerptr(i)->connected) || (i >= N_players))
 			{
 				multi_make_player_ghost(i);
 			}
@@ -279,7 +278,7 @@ void gameseq_remove_unused_players()
 // Setup player for new game
 void init_player_stats_game(const playernum_t pnum)
 {
-	auto &plr = Players[pnum];
+	auto &plr = *vmplayerptr(pnum);
 	plr.lives = INITIAL_LIVES;
 	plr.level = 1;
 	plr.time_level = 0;
@@ -406,9 +405,9 @@ void init_player_stats_level(player &plr, object &plrobj, const secret_restore s
 }
 
 // Setup player for a brand-new ship
-void init_player_stats_new_ship(ubyte pnum)
+void init_player_stats_new_ship(const playernum_t pnum)
 {
-	auto &plr = Players[pnum];
+	auto &plr = *vcplayerptr(pnum);
 	const auto &&plrobj = vmobjptridx(plr.objnum);
 	plrobj->shields = StartingShields;
 	auto &player_info = plrobj->ctype.player_info;
@@ -732,7 +731,7 @@ void load_level_robots(int level_num)
 namespace dsx {
 void LoadLevel(int level_num,int page_in_textures)
 {
-	preserve_player_object_info p(Players[Player_num].objnum);
+	preserve_player_object_info p(vcplayerptr(Player_num)->objnum);
 
 	auto &plr = get_local_player();
 	auto save_player = plr;
@@ -1631,10 +1630,9 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 
 	if ((Game_mode & GM_MULTI_COOP) && Network_rejoined)
 	{
-		int i;
-		for (i = 0; i < N_players; i++)
+		for (playernum_t i = 0; i < N_players; ++i)
 		{
-			const auto &&plobj = vmobjptr(Players[i].objnum);
+			const auto &&plobj = vmobjptr(vcplayerptr(i)->objnum);
 			plobj->ctype.player_info.powerup_flags |= Netgame.net_player_flags[i];
 		}
 	}
@@ -1851,11 +1849,11 @@ public:
 		const auto find_closest_player = [player_num, &vcsegptridx](const obj_position &candidate) {
 			fix closest_dist = INT32_MAX;
 			const auto &&candidate_segp = vcsegptridx(candidate.segnum);
-			for (uint_fast32_t i = N_players; i--;)
+			for (playernum_t i = N_players; i--;)
 			{
 				if (i == player_num)
 					continue;
-				const auto &&objp = vmobjptr(Players[i].objnum);
+				const auto &&objp = vmobjptr(vcplayerptr(i)->objnum);
 				if (objp->type != OBJ_PLAYER)
 					continue;
 				const auto dist = find_connected_distance(objp->pos, candidate_segp.absolute_sibling(objp->segnum), candidate.pos, candidate_segp, -1, WALL_IS_DOORWAY_FLAG<0>());

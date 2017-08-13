@@ -611,20 +611,22 @@ static int select_next_window_function(int w)
 			Marker_viewer_num[w] = ~0u;
 			if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) {
 				PlayerCfg.Cockpit3DView[w] = CV_COOP;
-				while (1) {
-					Coop_view_player[w]++;
-					if (Coop_view_player[w] == (MAX_PLAYERS-1)) {
+				for (;;)
+				{
+					const auto cvp = ++ Coop_view_player[w];
+					if (cvp == MAX_PLAYERS - 1)
+					{
 						PlayerCfg.Cockpit3DView[w] = CV_MARKER;
 						goto case_marker;
 					}
-					if (Players[Coop_view_player[w]].connected != CONNECT_PLAYING)
+					if (cvp == Player_num)
 						continue;
-					if (Coop_view_player[w]==Player_num)
+					if (vcplayerptr(cvp)->connected != CONNECT_PLAYING)
 						continue;
 
 					if (Game_mode & GM_MULTI_COOP)
 						break;
-					else if (get_team(Coop_view_player[w]) == get_team(Player_num))
+					else if (get_team(cvp) == get_team(Player_num))
 						break;
 				}
 				break;

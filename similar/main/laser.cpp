@@ -575,7 +575,7 @@ static void do_omega_stuff(fvcobjptr &vcobjptr, fvmsegptridx &vmsegptridx, const
 	}
 
 	weapon_objp->ctype.laser_info.parent_type = OBJ_PLAYER;
-	auto &plr = Players[pnum];
+	auto &plr = *vcplayerptr(pnum);
 	weapon_objp->ctype.laser_info.parent_num = plr.objnum;
 	weapon_objp->ctype.laser_info.parent_signature = vcobjptr(plr.objnum)->signature;
 
