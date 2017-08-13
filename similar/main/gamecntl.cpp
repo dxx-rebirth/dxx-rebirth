@@ -604,7 +604,7 @@ static int select_next_window_function(int w)
 			//if no ecort, fall through
 			/*-fallthrough*/
 		case CV_ESCORT:
-			Coop_view_player[w] = -1;		//force first player
+			Coop_view_player[w] = UINT_MAX;		//force first player
 			/*-fallthrough*/
 		case CV_COOP:
 			Marker_viewer_num[w] = ~0u;

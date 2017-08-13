@@ -664,11 +664,11 @@ static void show_one_extra_view(const int w)
 				break;
 			}
 			case CV_COOP: {
-				int player = Coop_view_player[w];
+				const auto player = Coop_view_player[w];
 
 	         RenderingType=255; // don't handle coop stuff			
 				
-				if (player!=-1 && Players[player].connected && ((Game_mode & GM_MULTI_COOP) || ((Game_mode & GM_TEAM) && (get_team(player) == get_team(Player_num)))))
+				if (player < Players.size() && Players[player].connected && ((Game_mode & GM_MULTI_COOP) || ((Game_mode & GM_TEAM) && (get_team(player) == get_team(Player_num)))))
 					do_cockpit_window_view(w, vmobjptr(Players[Coop_view_player[w]].objnum), 0, WBU_COOP, Players[Coop_view_player[w]].callsign);
 				else {
 					do_cockpit_window_view(w,WBU_WEAPON);

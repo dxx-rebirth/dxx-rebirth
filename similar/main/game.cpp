@@ -101,6 +101,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "hudmsg.h"
 #if defined(DXX_BUILD_DESCENT_II)
+#include <climits>
 #include "gamepal.h"
 #include "movie.h"
 #endif
@@ -1330,7 +1331,7 @@ object *Missile_viewer=NULL;
 object_signature_t Missile_viewer_sig;
 
 array<unsigned, 2> Marker_viewer_num{{~0u, ~0u}};
-array<int, 2> Coop_view_player{{-1,-1}};
+array<unsigned, 2> Coop_view_player{{UINT_MAX, UINT_MAX}};
 
 //returns ptr to escort robot, or NULL
 imobjptridx_t find_escort()
