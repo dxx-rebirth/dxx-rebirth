@@ -22,7 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <physfs.h>
 #include "fwd-object.h"
 
-#define MAX_PLAYERS 8u
 #define MAX_MULTI_PLAYERS MAX_PLAYERS+3
 #define MULTI_PNUM_UNDEF 0xcc
 
@@ -70,7 +69,9 @@ struct callsign_t;
 namespace dcx {
 struct player_ship;
 
-typedef unsigned playernum_t;
+struct player;
+using playernum_t = uint32_t;
+constexpr unsigned MAX_PLAYERS = 8;
 typedef array<playernum_t, MAX_PLAYERS> playernum_array_t;
 
 extern unsigned N_players;   // Number of players ( >1 means a net game, eh?)
@@ -78,7 +79,6 @@ extern playernum_t Player_num;  // The player number who is on the console.
 }
 
 #ifdef dsx
-struct player;
 namespace dsx {
 struct player_rw;
 struct player_info;

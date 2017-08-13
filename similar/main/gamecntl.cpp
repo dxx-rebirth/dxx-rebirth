@@ -392,8 +392,9 @@ static int do_game_pause()
 	pause_window *p = new pause_window;
 	songs_pause();
 
-	format_time(total_time, f2i(get_local_player().time_total), get_local_player().hours_total);
-	format_time(level_time, f2i(get_local_player().time_level), get_local_player().hours_level);
+	auto &plr = get_local_player();
+	format_time(total_time, f2i(plr.time_total), plr.hours_total);
+	format_time(level_time, f2i(plr.time_level), plr.hours_level);
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (Newdemo_state!=ND_STATE_PLAYBACK)
 		snprintf(&p->msg[0], p->msg.size(), "PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s", MENU_DIFFICULTY_TEXT(Difficulty_level), player_info.mission.hostages_on_board, level_time, total_time);
@@ -1579,9 +1580,10 @@ static window_event_result FinalCheats()
 
 	if (gotcha == &game_cheats::extralife)
 	{
-		if (get_local_player().lives<50)
+		auto &plr = get_local_player();
+		if (plr.lives < 50)
 		{
-			get_local_player().lives++;
+			plr.lives++;
 			HUD_init_message_literal(HM_DEFAULT, "Extra life!");
 		}
 	}

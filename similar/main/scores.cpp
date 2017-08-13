@@ -178,24 +178,25 @@ static void int_to_string( int number, char *dest )
 
 static void scores_fill_struct(stats_info * stats)
 {
-	stats->name = get_local_player().callsign;
+	auto &plr = get_local_player();
+	stats->name = plr.callsign;
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	stats->score = player_info.mission.score;
-	stats->ending_level = get_local_player().level;
-	if (get_local_player().num_robots_total > 0 )	
-		stats->kill_ratio = (get_local_player().num_kills_total*100)/get_local_player().num_robots_total;
+	stats->ending_level = plr.level;
+	if (plr.num_robots_total > 0)
+		stats->kill_ratio = (plr.num_kills_total * 100) / plr.num_robots_total;
 	else
 		stats->kill_ratio = 0;
 
-	if (const auto hostages_total = get_local_player().hostages_total)
+	if (const auto hostages_total = plr.hostages_total)
 		stats->hostage_ratio = (player_info.mission.hostages_rescued_total * 100) / hostages_total;
 	else
 		stats->hostage_ratio = 0;
 
-	stats->seconds = f2i(get_local_player().time_total)+(get_local_player().hours_total*3600);
+	stats->seconds = f2i(plr.time_total) + (plr.hours_total * 3600);
 
 	stats->diff_level = Difficulty_level;
-	stats->starting_level = get_local_player().starting_level;
+	stats->starting_level = plr.starting_level;
 }
 
 static inline const char *get_placement_slot_string(const unsigned position)

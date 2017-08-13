@@ -405,11 +405,14 @@ int do_powerup(const vmobjptridx_t obj)
 		vms_vector tvec;
 		fix mydist = vm_vec_normalized_dir(tvec, obj->pos, ConsoleObject->pos);
 
-		for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
+		for (unsigned i = 0; i < MAX_PLAYERS; ++i)
 		{
-			if (i == Player_num || Players[i].connected != CONNECT_PLAYING)
+			if (i == Player_num)
 				continue;
-			const auto &&o = vcobjptr(Players[i].objnum);
+			auto &plr = Players[i];
+			if (plr.connected != CONNECT_PLAYING)
+				continue;
+			const auto &&o = vcobjptr(plr.objnum);
 			if (o->type == OBJ_GHOST)
 				continue;
 			if (mydist > vm_vec_normalized_dir(tvec, obj->pos, o->pos))

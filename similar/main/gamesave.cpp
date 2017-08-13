@@ -1752,7 +1752,7 @@ static int save_level_sub(fvmobjptridx &vmobjptridx, const char * filename)
 
 	//make sure player is in a segment
 	{
-		auto plr = vmobjptridx(Players[0].objnum);
+		const auto &&plr = vmobjptridx(Players[0u].objnum);
 		if (update_object_seg(plr) == 0) {
 			if (plr->segnum > Highest_segment_index)
 				plr->segnum = segment_first;

@@ -169,9 +169,12 @@ static void show_netplayerinfo()
 	y += line_spacing;
 	gr_printf(canvas, x,y,"difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty));
 	y += line_spacing;
-	gr_printf(canvas, x,y,"level time: %i:%02i:%02i", get_local_player().hours_level, f2i(get_local_player().time_level) / 60 % 60, f2i(get_local_player().time_level) % 60);
+	{
+		auto &plr = get_local_player();
+		gr_printf(canvas, x,y,"level time: %i:%02i:%02i", plr.hours_level, f2i(plr.time_level) / 60 % 60, f2i(plr.time_level) % 60);
 	y += line_spacing;
-	gr_printf(canvas, x,y,"total time: %i:%02i:%02i", get_local_player().hours_total, f2i(get_local_player().time_total) / 60 % 60, f2i(get_local_player().time_total) % 60);
+		gr_printf(canvas, x,y,"total time: %i:%02i:%02i", plr.hours_total, f2i(plr.time_total) / 60 % 60, f2i(plr.time_total) % 60);
+	}
 	y += line_spacing;
 	if (Netgame.KillGoal)
 		gr_printf(canvas, x,y,"Kill goal: %d",Netgame.KillGoal*5);
@@ -187,9 +190,10 @@ static void show_netplayerinfo()
 	gr_string(canvas, x + fspacx8 * 23, y, "efficiency");
 
 	// process players table
-	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
+	for (unsigned i = 0; i < MAX_PLAYERS; ++i)
 	{
-		if (!Players[i].connected)
+		auto &plr = Players[i];
+		if (!plr.connected)
 			continue;
 
 		y += line_spacing;
@@ -197,9 +201,9 @@ static void show_netplayerinfo()
 		const auto color = get_player_or_team_color(i);
 		auto &prgb = player_rgb[color];
 		gr_set_fontcolor(canvas, BM_XRGB(prgb.r, prgb.g, prgb.b), -1);
-		gr_printf(canvas, x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
+		gr_printf(canvas, x, y, "%s\n", static_cast<const char *>(plr.callsign));
 		{
-			auto &plrobj = *vcobjptr(Players[i].objnum);
+			auto &plrobj = *vcobjptr(plr.objnum);
 			auto &player_info = plrobj.ctype.player_info;
 			auto v = ((Game_mode & GM_MULTI_COOP)
 				? player_info.mission.score

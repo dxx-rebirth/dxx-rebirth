@@ -382,17 +382,18 @@ int RegisterPlayer()
 	int citem = 0;
 	int allow_abort_flag = 1;
 
-	if (!*static_cast<const char *>(get_local_player().callsign))
+	auto &plr = get_local_player();
+	if (!*static_cast<const char *>(plr.callsign))
 	{
 		if (!*static_cast<const char *>(GameCfg.LastPlayer))
 		{
-			get_local_player().callsign = "player";
+			plr.callsign = "player";
 			allow_abort_flag = 0;
 		}
 		else
 		{
 			// Read the last player's name from config file, not lastplr.txt
-			get_local_player().callsign = GameCfg.LastPlayer;
+			plr.callsign = GameCfg.LastPlayer;
 		}
 	}
 

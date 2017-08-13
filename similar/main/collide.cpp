@@ -1156,7 +1156,7 @@ static void collide_player_and_marker(const object_base &playerobj, const vmobjp
 	if (get_player_id(playerobj)==Player_num) {
 		int drawn;
 
-		const auto marker_id = get_marker_id(marker);
+		const unsigned marker_id = get_marker_id(marker);
 		auto &msg = MarkerMessage[marker_id];
 		if (Game_mode & GM_MULTI)
 		{
@@ -1455,8 +1455,9 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 				return 0;
 		}
 
-		get_local_player().num_kills_level++;
-		get_local_player().num_kills_total++;
+		auto &plr = get_local_player();
+		plr.num_kills_level++;
+		plr.num_kills_total++;
 
 		if (robptr->boss_flag) {
 			start_boss_death_sequence(robot);	//do_controlcen_destroyed_stuff(NULL);

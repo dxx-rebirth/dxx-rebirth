@@ -557,7 +557,7 @@ void omega_charge_frame(player_info &player_info)
 static void do_omega_stuff(fvcobjptr &vcobjptr, fvmsegptridx &vmsegptridx, const vmobjptridx_t parent_objp, const vms_vector &firing_pos, const vmobjptridx_t weapon_objp)
 {
 	vms_vector	goal_pos;
-	const auto pnum = get_player_id(parent_objp);
+	const playernum_t pnum = get_player_id(parent_objp);
 	if (pnum == Player_num) {
 		//	If charge >= min, or (some charge and zero energy), allow to fire.
 		auto &player_info = parent_objp->ctype.player_info;
@@ -575,8 +575,9 @@ static void do_omega_stuff(fvcobjptr &vcobjptr, fvmsegptridx &vmsegptridx, const
 	}
 
 	weapon_objp->ctype.laser_info.parent_type = OBJ_PLAYER;
-	weapon_objp->ctype.laser_info.parent_num = Players[pnum].objnum;
-	weapon_objp->ctype.laser_info.parent_signature = vcobjptr(Players[pnum].objnum)->signature;
+	auto &plr = Players[pnum];
+	weapon_objp->ctype.laser_info.parent_num = plr.objnum;
+	weapon_objp->ctype.laser_info.parent_signature = vcobjptr(plr.objnum)->signature;
 
 	const auto &&lock_objnum = find_homing_object(firing_pos, weapon_objp);
 

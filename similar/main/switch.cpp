@@ -281,12 +281,10 @@ static void do_il_off(const trigger &t)
 // 'ignored' means we still want check_trigger to call multi_send_trigger
 // 'handled' or 'close' means we don't
 // 'close' will still close the game window
-window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int shot)
+window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num, const playernum_t pnum, const unsigned shot)
 {
 	auto result = window_event_result::ignored;
 
-	if (pnum < 0 || pnum > MAX_PLAYERS)
-		return window_event_result::handled;
 	if ((Game_mode & GM_MULTI) && (Players[pnum].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
 		return window_event_result::handled;
 	auto &trigger = *vmtrgptr(trigger_num);

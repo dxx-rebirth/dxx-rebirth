@@ -1461,15 +1461,16 @@ void newdemo_record_multi_kill(int pnum, sbyte kill)
 	nd_write_byte(kill);
 }
 
-void newdemo_record_multi_connect(int pnum, int new_player, const char *new_callsign)
+void newdemo_record_multi_connect(const unsigned pnum, const unsigned new_player, const char *const new_callsign)
 {
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_MULTI_CONNECT);
 	nd_write_byte(static_cast<int8_t>(pnum));
 	nd_write_byte(static_cast<int8_t>(new_player));
 	if (!new_player) {
-		nd_write_string(static_cast<const char *>(Players[pnum].callsign));
-		auto &player_info = vcobjptr(Players[pnum].objnum)->ctype.player_info;
+		auto &plr = Players[pnum];
+		nd_write_string(static_cast<const char *>(plr.callsign));
+		auto &player_info = vcobjptr(plr.objnum)->ctype.player_info;
 		nd_write_int(player_info.net_killed_total);
 		nd_write_int(player_info.net_kills_total);
 	}
@@ -1497,7 +1498,7 @@ void newdemo_record_player_score(int score)
 	nd_write_int(score);
 }
 
-void newdemo_record_multi_score(int pnum, int score)
+void newdemo_record_multi_score(const unsigned pnum, const int score)
 {
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_MULTI_SCORE);
@@ -2781,7 +2782,7 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 		case ND_EVENT_MULTI_DEATH: {
-			sbyte pnum;
+			uint8_t pnum;
 
 			nd_read_byte(&pnum);
 			if (rewrite)
@@ -2789,7 +2790,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(pnum);
 				break;
 			}
-			auto &player_info = vmobjptr(Players[pnum].objnum)->ctype.player_info;
+			auto &player_info = vmobjptr(Players[static_cast<unsigned>(pnum)].objnum)->ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
 				player_info.net_killed_total--;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
@@ -2798,7 +2799,7 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 		case ND_EVENT_MULTI_KILL: {
-			sbyte pnum, kill;
+			uint8_t pnum, kill;
 
 			nd_read_byte(&pnum);
 			nd_read_byte(&kill);
@@ -2808,7 +2809,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(kill);
 				break;
 			}
-			auto &player_info = vmobjptr(Players[pnum].objnum)->ctype.player_info;
+			auto &player_info = vmobjptr(Players[static_cast<unsigned>(pnum)].objnum)->ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				player_info.net_kills_total -= kill;
 				if (Newdemo_game_mode & GM_TEAM)
@@ -2825,7 +2826,7 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 		case ND_EVENT_MULTI_CONNECT: {
-			sbyte pnum, new_player;
+			uint8_t pnum, new_player;
 			int killed_total, kills_total;
 			callsign_t new_callsign, old_callsign;
 
@@ -2849,21 +2850,22 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_string(static_cast<const char *>(new_callsign));
 				break;
 			}
-			auto &player_info = vmobjptr(Players[pnum].objnum)->ctype.player_info;
+			auto &plr = Players[static_cast<unsigned>(pnum)];
+			auto &player_info = vmobjptr(plr.objnum)->ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				Players[pnum].connected = CONNECT_DISCONNECTED;
+				plr.connected = CONNECT_DISCONNECTED;
 				if (!new_player) {
-					Players[pnum].callsign = old_callsign;
+					plr.callsign = old_callsign;
 					player_info.net_killed_total = killed_total;
 					player_info.net_kills_total = kills_total;
 				} else {
 					N_players--;
 				}
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				Players[pnum].connected = CONNECT_PLAYING;
+				plr.connected = CONNECT_PLAYING;
 				player_info.net_kills_total = 0;
 				player_info.net_killed_total = 0;
-				Players[pnum].callsign = new_callsign;
+				plr.callsign = new_callsign;
 				if (new_player)
 					N_players++;
 			}
@@ -2871,7 +2873,7 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 		case ND_EVENT_MULTI_RECONNECT: {
-			sbyte pnum;
+			uint8_t pnum;
 
 			nd_read_byte(&pnum);
 			if (rewrite)
@@ -2880,14 +2882,14 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[pnum].connected = CONNECT_DISCONNECTED;
+				Players[static_cast<unsigned>(pnum)].connected = CONNECT_DISCONNECTED;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[pnum].connected = CONNECT_PLAYING;
+				Players[static_cast<unsigned>(pnum)].connected = CONNECT_PLAYING;
 			break;
 		}
 
 		case ND_EVENT_MULTI_DISCONNECT: {
-			sbyte pnum;
+			uint8_t pnum;
 
 			nd_read_byte(&pnum);
 			if (rewrite)
@@ -2897,14 +2899,14 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 #if defined(DXX_BUILD_DESCENT_I)
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[pnum].connected = CONNECT_DISCONNECTED;
+				Players[static_cast<unsigned>(pnum)].connected = CONNECT_DISCONNECTED;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[pnum].connected = CONNECT_PLAYING;
+				Players[static_cast<unsigned>(pnum)].connected = CONNECT_PLAYING;
 #elif defined(DXX_BUILD_DESCENT_II)
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[pnum].connected = CONNECT_PLAYING;
+				Players[static_cast<unsigned>(pnum)].connected = CONNECT_PLAYING;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[pnum].connected = CONNECT_DISCONNECTED;
+				Players[static_cast<unsigned>(pnum)].connected = CONNECT_DISCONNECTED;
 #endif
 			break;
 		}
@@ -3355,7 +3357,7 @@ window_event_result newdemo_goto_end(int to_rewrite)
 	if (Newdemo_game_mode & GM_MULTI)
 	{
 		nd_read_byte(&cloaked);
-		for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
+		for (unsigned i = 0; i < MAX_PLAYERS; ++i)
 			if (cloaked & (1 << i))
 				{
 					const auto &&objp = vmobjptr(Players[i].objnum);
@@ -3799,7 +3801,8 @@ static void newdemo_write_end()
 	nd_write_byte(ND_EVENT_EOF);
 	nd_write_short(nd_record_v_framebytes_written - 1);
 	if (Game_mode & GM_MULTI) {
-		for (int i = 0; i < N_players; i++) {
+		for (unsigned i = 0; i < N_players; ++i)
+		{
 			const auto &&objp = vmobjptr(Players[i].objnum);
 			if (objp->ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
 				cloaked |= (1 << i);
@@ -4084,8 +4087,9 @@ void newdemo_start_playback(const char * filename)
 
 	nd_playback_v_bad_read = 0;
 	change_playernum_to(0);                 // force playernum to 0
-	nd_playback_v_save_callsign = get_local_player().callsign;
-	get_local_player().lives=0;
+	auto &plr = get_local_player();
+	nd_playback_v_save_callsign = plr.callsign;
+	plr.lives = 0;
 	Viewer = ConsoleObject = &Objects.front();   // play properly as if console player
 
 	if (newdemo_read_demo_start(rnd_demo)) {

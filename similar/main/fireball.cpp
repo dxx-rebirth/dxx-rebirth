@@ -531,7 +531,7 @@ imsegidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 //	For all active net players, try to create a N segment path from the player.  If possible, return that
 //	segment.  If not possible, try another player.  After a few tries, use a random segment.
 //	Don't drop if control center in segment.
-static vmsegptridx_t choose_drop_segment(segment_array &segments, playernum_t drop_pnum)
+static vmsegptridx_t choose_drop_segment(segment_array &segments, const playernum_t drop_pnum)
 {
 	auto &vcsegptridx = segments.vcptridx;
 	auto &vmsegptridx = segments.vmptridx;
@@ -539,7 +539,7 @@ static vmsegptridx_t choose_drop_segment(segment_array &segments, playernum_t dr
 	int	cur_drop_depth;
 	int	count;
 	vms_vector *player_pos;
-        auto &drop_playerobj = *vmobjptr(Players[drop_pnum].objnum);
+	auto &drop_playerobj = *vmobjptr(Players[drop_pnum].objnum);
 
 	d_srand(static_cast<fix>(timer_query()));
 
@@ -553,9 +553,9 @@ static vmsegptridx_t choose_drop_segment(segment_array &segments, playernum_t dr
 		pnum = (d_rand() * N_players) >> 15;
 		count = 0;
 #if defined(DXX_BUILD_DESCENT_I)
-		while ((count < N_players) && ((Players[pnum].connected == CONNECT_DISCONNECTED) || (pnum==drop_pnum)))
+		while (count < N_players && (Players[pnum].connected == CONNECT_DISCONNECTED || pnum == drop_pnum))
 #elif defined(DXX_BUILD_DESCENT_II)
-		while ((count < N_players) && ((Players[pnum].connected == CONNECT_DISCONNECTED) || (pnum==drop_pnum) || ((Game_mode & (GM_TEAM|GM_CAPTURE)) && (get_team(pnum)==get_team(drop_pnum)))))
+		while (count < N_players && (Players[pnum].connected == CONNECT_DISCONNECTED || pnum == drop_pnum || ((Game_mode & (GM_TEAM | GM_CAPTURE)) && get_team(pnum) == get_team(drop_pnum))))
 #endif
 		{
 			pnum = (pnum+1)%N_players;

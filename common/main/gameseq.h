@@ -31,7 +31,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-window.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-struct player;
 
 namespace dcx {
 template <std::size_t>
@@ -66,7 +65,7 @@ window_event_result StartNewLevel(int level_num);
 #endif
 void InitPlayerObject();            //make sure player's object set up
 namespace dsx {
-void init_player_stats_game(ubyte pnum);      //clear all stats
+void init_player_stats_game(playernum_t pnum);      //clear all stats
 }
 
 // called when the player has finished a level

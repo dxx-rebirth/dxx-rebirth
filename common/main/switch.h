@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "valptridx.h"
 #include "compiler-array.h"
 #include "dsx-ns.h"
+#include "fwd-player.h"
 #include "fwd-window.h"
 
 constexpr std::integral_constant<std::size_t, 100> MAX_TRIGGERS{};
@@ -174,7 +175,7 @@ constexpr uint8_t trigger_none = 0xff;
 extern void trigger_init();
 namespace dsx {
 window_event_result check_trigger(vcsegptridx_t seg, short side, object &plrobj, vcobjptridx_t objnum, int shot);
-window_event_result check_trigger_sub(object &, trgnum_t trigger_num, int player_num,int shot);
+window_event_result check_trigger_sub(object &, trgnum_t trigger_num, playernum_t player_num, unsigned shot);
 
 static inline int trigger_is_exit(const trigger *t)
 {

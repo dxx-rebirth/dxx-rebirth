@@ -196,7 +196,6 @@ namespace dsx {
 static void verify_console_object()
 {
 	Assert(Player_num < Players.size());
-	Assert( get_local_player().objnum != object_none );
 	const auto &&console = vmobjptr(get_local_player().objnum);
 	ConsoleObject = console;
 	Assert(console->type == OBJ_PLAYER);
@@ -218,13 +217,11 @@ static unsigned count_number_of_objects_of_type()
 //added 10/12/95: delete buddy bot if coop game.  Probably doesn't really belong here. -MT
 static void gameseq_init_network_players(object_array &objects)
 {
-	int k,j;
 
 	// Initialize network player start locations and object numbers
 
 	ConsoleObject = &objects.front();
-	k = 0;
-	j = 0;
+	unsigned j = 0, k = 0;
 	const auto multiplayer = Game_mode & GM_MULTI;
 	const auto multiplayer_coop = Game_mode & GM_MULTI_COOP;
 	auto &vmobjptridx = objects.vmptridx;
@@ -280,21 +277,22 @@ void gameseq_remove_unused_players()
 }
 
 // Setup player for new game
-void init_player_stats_game(ubyte pnum)
+void init_player_stats_game(const playernum_t pnum)
 {
-	Players[pnum].lives = INITIAL_LIVES;
-	Players[pnum].level = 1;
-	Players[pnum].time_level = 0;
-	Players[pnum].time_total = 0;
-	Players[pnum].hours_level = 0;
-	Players[pnum].hours_total = 0;
-	Players[pnum].num_kills_level = 0;
-	Players[pnum].num_kills_total = 0;
-	Players[pnum].num_robots_level = 0;
-	Players[pnum].num_robots_total = 0;
-	Players[pnum].hostages_level = 0;
-	Players[pnum].hostages_total = 0;
-	const auto &&plobj = vmobjptr(Players[pnum].objnum);
+	auto &plr = Players[pnum];
+	plr.lives = INITIAL_LIVES;
+	plr.level = 1;
+	plr.time_level = 0;
+	plr.time_total = 0;
+	plr.hours_level = 0;
+	plr.hours_total = 0;
+	plr.num_kills_level = 0;
+	plr.num_kills_total = 0;
+	plr.num_robots_level = 0;
+	plr.num_robots_total = 0;
+	plr.hostages_level = 0;
+	plr.hostages_total = 0;
+	const auto &&plobj = vmobjptr(plr.objnum);
 	auto &player_info = plobj->ctype.player_info;
 	player_info.powerup_flags = {};
 	player_info.net_killed_total = 0;
@@ -533,18 +531,19 @@ static void DoGameOver()
 //update various information about the player
 void update_player_stats()
 {
-	get_local_player().time_level += FrameTime;	//the never-ending march of time...
-	if (get_local_player().time_level > i2f(3600))
+	auto &plr = get_local_player();
+	plr.time_level += FrameTime;	//the never-ending march of time...
+	if (plr.time_level > i2f(3600))
 	{
-		get_local_player().time_level -= i2f(3600);
-		get_local_player().hours_level++;
+		plr.time_level -= i2f(3600);
+		++ plr.hours_level;
 	}
 
-	get_local_player().time_total += FrameTime;	//the never-ending march of time...
-	if (get_local_player().time_total > i2f(3600))
+	plr.time_total += FrameTime;	//the never-ending march of time...
+	if (plr.time_total > i2f(3600))
 	{
-		get_local_player().time_total -= i2f(3600);
-		get_local_player().hours_total++;
+		plr.time_total -= i2f(3600);
+		++ plr.hours_total;
 	}
 }
 
@@ -734,9 +733,9 @@ namespace dsx {
 void LoadLevel(int level_num,int page_in_textures)
 {
 	preserve_player_object_info p(Players[Player_num].objnum);
-	player save_player;
 
-	save_player = get_local_player();
+	auto &plr = get_local_player();
+	auto save_player = plr;
 
 	Assert(level_num <= Last_level  && level_num >= Last_secret_level  && level_num != 0);
 	const d_fname &level_name = get_level_file(level_num);
@@ -786,7 +785,7 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	reset_network_objects();
 
-	get_local_player() = save_player;
+	plr = save_player;
 
 	set_sound_sources(vcsegptridx);
 
@@ -812,12 +811,13 @@ void InitPlayerObject()
 	Assert(Player_num<MAX_PLAYERS);
 
 	if (Player_num != 0 )	{
-		Players[0] = get_local_player();
+		Players[0u] = get_local_player();
 		Player_num = 0;
 	}
 
-	get_local_player().objnum = object_first;
-	const auto &&console = vmobjptr(get_local_player().objnum);
+	auto &plr = get_local_player();
+	plr.objnum = object_first;
+	const auto &&console = vmobjptr(plr.objnum);
 	ConsoleObject = console;
 	console->type				= OBJ_PLAYER;
 	set_player_id(console, Player_num);
@@ -919,14 +919,17 @@ static void DoEndLevelScoreGlitz()
 	all_hostage_text[0] = 0;
 	endgame_text[0] = 0;
 
-	if (!cheats.enabled && (player_info.mission.hostages_on_board == get_local_player().hostages_level)) {
+	auto &plr = get_local_player();
+	if (!cheats.enabled && player_info.mission.hostages_on_board == plr.hostages_level)
+	{
 		all_hostage_points = player_info.mission.hostages_on_board * 1000 * (Difficulty_level+1);
 		snprintf(all_hostage_text, sizeof(all_hostage_text), "%s%i\n", TXT_FULL_RESCUE_BONUS, all_hostage_points);
 	} else
 		all_hostage_points = 0;
 
-	if (!cheats.enabled && !(Game_mode & GM_MULTI) && (get_local_player().lives) && (Current_level_num == Last_level)) {		//player has finished the game!
-		endgame_points = get_local_player().lives * 10000;
+	if (!cheats.enabled && !(Game_mode & GM_MULTI) && plr.lives && Current_level_num == Last_level)
+	{		//player has finished the game!
+		endgame_points = plr.lives * 10000;
 		snprintf(endgame_text, sizeof(endgame_text), "%s%i\n", TXT_SHIP_BONUS, endgame_points);
 		is_last_level=1;
 	} else
@@ -941,7 +944,7 @@ static void DoEndLevelScoreGlitz()
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_SKILL_BONUS, skill_points);
 
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s", all_hostage_text);
-	if (!(Game_mode & GM_MULTI) && (get_local_player().lives) && (Current_level_num == Last_level))
+	if (!(Game_mode & GM_MULTI) && plr.lives && Current_level_num == Last_level)
 		snprintf(m_str[c++], sizeof(m_str[0]), "%s", endgame_text);
 
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i\n", TXT_TOTAL_BONUS, shield_points + energy_points + hostage_points + skill_points + all_hostage_points + endgame_points);
@@ -1473,14 +1476,15 @@ window_event_result DoPlayerDead()
 
 	dead_player_end();		//terminate death sequence (if playing)
 
+	auto &plr = get_local_player();
 	if ( Game_mode&GM_MULTI )
 	{
-		multi_do_death(get_local_player().objnum);
+		multi_do_death(plr.objnum);
 	}
 	else
 	{				//Note link to above else!
-		get_local_player().lives--;
-		if (get_local_player().lives == 0)
+		-- plr.lives;
+		if (plr.lives == 0)
 		{
 			DoGameOver();
 			if (pause)
@@ -1492,11 +1496,12 @@ window_event_result DoPlayerDead()
 	if ( Control_center_destroyed ) {
 
 		//clear out stuff so no bonus
-		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &plrobj = get_local_plrobj();
+		auto &player_info = plrobj.ctype.player_info;
 		player_info.mission.hostages_on_board = 0;
 		player_info.energy = 0;
-		get_local_plrobj().shields = 0;
-		get_local_player().connected = CONNECT_DIED_IN_MINE;
+		plrobj.shields = 0;
+		plr.connected = CONNECT_DIED_IN_MINE;
 
 		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1506,7 +1511,7 @@ window_event_result DoPlayerDead()
 				do_screen_message(TXT_SECRET_RETURN);
 				state_restore_all(1, secret_restore::died, SECRETB_FILENAME, blind_save::no);			//	2 means you died
 				set_pos_from_return_segment();
-				get_local_player().lives--;						//	re-lose the life, get_local_player().lives got written over in restore.
+				plr.lives--;						//	re-lose the life, get_local_player().lives got written over in restore.
 			} else {
 				if (Entered_from_level == Last_level)
 				{
@@ -1537,7 +1542,7 @@ window_event_result DoPlayerDead()
 				state_save_all(secret_save::c, blind_save::no);
 			state_restore_all(1, secret_restore::died, SECRETB_FILENAME, blind_save::no);
 			set_pos_from_return_segment();
-			get_local_player().lives--;						//	re-lose the life, get_local_player().lives got written over in restore.
+			plr.lives--;						//	re-lose the life, get_local_player().lives got written over in restore.
 		} else {
 			do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 			if (Entered_from_level == Last_level)

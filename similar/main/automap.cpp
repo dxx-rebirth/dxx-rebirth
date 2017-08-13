@@ -622,7 +622,6 @@ static void automap_apply_input(automap *am, const vms_matrix &plrorient, const 
 
 static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 {
-	int i;
 	if ( am->leave_mode==0 && am->controls.state.automap && (timer_query()-am->entry_time)>LEAVE_TIME)
 		am->leave_mode = 1;
 
@@ -703,7 +702,8 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 	
 	// Draw player(s)...
 	if ( (Game_mode & (GM_TEAM | GM_MULTI_COOP)) || (Netgame.game_flag.show_on_map) )	{
-		for (i=0; i<N_players; i++)		{
+		for (unsigned i = 0; i < N_players; ++i)
+		{
 			if ( (i != Player_num) && ((Game_mode & GM_MULTI_COOP) || (get_team(Player_num) == get_team(i)) || (Netgame.game_flag.show_on_map)) )	{
 				const auto &&objp = vcobjptr(Players[i].objnum);
 				if (objp->type == OBJ_PLAYER)

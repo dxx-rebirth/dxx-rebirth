@@ -1651,19 +1651,21 @@ static void sb_show_lives(grs_canvas &canvas, const player_info &player_info, co
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
 	gr_rect(canvas, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_RIGHT), HUD_SCALE_Y(multires_gauge_graphic, y + bm.bm_h), color);
 
-	if (get_local_player().lives-1 > 0) {
+	const auto lives = get_local_player().lives - 1;
+	if (lives > 0) {
 		gr_set_curfont(canvas, GAME_FONT);
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
 		hud_bitblt_free(canvas, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
-		gr_printf(canvas, HUD_SCALE_X(multires_gauge_graphic, x) + HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y(multires_gauge_graphic, y), " x %d", get_local_player().lives - 1);
+		gr_printf(canvas, HUD_SCALE_X(multires_gauge_graphic, x) + HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y(multires_gauge_graphic, y), " x %d", lives);
 	}
 }
 
 #ifndef RELEASE
 static void show_time(grs_canvas &canvas)
 {
-	int secs = f2i(get_local_player().time_level) % 60;
-	int mins = f2i(get_local_player().time_level) / 60;
+	auto &plr = get_local_player();
+	const unsigned secs = f2i(plr.time_level) % 60;
+	const unsigned mins = f2i(plr.time_level) / 60;
 
 	gr_set_curfont(canvas, GAME_FONT);
 
@@ -3034,7 +3036,7 @@ namespace dsx {
 
 void show_HUD_names(grs_canvas &canvas)
 {
-	for (playernum_t pnum=0;pnum<N_players;pnum++)
+	for (playernum_t pnum = 0;pnum < N_players; ++pnum)
 	{
 		if (pnum == Player_num || Players[pnum].connected != CONNECT_PLAYING)
 			continue;

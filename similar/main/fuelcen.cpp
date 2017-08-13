@@ -294,9 +294,9 @@ Restart: ;
 
 imobjptridx_t  create_morph_robot( const vmsegptridx_t segp, const vms_vector &object_pos, int object_id)
 {
-
-	get_local_player().num_robots_level++;
-	get_local_player().num_robots_total++;
+	auto &plr = get_local_player();
+	plr.num_robots_level++;
+	plr.num_robots_total++;
 
 	ai_behavior default_behavior;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -388,8 +388,12 @@ static void robotmaker_proc(fvmsegptridx &vmsegptridx, FuelCenter *const robotce
 
 	// Wait until we have a free slot for this puppy...
    //	  <<<<<<<<<<<<<<<< Num robots in mine >>>>>>>>>>>>>>>>>>>>>>>>>>    <<<<<<<<<<<< Max robots in mine >>>>>>>>>>>>>>>
-	if ( (get_local_player().num_robots_level - get_local_player().num_kills_level) >= (Gamesave_num_org_robots + Num_extry_robots ) ) {
+	{
+		auto &plr = get_local_player();
+		if ((plr.num_robots_level - plr.num_kills_level) >= (Gamesave_num_org_robots + Num_extry_robots))
+		{
 		return;
+		}
 	}
 
 	robotcen->Timer += FrameTime;

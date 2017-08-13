@@ -1504,7 +1504,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		Game_mode = GM_NORMAL;
 		change_playernum_to(0);
 		N_players = 1;
-		org_callsign = Players[0].callsign;
+		org_callsign = Players[0u].callsign;
 		if (secret == secret_restore::none)
 		{
 			InitPlayerObject();				//make sure player's object set up
@@ -1538,6 +1538,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 #endif
 			StartNewLevelSub(current_level, 1, secret);
 
+		auto &plr = get_local_player();
 #if defined(DXX_BUILD_DESCENT_II)
 		auto &plrobj = get_local_plrobj();
 		if (secret != secret_restore::none) {
@@ -1546,19 +1547,19 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 			if (secret == secret_restore::survived) {		//	This means he didn't die, so he keeps what he got in the secret level.
 				ret_pl_info = plrobj.ctype.player_info;
 				pl_shields = plrobj.shields;
-				get_local_player().level = dummy_player.level;
-				get_local_player().time_level = dummy_player.time_level;
+				plr.level = dummy_player.level;
+				plr.time_level = dummy_player.time_level;
 
-				get_local_player().num_robots_level = dummy_player.num_robots_level;
-				get_local_player().num_robots_total = dummy_player.num_robots_total;
-				get_local_player().hostages_total = dummy_player.hostages_total;
-				get_local_player().hostages_level = dummy_player.hostages_level;
+				plr.num_robots_level = dummy_player.num_robots_level;
+				plr.num_robots_total = dummy_player.num_robots_total;
+				plr.hostages_total = dummy_player.hostages_total;
+				plr.hostages_level = dummy_player.hostages_level;
 				ret_pl_info.homing_object_dist = -1;
-				get_local_player().hours_level = dummy_player.hours_level;
-				get_local_player().hours_total = dummy_player.hours_total;
+				plr.hours_level = dummy_player.hours_level;
+				plr.hours_total = dummy_player.hours_total;
 				do_cloak_invul_secret_stuff(old_gametime, ret_pl_info);
 			} else {
-				get_local_player() = dummy_player;
+				plr = dummy_player;
 				// Keep keys even if they died on secret level (otherwise game becomes impossible)
 				// Example: Cameron 'Stryker' Fultz's Area 51
 				pl_info.powerup_flags |= (plrobj.ctype.player_info.powerup_flags &
@@ -1569,12 +1570,15 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		} else
 #endif
 		{
-			state_read_player(fp, get_local_player(), swap, pl_info, pl_shields);
+			state_read_player(fp, plr, swap, pl_info, pl_shields);
 		}
 	}
-	get_local_player().callsign = org_callsign;
+	{
+		auto &plr = get_local_player();
+		plr.callsign = org_callsign;
 	if (Game_mode & GM_MULTI_COOP)
-		get_local_player().objnum = coop_org_objnum;
+			plr.objnum = coop_org_objnum;
+	}
 
 	auto &Primary_weapon = pl_info.Primary_weapon;
 // Restore the weapon states
@@ -1986,7 +1990,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 				// map stored players to current players depending on their unique (which we made sure) callsign
 				if (Players[i].connected == CONNECT_PLAYING && restore_players[j].connected == CONNECT_PLAYING && Players[i].callsign == restore_players[j].callsign)
 				{
-					int sav_objnum = Players[i].objnum;
+					const auto sav_objnum = Players[i].objnum;
 					
 					Players[i] = restore_players[j];
 					Players[i].objnum = sav_objnum;
@@ -1994,7 +1998,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 					coop_player_got[i] = 1;
 					coop_got_nplayers++;
 
-					auto obj = vmobjptridx(Players[i].objnum);
+					const auto &&obj = vmobjptridx(Players[i].objnum);
 					// since a player always uses the same object, we just have to copy the saved object properties to the existing one. i hate you...
 					set_player_id(obj, i); // assign player object id to player number
 					obj->control_type = restore_objects[j].control_type;

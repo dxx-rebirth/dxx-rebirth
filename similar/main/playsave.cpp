@@ -1201,9 +1201,10 @@ void write_player_file()
 
 	errno_ret = WriteConfigFile();
 
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plx"), static_cast<const char *>(get_local_player().callsign));
+	auto &plr = get_local_player();
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plx"), static_cast<const char *>(plr.callsign));
 	write_player_dxx(filename);
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(get_local_player().callsign));
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(plr.callsign));
 	auto file = PHYSFSX_openWriteBuffered(filename);
 	if (!file)
 		return;
