@@ -148,7 +148,7 @@ char Multi_is_guided=0;
 
 namespace dcx {
 
-int Bounty_target = 0;
+playernum_t Bounty_target;
 
 
 array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
@@ -4602,8 +4602,8 @@ void multi_new_bounty_target(const playernum_t pnum )
 	
 	/* Send a message */
 	HUD_init_message( HM_MULTI, "%c%c%s is the new target!", CC_COLOR,
-		BM_XRGB( player_rgb[Bounty_target].r, player_rgb[Bounty_target].g, player_rgb[Bounty_target].b ),
-		static_cast<const char *>(Players[Bounty_target].callsign));
+		BM_XRGB(player_rgb[pnum].r, player_rgb[pnum].g, player_rgb[pnum].b),
+		static_cast<const char *>(Players[pnum].callsign));
 
 #if defined(DXX_BUILD_DESCENT_I)
 	digi_play_sample( SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0 * 3 );
