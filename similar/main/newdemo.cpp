@@ -3328,7 +3328,8 @@ window_event_result newdemo_goto_end(int to_rewrite)
 		if (Newdemo_game_mode & GM_MULTI) {
 			PHYSFSX_fseek(infile, -10, SEEK_END);
 			nd_read_byte(&cloaked);
-			for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++) {
+			for (playernum_t i = 0; i < MAX_PLAYERS; i++)
+			{
 				const auto &&objp = vmobjptr(vcplayerptr(i)->objnum);
 				auto &player_info = objp->ctype.player_info;
 				if ((1 << i) & cloaked)
