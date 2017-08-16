@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "switch.h"
 #include "object.h"
+#include "player.h"
 #include "bm.h"
 #include "3d.h"
 #include "game.h"
