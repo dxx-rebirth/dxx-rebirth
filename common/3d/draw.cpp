@@ -250,7 +250,7 @@ free_points:
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
-void g3_draw_sphere(grs_canvas &canvas, g3s_point &pnt, const fix rad, const uint8_t color)
+void g3_draw_sphere(grs_canvas &canvas, cg3s_point &pnt, const fix rad, const uint8_t color)
 {
 	if (! (pnt.p3_codes & CC_BEHIND)) {
 

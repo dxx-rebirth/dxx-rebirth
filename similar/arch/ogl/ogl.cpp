@@ -766,7 +766,7 @@ namespace dcx {
 /*
  * Stars on heaven in exit sequence, automap objects
  */
-void g3_draw_sphere(grs_canvas &canvas, g3s_point &pnt, fix rad, const uint8_t c)
+void g3_draw_sphere(grs_canvas &canvas, cg3s_point &pnt, fix rad, const uint8_t c)
 {
 	int i;
 	const float scale = (static_cast<float>(canvas.cv_bitmap.bm_w) / canvas.cv_bitmap.bm_h);
