@@ -258,7 +258,7 @@ protected:
 	}
 	void op_subcall(const uint8_t *const p, const glow_values_t *const glow_values)
 	{
-		g3_start_instance_angles(*vp(p+4), anim_angles ? &anim_angles[w(p+2)] : &zero_angles);
+		g3_start_instance_angles(*vp(p + 4), anim_angles ? anim_angles[w(p + 2)] : zero_angles);
 		g3_draw_polygon_model(model_bitmaps, Interp_point_list, canvas, anim_angles, model_light, glow_values, p + w(p + 16));
 		g3_done_instance();
 	}

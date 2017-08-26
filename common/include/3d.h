@@ -137,7 +137,7 @@ void g3_start_instance_matrix();
 void g3_start_instance_matrix(const vms_vector &pos, const vms_matrix &orient);
 
 //instance at specified point with specified orientation
-void g3_start_instance_angles(const vms_vector &pos,const vms_angvec *angles);
+void g3_start_instance_angles(const vms_vector &pos, const vms_angvec &angles);
 
 //pops the old context
 void g3_done_instance();
