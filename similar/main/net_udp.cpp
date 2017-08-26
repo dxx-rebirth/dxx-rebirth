@@ -2543,12 +2543,17 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 #elif defined(DXX_BUILD_DESCENT_II)
 		PUT_INTEL_SHORT(buf + len, Netgame.SpawnGrantedItems.mask);			len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.DuplicatePowerups.get_packed_field());			len += 2;
-		PUT_INTEL_SHORT(buf + len, Netgame.Allow_marker_view);				len += 2;
-		PUT_INTEL_SHORT(buf + len, Netgame.AlwaysLighting);				len += 2;
+		buf[len++] = Netgame.Allow_marker_view;
+		buf[len++] = 0;
+		buf[len++] = Netgame.AlwaysLighting;
+		buf[len++] = 0;
 #endif
-		PUT_INTEL_SHORT(buf + len, Netgame.ShowEnemyNames);				len += 2;
-		PUT_INTEL_SHORT(buf + len, Netgame.BrightPlayers);				len += 2;
-		PUT_INTEL_SHORT(buf + len, Netgame.InvulAppear);				len += 2;
+		buf[len++] = Netgame.ShowEnemyNames;
+		buf[len++] = 0;
+		buf[len++] = Netgame.BrightPlayers;
+		buf[len++] = 0;
+		buf[len++] = Netgame.InvulAppear;
+		buf[len++] = 0;
 		range_for (const auto &i, Netgame.team_name)
 		{
 			memcpy(&buf[len], static_cast<const char *>(i), (CALLSIGN_LEN+1));

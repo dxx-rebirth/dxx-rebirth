@@ -777,17 +777,12 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	packed_spawn_granted_items SpawnGrantedItems;
 	packed_netduplicate_items DuplicatePowerups;
 #if defined(DXX_BUILD_DESCENT_II)
-	/*
-	 * Only used in Descent II, but defined in both for historical
-	 * reasons
-	 */
-	short						Allow_marker_view;
-	short						AlwaysLighting;
-	/* End Descent II */
+	uint8_t Allow_marker_view;
+	uint8_t AlwaysLighting;
 #endif
-	short						ShowEnemyNames;
-	short						BrightPlayers;
-	short						InvulAppear;
+	uint8_t ShowEnemyNames;
+	uint8_t BrightPlayers;
+	uint8_t InvulAppear;
 	ushort						segments_checksum;
 	int						KillGoal;
 	fix						PlayTimeAllowed;
