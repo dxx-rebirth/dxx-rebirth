@@ -114,6 +114,10 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "dsx-ns.h"
 #include "compiler-begin.h"
 
+#if DXX_USE_SDLMIXER
+#include <SDL_mixer.h>
+#endif
+
 namespace dsx {
 
 int Screen_mode=-1;					//game screen or editor screen?
@@ -466,7 +470,29 @@ static int main(int argc, char *argv[])
 #endif
 
 	if (CGameArg.DbgVerbose)
+	{
+		{
+			PHYSFS_Version vc, vl;
+			PHYSFS_VERSION(&vc);
+			PHYSFS_getLinkedVersion(&vl);
+			con_printf(CON_VERBOSE, "D" DXX_NAME_NUMBER "X-Rebirth built with PhysFS %u.%u.%u; loaded with PhysFS %u.%u.%u", vc.major, vc.minor, vc.patch, vl.major, vl.minor, vl.patch);
+		}
+		{
+			SDL_version vc;
+			SDL_VERSION(&vc);
+			const auto vl = SDL_Linked_Version();
+			con_printf(CON_VERBOSE, "D" DXX_NAME_NUMBER "X-Rebirth built with libSDL %u.%u.%u; loaded with libSDL %u.%u.%u", vc.major, vc.minor, vc.patch, vl->major, vl->minor, vl->patch);
+		}
+#if DXX_USE_SDLMIXER
+		{
+			SDL_version vc;
+			SDL_MIXER_VERSION(&vc);
+			const auto vl = Mix_Linked_Version();
+			con_printf(CON_VERBOSE, "D" DXX_NAME_NUMBER "X-Rebirth built with SDL_mixer %u.%u.%u; loaded with SDL_mixer %u.%u.%u", vc.major, vc.minor, vc.patch, vl->major, vl->minor, vl->patch);
+		}
+#endif
 		con_puts(CON_VERBOSE, TXT_VERBOSE_1);
+	}
 	
 	ReadConfigFile();
 

@@ -27,6 +27,7 @@
 
 #if DXX_USE_SDLMIXER
 #include <digi_mixer.h>
+#include <SDL_mixer.h>
 #endif
 #ifdef _WIN32
 #include "hmp.h"
@@ -167,7 +168,8 @@ void digi_select_system()
 #if DXX_USE_SDLMIXER
 	if (!CGameArg.SndDisableSdlMixer)
 	{
-	con_printf(CON_NORMAL,"Using SDL_mixer library");
+		const auto vl = Mix_Linked_Version();
+		con_printf(CON_NORMAL, "Using SDL_mixer library v%u.%u.%u", vl->major, vl->minor, vl->patch);
 		fptr = digi_mixer_table;
 		return;
 	}
