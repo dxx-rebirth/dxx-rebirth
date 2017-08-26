@@ -103,6 +103,7 @@ static void draw_seg_objects(const vcsegptr_t seg)
 
 #if DXX_USE_OGL
 #define draw_line(C,P0,P1,c)	draw_line(P0,P1,c)
+#define draw_segment(C,S,c)	draw_segment(S,c)
 #endif
 static void draw_line(grs_canvas &canvas, const unsigned pnum0, const unsigned pnum1, const uint8_t color)
 {
@@ -110,7 +111,7 @@ static void draw_line(grs_canvas &canvas, const unsigned pnum0, const unsigned p
 }
 
 // ----------------------------------------------------------------------------
-static void draw_segment(const vcsegptr_t seg, const uint8_t color)
+static void draw_segment(grs_canvas &canvas, const vcsegptr_t seg, const uint8_t color)
 {
 	if (seg->segnum == segment_none)		//this segment doesn't exitst
 		return;
@@ -119,16 +120,16 @@ static void draw_segment(const vcsegptr_t seg, const uint8_t color)
 	if (!rotate_list(svp).uand)
 	{		//all off screen?
 		for (unsigned i = 0; i < 4; ++i)
-			draw_line(*grd_curcanv, svp[i], svp[i+4], color);
+			draw_line(canvas, svp[i], svp[i+4], color);
 
 		for (unsigned i = 0; i < 3; ++i)
 		{
-			draw_line(*grd_curcanv, svp[i], svp[i+1], color);
-			draw_line(*grd_curcanv, svp[i+4], svp[i+4+1], color);
+			draw_line(canvas, svp[i], svp[i+1], color);
+			draw_line(canvas, svp[i+4], svp[i+4+1], color);
 		}
 
-		draw_line(*grd_curcanv, svp[0], svp[3], color);
-		draw_line(*grd_curcanv, svp[4], svp[3+4], color);
+		draw_line(canvas, svp[0], svp[3], color);
+		draw_line(canvas, svp[4], svp[3+4], color);
 	}
 }
 
@@ -604,7 +605,7 @@ static void draw_listed_segments(count_segment_array_t &s, const uint8_t color)
 	{
 		const auto &&segp = vcsegptr(ss);
 		if (segp->segnum != segment_none)
-			draw_segment(segp, color);
+			draw_segment(*grd_curcanv, segp, color);
 	}
 }
 
@@ -654,7 +655,7 @@ static void draw_special_segments(void)
 					continue;
 			}
 			const auto color = gr_find_closest_color(r, g, b);
-			draw_segment(segp, color);
+			draw_segment(*grd_curcanv, segp, color);
 		}
 	}
 }
@@ -803,18 +804,18 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vmsegptridx_t min
 		// Highlight group segment and side.
 		if (current_group > -1)
 		if (Groupsegp[current_group]) {
-			draw_segment(vcsegptr(Groupsegp[current_group]), GROUPSEG_COLOR);
+			draw_segment(*grd_curcanv, vcsegptr(Groupsegp[current_group]), GROUPSEG_COLOR);
 			draw_seg_side(vcsegptr(Groupsegp[current_group]), Groupside[current_group], GROUPSIDE_COLOR);
 		}
 
 		// Highlight marked segment and side.
 		if (Markedsegp) {
-			draw_segment(Markedsegp, MARKEDSEG_COLOR);
+			draw_segment(*grd_curcanv, Markedsegp, MARKEDSEG_COLOR);
 			draw_seg_side(Markedsegp,Markedside, MARKEDSIDE_COLOR);
 		}
 
 		// Highlight current segment and current side.
-		draw_segment(Cursegp, CURSEG_COLOR);
+		draw_segment(*grd_curcanv, Cursegp, CURSEG_COLOR);
 
 		draw_seg_side(Cursegp,Curside, CURSIDE_COLOR);
 		draw_side_edge(Cursegp,Curside,Curedge, CUREDGE_COLOR);
