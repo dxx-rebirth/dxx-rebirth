@@ -133,7 +133,8 @@ void g3_set_view_matrix(const vms_vector &view_pos,const vms_matrix &view_matrix
 //Instancing
 
 //instance at specified point with specified orientation
-void g3_start_instance_matrix(const vms_vector &pos,const vms_matrix *orient);
+void g3_start_instance_matrix();
+void g3_start_instance_matrix(const vms_vector &pos, const vms_matrix &orient);
 
 //instance at specified point with specified orientation
 void g3_start_instance_angles(const vms_vector &pos,const vms_angvec *angles);

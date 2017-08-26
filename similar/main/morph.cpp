@@ -392,7 +392,7 @@ static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, p
 		}
 		else {
 			const auto &&orient = vm_angles_2_matrix(anim_angles[mn]);
-			g3_start_instance_matrix(pm->submodel_offsets[mn],&orient);
+			g3_start_instance_matrix(pm->submodel_offsets[mn], orient);
 			draw_model(canvas, robot_points,pm,mn,anim_angles,light,md);
 			g3_done_instance();
 		}
@@ -416,7 +416,7 @@ void draw_morph_object(grs_canvas &canvas, const vmobjptridx_t obj)
 
 	light = compute_object_light(obj);
 
-	g3_start_instance_matrix(obj->pos,&obj->orient);
+	g3_start_instance_matrix(obj->pos, obj->orient);
 	polygon_model_points robot_points;
 	draw_model(canvas, robot_points, po, 0, obj->rtype.pobj_info.anim_angles, light, md);
 
