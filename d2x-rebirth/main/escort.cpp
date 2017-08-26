@@ -1440,6 +1440,7 @@ static int maybe_steal_secondary_weapon(const vmobjptr_t playerobjp, int weapon_
 static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_num)
 {
 	auto &player_info = playerobjp->ctype.player_info;
+	bool is_energy_weapon = true;
 	switch (static_cast<primary_weapon_index_t>(weapon_num))
 	{
 		case primary_weapon_index_t::LASER_INDEX:
@@ -1450,11 +1451,19 @@ static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_nu
 		case primary_weapon_index_t::GAUSS_INDEX:
 			if (!player_info.vulcan_ammo)
 				return 0;
+			is_energy_weapon = false;
 			//-fallthrough
 		default:
 			if (!(player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)))
 				return 0;
 			break;
+	}
+	if (is_energy_weapon)
+	{
+		if (((Game_mode & GM_MULTI)
+			? Netgame.ThiefModifierFlags
+			: PlayerCfg.ThiefModifierFlags) & ThiefModifier::NoEnergyWeapons)
+			return 0;
 	}
 	{
 		if (d_rand() < THIEF_PROBABILITY) {

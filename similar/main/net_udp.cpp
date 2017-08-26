@@ -2544,16 +2544,12 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		PUT_INTEL_SHORT(buf + len, Netgame.SpawnGrantedItems.mask);			len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.DuplicatePowerups.get_packed_field());			len += 2;
 		buf[len++] = Netgame.Allow_marker_view;
-		buf[len++] = 0;
 		buf[len++] = Netgame.AlwaysLighting;
-		buf[len++] = 0;
+		buf[len++] = Netgame.ThiefModifierFlags;
 #endif
 		buf[len++] = Netgame.ShowEnemyNames;
-		buf[len++] = 0;
 		buf[len++] = Netgame.BrightPlayers;
-		buf[len++] = 0;
 		buf[len++] = Netgame.InvulAppear;
-		buf[len++] = 0;
 		range_for (const auto &i, Netgame.team_name)
 		{
 			memcpy(&buf[len], static_cast<const char *>(i), (CALLSIGN_LEN+1));
@@ -2788,12 +2784,13 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		if (unlikely(map_granted_flags_to_laser_level(Netgame.SpawnGrantedItems) > MAX_SUPER_LASER_LEVEL))
 			/* Bogus input - reject whole entry */
 			Netgame.SpawnGrantedItems = 0;
-		Netgame.Allow_marker_view = GET_INTEL_SHORT(&(data[len]));			len += 2;
-		Netgame.AlwaysLighting = GET_INTEL_SHORT(&(data[len]));				len += 2;
+		Netgame.Allow_marker_view = data[len++];
+		Netgame.AlwaysLighting = data[len++];
+		Netgame.ThiefModifierFlags = data[len++];
 #endif
-		Netgame.ShowEnemyNames = GET_INTEL_SHORT(&(data[len]));				len += 2;
-		Netgame.BrightPlayers = GET_INTEL_SHORT(&(data[len]));				len += 2;
-		Netgame.InvulAppear = GET_INTEL_SHORT(&(data[len]));				len += 2;
+		Netgame.ShowEnemyNames = data[len];				len += 1;
+		Netgame.BrightPlayers = data[len];				len += 1;
+		Netgame.InvulAppear = data[len];				len += 1;
 		range_for (auto &i, Netgame.team_name)
 		{
 			i.copy(reinterpret_cast<const char *>(&data[len]), (CALLSIGN_LEN+1));
@@ -3250,6 +3247,8 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 #define D2X_UDP_MENU_OPTIONS(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "Allow Marker camera views", opt_marker_view, Netgame.Allow_marker_view)	\
 	DXX_MENUITEM(VERB, CHECK, "Indestructible lights", opt_light, Netgame.AlwaysLighting)	\
+	DXX_MENUITEM(VERB, CHECK, "Remove Thief at level start", opt_thief_presence, thief_absent)	\
+	DXX_MENUITEM(VERB, CHECK, "Prevent Thief Stealing Energy Weapons", opt_thief_steal_energy, thief_cannot_steal_energy_weapons)	\
 
 #endif
 
@@ -3461,6 +3460,8 @@ public:
 		auto secondary = Netgame.DuplicatePowerups.get_secondary_count();
 #if defined(DXX_BUILD_DESCENT_II)
 		auto accessory = Netgame.DuplicatePowerups.get_accessory_count();
+		const auto thief_absent = Netgame.ThiefModifierFlags & ThiefModifier::Absent;
+		const auto thief_cannot_steal_energy_weapons = Netgame.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons;
 		update_extra_accessory_string(accessory);
 #endif
 		update_extra_primary_string(primary);
@@ -3484,6 +3485,8 @@ public:
 		unsigned primary, secondary;
 #if defined(DXX_BUILD_DESCENT_II)
 		unsigned accessory;
+		uint8_t thief_absent;
+		uint8_t thief_cannot_steal_energy_weapons;
 #endif
 		DXX_UDP_MENU_OPTIONS(READ);
 		auto &items = Netgame.DuplicatePowerups;
@@ -3491,6 +3494,9 @@ public:
 		items.set_secondary_count(secondary);
 #if defined(DXX_BUILD_DESCENT_II)
 		items.set_accessory_count(accessory);
+		Netgame.ThiefModifierFlags =
+			(thief_absent ? ThiefModifier::Absent : 0) |
+			(thief_cannot_steal_energy_weapons ? ThiefModifier::NoEnergyWeapons : 0);
 #endif
 		char *p;
 		auto pps = strtol(packstring, &p, 10);
@@ -3848,6 +3854,7 @@ window_event_result net_udp_setup_game()
 	Netgame.RefusePlayers=0;
 #elif defined(DXX_BUILD_DESCENT_II)
 	Netgame.Allow_marker_view=1;
+	Netgame.ThiefModifierFlags = 0;
 #endif
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
 	Netgame.PacketsPerSec=DEFAULT_PPS;

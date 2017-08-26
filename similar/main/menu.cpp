@@ -2212,6 +2212,8 @@ void do_sound_menu()
 	DXX_MENUITEM(VERB, CHECK, "Headlight on when picked up", opt_headlighton,PlayerCfg.HeadlightActiveDefault )	\
 	DXX_MENUITEM(VERB, CHECK, "Escort robot hot keys",opt_escorthotkey,PlayerCfg.EscortHotKeys)	\
 	DXX_MENUITEM(VERB, CHECK, "Movie Subtitles",opt_moviesubtitle,GameCfg.MovieSubtitles)	\
+	DXX_MENUITEM(VERB, CHECK, "Remove Thief at level start", opt_thief_presence, thief_absent)	\
+	DXX_MENUITEM(VERB, CHECK, "Prevent Thief Stealing Energy Weapons", opt_thief_steal_energy, thief_cannot_steal_energy_weapons)	\
 
 #endif
 
@@ -2266,6 +2268,10 @@ void gameplay_config()
 
 	do {
 		newmenu_item m[DXX_GAMEPLAY_MENU_OPTIONS(COUNT)];
+#if defined(DXX_BUILD_DESCENT_II)
+		auto thief_absent = PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent;
+		auto thief_cannot_steal_energy_weapons = PlayerCfg.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons;
+#endif
 		DXX_GAMEPLAY_MENU_OPTIONS(ADD);
                 i = newmenu_do1( NULL, "Gameplay Options", sizeof(m)/sizeof(*m), m, gameplay_config_menuset, unused_newmenu_userdata, 0 );
 		DXX_GAMEPLAY_MENU_OPTIONS(READ);
@@ -2274,6 +2280,11 @@ void gameplay_config()
 			: (m[opt_autoselect_firing_immediate].value
 				? FiringAutoselectMode::Immediate
 				: FiringAutoselectMode::Never);
+#if defined(DXX_BUILD_DESCENT_II)
+		PlayerCfg.ThiefModifierFlags =
+			(thief_absent ? ThiefModifier::Absent : 0) |
+			(thief_cannot_steal_energy_weapons ? ThiefModifier::NoEnergyWeapons : 0);
+#endif
 	} while( i>-1 );
 
 }

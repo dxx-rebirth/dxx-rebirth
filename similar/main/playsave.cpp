@@ -127,6 +127,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define PLAYER_FILE_VERSION 24 //increment this every time the player file changes
 #define COMPATIBLE_PLAYER_FILE_VERSION 17
+#define ThiefAbsenceFlagStr	"ThiefAbsent"
+#define ThiefNoEnergyWeaponsFlagStr	"ThiefNoEnergyWeapons"
 #endif
 #define KEYBOARD_HEADER_TEXT	"[keyboard]"
 #define SENSITIVITY_NAME_TEXT	"sensitivity"
@@ -170,6 +172,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TOGGLES_CLOAKINVULTIMER_NAME_TEXT "cloakinvultimer"
 #define TOGGLES_RESPAWN_ANY_KEY	"respawnkey"
 #define TOGGLES_MOUSELOOK	"mouselook"
+#define TOGGLES_THIEF_ABSENCE_SP	"thiefabsent"
+#define TOGGLES_THIEF_NO_ENERGY_WEAPONS_SP	"thiefnoenergyweapons"
 #define GRAPHICS_HEADER_TEXT "[graphics]"
 #define GRAPHICS_ALPHAEFFECTS_NAME_TEXT "alphaeffects"
 #define GRAPHICS_DYNLIGHTCOLOR_NAME_TEXT "dynlightcolor"
@@ -248,6 +252,7 @@ int new_player_config()
 #elif defined(DXX_BUILD_DESCENT_II)
 	PlayerCfg.Cockpit3DView[0]=CV_NONE;
 	PlayerCfg.Cockpit3DView[1]=CV_NONE;
+	PlayerCfg.ThiefModifierFlags = 0;
 	PlayerCfg.MissileViewEnabled = MissileViewMode::EnabledSelfOnly;
 	PlayerCfg.HeadlightActiveDefault = 1;
 	PlayerCfg.GuidedInBigWindow = 0;
@@ -449,6 +454,9 @@ static void read_player_dxx(const char *filename)
 		else if (!strcmp(line,TOGGLES_HEADER_TEXT))
 		{
 			PlayerCfg.MouselookFlags = 0;
+#if defined(DXX_BUILD_DESCENT_II)
+			PlayerCfg.ThiefModifierFlags = 0;
+#endif
 			while(PHYSFSX_fgets(line,f) && strcmp(line,END_TEXT))
 			{
 				const char *value=splitword(line,'=');
@@ -460,6 +468,16 @@ static void read_player_dxx(const char *filename)
 #elif defined(DXX_BUILD_DESCENT_II)
 				if(!strcmp(line,TOGGLES_ESCORTHOTKEYS_NAME_TEXT))
 					PlayerCfg.EscortHotKeys = atoi(value);
+				else if (!strcmp(line, TOGGLES_THIEF_ABSENCE_SP))
+				{
+					if (strtoul(value, 0, 10))
+						PlayerCfg.ThiefModifierFlags |= ThiefModifier::Absent;
+				}
+				else if (!strcmp(line, TOGGLES_THIEF_NO_ENERGY_WEAPONS_SP))
+				{
+					if (strtoul(value, 0, 10))
+						PlayerCfg.ThiefModifierFlags |= ThiefModifier::NoEnergyWeapons;
+				}
 #endif
 				if(!strcmp(line,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT))
 					PlayerCfg.PersistentDebris = atoi(value);
@@ -769,6 +787,8 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,TOGGLES_BOMBGAUGE_NAME_TEXT "=%i\n",PlayerCfg.BombGauge);
 #elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_printf(fout,TOGGLES_ESCORTHOTKEYS_NAME_TEXT "=%i\n",PlayerCfg.EscortHotKeys);
+		PHYSFSX_printf(fout, TOGGLES_THIEF_ABSENCE_SP "=%i\n", PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent);
+		PHYSFSX_printf(fout, TOGGLES_THIEF_NO_ENERGY_WEAPONS_SP "=%i\n", PlayerCfg.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons);
 #endif
 		PHYSFSX_printf(fout,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT "=%i\n",PlayerCfg.PersistentDebris);
 		PHYSFSX_printf(fout,TOGGLES_PRSHOT_NAME_TEXT "=%i\n",PlayerCfg.PRShot);
@@ -1431,6 +1451,16 @@ void read_netgame_profile(netgame_info *ng)
 			convert_integer(ng->Allow_marker_view, value);
 		else if (cmp(lb, eq, AlwaysLightingStr))
 			convert_integer(ng->AlwaysLighting, value);
+		else if (cmp(lb, eq, ThiefAbsenceFlagStr))
+		{
+			if (strtoul(value, 0, 10))
+				ng->ThiefModifierFlags |= ThiefModifier::Absent;
+		}
+		else if (cmp(lb, eq, ThiefNoEnergyWeaponsFlagStr))
+		{
+			if (strtoul(value, 0, 10))
+				ng->ThiefModifierFlags |= ThiefModifier::NoEnergyWeapons;
+		}
 #endif
 		else if (cmp(lb, eq, ShowEnemyNamesStr))
 			convert_integer(ng->ShowEnemyNames, value);
@@ -1479,6 +1509,8 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, DuplicateAccessoriesStr "=%" PRIuFAST32 "\n", ng->DuplicatePowerups.get_accessory_count());
 	PHYSFSX_printf(file, AllowMarkerViewStr "=%i\n", ng->Allow_marker_view);
 	PHYSFSX_printf(file, AlwaysLightingStr "=%i\n", ng->AlwaysLighting);
+	PHYSFSX_printf(file, ThiefAbsenceFlagStr "=%i\n", ng->ThiefModifierFlags & ThiefModifier::Absent);
+	PHYSFSX_printf(file, ThiefNoEnergyWeaponsFlagStr "=%i\n", ng->ThiefModifierFlags & ThiefModifier::NoEnergyWeapons);
 #endif
 	PHYSFSX_printf(file, ShowEnemyNamesStr "=%i\n", ng->ShowEnemyNames);
 	PHYSFSX_printf(file, BrightPlayersStr "=%i\n", ng->BrightPlayers);

@@ -145,11 +145,10 @@ struct player_config : prohibit_void_ptr<player_config>
 	int ReticleSize;
 #if defined(DXX_BUILD_DESCENT_II)
 	MissileViewMode MissileViewEnabled;
+	uint8_t ThiefModifierFlags;
 	int HeadlightActiveDefault;
 	int GuidedInBigWindow;
 	ntstring<GUIDEBOT_NAME_LEN> GuidebotName, GuidebotNameReal;
-#endif
-#if defined(DXX_BUILD_DESCENT_II)
 	int EscortHotKeys;
 #endif
 	int PersistentDebris;

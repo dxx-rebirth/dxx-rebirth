@@ -1022,7 +1022,8 @@ static void collide_robot_and_player(const vmobjptridx_t robot, const vmobjptrid
 		if (robot_is_thief(robptr)) {
 			static fix64 Last_thief_hit_time;
 			ai_local		*ailp = &robot->ctype.ai_info.ail;
-			if (ailp->mode == ai_mode::AIM_THIEF_ATTACK) {
+			if (ailp->mode == ai_mode::AIM_THIEF_ATTACK)
+			{
 				Last_thief_hit_time = GameTime64;
 				attempt_to_steal_item(robot, playerobj);
 				steal_attempt = 1;

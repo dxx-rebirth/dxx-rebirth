@@ -29,6 +29,7 @@ What's new in 0.60
 * Fixed a bug which prevented Omega cannon recharging after ~4459701 years on the same level (Github issue #262).
 * Prevented undefined behaviour when a level trigger tries to open a wall where no wall exists.  This is also diagnosed to the console, so that the level author can fix the level (Github issue #236).
 * Fixed a bug where exploding players were checked for the Flash Missile special.  Normally, this was silent and harmless, but it might have produced odd results in mods which apply the Flash Missile special to low-numbered weapons.
+* Fixed a bug that prevented the thief stealing energy weapons.
 * Prevented undefined behaviour when guidebot cannot reach its goal object (Github issue #232).
 * Prevented undefined behaviour when reading demos written by old versions of Descent 2.  Old demos recorded trigger transition events even when no trigger was hit (Github issue #177).
 * Prevented undefined behaviour advancing to a new level while dead (Github issue #61).
@@ -45,7 +46,7 @@ What's new in 0.60
 * Players protected by spawn invulnerability are now able to acquire an invulnerability powerup, which will upgrade their invulnerability time from the 0.5-4.0 seconds of spawn invulnerability to the full 30 seconds of an invulnerability powerup.  Previously, a player protected by spawn invulnerability was not allowed to acquire an invulnerability powerup and instead received the error "You already are Invulnerable!"; players protected by an invulnerability powerup are still prohibited from collecting a new one until the old one runs out.
 * Drastically improved positional accuracy and less latency in Multiplayer games.
 * Revamped powerup management in Multiplayer which properly handles and prevents loss and excess of powerups.
-* Important packets in Mulitplayer are handled in proper order, fixing a multitude of packet-loss related issues.
+* Important packets in Multiplayer are handled in proper order, fixing a multitude of packet-loss related issues.
 * A plethora of new Multiplayer options. [Thanks to the Retro team, A Future Pilot and many more]
 * Proper chaff effect for bombs in D2X-Rebirth Multiplayer as intended in the original game but never implemented correctly.
 * Headlights on player ships will now properly render according to headlight state of the player.
@@ -55,10 +56,11 @@ What's new in 0.60
 * Proximity Bomb spin variance logic now applies also to Smart Mines and pre-placed mines.
 * Hoard mode no longer borrows the Proximity Bomb slot for counting player orbs; Proximity Bomb powerups can now be found and used correctly in Hoard mode.
 * Fixed some Multiplayer scoring oddities.
+* New SP (Options->Gameplay) / MP (Host Game -> Game Setup -> Advanced) options to remove the thief during level load and to restore the thief energy weapon bug.
 * ... and many, many more bugfixes and improvements.
 
 
 Known issues
 ------------
 * On Windows the mouse is not correctly released if using ALT+TAB to minimize the game. This is not a bug in the program but rather the SDL library. It can be worked around by pausing the game and using ALT+ENTER to get the game to windowed mode. The mosue should not be stuck then anymore.
-* Mac builds may suffer from crashes (or other random glitches) when playing MIDI music. This is not a bug in the program but rather an issue in timidity which SDL_mixer uses to play these files. Usingf a Soundtrack AddOn (which contains OGG files) should fix that problem.
+* Mac builds may suffer from crashes (or other random glitches) when playing MIDI music. This is not a bug in the program but rather an issue in timidity which SDL_mixer uses to play these files. Using a Soundtrack AddOn (which contains OGG files) should fix that problem.

@@ -5976,7 +5976,7 @@ void show_netgame_info(const netgame_info &netgame)
 #if defined(DXX_BUILD_DESCENT_I)
         int nginum = 50;
 #elif defined(DXX_BUILD_DESCENT_II)
-        int nginum = 75;
+	constexpr int nginum = 77;
 #endif
 
         CALLOC(m, newmenu_item, nginum);
@@ -6066,7 +6066,9 @@ void show_netgame_info(const netgame_info &netgame)
         snprintf(ngii+(ngilen*loc),ngilen,"Show All Players On Automap\t  %s", netgame.game_flag.show_on_map?TXT_YES:TXT_NO);                               loc++;
 #if defined(DXX_BUILD_DESCENT_II)
         snprintf(ngii+(ngilen*loc),ngilen,"Allow Marker Camera Views\t  %s", netgame.Allow_marker_view?TXT_YES:TXT_NO);                                     loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Indestructable Lights\t  %s", netgame.AlwaysLighting?TXT_YES:TXT_NO);                                            loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Indestructible Lights\t  %s", netgame.AlwaysLighting?TXT_YES:TXT_NO);                                            loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Thief permitted\t  %s", (netgame.ThiefModifierFlags & ThiefModifier::Absent) ? TXT_NO : TXT_YES);                                            loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Thief steals energy weapons\t  %s", (netgame.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons) ? TXT_NO : TXT_YES);                                            loc++;
 #endif
         snprintf(ngii+(ngilen*loc),ngilen,"Bright Player Ships\t  %s", netgame.BrightPlayers?TXT_YES:TXT_NO);                                               loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Enemy Names On Hud\t  %s", netgame.ShowEnemyNames?TXT_YES:TXT_NO);                                               loc++;
