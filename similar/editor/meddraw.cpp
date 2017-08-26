@@ -104,6 +104,7 @@ static void draw_seg_objects(const vcsegptr_t seg)
 #if DXX_USE_OGL
 #define draw_line(C,P0,P1,c)	draw_line(P0,P1,c)
 #define draw_segment(C,S,c)	draw_segment(S,c)
+#define draw_listed_segments(C,S,c)	draw_listed_segments(S,c)
 #endif
 static void draw_line(grs_canvas &canvas, const unsigned pnum0, const unsigned pnum1, const uint8_t color)
 {
@@ -237,7 +238,7 @@ struct seg_edge
 
 static array<seg_edge, MAX_EDGES> edge_list;
 static array<int, MAX_EDGES> used_list;	//which entries in edge_list have been used
-int n_used;
+static int n_used;
 
 static unsigned edge_list_size;		//set each frame
 
@@ -599,35 +600,35 @@ static void draw_mine_all(int automap_flag)
 
 }
 
-static void draw_listed_segments(count_segment_array_t &s, const uint8_t color)
+static void draw_listed_segments(grs_canvas &canvas, count_segment_array_t &s, const uint8_t color)
 {
 	range_for (const auto &ss, s)
 	{
 		const auto &&segp = vcsegptr(ss);
 		if (segp->segnum != segment_none)
-			draw_segment(*grd_curcanv, segp, color);
+			draw_segment(canvas, segp, color);
 	}
 }
 
 static void draw_selected_segments(void)
 {
-	draw_listed_segments(Selected_segs, SELECT_COLOR);
+	draw_listed_segments(*grd_curcanv, Selected_segs, SELECT_COLOR);
 }
 
 static void draw_found_segments(void)
 {
-	draw_listed_segments(Found_segs, FOUND_COLOR);
+	draw_listed_segments(*grd_curcanv, Found_segs, FOUND_COLOR);
 }
 
 static void draw_warning_segments(void)
 {
-	draw_listed_segments(Warning_segs, WARNING_COLOR);
+	draw_listed_segments(*grd_curcanv, Warning_segs, WARNING_COLOR);
 }
 
 static void draw_group_segments(void)
 {
 	if (current_group > -1) {
-		draw_listed_segments(GroupList[current_group].segments, GROUP_COLOR);
+		draw_listed_segments(*grd_curcanv, GroupList[current_group].segments, GROUP_COLOR);
 		}
 }
 
