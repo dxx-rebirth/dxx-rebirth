@@ -89,17 +89,12 @@ static int calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_po
 
 	ubyte codes_and = 0xff;
 	range_for (auto &i, rod_points)
+	{
 		codes_and &= g3_code_point(i);
-
-	if (codes_and)
-		return codes_and;		//1 means off screen
-
 	//clear flags for new points (not projected)
-
-	range_for (auto &i, rod_points)
 		i.p3_flags = 0;
-
-	return 0;
+	}
+	return codes_and;
 }
 
 //draw a bitmap object that is always facing you
