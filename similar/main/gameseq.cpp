@@ -246,7 +246,7 @@ static void gameseq_init_network_players(object_array &objects)
 				obj_delete(o);
 			j++;
 		}
-		else if (type == OBJ_ROBOT && multiplayer && robot_is_companion(&Robot_info[get_robot_id(o)]))
+		else if (type == OBJ_ROBOT && multiplayer && robot_is_companion(Robot_info[get_robot_id(o)]))
 			obj_delete(o);		//kill the buddy in netgames
 	}
 	NumNetPlayerPositions = k;
@@ -1943,17 +1943,16 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 namespace dsx {
 void copy_defaults_to_robot(const vmobjptr_t objp)
 {
-	robot_info	*robptr;
 	int			objid;
 
 	Assert(objp->type == OBJ_ROBOT);
 	objid = get_robot_id(objp);
 	Assert(objid < N_robot_types);
 
-	robptr = &Robot_info[objid];
+	auto &robptr = Robot_info[objid];
 
 	//	Boost shield for Thief and Buddy based on level.
-	objp->shields = robptr->strength;
+	objp->shields = robptr.strength;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if ((robot_is_thief(robptr)) || (robot_is_companion(robptr))) {
@@ -1968,11 +1967,11 @@ void copy_defaults_to_robot(const vmobjptr_t objp)
 				default:	break;
 			}
 		}
-	} else if (robptr->boss_flag)	//	MK, 01/16/95, make boss shields lower on lower diff levels.
+	} else if (robptr.boss_flag)	//	MK, 01/16/95, make boss shields lower on lower diff levels.
 		objp->shields = objp->shields/(NDL+3) * (Difficulty_level+4);
 
 	//	Additional wimpification of bosses at Trainee
-	if ((robptr->boss_flag) && (Difficulty_level == 0))
+	if (robptr.boss_flag && Difficulty_level == 0)
 		objp->shields /= 2;
 #endif
 }

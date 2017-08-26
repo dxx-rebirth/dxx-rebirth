@@ -130,7 +130,7 @@ static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const v
 #if defined(DXX_BUILD_DESCENT_I)
 	if (robot_id == ROBOT_BRAIN || robot.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
 #elif defined(DXX_BUILD_DESCENT_II)
-	const robot_info *robptr = &Robot_info[robot_id];
+	auto &robptr = Robot_info[robot_id];
 	if (robot_id == ROBOT_BRAIN || robot.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM || robot_is_companion(robptr) == 1 || robot.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
 #endif
 	{
@@ -214,8 +214,8 @@ static void apply_force_damage(const vmobjptridx_t obj,fix force,const vmobjptri
 
 		case OBJ_ROBOT:
 		{
-			const robot_info *robptr = &Robot_info[get_robot_id(obj)];
-			result = apply_damage_to_robot(obj, (robptr->attack_type == 1)
+			auto &robptr = Robot_info[get_robot_id(obj)];
+			result = apply_damage_to_robot(obj, (robptr.attack_type == 1)
 				? damage / 4
 				: damage / 2,
 				(other_obj->type == OBJ_WEAPON)
@@ -223,7 +223,7 @@ static void apply_force_damage(const vmobjptridx_t obj,fix force,const vmobjptri
 				: static_cast<objnum_t>(other_obj));
 
 			if (result && (other_obj->ctype.laser_info.parent_signature == ConsoleObject->signature))
-				add_points_to_score(ConsoleObject->ctype.player_info, robptr->score_value);
+				add_points_to_score(ConsoleObject->ctype.player_info, robptr.score_value);
 			break;
 		}
 
@@ -276,7 +276,7 @@ static void bump_this_object(const vmobjptridx_t objp, const vmobjptridx_t other
 			force2.y = force.y/4;
 			force2.z = force.z/4;
 			phys_apply_force(objp,force2);
-			if (damage_flag && ((other_objp->type != OBJ_ROBOT) || !robot_is_companion(&Robot_info[get_robot_id(other_objp)])))
+			if (damage_flag && (other_objp->type != OBJ_ROBOT || !robot_is_companion(Robot_info[get_robot_id(other_objp)])))
 			{
 				auto force_mag = vm_vec_mag_quick(force2);
 				apply_force_damage(objp, force_mag, other_objp);
@@ -538,7 +538,7 @@ static int effect_parent_is_guidebot(fvcobjptr &vcobjptr, const laser_parent &la
 		/* parent replaced, no idea what it once was */
 		return 0;
 	const auto robot_id = get_robot_id(robot);
-	const robot_info *robptr = &Robot_info[robot_id];
+	auto &robptr = Robot_info[robot_id];
 	return robot_is_companion(robptr);
 }
 #endif
@@ -1010,13 +1010,13 @@ static void collide_robot_and_player(const vmobjptridx_t robot, const vmobjptrid
 
 	if (get_player_id(playerobj) == Player_num) {
 #if defined(DXX_BUILD_DESCENT_II)
-		const robot_info *robptr = &Robot_info[get_robot_id(robot)];
+		auto &robptr = Robot_info[get_robot_id(robot)];
 		if (robot_is_companion(robptr))	//	Player and companion don't collide.
 			return;
-		if (robptr->kamikaze) {
+		if (robptr.kamikaze) {
 			apply_damage_to_robot(robot, robot->shields+1, playerobj);
 			if (playerobj == ConsoleObject)
-				add_points_to_score(playerobj->ctype.player_info, robptr->score_value);
+				add_points_to_score(playerobj->ctype.player_info, robptr.score_value);
 		}
 
 		if (robot_is_thief(robptr)) {
@@ -1378,9 +1378,9 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 
 	if (robot->shields < 0 ) return 0;	//robot already dead...
 
-	const robot_info *robptr = &Robot_info[get_robot_id(robot)];
+	auto &robptr = Robot_info[get_robot_id(robot)];
 #if defined(DXX_BUILD_DESCENT_II)
-	if (robptr->boss_flag)
+	if (robptr.boss_flag)
 		Boss_hit_time = GameTime64;
 
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.
@@ -1395,7 +1395,7 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Do unspeakable hacks to make sure player doesn't die after killing boss.  Or before, sort of.
-	if (robptr->boss_flag)
+	if (robptr.boss_flag)
 		if (PLAYING_BUILTIN_MISSION && Current_level_num == Last_level)
 			if (robot->shields < 0)
 			 {
@@ -1459,11 +1459,11 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 		plr.num_kills_level++;
 		plr.num_kills_total++;
 
-		if (robptr->boss_flag) {
+		if (robptr.boss_flag) {
 			start_boss_death_sequence(robot);	//do_controlcen_destroyed_stuff(NULL);
 		}
 #if defined(DXX_BUILD_DESCENT_II)
-		else if (robptr->death_roll) {
+		else if (robptr.death_roll) {
 			start_robot_death_sequence(robot);	//do_controlcen_destroyed_stuff(NULL);
 		}
 #endif
@@ -1475,7 +1475,7 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 			//	create_smart_children(robot, Robot_info[robot->id].smart_blobs);
 			//if (Robot_info[robot->id].badass)
 			//	explode_badass_object(robot, F1_0*Robot_info[robot->id].badass, F1_0*40, F1_0*150);
-			if (robptr->kamikaze)
+			if (robptr.kamikaze)
 				explode_object(robot,1);		//	Kamikaze, explode right away, IN YOUR FACE!
 			else
 #endif
@@ -1615,8 +1615,8 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 			return;
 #endif
 
-	const robot_info *const robptr = &Robot_info[get_robot_id(robot)];
-	if (robptr->boss_flag)
+	auto &robptr = Robot_info[get_robot_id(robot)];
+	if (robptr.boss_flag)
 	{
 		Boss_hit_this_frame = 1;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1624,7 +1624,7 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 #endif
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	const boss_weapon_collision_result damage_flag = (robptr->boss_flag >= BOSS_D2)
+	const boss_weapon_collision_result damage_flag = (robptr.boss_flag >= BOSS_D2)
 		? do_boss_weapon_collision(vmsegptridx, robot, weapon, collision_point)
 		: boss_weapon_collision_result::normal;
 #endif
@@ -1655,13 +1655,13 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Changed, 10/04/95, put out blobs based on skill level and power of weapon doing damage.
 	//	Also, only a weapon hit from a player weapon causes smart blobs.
-	if ((weapon->ctype.laser_info.parent_type == OBJ_PLAYER) && (robptr->energy_blobs))
+	if ((weapon->ctype.laser_info.parent_type == OBJ_PLAYER) && (robptr.energy_blobs))
 		if ((robot->shields > 0) && Weapon_is_energy[get_weapon_id(weapon)]) {
 			fix	probval;
 			int	num_blobs;
 
 			probval = (Difficulty_level+2) * min(weapon->shields, robot->shields);
-			probval = robptr->energy_blobs * probval/(NDL*32);
+			probval = robptr.energy_blobs * probval/(NDL*32);
 
 			num_blobs = probval >> 16;
 			if (2*d_rand() < (probval & 0xffff))
@@ -1718,7 +1718,7 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 			multi_robot_request_change(robot, get_player_id(vcobjptr(weapon->ctype.laser_info.parent_num)));
 
 		std::pair<fix, int> explosion_size_and_vclip;
-		if ((robptr->exp1_vclip_num > -1 && (explosion_size_and_vclip = {(robot->size / 2 * 3) / 4, robptr->exp1_vclip_num}, true))
+		if ((robptr.exp1_vclip_num > -1 && (explosion_size_and_vclip = {(robot->size / 2 * 3) / 4, robptr.exp1_vclip_num}, true))
 #if defined(DXX_BUILD_DESCENT_II)
 			|| (wi->robot_hit_vclip > -1 && (explosion_size_and_vclip = {wi->impact_size, wi->robot_hit_vclip}, true))
 #endif
@@ -1734,8 +1734,8 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 		if (damage_flag == boss_weapon_collision_result::normal)
 #endif
 		{
-			if (robptr->exp1_sound_num > -1)
-				digi_link_sound_to_pos(robptr->exp1_sound_num, vcsegptridx(robot->segnum), 0, collision_point, 0, F1_0);
+			if (robptr.exp1_sound_num > -1)
+				digi_link_sound_to_pos(robptr.exp1_sound_num, vcsegptridx(robot->segnum), 0, collision_point, 0, F1_0);
 			fix	damage = weapon->shields;
 
 				damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
@@ -1744,21 +1744,22 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 			//	Cut Gauss damage on bosses because it just breaks the game.  Bosses are so easy to
 			//	hit, and missing a robot is what prevents the Gauss from being game-breaking.
 			if (get_weapon_id(weapon) == weapon_id_type::GAUSS_ID)
-				if (robptr->boss_flag)
+				if (robptr.boss_flag)
 					damage = damage * (2*NDL-Difficulty_level)/(2*NDL);
 #endif
 
 			if (! apply_damage_to_robot(robot, damage, weapon->ctype.laser_info.parent_num))
 				bump_two_objects(robot, weapon, 0);		//only bump if not dead. no damage from bump
 			else if (weapon->ctype.laser_info.parent_signature == ConsoleObject->signature) {
-				add_points_to_score(ConsoleObject->ctype.player_info, robptr->score_value);
+				add_points_to_score(ConsoleObject->ctype.player_info, robptr.score_value);
 				detect_escort_goal_accomplished(robot);
 			}
 		}
 
 #if defined(DXX_BUILD_DESCENT_II)
 		//	If Gauss Cannon, spin robot.
-		if (!robot_is_companion(robptr) && (!robptr->boss_flag) && (get_weapon_id(weapon) == weapon_id_type::GAUSS_ID)) {
+		if (!robot_is_companion(robptr) && (!robptr.boss_flag) && (get_weapon_id(weapon) == weapon_id_type::GAUSS_ID))
+		{
 			ai_static	*aip = &robot->ctype.ai_info;
 
 			if (aip->SKIP_AI_COUNT * FrameTime < F1_0) {
@@ -2109,7 +2110,7 @@ void apply_damage_to_player(object &playerobj, const icobjptridx_t killer, fix d
 
 #if defined(DXX_BUILD_DESCENT_II)
 			if (Buddy_objnum != object_none)
-				if (killer && (killer->type == OBJ_ROBOT) && robot_is_companion(&Robot_info[get_robot_id(killer)]))
+				if (killer && killer->type == OBJ_ROBOT && robot_is_companion(Robot_info[get_robot_id(killer)]))
 					Buddy_sorry_time = GameTime64;
 #endif
 		}

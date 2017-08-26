@@ -1053,12 +1053,11 @@ void bm_read_robot_ai(int skip)
 {
 	char			*robotnum_text;
 	int			robotnum;
-	robot_info	*robptr;
 
 	robotnum_text = strtok(NULL, space_tab);
 	robotnum = atoi(robotnum_text);
 	Assert(robotnum < MAX_ROBOT_TYPES);
-	robptr = &Robot_info[robotnum];
+	auto &robptr = Robot_info[robotnum];
 
 	Assert(robotnum == Num_robot_ais);		//make sure valid number
 
@@ -1070,19 +1069,19 @@ void bm_read_robot_ai(int skip)
 
 	Num_robot_ais++;
 
-	get4fix(robptr->field_of_view);
-	get4fix(robptr->firing_wait);
-	get4fix(robptr->firing_wait2);
-	get4byte(robptr->rapidfire_count);
-	get4fix(robptr->turn_time);
+	get4fix(robptr.field_of_view);
+	get4fix(robptr.firing_wait);
+	get4fix(robptr.firing_wait2);
+	get4byte(robptr.rapidfire_count);
+	get4fix(robptr.turn_time);
 //	get4fix(robptr->fire_power);
 //	get4fix(robptr->shield);
-	get4fix(robptr->max_speed);
-	get4fix(robptr->circle_distance);
-	get4byte(robptr->evade_speed);
+	get4fix(robptr.max_speed);
+	get4fix(robptr.circle_distance);
+	get4byte(robptr.evade_speed);
 
-	robptr->always_0xabcd	= 0xabcd;
-	adjust_field_of_view(robptr->field_of_view);
+	robptr.always_0xabcd	= 0xabcd;
+	adjust_field_of_view(robptr.field_of_view);
 }
 
 //	----------------------------------------------------------------------------------------------

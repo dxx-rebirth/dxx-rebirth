@@ -169,12 +169,12 @@ static inline imobjptridx_t robot_create(ubyte id, vmsegptridx_t segnum, const v
 constexpr unsigned MAX_ROBOT_TYPES = 30;
 constexpr unsigned MAX_ROBOT_JOINTS = 600;
 
-static inline int robot_is_companion(const robot_info *)
+static inline int robot_is_companion(const robot_info &)
 {
 	return 0;
 }
 
-static inline int robot_is_thief(const robot_info *)
+static inline int robot_is_thief(const robot_info &)
 {
 	return 0;
 }
@@ -183,14 +183,14 @@ static inline int robot_is_thief(const robot_info *)
 constexpr unsigned MAX_ROBOT_TYPES = 85;
 constexpr unsigned MAX_ROBOT_JOINTS = 1600;
 
-static inline int robot_is_companion(const robot_info *robptr)
+static inline int robot_is_companion(const robot_info &robptr)
 {
-	return robptr->companion;
+	return robptr.companion;
 }
 
-static inline int robot_is_thief(const robot_info *robptr)
+static inline int robot_is_thief(const robot_info &robptr)
 {
-	return robptr->thief;
+	return robptr.thief;
 }
 #endif
 

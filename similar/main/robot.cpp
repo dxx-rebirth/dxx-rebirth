@@ -112,16 +112,16 @@ static void set_robot_state(const vmobjptr_t obj,int state) __attribute_used;
 static void set_robot_state(const vmobjptr_t obj,int state)
 {
 	int g,j,jo;
-	robot_info *ri;
 	jointlist *jl;
 
 	Assert(obj->type == OBJ_ROBOT);
 
-	ri = &Robot_info[get_robot_id(obj)];
+	auto &ri = Robot_info[get_robot_id(obj)];
 
-	for (g=0;g<ri->n_guns+1;g++) {
+	for (g = 0; g < ri.n_guns + 1; g++)
+	{
 
-		jl = &ri->anim_states[g][state];
+		jl = &ri.anim_states[g][state];
 
 		jo = jl->offset;
 

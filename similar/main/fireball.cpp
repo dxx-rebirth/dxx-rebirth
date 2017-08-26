@@ -1214,12 +1214,12 @@ void do_explosion_sequence(const vmobjptr_t obj)
 				maybe_replace_powerup_with_energy(del_obj);
 			object_create_robot_egg(del_obj);
 		} else if ((del_obj->type == OBJ_ROBOT) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside this code!!
-			robot_info	*robptr = &Robot_info[get_robot_id(del_obj)];
-			if (robptr->contains_count) {
-				if (((d_rand() * 16) >> 15) < robptr->contains_prob) {
-					del_obj->contains_count = ((d_rand() * robptr->contains_count) >> 15) + 1;
-					del_obj->contains_type = robptr->contains_type;
-					del_obj->contains_id = robptr->contains_id;
+			auto &robptr = Robot_info[get_robot_id(del_obj)];
+			if (robptr.contains_count) {
+				if (((d_rand() * 16) >> 15) < robptr.contains_prob) {
+					del_obj->contains_count = ((d_rand() * robptr.contains_count) >> 15) + 1;
+					del_obj->contains_type = robptr.contains_type;
+					del_obj->contains_id = robptr.contains_id;
 					maybe_replace_powerup_with_energy(del_obj);
 					object_create_robot_egg(del_obj);
 				}
@@ -1227,16 +1227,16 @@ void do_explosion_sequence(const vmobjptr_t obj)
 #if defined(DXX_BUILD_DESCENT_II)
 			if (robot_is_thief(robptr))
 				drop_stolen_items(del_obj);
-
-			if (robot_is_companion(robptr)) {
+			else if (robot_is_companion(robptr))
+			{
 				DropBuddyMarker(del_obj);
 			}
 #endif
 		}
 
-		const robot_info *robptr = &Robot_info[get_robot_id(del_obj)];
-		if ( robptr->exp2_sound_num > -1 )
-			digi_link_sound_to_pos(robptr->exp2_sound_num, vmsegptridx(del_obj->segnum), 0, spawn_pos, 0, F1_0);
+		auto &robptr = Robot_info[get_robot_id(del_obj)];
+		if (robptr.exp2_sound_num > -1)
+			digi_link_sound_to_pos(robptr.exp2_sound_num, vmsegptridx(del_obj->segnum), 0, spawn_pos, 0, F1_0);
 			//PLAY_SOUND_3D( Robot_info[del_obj->id].exp2_sound_num, spawn_pos, del_obj->segnum  );
 
 		obj->ctype.expl_info.spawn_time = -1;

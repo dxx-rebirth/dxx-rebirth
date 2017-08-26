@@ -915,7 +915,7 @@ void ai_follow_path(const vmobjptridx_t objp, int player_visibility, const vms_v
 
 	vms_vector	goal_point, new_goal_point;
 #if defined(DXX_BUILD_DESCENT_II)
-	robot_info	*robptr = &Robot_info[get_robot_id(objp)];
+	auto &robptr = Robot_info[get_robot_id(objp)];
 #endif
 	int			forced_break, original_dir, original_index;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -1242,11 +1242,11 @@ void ai_path_set_orient_and_vel(const vmobjptr_t objp, const vms_vector &goal_po
 	vms_vector	cur_pos = objp->pos;
 	fix			speed_scale;
 	fix			dot;
-	robot_info	*robptr = &Robot_info[get_robot_id(objp)];
+	auto &robptr = Robot_info[get_robot_id(objp)];
 	fix			max_speed;
 
 	//	If evading player, use highest difficulty level speed, plus something based on diff level
-	max_speed = robptr->max_speed[Difficulty_level];
+	max_speed = robptr.max_speed[Difficulty_level];
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	if (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1305,9 +1305,9 @@ void ai_path_set_orient_and_vel(const vmobjptr_t objp, const vms_vector &goal_po
 				vm_vec_negate(norm_vec_to_goal);
 		}
 #endif
-		rate = robptr->turn_time[NDL - 1] / 2;
+		rate = robptr.turn_time[NDL - 1] / 2;
 	} else
-		rate = robptr->turn_time[Difficulty_level];
+		rate = robptr.turn_time[Difficulty_level];
 	ai_turn_towards_vector(norm_vec_to_goal, objp, rate);
 }
 

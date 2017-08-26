@@ -360,90 +360,90 @@ static int load_pigpog(const d_fname &pogname)
 	return rc;
 }
 
-static int read_d2_robot_info(PHYSFS_File *fp, robot_info *ri)
+static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 {
 	int j, k;
 
-	ri->model_num = PHYSFSX_readInt(fp);
+	ri.model_num = PHYSFSX_readInt(fp);
 
 	for (j = 0; j < MAX_GUNS; j++)
-		PHYSFSX_readVector(fp, ri->gun_points[j]);
+		PHYSFSX_readVector(fp, ri.gun_points[j]);
 	for (j = 0; j < MAX_GUNS; j++)
-		ri->gun_submodels[j] = PHYSFSX_readByte(fp);
-	ri->exp1_vclip_num = PHYSFSX_readShort(fp);
-	ri->exp1_sound_num = PHYSFSX_readShort(fp);
-	ri->exp2_vclip_num = PHYSFSX_readShort(fp);
-	ri->exp2_sound_num = PHYSFSX_readShort(fp);
+		ri.gun_submodels[j] = PHYSFSX_readByte(fp);
+	ri.exp1_vclip_num = PHYSFSX_readShort(fp);
+	ri.exp1_sound_num = PHYSFSX_readShort(fp);
+	ri.exp2_vclip_num = PHYSFSX_readShort(fp);
+	ri.exp2_sound_num = PHYSFSX_readShort(fp);
 	const auto weapon_type = PHYSFSX_readByte(fp);
-	ri->weapon_type = weapon_type < N_weapon_types ? static_cast<weapon_id_type>(weapon_type) : weapon_id_type::LASER_ID_L1;
-	/*ri->weapon_type2 =*/ PHYSFSX_readByte(fp);
-	ri->n_guns = PHYSFSX_readByte(fp);
-	ri->contains_id = PHYSFSX_readByte(fp);
-	ri->contains_count = PHYSFSX_readByte(fp);
-	ri->contains_prob = PHYSFSX_readByte(fp);
-	ri->contains_type = PHYSFSX_readByte(fp);
-	/*ri->kamikaze =*/ PHYSFSX_readByte(fp);
-	ri->score_value = PHYSFSX_readShort(fp);
-	/*ri->badass =*/ PHYSFSX_readByte(fp);
-	/*ri->energy_drain =*/ PHYSFSX_readByte(fp);
-	ri->lighting = PHYSFSX_readFix(fp);
-	ri->strength = PHYSFSX_readFix(fp);
-	ri->mass = PHYSFSX_readFix(fp);
-	ri->drag = PHYSFSX_readFix(fp);
+	ri.weapon_type = weapon_type < N_weapon_types ? static_cast<weapon_id_type>(weapon_type) : weapon_id_type::LASER_ID_L1;
+	/*ri.weapon_type2 =*/ PHYSFSX_readByte(fp);
+	ri.n_guns = PHYSFSX_readByte(fp);
+	ri.contains_id = PHYSFSX_readByte(fp);
+	ri.contains_count = PHYSFSX_readByte(fp);
+	ri.contains_prob = PHYSFSX_readByte(fp);
+	ri.contains_type = PHYSFSX_readByte(fp);
+	/*ri.kamikaze =*/ PHYSFSX_readByte(fp);
+	ri.score_value = PHYSFSX_readShort(fp);
+	/*ri.badass =*/ PHYSFSX_readByte(fp);
+	/*ri.energy_drain =*/ PHYSFSX_readByte(fp);
+	ri.lighting = PHYSFSX_readFix(fp);
+	ri.strength = PHYSFSX_readFix(fp);
+	ri.mass = PHYSFSX_readFix(fp);
+	ri.drag = PHYSFSX_readFix(fp);
 	for (j = 0; j < NDL; j++)
-		ri->field_of_view[j] = PHYSFSX_readFix(fp);
+		ri.field_of_view[j] = PHYSFSX_readFix(fp);
 	for (j = 0; j < NDL; j++)
-		ri->firing_wait[j] = PHYSFSX_readFix(fp);
+		ri.firing_wait[j] = PHYSFSX_readFix(fp);
 	for (j = 0; j < NDL; j++)
-		/*ri->firing_wait2[j] =*/ PHYSFSX_readFix(fp);
+		/*ri.firing_wait2[j] =*/ PHYSFSX_readFix(fp);
 	for (j = 0; j < NDL; j++)
-		ri->turn_time[j] = PHYSFSX_readFix(fp);
+		ri.turn_time[j] = PHYSFSX_readFix(fp);
 #if 0 // not used in d1, removed in d2
 	for (j = 0; j < NDL; j++)
-		ri->fire_power[j] = PHYSFSX_readFix(fp);
+		ri.fire_power[j] = PHYSFSX_readFix(fp);
 	for (j = 0; j < NDL; j++)
-		ri->shield[j] = PHYSFSX_readFix(fp);
+		ri.shield[j] = PHYSFSX_readFix(fp);
 #endif
 	for (j = 0; j < NDL; j++)
-		ri->max_speed[j] = PHYSFSX_readFix(fp);
+		ri.max_speed[j] = PHYSFSX_readFix(fp);
 	for (j = 0; j < NDL; j++)
-		ri->circle_distance[j] = PHYSFSX_readFix(fp);
+		ri.circle_distance[j] = PHYSFSX_readFix(fp);
 	for (j = 0; j < NDL; j++)
-		ri->rapidfire_count[j] = PHYSFSX_readByte(fp);
+		ri.rapidfire_count[j] = PHYSFSX_readByte(fp);
 	for (j = 0; j < NDL; j++)
-		ri->evade_speed[j] = PHYSFSX_readByte(fp);
-	ri->cloak_type = PHYSFSX_readByte(fp);
-	ri->attack_type = PHYSFSX_readByte(fp);
-	ri->see_sound = PHYSFSX_readByte(fp);
-	ri->attack_sound = PHYSFSX_readByte(fp);
-	ri->claw_sound = PHYSFSX_readByte(fp);
-	/*ri->taunt_sound =*/ PHYSFSX_readByte(fp);
-	ri->boss_flag = PHYSFSX_readByte(fp);
-	/*ri->companion =*/ PHYSFSX_readByte(fp);
-	/*ri->smart_blobs =*/ PHYSFSX_readByte(fp);
-	/*ri->energy_blobs =*/ PHYSFSX_readByte(fp);
-	/*ri->thief =*/ PHYSFSX_readByte(fp);
-	/*ri->pursuit =*/ PHYSFSX_readByte(fp);
-	/*ri->lightcast =*/ PHYSFSX_readByte(fp);
-	/*ri->death_roll =*/ PHYSFSX_readByte(fp);
-	/*ri->flags =*/ PHYSFSX_readByte(fp);
-	/*ri->pad[0] =*/ PHYSFSX_readByte(fp);
-	/*ri->pad[1] =*/ PHYSFSX_readByte(fp);
-	/*ri->pad[2] =*/ PHYSFSX_readByte(fp);
-	/*ri->deathroll_sound =*/ PHYSFSX_readByte(fp);
-	/*ri->glow =*/ PHYSFSX_readByte(fp);
-	/*ri->behavior =*/ PHYSFSX_readByte(fp);
-	/*ri->aim =*/ PHYSFSX_readByte(fp);
+		ri.evade_speed[j] = PHYSFSX_readByte(fp);
+	ri.cloak_type = PHYSFSX_readByte(fp);
+	ri.attack_type = PHYSFSX_readByte(fp);
+	ri.see_sound = PHYSFSX_readByte(fp);
+	ri.attack_sound = PHYSFSX_readByte(fp);
+	ri.claw_sound = PHYSFSX_readByte(fp);
+	/*ri.taunt_sound =*/ PHYSFSX_readByte(fp);
+	ri.boss_flag = PHYSFSX_readByte(fp);
+	/*ri.companion =*/ PHYSFSX_readByte(fp);
+	/*ri.smart_blobs =*/ PHYSFSX_readByte(fp);
+	/*ri.energy_blobs =*/ PHYSFSX_readByte(fp);
+	/*ri.thief =*/ PHYSFSX_readByte(fp);
+	/*ri.pursuit =*/ PHYSFSX_readByte(fp);
+	/*ri.lightcast =*/ PHYSFSX_readByte(fp);
+	/*ri.death_roll =*/ PHYSFSX_readByte(fp);
+	/*ri.flags =*/ PHYSFSX_readByte(fp);
+	/*ri.pad[0] =*/ PHYSFSX_readByte(fp);
+	/*ri.pad[1] =*/ PHYSFSX_readByte(fp);
+	/*ri.pad[2] =*/ PHYSFSX_readByte(fp);
+	/*ri.deathroll_sound =*/ PHYSFSX_readByte(fp);
+	/*ri.glow =*/ PHYSFSX_readByte(fp);
+	/*ri.behavior =*/ PHYSFSX_readByte(fp);
+	/*ri.aim =*/ PHYSFSX_readByte(fp);
 
 	for (j = 0; j < MAX_GUNS + 1; j++)
 	{
 		for (k = 0; k < N_ANIM_STATES; k++)
 		{
-			ri->anim_states[j][k].n_joints = PHYSFSX_readShort(fp);
-			ri->anim_states[j][k].offset = PHYSFSX_readShort(fp);
+			ri.anim_states[j][k].n_joints = PHYSFSX_readShort(fp);
+			ri.anim_states[j][k].offset = PHYSFSX_readShort(fp);
 		}
 	}
-	ri->always_0xabcd = PHYSFSX_readInt(fp);
+	ri.always_0xabcd = PHYSFSX_readInt(fp);
 
 	return 1;
 }
@@ -485,7 +485,7 @@ static void load_hxm(const d_fname &hxmname)
 			}
 			else
 			{
-				if (!(read_d2_robot_info(f, &Robot_info[repl_num])))
+				if (!(read_d2_robot_info(f, Robot_info[repl_num])))
 				{
 					return;
 				}

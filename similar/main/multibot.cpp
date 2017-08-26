@@ -430,7 +430,7 @@ void multi_send_thief_frame()
         {
 		if (objp->type == OBJ_ROBOT)
                 {
-			if (robot_is_thief(&Robot_info[get_robot_id(objp)]))
+			if (robot_is_thief(Robot_info[get_robot_id(objp)]))
                         {
 				if ((multi_i_am_master() && objp->ctype.ai_info.REMOTE_OWNER == -1) || objp->ctype.ai_info.REMOTE_OWNER == Player_num)
                                 {
@@ -919,7 +919,7 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 	{
 		multi_drop_robot_powerups(robot);
 	}
-	if (robot_is_thief(&Robot_info[get_robot_id(robot)]))
+	if (robot_is_thief(Robot_info[get_robot_id(robot)]))
 		drop_stolen_items(robot);
 
 	if (Robot_info[get_robot_id(robot)].boss_flag) {
@@ -1169,14 +1169,13 @@ void multi_drop_robot_powerups(const vmobjptridx_t del_obj)
 	// Code to handle dropped robot powerups in network mode ONLY!
 
 	objnum_t egg_objnum = object_none;
-	robot_info	*robptr; 
 
 	if (del_obj->type != OBJ_ROBOT)
 	{
 		Int3(); // dropping powerups for non-robot, Rob's fault
 		return;
 	}
-	robptr = &Robot_info[get_robot_id(del_obj)];
+	auto &robptr = Robot_info[get_robot_id(del_obj)];
 
 	Net_create_loc = 0;
 
@@ -1201,12 +1200,12 @@ void multi_drop_robot_powerups(const vmobjptridx_t del_obj)
 	else if (del_obj->ctype.ai_info.REMOTE_OWNER == -1) // No random goodies for robots we weren't in control of
 		return;
 
-	else if (robptr->contains_count) {
+	else if (robptr.contains_count) {
 		d_srand(static_cast<fix>(timer_query()));
-		if (((d_rand() * 16) >> 15) < robptr->contains_prob) {
-			del_obj->contains_count = ((d_rand() * robptr->contains_count) >> 15) + 1;
-			del_obj->contains_type = robptr->contains_type;
-			del_obj->contains_id = robptr->contains_id;
+		if (((d_rand() * 16) >> 15) < robptr.contains_prob) {
+			del_obj->contains_count = ((d_rand() * robptr.contains_count) >> 15) + 1;
+			del_obj->contains_type = robptr.contains_type;
+			del_obj->contains_id = robptr.contains_id;
 			if (del_obj->contains_type == OBJ_POWERUP)
 			 {
 				maybe_replace_powerup_with_energy(del_obj);
