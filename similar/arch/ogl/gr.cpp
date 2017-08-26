@@ -540,17 +540,20 @@ static void ogl_tune_for_current(void)
 	const auto gl_renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
 	const auto gl_version = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 
-	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s", gl_vendor,gl_renderer);
+	con_printf(CON_VERBOSE, "DXX-Rebirth: OpenGL: vendor: %s", gl_vendor);
+	con_printf(CON_VERBOSE, "DXX-Rebirth: OpenGL: renderer: %s", gl_renderer);
 
 	//add driver specific hacks here.  whee.
 	if ((d_stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || d_stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && d_stricmp(gl_version,"1.2 Mesa 3.0")==0)
 	{
+		con_puts(CON_VERBOSE, "DXX-Rebirth: OpenGL renderer is blacklisted for GL intensity, GL read pixel, and GL GetTexLevel");
 		CGameArg.DbgGlIntensity4Ok = false;	//ignores alpha, always black background instead of transparent.
 		CGameArg.DbgGlReadPixelsOk = false;	//either just returns all black, or kills the X server entirely
 		CGameArg.DbgGlGetTexLevelParamOk = false;	//returns random data..
 	}
 	if (d_stricmp(gl_vendor,"Matrox Graphics Inc.")==0)
 	{
+		con_puts(CON_VERBOSE, "DXX-Rebirth: OpenGL renderer is blacklisted for GL intensity");
 		//displays garbage. reported by
 		//  redomen@crcwnet.com (render="Matrox G400" version="1.1.3 5.52.015")
 		//  orulz (Matrox G200)
@@ -562,11 +565,11 @@ static void ogl_tune_for_current(void)
 #endif
 
 #ifndef NDEBUG
-	con_printf(CON_VERBOSE,"gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i", CGameArg.DbgGlIntensity4Ok, CGameArg.DbgGlLuminance4Alpha4Ok, CGameArg.DbgGlRGBA2Ok, CGameArg.DbgGlReadPixelsOk, CGameArg.DbgGlGetTexLevelParamOk);
+	con_printf(CON_VERBOSE, "DXX-Rebirth: OpenGL: gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i", CGameArg.DbgGlIntensity4Ok, CGameArg.DbgGlLuminance4Alpha4Ok, CGameArg.DbgGlRGBA2Ok, CGameArg.DbgGlReadPixelsOk, CGameArg.DbgGlGetTexLevelParamOk);
 #endif
-	if ( (ogl_maxanisotropy < 1.0f) && CGameCfg.TexAnisotropy ) {
-
-		con_printf(CON_VERBOSE,"anisotropic texture filter not supported");
+	if (ogl_maxanisotropy < 1.0f && CGameCfg.TexAnisotropy)
+	{
+		con_puts(CON_VERBOSE, "DXX-Rebirth: OpenGL: anisotropic texture filter not supported");
 		CGameCfg.TexAnisotropy = false;
 	}
 }

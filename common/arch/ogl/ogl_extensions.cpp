@@ -99,7 +99,7 @@ void ogl_extensions_init()
 {
 	const auto version_str = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 	if (!version_str) {
-		con_printf(CON_URGENT, "no valid OpenGL context when querying GL extensions!");
+		con_printf(CON_URGENT, "DXX-Rebirth: no valid OpenGL context when querying GL extensions!");
 		return;
 	}
 	const auto version = parse_version_str(version_str);
@@ -110,16 +110,16 @@ void ogl_extensions_init()
 #else
 #define DXX_OGL_STRING  ""
 #endif
-	    con_printf(CON_VERBOSE, "OpenGL" DXX_OGL_STRING ": version %ld.%ld (%s)", version[0], version[1], version_str);
+	con_printf(CON_VERBOSE, "DXX-Rebirth: OpenGL" DXX_OGL_STRING ": version %ld.%ld (%s)", version[0], version[1], version_str);
 #undef DXX_OGL_STRING
 
 	/* GL_EXT_texture_filter_anisotropic */
 	if (is_supported(extension_str, version, "GL_EXT_texture_filter_anisotropic", -1, -1, -1, -1)) {
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &ogl_maxanisotropy);
-		con_printf(CON_VERBOSE, "GL_EXT_texture_filter_anisotropic available, max anisotropy: %f", ogl_maxanisotropy);
+		con_printf(CON_VERBOSE, "DXX-Rebirth: OpenGL: GL_EXT_texture_filter_anisotropic available, max anisotropy: %f", ogl_maxanisotropy);
 	} else {
 		ogl_maxanisotropy=0.0f;
-		con_printf(CON_VERBOSE, "GL_EXT_texture_filter_anisotropic not available");
+		con_puts(CON_VERBOSE, "DXX-Rebirth: OpenGL: GL_EXT_texture_filter_anisotropic not available");
 	}
 
 	/* GL_ARB_sync */
@@ -129,12 +129,14 @@ void ogl_extensions_init()
 		glClientWaitSyncFunc = reinterpret_cast<PFNGLCLIENTWAITSYNCPROC>(SDL_GL_GetProcAddress("glClientWaitSync"));
 
 	}
+	const char *s;
 	if (glFenceSyncFunc && glDeleteSyncFunc && glClientWaitSyncFunc) {
 		ogl_have_ARB_sync=true;
-		con_printf(CON_VERBOSE, "GL_ARB_sync available");
+		s = "DXX-Rebirth: OpenGL: GL_ARB_sync available";
 	} else {
-		con_printf(CON_VERBOSE, "GL_ARB_sync not available");
+		s = "DXX-Rebirth: OpenGL: GL_ARB_sync not available";
 	}
+	con_puts(CON_VERBOSE, s);
 }
 
 }

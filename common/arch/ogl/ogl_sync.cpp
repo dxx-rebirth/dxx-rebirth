@@ -30,7 +30,7 @@ ogl_sync::ogl_sync()
 ogl_sync::~ogl_sync()
 {
 	if (fence)
-		con_printf(CON_URGENT, "fence sync object was never destroyed!");
+		con_puts(CON_URGENT, "DXX-Rebirth: OpenGL: fence sync object was never destroyed!");
 }
 
 void ogl_sync::sync_deleter::operator()(GLsync fence_func) const
@@ -87,7 +87,7 @@ void ogl_sync::init(SyncGLMethod sync_method, int wait)
 
 	if (method == SYNC_GL_AUTO) {
 		if (!ogl_have_ARB_sync) {
-			con_printf(CON_NORMAL, "GL_ARB_sync not available, disabling sync");
+			con_puts(CON_NORMAL, "DXX-Rebirth: OpenGL: GL_ARB_sync not available, disabling sync");
 			method = SYNC_GL_NONE;
 			need_ARB_sync = false;
 		} else {
@@ -96,24 +96,24 @@ void ogl_sync::init(SyncGLMethod sync_method, int wait)
 	}
 
 	if (need_ARB_sync && !ogl_have_ARB_sync) {
-		con_printf(CON_URGENT, "GL_ARB_sync not available, using fallback");
+		con_puts(CON_URGENT, "DXX-Rebirth: OpenGL: GL_ARB_sync not available, using fallback");
 		method = SYNC_GL_FINISH_BEFORE_SWAP;
 	}
 	switch(method) {
 		case SYNC_GL_FENCE:
-			con_printf(CON_VERBOSE, "using GL_ARB_sync for synchronization (direct)");
+			con_puts(CON_VERBOSE, "DXX-Rebirth: OpenGL: using GL_ARB_sync for synchronization (direct)");
 			break;
 		case SYNC_GL_FENCE_SLEEP:
-			con_printf(CON_VERBOSE, "using GL_ARB_sync for synchronization with interval %dms", wait);
+			con_printf(CON_VERBOSE, "DXX-Rebirth: OpenGL: using GL_ARB_sync for synchronization with interval %dms", wait);
 			break;
 		case SYNC_GL_FINISH_AFTER_SWAP:
-			con_printf(CON_VERBOSE, "using glFinish synchronization (method 1)");
+			con_puts(CON_VERBOSE, "DXX-Rebirth: OpenGL: using glFinish synchronization (method 1: after swap)");
 			break;
 		case SYNC_GL_FINISH_BEFORE_SWAP:
-			con_printf(CON_VERBOSE, "using glFinish synchronization (method 2)");
+			con_puts(CON_VERBOSE, "DXX-Rebirth: OpenGL: using glFinish synchronization (method 2: before swap)");
 			break;	
 		default:	
-			con_printf(CON_VERBOSE, "using no explicit GPU synchronization");
+			con_puts(CON_VERBOSE, "DXX-Rebirth: OpenGL: using no explicit GPU synchronization");
 			break;
 	}
 }
