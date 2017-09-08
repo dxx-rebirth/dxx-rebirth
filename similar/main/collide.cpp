@@ -422,62 +422,37 @@ static fix64	Last_volatile_scrape_time = 0;
 static fix64	Last_volatile_scrape_sound_time = 0;
 
 #if defined(DXX_BUILD_DESCENT_I)
-//this gets called when an object is scraping along the wall
-bool scrape_player_on_wall(const vmobjptridx_t obj, const vmsegptridx_t hitseg, short hitside, const vms_vector &hitpt)
-{
-	fix d;
-
-	if (obj->type != OBJ_PLAYER || get_player_id(obj) != Player_num)
-		return false;
-
-	if (!((GameTime64 > Last_volatile_scrape_time + DESIGNATED_GAME_FRAMETIME) || (GameTime64 < Last_volatile_scrape_time)))
-		return false;
-	Last_volatile_scrape_time = GameTime64;
-
-	if ((d=TmapInfo[hitseg->sides[hitside].tmap_num].damage) > 0) {
-		vms_vector	hit_dir;
-		fix damage = fixmul(d,(FrameTime>DESIGNATED_GAME_FRAMETIME)?FrameTime:DESIGNATED_GAME_FRAMETIME);
-
-		auto &player_info = obj->ctype.player_info;
-		if (!(player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE))
-			apply_damage_to_player( obj, obj, damage, 0 );
-
-		PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
-		if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
-			Last_volatile_scrape_sound_time = GameTime64;
-			multi_digi_link_sound_to_pos(SOUND_VOLATILE_WALL_HISS,hitseg, 0, hitpt, 0, F1_0);
-		}
-		hit_dir = hitseg->sides[hitside].normals[0];
-		vm_vec_scale_add2(hit_dir, make_random_vector(), F1_0/8);
-		vm_vec_normalize_quick(hit_dir);
-		bump_one_object(obj, hit_dir, F1_0*8);
-
-		obj->mtype.phys_info.rotvel.x = (d_rand() - 16384)/2;
-		obj->mtype.phys_info.rotvel.z = (d_rand() - 16384)/2;
-
-		return true;
-	}
-	return false;
-}
-#elif defined(DXX_BUILD_DESCENT_II)
+static
+#endif
 //see if wall is volatile or water
 //if volatile, cause damage to player
 //returns 1=lava, 2=water
-volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const vcsegptr_t seg, int sidenum)
+volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const segment &seg, const unsigned sidenum)
 {
 	Assert(obj->type==OBJ_PLAYER);
 
-	const auto &ti = TmapInfo[seg->sides[sidenum].tmap_num];
+	const auto &ti = TmapInfo[seg.sides[sidenum].tmap_num];
 	const fix d = ti.damage;
-	if (d > 0 || (ti.flags & TMI_WATER))
+	if (d > 0
+#if defined(DXX_BUILD_DESCENT_II)
+		|| (ti.flags & TMI_WATER)
+#endif
+		)
 	{
-		if (get_player_id(obj) == Player_num) {
-
-			if (d > 0) {
+#if defined(DXX_BUILD_DESCENT_II)
+		if (get_player_id(obj) == Player_num)
+#endif
+		{
+#if defined(DXX_BUILD_DESCENT_II)
+			if (d > 0)
+#endif
+			{
 				fix damage = fixmul(d,((FrameTime>DESIGNATED_GAME_FRAMETIME)?FrameTime:DESIGNATED_GAME_FRAMETIME));
 
+#if defined(DXX_BUILD_DESCENT_II)
 				if (Difficulty_level == 0)
 					damage /= 2;
+#endif
 
 				if (!(obj->ctype.player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE))
 					apply_damage_to_player( obj, obj, damage, 0 );
@@ -489,7 +464,13 @@ volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const vcsegptr
 			obj->mtype.phys_info.rotvel.z = (d_rand() - 16384)/2;
 		}
 
-		return (d > 0) ? volatile_wall_result::lava : volatile_wall_result::water;
+		return
+#if defined(DXX_BUILD_DESCENT_II)
+			(d <= 0)
+			? volatile_wall_result::water
+			:
+#endif
+			volatile_wall_result::lava;
 	}
 	else
 	 {
@@ -512,7 +493,13 @@ bool scrape_player_on_wall(const vmobjptridx_t obj, const vmsegptridx_t hitseg, 
 	{
 		if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
 			Last_volatile_scrape_sound_time = GameTime64;
-			const auto sound = (type == volatile_wall_result::lava) ? SOUND_VOLATILE_WALL_HISS : SOUND_SHIP_IN_WATER;
+			const auto sound =
+#if defined(DXX_BUILD_DESCENT_II)
+				(type != volatile_wall_result::lava)
+				? SOUND_SHIP_IN_WATER
+				:
+#endif
+				SOUND_VOLATILE_WALL_HISS;
 			multi_digi_link_sound_to_pos(sound, hitseg, 0, hitpt, 0, F1_0);
 		}
 
@@ -527,6 +514,7 @@ bool scrape_player_on_wall(const vmobjptridx_t obj, const vmsegptridx_t hitseg, 
 	return false;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 static int effect_parent_is_guidebot(fvcobjptr &vcobjptr, const laser_parent &laser)
 {
 	if (laser.parent_type != OBJ_ROBOT)

@@ -81,20 +81,21 @@ void bump_one_object(object_base &obj0, const vms_vector &hit_dir, fix damage);
 #ifdef dsx
 namespace dsx {
 void drop_player_eggs(vmobjptridx_t playerobj);
-
-}
-#endif
-#if defined(DXX_BUILD_DESCENT_II)
-window_event_result do_final_boss_frame(void);
-void do_final_boss_hacks(void);
 enum class volatile_wall_result : int8_t
 {
 	none = -1,
 	lava,
+#if defined(DXX_BUILD_DESCENT_II)
 	water,
+#endif
 };
-volatile_wall_result check_volatile_wall(vmobjptridx_t obj,vcsegptr_t seg,int sidenum);
+}
+#if defined(DXX_BUILD_DESCENT_II)
+window_event_result do_final_boss_frame(void);
+void do_final_boss_hacks(void);
+volatile_wall_result check_volatile_wall(vmobjptridx_t obj, const segment &seg, unsigned sidenum);
 extern int	Final_boss_is_dead;
+#endif
 #endif
 #endif
 
