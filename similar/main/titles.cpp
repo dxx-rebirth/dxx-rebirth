@@ -101,8 +101,8 @@ static int get_message_num(const char *&message)
 {
 	char *p;
 	auto num = strtoul(message, &p, 10);
-	while (*p && *p != '\n')		//	Get and drop eoln
-		++p;
+	while (*p && *p++ != '\n')		//	Get and drop eoln
+		;
 	message = p;
 	return num;
 }
