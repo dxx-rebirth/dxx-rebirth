@@ -443,6 +443,10 @@ volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const segment 
 		if (get_player_id(obj) == Player_num)
 #endif
 		{
+			if (!((GameTime64 > Last_volatile_scrape_time + DESIGNATED_GAME_FRAMETIME) || (GameTime64 < Last_volatile_scrape_time)))
+				return volatile_wall_result::none;
+			Last_volatile_scrape_time = GameTime64;
+
 #if defined(DXX_BUILD_DESCENT_II)
 			if (d > 0)
 #endif
@@ -483,10 +487,6 @@ bool scrape_player_on_wall(const vmobjptridx_t obj, const vmsegptridx_t hitseg, 
 {
 	if (obj->type != OBJ_PLAYER || get_player_id(obj) != Player_num)
 		return false;
-
-	if (!((GameTime64 > Last_volatile_scrape_time + DESIGNATED_GAME_FRAMETIME) || (GameTime64 < Last_volatile_scrape_time)))
-		return false;
-	Last_volatile_scrape_time = GameTime64;
 
 	const auto type = check_volatile_wall(obj, hitseg, hitside);
 	if (type != volatile_wall_result::none)
