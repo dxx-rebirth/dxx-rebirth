@@ -20,7 +20,7 @@ namespace dcx {
 extern void msgbox_warning(const char *message);
 
 // Display an error in a messagebox
-#ifdef WIN32
+#if defined(WIN32) || defined(__APPLE__) || defined(__MACH__)
 extern void msgbox_error(const char *message);
 #else
 #define msgbox_error(M)	(static_cast<void>(M))
