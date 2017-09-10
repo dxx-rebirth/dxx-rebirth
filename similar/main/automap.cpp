@@ -628,7 +628,8 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 	gr_set_current_canvas(NULL);
 	{
 		auto &canvas = *grd_curcanv;
-		show_fullscr(canvas, am->automap_background);
+		if (am->automap_background.get_bitmap_data())
+			show_fullscr(canvas, am->automap_background);
 		gr_set_curfont(canvas, HUGE_FONT);
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
 	{
@@ -995,7 +996,6 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 
 void do_automap()
 {
-	int pcx_error;
 	palette_array_t pal;
 	automap *am = new automap{};
 	window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, automap_handler, am);
@@ -1049,10 +1049,13 @@ void do_automap()
 
 	// ZICO - code from above to show frame in OGL correctly. Redundant, but better readable.
 	// KREATOR - Now applies to all platforms so double buffering is supported
-	pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, am->automap_background, pal);
-	if (pcx_error != PCX_ERROR_NONE)
-		Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
-	gr_remap_bitmap_good(am->automap_background, pal, -1, -1);
+	{
+		const auto pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, am->automap_background, pal);
+		if (pcx_error != PCX_ERROR_NONE)
+			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "automap: File %s - PCX error: %s"), MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
+		else
+			gr_remap_bitmap_good(am->automap_background, pal, -1, -1);
+	}
 #if defined(DXX_BUILD_DESCENT_I)
 	if (MacHog)
 		gr_init_sub_canvas(am->automap_view, grd_curscreen->sc_canvas, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));
