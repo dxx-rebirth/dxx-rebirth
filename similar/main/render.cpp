@@ -473,10 +473,9 @@ constexpr fix	Min_n0_n1_dot	= (F1_0*15/16);
 //	Render a side.
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
 namespace dsx {
-static void render_side(grs_canvas &canvas, const vcsegptridx_t segp, const unsigned sidenum)
+static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegptridx_t segp, const unsigned sidenum, const WALL_IS_DOORWAY_result_t wid_flags, const vms_vector &Viewer_eye)
 {
 	fix		min_dot, max_dot;
-	auto wid_flags = WALL_IS_DOORWAY(segp,sidenum);
 
 	if (!(wid_flags & WID_RENDER_FLAG))		//if (WALL_IS_DOORWAY(segp, sidenum) == WID_NO_WALL)
 		return;
@@ -775,7 +774,7 @@ static void render_segment(grs_canvas &canvas, const vcsegptridx_t seg)
 		}
 
 		for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
-			render_side(canvas, seg, sn);
+			render_side(vcvertptr, canvas, seg, sn, WALL_IS_DOORWAY(seg, sn), Viewer_eye);
 	}
 
 	//draw any objects that happen to be in this segment
@@ -1579,7 +1578,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 					{
-						auto wid = WALL_IS_DOORWAY(seg, sn);
+						const auto wid = WALL_IS_DOORWAY(seg, sn);
 						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
 #if defined(DXX_BUILD_DESCENT_II)
 							|| (wid & WID_CLOAKED_FLAG)
@@ -1589,11 +1588,11 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
                                                         if (PlayerCfg.AlphaBlendEClips && is_alphablend_eclip(TmapInfo[seg->sides[sn].tmap_num].eclip_num)) // Do NOT render geometry with blending textures. Since we've not rendered any objects, yet, they would disappear behind them.
                                                                 continue;
 							glAlphaFunc(GL_GEQUAL,0.8); // prevent ugly outlines if an object (which is rendered later) is shown behind a grate, door, etc. if texture filtering is enabled. These sides are rendered later again with normal AlphaFunc
-							render_side(canvas, seg, sn);
+							render_side(vcvertptr, canvas, seg, sn, wid, Viewer_eye);
 							glAlphaFunc(GL_GEQUAL,0.02);
 						}
 						else
-							render_side(canvas, seg, sn);
+							render_side(vcvertptr, canvas, seg, sn, wid, Viewer_eye);
 					}
 				}
 			}
@@ -1630,14 +1629,14 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 					{
-						auto wid = WALL_IS_DOORWAY(seg, sn);
+						const auto wid = WALL_IS_DOORWAY(seg, sn);
 						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
 #if defined(DXX_BUILD_DESCENT_II)
 							|| (wid & WID_CLOAKED_FLAG)
 #endif
 							)
 						{
-							render_side(canvas, seg, sn);
+							render_side(vcvertptr, canvas, seg, sn, wid, Viewer_eye);
 						}
 					}
 				}
