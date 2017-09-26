@@ -486,10 +486,6 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 	//	deal with it, get the dot product.
 	const auto sidep = &segp->sides[sidenum];
 	const unsigned which_vertnum =
-#if defined(DXX_BUILD_DESCENT_II)
-		/* Silly, but consistent with how it was at release */
-		(sidep->get_type() == SIDE_IS_QUAD) ? 0 :
-#endif
 		(sidep->get_type() == SIDE_IS_TRI_13)
 			? 1
 			: 0;
