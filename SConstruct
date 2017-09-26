@@ -58,10 +58,9 @@ class StaticSubprocess:
 		## >>> repr(a) == repr(b)
 		## True
 		a = repr(args)
-		try:
-			return _call_cache[a]
-		except KeyError:
-			pass
+		c = _call_cache.get(a)
+		if c is not None:
+			return c
 		p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=stderr)
 		(o, e) = p.communicate()
 		_call_cache[a] = c = _CachedCall(o, e, p.wait())
@@ -311,9 +310,8 @@ class ConfigureTests(_ConfigureTests):
 				pkgconfig = ('%s-pkg-config' % CHOST) if CHOST else 'pkg-config'
 				if sys.platform == 'win32':
 					pkgconfig += '.exe'
-			try:
-				return _cache[pkgconfig]
-			except KeyError:
+			path = _cache.get(pkgconfig, _cache)
+			if path is _cache:
 				_cache[pkgconfig] = path = _get_pkg_config_exec_path(context, message, pkgconfig)
 			return path
 		@staticmethod
@@ -332,7 +330,7 @@ class ConfigureTests(_ConfigureTests):
 				flags = _cache[cmd]
 				Display("%s: reusing %s settings from `%s`: %r\n" % (message, display_name, cmd, flags))
 				return flags
-			except KeyError as e:
+			except KeyError:
 				Display("%s: reading %s settings from `%s`\n" % (message, display_name, cmd))
 				try:
 					flags = {
@@ -2557,9 +2555,8 @@ class LazyObjectConstructor(object):
 		# Use id because name needs to be hashable and have a 1-to-1
 		# mapping to source.
 		name = (id(env), id(source))
-		try:
-			return cache[name]
-		except KeyError as e:
+		value = cache.get(name)
+		if value is None:
 			StaticObject = env.StaticObject
 			OBJSUFFIX = env['OBJSUFFIX']
 			builddir = self.user_settings.builddir
@@ -2591,7 +2588,7 @@ class LazyObjectConstructor(object):
 				for srcname in t	\
 			])
 			cache[name] = value
-			return value
+		return value
 
 	@staticmethod
 	def create_lazy_object_getter(sources,__lazy_objects=__lazy_objects):
@@ -3551,9 +3548,8 @@ class DXXCommon(LazyObjectConstructor):
 		fs = SCons.Node.FS.get_default_fs()
 		builddir = self.user_settings.builddir
 		env = self.env
-		try:
-			check_header_includes = __shared_cpp_dict[builddir]
-		except KeyError:
+		check_header_includes = __shared_cpp_dict.get(builddir)
+		if check_header_includes is None:
 			check_header_includes = env.File(os.path.join(builddir, 'check_header_includes.cpp'))
 			# Generate the list once, on first use.  Any other targets
 			# will reuse it.
