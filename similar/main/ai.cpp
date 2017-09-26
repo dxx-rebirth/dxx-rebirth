@@ -521,7 +521,6 @@ void init_ai_object(vmobjptridx_t objp, ai_behavior behavior, const imsegidx_t h
 #if defined(DXX_BUILD_DESCENT_II)
 	if (robot_is_companion(robptr)) {
 		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
-		Escort_kill_object = -1;
 	}
 
 	if (robot_is_thief(robptr)) {
@@ -4494,7 +4493,7 @@ int ai_save_state(PHYSFS_File *fp)
 	else
 		tmptime32 = Boss_hit_time - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
-	PHYSFS_write(fp, &Escort_kill_object, sizeof(Escort_kill_object), 1);
+	PHYSFS_writeSLE32(fp, -1);
 	if (Escort_last_path_created - GameTime64 < F1_0*(-18000))
 		tmptime32 = F1_0*(-18000);
 	else
@@ -4691,7 +4690,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	Boss_hit_time = static_cast<fix64>(tmptime32);
 
 	if (version >= 8) {
-		Escort_kill_object = PHYSFSX_readSXE32(fp, swap);
+		PHYSFSX_readSXE32(fp, swap);
 		tmptime32 = PHYSFSX_readSXE32(fp, swap);
 		Escort_last_path_created = static_cast<fix64>(tmptime32);
 		Escort_goal_object = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
@@ -4699,7 +4698,6 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 		Escort_goal_index = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_read(fp, &Stolen_items, sizeof(Stolen_items[0]) * Stolen_items.size(), 1);
 	} else {
-		Escort_kill_object = -1;
 		Escort_last_path_created = 0;
 		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;

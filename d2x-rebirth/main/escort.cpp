@@ -110,7 +110,6 @@ constexpr array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
 }};
 
 static int Max_escort_length = 200;
-int	Escort_kill_object = -1;
 stolen_items_t Stolen_items;
 int	Stolen_item_index;
 fix64	Escort_last_path_created = 0;
@@ -743,8 +742,6 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 
 	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 		Escort_goal_object = Escort_special_goal;
-
-	Escort_kill_object = -1;
 
 	const auto powerup_flags = player_info.powerup_flags;
 	if (Looking_for_marker != -1) {
