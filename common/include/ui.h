@@ -398,7 +398,7 @@ std::unique_ptr<UI_GADGET_ICON> ui_add_gadget_icon(UI_DIALOG * dlg, const char *
 int DecodeKeyText( const char * text );
 void GetKeyDescription(char (&text)[100], uint_fast32_t keypress);
 
-extern int menubar_init(const char * filename );
+int menubar_init(grs_canvas &canvas, const char * filename );
 extern void menubar_close();
 extern void menubar_hide();
 extern void menubar_show();

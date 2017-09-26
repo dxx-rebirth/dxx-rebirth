@@ -737,7 +737,7 @@ static void ul_xlate(char *s)
 }
 
 
-int menubar_init( const char * file )
+int menubar_init(grs_canvas &canvas, const char *const file)
 {
 	int np;
 	char buf1[200];
@@ -759,7 +759,6 @@ int menubar_init( const char * file )
 		return 0;
 	}
 
-	auto &canvas = *grd_curcanv;
 	PHYSFSX_gets_line_t<200> buffer;
 	while ( PHYSFSX_fgets( buffer, infile) != NULL )
 	{

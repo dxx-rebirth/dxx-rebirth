@@ -404,7 +404,7 @@ void init_editor()
 		return;
 	}
 	
-	if (!menubar_init( "MED.MNU" ))
+	if (!menubar_init(*grd_curcanv, "MED.MNU"))
 	{
 		close_editor();
 		return;
