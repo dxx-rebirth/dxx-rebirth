@@ -537,12 +537,14 @@ public:
 	{
 		return get_mask() & get_bit();
 	}
-	menu_bit_wrapper_t &operator=(bool n)
+	menu_bit_wrapper_t &operator=(const bool n)
 	{
+		auto &m = get_mask();
+		const auto b = get_bit();
 		if (n)
-			get_mask() |= get_bit();
+			m |= b;
 		else
-			get_mask() &= ~get_bit();
+			m &= ~b;
 		return *this;
 	}
 };
@@ -553,31 +555,34 @@ static constexpr menu_bit_wrapper_t<T, B> menu_bit_wrapper(T &t, B b)
 	return {t, b};
 }
 
-template <typename T, typename B>
+template <unsigned B, typename T>
 class menu_number_bias_wrapper_t
 {
-	T &m_value;
-	B m_bias;
+	std::tuple<T &, std::integral_constant<unsigned, B>> m_data;
+#define m_value	std::get<0>(m_data)
+#define m_bias	std::get<1>(m_data)
 public:
-	constexpr menu_number_bias_wrapper_t(T &t, B bias) :
-		m_value(t), m_bias(bias)
+	constexpr menu_number_bias_wrapper_t(T &t) :
+		m_data(t, {})
 	{
 	}
 	constexpr operator T() const
 	{
 		return m_value + m_bias;
 	}
-	menu_number_bias_wrapper_t &operator=(T n)
+	menu_number_bias_wrapper_t &operator=(const T n)
 	{
 		m_value = n - m_bias;
 		return *this;
 	}
+#undef m_bias
+#undef m_value
 };
 
-template <typename T, typename B>
-static constexpr menu_number_bias_wrapper_t<T, B> menu_number_bias_wrapper(T &t, B b)
+template <unsigned B, typename T>
+static constexpr menu_number_bias_wrapper_t<B, T> menu_number_bias_wrapper(T &t)
 {
-	return {t, b};
+	return t;
 }
 
 #endif

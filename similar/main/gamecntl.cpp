@@ -1736,15 +1736,15 @@ public:
 
 class cheat_menu_bit_invulnerability :
 	std::reference_wrapper<player_info>,
-	public menu_bit_wrapper_t<player_flags, PLAYER_FLAG>
+	public menu_bit_wrapper_t<player_flags, std::integral_constant<PLAYER_FLAG, PLAYER_FLAGS_INVULNERABLE>>
 {
 public:
 	cheat_menu_bit_invulnerability(player &plr) :
 		reference_wrapper(vmobjptr(plr.objnum)->ctype.player_info),
-		menu_bit_wrapper_t(get().powerup_flags, PLAYER_FLAGS_INVULNERABLE)
+		menu_bit_wrapper_t(get().powerup_flags, {})
 	{
 	}
-	cheat_menu_bit_invulnerability &operator=(uint32_t n)
+	cheat_menu_bit_invulnerability &operator=(const uint32_t n)
 	{
 		this->menu_bit_wrapper_t::operator=(n);
 		if (n)
@@ -1759,15 +1759,15 @@ public:
 
 class cheat_menu_bit_cloak :
 	std::reference_wrapper<player_info>,
-	public menu_bit_wrapper_t<player_flags, PLAYER_FLAG>
+	public menu_bit_wrapper_t<player_flags, std::integral_constant<PLAYER_FLAG, PLAYER_FLAGS_CLOAKED>>
 {
 public:
 	cheat_menu_bit_cloak(player &plr) :
 		reference_wrapper(vmobjptr(plr.objnum)->ctype.player_info),
-		menu_bit_wrapper_t(get().powerup_flags, PLAYER_FLAGS_CLOAKED)
+		menu_bit_wrapper_t(get().powerup_flags, {})
 	{
 	}
-	cheat_menu_bit_cloak &operator=(uint32_t n)
+	cheat_menu_bit_cloak &operator=(const uint32_t n)
 	{
 		this->menu_bit_wrapper_t::operator=(n);
 		if (n)
@@ -1805,7 +1805,7 @@ public:
 	DXX_MENUITEM(VERB, NUMBER, "Shields", opt_shields, menu_fix_wrapper(plrobj.shields), 0, 200)	\
 	DXX_MENUITEM(VERB, TEXT, TXT_SCORE, opt_txt_score)	\
 	DXX_MENUITEM(VERB, INPUT, score_text, opt_score)	\
-	DXX_MENUITEM(VERB, NUMBER, "Laser Level", opt_laser_level, menu_number_bias_wrapper(plr_laser_level, 1), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
+	DXX_MENUITEM(VERB, NUMBER, "Laser Level", opt_laser_level, menu_number_bias_wrapper<1>(plr_laser_level), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
 	DXX_MENUITEM(VERB, NUMBER, "Concussion", opt_concussion, plrobj.ctype.player_info.secondary_ammo[CONCUSSION_INDEX], 0, 200)	\
 
 static void do_cheat_menu()
