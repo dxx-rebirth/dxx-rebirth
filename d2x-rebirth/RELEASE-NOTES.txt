@@ -14,6 +14,7 @@ What's new in 0.60
 * New texture filtering options! [Thanks to beware]
 * Optional timers displaying countdowns for cloak and invulnerability.
 * New tracker for Multiplayer games.
+* Players can now drop the Quad Laser powerup and Laser powerups 2-4.  Players cannot drop Super Laser powerups at all.
 * Players can now choose whether respawning is triggered by any input or only by pressing a weapon firing input.  This allows players using push-to-talk to speak without respawning, and allows all players to iconify the game while dead.
 * When a player exhausts an available weapon, auto-select previously acted as if the player had pressed the key to cycle to the next weapon.  Now, it starts its search at the top of the auto-select preference list.  Given three available weapons, with priorities #1, #2, and #3, if the player exhausted #2, the old behaviour was to select #3.  Now, it selects #1. (Github issue #156).
 * Fixed bug which allowed boss robots to teleport to a disallowed segment.
@@ -27,6 +28,7 @@ What's new in 0.60
 * Using a fusion cannon against a boss which reflects energy weapons no longer produces a multiplier effect.  The boss will now reflect only the bolts sent in.  Previously, it reflected one bolt for every frame that the shot was in contact with the boss, producing dozens of reflected bolts.  Although visually interesting, this was not the original author's intent, and the implementation had several defects.  If there is community objection, this change might be reverted or made configurable (Github issue #265; #269).
 * Fixed a bug which allowed premature Omega cannon recharging after ~9.1 hours on the same level (Github issue #262).
 * Fixed a bug which prevented Omega cannon recharging after ~4459701 years on the same level (Github issue #262).
+* Fixed a bug which allowed markers to expire in multiplayer games if the automap was left open for ~5.1 hours.
 * Prevented undefined behaviour when a level trigger tries to open a wall where no wall exists.  This is also diagnosed to the console, so that the level author can fix the level (Github issue #236).
 * Fixed a bug where exploding players were checked for the Flash Missile special.  Normally, this was silent and harmless, but it might have produced odd results in mods which apply the Flash Missile special to low-numbered weapons.
 * Fixed a bug that prevented the thief stealing energy weapons.
@@ -37,6 +39,7 @@ What's new in 0.60
 * The command line parser will now reject invalid command line arguments.  Previously, they were silently ignored, which could confuse users who misspelled an option (or relied on an option that was later removed or renamed).
 * Mission parser now allows comments in more places.  This fixes loading chaos.hog (Github issue #203).
 * In multiplayer games, the host can now specify players start with a higher laser level, other primary weapons, or powerups.  The host cannot grant additional secondary weapons in this way.
+  * Weapons granted in this way cannot be dropped voluntarily (through Shift-F5) and are not ejected when the ship is destroyed.  However, ships receive the granted items on every spawn, so these items are not lost on death.
 * In multiplayer cooperative games, players can now choose to see the missile camera view of missiles fired by other players.  The game will still prefer a player's own missile camera over the camera of an ally.
 * Players can now choose to have auto-select be deferred if a weapon is grabbed while firing.  Previously, the choices were to skip the auto-select entirely or to perform it immediately (Github issue #97).
 * In multiplayer games, the host can now choose respawn invulnerability as a range from 0 to 4 seconds, in 0.5 second increments; previously, it was 0 seconds or 2 seconds, with no other choices (Github issue #99).

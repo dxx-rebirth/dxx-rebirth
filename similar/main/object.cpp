@@ -1649,9 +1649,21 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 #endif
 	}
 
-	if (obj->lifeleft != IMMORTAL_TIME) //if not immortal...
-		obj->lifeleft -= FrameTime; //...inevitable countdown towards death
-
+	{
+		auto lifeleft = obj->lifeleft;
+		if (lifeleft != IMMORTAL_TIME) //if not immortal...
+		{
+			lifeleft -= FrameTime; //...inevitable countdown towards death
+#if defined(DXX_BUILD_DESCENT_II)
+			if (obj->type == OBJ_MARKER)
+			{
+				if (lifeleft < F1_0*1000)
+					lifeleft += F1_0; // Make sure this object doesn't go out.
+			}
+#endif
+			obj->lifeleft = lifeleft;
+		}
+	}
 #if defined(DXX_BUILD_DESCENT_II)
 	Drop_afterburner_blob_flag = 0;
 #endif

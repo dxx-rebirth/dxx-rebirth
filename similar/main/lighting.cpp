@@ -332,9 +332,6 @@ static g3s_lrgb compute_light_emission(const vmobjptridx_t obj)
 			lightval &= 0xffff;
 			lightval = 8 * abs(F1_0/2 - lightval);
 
-			if (obj->lifeleft < F1_0*1000)
-				obj->lifeleft += F1_0; // Make sure this object doesn't go out.
-
 			light_intensity = lightval;
 			break;
 		}
