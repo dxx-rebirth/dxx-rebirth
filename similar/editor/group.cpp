@@ -954,6 +954,7 @@ int RotateSegmentNew(vms_angvec *pbh)
 	return rval;
 }
 
+#if 0
 static array<d_fname, MAX_TEXTURES> current_tmap_list;
 
 // -----------------------------------------------------------------------------
@@ -1356,12 +1357,16 @@ static void checkforgrpext( char * f )
 		return;
 	}
 }
+#endif
 
 //short vertex_list[MAX_VERTICES];
 
 
 int SaveGroup()
 {
+	ui_messagebox(-2, -2, 1, "ERROR: Groups are broken.", "Ok");
+	return 0;
+#if 0
 	// Save group
 	int i;
 
@@ -1395,11 +1400,15 @@ int SaveGroup()
 	}
 	
 	return 1;
+#endif
 }
 
 
 int LoadGroup()
 {
+	ui_messagebox(-2, -2, 1, "ERROR: Groups are broken.", "Ok");
+	return 0;
+#if 0
 	int x;
 
 	if (num_groups == MAX_GROUPS)
@@ -1433,6 +1442,7 @@ int LoadGroup()
 	}	else
 
 	return 1;
+#endif
 }
 
 
