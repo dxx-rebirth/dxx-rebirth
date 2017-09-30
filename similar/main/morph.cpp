@@ -335,8 +335,7 @@ void morph_start(const vmobjptr_t obj)
 
 static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, polymodel *const pm, const int submodel_num, const submodel_angles anim_angles, g3s_lrgb light, morph_data *const md)
 {
-	int facing;
-	int sort_list[MAX_SUBMODELS];
+	array<unsigned, MAX_SUBMODELS> sort_list;
 	unsigned sort_n;
 
 
@@ -345,28 +344,20 @@ static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, p
 	sort_list[0] = submodel_num;
 	sort_n = 1;
 
-	for (uint_fast32_t i = 0; i != pm->n_models; ++i)
+	const uint_fast32_t n_models = pm->n_models;
+	for (uint_fast32_t i = 0; i != n_models; ++i)
 		if (md->submodel_active[i] && pm->submodel_parents[i]==submodel_num) {
-			facing = g3_check_normal_facing(pm->submodel_pnts[i],pm->submodel_norms[i]);
+			const auto facing = g3_check_normal_facing(pm->submodel_pnts[i],pm->submodel_norms[i]);
 			if (!facing)
-
-				sort_list[sort_n++] = i;
-
+				sort_list[sort_n] = i;
 			else {		//put at start
-				int t;
-
-				for (t=sort_n;t>0;t--)
-					sort_list[t] = sort_list[t-1];
-
+				const auto b = sort_list.begin();
+				const auto e = std::next(b, sort_n);
+				std::move_backward(b, e, std::next(e));
 				sort_list[0] = i;
-
-				sort_n++;
-
-
 			}
-
+			++sort_n;
 		}
-	
 
 	//now draw everything
 
