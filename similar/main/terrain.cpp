@@ -155,11 +155,14 @@ public:
 vms_vector &terrain_y_cache::operator()(uint_fast32_t h)
 {
 	auto &dyp = y_cache[h];
-	if (!yc_flags[h]) {
+	if (auto &&ycf = yc_flags[h])
+	{
+	}
+	else
+	{
+		ycf = 1;
 		const auto tv = vm_vec_copy_scale(surface_orient.uvec,h*HEIGHT_SCALE);
 		g3_rotate_delta_vec(dyp,tv);
-
-		yc_flags[h] = 1;
 	}
 	return dyp;
 }

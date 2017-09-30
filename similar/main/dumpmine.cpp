@@ -1011,14 +1011,18 @@ static void say_totals(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file, const ch
 
 		range_for (const auto &&objp, vcobjptridx)
 		{
-			if (!used_objects[objp]) {
+			if (auto &&uo = used_objects[objp])
+			{
+			}
+			else
+			{
 				if ((objp->type == objtype && objp->id == objid) ||
 						(objp->type == objtype && objtype == OBJ_PLAYER) ||
 						(objp->type == objtype && objtype == OBJ_COOP) ||
 						(objp->type == objtype && objtype == OBJ_HOSTAGE)) {
 					if (objp->type == OBJ_ROBOT)
 						total_robots++;
-					used_objects[objp] = true;
+					uo = true;
 					objcount++;
 					objects_processed++;
 				}
