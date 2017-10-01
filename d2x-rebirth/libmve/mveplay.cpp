@@ -31,7 +31,7 @@
 #include <SDL_mixer.h>
 #endif
 
-#include "digi.h"
+#include "config.h"
 #include "mvelib.h"
 #include "mve_audio.h"
 #include "byteutil.h"
@@ -242,6 +242,20 @@ public:
 	}
 };
 
+template <typename T>
+struct MVE_audio_clamp
+{
+	const unsigned scale;
+	MVE_audio_clamp(const unsigned DigiVolume) :
+		scale(DigiVolume)
+	{
+	}
+	T operator()(const T &i) const
+	{
+		return (static_cast<int32_t>(i) * scale) / 8;
+	}
+};
+
 }
 
 static int audiobuf_created = 0;
@@ -253,7 +267,7 @@ static int mve_audio_bufhead=0;
 static int mve_audio_buftail=0;
 static int mve_audio_playing=0;
 static int mve_audio_canplay=0;
-static int mve_audio_compressed=0;
+static unsigned mve_audio_flags;
 static int mve_audio_enabled = 1;
 static std::unique_ptr<SDL_AudioSpec> mve_audio_spec;
 
@@ -319,12 +333,6 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 	int sample_rate;
 	int desired_buffer;
 
-	int stereo;
-	int bitsize;
-	int compressed;
-
-	int format;
-
 	if (!mve_audio_enabled)
 		return 1;
 
@@ -337,28 +345,22 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 	sample_rate = get_ushort(data + 4);
 	desired_buffer = get_int(data + 6);
 
-	stereo = (flags & MVE_AUDIO_FLAGS_STEREO) ? 1 : 0;
-	bitsize = (flags & MVE_AUDIO_FLAGS_16BIT) ? 1 : 0;
+	const unsigned stereo = (flags & MVE_AUDIO_FLAGS_STEREO);
+	const unsigned bitsize = (flags & MVE_AUDIO_FLAGS_16BIT);
+	if (!minor)
+		flags &= ~MVE_AUDIO_FLAGS_COMPRESSED;
+	const unsigned compressed = flags & MVE_AUDIO_FLAGS_COMPRESSED;
+	mve_audio_flags = flags;
 
-	if (minor > 0) {
-		compressed = flags & MVE_AUDIO_FLAGS_COMPRESSED ? 1 : 0;
-	} else {
-		compressed = 0;
-	}
-
-	mve_audio_compressed = compressed;
-
-	if (bitsize == 1) {
-		format = words_bigendian ? AUDIO_S16MSB : AUDIO_S16LSB;
-	} else {
-		format = AUDIO_U8;
-	}
+	const unsigned format = (bitsize)
+		? (words_bigendian ? AUDIO_S16MSB : AUDIO_S16LSB)
+		: AUDIO_U8;
 
 	if (CGameArg.SndDisableSdlMixer)
 	{
 		con_printf(CON_CRITICAL, "creating audio buffers:");
 		con_printf(CON_CRITICAL, "sample rate = %d, desired buffer = %d, stereo = %d, bitsize = %d, compressed = %d",
-				sample_rate, desired_buffer, stereo, bitsize ? 16 : 8, compressed);
+				sample_rate, desired_buffer, stereo ? 1 : 0, bitsize ? 16 : 8, compressed ? 1 : 0);
 	}
 
 	mve_audio_spec = make_unique<SDL_AudioSpec>();
@@ -436,28 +438,44 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 		nsamp = get_ushort(data + 4);
 		if (chan & selected_chan)
 		{
+			std::unique_ptr<int16_t[], MVE_audio_deleter> p;
+			const auto DigiVolume = GameCfg.DigiVolume;
 			/* HACK: +4 mveaudio_uncompress adds 4 more bytes */
-			if (major == MVE_OPCODE_AUDIOFRAMEDATA) {
-				if (mve_audio_compressed) {
+			/* At volume 0 (minimum), no sound is wanted. */
+			if (DigiVolume && major == MVE_OPCODE_AUDIOFRAMEDATA) {
+				const auto flags = mve_audio_flags;
+				if (flags & MVE_AUDIO_FLAGS_COMPRESSED) {
 					nsamp += 4;
 
-					mve_audio_buflens[mve_audio_buftail] = nsamp;
-					mve_audio_buffers[mve_audio_buftail].reset(reinterpret_cast<int16_t *>(mve_alloc(nsamp)));
-					mveaudio_uncompress(mve_audio_buffers[mve_audio_buftail].get(), data); /* XXX */
+					p.reset(reinterpret_cast<int16_t *>(mve_alloc(nsamp)));
+					mveaudio_uncompress(p.get(), data); /* XXX */
 				} else {
 					nsamp -= 8;
 					data += 8;
 
-					mve_audio_buflens[mve_audio_buftail] = nsamp;
-					mve_audio_buffers[mve_audio_buftail].reset(reinterpret_cast<int16_t *>(mve_alloc(nsamp)));
-					memcpy(mve_audio_buffers[mve_audio_buftail].get(), data, nsamp);
+					p.reset(reinterpret_cast<int16_t *>(mve_alloc(nsamp)));
+					memcpy(p.get(), data, nsamp);
+				}
+				if (DigiVolume < 8)
+				{
+					/* At volume 8 (maximum), no scaling is needed. */
+					if (flags & MVE_AUDIO_FLAGS_16BIT)
+					{
+						int16_t *const p16 = p.get();
+						std::transform(p16, reinterpret_cast<int16_t *>(reinterpret_cast<uint8_t *>(p16) + nsamp), p16, MVE_audio_clamp<int16_t>(DigiVolume));
+					}
+					else
+					{
+						int8_t *const p8 = reinterpret_cast<int8_t *>(p.get());
+						std::transform(p8, p8 + nsamp, p8, MVE_audio_clamp<int8_t>(DigiVolume));
+					}
 				}
 			} else {
-				mve_audio_buflens[mve_audio_buftail] = nsamp;
-				mve_audio_buffers[mve_audio_buftail].reset(reinterpret_cast<int16_t *>(mve_alloc(nsamp)));
-
-				memset(mve_audio_buffers[mve_audio_buftail].get(), 0, nsamp); /* XXX */
+				p.reset(reinterpret_cast<int16_t *>(mve_alloc(nsamp)));
+				memset(p.get(), 0, nsamp); /* XXX */
 			}
+			mve_audio_buflens[mve_audio_buftail] = nsamp;
+			mve_audio_buffers[mve_audio_buftail] = std::move(p);
 
 			// MD2211: the following block does on-the-fly audio conversion for SDL_mixer
 #if DXX_USE_SDLMIXER
@@ -763,7 +781,7 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 	mve_audio_buftail=0;
 	mve_audio_playing=0;
 	mve_audio_canplay=0;
-	mve_audio_compressed=0;
+	mve_audio_flags = 0;
 
 	mve_audio_spec.reset();
 	audiobuf_created = 0;
