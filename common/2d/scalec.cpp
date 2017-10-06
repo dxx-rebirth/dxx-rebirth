@@ -157,8 +157,8 @@ static void rls_stretch_scanline_setup( int XDelta, int YDelta )
 
 static void rls_stretch_scanline(const uint8_t *scale_source_ptr, uint8_t *scale_dest_ptr)
 {
-	ubyte   c, *dest_ptr;
-	int len, ErrorTerm, initial_count, final_count;
+	uint8_t *dest_ptr;
+	int ErrorTerm, initial_count, final_count;
 
 	// Draw the first, partial run of pixels
 
@@ -168,18 +168,19 @@ static void rls_stretch_scanline(const uint8_t *scale_source_ptr, uint8_t *scale
 	initial_count = scale_initial_pixel_count;
 	final_count = scale_final_pixel_count;
 
-	c = *src_ptr++;
-	if ( c != TRANSPARENCY_COLOR ) {
-		for (int i=0; i<initial_count; i++ )
-			*dest_ptr++ = c;
-	} else {
-		dest_ptr += initial_count;
-	}
+	const auto process_line = [&dest_ptr, &src_ptr](const unsigned len)
+	{
+		const uint8_t c = *src_ptr++;
+		if (c != TRANSPARENCY_COLOR)
+			std::fill_n(dest_ptr, c, len);
+		dest_ptr += len;
+	};
+	process_line(initial_count);
 
 	// Draw all full runs
 
 	for (int j=0; j<scale_ydelta_minus_1; j++) {
-		len = scale_whole_step;     // run is at least this long
+		unsigned len = scale_whole_step;     // run is at least this long
 
  		// Advance the error term and add an extra pixel if the error term so indicates
 		if ((ErrorTerm += scale_adj_up) > 0)    {
@@ -188,23 +189,11 @@ static void rls_stretch_scanline(const uint8_t *scale_source_ptr, uint8_t *scale
 		}
 
 		// Draw this run o' pixels
-		c = *src_ptr++;
-		if ( c != TRANSPARENCY_COLOR )  {
-			for (int i=len; i>0; i-- )
-				*dest_ptr++ = c;
-		} else {
-			dest_ptr += len;
-		}
+		process_line(len);
 	}
 
 	// Draw the final run of pixels
-	c = *src_ptr++;
-	if ( c != TRANSPARENCY_COLOR ) {
-		for (int i=0; i<final_count; i++ )
-			*dest_ptr++ = c;
-	} else {
-		dest_ptr += final_count;
-	}
+	process_line(final_count);
 }
 
 // old stuff here...
