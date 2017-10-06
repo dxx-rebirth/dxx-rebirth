@@ -2353,13 +2353,16 @@ namespace dsx {
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Do special stuff for a boss.
-static void do_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp)
+static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const int player_visibility)
 {
 #ifndef NDEBUG
 	if (objp->shields != Prev_boss_shields) {
 		Prev_boss_shields = objp->shields;
 	}
 #endif
+
+	if (!player_visibility && !Boss_hit_this_frame)
+		return;
 
 	if (!Boss_dying) {
 		if (objp->ctype.ai_info.CLOAKED == 1) {
@@ -2374,7 +2377,8 @@ static void do_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp)
 				Last_teleport_time -= Boss_teleport_interval/4;
 			}
 
-			if (GameTime64 > Boss_cloak_start_time + Boss_cloak_duration)
+			if (GameTime64 > (Boss_cloak_start_time + Boss_cloak_duration) ||
+				GameTime64 < Boss_cloak_start_time)
 				objp->ctype.ai_info.CLOAKED = 0;
 		} else {
 			if (Boss_hit_this_frame ||
@@ -2403,7 +2407,7 @@ static void do_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp)
 static void do_super_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, fix dist_to_player, int player_visibility)
 {
 	static int eclip_state = 0;
-	do_boss_stuff(vmsegptridx, objp);
+	do_d1_boss_stuff(vmsegptridx, objp, player_visibility);
 
 	// Only master player can cause gating to occur.
 	if ((Game_mode & GM_MULTI) && !multi_i_am_master())
@@ -2443,7 +2447,7 @@ static void do_super_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void do_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, int player_visibility)
+static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, int player_visibility)
 {
 	int	boss_id, boss_index;
 
@@ -3055,18 +3059,10 @@ _exit_cheat:
 		vm_vec_zero(gun_point);
 	}
 
-	switch (robptr.boss_flag) {
+	switch (const auto boss_flag = robptr.boss_flag) {
 		case 0:
 			break;
 			
-		case BOSS_D1:
-			if (aip->GOAL_STATE == AIS_FLIN)
-				aip->GOAL_STATE = AIS_FIRE;
-			if (aip->CURRENT_STATE == AIS_FLIN)
-				aip->CURRENT_STATE = AIS_FIRE;
-			
-			do_boss_stuff(vmsegptridx, obj);
-			break;
 		case BOSS_SUPER:
 			if (aip->GOAL_STATE == AIS_FLIN)
 				aip->GOAL_STATE = AIS_FIRE;
@@ -3089,8 +3085,11 @@ _exit_cheat:
 			
 		default:
 #if defined(DXX_BUILD_DESCENT_I)
+			(void)boss_flag;
 			Int3();	//	Bogus boss flag value.
-#elif defined(DXX_BUILD_DESCENT_II)
+			break;
+#endif
+		case BOSS_D1:
 		{
 			int	pv;
 			
@@ -3108,10 +3107,16 @@ _exit_cheat:
 				pv = 0;
 			}
 			
-			do_boss_stuff(vmsegptridx, obj, pv);
+#if defined(DXX_BUILD_DESCENT_II)
+			if (boss_flag != BOSS_D1)
+			{
+				do_d2_boss_stuff(vmsegptridx, obj, pv);
+				break;
+			}
+#endif
+			do_d1_boss_stuff(vmsegptridx, obj, pv);
 		}
 			break;
-#endif
 	}
 	
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - 
@@ -4314,7 +4319,7 @@ void do_ai_frame_all(void)
 		}
 	}
 
-	// (Moved here from do_boss_stuff() because that only gets called if robot aware of player.)
+	// (Moved here from do_d2_boss_stuff() because that only gets called if robot aware of player.)
 	if (Boss_dying) {
 		range_for (const auto &&objp, vmobjptridx)
 		{
