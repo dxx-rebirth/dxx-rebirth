@@ -488,15 +488,12 @@ void gr_rle_expand_scanline_generic(grs_canvas &canvas, grs_bitmap &dest, int dx
 		}
 		// we know have '*count' pixels of 'color'.
 		if ( i+count <= x2 )	{
-			for ( int j=0; j<count; j++ )
-				gr_bm_pixel(canvas, dest, dx++, dy, color);
-			i += count;
 		} else {
 			count = x2-i+1;
-			for ( int j=0; j<count; j++ )
-				gr_bm_pixel(canvas, dest, dx++, dy, color);
-			i += count;
 		}
+		for (unsigned j = 0; j < count; ++j)
+			gr_bm_pixel(canvas, dest, dx++, dy, color);
+		i += count;
 	}
 }
 
