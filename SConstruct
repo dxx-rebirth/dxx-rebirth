@@ -3826,7 +3826,11 @@ class DXXCommon(LazyObjectConstructor):
 	def platform_settings(self):
 		# windows or *nix?
 		platform_name = self.user_settings.host_platform
-		message(self, "compiling on %r/%r for %r into %s%s" % (sys.platform, os.uname()[4], platform_name, self.user_settings.builddir or '.',
+		try:
+			machine = os.uname()[4]
+		except AttributeError:
+			machine = None
+		message(self, "compiling on %r/%r for %r into %s%s" % (sys.platform, machine, platform_name, self.user_settings.builddir or '.',
 			(' with prefix list %s' % str(self._argument_prefix_list)) if self._argument_prefix_list else ''))
 		return (
 			self.Win32PlatformSettings if platform_name == 'win32' else (
