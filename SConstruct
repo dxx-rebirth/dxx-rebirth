@@ -14,7 +14,7 @@ import SCons.Util
 SCons.Defaults.DefaultEnvironment(tools = [])
 
 def message(program,msg):
-	print "%s: %s" % (program.program_message_prefix, msg)
+	print("%s: %s" % (program.program_message_prefix, msg))
 
 def get_Werror_string(l):
 	if l and '-Werror' in l:
