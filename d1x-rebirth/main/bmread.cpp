@@ -68,6 +68,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include "d_enumerate.h"
 
 static void bm_read_sound(char *&arg, int skip, int pc_shareware);
 static void bm_read_robot_ai(char *&arg, int skip);
@@ -550,13 +551,13 @@ int gamedata_read_tbl(int pc_shareware)
 	verify_textures();
 
 	//check for refereced but unused clip count
-	for (unsigned i = 0; i < MAX_EFFECTS; ++i)
-		if (	(
-				  (Effects[i].changing_wall_texture!=-1) ||
-				  (Effects[i].changing_object_texture!=-1)
-             )
-			 && (Effects[i].vc.num_frames==~0u) )
+	range_for (auto &&e, enumerate(Effects))
+	{
+		const int i = e.idx;
+		auto &ei = e.value;
+		if ((ei.changing_wall_texture != -1 || ei.changing_object_texture != -1) && ei.vc.num_frames == ~0u)
 			Error("EClip %d referenced (by polygon object?), but not defined",i);
+	}
 
 	return 0;
 }
@@ -592,7 +593,7 @@ static void bm_read_eclip(const std::string &dest_bm, const char *const arg, int
 {
 	bitmap_index bitmap;
 
-	Assert(clip_num < MAX_EFFECTS);
+	assert(clip_num < Effects.size());
 
 	if (clip_num+1 > Num_effects)
 		Num_effects = clip_num+1;

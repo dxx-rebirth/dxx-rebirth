@@ -683,7 +683,7 @@ static void bm_read_eclip(int skip)
 	bitmap_index bitmap;
 	int dest_bm_num = 0;
 
-	Assert(clip_num < MAX_EFFECTS);
+	assert(clip_num < Effects.size());
 
 	if (clip_num+1 > Num_effects)
 		Num_effects = clip_num+1;

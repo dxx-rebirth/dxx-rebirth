@@ -5320,7 +5320,7 @@ void init_hoard_data()
 
 	//Create orb goal wall effect
 	const auto goal_eclip = Num_effects++;
-	Assert(Num_effects < MAX_EFFECTS);
+	assert(goal_eclip < Effects.size());
 	Effects[goal_eclip] = Effects[94];        //copy from blue goal
 	Effects[goal_eclip].changing_wall_texture = NumTextures;
 	Effects[goal_eclip].vc.num_frames=n_goal_frames;
