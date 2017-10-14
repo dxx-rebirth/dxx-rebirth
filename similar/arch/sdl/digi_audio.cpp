@@ -29,7 +29,6 @@
 namespace dcx {
 
 //changed on 980905 by adb to increase number of concurrent sounds
-#define MAX_SOUND_SLOTS 32
 //end changes by adb
 #define SOUND_BUFFER_SIZE 1024
 
@@ -107,11 +106,19 @@ struct sound_slot {
 	unsigned int position; // Position we are at at the moment.
 };
 
+static void digi_audio_stop_sound(sound_slot &s)
+{
+	s.playing = 0;
+	s.soundobj = sound_object_none;
+	s.persistent = 0;
+}
+
+static array<sound_slot, 32> SoundSlots;
+
 }
 
 namespace dsx {
 
-static array<sound_slot, MAX_SOUND_SLOTS> SoundSlots;
 static SDL_AudioSpec WaveSpec;
 static int next_channel = 0;
 
@@ -217,7 +224,7 @@ void digi_audio_close()
 
 void digi_audio_stop_all_channels()
 {
-	for (int i = 0; i < MAX_SOUND_SLOTS; i++)
+	range_for (auto &i, SoundSlots)
 		digi_audio_stop_sound(i);
 }
 
@@ -341,9 +348,7 @@ void digi_audio_set_channel_pan(int channel, int pan)
 
 void digi_audio_stop_sound(int channel)
 {
-	SoundSlots[channel].playing=0;
-	SoundSlots[channel].soundobj = sound_object_none;
-	SoundSlots[channel].persistent = 0;
+	digi_audio_stop_sound(SoundSlots[channel]);
 }
 
 void digi_audio_end_sound(int channel)
