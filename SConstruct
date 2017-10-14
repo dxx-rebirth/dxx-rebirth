@@ -283,6 +283,10 @@ class ConfigureTests(_ConfigureTests):
 				Display("%s: pkg-config disabled by user settings\n" % msgprefix)
 				return pkgconfig
 			if os.sep in pkgconfig:
+				# Split early, so that the user can pass a command with
+				# arguments.  Convert to tuple so that the value is not
+				# modified later.
+				pkgconfig = tuple(StaticSubprocess.shlex_split(pkgconfig))
 				Display("%s: using pkg-config at user specified path %s\n" % (msgprefix, pkgconfig))
 				return pkgconfig
 			join = os.path.join
@@ -299,7 +303,7 @@ class ConfigureTests(_ConfigureTests):
 						continue
 					raise
 				Display("%s: using pkg-config at discovered path %s\n" % (msgprefix, fp))
-				return fp
+				return (fp,)
 			Display("%s: no usable pkg-config %r found in $PATH\n" % (msgprefix, pkgconfig))
 		def __get_pkg_config_path(context,message,user_settings,display_name,
 				_get_pkg_config_exec_path=_get_pkg_config_exec_path,
@@ -325,22 +329,22 @@ class ConfigureTests(_ConfigureTests):
 			if not pkgconfig:
 				Display("%s: skipping %s pkg-config; using default flags %r\n" % (message, display_name, guess_flags))
 				return guess_flags
-			cmd = '%s --cflags --libs %s' % (pkgconfig, pkgconfig_name)
+			cmd = pkgconfig + ('--cflags', '--libs', pkgconfig_name)
 			try:
 				flags = _cache[cmd]
-				Display("%s: reusing %s settings from `%s`: %r\n" % (message, display_name, cmd, flags))
+				Display("%s: reusing %s settings from %s: %r\n" % (message, display_name, cmd, flags))
 				return flags
 			except KeyError:
-				Display("%s: reading %s settings from `%s`\n" % (message, display_name, cmd))
+				Display("%s: reading %s settings from %s\n" % (message, display_name, cmd))
 				try:
 					flags = {
-						k:v for k,v in context.env.ParseFlags('!' + cmd).items()
+						k:v for k,v in context.env.ParseFlags(' ' + StaticSubprocess.pcall(cmd).out).items()
 							if v and (k[0] == 'C' or k[0] == 'L')
 					}
 					Display("%s: %s settings: %r\n" % (message, display_name, flags))
-					v = '%s --modversion %s' % (pkgconfig, pkgconfig_name)
-					Display("%s: reading %s version from `%s`\n" % (message, pkgconfig_name, v))
-					v = StaticSubprocess.qcall(v)
+					v = pkgconfig + ('--modversion', pkgconfig_name)
+					Display("%s: reading %s version from %s\n" % (message, pkgconfig_name, v))
+					v = StaticSubprocess.pcall(v)
 					if v.out:
 						Display("%s: %s version: %r\n" % (message, display_name, v.out.split('\n')[0]))
 				except OSError as o:
