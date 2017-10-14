@@ -86,6 +86,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-begin.h"
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 
 using std::min;
 using std::max;
@@ -1008,18 +1009,15 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 	Lighting_on=1;
 }
 
-#define MAX_STARS 500
-
-static array<vms_vector, MAX_STARS> stars;
+static array<vms_vector, 500> stars;
 
 static void generate_starfield()
 {
-	for (int i=0;i<MAX_STARS;i++) {
-
-		stars[i].x = (d_rand() - D_RAND_MAX/2) << 14;
-		stars[i].z = (d_rand() - D_RAND_MAX/2) << 14;
-		stars[i].y = (d_rand()/2) << 14;
-
+	range_for (auto &i, stars)
+	{
+		i.x = (d_rand() - D_RAND_MAX / 2) << 14;
+		i.z = (d_rand() - D_RAND_MAX / 2) << 14;
+		i.y = (d_rand() / 2) << 14;
 	}
 }
 
@@ -1029,15 +1027,17 @@ void draw_stars(grs_canvas &canvas)
 	g3s_point p;
 
 	uint8_t color = 0;
-	for (int i=0;i<MAX_STARS;i++) {
+	range_for (auto &&e, enumerate(stars))
+	{
+		const auto i = e.idx;
+		auto &si = e.value;
 
 		if ((i&63) == 0) {
 			color = BM_XRGB(intensity,intensity,intensity);
 			intensity-=3;
 		}
 
-		//g3_rotate_point(&p,&stars[i]);
-		g3_rotate_delta_vec(p.p3_vec,stars[i]);
+		g3_rotate_delta_vec(p.p3_vec, si);
 		g3_code_point(p);
 
 		if (p.p3_codes == 0) {
