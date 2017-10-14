@@ -1267,9 +1267,11 @@ void write_player_file()
 				errno_ret=errno;
 		if (PHYSFS_write(file, PlayerCfg.KeySettings[2], sizeof(PlayerCfg.KeySettings[2]), 1) != 1)
 			errno_ret=errno;
-		for (unsigned i = 0; i < MAX_CONTROLS; i++)
-			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Cyberman map field
+		{
+			std::array<uint8_t, MAX_CONTROLS> cyberman{};
+			if (PHYSFS_write(file, cyberman.data(), cyberman.size(), 1) != 1)	// Skip obsolete Cyberman map field
 				errno_ret=errno;
+		}
 	
 		if(errno_ret == EZERO)
 		{
