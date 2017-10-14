@@ -331,11 +331,20 @@ class ConfigureTests(_ConfigureTests):
 				Display("%s: skipping %s pkg-config; using default flags %r\n" % (message, display_name, guess_flags))
 				return guess_flags
 			cmd = pkgconfig + ('--cflags', '--libs', pkgconfig_name)
-			try:
-				flags = _cache[cmd]
+			flags = _cache.get(cmd, None)
+			if flags is not None:
 				Display("%s: reusing %s settings from %s: %r\n" % (message, display_name, cmd, flags))
 				return flags
-			except KeyError:
+			mv_cmd = pkgconfig + ('--modversion', pkgconfig_name)
+			try:
+				Display("%s: reading %s version from %s\n" % (message, pkgconfig_name, mv_cmd))
+				v = StaticSubprocess.pcall(mv_cmd)
+				if v.out:
+					Display("%s: %s version: %r\n" % (message, display_name, v.out.split('\n')[0]))
+			except OSError as o:
+				Display("%s: failed with error %s; using default flags for '%s': %r\n" % (message, repr(o.message) if o.errno is None else ('%u ("%s")' % (o.errno, o.strerror)), pkgconfig_name, guess_flags))
+				flags = guess_flags
+			else:
 				Display("%s: reading %s settings from %s\n" % (message, display_name, cmd))
 				try:
 					flags = {
@@ -343,16 +352,11 @@ class ConfigureTests(_ConfigureTests):
 							if v and (k[0] in 'CL')
 					}
 					Display("%s: %s settings: %r\n" % (message, display_name, flags))
-					v = pkgconfig + ('--modversion', pkgconfig_name)
-					Display("%s: reading %s version from %s\n" % (message, pkgconfig_name, v))
-					v = StaticSubprocess.pcall(v)
-					if v.out:
-						Display("%s: %s version: %r\n" % (message, display_name, v.out.split('\n')[0]))
 				except OSError as o:
-					Display("%s: %s pkg-config failed; using default flags for `%s`: %r\n" % (message, display_name, cmd, guess_flags))
+					Display("%s: failed with error %s; using default flags for '%s': %r\n" % (message, repr(o.message) if o.errno is None else ('%u ("%s")' % (o.errno, o.strerror)), pkgconfig_name, guess_flags))
 					flags = guess_flags
-				_cache[cmd] = flags
-				return flags
+			_cache[cmd] = flags
+			return flags
 
 	# Force test to report failure
 	sconf_force_failure = 'force-failure'
