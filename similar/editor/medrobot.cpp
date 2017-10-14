@@ -58,8 +58,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
-
-#define	NUM_BOXES		6			//	Number of boxes, AI modes
+#include "d_enumerate.h"
 
 static int GoodyNextID();
 static int GoodyPrevID();
@@ -75,7 +74,7 @@ struct robot_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> robotViewBox, containsViewBox;
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton, prev_powerup_type, next_powerup_type, prev_powerup_id, next_powerup_id, prev_powerup_count, next_powerup_count, prev_robot_type, next_robot_type, next_segment, prev_object, next_object, delete_object, new_object, set_path;
-	array<std::unique_ptr<UI_GADGET_RADIO>, NUM_BOXES> initialMode;
+	array<std::unique_ptr<UI_GADGET_RADIO>, 6> initialMode;			//	Number of boxes, AI modes
 	fix64 time;
 	vms_angvec angles, goody_angles;
 	int old_object;
@@ -602,9 +601,12 @@ window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, ro
 	// If any of the radio buttons that control the mode are set, then
 	// update the cooresponding AI state.
 	//------------------------------------------------------------
-	for (	int i=0; i < NUM_BOXES; i++ ) {
-		if (GADGET_PRESSED(r->initialMode[i].get()))
+	range_for (auto &&eim, enumerate(r->initialMode))
+	{
+		auto &im = eim.value;
+		if (GADGET_PRESSED(im.get()))
 		{
+			const auto i = eim.idx;
 			const auto b = static_cast<ai_behavior>(MIN_BEHAVIOR + i);
 			const auto &&objp = vmobjptridx(Cur_object_index);
 			auto &behavior = objp->ctype.ai_info.behavior;
