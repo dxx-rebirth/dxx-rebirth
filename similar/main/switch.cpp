@@ -607,8 +607,6 @@ void v25_trigger_read(PHYSFS_File *fp, trigger *t)
 extern void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp)
 #endif
 {
-	int i;
-
 #if defined(DXX_BUILD_DESCENT_I)
 	PHYSFSX_readByte(fp);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -619,9 +617,9 @@ extern void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp)
 	PHYSFSX_readFix(fp);
 	t->link_num = PHYSFSX_readByte(fp);
 	t->num_links = PHYSFSX_readShort(fp);
-	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->seg[i] = PHYSFSX_readShort(fp);
-	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->side[i] = PHYSFSX_readShort(fp);
 }
 
@@ -631,16 +629,14 @@ extern void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp)
  */
 extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp)
 {
-	int i;
-
 	t->flags = PHYSFSX_readShort(fp);
 	t->num_links = PHYSFSX_readByte(fp);
 	t->pad = PHYSFSX_readByte(fp);
 	t->value = PHYSFSX_readFix(fp);
 	t->time = PHYSFSX_readFix(fp);
-	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->seg[i] = PHYSFSX_readShort(fp);
-	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->side[i] = PHYSFSX_readShort(fp);
 }
 
@@ -649,17 +645,15 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp)
  */
 extern void trigger_read(trigger *t, PHYSFS_File *fp)
 {
-	int i;
-
 	t->type = PHYSFSX_readByte(fp);
 	t->flags = PHYSFSX_readByte(fp);
 	t->num_links = PHYSFSX_readByte(fp);
 	PHYSFSX_readByte(fp);
 	t->value = PHYSFSX_readFix(fp);
 	PHYSFSX_readFix(fp);
-	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->seg[i] = PHYSFSX_readShort(fp);
-	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->side[i] = PHYSFSX_readShort(fp);
 }
 
