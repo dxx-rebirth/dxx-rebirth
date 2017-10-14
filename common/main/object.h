@@ -592,11 +592,6 @@ static inline void set_weapon_id(object_base &o, weapon_id_type id)
 
 namespace dcx {
 
-static inline uint8_t get_hostage_id(const object_base &o)
-{
-	return o.id;
-}
-
 static inline uint8_t get_player_id(const object_base &o)
 {
 	return o.id;
@@ -617,11 +612,6 @@ static inline uint8_t get_robot_id(const object_base &o)
 	return o.id;
 }
 
-static inline void set_hostage_id(object_base &o, const uint8_t id)
-{
-	o.id = id;
-}
-
 static inline void set_player_id(object_base &o, const uint8_t id)
 {
 	o.id = id;
@@ -638,7 +628,6 @@ static inline void set_robot_id(object_base &o, const uint8_t id)
 }
 
 void check_warn_object_type(const object_base &, object_type_t, const char *file, unsigned line);
-#define get_hostage_id(O)	(check_warn_object_type(O, OBJ_HOSTAGE, __FILE__, __LINE__), get_hostage_id(O))
 #define get_player_id(O)	(check_warn_object_type(O, OBJ_PLAYER, __FILE__, __LINE__), get_player_id(O))
 #define get_powerup_id(O)	(check_warn_object_type(O, OBJ_POWERUP, __FILE__, __LINE__), get_powerup_id(O))
 #define get_reactor_id(O)	(check_warn_object_type(O, OBJ_CNTRLCEN, __FILE__, __LINE__), get_reactor_id(O))
@@ -649,7 +638,6 @@ void check_warn_object_type(const object_base &, object_type_t, const char *file
 #if defined(DXX_BUILD_DESCENT_II)
 #define get_marker_id(O)	(check_warn_object_type(O, OBJ_MARKER, __FILE__, __LINE__), get_marker_id(O))
 #endif
-#define set_hostage_id(O,I)	(check_warn_object_type(O, OBJ_HOSTAGE, __FILE__, __LINE__), set_hostage_id(O, I))
 #define set_player_id(O,I)	(check_warn_object_type(O, OBJ_PLAYER, __FILE__, __LINE__), set_player_id(O, I))
 #define set_reactor_id(O,I)	(check_warn_object_type(O, OBJ_CNTRLCEN, __FILE__, __LINE__), set_reactor_id(O, I))
 #define set_robot_id(O,I)	(check_warn_object_type(O, OBJ_ROBOT, __FILE__, __LINE__), set_robot_id(O, I))

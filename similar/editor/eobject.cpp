@@ -135,8 +135,8 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 			const vmobjptridx_t obj = objnum;
 
 			// Fill in obj->id and other hostage info
-			hostage_init_info( objnum );
-		
+			obj->id = 0;
+
 			obj->control_type = CT_POWERUP;
 			
 			obj->rtype.vclip_info.vclip_num = Hostage_vclip_num[object_id];

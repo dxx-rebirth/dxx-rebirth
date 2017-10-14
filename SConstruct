@@ -4554,7 +4554,6 @@ class D1XProgram(DXXProgram):
 		__get_dxx_objects_editor=DXXProgram.get_objects_editor,
 		__get_dsx_objects_editor=DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join(srcdir, f) for f in [
-'main/hostage.cpp',
 'editor/ehostage.cpp',
 ]
 ],

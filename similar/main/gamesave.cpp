@@ -327,12 +327,6 @@ static void verify_object(const vmobjptr_t obj)
 	}
 
 	if (obj->type == OBJ_HOSTAGE) {
-
-#if defined(DXX_BUILD_DESCENT_I)
-		if (get_hostage_id(obj) > N_hostage_types)
-			set_hostage_id(obj, 0);
-#endif
-
 		obj->render_type = RT_HOSTAGE;
 		obj->control_type = CT_POWERUP;
 	}
@@ -1482,8 +1476,6 @@ int create_new_mine(void)
 	
 	// Clear refueling center code
 	fuelcen_reset();
-	hostage_init_all();
-	
 	init_all_vertices();
 	
 	Current_level_num = 1;		// make level 1 (for now)

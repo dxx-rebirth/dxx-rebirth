@@ -35,30 +35,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
 
-constexpr std::integral_constant<unsigned, 10> MAX_HOSTAGES{};		//max per any one level
-
-// 1 per hostage
-struct hostage_data
-{
-	objnum_t		objnum;
-	object_signature_t objsig;
-};
-
-extern array<hostage_data, MAX_HOSTAGES> Hostages;
-
 #if DXX_USE_EDITOR
-void hostage_init_all();
-void hostage_compress_all();
 int hostage_is_valid( int hostage_num );
-int hostage_object_is_valid(vmobjptridx_t objnum);
-void hostage_init_info(vmobjptridx_t objnum);
 #endif
 }
-#elif defined(DXX_BUILD_DESCENT_II)
-#if DXX_USE_EDITOR
-static inline void hostage_init_all() {}
-static inline void hostage_init_info(const objnum_t &) {}
-#endif
 #endif
 
 namespace dcx {
