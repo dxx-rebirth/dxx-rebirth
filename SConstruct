@@ -3728,11 +3728,6 @@ class DXXCommon(LazyObjectConstructor):
 		target_string = ' -o $TARGET'
 		env = self.env
 		user_settings = self.user_settings
-		# Get traditional compiler environment variables
-		for cc in ('CXX', 'RC'):
-			value = getattr(user_settings, cc)
-			if value is not None:
-				env[cc] = value
 		# Expand $CXX immediately.
 		# $CCFLAGS is never used.  Remove it.
 		cxxcom = env['CXXCOM'] \
@@ -3850,7 +3845,14 @@ class DXXCommon(LazyObjectConstructor):
 	def env(self):
 		platform_settings = self.platform_settings
 		# Acquire environment object...
-		env = Environment(ENV = os.environ, tools = platform_settings.tools + ('textfile',))
+		user_settings = self.user_settings
+		# Get traditional compiler environment variables
+		kw = {}
+		for cc in ('CXX', 'RC'):
+			value = getattr(user_settings, cc)
+			if value is not None:
+				kw[cc] = value
+		env = Environment(ENV = os.environ, tools = platform_settings.tools + ('textfile',), **kw)
 		platform_settings.adjust_environment(self, env)
 		return env
 
