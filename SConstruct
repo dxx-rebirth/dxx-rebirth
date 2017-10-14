@@ -3727,9 +3727,10 @@ class DXXCommon(LazyObjectConstructor):
 		# Move target to end of C++ source command
 		target_string = ' -o $TARGET'
 		env = self.env
+		user_settings = self.user_settings
 		# Get traditional compiler environment variables
 		for cc in ('CXX', 'RC'):
-			value = getattr(self.user_settings, cc)
+			value = getattr(user_settings, cc)
 			if value is not None:
 				env[cc] = value
 		# Expand $CXX immediately.
@@ -3740,10 +3741,10 @@ class DXXCommon(LazyObjectConstructor):
 		if target_string + ' ' in cxxcom:
 			cxxcom = '%s%s' % (cxxcom.replace(target_string, ''), target_string)
 		env._dxx_cxxcom_no_prefix = cxxcom
-		distcc_path = self.user_settings.distcc
+		distcc_path = user_settings.distcc
 		distcc_cxxcom = ('%s %s' % (distcc_path, cxxcom)) if distcc_path else cxxcom
 		env._dxx_cxxcom_no_ccache_prefix = distcc_cxxcom
-		ccache_path = self.user_settings.ccache
+		ccache_path = user_settings.ccache
 		# Add ccache/distcc only for compile, not link
 		if ccache_path:
 			cxxcom = '%s %s' % (ccache_path, cxxcom)
@@ -3770,15 +3771,15 @@ class DXXCommon(LazyObjectConstructor):
 			LINKCOM = linkcom,
 		)
 		# Custom DISTCC_HOSTS per target
-		distcc_hosts = self.user_settings.distcc_hosts
+		distcc_hosts = user_settings.distcc_hosts
 		if distcc_hosts is not None:
 			env['ENV']['DISTCC_HOSTS'] = distcc_hosts
-		if self.user_settings.verbosebuild:
+		if user_settings.verbosebuild:
 			env.__header_check_output_COMSTR	= None
 			env.__generate_cpp_output_COMSTR	= None
 		else:
 			target = self.target[:3]
-			format_tuple = (target, self.user_settings.builddir or '.')
+			format_tuple = (target, user_settings.builddir or '.')
 			env.__header_check_output_COMSTR	= "CHK %s %s $DXX_EFFECTIVE_SOURCE" % format_tuple
 			env.__generate_cpp_output_COMSTR	= "CPP %s %s $DXX_EFFECTIVE_SOURCE" % format_tuple
 			env.Replace(
@@ -3789,7 +3790,7 @@ class DXXCommon(LazyObjectConstructor):
 				RCCOMSTR						= "RC  %s %s $SOURCE" % format_tuple,
 			)
 
-		Werror = get_Werror_string(self.user_settings.CXXFLAGS)
+		Werror = get_Werror_string(user_settings.CXXFLAGS)
 		env.Prepend(CXXFLAGS = [
 			'-ftabstop=4',
 			'-Wall',
@@ -3808,12 +3809,14 @@ class DXXCommon(LazyObjectConstructor):
 		])
 		env.Append(
 			CXXFLAGS = ['-funsigned-char'],
-			CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir],
+			CPPPATH = ['common/include', 'common/main', '.'],
 			CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'),
 		)
-		add_flags = {}
-		if self.user_settings.editor:
-			add_flags['CPPPATH'] = ['common/include/editor']
+		add_flags = defaultdict(list)
+		if user_settings.builddir:
+			add_flags['CPPPATH'].append(user_settings.builddir)
+		if user_settings.editor:
+			add_flags['CPPPATH'].append('common/include/editor')
 		CLVar = SCons.Util.CLVar
 		for flags in ('CPPFLAGS', 'CXXFLAGS', 'LIBS', 'LINKFLAGS'):
 			value = getattr(self.user_settings, flags)
