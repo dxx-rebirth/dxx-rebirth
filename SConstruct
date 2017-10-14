@@ -1,4 +1,5 @@
 #SConstruct
+# vim: set fenc=utf-8 sw=4 ts=4 :
 
 # needed imports
 from collections import (defaultdict, Counter as collections_counter)
@@ -339,7 +340,7 @@ class ConfigureTests(_ConfigureTests):
 				try:
 					flags = {
 						k:v for k,v in context.env.ParseFlags(' ' + StaticSubprocess.pcall(cmd).out).items()
-							if v and (k[0] == 'C' or k[0] == 'L')
+							if v and (k[0] in 'CL')
 					}
 					Display("%s: %s settings: %r\n" % (message, display_name, flags))
 					v = pkgconfig + ('--modversion', pkgconfig_name)
@@ -607,7 +608,7 @@ help:assume C++ compiler works
 		except OSError as e:
 			if e.errno == errno.ENOENT or e.errno == errno.EACCES:
 				Display('error: %s\n' % e.strerror)
-				raise SCons.Errors.StopError('Failed to run %s.' % tool)
+				raise SCons.Errors.StopError('Failed to run %r.' % tool)
 			raise
 		if save_tool_version:
 			self.__tool_versions.append((tool, v))
@@ -4698,3 +4699,7 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 		print('warning: %s\nBuild will continue, but these values have no effect.\n' % j)
 
 main(register_program)
+
+# Local Variables:
+# tab-width: 4
+# End:
