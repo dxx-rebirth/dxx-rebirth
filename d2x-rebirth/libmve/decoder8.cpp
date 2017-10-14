@@ -74,13 +74,15 @@ static void relFar(int i, int sign, int *x, int *y)
 
 /* copies an 8x8 block from pSrc to pDest.
    pDest and pSrc are both g_width bytes wide */
-static void copyFrame(unsigned char *pDest, unsigned char *pSrc)
+static void copyFrame(uint8_t *pDest, const uint8_t *pSrc)
 {
+	const auto width = g_width;
 	for (int i=0; i<8; i++)
 	{
+		(void)i;
 		memcpy(pDest, pSrc, 8);
-		pDest += g_width;
-		pSrc += g_width;
+		pDest += width;
+		pSrc += width;
 	}
 }
 
@@ -112,13 +114,14 @@ static void patternRow4Pixels2(unsigned char *pFrame,
 	unsigned char shift=0;
 	unsigned char pel;
 
+	const auto width = g_width;
 	while (mask != 0)
 	{
 		pel = p[(mask & pat0) >> shift];
 		pFrame[0] = pel;
 		pFrame[1] = pel;
-		pFrame[g_width + 0] = pel;
-		pFrame[g_width + 1] = pel;
+		pFrame[width + 0] = pel;
+		pFrame[width + 1] = pel;
 		pFrame += 2;
 		mask <<= 2;
 		shift += 2;
@@ -152,12 +155,13 @@ static void patternQuadrant4Pixels(unsigned char *pFrame, unsigned char pat0, un
 	int shift=0;
 	unsigned long pat = (pat3 << 24) | (pat2 << 16) | (pat1 << 8) | pat0;
 
+	const auto width = g_width;
 	for (int i=0; i<16; i++)
 	{
 		pFrame[i&3] = p[(pat & mask) >> shift];
 
 		if ((i&3) == 3)
-			pFrame += g_width;
+			pFrame += width;
 
 		mask <<= 2;
 		shift += 2;
@@ -182,14 +186,15 @@ static void patternRow2Pixels2(unsigned char *pFrame, unsigned char pat, const a
 	unsigned char pel;
 	unsigned char mask=0x1;
 
+	const auto width = g_width;
 	while (mask != 0x10)
 	{
 		pel = p[(mask & pat) ? 1 : 0];
 
 		pFrame[0] = pel;              // upper-left
 		pFrame[1] = pel;              // upper-right
-		pFrame[g_width + 0] = pel;    // lower-left
-		pFrame[g_width + 1] = pel;    // lower-right
+		pFrame[width + 0] = pel;    // lower-left
+		pFrame[width + 1] = pel;    // lower-right
 		pFrame += 2;
 
 		mask <<= 1;
@@ -203,13 +208,14 @@ static void patternQuadrant2Pixels(unsigned char *pFrame, unsigned char pat0, un
 	unsigned short mask = 0x0001;
 	unsigned short pat = (pat1 << 8) | pat0;
 
+	const auto width = g_width;
 	for (int i=0; i<4; i++)
 	{
 		for (int j=0; j<4; j++)
 		{
 			pel = p[(pat & mask) ? 1 : 0];
 
-			pFrame[j + i * g_width] = pel;
+			pFrame[j + i * width] = pel;
 
 			mask <<= 1;
 		}
@@ -315,16 +321,20 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   Note that if you've reached the end of a row, this means going on
 		   to the next row.
 		*/
+		{
+			const auto width = g_width;
 		for (int i=0; i<2; i++)
 		{
+			(void)i;
 			*pFrame += 16;
-			if (++*curXb == (g_width >> 3))
+			if (++*curXb == (width >> 3))
 			{
-				*pFrame += 7*g_width;
+				*pFrame += 7 * width;
 				*curXb = 0;
 				if (++*curYb == (g_height >> 3))
 					return;
 			}
+		}
 		}
 		break;
 
@@ -395,25 +405,31 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		*/
 		p[0] = *(*pData)++;
 		p[1] = *(*pData)++;
+		{
+			const auto width = g_width;
 		if (p[0] <= p[1])
 		{
 			for (int i=0; i<8; i++)
 			{
+				(void)i;
 				patternRow2Pixels(*pFrame, *(*pData)++, p);
-				*pFrame += g_width;
+				*pFrame += width;
 			}
 		}
 		else
 		{
+			const auto width2 = 2 * width;
 			for (int i=0; i<2; i++)
 			{
+				(void)i;
 				patternRow2Pixels2(*pFrame, *(*pData) & 0xf, p);
-				*pFrame += 2*g_width;
+				*pFrame += width2;
 				patternRow2Pixels2(*pFrame, *(*pData)++ >> 4, p);
-				*pFrame += 2*g_width;
+				*pFrame += width2;
 			}
 		}
-		*pFrame -= (8*g_width - 8);
+		*pFrame -= (8 * width - 8);
+		}
 		break;
 
 	case 0x8:
@@ -505,6 +521,8 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   66 11 66 66 66 66 11 66     ; 42: 01000010
 		   11 66 66 66 66 66 66 11     ; 81: 10000001
 		*/
+		{
+			const auto width = g_width;
 		if ( (*pData)[0] <= (*pData)[1])
 		{
 			// four quadrant case
@@ -518,9 +536,9 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 
 				// alternate between moving down and moving up and right
 				if (i & 1)
-					*pFrame += 4 - 4*g_width; // up and right
+					*pFrame += 4 - 4 * width; // up and right
 				else
-					*pFrame += 4*g_width;     // down
+					*pFrame += 4 * width;     // down
 			}
 		}
 		else if ( (*pData)[6] <= (*pData)[7])
@@ -538,9 +556,9 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 				patternQuadrant2Pixels(*pFrame, pat[0], pat[1], p);
 
 				if (i & 1)
-					*pFrame -= (4*g_width - 4);
+					*pFrame -= (4 * width - 4);
 				else
-					*pFrame += 4*g_width;
+					*pFrame += 4 * width;
 			}
 		}
 		else
@@ -554,9 +572,10 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 					p[1] = *(*pData)++;
 				}
 				patternRow2Pixels(*pFrame, *(*pData)++, p);
-				*pFrame += g_width;
+				*pFrame += width;
 			}
-			*pFrame -= (8*g_width - 8);
+			*pFrame -= (8 * width - 8);
+		}
 		}
 		break;
 
@@ -586,6 +605,8 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   if P0 > P1  AND  P2 > P3, we get 8 bytes of pattern, each 2 bits
 		   representing a 1x2 pixel (i.e. 1 pixel wide, and 2 high).
 		*/
+		{
+		const auto width = g_width;
 		if ( (*pData)[0] <= (*pData)[1])
 		{
 			if ( (*pData)[2] <= (*pData)[3])
@@ -597,13 +618,14 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 
 				for (int i=0; i<8; i++)
 				{
+					(void)i;
 					pat[0] = *(*pData)++;
 					pat[1] = *(*pData)++;
 					patternRow4Pixels(*pFrame, pat[0], pat[1], p);
-					*pFrame += g_width;
+					*pFrame += width;
 				}
 
-				*pFrame -= (8*g_width - 8);
+				*pFrame -= (8 * width - 8);
 			}
 			else
 			{
@@ -613,13 +635,13 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 				p[3] = *(*pData)++;
 
 				patternRow4Pixels2(*pFrame, *(*pData)++, p);
-				*pFrame += 2*g_width;
+				*pFrame += 2 * width;
 				patternRow4Pixels2(*pFrame, *(*pData)++, p);
-				*pFrame += 2*g_width;
+				*pFrame += 2 * width;
 				patternRow4Pixels2(*pFrame, *(*pData)++, p);
-				*pFrame += 2*g_width;
+				*pFrame += 2 * width;
 				patternRow4Pixels2(*pFrame, *(*pData)++, p);
-				*pFrame -= (6*g_width - 8);
+				*pFrame -= (6 * width - 8);
 			}
 		}
 		else
@@ -634,12 +656,11 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 
 				for (int i=0; i<8; i++)
 				{
+					(void)i;
 					pat[0] = *(*pData)++;
 					patternRow4Pixels2x1(*pFrame, pat[0], p);
-					*pFrame += g_width;
+					*pFrame += width;
 				}
-
-				*pFrame -= (8*g_width - 8);
 			}
 			else
 			{
@@ -651,16 +672,17 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 
 				for (int i=0; i<4; i++)
 				{
+					(void)i;
 					pat[0] = *(*pData)++;
 					pat[1] = *(*pData)++;
 					patternRow4Pixels(*pFrame, pat[0], pat[1], p);
-					*pFrame += g_width;
+					*pFrame += width;
 					patternRow4Pixels(*pFrame, pat[0], pat[1], p);
-					*pFrame += g_width;
+					*pFrame += width;
 				}
-
-				*pFrame -= (8*g_width - 8);
 			}
+			*pFrame -= (8 * width - 8);
+		}
 		}
 		break;
 
@@ -698,6 +720,8 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		P5, then [P0 P1 P2 P3 B0 B1 B2 B3 B4 B5 B6 B7] represent the top
 		half of the block and the other bytes represent the bottom half.
 		*/
+		{
+			const auto width = g_width;
 		if ( (*pData)[0] <= (*pData)[1])
 		{
 			for (int i=0; i<4; i++)
@@ -714,9 +738,9 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 				patternQuadrant4Pixels(*pFrame, pat[0], pat[1], pat[2], pat[3], p);
 
 				if (i & 1)
-					*pFrame -= (4*g_width - 4);
+					*pFrame -= (4 * width - 4);
 				else
-					*pFrame += 4*g_width;
+					*pFrame += 4 * width;
 			}
 		}
 		else
@@ -742,9 +766,9 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 					patternQuadrant4Pixels(*pFrame, pat[0], pat[1], pat[2], pat[3], p);
 
 					if (i & 1)
-						*pFrame -= (4*g_width - 4);
+						*pFrame -= (4 * width - 4);
 					else
-						*pFrame += 4*g_width;
+						*pFrame += 4 * width;
 				}
 			}
 			else
@@ -763,11 +787,12 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 					pat[0] = *(*pData)++;
 					pat[1] = *(*pData)++;
 					patternRow4Pixels(*pFrame, pat[0], pat[1], p);
-					*pFrame += g_width;
+					*pFrame += width;
 				}
 
-				*pFrame -= (8*g_width - 8);
+				*pFrame -= (8 * width - 8);
 			}
+		}
 		}
 		break;
 
@@ -776,14 +801,18 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   bytes of pixel data.  1 byte for each pixel, and in the standard
 		   order (l->r, t->b).
 		*/
+		{
+			const auto width = g_width;
 		for (int i=0; i<8; i++)
 		{
+			(void)i;
 			memcpy(*pFrame, *pData, 8);
-			*pFrame += g_width;
+			*pFrame += width;
 			*pData += 8;
 			*pDataRemain -= 8;
 		}
-		*pFrame -= (8*g_width - 8);
+		*pFrame -= (8 * width - 8);
+		}
 		break;
 
 	case 0xc:
@@ -791,21 +820,26 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   bytes of pixel data.  1 byte for each block of 2x2 pixels, and in
 		   the standard order (l->r, t->b).
 		*/
+		{
+			const auto width = g_width;
 		for (int i=0; i<4; i++)
 		{
+			(void)i;
 			for (int j=0; j<2; j++)
 			{
+				(void)j;
 				for (int k=0; k<4; k++)
 				{
 					(*pFrame)[2*k]   = (*pData)[k];
 					(*pFrame)[2*k+1] = (*pData)[k];
 				}
-				*pFrame += g_width;
+				*pFrame += width;
 			}
 			*pData += 4;
 			*pDataRemain -= 4;
 		}
-		*pFrame -= (8*g_width - 8);
+		*pFrame -= (8 * width - 8);
+		}
 		break;
 
 	case 0xd:
@@ -813,35 +847,43 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   bytes of pixel data.  1 byte for each block of 4x4 pixels, and in
 		   the standard order (l->r, t->b).
 		*/
+		{
+			const auto width = g_width;
 		for (int i=0; i<2; i++)
 		{
+			(void)i;
 			for (int j=0; j<4; j++)
 			{
 				for (int k=0; k<4; k++)
 				{
-					(*pFrame)[k*g_width+j] = (*pData)[0];
-					(*pFrame)[k*g_width+j+4] = (*pData)[1];
+					(*pFrame)[k * width+j] = (*pData)[0];
+					(*pFrame)[k * width+j+4] = (*pData)[1];
 				}
 			}
-			*pFrame += 4*g_width;
+			*pFrame += 4 * width;
 			*pData += 2;
 			*pDataRemain -= 2;
 		}
-		*pFrame -= (8*g_width - 8);
+		*pFrame -= (8 * width - 8);
+		}
 		break;
 
 	case 0xe:
 		/* This encoding represents a solid 8x8 frame.  We get 1 byte of pixel
 		   data from the data stream.
 		*/
+		{
+			const auto width = g_width;
 		for (int i=0; i<8; i++)
 		{
+			(void)i;
 			memset(*pFrame, **pData, 8);
-			*pFrame += g_width;
+			*pFrame += width;
 		}
 		++*pData;
 		--*pDataRemain;
-		*pFrame -= (8*g_width - 8);
+		*pFrame -= (8 * width - 8);
+		}
 		break;
 
 	case 0xf:
@@ -856,17 +898,20 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   P0 P1 P0 P1 P0 P1 P0 P1
 		   P1 P0 P1 P0 P1 P0 P1 P0
 		*/
+		{
+			const auto width = g_width;
 		for (int i=0; i<8; i++)
 		{
 			for (int j=0; j<8; j++)
 			{
 				(*pFrame)[j] = (*pData)[(i+j)&1];
 			}
-			*pFrame += g_width;
+			*pFrame += width;
 		}
 		*pData += 2;
 		*pDataRemain -= 2;
-		*pFrame -= (8*g_width - 8);
+		*pFrame -= (8 * width - 8);
+		}
 		break;
 
 	default:
