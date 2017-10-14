@@ -134,7 +134,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SOUND_DROP_BOMB                         26
 
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr unsigned MAX_SOUNDS = 250;
+constexpr std::integral_constant<unsigned, 250> MAX_SOUNDS{};
 #elif defined(DXX_BUILD_DESCENT_II)
 #define SOUND_CHEATER                           200
 
@@ -164,7 +164,7 @@ constexpr unsigned MAX_SOUNDS = 250;
 
 //--------------------------------------------------------------
 // bad to have sound 255!
-constexpr unsigned MAX_SOUNDS = 254;
+constexpr std::integral_constant<unsigned, 254> MAX_SOUNDS{};
 #endif
 
 // I think it would be nice to have a scrape sound...
@@ -176,7 +176,7 @@ constexpr unsigned MAX_SOUNDS = 254;
 
 extern array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
 
-constexpr int sound_none = -1;
+constexpr std::integral_constant<int, -1> sound_none{};
 #endif
 
 #endif /* _SOUNDS_H */

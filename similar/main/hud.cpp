@@ -39,7 +39,7 @@
 #include "countarray.h"
 
 namespace {
-constexpr unsigned HUD_MESSAGE_LENGTH = 150;
+constexpr std::integral_constant<unsigned, 150> HUD_MESSAGE_LENGTH{};
 
 struct hudmsg
 {

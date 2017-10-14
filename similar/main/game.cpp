@@ -1633,7 +1633,7 @@ static void slide_textures(void)
 Flickering_light_array_t Flickering_lights;
 unsigned Num_flickering_lights;
 
-constexpr fix flicker_timer_disabled = 0x80000000;
+constexpr std::integral_constant<fix, 0x80000000> flicker_timer_disabled{};
 
 static void flicker_lights(fvmsegptridx &vmsegptridx)
 {

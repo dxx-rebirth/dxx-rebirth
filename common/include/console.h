@@ -10,6 +10,7 @@
 
 #include <cstddef>
 #include <cstring>
+#include <type_traits>
 #include "pstypes.h"
 #include "dxxsconf.h"
 #include "fmtcheck.h"
@@ -29,7 +30,7 @@ enum con_priority
 	CON_DEBUG
 };
 
-constexpr std::size_t CON_LINE_LENGTH = 2048;
+constexpr std::integral_constant<std::size_t, 2048> CON_LINE_LENGTH{};
 
 struct console_buffer
 {

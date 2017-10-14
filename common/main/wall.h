@@ -183,7 +183,7 @@ struct wclip : public prohibit_void_ptr<wclip>
 	array<char, 13> filename;
 };
 
-constexpr uint16_t wclip_frames_none = 0xffff;
+constexpr std::integral_constant<uint16_t, 0xffff> wclip_frames_none{};
 
 static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const vcsegptr_t seg, const uint_fast32_t side)
 {

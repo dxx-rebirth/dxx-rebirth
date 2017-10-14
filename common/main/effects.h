@@ -31,11 +31,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pack.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-#define MAX_EFFECTS 60
+constexpr std::integral_constant<unsigned, 60> MAX_EFFECTS{};
 #elif defined(DXX_BUILD_DESCENT_II)
-#define MAX_EFFECTS 110
+constexpr std::integral_constant<unsigned, 110> MAX_EFFECTS{};
 #endif
+}
 
 //flags for eclips.  If no flags are set, always plays
 
@@ -67,7 +69,7 @@ struct eclip : public prohibit_void_ptr<eclip>
 	uint8_t sidenum; //what seg & side, for one-shot clips
 };
 
-constexpr int eclip_none = -1;
+constexpr std::integral_constant<int, -1> eclip_none{};
 
 extern unsigned Num_effects;
 extern array<eclip, MAX_EFFECTS> Effects;

@@ -65,10 +65,10 @@ void read_model_guns(const char *filename, reactor &);
 
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr unsigned MAX_REACTORS = 1;
-constexpr unsigned Num_reactors = 1;
+constexpr std::integral_constant<unsigned, 1> MAX_REACTORS{};
+constexpr std::integral_constant<unsigned, 1> Num_reactors{};
 #elif defined(DXX_BUILD_DESCENT_II)
-constexpr unsigned MAX_REACTORS = 7;
+constexpr std::integral_constant<unsigned, 7> MAX_REACTORS{};
 #define DEFAULT_CONTROL_CENTER_EXPLOSION_TIME 30    // Note: Usually uses Alan_pavlish_reactor_times, but can be overridden in editor.
 
 extern unsigned Num_reactors;

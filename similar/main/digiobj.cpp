@@ -52,14 +52,14 @@ using std::max;
 
 namespace dcx {
 
-constexpr unsigned SOF_USED = 1; 		// Set if this sample is used
-constexpr unsigned SOF_LINK_TO_OBJ = 4;		// Sound is linked to a moving object. If object dies, then finishes play and quits.
-constexpr unsigned SOF_LINK_TO_POS = 8;		// Sound is linked to segment, pos
-constexpr unsigned SOF_PLAY_FOREVER = 16;		// Play forever (or until level is stopped), otherwise plays once
-constexpr unsigned SOF_PERMANENT = 32;		// Part of the level, like a waterfall or fan
+constexpr std::integral_constant<unsigned, 1> SOF_USED{};		// Set if this sample is used
+constexpr std::integral_constant<unsigned, 4> SOF_LINK_TO_OBJ{};		// Sound is linked to a moving object. If object dies, then finishes play and quits.
+constexpr std::integral_constant<unsigned, 8> SOF_LINK_TO_POS{};		// Sound is linked to segment, pos
+constexpr std::integral_constant<unsigned, 16> SOF_PLAY_FOREVER{};		// Play forever (or until level is stopped), otherwise plays once
+constexpr std::integral_constant<unsigned, 32> SOF_PERMANENT{};		// Part of the level, like a waterfall or fan
 
 constexpr std::integral_constant<int, -1> RAIIdigi_sound::invalid_channel;
-constexpr unsigned MAX_SOUND_OBJECTS = 150;
+constexpr std::integral_constant<unsigned, 150> MAX_SOUND_OBJECTS{};
 
 struct sound_object
 {

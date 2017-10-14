@@ -40,8 +40,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-player.h"
 #include "fwd-window.h"
 
+namespace dcx {
 constexpr std::integral_constant<std::size_t, 100> MAX_TRIGGERS{};
-#define MAX_WALLS_PER_LINK  10
+constexpr std::integral_constant<unsigned, 10> MAX_WALLS_PER_LINK{};
+}
 
 #define TT_OPEN_DOOR        0   // Open a door
 #define TT_MATCEN           2   // Activate a matcen
@@ -168,7 +170,7 @@ DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(trigger, trg, Triggers);
 
 }
 
-constexpr uint8_t trigger_none = 0xff;
+constexpr std::integral_constant<uint8_t, 0xff> trigger_none{};
 
 #define Num_triggers	Triggers.get_count()
 

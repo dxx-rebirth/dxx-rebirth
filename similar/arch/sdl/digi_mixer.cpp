@@ -78,7 +78,9 @@ int digi_mixer_init()
 #endif
 	digi_sample_rate = SAMPLE_RATE_44K;
 
-	if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"digi_init %d (SDL_Mixer)", MAX_SOUNDS);
+#if MIX_DIGI_DEBUG
+	con_printf(CON_DEBUG, "digi_init %u (SDL_Mixer)", MAX_SOUNDS.value);
+#endif
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) Error("SDL audio initialisation failed: %s.", SDL_GetError());
 
 	if (Mix_OpenAudio(digi_sample_rate, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, SOUND_BUFFER_SIZE))
@@ -102,7 +104,9 @@ int digi_mixer_init()
 
 /* Shut down audio */
 void digi_mixer_close() {
-	if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"digi_close (SDL_Mixer)");
+#if MIX_DIGI_DEBUG
+	con_printf(CON_DEBUG, "digi_close (SDL_Mixer)");
+#endif
 	if (!digi_initialised) return;
 	digi_initialised = 0;
 	Mix_CloseAudio();
@@ -149,7 +153,9 @@ static void mixdigi_convert_sound(int i)
 
 	if (data)
 	{
-		if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"converting %d (%d)", i, dlen);
+#if MIX_DIGI_DEBUG
+		con_printf(CON_DEBUG, "converting %d (%d)", i, dlen);
+#endif
 		SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, freq, out_format, out_channels, out_freq);
 
 		auto cvtbuf = make_unique<Uint8[]>(dlen * cvt.len_mult);
@@ -182,7 +188,12 @@ int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int
 
 	mixdigi_convert_sound(soundnum);
 
-	if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"digi_start_sound %d, volume %d, pan %d (start=%d, end=%d)", soundnum, mix_vol, mix_pan, loop_start, loop_end);
+#if MIX_DIGI_DEBUG
+	con_printf(CON_DEBUG, "digi_start_sound %d, volume %d, pan %d (start=%d, end=%d)", soundnum, mix_vol, mix_pan, loop_start, loop_end);
+#else
+	(void)loop_start;
+	(void)loop_end;
+#endif
 
 	channel = digi_mixer_find_channel();
 	if (channel < 0)
@@ -215,7 +226,9 @@ void digi_mixer_set_channel_pan(int channel, int pan)
 
 void digi_mixer_stop_sound(int channel) {
 	if (!digi_initialised) return;
-	if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"digi_stop_sound %d", channel);
+#if MIX_DIGI_DEBUG
+	con_printf(CON_DEBUG, "digi_stop_sound %d", channel);
+#endif
 	Mix_HaltChannel(channel);
 	channels[channel] = 0;
 }

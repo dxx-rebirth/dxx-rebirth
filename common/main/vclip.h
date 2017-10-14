@@ -43,13 +43,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr std::size_t VCLIP_MAXNUM = 70;
+constexpr std::integral_constant<std::size_t, 70> VCLIP_MAXNUM{};
 #elif defined(DXX_BUILD_DESCENT_II)
 #define VCLIP_WATER_HIT             84
 #define VCLIP_AFTERBURNER_BLOB      95
 #define VCLIP_MONITOR_STATIC        99
 
-constexpr std::size_t VCLIP_MAXNUM = 110;
+constexpr std::integral_constant<std::size_t, 110> VCLIP_MAXNUM{};
 #endif
 }
 
@@ -70,7 +70,7 @@ struct vclip : public prohibit_void_ptr<vclip>
 	fix             light_value;
 };
 
-constexpr int vclip_none = -1;
+constexpr std::integral_constant<int, -1> vclip_none{};
 
 extern unsigned Num_vclips;
 

@@ -1131,10 +1131,10 @@ void bm_read_robot(int skip)
 	int			n_models,i;
 	int			first_bitmap_num[MAX_MODEL_VARIANTS];
 	char			*equal_ptr;
-	auto 			exp1_vclip_num=vclip_none;
-	auto			exp1_sound_num=sound_none;
-	auto			exp2_vclip_num=vclip_none;
-	auto			exp2_sound_num=sound_none;
+	int exp1_vclip_num = vclip_none;
+	int exp1_sound_num = sound_none;
+	int exp2_vclip_num = vclip_none;
+	int exp2_sound_num = sound_none;
 	fix			lighting = F1_0/2;		// Default
 	fix			strength = F1_0*10;		// Default strength
 	fix			mass = f1_0*4;

@@ -50,7 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MEDIUM3_FONT    (Gamefonts[GFONT_MEDIUM_3])
 #define HUGE_FONT       (Gamefonts[GFONT_BIG_1])
 
-#define MAX_FONTS 5
+constexpr std::integral_constant<unsigned, 5> MAX_FONTS{};
 
 extern float FNTScaleX, FNTScaleY;
 

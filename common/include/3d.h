@@ -64,19 +64,21 @@ struct g3s_codes {
 };
 
 //flags for point structure
-constexpr uint8_t PF_PROJECTED = 1;		//has been projected, so sx,sy valid
-constexpr uint8_t PF_OVERFLOW = 2;		//can't project
-constexpr uint8_t PF_TEMP_POINT = 4;	//created during clip
-constexpr uint8_t PF_UVS = 8;			//has uv values set
-constexpr uint8_t PF_LS = 16;			//has lighting values set
+constexpr std::integral_constant<uint8_t, 1> PF_PROJECTED{};		//has been projected, so sx,sy valid
+constexpr std::integral_constant<uint8_t, 2> PF_OVERFLOW{};		//can't project
+#if !DXX_USE_OGL
+constexpr std::integral_constant<uint8_t, 4> PF_TEMP_POINT{};	//created during clip
+#endif
+constexpr std::integral_constant<uint8_t, 8> PF_UVS{};			//has uv values set
+constexpr std::integral_constant<uint8_t, 16> PF_LS{};			//has lighting values set
 
 //clipping codes flags
 
-constexpr uint8_t CC_OFF_LEFT = 1;
-constexpr uint8_t CC_OFF_RIGHT = 2;
-constexpr uint8_t CC_OFF_BOT = 4;
-constexpr uint8_t CC_OFF_TOP = 8;
-constexpr uint8_t CC_BEHIND = 0x80;
+constexpr std::integral_constant<uint8_t, 1> CC_OFF_LEFT{};
+constexpr std::integral_constant<uint8_t, 2> CC_OFF_RIGHT{};
+constexpr std::integral_constant<uint8_t, 4> CC_OFF_BOT{};
+constexpr std::integral_constant<uint8_t, 8> CC_OFF_TOP{};
+constexpr std::integral_constant<uint8_t, 0x80> CC_BEHIND{};
 
 //Used to store rotated points for mines.  Has frame count to indictate
 //if rotated, and flag to indicate if projected.
@@ -199,7 +201,7 @@ static inline void g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cons
 	_g3_draw_poly(canvas, nv, &pointlist[0], color);
 }
 
-constexpr std::size_t MAX_POINTS_PER_POLY = 64;
+constexpr std::integral_constant<std::size_t, 64> MAX_POINTS_PER_POLY{};
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
@@ -306,7 +308,7 @@ public:
 #define g3_draw_line(C,P0,P1,c)	g3_draw_line(P0,P1,c)
 #else
 void g3_draw_line(grs_canvas &, cg3s_point &p0, cg3s_point &p1, uint8_t color, temporary_points_t &);
-constexpr std::size_t MAX_POINTS_IN_POLY = 100;
+constexpr std::integral_constant<std::size_t, 100> MAX_POINTS_IN_POLY{};
 
 using tmap_drawer_type = void (*)(grs_canvas &, const grs_bitmap &bm, uint_fast32_t nv, const g3s_point *const *vertlist);
 

@@ -72,7 +72,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr int EMULATING_D1 = 1;
+constexpr std::true_type EMULATING_D1{};
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)

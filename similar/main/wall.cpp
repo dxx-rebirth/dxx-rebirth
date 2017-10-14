@@ -82,7 +82,7 @@ struct find_active_door_predicate
 #if defined(DXX_BUILD_DESCENT_II)
 #include "collide.h"
 namespace dsx {
-constexpr unsigned CLOAKING_WALL_TIME = F1_0;
+constexpr std::integral_constant<unsigned, F1_0> CLOAKING_WALL_TIME{};
 
 namespace {
 

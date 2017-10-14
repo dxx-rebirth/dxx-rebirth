@@ -334,11 +334,11 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 //	Changing these constants will not affect the damage done.
 //	WARNING: If you change DESIRED_OMEGA_DIST and MAX_OMEGA_BLOBS, you don't merely change the look of the cannon,
 //	you change its range.  If you decrease DESIRED_OMEGA_DIST, you decrease how far the gun can fire.
-constexpr fix OMEGA_BASE_TIME = F1_0/20; // How many blobs per second!! No FPS-based blob creation anymore, no FPS-based damage anymore!
-constexpr unsigned MIN_OMEGA_BLOBS = 3;				//	No matter how close the obstruction, at this many blobs created.
-constexpr fix MIN_OMEGA_DIST = F1_0*3;		//	At least this distance between blobs, unless doing so would violate MIN_OMEGA_BLOBS
-constexpr fix DESIRED_OMEGA_DIST = F1_0*5;		//	This is the desired distance between blobs.  For distances > MIN_OMEGA_BLOBS*DESIRED_OMEGA_DIST, but not very large, this will apply.
-constexpr unsigned MAX_OMEGA_BLOBS = 16;				//	No matter how far away the obstruction, this is the maximum number of blobs.
+constexpr std::integral_constant<fix, F1_0/20> OMEGA_BASE_TIME{}; // How many blobs per second!! No FPS-based blob creation anymore, no FPS-based damage anymore!
+constexpr std::integral_constant<unsigned, 3> MIN_OMEGA_BLOBS{};				//	No matter how close the obstruction, at this many blobs created.
+constexpr std::integral_constant<fix, F1_0*3> MIN_OMEGA_DIST{};		//	At least this distance between blobs, unless doing so would violate MIN_OMEGA_BLOBS
+constexpr std::integral_constant<fix, F1_0*5> DESIRED_OMEGA_DIST{};		//	This is the desired distance between blobs.  For distances > MIN_OMEGA_BLOBS*DESIRED_OMEGA_DIST, but not very large, this will apply.
+constexpr std::integral_constant<unsigned, 16> MAX_OMEGA_BLOBS{};				//	No matter how far away the obstruction, this is the maximum number of blobs.
 constexpr vm_distance MAX_OMEGA_DIST{MAX_OMEGA_BLOBS * DESIRED_OMEGA_DIST};		//	Maximum extent of lightning blobs.
 constexpr vm_distance_squared MAX_OMEGA_DIST_SQUARED{MAX_OMEGA_DIST * MAX_OMEGA_DIST};
 
@@ -1795,6 +1795,8 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 
 namespace dcx {
 
+constexpr std::integral_constant<unsigned, 30> MAX_OBJDISTS{};
+
 static inline int sufficient_energy(int energy_used, fix energy)
 {
 	return !energy_used || (energy >= energy_used);
@@ -2107,16 +2109,6 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, int level, int flags, in
 
 	return nfires;
 }
-
-}
-
-namespace dcx {
-
-constexpr unsigned MAX_OBJDISTS = 30;
-
-}
-
-namespace dsx {
 
 bool laser_info::test_set_hitobj(const vcobjidx_t o)
 {

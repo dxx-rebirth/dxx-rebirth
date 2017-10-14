@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
 
-#define MAX_HOSTAGES				10		//max per any one level
+constexpr std::integral_constant<unsigned, 10> MAX_HOSTAGES{};		//max per any one level
 
 // 1 per hostage
 struct hostage_data

@@ -41,9 +41,9 @@ namespace dsx {
 struct robot_info;
 struct glow_values_t;
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr unsigned MAX_POLYGON_MODELS = 85;
+constexpr std::integral_constant<unsigned, 85> MAX_POLYGON_MODELS{};
 #elif defined(DXX_BUILD_DESCENT_II)
-constexpr unsigned MAX_POLYGON_MODELS = 200;
+constexpr std::integral_constant<unsigned, 200> MAX_POLYGON_MODELS{};
 #endif
 
 // array of names of currently-loaded models
@@ -53,9 +53,9 @@ extern array<char[13], MAX_POLYGON_MODELS> Pof_names;
 extern array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
 }
 #endif
-#define MAX_SUBMODELS 10
 
 namespace dcx {
+constexpr std::integral_constant<unsigned, 10> MAX_SUBMODELS{};
 
 //used to describe a polygon model
 struct polymodel : prohibit_void_ptr<polymodel>
@@ -148,7 +148,7 @@ void draw_model_picture(grs_canvas &, uint_fast32_t mn, const vms_angvec &orient
 void free_model(polymodel &po);
 
 #define MAX_POLYOBJ_TEXTURES 100
-constexpr unsigned N_D2_POLYGON_MODELS = 166;
+constexpr std::integral_constant<unsigned, 166> N_D2_POLYGON_MODELS{};
 #endif
 extern array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 #endif

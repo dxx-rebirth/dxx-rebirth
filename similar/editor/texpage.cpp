@@ -46,7 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 
-#define TMAPS_PER_PAGE 12
+constexpr std::integral_constant<unsigned, 12> TMAPS_PER_PAGE{};
 
 static array<std::unique_ptr<UI_GADGET_USERBOX>, TMAPS_PER_PAGE> TmapBox;
 static std::unique_ptr<UI_GADGET_USERBOX> TmapCurrent;

@@ -68,7 +68,7 @@ static auto FONTSCALE_Y(const int &y)
 
 namespace {
 
-constexpr uint8_t kerndata_terminator = 255;
+constexpr std::integral_constant<uint8_t, 255> kerndata_terminator{};
 
 }
 
@@ -181,7 +181,7 @@ static int get_centered_x(const grs_canvas &canvas, const grs_font &cv_font, con
 //note we subtract one from color, since 255 is "transparent" so it'll never be used, and 0 would otherwise end the string.
 //function must already have orig_color var set (or they could be passed as args...)
 //perhaps some sort of recursive orig_color type thing would be better, but that would be way too much trouble for little gain
-constexpr int gr_message_color_level=1;
+constexpr std::integral_constant<int, 1> gr_message_color_level{};
 #define CHECK_EMBEDDED_COLORS() if ((*text_ptr >= 0x01) && (*text_ptr <= 0x02)) { \
 		text_ptr++; \
 		if (*text_ptr){ \

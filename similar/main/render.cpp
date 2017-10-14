@@ -163,7 +163,7 @@ fix flash_scale;
 
 #define FLASH_CYCLE_RATE f1_0
 
-constexpr fix Flash_rate = FLASH_CYCLE_RATE;
+constexpr std::integral_constant<fix, FLASH_CYCLE_RATE> Flash_rate{};
 
 //cycle the flashing light for when mine destroyed
 namespace dsx {
@@ -465,9 +465,9 @@ static inline void check_render_face(grs_canvas &canvas, index_sequence<N0, N1, 
 	check_render_face(canvas, index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
 }
 
-constexpr fix	Tulate_min_dot = (F1_0/4);
+constexpr std::integral_constant<fix, (F1_0/4)> Tulate_min_dot{};
 //--unused-- fix	Tulate_min_ratio = (2*F1_0);
-constexpr fix	Min_n0_n1_dot	= (F1_0*15/16);
+constexpr std::integral_constant<fix, (F1_0*15/16)> Min_n0_n1_dot{};
 
 // -----------------------------------------------------------------------------------
 //	Render a side.

@@ -31,8 +31,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-player.h"	// playernum_t
 #include "fwd-vecmat.h"
 
-constexpr std::size_t MAX_ROBOTS_CONTROLLED = 5;
-constexpr std::size_t HANDS_OFF_PERIOD = MAX_ROBOTS_CONTROLLED; // i.e. one slow above max
+constexpr std::integral_constant<std::size_t, 5> MAX_ROBOTS_CONTROLLED{};
+constexpr std::integral_constant<std::size_t, MAX_ROBOTS_CONTROLLED> HANDS_OFF_PERIOD{}; // i.e. one slow above max
 
 extern array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
 extern array<int, MAX_ROBOTS_CONTROLLED> robot_agitation, robot_fired;

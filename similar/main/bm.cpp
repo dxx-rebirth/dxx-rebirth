@@ -399,7 +399,7 @@ static void bm_free_extra_objbitmaps()
 
 static void bm_free_extra_models()
 {
-	auto base = std::min(N_D2_POLYGON_MODELS, exit_modelnum);
+	const auto base = std::min(N_D2_POLYGON_MODELS.value, exit_modelnum);
 	range_for (auto &p, partial_range(Polygon_models, base, exchange(N_polygon_models, base)))
 		free_model(p);
 }
@@ -444,14 +444,14 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 	N_robot_types = N_D2_ROBOT_TYPES+t;
 	if (N_robot_types >= MAX_ROBOT_TYPES)
 		Error("Too many robots (%d) in <%s>.  Max is %d.",t,fname,MAX_ROBOT_TYPES-N_D2_ROBOT_TYPES);
-	range_for (auto &r, partial_range(Robot_info, N_D2_ROBOT_TYPES, N_robot_types))
+	range_for (auto &r, partial_range(Robot_info, N_D2_ROBOT_TYPES.value, N_robot_types))
 		robot_info_read(fp, r);
 
 	t = PHYSFSX_readInt(fp);
 	N_robot_joints = N_D2_ROBOT_JOINTS+t;
 	if (N_robot_joints >= MAX_ROBOT_JOINTS)
 		Error("Too many robot joints (%d) in <%s>.  Max is %d.",t,fname,MAX_ROBOT_JOINTS-N_D2_ROBOT_JOINTS);
-	range_for (auto &r, partial_range(Robot_joints, N_D2_ROBOT_JOINTS, N_robot_joints))
+	range_for (auto &r, partial_range(Robot_joints, N_D2_ROBOT_JOINTS.value, N_robot_joints))
 		jointpos_read(fp, r);
 
 	unsigned u = PHYSFSX_readInt(fp);
@@ -459,7 +459,7 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 	if (N_polygon_models >= MAX_POLYGON_MODELS)
 		Error("Too many polygon models (%d) in <%s>.  Max is %d.",u,fname,MAX_POLYGON_MODELS-N_D2_POLYGON_MODELS);
 	{
-		const auto &&r = partial_range(Polygon_models, N_D2_POLYGON_MODELS, N_polygon_models);
+		const auto &&r = partial_range(Polygon_models, N_D2_POLYGON_MODELS.value, N_polygon_models);
 		range_for (auto &p, r)
 		polymodel_read(&p, fp);
 
@@ -467,20 +467,20 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 			polygon_model_data_read(&p, fp);
 	}
 
-	range_for (auto &i, partial_range(Dying_modelnums, N_D2_POLYGON_MODELS, N_polygon_models))
+	range_for (auto &i, partial_range(Dying_modelnums, N_D2_POLYGON_MODELS.value, N_polygon_models))
 		i = PHYSFSX_readInt(fp);
-	range_for (auto &i, partial_range(Dead_modelnums, N_D2_POLYGON_MODELS, N_polygon_models))
+	range_for (auto &i, partial_range(Dead_modelnums, N_D2_POLYGON_MODELS.value, N_polygon_models))
 		i = PHYSFSX_readInt(fp);
 
 	t = PHYSFSX_readInt(fp);
 	if (N_D2_OBJBITMAPS+t >= ObjBitmaps.size())
 		Error("Too many object bitmaps (%d) in <%s>.  Max is %" DXX_PRI_size_type ".", t, fname, ObjBitmaps.size() - N_D2_OBJBITMAPS);
-	bitmap_index_read_n(fp, partial_range(ObjBitmaps, N_D2_OBJBITMAPS, N_D2_OBJBITMAPS + t));
+	bitmap_index_read_n(fp, partial_range(ObjBitmaps, N_D2_OBJBITMAPS.value, N_D2_OBJBITMAPS + t));
 
 	t = PHYSFSX_readInt(fp);
 	if (N_D2_OBJBITMAPPTRS+t >= ObjBitmapPtrs.size())
 		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %" DXX_PRI_size_type ".", t, fname, ObjBitmapPtrs.size() - N_D2_OBJBITMAPPTRS);
-	range_for (auto &i, partial_range(ObjBitmapPtrs, N_D2_OBJBITMAPPTRS, N_D2_OBJBITMAPPTRS + t))
+	range_for (auto &i, partial_range(ObjBitmapPtrs, N_D2_OBJBITMAPPTRS.value, N_D2_OBJBITMAPPTRS + t))
 		i = PHYSFSX_readShort(fp);
 }
 

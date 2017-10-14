@@ -23,7 +23,7 @@
 
 namespace dcx {
 
-#define JOY_MAX_AXES				(DXX_MAX_AXES_PER_JOYSTICK * DXX_MAX_JOYSTICKS)
+constexpr std::integral_constant<unsigned, DXX_MAX_AXES_PER_JOYSTICK * DXX_MAX_JOYSTICKS> JOY_MAX_AXES{};
 #define JOY_MAX_BUTTONS				(DXX_MAX_BUTTONS_PER_JOYSTICK * DXX_MAX_JOYSTICKS)
 
 struct d_event_joystick_axis_value

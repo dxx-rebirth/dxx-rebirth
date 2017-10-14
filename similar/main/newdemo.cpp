@@ -244,7 +244,7 @@ static void newdemo_record_oneframeevent_update(int wallupdate);
 #if defined(DXX_BUILD_DESCENT_I)
 static int shareware = 0;	// reading shareware demo?
 #elif defined(DXX_BUILD_DESCENT_II)
-constexpr int shareware = 0;
+constexpr std::integral_constant<int, 0> shareware{};
 #endif
 
 int newdemo_get_percent_done()	{

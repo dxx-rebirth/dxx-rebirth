@@ -24,7 +24,7 @@ namespace dcx {
 
 // Movement types
 enum movement_type_t : uint8_t;
-constexpr std::size_t MAX_OBJECTS = 350;
+constexpr std::integral_constant<std::size_t, 350> MAX_OBJECTS{};
 constexpr std::integral_constant<std::size_t, MAX_OBJECTS - 20> MAX_USED_OBJECTS{};
 
 }
@@ -43,9 +43,9 @@ static constexpr valptridx<object>::magic_constant<0xffff> object_none{};
 static constexpr valptridx<object>::magic_constant<0> object_first{};
 
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr unsigned MAX_OBJECT_TYPES = 15;
+constexpr std::integral_constant<unsigned, 15> MAX_OBJECT_TYPES{};
 #elif defined(DXX_BUILD_DESCENT_II)
-constexpr unsigned MAX_OBJECT_TYPES = 16;
+constexpr std::integral_constant<unsigned, 16> MAX_OBJECT_TYPES{};
 #endif
 
 }
@@ -53,61 +53,61 @@ constexpr unsigned MAX_OBJECT_TYPES = 16;
 
 // Result types
 typedef unsigned result_type_t;
-constexpr result_type_t RESULT_NOTHING = 0;   // Ignore this collision
-constexpr result_type_t RESULT_CHECK = 1;   // Check for this collision
+constexpr std::integral_constant<result_type_t, 0> RESULT_NOTHING{};   // Ignore this collision
+constexpr std::integral_constant<result_type_t, 1> RESULT_CHECK{};   // Check for this collision
 
 // Control types - what tells this object what do do
 typedef unsigned control_type_t;
-constexpr control_type_t CT_NONE = 0;		// doesn't move (or change movement)
-constexpr control_type_t CT_AI = 1;			// driven by AI
-constexpr control_type_t CT_EXPLOSION = 2;	// explosion sequencer
-constexpr control_type_t CT_FLYING = 4;		// the player is flying
-constexpr control_type_t CT_SLEW = 5;		// slewing
-constexpr control_type_t CT_FLYTHROUGH = 6;	// the flythrough system
-constexpr control_type_t CT_WEAPON = 9;		// laser, etc.
-constexpr control_type_t CT_REPAIRCEN = 10;	// under the control of the repair center
-constexpr control_type_t CT_MORPH = 11;		// this object is being morphed
-constexpr control_type_t CT_DEBRIS = 12;	// this is a piece of debris
-constexpr control_type_t CT_POWERUP = 13;	// animating powerup blob
-constexpr control_type_t CT_LIGHT = 14;		// doesn't actually do anything
-constexpr control_type_t CT_REMOTE = 15;	// controlled by another net player
-constexpr control_type_t CT_CNTRLCEN = 16;	// the control center/main reactor
+constexpr std::integral_constant<control_type_t, 0> CT_NONE{};		// doesn't move (or change movement)
+constexpr std::integral_constant<control_type_t, 1> CT_AI{};			// driven by AI
+constexpr std::integral_constant<control_type_t, 2> CT_EXPLOSION{};	// explosion sequencer
+constexpr std::integral_constant<control_type_t, 4> CT_FLYING{};		// the player is flying
+constexpr std::integral_constant<control_type_t, 5> CT_SLEW{};		// slewing
+constexpr std::integral_constant<control_type_t, 6> CT_FLYTHROUGH{};	// the flythrough system
+constexpr std::integral_constant<control_type_t, 9> CT_WEAPON{};		// laser, etc.
+constexpr std::integral_constant<control_type_t, 10> CT_REPAIRCEN{};	// under the control of the repair center
+constexpr std::integral_constant<control_type_t, 11> CT_MORPH{};		// this object is being morphed
+constexpr std::integral_constant<control_type_t, 12> CT_DEBRIS{};	// this is a piece of debris
+constexpr std::integral_constant<control_type_t, 13> CT_POWERUP{};	// animating powerup blob
+constexpr std::integral_constant<control_type_t, 14> CT_LIGHT{};		// doesn't actually do anything
+constexpr std::integral_constant<control_type_t, 15> CT_REMOTE{};	// controlled by another net player
+constexpr std::integral_constant<control_type_t, 16> CT_CNTRLCEN{};	// the control center/main reactor
 
 // Render types
 typedef unsigned render_type_t;
-constexpr render_type_t RT_NONE = 0;   // does not render
-constexpr render_type_t RT_POLYOBJ = 1;   // a polygon model
-constexpr render_type_t RT_FIREBALL = 2;   // a fireball
-constexpr render_type_t RT_LASER = 3;   // a laser
-constexpr render_type_t RT_HOSTAGE = 4;   // a hostage
-constexpr render_type_t RT_POWERUP = 5;   // a powerup
-constexpr render_type_t RT_MORPH = 6;   // a robot being morphed
-constexpr render_type_t RT_WEAPON_VCLIP = 7;   // a weapon that renders as a vclip
+constexpr std::integral_constant<render_type_t, 0> RT_NONE{};   // does not render
+constexpr std::integral_constant<render_type_t, 1> RT_POLYOBJ{};   // a polygon model
+constexpr std::integral_constant<render_type_t, 2> RT_FIREBALL{};   // a fireball
+constexpr std::integral_constant<render_type_t, 3> RT_LASER{};   // a laser
+constexpr std::integral_constant<render_type_t, 4> RT_HOSTAGE{};   // a hostage
+constexpr std::integral_constant<render_type_t, 5> RT_POWERUP{};   // a powerup
+constexpr std::integral_constant<render_type_t, 6> RT_MORPH{};   // a robot being morphed
+constexpr std::integral_constant<render_type_t, 7> RT_WEAPON_VCLIP{};   // a weapon that renders as a vclip
 
 // misc object flags
 typedef unsigned object_flag_t;
-constexpr object_flag_t OF_EXPLODING = 1;   // this object is exploding
-constexpr object_flag_t OF_SHOULD_BE_DEAD = 2;   // this object should be dead, so next time we can, we should delete this object.
-constexpr object_flag_t OF_DESTROYED = 4;   // this has been killed, and is showing the dead version
-constexpr object_flag_t OF_SILENT = 8;   // this makes no sound when it hits a wall.  Added by MK for weapons, if you extend it to other types, do it completely!
-constexpr object_flag_t OF_ATTACHED = 16;  // this object is a fireball attached to another object
+constexpr std::integral_constant<object_flag_t, 1> OF_EXPLODING{};   // this object is exploding
+constexpr std::integral_constant<object_flag_t, 2> OF_SHOULD_BE_DEAD{};   // this object should be dead, so next time we can, we should delete this object.
+constexpr std::integral_constant<object_flag_t, 4> OF_DESTROYED{};   // this has been killed, and is showing the dead version
+constexpr std::integral_constant<object_flag_t, 8> OF_SILENT{};   // this makes no sound when it hits a wall.  Added by MK for weapons, if you extend it to other types, do it completely!
+constexpr std::integral_constant<object_flag_t, 16> OF_ATTACHED{};  // this object is a fireball attached to another object
 #if defined(DXX_BUILD_DESCENT_II)
-constexpr object_flag_t OF_PLAYER_DROPPED = 64;  // this object was dropped by the player...
+constexpr std::integral_constant<object_flag_t, 64> OF_PLAYER_DROPPED{};  // this object was dropped by the player...
 #endif
 
 // physics flags
 typedef unsigned physics_flag_t;
-constexpr physics_flag_t PF_TURNROLL = 0x01;    // roll when turning
-constexpr physics_flag_t PF_LEVELLING = 0x02;    // level object with closest side
-constexpr physics_flag_t PF_BOUNCE = 0x04;    // bounce (not slide) when hit will
-constexpr physics_flag_t PF_WIGGLE = 0x08;    // wiggle while flying
-constexpr physics_flag_t PF_STICK = 0x10;    // object sticks (stops moving) when hits wall
-constexpr physics_flag_t PF_PERSISTENT = 0x20;    // object keeps going even after it hits another object (eg, fusion cannon)
-constexpr physics_flag_t PF_USES_THRUST = 0x40;    // this object uses its thrust
+constexpr std::integral_constant<physics_flag_t, 0x01> PF_TURNROLL{};    // roll when turning
+constexpr std::integral_constant<physics_flag_t, 0x02> PF_LEVELLING{};    // level object with closest side
+constexpr std::integral_constant<physics_flag_t, 0x04> PF_BOUNCE{};    // bounce (not slide) when hit will
+constexpr std::integral_constant<physics_flag_t, 0x08> PF_WIGGLE{};    // wiggle while flying
+constexpr std::integral_constant<physics_flag_t, 0x10> PF_STICK{};    // object sticks (stops moving) when hits wall
+constexpr std::integral_constant<physics_flag_t, 0x20> PF_PERSISTENT{};    // object keeps going even after it hits another object (eg, fusion cannon)
+constexpr std::integral_constant<physics_flag_t, 0x40> PF_USES_THRUST{};    // this object uses its thrust
 #if defined(DXX_BUILD_DESCENT_II)
-constexpr physics_flag_t PF_BOUNCED_ONCE = 0x80;    // Weapon has bounced once.
-constexpr physics_flag_t PF_FREE_SPINNING = 0x100;   // Drag does not apply to rotation of this object
-constexpr physics_flag_t PF_BOUNCES_TWICE = 0x200;   // This weapon bounces twice, then dies
+constexpr std::integral_constant<physics_flag_t, 0x80> PF_BOUNCED_ONCE{};    // Weapon has bounced once.
+constexpr std::integral_constant<physics_flag_t, 0x100> PF_FREE_SPINNING{};   // Drag does not apply to rotation of this object
+constexpr std::integral_constant<physics_flag_t, 0x200> PF_BOUNCES_TWICE{};   // This weapon bounces twice, then dies
 #endif
 
 namespace dcx {
@@ -115,16 +115,16 @@ enum object_type_t : uint8_t;
 struct object_base;
 
 typedef unsigned powerup_flag_t;
-constexpr powerup_flag_t PF_SPAT_BY_PLAYER = 1;   //this powerup was spat by the player
+constexpr std::integral_constant<powerup_flag_t, 1> PF_SPAT_BY_PLAYER{};   //this powerup was spat by the player
 
-constexpr unsigned IMMORTAL_TIME = 0x3fffffff;  // Time assigned to immortal objects, about 32768 seconds, or about 9 hours.
+constexpr std::integral_constant<unsigned, 0x3fffffff> IMMORTAL_TIME{};  // Time assigned to immortal objects, about 32768 seconds, or about 9 hours.
 
 struct shortpos;
 struct quaternionpos;
 
 // This is specific to the shortpos extraction routines in gameseg.c.
-constexpr unsigned RELPOS_PRECISION = 10;
-constexpr unsigned MATRIX_PRECISION = 9;
+constexpr std::integral_constant<unsigned, 10> RELPOS_PRECISION{};
+constexpr std::integral_constant<unsigned, 9> MATRIX_PRECISION{};
 
 struct physics_info;
 struct physics_info_rw;
@@ -155,9 +155,9 @@ struct object_rw;
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr unsigned MAX_CONTROLCEN_GUNS = 4;
+constexpr std::integral_constant<unsigned, 4> MAX_CONTROLCEN_GUNS{};
 #elif defined(DXX_BUILD_DESCENT_II)
-constexpr unsigned MAX_CONTROLCEN_GUNS = 8;
+constexpr std::integral_constant<unsigned, 8> MAX_CONTROLCEN_GUNS{};
 #endif
 
 struct powerup_info_rw;

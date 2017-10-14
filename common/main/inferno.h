@@ -46,7 +46,7 @@ namespace dcx {
 #define	FIX_EPSILON	10
 
 // the maximum length of a filename
-constexpr std::size_t FILENAME_LEN = 13;
+constexpr std::integral_constant<std::size_t, 13> FILENAME_LEN{};
 
 // Default event handler for everything except the editor
 window_event_result standard_handler(const d_event &event);

@@ -97,18 +97,18 @@ enum powerup_type_t : uint8_t
 
 #ifdef dsx
 namespace dcx {
-constexpr unsigned POWERUP_NAME_LENGTH = 16;
+constexpr std::integral_constant<unsigned, 16> POWERUP_NAME_LENGTH{};
 }
 
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 #define VULCAN_AMMO_MAX             (392u*2)
-constexpr unsigned MAX_POWERUP_TYPES = 29;
+constexpr std::integral_constant<unsigned, 29> MAX_POWERUP_TYPES{};
 #elif defined(DXX_BUILD_DESCENT_II)
 #define VULCAN_AMMO_MAX             (392u*4)
 #define GAUSS_WEAPON_AMMO_AMOUNT    392
 
-constexpr unsigned MAX_POWERUP_TYPES = 50;
+constexpr std::integral_constant<unsigned, 50> MAX_POWERUP_TYPES{};
 #endif
 #define VULCAN_WEAPON_AMMO_AMOUNT   196
 #define VULCAN_AMMO_AMOUNT          (49*2)

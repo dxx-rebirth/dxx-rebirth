@@ -123,8 +123,8 @@ static fix Dist_to_last_fired_upon_player_pos;
 }
 
 namespace dcx {
-constexpr int CHASE_TIME_LENGTH = F1_0 * 8;
-constexpr int Robot_sound_volume = F1_0;
+constexpr std::integral_constant<int, F1_0 * 8> CHASE_TIME_LENGTH{};
+constexpr std::integral_constant<int, F1_0> Robot_sound_volume{};
 enum {
 	Flinch_scale = 4,
 	Attack_scale = 24,
@@ -233,7 +233,7 @@ segnum_t             Believed_player_seg;
 }
 #endif
 
-constexpr std::size_t MAX_AWARENESS_EVENTS = 64;
+constexpr std::integral_constant<std::size_t, 64> MAX_AWARENESS_EVENTS{};
 struct awareness_event
 {
 	segnum_t	segnum;				// segment the event occurred in

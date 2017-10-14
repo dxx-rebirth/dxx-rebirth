@@ -54,10 +54,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef dsx
-namespace dcx {
-constexpr uint8_t station_none = 0xff;
-}
-
 namespace dsx {
 // Destroys all fuel centers, clears segment backpointer array.
 void fuelcen_reset();
@@ -169,6 +165,7 @@ void matcen_info_write(PHYSFS_File *fp, const matcen_info &mi, short version);
 }
 
 namespace dcx {
+constexpr std::integral_constant<uint8_t, 0xff> station_none{};
 extern unsigned Num_robot_centers;
 extern unsigned Num_fuelcenters;
 extern const fix EnergyToCreateOneRobot;

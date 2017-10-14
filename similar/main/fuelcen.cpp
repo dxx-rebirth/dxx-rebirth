@@ -545,10 +545,10 @@ void fuelcen_update_all()
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr unsigned FUELCEN_SOUND_DELAY = (F1_0 / 3);
+constexpr std::integral_constant<unsigned, F1_0 / 3> FUELCEN_SOUND_DELAY{};
 #elif defined(DXX_BUILD_DESCENT_II)
 //play every half second
-constexpr unsigned FUELCEN_SOUND_DELAY = (F1_0 / 4);
+constexpr std::integral_constant<unsigned, F1_0 / 4> FUELCEN_SOUND_DELAY{};
 #endif
 
 //-------------------------------------------------------------

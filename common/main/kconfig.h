@@ -91,14 +91,14 @@ extern control_info Controls;
 #ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr unsigned MAX_CONTROLS = 50;
+constexpr std::integral_constant<unsigned, 50> MAX_CONTROLS{};
 #elif defined(DXX_BUILD_DESCENT_II)
-constexpr unsigned MAX_CONTROLS = 60;		// there are actually 48, so this leaves room for more
+constexpr std::integral_constant<unsigned, 60> MAX_CONTROLS{};		// there are actually 48, so this leaves room for more
 #endif
 extern const array<array<uint8_t, MAX_CONTROLS>, 3> DefaultKeySettings;
 }
 namespace dcx {
-constexpr unsigned MAX_DXX_REBIRTH_CONTROLS = 30;
+constexpr std::integral_constant<unsigned, 30> MAX_DXX_REBIRTH_CONTROLS{};
 extern const array<uint8_t, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsRebirth;
 }
 #endif

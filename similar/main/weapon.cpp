@@ -1055,7 +1055,7 @@ int	Seismic_tremor_volume;
 static fix64 Next_seismic_sound_time;
 static bool Seismic_sound_playing;
 
-constexpr int Seismic_sound = SOUND_SEISMIC_DISTURBANCE_START;
+constexpr std::integral_constant<int, SOUND_SEISMIC_DISTURBANCE_START> Seismic_sound{};
 
 static void start_seismic_sound()
 {

@@ -41,7 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "kdefs.h"
 
-#define OBJS_PER_PAGE 8
+constexpr std::integral_constant<unsigned, 8> OBJS_PER_PAGE{};
 
 static array<std::unique_ptr<UI_GADGET_USERBOX>, OBJS_PER_PAGE> ObjBox;
 static std::unique_ptr<UI_GADGET_USERBOX> ObjCurrent;

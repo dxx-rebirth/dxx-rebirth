@@ -14,7 +14,7 @@
 #ifdef dsx
 namespace dcx {
 struct sound_object;
-constexpr int digi_max_channels = 16;
+constexpr std::integral_constant<int, 16> digi_max_channels{};
 }
 namespace dsx {
 int digi_audio_init();

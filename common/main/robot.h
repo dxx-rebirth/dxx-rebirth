@@ -64,12 +64,10 @@ struct jointlist
 	short offset;
 };
 
+constexpr std::integral_constant<unsigned, 16> ROBOT_NAME_LENGTH{};
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-namespace dcx {
-constexpr unsigned ROBOT_NAME_LENGTH = 16;
-}
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 //robot info flags
@@ -166,8 +164,8 @@ static inline imobjptridx_t robot_create(ubyte id, vmsegptridx_t segnum, const v
 
 #if defined(DXX_BUILD_DESCENT_I)
 // maximum number of robot types
-constexpr unsigned MAX_ROBOT_TYPES = 30;
-constexpr unsigned MAX_ROBOT_JOINTS = 600;
+constexpr std::integral_constant<unsigned, 30> MAX_ROBOT_TYPES{};
+constexpr std::integral_constant<unsigned, 600> MAX_ROBOT_JOINTS{};
 
 static inline int robot_is_companion(const robot_info &)
 {
@@ -180,8 +178,8 @@ static inline int robot_is_thief(const robot_info &)
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 // maximum number of robot types
-constexpr unsigned MAX_ROBOT_TYPES = 85;
-constexpr unsigned MAX_ROBOT_JOINTS = 1600;
+constexpr std::integral_constant<unsigned, 85> MAX_ROBOT_TYPES{};
+constexpr std::integral_constant<unsigned, 1600> MAX_ROBOT_JOINTS{};
 
 static inline int robot_is_companion(const robot_info &robptr)
 {

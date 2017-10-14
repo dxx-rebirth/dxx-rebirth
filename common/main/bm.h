@@ -38,9 +38,9 @@ struct grs_bitmap;
 #ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr unsigned MAX_TEXTURES = 800;
+constexpr std::integral_constant<unsigned, 800> MAX_TEXTURES{};
 #elif defined(DXX_BUILD_DESCENT_II)
-constexpr unsigned MAX_TEXTURES = 1200;
+constexpr std::integral_constant<unsigned, 1200> MAX_TEXTURES{};
 #endif
 }
 #endif
@@ -130,14 +130,14 @@ extern int8_t	ObjType[MAX_OBJTYPE];		// Type of an object, such as Robot, eg if 
 extern int8_t	ObjId[MAX_OBJTYPE];			// ID of a robot, within its class, eg if ObjType[11] == 3, then object #11 is the third robot
 extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 
-constexpr unsigned MAX_OBJ_BITMAPS = 210;
+constexpr std::integral_constant<unsigned, 210> MAX_OBJ_BITMAPS{};
 
 #elif defined(DXX_BUILD_DESCENT_II)
 
 //the model number of the marker object
 extern int Marker_model_num;
 extern int Robot_replacements_loaded;
-constexpr unsigned MAX_OBJ_BITMAPS = 610;
+constexpr std::integral_constant<unsigned, 610> MAX_OBJ_BITMAPS{};
 extern unsigned N_ObjBitmaps;
 extern int extra_bitmap_num;
 #endif
@@ -169,11 +169,11 @@ int compute_average_pixel(grs_bitmap *n);
 namespace dsx {
 //these values are the number of each item in the release of d2
 //extra items added after the release get written in an additional hamfile
-constexpr unsigned N_D2_ROBOT_TYPES = 66;
-constexpr unsigned N_D2_ROBOT_JOINTS = 1145;
-constexpr unsigned N_D2_OBJBITMAPS = 422;
-constexpr unsigned N_D2_OBJBITMAPPTRS = 502;
-constexpr unsigned N_D2_WEAPON_TYPES = 62;
+constexpr std::integral_constant<unsigned, 66> N_D2_ROBOT_TYPES{};
+constexpr std::integral_constant<unsigned, 1145> N_D2_ROBOT_JOINTS{};
+constexpr std::integral_constant<unsigned, 422> N_D2_OBJBITMAPS{};
+constexpr std::integral_constant<unsigned, 502> N_D2_OBJBITMAPPTRS{};
+constexpr std::integral_constant<unsigned, 62> N_D2_WEAPON_TYPES{};
 }
 #endif
 

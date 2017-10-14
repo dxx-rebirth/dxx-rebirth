@@ -42,7 +42,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-constexpr unsigned MAX_TMAP_VERTS = 25;
+constexpr std::integral_constant<unsigned, 25> MAX_TMAP_VERTS{};
 
 #if !DXX_USE_OGL
 // -------------------------------------------------------------------------------------------------------

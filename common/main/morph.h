@@ -54,7 +54,7 @@ struct morph_data : prohibit_void_ptr<morph_data>
 		submodel_startpoints;    // first point for each submodel
 };
 
-constexpr unsigned MAX_MORPH_OBJECTS = 5;
+constexpr std::integral_constant<unsigned, 5> MAX_MORPH_OBJECTS{};
 extern array<morph_data, MAX_MORPH_OBJECTS> morph_objects;
 
 void morph_start(vmobjptr_t obj);

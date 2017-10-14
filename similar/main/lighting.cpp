@@ -251,7 +251,7 @@ const array<fix, 16> Obj_light_xlate{{0x1234, 0x3321, 0x2468, 0x1735,
 			    0x3123, 0x29af, 0x1f03, 0x032a
 }};
 #if defined(DXX_BUILD_DESCENT_II)
-constexpr unsigned MAX_HEADLIGHTS = 8;
+constexpr std::integral_constant<unsigned, 8> MAX_HEADLIGHTS{};
 static unsigned Num_headlights;
 static array<const object *, MAX_HEADLIGHTS> Headlights;
 #endif

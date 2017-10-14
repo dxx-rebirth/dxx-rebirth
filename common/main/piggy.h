@@ -107,12 +107,12 @@ void piggy_read_sound_data(digi_sound *snd);
 void piggy_load_level_data();
 
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr unsigned MAX_BITMAP_FILES = 1800;
+constexpr std::integral_constant<unsigned, 1800> MAX_BITMAP_FILES{};
 #define MAX_SOUND_FILES     MAX_SOUNDS
 #define PIGGY_PC_SHAREWARE 2
 #elif defined(DXX_BUILD_DESCENT_II)
 // Upped for CD Enhanced
-constexpr unsigned MAX_BITMAP_FILES = 2620;
+constexpr std::integral_constant<unsigned, 2620> MAX_BITMAP_FILES{};
 #define MAX_SOUND_FILES     MAX_SOUNDS
 #endif
 

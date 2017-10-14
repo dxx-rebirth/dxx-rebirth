@@ -170,7 +170,7 @@ static void udp_tracker_process_holepunch( ubyte *data, int data_len, const _soc
 static fix64 StartAbortMenuTime;
 
 #ifndef _WIN32
-constexpr int INVALID_SOCKET = -1;
+constexpr std::integral_constant<int, -1> INVALID_SOCKET{};
 #endif
 
 namespace {
@@ -3252,8 +3252,8 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 
 #endif
 
-constexpr unsigned reactor_invul_time_mini_scale = F1_0 * 60;
-constexpr unsigned reactor_invul_time_scale = 5 * reactor_invul_time_mini_scale;
+constexpr std::integral_constant<unsigned, F1_0 * 60> reactor_invul_time_mini_scale{};
+constexpr std::integral_constant<unsigned, 5 * reactor_invul_time_mini_scale> reactor_invul_time_scale{};
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define D2X_DUPLICATE_POWERUP_OPTIONS(VERB)	                           \

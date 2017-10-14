@@ -7,7 +7,7 @@
 #include "compiler-array.h"
 #include "objnum.h"
 
-constexpr unsigned MAX_RENDER_SEGS = 500;
+constexpr std::integral_constant<unsigned, 500> MAX_RENDER_SEGS{};
 
 struct rect
 {

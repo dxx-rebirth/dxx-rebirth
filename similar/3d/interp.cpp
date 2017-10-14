@@ -26,15 +26,15 @@
 
 namespace dcx {
 
-constexpr unsigned OP_EOF = 0;   //eof
-constexpr unsigned OP_DEFPOINTS = 1;   //defpoints
-constexpr unsigned OP_FLATPOLY = 2;   //flat-shaded polygon
-constexpr unsigned OP_TMAPPOLY = 3;   //texture-mapped polygon
-constexpr unsigned OP_SORTNORM = 4;   //sort by normal
-constexpr unsigned OP_RODBM = 5;   //rod bitmap
-constexpr unsigned OP_SUBCALL = 6;   //call a subobject
-constexpr unsigned OP_DEFP_START = 7;   //defpoints with start
-constexpr unsigned OP_GLOW = 8;   //glow value for next poly
+constexpr std::integral_constant<unsigned, 0> OP_EOF{};   //eof
+constexpr std::integral_constant<unsigned, 1> OP_DEFPOINTS{};   //defpoints
+constexpr std::integral_constant<unsigned, 2> OP_FLATPOLY{};   //flat-shaded polygon
+constexpr std::integral_constant<unsigned, 3> OP_TMAPPOLY{};   //texture-mapped polygon
+constexpr std::integral_constant<unsigned, 4> OP_SORTNORM{};   //sort by normal
+constexpr std::integral_constant<unsigned, 5> OP_RODBM{};   //rod bitmap
+constexpr std::integral_constant<unsigned, 6> OP_SUBCALL{};   //call a subobject
+constexpr std::integral_constant<unsigned, 7> OP_DEFP_START{};   //defpoints with start
+constexpr std::integral_constant<unsigned, 8> OP_GLOW{};   //glow value for next poly
 
 #if DXX_USE_EDITOR
 int g3d_interp_outline;

@@ -50,10 +50,10 @@ struct window_rendered_data
 #endif
 
 extern int Render_depth; //how many segments deep to render
-constexpr unsigned Max_perspective_depth = 8; //	Deepest segment at which perspective extern interpolation will be used.
-constexpr unsigned Max_linear_depth_objects = 20;
-constexpr unsigned Simple_model_threshhold_scale = 50; // switch to simpler model when the object has depth greater than this value times its radius.
-constexpr unsigned Max_debris_objects = 15; // How many debris objects to create
+constexpr std::integral_constant<unsigned, 8> Max_perspective_depth{}; //	Deepest segment at which perspective extern interpolation will be used.
+constexpr std::integral_constant<unsigned, 20> Max_linear_depth_objects{};
+constexpr std::integral_constant<unsigned, 50> Simple_model_threshhold_scale{}; // switch to simpler model when the object has depth greater than this value times its radius.
+constexpr std::integral_constant<unsigned, 15> Max_debris_objects{}; // How many debris objects to create
 
 #if DXX_USE_OGL
 #define DETRIANGULATION 0
@@ -90,8 +90,8 @@ fix Render_zoom;     // the player's zoom factor
 #ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr fix Seismic_tremor_magnitude = 0;
-constexpr uint8_t RenderingType = 0;
+constexpr std::integral_constant<fix, 0> Seismic_tremor_magnitude{};
+constexpr std::integral_constant<uint8_t, 0> RenderingType{};
 #elif defined(DXX_BUILD_DESCENT_II)
 extern fix Seismic_tremor_magnitude;
 extern uint8_t RenderingType;

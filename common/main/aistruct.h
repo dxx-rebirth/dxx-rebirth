@@ -325,7 +325,7 @@ struct seg_seg
 	segnum_t       start, end;
 };
 
-constexpr unsigned MAX_POINT_SEGS = 2500;
+constexpr std::integral_constant<unsigned, 2500> MAX_POINT_SEGS{};
 
 }
 

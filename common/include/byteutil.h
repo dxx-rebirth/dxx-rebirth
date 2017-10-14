@@ -67,11 +67,10 @@ static constexpr int32_t SWAPINT(const int32_t &i)
 
 #if !DXX_WORDS_BIGENDIAN
 #define byteutil_choose_endian(F,a)	(a)
-constexpr int words_bigendian = 0;
 #else // ! WORDS_BIGENDIAN
 #define byteutil_choose_endian(F,a)	(F(a))
-constexpr int words_bigendian = 1;
 #endif // ! WORDS_BIGENDIAN
+constexpr std::integral_constant<int, DXX_WORDS_BIGENDIAN> words_bigendian{};
 
 #if !DXX_WORDS_NEED_ALIGNMENT
 #define byteutil_unaligned_copy(dt, d, s)	(static_cast<dt &>(d) = *reinterpret_cast<const dt *>(s))

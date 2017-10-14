@@ -187,15 +187,15 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_GAME_TYPE_COUNT	8
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr unsigned MULTI_GAME_NAME_LENGTH = 13;
-constexpr unsigned MULTI_ALLOW_POWERUP_TEXT_LENGTH = 18;
+constexpr std::integral_constant<unsigned, 13> MULTI_GAME_NAME_LENGTH{};
+constexpr std::integral_constant<unsigned, 18> MULTI_ALLOW_POWERUP_TEXT_LENGTH{};
 #define MULTI_ALLOW_POWERUP_MAX 12
 #define D2X_MP_NETFLAGS(VALUE)
 #define DXX_GRANT_LASER_LEVEL_BITS	2
 #define D2X_MP_NETGRANT(VALUE)
 #elif defined(DXX_BUILD_DESCENT_II)
-constexpr unsigned MULTI_GAME_NAME_LENGTH = 17;
-constexpr unsigned MULTI_ALLOW_POWERUP_TEXT_LENGTH = 21;
+constexpr std::integral_constant<unsigned, 17> MULTI_GAME_NAME_LENGTH{};
+constexpr std::integral_constant<unsigned, 21> MULTI_ALLOW_POWERUP_TEXT_LENGTH{};
 #define MULTI_ALLOW_POWERUP_MAX 26
 #define NETFLAG_LABEL_GAUSS	"Gauss cannon"
 #define NETFLAG_LABEL_HELIX	"Helix cannon"

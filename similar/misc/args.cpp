@@ -34,7 +34,7 @@
 
 namespace dcx {
 CArg CGameArg;
-constexpr std::size_t MAX_ARGS = 1000;
+constexpr std::integral_constant<std::size_t, 1000> MAX_ARGS{};
 typedef std::vector<std::string> Arglist;
 
 namespace {

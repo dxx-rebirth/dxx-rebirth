@@ -60,7 +60,9 @@ constexpr uint16_t UDP_PORT_DEFAULT = 42424;
 constexpr uint16_t TRACKER_PORT_DEFAULT = 9999;
 #endif
 #define UDP_MAX_NETGAMES 900
-#define UDP_NETGAMES_PPAGE 12 // Netgames on one page of Netlist
+namespace dcx {
+constexpr std::integral_constant<unsigned, 12> UDP_NETGAMES_PPAGE{}; // Netgames on one page of Netlist
+}
 #define UDP_NETGAMES_PAGES 75 // Pages available on Netlist (UDP_MAX_NETGAMES/UDP_NETGAMES_PPAGE)
 #define UDP_TIMEOUT (5*F1_0) // 5 seconds disconnect timeout
 #define UDP_MDATA_STOR_QUEUE_SIZE 1024 // Store up to 1024 MDATA packets
