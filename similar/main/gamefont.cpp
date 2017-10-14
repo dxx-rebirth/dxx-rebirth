@@ -36,6 +36,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "config.h"
 
+#include "compiler-range_for.h"
+#include "d_enumerate.h"
+
 const array<char[16], 5> Gamefont_filenames_l{{
 	"font1-1.fnt", // Font 0
 	"font2-1.fnt", // Font 1
@@ -103,10 +106,14 @@ void gamefont_choose_game_font(int scrx,int scry){
 	int close=-1,m=-1;
 	if (!Gamefont_installed) return;
 
-	for (int gf=0;gf<MAX_FONTS;gf++){
-		for (int i=0;i<font_conf[gf].num;i++)
-			if ((scrx>=font_conf[gf].font[i].x && close<font_conf[gf].font[i].x)&&(scry>=font_conf[gf].font[i].y && close<font_conf[gf].font[i].y)){
-				close=font_conf[gf].font[i].x;
+	range_for (const auto &&efc, enumerate(font_conf))
+	{
+		const auto gf = efc.idx;
+		auto &fc = efc.value;
+		for (int i = 0; i < fc.num; ++i)
+			if ((scrx >= fc.font[i].x && close < fc.font[i].x) && (scry >= fc.font[i].y && close < fc.font[i].y))
+			{
+				close = fc.font[i].x;
 				m=i;
 			}
 		if (m<0)
@@ -116,7 +123,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 	if (!CGameArg.OglFixedFont)
 	{
 		// if there's no texture filtering, scale by int
-		auto &f = font_conf[gf].font[m];
+		auto &f = fc.font[m];
 		if (!CGameCfg.TexFilt)
 		{
 			FNTScaleX = scrx / f.x;
@@ -143,7 +150,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 		gamefont_loadfont(gf,m);
 	}
 }
-	
+
 static void addfontconf(int gf, int x, int y, const char *const fn)
 {
 	if (!PHYSFSX_exists(fn,1))
@@ -173,8 +180,11 @@ void gamefont_init()
 
 	Gamefont_installed = 1;
 
-	for (int i=0;i<MAX_FONTS;i++){
-		Gamefonts[i]=NULL;
+	range_for (auto &&egf, enumerate(Gamefonts))
+	{
+		const auto i = egf.idx;
+		auto &gf = egf.value;
+		gf = nullptr;
 
 		if (!CGameArg.GfxSkipHiresFNT)
 			addfontconf(i,640,480,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts if available
@@ -196,8 +206,9 @@ void gamefont_close()
 	if (!Gamefont_installed) return;
 	Gamefont_installed = 0;
 
-	for (int i=0; i<MAX_FONTS; i++ ) {
-		gamefont_unloadfont(i);
+	range_for (auto &&egf, enumerate(Gamefonts))
+	{
+		gamefont_unloadfont(egf.idx);
 	}
 
 }
