@@ -4413,14 +4413,17 @@ class DXXProgram(DXXCommon):
 			('DESCENT_VERSION_EXTRA', _quote_cppdefine(extra_version, f=str)),
 			('DESCENT_CXX_version', _quote_cppdefine(get_version_head(env['CXX']))),
 			('DESCENT_LINK', _quote_cppdefine(ld_path)),
-			('DESCENT_LINK_version', _quote_cppdefine(get_version_head(ld_path))),
 			('DESCENT_git_status', _quote_cppdefine(git_describe_version.status)),
 			('DESCENT_git_diffstat', _quote_cppdefine(git_describe_version.diffstat_HEAD)),
 		))
+		if ld_path:
+			versid_cppdefines.append(
+				('DESCENT_LINK_version', _quote_cppdefine(get_version_head(ld_path))),
+			)
+			versid_build_environ.append('LINK_version')
 		versid_build_environ.extend((
 			'CXX_version',
 			'LINK',
-			'LINK_version',
 			'git_status',
 			'git_diffstat',
 		))
