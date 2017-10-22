@@ -3811,6 +3811,12 @@ class DXXCommon(LazyObjectConstructor):
 			CXXFLAGS = ['-funsigned-char'],
 			CPPPATH = ['common/include', 'common/main', '.'],
 			CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'),
+			# PhysFS 2.1 and later deprecate functions PHYSFS_read,
+			# PHYSFS_write, which Rebirth uses extensively.  PhysFS 2.0
+			# does not implement the new non-deprecated functions.
+			# Disable the deprecation error until PhysFS 2.0 support is
+			# removed.
+			CPPDEFINES = [('PHYSFS_DEPRECATED', '')],
 		)
 		add_flags = defaultdict(list)
 		if user_settings.builddir:
