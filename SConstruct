@@ -2938,7 +2938,7 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': EnumVariable,
 				'arguments': (
-					('raspberrypi', None, 'build for Raspberry Pi (automatically selects opengles)', {'ignorecase': 1, 'map': {'1':'yes', 'true':'yes', '0':'no', 'false':'no'}, 'allowed_values': ('yes', 'no', 'mesa')}),
+					('raspberrypi', None, 'build for Raspberry Pi (automatically selects opengles)', {'ignorecase': 2, 'map': {'1':'yes', 'true':'yes', '0':'no', 'false':'no'}, 'allowed_values': ('yes', 'no', 'mesa')}),
 				),
 			},
 			{
