@@ -3164,6 +3164,7 @@ class DXXCommon(LazyObjectConstructor):
 		# Paths for the Videocore libs/includes on the Raspberry Pi
 		RPI_DEFAULT_VC_PATH='/opt/vc'
 		default_OGLES_LIB = 'GLES_CM'
+		default_EGL_LIB = 'EGL'
 		_default_prefix = '/usr/local'
 		__stdout_is_not_a_tty = None
 		__has_git_dir = None
@@ -3211,7 +3212,7 @@ class DXXCommon(LazyObjectConstructor):
 			return self.debug
 		# automatic setup for raspberrypi
 		def default_opengles(self):
-			if self.raspberrypi:
+			if self.raspberrypi in ('yes', 'mesa'):
 				return True
 			return False
 		@classmethod
@@ -3227,11 +3228,17 @@ class DXXCommon(LazyObjectConstructor):
 				cls.__stdout_is_not_a_tty = r = False if isatty is None else not isatty()
 			return r
 		def default_words_need_alignment(self):
-			return self.raspberrypi
+			if self.raspberrypi in ('yes', 'mesa'):
+				return True
+			return False
 		def selected_OGLES_LIB(self):
-			if self.raspberrypi:
-				return 'GLESv2'
+			if self.raspberrypi == 'yes':
+				return 'brcmGLESv2'
 			return self.default_OGLES_LIB
+		def selected_EGL_LIB(self):
+			if self.raspberrypi == 'yes':
+				return 'brcmEGL'
+			return self.default_EGL_LIB
 		def __default_DATA_DIR(self):
 			return '%s/share/games/%s' % (self.prefix, self._program.target)
 		def _generic_variable(key,help,default):
@@ -3287,10 +3294,15 @@ class DXXCommon(LazyObjectConstructor):
 				],
 			},
 			{
+				'variable': EnumVariable,
+				'arguments': (
+					('raspberrypi', None, 'build for Raspberry Pi (automatically selects opengles)', {'ignorecase': 2, 'map': {'1':'yes', 'true':'yes', '0':'no', 'false':'no'}, 'allowed_values': ('yes', 'no', 'mesa')}),
+				),
+			},
+			{
 				'variable': BoolVariable,
 				'arguments': (
 					('record_sconf_results', False, 'write sconf results to dxxsconf.h'),
-					('raspberrypi', False, 'build for Raspberry Pi (automatically sets opengles and opengles_lib)'),
 					('git_describe_version', self.__get_has_git_dir(), 'include git --describe in extra_version'),
 					('git_status', True, 'include git status'),
 					('versid_depend_all', False, 'rebuild vers_id.cpp if any object file changes'),
@@ -3301,6 +3313,7 @@ class DXXCommon(LazyObjectConstructor):
 				'arguments': (
 					('rpi_vc_path', self.RPI_DEFAULT_VC_PATH, 'directory for RPi VideoCore libraries'),
 					('opengles_lib', self.selected_OGLES_LIB, 'name of the OpenGL ES library to link against'),
+					('egl_lib', self.selected_EGL_LIB, 'name of the OpenGL ES Graphics Library to link against'),
 					('prefix', self._default_prefix, 'installation prefix directory (Linux only)'),
 					('sharepath', self.__default_DATA_DIR, 'directory for shared game data (Linux only)'),
 				),
@@ -3541,7 +3554,7 @@ class DXXCommon(LazyObjectConstructor):
 		@property
 		def ogllibs(self):
 			user_settings = self.user_settings
-			return (user_settings.opengles_lib, 'EGL') if user_settings.opengles else ('GL', 'GLU')
+			return (user_settings.opengles_lib, user_settings.egl_lib) if user_settings.opengles else ('GL', 'GLU')
 		@staticmethod
 		def get_platform_objects(_empty=()):
 			return _empty
@@ -3873,7 +3886,7 @@ class DXXCommon(LazyObjectConstructor):
 
 		env.Prepend(CXXFLAGS = ['-g', '-O2'])
 		# Raspberry Pi?
-		if user_settings.raspberrypi:
+		if user_settings.raspberrypi == 'yes':
 			rpi_vc_path = user_settings.rpi_vc_path
 			message(self, "Raspberry Pi: using VideoCore libs in %r" % rpi_vc_path)
 			env.Append(

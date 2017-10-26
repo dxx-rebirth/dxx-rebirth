@@ -9,12 +9,28 @@ packages, debain/raspbian do so for sure. Using a distribution with hardfp ABI
 is recommended for optimal performance. I developed/tested this on a raspbian
 wheezy. 
 
-To build directly on the device, just run:
+Multiple build configurations are possible for the Pi, depending on whether you
+wish to use the legacy vendor graphics driver or experimental Mesa VC4 driver.
 
-scons raspberrypi=1 [... other options (see scons -h)...]
+To build against the legacy vendor graphics driver (recommended for most users):
+
+scons raspberrypi=1
+
+If you're using a firmware release older than 1.20160921-1, it's highly
+recommended that you upgrade, but if that's not an option, you must manually
+specify the original GLES/EGL library names:
+
+scons raspberrypi=1 egl_lib=EGL opengles_lib=GLESv2
 
 This assumes that the development files (libs/headers) for the VideoCore APIs 
 are located in /opt/vc. You can use rpi_vc_path to specify another location.
+
+If you wish to build against the experimental Mesa VC4 driver, use:
+
+scons raspberrypi=mesa
+
+This will select the GLES interface by default, but you can select OpenGL by
+adding opengles=0. For all other options, check "scons -h".
 
 Currently, there is no direct support for crosscompiling.
 
