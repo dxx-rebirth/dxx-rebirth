@@ -88,12 +88,16 @@ static void draw_cell(grs_canvas &canvas, const int i, const int j, cg3s_point &
 
 	g3_check_and_draw_tmap(canvas, pointlist, uvl_list1, lrgb_list1, *terrain_bm);
 	if (terrain_outline) {
-		int lsave=Lighting_on;
+#if !DXX_USE_OGL
+		const int lsave = Lighting_on;
 		Lighting_on=0;
+#endif
 		const uint8_t color = BM_XRGB(31, 0, 0);
 		g3_draw_line(canvas, *pointlist[0],*pointlist[1], color);
 		g3_draw_line(canvas, *pointlist[2],*pointlist[0], color);
+#if !DXX_USE_OGL
 		Lighting_on=lsave;
+#endif
 	}
 
 	pointlist[0] = &p1;
@@ -110,13 +114,17 @@ static void draw_cell(grs_canvas &canvas, const int i, const int j, cg3s_point &
 
 	g3_check_and_draw_tmap(canvas, pointlist, uvl_list2, lrgb_list2, *terrain_bm);
 	if (terrain_outline) {
-		int lsave=Lighting_on;
+#if !DXX_USE_OGL
+		const int lsave = Lighting_on;
 		Lighting_on=0;
+#endif
 		const uint8_t color = BM_XRGB(31, 0, 0);
 		g3_draw_line(canvas, *pointlist[0],*pointlist[1], color);
 		g3_draw_line(canvas, *pointlist[1],*pointlist[2], color);
 		g3_draw_line(canvas, *pointlist[2],*pointlist[0], color);
+#if !DXX_USE_OGL
 		Lighting_on=lsave;
+#endif
 	}
 
 	if (i==org_i && j==org_j)
@@ -186,7 +194,6 @@ void render_terrain(grs_canvas &canvas, const vms_vector &org_point,int org_2dx,
 	//@@start_point.y = org_point->y;
 	terrain_y_cache get_dy_vec;
 
-	//Lighting_on = 0;
 #if !DXX_USE_OGL
 	Interpolation_method = 1;
 #endif

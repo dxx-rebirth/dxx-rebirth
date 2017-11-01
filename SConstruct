@@ -3952,7 +3952,6 @@ class DXXArchive(DXXCommon):
 'misc/strutil.cpp',
 'misc/vgrphys.cpp',
 'misc/vgwphys.cpp',
-'texmap/ntmap.cpp',
 ]
 ]), \
 		__get_objects_use_sdl1=DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
@@ -3993,6 +3992,7 @@ class DXXArchive(DXXCommon):
 	# for non-ogl
 	get_objects_arch_sdl = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
 '3d/clipper.cpp',
+'texmap/ntmap.cpp',
 'texmap/scanline.cpp',
 'texmap/tmapflat.cpp'
 ]

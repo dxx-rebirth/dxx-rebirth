@@ -83,6 +83,13 @@ struct g3ds_tmap {
 //	Set Interpolation_method to 0/1/2 for linear/linear, perspective/linear, perspective/perspective
 #if !DXX_USE_OGL
 extern	int	Interpolation_method;
+extern uint8_t Transparency_on;
+
+// Set Lighting_on to 0/1/2 for no lighting/intensity lighting/rgb lighting
+extern	int	Lighting_on;
+
+// HACK INTERFACE: how far away the current segment (& thus texture) is
+extern unsigned Current_seg_depth;
 void init_interface_vars_to_assembler();
 #endif
 class push_interpolation_method
@@ -106,16 +113,8 @@ public:
 #endif
 };
 
-// Set Lighting_on to 0/1/2 for no lighting/intensity lighting/rgb lighting
-extern	int	Lighting_on;
-
-// HACK INTERFACE: how far away the current segment (& thus texture) is
-extern unsigned Current_seg_depth;
-
 //	These are pointers to texture maps.  If you want to render texture map #7, then you will render
 //	the texture map defined by Texmap_ptrs[7].
-
-extern int Transparency_on;
 
 extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;
 

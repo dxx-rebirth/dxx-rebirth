@@ -977,9 +977,13 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 #endif
 	}
 
+#if !DXX_USE_OGL
 	Lighting_on=0;
+#endif
 	render_object(canvas, vmobjptridx(ConsoleObject));
+#if !DXX_USE_OGL
 	Lighting_on=1;
+#endif
 }
 
 static array<vms_vector, 500> stars;

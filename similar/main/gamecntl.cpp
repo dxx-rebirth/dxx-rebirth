@@ -1287,8 +1287,10 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 #endif
 			break;
 		case KEY_DEBUGGED + KEY_L:
+#if !DXX_USE_OGL
 			if (++Lighting_on >= 2)
                                 Lighting_on = 0;
+#endif
                         break;
 		case KEY_PAD5: slew_stop(); break;
 

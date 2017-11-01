@@ -504,10 +504,10 @@ static int main(int argc, char *argv[])
 
 #if !DXX_USE_OGL
 	select_tmap(CGameArg.DbgTexMap);
-#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 	Lighting_on = 1;
+#endif
 #endif
 
 	con_printf(CON_VERBOSE, "Going into graphics mode...");

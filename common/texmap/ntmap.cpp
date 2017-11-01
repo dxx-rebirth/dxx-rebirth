@@ -46,8 +46,6 @@ namespace dcx {
 #define EDITOR_TMAP 1       //if in, include extra stuff
 #endif
 
-#define F15_5 (F1_0*15 + F0_5)
-
 // Temporary texture map, interface from Matt's 3d system to Mike's texture mapper.
 
 int     Lighting_on=1;                  // initialize to no lighting
@@ -62,13 +60,9 @@ unsigned char *write_buffer;
 fix fx_l, fx_u, fx_v, fx_z, fx_du_dx, fx_dv_dx, fx_dz_dx, fx_dl_dx;
 int fx_xleft, fx_xright, fx_y;
 const unsigned char *pixptr;
-int Transparency_on = 0;
+uint8_t Transparency_on = 0;
+uint8_t tmap_flat_color;
 
-ubyte tmap_flat_color;
-
-
-
-#if !DXX_USE_OGL
 int	Interpolation_method;	// 0 = choose best method
 // -------------------------------------------------------------------------------------
 template <std::size_t... N>
@@ -863,6 +857,5 @@ void draw_tmap(grs_canvas &canvas, const grs_bitmap &rbp, uint_fast32_t nverts, 
 	Lighting_on = lighting_on_save;
 
 }
-#endif
 
 }

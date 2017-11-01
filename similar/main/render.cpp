@@ -379,7 +379,6 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsign
 {
 #if DXX_USE_EDITOR
 	if (_search_mode) {
-		int save_lighting;
 		array<g3s_lrgb, 4> dyn_light{};
 		array<cg3s_point *, 4> pointlist;
 #if DXX_USE_OGL
@@ -408,16 +407,16 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsign
 		ogl_start_frame(canvas);
 #endif
 		{
-		save_lighting = Lighting_on;
-		Lighting_on = 2;
 #if DXX_USE_OGL
 			const uint8_t color = 1;
 			g3_draw_poly(canvas, nv, pointlist, color);
 #else
+			const auto save_lighting = Lighting_on;
+			Lighting_on = 2;
 			g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, *bm);
+			Lighting_on = save_lighting;
 #endif
 		}
-		Lighting_on = save_lighting;
 
 		if (gr_ugpixel(canvas.cv_bitmap,_search_x,_search_y) == 1) {
 			found_seg = segnum;
@@ -1552,7 +1551,6 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3)) {
 			//set global render window vars
 
-			Current_seg_depth = srsm.Seg_depth;
 			{
 				const auto &rw = srsm.render_window;
 				Window_clip_left  = rw.left;
@@ -1603,7 +1601,6 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3)) {
 			//set global render window vars
 
-			Current_seg_depth = srsm.Seg_depth;
 			{
 				const auto &rw = srsm.render_window;
 				Window_clip_left  = rw.left;

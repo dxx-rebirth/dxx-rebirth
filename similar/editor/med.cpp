@@ -627,6 +627,7 @@ int SetPlayerFromCursegMinusOne()
 	return 1;
 }
 
+#if !DXX_USE_OGL
 static int ToggleLighting(void)
 {
 	Lighting_on++;
@@ -652,6 +653,7 @@ static int ToggleLighting(void)
 
 	return Lighting_on;
 }
+#endif
 
 int FindConcaveSegs()
 {
@@ -784,7 +786,6 @@ static void init_editor_screen(grs_canvas &canvas)
 	ViewIcon	= ui_add_gadget_icon( EditorWindow, "Lock\nview",	455,25+530, 	40, 22,	KEY_V+KEY_CTRLED, ToggleLockViewToCursegp );
 	AllIcon	= ui_add_gadget_icon( EditorWindow, "Draw\nall",	500,25+530,  	40, 22,	-1, ToggleDrawAllSegments );
 	AxesIcon	= ui_add_gadget_icon( EditorWindow, "Coord\naxes",545,25+530,		40, 22,	KEY_D+KEY_CTRLED, ToggleCoordAxes );
-//-NOLIGHTICON-	LightIcon	= ui_add_gadget_icon( EditorWindow, "Light\ning",	590,25+530, 	40, 22,	KEY_L+KEY_SHIFTED,ToggleLighting );
 	ChaseIcon	= ui_add_gadget_icon( EditorWindow, "Chase\nmode",635,25+530,		40, 22,	-1,				ToggleChaseMode );
 	OutlineIcon = ui_add_gadget_icon( EditorWindow, "Out\nline", 	680,25+530,  	40, 22,	KEY_O+KEY_CTRLED,			ToggleOutlineMode );
 	LockIcon	= ui_add_gadget_icon( EditorWindow, "Lock\nstep", 725,25+530, 	40, 22,	KEY_L+KEY_CTRLED,			ToggleLockstep );
@@ -1200,7 +1201,9 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 		case KEY_LAPOSTRO:
 			break;
 		case KEY_SHIFTED + KEY_L:
+#if !DXX_USE_OGL
 			ToggleLighting();
+#endif
 			rval = window_event_result::handled;
 			break;
 		case KEY_F1:

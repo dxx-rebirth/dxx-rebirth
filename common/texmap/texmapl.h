@@ -37,37 +37,28 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+#if !DXX_USE_OGL
 struct g3ds_tmap;
 
-#if !DXX_USE_OGL
 extern	int prevmod(int val,int modulus);
 extern	int succmod(int val,int modulus);
 
 fix compute_dx_dy(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix recip_dy);
 void compute_y_bounds(const g3ds_tmap &t, int &vlt, int &vlb, int &vrt, int &vrb,int &bottom_y_ind);
-#endif
 
 extern int	fx_y,fx_xleft,fx_xright;
-extern unsigned char tmap_flat_color;
 extern const unsigned char *pixptr;
-
 // texture mapper scanline renderers
-extern	void asm_tmap_scanline_per(void);
-
 // Interface variables to assembler code
 extern	fix	fx_u,fx_v,fx_z,fx_du_dx,fx_dv_dx,fx_dz_dx;
 extern	fix	fx_dl_dx,fx_l;
-extern	int	fx_r,fx_g,fx_b,fx_dr_dx,fx_dg_dx,fx_db_dx;
-
 extern	int	bytes_per_row;
 extern  unsigned char *write_buffer;
 
-extern ubyte tmap_flat_color;
+extern uint8_t tmap_flat_color;
 
 constexpr std::integral_constant<std::size_t, 641> FIX_RECIP_TABLE_SIZE{};	//increased from 321 to 641, since this res is now quite achievable.. slight fps boost -MM
 extern const array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table;
-
-#if !DXX_USE_OGL
 static inline fix fix_recip(unsigned i)
 {
 	if (i < fix_recip_table.size())
