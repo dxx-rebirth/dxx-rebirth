@@ -363,8 +363,6 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			CGameArg.DbgRenderStats = true;
 		else if (!d_stricmp(p, "-text"))
 			CGameArg.DbgAltTex = arg_string(pp, end);
-		else if (!d_stricmp(p, "-tmap"))
-			CGameArg.DbgTexMap = arg_string(pp, end);
 		else if (!d_stricmp(p, "-showmeminfo"))
 			CGameArg.DbgShowMemInfo 		= 1;
 		else if (!d_stricmp(p, "-nodoublebuffer"))
@@ -388,6 +386,8 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-gl_gettexlevelparam_ok"))
 			CGameArg.DbgGlGetTexLevelParamOk = arg_integer(pp, end);
 #else
+		else if (!d_stricmp(p, "-tmap"))
+			CGameArg.DbgTexMap = arg_string(pp, end);
 		else if (!d_stricmp(p, "-hwsurface"))
 			CGameArg.DbgSdlHWSurface = true;
 		else if (!d_stricmp(p, "-asyncblit"))

@@ -90,7 +90,9 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "collide.h"
 #include "newdemo.h"
 #include "joy.h"
+#if !DXX_USE_OGL
 #include "../texmap/scanline.h" //for select_tmap -MM
+#endif
 #include "event.h"
 #include "rbaudio.h"
 #ifndef __linux__
@@ -500,7 +502,9 @@ static int main(int argc, char *argv[])
 
 	arch_init();
 
+#if !DXX_USE_OGL
 	select_tmap(CGameArg.DbgTexMap);
+#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 	Lighting_on = 1;

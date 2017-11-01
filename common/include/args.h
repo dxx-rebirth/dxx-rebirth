@@ -128,7 +128,9 @@ struct CArg : prohibit_void_ptr<CArg>
 	std::string SysRecordDemoNameTemplate;
 	std::string MplUdpHostAddr;
 	std::string DbgAltTex;
+#if !DXX_USE_OGL
 	std::string DbgTexMap;
+#endif
 };
 extern CArg CGameArg;
 }

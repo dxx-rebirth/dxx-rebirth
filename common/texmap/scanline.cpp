@@ -42,7 +42,6 @@ namespace dcx {
 
 tmap_scanline_function_table tmap_scanline_functions;
 
-#if !DXX_USE_OGL
 void c_tmap_scanline_flat()
 {
 	uint8_t *dest;
@@ -56,7 +55,6 @@ void c_tmap_scanline_flat()
 	}
 //         memset(dest,tmap_flat_color,fx_xright-fx_xleft+1);
 }
-#endif
 
 void c_tmap_scanline_shaded()
 {
@@ -107,8 +105,6 @@ void c_tmap_scanline_lin_nolight()
 	}
 }
 
-
-#if 1
 void c_tmap_scanline_lin()
 {
 	uint c;
@@ -213,7 +209,6 @@ void c_tmap_scanline_lin()
 		}
 	}
 }
-#endif
 
 // This texture mapper uses floating point extensively and writes 8 pixels at once, so it likely works
 // best on 64 bit RISC processors.
@@ -488,7 +483,6 @@ static void c_fp_tmap_scanline_per()
 	}
 }
 
-#if 1
 // note the unrolling loop is broken. It is never called, and uses big endian. -- FH
 static void c_tmap_scanline_per()
 {
@@ -602,7 +596,6 @@ static void c_tmap_scanline_per()
 		}
 	}
 }
-#endif
 
 static void c_tmap_scanline_quad()
 {

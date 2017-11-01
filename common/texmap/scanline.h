@@ -27,7 +27,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include <string>
+#include "dxxsconf.h"
 
+#if !DXX_USE_OGL
 namespace dcx {
 extern void c_tmap_scanline_lin();
 extern void c_tmap_scanline_lin_nolight();
@@ -49,5 +51,6 @@ struct tmap_scanline_function_table
 extern tmap_scanline_function_table tmap_scanline_functions;
 void select_tmap(const std::string &type);
 }
+#endif
 
 #endif
