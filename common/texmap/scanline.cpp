@@ -213,46 +213,6 @@ void c_tmap_scanline_lin()
 		}
 	}
 }
-
-#else
-void c_tmap_scanline_lin()
-{
-	uint8_t *dest;
-	uint c;
-	fix u,v,l,dudx, dvdx, dldx;
-
-	u = fx_u;
-	v = fx_v*64;
-	dudx = fx_du_dx; 
-	dvdx = fx_dv_dx*64; 
-
-	l = fx_l>>8;
-	dldx = fx_dl_dx/256;
-	dest = reinterpret_cast<uint8_t *>(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
-
-	if (!Transparency_on)	{
-		for (int x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
-			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-			*dest++ = gr_fade_table[ (l&(0x7f00)) + static_cast<uint32_t>(pixptr[ (f2i(v)&(64*63)) + (f2i(u)&63) ]) ];
-			//end edit -MM
-			l += dldx;
-			u += dudx;
-			v += dvdx;
-		}
-	} else {
-		for (int x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
-			c = static_cast<uint32_t>(pixptr[ (f2i(v)&(64*63)) + (f2i(u)&63) ]);
-			if ( c!=255)
-			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-				*dest = gr_fade_table[ (l&(0x7f00)) + c ];
-			//end edit -MM
-			dest++;
-			l += dldx;
-			u += dudx;
-			v += dvdx;
-		}
-	}
-}
 #endif
 
 // This texture mapper uses floating point extensively and writes 8 pixels at once, so it likely works
