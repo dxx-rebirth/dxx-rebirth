@@ -2056,23 +2056,26 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, int level, int flags, in
 			break;
 		}
 		case primary_weapon_index_t::HELIX_INDEX: {
-			int helix_orient;
 			fix spreadr,spreadu;
-			helix_orient = flags & LASER_HELIX_MASK;
-			switch(helix_orient) {
-
-				case 0: spreadr =  F1_0/16; spreadu = 0;       break; // Vertical
-				case 1: spreadr =  F1_0/17; spreadu = F1_0/42; break; //  22.5 degrees
-				case 2: spreadr =  F1_0/22; spreadu = F1_0/22; break; //  45   degrees
-				case 3: spreadr =  F1_0/42; spreadu = F1_0/17; break; //  67.5 degrees
-				case 4: spreadr =  0;       spreadu = F1_0/16; break; //  90   degrees
-				case 5: spreadr = -F1_0/42; spreadu = F1_0/17; break; // 112.5 degrees
-				case 6: spreadr = -F1_0/22; spreadu = F1_0/22; break; // 135   degrees
-				case 7: spreadr = -F1_0/17; spreadu = F1_0/42; break; // 157.5 degrees
-				default:
-					Error("Invalid helix_orientation value %x\n",helix_orient);
+			static const std::array<std::pair<fix, fix>, 8> spread{{
+				{ F1_0/16, 0},			// Vertical
+				{ F1_0/17, F1_0/42},	//  22.5 degrees
+				{ F1_0/22, F1_0/22},	//  45   degrees
+				{ F1_0/42, F1_0/17},	//  67.5 degrees
+				{		0, F1_0/16},	//  90   degrees
+				{-F1_0/42, F1_0/17},	// 112.5 degrees
+				{-F1_0/22, F1_0/22},	// 135   degrees
+				{-F1_0/17, F1_0/42},	// 157.5 degrees
+			}};
+			const unsigned helix_orient = flags & LASER_HELIX_MASK;
+			if (helix_orient < spread.size())
+			{
+				auto &s = spread[helix_orient];
+				spreadr = s.first;
+				spreadu = s.second;
 			}
-
+			else
+				break;
 			Laser_player_fire_spread( objp, weapon_id_type::HELIX_ID, 6,  0,  0, 1, shot_orientation);
 			Laser_player_fire_spread( objp, weapon_id_type::HELIX_ID, 6,  spreadr,  spreadu, 0, shot_orientation);
 			Laser_player_fire_spread( objp, weapon_id_type::HELIX_ID, 6, -spreadr, -spreadu, 0, shot_orientation);
