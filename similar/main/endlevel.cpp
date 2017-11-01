@@ -23,8 +23,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-//#define SLEW_ON 1
-
 //#define _MARK_ON
 
 #include <algorithm>
@@ -725,9 +723,6 @@ window_event_result do_endlevel_frame()
 
 				ConsoleObject->control_type = endlevel_camera->control_type = CT_NONE;
 
-#ifdef SLEW_ON
- slew_obj = endlevel_camera;
-#endif
 			}
 
 			break;
@@ -735,14 +730,12 @@ window_event_result do_endlevel_frame()
 
 		case EL_OUTSIDE: {
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
-#ifndef SLEW_ON
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.fvec,fixmul(FrameTime,-2*cur_fly_speed));
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.uvec,fixmul(FrameTime,-cur_fly_speed/10));
 
 			auto cam_angles = vm_extract_angles_matrix(endlevel_camera->orient);
 			cam_angles.b += fixmul(bank_rate,FrameTime);
 			vm_angles_2_matrix(endlevel_camera->orient,cam_angles);
-#endif
 
 			timer -= FrameTime;
 
@@ -771,12 +764,6 @@ window_event_result do_endlevel_frame()
 
 			if (timer < 0) {
 
-				#ifdef SLEW_ON
-				slew_obj = endlevel_camera;
-				_do_slew_movement(endlevel_camera,1);
-				timer += FrameTime;		//make time stop
-				break;
-				#else
 
 				#ifdef SHORT_SEQUENCE
 
@@ -796,7 +783,6 @@ window_event_result do_endlevel_frame()
 				}
 
 				#endif		//SHORT_SEQUENCE
-				#endif		//SLEW_ON
 
 			}
 			break;
@@ -804,18 +790,13 @@ window_event_result do_endlevel_frame()
 
 		#ifndef SHORT_SEQUENCE
 		case EL_PANNING: {
-			#ifndef SLEW_ON
 			int mask;
-			#endif
 
 			get_angs_to_object(player_dest_angles,station_pos,ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
 			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 
-			#ifdef SLEW_ON
-			_do_slew_movement(endlevel_camera,1);
-			#else
 
 			get_angs_to_object(camera_desired_angles,ConsoleObject->pos,endlevel_camera->pos);
 			mask = chase_angles(&camera_cur_angles,&camera_desired_angles);
@@ -832,7 +813,6 @@ window_event_result do_endlevel_frame()
 
 				desired_fly_speed *= 2;
 			}
-			#endif
 
 			break;
 		}
@@ -840,16 +820,11 @@ window_event_result do_endlevel_frame()
 		case EL_CHASING: {
 			fix d,speed_scale;
 
-			#ifdef SLEW_ON
-			_do_slew_movement(endlevel_camera,1);
-			#endif
 
 			get_angs_to_object(camera_desired_angles,ConsoleObject->pos,endlevel_camera->pos);
 			chase_angles(&camera_cur_angles,&camera_desired_angles);
 
-			#ifndef SLEW_ON
 			vm_angles_2_matrix(endlevel_camera->orient,camera_cur_angles);
-			#endif
 
 			d = vm_vec_dist_quick(ConsoleObject->pos,endlevel_camera->pos);
 
@@ -861,12 +836,10 @@ window_event_result do_endlevel_frame()
 			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
 
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
-			#ifndef SLEW_ON
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.fvec,fixmul(FrameTime,fixmul(speed_scale,cur_fly_speed)));
 
 			if (vm_vec_dist(ConsoleObject->pos,station_pos) < i2f(10))
 				result = std::max(stop_endlevel_sequence(), result);
-			#endif
 
 			break;
 
@@ -1276,54 +1249,6 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 #include "key.h"
 #include "joy.h"
 
-#ifdef SLEW_ON		//this is a special routine for slewing around external scene
-int _do_slew_movement(const vmobjptr_t obj, int check_keys )
-{
-	int moved = 0;
-	vms_vector svel;				//scaled velocity (per this frame)
-	vms_angvec rotang;
-
-	if (keyd_pressed[KEY_PAD5])
-		vm_vec_zero(obj->mtype.phys_info.velocity);
-
-	if (check_keys) {
-		obj->mtype.phys_info.velocity.x += VEL_SPEED * keyd_pressed[KEY_PAD9] * FrameTime;
-		obj->mtype.phys_info.velocity.x -= VEL_SPEED * keyd_pressed[KEY_PAD7] * FrameTime;
-		obj->mtype.phys_info.velocity.y += VEL_SPEED * keyd_pressed[KEY_PADMINUS] * FrameTime;
-		obj->mtype.phys_info.velocity.y -= VEL_SPEED * keyd_pressed[KEY_PADPLUS] * FrameTime;
-		obj->mtype.phys_info.velocity.z += VEL_SPEED * keyd_pressed[KEY_PAD8] * FrameTime;
-		obj->mtype.phys_info.velocity.z -= VEL_SPEED * keyd_pressed[KEY_PAD2] * FrameTime;
-
-		rotang.pitch = rotang.bank  = rotang.head  = 0;
-		rotang.pitch += keyd_pressed[KEY_LBRACKET] * FrameTime / ROT_SPEED;
-		rotang.pitch -= keyd_pressed[KEY_RBRACKET] * FrameTime / ROT_SPEED;
-		rotang.bank  += keyd_pressed[KEY_PAD1] * FrameTime / ROT_SPEED;
-		rotang.bank  -= keyd_pressed[KEY_PAD3] * FrameTime / ROT_SPEED;
-		rotang.head  += keyd_pressed[KEY_PAD6] * FrameTime / ROT_SPEED;
-		rotang.head  -= keyd_pressed[KEY_PAD4] * FrameTime / ROT_SPEED;
-	}
-	else
-		rotang = {};
-
-	moved = rotang.p | rotang.b | rotang.h;
-
-	const auto &&rotmat = vm_angles_2_matrix(rotang);
-	const auto new_pm = vm_transposed_matrix(obj->orient = vm_matrix_x_matrix(obj->orient,rotmat));
-	//make those columns rows
-
-	moved |= obj->mtype.phys_info.velocity.x | obj->mtype.phys_info.velocity.y | obj->mtype.phys_info.velocity.z;
-
-	svel = obj->mtype.phys_info.velocity;
-	vm_vec_scale(svel,FrameTime);		//movement in this frame
-	const auto movement = vm_vec_rotate(svel,new_pm);
-
-	vm_vec_add2(obj->pos,movement);
-
-	moved |= (movement.x || movement.y || movement.z);
-
-	return moved;
-}
-#endif
 
 #define LINE_LEN	80
 #define NUM_VARS	8
