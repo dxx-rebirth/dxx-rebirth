@@ -65,8 +65,7 @@ static void tmap_scanline_flat(grs_canvas &canvas, int y, fix xleft, fix xright)
 	if (canvas.cv_fade_level >= GR_FADE_OFF)
 		cur_tmap_scanline_flat();
 	else	{
-		tmap_flat_shade_value = canvas.cv_fade_level;
-		cur_tmap_scanline_shaded();
+		cur_tmap_scanline_shaded(canvas.cv_fade_level);
 	}	
 }
 

@@ -56,15 +56,12 @@ void c_tmap_scanline_flat()
 //         memset(dest,tmap_flat_color,fx_xright-fx_xleft+1);
 }
 
-void c_tmap_scanline_shaded()
+void c_tmap_scanline_shaded(const uint_fast32_t fade)
 {
-	int fade;
 	uint8_t tmp;
 	int x, index = fx_xleft + (bytes_per_row * fx_y );
 
 	auto dest = &write_buffer[fx_xleft + (bytes_per_row * fx_y)];
-
-	fade = tmap_flat_shade_value;
 	for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
 		if (++index >= SWIDTH*SHEIGHT) return;
 		tmp = *dest;

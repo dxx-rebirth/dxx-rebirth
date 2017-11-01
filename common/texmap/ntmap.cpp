@@ -65,7 +65,6 @@ const unsigned char *pixptr;
 int Transparency_on = 0;
 
 ubyte tmap_flat_color;
-ubyte tmap_flat_shade_value;
 
 
 

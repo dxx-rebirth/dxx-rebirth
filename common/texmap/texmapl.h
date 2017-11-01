@@ -63,7 +63,6 @@ extern	int	bytes_per_row;
 extern  unsigned char *write_buffer;
 
 extern ubyte tmap_flat_color;
-extern ubyte tmap_flat_shade_value;
 
 constexpr std::integral_constant<std::size_t, 641> FIX_RECIP_TABLE_SIZE{};	//increased from 321 to 641, since this res is now quite achievable.. slight fps boost -MM
 extern const array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table;
