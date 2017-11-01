@@ -41,8 +41,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-static int gr_bitblt_dest_step_shift = 0;
-
 static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
 #if !DXX_USE_OGL
 static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
@@ -66,7 +64,7 @@ static void gr_for_each_bitmap_line(grs_canvas &canvas, const unsigned x, const 
 {
 	const size_t src_width = bm.bm_w;
 	const uintptr_t src_rowsize = bm.bm_rowsize;
-	const uintptr_t dest_rowsize = canvas.cv_bitmap.bm_rowsize << gr_bitblt_dest_step_shift;
+	const uintptr_t dest_rowsize = canvas.cv_bitmap.bm_rowsize;
 	auto dest = &(canvas.cv_bitmap.get_bitmap_data()[ dest_rowsize*y+x ]);
 	auto src = bm.get_bitmap_data();
 	for (uint_fast32_t y1 = bm.bm_h; y1 --;)
@@ -230,7 +228,7 @@ static void gr_bm_ubitblt00(unsigned w, unsigned h, unsigned dx, unsigned dy, un
 	//int	src_bm_rowsize_2, dest_bm_rowsize_2;
 	auto sbits = &src.get_bitmap_data()[(src.bm_rowsize * sy) + sx];
 	auto dbits = &dest.get_bitmap_data()[(dest.bm_rowsize * dy) + dx];
-	auto dstep = dest.bm_rowsize << gr_bitblt_dest_step_shift;
+	const auto dstep = dest.bm_rowsize;
 	// No interlacing, copy the whole buffer.
 	for (uint_fast32_t i = h; i --;)
 	{
