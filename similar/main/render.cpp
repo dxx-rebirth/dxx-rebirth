@@ -125,7 +125,7 @@ int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
 #if DXX_USE_EDITOR
 int _search_mode = 0;			//true if looking for curseg,side,face
 short _search_x,_search_y;	//pixel we're looking at
-static int found_side,found_face,found_poly;
+static int found_side,found_face;
 static segnum_t found_seg;
 static objnum_t found_obj;
 #else
@@ -1672,7 +1672,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 //finds what segment is at a given x&y -  seg,side,face are filled in
 //works on last frame rendered. returns true if found
 //if seg<0, then an object was found, and the object number is -seg-1
-int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int &face,int &poly)
+int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int &face)
 {
 	_search_mode = -1;
 
@@ -1689,7 +1689,6 @@ int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int
 	obj = found_obj;
 	side = found_side;
 	face = found_face;
-	poly = found_poly;
 	return found_seg != segment_none || found_obj != object_none;
 }
 #endif

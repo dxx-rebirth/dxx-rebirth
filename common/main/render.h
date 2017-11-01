@@ -71,7 +71,7 @@ void flash_frame();
 
 }
 #endif
-int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int &face,int &poly);
+int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int &face);
 
 // these functions change different rendering parameters
 // all return the new value of the parameter

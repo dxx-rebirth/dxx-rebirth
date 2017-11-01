@@ -1295,7 +1295,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 		(GADGET_PRESSED(LargeViewBox.get()) && render_3d_in_big_window))
 	{
 		int	xcrd,ycrd;
-		int side,face,poly,tmap;
+		int side,face,tmap;
 
 		if (render_3d_in_big_window) {
 			xcrd = LargeViewBox->b1_drag_x1;
@@ -1310,8 +1310,8 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 
 		segnum_t seg;
 		objnum_t obj;
-		if (find_seg_side_face(xcrd,ycrd,seg,obj,side,face,poly)) {
-
+		if (find_seg_side_face(xcrd,ycrd,seg,obj,side,face))
+		{
 
 			if (obj != object_none) {							//found an object
 
