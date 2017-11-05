@@ -768,7 +768,7 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	gr_use_palette_table( "palette.256" );
 #elif defined(DXX_BUILD_DESCENT_II)
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	gr_clear_canvas(*grd_curcanv, BM_XRGB(0, 0, 0));		//so palette switching is less obvious
 
 	int load_ret = load_level(level_name);		//actually load the data from disk!
@@ -1041,7 +1041,7 @@ static int draw_endlevel_background(newmenu *,const d_event &event, grs_bitmap *
 	switch (event.type)
 	{
 		case EVENT_WINDOW_DRAW:
-			gr_set_current_canvas(NULL);
+			gr_set_default_canvas();
 			show_fullscr(*grd_curcanv, *background);
 			break;
 			
@@ -1351,7 +1351,7 @@ static void DoEndGame()
 
 	set_screen_mode( SCREEN_MENU );
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 
 	key_flush();
 
@@ -1387,7 +1387,7 @@ static void DoEndGame()
 		DoEndLevelScoreGlitz();
 
 	if (PLAYING_BUILTIN_MISSION && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
-		gr_set_current_canvas( NULL );
+		gr_set_default_canvas();
 		gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
 #if defined(DXX_BUILD_DESCENT_II)
 		load_palette(D2_DEFAULT_PALETTE,0,1);

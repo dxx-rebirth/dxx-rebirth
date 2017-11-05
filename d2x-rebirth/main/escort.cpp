@@ -1836,7 +1836,7 @@ void show_escort_menu(const array<char, 300> &amsg)
 	int	x,y;
 
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 
 	auto &canvas = *grd_curcanv;
 	gr_set_curfont(canvas, GAME_FONT);

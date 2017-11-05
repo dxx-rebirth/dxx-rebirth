@@ -200,7 +200,7 @@ void init_cockpit()
 	}
 #endif
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 
 	switch( PlayerCfg.CockpitMode[1] ) {
 		case CM_FULL_COCKPIT:
@@ -247,7 +247,7 @@ void init_cockpit()
 		}
 	}
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 }
 
 }

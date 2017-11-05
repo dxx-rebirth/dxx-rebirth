@@ -138,7 +138,7 @@ static void show_netplayerinfo()
 	int x=0, y=0;
 	static const char *const eff_strings[]={"trashing","really hurting","seriously affecting","hurting","affecting","tarnishing"};
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	gr_set_curfont(canvas, GAME_FONT);
 	gr_set_fontcolor(canvas, 255, -1);
@@ -797,7 +797,7 @@ void game_render_frame_mono()
 		game_draw_hud_stuff(*grd_curcanv);
 
 #if defined(DXX_BUILD_DESCENT_II)
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 
 	show_extra_views();		//missile view, buddy bot, etc.
 #endif
@@ -857,7 +857,7 @@ static void update_cockpits()
 		case CM_REAR_VIEW:
 			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
-			gr_set_current_canvas(NULL);
+			gr_set_default_canvas();
 #if DXX_USE_OGL
 			ogl_ubitmapm_cs(*grd_curcanv, 0, 0, -1, -1, *bm, 255, F1_0);
 #else
@@ -871,7 +871,7 @@ static void update_cockpits()
 		case CM_STATUS_BAR:
 			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
-			gr_set_current_canvas(NULL);
+			gr_set_default_canvas();
 #if DXX_USE_OGL
 			ogl_ubitmapm_cs(*grd_curcanv, 0, (HIRESMODE ? (SHEIGHT * 2) / 2.6 : (SHEIGHT * 2) / 2.72), -1, (static_cast<int>(static_cast<double>(bm->bm_h) * (HIRESMODE ? static_cast<double>(SHEIGHT) / 480 : static_cast<double>(SHEIGHT) / 200) + 0.5)), *bm, 255, F1_0);
 #else
@@ -882,7 +882,7 @@ static void update_cockpits()
 		case CM_LETTERBOX:
 			break;
 	}
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 
 	if (PlayerCfg.CockpitMode[1] != last_drawn_cockpit)
 		last_drawn_cockpit = PlayerCfg.CockpitMode[1];
@@ -910,7 +910,7 @@ void show_boxed_message(const char *msg, int RenderFlag)
 	int w,h;
 	int x,y;
 	
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	gr_set_curfont(canvas, MEDIUM1_FONT);
 	gr_set_fontcolor(canvas, BM_XRGB(31, 31, 31), -1);

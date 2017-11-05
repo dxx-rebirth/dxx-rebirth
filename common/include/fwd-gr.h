@@ -293,6 +293,7 @@ extern std::unique_ptr<grs_screen> grd_curscreen;           //active screen
 
 void gr_set_default_canvas();
 void gr_set_current_canvas(grs_canvas &);
+void gr_set_current_canvas(std::nullptr_t) = delete;
 void _gr_set_current_canvas(grs_canvas *);
 
 static inline void _gr_set_current_canvas_inline(grs_canvas *canv)

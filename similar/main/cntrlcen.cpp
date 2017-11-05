@@ -251,7 +251,7 @@ window_event_result do_countdown_frame()
 		PALETTE_FLASH_SET(flash_value,flash_value,flash_value);
 
 		if (PaletteBlueAdd > 64 )	{
-			gr_set_current_canvas( NULL );
+			gr_set_default_canvas();
 			gr_clear_canvas(*grd_curcanv, BM_XRGB(31,31,31));				//make screen all white to match palette effect
 			reset_palette_add();							//restore palette for death message
 			//controlcen->MaxCapacity = Fuelcen_max_amount;

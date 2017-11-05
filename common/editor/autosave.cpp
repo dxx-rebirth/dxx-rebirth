@@ -114,7 +114,7 @@ tm Editor_time_of_day;
 static void print_clock()
 {
 	int w, h;
-	gr_set_current_canvas( NULL );
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	gr_set_fontcolor(canvas, CBLACK, CGREY);
 	array<char, 20> message;

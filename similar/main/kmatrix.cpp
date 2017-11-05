@@ -186,7 +186,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 {
 	playernum_array_t sorted;
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	show_fullscr(canvas, km->background);
 	

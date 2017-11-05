@@ -1185,7 +1185,7 @@ static void newmenu_create_structure( newmenu *menu )
 
 	save_canvas = grd_curcanv;
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 
 	const grs_font *save_font = canvas.cv_font;
@@ -1429,7 +1429,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 		}
 	}
 
-	gr_set_current_canvas( NULL );
+	gr_set_default_canvas();
 	nm_draw_background1(*grd_curcanv, menu->filename);
 	if (menu->filename == NULL)
 		nm_draw_background(*grd_curcanv, menu->x-(menu->is_scroll_box?FSPACX(5):0),menu->y,menu->x+menu->w,menu->y+menu->h);
@@ -1897,7 +1897,7 @@ static window_event_result listbox_key_command(window *, const d_event &event, l
 
 static void listbox_create_structure( listbox *lb)
 {
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 
 	gr_set_curfont(canvas, MEDIUM3_FONT);
@@ -1957,7 +1957,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 	if (lb->swidth != SWIDTH || lb->sheight != SHEIGHT || lb->fntscalex != FNTScaleX || lb->fntscalex != FNTScaleY)
 		listbox_create_structure ( lb );
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	nm_draw_background(canvas, lb->box_x - BORDERX, lb->box_y - lb->title_height - BORDERY,lb->box_x + lb->box_w + BORDERX, lb->box_y + lb->height + BORDERY);
 	gr_set_curfont(canvas, MEDIUM3_FONT);

@@ -81,7 +81,7 @@ static void item_show( MENU * menu, int n )
 {
 	ITEM * item = &menu->Item[n];
 	
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	// If this is a seperator, then draw it.
 	if ( item->Text[0] == '-'  )
@@ -126,7 +126,7 @@ static void menu_draw(MENU *menu)
 {
 	int i;
 	
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 
 	// Draw the menu background

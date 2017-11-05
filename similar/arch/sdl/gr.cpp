@@ -131,7 +131,7 @@ int gr_set_mode(screen_mode mode)
 	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->get_screen_width() * GameCfg.AspectX, grd_curscreen->get_screen_height() * GameCfg.AspectY);
 	gr_init_canvas(grd_curscreen->sc_canvas, reinterpret_cast<unsigned char *>(canvas->pixels), bm_mode::linear, w, h);
 	window_update_canvases();
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 
 	SDL_ShowCursor(0);
 	gamefont_choose_game_font(w,h);

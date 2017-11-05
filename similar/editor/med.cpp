@@ -172,7 +172,7 @@ static editor_dialog editor_window;
 
 static void print_status_bar(char (&message)[DIAGNOSTIC_MESSAGE_MAX])
 {
-	gr_set_current_canvas( NULL );
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	gr_set_curfont(canvas, editor_font);
 	gr_set_fontcolor(canvas, CBLACK, CGREY);
@@ -442,7 +442,7 @@ void init_editor()
 	Canv_editor = &_canv_editor;
 	gr_set_current_canvas( Canv_editor );
 	init_editor_screen(*grd_curcanv); // load the main editor dialog
-	gr_set_current_canvas( NULL );
+	gr_set_default_canvas();
 	gr_set_curfont(*grd_curcanv, editor_font);
 	
 	set_warn_func(med_show_warning);
@@ -1071,7 +1071,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 		gr_set_curfont(*grd_curcanv, editor_font);
 
 		// Draw status box
-		gr_set_current_canvas( NULL );
+		gr_set_default_canvas();
 		gr_rect(*grd_curcanv, STATUS_X,STATUS_Y,STATUS_X+STATUS_W-1,STATUS_Y+STATUS_H-1, CGREY);
 		
 		medlisp_update_screen();

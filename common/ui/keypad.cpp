@@ -272,7 +272,7 @@ void ui_pad_draw(UI_DIALOG *dlg, int x, int y)
 	ui_dialog_set_current_canvas( dlg );
 	ui_draw_box_in(*grd_curcanv, x, y, x+(bw * 4)+10 + 200, y+(bh * 5)+45);
 
-	gr_set_current_canvas( NULL );
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	const uint8_t color = CWHITE;
 	gr_urect(canvas, desc_x, desc_y, desc_x+ 56*4-1, desc_y+15, color);

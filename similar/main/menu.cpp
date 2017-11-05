@@ -455,7 +455,7 @@ int RegisterPlayer()
 // Draw Copyright and Version strings
 static void draw_copyright()
 {
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	gr_set_curfont(canvas, GAME_FONT);
 	gr_set_fontcolor(canvas, BM_XRGB(6, 6, 6), -1);

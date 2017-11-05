@@ -404,7 +404,7 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			gr_set_current_canvas(NULL);
+			gr_set_default_canvas();
 			
 			nm_draw_background(*grd_curcanv, ((SWIDTH - w) / 2) - BORDERX, ((SHEIGHT - h) / 2) - BORDERY, ((SWIDTH - w) / 2) + w + BORDERX, ((SHEIGHT - h) / 2) + h + BORDERY);
 			

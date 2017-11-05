@@ -151,7 +151,7 @@ static window_event_result title_handler(window *, const d_event &event, title_s
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			gr_set_current_canvas( NULL );
+			gr_set_default_canvas();
 			show_fullscr(*grd_curcanv, ts->title_bm);
 			break;
 
@@ -1483,7 +1483,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 
 		case EVENT_WINDOW_DRAW:
 		{
-			gr_set_current_canvas(NULL);
+			gr_set_default_canvas();
 			auto &canvas = *grd_curcanv;
 
 			timer_delay2(50);
@@ -1575,7 +1575,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 	set_screen_mode( SCREEN_MOVIE );
 #endif
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 
 	if (!new_briefing_screen(br.get(), 1))
 	{

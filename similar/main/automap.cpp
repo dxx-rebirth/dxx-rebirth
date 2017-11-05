@@ -625,7 +625,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 	if ( am->leave_mode==0 && am->controls.state.automap && (timer_query()-am->entry_time)>LEAVE_TIME)
 		am->leave_mode = 1;
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	{
 		auto &canvas = *grd_curcanv;
 		if (am->automap_background.get_bitmap_data())
@@ -818,7 +818,7 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 	switch (c)
 	{
 		case KEY_PRINT_SCREEN: {
-			gr_set_current_canvas(NULL);
+			gr_set_default_canvas();
 			save_screen_shot(1);
 			return window_event_result::handled;
 		}
@@ -884,7 +884,7 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 			return window_event_result::handled;
 		case KEY_D+KEY_CTRLED:
 			if (HighlightMarker > -1 && MarkerObject[HighlightMarker] != object_none) {
-				gr_set_current_canvas(NULL);
+				gr_set_default_canvas();
 				if (nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "Delete Marker?" ) == 0) {
 					/* FIXME: this event should be sent to other players
 					 * so that they remove the marker.
@@ -1026,7 +1026,7 @@ void do_automap()
 
 	//Max_edges = min(MAX_EDGES_FROM_VERTS(Num_vertices),MAX_EDGES); //make maybe smaller than max
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 
 	if ( am->viewDist==0 )
 		am->viewDist = ZOOM_DEFAULT;

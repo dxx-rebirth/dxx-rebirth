@@ -455,7 +455,7 @@ static int HandleDeathInput(const d_event &event)
 
 static void save_pr_screenshot()
 {
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	render_frame(canvas, 0);
 	gr_set_curfont(canvas, MEDIUM2_FONT);

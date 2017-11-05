@@ -298,7 +298,7 @@ static window_event_result show_pause_message(window *, const d_event &event, co
 			int h;
 			int y;
 
-			gr_set_current_canvas(NULL);
+			gr_set_default_canvas();
 			auto &canvas = *grd_curcanv;
 			gr_set_curfont(canvas, GAME_FONT);
 			gr_get_string_size(*canvas.cv_font, msg, nullptr, &h, nullptr);

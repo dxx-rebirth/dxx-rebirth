@@ -256,7 +256,7 @@ static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 
 	gr_remap_bitmap_good(cr->backdrop,backdrop_palette, -1, -1);
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	show_fullscr(*grd_curcanv, cr->backdrop);
 	gr_palette_load( gr_palette );
 

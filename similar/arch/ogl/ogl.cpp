@@ -322,7 +322,7 @@ static void ogl_texture_stats(void)
 #endif
 	dbl += 1;
 	glGetIntegerv(GL_DEPTH_BITS, &depth);
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	gr_set_curfont(canvas, GAME_FONT);
 	gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);

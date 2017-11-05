@@ -187,7 +187,7 @@ static void con_draw(void)
 	if (con_size <= 0)
 		return;
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	gr_set_curfont(canvas, GAME_FONT);
 	const uint8_t color = BM_XRGB(0, 0, 0);

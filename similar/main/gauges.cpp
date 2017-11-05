@@ -637,7 +637,7 @@ class draw_keys_state
 	grs_canvas &canvas;
 public:
 	draw_keys_state(const player_flags f, const local_multires_gauge_graphic g) :
-		player_key_flags(f), multires_gauge_graphic(g), canvas((gr_set_current_canvas(nullptr), *grd_curcanv))
+		player_key_flags(f), multires_gauge_graphic(g), canvas((gr_set_default_canvas(), *grd_curcanv))
 	{
 	}
 	void draw_all_cockpit_keys();
@@ -855,7 +855,7 @@ static void show_homing_warning(grs_canvas &canvas, const int homing_object_dist
 	}
 	else
 	{
-		gr_set_current_canvas(nullptr);
+		gr_set_default_canvas();
 		gauge = ((GameTime64 & 0x4000) && homing_object_dist >= 0)
 			? GAUGE_HOMING_WARNING_ON
 			: GAUGE_HOMING_WARNING_OFF;
@@ -1872,7 +1872,7 @@ static void draw_energy_bar(int energy, const local_multires_gauge_graphic multi
 			}
 		}
 
-	gr_set_current_canvas( NULL );
+	gr_set_default_canvas();
 
 	// Draw right energy bar
 	hud_gauge_bitblt(*grd_curcanv, RIGHT_ENERGY_GAUGE_X, RIGHT_ENERGY_GAUGE_Y, GAUGE_ENERGY_RIGHT, multires_gauge_graphic);
@@ -1891,7 +1891,7 @@ static void draw_energy_bar(int energy, const local_multires_gauge_graphic multi
 			}
 		}
 
-	gr_set_current_canvas( NULL );
+	gr_set_default_canvas();
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2026,7 +2026,7 @@ static void draw_afterburner_bar(grs_canvas &canvas, const int afterburner, cons
 			gr_rect (canvas, left, base_top + i, right, base_bottom + i, color);
 		}
 	}
-	gr_set_current_canvas( NULL );
+	gr_set_default_canvas();
 }
 #endif
 
@@ -2102,7 +2102,7 @@ static void draw_player_ship(const player_info &player_info, const int cloak_sta
 		cloak_fade_value = GR_FADE_LEVELS-1;
 	}
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	const auto color = get_player_or_team_color(Player_num);
 	PAGE_IN_GAUGE(GAUGE_SHIPS+color, multires_gauge_graphic);
@@ -2149,7 +2149,7 @@ static void draw_numerical_display(grs_canvas &canvas, const int shield, const i
 	gr_set_fontcolor(canvas, BM_XRGB(25, 18, 6), -1);
 	a(energy, screen_height / 1.5);
 
-	gr_set_current_canvas( NULL );
+	gr_set_default_canvas();
 }
 
 void draw_keys_state::draw_all_cockpit_keys()
@@ -2324,7 +2324,7 @@ static void draw_weapon_box(const player_info &player_info, const int weapon_typ
 {
 	int laser_level_changed;
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 
 	gr_set_curfont(canvas, GAME_FONT);
@@ -2384,7 +2384,7 @@ static void draw_weapon_box(const player_info &player_info, const int weapon_typ
 
 		gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
 	}
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2410,7 +2410,7 @@ static void draw_static(int win, const local_multires_gauge_graphic multires_gau
 	PIGGY_PAGE_IN(vc->frames[framenum]);
 
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	auto &bmp = GameBitmaps[vc->frames[framenum].index];
 	auto &box = gauge_boxes[boxofs+win];
@@ -2522,7 +2522,7 @@ static void sb_draw_energy_bar(grs_canvas &canvas, const int energy, const local
 	unsigned y = SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4);
 #endif
 	gr_printf(canvas, (grd_curscreen->get_screen_width() / 3) - (ew / 2), HUD_SCALE_Y(multires_gauge_graphic, y), "%d", energy);
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 }
 }
 
@@ -2554,7 +2554,7 @@ static void sb_draw_afterburner(grs_canvas &canvas, const player_info &player_in
 	int w, h;
 	gr_get_string_size(*canvas.cv_font, ab_str, &w, &h, nullptr);
 	gr_string(canvas, HUD_SCALE_X(multires_gauge_graphic, SB_AFTERBURNER_GAUGE_X + (SB_AFTERBURNER_GAUGE_W + 1) / 2) - (w / 2), HUD_SCALE_Y(multires_gauge_graphic, SB_AFTERBURNER_GAUGE_Y + (SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4))), "AB", w, h);
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 }
 #endif
 
@@ -2574,7 +2574,7 @@ static void sb_draw_shield_bar(int shield, const local_multires_gauge_graphic mu
 {
 	int bm_num = shield>=100?9:(shield / 10);
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	hud_gauge_bitblt(*grd_curcanv, SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num, multires_gauge_graphic);
 }
 
@@ -2589,7 +2589,7 @@ void draw_keys_state::draw_all_statusbar_keys()
 static void draw_invulnerable_ship(const object &plrobj, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	auto &player_info = plrobj.ctype.player_info;
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 
 	const auto cmmode = PlayerCfg.CockpitMode[1];
@@ -3300,7 +3300,7 @@ void render_gauges()
 	auto shields = f2ir(plrobj.shields);
 	if (shields < 0 ) shields = 0;
 
-	gr_set_current_canvas(NULL);
+	gr_set_default_canvas();
 	gr_set_curfont(*grd_curcanv, GAME_FONT);
 
 	if (Newdemo_state == ND_STATE_RECORDING)
@@ -3421,7 +3421,7 @@ void do_cockpit_window_view(int win,int user)
 		return;		//already set
 	weapon_box_user[win] = user;
 	if (overlap_dirty[win]) {
-		gr_set_current_canvas(NULL);
+		gr_set_default_canvas();
 		overlap_dirty[win] = 0;
 	}
 }
@@ -3510,7 +3510,7 @@ void do_cockpit_window_view(const int win, const vmobjptr_t viewer, const int re
 			//the small window is completely outside the big 3d window, so
 			//copy it to the visible screen
 
-			gr_set_current_canvas(NULL);
+			gr_set_default_canvas();
 
 			gr_bitmap(*grd_curcanv, window_x, window_y, window_canv.cv_bitmap);
 
@@ -3524,7 +3524,7 @@ void do_cockpit_window_view(const int win, const vmobjptr_t viewer, const int re
 
 			if (extra_part_h > 0) {
 				gr_init_sub_canvas(overlap_canv, window_canv, 0, window_canv.cv_bitmap.bm_h-extra_part_h, window_canv.cv_bitmap.bm_w, extra_part_h);
-				gr_set_current_canvas(NULL);
+				gr_set_default_canvas();
 				gr_bitmap(*grd_curcanv, window_x, big_window_bottom + 1, overlap_canv.cv_bitmap);
 				overlap_dirty[win] = 1;
 			}
@@ -3532,7 +3532,7 @@ void do_cockpit_window_view(const int win, const vmobjptr_t viewer, const int re
 	}
 	else {
 
-		gr_set_current_canvas(NULL);
+		gr_set_default_canvas();
 	}
 
 	//force redraw when done

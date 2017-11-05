@@ -328,7 +328,7 @@ window_event_result standard_handler(const d_event &event)
 #endif
 				case KEY_PRINT_SCREEN:
 				{
-					gr_set_current_canvas(NULL);
+					gr_set_default_canvas();
 					save_screen_shot(0);
 					return window_event_result::handled;
 				}
