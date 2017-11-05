@@ -190,14 +190,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 						}
 						else
 						{
-							if (Game_mode & GM_MULTI)
-							{
-								if (dist < max_headlight_dist)
-								{
-									add_light_dot_square(Dynamic_light[vertnum], obj_light_emission, dot);
-								}
-							}
-							else
+							if (!(Game_mode & GM_MULTI) || dist < max_headlight_dist)
 							{
 								add_light_dot_square(Dynamic_light[vertnum], obj_light_emission, dot);
 							}
@@ -583,15 +576,15 @@ static fix compute_headlight_light_on_object(const object_base &objp)
 #endif
 
 //compute the average dynamic light in a segment.  Takes the segment number
-static g3s_lrgb compute_seg_dynamic_light(const vcsegptr_t seg)
+static g3s_lrgb compute_seg_dynamic_light(const segment &seg)
 {
-	auto op = [](g3s_lrgb r, unsigned v) {
+	auto op = [](g3s_lrgb r, const unsigned v) {
 		r.r += Dynamic_light[v].r;
 		r.g += Dynamic_light[v].g;
 		r.b += Dynamic_light[v].b;
 		return r;
 	};
-	g3s_lrgb sum = std::accumulate(begin(seg->verts), end(seg->verts), g3s_lrgb{0, 0, 0}, op);
+	g3s_lrgb sum = std::accumulate(begin(seg.verts), end(seg.verts), g3s_lrgb{0, 0, 0}, op);
 	sum.r >>= 3;
 	sum.g >>= 3;
 	sum.b >>= 3;
