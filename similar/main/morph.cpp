@@ -114,7 +114,7 @@ static void find_min_max(polymodel *pm,int submodel_num,vms_vector &minv,vms_vec
 
 #define MORPH_RATE (f1_0*3)
 
-fix morph_rate = MORPH_RATE;
+constexpr fix morph_rate = MORPH_RATE;
 
 static void init_points(polymodel *pm,const vms_vector *box_size,int submodel_num,morph_data *md)
 {
