@@ -117,7 +117,7 @@ grs_canvas _canv_editor_game, _canv_editor; //the game on the editor screen, the
 
 //these are pointers to our canvases
 grs_canvas *Canv_editor;			//the editor screen
-grs_canvas *Canv_editor_game=&_canv_editor_game; //the game on the editor screen
+grs_canvas *const Canv_editor_game = &_canv_editor_game; //the game on the editor screen
 
 window *Pad_info;		// Keypad text
 
@@ -440,7 +440,7 @@ void init_editor()
 	game_init_render_buffers(320, 200);
 	gr_init_sub_canvas(_canv_editor, grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	Canv_editor = &_canv_editor;
-	gr_set_current_canvas( Canv_editor );
+	gr_set_current_canvas(*Canv_editor);
 	init_editor_screen(*grd_curcanv); // load the main editor dialog
 	gr_set_default_canvas();
 	gr_set_curfont(*grd_curcanv, editor_font);
@@ -601,7 +601,7 @@ int SetPlayerFromCursegMinusOne()
 
 	vm_vector_2_matrix(ConsoleObject->orient,view_vec,&upvec,nullptr);
 
-	gr_set_current_canvas(Canv_editor_game);
+	gr_set_current_canvas(*Canv_editor_game);
 	g3_start_frame(*grd_curcanv);
 	g3_set_view_matrix(ConsoleObject->pos,ConsoleObject->orient,Render_zoom);
 
@@ -745,7 +745,7 @@ static void init_editor_screen(grs_canvas &canvas)
 	
 	//create canvas for game on the editor screen
 	initializing = 1;
-	gr_set_current_canvas(Canv_editor);
+	gr_set_current_canvas(*Canv_editor);
 	Canv_editor->cv_font = editor_font.get();
 	gr_init_sub_canvas(*Canv_editor_game, *Canv_editor, GAMEVIEW_X, GAMEVIEW_Y, GAMEVIEW_W, GAMEVIEW_H);
 	
@@ -862,14 +862,13 @@ void close_editor_screen()
 
 static void med_show_warning(const char *s)
 {
-	grs_canvas *save_canv=grd_curcanv;
+	grs_canvas &save_canv = *grd_curcanv;
 
 	//gr_pal_fade_in(grd_curscreen->pal);	//in case palette is blacked
 
 	ui_messagebox(-2,-2,1,s,"OK");
 
 	gr_set_current_canvas(save_canv);
-
 }
 
 // Returns 1 if OK to trash current mine.

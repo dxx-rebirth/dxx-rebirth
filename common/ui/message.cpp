@@ -67,7 +67,7 @@ static window_event_result messagebox_handler(UI_DIALOG *dlg,const d_event &even
 	{
 		const grs_font * temp_font;
 
-		gr_set_current_canvas( &grd_curscreen->sc_canvas );
+		gr_set_current_canvas(grd_curscreen->sc_canvas);
 		auto &canvas = *grd_curcanv;
 		temp_font = grd_curscreen->sc_canvas.cv_font;
 		
@@ -114,7 +114,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 
 	button_width = button_height = 0;
 
-	gr_set_current_canvas( &grd_curscreen->sc_canvas );
+	gr_set_current_canvas(grd_curscreen->sc_canvas);
 	auto &canvas = *grd_curcanv;
 	auto &cv_font = *canvas.cv_font;
 	w = grd_curscreen->get_screen_width();

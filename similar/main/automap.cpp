@@ -679,7 +679,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 	}
 
 	}
-	gr_set_current_canvas(&am->automap_view);
+	gr_set_current_canvas(am->automap_view);
 	auto &canvas = *grd_curcanv;
 
 	gr_clear_canvas(canvas, BM_XRGB(0,0,0));

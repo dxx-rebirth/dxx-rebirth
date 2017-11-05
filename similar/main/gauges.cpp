@@ -3472,7 +3472,7 @@ void do_cockpit_window_view(const int win, const vmobjptr_t viewer, const int re
 		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, HUD_SCALE_X(multires_gauge_graphic, box->left), HUD_SCALE_Y(multires_gauge_graphic, box->top), HUD_SCALE_X(multires_gauge_graphic, box->right-box->left+1), HUD_SCALE_Y(multires_gauge_graphic, box->bot-box->top+1));
 	}
 
-	gr_set_current_canvas(&window_canv);
+	gr_set_current_canvas(window_canv);
 
 	render_frame(*grd_curcanv, 0, window);
 

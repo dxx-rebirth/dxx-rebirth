@@ -876,7 +876,7 @@ static void kc_gr_2y_string(grs_canvas &canvas, const char *const s, const font_
 
 static void kconfig_draw(kc_menu *menu)
 {
-	grs_canvas * save_canvas = grd_curcanv;
+	grs_canvas &save_canvas = *grd_curcanv;
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
 	int w = fspacx(290), h = fspacy(170);
@@ -1060,7 +1060,7 @@ static inline int in_bounds(unsigned mx, unsigned my, unsigned x1, unsigned xw, 
 
 static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_menu *menu)
 {
-	grs_canvas * save_canvas = grd_curcanv;
+	grs_canvas &save_canvas = *grd_curcanv;
 	int mx, my, mz, x1, y1;
 	window_event_result rval = window_event_result::ignored;
 

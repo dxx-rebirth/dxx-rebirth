@@ -529,7 +529,7 @@ extern grs_canvas _canv_editor_game;		//the game on the editor screen
 
 //these are pointers to our canvases
 extern grs_canvas *Canv_editor;			//the editor screen
-extern grs_canvas *Canv_editor_game; //the game on the editor screen
+extern grs_canvas *const Canv_editor_game; //the game on the editor screen
 
 extern UI_DIALOG * EditorWindow;
 

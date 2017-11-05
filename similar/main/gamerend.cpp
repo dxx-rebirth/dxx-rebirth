@@ -717,7 +717,7 @@ void game_render_frame_mono()
 {
 	int no_draw_hud=0;
 
-	gr_set_current_canvas(&Screen_3d_window);
+	gr_set_current_canvas(Screen_3d_window);
 #if defined(DXX_BUILD_DESCENT_II)
 	if (PlayerCfg.GuidedInBigWindow &&
 		Guided_missile[Player_num] &&
@@ -778,7 +778,7 @@ void game_render_frame_mono()
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
-	gr_set_current_canvas(&Screen_3d_window);
+	gr_set_current_canvas(Screen_3d_window);
 #endif
 
 	update_cockpits();
@@ -792,7 +792,7 @@ void game_render_frame_mono()
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = GM_NORMAL;
 
-	gr_set_current_canvas(&Screen_3d_window);
+	gr_set_current_canvas(Screen_3d_window);
 	if (!no_draw_hud)
 		game_draw_hud_stuff(*grd_curcanv);
 

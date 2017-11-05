@@ -714,7 +714,8 @@ static int nm_trigger_radio_button(newmenu &menu, newmenu_item &citem)
 static window_event_result newmenu_mouse(window *wind,const d_event &event, newmenu *menu, int button)
 {
 	int old_choice, mx=0, my=0, mz=0, x1 = 0, x2, y1, y2, changed = 0;
-	grs_canvas *menu_canvas = &window_get_canvas(*wind), *save_canvas = grd_curcanv;
+	grs_canvas &menu_canvas = window_get_canvas(*wind);
+	grs_canvas &save_canvas = *grd_curcanv;
 
 	switch (button)
 	{
@@ -1181,10 +1182,7 @@ static void newmenu_create_structure( newmenu *menu )
 {
 	int aw, tw, th, twidth,right_offset;
 	int nmenus, nothers;
-	grs_canvas *save_canvas;
-
-	save_canvas = grd_curcanv;
-
+	grs_canvas &save_canvas = *grd_curcanv;
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 
@@ -1416,16 +1414,16 @@ static void newmenu_create_structure( newmenu *menu )
 
 static window_event_result newmenu_draw(window *wind, newmenu *menu)
 {
-	grs_canvas *menu_canvas = &window_get_canvas(*wind), *save_canvas = grd_curcanv;
+	grs_canvas &menu_canvas = window_get_canvas(*wind);
+	grs_canvas &save_canvas = *grd_curcanv;
 	int th = 0, ty, sx, sy;
 	int i;
 
 	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscalex != FNTScaleY)
 	{
 		newmenu_create_structure ( menu );
-		if (menu_canvas)
 		{
-			gr_init_sub_canvas(*menu_canvas, grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h);
+			gr_init_sub_canvas(menu_canvas, grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h);
 		}
 	}
 

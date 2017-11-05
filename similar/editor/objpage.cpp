@@ -117,9 +117,7 @@ void draw_object_picture(grs_canvas &canvas, const unsigned id, const vms_angvec
 
 static int redraw_current_object()
 {
-	grs_canvas * cc;
-
-	cc = grd_curcanv;
+	grs_canvas &cc = *grd_curcanv;
 	gr_set_current_canvas(ObjCurrent->canvas);
 	draw_object_picture(*grd_curcanv, Cur_object_id, objpage_view_orient, Cur_object_type);
 	gr_set_current_canvas(cc);

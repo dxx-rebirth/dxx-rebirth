@@ -772,7 +772,7 @@ int gr_init()
 	grd_curscreen->sc_canvas.cv_font = NULL;
 	grd_curscreen->sc_canvas.cv_font_fg_color = 0;
 	grd_curscreen->sc_canvas.cv_font_bg_color = 0;
-	gr_set_current_canvas( &grd_curscreen->sc_canvas );
+	gr_set_current_canvas(grd_curscreen->sc_canvas);
 
 	ogl_init_pixel_buffers(256, 128);       // for gamefont_init
 
