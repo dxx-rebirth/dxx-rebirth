@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <cassert>
 #include "fwd-gr.h"
 #include "pstypes.h"
 #include "maths.h"
@@ -126,6 +127,23 @@ struct grs_font : public prohibit_void_ptr<grs_font>
 
 struct grs_canvas : prohibit_void_ptr<grs_canvas>
 {
+#ifndef NDEBUG
+	~grs_canvas()
+	{
+		/* `grd_curcanv` points to the currently active canvas.  If it
+		 * points to `this` when the destructor runs, then any further
+		 * attempts to use the referenced canvas will access an
+		 * out-of-scope variable, leading to undefined behavior.  Assert
+		 * that `grd_curcanv` does not point to the expiring variable so
+		 * that potential misuses are detected before they manifest as
+		 * undefined behavior.
+		 *
+		 * Eventually, `grd_curcanv` will be removed and this test will
+		 * become obsolete.
+		 */
+		assert(this != grd_curcanv);
+	}
+#endif
 	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
 	const grs_font *  cv_font;        // the currently selected font
 	short       cv_font_fg_color;   // current font foreground color (-1==Invisible)
