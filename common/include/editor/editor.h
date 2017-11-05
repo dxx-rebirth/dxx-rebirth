@@ -451,7 +451,6 @@ extern void editor_status_fmt(const char *format, ... ) __attribute_format_print
 extern uint        Update_flags;
 extern int         Funky_chase_mode;
 extern vms_angvec  Seg_orientation;
-extern vms_vector  Seg_scale;
 extern int         mine_changed;
 extern int         ModeFlag;
 extern editor_view *current_view;

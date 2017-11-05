@@ -115,7 +115,6 @@ int CreateNewMine()
 		create_new_mine();
 		LargeView.ev_matrix = vmd_identity_matrix;	//FrontView.ev_matrix;
 		set_view_target_from_segment(Cursegp);
-		Seg_scale = {DEFAULT_X_SIZE, DEFAULT_Y_SIZE, DEFAULT_Z_SIZE};
 		Update_flags = UF_WORLD_CHANGED;
 		SetPlayerFromCurseg();
 		SetPlayerPosition();		//say default is permanant position
