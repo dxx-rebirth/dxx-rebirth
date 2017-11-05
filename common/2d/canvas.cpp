@@ -75,19 +75,36 @@ grs_main_canvas::~grs_main_canvas()
 	gr_free_bitmap_data(cv_bitmap);
 }
 
-void gr_set_default_canvas()
+#if DXX_DEBUG_CURRENT_CANVAS_ORIGIN > 0
+/* `g_cc_file`, `g_cc_line` are write-only for the program and are meant
+ * to be read back by a debugger.
+ */
+__attribute_used
+static const char *g_cc_file[DXX_DEBUG_CURRENT_CANVAS_ORIGIN];
+__attribute_used
+static unsigned g_cc_line[DXX_DEBUG_CURRENT_CANVAS_ORIGIN];
+static unsigned g_cc_which;
+#endif
+
+void (gr_set_default_canvas)(DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DECL_VARS)
 {
-	grd_curcanv = &(grd_curscreen->sc_canvas);
+	(gr_set_current_canvas)(grd_curscreen->sc_canvas DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS);
 }
 
-void gr_set_current_canvas(grs_canvas &canv)
+void (gr_set_current_canvas)(grs_canvas &canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS)
 {
+#if DXX_DEBUG_CURRENT_CANVAS_ORIGIN > 0
+	const auto which = g_cc_which;
+	g_cc_which = (g_cc_which + 1) % DXX_DEBUG_CURRENT_CANVAS_ORIGIN;
+	g_cc_file[which] = file;
+	g_cc_line[which] = line;
+#endif
 	grd_curcanv = &canv;
 }
 
-void _gr_set_current_canvas(grs_canvas *canv)
+void gr_set_current_canvas2(grs_canvas *canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS)
 {
-	_gr_set_current_canvas_inline(canv);
+	(gr_set_current_canvas_inline)(canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS);
 }
 
 void gr_clear_canvas(grs_canvas &canvas, color_t color)

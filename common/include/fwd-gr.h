@@ -291,27 +291,50 @@ void scale_bitmap(const grs_bitmap &bp, const array<grs_point, 3> &vertbuf, int 
 extern grs_canvas *grd_curcanv;             //active canvas
 extern std::unique_ptr<grs_screen> grd_curscreen;           //active screen
 
-void gr_set_default_canvas();
-void gr_set_current_canvas(grs_canvas &);
-void gr_set_current_canvas(std::nullptr_t) = delete;
-void _gr_set_current_canvas(grs_canvas *);
+/* Define `DXX_DEBUG_CURRENT_CANVAS_ORIGIN` to a positive integer N to
+ * save __FILE__+__LINE__ of the N most recent callers.  If
+ * `DXX_DEBUG_CURRENT_CANVAS_ORIGIN` is not a positive integer, the
+ * file+line is not passed to the canvas update functions.
+ *
+ * Use this to trace which functions update the global canvas pointer
+ * without requiring a debugger trap on every update.
+ */
+#define DXX_DEBUG_CURRENT_CANVAS_ORIGIN	0
 
-static inline void _gr_set_current_canvas_inline(grs_canvas *canv)
+#if DXX_DEBUG_CURRENT_CANVAS_ORIGIN > 0
+#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DECL_VARS	const char *const file, const unsigned line
+#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS	, DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DECL_VARS
+#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_PASS_VARS	file, line
+#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS	, DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_PASS_VARS
+#define gr_set_default_canvas()	gr_set_default_canvas(__FILE__, __LINE__)
+#define gr_set_current_canvas(C)	gr_set_current_canvas(C, __FILE__, __LINE__)
+#else
+#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DECL_VARS
+#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS
+#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_PASS_VARS
+#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS
+#endif
+void (gr_set_default_canvas)(DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DECL_VARS);
+void (gr_set_current_canvas)(grs_canvas & DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS);
+void (gr_set_current_canvas)(std::nullptr_t DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS) = delete;
+void gr_set_current_canvas2(grs_canvas * DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS);
+
+static inline void gr_set_current_canvas_inline(grs_canvas *const canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS)
 {
 	if (canv)
-		gr_set_current_canvas(*canv);
+		(gr_set_current_canvas)(*canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS);
 	else
-		gr_set_default_canvas();
+		(gr_set_default_canvas)(DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_PASS_VARS);
 }
 
-static inline void gr_set_current_canvas(grs_canvas *canv)
+static inline void (gr_set_current_canvas)(grs_canvas *const canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS)
 {
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
 	if (dxx_builtin_constant_p(!canv))
-		_gr_set_current_canvas_inline(canv);
+		gr_set_current_canvas_inline(canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS);
 	else
 #endif
-		_gr_set_current_canvas(canv);
+		gr_set_current_canvas2(canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS);
 }
 
 //flags for fonts

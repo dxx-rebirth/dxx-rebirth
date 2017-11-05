@@ -138,6 +138,10 @@ struct grs_canvas : prohibit_void_ptr<grs_canvas>
 		 * that potential misuses are detected before they manifest as
 		 * undefined behavior.
 		 *
+		 * If you get an assertion failure here, enable
+		 * `DXX_DEBUG_CURRENT_CANVAS_ORIGIN` to trace where the canvas
+		 * was most recently set.
+		 *
 		 * Eventually, `grd_curcanv` will be removed and this test will
 		 * become obsolete.
 		 */
@@ -297,14 +301,14 @@ static inline void gr_set_curfont(grs_canvas &canvas, const grs_font_ptr &p)
 	gr_set_curfont(canvas, p.get());
 }
 
-static inline void gr_set_current_canvas(grs_canvas_ptr &canv)
+static inline void (gr_set_current_canvas)(grs_canvas_ptr &canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS)
 {
-	gr_set_current_canvas(canv.get());
+	(gr_set_current_canvas)(canv.get() DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS);
 }
 
-static inline void gr_set_current_canvas(grs_subcanvas_ptr &canv)
+static inline void (gr_set_current_canvas)(grs_subcanvas_ptr &canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS)
 {
-	gr_set_current_canvas(canv.get());
+	(gr_set_current_canvas)(canv.get() DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS);
 }
 
 #endif
