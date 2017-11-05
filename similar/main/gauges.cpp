@@ -3546,5 +3546,14 @@ abort:;
 	Viewer = viewer_save;
 
 	Rear_view = rear_view_save;
+	/* grd_curcanv may point to `window_canv`; if so, grd_curcanv
+	 * would become a dangling pointer when `window_canv` goes out of
+	 * scope at the end of the block.  Redirect it to the default screen
+	 * to avoid pointing to freed memory.  Setting grd_curcanv to
+	 * nullptr would be better, but some code assumes that grd_curcanv
+	 * is never nullptr, so instead set it to the default canvas.
+	 * Eventually, grd_curcanv will be removed entirely.
+	 */
+	gr_set_default_canvas();
 }
 #endif

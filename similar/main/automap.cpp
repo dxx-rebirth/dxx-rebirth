@@ -980,6 +980,15 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 				ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
+			/* grd_curcanv points to `am->automap_view`, so grd_curcanv
+			 * would become a dangling pointer after the call to delete.
+			 * Redirect it to the default screen to avoid pointing to
+			 * freed memory.  Setting grd_curcanv to nullptr would be
+			 * better, but some code assumes that grd_curcanv is never
+			 * nullptr, so instead set it to the default canvas.
+			 * Eventually, grd_curcanv will be removed entirely.
+			 */
+			gr_set_default_canvas();
 			std::default_delete<automap>()(am);
 			window_set_visible(Game_wind, 1);
 			Automap_active = 0;

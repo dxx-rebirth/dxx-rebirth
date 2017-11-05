@@ -795,6 +795,11 @@ void gr_close()
 	{
 		if (grd_curscreen->sc_canvas.cv_bitmap.bm_mdata)
 			d_free(grd_curscreen->sc_canvas.cv_bitmap.bm_mdata);
+		/* Resetting grd_curscreen frees the default canvas, so set
+		 * grd_curcanv to nullptr since no canvas is available after
+		 * this block ends.
+		 */
+		grd_curcanv = nullptr;
 		grd_curscreen.reset();
 	}
 	ogl_close_pixel_buffers();
