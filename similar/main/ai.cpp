@@ -1836,13 +1836,13 @@ int ai_door_is_openable(
 }
 
 //	-----------------------------------------------------------------------------------------------------------
-//	Return side of openable door in segment, if any.  If none, return -1.
-static int openable_doors_in_segment(fvcwallptr &vcwallptr, const vcsegptr_t segp)
+//	Return side of openable door in segment, if any.  If none, return side_none.
+static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const segment &segp)
 {
 	int	i;
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		if (segp->sides[i].wall_num != wall_none) {
-			const auto wall_num = segp->sides[i].wall_num;
+		if (segp.sides[i].wall_num != wall_none) {
+			const auto wall_num = segp.sides[i].wall_num;
 			auto &w = *vcwallptr(wall_num);
 #if defined(DXX_BUILD_DESCENT_I)
 			if (w.type == WALL_DOOR && w.keys == KEY_NONE && w.state == WALL_DOOR_CLOSED && !(w.flags & WALL_DOOR_LOCKED))
@@ -1852,9 +1852,7 @@ static int openable_doors_in_segment(fvcwallptr &vcwallptr, const vcsegptr_t seg
 				return i;
 		}
 	}
-
-	return -1;
-
+	return side_none;
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -2805,11 +2803,11 @@ static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const vmobjptr_t robot,
 
 object *Ai_last_missile_camera;
 
-static int openable_door_on_near_path(fvmsegptr &vmsegptr, fvcwallptr &vcwallptr, const object &obj, const ai_static &aip)
+static int openable_door_on_near_path(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, const object &obj, const ai_static &aip)
 {
 	if (aip.path_length < 1)
 		return 0;
-	if (openable_doors_in_segment(vcwallptr, vmsegptr(obj.segnum)) != -1)
+	if (openable_doors_in_segment(vcwallptr, vcsegptr(obj.segnum)) != side_none)
 		return 1;
 	if (aip.path_length < 2)
 		return 0;
@@ -2819,12 +2817,12 @@ static int openable_door_on_near_path(fvmsegptr &vmsegptr, fvcwallptr &vcwallptr
 	 * sometimes the guidebot has a none.  Guard against the bogus none
 	 * until someone can track down why the guidebot does this.
 	 */
-	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none && openable_doors_in_segment(vcwallptr, vmsegptr(Point_segs[idx].segnum)) != -1)
+	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none && openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)) != side_none)
 		return 1;
 	if (aip.path_length < 3)
 		return 0;
 	idx = aip.hide_index + aip.cur_path_index + 2*aip.PATH_DIR;
-	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none && openable_doors_in_segment(vcwallptr, vmsegptr(Point_segs[idx].segnum)) != -1)
+	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none && openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)) != side_none)
 		return 1;
 	return 0;
 }
@@ -3354,10 +3352,9 @@ _exit_cheat:
 			}
 			else if (ailp.mode != ai_mode::AIM_STILL)
 			{
-				int r;
-
-				r = openable_doors_in_segment(vcwallptr, vmsegptr(obj->segnum));
-				if (r != -1) {
+				const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(obj->segnum));
+				if (r != side_none)
+				{
 					ailp.mode = ai_mode::AIM_OPEN_DOOR;
 					aip->GOALSIDE = r;
 				}
