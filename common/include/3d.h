@@ -68,9 +68,9 @@ constexpr std::integral_constant<uint8_t, 1> PF_PROJECTED{};		//has been project
 constexpr std::integral_constant<uint8_t, 2> PF_OVERFLOW{};		//can't project
 #if !DXX_USE_OGL
 constexpr std::integral_constant<uint8_t, 4> PF_TEMP_POINT{};	//created during clip
-#endif
 constexpr std::integral_constant<uint8_t, 8> PF_UVS{};			//has uv values set
 constexpr std::integral_constant<uint8_t, 16> PF_LS{};			//has lighting values set
+#endif
 
 //clipping codes flags
 
