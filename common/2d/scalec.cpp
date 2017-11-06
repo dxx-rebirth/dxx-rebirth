@@ -172,7 +172,7 @@ static void rls_stretch_scanline(const uint8_t *scale_source_ptr, uint8_t *scale
 	{
 		const uint8_t c = *src_ptr++;
 		if (c != TRANSPARENCY_COLOR)
-			std::fill_n(dest_ptr, c, len);
+			std::fill_n(dest_ptr, len, c);
 		dest_ptr += len;
 	};
 	process_line(initial_count);
