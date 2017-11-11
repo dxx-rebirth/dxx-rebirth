@@ -8,10 +8,10 @@ The DXX-Rebirth maintainers have no control over the sites linked below.  The ma
 ### Prerequisites
 
 * [Python 2.x](https://www.python.org/) to run [scons](http://www.scons.org/), the processor for SConstruct scripts.
-[Python 2.7](https://www.python.org/downloads/release/python-2710/) is recommended.
+[Python 2.7](https://www.python.org/downloads/release/python-2714/) is recommended.
 As of this writing, **scons** does not support Python 3.x, but has plans to do so.
 * C++ compiler with support for selected C++11 features.  One of:
-    * [gcc](https://gcc.gnu.org/) 4.7 or later
+    * [gcc](https://gcc.gnu.org/) 4.9.4 or later
     * [clang](http://clang.llvm.org/) 3.3 or later
     * Microsoft Visual Studio is **not** supported at this time.
 	  Support for Microsoft Visual Studio will be added when it
@@ -30,10 +30,10 @@ Optional, but recommended:
 * [SDL\_mixer 1.2](https://www.libsdl.org/projects/SDL_mixer/).
 SDL\_mixer 2 is **not** supported at this time.
 * C++ compiler with support for selected C++14 features.  One of:
-    * [gcc](https://gcc.gnu.org/) 4.9 or later
+    * [gcc](https://gcc.gnu.org/) 4.9.4 or later
     * [clang](http://clang.llvm.org/) 3.4 or later
 
-Unless otherwise noted, using the newest release available is recommended.  For example, prefer gcc-5.2 to gcc-4.7, even though both should work.
+Unless otherwise noted, using the newest release available is recommended.  For example, prefer gcc-5.4 to gcc-4.9, even though both should work.
 
 DXX-Rebirth can be built on one system to run on a different system, such as using Linux to build for Windows (a "cross-compiled build").  The sections below specify where to get prerequisites for a build meant to run on the system where it is built (a "native build").
 
@@ -42,8 +42,8 @@ Where possible, Windows users should try to obtain a compiled package, rather th
 
 If you are not sure whether your system is Windows x86 or Windows x64, use the packages for Windows x86.  Systems running Windows x64 support running Windows x86 programs, but Windows x86 systems do not run Windows x64 programs.
 
-* [Python x86 MSI](https://www.python.org/ftp/python/2.7.10/python-2.7.10.msi) |
-[Python x64 MSI](https://www.python.org/ftp/python/2.7.10/python-2.7.10.amd64.msi)
+* [Python x86 MSI](https://www.python.org/ftp/python/2.7.14/python-2.7.14.msi) |
+[Python x64 MSI](https://www.python.org/ftp/python/2.7.14/python-2.7.14.amd64.msi)
 * [SCons](https://prdownloads.sourceforge.net/scons/scons-2.3.6-setup.exe)
 * C++ compiler
     * mingw-gcc: [Getting Started](http://www.mingw.org/wiki/Getting_Started) |
@@ -149,18 +149,17 @@ This tells **SConstruct** to build both games (**dxx**) with the profiles **gcc5
 The build system supports specifying a group of closely related targets.  This is mostly redundant on shells with brace expansion support, but can be easier to type.  For example:
 
         scons builddir_prefix=build/ \
-			dxx=gcc47+gcc48+gcc49,prof1,prof2,prof3,
+			dxx=gcc5+gcc49,prof1,prof2,prof3,
 
 This is equivalent to the shell brace expansion:
 
         scons builddir_prefix=build/ \
-			dxx={gcc47,gcc48,gcc49},prof1,prof2,prof3,
+			dxx={gcc5,gcc49},prof1,prof2,prof3,
 
 or
 
         scons builddir_prefix=build/ \
-			dxx=gcc47,prof1,prof2,prof3, \
-			dxx=gcc48,prof1,prof2,prof3, \
+			dxx=gcc5,prof1,prof2,prof3, \
 			dxx=gcc49,prof1,prof2,prof3,
 
 Profile addition can be stacked: **scons dxx=a+b,c+d,e+f** is equivalent to **scons dxx=a,c,e dxx=a,d,e dxx=b,c,e dxx=b,d,e dxx=a,c,f dxx=a,d,f dxx=b,c,f dxx=b,d,f**.
