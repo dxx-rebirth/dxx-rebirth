@@ -878,7 +878,74 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			br->prev_ch = 10;
 
 			return 1;
-		} else if (ch == '$' || ch == ';') // Print a $/;
+		}
+#if defined(DXX_BUILD_DESCENT_II)
+		else if (ch == ':') {
+			br->prev_ch = 10;
+			auto p = br->message;
+			/* Legacy clients do not understand $: and will instead show
+			 * the remainder of the line.  However, if the next two
+			 * characters after $: are $F, legacy clients will treat
+			 * the $F as above, toggle the flashing_cursor flag, then
+			 * discard the rest of the line.  This special case allows
+			 * briefing authors to hide the directive from legacy
+			 * clients, but get the same state of flashing_cursor for
+			 * both legacy and aware clients.  Briefing authors will
+			 * likely need an additional $F nearby to balance this
+			 * toggle, but no additional code here is needed to support
+			 * that.
+			 *
+			 * The trailing colon is cosmetic, so that the compatibility
+			 * $F is not directly adjacent to the directive.
+			 */
+			if (!strncmp(p, "$F:", 3))
+			{
+				br->flashing_cursor = !br->flashing_cursor;
+				p += 3;
+			}
+			auto &rotate_robot_label = "Rebirth.rotate.robot ";
+			constexpr auto rotate_robot_len = sizeof(rotate_robot_label) - 1;
+			if (!strncmp(p, rotate_robot_label, rotate_robot_len))
+			{
+				char *p2;
+				const auto id = strtoul(p + rotate_robot_len, &p2, 10);
+				if (*p2 == '\n')
+				{
+					p = p2;
+					br->robot_canv.reset();
+					if (br->robot_playing)
+					{
+						br->robot_playing = 0;
+						DeInitRobotMovie(br->pMovie);
+					}
+					init_spinning_robot(canvas, *br);
+					/* This modifies the appearance of the frame, which
+					 * is unfortunate.  However, without it, all robots
+					 * come out blue shifted.
+					 */
+					gr_use_palette_table("groupa.256");
+					br->robot_num = id;
+				}
+			}
+			else
+			{
+				const char *p2 = p;
+				/* Suppress non-printing characters.  No need to support
+				 * encodings.
+				 */
+				for (char c; (c = *p2) >= ' ' && c <= '~'; ++p2)
+				{
+				}
+				con_printf(CON_VERBOSE, "warning: unknown briefing directive \"%.*s\"", DXX_ptrdiff_cast_int(p2 - p), p);
+			}
+			for (char c; (c = *p) && c != '\n'; ++p)
+			{
+				/* discard to newline */
+			}
+			br->message = p;
+		}
+#endif
+		else if (ch == '$' || ch == ';') // Print a $/;
 			put_char_delay(*canvas.cv_font, br, ch);
 	} else if (ch == '\t') {		//	Tab
 		const auto &&fspacx = FSPACX();
