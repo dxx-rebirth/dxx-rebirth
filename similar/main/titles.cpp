@@ -938,9 +938,11 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 				}
 				con_printf(CON_VERBOSE, "warning: unknown briefing directive \"%.*s\"", DXX_ptrdiff_cast_int(p2 - p), p);
 			}
-			for (char c; (c = *p) && c != '\n'; ++p)
+			for (char c; (c = *p) && (++p, c) != '\n';)
 			{
-				/* discard to newline */
+				/* Discard through newline.  On break, *p is '\0' or
+				 * p[-1] is '\n'.
+				 */
 			}
 			br->message = p;
 		}
