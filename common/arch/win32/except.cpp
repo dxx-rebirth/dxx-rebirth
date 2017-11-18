@@ -93,7 +93,7 @@ struct dxx_trap_context
 
 }
 
-#define DXX_REPORT_TEXT_FORMAT_UUID	"Format UUID: dfd09b9c-8caa-428c-a294-7d12cbd6cd89"
+#define DXX_REPORT_TEXT_FORMAT_UUID	"Format UUID: 0f7deda4-1122-4be8-97d5-afc91b7803d6"
 #define DXX_REPORT_TEXT_LEADER_VERSION_PREFIX	"Rebirth version: x"
 #define DXX_REPORT_TEXT_LEADER_BUILD_DATETIME	"Rebirth built: "
 #define DXX_REPORT_TEXT_LEADER_EXCEPTION_MESSAGE	 "Exception message: "
@@ -186,11 +186,12 @@ static LONG CALLBACK vectored_exception_handler(EXCEPTION_POINTERS *const ep)
 
 /* Ensure gcc does not clone the inline labels */
 __attribute__((__noinline__,__noclone__,__warn_unused_result__))
-static void *capture_exception_context(dxx_trap_context &dtc)
+static void *capture_exception_context(dxx_trap_context &dtc, const uint8_t *const sp)
 {
 	const auto handler = AddVectoredExceptionHandler(1, &vectored_exception_handler);
 	if (handler)
 	{
+		dtc = {};
 		/*
 		 * This block guarantees at least one and at most two faults to
 		 * occur.  Run it only if an exception handler was successfully
@@ -213,7 +214,7 @@ DXX_ASM_LABEL("dxx_rebirth_veh_ud2") ":\n"
 "	ud2\n"
 			:: "a" (&dtc) : "memory"
 		);
-		auto p = dtc.ContextRecord.DXX_NT_CONTEXT_REGISTER(sp);
+		auto p = reinterpret_cast<uintptr_t>(sp);
 		for (auto e = p + dump_stack_bytes; p != e; ++p)
 			asm volatile(
 DXX_ASM_LABEL("dxx_rebirth_veh_sp") ":\n"
@@ -244,7 +245,6 @@ DXX_ASM_LABEL("dxx_rebirth_veh_sp") ":\n"
 	return handler;
 }
 #undef DXX_ASM_LABEL
-#undef DXX_NT_CONTEXT_REGISTER
 
 /*
  * Initialize `path` with a path suitable to be used to write a minidump
@@ -361,7 +361,7 @@ static void write_exception_dump(dxx_trap_context &dtc, const unsigned pid, cons
  * Write a plain text dump of metadata and a hex dump of the faulting
  * stack.
  */
-static void write_exception_stack(const wchar_t *const filename, const unsigned pid, const uint8_t *const begin_sp, const uint8_t *const end_sp, const std::string &what, const HANDLE h)
+static void write_exception_stack(const wchar_t *const filename, const unsigned pid, const uint8_t *const begin_sp, const dxx_trap_context &dtc, const std::string &what, const HANDLE h)
 {
 	std::array<char, 4096> buf;
 	buf = {};
@@ -374,9 +374,10 @@ DXX_REPORT_TEXT_LEADER_BUILD_DATETIME "%s\n"
 "Rebirth PID: %u\n"
 "Report date-time: %.19ls\n"
 DXX_REPORT_TEXT_LEADER_EXCEPTION_MESSAGE "\"%s\"\n"
+"UD2 IP: %p\n"
 "SP: %p\n"
 "\n"
-, g_strctxuuid.data(), g_descent_version, g_descent_build_datetime, pid, filename, what.c_str(), begin_sp
+, g_strctxuuid.data(), g_descent_version, g_descent_build_datetime, pid, filename, what.c_str(), reinterpret_cast<const uint8_t *>(dtc.ContextRecord.DXX_NT_CONTEXT_REGISTER(ip)), begin_sp
 );
 	/*
 	 * end_sp is rounded down to a paragraph boundary.
@@ -386,6 +387,7 @@ DXX_REPORT_TEXT_LEADER_EXCEPTION_MESSAGE "\"%s\"\n"
 	const auto sp = reinterpret_cast<const uint8_t *>(reinterpret_cast<uintptr_t>(begin_sp) & -dump_stack_stride);
 	DWORD dwWritten;
 	WriteFile(h, buf.data(), len_header_text, &dwWritten, 0);
+	const auto end_sp = dtc.end_sp;
 	for (unsigned i = 0; i < dump_stack_bytes; i += dump_stack_stride)
 	{
 		char hexdump[dump_stack_stride + 1];
@@ -410,10 +412,10 @@ DXX_REPORT_TEXT_LEADER_EXCEPTION_MESSAGE "\"%s\"\n"
 	}
 }
 
-static void write_exception_stack(const wchar_t *const filename, const unsigned pid, const uint8_t *const sp, const uint8_t *const end_sp, const std::string &what, path_buffer &path)
+static void write_exception_stack(const wchar_t *const filename, const unsigned pid, const uint8_t *const sp, const dxx_trap_context &dtc, const std::string &what, path_buffer &path)
 {
 	if (RAII_Windows_FILE_HANDLE h{CreateFileW(path.data(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)})
-		write_exception_stack(filename, pid, sp, end_sp, what, h);
+		write_exception_stack(filename, pid, sp, dtc, what, h);
 	else
 		path.front() = 0;
 }
@@ -453,7 +455,7 @@ static void write_exception_logs(const uint8_t *const sp)
 #endif
 	path_buffer path_stack;
 	dxx_trap_context dtc;
-	if (capture_exception_context(dtc))
+	if (capture_exception_context(dtc, sp))
 	{
 		const unsigned pid = GetCurrentProcessId();
 		wchar_t *filename;
@@ -468,7 +470,7 @@ static void write_exception_logs(const uint8_t *const sp)
 #else
 		(void)pl;
 #endif
-		write_exception_stack(filename, pid, sp, dtc.end_sp, what, path_stack);
+		write_exception_stack(filename, pid, sp, dtc, what, path_stack);
 	}
 	else
 	{
