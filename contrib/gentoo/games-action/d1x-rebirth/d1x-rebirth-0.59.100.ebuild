@@ -16,7 +16,7 @@ DESCRIPTION="Descent Rebirth - enhanced Descent $MY_ENGINE engine"
 HOMEPAGE="http://www.dxx-rebirth.com/"
 SRC_URI=""
 
-LICENSE="D1X GPL-3"
+LICENSE="DXX-Rebirth GPL-3"
 SLOT="0"
 KEYWORDS="amd64 x86"
 IUSE="debug editor ipv6 +opengl timidity tracker"
