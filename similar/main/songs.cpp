@@ -325,7 +325,7 @@ static void play_credits_track()
 int songs_play_file(const char *filename, int repeat, void (*hook_finished_track)())
 {
 	songs_stop_all();
-	
+#if defined(_WIN32) || DXX_USE_SDLMIXER
 	const char *fptr = strrchr(filename, '.');
 	if (fptr == NULL)
 		return 0;
@@ -349,6 +349,7 @@ int songs_play_file(const char *filename, int repeat, void (*hook_finished_track
 	{
 		return mix_play_file( filename, repeat, hook_finished_track );
 	}
+#endif
 #endif
 	return 0;
 }

@@ -36,6 +36,13 @@ struct bim_song_info
 #define SONG_EXT_MP3            "mp3"
 #endif
 
+#if !DXX_USE_SDLMIXER
+#ifdef _WIN32
+#define songs_play_file(filename,repeat,hook_finished_track)	songs_play_file(filename,repeat)
+#else
+#define songs_play_file(filename,repeat,hook_finished_track)	songs_play_file()
+#endif
+#endif
 int songs_play_file(const char *filename, int repeat, void (*hook_finished_track)());
 #ifdef dsx
 namespace dsx {
