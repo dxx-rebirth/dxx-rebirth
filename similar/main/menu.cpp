@@ -2087,11 +2087,18 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 				GameCfg.MusicType = MUSIC_TYPE_NONE;
 				replay = 1;
 			}
+			/*
+			 * When builtin music is enabled, the next line expands to
+			 * `#if +1 + 0`; when it is disabled, the line expands to
+			 * `#if + 0`.
+			 */
+#if DXX_SOUND_ADDON_MUSIC_MENU_ITEM(COUNT) + 0
 			else if (citem == opt_sm_mtype1)
 			{
 				GameCfg.MusicType = MUSIC_TYPE_BUILTIN;
 				replay = 1;
 			}
+#endif
 			else if (citem == opt_sm_mtype2)
 			{
 				GameCfg.MusicType = MUSIC_TYPE_REDBOOK;
