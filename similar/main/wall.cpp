@@ -1071,8 +1071,10 @@ void wall_toggle(const vmsegptridx_t segp, unsigned side)
 #endif
 		return;
 	}
-	auto wall_num = segp->sides[side].wall_num;
-	if (wall_num == wall_none) {
+	const auto wall_num = segp->sides[side].wall_num;
+	if (wall_num == wall_none)
+	{
+		LevelError("Ignoring attempt to toggle wall in segment %hu, side %u: no wall exists there.", segp.get_unchecked_index(), side);
 		return;
 	}
 

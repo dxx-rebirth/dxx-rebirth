@@ -1937,9 +1937,29 @@ static void newdemo_pop_ctrlcen_triggers()
 	for (int i = 0; i < ControlCenterTriggers.num_links; i++) {
 		const auto &&seg = vmsegptridx(ControlCenterTriggers.seg[i]);
 		const auto side = ControlCenterTriggers.side[i];
-		const auto &&csegp = vmsegptr(seg->children[side]);
+		const auto csegi = seg->children[side];
+		if (csegi == segment_none)
+		{
+			/* Some levels specify control center triggers for
+			 * segments/sides that have no wall.  `Descent 2:
+			 * Counterstrike` level 11, control center trigger 0 would
+			 * fault without this test.
+			 */
+			continue;
+		}
+		const auto &&csegp = vmsegptr(csegi);
 		auto cside = find_connect_side(seg, csegp);
-		const auto anim_num = vcwallptr(seg->sides[side].wall_num)->clip_num;
+		const auto wall_num = seg->sides[side].wall_num;
+		if (wall_num == wall_none)
+		{
+			/* Some levels specify control center triggers for
+			 * segments/sides that have no wall.  `Descent 2:
+			 * Counterstrike` level 9, control center trigger 2 would
+			 * fault without this test.
+			 */
+			continue;
+		}
+		const auto anim_num = vcwallptr(wall_num)->clip_num;
 		const auto n = WallAnims[anim_num].num_frames;
 		const auto t = WallAnims[anim_num].flags & WCF_TMAP1
 			? &side::tmap_num
