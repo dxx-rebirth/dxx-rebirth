@@ -80,7 +80,7 @@ void draw_weapon_vclip(grs_canvas &canvas, const vcobjptridx_t obj)
 		modtime += (lifeleft * (objnum & 7)) / 16;	//add variance to spin rate
 
 		if (modtime > play_time)
-			modtime -= play_time;
+			modtime %= play_time;
 
 		if ((objnum&1) ^ ((objnum>>1)&1))			//make some spin other way
 			modtime = play_time - modtime;
