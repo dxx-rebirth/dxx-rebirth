@@ -194,7 +194,6 @@ static int apply_damage_to_clutter(const vmobjptridx_t clutter, fix damage)
 namespace dsx {
 static void apply_force_damage(const vmobjptridx_t obj,fix force,const vmobjptridx_t other_obj)
 {
-	int	result;
 	fix damage;
 
 	if (obj->flags & (OF_EXPLODING|OF_SHOULD_BE_DEAD))
@@ -215,15 +214,20 @@ static void apply_force_damage(const vmobjptridx_t obj,fix force,const vmobjptri
 		case OBJ_ROBOT:
 		{
 			auto &robptr = Robot_info[get_robot_id(obj)];
-			result = apply_damage_to_robot(obj, (robptr.attack_type == 1)
+			const auto other_type = other_obj->type;
+			const auto result = apply_damage_to_robot(obj, (robptr.attack_type == 1)
 				? damage / 4
 				: damage / 2,
-				(other_obj->type == OBJ_WEAPON)
+				(other_type == OBJ_WEAPON)
 				? other_obj->ctype.laser_info.parent_num
 				: static_cast<objnum_t>(other_obj));
+			if (!result)
+				break;
 
-			if (result && (other_obj->ctype.laser_info.parent_signature == ConsoleObject->signature))
-				add_points_to_score(ConsoleObject->ctype.player_info, robptr.score_value);
+			const auto console = ConsoleObject;
+			if ((other_type == OBJ_PLAYER && other_obj == console) ||
+				(other_type == OBJ_WEAPON && other_obj->ctype.laser_info.parent_signature == console->signature))
+				add_points_to_score(console->ctype.player_info, robptr.score_value);
 			break;
 		}
 
