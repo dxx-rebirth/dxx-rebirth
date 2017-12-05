@@ -74,10 +74,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-lengthof.h"
 #include "compiler-range_for.h"
 
-#ifndef RELEASE
-#define TABLE_CREATION 1
-#endif
-
 using std::min;
 using std::max;
 using std::plus;
@@ -666,146 +662,6 @@ namespace dsx {
 static void kc_drawquestion(grs_canvas &, kc_menu *menu, const kc_item *item);
 
 }
-#ifdef TABLE_CREATION
-static const kc_item *find_item_at(const kc_item *const ib, const kc_item *const ie, int x, int y)
-{
-	const auto predicate = [=](const kc_item &i) {
-		return i.xinput == x && i.y == y;
-	};
-	return std::find_if(ib, ie, predicate);
-}
-
-namespace {
-
-class find_item_single
-{
-	uint_fast32_t current;
-	const uint_fast32_t limit;
-public:
-	find_item_single(uint_fast32_t c, uint_fast32_t l) :
-		current(c), limit(l)
-	{
-	}
-	uint_fast32_t value() const { return current; }
-	/* Return true on reset, false otherwise */
-	bool decrement()
-	{
-		if (current)
-			return -- current, false;
-		return current = limit - 1, true;
-	}
-	/* Return true on reset, false otherwise */
-	bool increment()
-	{
-		if (current != limit)
-			return ++ current, false;
-		return current = 0, true;
-	}
-};
-
-class find_item_state
-{
-	find_item_single x, y;
-public:
-	find_item_state(const kc_item &citem, const uint_fast32_t xl, const uint_fast32_t yl) :
-		x(citem.xinput, xl), y(citem.y, yl)
-	{
-	}
-	uint_fast32_t x_value() const { return x.value(); }
-	uint_fast32_t y_value() const { return y.value(); }
-	bool x_decrement() { return x.decrement(); }
-	bool y_decrement() { return y.decrement(); }
-	bool x_increment() { return x.increment(); }
-	bool y_increment() { return y.increment(); }
-};
-
-}
-
-template <bool (find_item_state::*outer_step)(), bool (find_item_state::*inner_step)()>
-static inline std::ptrdiff_t find_next_item(const kc_item *const ib, const kc_item *const ie, find_item_state state)
-{
-	bool looped = false;
-	for (;;)
-	{
-		if (unlikely((state.*outer_step)()))
-			if (unlikely((state.*inner_step)()))
-			{
-				if (unlikely(looped))
-					/* Sanity check.  If looped is true and inner_step
-					 * returned true again, then the entire area has
-					 * already been searched.
-					 */
-					return std::distance(ib, ie);
-				looped = true;
-			}
-		auto i = find_item_at(ib, ie, state.x_value(), state.y_value());
-		if (i != ie)
-			return std::distance(ib, i);
-	}
-}
-
-static std::ptrdiff_t find_next_item_up(const kc_item *const ib, const kc_item *const ie, const find_item_state &state)
-{
-	return find_next_item<&find_item_state::y_decrement, &find_item_state::x_decrement>(ib, ie, state);
-}
-
-static std::ptrdiff_t find_next_item_down(const kc_item *const ib, const kc_item *const ie, const find_item_state &state)
-{
-	return find_next_item<&find_item_state::y_increment, &find_item_state::x_increment>(ib, ie, state);
-}
-
-static std::ptrdiff_t find_next_item_right(const kc_item *const ib, const kc_item *const ie, const find_item_state &state)
-{
-	return find_next_item<&find_item_state::x_increment, &find_item_state::y_increment>(ib, ie, state);
-}
-
-static std::ptrdiff_t find_next_item_left(const kc_item *const ib, const kc_item *const ie, const find_item_state &state)
-{
-	return find_next_item<&find_item_state::x_decrement, &find_item_state::y_decrement>(ib, ie, state);
-}
-
-constexpr char btype_text[][13] = {
-	"KEY",
-	"MOUSE_BUTTON",
-	"MOUSE_AXIS",
-	"JOY_BUTTON",
-	"JOY_AXIS",
-	"INVERT"
-};
-
-template <std::size_t N>
-static void print_create_table_items(PHYSFS_File *fp, const char *type, const char *litems, const kc_item (&items)[N])
-{
-	PHYSFSX_printf( fp, "\nstatic const kc_item kc_%s[] = {\n", type );
-	const grs_bitmap &cv_bitmap = grd_curcanv->cv_bitmap;
-	const uint_fast32_t bm_w = cv_bitmap.bm_w, bm_h = cv_bitmap.bm_h;
-	range_for (auto &i, items)
-	{
-		short u,d,l,r;
-		const auto ib = begin(items);
-		const auto ie = end(items);
-		const find_item_state s{i, bm_w, bm_h};
-		u = find_next_item_up(ib, ie, s);
-		d = find_next_item_down(ib, ie, s);
-		l = find_next_item_left(ib, ie, s);
-		r = find_next_item_right(ib, ie, s);
-		PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3hd,%3hd,%3hd,%3hd, BT_%s },\n", 
-					   i.x, i.y, i.xinput, i.w2,
-					   u, d, l, r,
-					   btype_text[i.type] );
-	}
-	PHYSFSX_printf( fp, "};\n"
-		"static const char *const kcl_%s =\n", type);
-	const char *litem = litems;
-	for (unsigned i=0; i < N; ++i )
-	{
-		PHYSFSX_printf( fp, "\t\"%s\\0\"\n", litem);
-		litem += strlen(litem) + 1;
-	}
-	PHYSFSX_printf( fp, ";\n"
-		"static kc_mitem kcm_%1$s[lengthof(kc_%1$s)];\n", type );
-}
-#endif
 
 static const char *get_item_text(const kc_item &item, const kc_mitem &mitem, char (&buf)[10])
 {
@@ -1174,7 +1030,6 @@ static window_event_result kconfig_key_command(window *, const d_event &event, k
 		case KEY_PADENTER:
 			kconfig_start_changing(menu);
 			return window_event_result::handled;
-		case -2:	
 		case KEY_ESC:
 			if (menu->changing)
 				menu->changing = 0;
@@ -1183,28 +1038,6 @@ static window_event_result kconfig_key_command(window *, const d_event &event, k
 				return window_event_result::close;
 			}
 			return window_event_result::handled;
-#ifdef TABLE_CREATION
-		case KEY_F12:
-			if (auto fp = PHYSFSX_openWriteBuffered("kconfig.cod"))
-			{
-				PHYSFSX_printf( fp, "const ubyte DefaultKeySettings[3][MAX_CONTROLS] = {\n" );
-				for (unsigned i=0; i<3; i++ )	{
-					PHYSFSX_printf( fp, "{0x%2x", PlayerCfg.KeySettings[i][0] );
-					for (int j=1; j<MAX_CONTROLS; j++ )
-						PHYSFSX_printf( fp, ",0x%2x", PlayerCfg.KeySettings[i][j] );
-					PHYSFSX_printf( fp, "},\n" );
-				}
-				PHYSFSX_printf( fp, "};\n" );
-
-				print_create_table_items(fp, "keyboard", kcl_keyboard, kc_keyboard);
-#if DXX_MAX_JOYSTICKS
-				print_create_table_items(fp, "joystick", kcl_joystick, kc_joystick);
-#endif
-				print_create_table_items(fp, "mouse", kcl_mouse, kc_mouse);
-				print_create_table_items(fp, "rebirth", kcl_rebirth, kc_rebirth);
-			}
-			return window_event_result::handled;
-#endif
 		case 0:		// some other event
 			break;
 			
