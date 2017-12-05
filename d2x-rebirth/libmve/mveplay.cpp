@@ -358,7 +358,7 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 
 	if (CGameArg.SndDisableSdlMixer)
 	{
-		con_printf(CON_CRITICAL, "creating audio buffers:");
+		con_puts(CON_CRITICAL, "creating audio buffers:");
 		con_printf(CON_CRITICAL, "sample rate = %d, desired buffer = %d, stereo = %d, bitsize = %d, compressed = %d",
 				sample_rate, desired_buffer, stereo ? 1 : 0, bitsize ? 16 : 8, compressed ? 1 : 0);
 	}
@@ -375,7 +375,7 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 	if (CGameArg.SndDisableSdlMixer)
 	{
 		if (SDL_OpenAudio(mve_audio_spec.get(), NULL) >= 0) {
-			con_printf(CON_CRITICAL, "   success");
+			con_puts(CON_CRITICAL, "   success");
 			mve_audio_canplay = 1;
 		}
 		else {
@@ -496,7 +496,8 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 				memcpy(cvt.buf, mve_audio_buffers[mve_audio_buftail].get(), nsamp);
 
 				// do the conversion
-				if (SDL_ConvertAudio(&cvt)) con_printf(CON_DEBUG,"audio conversion failed!");
+				if (SDL_ConvertAudio(&cvt))
+					con_puts(CON_DEBUG,"audio conversion failed!");
 
 				// copy back to the audio buffer
 				mve_audio_buffers[mve_audio_buftail].reset(reinterpret_cast<int16_t *>(mve_alloc(clen))); // free the old audio buffer

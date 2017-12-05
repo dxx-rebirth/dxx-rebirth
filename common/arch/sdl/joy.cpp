@@ -346,7 +346,7 @@ void joy_init()
 			num_joysticks++;
 		}
 		else
-			con_printf(CON_NORMAL, "sdl-joystick: initialization failed!");
+			con_puts(CON_NORMAL, "sdl-joystick: initialization failed!");
 
 		con_printf(CON_NORMAL, "sdl-joystick: %d axes (total)", joystick_n_axes);
 		con_printf(CON_NORMAL, "sdl-joystick: %d buttons (total)", joystick_n_buttons);

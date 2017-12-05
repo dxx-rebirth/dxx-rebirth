@@ -174,7 +174,7 @@ void digi_select_system()
 		return;
 	}
 #endif
-	con_printf(CON_NORMAL,"Using plain old SDL audio");
+	con_puts(CON_NORMAL,"Using plain old SDL audio");
 		fptr = digi_audio_table;
 }
 

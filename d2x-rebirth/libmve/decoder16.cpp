@@ -368,7 +368,7 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 		*pDataRemain -= 2;
 		break;
 	case 0x6:
-		con_printf(CON_CRITICAL, "STUB: encoding 6 not tested");
+		con_puts(CON_CRITICAL, "STUB: encoding 6 not tested");
 		for (i=0; i<2; i++)
 		{
 			*pFrame += 16;

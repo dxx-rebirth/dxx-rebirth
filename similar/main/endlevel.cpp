@@ -287,7 +287,7 @@ window_event_result start_endlevel_sequence()
 	if (Player_dead_state != player_dead_state::no ||
 		(ConsoleObject->flags & OF_SHOULD_BE_DEAD))
 		return window_event_result::ignored;				//don't start if dead!
-	con_printf(CON_NORMAL, "You have escaped the mine!");
+	con_puts(CON_NORMAL, "You have escaped the mine!");
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Dematerialize Buddy!

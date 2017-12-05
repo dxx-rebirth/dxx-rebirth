@@ -301,7 +301,7 @@ void jukebox_load()
 	{
 		CGameCfg.CMLevelMusicTrack[0] = -1;
 		CGameCfg.CMLevelMusicTrack[1] = -1;
-		con_printf(CON_DEBUG,"Jukebox music could not be found!");
+		con_puts(CON_DEBUG,"Jukebox music could not be found!");
 	}
 }
 

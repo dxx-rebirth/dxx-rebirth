@@ -270,10 +270,10 @@ void show_titles(void)
 
 		if (played == MOVIE_NOT_PLAYED)
 		{
-			con_printf( CON_DEBUG, "\nPlaying title song..." );
+			con_puts(CON_DEBUG, "Playing title song...");
 			songs_play_song( SONG_TITLE, 1);
 			song_playing = 1;
-			con_printf( CON_DEBUG, "\nShowing logo screens..." );
+			con_puts(CON_DEBUG, "Showing logo screens...");
 
 			show_first_found_title_screen(
 				hiresmode ? "iplogo1b.pcx" : "iplogo1.pcx", // OEM
@@ -312,10 +312,10 @@ void show_titles(void)
 
 	if (!song_playing)
 	{
-		con_printf( CON_DEBUG, "\nPlaying title song..." );
+		con_puts(CON_DEBUG, "Playing title song...");
 		songs_play_song( SONG_TITLE, 1);
 	}
-	con_printf( CON_DEBUG, "\nShowing logo screen..." );
+	con_puts(CON_DEBUG, "Showing logo screen...");
 	const auto filename = hiresmode ? "descentb.pcx" : "descent.pcx";
 	if (PHYSFSX_exists(filename,1))
 		show_title_screen(filename, 1, 1);

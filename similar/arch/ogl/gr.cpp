@@ -1046,7 +1046,7 @@ void write_bmp(const char *const savename, const unsigned w, const unsigned h)
 	auto TGAFile = PHYSFSX_openWriteBuffered(savename);
 	if (!TGAFile)
 	{
-		con_printf(CON_URGENT,"Could not create TGA file to dump screenshot!");
+		con_puts(CON_URGENT, "Could not create TGA file to dump screenshot!");
 		return;
 	}
 

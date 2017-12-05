@@ -632,7 +632,7 @@ int load_exit_models()
 		!bm_load_extra_objbitmap("rbot061.bbm") ||
 		!bm_load_extra_objbitmap("rbot063.bbm"))
 	{
-		con_printf(CON_NORMAL, "Can't load exit models!");
+		con_puts(CON_NORMAL, "Can't load exit models!");
 		return 0;
 	}
 	if (auto exit_hamfile = PHYSFSX_openReadBuffered("exit.ham"))
@@ -678,7 +678,7 @@ int load_exit_models()
 		case D1_OEM_PIGSIZE:
 		case D1_MAC_PIGSIZE:
 		case D1_MAC_SHARE_PIGSIZE:
-			con_printf(CON_NORMAL, "Can't load exit models!");
+			con_puts(CON_NORMAL, "Can't load exit models!");
 			return 0;
 		}
 		PHYSFSX_fseek(exit_hamfile, offset, SEEK_SET);
@@ -693,7 +693,7 @@ int load_exit_models()
 		polygon_model_data_read(&Polygon_models[exit_modelnum], exit_hamfile);
 		polygon_model_data_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
 	} else {
-		con_printf(CON_NORMAL, "Can't load exit models!");
+		con_puts(CON_NORMAL, "Can't load exit models!");
 		return 0;
 	}
 

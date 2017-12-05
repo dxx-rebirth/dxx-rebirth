@@ -99,7 +99,7 @@ void ogl_extensions_init()
 {
 	const auto version_str = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 	if (!version_str) {
-		con_printf(CON_URGENT, "DXX-Rebirth: no valid OpenGL context when querying GL extensions!");
+		con_puts(CON_URGENT, "DXX-Rebirth: no valid OpenGL context when querying GL extensions!");
 		return;
 	}
 	const auto version = parse_version_str(version_str);

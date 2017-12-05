@@ -207,7 +207,7 @@ int cmd_queue_process(void)
 	
 	if (cmd_queue_wait > 0) {
 		cmd_queue_wait--;
-		con_printf(CON_DEBUG, "cmd_queue_process: waiting");
+		con_puts(CON_DEBUG, "cmd_queue_process: waiting");
 		return 1;
 	}
 	
@@ -270,9 +270,9 @@ void cmd_enqueue(int insert, const char *input)
 	}
 	auto after = insert
 		/* add our list to the head of the main list */
-		? (con_printf(CON_DEBUG, "cmd_enqueue: added to front of list"), cmd_queue.before_begin())
+		? (con_puts(CON_DEBUG, "cmd_enqueue: added to front of list"), cmd_queue.before_begin())
 		/* add our list to the tail of the main list */
-		: (con_printf(CON_DEBUG, "cmd_enqueue: added to back of list"), before_end(cmd_queue))
+		: (con_puts(CON_DEBUG, "cmd_enqueue: added to back of list"), before_end(cmd_queue))
 	;
 	cmd_queue.splice_after(after, std::move(l));
 }
@@ -315,7 +315,7 @@ static void cmd_alias(unsigned long argc, const char *const *const argv)
 {
 	char buf[CMD_MAX_LENGTH] = "";
 	if (argc < 2) {
-		con_printf(CON_NORMAL, "aliases:");
+		con_puts(CON_NORMAL, "aliases:");
 		range_for (const auto &i, cmd_alias_list)
 			con_printf(CON_NORMAL, "%s: %s", i.first.c_str(), i.second->value.get());
 		return;
@@ -404,7 +404,7 @@ static void cmd_exec(unsigned long argc, const char *const *const argv)
 	}
 	
 	/* add our list to the head of the main list */
-	con_printf(CON_DEBUG, "cmd_exec: added to front of list");
+	con_puts(CON_DEBUG, "cmd_exec: added to front of list");
 	cmd_queue.splice_after(cmd_queue.before_begin(), std::move(l));
 }
 
@@ -419,7 +419,7 @@ static void cmd_help(unsigned long argc, const char *const *const argv)
 	}
 	
 	if (argc < 2) {
-		con_printf(CON_NORMAL, "Available commands:");
+		con_puts(CON_NORMAL, "Available commands:");
 		range_for (const auto &i, cmd_list)
 			con_printf(CON_NORMAL, "    %s", i.first);
 

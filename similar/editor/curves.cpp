@@ -76,7 +76,8 @@ vms_vector evaluate_curve(vms_equation *coeffs, int degree, fix t) {
     fix t2, t3;
     vms_vector coord;
 
-    if (degree!=3) con_printf(CON_CRITICAL," for Hermite Curves degree must be 3");
+    if (degree != 3)
+		con_puts(CON_CRITICAL," for Hermite Curves degree must be 3");
 
     t2 = fixmul(t,t); t3 = fixmul(t2,t);
 
@@ -93,7 +94,8 @@ fix curve_dist(vms_equation *coeffs, int degree, fix t0, const vms_vector &p0, f
 	 vms_vector coord;
     fix t, diff;
 
-    if (degree!=3) con_printf(CON_CRITICAL," for Hermite Curves degree must be 3");
+    if (degree != 3)
+		con_puts(CON_CRITICAL," for Hermite Curves degree must be 3");
 
     for (t=t0;t<1*F1_0;t+=0.001*F1_0) {
         coord = evaluate_curve(coeffs, 3, t);

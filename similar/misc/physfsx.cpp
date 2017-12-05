@@ -216,7 +216,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 #if defined(__unix__)
 	else if (!CGameArg.SysNoHogDir)
 	{
-		con_printf(CON_DEBUG, "PHYSFS: append sharepath directory \"" SHAREPATH "\" to search path");
+		con_puts(CON_DEBUG, "PHYSFS: append sharepath directory \"" SHAREPATH "\" to search path");
 		PHYSFS_addToSearchPath(SHAREPATH, 1);
 	}
 #endif
@@ -320,7 +320,7 @@ int PHYSFSX_fsize(const char *hogname)
 
 void PHYSFSX_listSearchPathContent()
 {
-	con_printf(CON_DEBUG, "PHYSFS: Listing contents of Search Path.");
+	con_puts(CON_DEBUG, "PHYSFS: Listing contents of Search Path.");
 	PHYSFSX_uncounted_list list{PHYSFS_getSearchPath()};
 	range_for (const auto i, list)
 		con_printf(CON_DEBUG, "PHYSFS: [%s] is in the Search Path.", i);
@@ -342,7 +342,7 @@ int PHYSFSX_checkSupportedArchiveTypes()
 	int mvl_sup = 0;
 #endif
 
-	con_printf(CON_DEBUG, "PHYSFS: Checking supported archive types.");
+	con_puts(CON_DEBUG, "PHYSFS: Checking supported archive types.");
 	range_for (const auto i, make_null_sentinel_array(PHYSFS_supportedArchiveTypes()))
 	{
 		const auto iextension = i->extension;
@@ -356,10 +356,10 @@ int PHYSFSX_checkSupportedArchiveTypes()
 	}
 
 	if (!hog_sup)
-		con_printf(CON_CRITICAL, "PHYSFS: HOG not supported. The game will not work without!");
+		con_puts(CON_CRITICAL, "PHYSFS: HOG not supported. The game will not work without!");
 #ifdef DXX_BUILD_DESCENT_II
 	if (!mvl_sup)
-		con_printf(CON_URGENT, "PHYSFS: MVL not supported. Won't be able to play movies!");
+		con_puts(CON_URGENT, "PHYSFS: MVL not supported. Won't be able to play movies!");
 #endif
 
 	return hog_sup;
@@ -561,7 +561,7 @@ void PHYSFSX_addArchiveContent()
 {
 	int content_updated = 0;
 
-	con_printf(CON_DEBUG, "PHYSFS: Adding archives to the game.");
+	con_puts(CON_DEBUG, "PHYSFS: Adding archives to the game.");
 	// find files in Searchpath ...
 	auto list = PHYSFSX_findFiles("", archive_exts);
 	// if found, add them...
@@ -597,7 +597,7 @@ void PHYSFSX_addArchiveContent()
 
 	if (content_updated)
 	{
-		con_printf(CON_DEBUG, "Game content updated!");
+		con_puts(CON_DEBUG, "Game content updated!");
 		PHYSFSX_listSearchPathContent();
 	}
 }

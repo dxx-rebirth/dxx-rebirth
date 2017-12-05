@@ -599,7 +599,7 @@ static imsegptridx_t trace_segs(const vms_vector &p0, const vmsegptridx_t oldseg
 	fix biggest_val;
 	int sidenum, bit, biggest_side;
 	if (recursion_count >= Num_segments) {
-		con_printf (CON_DEBUG, "trace_segs: Segment not found");
+		con_puts(CON_DEBUG, "trace_segs: Segment not found");
 		return segment_none;
 	}
 	if (auto &&vs = visited[oldsegnum])

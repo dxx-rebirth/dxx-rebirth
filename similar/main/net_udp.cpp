@@ -5938,14 +5938,14 @@ static void udp_tracker_process_ack( ubyte *data, int data_len, const _sockaddr 
 			if (TrackerAckStatus == TrackerAckState::TACK_NOCONNECTION && addr_check == 2)
 			{
 				TrackerAckStatus = TrackerAckState::TACK_INTERNAL;
-				con_printf(CON_VERBOSE, "[Tracker] Got internal ACK. Your game is hosted!");
+				con_puts(CON_VERBOSE, "[Tracker] Got internal ACK. Your game is hosted!");
 			}
 			break;
 		case 1: // ack from another socket (same IP, different port) to see if we're reachable from the outside
 			if (TrackerAckStatus <= TrackerAckState::TACK_INTERNAL && addr_check)
 			{
 				TrackerAckStatus = TrackerAckState::TACK_EXTERNAL;
-				con_printf(CON_VERBOSE, "[Tracker] Got external ACK.\nYour game is hosted and game port is reachable!");
+				con_puts(CON_VERBOSE, "[Tracker] Got external ACK. Your game is hosted and game port is reachable!");
 			}
 			break;
 	}
@@ -5963,10 +5963,10 @@ static void udp_tracker_verify_ack_timeout()
 			HUD_init_message(HM_MULTI, "No ACK from tracker. Please check game log.");
 		else
 			nm_messagebox(TXT_WARNING, 1, TXT_OK, "No ACK from tracker.\nPlease check game log.");
-		con_printf(CON_URGENT, "[Tracker] No response from game tracker. Tracker address may be invalid,\nTracker is offline or otherwise unreachable.");
+		con_puts(CON_URGENT, "[Tracker] No response from game tracker. Tracker address may be invalid or Tracker may be offline or otherwise unreachable.");
 	}
 	else if (TrackerAckStatus == TrackerAckState::TACK_INTERNAL)
-		con_printf(CON_NORMAL, "[Tracker] No external signal from game tracker.\nYour game port does not seem to be reachable.\nClients will attempt hole-punching to join your game.");
+		con_puts(CON_NORMAL, "[Tracker] No external signal from game tracker. Your game port does not seem to be reachable. Clients will attempt hole-punching to join your game.");
 	TrackerAckStatus = TrackerAckState::TACK_SEQCOMPL;
 }
 
@@ -5988,7 +5988,7 @@ static void udp_tracker_process_holepunch( ubyte *data, int data_len, const _soc
 {
 	if (data_len == 1 && !multi_i_am_master())
 	{
-		con_printf(CON_VERBOSE, "[Tracker] Received hole-punch pong from a host.");
+		con_puts(CON_VERBOSE, "[Tracker] Received hole-punch pong from a host.");
 		return;
 	}
 	if (!Netgame.Tracker || !sender_is_tracker(sender_addr, TrackerSocket) || !multi_i_am_master())
