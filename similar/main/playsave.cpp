@@ -533,15 +533,15 @@ static void read_player_dxx(const char *filename)
 				{
 					// reset joystick/mouse cycling fields
 #if defined(DXX_BUILD_DESCENT_I)
-					PlayerCfg.KeySettings[1][44] = 255;
-					PlayerCfg.KeySettings[1][45] = 255;
-					PlayerCfg.KeySettings[1][46] = 255;
-					PlayerCfg.KeySettings[1][47] = 255;
-					PlayerCfg.KeySettings[2][27] = 255;
+					PlayerCfg.KeySettings.Joystick[44] = 255;
+					PlayerCfg.KeySettings.Joystick[45] = 255;
+					PlayerCfg.KeySettings.Joystick[46] = 255;
+					PlayerCfg.KeySettings.Joystick[47] = 255;
+					PlayerCfg.KeySettings.Mouse[27] = 255;
 #endif
-					PlayerCfg.KeySettings[2][28] = 255;
+					PlayerCfg.KeySettings.Mouse[28] = 255;
 #if defined(DXX_BUILD_DESCENT_II)
-					PlayerCfg.KeySettings[2][29] = 255;
+					PlayerCfg.KeySettings.Mouse[29] = 255;
 #endif
 				}
 		}
@@ -1025,12 +1025,17 @@ int read_player_file()
 	{
 		ubyte dummy_joy_sens;
 
-		if (PHYSFS_read(file, &PlayerCfg.KeySettings[0], sizeof(PlayerCfg.KeySettings[0]),1)!=1)
+		if (PHYSFS_read(file, &PlayerCfg.KeySettings.Keyboard, sizeof(PlayerCfg.KeySettings.Keyboard), 1) != 1)
 			goto read_player_file_failed;
-		if (PHYSFS_read(file, &PlayerCfg.KeySettings[1], sizeof(PlayerCfg.KeySettings[1]),1)!=1)
+#if DXX_MAX_JOYSTICKS
+		auto &KeySettingsJoystick = PlayerCfg.KeySettings.Joystick;
+#else
+		array<uint8_t, MAX_CONTROLS> KeySettingsJoystick;
+#endif
+		if (PHYSFS_read(file, &KeySettingsJoystick, sizeof(KeySettingsJoystick), 1) != 1)
 			goto read_player_file_failed;
 		PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS*3) ); // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
-		if (PHYSFS_read(file, &PlayerCfg.KeySettings[2], sizeof(PlayerCfg.KeySettings[2]),1)!=1)
+		if (PHYSFS_read(file, &PlayerCfg.KeySettings.Mouse, sizeof(PlayerCfg.KeySettings.Mouse), 1) != 1)
 			goto read_player_file_failed;
 		PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS) ); // Skip obsolete Cyberman map field
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1258,14 +1263,19 @@ void write_player_file()
 
 	//write kconfig info
 	{
-		if (PHYSFS_write(file, PlayerCfg.KeySettings[0], sizeof(PlayerCfg.KeySettings[0]), 1) != 1)
+		if (PHYSFS_write(file, PlayerCfg.KeySettings.Keyboard, sizeof(PlayerCfg.KeySettings.Keyboard), 1) != 1)
 			errno_ret=errno;
-		if (PHYSFS_write(file, PlayerCfg.KeySettings[1], sizeof(PlayerCfg.KeySettings[1]), 1) != 1)
+#if DXX_MAX_JOYSTICKS
+		auto &KeySettingsJoystick = PlayerCfg.KeySettings.Joystick;
+#else
+		const array<uint8_t, MAX_CONTROLS> KeySettingsJoystick{};
+#endif
+		if (PHYSFS_write(file, KeySettingsJoystick, sizeof(KeySettingsJoystick), 1) != 1)
 			errno_ret=errno;
 		for (unsigned i = 0; i < MAX_CONTROLS*3; i++)
 			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
 				errno_ret=errno;
-		if (PHYSFS_write(file, PlayerCfg.KeySettings[2], sizeof(PlayerCfg.KeySettings[2]), 1) != 1)
+		if (PHYSFS_write(file, PlayerCfg.KeySettings.Mouse, sizeof(PlayerCfg.KeySettings.Mouse), 1) != 1)
 			errno_ret=errno;
 		{
 			std::array<uint8_t, MAX_CONTROLS> cyberman{};
@@ -1321,14 +1331,19 @@ void write_player_file()
 		ubyte old_avg_joy_sensitivity = 8;
 		ubyte control_type_dos = PlayerCfg.ControlType;
 
-		if (PHYSFS_write(file, PlayerCfg.KeySettings[0], sizeof(PlayerCfg.KeySettings[0]), 1) != 1)
+		if (PHYSFS_write(file, PlayerCfg.KeySettings.Keyboard, sizeof(PlayerCfg.KeySettings.Keyboard), 1) != 1)
 			goto write_player_file_failed;
-		if (PHYSFS_write(file, PlayerCfg.KeySettings[1], sizeof(PlayerCfg.KeySettings[1]), 1) != 1)
+#if DXX_MAX_JOYSTICKS
+		auto &KeySettingsJoystick = PlayerCfg.KeySettings.Joystick;
+#else
+		const array<uint8_t, MAX_CONTROLS> KeySettingsJoystick{};
+#endif
+		if (PHYSFS_write(file, KeySettingsJoystick, sizeof(KeySettingsJoystick), 1) != 1)
 			goto write_player_file_failed;
 		for (unsigned i = 0; i < MAX_CONTROLS*3; i++)
 			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
 				goto write_player_file_failed;
-		if (PHYSFS_write(file, PlayerCfg.KeySettings[2], sizeof(PlayerCfg.KeySettings[2]), 1) != 1)
+		if (PHYSFS_write(file, PlayerCfg.KeySettings.Mouse, sizeof(PlayerCfg.KeySettings.Mouse), 1) != 1)
 			goto write_player_file_failed;
 		for (unsigned i = 0; i < MAX_CONTROLS*2; i++)
 			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Cyberman/Winjoy map fields

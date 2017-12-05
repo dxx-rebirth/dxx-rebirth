@@ -95,7 +95,6 @@ constexpr std::integral_constant<unsigned, 50> MAX_CONTROLS{};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<unsigned, 60> MAX_CONTROLS{};		// there are actually 48, so this leaves room for more
 #endif
-extern const array<array<uint8_t, MAX_CONTROLS>, 3> DefaultKeySettings;
 }
 namespace dcx {
 constexpr std::integral_constant<unsigned, 30> MAX_DXX_REBIRTH_CONTROLS{};

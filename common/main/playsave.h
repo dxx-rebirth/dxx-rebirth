@@ -117,7 +117,13 @@ struct player_config : prohibit_void_ptr<player_config>
 	using secondary_weapon_order = array<uint8_t, MAX_SECONDARY_WEAPONS + 1>;
 	primary_weapon_order PrimaryOrder;
 	secondary_weapon_order SecondaryOrder;
-	array<array<ubyte, MAX_CONTROLS>, 3> KeySettings;
+	struct KeySettings {
+		array<uint8_t, MAX_CONTROLS> Keyboard,
+#if DXX_MAX_JOYSTICKS
+			Joystick,
+#endif
+			Mouse;
+	} KeySettings;
 	array<ubyte, MAX_DXX_REBIRTH_CONTROLS> KeySettingsRebirth;
 	int DefaultDifficulty;
 	int AutoLeveling;
@@ -190,6 +196,9 @@ extern struct player_config PlayerCfg;
 // Used to save kconfig values to disk.
 #ifdef dsx
 namespace dsx {
+
+extern const struct player_config::KeySettings DefaultKeySettings;
+
 void write_player_file();
 
 int new_player_config();
