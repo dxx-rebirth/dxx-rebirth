@@ -41,12 +41,15 @@ struct console_buffer
 void con_init(void);
 void con_puts(con_priority level, char *str, size_t len) __attribute_nonnull();
 void con_puts(con_priority level, const char *str, size_t len) __attribute_nonnull();
-template <size_t len>
-static inline void con_puts_literal(const con_priority level, const char (&str)[len])
+
+template <typename T>
+static inline void con_puts(const con_priority level, T &&str)
 {
-	con_puts(level, str, len - 1);
+	using rr = typename std::remove_reference<T>::type;
+	constexpr std::size_t len = std::extent<rr>::value;
+	con_puts(level, str, len && std::is_const<rr>::value ? len - 1 : strlen(str));
 }
-#define con_puts(A1,S,...)	(con_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
+
 void con_printf(con_priority level, const char *fmt, ...) __attribute_format_printf(2, 3);
 #ifdef DXX_CONSTANT_TRUE
 #define DXX_CON_PRINTF_CHECK_TRAILING_NEWLINE(F)	\
@@ -57,7 +60,7 @@ void con_printf(con_priority level, const char *fmt, ...) __attribute_format_pri
 #endif
 #define con_printf(A1,F,...)	\
 	DXX_CON_PRINTF_CHECK_TRAILING_NEWLINE(F)	\
-	dxx_call_printf_checked(con_printf,con_puts_literal,(A1),(F),##__VA_ARGS__)
+	dxx_call_printf_checked(con_printf,con_puts,(A1),(F),##__VA_ARGS__)
 void con_showup(void);
 
 #endif
