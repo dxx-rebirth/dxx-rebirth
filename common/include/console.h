@@ -16,6 +16,7 @@
 #include "fmtcheck.h"
 #include "cli.h"
 #include "cmd.h"
+#include "d_srcloc.h"
 
 #ifdef __cplusplus
 
@@ -38,19 +39,30 @@ struct console_buffer
 	int priority;
 };
 
+/* Define to 1 to capture the __FILE__, __LINE__ of callers to
+ * con_printf, con_puts, and show the captured value in `gamelog.txt`.
+ */
+#ifndef DXX_CONSOLE_SHOW_FILE_LINE
+#define DXX_CONSOLE_SHOW_FILE_LINE	0
+#endif
+
+using con_priority_wrapper = location_value_wrapper<con_priority, DXX_CONSOLE_SHOW_FILE_LINE>;
+
+#undef DXX_CONSOLE_SHOW_FILE_LINE
+
 void con_init(void);
-void con_puts(con_priority level, char *str, size_t len) __attribute_nonnull();
-void con_puts(con_priority level, const char *str, size_t len) __attribute_nonnull();
+void con_puts(con_priority_wrapper level, char *str, size_t len) __attribute_nonnull();
+void con_puts(con_priority_wrapper level, const char *str, size_t len) __attribute_nonnull();
 
 template <typename T>
-static inline void con_puts(const con_priority level, T &&str)
+static inline void con_puts(const con_priority_wrapper level, T &&str)
 {
 	using rr = typename std::remove_reference<T>::type;
 	constexpr std::size_t len = std::extent<rr>::value;
 	con_puts(level, str, len && std::is_const<rr>::value ? len - 1 : strlen(str));
 }
 
-void con_printf(con_priority level, const char *fmt, ...) __attribute_format_printf(2, 3);
+void con_printf(con_priority_wrapper level, const char *fmt, ...) __attribute_format_printf(2, 3);
 #ifdef DXX_CONSTANT_TRUE
 #define DXX_CON_PRINTF_CHECK_TRAILING_NEWLINE(F)	\
 	(DXX_CONSTANT_TRUE(sizeof((F)) > 1 && (F)[sizeof((F)) - 2] == '\n') &&	\

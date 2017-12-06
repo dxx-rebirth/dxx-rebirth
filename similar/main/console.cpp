@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <time.h>
+#include <sys/time.h>
 #include <SDL.h>
 #include "window.h"
 #include "event.h"
@@ -33,6 +33,18 @@
 
 #include "dxxsconf.h"
 #include "compiler-array.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+#ifndef DXX_CONSOLE_TIME_SHOW_YMD
+#define DXX_CONSOLE_TIME_SHOW_YMD	0
+#endif
+
+#ifndef DXX_CONSOLE_TIME_SHOW_MSEC
+#define DXX_CONSOLE_TIME_SHOW_MSEC	1
+#endif
 
 constexpr unsigned CON_LINES_ONSCREEN = 18;
 constexpr auto CON_SCROLL_OFFSET = CON_LINES_ONSCREEN - 3;
@@ -63,7 +75,7 @@ static void con_add_buffer_line(const con_priority priority, const char *const b
 	memcpy(&c.line,buffer, copy);
 }
 
-void (con_printf)(const con_priority priority, const char *const fmt, ...)
+void (con_printf)(const con_priority_wrapper priority, const char *const fmt, ...)
 {
 	va_list arglist;
 	char buffer[CON_LINE_LENGTH];
@@ -71,7 +83,8 @@ void (con_printf)(const con_priority priority, const char *const fmt, ...)
 	if (priority <= CGameArg.DbgVerbose)
 	{
 		va_start (arglist, fmt);
-		size_t len = vsnprintf (buffer, sizeof(buffer), fmt, arglist);
+		auto &&leader = priority.insert_location_leader(buffer);
+		size_t len = vsnprintf (leader.first, leader.second, fmt, arglist);
 		va_end (arglist);
 		con_force_puts(priority, buffer, len);
 	}
@@ -100,30 +113,89 @@ static void con_scrub_markup(char *buffer)
 
 static void con_print_file(const char *const buffer)
 {
+	char buf[1024];
+#ifndef _WIN32
 	/* Print output to stdout */
 	puts(buffer);
+#endif
 
 	/* Print output to gamelog.txt */
 	if (gamelog_fp)
 	{
-		time_t t;
-		t=time(NULL);
-		int tm_hour, tm_min, tm_sec;
-		if (const auto lt = localtime(&t))
+#if DXX_CONSOLE_TIME_SHOW_YMD
+#define DXX_CONSOLE_TIME_FORMAT_YMD	"%04i-%02i-%02i "
+#define DXX_CONSOLE_TIME_ARG_YMD	tm_year, tm_month, tm_day,
+#else
+#define DXX_CONSOLE_TIME_FORMAT_YMD	""
+#define DXX_CONSOLE_TIME_ARG_YMD
+#endif
+#if DXX_CONSOLE_TIME_SHOW_MSEC
+#ifdef _WIN32
+#define DXX_CONSOLE_TIME_FORMAT_MSEC	".%03i"
+#else
+#define DXX_CONSOLE_TIME_FORMAT_MSEC	".%06i"
+#endif
+#define DXX_CONSOLE_TIME_ARG_MSEC	tm_msec,
+#else
+#define DXX_CONSOLE_TIME_FORMAT_MSEC	""
+#define DXX_CONSOLE_TIME_ARG_MSEC
+#endif
+		int
+			DXX_CONSOLE_TIME_ARG_YMD
+			DXX_CONSOLE_TIME_ARG_MSEC
+			tm_hour, tm_min, tm_sec;
+#ifdef _WIN32
+#define DXX_LF	"\r\n"
+		SYSTEMTIME st = {};
+		GetLocalTime(&st);
+#if DXX_CONSOLE_TIME_SHOW_YMD
+		tm_year = st.wYear;
+		tm_month = st.wMonth;
+		tm_day = st.wDay;
+#endif
+		tm_hour = st.wHour;
+		tm_min = st.wMinute;
+		tm_sec = st.wSecond;
+#if DXX_CONSOLE_TIME_SHOW_MSEC
+		tm_msec = st.wMilliseconds;
+#endif
+#else
+#define DXX_LF	"\n"
+		struct timeval tv;
+		if (gettimeofday(&tv, nullptr))
+			tv = {};
+		if (const auto lt = localtime(&tv.tv_sec))
 		{
+#if DXX_CONSOLE_TIME_SHOW_YMD
+			tm_year = lt->tm_year;
+			tm_month = lt->tm_mon;
+			tm_day = lt->tm_mday;
+#endif
 			tm_hour = lt->tm_hour;
 			tm_min = lt->tm_min;
 			tm_sec = lt->tm_sec;
+#if DXX_CONSOLE_TIME_SHOW_MSEC
+			tm_msec = tv.tv_usec;
+#endif
 		}
 		else
-			tm_hour = tm_min = tm_sec = -1;
-#ifdef _WIN32 // stupid hack to force DOS-style newlines
-#define DXX_LF	"\r\n"
-#else
-#define DXX_LF	"\n"
+		{
+#if DXX_CONSOLE_TIME_SHOW_YMD
+			tm_year = tm_month = tm_day =
 #endif
-		PHYSFSX_printf(gamelog_fp, "%02i:%02i:%02i %s" DXX_LF, tm_hour, tm_min, tm_sec, buffer);
+#if DXX_CONSOLE_TIME_SHOW_MSEC
+			tm_msec =
+#endif
+			tm_hour = tm_min = tm_sec = -1;
+		}
+#endif
+		const size_t len = snprintf(buf, sizeof(buf), DXX_CONSOLE_TIME_FORMAT_YMD "%02i:%02i:%02i" DXX_CONSOLE_TIME_FORMAT_MSEC " %s" DXX_LF, DXX_CONSOLE_TIME_ARG_YMD tm_hour, tm_min, tm_sec, DXX_CONSOLE_TIME_ARG_MSEC buffer);
+		PHYSFS_write(gamelog_fp, buf, 1, len);
 #undef DXX_LF
+#undef DXX_CONSOLE_TIME_ARG_MSEC
+#undef DXX_CONSOLE_TIME_FORMAT_MSEC
+#undef DXX_CONSOLE_TIME_ARG_YMD
+#undef DXX_CONSOLE_TIME_FORMAT_YMD
 	}
 }
 
@@ -139,19 +211,25 @@ static void con_force_puts(const con_priority priority, char *const buffer, cons
 	con_print_file(buffer);
 }
 
-void con_puts(const con_priority priority, char *const buffer, const size_t len)
-{
-	if (priority <= CGameArg.DbgVerbose)
-		con_force_puts(priority, buffer, len);
-}
-
-void con_puts(const con_priority priority, const char *const buffer, const size_t len)
+void con_puts(const con_priority_wrapper priority, char *const buffer, const size_t len)
 {
 	if (priority <= CGameArg.DbgVerbose)
 	{
+		typename con_priority_wrapper::scratch_buffer<CON_LINE_LENGTH> scratch_buffer;
+		auto &&b = priority.prepare_buffer(scratch_buffer, buffer, len);
+		con_force_puts(priority, b.first, b.second);
+	}
+}
+
+void con_puts(const con_priority_wrapper priority, const char *const buffer, const size_t len)
+{
+	if (priority <= CGameArg.DbgVerbose)
+	{
+		typename con_priority_wrapper::scratch_buffer<CON_LINE_LENGTH> scratch_buffer;
+		auto &&b = priority.prepare_buffer(scratch_buffer, buffer, len);
 		/* add given string to con_buffer */
-		con_add_buffer_line(priority, buffer, len);
-		con_print_file(buffer);
+		con_add_buffer_line(priority, b.first, b.second);
+		con_print_file(b.first);
 	}
 }
 
