@@ -81,6 +81,8 @@ void do_powerup_frame(const vmobjptridx_t obj)
 	
 	auto &vc = Vclip[vci->vclip_num];
 	const auto vc_frame_time = vc.frame_time;
+	if (vc_frame_time > 0)
+	{
 	const auto vc_num_frames1 = vc.num_frames - 1;
 	vci->frametime -= FrameTime+fudge;
 	
@@ -104,6 +106,7 @@ void do_powerup_frame(const vmobjptridx_t obj)
 			else
 				vci->framenum++;
 		}
+	}
 	}
 
 	if (obj->lifeleft <= 0) {
