@@ -3770,7 +3770,6 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 #endif
 				else if( menus[opt->bounty].value )
 					Netgame.gamemode = NETGAME_BOUNTY;
-#if defined(DXX_BUILD_DESCENT_II)
 		 		else if (ANARCHY_ONLY_MISSION) {
 					int i = 0;
 		 			nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
@@ -3779,7 +3778,6 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 					menus[opt->anarchy].value = 1;
 		 			return 0;
 		 		}
-#endif
 				else if ( menus[opt->robot_anarchy].value ) 
 					Netgame.gamemode = NETGAME_ROBOT_ANARCHY;
 				else if ( menus[opt->coop].value ) 
