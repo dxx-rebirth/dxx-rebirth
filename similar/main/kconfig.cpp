@@ -128,6 +128,7 @@ const array<uint8_t, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsRebirth{{ 0x2,0
 namespace {
 
 struct kc_mitem {
+	uint8_t oldvalue;
 	uint8_t value;		// what key,button,etc
 };
 
@@ -865,6 +866,7 @@ static void kconfig_draw(kc_menu *menu)
 	}
 	kc_drawinput(canvas, menu->items[citem], menu->mitems[citem], 1, current_label);
 	
+	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 	if (menu->changing)
 	{
 		const char *s;
@@ -897,8 +899,6 @@ static void kconfig_draw(kc_menu *menu)
 			gr_string(canvas, 0x8000, fspacy(INFO_Y), s);
 		kc_drawquestion(canvas, menu, &menu->items[menu->citem]);
 	}
-	
-	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 	canvas.cv_font = save_font;
 	gr_set_current_canvas( save_canvas );
 }
@@ -1232,7 +1232,11 @@ static void kc_drawinput(grs_canvas &canvas, const kc_item &item, kc_mitem &mite
 		const auto &&fspacy_item_y = fspacy(item.y);
 		gr_urect(canvas, fspacx_item_xinput, fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy_item_y + h, color);
 		
-		gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
+		if (mitem.oldvalue == mitem.value)
+			r = b = 28 * 2;
+		else
+			r = b = 0;
+		gr_set_fontcolor(canvas, gr_find_closest_color(r, 28 * 2, b), -1);
 
 		x = fspacx_item_xinput + ((fspacx(item.w2) - w) / 2);
 	
@@ -1820,32 +1824,34 @@ void reset_cruise(void)
 void kc_set_controls()
 {
 	for (unsigned i=0; i < lengthof(kc_keyboard); i++ )
-		kcm_keyboard[i].value = PlayerCfg.KeySettings.Keyboard[i];
+		kcm_keyboard[i].oldvalue = kcm_keyboard[i].value = PlayerCfg.KeySettings.Keyboard[i];
 
 #if DXX_MAX_JOYSTICKS
 	for (unsigned i=0; i < lengthof(kc_joystick); i++ )
 	{
-		kcm_joystick[i].value = PlayerCfg.KeySettings.Joystick[i];
+		uint8_t value = PlayerCfg.KeySettings.Joystick[i];
 		if (kc_joystick[i].type == BT_INVERT )
 		{
-			if (kcm_joystick[i].value!=1)
-				kcm_joystick[i].value = 0;
-			PlayerCfg.KeySettings.Joystick[i] = kcm_joystick[i].value;
+			if (value != 1)
+				value = 0;
+			PlayerCfg.KeySettings.Joystick[i] = value;
 		}
+		kcm_joystick[i].oldvalue = kcm_joystick[i].value = value;
 	}
 #endif
 
 	for (unsigned i=0; i < lengthof(kc_mouse); i++ )
 	{
-		kcm_mouse[i].value = PlayerCfg.KeySettings.Mouse[i];
+		uint8_t value = PlayerCfg.KeySettings.Mouse[i];
 		if (kc_mouse[i].type == BT_INVERT )
 		{
-			if (kcm_mouse[i].value!=1)
-				kcm_mouse[i].value = 0;
-			PlayerCfg.KeySettings.Mouse[i] = kcm_mouse[i].value;
+			if (value != 1)
+				value = 0;
+			PlayerCfg.KeySettings.Mouse[i] = value;
 		}
+		kcm_mouse[i].oldvalue = kcm_mouse[i].value = value;
 	}
 
 	for (unsigned i=0; i < lengthof(kc_rebirth); i++ )
-		kcm_rebirth[i].value = PlayerCfg.KeySettingsRebirth[i];
+		kcm_rebirth[i].oldvalue = kcm_rebirth[i].value = PlayerCfg.KeySettingsRebirth[i];
 }
