@@ -95,7 +95,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #endif
 #include "event.h"
 #include "rbaudio.h"
-#if !defined (__linux__) || !defined (__OpenBSD__)
+#ifndef __linux__
 #include "messagebox.h"
 #else
 #if DXX_WORDS_NEED_ALIGNMENT
@@ -673,7 +673,7 @@ static int main(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
 	mem_init();
-#if defined (__linux__) || defined (__OpenBSD__)
+#ifdef __linux__
 #if DXX_WORDS_NEED_ALIGNMENT
 	prctl(PR_SET_UNALIGN, PR_UNALIGN_NOPRINT, 0, 0, 0);
 #endif
