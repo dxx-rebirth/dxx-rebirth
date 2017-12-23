@@ -95,7 +95,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #endif
 #include "event.h"
 #include "rbaudio.h"
-#if !defined (__linux__) || !defined (__OpenBSD__)
+#if !defined (__linux__) && !defined (__OpenBSD__)
 #include "messagebox.h"
 #else
 #if DXX_WORDS_NEED_ALIGNMENT

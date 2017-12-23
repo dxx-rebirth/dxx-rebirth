@@ -3398,6 +3398,8 @@ class DXXCommon(LazyObjectConstructor):
 				'variable': EnumVariable,
 				'arguments': (
 					('host_endian', None, 'endianness of host platform', {'allowed_values' : ('little', 'big')}),
+					# add openbsd6 which allows passing the configuration on
+					# that platform. openbsd6 currently works with LinuxPlatformSettings
 					('host_platform', 'linux' if sys.platform == 'linux2' else sys.platform, 'cross-compile to specified platform', {'allowed_values' : ('win32', 'darwin', 'linux', 'openbsd6')}),
 				),
 			},
