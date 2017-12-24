@@ -375,6 +375,11 @@ constexpr const char *kcl_rebirth =
 	WEAPON_STRING_MEGA	"\0"
 ;
 
+#if defined(DXX_BUILD_DESCENT_I)
+#include "d1x-rebirth/kconfig.udlr.h"
+#elif defined(DXX_BUILD_DESCENT_II)
+#include "d2x-rebirth/kconfig.udlr.h"
+#endif
 #include "kconfig.ui-table.cpp"
 
 static array<kc_mitem, lengthof(kc_keyboard)> kcm_keyboard;

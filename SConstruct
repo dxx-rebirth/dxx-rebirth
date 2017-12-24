@@ -2558,8 +2558,14 @@ class cached_property(object):
 		return r
 
 class LazyObjectConstructor(object):
+	def __get_wrapped_object(s,self,env,StaticObject):
+		wrapper = s.get('transform_object', None)
+		if wrapper is None:
+			return StaticObject
+		return wrapper(self, env, StaticObject)
 	def __lazy_objects(self,source,
 			cache={},
+			__get_wrapped_object=__get_wrapped_object,
 			__strip_extension=lambda _, name, _splitext=os.path.splitext: _splitext(name)[0]
 		):
 		env = self.env
@@ -2574,7 +2580,7 @@ class LazyObjectConstructor(object):
 			# Convert to a tuple so that attempting to modify a cached
 			# result raises an error.
 			value = tuple([
-				StaticObject(target='%s%s%s' % (builddir, transform_target(self, srcname), OBJSUFFIX), source=srcname,
+				wrapped_StaticObject(target='%s%s%s' % (builddir, transform_target(self, srcname), OBJSUFFIX), source=srcname,
 					**({} if transform_env is None else transform_env(self, env))
 				)	\
 				for s in source	\
@@ -2583,16 +2589,18 @@ class LazyObjectConstructor(object):
 				# normal comprehension.  It iterates over one of two
 				# single element tuples.  The choice of tuple is
 				# controlled by the isinstance check.  Each single
-				# element tuple consists of (F, T, L) where F is the
+				# element tuple consists of (F, T, O, L) where F is the
 				# function to bind as `transform_target`, T is the
-				# function to bind as `transform_env` (or None), and L
+				# function to bind as `transform_env` (or None), O is
+				# the function to create the StaticObject, and L
 				# is an iterable to bind as `t`.
-				for transform_target, transform_env, t in (	\
-					((__strip_extension, None, (s,)),)	\
+				for transform_target, transform_env, wrapped_StaticObject, t in (	\
+					((__strip_extension, None, StaticObject, (s,)),)	\
 					if isinstance(s, str) \
 					else ((	\
 						s.get('transform_target', __strip_extension),	\
 						s.get('transform_env', None),	\
+						__get_wrapped_object(s, self, env, StaticObject),	\
 						s['source'],	\
 					),)	\
 				)	\
@@ -4107,6 +4115,25 @@ class DXXArchive(DXXCommon):
 		env.MergeFlags(add_flags)
 
 class DXXProgram(DXXCommon):
+	class WrapKConfigStaticObject:
+		def __init__(self,program,env,StaticObject):
+			self.program = program
+			self.env = env
+			self.StaticObject = StaticObject
+		def __call__(self,target,source,*args,**kwargs):
+			env = self.env
+			kconfig_static_object = self.StaticObject(target=target, source=source, *args, **kwargs)
+			program = self.program
+			builddir = '%s%s' % (program.user_settings.builddir, program.target)
+			# Bypass ccache, if any, since this is a preprocess only
+			# call.
+			kwargs['CXXFLAGS'] = (kwargs.get('CXXFLAGS', None) or env['CXXFLAGS'] or []) + ['-E']
+			cpp_kconfig_udlr = self.StaticObject(target=target[:-1] + 'ui-table.i', source=source[:-3] + 'ui-table.cpp', CXXCOM=env._dxx_cxxcom_no_ccache_prefix, *args, **kwargs)
+			generated_udlr_header = env.File('%s/kconfig.udlr.h' % builddir)
+			generate_kconfig_udlr = env.File('similar/main/generate-kconfig-udlr.py')
+			env.Command(generated_udlr_header, [cpp_kconfig_udlr, generate_kconfig_udlr], [[sys.executable, generate_kconfig_udlr, '$SOURCE', '$TARGET']])
+			env.Depends(kconfig_static_object, generated_udlr_header)
+			return kconfig_static_object
 	static_archive_construction = {}
 	def _apply_target_name(self,name):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
@@ -4172,7 +4199,6 @@ class DXXProgram(DXXCommon):
 'main/hostage.cpp',
 'main/hud.cpp',
 'main/iff.cpp',
-'main/kconfig.cpp',
 'main/kmatrix.cpp',
 'main/laser.cpp',
 'main/lighting.cpp',
@@ -4215,6 +4241,12 @@ class DXXProgram(DXXCommon):
 'similar/main/inferno.cpp',
 ),
 		'transform_env': lambda self, env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH + env.__dxx_CPPDEFINE_git_version},
+		'transform_target':_apply_target_name,
+	}, {
+		'source': (
+'similar/main/kconfig.cpp',
+),
+		'transform_object':WrapKConfigStaticObject,
 		'transform_target':_apply_target_name,
 	}, {
 		'source': (
