@@ -1149,6 +1149,8 @@ static void terminate_handler()
 			# disabled, then disable joystick support.
 			if not (user_settings.max_axes_per_joystick or user_settings.max_buttons_per_joystick or user_settings.max_hats_per_joystick):
 				user_settings.max_joysticks = 0
+			elif not user_settings.max_buttons_per_joystick:
+				user_settings.max_hats_per_joystick = 0
 		else:
 			# If joysticks are disabled, then disable all possible
 			# inputs.
