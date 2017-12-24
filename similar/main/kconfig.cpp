@@ -236,19 +236,8 @@ constexpr const char *kcl_keyboard =
 ;
 
 #if DXX_MAX_JOYSTICKS
-#if DXX_MAX_AXES_PER_JOYSTICK
-#define DXX_KCONFIG_ITEM_JOY_AXIS_WIDTH(I)	I
-#else
-#define DXX_KCONFIG_ITEM_JOY_AXIS_WIDTH(I)	(static_cast<void>(I), 0)
-#endif
-
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
-#define DXX_KCONFIG_ITEM_JOY_BUTTON_WIDTH(I)	I
-#else
-#define DXX_KCONFIG_ITEM_JOY_BUTTON_WIDTH(I)	(static_cast<void>(I), 0)
-#endif
-
 constexpr const char *kcl_joystick =
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 	"Fire primary\0"
 	"Fire secondary\0"
 	"Accelerate\0"
@@ -262,12 +251,16 @@ constexpr const char *kcl_joystick =
 	"Bank on\0"
 	"Bank left\0"
 	"Bank right\0"
+#endif
+#if DXX_MAX_AXES_PER_JOYSTICK
 	"Pitch U/D\0"
 	"Turn L/R\0"
 	"Slide L/R\0"
 	"Slide U/D\0"
 	"Bank L/R\0"
 	"Throttle\0"
+#endif
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 	"Rear view\0"
 	"Drop bomb\0"
 #if defined(DXX_BUILD_DESCENT_I)
@@ -306,6 +299,7 @@ constexpr const char *kcl_joystick =
 	"Automap\0"
 	"Energy->Shield\0"
 	"Toggle Bomb\0"
+#endif
 #endif
 ;
 #endif
