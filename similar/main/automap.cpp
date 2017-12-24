@@ -1152,7 +1152,7 @@ void draw_all_edges(grs_canvas &canvas, automap *const am)
 
 	// Sort the bright ones using a shell sort
 	const auto &&range = unchecked_partial_range(am->drawingListBright.get(), nbright);
-	std::sort(range.begin(), range.end(), [am](const Edge_info *const a, const Edge_info *const b) {
+	std::sort(range.begin(), range.end(), [](const Edge_info *const a, const Edge_info *const b) {
 		const auto &v1 = a->verts[0];
 		const auto &v2 = b->verts[0];
 		return Segment_points[v1].p3_z < Segment_points[v2].p3_z;
