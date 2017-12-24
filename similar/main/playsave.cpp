@@ -533,10 +533,12 @@ static void read_player_dxx(const char *filename)
 				{
 					// reset joystick/mouse cycling fields
 #if defined(DXX_BUILD_DESCENT_I)
+#if DXX_MAX_JOYSTICKS
 					PlayerCfg.KeySettings.Joystick[44] = 255;
 					PlayerCfg.KeySettings.Joystick[45] = 255;
 					PlayerCfg.KeySettings.Joystick[46] = 255;
 					PlayerCfg.KeySettings.Joystick[47] = 255;
+#endif
 					PlayerCfg.KeySettings.Mouse[27] = 255;
 #endif
 					PlayerCfg.KeySettings.Mouse[28] = 255;
