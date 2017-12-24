@@ -3408,7 +3408,7 @@ class DXXCommon(LazyObjectConstructor):
 				'variable': EnumVariable,
 				'arguments': (
 					('host_endian', None, 'endianness of host platform', {'allowed_values' : ('little', 'big')}),
-					('host_platform', 'linux' if sys.platform == 'linux2' else sys.platform, 'cross-compile to specified platform', {'allowed_values' : ('win32', 'darwin', 'linux')}),
+					('host_platform', 'linux' if sys.platform == 'linux2' else sys.platform, 'cross-compile to specified platform', {'allowed_values' : ('darwin', 'linux', 'openbsd6', 'win32')}),
 				),
 			},
 			{
@@ -3868,6 +3868,9 @@ class DXXCommon(LazyObjectConstructor):
 			machine = None
 		message(self, "compiling on %r/%r for %r into %s%s" % (sys.platform, machine, platform_name, self.user_settings.builddir or '.',
 			(' with prefix list %s' % str(self._argument_prefix_list)) if self._argument_prefix_list else ''))
+		# By happy accident, LinuxPlatformSettings produces the desired
+		# result on OpenBSD, so there is no need for specific handling
+		# of `platform_name == 'openbsd6'`.
 		return (
 			self.Win32PlatformSettings if platform_name == 'win32' else (
 				self.DarwinPlatformSettings if platform_name == 'darwin' else
