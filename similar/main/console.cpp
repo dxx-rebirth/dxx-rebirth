@@ -46,6 +46,10 @@
 #define DXX_CONSOLE_TIME_SHOW_MSEC	1
 #endif
 
+#ifndef DXX_CONSOLE_SHOW_TIME_STDOUT
+#define DXX_CONSOLE_SHOW_TIME_STDOUT	0
+#endif
+
 constexpr unsigned CON_LINES_ONSCREEN = 18;
 constexpr auto CON_SCROLL_OFFSET = CON_LINES_ONSCREEN - 3;
 constexpr unsigned CON_LINES_MAX = 128;
@@ -114,6 +118,7 @@ static void con_scrub_markup(char *buffer)
 static void con_print_file(const char *const buffer)
 {
 	char buf[1024];
+#if !DXX_CONSOLE_SHOW_TIME_STDOUT
 #ifndef _WIN32
 	/* Print output to stdout */
 	puts(buffer);
@@ -121,6 +126,7 @@ static void con_print_file(const char *const buffer)
 
 	/* Print output to gamelog.txt */
 	if (gamelog_fp)
+#endif
 	{
 #if DXX_CONSOLE_TIME_SHOW_YMD
 #define DXX_CONSOLE_TIME_FORMAT_YMD	"%04i-%02i-%02i "
@@ -190,7 +196,15 @@ static void con_print_file(const char *const buffer)
 		}
 #endif
 		const size_t len = snprintf(buf, sizeof(buf), DXX_CONSOLE_TIME_FORMAT_YMD "%02i:%02i:%02i" DXX_CONSOLE_TIME_FORMAT_MSEC " %s" DXX_LF, DXX_CONSOLE_TIME_ARG_YMD tm_hour, tm_min, tm_sec, DXX_CONSOLE_TIME_ARG_MSEC buffer);
-		PHYSFS_write(gamelog_fp, buf, 1, len);
+#if DXX_CONSOLE_SHOW_TIME_STDOUT
+#ifndef _WIN32
+		fputs(buf, stdout);
+#endif
+		if (gamelog_fp)
+#endif
+		{
+			PHYSFS_write(gamelog_fp, buf, 1, len);
+		}
 #undef DXX_LF
 #undef DXX_CONSOLE_TIME_ARG_MSEC
 #undef DXX_CONSOLE_TIME_FORMAT_MSEC
