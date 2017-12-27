@@ -99,9 +99,9 @@ public:
 	location_value_wrapper(const T &v,
 		const char *const f
 #ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
-		= __builtin_FILE(),
+		= __builtin_FILE()
 #endif
-		const unsigned l
+		, const unsigned l
 #ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
 		= __builtin_LINE()
 #endif
