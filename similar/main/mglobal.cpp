@@ -112,9 +112,14 @@ valptridx<wall>::array_managed_type Walls;
  * Force full instantiation for non-inline builds so that these
  * references are satisfied.  For inline-enabled builds, instantiate
  * only the classes that are known to be used.
+ *
+ * Force full instantiation for AddressSanitizer builds.  In gcc-7 (and
+ * possibly other versions), AddressSanitizer inhibits an optimization
+ * that deletes an unnecessary nullptr check, causing references to
+ * class null_pointer_exception.
  */
 #ifndef DXX_VALPTRIDX_ENABLE_FULL_TEMPLATE_INSTANTIATION
-#if (defined(__NO_INLINE__) && __NO_INLINE__ > 0)
+#if (defined(__NO_INLINE__) && __NO_INLINE__ > 0) || defined(__SANITIZE_ADDRESS__)
 #define DXX_VALPTRIDX_ENABLE_FULL_TEMPLATE_INSTANTIATION	1
 #else
 #define DXX_VALPTRIDX_ENABLE_FULL_TEMPLATE_INSTANTIATION	0
