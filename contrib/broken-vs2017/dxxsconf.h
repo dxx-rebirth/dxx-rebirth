@@ -24,6 +24,8 @@
 	template <typename... Args> \
 		D(Args&&... args) : \
 			B,##__VA_ARGS__(std::forward<Args>(args)...) {}
+#define DXX_ptrdiff_cast_int	static_cast<int>
+#define DXX_WORDS_BIGENDIAN	0
 
 #define __func__ __FUNCTION__
 typedef signed long ssize_t;
