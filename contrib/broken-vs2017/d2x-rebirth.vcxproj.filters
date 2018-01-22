@@ -739,9 +739,6 @@
     <ClCompile Include="..\..\d2x-rebirth\libmve\mve_audio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\d2x-rebirth\libmve\mve_main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\d2x-rebirth\libmve\mvelib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

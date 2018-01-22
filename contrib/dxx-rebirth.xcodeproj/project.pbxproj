@@ -523,7 +523,6 @@
 		14F8AA7E1A2D6320003AA93A /* decoders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = decoders.h; sourceTree = "<group>"; };
 		14F8AA7F1A2D6320003AA93A /* mve_audio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mve_audio.cpp; sourceTree = "<group>"; };
 		14F8AA801A2D6320003AA93A /* mve_audio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mve_audio.h; sourceTree = "<group>"; };
-		14F8AA811A2D6320003AA93A /* mve_main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mve_main.c; sourceTree = "<group>"; };
 		14F8AA821A2D6320003AA93A /* mvelib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mvelib.cpp; sourceTree = "<group>"; };
 		14F8AA831A2D6320003AA93A /* mvelib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mvelib.h; sourceTree = "<group>"; };
 		14F8AA841A2D6320003AA93A /* mveplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mveplay.cpp; sourceTree = "<group>"; };
@@ -1388,7 +1387,6 @@
 				14F8AA7E1A2D6320003AA93A /* decoders.h */,
 				14F8AA7F1A2D6320003AA93A /* mve_audio.cpp */,
 				14F8AA801A2D6320003AA93A /* mve_audio.h */,
-				14F8AA811A2D6320003AA93A /* mve_main.c */,
 				14F8AA821A2D6320003AA93A /* mvelib.cpp */,
 				14F8AA831A2D6320003AA93A /* mvelib.h */,
 				14F8AA841A2D6320003AA93A /* mveplay.cpp */,

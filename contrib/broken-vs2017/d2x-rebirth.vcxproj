@@ -75,7 +75,6 @@
     <ClCompile Include="..\..\d2x-rebirth\libmve\mvelib.cpp" />
     <ClCompile Include="..\..\d2x-rebirth\libmve\mveplay.cpp" />
     <ClCompile Include="..\..\d2x-rebirth\libmve\mve_audio.cpp" />
-    <ClCompile Include="..\..\d2x-rebirth\libmve\mve_main.c" />
     <ClCompile Include="..\..\d2x-rebirth\main\bmread.cpp" />
     <ClCompile Include="..\..\d2x-rebirth\main\escort.cpp" />
     <ClCompile Include="..\..\d2x-rebirth\main\gamepal.cpp" />
