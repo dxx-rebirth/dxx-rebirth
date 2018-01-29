@@ -94,6 +94,11 @@ public:
 			m_begin(partial_range_detail::adl_begin(t)), m_end(partial_range_detail::adl_end(t))
 	{
 	}
+	template <typename T>
+		partial_range_t(partial_range_t<T> &&t) :
+			m_begin(t.begin()), m_end(t.end())
+	{
+	}
 	__attribute_warn_unused_result
 	iterator begin() const { return m_begin; }
 	__attribute_warn_unused_result

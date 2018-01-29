@@ -406,14 +406,10 @@ weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num)
 	return ri.weapon_type;
 }
 
-}
-
 static int ready_to_fire_weapon1(const ai_local &ailp, fix threshold)
 {
 	return ailp.next_fire <= threshold;
 }
-
-namespace dsx {
 
 static int ready_to_fire_weapon2(const robot_info &robptr, const ai_local &ailp, fix threshold)
 {
@@ -758,8 +754,7 @@ int player_is_visible_from_object(const vmobjptridx_t objp, vms_vector &pos, fix
 //	Return 1 if animates, else return 0
 static int do_silly_animation(object &objp)
 {
-	const jointpos 		*jp_list;
-	int				robot_type, gun_num, robot_state, num_joint_positions;
+	int				robot_type, gun_num, robot_state;
 	polyobj_info	*const pobj_info = &objp.rtype.pobj_info;
 	auto &aip = objp.ctype.ai_info;
 	int				num_guns, at_goal;
@@ -786,14 +781,13 @@ static int do_silly_animation(object &objp)
 
 	at_goal = 1;
 	for (gun_num=0; gun_num <= num_guns; gun_num++) {
-		int	joint;
-
-		num_joint_positions = robot_get_anim_state(&jp_list, robot_type, gun_num, robot_state);
+		const auto &&ras = robot_get_anim_state(Robot_info, Robot_joints, robot_type, gun_num, robot_state);
 
 		auto &ail = aip.ail;
-		for (joint=0; joint<num_joint_positions; joint++) {
-			unsigned jointnum = jp_list[joint].jointnum;
-			const vms_angvec	*jp = &jp_list[joint].angles;
+		range_for (auto &jr, ras)
+		{
+			unsigned jointnum = jr.jointnum;
+			const vms_angvec	*jp = &jr.angles;
 			vms_angvec	*pobjp = &pobj_info->anim_angles[jointnum];
 
 			if (jointnum >= Polygon_models[objp.rtype.pobj_info.model_num].n_models) {

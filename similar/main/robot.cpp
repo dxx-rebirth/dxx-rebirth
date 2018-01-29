@@ -92,18 +92,15 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 	vm_vec_add2(gun_point, obj.pos);
 }
 
-}
-
 //fills in ptr to list of joints, and returns the number of joints in list
 //takes the robot type (object id), gun number, and desired state
-int robot_get_anim_state(const jointpos **jp_list_ptr,int robot_type,int gun_num,int state)
+partial_range_t<const jointpos *> robot_get_anim_state(const array<robot_info, MAX_ROBOT_TYPES> &robot_info, const array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const unsigned gun_num, const unsigned state)
 {
-
-	Assert(gun_num <= Robot_info[robot_type].n_guns);
-
-	*jp_list_ptr = &Robot_joints[Robot_info[robot_type].anim_states[gun_num][state].offset];
-
-	return Robot_info[robot_type].anim_states[gun_num][state].n_joints;
+	auto &rirt = robot_info[robot_type];
+	assert(gun_num <= rirt.n_guns);
+	auto &as = rirt.anim_states[gun_num][state];
+	const unsigned o = as.offset;
+	return partial_range(robot_joints, o, o + as.n_joints);
 }
 
 #ifndef NDEBUG
@@ -136,8 +133,6 @@ static void set_robot_state(const vmobjptr_t obj,int state)
 	}
 }
 #endif
-
-namespace dsx {
 
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.

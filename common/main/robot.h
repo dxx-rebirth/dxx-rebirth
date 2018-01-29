@@ -212,7 +212,6 @@ namespace dsx {
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
 void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_num);
-}
 
 //  Tells joint positions for a gun to be in a specified state.
 //  A gun can have associated with it any number of joints.  In order to tell whether a gun is a certain
@@ -233,9 +232,8 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 //  On exit:
 //      Returns number of joints in list.
 //      jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
-extern int robot_get_anim_state(const jointpos **jp_list_ptr,int robot_type,int gun_num,int state);
+partial_range_t<const jointpos *> robot_get_anim_state(const array<robot_info, MAX_ROBOT_TYPES> &, const array<jointpos, MAX_ROBOT_JOINTS> &, unsigned robot_type, unsigned gun_num, unsigned state);
 
-namespace dsx {
 /*
  * reads n robot_info structs from a PHYSFS_File
  */
