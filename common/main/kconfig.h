@@ -34,8 +34,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-event.h"
 #include "compiler-array.h"
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-struct control_info {
+#ifdef dsx
+namespace dcx {
+
+struct control_info
+{
 	template <typename T>
 	struct ramp_controls_t
 	{
@@ -56,9 +59,9 @@ struct control_info {
 	};
 	struct state_controls_t :
 		public fire_controls_t,
-		public ramp_controls_t<ubyte>
+		public ramp_controls_t<uint8_t>
 	{
-		ubyte btn_slide_left, btn_slide_right,
+		uint8_t btn_slide_left, btn_slide_right,
 			btn_slide_up, btn_slide_down,
 			btn_bank_left, btn_bank_right,
 			slide_on, bank_on,
@@ -67,14 +70,25 @@ struct control_info {
 			rear_view,
 			automap,
 			cycle_primary, cycle_secondary, select_weapon;
-#if defined(DXX_BUILD_DESCENT_II)
-		ubyte toggle_bomb,
-			afterburner, headlight, energy_to_shield;
-#endif
 	};
 	ramp_controls_t<float> down_time; // to scale movement depending on how long the key is pressed
 	fix pitch_time, vertical_thrust_time, heading_time, sideways_thrust_time, bank_time, forward_thrust_time;
         fix excess_pitch_time, excess_vertical_thrust_time, excess_heading_time, excess_sideways_thrust_time, excess_bank_time, excess_forward_thrust_time;
+};
+
+}
+
+namespace dsx {
+
+struct control_info : ::dcx::control_info
+{
+#if defined(DXX_BUILD_DESCENT_II)
+	struct state_controls_t : ::dcx::control_info::state_controls_t
+	{
+		uint8_t toggle_bomb,
+			afterburner, headlight, energy_to_shield;
+	};
+#endif
 	state_controls_t state; // to scale movement for keys only we need them to be separate from joystick/mouse buttons
 	array<fix, 3> mouse_axis, raw_mouse_axis;
 #if DXX_MAX_AXES_PER_JOYSTICK
@@ -83,6 +97,8 @@ struct control_info {
 };
 
 extern control_info Controls;
+
+}
 #endif
 
 #define CONTROL_USING_JOYSTICK	1

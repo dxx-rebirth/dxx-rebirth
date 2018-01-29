@@ -103,8 +103,6 @@ const array<uint8_t, 19> system_keys{{
 	KEY_CAPSLOCK, KEY_SCROLLOCK, KEY_NUMLOCK
 }};
 
-control_info Controls;
-
 fix Cruise_speed=0;
 
 #define BT_KEY 			0
@@ -137,6 +135,8 @@ struct kc_mitem {
 }
 
 namespace dsx {
+
+control_info Controls;
 
 namespace {
 
