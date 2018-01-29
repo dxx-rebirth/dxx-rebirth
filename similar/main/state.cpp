@@ -1999,7 +1999,6 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 					const auto &&obj = vmobjptridx(vcplayerptr(i)->objnum);
 					// since a player always uses the same object, we just have to copy the saved object properties to the existing one. i hate you...
-					set_player_id(obj, i); // assign player object id to player number
 					obj->control_type = restore_objects[j].control_type;
 					obj->movement_type = restore_objects[j].movement_type;
 					obj->render_type = restore_objects[j].render_type;
@@ -2013,6 +2012,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 					obj->rtype.pobj_info = restore_objects[j].rtype.pobj_info;
 					// make this restored player object an actual player again
 					obj->type = OBJ_PLAYER;
+					set_player_id(obj, i); // assign player object id to player number
 					multi_reset_player_object(obj);
 					update_object_seg(obj);
 				}
