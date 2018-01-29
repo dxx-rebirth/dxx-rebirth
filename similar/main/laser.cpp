@@ -554,11 +554,11 @@ void omega_charge_frame(player_info &player_info)
 // ---------------------------------------------------------------------------------
 //	*objp is the object firing the omega cannon
 //	*pos is the location from which the omega bolt starts
-static void do_omega_stuff(fvcobjptr &vcobjptr, fvmsegptridx &vmsegptridx, const vmobjptridx_t parent_objp, const vms_vector &firing_pos, const vmobjptridx_t weapon_objp)
+static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent_objp, const vms_vector &firing_pos, const vmobjptridx_t weapon_objp)
 {
 	vms_vector	goal_pos;
-	const playernum_t pnum = get_player_id(parent_objp);
-	if (pnum == Player_num) {
+	if (parent_objp->type == OBJ_PLAYER && get_player_id(parent_objp) == Player_num)
+	{
 		//	If charge >= min, or (some charge and zero energy), allow to fire.
 		auto &player_info = parent_objp->ctype.player_info;
 		auto &Omega_charge = player_info.Omega_charge;
@@ -574,10 +574,9 @@ static void do_omega_stuff(fvcobjptr &vcobjptr, fvmsegptridx &vmsegptridx, const
 		player_info.Omega_recharge_delay = F1_0 / 3;
 	}
 
-	weapon_objp->ctype.laser_info.parent_type = OBJ_PLAYER;
-	auto &plr = *vcplayerptr(pnum);
-	weapon_objp->ctype.laser_info.parent_num = plr.objnum;
-	weapon_objp->ctype.laser_info.parent_signature = vcobjptr(plr.objnum)->signature;
+	weapon_objp->ctype.laser_info.parent_type = parent_objp->type;
+	weapon_objp->ctype.laser_info.parent_num = parent_objp.get_unchecked_index();
+	weapon_objp->ctype.laser_info.parent_signature = parent_objp->signature;
 
 	const auto &&lock_objnum = find_homing_object(firing_pos, weapon_objp);
 
@@ -757,7 +756,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 				object_create_muzzle_flash(vmsegptridx(obj->segnum), obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
 		}
 
-		do_omega_stuff(vcobjptr, vmsegptridx, parent, position, obj);
+		do_omega_stuff(vmsegptridx, parent, position, obj);
 
 		return obj;
 	}
