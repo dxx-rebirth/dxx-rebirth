@@ -136,7 +136,7 @@ class Main:
 		for lno, line in lines:
 			m = _re_match_init_element(line)
 			if m is None:
-				raise InputException('warning: %s:%u: failed to match regex\n' % (source, lno))
+				raise InputException('%s:%u: failed to match regex for line %r\n' % (source, lno, line))
 			m = m.group
 			array.append(a(
 				self.resolve_expr(source, lno, 'xinput', m('xinput')),
