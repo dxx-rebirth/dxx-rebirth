@@ -199,139 +199,7 @@ const struct player_config::KeySettings DefaultKeySettings{
 	}}
 };
 
-constexpr const char *kcl_keyboard =
-	"Pitch forward\0"
-	"Pitch backward\0"
-	"Turn left\0"
-	"Turn right\0"
-	"Slide on\0"
-	"Slide left\0"
-	"Slide right\0"
-	"Slide up\0"
-	"Slide down\0"
-	"Bank on\0"
-	"Bank left\0"
-	"Bank right\0"
-	"Fire primary\0"
-	"Fire secondary\0"
-	"Fire flare\0"
-	"Accelerate\0"
-	"Reverse\0"
-	"Drop Bomb\0"
-	"REAR VIEW\0"
-	"Cruise Faster\0"
-	"Cruise Slower\0"
-	"Cruise Off\0"
-	"Automap\0"
-#if defined(DXX_BUILD_DESCENT_II)
-	"Afterburner\0"
-#endif
-	"Cycle Primary\0"
-	"Cycle Second.\0"
-#if defined(DXX_BUILD_DESCENT_II)
-	"Headlight\0"
-	"Energy->Shield\0"
-	"Toggle Bomb\0"
-#endif
-;
-
-#if DXX_MAX_JOYSTICKS
-constexpr const char *kcl_joystick =
-#if DXX_MAX_BUTTONS_PER_JOYSTICK
-	"Fire primary\0"
-	"Fire secondary\0"
-	"Accelerate\0"
-	"Reverse\0"
-	"Fire flare\0"
-	"Slide on\0"
-	"Slide left\0"
-	"Slide right\0"
-	"Slide up\0"
-	"Slide down\0"
-	"Bank on\0"
-	"Bank left\0"
-	"Bank right\0"
-#endif
-#if DXX_MAX_AXES_PER_JOYSTICK
-	"Pitch U/D\0"
-	"Turn L/R\0"
-	"Slide L/R\0"
-	"Slide U/D\0"
-	"Bank L/R\0"
-	"Throttle\0"
-#endif
-#if DXX_MAX_BUTTONS_PER_JOYSTICK
-	"Rear view\0"
-	"Drop bomb\0"
-#if defined(DXX_BUILD_DESCENT_I)
-	"Automap\0"
-#elif defined(DXX_BUILD_DESCENT_II)
-	"Afterburner\0"
-	"Cycle Primary\0"
-	"Cycle Secondary\0"
-	"Headlight\0"
-#endif
-	"Fire primary\0"
-	"Fire secondary\0"
-	"Accelerate\0"
-	"Reverse\0"
-	"Fire flare\0"
-	"Slide on\0"
-	"Slide left\0"
-	"Slide right\0"
-	"Slide up\0"
-	"Slide down\0"
-	"Bank on\0"
-	"Bank left\0"
-	"Bank right\0"
-	"Rear view\0"
-	"Drop bomb\0"
-#if defined(DXX_BUILD_DESCENT_I)
-	"Cycle Primary\0"
-	"Cycle Secondary\0"
-	"\0"	// Cycle Primary
-	"\0"	// Cycle Secondary
-#elif defined(DXX_BUILD_DESCENT_II)
-	"\0"	// Afterburner
-	"\0"	// Cycle Primary
-	"\0"	// Cycle Secondary
-	"\0"	// Headlight
-	"Automap\0"
-	"Energy->Shield\0"
-	"Toggle Bomb\0"
-#endif
-#endif
-;
-#endif
-
-constexpr const char *kcl_mouse =
-	"Fire primary\0"
-	"Fire secondary\0"
-	"Accelerate\0"
-	"reverse\0"
-	"Fire flare\0"
-	"Slide on\0"
-	"Slide left\0"
-	"Slide right\0"
-	"Slide up\0"
-	"Slide down\0"
-	"Bank on\0"
-	"Bank left\0"
-	"Bank right\0"
-	"Pitch U/D\0"
-	"Turn L/R\0"
-	"Slide L/R\0"
-	"Slide U/D\0"
-	"Bank L/R\0"
-	"Throttle\0"
-	"REAR VIEW\0"
-	"Drop Bomb\0"
-#if defined(DXX_BUILD_DESCENT_II)
-	"Afterburner\0"
-#endif
-	"Cycle Primary\0"
-	"Cycle Secondary\0"
-;
+namespace {
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define D2X_EXTENDED_WEAPON_STRING(X)
@@ -356,19 +224,6 @@ constexpr const char *kcl_mouse =
 #define DXX_KCONFIG_ITEM_JOY_WIDTH(I)	(static_cast<void>(I), 0)
 #endif
 
-constexpr const char *kcl_rebirth =
-	WEAPON_STRING_LASER	"\0"
-	WEAPON_STRING_VULCAN	"\0"
-	WEAPON_STRING_SPREADFIRE	"\0"
-	WEAPON_STRING_PLASMA	"\0"
-	WEAPON_STRING_FUSION	"\0"
-	WEAPON_STRING_CONCUSSION	"\0"
-	WEAPON_STRING_HOMING	"\0"
-	WEAPON_STRING_PROXIMITY	"\0"
-	WEAPON_STRING_SMART	"\0"
-	WEAPON_STRING_MEGA	"\0"
-;
-
 #if defined(DXX_BUILD_DESCENT_I)
 #include "d1x-rebirth/kconfig.udlr.h"
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -383,6 +238,7 @@ static array<kc_mitem, lengthof(kc_joystick)> kcm_joystick;
 static array<kc_mitem, lengthof(kc_mouse)> kcm_mouse;
 static array<kc_mitem, lengthof(kc_rebirth)> kcm_rebirth;
 
+}
 }
 
 static void kc_drawinput(grs_canvas &, const kc_item &item, kc_mitem &mitem, int is_current, const char *label);
@@ -517,46 +373,46 @@ static void kconfig_draw(kc_menu *menu)
 #if DXX_MAX_JOYSTICKS
 	else if ( menu->items == kc_joystick )
 	{
-		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
-		gr_string(canvas, 0x8000, fspacy(30), TXT_BUTTONS);
-#endif
-#if DXX_MAX_AXES_PER_JOYSTICK
-		const auto &&fspacy145 = fspacy(145);
-		gr_string(canvas, 0x8000, fspacy(137), TXT_AXES);
-		gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
-		kc_gr_2y_string(canvas, TXT_AXIS, fspacy145, fspacx(81), fspacx(230));
-		kc_gr_2y_string(canvas, TXT_INVERT, fspacy145, fspacx(111), fspacx(260));
-#endif
-		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
-
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 		const uint8_t color = BM_XRGB(31, 27, 6);
+		gr_set_fontcolor(canvas, color, -1);
+#if DXX_MAX_AXES_PER_JOYSTICK
+		constexpr auto kconfig_axis_labels_top_y = DXX_KCONFIG_UI_JOYSTICK_AXES_TOP_Y + 8;
+		const auto &&fspacy_lower_label2 = fspacy(kconfig_axis_labels_top_y);
+		gr_string(canvas, 0x8000, fspacy(DXX_KCONFIG_UI_JOYSTICK_AXES_TOP_Y), TXT_AXES);
+		gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
+		kc_gr_2y_string(canvas, TXT_AXIS, fspacy_lower_label2, fspacx(81), fspacx(230));
+		kc_gr_2y_string(canvas, TXT_INVERT, fspacy_lower_label2, fspacx(111), fspacx(260));
+		gr_set_fontcolor(canvas, color, -1);
+#endif
+
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
+		constexpr auto kconfig_buttons_top_y = DXX_KCONFIG_UI_JOYSTICK_TOP_Y + 6;
+		constexpr auto kconfig_buttons_labels_top_y = kconfig_buttons_top_y + 4;
+		gr_string(canvas, 0x8000, fspacy(DXX_KCONFIG_UI_JOYSTICK_TOP_Y), TXT_BUTTONS);
 		const auto &&fspacx115 = fspacx(115);
-		const auto &&fspacy40 = fspacy(40);
-		gr_rect(canvas, fspacx115, fspacy40, fspacx(123), fspacy40, color); // horiz/left
+		const auto &&fspacy_horiz_OR_line = fspacy(kconfig_buttons_labels_top_y);
+		gr_rect(canvas, fspacx115, fspacy_horiz_OR_line, fspacx(123), fspacy_horiz_OR_line, color); // horiz/left
 		const auto &&fspacx145 = fspacx(145);
-		gr_rect(canvas, fspacx(137), fspacy40, fspacx145, fspacy40, color); // horiz/right
+		gr_rect(canvas, fspacx(137), fspacy_horiz_OR_line, fspacx145, fspacy_horiz_OR_line, color); // horiz/right
 		const auto &&fspacx261 = fspacx(261);
-		gr_rect(canvas, fspacx261, fspacy40, fspacx(269), fspacy40, color); // horiz/left
+		gr_rect(canvas, fspacx261, fspacy_horiz_OR_line, fspacx(269), fspacy_horiz_OR_line, color); // horiz/left
 		const auto &&fspacx291 = fspacx(291);
-		gr_rect(canvas, fspacx(283), fspacy40, fspacx291, fspacy40, color); // horiz/right
+		gr_rect(canvas, fspacx(283), fspacy_horiz_OR_line, fspacx291, fspacy_horiz_OR_line, color); // horiz/right
 
-		const auto &&fspacy42 = fspacy(42);
-		gr_rect(canvas, fspacx115, fspacy40, fspacx115, fspacy42, color); // vert/left
-		gr_rect(canvas, fspacx145, fspacy40, fspacx145, fspacy42, color); // vert/right
-		gr_rect(canvas, fspacx261, fspacy40, fspacx261, fspacy42, color); // vert/left
-		gr_rect(canvas, fspacx291, fspacy40, fspacx291, fspacy42, color); // vert/right
+		const auto &&fspacy_vert_OR_line = fspacy(kconfig_buttons_labels_top_y + 2);
+		gr_rect(canvas, fspacx115, fspacy_horiz_OR_line, fspacx115, fspacy_vert_OR_line, color); // vert/left
+		gr_rect(canvas, fspacx145, fspacy_horiz_OR_line, fspacx145, fspacy_vert_OR_line, color); // vert/right
+		gr_rect(canvas, fspacx261, fspacy_horiz_OR_line, fspacx261, fspacy_vert_OR_line, color); // vert/left
+		gr_rect(canvas, fspacx291, fspacy_horiz_OR_line, fspacx291, fspacy_vert_OR_line, color); // vert/right
 
-		const auto &&fspacy38 = fspacy(38);
-		kc_gr_2y_string(canvas, "OR", fspacy38, fspacx(126), fspacx(272));
+		kc_gr_2y_string(canvas, "OR", fspacy(kconfig_buttons_top_y + 2), fspacx(126), fspacx(272));
 #endif
 	}
 #endif
 	else if ( menu->items == kc_mouse )
 	{
 		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
-		gr_string(canvas, 0x8000, fspacy(35), TXT_BUTTONS);
+		gr_string(canvas, 0x8000, fspacy(37), TXT_BUTTONS);
 		gr_string(canvas, 0x8000, fspacy(137), TXT_AXES);
 		gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 		const auto &&fspacy145 = fspacy(145);
@@ -1097,7 +953,7 @@ void kconfig(const kconfig_type n)
 	{
 #define kconfig_case(TYPE,TITLE)	\
 		case kconfig_type::TYPE:	\
-			kconfig_sub(kcl_##TYPE, kc_##TYPE, kcm_##TYPE, TITLE);	\
+			kconfig_sub(DXX_KCONFIG_UI_LABEL_kc_##TYPE, kc_##TYPE, kcm_##TYPE, TITLE);	\
 			break;
 		kconfig_case(keyboard, "KEYBOARD");
 #if DXX_MAX_JOYSTICKS
@@ -1322,17 +1178,17 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			const auto &axis = av.axis;
 			auto value = av.value;
 
-			if (axis == kcm_joystick[13].value) // Pitch U/D Deadzone
+			if (axis == PlayerCfg.KeySettings.Joystick[dxx_kconfig_ui_kc_joystick_pitch]) // Pitch U/D Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[1]*8;
-			else if (axis == kcm_joystick[15].value) // Turn L/R Deadzone
+			else if (axis == PlayerCfg.KeySettings.Joystick[dxx_kconfig_ui_kc_joystick_turn]) // Turn L/R Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[0]*8;
-			else if (axis == kcm_joystick[17].value) // Slide L/R Deadzone
+			else if (axis == PlayerCfg.KeySettings.Joystick[dxx_kconfig_ui_kc_joystick_slide_lr]) // Slide L/R Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[2]*8;
-			else if (axis == kcm_joystick[19].value) // Slide U/D Deadzone
+			else if (axis == PlayerCfg.KeySettings.Joystick[dxx_kconfig_ui_kc_joystick_slide_ud]) // Slide U/D Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[3]*8;
-			else if (axis == kcm_joystick[21].value) // Bank Deadzone
+			else if (axis == PlayerCfg.KeySettings.Joystick[dxx_kconfig_ui_kc_joystick_bank]) // Bank Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[4]*8;
-			else if (axis == kcm_joystick[23].value) // Throttle - default deadzone
+			else if (axis == PlayerCfg.KeySettings.Joystick[dxx_kconfig_ui_kc_joystick_throttle]) // Throttle - default deadzone
 				joy_null_value = PlayerCfg.JoystickDead[5]*3;
 
 			if (value > joy_null_value)
