@@ -1320,7 +1320,7 @@ void ogl_close_pixel_buffers(void)
 	texbuf.reset();
 }
 
-static void ogl_filltexbuf(const palette_array_t &pal, const uint8_t *data, GLubyte *texp, unsigned truewidth, unsigned width, unsigned height, int dxo, int dyo, unsigned twidth, unsigned theight, int type, int bm_flags, int data_format)
+static void ogl_filltexbuf(const palette_array_t &pal, const uint8_t *const data, GLubyte *texp, const unsigned truewidth, const unsigned width, const unsigned height, const int dxo, const int dyo, const unsigned twidth, const unsigned theight, const int type, const int bm_flags, const int data_format)
 {
 	if ((width > max(static_cast<unsigned>(grd_curscreen->get_screen_width()), 1024u)) ||
 		(height > max(static_cast<unsigned>(grd_curscreen->get_screen_height()), 256u)))
@@ -1444,7 +1444,7 @@ static void ogl_filltexbuf(const palette_array_t &pal, const uint8_t *data, GLub
 	}
 }
 
-static void tex_set_size1(ogl_texture &tex,unsigned dbits,unsigned bits,unsigned w, unsigned h)
+static void tex_set_size1(ogl_texture &tex, const unsigned dbits, const unsigned bits, const unsigned w, const unsigned h)
 {
 	int u;
 	if (tex.tw!=w || tex.th!=h){
@@ -1512,7 +1512,7 @@ static void tex_set_size(ogl_texture &tex)
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, int texfilt, bool texanis, bool edgepad)
+static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, const int dxo, int dyo, ogl_texture &tex, const int bm_flags, const int data_format, int texfilt, const bool texanis, const bool edgepad)
 {
 	tex.tw = pow2ize (tex.w);
 	tex.th = pow2ize (tex.h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
@@ -1831,12 +1831,12 @@ const ogl_colors::array_type ogl_colors::white = {{
 	1.0, 1.0, 1.0, 1.0,
 }};
 
-const ogl_colors::array_type &ogl_colors::init_maybe_white(int c)
+const ogl_colors::array_type &ogl_colors::init_maybe_white(const int c)
 {
 	return c == -1 ? white : init_palette(c);
 }
 
-const ogl_colors::array_type &ogl_colors::init_palette(unsigned c)
+const ogl_colors::array_type &ogl_colors::init_palette(const unsigned c)
 {
 	const auto &rgb = gr_current_pal[c];
 	const GLfloat r = rgb.r / 63.0, g = rgb.g / 63.0, b = rgb.b / 63.0;
