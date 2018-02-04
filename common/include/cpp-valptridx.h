@@ -256,6 +256,55 @@ public:
 #endif
 
 #define DXX_VALPTRIDX_INTERNAL_ERROR_STYLE_BRANCH(A)	DXX_VALPTRIDX_INTERNAL_ERROR_STYLE_BRANCH_##A
+/* This approximates the ability to test defined-ness of a macro
+ * argument, even though `#if defined(A)` cannot portably be used when
+ * `A` is a macro parameter.  A Python function that does the same (but
+ * more cleanly and safely) as this macro would be written as:
+ *
+ * ```
+ *	def DXX_VALPTRIDX_INTERNAL_ERROR_STYLE_DISPATCH(A,B,C,D):
+ *		for candidate in (A, B, C, D):
+ *			if cpp_macro_defined(candidate):
+ *				return cpp_macro_expand(candidate)
+ *		return ''
+ * ```
+ *
+ * Each of the four arguments evaluates, after macro expansion, to one of five values:
+ * - `undefined`
+ * - `trap_terse`
+ * - `trap_verbose`
+ * - `exception`
+ * - anything else
+ *
+ * Pass each argument to a separate
+ * DXX_VALPTRIDX_INTERNAL_ERROR_STYLE_BRANCH.  If the argument is one of
+ * the four recognized values, then after pasting, it will be one of the
+ * four DXX_VALPTRIDX_INTERNAL_ERROR_STYLE_BRANCH_* macros, and will
+ * expand to contain a leading and trailing comma.  If it is
+ * unrecognized, it will not expand[1] and will therefore contain no
+ * commas.  After expansion, the arguments to
+ * DXX_VALPTRIDX_INTERNAL_ERROR_STYLE_UNPACK_ARGS are:
+ *
+ * -	0-or-more garbage non-comma tokens resulting from arguments that
+ *		were "anything else"
+ * -	comma from the first matched argument
+ * -	token from the first matched argument (which will be one of the
+ *		four accepted types)
+ * -	another comma from the first matched argument
+ * -	0-or-more tokens from later arguments, which may or may not have
+ *		been "anything else" and may or may not include more commas
+ *
+ * The call to UNPACK_ARGS then drops everything up to and including the
+ * first comma from the first matched argument and everything at and
+ * after the second comma from the first matched argument.  It passes
+ * through the non-comma token from the first matched argument, yielding
+ * one of the four recognized types.
+ *
+ * [1] Assuming no definitions for
+ * DXX_VALPTRIDX_INTERNAL_ERROR_STYLE_BRANCH_* other than the four
+ * above.  For proper operation, no other macros should be defined with
+ * that prefix.
+ */
 #define DXX_VALPTRIDX_INTERNAL_ERROR_STYLE_DISPATCH(A,B,C,D)	\
 	DXX_VALPTRIDX_INTERNAL_ERROR_STYLE_UNPACK_ARGS(	\
 		DXX_VALPTRIDX_INTERNAL_ERROR_STYLE_BRANCH(A)	\
