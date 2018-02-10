@@ -88,7 +88,9 @@ struct d_select_event : d_event
 	}
 };
 
+#if DXX_USE_EDITOR
 fix event_get_idle_seconds();
+#endif
 
 // Process all events until the front window is deleted
 // Won't work if there's the possibility of another window on top

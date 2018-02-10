@@ -91,7 +91,11 @@ window_event_result event_poll()
 		highest_result = std::max(event_send(ievent), highest_result);
 	}
 	else
+	{
+#if DXX_USE_EDITOR
 		event_reset_idle_seconds();
+#endif
+	}
 	
 	mouse_cursor_autohide();
 
@@ -206,6 +210,7 @@ void event_disable_focus()
 	event_change_focus<false>();
 }
 
+#if DXX_USE_EDITOR
 static fix64 last_event = 0;
 
 void event_reset_idle_seconds()
@@ -217,5 +222,6 @@ fix event_get_idle_seconds()
 {
 	return (timer_query() - last_event)/F1_0;
 }
+#endif
 
 }

@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstdint>
+#include "dxxsconf.h"
 
 namespace dcx {
 
@@ -44,7 +45,9 @@ static inline void event_toggle_focus(int activate_focus)
 		event_disable_focus();
 }
 
+#if DXX_USE_EDITOR
 // See how long we were idle for
 void event_reset_idle_seconds();
+#endif
 
 }
