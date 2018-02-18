@@ -902,15 +902,15 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	# stage failed and providing a text error message to show to the
 	# user.  Some callers handle failure by retrying with other options.
 	# Others abort the SConf run.
-	def _soft_check_system_library(self,context,header,main,lib,successflags={}):
+	def _soft_check_system_library(self,context,header,main,lib,text='',successflags={}):
 		include = '\n'.join(['#include <%s>' % h for h in header])
 		header = header[-1]
 		# Test library.  On success, good.  On failure, test header to
 		# give the user more help.
-		if self.Link(context, text=include, main=main, msg='for usable library %s' % lib, successflags=successflags):
+		if self.Link(context, text=include + text, main=main, msg='for usable library %s' % lib, successflags=successflags):
 			return
 		Compile = self.Compile
-		if Compile(context, text=include, main=main, msg='for usable header %s' % header, testflags=successflags):
+		if Compile(context, text=include + text, main=main, msg='for usable header %s' % header, testflags=successflags):
 			return (0, "Header %s is usable, but library %s is not usable." % (header, lib))
 		if Compile(context, text=include, main='', msg='for parseable header %s' % header, testflags=successflags):
 			return (1, "Header %s is parseable, but cannot compile the test program." % header)
@@ -958,9 +958,9 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	def _check_user_settings_opengl(self,context):
 		user_settings = self.user_settings
 		Result = context.Result
-		Define = context.sconf.Define
-		Define('DXX_USE_OGL', int(user_settings.opengl))
-		Define('DXX_USE_OGLES', int(user_settings.opengles))
+		_define_macro = self._define_macro
+		_define_macro(context, 'DXX_USE_OGL', int(user_settings.opengl))
+		_define_macro(context, 'DXX_USE_OGLES', int(user_settings.opengles))
 		if user_settings.opengles:
 			s = 'OpenGL ES'
 		elif user_settings.opengl:
@@ -1001,6 +1001,78 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		if use_tracker:
 			self.check_curl(context)
 			self.check_jsoncpp(context)
+	@_implicit_test
+	def check_libpng(self,context,
+		_header=(
+			'cstdint',
+			'png.h',
+		),
+		_guess_flags={'LIBS' : ['png']},
+		_text='''
+namespace {
+struct d_screenshot
+{
+	png_struct *png_ptr;
+	png_info *info_ptr = nullptr;
+	static void png_error_cb(png_struct *, const char *) {}
+	static void png_warn_cb(png_struct *, const char *) {}
+	static void png_write_cb(png_struct *, uint8_t *, png_size_t) {}
+	static void png_flush_cb(png_struct *) {}
+};
+}
+''',
+		_main='''
+	d_screenshot ss;
+	ss.png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, &ss, &d_screenshot::png_error_cb, &d_screenshot::png_warn_cb);
+	png_set_write_fn(ss.png_ptr, &ss, &d_screenshot::png_write_cb, &d_screenshot::png_flush_cb);
+	ss.info_ptr = png_create_info_struct(ss.png_ptr);
+#ifdef PNG_tIME_SUPPORTED
+	png_time pt{};
+	pt.year = 2018;
+	pt.month = 1;
+	pt.day = 1;
+	pt.hour = 1;
+	pt.minute = 1;
+	pt.second = 1;
+	png_set_tIME(ss.png_ptr, ss.info_ptr, &pt);
+#endif
+#if DXX_USE_OGL
+	const auto color_type = PNG_COLOR_TYPE_RGB;
+#else
+	png_set_PLTE(ss.png_ptr, ss.info_ptr, reinterpret_cast<const png_color *>(&ss), 256 * 3);
+	const auto color_type = PNG_COLOR_TYPE_PALETTE;
+#endif
+	png_set_IHDR(ss.png_ptr, ss.info_ptr, 1, 1, 8, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+#ifdef PNG_TEXT_SUPPORTED
+	png_text text_fields[1] = {};
+	png_set_text(ss.png_ptr, ss.info_ptr, text_fields, 1);
+#endif
+	png_write_info(ss.png_ptr, ss.info_ptr);
+	png_byte *row_pointers[1024]{};
+	png_write_rows(ss.png_ptr, row_pointers, 1024);
+	png_write_end(ss.png_ptr, ss.info_ptr);
+	png_destroy_write_struct(&ss.png_ptr, &ss.info_ptr);
+'''):
+		successflags = self.pkgconfig.merge(context, self.msgprefix, self.user_settings, 'libpng', 'libpng', _guess_flags)
+		return self._soft_check_system_library(context, header=_header, main=_main, lib='png', text=_text, successflags=successflags)
+	@_custom_test
+	def _check_user_settings_screenshot(self,context):
+		user_settings = self.user_settings
+		screenshot_mode = user_settings.screenshot
+		if screenshot_mode == 'png':
+			screenshot_format_type = screenshot_mode
+		elif screenshot_mode == 'legacy':
+			screenshot_format_type = 'tga' if user_settings.opengl else 'pcx'
+		else:
+			return
+		context.Result('%s: checking how to format screenshots...%s' % (self.msgprefix, screenshot_format_type))
+		Define = context.sconf.Define
+		Define('DXX_USE_SCREENSHOT_FORMAT_PNG', int(screenshot_mode == 'png'))
+		Define('DXX_USE_SCREENSHOT_FORMAT_LEGACY', int(screenshot_mode == 'legacy'))
+		if screenshot_mode == 'png':
+			e = self.check_libpng(context)
+			if e:
+				raise SCons.Errors.StopError(e[1] + '  Set screenshot=legacy to remove screenshot libpng requirement.')
 
 	# Require _WIN32_WINNT >= 0x0501 to enable getaddrinfo
 	# Require _WIN32_WINNT >= 0x0600 to enable some useful AI_* flags
@@ -3351,7 +3423,7 @@ class DXXCommon(LazyObjectConstructor):
 					('opengl', True, 'build with OpenGL support'),
 					('opengles', self.default_opengles, 'build with OpenGL ES support'),
 					('editor', False, 'include editor into build (!EXPERIMENTAL!)'),
-					('sdl2', False, 'use libSDL2+SDL2_mixer (!EXPERIMENTAL!)'),
+					('sdl2', False, 'use libSDL2+SDL2_mixer (!DEVELOPERS ONLY - KNOWN BROKEN!)'),
 					('sdlmixer', True, 'build with SDL_Mixer support for sound and music (includes external music support)'),
 					('ipv6', False, 'enable UDP/IPv6 for multiplayer'),
 					('use_udp', True, 'enable UDP support'),
@@ -3409,6 +3481,7 @@ class DXXCommon(LazyObjectConstructor):
 				'arguments': (
 					('host_endian', None, 'endianness of host platform', {'allowed_values' : ('little', 'big')}),
 					('host_platform', 'linux' if sys.platform == 'linux2' else sys.platform, 'cross-compile to specified platform', {'allowed_values' : ('darwin', 'linux', 'openbsd6', 'win32')}),
+					('screenshot', 'png', 'screenshot file format', {'allowed_values' : ('legacy', 'png')}),
 				),
 			},
 			{
@@ -3899,6 +3972,10 @@ class DXXCommon(LazyObjectConstructor):
 		env = self.env
 		user_settings = self.user_settings
 
+		# Insert default CXXFLAGS.  User-specified CXXFLAGS, if any, are
+		# appended to this list and will override these defaults.  The
+		# defaults are present to ensure that a user who does not set
+		# any options gets a good default experience.
 		env.Prepend(CXXFLAGS = ['-g', '-O2'])
 		# Raspberry Pi?
 		if user_settings.raspberrypi == 'yes':

@@ -41,8 +41,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+#if !DXX_USE_OGL && DXX_USE_SCREENSHOT_FORMAT_LEGACY
 static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_File *fid);
 static int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_File *fp);
+#endif
 
 /* PCX Header data type */
 struct PCXHeader
@@ -296,7 +298,8 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_mai
 	return PCX_ERROR_NONE;
 }
 
-int pcx_write_bitmap(const char *const filename, const grs_bitmap *const bmp, palette_array_t &palette)
+#if !DXX_USE_OGL && DXX_USE_SCREENSHOT_FORMAT_LEGACY
+int pcx_write_bitmap(PHYSFS_File *const PCXfile, const grs_bitmap *const bmp, palette_array_t &palette)
 {
 	int retval;
 	ubyte data;
@@ -310,10 +313,6 @@ int pcx_write_bitmap(const char *const filename, const grs_bitmap *const bmp, pa
 	header.Xmax = bmp->bm_w-1;
 	header.Ymax = bmp->bm_h-1;
 	header.BytesPerLine = bmp->bm_w;
-
-	auto PCXfile = PHYSFSX_openWriteBuffered(filename);
-	if ( !PCXfile )
-		return PCX_ERROR_OPENING;
 
 	if (PHYSFS_write(PCXfile, &header, PCXHEADER_SIZE, 1) != 1)
 	{
@@ -339,14 +338,6 @@ int pcx_write_bitmap(const char *const filename, const grs_bitmap *const bmp, pa
 	if (PHYSFS_write(PCXfile, &data, 1, 1) != 1)
 	{
 		return PCX_ERROR_WRITING;
-	}
-
-	// Write the extended palette
-	range_for (auto &i, palette)
-	{
-		i.r <<= 2;
-		i.g <<= 2;
-		i.b <<= 2;
 	}
 
 	retval = PHYSFS_write(PCXfile, &palette[0], sizeof(palette), 1);
@@ -423,6 +414,7 @@ int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_File *fid)
 	}
 	return 0;
 }
+#endif
 
 //text for error messges
 constexpr char pcx_error_messages[] = {

@@ -168,7 +168,9 @@ void reset_time();       // called when starting level
 namespace dcx {
 
 // If automap_flag == 1, then call automap routine to write message.
-void write_bmp(const char *savename, unsigned w, unsigned h);
+#if DXX_USE_SCREENSHOT_FORMAT_LEGACY
+void write_bmp(PHYSFS_File *, unsigned w, unsigned h);
+#endif
 extern void save_screen_shot(int automap_flag);
 
 }

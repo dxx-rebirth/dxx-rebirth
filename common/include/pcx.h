@@ -28,6 +28,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "fwd-gr.h"
+#if !DXX_USE_OGL && DXX_USE_SCREENSHOT_FORMAT_LEGACY
+#include <physfs.h>
+#endif
 
 namespace dcx {
 struct palette_array_t;
@@ -59,7 +62,9 @@ int pcx_read_bitmap(const char * filename, grs_main_bitmap &bmp, palette_array_t
 
 // Writes the bitmap bmp to filename, using palette. Returns error code.
 
-int pcx_write_bitmap(const char *filename, const grs_bitmap *bmp, palette_array_t &palette);
+#if !DXX_USE_OGL && DXX_USE_SCREENSHOT_FORMAT_LEGACY
+int pcx_write_bitmap(PHYSFS_File *, const grs_bitmap *bmp, palette_array_t &palette);
+#endif
 
 extern const char *pcx_errormsg(int error_number);
 

@@ -29,6 +29,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <SDL.h>
+#if DXX_USE_SCREENSHOT_FORMAT_PNG
+#include <png.h>
+#include "vers_id.h"
+#endif
 
 #if DXX_USE_OGL
 #include "ogl_init.h"
@@ -511,10 +515,260 @@ void move_player_2_segment(const vmsegptridx_t seg,int side)
 }
 
 namespace dcx {
+
+namespace {
+
+#if DXX_USE_SCREENSHOT_FORMAT_PNG
+struct RAIIpng_struct
+{
+	png_struct *png_ptr;
+	png_info *info_ptr = nullptr;
+	RAIIpng_struct(png_struct *const p) :
+		png_ptr(p)
+	{
+	}
+	~RAIIpng_struct()
+	{
+		png_destroy_write_struct(&png_ptr, &info_ptr);
+	}
+};
+
+struct d_screenshot : RAIIpng_struct
+{
+	DXX_INHERIT_CONSTRUCTORS(d_screenshot,RAIIpng_struct);
+	/* error handling callbacks */
+	[[noreturn]]
+	static void png_error_cb(png_struct *png, const char *str);
+	static void png_warn_cb(png_struct *png, const char *str);
+	/* output callbacks */
+	static void png_write_cb(png_struct *png, uint8_t *buf, png_size_t);
+	static void png_flush_cb(png_struct *png);
+	class png_exception : std::exception
+	{
+	};
+};
+
+void d_screenshot::png_error_cb(png_struct *const png, const char *const str)
+{
+	/* libpng requires that this function not return to its caller, and
+	 * will abort the program if this requirement is violated.  However,
+	 * throwing an exception that unwinds out past libpng is permitted.
+	 */
+	(void)png;
+	con_printf(CON_URGENT, "libpng error: %s", str);
+	throw png_exception();
+}
+
+void d_screenshot::png_warn_cb(png_struct *const png, const char *const str)
+{
+	(void)png;
+	con_printf(CON_URGENT, "libpng warning: %s", str);
+}
+
+void d_screenshot::png_write_cb(png_struct *const png, uint8_t *const buf, const png_size_t size)
+{
+	const auto file = reinterpret_cast<PHYSFS_File *>(png_get_io_ptr(png));
+	PHYSFS_write(file, buf, size, 1);
+}
+
+void d_screenshot::png_flush_cb(png_struct *const png)
+{
+	(void)png;
+}
+
+void record_screenshot_time(const struct tm &tm, png_struct *const png_ptr, png_info *const info_ptr)
+{
+#ifdef PNG_tIME_SUPPORTED
+	png_time pt{};
+	pt.year = tm.tm_year + 1900;
+	pt.month = tm.tm_mon + 1;
+	pt.day = tm.tm_mday;
+	pt.hour = tm.tm_hour;
+	pt.minute = tm.tm_min;
+	pt.second = tm.tm_sec;
+	png_set_tIME(png_ptr, info_ptr, &pt);
+#else
+	(void)png_ptr;
+	(void)info_ptr;
+	con_printf(CON_NORMAL, "libpng configured without support for time chunk: screenshot will lack time record.");
+#endif
+}
+
+#ifdef PNG_TEXT_SUPPORTED
+void record_screenshot_text_metadata(png_struct *const png_ptr, png_info *const info_ptr)
+{
+	array<png_text, 6> text_fields{};
+	char descent_version[80];
+	char descent_build_datetime[21];
+	std::string current_mission_path;
+	ntstring<MISSION_NAME_LEN> current_mission_name;
+	char current_level_number[4];
+	char viewer_segment[sizeof("65536")];
+	unsigned idx = 0;
+	char key_descent_version[] = "Rebirth.version";
+	{
+		auto &t = text_fields[idx++];
+		auto &text = descent_version;
+		t.key = key_descent_version;
+		text[sizeof(text) - 1] = 0;
+		strncpy(text, g_descent_version, sizeof(text) - 1);
+		t.text = text;
+		t.compression = PNG_TEXT_COMPRESSION_NONE;
+	}
+	char key_descent_build_datetime[] = "Rebirth.build_datetime";
+	{
+		auto &t = text_fields[idx++];
+		auto &text = descent_build_datetime;
+		t.key = key_descent_build_datetime;
+		text[sizeof(text) - 1] = 0;
+		strncpy(text, g_descent_build_datetime, sizeof(text) - 1);
+		t.text = text;
+		t.compression = PNG_TEXT_COMPRESSION_NONE;
+	}
+	char key_current_mission_path[] = "Rebirth.mission.pathname";
+	char key_current_mission_name[] = "Rebirth.mission.textname";
+	char key_viewer_segment[] = "Rebirth.viewer_segment";
+	char key_current_level_number[] = "Rebirth.current_level_number";
+	if (const auto current_mission = Current_mission.get())
+	{
+		{
+			auto &t = text_fields[idx++];
+			t.key = key_current_mission_path;
+			current_mission_path = current_mission->path;
+			t.text = &current_mission_path[0];
+			t.compression = PNG_TEXT_COMPRESSION_NONE;
+		}
+		{
+			auto &t = text_fields[idx++];
+			t.key = key_current_mission_name;
+			current_mission_name = current_mission->mission_name;
+			t.text = current_mission_name.data();
+			t.compression = PNG_TEXT_COMPRESSION_NONE;
+		}
+		{
+			auto &t = text_fields[idx++];
+			t.key = key_current_level_number;
+			t.text = current_level_number;
+			t.compression = PNG_TEXT_COMPRESSION_NONE;
+			snprintf(current_level_number, sizeof(current_level_number), "%i", Current_level_num);
+		}
+		if (const auto viewer = Viewer)
+		{
+			auto &t = text_fields[idx++];
+			t.key = key_viewer_segment;
+			t.text = viewer_segment;
+			t.compression = PNG_TEXT_COMPRESSION_NONE;
+			snprintf(viewer_segment, sizeof(viewer_segment), "%hu", Viewer->segnum);
+		}
+	}
+	png_set_text(png_ptr, info_ptr, text_fields.data(), idx);
+}
+#endif
+
+#if DXX_USE_OGL
+#define write_screenshot_png(F,T,B,P)	write_screenshot_png(F,T,B)
+#endif
+unsigned write_screenshot_png(PHYSFS_File *const file, const struct tm *const tm, const grs_bitmap &bitmap, const palette_array_t &pal)
+{
+	const unsigned bm_w = bitmap.bm_w;
+	const unsigned bm_h = bitmap.bm_h;
+#if DXX_USE_OGL
+	const unsigned bufsize = bm_w * bm_h * 3;
+	const auto buf = std::make_unique<uint8_t[]>(bufsize);
+	const auto begin_byte_buffer = buf.get();
+	glReadPixels(0, 0, bm_w, bm_h, GL_RGB, GL_UNSIGNED_BYTE, begin_byte_buffer);
+#else
+	const unsigned bufsize = bitmap.bm_rowsize * bm_h;
+	const auto begin_byte_buffer = bitmap.bm_mdata;
+#endif
+	d_screenshot ss(png_create_write_struct(PNG_LIBPNG_VER_STRING, &ss, &d_screenshot::png_error_cb, &d_screenshot::png_warn_cb));
+	if (!ss.png_ptr)
+	{
+		con_puts(CON_URGENT, "Cannot save screenshot: libpng png_create_write_struct failed");
+		return 1;
+	}
+	/* Assert that Rebirth type rgb_t is layout compatible with
+	 * libpng type png_color, so that the Rebirth palette_array_t
+	 * can be safely reinterpret_cast to an array of png_color.
+	 * Without this, it would be necessary to copy each rgb_t
+	 * palette entry into a libpng png_color.
+	 */
+	static_assert(sizeof(png_color) == sizeof(rgb_t), "size mismatch");
+	static_assert(offsetof(png_color, red) == offsetof(rgb_t, r), "red offsetof mismatch");
+	static_assert(offsetof(png_color, green) == offsetof(rgb_t, g), "green offsetof mismatch");
+	static_assert(offsetof(png_color, blue) == offsetof(rgb_t, b), "blue offsetof mismatch");
+	try {
+		ss.info_ptr = png_create_info_struct(ss.png_ptr);
+		if (tm)
+			record_screenshot_time(*tm, ss.png_ptr, ss.info_ptr);
+		png_set_write_fn(ss.png_ptr, file, &d_screenshot::png_write_cb, &d_screenshot::png_flush_cb);
+#if DXX_USE_OGL
+		const auto color_type = PNG_COLOR_TYPE_RGB;
+#else
+		png_set_PLTE(ss.png_ptr, ss.info_ptr, reinterpret_cast<const png_color *>(pal.data()), pal.size());
+		const auto color_type = PNG_COLOR_TYPE_PALETTE;
+#endif
+		png_set_IHDR(ss.png_ptr, ss.info_ptr, bm_w, bm_h, 8 /* always 256 colors */, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+#ifdef PNG_TEXT_SUPPORTED
+		record_screenshot_text_metadata(ss.png_ptr, ss.info_ptr);
+#endif
+		png_write_info(ss.png_ptr, ss.info_ptr);
+		array<png_byte *, 1024> row_pointers;
+		const auto rpb = row_pointers.begin();
+		auto o = rpb;
+		const auto end_byte_buffer = begin_byte_buffer + bufsize;
+#if DXX_USE_OGL
+		/* OpenGL glReadPixels returns an image with origin in bottom
+		 * left.  Write rows from end back to beginning, since PNG
+		 * expects origin in top left.  If rows were written in memory
+		 * order, the image would be vertically flipped.
+		 */
+		const uint_fast32_t stride = bm_w * 3;	/* Without palette, written data is 3-byte-sized RGB tuples of color */
+		for (auto p = end_byte_buffer; p != begin_byte_buffer;)
+#else
+		const uint_fast32_t stride = bm_w;	/* With palette, written data is byte-sized indices into a color table */
+		/* SDL canvas uses an image with origin in top left.  Write rows
+		 * in memory order, since this matches the PNG layout.
+		 */
+		for (auto p = begin_byte_buffer; p != end_byte_buffer;)
+#endif
+		{
+#if DXX_USE_OGL
+			p -= stride;
+#else
+			p += stride;
+#endif
+			*o++ = p;
+			if (o == row_pointers.end())
+			{
+				/* Internal capacity exhausted.  Flush rows and rewind
+				 * to the beginning of the array.
+				 */
+				o = rpb;
+				png_write_rows(ss.png_ptr, o, row_pointers.size());
+			}
+		}
+		/* Flush any trailing rows */
+		if (const auto len = o - rpb)
+			png_write_rows(ss.png_ptr, rpb, len);
+		png_write_end(ss.png_ptr, ss.info_ptr);
+		return 0;
+	} catch (const d_screenshot::png_exception &) {
+		/* Destructor unwind will handle the exception.  This catch is
+		 * only required to prevent further propagation.
+		 *
+		 * Return nonzero to instruct the caller to delete the failed
+		 * file.
+		 */
+		return 1;
+	}
+}
+#endif
+
+}
+
 void save_screen_shot(int automap_flag)
 {
-	static unsigned savenum;
-	char savename[FILENAME_LEN + sizeof(SCRNS_DIR)];
 #if DXX_USE_OGL
 	if (!CGameArg.DbgGlReadPixelsOk)
 	{
@@ -522,30 +776,76 @@ void save_screen_shot(int automap_flag)
 			HUD_init_message_literal(HM_DEFAULT, "glReadPixels not supported on your configuration");
 		return;
 	}
+#endif
+#if DXX_USE_SCREENSHOT_FORMAT_PNG
+#define DXX_SCREENSHOT_FILE_EXTENSION	"png"
+#elif DXX_USE_SCREENSHOT_FORMAT_LEGACY
+#if DXX_USE_OGL
 #define DXX_SCREENSHOT_FILE_EXTENSION	"tga"
 #else
 #define DXX_SCREENSHOT_FILE_EXTENSION	"pcx"
+#endif
 #endif
 
 	if (!PHYSFSX_exists(SCRNS_DIR,0))
 		PHYSFS_mkdir(SCRNS_DIR); //try making directory
 
 	pause_game_world_time p;
-	do
+	unsigned tm_sec;
+	unsigned tm_min;
+	unsigned tm_hour;
+	unsigned tm_mday;
+	unsigned tm_mon;
+	unsigned tm_year;
+	const auto t = time(nullptr);
+	struct tm *tm = nullptr;
+	if (t == static_cast<time_t>(-1) || !(tm = gmtime(&t)))
+		tm_year = tm_mon = tm_mday = tm_hour = tm_min = tm_sec = 0;
+	else
 	{
-		snprintf(savename, sizeof(savename), "%sscrn%04u." DXX_SCREENSHOT_FILE_EXTENSION, SCRNS_DIR, savenum++);
+		tm_sec = tm->tm_sec;
+		tm_min = tm->tm_min;
+		tm_hour = tm->tm_hour;
+		tm_mday = tm->tm_mday;
+		tm_mon = tm->tm_mon + 1;
+		tm_year = tm->tm_year + 1900;
+	}
+	/* Colon is not legal in Windows filenames, so use - to separate
+	 * hour:minute:second.
+	 */
+#define DXX_SCREENSHOT_TIME_FORMAT_STRING	SCRNS_DIR "%04u-%02u-%02u.%02u-%02u-%02u"
+#define DXX_SCREENSHOT_TIME_FORMAT_VALUES	tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec
+	/* Reserve extra space for the trailing -NN disambiguation.  This
+	 * is only used if multiple screenshots get the same time, so it is
+	 * unlikely to be seen in practice and very unlikely to be exhausted
+	 * (unless the clock is frozen or returns invalid times).
+	 */
+	char savename[sizeof(SCRNS_DIR) + sizeof("2000-01-01.00-00-00.NN.ext")];
+	snprintf(savename, sizeof(savename), DXX_SCREENSHOT_TIME_FORMAT_STRING "." DXX_SCREENSHOT_FILE_EXTENSION, DXX_SCREENSHOT_TIME_FORMAT_VALUES);
+	for (unsigned savenum = 0; PHYSFS_exists(savename) && savenum != 100; ++savenum)
+	{
+		snprintf(savename, sizeof(savename), DXX_SCREENSHOT_TIME_FORMAT_STRING ".%02u." DXX_SCREENSHOT_FILE_EXTENSION, DXX_SCREENSHOT_TIME_FORMAT_VALUES, savenum);
+#undef DXX_SCREENSHOT_TIME_FORMAT_VALUES
+#undef DXX_SCREENSHOT_TIME_FORMAT_STRING
 #undef DXX_SCREENSHOT_FILE_EXTENSION
-		if (savenum > 9999)
-			break; // that's enough I think.
-	} while (PHYSFSX_exists(savename,0));
+	}
+	unsigned write_error;
+	if (const auto file = PHYSFSX_openWriteBuffered(savename))
+	{
 	if (!automap_flag)
 		HUD_init_message(HM_DEFAULT, "%s '%s'", TXT_DUMPING_SCREEN, &savename[sizeof(SCRNS_DIR) - 1]);
+
 #if DXX_USE_OGL
 #if !DXX_USE_OGLES
 	glReadBuffer(GL_FRONT);
 #endif
-
-	write_bmp(savename, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
+#if DXX_USE_SCREENSHOT_FORMAT_PNG
+	write_error = write_screenshot_png(file, tm, grd_curscreen->sc_canvas.cv_bitmap, void /* unused */);
+#elif DXX_USE_SCREENSHOT_FORMAT_LEGACY
+	write_bmp(file, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
+	/* write_bmp never fails */
+	write_error = 0;
+#endif
 #else
 	grs_canvas &screen_canv = grd_curscreen->sc_canvas;
 	palette_array_t pal;
@@ -554,9 +854,30 @@ void save_screen_shot(int automap_flag)
 	gr_ubitmap(*temp_canv, screen_canv.cv_bitmap);
 
 	gr_palette_read(pal);		//get actual palette from the hardware
-	pcx_write_bitmap(savename,&temp_canv->cv_bitmap,pal);
-	gr_ubitmap(screen_canv, temp_canv->cv_bitmap);
+	// Correct palette colors
+	range_for (auto &i, pal)
+	{
+		i.r <<= 2;
+		i.g <<= 2;
+		i.b <<= 2;
+	}
+#if DXX_USE_SCREENSHOT_FORMAT_PNG
+	write_error = write_screenshot_png(file, tm, grd_curscreen->sc_canvas.cv_bitmap, pal);
+#elif DXX_USE_SCREENSHOT_FORMAT_LEGACY
+	write_error = pcx_write_bitmap(file, &temp_canv->cv_bitmap, pal);
 #endif
+#endif
+	}
+	else
+	{
+		if (!automap_flag)
+			HUD_init_message(HM_DEFAULT, "Failed to open screenshot file for writing: %s", &savename[sizeof(SCRNS_DIR) - 1]);
+		else
+			con_printf(CON_URGENT, "Failed to open screenshot file for writing: %s", savename);
+		return;
+	}
+	if (write_error)
+		PHYSFS_delete(savename);
 }
 
 //initialize flying

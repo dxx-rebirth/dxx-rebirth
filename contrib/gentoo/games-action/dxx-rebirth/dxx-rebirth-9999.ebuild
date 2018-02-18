@@ -37,14 +37,16 @@ SLOT="0"
 KEYWORDS="amd64 x86"
 # Default to building both game engines.  The total size is relatively
 # small.
-IUSE="+d1x +d2x debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +music +opengl opl3-musicpack sc55-musicpack tracker +vorbis"
+IUSE="+d1x +d2x debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +music +opengl opl3-musicpack +png sc55-musicpack tracker +vorbis"
 
 DEPEND="dev-games/physfs[hog,mvl,zip]
 	media-libs/libsdl[joystick?,opengl?,sound,video]
 	music? ( media-libs/sdl-mixer )
 	opengl? (
 		virtual/opengl
-		virtual/glu )"
+		virtual/glu )
+	png? ( media-libs/libpng )
+"
 
 # As of this writing, there is no Portage shorthand syntax to express:
 # "
@@ -153,6 +155,7 @@ dxx_scons() {
 		opengl=$(usex opengl 1 0)
 		use_tracker=$(usex tracker 1 0)
 		prefix="${EPREFIX}"/usr
+		screenshot=$(usex png png legacy)
 		m_builddir=build/main/
 		m_editor=0
 	)

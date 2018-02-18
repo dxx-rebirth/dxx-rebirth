@@ -1026,7 +1026,8 @@ struct TGA_header
 
 //writes out an uncompressed RGB .tga file
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
-void write_bmp(const char *const savename, const unsigned w, const unsigned h)
+#if DXX_USE_SCREENSHOT_FORMAT_LEGACY
+void write_bmp(PHYSFS_File *const TGAFile, const unsigned w, const unsigned h)
 {
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
@@ -1041,13 +1042,6 @@ void write_bmp(const char *const savename, const unsigned w, const unsigned h)
 		buf[pixel * 3] = rgbaBuf[pixel * 4 + 2];
 		buf[pixel * 3 + 1] = rgbaBuf[pixel * 4 + 1];
 		buf[pixel * 3 + 2] = rgbaBuf[pixel * 4];
-	}
-
-	auto TGAFile = PHYSFSX_openWriteBuffered(savename);
-	if (!TGAFile)
-	{
-		con_puts(CON_URGENT, "Could not create TGA file to dump screenshot!");
-		return;
 	}
 
 	HeightH = static_cast<GLbyte>(h / 256);
@@ -1076,5 +1070,6 @@ void write_bmp(const char *const savename, const unsigned w, const unsigned h)
 	PHYSFS_write(TGAFile,&TGA,sizeof(TGA_header),1);
 	PHYSFS_write(TGAFile,buf, buffer_size_TGA * sizeof(unsigned char),1);
 }
+#endif
 
 }

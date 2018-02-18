@@ -4,6 +4,8 @@ RELEASE NOTES
 What's new in 0.60
 ------------------
 * Merged code bases and massive code refactorization. [Massive thanks to kp]
+* Screenshots are now saved as PNG by default.  This reduces size, sometimes very substantially, and simplifies posting screenshots online.
+* Screenshot filenames are now date-stamped.
 * Homing projectiles now behave like in the original game running at 30 FPS! [Thanks to Drakona, Lothar, roncli, A Future Pilot, Ryusei117 and more]
 * Fixed FPS fluctuations with VSync. [Thanks to derhass]
 * Flashing effects properly scale to ingame brightness setting.
@@ -30,6 +32,7 @@ What's new in 0.60
 * Fixed a bug which prevented Omega cannon recharging after ~4459701 years on the same level (Github issue #262).
 * Fixed a bug which allowed markers to expire in multiplayer games if the automap was left open for ~5.1 hours.
 * Prevented undefined behaviour when a level trigger tries to open a wall where no wall exists.  This is also diagnosed to the console, so that the level author can fix the level (Github issue #236).
+* Prevented undefined behaviour when playing a demo of a level with some types of invalid reactor triggers.
 * Fixed a bug where exploding players were checked for the Flash Missile special.  Normally, this was silent and harmless, but it might have produced odd results in mods which apply the Flash Missile special to low-numbered weapons.
 * Fixed a bug that prevented the thief stealing energy weapons.
 * Prevented undefined behaviour when guidebot cannot reach its goal object (Github issue #232).
