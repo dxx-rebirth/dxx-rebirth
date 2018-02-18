@@ -648,8 +648,10 @@ help:assume C++ compiler works
 		if user_settings.show_tool_version:
 			CXX = cenv['CXX']
 			self._show_tool_version(context, CXX, 'C++ compiler')
-			self._show_indirect_tool_version(context, CXX, 'as', 'assembler')
-			self._show_indirect_tool_version(context, CXX, 'ld', 'linker')
+			if user_settings.show_assembler_version:
+				self._show_indirect_tool_version(context, CXX, 'as', 'assembler')
+			if user_settings.show_linker_version:
+				self._show_indirect_tool_version(context, CXX, 'ld', 'linker')
 			if use_distcc:
 				self._show_tool_version(context, use_distcc, 'distcc', False)
 			if use_ccache:
@@ -3444,7 +3446,10 @@ class DXXCommon(LazyObjectConstructor):
 					# reporter will be asked to provide a log with the
 					# value set to True.  Try to prevent the extra round
 					# trip by hiding the option.
-					('show_tool_version', True, None)
+					('show_tool_version', True, None),
+					# Only applicable if show_tool_version=True
+					('show_assembler_version', True, None),
+					('show_linker_version', True, None),
 				),
 			},
 			{
