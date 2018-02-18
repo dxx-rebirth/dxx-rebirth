@@ -3597,7 +3597,7 @@ class DXXCommon(LazyObjectConstructor):
 	# Base class for platform-specific settings processing
 	class _PlatformSettings:
 		tools = ('g++', 'gnulink')
-		ogllibs = ''
+		ogllibs = []
 		platform_objects = ()
 		def __init__(self,program,user_settings):
 			self.__program = program
@@ -3607,7 +3607,7 @@ class DXXCommon(LazyObjectConstructor):
 			return self.__program.env
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
-		ogllibs = ('opengl32',)
+		ogllibs = ['opengl32']
 		tools = ('mingw',)
 		def adjust_environment(self,program,env):
 			env.Append(
@@ -3642,7 +3642,7 @@ class DXXCommon(LazyObjectConstructor):
 		@property
 		def ogllibs(self):
 			user_settings = self.user_settings
-			return (user_settings.opengles_lib, user_settings.egl_lib) if user_settings.opengles else ('GL', 'GLU')
+			return [user_settings.opengles_lib, user_settings.egl_lib] if user_settings.opengles else ['GL', 'GLU']
 		@staticmethod
 		def get_platform_objects(_empty=()):
 			return _empty
