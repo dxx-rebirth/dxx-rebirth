@@ -3710,10 +3710,12 @@ class DXXCommon(LazyObjectConstructor):
 		return StaticObject(target=target, source=source, DXX_EFFECTIVE_SOURCE=DXX_EFFECTIVE_SOURCE, *args, **kwargs)
 
 	def create_special_target_nodes(self,archive):
+		env = self.env
+		StaticObject = env.StaticObject
+		env._rebirth_nopch_StaticObject = StaticObject
 		user_settings = self.user_settings
 		if user_settings.register_cpp_output_targets:
-			env = self.env
-			env.__cpp_output_StaticObject = env.StaticObject
+			env.__cpp_output_StaticObject = StaticObject
 			env.StaticObject = self._cpp_output_StaticObject
 		if user_settings.check_header_includes:
 			# Create header targets before creating the PCHManager, so that
@@ -4122,16 +4124,15 @@ class DXXProgram(DXXCommon):
 		def __init__(self,program,env,StaticObject):
 			self.program = program
 			self.env = env
-			self.StaticObject = StaticObject
 		def __call__(self,target,source,*args,**kwargs):
 			env = self.env
-			kconfig_static_object = self.StaticObject(target=target, source=source, *args, **kwargs)
+			kconfig_static_object = env.StaticObject(target=target, source=source, *args, **kwargs)
 			program = self.program
 			builddir = '%s%s' % (program.user_settings.builddir, program.target)
 			# Bypass ccache, if any, since this is a preprocess only
 			# call.
 			kwargs['CXXFLAGS'] = (kwargs.get('CXXFLAGS', None) or env['CXXFLAGS'] or []) + ['-E']
-			cpp_kconfig_udlr = self.StaticObject(target=target[:-1] + 'ui-table.i', source=source[:-3] + 'ui-table.cpp', CXXCOM=env._dxx_cxxcom_no_ccache_prefix, *args, **kwargs)
+			cpp_kconfig_udlr = env._rebirth_nopch_StaticObject(target=target[:-1] + 'ui-table.i', source=source[:-3] + 'ui-table.cpp', CXXCOM=env._dxx_cxxcom_no_ccache_prefix, *args, **kwargs)
 			generated_udlr_header = env.File('%s/kconfig.udlr.h' % builddir)
 			generate_kconfig_udlr = env.File('similar/main/generate-kconfig-udlr.py')
 			env.Command(generated_udlr_header, [cpp_kconfig_udlr, generate_kconfig_udlr], [[sys.executable, generate_kconfig_udlr, '$SOURCE', '$TARGET']])
