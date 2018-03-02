@@ -36,7 +36,7 @@ using std::min;
 namespace dcx {
 
 static int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
-SDL_Surface *screen,*canvas;
+static SDL_Surface *screen, *canvas;
 static int gr_installed;
 
 void gr_flip()
