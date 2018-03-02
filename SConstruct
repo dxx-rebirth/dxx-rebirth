@@ -1239,7 +1239,7 @@ static void terminate_handler()
 		context.Display('%s: checking whether to enable joystick support...%s\n' % (self.msgprefix, 'yes' if user_settings.max_joysticks else 'no'))
 		# SDL2 removed CD-rom support.
 		init_cdrom = '0' if sdl2 else 'SDL_INIT_CDROM'
-		error_text_opengl_mismatch = 'Rebirth configured with OpenGL enabled, but SDL configured with OpenGL disabled.  Disable Rebirth OpenGL or install an SDL with OpenGL enabled.'
+		error_text_opengl_mismatch = 'Rebirth configured with OpenGL enabled, but SDL{0} configured with OpenGL disabled.  Disable Rebirth OpenGL or install an SDL{0} with OpenGL enabled.'.format(sdl2)
 		test_opengl = ('''
 #ifndef SDL_VIDEO_OPENGL
 #error "%s"
@@ -1264,7 +1264,7 @@ static void terminate_handler()
 '''
 		e = self._soft_check_system_library(context,header=['SDL.h'],main=main
 				% (init_cdrom, test_opengl),
-			lib=('SDL with OpenGL' if test_opengl else 'SDL'), successflags=successflags
+			lib=('SDL{0} with OpenGL' if test_opengl else 'SDL{0}').format(sdl2), successflags=successflags
 		)
 		if not e:
 			return
