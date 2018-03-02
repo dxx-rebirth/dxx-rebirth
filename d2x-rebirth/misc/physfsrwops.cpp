@@ -29,7 +29,17 @@
 #include <stdio.h>  /* used for SEEK_SET, SEEK_CUR, SEEK_END ... */
 #include "physfsrwops.h"
 
-static int physfsrwops_seek(SDL_RWops *rw, int offset, int whence)
+#if SDL_MAJOR_VERSION == 1
+#define SDL_RWops_callback_seek_return	int
+#define SDL_RWops_callback_read_return	int
+#define SDL_RWops_callback_write_return	int
+#else
+#define SDL_RWops_callback_seek_return	Sint64
+#define SDL_RWops_callback_read_return	size_t
+#define SDL_RWops_callback_write_return	size_t
+#endif
+
+static SDL_RWops_callback_seek_return physfsrwops_seek(SDL_RWops *rw, int offset, int whence)
 {
     PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
     int pos = 0;
@@ -103,7 +113,7 @@ static int physfsrwops_seek(SDL_RWops *rw, int offset, int whence)
 } /* physfsrwops_seek */
 
 
-static int physfsrwops_read(SDL_RWops *rw, void *ptr, int size, int maxnum)
+static SDL_RWops_callback_read_return physfsrwops_read(SDL_RWops *rw, void *ptr, int size, int maxnum)
 {
     PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
     PHYSFS_sint64 rc = (PHYSFS_read)(handle, ptr, size, maxnum);
@@ -117,7 +127,7 @@ static int physfsrwops_read(SDL_RWops *rw, void *ptr, int size, int maxnum)
 } /* physfsrwops_read */
 
 
-static int physfsrwops_write(SDL_RWops *rw, const void *ptr, int size, int num)
+static SDL_RWops_callback_write_return physfsrwops_write(SDL_RWops *rw, const void *ptr, int size, int num)
 {
     PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
     PHYSFS_sint64 rc = (PHYSFS_write)(handle, reinterpret_cast<const uint8_t *>(ptr), size, num);
