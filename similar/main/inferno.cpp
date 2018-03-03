@@ -482,7 +482,13 @@ static int main(int argc, char *argv[])
 		{
 			SDL_version vc;
 			SDL_VERSION(&vc);
+#if SDL_MAJOR_VERSION == 1
 			const auto vl = SDL_Linked_Version();
+#else
+			SDL_version vlv;
+			const auto vl = &vlv;
+			SDL_GetVersion(vl);
+#endif
 			con_printf(CON_VERBOSE, "D" DXX_NAME_NUMBER "X-Rebirth built with libSDL %u.%u.%u; loaded with libSDL %u.%u.%u", vc.major, vc.minor, vc.patch, vl->major, vl->minor, vl->patch);
 		}
 #if DXX_USE_SDLMIXER
