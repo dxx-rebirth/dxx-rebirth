@@ -2099,11 +2099,13 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 				replay = 1;
 			}
 #endif
+#if SDL_MAJOR_VERSION == 1
 			else if (citem == opt_sm_mtype2)
 			{
 				GameCfg.MusicType = MUSIC_TYPE_REDBOOK;
 				replay = 1;
 			}
+#endif
 #if DXX_USE_SDLMIXER
 			else if (citem == opt_sm_mtype3)
 			{
