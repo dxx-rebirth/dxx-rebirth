@@ -71,7 +71,7 @@ namespace dsx {
 void calc_d_homer_tick();
 #endif
 void Laser_render(grs_canvas &, const object_base &obj);
-imobjptridx_t Laser_player_fire(vmobjptridx_t obj, weapon_id_type laser_type, int gun_num, int make_sound, const vms_vector &shot_orientation);
+imobjptridx_t Laser_player_fire(vmobjptridx_t obj, weapon_id_type laser_type, int gun_num, int make_sound, const vms_vector &shot_orientation, icobjidx_t Network_laser_track);
 void Laser_do_weapon_sequence(vmobjptridx_t obj);
 void Flare_create(vmobjptridx_t obj);
 bool laser_are_related(vcobjptridx_t o1, vcobjptridx_t o2);
@@ -79,7 +79,6 @@ bool laser_are_related(vcobjptridx_t o1, vcobjptridx_t o2);
 void do_laser_firing_player(object &);
 extern void do_missile_firing(int drop_bomb);
 }
-extern objnum_t Network_laser_track;
 
 namespace dsx {
 imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, vmsegptridx_t segnum, vmobjptridx_t parent, weapon_id_type type, int make_sound);
@@ -91,7 +90,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 // Returns the number of shots actually fired, which will typically be
 // 1, but could be higher for low frame rates when rapidfire weapons,
 // such as vulcan or plasma are fired.
-int do_laser_firing(vmobjptridx_t objnum, int weapon_id, int level, int flags, int nfires, vms_vector shot_orientation);
+int do_laser_firing(vmobjptridx_t objnum, int weapon_id, int level, int flags, int nfires, vms_vector shot_orientation, icobjidx_t Network_laser_track);
 
 // Easier to call than Laser_create_new because it determines the
 // segment containing the firing point and deals with it being stuck

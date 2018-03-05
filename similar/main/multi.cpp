@@ -1595,6 +1595,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 	weapon = static_cast<int>(buf[2]);
 
 	flags = buf[4];
+	icobjidx_t Network_laser_track = object_none;
 	if (buf[0] == MULTI_FIRE_TRACK)
 	{
 		Network_laser_track = GET_INTEL_SHORT(buf + 18);
@@ -1612,7 +1613,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 		multi_make_ghost_player(pnum);
 
 	if (weapon == FLARE_ADJUST)
-		Laser_player_fire( obj, weapon_id_type::FLARE_ID, 6, 1, shot_orientation);
+		Laser_player_fire(obj, weapon_id_type::FLARE_ID, 6, 1, shot_orientation, object_none);
 	else
 	if (weapon >= MISSILE_ADJUST) {
 		int weapon_gun,remote_objnum;
@@ -1626,7 +1627,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 		}
 #endif
 
-		auto objnum = Laser_player_fire( obj, weapon_id, weapon_gun, 1, shot_orientation );
+		const auto &&objnum = Laser_player_fire(obj, weapon_id, weapon_gun, 1, shot_orientation, Network_laser_track);
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
 			remote_objnum = GET_INTEL_SHORT(buf + 18);
@@ -1646,7 +1647,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 				powerup_flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 		}
 
-		do_laser_firing(objp, weapon, static_cast<int>(buf[3]), flags, static_cast<int>(buf[5]), shot_orientation);
+		do_laser_firing(objp, weapon, static_cast<int>(buf[3]), flags, static_cast<int>(buf[5]), shot_orientation, Network_laser_track);
 	}
 }
 
