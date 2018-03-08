@@ -1004,11 +1004,16 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		palette_array_t palette;
 		array<uint8_t, 256> colormap;
+		/* `freq` exists so that decode_data can write to it, but it is
+		 * otherwise unused.  `decode_data` is not guaranteed to write
+		 * to every element, so `freq` must not be read without first
+		 * adding an initialization step.
+		 */
 		array<bool, 256> freq;
 
 		PHYSFS_read(fontfile,&palette[0],sizeof(palette[0]),palette.size());		//read the palette
 
-		build_colormap_good( palette, colormap, freq );
+		build_colormap_good(palette, colormap);
 
 		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
 

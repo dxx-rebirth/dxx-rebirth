@@ -13,7 +13,7 @@
 #include "compiler-array.h"
 
 namespace dcx {
-void build_colormap_good(const palette_array_t &palette, array<color_t, 256> &colormap, array<bool, 256> &used);
+void build_colormap_good(const palette_array_t &palette, array<color_t, 256> &colormap);
 void decode_data(ubyte *data, uint_fast32_t num_pixels, array<color_t, 256> &colormap, array<bool, 256> &used);
 }
 

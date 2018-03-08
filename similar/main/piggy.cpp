@@ -1778,8 +1778,7 @@ static int get_d1_colormap( palette_array_t &d1_palette, array<color_t, 256> &co
 	if (!palette_file || PHYSFS_fileLength(palette_file) != 9472)
 		return -1;
 	PHYSFS_read( palette_file, &d1_palette[0], sizeof(d1_palette[0]), d1_palette.size() );
-	array<bool, 256> freq;
-	build_colormap_good( d1_palette, colormap, freq );
+	build_colormap_good(d1_palette, colormap);
 	// don't change transparencies:
 	colormap[254] = 254;
 	colormap[255] = 255;
