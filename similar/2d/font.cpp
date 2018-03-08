@@ -1004,7 +1004,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		palette_array_t palette;
 		array<uint8_t, 256> colormap;
-		array<unsigned, 256> freq;
+		array<bool, 256> freq;
 
 		PHYSFS_read(fontfile,&palette[0],sizeof(palette[0]),palette.size());		//read the palette
 
