@@ -239,7 +239,6 @@ static void automap_build_edge_list(automap *am, int add_all_edges);
 namespace dsx {
 int HighlightMarker=-1;
 marker_message_text_t Marker_input;
-marker_messages_array_t MarkerMessage;
 static float MarkerScale=2.0;
 
 template <std::size_t... N>
@@ -249,6 +248,7 @@ static inline constexpr array<objnum_t, sizeof...(N)> init_MarkerObject(index_se
 }
 
 array<objnum_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_sequence<NUM_MARKERS>());
+d_marker_state MarkerState;
 }
 #endif
 
@@ -368,20 +368,18 @@ static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, con
 	MarkerObject[marker_num] = drop_marker_object(plrobj.pos, vmsegptridx(plrobj.segnum), plrobj.orient, marker_num);
 
 	if (Game_mode & GM_MULTI)
-		multi_send_drop_marker(Player_num, plrobj.pos, player_marker_num, MarkerMessage[marker_num]);
+		multi_send_drop_marker(Player_num, plrobj.pos, player_marker_num, MarkerState.message[marker_num]);
 }
 
 void DropBuddyMarker(const vmobjptr_t objp)
 {
 	int marker_num;
 
-	// Find spare marker slot.  "if" code below should be an assert, but what if someone changes NUM_MARKERS or MAX_CROP_SINGLE and it never gets hit?
 	static_assert(MAX_DROP_SINGLE + 1 <= NUM_MARKERS - 1, "not enough markers");
 	marker_num = MAX_DROP_SINGLE+1;
-	if (marker_num > NUM_MARKERS-1)
-		marker_num = NUM_MARKERS-1;
 
-	snprintf(&MarkerMessage[marker_num][0], MarkerMessage[marker_num].size(), "RIP: %s", static_cast<const char *>(PlayerCfg.GuidebotName));
+	auto &MarkerMessage = MarkerState.message[marker_num];
+	snprintf(&MarkerMessage[0], MarkerMessage.size(), "RIP: %s", static_cast<const char *>(PlayerCfg.GuidebotName));
 
 	if (MarkerObject[marker_num] != object_none)
 		obj_delete(vmobjptridx(MarkerObject[marker_num]));
@@ -443,8 +441,8 @@ static void ClearMarkers()
 {
 	int i;
 
+	MarkerState.message = {};
 	for (i=0;i<NUM_MARKERS;i++) {
-		MarkerMessage[i][0]=0;
 		MarkerObject[i]=object_none;
 	}
 }
@@ -755,9 +753,13 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 	name_frame(canvas, am);
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (HighlightMarker>-1 && MarkerMessage[HighlightMarker][0]!=0)
+	if (HighlightMarker > -1)
 	{
-		gr_printf(canvas, (SWIDTH/64),(SHEIGHT/18), "Marker %d: %s",HighlightMarker+1,&MarkerMessage[(Player_num*2)+HighlightMarker][0]);
+		auto &m = MarkerState.message[(Player_num * 2) + HighlightMarker];
+		if (m[0])
+		{
+			gr_printf(canvas, (SWIDTH/64), (SHEIGHT/18), "Marker %d: %s", HighlightMarker + 1, &m[0]);
+		}
 	}
 #endif
 
@@ -890,7 +892,7 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 					 * so that they remove the marker.
 					 */
 					obj_delete(vmobjptridx(exchange(MarkerObject[HighlightMarker], object_none)));
-					MarkerMessage[HighlightMarker][0]=0;
+					MarkerState.message[HighlightMarker] = {};
 					HighlightMarker = -1;
 				}
 				set_screen_mode(SCREEN_GAME);
@@ -1541,7 +1543,7 @@ window_event_result MarkerInputMessage(int key)
 			Marker_input[Marker_index] = 0;
 			break;
 		case KEY_ENTER:
-			MarkerMessage[(Player_num*2)+MarkerBeingDefined] = Marker_input;
+			MarkerState.message[(Player_num*2)+MarkerBeingDefined] = Marker_input;
 			DropMarker(vmobjptridx, vmsegptridx, get_local_plrobj(), MarkerBeingDefined);
 			LastMarkerDropped = MarkerBeingDefined;
 			/* fallthrough */

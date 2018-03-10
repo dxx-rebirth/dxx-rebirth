@@ -2315,7 +2315,7 @@ static void multi_do_drop_marker(object_array &objects, fvmsegptridx &vmsegptrid
 
 	const unsigned mnum = (pnum * 2) + mesnum;
 	for (i=0;i<40;i++)
-		MarkerMessage[mnum][i]=buf[15+i];
+		MarkerState.message[mnum][i] = buf[15 + i];
 
 	auto &mo = MarkerObject[mnum];
 	if (mo != object_none)
@@ -2563,10 +2563,10 @@ void multi_send_markers()
 		objnum_t mo;
 		mo = MarkerObject[(i*2)];
 		if (mo!=object_none)
-			multi_send_drop_marker (i, vcobjptr(mo)->pos, 0, MarkerMessage[i*2]);
+			multi_send_drop_marker(i, vcobjptr(mo)->pos, 0, MarkerState.message[i * 2]);
 		mo = MarkerObject[(i*2)+1];
 		if (mo!=object_none)
-			multi_send_drop_marker (i, vcobjptr(mo)->pos, 1, MarkerMessage[(i*2)+1]);
+			multi_send_drop_marker(i, vcobjptr(mo)->pos, 1, MarkerState.message[(i * 2) + 1]);
 	}
 }
 #endif

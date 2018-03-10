@@ -1150,7 +1150,7 @@ static void collide_player_and_marker(const object_base &playerobj, const vmobjp
 		int drawn;
 
 		const unsigned marker_id = get_marker_id(marker);
-		auto &msg = MarkerMessage[marker_id];
+		auto &msg = MarkerState.message[marker_id];
 		if (Game_mode & GM_MULTI)
 		{
 			drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %s: %s", static_cast<const char *>(vcplayerptr(marker_id / 2)->callsign), &msg[0]);

@@ -615,7 +615,7 @@ static imsegidx_t find_exit_segment()
 }
 
 //	-----------------------------------------------------------------------------
-static void say_escort_goal(escort_goal_t goal_num)
+static void say_escort_goal(const escort_goal_t goal_num)
 {
 	if (Player_dead_state != player_dead_state::no)
 		return;
@@ -676,7 +676,10 @@ static void say_escort_goal(escort_goal_t goal_num)
 		case ESCORT_GOAL_MARKER7:
 		case ESCORT_GOAL_MARKER8:
 		case ESCORT_GOAL_MARKER9:
-			buddy_message("Finding marker %i: '%.24s'", goal_num-ESCORT_GOAL_MARKER1+1, &MarkerMessage[goal_num-ESCORT_GOAL_MARKER1][0]);
+			{
+				const unsigned zero_based_goal_num = goal_num - ESCORT_GOAL_MARKER1;
+				buddy_message("Finding marker %i: '%.24s'", zero_based_goal_num + 1, &MarkerState.message[zero_based_goal_num][0]);
+			}
 			return;
 	}
 	buddy_message_str(str);
