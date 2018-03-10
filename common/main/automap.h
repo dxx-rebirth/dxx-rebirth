@@ -60,14 +60,20 @@ window_event_result MarkerInputMessage(int key);
 constexpr std::integral_constant<std::size_t, 16> NUM_MARKERS{};
 constexpr std::integral_constant<std::size_t, 40> MARKER_MESSAGE_LEN{};
 struct marker_message_text_t : ntstring<MARKER_MESSAGE_LEN - 1> {};
-struct d_marker_state
+
+struct d_marker_object_numbers
+{
+	array<imobjidx_t, NUM_MARKERS> imobjidx;
+	constexpr d_marker_object_numbers();
+};
+
+struct d_marker_state : d_marker_object_numbers
 {
 	array<marker_message_text_t, NUM_MARKERS> message;
 };
 
 extern marker_message_text_t Marker_input;
 extern d_marker_state MarkerState;
-extern array<objnum_t, NUM_MARKERS>  MarkerObject;
 extern ubyte DefiningMarkerMessage;
 }
 #endif

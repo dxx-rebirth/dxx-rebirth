@@ -381,7 +381,7 @@ protected:
 	}
 public:
 	template <integral_type v>
-		idx(const magic_constant<v> &) :
+		constexpr idx(const magic_constant<v> &) :
 			m_idx(v)
 	{
 		static_assert(allow_nullptr || static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");

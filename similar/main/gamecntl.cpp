@@ -637,7 +637,7 @@ static int select_next_window_function(int w)
 		case_marker:;
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view) {	//anarchy only
 				PlayerCfg.Cockpit3DView[w] = CV_MARKER;
-				if (Marker_viewer_num[w] >= MarkerObject.size())
+				if (Marker_viewer_num[w] >= MarkerState.imobjidx.size())
 					Marker_viewer_num[w] = Player_num * 2;
 				else if (Marker_viewer_num[w] == Player_num * 2)
 					Marker_viewer_num[w]++;

@@ -242,12 +242,15 @@ marker_message_text_t Marker_input;
 static float MarkerScale=2.0;
 
 template <std::size_t... N>
-static inline constexpr array<objnum_t, sizeof...(N)> init_MarkerObject(index_sequence<N...>)
+static constexpr array<imobjidx_t, sizeof...(N)> init_MarkerObject(index_sequence<N...>)
 {
 	return {{((void)N, object_none)...}};
 }
 
-array<objnum_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_sequence<NUM_MARKERS>());
+constexpr d_marker_object_numbers::d_marker_object_numbers() : imobjidx(init_MarkerObject(make_tree_index_sequence<NUM_MARKERS>()))
+{
+}
+
 d_marker_state MarkerState;
 }
 #endif
@@ -362,10 +365,11 @@ static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, con
 {
 	int marker_num = (Player_num*2)+player_marker_num;
 
-	if (MarkerObject[marker_num] != object_none)
-		obj_delete(vmobjptridx(MarkerObject[marker_num]));
+	auto &marker_objidx = MarkerState.imobjidx[marker_num];
+	if (marker_objidx != object_none)
+		obj_delete(vmobjptridx(marker_objidx));
 
-	MarkerObject[marker_num] = drop_marker_object(plrobj.pos, vmsegptridx(plrobj.segnum), plrobj.orient, marker_num);
+	marker_objidx = drop_marker_object(plrobj.pos, vmsegptridx(plrobj.segnum), plrobj.orient, marker_num);
 
 	if (Game_mode & GM_MULTI)
 		multi_send_drop_marker(Player_num, plrobj.pos, player_marker_num, MarkerState.message[marker_num]);
@@ -381,10 +385,11 @@ void DropBuddyMarker(const vmobjptr_t objp)
 	auto &MarkerMessage = MarkerState.message[marker_num];
 	snprintf(&MarkerMessage[0], MarkerMessage.size(), "RIP: %s", static_cast<const char *>(PlayerCfg.GuidebotName));
 
-	if (MarkerObject[marker_num] != object_none)
-		obj_delete(vmobjptridx(MarkerObject[marker_num]));
+	auto &marker_objidx = MarkerState.imobjidx[marker_num];
+	if (marker_objidx != object_none)
+		obj_delete(vmobjptridx(marker_objidx));
 
-	MarkerObject[marker_num] = drop_marker_object(objp->pos, vmsegptridx(objp->segnum), objp->orient, marker_num);
+	marker_objidx = drop_marker_object(objp->pos, vmsegptridx(objp->segnum), objp->orient, marker_num);
 }
 
 #define MARKER_SPHERE_SIZE 0x58000
@@ -393,7 +398,7 @@ static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap *const 
 {
 	static int cyc=10,cycdir=1;
 
-	const auto mb = &MarkerObject[(Player_num * 2)];
+	const auto mb = &MarkerState.imobjidx[(Player_num * 2)];
 	const auto me = std::next(mb, (Game_mode & GM_MULTI) ? 2 : 9);
 	for (auto iter = mb;;)
 	{
@@ -439,12 +444,8 @@ static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap *const 
 
 static void ClearMarkers()
 {
-	int i;
-
+	static_cast<d_marker_object_numbers &>(MarkerState) = {};
 	MarkerState.message = {};
-	for (i=0;i<NUM_MARKERS;i++) {
-		MarkerObject[i]=object_none;
-	}
 }
 #endif
 
@@ -880,18 +881,18 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 			marker_num = c-KEY_1;
 			if (marker_num<=maxdrop)
 			{
-				if (MarkerObject[marker_num] != object_none)
+				if (MarkerState.imobjidx[marker_num] != object_none)
 					HighlightMarker=marker_num;
 			}
 			return window_event_result::handled;
 		case KEY_D+KEY_CTRLED:
-			if (HighlightMarker > -1 && MarkerObject[HighlightMarker] != object_none) {
+			if (HighlightMarker > -1 && MarkerState.imobjidx[HighlightMarker] != object_none) {
 				gr_set_default_canvas();
 				if (nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "Delete Marker?" ) == 0) {
 					/* FIXME: this event should be sent to other players
 					 * so that they remove the marker.
 					 */
-					obj_delete(vmobjptridx(exchange(MarkerObject[HighlightMarker], object_none)));
+					obj_delete(vmobjptridx(exchange(MarkerState.imobjidx[HighlightMarker], object_none)));
 					MarkerState.message[HighlightMarker] = {};
 					HighlightMarker = -1;
 				}
@@ -1509,7 +1510,7 @@ void InitMarkerInput ()
 	maxdrop=MAX_DROP_SINGLE;
 
 	for (i=0;i<maxdrop;i++)
-		if (MarkerObject[(Player_num*2)+i] == object_none)		//found free slot!
+		if (MarkerState.imobjidx[(Player_num*2)+i] == object_none)		//found free slot!
 			break;
 
 	if (i==maxdrop)		//no free slot

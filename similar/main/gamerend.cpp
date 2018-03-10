@@ -687,12 +687,12 @@ static void show_one_extra_view(const int w)
 				char label[10];
 				RenderingType=5+(w<<4);
 				const auto mvn = Marker_viewer_num[w];
-				if (mvn >= MarkerObject.size())
+				if (mvn >= MarkerState.imobjidx.size())
 				{
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 					break;
 				}
-				const auto mo = MarkerObject[mvn];
+				const auto mo = MarkerState.imobjidx[mvn];
 				if (mo == object_none)
 				{
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;

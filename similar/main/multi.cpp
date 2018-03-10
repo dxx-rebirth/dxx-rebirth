@@ -2317,7 +2317,7 @@ static void multi_do_drop_marker(object_array &objects, fvmsegptridx &vmsegptrid
 	for (i=0;i<40;i++)
 		MarkerState.message[mnum][i] = buf[15 + i];
 
-	auto &mo = MarkerObject[mnum];
+	auto &mo = MarkerState.imobjidx[mnum];
 	if (mo != object_none)
 		obj_delete(objects.vmptridx(mo));
 
@@ -2560,11 +2560,10 @@ void multi_send_markers()
 
 	for (i = 0; i < N_players; i++)
 	{
-		objnum_t mo;
-		mo = MarkerObject[(i*2)];
+		auto mo = MarkerState.imobjidx[(i * 2)];
 		if (mo!=object_none)
 			multi_send_drop_marker(i, vcobjptr(mo)->pos, 0, MarkerState.message[i * 2]);
-		mo = MarkerObject[(i*2)+1];
+		mo = MarkerState.imobjidx[(i * 2) + 1];
 		if (mo!=object_none)
 			multi_send_drop_marker(i, vcobjptr(mo)->pos, 1, MarkerState.message[(i * 2) + 1]);
 	}

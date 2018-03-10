@@ -1214,7 +1214,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 	// Save automap marker info
 
-	range_for (int m, MarkerObject)
+	range_for (int m, MarkerState.imobjidx)
 	{
 		if (m == object_none)
 			m = -1;
@@ -1819,7 +1819,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (version >= 17) {
-		range_for (auto &i, MarkerObject)
+		range_for (auto &i, MarkerState.imobjidx)
 			i = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_read(fp, MarkerOwner, sizeof(MarkerOwner), 1); // skip obsolete MarkerOwner
 		range_for (auto &i, MarkerState.message)
@@ -1839,7 +1839,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + num * (sizeof(vms_vector) + 40));
 
-		range_for (auto &i, MarkerObject)
+		range_for (auto &i, MarkerState.imobjidx)
 			i = object_none;
 	}
 
