@@ -77,6 +77,8 @@ struct d_marker_state : d_marker_object_numbers
 	{
 		return MarkerBeingDefined < message.size();
 	}
+	static unsigned get_biased_marker_num(unsigned game_mode, unsigned player_num, unsigned base_marker_num);
+	static unsigned get_markers_per_player(unsigned game_mode);
 };
 
 extern marker_message_text_t Marker_input;

@@ -230,7 +230,11 @@ static void adjust_segment_limit(automap *am, int SegmentLimit);
 static void automap_build_edge_list(automap *am, int add_all_edges);
 }
 
-#define	MAX_DROP_MULTI	2
+/* MAX_DROP_MULTI_* must be a power of 2 for LastMarkerDropped to work
+ * properly.
+ */
+#define	MAX_DROP_MULTI_COOP	4
+#define	MAX_DROP_MULTI_COMPETITIVE	2
 #define	MAX_DROP_SINGLE	9
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -251,6 +255,25 @@ constexpr d_marker_object_numbers::d_marker_object_numbers() : imobjidx(init_Mar
 }
 
 d_marker_state MarkerState;
+
+unsigned d_marker_state::get_biased_marker_num(const unsigned game_mode, const unsigned player_num, const unsigned base_marker_num)
+{
+	if (game_mode & GM_MULTI_COOP)
+		return (player_num * MAX_DROP_MULTI_COOP) + base_marker_num;
+	if (game_mode & GM_MULTI)
+		return (player_num * MAX_DROP_MULTI_COMPETITIVE) + base_marker_num;
+	return base_marker_num;
+}
+
+unsigned d_marker_state::get_markers_per_player(const unsigned game_mode)
+{
+	if (game_mode & GM_MULTI_COOP)
+		return MAX_DROP_MULTI_COOP;
+	if (game_mode & GM_MULTI)
+		return MAX_DROP_MULTI_COMPETITIVE;
+	return MAX_DROP_SINGLE;
+}
+
 }
 #endif
 
@@ -362,7 +385,7 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap *am, unsigned num
 
 static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, const object &plrobj, const unsigned player_marker_num)
 {
-	const unsigned marker_num = (Player_num * MAX_DROP_MULTI) + player_marker_num;
+	const unsigned marker_num = MarkerState.get_biased_marker_num(Game_mode, Player_num, player_marker_num);
 
 	auto &marker_objidx = MarkerState.imobjidx[marker_num];
 	if (marker_objidx != object_none)
@@ -397,8 +420,9 @@ static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap *const 
 {
 	static int cyc=10,cycdir=1;
 
-	const auto mb = &MarkerState.imobjidx[(Player_num * MAX_DROP_MULTI)];
-	const auto me = std::next(mb, (Game_mode & GM_MULTI) ? MAX_DROP_MULTI : MAX_DROP_SINGLE);
+	const auto game_mode = Game_mode;
+	const auto mb = &MarkerState.imobjidx[MarkerState.get_biased_marker_num(game_mode, Player_num, 0)];
+	const auto me = std::next(mb, MarkerState.get_markers_per_player(game_mode));
 	for (auto iter = mb;;)
 	{
 		if (*iter != object_none)
@@ -873,13 +897,12 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 		case KEY_0:
 			
 			{
-				const unsigned maxdrop = (Game_mode & GM_MULTI)
-					? MAX_DROP_MULTI
-					: MAX_DROP_SINGLE;
+				const auto game_mode = Game_mode;
+				const unsigned maxdrop = MarkerState.get_markers_per_player(game_mode);
 				const unsigned marker_num = c - KEY_1;
 				if (marker_num <= maxdrop)
 				{
-					const unsigned biased_marker_num = marker_num + (Player_num * MAX_DROP_MULTI);
+					const unsigned biased_marker_num = MarkerState.get_biased_marker_num(game_mode, Player_num, marker_num);
 					if (MarkerState.imobjidx[biased_marker_num] != object_none)
 						MarkerState.HighlightMarker = biased_marker_num;
 				}
@@ -1505,23 +1528,20 @@ static unsigned Marker_index;
 
 void InitMarkerInput ()
 {
-	int maxdrop,i;
+	unsigned i;
 
 	//find free marker slot
 
-	if (Game_mode & GM_MULTI)
-	maxdrop=MAX_DROP_MULTI;
-	else
-	maxdrop=MAX_DROP_SINGLE;
-
+	const auto game_mode = Game_mode;
+	const auto maxdrop = MarkerState.get_markers_per_player(game_mode);
 	for (i=0;i<maxdrop;i++)
-		if (MarkerState.imobjidx[(Player_num * MAX_DROP_MULTI) + i] == object_none)		//found free slot!
+		if (MarkerState.imobjidx[MarkerState.get_biased_marker_num(game_mode, Player_num, i)] == object_none)		//found free slot!
 			break;
 
 	if (i==maxdrop)		//no free slot
 	{
-		if (Game_mode & GM_MULTI)
-			i = !MarkerState.LastMarkerDropped;		//in multi, replace older of two
+		if (game_mode & GM_MULTI)
+			i = (MarkerState.LastMarkerDropped + 1) & (maxdrop - 1);		//in multi, replace oldest
 		else {
 			HUD_init_message_literal(HM_DEFAULT, "No free marker slots");
 			return;
@@ -1551,7 +1571,7 @@ window_event_result MarkerInputMessage(int key)
 			{
 				const auto MarkerBeingDefined = MarkerState.MarkerBeingDefined;
 				MarkerState.LastMarkerDropped = MarkerBeingDefined;
-				MarkerState.message[(Player_num * MAX_DROP_MULTI) + MarkerBeingDefined] = Marker_input;
+				MarkerState.message[MarkerState.get_biased_marker_num(Game_mode, Player_num, MarkerBeingDefined)] = Marker_input;
 				DropMarker(vmobjptridx, vmsegptridx, get_local_plrobj(), MarkerBeingDefined);
 			}
 			/* fallthrough */
