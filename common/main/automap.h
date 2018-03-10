@@ -69,12 +69,18 @@ struct d_marker_object_numbers
 
 struct d_marker_state : d_marker_object_numbers
 {
+	uint8_t MarkerBeingDefined = UINT8_MAX;
+	uint8_t HighlightMarker = UINT8_MAX;
+	uint8_t LastMarkerDropped;
 	array<marker_message_text_t, NUM_MARKERS> message;
+	constexpr bool DefiningMarkerMessage() const
+	{
+		return MarkerBeingDefined < message.size();
+	}
 };
 
 extern marker_message_text_t Marker_input;
 extern d_marker_state MarkerState;
-extern ubyte DefiningMarkerMessage;
 }
 #endif
 

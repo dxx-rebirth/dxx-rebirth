@@ -237,7 +237,6 @@ static void automap_build_edge_list(automap *am, int add_all_edges);
 #include "compiler-integer_sequence.h"
 
 namespace dsx {
-int HighlightMarker=-1;
 marker_message_text_t Marker_input;
 static float MarkerScale=2.0;
 
@@ -338,7 +337,7 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap *am, unsigned num
 	}};
 	static constexpr array<uint_fast8_t, 9> NumOfPoints = {{3, 5, 4, 3, 5, 5, 2, 5, 4}};
 
-	const auto color = (num == HighlightMarker ? am->white_63 : am->blue_48);
+	const auto color = (num == MarkerState.HighlightMarker ? am->white_63 : am->blue_48);
 	const auto scale_x = Matrix_scale.x;
 	const auto scale_y = Matrix_scale.y;
 	range_for (const auto &i, unchecked_partial_range(&sArray[num][0], NumOfPoints[num]))
@@ -363,7 +362,7 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap *am, unsigned num
 
 static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, const object &plrobj, const unsigned player_marker_num)
 {
-	int marker_num = (Player_num*2)+player_marker_num;
+	const unsigned marker_num = (Player_num * MAX_DROP_MULTI) + player_marker_num;
 
 	auto &marker_objidx = MarkerState.imobjidx[marker_num];
 	if (marker_objidx != object_none)
@@ -398,8 +397,8 @@ static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap *const 
 {
 	static int cyc=10,cycdir=1;
 
-	const auto mb = &MarkerState.imobjidx[(Player_num * 2)];
-	const auto me = std::next(mb, (Game_mode & GM_MULTI) ? 2 : 9);
+	const auto mb = &MarkerState.imobjidx[(Player_num * MAX_DROP_MULTI)];
+	const auto me = std::next(mb, (Game_mode & GM_MULTI) ? MAX_DROP_MULTI : MAX_DROP_SINGLE);
 	for (auto iter = mb;;)
 	{
 		if (*iter != object_none)
@@ -754,12 +753,15 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 	name_frame(canvas, am);
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (HighlightMarker > -1)
 	{
-		auto &m = MarkerState.message[(Player_num * 2) + HighlightMarker];
-		if (m[0])
+		const unsigned HighlightMarker = MarkerState.HighlightMarker;
+		if (HighlightMarker < MarkerState.message.size())
 		{
+			auto &m = MarkerState.message[HighlightMarker];
+			if (m[0])
+			{
 			gr_printf(canvas, (SWIDTH/64), (SHEIGHT/18), "Marker %d: %s", HighlightMarker + 1, &m[0]);
+			}
 		}
 	}
 #endif
@@ -813,10 +815,6 @@ static void recompute_automap_segment_visibility(const object &plrobj, automap *
 static window_event_result automap_key_command(window *, const d_event &event, automap *am)
 {
 	int c = event_key_get(event);
-#if defined(DXX_BUILD_DESCENT_II)
-	int marker_num;
-	char maxdrop;
-#endif
 
 	switch (c)
 	{
@@ -873,28 +871,38 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 		case KEY_8:
 		case KEY_9:
 		case KEY_0:
-			if (Game_mode & GM_MULTI)
-				maxdrop=2;
-			else
-				maxdrop=9;
 			
-			marker_num = c-KEY_1;
-			if (marker_num<=maxdrop)
 			{
-				if (MarkerState.imobjidx[marker_num] != object_none)
-					HighlightMarker=marker_num;
+				const unsigned maxdrop = (Game_mode & GM_MULTI)
+					? MAX_DROP_MULTI
+					: MAX_DROP_SINGLE;
+				const unsigned marker_num = c - KEY_1;
+				if (marker_num <= maxdrop)
+				{
+					const unsigned biased_marker_num = marker_num + (Player_num * MAX_DROP_MULTI);
+					if (MarkerState.imobjidx[biased_marker_num] != object_none)
+						MarkerState.HighlightMarker = biased_marker_num;
+				}
+				else
+					MarkerState.HighlightMarker = UINT8_MAX;
 			}
 			return window_event_result::handled;
 		case KEY_D+KEY_CTRLED:
-			if (HighlightMarker > -1 && MarkerState.imobjidx[HighlightMarker] != object_none) {
+			{
+				const auto HighlightMarker = MarkerState.HighlightMarker;
+				if (HighlightMarker >= MarkerState.imobjidx.size())
+					return window_event_result::handled;
+				auto &mo = MarkerState.imobjidx[HighlightMarker];
+				if (mo == object_none)
+					return window_event_result::handled;
 				gr_set_default_canvas();
 				if (nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "Delete Marker?" ) == 0) {
 					/* FIXME: this event should be sent to other players
 					 * so that they remove the marker.
 					 */
-					obj_delete(vmobjptridx(exchange(MarkerState.imobjidx[HighlightMarker], object_none)));
+					obj_delete(vmobjptridx(exchange(mo, object_none)));
 					MarkerState.message[HighlightMarker] = {};
-					HighlightMarker = -1;
+					MarkerState.HighlightMarker = UINT8_MAX;
 				}
 				set_screen_mode(SCREEN_GAME);
 			}
@@ -1494,9 +1502,6 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 
 #if defined(DXX_BUILD_DESCENT_II)
 static unsigned Marker_index;
-ubyte DefiningMarkerMessage=0;
-static uint8_t MarkerBeingDefined;
-static uint8_t LastMarkerDropped;
 
 void InitMarkerInput ()
 {
@@ -1510,13 +1515,13 @@ void InitMarkerInput ()
 	maxdrop=MAX_DROP_SINGLE;
 
 	for (i=0;i<maxdrop;i++)
-		if (MarkerState.imobjidx[(Player_num*2)+i] == object_none)		//found free slot!
+		if (MarkerState.imobjidx[(Player_num * MAX_DROP_MULTI) + i] == object_none)		//found free slot!
 			break;
 
 	if (i==maxdrop)		//no free slot
 	{
 		if (Game_mode & GM_MULTI)
-			i = !LastMarkerDropped;		//in multi, replace older of two
+			i = !MarkerState.LastMarkerDropped;		//in multi, replace older of two
 		else {
 			HUD_init_message_literal(HM_DEFAULT, "No free marker slots");
 			return;
@@ -1527,8 +1532,7 @@ void InitMarkerInput ()
 
 	Marker_input[0]=0;
 	Marker_index=0;
-	DefiningMarkerMessage=1;
-	MarkerBeingDefined = i;
+	MarkerState.MarkerBeingDefined = i;
 	key_toggle_repeat(1);
 }
 
@@ -1544,15 +1548,18 @@ window_event_result MarkerInputMessage(int key)
 			Marker_input[Marker_index] = 0;
 			break;
 		case KEY_ENTER:
-			MarkerState.message[(Player_num*2)+MarkerBeingDefined] = Marker_input;
-			DropMarker(vmobjptridx, vmsegptridx, get_local_plrobj(), MarkerBeingDefined);
-			LastMarkerDropped = MarkerBeingDefined;
+			{
+				const auto MarkerBeingDefined = MarkerState.MarkerBeingDefined;
+				MarkerState.LastMarkerDropped = MarkerBeingDefined;
+				MarkerState.message[(Player_num * MAX_DROP_MULTI) + MarkerBeingDefined] = Marker_input;
+				DropMarker(vmobjptridx, vmsegptridx, get_local_plrobj(), MarkerBeingDefined);
+			}
 			/* fallthrough */
 		case KEY_F8:
 		case KEY_ESC:
+			MarkerState.MarkerBeingDefined = UINT8_MAX;
 			key_toggle_repeat(0);
 			game_flush_inputs();
-			DefiningMarkerMessage = 0;
 			break;
 		default:
 		{

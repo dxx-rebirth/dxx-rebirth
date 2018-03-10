@@ -987,7 +987,7 @@ static window_event_result HandleGameKey(int key)
 
 			KEY_MAC(case KEY_COMMAND+KEY_4:)
 			case KEY_F4:
-				if (!DefiningMarkerMessage)
+				if (!MarkerState.DefiningMarkerMessage())
 					InitMarkerInput();
 				break;
 #endif
@@ -1884,7 +1884,7 @@ window_event_result ReadControls(const d_event &event)
 	{
 		key = event_key_get(event);
 #if defined(DXX_BUILD_DESCENT_II)
-		if (DefiningMarkerMessage)
+		if (MarkerState.DefiningMarkerMessage())
 		{
 			return MarkerInputMessage(key);
 		}

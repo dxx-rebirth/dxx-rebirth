@@ -78,7 +78,7 @@ static inline void game_draw_marker_message(grs_canvas &)
 #elif defined(DXX_BUILD_DESCENT_II)
 static void game_draw_marker_message(grs_canvas &canvas)
 {
-	if ( DefiningMarkerMessage)
+	if (MarkerState.DefiningMarkerMessage())
 	{
 		gr_set_curfont(canvas, GAME_FONT);
 		gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
