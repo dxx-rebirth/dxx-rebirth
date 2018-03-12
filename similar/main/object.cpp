@@ -98,7 +98,6 @@ object *ConsoleObject;					//the object that is the player
 }
 
 namespace dcx {
-static array<objnum_t, MAX_OBJECTS> free_obj_list;
 
 //Data for objects
 
@@ -823,7 +822,7 @@ void init_objects()
 {
 	for (objnum_t i = 0; i< MAX_OBJECTS; ++i)
 	{
-		free_obj_list[i] = i;
+		ObjectState.free_obj_list[i] = i;
 		auto &obj = *vmobjptr(i);
 		DXX_POISON_VAR(obj, 0xfd);
 		obj.type = OBJ_NONE;
@@ -850,10 +849,10 @@ void special_reset_objects(void)
 	Objects.set_count(1);
 	assert(Objects.front().type != OBJ_NONE);		//0 should be used
 
-	DXX_POISON_VAR(free_obj_list, 0xfd);
+	DXX_POISON_VAR(ObjectState.free_obj_list, 0xfd);
 	for (objnum_t i = MAX_OBJECTS; i--;)
 		if (vcobjptr(i)->type == OBJ_NONE)
-			free_obj_list[--num_objects] = i;
+			ObjectState.free_obj_list[--num_objects] = i;
 		else
 			if (i > Highest_object_index)
 				Objects.set_count(i + 1);
@@ -955,7 +954,7 @@ imobjptridx_t obj_allocate(d_level_object_state &ObjectState)
 	if (ObjectState.num_objects >= Objects.size())
 		return object_none;
 
-	const auto objnum = free_obj_list[ObjectState.num_objects++];
+	const auto objnum = ObjectState.free_obj_list[ObjectState.num_objects++];
 	if (objnum >= Objects.get_count())
 	{
 		Objects.set_count(objnum + 1);
@@ -971,8 +970,8 @@ imobjptridx_t obj_allocate(d_level_object_state &ObjectState)
 static void obj_free(objnum_t objnum)
 {
 	const auto num_objects = -- ObjectState.num_objects;
-	assert(num_objects < free_obj_list.size());
-	free_obj_list[num_objects] = objnum;
+	assert(num_objects < ObjectState.free_obj_list.size());
+	ObjectState.free_obj_list[num_objects] = objnum;
 
 	if (objnum == Highest_object_index)
 	{
@@ -1977,7 +1976,7 @@ void reset_objects(int n_objs)
 
 	for (objnum_t i = n_objs; i < MAX_OBJECTS; ++i)
 	{
-		free_obj_list[i] = i;
+		ObjectState.free_obj_list[i] = i;
 		auto &obj = *vmobjptr(i);
 		DXX_POISON_VAR(obj, 0xfd);
 		obj.type = OBJ_NONE;
