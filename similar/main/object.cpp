@@ -88,7 +88,7 @@ using std::max;
 
 namespace dsx {
 static void obj_detach_all(object_base &parent);
-static void obj_detach_one(object &sub);
+static void obj_detach_one(object_array &Objects, object &sub);
 
 /*
  *  Global variables
@@ -1239,7 +1239,7 @@ void obj_delete(const vmobjptridx_t obj)
 		Viewer = ConsoleObject;						//..make the player the viewer
 
 	if (obj->flags & OF_ATTACHED)		//detach this from object
-		obj_detach_one(obj);
+		obj_detach_one(Objects, obj);
 
 	if (obj->attached_obj != object_none)		//detach all objects from this
 		obj_detach_all(obj);
@@ -2119,12 +2119,12 @@ void obj_attach(object_array &Objects, const vmobjptridx_t parent, const vmobjpt
 }
 
 //dettaches one object
-void obj_detach_one(object &sub)
+void obj_detach_one(object_array &Objects, object &sub)
 {
 	Assert(sub.flags & OF_ATTACHED);
 	Assert(sub.ctype.expl_info.attach_parent != object_none);
 
-	const auto &&parent_objp = vcobjptr(sub.ctype.expl_info.attach_parent);
+	const auto &&parent_objp = Objects.vcptr(sub.ctype.expl_info.attach_parent);
 	if (parent_objp->type == OBJ_NONE || parent_objp->attached_obj == object_none)
 	{
 		sub.flags &= ~OF_ATTACHED;
@@ -2133,15 +2133,15 @@ void obj_detach_one(object &sub)
 
 	if (sub.ctype.expl_info.next_attach != object_none)
 	{
-		const auto &&o = vmobjptr(sub.ctype.expl_info.next_attach);
-		assert(vmobjptr(o->ctype.expl_info.prev_attach) == &sub);
-		o->ctype.expl_info.prev_attach = sub.ctype.expl_info.prev_attach;
+		auto &a = Objects.vmptr(sub.ctype.expl_info.next_attach)->ctype.expl_info.prev_attach;
+		assert(Objects.vcptr(a) == &sub);
+		a = sub.ctype.expl_info.prev_attach;
 	}
 
 	const auto use_prev_attach = (sub.ctype.expl_info.prev_attach != object_none);
-	auto &o = *vmobjptr(use_prev_attach ? exchange(sub.ctype.expl_info.prev_attach, object_none) : sub.ctype.expl_info.attach_parent);
+	auto &o = *Objects.vmptr(use_prev_attach ? exchange(sub.ctype.expl_info.prev_attach, object_none) : sub.ctype.expl_info.attach_parent);
 	auto &update_attach = use_prev_attach ? o.ctype.expl_info.next_attach : o.attached_obj;
-	assert(vmobjptr(update_attach) == &sub);
+	assert(Objects.vcptr(update_attach) == &sub);
 	update_attach = sub.ctype.expl_info.next_attach;
 
 	sub.ctype.expl_info.next_attach = object_none;
@@ -2153,7 +2153,7 @@ void obj_detach_one(object &sub)
 static void obj_detach_all(object_base &parent)
 {
 	while (parent.attached_obj != object_none)
-		obj_detach_one(vmobjptr(parent.attached_obj));
+		obj_detach_one(Objects, Objects.vmptr(parent.attached_obj));
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
