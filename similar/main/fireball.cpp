@@ -662,7 +662,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
 		objnum->pos = new_pos;
 		vm_vec_zero(objnum->mtype.phys_info.velocity);
-		obj_relink(objnum, segnum);
+		obj_relink(vmobjptr, vmsegptr, objnum, segnum);
 
 		object_create_explosion(segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE );
 	}

@@ -1030,7 +1030,7 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 	}
 	const auto &&teleport_segnum = vmsegptridx(b.where);
 	compute_segment_center(boss_obj->pos, teleport_segnum);
-	obj_relink(boss_obj, teleport_segnum);
+	obj_relink(vmobjptr, vmsegptr, boss_obj, teleport_segnum);
 	Last_teleport_time = GameTime64;
 
 	const auto boss_dir = vm_vec_sub(vcobjptr(vcplayerptr(pnum)->objnum)->pos, boss_obj->pos);

@@ -462,7 +462,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 		obj->pos = ipos;
 
 		if ( iseg != obj->segnum )
-			obj_relink(obj, vmsegptridx(iseg));
+			obj_relink(vmobjptr, vmsegptr, obj, vmsegptridx(iseg));
 
 		//if start point not in segment, move object to center of segment
 		if (get_seg_masks(vcvertptr, obj->pos, vcsegptr(obj->segnum), 0).centermask !=0 )
@@ -474,7 +474,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 				if (obj->type == OBJ_PLAYER && (n = find_point_seg(obj->last_pos, vmsegptridx(obj->segnum))) != segment_none)
 				{
 					obj->pos = obj->last_pos;
-					obj_relink(obj, n);
+					obj_relink(vmobjptr, vmsegptr, obj, n);
 				}
 				else {
 					compute_segment_center(obj->pos, vcsegptr(obj->segnum));
@@ -502,7 +502,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 		
 				//iseg = obj->segnum;		//don't change segment
 
-				obj_relink(obj, vmsegptridx(save_seg));
+				obj_relink(vmobjptr, vmsegptr, obj, vmsegptridx(save_seg));
 
 				moved_time = 0;
 			}
@@ -757,7 +757,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 			if (obj->type==OBJ_PLAYER && (n = find_point_seg(obj->last_pos,obj_segp)) != segment_none)
 			{
 				obj->pos = obj->last_pos;
-				obj_relink(obj, vmsegptridx(n));
+				obj_relink(vmobjptr, vmsegptr, obj, vmsegptridx(n));
 			}
 			else {
 				compute_segment_center(obj->pos, obj_segp);

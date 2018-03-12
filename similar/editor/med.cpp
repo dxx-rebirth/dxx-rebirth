@@ -570,7 +570,7 @@ static void move_player_2_segment_and_rotate(const vmsegptridx_t seg, const unsi
 	vm_vector_2_matrix(ConsoleObject->orient,vp,&upvec,nullptr);
 //	vm_vector_2_matrix(&ConsoleObject->orient,&vp,NULL,NULL);
 
-	obj_relink(vmobjptridx(ConsoleObject), seg);
+	obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), seg);
 }
 
 int SetPlayerFromCursegAndRotate()
@@ -621,7 +621,7 @@ int SetPlayerFromCursegMinusOne()
 
 	auto newseg = find_point_seg(ConsoleObject->pos,Cursegp);
 	if (newseg != segment_none)
-		obj_relink(vmobjptridx(ConsoleObject), newseg);
+		obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), newseg);
 
 	Update_flags |= UF_ED_STATE_CHANGED | UF_GAME_VIEW_CHANGED;
 	return 1;
@@ -1011,7 +1011,7 @@ void gamestate_restore_check()
 			if (Save_position.segnum <= Highest_segment_index) {
 				ConsoleObject->pos = Save_position.pos;
 				ConsoleObject->orient = Save_position.orient;
-				obj_relink(vmobjptridx(ConsoleObject), vmsegptridx(Save_position.segnum));
+				obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), vmsegptridx(Save_position.segnum));
 			}
 
 			Update_flags |= UF_WORLD_CHANGED;	

@@ -472,7 +472,7 @@ static int move_object_within_mine(const vmobjptridx_t obj, const vms_vector &ne
 
 			if (fate != HIT_WALL) {
 				if (segp != obj->segnum)
-					obj_relink( obj, segp);
+					obj_relink(vmobjptr, vmsegptr, obj, segp);
 				obj->pos = newpos;
 				return 0;
 			}
@@ -779,7 +779,7 @@ static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &
 				objp->pos = hit_info.hit_pnt;
 				const auto &&segp = find_object_seg(objp);
 				if (segp != segment_none)
-					obj_relink(objp, segp);
+					obj_relink(vmobjptr, vmsegptr, objp, segp);
 			} else {
 				editor_status("Attempted to move object out of mine.  Object not moved.");
 			}

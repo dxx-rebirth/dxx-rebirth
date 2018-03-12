@@ -1955,7 +1955,7 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 	Assert(NewPlayer < NumNetPlayerPositions);
 	ConsoleObject->pos = Player_init[NewPlayer].pos;
 	ConsoleObject->orient = Player_init[NewPlayer].orient;
-	obj_relink(vmobjptridx(ConsoleObject), vmsegptridx(Player_init[NewPlayer].segnum));
+	obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), vmsegptridx(Player_init[NewPlayer].segnum));
 	reset_player_object();
 }
 

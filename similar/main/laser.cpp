@@ -891,7 +891,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 		if (end_segnum != obj->segnum) {
 			if (end_segnum != segment_none) {
 				obj->pos = end_pos;
-				obj_relink(obj, end_segnum);
+				obj_relink(vmobjptr, vmsegptr, obj, end_segnum);
 			}
 		} else
 			obj->pos = end_pos;

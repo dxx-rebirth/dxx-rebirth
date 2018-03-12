@@ -1080,7 +1080,7 @@ static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptri
 				{
 					const auto &&segp = vmsegptridx(w->segnum);
 					compute_segment_center(ConsoleObject->pos, segp);
-					obj_relink(vmobjptridx(ConsoleObject), segp);
+					obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), segp);
 					goto kasf_done;
 				}
 			}

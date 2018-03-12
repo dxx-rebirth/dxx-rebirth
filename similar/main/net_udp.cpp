@@ -4089,7 +4089,7 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 			const auto &p = Player_init[Netgame.locations[i]];
 			o->pos = p.pos;
 			o->orient = p.orient;
-			obj_relink(o, vmsegptridx(p.segnum));
+			obj_relink(vmobjptr, vmsegptr, o, vmsegptridx(p.segnum));
 		}
 	}
 

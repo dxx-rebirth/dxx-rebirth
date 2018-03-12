@@ -1569,7 +1569,7 @@ static void obj_delete_all_that_should_be_dead()
 
 //when an object has moved into a new segment, this function unlinks it
 //from its old segment, and links it into the new segment
-void obj_relink(const vmobjptridx_t objnum,const vmsegptridx_t newsegnum)
+void obj_relink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, const vmobjptridx_t objnum, const vmsegptridx_t newsegnum)
 {
 	obj_unlink(vmobjptr, vmsegptr, objnum);
 	obj_link_unchecked(vmobjptr, objnum, newsegnum);
@@ -2005,7 +2005,7 @@ int update_object_seg(const vmobjptridx_t obj)
 		return 0;
 
 	if ( newseg != obj->segnum )
-		obj_relink(obj, newseg);
+		obj_relink(vmobjptr, vmsegptr, obj, newseg);
 
 	return 1;
 }

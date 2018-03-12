@@ -1031,7 +1031,7 @@ int med_delete_segment(const vmsegptridx_t sp)
 			//if the object is the player, move to new curseg
 			if (objnum == ConsoleObject)	{
 				compute_segment_center(ConsoleObject->pos,Cursegp);
-				obj_relink(objnum, Cursegp);
+				obj_relink(vmobjptr, vmsegptr, objnum, Cursegp);
 			} else
 				obj_delete(objnum);
 		}

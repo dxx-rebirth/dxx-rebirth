@@ -209,7 +209,7 @@ void init_objects();
 
 // when an object has moved into a new segment, this function unlinks it
 // from its old segment, and links it into the new segment
-void obj_relink(vmobjptridx_t objnum,vmsegptridx_t newsegnum);
+void obj_relink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, vmobjptridx_t objnum, vmsegptridx_t newsegnum);
 
 // for getting out of messed up linking situations (i.e. caused by demo playback)
 void obj_relink_all();

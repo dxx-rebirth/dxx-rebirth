@@ -2214,7 +2214,7 @@ static void multi_do_create_powerup(fvmobjptr &vmobjptr, fvmsegptridx &vmsegptri
 
 	vm_vec_zero(my_objnum->mtype.phys_info.velocity);
 
-	obj_relink(my_objnum, segnum);
+	obj_relink(vmobjptr, vmsegptr, my_objnum, segnum);
 
 	map_objnum_local_to_remote(my_objnum, objnum, pnum);
 

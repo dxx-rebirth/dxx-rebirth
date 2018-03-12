@@ -2119,7 +2119,7 @@ static void teleport_boss(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, c
 
 	const auto &&rand_segp = vmsegptridx(rand_segnum);
 	compute_segment_center(objp->pos, rand_segp);
-	obj_relink(objp, rand_segp);
+	obj_relink(vmobjptr, vmsegptr, objp, rand_segp);
 
 	Last_teleport_time = GameTime64;
 

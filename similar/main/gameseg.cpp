@@ -1052,7 +1052,7 @@ void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 	objp->mtype.phys_info.velocity.y = (INTEL_SHORT(spp->vely) << VEL_PRECISION);
 	objp->mtype.phys_info.velocity.z = (INTEL_SHORT(spp->velz) << VEL_PRECISION);
 
-	obj_relink(objp, segp);
+	obj_relink(vmobjptr, vmsegptr, objp, segp);
 }
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
@@ -1110,7 +1110,7 @@ void extract_quaternionpos(const vmobjptridx_t objp, quaternionpos *qpp, int swa
         
 	auto segnum = static_cast<segnum_t>(qpp->segment);
 	Assert(segnum <= Highest_segment_index);
-	obj_relink(objp, vmsegptridx(segnum));
+	obj_relink(vmobjptr, vmsegptr, objp, vmsegptridx(segnum));
 }
 
 

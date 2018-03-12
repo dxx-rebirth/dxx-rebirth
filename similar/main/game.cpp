@@ -510,7 +510,7 @@ void move_player_2_segment(const vmsegptridx_t seg,int side)
 	auto vp = compute_center_point_on_side(seg,side);
 	vm_vec_sub2(vp, console->pos);
 	vm_vector_2_matrix(console->orient, vp, nullptr, nullptr);
-	obj_relink(console, seg );
+	obj_relink(vmobjptr, vmsegptr, console, seg);
 }
 
 }
@@ -1507,7 +1507,7 @@ window *game_setup(void)
 	}
 	
 	if (vcsegptr(ConsoleObject->segnum)->segnum == segment_none)      //segment no longer exists
-		obj_relink(vmobjptridx(ConsoleObject), Cursegp);
+		obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), Cursegp);
 
 	if (!check_obj_seg(vcvertptr, ConsoleObject))
 		move_player_2_segment(Cursegp,Curside);

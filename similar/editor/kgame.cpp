@@ -112,7 +112,7 @@ int SaveGameData()
 			{
 				ConsoleObject->pos = Perm_player_position;
 				ConsoleObject->orient = Perm_player_orient;
-				obj_relink(vmobjptridx(ConsoleObject), vmsegptridx(Perm_player_segnum));
+				obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), vmsegptridx(Perm_player_segnum));
 			}
 			else
 				Perm_player_segnum=segment_none;		//position was bogus
@@ -131,7 +131,7 @@ int SaveGameData()
 				compute_segment_center(save_pos, save_segp);
 			}
 
-			obj_relink(vmobjptridx(ConsoleObject), found_save_segnum);
+			obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), found_save_segnum);
 			ConsoleObject->orient = save_orient;
 		}
 		if (saved_flag)
