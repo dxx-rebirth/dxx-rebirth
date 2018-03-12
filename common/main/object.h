@@ -566,6 +566,7 @@ DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(object, obj, Objects);
 
 struct d_level_object_state
 {
+	unsigned num_objects = 0;
 	auto &get_objects()
 	{
 		return Objects;

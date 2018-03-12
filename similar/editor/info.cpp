@@ -239,7 +239,9 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 
 	//---------------- Number of objects -----------------
 	
-	if ( old_Num_objects != num_objects )	{
+	if (old_Num_objects != ObjectState.num_objects)
+	{
+		const auto num_objects = ObjectState.num_objects;
 		old_Num_objects = num_objects;
 		gr_uprintf(canvas, 0, 32, "Objs: %3d/%3" DXX_PRI_size_type, num_objects, MAX_OBJECTS.value);
 	}

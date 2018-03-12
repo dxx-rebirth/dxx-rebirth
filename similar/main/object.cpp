@@ -105,8 +105,6 @@ static array<objnum_t, MAX_OBJECTS> free_obj_list;
 // -- Object stuff
 
 //info on the various types of objects
-
-int num_objects=0;
 }
 
 namespace dsx {
@@ -838,7 +836,7 @@ void init_objects()
 
 	init_player_object();
 	obj_link_unchecked(vmobjptridx(ConsoleObject), vmsegptridx(segment_first));	//put in the world in segment 0
-	num_objects = 1;						//just the player
+	ObjectState.num_objects = 1;						//just the player
 	Objects.set_count(1);
 }
 
@@ -847,7 +845,7 @@ void init_objects()
 //the free list, then set the apporpriate globals
 void special_reset_objects(void)
 {
-	num_objects=MAX_OBJECTS;
+	unsigned num_objects = MAX_OBJECTS;
 
 	Objects.set_count(1);
 	assert(Objects.front().type != OBJ_NONE);		//0 should be used
@@ -859,6 +857,7 @@ void special_reset_objects(void)
 		else
 			if (i > Highest_object_index)
 				Objects.set_count(i + 1);
+	ObjectState.num_objects = num_objects;
 }
 
 //link the object into the list for its segment
@@ -953,10 +952,10 @@ namespace dsx {
 imobjptridx_t obj_allocate(d_level_object_state &ObjectState)
 {
 	auto &Objects = ObjectState.get_objects();
-	if (num_objects >= Objects.size())
+	if (ObjectState.num_objects >= Objects.size())
 		return object_none;
 
-	const auto objnum = free_obj_list[num_objects++];
+	const auto objnum = free_obj_list[ObjectState.num_objects++];
 	if (objnum >= Objects.get_count())
 	{
 		Objects.set_count(objnum + 1);
@@ -971,8 +970,9 @@ imobjptridx_t obj_allocate(d_level_object_state &ObjectState)
 //the object has been unlinked
 static void obj_free(objnum_t objnum)
 {
-	free_obj_list[--num_objects] = objnum;
-	Assert(num_objects >= 0);
+	const auto num_objects = -- ObjectState.num_objects;
+	assert(num_objects < free_obj_list.size());
+	free_obj_list[num_objects] = objnum;
 
 	if (objnum == Highest_object_index)
 	{
@@ -1964,28 +1964,24 @@ void compress_objects(void)
 			
 		}
 	}
-
-	reset_objects(num_objects);
-
+	reset_objects(ObjectState.num_objects);
 }
 
 //called after load.  Takes number of objects,  and objects should be
 //compressed.  resets free list, marks unused objects as unused
 void reset_objects(int n_objs)
 {
-	num_objects = n_objs;
+	ObjectState.num_objects = n_objs;
+	assert(ObjectState.num_objects > 0);
+	Objects.set_count(n_objs);
 
-	Assert(num_objects>0);
-
-	for (objnum_t i = num_objects; i < MAX_OBJECTS; ++i)
+	for (objnum_t i = n_objs; i < MAX_OBJECTS; ++i)
 	{
 		free_obj_list[i] = i;
 		auto &obj = *vmobjptr(i);
 		DXX_POISON_VAR(obj, 0xfd);
 		obj.type = OBJ_NONE;
 	}
-
-	Objects.set_count(num_objects);
 
 	Debris_object_count = 0;
 }

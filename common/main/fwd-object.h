@@ -175,8 +175,6 @@ extern const collision_outer_array_t CollisionResult;
 namespace dcx {
 extern int Object_next_signature;   // The next signature for the next newly created object
 
-extern int num_objects;
-
 extern int Num_robot_types;
 }
 

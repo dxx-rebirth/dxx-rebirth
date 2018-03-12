@@ -1341,7 +1341,8 @@ imobjptridx_t spit_powerup(const vmobjptr_t spitter, int id,int seed)
 
 void DropCurrentWeapon (player_info &player_info)
 {
-	if (num_objects >= MAX_USED_OBJECTS)
+	auto &Objects = ObjectState.get_objects();
+	if (ObjectState.num_objects >= Objects.size())
 		return;
 
 	powerup_type_t drop_type;
@@ -1448,7 +1449,8 @@ void DropSecondaryWeapon (player_info &player_info)
 	int seed;
 	ushort sub_ammo=0;
 
-	if (num_objects >= MAX_USED_OBJECTS)
+	auto &Objects = ObjectState.get_objects();
+	if (ObjectState.num_objects >= Objects.size())
 		return;
 
 	auto &Secondary_weapon = player_info.Secondary_weapon;
