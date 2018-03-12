@@ -441,7 +441,7 @@ void wall_open_door(const vmsegptridx_t seg, int side)
 	if ( Newdemo_state != ND_STATE_PLAYBACK )
 	{
 		// NOTE THE LINK TO ABOVE!!!!
-		const auto cp = compute_center_point_on_side(seg, side );
+		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
 		if (WallAnims[w->clip_num].open_sound > -1 )
 			digi_link_sound_to_pos( WallAnims[w->clip_num].open_sound, seg, side, cp, 0, F1_0 );
 
@@ -507,7 +507,7 @@ void start_wall_cloak(const vmsegptridx_t seg, int side)
 	Assert(w->linked_wall == wall_none);
 
 	if ( Newdemo_state != ND_STATE_PLAYBACK ) {
-		const auto cp = compute_center_point_on_side(seg, side );
+		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
 		digi_link_sound_to_pos( SOUND_WALL_CLOAK_ON, seg, side, cp, 0, F1_0 );
 	}
 
@@ -583,7 +583,7 @@ void start_wall_decloak(const vmsegptridx_t seg, int side)
 	Assert(w->linked_wall == wall_none);
 
 	if ( Newdemo_state != ND_STATE_PLAYBACK ) {
-		const auto cp = compute_center_point_on_side(seg, side );
+		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
 		digi_link_sound_to_pos( SOUND_WALL_CLOAK_OFF, seg, side, cp, 0, F1_0 );
 	}
 
@@ -733,7 +733,7 @@ void wall_close_door(const vmsegptridx_t seg, int side)
 	if ( Newdemo_state != ND_STATE_PLAYBACK )
 	{
 		// NOTE THE LINK TO ABOVE!!!!
-		const auto cp = compute_center_point_on_side(seg, side );
+		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
 		if (WallAnims[w->clip_num].open_sound > -1 )
 			digi_link_sound_to_pos( WallAnims[w->clip_num].open_sound, seg, side, cp, 0, F1_0 );
 
@@ -872,7 +872,7 @@ static bool do_door_close(active_door &d)
 				{		//first time
 					if (WallAnims[wp.clip_num].close_sound > -1 )
 					{
-						digi_link_sound_to_pos(WallAnims[wp.clip_num].close_sound, seg, side, compute_center_point_on_side(seg, side), 0, F1_0);
+						digi_link_sound_to_pos(WallAnims[wp.clip_num].close_sound, seg, side, compute_center_point_on_side(vcvertptr, seg, side), 0, F1_0);
 					}
 				}
 			}
@@ -1392,7 +1392,7 @@ static void bng_process_segment(const object &objp, fix damage, const vmsegptrid
 			tm &= 0x3fff;			//tm without flags
 
 			if ((((ec=TmapInfo[tm].eclip_num)!=-1) && ((db=Effects[ec].dest_bm_num)!=-1 && !(Effects[ec].flags&EF_ONE_SHOT))) ||	(ec==-1 && (TmapInfo[tm].destroyed!=-1))) {
-				const auto pnt = compute_center_point_on_side(segp, sidenum);
+				const auto &&pnt = compute_center_point_on_side(vcvertptr, segp, sidenum);
 				dist = vm_vec_dist_quick(pnt, objp.pos);
 				if (dist < damage/2) {
 					dist = find_connected_distance(pnt, segp, objp.pos, segp.absolute_sibling(objp.segnum), MAX_BLAST_GLASS_DEPTH, WID_RENDPAST_FLAG);

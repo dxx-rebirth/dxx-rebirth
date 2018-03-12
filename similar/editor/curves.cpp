@@ -142,7 +142,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
     fixang rangle, uangle;
 
 	const vcsegptr_t cursegp = Cursegp;
-	compute_center_point_on_side(p1, cursegp, Curside);
+	compute_center_point_on_side(vcvertptr, p1, cursegp, Curside);
 
     switch( Curside ) {
         case WLEFT:
@@ -169,7 +169,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
         }            
 
 	const vcsegptr_t markedsegp = Markedsegp;
-	compute_center_point_on_side(p4, markedsegp, Markedside);
+	compute_center_point_on_side(vcvertptr, p4, markedsegp, Markedside);
 
     switch( Markedside ) {
         case WLEFT:

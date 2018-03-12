@@ -559,7 +559,7 @@ static void move_player_2_segment_and_rotate(const vmsegptridx_t seg, const unsi
         static int edgenum=0;
 
 	compute_segment_center(vcvertptr, ConsoleObject->pos,seg);
-	auto vp = compute_center_point_on_side(seg,side);
+	auto vp = compute_center_point_on_side(vcvertptr, seg, side);
 	vm_vec_sub2(vp,ConsoleObject->pos);
 
 	auto &sv = Side_to_verts[Curside];
@@ -590,7 +590,7 @@ int SetPlayerFromCursegMinusOne()
         static int edgenum=0;
 	const auto view_vec = vm_vec_negated(Cursegp->sides[Curside].normals[0]);
 
-	const auto side_center = compute_center_point_on_side(Cursegp,Curside);
+	const auto &&side_center = compute_center_point_on_side(vcvertptr, Cursegp, Curside);
 	const auto view_vec2 = vm_vec_copy_scale(view_vec,view_dist);
 	vm_vec_sub(ConsoleObject->pos,side_center,view_vec2);
 

@@ -1320,7 +1320,7 @@ void explode_wall(const vmsegptridx_t segnum,int sidenum)
 	w.time		= 0;
 
 	//play one long sound for whole door wall explosion
-	const auto pos = compute_center_point_on_side(segnum,sidenum);
+	const auto &&pos = compute_center_point_on_side(vcvertptr, segnum, sidenum);
 	digi_link_sound_to_pos( SOUND_EXPLODING_WALL,segnum, sidenum, pos, 0, F1_0 );
 
 }

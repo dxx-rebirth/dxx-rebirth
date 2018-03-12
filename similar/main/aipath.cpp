@@ -109,7 +109,7 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 		Assert(connect_side != side_none);	//	Impossible!  These two segments must be connected, they were created by create_path_points (which was created by mk!)
 		if (connect_side == side_none)			//	Try to blow past the assert, this should at least prevent a hang.
 			connect_side = 0;
-		const auto &&center_point = compute_center_point_on_side(seg1, connect_side);
+		const auto &&center_point = compute_center_point_on_side(vcvertptr, seg1, connect_side);
 		auto new_point = vm_vec_sub(psegs[i-1].point, center_point);
 		new_point.x /= 16;
 		new_point.y /= 16;
@@ -356,7 +356,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 					fvi_info		hit_data;
 					int			hit_type;
 	
-					const auto center_point = compute_center_point_on_side(segp, snum);
+					const auto &&center_point = compute_center_point_on_side(vcvertptr, segp, snum);
 
 					fq.p0						= &objp->pos;
 					fq.startseg				= objp->segnum;

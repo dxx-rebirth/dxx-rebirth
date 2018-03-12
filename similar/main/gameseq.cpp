@@ -615,7 +615,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx)
 						}
 #endif
 
-						const auto pnt = compute_center_point_on_side(seg,sidenum);
+						const auto &&pnt = compute_center_point_on_side(vcvertptr, seg, sidenum);
 						digi_link_sound_to_pos(sn, seg, sidenum, pnt, 1, F1_0/2);
 					}
 		}

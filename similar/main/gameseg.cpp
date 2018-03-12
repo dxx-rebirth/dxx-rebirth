@@ -103,7 +103,7 @@ static uint_fast32_t find_connect_child(const vcsegidx_t base_seg, const array<s
 	return std::distance(b, std::find(b, end(children), base_seg));
 }
 
-static void compute_center_point_on_side(vms_vector &r, const array<unsigned, MAX_VERTICES_PER_SEGMENT> &verts, const unsigned side)
+static void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &r, const array<unsigned, MAX_VERTICES_PER_SEGMENT> &verts, const unsigned side)
 {
 	vms_vector vp;
 	vm_vec_zero(vp);
@@ -133,9 +133,9 @@ unsigned Num_static_lights;
 // ------------------------------------------------------------------------------------------
 // Compute the center point of a side of a segment.
 //	The center point is defined to be the average of the 4 points defining the side.
-void compute_center_point_on_side(vms_vector &vp, const segment &sp, const unsigned side)
+void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const segment &sp, const unsigned side)
 {
-	compute_center_point_on_side(vp, sp.verts, side);
+	compute_center_point_on_side(vcvertptr, vp, sp.verts, side);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -1185,7 +1185,7 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 	int			degeneracy_flag = 0;
 
 	const auto segc = compute_segment_center(vcvertptr, sp);
-	const auto sidec = compute_center_point_on_side(sp, sidenum);
+	const auto &&sidec = compute_center_point_on_side(vcvertptr, sp, sidenum);
 	const auto vec_to_center = vm_vec_sub(segc, sidec);
 
 	//vm_vec_sub(&vec1, &Vertices[sp->verts[vp[1]]], &Vertices[sp->verts[vp[0]]]);
