@@ -564,6 +564,20 @@ namespace dsx {
 
 DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(object, obj, Objects);
 
+struct d_level_object_state
+{
+	auto &get_objects()
+	{
+		return Objects;
+	}
+	const auto &get_objects() const
+	{
+		return Objects;
+	}
+};
+
+extern d_level_object_state ObjectState;
+
 static inline powerup_type_t get_powerup_id(const object_base &o)
 {
 	return static_cast<powerup_type_t>(o.id);

@@ -2104,7 +2104,7 @@ static void net_udp_read_object_packet( ubyte *data )
 					special_reset_objects();
 					mode = 0;
 				}
-				objnum = obj_allocate();
+				objnum = obj_allocate(ObjectState);
 			}
 			if (objnum != object_none) {
 				auto obj = vmobjptridx(objnum);

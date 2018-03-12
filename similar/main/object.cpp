@@ -950,18 +950,18 @@ namespace dsx {
 //Generally, obj_create() should be called to get an object, since it
 //fills in important fields and does the linking.
 //returns -1 if no free objects
-imobjptridx_t obj_allocate()
+imobjptridx_t obj_allocate(d_level_object_state &ObjectState)
 {
-	if ( num_objects >= MAX_OBJECTS ) {
+	auto &Objects = ObjectState.get_objects();
+	if (num_objects >= Objects.size())
 		return object_none;
-	}
 
-	auto objnum = free_obj_list[num_objects++];
-
-	if (objnum > Highest_object_index) {
+	const auto objnum = free_obj_list[num_objects++];
+	if (objnum >= Objects.get_count())
+	{
 		Objects.set_count(objnum + 1);
 	}
-	const auto &&r = vmobjptridx(objnum);
+	const auto &&r = Objects.vmptridx(objnum);
 	assert(r->type == OBJ_NONE);
 	return r;
 }
@@ -1104,7 +1104,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 	}
 
 	// Find next free object
-	const auto &&obj = obj_allocate();
+	const auto &&obj = obj_allocate(ObjectState);
 
 	if (obj == object_none)		//no free objects
 		return object_none;
@@ -1195,7 +1195,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 imobjptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, const vmsegptridx_t newsegnum)
 {
 	// Find next free object
-	const auto &&obj = obj_allocate();
+	const auto &&obj = obj_allocate(ObjectState);
 
 	if (obj == object_none)
 		return object_none;

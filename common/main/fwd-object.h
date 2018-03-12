@@ -32,6 +32,7 @@ constexpr std::integral_constant<std::size_t, MAX_OBJECTS - 20> MAX_USED_OBJECTS
 #ifdef dsx
 namespace dsx {
 struct object;
+struct d_level_object_state;
 }
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, object, objnum_t, MAX_OBJECTS);
 
@@ -312,7 +313,7 @@ object_signature_t obj_get_signature();
 // Generally, obj_create() should be called to get an object, since it
 // fills in important fields and does the linking.  returns -1 if no
 // free objects
-imobjptridx_t obj_allocate();
+imobjptridx_t obj_allocate(d_level_object_state &);
 
 // after calling init_object(), the network code has grabbed specific
 // object slots without allocating them.  Go though the objects &
