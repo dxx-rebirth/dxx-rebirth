@@ -590,7 +590,7 @@ static vmsegptridx_t choose_drop_segment(segment_array &segments, const playernu
 		//bail if not far enough from original position
 		if (segnum != segment_none) {
 			const auto &&segp = vcsegptridx(segnum);
-			const auto &&tempv = compute_segment_center(segp);
+			const auto &&tempv = compute_segment_center(vcvertptr, segp);
 			if (find_connected_distance(*player_pos, vcsegptridx(player_seg), tempv, segp, -1, WID_FLY_FLAG) < i2f(20) * cur_drop_depth)
 			{
 				segnum = segment_none;

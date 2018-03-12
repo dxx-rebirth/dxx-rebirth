@@ -1748,7 +1748,7 @@ static int save_level_sub(fvmobjptridx &vmobjptridx, const char * filename)
 		if (update_object_seg(plr) == 0) {
 			if (plr->segnum > Highest_segment_index)
 				plr->segnum = segment_first;
-			compute_segment_center(plr->pos, vcsegptr(plr->segnum));
+			compute_segment_center(vcvertptr, plr->pos, vcsegptr(plr->segnum));
 		}
 	}
  

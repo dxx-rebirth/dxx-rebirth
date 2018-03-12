@@ -915,7 +915,7 @@ static int Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
 	int			sidenum,vertnum;
-	const auto segment_center = compute_segment_center(segp);
+	const auto segment_center = compute_segment_center(vcvertptr, segp);
 	//	Do for four lights, one just inside each corner of side containing light.
 	range_for (const auto lightnum, Side_to_verts[light_side])
 	{
@@ -942,7 +942,7 @@ static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix l
 				i.flag = 0;
 
 			//	efficiency hack (I hope!), for faraway segments, don't check each point.
-			const auto r_segment_center = compute_segment_center(rsegp);
+			const auto r_segment_center = compute_segment_center(vcvertptr, rsegp);
 			dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 
 			if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
@@ -1072,7 +1072,7 @@ static void calim_zero_light_values(void)
 //	of all segments.
 static void cast_light_from_side_to_center(const vmsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
-	const auto segment_center = compute_segment_center(segp);
+	const auto segment_center = compute_segment_center(vcvertptr, segp);
 	//	Do for four lights, one just inside each corner of side containing light.
 	range_for (const auto lightnum, Side_to_verts[light_side])
 	{
@@ -1086,7 +1086,7 @@ static void cast_light_from_side_to_center(const vmsegptridx_t segp, int light_s
 			fix			dist_to_rseg;
 //if ((segp == &Segments[Bugseg]) && (rsegp == &Segments[Bugseg]))
 //	Int3();
-			const auto r_segment_center = compute_segment_center(rsegp);
+			const auto r_segment_center = compute_segment_center(vcvertptr, rsegp);
 			dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 
 			if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {

@@ -477,7 +477,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 					obj_relink(vmobjptr, vmsegptr, obj, n);
 				}
 				else {
-					compute_segment_center(obj->pos, vcsegptr(obj->segnum));
+					compute_segment_center(vcvertptr, obj->pos, vcsegptr(obj->segnum));
 					obj->pos.x += obj;
 				}
 				if (obj->type == OBJ_WEAPON)
@@ -760,7 +760,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 				obj_relink(vmobjptr, vmsegptr, obj, vmsegptridx(n));
 			}
 			else {
-				compute_segment_center(obj->pos, obj_segp);
+				compute_segment_center(vcvertptr, obj->pos, obj_segp);
 				obj->pos.x += obj;
 			}
 			if (obj->type == OBJ_WEAPON)

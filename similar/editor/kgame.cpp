@@ -128,7 +128,7 @@ int SaveGameData()
 			auto found_save_segnum = find_point_seg(save_pos, save_segp);
 			if (found_save_segnum == segment_none) {
 				found_save_segnum = save_segp;
-				compute_segment_center(save_pos, save_segp);
+				compute_segment_center(vcvertptr, save_pos, save_segp);
 			}
 
 			obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), found_save_segnum);

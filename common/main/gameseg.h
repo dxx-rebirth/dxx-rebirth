@@ -65,11 +65,11 @@ static inline vms_vector compute_center_point_on_side(const segment &sp, const u
 	vms_vector v;
 	return compute_center_point_on_side(v, sp, side), v;
 }
-void compute_segment_center(vms_vector &vp, const segment &sp);
-static inline vms_vector compute_segment_center(const segment &sp)
+void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &vp, const segment &sp);
+static inline vms_vector compute_segment_center(fvcvertptr &vcvertptr, const segment &sp)
 {
 	vms_vector v;
-	compute_segment_center(v, sp);
+	compute_segment_center(vcvertptr, v, sp);
 	return v;
 }
 __attribute_warn_unused_result

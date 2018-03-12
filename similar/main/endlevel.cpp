@@ -867,7 +867,7 @@ static int find_exit_side(const object_base &obj)
 	vm_vec_normalized_dir_quick(prefvec, obj.pos, obj.last_pos);
 
 	const auto &&pseg = vcsegptr(obj.segnum);
-	const auto segcenter = compute_segment_center(pseg);
+	const auto segcenter = compute_segment_center(vcvertptr, pseg);
 
 	best_side=-1;
 	for (int i=MAX_SIDES_PER_SEGMENT;--i >= 0;) {
@@ -1184,7 +1184,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		auto dest_point = compute_center_point_on_side(pseg,exit_side);
 		const vms_vector nextcenter = (pseg->children[exit_side] == segment_exit)
 			? dest_point
-			: compute_segment_center(vcsegptr(pseg->children[exit_side]));
+			: compute_segment_center(vcvertptr, vcsegptr(pseg->children[exit_side]));
 
 		//update target point and movement points
 
@@ -1219,7 +1219,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		auto step_size = vm_vec_normalize_quick(flydata->step);
 		vm_vec_scale(flydata->step,flydata->speed);
 
-		const auto curcenter = compute_segment_center(pseg);
+		const auto curcenter = compute_segment_center(vcvertptr, pseg);
 		vm_vec_sub(flydata->headvec,nextcenter,curcenter);
 
 		const auto dest_orient = vm_vector_2_matrix(flydata->headvec,&pseg->sides[up_side].normals[0],nullptr);
@@ -1461,7 +1461,7 @@ try_again:
 	Assert(exit_segnum!=segment_none);
 
 	const auto &&exit_seg = vmsegptr(exit_segnum);
-	compute_segment_center(mine_exit_point, exit_seg);
+	compute_segment_center(vcvertptr, mine_exit_point, exit_seg);
 	extract_orient_from_segment(&mine_exit_orient, exit_seg);
 	compute_center_point_on_side(mine_side_exit_point, exit_seg, exit_side);
 

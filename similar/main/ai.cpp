@@ -1699,7 +1699,7 @@ void move_towards_segment_center(const vmobjptr_t objp)
 	auto segnum = objp->segnum;
 	vms_vector	vec_to_center;
 
-	const auto &&segment_center = compute_segment_center(vcsegptr(segnum));
+	const auto &&segment_center = compute_segment_center(vcvertptr, vcsegptr(segnum));
 	vm_vec_normalized_dir_quick(vec_to_center, segment_center, objp->pos);
 	move_towards_vector(objp, vec_to_center, 1);
 }
@@ -1967,7 +1967,7 @@ static imobjptridx_t gate_in_robot(fvmsegptridx &vmsegptridx, int type)
 static int boss_fits_in_seg(const object &boss_objp, const vcsegptridx_t segp)
 {
 	const auto size = boss_objp.size;
-	const auto &&segcenter = compute_segment_center(segp);
+	const auto &&segcenter = compute_segment_center(vcvertptr, segp);
 	auto pos = segcenter;
 	for (uint_fast32_t posnum = 0;;)
 	{
@@ -1998,7 +1998,7 @@ void create_buddy_bot(void)
 			break;
 	}
 	const auto &&segp = vmsegptridx(ConsoleObject->segnum);
-	const auto &&object_pos = compute_segment_center(segp);
+	const auto &&object_pos = compute_segment_center(vcvertptr, segp);
 	create_morph_robot(segp, object_pos, buddy_id);
 }
 #endif
@@ -2118,7 +2118,7 @@ static void teleport_boss(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, c
 		multi_send_boss_teleport(objp, rand_segnum);
 
 	const auto &&rand_segp = vmsegptridx(rand_segnum);
-	compute_segment_center(objp->pos, rand_segp);
+	compute_segment_center(vcvertptr, objp->pos, rand_segp);
 	obj_relink(vmobjptr, vmsegptr, objp, rand_segp);
 
 	Last_teleport_time = GameTime64;

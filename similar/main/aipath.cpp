@@ -429,7 +429,7 @@ cpp_done1: ;
 		this_seg = seg_queue[qtail].end;
 		parent_seg = seg_queue[qtail].start;
 		psegs->segnum = this_seg;
-		compute_segment_center(psegs->point, vcsegptr(this_seg));
+		compute_segment_center(vcvertptr, psegs->point, vcsegptr(this_seg));
 		psegs++;
 		l_num_points++;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -446,7 +446,7 @@ cpp_done1: ;
 	}
 
 	psegs->segnum = start_seg;
-	compute_segment_center(psegs->point, vcsegptr(start_seg));
+	compute_segment_center(vcvertptr, psegs->point, vcsegptr(start_seg));
 	psegs++;
 	l_num_points++;
 

@@ -230,7 +230,7 @@ void trigger_matcen(const vmsegptridx_t segnum)
 	robotcen->Disable_time = MATCEN_LIFE;
 
 	//	Create a bright object in the segment.
-	auto pos = compute_segment_center(segp);
+	auto pos = compute_segment_center(vcvertptr, segp);
 	const auto delta = vm_vec_sub(vcvertptr(segnum->verts[0]), pos);
 	vm_vec_scale_add2(pos, delta, F1_0/2);
 	auto objnum = obj_create( OBJ_LIGHT, 0, segnum, pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
@@ -406,7 +406,7 @@ static void robotmaker_proc(fvmsegptridx &vmsegptridx, FuelCenter *const robotce
 		}
 		else
 		{
-			const auto center = compute_segment_center(segp);
+			const auto center = compute_segment_center(vcvertptr, segp);
 			const auto dist_to_player = vm_vec_dist_quick( ConsoleObject->pos, center );
 			top_time = dist_to_player/64 + d_rand() * 2 + F1_0*2;
 			if ( top_time > ROBOT_GEN_TIME )
@@ -453,7 +453,7 @@ static void robotmaker_proc(fvmsegptridx &vmsegptridx, FuelCenter *const robotce
 				}
 			}
 
-			const auto &&cur_object_loc = compute_segment_center(csegp);
+			const auto &&cur_object_loc = compute_segment_center(vcvertptr, csegp);
 			const auto &&robotcen_segp = vmsegptridx(robotcen->segnum);
 			// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
 			auto obj = object_create_explosion(robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
@@ -476,7 +476,7 @@ static void robotmaker_proc(fvmsegptridx &vmsegptridx, FuelCenter *const robotce
 			robotcen->Flag = 0;
 
 			robotcen->Timer = 0;
-			const auto &&cur_object_loc = compute_segment_center(vcsegptr(robotcen->segnum));
+			const auto &&cur_object_loc = compute_segment_center(vcvertptr, vcsegptr(robotcen->segnum));
 
 			// If this is the first materialization, set to valid robot.
 			{

@@ -112,7 +112,7 @@ static void compute_center_point_on_side(vms_vector &r, const array<unsigned, MA
 	vm_vec_copy_scale(r, vp, F1_0 / 4);
 }
 
-static void compute_segment_center(vms_vector &r, const array<unsigned, MAX_VERTICES_PER_SEGMENT> &verts)
+static void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &r, const array<unsigned, MAX_VERTICES_PER_SEGMENT> &verts)
 {
 	vms_vector vp;
 	vm_vec_zero(vp);
@@ -141,9 +141,9 @@ void compute_center_point_on_side(vms_vector &vp, const segment &sp, const unsig
 // ------------------------------------------------------------------------------------------
 // Compute segment center.
 //	The center point is defined to be the average of the 8 points defining the segment.
-void compute_segment_center(vms_vector &vp, const segment &sp)
+void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &vp, const segment &sp)
 {
-	compute_segment_center(vp, sp.verts);
+	compute_segment_center(vcvertptr, vp, sp.verts);
 }
 
 // -----------------------------------------------------------------------------
@@ -923,7 +923,7 @@ fcd_done1: ;
 		this_seg = seg_queue[qtail].end;
 		parent_seg = seg_queue[qtail].start;
 		point_segs[num_points].segnum = this_seg;
-		compute_segment_center(point_segs[num_points].point, vcsegptr(this_seg));
+		compute_segment_center(vcvertptr, point_segs[num_points].point, vcsegptr(this_seg));
 		num_points++;
 
 		if (parent_seg == seg0)
@@ -934,7 +934,7 @@ fcd_done1: ;
 	}
 
 	point_segs[num_points].segnum = seg0;
-	compute_segment_center(point_segs[num_points].point,seg0);
+	compute_segment_center(vcvertptr, point_segs[num_points].point,seg0);
 	num_points++;
 
 	if (num_points == 1) {
@@ -1184,7 +1184,7 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 	fix			dot;
 	int			degeneracy_flag = 0;
 
-	const auto segc = compute_segment_center(sp);
+	const auto segc = compute_segment_center(vcvertptr, sp);
 	const auto sidec = compute_center_point_on_side(sp, sidenum);
 	const auto vec_to_center = vm_vec_sub(segc, sidec);
 
@@ -1580,7 +1580,7 @@ void validate_segment_all(void)
 //		From center, go up to 50% of way towards any of the 8 vertices.
 void pick_random_point_in_seg(vms_vector &new_pos, const vcsegptr_t sp)
 {
-	compute_segment_center(new_pos, sp);
+	compute_segment_center(vcvertptr, new_pos, sp);
 	const unsigned vnum = (d_rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
 	auto &&vec2 = vm_vec_sub(vcvertptr(sp->verts[vnum]), new_pos);
 	vm_vec_scale(vec2, d_rand());          // d_rand() always in 0..1/2
@@ -1640,7 +1640,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 	if (!visited[segnum])
 	{
 		visited[segnum] = true;
-		const auto r_segment_center = compute_segment_center(segp);
+		const auto r_segment_center = compute_segment_center(vcvertptr, segp);
 		dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 	
 		if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
@@ -1684,7 +1684,7 @@ static void change_segment_light(const vmsegptridx_t segp,int sidenum,int dir)
 
 		light_intensity = TmapInfo[sidep->tmap_num].lighting + TmapInfo[sidep->tmap_num2 & 0x3fff].lighting;
 		if (light_intensity) {
-			const auto segment_center = compute_segment_center(segp);
+			const auto segment_center = compute_segment_center(vcvertptr, segp);
 			visited_segment_bitarray_t visited;
 			apply_light_to_segment(visited, segp, segment_center, light_intensity * dir, 0);
 		}

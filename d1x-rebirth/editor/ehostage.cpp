@@ -72,7 +72,7 @@ struct hostage_dialog
 static int PlaceHostage()	{
 	int ctype,i;
 	//update_due_to_new_segment();
-	const auto cur_object_loc = compute_segment_center(Cursegp);
+	const auto cur_object_loc = compute_segment_center(vcvertptr, Cursegp);
 
 	ctype = -1;
 	for (i=0; i<Num_total_object_types; i++ )	{

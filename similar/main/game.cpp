@@ -506,7 +506,7 @@ namespace dsx {
 void move_player_2_segment(const vmsegptridx_t seg,int side)
 {
 	const auto &&console = vmobjptridx(ConsoleObject);
-	compute_segment_center(console->pos,seg);
+	compute_segment_center(vcvertptr, console->pos, seg);
 	auto vp = compute_center_point_on_side(seg,side);
 	vm_vec_sub2(vp, console->pos);
 	vm_vector_2_matrix(console->orient, vp, nullptr, nullptr);

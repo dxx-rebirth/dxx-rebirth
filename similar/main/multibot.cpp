@@ -991,7 +991,7 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 	// Play effect and sound
 
 	const auto &&robotcen_segp = vmsegptridx(robotcen->segnum);
-	const auto &&cur_object_loc = compute_segment_center(robotcen_segp);
+	const auto &&cur_object_loc = compute_segment_center(vcvertptr, robotcen_segp);
 	if (const auto &&obj = object_create_explosion(robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT))
 		extract_orient_from_segment(&obj->orient, robotcen_segp);
 	if (Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1)
@@ -1029,7 +1029,7 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 	const auto &&teleport_segnum = vmsegptridx(b.where);
-	compute_segment_center(boss_obj->pos, teleport_segnum);
+	compute_segment_center(vcvertptr, boss_obj->pos, teleport_segnum);
 	obj_relink(vmobjptr, vmsegptr, boss_obj, teleport_segnum);
 	Last_teleport_time = GameTime64;
 

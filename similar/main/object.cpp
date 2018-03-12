@@ -2027,7 +2027,7 @@ void fix_object_segs()
 		if (o->type != OBJ_NONE)
 			if (update_object_seg(o) == 0) {
 				const auto pos = o->pos;
-				compute_segment_center(o->pos, vcsegptr(o->segnum));
+				compute_segment_center(vcvertptr, o->pos, vcsegptr(o->segnum));
 				con_printf(CON_URGENT, "Object %hu claims segment %u, but has position {%i,%i,%i}; moving to {%i,%i,%i}", static_cast<objnum_t>(o), o->segnum, pos.x, pos.y, pos.z, o->pos.x, o->pos.y, o->pos.z);
 			}
 	}
