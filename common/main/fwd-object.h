@@ -317,7 +317,7 @@ imobjptridx_t obj_allocate(d_level_object_state &);
 // object slots without allocating them.  Go though the objects &
 // build the free list, then set the apporpriate globals Don't call
 // this function if you don't know what you're doing.
-void special_reset_objects();
+void special_reset_objects(d_level_object_state &);
 
 // attaches an object, such as a fireball, to another object, such as
 // a robot

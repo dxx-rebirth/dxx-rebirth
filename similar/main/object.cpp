@@ -842,16 +842,17 @@ void init_objects()
 //after calling init_object(), the network code has grabbed specific
 //object slots without allocating them.  Go though the objects & build
 //the free list, then set the apporpriate globals
-void special_reset_objects(void)
+void special_reset_objects(d_level_object_state &ObjectState)
 {
 	unsigned num_objects = MAX_OBJECTS;
 
+	auto &Objects = ObjectState.get_objects();
 	Objects.set_count(1);
 	assert(Objects.front().type != OBJ_NONE);		//0 should be used
 
 	DXX_POISON_VAR(ObjectState.free_obj_list, 0xfd);
 	for (objnum_t i = MAX_OBJECTS; i--;)
-		if (vcobjptr(i)->type == OBJ_NONE)
+		if (Objects.vcptr(i)->type == OBJ_NONE)
 			ObjectState.free_obj_list[--num_objects] = i;
 		else
 			if (i > Highest_object_index)

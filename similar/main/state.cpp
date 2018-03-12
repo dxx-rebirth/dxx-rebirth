@@ -1651,7 +1651,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		}
 #endif
 	}
-	special_reset_objects();
+	special_reset_objects(ObjectState);
 	/* Reload plrobj reference.  The player's object number may have
 	 * been changed by the state_object_rw_to_object call.
 	 */
@@ -2047,7 +2047,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 			if (!coop_player_got[i] && vcplayerptr(i)->connected == CONNECT_PLAYING)
 				multi_disconnect_player(i);
 		Viewer = ConsoleObject = &get_local_plrobj(); // make sure Viewer and ConsoleObject are set up (which we skipped by not using InitPlayerObject but we need since objects changed while loading)
-		special_reset_objects(); // since we juggeled around with objects to remap coop players rebuild the index of free objects
+		special_reset_objects(ObjectState); // since we juggled around with objects to remap coop players rebuild the index of free objects
 	}
 	if (Game_wind)
 		if (!window_is_visible(Game_wind))

@@ -2075,7 +2075,7 @@ static void net_udp_read_object_packet( ubyte *data )
 			// Special debug checksum marker for entire send
 			if (mode == 1)
 			{
-				special_reset_objects();
+				special_reset_objects(ObjectState);
 				mode = 0;
 			}
 			if (remote_objnum != object_count) {
@@ -2101,7 +2101,7 @@ static void net_udp_read_object_packet( ubyte *data )
 			else {
 				if (mode == 1)
 				{
-					special_reset_objects();
+					special_reset_objects(ObjectState);
 					mode = 0;
 				}
 				objnum = obj_allocate(ObjectState);
