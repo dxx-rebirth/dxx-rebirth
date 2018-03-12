@@ -968,19 +968,20 @@ imobjptridx_t obj_allocate(d_level_object_state &ObjectState)
 //frees up an object.  Generally, obj_delete() should be called to get
 //rid of an object.  This function deallocates the object entry after
 //the object has been unlinked
-static void obj_free(objnum_t objnum)
+static void obj_free(d_level_object_state &ObjectState, const vmobjidx_t objnum)
 {
 	const auto num_objects = -- ObjectState.num_objects;
 	assert(num_objects < ObjectState.free_obj_list.size());
 	ObjectState.free_obj_list[num_objects] = objnum;
+	auto &Objects = ObjectState.get_objects();
 
-	if (objnum == Highest_object_index)
+	objnum_t o = objnum;
+	if (o == Highest_object_index)
 	{
-		objnum_t o = Highest_object_index;
 		for (;;)
 		{
 			--o;
-			if (vcobjptr(o)->type != OBJ_NONE)
+			if (Objects.vcptr(o)->type != OBJ_NONE)
 				break;
 			if (o == 0)
 				break;
@@ -1250,7 +1251,7 @@ void obj_delete(const vmobjptridx_t obj)
 	obj_unlink(obj);
 	DXX_POISON_VAR(*obj, 0xfa);
 	obj->type = OBJ_NONE;		//unused!
-	obj_free(obj);
+	obj_free(ObjectState, obj);
 }
 
 #define	DEATH_SEQUENCE_LENGTH			(F1_0*5)
