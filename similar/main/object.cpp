@@ -603,7 +603,7 @@ void create_small_fireball_on_object(const vmobjptridx_t objp, fix size_scale, i
 		auto expl_obj = object_create_explosion(segnum, pos, size, VCLIP_SMALL_EXPLOSION);
 		if (!expl_obj)
 			return;
-		obj_attach(objp,expl_obj);
+		obj_attach(Objects, objp, expl_obj);
 		if (d_rand() < 8192) {
 			fix	vol = F1_0/2;
 			if (objp->type == OBJ_ROBOT)
@@ -2094,7 +2094,7 @@ void clear_transient_objects(int clear_all)
 }
 
 //attaches an object, such as a fireball, to another object, such as a robot
-void obj_attach(const vmobjptridx_t parent,const vmobjptridx_t sub)
+void obj_attach(object_array &Objects, const vmobjptridx_t parent, const vmobjptridx_t sub)
 {
 	Assert(sub->type == OBJ_FIREBALL);
 	Assert(sub->control_type == CT_EXPLOSION);
@@ -2102,12 +2102,12 @@ void obj_attach(const vmobjptridx_t parent,const vmobjptridx_t sub)
 	Assert(sub->ctype.expl_info.next_attach==object_none);
 	Assert(sub->ctype.expl_info.prev_attach==object_none);
 
-	Assert(parent->attached_obj==object_none || vcobjptr(parent->attached_obj)->ctype.expl_info.prev_attach==object_none);
+	assert(parent->attached_obj == object_none || Objects.vcptr(parent->attached_obj)->ctype.expl_info.prev_attach == object_none);
 
 	sub->ctype.expl_info.next_attach = parent->attached_obj;
 
 	if (sub->ctype.expl_info.next_attach != object_none)
-		vmobjptr(sub->ctype.expl_info.next_attach)->ctype.expl_info.prev_attach = sub;
+		Objects.vmptr(sub->ctype.expl_info.next_attach)->ctype.expl_info.prev_attach = sub;
 
 	parent->attached_obj = sub;
 

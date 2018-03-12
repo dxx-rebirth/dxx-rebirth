@@ -1720,7 +1720,7 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 			const auto &&expl_obj = object_create_explosion(vmsegptridx(weapon->segnum), collision_point, explosion_size_and_vclip.first, explosion_size_and_vclip.second);
 
 		if (expl_obj != object_none)
-			obj_attach(robot,expl_obj);
+				obj_attach(Objects, robot, expl_obj);
 		}
 
 #if defined(DXX_BUILD_DESCENT_II)

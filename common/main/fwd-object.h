@@ -321,7 +321,7 @@ void special_reset_objects(d_level_object_state &);
 
 // attaches an object, such as a fireball, to another object, such as
 // a robot
-void obj_attach(vmobjptridx_t parent,vmobjptridx_t sub);
+void obj_attach(object_array &Objects, vmobjptridx_t parent, vmobjptridx_t sub);
 
 void create_small_fireball_on_object(vmobjptridx_t objp, fix size_scale, int sound_flag);
 window_event_result dead_player_frame();
