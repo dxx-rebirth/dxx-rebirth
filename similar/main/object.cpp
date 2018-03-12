@@ -2066,15 +2066,21 @@ void fix_object_segs()
 //--unused-- 	
 //--unused-- }
 
-static int object_is_clearable_weapon(const vcobjptr_t obj, int clear_all)
+#if defined(DXX_BUILD_DESCENT_I)
+#define object_is_clearable_weapon(W,a,b)	object_is_clearable_weapon(a,b)
+#endif
+static unsigned object_is_clearable_weapon(const weapon_info_array &Weapon_info, const object_base obj, const unsigned clear_all)
 {
-	if (!(obj->type == OBJ_WEAPON))
+	if (!(obj.type == OBJ_WEAPON))
 		return 0;
+	const auto weapon_id = get_weapon_id(obj);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Weapon_info[get_weapon_id(obj)].flags&WIF_PLACABLE)
+	if (Weapon_info[weapon_id].flags & WIF_PLACABLE)
 		return 0;
 #endif
-	return (clear_all || !is_proximity_bomb_or_smart_mine(get_weapon_id(obj)));
+	if (clear_all)
+		return clear_all;
+	return !is_proximity_bomb_or_smart_mine(weapon_id);
 }
 
 //delete objects, such as weapons & explosions, that shouldn't stay between levels
@@ -2084,7 +2090,7 @@ void clear_transient_objects(int clear_all)
 {
 	range_for (const auto &&obj, vmobjptridx)
 	{
-		if (object_is_clearable_weapon(obj, clear_all) ||
+		if (object_is_clearable_weapon(Weapon_info, obj, clear_all) ||
 			 obj->type == OBJ_FIREBALL ||
 			 obj->type == OBJ_DEBRIS ||
 			 obj->type == OBJ_DEBRIS ||
