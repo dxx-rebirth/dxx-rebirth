@@ -216,7 +216,7 @@ void obj_relink_all();
 
 // links an object into a segment's list of objects.
 // takes object number and segment number
-void obj_link(vmobjptridx_t objnum,vmsegptridx_t segnum);
+void obj_link(fvmobjptr &vmobjptr, vmobjptridx_t objnum, vmsegptridx_t segnum);
 /* Link an object without checking whether the object is currently
  * unlinked.  This should be used only in cases where the caller is
  * intentionally overriding the normal linking rules (such as loading

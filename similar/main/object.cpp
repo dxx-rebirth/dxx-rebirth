@@ -861,7 +861,7 @@ void special_reset_objects(d_level_object_state &ObjectState)
 }
 
 //link the object into the list for its segment
-void obj_link(const vmobjptridx_t obj,const vmsegptridx_t segnum)
+void obj_link(fvmobjptr &vmobjptr, const vmobjptridx_t obj, const vmsegptridx_t segnum)
 {
 	assert(obj->segnum == segment_none);
 	assert(obj->next == object_none);
@@ -1954,7 +1954,7 @@ void compress_objects(void)
 
 			h->type = OBJ_NONE;
 
-			obj_link(start_objp, vmsegptridx(segnum_copy));
+			obj_link(Objects.vmptr, start_objp, vmsegptridx(segnum_copy));
 
 			while (vmobjptr(static_cast<objnum_t>(--highest))->type == OBJ_NONE)
 			{
