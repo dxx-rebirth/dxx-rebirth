@@ -1051,7 +1051,7 @@ static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, 
 				i.type = OBJ_NONE;
 			}
 			else {
-				obj_link_unchecked(vmobjptridx(&i), vmsegptridx(objsegnum));
+				obj_link_unchecked(Objects.vmptr, vmobjptridx(&i), vmsegptridx(objsegnum));
 			}
 		}
 	}

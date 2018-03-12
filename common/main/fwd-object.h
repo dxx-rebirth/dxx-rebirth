@@ -222,7 +222,7 @@ void obj_link(vmobjptridx_t objnum,vmsegptridx_t segnum);
  * intentionally overriding the normal linking rules (such as loading
  * objects from demos or from the network).
  */
-void obj_link_unchecked(vmobjptridx_t obj, vmsegptridx_t segnum);
+void obj_link_unchecked(fvmobjptr &vmobjptr, vmobjptridx_t obj, vmsegptridx_t segnum);
 
 // unlinks an object from a segment's list of objects
 void obj_unlink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, object_base &obj);

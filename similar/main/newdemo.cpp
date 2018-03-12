@@ -2063,7 +2063,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 				if (segnum > Highest_segment_index)
 					segnum = 0;
-				obj_link_unchecked(vmobjptridx(Viewer), vmsegptridx(segnum));
+				obj_link_unchecked(Objects.vmptr, Objects.vmptridx(Viewer), Segments.vmptridx(segnum));
 			}
 			}
 		}
@@ -2090,7 +2090,7 @@ static int newdemo_read_frame_information(int rewrite)
 				if (segnum > Highest_segment_index)
 					break;
 
-				obj_link_unchecked(obj, vmsegptridx(segnum));
+				obj_link_unchecked(Objects.vmptr, obj, Segments.vmptridx(segnum));
 				if ((obj->type == OBJ_PLAYER) && (Newdemo_game_mode & GM_MULTI)) {
 					int player;
 
@@ -2341,7 +2341,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 				if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 					auto segnum = obj->segnum;
-					obj_link_unchecked(obj, vmsegptridx(segnum));
+					obj_link_unchecked(Objects.vmptr, obj, Segments.vmptridx(segnum));
 				}
 			}
 			break;

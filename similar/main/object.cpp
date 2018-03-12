@@ -834,7 +834,7 @@ void init_objects()
 	ConsoleObject = Viewer = &Objects.front();
 
 	init_player_object();
-	obj_link_unchecked(vmobjptridx(ConsoleObject), vmsegptridx(segment_first));	//put in the world in segment 0
+	obj_link_unchecked(Objects.vmptr, Objects.vmptridx(ConsoleObject), Segments.vmptridx(segment_first));	//put in the world in segment 0
 	ObjectState.num_objects = 1;						//just the player
 	Objects.set_count(1);
 }
@@ -866,10 +866,10 @@ void obj_link(const vmobjptridx_t obj,const vmsegptridx_t segnum)
 	assert(obj->segnum == segment_none);
 	assert(obj->next == object_none);
 	assert(obj->prev == object_none);
-	obj_link_unchecked(obj, segnum);
+	obj_link_unchecked(vmobjptr, obj, segnum);
 }
 
-void obj_link_unchecked(const vmobjptridx_t obj,const vmsegptridx_t segnum)
+void obj_link_unchecked(fvmobjptr &vmobjptr, const vmobjptridx_t obj, const vmsegptridx_t segnum)
 {
 	obj->segnum = segnum;
 	
@@ -1168,7 +1168,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 		segnum = p;
 	}
 
-	obj_link_unchecked(obj, segnum);
+	obj_link_unchecked(Objects.vmptr, obj, segnum);
 
 	//	Set (or not) persistent bit in phys_info.
 	if (obj->type == OBJ_WEAPON) {
@@ -1205,7 +1205,7 @@ imobjptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, c
 
 	obj->pos = obj->last_pos = new_pos;
 
-	obj_link_unchecked(obj,newsegnum);
+	obj_link_unchecked(Objects.vmptr, obj, newsegnum);
 
 	obj->signature				= obj_get_signature();
 
@@ -1572,7 +1572,7 @@ static void obj_delete_all_that_should_be_dead()
 void obj_relink(const vmobjptridx_t objnum,const vmsegptridx_t newsegnum)
 {
 	obj_unlink(vmobjptr, vmsegptr, objnum);
-	obj_link_unchecked(objnum,newsegnum);
+	obj_link_unchecked(vmobjptr, objnum, newsegnum);
 }
 
 // for getting out of messed up linking situations (i.e. caused by demo playback)
@@ -1590,7 +1590,7 @@ void obj_relink_all(void)
 			auto segnum = obj->segnum;
 			if (segnum > Highest_segment_index)
 				segnum = segment_first;
-			obj_link_unchecked(obj, vmsegptridx(segnum));
+			obj_link_unchecked(Objects.vmptr, obj, Segments.vmptridx(segnum));
 		}
 	}
 }

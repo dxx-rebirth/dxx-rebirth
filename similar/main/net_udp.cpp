@@ -2122,7 +2122,7 @@ static void net_udp_read_object_packet( ubyte *data )
 				obj->attached_obj = object_none;
 				if (segnum != segment_none)
 				{
-					obj_link_unchecked(obj, vmsegptridx(segnum));
+					obj_link_unchecked(Objects.vmptr, obj, Segments.vmptridx(segnum));
 				}
 				if (obj_owner == my_pnum) 
 					map_objnum_local_to_local(objnum);
