@@ -1982,7 +1982,7 @@ static int newdemo_read_frame_information(int rewrite)
 			segp->objects = object_none;
 		}
 
-	reset_objects(1);
+	reset_objects(ObjectState, 1);
 	auto &plrobj = get_local_plrobj();
 	plrobj.ctype.player_info.homing_object_dist = -1;
 

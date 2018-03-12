@@ -800,7 +800,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 	Vertices.set_count(Num_vertices);
 	Segments.set_count(Num_segments);
 
-	reset_objects(1);		//one object, the player
+	reset_objects(ObjectState, 1);		//one object, the player
 
 #if DXX_USE_EDITOR
 	Vertices.set_count(MAX_SEGMENT_VERTICES);
@@ -1031,7 +1031,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 		fuelcen_activate(pi);
 	}
 
-	reset_objects(1);		//one object, the player
+	reset_objects(ObjectState, 1);		//one object, the player
 
 	return 0;
 }

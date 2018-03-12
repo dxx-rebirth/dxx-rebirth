@@ -1614,7 +1614,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	{
 		segp->objects = object_none;
 	}
-	reset_objects(1);
+	reset_objects(ObjectState, 1);
 
 	//Read objects, and pop 'em into their respective segments.
 	{

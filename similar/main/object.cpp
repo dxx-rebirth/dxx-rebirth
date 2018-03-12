@@ -1965,25 +1965,26 @@ void compress_objects(void)
 			
 		}
 	}
-	reset_objects(ObjectState.num_objects);
+	reset_objects(ObjectState, ObjectState.num_objects);
 }
 
 //called after load.  Takes number of objects,  and objects should be
 //compressed.  resets free list, marks unused objects as unused
-void reset_objects(int n_objs)
+void reset_objects(d_level_object_state &ObjectState, const unsigned n_objs)
 {
 	ObjectState.num_objects = n_objs;
 	assert(ObjectState.num_objects > 0);
+	auto &Objects = ObjectState.get_objects();
+	assert(ObjectState.num_objects < Objects.size());
 	Objects.set_count(n_objs);
 
 	for (objnum_t i = n_objs; i < MAX_OBJECTS; ++i)
 	{
 		ObjectState.free_obj_list[i] = i;
-		auto &obj = *vmobjptr(i);
+		auto &obj = *Objects.vmptr(i);
 		DXX_POISON_VAR(obj, 0xfd);
 		obj.type = OBJ_NONE;
 	}
-
 	Debris_object_count = 0;
 }
 

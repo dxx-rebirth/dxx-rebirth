@@ -239,7 +239,7 @@ void obj_delete(vmobjptridx_t objnum);
 
 // called after load.  Takes number of objects, and objects should be
 // compressed
-void reset_objects(int n_objs);
+void reset_objects(d_level_object_state &, unsigned n_objs);
 
 // make object array non-sparse
 void compress_objects();
