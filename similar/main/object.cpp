@@ -882,7 +882,7 @@ void obj_link_unchecked(const vmobjptridx_t obj,const vmsegptridx_t segnum)
 		vmobjptr(obj->next)->prev = obj;
 }
 
-void obj_unlink(object_base &obj)
+void obj_unlink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, object_base &obj)
 {
 	const auto next = obj.next;
 	/* It is a bug elsewhere if vmsegptr ever fails here.  However, it is
@@ -1248,7 +1248,7 @@ void obj_delete(const vmobjptridx_t obj)
 	if (obj->type == OBJ_DEBRIS)
 		Debris_object_count--;
 
-	obj_unlink(obj);
+	obj_unlink(Objects.vmptr, Segments.vmptr, obj);
 	DXX_POISON_VAR(*obj, 0xfa);
 	obj->type = OBJ_NONE;		//unused!
 	obj_free(ObjectState, obj);
@@ -1571,7 +1571,7 @@ static void obj_delete_all_that_should_be_dead()
 //from its old segment, and links it into the new segment
 void obj_relink(const vmobjptridx_t objnum,const vmsegptridx_t newsegnum)
 {
-	obj_unlink(objnum);
+	obj_unlink(vmobjptr, vmsegptr, objnum);
 	obj_link_unchecked(objnum,newsegnum);
 }
 
@@ -1943,7 +1943,7 @@ void compress_objects(void)
 			const auto &&h = vmobjptr(static_cast<objnum_t>(highest));
 			auto segnum_copy = h->segnum;
 
-			obj_unlink(h);
+			obj_unlink(Objects.vmptr, Segments.vmptr, h);
 
 			*start_objp = *h;
 

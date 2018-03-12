@@ -2110,7 +2110,7 @@ static void net_udp_read_object_packet( ubyte *data )
 				auto obj = vmobjptridx(objnum);
 				if (obj->type != OBJ_NONE)
 				{
-					obj_unlink(obj);
+					obj_unlink(Objects.vmptr, Segments.vmptr, obj);
 					Assert(obj->segnum == segment_none);
 				}
 				Assert(objnum < MAX_OBJECTS);

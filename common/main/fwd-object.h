@@ -225,7 +225,7 @@ void obj_link(vmobjptridx_t objnum,vmsegptridx_t segnum);
 void obj_link_unchecked(vmobjptridx_t obj, vmsegptridx_t segnum);
 
 // unlinks an object from a segment's list of objects
-void obj_unlink(object_base &objnum);
+void obj_unlink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, object_base &obj);
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
