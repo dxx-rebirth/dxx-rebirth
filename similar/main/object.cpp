@@ -87,7 +87,7 @@ using std::min;
 using std::max;
 
 namespace dsx {
-static void obj_detach_all(object_base &parent);
+static void obj_detach_all(object_array &Objects, object_base &parent);
 static void obj_detach_one(object_array &Objects, object &sub);
 
 /*
@@ -1242,7 +1242,7 @@ void obj_delete(const vmobjptridx_t obj)
 		obj_detach_one(Objects, obj);
 
 	if (obj->attached_obj != object_none)		//detach all objects from this
-		obj_detach_all(obj);
+		obj_detach_all(Objects, obj);
 
 	if (obj->type == OBJ_DEBRIS)
 		Debris_object_count--;
@@ -2150,7 +2150,7 @@ void obj_detach_one(object_array &Objects, object &sub)
 }
 
 //dettaches all objects from this object
-static void obj_detach_all(object_base &parent)
+static void obj_detach_all(object_array &Objects, object_base &parent)
 {
 	while (parent.attached_obj != object_none)
 		obj_detach_one(Objects, Objects.vmptr(parent.attached_obj));
