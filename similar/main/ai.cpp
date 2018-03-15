@@ -154,8 +154,8 @@ static int             Overall_agitation;
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
 static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
-fix64           Boss_cloak_start_time = 0;
-fix64           Last_teleport_time = 0;
+fix64           Boss_cloak_start_time;
+fix64           Last_teleport_time;
 }
 namespace dsx {
 static
@@ -170,7 +170,7 @@ const
 fix             Boss_cloak_interval = F1_0*10;                    //    Time between cloaks
 }
 namespace dcx {
-fix64           Last_gate_time = 0;
+fix64           Last_gate_time;
 static fix64 Boss_dying_start_time;
 fix             Gate_interval = F1_0*6;
 sbyte           Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
@@ -475,7 +475,7 @@ void ai_init_boss_for_ship(void)
 #endif
 }
 
-void boss_init_all_segments(const object &boss_objnum)
+static void boss_init_all_segments(const object &boss_objnum)
 {
 	if (!Boss_teleport_segs.empty())
 		return;	// already have boss segs
@@ -568,7 +568,12 @@ void init_ai_object(vmobjptridx_t objp, ai_behavior behavior, const imsegidx_t h
 		&& !EditorWindow
 #endif
 		)
+	{
+		Last_gate_time = 0;
+		Last_teleport_time = 0;
+		Boss_cloak_start_time = 0;
 		boss_init_all_segments(objp);
+	}
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

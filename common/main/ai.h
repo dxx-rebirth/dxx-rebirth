@@ -182,7 +182,6 @@ static inline void force_dump_ai_objects_all(const char *msg)
 namespace dsx {
 void start_boss_death_sequence(vmobjptr_t objp);
 extern void ai_init_boss_for_ship(void);
-void boss_init_all_segments(const object &boss_objnum);
 void init_ai_for_ship();
 
 #if defined(DXX_BUILD_DESCENT_II)
