@@ -59,7 +59,13 @@ window_event_result MarkerInputMessage(int key);
 
 constexpr std::integral_constant<std::size_t, 16> NUM_MARKERS{};
 constexpr std::integral_constant<std::size_t, 40> MARKER_MESSAGE_LEN{};
-struct marker_message_text_t : ntstring<MARKER_MESSAGE_LEN - 1> {};
+struct marker_message_text_t : ntstring<MARKER_MESSAGE_LEN - 1>
+{
+	constexpr marker_message_text_t() :
+		ntstring()
+	{
+	}
+};
 
 struct d_marker_object_numbers
 {
@@ -71,9 +77,9 @@ struct d_marker_state : d_marker_object_numbers
 {
 	uint8_t MarkerBeingDefined = UINT8_MAX;
 	uint8_t HighlightMarker = UINT8_MAX;
-	uint8_t LastMarkerDropped;
+	uint8_t LastMarkerDropped = 0;
 	array<marker_message_text_t, NUM_MARKERS> message;
-	constexpr bool DefiningMarkerMessage() const
+	bool DefiningMarkerMessage() const
 	{
 		return MarkerBeingDefined < message.size();
 	}
