@@ -1029,7 +1029,7 @@ struct d_screenshot
 	png_set_write_fn(ss.png_ptr, &ss, &d_screenshot::png_write_cb, &d_screenshot::png_flush_cb);
 	ss.info_ptr = png_create_info_struct(ss.png_ptr);
 #ifdef PNG_tIME_SUPPORTED
-	png_time pt{};
+	png_time pt;
 	pt.year = 2018;
 	pt.month = 1;
 	pt.day = 1;
