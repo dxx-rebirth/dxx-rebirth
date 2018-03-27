@@ -143,17 +143,13 @@ void init_buddy_for_level(void)
 //	Return true if it is reachable, else return false.
 static int segment_is_reachable(const vmobjptr_t robot, const vcsegptr_t segp, int sidenum, const player_flags powerup_flags)
 {
-	int		rval;
-
 	auto wall_num = segp->sides[sidenum].wall_num;
 
 	//	If no wall, then it is reachable
 	if (wall_num == wall_none)
 		return 1;
 
-	rval = ai_door_is_openable(robot, powerup_flags, segp, sidenum);
-
-	return rval;
+	return ai_door_is_openable(robot, powerup_flags, segp, sidenum);
 
 // -- MK, 10/17/95 -- 
 // -- MK, 10/17/95 -- 	//	Hmm, a closed wall.  I think this mean not reachable.
@@ -366,10 +362,27 @@ static int show_buddy_message()
 	return 0;
 }
 
-static void _buddy_message(const char *str)
+static void buddy_message_force_str(const char *str)
 {
 	Last_buddy_message_time = GameTime64;
 	HUD_init_message(HM_DEFAULT, "%c%c%s:%c%c %s", CC_COLOR, BM_XRGB(28, 0, 0), static_cast<const char *>(PlayerCfg.GuidebotName), CC_COLOR, BM_XRGB(0, 31, 0), str);
+}
+
+static void buddy_message_force_va(const char *const fmt, va_list vl)
+{
+	char buf[128];
+	vsnprintf(buf, sizeof(buf), fmt, vl);
+	buddy_message_force_str(buf);
+}
+
+static void buddy_message_ignore_time(const char *const fmt, ...)
+{
+	if (Buddy_messages_suppressed)
+		return;
+	va_list	args;
+	va_start(args, fmt);
+	buddy_message_force_va(fmt, args);
+	va_end(args);
 }
 
 void (buddy_message)(const char * format, ... )
@@ -377,21 +390,18 @@ void (buddy_message)(const char * format, ... )
 	if (!show_buddy_message())
 		return;
 
-			char	new_format[128];
 			va_list	args;
 
 			va_start(args, format );
-			vsnprintf(new_format, sizeof(new_format), format, args);
+	buddy_message_force_va(format, args);
 			va_end(args);
-
-			_buddy_message(new_format);
 }
 
 void buddy_message_str(const char *str)
 {
 	if (!show_buddy_message())
 		return;
-	_buddy_message(str);
+	buddy_message_force_str(str);
 }
 
 //	-----------------------------------------------------------------------------
@@ -457,8 +467,7 @@ void set_escort_special_goal(int special_key)
 			if (marker_exists_in_mine(marker_key - KEY_1))
 				Looking_for_marker = marker_key - KEY_1;
 			else {
-				Last_buddy_message_time = 0;	//	Force this message to get through.
-				buddy_message("Marker %i not placed.", marker_key - KEY_1 + 1);
+				buddy_message_ignore_time("Marker %i not placed.", marker_key - KEY_1 + 1);
 				Looking_for_marker = -1;
 			}
 		} else {
@@ -694,15 +703,13 @@ static void clear_escort_goals()
 
 static void escort_goal_does_not_exist(escort_goal_t goal)
 {
-	Last_buddy_message_time = 0;	//	Force this message to get through.
-	buddy_message("No %s in mine.", Escort_goal_text[goal-1]);
+	buddy_message_ignore_time("No %s in mine.", Escort_goal_text[goal - 1]);
 	clear_escort_goals();
 }
 
 static void escort_goal_unreachable(escort_goal_t goal)
 {
-	Last_buddy_message_time = 0;	//	Force this message to get through.
-	buddy_message("Can't reach %s.", Escort_goal_text[goal-1]);
+	buddy_message_ignore_time("Can't reach %s.", Escort_goal_text[goal - 1]);
 	clear_escort_goals();
 }
 
@@ -713,8 +720,7 @@ static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *aip, segnum_t
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 	if ((aip->path_length > 0) && (Point_segs[aip->hide_index + aip->path_length - 1].segnum != goal_seg)) {
 		fix	dist_to_player;
-		Last_buddy_message_time = 0;	//	Force this message to get through.
-		buddy_message("Can't reach %s.", Escort_goal_text[Escort_goal_object-1]);
+		buddy_message_ignore_time("Can't reach %s.", Escort_goal_text[Escort_goal_object - 1]);
 		Looking_for_marker = -1;
 		Escort_goal_object = ESCORT_GOAL_SCRAM;
 		dist_to_player = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 100, WID_FLY_FLAG);
@@ -1023,8 +1029,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 			Buddy_sorry_time = -F1_0*2;
 			if (buddy_sorry_time < GameTime64 + F1_0*2)
 			{
-		Last_buddy_message_time = 0;	//	Force this message to get through.
-			buddy_message("Oops, sorry 'bout that...");
+				buddy_message_ignore_time("Oops, sorry 'bout that...");
 			}
 		}
 	}
