@@ -911,14 +911,31 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		# give the user more help.
 		if self.Link(context, text=include + text, main=main, msg='for usable library %s' % lib, successflags=successflags):
 			return
+		# If linking failed, an error report is inevitable.  Probe
+		# progressively simpler configurations to help the user trace
+		# the problem.
 		Compile = self.Compile
 		if Compile(context, text=include + text, main=main, msg='for usable header %s' % header, testflags=successflags):
+			# If this Compile succeeds, then the test program can be
+			# compiled, but it cannot be linked.  The required library
+			# may be missing or broken.
 			return (0, "Header %s is usable, but library %s is not usable." % (header, lib))
-		if Compile(context, text=include, main='', msg='for parseable header %s' % header, testflags=successflags):
+		if Compile(context, text=include, main='', msg='whether compiler can parse header %s' % header, testflags=successflags):
+			# If this Compile succeeds, then the test program cannot be
+			# compiled, but the header can be used with an empty test
+			# program.  Either the test program is broken or it relies
+			# on the header working differently than the used header
+			# actually works.
 			return (1, "Header %s is parseable, but cannot compile the test program." % header)
 		successflags.setdefault('CXXFLAGS', []).append('-E')
-		if Compile(context, text=include, main='', msg='for parseable header %s' % header, testflags=successflags):
+		if Compile(context, text=include, main='', msg='whether preprocessor can parse header %s' % header, testflags=successflags):
+			# If this Compile succeeds, then the used header cannot be
+			# compiled at all.  The header may have a syntax error or
+			# have unmet dependencies.
 			return (2, "Header %s exists, but cannot compile an empty program." % header)
+		# Finally, if nothing at all succeeded, either the header is
+		# completely missing or it is so badly broken that the
+		# preprocessor refuses to run to completion.
 		return (3, "Header %s is missing or unusable." % header)
 	# Compile and link a program that uses a system library.  On
 	# success, return None.  On failure, abort the SConf run.
