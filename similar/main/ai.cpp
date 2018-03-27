@@ -1731,9 +1731,12 @@ int ai_door_is_openable(
 	const auto &&wallp = vcwallptr(wall_num);
 	//	The mighty console object can open all doors (for purposes of determining paths).
 	if (objp == ConsoleObject) {
-
-		if (wallp->type == WALL_DOOR)
-			return 1;
+		const auto wt = wallp->type;
+		if (wt == WALL_DOOR)
+		{
+			static_assert(WALL_DOOR != 0, "WALL_DOOR must be nonzero for this shortcut to work properly.");
+			return wt;
+		}
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1741,18 +1744,25 @@ int ai_door_is_openable(
 	{
 
 		if (wall_num != wall_none)
-			if (wallp->type == WALL_DOOR && wallp->keys == KEY_NONE && !(wallp->flags & WALL_DOOR_LOCKED))
-				return 1;
+		{
+			const auto wt = wallp->type;
+			if (wt == WALL_DOOR && wallp->keys == KEY_NONE && !(wallp->flags & WALL_DOOR_LOCKED))
+			{
+				static_assert(WALL_DOOR != 0, "WALL_DOOR must be nonzero for this shortcut to work properly.");
+				return wt;
+			}
+		}
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (Robot_info[get_robot_id(objp)].companion == 1)
+	if (Robot_info[get_robot_id(objp)].companion)
 	{
+		const auto wt = wallp->type;
 		if (wallp->flags & WALL_BUDDY_PROOF) {
-			if ((wallp->type == WALL_DOOR) && (wallp->state == WALL_DOOR_CLOSED))
+			if (wt == WALL_DOOR && wallp->state == WALL_DOOR_CLOSED)
 				return 0;
-			else if (wallp->type == WALL_CLOSED)
+			else if (wt == WALL_CLOSED)
 				return 0;
-			else if ((wallp->type == WALL_ILLUSION) && !(wallp->flags & WALL_ILLUSION_OFF))
+			else if (wt == WALL_ILLUSION && !(wallp->flags & WALL_ILLUSION_OFF))
 				return 0;
 		}
 		switch (const auto wall_keys = wallp->keys)
@@ -1767,7 +1777,7 @@ int ai_door_is_openable(
 				break;
 		}
 
-		if ((wallp->type != WALL_DOOR) && (wallp->type != WALL_CLOSED))
+		if (wt != WALL_DOOR && wt != WALL_CLOSED)
 			return 1;
 
 		//	If Buddy is returning to player, don't let him think he can get through triggered doors.
@@ -1777,11 +1787,11 @@ int ai_door_is_openable(
 
 		// -- if (Buddy_got_stuck) {
 		if (ailp_mode == ai_mode::AIM_GOTO_PLAYER) {
-			if ((wallp->type == WALL_BLASTABLE) && (wallp->state != WALL_BLASTED))
+			if (wt == WALL_BLASTABLE && wallp->state != WALL_BLASTED)
 				return 0;
-			if (wallp->type == WALL_CLOSED)
+			if (wt == WALL_CLOSED)
 				return 0;
-			if (wallp->type == WALL_DOOR) {
+			if (wt == WALL_DOOR) {
 				if ((wallp->flags & WALL_DOOR_LOCKED) && (wallp->state == WALL_DOOR_CLOSED))
 					return 0;
 			}
@@ -1789,42 +1799,37 @@ int ai_door_is_openable(
 		// -- }
 
 		if ((ailp_mode != ai_mode::AIM_GOTO_PLAYER) && (wallp->controlling_trigger != -1)) {
-			int	clip_num = wallp->clip_num;
-
+			const auto clip_num = wallp->clip_num;
 			if (clip_num == -1)
-				return 1;
+				return clip_num;
 			else if (WallAnims[clip_num].flags & WCF_HIDDEN) {
-				if (wallp->state == WALL_DOOR_CLOSED)
-					return 0;
-				else
-					return 1;
+				static_assert(WALL_DOOR_CLOSED == 0, "WALL_DOOR_CLOSED must be zero for this shortcut to work properly.");
+				return wallp->state;
 			} else
 				return 1;
 		}
 
-		if (wallp->type == WALL_DOOR)  {
-			if (wallp->type == WALL_BLASTABLE)
-				return 1;
-			else {
-				int	clip_num = wallp->clip_num;
+		if (wt == WALL_DOOR)  {
+				const auto clip_num = wallp->clip_num;
 
 				if (clip_num == -1)
-					return 1;
+					return clip_num;
 				//	Buddy allowed to go through secret doors to get to player.
 				else if ((ailp_mode != ai_mode::AIM_GOTO_PLAYER) && (WallAnims[clip_num].flags & WCF_HIDDEN)) {
-					if (wallp->state == WALL_DOOR_CLOSED)
-						return 0;
-					else
-						return 1;
+					static_assert(WALL_DOOR_CLOSED == 0, "WALL_DOOR_CLOSED must be zero for this shortcut to work properly.");
+					return wallp->state;
 				} else
 					return 1;
-			}
 		}
 	} else if ((get_robot_id(objp) == ROBOT_BRAIN) || (objp->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM) || (objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)) {
 		if (wall_num != wall_none)
 		{
-			if ((wallp->type == WALL_DOOR) && (wallp->keys == KEY_NONE) && !(wallp->flags & WALL_DOOR_LOCKED))
-				return 1;
+			const auto wt = wallp->type;
+			if (wt == WALL_DOOR && (wallp->keys == KEY_NONE) && !(wallp->flags & WALL_DOOR_LOCKED))
+			{
+				static_assert(WALL_DOOR != 0, "WALL_DOOR must be nonzero for this shortcut to work properly.");
+				return wt;
+			}
 			else if (wallp->keys != KEY_NONE) {	//	Allow bots to open doors to which player has keys.
 				return powerup_flags & static_cast<PLAYER_FLAG>(wallp->keys);
 			}
@@ -2512,8 +2517,14 @@ static int maybe_ai_do_actual_firing_stuff(const vmobjptr_t obj, ai_static *aip)
 {
 	if (Game_mode & GM_MULTI)
 		if ((aip->GOAL_STATE != AIS_FLIN) && (get_robot_id(obj) != ROBOT_BRAIN))
-			if (aip->CURRENT_STATE == AIS_FIRE)
-				return 1;
+		{
+			const auto s = aip->CURRENT_STATE;
+			if (s == AIS_FIRE)
+			{
+				static_assert(AIS_FIRE != 0, "AIS_FIRE must be nonzero for this shortcut to work properly.");
+				return s;
+			}
+		}
 
 	return 0;
 }
@@ -2804,11 +2815,12 @@ object *Ai_last_missile_camera;
 
 static int openable_door_on_near_path(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, const object &obj, const ai_static &aip)
 {
-	if (aip.path_length < 1)
+	const auto path_length = aip.path_length;
+	if (path_length < 1)
 		return 0;
-	if (openable_doors_in_segment(vcwallptr, vcsegptr(obj.segnum)) != side_none)
-		return 1;
-	if (aip.path_length < 2)
+	if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(obj.segnum)) - side_none)
+		return r;
+	if (path_length < 2)
 		return 0;
 	size_t idx;
 	idx = aip.hide_index + aip.cur_path_index + aip.PATH_DIR;
@@ -2816,13 +2828,19 @@ static int openable_door_on_near_path(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr
 	 * sometimes the guidebot has a none.  Guard against the bogus none
 	 * until someone can track down why the guidebot does this.
 	 */
-	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none && openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)) != side_none)
-		return 1;
-	if (aip.path_length < 3)
+	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none)
+	{
+		if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)) - side_none)
+			return r;
+	}
+	if (path_length < 3)
 		return 0;
 	idx = aip.hide_index + aip.cur_path_index + 2*aip.PATH_DIR;
-	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none && openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)) != side_none)
-		return 1;
+	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none)
+	{
+		if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)) - side_none)
+			return r;
+	}
 	return 0;
 }
 #endif
