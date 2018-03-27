@@ -2205,22 +2205,22 @@ namespace dsx {
 /*
  * reads a flickering_light structure from a PHYSFS_File
  */
-void flickering_light_read(flickering_light *fl, PHYSFS_File *fp)
+void flickering_light_read(flickering_light &fl, PHYSFS_File *fp)
 {
-	fl->segnum = PHYSFSX_readShort(fp);
-	fl->sidenum = PHYSFSX_readShort(fp);
-	fl->mask = PHYSFSX_readInt(fp);
-	fl->timer = PHYSFSX_readFix(fp);
-	fl->delay = PHYSFSX_readFix(fp);
+	fl.segnum = PHYSFSX_readShort(fp);
+	fl.sidenum = PHYSFSX_readShort(fp);
+	fl.mask = PHYSFSX_readInt(fp);
+	fl.timer = PHYSFSX_readFix(fp);
+	fl.delay = PHYSFSX_readFix(fp);
 }
 
-void flickering_light_write(const flickering_light *fl, PHYSFS_File *fp)
+void flickering_light_write(const flickering_light &fl, PHYSFS_File *fp)
 {
-	PHYSFS_writeSLE16(fp, fl->segnum);
-	PHYSFS_writeSLE16(fp, fl->sidenum);
-	PHYSFS_writeULE32(fp, fl->mask);
-	PHYSFSX_writeFix(fp, fl->timer);
-	PHYSFSX_writeFix(fp, fl->delay);
+	PHYSFS_writeSLE16(fp, fl.segnum);
+	PHYSFS_writeSLE16(fp, fl.sidenum);
+	PHYSFS_writeULE32(fp, fl.mask);
+	PHYSFSX_writeFix(fp, fl.timer);
+	PHYSFSX_writeFix(fp, fl.delay);
 }
 }
 #endif

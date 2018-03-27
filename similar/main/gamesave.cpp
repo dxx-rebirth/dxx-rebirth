@@ -1291,7 +1291,7 @@ int load_level(const char * filename_passed)
 	if (Gamesave_current_version >= 7) {
 		Num_flickering_lights = PHYSFSX_readInt(LoadFile);
 		range_for (auto &i, partial_range(Flickering_lights, Num_flickering_lights))
-			flickering_light_read(&i, LoadFile);
+			flickering_light_read(i, LoadFile);
 	}
 	else
 		Num_flickering_lights = 0;
@@ -1794,7 +1794,7 @@ static int save_level_sub(fvmobjptridx &vmobjptridx, const char * filename)
 	{
 		PHYSFS_writeSLE32(SaveFile, Num_flickering_lights);
 		range_for (auto &i, partial_const_range(Flickering_lights, Num_flickering_lights))
-			flickering_light_write(&i, SaveFile);
+			flickering_light_write(i, SaveFile);
 	}
 
 	if (Gamesave_current_version >= 6)
