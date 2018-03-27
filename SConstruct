@@ -3502,7 +3502,7 @@ class DXXCommon(LazyObjectConstructor):
 				'variable': EnumVariable,
 				'arguments': (
 					('host_endian', None, 'endianness of host platform', {'allowed_values' : ('little', 'big')}),
-					('host_platform', 'linux' if sys.platform == 'linux2' else sys.platform, 'cross-compile to specified platform', {'allowed_values' : ('darwin', 'linux', 'openbsd6', 'win32')}),
+					('host_platform', sys.platform.rstrip('0123456789'), 'cross-compile to specified platform', {'allowed_values' : ('darwin', 'linux', 'openbsd', 'win32')}),
 					('screenshot', 'png', 'screenshot file format', {'allowed_values' : ('legacy', 'png')}),
 				),
 			},
@@ -3966,7 +3966,7 @@ class DXXCommon(LazyObjectConstructor):
 			(' with prefix list %s' % str(self._argument_prefix_list)) if self._argument_prefix_list else ''))
 		# By happy accident, LinuxPlatformSettings produces the desired
 		# result on OpenBSD, so there is no need for specific handling
-		# of `platform_name == 'openbsd6'`.
+		# of `platform_name == 'openbsd'`.
 		return (
 			self.Win32PlatformSettings if platform_name == 'win32' else (
 				self.DarwinPlatformSettings if platform_name == 'darwin' else
