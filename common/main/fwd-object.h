@@ -297,8 +297,8 @@ void create_shortpos_native(shortpos *spp, vcobjptr_t objp);
 void extract_shortpos_little(vmobjptridx_t objp, const shortpos *spp);
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
-void create_quaternionpos(quaternionpos * qpp, vmobjptr_t objp, int swap_bytes);
-void extract_quaternionpos(vmobjptridx_t objp, quaternionpos *qpp, int swap_bytes);
+void create_quaternionpos(quaternionpos &qpp, const object_base &objp);
+void extract_quaternionpos(vmobjptridx_t objp, quaternionpos &qpp);
 
 // delete objects, such as weapons & explosions, that shouldn't stay
 // between levels if clear_all is set, clear even proximity bombs

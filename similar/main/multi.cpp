@@ -1704,7 +1704,7 @@ static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum,
 	qpp.rotvel.x = GET_INTEL_INT(&buf[count]);					count += 4;
 	qpp.rotvel.y = GET_INTEL_INT(&buf[count]);					count += 4;
 	qpp.rotvel.z = GET_INTEL_INT(&buf[count]);					count += 4;
-        extract_quaternionpos(obj, &qpp, 0);
+	extract_quaternionpos(obj, qpp);
 
 	if (obj->movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(obj);
@@ -2712,7 +2712,7 @@ void multi_send_position(const vmobjptridx_t obj)
 	int count=1;
 
 	quaternionpos qpp{};
-	create_quaternionpos(&qpp, obj, 0);
+	create_quaternionpos(qpp, obj);
 	multi_command<MULTI_POSITION> multibuf;
 	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.w);							count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.x);							count += 2;

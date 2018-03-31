@@ -1056,59 +1056,25 @@ void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 }
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
-void create_quaternionpos(quaternionpos * qpp, const vmobjptr_t objp, int swap_bytes)
+void create_quaternionpos(quaternionpos &qpp, const object_base &objp)
 {
-	vms_quaternion_from_matrix(&qpp->orient, &objp->orient);
+	vms_quaternion_from_matrix(&qpp.orient, &objp.orient);
 
-	qpp->pos = objp->pos;
-	qpp->segment = objp->segnum;
-	qpp->vel = objp->mtype.phys_info.velocity;
-	qpp->rotvel = objp->mtype.phys_info.rotvel;
-
-	if (swap_bytes)
-	{
-		qpp->orient.w = INTEL_SHORT(qpp->orient.w);
-		qpp->orient.x = INTEL_SHORT(qpp->orient.x);
-		qpp->orient.y = INTEL_SHORT(qpp->orient.y);
-		qpp->orient.z = INTEL_SHORT(qpp->orient.z);
-		qpp->pos.x = INTEL_INT(qpp->pos.x);
-		qpp->pos.y = INTEL_INT(qpp->pos.y);
-		qpp->pos.z = INTEL_INT(qpp->pos.z);
-		qpp->vel.x = INTEL_INT(qpp->vel.x);
-		qpp->vel.y = INTEL_INT(qpp->vel.y);
-		qpp->vel.z = INTEL_INT(qpp->vel.z);
-		qpp->rotvel.x = INTEL_INT(qpp->rotvel.x);
-		qpp->rotvel.y = INTEL_INT(qpp->rotvel.y);
-		qpp->rotvel.z = INTEL_INT(qpp->rotvel.z);
-	}
+	qpp.pos = objp.pos;
+	qpp.segment = objp.segnum;
+	qpp.vel = objp.mtype.phys_info.velocity;
+	qpp.rotvel = objp.mtype.phys_info.rotvel;
 }
 
-void extract_quaternionpos(const vmobjptridx_t objp, quaternionpos *qpp, int swap_bytes)
+void extract_quaternionpos(const vmobjptridx_t objp, quaternionpos &qpp)
 {
-	if (swap_bytes)
-	{
-		qpp->orient.w = INTEL_SHORT(qpp->orient.w);
-		qpp->orient.x = INTEL_SHORT(qpp->orient.x);
-		qpp->orient.y = INTEL_SHORT(qpp->orient.y);
-		qpp->orient.z = INTEL_SHORT(qpp->orient.z);
-		qpp->pos.x = INTEL_INT(qpp->pos.x);
-		qpp->pos.y = INTEL_INT(qpp->pos.y);
-		qpp->pos.z = INTEL_INT(qpp->pos.z);
-		qpp->vel.x = INTEL_INT(qpp->vel.x);
-		qpp->vel.y = INTEL_INT(qpp->vel.y);
-		qpp->vel.z = INTEL_INT(qpp->vel.z);
-		qpp->rotvel.x = INTEL_INT(qpp->rotvel.x);
-		qpp->rotvel.y = INTEL_INT(qpp->rotvel.y);
-		qpp->rotvel.z = INTEL_INT(qpp->rotvel.z);
-	}
+	vms_matrix_from_quaternion(&objp->orient, &qpp.orient);
 
-	vms_matrix_from_quaternion(&objp->orient, &qpp->orient);
-
-	objp->pos = qpp->pos;
-	objp->mtype.phys_info.velocity = qpp->vel;
-	objp->mtype.phys_info.rotvel = qpp->rotvel;
+	objp->pos = qpp.pos;
+	objp->mtype.phys_info.velocity = qpp.vel;
+	objp->mtype.phys_info.rotvel = qpp.rotvel;
         
-	auto segnum = static_cast<segnum_t>(qpp->segment);
+	const auto segnum = qpp.segment;
 	Assert(segnum <= Highest_segment_index);
 	obj_relink(vmobjptr, vmsegptr, objp, vmsegptridx(segnum));
 }

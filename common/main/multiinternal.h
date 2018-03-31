@@ -22,7 +22,7 @@
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #define for_each_multiplayer_command(VALUE)	\
-	VALUE(MULTI_POSITION              , 1+sizeof(quaternionpos))	\
+	VALUE(MULTI_POSITION              , 1 + quaternionpos::packed_size::value)	\
 	VALUE(MULTI_REAPPEAR              , 4)	\
 	VALUE(MULTI_FIRE                  , 18)	\
 	VALUE(MULTI_FIRE_TRACK            , 21)	\
@@ -39,7 +39,7 @@
 	VALUE(MULTI_CONTROLCEN_FIRE      , 16)	\
 	VALUE(MULTI_CREATE_POWERUP       , 19)	\
 	VALUE(MULTI_DECLOAK              , 2)	\
-	VALUE(MULTI_ROBOT_POSITION       , 5+sizeof(quaternionpos))	\
+	VALUE(MULTI_ROBOT_POSITION       , 5 + quaternionpos::packed_size::value)	\
 	VALUE(MULTI_PLAYER_DERES         , DXX_MP_SIZE_PLAYER_RELATED)	\
 	VALUE(MULTI_DOOR_OPEN            , DXX_MP_SIZE_DOOR_OPEN)	\
 	VALUE(MULTI_ROBOT_EXPLODE        , 7)	\

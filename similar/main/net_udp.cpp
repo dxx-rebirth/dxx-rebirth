@@ -5250,7 +5250,7 @@ void net_udp_process_mdata(uint8_t *data, uint_fast32_t data_len, const _sockadd
 
 void net_udp_send_pdata()
 {
-	array<uint8_t, sizeof(UDP_frame_info)> buf;
+	array<uint8_t, 3 + quaternionpos::packed_size::value> buf;
 	int len = 0;
 
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
@@ -5266,7 +5266,7 @@ void net_udp_send_pdata()
 	buf[len] = plr.connected;						len++;
 
 	quaternionpos qpp{};
-	create_quaternionpos(&qpp, vmobjptr(plr.objnum), 0);
+	create_quaternionpos(qpp, vmobjptr(plr.objnum));
 	PUT_INTEL_SHORT(&buf[len], qpp.orient.w);							len += 2;
 	PUT_INTEL_SHORT(&buf[len], qpp.orient.x);							len += 2;
 	PUT_INTEL_SHORT(&buf[len], qpp.orient.y);							len += 2;
@@ -5411,7 +5411,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 	if (vcplayerptr(Player_num)->connected == CONNECT_DISCONNECTED || vcplayerptr(Player_num)->connected == CONNECT_WAITING)
                 return;
 	//------------ Read the player's ship's object info ----------------------
-	extract_quaternionpos(TheirObj, &pd->qpp, 0);
+	extract_quaternionpos(TheirObj, pd->qpp);
 	if (TheirObj->movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(TheirObj);
 }

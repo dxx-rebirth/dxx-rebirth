@@ -167,14 +167,15 @@ struct shortpos
 } __pack__;
 
 // Another compressed form for object position, velocity, orientation and rotvel using quaternion
-struct quaternionpos
+struct quaternionpos : prohibit_void_ptr<quaternionpos>
 {
+	using packed_size = std::integral_constant<std::size_t, sizeof(vms_quaternion) + sizeof(segnum_t) + (sizeof(vms_vector) * 3)>;
 	vms_quaternion orient;
 	vms_vector pos;
-	short segment;
+	segnum_t segment;
 	vms_vector vel;
 	vms_vector rotvel;
-} __pack__;
+};
 
 // information for physics sim for an object
 struct physics_info : prohibit_void_ptr<physics_info>

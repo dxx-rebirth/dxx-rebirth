@@ -455,7 +455,7 @@ void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
 	PUT_INTEL_SHORT(&multibuf[loc], s);                                      loc += 3; // 5
 
 	quaternionpos qpp{};
-	create_quaternionpos(&qpp, objnum, 0);
+	create_quaternionpos(qpp, objnum);
 	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.w);			loc += 2;
 	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.x);			loc += 2;
 	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.y);			loc += 2;
@@ -836,7 +836,7 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	qpp.rotvel.x = GET_INTEL_INT(&buf[loc]);					loc += 4;
 	qpp.rotvel.y = GET_INTEL_INT(&buf[loc]);					loc += 4;
 	qpp.rotvel.z = GET_INTEL_INT(&buf[loc]);					loc += 4;
-        extract_quaternionpos(robot, &qpp, 0);
+	extract_quaternionpos(robot, qpp);
 }
 
 static inline vms_vector calc_gun_point(const object_base &obj, unsigned gun_num)
