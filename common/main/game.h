@@ -275,17 +275,23 @@ struct flickering_light {
 	fix delay;              // time between changes
 };
 
-using Flickering_light_array_t = array<flickering_light, 100>;
-extern Flickering_light_array_t Flickering_lights;
-extern unsigned Num_flickering_lights;
+struct d_flickering_light_state
+{
+	using Flickering_light_array_t = array<flickering_light, 100>;
+	unsigned Num_flickering_lights;
+	Flickering_light_array_t Flickering_lights;
+};
+
+extern d_flickering_light_state Flickering_light_state;
+
 extern int BigWindowSwitch;
 void compute_slide_segs();
 
 // turn flickering off (because light has been turned off)
-void disable_flicker(vmsegidx_t segnum, unsigned sidenum);
+void disable_flicker(d_flickering_light_state &fls, vmsegidx_t segnum, unsigned sidenum);
 
 // turn flickering off (because light has been turned on)
-void enable_flicker(vmsegidx_t segnum, unsigned sidenum);
+void enable_flicker(d_flickering_light_state &fls, vmsegidx_t segnum, unsigned sidenum);
 
 /*
  * reads a flickering_light structure from a PHYSFS_File

@@ -145,8 +145,9 @@ static bool FireLaser(player_info &);
 static void powerup_grab_cheat_all();
 
 #if defined(DXX_BUILD_DESCENT_II)
+d_flickering_light_state Flickering_light_state;
 static void slide_textures(void);
-static void flicker_lights(fvmsegptridx &vmsegptridx);
+static void flicker_lights(d_flickering_light_state &fls, fvmsegptridx &vmsegptridx);
 #endif
 
 // Cheats
@@ -1866,7 +1867,7 @@ window_event_result GameProcessFrame()
 #if defined(DXX_BUILD_DESCENT_II)
 	omega_charge_frame(player_info);
 	slide_textures();
-	flicker_lights(vmsegptridx);
+	flicker_lights(Flickering_light_state, vmsegptridx);
 
 	//if the player is taking damage, give up guided missile control
 	if (local_player_shields_ref != player_shields)
@@ -1952,14 +1953,11 @@ static void slide_textures(void)
 	}
 }
 
-Flickering_light_array_t Flickering_lights;
-unsigned Num_flickering_lights;
-
 constexpr std::integral_constant<fix, INT32_MIN> flicker_timer_disabled{};
 
-static void flicker_lights(fvmsegptridx &vmsegptridx)
+static void flicker_lights(d_flickering_light_state &fls, fvmsegptridx &vmsegptridx)
 {
-	range_for (auto &f, partial_range(Flickering_lights, Num_flickering_lights))
+	range_for (auto &f, partial_range(fls.Flickering_lights, fls.Num_flickering_lights))
 	{
 		if (f.timer == flicker_timer_disabled)		//disabled
 			continue;
@@ -1989,33 +1987,34 @@ static void flicker_lights(fvmsegptridx &vmsegptridx)
 }
 
 //returns ptr to flickering light structure, or NULL if can't find
-static std::pair<Flickering_light_array_t::iterator, Flickering_light_array_t::iterator> find_flicker(const vmsegidx_t segnum, const unsigned sidenum)
+static std::pair<d_flickering_light_state::Flickering_light_array_t::iterator, d_flickering_light_state::Flickering_light_array_t::iterator> find_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const unsigned sidenum)
 {
 	//see if there's already an entry for this seg/side
-	const auto &&pr = partial_range(Flickering_lights, Num_flickering_lights);
-	auto predicate = [segnum, sidenum](const flickering_light &f) {
+	const auto &&pr = partial_range(fls.Flickering_lights, fls.Num_flickering_lights);
+	const auto &&predicate = [segnum, sidenum](const flickering_light &f) {
 		return f.segnum == segnum && f.sidenum == sidenum;	//found it!
 	};
-	return {std::find_if(pr.begin(), pr.end(), predicate), pr.end()};
+	const auto &&pe = pr.end();
+	return {std::find_if(pr.begin(), pe, predicate), pe};
 }
 
-static void update_flicker(const vmsegidx_t segnum, const unsigned sidenum, const fix timer)
+static void update_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const unsigned sidenum, const fix timer)
 {
-	const auto &&i = find_flicker(segnum, sidenum);
+	const auto &&i = find_flicker(fls, segnum, sidenum);
 	if (i.first != i.second)
 		i.first->timer = timer;
 }
 
 //turn flickering off (because light has been turned off)
-void disable_flicker(const vmsegidx_t segnum, const unsigned sidenum)
+void disable_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const unsigned sidenum)
 {
-	update_flicker(segnum, sidenum, flicker_timer_disabled);
+	update_flicker(fls, segnum, sidenum, flicker_timer_disabled);
 }
 
 //turn flickering off (because light has been turned on)
-void enable_flicker(const vmsegidx_t segnum, const unsigned sidenum)
+void enable_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const unsigned sidenum)
 {
-	update_flicker(segnum, sidenum, 0);
+	update_flicker(fls, segnum, sidenum, 0);
 }
 #endif
 

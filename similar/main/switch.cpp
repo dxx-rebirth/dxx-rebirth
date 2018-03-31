@@ -103,7 +103,7 @@ static int do_light_on(const trigger &t)
 			//is to keep us from turning on blown-out lights
 			if (TmapInfo[segnum->sides[sidenum].tmap_num2 & 0x3fff].lighting) {
 				ret |= add_light(segnum, sidenum); 		//any light sets flag
-				enable_flicker(segnum, sidenum);
+				enable_flicker(Flickering_light_state, segnum, sidenum);
 			}
 	};
 	trigger_wall_op(t, vmsegptridx, op);
@@ -120,7 +120,7 @@ static int do_light_off(const trigger &t)
 			//is to keep us from turning off blown-out lights
 			if (TmapInfo[segnum->sides[sidenum].tmap_num2 & 0x3fff].lighting) {
 				ret |= subtract_light(segnum, sidenum); 	//any light sets flag
-				disable_flicker(segnum, sidenum);
+				disable_flicker(Flickering_light_state, segnum, sidenum);
 			}
 	};
 	trigger_wall_op(t, vmsegptridx, op);

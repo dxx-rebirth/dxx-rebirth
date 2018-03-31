@@ -1289,12 +1289,12 @@ int load_level(const char * filename_passed)
 		Reactor_strength = -1;  //use old defaults
 
 	if (Gamesave_current_version >= 7) {
-		Num_flickering_lights = PHYSFSX_readInt(LoadFile);
-		range_for (auto &i, partial_range(Flickering_lights, Num_flickering_lights))
+		Flickering_light_state.Num_flickering_lights = PHYSFSX_readInt(LoadFile);
+		range_for (auto &i, partial_range(Flickering_light_state.Flickering_lights, Flickering_light_state.Num_flickering_lights))
 			flickering_light_read(i, LoadFile);
 	}
 	else
-		Num_flickering_lights = 0;
+		Flickering_light_state.Num_flickering_lights = 0;
 
 	if (Gamesave_current_version < 6) {
 		Secret_return_segment = 0;
@@ -1792,8 +1792,9 @@ static int save_level_sub(fvmobjptridx &vmobjptridx, const char * filename)
 
 	if (Gamesave_current_version >= 7)
 	{
+		const auto Num_flickering_lights = Flickering_light_state.Num_flickering_lights;
 		PHYSFS_writeSLE32(SaveFile, Num_flickering_lights);
-		range_for (auto &i, partial_const_range(Flickering_lights, Num_flickering_lights))
+		range_for (auto &i, partial_const_range(Flickering_light_state.Flickering_lights, Num_flickering_lights))
 			flickering_light_write(i, SaveFile);
 	}
 
