@@ -447,6 +447,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 #if defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.laser_info.last_afterburner_time = 0;
 #endif
+			obj->ctype.laser_info.clear_hitobj();
 
 			break;
 
