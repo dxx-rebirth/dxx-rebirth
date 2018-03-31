@@ -1068,7 +1068,7 @@ void create_quaternionpos(quaternionpos &qpp, const object_base &objp)
 
 void extract_quaternionpos(const vmobjptridx_t objp, quaternionpos &qpp)
 {
-	vms_matrix_from_quaternion(&objp->orient, &qpp.orient);
+	vms_matrix_from_quaternion(objp->orient, qpp.orient);
 
 	objp->pos = qpp.pos;
 	objp->mtype.phys_info.velocity = qpp.vel;

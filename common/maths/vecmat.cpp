@@ -652,33 +652,36 @@ void vms_quaternion_from_matrix(vms_quaternion &q, const vms_matrix &m)
 }
 
 // convert vms_quaternion to vms_matrix
-void vms_matrix_from_quaternion(vms_matrix * m, const vms_quaternion * q) 
+void vms_matrix_from_quaternion(vms_matrix &m, const vms_quaternion &q)
 {
-	fix sqw = fixmul(q->w * 2, q->w * 2);
-	fix sqx = fixmul(q->x * 2, q->x * 2);
-	fix sqy = fixmul(q->y * 2, q->y * 2);
-	fix sqz = fixmul(q->z * 2, q->z * 2);
-	fix invs = fixdiv(fl2f(1.0), (sqw + sqx + sqy + sqz));
-	fix tmp1, tmp2;
+	const fix qw2 = q.w * 2;
+	const fix qx2 = q.x * 2;
+	const fix qy2 = q.y * 2;
+	const fix qz2 = q.z * 2;
+	const fix sqw = fixmul(qw2, qw2);
+	const fix sqx = fixmul(qx2, qx2);
+	const fix sqy = fixmul(qy2, qy2);
+	const fix sqz = fixmul(qz2, qz2);
+	const fix invs = fixdiv(fl2f(1.0), (sqw + sqx + sqy + sqz));
 
-	m->rvec.x = fixmul(sqx - sqy - sqz + sqw, invs);
-	m->uvec.y = fixmul(-sqx + sqy - sqz + sqw, invs);
-	m->fvec.z = fixmul(-sqx - sqy + sqz + sqw, invs);
+	m.rvec.x = fixmul(sqx - sqy - sqz + sqw, invs);
+	m.uvec.y = fixmul(-sqx + sqy - sqz + sqw, invs);
+	m.fvec.z = fixmul(-sqx - sqy + sqz + sqw, invs);
 	
-	tmp1 = fixmul(q->x * 2, q->y * 2);
-	tmp2 = fixmul(q->z * 2, q->w * 2);
-	m->uvec.x = fixmul(fixmul(fl2f(2.0), (tmp1 + tmp2)), invs);
-	m->rvec.y = fixmul(fixmul(fl2f(2.0), (tmp1 - tmp2)), invs);
+	const fix qxy = fixmul(qx2, qy2);
+	const fix qzw = fixmul(qz2, qw2);
+	m.uvec.x = fixmul(fixmul(fl2f(2.0), (qxy + qzw)), invs);
+	m.rvec.y = fixmul(fixmul(fl2f(2.0), (qxy - qzw)), invs);
 	
-	tmp1 = fixmul(q->x * 2, q->z * 2);
-	tmp2 = fixmul(q->y * 2, q->w * 2);
-	m->fvec.x = fixmul(fixmul(fl2f(2.0), (tmp1 - tmp2)), invs);
-	m->rvec.z = fixmul(fixmul(fl2f(2.0), (tmp1 + tmp2)), invs);
+	const fix qxz = fixmul(qx2, qz2);
+	const fix qyw = fixmul(qy2, qw2);
+	m.fvec.x = fixmul(fixmul(fl2f(2.0), (qxz - qyw)), invs);
+	m.rvec.z = fixmul(fixmul(fl2f(2.0), (qxz + qyw)), invs);
 	
-	tmp1 = fixmul(q->y * 2, q->z * 2);
-	tmp2 = fixmul(q->x * 2, q->w * 2);
-	m->fvec.y = fixmul(fixmul(fl2f(2.0), (tmp1 + tmp2)), invs);
-	m->uvec.z = fixmul(fixmul(fl2f(2.0), (tmp1 - tmp2)), invs);
+	const fix qyz = fixmul(qy2, qz2);
+	const fix qxw = fixmul(qx2, qw2);
+	m.fvec.y = fixmul(fixmul(fl2f(2.0), (qyz + qxw)), invs);
+	m.uvec.z = fixmul(fixmul(fl2f(2.0), (qyz - qxw)), invs);
 }
 
 }
