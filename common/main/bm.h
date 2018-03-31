@@ -65,12 +65,12 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 	uint8_t			flags;
 	fix			lighting;		// 0 to 1
 	fix			damage;			//how much damage being against this does
-	int			eclip_num;		//if not -1, the eclip that changes this   
+	unsigned eclip_num;		//if not -1, the eclip that changes this   
 #define N_COCKPIT_BITMAPS 4
 #elif defined(DXX_BUILD_DESCENT_II)
 	fix     lighting;  //how much light this casts
 	fix     damage;    //how much damage being against this does (for lava)
-	short   eclip_num; //the eclip that changes this, or -1
+	uint16_t eclip_num; //the eclip that changes this, or -1
 	short   destroyed; //bitmap to show when destroyed, or -1
 	short   slide_u,slide_v;    //slide rates of texture, stored in 8:8 fix
 	uint8_t   flags;     //values defined above

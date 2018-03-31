@@ -1794,7 +1794,7 @@ static void net_udp_process_monitor_vector(uint32_t vector)
 		range_for (auto &j, seg->sides)
 		{
 			if ( ((tm = j.tmap_num2) != 0) &&
-				  ((ec = TmapInfo[tm&0x3fff].eclip_num) != -1) &&
+				(ec = TmapInfo[tm & 0x3fff].eclip_num) != eclip_none &&
 				(bm = Effects[ec].dest_bm_num) != ~0u)
 			{
 				if (vector & 1)
@@ -1865,7 +1865,7 @@ static int net_udp_create_monitor_vector(void)
 		{
 			if ((tm = j.tmap_num2) != 0)
 			{
-				if ( ((ec = TmapInfo[tm&0x3fff].eclip_num) != -1) &&
+				if ((ec = TmapInfo[tm & 0x3fff].eclip_num) != eclip_none &&
 					Effects[ec].dest_bm_num != ~0u)
 				{
 					monitor_num++;

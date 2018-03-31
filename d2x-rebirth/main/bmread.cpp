@@ -1095,9 +1095,7 @@ static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 //	Assert( N_ObjBitmaps == N_ObjBitmapPtrs );
 
 	if (name[0] == '%') {		//an animating bitmap!
-		int eclip_num;
-
-		eclip_num = atoi(name+1);
+		const unsigned eclip_num = atoi(name+1);
 
 		if (Effects[eclip_num].changing_object_texture == -1) {		//first time referenced
 			Effects[eclip_num].changing_object_texture = N_ObjBitmaps;

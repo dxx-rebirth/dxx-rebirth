@@ -607,8 +607,8 @@ int check_effect_blowup(const vmsegptridx_t seg,int side,const vms_vector &pnt, 
 
 #if defined(DXX_BUILD_DESCENT_II)
 				if ((Game_mode & GM_MULTI) && Netgame.AlwaysLighting)
-			   	if (!(ec!=-1 && db!=-1 && !(Effects[ec].flags&EF_ONE_SHOT)))
-				   	return(0);
+					if (!(ec != eclip_none && db != -1 && !(Effects[ec].flags & EF_ONE_SHOT)))
+						return 0;
 
 				//note: this must get called before the texture changes,
 				//because we use the light value of the texture to change
@@ -623,7 +623,8 @@ int check_effect_blowup(const vmsegptridx_t seg,int side,const vms_vector &pnt, 
 					newdemo_record_effect_blowup( seg, side, pnt);
 
 				fix dest_size;
-				if (ec!=-1) {
+				if (ec != eclip_none)
+				{
 					dest_size = Effects[ec].dest_size;
 					vc = Effects[ec].dest_vclip;
 				}
@@ -636,7 +637,7 @@ int check_effect_blowup(const vmsegptridx_t seg,int side,const vms_vector &pnt, 
 				object_create_explosion( seg, pnt, dest_size, vc );
 
 #if defined(DXX_BUILD_DESCENT_II)
-				if (ec!=-1 && db!=-1 && !(Effects[ec].flags&EF_ONE_SHOT))
+				if (ec != eclip_none && db != -1 && !(Effects[ec].flags & EF_ONE_SHOT))
 #endif
 				{
 

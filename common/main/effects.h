@@ -34,8 +34,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr std::integral_constant<unsigned, 60> MAX_EFFECTS{};
+constexpr std::integral_constant<uint32_t, UINT32_MAX> eclip_none{};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<unsigned, 110> MAX_EFFECTS{};
+constexpr std::integral_constant<uint16_t, UINT16_MAX> eclip_none{};
 #endif
 }
 
@@ -68,8 +70,6 @@ struct eclip : public prohibit_void_ptr<eclip>
 	segnum_t     segnum;
 	uint8_t sidenum; //what seg & side, for one-shot clips
 };
-
-constexpr std::integral_constant<int, -1> eclip_none{};
 
 extern unsigned Num_effects;
 extern array<eclip, MAX_EFFECTS> Effects;
