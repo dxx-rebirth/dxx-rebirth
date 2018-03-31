@@ -1387,11 +1387,13 @@ static void bng_process_segment(const object &objp, fix damage, const vmsegptrid
 
 		//	Process only walls which have glass.
 		if ((tm=segp->sides[sidenum].tmap_num2) != 0) {
-			int	ec, db;
+			int	ec;
 
 			tm &= 0x3fff;			//tm without flags
 
-			if ((((ec=TmapInfo[tm].eclip_num)!=-1) && ((db=Effects[ec].dest_bm_num)!=-1 && !(Effects[ec].flags&EF_ONE_SHOT))) ||	(ec==-1 && (TmapInfo[tm].destroyed!=-1))) {
+			if (((ec = TmapInfo[tm].eclip_num) != -1 &&
+				 (Effects[ec].dest_bm_num != ~0u && !(Effects[ec].flags & EF_ONE_SHOT))) ||	(ec == -1 && (TmapInfo[tm].destroyed != -1)))
+			{
 				const auto &&pnt = compute_center_point_on_side(vcvertptr, segp, sidenum);
 				dist = vm_vec_dist_quick(pnt, objp.pos);
 				if (dist < damage/2) {

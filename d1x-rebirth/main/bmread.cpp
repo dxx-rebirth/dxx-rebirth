@@ -703,7 +703,7 @@ static void bm_read_eclip(const std::string &dest_bm, const char *const arg, int
 		Effects[clip_num].dest_eclip = dest_eclip;
 	}
 	else {
-		Effects[clip_num].dest_bm_num = -1;
+		Effects[clip_num].dest_bm_num = ~0u;
 		Effects[clip_num].dest_eclip = eclip_none;
 	}
 

@@ -50,6 +50,7 @@
 #include "physics.h"
 #include "hudmsg.h"
 #include "switch.h"
+#include "textures.h"
 #include "automap.h"
 #include "event.h"
 #include "playsave.h"
@@ -1794,7 +1795,7 @@ static void net_udp_process_monitor_vector(uint32_t vector)
 		{
 			if ( ((tm = j.tmap_num2) != 0) &&
 				  ((ec = TmapInfo[tm&0x3fff].eclip_num) != -1) &&
-				  ((bm = Effects[ec].dest_bm_num) != -1) )
+				(bm = Effects[ec].dest_bm_num) != ~0u)
 			{
 				if (vector & 1)
 				{
@@ -1851,7 +1852,8 @@ static int net_udp_create_monitor_vector(void)
 	blown_bitmap_array blown_bitmaps;
 	range_for (auto &i, partial_const_range(Effects, Num_effects))
 	{
-		if (i.dest_bm_num > 0) {
+		if (i.dest_bm_num < Textures.size())
+		{
 			blown_bitmaps.insert_unique(i.dest_bm_num);
 		}
 	}
@@ -1864,7 +1866,7 @@ static int net_udp_create_monitor_vector(void)
 			if ((tm = j.tmap_num2) != 0)
 			{
 				if ( ((ec = TmapInfo[tm&0x3fff].eclip_num) != -1) &&
-					  (Effects[ec].dest_bm_num != -1) )
+					Effects[ec].dest_bm_num != ~0u)
 				{
 					monitor_num++;
 					Assert(monitor_num < 32);

@@ -76,7 +76,7 @@ static void paging_touch_wall_effects( int tmap_num )
 		if ( i.changing_wall_texture == tmap_num )	{
 			paging_touch_vclip(i.vc);
 
-			if (i.dest_bm_num > -1)
+			if (i.dest_bm_num < Textures.size())
 				PIGGY_PAGE_IN( Textures[i.dest_bm_num] );	//use this bitmap when monitor destroyed
 			if ( i.dest_vclip > -1 )
 				paging_touch_vclip(Vclip[i.dest_vclip]);		  //what vclip to play when exploding

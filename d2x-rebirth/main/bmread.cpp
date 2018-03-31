@@ -681,7 +681,6 @@ static void set_texture_name(char *name)
 static void bm_read_eclip(int skip)
 {
 	bitmap_index bitmap;
-	int dest_bm_num = 0;
 
 	assert(clip_num < Effects.size());
 
@@ -690,6 +689,7 @@ static void bm_read_eclip(int skip)
 
 	Effects[clip_num].flags = 0;
 
+	unsigned dest_bm_num = 0;
 	//load the dest bitmap first, so that after this routine, the last-loaded
 	//texture will be the monitor, so that lighting parameter will be applied
 	//to the correct texture
@@ -803,7 +803,7 @@ static void bm_read_eclip(int skip)
 		Effects[clip_num].dest_eclip = dest_eclip;
 	}
 	else {
-		Effects[clip_num].dest_bm_num = -1;
+		Effects[clip_num].dest_bm_num = ~0u;
 		Effects[clip_num].dest_eclip = eclip_none;
 	}
 

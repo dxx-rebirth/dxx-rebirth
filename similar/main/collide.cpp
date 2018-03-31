@@ -540,14 +540,13 @@ static int effect_parent_is_guidebot(fvcobjptr &vcobjptr, const laser_parent &la
 namespace dsx {
 int check_effect_blowup(const vmsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
 {
-	int tm,db;
+	int tm;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<int, 0> force_blowup_flag{};
 #elif defined(DXX_BUILD_DESCENT_II)
 	int trigger_check = 0, is_trigger = 0;
 	auto wall_num = seg->sides[side].wall_num;
-	db=0;
 
 	// If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
 	trigger_check = !(blower.parent_type == OBJ_PLAYER || effect_parent_is_guidebot(vcobjptr, blower));
@@ -565,12 +564,13 @@ int check_effect_blowup(const vmsegptridx_t seg,int side,const vms_vector &pnt, 
 		int tmf = tm&0xc000;		//tm flags
 		tm &= 0x3fff;			//tm without flags
 
-		const int ec = TmapInfo[tm].eclip_num;
+		const auto ec = TmapInfo[tm].eclip_num;
+		unsigned db = 0;
 #if defined(DXX_BUILD_DESCENT_I)
-   		if (ec!=-1 && (db=Effects[ec].dest_bm_num)!=-1 && !(Effects[ec].flags&EF_ONE_SHOT))
+		if (ec != eclip_none && (db = Effects[ec].dest_bm_num) != ~0u && !(Effects[ec].flags & EF_ONE_SHOT))
 #elif defined(DXX_BUILD_DESCENT_II)
 		//check if it's an animation (monitor) or casts light
-		if ((ec!=-1 && ((db=Effects[ec].dest_bm_num)!=-1 && !(Effects[ec].flags&EF_ONE_SHOT))) ||	(ec==-1 && (TmapInfo[tm].destroyed!=-1)))
+		if ((ec != eclip_none && ((db = Effects[ec].dest_bm_num) != ~0u && !(Effects[ec].flags & EF_ONE_SHOT))) || (ec == eclip_none && (TmapInfo[tm].destroyed != -1)))
 #endif
 		{
 			const grs_bitmap *bm = &GameBitmaps[Textures[tm].index];
