@@ -1058,7 +1058,7 @@ void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
 void create_quaternionpos(quaternionpos &qpp, const object_base &objp)
 {
-	vms_quaternion_from_matrix(&qpp.orient, &objp.orient);
+	vms_quaternion_from_matrix(qpp.orient, objp.orient);
 
 	qpp.pos = objp.pos;
 	qpp.segment = objp.segnum;
