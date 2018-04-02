@@ -826,7 +826,7 @@ int pick_up_secondary(player_info &player_info, int weapon_index,int count)
 	{
 		const auto weapon_order = SOrderList(weapon_index);
 		auto &Secondary_weapon = player_info.Secondary_weapon;
-		const auto want_switch = [weapon_index, weapon_order, &secondary_ammo, &Secondary_weapon]{
+		const auto want_switch = [weapon_order, &secondary_ammo, &Secondary_weapon]{
 			return weapon_order < SOrderList(255) && (
 				secondary_ammo[Secondary_weapon.get_delayed()] == 0 ||
 				weapon_order < SOrderList(Secondary_weapon.get_delayed())
