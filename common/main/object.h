@@ -568,6 +568,7 @@ DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(object, obj, Objects);
 struct d_level_object_state
 {
 	unsigned num_objects = 0;
+	unsigned Debris_object_count = 0;
 	array<objnum_t, MAX_OBJECTS> free_obj_list;
 	auto &get_objects()
 	{

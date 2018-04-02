@@ -936,15 +936,6 @@ object_signature_t obj_get_signature()
 	}
 }
 
-}
-
-namespace dcx {
-
-static unsigned Debris_object_count;
-
-}
-
-namespace dsx {
 //returns the number of a free object, updating Highest_object_index.
 //Generally, obj_create() should be called to get an object, since it
 //fills in important fields and does the linking.
@@ -1092,7 +1083,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
 	Assert(ctype <= CT_CNTRLCEN);
 
-	if (type==OBJ_DEBRIS && Debris_object_count>=Max_debris_objects && !PERSISTENT_DEBRIS)
+	if (type == OBJ_DEBRIS && ObjectState.Debris_object_count >= Max_debris_objects && !PERSISTENT_DEBRIS)
 		return object_none;
 
 	if (get_seg_masks(vcvertptr, pos, segnum, 0).centermask != 0)
@@ -1186,7 +1177,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;
 
 	if (obj->type == OBJ_DEBRIS)
-		Debris_object_count++;
+		++ ObjectState.Debris_object_count;
 
 	return obj;
 }
@@ -1246,7 +1237,7 @@ void obj_delete(const vmobjptridx_t obj)
 		obj_detach_all(Objects, obj);
 
 	if (obj->type == OBJ_DEBRIS)
-		Debris_object_count--;
+		-- ObjectState.Debris_object_count;
 
 	obj_unlink(Objects.vmptr, Segments.vmptr, obj);
 	DXX_POISON_VAR(*obj, 0xfa);
@@ -1972,6 +1963,7 @@ void compress_objects(void)
 //compressed.  resets free list, marks unused objects as unused
 void reset_objects(d_level_object_state &ObjectState, const unsigned n_objs)
 {
+	ObjectState.Debris_object_count = 0;
 	ObjectState.num_objects = n_objs;
 	assert(ObjectState.num_objects > 0);
 	auto &Objects = ObjectState.get_objects();
@@ -1985,7 +1977,6 @@ void reset_objects(d_level_object_state &ObjectState, const unsigned n_objs)
 		DXX_POISON_VAR(obj, 0xfd);
 		obj.type = OBJ_NONE;
 	}
-	Debris_object_count = 0;
 }
 
 //Tries to find a segment for an object, using find_point_seg()
