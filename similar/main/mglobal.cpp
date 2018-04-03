@@ -168,9 +168,9 @@ struct instantiation_guard<T, false>
 {
 	struct type
 	{
-		struct index_mismatch_exception {};
-		struct index_range_exception {};
-		struct null_pointer_exception {};
+		class index_mismatch_exception {};
+		class index_range_exception {};
+		class null_pointer_exception {};
 	};
 };
 
