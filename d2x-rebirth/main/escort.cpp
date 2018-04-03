@@ -362,12 +362,14 @@ static int show_buddy_message()
 	return 0;
 }
 
+__attribute_nonnull()
 static void buddy_message_force_str(const char *str)
 {
 	Last_buddy_message_time = GameTime64;
 	HUD_init_message(HM_DEFAULT, "%c%c%s:%c%c %s", CC_COLOR, BM_XRGB(28, 0, 0), static_cast<const char *>(PlayerCfg.GuidebotName), CC_COLOR, BM_XRGB(0, 31, 0), str);
 }
 
+__attribute_format_printf(1, 0)
 static void buddy_message_force_va(const char *const fmt, va_list vl)
 {
 	char buf[128];
@@ -375,6 +377,7 @@ static void buddy_message_force_va(const char *const fmt, va_list vl)
 	buddy_message_force_str(buf);
 }
 
+__attribute_format_printf(1, 2)
 static void buddy_message_ignore_time(const char *const fmt, ...)
 {
 	if (Buddy_messages_suppressed)
