@@ -792,7 +792,7 @@ static int do_silly_animation(object &objp)
 		range_for (auto &jr, ras)
 		{
 			unsigned jointnum = jr.jointnum;
-			const vms_angvec	*jp = &jr.angles;
+			auto &jp = jr.angles;
 			vms_angvec	*pobjp = &pobj_info->anim_angles[jointnum];
 
 			if (jointnum >= Polygon_models[objp.rtype.pobj_info.model_num].n_models) {
@@ -801,9 +801,9 @@ static int do_silly_animation(object &objp)
 			}
 			auto &goal_angles = ail.goal_angles[jointnum];
 			auto &delta_angles = ail.delta_angles[jointnum];
-			const auto animate_p = silly_animation_angle(&vms_angvec::p, *jp, *pobjp, flinch_attack_scale, goal_angles, delta_angles);
-			const auto animate_b = silly_animation_angle(&vms_angvec::b, *jp, *pobjp, flinch_attack_scale, goal_angles, delta_angles);
-			const auto animate_h = silly_animation_angle(&vms_angvec::h, *jp, *pobjp, flinch_attack_scale, goal_angles, delta_angles);
+			const auto animate_p = silly_animation_angle(&vms_angvec::p, jp, *pobjp, flinch_attack_scale, goal_angles, delta_angles);
+			const auto animate_b = silly_animation_angle(&vms_angvec::b, jp, *pobjp, flinch_attack_scale, goal_angles, delta_angles);
+			const auto animate_h = silly_animation_angle(&vms_angvec::h, jp, *pobjp, flinch_attack_scale, goal_angles, delta_angles);
 			if (gun_num == 0)
 			{
 				if (animate_p || animate_b || animate_h)
