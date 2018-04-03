@@ -314,7 +314,7 @@ static int parse_delta(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 		}
 
 		if (cnt == -1) {
-			if (!bmheader->w&1)
+			if (!bmheader->w)
 				return IFF_CORRUPT;
 		}
 		else if (cnt)
