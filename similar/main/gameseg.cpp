@@ -56,6 +56,12 @@ using std::min;
 
 namespace {
 
+	/* The array can be of any type that can hold values in the range
+	 * [0, AMBIENT_SEGMENT_DEPTH].
+	 */
+struct segment_lava_depth_array : std::array<uint8_t, MAX_SEGMENTS> {};
+struct segment_water_depth_array : std::array<uint8_t, MAX_SEGMENTS> {};
+
 class abs_vertex_lists_predicate
 {
 	const array<unsigned, MAX_VERTICES_PER_SEGMENT> &m_vp;
@@ -1776,66 +1782,80 @@ void clear_light_subtracted(void)
 
 #define	AMBIENT_SEGMENT_DEPTH		5
 
-//	-----------------------------------------------------------------------------
-//	Do a bfs from segnum, marking slots in marked_segs if the segment is reachable.
-static void ambient_mark_bfs(const vmsegptridx_t segp, visited_segment_mask_t<2> &marked_segs, const unsigned depth, const uint_fast8_t s2f_bit)
+static void ambient_mark_bfs(const vmsegptridx_t segp, segment_lava_depth_array *segdepth_lava, segment_water_depth_array *segdepth_water, const unsigned depth, const uint_fast8_t s2f_bit)
 {
-	/*
-	 * High first, then low: write here.
-	 * Low first, then high: safe to write here, but overwritten later by marked_segs value.
-	 */
 	segp->s2_flags |= s2f_bit;
-	marked_segs[segp] |= s2f_bit;
-	if (!depth)
+	if (segdepth_lava)
+	{
+		auto &d = (*segdepth_lava)[segp];
+		if (d < depth)
+			d = depth;
+		else
+			segdepth_lava = nullptr;
+	}
+	if (segdepth_water)
+	{
+		auto &d = (*segdepth_water)[segp];
+		if (d < depth)
+			d = depth;
+		else
+			segdepth_water = nullptr;
+	}
+	if (!segdepth_lava && !segdepth_water)
 		return;
 
-	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
+	for (unsigned i = 0; i < MAX_SIDES_PER_SEGMENT; ++i)
+	{
 		const auto child = segp->children[i];
 
 		/*
 		 * No explicit check for IS_CHILD.  If !IS_CHILD, then
 		 * WALL_IS_DOORWAY never sets WID_RENDPAST_FLAG.
 		 */
-		if ((WALL_IS_DOORWAY(segp, i) & WID_RENDPAST_FLAG) && !(marked_segs[child] & s2f_bit))
-			ambient_mark_bfs(segp.absolute_sibling(child), marked_segs, depth-1, s2f_bit);
+		if (!(WALL_IS_DOORWAY(segp, i) & WID_RENDPAST_FLAG))
+			continue;
+		ambient_mark_bfs(segp.absolute_sibling(child), segdepth_lava, segdepth_water, depth - 1, s2f_bit);
 	}
-
 }
 
 //	-----------------------------------------------------------------------------
 //	Indicate all segments which are within audible range of falling water or lava,
 //	and so should hear ambient gurgles.
-//	Bashes values in Segment2s array.
 void set_ambient_sound_flags()
 {
-	struct sound_flags_t {
-		uint_fast8_t texture_flag, sound_flag;
-	};
-	const sound_flags_t sound_textures[] = {
-		{TMI_VOLATILE, S2F_AMBIENT_LAVA},
-		{TMI_WATER, S2F_AMBIENT_WATER},
-	};
-	visited_segment_mask_t<sizeof(sound_textures) / sizeof(sound_textures[0])> marked_segs;
-
+	range_for (const auto &&segp, vmsegptr)
+		segp->s2_flags = 0;
 	//	Now, all segments containing ambient lava or water sound makers are flagged.
 	//	Additionally flag all segments which are within range of them.
 	//	Mark all segments which are sources of the sound.
+	segment_lava_depth_array segdepth_lava{};
+	segment_water_depth_array segdepth_water{};
+
 	range_for (const auto &&segp, vmsegptridx)
 	{
-		range_for (auto &s, sound_textures)
+		for (unsigned j = 0; j < MAX_SIDES_PER_SEGMENT; ++j)
 		{
-			for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
-				side	*sidep = &segp->sides[j];
-				uint_fast8_t texture_flags = TmapInfo[sidep->tmap_num].flags | TmapInfo[sidep->tmap_num2 & 0x3fff].flags;
-				if (!(texture_flags & s.texture_flag))
-					continue;
-				if (!IS_CHILD(segp->children[j]) || (sidep->wall_num != wall_none)) {
-					ambient_mark_bfs(segp, marked_segs, AMBIENT_SEGMENT_DEPTH, s.sound_flag);
-					break;
-				}
-			}
+			const auto &sidep = segp->sides[j];
+			if (IS_CHILD(segp->children[j]) && sidep.wall_num == wall_none)
+				/* If this side is open and there is no wall defined,
+				 * then the texture is never visible to the player.
+				 * This happens normally in some level editors if the
+				 * texture is not cleared when the child segment is
+				 * added.  Skip this side.
+				 */
+				continue;
+			const auto texture_flags = TmapInfo[sidep.tmap_num].flags | TmapInfo[sidep.tmap_num2 & 0x3fff].flags;
+			/* These variables do not need to be named, but naming them
+			 * is the easiest way to establish sequence points, so that
+			 * `sound_flag` is passed to `ambient_mark_bfs` only after
+			 * both ternary expressions have finished.
+			 */
+			uint8_t sound_flag = 0;
+			const auto pl = (texture_flags & TMI_VOLATILE) ? (sound_flag |= S2F_AMBIENT_LAVA, &segdepth_lava) : nullptr;
+			const auto pw = (texture_flags & TMI_WATER) ? (sound_flag |= S2F_AMBIENT_WATER, &segdepth_water) : nullptr;
+			if (sound_flag)
+				ambient_mark_bfs(segp, pl, pw, AMBIENT_SEGMENT_DEPTH, sound_flag);
 		}
-		segp->s2_flags = (segp->s2_flags & ~(S2F_AMBIENT_LAVA | S2F_AMBIENT_WATER)) | marked_segs[segp];
 	}
 }
 #endif
