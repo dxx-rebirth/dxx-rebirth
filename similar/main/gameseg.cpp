@@ -1778,19 +1778,19 @@ void clear_light_subtracted(void)
 
 //	-----------------------------------------------------------------------------
 //	Do a bfs from segnum, marking slots in marked_segs if the segment is reachable.
-static void ambient_mark_bfs(const vmsegptridx_t segp, visited_segment_multibit_array_t<2> &marked_segs, unsigned depth, uint_fast8_t s2f_bit)
+static void ambient_mark_bfs(const vmsegptridx_t segp, visited_segment_mask_t<2> &marked_segs, const unsigned depth, const uint_fast8_t s2f_bit)
 {
 	/*
 	 * High first, then low: write here.
 	 * Low first, then high: safe to write here, but overwritten later by marked_segs value.
 	 */
 	segp->s2_flags |= s2f_bit;
-	marked_segs[segp] = s2f_bit | marked_segs[segp];
+	marked_segs[segp] |= s2f_bit;
 	if (!depth)
 		return;
 
 	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		auto	child = segp->children[i];
+		const auto child = segp->children[i];
 
 		/*
 		 * No explicit check for IS_CHILD.  If !IS_CHILD, then
@@ -1815,7 +1815,7 @@ void set_ambient_sound_flags()
 		{TMI_VOLATILE, S2F_AMBIENT_LAVA},
 		{TMI_WATER, S2F_AMBIENT_WATER},
 	};
-	visited_segment_multibit_array_t<sizeof(sound_textures) / sizeof(sound_textures[0])> marked_segs;
+	visited_segment_mask_t<sizeof(sound_textures) / sizeof(sound_textures[0])> marked_segs;
 
 	//	Now, all segments containing ambient lava or water sound makers are flagged.
 	//	Additionally flag all segments which are within range of them.

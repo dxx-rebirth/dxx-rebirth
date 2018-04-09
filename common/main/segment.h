@@ -281,8 +281,8 @@ struct dl_index {
 
 namespace dcx {
 
-template <typename T, unsigned bits>
-class visited_segment_mask_t
+template <unsigned bits>
+class visited_segment_mask_base
 {
 	static_assert(bits == 1 || bits == 2 || bits == 4, "bits must align in bytes");
 protected:
@@ -290,51 +290,74 @@ protected:
 	{
 		divisor = 8 / bits,
 	};
-	typedef array<ubyte, (MAX_SEGMENTS + (divisor - 1)) / divisor> array_t;
+	using array_t = array<uint8_t, (MAX_SEGMENTS + (divisor - 1)) / divisor>;
 	typedef typename array_t::size_type size_type;
 	array_t a;
-	struct base_maskproxy_t
+	struct maskproxy_shift_count_type
 	{
-		unsigned m_shift;
+		using bitmask_low_aligned = std::integral_constant<unsigned, (1 << bits) - 1>;
+		const unsigned m_shift;
 		unsigned shift() const
 		{
-			return m_shift * bits;
-		}
-		static unsigned bitmask_low_aligned()
-		{
-			return (1 << bits) - 1;
+			return m_shift;
 		}
 		typename array_t::value_type mask() const
 		{
 			return bitmask_low_aligned() << shift();
 		}
-		base_maskproxy_t(const unsigned s) :
-			m_shift(s)
+		maskproxy_shift_count_type(const unsigned s) :
+			m_shift(s * bits)
 		{
 		}
 	};
 	template <typename R>
-	struct tmpl_maskproxy_t : public base_maskproxy_t
+	struct maskproxy_byte_reference : public maskproxy_shift_count_type
 	{
 		R m_byte;
-		tmpl_maskproxy_t(R byte, unsigned s) :
-			base_maskproxy_t(s), m_byte(byte)
+		maskproxy_byte_reference(R byte, const unsigned s) :
+			maskproxy_shift_count_type(s), m_byte(byte)
 		{
+		}
+		operator uint8_t() const
+		{
+			return (this->m_byte >> this->shift()) & typename maskproxy_shift_count_type::bitmask_low_aligned();
+		}
+	};
+	template <typename R>
+	struct maskproxy_assignable_type : maskproxy_byte_reference<R>
+	{
+		DXX_INHERIT_CONSTRUCTORS(maskproxy_assignable_type, maskproxy_byte_reference<R>);
+		using typename maskproxy_shift_count_type::bitmask_low_aligned;
+		maskproxy_assignable_type &operator=(const uint8_t u)
+		{
+			assert(!(u & ~bitmask_low_aligned()));
+			auto &byte = this->m_byte;
+			byte = (byte & ~this->mask()) | (u << this->shift());
+			return *this;
+		}
+		maskproxy_assignable_type &operator|=(const uint8_t u)
+		{
+			assert(!(u & ~bitmask_low_aligned()));
+			this->m_byte |= (u << this->shift());
+			return *this;
 		}
 	};
 	template <typename R, typename A>
-	static R make_maskproxy(A &a, size_type segnum)
+	static R make_maskproxy(A &a, const size_type segnum)
 	{
-		size_type idx = segnum / divisor;
+		const size_type idx = segnum / divisor;
 		if (idx >= a.size())
 			throw std::out_of_range("index exceeds segment range");
-		size_type bit = segnum % divisor;
+		const size_type bit = segnum % divisor;
 		return R(a[idx], bit);
 	}
 public:
-	visited_segment_mask_t()
+	/* Explicitly invoke the default constructor for `a` so that the
+	 * storage is cleared.
+	 */
+	visited_segment_mask_base() :
+		a()
 	{
-		clear();
 	}
 	void clear()
 	{
@@ -342,92 +365,44 @@ public:
 	}
 };
 
-class visited_segment_bitarray_t : public visited_segment_mask_t<bool, 1>
+template <>
+template <typename R>
+struct visited_segment_mask_base<1>::maskproxy_assignable_type : maskproxy_byte_reference<R>
 {
-	template <typename R>
-	struct tmpl_bitproxy_t : public tmpl_maskproxy_t<R>
+	DXX_INHERIT_CONSTRUCTORS(maskproxy_assignable_type, maskproxy_byte_reference<R>);
+	maskproxy_assignable_type &operator=(const bool b)
 	{
-		tmpl_bitproxy_t(R byte, unsigned s) :
-			tmpl_maskproxy_t<R>(byte, s)
-		{
-		}
-		explicit operator bool() const
-		{
-			return !!(this->m_byte & this->mask());
-		}
-		operator int() const = delete;
-	};
-	struct bitproxy_t : public tmpl_bitproxy_t<array_t::reference>
-	{
-		bitproxy_t(array_t::reference byte, unsigned s) :
-			tmpl_bitproxy_t<array_t::reference>(byte, s)
-		{
-		}
-		bitproxy_t& operator=(bool b)
-		{
-			if (b)
-				this->m_byte |= this->mask();
-			else
-				this->m_byte &= ~this->mask();
-			return *this;
-		}
-		bitproxy_t& operator=(int) = delete;
-	};
-	typedef tmpl_bitproxy_t<array_t::const_reference> const_bitproxy_t;
-public:
-	bitproxy_t operator[](size_type segnum)
-	{
-		return make_maskproxy<bitproxy_t>(a, segnum);
-	}
-	const_bitproxy_t operator[](size_type segnum) const
-	{
-		return make_maskproxy<const_bitproxy_t>(a, segnum);
+		const auto m = this->mask();
+		auto &byte = this->m_byte;
+		if (b)
+			byte |= m;
+		else
+			byte &= ~m;
+		return *this;
 	}
 };
 
+/* This type must be separate so that its members are defined after the
+ * specialization of maskproxy_assignable_type.  If these are defined
+ * inline in visited_segment_mask_base, gcc crashes.
+ * Known bad:
+ *	gcc-4.9.4
+ *	gcc-5.4.0
+ *	gcc-6.4.0
+ *	gcc-7.2.0
+ */
 template <unsigned bits>
-class visited_segment_multibit_array_t : public visited_segment_mask_t<unsigned, bits>
+class visited_segment_mask_t : visited_segment_mask_base<bits>
 {
-	using typename visited_segment_mask_t<unsigned, bits>::array_t;
-	using typename visited_segment_mask_t<unsigned, bits>::size_type;
-	template <typename R>
-	struct tmpl_multibit_proxy_t : public visited_segment_mask_t<unsigned, bits>::template tmpl_maskproxy_t<R>
-	{
-		tmpl_multibit_proxy_t(R byte, unsigned s) :
-			visited_segment_mask_t<unsigned, bits>::template tmpl_maskproxy_t<R>(byte, s)
-		{
-		}
-		explicit operator bool() const
-		{
-			return !!(this->m_byte & this->mask());
-		}
-		operator unsigned() const
-		{
-			return (this->m_byte >> this->shift()) & this->bitmask_low_aligned();
-		}
-	};
-	struct bitproxy_t : public tmpl_multibit_proxy_t<typename array_t::reference>
-	{
-		bitproxy_t(typename array_t::reference byte, unsigned s) :
-			tmpl_multibit_proxy_t<typename array_t::reference>(byte, s)
-		{
-		}
-		bitproxy_t& operator=(unsigned u)
-		{
-			assert(!(u & ~this->bitmask_low_aligned()));
-			this->m_byte = (this->m_byte & ~this->mask()) | (u << this->shift());
-			return *this;
-		}
-	};
-	typedef tmpl_multibit_proxy_t<typename array_t::const_reference> const_bitproxy_t;
+	using base_type = visited_segment_mask_base<bits>;
 public:
-	bitproxy_t operator[](size_type segnum)
+	auto operator[](const typename base_type::size_type segnum)
 	{
-		return this->template make_maskproxy<bitproxy_t>(this->a, segnum);
+		return this->template make_maskproxy<typename base_type::template maskproxy_assignable_type<typename base_type::array_t::reference>>(this->a, segnum);
 	}
-	const_bitproxy_t operator[](size_type segnum) const
+	auto operator[](const typename base_type::size_type segnum) const
 	{
-		return this->template make_maskproxy<const_bitproxy_t>(this->a, segnum);
+		return this->template make_maskproxy<typename base_type::template maskproxy_assignable_type<typename base_type::array_t::const_reference>>(this->a, segnum);
 	}
 };
 

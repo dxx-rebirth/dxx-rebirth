@@ -162,12 +162,9 @@ void dl_index_write(const dl_index *di, PHYSFS_File *fp);
 
 namespace dcx {
 
-template <typename T, unsigned bits>
-class visited_segment_mask_t;
-class visited_segment_bitarray_t;
-
 template <unsigned bits>
-class visited_segment_multibit_array_t;
+class visited_segment_mask_t;
+using visited_segment_bitarray_t = visited_segment_mask_t<1>;
 
 constexpr std::integral_constant<int, MAX_SIDES_PER_SEGMENT> side_none{};
 constexpr std::integral_constant<int, -1> edge_none{};

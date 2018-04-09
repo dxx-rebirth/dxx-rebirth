@@ -206,9 +206,7 @@ void flash_frame()
 
 
 }
-}
 
-namespace dsx {
 static inline int is_alphablend_eclip(int eclip_num)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -217,7 +215,6 @@ static inline int is_alphablend_eclip(int eclip_num)
 #endif
 	return eclip_num == ECLIP_NUM_FUELCEN;
 }
-}
 
 // ----------------------------------------------------------------------------
 //	Render a face.
@@ -225,7 +222,6 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
-namespace dsx {
 static void render_face(grs_canvas &canvas, const segment &segp, const unsigned sidenum, const unsigned nv, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	grs_bitmap  *bm;
@@ -835,8 +831,6 @@ static ubyte code_window_point(fix x,fix y,const rect &w)
 static array<char, MAX_SEGMENTS> visited2;
 #endif
 
-using visited_twobit_array_t = visited_segment_multibit_array_t<2>;
-
 //Given two sides of segment, tell the two verts which form the 
 //edge between them
 constexpr array<
@@ -1003,6 +997,8 @@ static void add_obj_to_seglist(render_state_t &rstate, objnum_t objnum, segnum_t
 
 namespace {
 
+using visited_twobit_array_t = visited_segment_mask_t<2>;
+
 class render_compare_context_t
 {
 	typedef render_state_t::per_segment_state_t::distant_object distant_object;
@@ -1164,8 +1160,6 @@ static void build_object_lists(render_state_t &rstate)
 	}
 }
 }
-
-//--unused-- int Total_num_tmaps_drawn=0;
 
 int Rear_view=0;
 
