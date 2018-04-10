@@ -672,8 +672,8 @@ void record_screenshot_text_metadata(png_struct *const png_ptr, png_info *const 
 #endif
 unsigned write_screenshot_png(PHYSFS_File *const file, const struct tm *const tm, const grs_bitmap &bitmap, const palette_array_t &pal)
 {
-	const unsigned bm_w = bitmap.bm_w;
-	const unsigned bm_h = bitmap.bm_h;
+	const unsigned bm_w = ((bitmap.bm_w + 3) & ~3);
+	const unsigned bm_h = ((bitmap.bm_h + 3) & ~3);
 #if DXX_USE_OGL
 	const unsigned bufsize = bm_w * bm_h * 3;
 	const auto buf = std::make_unique<uint8_t[]>(bufsize);
