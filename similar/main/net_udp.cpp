@@ -1197,7 +1197,7 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 		if ((i+(NLPage*UDP_NETGAMES_PPAGE)) >= num_active_udp_games)
 		{
 			auto &p = dj->ljtext[i];
-			snprintf(&p[0], p.size(), "%d.", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1);
+			snprintf(&p[0], p.size(), "%d.                                                                      ", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1);
 			continue;
 		}
 
@@ -1317,7 +1317,7 @@ void net_udp_list_join_game()
 	for (int i = 0; i < UDP_NETGAMES_PPAGE; i++) {
 		auto &p = dj->ljtext[i];
 		nm_set_item_menu(m[i + 4], &p[0]);
-		snprintf(&p[0], p.size(), "%d.", i + 1);
+		snprintf(&p[0], p.size(), "%d.                                                                      ", i + 1);
 	}
 	nm_set_item_text(m[UDP_NETGAMES_PPAGE+4], "\t" );
 
