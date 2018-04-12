@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <bitset>
 #include <stdexcept>
+#include <random>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -95,6 +96,7 @@ namespace dsx {
 static void multi_reset_object_texture(object_base &objp);
 static void multi_new_bounty_target(playernum_t pnum);
 static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t type);
+static void multi_update_objects_for_non_cooperative();
 }
 static void multi_add_lifetime_killed();
 static void multi_send_heartbeat();
@@ -3189,6 +3191,22 @@ public:
 	void process_powerup(fvmsegptridx &, const object &, powerup_type_t);
 };
 
+class powerup_shuffle_state
+{
+	unsigned count = 0;
+	unsigned seed;
+	union {
+		std::array<vmobjptridx_t, MAX_OBJECTS> ptrs;
+	};
+public:
+	powerup_shuffle_state(const unsigned s) :
+		seed(s)
+	{
+	}
+	void record_powerup(vmobjptridx_t);
+	void shuffle() const;
+};
+
 void update_item_state::process_powerup(fvmsegptridx &vmsegptridx, const object &o, const powerup_type_t id)
 {
 	uint_fast32_t count;
@@ -3297,7 +3315,9 @@ public:
 void multi_prep_level_objects()
 {
         if (!(Game_mode & GM_MULTI_COOP))
-                multi_delete_extra_objects(); // Removes monsters from level
+	{
+		multi_update_objects_for_non_cooperative(); // Removes monsters from level
+	}
 
 	constexpr unsigned MAX_ALLOWED_INVULNERABILITY = 3;
 	constexpr unsigned MAX_ALLOWED_CLOAK = 3;
@@ -3515,34 +3535,142 @@ static int object_allowed_in_anarchy(const object_base &objp)
 	return 0;
 }
 
-int multi_delete_extra_objects()
+void powerup_shuffle_state::record_powerup(const vmobjptridx_t o)
 {
-	int nnp=0;
+	if (!seed)
+		return;
+	const auto id = get_powerup_id(o);
+	switch (id)
+	{
+		/* record_powerup runs before object conversion or duplication,
+		 * so object types that anarchy converts still have their
+		 * original type when this switch runs.  Therefore,
+		 * POW_EXTRA_LIFE and the key powerups must be handled here,
+		 * even though they are converted to other objects before play
+		 * begins.  If they were not handled, no object could exchange
+		 * places with a converted object.
+		 */
+		case POW_EXTRA_LIFE:
+		case POW_ENERGY:
+		case POW_SHIELD_BOOST:
+		case POW_LASER:
+		case POW_KEY_BLUE:
+		case POW_KEY_RED:
+		case POW_KEY_GOLD:
+		case POW_MISSILE_1:
+		case POW_MISSILE_4:
+		case POW_QUAD_FIRE:
+		case POW_VULCAN_WEAPON:
+		case POW_SPREADFIRE_WEAPON:
+		case POW_PLASMA_WEAPON:
+		case POW_FUSION_WEAPON:
+		case POW_PROXIMITY_WEAPON:
+		case POW_HOMING_AMMO_1:
+		case POW_HOMING_AMMO_4:
+		case POW_SMARTBOMB_WEAPON:
+		case POW_MEGA_WEAPON:
+		case POW_VULCAN_AMMO:
+		case POW_CLOAK:
+		case POW_INVULNERABILITY:
+#if defined(DXX_BUILD_DESCENT_II)
+		case POW_GAUSS_WEAPON:
+		case POW_HELIX_WEAPON:
+		case POW_PHOENIX_WEAPON:
+		case POW_OMEGA_WEAPON:
 
+		case POW_SUPER_LASER:
+		case POW_FULL_MAP:
+		case POW_CONVERTER:
+		case POW_AMMO_RACK:
+		case POW_AFTERBURNER:
+		case POW_HEADLIGHT:
+
+		case POW_SMISSILE1_1:
+		case POW_SMISSILE1_4:
+		case POW_GUIDED_MISSILE_1:
+		case POW_GUIDED_MISSILE_4:
+		case POW_SMART_MINE:
+		case POW_MERCURY_MISSILE_1:
+		case POW_MERCURY_MISSILE_4:
+		case POW_EARTHSHAKER_MISSILE:
+#endif
+			break;
+		default:
+			return;
+	}
+	if (count >= ptrs.size())
+		return;
+	ptrs[count++] = o;
+}
+
+void powerup_shuffle_state::shuffle() const
+{
+	if (!count)
+		return;
+	std::minstd_rand mr(seed);
+	for (unsigned j = count; --j;)
+	{
+		const auto oi = std::uniform_int_distribution<unsigned>(0u, j)(mr);
+		if (oi == j)
+			/* Swapping an object with itself is a no-op.  Skip the
+			 * work.  Do not re-roll, both to avoid the potential for an
+			 * infinite loop on unlucky rolls and to ensure a uniform
+			 * distribution of swaps.
+			 */
+			continue;
+		const auto o0 = ptrs[j];
+		const auto o1 = ptrs[oi];
+		const auto os0 = o0->segnum;
+		const auto os1 = o1->segnum;
+		/* Disconnect both objects from their original segments.  Swap
+		 * their positions.  Link each object to the segment that the
+		 * other object previously used.  This is necessary instead of
+		 * using std::swap on object::segnum, since the segment's linked
+		 * list of objects needs to be updated.
+		 */
+		obj_unlink(vmobjptr, vmsegptr, *o0);
+		obj_unlink(vmobjptr, vmsegptr, *o1);
+		std::swap(o0->pos, o1->pos);
+		obj_link_unchecked(vmobjptr, o0, vmsegptridx(os1));
+		obj_link_unchecked(vmobjptr, o1, vmsegptridx(os0));
+	}
+}
+
+void multi_update_objects_for_non_cooperative()
+{
 	// Go through the object list and remove any objects not used in
 	// 'Anarchy!' games.
 
-	// This function also prints the total number of available multiplayer
-	// positions in this level, even though this should always be 8 or more!
-
+	const auto game_mode = Game_mode;
+	/* Shuffle objects before object duplication runs.  Otherwise,
+	 * duplication-eligible items would be duplicated, then scattered,
+	 * causing the original site to be a treasure trove of swapped
+	 * items.  This way, duplicated items appear with their original.
+	 */
+	powerup_shuffle_state powerup_shuffle(Netgame.ShufflePowerupSeed);
 	range_for (const auto &&objp, vmobjptridx)
 	{
-		if ((objp->type==OBJ_PLAYER) || (objp->type==OBJ_GHOST))
-			nnp++;
-		else if ((objp->type==OBJ_ROBOT) && (Game_mode & GM_MULTI_ROBOTS))
-			;
+		const auto obj_type = objp->type;
+		if (obj_type == OBJ_PLAYER || obj_type == OBJ_GHOST)
+			continue;
+		else if (obj_type == OBJ_ROBOT && (game_mode & GM_MULTI_ROBOTS))
+			continue;
+		else if (obj_type == OBJ_POWERUP)
+		{
+			powerup_shuffle.record_powerup(objp);
+			continue;
+		}
 		else if (!object_allowed_in_anarchy(objp) ) {
 #if defined(DXX_BUILD_DESCENT_II)
 			// Before deleting object, if it's a robot, drop it's special powerup, if any
-			if (objp->type == OBJ_ROBOT)
+			if (obj_type == OBJ_ROBOT)
 				if (objp->contains_count && (objp->contains_type == OBJ_POWERUP))
 					object_create_robot_egg(objp);
 #endif
 			obj_delete(objp);
 		}
 	}
-
-	return nnp;
+	powerup_shuffle.shuffle();
 }
 
 }

@@ -73,6 +73,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DuplicatePrimariesStr "DuplicatePrimaries"
 #define DuplicateSecondariesStr "DuplicateSecondaries"
 #define DuplicateAccessoriesStr "DuplicateAccessories"
+#define ShufflePowerupsStr "ShufflePowerups"
 #define AllowMarkerViewStr "Allow_marker_view"
 #define AlwaysLightingStr "AlwaysLighting"
 #define ShowEnemyNamesStr "ShowEnemyNames"
@@ -1481,6 +1482,8 @@ void read_netgame_profile(netgame_info *ng)
 				ng->ThiefModifierFlags |= ThiefModifier::NoEnergyWeapons;
 		}
 #endif
+		else if (cmp(lb, eq, ShufflePowerupsStr))
+			convert_integer(ng->ShufflePowerupSeed, value);
 		else if (cmp(lb, eq, ShowEnemyNamesStr))
 			convert_integer(ng->ShowEnemyNames, value);
 		else if (cmp(lb, eq, BrightPlayersStr))
@@ -1531,6 +1534,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, ThiefAbsenceFlagStr "=%i\n", ng->ThiefModifierFlags & ThiefModifier::Absent);
 	PHYSFSX_printf(file, ThiefNoEnergyWeaponsFlagStr "=%i\n", ng->ThiefModifierFlags & ThiefModifier::NoEnergyWeapons);
 #endif
+	PHYSFSX_printf(file, ShufflePowerupsStr "=%i\n", !!ng->ShufflePowerupSeed);
 	PHYSFSX_printf(file, ShowEnemyNamesStr "=%i\n", ng->ShowEnemyNames);
 	PHYSFSX_printf(file, BrightPlayersStr "=%i\n", ng->BrightPlayers);
 	PHYSFSX_printf(file, InvulAppearStr "=%i\n", ng->InvulAppear);

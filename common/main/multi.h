@@ -95,7 +95,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION	static_cast<uint16_t>(6)
+#define MULTI_PROTO_VERSION	static_cast<uint16_t>(7)
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -485,7 +485,6 @@ void multi_process_bigdata(playernum_t pnum, const ubyte *buf, uint_fast32_t len
 void multi_do_death(int objnum);
 #ifdef dsx
 namespace dsx {
-int multi_delete_extra_objects();
 void multi_make_ghost_player(playernum_t);
 void multi_make_player_ghost(playernum_t);
 }
@@ -786,6 +785,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	uint32_t					AllowedItems;
 	packed_spawn_granted_items SpawnGrantedItems;
 	packed_netduplicate_items DuplicatePowerups;
+	unsigned ShufflePowerupSeed;
 #if defined(DXX_BUILD_DESCENT_II)
 	uint8_t Allow_marker_view;
 	uint8_t AlwaysLighting;

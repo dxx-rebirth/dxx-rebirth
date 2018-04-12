@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <random>
 
 #include "pstypes.h"
 #include "window.h"
@@ -2538,6 +2539,8 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
 		buf[len] = Netgame.team_vector;							len++;
 		PUT_INTEL_INT(buf + len, Netgame.AllowedItems);					len += 4;
+		/* In cooperative games, never shuffle. */
+		PUT_INTEL_INT(&buf[len], (Game_mode & GM_MULTI_COOP) ? 0 : Netgame.ShufflePowerupSeed);			len += 4;
 		buf[len] = Netgame.SecludedSpawns;			len += 1;
 #if defined(DXX_BUILD_DESCENT_I)
 		buf[len] = Netgame.SpawnGrantedItems.mask;			len += 1;
@@ -2776,6 +2779,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		Netgame.game_flag = unpack_game_flags(&p);						len++;
 		Netgame.team_vector = data[len];						len++;
 		Netgame.AllowedItems = GET_INTEL_INT(&(data[len]));				len += 4;
+		Netgame.ShufflePowerupSeed = GET_INTEL_INT(&(data[len]));		len += 4;
 		Netgame.SecludedSpawns = data[len];		len += 1;
 #if defined(DXX_BUILD_DESCENT_I)
 		Netgame.SpawnGrantedItems = data[len];		len += 1;
@@ -3286,6 +3290,7 @@ constexpr std::integral_constant<unsigned, 5 * reactor_invul_time_mini_scale> re
 	DXX_MENUITEM(VERB, SLIDER, SpawnInvulnerableText, opt_start_invul, Netgame.InvulAppear, 0, 8)	\
 	DXX_MENUITEM(VERB, TEXT, "", blank_2)                                     \
 	DXX_MENUITEM(VERB, TEXT, "Object Options", powerup_label)	                \
+	DXX_MENUITEM(VERB, CHECK, "Shuffle powerups in anarchy games", opt_shuffle_powerups, Netgame.ShufflePowerupSeed)	\
 	DXX_MENUITEM(VERB, MENU, "Set Objects allowed...", opt_setpower)	         \
 	DXX_MENUITEM(VERB, MENU, "Set Objects granted at spawn...", opt_setgrant)	\
 	DXX_MENUITEM(VERB, TEXT, "", blank_3)                                     \
@@ -3860,6 +3865,7 @@ window_event_result net_udp_setup_game()
 	Netgame.PacketsPerSec=DEFAULT_PPS;
 	snprintf(Netgame.game_name.data(), Netgame.game_name.size(), "%s%s", static_cast<const char *>(self.callsign), TXT_S_GAME);
 	reset_UDP_MyPort();
+	Netgame.ShufflePowerupSeed = 0;
 	Netgame.BrightPlayers = 1;
 	Netgame.InvulAppear = 4;
 	Netgame.SecludedSpawns = MAX_PLAYERS - 1;
@@ -4250,6 +4256,29 @@ static int net_udp_select_players()
 	char text[MAX_PLAYERS+4][45];
 	char title[50];
 	unsigned save_nplayers;              //how may people would like to join
+
+	if (Netgame.ShufflePowerupSeed)
+	{
+		unsigned seed = 0;
+		try {
+			seed = std::random_device()();
+			if (!seed)
+				/* random_device can return any number, including zero.
+				 * Rebirth treats zero specially, interpreting it as a
+				 * request not to shuffle.  Prevent a zero from
+				 * random_device being interpreted as a request not to
+				 * shuffle.
+				 */
+				seed = 1;
+		} catch (const std::exception &e) {
+			con_printf(CON_URGENT, "Failed to generate random number: %s", e.what());
+			/* Fall out without setting `seed`, so that the option is
+			 * disabled until the user notices the message and
+			 * resolves the problem.
+			 */
+		}
+		Netgame.ShufflePowerupSeed = seed;
+	}
 
 	net_udp_add_player( &UDP_Seq );
 	start_poll_menu_items spd;
