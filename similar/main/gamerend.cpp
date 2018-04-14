@@ -111,23 +111,60 @@ static void show_framerate(grs_canvas &canvas)
 {
 	static int fps_count = 0, fps_rate = 0;
 	static fix64 fps_time = 0;
-
-	gr_set_curfont(canvas, GAME_FONT);
-	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0),-1);
-
 	fps_count++;
-	if (timer_query() >= fps_time + F1_0)
+	const auto tq = timer_query();
+	if (tq >= fps_time + F1_0)
 	{
 		fps_rate = fps_count;
 		fps_count = 0;
-		fps_time = timer_query();
+		fps_time = tq;
 	}
-	const auto &&fspacx2 = FSPACX(2);
-	const auto &&y = LINE_SPACING(canvas) * 16;
+	const auto &&line_spacing = LINE_SPACING(canvas);
+	unsigned line_displacement;
+	switch (PlayerCfg.CockpitMode[1])
+	{
+		case CM_FULL_COCKPIT:
+			line_displacement = line_spacing * 2;
+			break;
+		case CM_STATUS_BAR:
+			line_displacement = line_spacing;
+			break;
+		case CM_FULL_SCREEN:
+			switch (PlayerCfg.HudMode)
+			{
+				case HudType::Standard:
+					line_displacement = line_spacing * 4;
+					break;
+				case HudType::Alternate1:
+					line_displacement = line_spacing * 6;
+					if (Game_mode & GM_MULTI)
+						line_displacement -= line_spacing * 4;
+					break;
+				case HudType::Alternate2:
+					line_displacement = line_spacing;
+					break;
+				case HudType::Hidden:
+				default:
+					return;
+			}
+			break;
+		case CM_LETTERBOX:
+		case CM_REAR_VIEW:
+		default:
+			return;
+	}
+	const auto &game_font = *GAME_FONT;
+	gr_set_curfont(canvas, &game_font);
+	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0),-1);
+	char buf[16];
 	if (CGameArg.DbgVerbose)
-		gr_printf(canvas, fspacx2, y, "%iFPS (%.2fms)", fps_rate, (static_cast<float>(1000) / (F1_0 / FrameTime)));
-        else
-		gr_printf(canvas, fspacx2, y, "%iFPS", fps_rate);
+		snprintf(buf, sizeof(buf), "%iFPS (%.2fms)", fps_rate, (FrameTime * 1000.) / F1_0);
+	else
+		snprintf(buf, sizeof(buf), "%iFPS", fps_rate);
+	int w, h;
+	gr_get_string_size(game_font, buf, &w, &h, nullptr);
+	const auto bm_h = canvas.cv_bitmap.bm_h;
+	gr_string(canvas, FSPACX(318) - w, bm_h - line_displacement, buf, w, h);
 }
 
 }

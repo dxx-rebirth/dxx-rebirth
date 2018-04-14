@@ -1330,9 +1330,9 @@ static void hud_show_primary_weapons_mode(grs_canvas &canvas, const player_info 
 					txtweapon = "P";
 					break;
 				case primary_weapon_index_t::OMEGA_INDEX:
-					if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
+					if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN && (player_info.primary_weapon_flags & HAS_OMEGA_FLAG))
 					{
-						snprintf(weapon_str, sizeof(weapon_str), "O%03i", player_info.Omega_charge * 100 / MAX_OMEGA_CHARGE);
+						snprintf(weapon_str, sizeof(weapon_str), "O%3i", player_info.Omega_charge * 100 / MAX_OMEGA_CHARGE);
 						txtweapon = weapon_str;
 					}
 					else
@@ -1442,9 +1442,9 @@ static void hud_show_weapons(grs_canvas &canvas, const object &plrobj)
 	if (PlayerCfg.HudMode == HudType::Alternate1)
 	{
 #if defined(DXX_BUILD_DESCENT_I)
-		unsigned multiplier = 1;
+		constexpr unsigned multiplier = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
-		unsigned multiplier = 2;
+		constexpr unsigned multiplier = 2;
 #endif
 		hud_show_primary_weapons_mode(canvas, player_info, 0, canvas.cv_bitmap.bm_w, y - (line_spacing * 2 * multiplier));
 		hud_show_secondary_weapons_mode(canvas, player_info, 0, canvas.cv_bitmap.bm_w, y - (line_spacing * multiplier));
