@@ -660,7 +660,7 @@ void record_screenshot_text_metadata(png_struct *const png_ptr, png_info *const 
 			t.key = key_viewer_segment;
 			t.text = viewer_segment;
 			t.compression = PNG_TEXT_COMPRESSION_NONE;
-			snprintf(viewer_segment, sizeof(viewer_segment), "%hu", Viewer->segnum);
+			snprintf(viewer_segment, sizeof(viewer_segment), "%hu", viewer->segnum);
 		}
 	}
 	png_set_text(png_ptr, info_ptr, text_fields.data(), idx);
