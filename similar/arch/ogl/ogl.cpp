@@ -1713,10 +1713,6 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 			}
 			break;
 		case OGL_TEXFILT_UPSCALE: // Upscaled - i.e. Blocky Filtered (Bilinear)
-			gl_mag_filter_int = GL_LINEAR_MIPMAP_LINEAR;
-			gl_min_filter_int = GL_LINEAR_MIPMAP_LINEAR;
-			buildmipmap = true;
-			break;
 		case OGL_TEXFILT_TRLINEAR: // Smooth - Trilinear
 			gl_mag_filter_int = GL_LINEAR;
 			gl_min_filter_int = GL_LINEAR_MIPMAP_LINEAR;
