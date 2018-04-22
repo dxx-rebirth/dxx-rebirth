@@ -14,6 +14,7 @@
 #include <SDL.h>
 
 #include "args.h"
+#include "config.h"
 #include "console.h"
 #include "game.h"
 #include "maths.h"
@@ -93,7 +94,11 @@ void ogl_sync::init(SyncGLMethod sync_method, int wait)
 	}
 
 	if (method == SYNC_GL_AUTO) {
-		if (!ogl_have_ARB_sync) {
+		if (!CGameCfg.VSync) {
+			con_puts(CON_NORMAL, "DXX-Rebirth: OpenGL: disabling automatic GL sync since VSync is turned off");
+			method = SYNC_GL_NONE;
+			need_ARB_sync = false;
+		} else if (!ogl_have_ARB_sync) {
 			con_puts(CON_NORMAL, "DXX-Rebirth: OpenGL: GL_ARB_sync not available, disabling sync");
 			method = SYNC_GL_NONE;
 			need_ARB_sync = false;
