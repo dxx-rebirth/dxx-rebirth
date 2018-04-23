@@ -910,6 +910,7 @@ void ogl_urect(grs_canvas &canvas, const int left, const int top, const int righ
 	glColorPointer(4, GL_FLOAT, 0, color_array.data());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
 	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 void ogl_ulinec(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const int c)
