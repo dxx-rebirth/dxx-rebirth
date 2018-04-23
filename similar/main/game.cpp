@@ -479,7 +479,13 @@ void calc_frame_time()
 		FrameTime = timer_value - last_timer_value;
 		if (FrameTime >= bound)
 		{
-			last_timer_value = timer_value;
+			// For constant target FPS rates, we increase the last timer value by the bound.
+			last_timer_value += bound;
+
+			// If this frame ran long, we're not going to meet our target FPS, so just set the last timer value to the current timer value.
+			if (last_timer_value < timer_value) {
+				last_timer_value = timer_value;
+			}
 			break;
 		}
 		if (Game_mode & GM_MULTI)
