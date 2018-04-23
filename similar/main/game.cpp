@@ -124,6 +124,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segiter.h"
 
 static fix64 last_timer_value=0;
+static fix64 sync_timer_value=0;
 fix ThisLevelTime=0;
 
 grs_canvas	Screen_3d_window;							// The rectangle for rendering the mine to
@@ -477,14 +478,13 @@ void calc_frame_time()
 	{
 		const auto timer_value = timer_update();
 		FrameTime = timer_value - last_timer_value;
-		if (FrameTime >= bound)
+		if (timer_value - sync_timer_value >= bound)
 		{
-			// For constant target FPS rates, we increase the last timer value by the bound.
-			last_timer_value += bound;
+			last_timer_value = timer_value;
 
-			// If this frame ran long, we're not going to meet our target FPS, so just set the last timer value to the current timer value.
-			if (last_timer_value < timer_value) {
-				last_timer_value = timer_value;
+			sync_timer_value += bound;
+			if (sync_timer_value + bound < timer_value) {
+				sync_timer_value = timer_value;
 			}
 			break;
 		}
