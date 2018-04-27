@@ -478,7 +478,7 @@ void calc_frame_time()
 	{
 		const auto timer_value = timer_update();
 		FrameTime = timer_value - last_timer_value;
-		if (timer_value - sync_timer_value >= bound)
+		if (FrameTime > 0 && timer_value - sync_timer_value >= bound)
 		{
 			last_timer_value = timer_value;
 
