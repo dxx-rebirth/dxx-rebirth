@@ -25,30 +25,30 @@ If you received a pre-compiled program from someone, describe how others can get
 #### Operating System Environment
 
 <!--
-State what platform (Microsoft Windows, Mac OS X, or Linux) you used.  If you used multiple, list all of them.
+State what platform (Microsoft Windows, Mac OS X, or Linux, *BSD) you used.  If you used multiple, list all of them.
 -->
 
 <!--
 For Windows, if readily available, also state the installed Service Pack.
 -->
 * Microsoft Windows
-  [ ] Microsoft Windows XP
-  [ ] Microsoft Windows Vista
-  [ ] Microsoft Windows 7
-  [ ] Microsoft Windows 8
-  [ ] Microsoft Windows 8.1
-  [ ] Microsoft Windows 10
+  * [ ] Microsoft Windows XP
+  * [ ] Microsoft Windows Vista
+  * [ ] Microsoft Windows 7
+  * [ ] Microsoft Windows 8
+  * [ ] Microsoft Windows 8.1
+  * [ ] Microsoft Windows 10
 
 <!--
 Mac OS X.  Add versions as needed.
 -->
 * Mac OS X
-  [ ] Mac OS X 10.8
-  [ ] Mac OS X 10.9
-  [ ] Mac OS X 10.10
-  [ ] Mac OS X 10.11
-  [ ] Mac OS X 10.12
-  [ ] Mac OS X 10.13
+  * [ ] Mac OS X 10.8
+  * [ ] Mac OS X 10.9
+  * [ ] Mac OS X 10.10
+  * [ ] Mac OS X 10.11
+  * [ ] Mac OS X 10.12
+  * [ ] Mac OS X 10.13
 
 <!--
 * For Linux, give the name of the distribution.
@@ -59,24 +59,37 @@ Add versions as needed.
 -->
 
 * Debian
-  [ ] Debian Wheezy
-  [ ] Debian Jessie
-  [ ] Debian Stretch
-  [ ] Debian Buster
+  * [ ] Debian Wheezy
+  * [ ] Debian Jessie
+  * [ ] Debian Stretch
+  * [ ] Debian Buster
 * Fedora
-  [ ] Fedora 26
-  [ ] Fedora 27
-  [ ] Fedora 28
-  [ ] Fedora 29
+  * [ ] Fedora 26
+  * [ ] Fedora 27
+  * [ ] Fedora 28
+  * [ ] Fedora 29
 * Ubuntu
-  [ ] Ubuntu 16.04 LTS (Xenial Xerus)
-  [ ] Ubuntu 16.10 (Yakkety Yak)
-  [ ] Ubuntu 17.04 (Zesty Zapus)
-  [ ] Ubuntu 17.10 (Artful Aardvark)
-  [ ] Ubuntu 18.04 LTS (Bionic Beaver)
+  * [ ] Ubuntu 16.04 LTS (Xenial Xerus)
+  * [ ] Ubuntu 16.10 (Yakkety Yak)
+  * [ ] Ubuntu 17.04 (Zesty Zapus)
+  * [ ] Ubuntu 17.10 (Artful Aardvark)
+  * [ ] Ubuntu 18.04 LTS (Bionic Beaver)
 
-[ ] Arch
-[ ] Gentoo
+* [ ] Arch
+* [ ] Gentoo
+
+* [ ] OpenBSD
+
+#### CPU environment
+
+<!--
+Indicate which CPU families were tested for the issue.  Some bugs are only visible on certain architectures, since other architectures hide the consequences of the mistake.
+If unsure, omit this section.  Generally, if you are on an architecture that requires special consideration, you will know your architecture.
+-->
+* [ ] x86 (32-bit Intel/AMD)
+* [ ] x86\_64 (64-bit Intel/AMD)
+* [ ] ARM (32-bit)
+* [ ] ARM64 (64-bit; sometimes called AArch64)
 
 #### Game environment
 
@@ -119,20 +132,26 @@ For runtime problems (crashes, hangs, incorrect results), provide:
 - If possible, describe the frequency of the problem.  Does it happen every time the steps to reproduce are followed?  If it is intermittent, are there any events correlated with the error?
 - If the game produced any error messages, include their text verbatim.  If you paraphrase the message, you will likely be asked to reproduce the error and collect a verbatim copy of the text.
 - For in-game problems, indicate whether it happens in single player, multiplayer cooperative, or multiplayer competitive.  If you do not know, state that.  You do not need to check every combination before filing, but please report which combinations you checked and the results you found for those combinations.
+- If the game crashed and a crash dump was created, include the dump backtrace.
 -->
 
 * Engines affected:
-  [ ] D1X-Rebirth
-  [ ] D2X-Rebirth
+  * [ ] D1X-Rebirth
+  * [ ] D2X-Rebirth
 
 * Game modes affected:
-  [ ] Single player
-  [ ] Multiplayer competitive
-  [ ] Multiplayer cooperative
+  * [ ] Single player
+  * [ ] Multiplayer competitive
+    * [ ] Anarchy
+    * [ ] Team Anarchy
+    * [ ] Robo-Anarchy
+    * [ ] Capture the Flag
+    * [ ] Bounty
+  * [ ] Multiplayer cooperative
 
 <!--
 If the issue is only observed in single player, delete this next group.
 -->
 * Players affected by issue:
-  [ ] Game host
-  [ ] Game guests
+  * [ ] Game host
+  * [ ] Game guests
