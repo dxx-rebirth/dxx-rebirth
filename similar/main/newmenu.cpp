@@ -1868,22 +1868,19 @@ static window_event_result listbox_key_command(window *, const d_event &event, l
 			return window_event_result::close;
 		default:
 		{
-			int ascii = key_ascii();
+			const unsigned ascii = key_ascii();
 			if ( ascii < 255 )	{
-				int cc,cc1;
-				cc=cc1=lb->citem+1;
-				if (cc1 < 0 )  cc1 = 0;
-				if (cc1 >= lb->nitems )  cc1 = 0;
-				while(1) {
-					if ( cc < 0 ) cc = 0;
-					if ( cc >= lb->nitems ) cc = 0;
-					if ( lb->citem == cc ) break;
-
-					if ( toupper( lb->item[cc][0] ) == toupper(ascii) )	{
+				const unsigned upper_ascii = toupper(ascii);
+				const auto nitems = lb->nitems;
+				for (unsigned cc = lb->citem + 1, steps = 0; steps < nitems; ++steps, ++cc)
+				{
+					if (cc >= nitems)
+						cc = 0;
+					if (toupper(static_cast<unsigned>(lb->item[cc][0])) == upper_ascii)
+					{
 						lb->citem = cc;
 						break;
 					}
-					cc++;
 				}
 			}
 			rval = window_event_result::ignored;
