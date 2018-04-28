@@ -117,7 +117,7 @@ static void show_framerate(grs_canvas &canvas)
 	{
 		fps_rate = fps_count;
 		fps_count = 0;
-		fps_time = tq;
+		fps_time += F1_0;
 	}
 	const auto &&line_spacing = LINE_SPACING(canvas);
 	unsigned line_displacement;
