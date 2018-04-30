@@ -273,8 +273,8 @@ class ConfigureTests(_ConfigureTests):
 		# One empty list for all the defaults.  The comprehension
 		# creates copies, so it is safe for the default value to be
 		# shared.
-		def __init__(self,env,keys,_l=[]):
-			self.flags = {k: env.get(k, _l)[:] for k in keys}
+		def __init__(self,env,keyviews,_l=[]):
+			self.flags = {k: env.get(k, _l)[:] for k in itertools.chain.from_iterable(keyviews)}
 		def restore(self,env):
 			env.Replace(**self.flags)
 		def __getitem__(self,name):
@@ -816,10 +816,10 @@ help:assume C++ compiler works
 			if self.user_settings.record_sconf_results:
 				self._sconf_results.append((calling_function, 'skipped'))
 			return
-		env_flags = self.PreservedEnvironment(context.env, successflags.keys() + testflags.keys() + self.__flags_Werror.keys() + ['CPPDEFINES'])
+		env_flags = self.PreservedEnvironment(context.env, (get_dictionary_key_view(successflags), get_dictionary_key_view(testflags), get_dictionary_key_view(__flags_Werror), ('CPPDEFINES',)))
 		context.env.MergeFlags(successflags)
 		forced, expected = self._check_sconf_forced(calling_function)
-		caller_modified_env_flags = self.PreservedEnvironment(context.env, self.__flags_Werror.keys() + testflags.keys())
+		caller_modified_env_flags = self.PreservedEnvironment(context.env, (get_dictionary_key_view(testflags), get_dictionary_key_view(__flags_Werror)))
 		# Always pass -Werror to configure tests.
 		context.env.Append(**__flags_Werror)
 		context.env.Append(**testflags)
