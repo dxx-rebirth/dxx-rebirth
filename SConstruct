@@ -85,8 +85,10 @@ class StaticSubprocess:
 	def qcall(args,stderr=None,_pcall=pcall,_shlex_split=shlex_split):
 		return _pcall(_shlex_split(args),stderr)
 	@staticmethod
-	def get_version_head(cmd,_qcall=qcall):
-		v = _qcall('%s %s' % (cmd, '--version'), stderr=subprocess.PIPE)
+	def get_version_head(cmd,_pcall=pcall,_shlex_split=shlex_split):
+		# If cmd is bytes, then it is output from a program and should
+		# not be reparsed.
+		v = _pcall(([cmd] if isinstance(cmd, bytes) else _shlex_split(cmd)) + ['--version'], stderr=subprocess.PIPE)
 		try:
 			return v.__version_head
 		except AttributeError:
@@ -202,10 +204,12 @@ class _ConfigureTests:
 	class Collector(object):
 		class RecordedTest(object):
 			__slots__ = ('desc', 'name', 'predicate')
-			def __init__(self,name,desc):
+			def __init__(self,name,desc,predicate=None):
 				self.name = name
 				self.desc = desc
-				self.predicate = None
+				self.predicate = predicate
+			def __repr__(self):
+				return '_ConfigureTests.Collector.RecordedTest(%r, %r, %r)' % (self.name, self.desc, self.predicate)
 
 		def __init__(self,record):
 			self.record = record
@@ -231,9 +235,7 @@ class ConfigureTests(_ConfigureTests):
 			_ConfigureTests.Collector.__init__(self, collector.record)
 			self.__guard = guard
 		def RecordedTest(self,name,desc):
-			r = self.__RecordedTest(name, desc)
-			r.predicate = self.__guard
-			return r
+			return self.__RecordedTest(name, desc, self.__guard)
 
 	class Cxx11RequiredFeature(object):
 		__slots__ = ('main', 'name', 'text')
@@ -357,7 +359,7 @@ class ConfigureTests(_ConfigureTests):
 				Display("%s: reading %s version from %s\n" % (message, pkgconfig_name, mv_cmd))
 				v = StaticSubprocess.pcall(mv_cmd)
 				if v.out:
-					Display("%s: %s version: %r\n" % (message, display_name, v.out.split('\n')[0]))
+					Display("%s: %s version: %r\n" % (message, display_name, v.out.splitlines()[0]))
 			except OSError as o:
 				Display("%s: failed with error %s; using default flags for '%s': %r\n" % (message, repr(o.message) if o.errno is None else ('%u ("%s")' % (o.errno, o.strerror)), pkgconfig_name, guess_flags))
 				flags = guess_flags
@@ -686,7 +688,7 @@ help:assume C++ compiler works
 %.8x
 %s
 #endif
-''' % (_crc32(s), s)
+''' % (_crc32(s.encode()), s)
 		ToolchainInformation.show_partial_environ(cenv, user_settings, lambda s, _Display=context.Display, _msgprefix=self.msgprefix: _Display("%s:\t%s\n" % (_msgprefix, s)))
 		if use_ccache:
 			if use_distcc:
@@ -970,7 +972,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			if struct is None:
 				import struct
 				cls.__python_import_struct = struct
-			a = struct.pack('cccc', '1', '2', '3', '4')
+			a = struct.pack('cccc', b'1', b'2', b'3', b'4')
 			unpack = struct.unpack
 			i = unpack('i', a)
 			if i == unpack('<i', a):
@@ -2774,19 +2776,19 @@ class PCHManager(object):
 		# - #endif
 		# - #include
 		# - #error
-		cls._re_preproc_match = c(r'#\s*([ie]\w+)(?:\s+(.*))?').match
+		cls._re_preproc_match = c(br'#\s*([ie]\w+)(?:\s+(.*))?').match
 		# Capture the argument in a #include statement, including the
 		# angle brackets or quotes.
 		#
 		# Rebirth currently has no computed includes, so ignore computed
 		# includes.
-		cls._re_include_match = c(r'(<[^>]+>|"[^"]+")').match
+		cls._re_include_match = c(br'(<[^>]+>|"[^"]+")').match
 		# Strip a single-line C++ style comment ("// Text") and any
 		# preceding whitespace.  The C preprocessor will discard these
 		# when compiling the header.  Discarding them from the
 		# environment Value will prevent rebuilding pch.cpp when the
 		# only change is in such a comment.
-		cls._re_singleline_comments_sub = c(r'\s*//.*').sub
+		cls._re_singleline_comments_sub = c(br'\s*//.*').sub
 		# dict with key=filename with path, value=ScannedFile
 		cls._cls_scanned_files = {}
 		from tempfile import mkstemp
@@ -2904,12 +2906,12 @@ class PCHManager(object):
 		header_search_path = None
 		os_path_join = os.path.join
 		os_path_exists = os.path.exists
-		for line in map(str.strip, source_filenode.get_contents().splitlines()):
+		for line in map(bytes.strip, source_filenode.get_contents().splitlines()):
 			if preceding_line is not None:
 				# Basic support for line continuation.
-				line = '%s %s' % (preceding_line[:-1], line)
+				line = b'%s %s' % (preceding_line[:-1], line)
 				preceding_line = None
-			elif not line.startswith('#'):
+			elif not line.startswith(b'#'):
 				# Allow unlimited non-preprocessor lines before the
 				# first preprocessor line.  Once one preprocessor line
 				# is found, track how many lines since the most recent
@@ -2924,7 +2926,7 @@ class PCHManager(object):
 				continue
 			lines_since_preprocessor = 0
 			# Joined lines are rare.  Ignore complicated quoting.
-			if line[-1] == '\\':
+			if line.endswith(b'\\'):
 				preceding_line = line
 				continue
 			m = match_preproc_directive(line)
@@ -2933,20 +2935,20 @@ class PCHManager(object):
 				# this scanner handles.
 				continue
 			directive = m.group(1)
-			if directive == 'include':
+			if directive == b'include':
 				m = match_include_directive(m.group(2))
 				if not m:
 					# This directive is probably a computed include.
 					continue
 				name = m.group(1)
 				bare_name = name[1:-1]
-				if name[0] == '"':
+				if name.startswith(b'"'):
 					# Canonicalize paths to non-system headers
-					if name == '"dxxsconf.h"':
+					if name == b'"dxxsconf.h"':
 						# Ignore generated header here.  PCH generation
 						# will insert it in the right order.
 						continue
-					if name == '"valptridx.tcc"':
+					if name == b'"valptridx.tcc"':
 						# Exclude tcc file from PCH.  It is not meant to
 						# be included in every file.  Starting in gcc-7,
 						# static functions defined in valptridx.tcc
@@ -2956,7 +2958,7 @@ class PCHManager(object):
 						continue
 					if header_search_path is None:
 						header_search_path = [
-							d for d in ([os.path.dirname(str(source_filenode))] + env['CPPPATH'])
+							d.encode() for d in ([os.path.dirname(str(source_filenode))] + env['CPPPATH'])
 							# Filter out SDL paths
 							if not d.startswith('/')
 						]
@@ -2966,7 +2968,7 @@ class PCHManager(object):
 						if os_path_exists(effective_name):
 							name = effective_name
 							break
-					if name is None:
+					else:
 						# name is None if:
 						# - A system header was included using quotes.
 						#
@@ -2977,25 +2979,25 @@ class PCHManager(object):
 						# looks inside branches that the C preprocessor
 						# will evaluate as false.
 						continue
-					name = env.File(name)
+					name = env.File(name.decode())
 				candidates[name].add(tuple(guard))
-			elif directive == 'endif':
+			elif directive == b'endif':
 				# guard should always be True here, but test to avoid
 				# ugly errors if scanning an ill-formed source file.
 				if guard:
 					guard.pop()
-			elif directive == 'else':
+			elif directive == b'else':
 				# #else is handled separately because it has no
 				# arguments
-				guard.append('#%s' % directive)
+				guard.append(b'#%s' % (directive))
 			elif directive in (
-				'elif',
-				'if',
-				'ifdef',
-				'ifndef',
+				b'elif',
+				b'if',
+				b'ifdef',
+				b'ifndef',
 			):
-				guard.append('#%s %s' % (directive, m.group(2)))
-			elif directive not in ('error',):
+				guard.append(b'#%s %s' % (directive, m.group(2)))
+			elif directive not in (b'error',):
 				raise SCons.Errors.StopError("Scanning %s found unhandled C preprocessor directive %r" % (str(source_filenode), directive))
 		return cls.ScannedFile(candidates)
 
@@ -3011,15 +3013,15 @@ class PCHManager(object):
 		syscpp_includes = defaultdict(list)
 		owncpp_includes = defaultdict(list) if own_header_inclusion_threshold else None
 		for included_file, usage_dict in get_dictionary_item_view(self.__files_included):
-			if isinstance(included_file, str):
+			if isinstance(included_file, (bytes, str)):
 				# System header
 				cpp_includes = syscpp_includes
-				name = included_file
+				name = (included_file.encode() if isinstance(included_file, str) else included_file)
 				threshold = own_header_inclusion_threshold if sys_header_inclusion_threshold is None else sys_header_inclusion_threshold
 			else:
 				# Own header
 				cpp_includes = owncpp_includes
-				name = '"%s"' % included_file
+				name = b'"%s"' % (str(included_file).encode())
 				threshold = own_header_inclusion_threshold
 			if not threshold:
 				continue
@@ -3068,7 +3070,7 @@ class PCHManager(object):
 		# The C preprocessor will only run over the file when it is
 		# actually changed and is processed to build a new .gch file.
 		for preprocessor_guard_directives, included_file_tuples in sorted(get_dictionary_item_view(cpp_includes)):
-			generated_pch_lines.append('')
+			generated_pch_lines.append(b'')
 			generated_pch_lines.extend(preprocessor_guard_directives)
 			# local_count_seen is the direct usage count for this
 			# combination of preprocessor_guard_directives.
@@ -3079,11 +3081,12 @@ class PCHManager(object):
 			# when it reaches threshold, so it may undercount actual
 			# usage.
 			for (name, local_count_seen, total_count_seen) in sorted(included_file_tuples):
-				generated_pch_lines.append('#include %s\t// %u %u' % (name, local_count_seen, total_count_seen))
+				assert(isinstance(name, bytes)), repr(name)
+				generated_pch_lines.append(b'#include %s\t// %u %u' % (name, local_count_seen, total_count_seen))
 			# d[2] == l if d is '#else' or d is '#elif'
 			# Only generate #endif when d is a '#if*' directive, since
 			# '#else/#elif' do not introduce a new scope.
-			generated_pch_lines.extend('#endif' for d in preprocessor_guard_directives if d[2] != 'l')
+			generated_pch_lines.extend(b'#endif' for d in preprocessor_guard_directives if d[2:3] != b'l')
 		return generated_pch_lines
 
 	def _compute_indirect_includes(self):
@@ -3130,7 +3133,7 @@ class PCHManager(object):
 		includes_to_check = sorted(files_included.iterkeys(), key=str)
 		while includes_to_check:
 			included_file = includes_to_check.pop()
-			if isinstance(included_file, str):
+			if isinstance(included_file, (bytes, str)):
 				# System headers are str.  Internal headers are
 				# fs.File.
 				continue
@@ -3141,7 +3144,7 @@ class PCHManager(object):
 				continue
 			f = self.record_file(self.env, File(included_file))
 			for nested_included_file, nested_guards in sorted(get_dictionary_item_view(f.candidates), key=str):
-				if not isinstance(included_file, str) and not nested_included_file in files_included:
+				if not isinstance(included_file, (bytes, str)) and not nested_included_file in files_included:
 					# If the header is a system header, it will be
 					# str.  Skip system headers.
 					#
@@ -3190,7 +3193,7 @@ class PCHManager(object):
 			return
 		self._compute_pch_text()
 		syspch_lines = self.__generated_syspch_lines
-		pch_begin_banner_template = '''
+		pch_begin_banner_template = b'''
 // BEGIN PCH GENERATED FILE
 // %r
 // Threshold=%u
@@ -3198,7 +3201,7 @@ class PCHManager(object):
 // SConf generated header
 #include "dxxsconf.h"
 '''
-		pch_end_banner = ('''
+		pch_end_banner = (b'''
 // END PCH GENERATED FILE
 ''',)
 		if self.syspch_object_node:
@@ -3217,9 +3220,9 @@ class PCHManager(object):
 			self._register_write_pch_inclusion(self.ownpch_cpp_node,
 				(
 					(pch_begin_banner_template % (self.ownpch_cpp_filename, self.user_settings.pch),),
-					('// System headers' if syspch_lines else '',),
+					(b'// System headers' if syspch_lines else b'',),
 					syspch_lines,
-					('''
+					(b'''
 // Own headers
 ''',),
 					self.__generated_ownpch_lines,
@@ -3237,8 +3240,8 @@ class PCHManager(object):
 		# Strip C++ single line comments so that changes in comments are
 		# ignored when deciding whether pch.cpp needs to be rebuilt.
 		env = self.env
-		text = '\n'.join(itertools.chain.from_iterable(lineseq))
-		v = env.Value(self._re_singleline_comments_sub('', text))
+		text = b'\n'.join(itertools.chain.from_iterable(lineseq))
+		v = env.Value(self._re_singleline_comments_sub(b'', text))
 		v.__generated_pch_text = text
 		# Use env.Command instead of env.Textfile or env.Substfile since
 		# the latter use their input both for freshness and as a data
@@ -3304,7 +3307,7 @@ class DXXCommon(LazyObjectConstructor):
 					# Mix in CRC of CXXFLAGS to get reasonable uniqueness
 					# when flags are changed.  A full hash is
 					# unnecessary here.
-					crc = binascii.crc32(compiler_flags)
+					crc = binascii.crc32(compiler_flags.encode())
 					if crc < 0:
 						crc = crc + 0x100000000
 					fields.append('{:08x}'.format(crc))
@@ -3860,7 +3863,7 @@ class DXXCommon(LazyObjectConstructor):
 			elif c == '\n':
 				r += r'\n'
 			else:
-				r += r'\\x%s' % b2a_hex(c)
+				r += r'\\x%s' % b2a_hex(c.encode()).decode()
 				prior = True
 				continue
 			prior = False
@@ -3869,11 +3872,13 @@ class DXXCommon(LazyObjectConstructor):
 	@staticmethod
 	def _encode_cppdefine_for_identifier(user_settings,s,b2a_base64=binascii.b2a_base64):
 		extended_identifiers = user_settings._dxx_extended_identifiers
-		return '"%s"' % b2a_base64(s)	\
+		return '"%s"' % (b2a_base64(s.encode())	\
 			.rstrip()	\
+			.decode()	\
 			.replace('+', extended_identifiers[0])	\
 			.replace('/', extended_identifiers[1])	\
-			.replace('=', extended_identifiers[2])
+			.replace('=', extended_identifiers[2])	\
+			)
 
 	def prepare_environment(self):
 		# Prettier build messages......

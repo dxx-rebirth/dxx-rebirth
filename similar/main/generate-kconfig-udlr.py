@@ -326,7 +326,7 @@ class Main:
 		from tempfile import mkstemp
 		os_path = os.path
 		fd, path = mkstemp(suffix='', prefix='%s.' % os_path.basename(target), dir=os_path.dirname(target), text=True)
-		os.write(fd, generated_text)
+		os.write(fd, generated_text.encode())
 		os.close(fd)
 		os.rename(path, target)
 
