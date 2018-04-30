@@ -4023,54 +4023,52 @@ class DXXArchive(DXXCommon):
 	target = 'dxx-common'
 
 	def get_objects_common(self,
-		__get_objects_common=DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
-'2d/2dsline.cpp',
-'2d/bitblt.cpp',
-'2d/bitmap.cpp',
-'2d/box.cpp',
-'2d/canvas.cpp',
-'2d/circle.cpp',
-'2d/disc.cpp',
-'2d/gpixel.cpp',
-'2d/line.cpp',
-'2d/pixel.cpp',
-'2d/rect.cpp',
-'2d/rle.cpp',
-'2d/scalec.cpp',
-'3d/draw.cpp',
-'3d/globvars.cpp',
-'3d/instance.cpp',
-'3d/matrix.cpp',
-'3d/points.cpp',
-'3d/rod.cpp',
-'3d/setup.cpp',
-'arch/sdl/event.cpp',
-'arch/sdl/joy.cpp',
-'arch/sdl/key.cpp',
-'arch/sdl/mouse.cpp',
-'arch/sdl/timer.cpp',
-'arch/sdl/window.cpp',
-'main/cli.cpp',
-'main/cmd.cpp',
-'main/cvar.cpp',
-'maths/fixc.cpp',
-'maths/rand.cpp',
-'maths/tables.cpp',
-'maths/vecmat.cpp',
-'mem/mem.cpp',
-'misc/error.cpp',
-'misc/hash.cpp',
-'misc/hmp.cpp',
-'misc/ignorecase.cpp',
-'misc/strutil.cpp',
-'misc/vgrphys.cpp',
-'misc/vgwphys.cpp',
-]
-]), \
-		__get_objects_use_sdl1=DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
-'arch/sdl/rbaudio.cpp',
-]
-])
+		__get_objects_common=DXXCommon.create_lazy_object_getter((
+'common/2d/2dsline.cpp',
+'common/2d/bitblt.cpp',
+'common/2d/bitmap.cpp',
+'common/2d/box.cpp',
+'common/2d/canvas.cpp',
+'common/2d/circle.cpp',
+'common/2d/disc.cpp',
+'common/2d/gpixel.cpp',
+'common/2d/line.cpp',
+'common/2d/pixel.cpp',
+'common/2d/rect.cpp',
+'common/2d/rle.cpp',
+'common/2d/scalec.cpp',
+'common/3d/draw.cpp',
+'common/3d/globvars.cpp',
+'common/3d/instance.cpp',
+'common/3d/matrix.cpp',
+'common/3d/points.cpp',
+'common/3d/rod.cpp',
+'common/3d/setup.cpp',
+'common/arch/sdl/event.cpp',
+'common/arch/sdl/joy.cpp',
+'common/arch/sdl/key.cpp',
+'common/arch/sdl/mouse.cpp',
+'common/arch/sdl/timer.cpp',
+'common/arch/sdl/window.cpp',
+'common/main/cli.cpp',
+'common/main/cmd.cpp',
+'common/main/cvar.cpp',
+'common/maths/fixc.cpp',
+'common/maths/rand.cpp',
+'common/maths/tables.cpp',
+'common/maths/vecmat.cpp',
+'common/mem/mem.cpp',
+'common/misc/error.cpp',
+'common/misc/hash.cpp',
+'common/misc/hmp.cpp',
+'common/misc/ignorecase.cpp',
+'common/misc/strutil.cpp',
+'common/misc/vgrphys.cpp',
+'common/misc/vgwphys.cpp',
+)), \
+		__get_objects_use_sdl1=DXXCommon.create_lazy_object_getter((
+'common/arch/sdl/rbaudio.cpp',
+))
 		):
 		value = list(__get_objects_common(self))
 		extend = value.extend
@@ -4079,57 +4077,53 @@ class DXXArchive(DXXCommon):
 		extend(self.platform_settings.get_platform_objects())
 		return value
 
-	get_objects_editor = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
-'editor/autosave.cpp',
-'editor/func.cpp',
-'ui/button.cpp',
-'ui/checkbox.cpp',
-'ui/dialog.cpp',
-'ui/file.cpp',
-'ui/gadget.cpp',
-'ui/icon.cpp',
-'ui/inputbox.cpp',
-'ui/keypad.cpp',
-'ui/keypress.cpp',
-'ui/listbox.cpp',
-'ui/menu.cpp',
-'ui/menubar.cpp',
-'ui/message.cpp',
-'ui/radio.cpp',
-'ui/scroll.cpp',
-'ui/ui.cpp',
-'ui/uidraw.cpp',
-'ui/userbox.cpp'
-]
-])
+	get_objects_editor = DXXCommon.create_lazy_object_getter((
+'common/editor/autosave.cpp',
+'common/editor/func.cpp',
+'common/ui/button.cpp',
+'common/ui/checkbox.cpp',
+'common/ui/dialog.cpp',
+'common/ui/file.cpp',
+'common/ui/gadget.cpp',
+'common/ui/icon.cpp',
+'common/ui/inputbox.cpp',
+'common/ui/keypad.cpp',
+'common/ui/keypress.cpp',
+'common/ui/listbox.cpp',
+'common/ui/menu.cpp',
+'common/ui/menubar.cpp',
+'common/ui/message.cpp',
+'common/ui/radio.cpp',
+'common/ui/scroll.cpp',
+'common/ui/ui.cpp',
+'common/ui/uidraw.cpp',
+'common/ui/userbox.cpp',
+))
 	# for non-ogl
-	get_objects_arch_sdl = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
-'3d/clipper.cpp',
-'texmap/ntmap.cpp',
-'texmap/scanline.cpp',
-'texmap/tmapflat.cpp'
-]
-])
+	get_objects_arch_sdl = DXXCommon.create_lazy_object_getter((
+'common/3d/clipper.cpp',
+'common/texmap/ntmap.cpp',
+'common/texmap/scanline.cpp',
+'common/texmap/tmapflat.cpp',
+))
 	# for ogl
-	get_objects_arch_ogl = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
-'arch/ogl/ogl_extensions.cpp',
-'arch/ogl/ogl_sync.cpp'
-]
-])
-	get_objects_arch_sdlmixer = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
-'arch/sdl/digi_mixer_music.cpp',
-]
-])
+	get_objects_arch_ogl = DXXCommon.create_lazy_object_getter((
+'common/arch/ogl/ogl_extensions.cpp',
+'common/arch/ogl/ogl_sync.cpp',
+))
+	get_objects_arch_sdlmixer = DXXCommon.create_lazy_object_getter((
+'common/arch/sdl/digi_mixer_music.cpp',
+))
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
-		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter([
+		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter((
 'common/arch/win32/except.cpp',
-'common/arch/win32/messagebox.cpp'
-])
+'common/arch/win32/messagebox.cpp',
+))
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
-		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter([
+		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter((
 			'common/arch/cocoa/messagebox.mm',
-			'common/arch/cocoa/SDLMain.m'
-		])
+			'common/arch/cocoa/SDLMain.m',
+		))
 
 	def __init__(self,user_settings):
 		DXXCommon.__init__(self)
@@ -4241,102 +4235,101 @@ class DXXProgram(DXXCommon):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
 	def _apply_env_version_seq(self,env,_empty={}):
 		return _empty if self.user_settings.pch else {'CPPDEFINES' : env['CPPDEFINES'] + [('DXX_VERSION_SEQ', self.DXX_VERSION_SEQ)]}
-	get_objects_similar_arch_ogl = DXXCommon.create_lazy_object_getter([{
-		'source':[os.path.join('similar', f) for f in [
-'arch/ogl/gr.cpp',
-'arch/ogl/ogl.cpp',
-]
-],
+	get_objects_similar_arch_ogl = DXXCommon.create_lazy_object_getter(({
+		'source':(
+'similar/arch/ogl/gr.cpp',
+'similar/arch/ogl/ogl.cpp',
+),
 		'transform_target':_apply_target_name,
-	}])
-	get_objects_similar_arch_sdl = DXXCommon.create_lazy_object_getter([{
-		'source':[os.path.join('similar', f) for f in [
-'arch/sdl/gr.cpp',
-]
-],
+	},
+	))
+	get_objects_similar_arch_sdl = DXXCommon.create_lazy_object_getter(({
+		'source':(
+'similar/arch/sdl/gr.cpp',
+),
 		'transform_target':_apply_target_name,
-	}])
-	get_objects_similar_arch_sdlmixer = DXXCommon.create_lazy_object_getter([{
-		'source':[os.path.join('similar', f) for f in [
-'arch/sdl/digi_mixer.cpp',
-'arch/sdl/jukebox.cpp'
-]
-],
+	},
+	))
+	get_objects_similar_arch_sdlmixer = DXXCommon.create_lazy_object_getter(({
+		'source':(
+'similar/arch/sdl/digi_mixer.cpp',
+'similar/arch/sdl/jukebox.cpp',
+),
 		'transform_target':_apply_target_name,
-	}])
-	__get_objects_common = DXXCommon.create_lazy_object_getter([{
-		'source':[os.path.join('similar', f) for f in (
-'2d/font.cpp',
-'2d/palette.cpp',
-'2d/pcx.cpp',
-'3d/interp.cpp',
-'arch/sdl/digi.cpp',
-'arch/sdl/digi_audio.cpp',
-'arch/sdl/init.cpp',
-'main/ai.cpp',
-'main/aipath.cpp',
-'main/automap.cpp',
-'main/bm.cpp',
-'main/cntrlcen.cpp',
-'main/collide.cpp',
-'main/config.cpp',
-'main/console.cpp',
-'main/controls.cpp',
-'main/credits.cpp',
-'main/digiobj.cpp',
-'main/effects.cpp',
-'main/endlevel.cpp',
-'main/fireball.cpp',
-'main/fuelcen.cpp',
-'main/fvi.cpp',
-'main/game.cpp',
-'main/gamecntl.cpp',
-'main/gamefont.cpp',
-'main/gamemine.cpp',
-'main/gamerend.cpp',
-'main/gamesave.cpp',
-'main/gameseg.cpp',
-'main/gameseq.cpp',
-'main/gauges.cpp',
-'main/hostage.cpp',
-'main/hud.cpp',
-'main/iff.cpp',
-'main/kmatrix.cpp',
-'main/laser.cpp',
-'main/lighting.cpp',
-'main/menu.cpp',
-'main/mglobal.cpp',
-'main/mission.cpp',
-'main/morph.cpp',
-'main/multi.cpp',
-'main/multibot.cpp',
-'main/newdemo.cpp',
-'main/newmenu.cpp',
-'main/object.cpp',
-'main/paging.cpp',
-'main/physics.cpp',
-'main/piggy.cpp',
-'main/player.cpp',
-'main/polyobj.cpp',
-'main/powerup.cpp',
-'main/render.cpp',
-'main/robot.cpp',
-'main/scores.cpp',
-'main/segment.cpp',
-'main/slew.cpp',
-'main/songs.cpp',
-'main/state.cpp',
-'main/switch.cpp',
-'main/terrain.cpp',
-'main/texmerge.cpp',
-'main/text.cpp',
-'main/titles.cpp',
-'main/vclip.cpp',
-'main/wall.cpp',
-'main/weapon.cpp',
-'misc/args.cpp',
-)
-],
+	},
+	))
+	__get_objects_common = DXXCommon.create_lazy_object_getter(({
+		'source':(
+'similar/2d/font.cpp',
+'similar/2d/palette.cpp',
+'similar/2d/pcx.cpp',
+'similar/3d/interp.cpp',
+'similar/arch/sdl/digi.cpp',
+'similar/arch/sdl/digi_audio.cpp',
+'similar/arch/sdl/init.cpp',
+'similar/main/ai.cpp',
+'similar/main/aipath.cpp',
+'similar/main/automap.cpp',
+'similar/main/bm.cpp',
+'similar/main/cntrlcen.cpp',
+'similar/main/collide.cpp',
+'similar/main/config.cpp',
+'similar/main/console.cpp',
+'similar/main/controls.cpp',
+'similar/main/credits.cpp',
+'similar/main/digiobj.cpp',
+'similar/main/effects.cpp',
+'similar/main/endlevel.cpp',
+'similar/main/fireball.cpp',
+'similar/main/fuelcen.cpp',
+'similar/main/fvi.cpp',
+'similar/main/game.cpp',
+'similar/main/gamecntl.cpp',
+'similar/main/gamefont.cpp',
+'similar/main/gamemine.cpp',
+'similar/main/gamerend.cpp',
+'similar/main/gamesave.cpp',
+'similar/main/gameseg.cpp',
+'similar/main/gameseq.cpp',
+'similar/main/gauges.cpp',
+'similar/main/hostage.cpp',
+'similar/main/hud.cpp',
+'similar/main/iff.cpp',
+'similar/main/kmatrix.cpp',
+'similar/main/laser.cpp',
+'similar/main/lighting.cpp',
+'similar/main/menu.cpp',
+'similar/main/mglobal.cpp',
+'similar/main/mission.cpp',
+'similar/main/morph.cpp',
+'similar/main/multi.cpp',
+'similar/main/multibot.cpp',
+'similar/main/newdemo.cpp',
+'similar/main/newmenu.cpp',
+'similar/main/object.cpp',
+'similar/main/paging.cpp',
+'similar/main/physics.cpp',
+'similar/main/piggy.cpp',
+'similar/main/player.cpp',
+'similar/main/polyobj.cpp',
+'similar/main/powerup.cpp',
+'similar/main/render.cpp',
+'similar/main/robot.cpp',
+'similar/main/scores.cpp',
+'similar/main/segment.cpp',
+'similar/main/slew.cpp',
+'similar/main/songs.cpp',
+'similar/main/state.cpp',
+'similar/main/switch.cpp',
+'similar/main/terrain.cpp',
+'similar/main/texmerge.cpp',
+'similar/main/text.cpp',
+'similar/main/titles.cpp',
+'similar/main/vclip.cpp',
+'similar/main/wall.cpp',
+'similar/main/weapon.cpp',
+'similar/misc/args.cpp',
+),
 		'transform_target':_apply_target_name,
 	}, {
 		'source': (
@@ -4362,46 +4355,46 @@ class DXXProgram(DXXCommon):
 ),
 		'transform_env': _apply_env_version_seq,
 		'transform_target':_apply_target_name,
-	}
-	])
-	get_objects_editor = DXXCommon.create_lazy_object_getter([{
-		'source':[os.path.join('similar', f) for f in [
-'editor/centers.cpp',
-'editor/curves.cpp',
-'main/dumpmine.cpp',
-'editor/eglobal.cpp',
-'editor/elight.cpp',
-'editor/eobject.cpp',
-'editor/eswitch.cpp',
-'editor/group.cpp',
-'editor/info.cpp',
-'editor/kbuild.cpp',
-'editor/kcurve.cpp',
-'editor/kfuncs.cpp',
-'editor/kgame.cpp',
-'editor/khelp.cpp',
-'editor/kmine.cpp',
-'editor/ksegmove.cpp',
-'editor/ksegsel.cpp',
-'editor/ksegsize.cpp',
-'editor/ktmap.cpp',
-'editor/kview.cpp',
-'editor/med.cpp',
-'editor/meddraw.cpp',
-'editor/medmisc.cpp',
-'editor/medrobot.cpp',
-'editor/medsel.cpp',
-'editor/medwall.cpp',
-'editor/mine.cpp',
-'editor/objpage.cpp',
-'editor/segment.cpp',
-'editor/seguvs.cpp',
-'editor/texpage.cpp',
-'editor/texture.cpp',
-]
-],
+	},
+	))
+	get_objects_editor = DXXCommon.create_lazy_object_getter(({
+		'source':(
+'similar/editor/centers.cpp',
+'similar/editor/curves.cpp',
+'similar/main/dumpmine.cpp',
+'similar/editor/eglobal.cpp',
+'similar/editor/elight.cpp',
+'similar/editor/eobject.cpp',
+'similar/editor/eswitch.cpp',
+'similar/editor/group.cpp',
+'similar/editor/info.cpp',
+'similar/editor/kbuild.cpp',
+'similar/editor/kcurve.cpp',
+'similar/editor/kfuncs.cpp',
+'similar/editor/kgame.cpp',
+'similar/editor/khelp.cpp',
+'similar/editor/kmine.cpp',
+'similar/editor/ksegmove.cpp',
+'similar/editor/ksegsel.cpp',
+'similar/editor/ksegsize.cpp',
+'similar/editor/ktmap.cpp',
+'similar/editor/kview.cpp',
+'similar/editor/med.cpp',
+'similar/editor/meddraw.cpp',
+'similar/editor/medmisc.cpp',
+'similar/editor/medrobot.cpp',
+'similar/editor/medsel.cpp',
+'similar/editor/medwall.cpp',
+'similar/editor/mine.cpp',
+'similar/editor/objpage.cpp',
+'similar/editor/segment.cpp',
+'similar/editor/seguvs.cpp',
+'similar/editor/texpage.cpp',
+'similar/editor/texture.cpp',
+),
 		'transform_target':_apply_target_name,
-	}])
+	},
+	))
 
 	class UserSettings(DXXCommon.UserSettings):
 		@property
@@ -4453,13 +4446,14 @@ class DXXProgram(DXXCommon):
 
 	def get_objects_common(self,
 		__get_objects_common=__get_objects_common,
-		__get_objects_use_udp=DXXCommon.create_lazy_object_getter([{
+		__get_objects_use_udp=DXXCommon.create_lazy_object_getter(({
 		'source':(
 'similar/main/net_udp.cpp',
 ),
 		'transform_env': _apply_env_version_seq,
 		'transform_target':_apply_target_name,
-	}])
+	},
+	))
 		):
 		value = list(__get_objects_common(self))
 		extend = value.extend
@@ -4691,14 +4685,14 @@ class D1XProgram(DXXProgram):
 	# general source files
 	def get_objects_common(self,
 		__get_dxx_objects_common=DXXProgram.get_objects_common, \
-		__get_dsx_objects_common=DXXCommon.create_lazy_object_getter([{
-		'source':[os.path.join(srcdir, f) for f in [
-'main/bmread.cpp',
-'main/custom.cpp',
-'main/snddecom.cpp',
-]
-],
-	}])
+		__get_dsx_objects_common=DXXCommon.create_lazy_object_getter(({
+		'source':(
+'d1x-rebirth/main/bmread.cpp',
+'d1x-rebirth/main/custom.cpp',
+'d1x-rebirth/main/snddecom.cpp',
+),
+	},
+	))
 		):
 		value = __get_dxx_objects_common(self)
 		value.extend(__get_dsx_objects_common(self))
@@ -4707,12 +4701,12 @@ class D1XProgram(DXXProgram):
 	# for editor
 	def get_objects_editor(self,
 		__get_dxx_objects_editor=DXXProgram.get_objects_editor,
-		__get_dsx_objects_editor=DXXCommon.create_lazy_object_getter([{
-		'source':[os.path.join(srcdir, f) for f in [
-'editor/ehostage.cpp',
-]
-],
-	}])):
+		__get_dsx_objects_editor=DXXCommon.create_lazy_object_getter(({
+		'source':(
+'d1x-rebirth/editor/ehostage.cpp',
+),
+	},
+	))):
 		value = list(__get_dxx_objects_editor(self))
 		value.extend(__get_dsx_objects_editor(self))
 		return value
@@ -4727,20 +4721,20 @@ class D2XProgram(DXXProgram):
 	# general source files
 	def get_objects_common(self,
 		__get_dxx_objects_common=DXXProgram.get_objects_common, \
-		__get_dsx_objects_common=DXXCommon.create_lazy_object_getter([{
-		'source':[os.path.join(srcdir, f) for f in [
-'libmve/decoder8.cpp',
-'libmve/decoder16.cpp',
-'libmve/mve_audio.cpp',
-'libmve/mvelib.cpp',
-'libmve/mveplay.cpp',
-'main/escort.cpp',
-'main/gamepal.cpp',
-'main/movie.cpp',
-'misc/physfsrwops.cpp',
-]
-],
-	}])):
+		__get_dsx_objects_common=DXXCommon.create_lazy_object_getter(({
+		'source':(
+'d2x-rebirth/libmve/decoder8.cpp',
+'d2x-rebirth/libmve/decoder16.cpp',
+'d2x-rebirth/libmve/mve_audio.cpp',
+'d2x-rebirth/libmve/mvelib.cpp',
+'d2x-rebirth/libmve/mveplay.cpp',
+'d2x-rebirth/main/escort.cpp',
+'d2x-rebirth/main/gamepal.cpp',
+'d2x-rebirth/main/movie.cpp',
+'d2x-rebirth/misc/physfsrwops.cpp',
+),
+	},
+	))):
 		value = __get_dxx_objects_common(self)
 		value.extend(__get_dsx_objects_common(self))
 		return value
@@ -4748,12 +4742,12 @@ class D2XProgram(DXXProgram):
 	# for editor
 	def get_objects_editor(self,
 		__get_dxx_objects_editor=DXXProgram.get_objects_editor, \
-		__get_dsx_objects_editor=DXXCommon.create_lazy_object_getter([{
-		'source':[os.path.join(srcdir, f) for f in [
-'main/bmread.cpp',
-]
-],
-		}])):
+		__get_dsx_objects_editor=DXXCommon.create_lazy_object_getter(({
+		'source':(
+'d2x-rebirth/main/bmread.cpp',
+),
+		},
+		))):
 		value = list(__get_dxx_objects_editor(self))
 		value.extend(__get_dsx_objects_editor(self))
 		return value
