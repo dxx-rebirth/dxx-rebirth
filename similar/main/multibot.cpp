@@ -957,16 +957,19 @@ void multi_do_robot_explode(const uint8_t *const buf)
 	auto killer = objnum_remote_to_local(b.robj_killer, b.owner_killer);
 	auto botnum = objnum_remote_to_local(b.robj_killed, b.owner_killed);
 	// Explode robot controlled by other player
-	int rval;
 	if (botnum > Highest_object_index)
 	{
 		return;
 	}
 
 	const auto robot = vmobjptridx(botnum);
-	rval = multi_explode_robot_sub(robot);
+	const auto rval = multi_explode_robot_sub(robot);
+	if (!rval)
+		return;
 
-	if (rval && (killer == get_local_player().objnum))
+	++ Players[0u].num_kills_level;
+	++ Players[0u].num_kills_total;
+	if (killer == get_local_player().objnum)
 		add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(robot)].score_value);
 }
 
