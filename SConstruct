@@ -2762,10 +2762,9 @@ class PCHManager(object):
 	# the same source tree.
 	_cls_scanned_files = None
 
-	# Import required modules when the first PCHManager is created, then
-	# remove the hook and use object.__new__ to create PCHManager
-	# instances.
-	def __new__(cls,*args):
+	# Import required modules when the first PCHManager is created.
+	@classmethod
+	def __initialize_cls_static_variables(cls):
 		from re import compile as c
 		# Match C preprocessor directives that start with i or e,
 		# capture any arguments, and allow no arguments.  This accepts:
@@ -2793,10 +2792,11 @@ class PCHManager(object):
 		cls._cls_scanned_files = {}
 		from tempfile import mkstemp
 		cls._tempfile_mkstemp = staticmethod(mkstemp)
-		del cls.__new__
-		return cls.__new__(cls,*args)
 
 	def __init__(self,user_settings,env,pch_subdir,configure_pch_flags,common_pch_manager):
+		if self._re_preproc_match is None:
+			self.__initialize_cls_static_variables()
+			assert self._re_preproc_match is not None
 		assert user_settings.syspch or user_settings.pch
 		self.user_settings = user_settings
 		self.env = env
