@@ -1415,6 +1415,9 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 #endif
 
 	if (robot->shields < 0) {
+		auto &plr = get_local_player();
+		plr.num_kills_level++;
+		plr.num_kills_total++;
 		if (Game_mode & GM_MULTI) {
 #if defined(DXX_BUILD_DESCENT_II)
 			char isthief;
@@ -1448,10 +1451,6 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 			else
 				return 0;
 		}
-
-		auto &plr = get_local_player();
-		plr.num_kills_level++;
-		plr.num_kills_total++;
 
 		if (robptr.boss_flag) {
 			start_boss_death_sequence(robot);	//do_controlcen_destroyed_stuff(NULL);
