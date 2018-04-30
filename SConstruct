@@ -14,6 +14,22 @@ import SCons.Util
 # Disable injecting tools into default namespace
 SCons.Defaults.DefaultEnvironment(tools = [])
 
+try:
+	# Test whether the old Python 2 names exist.
+	# If the names are found, use the old Python 2 names, which return
+	# views on the data.  If the names are not found, an exception is
+	# raised.
+	get_dictionary_key_view = dict.iterkeys
+	get_dictionary_item_view = dict.iteritems
+	get_dictionary_value_view = dict.itervalues
+except AttributeError:
+	# Name not found.  Use the new Python 3 names, which return views
+	# (at least until the Python maintainers decide to redefine the
+	# interface again).
+	get_dictionary_key_view = dict.keys
+	get_dictionary_item_view = dict.items
+	get_dictionary_value_view = dict.values
+
 def message(program,msg):
 	print("%s: %s" % (program.program_message_prefix, msg))
 
@@ -259,9 +275,10 @@ class ConfigureTests(_ConfigureTests):
 		# shared.
 		def __init__(self,env,keys,_l=[]):
 			self.flags = {k: env.get(k, _l)[:] for k in keys}
-			self.__getitem__ = self.flags.__getitem__
 		def restore(self,env):
 			env.Replace(**self.flags)
+		def __getitem__(self,name):
+			return self.flags.__getitem__(name)
 	class ForceVerboseLog(PreservedEnvironment):
 		def __init__(self,env):
 			# Force verbose output to sconf.log
@@ -348,7 +365,7 @@ class ConfigureTests(_ConfigureTests):
 				Display("%s: reading %s settings from %s\n" % (message, display_name, cmd))
 				try:
 					flags = {
-						k:v for k,v in context.env.ParseFlags(' ' + StaticSubprocess.pcall(cmd).out).items()
+						k:v for k,v in get_dictionary_item_view(context.env.ParseFlags(' ' + StaticSubprocess.pcall(cmd).out.decode()))
 							if v and (k[0] in 'CL')
 					}
 					Display("%s: %s settings: %r\n" % (message, display_name, flags))
@@ -374,7 +391,6 @@ class ConfigureTests(_ConfigureTests):
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
 	__python_import_struct = None
-	__flags_Werror = {'CXXFLAGS' : ['-Werror']}
 	_cxx_conformance_cxx11 = 11
 	_cxx_conformance_cxx14 = 14
 	__cxx_conformance = None
@@ -791,7 +807,7 @@ help:assume C++ compiler works
 				self.__cxx_conformance = level
 				return
 		raise SCons.Errors.StopError('C++ compiler does not accept any supported C++ -std option.')
-	def _Test(self,context,text,msg,action,main='',ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False,calling_function=None):
+	def _Test(self,context,text,msg,action,main='',ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False,calling_function=None,__flags_Werror = {'CXXFLAGS' : ['-Werror']}):
 		if calling_function is None:
 			calling_function = self._find_calling_sconf_function()
 		context.Message('%s: checking %s...' % (self.msgprefix, msg))
@@ -804,8 +820,8 @@ help:assume C++ compiler works
 		context.env.MergeFlags(successflags)
 		forced, expected = self._check_sconf_forced(calling_function)
 		caller_modified_env_flags = self.PreservedEnvironment(context.env, self.__flags_Werror.keys() + testflags.keys())
-		# Always pass -Werror
-		context.env.Append(**self.__flags_Werror)
+		# Always pass -Werror to configure tests.
+		context.env.Append(**__flags_Werror)
 		context.env.Append(**testflags)
 		# If forced is None, run the test.  Otherwise, skip the test and
 		# take an action determined by the value of forced.
@@ -873,7 +889,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			f = self.successful_flags
 			# Move most CPPDEFINES to the generated header, so that
 			# command lines are shorter.
-			for k, v in successflags.iteritems():
+			for k, v in get_dictionary_item_view(successflags):
 				if k == 'CPPDEFINES':
 					continue
 				f[k].extend(v)
@@ -2994,7 +3010,7 @@ class PCHManager(object):
 		# included with this set of guards defined).
 		syscpp_includes = defaultdict(list)
 		owncpp_includes = defaultdict(list) if own_header_inclusion_threshold else None
-		for included_file, usage_dict in self.__files_included.iteritems():
+		for included_file, usage_dict in get_dictionary_item_view(self.__files_included):
 			if isinstance(included_file, str):
 				# System header
 				cpp_includes = syscpp_includes
@@ -3014,7 +3030,7 @@ class PCHManager(object):
 			# conditional includes.
 			guards = \
 				[((), g)] if (g >= threshold) else \
-				sorted(usage_dict.iteritems(), reverse=True)
+				sorted(get_dictionary_item_view(usage_dict), reverse=True)
 			while guards:
 				preprocessor_guard_directives, local_count_seen = guards.pop()
 				total_count_seen = local_count_seen
@@ -3051,7 +3067,7 @@ class PCHManager(object):
 		# if the result eventually shows that pch.cpp has not changed.
 		# The C preprocessor will only run over the file when it is
 		# actually changed and is processed to build a new .gch file.
-		for preprocessor_guard_directives, included_file_tuples in sorted(cpp_includes.iteritems()):
+		for preprocessor_guard_directives, included_file_tuples in sorted(get_dictionary_item_view(cpp_includes)):
 			generated_pch_lines.append('')
 			generated_pch_lines.extend(preprocessor_guard_directives)
 			# local_count_seen is the direct usage count for this
@@ -3098,8 +3114,8 @@ class PCHManager(object):
 		#	}
 		# }
 		files_included = self.__files_included
-		for scanned_file in self._instance_scanned_files.itervalues():
-			for included_file, guards in scanned_file.candidates.iteritems():
+		for scanned_file in get_dictionary_value_view(self._instance_scanned_files):
+			for included_file, guards in get_dictionary_item_view(scanned_file.candidates):
 				i = files_included[included_file]
 				for g in guards:
 					i[g] += 1
@@ -3124,7 +3140,7 @@ class PCHManager(object):
 				# Header will be unconditionally included in the PCH.
 				continue
 			f = self.record_file(self.env, File(included_file))
-			for nested_included_file, nested_guards in sorted(f.candidates.iteritems(), key=str):
+			for nested_included_file, nested_guards in sorted(get_dictionary_item_view(f.candidates), key=str):
 				if not isinstance(included_file, str) and not nested_included_file in files_included:
 					# If the header is a system header, it will be
 					# str.  Skip system headers.
