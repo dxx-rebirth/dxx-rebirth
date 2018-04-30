@@ -3366,7 +3366,19 @@ class DXXCommon(LazyObjectConstructor):
 			try:
 				return tests.__configure_tests
 			except AttributeError:
-				tests.__configure_tests = c = filter(_filter, tests.implicit_tests + tests.custom_tests)
+				# Freeze the results into a tuple, to prevent accidental
+				# modification later.
+				#
+				# In Python 2, this is merely a safety feature and could
+				# be skipped.
+				#
+				# In Python 3, filter returns an iterable that is
+				# exhausted after one full traversal.  Since this object
+				# is intended to be retained and reused, the first
+				# traversal must copy the results into a container that
+				# can be walked multiple times.  A tuple serves this
+				# purpose, in addition to freezing the contents.
+				tests.__configure_tests = c = tuple(filter(_filter, tests.implicit_tests + tests.custom_tests))
 				return c
 		@classmethod
 		def __get_has_git_dir(cls):
