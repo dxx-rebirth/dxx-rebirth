@@ -187,6 +187,13 @@ array<obj_position, MAX_PLAYERS> Player_init;
 // Global variables telling what sort of game we have
 unsigned NumNetPlayerPositions;
 int	Do_appearance_effect=0;
+
+template <object_type_t type>
+static bool is_object_of_type(const object_base &o)
+{
+	return o.type == type;
+}
+
 }
 
 namespace dsx {
@@ -202,12 +209,9 @@ static void verify_console_object()
 }
 
 template <object_type_t type>
-static unsigned count_number_of_objects_of_type()
+static unsigned count_number_of_objects_of_type(fvcobjptr &vcobjptr)
 {
-	const auto predicate = [](const object &o) {
-		return o.type == type;
-	};
-	return std::count_if(vcobjptr.begin(), vcobjptr.end(), predicate);
+	return std::count_if(vcobjptr.begin(), vcobjptr.end(), is_object_of_type<type>);
 }
 
 #define count_number_of_robots	count_number_of_objects_of_type<OBJ_ROBOT>
@@ -387,10 +391,10 @@ void init_player_stats_level(player &plr, object &plrobj, const secret_restore s
 	player_info.mission.last_score = player_info.mission.score;
 
 	plr.num_kills_level = 0;
-	plr.num_robots_level = count_number_of_robots();
+	plr.num_robots_level = count_number_of_robots(vcobjptr);
 	plr.num_robots_total += plr.num_robots_level;
 
-	plr.hostages_level = count_number_of_hostages();
+	plr.hostages_level = count_number_of_hostages(vcobjptr);
 	plr.hostages_total += plr.hostages_level;
 
 	if (secret_flag == secret_restore::none) {
