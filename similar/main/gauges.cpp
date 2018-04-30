@@ -1090,10 +1090,19 @@ static void draw_primary_ammo_info(grs_canvas &canvas, const unsigned ammo_count
 }
 
 namespace dcx {
+namespace {
+
+enum weapon_type
+{
+	primary,
+	secondary,
+};
+
 constexpr rgb_t hud_rgb_red = {40, 0, 0};
 constexpr rgb_t hud_rgb_green = {0, 30, 0};
 constexpr rgb_t hud_rgb_dimgreen = {0, 12, 0};
 constexpr rgb_t hud_rgb_gray = {6, 6, 6};
+}
 }
 
 namespace dsx {
@@ -2292,9 +2301,9 @@ static void draw_secondary_weapon_info(grs_canvas &canvas, const player_info &pl
 	}
 }
 
-static void draw_weapon_info(grs_canvas &canvas, const player_info &player_info, const int weapon_type, const int weapon_num, const int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_weapon_info(grs_canvas &canvas, const player_info &player_info, const unsigned weapon_num, const unsigned laser_level, const local_multires_gauge_graphic multires_gauge_graphic, const weapon_type weapon_type)
 {
-	if (weapon_type == 0)
+	if (weapon_type == weapon_type::primary)
 		draw_primary_weapon_info(canvas, player_info, weapon_num, laser_level, multires_gauge_graphic);
 	else
 		draw_secondary_weapon_info(canvas, player_info, weapon_num, multires_gauge_graphic);
@@ -2320,16 +2329,14 @@ static void draw_secondary_ammo_info(grs_canvas &canvas, const unsigned ammo_cou
 	draw_ammo_info(canvas, x, y, ammo_count);
 }
 
-static void draw_weapon_box(const player_info &player_info, const int weapon_type, const int weapon_num)
+static void draw_weapon_box(const player_info &player_info, const weapon_type weapon_type, const unsigned weapon_num)
 {
-	int laser_level_changed;
-
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 
 	gr_set_curfont(canvas, GAME_FONT);
 
-	laser_level_changed = (weapon_type == 0 && weapon_num == primary_weapon_index_t::LASER_INDEX && (player_info.laser_level != old_laser_level));
+	const auto laser_level_changed = (weapon_type == weapon_type::primary && weapon_num == primary_weapon_index_t::LASER_INDEX && (player_info.laser_level != old_laser_level));
 
 	if ((weapon_num != old_weapon[weapon_type] || laser_level_changed) && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && PlayerCfg.HudMode == HudType::Standard)
 	{
@@ -2340,13 +2347,13 @@ static void draw_weapon_box(const player_info &player_info, const int weapon_typ
 	const local_multires_gauge_graphic multires_gauge_graphic{};
 	if (old_weapon[weapon_type] == -1)
 	{
-		draw_weapon_info(canvas, player_info, weapon_type, weapon_num, player_info.laser_level, multires_gauge_graphic);
+		draw_weapon_info(canvas, player_info, weapon_num, player_info.laser_level, multires_gauge_graphic, weapon_type);
 		old_weapon[weapon_type] = weapon_num;
 		weapon_box_states[weapon_type] = WS_SET;
 	}
 
 	if (weapon_box_states[weapon_type] == WS_FADING_OUT) {
-		draw_weapon_info(canvas, player_info, weapon_type,old_weapon[weapon_type],old_laser_level, multires_gauge_graphic);
+		draw_weapon_info(canvas, player_info, old_weapon[weapon_type], old_laser_level, multires_gauge_graphic, weapon_type);
 		weapon_box_fade_values[weapon_type] -= FrameTime * FADE_SCALE;
 		if (weapon_box_fade_values[weapon_type] <= 0) {
 			weapon_box_states[weapon_type] = WS_FADING_IN;
@@ -2360,7 +2367,7 @@ static void draw_weapon_box(const player_info &player_info, const int weapon_typ
 			weapon_box_states[weapon_type] = WS_FADING_OUT;
 		}
 		else {
-			draw_weapon_info(canvas, player_info, weapon_type, weapon_num, player_info.laser_level, multires_gauge_graphic);
+			draw_weapon_info(canvas, player_info, weapon_num, player_info.laser_level, multires_gauge_graphic, weapon_type);
 			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
 			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS-1)) {
 				weapon_box_states[weapon_type] = WS_SET;
@@ -2369,7 +2376,7 @@ static void draw_weapon_box(const player_info &player_info, const int weapon_typ
 		}
 	} else
 	{
-		draw_weapon_info(canvas, player_info, weapon_type, weapon_num, player_info.laser_level, multires_gauge_graphic);
+		draw_weapon_info(canvas, player_info, weapon_num, player_info.laser_level, multires_gauge_graphic, weapon_type);
 		old_weapon[weapon_type] = weapon_num;
 		old_laser_level = player_info.laser_level;
 	}
@@ -2384,7 +2391,6 @@ static void draw_weapon_box(const player_info &player_info, const int weapon_typ
 
 		gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
 	}
-	gr_set_default_canvas();
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2438,7 +2444,7 @@ static void draw_weapon_box0(const player_info &player_info, const local_multire
 #endif
 	{
 		const auto Primary_weapon = player_info.Primary_weapon;
-		draw_weapon_box(player_info, 0, Primary_weapon);
+		draw_weapon_box(player_info, weapon_type::primary, Primary_weapon);
 
 		if (weapon_box_states[0] == WS_SET) {
 			unsigned nd_ammo;
@@ -2476,7 +2482,7 @@ static void draw_weapon_box1(const player_info &player_info, const local_multire
 #endif
 	{
 		auto &Secondary_weapon = player_info.Secondary_weapon;
-		draw_weapon_box(player_info, 1, Secondary_weapon);
+		draw_weapon_box(player_info, weapon_type::secondary, Secondary_weapon);
 		if (weapon_box_states[1] == WS_SET)
 		{
 			const auto ammo = player_info.secondary_ammo[Secondary_weapon];
