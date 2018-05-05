@@ -66,7 +66,6 @@
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "compiler-lengthof.h"
-#include "compiler-static_assert.h"
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)

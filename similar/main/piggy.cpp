@@ -58,7 +58,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "compiler-range_for.h"
 #include "compiler-make_unique.h"
-#include "compiler-static_assert.h"
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)

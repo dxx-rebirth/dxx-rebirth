@@ -41,7 +41,6 @@
 #include "ntstring.h"
 #include "compiler-array.h"
 #include "compiler-make_unique.h"
-#include "compiler-static_assert.h"
 #include "partial_range.h"
 
 #ifdef DXX_CONSTANT_TRUE

@@ -86,7 +86,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-integer_sequence.h"
-#include "compiler-static_assert.h"
 
 using std::min;
 

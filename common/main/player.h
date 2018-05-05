@@ -36,7 +36,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pack.h"
 #include "dxxsconf.h"
 #include "compiler-array.h"
-#include "compiler-static_assert.h"
 #include "objnum.h"
 #include "player-callsign.h"
 
