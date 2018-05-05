@@ -91,7 +91,7 @@ static void draw_seg_objects(const vcsegptr_t seg)
 	range_for (const auto obj, objects_in(*seg, vcobjptridx, vcsegptr))
 	{
 		auto sphere_point = g3_rotate_point(obj->pos);
-		const uint8_t color = (obj->type==OBJ_PLAYER && static_cast<const icobjptridx_t::index_type>(obj) > 0)
+		const uint8_t color = (obj->type == OBJ_PLAYER && static_cast<icobjptridx_t::index_type>(obj) > 0)
 			? BM_XRGB(0,  25, 0)
 			: (obj == ConsoleObject
 				? PLAYER_COLOR
