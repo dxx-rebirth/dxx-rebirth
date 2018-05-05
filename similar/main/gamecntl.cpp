@@ -1375,7 +1375,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 struct cheat_code
 {
 	const char string[CHEAT_MAX_LEN];
-	int (game_cheats::*stateptr);
+	int game_cheats::*stateptr;
 };
 
 constexpr cheat_code cheat_codes[] = {
@@ -1429,7 +1429,7 @@ constexpr cheat_code cheat_codes[] = {
 namespace dsx {
 static window_event_result FinalCheats()
 {
-	int (game_cheats::*gotcha);
+	int game_cheats::*gotcha;
 
 	if (Game_mode & GM_MULTI)
 		return window_event_result::ignored;
