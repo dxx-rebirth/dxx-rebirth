@@ -234,7 +234,17 @@ public:
 	using typename std::iterator<std::random_access_iterator_tag, T>::difference_type;
 	base_bytebuffer_t(pointer u) : p(u) {}
 	operator pointer() const { return p; }
-	D &operator+=(difference_type d)
+	D &operator++()
+	{
+		++p;
+		return *static_cast<D *>(this);
+	}
+	D &operator--()
+	{
+		--p;
+		return *static_cast<D *>(this);
+	}
+	D &operator+=(const difference_type d)
 	{
 		p += d;
 		return *static_cast<D *>(this);
