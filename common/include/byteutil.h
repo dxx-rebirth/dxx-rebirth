@@ -72,11 +72,11 @@ static constexpr int32_t SWAPINT(const int32_t &i)
 #endif // ! WORDS_BIGENDIAN
 constexpr std::integral_constant<int, DXX_WORDS_BIGENDIAN> words_bigendian{};
 
-#if !DXX_WORDS_NEED_ALIGNMENT
-#define byteutil_unaligned_copy(dt, d, s)	(static_cast<dt &>(d) = *reinterpret_cast<const dt *>(s))
-#else // ! WORDS_NEED_ALIGNMENT
-#define byteutil_unaligned_copy(dt, d, s)	memcpy(&static_cast<dt &>(d), (s), sizeof(d))
-#endif // ! WORDS_NEED_ALIGNMENT
+#if DXX_WORDS_NEED_ALIGNMENT
+#define byteutil_unaligned_copy(dt, d, s)	( DXX_BEGIN_COMPOUND_STATEMENT { dt &destination_reference = d; memcpy(&destination_reference, (s), sizeof(d)); } DXX_END_COMPOUND_STATEMENT )
+#else // WORDS_NEED_ALIGNMENT
+#define byteutil_unaligned_copy(dt, d, s)	( DXX_BEGIN_COMPOUND_STATEMENT { dt &destination_reference = d; destination_reference = *reinterpret_cast<const dt *>(s); } DXX_END_COMPOUND_STATEMENT )
+#endif // WORDS_NEED_ALIGNMENT
 
 static constexpr uint16_t INTEL_SHORT(const uint16_t &x)
 {
