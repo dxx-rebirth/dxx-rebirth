@@ -68,9 +68,12 @@ void cvar_cmd_set(unsigned long argc, const char *const *const argv)
 		return;
 	}
 	
+	size_t position = ret;
 	for (int i = 3; i < argc; i++) {
-		ret = snprintf(buf, CVAR_MAX_LENGTH, "%s %s", buf, argv[i]);
-		if (ret >= CVAR_MAX_LENGTH) {
+		ret = snprintf(&buf[position], CVAR_MAX_LENGTH - position, " %s", argv[i]);
+		position += ret;
+		if (position >= CVAR_MAX_LENGTH)
+		{
 			con_printf(CON_CRITICAL, "set: value too long (max %d characters)", CVAR_MAX_LENGTH);
 			return;
 		}
