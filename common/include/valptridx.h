@@ -353,7 +353,7 @@ public:
 		 * right hand side must be saved and checked for validity before
 		 * being used to initialize a require_valid type.
 		 */
-		static_assert(allow_nullptr || !rhs.allow_nullptr, "cannot move from allow_invalid to require_valid");
+		static_assert(policy::allow_nullptr || !rpolicy::allow_nullptr, "cannot move from allow_invalid to require_valid");
 	}
 	idx(index_type i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) :
 		m_idx(check_allowed_invalid_index(i) ? i : check_index_range<index_range_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, nullptr))
@@ -489,7 +489,7 @@ public:
 		 * right hand side must be saved and checked for validity before
 		 * being used to initialize a require_valid type.
 		 */
-		static_assert(allow_nullptr || !rhs.allow_nullptr, "cannot move from allow_invalid to require_valid");
+		static_assert(policy::allow_nullptr || !rpolicy::allow_nullptr, "cannot move from allow_invalid to require_valid");
 	}
 	ptr(index_type i) = delete;
 	ptr(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS index_type i, array_managed_type &a) :
