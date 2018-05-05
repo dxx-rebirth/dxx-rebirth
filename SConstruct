@@ -1874,32 +1874,8 @@ fail.
 	def __skip_missing_cxx_std(self,level,text,kwargs):
 		if self.__cxx_conformance < level:
 			kwargs.setdefault('skipped', text)
-	def _check_static_assert_method(self,context,msg,f,testflags={},_tdict={'expr' : 'true&&true'},_fdict={'expr' : 'false||false'},**kwargs):
-		_Compile = self.Compile
-		return _Compile(context, text=f % _tdict, main='f(A());', msg=msg % 'true', testflags=testflags, **kwargs) and \
-			_Compile(context, text=f % _fdict, main='f(A());', msg=msg % 'false', expect_failure=True, successflags=testflags, **kwargs)
-	@_implicit_test
-	def check_boost_static_assert(self,context,f):
-		"""
-help:assume Boost.StaticAssert works
-"""
-		return self._check_static_assert_method(context, 'for Boost.StaticAssert when %s', f, testflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_STATIC_ASSERT']})
-	@_implicit_test
-	def check_c_typedef_static_assert(self,context,f):
-		"""
-help:assume C typedef-based static assertion works
-"""
-		return self._check_static_assert_method(context, 'for C typedef static assertion when %s', f, testflags={'CPPDEFINES' : ['DXX_HAVE_C_TYPEDEF_STATIC_ASSERT']})
-	@_implicit_test
-	def check_cxx11_static_assert(self,context,f):
-		"""
-help:assume compiler supports C++ intrinsic static_assert
-"""
-		return self._check_static_assert_method(context, 'for C++11 intrinsic static_assert when %s', f, testflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_STATIC_ASSERT']})
 	@_custom_test
-	def _check_static_assert(self,context):
-		f = '''
-#include "compiler-static_assert.h"
+	def check_cxx11_static_assert(self,context,_f='''
 static_assert(%(expr)s, "global");
 struct A
 {
@@ -1926,12 +1902,11 @@ struct B
 		static_assert(a.value, "constructor member");
 	}
 	template <typename R>
-		B(B<R> &&b)
+		B(B<R> &&)
 		{
 			static_assert(%(expr)s, "template constructor literal");
 			static_assert(value, "template constructor self static");
 			static_assert(B<R>::value, "template constructor static");
-			static_assert(b.value, "template constructor member");
 		}
 };
 template <typename T>
@@ -1950,7 +1925,14 @@ void f(A a)
 	f(B<long>(B<int>(a)));
 }
 '''
-		how = self.check_cxx11_static_assert(context,f) or self.check_boost_static_assert(context,f) or self.check_c_typedef_static_assert(context,f)
+			,_msg='for C++11 intrinsic static_assert when %s',_tdict={'expr' : 'true&&true'},_fdict={'expr' : 'false||false'}):
+		"""
+help:assume compiler supports C++ intrinsic static_assert
+"""
+		_Compile = self.Compile
+		if not (_Compile(context, text=_f % _tdict, main='f(A());', msg=_msg % 'true') and \
+				_Compile(context, text=_f % _fdict, main='f(A());', msg=_msg % 'false', expect_failure=True)):
+			raise SCons.Errors.StopError('C++ compiler does not support tested versions of C++11 static_assert.')
 	@_custom_test
 	def check_namespace_disambiguate(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE']}):
 		self.Compile(context, text='''
