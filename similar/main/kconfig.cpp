@@ -994,7 +994,7 @@ static void adjust_ramped_keyboard_field(float& keydown_time, ubyte& state, fix&
 	if (state)
 	{
                 if (keydown_time < F1_0)
-                        keydown_time += (static_cast<float>(FrameTime)*6.66)*(static_cast<float>(sensitivity+1)/17); // values based on observation that the original game uses a keyboard ramp of 8 frames. Full sensitivity should reflect 60FPS behaviour, half sensitivity reflects 30FPS behaviour (give or take a frame).
+			keydown_time += (static_cast<float>(FrameTime) * 6.66) * ((sensitivity + 1) / 17); // values based on observation that the original game uses a keyboard ramp of 8 frames. Full sensitivity should reflect 60FPS behaviour, half sensitivity reflects 30FPS behaviour (give or take a frame).
                 time = F<fix>()(time, speed_factor / speed_divisor * (keydown_time / F1_0));
 	}
 	else
