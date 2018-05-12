@@ -331,20 +331,27 @@ void detect_escort_goal_accomplished(const vmobjptridx_t index)
 	}
 }
 
+#define DXX_GUIDEBOT_RENAME_MENU(VERB)	\
+	DXX_MENUITEM(VERB, INPUT, text, opt_name)	\
+
 void change_guidebot_name()
 {
-	int item;
 	auto text = PlayerCfg.GuidebotName;
-	array<newmenu_item, 1> m{{
-		nm_item_input(text),
-	}};
-	item = newmenu_do(NULL, "Enter Guide-bot name:", m, unused_newmenu_subfunction, unused_newmenu_userdata );
+	array<newmenu_item, DXX_GUIDEBOT_RENAME_MENU(COUNT)> m;
+	enum
+	{
+		DXX_GUIDEBOT_RENAME_MENU(ENUM)
+	};
+	DXX_GUIDEBOT_RENAME_MENU(ADD);
+	const auto item = newmenu_do(nullptr, "Enter Guide-bot name:", m, unused_newmenu_subfunction, unused_newmenu_userdata);
 
 	if (item != -1) {
 		PlayerCfg.GuidebotName = PlayerCfg.GuidebotNameReal = text;
 		write_player_file();
 	}
 }
+
+#undef DXX_GUIDEBOT_RENAME_MENU
 
 //	-----------------------------------------------------------------------------
 static int show_buddy_message()
