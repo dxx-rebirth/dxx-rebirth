@@ -70,7 +70,11 @@ public:
 class d_event_mouse_moved : public d_event
 {
 public:
-	short		dx, dy, dz;
+	const int16_t dx, dy, dz;
+	constexpr d_event_mouse_moved(const event_type t, const int16_t x, const int16_t y, const int16_t z) :
+		d_event(t), dx(x), dy(y), dz(z)
+	{
+	}
 };
 
 static inline int event_mouse_get_button(const d_event &event)

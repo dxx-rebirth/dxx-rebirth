@@ -50,7 +50,11 @@ namespace {
 
 struct event_gadget : d_event
 {
-	UI_GADGET *gadget;
+	UI_GADGET *const gadget;
+	constexpr event_gadget(const event_type t, UI_GADGET *const g) :
+		d_event(t), gadget(g)
+	{
+	}
 };
 
 }
@@ -169,11 +173,8 @@ static window_event_result ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g,const d_eve
 
 window_event_result ui_gadget_send_event(UI_DIALOG *dlg, event_type type, UI_GADGET *gadget)
 {
-	event_gadget event;
-	
-	event.type = type;
-	event.gadget = gadget;
-	
+	const event_gadget event{type, gadget};
+
 	if (gadget->parent)
 		return ui_gadget_do(dlg, gadget->parent, event);
 

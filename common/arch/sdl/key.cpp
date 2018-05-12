@@ -301,7 +301,11 @@ namespace {
 
 struct d_event_keycommand : d_event
 {
-	int			keycode;
+	const unsigned keycode;
+	constexpr d_event_keycommand(const event_type t, const unsigned k) :
+		d_event(t), keycode(k)
+	{
+	}
 };
 
 }
@@ -432,16 +436,13 @@ window_event_result key_handler(SDL_KeyboardEvent *kevent)
 	 */
 	if (key_state != keyd_pressed[keycode] || (keyd_repeat && !key_ismodlck(keycode)))
 	{
-		d_event_keycommand event;
-
 		// now update the key props
 		keyd_pressed.update(keycode, key_state);
 		keycode |= keyd_pressed.get_modifiers();
 
 		// We allowed the key to be added to the queue for now,
 		// because there are still input loops without associated windows
-		event.type = key_state?EVENT_KEY_COMMAND:EVENT_KEY_RELEASE;
-		event.keycode = keycode;
+		const d_event_keycommand event{key_state ? EVENT_KEY_COMMAND : EVENT_KEY_RELEASE, keycode};
 		con_printf(CON_DEBUG, "Sending event %s: %s %s %s %s %s %s",
 				(key_state)                  ? "EVENT_KEY_COMMAND": "EVENT_KEY_RELEASE",
 				(keycode & KEY_METAED)	? "META" : "",

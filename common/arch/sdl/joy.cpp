@@ -45,11 +45,16 @@ static struct joyinfo {
 
 struct d_event_joystickbutton : d_event
 {
-	int button;
+	const unsigned button;
+	constexpr d_event_joystickbutton(const event_type t, const unsigned b) :
+		d_event(t), button(b)
+	{
+	}
 };
 
 struct d_event_joystick_moved : d_event, d_event_joystick_axis_value
 {
+	DXX_INHERIT_CONSTRUCTORS(d_event_joystick_moved, d_event);
 };
 
 class SDL_Joystick_deleter
@@ -179,15 +184,14 @@ static array<d_physical_joystick, DXX_MAX_JOYSTICKS> SDL_Joysticks;
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 window_event_result joy_button_handler(SDL_JoyButtonEvent *jbe)
 {
-	int button;
-	d_event_joystickbutton event;
-
-	button = SDL_Joysticks[jbe->which].button_map()[jbe->button];
+	const unsigned button = SDL_Joysticks[jbe->which].button_map()[jbe->button];
 
 	Joystick.button_state[button] = jbe->state;
 
-	event.type = (jbe->type == SDL_JOYBUTTONDOWN) ? EVENT_JOYSTICK_BUTTON_DOWN : EVENT_JOYSTICK_BUTTON_UP;
-	event.button = button;
+	const d_event_joystickbutton event{
+		(jbe->type == SDL_JOYBUTTONDOWN) ? EVENT_JOYSTICK_BUTTON_DOWN : EVENT_JOYSTICK_BUTTON_UP,
+		button
+	};
 	con_printf(CON_DEBUG, "Sending event %s, button %d", (jbe->type == SDL_JOYBUTTONDOWN) ? "EVENT_JOYSTICK_BUTTON_DOWN" : "EVENT_JOYSTICK_JOYSTICK_UP", event.button);
 	return event_send(event);
 }
@@ -216,7 +220,7 @@ window_event_result joy_hat_handler(SDL_JoyHatEvent *jhe)
 	static_assert((SDL_HAT_UP | SDL_HAT_RIGHT | SDL_HAT_DOWN | SDL_HAT_LEFT) == 0xf, "unexpected hat mask");
 
 	//determine if a hat-button up or down event based on state and last_state
-	for (uint_fast32_t i = 0; i != 4; ++i)
+	for (unsigned i = 0; i != 4; ++i)
 	{
 		const auto current_button_state = !!(jhe_value & (1 << i));
 		auto &saved_button_state = Joystick.button_state[hat + i];
@@ -224,16 +228,13 @@ window_event_result joy_hat_handler(SDL_JoyHatEvent *jhe)
 			// Same state as before
 			continue;
 		saved_button_state = current_button_state;
-		d_event_joystickbutton event;
-		event.button = hat + i;
+		const d_event_joystickbutton event{current_button_state ? EVENT_JOYSTICK_BUTTON_DOWN : EVENT_JOYSTICK_BUTTON_UP, hat + i};
 		if (current_button_state) //last_state up, current state down
 		{
-			event.type = EVENT_JOYSTICK_BUTTON_DOWN;
 			con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_BUTTON_DOWN, button %d", event.button);
 		}
 		else	//last_state down, current state up
 		{
-			event.type = EVENT_JOYSTICK_BUTTON_UP;
 			con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_BUTTON_UP, button %d", event.button);
 		}
 		highest_result = std::max(event_send(event), highest_result);
@@ -246,7 +247,6 @@ window_event_result joy_hat_handler(SDL_JoyHatEvent *jhe)
 #if DXX_MAX_AXES_PER_JOYSTICK
 window_event_result joy_axis_handler(SDL_JoyAxisEvent *jae)
 {
-	d_event_joystick_moved event;
 	auto &js = SDL_Joysticks[jae->which];
 	const auto axis = js.axis_map()[jae->axis];
 	auto &axis_value = js.axis_value()[jae->axis];
@@ -254,8 +254,8 @@ window_event_result joy_axis_handler(SDL_JoyAxisEvent *jae)
 	if (axis_value == jae->value/256)
 		return window_event_result::ignored;
 
+	d_event_joystick_moved event{EVENT_JOYSTICK_MOVED};
 	event.value = axis_value = jae->value/256;
-	event.type = EVENT_JOYSTICK_MOVED;
 	event.axis = axis;
 	con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_MOVED, axis: %d, value: %d",event.axis, event.value);
 

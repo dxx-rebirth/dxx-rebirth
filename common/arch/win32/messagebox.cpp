@@ -21,12 +21,14 @@ namespace dcx {
 
 static void display_win32_alert(const char *message, int error)
 {
-	d_event	event;
 	window	*wind;
 
 	// Handle Descent's windows properly
 	if ((wind = window_get_front()))
-		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);
+	{
+		const d_event event{EVENT_WINDOW_DEACTIVATED};
+		WINDOW_SEND_EVENT(wind);
+	}
 
 	int fullscreen = (grd_curscreen && gr_check_fullscreen());
 	if (fullscreen)
@@ -35,7 +37,10 @@ static void display_win32_alert(const char *message, int error)
 	MessageBox(NULL, message, error?"Sorry, a critical error has occurred.":"Attention!", error?MB_OK|MB_ICONERROR:MB_OK|MB_ICONWARNING);
 
 	if ((wind = window_get_front()))
-		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
+	{
+		const d_event event{EVENT_WINDOW_ACTIVATED};
+		WINDOW_SEND_EVENT(wind);
+	}
 	
 	if (!error && fullscreen)
 		gr_toggle_fullscreen();

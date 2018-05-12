@@ -43,17 +43,16 @@ void window::send_creation_events(const void *const createdata)
 	FrontWindow = this;
 	if (prev_front)
 	{
-		d_event event;
-		WINDOW_SEND_EVENT(prev_front, EVENT_WINDOW_DEACTIVATED);
+		const d_event event{EVENT_WINDOW_DEACTIVATED};
+		WINDOW_SEND_EVENT(prev_front);
 	}
 	{
-		d_create_event event;
-		event.createdata = createdata;
-		WINDOW_SEND_EVENT(this, EVENT_WINDOW_CREATED);
+		const d_create_event event{EVENT_WINDOW_CREATED, createdata};
+		WINDOW_SEND_EVENT(this);
 	}
 	{
-		d_event event;
-		WINDOW_SEND_EVENT(this, EVENT_WINDOW_ACTIVATED);
+		const d_event event{EVENT_WINDOW_ACTIVATED};
+		WINDOW_SEND_EVENT(this);
 	}
 }
 
@@ -85,18 +84,25 @@ window_event_result callback_window::event_handler(const d_event &event)
 int window_close(window *wind)
 {
 	window *prev;
-	d_event event;
 	window_event_result result;
 
 	if (wind == window_get_front())
-		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);	// Deactivate first
+	{
+		const d_event event{EVENT_WINDOW_DEACTIVATED};
+		WINDOW_SEND_EVENT(wind);	// Deactivate first
+	}
 
-	if ((result = WINDOW_SEND_EVENT(wind, EVENT_WINDOW_CLOSE)) == window_event_result::handled)
+	{
+		const d_event event{EVENT_WINDOW_CLOSE};
+		result = WINDOW_SEND_EVENT(wind);
+	}
+	if (result == window_event_result::handled)
 	{
 		// User 'handled' the event, cancelling close
 		if (wind == window_get_front())
 		{
-			WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
+			const d_event event{EVENT_WINDOW_ACTIVATED};
+			WINDOW_SEND_EVENT(wind);
 		}
 		return 0;
 	}
@@ -107,7 +113,10 @@ int window_close(window *wind)
 		delete wind;
 
 	if ((prev = window_get_front()))
-		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_ACTIVATED);
+	{
+		const d_event event{EVENT_WINDOW_ACTIVATED};
+		WINDOW_SEND_EVENT(prev);
+	}
 
 	return 1;
 }
@@ -131,7 +140,6 @@ window *window_get_first(void)
 void window_select(window &wind)
 {
 	window *prev = window_get_front();
-	d_event event;
 	if (&wind == FrontWindow)
 		return;
 	if (&wind == FirstWindow && wind.next)
@@ -149,8 +157,12 @@ void window_select(window &wind)
 	if (wind.is_visible())
 	{
 		if (prev)
-			WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
-		WINDOW_SEND_EVENT(&wind, EVENT_WINDOW_ACTIVATED);
+		{
+			const d_event event{EVENT_WINDOW_DEACTIVATED};
+			WINDOW_SEND_EVENT(prev);
+		}
+		const d_event event{EVENT_WINDOW_ACTIVATED};
+		WINDOW_SEND_EVENT(&wind);
 	}
 }
 
@@ -159,15 +171,20 @@ window *window_set_visible(window &w, int visible)
 	window *prev = window_get_front();
 	w.w_visible = visible;
 	auto wind = window_get_front();	// get the new front window
-	d_event event;
 	if (wind == prev)
 		return wind;
 	
 	if (prev)
-		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
+	{
+		const d_event event{EVENT_WINDOW_DEACTIVATED};
+		WINDOW_SEND_EVENT(prev);
+	}
 
 	if (wind)
-		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
+	{
+		const d_event event{EVENT_WINDOW_ACTIVATED};
+		WINDOW_SEND_EVENT(wind);
+	}
 	return wind;
 }
 

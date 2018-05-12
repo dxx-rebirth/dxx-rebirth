@@ -85,9 +85,7 @@ window_event_result event_poll()
 	// Send the idle event if there were no other events (or they were ignored)
 	if (highest_result == window_event_result::ignored)
 	{
-		d_event ievent;
-		
-		ievent.type = EVENT_IDLE;
+		const d_event ievent{EVENT_IDLE};
 		highest_result = std::max(event_send(ievent), highest_result);
 	}
 	else
@@ -147,7 +145,6 @@ window_event_result event_send(const d_event &event)
 // Uses the old system for now, but this may change
 window_event_result event_process(void)
 {
-	d_event event;
 	window *wind = window_get_front();
 	window_event_result highest_result;
 
@@ -163,8 +160,8 @@ window_event_result event_process(void)
 	// with the same pointer value as the deleted one
 	if ((highest_result == window_event_result::deleted) || (window_get_front() != wind))
 		return highest_result;
-	
-	event.type = EVENT_WINDOW_DRAW;	// then draw all visible windows
+
+	const d_event event{EVENT_WINDOW_DRAW};	// then draw all visible windows
 	for (wind = window_get_first(); wind != nullptr;)
 	{
 		if (window_is_visible(wind))

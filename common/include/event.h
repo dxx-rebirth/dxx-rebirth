@@ -62,18 +62,26 @@ enum class window_event_result : uint8_t
 // A vanilla event. Cast to the correct type of event according to 'type'.
 struct d_event
 {
-	event_type type;
+	const event_type type;
+	constexpr d_event(const event_type t) :
+		type(t)
+	{
+	}
 };
 
 struct d_create_event : d_event
 {
-	const void *createdata;
+	const void *const createdata;
+	constexpr d_create_event(const event_type t, const void *const c) :
+		d_event(t), createdata(c)
+	{
+	}
 };
 
 struct d_change_event : d_event
 {
-	int citem;
-	d_change_event(const int c) :
+	const int citem;
+	constexpr d_change_event(const int c) :
 		d_event{EVENT_NEWMENU_CHANGED}, citem(c)
 	{
 	}

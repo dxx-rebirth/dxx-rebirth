@@ -1091,9 +1091,14 @@ void change_res()
 		Game_screen_mode = new_mode;
 		if (Game_wind) // shortly activate Game_wind so it's canvas will align to new resolution. really minor glitch but whatever
 		{
-			d_event event;
-			WINDOW_SEND_EVENT(Game_wind, EVENT_WINDOW_ACTIVATED);
-			WINDOW_SEND_EVENT(Game_wind, EVENT_WINDOW_DEACTIVATED);
+			{
+				const d_event event{EVENT_WINDOW_ACTIVATED};
+				WINDOW_SEND_EVENT(Game_wind);
+			}
+			{
+				const d_event event{EVENT_WINDOW_DEACTIVATED};
+				WINDOW_SEND_EVENT(Game_wind);
+			}
 		}
 	}
 	game_init_render_buffers(SM_W(Game_screen_mode), SM_H(Game_screen_mode));

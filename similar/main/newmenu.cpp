@@ -1476,13 +1476,8 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 		gr_string(*grd_curcanv, sx, sy, (menu->scroll_offset + menu->max_displayable < menu->nitems) ? DOWN_ARROW_MARKER(*grd_curcanv) : "  ");
 	}
 
-	{
-		d_event event;
-
-		event.type = EVENT_NEWMENU_DRAW;
 		if (menu->subfunction)
-			(*menu->subfunction)(menu, event, menu->userdata);
-	}
+			(*menu->subfunction)(menu, d_event{EVENT_NEWMENU_DRAW}, menu->userdata);
 
 	gr_set_current_canvas(save_canvas);
 
@@ -2021,13 +2016,8 @@ static window_event_result listbox_draw(window *, listbox *lb)
 		}
 	}
 
-	{
-		d_event event;
-
-		event.type = EVENT_NEWMENU_DRAW;
 		if ( lb->listbox_callback )
-			return (*lb->listbox_callback)(lb, event, lb->userdata);
-	}
+			return (*lb->listbox_callback)(lb, d_event{EVENT_NEWMENU_DRAW}, lb->userdata);
 	return window_event_result::handled;
 }
 

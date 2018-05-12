@@ -45,7 +45,7 @@ void window_update_canvases();
 #endif
 int window_is_modal(window &wind);
 
-#define WINDOW_SEND_EVENT(w, e)	(event.type = e, (WINDOW_SEND_EVENT)(*w, event, __FILE__, __LINE__))
+#define WINDOW_SEND_EVENT(w)	((WINDOW_SEND_EVENT)(*w, event, __FILE__, __LINE__))
 
 }
 

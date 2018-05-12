@@ -77,9 +77,7 @@ static window_event_result maybe_send_z_move(const unsigned button)
 	}
 	else
 		return window_event_result::ignored;
-	d_event_mouse_moved event{};
-	event.type = EVENT_MOUSE_MOVED;
-	event.dz = dz;
+	const d_event_mouse_moved event{EVENT_MOUSE_MOVED, 0, 0, dz};
 	return event_send(event);
 }
 
@@ -155,16 +153,12 @@ window_event_result mouse_button_handler(SDL_MouseButtonEvent *mbe)
 
 window_event_result mouse_motion_handler(SDL_MouseMotionEvent *mme)
 {
-	d_event_mouse_moved event;
-	
 	Mouse.cursor_time = timer_query();
 	Mouse.x += mme->xrel;
 	Mouse.y += mme->yrel;
 	
-	event.type = EVENT_MOUSE_MOVED;
-	event.dx = mme->xrel;
-	event.dy = mme->yrel;
-	event.dz = 0;		// handled in mouse_button_handler
+	// z handled in mouse_button_handler
+	const d_event_mouse_moved event{EVENT_MOUSE_MOVED, mme->xrel, mme->yrel, 0};
 	
 	//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d",
 	//		   event.dx, event.dy, event.dz);
