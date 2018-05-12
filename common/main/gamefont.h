@@ -59,12 +59,12 @@ extern float FNTScaleX, FNTScaleY;
 
 extern array<grs_font_ptr, MAX_FONTS> Gamefonts;
 
-template <char tag>
-class font_scaled_float
+/* All the logic is in the base class */
+class base_font_scaled_float
 {
 	const float f;
 public:
-	explicit font_scaled_float(float v) :
+	explicit base_font_scaled_float(const float v) :
 		f(v)
 	{
 	}
@@ -72,6 +72,16 @@ public:
 	{
 		return f;
 	}
+};
+
+/* Use an otherwise unnecessary tag to prevent mixing x-scale with
+ * y-scale.
+ */
+template <char tag>
+class font_scaled_float : public base_font_scaled_float
+{
+public:
+	DXX_INHERIT_CONSTRUCTORS(font_scaled_float, base_font_scaled_float);
 };
 
 template <char tag>

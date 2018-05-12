@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <algorithm>
+#include <cmath>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -60,10 +61,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #if DXX_USE_OGL
 #include "ogl_init.h"
-#define HUD_SCALE_X(G,x)		static_cast<int>(static_cast<double>(x) * (static_cast<double>(grd_curscreen->get_screen_width()) / BASE_WIDTH(G)) + 0.5)
-#define HUD_SCALE_Y(G,y)		static_cast<int>(static_cast<double>(y) * (static_cast<double>(grd_curscreen->get_screen_height()) / BASE_HEIGHT(G)) + 0.5)
-#define HUD_SCALE_X_AR(G,x)	(HUD_SCALE_X(G, 100) > HUD_SCALE_Y(G, 100) ? HUD_SCALE_Y(G, x) : HUD_SCALE_X(G, x))
-#define HUD_SCALE_Y_AR(G,y)	(HUD_SCALE_Y(G, 100) > HUD_SCALE_X(G, 100) ? HUD_SCALE_X(G, y) : HUD_SCALE_Y(G, y))
 #else
 #define HUD_SCALE_X(G,x)		(static_cast<void>(G), x)
 #define HUD_SCALE_Y(G,y)		(static_cast<void>(G), y)
@@ -375,6 +372,109 @@ static bool show_cloak_invul_timer()
 #define BASE_HEIGHT(G)	((G).get(480, 200))
 #if DXX_USE_OGL
 #define draw_numerical_display(C,S,E,G)	draw_numerical_display(C,S,E)
+
+namespace {
+
+class base_hud_scaled_int
+{
+	const long v;
+public:
+	explicit constexpr base_hud_scaled_int(const long l) :
+		v(l)
+	{
+	}
+	operator long() const
+	{
+		return v;
+	}
+};
+
+template <char>
+class hud_scaled_int : public base_hud_scaled_int
+{
+public:
+	DXX_INHERIT_CONSTRUCTORS(hud_scaled_int, base_hud_scaled_int);
+};
+
+class base_hud_scale_float
+{
+protected:
+	const double scale;
+	long operator()(const unsigned i) const
+	{
+		return std::lround(this->scale * static_cast<double>(i));
+	}
+	double get() const
+	{
+		return scale;
+	}
+public:
+	constexpr base_hud_scale_float(const double s) :
+		scale(s)
+	{
+	}
+};
+
+template <char tag>
+class hud_scale_float : base_hud_scale_float
+{
+public:
+	using scaled = hud_scaled_int<tag>;
+	using base_hud_scale_float::get;
+	DXX_INHERIT_CONSTRUCTORS(hud_scale_float, base_hud_scale_float);
+	scaled operator()(const unsigned i) const
+	{
+		return scaled(this->base_hud_scale_float::operator()(i));
+	}
+};
+
+using hud_ar_scale_float = hud_scale_float<'a'>;
+using hud_x_scale_float = hud_scale_float<'x'>;
+using hud_y_scale_float = hud_scale_float<'y'>;
+using hud_ar_scaled_int = hud_ar_scale_float::scaled;
+using hud_x_scaled_int = hud_x_scale_float::scaled;
+using hud_y_scaled_int = hud_y_scale_float::scaled;
+
+}
+
+static hud_x_scale_float HUD_SCALE_X(const local_multires_gauge_graphic multires_gauge_graphic)
+{
+	return static_cast<double>(grd_curscreen->get_screen_width()) / BASE_WIDTH(multires_gauge_graphic);
+}
+
+static long HUD_SCALE_X(const local_multires_gauge_graphic multires_gauge_graphic, const unsigned &x)
+{
+	return HUD_SCALE_X(multires_gauge_graphic)(x);
+}
+
+static hud_y_scale_float HUD_SCALE_Y(const local_multires_gauge_graphic multires_gauge_graphic)
+{
+	return static_cast<double>(grd_curscreen->get_screen_height()) / BASE_HEIGHT(multires_gauge_graphic);
+}
+
+static long HUD_SCALE_Y(const local_multires_gauge_graphic multires_gauge_graphic, const unsigned &y)
+{
+	return HUD_SCALE_Y(multires_gauge_graphic)(y);
+}
+
+static hud_ar_scale_float HUD_SCALE_AR(const hud_x_scale_float x, const hud_y_scale_float y)
+{
+	return std::min(x.get(), y.get());
+}
+
+static hud_ar_scale_float HUD_SCALE_AR(const local_multires_gauge_graphic multires_gauge_graphic)
+{
+	return HUD_SCALE_AR(HUD_SCALE_X(multires_gauge_graphic), HUD_SCALE_Y(multires_gauge_graphic));
+}
+
+static long HUD_SCALE_AR(const local_multires_gauge_graphic multires_gauge_graphic, const unsigned &y)
+{
+	return HUD_SCALE_AR(multires_gauge_graphic)(y);
+}
+
+#define HUD_SCALE_X_AR	HUD_SCALE_AR
+#define HUD_SCALE_Y_AR	HUD_SCALE_AR
+
 #else
 #define hud_bitblt_free(C,X,Y,W,H,B)	hud_bitblt_free(C,X,Y,B)
 #define hud_bitblt(C,X,Y,B,G)	hud_bitblt(C,X,Y,B)
