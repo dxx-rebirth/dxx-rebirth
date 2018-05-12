@@ -176,9 +176,9 @@ struct kc_menu : embed_window_pointer_t
 const struct player_config::KeySettings DefaultKeySettings{
 	/* Keyboard */ {{
 #if defined(DXX_BUILD_DESCENT_I)
-		KEY_UP, KEY_PAD8, KEY_DOWN, KEY_PAD2, KEY_LEFT, KEY_PAD4, KEY_RIGHT, KEY_PAD6, KEY_LALT, 0xff, 0xff, KEY_PAD1, 0xff, KEY_PAD3, 0xff, KEY_PADMINUS, 0xff, KEY_PADPLUS, 0xff, 0xff, KEY_Q, KEY_PAD7, KEY_E, KEY_PAD9, KEY_LCTRL, KEY_RCTRL, KEY_SPACEBAR, 0xff, KEY_F, 0xff, KEY_A, 0xff, KEY_Z, 0xff, KEY_B, 0xff, KEY_R, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, KEY_TAB, 0xff, KEY_COMMA, 0x0, KEY_PERIOD, 0x0
+		KEY_UP, KEY_PAD8, KEY_DOWN, KEY_PAD2, KEY_LEFT, KEY_PAD4, KEY_RIGHT, KEY_PAD6, KEY_LALT, 0xff, KEY_A, KEY_PAD1, KEY_D, KEY_PAD3, KEY_C, KEY_PADMINUS, KEY_X, KEY_PADPLUS, 0xff, 0xff, KEY_Q, KEY_PAD7, KEY_E, KEY_PAD9, KEY_LCTRL, KEY_RCTRL, KEY_SPACEBAR, 0xff, KEY_F, 0xff, KEY_W, 0xff, KEY_S, 0xff, KEY_B, 0xff, KEY_R, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, KEY_TAB, 0xff, KEY_COMMA, 0x0, KEY_PERIOD, 0x0
 #elif defined(DXX_BUILD_DESCENT_II)
-		KEY_UP, KEY_PAD8, KEY_DOWN, KEY_PAD2, KEY_LEFT, KEY_PAD4, KEY_RIGHT, KEY_PAD6, KEY_LALT, 0xff, 0xff, KEY_PAD1, 0xff, KEY_PAD3, 0xff, KEY_PADMINUS, 0xff, KEY_PADPLUS, 0xff, 0xff, KEY_Q, KEY_PAD7, KEY_E, KEY_PAD9, KEY_LCTRL, KEY_RCTRL, KEY_SPACEBAR, 0xff, KEY_F, 0xff, KEY_A, 0xff, KEY_Z, 0xff, KEY_B, 0xff, KEY_R, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, KEY_TAB, 0xff, KEY_S, 0xff, KEY_COMMA, 0xff, KEY_PERIOD, 0xff, KEY_H, 0xff, KEY_T, 0xff, 0xff, 0xff, 0x0, 0x0
+		KEY_UP, KEY_PAD8, KEY_DOWN, KEY_PAD2, KEY_LEFT, KEY_PAD4, KEY_RIGHT, KEY_PAD6, KEY_LALT, 0xff, KEY_A, KEY_PAD1, KEY_D, KEY_PAD3, KEY_C, KEY_PADMINUS, KEY_X, KEY_PADPLUS, 0xff, 0xff, KEY_Q, KEY_PAD7, KEY_E, KEY_PAD9, KEY_LCTRL, KEY_RCTRL, KEY_SPACEBAR, 0xff, KEY_F, 0xff, KEY_W, 0xff, KEY_S, 0xff, KEY_B, 0xff, KEY_R, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, KEY_TAB, 0xff, KEY_LSHIFT, 0xff, KEY_COMMA, 0xff, KEY_PERIOD, 0xff, KEY_H, 0xff, KEY_T, 0xff, 0xff, 0xff, 0x0, 0x0
 #endif
 	}},
 #if DXX_MAX_JOYSTICKS
