@@ -81,9 +81,7 @@ const array<array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int{{
 
 //--unused-- fix	Laser_delay_time = F1_0/6;		//	Delay between laser fires.
 
-#define DEFAULT_DIFFICULTY		1
-
-int	Difficulty_level=DEFAULT_DIFFICULTY;	//	Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
+Difficulty_level_type Difficulty_level=DEFAULT_DIFFICULTY;	//	Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 }
 
 #if DXX_HAVE_POISON_UNDEFINED

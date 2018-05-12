@@ -125,7 +125,7 @@ struct player_config : prohibit_void_ptr<player_config>
 			Mouse;
 	} KeySettings;
 	array<ubyte, MAX_DXX_REBIRTH_CONTROLS> KeySettingsRebirth;
-	int DefaultDifficulty;
+	Difficulty_level_type DefaultDifficulty;
 	int AutoLeveling;
 	uint16_t NHighestLevels;
 	array<hli, MAX_MISSIONS> HighestLevels;

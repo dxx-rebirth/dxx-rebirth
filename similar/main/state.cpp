@@ -1598,7 +1598,10 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	select_secondary_weapon(pl_info, nullptr, Secondary_weapon, 0);
 
 // Restore the difficulty level
-	Difficulty_level = PHYSFSX_readSXE32(fp, swap);
+	{
+		const unsigned u = PHYSFSX_readSXE32(fp, swap);
+		Difficulty_level = cast_clamp_difficulty(u);
+	}
 
 // Restore the cheats enabled flag
 	game_disable_cheats(); // disable cheats first

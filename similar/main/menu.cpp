@@ -819,7 +819,6 @@ int select_demo(void)
 
 static int do_difficulty_menu()
 {
-	int s;
 	array<newmenu_item, NDL> m{{
 		nm_item_menu(MENU_DIFFICULTY_TEXT(0)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(1)),
@@ -828,15 +827,17 @@ static int do_difficulty_menu()
 		nm_item_menu(MENU_DIFFICULTY_TEXT(4)),
 	}};
 
-	s = newmenu_do1( NULL, TXT_DIFFICULTY_LEVEL, m.size(), &m.front(), unused_newmenu_subfunction, unused_newmenu_userdata, Difficulty_level);
+	const unsigned s = newmenu_do1(nullptr, TXT_DIFFICULTY_LEVEL, m.size(), &m.front(), unused_newmenu_subfunction, unused_newmenu_userdata, Difficulty_level);
 
-	if (s > -1 )	{
-		if (s != Difficulty_level)
+	if (s <= Difficulty_4)
+	{
+		const auto d = static_cast<Difficulty_level_type>(s);
+		if (d != Difficulty_level)
 		{
-			PlayerCfg.DefaultDifficulty = s;
+			PlayerCfg.DefaultDifficulty = d;
 			write_player_file();
 		}
-		Difficulty_level = s;
+		Difficulty_level = d;
 		return 1;
 	}
 	return 0;

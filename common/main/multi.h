@@ -771,9 +771,9 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	ntstring<MISSION_NAME_LEN> mission_title;
 	ntstring<8> mission_name;
 	int     					levelnum;
+	Difficulty_level_type difficulty;
 	ubyte   					gamemode;
 	ubyte   					RefusePlayers;
-	ubyte   					difficulty;
 	ubyte   					game_status;
 	ubyte   					numplayers;
 	ubyte   					max_numplayers;

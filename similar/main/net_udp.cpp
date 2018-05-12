@@ -2768,7 +2768,8 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		Netgame.levelnum = GET_INTEL_INT(&(data[len]));					len += 4;
 		Netgame.gamemode = data[len];							len++;
 		Netgame.RefusePlayers = data[len];						len++;
-		Netgame.difficulty = data[len];							len++;
+		Netgame.difficulty = cast_clamp_difficulty(data[len]);
+		len++;
 		Netgame.game_status = data[len];						len++;
 		Netgame.numplayers = data[len];							len++;
 		Netgame.max_numplayers = data[len];						len++;
@@ -3276,7 +3277,7 @@ constexpr std::integral_constant<unsigned, 5 * reactor_invul_time_mini_scale> re
 
 #define DXX_UDP_MENU_OPTIONS(VERB)	                                    \
 	DXX_MENUITEM(VERB, TEXT, "Game Options", game_label)	                     \
-	DXX_MENUITEM(VERB, SLIDER, get_annotated_difficulty_string(), opt_difficulty, Netgame.difficulty, 0, (NDL-1))	\
+	DXX_MENUITEM(VERB, SLIDER, get_annotated_difficulty_string(Netgame.difficulty), opt_difficulty, difficulty, Difficulty_0, Difficulty_4)	\
 	DXX_MENUITEM(VERB, SCALE_SLIDER, srinvul, opt_cinvul, Netgame.control_invul_time, 0, 10, reactor_invul_time_scale)	\
 	DXX_MENUITEM(VERB, SLIDER, PlayText, opt_playtime, Netgame.PlayTimeAllowed, 0, 10)	\
 	DXX_MENUITEM(VERB, SLIDER, KillText, opt_killgoal, Netgame.KillGoal, 0, 20)	\
@@ -3372,7 +3373,7 @@ class more_game_options_menu_items
 #endif
 	typedef array<newmenu_item, DXX_UDP_MENU_OPTIONS(COUNT)> menu_array;
 	menu_array m;
-	static const char *get_annotated_difficulty_string()
+	static const char *get_annotated_difficulty_string(const Difficulty_level_type d)
 	{
 		static const array<char[20], 5> text{{
 			"Difficulty: Trainee",
@@ -3381,13 +3382,13 @@ class more_game_options_menu_items
 			"Difficulty: Ace",
 			"Difficulty: Insane"
 		}};
-		switch (const auto d = Netgame.difficulty)
+		switch (d)
 		{
-			case 0:
-			case 1:
-			case 2:
-			case 3:
-			case 4:
+			case Difficulty_0:
+			case Difficulty_1:
+			case Difficulty_2:
+			case Difficulty_3:
+			case Difficulty_4:
 				return text[d];
 			default:
 				return &text[3][16];
@@ -3399,12 +3400,12 @@ public:
 	{
 		return m;
 	}
-	void update_difficulty_string()
+	void update_difficulty_string(const Difficulty_level_type difficulty)
 	{
 		/* Cast away const because newmenu_item uses `char *text` even
 		 * for fields where text is treated as `const char *`.
 		 */
-		m[opt_difficulty].text = const_cast<char *>(get_annotated_difficulty_string());
+		m[opt_difficulty].text = const_cast<char *>(get_annotated_difficulty_string(difficulty));
 	}
 	void update_extra_primary_string(unsigned primary)
 	{
@@ -3454,7 +3455,8 @@ public:
 	};
 	more_game_options_menu_items()
 	{
-		update_difficulty_string();
+		const auto difficulty = Netgame.difficulty;
+		update_difficulty_string(difficulty);
 		update_packstring();
 		update_portstring();
 		update_reactor_life_string(Netgame.control_invul_time / reactor_invul_time_mini_scale);
@@ -3494,7 +3496,9 @@ public:
 		uint8_t thief_absent;
 		uint8_t thief_cannot_steal_energy_weapons;
 #endif
+		uint8_t difficulty;
 		DXX_UDP_MENU_OPTIONS(READ);
+		Netgame.difficulty = cast_clamp_difficulty(difficulty);
 		auto &items = Netgame.DuplicatePowerups;
 		items.set_primary_count(primary);
 		items.set_secondary_count(secondary);
@@ -3590,8 +3594,8 @@ int more_game_options_menu_items::handler(newmenu *, const d_event &event, more_
 			auto &menus = items->get_menu_items();
 			if (citem == opt_difficulty)
 			{
-				Netgame.difficulty = menus[opt_difficulty].value;
-				items->update_difficulty_string();
+				Netgame.difficulty = cast_clamp_difficulty(menus[opt_difficulty].value);
+				items->update_difficulty_string(Netgame.difficulty);
 			}
 			else if (citem == opt_cinvul)
 				items->update_reactor_life_string(menus[opt_cinvul].value * (reactor_invul_time_scale / reactor_invul_time_mini_scale));

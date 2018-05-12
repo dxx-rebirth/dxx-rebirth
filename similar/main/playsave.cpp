@@ -228,7 +228,7 @@ int new_player_config()
 	PlayerCfg.KeySettingsRebirth = DefaultKeySettingsRebirth;
 	kc_set_controls();
 
-	PlayerCfg.DefaultDifficulty = 1;
+	PlayerCfg.DefaultDifficulty = DEFAULT_DIFFICULTY;
 	PlayerCfg.AutoLeveling = 1;
 	PlayerCfg.NHighestLevels = 1;
 	PlayerCfg.HighestLevels[0].Shortname[0] = 0; //no name for mission 0
@@ -875,7 +875,10 @@ int read_player_file()
 	saved_game_version = PHYSFSX_readShort(file);
 	player_struct_version = PHYSFSX_readShort(file);
 	PlayerCfg.NHighestLevels = PHYSFSX_readInt(file);
-	PlayerCfg.DefaultDifficulty = PHYSFSX_readInt(file);
+	{
+		const unsigned u = PHYSFSX_readInt(file);
+		PlayerCfg.DefaultDifficulty = cast_clamp_difficulty(u);
+	}
 	PlayerCfg.AutoLeveling = PHYSFSX_readInt(file);
 #elif defined(DXX_BUILD_DESCENT_II)
 	player_file_version = PHYSFSX_readShort(file);
@@ -974,7 +977,7 @@ int read_player_file()
 	}
 
 	PHYSFS_seek(file,PHYSFS_tell(file)+2*sizeof(short)); //skip Game_window_w,Game_window_h
-	PlayerCfg.DefaultDifficulty = PHYSFSX_readByte(file);
+	PlayerCfg.DefaultDifficulty = cast_clamp_difficulty(PHYSFSX_readByte(file));
 	PlayerCfg.AutoLeveling       = PHYSFSX_readByte(file);
 	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(sbyte)); // skip ReticleOn
 	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = static_cast<cockpit_mode_t>(PHYSFSX_readByte(file));
@@ -1449,7 +1452,11 @@ void read_netgame_profile(netgame_info *ng)
 		else if (cmp(lb, eq, RefusePlayersStr))
 			convert_integer(ng->RefusePlayers, value);
 		else if (cmp(lb, eq, DifficultyStr))
-			convert_integer(ng->difficulty, value);
+		{
+			uint8_t difficulty;
+			if (convert_integer(difficulty, value))
+				ng->difficulty = cast_clamp_difficulty(difficulty);
+		}
 		else if (cmp(lb, eq, GameFlagsStr))
 		{
 			packed_game_flags p;
