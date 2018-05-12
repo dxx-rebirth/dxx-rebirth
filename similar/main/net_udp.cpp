@@ -832,11 +832,16 @@ struct direct_join
 #endif
 };
 
-struct manual_join : direct_join
+struct manual_join_user_inputs
 {
-	array<newmenu_item, 7> m;
 	array<char, 6> hostportbuf, myportbuf;
 	array<char, 128> addrbuf;
+};
+
+struct manual_join : direct_join, manual_join_user_inputs
+{
+	static manual_join_user_inputs s_last_inputs;
+	array<newmenu_item, 7> m;
 };
 
 struct list_join : direct_join
@@ -847,6 +852,8 @@ struct list_join : direct_join
 	array<newmenu_item, entries> m;
 	array<array<char, 74>, entries> ljtext;
 };
+
+manual_join_user_inputs manual_join::s_last_inputs;
 
 }
 
@@ -971,6 +978,7 @@ static int manual_join_game_handler(newmenu *const menu, const d_event &event, m
 			}
 			else
 			{
+				dj->s_last_inputs = *dj;
 				multi_new_game();
 				N_players = 0;
 				change_playernum_to(1);
@@ -1007,10 +1015,20 @@ void net_udp_manual_join_game()
 	auto dj = make_unique<manual_join>();
 	net_udp_init();
 
-	snprintf(&dj->addrbuf[0], dj->addrbuf.size(), "%s", CGameArg.MplUdpHostAddr.c_str());
-	snprintf(&dj->hostportbuf[0], dj->hostportbuf.size(), "%hu", CGameArg.MplUdpHostPort ? CGameArg.MplUdpHostPort : UDP_PORT_DEFAULT);
-
 	reset_UDP_MyPort();
+
+	if (dj->s_last_inputs.addrbuf[0])
+		dj->addrbuf = dj->s_last_inputs.addrbuf;
+	else
+		snprintf(&dj->addrbuf[0], dj->addrbuf.size(), "%s", CGameArg.MplUdpHostAddr.c_str());
+	if (dj->s_last_inputs.hostportbuf[0])
+		dj->hostportbuf = dj->s_last_inputs.hostportbuf;
+	else
+		snprintf(&dj->hostportbuf[0], dj->hostportbuf.size(), "%hu", CGameArg.MplUdpHostPort ? CGameArg.MplUdpHostPort : UDP_PORT_DEFAULT);
+	if (dj->s_last_inputs.myportbuf[0])
+		dj->myportbuf = dj->s_last_inputs.myportbuf;
+	else
+		snprintf(&dj->myportbuf[0], dj->myportbuf.size(), "%hu", UDP_MyPort);
 
 	nitems = 0;
 	auto &m = dj->m;
@@ -1019,7 +1037,6 @@ void net_udp_manual_join_game()
 	nm_set_item_text(m[nitems++],"GAME PORT:");
 	nm_set_item_input(m[nitems++], dj->hostportbuf);
 	nm_set_item_text(m[nitems++],"MY PORT:");
-	snprintf(&dj->myportbuf[0], dj->myportbuf.size(), "%hu", UDP_MyPort);
 	nm_set_item_input(m[nitems++], dj->myportbuf);
 	nm_set_item_text(m[nitems++],"");
 
