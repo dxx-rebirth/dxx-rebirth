@@ -164,10 +164,10 @@ static inline callback_window *window_create(grs_canvas &src, int x, int y, int 
 	return win;
 }
 
-static inline window_event_result (WINDOW_SEND_EVENT)(window &w, const d_event &event, const char *file, unsigned line, const char *e)
+static inline window_event_result (WINDOW_SEND_EVENT)(window &w, const d_event &event, const char *const file, const unsigned line)
 {
 	auto &c = window_get_canvas(w);
-	con_printf(CON_DEBUG, "%s:%u: sending event %s to window of dimensions %dx%d", file, line, e, c.cv_bitmap.bm_w, c.cv_bitmap.bm_h);
+	con_printf(CON_DEBUG, "%s:%u: sending event %i to window of dimensions %dx%d", file, line, event.type, c.cv_bitmap.bm_w, c.cv_bitmap.bm_h);
 	return window_send_event(w, event);
 }
 
