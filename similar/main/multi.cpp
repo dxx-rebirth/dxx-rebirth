@@ -2225,14 +2225,17 @@ static void multi_do_create_powerup(fvmobjptr &vmobjptr, fvmsegptridx &vmsegptri
 
 static void multi_do_play_sound(fvcobjptridx &vcobjptridx, const playernum_t pnum, const uint8_t *const buf)
 {
-	int sound_num = buf[2];
-	fix volume = buf[3] << 12;
-
-	if (!vcplayerptr(pnum)->connected)
+	const auto &plr = *vcplayerptr(pnum);
+	if (!plr.connected)
 		return;
 
-	Assert(vcplayerptr(pnum)->objnum <= Highest_object_index);
-	digi_link_sound_to_object( sound_num, vcobjptridx(vcplayerptr(pnum)->objnum), 0, volume);
+	const unsigned sound_num = buf[2];
+	const uint8_t once = buf[3];
+	const fix volume = GET_INTEL_INT(&buf[4]);
+
+	assert(plr.objnum <= Highest_object_index);
+	const auto objnum = plr.objnum;
+	digi_link_sound_to_object(sound_num, vcobjptridx(objnum), 0, volume, static_cast<sound_stack>(once));
 }
 
 }
@@ -2970,18 +2973,21 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 
 }
 
-void multi_digi_play_sample_once(int soundnum, fix max_volume)
+static void multi_digi_play_sample(const int soundnum, const fix max_volume, const sound_stack once)
 {
 	if (Game_mode & GM_MULTI)
-		multi_send_play_sound(soundnum, max_volume);
-	digi_play_sample_once(soundnum, max_volume);
+		multi_send_play_sound(soundnum, max_volume, once);
+	digi_link_sound_to_object(soundnum, vcobjptridx(Viewer), 0, max_volume, once);
+}
+
+void multi_digi_play_sample_once(int soundnum, fix max_volume)
+{
+	multi_digi_play_sample(soundnum, max_volume, sound_stack::cancel_previous);
 }
 
 void multi_digi_play_sample(int soundnum, fix max_volume)
 {
-	if (Game_mode & GM_MULTI)
-		multi_send_play_sound(soundnum, max_volume);
-	digi_play_sample(soundnum, max_volume);
+	multi_digi_play_sample(soundnum, max_volume, sound_stack::allow_stacking);
 }
 
 namespace dsx {
@@ -2989,20 +2995,21 @@ namespace dsx {
 void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume)
 {
 	if (Game_mode & GM_MULTI)
-		multi_send_play_sound(soundnum, max_volume);
+		multi_send_play_sound(soundnum, max_volume, sound_stack::allow_stacking);
 	digi_link_sound_to_pos(soundnum, segnum, sidenum, pos, forever, max_volume);
 }
 
 }
 
-void multi_send_play_sound(const int sound_num, const fix volume)
+void multi_send_play_sound(const int sound_num, const fix volume, const sound_stack once)
 {
 	int count = 0;
 	count += 1;
 	multi_command<MULTI_PLAY_SOUND> multibuf;
 	multibuf[count] = Player_num;                                   count += 1;
 	multibuf[count] = static_cast<char>(sound_num);                      count += 1;
-	multibuf[count] = static_cast<char>(volume >> 12); count += 1;
+	multibuf[count] = static_cast<uint8_t>(once);                      count += 1;
+	PUT_INTEL_INT(&multibuf[count], volume);							count += 4;
 	//                                                                                                         -----------
 	//                                                                                                         Total = 4
 	multi_send_data(multibuf, 0);
@@ -4150,7 +4157,7 @@ static void multi_do_sound_function (const playernum_t pnum, const ubyte *buf)
 	if (whichfunc==0)
 		digi_kill_sound_linked_to_object(plobj);
 	else if (whichfunc==3)
-		digi_link_sound_to_object3(sound, plobj, 1,F1_0, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
+		digi_link_sound_to_object3(sound, plobj, 1, F1_0, sound_stack::allow_stacking, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
 }
 
 void multi_send_capture_bonus (const playernum_t pnum)

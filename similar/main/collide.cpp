@@ -849,7 +849,7 @@ static window_event_result collide_weapon_and_wall(object_array &objects, fvmseg
 
 			if ( Weapon_info[get_weapon_id(weapon)].damage_radius ) {
 
-				digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, weapon, 0, F1_0);
+				digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, weapon, 0, F1_0, sound_stack::allow_stacking);
 
 				//	MK: 09/13/95: Badass in water is 1/2 normal intensity.
 				object_create_badass_explosion( weapon, hitseg, hitpt,

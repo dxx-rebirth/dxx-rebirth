@@ -257,10 +257,11 @@ weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num);
 static inline void boss_link_see_sound(const vcobjptridx_t objp)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	digi_link_sound_to_object2(SOUND_BOSS_SHARE_SEE, objp, 1, F1_0, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
+	constexpr unsigned soundnum = SOUND_BOSS_SHARE_SEE;
 #elif defined(DXX_BUILD_DESCENT_II)
-	digi_link_sound_to_object2(Robot_info[get_robot_id(objp)].see_sound, objp, 1, F1_0, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
+	const unsigned soundnum = Robot_info[get_robot_id(objp)].see_sound;
 #endif
+	digi_link_sound_to_object2(soundnum, objp, 1, F1_0, sound_stack::allow_stacking, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
 }
 #endif
 

@@ -2173,7 +2173,7 @@ static void do_boss_dying_frame(const vmobjptridx_t objp)
 	if (Boss_dying_start_time + BOSS_DEATH_DURATION - BOSS_DEATH_SOUND_DURATION < GameTime64) {
 		if (!Boss_dying_sound_playing) {
 			Boss_dying_sound_playing = 1;
-			digi_link_sound_to_object2(SOUND_BOSS_SHARE_DIE, objp, 0, F1_0*4, vm_distance{F1_0*1024});	//	F1_0*512 means play twice as loud
+			digi_link_sound_to_object2(SOUND_BOSS_SHARE_DIE, objp, 0, F1_0*4, sound_stack::allow_stacking, vm_distance{F1_0*1024});	//	F1_0*512 means play twice as loud
                 } else if (d_rand() < FrameTime*16)
                         create_small_fireball_on_object(objp, (F1_0 + d_rand()) * 8, 0);
         } else if (d_rand() < FrameTime*8)
@@ -2184,7 +2184,7 @@ static void do_boss_dying_frame(const vmobjptridx_t objp)
 		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
 		explode_object(objp, F1_0/4);
-		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, vm_distance{F1_0*512});
+		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, sound_stack::allow_stacking, vm_distance{F1_0*512});
 	}
 }
 
@@ -2264,7 +2264,7 @@ static int do_robot_dying_frame(const vmobjptridx_t objp, fix64 start_time, fix 
 	if (start_time + roll_duration - sound_duration < GameTime64) {
 		if (!*dying_sound_playing) {
 			*dying_sound_playing = 1;
-			digi_link_sound_to_object2(death_sound, objp, 0, sound_scale, vm_distance{sound_scale*256});	//	F1_0*512 means play twice as loud
+			digi_link_sound_to_object2(death_sound, objp, 0, sound_scale, sound_stack::allow_stacking, vm_distance{sound_scale*256});	//	F1_0*512 means play twice as loud
 		} else if (d_rand() < FrameTime*16)
 			create_small_fireball_on_object(objp, (F1_0 + d_rand()) * (16 * expl_scale/F1_0)/8, 0);
 	} else if (d_rand() < FrameTime*8)
@@ -2288,7 +2288,7 @@ static void do_boss_dying_frame(const vmobjptridx_t objp)
 		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
 		explode_object(objp, F1_0/4);
-		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, vm_distance{F1_0*512});
+		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, sound_stack::allow_stacking, vm_distance{F1_0*512});
 	}
 }
 
@@ -2304,7 +2304,7 @@ static int do_any_robot_dying_frame(const vmobjptridx_t objp)
 		if (rval) {
 			objp->ctype.ai_info.dying_start_time = GameTime64; // make sure following only happens one time!
 			explode_object(objp, F1_0/4);
-			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, vm_distance{F1_0*512});
+			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, sound_stack::allow_stacking, vm_distance{F1_0*512});
 			if (Current_level_num < 0)
 			{
 				const auto id = get_robot_id(objp);

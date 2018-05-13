@@ -46,6 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "config.h"
 
 #include "compiler-begin.h"
+#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 
 using std::max;
@@ -77,7 +78,7 @@ struct sound_object
 	union {
 		struct {
 			segnum_t			segnum;				// Used if SOF_LINK_TO_POS field is used
-			short			sidenum;
+			uint8_t sidenum;
 			vms_vector	position;
 		} pos;
 		struct {
@@ -87,22 +88,61 @@ struct sound_object
 	} link_type;
 };
 
-}
-
-namespace dsx {
-
 using sound_objects_t = array<sound_object, MAX_SOUND_OBJECTS>;
 static sound_objects_t SoundObjects;
 static short next_signature=0;
 
 static int N_active_sound_objects;
 
-static std::pair<sound_objects_t::iterator, sound_objects_t::iterator> find_sound_object_flags0()
+static void digi_kill_sound(sound_object &s)
+{
+	s.flags = 0;	// Mark as dead, so some other sound can use this sound
+	if (s.channel > -1)	{
+		N_active_sound_objects--;
+		digi_stop_sound(exchange(s.channel, -1));
+	}
+}
+
+static std::pair<sound_objects_t::iterator, sound_objects_t::iterator> find_sound_object_flags0(sound_objects_t &SoundObjects)
 {
 	const auto eso = SoundObjects.end();
 	const auto i = std::find_if(SoundObjects.begin(), eso, [](sound_object &so) { return so.flags == 0; });
 	return {i, eso};
 }
+
+static std::pair<sound_objects_t::iterator, sound_objects_t::iterator> find_sound_object(sound_objects_t &SoundObjects, const unsigned soundnum, const vcobjidx_t obj, const sound_stack once)
+{
+	if (once == sound_stack::allow_stacking)
+		return find_sound_object_flags0(SoundObjects);
+	const auto eso = SoundObjects.end();
+	sound_objects_t::iterator free_sound_object = eso;
+	for (auto i = SoundObjects.begin(); i != eso; ++i)
+	{
+		constexpr uint8_t used_obj = SOF_USED | SOF_LINK_TO_OBJ;
+		auto &so = *i;
+		const auto flags = so.flags;
+		if (flags == 0)
+			free_sound_object = i;
+		else if (so.soundnum == soundnum && (flags & used_obj) == used_obj)
+		{
+			/* No check for a signature match here.  If the signature
+			 * matches, this sound will be reclaimed to prevent
+			 * stacking.  If the signature does not match, then the old
+			 * sound is tied to a dead object and needs to be removed.
+			 */
+			if (so.link_type.obj.objnum == obj)
+			{
+				digi_kill_sound(so);
+				return {i, eso};
+			}
+		}
+	}
+	return {free_sound_object, eso};
+}
+
+}
+
+namespace dsx {
 
 /* Find the sound which actually equates to a sound number */
 int digi_xlat_sound(int soundno)
@@ -328,7 +368,7 @@ static void digi_start_sound_object(sound_object &s)
 		N_active_sound_objects++;
 }
 
-static void digi_link_sound_common(icobjptr_t viewer, sound_object &so, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance, int soundnum, const vcsegptridx_t segnum)
+static void digi_link_sound_common(const vcobjptr_t viewer, sound_object &so, const vms_vector &pos, const int forever, const fix max_volume, const vm_distance max_distance, const int soundnum, const vcsegptridx_t segnum)
 {
 	so.signature=next_signature++;
 	if ( forever )
@@ -359,10 +399,9 @@ static void digi_link_sound_common(icobjptr_t viewer, sound_object &so, const vm
 	}
 }
 
-void digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, int forever, fix max_volume, const vm_distance max_distance, int loop_start, int loop_end )
+void digi_link_sound_to_object3(const unsigned org_soundnum, const vcobjptridx_t objnum, const uint8_t forever, const fix max_volume, const sound_stack once, const vm_distance max_distance, const int loop_start, const int loop_end)
 {
 	const auto &&viewer = vcobjptr(Viewer);
-	int volume,pan;
 	int soundnum;
 
 	soundnum = digi_xlat_sound(org_soundnum);
@@ -377,19 +416,12 @@ void digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, i
 		Int3();
 		return;
 	}
-	if (!forever)
-	{
-		// Hack to keep sounds from building up...
-		digi_get_sound_loc(viewer->orient, viewer->pos, vcsegptridx(viewer->segnum), objnum->pos, vcsegptridx(objnum->segnum), max_volume,&volume, &pan, max_distance);
-		digi_play_sample_3d(org_soundnum, pan, volume);
-		return;
-	}
 
 	if ( Newdemo_state == ND_STATE_RECORDING )		{
 		newdemo_record_link_sound_to_object3( org_soundnum, objnum, max_volume, max_distance, loop_start, loop_end );
 	}
 
-	auto f = find_sound_object_flags0();
+	const auto &&f = find_sound_object(SoundObjects, soundnum, objnum, once);
 	if (f.first == f.second)
 		return;
 	auto &so = *f.first;
@@ -401,14 +433,14 @@ void digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, i
 	digi_link_sound_common(viewer, so, objnum->pos, forever, max_volume, max_distance, soundnum, vcsegptridx(objnum->segnum));
 }
 
-void digi_link_sound_to_object2(int org_soundnum, const vcobjptridx_t objnum, int forever, fix max_volume, const vm_distance max_distance)
+void digi_link_sound_to_object2(const unsigned soundnum, const vcobjptridx_t objnum, const uint8_t forever, const fix max_volume, const sound_stack once, const vm_distance max_distance)
 {
-	digi_link_sound_to_object3( org_soundnum, objnum, forever, max_volume, max_distance, -1, -1 );
+	digi_link_sound_to_object3(soundnum, objnum, forever, max_volume, once, max_distance, -1, -1);
 }
 
-void digi_link_sound_to_object( int soundnum, const vcobjptridx_t objnum, int forever, fix max_volume )
+void digi_link_sound_to_object(const unsigned soundnum, const vcobjptridx_t objnum, const uint8_t forever, const fix max_volume, const sound_stack once)
 {
-	digi_link_sound_to_object2( soundnum, objnum, forever, max_volume, vm_distance{256*F1_0});
+	digi_link_sound_to_object2(soundnum, objnum, forever, max_volume, once, vm_distance{256*F1_0});
 }
 
 static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum, const vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
@@ -437,7 +469,7 @@ static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum,
 		return;
 	}
 
-	auto f = find_sound_object_flags0();
+	auto f = find_sound_object_flags0(SoundObjects);
 	if (f.first == f.second)
 		return;
 	auto &so = *f.first;
@@ -454,30 +486,16 @@ void digi_link_sound_to_pos(int soundnum, const vcsegptridx_t segnum, short side
 	digi_link_sound_to_pos2(vcobjptr, soundnum, segnum, sidenum, pos, forever, max_volume, vm_distance{F1_0 * 256});
 }
 
-static void digi_kill_sound(sound_object &s)
-{
-	if (s.channel > -1)	{
-		digi_stop_sound( s.channel );
-		s.channel = -1;
-		N_active_sound_objects--;
-	}
-	s.flags = 0;	// Mark as dead, so some other sound can use this sound
-}
-
 //if soundnum==-1, kill any sound
 void digi_kill_sound_linked_to_segment( segnum_t segnum, int sidenum, int soundnum )
 {
-	int killed;
-
 	if (soundnum != -1)
 		soundnum = digi_xlat_sound(soundnum);
-	killed = 0;
 	range_for (auto &i, SoundObjects)
 	{
 		if ( (i.flags & SOF_USED) && (i.flags & SOF_LINK_TO_POS) )	{
 			if ((i.link_type.pos.segnum == segnum) && (i.link_type.pos.sidenum==sidenum) && (soundnum==-1 || i.soundnum==soundnum ))	{
 				digi_kill_sound(i);
-				killed++;
 			}
 		}
 	}
@@ -485,20 +503,14 @@ void digi_kill_sound_linked_to_segment( segnum_t segnum, int sidenum, int soundn
 
 void digi_kill_sound_linked_to_object(const vcobjptridx_t objnum)
 {
-	int killed;
-
-	killed = 0;
-
 	if ( Newdemo_state == ND_STATE_RECORDING )		{
 		newdemo_record_kill_sound_linked_to_object( objnum );
 	}
-
 	range_for (auto &i, SoundObjects)
 	{
 		if ( (i.flags & SOF_USED) && (i.flags & SOF_LINK_TO_OBJ ) )	{
 			if (i.link_type.obj.objnum == objnum)	{
 				digi_kill_sound(i);
-				killed++;
 			}
 		}
 	}

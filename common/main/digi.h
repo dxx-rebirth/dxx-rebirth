@@ -62,13 +62,17 @@ extern void digi_close();
 extern void digi_play_sample( int sndnum, fix max_volume );
 extern void digi_play_sample_once( int sndnum, fix max_volume );
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-void digi_link_sound_to_object( int soundnum, vcobjptridx_t objnum, int forever, fix max_volume );
+enum class sound_stack : uint8_t
+{
+	allow_stacking,
+	cancel_previous,
+};
+void digi_link_sound_to_object(unsigned soundnum, vcobjptridx_t objnum, uint8_t forever, fix max_volume, sound_stack once);
 void digi_kill_sound_linked_to_segment(segnum_t segnum, int sidenum, int soundnum);
 void digi_link_sound_to_pos( int soundnum, vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume );
 // Same as above, but you pass the max distance sound can be heard.  The old way uses f1_0*256 for max_distance.
-void digi_link_sound_to_object2(int soundnum, vcobjptridx_t objnum, int forever, fix max_volume, vm_distance max_distance);
-
-void digi_link_sound_to_object3(int org_soundnum, vcobjptridx_t objnum, int forever, fix max_volume, vm_distance max_distance, int loop_start, int loop_end);
+void digi_link_sound_to_object2(unsigned soundnum, vcobjptridx_t objnum, uint8_t forever, fix max_volume, sound_stack once, vm_distance max_distance);
+void digi_link_sound_to_object3(unsigned soundnum, vcobjptridx_t objnum, uint8_t forever, fix max_volume, sound_stack once, vm_distance max_distance, int loop_start, int loop_end);
 void digi_kill_sound_linked_to_object(vcobjptridx_t);
 #endif
 

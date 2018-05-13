@@ -30,7 +30,7 @@
 	VALUE(MULTI_REMOVE_OBJECT         , 4)	\
 	VALUE(MULTI_MESSAGE               , 37)	/* (MAX_MESSAGE_LENGTH = 40) */	\
 	VALUE(MULTI_QUIT                  , 2)	\
-	VALUE(MULTI_PLAY_SOUND            , 4)	\
+	VALUE(MULTI_PLAY_SOUND           , 8)	\
 	VALUE(MULTI_CONTROLCEN           , 4)	\
 	VALUE(MULTI_ROBOT_CLAIM          , 5)	\
 	VALUE(MULTI_CLOAK                , 2)	\

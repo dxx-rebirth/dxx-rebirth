@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include <stdexcept>
+#include "digi.h"
 #include "pack.h"
 #include "compiler-array.h"
 #include "ntstring.h"
@@ -95,7 +96,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION	static_cast<uint16_t>(7)
+#define MULTI_PROTO_VERSION	static_cast<uint16_t>(8)
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -435,6 +436,7 @@ static inline void multi_send_endlevel_start(multi_endlevel_type)
 void multi_send_player_deres(deres_type_t type);
 void multi_send_create_powerup(powerup_type_t powerup_type, vcsegidx_t segnum, vcobjidx_t objnum, const vms_vector &pos);
 }
+void multi_send_play_sound(int sound_num, fix volume, sound_stack once);
 #endif
 void multi_send_reappear();
 void multi_send_create_explosion(playernum_t);
@@ -443,7 +445,6 @@ namespace dcx {
 void multi_send_cloak(void);
 void multi_send_decloak(void);
 }
-void multi_send_play_sound(int sound_num, fix volume);
 void multi_digi_play_sample(int sndnum, fix max_volume);
 void multi_digi_play_sample_once(int soundnum, fix max_volume);
 void multi_send_score(void);

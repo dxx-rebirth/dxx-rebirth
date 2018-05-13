@@ -988,7 +988,7 @@ static void do_afterburner_stuff(object_array &objects)
 
 	if ((Controls.state.afterburner != Last_afterburner_state && Last_afterburner_charge) || (Last_afterburner_state && Last_afterburner_charge && !Afterburner_charge)) {
 		if (Afterburner_charge && Controls.state.afterburner && have_afterburner) {
-			digi_link_sound_to_object3(SOUND_AFTERBURNER_IGNITE, plobj, 1, F1_0, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
+			digi_link_sound_to_object3(SOUND_AFTERBURNER_IGNITE, plobj, 1, F1_0, sound_stack::allow_stacking, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
 			if (Game_mode & GM_MULTI)
 			{
 				multi_send_sound_function (3,SOUND_AFTERBURNER_IGNITE);
@@ -996,7 +996,7 @@ static void do_afterburner_stuff(object_array &objects)
 			}
 		} else {
 			digi_kill_sound_linked_to_object(plobj);
-			digi_link_sound_to_object2(SOUND_AFTERBURNER_PLAY, plobj, 0, F1_0, vm_distance{i2f(256)});
+			digi_link_sound_to_object2(SOUND_AFTERBURNER_PLAY, plobj, 0, F1_0, sound_stack::allow_stacking, vm_distance{i2f(256)});
 			if (Game_mode & GM_MULTI)
 			{
 			 	multi_send_sound_function (0,0);
@@ -2079,7 +2079,7 @@ bool FireLaser(player_info &player_info)
 					digi_play_sample( 11, F1_0 );
 #if defined(DXX_BUILD_DESCENT_I)
 					if(Game_mode & GM_MULTI)
-						multi_send_play_sound(11, F1_0);
+						multi_send_play_sound(11, F1_0, sound_stack::allow_stacking);
 #endif
 					const auto cobjp = vmobjptridx(ConsoleObject);
 					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, 0);

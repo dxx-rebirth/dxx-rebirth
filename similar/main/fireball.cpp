@@ -329,7 +329,7 @@ void explode_badass_weapon(const vmobjptridx_t obj,const vms_vector &pos)
 	if (weapon_id == weapon_id_type::EARTHSHAKER_ID || weapon_id == weapon_id_type::ROBOT_EARTHSHAKER_ID)
 		smega_rock_stuff();
 #endif
-	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj, 0, F1_0);
+	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj, 0, F1_0, sound_stack::allow_stacking);
 
 	object_create_badass_explosion(obj, vmsegptridx(obj->segnum), pos,
 	                                      wi->impact_size,
@@ -347,7 +347,7 @@ static void explode_badass_object(fvmsegptridx &vmsegptridx, const vmobjptridx_t
 					damage, distance, force,
 					objp);
 	if (rval != object_none)
-		digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, rval, 0, F1_0);
+		digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, rval, 0, F1_0, sound_stack::allow_stacking);
 }
 
 //blows up the player with a badass explosion

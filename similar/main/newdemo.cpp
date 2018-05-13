@@ -2188,7 +2188,7 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				auto objnum = newdemo_find_object(object_signature_t{static_cast<uint16_t>(signature)});
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
-					digi_link_sound_to_object3( soundno, objnum, 1, max_volume, vm_distance{max_distance}, loop_start, loop_end );
+					digi_link_sound_to_object3(soundno, objnum, 1, max_volume, sound_stack::allow_stacking, vm_distance{max_distance}, loop_start, loop_end);
 				}
 			}
 			break;
