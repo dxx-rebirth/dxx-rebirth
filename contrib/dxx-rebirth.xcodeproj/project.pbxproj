@@ -2068,7 +2068,8 @@
 				dxx_build_dir = "builddir=build/$(PRODUCT_NAME)";
 				dxx_build_type = "debug=True editor=False CXXFLAGS=-O0";
 				dxx_net_opts = "ipv6=False use_udp=True use_tracker=True";
-				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir) $(dxx_net_opts)";
+				dxx_screenshot_opts = "screenshot=legacy";
+				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir) $(dxx_net_opts) $(dxx_screenshot_opts)";
 			};
 			name = Debug;
 		};
@@ -2106,7 +2107,8 @@
 				dxx_build_dir = "builddir=build/$(PRODUCT_NAME)";
 				dxx_build_type = "debug=False editor=False";
 				dxx_net_opts = "ipv6=False use_udp=True use_tracker=True";
-				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir) $(dxx_net_opts)";
+				dxx_screenshot_opts = "screenshot=legacy";
+				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir) $(dxx_net_opts) $(dxx_screenshot_opts)";
 			};
 			name = Release;
 		};
@@ -2150,7 +2152,8 @@
 				dxx_build_dir = "builddir=build/$(PRODUCT_NAME)";
 				dxx_build_type = "debug=True editor=True CXXFLAGS=-O0";
 				dxx_net_opts = "ipv6=False use_udp=True use_tracker=True";
-				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir) $(dxx_net_opts)";
+				dxx_screenshot_opts = "screenshot=legacy";
+				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir) $(dxx_net_opts) $(dxx_screenshot_opts)";
 			};
 			name = Editor;
 		};
