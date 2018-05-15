@@ -1764,13 +1764,13 @@ struct intro_movie_t {
 };
 
 const array<intro_movie_t, 7> intro_movie{{
-	{ 1,"pla"},
-							{ 5,"plb"},
-							{ 9,"plc"},
-							{13,"pld"},
-							{17,"ple"},
-							{21,"plf"},
-							{24,"plg"}
+	{ 1, "PLA"},
+	{ 5, "PLB"},
+	{ 9, "PLC"},
+	{13, "PLD"},
+	{17, "PLE"},
+	{21, "PLF"},
+	{24, "PLG"}
 }};
 
 static void ShowLevelIntro(int level_num)

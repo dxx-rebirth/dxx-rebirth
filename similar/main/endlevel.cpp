@@ -138,14 +138,14 @@ static void generate_starfield();
 static void start_endlevel_flythrough(flythrough_data *flydata,const vmobjptr_t obj,fix speed);
 
 #if defined(DXX_BUILD_DESCENT_II)
-constexpr char movie_table[] =	{	'a','b','c',
-							'a',
-							'd','f','d','f',
-							'g','h','i','g',
-							'j','k','l','j',
-							'm','o','m','o',
-							'p','q','p','q'
-					};
+constexpr array<const char, 24> movie_table{{
+	'A','B','C','A',
+	'D','F','D','F',
+	'G','H','I','G',
+	'J','K','L','J',
+	'M','O','M','O',
+	'P','Q','P','Q'
+}};
 static int endlevel_movie_played = MOVIE_NOT_PLAYED;
 #endif
 
@@ -193,7 +193,6 @@ static size_t matt_find_connect_side(const segment &seg0, const vcsegidx_t seg1)
 //returns movie played status.  see movie.h
 static int start_endlevel_movie()
 {
-	char movie_name[] = "esa.mve";
 	int r;
 	palette_array_t save_pal;
 
@@ -202,17 +201,17 @@ static int start_endlevel_movie()
 	//Assert(N_MOVIES >= Last_level);
 	//Assert(N_MOVIES_SECRET >= -Last_secret_level);
 
+	const auto current_level_num = Current_level_num;
 	if (is_SHAREWARE)
 		return 0;
 	if (!is_D2_OEM)
-		if (Current_level_num == Last_level)
+		if (current_level_num == Last_level)
 			return 1;   //don't play movie
 
-	if (Current_level_num > 0)
-		movie_name[2] = movie_table[Current_level_num-1];
-	else {
+	if (!(current_level_num > 0))
 		return 0;       //no escapes for secret level
-	}
+	char movie_name[] = "ESA.MVE";
+	movie_name[2] = movie_table[Current_level_num-1];
 
 	save_pal = gr_palette;
 
