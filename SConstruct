@@ -2649,14 +2649,19 @@ class cached_property(object):
 		return r
 
 class LazyObjectConstructor(object):
-	def __get_wrapped_object(s,self,env,StaticObject):
-		wrapper = s.get('transform_object', None)
+	key_transform_env = object()
+	key_transform_object = object()
+	key_transform_target = object()
+	def __get_wrapped_object(s,self,env,StaticObject,__transform_object=key_transform_object):
+		wrapper = s.get(__transform_object, None)
 		if wrapper is None:
 			return StaticObject
 		return wrapper(self, env, StaticObject)
 	def __lazy_objects(self,source,
 			cache={},
 			__get_wrapped_object=__get_wrapped_object,
+			__transform_env=key_transform_env,
+			__transform_target=key_transform_target,
 			__strip_extension=lambda _, name, _splitext=os.path.splitext: _splitext(name)[0]
 		):
 		env = self.env
@@ -2689,8 +2694,8 @@ class LazyObjectConstructor(object):
 					((__strip_extension, None, StaticObject, (s,)),)	\
 					if isinstance(s, str) \
 					else ((	\
-						s.get('transform_target', __strip_extension),	\
-						s.get('transform_env', None),	\
+						s.get(__transform_target, __strip_extension),	\
+						s.get(__transform_env, None),	\
 						__get_wrapped_object(s, self, env, StaticObject),	\
 						s['source'],	\
 					),)	\
@@ -4255,14 +4260,14 @@ class DXXProgram(DXXCommon):
 'similar/arch/ogl/gr.cpp',
 'similar/arch/ogl/ogl.cpp',
 ),
-		'transform_target':_apply_target_name,
+		DXXCommon.key_transform_target:_apply_target_name,
 	},
 	))
 	get_objects_similar_arch_sdl = DXXCommon.create_lazy_object_getter(({
 		'source':(
 'similar/arch/sdl/gr.cpp',
 ),
-		'transform_target':_apply_target_name,
+		DXXCommon.key_transform_target:_apply_target_name,
 	},
 	))
 	get_objects_similar_arch_sdlmixer = DXXCommon.create_lazy_object_getter(({
@@ -4270,7 +4275,7 @@ class DXXProgram(DXXCommon):
 'similar/arch/sdl/digi_mixer.cpp',
 'similar/arch/sdl/jukebox.cpp',
 ),
-		'transform_target':_apply_target_name,
+		DXXCommon.key_transform_target:_apply_target_name,
 	},
 	))
 	__get_objects_common = DXXCommon.create_lazy_object_getter(({
@@ -4345,31 +4350,31 @@ class DXXProgram(DXXCommon):
 'similar/main/weapon.cpp',
 'similar/misc/args.cpp',
 ),
-		'transform_target':_apply_target_name,
+		DXXCommon.key_transform_target:_apply_target_name,
 	}, {
 		'source': (
 'similar/main/inferno.cpp',
 ),
-		'transform_env': lambda self, env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH + env.__dxx_CPPDEFINE_git_version},
-		'transform_target':_apply_target_name,
+		DXXCommon.key_transform_env: lambda self, env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH + env.__dxx_CPPDEFINE_git_version},
+		DXXCommon.key_transform_target:_apply_target_name,
 	}, {
 		'source': (
 'similar/main/kconfig.cpp',
 ),
-		'transform_object':WrapKConfigStaticObject,
-		'transform_target':_apply_target_name,
+		DXXCommon.key_transform_object:WrapKConfigStaticObject,
+		DXXCommon.key_transform_target:_apply_target_name,
 	}, {
 		'source': (
 'similar/misc/physfsx.cpp',
 ),
-		'transform_env': lambda self, env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH},
-		'transform_target':_apply_target_name,
+		DXXCommon.key_transform_env: lambda self, env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH},
+		DXXCommon.key_transform_target:_apply_target_name,
 	}, {
 		'source': (
 'similar/main/playsave.cpp',
 ),
-		'transform_env': _apply_env_version_seq,
-		'transform_target':_apply_target_name,
+		DXXCommon.key_transform_env: _apply_env_version_seq,
+		DXXCommon.key_transform_target:_apply_target_name,
 	},
 	))
 	get_objects_editor = DXXCommon.create_lazy_object_getter(({
@@ -4407,7 +4412,7 @@ class DXXProgram(DXXCommon):
 'similar/editor/texpage.cpp',
 'similar/editor/texture.cpp',
 ),
-		'transform_target':_apply_target_name,
+		DXXCommon.key_transform_target:_apply_target_name,
 	},
 	))
 
@@ -4465,8 +4470,8 @@ class DXXProgram(DXXCommon):
 		'source':(
 'similar/main/net_udp.cpp',
 ),
-		'transform_env': _apply_env_version_seq,
-		'transform_target':_apply_target_name,
+		DXXCommon.key_transform_env: _apply_env_version_seq,
+		DXXCommon.key_transform_target:_apply_target_name,
 	},
 	))
 		):
