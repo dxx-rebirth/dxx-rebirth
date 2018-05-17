@@ -426,7 +426,13 @@ static int main(int argc, char *argv[])
 #if defined(__unix__) && !defined(__APPLE__)
 #define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
 			      "\t$HOME/.d" DXX_NAME_NUMBER "x-rebirth\n"	\
+					DXX_HOGFILE_SHAREPATH_INDENTED
+#ifdef SHAREPATH
+#define DXX_HOGFILE_SHAREPATH_INDENTED	\
 			      "\t" SHAREPATH "\n"
+#else
+#define DXX_HOGFILE_SHAREPATH_INDENTED
+#endif
 #else
 #define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
 				  "\tDirectory containing D" DXX_NAME_NUMBER "X\n"

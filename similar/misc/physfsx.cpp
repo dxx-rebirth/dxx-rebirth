@@ -213,7 +213,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 		con_printf(CON_DEBUG, "PHYSFS: append argument hog directory \"%s\" to search path", p);
 		PHYSFS_addToSearchPath(p, 1);
 	}
-#if defined(__unix__)
+#ifdef SHAREPATH
 	else if (!CGameArg.SysNoHogDir)
 	{
 		con_puts(CON_DEBUG, "PHYSFS: append sharepath directory \"" SHAREPATH "\" to search path");

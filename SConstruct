@@ -4508,7 +4508,10 @@ class DXXProgram(DXXCommon):
 		env = self.env
 		env.MergeFlags(archive.configure_added_environment_flags)
 		self.create_special_target_nodes(archive)
-		env.__dxx_CPPDEFINE_SHAREPATH = [('SHAREPATH', self._quote_cppdefine(self.user_settings.sharepath, f=str))]
+		sharepath = self.user_settings.sharepath
+		# Must use [] here, not (), since it is concatenated with other
+		# lists.
+		env.__dxx_CPPDEFINE_SHAREPATH = [('SHAREPATH', self._quote_cppdefine(sharepath, f=str))] if sharepath else []
 		env.Append(
 			CPPDEFINES = [
 				self.env_CPPDEFINES,
