@@ -1366,7 +1366,7 @@ static void DoEndGame()
 #if defined(DXX_BUILD_DESCENT_II)
 		int played=MOVIE_NOT_PLAYED;	//default is not played
 
-		played = PlayMovie(ENDMOVIE ".tex", ENDMOVIE,MOVIE_REQUIRED);
+		played = PlayMovie(ENDMOVIE ".tex", ENDMOVIE ".mve",MOVIE_REQUIRED);
 		if (!played)
 #endif
 		{

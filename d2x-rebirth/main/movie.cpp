@@ -161,7 +161,7 @@ int PlayMovie(const char *subtitles, const char *filename, int must_have)
 	strcpy(name,filename);
 
 	if ((p=strchr(name,'.')) == NULL)		//add extension, if missing
-		strcat(name,".mve");
+		strcat(name,".MVE");
 
 	// Stop all digital sounds currently playing.
 	digi_stop_digi_sounds();

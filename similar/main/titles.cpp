@@ -769,7 +769,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 #endif
 			} else {
 #if defined(DXX_BUILD_DESCENT_II)
-				char spinRobotName[]="rba.mve",kludge;  // matt don't change this!
+				char spinRobotName[]="RBA.MVE", kludge;  // matt don't change this!
 
 				kludge=*br->message++;
 				spinRobotName[2]=kludge; // ugly but proud
