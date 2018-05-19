@@ -300,14 +300,14 @@ static window_event_result show_pause_message(window *, const d_event &event, co
 
 			gr_set_default_canvas();
 			auto &canvas = *grd_curcanv;
-			gr_set_curfont(canvas, GAME_FONT);
-			gr_get_string_size(*canvas.cv_font, msg, nullptr, &h, nullptr);
+			const auto &game_font = *GAME_FONT;
+			gr_get_string_size(game_font, msg, nullptr, &h, nullptr);
 
 			y = (grd_curscreen->get_screen_height() - h) / 2;
 
 			gr_set_fontcolor(canvas, 255, -1);
 
-			gr_ustring(canvas, *canvas.cv_font, 0x8000, y, msg);
+			gr_ustring(canvas, game_font, 0x8000, y, msg);
 			break;
 		}
 

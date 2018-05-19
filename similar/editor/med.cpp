@@ -174,11 +174,11 @@ static void print_status_bar(char (&message)[DIAGNOSTIC_MESSAGE_MAX])
 {
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
-	gr_set_curfont(canvas, editor_font);
+	const auto &editor_font = *::editor_font;
 	gr_set_fontcolor(canvas, CBLACK, CGREY);
 	int w,h;
-	gr_get_string_size(*canvas.cv_font, message, &w, &h, nullptr);
-	gr_string(canvas, *canvas.cv_font, 4, 583, message, w, h);
+	gr_get_string_size(editor_font, message, &w, &h, nullptr);
+	gr_string(canvas, editor_font, 4, 583, message, w, h);
 	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 	gr_rect(canvas, 4+w, 583, 799, 599, CGREY);
 }
@@ -443,8 +443,6 @@ void init_editor()
 	gr_set_current_canvas(*Canv_editor);
 	init_editor_screen(*grd_curcanv); // load the main editor dialog
 	gr_set_default_canvas();
-	gr_set_curfont(*grd_curcanv, editor_font);
-	
 	set_warn_func(med_show_warning);
 	
 	//	_MARK_("start of editor");//Nuked to compile -KRB
@@ -819,7 +817,6 @@ static void init_editor_screen(grs_canvas &canvas)
 		i++;		e.pad_goto[i] = ui_add_gadget_button( EditorWindow, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "TT",  med_keypad_goto_8 );
 	}
 
-	gr_set_curfont(canvas, editor_font);
 	menubar_show();
 
 	// INIT TEXTURE STUFF
@@ -1067,8 +1064,6 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
-		gr_set_curfont(*grd_curcanv, editor_font);
-
 		// Draw status box
 		gr_set_default_canvas();
 		gr_rect(*grd_curcanv, STATUS_X,STATUS_Y,STATUS_X+STATUS_W-1,STATUS_Y+STATUS_H-1, CGREY);

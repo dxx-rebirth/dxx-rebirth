@@ -80,9 +80,9 @@ static void game_draw_marker_message(grs_canvas &canvas)
 {
 	if (MarkerState.DefiningMarkerMessage())
 	{
-		gr_set_curfont(canvas, GAME_FONT);
 		gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
-		gr_printf(canvas, *canvas.cv_font, 0x8000, (LINE_SPACING(*canvas.cv_font, *GAME_FONT) * 5) + FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
+		auto &game_font = *GAME_FONT;
+		gr_printf(canvas, game_font, 0x8000, (LINE_SPACING(game_font, game_font) * 5) + FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
 	}
 }
 #endif
@@ -98,13 +98,13 @@ static void game_draw_multi_message(grs_canvas &canvas)
 	int defining;
 	if (!sending && !(defining = multi_defining_message))
 		return;
-	gr_set_curfont(canvas, GAME_FONT);
 	gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
-	const auto &&y = (LINE_SPACING(*canvas.cv_font, *GAME_FONT) * 5) + FSPACY(1);
+	auto &game_font = *GAME_FONT;
+	const auto &&y = (LINE_SPACING(game_font, game_font) * 5) + FSPACY(1);
 	if (sending)
-		gr_printf(canvas, *canvas.cv_font, 0x8000, y, "%s: %s_", TXT_MESSAGE, Network_message.data());
+		gr_printf(canvas, game_font, 0x8000, y, "%s: %s_", TXT_MESSAGE, Network_message.data());
 	else
-		gr_printf(canvas, *canvas.cv_font, 0x8000, y, "%s #%d: %s_", TXT_MACRO, defining, Network_message.data());
+		gr_printf(canvas, game_font, 0x8000, y, "%s #%d: %s_", TXT_MACRO, defining, Network_message.data());
 }
 
 static void show_framerate(grs_canvas &canvas)
@@ -154,7 +154,6 @@ static void show_framerate(grs_canvas &canvas)
 			return;
 	}
 	const auto &game_font = *GAME_FONT;
-	gr_set_curfont(canvas, &game_font);
 	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0),-1);
 	char buf[16];
 	if (CGameArg.DbgVerbose)
@@ -164,7 +163,7 @@ static void show_framerate(grs_canvas &canvas)
 	int w, h;
 	gr_get_string_size(game_font, buf, &w, &h, nullptr);
 	const auto bm_h = canvas.cv_bitmap.bm_h;
-	gr_string(canvas, *canvas.cv_font, FSPACX(318) - w, bm_h - line_displacement, buf, w, h);
+	gr_string(canvas, game_font, FSPACX(318) - w, bm_h - line_displacement, buf, w, h);
 }
 
 }
@@ -177,7 +176,6 @@ static void show_netplayerinfo()
 
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
-	gr_set_curfont(canvas, GAME_FONT);
 	gr_set_fontcolor(canvas, 255, -1);
 
 	const auto &&fspacx = FSPACX();
@@ -194,37 +192,38 @@ static void show_netplayerinfo()
 	// general game information
 	const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
 	y += line_spacing;
-	gr_string(canvas, *canvas.cv_font, 0x8000, y, Netgame.game_name.data());
+	auto &game_font = *GAME_FONT;
+	gr_string(canvas, game_font, 0x8000, y, Netgame.game_name.data());
 	y += line_spacing;
-	gr_printf(canvas, *canvas.cv_font, 0x8000, y, "%s - lvl: %i", Netgame.mission_title.data(), Netgame.levelnum);
+	gr_printf(canvas, game_font, 0x8000, y, "%s - lvl: %i", Netgame.mission_title.data(), Netgame.levelnum);
 
 	const auto &&fspacx8 = fspacx(8);
 	x += fspacx8;
 	y += line_spacing * 2;
 	unsigned gamemode = Netgame.gamemode;
-	gr_printf(canvas, *canvas.cv_font, x, y, "game mode: %s", gamemode < GMNames.size() ? GMNames[gamemode] : "INVALID");
+	gr_printf(canvas, game_font, x, y, "game mode: %s", gamemode < GMNames.size() ? GMNames[gamemode] : "INVALID");
 	y += line_spacing;
-	gr_printf(canvas, *canvas.cv_font, x, y,"difficulty: %s", MENU_DIFFICULTY_TEXT(Netgame.difficulty));
+	gr_printf(canvas, game_font, x, y,"difficulty: %s", MENU_DIFFICULTY_TEXT(Netgame.difficulty));
 	y += line_spacing;
 	{
 		auto &plr = get_local_player();
-		gr_printf(canvas, *canvas.cv_font, x, y,"level time: %i:%02i:%02i", plr.hours_level, f2i(plr.time_level) / 60 % 60, f2i(plr.time_level) % 60);
+		gr_printf(canvas, game_font, x, y,"level time: %i:%02i:%02i", plr.hours_level, f2i(plr.time_level) / 60 % 60, f2i(plr.time_level) % 60);
 	y += line_spacing;
-		gr_printf(canvas, *canvas.cv_font, x, y,"total time: %i:%02i:%02i", plr.hours_total, f2i(plr.time_total) / 60 % 60, f2i(plr.time_total) % 60);
+		gr_printf(canvas, game_font, x, y,"total time: %i:%02i:%02i", plr.hours_total, f2i(plr.time_total) / 60 % 60, f2i(plr.time_total) % 60);
 	}
 	y += line_spacing;
 	if (Netgame.KillGoal)
-		gr_printf(canvas, *canvas.cv_font, x, y,"Kill goal: %d",Netgame.KillGoal*5);
+		gr_printf(canvas, game_font, x, y,"Kill goal: %d",Netgame.KillGoal*5);
 
 	// player information (name, kills, ping, game efficiency)
 	y += line_spacing * 2;
-	gr_string(canvas, *canvas.cv_font, x, y, "player");
-	gr_string(canvas, *canvas.cv_font, x + fspacx8 * 7, y, ((Game_mode & GM_MULTI_COOP)
+	gr_string(canvas, game_font, x, y, "player");
+	gr_string(canvas, game_font, x + fspacx8 * 7, y, ((Game_mode & GM_MULTI_COOP)
 		? "score"
-		: (gr_string(canvas, *canvas.cv_font, x + fspacx8 * 12, y, "deaths"), "kills")
+		: (gr_string(canvas, game_font, x + fspacx8 * 12, y, "deaths"), "kills")
 	));
-	gr_string(canvas, *canvas.cv_font, x + fspacx8 * 18, y, "ping");
-	gr_string(canvas, *canvas.cv_font, x + fspacx8 * 23, y, "efficiency");
+	gr_string(canvas, game_font, x + fspacx8 * 18, y, "ping");
+	gr_string(canvas, game_font, x + fspacx8 * 23, y, "efficiency");
 
 	// process players table
 	for (unsigned i = 0; i < MAX_PLAYERS; ++i)
@@ -238,20 +237,20 @@ static void show_netplayerinfo()
 		const auto color = get_player_or_team_color(i);
 		auto &prgb = player_rgb[color];
 		gr_set_fontcolor(canvas, BM_XRGB(prgb.r, prgb.g, prgb.b), -1);
-		gr_printf(canvas, *canvas.cv_font, x, y, "%s\n", static_cast<const char *>(plr.callsign));
+		gr_printf(canvas, game_font, x, y, "%s\n", static_cast<const char *>(plr.callsign));
 		{
 			auto &plrobj = *vcobjptr(plr.objnum);
 			auto &player_info = plrobj.ctype.player_info;
 			auto v = ((Game_mode & GM_MULTI_COOP)
 				? player_info.mission.score
-				: (gr_printf(canvas, *canvas.cv_font, x + fspacx8 * 12, y,"%-6d", player_info.net_killed_total), player_info.net_kills_total)
+				: (gr_printf(canvas, game_font, x + fspacx8 * 12, y,"%-6d", player_info.net_killed_total), player_info.net_kills_total)
 			);
-			gr_printf(canvas, *canvas.cv_font, x + fspacx8 * 7, y, "%-6d", v);
+			gr_printf(canvas, game_font, x + fspacx8 * 7, y, "%-6d", v);
 		}
 
-		gr_printf(canvas, *canvas.cv_font, x + fspacx8 * 18, y,"%-6d", Netgame.players[i].ping);
+		gr_printf(canvas, game_font, x + fspacx8 * 18, y,"%-6d", Netgame.players[i].ping);
 		if (i != Player_num)
-			gr_printf(canvas, *canvas.cv_font, x + fspacx8 * 23, y, "%hu/%hu", kill_matrix[Player_num][i], kill_matrix[i][Player_num]);
+			gr_printf(canvas, game_font, x + fspacx8 * 23, y, "%hu/%hu", kill_matrix[Player_num][i], kill_matrix[i][Player_num]);
 	}
 
 	y += (line_spacing * 2) + (line_spacing * (MAX_PLAYERS - N_players));
@@ -260,16 +259,16 @@ static void show_netplayerinfo()
 	if (Game_mode & GM_TEAM)
 	{
 		gr_set_fontcolor(canvas, 255, -1);
-		gr_string(canvas, *canvas.cv_font, x, y, "team");
-		gr_string(canvas, *canvas.cv_font, x + fspacx8 * 8, y, "score");
+		gr_string(canvas, game_font, x, y, "team");
+		gr_string(canvas, game_font, x + fspacx8 * 8, y, "score");
 		y += line_spacing;
 		gr_set_fontcolor(canvas, BM_XRGB(player_rgb[0].r, player_rgb[0].g, player_rgb[0].b),-1);
-		gr_printf(canvas, *canvas.cv_font, x, y, "%s:", static_cast<const char *>(Netgame.team_name[0]));
-		gr_printf(canvas, *canvas.cv_font, x + fspacx8 * 8, y, "%i", team_kills[0]);
+		gr_printf(canvas, game_font, x, y, "%s:", static_cast<const char *>(Netgame.team_name[0]));
+		gr_printf(canvas, game_font, x + fspacx8 * 8, y, "%i", team_kills[0]);
 		y += line_spacing;
 		gr_set_fontcolor(canvas, BM_XRGB(player_rgb[1].r, player_rgb[1].g, player_rgb[1].b),-1);
-		gr_printf(canvas, *canvas.cv_font, x, y, "%s:", static_cast<const char *>(Netgame.team_name[1]));
-		gr_printf(canvas, *canvas.cv_font, x + fspacx8 * 8, y, "%i", team_kills[1]);
+		gr_printf(canvas, game_font, x, y, "%s:", static_cast<const char *>(Netgame.team_name[1]));
+		gr_printf(canvas, game_font, x + fspacx8 * 8, y, "%i", team_kills[1]);
 		y += line_spacing * 2;
 	}
 	else
@@ -283,9 +282,9 @@ static void show_netplayerinfo()
 	if (game_mode_hoard())
 	{
 		if (hoard_highest_record_stats.player >= Players.size())
-			gr_string(canvas, *canvas.cv_font, 0x8000, y, "There is no record yet for this level.");
+			gr_string(canvas, game_font, 0x8000, y, "There is no record yet for this level.");
 		else
-			gr_printf(canvas, *canvas.cv_font, 0x8000, y, "%s has the record at %d points.", static_cast<const char *>(vcplayerptr(hoard_highest_record_stats.player)->callsign), hoard_highest_record_stats.points);
+			gr_printf(canvas, game_font, 0x8000, y, "%s has the record at %d points.", static_cast<const char *>(vcplayerptr(hoard_highest_record_stats.player)->callsign), hoard_highest_record_stats.points);
 	}
 	else
 #endif
@@ -299,14 +298,14 @@ static void show_netplayerinfo()
 				) * 100.0
 			);
 		const unsigned eff = ieff < 0 ? 0 : static_cast<unsigned>(ieff);
-		gr_printf(canvas, *canvas.cv_font, 0x8000, y, "Your lifetime efficiency of %d%% (%d/%d)", eff, PlayerCfg.NetlifeKills, PlayerCfg.NetlifeKilled);
+		gr_printf(canvas, game_font, 0x8000, y, "Your lifetime efficiency of %d%% (%d/%d)", eff, PlayerCfg.NetlifeKills, PlayerCfg.NetlifeKilled);
 		y += line_spacing;
 		if (eff<60)
-			gr_printf(canvas, *canvas.cv_font, 0x8000, y, "is %s your ranking.", eff_strings[eff / 10]);
+			gr_printf(canvas, game_font, 0x8000, y, "is %s your ranking.", eff_strings[eff / 10]);
 		else
-			gr_string(canvas, *canvas.cv_font, 0x8000, y, "is serving you well.");
+			gr_string(canvas, game_font, 0x8000, y, "is serving you well.");
 		y += line_spacing;
-		gr_printf(canvas, *canvas.cv_font, 0x8000, y, "your rank is: %s", RankStrings[GetMyNetRanking()]);
+		gr_printf(canvas, game_font, 0x8000, y, "your rank is: %s", RankStrings[GetMyNetRanking()]);
 	}
 }
 }
@@ -355,9 +354,9 @@ static void draw_window_label(fvcobjptridx &vcobjptridx, grs_canvas &canvas)
 			default:					control_name = "Unknown"; break;
 		}
 
-		gr_set_curfont(canvas, GAME_FONT);
 		gr_set_fontcolor(canvas, BM_XRGB(31, 0, 0),-1);
-		gr_printf(canvas, *canvas.cv_font, 0x8000, (SHEIGHT / 10), "%hu: %s [%s] View - %s", static_cast<objnum_t>(vcobjptridx(Viewer)), viewer_name, viewer_id, control_name);
+		auto &game_font = *GAME_FONT;
+		gr_printf(canvas, game_font, 0x8000, (SHEIGHT / 10), "%hu: %s [%s] View - %s", static_cast<objnum_t>(vcobjptridx(Viewer)), viewer_name, viewer_id, control_name);
 
 	}
 }
@@ -380,9 +379,9 @@ static void render_countdown_gauge(grs_canvas &canvas)
 			}
 		}
 #endif
-		gr_set_curfont(canvas, GAME_FONT);
 		gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
-		gr_printf(canvas, *canvas.cv_font, 0x8000, (LINE_SPACING(*canvas.cv_font, *GAME_FONT) * 6) + FSPACY(1), "T-%d s", Countdown_seconds_left);
+		auto &game_font = *GAME_FONT;
+		gr_printf(canvas, game_font, 0x8000, (LINE_SPACING(game_font, game_font) * 6) + FSPACY(1), "T-%d s", Countdown_seconds_left);
 	}
 }
 }
@@ -400,6 +399,7 @@ static void game_draw_hud_stuff(grs_canvas &canvas)
 	if (((Newdemo_state == ND_STATE_PLAYBACK) || (Newdemo_state == ND_STATE_RECORDING)) && (PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)) {
 		int y;
 
+		auto &game_font = *GAME_FONT;
 		gr_set_curfont(canvas, GAME_FONT);
 		gr_set_fontcolor(canvas, BM_XRGB(27, 0, 0), -1);
 
@@ -409,10 +409,10 @@ static void game_draw_hud_stuff(grs_canvas &canvas)
 			y = canvas.cv_bitmap.bm_h / 1.2 ;
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
 			if (Newdemo_show_percentage) {
-				gr_printf(canvas, *canvas.cv_font, 0x8000, y, "%s (%d%% %s)", TXT_DEMO_PLAYBACK, newdemo_get_percent_done(), TXT_DONE);
+				gr_printf(canvas, game_font, 0x8000, y, "%s (%d%% %s)", TXT_DEMO_PLAYBACK, newdemo_get_percent_done(), TXT_DONE);
 			}
 		} else {
-			gr_printf(canvas, *canvas.cv_font, 0x8000, y, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
+			gr_printf(canvas, game_font, 0x8000, y, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
 		}
 	}
 
@@ -783,10 +783,10 @@ void game_render_frame_mono()
 
 		Viewer = viewer_save;
 
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
+		auto &game_font = *GAME_FONT;
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(27, 0, 0), -1);
 
-		gr_string(*grd_curcanv, *grd_curcanv->cv_font, 0x8000, FSPACY(1), "Guided Missile View");
+		gr_string(*grd_curcanv, game_font, 0x8000, FSPACY(1), "Guided Missile View");
 
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		show_reticle(*grd_curcanv, player_info, RET_TYPE_CROSS_V1, 0);
@@ -949,16 +949,16 @@ void show_boxed_message(const char *msg, int RenderFlag)
 	
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
-	gr_set_curfont(canvas, MEDIUM1_FONT);
 	gr_set_fontcolor(canvas, BM_XRGB(31, 31, 31), -1);
-	gr_get_string_size(*canvas.cv_font, msg, &w, &h, nullptr);
+	auto &medium1_font = *MEDIUM1_FONT;
+	gr_get_string_size(medium1_font, msg, &w, &h, nullptr);
 	
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;
 	
 	nm_draw_background(canvas, x - BORDERX, y - BORDERY, x + w + BORDERX, y + h + BORDERY);
 	
-	gr_string(canvas, *canvas.cv_font, 0x8000, y, msg, w, h);
+	gr_string(canvas, medium1_font, 0x8000, y, msg, w, h);
 	
 	// If we haven't drawn behind it, need to flip
 	if (!RenderFlag)

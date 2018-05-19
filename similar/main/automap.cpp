@@ -530,10 +530,10 @@ constexpr char system_name[][17] = {
 
 static void name_frame(grs_canvas &canvas, automap *const am)
 {
-	gr_set_curfont(canvas, GAME_FONT);
 	gr_set_fontcolor(canvas, am->green_31, -1);
 	char		name_level_left[128];
 
+	auto &game_font = *GAME_FONT;
 #if defined(DXX_BUILD_DESCENT_I)
 	const char *name_level;
 	if (Current_level_num > 0)
@@ -544,7 +544,7 @@ static void name_frame(grs_canvas &canvas, automap *const am)
 	else
 		name_level = Current_level_name;
 
-	gr_string(canvas, *canvas.cv_font, (SWIDTH / 64), (SHEIGHT / 48), name_level);
+	gr_string(canvas, game_font, (SWIDTH / 64), (SHEIGHT / 48), name_level);
 #elif defined(DXX_BUILD_DESCENT_II)
 	char	name_level_right[128];
 	if (Current_level_num > 0)
@@ -558,10 +558,10 @@ static void name_frame(grs_canvas &canvas, automap *const am)
 	else
 		snprintf(name_level_right, sizeof(name_level_right), " %s", current_level_name);
 
-	gr_string(canvas, *canvas.cv_font, (SWIDTH / 64), (SHEIGHT / 48), name_level_left);
+	gr_string(canvas, game_font, (SWIDTH / 64), (SHEIGHT / 48), name_level_left);
 	int wr,h;
-	gr_get_string_size(*canvas.cv_font, name_level_right, &wr, &h, nullptr);
-	gr_string(canvas, *canvas.cv_font, canvas.cv_bitmap.bm_w - wr - (SWIDTH / 64), (SHEIGHT / 48), name_level_right, wr, h);
+	gr_get_string_size(game_font, name_level_right, &wr, &h, nullptr);
+	gr_string(canvas, game_font, canvas.cv_bitmap.bm_w - wr - (SWIDTH / 64), (SHEIGHT / 48), name_level_right, wr, h);
 #endif
 }
 
@@ -652,7 +652,6 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 		auto &canvas = *grd_curcanv;
 		if (am->automap_background.get_bitmap_data())
 			show_fullscr(canvas, am->automap_background);
-		gr_set_curfont(canvas, HUGE_FONT);
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
 	{
 		int x, y;
@@ -662,9 +661,8 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 	else
 #endif
 			x = SWIDTH / 8, y = SHEIGHT / 16;
-		gr_string(canvas, *canvas.cv_font, x, y, TXT_AUTOMAP);
+		gr_string(canvas, *HUGE_FONT, x, y, TXT_AUTOMAP);
 	}
-		gr_set_curfont(canvas, GAME_FONT);
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
 	{
 		int x;
@@ -695,9 +693,10 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 		y1 = SHEIGHT / 1.083;
 		y2 = SHEIGHT / 1.043;
 #endif
-		gr_string(canvas, *canvas.cv_font, x, y0, TXT_TURN_SHIP);
-		gr_string(canvas, *canvas.cv_font, x, y1, s1);
-		gr_string(canvas, *canvas.cv_font, x, y2, s2);
+		auto &game_font = *GAME_FONT;
+		gr_string(canvas, game_font, x, y0, TXT_TURN_SHIP);
+		gr_string(canvas, game_font, x, y1, s1);
+		gr_string(canvas, game_font, x, y2, s2);
 	}
 
 	}

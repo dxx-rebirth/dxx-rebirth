@@ -230,8 +230,6 @@ int texpage_do(const d_event &event)
 		
 		texpage_redraw();
 		
-		gr_set_curfont(*grd_curcanv, editor_font);
-		
 		// Don't reset the current tmap every time we go back to the editor.
 		//	CurrentTexture = TexturePage*TMAPS_PER_PAGE;
 		texpage_show_current();

@@ -717,7 +717,7 @@ static int load_briefing_screen(grs_canvas &, briefing *br, const char *fname);
 // Return 1 when page is finished, 0 otherwise
 static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 {
-	gr_set_curfont(canvas, GAME_FONT);
+	auto &game_font = *GAME_FONT;
 	char ch = *br->message++;
 	if (ch == '$') {
 		ch = *br->message++;
@@ -948,7 +948,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 		}
 #endif
 		else if (ch == '$' || ch == ';') // Print a $/;
-			put_char_delay(*canvas.cv_font, br, ch);
+			put_char_delay(game_font, br, ch);
 	} else if (ch == '\t') {		//	Tab
 		const auto &&fspacx = FSPACX();
 		if (br->text_x - br->screen->text_ulx < fspacx(br->tab_stop))
@@ -992,7 +992,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			load_briefing_screen(*grd_curcanv, br, HIRESMODE ? "end01b.pcx" : "end01.pcx");
 		}
 #endif
-		put_char_delay(*canvas.cv_font, br, ch);
+		put_char_delay(game_font, br, ch);
 	}
 
 	return 0;
@@ -1049,7 +1049,7 @@ static void set_briefing_fontcolor(briefing &br)
 }
 }
 
-static void redraw_messagestream(grs_canvas &canvas, const msgstream &stream, unsigned &lastcolor)
+static void redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, const msgstream &stream, unsigned &lastcolor)
 {
 	char msgbuf[2] = {stream.ch, 0};
 	if (lastcolor != stream.color)
@@ -1057,16 +1057,16 @@ static void redraw_messagestream(grs_canvas &canvas, const msgstream &stream, un
 		lastcolor = stream.color;
 		gr_set_fontcolor(canvas, stream.color, -1);
 	}
-	gr_string(canvas, *canvas.cv_font, stream.x + 1, stream.y, msgbuf);
+	gr_string(canvas, cv_font, stream.x + 1, stream.y, msgbuf);
 }
 
 namespace dsx {
-static void flash_cursor(grs_canvas &canvas, briefing *const br, const int cursor_flag)
+static void flash_cursor(grs_canvas &canvas, const grs_font &cv_font, briefing *const br, const int cursor_flag)
 {
 	if (cursor_flag == 0)
 		return;
 	gr_set_fontcolor(canvas, (timer_query() % (F1_0 / 2)) > F1_0 / 4 ? *Current_color : Erase_color, -1);
-	gr_string(canvas, *canvas.cv_font, br->text_x, br->text_y, "_");
+	gr_string(canvas, cv_font, br->text_x, br->text_y, "_");
 }
 
 #define EXIT_DOOR_MAX   14
@@ -1580,19 +1580,19 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			if (br->robot_num != -1)
 				show_spinning_robot_frame(br, br->robot_num);
 
-			gr_set_curfont(canvas, GAME_FONT);
+			auto &game_font = *GAME_FONT;
 
 			gr_set_fontcolor(canvas, *Current_color, -1);
 			{
 				unsigned lastcolor = ~0u;
 				range_for (const auto b, partial_const_range(br->messagestream, br->streamcount))
-					redraw_messagestream(canvas, b, lastcolor);
+					redraw_messagestream(canvas, game_font, b, lastcolor);
 			}
 
 			if (br->new_page || br->new_screen)
-				flash_cursor(canvas, br, br->flashing_cursor);
+				flash_cursor(canvas, game_font, br, br->flashing_cursor);
 			else if (br->flashing_cursor)
-				gr_string(canvas, *canvas.cv_font, br->text_x, br->text_y, "_");
+				gr_string(canvas, game_font, br->text_x, br->text_y, "_");
 			break;
 		}
 		case EVENT_WINDOW_CLOSE:

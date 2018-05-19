@@ -193,23 +193,25 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 				if (!s)
 					continue;
 				
+				const grs_font *cv_font;
 				if ( s[0] == '!' ) {
 					s++;
+					cv_font = canvas.cv_font;
 				} else
 				{
 					const auto c = s[0];
-					gr_set_curfont(canvas, c == '$'
+					cv_font = (c == '$'
 						? (++s, HUGE_FONT)
 						: (c == '*')
 							? (++s, MEDIUM3_FONT)
 							: MEDIUM2_FONT
-						);
+						).get();
 				}
 				
 				const auto tempp = strchr( s, '\t' );
 				if ( !tempp )	{
 					// Wacky Fast Credits thing
-					gr_string(canvas, *canvas.cv_font, 0x8000, y, s);
+					gr_string(canvas, *cv_font, 0x8000, y, s);
 				}
 			}
 			

@@ -129,24 +129,24 @@ void newmenu_free_background()	{
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_I)
-static const char *UP_ARROW_MARKER(grs_canvas &)
+static const char *UP_ARROW_MARKER(const grs_font &, const grs_font &)
 {
 	return "+";  // 135
 }
 
-static const char *DOWN_ARROW_MARKER(grs_canvas &)
+static const char *DOWN_ARROW_MARKER(const grs_font &, const grs_font &)
 {
 	return "+";  // 136
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-static const char *UP_ARROW_MARKER(grs_canvas &canvas)
+static const char *UP_ARROW_MARKER(const grs_font &cv_font, const grs_font &game_font)
 {
-	return canvas.cv_font == GAME_FONT.get() ? "\202" : "\207";  // 135
+	return &cv_font == &game_font ? "\202" : "\207";  // 135
 }
 
-static const char *DOWN_ARROW_MARKER(grs_canvas &canvas)
+static const char *DOWN_ARROW_MARKER(const grs_font &cv_font, const grs_font &game_font)
 {
-	return canvas.cv_font == GAME_FONT.get() ? "\200" : "\210";  // 136
+	return &cv_font == &game_font ? "\200" : "\210";  // 136
 }
 #endif
 
@@ -781,7 +781,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 					if (menu->scroll_offset != 0) {
 						int arrow_width, arrow_height;
-						gr_get_string_size(*canvas.cv_font, UP_ARROW_MARKER(canvas), &arrow_width, &arrow_height, nullptr);
+						gr_get_string_size(*canvas.cv_font, UP_ARROW_MARKER(*canvas.cv_font, *GAME_FONT), &arrow_width, &arrow_height, nullptr);
 						x1 = canvas.cv_bitmap.bm_x + BORDERX - fspacx(12);
 						y1 = canvas.cv_bitmap.bm_y + menu->items[menu->scroll_offset].y - (line_spacing * menu->scroll_offset);
 						x2 = x1 + arrow_width;
@@ -792,7 +792,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 					}
 					if (menu->scroll_offset+menu->max_displayable<menu->nitems) {
 						int arrow_width, arrow_height;
-						gr_get_string_size(*canvas.cv_font, DOWN_ARROW_MARKER(canvas), &arrow_width, &arrow_height, nullptr);
+						gr_get_string_size(*canvas.cv_font, DOWN_ARROW_MARKER(*canvas.cv_font, *GAME_FONT), &arrow_width, &arrow_height, nullptr);
 						x1 = canvas.cv_bitmap.bm_x + BORDERX - fspacx(12);
 						y1 = canvas.cv_bitmap.bm_y + menu->items[menu->scroll_offset + menu->max_displayable - 1].y - (line_spacing * menu->scroll_offset);
 						x2 = x1 + arrow_width;
@@ -1186,21 +1186,19 @@ static void newmenu_create_structure( newmenu *menu )
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 
-	const grs_font *save_font = canvas.cv_font;
-
 	tw = th = 0;
 
 	if ( menu->title )	{
-		gr_set_curfont(canvas, HUGE_FONT);
 		int string_width, string_height;
-		gr_get_string_size(*canvas.cv_font, menu->title, &string_width, &string_height, nullptr);
+		auto &huge_font = *HUGE_FONT;
+		gr_get_string_size(huge_font, menu->title, &string_width, &string_height, nullptr);
 		tw = string_width;
 		th = string_height;
 	}
 	if ( menu->subtitle )	{
-		gr_set_curfont(canvas, MEDIUM3_FONT);
 		int string_width, string_height;
-		gr_get_string_size(*canvas.cv_font, menu->subtitle, &string_width, &string_height, nullptr);
+		auto &medium3_font = *MEDIUM3_FONT;
+		gr_get_string_size(medium3_font, menu->subtitle, &string_width, &string_height, nullptr);
 		if (string_width > tw )
 			tw = string_width;
 		th += string_height;
@@ -1208,7 +1206,7 @@ static void newmenu_create_structure( newmenu *menu )
 
 	th += FSPACY(5);		//put some space between titles & body
 
-	gr_set_curfont(canvas, menu->tiny_mode?GAME_FONT:MEDIUM1_FONT);
+	auto &cv_font = *(menu->tiny_mode ? GAME_FONT : MEDIUM1_FONT).get();
 
 	menu->w = aw = 0;
 	menu->h = th;
@@ -1221,7 +1219,7 @@ static void newmenu_create_structure( newmenu *menu )
 	{
 		i.y = menu->h;
 		int string_width, string_height, average_width;
-		gr_get_string_size(*canvas.cv_font, i.text, &string_width, &string_height, &average_width);
+		gr_get_string_size(cv_font, i.text, &string_width, &string_height, &average_width);
 		i.right_offset = 0;
 
 		i.saved_text[0] = '\0';
@@ -1237,7 +1235,7 @@ static void newmenu_create_structure( newmenu *menu )
 				index += snprintf(i.saved_text.data() + index, i.saved_text.size() - index, "%s", SLIDER_MIDDLE);
 			}
 			index += snprintf(i.saved_text.data() + index, i.saved_text.size() - index, "%s", SLIDER_RIGHT);
-			gr_get_string_size(*canvas.cv_font, i.saved_text.data(), &w1, nullptr, nullptr);
+			gr_get_string_size(cv_font, i.saved_text.data(), &w1, nullptr, nullptr);
 			string_width += w1 + aw;
 		}
 
@@ -1250,9 +1248,9 @@ static void newmenu_create_structure( newmenu *menu )
 		{
 			int w1;
 			nothers++;
-			gr_get_string_size(*canvas.cv_font, NORMAL_CHECK_BOX, &w1, nullptr, nullptr);
+			gr_get_string_size(cv_font, NORMAL_CHECK_BOX, &w1, nullptr, nullptr);
 			i.right_offset = w1;
-			gr_get_string_size(*canvas.cv_font, CHECKED_CHECK_BOX, &w1, nullptr, nullptr);
+			gr_get_string_size(cv_font, CHECKED_CHECK_BOX, &w1, nullptr, nullptr);
 			if (w1 > i.right_offset)
 				i.right_offset = w1;
 		}
@@ -1261,9 +1259,9 @@ static void newmenu_create_structure( newmenu *menu )
 		{
 			int w1;
 			nothers++;
-			gr_get_string_size(*canvas.cv_font, NORMAL_RADIO_BOX, &w1, nullptr, nullptr);
+			gr_get_string_size(cv_font, NORMAL_RADIO_BOX, &w1, nullptr, nullptr);
 			i.right_offset = w1;
-			gr_get_string_size(*canvas.cv_font, CHECKED_RADIO_BOX, &w1, nullptr, nullptr);
+			gr_get_string_size(cv_font, CHECKED_RADIO_BOX, &w1, nullptr, nullptr);
 			if (w1 > i.right_offset)
 				i.right_offset = w1;
 		}
@@ -1275,10 +1273,10 @@ static void newmenu_create_structure( newmenu *menu )
 			nothers++;
 			auto &number = i.number();
 			snprintf(test_text, sizeof(test_text), "%d", number.max_value);
-			gr_get_string_size(*canvas.cv_font, test_text, &w1, nullptr, nullptr);
+			gr_get_string_size(cv_font, test_text, &w1, nullptr, nullptr);
 			i.right_offset = w1;
 			snprintf(test_text, sizeof(test_text), "%d", number.min_value);
-			gr_get_string_size(*canvas.cv_font, test_text, &w1, nullptr, nullptr);
+			gr_get_string_size(cv_font, test_text, &w1, nullptr, nullptr);
 			if (w1 > i.right_offset)
 				i.right_offset = w1;
 		}
@@ -1316,7 +1314,7 @@ static void newmenu_create_structure( newmenu *menu )
 	if (menu->nitems > menu->max_on_menu)
 	{
 		menu->is_scroll_box=1;
-		menu->h = th + (LINE_SPACING(*canvas.cv_font, *GAME_FONT) * menu->max_on_menu);
+		menu->h = th + (LINE_SPACING(cv_font, *GAME_FONT) * menu->max_on_menu);
 		menu->max_displayable=menu->max_on_menu;
 
 		// if our last citem was > menu->max_on_menu, make sure we re-scroll when we call this menu again
@@ -1354,13 +1352,13 @@ static void newmenu_create_structure( newmenu *menu )
 	menu->w += BORDERX*2;
 	menu->h += BORDERY*2;
 
-	menu->x = (grd_curcanv->cv_bitmap.bm_w - menu->w) / 2;
-	menu->y = (grd_curcanv->cv_bitmap.bm_h - menu->h) / 2;
+	menu->x = (canvas.cv_bitmap.bm_w - menu->w) / 2;
+	menu->y = (canvas.cv_bitmap.bm_h - menu->h) / 2;
 
 	if ( menu->x < 0 ) menu->x = 0;
 	if ( menu->y < 0 ) menu->y = 0;
 
-	nm_draw_background1(*grd_curcanv, menu->filename);
+	nm_draw_background1(canvas, menu->filename);
 
 	// Update all item's x & y values.
 	range_for (auto &i, menu->item_range())
@@ -1408,7 +1406,6 @@ static void newmenu_create_structure( newmenu *menu )
 	menu->sheight = SHEIGHT;
 	menu->fntscalex = FNTScaleX;
 	menu->fntscaley = FNTScaleY;
-	gr_set_curfont(canvas, save_font);
 	gr_set_current_canvas(save_canvas);
 }
 
@@ -1437,18 +1434,18 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	ty = BORDERY;
 
 	if ( menu->title )	{
-		gr_set_curfont(*grd_curcanv, HUGE_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 31, 31), -1);
 		int string_width, string_height;
-		gr_get_string_size(*grd_curcanv->cv_font, menu->title, &string_width, &string_height, nullptr);
+		auto &huge_font = *HUGE_FONT;
+		gr_get_string_size(huge_font, menu->title, &string_width, &string_height, nullptr);
 		th = string_height;
-		gr_string(*grd_curcanv, *grd_curcanv->cv_font, 0x8000, ty, menu->title, string_width, string_height);
+		gr_string(*grd_curcanv, huge_font, 0x8000, ty, menu->title, string_width, string_height);
 	}
 
 	if ( menu->subtitle )	{
-		gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(21, 21, 21), -1);
-		gr_string(*grd_curcanv, *grd_curcanv->cv_font, 0x8000, ty + th, menu->subtitle);
+		auto &medium3_font = *MEDIUM3_FONT;
+		gr_string(*grd_curcanv, medium3_font, 0x8000, ty + th, menu->subtitle);
 	}
 
 	gr_set_curfont(*grd_curcanv, menu->tiny_mode?GAME_FONT:MEDIUM1_FONT);
@@ -1461,19 +1458,19 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 
 	if (menu->is_scroll_box)
 	{
-		gr_set_curfont(*grd_curcanv, menu->tiny_mode?GAME_FONT:MEDIUM2_FONT);
+		auto &cv_font = *(menu->tiny_mode ? GAME_FONT : MEDIUM2_FONT);
 
-		const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT));
+		const int line_spacing = static_cast<int>(LINE_SPACING(cv_font, *GAME_FONT));
 		sy = menu->items[menu->scroll_offset].y - (line_spacing * menu->scroll_offset);
 		const auto &&fspacx = FSPACX();
 		sx = BORDERX - fspacx(12);
 
-		gr_string(*grd_curcanv, *grd_curcanv->cv_font, sx, sy, menu->scroll_offset ? UP_ARROW_MARKER(*grd_curcanv) : "  ");
+		gr_string(*grd_curcanv, cv_font, sx, sy, menu->scroll_offset ? UP_ARROW_MARKER(cv_font, *GAME_FONT) : "  ");
 
 		sy = menu->items[menu->scroll_offset + menu->max_displayable - 1].y - (line_spacing * menu->scroll_offset);
 		sx = BORDERX - fspacx(12);
 
-		gr_string(*grd_curcanv, *grd_curcanv->cv_font, sx, sy, (menu->scroll_offset + menu->max_displayable < menu->nitems) ? DOWN_ARROW_MARKER(*grd_curcanv) : "  ");
+		gr_string(*grd_curcanv, cv_font, sx, sy, (menu->scroll_offset + menu->max_displayable < menu->nitems) ? DOWN_ARROW_MARKER(*grd_curcanv->cv_font, *GAME_FONT) : "  ");
 	}
 
 		if (menu->subfunction)
@@ -1890,22 +1887,22 @@ static void listbox_create_structure( listbox *lb)
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 
-	gr_set_curfont(canvas, MEDIUM3_FONT);
+	auto &medium3_font = *MEDIUM3_FONT;
 
 	lb->box_w = 0;
 	const auto &&fspacx = FSPACX();
 	range_for (auto &i, unchecked_partial_range(lb->item, lb->nitems))
 	{
 		int w;
-		gr_get_string_size(*canvas.cv_font, i, &w, nullptr, nullptr);
+		gr_get_string_size(medium3_font, i, &w, nullptr, nullptr);
 		if ( w > lb->box_w )
 			lb->box_w = w + fspacx(10);
 	}
-	lb->height = LINE_SPACING(*canvas.cv_font, *GAME_FONT) * LB_ITEMS_ON_SCREEN;
+	lb->height = LINE_SPACING(medium3_font, *GAME_FONT) * LB_ITEMS_ON_SCREEN;
 
 	{
 		int w, h;
-		gr_get_string_size(*canvas.cv_font, lb->title, &w, &h, nullptr);
+		gr_get_string_size(medium3_font, lb->title, &w, &h, nullptr);
 		if ( w > lb->box_w )
 			lb->box_w = w;
 		lb->title_height = h+FSPACY(5);
@@ -1917,7 +1914,7 @@ static void listbox_create_structure( listbox *lb)
 		int w;
 
 		const auto box_w = lb->box_w = SWIDTH - (BORDERX*2);
-		gr_get_string_size(*canvas.cv_font, "O", &w, nullptr, nullptr);
+		gr_get_string_size(medium3_font, "O", &w, nullptr, nullptr);
 		lb->marquee = listbox::marquee::allocate(box_w / w);
 		lb->marquee->lasttime = timer_query();
 	}
@@ -1950,10 +1947,10 @@ static window_event_result listbox_draw(window *, listbox *lb)
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	nm_draw_background(canvas, lb->box_x - BORDERX, lb->box_y - lb->title_height - BORDERY,lb->box_x + lb->box_w + BORDERX, lb->box_y + lb->height + BORDERY);
-	gr_set_curfont(canvas, MEDIUM3_FONT);
-	gr_string(canvas, *canvas.cv_font, 0x8000, lb->box_y - lb->title_height, lb->title);
+	auto &medium3_font = *MEDIUM3_FONT;
+	gr_string(canvas, medium3_font, 0x8000, lb->box_y - lb->title_height, lb->title);
 
-	const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
+	const auto &&line_spacing = LINE_SPACING(medium3_font, *GAME_FONT);
 	for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
 		int y = (i - lb->first_item) * line_spacing + lb->box_y;
 		const auto &&fspacx = FSPACX();
@@ -1966,7 +1963,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 			gr_rect(canvas, lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing, color2);
 			gr_rect(canvas, lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing, color0);
 		} else {
-			gr_set_curfont(canvas, (i == lb->citem) ? MEDIUM2_FONT : MEDIUM1_FONT);
+			auto &mediumX_font = *(i == lb->citem ? MEDIUM2_FONT : MEDIUM1_FONT);
 			gr_rect(canvas, lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing, color5);
 			gr_rect(canvas, lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing, color2);
 			gr_rect(canvas, lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing, color0);
@@ -2012,7 +2009,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 			{
 				showstr = lb->item[i];
 			}
-			gr_string(canvas, *canvas.cv_font, lb->box_x + fspacx(5), y, showstr);
+			gr_string(canvas, mediumX_font, lb->box_x + fspacx(5), y, showstr);
 		}
 	}
 

@@ -324,17 +324,17 @@ static void ogl_texture_stats(void)
 	glGetIntegerv(GL_DEPTH_BITS, &depth);
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
-	gr_set_curfont(canvas, GAME_FONT);
+	const auto &game_font = *GAME_FONT;
 	gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
 	colorsize = (idx * res * dbl) / 8;
 	depthsize = res * depth / 8;
 	const auto &&fspacx2 = FSPACX(2);
 	const auto &&fspacy1 = FSPACY(1);
-	const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
-	gr_printf(canvas, *canvas.cv_font, fspacx2, fspacy1, "%i flat %i tex %i bitmaps", r_polyc, r_tpolyc, r_bitmapc);
-	gr_printf(canvas, *canvas.cv_font, fspacx2, fspacy1 + line_spacing, "%i(%i,%i,%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedrgb, usedidx, usedother, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
-	gr_printf(canvas, *canvas.cv_font, fspacx2, fspacy1 + (line_spacing * 2), "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
-	gr_printf(canvas, *canvas.cv_font, fspacx2, fspacy1 + (line_spacing * 3), "total=%iK", (colorsize + depthsize + truebytes) / 1024);
+	const auto &&line_spacing = LINE_SPACING(game_font, game_font);
+	gr_printf(canvas, game_font, fspacx2, fspacy1, "%i flat %i tex %i bitmaps", r_polyc, r_tpolyc, r_bitmapc);
+	gr_printf(canvas, game_font, fspacx2, fspacy1 + line_spacing, "%i(%i,%i,%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedrgb, usedidx, usedother, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
+	gr_printf(canvas, game_font, fspacx2, fspacy1 + (line_spacing * 2), "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
+	gr_printf(canvas, game_font, fspacx2, fspacy1 + (line_spacing * 3), "total=%iK", (colorsize + depthsize + truebytes) / 1024);
 }
 
 static void ogl_bindbmtex(grs_bitmap &bm, bool edgepad){

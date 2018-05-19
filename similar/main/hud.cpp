@@ -91,7 +91,6 @@ void HUD_render_message_frame(grs_canvas &canvas)
 	HUD_messages.erase_if(expired);
 
 	// display last $HUD_MAX_NUM_DISP messages on the list
-	gr_set_curfont(canvas, GAME_FONT);
 	if (!HUD_messages.empty())
 	{
 		if (HUD_color == -1)
@@ -99,7 +98,8 @@ void HUD_render_message_frame(grs_canvas &canvas)
 		gr_set_fontcolor(canvas, HUD_color, -1);
 		y = FSPACY(1);
 
-		const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
+		auto &game_font = *GAME_FONT;
+		const auto &&line_spacing = LINE_SPACING(game_font, game_font);
 #if defined(DXX_BUILD_DESCENT_II)
 		if (PlayerCfg.GuidedInBigWindow &&
 			Guided_missile[Player_num] &&
@@ -117,7 +117,7 @@ void HUD_render_message_frame(grs_canvas &canvas)
 		if (strlen(i->message) > 38)
 			HUD_toolong = 1;
 		for (; i != e; ++i )	{
-			gr_string(canvas, *canvas.cv_font, 0x8000, y, &i->message[0]);
+			gr_string(canvas, game_font, 0x8000, y, &i->message[0]);
 			y += line_spacing;
 		}
 	}
@@ -243,8 +243,8 @@ void player_dead_message(grs_canvas &canvas)
 	{
 		if ( get_local_player().lives < 2 )    {
 			int x, y, w, h;
-			gr_set_curfont(canvas, HUGE_FONT);
-			gr_get_string_size(*canvas.cv_font, TXT_GAME_OVER, &w, &h, nullptr);
+			auto &huge_font = *HUGE_FONT;
+			gr_get_string_size(huge_font, TXT_GAME_OVER, &w, &h, nullptr);
 			const int gw = w;
 			const int gh = h;
 			w += 20;
@@ -257,13 +257,13 @@ void player_dead_message(grs_canvas &canvas)
 			gr_rect(canvas, x, y, x + w, y + h, color);
 			gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
 		
-			gr_string(canvas, *canvas.cv_font, 0x8000, (canvas.cv_bitmap.bm_h - h) / 2 + h / 8, TXT_GAME_OVER, gw, gh);
+			gr_string(canvas, huge_font, 0x8000, (canvas.cv_bitmap.bm_h - h) / 2 + h / 8, TXT_GAME_OVER, gw, gh);
 		}
 	
-		gr_set_curfont(canvas, GAME_FONT);
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
 		gr_set_fontcolor(canvas, HUD_color, -1);
-		gr_string(canvas, *canvas.cv_font, 0x8000, canvas.cv_bitmap.bm_h - LINE_SPACING(*canvas.cv_font, *GAME_FONT), PlayerCfg.RespawnMode == RespawnPress::Any ? TXT_PRESS_ANY_KEY : "Press fire key or button to continue...");
+		auto &game_font = *GAME_FONT;
+		gr_string(canvas, game_font, 0x8000, canvas.cv_bitmap.bm_h - LINE_SPACING(game_font, game_font), PlayerCfg.RespawnMode == RespawnPress::Any ? TXT_PRESS_ANY_KEY : "Press fire key or button to continue...");
 	}
 }

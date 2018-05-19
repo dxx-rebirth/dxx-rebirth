@@ -241,7 +241,7 @@ static array<kc_mitem, lengthof(kc_rebirth)> kcm_rebirth;
 }
 }
 
-static void kc_drawinput(grs_canvas &, const kc_item &item, kc_mitem &mitem, int is_current, const char *label);
+static void kc_drawinput(grs_canvas &, const grs_font &, const kc_item &item, kc_mitem &mitem, int is_current, const char *label);
 static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem& mitem );
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 static void kc_change_joybutton( kc_menu &menu,const d_event &event, kc_mitem& mitem );
@@ -253,8 +253,7 @@ static void kc_change_joyaxis( kc_menu &menu,const d_event &event, kc_mitem& mit
 static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem& mitem );
 static void kc_change_invert( kc_menu *menu, kc_mitem * item );
 namespace dsx {
-static void kc_drawquestion(grs_canvas &, kc_menu *menu, const kc_item *item);
-
+static void kc_drawquestion(grs_canvas &, const grs_font &, kc_menu *menu, const kc_item *item);
 }
 
 static const char *get_item_text(const kc_item &item, const kc_mitem &mitem, char (&buf)[10])
@@ -316,12 +315,12 @@ static int get_item_height(const grs_font &cv_font, const kc_item &item, const k
 	return h;
 }
 
-static void kc_gr_2y_string(grs_canvas &canvas, const char *const s, const font_y_scaled_float y, const font_x_scaled_float x0, const font_x_scaled_float x1)
+static void kc_gr_2y_string(grs_canvas &canvas, const grs_font &cv_font, const char *const s, const font_y_scaled_float y, const font_x_scaled_float x0, const font_x_scaled_float x1)
 {
 	int w, h;
-	gr_get_string_size(*canvas.cv_font, s, &w, &h, nullptr);
-	gr_string(canvas, *canvas.cv_font, x0, y, s, w, h);
-	gr_string(canvas, *canvas.cv_font, x1, y, s, w, h);
+	gr_get_string_size(cv_font, s, &w, &h, nullptr);
+	gr_string(canvas, cv_font, x0, y, s, w, h);
+	gr_string(canvas, cv_font, x1, y, s, w, h);
 }
 
 static void kconfig_draw(kc_menu *menu)
@@ -338,15 +337,14 @@ static void kconfig_draw(kc_menu *menu)
 	auto &canvas = *grd_curcanv;
 
 	const grs_font *save_font = canvas.cv_font;
-	gr_set_curfont(canvas, MEDIUM3_FONT);
 
 	Assert(!strchr( menu->title, '\n' ));
-	gr_string(canvas, *canvas.cv_font, 0x8000, fspacy(8), menu->title);
+	auto &medium3_font = *MEDIUM3_FONT;
+	gr_string(canvas, medium3_font, 0x8000, fspacy(8), menu->title);
 
-	gr_set_curfont(canvas, GAME_FONT);
+	auto &game_font = *GAME_FONT;
 	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
-	gr_string(canvas, *canvas.cv_font, 0x8000, fspacy(21), "Enter changes, ctrl-d deletes, ctrl-r resets defaults, ESC exits");
-	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
+	gr_string(canvas, game_font, 0x8000, fspacy(21), "Enter changes, ctrl-d deletes, ctrl-r resets defaults, ESC exits");
 
 	if ( menu->items == kc_keyboard )
 	{
@@ -368,7 +366,7 @@ static void kconfig_draw(kc_menu *menu)
 		gr_rect(canvas, fspacx253, fspacy42, fspacx253, fspacy44, color); // vert/left
 		gr_rect(canvas, fspacx283, fspacy42, fspacx283, fspacy44, color); // vert/right
 
-		kc_gr_2y_string(canvas, "OR", fspacy(40), fspacx(109), fspacx(264));
+		kc_gr_2y_string(canvas, game_font, "OR", fspacy(40), fspacx(109), fspacx(264));
 	}
 #if DXX_MAX_JOYSTICKS
 	else if ( menu->items == kc_joystick )
@@ -378,17 +376,17 @@ static void kconfig_draw(kc_menu *menu)
 #if DXX_MAX_AXES_PER_JOYSTICK
 		constexpr auto kconfig_axis_labels_top_y = DXX_KCONFIG_UI_JOYSTICK_AXES_TOP_Y + 8;
 		const auto &&fspacy_lower_label2 = fspacy(kconfig_axis_labels_top_y);
-		gr_string(canvas, *canvas.cv_font, 0x8000, fspacy(DXX_KCONFIG_UI_JOYSTICK_AXES_TOP_Y), TXT_AXES);
+		gr_string(canvas, game_font, 0x8000, fspacy(DXX_KCONFIG_UI_JOYSTICK_AXES_TOP_Y), TXT_AXES);
 		gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
-		kc_gr_2y_string(canvas, TXT_AXIS, fspacy_lower_label2, fspacx(81), fspacx(230));
-		kc_gr_2y_string(canvas, TXT_INVERT, fspacy_lower_label2, fspacx(111), fspacx(260));
+		kc_gr_2y_string(canvas, game_font, TXT_AXIS, fspacy_lower_label2, fspacx(81), fspacx(230));
+		kc_gr_2y_string(canvas, game_font, TXT_INVERT, fspacy_lower_label2, fspacx(111), fspacx(260));
 		gr_set_fontcolor(canvas, color, -1);
 #endif
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 		constexpr auto kconfig_buttons_top_y = DXX_KCONFIG_UI_JOYSTICK_TOP_Y + 6;
 		constexpr auto kconfig_buttons_labels_top_y = kconfig_buttons_top_y + 4;
-		gr_string(canvas, *canvas.cv_font, 0x8000, fspacy(DXX_KCONFIG_UI_JOYSTICK_TOP_Y), TXT_BUTTONS);
+		gr_string(canvas, game_font, 0x8000, fspacy(DXX_KCONFIG_UI_JOYSTICK_TOP_Y), TXT_BUTTONS);
 		const auto &&fspacx115 = fspacx(115);
 		const auto &&fspacy_horiz_OR_line = fspacy(kconfig_buttons_labels_top_y);
 		gr_rect(canvas, fspacx115, fspacy_horiz_OR_line, fspacx(123), fspacy_horiz_OR_line, color); // horiz/left
@@ -405,30 +403,30 @@ static void kconfig_draw(kc_menu *menu)
 		gr_rect(canvas, fspacx261, fspacy_horiz_OR_line, fspacx261, fspacy_vert_OR_line, color); // vert/left
 		gr_rect(canvas, fspacx291, fspacy_horiz_OR_line, fspacx291, fspacy_vert_OR_line, color); // vert/right
 
-		kc_gr_2y_string(canvas, "OR", fspacy(kconfig_buttons_top_y + 2), fspacx(126), fspacx(272));
+		kc_gr_2y_string(canvas, game_font, "OR", fspacy(kconfig_buttons_top_y + 2), fspacx(126), fspacx(272));
 #endif
 	}
 #endif
 	else if ( menu->items == kc_mouse )
 	{
 		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
-		gr_string(canvas, *canvas.cv_font, 0x8000, fspacy(37), TXT_BUTTONS);
-		gr_string(canvas, *canvas.cv_font, 0x8000, fspacy(137), TXT_AXES);
+		gr_string(canvas, game_font, 0x8000, fspacy(37), TXT_BUTTONS);
+		gr_string(canvas, game_font, 0x8000, fspacy(137), TXT_AXES);
 		gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 		const auto &&fspacy145 = fspacy(145);
-		kc_gr_2y_string(canvas, TXT_AXIS, fspacy145, fspacx( 87), fspacx(242));
-		kc_gr_2y_string(canvas, TXT_INVERT, fspacy145, fspacx(120), fspacx(274));
+		kc_gr_2y_string(canvas, game_font, TXT_AXIS, fspacy145, fspacx( 87), fspacx(242));
+		kc_gr_2y_string(canvas, game_font, TXT_INVERT, fspacy145, fspacx(120), fspacx(274));
 	}
 	else if ( menu->items == kc_rebirth )
 	{
 		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
 
 		const auto &&fspacy60 = fspacy(60);
-		gr_string(canvas, *canvas.cv_font, fspacx(152), fspacy60, "KEYBOARD");
+		gr_string(canvas, game_font, fspacx(152), fspacy60, "KEYBOARD");
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
-		gr_string(canvas, *canvas.cv_font, fspacx(210), fspacy60, "JOYSTICK");
+		gr_string(canvas, game_font, fspacx(210), fspacy60, "JOYSTICK");
 #endif
-		gr_string(canvas, *canvas.cv_font, fspacx(273), fspacy60, "MOUSE");
+		gr_string(canvas, game_font, fspacx(273), fspacy60, "MOUSE");
 	}
 	
 	unsigned citem = menu->citem;
@@ -439,11 +437,11 @@ static void kconfig_draw(kc_menu *menu)
 		if (i == citem)
 			current_label = litem;
 		else if (menu->items[i].w2)
-			kc_drawinput(canvas, menu->items[i], menu->mitems[i], 0, next_label ? litem : nullptr);
+			kc_drawinput(canvas, game_font, menu->items[i], menu->mitems[i], 0, next_label ? litem : nullptr);
 		if (next_label)
 			litem += strlen(litem) + 1;
 	}
-	kc_drawinput(canvas, menu->items[citem], menu->mitems[citem], 1, current_label);
+	kc_drawinput(canvas, game_font, menu->items[citem], menu->mitems[citem], 1, current_label);
 	
 	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 	if (menu->changing)
@@ -475,8 +473,8 @@ static void kconfig_draw(kc_menu *menu)
 				break;
 		}
 		if (s)
-			gr_string(canvas, *canvas.cv_font, 0x8000, fspacy(INFO_Y), s);
-		kc_drawquestion(canvas, menu, &menu->items[menu->citem]);
+			gr_string(canvas, game_font, 0x8000, fspacy(INFO_Y), s);
+		kc_drawquestion(canvas, game_font, menu, &menu->items[menu->citem]);
 	}
 	canvas.cv_font = save_font;
 	gr_set_current_canvas( save_canvas );
@@ -778,7 +776,7 @@ static void kconfig_sub(const char *litems, const kc_item (&items)[N], array<kc_
 	kconfig_sub(litems, items, mitems.data(), N, title);
 }
 
-static void kc_drawinput(grs_canvas &canvas, const kc_item &item, kc_mitem &mitem, const int is_current, const char *const label)
+static void kc_drawinput(grs_canvas &canvas, const grs_font &cv_font, const kc_item &item, kc_mitem &mitem, const int is_current, const char *const label)
 {
 	char buf[10];
 	const char *btext;
@@ -792,7 +790,7 @@ static void kc_drawinput(grs_canvas &canvas, const kc_item &item, kc_mitem &mite
 		else
 			r = 15 * 2, g = 15 * 2, b = 24 * 2;
 		gr_set_fontcolor(canvas, gr_find_closest_color(r, g, b), -1);
-		gr_string(canvas, *canvas.cv_font, fspacx(item.x), fspacy(item.y), label);
+		gr_string(canvas, cv_font, fspacx(item.x), fspacy(item.y), label);
 	}
 
 	btext = get_item_text(item, mitem, buf);
@@ -806,7 +804,7 @@ static void kc_drawinput(grs_canvas &canvas, const kc_item &item, kc_mitem &mite
 
 		int x, w, h;
 		const uint8_t color = gr_find_closest_color(r, g, b);
-		gr_get_string_size(*canvas.cv_font, btext, &w, &h, nullptr);
+		gr_get_string_size(cv_font, btext, &w, &h, nullptr);
 		const auto &&fspacx_item_xinput = fspacx(item.xinput);
 		const auto &&fspacy_item_y = fspacy(item.y);
 		gr_urect(canvas, fspacx_item_xinput, fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy_item_y + h, color);
@@ -819,13 +817,13 @@ static void kc_drawinput(grs_canvas &canvas, const kc_item &item, kc_mitem &mite
 
 		x = fspacx_item_xinput + ((fspacx(item.w2) - w) / 2);
 	
-		gr_string(canvas, *canvas.cv_font, x, fspacy_item_y, btext, w, h);
+		gr_string(canvas, cv_font, x, fspacy_item_y, btext, w, h);
 	}
 }
 
 
 namespace dsx {
-static void kc_drawquestion(grs_canvas &canvas, kc_menu *const menu, const kc_item *const item)
+static void kc_drawquestion(grs_canvas &canvas, const grs_font &cv_font, kc_menu *const menu, const kc_item *const item)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	const uint8_t color = gr_fade_table[fades[menu->q_fade_i]][BM_XRGB(21,0,24)];
@@ -836,7 +834,7 @@ static void kc_drawquestion(grs_canvas &canvas, kc_menu *const menu, const kc_it
 	if (menu->q_fade_i>63) menu->q_fade_i=0;
 
 	int w, h;
-	gr_get_string_size(*canvas.cv_font, "?", &w, &h, nullptr);
+	gr_get_string_size(cv_font, "?", &w, &h, nullptr);
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
@@ -848,7 +846,7 @@ static void kc_drawquestion(grs_canvas &canvas, kc_menu *const menu, const kc_it
 
 	const auto x = fspacx_item_xinput + ((fspacx(item->w2) - w) / 2);
 
-	gr_string(canvas, *canvas.cv_font, x, fspacy_item_y, "?", w, h);
+	gr_string(canvas, cv_font, x, fspacy_item_y, "?", w, h);
 }
 }
 

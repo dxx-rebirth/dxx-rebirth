@@ -1857,8 +1857,8 @@ void show_escort_menu(const array<char, 300> &amsg)
 	gr_set_default_canvas();
 
 	auto &canvas = *grd_curcanv;
-	gr_set_curfont(canvas, GAME_FONT);
-	gr_get_string_size(*canvas.cv_font, msg, &w, &h, nullptr);
+	const auto &game_font = *GAME_FONT;
+	gr_get_string_size(game_font, msg, &w, &h, nullptr);
 
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;
@@ -1867,7 +1867,7 @@ void show_escort_menu(const array<char, 300> &amsg)
 
 	nm_draw_background(canvas, x - BORDERX, y - BORDERY, x + w + BORDERX, y + h + BORDERY);
 
-	gr_ustring(canvas, *canvas.cv_font, x, y, msg);
+	gr_ustring(canvas, game_font, x, y, msg);
 
 	reset_cockpit();
 }
