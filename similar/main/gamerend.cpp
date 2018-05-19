@@ -82,7 +82,7 @@ static void game_draw_marker_message(grs_canvas &canvas)
 	{
 		gr_set_curfont(canvas, GAME_FONT);
 		gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
-		gr_printf(canvas, *canvas.cv_font, 0x8000, (LINE_SPACING(canvas) * 5) + FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
+		gr_printf(canvas, *canvas.cv_font, 0x8000, (LINE_SPACING(*canvas.cv_font, *GAME_FONT) * 5) + FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
 	}
 }
 #endif
@@ -100,7 +100,7 @@ static void game_draw_multi_message(grs_canvas &canvas)
 		return;
 	gr_set_curfont(canvas, GAME_FONT);
 	gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
-	const auto &&y = (LINE_SPACING(canvas) * 5) + FSPACY(1);
+	const auto &&y = (LINE_SPACING(*canvas.cv_font, *GAME_FONT) * 5) + FSPACY(1);
 	if (sending)
 		gr_printf(canvas, *canvas.cv_font, 0x8000, y, "%s: %s_", TXT_MESSAGE, Network_message.data());
 	else
@@ -119,7 +119,7 @@ static void show_framerate(grs_canvas &canvas)
 		fps_count = 0;
 		fps_time += F1_0;
 	}
-	const auto &&line_spacing = LINE_SPACING(canvas);
+	const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
 	unsigned line_displacement;
 	switch (PlayerCfg.CockpitMode[1])
 	{
@@ -192,7 +192,7 @@ static void show_netplayerinfo()
 	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
 
 	// general game information
-	const auto &&line_spacing = LINE_SPACING(canvas);
+	const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
 	y += line_spacing;
 	gr_string(canvas, *canvas.cv_font, 0x8000, y, Netgame.game_name.data());
 	y += line_spacing;
@@ -382,7 +382,7 @@ static void render_countdown_gauge(grs_canvas &canvas)
 #endif
 		gr_set_curfont(canvas, GAME_FONT);
 		gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
-		gr_printf(canvas, *canvas.cv_font, 0x8000, (LINE_SPACING(canvas) * 6) + FSPACY(1), "T-%d s", Countdown_seconds_left);
+		gr_printf(canvas, *canvas.cv_font, 0x8000, (LINE_SPACING(*canvas.cv_font, *GAME_FONT) * 6) + FSPACY(1), "T-%d s", Countdown_seconds_left);
 	}
 }
 }
@@ -403,7 +403,7 @@ static void game_draw_hud_stuff(grs_canvas &canvas)
 		gr_set_curfont(canvas, GAME_FONT);
 		gr_set_fontcolor(canvas, BM_XRGB(27, 0, 0), -1);
 
-		y = canvas.cv_bitmap.bm_h - (LINE_SPACING(canvas) * 2);
+		y = canvas.cv_bitmap.bm_h - (LINE_SPACING(*canvas.cv_font, *GAME_FONT) * 2);
 
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
 			y = canvas.cv_bitmap.bm_h / 1.2 ;

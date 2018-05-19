@@ -99,7 +99,7 @@ void HUD_render_message_frame(grs_canvas &canvas)
 		gr_set_fontcolor(canvas, HUD_color, -1);
 		y = FSPACY(1);
 
-		const auto &&line_spacing = LINE_SPACING(canvas);
+		const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
 #if defined(DXX_BUILD_DESCENT_II)
 		if (PlayerCfg.GuidedInBigWindow &&
 			Guided_missile[Player_num] &&
@@ -264,6 +264,6 @@ void player_dead_message(grs_canvas &canvas)
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
 		gr_set_fontcolor(canvas, HUD_color, -1);
-		gr_string(canvas, *canvas.cv_font, 0x8000, canvas.cv_bitmap.bm_h - LINE_SPACING(canvas), PlayerCfg.RespawnMode == RespawnPress::Any ? TXT_PRESS_ANY_KEY : "Press fire key or button to continue...");
+		gr_string(canvas, *canvas.cv_font, 0x8000, canvas.cv_bitmap.bm_h - LINE_SPACING(*canvas.cv_font, *GAME_FONT), PlayerCfg.RespawnMode == RespawnPress::Any ? TXT_PRESS_ANY_KEY : "Press fire key or button to continue...");
 	}
 }

@@ -384,7 +384,7 @@ static void draw_item(grs_canvas &canvas, newmenu_item *item, int is_current, in
 		gr_set_curfont(canvas, is_current?MEDIUM2_FONT:MEDIUM1_FONT);
         }
 
-	const int line_spacing = static_cast<int>(LINE_SPACING(canvas));
+	const int line_spacing = static_cast<int>(LINE_SPACING(*canvas.cv_font, *GAME_FONT));
 	switch( item->type )	{
 		case NM_TYPE_SLIDER:
 		{
@@ -730,7 +730,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 			if ((event.type == EVENT_MOUSE_BUTTON_DOWN) && !menu->all_text)
 			{
 				mouse_get_pos(&mx, &my, &mz);
-				const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv));
+				const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT));
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
 				{
 					x1 = canvas.cv_bitmap.bm_x + menu->items[i].x - fspacx(13) /*- menu->items[i].right_offset - 6*/;
@@ -769,7 +769,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 				mouse_get_pos(&mx, &my, &mz);
 
 				// check possible scrollbar stuff first
-				const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv));
+				const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT));
 				if (menu->is_scroll_box) {
 					int ScrollAllow=0;
 					static fix64 ScrollTime=0;
@@ -864,7 +864,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 			if ((event.type == EVENT_MOUSE_BUTTON_UP) && !menu->all_text && (menu->citem != -1) && (menu->items[menu->citem].type == NM_TYPE_MENU) )
 			{
 				mouse_get_pos(&mx, &my, &mz);
-				const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv));
+				const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT));
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
 				{
 					x1 = canvas.cv_bitmap.bm_x + menu->items[i].x - fspacx(13);
@@ -1316,7 +1316,7 @@ static void newmenu_create_structure( newmenu *menu )
 	if (menu->nitems > menu->max_on_menu)
 	{
 		menu->is_scroll_box=1;
-		menu->h = th + (LINE_SPACING(canvas) * menu->max_on_menu);
+		menu->h = th + (LINE_SPACING(*canvas.cv_font, *GAME_FONT) * menu->max_on_menu);
 		menu->max_displayable=menu->max_on_menu;
 
 		// if our last citem was > menu->max_on_menu, make sure we re-scroll when we call this menu again
@@ -1463,7 +1463,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	{
 		gr_set_curfont(*grd_curcanv, menu->tiny_mode?GAME_FONT:MEDIUM2_FONT);
 
-		const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv));
+		const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT));
 		sy = menu->items[menu->scroll_offset].y - (line_spacing * menu->scroll_offset);
 		const auto &&fspacx = FSPACX();
 		sx = BORDERX - fspacx(12);
@@ -1743,7 +1743,7 @@ static window_event_result listbox_mouse(window *, const d_event &event, listbox
 			if (lb->mouse_state)
 			{
 				mouse_get_pos(&mx, &my, &mz);
-				const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
+				const auto &&line_spacing = LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT);
 				for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
 					if (i >= lb->nitems)
 						break;
@@ -1770,7 +1770,7 @@ static window_event_result listbox_mouse(window *, const d_event &event, listbox
 				gr_get_string_size(*grd_curcanv->cv_font, lb->item[lb->citem], nullptr, &h, nullptr);
 				x1 = lb->box_x;
 				x2 = lb->box_x + lb->box_w;
-				y1 = (lb->citem - lb->first_item) * LINE_SPACING(*grd_curcanv) + lb->box_y;
+				y1 = (lb->citem - lb->first_item) * LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT) + lb->box_y;
 				y2 = y1+h;
 				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) )
 				{
@@ -1901,7 +1901,7 @@ static void listbox_create_structure( listbox *lb)
 		if ( w > lb->box_w )
 			lb->box_w = w + fspacx(10);
 	}
-	lb->height = LINE_SPACING(canvas) * LB_ITEMS_ON_SCREEN;
+	lb->height = LINE_SPACING(*canvas.cv_font, *GAME_FONT) * LB_ITEMS_ON_SCREEN;
 
 	{
 		int w, h;
@@ -1953,7 +1953,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 	gr_set_curfont(canvas, MEDIUM3_FONT);
 	gr_string(canvas, *canvas.cv_font, 0x8000, lb->box_y - lb->title_height, lb->title);
 
-	const auto &&line_spacing = LINE_SPACING(canvas);
+	const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
 	for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
 		int y = (i - lb->first_item) * line_spacing + lb->box_y;
 		const auto &&fspacx = FSPACX();

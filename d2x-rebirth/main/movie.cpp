@@ -657,7 +657,7 @@ static void draw_subtitles(int frame_num)
 	}
 
 	//find y coordinate for first line of subtitles
-	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
+	const auto &&line_spacing = LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT);
 	y = grd_curcanv->cv_bitmap.bm_h - (line_spacing * (MAX_ACTIVE_SUBTITLES + 2));
 
 	//erase old subtitles if necessary

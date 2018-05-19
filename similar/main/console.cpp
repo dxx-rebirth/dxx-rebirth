@@ -285,7 +285,7 @@ static void con_draw(void)
 	const uint8_t color = BM_XRGB(0, 0, 0);
 	gr_settransblend(canvas, 7, GR_BLEND_NORMAL);
 	const auto &&fspacy1 = FSPACY(1);
-	const auto &&line_spacing = LINE_SPACING(canvas);
+	const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
 	y = fspacy1 + (line_spacing * con_size);
 	gr_rect(canvas, 0, 0, SWIDTH, y, color);
 	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);

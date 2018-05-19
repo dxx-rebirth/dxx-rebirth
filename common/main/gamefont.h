@@ -63,11 +63,6 @@ static inline float LINE_SPACING(const grs_font &active_font, const grs_font &ga
 	return FNTScaleY * (active_font.ft_h + (game_font.ft_h / 5));
 }
 
-static inline float LINE_SPACING(const grs_canvas &canvas)
-{
-	return LINE_SPACING(*canvas.cv_font, *GAME_FONT);
-}
-
 /* All the logic is in the base class */
 class base_font_scaled_float
 {
