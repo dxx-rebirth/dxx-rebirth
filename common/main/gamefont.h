@@ -55,9 +55,18 @@ constexpr std::integral_constant<unsigned, 5> MAX_FONTS{};
 extern float FNTScaleX, FNTScaleY;
 
 // add (scaled) spacing to given font coordinate
-#define LINE_SPACING(CANVAS)    (FNTScaleY * ((CANVAS).cv_font->ft_h + (GAME_FONT->ft_h / 5)))
 
 extern array<grs_font_ptr, MAX_FONTS> Gamefonts;
+
+static inline float LINE_SPACING(const grs_font &active_font, const grs_font &game_font)
+{
+	return FNTScaleY * (active_font.ft_h + (game_font.ft_h / 5));
+}
+
+static inline float LINE_SPACING(const grs_canvas &canvas)
+{
+	return LINE_SPACING(*canvas.cv_font, *GAME_FONT);
+}
 
 /* All the logic is in the base class */
 class base_font_scaled_float
