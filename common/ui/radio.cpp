@@ -61,7 +61,7 @@ void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 			bias = 1;
 		}
 		ui_string_centered(canvas, Middle(radio->width) + bias, Middle(radio->height) + bias, radio->flag ? "O" : " ");
-		gr_ustring(canvas, radio->width + 4, 2, radio->text.get());
+		gr_ustring(canvas, *canvas.cv_font, radio->width + 4, 2, radio->text.get());
 	}
 }
 

@@ -303,7 +303,7 @@ static void con_draw(void)
 		int w,h;
 		gr_get_string_size(*canvas.cv_font, b.line, &w, &h, nullptr);
 		y -= h + fspacy1;
-		gr_string(canvas, fspacx1, y, b.line, w, h);
+		gr_string(canvas, *canvas.cv_font, fspacx1, y, b.line, w, h);
 		i++;
 
 		if (y<=0 || CON_LINES_MAX-1-i <= 0 || i < 0)
@@ -311,8 +311,8 @@ static void con_draw(void)
 	}
 	gr_rect(canvas, 0, 0, SWIDTH, line_spacing, color);
 	gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255),-1);
-	gr_printf(canvas, fspacx1, fspacy1, "%s LOG", DESCENT_VERSION);
-	gr_string(canvas, SWIDTH - fspacx(110), fspacy1, "PAGE-UP/DOWN TO SCROLL");
+	gr_printf(canvas, *canvas.cv_font, fspacx1, fspacy1, "%s LOG", DESCENT_VERSION);
+	gr_string(canvas, *canvas.cv_font, SWIDTH - fspacx(110), fspacy1, "PAGE-UP/DOWN TO SCROLL");
 }
 
 static window_event_result con_handler(window *wind,const d_event &event, const unused_window_userdata_t *)

@@ -91,7 +91,7 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 				gr_set_fontcolor(canvas, CBLACK, -1);
 		}
 		gr_get_string_size(*canvas.cv_font, listbox->list[i], &w, &h, nullptr);
-		gr_string(canvas, x + 2, y, listbox->list[i], w, h);
+		gr_string(canvas, *canvas.cv_font, x + 2, y, listbox->list[i], w, h);
 		y += h;
 	}
 

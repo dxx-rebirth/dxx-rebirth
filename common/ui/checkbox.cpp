@@ -58,7 +58,7 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 			offset = 1;
 		}
 		ui_string_centered(canvas, Middle(checkbox->width) + offset, Middle(checkbox->height) + offset, checkbox->flag ? "X" : " ");
-		gr_ustring(canvas, checkbox->width + 4, 2, checkbox->text.get());
+		gr_ustring(canvas, *canvas.cv_font, checkbox->width + 4, 2, checkbox->text.get());
 	}
 }
 

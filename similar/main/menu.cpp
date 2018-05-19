@@ -460,9 +460,9 @@ static void draw_copyright()
 	gr_set_curfont(canvas, GAME_FONT);
 	gr_set_fontcolor(canvas, BM_XRGB(6, 6, 6), -1);
 	const auto &&line_spacing = LINE_SPACING(canvas);
-	gr_string(canvas, 0x8000, SHEIGHT - line_spacing, TXT_COPYRIGHT);
+	gr_string(canvas, *canvas.cv_font, 0x8000, SHEIGHT - line_spacing, TXT_COPYRIGHT);
 	gr_set_fontcolor(canvas, BM_XRGB(25, 0, 0), -1);
-	gr_string(canvas, 0x8000, SHEIGHT - (line_spacing * 2), DESCENT_VERSION);
+	gr_string(canvas, *canvas.cv_font, 0x8000, SHEIGHT - (line_spacing * 2), DESCENT_VERSION);
 }
 
 namespace dsx {
@@ -2437,7 +2437,7 @@ static window_event_result polygon_models_viewer_handler(window *, const d_event
 				draw_model_picture(canvas, view_idx, ang);
 				gr_set_curfont(canvas, GAME_FONT);
 				gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
-				gr_printf(canvas, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation",view_idx,N_polygon_models-1);
+				gr_printf(canvas, *canvas.cv_font, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation", view_idx, N_polygon_models - 1);
 			}
 			break;
 		case EVENT_WINDOW_CLOSE:
@@ -2518,7 +2518,7 @@ static window_event_result gamebitmaps_viewer_handler(window *, const d_event &e
 #endif
 				gr_set_curfont(canvas, GAME_FONT);
 				gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
-				gr_printf(canvas, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev bitmap (%i/%i)",view_idx,Num_bitmap_files-1);
+				gr_printf(canvas, *canvas.cv_font, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev bitmap (%i/%i)", view_idx, Num_bitmap_files-1);
 			}
 			break;
 		case EVENT_WINDOW_CLOSE:

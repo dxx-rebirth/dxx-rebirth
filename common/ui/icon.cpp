@@ -79,7 +79,7 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 		}
 	
 		gr_set_fontcolor(canvas, CBLACK, -1);
-		gr_ustring(canvas, x, y, icon->text.get());
+		gr_ustring(canvas, *canvas.cv_font, x, y, icon->text.get());
 	}
 }
 

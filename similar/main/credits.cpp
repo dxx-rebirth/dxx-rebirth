@@ -209,7 +209,7 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 				const auto tempp = strchr( s, '\t' );
 				if ( !tempp )	{
 					// Wacky Fast Credits thing
-					gr_string(canvas, 0x8000, y, s);
+					gr_string(canvas, *canvas.cv_font, 0x8000, y, s);
 				}
 			}
 			

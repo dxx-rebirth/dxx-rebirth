@@ -1057,7 +1057,7 @@ static void redraw_messagestream(grs_canvas &canvas, const msgstream &stream, un
 		lastcolor = stream.color;
 		gr_set_fontcolor(canvas, stream.color, -1);
 	}
-	gr_string(canvas, stream.x + 1, stream.y, msgbuf);
+	gr_string(canvas, *canvas.cv_font, stream.x + 1, stream.y, msgbuf);
 }
 
 namespace dsx {
@@ -1066,7 +1066,7 @@ static void flash_cursor(grs_canvas &canvas, briefing *const br, const int curso
 	if (cursor_flag == 0)
 		return;
 	gr_set_fontcolor(canvas, (timer_query() % (F1_0 / 2)) > F1_0 / 4 ? *Current_color : Erase_color, -1);
-	gr_string(canvas, br->text_x, br->text_y, "_");
+	gr_string(canvas, *canvas.cv_font, br->text_x, br->text_y, "_");
 }
 
 #define EXIT_DOOR_MAX   14
@@ -1592,7 +1592,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			if (br->new_page || br->new_screen)
 				flash_cursor(canvas, br, br->flashing_cursor);
 			else if (br->flashing_cursor)
-				gr_string(canvas, br->text_x, br->text_y, "_");
+				gr_string(canvas, *canvas.cv_font, br->text_x, br->text_y, "_");
 			break;
 		}
 		case EVENT_WINDOW_CLOSE:

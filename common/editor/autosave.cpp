@@ -123,7 +123,7 @@ static void print_clock()
 	gr_get_string_size(*canvas.cv_font, message.data(), &w, &h, nullptr);
 	const uint8_t color = CGREY;
 	gr_rect(canvas, 700, 0, 799, h + 1, color);
-	gr_string(canvas, 700, 0, message.data());
+	gr_string(canvas, *canvas.cv_font, 700, 0, message.data(), w, h);
 	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 }
 

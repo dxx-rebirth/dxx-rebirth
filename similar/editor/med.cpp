@@ -178,7 +178,7 @@ static void print_status_bar(char (&message)[DIAGNOSTIC_MESSAGE_MAX])
 	gr_set_fontcolor(canvas, CBLACK, CGREY);
 	int w,h;
 	gr_get_string_size(*canvas.cv_font, message, &w, &h, nullptr);
-	gr_string(canvas, 4, 583, message, w, h);
+	gr_string(canvas, *canvas.cv_font, 4, 583, message, w, h);
 	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 	gr_rect(canvas, 4+w, 583, 799, 599, CGREY);
 }

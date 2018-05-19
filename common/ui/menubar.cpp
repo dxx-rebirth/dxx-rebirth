@@ -111,14 +111,14 @@ static void item_show( MENU * menu, int n )
 	if ( menu != &Menu[0] )
 	{
 		if ( menu->Active)
-			gr_ustring(canvas, item->x + 1, item->y + 1, item->Text.get());
+			gr_ustring(canvas, *canvas.cv_font, item->x + 1, item->y + 1, item->Text.get());
 		else
-			gr_ustring(canvas, item->x + 1, item->y + 1, item->InactiveText.get());
+			gr_ustring(canvas, *canvas.cv_font, item->x + 1, item->y + 1, item->InactiveText.get());
 	} else {
 		if ( menu->Active)
-			gr_ustring(canvas, item->x, item->y, item->Text.get());
+			gr_ustring(canvas, *canvas.cv_font, item->x, item->y, item->Text.get());
 		else
-			gr_ustring(canvas, item->x, item->y, item->InactiveText.get());
+			gr_ustring(canvas, *canvas.cv_font, item->x, item->y, item->InactiveText.get());
 	}
 }
 

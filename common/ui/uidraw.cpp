@@ -43,7 +43,7 @@ void ui_string_centered(grs_canvas &canvas, const unsigned x, const unsigned y, 
 
 	//baseline = height-grd_curcanv->cv_font->ft_baseline;
 
-	gr_ustring(canvas, x - ((width - 1) / 2), y - ((height - 1) / 2), s);
+	gr_ustring(canvas, *canvas.cv_font, x - ((width - 1) / 2), y - ((height - 1) / 2), s);
 }
 
 

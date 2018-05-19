@@ -281,7 +281,7 @@ static void scores_rputs(grs_canvas &canvas, const int x, const int y, char *con
 
 	int w, h;
 	gr_get_string_size(*canvas.cv_font, buffer, &w, &h, nullptr);
-	gr_string(canvas, FSPACX(x) - w, FSPACY(y), buffer, w, h);
+	gr_string(canvas, *canvas.cv_font, FSPACX(x) - w, FSPACY(y), buffer, w, h);
 }
 
 static void scores_rprintf(grs_canvas &canvas, int x, int y, const char * format, ...) __attribute_format_printf(4, 5);
@@ -318,14 +318,14 @@ static void scores_draw_item(grs_canvas &canvas, const unsigned i, stats_info *c
 	const auto &&fspacx66 = fspacx(66);
 	const auto &&fspacy_y = FSPACY(y);
 	if (strlen(stats->name)==0) {
-		gr_string(canvas, fspacx66, fspacy_y, TXT_EMPTY);
+		gr_string(canvas, *canvas.cv_font, fspacx66, fspacy_y, TXT_EMPTY);
 		return;
 	}
-	gr_string(canvas, fspacx66, fspacy_y, stats->name);
+	gr_string(canvas, *canvas.cv_font, fspacx66, fspacy_y, stats->name);
 	int_to_string(stats->score, buffer);
 	scores_rputs(canvas, 149, y, buffer);
 
-	gr_string(canvas, fspacx(166), fspacy_y, MENU_DIFFICULTY_TEXT(stats->diff_level));
+	gr_string(canvas, *canvas.cv_font, fspacx(166), fspacy_y, MENU_DIFFICULTY_TEXT(stats->diff_level));
 
 	if ( (stats->starting_level > 0 ) && (stats->ending_level > 0 ))
 		scores_rprintf(canvas, 232, y, "%d-%d", stats->starting_level, stats->ending_level);
@@ -412,21 +412,21 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			gr_set_current_canvas(window_get_canvas(*wind));
 			auto &canvas = *grd_curcanv;
 			gr_set_curfont(canvas, MEDIUM3_FONT);
-			gr_string(canvas, 0x8000, fspacy(15), TXT_HIGH_SCORES);
+			gr_string(canvas, *canvas.cv_font, 0x8000, fspacy(15), TXT_HIGH_SCORES);
 			gr_set_curfont(canvas, GAME_FONT);
 			gr_set_fontcolor(canvas, BM_XRGB(31, 26, 5), -1);
-			gr_string(canvas, fspacx( 71), fspacy(50), TXT_NAME);
-			gr_string(canvas, fspacx(122), fspacy(50), TXT_SCORE);
-			gr_string(canvas, fspacx(167), fspacy(50), TXT_SKILL);
-			gr_string(canvas, fspacx(210), fspacy(50), TXT_LEVELS);
-			gr_string(canvas, fspacx(253), fspacy(50), TXT_TIME);
+			gr_string(canvas, *canvas.cv_font, fspacx( 71), fspacy(50), TXT_NAME);
+			gr_string(canvas, *canvas.cv_font, fspacx(122), fspacy(50), TXT_SCORE);
+			gr_string(canvas, *canvas.cv_font, fspacx(167), fspacy(50), TXT_SKILL);
+			gr_string(canvas, *canvas.cv_font, fspacx(210), fspacy(50), TXT_LEVELS);
+			gr_string(canvas, *canvas.cv_font, fspacx(253), fspacy(50), TXT_TIME);
 			
 			if ( menu->citem < 0 )	
-				gr_string(canvas, 0x8000, fspacy(175), TXT_PRESS_CTRL_R);
+				gr_string(canvas, *canvas.cv_font, 0x8000, fspacy(175), TXT_PRESS_CTRL_R);
 			
 			gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 			
-			gr_printf(canvas, 0x8000, fspacy(31), "%c%s%c  - %s", 34, menu->scores.cool_saying, 34, static_cast<const char *>(menu->scores.stats[0].name));
+			gr_printf(canvas, *canvas.cv_font, 0x8000, fspacy(31), "%c%s%c  - %s", 34, menu->scores.cool_saying, 34, static_cast<const char *>(menu->scores.stats[0].name));
 			
 			for (int i=0; i<MAX_HIGH_SCORES; i++ ) {
 				gr_set_fontcolor(canvas, BM_XRGB(28 - i * 2, 28 - i * 2, 28 - i * 2), -1);

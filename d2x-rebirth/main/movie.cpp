@@ -307,7 +307,7 @@ static window_event_result show_pause_message(window *, const d_event &event, co
 
 			gr_set_fontcolor(canvas, 255, -1);
 
-			gr_ustring(canvas, 0x8000, y, msg);
+			gr_ustring(canvas, *canvas.cv_font, 0x8000, y, msg);
 			break;
 		}
 
@@ -669,7 +669,7 @@ static void draw_subtitles(int frame_num)
 	range_for (const auto &t, partial_range(active_subtitles, num_active_subtitles))
 		if (t != -1)
 		{
-			gr_string(*grd_curcanv, 0x8000, y, Subtitles[t].msg);
+			gr_string(*grd_curcanv, *grd_curcanv->cv_font, 0x8000, y, Subtitles[t].msg);
 			y += line_spacing;
 		}
 }

@@ -155,11 +155,11 @@ static void info_display_object_placement(grs_canvas &canvas, int show_all)
 			( Objects[Cur_object_index].control_type != old_control_type) || 
 			( Objects[Cur_object_index].ctype.ai_info.behavior != old_mode) ) {
 
-		gr_uprintf(canvas, 0, 0, "Object id: %4d\n", Cur_object_index);
-		gr_uprintf(canvas, 0, 16, "Type: %s\n", get_object_type(Objects[Cur_object_index].type));
-		gr_uprintf(canvas, 0, 32, "Movmnt: %s\n", get_movement_type(Objects[Cur_object_index].movement_type));
-		gr_uprintf(canvas, 0, 48, "Cntrl: %s\n", get_control_type(Objects[Cur_object_index].control_type));
-		gr_uprintf(canvas, 0, 64, "Mode: %s\n", get_ai_behavior(Objects[Cur_object_index].ctype.ai_info.behavior));
+		gr_uprintf(canvas, *canvas.cv_font, 0, 0, "Object id: %4d\n", Cur_object_index);
+		gr_uprintf(canvas, *canvas.cv_font, 0, 16, "Type: %s\n", get_object_type(Objects[Cur_object_index].type));
+		gr_uprintf(canvas, *canvas.cv_font, 0, 32, "Movmnt: %s\n", get_movement_type(Objects[Cur_object_index].movement_type));
+		gr_uprintf(canvas, *canvas.cv_font, 0, 48, "Cntrl: %s\n", get_control_type(Objects[Cur_object_index].control_type));
+		gr_uprintf(canvas, *canvas.cv_font, 0, 64, "Mode: %s\n", get_ai_behavior(Objects[Cur_object_index].ctype.ai_info.behavior));
 
 		old_Cur_object_index = Cur_object_index;
 		old_type = Objects[Cur_object_index].type;
@@ -190,7 +190,7 @@ static void info_display_segsize(grs_canvas &canvas, int show_all)
 				Error("Illegal value for SegSizeMode in info.c/info_display_segsize\n");
 		}
 		old_SegSizeMode = SegSizeMode;
-		gr_uprintf(canvas, 0, 0, "Mode: %s\n", name);
+		gr_uprintf(canvas, *canvas.cv_font, 0, 0, "Mode: %s\n", name);
 	}
 
 }
@@ -227,14 +227,14 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 
 	if ( old_Num_segments != Num_segments )	{
 		old_Num_segments = Num_segments;
-		gr_uprintf(canvas, 0, 0, "Segments: %4d/%4" PRIuFAST32, Num_segments, static_cast<uint_fast32_t>(MAX_SEGMENTS));
+		gr_uprintf(canvas, *canvas.cv_font, 0, 0, "Segments: %4d/%4" PRIuFAST32, Num_segments, static_cast<uint_fast32_t>(MAX_SEGMENTS));
 	}
 
 	//---------------- Number of vertics -----------------
 	
 	if ( old_Num_vertices != Num_vertices )	{
 		old_Num_vertices = Num_vertices;
-		gr_uprintf(canvas, 0, 16, "Vertices: %4d/%4" PRIuFAST32, Num_vertices, static_cast<uint_fast32_t>(MAX_VERTICES));
+		gr_uprintf(canvas, *canvas.cv_font, 0, 16, "Vertices: %4d/%4" PRIuFAST32, Num_vertices, static_cast<uint_fast32_t>(MAX_VERTICES));
 	}
 
 	//---------------- Number of objects -----------------
@@ -243,7 +243,7 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 	{
 		const auto num_objects = ObjectState.num_objects;
 		old_Num_objects = num_objects;
-		gr_uprintf(canvas, 0, 32, "Objs: %3d/%3" DXX_PRI_size_type, num_objects, MAX_OBJECTS.value);
+		gr_uprintf(canvas, *canvas.cv_font, 0, 32, "Objs: %3d/%3" DXX_PRI_size_type, num_objects, MAX_OBJECTS.value);
 	}
 
   	//--------------- Current_segment_number -------------
@@ -253,8 +253,8 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 	{
 		old_Cursegp_num = Cursegp;
 		old_Curside = Curside;
-		gr_uprintf(canvas, 0, 48, "Cursegp/side: %3hu/%1d", static_cast<segnum_t>(Cursegp), Curside);
-		gr_uprintf(canvas, 0, 128, " tmap1,2,o: %3d/%3dx%1d", Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2 & 0x3FFF, (Cursegp->sides[Curside].tmap_num2 >> 14) & 3);
+		gr_uprintf(canvas, *canvas.cv_font, 0, 48, "Cursegp/side: %3hu/%1d", static_cast<segnum_t>(Cursegp), Curside);
+		gr_uprintf(canvas, *canvas.cv_font, 0, 128, " tmap1,2,o: %3d/%3dx%1d", Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2 & 0x3FFF, (Cursegp->sides[Curside].tmap_num2 >> 14) & 3);
 	}
 
 	//--------------- Current_vertex_numbers -------------
@@ -262,9 +262,9 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 	if (old_Cursegp_num_for_verts != Cursegp)
 	{
 		old_Cursegp_num_for_verts = Cursegp;
-		gr_uprintf(canvas, 0, 64, "{%3d,%3d,%3d,%3d,", Cursegp->verts[0],Cursegp->verts[1],
+		gr_uprintf(canvas, *canvas.cv_font, 0, 64, "{%3d,%3d,%3d,%3d,", Cursegp->verts[0],Cursegp->verts[1],
 																							 Cursegp->verts[2],Cursegp->verts[3] );
-		gr_uprintf(canvas, 0, 80," %3d,%3d,%3d,%3d}", Cursegp->verts[4],Cursegp->verts[5],
+		gr_uprintf(canvas, *canvas.cv_font, 0, 80," %3d,%3d,%3d,%3d}", Cursegp->verts[4],Cursegp->verts[5],
 																							 Cursegp->verts[6],Cursegp->verts[7] );
 	}
 
@@ -273,21 +273,21 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 	if ( old_Num_walls != Num_walls ) {
 //		gr_uprintf(*grd_curcanv, 0, 96, "Walls/Links %d/%d", Num_walls, Num_links );
 		old_Num_walls = Num_walls;
-		gr_uprintf(canvas, 0, 96, "Walls %3d", Num_walls);
+		gr_uprintf(canvas, *canvas.cv_font, 0, 96, "Walls %3d", Num_walls);
 	}
 
 	//--------------- Num triggers ----------------------
 
 	if ( old_Num_triggers != Num_triggers ) {
 		old_Num_triggers = Num_triggers;
-		gr_uprintf(canvas, 0, 112, "Num_triggers %2d", Num_triggers);
+		gr_uprintf(canvas, *canvas.cv_font, 0, 112, "Num_triggers %2d", Num_triggers);
 	}
 
 	//--------------- Current texture number -------------
 
 	if ( old_CurrentTexture != CurrentTexture )	{
 		old_CurrentTexture = CurrentTexture;
-		gr_uprintf(canvas, 0, 144, "Tex/Light: %3d %5.2f", CurrentTexture, f2fl(TmapInfo[CurrentTexture].lighting));
+		gr_uprintf(canvas, *canvas.cv_font, 0, 144, "Tex/Light: %3d %5.2f", CurrentTexture, f2fl(TmapInfo[CurrentTexture].lighting));
 	}
 }
 

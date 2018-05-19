@@ -290,7 +290,7 @@ unsigned CLIState::draw(unsigned y, unsigned line_spacing)
 			mc = nullptr;
 			c = 0;
 		}
-		gr_string(*grd_curcanv, line_left, y, q, w.second, h);
+		gr_string(*grd_curcanv, *grd_curcanv->cv_font, line_left, y, q, w.second, h);
 		if (--i == cursor_line)
 		{
 			unsigned cx = line_left + w.second, cy = y;
@@ -302,7 +302,7 @@ unsigned CLIState::draw(unsigned y, unsigned line_spacing)
 				gr_get_string_size(*grd_curcanv->cv_font, &line_begin[line_position], &cw, nullptr, nullptr);
 				cx -= cw;
 			}
-			gr_string(*grd_curcanv, cx, cy, cursor_string, cursor_width, cursor_height);
+			gr_string(*grd_curcanv, *grd_curcanv->cv_font, cx, cy, cursor_string, cursor_width, cursor_height);
 		}
 		/* Restore the original character, if one was overwritten. */
 		if (mc)
@@ -311,7 +311,7 @@ unsigned CLIState::draw(unsigned y, unsigned line_spacing)
 			break;
 		y -= h;
 	}
-	gr_string(*grd_curcanv, margin_width, y, prompt_string, prompt_width, h);
+	gr_string(*grd_curcanv, *grd_curcanv->cv_font, margin_width, y, prompt_string, prompt_width, h);
 	return y;
 }
 

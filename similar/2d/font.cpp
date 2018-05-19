@@ -686,11 +686,11 @@ static int ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, cons
 #define gr_internal_color_string ogl_internal_string
 #endif //OGL
 
-void gr_string(grs_canvas &canvas, const int x, const int y, const char *const s)
+void gr_string(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s)
 {
 	int w, h;
-	gr_get_string_size(*canvas.cv_font, s, &w, &h, nullptr);
-	gr_string(canvas, x, y, s, w, h);
+	gr_get_string_size(cv_font, s, &w, &h, nullptr);
+	gr_string(canvas, cv_font, x, y, s, w, h);
 }
 
 static void gr_ustring_mono(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s)
@@ -705,10 +705,8 @@ static void gr_ustring_mono(grs_canvas &canvas, const grs_font &cv_font, const i
 	}
 }
 
-void gr_string(grs_canvas &canvas, const int x, const int y, const char *const s, const int w, const int h)
+void gr_string(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s, const int w, const int h)
 {
-	assert(canvas.cv_font != NULL);
-
 	if (y + h < 0)
 		return;
 	const auto bm_h = canvas.cv_bitmap.bm_h;
@@ -730,9 +728,9 @@ void gr_string(grs_canvas &canvas, const int x, const int y, const char *const s
 #if DXX_USE_OGL
 		canvas.cv_bitmap.get_type() == bm_mode::ogl ||
 #endif
-		canvas.cv_font->ft_flags & FT_COLOR)
+		cv_font.ft_flags & FT_COLOR)
 	{
-		gr_internal_color_string(canvas, *canvas.cv_font, x, y, s);
+		gr_internal_color_string(canvas, cv_font, x, y, s);
 		return;
 	}
 	// Partially clipped...
@@ -741,33 +739,33 @@ void gr_string(grs_canvas &canvas, const int x, const int y, const char *const s
 		xw > bm_w ||
 		y + h > bm_h))
 	{
-		gr_ustring_mono(canvas, *canvas.cv_font, x, y, s);
+		gr_ustring_mono(canvas, cv_font, x, y, s);
 		return;
 	}
 
 	if (canvas.cv_font_bg_color == -1)
 	{
-		gr_internal_string_clipped_m(canvas, *canvas.cv_font, x, y, s);
+		gr_internal_string_clipped_m(canvas, cv_font, x, y, s);
 		return;
 	}
-	gr_internal_string_clipped(canvas, *canvas.cv_font, x, y, s);
+	gr_internal_string_clipped(canvas, cv_font, x, y, s);
 }
 
-void gr_ustring(grs_canvas &canvas, const int x, const int y, const char *const s)
+void gr_ustring(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s)
 {
 #if DXX_USE_OGL
 	if (canvas.cv_bitmap.get_type() == bm_mode::ogl)
 	{
-		ogl_internal_string(canvas, *canvas.cv_font, x, y, s);
+		ogl_internal_string(canvas, cv_font, x, y, s);
 		return;
 	}
 #endif
 	
 	if (canvas.cv_font->ft_flags & FT_COLOR) {
-		gr_internal_color_string(canvas, *canvas.cv_font, x, y, s);
+		gr_internal_color_string(canvas, cv_font, x, y, s);
 	}
 	else
-		gr_ustring_mono(canvas, *canvas.cv_font, x, y, s);
+		gr_ustring_mono(canvas, cv_font, x, y, s);
 }
 
 void gr_get_string_size(const grs_font &cv_font, const char *s, int *const string_width, int *const string_height, int *const average_width)
@@ -827,8 +825,8 @@ std::pair<const char *, unsigned> gr_get_string_wrap(const grs_font &cv_font, co
 	return {s, static_cast<unsigned>(string_width_f)};
 }
 
-template <void (&F)(grs_canvas &, int, int, const char *)>
-void (gr_printt)(grs_canvas &canvas, const int x, const int y, const char *const format, ...)
+template <void (&F)(grs_canvas &, const grs_font &, int, int, const char *)>
+void (gr_printt)(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const format, ...)
 {
 	char buffer[1000];
 	va_list args;
@@ -836,11 +834,11 @@ void (gr_printt)(grs_canvas &canvas, const int x, const int y, const char *const
 	va_start(args, format );
 	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
-	F(canvas, x, y, buffer);
+	F(canvas, cv_font, x, y, buffer);
 }
 
-template void gr_printt<gr_string>(grs_canvas &, int, int, const char *, ...);
-template void gr_printt<gr_ustring>(grs_canvas &, int, int, const char *, ...);
+template void gr_printt<gr_string>(grs_canvas &, const grs_font &, int, int, const char *, ...);
+template void gr_printt<gr_ustring>(grs_canvas &, const grs_font &, int, int, const char *, ...);
 
 void gr_close_font(std::unique_ptr<grs_font> font)
 {
