@@ -1829,13 +1829,8 @@ namespace {
 
 class blown_bitmap_array
 {
-#if defined(DXX_BUILD_DESCENT_I)
-#define NUM_BLOWN_BITMAPS 7
-#elif defined(DXX_BUILD_DESCENT_II)
-#define NUM_BLOWN_BITMAPS 20
-#endif
 	typedef int T;
-	typedef array<T, NUM_BLOWN_BITMAPS> array_t;
+	using array_t = array<T, 32>;
 	typedef array_t::const_iterator const_iterator;
 	array_t a;
 	array_t::iterator e;
@@ -1854,7 +1849,10 @@ public:
 		if (exists(t))
 			return;
 		if (e == a.end())
-			throw std::length_error("too many blown bitmaps");
+		{
+			LevelError("too many blown bitmaps; ignoring bitmap %i.", t);
+			return;
+		}
 		*e = t;
 		++e;
 	}
@@ -1862,41 +1860,45 @@ public:
 
 }
 
-static int net_udp_create_monitor_vector(void)
+static unsigned net_udp_create_monitor_vector(void)
 {
-	int monitor_num = 0;
-	int vector = 0;
 	blown_bitmap_array blown_bitmaps;
+	constexpr size_t max_textures = Textures.size();
 	range_for (auto &i, partial_const_range(Effects, Num_effects))
 	{
-		if (i.dest_bm_num < Textures.size())
+		if (i.dest_bm_num < max_textures)
 		{
 			blown_bitmaps.insert_unique(i.dest_bm_num);
 		}
 	}
-		
-	range_for (const auto &&seg, vcsegptr)
+	unsigned monitor_num = 0;
+	unsigned vector = 0;
+	range_for (const auto &&seg, vcsegptridx)
 	{
-		int tm, ec;
 		range_for (auto &j, seg->sides)
 		{
-			if ((tm = j.tmap_num2) != 0)
+			const unsigned tm2 = j.tmap_num2;
+			if (!tm2)
+				continue;
+			const unsigned masked_tm2 = tm2 & 0x3fff;
+			const unsigned ec = TmapInfo[masked_tm2].eclip_num;
 			{
-				if ((ec = TmapInfo[tm & 0x3fff].eclip_num) != eclip_none &&
+				if (ec != eclip_none &&
 					Effects[ec].dest_bm_num != ~0u)
 				{
-					monitor_num++;
-					Assert(monitor_num < 32);
+				}
+				else if (blown_bitmaps.exists(masked_tm2))
+				{
+					if (monitor_num >= 8 * sizeof(vector))
+					{
+						LevelError("too many blown monitors; ignoring segment %hu.", seg.get_unchecked_index());
+						return vector;
+					}
+							vector |= (1 << monitor_num);
 				}
 				else
-				{
-					if (blown_bitmaps.exists(tm&0x3fff))
-					{
-							vector |= (1 << monitor_num);
-							monitor_num++;
-							Assert(monitor_num < 32);
-					}
-				}
+					continue;
+				monitor_num++;
 			}
 		}
 	}
