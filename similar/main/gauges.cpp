@@ -413,9 +413,9 @@ class base_hud_scale_float
 {
 protected:
 	const double scale;
-	long operator()(const unsigned i) const
+	long operator()(const int i) const
 	{
-		return std::lround(this->scale * static_cast<double>(i));
+		return (this->scale * static_cast<double>(i)) + 0.5;
 	}
 	double get() const
 	{
@@ -435,7 +435,7 @@ public:
 	using scaled = hud_scaled_int<tag>;
 	using base_hud_scale_float::get;
 	DXX_INHERIT_CONSTRUCTORS(hud_scale_float, base_hud_scale_float);
-	scaled operator()(const unsigned i) const
+	scaled operator()(const int i) const
 	{
 		return scaled(this->base_hud_scale_float::operator()(i));
 	}
