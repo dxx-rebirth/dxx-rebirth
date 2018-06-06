@@ -945,16 +945,54 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			# on the header working differently than the used header
 			# actually works.
 			return (1, "Header %s is parseable, but cannot compile the test program." % header)
-		successflags.setdefault('CXXFLAGS', []).append('-E')
+		CXXFLAGS = successflags.setdefault('CXXFLAGS', [])
+		CXXFLAGS.append('-E')
 		if Compile(context, text=include, main='', msg='whether preprocessor can parse header %s' % header, testflags=successflags):
-			# If this Compile succeeds, then the used header cannot be
-			# compiled at all.  The header may have a syntax error or
-			# have unmet dependencies.
+			# If this Compile succeeds, then the used header can be
+			# preprocessed, but cannot be compiled as C++ even with an
+			# empty test program.  The header likely has a C++ syntax
+			# error or assumes prerequisite headers will be included by
+			# the calling program.
 			return (2, "Header %s exists, but cannot compile an empty program." % header)
-		# Finally, if nothing at all succeeded, either the header is
-		# completely missing or it is so badly broken that the
-		# preprocessor refuses to run to completion.
-		return (3, "Header %s is missing or unusable." % header)
+		CXXFLAGS.extend(('-M', '-MG'))
+		# If the header exists and is accepted by the preprocessor, an
+		# earlier test would have returned and this Compile would not be
+		# reached.  Therefore, this Compile runs only if the header:
+		# - Is directly missing
+		# - Is indirectly missing (present, but includes a missing
+		#   header)
+		# - Is present, but rejected by the preprocessor (such as from
+		#   an active `#error`)
+		if Compile(context, text=include, main='', msg='whether preprocessor can locate header %s (and supporting headers)' % header, expect_failure=True, testflags=successflags):
+			# If this Compile succeeds, then the header does not exist,
+			# or exists and includes (possibly through layers of
+			# indirection) a header which does not exist.  Passing `-MG`
+			# makes non-existent headers legal, but still rejects
+			# headers with `#error` and similar constructs.
+			#
+			# `expect_failure=True` inverts it to a failure in the
+			# logged output and in the Python value returned from
+			# `Compile(...)`.
+			# - Compile success means that the header was not found,
+			#   which is not an error when `-MG` is passed, but was an
+			#   error in earlier tests.
+			# - Compile failure means that the header was found, but
+			#   unusable, which is an error even when `-MG` is passed.
+			#   This can happen if the header contains `#error`
+			#   directives that are not preprocessed out.
+			# Therefore, use `expect_failure=True` so that "success"
+			# (header not found) prints "no" ("cannot locate header")
+			# and "failure" (header found, but unusable) prints "yes"
+			# ("can locate header").  This keeps the confusing double
+			# negatives confined to the code and this comment.  User
+			# visible log messages are clear.
+			#
+			# Compile failure (unusable) is converted to a True return
+			# by `expect_failure=True`, so the guarded path should
+			# return "unusable" and the fallthrough path should return
+			# "missing".
+			return (3, "Header %s is unusable." % header)
+		return (4, "Header %s is missing or includes a missing supporting header." % header)
 	# Compile and link a program that uses a system library.  On
 	# success, return None.  On failure, abort the SConf run.
 	def _check_system_library(self,*args,**kwargs):
