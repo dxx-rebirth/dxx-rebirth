@@ -137,14 +137,11 @@ namespace dsx {
 struct delta_light;
 struct dl_index;
 
-constexpr std::integral_constant<std::size_t, 500> MAX_DL_INDICES{};
 constexpr std::integral_constant<std::size_t, 32000> MAX_DELTA_LIGHTS{}; // Original D2: 10000;
 
 constexpr std::integral_constant<fix, 2048> DL_SCALE{};    // Divide light to allow 3 bits integer, 5 bits fraction.
 
-extern array<dl_index, MAX_DL_INDICES> Dl_indices;
 extern array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
-extern unsigned Num_static_lights;
 
 int subtract_light(vmsegptridx_t segnum, sidenum_fast_t sidenum);
 int add_light(vmsegptridx_t segnum, sidenum_fast_t sidenum);
@@ -157,6 +154,12 @@ void delta_light_write(const delta_light *dl, PHYSFS_File *fp);
 
 void dl_index_read(dl_index *di, PHYSFS_File *fp);
 void dl_index_write(const dl_index *di, PHYSFS_File *fp);
+using dlindexnum_t = uint16_t;
+}
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_default_dl_index trap_terse
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, dl_index, dlindexnum_t, 500);
+namespace dsx {
+DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(dl_index, dlindex);
 }
 #endif
 

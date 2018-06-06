@@ -274,6 +274,8 @@ struct dl_index {
 		return sidenum < rhs.sidenum;
 	}
 };
+
+DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(dl_index, dlindex, Dl_indices);
 #endif
 
 }

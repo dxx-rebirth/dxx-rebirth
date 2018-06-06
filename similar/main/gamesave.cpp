@@ -858,6 +858,7 @@ static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, 
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
 	unsigned num_delta_lights;
+	unsigned Num_static_lights;
 	if (game_top_fileinfo_version >= 29) {
 		PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 		Num_static_lights = PHYSFSX_readInt(LoadFile);
@@ -1011,6 +1012,7 @@ static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, 
 #if defined(DXX_BUILD_DESCENT_II)
 	//================ READ DL_INDICES INFO ===============
 
+	Dl_indices.set_count(Num_static_lights);
 	if (game_top_fileinfo_version < 29)
 	{
 		if (Num_static_lights)
@@ -1542,8 +1544,8 @@ int	Errors_in_mine;
 static int compute_num_delta_light_records(void)
 {
 	int	total = 0;
-	range_for (auto &i, partial_const_range(Dl_indices, Num_static_lights))
-		total += i.count;
+	range_for (const auto &&i, Dl_indices.vcptr)
+		total += i->count;
 	return total;
 
 }
@@ -1587,6 +1589,7 @@ static int save_game_data(PHYSFS_File *SaveFile)
 	unsigned num_delta_lights = 0;
 	if (game_top_fileinfo_version >= 29)
 	{
+		const unsigned Num_static_lights = Dl_indices.get_count();
 		WRITE_HEADER_ENTRY(dl_index, Num_static_lights);
 		WRITE_HEADER_ENTRY(delta_light, num_delta_lights = compute_num_delta_light_records());
 	}
@@ -1656,8 +1659,8 @@ static int save_game_data(PHYSFS_File *SaveFile)
 	if (game_top_fileinfo_version >= 29)
 	{
 		dl_indices_offset = PHYSFS_tell(SaveFile);
-		range_for (auto &i, partial_const_range(Dl_indices, Num_static_lights))
-			dl_index_write(&i, SaveFile);
+		range_for (const auto &&i, Dl_indices.vcptr)
+			dl_index_write(i, SaveFile);
 
 		delta_light_offset = PHYSFS_tell(SaveFile);
 		range_for (auto &i, partial_const_range(Delta_lights, num_delta_lights))

@@ -50,7 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
-#include "partial_range.h"
+#include "cast_range_result.h"
 
 using std::min;
 
@@ -131,9 +131,7 @@ static void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &r, const a
 
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
-array<dl_index, MAX_DL_INDICES> Dl_indices;
 array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
-unsigned Num_static_lights;
 #endif
 
 // ------------------------------------------------------------------------------------------
@@ -1676,9 +1674,9 @@ static void change_segment_light(const vmsegptridx_t segp,int sidenum,int dir)
 static void change_light(const vmsegptridx_t segnum, const uint8_t sidenum, const int dir)
 {
 	const fix ds = dir * DL_SCALE;
-	const auto &&pr = partial_const_range(Dl_indices, Num_static_lights);
+	const auto &&pr = cast_range_result<const dl_index &>(Dl_indices.vcptr);
 	const auto &&er = std::equal_range(pr.begin(), pr.end(), dl_index{segnum, sidenum, 0, 0});
-	range_for (auto &i, partial_range_t<const dl_index *>(er.first, er.second))
+	range_for (auto &i, partial_range_t<const dl_index *>(er.first.base().base(), er.second.base().base()))
 	{
 		const uint_fast32_t idx = i.index;
 			range_for (auto &j, partial_const_range(Delta_lights, idx, idx + i.count))
