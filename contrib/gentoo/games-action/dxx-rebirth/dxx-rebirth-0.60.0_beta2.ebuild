@@ -15,7 +15,8 @@ if [[ "$PV" = 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dxx-rebirth/dxx-rebirth"
 else
-	SRC_URI="https://github.com/dxx-rebirth/dxx-rebirth/archive/$PV.zip -> $PN-$PVR.zip"
+	MY_PV="${PV/_beta/-beta}"
+	SRC_URI="https://github.com/dxx-rebirth/dxx-rebirth/archive/$MY_PV.zip -> $PN-$PVR.zip"
 
 	# Restriction only for use in private overlays.  When this is added to a
 	# public tree, post the sources to a mirror and remove this restriction.
@@ -37,14 +38,16 @@ SLOT="0"
 KEYWORDS="amd64 x86"
 # Default to building both game engines.  The total size is relatively
 # small.
-IUSE="+d1x +d2x debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +music +opengl opl3-musicpack sc55-musicpack tracker +vorbis"
+IUSE="+d1x +d2x debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +music +opengl opl3-musicpack +png sc55-musicpack tracker +vorbis"
 
 DEPEND="dev-games/physfs[hog,mvl,zip]
 	media-libs/libsdl[joystick?,opengl?,sound,video]
 	music? ( media-libs/sdl-mixer )
 	opengl? (
 		virtual/opengl
-		virtual/glu )"
+		virtual/glu )
+	png? ( media-libs/libpng )
+"
 
 # As of this writing, there is no Portage shorthand syntax to express:
 # "
@@ -153,6 +156,7 @@ dxx_scons() {
 		opengl=$(usex opengl 1 0)
 		use_tracker=$(usex tracker 1 0)
 		prefix="${EPREFIX}"/usr
+		screenshot=$(usex png png legacy)
 		m_builddir=build/main/
 		m_editor=0
 	)
