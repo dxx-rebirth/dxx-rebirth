@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <cstdint>
 #include <string.h>    // for memcpy
+#include <type_traits>
 #include "dxxsconf.h"
 #include "pstypes.h"
 

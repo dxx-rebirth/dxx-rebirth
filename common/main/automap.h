@@ -51,6 +51,7 @@ extern array<ubyte, MAX_SEGMENTS> Automap_visited;
 #include "fwd-object.h"
 #include "ntstring.h"
 #include "fwd-window.h"
+#include "segment.h"
 
 namespace dsx {
 void DropBuddyMarker(vmobjptr_t objp);
