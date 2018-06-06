@@ -377,7 +377,7 @@ void wall_open_door(const vmsegptridx_t seg, int side)
 		}
 		else
 		{
-			d = i;
+			d = *i;
 			d->time = WallAnims[w->clip_num].play_time - d->time;
 			if (d->time < 0)
 				d->time = 0;
@@ -476,7 +476,7 @@ void start_wall_cloak(const vmsegptridx_t seg, int side)
 			d_debugbreak();
 			return;
 		}
-		d = i;
+		d = *i;
 		d->time = CLOAKING_WALL_TIME - d->time;
 	}
 	else if (w->state == WALL_DOOR_CLOSED) {	//create new door
@@ -545,7 +545,7 @@ void start_wall_decloak(const vmsegptridx_t seg, int side)
 			d_debugbreak();
 			return;
 		}
-		d = i;
+		d = *i;
 		d->time = CLOAKING_WALL_TIME - d->time;
 	}
 	else if (w->state == WALL_DOOR_CLOSED) {	//create new door
@@ -691,7 +691,7 @@ void wall_close_door(const vmsegptridx_t seg, int side)
 			d_debugbreak();
 			return;
 		}
-		d = i;
+		d = *i;
 		d->time = WallAnims[w->clip_num].play_time - d->time;
 
 		if (d->time < 0)

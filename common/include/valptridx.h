@@ -13,6 +13,7 @@
 #include "compiler-array.h"
 #include "pack.h"
 #include "compiler-poison.h"
+#include "selfiter.h"
 
 #ifdef DXX_CONSTANT_TRUE
 #define DXX_VALPTRIDX_STATIC_CHECK(SUCCESS_CONDITION,FAILURE_FUNCTION,FAILURE_STRING)	\
@@ -960,20 +961,7 @@ protected:
 	using basic_ival_member_factory<Pc, Pm>::get_array;
 	using basic_ival_member_factory<Pc, Pm>::call_operator;
 	template <typename P>
-	struct iterator :
-		std::iterator<std::forward_iterator_tag, P>,
-		P
-	{
-		using P::operator++;
-		iterator(P &&i) :
-			P(static_cast<P &&>(i))
-		{
-		}
-		P operator*() const
-		{
-			return *this;
-		}
-	};
+		using iterator = self_return_iterator<P>;
 	template <typename P, typename policy, typename A>
 		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const valptridx<managed_type>::idx<policy, 0> i, A &a)
 		{
