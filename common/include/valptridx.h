@@ -328,8 +328,10 @@ public:
 	idx() = delete;
 	idx(const idx &) = default;
 	idx(idx &&) = default;
-	idx &operator=(const idx &) = default;
-	idx &operator=(idx &&) = default;
+	idx &operator=(const idx &) & = default;
+	idx &operator=(idx &&) & = default;
+	idx &operator=(const idx &) && = delete;
+	idx &operator=(idx &&) && = delete;
 
 	index_type get_unchecked_index() const { return m_idx; }
 
@@ -440,8 +442,10 @@ public:
 	/* Override template matches to make same-type copy/move trivial */
 	ptr(const ptr &) = default;
 	ptr(ptr &&) = default;
-	ptr &operator=(const ptr &) = default;
-	ptr &operator=(ptr &&) = default;
+	ptr &operator=(const ptr &) & = default;
+	ptr &operator=(ptr &&) & = default;
+	ptr &operator=(const ptr &) && = delete;
+	ptr &operator=(ptr &&) && = delete;
 
 	pointer_type get_unchecked_pointer() const { return m_ptr; }
 	pointer_type get_nonnull_pointer(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS) const
@@ -623,8 +627,10 @@ public:
 	using vptr_type::operator==;
 	ptridx(const ptridx &) = default;
 	ptridx(ptridx &&) = default;
-	ptridx &operator=(const ptridx &) = default;
-	ptridx &operator=(ptridx &&) = default;
+	ptridx &operator=(const ptridx &) & = default;
+	ptridx &operator=(ptridx &&) & = default;
+	ptridx &operator=(const ptridx &) && = delete;
+	ptridx &operator=(ptridx &&) && = delete;
 	ptridx(std::nullptr_t) = delete;
 	/* Prevent implicit conversion.  Require use of the factory function.
 	 */

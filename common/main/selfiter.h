@@ -25,6 +25,21 @@ public:
 	}
 	T operator*() const
 	{
+		/* This static_assert is eager: it will reject a type T that
+		 * would be dangerous if used in the affected algorithms,
+		 * regardless of whether the program attempts such a use.  This
+		 * is acceptable since the modification to fix this assertion
+		 * should not break any intended uses of the type.  To pass the
+		 * assertion, the type T must define:
+
+	T &operator=(T &&) && = delete;
+
+		 * If normal move assignment is desired, also define:
+
+	T &operator=(T &&) & = default;
+
+		 */
+		static_assert(!std::is_assignable<T &&, T &&>::value, "Accessibility of `T::operator=(T &&) &&` permits generation of incorrect code when passing self_return_iterator<T> to some algorithms.  Explicitly delete `T::operator=(T &&) &&` to inhibit this assertion.");
 		return *this;
 	}
 	/* Some STL algorithms require:
