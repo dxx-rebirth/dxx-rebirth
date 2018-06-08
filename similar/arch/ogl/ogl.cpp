@@ -70,9 +70,9 @@ using std::max;
 
 //change to 1 for lots of spew.
 #if 0
-#define glmprintf(0,a) con_printf(CON_DEBUG, a)
+#define glmprintf(A) con_printf A
 #else
-#define glmprintf(a)
+#define glmprintf(A)	(void)(sizeof(con_printf A, 0))
 #endif
 
 #ifndef M_PI
@@ -422,7 +422,7 @@ void ogl_cache_level_textures(void)
 		if (ec.vc.num_frames>max_efx)
 			max_efx=ec.vc.num_frames;
 	}
-	glmprintf((0,"max_efx:%i\n",max_efx));
+	glmprintf((CON_DEBUG, "max_efx:%i", max_efx));
 	for (ef=0;ef<max_efx;ef++){
 		range_for (eclip &ec, partial_range(Effects, Num_effects))
 		{
@@ -439,7 +439,7 @@ void ogl_cache_level_textures(void)
 				const auto tmap1 = side.tmap_num;
 				const auto tmap2 = side.tmap_num2;
 				if (tmap1<0 || tmap1>=NumTextures){
-					glmprintf((0,"ogl_cache_level_textures %i %p %i %i\n",seg,&side,tmap1,NumTextures));
+					glmprintf((CON_DEBUG, "ogl_cache_level_textures %p %p %i %i", seg.get_unchecked_pointer(), &side, tmap1, NumTextures));
 					//				tmap1=0;
 					continue;
 				}
@@ -457,7 +457,7 @@ void ogl_cache_level_textures(void)
 				ogl_loadbmtexture(*bm, 0);
 			}
 		}
-		glmprintf((0,"finished ef:%i\n",ef));
+		glmprintf((CON_DEBUG, "finished ef:%i", ef));
 	}
 	reset_special_effects();
 	init_special_effects();
@@ -522,7 +522,7 @@ void ogl_cache_level_textures(void)
 			}
 		}
 	}
-	glmprintf((0,"finished caching\n"));
+	glmprintf((CON_DEBUG, "finished caching"));
 	r_cachedtexcount = r_texcount;
 }
 
@@ -912,7 +912,7 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 		/* for cloaked state faces */
 		color_alpha = 1.0 - (canvas.cv_fade_level / static_cast<GLfloat>(NUM_LIGHTING_LEVELS));
 	} else {
-		glmprintf((0,"g3_draw_tmap: unhandled tmap_drawer %p\n",tmap_drawer_ptr));
+		glmprintf((CON_DEBUG, "g3_draw_tmap: unhandled tmap_drawer"));
 		return;
 	}
 
@@ -1449,7 +1449,7 @@ static void tex_set_size1(ogl_texture &tex, const unsigned dbits, const unsigned
 	int u;
 	if (tex.tw!=w || tex.th!=h){
 		u=(tex.w/static_cast<float>(tex.tw)*w) * (tex.h/static_cast<float>(tex.th)*h);
-		glmprintf((0,"shrunken texture?\n"));
+		glmprintf((CON_DEBUG, "shrunken texture?"));
 	}else
 		u=tex.w*tex.h;
 	if (bits<=0){//the beta nvidia GLX server. doesn't ever return any bit sizes, so just use some assumptions.
@@ -1459,7 +1459,7 @@ static void tex_set_size1(ogl_texture &tex, const unsigned dbits, const unsigned
 		tex.bytes=(static_cast<float>(w)*h*bits)/8.0;
 		tex.bytesu=(static_cast<float>(u)*bits)/8.0;
 	}
-	glmprintf((0,"tex_set_size1: %ix%i, %ib(%i) %iB\n",w,h,bits,dbits,tex.bytes));
+	glmprintf((CON_DEBUG, "tex_set_size1: %ix%i, %ib(%i) %iB", w, h, bits, dbits, tex.bytes));
 }
 
 static void tex_set_size(ogl_texture &tex)
@@ -1807,7 +1807,7 @@ static void ogl_freetexture(ogl_texture &gltexture)
 {
 	if (gltexture.handle>0) {
 		r_texcount--;
-		glmprintf((0,"ogl_freetexture(%p):%i (%i left)\n",&gltexture,gltexture.handle,r_texcount));
+		glmprintf((CON_DEBUG, "ogl_freetexture(%p):%i (%i left)", &gltexture, gltexture.handle, r_texcount));
 		glDeleteTextures( 1, &gltexture.handle );
 //		gltexture->handle=0;
 		ogl_reset_texture(gltexture);
