@@ -52,11 +52,50 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 constexpr std::integral_constant<unsigned, 5> MAX_FONTS{};
 
-extern float FNTScaleX, FNTScaleY;
-
 // add (scaled) spacing to given font coordinate
 
 extern array<grs_font_ptr, MAX_FONTS> Gamefonts;
+
+class base_font_scale_proportion
+{
+protected:
+	float f;
+public:
+	base_font_scale_proportion() = default;
+	explicit constexpr base_font_scale_proportion(const float v) :
+		f(v)
+	{
+	}
+	explicit operator float() const
+	{
+		return f;
+	}
+	float operator*(const float v) const
+	{
+		return f * v;
+	}
+	void reset(const float v)
+	{
+		f = v;
+	}
+};
+
+template <char tag>
+class font_scale_proportion : public base_font_scale_proportion
+{
+public:
+	DXX_INHERIT_CONSTRUCTORS(font_scale_proportion, base_font_scale_proportion);
+	bool operator!=(const font_scale_proportion &rhs) const
+	{
+		return f != rhs.f;
+	}
+};
+
+using font_x_scale_proportion = font_scale_proportion<'x'>;
+using font_y_scale_proportion = font_scale_proportion<'y'>;
+
+extern font_x_scale_proportion FNTScaleX;
+extern font_y_scale_proportion FNTScaleY;
 
 static inline float LINE_SPACING(const grs_font &active_font, const grs_font &game_font)
 {
@@ -68,7 +107,7 @@ class base_font_scaled_float
 {
 	const float f;
 public:
-	explicit base_font_scaled_float(const float v) :
+	explicit constexpr base_font_scaled_float(const float v) :
 		f(v)
 	{
 	}
@@ -94,7 +133,7 @@ class font_scale_float
 	const float scale;
 public:
 	using scaled = font_scaled_float<tag>;
-	font_scale_float(float s) :
+	constexpr font_scale_float(const float s) :
 		scale(s)
 	{
 	}

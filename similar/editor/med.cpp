@@ -461,7 +461,9 @@ void init_editor()
 	
 	gr_set_current_canvas( GameViewBox->canvas );
 	gr_set_curfont(*grd_curcanv, editor_font);
-	FNTScaleX = FNTScaleY = 1;		// No font scaling!
+	// No font scaling!
+	FNTScaleX.reset(1);
+	FNTScaleY.reset(1);
 	ui_pad_goto(padnum);
 	
 	ModeFlag = 0;	// success!

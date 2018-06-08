@@ -58,7 +58,8 @@ const array<char[16], 5> Gamefont_filenames_h{{
 array<grs_font_ptr, MAX_FONTS> Gamefonts;
 
 static int Gamefont_installed;
-float FNTScaleX = 1, FNTScaleY = 1;
+font_x_scale_proportion FNTScaleX(1);
+font_y_scale_proportion FNTScaleY(1);
 
 //code to allow variable GAME_FONT, added 10/7/99 Matt Mueller - updated 11/18/99 to handle all fonts, not just GFONT_SMALL
 //	take scry into account? how/when?
@@ -126,13 +127,13 @@ void gamefont_choose_game_font(int scrx,int scry){
 		auto &f = fc.font[m];
 		if (!CGameCfg.TexFilt)
 		{
-			FNTScaleX = scrx / f.x;
-			FNTScaleY = scry / f.y;
+			FNTScaleX.reset(scrx / f.x);
+			FNTScaleY.reset(scry / f.y);
 		}
 		else
 		{
-			FNTScaleX = static_cast<float>(scrx) / f.x;
-			FNTScaleY = static_cast<float>(scry) / f.y;
+			FNTScaleX.reset(static_cast<float>(scrx) / f.x);
+			FNTScaleY.reset(static_cast<float>(scry) / f.y);
 		}
 
 		// keep proportions
@@ -142,9 +143,9 @@ void gamefont_choose_game_font(int scrx,int scry){
 #define DXX_FONT_SCALE_MULTIPLIER	100
 #endif
 		if (FNTScaleY*DXX_FONT_SCALE_MULTIPLIER < FNTScaleX*DXX_FONT_SCALE_MULTIPLIER)
-			FNTScaleX = FNTScaleY;
+			FNTScaleX.reset(FNTScaleY.operator float());
 		else if (FNTScaleX*DXX_FONT_SCALE_MULTIPLIER < FNTScaleY*DXX_FONT_SCALE_MULTIPLIER)
-			FNTScaleY = FNTScaleX;
+			FNTScaleY.reset(FNTScaleX.operator float());
 	}
 #endif
 		gamefont_loadfont(gf,m);

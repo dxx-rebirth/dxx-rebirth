@@ -85,7 +85,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct newmenu : embed_window_pointer_t
 {
 	int				x,y,w,h;
-	short			swidth, sheight; float fntscalex, fntscaley; // with these we check if resolution or fonts have changed so menu structure can be recreated
+	short			swidth, sheight;
+	// with these we check if resolution or fonts have changed so menu structure can be recreated
+	font_x_scale_proportion fntscalex;
+	font_y_scale_proportion fntscaley;
 	const char			*title;
 	const char			*subtitle;
 	unsigned		nitems;
@@ -1416,7 +1419,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	int th = 0, ty, sx, sy;
 	int i;
 
-	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscalex != FNTScaleY)
+	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscaley != FNTScaleY)
 	{
 		newmenu_create_structure ( menu );
 		{
@@ -1673,7 +1676,10 @@ struct listbox : embed_window_pointer_t
 	unsigned nitems;
 	int citem, first_item;
 	int box_w, height, box_x, box_y, title_height;
-	short swidth, sheight; float fntscalex, fntscaley; // with these we check if resolution or fonts have changed so listbox structure can be recreated
+	short swidth, sheight;
+	// with these we check if resolution or fonts have changed so listbox structure can be recreated
+	font_x_scale_proportion fntscalex;
+	font_y_scale_proportion fntscaley;
 	int mouse_state;
 	marquee::ptr marquee;
 	void *userdata;
@@ -1941,7 +1947,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 {
 	int i;
 
-	if (lb->swidth != SWIDTH || lb->sheight != SHEIGHT || lb->fntscalex != FNTScaleX || lb->fntscalex != FNTScaleY)
+	if (lb->swidth != SWIDTH || lb->sheight != SHEIGHT || lb->fntscalex != FNTScaleX || lb->fntscaley != FNTScaleY)
 		listbox_create_structure ( lb );
 
 	gr_set_default_canvas();

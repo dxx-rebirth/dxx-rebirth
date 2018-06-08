@@ -56,7 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static font_x_scale_float FONTSCALE_X()
 {
-	return FNTScaleX;
+	return FNTScaleX.operator float();
 }
 
 static auto FONTSCALE_Y(const int &y)
