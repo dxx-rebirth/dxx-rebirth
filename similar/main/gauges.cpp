@@ -1804,8 +1804,8 @@ static void hud_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_sca
 		return;
 
 	const int x = (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
-		? hudctx.xscale(7)
-		: FSPACX(2);
+		? static_cast<int>(hudctx.xscale(7))
+		: static_cast<int>(FSPACX(2));
 
 	auto &canvas = hudctx.canvas;
 	if (Game_mode & GM_MULTI) {

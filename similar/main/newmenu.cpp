@@ -1430,7 +1430,14 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	gr_set_default_canvas();
 	nm_draw_background1(*grd_curcanv, menu->filename);
 	if (menu->filename == NULL)
-		nm_draw_background(*grd_curcanv, menu->x-(menu->is_scroll_box?FSPACX(5):0),menu->y,menu->x+menu->w,menu->y+menu->h);
+	{
+		const auto mx = menu->x;
+		const auto my = menu->y;
+		auto ex = mx;
+		if (menu->is_scroll_box)
+			ex -= FSPACX(5);
+		nm_draw_background(*grd_curcanv, ex, my, mx + menu->w, my + menu->h);
+	}
 
 	gr_set_current_canvas( menu_canvas );
 
