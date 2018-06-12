@@ -2214,7 +2214,7 @@ I a()
 	@_implicit_test
 	def check_cxx11_variadic_forward_constructor(self,context,text,_macro_value=_quote_macro_value('''
     template <typename... Args>
-        D(Args&&... args) :
+        constexpr D(Args&&... args) :
             B,##__VA_ARGS__(std::forward<Args>(args)...) {}
 '''),**kwargs):
 		"""
