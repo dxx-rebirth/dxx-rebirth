@@ -146,7 +146,7 @@ static get_char_width_result<T> get_char_width(const grs_font &cv_font, const ui
 	if (!INFONT(letter)) {				//not in font, draw as space
 		return {0, static_cast<T>(proportional ? fontscale_x(cv_font.ft_w) / 2 : cv_font.ft_w)};
 	}
-	const T width = proportional ? fontscale_x(cv_font.ft_widths[letter]) : cv_font.ft_w;
+	const T width = proportional ? fontscale_x(cv_font.ft_widths[letter]).operator float() : cv_font.ft_w;
 	if (ft_flags & FT_KERNED) 
 	{
 		if (!(c2==0 || c2=='\n')) {
