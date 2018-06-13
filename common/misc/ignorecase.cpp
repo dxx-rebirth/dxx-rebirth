@@ -73,8 +73,8 @@ public:
 
 static int locateOneElement(char *const sptr, char *const ptr, const char *buf)
 {
-    if (PHYSFS_exists(buf))
-        return(1);  /* quick rejection: exists in current case. */
+    if (const auto r = PHYSFS_exists(buf))
+        return r;  /* quick rejection: exists in current case. */
 
 	search_result_t rc{ptr, buf};
 	range_for (const auto i, rc)
