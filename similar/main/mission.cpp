@@ -716,11 +716,14 @@ static void set_briefing_filename(d_fname &f, const char *const v)
 static void record_briefing(d_fname &f, array<char, PATH_MAX> &buf)
 {
 	const auto v = get_value(buf.data());
-	std::size_t d;
-	if (v && (d = std::distance(v, std::find_if(v, buf.end(), null_or_space))))
+	if (!v)
+		return;
+	const std::size_t d = std::distance(v, std::find_if(v, buf.end(), null_or_space));
+	if (d >= FILENAME_LEN)
+		return;
+	{
 		set_briefing_filename(f, v, std::min(d, f.size() - sizeof(tex)));
-	else
-		f = {};
+	}
 }
 #undef tex
 
