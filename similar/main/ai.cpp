@@ -3650,9 +3650,13 @@ _exit_cheat:
 			int anger_level = 65;
 
 			if (aip->behavior == ai_behavior::AIB_STATION)
-				if (Point_segs[aip->hide_index + aip->path_length - 1].segnum == aip->hide_segment) {
+			{
+				const std::size_t idx = aip->hide_index + aip->path_length - 1;
+				if (idx < Point_segs.size() && Point_segs[idx].segnum == aip->hide_segment)
+				{
 					anger_level = 64;
 				}
+			}
 
 			compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 
