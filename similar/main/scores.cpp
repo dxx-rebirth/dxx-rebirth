@@ -409,8 +409,7 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			nm_draw_background(*grd_curcanv, ((SWIDTH - w) / 2) - BORDERX, ((SHEIGHT - h) / 2) - BORDERY, ((SWIDTH - w) / 2) + w + BORDERX, ((SHEIGHT - h) / 2) + h + BORDERY);
 			
 			{
-			gr_set_current_canvas(window_get_canvas(*wind));
-			auto &canvas = *grd_curcanv;
+			auto &canvas = window_get_canvas(*wind);
 			auto &medium3_font = *MEDIUM3_FONT;
 			gr_string(canvas, medium3_font, 0x8000, fspacy(15), TXT_HIGH_SCORES);
 			gr_set_fontcolor(canvas, BM_XRGB(31, 26, 5), -1);
