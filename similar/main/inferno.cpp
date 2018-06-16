@@ -323,6 +323,7 @@ window_event_result standard_handler(const d_event &event)
 
 			switch (key)
 			{
+#if DXX_USE_SCREENSHOT
 #ifdef macintosh
 				case KEY_COMMAND + KEY_SHIFTED + KEY_3:
 #endif
@@ -332,6 +333,7 @@ window_event_result standard_handler(const d_event &event)
 					save_screen_shot(0);
 					return window_event_result::handled;
 				}
+#endif
 
 				case KEY_ALTED+KEY_ENTER:
 				case KEY_ALTED+KEY_PADENTER:

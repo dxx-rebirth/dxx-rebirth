@@ -775,6 +775,7 @@ unsigned write_screenshot_png(PHYSFS_File *const file, const struct tm *const tm
 
 }
 
+#if DXX_USE_SCREENSHOT
 void save_screen_shot(int automap_flag)
 {
 #if DXX_USE_OGL
@@ -887,6 +888,7 @@ void save_screen_shot(int automap_flag)
 	if (write_error)
 		PHYSFS_delete(savename);
 }
+#endif
 
 //initialize flying
 void fly_init(object_base &obj)

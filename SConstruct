@@ -1130,6 +1130,7 @@ struct d_screenshot
 '''):
 		successflags = self.pkgconfig.merge(context, self.msgprefix, self.user_settings, 'libpng', 'libpng', _guess_flags)
 		return self._soft_check_system_library(context, header=_header, main=_main, lib='png', text=_text, successflags=successflags)
+
 	@_custom_test
 	def _check_user_settings_screenshot(self,context):
 		user_settings = self.user_settings
@@ -1138,16 +1139,19 @@ struct d_screenshot
 			screenshot_format_type = screenshot_mode
 		elif screenshot_mode == 'legacy':
 			screenshot_format_type = 'tga' if user_settings.opengl else 'pcx'
+		elif screenshot_mode == 'none':
+			screenshot_format_type = 'screenshot support disabled'
 		else:
 			return
 		context.Result('%s: checking how to format screenshots...%s' % (self.msgprefix, screenshot_format_type))
 		Define = context.sconf.Define
 		Define('DXX_USE_SCREENSHOT_FORMAT_PNG', int(screenshot_mode == 'png'))
 		Define('DXX_USE_SCREENSHOT_FORMAT_LEGACY', int(screenshot_mode == 'legacy'))
+		Define('DXX_USE_SCREENSHOT', int(screenshot_mode != 'none'))
 		if screenshot_mode == 'png':
 			e = self.check_libpng(context)
 			if e:
-				raise SCons.Errors.StopError(e[1] + '  Set screenshot=legacy to remove screenshot libpng requirement.')
+				raise SCons.Errors.StopError(e[1] + '  Set screenshot=legacy to remove screenshot libpng requirement or set screenshot=none to remove screenshot support.')
 
 	# Require _WIN32_WINNT >= 0x0501 to enable getaddrinfo
 	# Require _WIN32_WINNT >= 0x0600 to enable some useful AI_* flags
@@ -3559,7 +3563,7 @@ class DXXCommon(LazyObjectConstructor):
 				'arguments': (
 					('host_endian', None, 'endianness of host platform', {'allowed_values' : ('little', 'big')}),
 					('host_platform', sys.platform.rstrip('0123456789'), 'cross-compile to specified platform', {'allowed_values' : ('darwin', 'linux', 'openbsd', 'win32')}),
-					('screenshot', 'png', 'screenshot file format', {'allowed_values' : ('legacy', 'png')}),
+					('screenshot', 'png', 'screenshot file format', {'allowed_values' : ('none', 'legacy', 'png')}),
 				),
 			},
 			{

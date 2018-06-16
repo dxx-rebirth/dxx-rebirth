@@ -841,11 +841,13 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 
 	switch (c)
 	{
+#if DXX_USE_SCREENSHOT
 		case KEY_PRINT_SCREEN: {
 			gr_set_default_canvas();
 			save_screen_shot(1);
 			return window_event_result::handled;
 		}
+#endif
 		case KEY_ESC:
 			if (am->leave_mode==0)
 			{

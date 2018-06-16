@@ -180,6 +180,7 @@ void start_time();
 void reset_time();       // called when starting level
 }
 
+#if DXX_USE_SCREENSHOT
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 namespace dcx {
 
@@ -190,6 +191,7 @@ void write_bmp(PHYSFS_File *, unsigned w, unsigned h);
 extern void save_screen_shot(int automap_flag);
 
 }
+#endif
 #endif
 
 enum cockpit_mode_t
