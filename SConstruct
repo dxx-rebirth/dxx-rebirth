@@ -1076,6 +1076,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		if use_tracker:
 			self.check_curl(context)
 			self.check_jsoncpp(context)
+
 	@_implicit_test
 	def check_libpng(self,context,
 		_header=(
@@ -2846,7 +2847,7 @@ class PCHManager(object):
 			if syspch_object_node:
 				CXXFLAGS += ['-include', syspch_cpp_filename, '-Winvalid-pch']
 			self.required_pch_object_node = self.ownpch_object_node = ownpch_object_node = env.StaticObject(target='%s.gch' % ownpch_cpp_filename, source=self.ownpch_cpp_node, CXXCOM=env._dxx_cxxcom_no_ccache_prefix, CXXFLAGS=CXXFLAGS)
-			env.Depends(ownpch_object_node, File(os.path.join(self.user_settings.builddir, 'dxxsconf.h')))
+			env.Depends(ownpch_object_node, File(os.path.join(user_settings.builddir, 'dxxsconf.h')))
 			if syspch_object_node:
 				env.Depends(ownpch_object_node, syspch_object_node)
 		self.pch_CXXFLAGS = ['-include', ownpch_cpp_filename or syspch_cpp_filename, '-Winvalid-pch']
@@ -3613,7 +3614,8 @@ class DXXCommon(LazyObjectConstructor):
 					if stack:
 						for n in names:
 							add_variable(self._generic_variable(key='%s_stop' % n, help=None, default=None))
-		def read_variables(self,variables,d):
+		def read_variables(self,program,variables,d):
+			verbose_settings_init = os.getenv('DXX_SCONS_DEBUG_USER_SETTINGS')
 			for (namelist,cname,dvalue,stack) in self.known_variables:
 				value = None
 				found_value = False
@@ -3623,23 +3625,40 @@ class DXXCommon(LazyObjectConstructor):
 						found_value = True
 						if stack:
 							if callable(v):
+								if verbose_settings_init:
+									message(program, 'append to stackable %r from %r by call to %r(%r, %r, %r)' % (cname, n, v, dvalue, value, stack))
 								value = v(dvalue=dvalue, value=value, stack=stack)
 							else:
 								if value:
-									value = stack.join([value, v])
+									value = (value, v)
+									if verbose_settings_init:
+										message(program, 'append to stackable %r from %r by join of %r.join(%r, %r)' % (cname, n, stack, value))
+									value = stack.join(value)
 								else:
+									if verbose_settings_init:
+										message(program, 'assign to stackable %r from %r value %r' % (cname, n, v))
 									value = v
-							if d.get('%s_stop' % n, None):
+							stop = '%s_stop' % n
+							if d.get(stop, None):
+								if verbose_settings_init:
+									message(program, 'terminating search early due to presence of %s' % stop)
 								break
 							continue
+						if verbose_settings_init:
+							message(program, 'assign to non-stackable %r from %r value %r' % (cname, n, v))
 						value = v
 						break
 					except KeyError as e:
 						pass
 				if not found_value:
-					value = dvalue
-				if callable(value):
-					value = value()
+					if callable(dvalue):
+						value = dvalue()
+						if verbose_settings_init:
+							message(program, 'assign to %r by default value %r from call %r' % (cname, value, dvalue))
+					else:
+						value = dvalue
+						if verbose_settings_init:
+							message(program, 'assign to %r by default value %r from direct' % (cname, value))
 				setattr(self, cname, value)
 			if self.builddir != '' and self.builddir[-1:] != '/':
 				self.builddir += '/'
@@ -4538,7 +4557,7 @@ class DXXProgram(DXXCommon):
 
 	def init(self,substenv):
 		user_settings = self.user_settings
-		user_settings.read_variables(self.variables, substenv)
+		user_settings.read_variables(self, self.variables, substenv)
 		archive = DXXProgram.static_archive_construction.get(user_settings.builddir, None)
 		if archive is None:
 			DXXProgram.static_archive_construction[user_settings.builddir] = archive = DXXArchive(user_settings)
