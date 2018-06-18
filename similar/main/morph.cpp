@@ -281,17 +281,18 @@ void morph_start(const vmobjptr_t obj)
 	polymodel *pm;
 	vms_vector pmmin,pmmax;
 	vms_vector box_size;
-	int i;
-	morph_data *md;
 
-	for (i=0;i<MAX_MORPH_OBJECTS;i++)
-		if (morph_objects[i].obj == NULL || morph_objects[i].obj->type==OBJ_NONE  || morph_objects[i].obj->signature!=morph_objects[i].Morph_sig)
-			break;
+	const auto mob = morph_objects.begin();
+	const auto moe = morph_objects.end();
+	const auto mop = [](const morph_data &mo) {
+		return mo.obj == nullptr || mo.obj->type == OBJ_NONE || mo.obj->signature != mo.Morph_sig;
+	};
+	const auto moi = std::find_if(mob, moe, mop);
 
-	if (i==MAX_MORPH_OBJECTS)		//no free slots
+	if (moi == moe)		//no free slots
 		return;
 
-	md = &morph_objects[i];
+	morph_data *const md = &*moi;
 
 	Assert(obj->render_type == RT_POLYOBJ);
 
@@ -333,7 +334,7 @@ void morph_start(const vmobjptr_t obj)
 
 }
 
-static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, polymodel *const pm, const int submodel_num, const submodel_angles anim_angles, g3s_lrgb light, morph_data *const md)
+static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, polymodel *const pm, const unsigned submodel_num, const submodel_angles anim_angles, g3s_lrgb light, morph_data *const md)
 {
 	array<unsigned, MAX_SUBMODELS> sort_list;
 	unsigned sort_n;
@@ -400,8 +401,6 @@ void draw_morph_object(grs_canvas &canvas, const vmobjptridx_t obj)
 
 	md = find_morph_data(obj);
 	Assert(md != NULL);
-
-	Assert(obj->rtype.pobj_info.model_num < N_polygon_models);
 
 	po=&Polygon_models[obj->rtype.pobj_info.model_num];
 
