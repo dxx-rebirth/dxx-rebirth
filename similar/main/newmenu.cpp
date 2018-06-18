@@ -1681,6 +1681,7 @@ struct listbox : embed_window_pointer_t
 	int allow_abort_flag;
 	listbox_subfunction_t<void> listbox_callback;
 	unsigned nitems;
+	unsigned items_on_screen;
 	int citem, first_item;
 	int box_w, height, box_x, box_y, title_height;
 	short swidth, sheight;
@@ -1731,20 +1732,26 @@ static void update_scroll_position(listbox *lb)
 	if (lb->citem< lb->first_item)
 		lb->first_item = lb->citem;
 
-	if (lb->citem>=( lb->first_item+LB_ITEMS_ON_SCREEN))
-		lb->first_item = lb->citem-LB_ITEMS_ON_SCREEN+1;
+	if (lb->citem >= lb->items_on_screen)
+	{
+		if (lb->first_item <= lb->citem - lb->items_on_screen)
+			lb->first_item = lb->citem - lb->items_on_screen + 1;
+	}
 
-	if (lb->nitems <= LB_ITEMS_ON_SCREEN )
+	if (lb->nitems <= lb->items_on_screen)
 		lb->first_item = 0;
 
-	if (lb->first_item>lb->nitems-LB_ITEMS_ON_SCREEN)
-		lb->first_item = lb->nitems-LB_ITEMS_ON_SCREEN;
+	if (lb->nitems >= lb->items_on_screen)
+	{
+		if (lb->first_item > lb->nitems - lb->items_on_screen)
+			lb->first_item = lb->nitems - lb->items_on_screen;
+	}
 	if (lb->first_item < 0 ) lb->first_item = 0;
 }
 
 static window_event_result listbox_mouse(window *, const d_event &event, listbox *lb, int button)
 {
-	int i, mx, my, mz, x1, x2, y1, y2;
+	int mx, my, mz, x1, x2, y1, y2;
 
 	switch (button)
 	{
@@ -1754,7 +1761,8 @@ static window_event_result listbox_mouse(window *, const d_event &event, listbox
 			{
 				mouse_get_pos(&mx, &my, &mz);
 				const auto &&line_spacing = LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT);
-				for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
+				for (int i = lb->first_item; i < lb->first_item + lb->items_on_screen; ++i)
+				{
 					if (i >= lb->nitems)
 						break;
 					int h;
@@ -1850,11 +1858,11 @@ static window_event_result listbox_key_command(window *, const d_event &event, l
 			break;
 		case KEY_PAGEDOWN:
 		case KEY_PAD3:
-			lb->citem += LB_ITEMS_ON_SCREEN;
+			lb->citem += lb->items_on_screen;
 			break;
 		case KEY_PAGEUP:
 		case KEY_PAD9:
-			lb->citem -= LB_ITEMS_ON_SCREEN;
+			lb->citem -= lb->items_on_screen;
 			break;
 		case KEY_ESC:
 			if (lb->allow_abort_flag) {
@@ -1911,7 +1919,6 @@ static void listbox_create_structure( listbox *lb)
 		if ( w > lb->box_w )
 			lb->box_w = w + fspacx(10);
 	}
-	lb->height = LINE_SPACING(medium3_font, *GAME_FONT) * LB_ITEMS_ON_SCREEN;
 
 	{
 		int w, h;
@@ -1932,10 +1939,17 @@ static void listbox_create_structure( listbox *lb)
 		lb->marquee->lasttime = timer_query();
 	}
 
+	const auto &&line_spacing = LINE_SPACING(medium3_font, *GAME_FONT);
+	const unsigned bordery2 = BORDERY * 2;
+	const auto items_on_screen = std::max<unsigned>(
+		std::min<unsigned>(((canvas.cv_bitmap.bm_h - bordery2 - lb->title_height) / line_spacing) - 2, lb->nitems),
+		LB_ITEMS_ON_SCREEN);
+	lb->items_on_screen = items_on_screen;
+	lb->height = line_spacing * items_on_screen;
 	lb->box_x = (canvas.cv_bitmap.bm_w - lb->box_w) / 2;
 	lb->box_y = (canvas.cv_bitmap.bm_h - (lb->height + lb->title_height)) / 2 + lb->title_height;
-	if ( lb->box_y < lb->title_height )
-		lb->box_y = lb->title_height;
+	if (lb->box_y < bordery2)
+		lb->box_y = bordery2;
 
 	if ( lb->citem < 0 ) lb->citem = 0;
 	if ( lb->citem >= lb->nitems ) lb->citem = 0;
@@ -1952,8 +1966,6 @@ static void listbox_create_structure( listbox *lb)
 
 static window_event_result listbox_draw(window *, listbox *lb)
 {
-	int i;
-
 	if (lb->swidth != SWIDTH || lb->sheight != SHEIGHT || lb->fntscalex != FNTScaleX || lb->fntscaley != FNTScaleY)
 		listbox_create_structure ( lb );
 
@@ -1964,7 +1976,8 @@ static window_event_result listbox_draw(window *, listbox *lb)
 	gr_string(canvas, medium3_font, 0x8000, lb->box_y - lb->title_height, lb->title);
 
 	const auto &&line_spacing = LINE_SPACING(medium3_font, *GAME_FONT);
-	for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
+	for (int i = lb->first_item; i < lb->first_item + lb->items_on_screen; ++i)
+	{
 		int y = (i - lb->first_item) * line_spacing + lb->box_y;
 		const auto &&fspacx = FSPACX();
 		const auto &&fspacy = FSPACY();
