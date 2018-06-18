@@ -60,7 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
-#include "partial_range.h"
+#include "d_enumerate.h"
 
 #define BIMD1_BRIEFING_FILE		"briefing.txb"
 
@@ -1014,13 +1014,18 @@ int load_mission_by_name(const char *mission_name)
 
 struct mission_menu
 {
+	using callback_type = window_event_result (*)(void);
 	mission_list_type ml;
-	window_event_result (*when_selected)(void);
+	std::unique_ptr<const char *[]> mission_names;
+	callback_type when_selected;
+	mission_menu(mission_list_type &&rml, std::unique_ptr<const char *[]> &&mn, const callback_type ws) :
+		ml(std::move(rml)), mission_names(std::move(mn)), when_selected(ws)
+	{
+	}
 };
 
-static window_event_result mission_menu_handler(listbox *lb,const d_event &event, mission_menu *mm)
+static window_event_result mission_menu_handler(listbox *, const d_event &event, mission_menu *const mm)
 {
-	const char **list = listbox_get_items(lb);
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_SELECTED:
@@ -1029,20 +1034,18 @@ static window_event_result mission_menu_handler(listbox *lb,const d_event &event
 			if (citem >= 0)
 			{
 				// Chose a mission
-				CGameCfg.LastMission.copy_if(list[citem]);
 				if (!load_mission(&mm->ml[citem]))
 				{
 					nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
 					return window_event_result::handled;	// stay in listbox so user can select another one
 				}
+				CGameCfg.LastMission.copy_if(mm->mission_names[citem]);
 			}
 			return (*mm->when_selected)();
 		}
 		case EVENT_WINDOW_CLOSE:
-			d_free(list);
 			std::default_delete<mission_menu>()(mm);
 			break;
-			
 		default:
 			break;
 	}
@@ -1064,28 +1067,26 @@ int select_mission(int anarchy_mode, const char *message, window_event_result (*
     }
 	else
 	{
-        int default_mission;
-        const char **m;
-		
-		MALLOC(m, const char *, mission_list.size());
-		if (!m)
+		auto m = make_unique<const char *[]>(mission_list.size());
+		unsigned default_mission = 0;
+		const char *LastMission = CGameCfg.LastMission;
+		range_for (auto &&e, enumerate(mission_list))
 		{
-			return 0;
-		}
-		
-		auto mm = make_unique<mission_menu>();
-		mm->when_selected = when_selected;
-		
-        default_mission = 0;
-        for (uint_fast32_t i = 0; i < mission_list.size(); i++) {
-            m[i] = mission_list[i].mission_name;
-			if (!d_stricmp(m[i], CGameCfg.LastMission))
+			const uint_fast32_t i = e.idx;
+			auto &mli = e.value;
+			const char *const mission_name = mli.mission_name;
+			m[i] = mission_name;
+			if (LastMission && !strcmp(mission_name, LastMission))
+			{
+				LastMission = nullptr;
                 default_mission = i;
+			}
         }
 
-		mm->ml = move(mission_list);
+		const auto pm = m.get();
+		auto mm = make_unique<mission_menu>(std::move(mission_list), std::move(m), when_selected);
 		auto pmm = mm.get();
-        newmenu_listbox1( message, pmm->ml.size(), m, 1, default_mission, mission_menu_handler, std::move(mm));
+		newmenu_listbox1( message, pmm->ml.size(), pm, 1, default_mission, mission_menu_handler, std::move(mm));
     }
 
     return 1;	// presume success
