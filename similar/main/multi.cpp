@@ -4014,10 +4014,11 @@ void multi_check_for_killgoal_winner ()
 		}
 	}
 	if (!bestplr)
+	{
 		/* No player has at least one kill */
-		return;
-
-	if (bestplr == &local_player)
+		HUD_init_message_literal(HM_MULTI, "No one has scored any kills!");
+	}
+	else if (bestplr == &local_player)
 	{
 		HUD_init_message(HM_MULTI, "You have the best score at %d kills!", highest_kill_goal_count);
 	}
