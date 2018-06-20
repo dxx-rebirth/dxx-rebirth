@@ -441,14 +441,14 @@ public:
 	}
 };
 
-static hud_x_scale_float HUD_SCALE_X(const local_multires_gauge_graphic multires_gauge_graphic)
+static hud_x_scale_float HUD_SCALE_X(const unsigned screen_width, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	return static_cast<double>(grd_curscreen->get_screen_width()) / BASE_WIDTH(multires_gauge_graphic);
+	return static_cast<double>(screen_width) / BASE_WIDTH(multires_gauge_graphic);
 }
 
-static hud_y_scale_float HUD_SCALE_Y(const local_multires_gauge_graphic multires_gauge_graphic)
+static hud_y_scale_float HUD_SCALE_Y(const unsigned screen_height, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	return static_cast<double>(grd_curscreen->get_screen_height()) / BASE_HEIGHT(multires_gauge_graphic);
+	return static_cast<double>(screen_height) / BASE_HEIGHT(multires_gauge_graphic);
 }
 
 static hud_ar_scale_float HUD_SCALE_AR(const hud_x_scale_float x, const hud_y_scale_float y)
@@ -456,9 +456,9 @@ static hud_ar_scale_float HUD_SCALE_AR(const hud_x_scale_float x, const hud_y_sc
 	return std::min(x.get(), y.get());
 }
 
-static hud_ar_scale_float HUD_SCALE_AR(const local_multires_gauge_graphic multires_gauge_graphic)
+static hud_ar_scale_float HUD_SCALE_AR(const unsigned screen_width, const unsigned screen_height, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	return HUD_SCALE_AR(HUD_SCALE_X(multires_gauge_graphic), HUD_SCALE_Y(multires_gauge_graphic));
+	return HUD_SCALE_AR(HUD_SCALE_X(screen_width, multires_gauge_graphic), HUD_SCALE_Y(screen_height, multires_gauge_graphic));
 }
 
 #define draw_numerical_display_draw_context	hud_draw_context_hs
@@ -471,7 +471,7 @@ static hud_ar_scale_float HUD_SCALE_AR(hud_x_scale_float, hud_y_scale_float)
 	return {};
 }
 
-static hud_ar_scale_float HUD_SCALE_AR(local_multires_gauge_graphic)
+static hud_ar_scale_float HUD_SCALE_AR(unsigned, unsigned, local_multires_gauge_graphic)
 {
 	return {};
 }
@@ -560,13 +560,16 @@ struct hud_draw_context_xyscale
 struct hud_draw_context_hs_mr : hud_draw_context_mr, hud_draw_context_xyscale
 {
 #if DXX_USE_OGL
-	hud_draw_context_hs_mr(grs_canvas &c, const local_multires_gauge_graphic multires_gauge_graphic) :
+	hud_draw_context_hs_mr(grs_canvas &c, const unsigned screen_width, const unsigned screen_height, const local_multires_gauge_graphic multires_gauge_graphic) :
 		hud_draw_context_mr(c, multires_gauge_graphic),
-		hud_draw_context_xyscale(HUD_SCALE_X(multires_gauge_graphic), HUD_SCALE_Y(multires_gauge_graphic))
+		hud_draw_context_xyscale(HUD_SCALE_X(screen_width, multires_gauge_graphic), HUD_SCALE_Y(screen_height, multires_gauge_graphic))
 	{
 	}
 #else
-	DXX_INHERIT_CONSTRUCTORS(hud_draw_context_hs_mr, hud_draw_context_mr);
+	hud_draw_context_hs_mr(grs_canvas &c, unsigned, unsigned, const local_multires_gauge_graphic multires_gauge_graphic) :
+		hud_draw_context_mr(c, multires_gauge_graphic)
+	{
+	}
 #endif
 };
 
@@ -1112,7 +1115,7 @@ static void hud_show_orbs(grs_canvas &canvas, const player_info &player_info, co
 	if (game_mode_hoard()) {
 		const auto &&fspacy1 = FSPACY(1);
 		int x, y = LINE_SPACING(*canvas.cv_font, *GAME_FONT) + fspacy1;
-		const auto &&hud_scale_ar = HUD_SCALE_AR(multires_gauge_graphic);
+		const auto &&hud_scale_ar = HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 			x = (SWIDTH/18);
 		}
@@ -1165,7 +1168,7 @@ static void hud_show_flag(grs_canvas &canvas, const player_info &player_info, co
 		icon = (get_team(Player_num) == TEAM_BLUE)?FLAG_ICON_RED:FLAG_ICON_BLUE;
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(icon)];
 		PAGE_IN_GAUGE(icon, multires_gauge_graphic);
-		const auto &&hud_scale_ar = HUD_SCALE_AR(multires_gauge_graphic);
+		const auto &&hud_scale_ar = HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
 		hud_bitblt_free(canvas, x, hud_scale_ar(y) + fspacy1, hud_scale_ar(bm.bm_w), hud_scale_ar(bm.bm_h), bm);
 	}
 }
@@ -2928,7 +2931,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 	int x,y,size;
 	int laser_ready,missile_ready;
 	int cross_bm_num,primary_bm_num,secondary_bm_num;
-	int ofs,gauge_index;
+	int gauge_index;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Newdemo_state==ND_STATE_PLAYBACK && Viewer->type != OBJ_PLAYER)
@@ -2971,9 +2974,9 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 		case RET_TYPE_CLASSIC:
 		{
 			const local_multires_gauge_graphic multires_gauge_graphic{};
-			const hud_draw_context_hs_mr hudctx(canvas, multires_gauge_graphic);
+			const hud_draw_context_hs_mr hudctx(canvas, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
 			const auto use_hires_reticle = multires_gauge_graphic.is_hires();
-			ofs = (use_hires_reticle?0:2);
+			const unsigned ofs = (use_hires_reticle ? 0 : 2);
 			gauge_index = RETICLE_CROSS + cross_bm_num;
 			PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
 			auto &cross = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
@@ -3104,7 +3107,7 @@ void show_mousefs_indicator(grs_canvas &canvas, int mx, int my, int mz, int x, i
 	gr_uline(canvas, i2f(x-(size/2)), i2f(yaxpos), i2f(x-(size/4)), i2f(yaxpos), color);
 	gr_uline(canvas, i2f(x+(size/2)), i2f(yaxpos), i2f(x+(size/4)), i2f(yaxpos), color);
 	const local_multires_gauge_graphic multires_gauge_graphic{};
-	auto &&hud_scale_ar = HUD_SCALE_AR(multires_gauge_graphic);
+	auto &&hud_scale_ar = HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
 	auto &&hud_scale_ar2 = hud_scale_ar(2);
 	gr_uline(canvas, i2f(x + (size / 2) + hud_scale_ar2), i2f(y), i2f(x + (size / 2) + hud_scale_ar2), i2f(zaxpos), color);
 	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
@@ -3485,7 +3488,7 @@ void draw_hud(grs_canvas &canvas, const object &plrobj)
 			hud_show_homing_warning(canvas, player_info.homing_object_dist);
 
 		const local_multires_gauge_graphic multires_gauge_graphic = {};
-		const hud_draw_context_hs_mr hudctx(canvas, multires_gauge_graphic);
+		const hud_draw_context_hs_mr hudctx(canvas, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
 			hud_show_energy(canvas, player_info);
 			hud_show_shield(canvas, plrobj);
@@ -3516,7 +3519,7 @@ void draw_hud(grs_canvas &canvas, const object &plrobj)
 		HUD_render_message_frame(canvas);
 
 		if (PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR)
-			hud_show_lives(hudctx, HUD_SCALE_AR(multires_gauge_graphic), player_info);
+			hud_show_lives(hudctx, HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic), player_info);
 		if (Game_mode&GM_MULTI && Show_kill_list)
 			hud_show_kill_list(vcobjptr, canvas);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
@@ -3565,7 +3568,7 @@ void render_gauges()
 	}
 
 	const local_multires_gauge_graphic multires_gauge_graphic{};
-	const hud_draw_context_hs_mr hudctx(*grd_curcanv, multires_gauge_graphic);
+	const hud_draw_context_hs_mr hudctx(*grd_curcanv, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
 	draw_weapon_boxes(hudctx, player_info);
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 		if (Newdemo_state == ND_STATE_RECORDING)
@@ -3627,7 +3630,7 @@ void render_gauges()
 		}
 		draw_keys_state(hudctx, player_info.powerup_flags).draw_all_statusbar_keys();
 
-		sb_show_lives(hudctx, HUD_SCALE_AR(hudctx.multires_gauge_graphic), player_info);
+		sb_show_lives(hudctx, HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), hudctx.multires_gauge_graphic), player_info);
 		sb_show_score(hudctx, player_info);
 
 		if ((Game_mode&GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
@@ -3702,7 +3705,7 @@ void do_cockpit_window_view(const int win, const vmobjptr_t viewer, const int re
 	Rear_view = rear_view_flag;
 
 	const local_multires_gauge_graphic multires_gauge_graphic{};
-	const hud_draw_context_hs_mr hudctx(window_canv, multires_gauge_graphic);
+	const hud_draw_context_hs_mr hudctx(window_canv, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN)
 	{
 		const unsigned w = HUD_SCALE_AR(hudctx.xscale, hudctx.yscale)(multires_gauge_graphic.get(106, 44));
@@ -3793,7 +3796,7 @@ void do_cockpit_window_view(const int win, const vmobjptr_t viewer, const int re
 		 * interpreted properly.
 		 */
 		gr_set_default_canvas();
-		draw_wbu_overlay(hud_draw_context_hs_mr(*grd_curcanv, multires_gauge_graphic));
+		draw_wbu_overlay(hud_draw_context_hs_mr(*grd_curcanv, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic));
 	}
 
 	//force redraw when done
