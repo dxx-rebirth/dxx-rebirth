@@ -189,15 +189,14 @@ WALL_IS_DOORWAY_result_t wall_is_doorway(const side &side)
 	if (type == WALL_BLASTABLE) {
 	 	if (flags & WALL_BLASTED)
 			return WID_TRANSILLUSORY_WALL;
-		if (check_transparency(side))
-			return WID_TRANSPARENT_WALL;
-		else
-			return WID_WALL;
 	}	
+	else
+	{
 	if (unlikely(flags & WALL_DOOR_OPENED))
 		return WID_TRANSILLUSORY_WALL;
 	if (likely(type == WALL_DOOR) && unlikely(w.state == WALL_DOOR_OPENING))
 		return WID_TRANSPARENT_WALL;
+	}
 // If none of the above flags are set, there is no doorway.
 	if (check_transparency(side))
 		return WID_TRANSPARENT_WALL;
