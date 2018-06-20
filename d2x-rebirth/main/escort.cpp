@@ -109,7 +109,7 @@ constexpr array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
 // -- too much work -- 	"KAMIKAZE  "
 }};
 
-static int Max_escort_length = 200;
+constexpr std::integral_constant<unsigned, 200> Max_escort_length{};
 stolen_items_t Stolen_items;
 int	Stolen_item_index;
 fix64	Escort_last_path_created = 0;
@@ -725,7 +725,7 @@ static void escort_goal_unreachable(escort_goal_t goal)
 
 static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *aip, segnum_t goal_seg)
 {
-	create_path_to_segment(objp, goal_seg, Max_escort_length, 1);	//	MK!: Last parm (safety_flag) used to be 1!!
+	create_path_to_segment(objp, goal_seg, Max_escort_length, create_path_safety_flag::safe);	//	MK!: Last parm (safety_flag) used to be 1!!
 	if (aip->path_length > 3)
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 	if ((aip->path_length > 0) && (Point_segs[aip->hide_index + aip->path_length - 1].segnum != goal_seg)) {
@@ -735,7 +735,7 @@ static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *aip, segnum_t
 		Escort_goal_object = ESCORT_GOAL_SCRAM;
 		dist_to_player = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 100, WID_FLY_FLAG);
 		if (dist_to_player > MIN_ESCORT_DISTANCE)
-			create_path_to_player(objp, Max_escort_length, 1);	//	MK!: Last parm used to be 1!
+			create_path_to_player(objp, Max_escort_length, create_path_safety_flag::safe);	//	MK!: Last parm used to be 1!
 		else {
 			create_n_segment_path(objp, 8 + d_rand() * 8, segment_none);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
@@ -1076,7 +1076,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 	}
 
 	if ((Escort_special_goal != ESCORT_GOAL_SCRAM) && time_to_visit_player(objp, ailp, aip)) {
-		int	max_len;
+		unsigned max_len;
 
 		Buddy_last_player_path_created = GameTime64;
 		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
@@ -1090,7 +1090,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 		max_len = Max_escort_length;
 		if (!Buddy_allowed_to_talk)
 			max_len = 3;
-		create_path_to_player(objp, max_len, 1);	//	MK!: Last parm used to be 1!
+		create_path_to_player(objp, max_len, create_path_safety_flag::safe);	//	MK!: Last parm used to be 1!
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
 	}	else if (GameTime64 - Buddy_last_seen_player > MAX_ESCORT_TIME_AWAY) {
@@ -1143,7 +1143,7 @@ void do_snipe_frame(const vmobjptridx_t objp, fix dist_to_player, int player_vis
 
 			connected_distance = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 30, WID_FLY_FLAG);
 			if (connected_distance < F1_0*500) {
-				create_path_to_player(objp, 30, 1);
+				create_path_to_player(objp, 30, create_path_safety_flag::safe);
 				ailp->mode = ai_mode::AIM_SNIPE_ATTACK;
 				ailp->next_action_time = SNIPE_ATTACK_TIME;	//	have up to 10 seconds to find player.
 			}
@@ -1269,7 +1269,7 @@ void do_thief_frame(const vmobjptridx_t objp, fix dist_to_player, int player_vis
 		case ai_mode::AIM_THIEF_WAIT:
 			if (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION) {
 				ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
-				create_path_to_player(objp, 30, 1);
+				create_path_to_player(objp, 30, create_path_safety_flag::safe);
 				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 				ailp->next_action_time = THIEF_ATTACK_TIME/2;
 				return;
@@ -1286,7 +1286,7 @@ void do_thief_frame(const vmobjptridx_t objp, fix dist_to_player, int player_vis
 
 			connected_distance = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 30, WID_FLY_FLAG);
 			if (connected_distance < F1_0*500) {
-				create_path_to_player(objp, 30, 1);
+				create_path_to_player(objp, 30, create_path_safety_flag::safe);
 				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 				ailp->next_action_time = THIEF_ATTACK_TIME;	//	have up to 10 seconds to find player.
 			}
@@ -1338,7 +1338,7 @@ void do_thief_frame(const vmobjptridx_t objp, fix dist_to_player, int player_vis
 			} else if (ailp->next_action_time < 0) {
 				//	This forces him to create a new path every second.
 				ailp->next_action_time = F1_0;
-				create_path_to_player(objp, 100, 0);
+				create_path_to_player(objp, 100, create_path_safety_flag::unsafe);
 				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 			} else {
 				if (player_visibility && (dist_to_player < F1_0*100)) {

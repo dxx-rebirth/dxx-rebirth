@@ -2146,7 +2146,6 @@ int	Last_level_path_created = -1;
 //	Return true if path created, else return false.
 static int mark_player_path_to_segment(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, segnum_t segnum)
 {
-	short		player_path_length=0;
 	int		player_hide_index=-1;
 
 	if (Last_level_path_created == Current_level_num) {
@@ -2156,9 +2155,10 @@ static int mark_player_path_to_segment(fvmobjptridx &vmobjptridx, fvmsegptridx &
 	Last_level_path_created = Current_level_num;
 
 	auto objp = vmobjptridx(ConsoleObject);
-	if (create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, &player_path_length, 100, 0, 0, segment_none) == -1) {
+	const auto &&cr = create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, 100, create_path_random_flag::nonrandom, create_path_safety_flag::unsafe, segment_none);
+	const unsigned player_path_length = cr.second;
+	if (cr.first == create_path_result::early)
 		return 0;
-	}
 
 	player_hide_index = Point_segs_free_ptr - Point_segs;
 	Point_segs_free_ptr += player_path_length;

@@ -1570,7 +1570,7 @@ void do_ai_robot_hit(const vmobjptridx_t objp, player_awareness_type_t type)
 					//	1/8 time, charge player, 1/4 time create path, rest of time, do nothing
 					ai_local		*ailp = &objp->ctype.ai_info.ail;
 					if (r < 4096) {
-						create_path_to_player(objp, 10, 1);
+						create_path_to_player(objp, 10, create_path_safety_flag::safe);
 						objp->ctype.ai_info.behavior = ai_behavior::AIB_STATION;
 						objp->ctype.ai_info.hide_segment = objp->segnum;
 						ailp->mode = ai_mode::AIM_CHASE_OBJECT;
@@ -3144,7 +3144,7 @@ _exit_cheat:
 		if (Overall_agitation > 70) {
 			if ((dist_to_player < F1_0*200) && (d_rand() < FrameTime/4)) {
 				if (d_rand() * (Overall_agitation - 40) > F1_0*5) {
-					create_path_to_player(obj, 4 + Overall_agitation/8 + Difficulty_level, 1);
+					create_path_to_player(obj, 4 + Overall_agitation/8 + Difficulty_level, create_path_safety_flag::safe);
 					return;
 				}
 			}
@@ -3166,14 +3166,14 @@ _exit_cheat:
 #if defined(DXX_BUILD_DESCENT_II)
 				case ai_mode::AIM_GOTO_PLAYER:
 					move_towards_segment_center(obj);
-					create_path_to_player(obj, 100, 1);
+					create_path_to_player(obj, 100, create_path_safety_flag::safe);
 					break;
 				case ai_mode::AIM_GOTO_OBJECT:
 					Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 					break;
 #endif
 				case ai_mode::AIM_CHASE_OBJECT:
-					create_path_to_player(obj, 4 + Overall_agitation/8 + Difficulty_level, 1);
+					create_path_to_player(obj, 4 + Overall_agitation/8 + Difficulty_level, create_path_safety_flag::safe);
 					break;
 				case ai_mode::AIM_STILL:
 #if defined(DXX_BUILD_DESCENT_I)
@@ -3202,7 +3202,7 @@ _exit_cheat:
 					move_towards_segment_center(obj);
 					obj->mtype.phys_info.velocity = {};
 					if (Overall_agitation > (50 - Difficulty_level*4))
-						create_path_to_player(obj, 4 + Overall_agitation/8, 1);
+						create_path_to_player(obj, 4 + Overall_agitation/8, create_path_safety_flag::safe);
 					else {
 						create_n_segment_path(obj, 5, segment_none);
 					}
@@ -3290,7 +3290,7 @@ _exit_cheat:
 						if (dist_to_player < F1_0*30)
 							create_n_segment_path(obj, 5, segment_none);
 						else
-							create_path_to_player(obj, 20, 1);
+							create_path_to_player(obj, 20, create_path_safety_flag::safe);
 					}
 			}
 		}
@@ -3504,7 +3504,7 @@ _exit_cheat:
 						ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, vec_to_player, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 					return;
 				}
-				create_path_to_player(obj, 8, 1);
+				create_path_to_player(obj, 8, create_path_safety_flag::safe);
 				ai_multi_send_robot_position(obj, -1);
 			} else if ((player_visibility == 0) && (dist_to_player > F1_0*80) && (!(Game_mode & GM_MULTI))) {
 				// If pretty far from the player, player cannot be seen
@@ -3547,7 +3547,7 @@ _exit_cheat:
 					return;
 				}
 #if defined(DXX_BUILD_DESCENT_I)
-				create_path_to_player(obj, 10, 1);
+				create_path_to_player(obj, 10, create_path_safety_flag::safe);
 				ai_multi_send_robot_position(obj, -1);
 #endif
 			} else if ((aip->CURRENT_STATE != AIS_REST) && (aip->GOAL_STATE != AIS_REST)) {

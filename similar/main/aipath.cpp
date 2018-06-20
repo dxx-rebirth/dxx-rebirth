@@ -154,14 +154,14 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 #if defined(DXX_BUILD_DESCENT_II)
 //	-----------------------------------------------------------------------------------------------------------
 //	Move points halfway to outside of segment.
-static void move_towards_outside(fimsegptridx &imsegptridx, point_seg *psegs, int *num_points, const vmobjptridx_t objp, int rand_flag)
+static void move_towards_outside(fimsegptridx &imsegptridx, point_seg *const psegs, const unsigned num_points, const vmobjptridx_t objp, const create_path_random_flag rand_flag)
 {
 	int	i;
 	array<point_seg, 200> new_psegs;
+	assert(num_points < new_psegs.size());
 
-	Assert(*num_points < 200);
-
-	for (i=1; i<*num_points-1; i++) {
+	for (i = 1; i < num_points - 1; ++i)
+	{
 		fix			segment_size;
 		segnum_t			segnum;
 		vms_vector	e;
@@ -177,7 +177,8 @@ static void move_towards_outside(fimsegptridx &imsegptridx, point_seg *psegs, in
 		const auto c = vm_vec_sub(psegs[i+1].point, psegs[i-1].point);
 		if (abs(vm_vec_dot(a, b)) > 3*F1_0/4 ) {
 			if (abs(a.z) < F1_0/2) {
-				if (rand_flag) {
+				if (rand_flag != create_path_random_flag::nonrandom)
+				{
 					e.x = (d_rand()-16384)/2;
 					e.y = (d_rand()-16384)/2;
 					e.z = abs(e.x) + abs(e.y) + 1;
@@ -188,7 +189,8 @@ static void move_towards_outside(fimsegptridx &imsegptridx, point_seg *psegs, in
 					e.z = F1_0;
 				}
 			} else {
-				if (rand_flag) {
+				if (rand_flag != create_path_random_flag::nonrandom)
+				{
 					e.y = (d_rand()-16384)/2;
 					e.z = (d_rand()-16384)/2;
 					e.x = abs(e.y) + abs(e.z) + 1;
@@ -258,7 +260,7 @@ static void move_towards_outside(fimsegptridx &imsegptridx, point_seg *psegs, in
 
 	}
 
-	for (i=1; i<*num_points-1; i++)
+	for (i = 1; i < num_points - 1; ++i)
 		psegs[i] = new_psegs[i];
 }
 #endif
@@ -276,39 +278,33 @@ static void move_towards_outside(fimsegptridx &imsegptridx, point_seg *psegs, in
 //	like to say that it ensures that the object can move between the points, but that would require knowing what
 //	the object is (which isn't passed, right?) and making fvi calls (slow, right?).  So, consider it the more_or_less_safe_flag.
 //	If end_seg == -2, then end seg will never be found and this routine will drop out due to depth (probably called by create_n_segment_path).
-int create_path_points(const vmobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator psegs, short *num_points, int max_depth, int random_flag, int safety_flag, imsegidx_t avoid_seg)
+std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t objp, const vcsegidx_t start_seg, icsegidx_t end_seg, point_seg_array_t::iterator psegs, const unsigned max_depth, create_path_random_flag random_flag, const create_path_safety_flag safety_flag, icsegidx_t avoid_seg)
 {
 	segnum_t		cur_seg;
 	int		sidenum;
 	int		qtail = 0, qhead = 0;
 	int		i;
-	seg_seg	seg_queue[MAX_SEGMENTS];
-	short		depth[MAX_SEGMENTS];
+	array<seg_seg, MAX_SEGMENTS> seg_queue;
 	int		cur_depth;
 	array<uint8_t, MAX_SIDES_PER_SEGMENT> random_xlate;
 	point_seg_array_t::iterator	original_psegs = psegs;
-	int		l_num_points;
+	unsigned l_num_points = 0;
 
 #if PATH_VALIDATION
 	validate_all_paths();
 #endif
 
 if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)) {
-	random_flag = 1;
+	random_flag = create_path_random_flag::random;
 	avoid_seg = ConsoleObject->segnum;
 	// Int3();
 }
-
-	if (max_depth == -1)
-		max_depth = MAX_PATH_LENGTH;
-
-	l_num_points = 0;
 
 //	for (i=0; i<=Highest_segment_index; i++) {
 //		depth[i] = 0;
 //	}
 	visited_segment_bitarray_t visited;
-	memset(depth, 0, sizeof(depth[0])*(Highest_segment_index+1));
+	array<uint16_t, MAX_SEGMENTS> depth{};
 
 	//	If there is a segment we're not allowed to visit, mark it.
 	if (avoid_seg != segment_none) {
@@ -319,7 +315,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 		}
 	}
 
-	if (random_flag)
+	if (random_flag != create_path_random_flag::nonrandom)
 		create_random_xlate(random_xlate);
 
 	cur_seg = start_seg;
@@ -329,17 +325,13 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 	while (cur_seg != end_seg) {
 		const auto &&segp = vcsegptr(cur_seg);
 #if defined(DXX_BUILD_DESCENT_II)
-		if (random_flag)
+		if (random_flag != create_path_random_flag::nonrandom)
 			if (d_rand() < 8192)
 				create_random_xlate(random_xlate);
 #endif
 
 		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
-
-			int	snum = sidenum;
-
-			if (random_flag)
-				snum = random_xlate[sidenum];
+			const unsigned snum = (random_flag != create_path_random_flag::nonrandom) ? random_xlate[sidenum] : sidenum;
 
 #if defined(DXX_BUILD_DESCENT_I)
 			if ((WALL_IS_DOORWAY(segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, segp, snum)))
@@ -410,8 +402,7 @@ cpp_done1: ;
 		//	Set qtail to the segment which ends at the goal.
 		while (seg_queue[--qtail].end != end_seg)
 			if (qtail < 0) {
-				*num_points = l_num_points;
-				return -1;
+				return std::make_pair(create_path_result::early, l_num_points);
 			}
 	}
 	else
@@ -467,12 +458,11 @@ cpp_done1: ;
 	//	Now, if safety_flag set, then insert the point at the center of the side connecting two segments
 	//	between the two points.  This is messy because we must insert into the list.  The simplest (and not too slow)
 	//	way to do this is to start at the end of the list and go backwards.
-	if (safety_flag) {
+	if (safety_flag != create_path_safety_flag::unsafe) {
 		if (psegs - Point_segs + l_num_points + 2 > MAX_POINT_SEGS) {
 			//	Ouch!  Cannot insert center points in path.  So return unsafe path.
 			ai_reset_all_paths();
-			*num_points = l_num_points;
-			return -1;
+			return std::make_pair(create_path_result::early, l_num_points);
 		} else {
 			l_num_points = insert_center_points(Segments, original_psegs, l_num_points);
 		}
@@ -488,15 +478,13 @@ cpp_done1: ;
 //	discontinuity problems.
 	if (objp->type == OBJ_ROBOT)
 		if (Robot_info[get_robot_id(objp)].companion)
-			move_towards_outside(imsegptridx, original_psegs, &l_num_points, objp, 0);
+			move_towards_outside(imsegptridx, original_psegs, l_num_points, objp, create_path_random_flag::nonrandom);
 #endif
 
 #if PATH_VALIDATION
 	validate_path(4, original_psegs, l_num_points);
 #endif
-
-	*num_points = l_num_points;
-	return 0;
+	return std::make_pair(create_path_result::finished, l_num_points);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -627,13 +615,10 @@ void validate_all_paths(void)
 //			objp->ctype.ai_info.path_length,		length of path
 //			Point_segs_free_ptr				global pointer into Point_segs array
 //	Change, 10/07/95: Used to create path to ConsoleObject->pos.  Now creates path to Believed_player_pos.
-void create_path_to_player(const vmobjptridx_t objp, int max_length, int safety_flag)
+void create_path_to_player(const vmobjptridx_t objp, const unsigned max_length, const create_path_safety_flag safety_flag)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
-
-	if (max_length == -1)
-		max_length = MAX_DEPTH_TO_SEARCH_FOR_PLAYER;
 
 	ailp->time_player_seen = GameTime64;			//	Prevent from resetting path quickly.
 #if defined(DXX_BUILD_DESCENT_I)
@@ -649,7 +634,7 @@ void create_path_to_player(const vmobjptridx_t objp, int max_length, int safety_
 	if (end_seg == segment_none) {
 		;
 	} else {
-		create_path_points(objp, start_seg, end_seg, Point_segs_free_ptr, &aip->path_length, max_length, 1, safety_flag, segment_none);
+		aip->path_length = create_path_points(objp, start_seg, end_seg, Point_segs_free_ptr, max_length, create_path_random_flag::random, safety_flag, segment_none).second;
 #if defined(DXX_BUILD_DESCENT_II)
 		aip->path_length = polish_path(objp, Point_segs_free_ptr, aip->path_length);
 #endif
@@ -683,13 +668,10 @@ void create_path_to_player(const vmobjptridx_t objp, int max_length, int safety_
 #if defined(DXX_BUILD_DESCENT_II)
 //	-------------------------------------------------------------------------------------------------------
 //	Creates a path from the object's current segment (objp->segnum) to segment goalseg.
-void create_path_to_segment(const vmobjptridx_t objp, segnum_t goalseg, int max_length, int safety_flag)
+void create_path_to_segment(const vmobjptridx_t objp, segnum_t goalseg, const unsigned max_length, const create_path_safety_flag safety_flag)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
-
-	if (max_length == -1)
-		max_length = MAX_DEPTH_TO_SEARCH_FOR_PLAYER;
 
 	ailp->time_player_seen = GameTime64;			//	Prevent from resetting path quickly.
 	ailp->goal_segment = goalseg;
@@ -701,7 +683,7 @@ void create_path_to_segment(const vmobjptridx_t objp, segnum_t goalseg, int max_
 	if (end_seg == segment_none) {
 		;
 	} else {
-		create_path_points(objp, start_seg, end_seg, Point_segs_free_ptr, &aip->path_length, max_length, 1, safety_flag, segment_none);
+		aip->path_length = create_path_points(objp, start_seg, end_seg, Point_segs_free_ptr, max_length, create_path_random_flag::random, safety_flag, segment_none).second;
 		aip->hide_index = Point_segs_free_ptr - Point_segs;
 		aip->cur_path_index = 0;
 		Point_segs_free_ptr += aip->path_length;
@@ -743,7 +725,7 @@ void create_path_to_station(const vmobjptridx_t objp, int max_length)
 	if (end_seg == segment_none) {
 		;
 	} else {
-		create_path_points(objp, start_seg, end_seg, Point_segs_free_ptr, &aip->path_length, max_length, 1, 1, segment_none);
+		aip->path_length = create_path_points(objp, start_seg, end_seg, Point_segs_free_ptr, max_length, create_path_random_flag::random, create_path_safety_flag::safe, segment_none).second;
 #if defined(DXX_BUILD_DESCENT_II)
 		aip->path_length = polish_path(objp, Point_segs_free_ptr, aip->path_length);
 #endif
@@ -776,16 +758,24 @@ void create_path_to_station(const vmobjptridx_t objp, int max_length)
 
 //	-------------------------------------------------------------------------------------------------------
 //	Create a path of length path_length for an object, stuffing info in ai_info field.
-void create_n_segment_path(const vmobjptridx_t objp, int path_length, const imsegidx_t avoid_seg)
+void create_n_segment_path(const vmobjptridx_t objp, unsigned path_length, const imsegidx_t avoid_seg)
 {
 	ai_static	*aip=&objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
-	if (create_path_points(objp, objp->segnum, segment_exit, Point_segs_free_ptr, &aip->path_length, path_length, 1, 0, avoid_seg) == -1) {
+	const auto &&cr0 = create_path_points(objp, objp->segnum, segment_exit, Point_segs_free_ptr, path_length, create_path_random_flag::random, create_path_safety_flag::unsafe, avoid_seg);
+	aip->path_length = cr0.second;
+	if (cr0.first == create_path_result::early)
+	{
 		Point_segs_free_ptr += aip->path_length;
-		while ((create_path_points(objp, objp->segnum, segment_exit, Point_segs_free_ptr, &aip->path_length, --path_length, 1, 0, segment_none) == -1)) {
-			Assert(path_length);
+		for (;;)
+		{
+			const auto &&crf = create_path_points(objp, objp->segnum, segment_exit, Point_segs_free_ptr, --path_length, create_path_random_flag::random, create_path_safety_flag::unsafe, segment_none);
+			aip->path_length = crf.second;
+			if (crf.first != create_path_result::early)
+				break;
 		}
+		assert(path_length);
 	}
 
 	aip->hide_index = Point_segs_free_ptr - Point_segs;
@@ -812,7 +802,7 @@ void create_n_segment_path(const vmobjptridx_t objp, int path_length, const imse
 	if (ailp->previous_visibility) {
 		if (aip->path_length) {
 			int	t_num_points = aip->path_length;
-			move_towards_outside(imsegptridx, &Point_segs[aip->hide_index], &t_num_points, objp, 1);
+			move_towards_outside(imsegptridx, &Point_segs[aip->hide_index], t_num_points, objp, create_path_random_flag::random);
 			aip->path_length = t_num_points;
 		}
 	}
@@ -823,7 +813,7 @@ void create_n_segment_path(const vmobjptridx_t objp, int path_length, const imse
 }
 
 //	-------------------------------------------------------------------------------------------------------
-void create_n_segment_path_to_door(const vmobjptridx_t objp, int path_length)
+void create_n_segment_path_to_door(const vmobjptridx_t objp, const unsigned path_length)
 {
 	create_n_segment_path(objp, path_length, segment_none);
 }
@@ -882,7 +872,7 @@ static void create_path(const vmobjptridx_t objp)
 	if (end_seg == segment_none) {
 		;
 	} else {
-		create_path_points(objp, start_seg, end_seg, Point_segs_free_ptr, &aip->path_length, -1, 0, 0, segment_none);
+		aip->path_length = create_path_points(objp, start_seg, end_seg, Point_segs_free_ptr, MAX_PATH_LENGTH, create_path_random_flag::nonrandom, create_path_safety_flag::unsafe, segment_none).second;
 		aip->hide_index = Point_segs_free_ptr - Point_segs;
 		aip->cur_path_index = 0;
 #ifndef NDEBUG
@@ -1117,7 +1107,7 @@ void ai_follow_path(const vmobjptridx_t objp, int player_visibility, const vms_v
 					   && (aip->behavior != ai_behavior::AIB_FOLLOW_PATH)
 #endif
 					   ) {
-				create_path_to_player(objp, 10, 1);
+				create_path_to_player(objp, 10, create_path_safety_flag::safe);
 #if defined(DXX_BUILD_DESCENT_II)
 				if (aip->hide_segment != Point_segs[aip->hide_index+aip->path_length-1].segnum) {
 					ailp->mode = ai_mode::AIM_STILL;
@@ -1189,7 +1179,7 @@ void ai_follow_path(const vmobjptridx_t objp, int player_visibility, const vms_v
 
 		//	If went all the way around to original point, in same direction, then get out of here!
 		if ((aip->cur_path_index == original_index) && (aip->PATH_DIR == original_dir)) {
-			create_path_to_player(objp, 3, 1);
+			create_path_to_player(objp, 3, create_path_safety_flag::safe);
 			forced_break = 1;
 		}
 	}	//	end while
@@ -1467,15 +1457,13 @@ __attribute_used
 static void test_create_path_many(fvmobjptridx &vmobjptridx, fimsegptridx &imsegptridx)
 {
 	array<point_seg, 200> point_segs;
-	short			num_points;
-
 	int			i;
 
 	const unsigned Test_size = 1000;
 	for (i=0; i<Test_size; i++) {
 		Cursegp = imsegptridx(static_cast<segnum_t>((d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX));
 		Markedsegp = imsegptridx(static_cast<segnum_t>((d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX));
-		create_path_points(vmobjptridx(object_first), Cursegp, Markedsegp, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
+		create_path_points(vmobjptridx(object_first), Cursegp, Markedsegp, point_segs.begin(), MAX_PATH_LENGTH, create_path_random_flag::nonrandom, create_path_safety_flag::unsafe, segment_none);
 	}
 }
 
@@ -1483,17 +1471,14 @@ __attribute_used
 static void test_create_path(fvmobjptridx &vmobjptridx)
 {
 	array<point_seg, 200> point_segs;
-	short			num_points;
 
-	create_path_points(vmobjptridx(object_first), Cursegp, Markedsegp, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
+	create_path_points(vmobjptridx(object_first), Cursegp, Markedsegp, point_segs.begin(), MAX_PATH_LENGTH, create_path_random_flag::nonrandom, create_path_safety_flag::unsafe, segment_none);
 }
 
 //	For all segments in mine, create paths to all segments in mine, print results.
 __attribute_used
 static void test_create_all_paths(fvmobjptridx &vmobjptridx, fvcsegptridx &vcsegptridx)
 {
-	short	resultant_length;
-
 	Point_segs_free_ptr = Point_segs.begin();
 
 	range_for (const auto &&segp0, vcsegptridx)
@@ -1504,7 +1489,7 @@ static void test_create_all_paths(fvmobjptridx &vmobjptridx, fvcsegptridx &vcseg
 			{
 				if (segp1->segnum != segment_none)
 				{
-					create_path_points(vmobjptridx(object_first), segp0, segp1, Point_segs_free_ptr, &resultant_length, -1, 0, 0, segment_none);
+					create_path_points(vmobjptridx(object_first), segp0, segp1, Point_segs_free_ptr, MAX_PATH_LENGTH, create_path_random_flag::nonrandom, create_path_safety_flag::unsafe, segment_none);
 				}
 			}
 		}
@@ -1644,12 +1629,13 @@ void player_follow_path(const vmobjptr_t objp)
 static void create_player_path_to_segment(fvmobjptridx &vmobjptridx, segnum_t segnum)
 {
 	const auto objp = vmobjptridx(ConsoleObject);
-	Player_path_length=0;
 	Player_hide_index=-1;
 	Player_cur_path_index=0;
 	Player_following_path_flag=0;
 
-	if (create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, &Player_path_length, 100, 0, 0, segment_none) == -1)
+	auto &&cr = create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, 100, create_path_random_flag::nonrandom, create_path_safety_flag::unsafe, segment_none);
+	Player_path_length = cr.second;
+	if (cr.first == create_path_result::early)
 		con_printf(CON_DEBUG,"Unable to form path of length %i for myself", 100);
 
 	Player_following_path_flag = 1;
