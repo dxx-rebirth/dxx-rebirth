@@ -615,6 +615,15 @@ struct packed_game_flags
 {
 	unsigned char value;
 };
+
+#if DXX_USE_TRACKER
+enum TrackerNATHolePunchWarn : uint8_t
+{
+	Unset,
+	UserEnabledHP,
+	UserRejectedHP,
+};
+#endif
 }
 
 namespace dsx {
@@ -815,6 +824,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	array<netplayer_info, MAX_PLAYERS> 				players;
 #if DXX_USE_TRACKER
 	ubyte						Tracker;
+	TrackerNATHolePunchWarn TrackerNATWarned;
 #endif
 };
 

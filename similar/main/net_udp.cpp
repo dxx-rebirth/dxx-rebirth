@@ -3260,7 +3260,9 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 #if DXX_USE_TRACKER
 #define DXX_UDP_MENU_TRACKER_OPTION(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "Track this game on", opt_tracker, Netgame.Tracker) \
-	DXX_MENUITEM(VERB, TEXT, tracker_addr_txt, opt_tracker_addr)
+	DXX_MENUITEM(VERB, TEXT, tracker_addr_txt, opt_tracker_addr)	\
+	DXX_MENUITEM(VERB, CHECK, "Enable tracker NAT hole punch", opt_tracker_nathp, TrackerNATWarned)	\
+
 #else
 #define DXX_UDP_MENU_TRACKER_OPTION(VERB)
 #endif
@@ -3493,6 +3495,9 @@ public:
 #endif
 		update_extra_primary_string(primary);
 		update_extra_secondary_string(secondary);
+#if DXX_USE_TRACKER
+		const unsigned TrackerNATWarned = Netgame.TrackerNATWarned == TrackerNATHolePunchWarn::UserEnabledHP;
+#endif
 		DXX_UDP_MENU_OPTIONS(ADD);
 #if DXX_USE_TRACKER
 		const auto &tracker_addr = CGameArg.MplTrackerAddr;
@@ -3516,6 +3521,9 @@ public:
 		uint8_t thief_cannot_steal_energy_weapons;
 #endif
 		uint8_t difficulty;
+#if DXX_USE_TRACKER
+		unsigned TrackerNATWarned;
+#endif
 		DXX_UDP_MENU_OPTIONS(READ);
 		Netgame.difficulty = cast_clamp_difficulty(difficulty);
 		auto &items = Netgame.DuplicatePowerups;
@@ -3531,6 +3539,9 @@ public:
 		auto pps = strtol(packstring, &p, 10);
 		if (!*p)
 			Netgame.PacketsPerSec = pps;
+#if DXX_USE_TRACKER
+		Netgame.TrackerNATWarned = TrackerNATWarned ? TrackerNATHolePunchWarn::UserEnabledHP : TrackerNATHolePunchWarn::UserRejectedHP;
+#endif
 		convert_text_portstring(portstring, UDP_MyPort, false, false);
 	}
 	static void net_udp_more_game_options();
@@ -3978,6 +3989,23 @@ window_event_result net_udp_setup_game()
 	nm_set_item_menu(  m[optnum], "Advanced Options"); optnum++;
 
 	Assert(optnum <= 20);
+
+#if DXX_USE_TRACKER
+	if (Netgame.TrackerNATWarned == TrackerNATHolePunchWarn::Unset)
+	{
+		const unsigned choice = nm_messagebox_str("NAT Hole Punch", nm_messagebox_tie("Yes, let Internet users join", "No, I will configure my router"),
+"Rebirth now supports automatic\n"
+"NAT hole punch through the\n"
+"tracker.\n\n"
+"This allows Internet users to\n"
+"join your game, even if you do\n"
+"not configure your router for\n"
+"hosting.\n\n"
+"Do you want to use this feature?");
+		if (choice <= 1)
+			Netgame.TrackerNATWarned = static_cast<TrackerNATHolePunchWarn>(choice + 1);
+	}
+#endif
 
 	int i;
 	i = newmenu_do1(nullptr, TXT_NETGAME_SETUP, optnum, m.data(), net_udp_game_param_handler, &opt, opt.start_game);
@@ -6017,7 +6045,10 @@ static void udp_tracker_verify_ack_timeout()
 		con_puts(CON_URGENT, "[Tracker] No response from game tracker. Tracker address may be invalid or Tracker may be offline or otherwise unreachable.");
 	}
 	else if (TrackerAckStatus == TrackerAckState::TACK_INTERNAL)
-		con_puts(CON_NORMAL, "[Tracker] No external signal from game tracker. Your game port does not seem to be reachable. Clients will attempt hole-punching to join your game.");
+	{
+		con_puts(CON_NORMAL, "[Tracker] No external signal from game tracker.  Your game port does not seem to be reachable.");
+		con_puts(CON_NORMAL, Netgame.TrackerNATWarned == TrackerNATHolePunchWarn::UserEnabledHP ? "Clients will attempt hole-punching to join your game." : "Clients will only be able to join your game if specifically configured in your router.");
+	}
 	TrackerAckStatus = TrackerAckState::TACK_SEQCOMPL;
 }
 
@@ -6044,6 +6075,11 @@ static void udp_tracker_process_holepunch( ubyte *data, int data_len, const _soc
 	}
 	if (!Netgame.Tracker || !sender_is_tracker(sender_addr, TrackerSocket) || !multi_i_am_master())
 		return;
+	if (Netgame.TrackerNATWarned != TrackerNATHolePunchWarn::UserEnabledHP)
+	{
+		con_puts(CON_NORMAL, "Ignoring tracker hole-punch request because user disabled hole punch.");
+		return;
+	}
 
 	char *p0, delimiter[] = "/";
 	char sIP[46] = {};

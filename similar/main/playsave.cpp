@@ -86,6 +86,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define NoFriendlyFireStr "NoFriendlyFire"
 #define MouselookFlagsStr "Mouselook"
 #define TrackerStr "Tracker"
+#define TrackerNATHPStr "trackernat"
 #define NGPVersionStr "ngp version"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1429,6 +1430,9 @@ static void convert_duplicate_powerup_integer(packed_netduplicate_items &d, cons
 void read_netgame_profile(netgame_info *ng)
 {
 	char filename[PATH_MAX];
+#if DXX_USE_TRACKER
+	ng->TrackerNATWarned = TrackerNATHolePunchWarn::Unset;
+#endif
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(get_local_player().callsign));
 	auto file = PHYSFSX_openReadBuffered(filename);
@@ -1512,6 +1516,8 @@ void read_netgame_profile(netgame_info *ng)
 #if DXX_USE_TRACKER
 		else if (cmp(lb, eq, TrackerStr))
 			convert_integer(ng->Tracker, value);
+		else if (cmp(lb, eq, TrackerNATHPStr))
+			ng->TrackerNATWarned = static_cast<TrackerNATHolePunchWarn>(strtoul(value, 0, 10));
 #endif
 	}
 }
@@ -1553,8 +1559,9 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, MouselookFlagsStr "=%i\n", ng->MouselookFlags);
 #if DXX_USE_TRACKER
 	PHYSFSX_printf(file, TrackerStr "=%i\n", ng->Tracker);
+	PHYSFSX_printf(file, TrackerNATHPStr "=%i\n", ng->TrackerNATWarned);
 #else
-	PHYSFSX_printf(file, TrackerStr "=0\n");
+	PHYSFSX_puts_literal(file, TrackerStr "=0\n" TrackerNATHPStr "=0\n");
 #endif
 	PHYSFSX_printf(file, NGPVersionStr "=" DXX_VERSION_STR "\n");
 }
