@@ -165,7 +165,7 @@ static int udp_tracker_process_game( ubyte *data, int data_len, const _sockaddr 
 static void udp_tracker_process_ack( ubyte *data, int data_len, const _sockaddr &sender_addr );
 static void udp_tracker_verify_ack_timeout();
 static void udp_tracker_request_holepunch( uint16_t TrackerGameID );
-static void udp_tracker_process_holepunch( ubyte *data, int data_len, const _sockaddr &sender_addr );
+static void udp_tracker_process_holepunch(uint8_t *data, unsigned data_len, const _sockaddr &sender_addr );
 #endif
 
 static fix64 StartAbortMenuTime;
@@ -6066,7 +6066,7 @@ static void udp_tracker_request_holepunch( uint16_t TrackerGameID )
 
 /* Tracker sent us an address from a client requesting hole punching.
  * We'll simply reply with another hole punch packet and wait for them to request our game info properly. */
-static void udp_tracker_process_holepunch( ubyte *data, int data_len, const _sockaddr &sender_addr )
+static void udp_tracker_process_holepunch(uint8_t *const data, const unsigned data_len, const _sockaddr &sender_addr )
 {
 	if (data_len == 1 && !multi_i_am_master())
 	{
@@ -6080,22 +6080,24 @@ static void udp_tracker_process_holepunch( ubyte *data, int data_len, const _soc
 		con_puts(CON_NORMAL, "Ignoring tracker hole-punch request because user disabled hole punch.");
 		return;
 	}
-
-	char *p0, delimiter[] = "/";
-	char sIP[46] = {};
-	array<char, 6> sPort{};
-	uint16_t iPort = 0;
-
-	p0 = strtok(reinterpret_cast<char *>(data), delimiter);
-	if (p0 == NULL)
+	if (!data_len || data[data_len - 1])
 		return;
-	p0++;
-	memcpy(sIP, p0, strlen(p0));
-	p0 = strtok(NULL, delimiter);
-	if (p0 == NULL)
+
+	auto &delimiter = "/";
+
+	const auto p0 = strtok(reinterpret_cast<char *>(data), delimiter);
+	if (!p0)
 		return;
-	memcpy(&sPort, p0, strlen(p0));
-	if (!convert_text_portstring(sPort, iPort, true, true))
+	const auto sIP = p0 + 1;
+	const auto pPort = strtok(NULL, delimiter);
+	if (!pPort)
+		return;
+	char *porterror;
+	const auto myport = strtoul(pPort, &porterror, 10);
+	if (*porterror)
+		return;
+	const uint16_t iPort = myport;
+	if (iPort != myport)
 		return;
 
 	// Get the DNS stuff
