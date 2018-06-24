@@ -526,6 +526,30 @@ imsegidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 #define BASE_NET_DROP_DEPTH 8
 #endif
 
+static imsegidx_t pick_connected_drop_segment(const segment_array &Segments, fvcvertptr &vcvertptr, const vcsegidx_t start_seg, const unsigned cur_drop_depth, const vms_vector &player_pos, const vcsegptridx_t &player_seg)
+{
+	const auto segnum = pick_connected_segment(start_seg, cur_drop_depth);
+	if (segnum == segment_none)
+		return segnum;
+	const auto &&segp = Segments.vcptridx(segnum);
+	if (segp->special == SEGMENT_IS_CONTROLCEN)
+		return segment_none;
+	//don't drop in any children of control centers
+	range_for (const auto ch, segp->children)
+	{
+		if (!IS_CHILD(ch))
+			continue;
+		auto &childsegp = *Segments.vcptr(ch);
+		if (childsegp.special == SEGMENT_IS_CONTROLCEN)
+			return segment_none;
+	}
+	//bail if not far enough from original position
+	const auto &&tempv = compute_segment_center(vcvertptr, segp);
+	if (find_connected_distance(player_pos, player_seg, tempv, segp, -1, WID_FLY_FLAG) < static_cast<fix>(i2f(20) * cur_drop_depth))
+		return segment_none;
+	return segnum;
+}
+
 //	------------------------------------------------------------------------------------------------------
 //	Choose segment to drop a powerup in.
 //	For all active net players, try to create a N segment path from the player.  If possible, return that
@@ -533,23 +557,22 @@ imsegidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 //	Don't drop if control center in segment.
 static vmsegptridx_t choose_drop_segment(segment_array &segments, const playernum_t drop_pnum)
 {
-	auto &vcsegptridx = segments.vcptridx;
 	auto &vmsegptridx = segments.vmptridx;
 	playernum_t	pnum = 0;
 	int	cur_drop_depth;
 	int	count;
-	vms_vector *player_pos;
 	auto &drop_playerobj = *vmobjptr(vcplayerptr(drop_pnum)->objnum);
 
 	d_srand(static_cast<fix>(timer_query()));
 
 	cur_drop_depth = BASE_NET_DROP_DEPTH + ((d_rand() * BASE_NET_DROP_DEPTH*2) >> 15);
 
-	player_pos = &drop_playerobj.pos;
-	const auto player_seg = drop_playerobj.segnum;
+	auto &player_pos = drop_playerobj.pos;
+	const auto &&player_seg = segments.vcptridx(drop_playerobj.segnum);
 
 	segnum_t	segnum = segment_none;
-	while ((segnum == segment_none) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2)) {
+	for (; (segnum == segment_none) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2); --cur_drop_depth)
+	{
 		pnum = (d_rand() * N_players) >> 15;
 		count = 0;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -567,37 +590,7 @@ static vmsegptridx_t choose_drop_segment(segment_array &segments, const playernu
 			pnum = drop_pnum;
 		}
 
-		segnum = pick_connected_segment(vcobjptr(vcplayerptr(pnum)->objnum)->segnum, cur_drop_depth);
-		if (segnum == segment_none)
-		{
-			cur_drop_depth--;
-			continue;
-		}
-		if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN)
-		{
-			segnum = segment_none;
-		}
-		else {	//don't drop in any children of control centers
-			range_for (auto ch, vcsegptr(segnum)->children)
-			{
-				if (IS_CHILD(ch) && vcsegptr(ch)->special == SEGMENT_IS_CONTROLCEN) {
-					segnum = segment_none;
-					break;
-				}
-			}
-		}
-
-		//bail if not far enough from original position
-		if (segnum != segment_none) {
-			const auto &&segp = vcsegptridx(segnum);
-			const auto &&tempv = compute_segment_center(vcvertptr, segp);
-			if (find_connected_distance(*player_pos, vcsegptridx(player_seg), tempv, segp, -1, WID_FLY_FLAG) < i2f(20) * cur_drop_depth)
-			{
-				segnum = segment_none;
-			}
-		}
-
-		cur_drop_depth--;
+		segnum = pick_connected_drop_segment(segments, vcvertptr, vcobjptr(vcplayerptr(pnum)->objnum)->segnum, cur_drop_depth, player_pos, player_seg);
 	}
 
 	if (segnum == segment_none) {
