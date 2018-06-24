@@ -783,9 +783,10 @@ constexpr fix CROSS_WIDTH = i2f(8);
 constexpr fix CROSS_HEIGHT = i2f(8);
 
 //draw outline for curside
-static void outline_seg_side(grs_canvas &canvas, const vcsegptr_t seg,int _side,int edge,int vert)
+static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, const unsigned _side, const unsigned edge, const unsigned vert)
 {
-	if (!rotate_list(seg->verts).uand)
+	auto &verts = seg.verts;
+	if (!rotate_list(verts).uand)
 	{		//all off screen?
 		g3s_point *pnt;
 
@@ -793,11 +794,11 @@ static void outline_seg_side(grs_canvas &canvas, const vcsegptr_t seg,int _side,
 
 		const uint8_t color = BM_XRGB(0, 63, 0);
 		auto &sv = Side_to_verts[_side];
-		g3_draw_line(canvas, Segment_points[seg->verts[sv[edge]]], Segment_points[seg->verts[sv[(edge + 1)%4]]], color);
+		g3_draw_line(canvas, Segment_points[verts[sv[edge]]], Segment_points[verts[sv[(edge + 1)%4]]], color);
 
 		//draw a little cross at the current vert
 
-		pnt = &Segment_points[seg->verts[Side_to_verts[_side][vert]]];
+		pnt = &Segment_points[verts[Side_to_verts[_side][vert]]];
 
 		g3_project_point(*pnt);		//make sure projected
 
@@ -1018,12 +1019,12 @@ public:
 	{
 		range_for (const auto t, segstate.objects)
 		{
-			const auto &&objp = vmobjptr(t.objnum);
+			auto &objp = *vmobjptr(t.objnum);
 			auto &e = (*this)[t.objnum];
 #if defined(DXX_BUILD_DESCENT_II)
-			e.objp = objp;
+			e.objp = &objp;
 #endif
-			e.dist_squared = vm_vec_dist2(objp->pos, Viewer_eye);
+			e.dist_squared = vm_vec_dist2(objp.pos, Viewer_eye);
 		}
 	}
 	bool operator()(const distant_object &a, const distant_object &b) const;

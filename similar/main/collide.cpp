@@ -779,8 +779,8 @@ static window_event_result collide_weapon_and_wall(object_array &objects, fvmseg
 	{
 		robot_escort = 0;
 
-		const auto &&objp = vcobjptr(weapon->ctype.laser_info.parent_num);
-		if (objp->type == OBJ_PLAYER)
+		auto &objp = *vcobjptr(weapon->ctype.laser_info.parent_num);
+		if (objp.type == OBJ_PLAYER)
 			playernum = get_player_id(objp);
 		else
 			playernum = -1;		//not a player (thus a robot)
@@ -1778,12 +1778,13 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 }
 }
 
-static void collide_hostage_and_player(const vmobjptridx_t  hostage, const vmobjptr_t player, const vms_vector &)
+static void collide_hostage_and_player(const vmobjptridx_t hostage, object &player, const vms_vector &)
 {
 	// Give player points, etc.
-	if ( player == ConsoleObject )	{
+	if (&player == ConsoleObject)
+	{
 		detect_escort_goal_accomplished(hostage);
-		add_points_to_score(player->ctype.player_info, HOSTAGE_SCORE);
+		add_points_to_score(player.ctype.player_info, HOSTAGE_SCORE);
 
 		// Do effect
 		hostage_rescue();

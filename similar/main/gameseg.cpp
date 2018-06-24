@@ -293,12 +293,12 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const vc
 	int			sn,facebit,sidebit;
 	segmasks		masks{};
 
-	const auto &seg = segnum;
+	auto &seg = *segnum;
 
 	//check point against each side of segment. return bitmask
 
 	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
-		auto &s = seg->sides[sn];
+		auto &s = seg.sides[sn];
 		
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
@@ -871,12 +871,12 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 	cur_depth = 0;
 
 	while (cur_seg != seg1) {
-		const auto &&segp = vmsegptr(cur_seg);
+		auto &segp = *vmsegptr(cur_seg);
 		for (int sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 
 			int	snum = sidenum;
 
-			const auto this_seg = segp->children[snum];
+			const auto this_seg = segp.children[snum];
 			if (!IS_CHILD(this_seg))
 				continue;
 			if (!wid_flag.value || (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, snum) & wid_flag))
@@ -982,38 +982,38 @@ namespace dsx {
 //	Extract the matrix into byte values.
 //	Create a position relative to vertex 0 with 1/256 normal "fix" precision.
 //	Stuff segment in a short.
-void create_shortpos_native(shortpos *spp, const vcobjptr_t objp)
+void create_shortpos_native(fvcsegptr &vcsegptr, fvcvertptr &vcvertptr, shortpos *spp, const object_base &objp)
 {
 	// int	segnum;
 	sbyte   *sp;
 
 	sp = spp->bytemat;
 
-	*sp++ = convert_to_byte(objp->orient.rvec.x);
-	*sp++ = convert_to_byte(objp->orient.uvec.x);
-	*sp++ = convert_to_byte(objp->orient.fvec.x);
-	*sp++ = convert_to_byte(objp->orient.rvec.y);
-	*sp++ = convert_to_byte(objp->orient.uvec.y);
-	*sp++ = convert_to_byte(objp->orient.fvec.y);
-	*sp++ = convert_to_byte(objp->orient.rvec.z);
-	*sp++ = convert_to_byte(objp->orient.uvec.z);
-	*sp++ = convert_to_byte(objp->orient.fvec.z);
+	*sp++ = convert_to_byte(objp.orient.rvec.x);
+	*sp++ = convert_to_byte(objp.orient.uvec.x);
+	*sp++ = convert_to_byte(objp.orient.fvec.x);
+	*sp++ = convert_to_byte(objp.orient.rvec.y);
+	*sp++ = convert_to_byte(objp.orient.uvec.y);
+	*sp++ = convert_to_byte(objp.orient.fvec.y);
+	*sp++ = convert_to_byte(objp.orient.rvec.z);
+	*sp++ = convert_to_byte(objp.orient.uvec.z);
+	*sp++ = convert_to_byte(objp.orient.fvec.z);
 
-	spp->segment = objp->segnum;
-	const auto segp = vmsegptr(objp->segnum);
-	auto &vert = *vcvertptr(segp->verts[0]);
-	spp->xo = (objp->pos.x - vert.x) >> RELPOS_PRECISION;
-	spp->yo = (objp->pos.y - vert.y) >> RELPOS_PRECISION;
-	spp->zo = (objp->pos.z - vert.z) >> RELPOS_PRECISION;
+	spp->segment = objp.segnum;
+	auto &segp = *vcsegptr(objp.segnum);
+	auto &vert = *vcvertptr(segp.verts[0]);
+	spp->xo = (objp.pos.x - vert.x) >> RELPOS_PRECISION;
+	spp->yo = (objp.pos.y - vert.y) >> RELPOS_PRECISION;
+	spp->zo = (objp.pos.z - vert.z) >> RELPOS_PRECISION;
 
- 	spp->velx = (objp->mtype.phys_info.velocity.x) >> VEL_PRECISION;
-	spp->vely = (objp->mtype.phys_info.velocity.y) >> VEL_PRECISION;
-	spp->velz = (objp->mtype.phys_info.velocity.z) >> VEL_PRECISION;
+ 	spp->velx = (objp.mtype.phys_info.velocity.x) >> VEL_PRECISION;
+	spp->vely = (objp.mtype.phys_info.velocity.y) >> VEL_PRECISION;
+	spp->velz = (objp.mtype.phys_info.velocity.z) >> VEL_PRECISION;
 }
 
-void create_shortpos_little(shortpos *spp, const vcobjptr_t objp)
+void create_shortpos_little(fvcsegptr &vcsegptr, fvcvertptr &vcvertptr, shortpos *spp, const object_base &objp)
 {
-	create_shortpos_native(spp, objp);
+	create_shortpos_native(vcsegptr, vcvertptr, spp, objp);
 // swap the short values for the big-endian machines.
 
 	if (words_bigendian)

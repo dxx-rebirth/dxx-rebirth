@@ -865,14 +865,15 @@ static int find_exit_side(const object_base &obj)
 
 	vm_vec_normalized_dir_quick(prefvec, obj.pos, obj.last_pos);
 
-	const auto &&pseg = vcsegptr(obj.segnum);
+	auto &pseg = *vcsegptr(obj.segnum);
 	const auto segcenter = compute_segment_center(vcvertptr, pseg);
 
 	best_side=-1;
 	for (int i=MAX_SIDES_PER_SEGMENT;--i >= 0;) {
 		fix d;
 
-		if (pseg->children[i]!=segment_none) {
+		if (pseg.children[i] != segment_none)
+		{
 			auto sidevec = compute_center_point_on_side(vcvertptr, pseg, i);
 			vm_vec_normalized_dir_quick(sidevec,sidevec,segcenter);
 			d = vm_vec_dot(sidevec,prefvec);
@@ -1148,7 +1149,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 	//check new player seg
 
 	update_object_seg(obj);
-	const auto &&pseg = vmsegptr(obj->segnum);
+	auto &pseg = *vcsegptr(obj->segnum);
 
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg
 		fix seg_time;
@@ -1165,13 +1166,13 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 			exit_side = Side_opposite[entry_side];
 		}
 
-		if (flydata->first_time || entry_side == side_none || pseg->children[exit_side] == segment_none)
+		if (flydata->first_time || entry_side == side_none || pseg.children[exit_side] == segment_none)
 			exit_side = find_exit_side(obj);
 
 		{										//find closest side to align to
 			fix d,largest_d=-f1_0;
 			for (int i=0;i<6;i++) {
-				d = vm_vec_dot(pseg->sides[i].normals[0],flydata->obj->orient.uvec);
+				d = vm_vec_dot(pseg.sides[i].normals[0], flydata->obj->orient.uvec);
 				if (d > largest_d) {largest_d = d; up_side=i;}
 			}
 
@@ -1181,9 +1182,9 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 		//where we are heading (center of exit_side)
 		auto dest_point = compute_center_point_on_side(vcvertptr, pseg, exit_side);
-		const vms_vector nextcenter = (pseg->children[exit_side] == segment_exit)
+		const vms_vector nextcenter = (pseg.children[exit_side] == segment_exit)
 			? dest_point
-			: compute_segment_center(vcvertptr, vcsegptr(pseg->children[exit_side]));
+			: compute_segment_center(vcvertptr, vcsegptr(pseg.children[exit_side]));
 
 		//update target point and movement points
 
@@ -1221,7 +1222,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		const auto curcenter = compute_segment_center(vcvertptr, pseg);
 		vm_vec_sub(flydata->headvec,nextcenter,curcenter);
 
-		const auto dest_orient = vm_vector_2_matrix(flydata->headvec,&pseg->sides[up_side].normals[0],nullptr);
+		const auto dest_orient = vm_vector_2_matrix(flydata->headvec, &pseg.sides[up_side].normals[0], nullptr);
 		//where we want to be pointing
 		const auto dest_angles = vm_extract_angles_matrix(dest_orient);
 

@@ -368,7 +368,7 @@ static void digi_start_sound_object(sound_object &s)
 		N_active_sound_objects++;
 }
 
-static void digi_link_sound_common(const vcobjptr_t viewer, sound_object &so, const vms_vector &pos, const int forever, const fix max_volume, const vm_distance max_distance, const int soundnum, const vcsegptridx_t segnum)
+static void digi_link_sound_common(const object_base &viewer, sound_object &so, const vms_vector &pos, const int forever, const fix max_volume, const vm_distance max_distance, const int soundnum, const vcsegptridx_t segnum)
 {
 	so.signature=next_signature++;
 	if ( forever )
@@ -386,7 +386,7 @@ static void digi_link_sound_common(const vcobjptr_t viewer, sound_object &so, co
 	else
 #endif
 	{
-		digi_get_sound_loc(viewer->orient, viewer->pos, segnum.absolute_sibling(viewer->segnum),
+		digi_get_sound_loc(viewer.orient, viewer.pos, segnum.absolute_sibling(viewer.segnum),
                        pos, segnum, so.max_volume,
                        &so.volume, &so.pan, so.max_distance);
 		digi_start_sound_object(so);

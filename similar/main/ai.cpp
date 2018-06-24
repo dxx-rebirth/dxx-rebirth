@@ -1696,17 +1696,17 @@ static void compute_vis_and_vec(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
 // --------------------------------------------------------------------------------------------------------------------
 //	Move object one object radii from current position towards segment center.
 //	If segment center is nearer than 2 radii, move it to center.
-void move_towards_segment_center(const vmobjptr_t objp)
+void move_towards_segment_center(object_base &objp)
 {
 /* ZICO's change of 20081103:
    Make move to segment center smoother by using move_towards vector.
    Bot's should not jump around and maybe even intersect with each other!
    In case it breaks something what I do not see, yet, old code is still there. */
-	auto segnum = objp->segnum;
+	const auto segnum = objp.segnum;
 	vms_vector	vec_to_center;
 
 	const auto &&segment_center = compute_segment_center(vcvertptr, vcsegptr(segnum));
-	vm_vec_normalized_dir_quick(vec_to_center, segment_center, objp->pos);
+	vm_vec_normalized_dir_quick(vec_to_center, segment_center, objp.pos);
 	move_towards_vector(objp, vec_to_center, 1);
 }
 
@@ -1719,20 +1719,20 @@ int ai_door_is_openable(
 #if defined(DXX_BUILD_DESCENT_II)
 	const player_flags powerup_flags,
 #endif
-	const vcsegptr_t segp, const int sidenum)
+	const shared_segment &segp, const unsigned sidenum)
 {
-	if (!IS_CHILD(segp->children[sidenum]))
+	if (!IS_CHILD(segp.children[sidenum]))
 		return 0;		//trap -2 (exit side)
 
-	auto wall_num = segp->sides[sidenum].wall_num;
+	const auto wall_num = segp.sides[sidenum].wall_num;
 
 	if (wall_num == wall_none)		//if there's no door at all...
 		return 0;				//..then say it can't be opened
 
-	const auto &&wallp = vcwallptr(wall_num);
+	auto &wall = *vcwallptr(wall_num);
 	//	The mighty console object can open all doors (for purposes of determining paths).
 	if (objp == ConsoleObject) {
-		const auto wt = wallp->type;
+		const auto wt = wall.type;
 		if (wt == WALL_DOOR)
 		{
 			static_assert(WALL_DOOR != 0, "WALL_DOOR must be nonzero for this shortcut to work properly.");
@@ -1746,8 +1746,8 @@ int ai_door_is_openable(
 
 		if (wall_num != wall_none)
 		{
-			const auto wt = wallp->type;
-			if (wt == WALL_DOOR && wallp->keys == KEY_NONE && !(wallp->flags & WALL_DOOR_LOCKED))
+			const auto wt = wall.type;
+			if (wt == WALL_DOOR && wall.keys == KEY_NONE && !(wall.flags & WALL_DOOR_LOCKED))
 			{
 				static_assert(WALL_DOOR != 0, "WALL_DOOR must be nonzero for this shortcut to work properly.");
 				return wt;
@@ -1757,16 +1757,16 @@ int ai_door_is_openable(
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (Robot_info[get_robot_id(objp)].companion)
 	{
-		const auto wt = wallp->type;
-		if (wallp->flags & WALL_BUDDY_PROOF) {
-			if (wt == WALL_DOOR && wallp->state == WALL_DOOR_CLOSED)
+		const auto wt = wall.type;
+		if (wall.flags & WALL_BUDDY_PROOF) {
+			if (wt == WALL_DOOR && wall.state == WALL_DOOR_CLOSED)
 				return 0;
 			else if (wt == WALL_CLOSED)
 				return 0;
-			else if (wt == WALL_ILLUSION && !(wallp->flags & WALL_ILLUSION_OFF))
+			else if (wt == WALL_ILLUSION && !(wall.flags & WALL_ILLUSION_OFF))
 				return 0;
 		}
-		switch (const auto wall_keys = wallp->keys)
+		switch (const auto wall_keys = wall.keys)
 		{
 				case KEY_BLUE:
 				case KEY_GOLD:
@@ -1788,51 +1788,51 @@ int ai_door_is_openable(
 
 		// -- if (Buddy_got_stuck) {
 		if (ailp_mode == ai_mode::AIM_GOTO_PLAYER) {
-			if (wt == WALL_BLASTABLE && wallp->state != WALL_BLASTED)
+			if (wt == WALL_BLASTABLE && wall.state != WALL_BLASTED)
 				return 0;
 			if (wt == WALL_CLOSED)
 				return 0;
 			if (wt == WALL_DOOR) {
-				if ((wallp->flags & WALL_DOOR_LOCKED) && (wallp->state == WALL_DOOR_CLOSED))
+				if ((wall.flags & WALL_DOOR_LOCKED) && (wall.state == WALL_DOOR_CLOSED))
 					return 0;
 			}
 		}
 		// -- }
 
-		if ((ailp_mode != ai_mode::AIM_GOTO_PLAYER) && (wallp->controlling_trigger != -1)) {
-			const auto clip_num = wallp->clip_num;
+		if ((ailp_mode != ai_mode::AIM_GOTO_PLAYER) && (wall.controlling_trigger != -1)) {
+			const auto clip_num = wall.clip_num;
 			if (clip_num == -1)
 				return clip_num;
 			else if (WallAnims[clip_num].flags & WCF_HIDDEN) {
 				static_assert(WALL_DOOR_CLOSED == 0, "WALL_DOOR_CLOSED must be zero for this shortcut to work properly.");
-				return wallp->state;
+				return wall.state;
 			} else
 				return 1;
 		}
 
 		if (wt == WALL_DOOR)  {
-				const auto clip_num = wallp->clip_num;
+				const auto clip_num = wall.clip_num;
 
 				if (clip_num == -1)
 					return clip_num;
 				//	Buddy allowed to go through secret doors to get to player.
 				else if ((ailp_mode != ai_mode::AIM_GOTO_PLAYER) && (WallAnims[clip_num].flags & WCF_HIDDEN)) {
 					static_assert(WALL_DOOR_CLOSED == 0, "WALL_DOOR_CLOSED must be zero for this shortcut to work properly.");
-					return wallp->state;
+					return wall.state;
 				} else
 					return 1;
 		}
 	} else if ((get_robot_id(objp) == ROBOT_BRAIN) || (objp->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM) || (objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)) {
 		if (wall_num != wall_none)
 		{
-			const auto wt = wallp->type;
-			if (wt == WALL_DOOR && (wallp->keys == KEY_NONE) && !(wallp->flags & WALL_DOOR_LOCKED))
+			const auto wt = wall.type;
+			if (wt == WALL_DOOR && (wall.keys == KEY_NONE) && !(wall.flags & WALL_DOOR_LOCKED))
 			{
 				static_assert(WALL_DOOR != 0, "WALL_DOOR must be nonzero for this shortcut to work properly.");
 				return wt;
 			}
-			else if (wallp->keys != KEY_NONE) {	//	Allow bots to open doors to which player has keys.
-				return powerup_flags & static_cast<PLAYER_FLAG>(wallp->keys);
+			else if (wall.keys != KEY_NONE) {	//	Allow bots to open doors to which player has keys.
+				return powerup_flags & static_cast<PLAYER_FLAG>(wall.keys);
 			}
 		}
 	}
@@ -1892,8 +1892,9 @@ static imobjptridx_t create_gated_robot(fvcobjptr &vcobjptr, const vmsegptridx_t
 	unsigned count = 0;
 	range_for (const auto &&objp, vcobjptr)
 	{
-		if (objp->type == OBJ_ROBOT)
-			if (objp->matcen_creator == BOSS_GATE_MATCEN_NUM)
+		auto &obj = *objp;
+		if (obj.type == OBJ_ROBOT)
+			if (obj.matcen_creator == BOSS_GATE_MATCEN_NUM)
 				count++;
 	}
 
@@ -2059,7 +2060,7 @@ static void init_boss_segments(segment_array &segments, const object &boss_objp,
 
 		while (tail != head) {
 			int		sidenum;
-			const auto &&segp = vmsegptr(seg_queue[tail++]);
+			auto &segp = *vmsegptr(seg_queue[tail++]);
 
 			tail &= QUEUE_SIZE-1;
 
@@ -2067,7 +2068,7 @@ static void init_boss_segments(segment_array &segments, const object &boss_objp,
 				const auto w = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum);
 				if ((w & WID_FLY_FLAG) || one_wall_hack)
 				{
-					const auto csegnum = segp->children[sidenum];
+					const auto csegnum = segp.children[sidenum];
 #if defined(DXX_BUILD_DESCENT_II)
 					//	If we get here and w == WID_WALL, then we want to process through this wall, else not.
 					if (IS_CHILD(csegnum)) {

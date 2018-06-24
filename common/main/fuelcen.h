@@ -71,7 +71,7 @@ imobjptridx_t create_morph_robot(vmsegptridx_t segp, const vms_vector &object_po
 
 // Returns the amount of fuel/shields this segment can give up.
 // Can be from 0 to 100.
-fix fuelcen_give_fuel(vcsegptr_t segp, fix MaxAmountCanTake);
+fix fuelcen_give_fuel(const shared_segment &segp, fix MaxAmountCanTake);
 }
 
 // Call once per frame.

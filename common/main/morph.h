@@ -61,12 +61,12 @@ void morph_start(vmobjptr_t obj);
 void draw_morph_object(grs_canvas &, vmobjptridx_t obj);
 
 //process the morphing object for one frame
-void do_morph_frame(vmobjptr_t obj);
+void do_morph_frame(object &obj);
 
 //called at the start of a level
 void init_morphs();
 
-morph_data *find_morph_data(vmobjptr_t obj);
+morph_data *find_morph_data(object &obj);
 #endif
 
 #endif

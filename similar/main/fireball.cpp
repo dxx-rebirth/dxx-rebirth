@@ -417,9 +417,9 @@ void draw_fireball(grs_canvas &canvas, const vcobjptridx_t obj)
 // --------------------------------------------------------------------------------------------------------------------
 //	Return true if there is a door here and it is openable
 //	It is assumed that the player has all keys.
-static int door_is_openable_by_player(const vcsegptr_t segp, int sidenum)
+static int door_is_openable_by_player(fvcwallptr &vcwallptr, const shared_segment &segp, const unsigned sidenum)
 {
-	const auto wall_num = segp->sides[sidenum].wall_num;
+	const auto wall_num = segp.sides[sidenum].wall_num;
 
 	if (wall_num == wall_none)
 		return 0;						//	no wall here.
@@ -431,7 +431,6 @@ static int door_is_openable_by_player(const vcsegptr_t segp, int sidenum)
 		return 0;
 
 	return 1;
-
 }
 
 #define	QUEUE_SIZE	64
@@ -493,7 +492,7 @@ imsegidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 			auto wall_num = segp->sides[snrand].wall_num;
 			sidenum++;
 
-			if ((wall_num == wall_none || door_is_openable_by_player(segp, snrand)) && IS_CHILD(segp->children[snrand]))
+			if ((wall_num == wall_none || door_is_openable_by_player(vcwallptr, segp, snrand)) && IS_CHILD(segp->children[snrand]))
 			{
 				if (!visited[segp->children[snrand]]) {
 					seg_queue[head++] = segp->children[snrand];
@@ -561,7 +560,8 @@ static vmsegptridx_t choose_drop_segment(segment_array &segments, const playernu
 	playernum_t	pnum = 0;
 	int	cur_drop_depth;
 	int	count;
-	auto &drop_playerobj = *vmobjptr(vcplayerptr(drop_pnum)->objnum);
+	auto &drop_player = *vcplayerptr(drop_pnum);
+	auto &drop_playerobj = *vmobjptr(drop_player.objnum);
 
 	d_srand(static_cast<fix>(timer_query()));
 
@@ -696,21 +696,20 @@ static icsegptr_t weapon_nearby(const object_base &objp, powerup_type_t weapon_i
 }
 
 //	------------------------------------------------------------------------------------------------------
-void maybe_replace_powerup_with_energy(const vmobjptr_t del_obj)
+void maybe_replace_powerup_with_energy(object_base &del_obj)
 {
 	int	weapon_index=-1;
 
-	if (del_obj->contains_type != OBJ_POWERUP)
+	if (del_obj.contains_type != OBJ_POWERUP)
 		return;
 
-	if (del_obj->contains_id == POW_CLOAK) {
-		if (weapon_nearby(del_obj, static_cast<powerup_type_t>(del_obj->contains_id)) != nullptr)
-		{
-			del_obj->contains_count = 0;
-		}
-		return;
-	}
-	switch (del_obj->contains_id) {
+	switch (del_obj.contains_id) {
+		case POW_CLOAK:
+			if (weapon_nearby(del_obj, POW_CLOAK) != nullptr)
+			{
+				del_obj.contains_count = 0;
+			}
+			return;
 		case POW_VULCAN_WEAPON:
 			weapon_index = primary_weapon_index_t::VULCAN_INDEX;
 			break;
@@ -741,48 +740,48 @@ void maybe_replace_powerup_with_energy(const vmobjptr_t del_obj)
 
 	//	Don't drop vulcan ammo if player maxed out.
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	if ((weapon_index_uses_vulcan_ammo(weapon_index) || del_obj->contains_id == POW_VULCAN_AMMO) &&
+	if ((weapon_index_uses_vulcan_ammo(weapon_index) || del_obj.contains_id == POW_VULCAN_AMMO) &&
 		player_info.vulcan_ammo >= VULCAN_AMMO_MAX)
-		del_obj->contains_count = 0;
+		del_obj.contains_count = 0;
 	else if (weapon_index != -1) {
-		if (player_has_primary_weapon(player_info, weapon_index).has_weapon() || weapon_nearby(del_obj, static_cast<powerup_type_t>(del_obj->contains_id)) != nullptr)
+		if (player_has_primary_weapon(player_info, weapon_index).has_weapon() || weapon_nearby(del_obj, static_cast<powerup_type_t>(del_obj.contains_id)) != nullptr)
 		{
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
-				del_obj->contains_count = 1;
+				del_obj.contains_count = 1;
 #endif
-				del_obj->contains_type = OBJ_POWERUP;
+				del_obj.contains_type = OBJ_POWERUP;
 				if (weapon_index_uses_vulcan_ammo(weapon_index)) {
-					del_obj->contains_id = POW_VULCAN_AMMO;
+					del_obj.contains_id = POW_VULCAN_AMMO;
 				}
 				else {
-					del_obj->contains_id = POW_ENERGY;
+					del_obj.contains_id = POW_ENERGY;
 				}
 			} else {
 #if defined(DXX_BUILD_DESCENT_I)
-				del_obj->contains_count = 0;
+				del_obj.contains_count = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
-				del_obj->contains_type = OBJ_POWERUP;
-				del_obj->contains_id = POW_SHIELD_BOOST;
+				del_obj.contains_type = OBJ_POWERUP;
+				del_obj.contains_id = POW_SHIELD_BOOST;
 #endif
 			}
 		}
-	} else if (del_obj->contains_id == POW_QUAD_FIRE)
+	} else if (del_obj.contains_id == POW_QUAD_FIRE)
 	{
-		if ((player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(del_obj, static_cast<powerup_type_t>(del_obj->contains_id)) != nullptr)
+		if ((player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(del_obj, static_cast<powerup_type_t>(del_obj.contains_id)) != nullptr)
 		{
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
-				del_obj->contains_count = 1;
+				del_obj.contains_count = 1;
 #endif
-				del_obj->contains_type = OBJ_POWERUP;
-				del_obj->contains_id = POW_ENERGY;
+				del_obj.contains_type = OBJ_POWERUP;
+				del_obj.contains_id = POW_ENERGY;
 			} else {
 #if defined(DXX_BUILD_DESCENT_I)
-				del_obj->contains_count = 0;
+				del_obj.contains_count = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
-				del_obj->contains_type = OBJ_POWERUP;
-				del_obj->contains_id = POW_SHIELD_BOOST;
+				del_obj.contains_type = OBJ_POWERUP;
+				del_obj.contains_id = POW_SHIELD_BOOST;
 #endif
 			}
 		}
@@ -790,14 +789,14 @@ void maybe_replace_powerup_with_energy(const vmobjptr_t del_obj)
 
 	//	If this robot was gated in by the boss and it now contains energy, make it contain nothing,
 	//	else the room gets full of energy.
-	if ( (del_obj->matcen_creator == BOSS_GATE_MATCEN_NUM) && (del_obj->contains_id == POW_ENERGY) && (del_obj->contains_type == OBJ_POWERUP) ) {
-		del_obj->contains_count = 0;
+	if ( (del_obj.matcen_creator == BOSS_GATE_MATCEN_NUM) && (del_obj.contains_id == POW_ENERGY) && (del_obj.contains_type == OBJ_POWERUP) ) {
+		del_obj.contains_count = 0;
 	}
 
 	// Change multiplayer extra-lives into invulnerability
-	if ((Game_mode & GM_MULTI) && (del_obj->contains_id == POW_EXTRA_LIFE))
+	if ((Game_mode & GM_MULTI) && (del_obj.contains_id == POW_EXTRA_LIFE))
 	{
-		del_obj->contains_id = POW_INVULNERABILITY;
+		del_obj.contains_id = POW_INVULNERABILITY;
 	}
 }
 
@@ -1049,9 +1048,10 @@ imobjptridx_t call_object_create_egg(const object_base &objp, const unsigned cou
 }
 
 //what vclip does this explode with?
-int get_explosion_vclip(const vcobjptr_t obj, explosion_vclip_stage stage)
+int get_explosion_vclip(const object_base &obj, explosion_vclip_stage stage)
 {
-	if (obj->type==OBJ_ROBOT) {
+	if (obj.type == OBJ_ROBOT)
+	{
 		const auto vclip_ptr = stage == explosion_vclip_stage::s0
 			? &robot_info::exp1_vclip_num
 			: &robot_info::exp2_vclip_num;
@@ -1059,7 +1059,7 @@ int get_explosion_vclip(const vcobjptr_t obj, explosion_vclip_stage stage)
 		if (vclip_num > -1)
 			return vclip_num;
 	}
-	else if (obj->type==OBJ_PLAYER && Player_ship->expl_vclip_num>-1)
+	else if (obj.type == OBJ_PLAYER && Player_ship->expl_vclip_num > -1)
 			return Player_ship->expl_vclip_num;
 
 	return VCLIP_SMALL_EXPLOSION;		//default
@@ -1349,7 +1349,8 @@ void do_exploding_wall_frame()
 				wall_set_tmap_num(seg,sidenum,csegp,cside,a,n-1);
 
 				w1.flags |= WALL_BLASTED;
-				vmwallptr(csegp->sides[cside].wall_num)->flags |= WALL_BLASTED;
+				auto &w2 = *vmwallptr(csegp->sides[cside].wall_num);
+				w2.flags |= WALL_BLASTED;
 			}
 
 			newfrac = fixdiv(i.time,EXPL_WALL_TIME);

@@ -1966,8 +1966,8 @@ static void multi_do_remobj(fvmobjptr &vmobjptr, const uint8_t *const buf)
 		return;
 	}
 
-	const auto &&obj = vmobjptr(local_objnum);
-	if (obj->type != OBJ_POWERUP && obj->type != OBJ_HOSTAGE)
+	auto &obj = *vmobjptr(local_objnum);
+	if (obj.type != OBJ_POWERUP && obj.type != OBJ_HOSTAGE)
 	{
 		return;
 	}
@@ -1977,7 +1977,7 @@ static void multi_do_remobj(fvmobjptr &vmobjptr, const uint8_t *const buf)
 		Network_send_objnum = -1;
 	}
 
-	obj->flags |= OF_SHOULD_BE_DEAD; // quick and painless
+	obj.flags |= OF_SHOULD_BE_DEAD; // quick and painless
 }
 
 }
@@ -2126,22 +2126,22 @@ static void multi_do_door_open(fvmwallptr &vmwallptr, const uint8_t *const buf)
 		return;
 	}
 
-	const auto &&w = vmwallptr(seg->sides[side].wall_num);
+	auto &w = *vmwallptr(seg->sides[side].wall_num);
 
-	if (w->type == WALL_BLASTABLE)
+	if (w.type == WALL_BLASTABLE)
 	{
-		if (!(w->flags & WALL_BLASTED))
+		if (!(w.flags & WALL_BLASTED))
 		{
 			wall_destroy(seg, side);
 		}
 		return;
 	}
-	else if (w->state != WALL_DOOR_OPENING)
+	else if (w.state != WALL_DOOR_OPENING)
 	{
 		wall_open_door(seg, side);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	w->flags=flag;
+	w.flags = flag;
 #endif
 
 }
@@ -3827,7 +3827,7 @@ void multi_send_guided_info (const vmobjptr_t miss,char done)
 	if (words_bigendian)
 	{
 		shortpos sp;
-		create_shortpos_little(&sp, miss);
+		create_shortpos_little(vcsegptr, vcvertptr, &sp, miss);
 		memcpy(&multibuf[count], sp.bytemat, 9);
 	count += 9;
 		memcpy(&multibuf[count], &sp.xo, 14);
@@ -3835,7 +3835,7 @@ void multi_send_guided_info (const vmobjptr_t miss,char done)
 	}
 	else
 	{
-		create_shortpos_little(reinterpret_cast<shortpos *>(&multibuf[count]), miss);
+		create_shortpos_little(vcsegptr, vcvertptr, reinterpret_cast<shortpos *>(&multibuf[count]), miss);
 		count += sizeof(shortpos);
 	}
 	multi_send_data(multibuf, 0);

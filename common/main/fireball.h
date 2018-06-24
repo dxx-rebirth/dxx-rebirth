@@ -84,7 +84,7 @@ void draw_fireball(grs_canvas &, vcobjptridx_t obj);
 void explode_wall(vmsegptridx_t segnum, int sidenum);
 void do_exploding_wall_frame();
 void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool random_player);
-void maybe_replace_powerup_with_energy(vmobjptr_t del_obj);
+void maybe_replace_powerup_with_energy(object_base &del_obj);
 }
 
 namespace dcx {
@@ -97,7 +97,7 @@ enum class explosion_vclip_stage : int
 }
 
 namespace dsx {
-int get_explosion_vclip(vcobjptr_t obj, explosion_vclip_stage stage);
+int get_explosion_vclip(const object_base &obj, explosion_vclip_stage stage);
 
 #if defined(DXX_BUILD_DESCENT_II)
 imobjptridx_t drop_powerup(int id, unsigned num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player);

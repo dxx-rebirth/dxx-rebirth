@@ -289,8 +289,8 @@ void dead_player_end();
 // Extract information from an object (objp->orient, objp->pos,
 // objp->segnum), stuff in a shortpos structure.  See typedef
 // shortpos.
-void create_shortpos_little(shortpos *spp, vcobjptr_t objp);
-void create_shortpos_native(shortpos *spp, vcobjptr_t objp);
+void create_shortpos_little(fvcsegptr &vcsegptr, fvcvertptr &vcvertptr, shortpos *spp, const object_base &objp);
+void create_shortpos_native(fvcsegptr &vcsegptr, fvcvertptr &vcvertptr, shortpos *spp, const object_base &objp);
 
 // Extract information from a shortpos, stuff in objp->orient
 // (matrix), objp->pos, objp->segnum

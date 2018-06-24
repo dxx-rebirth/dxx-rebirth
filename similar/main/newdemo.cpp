@@ -396,7 +396,7 @@ static void nd_write_shortpos(const vcobjptr_t obj)
 	shortpos sp;
 	ubyte render_type;
 
-	create_shortpos_native(&sp, obj);
+	create_shortpos_native(vcsegptr, vcvertptr, &sp, obj);
 
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
@@ -1727,8 +1727,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 		range_for (auto &i, Players)
 		{
-			const auto &&objp = vmobjptr(i.objnum);
-			auto &player_info = objp->ctype.player_info;
+			auto &objp = *vmobjptr(i.objnum);
+			auto &player_info = objp.ctype.player_info;
 			player_info.powerup_flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 			DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
 			DXX_MAKE_VAR_UNDEFINED(player_info.invulnerable_time);
@@ -1946,8 +1946,8 @@ static void newdemo_pop_ctrlcen_triggers()
 			 */
 			continue;
 		}
-		const auto &&csegp = vmsegptr(csegi);
-		auto cside = find_connect_side(seg, csegp);
+		auto &csegp = *vmsegptr(csegi);
+		const auto cside = find_connect_side(seg, csegp);
 		const auto wall_num = seg->sides[side].wall_num;
 		if (wall_num == wall_none)
 		{
@@ -1963,7 +1963,7 @@ static void newdemo_pop_ctrlcen_triggers()
 		const auto t = WallAnims[anim_num].flags & WCF_TMAP1
 			? &side::tmap_num
 			: &side::tmap_num2;
-		seg->sides[side].*t = csegp->sides[cside].*t = WallAnims[anim_num].frames[n-1];
+		seg->sides[side].*t = csegp.sides[cside].*t = WallAnims[anim_num].frames[n-1];
 	}
 }
 

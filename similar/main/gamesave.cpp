@@ -187,11 +187,13 @@ static array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Save_pof_names;
 #endif
 
 namespace dsx {
-static void verify_object(const vmobjptr_t obj)
-{
-	obj->lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
 
-	if ( obj->type == OBJ_ROBOT )	{
+static void verify_object(object &obj)
+{
+	obj.lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
+
+	if (obj.type == OBJ_ROBOT)
+	{
 		Gamesave_num_org_robots++;
 
 		// Make sure valid id...
@@ -199,22 +201,24 @@ static void verify_object(const vmobjptr_t obj)
 			set_robot_id(obj, get_robot_id(obj) % N_robot_types);
 
 		// Make sure model number & size are correct...
-		if ( obj->render_type == RT_POLYOBJ ) {
+		if (obj.render_type == RT_POLYOBJ)
+		{
+			auto &ri = Robot_info[get_robot_id(obj)];
 #if defined(DXX_BUILD_DESCENT_II)
-			Assert(Robot_info[get_robot_id(obj)].model_num != -1);
+			assert(ri.model_num != -1);
 				//if you fail this assert, it means that a robot in this level
 				//hasn't been loaded, possibly because he's marked as
-				//non-shareware.  To see what robot number, print obj->id.
+				//non-shareware.  To see what robot number, print obj.id.
 
-			Assert(Robot_info[get_robot_id(obj)].always_0xabcd == 0xabcd);
+			assert(ri.always_0xabcd == 0xabcd);
 				//if you fail this assert, it means that the robot_ai for
 				//a robot in this level hasn't been loaded, possibly because
 				//it's marked as non-shareware.  To see what robot number,
-				//print obj->id.
+				//print obj.id.
 #endif
 
-			obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
-			obj->size = Polygon_models[obj->rtype.pobj_info.model_num].rad;
+			obj.rtype.pobj_info.model_num = ri.model_num;
+			obj.size = Polygon_models[obj.rtype.pobj_info.model_num].rad;
 
 			//@@Took out this ugly hack 1/12/96, because Mike has added code
 			//@@that should fix it in a better way.
@@ -223,115 +227,121 @@ static void verify_object(const vmobjptr_t obj)
 			//@@//can poke through a wall if the robots are very close to it. So
 			//@@//we make their radii bigger so the guns can't get too close to 
 			//@@//the walls
-			//@@if (Robot_info[obj->id].flags & RIF_BIG_RADIUS)
-			//@@	obj->size = (obj->size*3)/2;
+			//@@if (Robot_info[obj.id].flags & RIF_BIG_RADIUS)
+			//@@	obj.size = (obj.size*3)/2;
 
-			//@@if (obj->control_type==CT_AI && Robot_info[obj->id].attack_type)
-			//@@	obj->size = obj->size*3/4;
+			//@@if (obj.control_type==CT_AI && Robot_info[obj.id].attack_type)
+			//@@	obj.size = obj.size*3/4;
 		}
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (get_robot_id(obj) == 65)						//special "reactor" robots
-			obj->movement_type = MT_NONE;
+			obj.movement_type = MT_NONE;
 #endif
 
-		if (obj->movement_type == MT_PHYSICS) {
-			obj->mtype.phys_info.mass = Robot_info[get_robot_id(obj)].mass;
-			obj->mtype.phys_info.drag = Robot_info[get_robot_id(obj)].drag;
+		if (obj.movement_type == MT_PHYSICS)
+		{
+			auto &ri = Robot_info[get_robot_id(obj)];
+			obj.mtype.phys_info.mass = ri.mass;
+			obj.mtype.phys_info.drag = ri.drag;
 		}
 	}
 	else {		//Robots taken care of above
-
-		if ( obj->render_type == RT_POLYOBJ ) {
-			char *name = Save_pof_names[obj->rtype.pobj_info.model_num];
+		if (obj.render_type == RT_POLYOBJ)
+		{
+			char *name = Save_pof_names[obj.rtype.pobj_info.model_num];
 			for (uint_fast32_t i = 0;i < N_polygon_models;i++)
 				if (!d_stricmp(Pof_names[i],name)) {		//found it!	
-					obj->rtype.pobj_info.model_num = i;
+					obj.rtype.pobj_info.model_num = i;
 					break;
 				}
 		}
 	}
 
-	if ( obj->type == OBJ_POWERUP ) {
+	if (obj.type == OBJ_POWERUP)
+	{
 		if ( get_powerup_id(obj) >= N_powerup_types )	{
 			set_powerup_id(obj, POW_SHIELD_BOOST);
-			Assert( obj->render_type != RT_POLYOBJ );
+			Assert( obj.render_type != RT_POLYOBJ );
 		}
-		obj->control_type = CT_POWERUP;
-		obj->size = Powerup_info[get_powerup_id(obj)].size;
-		obj->ctype.powerup_info.creation_time = 0;
+		obj.control_type = CT_POWERUP;
+		obj.size = Powerup_info[get_powerup_id(obj)].size;
+		obj.ctype.powerup_info.creation_time = 0;
 	}
 
-	if ( obj->type == OBJ_WEAPON )	{
+	if (obj.type == OBJ_WEAPON)
+	{
 		if ( get_weapon_id(obj) >= N_weapon_types )	{
 			set_weapon_id(obj, weapon_id_type::LASER_ID_L1);
-			Assert( obj->render_type != RT_POLYOBJ );
+			Assert( obj.render_type != RT_POLYOBJ );
 		}
 
 #if defined(DXX_BUILD_DESCENT_II)
 		const auto weapon_id = get_weapon_id(obj);
 		if (weapon_id == weapon_id_type::PMINE_ID)
 		{		//make sure pmines have correct values
-			obj->mtype.phys_info.mass = Weapon_info[weapon_id].mass;
-			obj->mtype.phys_info.drag = Weapon_info[weapon_id].drag;
-			obj->mtype.phys_info.flags |= PF_FREE_SPINNING;
+			obj.mtype.phys_info.mass = Weapon_info[weapon_id].mass;
+			obj.mtype.phys_info.drag = Weapon_info[weapon_id].drag;
+			obj.mtype.phys_info.flags |= PF_FREE_SPINNING;
 
 			// Make sure model number & size are correct...		
-			Assert( obj->render_type == RT_POLYOBJ );
+			Assert( obj.render_type == RT_POLYOBJ );
 
-			obj->rtype.pobj_info.model_num = Weapon_info[weapon_id].model_num;
-			obj->size = Polygon_models[obj->rtype.pobj_info.model_num].rad;
+			obj.rtype.pobj_info.model_num = Weapon_info[weapon_id].model_num;
+			obj.size = Polygon_models[obj.rtype.pobj_info.model_num].rad;
 		}
 #endif
 	}
 
-	if ( obj->type == OBJ_CNTRLCEN ) {
-
-		obj->render_type = RT_POLYOBJ;
-		obj->control_type = CT_CNTRLCEN;
+	if (obj.type == OBJ_CNTRLCEN)
+	{
+		obj.render_type = RT_POLYOBJ;
+		obj.control_type = CT_CNTRLCEN;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		// Make model number is correct...	
 		for (int i=0; i<Num_total_object_types; i++ )	
 			if ( ObjType[i] == OL_CONTROL_CENTER )		{
-				obj->rtype.pobj_info.model_num = ObjId[i];
-				obj->shields = ObjStrength[i];
+				obj.rtype.pobj_info.model_num = ObjId[i];
+				obj.shields = ObjStrength[i];
 				break;		
 			}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (Gamesave_current_version <= 1) { // descent 1 reactor
 			set_reactor_id(obj, 0);                         // used to be only one kind of reactor
-			obj->rtype.pobj_info.model_num = Reactors[0].model_num;// descent 1 reactor
+			obj.rtype.pobj_info.model_num = Reactors[0].model_num;// descent 1 reactor
 		}
 
 		// Make sure model number is correct...
-		//obj->rtype.pobj_info.model_num = Reactors[obj->id].model_num;
+		//obj.rtype.pobj_info.model_num = Reactors[obj.id].model_num;
 #endif
 	}
 
-	if ( obj->type == OBJ_PLAYER )	{
+	if (obj.type == OBJ_PLAYER)
+	{
 		//int i;
 
 		//Assert(obj == Player);
 
-		if ( obj == ConsoleObject )		
+		if (&obj == ConsoleObject)
 			init_player_object();
 		else
-			if (obj->render_type == RT_POLYOBJ)	//recover from Matt's pof file matchup bug
-				obj->rtype.pobj_info.model_num = Player_ship->model_num;
+			if (obj.render_type == RT_POLYOBJ)	//recover from Matt's pof file matchup bug
+				obj.rtype.pobj_info.model_num = Player_ship->model_num;
 
 		//Make sure orient matrix is orthogonal
-		check_and_fix_matrix(obj->orient);
+		check_and_fix_matrix(obj.orient);
 
 		set_player_id(obj, Gamesave_num_players++);
 	}
 
-	if (obj->type == OBJ_HOSTAGE) {
-		obj->render_type = RT_HOSTAGE;
-		obj->control_type = CT_POWERUP;
+	if (obj.type == OBJ_HOSTAGE)
+	{
+		obj.render_type = RT_HOSTAGE;
+		obj.control_type = CT_POWERUP;
 	}
-
 }
+
 }
 
 //static gs_skip(int len,PHYSFS_File *file)
@@ -596,55 +606,55 @@ static int PHYSFSX_writeAngleVec(PHYSFS_File *file, const vms_angvec &v)
 
 //writes one object to the given file
 namespace dsx {
-static void write_object(const vcobjptr_t obj, short version, PHYSFS_File *f)
+static void write_object(const object &obj, short version, PHYSFS_File *f)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)version;
 #endif
-	PHYSFSX_writeU8(f, obj->type);
-	PHYSFSX_writeU8(f, obj->id);
+	PHYSFSX_writeU8(f, obj.type);
+	PHYSFSX_writeU8(f, obj.id);
 
-	PHYSFSX_writeU8(f, obj->control_type);
-	PHYSFSX_writeU8(f, obj->movement_type);
-	PHYSFSX_writeU8(f, obj->render_type);
-	PHYSFSX_writeU8(f, obj->flags);
+	PHYSFSX_writeU8(f, obj.control_type);
+	PHYSFSX_writeU8(f, obj.movement_type);
+	PHYSFSX_writeU8(f, obj.render_type);
+	PHYSFSX_writeU8(f, obj.flags);
 
-	PHYSFS_writeSLE16(f, obj->segnum);
+	PHYSFS_writeSLE16(f, obj.segnum);
 
-	PHYSFSX_writeVector(f, obj->pos);
-	PHYSFSX_writeMatrix(f, obj->orient);
+	PHYSFSX_writeVector(f, obj.pos);
+	PHYSFSX_writeMatrix(f, obj.orient);
 
-	PHYSFSX_writeFix(f, obj->size);
-	PHYSFSX_writeFix(f, obj->shields);
+	PHYSFSX_writeFix(f, obj.size);
+	PHYSFSX_writeFix(f, obj.shields);
 
-	PHYSFSX_writeVector(f, obj->last_pos);
+	PHYSFSX_writeVector(f, obj.last_pos);
 
-	PHYSFSX_writeU8(f, obj->contains_type);
-	PHYSFSX_writeU8(f, obj->contains_id);
-	PHYSFSX_writeU8(f, obj->contains_count);
+	PHYSFSX_writeU8(f, obj.contains_type);
+	PHYSFSX_writeU8(f, obj.contains_id);
+	PHYSFSX_writeU8(f, obj.contains_count);
 
-	switch (obj->movement_type) {
+	switch (obj.movement_type) {
 
 		case MT_PHYSICS:
 
-	 		PHYSFSX_writeVector(f, obj->mtype.phys_info.velocity);
-			PHYSFSX_writeVector(f, obj->mtype.phys_info.thrust);
+	 		PHYSFSX_writeVector(f, obj.mtype.phys_info.velocity);
+			PHYSFSX_writeVector(f, obj.mtype.phys_info.thrust);
 
-			PHYSFSX_writeFix(f, obj->mtype.phys_info.mass);
-			PHYSFSX_writeFix(f, obj->mtype.phys_info.drag);
+			PHYSFSX_writeFix(f, obj.mtype.phys_info.mass);
+			PHYSFSX_writeFix(f, obj.mtype.phys_info.drag);
 			PHYSFSX_writeFix(f, 0);	/* brakes */
 
-			PHYSFSX_writeVector(f, obj->mtype.phys_info.rotvel);
-			PHYSFSX_writeVector(f, obj->mtype.phys_info.rotthrust);
+			PHYSFSX_writeVector(f, obj.mtype.phys_info.rotvel);
+			PHYSFSX_writeVector(f, obj.mtype.phys_info.rotthrust);
 
-			PHYSFSX_writeFixAng(f, obj->mtype.phys_info.turnroll);
-			PHYSFS_writeSLE16(f, obj->mtype.phys_info.flags);
+			PHYSFSX_writeFixAng(f, obj.mtype.phys_info.turnroll);
+			PHYSFS_writeSLE16(f, obj.mtype.phys_info.flags);
 
 			break;
 
 		case MT_SPINNING:
 
-			PHYSFSX_writeVector(f, obj->mtype.spin_rate);
+			PHYSFSX_writeVector(f, obj.mtype.spin_rate);
 			break;
 
 		case MT_NONE:
@@ -654,18 +664,18 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_File *f)
 			Int3();
 	}
 
-	switch (obj->control_type) {
+	switch (obj.control_type) {
 
 		case CT_AI: {
-			PHYSFSX_writeU8(f, static_cast<uint8_t>(obj->ctype.ai_info.behavior));
+			PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.ctype.ai_info.behavior));
 
-			range_for (auto &i, obj->ctype.ai_info.flags)
+			range_for (auto &i, obj.ctype.ai_info.flags)
 				PHYSFSX_writeU8(f, i);
 
-			PHYSFS_writeSLE16(f, obj->ctype.ai_info.hide_segment);
-			PHYSFS_writeSLE16(f, obj->ctype.ai_info.hide_index);
-			PHYSFS_writeSLE16(f, obj->ctype.ai_info.path_length);
-			PHYSFS_writeSLE16(f, obj->ctype.ai_info.cur_path_index);
+			PHYSFS_writeSLE16(f, obj.ctype.ai_info.hide_segment);
+			PHYSFS_writeSLE16(f, obj.ctype.ai_info.hide_index);
+			PHYSFS_writeSLE16(f, obj.ctype.ai_info.path_length);
+			PHYSFS_writeSLE16(f, obj.ctype.ai_info.cur_path_index);
 
 #if defined(DXX_BUILD_DESCENT_I)
 			PHYSFS_writeSLE16(f, segment_none);
@@ -673,8 +683,8 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_File *f)
 #elif defined(DXX_BUILD_DESCENT_II)
 			if (version <= 25)
 			{
-				PHYSFS_writeSLE16(f, -1);	//obj->ctype.ai_info.follow_path_start_seg
-				PHYSFS_writeSLE16(f, -1);	//obj->ctype.ai_info.follow_path_end_seg
+				PHYSFS_writeSLE16(f, -1);	//obj.ctype.ai_info.follow_path_start_seg
+				PHYSFS_writeSLE16(f, -1);	//obj.ctype.ai_info.follow_path_end_seg
 			}
 #endif
 
@@ -683,9 +693,9 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_File *f)
 
 		case CT_EXPLOSION:
 
-			PHYSFSX_writeFix(f, obj->ctype.expl_info.spawn_time);
-			PHYSFSX_writeFix(f, obj->ctype.expl_info.delete_time);
-			PHYSFS_writeSLE16(f, obj->ctype.expl_info.delete_objnum);
+			PHYSFSX_writeFix(f, obj.ctype.expl_info.spawn_time);
+			PHYSFSX_writeFix(f, obj.ctype.expl_info.delete_time);
+			PHYSFS_writeSLE16(f, obj.ctype.expl_info.delete_objnum);
 
 			break;
 
@@ -693,24 +703,24 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_File *f)
 
 			//do I really need to write these objects?
 
-			PHYSFS_writeSLE16(f, obj->ctype.laser_info.parent_type);
-			PHYSFS_writeSLE16(f, obj->ctype.laser_info.parent_num);
-			PHYSFS_writeSLE32(f, obj->ctype.laser_info.parent_signature.get());
+			PHYSFS_writeSLE16(f, obj.ctype.laser_info.parent_type);
+			PHYSFS_writeSLE16(f, obj.ctype.laser_info.parent_num);
+			PHYSFS_writeSLE32(f, obj.ctype.laser_info.parent_signature.get());
 
 			break;
 
 		case CT_LIGHT:
 
-			PHYSFSX_writeFix(f, obj->ctype.light_info.intensity);
+			PHYSFSX_writeFix(f, obj.ctype.light_info.intensity);
 			break;
 
 		case CT_POWERUP:
 
 #if defined(DXX_BUILD_DESCENT_I)
-			PHYSFS_writeSLE32(f, obj->ctype.powerup_info.count);
+			PHYSFS_writeSLE32(f, obj.ctype.powerup_info.count);
 #elif defined(DXX_BUILD_DESCENT_II)
 			if (version >= 25)
-				PHYSFS_writeSLE32(f, obj->ctype.powerup_info.count);
+				PHYSFS_writeSLE32(f, obj.ctype.powerup_info.count);
 #endif
 			break;
 
@@ -733,21 +743,21 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_File *f)
 	
 	}
 
-	switch (obj->render_type) {
+	switch (obj.render_type) {
 
 		case RT_NONE:
 			break;
 
 		case RT_MORPH:
 		case RT_POLYOBJ: {
-			PHYSFS_writeSLE32(f, obj->rtype.pobj_info.model_num);
+			PHYSFS_writeSLE32(f, obj.rtype.pobj_info.model_num);
 
-			range_for (auto &i, obj->rtype.pobj_info.anim_angles)
+			range_for (auto &i, obj.rtype.pobj_info.anim_angles)
 				PHYSFSX_writeAngleVec(f, i);
 
-			PHYSFS_writeSLE32(f, obj->rtype.pobj_info.subobj_flags);
+			PHYSFS_writeSLE32(f, obj.rtype.pobj_info.subobj_flags);
 
-			PHYSFS_writeSLE32(f, obj->rtype.pobj_info.tmap_override);
+			PHYSFS_writeSLE32(f, obj.rtype.pobj_info.tmap_override);
 
 			break;
 		}
@@ -757,9 +767,9 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_File *f)
 		case RT_POWERUP:
 		case RT_FIREBALL:
 
-			PHYSFS_writeSLE32(f, obj->rtype.vclip_info.vclip_num);
-			PHYSFSX_writeFix(f, obj->rtype.vclip_info.frametime);
-			PHYSFSX_writeU8(f, obj->rtype.vclip_info.framenum);
+			PHYSFS_writeSLE32(f, obj.rtype.vclip_info.vclip_num);
+			PHYSFSX_writeFix(f, obj.rtype.vclip_info.frametime);
+			PHYSFSX_writeU8(f, obj.rtype.vclip_info.framenum);
 
 			break;
 
@@ -799,9 +809,9 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 					LevelError("segment %u side %u wall %u has no child segment; removing orphan wall.", seg.get_unchecked_index(), sidenum, wn0);
 					return;
 				}
-				const auto &vcseg = vcsegptr(connected_seg);
+				auto &vcseg = *vcsegptr(connected_seg);
 				const unsigned connected_side = find_connect_side(seg, vcseg);
-				const auto wn1 = vcseg->sides[connected_side].wall_num;
+				const auto wn1 = vcseg.sides[connected_side].wall_num;
 				if (wn1 == wall_none)
 				{
 					rwn0 = wall_none;

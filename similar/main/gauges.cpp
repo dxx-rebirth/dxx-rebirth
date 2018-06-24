@@ -3249,7 +3249,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
 		else if (Show_kill_list == 3)
 			gr_printf(canvas, game_font, x1, y, "%3d", team_kills[i]);
 		else if (Game_mode & GM_MULTI_COOP)
-			gr_printf(canvas, game_font, x1, y, "%-6d", vcobjptr(vcplayerptr(player_num)->objnum)->ctype.player_info.mission.score);
+			gr_printf(canvas, game_font, x1, y, "%-6d", player_info.mission.score);
 		else if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
 			gr_printf(canvas, game_font, x1, y, "%3d(%d)", player_info.net_kills_total, player_info.KillGoalCount);
 		else
@@ -3306,8 +3306,8 @@ void show_HUD_names(grs_canvas &canvas)
 			//if this is a demo, the objnum in the player struct is wrong, so we search the object list for the objnum
 			for (objnum=0;objnum<=Highest_object_index;objnum++)
 			{
-				const auto &&objp = vcobjptr(objnum);
-				if (objp->type == OBJ_PLAYER && get_player_id(objp) == pnum)
+				auto &objp = *vcobjptr(objnum);
+				if (objp.type == OBJ_PLAYER && get_player_id(objp) == pnum)
 					break;
 			}
 			if (objnum > Highest_object_index)	//not in list, thus not visible

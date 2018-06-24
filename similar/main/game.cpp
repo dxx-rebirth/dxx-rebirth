@@ -911,8 +911,8 @@ static void do_cloak_stuff(void)
 {
 	range_for (auto &&e, enumerate(partial_range(Players, N_players)))
 	{
-		const auto &&plobj = vmobjptr(e.value.objnum);
-		auto &player_info = plobj->ctype.player_info;
+		auto &plobj = *vmobjptr(e.value.objnum);
+		auto &player_info = plobj.ctype.player_info;
 		auto &pl_flags = player_info.powerup_flags;
 		if (pl_flags & PLAYER_FLAGS_CLOAKED)
 		{

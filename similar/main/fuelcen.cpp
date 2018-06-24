@@ -422,8 +422,9 @@ static void robotmaker_proc(fvmsegptridx &vmsegptridx, FuelCenter *const robotce
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
 			range_for (const auto &&objp, vcobjptr)
 			{
-				if (objp->type == OBJ_ROBOT)
-					if ((objp->matcen_creator ^ 0x80) == my_station_num)
+				auto &obj = *objp;
+				if (obj.type == OBJ_ROBOT)
+					if ((obj.matcen_creator ^ 0x80) == my_station_num)
 						count++;
 			}
 			if (count > Difficulty_level + 3) {
@@ -552,11 +553,12 @@ constexpr std::integral_constant<unsigned, F1_0 / 4> FUELCEN_SOUND_DELAY{};
 #endif
 
 //-------------------------------------------------------------
-fix fuelcen_give_fuel(const vcsegptr_t segp, fix MaxAmountCanTake)
+fix fuelcen_give_fuel(const shared_segment &segp, fix MaxAmountCanTake)
 {
 	static fix64 last_play_time = 0;
 
-	if (segp->special==SEGMENT_IS_FUELCEN)	{
+	if (segp.special == SEGMENT_IS_FUELCEN)
+	{
 		fix amount;
 
 #if defined(DXX_BUILD_DESCENT_II)

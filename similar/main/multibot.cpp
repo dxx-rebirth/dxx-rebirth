@@ -226,14 +226,15 @@ void multi_strip_robots(const int playernum)
 		range_for (const auto &&objp, partial_range(vmobjptr, DXX_partial_range_vobjptr_skip_distance(1u), vmobjptr.count()))
 #undef DXX_partial_range_vobjptr_skip_distance
 		{
-			if (objp->type == OBJ_ROBOT && objp->ctype.ai_info.REMOTE_OWNER == playernum)
+			auto &obj = *objp;
+			if (obj.type == OBJ_ROBOT && obj.ctype.ai_info.REMOTE_OWNER == playernum)
 			{
-				Assert(objp->control_type == CT_AI || objp->control_type == CT_NONE || objp->control_type == CT_MORPH);
-				objp->ctype.ai_info.REMOTE_OWNER = -1;
+				assert(obj.control_type == CT_AI || obj.control_type == CT_NONE || obj.control_type == CT_MORPH);
+				obj.ctype.ai_info.REMOTE_OWNER = -1;
 				if (playernum == Player_num)
-					objp->ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;
+					obj.ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;
 				else
-					objp->ctype.ai_info.REMOTE_SLOT_NUM = 0;
+					obj.ctype.ai_info.REMOTE_SLOT_NUM = 0;
 	  		}
 		}
 	}
@@ -664,7 +665,8 @@ void multi_send_boss_create_robot(vmobjidx_t bossobjnum, const vmobjptridx_t obj
 #define MAX_ROBOT_POWERUPS 4
 
 namespace dsx {
-static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
+
+static void multi_send_create_robot_powerups(const object_base &del_obj)
 {
 	multi_command<MULTI_CREATE_ROBOT_POWERUPS> multibuf;
 	// Send create robot information
@@ -673,28 +675,28 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 
 	loc += 1;
 	multibuf[loc] = Player_num;									loc += 1;
-	multibuf[loc] = del_obj->contains_count;					loc += 1;
-	multibuf[loc] = del_obj->contains_type; 					loc += 1;
-	multibuf[loc] = del_obj->contains_id;						loc += 1;
-	PUT_INTEL_SHORT(&multibuf[loc], del_obj->segnum);		        loc += 2;
+	multibuf[loc] = del_obj.contains_count;					loc += 1;
+	multibuf[loc] = del_obj.contains_type; 					loc += 1;
+	multibuf[loc] = del_obj.contains_id;						loc += 1;
+	PUT_INTEL_SHORT(&multibuf[loc], del_obj.segnum);		        loc += 2;
 	if (words_bigendian)
 	{
 		vms_vector swapped_vec;
-		swapped_vec.x = INTEL_INT(static_cast<int>(del_obj->pos.x));
-		swapped_vec.y = INTEL_INT(static_cast<int>(del_obj->pos.y));
-		swapped_vec.z = INTEL_INT(static_cast<int>(del_obj->pos.z));
+		swapped_vec.x = INTEL_INT(static_cast<int>(del_obj.pos.x));
+		swapped_vec.y = INTEL_INT(static_cast<int>(del_obj.pos.y));
+		swapped_vec.z = INTEL_INT(static_cast<int>(del_obj.pos.z));
 		memcpy(&multibuf[loc], &swapped_vec, sizeof(vms_vector));
 		loc += 12;
 	}
 	else
 	{
-		memcpy(&multibuf[loc], &del_obj->pos, sizeof(vms_vector));
+		memcpy(&multibuf[loc], &del_obj.pos, sizeof(vms_vector));
 		loc += 12;
 	}
 
 	memset(&multibuf[loc], -1, MAX_ROBOT_POWERUPS*sizeof(short));
 #if defined(DXX_BUILD_DESCENT_II)
-   if (del_obj->contains_count!=Net_create_loc)
+   if (del_obj.contains_count != Net_create_loc)
 	  Int3();  //Get Jason, a bad thing happened
 #endif
 

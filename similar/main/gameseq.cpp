@@ -149,15 +149,15 @@ public:
 	preserve_player_object_info(const objnum_t &o) :
 		objnum(o)
 	{
-		const auto &&plr = vmobjptr(objnum);
-		plr_shields = plr->shields;
-		plr_info = plr->ctype.player_info;
+		auto &plr = *vcobjptr(objnum);
+		plr_shields = plr.shields;
+		plr_info = plr.ctype.player_info;
 	}
 	void restore() const
 	{
-		const auto &&plr = vmobjptr(objnum);
-		plr->shields = plr_shields;
-		plr->ctype.player_info = plr_info;
+		auto &plr = *vmobjptr(objnum);
+		plr.shields = plr_shields;
+		plr.ctype.player_info = plr_info;
 	}
 };
 

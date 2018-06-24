@@ -415,10 +415,10 @@ int do_powerup(const vmobjptridx_t obj)
 			auto &plr = *vcplayerptr(i);
 			if (plr.connected != CONNECT_PLAYING)
 				continue;
-			const auto &&o = vcobjptr(plr.objnum);
-			if (o->type == OBJ_GHOST)
+			auto &o = *vcobjptr(plr.objnum);
+			if (o.type == OBJ_GHOST)
 				continue;
-			if (mydist > vm_vec_normalized_dir(tvec, obj->pos, o->pos))
+			if (mydist > vm_vec_normalized_dir(tvec, obj->pos, o.pos))
 				return 0;
 		}
 	}

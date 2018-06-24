@@ -106,13 +106,13 @@ void calc_controlcen_gun_point(object &obj)
 //	Look at control center guns, find best one to fire at *objp.
 //	Return best gun number (one whose direction dotted with vector to player is largest).
 //	If best gun has negative dot, return -1, meaning no gun is good.
-static int calc_best_gun(int num_guns, const vcobjptr_t objreactor, const vms_vector &objpos)
+static int calc_best_gun(const unsigned num_guns, const object &objreactor, const vms_vector &objpos)
 {
 	int	i;
 	fix	best_dot;
 	int	best_gun;
-	auto &gun_pos = objreactor->ctype.reactor_info.gun_pos;
-	auto &gun_dir = objreactor->ctype.reactor_info.gun_dir;
+	auto &gun_pos = objreactor.ctype.reactor_info.gun_pos;
+	auto &gun_dir = objreactor.ctype.reactor_info.gun_dir;
 
 	best_dot = -F1_0*2;
 	best_gun = -1;
@@ -476,10 +476,10 @@ void init_controlcen_for_level(void)
 	{
 		if (cntrlcen_objnum != nullptr)
 		{
-			const vmobjptr_t objp = cntrlcen_objnum;
-			objp->type = OBJ_GHOST;
-			objp->control_type = CT_NONE;
-			objp->render_type = RT_NONE;
+			auto &objp = *cntrlcen_objnum;
+			objp.type = OBJ_GHOST;
+			objp.control_type = CT_NONE;
+			objp.render_type = RT_NONE;
 			Control_center_present = 0;
 		}
 	}

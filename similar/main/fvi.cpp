@@ -573,21 +573,20 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 //determine if a vector intersects with an object
 //if no intersects, returns 0, else fills in intp and returns dist
 __attribute_warn_unused_result
-static vm_distance_squared check_vector_to_object(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,fix rad,const vcobjptr_t obj,const vcobjptr_t otherobj)
+static vm_distance_squared check_vector_to_object(vms_vector &intp, const vms_vector &p0, const vms_vector &p1, const fix rad, const object_base &obj, const object &otherobj)
 {
-	fix size = obj->size;
+	fix size = obj.size;
 
-	if (obj->type == OBJ_ROBOT && Robot_info[get_robot_id(obj)].attack_type)
+	if (obj.type == OBJ_ROBOT && Robot_info[get_robot_id(obj)].attack_type)
 		size = (size*3)/4;
 
 	//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
-	if (obj->type == OBJ_PLAYER &&
-		 	((otherobj->type == OBJ_PLAYER) ||
-	 		((Game_mode&GM_MULTI_COOP) && otherobj->type == OBJ_WEAPON && otherobj->ctype.laser_info.parent_type == OBJ_PLAYER)))
+	if (obj.type == OBJ_PLAYER &&
+		 	(otherobj.type == OBJ_PLAYER ||
+	 		((Game_mode & GM_MULTI_COOP) && otherobj.type == OBJ_WEAPON && otherobj.ctype.laser_info.parent_type == OBJ_PLAYER)))
 		size = size/2;
 
-	return check_vector_to_sphere_1(intp,p0,p1,obj->pos,size+rad);
-
+	return check_vector_to_sphere_1(intp, p0, p1, obj.pos, size+rad);
 }
 
 

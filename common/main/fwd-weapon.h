@@ -204,7 +204,7 @@ int pick_up_secondary(player_info &, int weapon_index,int count);
 namespace dsx {
 int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, bool change_weapon = true);
 //this function is for when the player intentionally drops a powerup
-imobjptridx_t spit_powerup(vmobjptr_t spitter, int id, int seed);
+imobjptridx_t spit_powerup(const object_base &spitter, unsigned id, unsigned seed);
 
 #if defined(DXX_BUILD_DESCENT_II)
 int attempt_to_steal_item(vmobjptridx_t objp, vmobjptr_t playerobjp);

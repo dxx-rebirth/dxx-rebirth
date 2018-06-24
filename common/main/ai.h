@@ -113,7 +113,7 @@ extern vms_vector Believed_player_pos;
 }
 
 namespace dsx {
-void move_towards_segment_center(vmobjptr_t objp);
+void move_towards_segment_center(object_base &objp);
 imobjptridx_t gate_in_robot(int type, vmsegptridx_t segnum);
 void do_ai_frame(vmobjptridx_t objp);
 void do_ai_frame_all();
@@ -156,7 +156,7 @@ int ai_door_is_openable(
 #if defined(DXX_BUILD_DESCENT_II)
 	player_flags,
 #endif
-	vcsegptr_t segp, int sidenum);
+	const shared_segment &segp, unsigned sidenum);
 int player_is_visible_from_object(vmobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
 int ai_multiplayer_awareness(vmobjptridx_t objp, int awareness_level);

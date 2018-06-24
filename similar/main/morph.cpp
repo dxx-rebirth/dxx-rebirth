@@ -48,18 +48,17 @@ using std::max;
 array<morph_data, MAX_MORPH_OBJECTS> morph_objects;
 
 //returns ptr to data for this object, or NULL if none
-morph_data *find_morph_data(const vmobjptr_t obj)
+morph_data *find_morph_data(object &obj)
 {
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
-		morph_objects[0].obj = obj;
+		morph_objects[0].obj = &obj;
 		return &morph_objects[0];
 	}
 
 	range_for (auto &i, morph_objects)
-		if (i.obj == obj)
+		if (i.obj == &obj)
 			return &i;
-
-	return NULL;
+	return nullptr;
 }
 
 static void assign_max(fix &a, const fix &b)
@@ -221,7 +220,7 @@ static void update_points(polymodel *pm,int submodel_num,morph_data *md)
 
 
 //process the morphing object for one frame
-void do_morph_frame(const vmobjptr_t obj)
+void do_morph_frame(object &obj)
 {
 	polymodel *pm;
 	morph_data *md;
@@ -229,11 +228,12 @@ void do_morph_frame(const vmobjptr_t obj)
 	md = find_morph_data(obj);
 
 	if (md == NULL) {					//maybe loaded half-morphed from disk
-		obj->flags |= OF_SHOULD_BE_DEAD;		//..so kill it
+		obj.flags |= OF_SHOULD_BE_DEAD;		//..so kill it
 		return;
 	}
+	assert(md->obj == &obj);
 
-	pm = &Polygon_models[md->obj->rtype.pobj_info.model_num];
+	pm = &Polygon_models[obj.rtype.pobj_info.model_num];
 
 	for (uint_fast32_t i = 0; i != pm->n_models; ++i)
 		if (md->submodel_active[i]==1) {
@@ -254,16 +254,14 @@ void do_morph_frame(const vmobjptr_t obj)
 
 	if (!md->n_submodels_active) {			//done morphing!
 
-		md->obj->control_type = md->morph_save_control_type;
-		set_object_movement_type(*md->obj, md->morph_save_movement_type);
+		obj.control_type = md->morph_save_control_type;
+		set_object_movement_type(obj, md->morph_save_movement_type);
 
-		md->obj->render_type = RT_POLYOBJ;
+		obj.render_type = RT_POLYOBJ;
 
-		md->obj->mtype.phys_info = md->morph_save_phys_info;
-
+		obj.mtype.phys_info = md->morph_save_phys_info;
 		md->obj = NULL;
 	}
-
 }
 
 constexpr vms_vector morph_rotvel{0x4000,0x2000,0x1000};

@@ -590,15 +590,17 @@ void validate_all_paths(void)
 #if PATH_VALIDATION
 	range_for (const auto &&objp, vmobjptr)
 	{
-		if (objp->type == OBJ_ROBOT) {
-			ai_static	*aip = &objp->ctype.ai_info;
-			if (objp->control_type == CT_AI) {
-				if ((aip->hide_index != -1) && (aip->path_length > 0))
-					if (!validate_path(4, &Point_segs[aip->hide_index], aip->path_length)) {
+		auto &obj = *objp;
+		if (obj.type == OBJ_ROBOT) {
+			auto &aip = obj.ctype.ai_info;
+			if (obj.control_type == CT_AI) {
+				if ((aip.hide_index != -1) && (aip.path_length > 0))
+					if (!validate_path(4, &Point_segs[aip.hide_index], aip.path_length))
+					{
 						Int3();	//	This path is bogus!  Who corrupted it!  Danger! Danger!
 									//	Contact Mike, he caused this mess.
 						//force_dump_ai_objects_all("Error in validate_all_paths");
-						aip->path_length=0;	//	This allows people to resume without harm...
+						aip.path_length=0;	//	This allows people to resume without harm...
 					}
 			}
 		}
@@ -1361,9 +1363,10 @@ void ai_path_garbage_collect()
 
 	range_for (const auto &&objp, vcobjptr)
 	{
-		const auto &aip = objp->ctype.ai_info;
+		auto &obj = *objp;
+		const auto &aip = obj.ctype.ai_info;
 
-		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
+		if (obj.type == OBJ_ROBOT && obj.control_type == CT_AI)
 			if ((aip.hide_index + aip.path_length > Point_segs_free_ptr - Point_segs) && (aip.path_length>0))
 				Int3();		//	Contact Mike: Debug trap for nasty, elusive bug.
 	}

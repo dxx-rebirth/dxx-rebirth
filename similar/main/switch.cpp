@@ -540,17 +540,17 @@ window_event_result check_trigger(const vcsegptridx_t seg, short side, object &p
 		{
 			t.flags &= ~TRIGGER_ON;
 	
-			const auto &&csegp = vcsegptr(seg->children[side]);
+			auto &csegp = *vcsegptr(seg->children[side]);
 			auto cside = find_connect_side(seg, csegp);
 			Assert(cside != side_none);
 		
-			const auto cwall_num = csegp->sides[cside].wall_num;
+			const auto cwall_num = csegp.sides[cside].wall_num;
 			if (cwall_num == wall_none)
 				return window_event_result::ignored;
 			
 			const auto ctrigger_num = vmwallptr(cwall_num)->trigger;
-			const auto &&ct = vmtrgptr(ctrigger_num);
-			ct->flags &= ~TRIGGER_ON;
+			auto &ct = *vmtrgptr(ctrigger_num);
+			ct.flags &= ~TRIGGER_ON;
 		}
 #endif
 		if (Game_mode & GM_MULTI)

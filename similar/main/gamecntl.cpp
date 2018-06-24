@@ -1080,21 +1080,19 @@ static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptri
 		const auto &&t = vctrgptr(i);
 		if (trigger_is_exit(t))
 		{
-			range_for (const auto &&w, vcwallptr)
+			range_for (const auto &&wp, vcwallptr)
 			{
-				if (w->trigger == i)
+				auto &w = *wp;
+				if (w.trigger == i)
 				{
-					const auto &&segp = vmsegptridx(w->segnum);
+					const auto &&segp = vmsegptridx(w.segnum);
 					compute_segment_center(vcvertptr, ConsoleObject->pos, segp);
 					obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), segp);
-					goto kasf_done;
+					return;
 				}
 			}
 		}
 	}
-
-kasf_done: ;
-
 }
 
 #ifndef RELEASE

@@ -105,13 +105,13 @@ partial_range_t<const jointpos *> robot_get_anim_state(const array<robot_info, M
 
 #ifndef NDEBUG
 //for test, set a robot to a specific state
-static void set_robot_state(const vmobjptr_t obj,int state) __attribute_used;
-static void set_robot_state(const vmobjptr_t obj,int state)
+static void set_robot_state(object_base &obj, const unsigned state) __attribute_used;
+static void set_robot_state(object_base &obj, const unsigned state)
 {
 	int g,j,jo;
 	jointlist *jl;
 
-	Assert(obj->type == OBJ_ROBOT);
+	assert(obj.type == OBJ_ROBOT);
 
 	auto &ri = Robot_info[get_robot_id(obj)];
 
@@ -127,8 +127,7 @@ static void set_robot_state(const vmobjptr_t obj,int state)
 
 			jn = Robot_joints[jo].jointnum;
 
-			obj->rtype.pobj_info.anim_angles[jn] = Robot_joints[jo].angles;
-
+			obj.rtype.pobj_info.anim_angles[jn] = Robot_joints[jo].angles;
 		}
 	}
 }

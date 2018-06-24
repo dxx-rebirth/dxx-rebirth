@@ -143,36 +143,36 @@ void Laser_render(grs_canvas &canvas, const object_base &obj)
 //
 //}
 
-static bool ignore_proximity_weapon(const vcobjptr_t o)
+static bool ignore_proximity_weapon(const object &o)
 {
 	if (!is_proximity_bomb_or_smart_mine(get_weapon_id(o)))
 		return false;
 #if defined(DXX_BUILD_DESCENT_I)
-	return GameTime64 > o->ctype.laser_info.creation_time + F1_0*2;
+	return GameTime64 > o.ctype.laser_info.creation_time + F1_0*2;
 #elif defined(DXX_BUILD_DESCENT_II)
-	return GameTime64 > o->ctype.laser_info.creation_time + F1_0*4;
+	return GameTime64 > o.ctype.laser_info.creation_time + F1_0*4;
 #endif
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static bool ignore_phoenix_weapon(vcobjptr_t)
+static bool ignore_phoenix_weapon(const object &)
 {
 	return false;
 }
 
-static bool ignore_guided_missile_weapon(vcobjptr_t)
+static bool ignore_guided_missile_weapon(const object &)
 {
 	return false;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-static bool ignore_phoenix_weapon(const vcobjptr_t o)
+static bool ignore_phoenix_weapon(const object &o)
 {
-	return get_weapon_id(o) == weapon_id_type::PHOENIX_ID && GameTime64 > o->ctype.laser_info.creation_time + F1_0/4;
+	return get_weapon_id(o) == weapon_id_type::PHOENIX_ID && GameTime64 > o.ctype.laser_info.creation_time + F1_0/4;
 }
 
-static bool ignore_guided_missile_weapon(const vcobjptr_t o)
+static bool ignore_guided_missile_weapon(const object &o)
 {
-	return get_weapon_id(o) == weapon_id_type::GUIDEDMISS_ID && GameTime64 > o->ctype.laser_info.creation_time + F1_0*2;
+	return get_weapon_id(o) == weapon_id_type::GUIDEDMISS_ID && GameTime64 > o.ctype.laser_info.creation_time + F1_0*2;
 }
 #endif
 
@@ -1316,9 +1316,7 @@ static imobjptridx_t track_track_goal(fvcobjptr &vcobjptr, const imobjptridx_t t
 				goal_type = OBJ_PLAYER;
 			else {
 				goal_type = vcobjptr(tracker->ctype.laser_info.track_goal)->type;
-                                // HACK: Dead players can be identified as valid track_goal, making it impossible to track players that are alive (further down the object list) in a multibot match. Re-assigning OBJ_GHOST to OBJ_PLAYER so homers can check for valid targets again. I think this should be fixed at the root of the problem but I am not sure if this may break more than we aim to fix. 
-                                if ((Game_mode & GM_MULTI) && (goal_type == OBJ_GHOST))
-                                        goal_type = OBJ_PLAYER;
+				assert(goal_type != OBJ_GHOST);
 			}
 		}
 		return find_homing_object_complete(tracker->pos, tracker, goal_type, goal2_type);

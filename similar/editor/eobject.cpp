@@ -62,14 +62,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	OBJ_DEL_SIZE	(F1_0/2)
 
 //returns the number of the first object in a segment, skipping the player
-static objnum_t get_first_object(const vmsegptr_t seg)
+static objnum_t get_first_object(fvcobjptr &vcobjptr, const unique_segment &seg)
 {
-	const auto id = seg->objects;
+	const auto id = seg.objects;
 	if (id == object_none)
 		return object_none;
-	const auto &&o = vmobjptr(id);
-	if (o == ConsoleObject)
-		return o->next;
+	auto &o = *vcobjptr(id);
+	if (&o == ConsoleObject)
+		return o.next;
 	return id;
 }
 
@@ -77,12 +77,12 @@ static objnum_t get_first_object(const vmsegptr_t seg)
 static objnum_t get_next_object(const vmsegptr_t seg,objnum_t id)
 {
 	if (id == object_none)
-		return get_first_object(seg);
+		return get_first_object(vcobjptr, seg);
 	for (auto o = vmobjptr(id);;)
 	{
 		id = o->next;
 		if (id == object_none)
-			return get_first_object(seg);
+			return get_first_object(vcobjptr, seg);
 		o = vmobjptr(id);
 		if (o != ConsoleObject)
 			return id;

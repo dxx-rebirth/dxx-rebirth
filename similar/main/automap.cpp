@@ -727,8 +727,9 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 		for (unsigned i = 0; i < N_players; ++i)
 		{
 			if ( (i != Player_num) && ((Game_mode & GM_MULTI_COOP) || (get_team(Player_num) == get_team(i)) || (Netgame.game_flag.show_on_map)) )	{
-				const auto &&objp = vcobjptr(vcplayerptr(i)->objnum);
-				if (objp->type == OBJ_PLAYER)
+				auto &plr = *vcplayerptr(i);
+				auto &objp = *vcobjptr(plr.objnum);
+				if (objp.type == OBJ_PLAYER)
 				{
 					const auto &other_ship_rgb = player_rgb[get_player_or_team_color(i)];
 					draw_player(canvas, objp, BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b));
@@ -1357,9 +1358,10 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 				} else if (!(WallAnims[w.clip_num].flags & WCF_HIDDEN)) {
 					auto connected_seg = seg->children[sn];
 					if (connected_seg != segment_none) {
-						const auto &vcseg = vcsegptr(connected_seg);
+						auto &vcseg = *vcsegptr(connected_seg);
 						const auto &connected_side = find_connect_side(seg, vcseg);
-						switch (vcwallptr(vcseg->sides[connected_side].wall_num)->keys)
+						auto &wall = *vcwallptr(vcseg.sides[connected_side].wall_num);
+						switch (wall.keys)
 						{
 							case KEY_BLUE:
 								color = am->wall_door_blue;
