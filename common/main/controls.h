@@ -31,8 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #ifdef dsx
 namespace dsx {
-void read_flying_controls(vmobjptr_t obj);
-
+void read_flying_controls(object &obj);
 }
 #endif
 #if defined(DXX_BUILD_DESCENT_II)
