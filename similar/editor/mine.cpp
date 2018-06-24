@@ -534,13 +534,13 @@ static void write_verts(const vcsegptr_t seg, PHYSFS_File *SaveFile)
 		PHYSFS_writeSLE16(SaveFile, i);
 }
 
-static void write_special(const vcsegptr_t seg, ubyte bit_mask, PHYSFS_File *SaveFile)
+static void write_special(const shared_segment &seg, const unsigned bit_mask, PHYSFS_File *const SaveFile)
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT))
 	{
-		PHYSFSX_writeU8(SaveFile, seg->special);
-		PHYSFSX_writeU8(SaveFile, seg->matcen_num);
-		PHYSFS_writeULE16(SaveFile, seg->station_idx);
+		PHYSFSX_writeU8(SaveFile, seg.special);
+		PHYSFSX_writeU8(SaveFile, seg.matcen_num);
+		PHYSFS_writeULE16(SaveFile, seg.station_idx);
 	}
 }
 // -----------------------------------------------------------------------------

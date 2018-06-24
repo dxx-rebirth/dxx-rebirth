@@ -836,36 +836,36 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 #define COMPILED_MINE_VERSION 0
 
-static void read_children(const vmsegptr_t segp,ubyte bit_mask,PHYSFS_File *LoadFile)
+static void read_children(shared_segment &segp, const unsigned bit_mask, PHYSFS_File *const LoadFile)
 {
 	for (int bit=0; bit<MAX_SIDES_PER_SEGMENT; bit++) {
 		if (bit_mask & (1 << bit)) {
-			segp->children[bit] = PHYSFSX_readShort(LoadFile);
+			segp.children[bit] = PHYSFSX_readShort(LoadFile);
 		} else
-			segp->children[bit] = segment_none;
+			segp.children[bit] = segment_none;
 	}
 }
 
-static void read_verts(const vmsegptr_t segp,PHYSFS_File *LoadFile)
+static void read_verts(shared_segment &segp, PHYSFS_File *const LoadFile)
 {
 	// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
-	range_for (auto &i, segp->verts)
+	range_for (auto &i, segp.verts)
 		i = PHYSFSX_readShort(LoadFile);
 }
 
-static void read_special(const vmsegptr_t segp,ubyte bit_mask,PHYSFS_File *LoadFile)
+static void read_special(shared_segment &segp, const unsigned bit_mask, PHYSFS_File *const LoadFile)
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
 		// Read ubyte	Segments[segnum].special
-		segp->special = PHYSFSX_readByte(LoadFile);
+		segp.special = PHYSFSX_readByte(LoadFile);
 		// Read byte	Segments[segnum].matcen_num
-		segp->matcen_num = PHYSFSX_readByte(LoadFile);
+		segp.matcen_num = PHYSFSX_readByte(LoadFile);
 		// Read short	Segments[segnum].value
-		segp->station_idx = PHYSFSX_readShort(LoadFile);
+		segp.station_idx = PHYSFSX_readShort(LoadFile);
 	} else {
-		segp->special = 0;
-		segp->matcen_num = -1;
-		segp->station_idx = station_none;
+		segp.special = 0;
+		segp.matcen_num = -1;
+		segp.station_idx = station_none;
 	}
 }
 
