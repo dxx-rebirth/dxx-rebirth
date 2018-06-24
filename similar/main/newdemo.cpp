@@ -1579,10 +1579,9 @@ void newdemo_set_new_level(int level_num)
 			nd_write_byte (w.flags);
 			nd_write_byte (w.state);
 
-			int side = w.sidenum;
-			segment *seg = &Segments[w.segnum];
-			nd_write_short (seg->sides[side].tmap_num);
-			nd_write_short (seg->sides[side].tmap_num2);
+			const auto &side = vcsegptr(w.segnum)->sides[w.sidenum];
+			nd_write_short (side.tmap_num);
+			nd_write_short (side.tmap_num2);
 			nd_record_v_juststarted=0;
 		}
 	}
@@ -3188,28 +3187,17 @@ static int newdemo_read_frame_information(int rewrite)
 					nd_read_byte(&w.flags);
 					nd_read_byte(&w.state);
 
-					segment *seg;
-					int side;
-					if (rewrite)	// hack some dummy variables
-					{
-						seg = &Segments.front();
-						side = 0;
-					}
-					else
-					{
-						seg = &Segments[w.segnum];
-						side = w.sidenum;
-					}
-					nd_read_short (&seg->sides[side].tmap_num);
-					nd_read_short (&seg->sides[side].tmap_num2);
+					auto &side = vmsegptr(w.segnum)->sides[w.sidenum];
+					nd_read_short (&side.tmap_num);
+					nd_read_short (&side.tmap_num2);
 
 					if (rewrite)
 					{
 						nd_write_byte (w.type);
 						nd_write_byte (w.flags);
 						nd_write_byte (w.state);
-						nd_write_short (seg->sides[side].tmap_num);
-						nd_write_short (seg->sides[side].tmap_num2);
+						nd_write_short (side.tmap_num);
+						nd_write_short (side.tmap_num2);
 					}
 				}
 

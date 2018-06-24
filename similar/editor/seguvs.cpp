@@ -123,16 +123,17 @@ static void set_average_light_at_vertex(int vnum)
 	while (Segment_indices[segind] != segment_none) {
 		auto segnum = Segment_indices[segind++];
 
-		segment *segp = &Segments[segnum];
+		auto &ssegp = *vcsegptr(segnum);
+		auto &usegp = *vmsegptr(segnum);
 
 		for (relvnum=0; relvnum<MAX_VERTICES_PER_SEGMENT; relvnum++)
-			if (segp->verts[relvnum] == vnum)
+			if (ssegp.verts[relvnum] == vnum)
 				break;
 
 		if (relvnum < MAX_VERTICES_PER_SEGMENT) {
 			for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
-				if (!IS_CHILD(segp->children[sidenum])) {
-					const auto sidep = &segp->sides[sidenum];
+				if (!IS_CHILD(ssegp.children[sidenum])) {
+					unique_side &sidep = usegp.sides[sidenum];
 					auto &vp = Side_to_verts[sidenum];
 					const auto vb = begin(vp);
 					const auto ve = end(vp);
@@ -140,7 +141,7 @@ static void set_average_light_at_vertex(int vnum)
 					if (vi != ve)
 					{
 						const auto v = std::distance(vb, vi);
-							sidep->uvls[v].l = average_light;
+						sidep.uvls[v].l = average_light;
 					}
 				}	// end if
 			}	// end sidenum

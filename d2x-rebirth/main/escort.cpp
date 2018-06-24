@@ -234,10 +234,10 @@ static int ok_for_buddy_to_talk(void)
 	if (Buddy_allowed_to_talk)
 		return Buddy_allowed_to_talk;
 
-	const segment *const segp = vcsegptr(buddy->segnum);
+	const shared_segment &segp = vcsegptr(buddy->segnum);
 
 	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		auto	wall_num = segp->sides[i].wall_num;
+		const auto wall_num = segp.sides[i].wall_num;
 
 		if (wall_num != wall_none) {
 			auto &w = *vcwallptr(wall_num);
@@ -246,8 +246,11 @@ static int ok_for_buddy_to_talk(void)
 		}
 
 		//	Check one level deeper.
-		if (IS_CHILD(segp->children[i])) {
-			range_for (const auto &j, vcsegptr(segp->children[i])->sides)
+		const auto child = segp.children[i];
+		if (IS_CHILD(child))
+		{
+			auto &cseg = *vcsegptr(child);
+			range_for (const auto &j, cseg.sides)
 			{
 				auto wall2 = j.wall_num;
 				if (wall2 != wall_none) {
