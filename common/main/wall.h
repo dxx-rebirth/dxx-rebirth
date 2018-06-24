@@ -195,7 +195,7 @@ static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const vcsegptr_t seg, con
 	const auto &s = seg->sides[side];
 	if (likely(s.wall_num == wall_none))
 		return WID_NO_WALL;
-	return wall_is_doorway(s);
+	return wall_is_doorway(GameBitmaps, Textures, vcwallptr, s, s);
 }
 }
 #endif

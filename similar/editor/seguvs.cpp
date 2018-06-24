@@ -305,7 +305,7 @@ static fix zhypot(fix a,fix b) {
 
 //	---------------------------------------------------------------------------------------------
 //	Assign lighting value to side, a function of the normal vector.
-void assign_light_to_side(side &s)
+void assign_light_to_side(unique_side &s)
 {
 	range_for (auto &v, s.uvls)
 		v.l = DEFAULT_LIGHTING;

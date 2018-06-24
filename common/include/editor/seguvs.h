@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "segment.h"
 
-void assign_light_to_side(side &);
+void assign_light_to_side(unique_side &);
 #ifdef dsx
 static inline void assign_light_to_side(segment &sp, uint_fast32_t sidenum)
 {

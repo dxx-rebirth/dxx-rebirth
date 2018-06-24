@@ -132,9 +132,9 @@ struct find_cloaked_wall_predicate
 }
 #endif
 
-static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(const side &side)
+static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(const unique_side &side)
 {
-	if (uint_fast32_t masked_tmap_num2 = side.tmap_num2 & 0x3FFF)
+	if (const uint_fast32_t masked_tmap_num2 = side.tmap_num2 & 0x3FFF)
 		return {masked_tmap_num2, BM_FLAG_SUPER_TRANSPARENT};
 	return {side.tmap_num, BM_FLAG_TRANSPARENT};
 }
@@ -142,9 +142,9 @@ static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(con
 // This function determines whether the current segment/side is transparent
 //		1 = YES
 //		0 = NO
-static uint_fast32_t check_transparency(const side &side)
+static uint_fast32_t check_transparency(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, const unique_side &side)
 {
-	auto v = get_transparency_check_values(side);
+	const auto &&v = get_transparency_check_values(side);
 	return GameBitmaps[Textures[v.first].index].get_flag_mask(v.second);
 }
 
@@ -162,9 +162,10 @@ static uint_fast32_t check_transparency(const side &side)
 //		WID_TRANSILLUSORY_WALL	7	//	1/1/1		transparent illusory wall
 //		WID_NO_WALL					5	//	1/0/1		no wall, can fly through
 namespace dsx {
-WALL_IS_DOORWAY_result_t wall_is_doorway(const side &side)
+
+WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const shared_side &sside, const unique_side &uside)
 {
-	auto &w = *vcwallptr(side.wall_num);
+	auto &w = *vcwallptr(sside.wall_num);
 	const auto type = w.type;
 	if (type == WALL_OPEN)
 		return WID_NO_WALL;
@@ -179,7 +180,7 @@ WALL_IS_DOORWAY_result_t wall_is_doorway(const side &side)
 		if (flags & WALL_ILLUSION_OFF)
 			return WID_NO_WALL;
 		else {
-			if (check_transparency(side))
+			if (check_transparency(GameBitmaps, Textures, uside))
 				return WID_TRANSILLUSORY_WALL;
 		 	else
 				return WID_ILLUSORY_WALL;
@@ -198,7 +199,7 @@ WALL_IS_DOORWAY_result_t wall_is_doorway(const side &side)
 		return WID_TRANSPARENT_WALL;
 	}
 // If none of the above flags are set, there is no doorway.
-	if (check_transparency(side))
+	if (check_transparency(GameBitmaps, Textures, uside))
 		return WID_TRANSPARENT_WALL;
 	else
 		return WID_WALL; // There are children behind the door.

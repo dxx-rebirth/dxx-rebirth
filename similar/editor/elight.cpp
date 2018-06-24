@@ -41,7 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // -----------------------------------------------------------------------------
 //	Return light intensity at an instance of a vertex on a side in a segment.
-static fix get_light_intensity(const side &s, const uint_fast32_t vert)
+static fix get_light_intensity(const unique_side &s, const uint_fast32_t vert)
 {
 	Assert(vert <= 3);
 	return s.uvls[vert].l;
@@ -64,7 +64,7 @@ static fix clamp_light_intensity(const fix intensity)
 
 // -----------------------------------------------------------------------------
 //	Set light intensity at a vertex, saturating in .5 to 15.5
-static void set_light_intensity(side &s, const uint_fast32_t vert, const fix intensity)
+static void set_light_intensity(unique_side &s, const uint_fast32_t vert, const fix intensity)
 {
 	Assert(vert <= 3);
 	s.uvls[vert].l = clamp_light_intensity(intensity);
@@ -79,7 +79,7 @@ static void set_light_intensity(const vmsegptr_t segp, const uint_fast32_t siden
 
 // -----------------------------------------------------------------------------
 //	Add light intensity to a vertex, saturating in .5 to 15.5
-static void add_light_intensity_all_verts(side &s, const fix intensity)
+static void add_light_intensity_all_verts(unique_side &s, const fix intensity)
 {
 	range_for (auto &u, s.uvls)
 		u.l = clamp_light_intensity(u.l + intensity);

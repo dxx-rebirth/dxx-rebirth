@@ -138,7 +138,7 @@ struct wallnum_t : prohibit_void_ptr<wallnum_t>
 };
 #endif
 
-struct side
+struct shared_side
 {
 	struct illegal_type;
 	side_type m_type;           // replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
@@ -146,10 +146,18 @@ struct side
 	void set_type(side_type t) { m_type = t; }
 	inline void set_type(unsigned t);
 	wallnum_t wall_num;
-	short   tmap_num;
-	short   tmap_num2;
-	array<uvl, 4>     uvls;
 	array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
+};
+
+struct unique_side
+{
+	int16_t tmap_num;
+	int16_t tmap_num2;
+	array<uvl, 4>     uvls;
+};
+
+struct side : unique_side, shared_side
+{
 };
 
 #ifdef dsx
@@ -225,23 +233,23 @@ DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(vertex, vert, Vertices);
 }
 
 #ifdef dsx
-struct side::illegal_type : std::runtime_error
+struct shared_side::illegal_type : std::runtime_error
 {
 	const shared_segment *const m_segment;
-	const side *const m_side;
-	illegal_type(const shared_segment &seg, const side &s) :
+	const shared_side *const m_side;
+	illegal_type(const shared_segment &seg, const shared_side &s) :
 		runtime_error("illegal side type"),
 		m_segment(&seg), m_side(&s)
 	{
 	}
-	illegal_type(const side &s) :
+	illegal_type(const shared_side &s) :
 		runtime_error("illegal side type"),
 		m_segment(nullptr), m_side(&s)
 	{
 	}
 };
 
-void side::set_type(unsigned t)
+void shared_side::set_type(const unsigned t)
 {
 	switch (t)
 	{

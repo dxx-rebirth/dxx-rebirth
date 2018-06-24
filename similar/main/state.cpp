@@ -1156,7 +1156,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	range_for (const auto &&segp, vcsegptr)
 	{
 		range_for (const auto &j, segp->sides)
-			segment_side_wall_tmap_write(fp, j);
+			segment_side_wall_tmap_write(fp, j, j);
 	}
 
 // Save the fuelcen info

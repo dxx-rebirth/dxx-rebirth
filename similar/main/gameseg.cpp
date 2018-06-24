@@ -134,6 +134,10 @@ namespace dsx {
 array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
 #endif
 
+}
+
+namespace dcx {
+
 // ------------------------------------------------------------------------------------------
 // Compute the center point of a side of a segment.
 //	The center point is defined to be the average of the 4 points defining the side.
@@ -153,18 +157,14 @@ void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &vp, const shared_
 // -----------------------------------------------------------------------------
 //	Given two segments, return the side index in the connecting segment which connects to the base segment
 //	Optimized by MK on 4/21/94 because it is a 2% load.
-uint_fast32_t find_connect_side(const vcsegidx_t base_seg, const segment &con_seg)
+uint_fast32_t find_connect_side(const vcsegidx_t base_seg, const shared_segment &con_seg)
 {
 	return find_connect_child(base_seg, con_seg.children);
 }
 
-}
-
-namespace dcx {
-
 // -----------------------------------------------------------------------------------
 //	Given a side, return the number of faces
-bool get_side_is_quad(const side &sidep)
+bool get_side_is_quad(const shared_side &sidep)
 {
 	switch (sidep.get_type())
 	{
@@ -197,13 +197,13 @@ void get_side_verts(side_vertnum_list_t &vertlist, const segment &segp, const un
 
 __attribute_cold
 __noreturn
-static void create_vertex_list_from_invalid_side(const shared_segment &segp, const side &sidep)
+static void create_vertex_list_from_invalid_side(const shared_segment &segp, const shared_side &sidep)
 {
 	throw side::illegal_type(segp, sidep);
 }
 
 template <typename T, typename V>
-static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment &segp, const side &sidep, const V &&f0, const V &&f1, const V &&f2, const V &&f3)
+static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment &segp, const shared_side &sidep, const V &&f0, const V &&f1, const V &&f2, const V &&f3)
 {
 	const auto type = sidep.get_type();
 	if (type == SIDE_IS_TRI_13)
@@ -241,7 +241,7 @@ static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment
 }
 
 template <typename T, typename F>
-static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const shared_segment &segp, const side &sidep, const F &&f)
+static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const shared_segment &segp, const shared_side &sidep, const F &&f)
 {
 	return create_vertex_lists_from_values(va, segp, sidep, f(0), f(1), f(2), f(3));
 }
@@ -258,7 +258,7 @@ static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const shared
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segp, const side &sidep, const uint_fast32_t sidenum)
+uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const uint_fast32_t sidenum)
 {
 	assert(sidenum < Side_to_verts_int.size());
 	auto &sv = Side_to_verts_int[sidenum];
@@ -274,14 +274,14 @@ uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const share
 //	If there is one face, it has 4 vertices.
 //	If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //	face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_segment &segp, const side &sidep, const uint_fast32_t sidenum)
+void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_segment &segp, const shared_side &sidep, const uint_fast32_t sidenum)
 {
 	create_vertex_lists_by_predicate(vertnums, segp, sidep, all_vertnum_lists_predicate(segp, sidenum));
 }
 
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
-uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segp, const side &sidep, const uint_fast32_t sidenum)
+uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const uint_fast32_t sidenum)
 {
 	return create_vertex_lists_by_predicate(vertices, segp, sidep, abs_vertex_lists_predicate(segp, sidenum));
 }

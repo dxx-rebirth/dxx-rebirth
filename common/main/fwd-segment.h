@@ -82,7 +82,8 @@ struct uvl;
 enum side_type : uint8_t;
 
 using wallnum_t = uint16_t;
-struct side;
+struct shared_side;
+struct unique_side;
 
 struct vertex;
 using vertnum_t = uint32_t;
@@ -130,7 +131,7 @@ extern unsigned Num_vertices;
 extern const array<array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int;    // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern const array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite;                                // Side_opposite[my_side] returns side opposite cube from my_side.
 
-void segment_side_wall_tmap_write(PHYSFS_File *fp, const side &side);
+void segment_side_wall_tmap_write(PHYSFS_File *fp, const shared_side &sside, const unique_side &uside);
 }
 void add_segment_to_group(segnum_t segment_num, int group_num);
 

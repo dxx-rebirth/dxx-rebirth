@@ -22,12 +22,23 @@ namespace dcx {
 DEFINE_SERIAL_UDT_TO_MESSAGE(wallnum_t, w, (w.value));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wallnum_t, 2);
 #endif
-DEFINE_SERIAL_UDT_TO_MESSAGE(side, s, (s.wall_num, s.tmap_num, s.tmap_num2));
-ASSERT_SERIAL_UDT_MESSAGE_SIZE(side, 6);
 
-void segment_side_wall_tmap_write(PHYSFS_File *fp, const side &side)
+namespace {
+
+struct composite_side
 {
-	PHYSFSX_serialize_write(fp, side);
+	const shared_side &sside;
+	const unique_side &uside;
+};
+
+DEFINE_SERIAL_UDT_TO_MESSAGE(composite_side, s, (s.sside.wall_num, s.uside.tmap_num, s.uside.tmap_num2));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(composite_side, 6);
+
+}
+
+void segment_side_wall_tmap_write(PHYSFS_File *fp, const shared_side &sside, const unique_side &uside)
+{
+	PHYSFSX_serialize_write(fp, composite_side{sside, uside});
 }
 
 }

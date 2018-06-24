@@ -125,8 +125,9 @@ void piggy_bitmap_page_out_all();
 #endif
 
 namespace dsx {
+using GameBitmaps_array = array<grs_bitmap, MAX_BITMAP_FILES>;
 extern array<digi_sound, MAX_SOUND_FILES> GameSounds;
-extern array<grs_bitmap, MAX_BITMAP_FILES> GameBitmaps;
+extern GameBitmaps_array GameBitmaps;
 #  define  PIGGY_PAGE_IN(bmp) _piggy_page_in(bmp)
 static inline void _piggy_page_in(bitmap_index bmp) {
 	if (GameBitmaps[bmp.index].get_flag_mask(BM_FLAG_PAGED_OUT))

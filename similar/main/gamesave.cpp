@@ -783,7 +783,7 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_File *f)
 // returns 0=everything ok, 1=old version, -1=error
 namespace dsx {
 
-static void validate_segment_wall(const vcsegptridx_t seg, side &side, const unsigned sidenum)
+static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, const unsigned sidenum)
 {
 	auto &rwn0 = side.wall_num;
 	const auto wn0 = rwn0;

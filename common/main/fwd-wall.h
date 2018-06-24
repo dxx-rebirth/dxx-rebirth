@@ -10,7 +10,9 @@
 
 #include <type_traits>
 #include <physfs.h>
+#include "piggy.h"
 #include "maths.h"
+#include "textures.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
 #include "cpp-valptridx.h"
@@ -215,7 +217,7 @@ void wall_init();
 // Automatically checks if a there is a doorway (i.e. can fly through)
 #ifdef dsx
 namespace dsx {
-WALL_IS_DOORWAY_result_t wall_is_doorway (const side &side);
+WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const shared_side &sside, const unique_side &uside);
 
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 }

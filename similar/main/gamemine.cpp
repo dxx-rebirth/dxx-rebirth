@@ -672,12 +672,10 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 				Assert(mine_fileinfo.segment_sizeof == sizeof(v16_seg));
 
-#if defined(DXX_BUILD_DESCENT_I)
 				Error("Sorry, v16 segment support is broken.");
+#if defined(DXX_BUILD_DESCENT_I)
 				*i = v16_seg;
 #elif defined(DXX_BUILD_DESCENT_II)
-				if (PHYSFS_read( LoadFile, &v16_seg, mine_fileinfo.segment_sizeof, 1 )!=1)
-					Error( "Error reading segments in gamemine.c" );
 #if DXX_USE_EDITOR
 				i->segnum = v16_seg.segnum;
 				// -- Segments[i].pad = v16_seg.pad;

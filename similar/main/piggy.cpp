@@ -115,7 +115,7 @@ int Num_sound_files = 0;
 namespace dsx {
 array<digi_sound, MAX_SOUND_FILES> GameSounds;
 static array<int, MAX_SOUND_FILES> SoundOffset;
-array<grs_bitmap, MAX_BITMAP_FILES> GameBitmaps;
+GameBitmaps_array GameBitmaps;
 }
 
 #if defined(DXX_BUILD_DESCENT_I)

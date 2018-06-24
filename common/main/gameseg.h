@@ -54,11 +54,10 @@ struct vertex_vertnum_pair
 	unsigned vertex, vertnum;
 };
 using vertex_vertnum_array_list = array<vertex_vertnum_pair, 6>;
-}
 
-#ifdef dsx
-namespace dsx {
-extern int	Doing_lighting_hack_flag;
+__attribute_warn_unused_result
+uint_fast32_t find_connect_side(vcsegidx_t base_seg, const shared_segment &con_seg);
+
 void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp, unsigned side);
 static inline vms_vector compute_center_point_on_side(fvcvertptr &vcvertptr, const shared_segment &sp, const unsigned side)
 {
@@ -72,8 +71,13 @@ static inline vms_vector compute_segment_center(fvcvertptr &vcvertptr, const sha
 	compute_segment_center(vcvertptr, v, sp);
 	return v;
 }
-__attribute_warn_unused_result
-uint_fast32_t find_connect_side(vcsegidx_t base_seg, const segment &con_seg);
+}
+
+#ifdef dsx
+namespace dsx {
+#if defined(DXX_BUILD_DESCENT_II) || DXX_USE_EDITOR
+extern int	Doing_lighting_hack_flag;
+#endif
 
 // Fill in array with four absolute point numbers for a given side
 void get_side_verts(side_vertnum_list_t &vertlist, const segment &seg, unsigned sidenum);
@@ -94,9 +98,9 @@ static inline side_vertnum_list_t get_side_verts(const segment &segnum, const un
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &seg, const side &sidep, uint_fast32_t sidenum);
+uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &seg, const shared_side &sidep, uint_fast32_t sidenum);
 __attribute_warn_unused_result
-static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertex_lists(const shared_segment &segnum, const side &sidep, const uint_fast32_t sidenum)
+static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertex_lists(const shared_segment &segnum, const shared_side &sidep, const uint_fast32_t sidenum)
 {
 	vertex_array_list_t r;
 	const auto &&n = create_all_vertex_lists(r, segnum, sidep, sidenum);
@@ -105,10 +109,10 @@ static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertex_li
 #endif
 
 //like create_all_vertex_lists(), but generate absolute point numbers
-uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segnum, const side &sidep, uint_fast32_t sidenum);
+uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segnum, const shared_side &sidep, uint_fast32_t sidenum);
 
 __attribute_warn_unused_result
-static inline std::pair<uint_fast32_t, vertex_array_list_t> create_abs_vertex_lists(const shared_segment &segnum, const side &sidep, const uint_fast32_t sidenum)
+static inline std::pair<uint_fast32_t, vertex_array_list_t> create_abs_vertex_lists(const shared_segment &segnum, const shared_side &sidep, const uint_fast32_t sidenum)
 {
 	vertex_array_list_t r;
 	const auto &&n = create_abs_vertex_lists(r, segnum, sidep, sidenum);
@@ -127,9 +131,9 @@ static inline std::pair<uint_fast32_t, vertex_array_list_t> create_abs_vertex_li
 //      If there is one face, it has 4 vertices.
 //      If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //      face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_segment &seg, const side &sidep, uint_fast32_t sidenum);
+void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_segment &seg, const shared_side &sidep, uint_fast32_t sidenum);
 __attribute_warn_unused_result
-static inline vertex_vertnum_array_list create_all_vertnum_lists(const shared_segment &segnum, const side &sidep, const uint_fast32_t sidenum)
+static inline vertex_vertnum_array_list create_all_vertnum_lists(const shared_segment &segnum, const shared_side &sidep, const uint_fast32_t sidenum)
 {
 	vertex_vertnum_array_list r;
 	return create_all_vertnum_lists(r, segnum, sidep, sidenum), r;
@@ -138,7 +142,7 @@ static inline vertex_vertnum_array_list create_all_vertnum_lists(const shared_se
 
 namespace dcx {
 //      Given a side, return the number of faces
-bool get_side_is_quad(const side &sidep);
+bool get_side_is_quad(const shared_side &sidep);
 struct WALL_IS_DOORWAY_mask_t;
 }
 
