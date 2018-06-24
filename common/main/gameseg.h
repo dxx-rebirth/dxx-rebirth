@@ -59,14 +59,14 @@ using vertex_vertnum_array_list = array<vertex_vertnum_pair, 6>;
 #ifdef dsx
 namespace dsx {
 extern int	Doing_lighting_hack_flag;
-void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const segment &sp, unsigned side);
-static inline vms_vector compute_center_point_on_side(fvcvertptr &vcvertptr, const segment &sp, const unsigned side)
+void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp, unsigned side);
+static inline vms_vector compute_center_point_on_side(fvcvertptr &vcvertptr, const shared_segment &sp, const unsigned side)
 {
 	vms_vector v;
 	return compute_center_point_on_side(vcvertptr, v, sp, side), v;
 }
-void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &vp, const segment &sp);
-static inline vms_vector compute_segment_center(fvcvertptr &vcvertptr, const segment &sp)
+void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp);
+static inline vms_vector compute_segment_center(fvcvertptr &vcvertptr, const shared_segment &sp)
 {
 	vms_vector v;
 	compute_segment_center(vcvertptr, v, sp);

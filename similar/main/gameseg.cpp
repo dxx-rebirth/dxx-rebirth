@@ -137,7 +137,7 @@ array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
 // ------------------------------------------------------------------------------------------
 // Compute the center point of a side of a segment.
 //	The center point is defined to be the average of the 4 points defining the side.
-void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const segment &sp, const unsigned side)
+void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp, const unsigned side)
 {
 	compute_center_point_on_side(vcvertptr, vp, sp.verts, side);
 }
@@ -145,7 +145,7 @@ void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const s
 // ------------------------------------------------------------------------------------------
 // Compute segment center.
 //	The center point is defined to be the average of the 8 points defining the segment.
-void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &vp, const segment &sp)
+void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp)
 {
 	compute_segment_center(vcvertptr, vp, sp.verts);
 }
