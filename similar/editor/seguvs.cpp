@@ -193,17 +193,17 @@ int set_average_light_on_all_quick(void)
 //	---------------------------------------------------------------------------------------------
 //	Given a polygon, compress the uv coordinates so that they are as close to 0 as possible.
 //	Do this by adding a constant u and v to each uv pair.
-static void compress_uv_coordinates(side *sidep)
+static void compress_uv_coordinates(array<uvl, 4> &uvls)
 {
-	int	v;
 	fix	uc, vc;
 
 	uc = 0;
 	vc = 0;
 
-	for (v=0; v<4; v++) {
-		uc += sidep->uvls[v].u;
-		vc += sidep->uvls[v].v;
+	range_for (auto &uvl, uvls)
+	{
+		uc += uvl.u;
+		vc += uvl.v;
 	}
 
 	uc /= 4;
@@ -211,47 +211,23 @@ static void compress_uv_coordinates(side *sidep)
 	uc = uc & 0xffff0000;
 	vc = vc & 0xffff0000;
 
-	for (v=0; v<4; v++) {
-		sidep->uvls[v].u -= uc;
-		sidep->uvls[v].v -= vc;
+	range_for (auto &uvl, uvls)
+	{
+		uvl.u -= uc;
+		uvl.v -= vc;
 	}
-
 }
 
-//	---------------------------------------------------------------------------------------------
-static void compress_uv_coordinates_on_side(side *sidep)
+static void assign_default_lighting_on_side(array<uvl, 4> &uvls)
 {
-	compress_uv_coordinates(sidep);
-}
-
-//	---------------------------------------------------------------------------------------------
-static void validate_uv_coordinates_on_side(const vmsegptr_t segp, int sidenum)
-{
-//	int			v;
-//	fix			uv_dist,threed_dist;
-//	vms_vector	tvec;
-//	fix			dist_ratios[MAX_VERTICES_PER_POLY];
-	side			*sidep = &segp->sides[sidenum];
-//	sbyte			*vp = Side_to_verts[sidenum];
-
-	compress_uv_coordinates_on_side(sidep);
-}
-
-static void assign_default_lighting_on_side(const vmsegptr_t segp, int sidenum)
-{
-	int	v;
-	side	*sidep = &segp->sides[sidenum];
-
-	for (v=0; v<4; v++)
-		sidep->uvls[v].l = DEFAULT_LIGHTING;
+	range_for (auto &uvl, uvls)
+		uvl.l = DEFAULT_LIGHTING;
 }
 
 static void assign_default_lighting(const vmsegptr_t segp)
 {
-	int	sidenum;
-
-	for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++)
-		assign_default_lighting_on_side(segp, sidenum);
+	range_for (auto &side, segp->sides)
+		assign_default_lighting_on_side(side.uvls);
 }
 
 void assign_default_lighting_all(void)
@@ -266,22 +242,10 @@ void assign_default_lighting_all(void)
 //	---------------------------------------------------------------------------------------------
 static void validate_uv_coordinates(const vmsegptr_t segp)
 {
-	int	s;
-
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		validate_uv_coordinates_on_side(segp,s);
-
-}
-
-//	---------------------------------------------------------------------------------------------
-//	For all faces in side, copy uv coordinates from uvs array to face.
-static void copy_uvs_from_side_to_faces(const vmsegptr_t segp, int sidenum, array<uvl, 4> &uvls)
-{
-	int	v;
-	side	*sidep = &segp->sides[sidenum];
-
-	for (v=0; v<4; v++)
-		sidep->uvls[v] = uvls[v];
+	range_for (auto &side, segp->sides)
+	{
+		compress_uv_coordinates(side.uvls);
+	}
 
 }
 
@@ -419,7 +383,8 @@ static void assign_uvs_to_side(const vmsegptridx_t segp, int sidenum, uvl *uva, 
 		};
 		uvls[(vhi+1)%4] = assign_uvl(vm_vec_sub(vcvertptr(v2), vcvertptr(v1)), uvhi);
 		uvls[(vhi+2)%4] = assign_uvl(vv3v0, uvlo);
-		copy_uvs_from_side_to_faces(segp, sidenum, uvls);
+		//	For all faces in side, copy uv coordinates from uvs array to face.
+		segp->sides[sidenum].uvls = uvls;
 	}
 }
 
@@ -783,11 +748,11 @@ int fix_bogus_uvs_on_side(void)
 	return 0;
 }
 
-static void fix_bogus_uvs_on_side1(const vmsegptridx_t sp, int sidenum, int uvonly_flag)
+static void fix_bogus_uvs_on_side1(const vmsegptridx_t sp, const unsigned sidenum, const int uvonly_flag)
 {
-	side	*sidep = &sp->sides[sidenum];
-
-	if ((sidep->uvls[0].u == 0) && (sidep->uvls[1].u == 0) && (sidep->uvls[2].u == 0)) {
+	auto &uvls = sp->sides[sidenum].uvls;
+	if (uvls[0].u == 0 && uvls[1].u == 0 && uvls[2].u == 0)
+	{
 		med_propagate_tmaps_to_back_side(sp, sidenum, uvonly_flag);
 	}
 }
@@ -1053,14 +1018,12 @@ static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix l
 //	Zero all lighting values.
 static void calim_zero_light_values(void)
 {
-	int	sidenum, vertnum;
-
 	range_for (const auto &&segp, vmsegptr)
 	{
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-			side	*sidep = &segp->sides[sidenum];
-			for (vertnum=0; vertnum<4; vertnum++)
-				sidep->uvls[vertnum].l = F1_0/64;	// Put a tiny bit of light here.
+		range_for (auto &side, segp->sides)
+		{
+			range_for (auto &uvl, side.uvls)
+				uvl.l = F1_0/64;	// Put a tiny bit of light here.
 		}
 		segp->static_light = F1_0 / 64;
 	}

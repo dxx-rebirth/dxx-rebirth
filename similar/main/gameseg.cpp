@@ -1228,11 +1228,11 @@ static int check_for_degenerate_segment(const vcsegptr_t sp)
 
 }
 
-static void add_side_as_quad(side *const sidep, const vms_vector &normal)
+static void add_side_as_quad(shared_side &sidep, const vms_vector &normal)
 {
-	sidep->set_type(SIDE_IS_QUAD);
-	sidep->normals[0] = normal;
-	sidep->normals[1] = normal;
+	sidep.set_type(SIDE_IS_QUAD);
+	sidep.normals[0] = normal;
+	sidep.normals[1] = normal;
 	//	If there is a connection here, we only formed the faces for the purpose of determining segment boundaries,
 	//	so don't generate polys, else they will get rendered.
 //	if (sp->children[sidenum] != -1)
@@ -1419,7 +1419,7 @@ void create_walls_on_side(const vmsegptridx_t sp, int sidenum)
 			return;
 		//detriangulate!
 	}
-	add_side_as_quad(&s, vn);
+	add_side_as_quad(s, vn);
 }
 
 // -------------------------------------------------------------------------------
@@ -1649,10 +1649,10 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 static void change_segment_light(const vmsegptridx_t segp,int sidenum,int dir)
 {
 	if (WALL_IS_DOORWAY(segp, sidenum) & WID_RENDER_FLAG) {
-		side	*sidep = &segp->sides[sidenum];
+		const unique_side &sidep = segp->sides[sidenum];
 		fix	light_intensity;
 
-		light_intensity = TmapInfo[sidep->tmap_num].lighting + TmapInfo[sidep->tmap_num2 & 0x3fff].lighting;
+		light_intensity = TmapInfo[sidep.tmap_num].lighting + TmapInfo[sidep.tmap_num2 & 0x3fff].lighting;
 		if (light_intensity) {
 			const auto segment_center = compute_segment_center(vcvertptr, segp);
 			visited_segment_bitarray_t visited;

@@ -76,7 +76,7 @@ static void do_physics_align_object(object_base &obj)
 	fixang delta_ang,roll_ang;
 	//vms_vector forvec = {0,0,f1_0};
 	fix largest_d=-f1_0;
-	const side *best_side = nullptr;
+	const shared_side *best_side = nullptr;
 	// bank player according to segment orientation
 
 	//find side of segment that player is most alligned with

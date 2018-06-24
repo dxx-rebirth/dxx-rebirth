@@ -120,13 +120,12 @@ static ij_pair find_largest_normal(vms_vector t)
 
 //see if a point in inside a face by projecting into 2d
 __attribute_warn_unused_result
-static uint check_point_to_face(const vms_vector &checkp, const side *s,int facenum,int nv, const vertex_array_list_t &vertex_list)
+static unsigned check_point_to_face(const vms_vector &checkp, const vms_vector &norm, const unsigned facenum, const unsigned nv, const vertex_array_list_t &vertex_list)
 {
 ///
 	int edge;
 	uint edgemask;
 	fix check_i,check_j;
-	vms_vector norm = s->normals[facenum];
 	//now do 2d check to see if point is in side
 
 	//project polygon onto plane by finding largest component of normal
@@ -165,17 +164,16 @@ static uint check_point_to_face(const vms_vector &checkp, const side *s,int face
 
 }
 
-
 //check if a sphere intersects a face
 __attribute_warn_unused_result
-static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum,int nv,fix rad,const vertex_array_list_t &vertex_list)
+static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal, const unsigned facenum, const unsigned nv, const fix rad, const vertex_array_list_t &vertex_list)
 {
 	const auto checkp = pnt;
 	uint edgemask;
 
 	//now do 2d check to see if point is in side
 
-	edgemask = check_point_to_face(pnt,s,facenum,nv,vertex_list);
+	edgemask = check_point_to_face(pnt, normal, facenum, nv, vertex_list);
 
 	//we've gone through all the sides, are we inside?
 
@@ -240,9 +238,7 @@ __attribute_warn_unused_result
 static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_vector &p1,const vcsegptridx_t seg,int side,int facenum,int nv,fix rad)
 {
 	auto &s = seg->sides[side];
-	vms_vector norm;
-
-		norm = seg->sides[side].normals[facenum];
+	const vms_vector &norm = s.normals[facenum];
 
 	const auto v = create_abs_vertex_lists(seg, s, side);
 	const auto &num_faces = v.first;
@@ -269,8 +265,7 @@ static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_ve
 	if (rad!=0)
 		vm_vec_scale_add2(checkp,norm,-rad);
 
-	return check_sphere_to_face(checkp, &s, facenum, nv, rad, vertex_list);
-
+	return check_sphere_to_face(checkp, s.normals[facenum], facenum, nv, rad, vertex_list);
 }
 
 //returns the value of a determinant
@@ -328,7 +323,7 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 
 	//figure out which edge(s) to check against
 
-	unsigned edgemask = check_point_to_face(p0, &s, facenum, nv, vertex_list);
+	unsigned edgemask = check_point_to_face(p0, s.normals[facenum], facenum, nv, vertex_list);
 
 	if (edgemask == 0)
 		return check_line_to_face(newp,p0,p1,seg,side,facenum,nv,rad);
@@ -1226,7 +1221,7 @@ static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg
 					const auto &num_faces = v.first;
 					const auto &vertex_list = v.second;
 
-					face_hit_type = check_sphere_to_face(pnt, &sidep,
+					face_hit_type = check_sphere_to_face(pnt, sidep.normals[face],
 										face,((num_faces==1)?4:3),rad,vertex_list);
 
 					if (face_hit_type) {            //through this wall/door
