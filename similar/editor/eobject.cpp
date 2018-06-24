@@ -61,12 +61,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	OBJ_SCALE		(F1_0/2)
 #define	OBJ_DEL_SIZE	(F1_0/2)
 
-static void show_objects_in_segment(const vcsegptr_t sp)
-{
-	range_for (const auto i, objects_in(sp, vcobjptridx, vcsegptr))
-		(void)i;
-}
-
 //returns the number of the first object in a segment, skipping the player
 static objnum_t get_first_object(const vmsegptr_t seg)
 {
@@ -257,8 +251,6 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 
 	Cur_object_index = objnum;
 	//Cur_object_seg = Cursegp;
-
-	show_objects_in_segment(Cursegp);
 
 	Update_flags |= UF_WORLD_CHANGED;
 

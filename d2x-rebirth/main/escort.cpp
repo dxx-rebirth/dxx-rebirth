@@ -536,7 +536,7 @@ static int get_boss_id(void)
 //	-----------------------------------------------------------------------------
 //	Return object index if object of objtype, objid exists in mine, else return -1
 //	"special" is used to find objects spewed by player which is hacked into flags field of powerup.
-static objnum_t exists_in_mine_2(const vcsegptr_t segp, const int objtype, const int objid, const int special)
+static objnum_t exists_in_mine_2(const unique_segment &segp, const int objtype, const int objid, const int special)
 {
 	range_for (const auto curobjp, objects_in(segp, vcobjptridx, vcsegptr))
 	{
