@@ -711,7 +711,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 					unsigned short orient;
 					tmap_xlate = i->sides[j].tmap_num;
 					i->sides[j].tmap_num = tmap_xlate_table[tmap_xlate];
-					const auto render = (WALL_IS_DOORWAY(i,j) & WID_RENDER_FLAG);
+					const auto render = (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, i, i, j) & WID_RENDER_FLAG);
 					if (render)
 						if (i->sides[j].tmap_num < 0)	{
 							Int3();

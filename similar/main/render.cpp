@@ -765,7 +765,7 @@ static void render_segment(grs_canvas &canvas, const vcsegptridx_t seg)
 		}
 
 		for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
-			render_side(vcvertptr, canvas, seg, sn, WALL_IS_DOORWAY(seg, sn), Viewer_eye);
+			render_side(vcvertptr, canvas, seg, sn, WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sn), Viewer_eye);
 	}
 
 	//draw any objects that happen to be in this segment
@@ -1127,7 +1127,8 @@ static void build_object_lists(render_state_t &rstate)
 								const auto &&seg = vcsegptr(new_segnum);
 #endif
 		
-								if (WALL_IS_DOORWAY(seg,sn) & WID_FLY_FLAG) {		//can explosion migrate through
+								if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sn) & WID_FLY_FLAG)
+								{		//can explosion migrate through
 									int child = seg->children[sn];
 									int checknp;
 		
@@ -1292,7 +1293,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 			sort_child_array_t child_list;		//list of ordered sides to process
 			uint_fast32_t n_children = 0;							//how many sides in child_list
 			for (uint_fast32_t c = 0;c < MAX_SIDES_PER_SEGMENT;c++) {		//build list of sides
-				auto wid = WALL_IS_DOORWAY(seg, c);
+				const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, c);
 				if (wid & WID_RENDPAST_FLAG)
 				{
 					if (auto codes_and = uor)
@@ -1566,7 +1567,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 					{
-						const auto wid = WALL_IS_DOORWAY(seg, sn);
+						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sn);
 						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
 #if defined(DXX_BUILD_DESCENT_II)
 							|| (wid & WID_CLOAKED_FLAG)
@@ -1616,7 +1617,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 					{
-						const auto wid = WALL_IS_DOORWAY(seg, sn);
+						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sn);
 						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
 #if defined(DXX_BUILD_DESCENT_II)
 							|| (wid & WID_CLOAKED_FLAG)

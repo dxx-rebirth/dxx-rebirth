@@ -1978,7 +1978,7 @@ static void flicker_lights(d_flickering_light_state &fls, fvmsegptridx &vmsegptr
 		}
 
 		//make sure this is actually a light
-		if (! (WALL_IS_DOORWAY(segp, sidenum) & WID_RENDER_FLAG))
+		if (! (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) & WID_RENDER_FLAG))
 			continue;
 
 		if ((f.timer -= FrameTime) < 0)

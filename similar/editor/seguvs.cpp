@@ -913,7 +913,8 @@ static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix l
 
 			if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
 				for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-					if (WALL_IS_DOORWAY(rsegp, sidenum) != WID_NO_WALL) {
+					if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, rsegp, rsegp, sidenum) != WID_NO_WALL)
+					{
 						const auto rsidep = &rsegp->sides[sidenum];
 						auto &side_normalp = rsidep->normals[0];	//	kinda stupid? always use vector 0.
 
@@ -1117,7 +1118,8 @@ static void calim_process_all_lights(int quick_light)
 	{
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			// if (!IS_CHILD(segp->children[sidenum])) {
-			if (WALL_IS_DOORWAY(segp, sidenum) != WID_NO_WALL) {
+			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) != WID_NO_WALL)
+			{
 				const auto sidep = &segp->sides[sidenum];
 				fix	light_intensity;
 

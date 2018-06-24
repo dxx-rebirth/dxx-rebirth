@@ -246,7 +246,7 @@ static void paging_touch_side(const vcsegptr_t segp, int sidenum )
 {
 	int tmap1, tmap2;
 
-	if (!(WALL_IS_DOORWAY(segp,sidenum) & WID_RENDER_FLAG))
+	if (!(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) & WID_RENDER_FLAG))
 		return;
 	
 	tmap1 = segp->sides[sidenum].tmap_num;

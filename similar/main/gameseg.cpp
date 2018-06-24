@@ -837,7 +837,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 		if (conn_side != side_none)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
-			if (WALL_IS_DOORWAY(seg1, conn_side) & wid_flag)
+			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg1, seg1, conn_side) & wid_flag)
 #endif
 			{
 				return vm_vec_dist_quick(p0, p1);
@@ -879,7 +879,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 			const auto this_seg = segp->children[snum];
 			if (!IS_CHILD(this_seg))
 				continue;
-			if (!wid_flag.value || (WALL_IS_DOORWAY(segp, snum) & wid_flag))
+			if (!wid_flag.value || (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, snum) & wid_flag))
 			{
 				if (!visited[this_seg]) {
 					seg_queue[qtail].start = cur_seg;
@@ -1637,7 +1637,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 
 	if (recursion_depth < 2)
 		for (int sidenum=0; sidenum<6; sidenum++) {
-			if (WALL_IS_DOORWAY(segp,sidenum) & WID_RENDPAST_FLAG)
+			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) & WID_RENDPAST_FLAG)
 				apply_light_to_segment(visited, segp.absolute_sibling(segp->children[sidenum]), segment_center, light_intensity, recursion_depth+1);
 		}
 
@@ -1648,7 +1648,8 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 //this code is copied from the editor routine calim_process_all_lights()
 static void change_segment_light(const vmsegptridx_t segp,int sidenum,int dir)
 {
-	if (WALL_IS_DOORWAY(segp, sidenum) & WID_RENDER_FLAG) {
+	if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) & WID_RENDER_FLAG)
+	{
 		const unique_side &sidep = segp->sides[sidenum];
 		fix	light_intensity;
 
@@ -1810,7 +1811,7 @@ static void ambient_mark_bfs(const vmsegptridx_t segp, segment_lava_depth_array 
 		 * No explicit check for IS_CHILD.  If !IS_CHILD, then
 		 * WALL_IS_DOORWAY never sets WID_RENDPAST_FLAG.
 		 */
-		if (!(WALL_IS_DOORWAY(segp, i) & WID_RENDPAST_FLAG))
+		if (!(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, i) & WID_RENDPAST_FLAG))
 			continue;
 		ambient_mark_bfs(segp.absolute_sibling(child), segdepth_lava, segdepth_water, depth - 1, s2f_bit);
 	}

@@ -1409,7 +1409,8 @@ static void bng_process_segment(const object &objp, fix damage, const vmsegptrid
 
 		if (segnum != segment_none) {
 			if (!visited[segnum]) {
-				if (WALL_IS_DOORWAY(segp, i) & WID_FLY_FLAG) {
+				if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, i) & WID_FLY_FLAG)
+				{
 					bng_process_segment(objp, damage, segp.absolute_sibling(segnum), depth, visited);
 				}
 			}

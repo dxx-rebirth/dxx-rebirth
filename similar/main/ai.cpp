@@ -1119,7 +1119,8 @@ static void ai_fire_laser_at_player(segment_array &segments, const vmobjptridx_t
 		{
 			//	They are connected via conn_side in segment obj->segnum.
 			//	See if they are unobstructed.
-			if (!(WALL_IS_DOORWAY(csegp, conn_side) & WID_FLY_FLAG)) {
+			if (!(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, csegp, csegp, conn_side) & WID_FLY_FLAG))
+			{
 				//	Can't fly through, so don't let this bot fire through!
 				return;
 			}
@@ -2063,7 +2064,7 @@ static void init_boss_segments(segment_array &segments, const object &boss_objp,
 			tail &= QUEUE_SIZE-1;
 
 			for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-				auto w = WALL_IS_DOORWAY(segp, sidenum);
+				const auto w = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum);
 				if ((w & WID_FLY_FLAG) || one_wall_hack)
 				{
 					const auto csegnum = segp->children[sidenum];

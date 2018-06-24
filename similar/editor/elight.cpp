@@ -100,12 +100,12 @@ static void add_light_intensity_all_verts(unique_side &s, const fix intensity)
 //		Note that it is also possible to visit the original light-casting segment, for example
 //		going from segment 0 to 2, then from 2 to 0.  This is peculiar and probably not
 //		desired, but not entirely invalid.  2 reflects some light back to 0.
-static void apply_light_intensity(const vmsegptr_t segp, int sidenum, fix intensity, int depth)
+static void apply_light_intensity(const vmsegptr_t segp, const unsigned sidenum, fix intensity, const unsigned depth)
 {
 	if (intensity == 0)
 		return;
 
-	auto wid_result = WALL_IS_DOORWAY(segp, sidenum);
+	const auto wid_result = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum);
 	if (!(wid_result & WID_RENDPAST_FLAG)) {
 		add_light_intensity_all_verts(segp->sides[sidenum], intensity);
 		return;										// we return because there is a wall here, and light does not shine through walls

@@ -595,7 +595,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx)
 			if ((tm=seg->sides[sidenum].tmap_num2) != 0)
 				if ((ec = TmapInfo[tm & 0x3fff].eclip_num) != eclip_none)
 #elif defined(DXX_BUILD_DESCENT_II)
-			auto wid = WALL_IS_DOORWAY(seg, sidenum);
+			const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sidenum);
 			if (wid & WID_RENDER_FLAG)
 				if ((((tm = seg->sides[sidenum].tmap_num2) != 0) &&
 					 ((ec = TmapInfo[tm & 0x3fff].eclip_num) != eclip_none)) ||
