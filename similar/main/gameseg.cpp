@@ -186,14 +186,14 @@ static void get_side_verts(side_vertnum_list_t &vertlist, const array<unsigned, 
 		vertlist[i] = vp[sv[i]];
 }
 
-}
-
-namespace dsx {
-
-void get_side_verts(side_vertnum_list_t &vertlist, const segment &segp, const unsigned sidenum)
+void get_side_verts(side_vertnum_list_t &vertlist, const shared_segment &segp, const unsigned sidenum)
 {
 	get_side_verts(vertlist, segp.verts, sidenum);
 }
+
+}
+
+namespace dsx {
 
 __attribute_cold
 __noreturn
@@ -1092,12 +1092,12 @@ void extract_quaternionpos(const vmobjptridx_t objp, quaternionpos &qpp)
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
-static void extract_vector_from_segment(const vcsegptr_t sp, vms_vector &vp, const uint_fast32_t istart, const uint_fast32_t iend)
+static void extract_vector_from_segment(const shared_segment &sp, vms_vector &vp, const uint_fast32_t istart, const uint_fast32_t iend)
 {
 	vp = {};
 	auto &start = Side_to_verts[istart];
 	auto &end = Side_to_verts[iend];
-	auto &verts = sp->verts;
+	auto &verts = sp.verts;
 	for (uint_fast32_t i = 0; i != 4; ++i)
 	{
 		vm_vec_sub2(vp, vcvertptr(verts[start[i]]));
@@ -1122,7 +1122,7 @@ void extract_orient_from_segment(vms_matrix *m,const vcsegptr_t seg)
 //	Extract the forward vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the front face of the segment
 // to the center of the back face of the segment.
-void extract_forward_vector_from_segment(const vcsegptr_t sp,vms_vector &vp)
+void extract_forward_vector_from_segment(const shared_segment &sp, vms_vector &vp)
 {
 	extract_vector_from_segment(sp,vp,WFRONT,WBACK);
 }
@@ -1131,7 +1131,7 @@ void extract_forward_vector_from_segment(const vcsegptr_t sp,vms_vector &vp)
 //	Extract the right vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the left face of the segment
 // to the center of the right face of the segment.
-void extract_right_vector_from_segment(const vcsegptr_t sp,vms_vector &vp)
+void extract_right_vector_from_segment(const shared_segment &sp, vms_vector &vp)
 {
 	extract_vector_from_segment(sp,vp,WLEFT,WRIGHT);
 }
@@ -1140,7 +1140,7 @@ void extract_right_vector_from_segment(const vcsegptr_t sp,vms_vector &vp)
 //	Extract the up vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the bottom face of the segment
 // to the center of the top face of the segment.
-void extract_up_vector_from_segment(const vcsegptr_t sp,vms_vector &vp)
+void extract_up_vector_from_segment(const shared_segment &sp, vms_vector &vp)
 {
 	extract_vector_from_segment(sp,vp,WBOTTOM,WTOP);
 }

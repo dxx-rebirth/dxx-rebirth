@@ -142,7 +142,7 @@ static void med_scale_segment_new(const vmsegptr_t sp, int dimension, fix amount
 
 	Modified_vertex_index = 0;
 
-	med_extract_matrix_from_segment(sp, &mat);
+	med_extract_matrix_from_segment(sp, mat);
 
 	const vms_vector *vec;
 	unsigned side0, side1;

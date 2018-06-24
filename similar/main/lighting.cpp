@@ -576,7 +576,7 @@ static fix compute_headlight_light_on_object(const object_base &objp)
 #endif
 
 //compute the average dynamic light in a segment.  Takes the segment number
-static g3s_lrgb compute_seg_dynamic_light(const segment &seg)
+static g3s_lrgb compute_seg_dynamic_light(const shared_segment &seg)
 {
 	auto op = [](g3s_lrgb r, const unsigned v) {
 		r.r += Dynamic_light[v].r;

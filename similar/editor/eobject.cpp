@@ -111,7 +111,7 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 {
 	vms_matrix seg_matrix;
 
-	med_extract_matrix_from_segment(segp,&seg_matrix);
+	med_extract_matrix_from_segment(segp, seg_matrix);
 
 	imobjptridx_t objnum = object_none;
 	switch (object_type)
@@ -513,7 +513,7 @@ public:
 class extract_uvec_from_segment
 {
 public:
-	static vms_vector get(vcsegptr_t segp)
+	static vms_vector get(const shared_segment &segp)
 	{
 		vms_vector v;
 		extract_up_vector_from_segment(segp, v);
@@ -630,7 +630,7 @@ static int rotate_object(const vmobjptridx_t obj, int p, int b, int h)
 
 static void reset_object(const vmobjptridx_t obj)
 {
-	med_extract_matrix_from_segment(vcsegptr(obj->segnum), &obj->orient);
+	med_extract_matrix_from_segment(vcsegptr(obj->segnum), obj->orient);
 }
 
 int ObjectResetObject()

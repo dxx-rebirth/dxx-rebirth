@@ -1841,12 +1841,13 @@ int ai_door_is_openable(
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Return side of openable door in segment, if any.  If none, return side_none.
-static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const segment &segp)
+static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_segment &segp)
 {
 	int	i;
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		if (segp.sides[i].wall_num != wall_none) {
-			const auto wall_num = segp.sides[i].wall_num;
+		const auto wall_num = segp.sides[i].wall_num;
+		if (wall_num != wall_none)
+		{
 			auto &w = *vcwallptr(wall_num);
 #if defined(DXX_BUILD_DESCENT_I)
 			if (w.type == WALL_DOOR && w.keys == KEY_NONE && w.state == WALL_DOOR_CLOSED && !(w.flags & WALL_DOOR_LOCKED))

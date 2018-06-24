@@ -424,17 +424,19 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, fix hitspeed,
 static fix64	Last_volatile_scrape_time = 0;
 static fix64	Last_volatile_scrape_sound_time = 0;
 
+namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_I)
 static
 #endif
 //see if wall is volatile or water
 //if volatile, cause damage to player
 //returns 1=lava, 2=water
-volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const segment &seg, const unsigned sidenum)
+volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const unique_side &side)
 {
 	Assert(obj->type==OBJ_PLAYER);
 
-	const auto &ti = TmapInfo[seg.sides[sidenum].tmap_num];
+	const auto &ti = TmapInfo[side.tmap_num];
 	const fix d = ti.damage;
 	if (d > 0
 #if defined(DXX_BUILD_DESCENT_II)
@@ -486,12 +488,13 @@ volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const segment 
 }
 
 //this gets called when an object is scraping along the wall
-bool scrape_player_on_wall(const vmobjptridx_t obj, const vmsegptridx_t hitseg, short hitside, const vms_vector &hitpt)
+bool scrape_player_on_wall(const vmobjptridx_t obj, const vmsegptridx_t hitseg, const unsigned hitside, const vms_vector &hitpt)
 {
 	if (obj->type != OBJ_PLAYER || get_player_id(obj) != Player_num)
 		return false;
 
-	const auto type = check_volatile_wall(obj, hitseg, hitside);
+	const auto &side = hitseg->sides[hitside];
+	const auto type = check_volatile_wall(obj, side);
 	if (type != volatile_wall_result::none)
 	{
 		if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
@@ -506,7 +509,7 @@ bool scrape_player_on_wall(const vmobjptridx_t obj, const vmsegptridx_t hitseg, 
 			multi_digi_link_sound_to_pos(sound, hitseg, 0, hitpt, 0, F1_0);
 		}
 
-		auto hit_dir = hitseg->sides[hitside].normals[0];
+		auto hit_dir = side.normals[0];
 
 		vm_vec_scale_add2(hit_dir, make_random_vector(), F1_0/8);
 		vm_vec_normalize_quick(hit_dir);
@@ -536,7 +539,6 @@ static int effect_parent_is_guidebot(fvcobjptr &vcobjptr, const laser_parent &la
 
 //if an effect is hit, and it can blow up, then blow it up
 //returns true if it blew up
-namespace dsx {
 int check_effect_blowup(const vmsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
 {
 	int tm;
@@ -758,8 +760,6 @@ static window_event_result collide_weapon_and_wall(object_array &objects, fvmseg
 
 	blew_up = check_effect_blowup(hitseg,hitwall, hitpt, weapon->ctype.laser_info, 0, 0);
 
-	//if ((seg->sides[hitwall].tmap_num2==0) && (TmapInfo[seg->sides[hitwall].tmap_num].flags & TMI_VOLATILE)) {
-
 	int	robot_escort;
 #if defined(DXX_BUILD_DESCENT_II)
 	robot_escort = effect_parent_is_guidebot(vcobjptr, weapon->ctype.laser_info);
@@ -909,7 +909,6 @@ static window_event_result collide_weapon_and_wall(object_array &objects, fvmseg
 		if (!(weapon->flags & OF_SILENT) && (weapon->ctype.laser_info.parent_num == get_local_player().objnum))
 			create_awareness_event(weapon, player_awareness_type_t::PA_WEAPON_WALL_COLLISION);			// object "weapon" can attract attention to player
 
-//		if (weapon->id != FLARE_ID) {
 //	We now allow flares to open doors.
 		{
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1305,6 +1304,8 @@ static void collide_weapon_and_clutter(object_base &weapon, const vmobjptridx_t 
 //--mk, 121094 -- extern void spin_robot(object *robot, vms_vector *collision_point);
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+
 int	Final_boss_is_dead = 0;
 fix	Final_boss_countdown_time = 0;
 
@@ -1326,7 +1327,6 @@ window_event_result do_final_boss_frame(void)
 		return window_event_result::ignored;
 
 	return start_endlevel_sequence();		//pretend we hit the exit trigger
-
 }
 
 //	------------------------------------------------------------------------------------------------------
@@ -1359,6 +1359,8 @@ void do_final_boss_hacks(void)
 		buddy_message("Nice job, %s!", static_cast<const char *>(get_local_player().callsign));
 
 	Final_boss_is_dead = 1;
+}
+
 }
 #endif
 

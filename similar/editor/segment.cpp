@@ -320,7 +320,7 @@ void make_orthogonal(vms_matrix *rmat,vms_matrix *smat)
 // Do this by extracting the forward, right, up vectors and then making them orthogonal.
 // In the process of making the vectors orthogonal, favor them in the order forward, up, right.
 // This means that the forward vector will remain unchanged.
-void med_extract_matrix_from_segment(const vcsegptr_t sp,vms_matrix *rotmat)
+void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotmat)
 {
 	vms_vector	forwardvec,upvec;
 
@@ -328,12 +328,12 @@ void med_extract_matrix_from_segment(const vcsegptr_t sp,vms_matrix *rotmat)
 	extract_up_vector_from_segment(sp,upvec);
 
 	if (((forwardvec.x == 0) && (forwardvec.y == 0) && (forwardvec.z == 0)) || ((upvec.x == 0) && (upvec.y == 0) && (upvec.z == 0))) {
-		*rotmat = vmd_identity_matrix;
+		rotmat = vmd_identity_matrix;
 		return;
 	}
 
 
-	vm_vector_2_matrix(*rotmat,forwardvec,&upvec,nullptr);
+	vm_vector_2_matrix(rotmat, forwardvec, &upvec, nullptr);
 
 #if 0
 	vms_matrix	rm;
@@ -656,11 +656,11 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegpt
 	// to back of the original *newseg.
 
 	// Do lots of hideous matrix stuff, about 3/4 of which could probably be simplified out.
-	med_extract_matrix_from_segment(destseg,&rotmat);		// get orientation matrix for destseg (orthogonal rotation matrix)
+	med_extract_matrix_from_segment(destseg, rotmat);		// get orientation matrix for destseg (orthogonal rotation matrix)
 	update_matrix_based_on_side(rotmat,destside);
 	const auto rotmat1 = vm_vector_2_matrix(forvec,&upvec,nullptr);
 	const auto rotmat4 = vm_matrix_x_matrix(rotmat,rotmat1);			// this is the desired orientation of the new segment
-	med_extract_matrix_from_segment(newseg,&rotmat3);		// this is the current orientation of the new segment
+	med_extract_matrix_from_segment(newseg, rotmat3);		// this is the current orientation of the new segment
 	vm_transpose_matrix(rotmat3);								// get the inverse of the current orientation matrix
 	vm_matrix_x_matrix(rotmat2,rotmat4,rotmat3);			// now rotmat2 takes the current segment to the desired orientation
 
@@ -1334,7 +1334,7 @@ void create_coordinate_axes_from_segment(const vmsegptr_t sp, array<unsigned, 16
 	vms_matrix	rotmat;
 	vms_vector t;
 
-	med_extract_matrix_from_segment(sp,&rotmat);
+	med_extract_matrix_from_segment(sp, rotmat);
 
 	const auto &&v0 = vmvertptr(vertnums[0]);
 	compute_segment_center(vcvertptr, v0, sp);

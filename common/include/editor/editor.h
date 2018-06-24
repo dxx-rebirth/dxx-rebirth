@@ -339,7 +339,7 @@ extern void delete_curve();
 
 #ifdef dsx
 namespace dsx {
-void med_extract_matrix_from_segment(vcsegptr_t sp,vms_matrix *rotmat);
+void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotmat);
 
 //	Assign default u,v coordinates to all sides of a segment.
 //	This routine should only be used for segments which are not connected to anything else,

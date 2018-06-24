@@ -181,7 +181,7 @@ static fixang delta_ang(fixang a,fixang b)
 }
 
 //return though which side of seg0 is seg1
-static size_t matt_find_connect_side(const segment &seg0, const vcsegidx_t seg1)
+static size_t matt_find_connect_side(const shared_segment &seg0, const vcsegidx_t seg1)
 {
 	auto &children = seg0.children;
 	return std::distance(children.begin(), std::find(children.begin(), children.end(), seg1));

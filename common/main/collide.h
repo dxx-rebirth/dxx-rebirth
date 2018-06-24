@@ -57,9 +57,9 @@ void collide_player_and_materialization_center(vmobjptridx_t objp);
 #endif
 void collide_robot_and_materialization_center(vmobjptridx_t objp);
 
-bool scrape_player_on_wall(vmobjptridx_t obj, vmsegptridx_t hitseg, short hitwall, const vms_vector &hitpt);
 #ifdef dsx
 namespace dsx {
+bool scrape_player_on_wall(vmobjptridx_t obj, vmsegptridx_t hitseg, unsigned hitwall, const vms_vector &hitpt);
 int maybe_detonate_weapon(vmobjptridx_t obj0p, vmobjptr_t obj, const vms_vector &pos);
 
 }
@@ -89,13 +89,13 @@ enum class volatile_wall_result : int8_t
 	water,
 #endif
 };
-}
 #if defined(DXX_BUILD_DESCENT_II)
 window_event_result do_final_boss_frame(void);
 void do_final_boss_hacks(void);
-volatile_wall_result check_volatile_wall(vmobjptridx_t obj, const segment &seg, unsigned sidenum);
+volatile_wall_result check_volatile_wall(vmobjptridx_t obj, const unique_side &seg);
 extern int	Final_boss_is_dead;
 #endif
+}
 #endif
 #endif
 

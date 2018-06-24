@@ -71,6 +71,14 @@ static inline vms_vector compute_segment_center(fvcvertptr &vcvertptr, const sha
 	compute_segment_center(vcvertptr, v, sp);
 	return v;
 }
+
+// Fill in array with four absolute point numbers for a given side
+void get_side_verts(side_vertnum_list_t &vertlist, const shared_segment &seg, unsigned sidenum);
+static inline side_vertnum_list_t get_side_verts(const shared_segment &segnum, const unsigned sidenum)
+{
+	side_vertnum_list_t r;
+	return get_side_verts(r, segnum, sidenum), r;
+}
 }
 
 #ifdef dsx
@@ -78,14 +86,6 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II) || DXX_USE_EDITOR
 extern int	Doing_lighting_hack_flag;
 #endif
-
-// Fill in array with four absolute point numbers for a given side
-void get_side_verts(side_vertnum_list_t &vertlist, const segment &seg, unsigned sidenum);
-static inline side_vertnum_list_t get_side_verts(const segment &segnum, const unsigned sidenum)
-{
-	side_vertnum_list_t r;
-	return get_side_verts(r, segnum, sidenum), r;
-}
 
 #if DXX_USE_EDITOR
 //      Create all vertex lists (1 or 2) for faces on a side.
@@ -183,17 +183,17 @@ extern void validate_segment_all(void);
 //      Extract the forward vector from segment *sp, return in *vp.
 //      The forward vector is defined to be the vector from the the center of the front face of the segment
 // to the center of the back face of the segment.
-void extract_forward_vector_from_segment(vcsegptr_t sp,vms_vector &vp);
+void extract_forward_vector_from_segment(const shared_segment &sp, vms_vector &vp);
 
 //      Extract the right vector from segment *sp, return in *vp.
 //      The forward vector is defined to be the vector from the the center of the left face of the segment
 // to the center of the right face of the segment.
-void extract_right_vector_from_segment(vcsegptr_t sp,vms_vector &vp);
+void extract_right_vector_from_segment(const shared_segment &sp, vms_vector &vp);
 
 //      Extract the up vector from segment *sp, return in *vp.
 //      The forward vector is defined to be the vector from the the center of the bottom face of the segment
 // to the center of the top face of the segment.
-void extract_up_vector_from_segment(vcsegptr_t sp,vms_vector &vp);
+void extract_up_vector_from_segment(const shared_segment &sp, vms_vector &vp);
 
 void create_walls_on_side(vmsegptridx_t sp, int sidenum);
 
