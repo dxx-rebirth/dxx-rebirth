@@ -454,6 +454,8 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 
 	if (segment_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
+	Error("Sorry, v20 segment support is broken.");
+#if 0
 	PHYSFS_write( SaveFile, &Segments.front(), sizeof(segment), Num_segments );
 
 	//===================== SAVE NEWSEGMENT INFO ======================
@@ -461,6 +463,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	if (newsegment_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
 	PHYSFS_write( SaveFile, &New_segment, sizeof(segment), 1 );
+#endif
 
 	if (newseg_verts_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );

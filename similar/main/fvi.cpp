@@ -239,7 +239,7 @@ static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum
 __attribute_warn_unused_result
 static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_vector &p1,const vcsegptridx_t seg,int side,int facenum,int nv,fix rad)
 {
-	const struct side *s=&seg->sides[side];
+	auto &s = seg->sides[side];
 	vms_vector norm;
 
 		norm = seg->sides[side].normals[facenum];
@@ -269,7 +269,7 @@ static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_ve
 	if (rad!=0)
 		vm_vec_scale_add2(checkp,norm,-rad);
 
-	return check_sphere_to_face(checkp,s,facenum,nv,rad,vertex_list);
+	return check_sphere_to_face(checkp, &s, facenum, nv, rad, vertex_list);
 
 }
 
@@ -318,8 +318,7 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 {
 	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0;
 	int edgenum;
-	uint edgemask;
-	const struct side *s=&seg->sides[side];
+	auto &s = seg->sides[side];
 
 	//calc some basic stuff
 
@@ -329,7 +328,7 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 
 	//figure out which edge(s) to check against
 
-	edgemask = check_point_to_face(p0,s,facenum,nv,vertex_list);
+	unsigned edgemask = check_point_to_face(p0, &s, facenum, nv, vertex_list);
 
 	if (edgemask == 0)
 		return check_line_to_face(newp,p0,p1,seg,side,facenum,nv,rad);
@@ -1099,7 +1098,7 @@ quit_looking:
 namespace dsx {
 fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, const uint_fast32_t sidenum, const uint_fast32_t facenum)
 {
-	const side *side = &seg->sides[sidenum];
+	auto &side = seg->sides[sidenum];
 	fix k0,k1;
 	int i;
 
@@ -1113,7 +1112,7 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, co
 
 	//1. find what plane to project this wall onto to make it a 2d case
 
-	const auto &normal_array = side->normals[facenum];
+	const auto &normal_array = side.normals[facenum];
 	auto fmax = [](const vms_vector &v, fix vms_vector::*a, fix vms_vector::*b) {
 		return abs(v.*a) > abs(v.*b) ? a : b;
 	};
@@ -1151,7 +1150,7 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, co
 
 	array<uvl, 3> uvls;
 	for (i=0;i<3;i++)
-		uvls[i] = side->uvls[vn[facenum*3+i].vertnum];
+		uvls[i] = side.uvls[vn[facenum * 3 + i].vertnum];
 
 	auto p = [&uvls, k0, k1](fix uvl::*pmf) {
 		return uvls[1].*pmf + fixmul(k0,uvls[0].*pmf - uvls[1].*pmf) + fixmul(k1,uvls[2].*pmf - uvls[1].*pmf);
@@ -1222,12 +1221,12 @@ static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg
 					int face_hit_type;      //in what way did we hit the face?
 
 					//did we go through this wall/door?
-					const auto *sidep = &seg->sides[side];
+					auto &sidep = seg->sides[side];
 					const auto v = create_abs_vertex_lists(seg, sidep, side);
 					const auto &num_faces = v.first;
 					const auto &vertex_list = v.second;
 
-					face_hit_type = check_sphere_to_face(pnt, sidep,
+					face_hit_type = check_sphere_to_face(pnt, &sidep,
 										face,((num_faces==1)?4:3),rad,vertex_list);
 
 					if (face_hit_type) {            //through this wall/door

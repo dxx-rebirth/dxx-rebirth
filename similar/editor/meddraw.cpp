@@ -384,7 +384,7 @@ static void add_edges(const vcsegptridx_t seg)
 
 		range_for (auto &&e, enumerate(seg->sides))
 		{
-			auto sidep = &e.value;
+			auto &sidep = e.value;
 			int	num_vertices;
 			const auto v = create_all_vertex_lists(seg, sidep, e.idx);
 			const auto &num_faces = v.first;
@@ -398,7 +398,7 @@ static void add_edges(const vcsegptridx_t seg)
 				int	en;
 
 				//Note: normal check appears to be the wrong way since the normals points in, but we're looking from the outside
-				if (g3_check_normal_facing(vcvertptr(seg->verts[vertex_list[fn*3]]),sidep->normals[fn]))
+				if (g3_check_normal_facing(vcvertptr(seg->verts[vertex_list[fn*3]]), sidep.normals[fn]))
 					flag = ET_NOTFACING;
 				else
 					flag = ET_FACING;

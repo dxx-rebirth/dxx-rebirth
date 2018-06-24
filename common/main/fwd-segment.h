@@ -21,6 +21,8 @@ using segnum_t = uint16_t;
 }
 #ifdef dsx
 namespace dcx {
+struct shared_segment;
+struct unique_segment;
 struct segment;
 }
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, segment, segnum_t, MAX_SEGMENTS);

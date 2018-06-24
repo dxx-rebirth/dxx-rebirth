@@ -728,7 +728,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 
 				//bump object back
 
-				const auto s = &orig_segp->sides[sidenum];
+				auto &s = orig_segp->sides[sidenum];
 
 				const auto v = create_abs_vertex_lists(orig_segp, s, sidenum);
 				const auto &vertex_list = v.second;
@@ -737,8 +737,8 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 				const auto b = begin(vertex_list);
 				const auto vertnum = *std::min_element(b, std::next(b, 4));
 
-				dist = vm_dist_to_plane(start_pos, s->normals[0], vcvertptr(vertnum));
-					vm_vec_scale_add(obj->pos,start_pos,s->normals[0],obj->size-dist);
+				dist = vm_dist_to_plane(start_pos, s.normals[0], vcvertptr(vertnum));
+				vm_vec_scale_add(obj->pos, start_pos, s.normals[0], obj->size-dist);
 				update_object_seg(obj);
 
 			}

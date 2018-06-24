@@ -67,8 +67,8 @@ class abs_vertex_lists_predicate
 	const array<unsigned, MAX_VERTICES_PER_SEGMENT> &m_vp;
 	const array<unsigned, 4> &m_sv;
 public:
-	abs_vertex_lists_predicate(const vcsegptr_t segp, uint_fast32_t sidenum) :
-		m_vp(segp->verts), m_sv(Side_to_verts_int[sidenum])
+	abs_vertex_lists_predicate(const shared_segment &seg, const uint_fast32_t sidenum) :
+		m_vp(seg.verts), m_sv(Side_to_verts_int[sidenum])
 	{
 	}
 	unsigned operator()(const uint_fast32_t vv) const
@@ -174,7 +174,7 @@ bool get_side_is_quad(const side &sidep)
 		case SIDE_IS_TRI_13:	
 			return false;
 		default:
-			throw side::illegal_type(&sidep);
+			throw side::illegal_type(sidep);
 	}
 }
 
@@ -197,15 +197,15 @@ void get_side_verts(side_vertnum_list_t &vertlist, const segment &segp, const un
 
 __attribute_cold
 __noreturn
-static void create_vertex_list_from_invalid_side(const vcsegptr_t segp, const side *const sidep)
+static void create_vertex_list_from_invalid_side(const shared_segment &segp, const side &sidep)
 {
 	throw side::illegal_type(segp, sidep);
 }
 
 template <typename T, typename V>
-static uint_fast32_t create_vertex_lists_from_values(T &va, const vcsegptr_t segp, const side *const sidep, const V &&f0, const V &&f1, const V &&f2, const V &&f3)
+static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment &segp, const side &sidep, const V &&f0, const V &&f1, const V &&f2, const V &&f3)
 {
-	const auto type = sidep->get_type();
+	const auto type = sidep.get_type();
 	if (type == SIDE_IS_TRI_13)
 	{
 		va[0] = va[5] = f3;
@@ -241,7 +241,7 @@ static uint_fast32_t create_vertex_lists_from_values(T &va, const vcsegptr_t seg
 }
 
 template <typename T, typename F>
-static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const vcsegptr_t segp, const side *const sidep, const F &&f)
+static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const shared_segment &segp, const side &sidep, const F &&f)
 {
 	return create_vertex_lists_from_values(va, segp, sidep, f(0), f(1), f(2), f(3));
 }
@@ -258,7 +258,7 @@ static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const vcsegp
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const vcsegptr_t segp, const side *const sidep, const uint_fast32_t sidenum)
+uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segp, const side &sidep, const uint_fast32_t sidenum)
 {
 	assert(sidenum < Side_to_verts_int.size());
 	auto &sv = Side_to_verts_int[sidenum];
@@ -274,14 +274,14 @@ uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const vcseg
 //	If there is one face, it has 4 vertices.
 //	If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //	face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const vcsegptr_t segp, const side *const sidep, uint_fast32_t sidenum)
+void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_segment &segp, const side &sidep, const uint_fast32_t sidenum)
 {
 	create_vertex_lists_by_predicate(vertnums, segp, sidep, all_vertnum_lists_predicate(segp, sidenum));
 }
 
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
-uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const vcsegptr_t segp, const side *sidep, uint_fast32_t sidenum)
+uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segp, const side &sidep, const uint_fast32_t sidenum)
 {
 	return create_vertex_lists_by_predicate(vertices, segp, sidep, abs_vertex_lists_predicate(segp, sidenum));
 }
@@ -298,7 +298,7 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const vc
 	//check point against each side of segment. return bitmask
 
 	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
-		auto s = &seg->sides[sn];
+		auto &s = seg->sides[sn];
 		
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
@@ -319,15 +319,15 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const vc
 			const auto &&mvert = vcvertptr(vertnum);
 
 			auto a = vertex_list[4] < vertex_list[1]
-				? std::make_pair(vertex_list[4], &s->normals[0])
-				: std::make_pair(vertex_list[1], &s->normals[1]);
+				? std::make_pair(vertex_list[4], &s.normals[0])
+				: std::make_pair(vertex_list[1], &s.normals[1]);
 			const auto mdist = vm_dist_to_plane(vcvertptr(a.first), *a.second, mvert);
 
 			side_count = center_count = 0;
 
 			for (int fn=0;fn<2;fn++,facebit<<=1) {
 
-				const auto dist = vm_dist_to_plane(checkp, s->normals[fn], mvert);
+				const auto dist = vm_dist_to_plane(checkp, s.normals[fn], mvert);
 
 				if (dist-rad < -PLANE_DIST_TOLERANCE) {
 					if (dist < -PLANE_DIST_TOLERANCE)	//in front of face
@@ -365,7 +365,7 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const vc
 			const auto vertnum = *std::min_element(b, std::next(b, 4));
 			const auto &&mvert = vcvertptr(vertnum);
 
-			const auto dist = vm_dist_to_plane(checkp, s->normals[0], mvert);
+			const auto dist = vm_dist_to_plane(checkp, s.normals[0], mvert);
 			if (dist-rad < -PLANE_DIST_TOLERANCE) {
 				if (dist < -PLANE_DIST_TOLERANCE)
 					masks.centermask |= sidebit;
@@ -396,7 +396,7 @@ static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp,co
 
 	side_dists = {};
 	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
-		side	*s = &seg->sides[sn];
+		auto &s = seg->sides[sn];
 
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
@@ -417,15 +417,15 @@ static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp,co
 			auto &mvert = *vcvertptr(vertnum);
 
 			auto a = vertex_list[4] < vertex_list[1]
-				? std::make_pair(vertex_list[4], &s->normals[0])
-				: std::make_pair(vertex_list[1], &s->normals[1]);
+				? std::make_pair(vertex_list[4], &s.normals[0])
+				: std::make_pair(vertex_list[1], &s.normals[1]);
 			const auto mdist = vm_dist_to_plane(vcvertptr(a.first), *a.second, mvert);
 
 			center_count = 0;
 
 			for (int fn=0;fn<2;fn++,facebit<<=1) {
 
-				const auto dist = vm_dist_to_plane(checkp, s->normals[fn], mvert);
+				const auto dist = vm_dist_to_plane(checkp, s.normals[fn], mvert);
 
 				if (dist < -PLANE_DIST_TOLERANCE) {	//in front of face
 					center_count++;
@@ -461,7 +461,7 @@ static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp,co
 			auto b = begin(vertex_list);
 			auto vertnum = *std::min_element(b, std::next(b, 4));
 
-			const auto dist = vm_dist_to_plane(checkp, s->normals[0], vcvertptr(vertnum));
+			const auto dist = vm_dist_to_plane(checkp, s.normals[0], vcvertptr(vertnum));
 	
 			if (dist < -PLANE_DIST_TOLERANCE) {
 				mask |= sidebit;
@@ -1392,7 +1392,7 @@ void create_walls_on_side(const vmsegptridx_t sp, int sidenum)
 	if (negate_flag)
 		vm_vec_negate(vn);
 
-	const auto s = &sp->sides[sidenum];
+	auto &s = sp->sides[sidenum];
 	if (dist_to_plane > PLANE_DIST_TOLERANCE)
 	{
 		add_side_as_2_triangles(sp, sidenum);
@@ -1409,8 +1409,8 @@ void create_walls_on_side(const vmsegptridx_t sp, int sidenum)
 
 			auto &vvn = *vcvertptr(min(vertex_list[0],vertex_list[2]));
 
-			const fix dist0 = vm_dist_to_plane(vcvertptr(vertex_list[1]), s->normals[1], vvn);
-			const fix dist1 = vm_dist_to_plane(vcvertptr(vertex_list[4]), s->normals[0], vvn);
+			const fix dist0 = vm_dist_to_plane(vcvertptr(vertex_list[1]), s.normals[1], vvn);
+			const fix dist1 = vm_dist_to_plane(vcvertptr(vertex_list[4]), s.normals[0], vvn);
 
 			s0 = sign(dist0);
 			s1 = sign(dist1);
@@ -1419,7 +1419,7 @@ void create_walls_on_side(const vmsegptridx_t sp, int sidenum)
 			return;
 		//detriangulate!
 	}
-	add_side_as_quad(s, vn);
+	add_side_as_quad(&s, vn);
 }
 
 // -------------------------------------------------------------------------------

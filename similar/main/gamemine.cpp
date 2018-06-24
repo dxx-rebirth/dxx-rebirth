@@ -64,7 +64,7 @@ namespace dsx {
 /*
  * reads a segment2 structure from a PHYSFS_File
  */
-static void segment2_read(segment &s2, PHYSFS_File *fp)
+static void segment2_read(shared_segment &s2, unique_segment &u2, PHYSFS_File *fp)
 {
 	s2.special = PHYSFSX_readByte(fp);
 	s2.matcen_num = PHYSFSX_readByte(fp);
@@ -78,7 +78,7 @@ static void segment2_read(segment &s2, PHYSFS_File *fp)
 #elif defined(DXX_BUILD_DESCENT_II)
 	s2.s2_flags = s2_flags;
 #endif
-	s2.static_light = PHYSFSX_readFix(fp);
+	u2.static_light = PHYSFSX_readFix(fp);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -655,8 +655,14 @@ int load_mine_data(PHYSFS_File *LoadFile)
 #if defined(DXX_BUILD_DESCENT_II)
 			if (mine_top_fileinfo.fileinfo_version >= 20)
 			{
-				if (PHYSFS_read(LoadFile, &*i, mine_fileinfo.segment_sizeof, 1) != 1)
-					Error("Unable to read segment %i\n", ii);
+				/*
+				 * The format of v20 segment once matched `struct segment`, but
+				 * this was not enforced with a `static_assert` or even
+				 * commented.  The layout of `struct segment` has since changed
+				 * at least five times.  See commit
+				 * 2665869c24855040837b1864daedd4cc13ab1793 for details.
+				 */
+				Error("Sorry, v20 segment support is broken.");
 			}
 			else
 #endif
@@ -666,12 +672,12 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 				Assert(mine_fileinfo.segment_sizeof == sizeof(v16_seg));
 
-				if (PHYSFS_read( LoadFile, &v16_seg, mine_fileinfo.segment_sizeof, 1 )!=1)
-					Error( "Error reading segments in gamemine.c" );
-
 #if defined(DXX_BUILD_DESCENT_I)
+				Error("Sorry, v16 segment support is broken.");
 				*i = v16_seg;
 #elif defined(DXX_BUILD_DESCENT_II)
+				if (PHYSFS_read( LoadFile, &v16_seg, mine_fileinfo.segment_sizeof, 1 )!=1)
+					Error( "Error reading segments in gamemine.c" );
 #if DXX_USE_EDITOR
 				i->segnum = v16_seg.segnum;
 				// -- Segments[i].pad = v16_seg.pad;
@@ -732,7 +738,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 		if (mine_top_fileinfo.fileinfo_version >= 20)
 			range_for (const auto &&segp, vmsegptridx)
 			{
-				segment2_read(segp, LoadFile);
+				segment2_read(segp, segp, LoadFile);
 				fuelcen_activate(segp);
 			}
 #endif
@@ -751,8 +757,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 	{
 		if (PHYSFSX_fseek( LoadFile, mine_editor.newsegment_offset,SEEK_SET ))
 			Error( "Error seeking to newsegment_offset in gamemine.c" );
-		if (PHYSFS_read( LoadFile, &New_segment, mine_editor.newsegment_size,1 )!=1)
-			Error( "Error reading new_segment in gamemine.c" );
+		Error("Sorry, v20 segment support is broken.");
 	}
 
 	if ( (mine_fileinfo.newseg_verts_offset > -1) && (mine_fileinfo.newseg_verts_howmany > 0))
@@ -1027,7 +1032,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 	range_for (const auto &&pi, vmsegptridx)
 	{
 		if (Gamesave_current_version > 5)
-			segment2_read(pi, LoadFile);
+			segment2_read(pi, pi, LoadFile);
 		fuelcen_activate(pi);
 	}
 
