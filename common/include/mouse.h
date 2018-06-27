@@ -16,6 +16,7 @@
 #include "maths.h"
 
 #ifdef __cplusplus
+#include <SDL_version.h>
 #include <cassert>
 #include "fwd-window.h"
 #include "event.h"
@@ -70,7 +71,12 @@ public:
 class d_event_mouse_moved : public d_event
 {
 public:
-	const int16_t dx, dy, dz;
+#if SDL_MAJOR_VERSION == 1
+	const Sint16 dx, dy;
+#else
+	const Sint32 dx, dy;
+#endif
+	const int16_t dz;
 	constexpr d_event_mouse_moved(const event_type t, const int16_t x, const int16_t y, const int16_t z) :
 		d_event(t), dx(x), dy(y), dz(z)
 	{
