@@ -30,19 +30,19 @@
 #include "physfsrwops.h"
 
 #if SDL_MAJOR_VERSION == 1
-#define SDL_RWops_callback_seek_return	int
-#define SDL_RWops_callback_read_return	int
-#define SDL_RWops_callback_write_return	int
+#define SDL_RWops_callback_seek_position	int
+#define SDL_RWops_callback_read_position	int
+#define SDL_RWops_callback_write_position	int
 #else
-#define SDL_RWops_callback_seek_return	Sint64
-#define SDL_RWops_callback_read_return	size_t
-#define SDL_RWops_callback_write_return	size_t
+#define SDL_RWops_callback_seek_position	Sint64
+#define SDL_RWops_callback_read_position	size_t
+#define SDL_RWops_callback_write_position	size_t
 #endif
 
-static SDL_RWops_callback_seek_return physfsrwops_seek(SDL_RWops *rw, int offset, int whence)
+static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SDL_RWops_callback_seek_position offset, const int whence)
 {
     PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
-    int pos = 0;
+    SDL_RWops_callback_seek_position pos = 0;
 
     if (whence == SEEK_SET)
     {
@@ -113,7 +113,7 @@ static SDL_RWops_callback_seek_return physfsrwops_seek(SDL_RWops *rw, int offset
 } /* physfsrwops_seek */
 
 
-static SDL_RWops_callback_read_return physfsrwops_read(SDL_RWops *rw, void *ptr, int size, int maxnum)
+static SDL_RWops_callback_read_position physfsrwops_read(SDL_RWops *const rw, void *const ptr, const SDL_RWops_callback_read_position size, const SDL_RWops_callback_read_position maxnum)
 {
     PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
     PHYSFS_sint64 rc = (PHYSFS_read)(handle, ptr, size, maxnum);
@@ -122,19 +122,17 @@ static SDL_RWops_callback_read_return physfsrwops_read(SDL_RWops *rw, void *ptr,
         if (!PHYSFS_eof(handle)) /* not EOF? Must be an error. */
             SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
     } /* if */
-
-    return(static_cast<int>(rc));
+    return rc;
 } /* physfsrwops_read */
 
 
-static SDL_RWops_callback_write_return physfsrwops_write(SDL_RWops *rw, const void *ptr, int size, int num)
+static SDL_RWops_callback_write_position physfsrwops_write(SDL_RWops *const rw, const void *const ptr, const SDL_RWops_callback_write_position size, const SDL_RWops_callback_write_position num)
 {
     PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
     PHYSFS_sint64 rc = (PHYSFS_write)(handle, reinterpret_cast<const uint8_t *>(ptr), size, num);
     if (rc != num)
         SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
-
-    return(static_cast<int>(rc));
+    return rc;
 } /* physfsrwops_write */
 
 
