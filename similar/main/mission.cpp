@@ -79,7 +79,7 @@ using mission_candidate_search_path = array<char, PATH_MAX>;
 struct mle : Mission_path
 {
 	int     builtin_hogsize;    // if it's the built-in mission, used for determining the version
-	ntstring<MISSION_NAME_LEN> mission_name;
+	ntstring<75> mission_name;
 #if defined(DXX_BUILD_DESCENT_II)
 	descent_version_type descent_version;    // descent 1 or descent 2?
 #endif
@@ -326,7 +326,7 @@ static char *get_value(char *buf)
 }
 
 //reads a line, returns ptr to value of passed parm.  returns NULL if none
-static char *get_parm_value(PHYSFSX_gets_line_t<80> &buf, const char *parm,PHYSFS_File *f)
+static char *get_parm_value(PHYSFSX_gets_line_t<80> &buf, const char *const parm, PHYSFS_File *const f)
 {
 	if (!PHYSFSX_fgets(buf,f))
 		return NULL;
@@ -740,7 +740,7 @@ static int load_mission(const mle *mission)
 #endif
 	Current_mission = make_unique<Mission>();
 	Current_mission->builtin_hogsize = mission->builtin_hogsize;
-	Current_mission->mission_name = mission->mission_name;
+	Current_mission->mission_name.copy_if(mission->mission_name);
 #if defined(DXX_BUILD_DESCENT_II)
 	Current_mission->descent_version = mission->descent_version;
 #endif

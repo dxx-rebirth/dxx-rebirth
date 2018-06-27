@@ -770,6 +770,11 @@ void gr_ustring(grs_canvas &canvas, const grs_font &cv_font, const int x, const 
 
 void gr_get_string_size(const grs_font &cv_font, const char *s, int *const string_width, int *const string_height, int *const average_width)
 {
+	gr_get_string_size(cv_font, s, string_width, string_height, average_width, UINT_MAX);
+}
+
+void gr_get_string_size(const grs_font &cv_font, const char *s, int *const string_width, int *const string_height, int *const average_width, const unsigned max_chars_per_line)
+{
 	float longest_width=0.0,string_width_f=0.0;
 	unsigned lines = 0;
 	if (average_width)
@@ -778,6 +783,7 @@ void gr_get_string_size(const grs_font &cv_font, const char *s, int *const strin
 		return;
 	if (s)
 	{
+		unsigned remaining_chars_this_line = max_chars_per_line;
 		while (*s)
 		{
 			if (*s == '\n')
@@ -792,12 +798,15 @@ void gr_get_string_size(const grs_font &cv_font, const char *s, int *const strin
 				lines += s - os;
 				if (!*s)
 					break;
+				remaining_chars_this_line = max_chars_per_line;
 			}
 
 			const auto &result = get_char_width<float>(cv_font, s[0], s[1]);
 			const auto &spacing = result.spacing;
 			string_width_f += spacing;
 			s++;
+			if (!--remaining_chars_this_line)
+				break;
 		}
 	}
 	if (string_width)

@@ -56,8 +56,6 @@ public:
 			return copy_if(out_offset, static_cast<I &&>(i), this->size());
 		}
 	template <std::size_t N>
-		void copy_if(std::size_t, const ntstring<N> &, std::size_t = 0) = delete;
-	template <std::size_t N>
 		std::size_t copy_if(std::size_t out_offset, const array<char, N> &i, std::size_t n = N)
 		{
 #ifdef DXX_CONSTANT_TRUE

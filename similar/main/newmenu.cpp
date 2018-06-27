@@ -1912,12 +1912,59 @@ static void listbox_create_structure( listbox *lb)
 
 	lb->box_w = 0;
 	const auto &&fspacx = FSPACX();
-	range_for (auto &i, unchecked_partial_range(lb->item, lb->nitems))
+	const auto &&fspacx10 = fspacx(10);
+	const unsigned max_box_width = SWIDTH - (BORDERX * 2);
+	unsigned marquee_maxchars = UINT_MAX;
+	range_for (const auto i, unchecked_partial_range(lb->item, lb->nitems))
 	{
 		int w;
 		gr_get_string_size(medium3_font, i, &w, nullptr, nullptr);
-		if ( w > lb->box_w )
-			lb->box_w = w + fspacx(10);
+		w += fspacx10;
+		if (w > max_box_width)
+		{
+			unsigned mmc = 1;
+			for (;; ++mmc)
+			{
+				int w2;
+				gr_get_string_size(medium3_font, i, &w2, nullptr, nullptr, mmc);
+				if (w2 > max_box_width)
+					break;
+			}
+			/* mmc is now the shortest initial subsequence that is wider
+			 * than max_box_width.
+			 *
+			 * Next, search for whether any internal subsequences of
+			 * lesser length are also too wide.  This can happen if all
+			 * the initial characters are narrow, then characters
+			 * outside the initial subsequence are wide.
+			 */
+			for (auto j = i;;)
+			{
+				int w2;
+				gr_get_string_size(medium3_font, j, &w2, nullptr, nullptr, mmc);
+				if (w2 > max_box_width)
+				{
+					/* This subsequence is too long.  Reduce the length
+					 * and retry.
+					 */
+					if (!--mmc)
+						break;
+				}
+				else
+				{
+					/* This subsequence fits.  Move to the next
+					 * character.
+					 */
+					if (!*++j)
+						break;
+				}
+			}
+			w = max_box_width;
+			if (marquee_maxchars > mmc)
+				marquee_maxchars = mmc;
+		}
+		if (lb->box_w < w)
+			lb->box_w = w;
 	}
 
 	{
@@ -1929,13 +1976,10 @@ static void listbox_create_structure( listbox *lb)
 	}
 
 	// The box is bigger than we can fit on the screen since at least one string is too long. Check how many chars we can fit on the screen (at least only - MEDIUM*_FONT is variable font!) so we can make a marquee-like effect.
-	if (lb->box_w + (BORDERX*2) > SWIDTH)
+	if (marquee_maxchars != UINT_MAX)
 	{
-		int w;
-
-		const auto box_w = lb->box_w = SWIDTH - (BORDERX*2);
-		gr_get_string_size(medium3_font, "O", &w, nullptr, nullptr);
-		lb->marquee = listbox::marquee::allocate(box_w / w);
+		lb->box_w = max_box_width;
+		lb->marquee = listbox::marquee::allocate(marquee_maxchars);
 		lb->marquee->lasttime = timer_query();
 	}
 
