@@ -222,9 +222,7 @@ static int last_r=0, last_g=0, last_b=0;
 void gr_palette_step_up( int r, int g, int b )
 {
 	palette_array_t &p = gr_palette;
-	int temp;
 	SDL_Palette *palette;
-	array<SDL_Color, 256> colors;
 
 	if ( (r==last_r) && (g==last_g) && (b==last_b) )
 		return;
@@ -238,32 +236,15 @@ void gr_palette_step_up( int r, int g, int b )
 	if (palette == NULL)
 		return; // Display is not palettised
 
+	array<SDL_Color, 256> colors{};
 	for (int i=0; i<256; i++)
 	{
-		temp = static_cast<int>(p[i].r) + r + gr_palette_gamma;
-
-		if (temp<0)
-			temp=0;
-		else if (temp>63)
-			temp=63;
-
-		colors[i].r = temp * 4;
-		temp = static_cast<int>(p[i].g) + g + gr_palette_gamma;
-
-		if (temp<0)
-			temp=0;
-		else if (temp>63)
-			temp=63;
-
-		colors[i].g = temp * 4;
-		temp = static_cast<int>(p[i].b) + b + gr_palette_gamma;
-
-		if (temp<0)
-			temp=0;
-		else if (temp>63)
-			temp=63;
-
-		colors[i].b = temp * 4;
+		const auto ir = static_cast<int>(p[i].r) + r + gr_palette_gamma;
+		colors[i].r = std::min(std::max(ir, 0), 63) * 4;
+		const auto ig = static_cast<int>(p[i].g) + g + gr_palette_gamma;
+		colors[i].g = std::min(std::max(ig, 0), 63) * 4;
+		const auto ib = static_cast<int>(p[i].b) + b + gr_palette_gamma;
+		colors[i].b = std::min(std::max(ib, 0), 63) * 4;
 	}
 	SDL_SetColors(canvas, colors.data(), 0, colors.size());
 }
@@ -271,7 +252,6 @@ void gr_palette_step_up( int r, int g, int b )
 void gr_palette_load( palette_array_t &pal )
 {
 	SDL_Palette *palette;
-	array<SDL_Color, 256> colors;
 	array<uint8_t, 64> gamma;
 
 	if (pal != gr_current_pal)
@@ -290,6 +270,7 @@ void gr_palette_load( palette_array_t &pal )
 	for (int i=0;i<64;i++)
 		gamma[i] = static_cast<int>((pow((static_cast<double>(14)/static_cast<double>(32)), 1.0)*i) + 0.5);
 
+	array<SDL_Color, 256> colors{};
 	for (int i = 0, j = 0; j < 256; j++)
 	{
 		int c;
