@@ -554,6 +554,11 @@ struct hud_draw_context_xyscale
 		xscale(x), yscale(y)
 	{
 	}
+#else
+	constexpr hud_draw_context_xyscale() :
+		xscale{}, yscale{}
+	{
+	}
 #endif
 };
 
