@@ -2540,9 +2540,9 @@ static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, cons
 	}
 }
 
-static void draw_weapon_info(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const unsigned weapon_num, const unsigned laser_level, const weapon_type weapon_type)
+static void draw_weapon_info(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const unsigned weapon_num, const unsigned laser_level, const weapon_type wt)
 {
-	if (weapon_type == weapon_type::primary)
+	if (wt == weapon_type::primary)
 		draw_primary_weapon_info(hudctx, player_info, weapon_num, laser_level);
 	else
 		draw_secondary_weapon_info(hudctx, player_info, weapon_num);
@@ -2570,63 +2570,63 @@ static void draw_secondary_ammo_info(const hud_draw_context_hs_mr hudctx, const 
 	draw_ammo_info(hudctx.canvas, hudctx.xscale(x), hudctx.yscale(y), ammo_count);
 }
 
-static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const unsigned weapon_num, const weapon_type weapon_type)
+static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const unsigned weapon_num, const weapon_type wt)
 {
 	auto &canvas = hudctx.canvas;
 	gr_set_curfont(canvas, GAME_FONT);
 
-	const auto laser_level_changed = (weapon_type == weapon_type::primary && weapon_num == primary_weapon_index_t::LASER_INDEX && (player_info.laser_level != old_laser_level));
+	const auto laser_level_changed = (wt == weapon_type::primary && weapon_num == primary_weapon_index_t::LASER_INDEX && (player_info.laser_level != old_laser_level));
 
-	if ((weapon_num != old_weapon[weapon_type] || laser_level_changed) && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && PlayerCfg.HudMode == HudType::Standard)
+	if ((weapon_num != old_weapon[wt] || laser_level_changed) && weapon_box_states[wt] == WS_SET && (old_weapon[wt] != -1) && PlayerCfg.HudMode == HudType::Standard)
 	{
-		weapon_box_states[weapon_type] = WS_FADING_OUT;
-		weapon_box_fade_values[weapon_type]=i2f(GR_FADE_LEVELS-1);
+		weapon_box_states[wt] = WS_FADING_OUT;
+		weapon_box_fade_values[wt]=i2f(GR_FADE_LEVELS-1);
 	}
 
 	const local_multires_gauge_graphic multires_gauge_graphic{};
-	if (old_weapon[weapon_type] == -1)
+	if (old_weapon[wt] == -1)
 	{
-		draw_weapon_info(hudctx, player_info, weapon_num, player_info.laser_level, weapon_type);
-		old_weapon[weapon_type] = weapon_num;
-		weapon_box_states[weapon_type] = WS_SET;
+		draw_weapon_info(hudctx, player_info, weapon_num, player_info.laser_level, wt);
+		old_weapon[wt] = weapon_num;
+		weapon_box_states[wt] = WS_SET;
 	}
 
-	if (weapon_box_states[weapon_type] == WS_FADING_OUT) {
-		draw_weapon_info(hudctx, player_info, old_weapon[weapon_type], old_laser_level, weapon_type);
-		weapon_box_fade_values[weapon_type] -= FrameTime * FADE_SCALE;
-		if (weapon_box_fade_values[weapon_type] <= 0) {
-			weapon_box_states[weapon_type] = WS_FADING_IN;
-			old_weapon[weapon_type] = weapon_num;
+	if (weapon_box_states[wt] == WS_FADING_OUT) {
+		draw_weapon_info(hudctx, player_info, old_weapon[wt], old_laser_level, wt);
+		weapon_box_fade_values[wt] -= FrameTime * FADE_SCALE;
+		if (weapon_box_fade_values[wt] <= 0) {
+			weapon_box_states[wt] = WS_FADING_IN;
+			old_weapon[wt] = weapon_num;
 			old_laser_level = player_info.laser_level;
-			weapon_box_fade_values[weapon_type] = 0;
+			weapon_box_fade_values[wt] = 0;
 		}
 	}
-	else if (weapon_box_states[weapon_type] == WS_FADING_IN) {
-		if (weapon_num != old_weapon[weapon_type]) {
-			weapon_box_states[weapon_type] = WS_FADING_OUT;
+	else if (weapon_box_states[wt] == WS_FADING_IN) {
+		if (weapon_num != old_weapon[wt]) {
+			weapon_box_states[wt] = WS_FADING_OUT;
 		}
 		else {
-			draw_weapon_info(hudctx, player_info, weapon_num, player_info.laser_level, weapon_type);
-			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
-			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS-1)) {
-				weapon_box_states[weapon_type] = WS_SET;
-				old_weapon[weapon_type] = -1;
+			draw_weapon_info(hudctx, player_info, weapon_num, player_info.laser_level, wt);
+			weapon_box_fade_values[wt] += FrameTime * FADE_SCALE;
+			if (weapon_box_fade_values[wt] >= i2f(GR_FADE_LEVELS-1)) {
+				weapon_box_states[wt] = WS_SET;
+				old_weapon[wt] = -1;
 			}
 		}
 	} else
 	{
-		draw_weapon_info(hudctx, player_info, weapon_num, player_info.laser_level, weapon_type);
-		old_weapon[weapon_type] = weapon_num;
+		draw_weapon_info(hudctx, player_info, weapon_num, player_info.laser_level, wt);
+		old_weapon[wt] = weapon_num;
 		old_laser_level = player_info.laser_level;
 	}
 
-	if (weapon_box_states[weapon_type] != WS_SET)		//fade gauge
+	if (weapon_box_states[wt] != WS_SET)		//fade gauge
 	{
-		int fade_value = f2i(weapon_box_fade_values[weapon_type]);
+		int fade_value = f2i(weapon_box_fade_values[wt]);
 		int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 
 		gr_settransblend(canvas, fade_value, GR_BLEND_NORMAL);
-		auto &g = gauge_boxes[boxofs + weapon_type];
+		auto &g = gauge_boxes[boxofs + wt];
 		auto &canvas = hudctx.canvas;
 		gr_rect(canvas, hudctx.xscale(g.left), hudctx.yscale(g.top), hudctx.xscale(g.right), hudctx.yscale(g.bot), 0);
 
