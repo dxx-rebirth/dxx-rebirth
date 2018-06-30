@@ -72,7 +72,7 @@ using std::max;
 #if 0
 #define glmprintf(A) con_printf A
 #else
-#define glmprintf(A)	(void)(sizeof(con_printf A, 0))
+#define glmprintf(A)
 #endif
 
 #ifndef M_PI
