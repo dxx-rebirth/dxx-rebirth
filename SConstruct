@@ -829,20 +829,21 @@ help:assume C++ compiler works
 		# take an action determined by the value of forced.
 		if forced is None:
 			r = action('''
-#undef main	/* avoid -Dmain=SDL_main from libSDL */
-%s
-%s
-%s
+{tools}
+{macros}
+{text}
 
-%s
-''' % (self.__tool_versions, self.__defined_macros, text, '' if main is None else
+#undef main	/* avoid -Dmain=SDL_main from libSDL */
+
+{main}
+'''.format(tools=self.__tool_versions, macros=self.__defined_macros, text=text, main=('' if main is None else
 '''
 int main(int argc,char**argv){(void)argc;(void)argv;
 %s
 
 ;}
 ''' % main
-	), ext)
+	)), ext)
 			# Some tests check that the compiler rejects an input.
 			# SConf considers the result a failure when the compiler
 			# rejects the input.  For tests that consider a rejection to
