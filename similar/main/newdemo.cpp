@@ -1848,7 +1848,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!shareware)
 	{
-		if ((purpose != PURPOSE_REWRITE) && !load_mission_by_name(current_mission)) {
+		if ((purpose != PURPOSE_REWRITE) && load_mission_by_name(current_mission))
+		{
 			if (purpose == PURPOSE_CHOSE_PLAY) {
 				nm_messagebox( NULL, 1, TXT_OK, TXT_NOMISSION4DEMO, current_mission );
 			}
@@ -1856,7 +1857,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		}
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (!load_mission_by_name(current_mission)) {
+	if (load_mission_by_name(current_mission))
+	{
 		if (purpose != PURPOSE_RANDOM_PLAY) {
 			nm_messagebox( NULL, 1, TXT_OK, TXT_NOMISSION4DEMO, current_mission );
 		}

@@ -115,7 +115,7 @@ static int allocate_levels(void)
 //  Special versions of mission routines for d1 builtins
 //
 
-static int load_mission_d1(void)
+static const char *load_mission_d1()
 {
 	switch (PHYSFSX_fsize("descent.hog"))
 	{
@@ -129,7 +129,7 @@ static int load_mission_d1(void)
 			if (!allocate_levels())
 			{
 				Current_mission.reset();
-				return 0;
+				return "Failed to allocate level memory for Descent 1 shareware";
 			}
 	
 			//build level names
@@ -147,7 +147,7 @@ static int load_mission_d1(void)
 			if (!allocate_levels())
 			{
 				Current_mission.reset();
-				return 0;
+				return "Failed to allocate level memory for Descent 1 Mac shareware";
 			}
 			
 			//build level names
@@ -166,7 +166,7 @@ static int load_mission_d1(void)
 			if (!allocate_levels())
 			{
 				Current_mission.reset();
-				return 0;
+				return "Failed to allocate level memory for Descent 1 OEM";
 			}
 			
 			//build level names
@@ -193,7 +193,7 @@ static int load_mission_d1(void)
 			if (!allocate_levels())
 			{
 				Current_mission.reset();
-				return 0;
+				return "Failed to allocate level memory for Descent 1";
 			}
 
 			//build level names
@@ -208,8 +208,7 @@ static int load_mission_d1(void)
 			Ending_text_filename = "endreg.txb";
 			break;
 	}
-
-	return 1;
+	return nullptr;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -217,7 +216,7 @@ static int load_mission_d1(void)
 //  Special versions of mission routines for shareware
 //
 
-static int load_mission_shareware(void)
+static const char *load_mission_shareware()
 {
     Current_mission->mission_name.copy_if(SHAREWARE_MISSION_NAME);
     Current_mission->descent_version = Mission::descent_version_type::descent2;
@@ -234,7 +233,7 @@ static int load_mission_shareware(void)
 			if (!allocate_levels())
 			{
 				Current_mission.reset();
-				return 0;
+				return "Failed to allocate level memory for Descent 2 Mac shareware";
 			}
 			
 			// mac demo is using the regular hog and rl2 files
@@ -255,14 +254,13 @@ static int load_mission_shareware(void)
 			if (!allocate_levels())
 			{
 				Current_mission.reset();
-				return 0;
+				return "Failed to allocate level memory for Descent 2 shareware";
 			}
 			Level_names[0] = "d2leva-1.sl2";
 			Level_names[1] = "d2leva-2.sl2";
 			Level_names[2] = "d2leva-3.sl2";
 	}
-
-	return 1;
+	return nullptr;
 }
 
 
@@ -270,7 +268,7 @@ static int load_mission_shareware(void)
 //  Special versions of mission routines for Diamond/S3 version
 //
 
-static int load_mission_oem(void)
+static const char *load_mission_oem()
 {
     Current_mission->mission_name.copy_if(OEM_MISSION_NAME);
     Current_mission->descent_version = Mission::descent_version_type::descent2;
@@ -284,7 +282,7 @@ static int load_mission_oem(void)
 	if (!allocate_levels())
 	{
 		Current_mission.reset();
-		return 0;
+		return "Failed to allocate level memory for Descent 2 OEM";
 	}
 	Level_names[0] = "d2leva-1.rl2";
 	Level_names[1] = "d2leva-2.rl2";
@@ -298,7 +296,7 @@ static int load_mission_oem(void)
 	Secret_level_names[1] = "d2levb-s.rl2";
 	Secret_level_table[0] = 1;
 	Secret_level_table[1] = 5;
-	return 1;
+	return nullptr;
 }
 #endif
 
@@ -346,7 +344,7 @@ static bool ml_sort_func(const mle &e0,const mle &e1)
 namespace dsx {
 static int read_mission_file(mission_list_type &mission_list, mission_candidate_search_path &pathname)
 {
-	if (auto mfile = PHYSFSX_openReadBuffered(pathname.data()))
+	if (const auto mfile = PHYSFSX_openReadBuffered(pathname.data()))
 	{
 		char *p;
 		char *ext;
@@ -731,7 +729,8 @@ static void record_briefing(d_fname &f, array<char, PATH_MAX> &buf)
 //build_mission_list() must have been called.
 //Returns true if mission loaded ok, else false.
 namespace dsx {
-static int load_mission(const mle *mission)
+
+static const char *load_mission(const mle *const mission)
 {
 	char *v;
 
@@ -818,7 +817,7 @@ static int load_mission(const mle *mission)
 	auto &&mfile = PHYSFSX_openReadBuffered(mission_filename.data());
 	if (!mfile) {
 		Current_mission.reset();
-		return 0;		//error!
+		return "Failed to open mission file";		//error!
 	}
 
 	//for non-builtin missions, load HOG
@@ -981,7 +980,7 @@ static int load_mission(const mle *mission)
 	mfile.reset();
 	if (Last_level <= 0) {
 		Current_mission.reset();		//no valid mission loaded
-		return 0;
+		return "Failed to parse mission file";
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -991,17 +990,17 @@ static int load_mission(const mle *mission)
 	if (load_mission_ham())
 		init_extra_robot_movie(Current_mission_filename);
 #endif
-
-	return 1;
+	return nullptr;
 }
+
 }
 
 //loads the named mission if exists.
-//Returns true if mission loaded ok, else false.
-int load_mission_by_name(const char *mission_name)
+//Returns nullptr if mission loaded ok, else error string.
+const char *load_mission_by_name(const char *const mission_name)
 {
 	auto mission_list = build_mission_list(1);
-	bool found = 0;
+	const char *found = nullptr;
 
 	range_for (auto &i, mission_list)
 		if (!d_stricmp(mission_name, &*i.filename))
@@ -1034,9 +1033,9 @@ static window_event_result mission_menu_handler(listbox *, const d_event &event,
 			if (citem >= 0)
 			{
 				// Chose a mission
-				if (!load_mission(&mm->ml[citem]))
+				if (const auto errstr = load_mission(&mm->ml[citem]))
 				{
-					nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
+					nm_messagebox(nullptr, 1, TXT_OK, "%s\n\n%s", TXT_MISSION_ERROR, errstr);
 					return window_event_result::handled;	// stay in listbox so user can select another one
 				}
 				CGameCfg.LastMission.copy_if(mm->mission_names[citem]);
@@ -1060,7 +1059,7 @@ int select_mission(int anarchy_mode, const char *message, window_event_result (*
 
     if (mission_list.size() <= 1)
 	{
-        new_mission_num = !mission_list.empty() && load_mission(&mission_list.front()) ? 0 : -1;
+        new_mission_num = !mission_list.empty() && !load_mission(&mission_list.front()) ? 0 : -1;
 		(*when_selected)();
 		
 		return (new_mission_num >= 0);

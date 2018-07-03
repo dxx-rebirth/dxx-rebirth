@@ -4645,9 +4645,9 @@ int net_udp_do_join_game()
 	}
 
 	// Check for valid mission name
-	if (!load_mission_by_name(Netgame.mission_name))
+	if (const auto errstr = load_mission_by_name(Netgame.mission_name))
 	{
-		nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
+		nm_messagebox(nullptr, 1, TXT_OK, "%s\n\n%s", TXT_MISSION_NOT_FOUND, errstr);
 		return 0;
 	}
 

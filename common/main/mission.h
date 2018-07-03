@@ -214,8 +214,8 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 #endif
 
 //loads the named mission if it exists.
-//Returns true if mission loaded ok, else false.
-int load_mission_by_name (const char *mission_name);
+//Returns nullptr if mission loaded ok, else error string.
+const char *load_mission_by_name (const char *mission_name);
 
 //Handles creating and selecting from the mission list.
 //Returns 1 if a mission was loaded.
