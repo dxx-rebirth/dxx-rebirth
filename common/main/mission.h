@@ -84,7 +84,6 @@ constexpr std::integral_constant<uint8_t, 127> MAX_SECRET_LEVELS_PER_MISSION{};	
 class Mission_path
 {
 public:
-	Mission_path() = default;
 	Mission_path(const Mission_path &m) :
 		path(m.path),
 		filename(std::next(path.cbegin(), std::distance(m.path.cbegin(), m.filename)))
@@ -96,13 +95,13 @@ public:
 		filename = std::next(path.begin(), std::distance(m.path.cbegin(), m.filename));
 		return *this;
 	}
-	/* Caller's offset is ignored; it is only here to provide a
-	 * temporary to store the old path distance before old path is moved
-	 * to new path.
-	 */
-	Mission_path(Mission_path &&m, std::size_t offset = 0) :
-		path((offset = std::distance(m.path.cbegin(), m.filename), std::move(m.path))),
+	Mission_path(std::string &&p, const std::size_t offset) :
+		path(std::move(p)),
 		filename(std::next(path.cbegin(), offset))
+	{
+	}
+	Mission_path(Mission_path &&m) :
+		Mission_path(std::move(m).path, std::distance(m.path.cbegin(), m.filename))
 	{
 	}
 	Mission_path &operator=(Mission_path &&rhs)
@@ -156,17 +155,21 @@ struct Mission : Mission_path
 	 * With the explicit default, gcc uses operator=(Mission &&), which
 	 * works.
 	 *
-	 * Explicitly default the default constructor since the explicitly
-	 * defaulted move constructor suppresses the implicit default
-	 * constructor.
 	 * Explicitly delete copy constructor and copy operator= for
 	 * thoroughness.
 	 */
 	Mission(Mission &&) = default;
 	Mission &operator=(Mission &&) = default;
-	Mission() = default;
 	Mission(const Mission &) = delete;
 	Mission &operator=(const Mission &) = delete;
+	explicit Mission(const Mission_path &m) :
+		Mission_path(m)
+	{
+	}
+	explicit Mission(Mission_path &&m) :
+		Mission_path(std::move(m))
+	{
+	}
 	~Mission();
 };
 

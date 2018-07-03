@@ -1693,6 +1693,11 @@ struct listbox : embed_window_pointer_t
 	void *userdata;
 };
 
+window *listbox_get_window(listbox *const lb)
+{
+	return lb->wind;
+}
+
 const char **listbox_get_items(listbox *lb)
 {
 	return lb->item;
@@ -1927,7 +1932,7 @@ static void listbox_create_structure( listbox *lb)
 			{
 				int w2;
 				gr_get_string_size(medium3_font, i, &w2, nullptr, nullptr, mmc);
-				if (w2 > max_box_width)
+				if (w2 > max_box_width - fspacx10 || mmc > 128)
 					break;
 			}
 			/* mmc is now the shortest initial subsequence that is wider
@@ -1942,7 +1947,7 @@ static void listbox_create_structure( listbox *lb)
 			{
 				int w2;
 				gr_get_string_size(medium3_font, j, &w2, nullptr, nullptr, mmc);
-				if (w2 > max_box_width)
+				if (w2 > max_box_width - fspacx10)
 				{
 					/* This subsequence is too long.  Reduce the length
 					 * and retry.
