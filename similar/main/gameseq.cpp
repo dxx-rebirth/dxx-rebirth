@@ -641,13 +641,15 @@ void create_player_appearance_effect(const object_base &player_obj)
 		? vm_vec_scale_add(player_obj.pos, player_obj.orient.fvec, fixmul(player_obj.size, flash_dist))
 		: player_obj.pos;
 
-	const auto &&effect_obj = object_create_explosion(vmsegptridx(player_obj.segnum), pos, player_obj.size, VCLIP_PLAYER_APPEARANCE);
+	const auto &&seg = vmsegptridx(player_obj.segnum);
+	const auto &&effect_obj = object_create_explosion(seg, pos, player_obj.size, VCLIP_PLAYER_APPEARANCE);
 
 	if (effect_obj) {
 		effect_obj->orient = player_obj.orient;
 
-		if ( Vclip[VCLIP_PLAYER_APPEARANCE].sound_num > -1 )
-			digi_link_sound_to_object(Vclip[VCLIP_PLAYER_APPEARANCE].sound_num, effect_obj, 0, F1_0, sound_stack::allow_stacking);
+		const auto sound_num = Vclip[VCLIP_PLAYER_APPEARANCE].sound_num;
+		if (sound_num > -1)
+			digi_link_sound_to_pos(sound_num, seg, 0, effect_obj->pos, 0, F1_0);
 	}
 }
 }
