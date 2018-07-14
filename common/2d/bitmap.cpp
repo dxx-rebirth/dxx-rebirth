@@ -92,11 +92,7 @@ void gr_init_bitmap_alloc(grs_main_bitmap &bm, const bm_mode mode, const uint16_
 
 grs_main_bitmap::grs_main_bitmap()
 {
-	bm_data = nullptr;
-	bm_parent = nullptr;
-#if DXX_USE_OGL
-	gltexture = nullptr;
-#endif
+	static_cast<grs_bitmap &>(*this) = {};
 }
 
 grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap &bm, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
