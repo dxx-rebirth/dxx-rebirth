@@ -1320,6 +1320,7 @@ static void terminate_handler()
 			('DXX_MAX_AXES_PER_JOYSTICK', user_settings.max_axes_per_joystick),
 			('DXX_MAX_BUTTONS_PER_JOYSTICK', user_settings.max_buttons_per_joystick),
 			('DXX_MAX_HATS_PER_JOYSTICK', user_settings.max_hats_per_joystick),
+			('DXX_USE_SDL_REDBOOK_AUDIO', int(not sdl2)),
 		))
 		context.Display('%s: checking whether to enable joystick support...%s\n' % (self.msgprefix, 'yes' if user_settings.max_joysticks else 'no'))
 		# SDL2 removed CD-rom support.

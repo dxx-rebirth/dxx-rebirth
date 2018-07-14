@@ -47,7 +47,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int Songs_initialized = 0;
 static int Song_playing = -1; // -1 if no song playing, else the Descent song number
+#if DXX_USE_SDL_REDBOOK_AUDIO
 static int Redbook_playing = 0; // Redbook track num differs from Song_playing. We need this for Redbook repeat hooks.
+#endif
 
 bim_song_info *BIMSongs = NULL;
 int Num_bim_songs;
@@ -61,11 +63,15 @@ void songs_set_volume(int volume)
 #ifdef _WIN32
 	digi_win32_set_midi_volume(volume);
 #endif
+#if DXX_USE_SDL_REDBOOK_AUDIO
 	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
 	{
 		RBASetVolume(0);
 		RBASetVolume(volume);
 	}
+#else
+	(void)volume;
+#endif
 #if DXX_USE_SDLMIXER
 	mix_set_music_volume(volume);
 #endif
@@ -169,12 +175,17 @@ static void songs_init()
 			GameCfg.MusicType = MUSIC_TYPE_NONE;
 	}
 
-	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
-		RBAInit();
-#if DXX_USE_SDLMIXER
-	else if (GameCfg.MusicType == MUSIC_TYPE_CUSTOM)
-		jukebox_load();
+	switch (GameCfg.MusicType)
+	{
+#if DXX_USE_SDL_REDBOOK_AUDIO
+		case MUSIC_TYPE_REDBOOK:
+			RBAInit();
+			break;
 #endif
+		case MUSIC_TYPE_CUSTOM:
+			jukebox_load();
+			break;
+	}
 
 	songs_set_volume(GameCfg.MusicVolume);
 }
@@ -197,7 +208,9 @@ void songs_stop_all(void)
 #ifdef _WIN32
 	digi_win32_stop_midi_song();	// Stop midi song, if playing
 #endif
+#if DXX_USE_SDL_REDBOOK_AUDIO
 	RBAStop();
+#endif
 #if DXX_USE_SDLMIXER
 	mix_stop_music();
 #endif
@@ -210,8 +223,10 @@ void songs_pause(void)
 #ifdef _WIN32
 	digi_win32_pause_midi_song();
 #endif
+#if DXX_USE_SDL_REDBOOK_AUDIO
 	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
 		RBAPause();
+#endif
 #if DXX_USE_SDLMIXER
 	mix_pause_music();
 #endif
@@ -222,8 +237,10 @@ void songs_resume(void)
 #ifdef _WIN32
 	digi_win32_resume_midi_song();
 #endif
+#if DXX_USE_SDL_REDBOOK_AUDIO
 	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
 		RBAResume();
+#endif
 #if DXX_USE_SDLMIXER
 	mix_resume_music();
 #endif
@@ -231,8 +248,10 @@ void songs_resume(void)
 
 void songs_pause_resume(void)
 {
+#if DXX_USE_SDL_REDBOOK_AUDIO
 	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
 		RBAPauseResume();
+#endif
 #if DXX_USE_SDLMIXER
 	mix_pause_resume_music();
 #endif
@@ -244,9 +263,11 @@ void songs_pause_resume(void)
  */
 #define D1_MAC_OEM_DISCID       0xde0feb0e // Descent CD that came with the Mac Performa 6400, hope mine isn't scratched [too much]
 
+#if DXX_USE_SDL_REDBOOK_AUDIO
 #define REDBOOK_ENDLEVEL_TRACK		4
 #define REDBOOK_ENDGAME_TRACK		(RBAGetNumberOfTracks())
 #define REDBOOK_FIRST_LEVEL_TRACK	(songs_have_cd() ? 6 : 1)
+#endif
 #elif defined(DXX_BUILD_DESCENT_II)
 /*
  * Some of these have different Track listings!
@@ -264,13 +285,16 @@ void songs_pause_resume(void)
 #define D2_MAC_DISCID       0xb70ee40e // Macintosh
 #define D2_IPLAY_DISCID     0x22115710 // iPlay for Macintosh
 
+#if DXX_USE_SDL_REDBOOK_AUDIO
 #define REDBOOK_TITLE_TRACK         2
 #define REDBOOK_CREDITS_TRACK       3
 #define REDBOOK_FIRST_LEVEL_TRACK   (songs_have_cd() ? 4 : 1)
 #endif
+#endif
 
 // 0 otherwise
 namespace dsx {
+#if DXX_USE_SDL_REDBOOK_AUDIO
 static int songs_have_cd()
 {
 	unsigned long discid;
@@ -305,20 +329,25 @@ static int songs_have_cd()
 			return 0;
 	}
 }
+#endif
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
+#if DXX_USE_SDL_REDBOOK_AUDIO
 static void redbook_repeat_func()
 {
 	pause_game_world_time p;
 	RBAPlayTracks(Redbook_playing, 0, redbook_repeat_func);
 }
+#endif
 #elif defined(DXX_BUILD_DESCENT_II)
+#if DXX_USE_SDL_REDBOOK_AUDIO || DXX_USE_SDLMIXER
 static void play_credits_track()
 {
 	pause_game_world_time p;
 	songs_play_song(SONG_CREDITS, 1);
 }
+#endif
 #endif
 
 // play a filename as music, depending on filename extension.
@@ -374,6 +403,7 @@ int songs_play_song( int songnum, int repeat )
 				Song_playing = songnum;
 			break;
 		}
+#if DXX_USE_SDL_REDBOOK_AUDIO
 		case MUSIC_TYPE_REDBOOK:
 		{
 			int num_tracks = RBAGetNumberOfTracks();
@@ -425,6 +455,7 @@ int songs_play_song( int songnum, int repeat )
 #endif
 			break;
 		}
+#endif
 #if DXX_USE_SDLMIXER
 		case MUSIC_TYPE_CUSTOM:
 		{
@@ -456,12 +487,14 @@ int songs_play_song( int songnum, int repeat )
 }
 }
 
+#if DXX_USE_SDL_REDBOOK_AUDIO
 static void redbook_first_song_func()
 {
 	pause_game_world_time p;
 	Song_playing = -1; // Playing Redbook tracks will not modify Song_playing. To repeat we must reset this so songs_play_level_song does not think we want to re-play the same song again.
 	songs_play_level_song(1, 0);
 }
+#endif
 
 // play track given by levelnum (depending on the music type and it's playing behaviour) or increment/decrement current track number via offset value
 namespace dsx {
@@ -493,6 +526,7 @@ int songs_play_level_song( int levelnum, int offset )
 			}
 			break;
 		}
+#if DXX_USE_SDL_REDBOOK_AUDIO
 		case MUSIC_TYPE_REDBOOK:
 		{
 			int n_tracks = RBAGetNumberOfTracks();
@@ -537,6 +571,7 @@ int songs_play_level_song( int levelnum, int offset )
 			}
 			break;
 		}
+#endif
 #if DXX_USE_SDLMIXER
 		case MUSIC_TYPE_CUSTOM:
 		{

@@ -358,7 +358,9 @@ window_event_result standard_handler(const d_event &event)
 		case EVENT_WINDOW_DRAW:
 		case EVENT_IDLE:
 			//see if redbook song needs to be restarted
+#if DXX_USE_SDL_REDBOOK_AUDIO
 			RBACheckFinishedHook();
+#endif
 			return window_event_result::handled;
 
 		case EVENT_QUIT:

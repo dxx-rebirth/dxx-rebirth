@@ -1246,8 +1246,17 @@ static int free_help(newmenu *, const d_event &event, newmenu_item *items)
 	DXX_MENUITEM(VERB, TEXT, "Alt-F2/F3 (\x85-SHIFT-s/o)\t  SAVE/LOAD GAME", HELP_AF2_3)	\
 	DXX_MENUITEM(VERB, TEXT, "Alt-Shift-F2/F3 (\x85-s/o)\t  Quick Save/Load", HELP_ASF2_3)
 #define _DXX_HELP_MENU_PAUSE(VERB) DXX_MENUITEM(VERB, TEXT, "Pause (\x85-P)\t  Pause", HELP_PAUSE)
-#define _DXX_HELP_MENU_AUDIO(VERB)	\
+
+#if DXX_USE_SDL_REDBOOK_AUDIO
+#define _DXX_HELP_MENU_AUDIO_REDBOOK(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "\x85-E\t  Eject Audio CD", HELP_ASF9)	\
+
+#else
+#define _DXX_HELP_MENU_AUDIO_REDBOOK(VERB)
+#endif
+
+#define _DXX_HELP_MENU_AUDIO(VERB)	\
+	_DXX_HELP_MENU_AUDIO_REDBOOK(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "\x85-Up/Down\t  Play/Pause " EXT_MUSIC_TEXT, HELP_ASF10)	\
 	DXX_MENUITEM(VERB, TEXT, "\x85-Left/Right\t  Previous/Next Song", HELP_ASF11_12)
 #define _DXX_HELP_MENU_HINT_CMD_KEY(VERB, PREFIX)	\
@@ -1260,8 +1269,17 @@ static int free_help(newmenu *, const d_event &event, newmenu_item *items)
 	DXX_MENUITEM(VERB, TEXT, "Alt-F2/F3\t  SAVE/LOAD GAME", HELP_AF2_3)	\
 	DXX_MENUITEM(VERB, TEXT, "Alt-Shift-F2/F3\t  Fast Save", HELP_ASF2_3)
 #define _DXX_HELP_MENU_PAUSE(VERB)	DXX_MENUITEM(VERB, TEXT, TXT_HELP_PAUSE, HELP_PAUSE)
-#define _DXX_HELP_MENU_AUDIO(VERB)	\
+
+#if DXX_USE_SDL_REDBOOK_AUDIO
+#define _DXX_HELP_MENU_AUDIO_REDBOOK(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "Alt-Shift-F9\t  Eject Audio CD", HELP_ASF9)	\
+
+#else
+#define _DXX_HELP_MENU_AUDIO_REDBOOK(VERB)
+#endif
+
+#define _DXX_HELP_MENU_AUDIO(VERB)	\
+	_DXX_HELP_MENU_AUDIO_REDBOOK(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "Alt-Shift-F10\t  Play/Pause " EXT_MUSIC_TEXT, HELP_ASF10)	\
 	DXX_MENUITEM(VERB, TEXT, "Alt-Shift-F11/F12\t  Previous/Next Song", HELP_ASF11_12)
 #define _DXX_HELP_MENU_HINT_CMD_KEY(VERB, PREFIX)
