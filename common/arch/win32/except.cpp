@@ -79,7 +79,12 @@ public:
 	template <typename T>
 		T *GetProc(const char *const proc) const
 		{
-			return reinterpret_cast<T *>(GetProcAddress(m_h, proc));
+			union {
+				FARPROC gpa;
+				T *result;
+			};
+			gpa = GetProcAddress(m_h, proc);
+			return result;
 		}
 };
 
