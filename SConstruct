@@ -4830,10 +4830,24 @@ class D1XProgram(DXXProgram):
 		__get_dxx_objects_common=DXXProgram.get_objects_common, \
 		__get_dsx_objects_common=DXXCommon.create_lazy_object_getter(({
 		'source':(
-'d1x-rebirth/main/bmread.cpp',
 'd1x-rebirth/main/custom.cpp',
 'd1x-rebirth/main/snddecom.cpp',
 ),
+	},
+	{
+		'source':(
+			# In Descent 1, bmread.cpp is used for both the regular
+			# build and the editor build.
+			#
+			# In Descent 2, bmread.cpp is only used for the editor
+			# build.
+			#
+			# Handle that inconsistency by defining it in the
+			# per-program lookup (D1XProgram, D2XProgram), not in the
+			# shared program lookup (DXXProgram).
+'similar/main/bmread.cpp',
+),
+		DXXCommon.key_transform_target:DXXProgram._apply_target_name,
 	},
 	))
 		):
@@ -4887,8 +4901,12 @@ class D2XProgram(DXXProgram):
 		__get_dxx_objects_editor=DXXProgram.get_objects_editor, \
 		__get_dsx_objects_editor=DXXCommon.create_lazy_object_getter(({
 		'source':(
-'d2x-rebirth/main/bmread.cpp',
+			# See comment by D1XProgram reference to bmread.cpp for why
+			# this is here instead of in the usual handling for similar
+			# files.
+'similar/main/bmread.cpp',
 ),
+		DXXCommon.key_transform_target:DXXProgram._apply_target_name,
 		},
 		))):
 		value = list(__get_dxx_objects_editor(self))
