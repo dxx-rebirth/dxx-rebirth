@@ -220,9 +220,6 @@ array<ubyte, MAX_SEGMENTS> Automap_visited; // Segment visited list
 #define ZOOM_MIN_VALUE i2f(20*5)
 #define ZOOM_MAX_VALUE i2f(20*100)
 
-#define SLIDE_SPEED 			(350)
-#define ZOOM_SPEED_FACTOR		(500)	//(1500)
-#define ROT_SPEED_DIVISOR		(115000)
 
 // Function Prototypes
 namespace dsx {
@@ -567,6 +564,9 @@ static void name_frame(grs_canvas &canvas, automap *const am)
 
 static void automap_apply_input(automap *am, const vms_matrix &plrorient, const vms_vector &plrpos)
 {
+	constexpr int SLIDE_SPEED = 350;
+	constexpr int ZOOM_SPEED_FACTOR = 500;	//(1500)
+	constexpr int ROT_SPEED_DIVISOR = 115000;
 	if (PlayerCfg.AutomapFreeFlight)
 	{
 		if ( am->controls.state.fire_primary)

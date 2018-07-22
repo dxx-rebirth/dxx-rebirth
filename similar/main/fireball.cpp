@@ -433,8 +433,6 @@ static int door_is_openable_by_player(fvcwallptr &vcwallptr, const shared_segmen
 	return 1;
 }
 
-#define	QUEUE_SIZE	64
-
 // --------------------------------------------------------------------------------------------------------------------
 //	Return a segment %i segments away from initial segment.
 //	Returns -1 if can't find a segment that distance away.
@@ -444,6 +442,7 @@ imsegidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 	int		i;
 	int		cur_depth;
 	int		head, tail;
+	constexpr unsigned QUEUE_SIZE = 64;
 	array<segnum_t, QUEUE_SIZE * 2> seg_queue{};
 	array<uint8_t, MAX_SEGMENTS> depth{};
 	array<uint8_t, MAX_SIDES_PER_SEGMENT> side_rand;

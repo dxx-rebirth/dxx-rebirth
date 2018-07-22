@@ -45,11 +45,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 object *slew_obj=NULL;	//what object is slewing, or NULL if none
 
-#define JOY_NULL 15
-#define ROT_SPEED 2		//rate of rotation while key held down
-#define SLIDE_SPEED 			(700)
-#define ZOOM_SPEED_FACTOR		(1000)	//(1500)
-
 // -------------------------------------------------------------------
 //say start slewing with this object
 void slew_init(const vmobjptr_t obj)
@@ -84,6 +79,10 @@ void slew_reset_orient()
 
 static int do_slew_movement(const vmobjptridx_t obj, int check_keys )
 {
+	constexpr int ROT_SPEED = 2;		//rate of rotation while key held down
+	constexpr int SLIDE_SPEED = 700;
+	constexpr int ZOOM_SPEED_FACTOR = 1000;	//(1500)
+
 	int moved = 0;
 	vms_vector svel;				//scaled velocity (per this frame)
 	vms_angvec rotang;

@@ -2016,8 +2016,6 @@ void create_buddy_bot(void)
 }
 #endif
 
-#define	QUEUE_SIZE	256
-
 // --------------------------------------------------------------------------------------------------------------------
 //	Create list of segments boss is allowed to teleport to at imsegptr.
 //	Set *num_segs.
@@ -2027,6 +2025,7 @@ void create_buddy_bot(void)
 //	one_wall_hack added by MK, 10/13/95: A mega-hack!  Set to !0 to ignore the 
 static void init_boss_segments(segment_array &segments, const object &boss_objp, boss_special_segment_array_t &a, const int size_check, int one_wall_hack)
 {
+	constexpr unsigned QUEUE_SIZE = 256;
 	auto &vmsegptridx = segments.vmptridx;
 	auto &vmsegptr = segments.vmptr;
 #if defined(DXX_BUILD_DESCENT_I)

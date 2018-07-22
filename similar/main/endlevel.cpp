@@ -1246,10 +1246,6 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 	flydata->first_time=0;
 }
 
-#define JOY_NULL 15
-#define ROT_SPEED 8		//rate of rotation while key held down
-#define VEL_SPEED (15)	//rate of acceleration while key held down
-
 #include "key.h"
 #include "joy.h"
 
