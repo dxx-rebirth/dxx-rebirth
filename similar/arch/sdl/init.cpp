@@ -45,6 +45,23 @@ void arch_init(void)
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 		Error("SDL library initialisation failed: %s.",SDL_GetError());
+#if SDL_MAJOR_VERSION == 2
+	/* In SDL1, grabbing input grabbed both the keyboard and the mouse.
+	 * Many game management keys assume a keyboard grab.
+	 * Tell SDL2 to grab the keyboard.
+	 *
+	 * Unlike with SDL1, players have the option of overriding this grab
+	 * by setting an environment variable.  In SDL1, the only choice was
+	 * to skip both the keyboard grab and the mouse grab.  Now, players
+	 * can enable grabbing in the UI, but disable keyboard grab with the
+	 * environment variable.
+	 */
+	SDL_SetHint(SDL_HINT_GRAB_KEYBOARD, "1");
+	/* Gameplay continues regardless of focus, so keep the window
+	 * visible.
+	 */
+	SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
+#endif
 
 	key_init();
 

@@ -25,6 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <SDL_version.h>
 #include <type_traits>
 #include "pstypes.h"
 #include "vecmat.h"
@@ -122,7 +123,9 @@ extern void digi_start_sound_queued( short soundnum, fix volume );
 
 #define MUSIC_TYPE_NONE		0
 #define MUSIC_TYPE_BUILTIN	1
+#if SDL_MAJOR_VERSION == 1
 #define MUSIC_TYPE_REDBOOK	2
+#endif
 #define MUSIC_TYPE_CUSTOM	3
 
 // play-order definitions for custom music

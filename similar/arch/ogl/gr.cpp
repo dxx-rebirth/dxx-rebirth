@@ -91,7 +91,12 @@ static DISPMANX_DISPLAY_HANDLE_T dispman_display=DISPMANX_NO_HANDLE;
 #endif
 
 #else
+#if SDL_MAJOR_VERSION == 1
 static int sdl_video_flags = SDL_OPENGL;
+#elif SDL_MAJOR_VERSION == 2
+SDL_Window *g_pRebirthSDLMainWindow;
+static int g_iRebirthWindowX, g_iRebirthWindowY;
+#endif
 #endif
 static ogl_sync sync_helper;
 static int gr_installed;
@@ -101,6 +106,30 @@ int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated o
 static int sdl_no_modeswitch;
 #else
 enum { sdl_no_modeswitch = 0 };
+#endif
+
+}
+
+namespace dsx {
+
+#if SDL_MAJOR_VERSION == 1
+void gr_set_mode_from_window_size()
+{
+	gr_set_mode(Game_screen_mode);
+}
+#elif SDL_MAJOR_VERSION == 2
+static void gr_set_mode_from_window_size(SDL_Window *const SDLWindow)
+{
+	assert(SDLWindow);
+	int w, h;
+	SDL_GL_GetDrawableSize(SDLWindow, &w, &h);
+	gr_set_mode(screen_mode(w, h));
+}
+
+void gr_set_mode_from_window_size()
+{
+	gr_set_mode_from_window_size(g_pRebirthSDLMainWindow);
+}
 #endif
 
 }
@@ -137,7 +166,11 @@ void ogl_swap_buffers_internal(void)
 #if DXX_USE_OGLES
 	eglSwapBuffers(eglDisplay, eglSurface);
 #else
+#if SDL_MAJOR_VERSION == 1
 	SDL_GL_SwapBuffers();
+#elif SDL_MAJOR_VERSION == 2
+	SDL_GL_SwapWindow(g_pRebirthSDLMainWindow);
+#endif
 #endif
 	sync_helper.after_swap();
 }
@@ -308,11 +341,8 @@ static void ogles_destroy()
 }
 #endif
 
-static int ogl_init_window(int x, int y)
+static int ogl_init_window(int w, int h)
 {
-	int use_x,use_y,use_bpp;
-	Uint32 use_flags;
-
 #if DXX_USE_OGLES
 	SDL_SysWMinfo info;
 	Window    x11Window = 0;
@@ -337,16 +367,18 @@ static int ogl_init_window(int x, int y)
 	int iConfigs;
 #endif // OGLES
 
+#if SDL_MAJOR_VERSION == 1
 	if (gl_initialized)
 		ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
 
 	SDL_WM_SetCaption(DESCENT_VERSION, DXX_SDL_WINDOW_CAPTION);
-	SDL_WM_SetIcon( SDL_LoadBMP( DXX_SDL_WINDOW_ICON_BITMAP ), NULL );
+	if (const auto window_icon = SDL_LoadBMP(DXX_SDL_WINDOW_ICON_BITMAP))
+		SDL_WM_SetIcon(window_icon, nullptr);
 
-	use_x=x;
-	use_y=y;
-	use_bpp = CGameArg.DbgBpp;
-	use_flags=sdl_video_flags;
+	int use_x = w;
+	int use_y = h;
+	int use_bpp = CGameArg.DbgBpp;
+	int use_flags = sdl_video_flags;
 	if (sdl_no_modeswitch) {
 		const SDL_VideoInfo *vinfo=SDL_GetVideoInfo();
 		if (vinfo) {	
@@ -363,11 +395,16 @@ static int ogl_init_window(int x, int y)
 	{
 #ifdef RPI
 		con_printf(CON_URGENT, "Could not set %dx%dx%d opengl video mode: %s\n (Ignored for RPI)",
-			    x, y, CGameArg.DbgBpp, SDL_GetError());
+			    w, h, CGameArg.DbgBpp, SDL_GetError());
 #else
-		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, CGameArg.DbgBpp, SDL_GetError());
+		Error("Could not set %dx%dx%d opengl video mode: %s\n", w, h, CGameArg.DbgBpp, SDL_GetError());
 #endif
 	}
+#elif SDL_MAJOR_VERSION == 2
+	const auto SDLWindow = g_pRebirthSDLMainWindow;
+	if (!(SDL_GetWindowFlags(SDLWindow) & SDL_WINDOW_FULLSCREEN))
+		SDL_SetWindowSize(SDLWindow, w, h);
+#endif
 
 #if DXX_USE_OGLES
 #ifndef RPI
@@ -405,8 +442,8 @@ static int ogl_init_window(int x, int y)
 
 	
 #ifdef RPI
-	if (rpi_setup_element(x,y,sdl_video_flags,1)) {
-		Error("RPi: Could not set up a %dx%d element\n", x, y);
+	if (rpi_setup_element(w,h,sdl_video_flags,1)) {
+		Error("RPi: Could not set up a %dx%d element\n", w, h);
 	}
 #endif
 
@@ -446,7 +483,10 @@ static int ogl_init_window(int x, int y)
 	}
 #endif
 
-	linedotscale = ((x/640<y/480?x/640:y/480)<1?1:(x/640<y/480?x/640:y/480));
+	const auto w640 = w / 640;
+	const auto h480 = h / 480;
+	const auto min_wh = std::min(w640, h480);
+	linedotscale = min_wh < 1 ? 1 : min_wh;
 
 	gl_initialized=1;
 	return 0;
@@ -458,11 +498,16 @@ namespace dcx {
 
 int gr_check_fullscreen(void)
 {
+#if SDL_MAJOR_VERSION == 1
 	return !!(sdl_video_flags & SDL_FULLSCREEN);
+#elif SDL_MAJOR_VERSION == 2
+	return !!(SDL_GetWindowFlags(g_pRebirthSDLMainWindow) & SDL_WINDOW_FULLSCREEN);
+#endif
 }
 
 void gr_toggle_fullscreen()
 {
+#if SDL_MAJOR_VERSION == 1
 	const auto local_sdl_video_flags = (sdl_video_flags ^= SDL_FULLSCREEN);
 	if (gl_initialized)
 	{
@@ -506,6 +551,21 @@ void gr_toggle_fullscreen()
 		ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
 	}
 	CGameCfg.WindowMode = !(local_sdl_video_flags & SDL_FULLSCREEN);
+#elif SDL_MAJOR_VERSION == 2
+	const auto SDLWindow = g_pRebirthSDLMainWindow;
+	const auto is_fullscreen_before_change = SDL_GetWindowFlags(SDLWindow) & SDL_WINDOW_FULLSCREEN;
+	CGameCfg.WindowMode = !!is_fullscreen_before_change;
+	if (!is_fullscreen_before_change)
+		SDL_GetWindowPosition(SDLWindow, &g_iRebirthWindowX, &g_iRebirthWindowY);
+	SDL_SetWindowFullscreen(SDLWindow, is_fullscreen_before_change ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+	if (is_fullscreen_before_change)
+	{
+		const auto mode = Game_screen_mode;
+		SDL_SetWindowPosition(SDLWindow, g_iRebirthWindowX, g_iRebirthWindowY);
+		SDL_SetWindowSize(SDLWindow, SM_W(mode), SM_H(mode));
+	}
+	gr_set_mode_from_window_size(SDLWindow);
+#endif
 }
 
 static void ogl_init_state(void)
@@ -543,6 +603,8 @@ static void ogl_tune_for_current(void)
 	con_printf(CON_VERBOSE, "DXX-Rebirth: OpenGL: vendor: %s", gl_vendor);
 	con_printf(CON_VERBOSE, "DXX-Rebirth: OpenGL: renderer: %s", gl_renderer);
 
+	if (gl_renderer)
+	{
 	//add driver specific hacks here.  whee.
 	if ((d_stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || d_stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && d_stricmp(gl_version,"1.2 Mesa 3.0")==0)
 	{
@@ -563,6 +625,7 @@ static void ogl_tune_for_current(void)
 	if (d_stricmp(gl_renderer,"3dfx Voodoo 3")==0) // strangely, includes Voodoo 2
 		CGameArg.DbgGlGetTexLevelParamOk = false;	// Always returns 0
 #endif
+	}
 
 #ifndef NDEBUG
 	con_printf(CON_VERBOSE, "DXX-Rebirth: OpenGL: gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i", CGameArg.DbgGlIntensity4Ok, CGameArg.DbgGlLuminance4Alpha4Ok, CGameArg.DbgGlRGBA2Ok, CGameArg.DbgGlReadPixelsOk, CGameArg.DbgGlGetTexLevelParamOk);
@@ -578,6 +641,7 @@ static void ogl_tune_for_current(void)
 
 namespace dcx {
 
+#if SDL_MAJOR_VERSION == 1
 // returns possible (fullscreen) resolutions if any.
 uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
 {
@@ -620,11 +684,13 @@ uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
 		return modesnum;
 	}
 }
+#endif
 
 }
 
 namespace dsx {
 
+#if SDL_MAJOR_VERSION == 1
 static int gr_check_mode(const screen_mode mode)
 {
 	if (sdl_no_modeswitch == 0) {
@@ -634,10 +700,12 @@ static int gr_check_mode(const screen_mode mode)
 		return 32;
 	}
 }
+#endif
 
 int gr_set_mode(screen_mode mode)
 {
 	unsigned char *gr_bm_data;
+#if SDL_MAJOR_VERSION == 1
 	if (!gr_check_mode(mode))
 	{
 		con_printf(CON_URGENT, "Cannot set %ix%i. Fallback to 640x480", mode.width, mode.height);
@@ -645,6 +713,7 @@ int gr_set_mode(screen_mode mode)
 		mode.height = 480;
 		Game_screen_mode = mode;
 	}
+#endif
 	const uint_fast32_t w = SM_W(mode), h = SM_H(mode);
 
 	gr_bm_data = grd_curscreen->sc_canvas.cv_bitmap.get_bitmap_data();//since we use realloc, we want to keep this pointer around.
@@ -709,7 +778,11 @@ void gr_set_attributes(void)
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
+#if SDL_MAJOR_VERSION == 1
 	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, CGameCfg.VSync);
+#elif SDL_MAJOR_VERSION == 2
+	SDL_GL_SetSwapInterval(CGameCfg.VSync ? 1 : 0);
+#endif
 	int buffers, samples;
 	if (CGameCfg.Multisample)
 	{
@@ -753,11 +826,29 @@ int gr_init()
 	ogl_init_load_library();
 #endif
 
+#if SDL_MAJOR_VERSION == 1
 	if (!CGameCfg.WindowMode && !CGameArg.SysWindow)
 		sdl_video_flags|=SDL_FULLSCREEN;
 
 	if (CGameArg.SysNoBorders)
 		sdl_video_flags|=SDL_NOFRAME;
+#elif SDL_MAJOR_VERSION == 2
+	assert(!g_pRebirthSDLMainWindow);
+	unsigned sdl_window_flags = SDL_WINDOW_OPENGL;
+	if (CGameArg.SysNoBorders)
+		sdl_window_flags |= SDL_WINDOW_BORDERLESS;
+	if (!CGameCfg.WindowMode && !CGameArg.SysWindow)
+		sdl_window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	const auto mode = Game_screen_mode;
+	const auto SDLWindow = SDL_CreateWindow(DESCENT_VERSION, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SM_W(mode), SM_H(mode), sdl_window_flags);
+	if (!SDLWindow)
+		return -1;
+	SDL_GetWindowPosition(SDLWindow, &g_iRebirthWindowX, &g_iRebirthWindowY);
+	g_pRebirthSDLMainWindow = SDLWindow;
+	SDL_GL_CreateContext(SDLWindow);
+	if (const auto window_icon = SDL_LoadBMP(DXX_SDL_WINDOW_ICON_BITMAP))
+		SDL_SetWindowIcon(SDLWindow, window_icon);
+#endif
 
 	gr_set_attributes();
 

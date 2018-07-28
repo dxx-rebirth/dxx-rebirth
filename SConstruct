@@ -833,10 +833,15 @@ help:assume C++ compiler works
 {macros}
 {text}
 
-#undef main	/* avoid -Dmain=SDL_main from libSDL */
+{undef_SDL_main}
 
 {main}
-'''.format(tools=self.__tool_versions, macros=self.__defined_macros, text=text, main=('' if main is None else
+'''.format(
+	tools=self.__tool_versions,
+	macros=self.__defined_macros,
+	text=text,
+	undef_SDL_main='' if self.user_settings.sdl2 else '#undef main	/* avoid -Dmain=SDL_main from libSDL */',
+	main=('' if main is None else
 '''
 int main(int argc,char**argv){(void)argc;(void)argv;
 %s
@@ -1299,6 +1304,8 @@ static void terminate_handler()
 	def check_libSDL2(self,context,_guess_flags={
 			'LIBS' : ['SDL2'] if sys.platform != 'darwin' else [],
 		}):
+		if not self.user_settings.opengl:
+			raise SCons.Errors.StopError('Rebirth does not support SDL2 without OpenGL.  Set opengl=1 or sdl2=0.')
 		self._check_libSDL(context, '2', _guess_flags)
 	def _check_libSDL(self,context,sdl2,guess_flags):
 		user_settings = self.user_settings
@@ -3540,7 +3547,7 @@ class DXXCommon(LazyObjectConstructor):
 					('opengl', True, 'build with OpenGL support'),
 					('opengles', self.default_opengles, 'build with OpenGL ES support'),
 					('editor', False, 'include editor into build (!EXPERIMENTAL!)'),
-					('sdl2', False, 'use libSDL2+SDL2_mixer (!DEVELOPERS ONLY - KNOWN BROKEN!)'),
+					('sdl2', False, 'use libSDL2+SDL2_mixer (!EXPERIMENTAL!)'),
 					('sdlmixer', True, 'build with SDL_Mixer support for sound and music (includes external music support)'),
 					('ipv6', False, 'enable UDP/IPv6 for multiplayer'),
 					('use_udp', True, 'enable UDP support'),

@@ -22,8 +22,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define RBA_MEDIA_CHANGED	-1
 
 #ifdef __cplusplus
+#include <SDL_version.h>
+
 namespace dcx {
 
+#if SDL_MAJOR_VERSION == 1
 struct RBACHANNELCTL
 {
 	unsigned int out0in, out0vol;
@@ -71,6 +74,7 @@ unsigned long RBAGetDiscID();
 
 // List the tracks on the CD
 void RBAList(void);
+#endif
 
 }
 #endif

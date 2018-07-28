@@ -420,10 +420,12 @@ static void PostProcessGameArg()
 		PHYSFS_mount(CGameArg.SysMissionDir.c_str(), MISSION_DIR, 1);
 #endif
 
+#if SDL_MAJOR_VERSION == 1
 	static char sdl_disable_lock_keys[] = "SDL_DISABLE_LOCK_KEYS=0";
 	if (CGameArg.CtlNoStickyKeys) // Must happen before SDL_Init!
 		sdl_disable_lock_keys[sizeof(sdl_disable_lock_keys) - 2] = '1';
 	SDL_putenv(sdl_disable_lock_keys);
+#endif
 }
 
 static std::string ConstructIniStackExplanation(const Inilist &ini)

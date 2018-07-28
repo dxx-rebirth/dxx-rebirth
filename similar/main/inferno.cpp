@@ -341,6 +341,32 @@ window_event_result standard_handler(const d_event &event)
 						if (Game_wind == window_get_front())
 							return window_event_result::ignored;
 					gr_toggle_fullscreen();
+#if SDL_MAJOR_VERSION == 2
+					{
+						/* Hack to force the canvas to adjust to the new
+						 * dimensions.  Without this, the canvas
+						 * continues to use the old window size until
+						 * the hack of calling `init_cockpit` from
+						 * `game_handler` fixes the dimensions.  If the
+						 * window became bigger, the game fails to draw
+						 * in the full new area.  If the window became
+						 * smaller, part of the game is outside the
+						 * cropped area.
+						 *
+						 * If the automap is open, the view is still
+						 * wrong, since the automap uses its own private
+						 * canvas.  That will need to be fixed
+						 * separately.  Ideally, the whole window
+						 * system would be reworked to provide a general
+						 * notification to every interested canvas when
+						 * the top level window resizes.
+						 */
+						auto sm = Screen_mode;
+						Screen_mode = SCREEN_GAME;
+						init_cockpit();
+						Screen_mode = sm;
+					}
+#endif
 					return window_event_result::handled;
 
 #if defined(__APPLE__) || defined(macintosh)
@@ -527,7 +553,7 @@ static int main(int argc, char *argv[])
 #endif
 
 	con_puts(CON_VERBOSE, "Going into graphics mode...");
-	gr_set_mode(Game_screen_mode);
+	gr_set_mode_from_window_size();
 
 	// Load the palette stuff. Returns non-zero if error.
 	con_puts(CON_DEBUG, "Initializing palette system...");

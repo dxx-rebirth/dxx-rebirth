@@ -26,7 +26,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <cstdint>
+#include <SDL_version.h>
+#if SDL_MAJOR_VERSION == 1
 #include <SDL_keysym.h>
+#elif SDL_MAJOR_VERSION == 2
+#include <SDL_keyboard.h>
+#endif
 #include "pstypes.h"
 #include "maths.h"
 #include "fwd-event.h"
@@ -224,7 +229,11 @@ struct key_props
 {
 	char key_text[7];
 	unsigned char ascii_value;
+#if SDL_MAJOR_VERSION == 1
 	SDLKey sym;
+#elif SDL_MAJOR_VERSION == 2
+	SDL_Keycode sym;
+#endif
 };
 
 extern const array<key_props, 256> key_properties;

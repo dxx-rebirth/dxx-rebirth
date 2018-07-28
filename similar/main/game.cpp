@@ -303,6 +303,7 @@ int set_screen_mode(int sm)
 
 	Screen_mode = sm;
 
+#if SDL_MAJOR_VERSION == 1
 	switch( Screen_mode )
 	{
 		case SCREEN_MENU:
@@ -347,6 +348,7 @@ int set_screen_mode(int sm)
 		default:
 			Error("Invalid screen mode %d",sm);
 	}
+#endif
 	return 1;
 }
 

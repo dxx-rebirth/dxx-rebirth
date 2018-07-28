@@ -93,7 +93,7 @@ int ReadConfigFile()
 	GameCfg.MusicVolume = 8;
 	GameCfg.ReverseStereo = 0;
 	GameCfg.OrigTrackOrder = 0;
-#if defined(__APPLE__) && defined(__MACH__)
+#if SDL_MAJOR_VERSION == 1 && defined(__APPLE__) && defined(__MACH__)
 	GameCfg.MusicType = MUSIC_TYPE_REDBOOK;
 #else
 	GameCfg.MusicType = MUSIC_TYPE_BUILTIN;
