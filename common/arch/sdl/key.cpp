@@ -577,12 +577,13 @@ void key_flush()
 		return;
 #if SDL_MAJOR_VERSION == 1
 	const auto &keystate = SDL_GetKeyState(nullptr);
-	constexpr auto sticky_keys = std::initializer_list<unsigned>{KEY_CAPSLOCK, KEY_NUMLOCK, KEY_SCROLLOCK};
+#define DXX_SDL_STICKY_KEYS	{KEY_CAPSLOCK, KEY_NUMLOCK, KEY_SCROLLOCK}
 #elif SDL_MAJOR_VERSION == 2
 	const auto &keystate = SDL_GetKeyboardState(nullptr);
-	constexpr auto sticky_keys = std::initializer_list<unsigned>{SDL_SCANCODE_CAPSLOCK, SDL_SCANCODE_SCROLLLOCK, SDL_SCANCODE_NUMLOCKCLEAR};
+#define DXX_SDL_STICKY_KEYS	{SDL_SCANCODE_CAPSLOCK, SDL_SCANCODE_SCROLLLOCK, SDL_SCANCODE_NUMLOCKCLEAR}
 #endif
-	range_for (const auto key, sticky_keys)
+	range_for (const auto key, DXX_SDL_STICKY_KEYS)
+#undef DXX_SDL_STICKY_KEYS
 		restore_sticky_key(keystate, key);
 }
 
