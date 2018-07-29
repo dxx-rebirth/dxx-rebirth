@@ -201,6 +201,7 @@ static void event_change_focus()
 	SDL_WM_GrabInput(enable_grab ? SDL_GRAB_ON : SDL_GRAB_OFF);
 #elif SDL_MAJOR_VERSION == 2
 	SDL_SetWindowGrab(g_pRebirthSDLMainWindow, enable_grab ? SDL_TRUE : SDL_FALSE);
+	SDL_SetRelativeMouseMode(enable_grab ? SDL_TRUE : SDL_FALSE);
 #endif
 	if (activate_focus)
 		mouse_disable_cursor();
