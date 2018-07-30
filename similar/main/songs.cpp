@@ -36,8 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rbaudio.h"
 #if DXX_USE_SDLMIXER
 #include "digi_mixer_music.h"
-#include "jukebox.h"
 #endif
+#include "jukebox.h"
 #include "config.h"
 #include "timer.h"
 #include "u_mem.h"
