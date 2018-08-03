@@ -131,7 +131,7 @@ const char *prepare_mission_list_count_dirbuf(array<char, 12> &dirbuf, const std
 {
 	if (immediate_directories)
 	{
-		snprintf(dirbuf.data(), dirbuf.size(), "DIR:%" DXX_PRI_size_type "; ", immediate_directories);
+		snprintf(dirbuf.data(), dirbuf.size(), "DIR:%zu; ", immediate_directories);
 		return dirbuf.data();
 	}
 	return "";
@@ -143,7 +143,7 @@ mle::mle(const char *const name, std::vector<mle> &&d) :
 	mission_subdir_stats ss;
 	ss.count(directory);
 	array<char, 12> dirbuf;
-	snprintf(mission_name.data(), mission_name.size(), "%s/ [%sMSN:L%" DXX_PRI_size_type ";T%" DXX_PRI_size_type "]", name, prepare_mission_list_count_dirbuf(dirbuf, ss.immediate_directories), ss.immediate_missions, ss.total_missions);
+	snprintf(mission_name.data(), mission_name.size(), "%s/ [%sMSN:L%zu;T%zu]", name, prepare_mission_list_count_dirbuf(dirbuf, ss.immediate_directories), ss.immediate_missions, ss.total_missions);
 }
 
 }
@@ -1115,7 +1115,7 @@ public:
 		ss.count(ml);
 		array<char, 12> dirbuf;
 		char buf[128];
-		snprintf(buf, sizeof(buf), "%s\n[%sMSN:LOCAL %" DXX_PRI_size_type "; TOTAL %" DXX_PRI_size_type "]", message, prepare_mission_list_count_dirbuf(dirbuf, ss.immediate_directories), ss.immediate_missions, ss.total_missions);
+		snprintf(buf, sizeof(buf), "%s\n[%sMSN:LOCAL %zu; TOTAL %zu]", message, prepare_mission_list_count_dirbuf(dirbuf, ss.immediate_directories), ss.immediate_missions, ss.total_missions);
 		return RAIIdmem<char[]>(d_strdup(buf));
 	}
 };

@@ -525,7 +525,7 @@ int check_segment_connections(void)
 				const auto &con_vertex_list = cv.second;
 
 				if (con_num_faces != num_faces) {
-					LevelError("Segment #%u side %u: wrong faces: con_num_faces=%lu num_faces=%lu.", seg.get_unchecked_index(), sidenum, con_num_faces, num_faces);
+					LevelError("Segment #%u side %u: wrong faces: con_num_faces=%" PRIuFAST32 " num_faces=%" PRIuFAST32 ".", seg.get_unchecked_index(), sidenum, con_num_faces, num_faces);
 					errors = 1;
 				}
 				else
