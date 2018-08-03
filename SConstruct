@@ -1341,12 +1341,15 @@ static void terminate_handler()
 		main = '''
 	SDL_RWops *ops = reinterpret_cast<SDL_RWops *>(argv);
 #if DXX_MAX_JOYSTICKS
+#ifdef SDL_JOYSTICK_DISABLED
+#error "Rebirth configured with joystick support enabled, but SDL{sdl2} configured with joystick support disabled.  Disable Rebirth joystick support or install an SDL{sdl2} with joystick support enabled."
+#endif
 #define DXX_SDL_INIT_JOYSTICK	SDL_INIT_JOYSTICK |
 #else
 #define DXX_SDL_INIT_JOYSTICK
 #endif
-	SDL_Init(DXX_SDL_INIT_JOYSTICK %s | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-%s
+	SDL_Init(DXX_SDL_INIT_JOYSTICK {init_cdrom} | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+{test_opengl}
 #if DXX_MAX_JOYSTICKS
 	auto n = SDL_NumJoysticks();
 	(void)n;
@@ -1355,15 +1358,13 @@ static void terminate_handler()
 	SDL_FreeRW(ops);
 	SDL_Quit();
 '''
-		e = self._soft_check_system_library(context,header=['SDL.h'],main=main
-				% (init_cdrom, test_opengl),
+		e = self._soft_check_system_library(context,header=['SDL.h'],main=main.format(init_cdrom=init_cdrom, sdl2=sdl2, test_opengl=test_opengl),
 			lib=('SDL{0} with OpenGL' if test_opengl else 'SDL{0}').format(sdl2), successflags=successflags
 		)
 		if not e:
 			return
 		if test_opengl:
-			e2 = self._soft_check_system_library(context,header=['SDL.h'],main=main
-					% (init_cdrom, ''),
+			e2 = self._soft_check_system_library(context,header=['SDL.h'],main=main.format(init_cdrom=init_cdrom, sdl2=sdl2, test_opengl=''),
 				lib='SDL without OpenGL', successflags=successflags
 			)
 			if not e2 and e[0] == 1:
