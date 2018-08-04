@@ -2050,9 +2050,6 @@ static void StartLevel(int random_flag)
 	{
 		disable_matcens(); // ... disable matcens and ...
 		clear_transient_objects(0); // ... clear all transient objects.
-#if defined(DXX_BUILD_DESCENT_II)
-		clear_stuck_objects(); // and stuck ones.
-#endif
 	}
 
 	ai_reset_all_paths();

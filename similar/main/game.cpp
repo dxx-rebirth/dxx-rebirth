@@ -1755,7 +1755,6 @@ window_event_result GameProcessFrame()
 	do_afterburner_stuff(Objects);
 	do_cloak_stuff();
 	do_invulnerable_stuff(player_info);
-	remove_obsolete_stuck_objects();
 #if defined(DXX_BUILD_DESCENT_II)
 	init_ai_frame(player_info.powerup_flags);
 	result = do_final_boss_frame();

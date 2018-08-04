@@ -355,7 +355,7 @@ void wall_open_door(const vmsegptridx_t seg, int side)
 
 	const auto wall_num = seg->sides[side].wall_num;
 	wall *const w = vmwallptr(wall_num);
-	//kill_stuck_objects(seg->sides[side].wall_num);
+	kill_stuck_objects(seg->sides[side].wall_num);
 
 	if ((w->state == WALL_DOOR_OPENING) ||		//already opening
 		 (w->state == WALL_DOOR_WAITING))		//open, waiting to close
@@ -1272,36 +1272,47 @@ void add_stuck_object(const vmobjptridx_t objp, const vmsegptr_t segp, int siden
 	{
 		if (vmwallptr(wallnum)->flags & WALL_BLASTED)
 			objp->flags |= OF_SHOULD_BE_DEAD;
-		range_for (auto &i, Stuck_objects)
+		if (Num_stuck_objects >= Stuck_objects.size())
 		{
-			if (i.wallnum == wall_none)
-			{
-				i.wallnum = wallnum;
-				i.objnum = objp;
-				i.signature = objp->signature;
-				Num_stuck_objects++;
-				break;
-			}
+			assert(Num_stuck_objects <= Stuck_objects.size());
+			con_printf(CON_NORMAL, "%s:%u: all stuck objects are busy; terminating %hu early", __FILE__, __LINE__, objp.get_unchecked_index());
+			objp->flags |= OF_SHOULD_BE_DEAD;
+			return;
 		}
+		auto &so = Stuck_objects[Num_stuck_objects++];
+		so.wallnum = wallnum;
+		so.objnum = objp;
 	}
 }
 
-//	--------------------------------------------------------------------------------------------------
-//	Look at the list of stuck objects, clean up in case an object has gone away, but not been removed here.
-//	Removes up to one/frame.
-void remove_obsolete_stuck_objects(void)
+void remove_stuck_object(const vcobjidx_t obj)
 {
-	//	Safety and efficiency code.  If no stuck objects, should never get inside the IF, but this is faster.
-	if (!Num_stuck_objects)
+	auto &&pr = partial_range(Stuck_objects, Num_stuck_objects);
+	const auto predicate = [obj](const stuckobj &so) { return so.objnum == obj; };
+	const auto i = std::find_if(pr.begin(), pr.end(), predicate);
+	if (i == pr.end())
+		/* Objects enter this function if they are able to become stuck,
+		 * without regard to whether they actually are stuck.  If the
+		 * object terminated without being stuck in a wall, then it will
+		 * not be found in Stuck_objects.
+		 */
 		return;
-	auto &s = Stuck_objects[d_tick_count % Stuck_objects.size()];
-	if (s.wallnum != wall_none)
-		if (vcwallptr(s.wallnum)->state != WALL_DOOR_CLOSED ||
-			vcobjptr(s.objnum)->signature != s.signature)
-		{
-			Num_stuck_objects--;
-			s.wallnum = wall_none;
-		}
+	/* If pr.begin() == pr.end(), then i == pr.end(), and this line
+	 * cannot be reached.
+	 *
+	 * If pr.begin() != pr.end(), then prev(pr.end()) must point to a
+	 * valid element.
+	 *
+	 * Move that valid element to the location vacated by the removed
+	 * object.  This may be a self-move if the removed object is the
+	 * last object.
+	 */
+	auto &last_element = *std::prev(pr.end());
+	static_assert(std::is_trivially_move_assignable<stuckobj>::value, "stuckobj move may require a check to prevent self-move");
+	*i = std::move(last_element);
+	DXX_POISON_VAR(last_element.wallnum, 0xcc);
+	DXX_POISON_VAR(last_element.objnum, 0xcc);
+	-- Num_stuck_objects;
 }
 
 //	----------------------------------------------------------------------------------------------------
@@ -1311,29 +1322,28 @@ void kill_stuck_objects(const wallnum_t wallnum)
 {
 	if (!Num_stuck_objects)
 		return;
-	unsigned n = 0;
-
-	range_for (auto &i, Stuck_objects)
-	{
-		if (i.wallnum == wallnum)
-		{
-			i.wallnum = wall_none;
-			const auto &&objp = vmobjptr(i.objnum);
-			if (objp->type == OBJ_WEAPON) {
+	auto &&pr = partial_range(Stuck_objects, Num_stuck_objects);
+	const auto predicate = [wallnum](const stuckobj &so) {
+		if (so.wallnum != wallnum)
+			return false;
+		auto &obj = *vmobjptr(so.objnum);
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_WEAPON_LIFELEFT	F1_0/4
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_WEAPON_LIFELEFT	F1_0/8
 #endif
-				objp->lifeleft = DXX_WEAPON_LIFELEFT;
-			}
-		}
-		else if (i.wallnum != wall_none)
-		{
-			++n;
-		}
-	}
-	Num_stuck_objects = n;
+		assert(obj.type == OBJ_WEAPON);
+		assert(obj.movement_type == MT_PHYSICS);
+		assert(obj.mtype.phys_info.flags & PF_STICK);
+		obj.lifeleft = DXX_WEAPON_LIFELEFT;
+		return true;
+	};
+	const auto i = std::remove_if(pr.begin(), pr.end(), predicate);
+	static_assert(std::is_trivially_destructible<stuckobj>::value, "stuckobj destructor not called");
+	Num_stuck_objects = std::distance(pr.begin(), i);
+	array<stuckobj, 1> empty;
+	DXX_POISON_VAR(empty, 0xcc);
+	std::fill(i, pr.end(), empty[0]);
 }
 }
 
@@ -1341,33 +1351,11 @@ void kill_stuck_objects(const wallnum_t wallnum)
 // Initialize stuck objects array.  Called at start of level
 void init_stuck_objects(void)
 {
-	range_for (auto &i, Stuck_objects)
-		i.wallnum = wall_none;
+	DXX_POISON_VAR(Stuck_objects, 0xcc);
 	Num_stuck_objects = 0;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-// -----------------------------------------------------------------------------------
-// Clear out all stuck objects.  Called for a new ship
-void clear_stuck_objects(void)
-{
-	range_for (auto &i, Stuck_objects)
-	{
-		if (i.wallnum != wall_none)
-		{
-			const auto &&objp = vmobjptr(i.objnum);
-			if (objp->type == OBJ_WEAPON && get_weapon_id(objp) == weapon_id_type::FLARE_ID)
-				objp->lifeleft = F1_0/8;
-
-			i.wallnum = wall_none;
-			Num_stuck_objects--;
-		}
-	}
-
-	Assert(Num_stuck_objects == 0);
-
-}
-
 // -----------------------------------------------------------------------------------
 #define	MAX_BLAST_GLASS_DEPTH	5
 

@@ -278,7 +278,7 @@ void wall_frame_process();
 }
 #endif
 void add_stuck_object(vmobjptridx_t objp, vmsegptr_t segnum, int sidenum);
-void remove_obsolete_stuck_objects();
+void remove_stuck_object(vcobjidx_t);
 
 //set the tmap_num or tmap_num2 field for a wall/door
 void wall_set_tmap_num(vmsegptridx_t seg,int side,vmsegptridx_t csegp,int cside,int anim_num,int frame_num);
@@ -316,5 +316,4 @@ void active_door_write(PHYSFS_File *fp, const active_door &ad);
 void wall_write(PHYSFS_File *fp, const wall &w, short version);
 void wall_close_door_ref(active_door &);
 void init_stuck_objects();
-void clear_stuck_objects();
 #endif
