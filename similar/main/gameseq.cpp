@@ -1690,7 +1690,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 	init_morphs();
 	init_all_matcens();
 	reset_palette_add();
-	init_stuck_objects();
+	LevelUniqueStuckObjectState.init_stuck_objects();
 #if defined(DXX_BUILD_DESCENT_II)
 	init_smega_detonates();
 	init_thief_for_level();

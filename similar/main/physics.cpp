@@ -575,7 +575,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 
 					if (!forcefield_bounce && (obj->mtype.phys_info.flags & PF_STICK)) {		//stop moving
 
-						add_stuck_object(obj, vmsegptr(WallHitSeg), WallHitSide);
+						LevelUniqueStuckObjectState.add_stuck_object(vcwallptr, obj, vmsegptr(WallHitSeg), WallHitSide);
 
 						vm_vec_zero(obj->mtype.phys_info.velocity);
 						obj_stopped = 1;

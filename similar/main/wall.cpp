@@ -272,9 +272,9 @@ static void blast_blastable_wall(const vmsegptridx_t seg, int side)
 	Assert(Connectside != side_none);
 	const auto cwall_num = csegp->sides[Connectside].wall_num;
 	const auto &&w1 = imwallptr(cwall_num);
-	kill_stuck_objects(seg->sides[side].wall_num);
 	if (w1)
-		kill_stuck_objects(cwall_num);
+		LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, cwall_num);
+	LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, seg->sides[side].wall_num);
 	flush_fcd_cache();
 
 	const auto a = w0.clip_num;
@@ -355,7 +355,7 @@ void wall_open_door(const vmsegptridx_t seg, int side)
 
 	const auto wall_num = seg->sides[side].wall_num;
 	wall *const w = vmwallptr(wall_num);
-	kill_stuck_objects(seg->sides[side].wall_num);
+	LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, seg->sides[side].wall_num);
 
 	if ((w->state == WALL_DOOR_OPENING) ||		//already opening
 		 (w->state == WALL_DOOR_WAITING))		//open, waiting to close
@@ -754,9 +754,9 @@ static bool do_door_open(active_door &d)
 		fix time_elapsed, time_total, one_frame;
 		int i;
 
+		LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, d.front_wallnum[p]);
+		LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, d.back_wallnum[p]);
 		wall *const w = vmwallptr(d.front_wallnum[p]);
-		kill_stuck_objects(d.front_wallnum[p]);
-		kill_stuck_objects(d.back_wallnum[p]);
 
 		const auto &&seg = vmsegptridx(w->segnum);
 		side = w->sidenum;
@@ -1256,22 +1256,21 @@ void wall_frame_process()
 	}
 #endif
 }
-}
 
-namespace dcx {
-static unsigned Num_stuck_objects;
-static array<stuckobj, 32> Stuck_objects;
-}
+d_level_unique_stuck_object_state LevelUniqueStuckObjectState;
 
 //	An object got stuck in a door (like a flare).
 //	Add global entry.
-void add_stuck_object(const vmobjptridx_t objp, const vmsegptr_t segp, int sidenum)
+void d_level_unique_stuck_object_state::add_stuck_object(fvcwallptr &vcwallptr, const vmobjptridx_t objp, const vcsegptr_t segp, const unsigned sidenum)
 {
 	const auto wallnum = segp->sides[sidenum].wall_num;
 	if (wallnum != wall_none)
 	{
-		if (vmwallptr(wallnum)->flags & WALL_BLASTED)
+		if (vcwallptr(wallnum)->flags & WALL_BLASTED)
+		{
 			objp->flags |= OF_SHOULD_BE_DEAD;
+			return;
+		}
 		if (Num_stuck_objects >= Stuck_objects.size())
 		{
 			assert(Num_stuck_objects <= Stuck_objects.size());
@@ -1285,7 +1284,7 @@ void add_stuck_object(const vmobjptridx_t objp, const vmsegptr_t segp, int siden
 	}
 }
 
-void remove_stuck_object(const vcobjidx_t obj)
+void d_level_unique_stuck_object_state::remove_stuck_object(const vcobjidx_t obj)
 {
 	auto &&pr = partial_range(Stuck_objects, Num_stuck_objects);
 	const auto predicate = [obj](const stuckobj &so) { return so.objnum == obj; };
@@ -1317,13 +1316,13 @@ void remove_stuck_object(const vcobjidx_t obj)
 
 //	----------------------------------------------------------------------------------------------------
 //	Door with wall index wallnum is opening, kill all objects stuck in it.
-namespace dsx {
-void kill_stuck_objects(const wallnum_t wallnum)
+void d_level_unique_stuck_object_state::kill_stuck_objects(fvmobjptr &vmobjptr, const vcwallidx_t wallnum)
 {
 	if (!Num_stuck_objects)
 		return;
 	auto &&pr = partial_range(Stuck_objects, Num_stuck_objects);
-	const auto predicate = [wallnum](const stuckobj &so) {
+	const auto predicate = [&vmobjptr, wallnum](const stuckobj &so)
+	{
 		if (so.wallnum != wallnum)
 			return false;
 		auto &obj = *vmobjptr(so.objnum);
@@ -1347,12 +1346,14 @@ void kill_stuck_objects(const wallnum_t wallnum)
 }
 }
 
+namespace dcx {
 // -----------------------------------------------------------------------------------
 // Initialize stuck objects array.  Called at start of level
-void init_stuck_objects(void)
+void d_level_unique_stuck_object_state::init_stuck_objects()
 {
 	DXX_POISON_VAR(Stuck_objects, 0xcc);
 	Num_stuck_objects = 0;
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

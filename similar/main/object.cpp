@@ -1240,7 +1240,7 @@ void obj_delete(const vmobjptridx_t obj)
 		-- ObjectState.Debris_object_count;
 
 	if (obj->movement_type == MT_PHYSICS && (obj->mtype.phys_info.flags & PF_STICK))
-		remove_stuck_object(obj);
+		LevelUniqueStuckObjectState.remove_stuck_object(obj);
 	obj_unlink(Objects.vmptr, Segments.vmptr, obj);
 	DXX_POISON_VAR(*obj, 0xfa);
 	obj->type = OBJ_NONE;		//unused!

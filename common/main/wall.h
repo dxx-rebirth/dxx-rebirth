@@ -111,12 +111,34 @@ struct v19_wall : public prohibit_void_ptr<v19_wall>
 	int linked_wall;            // number of linked wall
 };
 
+class d_level_unique_stuck_object_state
+{
+protected:
+	unsigned Num_stuck_objects = 0;
+	array<stuckobj, 32> Stuck_objects;
+public:
+	void init_stuck_objects();
+};
+
 }
 
 //End old wall structures
 
 #ifdef dsx
 namespace dsx {
+
+/* No shared state is possible for this structure, but include the
+ * `unique` qualifier to document its status.
+ */
+class d_level_unique_stuck_object_state : public ::dcx::d_level_unique_stuck_object_state
+{
+public:
+	void add_stuck_object(fvcwallptr &, vmobjptridx_t objp, const vcsegptr_t segp, unsigned sidenum);
+	void remove_stuck_object(vcobjidx_t);
+	void kill_stuck_objects(fvmobjptr &, vcwallidx_t wallnum);
+};
+
+extern d_level_unique_stuck_object_state LevelUniqueStuckObjectState;
 
 struct wall : public prohibit_void_ptr<wall>
 {

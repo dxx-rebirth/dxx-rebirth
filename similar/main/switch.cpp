@@ -229,9 +229,9 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 					return 0;
 			}
 
-			kill_stuck_objects(segp->sides[side].wall_num);
+			LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, segp->sides[side].wall_num);
 			if (wall1)
-				kill_stuck_objects(csegp->sides[cside].wall_num);
+				LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, csegp->sides[cside].wall_num);
   	}
 	flush_fcd_cache();
 
