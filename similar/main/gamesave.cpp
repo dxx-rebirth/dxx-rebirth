@@ -1092,9 +1092,6 @@ static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, 
 			validate_segment_wall(i, side, eside.idx);
 		}
 
-
-	reset_walls();
-
 	ActiveDoors.set_count(0);
 
 	//go through all walls, killing references to invalid triggers

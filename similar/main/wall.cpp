@@ -1092,21 +1092,6 @@ void wall_toggle(const vmsegptridx_t segp, unsigned side)
 		wall_open_door(segp, side);
 }
 
-
-//-----------------------------------------------------------------
-// Tidy up Walls array for load/save purposes.
-void reset_walls()
-{
-	range_for (auto &w, partial_range(Walls, Num_walls, MAX_WALLS))
-	{
-		w.type = WALL_NORMAL;
-		w.flags = 0;
-		w.hps = 0;
-		w.trigger = -1;
-		w.clip_num = -1;
-		}
-}
-
 bool ad_removal_predicate::operator()(active_door &d) const
 {
 	wall &w = *vmwallptr(d.front_wallnum[0]);

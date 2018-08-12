@@ -19,7 +19,7 @@
 
 namespace dcx {
 using actdoornum_t = uint8_t;
-constexpr unsigned MAX_WALLS = 255; // Maximum number of walls
+constexpr std::integral_constant<std::size_t, 255> MAX_WALLS{}; // Maximum number of walls
 constexpr std::integral_constant<std::size_t, 90> MAX_DOORS{};  // Maximum number of open doors
 struct active_door;
 }
@@ -265,9 +265,6 @@ wall_hit_process_t wall_hit_process(player_flags, vmsegptridx_t seg, int side, f
 }
 #endif
 void wall_toggle(vmsegptridx_t segnum, unsigned side);
-
-// Tidy up Walls array for load/save purposes.
-void reset_walls();
 
 // Called once per frame..
 #ifdef dsx
