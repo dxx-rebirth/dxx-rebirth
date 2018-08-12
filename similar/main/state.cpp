@@ -1689,6 +1689,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	}
 
 	//Restore wall info
+	init_exploding_walls();
 	Walls.set_count(PHYSFSX_readSXE32(fp, swap));
 	range_for (const auto &&w, vmwallptr)
 		wall_read(fp, *w);

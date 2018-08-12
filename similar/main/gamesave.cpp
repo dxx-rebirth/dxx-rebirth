@@ -851,6 +851,7 @@ static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, 
 	gs_num_objects = PHYSFSX_readInt(LoadFile);
 	PHYSFSX_fseek(LoadFile, 8, SEEK_CUR);
 
+	init_exploding_walls();
 	Walls.set_count(PHYSFSX_readInt(LoadFile));
 	PHYSFSX_fseek(LoadFile, 20, SEEK_CUR);
 

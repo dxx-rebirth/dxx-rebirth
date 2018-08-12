@@ -212,6 +212,7 @@ WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBitmaps, c
 namespace dsx {
 void wall_init()
 {
+	init_exploding_walls();
 	Walls.set_count(0);
 	range_for (auto &w, Walls)
 	{
