@@ -288,12 +288,10 @@ uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const share
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
-segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const vcsegptr_t segnum, fix rad)
+segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &seg, const fix rad)
 {
 	int			sn,facebit,sidebit;
 	segmasks		masks{};
-
-	auto &seg = *segnum;
 
 	//check point against each side of segment. return bitmask
 
@@ -303,7 +301,7 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const vc
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-		const auto v = create_abs_vertex_lists(segnum, s, sn);
+		const auto v = create_abs_vertex_lists(seg, s, sn);
 		const auto &num_faces = v.first;
 		const auto &vertex_list = v.second;
 

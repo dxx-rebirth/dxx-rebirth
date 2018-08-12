@@ -628,43 +628,42 @@ void wall_close_door_ref(active_door &d)
 	}
 }
 
-static uint8_t check_poke(const vcobjptr_t obj, const vcsegptr_t segnum,int side)
+static unsigned check_poke(fvcvertptr &vcvertptr, const object_base &obj, const shared_segment &seg, const unsigned side)
 {
 	//note: don't let objects with zero size block door
-	if (!obj->size)
+	if (!obj.size)
 		return 0;
-	return get_seg_masks(vcvertptr, obj->pos, segnum, obj->size).sidemask & (1 << side);		//pokes through side!
+	return get_seg_masks(vcvertptr, obj.pos, seg, obj.size).sidemask & (1 << side);		//pokes through side!
 }
 
 namespace dsx {
-static int is_door_side_free(const vcsegptr_t seg, int side)
+static unsigned is_door_side_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const vcsegptr_t seg, const unsigned side)
 {
-	range_for (const auto &&obj, objects_in(seg, vcobjptridx, vcsegptr))
+	range_for (const object_base &obj, objects_in(seg, vcobjptridx, vcsegptr))
 	{
 #if defined(DXX_BUILD_DESCENT_II)
-		if (obj->type == OBJ_WEAPON)
+		if (obj.type == OBJ_WEAPON)
 			continue;
-		if (obj->type == OBJ_FIREBALL)
+		if (obj.type == OBJ_FIREBALL)
 			continue;
 #endif
-		if (check_poke(obj,seg,side))
-			return 0;	//not free
+		if (const auto obstructed = check_poke(vcvertptr, obj, seg, side))
+			return obstructed;
 	}
-	return 1;
-}
+	return 0;
 }
 
-//returns true of door in unobjstructed (& thus can close)
-static int is_door_free(const vcsegptridx_t seg,int side)
+//returns true if door is obstructed (& thus cannot close)
+static unsigned is_door_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const vcsegptridx_t seg, const unsigned side)
 {
-	if (!is_door_side_free(seg, side))
-		return 0;
+	if (const auto obstructed = is_door_side_obstructed(vcobjptridx, vcsegptr, seg, side))
+		return obstructed;
 	const auto &&csegp = vcsegptr(seg->children[side]);
 	const auto &&Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != side_none);
 	//go through each object in each of two segments, and see if
 	//it pokes into the connecting seg
-	return is_door_side_free(csegp, Connectside);
+	return is_door_side_obstructed(vcobjptridx, vcsegptr, csegp, Connectside);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -681,7 +680,7 @@ void wall_close_door(const vmsegptridx_t seg, int side)
 		 (w->state == WALL_DOOR_CLOSED))			//closed
 		return;
 
-	if (!is_door_free(seg,side))
+	if (is_door_obstructed(vcobjptridx, vcsegptr, seg, side))
 		return;
 
 	if (w->state == WALL_DOOR_OPENING) {	//reuse door
@@ -745,7 +744,6 @@ void wall_close_door(const vmsegptridx_t seg, int side)
 //-----------------------------------------------------------------
 // Animates opening of a door.
 // Called in the game loop.
-namespace dsx {
 static bool do_door_open(active_door &d)
 {
 	bool remove = false;
@@ -826,7 +824,8 @@ static bool do_door_close(active_door &d)
 
 	//check for objects in doorway before closing
 	if (w0.flags & WALL_DOOR_AUTO)
-		if (!is_door_free(wsegp, w0.sidenum)) {
+		if (is_door_obstructed(vcobjptridx, vcsegptr, wsegp, w0.sidenum))
+		{
 #if defined(DXX_BUILD_DESCENT_II)
 			digi_kill_sound_linked_to_segment(w0.segnum, w0.sidenum, -1);
 			wall_open_door(wsegp, w0.sidenum);		//re-open door
@@ -1120,7 +1119,7 @@ bool ad_removal_predicate::operator()(active_door &d) const
 			w1->flags |= WALL_DOOR_OPENED;
 		if (d.time > DOOR_WAIT_TIME)
 #if defined(DXX_BUILD_DESCENT_II)
-			if (is_door_free(vcsegptridx(w.segnum), w.sidenum))
+			if (!is_door_obstructed(vcobjptridx, vcsegptr, vcsegptridx(w.segnum), w.sidenum))
 #endif
 			{
 				w.state = WALL_DOOR_CLOSING;

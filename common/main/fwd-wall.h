@@ -237,12 +237,12 @@ namespace dsx {
 // Opens a door
 void wall_open_door(vmsegptridx_t seg, int side);
 
-}
-#endif
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
 // Closes a door
 void wall_close_door(vmsegptridx_t seg, int side);
+#endif
+}
 #endif
 
 //return codes for wall_hit_process()
