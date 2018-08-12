@@ -75,6 +75,17 @@ using std::min;
 
 //--unused-- ubyte	Frame_processed[MAX_OBJECTS];
 
+namespace dcx {
+
+unsigned Num_exploding_walls;
+
+void init_exploding_walls()
+{
+	Num_exploding_walls = 0;
+}
+
+}
+
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1263,7 +1274,7 @@ void do_explosion_sequence(const vmobjptr_t obj)
 	}
 }
 
-#define EXPL_WALL_TIME					(f1_0)
+#define EXPL_WALL_TIME					UINT16_MAX
 #define EXPL_WALL_TOTAL_FIREBALLS	32
 #if defined(DXX_BUILD_DESCENT_I)
 #define EXPL_WALL_FIREBALL_SIZE 		0x48000	//smallest size
@@ -1271,140 +1282,110 @@ void do_explosion_sequence(const vmobjptr_t obj)
 #define EXPL_WALL_FIREBALL_SIZE 		(0x48000*6/10)	//smallest size
 #endif
 
-}
-
-namespace dcx {
-
-array<expl_wall, MAX_EXPLODING_WALLS> expl_wall_list;
-
-void init_exploding_walls()
-{
-	range_for (auto &i, expl_wall_list)
-	{
-		expl_wall *const p = &i;
-		DXX_POISON_MEMORY(reinterpret_cast<uint8_t *>(p), sizeof(*p), 0xfd);
-		i.segnum = segment_none;
-	}
-}
-
-}
-
-namespace dsx {
-
 //explode the given wall
-void explode_wall(const vmsegptridx_t segnum,int sidenum)
+void explode_wall(fvcvertptr &vcvertptr, const vcsegptridx_t segnum, const unsigned sidenum, wall &w)
 {
-	//find a free slot
-	const auto e = end(expl_wall_list);
-	const auto predicate = [](expl_wall &w) {
-		return w.segnum == segment_none;
-	};
-	const auto i = std::find_if(begin(expl_wall_list), e, predicate);
-	if (i == e)
-	{		//didn't find slot.
-		Int3();
+	if (w.flags & WALL_EXPLODING)
+		/* Already exploding */
 		return;
-	}
-
-	auto &w = *i;
-	w.segnum	= segnum;
-	w.sidenum	= sidenum;
-	w.time		= 0;
+	w.explode_time_elapsed = 0;
+	w.flags |= WALL_EXPLODING;
+	++ Num_exploding_walls;
 
 	//play one long sound for whole door wall explosion
 	const auto &&pos = compute_center_point_on_side(vcvertptr, segnum, sidenum);
 	digi_link_sound_to_pos( SOUND_EXPLODING_WALL,segnum, sidenum, pos, 0, F1_0 );
-
 }
 
-//handle walls for this frame
-//note: this wall code assumes the wall is not triangulated
-void do_exploding_wall_frame()
+void do_exploding_wall_frame(wall &w1)
 {
-	range_for (auto &i, expl_wall_list)
+	fix w1_explode_time_elapsed = w1.explode_time_elapsed;
+	const fix oldfrac = fixdiv(w1_explode_time_elapsed, EXPL_WALL_TIME);
+
+	w1_explode_time_elapsed += FrameTime;
+	if (w1_explode_time_elapsed > EXPL_WALL_TIME)
+		w1_explode_time_elapsed = EXPL_WALL_TIME;
+	w1.explode_time_elapsed = w1_explode_time_elapsed;
+
+	const auto w1sidenum = w1.sidenum;
+	const auto &&seg = vmsegptridx(w1.segnum);
+	if (w1_explode_time_elapsed > (EXPL_WALL_TIME * 3) / 4)
 	{
-		auto segnum = i.segnum;
+		const auto &&csegp = seg.absolute_sibling(seg->children[w1sidenum]);
+		const auto cside = find_connect_side(seg, csegp);
 
-		if (segnum != segment_none) {
-			unsigned sidenum = i.sidenum;
-			fix oldfrac,newfrac;
-			int old_count,new_count,e;		//n,
+		const auto a = w1.clip_num;
+		const auto n = WallAnims[a].num_frames;
+		wall_set_tmap_num(WallAnims[a], seg, w1sidenum, csegp, cside, n - 1);
 
-			oldfrac = fixdiv(i.time,EXPL_WALL_TIME);
-
-			i.time += FrameTime;
-			if (i.time > EXPL_WALL_TIME)
-				i.time = EXPL_WALL_TIME;
-
-			const auto seg = vmsegptridx(segnum);
-			if (i.time>(EXPL_WALL_TIME*3)/4) {
-				auto &w1 = *vmwallptr(seg->sides[sidenum].wall_num);
-				const auto a = w1.clip_num;
-				const auto n = WallAnims[a].num_frames;
-
-				const auto &&csegp = seg.absolute_sibling(seg->children[sidenum]);
-				auto cside = find_connect_side(seg, csegp);
-
-				wall_set_tmap_num(WallAnims[a], seg, sidenum, csegp, cside, n - 1);
-
-				w1.flags |= WALL_BLASTED;
-				auto &w2 = *vmwallptr(csegp->sides[cside].wall_num);
-				w2.flags |= WALL_BLASTED;
-			}
-
-			newfrac = fixdiv(i.time,EXPL_WALL_TIME);
-
-			old_count = f2i(EXPL_WALL_TOTAL_FIREBALLS * fixmul(oldfrac,oldfrac));
-			new_count = f2i(EXPL_WALL_TOTAL_FIREBALLS * fixmul(newfrac,newfrac));
-
-			//n = new_count - old_count;
-
-			//now create all the next explosions
-
-			for (e=old_count;e<new_count;e++) {
-				fix			size;
-
-				//calc expl position
-
-				const auto vertnum_list = get_side_verts(seg,sidenum);
-
-				auto &v0 = *vcvertptr(vertnum_list[0]);
-				auto &v1 = *vcvertptr(vertnum_list[1]);
-				auto &v2 = *vcvertptr(vertnum_list[2]);
-
-				const auto vv0 = vm_vec_sub(v0,v1);
-				const auto vv1 = vm_vec_sub(v2,v1);
-
-				auto pos = vm_vec_scale_add(v1,vv0,d_rand()*2);
-				vm_vec_scale_add2(pos,vv1,d_rand()*2);
-
-				size = EXPL_WALL_FIREBALL_SIZE + (2*EXPL_WALL_FIREBALL_SIZE * e / EXPL_WALL_TOTAL_FIREBALLS);
-
-				//fireballs start away from door, with subsequent ones getting closer
-				vm_vec_scale_add2(pos, vcsegptr(segnum)->sides[sidenum].normals[0], size * (EXPL_WALL_TOTAL_FIREBALLS - e) / EXPL_WALL_TOTAL_FIREBALLS);
-
-				const auto &&is = vmsegptridx(i.segnum);
-				if (e & 3)		//3 of 4 are normal
-					object_create_explosion(is, pos, size, VCLIP_SMALL_EXPLOSION);
-				else
-					object_create_badass_explosion(object_none, is, pos,
-					size,
-					VCLIP_SMALL_EXPLOSION,
-					i2f(4),		// damage strength
-					i2f(20),		//	damage radius
-					i2f(50),		//	damage force
-					object_none		//	parent id
-					);
-			}
-			if (i.time >= EXPL_WALL_TIME)
+		auto &w2 = *vmwallptr(csegp->sides[cside].wall_num);
+		assert(&w1 != &w2);
+		assert((w1.flags & WALL_EXPLODING) || (w2.flags & WALL_EXPLODING));
+		w1.flags |= WALL_BLASTED;
+		w2.flags |= WALL_BLASTED;
+		if (w1_explode_time_elapsed >= EXPL_WALL_TIME)
+		{
+			unsigned num_exploding_walls = Num_exploding_walls;
+			if (w1.flags & WALL_EXPLODING)
 			{
-				expl_wall *const p = &i;
-				DXX_POISON_MEMORY(reinterpret_cast<uint8_t *>(p), sizeof(*p), 0xfd);
-				i.segnum = segment_none;	//flag this slot as free
+				w1.flags &= ~WALL_EXPLODING;
+				-- num_exploding_walls;
 			}
+			if (w2.flags & WALL_EXPLODING)
+			{
+				w2.flags &= ~WALL_EXPLODING;
+				-- num_exploding_walls;
+			}
+			Num_exploding_walls = num_exploding_walls;
 		}
 	}
 
+	const fix newfrac = fixdiv(w1_explode_time_elapsed, EXPL_WALL_TIME);
+
+	const int old_count = f2i(EXPL_WALL_TOTAL_FIREBALLS * fixmul(oldfrac, oldfrac));
+	const int new_count = f2i(EXPL_WALL_TOTAL_FIREBALLS * fixmul(newfrac, newfrac));
+	if (old_count >= new_count)
+		/* for loop would exit with zero iterations if this `if` is
+		 * true.  Skip the setup for the loop in that case.
+		 */
+		return;
+
+	const auto vertnum_list = get_side_verts(seg, w1sidenum);
+
+	auto &v0 = *vcvertptr(vertnum_list[0]);
+	auto &v1 = *vcvertptr(vertnum_list[1]);
+	auto &v2 = *vcvertptr(vertnum_list[2]);
+
+	const auto &&vv0 = vm_vec_sub(v0, v1);
+	const auto &&vv1 = vm_vec_sub(v2, v1);
+
+	//now create all the next explosions
+
+	auto &w1normal0 = seg->sides[w1sidenum].normals[0];
+	for (int e = old_count; e < new_count; ++e)
+	{
+		//calc expl position
+
+		auto pos = vm_vec_scale_add(v1,vv0,d_rand() * 2);
+		vm_vec_scale_add2(pos,vv1,d_rand() * 2);
+
+		const fix size = EXPL_WALL_FIREBALL_SIZE + (2 * EXPL_WALL_FIREBALL_SIZE * e / EXPL_WALL_TOTAL_FIREBALLS);
+
+		//fireballs start away from door, with subsequent ones getting closer
+		vm_vec_scale_add2(pos, w1normal0, size * (EXPL_WALL_TOTAL_FIREBALLS - e) / EXPL_WALL_TOTAL_FIREBALLS);
+
+		if (e & 3)		//3 of 4 are normal
+			object_create_explosion(seg, pos, size, VCLIP_SMALL_EXPLOSION);
+		else
+			object_create_badass_explosion(object_none, seg, pos,
+										   size,
+										   VCLIP_SMALL_EXPLOSION,
+										   i2f(4),		// damage strength
+										   i2f(20),		//	damage radius
+										   i2f(50),		//	damage force
+										   object_none		//	parent id
+			);
+	}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1437,9 +1418,16 @@ void drop_afterburner_blobs(const vmobjptr_t obj, int count, fix size_scale, fix
 /*
  * reads n expl_wall structs from a PHYSFS_File and swaps if specified
  */
-void expl_wall_read_n_swap(PHYSFS_File *fp, int swap, partial_range_t<expl_wall *> r)
+void expl_wall_read_n_swap(fvmwallptr &vmwallptr, PHYSFS_File *const fp, const int swap, const unsigned count)
 {
-	range_for (auto &e, r)
+	assert(!Num_exploding_walls);
+	unsigned num_exploding_walls = 0;
+	/* Legacy versions of Descent always write a fixed number of
+	 * entries, even if some or all of those entries are empty.  This
+	 * loop needs to count how many entries were valid, as well as load
+	 * them into the correct walls.
+	 */
+	for (unsigned i = count; i--;)
 	{
 		disk_expl_wall d;
 		PHYSFS_read(fp, &d, sizeof(d), 1);
@@ -1449,9 +1437,39 @@ void expl_wall_read_n_swap(PHYSFS_File *fp, int swap, partial_range_t<expl_wall 
 			d.sidenum = SWAPINT(d.sidenum);
 			d.time = SWAPINT(d.time);
 		}
-		e.segnum = d.segnum;
-		e.sidenum = d.sidenum;
-		e.time = d.time;
+		const icsegidx_t dseg = d.segnum;
+		if (dseg == segment_none)
+			continue;
+		range_for (auto &&wp, vmwallptr)
+		{
+			auto &w = *wp;
+			if (w.segnum != dseg)
+				continue;
+			if (w.sidenum != d.sidenum)
+				continue;
+			w.flags |= WALL_EXPLODING;
+			w.explode_time_elapsed = d.time;
+			++ num_exploding_walls;
+			break;
+		}
+	}
+	Num_exploding_walls = num_exploding_walls;
+}
+
+void expl_wall_write(fvcwallptr &vcwallptr, PHYSFS_File *const fp)
+{
+	const unsigned num_exploding_walls = Num_exploding_walls;
+	PHYSFS_write(fp, &num_exploding_walls, sizeof(unsigned), 1);
+	range_for (auto &&wp, vcwallptr)
+	{
+		auto &e = *wp;
+		if (!(e.flags & WALL_EXPLODING))
+			continue;
+		disk_expl_wall d;
+		d.segnum = e.segnum;
+		d.sidenum = e.sidenum;
+		d.time = e.explode_time_elapsed;
+		PHYSFS_write(fp, &d, sizeof(d), 1);
 	}
 }
 #endif

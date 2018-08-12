@@ -944,7 +944,7 @@ static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, 
 			nw.sidenum	= w.sidenum;
 			nw.linked_wall	= w.linked_wall;
 			nw.type		= w.type;
-			nw.flags		= w.flags;
+			nw.flags		= w.flags & ~WALL_EXPLODING;
 			nw.hps		= w.hps;
 			nw.trigger	= w.trigger;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -960,7 +960,7 @@ static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, 
 			nw.segnum = segment_none;
 			nw.sidenum = nw.linked_wall = -1;
 			nw.type		= w.type;
-			nw.flags		= w.flags;
+			nw.flags		= w.flags & ~WALL_EXPLODING;
 			nw.hps		= w.hps;
 			nw.trigger	= w.trigger;
 #if defined(DXX_BUILD_DESCENT_I)

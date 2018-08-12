@@ -57,10 +57,10 @@ constexpr std::integral_constant<wall_flag_t, 2> WALL_DOOR_OPENED{};   // Open d
 constexpr std::integral_constant<wall_flag_t, 8> WALL_DOOR_LOCKED{};   // Door is locked.
 constexpr std::integral_constant<wall_flag_t, 16> WALL_DOOR_AUTO{};  // Door automatically closes after time.
 constexpr std::integral_constant<wall_flag_t, 32> WALL_ILLUSION_OFF{};  // Illusionary wall is shut off.
+constexpr std::integral_constant<wall_flag_t, 64> WALL_EXPLODING{};
 }
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-constexpr std::integral_constant<wall_flag_t, 64> WALL_WALL_SWITCH{};  // This wall is openable by a wall switch.
 constexpr std::integral_constant<wall_flag_t, 128> WALL_BUDDY_PROOF{}; // Buddy assumes he cannot get through this wall.
 }
 #endif

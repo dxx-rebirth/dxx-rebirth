@@ -33,35 +33,27 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-object.h"
 #include "fwd-segment.h"
 #include "fwd-vecmat.h"
+#include "fwd-wall.h"
 #include "pack.h"
 
 enum powerup_type_t : uint8_t;
 
 namespace dcx {
+extern unsigned Num_exploding_walls;
+}
 
-struct expl_wall : prohibit_void_ptr<expl_wall>
-{
-	segnum_t segnum;
-	uint8_t sidenum;
-	fix time;
-};
+#ifdef dsx
+namespace dsx {
 
+#if defined(DXX_BUILD_DESCENT_II)
 struct disk_expl_wall
 {
 	int segnum, sidenum;
 	fix time;
 };
 static_assert(sizeof(disk_expl_wall) == 12, "sizeof(disk_expl_wall) wrong");
+#endif
 
-// data for exploding walls (such as hostage door)
-
-#define MAX_EXPLODING_WALLS     10
-extern array<expl_wall, MAX_EXPLODING_WALLS> expl_wall_list;
-
-}
-
-#ifdef dsx
-namespace dsx {
 imobjptridx_t object_create_explosion(vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
 void object_create_muzzle_flash(vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
 
@@ -81,8 +73,8 @@ void do_debris_frame(vmobjptridx_t obj);      // deal with debris for this frame
 
 void draw_fireball(grs_canvas &, vcobjptridx_t obj);
 
-void explode_wall(vmsegptridx_t segnum, int sidenum);
-void do_exploding_wall_frame();
+void explode_wall(fvcvertptr &, vcsegptridx_t, unsigned sidenum, wall &);
+void do_exploding_wall_frame(wall &);
 void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool random_player);
 void maybe_replace_powerup_with_energy(object_base &del_obj);
 }
@@ -108,7 +100,8 @@ void drop_afterburner_blobs(vmobjptr_t obj, int count, fix size_scale, fix lifet
 /*
  * reads n expl_wall structs from a PHYSFS_File and swaps if specified
  */
-void expl_wall_read_n_swap(PHYSFS_File *fp, int swap, partial_range_t<expl_wall *>);
+void expl_wall_read_n_swap(fvmwallptr &, PHYSFS_File *fp, int swap, unsigned);
+void expl_wall_write(fvcwallptr &, PHYSFS_File *);
 extern fix	Flash_effect;
 #endif
 

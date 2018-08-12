@@ -1102,28 +1102,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 #if defined(DXX_BUILD_DESCENT_II)
 //Save exploding wall info
-	{
-		const int i = expl_wall_list.size();
-	PHYSFS_write(fp, &i, sizeof(int), 1);
-	}
-	{
-		const disk_expl_wall None{-1, 0, 0};
-	range_for (auto &e, expl_wall_list)
-	{
-		disk_expl_wall d;
-		const disk_expl_wall *i;
-		if (e.segnum == segment_none)
-			i = &None;
-		else
-		{
-			i = &d;
-		d.segnum = e.segnum;
-		d.sidenum = e.sidenum;
-		d.time = e.time;
-		}
-		PHYSFS_write(fp, i, sizeof(d), 1);
-	}
-	}
+	expl_wall_write(Walls.vmptr, fp);
 #endif
 
 //Save door info
@@ -1707,7 +1686,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	//Restore exploding wall info
 	if (version >= 10) {
 		unsigned i = PHYSFSX_readSXE32(fp, swap);
-		expl_wall_read_n_swap(fp, swap, partial_range(expl_wall_list, i));
+		expl_wall_read_n_swap(Walls.vmptr, fp, swap, i);
 	}
 #endif
 

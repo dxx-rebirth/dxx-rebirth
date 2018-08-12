@@ -596,7 +596,7 @@ int wall_restore_all()
 		if (w.flags & WALL_BLASTED) {
 			w.hps = WALL_HPS;
 		}
-		w.flags &= ~(WALL_BLASTED | WALL_DOOR_OPENED | WALL_DOOR_OPENING);
+		w.flags &= ~(WALL_BLASTED | WALL_DOOR_OPENED | WALL_DOOR_OPENING | WALL_EXPLODING);
 	}
 
 	range_for (auto &&i, vmactdoorptr)

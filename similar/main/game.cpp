@@ -1822,8 +1822,6 @@ window_event_result GameProcessFrame()
 		return result;					//skip everything else
 	}
 
-	if (Newdemo_state != ND_STATE_PLAYBACK)
-		do_exploding_wall_frame();
 	if ((Newdemo_state != ND_STATE_PLAYBACK) || (Newdemo_vcr_state != ND_STATE_PAUSED)) {
 		do_special_effects();
 		wall_frame_process();

@@ -281,7 +281,7 @@ static void blast_blastable_wall(const vmsegptridx_t seg, int side)
 	const auto a = w0.clip_num;
 	//if this is an exploding wall, explode it
 	if (WallAnims[a].flags & WCF_EXPLODES)
-		explode_wall(seg,side);
+		explode_wall(vcvertptr, seg, side, w0);
 	else {
 		//if not exploding, set final frame, and make door passable
 		const auto n = WallAnims[a].num_frames;
@@ -325,8 +325,11 @@ void wall_damage(const vmsegptridx_t seg, int side, fix damage)
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != side_none);
 		const auto cwall_num = csegp->sides[Connectside].wall_num;
-		if (const auto &&w1 = imwallptr(cwall_num))
-			w1->hps -= damage;
+		if (const auto &&w1p = imwallptr(cwall_num))
+		{
+			auto &w1 = *w1p;
+			w1.hps -= damage;
+		}
 		w0.hps -= damage;
 
 		const auto a = w0.clip_num;
@@ -1241,6 +1244,29 @@ bool cw_removal_predicate::operator()(cloaking_wall &d)
 namespace dsx {
 void wall_frame_process()
 {
+	if (unsigned num_exploding_walls = Num_exploding_walls)
+	{
+		range_for (auto &&wp, Walls.vmptr)
+		{
+			auto &w1 = *wp;
+			if (w1.flags & WALL_EXPLODING)
+			{
+				assert(num_exploding_walls);
+				do_exploding_wall_frame(w1);
+				if (! -- num_exploding_walls)
+				{
+					/* In debug builds, iterate over all remaining walls
+					 * to verify that none are marked as WALL_EXPLODING.
+					 */
+#ifdef NDEBUG
+					break;
+#endif
+				}
+			}
+		}
+		assert(!num_exploding_walls);
+	}
+
 	{
 		const auto &&r = partial_range(ActiveDoors, ActiveDoors.get_count());
 		auto &&i = std::remove_if(r.begin(), r.end(), ad_removal_predicate());
@@ -1497,6 +1523,7 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(wall, 24);
 void wall_read(PHYSFS_File *fp, wall &w)
 {
 	PHYSFSX_serialize_read(fp, w);
+	w.flags &= ~WALL_EXPLODING;
 }
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(active_door, d, (d.n_parts, d.front_wallnum, d.back_wallnum, d.time));
