@@ -194,7 +194,8 @@ DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(cloaking_wall, clwall);
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, wall, wallnum_t, dcx::MAX_WALLS);
 namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(wall, wall);
-extern array<wclip, MAX_WALL_ANIMS> WallAnims;
+using wall_animations_array = array<wclip, MAX_WALL_ANIMS>;
+extern wall_animations_array WallAnims;
 constexpr valptridx<wall>::magic_constant<0xffff> wall_none{};
 }
 
@@ -276,7 +277,7 @@ void wall_frame_process();
 #endif
 
 //set the tmap_num or tmap_num2 field for a wall/door
-void wall_set_tmap_num(vmsegptridx_t seg,int side,vmsegptridx_t csegp,int cside,int anim_num,int frame_num);
+void wall_set_tmap_num(const wclip &, vmsegptridx_t seg, unsigned side, vmsegptridx_t csegp, unsigned cside, unsigned frame_num);
 
 #if defined(DXX_BUILD_DESCENT_II)
 //start wall open <-> closed transitions

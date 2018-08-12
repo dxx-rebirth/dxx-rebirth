@@ -1345,7 +1345,7 @@ void do_exploding_wall_frame()
 				const auto &&csegp = seg.absolute_sibling(seg->children[sidenum]);
 				auto cside = find_connect_side(seg, csegp);
 
-				wall_set_tmap_num(seg,sidenum,csegp,cside,a,n-1);
+				wall_set_tmap_num(WallAnims[a], seg, sidenum, csegp, cside, n - 1);
 
 				w1.flags |= WALL_BLASTED;
 				auto &w2 = *vmwallptr(csegp->sides[cside].wall_num);

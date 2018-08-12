@@ -235,18 +235,18 @@ void wall_init()
 #endif
 
 //set the tmap_num or tmap_num2 field for a wall/door
-void wall_set_tmap_num(const vmsegptridx_t seg,int side,const vmsegptridx_t csegp,int cside,int anim_num,int frame_num)
+void wall_set_tmap_num(const wclip &anim, const vmsegptridx_t seg, const unsigned side, const vmsegptridx_t csegp, const unsigned cside, const unsigned frame_num)
 {
-	wclip *anim = &WallAnims[anim_num];
-	int tmap = anim->frames[frame_num];
+	const auto newdemo_state = Newdemo_state;
+	if (newdemo_state == ND_STATE_PLAYBACK)
+		return;
 
-	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
-
-	if (anim->flags & WCF_TMAP1)	{
+	const auto tmap = anim.frames[frame_num];
+	if (anim.flags & WCF_TMAP1)	{
 		if (tmap != seg->sides[side].tmap_num || tmap != csegp->sides[cside].tmap_num)
 		{
 			seg->sides[side].tmap_num = csegp->sides[cside].tmap_num = tmap;
-			if ( Newdemo_state == ND_STATE_RECORDING )
+			if (newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_wall_set_tmap_num1(seg,side,csegp,cside,tmap);
 		}
 	} else	{
@@ -254,7 +254,7 @@ void wall_set_tmap_num(const vmsegptridx_t seg,int side,const vmsegptridx_t cseg
 		if (tmap != seg->sides[side].tmap_num2 || tmap != csegp->sides[cside].tmap_num2)
 		{
 			seg->sides[side].tmap_num2 = csegp->sides[cside].tmap_num2 = tmap;
-			if ( Newdemo_state == ND_STATE_RECORDING )
+			if (newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_wall_set_tmap_num2(seg,side,csegp,cside,tmap);
 		}
 	}
@@ -288,7 +288,7 @@ static void blast_blastable_wall(const vmsegptridx_t seg, int side)
 		w0.flags |= WALL_BLASTED;
 		if (w1)
 			w1->flags |= WALL_BLASTED;
-		wall_set_tmap_num(seg,side,csegp,Connectside,a,n-1);
+		wall_set_tmap_num(WallAnims[a], seg, side, csegp, Connectside, n - 1);
 	}
 
 }
@@ -341,7 +341,7 @@ void wall_damage(const vmsegptridx_t seg, int side, fix damage)
 			for (i=0;i<n;i++)
 				if (w0.hps < WALL_HPS*(n-i)/n)
 				{
-					wall_set_tmap_num(seg,side,csegp,Connectside,a,i);
+					wall_set_tmap_num(WallAnims[a], seg, side, csegp, Connectside, i);
 				}
 		}
 }
@@ -624,7 +624,7 @@ void wall_close_door_ref(active_door &d)
 		if (const auto &&w1 = imwallptr(cwall_num))
 			w1->state = WALL_DOOR_CLOSED;
 
-		wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,0);
+		wall_set_tmap_num(WallAnims[w->clip_num], seg, side, csegp, Connectside, 0);
 	}
 }
 
@@ -784,7 +784,7 @@ static bool do_door_open(active_door &d)
 		i = time_elapsed/one_frame;
 
 		if (i < n)
-			wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,i);
+			wall_set_tmap_num(WallAnims[w->clip_num], seg, side, csegp, Connectside, i);
 
 		const auto cwall_num = csegp->sides[Connectside].wall_num;
 		const auto &&w1 = vmwallptr(cwall_num);
@@ -794,7 +794,7 @@ static bool do_door_open(active_door &d)
 		}
 
 		if (i >= n-1) {
-			wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,n-1);
+			wall_set_tmap_num(WallAnims[w->clip_num], seg, side, csegp, Connectside, n - 1);
 
 			// If our door is not automatic just remove it from the list.
 			if (!(w->flags & WALL_DOOR_AUTO)) {
@@ -898,7 +898,7 @@ static bool do_door_close(active_door &d)
 
 		// Animate door.
 		if (i > 0) {
-			wall_set_tmap_num(seg, side, csegp, Connectside, wp.clip_num, i);
+			wall_set_tmap_num(WallAnims[wp.clip_num], seg, side, csegp, Connectside, i);
 
 			wp.state = WALL_DOOR_CLOSING;
 			w1.state = WALL_DOOR_CLOSING;
