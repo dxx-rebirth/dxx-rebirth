@@ -117,6 +117,7 @@ class ToolchainInformation(StaticSubprocess):
 			'LINKFLAGS',
 		) + (
 			(
+				'RC',
 				'RCFLAGS',
 			) if user_settings.host_platform == 'win32' else ()
 		):
@@ -4110,11 +4111,32 @@ class DXXCommon(LazyObjectConstructor):
 		user_settings = self.user_settings
 		# Get traditional compiler environment variables
 		kw = {}
-		for cc in ('CXX', 'RC'):
+		chost_aware_tools = ('CXX', 'RC')
+		for cc in chost_aware_tools:
 			value = getattr(user_settings, cc)
 			if value is not None:
 				kw[cc] = value
-		env = Environment(ENV = os.environ, tools = platform_settings.tools + ('textfile',), **kw)
+		tools = platform_settings.tools + ('textfile',)
+		env = Environment(ENV = os.environ, tools = tools, **kw)
+		CHOST = user_settings.CHOST
+		if CHOST:
+			denv = None
+			for cc in chost_aware_tools:
+				value = kw.get(cc)
+				if value is not None:
+					# If the user set a value, that value is always
+					# used.
+					continue
+				if denv is None:
+					# Lazy load denv.
+					denv = Environment(tools = tools)
+				# If the option in the base environment, ignoring both
+				# user_settings and the process environment, matches the
+				# option in the customized environment, then assume that
+				# this is an SCons default, not a user-chosen value.
+				value = denv.get(cc)
+				if value and env.get(cc) == value:
+					env[cc] = '{}-{}'.format(CHOST, value)
 		platform_settings.adjust_environment(self, env)
 		return env
 
