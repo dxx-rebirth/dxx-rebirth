@@ -75,13 +75,21 @@ static void gr_for_each_bitmap_line(grs_canvas &canvas, const unsigned x, const 
 	}
 }
 
-#if defined(WIN32) && defined(__GNUC__) && (__GNUC__ == 6)
+#if defined(WIN32) && defined(__GNUC__) && (__GNUC__ >= 6 && __GNUC__ <= 7)
 /*
  * When using memcpy directly, i686-w64-mingw32-g++-6.3.0 fails to
  * deduce the template instantiation correctly, leading to a compiler
  * crash.  i686-w64-mingw32-g++-5.4.0 works correctly.  Other platforms
- * work correctly.  For the one affected case, define a trivial wrapper,
- * which i686-w64-mingw32-g++-6.3.0 deduces correctly.
+ * work correctly.  For the affected cases, define a trivial wrapper,
+ * which gcc deduces correctly.
+ *
+ * Known affected:
+ * - i686-w64-mingw32-g++-6.3.0
+ * - i686-w64-mingw32-g++-7.3.0
+ *
+ * Restrict this workaround to known broken versions, since some
+ * compiler versions may have a special case to treat a call to `memcpy`
+ * differently from a call to a function that wraps `memcpy`.
  */
 static void d_memcpy(void *const __restrict__ dest, const void *const __restrict__ src, std::size_t len)
 {
