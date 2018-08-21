@@ -400,6 +400,10 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 				throw nesting_depth_exceeded();
 			ReadIniArgs(ini);
 		}
+		else if (!strncmp(p, "-psn", 4))
+		{
+			//do nothing/gobble it up
+		}
 		else
 			throw unhandled_argument(std::move(*pp));
 	}
