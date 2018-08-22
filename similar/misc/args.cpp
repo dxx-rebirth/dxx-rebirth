@@ -400,10 +400,12 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 				throw nesting_depth_exceeded();
 			ReadIniArgs(ini);
 		}
+#if defined(__APPLE__) && defined(__MACH__)
 		else if (!strncmp(p, "-psn", 4))
 		{
 			//do nothing/gobble it up
 		}
+#endif
 		else
 			throw unhandled_argument(std::move(*pp));
 	}
