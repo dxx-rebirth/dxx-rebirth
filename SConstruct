@@ -2730,20 +2730,31 @@ class cached_property(object):
 		return r
 
 class LazyObjectConstructor(object):
-	key_transform_env = object()
-	key_transform_object = object()
-	key_transform_target = object()
-	def __get_wrapped_object(s,self,env,StaticObject,__transform_object=key_transform_object):
-		wrapper = s.get(__transform_object, None)
-		if wrapper is None:
-			return StaticObject
-		return wrapper(self, env, StaticObject)
+	class LazyObjectState:
+		def __init__(self,sources,transform_env=None,transform_object=None,transform_target=None):
+			# `sources` must be non-empty, since it would have no use if
+			# it was empty.
+			#
+			# Every element in `sources` must be a string.  Verify this
+			# with an assertion that directly checks that the sequence
+			# is not empty and indirectly, by way of attribute lookup,
+			# checks that the elements are string-like.
+			assert([s.encode for s in sources]), "sources must be a non-empty list of strings"
+			self.sources = sources
+			self.transform_env = transform_env
+			self.StaticObject = transform_object
+			# If transform_target is not used, let references to
+			# `self.transform_target` fall through to
+			# `cls.transform_target`.
+			if transform_target:
+				self.transform_target = transform_target
+
+		@staticmethod
+		def transform_target(_, name, _splitext=os.path.splitext):
+			return _splitext(name)[0]
+
 	def __lazy_objects(self,source,
-			cache={},
-			__get_wrapped_object=__get_wrapped_object,
-			__transform_env=key_transform_env,
-			__transform_target=key_transform_target,
-			__strip_extension=lambda _, name, _splitext=os.path.splitext: _splitext(name)[0]
+			cache={}
 		):
 		env = self.env
 		# Use id because name needs to be hashable and have a 1-to-1
@@ -2754,41 +2765,37 @@ class LazyObjectConstructor(object):
 			StaticObject = env.StaticObject
 			OBJSUFFIX = env['OBJSUFFIX']
 			builddir = self.user_settings.builddir
+			value = []
+			append = value.append
+			for s in source:
+				transform_target = s.transform_target
+				transform_env = s.transform_env
+				wrapped_StaticObject = s.StaticObject
+				if wrapped_StaticObject is None:
+					wrapped_StaticObject = StaticObject
+				else:
+					wrapped_StaticObject = wrapped_StaticObject(self, env, StaticObject)
+				for srcname in s.sources:
+					append(
+						wrapped_StaticObject(target='%s%s%s' % (builddir, transform_target(self, srcname), OBJSUFFIX), source=srcname,
+							**({} if transform_env is None else transform_env(self, env))
+					))
 			# Convert to a tuple so that attempting to modify a cached
 			# result raises an error.
-			value = tuple([
-				wrapped_StaticObject(target='%s%s%s' % (builddir, transform_target(self, srcname), OBJSUFFIX), source=srcname,
-					**({} if transform_env is None else transform_env(self, env))
-				)	\
-				for s in source	\
-				# This is a single iteration comprehension to work
-				# around the inability to assign variables as part of a
-				# normal comprehension.  It iterates over one of two
-				# single element tuples.  The choice of tuple is
-				# controlled by the isinstance check.  Each single
-				# element tuple consists of (F, T, O, L) where F is the
-				# function to bind as `transform_target`, T is the
-				# function to bind as `transform_env` (or None), O is
-				# the function to create the StaticObject, and L
-				# is an iterable to bind as `t`.
-				for transform_target, transform_env, wrapped_StaticObject, t in (	\
-					((__strip_extension, None, StaticObject, (s,)),)	\
-					if isinstance(s, str) \
-					else ((	\
-						s.get(__transform_target, __strip_extension),	\
-						s.get(__transform_env, None),	\
-						__get_wrapped_object(s, self, env, StaticObject),	\
-						s['source'],	\
-					),)	\
-				)	\
-				for srcname in t	\
-			])
+			value = tuple(value)
 			cache[name] = value
 		return value
 
+	def create_lazy_object_states_getter(states,__lazy_objects=__lazy_objects):
+		def get_objects(self):
+			return __lazy_objects(self, states)
+		return get_objects
+
 	@staticmethod
-	def create_lazy_object_getter(sources,__lazy_objects=__lazy_objects):
-		return lambda s, _f=__lazy_objects, _sources=sources: _f(s, _sources)
+	def create_lazy_object_getter(sources,LazyObjectState=LazyObjectState,create_lazy_object_states_getter=create_lazy_object_states_getter):
+		return create_lazy_object_states_getter((LazyObjectState(sources=sources),))
+
+	create_lazy_object_states_getter = staticmethod(create_lazy_object_states_getter)
 
 class FilterHelpText:
 	_sconf_align = None
@@ -4382,6 +4389,7 @@ class DXXArchive(DXXCommon):
 		env.MergeFlags(add_flags)
 
 class DXXProgram(DXXCommon):
+	LazyObjectState = DXXCommon.LazyObjectState
 	class WrapKConfigStaticObject:
 		def __init__(self,program,env,StaticObject):
 			self.program = program
@@ -4405,31 +4413,27 @@ class DXXProgram(DXXCommon):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
 	def _apply_env_version_seq(self,env,_empty={}):
 		return _empty if self.user_settings.pch else {'CPPDEFINES' : env['CPPDEFINES'] + [('DXX_VERSION_SEQ', self.DXX_VERSION_SEQ)]}
-	get_objects_similar_arch_ogl = DXXCommon.create_lazy_object_getter(({
-		'source':(
+	get_objects_similar_arch_ogl = DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
 'similar/arch/ogl/gr.cpp',
 'similar/arch/ogl/ogl.cpp',
 ),
-		DXXCommon.key_transform_target:_apply_target_name,
-	},
+		transform_target=_apply_target_name,
+	),
 	))
-	get_objects_similar_arch_sdl = DXXCommon.create_lazy_object_getter(({
-		'source':(
+	get_objects_similar_arch_sdl = DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
 'similar/arch/sdl/gr.cpp',
 ),
-		DXXCommon.key_transform_target:_apply_target_name,
-	},
+		transform_target=_apply_target_name,
+	),
 	))
-	get_objects_similar_arch_sdlmixer = DXXCommon.create_lazy_object_getter(({
-		'source':(
+	get_objects_similar_arch_sdlmixer = DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
 'similar/arch/sdl/digi_mixer.cpp',
 'similar/arch/sdl/jukebox.cpp',
 ),
-		DXXCommon.key_transform_target:_apply_target_name,
-	},
+		transform_target=_apply_target_name,
+	),
 	))
-	__get_objects_common = DXXCommon.create_lazy_object_getter(({
-		'source':(
+	__get_objects_common = DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
 'similar/2d/font.cpp',
 'similar/2d/palette.cpp',
 'similar/2d/pcx.cpp',
@@ -4500,35 +4504,30 @@ class DXXProgram(DXXCommon):
 'similar/main/weapon.cpp',
 'similar/misc/args.cpp',
 ),
-		DXXCommon.key_transform_target:_apply_target_name,
-	}, {
-		'source': (
+		transform_target=_apply_target_name,
+	), LazyObjectState(sources=(
 'similar/main/inferno.cpp',
 ),
-		DXXCommon.key_transform_env: lambda self, env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH + env.__dxx_CPPDEFINE_git_version},
-		DXXCommon.key_transform_target:_apply_target_name,
-	}, {
-		'source': (
+		transform_env = (lambda self, env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH + env.__dxx_CPPDEFINE_git_version}),
+		transform_target=_apply_target_name,
+	), LazyObjectState(sources=(
 'similar/main/kconfig.cpp',
 ),
-		DXXCommon.key_transform_object:WrapKConfigStaticObject,
-		DXXCommon.key_transform_target:_apply_target_name,
-	}, {
-		'source': (
+		transform_object=WrapKConfigStaticObject,
+		transform_target=_apply_target_name,
+	), LazyObjectState(sources=(
 'similar/misc/physfsx.cpp',
 ),
-		DXXCommon.key_transform_env: lambda self, env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH},
-		DXXCommon.key_transform_target:_apply_target_name,
-	}, {
-		'source': (
+		transform_env = (lambda self, env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH}),
+		transform_target=_apply_target_name,
+	), LazyObjectState(sources=(
 'similar/main/playsave.cpp',
 ),
-		DXXCommon.key_transform_env: _apply_env_version_seq,
-		DXXCommon.key_transform_target:_apply_target_name,
-	},
+		transform_env=_apply_env_version_seq,
+		transform_target=_apply_target_name,
+	),
 	))
-	get_objects_editor = DXXCommon.create_lazy_object_getter(({
-		'source':(
+	get_objects_editor = DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
 'similar/editor/centers.cpp',
 'similar/editor/curves.cpp',
 'similar/main/dumpmine.cpp',
@@ -4562,8 +4561,8 @@ class DXXProgram(DXXCommon):
 'similar/editor/texpage.cpp',
 'similar/editor/texture.cpp',
 ),
-		DXXCommon.key_transform_target:_apply_target_name,
-	},
+		transform_target=_apply_target_name,
+	),
 	))
 
 	class UserSettings(DXXCommon.UserSettings):
@@ -4616,13 +4615,12 @@ class DXXProgram(DXXCommon):
 
 	def get_objects_common(self,
 		__get_objects_common=__get_objects_common,
-		__get_objects_use_udp=DXXCommon.create_lazy_object_getter(({
-		'source':(
+		__get_objects_use_udp=DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
 'similar/main/net_udp.cpp',
 ),
-		DXXCommon.key_transform_env: _apply_env_version_seq,
-		DXXCommon.key_transform_target:_apply_target_name,
-	},
+		transform_env= _apply_env_version_seq,
+		transform_target=_apply_target_name,
+	),
 	))
 		):
 		value = list(__get_objects_common(self))
@@ -4849,6 +4847,7 @@ class DXXProgram(DXXCommon):
 					resources=[[os.path.join(self.srcdir, s), s] for s in ['English.lproj/InfoPlist.strings']])
 
 class D1XProgram(DXXProgram):
+	LazyObjectState = DXXProgram.LazyObjectState
 	PROGRAM_NAME = 'D1X-Rebirth'
 	target = \
 	srcdir = 'd1x-rebirth'
@@ -4858,14 +4857,12 @@ class D1XProgram(DXXProgram):
 	# general source files
 	def get_objects_common(self,
 		__get_dxx_objects_common=DXXProgram.get_objects_common, \
-		__get_dsx_objects_common=DXXCommon.create_lazy_object_getter(({
-		'source':(
+		__get_dsx_objects_common=DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
 'd1x-rebirth/main/custom.cpp',
 'd1x-rebirth/main/snddecom.cpp',
 ),
-	},
-	{
-		'source':(
+	),
+	LazyObjectState(sources=(
 			# In Descent 1, bmread.cpp is used for both the regular
 			# build and the editor build.
 			#
@@ -4877,8 +4874,8 @@ class D1XProgram(DXXProgram):
 			# shared program lookup (DXXProgram).
 'similar/main/bmread.cpp',
 ),
-		DXXCommon.key_transform_target:DXXProgram._apply_target_name,
-	},
+		transform_target=DXXProgram._apply_target_name,
+	),
 	))
 		):
 		value = __get_dxx_objects_common(self)
@@ -4888,17 +4885,16 @@ class D1XProgram(DXXProgram):
 	# for editor
 	def get_objects_editor(self,
 		__get_dxx_objects_editor=DXXProgram.get_objects_editor,
-		__get_dsx_objects_editor=DXXCommon.create_lazy_object_getter(({
-		'source':(
+		__get_dsx_objects_editor=DXXCommon.create_lazy_object_getter((
 'd1x-rebirth/editor/ehostage.cpp',
 ),
-	},
-	))):
+	)):
 		value = list(__get_dxx_objects_editor(self))
 		value.extend(__get_dsx_objects_editor(self))
 		return value
 
 class D2XProgram(DXXProgram):
+	LazyObjectState = DXXProgram.LazyObjectState
 	PROGRAM_NAME = 'D2X-Rebirth'
 	target = \
 	srcdir = 'd2x-rebirth'
@@ -4908,8 +4904,7 @@ class D2XProgram(DXXProgram):
 	# general source files
 	def get_objects_common(self,
 		__get_dxx_objects_common=DXXProgram.get_objects_common, \
-		__get_dsx_objects_common=DXXCommon.create_lazy_object_getter(({
-		'source':(
+		__get_dsx_objects_common=DXXCommon.create_lazy_object_getter((
 'd2x-rebirth/libmve/decoder8.cpp',
 'd2x-rebirth/libmve/decoder16.cpp',
 'd2x-rebirth/libmve/mve_audio.cpp',
@@ -4919,8 +4914,6 @@ class D2XProgram(DXXProgram):
 'd2x-rebirth/main/gamepal.cpp',
 'd2x-rebirth/main/movie.cpp',
 'd2x-rebirth/misc/physfsrwops.cpp',
-),
-	},
 	))):
 		value = __get_dxx_objects_common(self)
 		value.extend(__get_dsx_objects_common(self))
@@ -4929,15 +4922,14 @@ class D2XProgram(DXXProgram):
 	# for editor
 	def get_objects_editor(self,
 		__get_dxx_objects_editor=DXXProgram.get_objects_editor, \
-		__get_dsx_objects_editor=DXXCommon.create_lazy_object_getter(({
-		'source':(
+		__get_dsx_objects_editor=DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
 			# See comment by D1XProgram reference to bmread.cpp for why
 			# this is here instead of in the usual handling for similar
 			# files.
 'similar/main/bmread.cpp',
 ),
-		DXXCommon.key_transform_target:DXXProgram._apply_target_name,
-		},
+		transform_target=DXXProgram._apply_target_name,
+		),
 		))):
 		value = list(__get_dxx_objects_editor(self))
 		value.extend(__get_dsx_objects_editor(self))
