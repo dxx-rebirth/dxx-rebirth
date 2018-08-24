@@ -3015,13 +3015,14 @@ class PCHManager(object):
 						# Ignore generated header here.  PCH generation
 						# will insert it in the right order.
 						continue
-					if name == b'"valptridx.tcc"':
-						# Exclude tcc file from PCH.  It is not meant to
-						# be included in every file.  Starting in gcc-7,
-						# static functions defined in valptridx.tcc
-						# generate -Wunused-function warnings if the
-						# including file does not instantiate any
-						# templates that use the static function.
+					if not name.endswith(b'.h"'):
+						# Exclude non-header files from PCH.
+						#
+						# Starting in gcc-7, static functions defined in
+						# valptridx.tcc generate -Wunused-function
+						# warnings if the including file does not
+						# instantiate any templates that use the static
+						# function.
 						continue
 					if header_search_path is None:
 						header_search_path = [
@@ -3049,10 +3050,17 @@ class PCHManager(object):
 					name = env.File(name.decode())
 				candidates[name].add(tuple(guard))
 			elif directive == b'endif':
-				# guard should always be True here, but test to avoid
-				# ugly errors if scanning an ill-formed source file.
-				if guard:
-					guard.pop()
+				while guard:
+					g = guard.pop()
+					if g == b'#else':
+						# guard should always be True here, but test to
+						# avoid ugly errors if scanning an ill-formed
+						# source file.
+						if guard:
+							guard.pop()
+						break
+					if not g.startswith(b'#elif '):
+						break
 			elif directive == b'else':
 				# #else is handled separately because it has no
 				# arguments
