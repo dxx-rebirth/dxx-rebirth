@@ -196,10 +196,10 @@ class Git(StaticSubprocess):
 		if g.returncode:
 			return None
 		_pcall = cls.pcall
-		return (g.out.split('\n')[0] +	\
-			('*' if _pcall(['diff', '--quiet']).returncode else '') +	\
-			('+' if _pcall(['diff', '--quiet', '--cached']).returncode else '')
-		)
+		return (g.out.splitlines()[0] +	\
+			(b'*' if _pcall(['diff', '--quiet']).returncode else b'') +	\
+			(b'+' if _pcall(['diff', '--quiet', '--cached']).returncode else b'')
+		).decode()
 
 class _ConfigureTests:
 	class Collector(object):
