@@ -227,10 +227,13 @@ bool PHYSFSX_init(int argc, char *argv[])
 #if defined(__APPLE__) && defined(__MACH__)
 	{
 		CFBundleRef mainBundle = CFBundleGetMainBundle();
-		if (mainBundle) {
+		if (mainBundle)
+		{
 			CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
-			if (resourcesURL) {
-				if (CFURLGetFileSystemRepresentation(resourcesURL, TRUE, reinterpret_cast<uint8_t *>(fullPath), sizeof(fullPath))) {
+			if (resourcesURL)
+			{
+				if (CFURLGetFileSystemRepresentation(resourcesURL, TRUE, reinterpret_cast<uint8_t *>(fullPath), sizeof(fullPath)))
+				{
 					fullPath[sizeof(fullPath) - 1] = '\0';
 					con_printf(CON_DEBUG, "PHYSFS: append resources directory \"%s\" to search path", fullPath);
 					PHYSFS_addToSearchPath(fullPath, 1);
