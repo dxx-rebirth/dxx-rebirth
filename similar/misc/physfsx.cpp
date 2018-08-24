@@ -230,8 +230,8 @@ bool PHYSFSX_init(int argc, char *argv[])
 		if (mainBundle) {
 			CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
 			if (resourcesURL) {
-				if (CFURLGetFileSystemRepresentation(resourcesURL, TRUE, reinterpret_cast<uint8_t *>(fullPath), PATH_MAX + 5)) {
-					fullPath[PATH_MAX + 4] = '\0';
+				if (CFURLGetFileSystemRepresentation(resourcesURL, TRUE, reinterpret_cast<uint8_t *>(fullPath), sizeof(fullPath))) {
+					fullPath[sizeof(fullPath) - 1] = '\0';
 					con_printf(CON_DEBUG, "PHYSFS: append resources directory \"%s\" to search path", fullPath);
 					PHYSFS_addToSearchPath(fullPath, 1);
 				}
