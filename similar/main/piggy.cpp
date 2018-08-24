@@ -497,6 +497,7 @@ int properties_init()
 		case D1_MAC_PIGSIZE:
 		case D1_MAC_SHARE_PIGSIZE:
 			MacPig = 1;
+			//-fallthrough
 		case D1_PIGSIZE:
 		case D1_OEM_PIGSIZE:
 			Pigdata_start = PHYSFSX_readInt(Piggy_fp );

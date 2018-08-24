@@ -2606,14 +2606,6 @@ where the cast is useless.
 		#	   ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		#
 		'-Wno-format-truncation',
-		# gcc-7 with -Wextra enables -Wimplicit-fallthrough, which warns
-		# for various sites in Rebirth.  All the sites where fallthrough
-		# is obviously correct are already marked to suppress this
-		# warning, but sites which require analysis are not yet marked.
-		# Suppress this warning for the benefit of users who want a
-		# clean `-Wall -Wextra -Werror` build.  At some point, this
-		# suppression should be removed and the remaining sites fixed.
-		'-Wno-implicit-fallthrough',
 	]
 	__preferred_win32_linker_options = [
 		'-Wl,--large-address-aware',
