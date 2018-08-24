@@ -2731,7 +2731,7 @@ class cached_property(object):
 
 class LazyObjectConstructor(object):
 	class LazyObjectState:
-		def __init__(self,sources,transform_env=None,transform_object=None,transform_target=None):
+		def __init__(self,sources,transform_env=None,StaticObject_hook=None,transform_target=None):
 			# `sources` must be non-empty, since it would have no use if
 			# it was empty.
 			#
@@ -2742,7 +2742,7 @@ class LazyObjectConstructor(object):
 			assert([s.encode for s in sources]), "sources must be a non-empty list of strings"
 			self.sources = sources
 			self.transform_env = transform_env
-			self.StaticObject = transform_object
+			self.StaticObject_hook = StaticObject_hook
 			# If transform_target is not used, let references to
 			# `self.transform_target` fall through to
 			# `cls.transform_target`.
@@ -2762,6 +2762,7 @@ class LazyObjectConstructor(object):
 		name = (id(env), id(source))
 		value = cache.get(name)
 		if value is None:
+			prepare_target_name = '{}{}{}'.format
 			StaticObject = env.StaticObject
 			OBJSUFFIX = env['OBJSUFFIX']
 			builddir = self.user_settings.builddir
@@ -2770,16 +2771,15 @@ class LazyObjectConstructor(object):
 			for s in source:
 				transform_target = s.transform_target
 				transform_env = s.transform_env
-				wrapped_StaticObject = s.StaticObject
-				if wrapped_StaticObject is None:
-					wrapped_StaticObject = StaticObject
-				else:
-					wrapped_StaticObject = wrapped_StaticObject(self, env, StaticObject)
+				StaticObject_hook = s.StaticObject_hook
 				for srcname in s.sources:
-					append(
-						wrapped_StaticObject(target='%s%s%s' % (builddir, transform_target(self, srcname), OBJSUFFIX), source=srcname,
+					target = prepare_target_name(builddir, transform_target(self, srcname), OBJSUFFIX)
+					s = StaticObject(target=target, source=srcname,
 							**({} if transform_env is None else transform_env(self, env))
-					))
+							)
+					append(s)
+					if StaticObject_hook is not None:
+						StaticObject_hook(self, env, srcname, target, s)
 			# Convert to a tuple so that attempting to modify a cached
 			# result raises an error.
 			value = tuple(value)
@@ -4390,19 +4390,13 @@ class DXXArchive(DXXCommon):
 
 class DXXProgram(DXXCommon):
 	LazyObjectState = DXXCommon.LazyObjectState
-	class WrapKConfigStaticObject:
-		def __init__(self,program,env,StaticObject):
-			self.program = program
-			self.env = env
-		def __call__(self,target,source,*args,**kwargs):
-			env = self.env
-			kconfig_static_object = env.StaticObject(target=target, source=source, *args, **kwargs)
-			program = self.program
+	def _generate_kconfig_ui_table(program,env,source,target,kconfig_static_object):
 			builddir = '%s%s' % (program.user_settings.builddir, program.target)
+			kwargs = {}
 			# Bypass ccache, if any, since this is a preprocess only
 			# call.
-			kwargs['CXXFLAGS'] = (kwargs.get('CXXFLAGS', None) or env['CXXFLAGS'] or []) + ['-E']
-			cpp_kconfig_udlr = env._rebirth_nopch_StaticObject(target=target[:-1] + 'ui-table.i', source=source[:-3] + 'ui-table.cpp', CXXCOM=env._dxx_cxxcom_no_ccache_prefix, *args, **kwargs)
+			kwargs['CXXFLAGS'] = (env['CXXFLAGS'] or []) + ['-E']
+			cpp_kconfig_udlr = env._rebirth_nopch_StaticObject(target=target[:-1] + 'ui-table.i', source=source[:-3] + 'ui-table.cpp', CXXCOM=env._dxx_cxxcom_no_ccache_prefix, **kwargs)
 			generated_udlr_header = env.File('%s/kconfig.udlr.h' % builddir)
 			generate_kconfig_udlr = env.File('similar/main/generate-kconfig-udlr.py')
 			env.Command(generated_udlr_header, [cpp_kconfig_udlr, generate_kconfig_udlr], [[sys.executable, generate_kconfig_udlr, '$SOURCE', '$TARGET']])
@@ -4513,7 +4507,7 @@ class DXXProgram(DXXCommon):
 	), LazyObjectState(sources=(
 'similar/main/kconfig.cpp',
 ),
-		transform_object=WrapKConfigStaticObject,
+		StaticObject_hook=_generate_kconfig_ui_table,
 		transform_target=_apply_target_name,
 	), LazyObjectState(sources=(
 'similar/misc/physfsx.cpp',
