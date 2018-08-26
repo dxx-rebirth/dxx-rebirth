@@ -78,7 +78,7 @@ struct bitmap_index
 
 struct BitmapFile
 {
-	char    name[15];
+	array<char, 13> name;
 };
 
 #if defined(DXX_BUILD_DESCENT_I)

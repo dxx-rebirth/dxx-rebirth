@@ -161,11 +161,11 @@ int Pigfile_initialized=0;
 
 static std::unique_ptr<ubyte[]> Bitmap_replacement_data;
 
-#define DBM_NUM_FRAMES  63
-
 #define BM_FLAGS_TO_COPY (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT \
                          | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE | BM_FLAG_RLE_BIG)
 #endif
+
+#define DBM_NUM_FRAMES  63
 
 struct DiskBitmapHeader
 {
@@ -206,6 +206,21 @@ static void write_int(int i,PHYSFS_File *file);
 #endif
 static int piggy_is_needed(int soundnum);
 #endif
+
+namespace dcx {
+
+static void get_bitmap_name_from_header(array<char, 13> &output_name, const DiskBitmapHeader &bmh)
+{
+	if (bmh.dflags & DBM_FLAG_ABM)
+		snprintf(output_name.data(), output_name.size(), "%.8s#%d", bmh.name, bmh.dflags & DBM_NUM_FRAMES);
+	else
+	{
+		memcpy(output_name.data(), bmh.name, 8);
+		output_name[8] = 0;
+	}
+}
+
+}
 
 /*
  * reads a DiskBitmapHeader structure from a PHYSFS_File
@@ -290,8 +305,10 @@ bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const char *const name, cons
 		SoundOffset[Num_sound_files] = -1;		// make sure this sound's data is not individually freed
 #endif
 
-	strncpy( AllBitmaps[Num_bitmap_files].name, name, 12 );
-	hashtable_insert( &AllBitmapsNames, AllBitmaps[Num_bitmap_files].name, Num_bitmap_files );
+	auto &abn = AllBitmaps[Num_bitmap_files].name;
+	abn.back() = 0;
+	strncpy(abn.data(), name, abn.size() - 1);
+	hashtable_insert(&AllBitmapsNames, AllBitmaps[Num_bitmap_files].name.data(), Num_bitmap_files);
 #if defined(DXX_BUILD_DESCENT_I)
 	GameBitmaps[Num_bitmap_files] = bmp;
 #endif
@@ -410,8 +427,7 @@ static void piggy_close_file()
 int properties_init()
 {
 	int sbytes = 0;
-	char temp_name_read[16];
-	char temp_name[16];
+	array<char, 13> temp_name;
 	digi_sound temp_sound;
 	DiskBitmapHeader bmh;
 	DiskSoundHeader sndh;
@@ -533,12 +549,7 @@ int properties_init()
 		Assert( (i+1) == Num_bitmap_files );
 
 		//size -= sizeof(DiskBitmapHeader);
-		memcpy( temp_name_read, bmh.name, 8 );
-		temp_name_read[8] = 0;
-		if ( bmh.dflags & DBM_FLAG_ABM )
-			snprintf(temp_name, sizeof(temp_name), "%s#%d", temp_name_read, bmh.dflags & 63);
-		else
-			strcpy( temp_name, temp_name_read );
+		get_bitmap_name_from_header(temp_name, bmh);
 
 		grs_bitmap temp_bitmap{};
 		const auto iwidth = (bmh.dflags & DBM_FLAG_LARGE) ? bmh.width + 256 : bmh.width;
@@ -560,7 +571,7 @@ int properties_init()
 				temp_bitmap.bm_h = 480;
 		}
 		
-		piggy_register_bitmap(temp_bitmap, temp_name, 1);
+		piggy_register_bitmap(temp_bitmap, temp_name.data(), 1);
 	}
 
 	if (!MacPig)
@@ -584,9 +595,10 @@ int properties_init()
 		SoundOffset[Num_sound_files] = sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start;
 		if (PCSharePig)
 			SoundCompressed[Num_sound_files] = sndh.data_length;
-		memcpy( temp_name_read, sndh.name, 8 );
-		temp_name_read[8] = 0;
-		piggy_register_sound( &temp_sound, temp_name_read, 1 );
+		array<char, 9> temp_name_read;
+		memcpy(temp_name_read.data(), sndh.name, temp_name_read.size() - 1);
+		temp_name_read.back() = 0;
+		piggy_register_sound(&temp_sound, temp_name_read.data(), 1);
                 sbytes += sndh.length;
 	}
 
@@ -613,8 +625,7 @@ int properties_init()
 void piggy_init_pigfile(const char *filename)
 {
 	int i;
-	char temp_name[16];
-	char temp_name_read[16];
+	array<char, 13> temp_name;
 	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps, data_start;
 #if DXX_USE_EDITOR
@@ -667,12 +678,7 @@ void piggy_init_pigfile(const char *filename)
 		grs_bitmap *bm = &GameBitmaps[i + 1];
 		
 		DiskBitmapHeader_read(&bmh, Piggy_fp);
-		memcpy( temp_name_read, bmh.name, 8 );
-		temp_name_read[8] = 0;
-		if ( bmh.dflags & DBM_FLAG_ABM )        
-			snprintf(temp_name, sizeof(temp_name), "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES);
-		else
-			strcpy( temp_name, temp_name_read );
+		get_bitmap_name_from_header(temp_name, bmh);
 		width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
 		gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + (static_cast<short>(bmh.wh_extra & 0xf0) << 4), width, NULL);
 		bm->set_flags(BM_FLAG_PAGED_OUT);
@@ -682,7 +688,7 @@ void piggy_init_pigfile(const char *filename)
 
 		GameBitmapOffset[i+1] = bmh.offset + data_start;
 		Assert( (i+1) == Num_bitmap_files );
-		piggy_register_bitmap(*bm, temp_name, 1);
+		piggy_register_bitmap(*bm, temp_name.data(), 1);
 	}
 
 #if DXX_USE_EDITOR
@@ -705,8 +711,7 @@ void piggy_init_pigfile(const char *filename)
 void piggy_new_pigfile(char *pigname)
 {
 	int i;
-	char temp_name[16];
-	char temp_name_read[16];
+	array<char, 13> temp_name;
 	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps, data_start;
 #if DXX_USE_EDITOR
@@ -766,23 +771,17 @@ void piggy_new_pigfile(char *pigname)
 			int width;
 			
 			DiskBitmapHeader_read(&bmh, Piggy_fp);
-			memcpy( temp_name_read, bmh.name, 8 );
-			temp_name_read[8] = 0;
-	
-			if ( bmh.dflags & DBM_FLAG_ABM )        
-				snprintf(temp_name, sizeof(temp_name), "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES);
-			else
-				strcpy( temp_name, temp_name_read );
-
+			get_bitmap_name_from_header(temp_name, bmh);
 #if DXX_USE_EDITOR
 			//Make sure name matches
-			if (strcmp(temp_name,AllBitmaps[i].name)) {
+			if (strcmp(temp_name.data(), AllBitmaps[i].name.data()))
+			{
 				//Int3();       //this pig is out of date.  Delete it
 				must_rewrite_pig=1;
 			}
 #endif
 	
-			strcpy(AllBitmaps[i].name,temp_name);
+			AllBitmaps[i].name = temp_name;
 
 			width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
 			gr_set_bitmap_data(*bm, NULL);	// free ogl texture
@@ -810,11 +809,8 @@ void piggy_new_pigfile(char *pigname)
 		//re-read the bitmaps that aren't in this pig
 
 		for (i=N_bitmaps+1;i<Num_bitmap_files;i++) {
-			char *p;
-
-			p = strchr(AllBitmaps[i].name,'#');
-
-			if (p) {   // this is an ABM == animated bitmap
+			if (const auto p = strchr(AllBitmaps[i].name.data(), '#'))
+			{   // this is an ABM == animated bitmap
 				char abmname[FILENAME_LEN];
 				unsigned fnum;
 				int iff_error;          //reference parm to avoid warning message
@@ -822,10 +818,11 @@ void piggy_new_pigfile(char *pigname)
 				char basename[FILENAME_LEN];
 				unsigned nframes;
 
-				strcpy(basename,AllBitmaps[i].name);
-				basename[p-AllBitmaps[i].name] = 0;  //cut off "#nn" part
-				
-				snprintf(abmname, sizeof(abmname), "%s.abm", basename);
+				const std::size_t len = p - AllBitmaps[i].name.data();
+				memcpy(basename, AllBitmaps[i].name.data(), len);
+				basename[len] = 0;
+
+				snprintf(abmname, sizeof(abmname), "%.8s.abm", basename);
 
 				array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 				iff_error = iff_read_animbrush(abmname,bm,&nframes,newpal);
@@ -877,7 +874,7 @@ void piggy_new_pigfile(char *pigname)
 				char bbmname[FILENAME_LEN];
 				int SuperX;
 
-				snprintf(bbmname, sizeof(bbmname), "%s.bbm", AllBitmaps[i].name);
+				snprintf(bbmname, sizeof(bbmname), "%s.bbm", AllBitmaps[i].name.data());
 				iff_error = iff_read_bitmap(bbmname, n, &newpal);
 
 				if (iff_error != IFF_NO_ERROR)          {
@@ -1496,24 +1493,24 @@ static void piggy_write_pigfile(const char *filename)
 	for (i=1; i < Num_bitmap_files; i++ ) {
 		grs_bitmap *bmp;
 
+		const auto name = AllBitmaps[i].name.data();
 		{
-			char * p, *p1;
-			p = strchr(AllBitmaps[i].name, '#');
-			if (p) {   // this is an ABM == animated bitmap
+			char *p1;
+			if (const auto p = strchr(name, '#')) {   // this is an ABM == animated bitmap
 				int n;
 				p1 = p; p1++; 
 				n = atoi(p1);
 				*p = 0;
 				if (fp2 && n==0)
-					PHYSFSX_printf( fp2, "%s.abm\n", AllBitmaps[i].name );
-				memcpy( bmh.name, AllBitmaps[i].name, 8 );
+					PHYSFSX_printf( fp2, "%s.abm\n", name);
+				memcpy(bmh.name, name, 8);
 				Assert( n <= DBM_NUM_FRAMES );
 				bmh.dflags = DBM_FLAG_ABM + n;
 				*p = '#';
 			} else {
 				if (fp2)
-					PHYSFSX_printf( fp2, "%s.bbm\n", AllBitmaps[i].name );
-				memcpy( bmh.name, AllBitmaps[i].name, 8 );
+					PHYSFSX_printf( fp2, "%s.bbm\n", name);
+				memcpy(bmh.name, name, 8);
 				bmh.dflags = 0;
 			}
 		}
@@ -1522,7 +1519,7 @@ static void piggy_write_pigfile(const char *filename)
 		assert(!bmp->get_flag_mask(BM_FLAG_PAGED_OUT));
 
 		if (fp1)
-			PHYSFSX_printf( fp1, "BMP: %s, size %d bytes", AllBitmaps[i].name, bmp->bm_rowsize * bmp->bm_h );
+			PHYSFSX_printf(fp1, "BMP: %s, size %d bytes", name, bmp->bm_rowsize * bmp->bm_h);
 		org_offset = PHYSFS_tell(pig_fp);
 		bmh.offset = data_offset - bitmap_data_start;
 		PHYSFSX_fseek( pig_fp, data_offset, SEEK_SET );
@@ -1548,7 +1545,8 @@ static void piggy_write_pigfile(const char *filename)
 		bmh.height = GameBitmaps[i].bm_h;
 		bmh.wh_extra |= ((GameBitmaps[i].bm_h >> 4) & 0xf0);
 		bmh.flags = GameBitmaps[i].get_flags();
-		if (piggy_is_substitutable_bitmap( AllBitmaps[i].name, subst_name )) {
+		if (piggy_is_substitutable_bitmap(name, subst_name))
+		{
 			bitmap_index other_bitmap;
 			other_bitmap = piggy_find_bitmap( subst_name );
 			GameBitmapXlat[i] = other_bitmap.index;
@@ -1604,7 +1602,7 @@ static const BitmapFile *piggy_does_bitmap_exist_slow(const char *const name)
 {
 	range_for (auto &i, partial_const_range(AllBitmaps, Num_bitmap_files))
 	{
-		if (!strcmp(i.name, name))
+		if (!strcmp(i.name.data(), name))
 			return &i;
 	}
 	return nullptr;
@@ -2051,11 +2049,12 @@ void load_d1_bitmap_replacements()
 			GameBitmapOffset[d2_index] = 0; // don't try to read bitmap from current d2 pigfile
 			GameBitmapFlags[d2_index] = bmh.flags;
 
-			if ( (p = strchr(AllBitmaps[d2_index].name, '#')) /* d2 BM is animated */
+			auto &abname = AllBitmaps[d2_index].name;
+			if ((p = strchr(abname.data(), '#')) /* d2 BM is animated */
 			     && !(bmh.dflags & DBM_FLAG_ABM) ) { /* d1 bitmap is not animated */
-				int i, len = p - AllBitmaps[d2_index].name;
+				int i, len = p - abname.data();
 				for (i = 0; i < Num_bitmap_files; i++)
-					if (i != d2_index && ! memcmp(AllBitmaps[d2_index].name, AllBitmaps[i].name, len))
+					if (i != d2_index && ! memcmp(abname.data(), AllBitmaps[i].name.data(), len))
 					{
 						gr_set_bitmap_data(GameBitmaps[i], NULL);	// free ogl texture
 						GameBitmaps[i] = GameBitmaps[d2_index];

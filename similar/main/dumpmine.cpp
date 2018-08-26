@@ -907,7 +907,7 @@ static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_ty
 #elif defined(DXX_BUILD_DESCENT_II)
 	for (i = 0; i < tb.size(); ++i)
 		if (tb[i]) {
-			PHYSFSX_printf(my_file, "[%3i %8s (%4i)]\n", i, AllBitmaps[i].name, tb[i]);
+			PHYSFSX_printf(my_file, "[%3i %8s (%4i)]\n", i, AllBitmaps[i].name.data(), tb[i]);
 		}
 #endif
 }
@@ -958,7 +958,7 @@ static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &tb)
 #if defined(DXX_BUILD_DESCENT_I)
 			PHYSFSX_printf(my_file, "[%3i %8s] ", i, static_cast<const char *>(TmapInfo[i].filename));
 #elif defined(DXX_BUILD_DESCENT_II)
-			PHYSFSX_printf(my_file, "[%3i %8s] ", i, AllBitmaps[i].name);
+			PHYSFSX_printf(my_file, "[%3i %8s] ", i, AllBitmaps[i].name.data());
 #endif
 			if (count++ >= 4) {
 				PHYSFSX_printf(my_file, "\n");
