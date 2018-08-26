@@ -226,20 +226,20 @@ bool PHYSFSX_init(int argc, char *argv[])
 	// For Macintosh, add the 'Resources' directory in the .app bundle to the searchpaths
 #if defined(__APPLE__) && defined(__MACH__)
 	{
-		ProcessSerialNumber psn = { 0, kCurrentProcess };
-		FSRef fsref;
-		OSStatus err;
-		
-		err = GetProcessBundleLocation(&psn, &fsref);
-		if (err == noErr)
-			err = FSRefMakePath(&fsref, reinterpret_cast<uint8_t *>(fullPath), PATH_MAX);
-		
-		if (err == noErr)
+		CFBundleRef mainBundle = CFBundleGetMainBundle();
+		if (mainBundle)
 		{
-			strncat(fullPath, "/Contents/Resources/", PATH_MAX + 4 - strlen(fullPath));
-			fullPath[PATH_MAX + 4] = '\0';
-			con_printf(CON_DEBUG, "PHYSFS: append resources directory \"%s\" to search path", fullPath);
-			PHYSFS_addToSearchPath(fullPath, 1);
+			CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
+			if (resourcesURL)
+			{
+				if (CFURLGetFileSystemRepresentation(resourcesURL, TRUE, reinterpret_cast<uint8_t *>(fullPath), sizeof(fullPath)))
+				{
+					con_printf(CON_DEBUG, "PHYSFS: append resources directory \"%s\" to search path", fullPath);
+					PHYSFS_addToSearchPath(fullPath, 1);
+				}
+			
+				CFRelease(resourcesURL);
+			}
 		}
 	}
 #elif defined(macintosh)
