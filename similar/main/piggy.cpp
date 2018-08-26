@@ -620,6 +620,7 @@ int properties_init()
 	return retval;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
+
 //initialize a pigfile, reading headers
 //returns the size of all the bitmap data
 void piggy_init_pigfile(const char *filename)
@@ -819,6 +820,7 @@ void piggy_new_pigfile(char *pigname)
 				unsigned nframes;
 
 				const std::size_t len = p - AllBitmaps[i].name.data();
+				cf_assert(len < AllBitmaps[i].name.size());
 				memcpy(basename, AllBitmaps[i].name.data(), len);
 				basename[len] = 0;
 

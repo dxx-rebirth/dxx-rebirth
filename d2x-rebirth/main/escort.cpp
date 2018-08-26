@@ -1741,7 +1741,7 @@ window_event_result escort_menu::event_handler(window *, const d_event &event, e
 void do_escort_menu(void)
 {
 	int	next_goal;
-	char	goal_str[32];
+	char	goal_str[12];
 	const char *goal_txt;
 	const char *tstr;
 	escort_menu *menu;

@@ -39,6 +39,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 #include "strutil.h"
 
+#include "compiler-cf_assert.h"
+
 namespace dcx {
 
 #define AUTOSAVE_PERIOD 5			// Number of minutes for timed autosave
@@ -66,7 +68,10 @@ void init_autosave(void) {
 void close_autosave(void) {
     char *ext;
 
-    for (int i=0;i<Autosave_total;i++) {
+	const unsigned t = Autosave_total;
+	cf_assert(t < 10);
+	for (unsigned i = 0; i < t; ++i)
+	{
 
 		char delname[PATH_MAX];
 

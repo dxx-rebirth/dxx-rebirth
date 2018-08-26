@@ -63,6 +63,7 @@
 
 #include "dxxsconf.h"
 #include "compiler-array.h"
+#include "compiler-cf_assert.h"
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "compiler-lengthof.h"
@@ -850,7 +851,7 @@ struct list_join : direct_join
 		entries = ((UDP_NETGAMES_PPAGE + 5) * 2) + 1,
 	};
 	array<newmenu_item, entries> m;
-	array<array<char, 74>, entries> ljtext;
+	array<array<char, 92>, entries> ljtext;
 };
 
 manual_join_user_inputs manual_join::s_last_inputs;
@@ -1206,7 +1207,8 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 	// Copy the active games data into the menu options
 	for (int i = 0; i < UDP_NETGAMES_PPAGE; i++)
 	{
-		int game_status = Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_status;
+		const auto &augi = Active_udp_games[(i + (NLPage * UDP_NETGAMES_PPAGE))];
+		int game_status = augi.game_status;
 		int j,x, k,nplayers = 0;
 		char levelname[8],MissName[25],GameName[25],thold[2];
 		thold[1]=0;
@@ -1224,9 +1226,9 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 		const auto &&fspacx = FSPACX();
 		for (x=0,k=0,j=0;j<15;j++)
 		{
-			if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].mission_title[j]=='\t')
+			if (augi.mission_title[j]=='\t')
 				continue;
-			thold[0]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].mission_title[j];
+			thold[0] = augi.mission_title[j];
 			int tx;
 			gr_get_string_size(*grd_curcanv->cv_font, thold, &tx, nullptr, nullptr);
 
@@ -1237,15 +1239,15 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 				break;
 			}
 
-			MissName[k++]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].mission_title[j];
+			MissName[k++] = augi.mission_title[j];
 		}
 		MissName[k]=0;
 
 		for (x=0,k=0,j=0;j<15;j++)
 		{
-			if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_name[j]=='\t')
+			if (augi.game_name[j]=='\t')
 				continue;
-			thold[0]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_name[j];
+			thold[0]=augi.game_name[j];
 			int tx;
 			gr_get_string_size(*grd_curcanv->cv_font, thold, &tx, nullptr, nullptr);
 
@@ -1255,25 +1257,32 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 				k+=3;
 				break;
 			}
-			GameName[k++]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_name[j];
+			GameName[k++]=augi.game_name[j];
 		}
 		GameName[k]=0;
 
-		nplayers = Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].numconnected;
+		nplayers = augi.numconnected;
 
-		if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].levelnum < 0)
-			snprintf(levelname, sizeof(levelname), "S%d", -Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].levelnum);
+		const int levelnum = augi.levelnum;
+		if (levelnum < 0)
+		{
+			cf_assert(-levelnum < MAX_SECRET_LEVELS_PER_MISSION);
+			snprintf(levelname, sizeof(levelname), "S%d", -levelnum);
+		}
 		else
-			snprintf(levelname, sizeof(levelname), "%d", Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].levelnum);
+		{
+			cf_assert(levelnum < MAX_LEVELS_PER_MISSION);
+			snprintf(levelname, sizeof(levelname), "%d", levelnum);
+		}
 
 		const char *status;
 		if (game_status == NETSTAT_STARTING)
 			status = "FORMING ";
 		else if (game_status == NETSTAT_PLAYING)
 		{
-			if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].RefusePlayers)
+			if (augi.RefusePlayers)
 				status = "RESTRICT";
-			else if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_flag.closed)
+			else if (augi.game_flag.closed)
 				status = "CLOSED  ";
 			else
 				status = "OPEN    ";
@@ -1281,9 +1290,9 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 		else
 			status = "BETWEEN ";
 		
-		unsigned gamemode = Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].gamemode;
+		unsigned gamemode = augi.gamemode;
 		auto &p = dj->ljtext[i];
-		snprintf(&p[0], p.size(), "%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1, GameName, (gamemode < sizeof(GMNamesShrt) / sizeof(GMNamesShrt[0])) ? GMNamesShrt[gamemode] : "INVALID", nplayers, Active_udp_games[(i + (NLPage * UDP_NETGAMES_PPAGE))].max_numplayers, MissName, levelname, status);
+		snprintf(&p[0], p.size(), "%d.\t%.24s \t%.7s \t%3u/%u \t%.24s \t %s \t%s", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1, GameName, (gamemode < sizeof(GMNamesShrt) / sizeof(GMNamesShrt[0])) ? GMNamesShrt[gamemode] : "INVALID", nplayers, augi.max_numplayers, MissName, levelname, status);
 	}
 	return 0;
 }
@@ -3464,7 +3473,9 @@ public:
 	}
 	void update_secluded_spawn_string()
 	{
-		snprintf(SecludedSpawnText, sizeof(SecludedSpawnText), "Use %u Furthest Sites", Netgame.SecludedSpawns + 1);
+		const unsigned SecludedSpawns = Netgame.SecludedSpawns;
+		cf_assert(SecludedSpawns < MAX_PLAYERS);
+		snprintf(SecludedSpawnText, sizeof(SecludedSpawnText), "Use %u Furthest Sites", SecludedSpawns + 1);
 	}
 	void update_kill_goal_string()
 	{
@@ -3712,7 +3723,9 @@ struct param_opt
 	}
 	void update_max_players_string()
 	{
-		snprintf(srmaxnet, sizeof(srmaxnet), "Maximum players: %u", Netgame.max_numplayers);
+		const unsigned max_numplayers = Netgame.max_numplayers;
+		cf_assert(max_numplayers < MAX_PLAYERS);
+		snprintf(srmaxnet, sizeof(srmaxnet), "Maximum players: %u", max_numplayers);
 	}
 };
 

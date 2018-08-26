@@ -216,10 +216,13 @@ static const char *load_mission_d1()
 			break;
 		case D1_OEM_MISSION_HOGSIZE:
 		case D1_OEM_10_MISSION_HOGSIZE:
+			{
 			N_secret_levels = 1;
 	
-			Last_level = 15;
-			Last_secret_level = -1;
+			constexpr unsigned last_level = 15;
+			constexpr int last_secret_level = -1;
+			Last_level = last_level;
+			Last_secret_level = last_secret_level;
 	
 			if (!allocate_levels())
 			{
@@ -228,14 +231,24 @@ static const char *load_mission_d1()
 			}
 			
 			//build level names
-			for (int i=0; i < Last_level - 1; i++)
-				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.rdl", i+1);
-			snprintf(&Level_names[Last_level - 1][0u], Level_names[Last_level - 1].size(), "saturn%02d.rdl", Last_level);
-			for (int i=0; i < -Last_secret_level; i++)
-				snprintf(&Secret_level_names[i][0u], Secret_level_names[i].size(), "levels%1d.rdl", i+1);
+			for (unsigned i = 0; i < last_level - 1; ++i)
+			{
+				auto &ln = Level_names[i];
+				snprintf(&ln[0u], ln.size(), "level%02u.rdl", i + 1);
+			}
+			{
+				auto &ln = Level_names[last_level - 1];
+				snprintf(&ln[0u], ln.size(), "saturn%02d.rdl", last_level);
+			}
+			for (int i = 0; i < -last_secret_level; ++i)
+			{
+				auto &sn = Secret_level_names[i];
+				snprintf(&sn[0u], sn.size(), "levels%1d.rdl", i + 1);
+			}
 			Secret_level_table[0] = 10;
 			Briefing_text_filename = "briefsat.txb";
 			Ending_text_filename = BIMD1_ENDING_FILE_OEM;
+			}
 			break;
 		default:
 			Int3(); // fall through
@@ -243,10 +256,13 @@ static const char *load_mission_d1()
 		case D1_MISSION_HOGSIZE2:
 		case D1_10_MISSION_HOGSIZE:
 		case D1_MAC_MISSION_HOGSIZE:
+			{
 			N_secret_levels = 3;
 	
-			Last_level = BIMD1_LAST_LEVEL;
-			Last_secret_level = BIMD1_LAST_SECRET_LEVEL;
+			constexpr unsigned last_level = BIMD1_LAST_LEVEL;
+			constexpr int last_secret_level = BIMD1_LAST_SECRET_LEVEL;
+			Last_level = last_level;
+			Last_secret_level = last_secret_level;
 	
 			if (!allocate_levels())
 			{
@@ -255,16 +271,23 @@ static const char *load_mission_d1()
 			}
 
 			//build level names
-			for (int i=0;i<Last_level;i++)
-				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.rdl", i+1);
-			for (int i=0;i<-Last_secret_level;i++)
-				snprintf(&Secret_level_names[i][0u], Secret_level_names[i].size(), "levels%1d.rdl", i+1);
+			for (unsigned i = 0; i < last_level; ++i)
+			{
+				auto &ln = Level_names[i];
+				snprintf(&ln[0u], ln.size(), "level%02u.rdl", i + 1);
+			}
+			for (int i = 0; i < -last_secret_level; ++i)
+			{
+				auto &sn = Secret_level_names[i];
+				snprintf(&sn[0u], sn.size(), "levels%1d.rdl", i + 1);
+			}
 			Secret_level_table[0] = 10;
 			Secret_level_table[1] = 21;
 			Secret_level_table[2] = 24;
 			Briefing_text_filename = BIMD1_BRIEFING_FILE;
 			Ending_text_filename = "endreg.txb";
 			break;
+			}
 	}
 	return nullptr;
 }

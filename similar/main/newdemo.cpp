@@ -3876,7 +3876,7 @@ static void newdemo_write_end()
 	nd_write_byte(ND_EVENT_EOF);
 }
 
-static bool guess_demo_name(ntstring<PATH_MAX - 1> &filename)
+static bool guess_demo_name(ntstring<PATH_MAX - 16> &filename)
 {
 	filename[0] = 0;
 	const auto &n = CGameArg.SysRecordDemoNameTemplate;
@@ -3964,7 +3964,7 @@ void newdemo_stop_recording()
 {
 	int exit;
 	static sbyte tmpcnt = 0;
-	ntstring<PATH_MAX - 1> filename;
+	ntstring<PATH_MAX - 16> filename;
 
 	exit = 0;
 

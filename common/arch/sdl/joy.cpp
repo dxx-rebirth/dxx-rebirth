@@ -24,6 +24,7 @@
 #include "compiler-range_for.h"
 
 #if DXX_MAX_JOYSTICKS
+#include "compiler-cf_assert.h"
 #include "compiler-integer_sequence.h"
 #include "d_enumerate.h"
 #include "partial_range.h"
@@ -294,7 +295,8 @@ void joy_init()
 
 	const auto n = check_warn_joy_support_limit(SDL_NumJoysticks(), "joystick", DXX_MAX_JOYSTICKS);
 	unsigned joystick_n_buttons = 0, joystick_n_axes = 0;
-	for (int i = 0; i < n; i++) {
+	for (unsigned i = 0; i < n; i++)
+	{
 		auto &joystick = SDL_Joysticks[num_joysticks];
 		const auto handle = SDL_JoystickOpen(i);
 		joystick.handle().reset(handle);
@@ -311,6 +313,7 @@ void joy_init()
 			joyaxis_text.resize(joyaxis_text.size() + n_axes);
 			range_for (auto &&e, enumerate(partial_range(joystick.axis_map(), n_axes), 1))
 			{
+				cf_assert(e.idx <= DXX_MAX_AXES_PER_JOYSTICK);
 				auto &text = joyaxis_text[joystick_n_axes];
 				e.value = joystick_n_axes++;
 				snprintf(&text[0], sizeof(text), "J%d A%u", i + 1, e.idx);
@@ -325,6 +328,7 @@ void joy_init()
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 			range_for (auto &&e, enumerate(partial_range(joystick.button_map(), n_buttons), 1))
 			{
+				cf_assert(e.idx <= DXX_MAX_BUTTONS_PER_JOYSTICK);
 				auto &text = joybutton_text[joystick_n_buttons];
 				e.value = joystick_n_buttons++;
 				snprintf(&text[0], sizeof(text), "J%d B%d", i + 1, e.idx);
@@ -334,6 +338,7 @@ void joy_init()
 			range_for (auto &&e, enumerate(partial_range(joystick.hat_map(), n_hats), 1))
 			{
 				e.value = joystick_n_buttons;
+				cf_assert(e.idx <= DXX_MAX_HATS_PER_JOYSTICK);
 				//a hat counts as four buttons
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, e.idx, 0202);
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, e.idx, 0177);

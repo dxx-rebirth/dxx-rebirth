@@ -893,16 +893,11 @@ void StartNewGame(int start_level)
 static void DoEndLevelScoreGlitz()
 {
 	int level_points, skill_points, energy_points, shield_points, hostage_points;
-	int	all_hostage_points;
-	int	endgame_points;
-	char	all_hostage_text[64];
-	char	endgame_text[64];
 	#define N_GLITZITEMS 9
-	char				m_str[N_GLITZITEMS][30];
+	char				m_str[N_GLITZITEMS][32];
 	newmenu_item	m[N_GLITZITEMS];
 	int				i,c;
 	char				title[128];
-	int				is_last_level;
 #if defined(DXX_BUILD_DESCENT_I)
 	gr_palette_load( gr_palette );
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -947,26 +942,7 @@ static void DoEndLevelScoreGlitz()
 		hostage_points = 0;
 	}
 
-	all_hostage_text[0] = 0;
-	endgame_text[0] = 0;
-
 	auto &plr = get_local_player();
-	if (!cheats.enabled && player_info.mission.hostages_on_board == plr.hostages_level)
-	{
-		all_hostage_points = player_info.mission.hostages_on_board * 1000 * (Difficulty_level+1);
-		snprintf(all_hostage_text, sizeof(all_hostage_text), "%s%i\n", TXT_FULL_RESCUE_BONUS, all_hostage_points);
-	} else
-		all_hostage_points = 0;
-
-	if (!cheats.enabled && !(Game_mode & GM_MULTI) && plr.lives && Current_level_num == Last_level)
-	{		//player has finished the game!
-		endgame_points = plr.lives * 10000;
-		snprintf(endgame_text, sizeof(endgame_text), "%s%i\n", TXT_SHIP_BONUS, endgame_points);
-		is_last_level=1;
-	} else
-		endgame_points = is_last_level = 0;
-
-	add_bonus_points_to_score(player_info, skill_points + energy_points + shield_points + hostage_points + all_hostage_points + endgame_points);
 
 	c = 0;
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_SHIELD_BONUS, shield_points);		// Return at start to lower menu...
@@ -974,9 +950,35 @@ static void DoEndLevelScoreGlitz()
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_HOSTAGE_BONUS, hostage_points);
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_SKILL_BONUS, skill_points);
 
-	snprintf(m_str[c++], sizeof(m_str[0]), "%s", all_hostage_text);
-	if (!(Game_mode & GM_MULTI) && plr.lives && Current_level_num == Last_level)
-		snprintf(m_str[c++], sizeof(m_str[0]), "%s", endgame_text);
+	const unsigned hostages_on_board = player_info.mission.hostages_on_board;
+	unsigned all_hostage_points = 0;
+	unsigned endgame_points = 0;
+	uint8_t	is_last_level = 0;
+	auto &hostage_text = m_str[c++];
+	if (cheats.enabled)
+		snprintf(hostage_text, sizeof(hostage_text), "Hostages saved:   \t%u", hostages_on_board);
+	else if (const auto hostages_lost = plr.hostages_level - hostages_on_board)
+		snprintf(hostage_text, sizeof(hostage_text), "Hostages lost:    \t%u", hostages_lost);
+	else
+	{
+		all_hostage_points = hostages_on_board * 1000 * (Difficulty_level + 1);
+		snprintf(hostage_text, sizeof(hostage_text), "%s%i\n", TXT_FULL_RESCUE_BONUS, all_hostage_points);
+	}
+
+	auto &endgame_text = m_str[c++];
+	endgame_text[0] = 0;
+	if (cheats.enabled)
+	{
+		/* Nothing */
+	}
+	else if (!(Game_mode & GM_MULTI) && plr.lives && Current_level_num == Last_level)
+	{		//player has finished the game!
+		endgame_points = plr.lives * 10000;
+		snprintf(endgame_text, sizeof(endgame_text), "%s%i\n", TXT_SHIP_BONUS, endgame_points);
+		is_last_level=1;
+	}
+
+	add_bonus_points_to_score(player_info, skill_points + energy_points + shield_points + hostage_points + all_hostage_points + endgame_points);
 
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i\n", TXT_TOTAL_BONUS, shield_points + energy_points + hostage_points + skill_points + all_hostage_points + endgame_points);
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_TOTAL_SCORE, player_info.mission.score);

@@ -267,7 +267,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 	bitmap_index bi;
 	int iff_error;		//reference parm to avoid warning message
 	palette_array_t newpal;
-	char tempname[20];
+	array<char, 24> tempname;
 
 	if (skip) {
 		Assert( bogus_bitmap_initialized != 0 );
@@ -293,11 +293,11 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 	unsigned i;
 	for (i=0; i<MAX_BITMAPS_PER_BRUSH; i++ )	{
 #if defined(DXX_BUILD_DESCENT_I)
-		snprintf(tempname, sizeof(tempname), "%s#%d", fname.data(), i);
+		snprintf(tempname.data(), tempname.size(), "%.16s#%d", fname.data(), i);
 #elif defined(DXX_BUILD_DESCENT_II)
-		snprintf( tempname, sizeof(tempname), "%.*s#%d", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i );
+		snprintf(tempname.data(), tempname.size(), "%.*s#%d", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i);
 #endif
-		bi = piggy_find_bitmap( tempname );
+		bi = piggy_find_bitmap(tempname.data());
 		if ( !bi.index )
 			break;
 		bmp[i] = bi;
@@ -326,13 +326,13 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 	for (uint_fast32_t i = 0; i != nf; ++i)
 	{
 #if defined(DXX_BUILD_DESCENT_I)
-		snprintf(tempname, sizeof(tempname), "%s#%" PRIuFAST32, fname.data(), i);
+		snprintf(tempname.data(), tempname.size(), "%s#%" PRIuFAST32, fname.data(), i);
 #elif defined(DXX_BUILD_DESCENT_II)
-		snprintf( tempname, sizeof(tempname), "%.*s#%" PRIuFAST32, DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i );
+		snprintf(tempname.data(), tempname.size(), "%.*s#%" PRIuFAST32, DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i );
 #endif
 		gr_remap_bitmap_good(*bm[i].get(), newpal, iff_has_transparency ? iff_transparent_color : -1, SuperX);
 		bm[i]->avg_color = compute_average_pixel(bm[i].get());
-		bmp[i] = piggy_register_bitmap(*bm[i].get(), tempname, 0);
+		bmp[i] = piggy_register_bitmap(*bm[i].get(), tempname.data(), 0);
 	}
 }
 

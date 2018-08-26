@@ -741,7 +741,7 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 {
 	int np;
 	char buf1[200];
-	char buf2[200];
+	char buf2[204];
 		
 	num_menus = state = 0;
 
@@ -786,7 +786,7 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 		CommaParse( 2, buf1, buffer );
 		ul_xlate(buf1);
 
-		item.Text.reset(d_strdup(buf1[0] == '-' ? buf1 : (snprintf(buf2, sizeof(buf2), " %s ", buf1), buf2)));
+		item.Text.reset(d_strdup(buf1[0] == '-' ? buf1 : (snprintf(buf2, sizeof(buf2), " %.197s ", buf1), buf2)));
 		
 		item.InactiveText.reset(d_strdup(item.Text.get()));
 		
