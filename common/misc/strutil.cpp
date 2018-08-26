@@ -128,17 +128,22 @@ char *(d_strdup)(const char *str, const char *var, const char *file, unsigned li
 #endif
 
 // remove extension from filename
-void removeext(const char *filename, char *out)
+void removeext(const char *const filename, array<char, 20> &out)
 {
-	const char *p;
-
-	if ((p = strrchr(filename, '.')))
+	const char *p = nullptr;
+	auto i = filename;
+	for (; const char c = *i; ++i)
 	{
-		strncpy(out, filename, p - filename);
-		out[p - filename] = 0;
+		if (c == '.')
+			p = i;
+		/* No break - find the last '.', not the first. */
 	}
-	else
-		strcpy(out, filename);
+	if (!p)
+		p = i;
+	const std::size_t rawlen = p - filename;
+	const std::size_t copy_len = rawlen < out.size() ? rawlen : 0;
+	out[copy_len] = 0;
+	memcpy(out.data(), filename, copy_len);
 }
 
 

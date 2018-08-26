@@ -225,7 +225,6 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 	bitmap_index bitmap_num;
 	palette_array_t newpal;
 	int iff_error;		//reference parm to avoid warning message
-	char fname[20];
 
 	bitmap_num.index = 0;
 
@@ -233,17 +232,18 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 		return bitmap_num;
 	}
 
+	array<char, 20> fname;
 #if defined(DXX_BUILD_DESCENT_I)
 	removeext(filename, fname);
 #elif defined(DXX_BUILD_DESCENT_II)
 	struct splitpath_t path;
 	d_splitpath(  filename, &path);
-	if (path.base_end - path.base_start >= sizeof(fname))
+	if (path.base_end - path.base_start >= fname.size())
 		Error("File <%s> - bitmap error, filename too long", filename);
-	memcpy(fname,path.base_start,path.base_end - path.base_start);
+	memcpy(fname.data(), path.base_start, path.base_end - path.base_start);
 #endif
 
-	bitmap_num=piggy_find_bitmap( fname );
+	bitmap_num = piggy_find_bitmap(fname.data());
 	if (bitmap_num.index)	{
 		return bitmap_num;
 	}
@@ -258,7 +258,7 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 
 	n.avg_color = compute_average_pixel(&n);
 
-	bitmap_num = piggy_register_bitmap(n, fname, 0);
+	bitmap_num = piggy_register_bitmap(n, fname.data(), 0);
 	return bitmap_num;
 }
 
@@ -282,7 +282,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 
 
 #if defined(DXX_BUILD_DESCENT_I)
-	char fname[20];
+	array<char, 20> fname;
 	removeext(filename, fname);
 #elif defined(DXX_BUILD_DESCENT_II)
 	struct splitpath_t path;
@@ -293,7 +293,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 	unsigned i;
 	for (i=0; i<MAX_BITMAPS_PER_BRUSH; i++ )	{
 #if defined(DXX_BUILD_DESCENT_I)
-		snprintf(tempname, sizeof(tempname), "%s#%d", fname, i);
+		snprintf(tempname, sizeof(tempname), "%s#%d", fname.data(), i);
 #elif defined(DXX_BUILD_DESCENT_II)
 		snprintf( tempname, sizeof(tempname), "%.*s#%d", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i );
 #endif
@@ -326,7 +326,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 	for (uint_fast32_t i = 0; i != nf; ++i)
 	{
 #if defined(DXX_BUILD_DESCENT_I)
-		snprintf(tempname, sizeof(tempname), "%s#%" PRIuFAST32, fname, i);
+		snprintf(tempname, sizeof(tempname), "%s#%" PRIuFAST32, fname.data(), i);
 #elif defined(DXX_BUILD_DESCENT_II)
 		snprintf( tempname, sizeof(tempname), "%.*s#%" PRIuFAST32, DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i );
 #endif
@@ -339,7 +339,6 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 int ds_load(int skip, const char * filename )	{
 	int i;
 	digi_sound n;
-	char fname[20];
 	char rawname[100];
 
 	if (skip) {
@@ -348,14 +347,15 @@ int ds_load(int skip, const char * filename )	{
 		return piggy_register_sound( &bogus_sound, "bogus", 1 );
 	}
 
+	array<char, 20> fname;
 	removeext(filename, fname);
 #if defined(DXX_BUILD_DESCENT_I)
-	snprintf(rawname, sizeof(rawname), "Sounds/%s.raw", fname);
+	snprintf(rawname, sizeof(rawname), "Sounds/%s.raw", fname.data());
 #elif defined(DXX_BUILD_DESCENT_II)
-	snprintf(rawname, sizeof(rawname), "Sounds/%s.%s", fname, (GameArg.SndDigiSampleRate==SAMPLE_RATE_22K) ? "r22" : "raw");
+	snprintf(rawname, sizeof(rawname), "Sounds/%s.%s", fname.data(), (GameArg.SndDigiSampleRate==SAMPLE_RATE_22K) ? "r22" : "raw");
 #endif
 
-	i=piggy_find_sound( fname );
+	i = piggy_find_sound(fname.data());
 	if (i!=255)	{
 		return i;
 	}
@@ -369,7 +369,7 @@ int ds_load(int skip, const char * filename )	{
 	} else {
 		return 255;
 	}
-	i = piggy_register_sound( &n, fname, 0 );
+	i = piggy_register_sound(&n, fname.data(), 0);
 	return i;
 }
 
