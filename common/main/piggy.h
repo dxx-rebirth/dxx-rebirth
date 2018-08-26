@@ -168,7 +168,7 @@ extern void remove_char( char * s, char c );	// in piggy.c
 #define REMOVE_COMMENTS(s)	remove_char((s),';')
 #define REMOVE_DOTS(s)  	remove_char((s),'.')
 
-extern int Num_bitmap_files;
+extern unsigned Num_bitmap_files;
 extern int Num_sound_files;
 extern ubyte bogus_bitmap_initialized;
 namespace dsx {

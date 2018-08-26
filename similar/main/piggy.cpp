@@ -109,7 +109,7 @@ array<int, MAX_BITMAP_FILES> GameBitmapOffset;
 }
 #endif
 
-int Num_bitmap_files = 0;
+unsigned Num_bitmap_files;
 int Num_sound_files = 0;
 
 namespace dsx {
@@ -420,21 +420,8 @@ int properties_init()
 	int Pigdata_start;
 	int pigsize;
 	int retval;
-	for (unsigned i = 0; i < MAX_SOUND_FILES; ++i)
-	{
-#ifdef ALLEGRO
-		GameSounds[i].len = 0;
-#else
-		GameSounds[i].length = 0;
-#endif
-		GameSounds[i].data = NULL;
-		SoundOffset[i] = 0;
-
-//added on 11/13/99 by Victor Rachels to ready for changing freq
-                GameSounds[i].bits = 0;
-                GameSounds[i].freq = 0;
-//end this section addition - VR
-	}
+	GameSounds = {};
+	SoundOffset = {};
 
 	static_assert(GameBitmapXlat.size() == GameBitmaps.size(), "size mismatch");
 	for (unsigned i = 0; i < GameBitmaps.size(); ++i)
@@ -1613,15 +1600,14 @@ void remove_char( char * s, char c )
 
 #if defined(DXX_BUILD_DESCENT_II)
 #if DXX_USE_EDITOR
-static int piggy_does_bitmap_exist_slow(const char * name )
+static const BitmapFile *piggy_does_bitmap_exist_slow(const char *const name)
 {
-	int i;
-
-	for (i=0; i<Num_bitmap_files; i++ ) {
-		if ( !strcmp( AllBitmaps[i].name, name) )
-			return 1;
+	range_for (auto &i, partial_const_range(AllBitmaps, Num_bitmap_files))
+	{
+		if (!strcmp(i.name, name))
+			return &i;
 	}
-	return 0;
+	return nullptr;
 }
 
 
@@ -1658,14 +1644,14 @@ constexpr char gauge_bitmap_names[][9] = {
 #endif
 };
 
-static int piggy_is_gauge_bitmap(const char * base_name )
+static const char (*piggy_is_gauge_bitmap(const char *const base_name))[9]
 {
-	for (unsigned i=0; i<sizeof(gauge_bitmap_names)/sizeof(gauge_bitmap_names[0]); i++ ) {
-		if ( !d_stricmp( base_name, gauge_bitmap_names[i] ))
-			return 1;
+	range_for (auto &i, gauge_bitmap_names)
+	{
+		if (!d_stricmp(base_name, i))
+			return &i;
 	}
-
-	return 0;
+	return nullptr;
 }
 
 static int piggy_is_substitutable_bitmap(char * name, char (&subst_name)[32])
