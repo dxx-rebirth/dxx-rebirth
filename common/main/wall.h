@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "fwd-wall.h"
+#include "fwd-object.h"
 #include "pack.h"
 
 namespace dcx {
@@ -78,13 +79,13 @@ struct WALL_IS_DOORWAY_result_t
 			return !(*this == t);
 		}
 };
-#endif
 
 struct stuckobj : public prohibit_void_ptr<stuckobj>
 {
 	objnum_t objnum = object_none;
 	wallnum_t wallnum = wall_none;
 };
+#endif
 
 //Start old wall structures
 
@@ -111,6 +112,7 @@ struct v19_wall : public prohibit_void_ptr<v19_wall>
 	int linked_wall;            // number of linked wall
 };
 
+#ifdef dsx
 class d_level_unique_stuck_object_state
 {
 protected:
@@ -119,6 +121,7 @@ protected:
 public:
 	void init_stuck_objects();
 };
+#endif
 
 }
 

@@ -55,6 +55,7 @@ struct vertex_vertnum_pair
 };
 using vertex_vertnum_array_list = array<vertex_vertnum_pair, 6>;
 
+#ifdef dsx
 __attribute_warn_unused_result
 uint_fast32_t find_connect_side(vcsegidx_t base_seg, const shared_segment &con_seg);
 
@@ -79,6 +80,7 @@ static inline side_vertnum_list_t get_side_verts(const shared_segment &segnum, c
 	side_vertnum_list_t r;
 	return get_side_verts(r, segnum, sidenum), r;
 }
+#endif
 }
 
 #ifdef dsx
