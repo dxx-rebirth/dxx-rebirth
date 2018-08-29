@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "makesig.h"
 #include "console.h"
+#include "compiler-cf_assert.h"
 #include "compiler-range_for.h"
 #include "compiler-make_unique.h"
 #include "partial_range.h"
