@@ -3206,7 +3206,8 @@ class PCHManager(object):
 	@classmethod
 	def write_pch_inclusion_file(cls,target,source,env):
 		target = str(target[0])
-		fd, path = cls._tempfile_mkstemp(suffix='', prefix='%s.' % os.path.basename(target), dir=os.path.dirname(target), text=True)
+		dn, bn = os.path.split(target)
+		fd, path = cls._tempfile_mkstemp(suffix='', prefix='%s.' % bn, dir=dn, text=True)
 		# source[0].get_contents() returns the comment-stripped form
 		os.write(fd, source[0].__generated_pch_text)
 		os.close(fd)
@@ -4773,7 +4774,8 @@ class DXXProgram(DXXCommon):
 			node.append('\t%s\n' % f.node)
 			# Sacrifice some precision so that the printed output is
 			# valid shell input.
-			command.append('\n %s' % ' '.join(f.command))
+			c = f.command
+			command.append('\n %s' % (' '.join(c) if isinstance(c, list) else c))
 		if not total:
 			return
 		print("Failed target count: total=%u; targets with enable_build_failure_summary=1: %u" % (total, len(node)))
