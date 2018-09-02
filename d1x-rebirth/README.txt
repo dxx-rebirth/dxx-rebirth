@@ -2,7 +2,7 @@
 __________/ D1X-Rebirth /
 
 
-http://www.dxx-rebirth.com
+https://www.dxx-rebirth.com
 
 
 0. Introduction:
@@ -66,5 +66,5 @@ http://www.dxx-rebirth.com
 5. Contact:
 ===========
 
-   http://www.dxx-rebirth.com/
+   https://www.dxx-rebirth.com/
    zico [at] dxx-rebirth [dot] com

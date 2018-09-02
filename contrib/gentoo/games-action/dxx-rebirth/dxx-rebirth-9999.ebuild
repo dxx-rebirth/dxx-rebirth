@@ -23,7 +23,7 @@ else
 fi
 
 DESCRIPTION="Descent Rebirth - enhanced Descent 1 & 2 engine"
-HOMEPAGE="http://www.dxx-rebirth.com/"
+HOMEPAGE="https://www.dxx-rebirth.com/"
 
 LICENSE="DXX-Rebirth GPL-3"
 SLOT="0"

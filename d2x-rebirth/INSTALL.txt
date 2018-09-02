@@ -47,13 +47,13 @@ Compiling:
    if they were downloaded outside of Mac OS 9 (including Mac OS X). This will also need to be done after any
    Terminal command (diff, svn update etc) edits the source files. THIS MAKEFILE IS GROSSLY OUT OF DATE!!
 
-   Note that there are ready-to-go packages on http://www.dxx-rebirth.com   
+   Note that there are ready-to-go packages on https://www.dxx-rebirth.com   
 
    Win32:
    ------
    Use the SCons way like described in the *NIX-instructions from an MSYS/MinGW environment. However you will
    not need to use 'install' but just drag the resulting binary to your Descent-folder.
-   Note that there are ready-to-go packages on http://www.dxx-rebirth.com 
+   Note that there are ready-to-go packages on https://www.dxx-rebirth.com 
    
 
 Needed files:
@@ -92,7 +92,7 @@ Needed files:
    another license for multiplayer. ;)
 
    Of course you can also use the Interactive Demo game content with D2X-Rebirth which you can find here:
-   http://www.dxx-rebirth.com/game-content/
+   https://www.dxx-rebirth.com/game-content/
 
 
 Where to put these files:
@@ -132,7 +132,7 @@ Optional files:
    Those can be found on several websites. Add them to the game by copying them to subdirectory
    ‘missions/’. They can also go in subdirectories of 'missions/', unlike with the original version.
    A good place to find additional mission might be the Descent mission Database:
-   http://www.dxx-rebirth.com/descent-mission-database/
+   https://www.dxx-rebirth.com/descent-mission-database/
 
    Custom Music (MP3, OGG, AIF, etc.):
    -----------------------------------
@@ -145,7 +145,7 @@ Optional files:
    be installed by putting them to where your game content resides (OS-dependent - see above).
    NO EXTRACTION OR ADDITIONAL CONFIGURATION NEEDED.
    You can find all official AddOns here:
-   http://www.dxx-rebirth.com/addons/
+   https://www.dxx-rebirth.com/addons/
    
 
 Launching the program

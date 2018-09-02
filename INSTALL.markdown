@@ -7,12 +7,12 @@ The DXX-Rebirth maintainers have no control over the sites linked below.  The ma
 
 ### Prerequisites
 
-* [Python 2.x](https://www.python.org/) to run [scons](http://www.scons.org/), the processor for SConstruct scripts.
+* [Python 2.x](https://www.python.org/) to run [scons](https://www.scons.org/), the processor for SConstruct scripts.
 [Python 2.7](https://www.python.org/downloads/release/python-2714/) is recommended.
 As of this writing, **scons** does not support Python 3.x, but has plans to do so.
 * C++ compiler with support for selected C++11 features.  One of:
     * [gcc](https://gcc.gnu.org/) 4.9.4 or later
-    * [clang](http://clang.llvm.org/) 3.3 or later
+    * [clang](https://clang.llvm.org/) 3.3 or later
     * Microsoft Visual Studio is **not** supported at this time.
 	  Support for Microsoft Visual Studio will be added when it
 	  implements sufficient C++11 features for the code to build with
@@ -31,7 +31,7 @@ Optional, but recommended:
 SDL\_mixer 2 is **not** supported at this time.
 * C++ compiler with support for selected C++14 features.  One of:
     * [gcc](https://gcc.gnu.org/) 4.9.4 or later
-    * [clang](http://clang.llvm.org/) 3.4 or later
+    * [clang](https://clang.llvm.org/) 3.4 or later
 
 Unless otherwise noted, using the newest release available is recommended.  For example, prefer gcc-5.4 to gcc-4.9, even though both should work.
 
@@ -48,8 +48,8 @@ If you are not sure whether your system is Windows x86 or Windows x64, use the p
 * C++ compiler
     * mingw-gcc: [Getting Started](http://www.mingw.org/wiki/Getting_Started) |
 	[Direct download](https://sourceforge.net/projects/mingw/files/latest/download)
-    * [clang](http://llvm.org/releases/3.6.2/LLVM-3.6.2-win32.exe)
-	([.sig](http://llvm.org/releases/3.6.2/LLVM-3.6.2-win32.exe.sig))
+    * [clang](https://llvm.org/releases/3.6.2/LLVM-3.6.2-win32.exe)
+	([.sig](https://llvm.org/releases/3.6.2/LLVM-3.6.2-win32.exe.sig))
 * [SDL 1.2 x86 zip](https://www.libsdl.org/release/SDL-1.2.15-win32.zip) |
 [SDL 1.2 x64 zip](https://www.libsdl.org/release/SDL-1.2.15-win32-x64.zip)
 * No published PhysFS package for Windows is known.
@@ -195,4 +195,4 @@ For Windows and Linux, DXX-Rebirth installs only the main game binary.  The bina
 
 As a convenience, if **register\_install\_target=True**, **SConstruct** registers a pseudo-target named **install** which copies the compiled files to *DESTDIR*__/__*BINDIR*.  By default, **register\_install\_target=True**, *DESTDIR* is *empty*, and *BINDIR* is *PREFIX*__/bin__, which expands to **/usr/local/bin**.
 
-DXX-Rebirth [requires game data](http://www.dxx-rebirth.com/game-content/) to play.  The build system has no support for interacting with game data.  You can get [Descent 1 PC shareware data](http://www.dxx-rebirth.com/download/dxx/content/descent-pc-shareware.zip) and [Descent 2 PC demo data](http://www.dxx-rebirth.com/download/dxx/content/descent2-pc-demo.zip) from the DXX-Rebirth website.  Full game data is supported (and recommended), but is not freely available.  You can [buy full Descent 1 game data](https://www.gog.com/game/descent) and/or [buy full Descent 2 game data](https://www.gog.com/game/descent_2) from GOG.com.  Historically, both Descent 1 and Descent 2 were sold as a single unit.  After a nearly two-year hiatus from sale, the games returned to GOG.com in November 2017 as separate units.  DXX-Rebirth contains engines for both games.  Each engine works for its respective game without the data from the other, so players who wish to purchase only one game may do so.
+DXX-Rebirth [requires game data](https://www.dxx-rebirth.com/game-content/) to play.  The build system has no support for interacting with game data.  You can get [Descent 1 PC shareware data](https://www.dxx-rebirth.com/download/dxx/content/descent-pc-shareware.zip) and [Descent 2 PC demo data](https://www.dxx-rebirth.com/download/dxx/content/descent2-pc-demo.zip) from the DXX-Rebirth website.  Full game data is supported (and recommended), but is not freely available.  You can [buy full Descent 1 game data](https://www.gog.com/game/descent) and/or [buy full Descent 2 game data](https://www.gog.com/game/descent_2) from GOG.com.  Historically, both Descent 1 and Descent 2 were sold as a single unit.  After a nearly two-year hiatus from sale, the games returned to GOG.com in November 2017 as separate units.  DXX-Rebirth contains engines for both games.  Each engine works for its respective game without the data from the other, so players who wish to purchase only one game may do so.

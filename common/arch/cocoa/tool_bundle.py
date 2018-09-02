@@ -1,6 +1,6 @@
 # Create an application package.
 
-# http://www.scons.org/wiki/SubstInFileBuilder
+# https://www.scons.org/wiki/SubstInFileBuilder
 
 import re
 from SCons.Script import *
@@ -73,7 +73,7 @@ def TOOL_SUBST(env):
     subst_action=SCons.Action.Action(subst_in_file, subst_in_file_string)
     env['BUILDERS']['SubstInFile'] = env.Builder(action=subst_action, emitter=subst_emitter)
 
-# http://www.scons.org/wiki/MacOSX (modified to suit)
+# https://www.scons.org/wiki/MacOSX (modified to suit)
 
 from SCons.Defaults import SharedCheck, ProgScan
 from SCons.Script.SConscript import SConsEnvironment

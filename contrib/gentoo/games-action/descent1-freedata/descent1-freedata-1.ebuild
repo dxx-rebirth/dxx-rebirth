@@ -4,18 +4,18 @@ EAPI=6
 
 DXX_ENGINE="${PN:7:1}"
 DESCRIPTION="Free content for games-action/d${DXX_ENGINE}x-rebirth"
-HOMEPAGE="http://www.dxx-rebirth.com/"
+HOMEPAGE="https://www.dxx-rebirth.com/"
 IUSE="l10n_de opl3-musicpack sc55-musicpack"
 SRC_URI="
-	l10n_de? ( http://www.dxx-rebirth.com/download/dxx/res/d${DXX_ENGINE}xr-briefings-ger.dxa )
-	opl3-musicpack? ( http://www.dxx-rebirth.com/download/dxx/res/d${DXX_ENGINE}xr-opl3-music.dxa )
-	sc55-musicpack? ( http://www.dxx-rebirth.com/download/dxx/res/d${DXX_ENGINE}xr-sc55-music.dxa )
+	l10n_de? ( https://www.dxx-rebirth.com/download/dxx/res/d${DXX_ENGINE}xr-briefings-ger.dxa )
+	opl3-musicpack? ( https://www.dxx-rebirth.com/download/dxx/res/d${DXX_ENGINE}xr-opl3-music.dxa )
+	sc55-musicpack? ( https://www.dxx-rebirth.com/download/dxx/res/d${DXX_ENGINE}xr-sc55-music.dxa )
 "
 
 if [[ "${PN}" = descent1-freedata ]]; then
 	IUSE+=" +textures"
 	SRC_URI+="
-	textures? ( http://www.dxx-rebirth.com/download/dxx/res/d1xr-hires.dxa )
+	textures? ( https://www.dxx-rebirth.com/download/dxx/res/d1xr-hires.dxa )
 "
 fi
 

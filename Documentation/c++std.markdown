@@ -77,28 +77,28 @@ If `std::index_sequence` is not available, then [`common/include/compiler-intege
 If `std::make_unique` is available, then [`common/include/compiler-make_unique.h`][src:compiler-make_unique.h] uses `using std::make_unique;` to bring `make_unique` into the global namespace.
 If `std::make_unique` is not available, then [`common/include/compiler-make_unique.h`][src:compiler-make_unique.h] provides a simple implementation of `make_unique` in the global namespace.
 
-[cppr:cpp/language/reference]: http://en.cppreference.com/w/cpp/language/reference
-[cppr:cpp/language/parameter_pack]: http://en.cppreference.com/w/cpp/language/parameter_pack
-[cppr:cpp/language/auto]: http://en.cppreference.com/w/cpp/language/auto
-[cppr:cpp/language/lambda]: http://en.cppreference.com/w/cpp/language/lambda
-[cppr:cpp/language/decltype]: http://en.cppreference.com/w/cpp/language/decltype
-[cppr:cpp/language/type_alias]: http://en.cppreference.com/w/cpp/language/type_alias
-[cppr:cpp/language/nullptr]: http://en.cppreference.com/w/cpp/language/nullptr
-[scppr:enum class]: http://en.cppreference.com/w/cpp/language/enum#Scoped_enumerations.28since_C.2B.2B11.29
-[scppr:enum fwd]: http://en.cppreference.com/w/cpp/language/enum#Unscoped_enumeration
-[cppr:cpp/language/constexpr]: http://en.cppreference.com/w/cpp/language/constexpr
-[cppr:cpp/language/cast_operator]: http://en.cppreference.com/w/cpp/language/cast_operator
-[cppr:cpp/language/function#Function_definition]: http://en.cppreference.com/w/cpp/language/function#Function_definition
-[cppr:cpp/memory/unique_ptr]: http://en.cppreference.com/w/cpp/memory/unique_ptr
-[cppr:cpp/utility/exchange]: http://en.cppreference.com/w/cpp/utility/exchange
-[cppr:cpp/utility/integer_sequence]: http://en.cppreference.com/w/cpp/utility/integer_sequence
-[cppr:cpp/memory/unique_ptr/make_unique]: http://en.cppreference.com/w/cpp/memory/unique_ptr/make_unique
-[scppr:rvalue method]: http://en.cppreference.com/w/cpp/language/member_functions#const-.2C_volatile-.2C_and_ref-qualified_member_functions
-[cppr:cpp/language/using_declaration]: http://en.cppreference.com/w/cpp/language/using_declaration
-[cppr:cpp/language/range-for]: http://en.cppreference.com/w/cpp/language/range-for
-[cppr:cpp/language/static_assert]: http://en.cppreference.com/w/cpp/language/static_assert
+[cppr:cpp/language/reference]: https://en.cppreference.com/w/cpp/language/reference
+[cppr:cpp/language/parameter_pack]: https://en.cppreference.com/w/cpp/language/parameter_pack
+[cppr:cpp/language/auto]: https://en.cppreference.com/w/cpp/language/auto
+[cppr:cpp/language/lambda]: https://en.cppreference.com/w/cpp/language/lambda
+[cppr:cpp/language/decltype]: https://en.cppreference.com/w/cpp/language/decltype
+[cppr:cpp/language/type_alias]: https://en.cppreference.com/w/cpp/language/type_alias
+[cppr:cpp/language/nullptr]: https://en.cppreference.com/w/cpp/language/nullptr
+[scppr:enum class]: https://en.cppreference.com/w/cpp/language/enum#Scoped_enumerations.28since_C.2B.2B11.29
+[scppr:enum fwd]: https://en.cppreference.com/w/cpp/language/enum#Unscoped_enumeration
+[cppr:cpp/language/constexpr]: https://en.cppreference.com/w/cpp/language/constexpr
+[cppr:cpp/language/cast_operator]: https://en.cppreference.com/w/cpp/language/cast_operator
+[cppr:cpp/language/function#Function_definition]: https://en.cppreference.com/w/cpp/language/function#Function_definition
+[cppr:cpp/memory/unique_ptr]: https://en.cppreference.com/w/cpp/memory/unique_ptr
+[cppr:cpp/utility/exchange]: https://en.cppreference.com/w/cpp/utility/exchange
+[cppr:cpp/utility/integer_sequence]: https://en.cppreference.com/w/cpp/utility/integer_sequence
+[cppr:cpp/memory/unique_ptr/make_unique]: https://en.cppreference.com/w/cpp/memory/unique_ptr/make_unique
+[scppr:rvalue method]: https://en.cppreference.com/w/cpp/language/member_functions#const-.2C_volatile-.2C_and_ref-qualified_member_functions
+[cppr:cpp/language/using_declaration]: https://en.cppreference.com/w/cpp/language/using_declaration
+[cppr:cpp/language/range-for]: https://en.cppreference.com/w/cpp/language/range-for
+[cppr:cpp/language/static_assert]: https://en.cppreference.com/w/cpp/language/static_assert
 [src:compiler-exchange.h]: ../common/include/compiler-exchange.h
 [src:compiler-integer_sequence.h]: ../common/include/compiler-integer_sequence.h
-[scppr:make_integer_sequence]: http://en.cppreference.com/w/cpp/utility/integer_sequence#Helper_templates
+[scppr:make_integer_sequence]: https://en.cppreference.com/w/cpp/utility/integer_sequence#Helper_templates
 [gccbug:66059]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66059
 [src:compiler-make_unique.h]: ../common/include/compiler-make_unique.h

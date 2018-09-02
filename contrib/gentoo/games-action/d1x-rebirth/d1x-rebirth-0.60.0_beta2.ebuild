@@ -13,7 +13,7 @@ EAPI=6
 # version number.
 MY_ENGINE="${PN:1:1}"
 DESCRIPTION="Descent Rebirth - enhanced Descent $MY_ENGINE engine"
-HOMEPAGE="http://www.dxx-rebirth.com/"
+HOMEPAGE="https://www.dxx-rebirth.com/"
 SRC_URI=""
 
 LICENSE="DXX-Rebirth GPL-3"

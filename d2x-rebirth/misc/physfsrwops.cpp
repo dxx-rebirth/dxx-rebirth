@@ -1,5 +1,5 @@
 /*
- * This file is part of the DXX-Rebirth project <http://www.dxx-rebirth.com/>.
+ * This file is part of the DXX-Rebirth project <https://www.dxx-rebirth.com/>.
  * It is copyright by its individual contributors, as recorded in the
  * project's Git history.  See COPYING.txt at the top level for license
  * terms and a link to the Git history.
@@ -21,7 +21,7 @@
  * Unless otherwise stated, the rest of PhysicsFS falls under the zlib license.
  *  Please see LICENSE in the root of the source tree.
  *
- * SDL falls under the LGPL license. You can get SDL at http://www.libsdl.org/
+ * SDL falls under the LGPL license. You can get SDL at https://www.libsdl.org/
  *
  *  This file was written by Ryan C. Gordon. (icculus@clutteredmind.org).
  */
