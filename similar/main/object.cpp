@@ -2162,14 +2162,15 @@ static void obj_detach_all(object_array &Objects, object_base &parent)
 imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segnum, const vms_matrix &orient, int marker_num)
 {
 	Assert(Marker_model_num != -1);
-	auto obj = obj_create(OBJ_MARKER, marker_num, segnum, pos, &orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_NONE, RT_POLYOBJ);
+	const auto &&obj = obj_create(OBJ_MARKER, marker_num, segnum, pos, &orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_SPINNING, RT_POLYOBJ);
 	if (obj != object_none) {
-		obj->rtype.pobj_info.model_num = Marker_model_num;
+		auto &o = *obj;
+		o.rtype.pobj_info.model_num = Marker_model_num;
 
-		vm_vec_copy_scale(obj->mtype.spin_rate,obj->orient.uvec,F1_0/2);
+		vm_vec_copy_scale(o.mtype.spin_rate, o.orient.uvec, F1_0 / 2);
 
 		//	MK, 10/16/95: Using lifeleft to make it flash, thus able to trim lightlevel from all objects.
-		obj->lifeleft = IMMORTAL_TIME - 1;
+		o.lifeleft = IMMORTAL_TIME - 1;
 	}
 	return obj;	
 }
