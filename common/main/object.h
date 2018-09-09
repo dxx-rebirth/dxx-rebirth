@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-object.h"
 #include "weapon.h"
 #include "powerup.h"
+#include "compiler-integer_sequence.h"
 #include "compiler-poison.h"
 #include "player-flags.h"
 
@@ -557,6 +558,21 @@ struct obj_position
 		dxx_object_movement_type_ref.movement_type = static_cast<movement_type_t>(dxx_object_movement_type_value);	\
 	} DXX_END_COMPOUND_STATEMENT )
 
+template <typename T, std::size_t... N>
+constexpr array<T, sizeof...(N)> init_object_number_array(index_sequence<N...>)
+{
+	return {{((void)N, object_none)...}};
+}
+
+template <typename T, std::size_t N>
+struct object_number_array : array<T, N>
+{
+	constexpr object_number_array() :
+		array<T, N>(init_object_number_array<T>(make_tree_index_sequence<N>()))
+	{
+	}
+};
+
 }
 
 #define Highest_object_index (Objects.get_count() - 1)
@@ -569,7 +585,7 @@ struct d_level_object_state
 {
 	unsigned num_objects = 0;
 	unsigned Debris_object_count = 0;
-	array<objnum_t, MAX_OBJECTS> free_obj_list;
+	object_number_array<imobjidx_t, MAX_OBJECTS> free_obj_list;
 	auto &get_objects()
 	{
 		return Objects;

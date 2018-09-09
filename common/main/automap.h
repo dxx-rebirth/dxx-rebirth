@@ -48,7 +48,7 @@ extern array<ubyte, MAX_SEGMENTS> Automap_visited;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-#include "fwd-object.h"
+#include "object.h"
 #include "ntstring.h"
 #include "fwd-window.h"
 #include "segment.h"
@@ -70,8 +70,7 @@ struct marker_message_text_t : ntstring<MARKER_MESSAGE_LEN - 1>
 
 struct d_marker_object_numbers
 {
-	array<imobjidx_t, NUM_MARKERS> imobjidx;
-	constexpr d_marker_object_numbers();
+	object_number_array<imobjidx_t, NUM_MARKERS> imobjidx;
 };
 
 struct d_marker_state : d_marker_object_numbers

@@ -235,21 +235,10 @@ static void automap_build_edge_list(automap *am, int add_all_edges);
 #define	MAX_DROP_SINGLE	9
 
 #if defined(DXX_BUILD_DESCENT_II)
-#include "compiler-integer_sequence.h"
 
 namespace dsx {
 marker_message_text_t Marker_input;
 static float MarkerScale=2.0;
-
-template <std::size_t... N>
-static constexpr array<imobjidx_t, sizeof...(N)> init_MarkerObject(index_sequence<N...>)
-{
-	return {{((void)N, object_none)...}};
-}
-
-constexpr d_marker_object_numbers::d_marker_object_numbers() : imobjidx(init_MarkerObject(make_tree_index_sequence<NUM_MARKERS>()))
-{
-}
 
 d_marker_state MarkerState;
 
