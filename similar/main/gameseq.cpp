@@ -250,7 +250,7 @@ static void gameseq_init_network_players(object_array &objects)
 				k++;
 			}
 			else
-				obj_delete(o);
+				obj_delete(ObjectState, Segments, o);
 			j++;
 		}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -258,7 +258,7 @@ static void gameseq_init_network_players(object_array &objects)
 		{
 			auto &ri = Robot_info[get_robot_id(o)];
 			if (robot_is_companion(ri) || (robot_is_thief(ri) && remove_thief))
-				obj_delete(o);		//kill the buddy in netgames
+				obj_delete(ObjectState, Segments, o);		//kill the buddy in netgames
 		}
 #endif
 	}
@@ -283,7 +283,7 @@ void gameseq_remove_unused_players()
 	{		// Note link to above if!!!
 		range_for (auto &i, partial_const_range(Players, 1u, NumNetPlayerPositions))
 		{
-			obj_delete(vmobjptridx(i.objnum));
+			obj_delete(ObjectState, Segments, vmobjptridx(i.objnum));
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		if (PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent)
@@ -295,7 +295,7 @@ void gameseq_remove_unused_players()
 				{
 					auto &ri = Robot_info[get_robot_id(o)];
 					if (robot_is_thief(ri))
-						obj_delete(o);
+						obj_delete(ObjectState, Segments, o);
 				}
 			}
 		}

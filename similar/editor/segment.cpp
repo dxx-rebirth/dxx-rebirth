@@ -872,7 +872,7 @@ int med_delete_segment(const vmsegptridx_t sp)
 				compute_segment_center(vcvertptr, ConsoleObject->pos,Cursegp);
 				obj_relink(vmobjptr, vmsegptr, objnum, Cursegp);
 			} else
-				obj_delete(objnum);
+				obj_delete(ObjectState, Segments, objnum);
 		}
 
 	// Make sure everything deleted ok...

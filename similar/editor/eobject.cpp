@@ -427,7 +427,7 @@ int ObjectDelete(void)
 		auto delete_objnum = Cur_object_index;
 		ObjectSelectNextinSegment();
 
-		obj_delete(vmobjptridx(delete_objnum));
+		obj_delete(ObjectState, Segments, vmobjptridx(delete_objnum));
 
 		if (delete_objnum == Cur_object_index)
 			Cur_object_index = object_none;

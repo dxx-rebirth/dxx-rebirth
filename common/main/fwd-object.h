@@ -235,7 +235,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id, vmsegptridx_t segnum, con
 imobjptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, vmsegptridx_t newsegnum);
 
 // remove object from the world
-void obj_delete(vmobjptridx_t objnum);
+void obj_delete(d_level_object_state &ObjectState, segment_array &Segments, vmobjptridx_t objnum);
 
 // called after load.  Takes number of objects, and objects should be
 // compressed

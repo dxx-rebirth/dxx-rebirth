@@ -2324,7 +2324,7 @@ static void multi_do_drop_marker(object_array &objects, fvmsegptridx &vmsegptrid
 
 	auto &mo = MarkerState.imobjidx[mnum];
 	if (mo != object_none)
-		obj_delete(objects.vmptridx(mo));
+		obj_delete(ObjectState, Segments, objects.vmptridx(mo));
 
 	const auto &&plr_objp = objects.vcptr(vcplayerptr(pnum)->objnum);
 	mo = drop_marker_object(position, vmsegptridx(plr_objp->segnum), plr_objp->orient, mnum);
@@ -3338,7 +3338,7 @@ void multi_prep_level_objects()
 		if ((o->type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
 			const auto objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, vmsegptridx(o->segnum), o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
-			obj_delete(o);
+			obj_delete(ObjectState, Segments, o);
 			if (objnum != object_none)
 			{
 				objnum->rtype.vclip_info.vclip_num = Powerup_info[POW_SHIELD_BOOST].vclip_num;
@@ -3674,7 +3674,7 @@ void multi_update_objects_for_non_cooperative()
 				if (objp->contains_count && (objp->contains_type == OBJ_POWERUP))
 					object_create_robot_egg(objp);
 #endif
-			obj_delete(objp);
+			obj_delete(ObjectState, Segments, objp);
 		}
 	}
 	powerup_shuffle.shuffle();

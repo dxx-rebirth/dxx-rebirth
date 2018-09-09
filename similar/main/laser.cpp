@@ -366,7 +366,7 @@ static int omega_cleanup(fvcobjptr &vcobjptr, const vmobjptridx_t weapon)
 	if (objp->signature == parent_sig)
 		if (vm_vec_dist2(weapon->pos, objp->pos) > MAX_OMEGA_DIST_SQUARED)
 		{
-			obj_delete(weapon);
+			obj_delete(ObjectState, Segments, weapon);
 			return 1;
 		}
 
@@ -562,7 +562,7 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 		auto &player_info = parent_objp->ctype.player_info;
 		auto &Omega_charge = player_info.Omega_charge;
 		if (!((Omega_charge >= MIN_OMEGA_CHARGE) || (Omega_charge && !player_info.energy))) {
-			obj_delete(weapon_objp);
+			obj_delete(ObjectState, Segments, weapon_objp);
 			return;
 		}
 
@@ -596,7 +596,7 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 	// -- }
 
 	//	Delete the original object.  Its only purpose in life was to determine which object to home in on.
-	obj_delete(weapon_objp);
+	obj_delete(ObjectState, Segments, weapon_objp);
 
 	//	If couldn't lock on anything, fire straight ahead.
 	if (lock_objnum == object_none) {
@@ -1592,7 +1592,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 			(get_weapon_id(obj) != weapon_id_type::FLARE_ID) &&
 			(Weapon_info[get_weapon_id(obj)].speed[Difficulty_level] > 0) &&
 			(vm_vec_mag_quick(obj->mtype.phys_info.velocity) < F2_0)) {
-		obj_delete(obj);
+		obj_delete(ObjectState, Segments, obj);
 		return;
 	}
 

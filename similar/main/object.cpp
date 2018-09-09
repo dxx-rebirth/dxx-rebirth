@@ -1208,15 +1208,16 @@ imobjptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, c
 #endif
 
 //remove object from the world
-void obj_delete(const vmobjptridx_t obj)
+void obj_delete(d_level_object_state &ObjectState, segment_array &Segments, const vmobjptridx_t obj)
 {
+	auto &Objects = ObjectState.get_objects();
 	Assert(obj->type != OBJ_NONE);
 	Assert(obj != ConsoleObject);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (obj->type==OBJ_WEAPON && get_weapon_id(obj)==weapon_id_type::GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER)
 	{
-		const auto pnum = get_player_id(vcobjptr(obj->ctype.laser_info.parent_num));
+		const auto pnum = get_player_id(Objects.vcptr(obj->ctype.laser_info.parent_num));
 
 		if (pnum!=Player_num) {
 			Guided_missile[pnum]=NULL;
@@ -1272,7 +1273,7 @@ void dead_player_end(void)
 		newdemo_record_restore_cockpit();
 
 	Player_dead_state = player_dead_state::no;
-	obj_delete(vmobjptridx(Dead_player_camera));
+	obj_delete(ObjectState, Segments, vmobjptridx(Dead_player_camera));
 	Dead_player_camera = NULL;
 	select_cockpit(PlayerCfg.CockpitMode[0]);
 	Viewer = Viewer_save;
@@ -1554,7 +1555,7 @@ static void obj_delete_all_that_should_be_dead()
 					// kill_player();
 				}
 			} else {					
-				obj_delete(objp);
+				obj_delete(ObjectState, Segments, objp);
 			}
 		}
 	}
@@ -2087,9 +2088,8 @@ void clear_transient_objects(int clear_all)
 		if (object_is_clearable_weapon(Weapon_info, obj, clear_all) ||
 			 obj->type == OBJ_FIREBALL ||
 			 obj->type == OBJ_DEBRIS ||
-			 obj->type == OBJ_DEBRIS ||
 			 (obj->type!=OBJ_NONE && obj->flags & OF_EXPLODING)) {
-			obj_delete(obj);
+			obj_delete(ObjectState, Segments, obj);
 		}
 	}
 }
