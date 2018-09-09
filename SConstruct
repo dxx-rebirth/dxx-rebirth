@@ -2724,10 +2724,10 @@ class LazyObjectConstructor(object):
 		name = (id(env), id(source))
 		value = cache.get(name)
 		if value is None:
-			prepare_target_name = '{}{}{}'.format
+			prepare_target_name = '{}{}'.format
 			StaticObject = env.StaticObject
 			OBJSUFFIX = env['OBJSUFFIX']
-			builddir = self.user_settings.builddir
+			builddir = self.builddir
 			value = []
 			append = value.append
 			for s in source:
@@ -2735,7 +2735,7 @@ class LazyObjectConstructor(object):
 				transform_env = s.transform_env
 				StaticObject_hook = s.StaticObject_hook
 				for srcname in s.sources:
-					target = prepare_target_name(builddir, transform_target(self, srcname), OBJSUFFIX)
+					target = builddir.File(prepare_target_name(transform_target(self, srcname), OBJSUFFIX))
 					s = StaticObject(target=target, source=srcname,
 							**({} if transform_env is None else transform_env(self, env))
 							)
@@ -2830,13 +2830,13 @@ class PCHManager(object):
 		from tempfile import mkstemp
 		cls._tempfile_mkstemp = staticmethod(mkstemp)
 
-	def __init__(self,user_settings,env,pch_subdir,configure_pch_flags,common_pch_manager):
+	def __init__(self,program,configure_pch_flags,common_pch_manager):
 		if self._re_preproc_match is None:
 			self.__initialize_cls_static_variables()
 			assert self._re_preproc_match is not None
+		self.user_settings = user_settings = program.user_settings
 		assert user_settings.syspch or user_settings.pch
-		self.user_settings = user_settings
-		self.env = env
+		self.env = env = program.env
 		# dict with key=fs.File, value=ScannedFile
 		self._instance_scanned_files = {}
 		self._common_pch_manager = common_pch_manager
@@ -2844,20 +2844,22 @@ class PCHManager(object):
 		syspch_object_node = None
 		CXXFLAGS = env['CXXFLAGS'] + configure_pch_flags['CXXFLAGS']
 		File = env.File
+		builddir = program.builddir
+		pch_subdir_node = builddir.Dir(program.srcdir)
 		if user_settings.syspch:
-			self.syspch_cpp_filename = syspch_cpp_filename = os.path.join(user_settings.builddir, pch_subdir, 'syspch.cpp')
-			self.syspch_cpp_node = File(syspch_cpp_filename)
+			self.syspch_cpp_node = pch_subdir_node.File('syspch.cpp')
+			self.syspch_cpp_filename = syspch_cpp_filename = str(self.syspch_cpp_node)
 			self.required_pch_object_node = self.syspch_object_node = syspch_object_node = env.StaticObject(target='%s.gch' % syspch_cpp_filename, source=self.syspch_cpp_node, CXXCOM=env._dxx_cxxcom_no_ccache_prefix, CXXFLAGS=CXXFLAGS)
 		if user_settings.pch:
-			self.ownpch_cpp_filename = ownpch_cpp_filename = os.path.join(user_settings.builddir, pch_subdir, 'ownpch.cpp')
-			self.ownpch_cpp_node = File(ownpch_cpp_filename)
+			self.ownpch_cpp_node = pch_subdir_node.File('ownpch.cpp')
+			self.ownpch_cpp_filename = ownpch_cpp_filename = str(self.ownpch_cpp_node)
 			if syspch_object_node:
-				CXXFLAGS += ['-include', syspch_cpp_filename, '-Winvalid-pch']
+				CXXFLAGS += ['-include', syspch_cpp_node, '-Winvalid-pch']
 			self.required_pch_object_node = self.ownpch_object_node = ownpch_object_node = env.StaticObject(target='%s.gch' % ownpch_cpp_filename, source=self.ownpch_cpp_node, CXXCOM=env._dxx_cxxcom_no_ccache_prefix, CXXFLAGS=CXXFLAGS)
-			env.Depends(ownpch_object_node, File(os.path.join(user_settings.builddir, 'dxxsconf.h')))
+			env.Depends(ownpch_object_node, builddir.File('dxxsconf.h'))
 			if syspch_object_node:
 				env.Depends(ownpch_object_node, syspch_object_node)
-		self.pch_CXXFLAGS = ['-include', ownpch_cpp_filename or syspch_cpp_filename, '-Winvalid-pch']
+		self.pch_CXXFLAGS = ['-include', self.ownpch_cpp_node or syspch_cpp_node, '-Winvalid-pch']
 		# If assume unchanged and the file exists, set __files_included
 		# to a dummy value.  This bypasses scanning source files and
 		# guarantees that the text of pch.cpp is not changed.  SCons
@@ -3777,11 +3779,11 @@ class DXXCommon(LazyObjectConstructor):
 
 	def create_header_targets(self,__shared_header_file_list=[],__shared_cpp_dict={}):
 		fs = SCons.Node.FS.get_default_fs()
-		builddir = self.user_settings.builddir
 		env = self.env
+		builddir = self.builddir
 		check_header_includes = __shared_cpp_dict.get(builddir)
 		if check_header_includes is None:
-			check_header_includes = env.File(os.path.join(builddir, 'check_header_includes.cpp'))
+			check_header_includes = builddir.File('check_header_includes.cpp')
 			# Generate the list once, on first use.  Any other targets
 			# will reuse it.
 			#
@@ -3856,7 +3858,7 @@ class DXXCommon(LazyObjectConstructor):
 			__shared_header_file_list.extend([h for h in headers.split('\0') if h and not h.startswith(excluded_directories)])
 			if not __shared_header_file_list:
 				raise SCons.Errors.StopError("`git ls-files` found headers, but none can be checked.")
-		dirname = os.path.join(builddir, self.srcdir)
+		subbuilddir = builddir.Dir(self.srcdir, 'chi')
 		Depends = env.Depends
 		StaticObject = env.StaticObject
 		CPPFLAGS_template = env['CPPFLAGS']
@@ -3864,7 +3866,7 @@ class DXXCommon(LazyObjectConstructor):
 		CPPFLAGS_with_sconf = ['-include', 'dxxsconf.h'] + CPPFLAGS_no_sconf
 		CXXCOMSTR = env.__header_check_output_COMSTR
 		CXXFLAGS = env['CXXFLAGS']
-		target = os.path.join('%s/chi/${DXX_EFFECTIVE_SOURCE}%s' % (dirname, env['OBJSUFFIX']))
+		target = os.path.join('%s/${DXX_EFFECTIVE_SOURCE}%s' % (subbuilddir, env['OBJSUFFIX']))
 		for name in __shared_header_file_list:
 			if not name:
 				continue
@@ -3925,7 +3927,7 @@ class DXXCommon(LazyObjectConstructor):
 			self._register_runtime_test_link_targets()
 		configure_pch_flags = archive.configure_pch_flags
 		if configure_pch_flags:
-			self.pch_manager = PCHManager(self.user_settings, self.env, self.srcdir, configure_pch_flags, archive.pch_manager)
+			self.pch_manager = PCHManager(self, configure_pch_flags, archive.pch_manager)
 
 	@staticmethod
 	def _quote_cppdefine(s,f=repr,b2a_hex=binascii.b2a_hex):
@@ -4051,6 +4053,7 @@ class DXXCommon(LazyObjectConstructor):
 		if user_settings.editor:
 			add_flags['CPPPATH'].append('common/include/editor')
 		CLVar = SCons.Util.CLVar
+		self.builddir = env.Dir(user_settings.builddir)
 		for flags in ('CPPFLAGS', 'CXXFLAGS', 'LIBS', 'LINKFLAGS'):
 			value = getattr(self.user_settings, flags)
 			if value is not None:
@@ -4287,9 +4290,13 @@ class DXXArchive(DXXCommon):
 	def configure_environment(self):
 		fs = SCons.Node.FS.get_default_fs()
 		user_settings = self.user_settings
-		builddir = fs.Dir(user_settings.builddir or '.')
+		builddir = user_settings.builddir or '.'
+		try:
+			builddir = fs.Dir(builddir)
+		except TypeError as e:
+			raise SCons.Errors.StopError(e.args[0])
 		tests = ConfigureTests(self.program_message_prefix, user_settings, self.platform_settings)
-		log_file=fs.File('sconf.log', builddir)
+		log_file = builddir.File('sconf.log')
 		env = self.env
 		conf = env.Configure(custom_tests = {
 				k.name:getattr(tests, k.name) for k in tests.custom_tests
@@ -4362,17 +4369,17 @@ class DXXArchive(DXXCommon):
 class DXXProgram(DXXCommon):
 	LazyObjectState = DXXCommon.LazyObjectState
 	def _generate_kconfig_ui_table(program,env,source,target,kconfig_static_object):
-			builddir = '%s%s' % (program.user_settings.builddir, program.target)
+			builddir = program.builddir.Dir(program.target)
 			kwargs = {}
 			# Bypass ccache, if any, since this is a preprocess only
 			# call.
 			kwargs['CXXFLAGS'] = (env['CXXFLAGS'] or []) + ['-E']
-			cpp_kconfig_udlr = env._rebirth_nopch_StaticObject(target=target[:-1] + 'ui-table.i', source=source[:-3] + 'ui-table.cpp', CXXCOM=env._dxx_cxxcom_no_ccache_prefix, **kwargs)
-			generated_udlr_header = env.File('%s/kconfig.udlr.h' % builddir)
+			cpp_kconfig_udlr = env._rebirth_nopch_StaticObject(target=str(target)[:-1] + 'ui-table.i', source=source[:-3] + 'ui-table.cpp', CXXCOM=env._dxx_cxxcom_no_ccache_prefix, **kwargs)
+			generated_udlr_header = builddir.File('kconfig.udlr.h')
 			generate_kconfig_udlr = env.File('similar/main/generate-kconfig-udlr.py')
 			env.Command(generated_udlr_header, [cpp_kconfig_udlr, generate_kconfig_udlr], [[sys.executable, generate_kconfig_udlr, '$SOURCE', '$TARGET']])
 			env.Depends(kconfig_static_object, generated_udlr_header)
-			return kconfig_static_object
+
 	static_archive_construction = {}
 	def _apply_target_name(self,name):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
@@ -4647,7 +4654,7 @@ class DXXProgram(DXXCommon):
 			exe_target = os.path.join(self.srcdir, self.target)
 			if user_settings.editor:
 				exe_target += '-editor'
-		exe_target = os.path.join(user_settings.builddir, exe_target)
+		exe_target = self.builddir.File(exe_target)
 		env = self.env
 		PROGSUFFIX = env['PROGSUFFIX']
 		if PROGSUFFIX and not exe_target.endswith(PROGSUFFIX):
