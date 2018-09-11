@@ -3460,6 +3460,11 @@ class DXXCommon(LazyObjectConstructor):
 			tests = __get_configure_tests(conftests)
 			expect_sconf_tuple = ('0', '1', conftests.expect_sconf_success, conftests.expect_sconf_failure)
 			sconf_tuple = ('0', '1', '2', conftests.sconf_force_failure, conftests.sconf_force_success, conftests.sconf_assume_success)
+			sys_platform = sys.platform
+			if sys_platform.startswith('linux'):
+				sys_platform = 'linux'
+			elif sys_platform.startswith('openbsd'):
+				sys_platform = 'openbsd'
 			return (
 			{
 				'variable': EnumVariable,
@@ -3484,6 +3489,14 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': EnumVariable,
 				'arguments': (
+					('host_platform',
+						sys_platform,
+						'cross-compile to specified platform',
+						{
+							'map': {'msys2':'win32'},
+							'allowed_values' : ('darwin', 'linux', 'openbsd', 'win32'),
+							}
+						),
 					('raspberrypi', None, 'build for Raspberry Pi (automatically selects opengles)', {'ignorecase': 2, 'map': {'1':'yes', 'true':'yes', '0':'no', 'false':'no'}, 'allowed_values': ('yes', 'no', 'mesa')}),
 				),
 			},
@@ -3590,7 +3603,6 @@ class DXXCommon(LazyObjectConstructor):
 				'variable': EnumVariable,
 				'arguments': (
 					('host_endian', None, 'endianness of host platform', {'allowed_values' : ('little', 'big')}),
-					('host_platform', sys.platform.rstrip('0123456789'), 'cross-compile to specified platform', {'allowed_values' : ('darwin', 'linux', 'openbsd', 'win32')}),
 					('screenshot', 'png', 'screenshot file format', {'allowed_values' : ('none', 'legacy', 'png')}),
 				),
 			},
