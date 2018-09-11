@@ -3725,9 +3725,15 @@ class DXXCommon(LazyObjectConstructor):
 		def __init__(self,program,user_settings):
 			self.__program = program
 			self.user_settings = user_settings
+
+		@property
+		def builddir(self):
+			return self.__program.builddir
+
 		@property
 		def env(self):
 			return self.__program.env
+
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		ogllibs = ['opengl32']
@@ -4654,11 +4660,11 @@ class DXXProgram(DXXCommon):
 			exe_target = os.path.join(self.srcdir, self.target)
 			if user_settings.editor:
 				exe_target += '-editor'
-		exe_target = self.builddir.File(exe_target)
 		env = self.env
 		PROGSUFFIX = env['PROGSUFFIX']
 		if PROGSUFFIX and not exe_target.endswith(PROGSUFFIX):
 			exe_target += PROGSUFFIX
+		exe_target = self.builddir.File(exe_target)
 		if user_settings.register_compile_target:
 			exe_target = self._register_program(exe_target)
 			ToolchainInformation.show_partial_environ(env, user_settings, lambda s, _message=message, _self=self: _message(self, s))
