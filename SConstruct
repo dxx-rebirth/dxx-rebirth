@@ -1039,9 +1039,11 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 				endian = 1
 		context.Result('%s: checking endian to use...%s' % (self.msgprefix, __endian_names[endian]))
 		self._define_macro(context, 'DXX_WORDS_BIGENDIAN', endian)
+
 	@_custom_test
 	def _check_user_settings_words_need_alignment(self,context):
 		self._result_check_user_setting(context, self.user_settings.words_need_alignment, 'DXX_WORDS_NEED_ALIGNMENT', 'word alignment fixups')
+
 	@_custom_test
 	def _check_user_settings_opengl(self,context):
 		user_settings = self.user_settings
@@ -1056,27 +1058,34 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		else:
 			s = 'software renderer'
 		Result('%s: building with %s' % (self.msgprefix, s))
+
 	def _result_check_user_setting(self,context,condition,CPPDEFINES,label,int=int,str=str):
 		if isinstance(CPPDEFINES, str):
 			self._define_macro(context, CPPDEFINES, int(condition))
 		elif condition:
 			self.successful_flags['CPPDEFINES'].extend(CPPDEFINES)
 		context.Result('%s: checking whether to enable %s...%s' % (self.msgprefix, label, 'yes' if condition else 'no'))
+
 	@_custom_test
 	def _check_user_settings_debug(self,context,_CPPDEFINES=(('NDEBUG',), ('RELEASE',))):
 		self._result_check_user_setting(context, not self.user_settings.debug, _CPPDEFINES, 'release options')
+
 	@_custom_test
 	def _check_user_settings_memdebug(self,context,_CPPDEFINES=(('DEBUG_MEMORY_ALLOCATIONS',),)):
 		self._result_check_user_setting(context, self.user_settings.memdebug, _CPPDEFINES, 'memory allocation tracking')
+
 	@_custom_test
 	def _check_user_settings_editor(self,context,_CPPDEFINES='DXX_USE_EDITOR'):
 		self._result_check_user_setting(context, self.user_settings.editor, _CPPDEFINES, 'level editor')
+
 	@_custom_test
 	def _check_user_settings_ipv6(self,context,_CPPDEFINES='DXX_USE_IPv6'):
 		self._result_check_user_setting(context, self.user_settings.ipv6, _CPPDEFINES, 'IPv6 support')
+
 	@_custom_test
 	def _check_user_settings_udp(self,context,_CPPDEFINES='DXX_USE_UDP'):
 		self._result_check_user_setting(context, self.user_settings.use_udp, _CPPDEFINES, 'multiplayer over UDP')
+
 	@_custom_test
 	def _check_user_settings_tracker(self,context,_CPPDEFINES='DXX_USE_TRACKER'):
 		use_tracker = self.user_settings.use_tracker
@@ -1089,6 +1098,12 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		if use_tracker:
 			self.check_curl(context)
 			self.check_jsoncpp(context)
+
+	@_custom_test
+	def _check_user_settings_sharepath(self,context):
+		sharepath = self.user_settings.sharepath
+		self._define_macro(context, 'DXX_USE_SHAREPATH', int(not not sharepath))
+		context.Result('%s: checking default path to game data...%r' % (self.msgprefix, sharepath or None))
 
 	@_implicit_test
 	def check_libpng(self,context,
@@ -1485,6 +1500,7 @@ void a()__attribute__((%s("a called")));
 			macro_value = self.comment_not_supported
 		Define(macro_name, macro_value)
 		self.__defined_macros += '#define %s %s\n' % (macro_name, macro_value)
+
 	@_custom_test
 	def check_builtin_bswap(self,context,
 		_main='''
@@ -1602,6 +1618,7 @@ static int x(int y){
 			self.Compile(context, text=f % '2', main=main, msg='whether compiler accepts __builtin_constant_p')
 			dxx_builtin_constant_p = '((void)(A),0)'
 		Define('dxx_builtin_constant_p(A)', dxx_builtin_constant_p)
+
 	@_custom_test
 	def check_builtin_expect(self,context):
 		"""
@@ -1626,6 +1643,7 @@ return __builtin_expect(argc == 1, 1) ? 1 : 0;
 		Define = context.sconf.Define
 		Define('likely(A)', likely)
 		Define('unlikely(A)', unlikely)
+
 	@_custom_test
 	def check_builtin_file(self,context):
 		if self.Compile(context, text='''
@@ -1634,6 +1652,7 @@ static void f(const char * = __builtin_FILE(), unsigned = __builtin_LINE())
 }
 ''', main='f();', msg='whether compiler accepts __builtin_FILE, __builtin_LINE'):
 			context.sconf.Define('DXX_HAVE_CXX_BUILTIN_FILE_LINE')
+
 	@_custom_test
 	def check_builtin_object_size(self,context):
 		"""
@@ -1666,6 +1685,7 @@ static inline int a(char *c){
 			context.sconf.Define('DXX_HAVE_BUILTIN_OBJECT_SIZE')
 		else:
 			self.Compile(context, text=f % '2', main=main, msg='whether compiler accepts __builtin_object_size')
+
 	@_custom_test
 	def check_embedded_compound_statement(self,context,
 		_compound_statement_native=('', ''),
@@ -1689,6 +1709,7 @@ available.
 		Define = context.sconf.Define
 		Define('DXX_BEGIN_COMPOUND_STATEMENT', t[0])
 		Define('DXX_END_COMPOUND_STATEMENT', t[1])
+
 	@_custom_test
 	def check_compiler_always_error_optimizer(self,context,
 	# Good case: <gcc-6 takes this path.  Declare a function with
@@ -1809,6 +1830,7 @@ help:assume compiler supports __attribute__((always_inline))
 		macro_name = '__attribute_always_inline()'
 		macro_value = '__attribute__((__always_inline__))'
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test='%s static inline void a(){}' % macro_name, main='a();', msg='for function __attribute__((always_inline))')
+
 	@_custom_test
 	def check_attribute_alloc_size(self,context):
 		"""
@@ -1934,6 +1956,7 @@ fail.
 	def __skip_missing_cxx_std(self,level,text,kwargs):
 		if self.__cxx_conformance < level:
 			kwargs.setdefault('skipped', text)
+
 	@_custom_test
 	def check_cxx11_static_assert(self,context,_f='''
 static_assert(%(expr)s, "global");
@@ -3415,8 +3438,14 @@ class DXXCommon(LazyObjectConstructor):
 			if self.raspberrypi == 'yes':
 				return 'brcmEGL'
 			return self.default_EGL_LIB
+
 		def __default_DATA_DIR(self):
-			return '%s/share/games/%s' % (self.prefix, self._program.target)
+			platform_settings_type = self._program.get_platform_settings_type(self.host_platform)
+			sharepath = platform_settings_type.sharepath
+			if sharepath is None:
+				return None
+			return sharepath(prefix=self.prefix, program_target=self._program.target)
+
 		def _generic_variable(key,help,default):
 			return (key, help, default)
 		def __get_configure_tests(tests,_filter=lambda s: s.name[0] != '_'):
@@ -3493,7 +3522,7 @@ class DXXCommon(LazyObjectConstructor):
 						sys_platform,
 						'cross-compile to specified platform',
 						{
-							'map': {'msys2':'win32'},
+							'map': {'msys':'win32'},
 							'allowed_values' : ('darwin', 'linux', 'openbsd', 'win32'),
 							}
 						),
@@ -3516,7 +3545,7 @@ class DXXCommon(LazyObjectConstructor):
 					('opengles_lib', self.selected_OGLES_LIB, 'name of the OpenGL ES library to link against'),
 					('egl_lib', self.selected_EGL_LIB, 'name of the OpenGL ES Graphics Library to link against'),
 					('prefix', self._default_prefix, 'installation prefix directory (Linux only)'),
-					('sharepath', self.__default_DATA_DIR, 'directory for shared game data (Linux only)'),
+					('sharepath', self.__default_DATA_DIR, 'directory for shared game data'),
 				),
 			},
 			{
@@ -3624,11 +3653,14 @@ class DXXCommon(LazyObjectConstructor):
 			},
 		)
 		_generic_variable = staticmethod(_generic_variable)
+
 		@staticmethod
 		def _names(name,prefix):
 			return ['%s%s%s' % (p, '_' if p else '', name) for p in prefix]
+
 		def __init__(self,program=None):
 			self._program = program
+
 		def register_variables(self,prefix,variables,filtered_help):
 			self.known_variables = []
 			append_known_variable = self.known_variables.append
@@ -3734,6 +3766,8 @@ class DXXCommon(LazyObjectConstructor):
 		tools = ('g++', 'gnulink')
 		ogllibs = []
 		platform_objects = ()
+		sharepath = None
+
 		def __init__(self,program,user_settings):
 			self.__program = program
 			self.user_settings = user_settings
@@ -3780,6 +3814,7 @@ class DXXCommon(LazyObjectConstructor):
 				env.Append(FRAMEWORKS = ['OpenGL'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
+		sharepath = '{prefix}/share/games/{program_target}'.format
 		@property
 		def ogllibs(self):
 			user_settings = self.user_settings
@@ -4093,15 +4128,19 @@ class DXXCommon(LazyObjectConstructor):
 			machine = None
 		message(self, "compiling on %r/%r for %r into %s%s" % (sys.platform, machine, platform_name, self.user_settings.builddir or '.',
 			(' with prefix list %s' % str(self._argument_prefix_list)) if self._argument_prefix_list else ''))
+		return self.get_platform_settings_type(platform_name)(self, self.user_settings)
+
+	@classmethod
+	def get_platform_settings_type(cls,platform_name):
 		# By happy accident, LinuxPlatformSettings produces the desired
 		# result on OpenBSD, so there is no need for specific handling
 		# of `platform_name == 'openbsd'`.
 		return (
-			self.Win32PlatformSettings if platform_name == 'win32' else (
-				self.DarwinPlatformSettings if platform_name == 'darwin' else
-				self.LinuxPlatformSettings
+			cls.Win32PlatformSettings if platform_name == 'win32' else (
+				cls.DarwinPlatformSettings if platform_name == 'darwin' else
+				cls.LinuxPlatformSettings
 			)
-		)(self, self.user_settings)
+		)
 
 	@cached_property
 	def env(self):
@@ -4564,7 +4603,6 @@ class DXXProgram(DXXCommon):
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
 		def __init__(self,program,user_settings):
 			DXXCommon.Win32PlatformSettings.__init__(self,program,user_settings)
-			user_settings.sharepath = ''
 		def adjust_environment(self,program,env):
 			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
 			rcdir = 'similar/arch/win32'
@@ -4586,7 +4624,6 @@ class DXXProgram(DXXCommon):
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
 		def __init__(self,program,user_settings):
 			DXXCommon.DarwinPlatformSettings.__init__(self,program,user_settings)
-			user_settings.sharepath = ''
 		def adjust_environment(self,program,env):
 			DXXCommon.DarwinPlatformSettings.adjust_environment(self, program, env)
 			VERSION = '%s.%s' % (program.VERSION_MAJOR, program.VERSION_MINOR)
@@ -4654,7 +4691,7 @@ class DXXProgram(DXXCommon):
 		sharepath = self.user_settings.sharepath
 		# Must use [] here, not (), since it is concatenated with other
 		# lists.
-		env.__dxx_CPPDEFINE_SHAREPATH = [('SHAREPATH', self._quote_cppdefine(sharepath, f=str))] if sharepath else []
+		env.__dxx_CPPDEFINE_SHAREPATH = [('DXX_SHAREPATH', self._quote_cppdefine(sharepath, f=str))] if sharepath else []
 		env.Append(
 			CPPDEFINES = [
 				self.env_CPPDEFINES,
