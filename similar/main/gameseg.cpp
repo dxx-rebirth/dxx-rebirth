@@ -600,7 +600,7 @@ static imsegptridx_t trace_segs(const vms_vector &p0, const vmsegptridx_t oldseg
 	array<fix, 6> side_dists;
 	fix biggest_val;
 	int sidenum, bit, biggest_side;
-	if (recursion_count >= Num_segments) {
+	if (recursion_count >= LevelSharedSegmentState.Num_segments) {
 		con_puts(CON_DEBUG, "trace_segs: Segment not found");
 		return segment_none;
 	}

@@ -799,9 +799,9 @@ int load_mine_data(PHYSFS_File *LoadFile)
 	#endif
 
 	Num_vertices = mine_fileinfo.vertex_howmany;
-	Num_segments = mine_fileinfo.segment_howmany;
 	Vertices.set_count(Num_vertices);
-	Segments.set_count(Num_segments);
+	LevelSharedSegmentState.Num_segments = mine_fileinfo.segment_howmany;
+	Segments.set_count(LevelSharedSegmentState.Num_segments);
 
 	reset_objects(ObjectState, 1);		//one object, the player
 
@@ -810,7 +810,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 	Segments.set_count(MAX_SEGMENTS);
 	set_vertex_counts();
 	Vertices.set_count(Num_vertices);
-	Segments.set_count(Num_segments);
+	Segments.set_count(LevelSharedSegmentState.Num_segments);
 
 	warn_if_concave_segments();
 	#endif
@@ -909,14 +909,15 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 
 	DXX_POISON_VAR(Segments, 0xfc);
 	if (New_file_format_load)
-		Num_segments = PHYSFSX_readShort(LoadFile);
+		LevelSharedSegmentState.Num_segments = PHYSFSX_readShort(LoadFile);
 	else
-		Num_segments = PHYSFSX_readInt(LoadFile);
-	Assert( Num_segments <= MAX_SEGMENTS );
+		LevelSharedSegmentState.Num_segments = PHYSFSX_readInt(LoadFile);
+	assert(LevelSharedSegmentState.Num_segments <= MAX_SEGMENTS);
 
 	range_for (auto &i, partial_range(Vertices, Num_vertices))
 		PHYSFSX_readVector(LoadFile, i);
 
+	const auto Num_segments = LevelSharedSegmentState.Num_segments;
 	for (segnum_t segnum=0; segnum < Num_segments; segnum++ )	{
 		const auto segp = vmsegptr(segnum);
 

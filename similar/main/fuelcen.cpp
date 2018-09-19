@@ -112,7 +112,7 @@ static void reset_all_robot_centers() __attribute_used;
 static void reset_all_robot_centers()
 {
 	// Remove all materialization centers
-	range_for (auto &i, partial_range(Segments, Num_segments))
+	range_for (auto &i, partial_range(Segments, LevelSharedSegmentState.Num_segments))
 		if (i.special == SEGMENT_IS_ROBOTMAKER)
 		{
 			i.special = SEGMENT_IS_NOTHING;

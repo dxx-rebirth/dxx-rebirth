@@ -1038,7 +1038,7 @@ void do_automap()
 	am->segment_limit = 1;
 	am->num_edges = 0;
 	am->end_valid_edges = 0;
-	const auto max_edges = Num_segments * 12;
+	const auto max_edges = LevelSharedSegmentState.Num_segments * 12;
 	am->max_edges = max_edges;
 	am->edges = make_unique<Edge_info[]>(max_edges);
 	am->drawingListBright = make_unique<Edge_info *[]>(max_edges);

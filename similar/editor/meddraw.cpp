@@ -555,7 +555,7 @@ static void draw_mine(const vmsegptridx_t mine_ptr,int depth)
 {
 	visited_segment_bitarray_t visited;
 
-	edge_list_size = min(Num_segments * 12, MAX_EDGES.value);		//make maybe smaller than max
+	edge_list_size = min(LevelSharedSegmentState.Num_segments * 12, MAX_EDGES.value);		//make maybe smaller than max
 
 	// clear edge list
 	clear_edge_list();
@@ -573,7 +573,7 @@ static void draw_mine(const vmsegptridx_t mine_ptr,int depth)
 //	A segment is drawn if its segnum != -1.
 static void draw_mine_all(int automap_flag)
 {
-	edge_list_size = min(Num_segments * 12, MAX_EDGES.value);		//make maybe smaller than max
+	edge_list_size = min(LevelSharedSegmentState.Num_segments * 12, MAX_EDGES.value);		//make maybe smaller than max
 
 	// clear edge list
 	clear_edge_list();

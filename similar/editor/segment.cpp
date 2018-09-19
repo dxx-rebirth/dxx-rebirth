@@ -156,7 +156,7 @@ segnum_t get_free_segment_number(segment_array &Segments)
 {
 	for (segnum_t segnum=0; segnum<MAX_SEGMENTS; segnum++)
 		if (Segments[segnum].segnum == segment_none) {
-			Num_segments++;
+			++ LevelSharedSegmentState.Num_segments;
 			if (segnum > Highest_segment_index)
 				Segments.set_count(segnum + 1);
 			return segnum;
@@ -442,7 +442,7 @@ static void compress_vertices(void)
 // --------------------------------------------------------------------------------------------------
 static void compress_segments(void)
 {
-	if (Highest_segment_index == Num_segments - 1)
+	if (Highest_segment_index == LevelSharedSegmentState.Num_segments - 1)
 		return;
 
 	segnum_t		hole,seg;
@@ -518,7 +518,7 @@ static void compress_segments(void)
 			}	// end if (seg > hole)
 		}	// end if
 
-	Segments.set_count(Num_segments);
+	Segments.set_count(LevelSharedSegmentState.Num_segments);
 	med_create_new_segment_from_cursegp();
 
 }
@@ -801,7 +801,7 @@ int med_delete_segment(const vmsegptridx_t sp)
 {
 	segnum_t segnum = sp;
 	// Cannot delete segment if only segment.
-	if (Num_segments == 1)
+	if (LevelSharedSegmentState.Num_segments == 1)
 		return 1;
 
 	// Don't try to delete if segment doesn't exist.
@@ -814,7 +814,7 @@ int med_delete_segment(const vmsegptridx_t sp)
 
 	delete_vertices_in_segment(sp);
 
-	Num_segments--;
+	-- LevelSharedSegmentState.Num_segments;
 
 	// If deleted segment has walls on any side, wipe out the wall.
 	for (unsigned side = 0; side < MAX_SIDES_PER_SEGMENT; ++side)
@@ -1194,7 +1194,7 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptri
 void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp)
 {
 	int			f;
-	Num_segments++;
+	++ LevelSharedSegmentState.Num_segments;
 
 	sp->segnum = 1;						// What to put here?  I don't know.
 

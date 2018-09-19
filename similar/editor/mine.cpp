@@ -368,7 +368,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	texture_offset = editor_offset + sizeof(mine_editor);
 	vertex_offset  = texture_offset + (13*NumTextures);
 	segment_offset = vertex_offset + (sizeof(vms_vector)*Num_vertices);
-	newsegment_offset = segment_offset + (sizeof(segment)*Num_segments);
+	newsegment_offset = segment_offset + (sizeof(segment) * LevelSharedSegmentState.Num_segments);
 	newseg_verts_offset = newsegment_offset + sizeof(segment);
 	walls_offset = newseg_verts_offset + (sizeof(vms_vector)*8);
 	triggers_offset =	walls_offset + (sizeof(wall)*Num_walls);
@@ -387,7 +387,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	mine_fileinfo.vertex_howmany    =   Num_vertices;
 	mine_fileinfo.vertex_sizeof     =   sizeof(vms_vector);
 	mine_fileinfo.segment_offset    =   segment_offset;
-	mine_fileinfo.segment_howmany   =   Num_segments;
+	mine_fileinfo.segment_howmany   =   LevelSharedSegmentState.Num_segments;
 	mine_fileinfo.segment_sizeof    =   sizeof(segment);
 	mine_fileinfo.newseg_verts_offset     =   newseg_verts_offset;
 	mine_fileinfo.newseg_verts_howmany    =   8;
@@ -408,7 +408,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	//===================== SAVE HEADER INFO ========================
 
 	mine_header.num_vertices        =   Num_vertices;
-	mine_header.num_segments        =   Num_segments;
+	mine_header.num_segments        =   LevelSharedSegmentState.Num_segments;
 
 	// Write the editor info
 	if (header_offset != PHYSFS_tell(SaveFile))
@@ -456,7 +456,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 		Error( "OFFSETS WRONG IN MINE.C!" );
 	Error("Sorry, v20 segment support is broken.");
 #if 0
-	PHYSFS_write( SaveFile, &Segments.front(), sizeof(segment), Num_segments );
+	PHYSFS_write(SaveFile, &Segments.front(), sizeof(segment), LevelSharedSegmentState.Num_segments);
 
 	//===================== SAVE NEWSEGMENT INFO ======================
 
@@ -572,17 +572,18 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 	if (New_file_format_save)
 	{
 		PHYSFS_writeSLE16(SaveFile, Num_vertices);					// 2 bytes = Num_vertices
-		PHYSFS_writeSLE16(SaveFile, Num_segments);					// 2 bytes = Num_segments
+		PHYSFS_writeSLE16(SaveFile, LevelSharedSegmentState.Num_segments);					// 2 bytes = Num_segments
 	}
 	else
 	{
 		PHYSFS_writeSLE32(SaveFile, Num_vertices);					// 4 bytes = Num_vertices
-		PHYSFS_writeSLE32(SaveFile, Num_segments);					// 4 bytes = Num_segments
+		PHYSFS_writeSLE32(SaveFile, LevelSharedSegmentState.Num_segments);					// 4 bytes = Num_segments
 	}
 
 	range_for (auto &i, partial_const_range(Vertices, Num_vertices))
 		PHYSFSX_writeVector(SaveFile, i);
 	
+	const auto Num_segments = LevelSharedSegmentState.Num_segments;
 	for (segnum_t segnum = 0; segnum < Num_segments; segnum++)
 	{
 		const auto &&seg = vcsegptr(segnum);

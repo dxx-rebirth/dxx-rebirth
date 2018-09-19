@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 
 namespace dcx {
-unsigned Num_segments;
+d_level_shared_segment_state LevelSharedSegmentState;
 // Global array of vertices, common to one mine.
 valptridx<vertex>::array_managed_type Vertices;
 valptridx<active_door>::array_managed_type ActiveDoors;

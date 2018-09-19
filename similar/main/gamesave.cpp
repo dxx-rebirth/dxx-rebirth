@@ -1508,7 +1508,7 @@ int create_new_mine(void)
 	
 	Num_vertices = 0;		// Number of vertices in global array.
 	Vertices.set_count(1);
-	Num_segments = 0;		// Number of segments in global array, will get increased in med_create_segment
+	LevelSharedSegmentState.Num_segments = 0;		// Number of segments in global array, will get increased in med_create_segment
 	Segments.set_count(1);
 	Cursegp = imsegptridx(segment_first);	// Say current segment is the only segment.
 	Curside = WBACK;		// The active side is the back side

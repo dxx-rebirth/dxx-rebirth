@@ -123,7 +123,7 @@ DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(vertex, vert);
 struct count_segment_array_t;
 struct group;
 
-extern unsigned Num_segments;
+struct d_level_shared_segment_state;
 extern unsigned Num_vertices;
 
 

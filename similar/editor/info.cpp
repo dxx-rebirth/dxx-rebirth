@@ -225,9 +225,10 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 
 	//--------------- Number of segments ----------------
 
-	if ( old_Num_segments != Num_segments )	{
-		old_Num_segments = Num_segments;
-		gr_uprintf(canvas, *canvas.cv_font, 0, 0, "Segments: %4d/%4" PRIuFAST32, Num_segments, static_cast<uint_fast32_t>(MAX_SEGMENTS));
+	if (old_Num_segments != LevelSharedSegmentState.Num_segments)
+	{
+		old_Num_segments = LevelSharedSegmentState.Num_segments;
+		gr_uprintf(canvas, *canvas.cv_font, 0, 0, "Segments: %4d/%4" PRIuFAST32, LevelSharedSegmentState.Num_segments, static_cast<uint_fast32_t>(MAX_SEGMENTS));
 	}
 
 	//---------------- Number of vertics -----------------
