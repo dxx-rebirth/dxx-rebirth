@@ -216,7 +216,7 @@ static int segsize_common(int dimension, fix amount)
 
 	med_extract_up_vector_from_segment_side(Cursegp, Curside, uvec);
 	med_extract_right_vector_from_segment_side(Cursegp, Curside, rvec);
-	extract_forward_vector_from_segment(Cursegp, fvec);
+	extract_forward_vector_from_segment(vcvertptr, Cursegp, fvec);
 
 	scalevec.x = vm_vec_mag(rvec);
 	scalevec.y = vm_vec_mag(uvec);
@@ -378,9 +378,9 @@ static int	PerturbCursideCommon(fix amount)
 
 	Modified_vertex_index = 0;
 
-	extract_forward_vector_from_segment(Cursegp, fvec);
-	extract_right_vector_from_segment(Cursegp, rvec);
-	extract_up_vector_from_segment(Cursegp, uvec);
+	extract_forward_vector_from_segment(vcvertptr, Cursegp, fvec);
+	extract_right_vector_from_segment(vcvertptr, Cursegp, rvec);
+	extract_up_vector_from_segment(vcvertptr, Cursegp, uvec);
 
 	fmag = vm_vec_mag(fvec);
 	rmag = vm_vec_mag(rvec);

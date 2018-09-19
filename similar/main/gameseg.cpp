@@ -1090,7 +1090,7 @@ void extract_quaternionpos(const vmobjptridx_t objp, quaternionpos &qpp)
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
-static void extract_vector_from_segment(const shared_segment &sp, vms_vector &vp, const uint_fast32_t istart, const uint_fast32_t iend)
+static void extract_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, vms_vector &vp, const uint_fast32_t istart, const uint_fast32_t iend)
 {
 	vp = {};
 	auto &start = Side_to_verts[istart];
@@ -1109,39 +1109,47 @@ void extract_orient_from_segment(vms_matrix *m,const vcsegptr_t seg)
 {
 	vms_vector fvec,uvec;
 
-	extract_vector_from_segment(seg,fvec,WFRONT,WBACK);
-	extract_vector_from_segment(seg,uvec,WBOTTOM,WTOP);
+	extract_vector_from_segment(vcvertptr, seg, fvec, WFRONT, WBACK);
+	extract_vector_from_segment(vcvertptr, seg, uvec, WBOTTOM, WTOP);
 
 	//vector to matrix does normalizations and orthogonalizations
 	vm_vector_2_matrix(*m,fvec,&uvec,nullptr);
 }
 
+#if !DXX_USE_EDITOR
+namespace {
+#endif
+
 // ------------------------------------------------------------------------------------------
 //	Extract the forward vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the front face of the segment
 // to the center of the back face of the segment.
-void extract_forward_vector_from_segment(const shared_segment &sp, vms_vector &vp)
+void extract_forward_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, vms_vector &vp)
 {
-	extract_vector_from_segment(sp,vp,WFRONT,WBACK);
+	extract_vector_from_segment(vcvertptr, sp, vp, WFRONT, WBACK);
 }
 
 // ------------------------------------------------------------------------------------------
 //	Extract the right vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the left face of the segment
 // to the center of the right face of the segment.
-void extract_right_vector_from_segment(const shared_segment &sp, vms_vector &vp)
+void extract_right_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, vms_vector &vp)
 {
-	extract_vector_from_segment(sp,vp,WLEFT,WRIGHT);
+	extract_vector_from_segment(vcvertptr, sp, vp, WLEFT, WRIGHT);
 }
 
 // ------------------------------------------------------------------------------------------
 //	Extract the up vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the bottom face of the segment
 // to the center of the top face of the segment.
-void extract_up_vector_from_segment(const shared_segment &sp, vms_vector &vp)
+void extract_up_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, vms_vector &vp)
 {
-	extract_vector_from_segment(sp,vp,WBOTTOM,WTOP);
+	extract_vector_from_segment(vcvertptr, sp, vp, WBOTTOM, WTOP);
 }
+
+#if !DXX_USE_EDITOR
+}
+#endif
 
 //	----
 //	A side is determined to be degenerate if the cross products of 3 consecutive points does not point outward.
@@ -1197,9 +1205,9 @@ static int check_for_degenerate_segment(const vcsegptr_t sp)
 	fix			dot;
 	int			i, degeneracy_flag = 0;				// degeneracy flag for current segment
 
-	extract_forward_vector_from_segment(sp, fvec);
-	extract_right_vector_from_segment(sp, rvec);
-	extract_up_vector_from_segment(sp, uvec);
+	extract_forward_vector_from_segment(vcvertptr, sp, fvec);
+	extract_right_vector_from_segment(vcvertptr, sp, rvec);
+	extract_up_vector_from_segment(vcvertptr, sp, uvec);
 
 	vm_vec_normalize(fvec);
 	vm_vec_normalize(rvec);

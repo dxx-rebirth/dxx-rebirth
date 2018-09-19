@@ -491,10 +491,10 @@ namespace {
 class extract_fvec_from_segment
 {
 public:
-	static vms_vector get(vcsegptr_t segp)
+	static vms_vector get(fvcvertptr &vcvertptr, const shared_segment &segp)
 	{
 		vms_vector v;
-		extract_forward_vector_from_segment(segp, v);
+		extract_forward_vector_from_segment(vcvertptr, segp, v);
 		return v;
 	}
 };
@@ -502,10 +502,10 @@ public:
 class extract_rvec_from_segment
 {
 public:
-	static vms_vector get(vcsegptr_t segp)
+	static vms_vector get(fvcvertptr &vcvertptr, const shared_segment &segp)
 	{
 		vms_vector v;
-		extract_right_vector_from_segment(segp, v);
+		extract_right_vector_from_segment(vcvertptr, segp, v);
 		return v;
 	}
 };
@@ -513,10 +513,10 @@ public:
 class extract_uvec_from_segment
 {
 public:
-	static vms_vector get(const shared_segment &segp)
+	static vms_vector get(fvcvertptr &vcvertptr, const shared_segment &segp)
 	{
 		vms_vector v;
-		extract_up_vector_from_segment(segp, v);
+		extract_up_vector_from_segment(vcvertptr, segp, v);
 		return v;
 	}
 };
@@ -544,7 +544,7 @@ static int ObjectMove()
 	if (i == object_none)
 		return ObjectMoveFailed();
 	const auto &&obj = vmobjptridx(i);
-	return ObjectMovePos(obj, extract_type::get(vcsegptr(obj->segnum)), direction * OBJ_SCALE);
+	return ObjectMovePos(obj, extract_type::get(vcvertptr, vcsegptr(obj->segnum)), direction * OBJ_SCALE);
 }
 
 }
