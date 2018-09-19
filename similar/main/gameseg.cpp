@@ -1199,7 +1199,7 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 //	----
 //	See if a segment has gotten turned inside out, or something.
 //	If so, set global Degenerate_segment_found and return 1, else return 0.
-static int check_for_degenerate_segment(const vcsegptr_t sp)
+static unsigned check_for_degenerate_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
 {
 	vms_vector	fvec, rvec, uvec;
 	fix			dot;
@@ -1530,7 +1530,7 @@ Levels 9-end: unchecked
 //		create new vector normals
 void validate_segment(const vmsegptridx_t sp)
 {
-	check_for_degenerate_segment(sp);
+	check_for_degenerate_segment(vcvertptr, sp);
 
 	for (int side = 0; side < MAX_SIDES_PER_SEGMENT; side++)
 		validate_segment_side(sp, side);
