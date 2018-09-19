@@ -396,7 +396,7 @@ static void nd_write_shortpos(const vcobjptr_t obj)
 	shortpos sp;
 	ubyte render_type;
 
-	create_shortpos_native(vcsegptr, vcvertptr, &sp, obj);
+	create_shortpos_native(LevelSharedSegmentState, sp, obj);
 
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {

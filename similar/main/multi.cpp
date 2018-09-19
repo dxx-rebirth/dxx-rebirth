@@ -3827,7 +3827,7 @@ void multi_send_guided_info (const vmobjptr_t miss,char done)
 	if (words_bigendian)
 	{
 		shortpos sp;
-		create_shortpos_little(vcsegptr, vcvertptr, &sp, miss);
+		create_shortpos_little(LevelSharedSegmentState, sp, miss);
 		memcpy(&multibuf[count], sp.bytemat, 9);
 	count += 9;
 		memcpy(&multibuf[count], &sp.xo, 14);
@@ -3835,7 +3835,7 @@ void multi_send_guided_info (const vmobjptr_t miss,char done)
 	}
 	else
 	{
-		create_shortpos_little(vcsegptr, vcvertptr, reinterpret_cast<shortpos *>(&multibuf[count]), miss);
+		create_shortpos_little(LevelSharedSegmentState, *reinterpret_cast<shortpos *>(&multibuf[count]), miss);
 		count += sizeof(shortpos);
 	}
 	multi_send_data(multibuf, 0);

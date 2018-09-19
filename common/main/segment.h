@@ -310,6 +310,14 @@ struct d_level_shared_segment_state
 	{
 		return Segments;
 	}
+	auto &get_vertices()
+	{
+		return Vertices;
+	}
+	const auto &get_vertices() const
+	{
+		return Vertices;
+	}
 };
 
 extern d_level_shared_segment_state LevelSharedSegmentState;

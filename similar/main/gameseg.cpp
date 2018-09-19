@@ -980,49 +980,46 @@ namespace dsx {
 //	Extract the matrix into byte values.
 //	Create a position relative to vertex 0 with 1/256 normal "fix" precision.
 //	Stuff segment in a short.
-void create_shortpos_native(fvcsegptr &vcsegptr, fvcvertptr &vcvertptr, shortpos *spp, const object_base &objp)
+void create_shortpos_native(const d_level_shared_segment_state &LevelSharedSegmentState, shortpos &spp, const object_base &objp)
 {
-	// int	segnum;
-	sbyte   *sp;
+	auto &vcsegptr = LevelSharedSegmentState.get_segments().vcptr;
+	auto &vcvertptr = LevelSharedSegmentState.get_vertices().vcptr;
+	spp.bytemat[0] = convert_to_byte(objp.orient.rvec.x);
+	spp.bytemat[1] = convert_to_byte(objp.orient.uvec.x);
+	spp.bytemat[2] = convert_to_byte(objp.orient.fvec.x);
+	spp.bytemat[3] = convert_to_byte(objp.orient.rvec.y);
+	spp.bytemat[4] = convert_to_byte(objp.orient.uvec.y);
+	spp.bytemat[5] = convert_to_byte(objp.orient.fvec.y);
+	spp.bytemat[6] = convert_to_byte(objp.orient.rvec.z);
+	spp.bytemat[7] = convert_to_byte(objp.orient.uvec.z);
+	spp.bytemat[8] = convert_to_byte(objp.orient.fvec.z);
 
-	sp = spp->bytemat;
-
-	*sp++ = convert_to_byte(objp.orient.rvec.x);
-	*sp++ = convert_to_byte(objp.orient.uvec.x);
-	*sp++ = convert_to_byte(objp.orient.fvec.x);
-	*sp++ = convert_to_byte(objp.orient.rvec.y);
-	*sp++ = convert_to_byte(objp.orient.uvec.y);
-	*sp++ = convert_to_byte(objp.orient.fvec.y);
-	*sp++ = convert_to_byte(objp.orient.rvec.z);
-	*sp++ = convert_to_byte(objp.orient.uvec.z);
-	*sp++ = convert_to_byte(objp.orient.fvec.z);
-
-	spp->segment = objp.segnum;
+	spp.segment = objp.segnum;
 	auto &segp = *vcsegptr(objp.segnum);
 	auto &vert = *vcvertptr(segp.verts[0]);
-	spp->xo = (objp.pos.x - vert.x) >> RELPOS_PRECISION;
-	spp->yo = (objp.pos.y - vert.y) >> RELPOS_PRECISION;
-	spp->zo = (objp.pos.z - vert.z) >> RELPOS_PRECISION;
+	spp.xo = (objp.pos.x - vert.x) >> RELPOS_PRECISION;
+	spp.yo = (objp.pos.y - vert.y) >> RELPOS_PRECISION;
+	spp.zo = (objp.pos.z - vert.z) >> RELPOS_PRECISION;
 
- 	spp->velx = (objp.mtype.phys_info.velocity.x) >> VEL_PRECISION;
-	spp->vely = (objp.mtype.phys_info.velocity.y) >> VEL_PRECISION;
-	spp->velz = (objp.mtype.phys_info.velocity.z) >> VEL_PRECISION;
+	spp.velx = (objp.mtype.phys_info.velocity.x) >> VEL_PRECISION;
+	spp.vely = (objp.mtype.phys_info.velocity.y) >> VEL_PRECISION;
+	spp.velz = (objp.mtype.phys_info.velocity.z) >> VEL_PRECISION;
 }
 
-void create_shortpos_little(fvcsegptr &vcsegptr, fvcvertptr &vcvertptr, shortpos *spp, const object_base &objp)
+void create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegmentState, shortpos &spp, const object_base &objp)
 {
-	create_shortpos_native(vcsegptr, vcvertptr, spp, objp);
+	create_shortpos_native(LevelSharedSegmentState, spp, objp);
 // swap the short values for the big-endian machines.
 
 	if (words_bigendian)
 	{
-		spp->xo = INTEL_SHORT(spp->xo);
-		spp->yo = INTEL_SHORT(spp->yo);
-		spp->zo = INTEL_SHORT(spp->zo);
-		spp->segment = INTEL_SHORT(spp->segment);
-		spp->velx = INTEL_SHORT(spp->velx);
-		spp->vely = INTEL_SHORT(spp->vely);
-		spp->velz = INTEL_SHORT(spp->velz);
+		spp.xo = INTEL_SHORT(spp.xo);
+		spp.yo = INTEL_SHORT(spp.yo);
+		spp.zo = INTEL_SHORT(spp.zo);
+		spp.segment = INTEL_SHORT(spp.segment);
+		spp.velx = INTEL_SHORT(spp.velx);
+		spp.vely = INTEL_SHORT(spp.vely);
+		spp.velz = INTEL_SHORT(spp.velz);
 	}
 }
 
