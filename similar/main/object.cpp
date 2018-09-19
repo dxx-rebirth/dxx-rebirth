@@ -598,7 +598,7 @@ void create_small_fireball_on_object(const vmobjptridx_t objp, fix size_scale, i
 	size = fixmul(size_scale, F1_0/2 + d_rand()*4/2);
 #endif
 
-	const auto &&segnum = find_point_seg(pos, vmsegptridx(objp->segnum));
+	const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, Segments.vmptridx(objp->segnum));
 	if (segnum != segment_none) {
 		auto expl_obj = object_create_explosion(segnum, pos, size, VCLIP_SMALL_EXPLOSION);
 		if (!expl_obj)
@@ -1088,7 +1088,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 
 	if (get_seg_masks(vcvertptr, pos, segnum, 0).centermask != 0)
 	{
-		auto p = find_point_seg(pos,segnum);
+		const auto &&p = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, segnum);
 		if (p == segment_none) {
 			return object_none;		//don't create this object
 		}
@@ -1153,7 +1153,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 	obj->shields 				= 20*F1_0;
 
 	{
-		auto p = find_point_seg(pos,segnum);		//find correct segment
+		const auto &&p = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, segnum);		//find correct segment
 		// Previously this was only an assert check.  Now it is also
 		// checked at runtime.
 		segnum = p;
@@ -1983,9 +1983,10 @@ void reset_objects(d_level_object_state &ObjectState, const unsigned n_objs)
 }
 
 //Tries to find a segment for an object, using find_point_seg()
-imsegptridx_t find_object_seg(const vmobjptr_t obj)
+imsegptridx_t find_object_seg(const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const object_base &obj)
 {
-	return find_point_seg(obj->pos, vmsegptridx(obj->segnum));
+	auto &Segments = LevelUniqueSegmentState.get_segments();
+	return find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj.pos, Segments.vmptridx(obj.segnum));
 }
 
 
@@ -1994,7 +1995,7 @@ imsegptridx_t find_object_seg(const vmobjptr_t obj)
 //callers should generally use find_vector_intersection()
 int update_object_seg(const vmobjptridx_t obj)
 {
-	auto newseg = find_object_seg(obj);
+	const auto &&newseg = find_object_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj);
 	if (newseg == segment_none)
 		return 0;
 

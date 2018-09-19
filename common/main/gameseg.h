@@ -161,7 +161,8 @@ segmasks get_seg_masks(fvcvertptr &, const vms_vector &checkp, const shared_segm
 // 2. Recursively trace through attached segments
 // 3. Check all the segmentns
 //Returns segnum if found, or -1
-imsegptridx_t find_point_seg(const vms_vector &p,imsegptridx_t segnum);
+imsegptridx_t find_point_seg(const d_level_shared_segment_state &, d_level_unique_segment_state &, const vms_vector &p, imsegptridx_t segnum);
+icsegptridx_t find_point_seg(const d_level_shared_segment_state &, const vms_vector &p, icsegptridx_t segnum);
 
 //      ----------------------------------------------------------------------------------------------------------
 //      Determine whether seg0 and seg1 are reachable using wid_flag to go through walls.

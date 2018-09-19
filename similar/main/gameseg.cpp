@@ -594,7 +594,7 @@ int	Doing_lighting_hack_flag=0;
 
 // figure out what seg the given point is in, tracing through segments
 // returns segment number, or -1 if can't find segment
-static imsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedSegmentState, const vms_vector &p0, const vmsegptridx_t oldsegnum, const unsigned recursion_count, visited_segment_bitarray_t &visited)
+static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedSegmentState, const vms_vector &p0, const vcsegptridx_t oldsegnum, const unsigned recursion_count, visited_segment_bitarray_t &visited)
 {
 	int centermask;
 	array<fix, 6> side_dists;
@@ -639,12 +639,17 @@ static imsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 	return segment_none;		//we haven't found a segment
 }
 
+imsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &, const vms_vector &p, const imsegptridx_t segnum)
+{
+	return segnum.rebind_policy(find_point_seg(LevelSharedSegmentState, p, segnum));
+}
+
 //Tries to find a segment for a point, in the following way:
 // 1. Check the given segment
 // 2. Recursively trace through attached segments
 // 3. Check all the segments
 //Returns segnum if found, or -1
-imsegptridx_t find_point_seg(const vms_vector &p,const imsegptridx_t segnum)
+icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegmentState, const vms_vector &p, const icsegptridx_t segnum)
 {
 	//allow segnum==-1, meaning we have no idea what segment point is in
 	if (segnum != segment_none) {

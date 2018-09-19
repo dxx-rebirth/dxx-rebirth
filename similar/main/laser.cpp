@@ -454,7 +454,7 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 
 		const auto temp_pos = vm_vec_scale_add(blob_pos, perturb_vec, perturb_array[i]);
 
-		auto segnum = find_point_seg(temp_pos, last_segnum);
+		const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, temp_pos, last_segnum);
 		if (segnum != segment_none) {
 			last_segnum = segnum;
 			auto blob_objnum = obj_create(OBJ_WEAPON, weapon_id_type::OMEGA_ID, segnum, temp_pos, NULL, 0, CT_WEAPON, MT_PHYSICS, RT_WEAPON_VCLIP );
@@ -579,7 +579,7 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 
 	const auto &&lock_objnum = find_homing_object(firing_pos, weapon_objp);
 
-	const auto &&firing_segnum = find_point_seg(firing_pos, vmsegptridx(parent_objp->segnum));
+	const auto &&firing_segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, firing_pos, Segments.vmptridx(parent_objp->segnum));
 
 	//	Play sound.
 	{
@@ -887,7 +887,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 #endif
 	{
 	 	const auto end_pos = vm_vec_scale_add(obj->pos, direction, (laser_length/2) );
-		const auto &&end_segnum = find_point_seg(end_pos, vmsegptridx(obj->segnum));
+		const auto &&end_segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, end_pos, Segments.vmptridx(obj->segnum));
 		if (end_segnum != obj->segnum) {
 			if (end_segnum != segment_none) {
 				obj->pos = end_pos;

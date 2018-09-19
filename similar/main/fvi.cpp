@@ -674,7 +674,7 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	if (hit_seg2 != segment_none && !get_seg_masks(vcvertptr, hit_pnt, vcsegptr(hit_seg2), 0).centermask)
 		hit_seg = hit_seg2;
 	else
-		hit_seg = find_point_seg(hit_pnt, imsegptridx(fq.startseg));
+		hit_seg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, hit_pnt, imsegptridx(fq.startseg));
 
 //MATT: TAKE OUT THIS HACK AND FIX THE BUGS!
 	if (hit_type == HIT_WALL && hit_seg==segment_none)

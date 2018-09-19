@@ -619,7 +619,7 @@ int SetPlayerFromCursegMinusOne()
 	//obj_relink(ConsoleObject-Objects, SEG_PTR_2_NUM(Cursegp) );
 	//update_object_seg(ConsoleObject);		//might have backed right out of curseg
 
-	auto newseg = find_point_seg(ConsoleObject->pos,Cursegp);
+	const auto &&newseg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, ConsoleObject->pos, Cursegp);
 	if (newseg != segment_none)
 		obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), newseg);
 

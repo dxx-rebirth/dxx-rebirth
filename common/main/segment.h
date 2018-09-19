@@ -320,7 +320,20 @@ struct d_level_shared_segment_state
 	}
 };
 
+struct d_level_unique_segment_state
+{
+	auto &get_segments()
+	{
+		return Segments;
+	}
+	const auto &get_segments() const
+	{
+		return Segments;
+	}
+};
+
 extern d_level_shared_segment_state LevelSharedSegmentState;
+extern d_level_unique_segment_state LevelUniqueSegmentState;
 
 template <unsigned bits>
 class visited_segment_mask_base

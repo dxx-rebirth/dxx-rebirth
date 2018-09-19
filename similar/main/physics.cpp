@@ -462,23 +462,24 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 		// update object's position and segment number
 		obj->pos = ipos;
 
+		const auto &&obj_segp = Segments.vmptridx(iseg);
 		if ( iseg != obj->segnum )
-			obj_relink(vmobjptr, vmsegptr, obj, vmsegptridx(iseg));
+			obj_relink(vmobjptr, Segments.vmptr, obj, obj_segp);
 
 		//if start point not in segment, move object to center of segment
-		if (get_seg_masks(vcvertptr, obj->pos, vcsegptr(obj->segnum), 0).centermask !=0 )
+		if (get_seg_masks(vcvertptr, obj->pos, Segments.vcptr(obj->segnum), 0).centermask != 0)
 		{
-			auto n = find_object_seg(obj);
+			auto n = find_object_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj);
 			if (n == segment_none)
 			{
 				//Int3();
-				if (obj->type == OBJ_PLAYER && (n = find_point_seg(obj->last_pos, vmsegptridx(obj->segnum))) != segment_none)
+				if (obj->type == OBJ_PLAYER && (n = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj->last_pos, obj_segp)) != segment_none)
 				{
 					obj->pos = obj->last_pos;
-					obj_relink(vmobjptr, vmsegptr, obj, n);
+					obj_relink(vmobjptr, Segments.vmptr, obj, n);
 				}
 				else {
-					compute_segment_center(vcvertptr, obj->pos, vcsegptr(obj->segnum));
+					compute_segment_center(vcvertptr, obj->pos, obj_segp);
 					obj->pos.x += obj;
 				}
 				if (obj->type == OBJ_WEAPON)
@@ -503,7 +504,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 		
 				//iseg = obj->segnum;		//don't change segment
 
-				obj_relink(vmobjptr, vmsegptr, obj, vmsegptridx(save_seg));
+				obj_relink(vmobjptr, Segments.vmptr, obj, Segments.vmptridx(save_seg));
 
 				moved_time = 0;
 			}
@@ -540,7 +541,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 				wall_part = vm_vec_dot(moved_v,hit_info.hit_wallnorm);
 
 				if ((wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0) || obj->type == OBJ_WEAPON || obj->type == OBJ_DEBRIS)
-					result = collide_object_with_wall(obj, hit_speed, vmsegptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
+					result = collide_object_with_wall(obj, hit_speed, Segments.vmptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
 				/*
 				 * Due to the nature of this loop, it's possible that a local player may receive scrape damage multiple times in one frame.
 				 * Check if we received damage and do not apply more damage (nor produce damage sounds/flashes/bumps, etc) for the rest of the loop.
@@ -548,7 +549,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 				 * NOTE: Remote players will return false and never receive damage. But since we handle only one object (remote or local) per loop, this is no problem. 
 				 */
 				if (obj->type == OBJ_PLAYER && Player_ScrapeFrame == false)
-					Player_ScrapeFrame = scrape_player_on_wall(obj, vmsegptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
+					Player_ScrapeFrame = scrape_player_on_wall(obj, Segments.vmptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
 
 				Assert( WallHitSeg != segment_none );
 				Assert( WallHitSide > -1 );
@@ -575,7 +576,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 
 					if (!forcefield_bounce && (obj->mtype.phys_info.flags & PF_STICK)) {		//stop moving
 
-						LevelUniqueStuckObjectState.add_stuck_object(vcwallptr, obj, vmsegptr(WallHitSeg), WallHitSide);
+						LevelUniqueStuckObjectState.add_stuck_object(vcwallptr, obj, Segments.vmptr(WallHitSeg), WallHitSide);
 
 						vm_vec_zero(obj->mtype.phys_info.velocity);
 						obj_stopped = 1;
@@ -751,15 +752,16 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 	//if end point not in segment, move object to last pos, or segment center
 	if (get_seg_masks(vcvertptr, obj->pos, vcsegptr(obj->segnum), 0).centermask != 0)
 	{
-		if (find_object_seg(obj)==segment_none) {
+		if (find_object_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj) == segment_none)
+		{
 			segnum_t n;
 
 			//Int3();
-			const auto &&obj_segp = vmsegptridx(obj->segnum);
-			if (obj->type==OBJ_PLAYER && (n = find_point_seg(obj->last_pos,obj_segp)) != segment_none)
+			const auto &&obj_segp = Segments.vmptridx(obj->segnum);
+			if (obj->type == OBJ_PLAYER && (n = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj->last_pos, obj_segp)) != segment_none)
 			{
 				obj->pos = obj->last_pos;
-				obj_relink(vmobjptr, vmsegptr, obj, vmsegptridx(n));
+				obj_relink(vmobjptr, Segments.vmptr, obj, Segments.vmptridx(n));
 			}
 			else {
 				compute_segment_center(vcvertptr, obj->pos, obj_segp);

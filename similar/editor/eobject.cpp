@@ -710,7 +710,7 @@ static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &
 			fvi_info	hit_info;
 
 			temp_viewer_obj = *Viewer;
-			auto viewer_segnum = find_object_seg(vmobjptr(Viewer));
+			auto viewer_segnum = find_object_seg(LevelSharedSegmentState, LevelUniqueSegmentState, vmobjptr(Viewer));
 			temp_viewer_obj.segnum = viewer_segnum;
 
 			//	If the viewer is outside the mine, get him in the mine!
@@ -769,7 +769,7 @@ static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &
 			if (fate == HIT_WALL) {
 
 				objp->pos = hit_info.hit_pnt;
-				const auto &&segp = find_object_seg(objp);
+				const auto &&segp = find_object_seg(LevelSharedSegmentState, LevelUniqueSegmentState, objp);
 				if (segp != segment_none)
 					obj_relink(vmobjptr, vmsegptr, objp, segp);
 			} else {

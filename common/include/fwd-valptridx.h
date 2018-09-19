@@ -144,6 +144,7 @@ public:
 	 * the lack of checking.
 	 */
 	using typename specialized_types::allow_none_construction;
+	using typename specialized_types::rebind_policy;
 	typedef ptridx<ic>	icptridx;
 	typedef ptridx<im>	imptridx;
 	typedef ptridx<vc>	vcptridx;

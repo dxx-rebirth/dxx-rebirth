@@ -270,7 +270,7 @@ int update_object_seg(vmobjptridx_t obj);
 // any segment, returns -1.  Note: This function is defined in
 // gameseg.h, but object.h depends on gameseg.h, and object.h is where
 // object is defined...get it?
-imsegptridx_t find_object_seg(vmobjptr_t obj);
+imsegptridx_t find_object_seg(const d_level_shared_segment_state &, d_level_unique_segment_state &, const object_base &obj);
 
 // go through all objects and make sure they have the correct segment
 // numbers used when debugging is on

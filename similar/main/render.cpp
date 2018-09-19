@@ -1202,10 +1202,11 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 		Viewer_eye = Viewer->pos;
 	#endif
 
-	auto start_seg_num = find_point_seg(Viewer_eye, vmsegptridx(Viewer->segnum));
+	const auto &&viewer_segp = Segments.vmptridx(Viewer->segnum);
+	auto start_seg_num = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, Viewer_eye, viewer_segp);
 
 	if (start_seg_num==segment_none)
-		start_seg_num = imsegptridx(Viewer->segnum);
+		start_seg_num = viewer_segp;
 
 	g3_set_view_matrix(Viewer_eye,
 		(Rear_view && Viewer == ConsoleObject)

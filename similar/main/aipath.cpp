@@ -117,10 +117,10 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 		vm_vec_sub(psegs[2*i-1].point, center_point, new_point);
 #if defined(DXX_BUILD_DESCENT_II)
 		const auto &&segp = segments.imptridx(psegs[2*i].segnum);
-		const auto &&temp_segnum = find_point_seg(psegs[2*i-1].point, segp);
+		const auto &&temp_segnum = find_point_seg(LevelSharedSegmentState, psegs[2*i-1].point, segp);
 		if (temp_segnum == segment_none) {
 			psegs[2*i-1].point = center_point;
-			find_point_seg(psegs[2*i-1].point, segp);
+			find_point_seg(LevelSharedSegmentState, psegs[2*i-1].point, segp);
 		}
 #endif
 
@@ -154,19 +154,20 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 #if defined(DXX_BUILD_DESCENT_II)
 //	-----------------------------------------------------------------------------------------------------------
 //	Move points halfway to outside of segment.
-static void move_towards_outside(fimsegptridx &imsegptridx, point_seg *const psegs, const unsigned num_points, const vmobjptridx_t objp, const create_path_random_flag rand_flag)
+static void move_towards_outside(const d_level_shared_segment_state &LevelSharedSegmentState, point_seg *const psegs, const unsigned num_points, const vmobjptridx_t objp, const create_path_random_flag rand_flag)
 {
 	int	i;
 	array<point_seg, 200> new_psegs;
 	assert(num_points < new_psegs.size());
 
+	auto &Segments = LevelSharedSegmentState.get_segments();
 	for (i = 1; i < num_points - 1; ++i)
 	{
 		fix			segment_size;
 		segnum_t			segnum;
 		vms_vector	e;
 		int			count;
-		const auto &&temp_segnum = find_point_seg(psegs[i].point, imsegptridx(psegs[i].segnum));
+		const auto &&temp_segnum = find_point_seg(LevelSharedSegmentState, psegs[i].point, Segments.vcptridx(psegs[i].segnum));
 		Assert(temp_segnum != segment_none);
 		psegs[i].segnum = temp_segnum;
 		segnum = psegs[i].segnum;
@@ -249,7 +250,7 @@ static void move_towards_outside(fimsegptridx &imsegptridx, point_seg *const pse
 		}
 
 		//	Only move towards outside if remained inside segment.
-		const auto &&new_segnum = find_point_seg(goal_pos, imsegptridx(psegs[i].segnum));
+		const auto &&new_segnum = find_point_seg(LevelSharedSegmentState, goal_pos, Segments.vcptridx(psegs[i].segnum));
 		if (new_segnum == psegs[i].segnum) {
 			new_psegs[i].point = goal_pos;
 			new_psegs[i].segnum = new_segnum;
@@ -478,7 +479,7 @@ cpp_done1: ;
 //	discontinuity problems.
 	if (objp->type == OBJ_ROBOT)
 		if (Robot_info[get_robot_id(objp)].companion)
-			move_towards_outside(imsegptridx, original_psegs, l_num_points, objp, create_path_random_flag::nonrandom);
+			move_towards_outside(LevelSharedSegmentState, original_psegs, l_num_points, objp, create_path_random_flag::nonrandom);
 #endif
 
 #if PATH_VALIDATION
@@ -804,7 +805,7 @@ void create_n_segment_path(const vmobjptridx_t objp, unsigned path_length, const
 	if (ailp->previous_visibility) {
 		if (aip->path_length) {
 			int	t_num_points = aip->path_length;
-			move_towards_outside(imsegptridx, &Point_segs[aip->hide_index], t_num_points, objp, create_path_random_flag::random);
+			move_towards_outside(LevelSharedSegmentState, &Point_segs[aip->hide_index], t_num_points, objp, create_path_random_flag::random);
 			aip->path_length = t_num_points;
 		}
 	}

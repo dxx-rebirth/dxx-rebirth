@@ -596,7 +596,7 @@ window_event_result do_endlevel_frame()
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*15);
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*15);
 
-			const auto &&segnum = find_point_seg(tpnt, vmsegptridx(ConsoleObject->segnum));
+			const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, tpnt, Segments.vmptridx(ConsoleObject->segnum));
 
 			if (segnum != segment_none) {
 				object_create_explosion(segnum,tpnt,i2f(20),VCLIP_BIG_PLAYER_EXPLOSION);
@@ -1053,7 +1053,7 @@ void draw_stars(grs_canvas &canvas)
 
 }
 
-static void endlevel_render_mine(fvmsegptridx &vmsegptridx, grs_canvas &canvas, fix eye_offset)
+static void endlevel_render_mine(const d_level_shared_segment_state &LevelSharedSegmentState, grs_canvas &canvas, fix eye_offset)
 {
 	Viewer_eye = Viewer->pos;
 
@@ -1074,7 +1074,7 @@ static void endlevel_render_mine(fvmsegptridx &vmsegptridx, grs_canvas &canvas, 
 		start_seg_num = exit_segnum;
 	}
 	else {
-		start_seg_num = find_point_seg(Viewer_eye, vmsegptridx(Viewer->segnum));
+		start_seg_num = find_point_seg(LevelSharedSegmentState, Viewer_eye, Segments.vcptridx(Viewer->segnum));
 
 		if (start_seg_num==segment_none)
 			start_seg_num = Viewer->segnum;
@@ -1093,7 +1093,7 @@ void render_endlevel_frame(grs_canvas &canvas, fix eye_offset)
 	g3_start_frame(canvas);
 
 	if (Endlevel_sequence < EL_OUTSIDE)
-		endlevel_render_mine(vmsegptridx, canvas, eye_offset);
+		endlevel_render_mine(LevelSharedSegmentState, canvas, eye_offset);
 	else
 		render_external_scene(vcobjptridx, canvas, eye_offset);
 

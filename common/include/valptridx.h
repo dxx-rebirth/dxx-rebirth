@@ -530,6 +530,16 @@ public:
 
 	operator mutable_pointer_type() const { return m_ptr; }	// implicit pointer conversion deprecated
 	operator const_pointer_type() const { return m_ptr; }	// implicit pointer conversion deprecated
+	template <typename rpolicy, unsigned ru>
+		typename std::enable_if<!std::is_same<policy, rpolicy>::value, ptr>::type rebind_policy(ptr<rpolicy, ru> &&rhs) const
+	{
+		/* This method could be marked as `static`, but is non-static so
+		 * that callers must possess an instance of the target type.
+		 * This serves as a basic check against casts that could remove
+		 * `const` incorrectly.
+		 */
+		return ptr(std::move(rhs), static_cast<const typename containing_type::rebind_policy *>(nullptr));
+	}
 	pointer_type operator->() const &
 	{
 		return get_nonnull_pointer();
@@ -607,6 +617,12 @@ protected:
 	{
 		static_assert(!allow_nullptr, "allow_none_construction used where nullptr was already legal");
 	}
+	template <typename rpolicy, unsigned ru>
+		ptr(ptr<rpolicy, ru> &&rhs, const typename containing_type::rebind_policy *) :
+			m_ptr(const_cast<managed_type *>(rhs.get_unchecked_pointer()))
+	{
+		static_assert(allow_nullptr || !rpolicy::allow_nullptr, "cannot rebind from allow_invalid to require_valid");
+	}
 };
 
 template <typename managed_type>
@@ -616,6 +632,7 @@ class valptridx<managed_type>::ptridx :
 	public ptr<policy, 1>,
 	public idx<policy, 1>
 {
+	using containing_type = valptridx<managed_type>;
 public:
 	typedef ptr<policy, 1> vptr_type;
 	typedef idx<policy, 1> vidx_type;
@@ -695,6 +712,11 @@ public:
 		vidx_type(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, a)
 	{
 	}
+	template <typename rpolicy>
+		typename std::enable_if<!std::is_same<policy, rpolicy>::value, ptridx>::type rebind_policy(ptridx<rpolicy> &&rhs) const
+	{
+		return ptridx(std::move(rhs), static_cast<const typename containing_type::rebind_policy *>(nullptr));
+	}
 	ptridx absolute_sibling(const index_type i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
 	{
 		static_assert(!policy::allow_nullptr, "absolute_sibling not allowed with invalid ptridx");
@@ -719,6 +741,16 @@ protected:
 		vptr_type::operator++();
 		vidx_type::operator++();
 		return *this;
+	}
+	template <typename rpolicy>
+		ptridx(ptridx<rpolicy> &&rhs, const typename containing_type::rebind_policy *const rebind) :
+			vptr_type(static_cast<typename ptridx<rpolicy>::vptr_type &&>(rhs), rebind),
+			vidx_type(static_cast<typename ptridx<rpolicy>::vidx_type &&>(rhs))
+	{
+		/* No static_assert for policy compatibility.  Incompatible
+		 * policy conversions will be trapped by the static_assert in
+		 * `vptr_type`.
+		 */
 	}
 };
 

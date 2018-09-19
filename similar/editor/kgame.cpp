@@ -125,7 +125,7 @@ int SaveGameData()
 
 			ConsoleObject->pos = save_pos;
 			const auto &&save_segp = vmsegptridx(save_segnum);
-			auto found_save_segnum = find_point_seg(save_pos, save_segp);
+			auto found_save_segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, save_pos, save_segp);
 			if (found_save_segnum == segment_none) {
 				found_save_segnum = save_segp;
 				compute_segment_center(vcvertptr, save_pos, save_segp);

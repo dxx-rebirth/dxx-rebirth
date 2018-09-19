@@ -124,6 +124,7 @@ struct count_segment_array_t;
 struct group;
 
 struct d_level_shared_segment_state;
+struct d_level_unique_segment_state;
 extern unsigned Num_vertices;
 
 

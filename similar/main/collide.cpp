@@ -1038,8 +1038,8 @@ static void collide_robot_and_player(const vmobjptridx_t robot, const vmobjptrid
 
 	if (check_collision_delayfunc_exec())
 	{
-		const auto &&player_segp = vmsegptridx(playerobj->segnum);
-		const auto &&collision_seg = find_point_seg(collision_point, player_segp);
+		const auto &&player_segp = Segments.vmptridx(playerobj->segnum);
+		const auto &&collision_seg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, player_segp);
 
 #if defined(DXX_BUILD_DESCENT_II)
 		// added this if to remove the bump sound if it's the thief.
@@ -1503,7 +1503,7 @@ static fix64 Last_time_buddy_gave_hint;
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if damage done to boss, else return false.
-static boss_weapon_collision_result do_boss_weapon_collision(fvmsegptridx &vmsegptridx, const vcobjptridx_t robotptridx, object &weapon, const vms_vector &collision_point)
+static boss_weapon_collision_result do_boss_weapon_collision(const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const vcobjptridx_t robotptridx, object &weapon, const vms_vector &collision_point)
 {
 	const object_base &robot = robotptridx;
 	int	d2_boss_index;
@@ -1539,7 +1539,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(fvmsegptridx &vmseg
 		const auto tvec1 = vm_vec_normalized_quick(vm_vec_sub(collision_point, robot.pos));
 		dot = vm_vec_dot(tvec1, robot.orient.fvec);
 		if (dot > Boss_invulnerable_dot()) {
-			if (const auto &&segp = find_point_seg(collision_point, vmsegptridx(robot.segnum)))
+			if (const auto &&segp = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, Segments.vmptridx(robot.segnum)))
 				digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, segp, 0, collision_point, 0, F1_0);
 			if (Buddy_objnum != object_none)
 			{
@@ -1591,7 +1591,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(fvmsegptridx &vmseg
 	}
 	else if ((Weapon_info[get_weapon_id(weapon)].matter ? Boss_invulnerable_matter : Boss_invulnerable_energy)[d2_boss_index])
 	{
-		if (const auto &&segp = find_point_seg(collision_point, vmsegptridx(robot.segnum)))
+		if (const auto &&segp = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, Segments.vmptridx(robot.segnum)))
 			digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, segp, 0, collision_point, 0, F1_0);
 		return boss_weapon_collision_result::invulnerable;
 	}
@@ -1619,7 +1619,7 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	const boss_weapon_collision_result damage_flag = (robptr.boss_flag >= BOSS_D2)
-		? do_boss_weapon_collision(vmsegptridx, robot, weapon, collision_point)
+		? do_boss_weapon_collision(LevelSharedSegmentState, LevelUniqueSegmentState, robot, weapon, collision_point)
 		: boss_weapon_collision_result::normal;
 #endif
 
@@ -1916,7 +1916,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 		{
 			const auto randvec = make_random_vector();
 			const auto tvec = vm_vec_add(playerobj->pos, randvec);
-			const auto &&newseg = find_point_seg(tvec, vmsegptridx(playerobj->segnum));
+			const auto &&newseg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, tvec, Segments.vmptridx(playerobj->segnum));
 			if (newseg != segment_none)
 			{
 				-- mines;
