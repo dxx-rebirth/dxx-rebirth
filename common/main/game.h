@@ -281,8 +281,6 @@ static inline int game_mode_hoard()
 {
 	return (Game_mode & GM_HOARD);
 }
-// returns ptr to escort robot, or NULL
-imobjptridx_t find_escort();
 
 //Flickering light system
 struct flickering_light {

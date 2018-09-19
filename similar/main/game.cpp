@@ -1685,7 +1685,7 @@ array<unsigned, 2> Marker_viewer_num{{~0u, ~0u}};
 array<unsigned, 2> Coop_view_player{{UINT_MAX, UINT_MAX}};
 
 //returns ptr to escort robot, or NULL
-imobjptridx_t find_escort()
+imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_robot_info_array &Robot_info)
 {
 	range_for (const auto &&o, vmobjptridx)
 	{

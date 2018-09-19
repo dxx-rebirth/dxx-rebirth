@@ -41,7 +41,7 @@ unsigned N_robot_joints;
 
 namespace dsx {
 //	Robot stuff
-array<robot_info, MAX_ROBOT_TYPES> Robot_info;
+d_robot_info_array Robot_info;
 
 //Big array of joint positions.  All robots index into this array
 array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
@@ -94,7 +94,7 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 
 //fills in ptr to list of joints, and returns the number of joints in list
 //takes the robot type (object id), gun number, and desired state
-partial_range_t<const jointpos *> robot_get_anim_state(const array<robot_info, MAX_ROBOT_TYPES> &robot_info, const array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const unsigned gun_num, const unsigned state)
+partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array &robot_info, const array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const unsigned gun_num, const unsigned state)
 {
 	auto &rirt = robot_info[robot_type];
 	assert(gun_num <= rirt.n_guns);

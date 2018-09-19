@@ -131,7 +131,7 @@ void init_buddy_for_level(void)
 	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	Escort_goal_index = object_none;
 	Buddy_messages_suppressed = 0;
-	Buddy_objnum = find_escort();
+	Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 	Buddy_sorry_time = -F1_0;
 
 	Looking_for_marker = -1;
@@ -461,7 +461,7 @@ void set_escort_special_goal(int special_key)
 	if (!Buddy_allowed_to_talk) {
 		ok_for_buddy_to_talk();
 		if (!Buddy_allowed_to_talk) {
-			auto o = find_escort();
+			const auto &&o = find_escort(vmobjptridx, Robot_info);
 			if (o == object_none)
 				HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in mine.");
 			else
@@ -1751,7 +1751,7 @@ void do_escort_menu(void)
 		return;
 	}
 
-	auto buddy = find_escort();
+	const auto &&buddy = find_escort(vmobjptridx, Robot_info);
 	if (buddy == object_none)
 	{
 		HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot present in mine!");

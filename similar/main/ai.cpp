@@ -89,7 +89,7 @@ using std::min;
 #define	BABY_SPIDER_ID	14
 
 namespace dsx {
-static void init_boss_segments(segment_array &segments, const object &boss_objnum, boss_special_segment_array_t &imsegptr, int size_check, int one_wall_hack);
+static void init_boss_segments(const segment_array &segments, const object &boss_objnum, boss_special_segment_array_t &imsegptr, int size_check, int one_wall_hack);
 static void ai_multi_send_robot_position(object &objnum, int force);
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -475,7 +475,7 @@ void ai_init_boss_for_ship(void)
 #endif
 }
 
-static void boss_init_all_segments(const object &boss_objnum)
+static void boss_init_all_segments(const segment_array &Segments, const object &boss_objnum)
 {
 	if (!Boss_teleport_segs.empty())
 		return;	// already have boss segs
@@ -572,7 +572,7 @@ void init_ai_object(vmobjptridx_t objp, ai_behavior behavior, const imsegidx_t h
 		Last_gate_time = 0;
 		Last_teleport_time = 0;
 		Boss_cloak_start_time = 0;
-		boss_init_all_segments(objp);
+		boss_init_all_segments(Segments, objp);
 	}
 }
 
@@ -1977,7 +1977,7 @@ static imobjptridx_t gate_in_robot(fvmsegptridx &vmsegptridx, int type)
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-static int boss_fits_in_seg(const object &boss_objp, const vcsegptridx_t segp)
+static int boss_fits_in_seg(fvcvertptr &vcvertptr, const object &boss_objp, const vcsegptridx_t segp)
 {
 	const auto size = boss_objp.size;
 	const auto &&segcenter = compute_segment_center(vcvertptr, segp);
@@ -2023,7 +2023,7 @@ void create_buddy_bot(void)
 //	he can reach from his initial position (calls find_connected_distance).
 //	If size_check is set, then only add segment if boss can fit in it, else any segment is legal.
 //	one_wall_hack added by MK, 10/13/95: A mega-hack!  Set to !0 to ignore the 
-static void init_boss_segments(segment_array &segments, const object &boss_objp, boss_special_segment_array_t &a, const int size_check, int one_wall_hack)
+static void init_boss_segments(const segment_array &segments, const object &boss_objp, boss_special_segment_array_t &a, const int size_check, int one_wall_hack)
 {
 	constexpr unsigned QUEUE_SIZE = 256;
 	auto &vmsegptridx = segments.vmptridx;
@@ -2037,7 +2037,6 @@ static void init_boss_segments(segment_array &segments, const object &boss_objp,
 	Selected_segs.clear();
 #endif
 
-	assert(boss_objp.type == OBJ_ROBOT && Robot_info[get_robot_id(boss_objp)].boss_flag);
 	{
 		int			head, tail;
 		array<segnum_t, QUEUE_SIZE> seg_queue;
@@ -2047,7 +2046,7 @@ static void init_boss_segments(segment_array &segments, const object &boss_objp,
 		tail = 0;
 		seg_queue[head++] = original_boss_seg;
 
-		if ((!size_check) || boss_fits_in_seg(boss_objp, vmsegptridx(original_boss_seg)))
+		if ((!size_check) || boss_fits_in_seg(vcvertptr, boss_objp, vmsegptridx(original_boss_seg)))
 		{
 			a.emplace_back(original_boss_seg);
 #if DXX_USE_EDITOR
@@ -2092,7 +2091,7 @@ static void init_boss_segments(segment_array &segments, const object &boss_objp,
 							if (head+QUEUE_SIZE == tail + QUEUE_SIZE-1)
 								Int3();	//	queue overflow.  Make it bigger!
 	
-						if (!size_check || boss_fits_in_seg(boss_objp, vmsegptridx(csegnum))) {
+						if (!size_check || boss_fits_in_seg(vcvertptr, boss_objp, vmsegptridx(csegnum))) {
 							a.emplace_back(csegnum);
 #if DXX_USE_EDITOR
 							Selected_segs.emplace_back(csegnum);
@@ -4685,7 +4684,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 				{
 					if (Last_teleport_time != 0 && Last_teleport_time != Boss_cloak_start_time)
 						boss_link_see_sound(o);
-					boss_init_all_segments(o);
+					boss_init_all_segments(Segments, o);
 				}
 			}
 		}

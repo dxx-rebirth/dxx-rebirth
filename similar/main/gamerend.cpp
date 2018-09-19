@@ -693,7 +693,7 @@ static void show_one_extra_view(const int w)
 				}
 			 	break;
 			case CV_ESCORT: {
-				auto buddy = find_escort();
+				const auto &&buddy = find_escort(vmobjptridx, Robot_info);
 				if (buddy == object_none) {
 					do_cockpit_window_view(w,WBU_WEAPON);
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
