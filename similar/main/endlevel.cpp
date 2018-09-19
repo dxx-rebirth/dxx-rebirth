@@ -1458,7 +1458,7 @@ try_again:
 
 	const auto &&exit_seg = vmsegptr(exit_segnum);
 	compute_segment_center(vcvertptr, mine_exit_point, exit_seg);
-	extract_orient_from_segment(&mine_exit_orient, exit_seg);
+	extract_orient_from_segment(vcvertptr, mine_exit_orient, exit_seg);
 	compute_center_point_on_side(vcvertptr, mine_side_exit_point, exit_seg, exit_side);
 
 	vm_vec_scale_add(mine_ground_exit_point,mine_exit_point,mine_exit_orient.uvec,-i2f(20));

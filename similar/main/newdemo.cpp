@@ -546,7 +546,7 @@ static void nd_read_shortpos(object_base &obj)
 
 	my_extract_shortpos(obj, &sp);
 	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == VCLIP_MORPHING_ROBOT && render_type == RT_FIREBALL && obj.control_type == CT_EXPLOSION)
-		extract_orient_from_segment(&obj.orient, vcsegptr(obj.segnum));
+		extract_orient_from_segment(vcvertptr, obj.orient, vcsegptr(obj.segnum));
 
 }
 

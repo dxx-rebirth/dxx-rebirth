@@ -460,7 +460,7 @@ static void robotmaker_proc(fvmsegptridx &vmsegptridx, FuelCenter *const robotce
 			auto obj = object_create_explosion(robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
 
 			if (obj != object_none)
-				extract_orient_from_segment(&obj->orient, robotcen_segp);
+				extract_orient_from_segment(vcvertptr, obj->orient, robotcen_segp);
 
 			if ( Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1 )		{
 				digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen_segp, 0, cur_object_loc, 0, F1_0);

@@ -172,7 +172,7 @@ imsegptridx_t find_point_seg(const vms_vector &p,imsegptridx_t segnum);
 vm_distance find_connected_distance(const vms_vector &p0, vcsegptridx_t seg0, const vms_vector &p1, vcsegptridx_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag);
 
 //create a matrix that describes the orientation of the given segment
-void extract_orient_from_segment(vms_matrix *m,vcsegptr_t seg);
+void extract_orient_from_segment(fvcvertptr &vcvertptr, vms_matrix &m, const shared_segment &seg);
 
 //      In segment.c
 //      Make a just-modified segment valid.

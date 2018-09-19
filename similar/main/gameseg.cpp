@@ -1105,7 +1105,7 @@ static void extract_vector_from_segment(fvcvertptr &vcvertptr, const shared_segm
 }
 
 //create a matrix that describes the orientation of the given segment
-void extract_orient_from_segment(vms_matrix *m,const vcsegptr_t seg)
+void extract_orient_from_segment(fvcvertptr &vcvertptr, vms_matrix &m, const shared_segment &seg)
 {
 	vms_vector fvec,uvec;
 
@@ -1113,7 +1113,7 @@ void extract_orient_from_segment(vms_matrix *m,const vcsegptr_t seg)
 	extract_vector_from_segment(vcvertptr, seg, uvec, WBOTTOM, WTOP);
 
 	//vector to matrix does normalizations and orthogonalizations
-	vm_vector_2_matrix(*m,fvec,&uvec,nullptr);
+	vm_vector_2_matrix(m, fvec, &uvec, nullptr);
 }
 
 #if !DXX_USE_EDITOR
