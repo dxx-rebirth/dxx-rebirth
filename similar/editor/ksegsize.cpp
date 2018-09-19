@@ -61,7 +61,7 @@ static void validate_modified_segments(void)
 					if (w == v0)
 					{
 						modified_segments[segp] = true;
-						validate_segment(segp);
+						validate_segment(vcvertptr, segp);
 						for (unsigned s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
 							Num_tilings = 1;
 							assign_default_uvs_to_side(segp, s);

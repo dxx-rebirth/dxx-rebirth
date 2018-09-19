@@ -843,7 +843,7 @@ int AttachSegmentNew(void)
 void validate_selected_segments(void)
 {
 	range_for (const auto &gs, GroupList[current_group].segments)
-		validate_segment(vmsegptridx(gs));
+		validate_segment(vcvertptr, vmsegptridx(gs));
 }
 
 // =====================================================================================

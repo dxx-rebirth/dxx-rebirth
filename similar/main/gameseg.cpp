@@ -1522,36 +1522,36 @@ Levels 9-end: unchecked
 //		sp->sides[sidenum].render_flag = 0;
 }
 
-#if !DXX_USE_EDITOR
-}
-#endif
-
 // -------------------------------------------------------------------------------
 //	Make a just-modified segment valid.
 //		check all sides to see how many faces they each should have (0,1,2)
 //		create new vector normals
-void validate_segment(const vmsegptridx_t sp)
+void validate_segment(fvcvertptr &vcvertptr, const vmsegptridx_t sp)
 {
 	check_for_degenerate_segment(vcvertptr, sp);
 
 	for (int side = 0; side < MAX_SIDES_PER_SEGMENT; side++)
 		validate_segment_side(vcvertptr, sp, side);
-
-//	assign_default_uvs_to_segment(sp);
 }
+
+#if !DXX_USE_EDITOR
+}
+#endif
 
 // -------------------------------------------------------------------------------
 //	Validate all segments.
 //	Highest_segment_index must be set.
 //	For all used segments (number <= Highest_segment_index), segnum field must be != -1.
-void validate_segment_all(void)
+void validate_segment_all(d_level_shared_segment_state &LevelSharedSegmentState)
 {
-	range_for (const auto &&segp, vmsegptridx)
+	auto &Segments = LevelSharedSegmentState.get_segments();
+	auto &Vertices = LevelSharedSegmentState.get_vertices();
+	range_for (const auto &&segp, Segments.vmptridx)
 	{
 #if DXX_USE_EDITOR
 		if (segp->segnum != segment_none)
 		#endif
-			validate_segment(segp);
+			validate_segment(Vertices.vcptr, segp);
 	}
 
 #if DXX_USE_EDITOR

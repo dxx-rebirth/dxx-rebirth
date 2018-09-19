@@ -175,15 +175,15 @@ vm_distance find_connected_distance(const vms_vector &p0, vcsegptridx_t seg0, co
 //create a matrix that describes the orientation of the given segment
 void extract_orient_from_segment(fvcvertptr &vcvertptr, vms_matrix &m, const shared_segment &seg);
 
+void validate_segment_all(d_level_shared_segment_state &);
+
+#if DXX_USE_EDITOR
 //      In segment.c
 //      Make a just-modified segment valid.
 //              check all sides to see how many faces they each should have (0,1,2)
 //              create new vector normals
-void validate_segment(vmsegptridx_t sp);
+void validate_segment(fvcvertptr &vcvertptr, vmsegptridx_t sp);
 
-extern void validate_segment_all(void);
-
-#if DXX_USE_EDITOR
 //      Extract the forward vector from segment *sp, return in *vp.
 //      The forward vector is defined to be the vector from the the center of the front face of the segment
 // to the center of the back face of the segment.

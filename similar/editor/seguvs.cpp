@@ -1117,7 +1117,6 @@ static void calim_process_all_lights(int quick_light)
 	range_for (const auto &&segp, vmsegptridx)
 	{
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-			// if (!IS_CHILD(segp->children[sidenum])) {
 			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) != WID_NO_WALL)
 			{
 				const auto sidep = &segp->sides[sidenum];
@@ -1150,9 +1149,7 @@ static void calim_process_all_lights(int quick_light)
 //	Then, for all light sources, cast their light.
 static void cast_all_light_in_mine(int quick_flag)
 {
-
-	validate_segment_all();
-
+	validate_segment_all(LevelSharedSegmentState);
 	calim_zero_light_values();
 
 	calim_process_all_lights(quick_flag);

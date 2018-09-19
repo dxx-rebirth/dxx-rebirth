@@ -816,7 +816,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 	#endif
 
 #if DXX_USE_EDITOR
-		validate_segment_all();
+	validate_segment_all(LevelSharedSegmentState);
 	#endif
 
 	//create_local_segment_data();
@@ -1026,7 +1026,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 	Vertices.set_count(Num_vertices);
 	Segments.set_count(Num_segments);
 
-	validate_segment_all();			// Fill in side type and normals.
+	validate_segment_all(LevelSharedSegmentState);			// Fill in side type and normals.
 
 	range_for (const auto &&pi, vmsegptridx)
 	{

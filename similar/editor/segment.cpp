@@ -687,7 +687,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegpt
 	set_vertex_counts();
 
 	// Now all the vertices are in place.  Create the faces.
-	validate_segment(nsp);
+	validate_segment(vcvertptr, nsp);
 
 	//	Say to not render at the joint.
 //	destseg->sides[destside].render_flag = 0;
@@ -1102,7 +1102,7 @@ int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2
 	range_for (auto &s, partial_const_range(validation_list, nv))
 	{
 		const auto &&segp = seg1.absolute_sibling(s);
-		validate_segment(segp);
+		validate_segment(vcvertptr, segp);
 		remap_side_uvs(segp, remap_vertices);	// remap uv coordinates on sides which were reshaped (ie, have a vertex in lost_vertices)
 		warn_if_concave_segment(segp);
 	}
@@ -1164,7 +1164,7 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptri
 	//	Validate bridge segment, and if degenerate, clean up mess.
 	Degenerate_segment_found = 0;
 
-	validate_segment(bs);
+	validate_segment(vcvertptr, bs);
 
 	if (Degenerate_segment_found) {
 		seg1->children[side1] = segment_none;
@@ -1177,8 +1177,8 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptri
 		editor_status("Bridge segment would be degenerate, not created.\n");
 		return 1;
 	} else {
-		validate_segment(seg1);	// used to only validate side, but segment does more error checking: ,side1);
-		validate_segment(seg2);	// ,side2);
+		validate_segment(vcvertptr, seg1);	// used to only validate side, but segment does more error checking: ,side1);
+		validate_segment(vcvertptr, seg2);	// ,side2);
 		med_propagate_tmaps_to_segments(seg1,bs,0);
 
 		editor_status("Bridge segment formed.");
