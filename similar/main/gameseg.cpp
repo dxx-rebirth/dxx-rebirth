@@ -382,11 +382,11 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const sh
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
-static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp,const vmsegptridx_t segnum,array<fix, 6> &side_dists)
+static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &segnum, array<fix, 6> &side_dists)
 {
 	int			sn,facebit,sidebit;
 	ubyte			mask;
-	auto &seg = segnum;
+	auto &sides = segnum.sides;
 
 	//check point against each side of segment. return bitmask
 
@@ -394,7 +394,7 @@ static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp,co
 
 	side_dists = {};
 	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
-		auto &s = seg->sides[sn];
+		auto &s = sides[sn];
 
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
@@ -594,7 +594,7 @@ int	Doing_lighting_hack_flag=0;
 
 // figure out what seg the given point is in, tracing through segments
 // returns segment number, or -1 if can't find segment
-static imsegptridx_t trace_segs(const vms_vector &p0, const vmsegptridx_t oldsegnum, int recursion_count, visited_segment_bitarray_t &visited)
+static imsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedSegmentState, const vms_vector &p0, const vmsegptridx_t oldsegnum, const unsigned recursion_count, visited_segment_bitarray_t &visited)
 {
 	int centermask;
 	array<fix, 6> side_dists;
@@ -609,7 +609,8 @@ static imsegptridx_t trace_segs(const vms_vector &p0, const vmsegptridx_t oldseg
 	else
 		vs = true;
 
-	centermask = get_side_dists(vcvertptr, p0, oldsegnum, side_dists);		//check old segment
+	auto &Vertices = LevelSharedSegmentState.get_vertices();
+	centermask = get_side_dists(Vertices.vcptr, p0, oldsegnum, side_dists);		//check old segment
 	if (centermask == 0) // we are in the old segment
 		return oldsegnum; //..say so
 
@@ -631,7 +632,7 @@ static imsegptridx_t trace_segs(const vms_vector &p0, const vmsegptridx_t oldseg
 
 		side_dists[biggest_side] = 0;
 		// trace into adjacent segment:
-		auto check = trace_segs(p0, oldsegnum.absolute_sibling(seg->children[biggest_side]), recursion_count + 1, visited);
+		const auto &&check = trace_segs(LevelSharedSegmentState, p0, oldsegnum.absolute_sibling(seg->children[biggest_side]), recursion_count + 1, visited);
 		if (check != segment_none)		//we've found a segment
 			return check;
 	}
@@ -648,8 +649,7 @@ imsegptridx_t find_point_seg(const vms_vector &p,const imsegptridx_t segnum)
 	//allow segnum==-1, meaning we have no idea what segment point is in
 	if (segnum != segment_none) {
 		visited_segment_bitarray_t visited;
-		auto newseg = trace_segs(p, segnum, 0, visited);
-
+		const auto &&newseg = trace_segs(LevelSharedSegmentState, p, segnum, 0, visited);
 		if (newseg != segment_none)			//we found a segment!
 			return newseg;
 	}
@@ -661,15 +661,15 @@ imsegptridx_t find_point_seg(const vms_vector &p,const imsegptridx_t segnum)
 	//	slowing down lighting, and in about 98% of cases, it would just return -1 anyway.
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
-		range_for (const auto &&segp, vmsegptridx)
+		auto &Segments = LevelSharedSegmentState.get_segments();
+		auto &Vertices = LevelSharedSegmentState.get_vertices();
+		range_for (const auto &&segp, Segments.vmptridx)
 		{
-			if (get_seg_masks(vcvertptr, p, segp, 0).centermask == 0)
+			if (get_seg_masks(Vertices.vcptr, p, segp, 0).centermask == 0)
 				return segp;
 		}
-
-		return segment_none;		//no segment found
-	} else
-		return segment_none;
+	}
+	return segment_none;
 }
 
 
