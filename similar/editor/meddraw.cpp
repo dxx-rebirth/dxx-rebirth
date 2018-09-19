@@ -112,12 +112,12 @@ static void draw_line(grs_canvas &canvas, const unsigned pnum0, const unsigned p
 }
 
 // ----------------------------------------------------------------------------
-static void draw_segment(grs_canvas &canvas, const vcsegptr_t seg, const uint8_t color)
+static void draw_segment(grs_canvas &canvas, const shared_segment &seg, const uint8_t color)
 {
-	if (seg->segnum == segment_none)		//this segment doesn't exitst
+	if (seg.segnum == segment_none)		//this segment doesn't exitst
 		return;
 
-	auto &svp = seg->verts;
+	auto &svp = seg.verts;
 	if (!rotate_list(svp).uand)
 	{		//all off screen?
 		for (unsigned i = 0; i < 4; ++i)

@@ -152,7 +152,7 @@ namespace dsx {
 // ------------------------------------------------------------------------------------------
 //	Returns the index of a free segment.
 //	Scans the Segments array.
-segnum_t get_free_segment_number(void)
+segnum_t get_free_segment_number(segment_array &Segments)
 {
 	for (segnum_t segnum=0; segnum<MAX_SEGMENTS; segnum++)
 		if (Segments[segnum].segnum == segment_none) {
@@ -169,15 +169,13 @@ segnum_t get_free_segment_number(void)
 
 // -------------------------------------------------------------------------------
 //	Create a new segment, duplicating exactly, including vertex ids and children, the passed segment.
-segnum_t med_create_duplicate_segment(const vmsegptr_t sp)
+segnum_t med_create_duplicate_segment(segment_array &Segments, const segment &sp)
 {
-	segnum_t	segnum;
+	const auto segnum = get_free_segment_number(Segments);
 
-	segnum = get_free_segment_number();
-
-	const auto &&nsp = vmsegptr(segnum);
-	*nsp = *sp;	
-	nsp->objects = object_none;
+	auto &nsp = *Segments.vmptr(segnum);
+	nsp = sp;
+	nsp.objects = object_none;
 
 	return segnum;
 }
@@ -603,14 +601,13 @@ static void copy_tmap_ids(const vmsegptr_t dseg, const vmsegptr_t sseg)
 static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegptr_t newseg, int destside, int newside,const vms_matrix &attmat)
 {
 	vms_matrix	rotmat,rotmat2,rotmat3;
-	segnum_t			segnum;
 	vms_vector	forvec,upvec;
 
 	// Return if already a face attached on this side.
 	if (IS_CHILD(destseg->children[destside]))
 		return 4;
 
-	segnum = get_free_segment_number();
+	const auto segnum = get_free_segment_number(Segments);
 
 	forvec = attmat.fvec;
 	upvec = attmat.uvec;
@@ -1130,7 +1127,7 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptri
 	if (IS_CHILD(seg1->children[side1]) || IS_CHILD(seg2->children[side2]))
 		return 1;
 
-	const auto &&bs = seg1.absolute_sibling(get_free_segment_number());
+	const auto &&bs = seg1.absolute_sibling(get_free_segment_number(Segments));
 	bs->segnum = bs;
 	bs->objects = object_none;
 

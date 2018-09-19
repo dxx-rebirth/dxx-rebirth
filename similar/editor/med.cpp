@@ -1272,7 +1272,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 			Cursegp = imsegptridx(Found_segs[0]);
 			med_create_new_segment_from_cursegp();
 			if (Lock_view_to_cursegp)
-				set_view_target_from_segment(Cursegp);
+				set_view_target_from_segment(vcvertptr, Cursegp);
 		}
 
 		Update_flags |= UF_ED_STATE_CHANGED | UF_VIEWPOINT_MOVED;

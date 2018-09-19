@@ -1571,8 +1571,8 @@ static void net_udp_new_player(UDP_sequence_packet *const their)
 
 	plr.connected = CONNECT_PLAYING;
 	kill_matrix[pnum] = {};
-	const auto &&objp = vmobjptr(plr.objnum);
-	auto &player_info = objp->ctype.player_info;
+	auto &objp = *vmobjptr(plr.objnum);
+	auto &player_info = objp.ctype.player_info;
 	player_info.net_killed_total = 0;
 	player_info.net_kills_total = 0;
 	player_info.mission.score = 0;

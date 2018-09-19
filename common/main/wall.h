@@ -136,7 +136,7 @@ namespace dsx {
 class d_level_unique_stuck_object_state : public ::dcx::d_level_unique_stuck_object_state
 {
 public:
-	void add_stuck_object(fvcwallptr &, vmobjptridx_t objp, const vcsegptr_t segp, unsigned sidenum);
+	void add_stuck_object(fvcwallptr &, vmobjptridx_t objp, const shared_segment &segp, unsigned sidenum);
 	void remove_stuck_object(vcobjidx_t);
 	void kill_stuck_objects(fvmobjptr &, vcwallidx_t wallnum);
 };

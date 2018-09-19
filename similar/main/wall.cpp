@@ -756,12 +756,12 @@ static bool do_door_open(active_door &d)
 		fix time_elapsed, time_total, one_frame;
 		int i;
 
+		wall &w = *vmwallptr(d.front_wallnum[p]);
 		LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, d.front_wallnum[p]);
 		LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, d.back_wallnum[p]);
-		wall *const w = vmwallptr(d.front_wallnum[p]);
 
-		const auto &&seg = vmsegptridx(w->segnum);
-		side = w->sidenum;
+		const auto &&seg = vmsegptridx(w.segnum);
+		side = w.sidenum;
 
 // 		Assert(seg->sides[side].wall_num != -1);		//Trying to do_door_open on illegal wall
 		if (seg->sides[side].wall_num == wall_none)
@@ -777,38 +777,38 @@ static bool do_door_open(active_door &d)
 		d.time += FrameTime;
 
 		time_elapsed = d.time;
-		const auto n = WallAnims[w->clip_num].num_frames;
-		time_total = WallAnims[w->clip_num].play_time;
+		auto &wa = WallAnims[w.clip_num];
+		const auto n = wa.num_frames;
+		time_total = wa.play_time;
 
 		one_frame = time_total/n;	
 
 		i = time_elapsed/one_frame;
 
 		if (i < n)
-			wall_set_tmap_num(WallAnims[w->clip_num], seg, side, csegp, Connectside, i);
+			wall_set_tmap_num(WallAnims[w.clip_num], seg, side, csegp, Connectside, i);
 
 		const auto cwall_num = csegp->sides[Connectside].wall_num;
-		const auto &&w1 = vmwallptr(cwall_num);
+		auto &w1 = *vmwallptr(cwall_num);
 		if (i> n/2) {
-			w->flags |= WALL_DOOR_OPENED;
-			w1->flags |= WALL_DOOR_OPENED;
+			w.flags |= WALL_DOOR_OPENED;
+			w1.flags |= WALL_DOOR_OPENED;
 		}
 
 		if (i >= n-1) {
-			wall_set_tmap_num(WallAnims[w->clip_num], seg, side, csegp, Connectside, n - 1);
+			wall_set_tmap_num(WallAnims[w.clip_num], seg, side, csegp, Connectside, n - 1);
 
 			// If our door is not automatic just remove it from the list.
-			if (!(w->flags & WALL_DOOR_AUTO)) {
+			if (!(w.flags & WALL_DOOR_AUTO)) {
 				remove = true;
 #if defined(DXX_BUILD_DESCENT_II)
-				w->state = WALL_DOOR_OPEN;
-				w1->state = WALL_DOOR_OPEN;
+				w.state = WALL_DOOR_OPEN;
+				w1.state = WALL_DOOR_OPEN;
 #endif
 			}
 			else {
-
-				w->state = WALL_DOOR_WAITING;
-				w1->state = WALL_DOOR_WAITING;
+				w.state = WALL_DOOR_WAITING;
+				w1.state = WALL_DOOR_WAITING;
 			}
 		}
 
@@ -971,7 +971,7 @@ static int special_boss_opening_allowed(segnum_t segnum, int sidenum)
 //playernum is the number the player who hit the wall or fired the weapon,
 //or -1 if a robot fired the weapon
 namespace dsx {
-wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmsegptridx_t seg, int side, fix damage, int playernum, const vmobjptr_t obj)
+wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmsegptridx_t seg, int side, fix damage, int playernum, const object &obj)
 {
 	fix	show_message;
 
@@ -986,7 +986,7 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 
 	if (w->type == WALL_BLASTABLE) {
 #if defined(DXX_BUILD_DESCENT_II)
-		if (obj->ctype.laser_info.parent_type == OBJ_PLAYER)
+		if (obj.ctype.laser_info.parent_type == OBJ_PLAYER)
 #endif
 			wall_damage(seg, side, damage);
 		return wall_hit_process_t::WHP_BLASTABLE;
@@ -999,12 +999,12 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 	
 	//	Determine whether player is moving forward.  If not, don't say negative
 	//	messages because he probably didn't intentionally hit the door.
-	if (obj->type == OBJ_PLAYER)
-		show_message = (vm_vec_dot(obj->orient.fvec, obj->mtype.phys_info.velocity) > 0);
+	if (obj.type == OBJ_PLAYER)
+		show_message = (vm_vec_dot(obj.orient.fvec, obj.mtype.phys_info.velocity) > 0);
 #if defined(DXX_BUILD_DESCENT_II)
-	else if (obj->type == OBJ_ROBOT)
+	else if (obj.type == OBJ_ROBOT)
 		show_message = 0;
-	else if ((obj->type == OBJ_WEAPON) && (obj->ctype.laser_info.parent_type == OBJ_ROBOT))
+	else if (obj.type == OBJ_WEAPON && obj.ctype.laser_info.parent_type == OBJ_ROBOT)
 		show_message = 0;
 #endif
 	else
@@ -1272,9 +1272,9 @@ d_level_unique_stuck_object_state LevelUniqueStuckObjectState;
 
 //	An object got stuck in a door (like a flare).
 //	Add global entry.
-void d_level_unique_stuck_object_state::add_stuck_object(fvcwallptr &vcwallptr, const vmobjptridx_t objp, const vcsegptr_t segp, const unsigned sidenum)
+void d_level_unique_stuck_object_state::add_stuck_object(fvcwallptr &vcwallptr, const vmobjptridx_t objp, const shared_segment &segp, const unsigned sidenum)
 {
-	const auto wallnum = segp->sides[sidenum].wall_num;
+	const auto wallnum = segp.sides[sidenum].wall_num;
 	if (wallnum != wall_none)
 	{
 		if (vcwallptr(wallnum)->flags & WALL_BLASTED)
@@ -1405,7 +1405,7 @@ static void bng_process_segment(const object &objp, fix damage, const vmsegptrid
 	}
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		auto segnum = segp->children[i];
+		const auto segnum = segp->children[i];
 
 		if (segnum != segment_none) {
 			if (!visited[segnum]) {

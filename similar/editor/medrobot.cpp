@@ -199,12 +199,12 @@ int		Cur_goody_count = 0;
 static void update_goody_info(void)
 {
 	if (Cur_object_index != object_none )	{
-		const auto &&obj = vmobjptr(Cur_object_index);
-		if (obj->type == OBJ_ROBOT)
+		auto &obj = *vmobjptr(Cur_object_index);
+		if (obj.type == OBJ_ROBOT)
 		{
-			obj->contains_type = Cur_goody_type;
-			obj->contains_id = Cur_goody_id;
-			obj->contains_count = Cur_goody_count;
+			obj.contains_type = Cur_goody_type;
+			obj.contains_id = Cur_goody_id;
+			obj.contains_count = Cur_goody_count;
 		}
 	}
 }
@@ -343,7 +343,7 @@ static int LocalObjectSelectNextinSegment(void)
 	}
 
 	if (Cur_object_index != first_obj)
-		set_view_target_from_segment(Cursegp);
+		set_view_target_from_segment(vcvertptr, Cursegp);
 
 	return rval;
 }
@@ -372,7 +372,7 @@ static int LocalObjectSelectNextinMine(void)
 	}
 
 	if (Cur_object_index != first_obj)
-		set_view_target_from_segment(Cursegp);
+		set_view_target_from_segment(vcvertptr, Cursegp);
 
 	return rval;
 }
@@ -401,7 +401,7 @@ static int LocalObjectSelectPrevinMine(void)
 	}
 
 	if (Cur_object_index != first_obj)
-		set_view_target_from_segment(Cursegp);
+		set_view_target_from_segment(vcvertptr, Cursegp);
 
 	return rval;
 }
@@ -413,13 +413,13 @@ static int LocalObjectDelete(void)
 	rval = ObjectDelete();
 
 	if (Cur_object_index != object_none) {
-		const auto &&objp = vcobjptr(Cur_object_index);
-		Cur_goody_type = objp->contains_type;
-		Cur_goody_id = objp->contains_id;
-		Cur_goody_count = objp->contains_count;
+		auto &objp = *vcobjptr(Cur_object_index);
+		Cur_goody_type = objp.contains_type;
+		Cur_goody_id = objp.contains_id;
+		Cur_goody_count = objp.contains_count;
 	}
 
-	set_view_target_from_segment(Cursegp);
+	set_view_target_from_segment(vcvertptr, Cursegp);
 
 	return rval;
 }
@@ -446,7 +446,7 @@ static int LocalObjectPlaceObject(void)
 	objp->contains_id = Cur_goody_id;
 	objp->contains_count = Cur_goody_count;
 
-	set_view_target_from_segment(Cursegp);
+	set_view_target_from_segment(vcvertptr, Cursegp);
 
 	return rval;
 }

@@ -421,11 +421,11 @@ int med_create_duplicate_vertex(const vertex &vp);
 
 namespace dsx {
 //	Create a new segment, duplicating exactly, including vertex ids and children, the passed segment.
-segnum_t med_create_duplicate_segment(vmsegptr_t sp);
+segnum_t med_create_duplicate_segment(segment_array &, const segment &sp);
 
 //	Returns the index of a free segment.
 //	Scans the Segments array.
-extern segnum_t get_free_segment_number(void);
+segnum_t get_free_segment_number(segment_array &);
 }
 #endif
 

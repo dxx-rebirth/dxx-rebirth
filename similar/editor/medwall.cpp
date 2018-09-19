@@ -134,21 +134,21 @@ static int wall_assign_door(int door_type)
 
 	Current_door_type = door_type;
 
-	const auto &&csegp = vmsegptr(Cursegp->children[Curside]);
+	auto &csegp = *vmsegptr(Cursegp->children[Curside]);
 	auto Connectside = find_connect_side(Cursegp, csegp);
 	
  	wall0.clip_num = door_type;
-	vmwallptr(csegp->sides[Connectside].wall_num)->clip_num = door_type;
+	vmwallptr(csegp.sides[Connectside].wall_num)->clip_num = door_type;
 
 	if (WallAnims[door_type].flags & WCF_TMAP1) {
 		Cursegp->sides[Curside].tmap_num = WallAnims[door_type].frames[0];
-		csegp->sides[Connectside].tmap_num = WallAnims[door_type].frames[0];
+		csegp.sides[Connectside].tmap_num = WallAnims[door_type].frames[0];
 		Cursegp->sides[Curside].tmap_num2 = 0;
-		csegp->sides[Connectside].tmap_num2 = 0;
+		csegp.sides[Connectside].tmap_num2 = 0;
 	}
 	else {
 		Cursegp->sides[Curside].tmap_num2 = WallAnims[door_type].frames[0];
-		csegp->sides[Connectside].tmap_num2 = WallAnims[door_type].frames[0];
+		csegp.sides[Connectside].tmap_num2 = WallAnims[door_type].frames[0];
 	}
 
 	Update_flags |= UF_WORLD_CHANGED;

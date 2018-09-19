@@ -259,7 +259,7 @@ enum class wall_hit_process_t : unsigned
 #ifdef dsx
 class player_flags;
 namespace dsx {
-wall_hit_process_t wall_hit_process(player_flags, vmsegptridx_t seg, int side, fix damage, int playernum, vmobjptr_t obj);
+wall_hit_process_t wall_hit_process(player_flags, vmsegptridx_t seg, int side, fix damage, int playernum, const object &obj);
 
 // Opens/destroys specified door.
 }

@@ -519,18 +519,19 @@ static void dump_fix_as_ushort( fix value, int nbits, PHYSFS_File *SaveFile )
 	PHYSFS_writeULE16(SaveFile, short_value);
 }
 
-static void write_children(const vcsegptr_t seg, ubyte bit_mask, PHYSFS_File *SaveFile)
+static void write_children(const shared_segment &seg, const unsigned bit_mask, PHYSFS_File *const SaveFile)
 {
+	auto &children = seg.children;
 	for (int bit = 0; bit < MAX_SIDES_PER_SEGMENT; bit++)
 	{
 		if (bit_mask & (1 << bit))
-			PHYSFS_writeSLE16(SaveFile, seg->children[bit]);
+			PHYSFS_writeSLE16(SaveFile, children[bit]);
 	}
 }
 
-static void write_verts(const vcsegptr_t seg, PHYSFS_File *SaveFile)
+static void write_verts(const shared_segment &seg, PHYSFS_File *const SaveFile)
 {
-	range_for (auto &i, seg->verts)
+	range_for (auto &i, seg.verts)
 		PHYSFS_writeSLE16(SaveFile, i);
 }
 

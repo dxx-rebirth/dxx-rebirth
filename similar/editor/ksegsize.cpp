@@ -88,8 +88,9 @@ static void scale_vert_aux(const unsigned vertex_ind, const vms_vector &vp, cons
 }
 
 // ------------------------------------------------------------------------------------------
-static void scale_vert(const vmsegptr_t sp, int vertex_ind, const vms_vector &vp, fix scale_factor)
+static void scale_vert(const shared_segment &sp, const unsigned vertex_ind, const vms_vector &vp, const fix scale_factor)
 {
+	auto &verts = sp.verts;
 	switch (SegSizeMode) {
 		case SEGSIZEMODE_FREE:
 			if (is_free_vertex(vertex_ind))
@@ -100,18 +101,18 @@ static void scale_vert(const vmsegptr_t sp, int vertex_ind, const vms_vector &vp
 			break;
 		case SEGSIZEMODE_CURSIDE: {
 			range_for (const auto v, Side_to_verts[Curside])
-				if (sp->verts[v] == vertex_ind)
+				if (verts[v] == vertex_ind)
 					scale_vert_aux(vertex_ind, vp, scale_factor);
 			break;
 		}
 		case SEGSIZEMODE_EDGE: {
 			for (int v=0; v<2; v++)
-				if (sp->verts[Side_to_verts[Curside][(Curedge+v)%4]] == vertex_ind)
+				if (verts[Side_to_verts[Curside][(Curedge+v)%4]] == vertex_ind)
 					scale_vert_aux(vertex_ind, vp, scale_factor);
 			break;
 		}
 		case SEGSIZEMODE_VERTEX:
-			if (sp->verts[Side_to_verts[Curside][Curvert]] == vertex_ind)
+			if (verts[Side_to_verts[Curside][Curvert]] == vertex_ind)
 				scale_vert_aux(vertex_ind, vp, scale_factor);
 			break;
 		default:

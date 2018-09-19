@@ -447,7 +447,7 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 	range_for(const auto &gs, segments)
 	{
 		const auto &&segp = vmsegptr(gs);
-		const auto &&new_segment_id = med_create_duplicate_segment(segp);
+		const auto &&new_segment_id = med_create_duplicate_segment(Segments, segp);
 		new_segments.emplace_back(new_segment_id);
 		range_for (const auto objp, objects_in(segp, vmobjptridx, vmsegptr))
 		{
@@ -724,8 +724,8 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 					for (d=0; d<MAX_SIDES_PER_SEGMENT; d++)
 						if (IS_CHILD(csegp->children[d]))
 							{
-							const auto &&dsegp = vmsegptr(csegp->children[d]);
-							if (dsegp->group == current_group)
+							auto &dsegp = *vmsegptr(csegp->children[d]);
+							if (dsegp.group == current_group)
 								{
 								csegp->children[d] = segment_none;
 								validate_segment_side(csegp,d);					// we have converted a connection to a side so validate the segment
@@ -783,7 +783,7 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 //	-----------------------------------------------------------------------------
 static segnum_t place_new_segment_in_world(void)
 {
-	const auto &&segnum = vmsegptridx(get_free_segment_number());
+	const auto &&segnum = Segments.vmptridx(get_free_segment_number(Segments));
 	auto &seg = *segnum;
 	seg = New_segment;
 
@@ -816,7 +816,7 @@ static int AttachSegmentNewAng(const vms_angvec &pbh)
 		med_create_new_segment_from_cursegp();
 
 		if (Lock_view_to_cursegp)
-			set_view_target_from_segment(Cursegp);
+			set_view_target_from_segment(vcvertptr, Cursegp);
 
 		Update_flags |= UF_WORLD_CHANGED;
 		mine_changed = 1;
@@ -945,7 +945,7 @@ int RotateSegmentNew(vms_angvec *pbh)
 	rval = rotate_segment_new(*pbh);
 
 	if (Lock_view_to_cursegp)
-		set_view_target_from_segment(Cursegp);
+		set_view_target_from_segment(vcvertptr, Cursegp);
 
 	Update_flags |= UF_WORLD_CHANGED;
 	mine_changed = 1;
@@ -1219,7 +1219,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 			if (PHYSFS_read( LoadFile, &tseg, sizeof(segment),1 )!=1)
 				Error( "Error reading tseg in group.c" );
 				
-			group::segment_array_type_t::value_type s = get_free_segment_number();
+			group::segment_array_type_t::value_type s = get_free_segment_number(Segments);
 			segment_ids.emplace_back(s);
 			const auto &&segp = vmsegptridx(s);
 			*segp = tseg; 
@@ -1509,7 +1509,7 @@ int Degroup( void )
 		current_group = -1;
 
    if (Lock_view_to_cursegp)
-       set_view_target_from_segment(Cursegp);
+       set_view_target_from_segment(vcvertptr, Cursegp);
    Update_flags |= UF_WORLD_CHANGED;
    mine_changed = 1;
    diagnostic_message("Group UNgrouped.");
@@ -1767,7 +1767,7 @@ int DeleteGroup( void )
 
 	undo_status[Autosave_count] = "Delete Group UNDONE.";
    if (Lock_view_to_cursegp)
-       set_view_target_from_segment(Cursegp);
+       set_view_target_from_segment(vcvertptr, Cursegp);
 
    Update_flags |= UF_WORLD_CHANGED;
    mine_changed = 1;

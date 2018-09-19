@@ -85,7 +85,7 @@ int SelectNextFoundSeg(void)
 	Update_flags |= UF_WORLD_CHANGED;
 
 	if (Lock_view_to_cursegp)
-		set_view_target_from_segment(Cursegp);
+		set_view_target_from_segment(vcvertptr, Cursegp);
 
 	editor_status("Curseg assigned to next found segment.");
 
@@ -105,7 +105,7 @@ int SelectPreviousFoundSeg(void)
 	Update_flags |= UF_WORLD_CHANGED;
 
 	if (Lock_view_to_cursegp)
-		set_view_target_from_segment(Cursegp);
+		set_view_target_from_segment(vcvertptr, Cursegp);
 
 	editor_status("Curseg assigned to previous found segment.");
 

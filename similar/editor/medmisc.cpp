@@ -133,7 +133,7 @@ int ToggleLockstep()
 
 		Cursegp = imsegptridx(ConsoleObject->segnum);
 		med_create_new_segment_from_cursegp();
-		set_view_target_from_segment(Cursegp);
+		set_view_target_from_segment(vcvertptr, Cursegp);
 		Update_flags = UF_ED_STATE_CHANGED;
 	}
     return Gameview_lockstep;
@@ -143,7 +143,7 @@ int medlisp_delete_segment(void)
 {
     if (!med_delete_segment(Cursegp)) {
         if (Lock_view_to_cursegp)
-            set_view_target_from_segment(Cursegp);
+            set_view_target_from_segment(vcvertptr, Cursegp);
 		  autosave_mine(mine_filename);
 		undo_status[Autosave_count] = "Delete Segment UNDONE.";
         Update_flags |= UF_WORLD_CHANGED;
@@ -190,7 +190,7 @@ int ToggleLockViewToCursegp(void)
             diagnostic_message("[ctrl-V] View locked to Cursegp.");
         //else
         //    diagnostic_message("View locked to Cursegp.");
-        set_view_target_from_segment(Cursegp);
+        set_view_target_from_segment(vcvertptr, Cursegp);
     } else {
         //if (keypress != KEY_V+KEY_CTRLED)
             diagnostic_message("[ctrl-V] View not locked to Cursegp.");
@@ -338,7 +338,7 @@ int UndoCommand()
 
     u = undo();
     if (Lock_view_to_cursegp)
-		set_view_target_from_segment(Cursegp);
+		set_view_target_from_segment(vcvertptr, Cursegp);
     if (u == 0) {
         if (Autosave_count==9) diagnostic_message(undo_status[0]);
             else
@@ -372,7 +372,7 @@ int AttachSegment()
         diagnostic_message("Cannot attach segment - already a connection on current side.");
    else {
 		if (Lock_view_to_cursegp)
-			set_view_target_from_segment(Cursegp);
+			set_view_target_from_segment(vcvertptr, Cursegp);
 		vm_angvec_make(&Seg_orientation,0,0,0);
 		Curside = WBACK;
 		Update_flags |= UF_WORLD_CHANGED;
@@ -454,7 +454,7 @@ int ClearFoundList(void)
 }
 
 // ---------------------------------------------------------------------------------------------------
-void set_view_target_from_segment(const vmsegptr_t sp)
+void set_view_target_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
 {
 	if (Funky_chase_mode)
 		{
@@ -462,7 +462,7 @@ void set_view_target_from_segment(const vmsegptr_t sp)
 		}
 	else {
 		vms_vector tv{};
-		range_for (const auto &v, sp->verts)
+		range_for (const auto &v, sp.verts)
 			vm_vec_add2(tv, vcvertptr(v));
 
 		vm_vec_scale(tv,F1_0/MAX_VERTICES_PER_SEGMENT);
