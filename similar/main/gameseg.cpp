@@ -1433,13 +1433,9 @@ void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const unsig
 	add_side_as_quad(s, vn);
 }
 
-#if !DXX_USE_EDITOR
-}
-#endif
-
 // -------------------------------------------------------------------------------
 //	Make a just-modified segment side valid.
-void validate_segment_side(const vmsegptridx_t sp, int sidenum)
+void validate_segment_side(fvcvertptr &vcvertptr, const vmsegptridx_t sp, const unsigned sidenum)
 {
 	auto &side = sp->sides[sidenum];
 	const auto old_tmap_num = side.tmap_num;
@@ -1524,6 +1520,10 @@ Levels 9-end: unchecked
 //		sp->sides[sidenum].render_flag = 0;
 }
 
+#if !DXX_USE_EDITOR
+}
+#endif
+
 // -------------------------------------------------------------------------------
 //	Make a just-modified segment valid.
 //		check all sides to see how many faces they each should have (0,1,2)
@@ -1533,7 +1533,7 @@ void validate_segment(const vmsegptridx_t sp)
 	check_for_degenerate_segment(vcvertptr, sp);
 
 	for (int side = 0; side < MAX_SIDES_PER_SEGMENT; side++)
-		validate_segment_side(sp, side);
+		validate_segment_side(vcvertptr, sp, side);
 
 //	assign_default_uvs_to_segment(sp);
 }

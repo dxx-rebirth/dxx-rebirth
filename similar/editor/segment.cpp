@@ -828,7 +828,7 @@ int med_delete_segment(const vmsegptridx_t sp)
 			for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 				if (csp->children[s] == segnum) {
 					csp->children[s] = segment_none;				// this is the side of connection, break it
-					validate_segment_side(csp,s);					// we have converted a connection to a side so validate the segment
+					validate_segment_side(vcvertptr, csp, s);					// we have converted a connection to a side so validate the segment
 					med_propagate_tmaps_to_back_side(csp,s,0);
 				}
 			Cursegp = csp;
@@ -1098,7 +1098,7 @@ int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2
 	seg2->children[side2] = seg1;
 
 	// validate all segments
-	validate_segment_side(seg1,side1);
+	validate_segment_side(vcvertptr, seg1, side1);
 	range_for (auto &s, partial_const_range(validation_list, nv))
 	{
 		const auto &&segp = seg1.absolute_sibling(s);

@@ -199,6 +199,8 @@ void extract_right_vector_from_segment(fvcvertptr &, const shared_segment &sp, v
 void extract_up_vector_from_segment(fvcvertptr &, const shared_segment &sp, vms_vector &vp);
 
 void create_walls_on_side(fvcvertptr &, shared_segment &sp, unsigned sidenum);
+
+void validate_segment_side(fvcvertptr &, vmsegptridx_t sp, unsigned sidenum);
 #endif
 
 void pick_random_point_in_seg(vms_vector &new_pos, vcsegptr_t sp);
@@ -208,7 +210,6 @@ static inline vms_vector pick_random_point_in_seg(vcsegptr_t sp)
 	return pick_random_point_in_seg(v, sp), v;
 }
 
-void validate_segment_side(vmsegptridx_t sp, int sidenum);
 int check_segment_connections(void);
 unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, segment_depth_array_t &depths);
 #if defined(DXX_BUILD_DESCENT_I)

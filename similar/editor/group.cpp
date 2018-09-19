@@ -591,7 +591,7 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 			if (IS_CHILD(segp->children[c])) {
 				if (!in_group(segp->children[c], new_current_group)) {
 					segp->children[c] = segment_none;
-					validate_segment_side(segp,c);					// we have converted a connection to a side so validate the segment
+					validate_segment_side(vcvertptr, segp, c);					// we have converted a connection to a side so validate the segment
 				}
 			}
 	}
@@ -728,11 +728,11 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 							if (dsegp.group == current_group)
 								{
 								csegp->children[d] = segment_none;
-								validate_segment_side(csegp,d);					// we have converted a connection to a side so validate the segment
+								validate_segment_side(vcvertptr, csegp, d);					// we have converted a connection to a side so validate the segment
 								}
 							}
 					segp->children[c] = segment_none;
-					validate_segment_side(segp,c);					// we have converted a connection to a side so validate the segment
+					validate_segment_side(vcvertptr, segp, c);					// we have converted a connection to a side so validate the segment
 					}
 				}
 		}
