@@ -233,7 +233,7 @@ namespace dsx {
 // -------------------------------------------------------------------------------
 void create_removable_wall(const vmsegptridx_t sp, int sidenum, int tmap_num)
 {
-	create_walls_on_side(sp, sidenum);
+	create_walls_on_side(vcvertptr, sp, sidenum);
 
 	sp->sides[sidenum].tmap_num = tmap_num;
 
@@ -1233,7 +1233,7 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 
 	//	Add faces to all sides.
 	for (f=0; f<MAX_SIDES_PER_SEGMENT; f++)
-		create_walls_on_side(sp,f);
+		create_walls_on_side(vcvertptr, sp, f);
 
 	sp->objects = object_none;		//no objects in this segment
 
@@ -1281,7 +1281,7 @@ void med_create_new_segment(const vms_vector &scale)
 		sp->children[s] = segment_none;
 //		sp->sides[s].render_flag = 0;
 		sp->sides[s].wall_num = wall_none;
-		create_walls_on_side(sp,s);
+		create_walls_on_side(vcvertptr, sp, s);
 		sp->sides[s].tmap_num = s;					// assign some stupid old tmap to this side.
 		sp->sides[s].tmap_num2 = 0;
 	}

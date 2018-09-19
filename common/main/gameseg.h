@@ -197,9 +197,9 @@ void extract_right_vector_from_segment(fvcvertptr &, const shared_segment &sp, v
 //      The forward vector is defined to be the vector from the the center of the bottom face of the segment
 // to the center of the top face of the segment.
 void extract_up_vector_from_segment(fvcvertptr &, const shared_segment &sp, vms_vector &vp);
-#endif
 
-void create_walls_on_side(vmsegptridx_t sp, int sidenum);
+void create_walls_on_side(fvcvertptr &, shared_segment &sp, unsigned sidenum);
+#endif
 
 void pick_random_point_in_seg(vms_vector &new_pos, vcsegptr_t sp);
 static inline vms_vector pick_random_point_in_seg(vcsegptr_t sp)

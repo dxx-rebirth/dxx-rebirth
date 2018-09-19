@@ -1284,7 +1284,7 @@ static void get_verts_for_normal(verts_for_normal &r, const unsigned va, const u
 	r.negate_flag = ((w[0] + 3) % 4) == w[1] || ((w[1] + 3) % 4) == w[2];
 }
 
-static void assign_side_normal(vms_vector &n, const unsigned v0, const unsigned v1, const unsigned v2)
+static void assign_side_normal(fvcvertptr &vcvertptr, vms_vector &n, const unsigned v0, const unsigned v1, const unsigned v2)
 {
 	verts_for_normal vfn;
 	get_verts_for_normal(vfn, v0, v1, v2, UINT32_MAX);
@@ -1300,20 +1300,21 @@ static void assign_side_normal(vms_vector &n, const unsigned v0, const unsigned 
 namespace dsx {
 
 // -------------------------------------------------------------------------------
-static void add_side_as_2_triangles(const vmsegptr_t sp, const unsigned sidenum)
+static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, const unsigned sidenum)
 {
 	auto &vs = Side_to_verts[sidenum];
 	fix			dot;
 
-	const auto sidep = &sp->sides[sidenum];
+	const auto sidep = &sp.sides[sidenum];
 
 	//	Choose how to triangulate.
 	//	If a wall, then
 	//		Always triangulate so segment is convex.
 	//		Use Matt's formula: Na . AD > 0, where ABCD are vertices on side, a is face formed by A,B,C, Na is normal from face a.
 	//	If not a wall, then triangulate so whatever is on the other side is triangulated the same (ie, between the same absoluate vertices)
-	if (!IS_CHILD(sp->children[sidenum])) {
-		auto &verts = sp->verts;
+	if (!IS_CHILD(sp.children[sidenum]))
+	{
+		auto &verts = sp.verts;
 		auto &vvs0 = *vcvertptr(verts[vs[0]]);
 		auto &vvs1 = *vcvertptr(verts[vs[1]]);
 		auto &vvs2 = *vcvertptr(verts[vs[2]]);
@@ -1333,7 +1334,7 @@ static void add_side_as_2_triangles(const vmsegptr_t sp, const unsigned sidenum)
 		array<unsigned, 4> v;
 
 		for (unsigned i = 0; i < 4; ++i)
-			v[i] = sp->verts[vs[i]];
+			v[i] = sp.verts[vs[i]];
 
 		verts_for_normal vfn;
 		get_verts_for_normal(vfn, v[0], v[1], v[2], v[3]);
@@ -1351,8 +1352,8 @@ static void add_side_as_2_triangles(const vmsegptr_t sp, const unsigned sidenum)
 			s0v2 = v[3];
 			s1v0 = v[1];
 		}
-		assign_side_normal(sidep->normals[0], v[0], v[1], s0v2);
-		assign_side_normal(sidep->normals[1], s1v0, v[2], v[3]);
+		assign_side_normal(vcvertptr, sidep->normals[0], v[0], v[1], s0v2);
+		assign_side_normal(vcvertptr, sidep->normals[1], s1v0, v[2], v[3]);
 	}
 }
 
@@ -1375,14 +1376,18 @@ static int sign(fix v)
 
 namespace dsx {
 
+#if !DXX_USE_EDITOR
+namespace {
+#endif
+
 // -------------------------------------------------------------------------------
-void create_walls_on_side(const vmsegptridx_t sp, int sidenum)
+void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const unsigned sidenum)
 {
 	auto &vs = Side_to_verts[sidenum];
-	const auto v0 = sp->verts[vs[0]];
-	const auto v1 = sp->verts[vs[1]];
-	const auto v2 = sp->verts[vs[2]];
-	const auto v3 = sp->verts[vs[3]];
+	const auto v0 = sp.verts[vs[0]];
+	const auto v1 = sp.verts[vs[1]];
+	const auto v2 = sp.verts[vs[2]];
+	const auto v3 = sp.verts[vs[3]];
 
 	verts_for_normal vfn;
 	get_verts_for_normal(vfn, v0, v1, v2, v3);
@@ -1398,10 +1403,10 @@ void create_walls_on_side(const vmsegptridx_t sp, int sidenum)
 	if (negate_flag)
 		vm_vec_negate(vn);
 
-	auto &s = sp->sides[sidenum];
+	auto &s = sp.sides[sidenum];
 	if (dist_to_plane > PLANE_DIST_TOLERANCE)
 	{
-		add_side_as_2_triangles(sp, sidenum);
+		add_side_as_2_triangles(vcvertptr, sp, sidenum);
 
 		//this code checks to see if we really should be triangulated, and
 		//de-triangulates if we shouldn't be.
@@ -1428,14 +1433,17 @@ void create_walls_on_side(const vmsegptridx_t sp, int sidenum)
 	add_side_as_quad(s, vn);
 }
 
+#if !DXX_USE_EDITOR
+}
+#endif
+
 // -------------------------------------------------------------------------------
 //	Make a just-modified segment side valid.
 void validate_segment_side(const vmsegptridx_t sp, int sidenum)
 {
 	auto &side = sp->sides[sidenum];
 	const auto old_tmap_num = side.tmap_num;
-		create_walls_on_side(sp, sidenum);
-		// create_removable_wall(sp, sidenum, sp->sides[sidenum].tmap_num);
+	create_walls_on_side(vcvertptr, sp, sidenum);
 	/* If the texture is correct, put it back.  This is sometimes a
 	 * wasted store, but never harmful.
 	 *
