@@ -1752,15 +1752,13 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 	return 0;
 }
 
-unsigned char decodebuf[1024*1024];
-
 void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepad)
 {
 	assert(!rbm.get_flag_mask(BM_FLAG_PAGED_OUT));
 	assert(rbm.bm_data);
 	grs_bitmap *bm = &rbm;
-	while (bm->bm_parent)
-		bm=bm->bm_parent;
+	while (const auto bm_parent = bm->bm_parent)
+		bm = bm_parent;
 	if (bm->gltexture && bm->gltexture->handle > 0)
 		return;
 	auto buf=bm->get_bitmap_data();
@@ -1778,27 +1776,37 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepa
 		}
 	}
 
+	array<uint8_t, 300*1024> decodebuf;
 	if (bm->get_flag_mask(BM_FLAG_RLE))
 	{
 		class bm_rle_expand_state
 		{
-			uint8_t *dbits = decodebuf;
+			uint8_t *dbits;
+			uint8_t *const ebits;
 		public:
+			bm_rle_expand_state(uint8_t *const b, uint8_t *const e) :
+				dbits(b), ebits(e)
+			{
+			}
 			uint8_t *get_begin_dbits() const
 			{
 				return dbits;
 			}
-			static uint8_t *get_end_dbits()
+			uint8_t *get_end_dbits() const
 			{
-				return end(decodebuf);
+				return ebits;
 			}
 			void consume_dbits(const unsigned w)
 			{
 				dbits += w;
 			}
 		};
-		bm_rle_expand(*bm).loop(bm_w, bm_rle_expand_state());
-		buf=decodebuf;
+		decodebuf = {};
+		buf = decodebuf.data();
+		if (!bm_rle_expand(*bm).loop(bm_w, bm_rle_expand_state(begin(decodebuf), end(decodebuf))))
+		{
+			con_printf(CON_URGENT, "error: insufficient space to decode %hux%hu bitmap.  Please report this as a bug.", bm_w, bm->bm_h);
+		}
 	}
 	ogl_loadtexture(gr_palette, buf, 0, 0, *bm->gltexture, bm->get_flags(), 0, texfilt, texanis, edgepad);
 }
