@@ -1153,7 +1153,8 @@ void extract_up_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment 
 
 //	----
 //	A side is determined to be degenerate if the cross products of 3 consecutive points does not point outward.
-static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
+__attribute_warn_unused_result
+static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_segment &sp, const unsigned sidenum)
 {
 	auto &vp = Side_to_verts[sidenum];
 	vms_vector	vec1, vec2;
@@ -1170,9 +1171,9 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 	//vm_vec_normalize(&vec2);
 	const auto vp1 = vp[1];
 	const auto vp2 = vp[2];
-	auto &vert1 = *vcvertptr(sp->verts[vp1]);
-	auto &vert2 = *vcvertptr(sp->verts[vp2]);
-	vm_vec_normalized_dir(vec1, vert1, vcvertptr(sp->verts[vp[0]]));
+	auto &vert1 = *vcvertptr(sp.verts[vp1]);
+	auto &vert2 = *vcvertptr(sp.verts[vp2]);
+	vm_vec_normalized_dir(vec1, vert1, vcvertptr(sp.verts[vp[0]]));
 	vm_vec_normalized_dir(vec2, vert2, vert1);
 	const auto cross0 = vm_vec_cross(vec1, vec2);
 
@@ -1185,7 +1186,7 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 	//vm_vec_normalize(&vec1);
 	//vm_vec_normalize(&vec2);
 	vm_vec_normalized_dir(vec1, vert2, vert1);
-	vm_vec_normalized_dir(vec2, vcvertptr(sp->verts[vp[3]]), vert2);
+	vm_vec_normalized_dir(vec2, vcvertptr(sp.verts[vp[3]]), vert2);
 	const auto cross1 = vm_vec_cross(vec1, vec2);
 
 	dot = vm_vec_dot(vec_to_center, cross1);
@@ -1193,7 +1194,6 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 		degeneracy_flag |= 1;
 
 	return degeneracy_flag;
-
 }
 
 //	----
@@ -1224,7 +1224,7 @@ static int check_for_degenerate_segment(const vcsegptr_t sp)
 
 	//	Now, see if degenerate because of any side.
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
-		degeneracy_flag |= check_for_degenerate_side(sp, i);
+		degeneracy_flag |= check_for_degenerate_side(vcvertptr, sp, i);
 
 #if DXX_USE_EDITOR
 	Degenerate_segment_found |= degeneracy_flag;
