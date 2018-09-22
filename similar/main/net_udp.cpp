@@ -1044,6 +1044,37 @@ void net_udp_manual_join_game()
 	newmenu_do1(nullptr, "ENTER GAME ADDRESS", nitems, &m[0], manual_join_game_handler, dj.release(), 0);
 }
 
+static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_float strbound, array<char, 25> &out, const ntstring<25> &in)
+{
+	size_t k = 0, x = 0;
+	char thold[2];
+	thold[1] = 0;
+	constexpr std::size_t outsize = out.size();
+	range_for (const char c, in)
+	{
+		if (unlikely(c == '\t'))
+			continue;
+		if (unlikely(!c))
+			break;
+		thold[0] = c;
+		int tx;
+		gr_get_string_size(cv_font, thold, &tx, nullptr, nullptr);
+		if ((x += tx) >= strbound)
+		{
+			constexpr std::size_t outbound = outsize - 4;
+			if (k > outbound)
+				k = outbound;
+			out[k] = out[k + 1] = out[k + 2] = '.';
+			k += 3;
+			break;
+		}
+		out[k++] = c;
+		if (k >= outsize - 1)
+			break;
+	}
+	out[k] = 0;
+}
+
 static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join *const dj)
 {
 	// Polling loop for Join Game menu
@@ -1209,9 +1240,8 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 	{
 		const auto &augi = Active_udp_games[(i + (NLPage * UDP_NETGAMES_PPAGE))];
 		int game_status = augi.game_status;
-		int j,x, k,nplayers = 0;
-		char levelname[8],MissName[25],GameName[25],thold[2];
-		thold[1]=0;
+		int nplayers = 0;
+		char levelname[8];
 
 		if ((i+(NLPage*UDP_NETGAMES_PPAGE)) >= num_active_udp_games)
 		{
@@ -1224,42 +1254,11 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 		// if missiontitle or gamename contain a tab
 
 		const auto &&fspacx = FSPACX();
-		for (x=0,k=0,j=0;j<15;j++)
-		{
-			if (augi.mission_title[j]=='\t')
-				continue;
-			thold[0] = augi.mission_title[j];
-			int tx;
-			gr_get_string_size(*grd_curcanv->cv_font, thold, &tx, nullptr, nullptr);
-
-			if ((x += tx) >= fspacx(55))
-			{
-				MissName[k]=MissName[k+1]=MissName[k+2]='.';
-				k+=3;
-				break;
-			}
-
-			MissName[k++] = augi.mission_title[j];
-		}
-		MissName[k]=0;
-
-		for (x=0,k=0,j=0;j<15;j++)
-		{
-			if (augi.game_name[j]=='\t')
-				continue;
-			thold[0]=augi.game_name[j];
-			int tx;
-			gr_get_string_size(*grd_curcanv->cv_font, thold, &tx, nullptr, nullptr);
-
-			if ((x += tx) >= fspacx(55))
-			{
-				GameName[k]=GameName[k+1]=GameName[k+2]='.';
-				k+=3;
-				break;
-			}
-			GameName[k++]=augi.game_name[j];
-		}
-		GameName[k]=0;
+		const auto &cv_font = *grd_curcanv->cv_font;
+		array<char, 25> MissName, GameName;
+		const auto &&fspacx55 = fspacx(55);
+		copy_truncate_string(cv_font, fspacx55, MissName, augi.mission_title);
+		copy_truncate_string(cv_font, fspacx55, GameName, augi.game_name);
 
 		nplayers = augi.numconnected;
 
@@ -1292,7 +1291,7 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 		
 		unsigned gamemode = augi.gamemode;
 		auto &p = dj->ljtext[i];
-		snprintf(&p[0], p.size(), "%d.\t%.24s \t%.7s \t%3u/%u \t%.24s \t %s \t%s", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1, GameName, (gamemode < sizeof(GMNamesShrt) / sizeof(GMNamesShrt[0])) ? GMNamesShrt[gamemode] : "INVALID", nplayers, augi.max_numplayers, MissName, levelname, status);
+		snprintf(&p[0], p.size(), "%d.\t%.24s \t%.7s \t%3u/%u \t%.24s \t %s \t%s", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1, GameName.data(), (gamemode < sizeof(GMNamesShrt) / sizeof(GMNamesShrt[0])) ? GMNamesShrt[gamemode] : "INVALID", nplayers, augi.max_numplayers, MissName.data(), levelname, status);
 	}
 	return 0;
 }

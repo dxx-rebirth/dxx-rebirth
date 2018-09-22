@@ -658,7 +658,7 @@ static inline packed_game_flags pack_game_flags(const bit_game_flags *flags)
 	return p;
 }
 
-#define NETGAME_NAME_LEN                15
+constexpr std::size_t NETGAME_NAME_LEN = 25;
 
 extern struct netgame_info Netgame;
 }
