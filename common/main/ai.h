@@ -86,7 +86,7 @@ extern const boss_flags_t Boss_invulnerable_energy;   // Set byte if boss is inv
 extern const boss_flags_t Boss_invulnerable_matter;   // Set byte if boss is invulnerable to matter weapons.
 extern const boss_flags_t Boss_invulnerable_spot;     // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 extern segnum_t Believed_player_seg;
-extern object *Ai_last_missile_camera;
+extern const object *Ai_last_missile_camera;
 }
 #endif
 

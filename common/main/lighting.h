@@ -40,7 +40,7 @@ struct g3s_lrgb;
 
 extern array<g3s_lrgb, MAX_VERTICES> Dynamic_light;
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-extern object *old_viewer;
+extern const object *old_viewer;
 
 // compute the lighting for an object.  Takes a pointer to the object,
 // and possibly a rotated 3d point.  If the point isn't specified, the
@@ -53,7 +53,7 @@ namespace dsx {
 void toggle_headlight_active(object &);
 #endif
 }
-void start_lighting_frame(vmobjptr_t viewer);
+void start_lighting_frame(const object &viewer);
 #endif
 
 #endif

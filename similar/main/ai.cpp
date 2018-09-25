@@ -2812,7 +2812,7 @@ static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const vmobjptr_t robot,
 	}
 }
 
-object *Ai_last_missile_camera;
+const object *Ai_last_missile_camera;
 
 static int openable_door_on_near_path(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, const object &obj, const ai_static &aip)
 {

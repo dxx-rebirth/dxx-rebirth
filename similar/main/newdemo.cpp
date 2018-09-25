@@ -1170,7 +1170,7 @@ void newdemo_record_render_object(const vmobjptridx_t obj)
 }
 
 namespace dsx {
-void newdemo_record_viewer_object(const vmobjptridx_t obj)
+void newdemo_record_viewer_object(const vcobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
 		return;
@@ -2047,7 +2047,9 @@ static int newdemo_read_frame_information(int rewrite)
 			else
 #endif
 			{
-			nd_read_object(vmobjptridx(Viewer));
+				/* As usual, the demo code breaks the rules. */
+				const auto &&viewer_vmobj = Objects.vmptridx(const_cast<object *>(Viewer));
+			nd_read_object(viewer_vmobj);
 			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
@@ -2064,7 +2066,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 				if (segnum > Highest_segment_index)
 					segnum = 0;
-				obj_link_unchecked(Objects.vmptr, Objects.vmptridx(Viewer), Segments.vmptridx(segnum));
+				obj_link_unchecked(Objects.vmptr, viewer_vmobj, Segments.vmptridx(segnum));
 			}
 			}
 		}

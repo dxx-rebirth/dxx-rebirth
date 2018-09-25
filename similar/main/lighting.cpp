@@ -593,14 +593,14 @@ static g3s_lrgb compute_seg_dynamic_light(const shared_segment &seg)
 
 static array<g3s_lrgb, MAX_OBJECTS> object_light;
 static array<object_signature_t, MAX_OBJECTS> object_sig;
-object *old_viewer;
+const object *old_viewer;
 static int reset_lighting_hack;
 #define LIGHT_RATE i2f(4) //how fast the light ramps up
 
-void start_lighting_frame(const vmobjptr_t viewer)
+void start_lighting_frame(const object &viewer)
 {
-	reset_lighting_hack = (viewer != old_viewer);
-	old_viewer = viewer;
+	reset_lighting_hack = (&viewer != old_viewer);
+	old_viewer = &viewer;
 }
 
 //compute the lighting for an object.  Takes a pointer to the object,

@@ -181,7 +181,7 @@ extern int Num_robot_types;
 #ifdef dsx
 namespace dsx {
 extern object *ConsoleObject;       // pointer to the object that is the player
-extern object *Viewer;              // which object we are seeing from
+extern const object *Viewer;              // which object we are seeing from
 extern object *Dead_player_camera;
 }
 #endif
@@ -331,7 +331,7 @@ extern int Drop_afterburner_blob_flag;		//ugly hack
 // returns object number
 imobjptridx_t drop_marker_object(const vms_vector &pos, vmsegptridx_t segnum, const vms_matrix &orient, int marker_num);
 
-void wake_up_rendered_objects(vmobjptr_t gmissp, window_rendered_data &window);
+void wake_up_rendered_objects(const object &gmissp, window_rendered_data &window);
 
 void fuelcen_check_for_goal(vcsegptr_t);
 #endif

@@ -292,7 +292,7 @@ int	GotoGameScreen()
 				return 0;
 
 			const auto &&console = vmobjptr(get_local_player().objnum);
-			ConsoleObject = Viewer = console;
+			Viewer = ConsoleObject = console;
 			set_player_id(console, Player_num);
 			fly_init(*ConsoleObject);
 

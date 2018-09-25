@@ -3689,11 +3689,11 @@ void do_cockpit_window_view(int win,int user)
 	}
 }
 
-void do_cockpit_window_view(const int win, const vmobjptr_t viewer, const int rear_view_flag, const int user, const char *const label, const player_info *const player_info)
+void do_cockpit_window_view(const int win, const object &viewer, const int rear_view_flag, const int user, const char *const label, const player_info *const player_info)
 {
 	grs_canvas window_canv;
 	static grs_canvas overlap_canv;
-	object *viewer_save = Viewer;
+	const auto viewer_save = Viewer;
 	int boxnum;
 	static int window_x,window_y;
 	const gauge_box *box;
@@ -3706,7 +3706,7 @@ void do_cockpit_window_view(const int win, const vmobjptr_t viewer, const int re
 
 	weapon_box_user[win] = user;						//say who's using window
 
-	Viewer = viewer;
+	Viewer = &viewer;
 	Rear_view = rear_view_flag;
 
 	const local_multires_gauge_graphic multires_gauge_graphic{};
@@ -3740,7 +3740,7 @@ void do_cockpit_window_view(const int win, const vmobjptr_t viewer, const int re
 	render_frame(*grd_curcanv, 0, window);
 
 	//	HACK! If guided missile, wake up robots as necessary.
-	if (viewer->type == OBJ_WEAPON) {
+	if (viewer.type == OBJ_WEAPON) {
 		// -- Used to require to be GUIDED -- if (viewer->id == GUIDEDMISS_ID)
 		wake_up_rendered_objects(viewer, window);
 	}

@@ -113,7 +113,7 @@ constexpr rgb_array_wrapper player_rgb{};
 // window user is one of the WBU_ constants.  If rear_view_flag is
 // set, show a rear view.  If label is non-NULL, print the label at
 // the top of the window.
-void do_cockpit_window_view(int win, vmobjptr_t viewer, int rear_view_flag, int user, const char *label, const player_info * = nullptr);
+void do_cockpit_window_view(int win, const object &viewer, int rear_view_flag, int user, const char *label, const player_info * = nullptr);
 void do_cockpit_window_view(int win, int user);
 #endif
 

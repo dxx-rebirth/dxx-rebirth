@@ -96,7 +96,7 @@ static uint16_t s_current_generation;
 // When any render function needs to know what's looking at it, it should 
 // access Viewer members.
 namespace dsx {
-object * Viewer = NULL;
+const object * Viewer = NULL;
 }
 
 vms_vector Viewer_eye;  //valid during render
@@ -1179,12 +1179,12 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
       if (RenderingType==0)
    		newdemo_record_start_frame(FrameTime );
       if (RenderingType!=255)
-   		newdemo_record_viewer_object(vmobjptridx(Viewer));
+   		newdemo_record_viewer_object(vcobjptridx(Viewer));
 	}
   
    //Here:
 
-	start_lighting_frame(vmobjptr(Viewer));		//this is for ugly light-smoothing hack
+	start_lighting_frame(*Viewer);		//this is for ugly light-smoothing hack
   
 	g3_start_frame(canvas);
 
@@ -1229,10 +1229,10 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void update_rendered_data(window_rendered_data &window, const vmobjptr_t viewer, int rear_view_flag)
+void update_rendered_data(window_rendered_data &window, const object &viewer, int rear_view_flag)
 {
 	window.time = timer_query();
-	window.viewer = viewer;
+	window.viewer = &viewer;
 	window.rear_view = rear_view_flag;
 }
 #endif

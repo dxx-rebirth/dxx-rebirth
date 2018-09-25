@@ -831,7 +831,7 @@ void init_objects()
 	range_for (auto &j, Segments)
 		j.objects = object_none;
 
-	ConsoleObject = Viewer = &Objects.front();
+	Viewer = ConsoleObject = &Objects.front();
 
 	init_player_object();
 	obj_link_unchecked(Objects.vmptr, Objects.vmptridx(ConsoleObject), Segments.vmptridx(segment_first));	//put in the world in segment 0
@@ -1252,7 +1252,7 @@ void obj_delete(d_level_object_state &ObjectState, segment_array &Segments, cons
 #define	DEATH_SEQUENCE_EXPLODE_TIME	(F1_0*2)
 
 object	*Dead_player_camera = NULL;	//	Object index of object watching deader.
-static object *Viewer_save;
+static const object *Viewer_save;
 }
 namespace dcx {
 player_dead_state Player_dead_state = player_dead_state::no;			//	If !0, then player is dead, but game continues so he can watch.
@@ -1516,7 +1516,7 @@ static void start_player_death_sequence(object &player)
 		Viewer = Dead_player_camera = objnum;
 	else {
 		Int3();
-		Dead_player_camera = Viewer;
+		Dead_player_camera = ConsoleObject;
 	}
 
 	select_cockpit(CM_LETTERBOX);
@@ -2178,14 +2178,14 @@ imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segn
 
 //	*viewer is a viewer, probably a missile.
 //	wake up all robots that were rendered last frame subject to some constraints.
-void wake_up_rendered_objects(const vmobjptr_t viewer, window_rendered_data &window)
+void wake_up_rendered_objects(const object &viewer, window_rendered_data &window)
 {
 	//	Make sure that we are processing current data.
 	if (timer_query() != window.time) {
 		return;
 	}
 
-	Ai_last_missile_camera = viewer;
+	Ai_last_missile_camera = &viewer;
 
 	range_for (const auto objnum, window.rendered_robots)
 	{
@@ -2194,7 +2194,8 @@ void wake_up_rendered_objects(const vmobjptr_t viewer, window_rendered_data &win
 			const auto &&objp = vmobjptr(objnum);
 	
 			if (objp->type == OBJ_ROBOT) {
-				if (vm_vec_dist_quick(viewer->pos, objp->pos) < F1_0*100) {
+				if (vm_vec_dist_quick(viewer.pos, objp->pos) < F1_0*100)
+				{
 					ai_local		*ailp = &objp->ctype.ai_info.ail;
 					if (ailp->player_awareness_type == player_awareness_type_t::PA_NONE) {
 						objp->ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_CAMERA_AWAKE;
