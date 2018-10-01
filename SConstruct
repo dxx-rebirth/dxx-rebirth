@@ -2596,6 +2596,8 @@ where the cast is useless.
 ''', msg='for struct timespec', successflags=_successflags)
 	__preferred_compiler_options = [
 		'-fvisibility=hidden',
+		'-Wduplicated-branches',
+		'-Wduplicated-cond',
 		'-Wsuggest-attribute=noreturn',
 		'-Wlogical-op',
 		'-Wold-style-cast',
