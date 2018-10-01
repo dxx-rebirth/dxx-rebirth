@@ -569,7 +569,7 @@ static int create_videobuf_handler(unsigned char, unsigned char minor, const uns
 	g_vBuffers.assign(g_width * g_height * 8, 0);
 	g_vBackBuf1 = &g_vBuffers[0];
 	if (truecolor) {
-		g_vBackBuf2 = reinterpret_cast<uint8_t *>(reinterpret_cast<uint16_t *>(g_vBackBuf1)) + (g_width * g_height);
+		g_vBackBuf2 = reinterpret_cast<uint8_t *>(reinterpret_cast<uint16_t *>(g_vBackBuf1) + (g_width * g_height));
 	} else {
 		g_vBackBuf2 = (g_vBackBuf1 + (g_width * g_height));
 	}
