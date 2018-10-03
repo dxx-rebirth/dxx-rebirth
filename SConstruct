@@ -4701,7 +4701,7 @@ class DXXProgram(DXXCommon):
 				('__STDC_FORMAT_MACROS',),
 			],
 			CPPPATH = [os.path.join(self.srcdir, 'main')],
-			LIBS = ['m'],
+			LIBS = ['ADLMIDI', 'm'],
 		)
 
 	def register_program(self):

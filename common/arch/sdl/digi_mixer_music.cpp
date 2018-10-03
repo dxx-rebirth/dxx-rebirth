@@ -20,7 +20,9 @@
 
 #include "args.h"
 #include "hmp.h"
+#include "adlmidi.h"
 #include "digi_mixer_music.h"
+#include "digi.h"
 #include "strutil.h"
 #include "u_mem.h"
 #include "console.h"
@@ -87,10 +89,53 @@ public:
 	typename music_pointer::pointer get() { return m_music.get(); }
 };
 
+struct ADLMIDI_delete
+{
+	void operator()(ADL_MIDIPlayer *x)
+	{
+		adl_close(x);
+	}
+};
+
+typedef std::unique_ptr<ADL_MIDIPlayer, ADLMIDI_delete> ADL_MIDIPlayer_t;
+
 }
 
 static current_music_t current_music;
+static ADL_MIDIPlayer_t current_adlmidi;
 static std::vector<uint8_t> current_music_hndlbuf;
+
+static ADL_MIDIPlayer *get_adlmidi()
+{
+	ADL_MIDIPlayer *adlmidi = current_adlmidi.get();
+	if (!adlmidi)
+	{
+		int sample_rate;
+		Mix_QuerySpec(&sample_rate, nullptr, nullptr);
+		adlmidi = adl_init(sample_rate);
+		adl_switchEmulator(adlmidi, ADLMIDI_EMU_DOSBOX);
+		adl_setNumChips(adlmidi, 6);
+		adl_setBank(adlmidi, 31);
+		adl_setSoftPanEnabled(adlmidi, 1);
+		adl_setLoopEnabled(adlmidi, 1);
+		current_adlmidi.reset(adlmidi);
+	}
+	return adlmidi;
+}
+
+enum CurrentMusicType {
+	CurrentMusic_None,
+	CurrentMusic_ADLMIDI,
+	CurrentMusic_SDLMixer,
+};
+
+static CurrentMusicType current_music_type = CurrentMusic_None;
+
+static CurrentMusicType load_mus_data(const void *data, size_t size);
+static CurrentMusicType load_mus_file(const char *filename);
+
+static void mix_adlmidi(void *udata, Uint8 *stream, int len);
+
 
 /*
  *  Plays a music file from an absolute path or a relative path
@@ -98,10 +143,11 @@ static std::vector<uint8_t> current_music_hndlbuf;
 
 int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 {
-	SDL_RWops *rw = NULL;
 	array<char, PATH_MAX> full_path;
 	const char *fptr;
 	unsigned int bufsize = 0;
+
+	// fprintf(stderr, "Load music: %s\n", filename);
 
 	mix_free_music();	// stop and free what we're already playing, if anything
 
@@ -114,17 +160,16 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 	if (!d_stricmp(fptr, ".hmp"))
 	{
 		hmp2mid(filename, current_music_hndlbuf);
-		rw = SDL_RWFromConstMem(&current_music_hndlbuf[0], current_music_hndlbuf.size()*sizeof(char));
-		current_music.reset(Mix_LoadMUS_RW(rw DXX_SDL_MIXER_Mix_LoadMUS_MANAGE_RWOPS) DXX_SDL_MIXER_Mix_LoadMUS_PASS_RWOPS(rw));
+		current_music_type = load_mus_data(current_music_hndlbuf.data(), current_music_hndlbuf.size());
 	}
 
 	// try loading music via given filename
-	if (!current_music)
-		current_music.reset(Mix_LoadMUS(filename));
+	if (current_music_type == CurrentMusic_None)
+		current_music_type = load_mus_file(filename);
 
 	// allow the shell convention tilde character to mean the user's home folder
 	// chiefly used for default jukebox level song music referenced in 'descent.m3u' for Mac OS X
-	if (!current_music && *filename == '~')
+	if (current_music_type == CurrentMusic_None && *filename == '~')
 	{
 		const auto sep = PHYSFS_getDirSeparator();
 		const auto lensep = strlen(sep);
@@ -132,44 +177,55 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 				 &filename[1 + (!strncmp(&filename[1], sep, lensep)
 			? lensep
 			: 0)]);
-		current_music.reset(Mix_LoadMUS(full_path.data()));
-		if (current_music)
+		current_music_type = load_mus_file(full_path.data());
+		if (current_music_type != CurrentMusic_None)
 			filename = full_path.data();	// used later for possible error reporting
 	}
-		
 
 	// no luck. so it might be in Searchpath. So try to build absolute path
-	if (!current_music)
+	if (current_music_type == CurrentMusic_None)
 	{
 		PHYSFSX_getRealPath(filename, full_path);
-		current_music.reset(Mix_LoadMUS(full_path.data()));
-		if (current_music)
+		current_music_type = load_mus_file(full_path.data());
+		if (current_music_type != CurrentMusic_None)
 			filename = full_path.data();	// used later for possible error reporting
 	}
 
 	// still nothin'? Let's open via PhysFS in case it's located inside an archive
-	if (!current_music)
+	if (current_music_type == CurrentMusic_None)
 	{
 		if (RAIIPHYSFS_File filehandle{PHYSFS_openRead(filename)})
 		{
 			unsigned len = PHYSFS_fileLength(filehandle);
 			current_music_hndlbuf.resize(len);
 			bufsize = PHYSFS_read(filehandle, &current_music_hndlbuf[0], sizeof(char), len);
-			rw = SDL_RWFromConstMem(&current_music_hndlbuf[0], bufsize*sizeof(char));
-			current_music.reset(Mix_LoadMUS_RW(rw DXX_SDL_MIXER_Mix_LoadMUS_MANAGE_RWOPS) DXX_SDL_MIXER_Mix_LoadMUS_PASS_RWOPS(rw));
+			current_music_type = load_mus_data(current_music_hndlbuf.data(), bufsize*sizeof(char));
 		}
 	}
 
-	if (current_music)
+	switch (current_music_type)
+	{
+
+	case CurrentMusic_ADLMIDI:
+	{
+		Mix_HookMusic(&mix_adlmidi, nullptr);
+		Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
+		return 1;
+	}
+
+	case CurrentMusic_SDLMixer:
 	{
 		Mix_PlayMusic(current_music.get(), (loop ? -1 : 1));
 		Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
 		return 1;
 	}
-	else
+
+	default:
 	{
 		con_printf(CON_CRITICAL,"Music %s could not be loaded: %s", filename, Mix_GetError());
 		mix_stop_music();
+	}
+
 	}
 
 	return 0;
@@ -179,8 +235,10 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 void mix_free_music()
 {
 	Mix_HaltMusic();
+	Mix_HookMusic(nullptr, nullptr);
 	current_music.reset();
 	current_music_hndlbuf.clear();
+	current_music_type = CurrentMusic_None;
 }
 
 void mix_set_music_volume(int vol)
@@ -211,6 +269,65 @@ void mix_pause_resume_music()
 		Mix_ResumeMusic();
 	else if (Mix_PlayingMusic())
 		Mix_PauseMusic();
+}
+
+static CurrentMusicType load_mus_data(const void *data, size_t size)
+{
+	CurrentMusicType type = CurrentMusic_None;
+	ADL_MIDIPlayer *adlmidi = get_adlmidi();
+	SDL_RWops *rw = NULL;
+
+	if (adl_openData(adlmidi, data, size) == 0)
+		type = CurrentMusic_ADLMIDI;
+	else if (0)
+	{
+		rw = SDL_RWFromConstMem(data, size);
+		current_music.reset(Mix_LoadMUS_RW(rw DXX_SDL_MIXER_Mix_LoadMUS_MANAGE_RWOPS) DXX_SDL_MIXER_Mix_LoadMUS_PASS_RWOPS(rw));
+		if (current_music)
+			type = CurrentMusic_SDLMixer;
+	}
+
+	return type;
+}
+
+static CurrentMusicType load_mus_file(const char *filename)
+{
+	CurrentMusicType type = CurrentMusic_None;
+	ADL_MIDIPlayer *adlmidi = get_adlmidi();
+
+	if (adl_openFile(adlmidi, filename) == 0)
+		type = CurrentMusic_ADLMIDI;
+	else if (0)
+	{
+		current_music.reset(Mix_LoadMUS(filename));
+		if (current_music)
+			type = CurrentMusic_SDLMixer;
+	}
+
+	return type;
+}
+
+static int16_t sat16(int32_t x)
+{
+	x = (x < INT16_MIN) ? INT16_MIN : x;
+	x = (x > INT16_MAX) ? INT16_MAX : x;
+	return x;
+}
+
+static void mix_adlmidi(void *, Uint8 *stream, int len)
+{
+	ADL_MIDIPlayer *adlmidi = get_adlmidi();
+	ADLMIDI_AudioFormat format;
+	format.containerSize = sizeof(int16_t);
+	format.sampleOffset = 2 * format.containerSize;
+	format.type = ADLMIDI_SampleType_S16;
+	int sampleCount = len / format.containerSize;
+	adl_playFormat(adlmidi, sampleCount, stream, stream + format.containerSize, &format);
+	for (int i = 0; i < sampleCount; ++i)
+	{
+		int16_t *samples = reinterpret_cast<int16_t *>(stream);
+		samples[i] = sat16(2 * samples[i]);
+	}
 }
 
 }
