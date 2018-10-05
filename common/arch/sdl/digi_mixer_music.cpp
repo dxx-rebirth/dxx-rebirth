@@ -116,7 +116,6 @@ static ADL_MIDIPlayer *get_adlmidi()
 		adl_setNumChips(adlmidi, 6);
 		adl_setBank(adlmidi, 31);
 		adl_setSoftPanEnabled(adlmidi, 1);
-		adl_setLoopEnabled(adlmidi, 1);
 		current_adlmidi.reset(adlmidi);
 	}
 	return adlmidi;
@@ -207,6 +206,8 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 
 	case CurrentMusicType::ADLMIDI:
 	{
+		ADL_MIDIPlayer *adlmidi = get_adlmidi();
+		adl_setLoopEnabled(adlmidi, loop);
 		Mix_HookMusic(&mix_adlmidi, nullptr);
 		Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
 		return 1;
