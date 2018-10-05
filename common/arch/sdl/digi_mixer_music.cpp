@@ -22,7 +22,6 @@
 #include "hmp.h"
 #include "adlmidi.h"
 #include "digi_mixer_music.h"
-#include "digi.h"
 #include "strutil.h"
 #include "u_mem.h"
 #include "console.h"
@@ -123,15 +122,15 @@ static ADL_MIDIPlayer *get_adlmidi()
 	return adlmidi;
 }
 
-enum CurrentMusicType {
-	CurrentMusic_None,
-	CurrentMusic_ADLMIDI,
-	CurrentMusic_SDLMixer,
+enum class CurrentMusicType {
+	None,
+	ADLMIDI,
+	SDLMixer,
 };
 
-static CurrentMusicType current_music_type = CurrentMusic_None;
+static CurrentMusicType current_music_type = CurrentMusicType::None;
 
-static CurrentMusicType load_mus_data(const void *data, size_t size);
+static CurrentMusicType load_mus_data(const uint8_t *data, size_t size);
 static CurrentMusicType load_mus_file(const char *filename);
 
 static void mix_adlmidi(void *udata, Uint8 *stream, int len);
@@ -164,12 +163,12 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 	}
 
 	// try loading music via given filename
-	if (current_music_type == CurrentMusic_None)
+	if (current_music_type == CurrentMusicType::None)
 		current_music_type = load_mus_file(filename);
 
 	// allow the shell convention tilde character to mean the user's home folder
 	// chiefly used for default jukebox level song music referenced in 'descent.m3u' for Mac OS X
-	if (current_music_type == CurrentMusic_None && *filename == '~')
+	if (current_music_type == CurrentMusicType::None && *filename == '~')
 	{
 		const auto sep = PHYSFS_getDirSeparator();
 		const auto lensep = strlen(sep);
@@ -178,21 +177,21 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 			? lensep
 			: 0)]);
 		current_music_type = load_mus_file(full_path.data());
-		if (current_music_type != CurrentMusic_None)
+		if (current_music_type != CurrentMusicType::None)
 			filename = full_path.data();	// used later for possible error reporting
 	}
 
 	// no luck. so it might be in Searchpath. So try to build absolute path
-	if (current_music_type == CurrentMusic_None)
+	if (current_music_type == CurrentMusicType::None)
 	{
 		PHYSFSX_getRealPath(filename, full_path);
 		current_music_type = load_mus_file(full_path.data());
-		if (current_music_type != CurrentMusic_None)
+		if (current_music_type != CurrentMusicType::None)
 			filename = full_path.data();	// used later for possible error reporting
 	}
 
 	// still nothin'? Let's open via PhysFS in case it's located inside an archive
-	if (current_music_type == CurrentMusic_None)
+	if (current_music_type == CurrentMusicType::None)
 	{
 		if (RAIIPHYSFS_File filehandle{PHYSFS_openRead(filename)})
 		{
@@ -206,14 +205,14 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 	switch (current_music_type)
 	{
 
-	case CurrentMusic_ADLMIDI:
+	case CurrentMusicType::ADLMIDI:
 	{
 		Mix_HookMusic(&mix_adlmidi, nullptr);
 		Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
 		return 1;
 	}
 
-	case CurrentMusic_SDLMixer:
+	case CurrentMusicType::SDLMixer:
 	{
 		Mix_PlayMusic(current_music.get(), (loop ? -1 : 1));
 		Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
@@ -238,7 +237,7 @@ void mix_free_music()
 	Mix_HookMusic(nullptr, nullptr);
 	current_music.reset();
 	current_music_hndlbuf.clear();
-	current_music_type = CurrentMusic_None;
+	current_music_type = CurrentMusicType::None;
 }
 
 void mix_set_music_volume(int vol)
@@ -271,20 +270,20 @@ void mix_pause_resume_music()
 		Mix_PauseMusic();
 }
 
-static CurrentMusicType load_mus_data(const void *data, size_t size)
+static CurrentMusicType load_mus_data(const uint8_t *data, size_t size)
 {
-	CurrentMusicType type = CurrentMusic_None;
+	CurrentMusicType type = CurrentMusicType::None;
 	ADL_MIDIPlayer *adlmidi = get_adlmidi();
 	SDL_RWops *rw = NULL;
 
 	if (adl_openData(adlmidi, data, size) == 0)
-		type = CurrentMusic_ADLMIDI;
-	else if (0)
+		type = CurrentMusicType::ADLMIDI;
+	else
 	{
 		rw = SDL_RWFromConstMem(data, size);
 		current_music.reset(Mix_LoadMUS_RW(rw DXX_SDL_MIXER_Mix_LoadMUS_MANAGE_RWOPS) DXX_SDL_MIXER_Mix_LoadMUS_PASS_RWOPS(rw));
 		if (current_music)
-			type = CurrentMusic_SDLMixer;
+			type = CurrentMusicType::SDLMixer;
 	}
 
 	return type;
@@ -292,16 +291,16 @@ static CurrentMusicType load_mus_data(const void *data, size_t size)
 
 static CurrentMusicType load_mus_file(const char *filename)
 {
-	CurrentMusicType type = CurrentMusic_None;
+	CurrentMusicType type = CurrentMusicType::None;
 	ADL_MIDIPlayer *adlmidi = get_adlmidi();
 
 	if (adl_openFile(adlmidi, filename) == 0)
-		type = CurrentMusic_ADLMIDI;
-	else if (0)
+		type = CurrentMusicType::ADLMIDI;
+	else
 	{
 		current_music.reset(Mix_LoadMUS(filename));
 		if (current_music)
-			type = CurrentMusic_SDLMixer;
+			type = CurrentMusicType::SDLMixer;
 	}
 
 	return type;
@@ -316,18 +315,18 @@ static int16_t sat16(int32_t x)
 
 static void mix_adlmidi(void *, Uint8 *stream, int len)
 {
-	ADL_MIDIPlayer *adlmidi = get_adlmidi();
 	ADLMIDI_AudioFormat format;
 	format.containerSize = sizeof(int16_t);
 	format.sampleOffset = 2 * format.containerSize;
 	format.type = ADLMIDI_SampleType_S16;
+
+	ADL_MIDIPlayer *adlmidi = get_adlmidi();
 	int sampleCount = len / format.containerSize;
 	adl_playFormat(adlmidi, sampleCount, stream, stream + format.containerSize, &format);
-	for (int i = 0; i < sampleCount; ++i)
-	{
-		int16_t *samples = reinterpret_cast<int16_t *>(stream);
-		samples[i] = sat16(2 * samples[i]);
-	}
+
+	const auto samples = reinterpret_cast<int16_t *>(stream);
+	const auto amplify = [](int16_t i) { return sat16(2 * i); };
+	std::transform(samples, samples + sampleCount, samples, amplify);
 }
 
 }
