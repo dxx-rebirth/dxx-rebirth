@@ -20,7 +20,7 @@
 
 #include "args.h"
 #include "hmp.h"
-#include "adlmidi.h"
+#include "adlmidi_dynamic.h"
 #include "digi_mixer_music.h"
 #include "strutil.h"
 #include "u_mem.h"
@@ -88,16 +88,6 @@ public:
 	typename music_pointer::pointer get() { return m_music.get(); }
 };
 
-struct ADLMIDI_delete
-{
-	void operator()(ADL_MIDIPlayer *x)
-	{
-		adl_close(x);
-	}
-};
-
-typedef std::unique_ptr<ADL_MIDIPlayer, ADLMIDI_delete> ADL_MIDIPlayer_t;
-
 }
 
 static current_music_t current_music;
@@ -112,16 +102,20 @@ static ADL_MIDIPlayer *get_adlmidi()
 		int sample_rate;
 		Mix_QuerySpec(&sample_rate, nullptr, nullptr);
 		adlmidi = adl_init(sample_rate);
-		adl_switchEmulator(adlmidi, ADLMIDI_EMU_DOSBOX);
-		adl_setNumChips(adlmidi, 6);
-		adl_setBank(adlmidi, 31);
-		adl_setSoftPanEnabled(adlmidi, 1);
-		current_adlmidi.reset(adlmidi);
+		if (adlmidi)
+		{
+			adl_switchEmulator(adlmidi, ADLMIDI_EMU_DOSBOX);
+			adl_setNumChips(adlmidi, 6);
+			adl_setBank(adlmidi, static_cast<int>(ADL_EmbeddedBank::LBA_4OP));
+			adl_setSoftPanEnabled(adlmidi, 1);
+			current_adlmidi.reset(adlmidi);
+		}
 	}
 	return adlmidi;
 }
 
-enum class CurrentMusicType {
+enum class CurrentMusicType
+{
 	None,
 	ADLMIDI,
 	SDLMixer,
@@ -277,7 +271,7 @@ static CurrentMusicType load_mus_data(const uint8_t *data, size_t size)
 	ADL_MIDIPlayer *adlmidi = get_adlmidi();
 	SDL_RWops *rw = NULL;
 
-	if (adl_openData(adlmidi, data, size) == 0)
+	if (adlmidi && adl_openData(adlmidi, data, size) == 0)
 		type = CurrentMusicType::ADLMIDI;
 	else
 	{
@@ -295,7 +289,7 @@ static CurrentMusicType load_mus_file(const char *filename)
 	CurrentMusicType type = CurrentMusicType::None;
 	ADL_MIDIPlayer *adlmidi = get_adlmidi();
 
-	if (adl_openFile(adlmidi, filename) == 0)
+	if (adlmidi && adl_openFile(adlmidi, filename) == 0)
 		type = CurrentMusicType::ADLMIDI;
 	else
 	{

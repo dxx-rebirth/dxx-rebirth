@@ -4254,6 +4254,7 @@ class DXXArchive(DXXCommon):
 'common/3d/points.cpp',
 'common/3d/rod.cpp',
 'common/3d/setup.cpp',
+'common/music/adlmidi_dynamic.cpp',
 'common/arch/sdl/event.cpp',
 'common/arch/sdl/joy.cpp',
 'common/arch/sdl/key.cpp',
@@ -4701,7 +4702,7 @@ class DXXProgram(DXXCommon):
 				('__STDC_FORMAT_MACROS',),
 			],
 			CPPPATH = [os.path.join(self.srcdir, 'main')],
-			LIBS = ['ADLMIDI', 'm'],
+			LIBS = ['m', 'dl'],
 		)
 
 	def register_program(self):
