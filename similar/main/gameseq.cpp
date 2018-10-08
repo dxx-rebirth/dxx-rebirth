@@ -1741,7 +1741,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 
 void (bash_to_shield)(const vmobjptr_t i)
 {
-	set_powerup_id(i, POW_SHIELD_BOOST);
+	set_powerup_id(Powerup_info, Vclip, i, POW_SHIELD_BOOST);
 }
 
 

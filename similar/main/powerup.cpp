@@ -759,6 +759,8 @@ int do_powerup(const vmobjptridx_t obj)
 DEFINE_SERIAL_UDT_TO_MESSAGE(powerup_type_info, pti, (pti.vclip_num, pti.hit_sound, pti.size, pti.light));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(powerup_type_info, 16);
 
+namespace dcx {
+
 void powerup_type_info_read(PHYSFS_File *fp, powerup_type_info &pti)
 {
 	PHYSFSX_serialize_read(fp, pti);
@@ -767,4 +769,6 @@ void powerup_type_info_read(PHYSFS_File *fp, powerup_type_info &pti)
 void powerup_type_info_write(PHYSFS_File *fp, const powerup_type_info &pti)
 {
 	PHYSFSX_serialize_write(fp, pti);
+}
+
 }

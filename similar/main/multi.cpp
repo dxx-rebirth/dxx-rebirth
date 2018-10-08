@@ -3356,19 +3356,19 @@ void multi_prep_level_objects()
 			switch (const auto id = get_powerup_id(o))
 			{
 				case POW_EXTRA_LIFE:
-					set_powerup_id(o, POW_INVULNERABILITY);
+					set_powerup_id(Powerup_info, Vclip, o, POW_INVULNERABILITY);
 					/* fall through */
 				case POW_INVULNERABILITY:
 					if (inv_remaining)
 						-- inv_remaining;
 					else
-						set_powerup_id(o, POW_SHIELD_BOOST);
+						set_powerup_id(Powerup_info, Vclip, o, POW_SHIELD_BOOST);
 					continue;
 				case POW_CLOAK:
 					if (cloak_remaining)
 						-- cloak_remaining;
 					else
-						set_powerup_id(o, POW_SHIELD_BOOST);
+						set_powerup_id(Powerup_info, Vclip, o, POW_SHIELD_BOOST);
 					continue;
 				default:
 					if (!multi_powerup_is_allowed(id, AllowedItems, SpawnGrantedItems))

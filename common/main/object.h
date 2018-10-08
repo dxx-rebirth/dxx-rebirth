@@ -633,7 +633,7 @@ static inline uint8_t get_marker_id(const object_base &o)
 }
 #endif
 
-void set_powerup_id(object_base &o, powerup_type_t id);
+void set_powerup_id(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip, object_base &o, powerup_type_t id);
 
 static inline void set_weapon_id(object_base &o, weapon_id_type id)
 {

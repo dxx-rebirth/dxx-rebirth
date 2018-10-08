@@ -2065,7 +2065,7 @@ int update_object_seg(fvmobjptr &vmobjptr, const d_level_shared_segment_state &L
 	return 1;
 }
 
-void set_powerup_id(object_base &o, powerup_type_t id)
+void set_powerup_id(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip, object_base &o, powerup_type_t id)
 {
 	o.id = id;
 	o.size = Powerup_info[id].size;
