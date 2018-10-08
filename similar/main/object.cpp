@@ -2233,7 +2233,16 @@ imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segn
 		auto &o = *obj;
 		o.rtype.pobj_info.model_num = Marker_model_num;
 
-		vm_vec_copy_scale(o.mtype.spin_rate, o.orient.uvec, F1_0 / 2);
+		constexpr fix scale = F1_0 / 2;
+		const auto oi = obj.get_unchecked_index();
+		auto &spin_vec = o.mtype.spin_rate;
+		spin_vec = {};
+		if (oi & 1)
+			vm_vec_scale_add2(spin_vec, o.orient.fvec, (oi & 8) ? scale : -scale);
+		if (oi & 2)
+			vm_vec_scale_add2(spin_vec, o.orient.uvec, (oi & 16) ? scale : -scale);
+		if (oi & 4)
+			vm_vec_scale_add2(spin_vec, o.orient.rvec, (oi & 32) ? scale : -scale);
 
 		//	MK, 10/16/95: Using lifeleft to make it flash, thus able to trim lightlevel from all objects.
 		o.lifeleft = IMMORTAL_TIME - 1;
