@@ -87,8 +87,6 @@ void player_rw_swap(player_rw *p, int swap);
 int allowed_to_fire_flare(player_info &);
 int allowed_to_fire_missile(const player_info &);
 #if defined(DXX_BUILD_DESCENT_II)
-extern array<object *, MAX_PLAYERS> Guided_missile;
-extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
 fix get_omega_energy_consumption(fix delta_charge);
 void omega_charge_frame(player_info &);
 #endif

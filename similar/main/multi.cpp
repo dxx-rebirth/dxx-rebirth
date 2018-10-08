@@ -3815,7 +3815,7 @@ static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const uint8_
 		obj->ctype.powerup_info.count = ammo;
 }
 
-void multi_send_guided_info (const vmobjptr_t miss,char done)
+void multi_send_guided_info(const object_base &miss, const char done)
 {
 	int count=0;
 
@@ -3841,22 +3841,20 @@ void multi_send_guided_info (const vmobjptr_t miss,char done)
 	multi_send_data(multibuf, 0);
 }
 
-static void multi_do_guided(fvmobjptridx &vmobjptridx, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_guided(d_level_object_state &ObjectState, const playernum_t pnum, const uint8_t *const buf)
 {
 	int count=3;
 
-	if (Guided_missile[static_cast<int>(pnum)]==NULL)
-	{
-		return;
-	}
-
 	if (buf[2])
 	{
-		release_guided_missile(pnum);
+		release_guided_missile(ObjectState, pnum);
 		return;
 	}
 
-	const auto &&guided_missile = vmobjptridx(Guided_missile[pnum]);
+	const auto &&gimobj = ObjectState.Guided_missile.get_player_active_guided_missile(ObjectState.get_objects().vmptridx, pnum);
+	if (gimobj == nullptr)
+		return;
+	const vmobjptridx_t guided_missile = gimobj;
 	if (words_bigendian)
 	{
 		shortpos sp;
@@ -5637,7 +5635,7 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_DROP_FLAG:
 			multi_do_drop_flag(pnum, buf); break;
 		case MULTI_GUIDED:
-			multi_do_guided (vmobjptridx, pnum, buf);
+			multi_do_guided(ObjectState, pnum, buf);
 			break;
 		case MULTI_STOLEN_ITEMS:
 			multi_do_stolen_items(buf); break;

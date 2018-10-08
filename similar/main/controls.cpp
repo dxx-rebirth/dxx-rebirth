@@ -72,14 +72,12 @@ void read_flying_controls(object &obj)
 		return;	//references to player_ship require that this obj be the player
 
 	const auto control_guided_missile = [&] {
-		const auto gm = Guided_missile[Player_num];
-		if (!gm)
+		const auto &&gimobj = ObjectState.Guided_missile.get_player_active_guided_missile(ObjectState.get_objects().vmptr, Player_num);
+		if (gimobj == nullptr)
 			return false;
-		const auto &&m = vmobjptr(gm);
-		if (m->type != OBJ_WEAPON)
-			return false;
-		if (m->signature != Guided_missile_sig[Player_num])
-			return false;
+		auto &gmobj = *gimobj;
+		const auto gmid = get_weapon_id(gmobj);
+		const auto speed = Weapon_info[gmid].speed[Difficulty_level];
 		vms_angvec rotangs;
 		//this is a horrible hack.  guided missile stuff should not be
 		//handled in the middle of a routine that is dealing with the player
@@ -91,13 +89,11 @@ void read_flying_controls(object &obj)
 		rotangs.h = Controls.heading_time / 2 + Seismic_tremor_magnitude/64;
 
 		const auto &&rotmat = vm_angles_2_matrix(rotangs);
-		m->orient = vm_matrix_x_matrix(m->orient, rotmat);
+		gmobj.orient = vm_matrix_x_matrix(gmobj.orient, rotmat);
 
-		const auto speed = Weapon_info[get_weapon_id(*m)].speed[Difficulty_level];
-
-		vm_vec_copy_scale(m->mtype.phys_info.velocity, m->orient.fvec, speed);
+		vm_vec_copy_scale(gmobj.mtype.phys_info.velocity, gmobj.orient.fvec, speed);
 		if (Game_mode & GM_MULTI)
-			multi_send_guided_info(m, 0);
+			multi_send_guided_info(gmobj, 0);
 		return true;
 	};
 	if (!control_guided_missile())

@@ -1627,7 +1627,7 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	(void)wallupdate;
-	if (Viewer == Guided_missile[Player_num])
+	if (Viewer == ObjectState.Guided_missile.get_player_active_guided_missile(ObjectState.get_objects().vmptr, Player_num))
 		newdemo_record_guided_start();
 	else
 		newdemo_record_guided_end();

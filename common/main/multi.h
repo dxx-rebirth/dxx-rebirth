@@ -456,7 +456,7 @@ void multi_send_flags(playernum_t);
 struct marker_message_text_t;
 void multi_send_drop_marker (int player,const vms_vector &position,char messagenum,const marker_message_text_t &text);
 void multi_send_markers();
-void multi_send_guided_info (vmobjptr_t miss,char);
+void multi_send_guided_info (const object_base &miss, char);
 void multi_send_orb_bonus(playernum_t pnum, uint8_t);
 void multi_send_got_orb(playernum_t pnum);
 void multi_send_effect_blowup(vcsegidx_t segnum, unsigned side, const vms_vector &pnt);

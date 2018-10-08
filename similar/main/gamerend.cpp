@@ -615,10 +615,10 @@ static void show_extra_views()
 		return;
 	}
 
-	if (Guided_missile[Player_num] &&
-		Guided_missile[Player_num]->type == OBJ_WEAPON &&
-		get_weapon_id(*Guided_missile[Player_num]) == weapon_id_type::GUIDEDMISS_ID &&
-		Guided_missile[Player_num]->signature == Guided_missile_sig[Player_num])
+	auto &Objects = ObjectState.get_objects();
+	auto &vmobjptr = Objects.vmptr;
+	const auto &&gimobj = ObjectState.Guided_missile.get_player_active_guided_missile(vmobjptr, Player_num);
+	if (gimobj != nullptr)
 	{
 		if (PlayerCfg.GuidedInBigWindow)
 		{
@@ -629,18 +629,12 @@ static void show_extra_views()
 		{
 			RenderingType=1+(1<<4);
 			auto &player_info = get_local_plrobj().ctype.player_info;
-			do_cockpit_window_view(1, *Guided_missile[Player_num], 0, WBU_GUIDED, "GUIDED", &player_info);
+			do_cockpit_window_view(1, *gimobj, 0, WBU_GUIDED, "GUIDED", &player_info);
 		}
 			
 		did_missile_view=1;
 	}
 	else {
-
-		if (Guided_missile[Player_num]) {		//used to be active
-			if (!PlayerCfg.GuidedInBigWindow)
-				do_cockpit_window_view(1,WBU_STATIC);
-			Guided_missile[Player_num] = NULL;
-		}
 		if (choose_missile_viewer())
 		//do missile view
 			{
@@ -756,11 +750,10 @@ void game_render_frame_mono()
 
 	gr_set_current_canvas(Screen_3d_window);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (PlayerCfg.GuidedInBigWindow &&
-		Guided_missile[Player_num] &&
-		Guided_missile[Player_num]->type == OBJ_WEAPON &&
-		get_weapon_id(*Guided_missile[Player_num]) == weapon_id_type::GUIDEDMISS_ID &&
-		Guided_missile[Player_num]->signature == Guided_missile_sig[Player_num])
+	if (const auto &&gimobj = (
+			PlayerCfg.GuidedInBigWindow
+			? ObjectState.Guided_missile.get_player_active_guided_missile(ObjectState.get_objects().vmptr, Player_num)
+			: nullptr))
 	{
 		const auto viewer_save = Viewer;
 
@@ -772,7 +765,7 @@ void game_render_frame_mono()
 			 return;
 		}
 
-		Viewer = Guided_missile[Player_num];
+		Viewer = gimobj;
 
 		window_rendered_data window;
 		update_rendered_data(window, *Viewer, 0);

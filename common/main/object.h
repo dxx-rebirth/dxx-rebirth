@@ -581,10 +581,28 @@ namespace dsx {
 
 DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(object, obj, Objects);
 
+#if defined(DXX_BUILD_DESCENT_II)
+class d_guided_missile_indices : object_number_array<imobjidx_t, MAX_PLAYERS>
+{
+	template <typename R, typename F>
+		R get_player_active_guided_missile_tmpl(F &fvcobj, unsigned pnum) const;
+	static bool debug_check_current_object(const object_base &);
+public:
+	imobjidx_t get_player_active_guided_missile(unsigned pnum) const;
+	imobjptr_t get_player_active_guided_missile(fvmobjptr &vmobjptr, unsigned pnum) const;
+	imobjptridx_t get_player_active_guided_missile(fvmobjptridx &vmobjptridx, unsigned pnum) const;
+	void set_player_active_guided_missile(vmobjidx_t, unsigned pnum);
+	void clear_player_active_guided_missile(unsigned pnum);
+};
+#endif
+
 struct d_level_object_state
 {
 	unsigned num_objects = 0;
 	unsigned Debris_object_count = 0;
+#if defined(DXX_BUILD_DESCENT_II)
+	d_guided_missile_indices Guided_missile;
+#endif
 	object_number_array<imobjidx_t, MAX_OBJECTS> free_obj_list;
 	auto &get_objects()
 	{

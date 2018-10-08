@@ -742,7 +742,7 @@ static window_event_result HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_3:)
 
 		case KEY_F3:
-			if (Player_dead_state == player_dead_state::no && Viewer->type==OBJ_PLAYER) //if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow))
+			if (Player_dead_state == player_dead_state::no && Viewer->type == OBJ_PLAYER)
 			{
 				toggle_cockpit();
 			}

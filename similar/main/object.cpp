@@ -1218,13 +1218,18 @@ void obj_delete(d_level_object_state &ObjectState, segment_array &Segments, cons
 	if (obj->type==OBJ_WEAPON && get_weapon_id(obj)==weapon_id_type::GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER)
 	{
 		const auto pnum = get_player_id(Objects.vcptr(obj->ctype.laser_info.parent_num));
-
-		if (pnum!=Player_num) {
-			Guided_missile[pnum]=NULL;
+		const auto &&gimobj = ObjectState.Guided_missile.get_player_active_guided_missile(Objects.vmptridx, pnum);
+		if (gimobj == obj)
+		{
+			ObjectState.Guided_missile.clear_player_active_guided_missile(pnum);
+			if (pnum == Player_num)
+			{
+				if (!PlayerCfg.GuidedInBigWindow)
+					do_cockpit_window_view(1, WBU_STATIC);
+				if (Newdemo_state == ND_STATE_RECORDING)
+					newdemo_record_guided_end();
+			}
 		}
-		else if (Newdemo_state==ND_STATE_RECORDING)
-			newdemo_record_guided_end();
-		
 	}
 #endif
 
@@ -1606,6 +1611,60 @@ static void spin_object(object_base &obj)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+imobjidx_t d_guided_missile_indices::get_player_active_guided_missile(const unsigned pnum) const
+{
+	return operator[](pnum);
+}
+
+/* Place debug checks out of line so that they are shared among the
+ * template instantiations.
+ */
+bool d_guided_missile_indices::debug_check_current_object(const object_base &obj)
+{
+	assert(obj.type == OBJ_WEAPON);
+	const auto gmid = get_weapon_id(obj);
+	if (obj.type != OBJ_WEAPON)
+		return false;
+	assert(gmid == weapon_id_type::GUIDEDMISS_ID);
+	if (gmid != weapon_id_type::GUIDEDMISS_ID)
+		return false;
+	return true;
+}
+
+template <typename R, typename F>
+R d_guided_missile_indices::get_player_active_guided_missile_tmpl(F &fobjptr, const unsigned pnum) const
+{
+	const auto gmidx = get_player_active_guided_missile(pnum);
+	if (gmidx == object_none)
+		return object_none;
+	auto &&gmobj = fobjptr(gmidx);
+	if (!debug_check_current_object(gmobj))
+		return object_none;
+	return gmobj;
+}
+
+imobjptr_t d_guided_missile_indices::get_player_active_guided_missile(fvmobjptr &vmobjptr, const unsigned pnum) const
+{
+	return this->template get_player_active_guided_missile_tmpl<imobjptr_t>(vmobjptr, pnum);
+}
+
+imobjptridx_t d_guided_missile_indices::get_player_active_guided_missile(fvmobjptridx &vmobjptridx, const unsigned pnum) const
+{
+	return this->template get_player_active_guided_missile_tmpl<imobjptridx_t>(vmobjptridx, pnum);
+}
+
+void d_guided_missile_indices::set_player_active_guided_missile(const vmobjidx_t obji, const unsigned pnum)
+{
+	auto &i = operator[](pnum);
+	i = obji;
+}
+
+void d_guided_missile_indices::clear_player_active_guided_missile(const unsigned pnum)
+{
+	auto &i = operator[](pnum);
+	i = object_none;
+}
+
 int Drop_afterburner_blob_flag;		//ugly hack
 //see if wall is volatile, and if so, cause damage to player
 //returns true if player is in lava
@@ -1823,7 +1882,8 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//see if guided missile has flown through exit trigger
-	if (obj==Guided_missile[Player_num] && obj->signature==Guided_missile_sig[Player_num]) {
+	if (obj == ObjectState.Guided_missile.get_player_active_guided_missile(Player_num))
+	{
 		if (previous_segment != obj->segnum) {
 			const auto &&psegp = vcsegptr(previous_segment);
 			const auto &&connect_side = find_connect_side(vcsegptridx(obj->segnum), psegp);
@@ -1836,7 +1896,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 					{
 						const auto &&t = vctrgptr(trigger_num);
 						if (t->type == TT_EXIT)
-							Guided_missile[Player_num]->lifeleft = 0;
+							obj->lifeleft = 0;
 					}
 				}
 			}

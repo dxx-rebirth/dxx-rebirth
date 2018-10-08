@@ -62,12 +62,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-#if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
-array<object *, MAX_PLAYERS> Guided_missile;
-array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
-}
-#endif
 #ifdef NEWHOMER
 static ubyte d_homer_tick_step = 0;
 static fix d_homer_tick_count = 0;
@@ -791,8 +785,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (weapon_type == weapon_id_type::GUIDEDMISS_ID) {
 			if (parent==get_local_player().objnum) {
-				Guided_missile[Player_num]= obj;
-				Guided_missile_sig[Player_num] = obj->signature;
+				ObjectState.Guided_missile.set_player_active_guided_missile(obj, Player_num);
 				if (Newdemo_state==ND_STATE_RECORDING)
 					newdemo_record_guided_start();
 			}
@@ -1408,7 +1401,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, c
 		return objnum;
 
 	if (laser_type == weapon_id_type::GUIDEDMISS_ID && Multi_is_guided) {
-		Guided_missile[get_player_id(obj)] = objnum;
+		ObjectState.Guided_missile.set_player_active_guided_missile(objnum, get_player_id(obj));
 	}
 
 	Multi_is_guided=0;
@@ -1540,16 +1533,13 @@ void Flare_create(const vmobjptridx_t obj)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define	HOMING_MISSILE_SCALE	16
 
-static bool is_any_guided_missile(fvcobjptr &vcobjptr, const vcobjptr_t obj)
+static bool is_active_guided_missile(d_level_object_state &ObjectState, const vcobjptridx_t obj)
 {
-	if (get_weapon_id(obj) != weapon_id_type::GUIDEDMISS_ID)
-		return false;
 	if (obj->ctype.laser_info.parent_type != OBJ_PLAYER)
 		return false;
+	auto &vcobjptr = ObjectState.get_objects().vcptr;
 	const auto pnum = get_player_id(vcobjptr(obj->ctype.laser_info.parent_num));
-	if (obj != Guided_missile[pnum])
-		return false;
-	return obj->signature == Guided_missile_sig[pnum];
+	return ObjectState.Guided_missile.get_player_active_guided_missile(pnum) == obj;
 }
 #endif
 
@@ -1607,7 +1597,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 #if defined(DXX_BUILD_DESCENT_I)
 	if (Weapon_info[get_weapon_id(obj)].homing_flag)
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (Weapon_info[get_weapon_id(obj)].homing_flag && !is_any_guided_missile(vcobjptr, obj))
+	if (Weapon_info[get_weapon_id(obj)].homing_flag && !is_active_guided_missile(ObjectState, obj))
 #endif
 	{
 		vms_vector		vector_to_object, temp_vec;
@@ -2301,21 +2291,21 @@ void create_robot_smart_children(const vmobjptridx_t objp, const uint_fast32_t n
 }
 
 //give up control of the guided missile
-void release_guided_missile(int player_num)
+void release_guided_missile(d_level_object_state &ObjectState, const unsigned player_num)
 {
 	if (player_num == Player_num)
 	 {
-	  if (Guided_missile[player_num]==NULL)
+		const auto &&gimobj = ObjectState.Guided_missile.get_player_active_guided_missile(ObjectState.get_objects().vmptr, player_num);
+		if (gimobj == nullptr)
 			return;
 
-		Missile_viewer = Guided_missile[player_num];
+		Missile_viewer = gimobj;
 		if (Game_mode & GM_MULTI)
-			multi_send_guided_info(vmobjptr(Missile_viewer), 1);
+			multi_send_guided_info(gimobj, 1);
 		if (Newdemo_state==ND_STATE_RECORDING)
 		 newdemo_record_guided_end();
 	 }
-
-	Guided_missile[player_num] = NULL;
+	ObjectState.Guided_missile.clear_player_active_guided_missile(player_num);
 }
 #endif
 
@@ -2336,8 +2326,10 @@ void do_missile_firing(int drop_bomb)
 		fire_frame_overhead = GameTime64 - Next_missile_fire_time;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Guided_missile[Player_num] && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num]) {
-		release_guided_missile(Player_num);
+	const auto &&gimobj = ObjectState.Guided_missile.get_player_active_guided_missile(ObjectState.get_objects().vmptr, Player_num);
+	if (gimobj != nullptr)
+	{
+		release_guided_missile(ObjectState, Player_num);
 		Next_missile_fire_time = GameTime64 + Weapon_info[Secondary_weapon_to_weapon_info[weapon]].fire_wait - fire_frame_overhead;
 		return;
 	}
