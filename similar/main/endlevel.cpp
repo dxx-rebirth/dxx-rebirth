@@ -1148,7 +1148,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 	//check new player seg
 
-	update_object_seg(obj);
+	update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, obj);
 	auto &pseg = *vcsegptr(obj->segnum);
 
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg

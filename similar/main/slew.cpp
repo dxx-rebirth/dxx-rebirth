@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "kconfig.h"
 #include "slew.h"
+#include "segment.h"
 
 #if DXX_USE_EDITOR
 #include "editor/editor.h"
@@ -140,7 +141,7 @@ static int do_slew_movement(const vmobjptridx_t obj, int check_keys )
 	moved |= (movement.x || movement.y || movement.z);
 
 	if (moved)
-		update_object_seg(obj);	//update segment id
+		update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, obj);	//update segment id
 
 	return moved;
 }

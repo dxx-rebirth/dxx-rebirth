@@ -262,7 +262,7 @@ static void fix_illegal_wall_intersection(const vmobjptridx_t obj)
 	if (object_intersects_wall_d(obj, hresult))
 	{
 		vm_vec_scale_add2(obj->pos, Segments[hresult.seg].sides[hresult.side].normals[0], FrameTime*10);
-		update_object_seg(obj);
+		update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, obj);
 	}
 }
 
@@ -742,7 +742,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 
 				dist = vm_dist_to_plane(start_pos, s.normals[0], vcvertptr(vertnum));
 				vm_vec_scale_add(obj->pos, start_pos, s.normals[0], obj->size-dist);
-				update_object_seg(obj);
+				update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, obj);
 
 			}
 		}

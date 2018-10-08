@@ -1757,7 +1757,8 @@ static int save_level_sub(fvmobjptridx &vmobjptridx, const char * filename)
 	//make sure player is in a segment
 	{
 		const auto &&plr = vmobjptridx(vcplayerptr(0u)->objnum);
-		if (update_object_seg(plr) == 0) {
+		if (update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, plr) == 0)
+		{
 			if (plr->segnum > Highest_segment_index)
 				plr->segnum = segment_first;
 			compute_segment_center(vcvertptr, plr->pos, vcsegptr(plr->segnum));

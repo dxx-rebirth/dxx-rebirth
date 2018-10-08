@@ -1997,7 +1997,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 					obj->type = OBJ_PLAYER;
 					set_player_id(obj, i); // assign player object id to player number
 					multi_reset_player_object(obj);
-					update_object_seg(obj);
+					update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, obj);
 				}
 			}
 		}

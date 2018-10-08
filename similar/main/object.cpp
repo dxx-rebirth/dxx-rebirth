@@ -2053,14 +2053,14 @@ imsegptridx_t find_object_seg(const d_level_shared_segment_state &LevelSharedSeg
 //If an object is in a segment, set its segnum field and make sure it's
 //properly linked.  If not in any segment, returns 0, else 1.
 //callers should generally use find_vector_intersection()
-int update_object_seg(const vmobjptridx_t obj)
+int update_object_seg(fvmobjptr &vmobjptr, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const vmobjptridx_t obj)
 {
 	const auto &&newseg = find_object_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj);
 	if (newseg == segment_none)
 		return 0;
 
 	if ( newseg != obj->segnum )
-		obj_relink(vmobjptr, vmsegptr, obj, newseg);
+		obj_relink(vmobjptr, LevelUniqueSegmentState.get_segments().vmptr, obj, newseg);
 
 	return 1;
 }
@@ -2080,11 +2080,16 @@ void fix_object_segs()
 	range_for (const auto &&o, vmobjptridx)
 	{
 		if (o->type != OBJ_NONE)
-			if (update_object_seg(o) == 0) {
+		{
+			const auto oldsegnum = o->segnum;
+			if (update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, o) == 0)
+			{
 				const auto pos = o->pos;
-				compute_segment_center(vcvertptr, o->pos, vcsegptr(o->segnum));
-				con_printf(CON_URGENT, "Object %hu claims segment %u, but has position {%i,%i,%i}; moving to {%i,%i,%i}", static_cast<objnum_t>(o), o->segnum, pos.x, pos.y, pos.z, o->pos.x, o->pos.y, o->pos.z);
+				const auto segnum = o->segnum;
+				compute_segment_center(vcvertptr, o->pos, vcsegptr(segnum));
+				con_printf(CON_URGENT, "Object %hu claims segment %hu, but has position {%i,%i,%i}; moving to %hu:{%i,%i,%i}", o.get_unchecked_index(), oldsegnum, pos.x, pos.y, pos.z, segnum, o->pos.x, o->pos.y, o->pos.z);
 			}
+		}
 	}
 }
 

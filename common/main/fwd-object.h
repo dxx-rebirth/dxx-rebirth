@@ -263,8 +263,7 @@ void init_player_object();
 // segs.  if not any of these, returns false, else sets obj->segnum &
 // returns true callers should really use find_vector_intersection()
 // Note: this function is in gameseg.c
-int update_object_seg(vmobjptridx_t obj);
-
+int update_object_seg(fvmobjptr &vmobjptr, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, vmobjptridx_t obj);
 
 // Finds what segment *obj is in, returns segment number.  If not in
 // any segment, returns -1.  Note: This function is defined in

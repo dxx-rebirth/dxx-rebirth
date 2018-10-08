@@ -3868,7 +3868,7 @@ static void multi_do_guided(d_level_object_state &ObjectState, const playernum_t
 	}
 
 	count+=sizeof (shortpos);
-	update_object_seg(guided_missile);
+	update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, guided_missile);
 }
 
 void multi_send_stolen_items ()
