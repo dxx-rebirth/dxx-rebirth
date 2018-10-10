@@ -113,7 +113,7 @@ void mve_reset(MVESTREAM *movie);
 /*
  * set segment type handler
  */
-void mve_set_handler(MVESTREAM *movie, unsigned char major, MVESEGMENTHANDLER handler);
+void mve_set_handler(MVESTREAM &movie, unsigned char major, MVESEGMENTHANDLER handler);
 
 /*
  * set segment handler context
@@ -123,6 +123,6 @@ void mve_set_handler_context(MVESTREAM *movie, void *context);
 /*
  * play next chunk
  */
-int mve_play_next_chunk(MVESTREAM *movie);
+int mve_play_next_chunk(MVESTREAM &movie);
 
 #endif

@@ -266,7 +266,8 @@ namespace {
 
 struct movie : ignore_window_pointer_t
 {
-	int result, aborted;
+	MVE_StepStatus result;
+	int aborted;
 	int frame_num;
 	int paused;
 	MVESTREAM_ptr_t pMovie;
@@ -337,7 +338,8 @@ static window_event_result MovieHandler(window *, const d_event &event, movie *m
 
 			// If ESCAPE pressed, then quit movie.
 			if (key == KEY_ESC) {
-				m->result = m->aborted = 1;
+				m->result = MVE_StepStatus::EndOfFile;
+				m->aborted = 1;
 				return window_event_result::close;
 			}
 
@@ -353,8 +355,8 @@ static window_event_result MovieHandler(window *, const d_event &event, movie *m
 		case EVENT_WINDOW_DRAW:
 			if (!m->paused)
 			{
-				m->result = MVE_rmStepMovie(m->pMovie.get());
-				if (m->result)
+				m->result = MVE_rmStepMovie(*m->pMovie.get());
+				if (m->result != MVE_StepStatus::Continue)
 				{
 					return window_event_result::close;
 				}
@@ -370,7 +372,10 @@ static window_event_result MovieHandler(window *, const d_event &event, movie *m
 
 		case EVENT_WINDOW_CLOSE:
 			if (Quitting)
-				m->result = m->aborted = 1;
+			{
+				m->result = MVE_StepStatus::EndOfFile;
+				m->aborted = 1;
+			}
 			break;
 			
 		default:
@@ -389,7 +394,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	palette_array_t pal_save;
 #endif
 
-	m.result = 1;
+	m.result = MVE_StepStatus::EndOfFile;
 	m.aborted = 0;
 	m.frame_num = 0;
 	m.paused = 0;
@@ -437,9 +442,11 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
 
-	event_process_all();
+	do {
+		event_process_all();
+	} while(window_get_front() == wind);
 
-	Assert(m.aborted || m.result == MVE_ERR_EOF);	 ///movie should be over
+	assert(m.aborted || m.result == MVE_StepStatus::EndOfFile);	 ///movie should be over
 
 	m.pMovie.reset();
 
@@ -463,13 +470,10 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 //returns 1 if frame updated ok
 int RotateRobot(MVESTREAM_ptr_t &pMovie)
 {
-	int err;
-
-	err = MVE_rmStepMovie(pMovie.get());
-
+	auto err = MVE_rmStepMovie(*pMovie.get());
 	gr_palette_load(gr_palette);
 
-	if (err == MVE_ERR_EOF)     //end of movie, so reset
+	if (err == MVE_StepStatus::EndOfFile)     //end of movie, so reset
 	{
 		SDL_RWseek(RoboFile.get(), 0, SEEK_SET);
 		if (MVE_rmPrepMovie(pMovie, RoboFile.get(), SWIDTH/2.3, SHEIGHT/2.3, 0))
@@ -477,9 +481,10 @@ int RotateRobot(MVESTREAM_ptr_t &pMovie)
 			Int3();
 			return 0;
 		}
-		err = MVE_rmStepMovie(pMovie.get());
+		err = MVE_rmStepMovie(*pMovie.get());
 	}
-	if (err) {
+	if (err != MVE_StepStatus::Continue)
+	{
 		Int3();
 		return 0;
 	}

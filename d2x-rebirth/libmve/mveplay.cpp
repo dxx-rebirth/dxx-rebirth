@@ -696,7 +696,7 @@ int MVE_rmPrepMovie(MVESTREAM_ptr_t &pMovie, void *src, int x, int y, int)
 	g_destX = x;
 	g_destY = y;
 
-	auto mve = pMovie.get();
+	auto &mve = *pMovie.get();
 	mve_set_handler(mve, MVE_OPCODE_ENDOFSTREAM,          end_movie_handler);
 	mve_set_handler(mve, MVE_OPCODE_ENDOFCHUNK,           end_chunk_handler);
 	mve_set_handler(mve, MVE_OPCODE_CREATETIMER,          create_timer_handler);
@@ -731,7 +731,7 @@ void MVE_getVideoSpec(MVE_videoSpec *vSpec)
 }
 
 
-int MVE_rmStepMovie(MVESTREAM *const mve)
+MVE_StepStatus MVE_rmStepMovie(MVESTREAM &mve)
 {
 	static int init_timer=0;
 	int cont=1;
@@ -744,7 +744,7 @@ int MVE_rmStepMovie(MVESTREAM *const mve)
 	g_frameUpdated = 0;
 
 	if (!cont)
-		return MVE_ERR_EOF;
+		return MVE_StepStatus::EndOfFile;
 
 	if (micro_frame_delay  && !init_timer) {
 		timer_start();
@@ -753,7 +753,7 @@ int MVE_rmStepMovie(MVESTREAM *const mve)
 
 	do_timer_wait();
 
-	return 0;
+	return MVE_StepStatus::Continue;
 }
 
 void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)

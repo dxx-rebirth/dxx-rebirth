@@ -12,6 +12,12 @@
 #ifdef __cplusplus
 #include <memory>
 
+enum class MVE_StepStatus
+{
+	Continue = 0,
+	EndOfFile = 1,
+};
+
 struct MVESTREAM;
 
 struct MVE_videoSpec {
@@ -22,7 +28,7 @@ struct MVE_videoSpec {
 	int truecolor;
 };
 
-int  MVE_rmStepMovie(MVESTREAM *mve);
+MVE_StepStatus MVE_rmStepMovie(MVESTREAM &mve);
 void MVE_rmHoldMovie();
 void MVE_rmEndMovie(std::unique_ptr<MVESTREAM> mve);
 

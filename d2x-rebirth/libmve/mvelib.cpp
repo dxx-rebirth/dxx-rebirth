@@ -203,10 +203,10 @@ void mve_reset(MVESTREAM *movie)
 /*
  * set segment type handler
  */
-void mve_set_handler(MVESTREAM *movie, unsigned char major, MVESEGMENTHANDLER handler)
+void mve_set_handler(MVESTREAM &movie, unsigned char major, MVESEGMENTHANDLER handler)
 {
     if (major < 32)
-        movie->handlers[major] = handler;
+        movie.handlers[major] = handler;
 }
 
 /*
@@ -220,29 +220,31 @@ void mve_set_handler_context(MVESTREAM *movie, void *context)
 /*
  * play next chunk
  */
-int mve_play_next_chunk(MVESTREAM *movie)
+int mve_play_next_chunk(MVESTREAM &movie)
 {
+	const auto m = movie.movie.get();
     /* loop over segments */
-	auto major = mvefile_get_next_segment_major(movie->movie.get());
-    while (major != 0xff)
+        /* advance to next segment */
+	for (;; mvefile_advance_segment(m))
     {
+		const auto major = mvefile_get_next_segment_major(m);
+		if (major == 0xff)
+			break;
+		if (major >= movie.handlers.size())
+			continue;
         /* check whether to handle the segment */
-		if (major < movie->handlers.size() && movie->handlers[major])
+		if (const auto handler = movie.handlers[major])
         {
-			auto minor = mvefile_get_next_segment_minor(movie->movie.get());
-			auto len = mvefile_get_next_segment_size(movie->movie.get());
-			auto data = mvefile_get_next_segment(movie->movie.get());
+			const auto minor = mvefile_get_next_segment_minor(m);
+			const auto len = mvefile_get_next_segment_size(m);
+			const auto data = mvefile_get_next_segment(m);
 
-            if (! movie->handlers[major](major, minor, data, len, movie->context))
+            if (!handler(major, minor, data, len, movie.context))
                 return 0;
         }
-
-        /* advance to next segment */
-		mvefile_advance_segment(movie->movie.get());
-		major = mvefile_get_next_segment_major(movie->movie.get());
     }
 
-	if (! mvefile_fetch_next_chunk(movie->movie.get()))
+	if (!mvefile_fetch_next_chunk(m))
         return 0;
 
     /* return status */
