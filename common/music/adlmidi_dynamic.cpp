@@ -62,14 +62,13 @@ static ADL_MIDIPlayer *adl_init_first_call(long sample_rate)
 #else
 	const char *library_name = "libADLMIDI.so";
 #endif
-	void *handle = dlopen(library_name, RTLD_LAZY);
+	const auto handle = dlopen(library_name, RTLD_NOW);
 	if (!handle ||
 	    !load_function(handle, "adl_init", adl_init) ||
 	    !load_function(handle, "adl_close", adl_close) ||
 	    !load_function(handle, "adl_switchEmulator", adl_switchEmulator) ||
 	    !load_function(handle, "adl_setNumChips", adl_setNumChips) ||
 	    !load_function(handle, "adl_setBank", adl_setBank) ||
-	    !load_function(handle, "adl_openBankFile", adl_openBankFile) ||
 	    !load_function(handle, "adl_setSoftPanEnabled", adl_setSoftPanEnabled) ||
 	    !load_function(handle, "adl_setLoopEnabled", adl_setLoopEnabled) ||
 	    !load_function(handle, "adl_openData", adl_openData) ||
@@ -92,7 +91,6 @@ void (*adl_close)(ADL_MIDIPlayer *device) = nullptr;
 int (*adl_switchEmulator)(ADL_MIDIPlayer *device, int emulator) = nullptr;
 int (*adl_setNumChips)(ADL_MIDIPlayer *device, int numChips) = nullptr;
 int (*adl_setBank)(ADL_MIDIPlayer *device, int bank) = nullptr;
-int (*adl_openBankFile)(ADL_MIDIPlayer *device, const char *filePath) = nullptr;
 void (*adl_setSoftPanEnabled)(ADL_MIDIPlayer *device, int softPanEn) = nullptr;
 void (*adl_setLoopEnabled)(ADL_MIDIPlayer *device, int loopEn) = nullptr;
 int (*adl_openData)(ADL_MIDIPlayer *device, const void *mem, unsigned long size) = nullptr;

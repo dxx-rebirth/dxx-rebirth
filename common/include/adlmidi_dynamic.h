@@ -56,7 +56,6 @@ extern void (*adl_close)(ADL_MIDIPlayer *device);
 extern int (*adl_switchEmulator)(ADL_MIDIPlayer *device, int emulator);
 extern int (*adl_setNumChips)(ADL_MIDIPlayer *device, int numChips);
 extern int (*adl_setBank)(ADL_MIDIPlayer *device, int bank);
-extern int (*adl_openBankFile)(ADL_MIDIPlayer *device, const char *filePath);
 extern void (*adl_setSoftPanEnabled)(ADL_MIDIPlayer *device, int softPanEn);
 extern void (*adl_setLoopEnabled)(ADL_MIDIPlayer *device, int loopEn);
 extern int (*adl_openData)(ADL_MIDIPlayer *device, const void *mem, unsigned long size);
