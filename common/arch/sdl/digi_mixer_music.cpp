@@ -91,9 +91,10 @@ public:
 }
 
 static current_music_t current_music;
-static ADL_MIDIPlayer_t current_adlmidi;
 static std::vector<uint8_t> current_music_hndlbuf;
 
+#if DXX_USE_ADLMIDI
+static ADL_MIDIPlayer_t current_adlmidi;
 static ADL_MIDIPlayer *get_adlmidi()
 {
 	ADL_MIDIPlayer *adlmidi = current_adlmidi.get();
@@ -114,10 +115,15 @@ static ADL_MIDIPlayer *get_adlmidi()
 	return adlmidi;
 }
 
+static void mix_adlmidi(void *udata, Uint8 *stream, int len);
+#endif
+
 enum class CurrentMusicType
 {
 	None,
+#if DXX_USE_ADLMIDI
 	ADLMIDI,
+#endif
 	SDLMixer,
 };
 
@@ -125,9 +131,6 @@ static CurrentMusicType current_music_type = CurrentMusicType::None;
 
 static CurrentMusicType load_mus_data(const uint8_t *data, size_t size);
 static CurrentMusicType load_mus_file(const char *filename);
-
-static void mix_adlmidi(void *udata, Uint8 *stream, int len);
-
 
 /*
  *  Plays a music file from an absolute path or a relative path
@@ -138,8 +141,6 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 	array<char, PATH_MAX> full_path;
 	const char *fptr;
 	unsigned int bufsize = 0;
-
-	// fprintf(stderr, "Load music: %s\n", filename);
 
 	mix_free_music();	// stop and free what we're already playing, if anything
 
@@ -198,6 +199,7 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 	switch (current_music_type)
 	{
 
+#if DXX_USE_ADLMIDI
 	case CurrentMusicType::ADLMIDI:
 	{
 		ADL_MIDIPlayer *adlmidi = get_adlmidi();
@@ -206,6 +208,7 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 		Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
 		return 1;
 	}
+#endif
 
 	case CurrentMusicType::SDLMixer:
 	{
@@ -229,7 +232,15 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 void mix_free_music()
 {
 	Mix_HaltMusic();
+#if DXX_USE_ADLMIDI
+	/* Only ADLMIDI can set a hook, so if ADLMIDI is compiled out, there is no
+	 * need to clear the hook.
+	 *
+	 * When ADLMIDI is supported, clear unconditionally, instead of checking
+	 * whether the music type requires it.
+	 */
 	Mix_HookMusic(nullptr, nullptr);
+#endif
 	current_music.reset();
 	current_music_hndlbuf.clear();
 	current_music_type = CurrentMusicType::None;
@@ -268,14 +279,15 @@ void mix_pause_resume_music()
 static CurrentMusicType load_mus_data(const uint8_t *data, size_t size)
 {
 	CurrentMusicType type = CurrentMusicType::None;
+#if DXX_USE_ADLMIDI
 	ADL_MIDIPlayer *adlmidi = get_adlmidi();
-	SDL_RWops *rw = NULL;
 
 	if (adlmidi && adl_openData(adlmidi, data, size) == 0)
 		type = CurrentMusicType::ADLMIDI;
 	else
+#endif
 	{
-		rw = SDL_RWFromConstMem(data, size);
+		const auto rw = SDL_RWFromConstMem(data, size);
 		current_music.reset(Mix_LoadMUS_RW(rw DXX_SDL_MIXER_Mix_LoadMUS_MANAGE_RWOPS) DXX_SDL_MIXER_Mix_LoadMUS_PASS_RWOPS(rw));
 		if (current_music)
 			type = CurrentMusicType::SDLMixer;
@@ -287,11 +299,13 @@ static CurrentMusicType load_mus_data(const uint8_t *data, size_t size)
 static CurrentMusicType load_mus_file(const char *filename)
 {
 	CurrentMusicType type = CurrentMusicType::None;
+#if DXX_USE_ADLMIDI
 	ADL_MIDIPlayer *adlmidi = get_adlmidi();
 
 	if (adlmidi && adl_openFile(adlmidi, filename) == 0)
 		type = CurrentMusicType::ADLMIDI;
 	else
+#endif
 	{
 		current_music.reset(Mix_LoadMUS(filename));
 		if (current_music)
@@ -301,6 +315,7 @@ static CurrentMusicType load_mus_file(const char *filename)
 	return type;
 }
 
+#if DXX_USE_ADLMIDI
 static int16_t sat16(int32_t x)
 {
 	x = (x < INT16_MIN) ? INT16_MIN : x;
@@ -323,5 +338,6 @@ static void mix_adlmidi(void *, Uint8 *stream, int len)
 	const auto amplify = [](int16_t i) { return sat16(2 * i); };
 	std::transform(samples, samples + sampleCount, samples, amplify);
 }
+#endif
 
 }

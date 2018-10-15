@@ -10,7 +10,9 @@
 
 #include <memory>
 #include <stdint.h>
+#include "dxxsconf.h"
 
+#if DXX_USE_ADLMIDI
 struct ADL_MIDIPlayer;
 
 enum ADLMIDI_SampleType
@@ -71,3 +73,4 @@ struct ADLMIDI_delete
 };
 
 typedef std::unique_ptr<ADL_MIDIPlayer, ADLMIDI_delete> ADL_MIDIPlayer_t;
+#endif

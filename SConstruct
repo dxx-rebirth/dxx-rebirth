@@ -1161,6 +1161,22 @@ struct d_screenshot
 		return self._soft_check_system_library(context, header=_header, main=_main, lib='png', text=_text, successflags=successflags)
 
 	@_custom_test
+	def _check_user_settings_adldmidi(self,context):
+		user_settings = self.user_settings
+		adlmidi = user_settings.adlmidi
+		if adlmidi == 'none':
+			adlmidi_load_type = 'disabled'
+		elif adlmidi == 'runtime':
+			adlmidi_load_type = 'load dynamically'
+		else:
+			return
+		context.Result('%s: checking how to handle ADL MIDI...%s' % (self.msgprefix, adlmidi_load_type))
+		Define = context.sconf.Define
+		enable_adlmidi = int(adlmidi != 'none')
+		user_settings._enable_adlmidi = enable_adlmidi
+		Define('DXX_USE_ADLMIDI', enable_adlmidi)
+
+	@_custom_test
 	def _check_user_settings_screenshot(self,context):
 		user_settings = self.user_settings
 		screenshot_mode = user_settings.screenshot
@@ -3440,6 +3456,8 @@ class DXXCommon(LazyObjectConstructor):
 			if self.raspberrypi == 'yes':
 				return 'brcmEGL'
 			return self.default_EGL_LIB
+		def need_dynamic_library_load(self):
+			return self.adlmidi == 'runtime'
 
 		def __default_DATA_DIR(self):
 			platform_settings_type = self._program.get_platform_settings_type(self.host_platform)
@@ -3634,6 +3652,7 @@ class DXXCommon(LazyObjectConstructor):
 				'variable': EnumVariable,
 				'arguments': (
 					('host_endian', None, 'endianness of host platform', {'allowed_values' : ('little', 'big')}),
+					('adlmidi', 'none', 'include ADL MIDI support (none: disabled; runtime: dynamically load at runtime)', {'allowed_values' : ('none', 'runtime')}),
 					('screenshot', 'png', 'screenshot file format', {'allowed_values' : ('none', 'legacy', 'png')}),
 				),
 			},
@@ -4254,7 +4273,6 @@ class DXXArchive(DXXCommon):
 'common/3d/points.cpp',
 'common/3d/rod.cpp',
 'common/3d/setup.cpp',
-'common/music/adlmidi_dynamic.cpp',
 'common/arch/sdl/event.cpp',
 'common/arch/sdl/joy.cpp',
 'common/arch/sdl/key.cpp',
@@ -4277,13 +4295,19 @@ class DXXArchive(DXXCommon):
 'common/misc/vgrphys.cpp',
 'common/misc/vgwphys.cpp',
 )), \
+		__get_objects_use_adlmidi=DXXCommon.create_lazy_object_getter((
+'common/music/adlmidi_dynamic.cpp',
+)),
 		__get_objects_use_sdl1=DXXCommon.create_lazy_object_getter((
 'common/arch/sdl/rbaudio.cpp',
 ))
 		):
 		value = list(__get_objects_common(self))
 		extend = value.extend
-		if not self.user_settings.sdl2:
+		user_settings = self.user_settings
+		if user_settings._enable_adlmidi:
+			extend(__get_objects_use_adlmidi(self))
+		if not user_settings.sdl2:
 			extend(__get_objects_use_sdl1(self))
 		extend(self.platform_settings.get_platform_objects())
 		return value
@@ -4642,6 +4666,11 @@ class DXXProgram(DXXCommon):
 			DXXCommon.LinuxPlatformSettings.__init__(self,program,user_settings)
 			if user_settings.sharepath and user_settings.sharepath[-1] != '/':
 				user_settings.sharepath += '/'
+		def adjust_environment(self,program,env):
+			DXXCommon.LinuxPlatformSettings.adjust_environment(self,program,env)
+			user_settings = self.user_settings
+			if user_settings.need_dynamic_library_load():
+				env.Append(LIBS = ['dl'])
 
 	def get_objects_common(self,
 		__get_objects_common=__get_objects_common,
@@ -4702,7 +4731,7 @@ class DXXProgram(DXXCommon):
 				('__STDC_FORMAT_MACROS',),
 			],
 			CPPPATH = [os.path.join(self.srcdir, 'main')],
-			LIBS = ['m', 'dl'],
+			LIBS = ['m'],
 		)
 
 	def register_program(self):
