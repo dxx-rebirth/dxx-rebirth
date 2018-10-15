@@ -16,41 +16,56 @@
 #include <windows.h>
 #endif
 
+namespace {
+
 #if defined(_WIN32)
 enum
 {
 	RTLD_LAZY = 1, RTLD_NOW = 2
 };
 
-void *dlopen(const char *filename, int)
+HMODULE dlopen(const char *const filename, int)
 {
 	return LoadLibraryA(filename);
 }
 
-void dlclose(void *handle)
+void dlclose(const HMODULE handle)
 {
-	FreeLibrary(reinterpret_cast<HMODULE>(handle));
+	FreeLibrary(handle);
 }
 
-void *dlsym(void *handle, const char *symbol)
+void *dlsym(const HMODULE handle, const char *const symbol)
 {
 	return reinterpret_cast<void *>(
-		GetProcAddress(reinterpret_cast<HMODULE>(handle), symbol));
+		GetProcAddress(handle, symbol));
 }
+#else
+using HMODULE = void *;
 #endif
+
+}
 
 static ADL_MIDIPlayer *adl_init_failure(long)
 {
 	return nullptr;
 }
 
-template <class F>
-static bool load_function(void *handle, const char *name, F *&fptr)
+static void reported_failed_load_function(const char *const name)
 {
-	fptr = reinterpret_cast<F *>(dlsym(handle, name));
-	if (!fptr)
-		con_printf(CON_NORMAL, "ADLMIDI: failed to load the dynamic function \"%s\"", name);
-	return fptr != nullptr;
+	con_printf(CON_NORMAL, "ADLMIDI: failed to load the dynamic function \"%s\"", name);
+}
+
+template <class F>
+static bool load_function(const HMODULE handle, const char *const name, F *&fptr)
+{
+	const auto f = reinterpret_cast<F *>(dlsym(handle, name));
+	fptr = f;
+	if (!f)
+		/* Use out of line report function to prevent redundant instantiations
+		 * on a per-type basis.
+		 */
+		reported_failed_load_function(name);
+	return f;
 }
 
 static ADL_MIDIPlayer *adl_init_first_call(long sample_rate)
