@@ -69,6 +69,8 @@ What's new in 0.60
 * Fixed original game bug that prevented markers from spinning.  Markers were given a spin rate, but their type did not use that field, so they did not spin.  Markers now spin, and their spin varies based on an internal identifier, so different markers will spin in different directions and orientations.
 * New SP (Options->Gameplay) / MP (Host Game -> Game Setup -> Advanced) options to remove the thief during level load and to restore the thief energy weapon bug.
 * Command line option `-tmap` was specific to SDL-only builds and had no effect in OpenGL-enabled builds.  It is no longer accepted by OpenGL builds.
+* Added experimental support for ADL MIDI [contributed by jpcima].
+  - Users must separately install a compatible ADL MIDI library on the library search path.
 * ... and many, many more bugfixes and improvements.
 
 
