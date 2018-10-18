@@ -38,6 +38,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 struct CCfg : prohibit_void_ptr<CCfg>
 {
+#if DXX_USE_ADLMIDI
+	int ADLMIDI_num_chips = 6;
+	/* See common/include/adlmidi_dynamic.h for the symbolic name and for other
+	 * values.
+	 */
+	int ADLMIDI_bank = 31;
+	bool ADLMIDI_enabled;
+#endif
 	bool VSync;
 	bool Grabinput;
 	bool WindowMode;

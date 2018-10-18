@@ -24,6 +24,7 @@
 #include "digi_mixer_music.h"
 #include "strutil.h"
 #include "u_mem.h"
+#include "config.h"
 #include "console.h"
 
 namespace dcx {
@@ -97,6 +98,8 @@ static std::vector<uint8_t> current_music_hndlbuf;
 static ADL_MIDIPlayer_t current_adlmidi;
 static ADL_MIDIPlayer *get_adlmidi()
 {
+	if (!CGameCfg.ADLMIDI_enabled)
+		return nullptr;
 	ADL_MIDIPlayer *adlmidi = current_adlmidi.get();
 	if (!adlmidi)
 	{
@@ -106,8 +109,8 @@ static ADL_MIDIPlayer *get_adlmidi()
 		if (adlmidi)
 		{
 			adl_switchEmulator(adlmidi, ADLMIDI_EMU_DOSBOX);
-			adl_setNumChips(adlmidi, 6);
-			adl_setBank(adlmidi, static_cast<int>(ADL_EmbeddedBank::LBA_4OP));
+			adl_setNumChips(adlmidi, CGameCfg.ADLMIDI_num_chips);
+			adl_setBank(adlmidi, CGameCfg.ADLMIDI_bank);
 			adl_setSoftPanEnabled(adlmidi, 1);
 			current_adlmidi.reset(adlmidi);
 		}
@@ -280,8 +283,7 @@ static CurrentMusicType load_mus_data(const uint8_t *data, size_t size)
 {
 	CurrentMusicType type = CurrentMusicType::None;
 #if DXX_USE_ADLMIDI
-	ADL_MIDIPlayer *adlmidi = get_adlmidi();
-
+	const auto adlmidi = get_adlmidi();
 	if (adlmidi && adl_openData(adlmidi, data, size) == 0)
 		type = CurrentMusicType::ADLMIDI;
 	else
@@ -300,8 +302,7 @@ static CurrentMusicType load_mus_file(const char *filename)
 {
 	CurrentMusicType type = CurrentMusicType::None;
 #if DXX_USE_ADLMIDI
-	ADL_MIDIPlayer *adlmidi = get_adlmidi();
-
+	const auto adlmidi = get_adlmidi();
 	if (adlmidi && adl_openFile(adlmidi, filename) == 0)
 		type = CurrentMusicType::ADLMIDI;
 	else
