@@ -1805,7 +1805,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepa
 		buf = decodebuf.data();
 		if (!bm_rle_expand(*bm).loop(bm_w, bm_rle_expand_state(begin(decodebuf), end(decodebuf))))
 		{
-			con_printf(CON_URGENT, "error: insufficient space to decode %hux%hu bitmap.  Please report this as a bug.", bm_w, bm->bm_h);
+			con_printf(CON_URGENT, "error: insufficient space to decode %ux%hu bitmap.  Please report this as a bug.", bm_w, bm->bm_h);
 		}
 	}
 	ogl_loadtexture(gr_palette, buf, 0, 0, *bm->gltexture, bm->get_flags(), 0, texfilt, texanis, edgepad);
