@@ -1318,7 +1318,17 @@ void d_level_unique_stuck_object_state::remove_stuck_object(const vcobjidx_t obj
 	 * last object.
 	 */
 	auto &last_element = *std::prev(pr.end());
+#if defined(__clang__) || __GNUC__ >= 5
+	/* gcc-4.9.x shipped without support for
+	 * `std::is_trivially_move_assignable`.  Since this is just a sanity check
+	 * to warn developers to be careful, restricting it to occur only with
+	 * later compilers is acceptable.
+	 *
+	 * clang claims to be gcc 4.2.1, but does implement
+	 * `std::is_trivially_move_assignable`, so enable it for clang.
+	 */
 	static_assert(std::is_trivially_move_assignable<stuckobj>::value, "stuckobj move may require a check to prevent self-move");
+#endif
 	*i = std::move(last_element);
 	DXX_POISON_VAR(last_element.wallnum, 0xcc);
 	DXX_POISON_VAR(last_element.objnum, 0xcc);
