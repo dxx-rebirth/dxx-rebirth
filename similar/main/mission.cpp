@@ -1259,7 +1259,7 @@ static mission_menu_create_state_ptr prepare_mission_menu_state(const mission_li
 		create_state.initial_selection = e.idx;
 		mission_name_to_select = nullptr;
 	}
-	return std::move(p);
+	return p;
 }
 
 int select_mission(int anarchy_mode, const char *message, window_event_result (*when_selected)(void))
