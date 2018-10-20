@@ -1049,7 +1049,7 @@ static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_fl
 	size_t k = 0, x = 0;
 	char thold[2];
 	thold[1] = 0;
-	constexpr std::size_t outsize = out.size();
+	const std::size_t outsize = out.size();
 	range_for (const char c, in)
 	{
 		if (unlikely(c == '\t'))
@@ -1061,7 +1061,7 @@ static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_fl
 		gr_get_string_size(cv_font, thold, &tx, nullptr, nullptr);
 		if ((x += tx) >= strbound)
 		{
-			constexpr std::size_t outbound = outsize - 4;
+			const std::size_t outbound = outsize - 4;
 			if (k > outbound)
 				k = outbound;
 			out[k] = out[k + 1] = out[k + 2] = '.';
