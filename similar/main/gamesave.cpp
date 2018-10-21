@@ -166,7 +166,7 @@ static array<char[FILENAME_LEN], MAX_POLYGON_MODELS_NEW> Save_pof_names;
 static int convert_vclip(int vc) {
 	if (vc < 0)
 		return vc;
-	if ((vc < VCLIP_MAXNUM) && (Vclip[vc].num_frames != ~0u))
+	if (vc < Vclip.size() && (Vclip[vc].num_frames != ~0u))
 		return vc;
 	return 0;
 }

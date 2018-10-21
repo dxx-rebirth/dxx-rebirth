@@ -1126,7 +1126,7 @@ static void bm_read_vclip(int skip)
 #endif
 {
 	bitmap_index bi;
-	Assert(clip_num < VCLIP_MAXNUM);
+	assert(clip_num < Vclip.size());
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (clip_num >= Num_vclips)

@@ -5429,7 +5429,7 @@ void init_hoard_data()
 
 	//Create orb vclip
 	orb_vclip = Num_vclips++;
-	Assert(Num_vclips <= VCLIP_MAXNUM);
+	assert(Num_vclips <= Vclip.size());
 	Vclip[orb_vclip].play_time = F1_0/2;
 	Vclip[orb_vclip].num_frames = n_orb_frames;
 	Vclip[orb_vclip].frame_time = Vclip[orb_vclip].play_time / Vclip[orb_vclip].num_frames;
