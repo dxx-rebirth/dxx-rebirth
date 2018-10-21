@@ -539,7 +539,7 @@ static int effect_parent_is_guidebot(fvcobjptr &vcobjptr, const laser_parent &la
 
 //if an effect is hit, and it can blow up, then blow it up
 //returns true if it blew up
-int check_effect_blowup(const vmsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
+int check_effect_blowup(const d_vclip_array &Vclip, const vmsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
 {
 	int tm;
 
@@ -758,7 +758,7 @@ static window_event_result collide_weapon_and_wall(object_array &objects, fvmseg
 		return window_event_result::ignored;
 	}
 
-	blew_up = check_effect_blowup(hitseg,hitwall, hitpt, weapon->ctype.laser_info, 0, 0);
+	blew_up = check_effect_blowup(Vclip, hitseg, hitwall, hitpt, weapon->ctype.laser_info, 0, 0);
 
 	int	robot_escort;
 #if defined(DXX_BUILD_DESCENT_II)

@@ -163,7 +163,8 @@ int Gamesave_num_players=0;
 #define MAX_POLYGON_MODELS_NEW 167
 static array<char[FILENAME_LEN], MAX_POLYGON_MODELS_NEW> Save_pof_names;
 
-static int convert_vclip(int vc) {
+static int convert_vclip(const d_vclip_array &Vclip, int vc)
+{
 	if (vc < 0)
 		return vc;
 	if (vc < Vclip.size() && (Vclip[vc].num_frames != ~0u))
@@ -188,7 +189,7 @@ static array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Save_pof_names;
 
 namespace dsx {
 
-static void verify_object(object &obj)
+static void verify_object(const d_vclip_array &Vclip, object &obj)
 {
 	obj.lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
 
@@ -565,7 +566,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 		case RT_FIREBALL:
 
 #if defined(DXX_BUILD_DESCENT_I)
-			obj->rtype.vclip_info.vclip_num	= convert_vclip(PHYSFSX_readInt(f));
+			obj->rtype.vclip_info.vclip_num	= convert_vclip(Vclip, PHYSFSX_readInt(f));
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj->rtype.vclip_info.vclip_num	= PHYSFSX_readInt(f);
 #endif
@@ -926,7 +927,7 @@ static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, 
 		{
 			const auto &&o = vmobjptr(&i);
 			read_object(o, LoadFile, game_top_fileinfo_version);
-			verify_object(o);
+			verify_object(Vclip, o);
 		}
 	}
 

@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <physfs.h>
 #include "maths.h"
+#include "fwd-vclip.h"
 
 struct bitmap_index;
 
@@ -152,15 +153,15 @@ void load_robot_replacements(const d_fname &level_name);
 
 namespace dsx {
 // Initializes all bitmaps from BITMAPS.TBL file.
-int gamedata_read_tbl(int pc_shareware);
+int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware);
 }
 #endif
 
-extern void bm_read_all(PHYSFS_File * fp);
+void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp);
 
 int load_exit_models();
 #if defined(DXX_BUILD_DESCENT_I)
-void properties_read_cmp(PHYSFS_File * fp);
+void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp);
 #endif
 int ds_load(int skip, const char * filename );
 int compute_average_pixel(grs_bitmap *n);

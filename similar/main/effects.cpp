@@ -46,7 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 
 unsigned Num_effects;
-array<eclip, MAX_EFFECTS> Effects;
+d_eclip_array Effects;
 
 void init_special_effects()
 {

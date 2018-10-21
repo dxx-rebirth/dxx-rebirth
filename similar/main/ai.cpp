@@ -1878,7 +1878,7 @@ static int check_object_object_intersection(const vms_vector &pos, fix size, con
 // --------------------------------------------------------------------------------------------------------------------
 //	Return objnum if object created, else return -1.
 //	If pos == NULL, pick random spot in segment.
-static imobjptridx_t create_gated_robot(fvcobjptr &vcobjptr, const vmsegptridx_t segp, int object_id, const vms_vector *pos)
+static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &vcobjptr, const vmsegptridx_t segp, int object_id, const vms_vector *pos)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	const unsigned maximum_gated_robots = 2*Difficulty_level + 3;
@@ -1966,7 +1966,7 @@ static imobjptridx_t create_gated_robot(fvcobjptr &vcobjptr, const vmsegptridx_t
 //	Return objnum if robot successfully created, else return -1
 imobjptridx_t gate_in_robot(int type, const vmsegptridx_t segnum)
 {
-	return create_gated_robot(vcobjptr, segnum, type, NULL);
+	return create_gated_robot(Vclip, vcobjptr, segnum, type, NULL);
 }
 
 static imobjptridx_t gate_in_robot(fvmsegptridx &vmsegptridx, int type)
@@ -2113,7 +2113,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-static void teleport_boss(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const vms_vector &target_pos)
+static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const vms_vector &target_pos)
 {
 	segnum_t			rand_segnum;
 	int			rand_index;
@@ -2208,7 +2208,7 @@ imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos)
 		return object_none;
 	}	
 
-	const auto &&newobjp = create_gated_robot(vcobjptr, segnum, Spew_bots[boss_index][(Max_spew_bots[boss_index] * d_rand()) >> 15], &pos);
+	const auto &&newobjp = create_gated_robot(Vclip, vcobjptr, segnum, Spew_bots[boss_index][(Max_spew_bots[boss_index] * d_rand()) >> 15], &pos);
  
 	//	Make spewed robot come tumbling out as if blasted by a flash missile.
 	if (newobjp != object_none) {
@@ -2374,7 +2374,7 @@ static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 				GameTime64 - Last_teleport_time > Boss_teleport_interval)
 			{
 				if (ai_multiplayer_awareness(objp, 98))
-					teleport_boss(vmsegptridx, objp, get_local_plrobj().pos);
+					teleport_boss(Vclip, vmsegptridx, objp, get_local_plrobj().pos);
 			} else if (Boss_hit_this_frame) {
 				Boss_hit_this_frame = 0;
 				Last_teleport_time -= Boss_teleport_interval/4;
@@ -2480,7 +2480,7 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 				GameTime64 - Last_teleport_time > Boss_teleport_interval)
 			{
 				if (ai_multiplayer_awareness(objp, 98))
-					teleport_boss(vmsegptridx, objp, get_local_plrobj().pos);
+					teleport_boss(Vclip, vmsegptridx, objp, get_local_plrobj().pos);
 			} else if (GameTime64 - Boss_hit_time > F1_0*2) {
 				Last_teleport_time -= Boss_teleport_interval/4;
 			}

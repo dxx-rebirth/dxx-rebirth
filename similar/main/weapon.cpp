@@ -1272,7 +1272,7 @@ void process_super_mines_frame(void)
 
 //this function is for when the player intentionally drops a powerup
 //this function is based on drop_powerup()
-imobjptridx_t spit_powerup(const object_base &spitter, const unsigned id, const unsigned seed)
+imobjptridx_t spit_powerup(const d_vclip_array &Vclip, const object_base &spitter, const unsigned id, const unsigned seed)
 {
 	d_srand(seed);
 
@@ -1393,7 +1393,7 @@ void DropCurrentWeapon (player_info &player_info)
 	}
 
 	const auto seed = d_rand();
-	const auto objnum = spit_powerup(vmobjptr(ConsoleObject), drop_type, seed);
+	const auto objnum = spit_powerup(Vclip, vmobjptr(ConsoleObject), drop_type, seed);
 	if (objnum == object_none)
 	{
 		HUD_init_message(HM_DEFAULT, "Failed to drop %s!", weapon_name);
@@ -1552,7 +1552,7 @@ void DropSecondaryWeapon (player_info &player_info)
 
 	seed = d_rand();
 
-	auto objnum = spit_powerup(vmobjptr(ConsoleObject), weapon_drop_id, seed);
+	auto objnum = spit_powerup(Vclip, vmobjptr(ConsoleObject), weapon_drop_id, seed);
 
 	if (objnum == object_none)
 		return;

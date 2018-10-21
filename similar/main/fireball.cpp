@@ -125,7 +125,7 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 	}
 }
 
-static imobjptridx_t object_create_explosion_sub(fvmobjptridx &vmobjptridx, const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
+static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvmobjptridx &vmobjptridx, const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
 {
 	auto obj = obj_create( OBJ_FIREBALL,vclip_type,segnum,position,&vmd_identity_matrix,size,
 					CT_EXPLOSION,MT_NONE,RT_FIREBALL);
@@ -311,17 +311,17 @@ static imobjptridx_t object_create_explosion_sub(fvmobjptridx &vmobjptridx, cons
 
 void object_create_muzzle_flash(const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
 {
-	object_create_explosion_sub(vmobjptridx, object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
+	object_create_explosion_sub(Vclip, vmobjptridx, object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
 imobjptridx_t object_create_explosion(const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
 {
-	return object_create_explosion_sub(vmobjptridx, object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
+	return object_create_explosion_sub(Vclip, vmobjptridx, object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
 imobjptridx_t object_create_badass_explosion(const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
 {
-	const imobjptridx_t rval = object_create_explosion_sub(vmobjptridx, objp, segnum, position, size, vclip_type, maxdamage, maxdistance, maxforce, parent );
+	const imobjptridx_t rval = object_create_explosion_sub(Vclip, vmobjptridx, objp, segnum, position, size, vclip_type, maxdamage, maxdistance, maxforce, parent);
 
 	if ((objp != object_none) && (objp->type == OBJ_WEAPON))
 		create_weapon_smart_children(objp);
@@ -419,7 +419,7 @@ static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &p
 	}
 }
 
-void draw_fireball(grs_canvas &canvas, const vcobjptridx_t obj)
+void draw_fireball(const d_vclip_array &Vclip, grs_canvas &canvas, const vcobjptridx_t obj)
 {
 	if ( obj->lifeleft > 0 )
 		draw_vclip_object(canvas, obj, obj->lifeleft, 0, Vclip[get_fireball_id(obj)]);
@@ -813,7 +813,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 #if defined(DXX_BUILD_DESCENT_I)
 static
 #endif
-imobjptridx_t drop_powerup(int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
+imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
 {
 	imobjptridx_t	objnum = object_none;
 	unsigned count;
@@ -919,7 +919,7 @@ static imobjptridx_t drop_robot_egg(const int type, const int id, const unsigned
 	switch (type)
 	{
 		case OBJ_POWERUP:
-			return drop_powerup(id, num, init_vel, pos, segnum, false);
+			return drop_powerup(Vclip, id, num, init_vel, pos, segnum, false);
 		case OBJ_ROBOT:
 			break;
 		default:
@@ -998,7 +998,7 @@ static imobjptridx_t drop_robot_egg(const int type, const int id, const unsigned
 			// At JasenW's request, robots which contain robots
 			// sometimes drop shields.
 			if (d_rand() > 16384)
-				drop_powerup(POW_SHIELD_BOOST, 1, init_vel, pos, segnum, false);
+				drop_powerup(Vclip, POW_SHIELD_BOOST, 1, init_vel, pos, segnum, false);
 #endif
 	return objnum;
 }
@@ -1051,7 +1051,7 @@ imobjptridx_t object_create_robot_egg(const vmobjptr_t objp)
 imobjptridx_t call_object_create_egg(const object_base &objp, const unsigned count, const int id)
 {
 	if (count > 0) {
-		return drop_powerup(id, count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum), true);
+		return drop_powerup(Vclip, id, count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum), true);
 	}
 
 	return object_none;

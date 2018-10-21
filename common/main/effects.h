@@ -72,7 +72,8 @@ struct eclip : public prohibit_void_ptr<eclip>
 };
 
 extern unsigned Num_effects;
-extern array<eclip, MAX_EFFECTS> Effects;
+using d_eclip_array = array<eclip, MAX_EFFECTS>;
+extern d_eclip_array Effects;
 
 // Set up special effects.
 extern void init_special_effects();

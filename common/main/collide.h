@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include "fwd-object.h"
 #include "fwd-segment.h"
+#include "fwd-vclip.h"
 #include "fwd-vecmat.h"
 #include "fwd-window.h"
 
@@ -69,11 +70,11 @@ void collide_player_and_nasty_robot(vmobjptridx_t player, vmobjptridx_t robot, c
 void net_destroy_controlcen(imobjptridx_t controlcen);
 void collide_live_local_player_and_powerup(const vmobjptridx_t powerup);
 #if defined(DXX_BUILD_DESCENT_I)
-#define check_effect_blowup(seg,side,pnt,blower,force_blowup_flag,remote) check_effect_blowup(seg,side,pnt)
+#define check_effect_blowup(Vclip,seg,side,pnt,blower,force_blowup_flag,remote) check_effect_blowup(Vclip,seg,side,pnt)
 #endif
 #ifdef dsx
 namespace dsx {
-int check_effect_blowup(vmsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
+int check_effect_blowup(const d_vclip_array &Vclip, vmsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
 }
 #endif
 void apply_damage_to_controlcen(vmobjptridx_t controlcen, fix damage, vcobjptr_t who);

@@ -635,7 +635,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx)
 constexpr fix flash_dist=fl2f(.9);
 
 //create flash for player appearance
-void create_player_appearance_effect(const object_base &player_obj)
+void create_player_appearance_effect(const d_vclip_array &Vclip, const object_base &player_obj)
 {
 	const auto pos = (&player_obj == Viewer)
 		? vm_vec_scale_add(player_obj.pos, player_obj.orient.fvec, fixmul(player_obj.size, flash_dist))
@@ -1641,7 +1641,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 
 	if (Game_mode & GM_NETWORK)
 	{
-		multi_prep_level_objects();
+		multi_prep_level_objects(Vclip);
 		if (multi_level_sync() == window_event_result::close) // After calling this, Player_num is set
 		{
 			songs_play_song( SONG_TITLE, 1 ); // level song already plays but we fail to start level...
@@ -1737,16 +1737,12 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 	return window_event_result::handled;
 }
 
-}
-
-void (bash_to_shield)(const vmobjptr_t i)
+void bash_to_shield(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip, object_base &i)
 {
 	set_powerup_id(Powerup_info, Vclip, i, POW_SHIELD_BOOST);
 }
 
-
 #if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
 
 static void filter_objects_from_level(fvmobjptr &vmobjptr)
  {
@@ -1756,7 +1752,7 @@ static void filter_objects_from_level(fvmobjptr &vmobjptr)
 		{
 			const auto powerup_id = get_powerup_id(objp);
 			if (powerup_id == POW_FLAG_RED || powerup_id == POW_FLAG_BLUE)
-				bash_to_shield(objp);
+				bash_to_shield(Powerup_info, Vclip, objp);
 		}
    }
 
@@ -1838,12 +1834,10 @@ static void maybe_set_first_secret_visit(int level_num)
 		}
 	}
 }
-}
 #endif
 
 //called when the player is starting a new level for normal game model
 //	secret_flag if came from a secret level
-namespace dsx {
 window_event_result StartNewLevel(int level_num)
 {
 	hide_menus();

@@ -53,6 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "paging.h"
 #include "game.h"
 #include "text.h"
+#include "vclip.h"
 #include "newmenu.h"
 #include "makesig.h"
 #include "console.h"
@@ -514,7 +515,7 @@ int properties_init()
 		retval = PIGGY_PC_SHAREWARE;	// run gamedata_read_tbl in shareware mode
 	else if (GameArg.EdiNoBm || (!PHYSFSX_exists("BITMAPS.TBL",1) && !PHYSFSX_exists("BITMAPS.BIN",1)))
 	{
-		properties_read_cmp( Piggy_fp );	// Note connection to above if!!!
+		properties_read_cmp(Vclip, Piggy_fp);	// Note connection to above if!!!
 		range_for (auto &i, GameBitmapXlat)
 		{
 			i = PHYSFSX_readShort(Piggy_fp);
@@ -993,7 +994,7 @@ int read_hamfile()
 
 	#if 1 //ndef EDITOR
 	{
-		bm_read_all(ham_fp);
+		bm_read_all(Vclip, ham_fp);
 		//PHYSFS_read( ham_fp, GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1 );
 		range_for (auto &i, GameBitmapXlat)
 		{
@@ -1451,7 +1452,7 @@ void piggy_bitmap_page_out_all()
 void piggy_load_level_data()
 {
 	piggy_bitmap_page_out_all();
-	paging_touch_all();
+	paging_touch_all(Vclip);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

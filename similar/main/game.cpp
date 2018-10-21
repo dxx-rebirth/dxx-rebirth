@@ -1886,7 +1886,7 @@ window_event_result GameProcessFrame()
 
 	if (Do_appearance_effect) {
 		Do_appearance_effect = 0;
-		create_player_appearance_effect(*ConsoleObject);
+		create_player_appearance_effect(Vclip, *ConsoleObject);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2161,7 +2161,7 @@ int	Last_level_path_created = -1;
 //	------------------------------------------------------------------------------------------------------------------
 //	Create path for player from current segment to goal segment.
 //	Return true if path created, else return false.
-static int mark_player_path_to_segment(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, segnum_t segnum)
+static int mark_player_path_to_segment(const d_vclip_array &Vclip, fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, segnum_t segnum)
 {
 	int		player_hide_index=-1;
 
@@ -2214,7 +2214,7 @@ int create_special_path(void)
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (segp->children[j] == segment_exit)
 			{
-				return mark_player_path_to_segment(vmobjptridx, vmsegptridx, segp);
+				return mark_player_path_to_segment(Vclip, vmobjptridx, vmsegptridx, segp);
 			}
 	}
 

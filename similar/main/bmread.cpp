@@ -154,7 +154,7 @@ static void bm_read_robot_ai(char *&arg, int skip);
 static void bm_read_robot(char *&arg, int skip);
 static void bm_read_object(char *&arg, int skip);
 static void bm_read_player_ship(char *&arg, int skip);
-static void bm_read_some_file(const std::string &dest_bm, char *&arg, int skip);
+static void bm_read_some_file(d_vclip_array &Vclip, const std::string &dest_bm, char *&arg, int skip);
 static void bm_read_weapon(char *&arg, int skip, int unused_flag);
 static void bm_read_powerup(char *&arg, int unused_flag);
 static void bm_read_hostage(char *&arg);
@@ -170,7 +170,7 @@ static void bm_read_weapon(int skip, int unused_flag);
 static void bm_read_reactor(void);
 static void bm_read_exitmodel(void);
 static void bm_read_player_ship(void);
-static void bm_read_some_file(int skip);
+static void bm_read_some_file(d_vclip_array &Vclip, int skip);
 static void bm_read_sound(int skip);
 static void clear_to_end_of_line(void);
 static void verify_textures(void);
@@ -439,7 +439,7 @@ namespace dsx {
 // Initializes all properties and bitmaps from BITMAPS.TBL file.
 // This is called when the editor is IN.
 // If no editor, properties_read_cmp() is called.
-int gamedata_read_tbl(int pc_shareware)
+int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 {
 	int	have_bin_tbl;
 
@@ -738,9 +738,9 @@ int gamedata_read_tbl(int pc_shareware)
 				// Otherwise, 'arg' is apparently a bitmap filename.
 				// Load bitmap and process it below:
 #if defined(DXX_BUILD_DESCENT_I)
-				bm_read_some_file(dest_bm, arg, skip);
+				bm_read_some_file(Vclip, dest_bm, arg, skip);
 #elif defined(DXX_BUILD_DESCENT_II)
-				bm_read_some_file(skip);
+				bm_read_some_file(Vclip, skip);
 #endif
 
 			}
@@ -1120,9 +1120,9 @@ static void bm_read_wclip(int skip)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static void bm_read_vclip(const char *const arg, int skip)
+static void bm_read_vclip(d_vclip_array &Vclip, const char *const arg, int skip)
 #elif defined(DXX_BUILD_DESCENT_II)
-static void bm_read_vclip(int skip)
+static void bm_read_vclip(d_vclip_array &Vclip, int skip)
 #endif
 {
 	bitmap_index bi;
@@ -2027,9 +2027,9 @@ void bm_read_player_ship(void)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-void bm_read_some_file(const std::string &dest_bm, char *&arg, int skip)
+void bm_read_some_file(d_vclip_array &Vclip, const std::string &dest_bm, char *&arg, int skip)
 #elif defined(DXX_BUILD_DESCENT_II)
-void bm_read_some_file(int skip)
+void bm_read_some_file(d_vclip_array &Vclip, int skip)
 #endif
 {
 
@@ -2072,9 +2072,9 @@ void bm_read_some_file(int skip)
 		break;
 	case BM_VCLIP:
 #if defined(DXX_BUILD_DESCENT_I)
-		bm_read_vclip(arg, skip);
+		bm_read_vclip(Vclip, arg, skip);
 #elif defined(DXX_BUILD_DESCENT_II)
-		bm_read_vclip(skip);
+		bm_read_vclip(Vclip, skip);
 		return;
 #endif
 		break;

@@ -967,7 +967,7 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 		const auto alpha = PlayerCfg.AlphaBlendMineExplosion;
 		if (alpha) // set nice transparency/blending for the big explosion
 			gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
-		draw_fireball(canvas, vcobjptridx(external_explosion));
+		draw_fireball(Vclip, canvas, vcobjptridx(external_explosion));
 #if DXX_USE_OGL
 		/* If !OGL, the third argument is discarded, so this call
 		 * becomes the same as the one above.

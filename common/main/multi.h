@@ -477,7 +477,7 @@ void multi_send_endlevel_packet();
 #ifdef dsx
 namespace dsx {
 void multi_send_hostage_door_status(vcwallptridx_t wallnum);
-void multi_prep_level_objects();
+void multi_prep_level_objects(const d_vclip_array &Vclip);
 void multi_prep_level_player();
 void multi_leave_game(void);
 }
@@ -704,7 +704,7 @@ void multi_send_drop_blobs(playernum_t);
 void multi_send_sound_function (char,char);
 void DropFlag();
 void multi_send_finish_game ();
-void init_hoard_data();
+void init_hoard_data(d_vclip_array &Vclip);
 void multi_apply_goal_textures();
 
 int HoardEquipped();

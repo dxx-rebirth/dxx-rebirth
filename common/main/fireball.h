@@ -71,7 +71,7 @@ void explode_object(vmobjptridx_t obj,fix delay_time);
 void do_explosion_sequence(vmobjptr_t obj);
 void do_debris_frame(vmobjptridx_t obj);      // deal with debris for this frame
 
-void draw_fireball(grs_canvas &, vcobjptridx_t obj);
+void draw_fireball(const d_vclip_array &Vclip, grs_canvas &, vcobjptridx_t obj);
 
 void explode_wall(fvcvertptr &, vcsegptridx_t, unsigned sidenum, wall &);
 void do_exploding_wall_frame(wall &);
@@ -92,7 +92,7 @@ namespace dsx {
 int get_explosion_vclip(const object_base &obj, explosion_vclip_stage stage);
 
 #if defined(DXX_BUILD_DESCENT_II)
-imobjptridx_t drop_powerup(int id, unsigned num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player);
+imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, unsigned num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player);
 
 // creates afterburner blobs behind the specified object
 void drop_afterburner_blobs(vmobjptr_t obj, int count, fix size_scale, fix lifetime);

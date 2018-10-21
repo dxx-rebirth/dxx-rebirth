@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef dsx
 namespace dsx {
-void paging_touch_all();
+void paging_touch_all(const d_vclip_array &Vclip);
 
 }
 #endif

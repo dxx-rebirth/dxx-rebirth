@@ -153,7 +153,7 @@ int gamedata_init()
 	init_endlevel();//adb: added, is also in bm_init_use_tbl (Chris: *Was* in bm_init_use_tbl)
 	retval = properties_init();				// This calls properties_read_cmp if appropriate
 	if (retval)
-		gamedata_read_tbl(retval == PIGGY_PC_SHAREWARE);
+		gamedata_read_tbl(Vclip, retval == PIGGY_PC_SHAREWARE);
 
 	piggy_read_sounds(retval == PIGGY_PC_SHAREWARE);
 	
@@ -161,7 +161,7 @@ int gamedata_init()
 }
 
 // Read compiled properties data from descent.pig
-void properties_read_cmp(PHYSFS_File * fp)
+void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
 	//  bitmap_index is a short
 	
@@ -277,7 +277,7 @@ int gamedata_init()
 #if DXX_USE_EDITOR
 	// The pc_shareware argument is currently unused for Descent 2,
 	// but *may* be useful for loading Descent 1 Shareware texture properties.
-	if (!gamedata_read_tbl(0))
+	if (!gamedata_read_tbl(Vclip, 0))
 #endif
 		if (!properties_init())				// This calls properties_read_cmp
 				Error("Cannot open ham file\n");
@@ -287,7 +287,7 @@ int gamedata_init()
 	return 0;
 }
 
-void bm_read_all(PHYSFS_File * fp)
+void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
 	unsigned t;
 

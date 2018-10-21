@@ -65,10 +65,10 @@ namespace dcx {
 unsigned N_powerup_types;
 }
 namespace dsx {
-array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
+d_powerup_info_array Powerup_info;
 
 //process this powerup for this frame
-void do_powerup_frame(const vmobjptridx_t obj)
+void do_powerup_frame(const d_vclip_array &Vclip, const vmobjptridx_t obj)
 {
 	vclip_info *vci = &obj->rtype.vclip_info;
 
@@ -121,7 +121,7 @@ void do_powerup_frame(const vmobjptridx_t obj)
 
 namespace dcx {
 
-void draw_powerup(grs_canvas &canvas, const object_base &obj)
+void draw_powerup(const d_vclip_array &Vclip, grs_canvas &canvas, const object_base &obj)
 {
 	auto &vci = obj.rtype.vclip_info;
 	draw_object_blob(canvas, obj, Vclip[vci.vclip_num].frames[vci.framenum]);

@@ -975,7 +975,7 @@ void multi_do_robot_explode(const uint8_t *const buf)
 		add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(robot)].score_value);
 }
 
-void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
+void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
 {
 	const uint_fast32_t fuelcen_num = buf[2];
 	int type = buf[5];
@@ -1023,7 +1023,7 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 	Assert(obj->ctype.ai_info.REMOTE_OWNER == -1);
 }
 
-void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
+void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
 {
 	boss_teleport b;
 	multi_serialize_read(buf, b);

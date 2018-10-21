@@ -671,7 +671,7 @@ void render_object(grs_canvas &canvas, const vmobjptridx_t obj)
 				gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 			}
 
-			draw_fireball(canvas, obj);
+			draw_fireball(Vclip, canvas, obj);
 			break;
 
 		case RT_WEAPON_VCLIP:
@@ -681,11 +681,11 @@ void render_object(grs_canvas &canvas, const vmobjptridx_t obj)
 				gr_settransblend(canvas, 7, GR_BLEND_ADDITIVE_A);
 			}
 
-			draw_weapon_vclip(canvas, obj);
+			draw_weapon_vclip(Vclip, Weapon_info, canvas, obj);
 			break;
 
 		case RT_HOSTAGE:
-			draw_hostage(canvas, obj);
+			draw_hostage(Vclip, canvas, obj);
 			break;
 
 		case RT_POWERUP:
@@ -747,7 +747,7 @@ void render_object(grs_canvas &canvas, const vmobjptridx_t obj)
 						break;
 				}
 
-			draw_powerup(canvas, obj);
+			draw_powerup(Vclip, canvas, obj);
 			break;
 
 		case RT_LASER:
@@ -1738,7 +1738,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 			break;
 
 		case CT_POWERUP:
-			do_powerup_frame(obj);
+			do_powerup_frame(Vclip, obj);
 			break;
 	
 		case CT_MORPH:			//morph implies AI

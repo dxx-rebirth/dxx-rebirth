@@ -383,22 +383,22 @@ static void ogl_cache_vclip_textures(const vclip &vc)
 	}
 }
 
-static void ogl_cache_vclipn_textures(const unsigned i)
+static void ogl_cache_vclipn_textures(const d_vclip_array &Vclip, const unsigned i)
 {
 	if (i < Vclip.size())
 		ogl_cache_vclip_textures(Vclip[i]);
 }
 
-static void ogl_cache_weapon_textures(const unsigned weapon_type)
+static void ogl_cache_weapon_textures(const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const unsigned weapon_type)
 {
 	if (weapon_type >= Weapon_info.size())
 		return;
 	const auto &w = Weapon_info[weapon_type];
-	ogl_cache_vclipn_textures(w.flash_vclip);
-	ogl_cache_vclipn_textures(w.robot_hit_vclip);
-	ogl_cache_vclipn_textures(w.wall_hit_vclip);
+	ogl_cache_vclipn_textures(Vclip, w.flash_vclip);
+	ogl_cache_vclipn_textures(Vclip, w.robot_hit_vclip);
+	ogl_cache_vclipn_textures(Vclip, w.wall_hit_vclip);
 	if (w.render_type == WEAPON_RENDER_VCLIP)
-		ogl_cache_vclipn_textures(w.weapon_vclip);
+		ogl_cache_vclipn_textures(Vclip, w.weapon_vclip);
 	else if (w.render_type == WEAPON_RENDER_POLYMODEL)
 	{
 		ogl_cache_polymodel_textures(w.model_num);
@@ -416,7 +416,7 @@ void ogl_cache_level_textures(void)
 	
 	range_for (auto &ec, partial_const_range(Effects, Num_effects))
 	{
-		ogl_cache_vclipn_textures(ec.dest_vclip);
+		ogl_cache_vclipn_textures(Vclip, ec.dest_vclip);
 		if ((ec.changing_wall_texture == -1) && (ec.changing_object_texture==-1) )
 			continue;
 		if (ec.vc.num_frames>max_efx)
@@ -463,19 +463,19 @@ void ogl_cache_level_textures(void)
 	init_special_effects();
 	{
 		// always have lasers, concs, flares.  Always shows player appearance, and at least concs are always available to disappear.
-		ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[primary_weapon_index_t::LASER_INDEX]);
-		ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[CONCUSSION_INDEX]);
-		ogl_cache_weapon_textures(weapon_id_type::FLARE_ID);
-		ogl_cache_vclipn_textures(VCLIP_PLAYER_APPEARANCE);
-		ogl_cache_vclipn_textures(VCLIP_POWERUP_DISAPPEARANCE);
+		ogl_cache_weapon_textures(Vclip, Weapon_info, Primary_weapon_to_weapon_info[primary_weapon_index_t::LASER_INDEX]);
+		ogl_cache_weapon_textures(Vclip, Weapon_info, Secondary_weapon_to_weapon_info[CONCUSSION_INDEX]);
+		ogl_cache_weapon_textures(Vclip, Weapon_info, weapon_id_type::FLARE_ID);
+		ogl_cache_vclipn_textures(Vclip, VCLIP_PLAYER_APPEARANCE);
+		ogl_cache_vclipn_textures(Vclip, VCLIP_POWERUP_DISAPPEARANCE);
 		ogl_cache_polymodel_textures(Player_ship->model_num);
-		ogl_cache_vclipn_textures(Player_ship->expl_vclip_num);
+		ogl_cache_vclipn_textures(Vclip, Player_ship->expl_vclip_num);
 
 		range_for (const auto &&objp, vcobjptridx)
 		{
 			if (objp->type == OBJ_POWERUP && objp->render_type==RT_POWERUP)
 			{
-				ogl_cache_vclipn_textures(objp->rtype.vclip_info.vclip_num);
+				ogl_cache_vclipn_textures(Vclip, objp->rtype.vclip_info.vclip_num);
 				const auto id = get_powerup_id(objp);
 				primary_weapon_index_t p;
 				secondary_weapon_index_t s;
@@ -499,7 +499,7 @@ void ogl_cache_level_textures(void)
 					)
 				)
 				{
-					ogl_cache_weapon_textures(w);
+					ogl_cache_weapon_textures(Vclip, Weapon_info, w);
 				}
 			}
 			else if (objp->type != OBJ_NONE && objp->render_type==RT_POLYOBJ)
@@ -507,9 +507,9 @@ void ogl_cache_level_textures(void)
 				if (objp->type == OBJ_ROBOT)
 				{
 					auto &ri = Robot_info[get_robot_id(objp)];
-					ogl_cache_vclipn_textures(ri.exp1_vclip_num);
-					ogl_cache_vclipn_textures(ri.exp2_vclip_num);
-					ogl_cache_weapon_textures(ri.weapon_type);
+					ogl_cache_vclipn_textures(Vclip, ri.exp1_vclip_num);
+					ogl_cache_vclipn_textures(Vclip, ri.exp2_vclip_num);
+					ogl_cache_weapon_textures(Vclip, Weapon_info, ri.weapon_type);
 				}
 				if (objp->rtype.pobj_info.tmap_override != -1)
 				{

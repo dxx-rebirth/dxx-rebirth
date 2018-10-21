@@ -79,9 +79,9 @@ namespace dsx {
 void multi_do_robot_fire(const ubyte *buf);
 }
 #endif
-void multi_do_create_robot(playernum_t pnum, const ubyte *buf);
+void multi_do_create_robot(const d_vclip_array &Vclip, playernum_t pnum, const ubyte *buf);
 void multi_do_create_robot_powerups(playernum_t pnum, const ubyte *buf);
-void multi_do_boss_teleport(playernum_t pnum, const ubyte *buf);
+void multi_do_boss_teleport(const d_vclip_array &Vclip, playernum_t pnum, const ubyte *buf);
 #ifdef dsx
 namespace dsx {
 void multi_do_boss_cloak(const ubyte *buf);

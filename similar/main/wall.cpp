@@ -45,7 +45,7 @@ unsigned Num_wall_anims;
 }
 
 namespace dsx {
-array<wclip, MAX_WALL_ANIMS> WallAnims;		// Wall animations
+wall_animations_array WallAnims;		// Wall animations
 
 namespace {
 
@@ -1408,7 +1408,7 @@ static void bng_process_segment(const object &objp, fix damage, const vmsegptrid
 				if (dist < damage/2) {
 					dist = find_connected_distance(pnt, segp, objp.pos, segp.absolute_sibling(objp.segnum), MAX_BLAST_GLASS_DEPTH, WID_RENDPAST_FLAG);
 					if ((dist > 0) && (dist < damage/2))
-						check_effect_blowup(segp, sidenum, pnt, vcobjptr(objp.ctype.laser_info.parent_num)->ctype.laser_info, 1, 0);
+						check_effect_blowup(Vclip, segp, sidenum, pnt, vcobjptr(objp.ctype.laser_info.parent_num)->ctype.laser_info, 1, 0);
 				}
 			}
 		}

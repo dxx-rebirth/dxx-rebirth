@@ -346,7 +346,7 @@ imobjptridx_t  create_morph_robot( const vmsegptridx_t segp, const vms_vector &o
 }
 
 //	----------------------------------------------------------------------------------------------------------
-static void robotmaker_proc(fvmsegptridx &vmsegptridx, FuelCenter *const robotcen, const unsigned numrobotcen)
+static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, FuelCenter *const robotcen, const unsigned numrobotcen)
 {
 	int		matcen_num;
 	fix		top_time;
@@ -538,7 +538,7 @@ void fuelcen_update_all()
 		if (i.Type == SEGMENT_IS_ROBOTMAKER)
 		{
 			if (! (Game_suspended & SUSP_ROBOTS))
-				robotmaker_proc(vmsegptridx, &i, e.idx);
+				robotmaker_proc(Vclip, vmsegptridx, &i, e.idx);
 		}
 	}
 }

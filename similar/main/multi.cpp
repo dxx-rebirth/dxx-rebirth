@@ -1735,7 +1735,7 @@ static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 		return;
 
 	multi_make_ghost_player(pnum);
-	create_player_appearance_effect(obj);
+	create_player_appearance_effect(Vclip, obj);
 }
 
 static void multi_do_player_deres(object_array &objects, const playernum_t pnum, const uint8_t *const buf)
@@ -1830,7 +1830,7 @@ static void multi_do_player_deres(object_array &objects, const playernum_t pnum,
 	}
 	else
 	{
-		create_player_appearance_effect(objp);
+		create_player_appearance_effect(Vclip, objp);
 	}
 
 	player_info.powerup_flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
@@ -1942,7 +1942,7 @@ static void multi_do_escape(fvmobjptridx &vmobjptridx, const uint8_t *const buf)
 	HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(plr.callsign), txt);
 	if (Game_mode & GM_NETWORK)
 		plr.connected = connected;
-	create_player_appearance_effect(objnum);
+	create_player_appearance_effect(Vclip, objnum);
 	multi_make_player_ghost(buf[1]);
 }
 
@@ -2302,7 +2302,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	laser.parent_type = OBJ_PLAYER;
 	laser.parent_num = pnum;
 
-	check_effect_blowup(*useg, side, hitpnt, laser, 0, 1);
+	check_effect_blowup(Vclip, *useg, side, hitpnt, laser, 0, 1);
 }
 
 static void multi_do_drop_marker(object_array &objects, fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
@@ -3195,7 +3195,7 @@ public:
 	{
 		return m_modified.test(i);
 	}
-	void process_powerup(fvmsegptridx &, const object &, powerup_type_t);
+	void process_powerup(const d_vclip_array &Vclip, fvmsegptridx &, const object &, powerup_type_t);
 };
 
 class powerup_shuffle_state
@@ -3214,7 +3214,7 @@ public:
 	void shuffle() const;
 };
 
-void update_item_state::process_powerup(fvmsegptridx &vmsegptridx, const object &o, const powerup_type_t id)
+void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, const object &o, const powerup_type_t id)
 {
 	uint_fast32_t count;
 	switch (id)
@@ -3319,7 +3319,7 @@ public:
  * Robot deletion for non-robot games, Powerup duplication, AllowedItems, Initial powerup counting.
  * MUST be done before multi_level_sync() in case we join a running game and get updated objects there. We want the initial powerup setup for a level here!
  */
-void multi_prep_level_objects()
+void multi_prep_level_objects(const d_vclip_array &Vclip)
 {
         if (!(Game_mode & GM_MULTI_COOP))
 	{
@@ -3372,9 +3372,9 @@ void multi_prep_level_objects()
 					continue;
 				default:
 					if (!multi_powerup_is_allowed(id, AllowedItems, SpawnGrantedItems))
-						bash_to_shield(o);
+						bash_to_shield(Powerup_info, Vclip, o);
 					else
-						duplicates.process_powerup(vmsegptridx, o, id);
+						duplicates.process_powerup(Vclip, vmsegptridx, o, id);
 					continue;
 			}
 		}
@@ -3430,7 +3430,7 @@ void multi_prep_level_player(void)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (game_mode_hoard())
-		init_hoard_data();
+		init_hoard_data(Vclip);
 
 	if (game_mode_capture_flag() || game_mode_hoard())
 		multi_apply_goal_textures();
@@ -3750,7 +3750,7 @@ static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, co
 	remote_objnum = GET_INTEL_SHORT(buf + 2);
 	ammo = GET_INTEL_SHORT(buf + 4);
 	seed = GET_INTEL_INT(buf + 6);
-	const auto objnum = spit_powerup(vmobjptr(vcplayerptr(pnum)->objnum), powerup_id, seed);
+	const auto objnum = spit_powerup(Vclip, vmobjptr(vcplayerptr(pnum)->objnum), powerup_id, seed);
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 
@@ -4374,7 +4374,7 @@ static void DropOrb ()
 
 	seed = d_rand();
 
-	const auto &&objnum = spit_powerup(vmobjptr(ConsoleObject), POW_HOARD_ORB, seed);
+	const auto &&objnum = spit_powerup(Vclip, vmobjptr(ConsoleObject), POW_HOARD_ORB, seed);
 
 	if (objnum == object_none)
 		return;
@@ -4412,7 +4412,7 @@ void DropFlag ()
 		return;
 	}
 	seed = d_rand();
-	const auto &&objnum = spit_powerup(vmobjptr(ConsoleObject), get_team(Player_num) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED, seed);
+	const auto &&objnum = spit_powerup(Vclip, vmobjptr(ConsoleObject), get_team(Player_num) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED, seed);
 	if (objnum == object_none)
 	{
 		HUD_init_message_literal(HM_MULTI, "Failed to drop flag!");
@@ -4454,7 +4454,7 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 
 	const auto &&objp = vmobjptr(vcplayerptr(pnum)->objnum);
 
-	auto objnum = spit_powerup(objp, powerup_id, seed);
+	auto objnum = spit_powerup(Vclip, objp, powerup_id, seed);
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 	if (!game_mode_hoard())
@@ -5400,7 +5400,7 @@ void hoard_resources_type::reset()
 		i.reset();
 }
 
-void init_hoard_data()
+void init_hoard_data(d_vclip_array &Vclip)
 {
 	hoard_resources.reset();
 	static int orb_vclip;
@@ -5697,7 +5697,7 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 			multi_do_score(vmobjptr, pnum, buf);
 			break;
 		case MULTI_CREATE_ROBOT:
-			multi_do_create_robot(pnum, buf); break;
+			multi_do_create_robot(Vclip, pnum, buf); break;
 		case MULTI_TRIGGER:
 			multi_do_trigger(pnum, buf); break;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -5713,7 +5713,7 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 			break;
 #endif
 		case MULTI_BOSS_TELEPORT:
-			multi_do_boss_teleport(pnum, buf); break;
+			multi_do_boss_teleport(Vclip, pnum, buf); break;
 		case MULTI_BOSS_CLOAK:
 			multi_do_boss_cloak(buf); break;
 		case MULTI_BOSS_START_GATE:

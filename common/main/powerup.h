@@ -135,7 +135,7 @@ void powerup_type_info_read(PHYSFS_File *fp, powerup_type_info &pti);
 void powerup_type_info_write(PHYSFS_File *fp, const powerup_type_info &pti);
 
 extern unsigned N_powerup_types;
-void draw_powerup(grs_canvas &, const object_base &obj);
+void draw_powerup(const d_vclip_array &Vclip, grs_canvas &, const object_base &obj);
 
 }
 
@@ -147,7 +147,7 @@ extern d_powerup_info_array Powerup_info;
 int do_powerup(vmobjptridx_t obj);
 
 //process (animate) a powerup for one frame
-void do_powerup_frame(vmobjptridx_t obj);
+void do_powerup_frame(const d_vclip_array &Vclip, vmobjptridx_t obj);
 }
 #endif
 #endif

@@ -251,7 +251,7 @@ static array<const object *, MAX_HEADLIGHTS> Headlights;
 
 // ---------------------------------------------------------
 namespace dsx {
-static g3s_lrgb compute_light_emission(const vmobjptridx_t obj)
+static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vmobjptridx_t obj)
 {
 	int compute_color = 0;
 	float cscale = 255.0;
@@ -523,7 +523,7 @@ void set_dynamic_light(render_state_t &rstate)
 
 	range_for (const auto &&obj, vmobjptridx)
 	{
-		const auto &&obj_light_emission = compute_light_emission(obj);
+		const auto &&obj_light_emission = compute_light_emission(Vclip, obj);
 
 		if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 			apply_light(vmsegptridx, obj_light_emission, vmsegptridx(obj->segnum), obj->pos, n_render_vertices, render_vertices, vert_segnum_list, obj);

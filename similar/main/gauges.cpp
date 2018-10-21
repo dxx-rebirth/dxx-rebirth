@@ -2642,9 +2642,9 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 #if defined(DXX_BUILD_DESCENT_II)
 static array<fix, 2> static_time;
 
-static void draw_static(const hud_draw_context_hs_mr hudctx, const unsigned win)
+static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr hudctx, const unsigned win)
 {
-	vclip *vc = &Vclip[VCLIP_MONITOR_STATIC];
+	const vclip *const vc = &Vclip[VCLIP_MONITOR_STATIC];
 	int framenum;
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 	int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
@@ -2720,7 +2720,7 @@ static void draw_weapon_box0(const hud_draw_context_hs_mr hudctx, const player_i
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (weapon_box_user[0] == WBU_STATIC)
-		draw_static(hudctx, 0);
+		draw_static(Vclip, hudctx, 0);
 #endif
 }
 
@@ -2742,7 +2742,7 @@ static void draw_weapon_box1(const hud_draw_context_hs_mr hudctx, const player_i
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (weapon_box_user[1] == WBU_STATIC)
-		draw_static(hudctx, 1);
+		draw_static(Vclip, hudctx, 1);
 #endif
 }
 
