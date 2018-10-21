@@ -1172,9 +1172,7 @@ struct d_screenshot
 			return
 		context.Result('%s: checking how to handle ADL MIDI...%s' % (self.msgprefix, adlmidi_load_type))
 		Define = context.sconf.Define
-		enable_adlmidi = int(adlmidi != 'none')
-		user_settings._enable_adlmidi = enable_adlmidi
-		Define('DXX_USE_ADLMIDI', enable_adlmidi)
+		Define('DXX_USE_ADLMIDI', int(user_settings._enable_adlmidi()))
 
 	@_custom_test
 	def _check_user_settings_screenshot(self,context):
@@ -3458,6 +3456,8 @@ class DXXCommon(LazyObjectConstructor):
 			return self.default_EGL_LIB
 		def need_dynamic_library_load(self):
 			return self.adlmidi == 'runtime'
+		def _enable_adlmidi(self):
+			return self.adlmidi != 'none'
 
 		def __default_DATA_DIR(self):
 			platform_settings_type = self._program.get_platform_settings_type(self.host_platform)
@@ -4305,7 +4305,7 @@ class DXXArchive(DXXCommon):
 		value = list(__get_objects_common(self))
 		extend = value.extend
 		user_settings = self.user_settings
-		if user_settings._enable_adlmidi:
+		if user_settings._enable_adlmidi():
 			extend(__get_objects_use_adlmidi(self))
 		if not user_settings.sdl2:
 			extend(__get_objects_use_sdl1(self))
