@@ -238,7 +238,8 @@ void player_dead_message(grs_canvas &canvas)
 {
 	if (Player_dead_state == player_dead_state::exploded)
 	{
-		if ( get_local_player().lives < 2 )    {
+		if (get_local_player().lives == 1)
+		{
 			int x, y, w, h;
 			auto &huge_font = *HUGE_FONT;
 			gr_get_string_size(huge_font, TXT_GAME_OVER, &w, &h, nullptr);
