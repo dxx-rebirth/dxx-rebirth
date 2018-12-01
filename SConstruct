@@ -3340,8 +3340,8 @@ class PCHManager(object):
 class DXXCommon(LazyObjectConstructor):
 	# version number
 	VERSION_MAJOR = 0
-	VERSION_MINOR = 59
-	VERSION_MICRO = 100
+	VERSION_MINOR = 61
+	VERSION_MICRO = 0
 	DXX_VERSION_SEQ = ','.join([str(VERSION_MAJOR), str(VERSION_MINOR), str(VERSION_MICRO)])
 	pch_manager = None
 	runtime_test_boost_tests = None
