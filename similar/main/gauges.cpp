@@ -1821,7 +1821,7 @@ static void hud_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_sca
 		auto &game_font = *GAME_FONT;
 		gr_printf(canvas, game_font, x, FSPACY(1), "%s: %d", TXT_DEATHS, player_info.net_killed_total);
 	}
-	else if (const unsigned lives = get_local_player().lives - 1)
+	else if (const uint16_t lives = get_local_player().lives - 1)
 	{
 		gr_set_curfont(canvas, GAME_FONT);
 		gr_set_fontcolor(canvas, BM_XRGB(0, 20, 0), -1);
@@ -1833,7 +1833,7 @@ static void hud_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_sca
 		const auto &&fspacy1 = FSPACY(1);
 		hud_bitblt_free(canvas, x, fspacy1, hud_scale_ar(bm.bm_w), hud_scale_ar(bm.bm_h), bm);
 		auto &game_font = *GAME_FONT;
-		gr_printf(canvas, game_font, hud_scale_ar(bm.bm_w) + x, fspacy1, " x %u", lives);
+		gr_printf(canvas, game_font, hud_scale_ar(bm.bm_w) + x, fspacy1, " x %hu", lives);
 	}
 }
 
@@ -1870,12 +1870,12 @@ static void sb_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_scal
 	const auto scaled_x = hudctx.xscale(x);
 	gr_rect(canvas, scaled_x, scaled_y, scaled_score_right, hudctx.yscale(y + bm.bm_h), color);
 
-	const auto lives = get_local_player().lives - 1;
-	if (lives > 0) {
+	if (const uint16_t lives = get_local_player().lives - 1)
+	{
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
 		const auto scaled_width = hud_scale_ar(bm.bm_w);
 		hud_bitblt_free(canvas, scaled_x, scaled_y, scaled_width, hud_scale_ar(bm.bm_h), bm);
-		gr_printf(canvas, game_font, scaled_x + scaled_width, scaled_y, " x %d", lives);
+		gr_printf(canvas, game_font, scaled_x + scaled_width, scaled_y, " x %hu", lives);
 	}
 }
 

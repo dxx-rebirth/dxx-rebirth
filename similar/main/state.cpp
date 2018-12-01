@@ -505,7 +505,13 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	pl_rw->flags                     = pl_info.powerup_flags.get_player_flags();
 	pl_rw->energy                    = pl_info.energy;
 	pl_rw->shields                   = pl_shields;
-	pl_rw->lives                     = pl->lives;
+	/*
+	 * The savegame only allocates a uint8_t for this value.  If the
+	 * player has exceeded the maximum representable value, cap at that
+	 * value.  This is better than truncating the value, since the
+	 * player will get to keep more lives this way than with truncation.
+	 */
+	pl_rw->lives                     = std::min<unsigned>(pl->lives, std::numeric_limits<uint8_t>::max());
 	pl_rw->level                     = pl->level;
 	pl_rw->laser_level               = pl_info.laser_level;
 	pl_rw->starting_level            = pl->starting_level;

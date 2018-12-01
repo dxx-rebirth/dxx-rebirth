@@ -56,7 +56,7 @@ struct player : public prohibit_void_ptr<player>
 	//  -- make sure you're 4 byte aligned now!
 
 	// Game data
-	ubyte   lives;                  // Lives remaining, 0 = game over.
+	uint16_t lives;                  // Lives remaining, 0 = game over.
 	sbyte   level;                  // Current level player is playing. (must be signed for secret levels)
 	sbyte   starting_level;         // What level the player started on.
 
