@@ -1227,8 +1227,10 @@ bool cw_removal_predicate::operator()(cloaking_wall &d)
 #endif
 
 namespace dsx {
-void wall_frame_process()
+static void process_exploding_walls()
 {
+	if (Newdemo_state == ND_STATE_PLAYBACK)
+		return;
 	if (unsigned num_exploding_walls = Num_exploding_walls)
 	{
 		range_for (auto &&wp, Walls.vmptr)
@@ -1251,7 +1253,11 @@ void wall_frame_process()
 		}
 		assert(!num_exploding_walls);
 	}
+}
 
+void wall_frame_process()
+{
+	process_exploding_walls();
 	{
 		const auto &&r = partial_range(ActiveDoors, ActiveDoors.get_count());
 		auto &&i = std::remove_if(r.begin(), r.end(), ad_removal_predicate());

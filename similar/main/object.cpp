@@ -1101,7 +1101,6 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 	if (obj == object_none)		//no free objects
 		return object_none;
 
-	Assert(obj->type == OBJ_NONE);		//make sure unused
 	auto signature = obj_get_signature();
 	// Zero out object structure to keep weird bugs from happening
 	// in uninitialized fields.
