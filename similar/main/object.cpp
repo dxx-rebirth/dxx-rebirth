@@ -1181,9 +1181,8 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 	return obj;
 }
 
-#if DXX_USE_EDITOR
 //create a copy of an object. returns new object number
-imobjptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, const vmsegptridx_t newsegnum)
+imobjptridx_t obj_create_copy(const object &srcobj, const vmsegptridx_t newsegnum)
 {
 	// Find next free object
 	const auto &&obj = obj_allocate(ObjectState);
@@ -1193,8 +1192,6 @@ imobjptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, c
 
 	*obj = srcobj;
 
-	obj->pos = obj->last_pos = new_pos;
-
 	obj_link_unchecked(Objects.vmptr, obj, newsegnum);
 
 	obj->signature				= obj_get_signature();
@@ -1202,9 +1199,7 @@ imobjptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, c
 	//we probably should initialize sub-structures here
 
 	return obj;
-
 }
-#endif
 
 //remove object from the world
 void obj_delete(d_level_object_state &ObjectState, segment_array &Segments, const vmobjptridx_t obj)

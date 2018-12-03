@@ -232,7 +232,7 @@ void obj_unlink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, object_base &obj);
 imobjptridx_t obj_create(object_type_t type, ubyte id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, ubyte ctype, ubyte mtype, ubyte rtype);
 
 // make a copy of an object. returs num of new object
-imobjptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, vmsegptridx_t newsegnum);
+imobjptridx_t obj_create_copy(const object &srcobj, vmsegptridx_t newsegnum);
 
 // remove object from the world
 void obj_delete(d_level_object_state &ObjectState, segment_array &Segments, vmobjptridx_t objnum);

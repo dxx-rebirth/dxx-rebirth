@@ -452,7 +452,7 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 		range_for (const auto objp, objects_in(segp, vmobjptridx, vmsegptr))
 		{
 			if (objp->type != OBJ_PLAYER) {
-				const auto &&new_obj_id = obj_create_copy(objp, objp->pos, vmsegptridx(new_segment_id));
+				const auto &&new_obj_id = obj_create_copy(objp, vmsegptridx(new_segment_id));
 				(void)new_obj_id; // FIXME!
 			}
 		}

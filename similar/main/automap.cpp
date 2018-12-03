@@ -230,7 +230,7 @@ static void automap_build_edge_list(automap *am, int add_all_edges);
 /* MAX_DROP_MULTI_* must be a power of 2 for LastMarkerDropped to work
  * properly.
  */
-#define	MAX_DROP_MULTI_COOP	4
+#define	MAX_DROP_MULTI_COOP	(Netgame.max_numplayers > 4 ? 2 : 4)
 #define	MAX_DROP_MULTI_COMPETITIVE	2
 #define	MAX_DROP_SINGLE	9
 

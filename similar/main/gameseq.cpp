@@ -179,8 +179,6 @@ PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
 // Global variables describing the player
 unsigned	N_players=1;	// Number of players ( >1 means a net game, eh?)
 playernum_t Player_num;	// The player number who is on the console.
-}
-namespace dcx {
 fix StartingShields=INITIAL_SHIELDS;
 array<obj_position, MAX_PLAYERS> Player_init;
 
@@ -217,6 +215,149 @@ static unsigned count_number_of_objects_of_type(fvcobjptr &vcobjptr)
 #define count_number_of_robots	count_number_of_objects_of_type<OBJ_ROBOT>
 #define count_number_of_hostages	count_number_of_objects_of_type<OBJ_HOSTAGE>
 
+static bool operator!=(const vms_vector &a, const vms_vector &b)
+{
+	return a.x != b.x || a.y != b.y || a.z != b.z;
+}
+
+static unsigned generate_extra_starts_by_displacement_within_segment(const unsigned preplaced_starts, const unsigned total_required_num_starts)
+{
+	array<uint8_t, MAX_PLAYERS> player_init_segment_capacity_flag{};
+	DXX_MAKE_VAR_UNDEFINED(player_init_segment_capacity_flag);
+	static_assert(WRIGHT + 1 == WBOTTOM, "side ordering error");
+	static_assert(WBOTTOM + 1 == WBACK, "side ordering error");
+	constexpr uint8_t capacity_x = 1 << WRIGHT;
+	constexpr uint8_t capacity_y = 1 << WBOTTOM;
+	constexpr uint8_t capacity_z = 1 << WBACK;
+	/* When players are displaced, they are moved by their size
+	 * multiplied by this constant.  Larger values provide more
+	 * separation between the player starts, but increase the chance
+	 * that the player will be too close to a wall or that the segment
+	 * will be deemed too small to support displacement.
+	 */
+	constexpr fix size_scalar = 0x18000;	// 1.5 in fixed point
+	unsigned segments_with_spare_capacity = 0;
+	for (unsigned i = 0; i < preplaced_starts; ++i)
+	{
+		/* For each existing Player_init, compute whether the segment is
+		 * large enough in each dimension to support adding more ships.
+		 */
+		const auto &pi = Player_init[i];
+		const auto segnum = pi.segnum;
+		auto &seg = *vcsegptr(segnum);
+		auto &plr = *Players.vcptr(i);
+		auto &old_player_obj = *vcobjptr(plr.objnum);
+		const vm_distance_squared size2(fixmul64(old_player_obj.size * old_player_obj.size, size_scalar));
+		auto &v0 = *vcvertptr(seg.verts[0]);
+		uint8_t capacity_flag = 0;
+		if (vm_vec_dist2(v0, vcvertptr(seg.verts[1])) > size2)
+			capacity_flag |= capacity_x;
+		if (vm_vec_dist2(v0, vcvertptr(seg.verts[3])) > size2)
+			capacity_flag |= capacity_y;
+		if (vm_vec_dist2(v0, vcvertptr(seg.verts[4])) > size2)
+			capacity_flag |= capacity_z;
+		player_init_segment_capacity_flag[i] = capacity_flag;
+		con_printf(CON_NORMAL, "Original player %u has size %u and segment capacity flags %x.", i, old_player_obj.size, capacity_flag);
+		if (capacity_flag)
+			++segments_with_spare_capacity;
+	}
+	if (!segments_with_spare_capacity)
+		return preplaced_starts;
+	unsigned k = preplaced_starts;
+	for (unsigned old_player_idx = -1, side = WRIGHT; ++ old_player_idx != preplaced_starts || (old_player_idx = 0, side ++ != WBACK);)
+	{
+		auto &old_player_ref = *Players.vcptr(old_player_idx);
+		const auto &&old_player_ptridx = Objects.vcptridx(old_player_ref.objnum);
+		auto &old_player_obj = *old_player_ptridx;
+		if (player_init_segment_capacity_flag[old_player_idx] & (1 << side))
+		{
+			auto &&segp = vmsegptridx(old_player_obj.segnum);
+			/* Copy the start exactly.  The next loop will fix the
+			 * collisions caused by placing the clone on top of the
+			 * original.
+			 *
+			 * Currently, there is no handling for the case that the
+			 * level author already put two players too close together.
+			 * If this is a problem, more logic can be added to suppress
+			 * cloning in that case.
+			 */
+			const auto &&extra_player_ptridx = obj_create_copy(old_player_obj, segp);
+			if (extra_player_ptridx == object_none)
+			{
+				con_printf(CON_URGENT, "%s:%u: warning: failed to copy start object %hu", __FILE__, __LINE__, old_player_ptridx.get_unchecked_index());
+				continue;
+			}
+			Players.vmptr(k)->objnum = extra_player_ptridx;
+			auto &extra_player_obj = *extra_player_ptridx;
+			set_player_id(extra_player_obj, k);
+			con_printf(CON_NORMAL, "Copied player %u (object %hu at {%i, %i, %i}) to create player %u (object %hu).", old_player_idx, old_player_ptridx.get_unchecked_index(), old_player_obj.pos.x, old_player_obj.pos.y, old_player_obj.pos.z, k, extra_player_ptridx.get_unchecked_index());
+			if (++ k >= total_required_num_starts)
+				break;
+		}
+	}
+	for (unsigned old_player_idx = 0; old_player_idx < preplaced_starts; ++old_player_idx)
+	{
+		auto &old_player_init = Player_init[old_player_idx];
+		const auto old_player_pos = old_player_init.pos;
+		auto &old_player_obj = *vmobjptr(Players.vcptr(old_player_idx)->objnum);
+		array<vms_vector, 3> vec_displacement{};
+		DXX_MAKE_VAR_UNDEFINED(vec_displacement);
+		auto &seg = *vcsegptr(old_player_init.segnum);
+		/* For each of [right, bottom, back], compute the vector between
+		 * the center of that side and the reference player's start
+		 * point.  This will be used in the next loop.
+		 */
+		for (unsigned side = WRIGHT; side != WBACK + 1; ++side)
+		{
+			const auto &&center_on_side = compute_center_point_on_side(vcvertptr, seg, side);
+			const auto &&vec_pos_to_center_on_side = vm_vec_sub(center_on_side, old_player_init.pos);
+			const unsigned idxside = side - WRIGHT;
+			assert(idxside < vec_displacement.size());
+			vec_displacement[idxside] = vec_pos_to_center_on_side;
+		}
+		const auto displace_player = [&](const unsigned plridx, object_base &plrobj, const unsigned displacement_direction) {
+			vms_vector disp{};
+			unsigned dimensions = 0;
+			for (unsigned i = 0, side = WRIGHT; side != WBACK + 1; ++side, ++i)
+			{
+				if (!(player_init_segment_capacity_flag[old_player_idx] & (1 << side)))
+				{
+					con_printf(CON_NORMAL, "Cannot displace player %u at {%i, %i, %i}: not enough room in dimension %u.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, side);
+					continue;
+				}
+				const auto &v = vec_displacement[i];
+				const auto &va = (displacement_direction & (1 << i)) ? v : vm_vec_negated(v);
+				con_printf(CON_NORMAL, "Add displacement of {%i, %i, %i} for dimension %u for player %u.", va.x, va.y, va.z, side, plridx);
+				++ dimensions;
+				vm_vec_add2(disp, va);
+			}
+			if (!dimensions)
+				return;
+			vm_vec_normalize(disp);
+			vm_vec_scale(disp, fixmul(old_player_obj.size, size_scalar >> 1));
+			con_printf(CON_NORMAL, "Displace player %u at {%i, %i, %i} by {%i, %i, %i}.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, disp.x, disp.y, disp.z);
+			vm_vec_add2(Player_init[plridx].pos, disp);
+			plrobj.pos = plrobj.last_pos = Player_init[plridx].pos;
+		};
+		for (unsigned extra_player_idx = preplaced_starts, displacements = 0; extra_player_idx < k; ++extra_player_idx)
+		{
+			auto &extra_player_obj = *vmobjptr(Players.vcptr(extra_player_idx)->objnum);
+			if (old_player_pos != extra_player_obj.pos)
+				/* This clone is associated with some other player.
+				 * Skip it here.  It will be handled in a different pass
+				 * of the loop.
+				 */
+				continue;
+			auto &extra_player_init = Player_init[extra_player_idx];
+			extra_player_init = old_player_init;
+			if (!displacements++)
+				displace_player(old_player_idx, old_player_obj, 0);
+			displace_player(extra_player_idx, extra_player_obj, displacements);
+		}
+	}
+	return k;
+}
+
 //added 10/12/95: delete buddy bot if coop game.  Probably doesn't really belong here. -MT
 static void gameseq_init_network_players(object_array &objects)
 {
@@ -236,15 +377,17 @@ static void gameseq_init_network_players(object_array &objects)
 		const auto type = o->type;
 		if (type == OBJ_PLAYER || type == OBJ_GHOST || type == OBJ_COOP)
 		{
-			if (multiplayer_coop
+			if (likely(k < Player_init.size()) &&
+				multiplayer_coop
 				? (j == 0 || type == OBJ_COOP)
 				: (type == OBJ_PLAYER || type == OBJ_GHOST)
 			)
 			{
 				o->type=OBJ_PLAYER;
-				Player_init[k].pos = o->pos;
-				Player_init[k].orient = o->orient;
-				Player_init[k].segnum = o->segnum;
+				auto &pi = Player_init[k];
+				pi.pos = o->pos;
+				pi.orient = o->orient;
+				pi.segnum = o->segnum;
 				vmplayerptr(k)->objnum = o;
 				set_player_id(o, k);
 				k++;
@@ -262,6 +405,19 @@ static void gameseq_init_network_players(object_array &objects)
 		}
 #endif
 	}
+	const unsigned total_required_num_starts = Netgame.max_numplayers;
+	if (k < total_required_num_starts)
+	{
+		con_printf(CON_NORMAL, "Insufficient cooperative starts found in mission \"%s\" level %u (need %u, found %u).  Generating extra starts...", Current_mission_filename, Current_level_num, total_required_num_starts, k);
+		/*
+		 * First, try displacing the starts within the existing segment.
+		 */
+		const unsigned preplaced_starts = k;
+		k = generate_extra_starts_by_displacement_within_segment(preplaced_starts, total_required_num_starts);
+		con_printf(CON_NORMAL, "Generated %u starts by displacement within the original segment.", k - preplaced_starts);
+	}
+	else
+		con_printf(CON_NORMAL, "Found %u cooperative starts in mission \"%s\" level %u.", k, Current_mission_filename, Current_level_num);
 	NumNetPlayerPositions = k;
 }
 

@@ -3755,20 +3755,8 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			}
 #endif
 			
-			auto &slider = menus[opt->maxnet].slider();
 			if (menus[opt->coop].value)
 			{
-				if (menus[opt->maxnet].value>2) 
-				{
-					menus[opt->maxnet].value=2;
-				}
-				
-				if (slider.max_value > 2)
-				{
-					slider.max_value = 2;
-				}
-				opt->update_netgame_max_players();
-				
 				Netgame.game_flag.show_on_map = 1;
 
 				if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
@@ -3778,16 +3766,6 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 				}
 
 			}
-			else // if !Coop game
-			{
-				if (slider.max_value < 6)
-				{
-					menus[opt->maxnet].value=6;
-					slider.max_value = 6;
-					opt->update_netgame_max_players();
-				}
-			}
-			
 			if (citem == opt->level)
 			{
 				auto &slevel = opt->slevel;
@@ -3925,8 +3903,6 @@ window_event_result net_udp_setup_game()
 
 	read_netgame_profile(&Netgame);
 
-	if (Netgame.gamemode == NETGAME_COOPERATIVE) // did we restore Coop as default? then fix max players right now!
-		Netgame.max_numplayers = 4;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (!HoardEquipped() && (Netgame.gamemode == NETGAME_HOARD || Netgame.gamemode == NETGAME_TEAM_HOARD)) // did we restore a hoard mode but don't have hoard installed right now? then fall back to anarchy!
 		Netgame.gamemode = NETGAME_ANARCHY;
