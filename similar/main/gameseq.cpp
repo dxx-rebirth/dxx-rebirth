@@ -1717,10 +1717,14 @@ window_event_result DoPlayerDead()
 #endif
                 {
 
+			if (Game_wind)
+				window_set_visible(Game_wind, 0);
 			result = AdvanceLevel(0);			//if finished, go on to next level
 
 			init_player_stats_new_ship(Player_num);
 			last_drawn_cockpit = -1;
+			if (Game_wind)
+				window_set_visible(Game_wind, 1);
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 	} else if (Current_level_num < 0) {
