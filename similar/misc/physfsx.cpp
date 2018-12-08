@@ -104,7 +104,8 @@ bool PHYSFSX_init(int argc, char *argv[])
 #define base_dir PHYSFS_getBaseDir()
 #endif
 	
-	PHYSFS_init(argv[0]);
+	if (!PHYSFS_init(argv[0]))
+		Error("Failed to init PhysFS: %s", PHYSFS_getLastError());
 	PHYSFS_permitSymbolicLinks(1);
 	
 #ifdef macintosh

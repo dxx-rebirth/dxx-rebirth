@@ -1294,7 +1294,8 @@ static void terminate_handler()
 		main = '''
 	PHYSFS_File *f;
 	char b[1] = {0};
-	PHYSFS_init("");
+	if (!PHYSFS_init(""))
+		return 1;
 	f = PHYSFS_openWrite("a");
 	PHYSFS_sint64 w = PHYSFS_write(f, b, 1, 1);
 	(void)w;
