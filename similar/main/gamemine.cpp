@@ -82,31 +82,10 @@ static void segment2_read(shared_segment &s2, unique_segment &u2, PHYSFS_File *f
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-typedef segment v16_segment;
 #elif defined(DXX_BUILD_DESCENT_II)
 fix Level_shake_frequency = 0, Level_shake_duration = 0;
 segnum_t Secret_return_segment;
 vms_matrix Secret_return_orient;
-
-struct v16_segment {
-#if DXX_USE_EDITOR
-	short   segnum;             // segment number, not sure what it means
-	#endif
-	side    sides[MAX_SIDES_PER_SEGMENT];       // 6 sides
-	short   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
-	short   verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
-	#ifdef  EDITOR
-	short   group;              // group number to which the segment belongs.
-	#endif
-	short   objects;            // pointer to objects in this segment
-	ubyte   special;            // what type of center this is
-	sbyte   matcen_num;         // which center segment is associated with.
-	short   value;
-	fix     static_light;       // average static light in segment
-#if !DXX_USE_EDITOR
-	short   pad;                // make structure longword aligned
-	#endif
-};
 
 int d1_pig_present = 0; // can descent.pig from descent 1 be loaded?
 
@@ -667,15 +646,15 @@ int load_mine_data(PHYSFS_File *LoadFile)
 #endif
 			if (mine_top_fileinfo.fileinfo_version >= 16)
 			{
+				Error("Sorry, v16 segment support is broken.");
+#if 0
 				v16_segment v16_seg;
 
 				Assert(mine_fileinfo.segment_sizeof == sizeof(v16_seg));
 
-				Error("Sorry, v16 segment support is broken.");
 #if defined(DXX_BUILD_DESCENT_I)
 				*i = v16_seg;
 #elif defined(DXX_BUILD_DESCENT_II)
-#if 0
 				i->segnum = v16_seg.segnum;
 				// -- Segments[i].pad = v16_seg.pad;
 
