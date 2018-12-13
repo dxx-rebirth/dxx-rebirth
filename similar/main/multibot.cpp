@@ -975,6 +975,8 @@ void multi_do_robot_explode(const uint8_t *const buf)
 		add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(robot)].score_value);
 }
 
+namespace dsx {
+
 void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
 {
 	const uint_fast32_t fuelcen_num = buf[2];
@@ -1056,7 +1058,6 @@ void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, 
 	boss_obj->ctype.ai_info.REMOTE_SLOT_NUM = 0; // Available immediately!
 }
 
-namespace dsx {
 void multi_do_boss_cloak(const ubyte *buf)
 {
 	boss_cloak b;

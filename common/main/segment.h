@@ -299,6 +299,7 @@ DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(dl_index, dlindex, Dl_indices);
 
 namespace dcx {
 
+#ifdef dsx
 struct d_level_shared_segment_state
 {
 	unsigned Num_segments;
@@ -334,6 +335,7 @@ struct d_level_unique_segment_state
 
 extern d_level_shared_segment_state LevelSharedSegmentState;
 extern d_level_unique_segment_state LevelUniqueSegmentState;
+#endif
 
 template <unsigned bits>
 class visited_segment_mask_base

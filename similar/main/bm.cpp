@@ -160,6 +160,8 @@ int gamedata_init()
 	return 0;
 }
 
+namespace dsx {
+
 // Read compiled properties data from descent.pig
 void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
@@ -252,6 +254,8 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 	Num_tmaps = TextureEffects + std::count_if(effect_range.begin(), effect_range.end(), [](const eclip &e) { return e.changing_wall_texture >= 0; });
         #endif
 }
+
+}
 #elif defined(DXX_BUILD_DESCENT_II)
 static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 {
@@ -286,6 +290,8 @@ int gamedata_init()
 
 	return 0;
 }
+
+namespace dsx {
 
 void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
@@ -378,6 +384,8 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 	}
 	else
 		exit_modelnum = destroyed_exit_modelnum = N_polygon_models;
+}
+
 }
 
 int extra_bitmap_num = 0;

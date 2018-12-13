@@ -154,7 +154,9 @@ static void bm_read_robot_ai(char *&arg, int skip);
 static void bm_read_robot(char *&arg, int skip);
 static void bm_read_object(char *&arg, int skip);
 static void bm_read_player_ship(char *&arg, int skip);
+namespace dsx {
 static void bm_read_some_file(d_vclip_array &Vclip, const std::string &dest_bm, char *&arg, int skip);
+}
 static void bm_read_weapon(char *&arg, int skip, int unused_flag);
 static void bm_read_powerup(char *&arg, int unused_flag);
 static void bm_read_hostage(char *&arg);
@@ -170,7 +172,9 @@ static void bm_read_weapon(int skip, int unused_flag);
 static void bm_read_reactor(void);
 static void bm_read_exitmodel(void);
 static void bm_read_player_ship(void);
+namespace dsx {
 static void bm_read_some_file(d_vclip_array &Vclip, int skip);
+}
 static void bm_read_sound(int skip);
 static void clear_to_end_of_line(void);
 static void verify_textures(void);
@@ -1119,6 +1123,8 @@ static void bm_read_wclip(int skip)
 	}
 }
 
+namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_I)
 static void bm_read_vclip(d_vclip_array &Vclip, const char *const arg, int skip)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1173,6 +1179,8 @@ static void bm_read_vclip(d_vclip_array &Vclip, int skip)
 			Vclip[clip_num].frames[clip_count] = bm[clip_count];
 		}
 	}
+}
+
 }
 
 // ------------------------------------------------------------------------------
@@ -2022,9 +2030,9 @@ void bm_read_player_ship(void)
 
 		}
 	}
-
-
 }
+
+namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_I)
 void bm_read_some_file(d_vclip_array &Vclip, const std::string &dest_bm, char *&arg, int skip)
@@ -2115,6 +2123,8 @@ void bm_read_some_file(d_vclip_array &Vclip, int skip)
 #if defined(DXX_BUILD_DESCENT_II)
 	Error("Trying to read bitmap <%s> with unknown bm_flag <%x> on line %d of BITMAPS.TBL",arg,bm_flag,linenum);
 #endif
+}
+
 }
 
 // ------------------------------------------------------------------------------

@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "fwd-player.h"	// playernum_t
+#include "fwd-vclip.h"
 #include "fwd-vecmat.h"
 
 constexpr std::integral_constant<std::size_t, 5> MAX_ROBOTS_CONTROLLED{};
@@ -77,11 +78,11 @@ void multi_do_release_robot(playernum_t pnum, const ubyte *buf);
 #ifdef dsx
 namespace dsx {
 void multi_do_robot_fire(const ubyte *buf);
+void multi_do_create_robot(const d_vclip_array &Vclip, playernum_t pnum, const uint8_t *buf);
+void multi_do_boss_teleport(const d_vclip_array &Vclip, playernum_t pnum, const uint8_t *buf);
 }
 #endif
-void multi_do_create_robot(const d_vclip_array &Vclip, playernum_t pnum, const ubyte *buf);
 void multi_do_create_robot_powerups(playernum_t pnum, const ubyte *buf);
-void multi_do_boss_teleport(const d_vclip_array &Vclip, playernum_t pnum, const ubyte *buf);
 #ifdef dsx
 namespace dsx {
 void multi_do_boss_cloak(const ubyte *buf);

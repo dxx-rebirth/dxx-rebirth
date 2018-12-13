@@ -154,15 +154,15 @@ void load_robot_replacements(const d_fname &level_name);
 namespace dsx {
 // Initializes all bitmaps from BITMAPS.TBL file.
 int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware);
-}
-#endif
 
 void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp);
-
-int load_exit_models();
 #if defined(DXX_BUILD_DESCENT_I)
 void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp);
 #endif
+}
+#endif
+
+int load_exit_models();
 int ds_load(int skip, const char * filename );
 int compute_average_pixel(grs_bitmap *n);
 
