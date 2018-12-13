@@ -46,6 +46,11 @@ class RAII_Windows_DynamicSharedObject
 		m_h(h)
 	{
 	}
+	static RAII_Windows_DynamicSharedObject LoadInternal(std::array<wchar_t, MAX_PATH> &pathbuf, const unsigned lws, const wchar_t *const filename)
+	{
+		wcscpy(&pathbuf[lws], filename);
+		return LoadLibraryW(pathbuf.data());
+	}
 public:
 	~RAII_Windows_DynamicSharedObject()
 	{
@@ -73,8 +78,7 @@ public:
 		{
 			if (lws >= MAX_PATH - N)
 				return nullptr;
-			wcscpy(&pathbuf[lws], filename);
-			return LoadLibraryW(pathbuf.data());
+			return LoadInternal(pathbuf, lws, filename);
 		}
 	template <typename T>
 		T *GetProc(const char *const proc) const
