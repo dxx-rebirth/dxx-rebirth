@@ -1964,8 +1964,8 @@ static void newdemo_pop_ctrlcen_triggers()
 		const auto anim_num = vcwallptr(wall_num)->clip_num;
 		const auto n = WallAnims[anim_num].num_frames;
 		const auto t = WallAnims[anim_num].flags & WCF_TMAP1
-			? &side::tmap_num
-			: &side::tmap_num2;
+			? &unique_side::tmap_num
+			: &unique_side::tmap_num2;
 		seg->unique_segment::sides[side].*t = csegp->unique_segment::sides[cside].*t = WallAnims[anim_num].frames[n-1];
 	}
 }
@@ -3048,8 +3048,8 @@ static int newdemo_read_frame_information(int rewrite)
 				const auto &&cside = find_connect_side(segp, csegp);
 				const auto anim_num = vmwallptr(segp->shared_segment::sides[side].wall_num)->clip_num;
 				const auto t = WallAnims[anim_num].flags & WCF_TMAP1
-					? &side::tmap_num
-					: &side::tmap_num2;
+					? &unique_side::tmap_num
+					: &unique_side::tmap_num2;
 				segp->unique_segment::sides[side].*t = csegp->unique_segment::sides[cside].*t = WallAnims[anim_num].frames[0];
 			}
 			break;

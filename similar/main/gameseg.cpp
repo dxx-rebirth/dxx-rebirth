@@ -174,7 +174,7 @@ bool get_side_is_quad(const shared_side &sidep)
 		case SIDE_IS_TRI_13:	
 			return false;
 		default:
-			throw side::illegal_type(sidep);
+			throw shared_side::illegal_type(sidep);
 	}
 }
 
@@ -199,7 +199,7 @@ __attribute_cold
 __noreturn
 static void create_vertex_list_from_invalid_side(const shared_segment &segp, const shared_side &sidep)
 {
-	throw side::illegal_type(segp, sidep);
+	throw shared_side::illegal_type(segp, sidep);
 }
 
 template <typename T, typename V>

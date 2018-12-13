@@ -156,10 +156,6 @@ struct unique_side
 	array<uvl, 4>     uvls;
 };
 
-struct side : unique_side, shared_side
-{
-};
-
 #ifdef dsx
 struct shared_segment
 {

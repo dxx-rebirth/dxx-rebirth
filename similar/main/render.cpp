@@ -546,7 +546,7 @@ im_so_ashamed: ;
 				}
 
 			} else
-				throw side::illegal_type(segp, sside);
+				throw shared_side::illegal_type(segp, sside);
 		}
 	}
 
