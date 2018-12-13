@@ -36,9 +36,9 @@ int AssignTexture(void)
    autosave_mine( mine_filename );
 	undo_status[Autosave_count] = "Assign Texture UNDONE.";
 
-	Cursegp->sides[Curside].tmap_num = CurrentTexture;
+	Cursegp->unique_segment::sides[Curside].tmap_num = CurrentTexture;
 
-	New_segment.sides[Curside].tmap_num = CurrentTexture;
+	New_segment.unique_segment::sides[Curside].tmap_num = CurrentTexture;
 
 //	propagate_light_intensity(Cursegp, Curside, CurrentTexture, 0); 
 																					 
@@ -55,8 +55,13 @@ int AssignTexture2(void)
    autosave_mine( mine_filename );
 	undo_status[Autosave_count] = "Assign Texture 2 UNDONE.";
 
-	texnum = Cursegp->sides[Curside].tmap_num2 & 0x3FFF;
-	orient = ((Cursegp->sides[Curside].tmap_num2 & 0xC000) >> 14) & 3;
+	{
+		const unique_segment &useg = *Cursegp;
+		auto &uside = useg.sides[Curside];
+		const auto tmap_num2 = uside.tmap_num2;
+		texnum = tmap_num2 & 0x3FFF;
+		orient = ((tmap_num2 & 0xC000) >> 14) & 3;
+	}
 	ctexnum = CurrentTexture;
 	
 	if ( ctexnum == texnum )	{
@@ -66,8 +71,8 @@ int AssignTexture2(void)
 		newtexnum = ctexnum;
 	}
 
-	Cursegp->sides[Curside].tmap_num2 = newtexnum;
-	New_segment.sides[Curside].tmap_num2 = newtexnum;
+	Cursegp->unique_segment::sides[Curside].tmap_num2 = newtexnum;
+	New_segment.unique_segment::sides[Curside].tmap_num2 = newtexnum;
 
 	Update_flags |= UF_WORLD_CHANGED;
 
@@ -79,9 +84,9 @@ int ClearTexture2(void)
    autosave_mine( mine_filename );
 	undo_status[Autosave_count] = "Clear Texture 2 UNDONE.";
 
-	Cursegp->sides[Curside].tmap_num2 = 0;
+	Cursegp->unique_segment::sides[Curside].tmap_num2 = 0;
 
-	New_segment.sides[Curside].tmap_num2 = 0;
+	New_segment.unique_segment::sides[Curside].tmap_num2 = 0;
 
 	Update_flags |= UF_WORLD_CHANGED;
 

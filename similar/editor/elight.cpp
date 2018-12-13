@@ -47,10 +47,10 @@ static fix get_light_intensity(const unique_side &s, const uint_fast32_t vert)
 	return s.uvls[vert].l;
 }
 
-static fix get_light_intensity(const vcsegptr_t segp, const uint_fast32_t sidenum, const uint_fast32_t vert)
+static fix get_light_intensity(const unique_segment &segp, const uint_fast32_t sidenum, const uint_fast32_t vert)
 {
 	Assert(sidenum <= MAX_SIDES_PER_SEGMENT);
-	return get_light_intensity(segp->sides[sidenum], vert);
+	return get_light_intensity(segp.sides[sidenum], vert);
 }
 
 static fix clamp_light_intensity(const fix intensity)
@@ -71,10 +71,10 @@ static void set_light_intensity(unique_side &s, const uint_fast32_t vert, const 
 	Update_flags |= UF_WORLD_CHANGED;
 }
 
-static void set_light_intensity(const vmsegptr_t segp, const uint_fast32_t sidenum, const uint_fast32_t vert, const fix intensity)
+static void set_light_intensity(unique_segment &segp, const uint_fast32_t sidenum, const uint_fast32_t vert, const fix intensity)
 {
 	Assert(sidenum <= MAX_SIDES_PER_SEGMENT);
-	set_light_intensity(segp->sides[sidenum], vert, intensity);
+	set_light_intensity(segp.sides[sidenum], vert, intensity);
 }
 
 // -----------------------------------------------------------------------------
@@ -107,7 +107,7 @@ static void apply_light_intensity(const vmsegptr_t segp, const unsigned sidenum,
 
 	const auto wid_result = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum);
 	if (!(wid_result & WID_RENDPAST_FLAG)) {
-		add_light_intensity_all_verts(segp->sides[sidenum], intensity);
+		add_light_intensity_all_verts(segp->unique_segment::sides[sidenum], intensity);
 		return;										// we return because there is a wall here, and light does not shine through walls
 	}
 
@@ -136,13 +136,14 @@ static void propagate_light_intensity(const vmsegptr_t segp, int sidenum)
 	short		texmap;
 
 	intensity = 0;
-	texmap = segp->sides[sidenum].tmap_num;
+	auto &us = segp->unique_segment::sides[sidenum];
+	texmap = us.tmap_num;
 	intensity += TmapInfo[texmap].lighting;
-	texmap = (segp->sides[sidenum].tmap_num2) & 0x3fff;
+	texmap = us.tmap_num2 & 0x3fff;
 	intensity += TmapInfo[texmap].lighting;
 
 	if (intensity > 0) {
-		add_light_intensity_all_verts(segp->sides[sidenum], intensity);
+		add_light_intensity_all_verts(us, intensity);
 	
 		//	Now, for all sides which are not the same as sidenum (the side casting the light),
 		//	add a light value to them (if they have no children, ie, they have a wall there).

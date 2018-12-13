@@ -91,7 +91,7 @@ void do_special_effects()
 			if (ec.frame_count >= ec.vc.num_frames) {
 				if (ec.flags & EF_ONE_SHOT) {
 					ec.flags &= ~EF_ONE_SHOT;
-					auto &seg = *vmsegptr(ec.segnum);
+					unique_segment &seg = *vmsegptr(ec.segnum);
 					ec.segnum = segment_none;		//done with this
 					assert(ec.sidenum < 6);
 					auto &side = seg.sides[ec.sidenum];

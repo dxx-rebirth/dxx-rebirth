@@ -1241,7 +1241,10 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 			// Fix children and walls.
 			for (unsigned j = 0; j < MAX_SIDES_PER_SEGMENT; ++j)
 			{
-				Segments[gs].sides[j].wall_num = wall_none;
+				auto &seg = Segments[gs];
+				shared_segment &useg = seg;
+				unique_segment &useg = seg;
+				sseg.sides[j].wall_num = wall_none;
 				if (IS_CHILD(Segments[gs].children[j])) {
 					segnum_t segnum;
 					segnum = segment_ids[Segments[gs].children[j]];
@@ -1250,12 +1253,12 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 				//Translate textures.
 				if (translate == 1) {
 					int	temp;
-					tmap_xlate = Segments[gs].sides[j].tmap_num;
-					Segments[gs].sides[j].tmap_num = tmap_xlate_table[tmap_xlate];
-					temp = Segments[gs].sides[j].tmap_num2;
+					tmap_xlate = useg.sides[j].tmap_num;
+					useg.sides[j].tmap_num = tmap_xlate_table[tmap_xlate];
+					temp = useg.sides[j].tmap_num2;
 					tmap_xlate = temp & 0x3fff;			// strip off orientation bits
 					if (tmap_xlate != 0)
-                                                Segments[gs].sides[j].tmap_num2 = (temp & (~0x3fff)) | tmap_xlate_table[tmap_xlate];  // mask on original orientation bits
+						useg.sides[j].tmap_num2 = (temp & (~0x3fff)) | tmap_xlate_table[tmap_xlate];  // mask on original orientation bits
 					}
 				}
 			}

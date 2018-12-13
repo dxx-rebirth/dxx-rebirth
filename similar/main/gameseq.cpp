@@ -114,6 +114,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fmtcheck.h"
 
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -748,14 +749,14 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx)
 			int tm,ec,sn;
 
 #if defined(DXX_BUILD_DESCENT_I)
-			if ((tm=seg->sides[sidenum].tmap_num2) != 0)
+			if ((tm=seg->unique_segment::sides[sidenum].tmap_num2) != 0)
 				if ((ec = TmapInfo[tm & 0x3fff].eclip_num) != eclip_none)
 #elif defined(DXX_BUILD_DESCENT_II)
 			const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sidenum);
 			if (wid & WID_RENDER_FLAG)
-				if ((((tm = seg->sides[sidenum].tmap_num2) != 0) &&
+				if ((((tm = seg->unique_segment::sides[sidenum].tmap_num2) != 0) &&
 					 ((ec = TmapInfo[tm & 0x3fff].eclip_num) != eclip_none)) ||
-					(ec = TmapInfo[seg->sides[sidenum].tmap_num].eclip_num) != eclip_none)
+					(ec = TmapInfo[seg->unique_segment::sides[sidenum].tmap_num].eclip_num) != eclip_none)
 #endif
 					if ((sn=Effects[ec].sound_num)!=-1) {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -771,7 +772,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx)
 								const auto &&csegp = vcsegptr(seg->children[sidenum]);
 								auto csidenum = find_connect_side(seg, csegp);
 
-								if (csegp->sides[csidenum].tmap_num2 == seg->sides[sidenum].tmap_num2)
+								if (csegp->unique_segment::sides[csidenum].tmap_num2 == seg->unique_segment::sides[sidenum].tmap_num2)
 									continue;		//skip this one
 							}
 						}
@@ -845,16 +846,18 @@ static ushort netmisc_calc_checksum()
 	range_for (auto &&segp, vcsegptr)
 	{
 		auto &i = *segp;
-		range_for (auto &j, i.sides)
+		range_for (auto &&e, enumerate(i.shared_segment::sides))	// d_zip
 		{
+			auto &j = e.value;
 			do_checksum_calc(reinterpret_cast<const uint8_t *>(&(j.get_type())), 1, &sum1, &sum2);
 			s = INTEL_SHORT(j.wall_num);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
-			s = INTEL_SHORT(j.tmap_num);
+			auto &uside = i.unique_segment::sides[e.idx];
+			s = INTEL_SHORT(uside.tmap_num);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
-			s = INTEL_SHORT(j.tmap_num2);
+			s = INTEL_SHORT(uside.tmap_num2);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
-			range_for (auto &k, j.uvls)
+			range_for (auto &k, uside.uvls)
 			{
 				t = INTEL_INT(k.u);
 				do_checksum_calc(reinterpret_cast<uint8_t *>(&t), 4, &sum1, &sum2);

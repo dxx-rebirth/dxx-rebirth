@@ -370,9 +370,9 @@ static void add_edge(int v0,int v1,ubyte type)
 }
 
 //adds a segment's edges to the edge list
-static void add_edges(const vcsegptridx_t seg)
+static void add_edges(const shared_segment &seg)
 {
-	auto &svp = seg->verts;
+	auto &svp = seg.verts;
 	if (!rotate_list(svp).uand)
 	{		//all off screen?
 		int	i,fn,vn;
@@ -382,7 +382,7 @@ static void add_edges(const vcsegptridx_t seg)
 		for (i=0;i<N_NORMAL_EDGES;i++) edge_flags[i]=ET_NOTUSED;
 		for (;i<N_EDGES_PER_SEGMENT;i++) edge_flags[i]=ET_NOTEXTANT;
 
-		range_for (auto &&e, enumerate(seg->sides))
+		range_for (auto &&e, enumerate(seg.sides))
 		{
 			auto &sidep = e.value;
 			int	num_vertices;
@@ -398,7 +398,7 @@ static void add_edges(const vcsegptridx_t seg)
 				int	en;
 
 				//Note: normal check appears to be the wrong way since the normals points in, but we're looking from the outside
-				if (g3_check_normal_facing(vcvertptr(seg->verts[vertex_list[fn*3]]), sidep.normals[fn]))
+				if (g3_check_normal_facing(vcvertptr(seg.verts[vertex_list[fn*3]]), sidep.normals[fn]))
 					flag = ET_NOTFACING;
 				else
 					flag = ET_FACING;
@@ -422,16 +422,14 @@ static void add_edges(const vcsegptridx_t seg)
 
 		for (i=0; i<N_EDGES_PER_SEGMENT; i++)
 			if (i<N_NORMAL_EDGES || (edge_flags[i]!=ET_NOTEXTANT && Show_triangulations))
-				add_edge(seg->verts[edges[i]/8],seg->verts[edges[i]&7],edge_flags[i]);
-		
-
+				add_edge(seg.verts[edges[i] / 8], seg.verts[edges[i] & 7], edge_flags[i]);
 	}
 }
 
 // ----------------------------------------------------------------------------
-static void draw_trigger_side(const vcsegptr_t seg,int side, const uint8_t color)
+static void draw_trigger_side(const shared_segment &seg, const unsigned side, const uint8_t color)
 {
-	auto &svp = seg->verts;
+	auto &svp = seg.verts;
 	if (!rotate_list(svp).uand)
 	{		//all off screen?
 		// Draw diagonals
@@ -441,9 +439,9 @@ static void draw_trigger_side(const vcsegptr_t seg,int side, const uint8_t color
 }
 
 // ----------------------------------------------------------------------------
-static void draw_wall_side(const vcsegptr_t seg,int side, const uint8_t color)
+static void draw_wall_side(const shared_segment &seg, const unsigned side, const uint8_t color)
 {
-	auto &svp = seg->verts;
+	auto &svp = seg.verts;
 	if (!rotate_list(svp).uand)
 	{		//all off screen?
 		// Draw diagonals
@@ -464,9 +462,9 @@ static void draw_wall_side(const vcsegptr_t seg,int side, const uint8_t color)
 
 // ----------------------------------------------------------------------------------------------------------------
 // Draws special walls (for now these are just removable walls.)
-static void draw_special_wall(const vcsegptr_t seg, int side )
+static void draw_special_wall(const shared_segment &seg, const unsigned side)
 {
-	auto &w = *vcwallptr(seg->sides[side].wall_num);
+	auto &w = *vcwallptr(seg.sides[side].wall_num);
 	const auto get_color = [=]() {
 		const auto type = w.type;
 		if (type != WALL_OPEN)
@@ -515,7 +513,7 @@ static void draw_mine_sub(const vmsegptridx_t segnum,int depth, visited_segment_
 				const auto child_segnum = mine_ptr->children[side];
 				if (IS_CHILD(child_segnum))
 				{
-					if (mine_ptr->sides[side].wall_num != wall_none)
+					if (mine_ptr->shared_segment::sides[side].wall_num != wall_none)
 						draw_special_wall(mine_ptr, side);
 					draw_mine_sub(segnum.absolute_sibling(child_segnum), depth-1, visited);
 				}
@@ -584,7 +582,7 @@ static void draw_mine_all(int automap_flag)
 	{
 		if (segp->segnum != segment_none)
 		{
-			range_for (auto &&e, enumerate(segp->sides))
+			range_for (auto &&e, enumerate(segp->shared_segment::sides))
 				if (e.value.wall_num != wall_none)
 					draw_special_wall(segp, e.idx);
 			if (Search_mode)

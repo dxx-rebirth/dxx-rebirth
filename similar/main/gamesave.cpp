@@ -812,7 +812,7 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 				}
 				auto &vcseg = *vcsegptr(connected_seg);
 				const unsigned connected_side = find_connect_side(seg, vcseg);
-				const auto wn1 = vcseg.sides[connected_side].wall_num;
+				const auto wn1 = vcseg.shared_segment::sides[connected_side].wall_num;
 				if (wn1 == wall_none)
 				{
 					rwn0 = wall_none;
@@ -1075,19 +1075,19 @@ static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, 
 
 	// Make sure non-transparent doors are set correctly.
 	range_for (auto &&i, vmsegptridx)
-		range_for (const auto eside, enumerate(i->sides))
+		range_for (const auto eside, enumerate(i->shared_segment::sides))	// d_zip
 		{
 			auto &side = eside.value;
 			if (side.wall_num == wall_none)
 				continue;
-			const auto sidep = &side;
 			auto &w = *vmwallptr(side.wall_num);
 			if (w.clip_num != -1)
 			{
 				if (WallAnims[w.clip_num].flags & WCF_TMAP1)
 				{
-					sidep->tmap_num = WallAnims[w.clip_num].frames[0];
-					sidep->tmap_num2 = 0;
+					auto &uside = i->unique_segment::sides[eside.idx];
+					uside.tmap_num = WallAnims[w.clip_num].frames[0];
+					uside.tmap_num2 = 0;
 				}
 			}
 			validate_segment_wall(i, side, eside.idx);
@@ -1147,7 +1147,7 @@ static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, 
 				else if (tr.type != TT_LIGHT_OFF && tr.type != TT_LIGHT_ON)
 				{	//light triggers don't require walls
 					const auto side_num = tr.side[l];
-					auto wall_num = vmsegptr(seg_num)->sides[side_num].wall_num;
+					auto wall_num = vmsegptr(seg_num)->shared_segment::sides[side_num].wall_num;
 					if (const auto &&uwall = vmwallptr.check_untrusted(wall_num))
 						(*uwall)->controlling_trigger = t;
 					else
@@ -1166,7 +1166,7 @@ static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, 
 		{
 			for (int sidenum=0;sidenum<6;sidenum++)
 			{
-				const auto wallnum = segp->sides[sidenum].wall_num;
+				const auto wallnum = segp->shared_segment::sides[sidenum].wall_num;
 				if (wallnum != wall_none)
 				{
 					auto &w = *vmwallptr(wallnum);
@@ -1362,10 +1362,10 @@ int load_level(const char * filename_passed)
 	{
 		auto &s104 = *vmsegptr(vmsegidx_t(104));
 		auto &s104v0 = *vmvertptr(s104.verts[0]);
-		auto &s104s1 = s104.sides[1];
+		auto &s104s1 = s104.shared_segment::sides[1];
 		auto &s104s1n0 = s104s1.normals[0];
 		auto &s104s1n1 = s104s1.normals[1];
-		auto &s104s2 = s104.sides[2];
+		auto &s104s2 = s104.shared_segment::sides[2];
 		auto &s104s2n0 = s104s2.normals[0];
 		auto &s104s2n1 = s104s2.normals[1];
 		if (

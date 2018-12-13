@@ -223,10 +223,10 @@ WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBitmaps, c
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 }
 #endif
-void wall_damage(vmsegptridx_t seg, int side, fix damage);
+void wall_damage(vmsegptridx_t seg, unsigned side, fix damage);
 
 // Destroys a blastable wall. (So it is an opening afterwards)
-void wall_destroy(vmsegptridx_t seg, int side);
+void wall_destroy(vmsegptridx_t seg, unsigned side);
 
 void wall_illusion_on(vmsegptridx_t seg, int side);
 void wall_illusion_off(vmsegptridx_t seg, int side);
@@ -240,7 +240,7 @@ void wall_open_door(vmsegptridx_t seg, int side);
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
 // Closes a door
-void wall_close_door(vmsegptridx_t seg, int side);
+void wall_close_door(vmsegptridx_t seg, unsigned side);
 #endif
 }
 #endif
@@ -278,8 +278,8 @@ void wall_set_tmap_num(const wclip &, vmsegptridx_t seg, unsigned side, vmsegptr
 
 #if defined(DXX_BUILD_DESCENT_II)
 //start wall open <-> closed transitions
-void start_wall_cloak(vmsegptridx_t seg, int side);
-void start_wall_decloak(vmsegptridx_t seg, int side);
+void start_wall_cloak(vmsegptridx_t seg, unsigned side);
+void start_wall_decloak(vmsegptridx_t seg, unsigned side);
 
 void cloaking_wall_read(cloaking_wall &cw, PHYSFS_File *fp);
 void cloaking_wall_write(const cloaking_wall &cw, PHYSFS_File *fp);

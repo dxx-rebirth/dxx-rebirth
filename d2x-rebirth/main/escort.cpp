@@ -141,9 +141,9 @@ void init_buddy_for_level(void)
 //	-----------------------------------------------------------------------------
 //	See if segment from curseg through sidenum is reachable.
 //	Return true if it is reachable, else return false.
-static int segment_is_reachable(const vmobjptr_t robot, const vcsegptr_t segp, int sidenum, const player_flags powerup_flags)
+static int segment_is_reachable(const vmobjptr_t robot, const shared_segment &segp, int sidenum, const player_flags powerup_flags)
 {
-	auto wall_num = segp->sides[sidenum].wall_num;
+	const auto wall_num = segp.sides[sidenum].wall_num;
 
 	//	If no wall, then it is reachable
 	if (wall_num == wall_none)
@@ -249,7 +249,7 @@ static int ok_for_buddy_to_talk(void)
 		const auto child = segp.children[i];
 		if (IS_CHILD(child))
 		{
-			auto &cseg = *vcsegptr(child);
+			const shared_segment &cseg = *vcsegptr(child);
 			range_for (const auto &j, cseg.sides)
 			{
 				auto wall2 = j.wall_num;

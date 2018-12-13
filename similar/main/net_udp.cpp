@@ -1813,10 +1813,10 @@ static void net_udp_process_monitor_vector(uint32_t vector)
 {
 	if (!vector)
 		return;
-	range_for (const auto &&seg, vmsegptr)
+	range_for (unique_segment &seg, vmsegptr)
 	{
 		int tm, ec, bm;
-		range_for (auto &j, seg->sides)
+		range_for (auto &j, seg.sides)
 		{
 			if ( ((tm = j.tmap_num2) != 0) &&
 				(ec = TmapInfo[tm & 0x3fff].eclip_num) != eclip_none &&
@@ -1883,7 +1883,7 @@ static unsigned net_udp_create_monitor_vector(void)
 	unsigned vector = 0;
 	range_for (const auto &&seg, vcsegptridx)
 	{
-		range_for (auto &j, seg->sides)
+		range_for (auto &j, seg->unique_segment::sides)
 		{
 			const unsigned tm2 = j.tmap_num2;
 			if (!tm2)

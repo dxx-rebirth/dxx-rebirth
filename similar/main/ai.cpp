@@ -2025,7 +2025,7 @@ void create_buddy_bot(void)
 static void init_boss_segments(const segment_array &segments, const object &boss_objp, boss_special_segment_array_t &a, const int size_check, int one_wall_hack)
 {
 	constexpr unsigned QUEUE_SIZE = 256;
-	auto &vmsegptridx = segments.vmptridx;
+	auto &vcsegptridx = segments.vcptridx;
 	auto &vmsegptr = segments.vmptr;
 #if defined(DXX_BUILD_DESCENT_I)
 	one_wall_hack = 0;
@@ -2045,7 +2045,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 		tail = 0;
 		seg_queue[head++] = original_boss_seg;
 
-		if ((!size_check) || boss_fits_in_seg(vcvertptr, boss_objp, vmsegptridx(original_boss_seg)))
+		if ((!size_check) || boss_fits_in_seg(vcvertptr, boss_objp, vcsegptridx(original_boss_seg)))
 		{
 			a.emplace_back(original_boss_seg);
 #if DXX_USE_EDITOR
@@ -2090,7 +2090,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 							if (head+QUEUE_SIZE == tail + QUEUE_SIZE-1)
 								Int3();	//	queue overflow.  Make it bigger!
 	
-						if (!size_check || boss_fits_in_seg(vcvertptr, boss_objp, vmsegptridx(csegnum))) {
+						if (!size_check || boss_fits_in_seg(vcvertptr, boss_objp, vcsegptridx(csegnum))) {
 							a.emplace_back(csegnum);
 #if DXX_USE_EDITOR
 							Selected_segs.emplace_back(csegnum);

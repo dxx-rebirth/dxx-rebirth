@@ -1172,7 +1172,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		{										//find closest side to align to
 			fix d,largest_d=-f1_0;
 			for (int i=0;i<6;i++) {
-				d = vm_vec_dot(pseg.sides[i].normals[0], flydata->obj->orient.uvec);
+				d = vm_vec_dot(pseg.shared_segment::sides[i].normals[0], flydata->obj->orient.uvec);
 				if (d > largest_d) {largest_d = d; up_side=i;}
 			}
 
@@ -1222,7 +1222,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		const auto curcenter = compute_segment_center(vcvertptr, pseg);
 		vm_vec_sub(flydata->headvec,nextcenter,curcenter);
 
-		const auto dest_orient = vm_vector_2_matrix(flydata->headvec, &pseg.sides[up_side].normals[0], nullptr);
+		const auto dest_orient = vm_vector_2_matrix(flydata->headvec,&pseg.shared_segment::sides[up_side].normals[0],nullptr);
 		//where we want to be pointing
 		const auto dest_angles = vm_extract_angles_matrix(dest_orient);
 

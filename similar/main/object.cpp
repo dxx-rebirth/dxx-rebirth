@@ -1846,10 +1846,10 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 				{
 					if (!(sidemask & (1 << sidenum)))
 						continue;
-					const auto wall_num = segp->sides[sidenum].wall_num;
+					const auto wall_num = segp->shared_segment::sides[sidenum].wall_num;
 					if (wall_num != wall_none && vcwallptr(wall_num)->type == WALL_ILLUSION)
 					{
-						const auto type = check_volatile_wall(obj, segp->sides[sidenum]);
+						const auto type = check_volatile_wall(obj, segp->unique_segment::sides[sidenum]);
 						if (type != volatile_wall_result::none)
 						{
 							under_lavafall = 1;
@@ -1883,7 +1883,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 			const auto &&connect_side = find_connect_side(vcsegptridx(obj->segnum), psegp);
 			if (connect_side != side_none)
 			{
-				const auto wall_num = psegp->sides[connect_side].wall_num;
+				const auto wall_num = psegp->shared_segment::sides[connect_side].wall_num;
 				if ( wall_num != wall_none ) {
 					auto trigger_num = vcwallptr(wall_num)->trigger;
 					if (trigger_num != trigger_none)

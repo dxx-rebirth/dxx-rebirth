@@ -418,7 +418,6 @@ namespace dsx {
 int load_mine_data(PHYSFS_File *LoadFile)
 {
 	char old_tmap_list[MAX_TEXTURES][FILENAME_LEN];
-	short tmap_xlate;
 	int 	translate;
 	char 	*temptr;
 	int	mine_start = PHYSFS_tell(LoadFile);
@@ -676,10 +675,9 @@ int load_mine_data(PHYSFS_File *LoadFile)
 #if defined(DXX_BUILD_DESCENT_I)
 				*i = v16_seg;
 #elif defined(DXX_BUILD_DESCENT_II)
-#if DXX_USE_EDITOR
+#if 0
 				i->segnum = v16_seg.segnum;
 				// -- Segments[i].pad = v16_seg.pad;
-				#endif
 
 				for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 					i->sides[j] = v16_seg.sides[j];
@@ -696,6 +694,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 				i->matcen_num = v16_seg.matcen_num;
 				i->static_light = v16_seg.static_light;
 #endif
+#endif
 				fuelcen_activate(i);
 			}
 			else 
@@ -709,25 +708,26 @@ int load_mine_data(PHYSFS_File *LoadFile)
 			if (translate == 1)
 				for (int j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
 					unsigned short orient;
-					tmap_xlate = i->sides[j].tmap_num;
-					i->sides[j].tmap_num = tmap_xlate_table[tmap_xlate];
+					auto &iusidej = i->unique_segment::sides[j];
+					const auto tmap_xlate = iusidej.tmap_num;
+					iusidej.tmap_num = tmap_xlate_table[tmap_xlate];
 					const auto render = (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, i, i, j) & WID_RENDER_FLAG);
 					if (render)
-						if (i->sides[j].tmap_num < 0)	{
+						if (iusidej.tmap_num < 0)	{
 							Int3();
-							i->sides[j].tmap_num = NumTextures-1;
+							iusidej.tmap_num = NumTextures-1;
 						}
-					tmap_xlate = i->sides[j].tmap_num2 & TMAP_NUM_MASK;
-					orient = i->sides[j].tmap_num2 & (~TMAP_NUM_MASK);
-					if (tmap_xlate != 0) {
-						int xlated_tmap = tmap_xlate_table[tmap_xlate];
+					orient = iusidej.tmap_num2 & (~TMAP_NUM_MASK);
+					if (const auto tmap2_xlate = iusidej.tmap_num2 & TMAP_NUM_MASK)
+					{
+						int xlated_tmap = tmap_xlate_table[tmap2_xlate];
 
+						iusidej.tmap_num2 = xlated_tmap | orient;
 						if (render)
 							if (xlated_tmap <= 0)	{
 								Int3();
-								i->sides[j].tmap_num2 = NumTextures-1;
+								iusidej.tmap_num2 = NumTextures-1;
 							}
-						i->sides[j].tmap_num2 = xlated_tmap | orient;
 					}
 				}
 		}
@@ -960,53 +960,55 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 		for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			ubyte byte_wallnum;
 
+			auto &sside = segp->shared_segment::sides[sidenum];
 			if (bit_mask & (1 << sidenum)) {
 				byte_wallnum = PHYSFSX_readByte(LoadFile);
 				if ( byte_wallnum == 255 )
-					segp->sides[sidenum].wall_num = wall_none;
+					sside.wall_num = wall_none;
 				else
-					segp->sides[sidenum].wall_num = byte_wallnum;
+					sside.wall_num = byte_wallnum;
 			} else
-					segp->sides[sidenum].wall_num = wall_none;
+					sside.wall_num = wall_none;
 		}
 
 		for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ ) {
-			if (segp->children[sidenum] == segment_none || segp->sides[sidenum].wall_num != wall_none)	{
+			auto &uside = segp->unique_segment::sides[sidenum];
+			if (segp->children[sidenum] == segment_none || segp->shared_segment::sides[sidenum].wall_num != wall_none)	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
 				temp_ushort = PHYSFSX_readShort(LoadFile);
 #if defined(DXX_BUILD_DESCENT_I)
-				segp->sides[sidenum].tmap_num = convert_tmap(temp_ushort & 0x7fff);
+				uside.tmap_num = convert_tmap(temp_ushort & 0x7fff);
 
 				if (New_file_format_load && !(temp_ushort & 0x8000))
-					segp->sides[sidenum].tmap_num2 = 0;
+					uside.tmap_num2 = 0;
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
-					segp->sides[sidenum].tmap_num2 = PHYSFSX_readShort(LoadFile);
-					segp->sides[sidenum].tmap_num2 =
-						(convert_tmap(segp->sides[sidenum].tmap_num2 & 0x3fff)) |
-						(segp->sides[sidenum].tmap_num2 & 0xc000);
+					uside.tmap_num2 = PHYSFSX_readShort(LoadFile);
+					uside.tmap_num2 =
+						(convert_tmap(uside.tmap_num2 & 0x3fff)) |
+						(uside.tmap_num2 & 0xc000);
 				}
 #elif defined(DXX_BUILD_DESCENT_II)
 				if (New_file_format_load) {
-					segp->sides[sidenum].tmap_num = temp_ushort & 0x7fff;
+					uside.tmap_num = temp_ushort & 0x7fff;
 				} else
-					segp->sides[sidenum].tmap_num = temp_ushort;
+					uside.tmap_num = temp_ushort;
 
 				if (Gamesave_current_version <= 1)
-					segp->sides[sidenum].tmap_num = convert_d1_tmap_num(segp->sides[sidenum].tmap_num);
+					uside.tmap_num = convert_d1_tmap_num(uside.tmap_num);
 
 				if (New_file_format_load && !(temp_ushort & 0x8000))
-					segp->sides[sidenum].tmap_num2 = 0;
+					uside.tmap_num2 = 0;
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
-					segp->sides[sidenum].tmap_num2 = PHYSFSX_readShort(LoadFile);
-					if (Gamesave_current_version <= 1 && segp->sides[sidenum].tmap_num2 != 0)
-						segp->sides[sidenum].tmap_num2 = convert_d1_tmap_num(segp->sides[sidenum].tmap_num2);
+					uside.tmap_num2 = PHYSFSX_readShort(LoadFile);
+					if (Gamesave_current_version <= 1 && uside.tmap_num2 != 0)
+						uside.tmap_num2 = convert_d1_tmap_num(uside.tmap_num2);
 				}
 #endif
 
 				// Read uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
-				range_for (auto &i, segp->sides[sidenum].uvls) {
+				range_for (auto &i, uside.uvls) {
 					temp_short = PHYSFSX_readShort(LoadFile);
 					i.u = static_cast<fix>(temp_short) << 5;
 					temp_short = PHYSFSX_readShort(LoadFile);
@@ -1016,9 +1018,9 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 					//PHYSFS_read( LoadFile, &i.l, sizeof(fix), 1 );
 				}
 			} else {
-				segp->sides[sidenum].tmap_num = 0;
-				segp->sides[sidenum].tmap_num2 = 0;
-				segp->sides[sidenum].uvls = {};
+				uside.tmap_num = 0;
+				uside.tmap_num2 = 0;
+				uside.uvls = {};
 			}
 		}
 	}

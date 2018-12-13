@@ -235,9 +235,9 @@ static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal,
 //facenum determines which of four possible faces we have
 //note: the seg parm is temporary, until the face itself has a point field
 __attribute_warn_unused_result
-static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_vector &p1,const vcsegptridx_t seg,int side,int facenum,int nv,fix rad)
+static int check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const unsigned side, const unsigned facenum, const unsigned nv, const fix rad)
 {
-	auto &s = seg->sides[side];
+	auto &s = seg.sides[side];
 	const vms_vector &norm = s.normals[facenum];
 
 	const auto v = create_abs_vertex_lists(seg, s, side);
@@ -309,11 +309,11 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector &p1,const vms_vec
 //the plane of a side.  In this case, we must do checks against the edge
 //of faces
 __attribute_warn_unused_result
-static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_vector &p1,const vcsegptridx_t seg,int side,int facenum,int nv,fix rad)
+static int special_check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const unsigned side, const unsigned facenum, const unsigned nv, const fix rad)
 {
 	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0;
 	int edgenum;
-	auto &s = seg->sides[side];
+	auto &s = seg.sides[side];
 
 	//calc some basic stuff
 
@@ -886,7 +886,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 		//for each face we are on the back of, check if intersected
 
 		for (side=0,bit=1;side<6 && endmask>=bit;side++) {
-			const unsigned nv = get_side_is_quad(seg->sides[side]) ? 4 : 3;
+			const unsigned nv = get_side_is_quad(seg->shared_segment::sides[side]) ? 4 : 3;
 			// commented out by mk on 02/13/94:: if ((num_faces=seg->sides[side].num_faces)==0) num_faces=1;
 
 			for (face=0;face<2;face++,bit<<=1) {
@@ -996,7 +996,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 									closest_d = d;
 									closest_hit_point = hit_point;
 									hit_type = HIT_WALL;
-									wall_norm = &seg->sides[side].normals[face];
+									wall_norm = &seg->shared_segment::sides[side].normals[face];
 									if (get_seg_masks(vcvertptr, hit_point, startseg, rad).centermask == 0)
 										hit_seg = startseg;             //hit in this segment
 									else
@@ -1092,7 +1092,7 @@ quit_looking:
 namespace dsx {
 fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, const uint_fast32_t sidenum, const uint_fast32_t facenum)
 {
-	auto &side = seg->sides[sidenum];
+	auto &side = seg->shared_segment::sides[sidenum];
 	fix k0,k1;
 	int i;
 
@@ -1143,8 +1143,9 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, co
 		k0 = fixdiv(fixmul(-k1,vec1.j) + checkp.j - p1.j,vec0.j);
 
 	array<uvl, 3> uvls;
+	auto &uside = seg->unique_segment::sides[sidenum];
 	for (i=0;i<3;i++)
-		uvls[i] = side.uvls[vn[facenum * 3 + i].vertnum];
+		uvls[i] = uside.uvls[vn[facenum * 3 + i].vertnum];
 
 	auto p = [&uvls, k0, k1](fix uvl::*pmf) {
 		return uvls[1].*pmf + fixmul(k0,uvls[0].*pmf - uvls[1].*pmf) + fixmul(k1,uvls[2].*pmf - uvls[1].*pmf);
@@ -1159,7 +1160,7 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, co
 //returns 1 if can pass though the wall, else 0
 int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,int facenum)
 {
-	auto *side = &seg->sides[sidenum];
+	auto &side = seg->unique_segment::sides[sidenum];
 	int bmx,bmy;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1170,8 +1171,9 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 	auto &u = hitpoint.u;
 	auto &v = hitpoint.v;
 
-	const grs_bitmap &rbm = (side->tmap_num2 != 0) ? texmerge_get_cached_bitmap( side->tmap_num, side->tmap_num2 ) :
-		GameBitmaps[Textures[PIGGY_PAGE_IN(Textures[side->tmap_num]), side->tmap_num].index];
+	const auto tmap_num = side.tmap_num;
+	const grs_bitmap &rbm = (side.tmap_num2 != 0) ? texmerge_get_cached_bitmap(tmap_num, side.tmap_num2 ) :
+		GameBitmaps[Textures[PIGGY_PAGE_IN(Textures[tmap_num]), tmap_num].index];
 	const auto bm = rle_expand_texture(rbm);
 
 	bmx = static_cast<unsigned>(f2i(u*bm->bm_w)) % bm->bm_w;
@@ -1215,7 +1217,7 @@ static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg
 					int face_hit_type;      //in what way did we hit the face?
 
 					//did we go through this wall/door?
-					auto &sidep = seg->sides[side];
+					auto &sidep = seg->shared_segment::sides[side];
 					const auto v = create_abs_vertex_lists(seg, sidep, side);
 					const auto &num_faces = v.first;
 					const auto &vertex_list = v.second;

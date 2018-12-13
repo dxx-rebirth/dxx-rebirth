@@ -539,8 +539,8 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 		auto segnum = w.segnum;
 		sidenum = w.sidenum;
 
-		if (Segments[segnum].sides[sidenum].wall_num != wp)
-			err_printf(my_file, "Error: Wall %u points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %hi)", i, segnum, sidenum, static_cast<int16_t>(Segments[segnum].sides[sidenum].wall_num));
+		if (Segments[segnum].shared_segment::sides[sidenum].wall_num != wp)
+			err_printf(my_file, "Error: Wall %u points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %hi)", i, segnum, sidenum, static_cast<int16_t>(Segments[segnum].shared_segment::sides[sidenum].wall_num));
 	}
 
 	wall_flags = {};
@@ -548,7 +548,7 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 	range_for (const auto &&segp, vcsegptridx)
 	{
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
-			const auto sidep = &segp->sides[j];
+			const auto sidep = &segp->shared_segment::sides[j];
 			if (sidep->wall_num != wall_none)
 			{
 				if (wall_flags[sidep->wall_num])
@@ -616,7 +616,7 @@ static void write_trigger_text(PHYSFS_File *my_file)
 		else
 		{
 			const auto &&w = *wi;
-			PHYSFSX_printf(my_file, "Attached to seg:side = %i:%i, wall %hi\n", w->segnum, w->sidenum, static_cast<int16_t>(vcsegptr(w->segnum)->sides[w->sidenum].wall_num));
+			PHYSFSX_printf(my_file, "Attached to seg:side = %i:%i, wall %hi\n", w->segnum, w->sidenum, static_cast<int16_t>(vcsegptr(w->segnum)->shared_segment::sides[w->sidenum].wall_num));
 		}
 	}
 }
@@ -742,9 +742,10 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
          {
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++)
                  {
-			const auto sidep = &segp->sides[sidenum];
-			if (sidep->wall_num != wall_none) {
-				int clip_num = Walls[sidep->wall_num].clip_num;
+			auto &sside = segp->shared_segment::sides[sidenum];
+			if (sside.wall_num != wall_none)
+			{
+				const auto clip_num = Walls.vcptr(sside.wall_num)->clip_num;
 				if (clip_num != -1) {
 
 					const auto num_frames = WallAnims[clip_num].num_frames;
@@ -762,13 +763,14 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 				}
 			}
 
-			if (sidep->tmap_num >= 0)
+			auto &uside = segp->unique_segment::sides[sidenum];
+			if (uside.tmap_num >= 0)
                          {
-				if (sidep->tmap_num < max_tmap)
+				if (uside.tmap_num < max_tmap)
                                  {
-					tmap_buf[sidep->tmap_num]++;
-					if (level_tmap_buf[sidep->tmap_num] == -1)
-						level_tmap_buf[sidep->tmap_num] = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
+					tmap_buf[uside.tmap_num]++;
+					if (level_tmap_buf[uside.tmap_num] == -1)
+						level_tmap_buf[uside.tmap_num] = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
                                  }
                                 else
                                  {
@@ -776,12 +778,12 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
                                  }
                          }
 
-			if ((sidep->tmap_num2 & 0x3fff) != 0)
+			if (const auto tmap_num2 = uside.tmap_num2 & 0x3fff)
                          {
-				if ((sidep->tmap_num2 & 0x3fff) < max_tmap) {
-					tmap_buf[sidep->tmap_num2 & 0x3fff]++;
-					if (level_tmap_buf[sidep->tmap_num2 & 0x3fff] == -1)
-						level_tmap_buf[sidep->tmap_num2 & 0x3fff] = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
+				if (tmap_num2 < max_tmap) {
+					++tmap_buf[tmap_num2];
+					if (level_tmap_buf[tmap_num2] == -1)
+						level_tmap_buf[tmap_num2] = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
 				} else
 					Int3();	//	Error, bogus texture map.  Should not be greater than max_tmap.
                          }
@@ -827,9 +829,10 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 	range_for (const auto &&segp, vmsegptr)
 	{
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-			const auto sidep = &segp->sides[sidenum];
-			if (sidep->wall_num != wall_none) {
-				int clip_num = Walls[sidep->wall_num].clip_num;
+			auto &sside = segp->shared_segment::sides[sidenum];
+			auto &uside = segp->unique_segment::sides[sidenum];
+			if (sside.wall_num != wall_none) {
+				const auto clip_num = Walls.vcptr(sside.wall_num)->clip_num;
 				if (clip_num != -1) {
 
 					// -- int num_frames = WallAnims[clip_num].num_frames;
@@ -846,10 +849,10 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 				}
 			} else if (segp->children[sidenum] == segment_none) {
 
-				if (sidep->tmap_num >= 0)
+				if (uside.tmap_num >= 0)
 				{
-					if (sidep->tmap_num < Textures.size()) {
-						const auto ti = Textures[sidep->tmap_num].index;
+					if (uside.tmap_num < Textures.size()) {
+						const auto ti = Textures[uside.tmap_num].index;
 						assert(ti < tmap_buf.size());
 						++tmap_buf[ti];
 						if (level_tmap_buf[ti] == -1)
@@ -858,7 +861,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 						Int3();	//	Error, bogus texture map.  Should not be greater than max_tmap.
 				}
 
-				if (const auto masked_tmap_num2 = (sidep->tmap_num2 & 0x3fff))
+				if (const auto masked_tmap_num2 = (uside.tmap_num2 & 0x3fff))
 				{
 					if (masked_tmap_num2 < Textures.size())
 					{
@@ -871,7 +874,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 						if (!Ignore_tmap_num2_error)
 							Int3();	//	Error, bogus texture map.  Should not be greater than max_tmap.
 						Ignore_tmap_num2_error = 1;
-						sidep->tmap_num2 = 0;
+						uside.tmap_num2 = 0;
 					}
 				}
 			}

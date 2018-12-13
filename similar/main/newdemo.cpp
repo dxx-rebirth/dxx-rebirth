@@ -1579,7 +1579,7 @@ void newdemo_set_new_level(int level_num)
 			nd_write_byte (w.flags);
 			nd_write_byte (w.state);
 
-			const auto &side = vcsegptr(w.segnum)->sides[w.sidenum];
+			const auto &side = vcsegptr(w.segnum)->unique_segment::sides[w.sidenum];
 			nd_write_short (side.tmap_num);
 			nd_write_short (side.tmap_num2);
 			nd_record_v_juststarted=0;
@@ -1619,9 +1619,10 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 			auto seg = &Segments[w.segnum];
 			side = w.sidenum;
 			// actually this is kinda stupid: when playing ther same tmap will be put on front and back side of the wall ... for doors this is stupid so just record the front side which will do for doors just fine ...
-			if (auto tmap_num = seg->sides[side].tmap_num)
+			auto &uside = seg->unique_segment::sides[side];
+			if (const auto tmap_num = uside.tmap_num)
 				newdemo_record_wall_set_tmap_num1(w.segnum,side,w.segnum,side,tmap_num);
-			if (auto tmap_num2 = seg->sides[side].tmap_num2)
+			if (const auto tmap_num2 = uside.tmap_num2)
 				newdemo_record_wall_set_tmap_num2(w.segnum,side,w.segnum,side,tmap_num2);
 		}
 	}
@@ -1948,9 +1949,9 @@ static void newdemo_pop_ctrlcen_triggers()
 			 */
 			continue;
 		}
-		auto &csegp = *vmsegptr(csegi);
-		const auto cside = find_connect_side(seg, csegp);
-		const auto wall_num = seg->sides[side].wall_num;
+		const auto &&csegp = vmsegptr(csegi);
+		auto cside = find_connect_side(seg, csegp);
+		const auto wall_num = seg->shared_segment::sides[side].wall_num;
 		if (wall_num == wall_none)
 		{
 			/* Some levels specify control center triggers for
@@ -1965,7 +1966,7 @@ static void newdemo_pop_ctrlcen_triggers()
 		const auto t = WallAnims[anim_num].flags & WCF_TMAP1
 			? &side::tmap_num
 			: &side::tmap_num2;
-		seg->sides[side].*t = csegp.sides[cside].*t = WallAnims[anim_num].frames[n-1];
+		seg->unique_segment::sides[side].*t = csegp->unique_segment::sides[cside].*t = WallAnims[anim_num].frames[n-1];
 	}
 }
 
@@ -2275,10 +2276,12 @@ static int newdemo_read_frame_information(int rewrite)
 							* when the wall is valid, but there is no
 							* trigger on the wall.
                             */
-                        if (segp->sides[side].wall_num != wall_none)
+						auto &sside = segp->shared_segment::sides[side];
+						const auto wall_num = sside.wall_num;
+                        if (wall_num != wall_none)
                         {
 #if defined(DXX_BUILD_DESCENT_II)
-							auto &w = *vcwallptr(segp->sides[side].wall_num);
+							auto &w = *vcwallptr(wall_num);
 							if (w.trigger != trigger_none && vctrgptr(w.trigger)->type == TT_SECRET_EXIT)
 							{
                                         int truth;
@@ -2732,7 +2735,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD))
-				vmsegptr(seg)->sides[side].tmap_num = vmsegptr(cseg)->sides[cside].tmap_num = tmap;
+				vmsegptr(seg)->unique_segment::sides[side].tmap_num = vmsegptr(cseg)->unique_segment::sides[cside].tmap_num = tmap;
 			break;
 		}
 
@@ -2757,8 +2760,9 @@ static int newdemo_read_frame_information(int rewrite)
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD)) {
 				assert(tmap != 0);
 				auto &s0 = *vmsegptr(seg);
-				assert(s0.sides[side].tmap_num2 != 0);
-				s0.sides[side].tmap_num2 = vmsegptr(cseg)->sides[cside].tmap_num2 = tmap;
+				auto &tmap_num2 = s0.unique_segment::sides[side].tmap_num2;
+				assert(tmap_num2 != 0);
+				tmap_num2 = vmsegptr(cseg)->unique_segment::sides[cside].tmap_num2 = tmap;
 			}
 			break;
 		}
@@ -3042,11 +3046,11 @@ static int newdemo_read_frame_information(int rewrite)
 				const auto &&segp = vmsegptridx(segnum);
 				const auto &&csegp = vmsegptr(segp->children[side]);
 				const auto &&cside = find_connect_side(segp, csegp);
-				const auto anim_num = vmwallptr(segp->sides[side].wall_num)->clip_num;
+				const auto anim_num = vmwallptr(segp->shared_segment::sides[side].wall_num)->clip_num;
 				const auto t = WallAnims[anim_num].flags & WCF_TMAP1
 					? &side::tmap_num
 					: &side::tmap_num2;
-				segp->sides[side].*t = csegp->sides[cside].*t = WallAnims[anim_num].frames[0];
+				segp->unique_segment::sides[side].*t = csegp->unique_segment::sides[cside].*t = WallAnims[anim_num].frames[0];
 			}
 			break;
 		}
@@ -3109,7 +3113,7 @@ static int newdemo_read_frame_information(int rewrite)
 				w.type = type;
 				w.state = state;
 				w.cloak_value = cloak_value;
-				auto &uvl = vmsegptr(w.segnum)->sides[w.sidenum].uvls;
+				auto &uvl = vmsegptr(w.segnum)->unique_segment::sides[w.sidenum].uvls;
 				uvl[0].l = (static_cast<int>(l0)) << 8;
 				uvl[1].l = (static_cast<int>(l1)) << 8;
 				uvl[2].l = (static_cast<int>(l2)) << 8;
@@ -3120,7 +3124,7 @@ static int newdemo_read_frame_information(int rewrite)
 				w.type = type;
 				w.state = state;
 				w.cloak_value = cloak_value;
-				auto &uvl = vmsegptr(w.segnum)->sides[w.sidenum].uvls;
+				auto &uvl = vmsegptr(w.segnum)->unique_segment::sides[w.sidenum].uvls;
 				uvl[0].l = (static_cast<int>(l0)) << 8;
 				uvl[1].l = (static_cast<int>(l1)) << 8;
 				uvl[2].l = (static_cast<int>(l2)) << 8;
@@ -3191,7 +3195,7 @@ static int newdemo_read_frame_information(int rewrite)
 					nd_read_byte(&w.flags);
 					nd_read_byte(&w.state);
 
-					auto &side = vmsegptr(w.segnum)->sides[w.sidenum];
+					auto &side = vmsegptr(w.segnum)->unique_segment::sides[w.sidenum];
 					nd_read_short (&side.tmap_num);
 					nd_read_short (&side.tmap_num2);
 

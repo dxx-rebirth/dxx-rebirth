@@ -499,7 +499,7 @@ imsegidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 				sidenum = 0;
 
 			snrand = side_rand[sidenum];
-			auto wall_num = segp->sides[snrand].wall_num;
+			auto wall_num = segp->shared_segment::sides[snrand].wall_num;
 			sidenum++;
 
 			if ((wall_num == wall_none || door_is_openable_by_player(vcwallptr, segp, snrand)) && IS_CHILD(segp->children[snrand]))
@@ -564,9 +564,8 @@ static imsegidx_t pick_connected_drop_segment(const segment_array &Segments, fvc
 //	For all active net players, try to create a N segment path from the player.  If possible, return that
 //	segment.  If not possible, try another player.  After a few tries, use a random segment.
 //	Don't drop if control center in segment.
-static vmsegptridx_t choose_drop_segment(segment_array &segments, const playernum_t drop_pnum)
+static vmsegptridx_t choose_drop_segment(fvcsegptridx &vcsegptridx, fvmsegptridx &vmsegptridx, const playernum_t drop_pnum)
 {
-	auto &vmsegptridx = segments.vmptridx;
 	playernum_t	pnum = 0;
 	int	cur_drop_depth;
 	int	count;
@@ -578,7 +577,7 @@ static vmsegptridx_t choose_drop_segment(segment_array &segments, const playernu
 	cur_drop_depth = BASE_NET_DROP_DEPTH + ((d_rand() * BASE_NET_DROP_DEPTH*2) >> 15);
 
 	auto &player_pos = drop_playerobj.pos;
-	const auto &&player_seg = segments.vcptridx(drop_playerobj.segnum);
+	const auto &&player_seg = vcsegptridx(drop_playerobj.segnum);
 
 	segnum_t	segnum = segment_none;
 	for (; (segnum == segment_none) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2); --cur_drop_depth)
@@ -600,7 +599,7 @@ static vmsegptridx_t choose_drop_segment(segment_array &segments, const playernu
 			pnum = drop_pnum;
 		}
 
-		segnum = pick_connected_drop_segment(segments, vcvertptr, vcobjptr(vcplayerptr(pnum)->objnum)->segnum, cur_drop_depth, player_pos, player_seg);
+		segnum = pick_connected_drop_segment(Segments, vcvertptr, vcobjptr(vcplayerptr(pnum)->objnum)->segnum, cur_drop_depth, player_pos, player_seg);
 	}
 
 	if (segnum == segment_none) {
@@ -660,7 +659,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 		if (objnum == object_none)
 			return;
 
-		const auto &&segnum = choose_drop_segment(Segments, pnum);
+		const auto &&segnum = choose_drop_segment(LevelSharedSegmentState.get_segments().vcptridx, LevelUniqueSegmentState.get_segments().vmptridx, pnum);
 		const auto &&new_pos = pick_random_point_in_seg(segnum);
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
 		objnum->pos = new_pos;
@@ -1311,14 +1310,14 @@ void do_exploding_wall_frame(wall &w1)
 	const auto &&seg = vmsegptridx(w1.segnum);
 	if (w1_explode_time_elapsed > (EXPL_WALL_TIME * 3) / 4)
 	{
-		const auto &&csegp = seg.absolute_sibling(seg->children[w1sidenum]);
+		const auto &&csegp = seg.absolute_sibling(seg->shared_segment::children[w1sidenum]);
 		const auto cside = find_connect_side(seg, csegp);
 
 		const auto a = w1.clip_num;
 		const auto n = WallAnims[a].num_frames;
 		wall_set_tmap_num(WallAnims[a], seg, w1sidenum, csegp, cside, n - 1);
 
-		auto &w2 = *vmwallptr(csegp->sides[cside].wall_num);
+		auto &w2 = *vmwallptr(csegp->shared_segment::sides[cside].wall_num);
 		assert(&w1 != &w2);
 		assert((w1.flags & WALL_EXPLODING) || (w2.flags & WALL_EXPLODING));
 		w1.flags |= WALL_BLASTED;
@@ -1361,7 +1360,7 @@ void do_exploding_wall_frame(wall &w1)
 
 	//now create all the next explosions
 
-	auto &w1normal0 = seg->sides[w1sidenum].normals[0];
+	auto &w1normal0 = seg->shared_segment::sides[w1sidenum].normals[0];
 	for (int e = old_count; e < new_count; ++e)
 	{
 		//calc expl position

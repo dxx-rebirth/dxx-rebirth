@@ -477,10 +477,10 @@ static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, c
 
 #ifndef NDEBUG
 //returns true if errors detected
-static int check_norms(const vcsegptr_t segp,int sidenum,int facenum,const vcsegptr_t csegp,int csidenum,int cfacenum)
+static int check_norms(const shared_segment &segp, const unsigned sidenum, const unsigned facenum, const shared_segment &csegp, const unsigned csidenum, const unsigned cfacenum)
 {
-	const auto &n0 = segp->sides[sidenum].normals[facenum];
-	const auto &n1 = csegp->sides[csidenum].normals[cfacenum];
+	const auto &n0 = segp.sides[sidenum].normals[facenum];
+	const auto &n1 = csegp.sides[csidenum].normals[cfacenum];
 	if (n0.x != -n1.x || n0.y != -n1.y || n0.z != -n1.z)
 		return 1;
 	else
@@ -553,7 +553,7 @@ int check_segment_connections(void)
 								 vertex_list[2] != con_vertex_list[0] ||
 								 vertex_list[3] != con_vertex_list[5] ||
 								 vertex_list[5] != con_vertex_list[3]) {
-								auto &cside = vmsegptr(csegnum)->sides[csidenum];
+								auto &cside = vmsegptr(csegnum)->shared_segment::sides[csidenum];
 								cside.set_type(5 - cside.get_type());
 							} else {
 								errors |= check_norms(seg,sidenum,0,cseg,csidenum,0);
@@ -568,7 +568,7 @@ int check_segment_connections(void)
 								 vertex_list[5] != con_vertex_list[0] ||
 								 vertex_list[2] != con_vertex_list[3] ||
 								 vertex_list[3] != con_vertex_list[2]) {
-								auto &cside = vmsegptr(csegnum)->sides[csidenum];
+								auto &cside = vmsegptr(csegnum)->shared_segment::sides[csidenum];
 								cside.set_type(5 - cside.get_type());
 							} else {
 								errors |= check_norms(seg,sidenum,0,cseg,csidenum,1);
@@ -1439,8 +1439,9 @@ void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const unsig
 //	Make a just-modified segment side valid.
 void validate_segment_side(fvcvertptr &vcvertptr, const vmsegptridx_t sp, const unsigned sidenum)
 {
-	auto &side = sp->sides[sidenum];
-	const auto old_tmap_num = side.tmap_num;
+	auto &sside = sp->shared_segment::sides[sidenum];
+	auto &uside = sp->unique_segment::sides[sidenum];
+	const auto old_tmap_num = uside.tmap_num;
 	create_walls_on_side(vcvertptr, sp, sidenum);
 	/* If the texture is correct, put it back.  This is sometimes a
 	 * wasted store, but never harmful.
@@ -1504,11 +1505,11 @@ segment #104 side #3 has invalid tmap 910 (NumTextures=910)
 Levels 9-end: unchecked
 
 	 */
-	side.tmap_num = old_tmap_num < NumTextures
+	uside.tmap_num = old_tmap_num < NumTextures
 		? old_tmap_num
 		: (
 			LevelErrorV(PLAYING_BUILTIN_MISSION ? CON_VERBOSE : CON_URGENT, "segment #%hu side #%i has invalid tmap %u (NumTextures=%u).", static_cast<segnum_t>(sp), sidenum, old_tmap_num, NumTextures),
-			(side.wall_num == wall_none)
+			(sside.wall_num == wall_none)
 		);
 
 	//	Set render_flag.
@@ -1666,7 +1667,7 @@ static void change_segment_light(const vmsegptridx_t segp,int sidenum,int dir)
 {
 	if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) & WID_RENDER_FLAG)
 	{
-		const unique_side &sidep = segp->sides[sidenum];
+		auto &sidep = segp->unique_segment::sides[sidenum];
 		fix	light_intensity;
 
 		light_intensity = TmapInfo[sidep.tmap_num].lighting + TmapInfo[sidep.tmap_num2 & 0x3fff].lighting;
@@ -1700,7 +1701,7 @@ static void change_light(const vmsegptridx_t segnum, const uint8_t sidenum, cons
 			{
 				assert(j.sidenum < MAX_SIDES_PER_SEGMENT);
 				const auto &&segp = vmsegptr(j.segnum);
-				auto &uvls = segp->sides[j.sidenum].uvls;
+				auto &uvls = segp->unique_segment::sides[j.sidenum].uvls;
 				for (int k=0; k<4; k++) {
 					auto &l = uvls[k].l;
 					const fix dl = ds * j.vert_light[k];
@@ -1850,8 +1851,9 @@ void set_ambient_sound_flags()
 	{
 		for (unsigned j = 0; j < MAX_SIDES_PER_SEGMENT; ++j)
 		{
-			const auto &sidep = segp->sides[j];
-			if (IS_CHILD(segp->children[j]) && sidep.wall_num == wall_none)
+			const auto &sside = segp->shared_segment::sides[j];
+			const auto &uside = segp->unique_segment::sides[j];
+			if (IS_CHILD(segp->children[j]) && sside.wall_num == wall_none)
 				/* If this side is open and there is no wall defined,
 				 * then the texture is never visible to the player.
 				 * This happens normally in some level editors if the
@@ -1859,7 +1861,7 @@ void set_ambient_sound_flags()
 				 * added.  Skip this side.
 				 */
 				continue;
-			const auto texture_flags = TmapInfo[sidep.tmap_num].flags | TmapInfo[sidep.tmap_num2 & 0x3fff].flags;
+			const auto texture_flags = TmapInfo[uside.tmap_num].flags | TmapInfo[uside.tmap_num2 & 0x3fff].flags;
 			/* These variables do not need to be named, but naming them
 			 * is the easiest way to establish sequence points, so that
 			 * `sound_flag` is passed to `ambient_mark_bfs` only after

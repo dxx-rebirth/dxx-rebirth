@@ -1150,7 +1150,7 @@ void draw_all_edges(grs_canvas &canvas, automap *const am)
 			auto &tv1 = *vcvertptr(e->verts[0]);
 			j = 0;
 			while( j<e->num_faces && (nfacing==0 || nnfacing==0) )	{
-				if (!g3_check_normal_facing(tv1, vcsegptr(e->segnum[j])->sides[e->sides[j]].normals[0]))
+				if (!g3_check_normal_facing(tv1, vcsegptr(e->segnum[j])->shared_segment::sides[e->sides[j]].normals[0]))
 					nfacing++;
 				else
 					nnfacing++;
@@ -1323,9 +1323,10 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			break;
 		}
 
-		if (seg->sides[sn].wall_num != wall_none)	{
-		
-			auto &w = *vcwallptr(seg->sides[sn].wall_num);
+		const auto wall_num = seg->shared_segment::sides[sn].wall_num;
+		if (wall_num != wall_none)
+		{
+			auto &w = *vcwallptr(wall_num);
 #if defined(DXX_BUILD_DESCENT_II)
 			auto trigger_num = w.trigger;
 			if (trigger_num != trigger_none && vmtrgptr(trigger_num)->type == TT_SECRET_EXIT)
@@ -1349,7 +1350,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 					if (connected_seg != segment_none) {
 						auto &vcseg = *vcsegptr(connected_seg);
 						const auto &connected_side = find_connect_side(seg, vcseg);
-						auto &wall = *vcwallptr(vcseg.sides[connected_side].wall_num);
+						auto &wall = *vcwallptr(vcseg.shared_segment::sides[connected_side].wall_num);
 						switch (wall.keys)
 						{
 							case KEY_BLUE:
@@ -1495,7 +1496,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 		for (unsigned e1 = 0; e1 < num_faces; ++e1)
 		{
 			const auto e1segnum = e->segnum[e1];
-			const auto &e1siden0 = vcsegptr(e1segnum)->sides[e->sides[e1]].normals[0];
+			const auto &e1siden0 = vcsegptr(e1segnum)->shared_segment::sides[e->sides[e1]].normals[0];
 			for (unsigned e2 = 1; e2 < num_faces; ++e2)
 			{
 				if (e1 == e2)
@@ -1503,7 +1504,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 				const auto e2segnum = e->segnum[e2];
 				if (e1segnum == e2segnum)
 					continue;
-				if (vm_vec_dot(e1siden0, vcsegptr(e2segnum)->sides[e->sides[e2]].normals[0]) > (F1_0 - (F1_0 / 10)))
+				if (vm_vec_dot(e1siden0, vcsegptr(e2segnum)->shared_segment::sides[e->sides[e2]].normals[0]) > (F1_0 - (F1_0 / 10)))
 				{
 					e->flags &= (~EF_DEFINING);
 					break;

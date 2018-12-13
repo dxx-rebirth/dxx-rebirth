@@ -432,9 +432,9 @@ void ogl_cache_level_textures(void)
 		}
 		do_special_effects();
 
-		range_for (auto &&seg, vcsegptr)
+		range_for (const unique_segment &seg, vcsegptr)
 		{
-			range_for (auto &side, seg->sides)
+			range_for (auto &side, seg.sides)
 			{
 				const auto tmap1 = side.tmap_num;
 				const auto tmap2 = side.tmap_num2;

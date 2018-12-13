@@ -83,6 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1140,8 +1141,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 //Save tmap info
 	range_for (const auto &&segp, vcsegptr)
 	{
-		range_for (const auto &j, segp->sides)
-			segment_side_wall_tmap_write(fp, j, j);
+		range_for (const auto &e, enumerate(segp->shared_segment::sides))	// d_zip
+		{
+			segment_side_wall_tmap_write(fp, e.value, segp->unique_segment::sides[e.idx]);
+		}
 	}
 
 // Save the fuelcen info
@@ -1720,7 +1723,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	{
 		for (unsigned j = 0; j < 6; ++j)
 		{
-			segp->sides[j].wall_num = PHYSFSX_readSXE16(fp, swap);
+			segp->shared_segment::sides[j].wall_num = PHYSFSX_readSXE16(fp, swap);
 			TempTmapNum[segp][j] = PHYSFSX_readSXE16(fp, swap);
 			TempTmapNum2[segp][j] = PHYSFSX_readSXE16(fp, swap);
 		}
@@ -1939,8 +1942,9 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	{
 		for (unsigned j = 0; j < 6; ++j)
 		{
-			segp->sides[j].tmap_num = TempTmapNum[segp][j];
-			segp->sides[j].tmap_num2 = TempTmapNum2[segp][j];
+			auto &uside = segp->unique_segment::sides[j];
+			uside.tmap_num = TempTmapNum[segp][j];
+			uside.tmap_num2 = TempTmapNum2[segp][j];
 		}
 	}
 

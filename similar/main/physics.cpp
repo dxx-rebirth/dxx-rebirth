@@ -81,7 +81,7 @@ static void do_physics_align_object(object_base &obj)
 
 	//find side of segment that player is most alligned with
 
-	range_for (auto &i, vcsegptr(obj.segnum)->sides)
+	range_for (auto &i, vcsegptr(obj.segnum)->shared_segment::sides)
 	{
 		const auto d = vm_vec_dot(i.normals[0], obj.orient.uvec);
 
@@ -261,7 +261,7 @@ static void fix_illegal_wall_intersection(const vmobjptridx_t obj)
 	object_intersects_wall_result_t hresult;
 	if (object_intersects_wall_d(obj, hresult))
 	{
-		vm_vec_scale_add2(obj->pos, Segments[hresult.seg].sides[hresult.side].normals[0], FrameTime*10);
+		vm_vec_scale_add2(obj->pos, vcsegptr(hresult.seg)->shared_segment::sides[hresult.side].normals[0], FrameTime*10);
 		update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, obj);
 	}
 }
@@ -570,7 +570,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 					 */
 					forcefield_bounce = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
-					forcefield_bounce = (TmapInfo[Segments[WallHitSeg].sides[WallHitSide].tmap_num].flags & TMI_FORCE_FIELD);
+					forcefield_bounce = (TmapInfo[Segments[WallHitSeg].unique_segment::sides[WallHitSide].tmap_num].flags & TMI_FORCE_FIELD);
 					int check_vel=0;
 #endif
 
@@ -731,7 +731,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 
 				//bump object back
 
-				auto &s = orig_segp->sides[sidenum];
+				auto &s = orig_segp->shared_segment::sides[sidenum];
 
 				const auto v = create_abs_vertex_lists(orig_segp, s, sidenum);
 				const auto &vertex_list = v.second;

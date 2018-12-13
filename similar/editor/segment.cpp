@@ -235,7 +235,7 @@ void create_removable_wall(const vmsegptridx_t sp, int sidenum, int tmap_num)
 {
 	create_walls_on_side(vcvertptr, sp, sidenum);
 
-	sp->sides[sidenum].tmap_num = tmap_num;
+	sp->unique_segment::sides[sidenum].tmap_num = tmap_num;
 
 	assign_default_uvs_to_side(sp, sidenum);
 	assign_light_to_side(sp, sidenum);
@@ -580,13 +580,13 @@ namespace dsx {
 
 // ------------------------------------------------------------------------------------------
 //	Copy texture map ids for each face in sseg to dseg.
-static void copy_tmap_ids(const vmsegptr_t dseg, const vmsegptr_t sseg)
+static void copy_tmap_ids(unique_segment &dseg, const unique_segment &sseg)
 {
 	int	s;
 
 	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-		dseg->sides[s].tmap_num = sseg->sides[s].tmap_num;
-		dseg->sides[s].tmap_num2 = 0;
+		dseg.sides[s].tmap_num = sseg.sides[s].tmap_num;
+		dseg.sides[s].tmap_num2 = 0;
 	}
 }
 
@@ -633,7 +633,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegpt
 	for (unsigned side = 0; side < MAX_SIDES_PER_SEGMENT; ++side)
 	{
 		nsp->children[side] = segment_none;
-		nsp->sides[side].wall_num = wall_none;	
+		nsp->shared_segment::sides[side].wall_num = wall_none;	
 	}
 
 	// Form the connection
@@ -818,7 +818,7 @@ int med_delete_segment(const vmsegptridx_t sp)
 
 	// If deleted segment has walls on any side, wipe out the wall.
 	for (unsigned side = 0; side < MAX_SIDES_PER_SEGMENT; ++side)
-		if (sp->sides[side].wall_num != wall_none) 
+		if (sp->shared_segment::sides[side].wall_num != wall_none) 
 			wall_remove_side(sp, side);
 
 	// Find out what this segment was connected to and break those connections at the other end.
@@ -889,9 +889,9 @@ static void copy_tmaps_to_segment(const vmsegptr_t dseg, const vcsegptr_t sseg)
 	int	s;
 
 	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-		dseg->sides[s].set_type(sseg->sides[s].get_type());
-		dseg->sides[s].tmap_num = sseg->sides[s].tmap_num;
-		dseg->sides[s].tmap_num2 = sseg->sides[s].tmap_num2;
+		dseg->shared_segment::sides[s].set_type(sseg->shared_segment::sides[s].get_type());
+		dseg->unique_segment::sides[s].tmap_num = sseg->unique_segment::sides[s].tmap_num;
+		dseg->unique_segment::sides[s].tmap_num2 = sseg->unique_segment::sides[s].tmap_num2;
 	}
 
 }
@@ -942,7 +942,7 @@ int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 	//	Save tmap_num on each side to restore after call to med_propagate_tmaps_to_segments and _back_side
 	//	which will change the tmap nums.
 	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		side_tmaps[s] = seg->sides[s].tmap_num;
+		side_tmaps[s] = seg->unique_segment::sides[s].tmap_num;
 
 	auto back_side = Side_opposite[find_connect_side(destseg, seg)];
 
@@ -951,7 +951,7 @@ int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 
 	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 		if (s != back_side)
-			seg->sides[s].tmap_num = side_tmaps[s];
+			seg->unique_segment::sides[s].tmap_num = side_tmaps[s];
 
 	return	0;
 }
@@ -1051,7 +1051,7 @@ int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2
 		return 2;
 
 	// Make sure there is no wall there 
-	if ((seg1->sides[side1].wall_num != wall_none) || (seg2->sides[side2].wall_num != wall_none))
+	if ((seg1->shared_segment::sides[side1].wall_num != wall_none) || (seg2->shared_segment::sides[side2].wall_num != wall_none))
 		return 2;
 
 	//	We can form the joint.  Find the best orientation of vertices.
@@ -1150,7 +1150,7 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptri
 	// Form connections to children, first initialize all to unconnected.
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		bs->children[i] = segment_none;
-		bs->sides[i].wall_num = wall_none;
+		bs->shared_segment::sides[i].wall_num = wall_none;
 	}
 
 	// Now form connections between segments.
@@ -1203,7 +1203,7 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 	{
 		sp->children[i] = segment_none;
 //		sp->sides[i].render_flag = 0;
-		sp->sides[i].wall_num  = wall_none;
+		sp->shared_segment::sides[i].wall_num  = wall_none;
 	}
 
 	sp->group = -1;
@@ -1280,10 +1280,10 @@ void med_create_new_segment(const vms_vector &scale)
 	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
 		sp->children[s] = segment_none;
 //		sp->sides[s].render_flag = 0;
-		sp->sides[s].wall_num = wall_none;
+		sp->shared_segment::sides[s].wall_num = wall_none;
 		create_walls_on_side(vcvertptr, sp, s);
-		sp->sides[s].tmap_num = s;					// assign some stupid old tmap to this side.
-		sp->sides[s].tmap_num2 = 0;
+		sp->unique_segment::sides[s].tmap_num = s;					// assign some stupid old tmap to this side.
+		sp->unique_segment::sides[s].tmap_num2 = 0;
 	}
 
 	Seg_orientation = {};

@@ -2120,13 +2120,13 @@ static void multi_do_door_open(fvmwallptr &vmwallptr, const uint8_t *const buf)
 	if (!useg)
 		return;
 	const auto &&seg = *useg;
-
-	if (seg->sides[side].wall_num == wall_none) {  //Opening door on illegal wall
+	const auto wall_num = seg->shared_segment::sides[side].wall_num;
+	if (wall_num == wall_none) {  //Opening door on illegal wall
 		Int3();
 		return;
 	}
 
-	auto &w = *vmwallptr(seg->sides[side].wall_num);
+	auto &w = *vmwallptr(wall_num);
 
 	if (w.type == WALL_BLASTABLE)
 	{
@@ -3469,11 +3469,11 @@ window_event_result multi_level_sync(void)
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void apply_segment_goal_texture(const vmsegptr_t seg, const std::size_t tex)
+static void apply_segment_goal_texture(unique_segment &seg, const std::size_t tex)
 {
-	seg->static_light = i2f(100);	//make static light bright
+	seg.static_light = i2f(100);	//make static light bright
 	if (tex < TmapInfo.size())
-		range_for (auto &s, seg->sides)
+		range_for (auto &s, seg.sides)
 		{
 			s.tmap_num = tex;
 			range_for (auto &uvl, s.uvls)
@@ -4059,7 +4059,7 @@ void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segn
 	count += sizeof(uint16_t);
 	multibuf[count] = val; count++;
 
-	range_for (auto &i, segnum->sides)
+	range_for (auto &i, segnum->unique_segment::sides)
 	{
 		PUT_INTEL_SHORT(&multibuf[count], i.tmap_num2); count+=2;
 	}
@@ -4076,7 +4076,7 @@ static void multi_do_light (const ubyte *buf)
 	if (!usegp)
 		return;
 	const auto &&segp = *usegp;
-	auto &side_array = segp->sides;
+	auto &side_array = segp->unique_segment::sides;
 	for (i=0;i<6;i++)
 	{
 		if ((sides & (1<<i)))

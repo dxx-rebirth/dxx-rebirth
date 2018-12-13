@@ -92,7 +92,7 @@ struct cwframe
 	array<uvl, 4> &uvls;
 	cwframe(wall &wr) :
 		w(wr),
-		uvls(vmsegptr(w.segnum)->sides[w.sidenum].uvls)
+		uvls(vmsegptr(w.segnum)->unique_segment::sides[w.sidenum].uvls)
 	{
 	}
 };
@@ -242,18 +242,20 @@ void wall_set_tmap_num(const wclip &anim, const vmsegptridx_t seg, const unsigne
 		return;
 
 	const auto tmap = anim.frames[frame_num];
+	auto &uside = seg->unique_segment::sides[side];
+	auto &cuside = csegp->unique_segment::sides[cside];
 	if (anim.flags & WCF_TMAP1)	{
-		if (tmap != seg->sides[side].tmap_num || tmap != csegp->sides[cside].tmap_num)
+		if (tmap != uside.tmap_num || tmap != cuside.tmap_num)
 		{
-			seg->sides[side].tmap_num = csegp->sides[cside].tmap_num = tmap;
+			uside.tmap_num = cuside.tmap_num = tmap;
 			if (newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_wall_set_tmap_num1(seg,side,csegp,cside,tmap);
 		}
 	} else	{
-		Assert(tmap!=0 && seg->sides[side].tmap_num2!=0);
-		if (tmap != seg->sides[side].tmap_num2 || tmap != csegp->sides[cside].tmap_num2)
+		assert(tmap != 0 && uside.tmap_num2 != 0);
+		if (tmap != uside.tmap_num2 || tmap != cuside.tmap_num2)
 		{
-			seg->sides[side].tmap_num2 = csegp->sides[cside].tmap_num2 = tmap;
+			uside.tmap_num2 = cuside.tmap_num2 = tmap;
 			if (newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_wall_set_tmap_num2(seg,side,csegp,cside,tmap);
 		}
@@ -263,19 +265,21 @@ void wall_set_tmap_num(const wclip &anim, const vmsegptridx_t seg, const unsigne
 
 // -------------------------------------------------------------------------------
 //when the wall has used all its hitpoints, this will destroy it
-static void blast_blastable_wall(const vmsegptridx_t seg, int side)
+static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side)
 {
-	auto &w0 = *vmwallptr(seg->sides[side].wall_num);
+	auto &sside = seg->shared_segment::sides[side];
+	const auto wall_num = sside.wall_num;
+	auto &w0 = *vmwallptr(wall_num);
 	w0.hps = -1;	//say it's blasted
 
 	const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != side_none);
-	const auto cwall_num = csegp->sides[Connectside].wall_num;
+	const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 	const auto &&w1 = imwallptr(cwall_num);
 	if (w1)
 		LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, cwall_num);
-	LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, seg->sides[side].wall_num);
+	LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, wall_num);
 	flush_fcd_cache();
 
 	const auto a = w0.clip_num;
@@ -296,9 +300,9 @@ static void blast_blastable_wall(const vmsegptridx_t seg, int side)
 
 //-----------------------------------------------------------------
 // Destroys a blastable wall.
-void wall_destroy(const vmsegptridx_t seg, int side)
+void wall_destroy(const vmsegptridx_t seg, const unsigned side)
 {
-	auto &w = *vmwallptr(seg->sides[side].wall_num);
+	auto &w = *vmwallptr(seg->shared_segment::sides[side].wall_num);
 	if (w.type == WALL_BLASTABLE)
 		blast_blastable_wall( seg, side );
 	else
@@ -307,15 +311,17 @@ void wall_destroy(const vmsegptridx_t seg, int side)
 
 //-----------------------------------------------------------------
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
-void wall_damage(const vmsegptridx_t seg, int side, fix damage)
+void wall_damage(const vmsegptridx_t seg, const unsigned side, fix damage)
 {
 	int i;
 
-	if (seg->sides[side].wall_num == wall_none) {
+	auto &sside = seg->shared_segment::sides[side];
+	const auto wall_num = sside.wall_num;
+	if (wall_num == wall_none) {
 		return;
 	}
 
-	auto &w0 = *vmwallptr(seg->sides[side].wall_num);
+	auto &w0 = *vmwallptr(wall_num);
 	if (w0.type != WALL_BLASTABLE)
 		return;
 	
@@ -324,7 +330,7 @@ void wall_damage(const vmsegptridx_t seg, int side, fix damage)
 		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != side_none);
-		const auto cwall_num = csegp->sides[Connectside].wall_num;
+		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 		if (const auto &&w1p = imwallptr(cwall_num))
 		{
 			auto &w1 = *w1p;
@@ -357,9 +363,10 @@ void wall_open_door(const vmsegptridx_t seg, int side)
 {
 	active_door *d;
 
-	const auto wall_num = seg->sides[side].wall_num;
+	auto &sside = seg->shared_segment::sides[side];
+	const auto wall_num = sside.wall_num;
 	wall *const w = vmwallptr(wall_num);
-	LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, seg->sides[side].wall_num);
+	LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, wall_num);
 
 	if ((w->state == WALL_DOOR_OPENING) ||		//already opening
 		 (w->state == WALL_DOOR_WAITING))		//open, waiting to close
@@ -403,13 +410,13 @@ void wall_open_door(const vmsegptridx_t seg, int side)
 	auto Connectside = find_connect_side(seg, csegp);
 	if (Connectside != side_none)
 	{
-		const auto cwall_num = csegp->sides[Connectside].wall_num;
+		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 		if (const auto &&w1 = imwallptr(cwall_num))
 		{
 			w1->state = WALL_DOOR_OPENING;
 			d->back_wallnum[0] = cwall_num;
 		}
-		d->front_wallnum[0] = seg->sides[side].wall_num;
+		d->front_wallnum[0] = seg->shared_segment::sides[side].wall_num;
 	}
 	else
 		con_printf(CON_URGENT, "Illegal Connectside %i in wall_open_door. Trying to hop over. Please check your level!", side);
@@ -422,7 +429,7 @@ void wall_open_door(const vmsegptridx_t seg, int side)
 	{
 		wall *const w2 = vmwallptr(w->linked_wall);
 
-		Assert(w2->linked_wall == seg->sides[side].wall_num);
+		Assert(w2->linked_wall == seg->shared_segment::sides[side].wall_num);
 		//Assert(!(w2->flags & WALL_DOOR_OPENING  ||  w2->flags & WALL_DOOR_OPENED));
 
 		w2->state = WALL_DOOR_OPENING;
@@ -430,7 +437,7 @@ void wall_open_door(const vmsegptridx_t seg, int side)
 		const auto &&seg2 = vcsegptridx(w2->segnum);
 		Connectside = find_connect_side(seg2, vcsegptr(seg2->children[w2->sidenum]));
 		Assert(Connectside != side_none);
-		const auto cwall_num = csegp->sides[Connectside].wall_num;
+		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 		if (const auto &&w3 = imwallptr(cwall_num))
 			w3->state = WALL_DOOR_OPENING;
 
@@ -456,13 +463,13 @@ void wall_open_door(const vmsegptridx_t seg, int side)
 #if defined(DXX_BUILD_DESCENT_II)
 //-----------------------------------------------------------------
 // start the transition from closed -> open wall
-void start_wall_cloak(const vmsegptridx_t seg, int side)
+void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
 {
 	cloaking_wall *d;
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
-	const auto &&w = vmwallptridx(seg->sides[side].wall_num);
+	const auto &&w = vmwallptridx(seg->shared_segment::sides[side].wall_num);
 
 	if (w->type == WALL_OPEN || w->state == WALL_DOOR_CLOAKING)		//already open or cloaking
 		return;
@@ -470,7 +477,7 @@ void start_wall_cloak(const vmsegptridx_t seg, int side)
 	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != side_none);
-	const auto cwall_num = csegp->sides[Connectside].wall_num;
+	const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 
 	if (w->state == WALL_DOOR_DECLOAKING) {	//decloaking, so reuse door
 		const auto &&r = make_range(vmclwallptr);
@@ -506,7 +513,7 @@ void start_wall_cloak(const vmsegptridx_t seg, int side)
 	if (const auto &&w1 = imwallptr(cwall_num))
 		w1->state = WALL_DOOR_CLOAKING;
 
-	d->front_wallnum = seg->sides[side].wall_num;
+	d->front_wallnum = seg->shared_segment::sides[side].wall_num;
 	d->back_wallnum = cwall_num;
 	Assert(w->linked_wall == wall_none);
 
@@ -517,8 +524,9 @@ void start_wall_cloak(const vmsegptridx_t seg, int side)
 
 	auto &df = d->front_ls;
 	auto &db = d->back_ls;
-	auto &s0_uvls = seg->sides[side].uvls;
-	auto &s1_uvls = csegp->sides[Connectside].uvls;
+	auto &s0_uvls = seg->unique_segment::sides[side].uvls;
+	auto &s1_uvls = csegp->unique_segment::sides[Connectside].uvls;
+	// d_zip
 	for (unsigned i = 0; i < 4; ++i)
 	{
 		df[i] = s0_uvls[i].l;
@@ -528,15 +536,16 @@ void start_wall_cloak(const vmsegptridx_t seg, int side)
 
 //-----------------------------------------------------------------
 // start the transition from open -> closed wall
-void start_wall_decloak(const vmsegptridx_t seg, int side)
+void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 {
 	cloaking_wall *d;
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
-	Assert(seg->sides[side].wall_num != wall_none); 	//Opening door on illegal wall
+	auto &sside = seg->shared_segment::sides[side];
+	assert(sside.wall_num != wall_none); 	//Opening door on illegal wall
 
-	const auto &&w = vmwallptridx(seg->sides[side].wall_num);
+	const auto &&w = vmwallptridx(sside.wall_num);
 
 	if (w->type == WALL_CLOSED || w->state == WALL_DOOR_DECLOAKING)		//already closed or decloaking
 		return;
@@ -578,12 +587,13 @@ void start_wall_decloak(const vmsegptridx_t seg, int side)
 	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != side_none);
-	const auto cwall_num = csegp->sides[Connectside].wall_num;
+	auto &csside = csegp->shared_segment::sides[Connectside];
+	const auto cwall_num = csside.wall_num;
 	if (const auto &&w1 = imwallptr(cwall_num))
 		w1->state = WALL_DOOR_DECLOAKING;
 
-	d->front_wallnum = seg->sides[side].wall_num;
-	d->back_wallnum = csegp->sides[Connectside].wall_num;
+	d->front_wallnum = seg->shared_segment::sides[side].wall_num;
+	d->back_wallnum = csside.wall_num;
 	Assert(w->linked_wall == wall_none);
 
 	if ( Newdemo_state != ND_STATE_PLAYBACK ) {
@@ -593,8 +603,9 @@ void start_wall_decloak(const vmsegptridx_t seg, int side)
 
 	auto &df = d->front_ls;
 	auto &db = d->back_ls;
-	auto &s0_uvls = seg->sides[side].uvls;
-	auto &s1_uvls = csegp->sides[Connectside].uvls;
+	auto &s0_uvls = seg->unique_segment::sides[side].uvls;
+	auto &s1_uvls = csegp->unique_segment::sides[Connectside].uvls;
+	// d_zip
 	for (unsigned i = 0; i < 4; ++i)
 	{
 		df[i] = s0_uvls[i].l;
@@ -618,12 +629,12 @@ void wall_close_door_ref(active_door &d)
 		side = w->sidenum;
 		w->state = WALL_DOOR_CLOSED;
 
-		Assert(seg->sides[side].wall_num != wall_none);		//Closing door on illegal wall
+		assert(seg->shared_segment::sides[side].wall_num != wall_none);		//Closing door on illegal wall
 
 		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != side_none);
-		const auto cwall_num = csegp->sides[Connectside].wall_num;
+		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 		if (const auto &&w1 = imwallptr(cwall_num))
 			w1->state = WALL_DOOR_CLOSED;
 
@@ -672,11 +683,11 @@ static unsigned is_door_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegpt
 #if defined(DXX_BUILD_DESCENT_II)
 //-----------------------------------------------------------------
 // Closes a door
-void wall_close_door(const vmsegptridx_t seg, int side)
+void wall_close_door(const vmsegptridx_t seg, const unsigned side)
 {
 	active_door *d;
 
-	const auto wall_num = seg->sides[side].wall_num;
+	const auto wall_num = seg->shared_segment::sides[side].wall_num;
 	wall *const w = vmwallptr(wall_num);
 	if ((w->state == WALL_DOOR_CLOSING) ||		//already closing
 		 (w->state == WALL_DOOR_WAITING)	||		//open, waiting to close
@@ -715,11 +726,11 @@ void wall_close_door(const vmsegptridx_t seg, int side)
 	const auto &&csegp = vcsegptr(seg->children[side]);
 	const auto &&Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != side_none);
-	const auto cwall_num = csegp->sides[Connectside].wall_num;
+	const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 	if (const auto &&w1 = imwallptr(cwall_num))
 		w1->state = WALL_DOOR_CLOSING;
 
-	d->front_wallnum[0] = seg->sides[side].wall_num;
+	d->front_wallnum[0] = seg->shared_segment::sides[side].wall_num;
 	d->back_wallnum[0] = cwall_num;
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		newdemo_record_door_opening(seg, side);
@@ -763,8 +774,7 @@ static bool do_door_open(active_door &d)
 		const auto &&seg = vmsegptridx(w.segnum);
 		side = w.sidenum;
 
-// 		Assert(seg->sides[side].wall_num != -1);		//Trying to do_door_open on illegal wall
-		if (seg->sides[side].wall_num == wall_none)
+		if (seg->shared_segment::sides[side].wall_num == wall_none)
 		{
 			con_printf(CON_URGENT, "Trying to do_door_open on illegal wall %i. Please check your level!",side);
 			continue;
@@ -788,7 +798,7 @@ static bool do_door_open(active_door &d)
 		if (i < n)
 			wall_set_tmap_num(WallAnims[w.clip_num], seg, side, csegp, Connectside, i);
 
-		const auto cwall_num = csegp->sides[Connectside].wall_num;
+		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 		auto &w1 = *vmwallptr(cwall_num);
 		if (i> n/2) {
 			w.flags |= WALL_DOOR_OPENED;
@@ -849,7 +859,7 @@ static bool do_door_close(active_door &d)
 		const auto &seg = wsegp;
 		side = wp.sidenum;
 
-		if (seg->sides[side].wall_num == wall_none) {
+		if (seg->shared_segment::sides[side].wall_num == wall_none) {
 			return false;
 		}
 
@@ -891,7 +901,7 @@ static bool do_door_close(active_door &d)
 
 		i = n-time_elapsed/one_frame-1;
 
-		const auto cwall_num = csegp->sides[Connectside].wall_num;
+		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 		auto &w1 = *vmwallptr(cwall_num);
 		if (i < n/2) {
 			wp.flags &= ~WALL_DOOR_OPENED;
@@ -917,17 +927,17 @@ static bool do_door_close(active_door &d)
 template <typename F>
 static void wall_illusion_op(const vmsegptridx_t seg, unsigned side, F op)
 {
-	const auto wall0 = seg->sides[side].wall_num;
+	const auto wall0 = seg->shared_segment::sides[side].wall_num;
 	if (wall0 == wall_none)
 		return;
-	const auto &&csegp = vcsegptr(seg->children[side]);
+	const shared_segment &csegp = *vcsegptr(seg->children[side]);
 	const auto &&cside = find_connect_side(seg, csegp);
 	if (cside == side_none)
 	{
 		assert(cside != side_none);
 		return;
 	}
-	const auto wall1 = csegp->sides[cside].wall_num;
+	const auto wall1 = csegp.sides[cside].wall_num;
 	op(wall0);
 	op(wall1);
 }
@@ -976,10 +986,11 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 	fix	show_message;
 
 	// If it is not a "wall" then just return.
-	if ( seg->sides[side].wall_num == wall_none )
+	const auto wall_num = seg->shared_segment::sides[side].wall_num;
+	if (wall_num == wall_none)
 		return wall_hit_process_t::WHP_NOT_SPECIAL;
 
-	wall *const w = vmwallptr(seg->sides[side].wall_num);
+	wall *const w = vmwallptr(wall_num);
 
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_wall_hit_process( seg, side, damage, playernum );
@@ -1074,7 +1085,7 @@ void wall_toggle(const vmsegptridx_t segp, unsigned side)
 #endif
 		return;
 	}
-	const auto wall_num = segp->sides[side].wall_num;
+	const auto wall_num = segp->shared_segment::sides[side].wall_num;
 	if (wall_num == wall_none)
 	{
 		LevelError("Ignoring attempt to toggle wall in segment %hu, side %u: no wall exists there.", segp.get_unchecked_index(), side);
@@ -1402,7 +1413,7 @@ static void bng_process_segment(const object &objp, fix damage, const vmsegptrid
 		fix			dist;
 
 		//	Process only walls which have glass.
-		if ((tm=segp->sides[sidenum].tmap_num2) != 0) {
+		if ((tm=segp->unique_segment::sides[sidenum].tmap_num2) != 0) {
 			tm &= 0x3fff;			//tm without flags
 
 			const auto ec = TmapInfo[tm].eclip_num;

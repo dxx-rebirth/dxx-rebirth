@@ -101,7 +101,7 @@ static int do_light_on(const trigger &t)
 	const auto op = [&ret](const vmsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light on.  This
 			//is to keep us from turning on blown-out lights
-			if (TmapInfo[segnum->sides[sidenum].tmap_num2 & 0x3fff].lighting) {
+			if (TmapInfo[segnum->unique_segment::sides[sidenum].tmap_num2 & 0x3fff].lighting) {
 				ret |= add_light(segnum, sidenum); 		//any light sets flag
 				enable_flicker(Flickering_light_state, segnum, sidenum);
 			}
@@ -118,7 +118,7 @@ static int do_light_off(const trigger &t)
 	const auto op = [&ret](const vmsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light off.  This
 			//is to keep us from turning off blown-out lights
-			if (TmapInfo[segnum->sides[sidenum].tmap_num2 & 0x3fff].lighting) {
+			if (TmapInfo[segnum->unique_segment::sides[sidenum].tmap_num2 & 0x3fff].lighting) {
 				ret |= subtract_light(segnum, sidenum); 	//any light sets flag
 				disable_flicker(Flickering_light_state, segnum, sidenum);
 			}
@@ -130,8 +130,8 @@ static int do_light_off(const trigger &t)
 // Unlocks all doors linked to the switch.
 static void do_unlock_doors(const trigger &t)
 {
-	const auto op = [](const vmsegptr_t segp, const unsigned sidenum) {
-		const auto wall_num = segp->sides[sidenum].wall_num;
+	const auto op = [](const shared_segment &segp, const unsigned sidenum) {
+		const auto wall_num = segp.sides[sidenum].wall_num;
 		auto &w = *vmwallptr(wall_num);
 		w.flags &= ~WALL_DOOR_LOCKED;
 		w.keys = KEY_NONE;
@@ -142,8 +142,8 @@ static void do_unlock_doors(const trigger &t)
 // Locks all doors linked to the switch.
 static void do_lock_doors(const trigger &t)
 {
-	const auto op = [](const vmsegptr_t segp, const unsigned sidenum) {
-		const auto wall_num = segp->sides[sidenum].wall_num;
+	const auto op = [](const shared_segment &segp, const unsigned sidenum) {
+		const auto wall_num = segp.sides[sidenum].wall_num;
 		auto &w = *vmwallptr(wall_num);
 		w.flags |= WALL_DOOR_LOCKED;
 	};
@@ -174,7 +174,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 			}
 
 			wall *w0p;
-				const auto w0num = segp->sides[side].wall_num;
+			const auto w0num = segp->shared_segment::sides[side].wall_num;
 			if (const auto &&uw0p = vmwallptr.check_untrusted(w0num))
 				w0p = *uw0p;
 			else
@@ -184,8 +184,8 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 			}
 			auto &wall0 = *w0p;
 			imwallptr_t wall1 = nullptr;
-			if ((cside == side_none || csegp->sides[cside].wall_num == wall_none ||
-				(wall1 = vmwallptr(csegp->sides[cside].wall_num))->type == new_wall_type) &&
+			if ((cside == side_none || csegp->shared_segment::sides[cside].wall_num == wall_none ||
+				(wall1 = vmwallptr(csegp->shared_segment::sides[cside].wall_num))->type == new_wall_type) &&
 				wall0.type == new_wall_type)
 				continue;		//already in correct state, so skip
 
@@ -194,7 +194,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 			switch (t.type)
 			{
 				case TT_OPEN_WALL:
-					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
+					if ((TmapInfo[segp->unique_segment::sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
 						ret |= 2;
 						const auto &&pos = compute_center_point_on_side(vcvertptr, segp, side);
 						digi_link_sound_to_pos( SOUND_FORCEFIELD_OFF, segp, side, pos, 0, F1_0 );
@@ -211,7 +211,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 					break;
 
 				case TT_CLOSE_WALL:
-					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
+					if ((TmapInfo[segp->unique_segment::sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
 						ret |= 2;
 						{
 						const auto &&pos = compute_center_point_on_side(vcvertptr, segp, side);
@@ -229,9 +229,9 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 					return 0;
 			}
 
-			LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, segp->sides[side].wall_num);
+			LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, segp->shared_segment::sides[side].wall_num);
 			if (wall1)
-				LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, csegp->sides[cside].wall_num);
+				LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, csegp->shared_segment::sides[cside].wall_num);
   	}
 	flush_fcd_cache();
 
@@ -521,7 +521,7 @@ window_event_result check_trigger(const vcsegptridx_t seg, short side, object &p
 			newdemo_record_trigger( seg, side, objnum,shot);
 #endif
 
-		const auto wall_num = seg->sides[side].wall_num;
+		const auto wall_num = seg->shared_segment::sides[side].wall_num;
 		if ( wall_num == wall_none ) return window_event_result::ignored;
 
 		const auto trigger_num = vmwallptr(wall_num)->trigger;
@@ -544,7 +544,7 @@ window_event_result check_trigger(const vcsegptridx_t seg, short side, object &p
 			auto cside = find_connect_side(seg, csegp);
 			Assert(cside != side_none);
 		
-			const auto cwall_num = csegp.sides[cside].wall_num;
+			const auto cwall_num = csegp.shared_segment::sides[cside].wall_num;
 			if (cwall_num == wall_none)
 				return window_event_result::ignored;
 			

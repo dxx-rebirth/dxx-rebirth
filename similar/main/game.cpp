@@ -1913,11 +1913,12 @@ void compute_slide_segs()
 	{
 		uint8_t slide_textures = 0;
 		for (int sidenum=0;sidenum<6;sidenum++) {
-			const auto &side = segp->sides[sidenum];
-			const auto &ti = TmapInfo[side.tmap_num];
+			const auto &sside = segp->shared_segment::sides[sidenum];
+			const auto &uside = segp->unique_segment::sides[sidenum];
+			const auto &ti = TmapInfo[uside.tmap_num];
 			if (!(ti.slide_u || ti.slide_v))
 				continue;
-			if (IS_CHILD(segp->children[sidenum]) && side.wall_num == wall_none)
+			if (IS_CHILD(segp->children[sidenum]) && sside.wall_num == wall_none)
 				/* If a wall exists, it could be visible at start or
 				 * become visible later, so always enable sliding for
 				 * walls.
@@ -1953,7 +1954,7 @@ static void slide_textures(void)
 			for (int sidenum=0;sidenum<6;sidenum++) {
 				if (slide_seg & (1 << sidenum))
 				{
-					auto &side = segp->sides[sidenum];
+					auto &side = segp->unique_segment::sides[sidenum];
 					const auto &ti = TmapInfo[side.tmap_num];
 					const auto tiu = ti.slide_u;
 					const auto tiv = ti.slide_v;
@@ -1986,7 +1987,7 @@ static void flicker_lights(d_flickering_light_state &fls, fvmsegptridx &vmsegptr
 		const auto &&segp = vmsegptridx(f.segnum);
 		const auto sidenum = f.sidenum;
 		{
-			auto &side = segp->sides[sidenum];
+			auto &side = segp->unique_segment::sides[sidenum];
 			if (!(TmapInfo[side.tmap_num].lighting || TmapInfo[side.tmap_num2 & 0x3fff].lighting))
 				continue;
 		}

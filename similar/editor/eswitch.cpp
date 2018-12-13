@@ -124,7 +124,7 @@ static int trigger_flag_Markedside(const TRIGGER_FLAG flag, const int value)
 	if (!IS_CHILD(Markedsegp->children[Markedside])) return 0;
 
 	// If no wall just return
-	auto wall_num = Markedsegp->sides[Markedside].wall_num;
+	const auto wall_num = Markedsegp->shared_segment::sides[Markedside].wall_num;
 	if (!value && wall_num == wall_none) return 0;
 	const auto trigger_num = value ? add_trigger(Triggers, vmwallptr, Markedsegp, Markedside) : vcwallptr(wall_num)->trigger;
 
@@ -149,7 +149,7 @@ static int bind_matcen_to_trigger() {
 		return 0;
 	}
 
-	auto wall_num = Markedsegp->sides[Markedside].wall_num;
+	const auto wall_num = Markedsegp->shared_segment::sides[Markedside].wall_num;
 	if (wall_num == wall_none) {
 		editor_status("No wall at Markedside.");
 		return 0;
@@ -192,7 +192,7 @@ int bind_wall_to_trigger() {
 		return 0;
 	}
 
-	auto wall_num = Markedsegp->sides[Markedside].wall_num;
+	const auto wall_num = Markedsegp->shared_segment::sides[Markedside].wall_num;
 	if (wall_num == wall_none) {
 		editor_status("No wall at Markedside.");
 		return 0;
@@ -203,7 +203,8 @@ int bind_wall_to_trigger() {
 		return 0;
 	}
 
-	if (Cursegp->sides[Curside].wall_num == wall_none) {
+	if (Cursegp->shared_segment::sides[Curside].wall_num == wall_none)
+	{
 		editor_status("No wall at Curside.");
 		return 0;
 	}
@@ -256,9 +257,9 @@ int remove_trigger_num(int trigger_num)
 	return 0;
 }
 
-int remove_trigger(const vmsegptr_t seg, short side)
+unsigned remove_trigger(shared_segment &seg, const unsigned side)
 {    	
-	const auto wall_num = seg->sides[side].wall_num;
+	const auto wall_num = seg.sides[side].wall_num;
 	if (wall_num == wall_none)
 	{
 		return 0;
@@ -380,7 +381,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	// If we change walls, we need to reset the ui code for all
 	// of the checkboxes that control the wall flags.  
 	//------------------------------------------------------------
-	const auto Markedwall = Markedsegp->sides[Markedside].wall_num;
+	const auto Markedwall = Markedsegp->shared_segment::sides[Markedside].wall_num;
 	const auto trigger_num = (Markedwall != wall_none) ? vcwallptr(Markedwall)->trigger : trigger_none;
 
 	if (t->old_trigger_num != trigger_num)
@@ -445,15 +446,21 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 		gr_set_current_canvas( t->wallViewBox->canvas );
 		auto &canvas = *grd_curcanv;
 
-		if (Markedsegp->sides[Markedside].wall_num == wall_none || vcwallptr(Markedsegp->sides[Markedside].wall_num)->trigger == trigger_none)
+		const auto wall_num = Markedsegp->shared_segment::sides[Markedside].wall_num;
+		if (wall_num == wall_none || vcwallptr(wall_num)->trigger == trigger_none)
 			gr_clear_canvas(canvas, CBLACK);
 		else {
-			if (Markedsegp->sides[Markedside].tmap_num2 > 0)  {
-				gr_ubitmap(canvas, texmerge_get_cached_bitmap( Markedsegp->sides[Markedside].tmap_num, Markedsegp->sides[Markedside].tmap_num2));
+			auto &us = Markedsegp->unique_segment::sides[Markedside];
+			if (us.tmap_num2 > 0) 
+			{
+				gr_ubitmap(canvas, texmerge_get_cached_bitmap(us.tmap_num, us.tmap_num2));
 			} else {
-				if (Markedsegp->sides[Markedside].tmap_num > 0)	{
-					PIGGY_PAGE_IN(Textures[Markedsegp->sides[Markedside].tmap_num]);
-					gr_ubitmap(canvas, GameBitmaps[Textures[Markedsegp->sides[Markedside].tmap_num].index]);
+				const auto tmap_num = us.tmap_num;
+				if (tmap_num > 0)
+				{
+					auto &t = Textures[tmap_num];
+					PIGGY_PAGE_IN(t);
+					gr_ubitmap(canvas, GameBitmaps[t.index]);
 				} else
 					gr_clear_canvas(canvas, CGREY);
 			}
@@ -466,7 +473,8 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	//------------------------------------------------------------
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
-		if ( Markedsegp->sides[Markedside].wall_num != wall_none )	{
+		if (Markedsegp->shared_segment::sides[Markedside].wall_num != wall_none)
+		{
 			ui_dprintf_at( MainWindow, 12, 6, "Trigger: %d    ", trigger_num);
 		}	else {
 			ui_dprintf_at( MainWindow, 12, 6, "Trigger: none ");

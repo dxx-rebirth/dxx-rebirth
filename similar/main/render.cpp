@@ -243,7 +243,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 #elif defined(DXX_BUILD_DESCENT_II)
 	//handle cloaked walls
 	if (wid_flags & WID_CLOAKED_FLAG) {
-		const auto wall_num = segp.sides[sidenum].wall_num;
+		const auto wall_num = segp.shared_segment::sides[sidenum].wall_num;
 		gr_settransblend(canvas, vcwallptr(wall_num)->cloak_value, GR_BLEND_NORMAL);
 		const uint8_t color = BM_XRGB(0, 0, 0);
 		// set to black (matters for s3)
@@ -479,21 +479,22 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 
 	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 	//	deal with it, get the dot product.
-	const auto sidep = &segp->sides[sidenum];
+	const auto &sside = segp->shared_segment::sides[sidenum];
 	const unsigned which_vertnum =
-		(sidep->get_type() == SIDE_IS_TRI_13)
+		(sside.get_type() == SIDE_IS_TRI_13)
 			? 1
 			: 0;
 	const auto tvec = vm_vec_normalized_quick(vm_vec_sub(Viewer_eye, vcvertptr(vertnum_list[which_vertnum])));
-	auto &normals = sidep->normals;
+	auto &normals = sside.normals;
 	const auto v_dot_n0 = vm_vec_dot(tvec, normals[0]);
 	//	========== Mark: Here is the change...beginning here: ==========
 
 	index_sequence<0, 1, 2, 3> is_quad;
-	if (sidep->get_type() == SIDE_IS_QUAD) {
+	const auto &uside = segp->unique_segment::sides[sidenum];
+	if (sside.get_type() == SIDE_IS_QUAD) {
 
 		if (v_dot_n0 >= 0) {
-			check_render_face(canvas, is_quad, segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+			check_render_face(canvas, is_quad, segp, sidenum, 0, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
 		}
 	} else {
 		//	========== Mark: The change ends here. ==========
@@ -521,31 +522,31 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 			if (n0_dot_n1 < Min_n0_n1_dot)
 				goto im_so_ashamed;
 
-			check_render_face(canvas, is_quad, segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+			check_render_face(canvas, is_quad, segp, sidenum, 0, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
 		} else {
 im_so_ashamed: ;
-			if (sidep->get_type() == SIDE_IS_TRI_02) {
+			if (sside.get_type() == SIDE_IS_TRI_02) {
 				if (v_dot_n0 >= 0) {
-					check_render_face(canvas, index_sequence<0, 1, 2>(), segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					check_render_face(canvas, index_sequence<0, 1, 2>(), segp, sidenum, 0, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
 				}
 
 				if (v_dot_n1 >= 0) {
 					// want to render from vertices 0, 2, 3 on side
-					check_render_face(canvas, index_sequence<0, 2, 3>(), segp, sidenum, 1, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					check_render_face(canvas, index_sequence<0, 2, 3>(), segp, sidenum, 1, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
 				}
-			} else if (sidep->get_type() ==  SIDE_IS_TRI_13) {
+			} else if (sside.get_type() ==  SIDE_IS_TRI_13) {
 				if (v_dot_n1 >= 0) {
 					// rendering 1,2,3, so just skip 0
-					check_render_face(canvas, index_sequence<1, 2, 3>(), segp, sidenum, 1, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					check_render_face(canvas, index_sequence<1, 2, 3>(), segp, sidenum, 1, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
 				}
 
 				if (v_dot_n0 >= 0) {
 					// want to render from vertices 0,1,3
-					check_render_face(canvas, index_sequence<0, 1, 3>(), segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					check_render_face(canvas, index_sequence<0, 1, 3>(), segp, sidenum, 0, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
 				}
 
 			} else
-				throw side::illegal_type(segp, *sidep);
+				throw side::illegal_type(segp, sside);
 		}
 	}
 
@@ -933,12 +934,12 @@ static int find_seg_side(const vcsegptr_t seg, const array<unsigned, 2> &verts, 
 }
 
 __attribute_warn_unused_result
-static bool compare_child(const vcsegptridx_t seg, const vcsegptridx_t cseg, const sidenum_fast_t edgeside)
+static bool compare_child(const vcsegptridx_t seg, const shared_segment &cseg, const sidenum_fast_t edgeside)
 {
-	const auto &cside = cseg->sides[edgeside];
+	const auto &cside = cseg.sides[edgeside];
 	const auto &sv = Side_to_verts[edgeside][cside.get_type() == SIDE_IS_TRI_13 ? 1 : 0];
 	const auto &temp = vm_vec_sub(Viewer_eye, vcvertptr(seg->verts[sv]));
-	const auto &cnormal = cseg->sides[edgeside].normals;
+	const auto &cnormal = cside.normals;
 	return vm_vec_dot(cnormal[0], temp) < 0 || vm_vec_dot(cnormal[1], temp) < 0;
 }
 
@@ -1576,7 +1577,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 #endif
 							)
 						{
-                                                        if (PlayerCfg.AlphaBlendEClips && is_alphablend_eclip(TmapInfo[seg->sides[sn].tmap_num].eclip_num)) // Do NOT render geometry with blending textures. Since we've not rendered any objects, yet, they would disappear behind them.
+							if (PlayerCfg.AlphaBlendEClips && is_alphablend_eclip(TmapInfo[seg->unique_segment::sides[sn].tmap_num].eclip_num)) // Do NOT render geometry with blending textures. Since we've not rendered any objects, yet, they would disappear behind them.
                                                                 continue;
 							glAlphaFunc(GL_GEQUAL,0.8); // prevent ugly outlines if an object (which is rendered later) is shown behind a grate, door, etc. if texture filtering is enabled. These sides are rendered later again with normal AlphaFunc
 							render_side(vcvertptr, canvas, seg, sn, wid, Viewer_eye);

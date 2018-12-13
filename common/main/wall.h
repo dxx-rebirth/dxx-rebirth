@@ -212,10 +212,6 @@ constexpr std::integral_constant<uint16_t, 0xffff> wclip_frames_none{};
 
 static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const shared_segment &sseg, const unique_segment &useg, const uint_fast32_t side)
 {
-	/* For now, useg is useless.  It will become useful when
-	 * shared_segment::sides splits into shared_side and unique_side.
-	 */
-	(void)useg;
 	const auto child = sseg.children[side];
 	if (unlikely(child == segment_none))
 		return WID_WALL;
@@ -224,7 +220,8 @@ static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &
 	auto &sside = sseg.sides[side];
 	if (likely(sside.wall_num == wall_none))
 		return WID_NO_WALL;
-	return wall_is_doorway(GameBitmaps, Textures, vcwallptr, sside, sside);
+	auto &uside = useg.sides[side];
+	return wall_is_doorway(GameBitmaps, Textures, vcwallptr, sside, uside);
 }
 }
 #endif

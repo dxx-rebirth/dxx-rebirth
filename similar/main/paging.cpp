@@ -260,10 +260,10 @@ static void paging_touch_side(const d_eclip_array &Effects, const Textures_array
 {
 	if (!(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) & WID_RENDER_FLAG))
 		return;
-	
-	const auto tmap1 = segp->sides[sidenum].tmap_num;
+	auto &uside = segp->unique_segment::sides[sidenum];
+	const auto tmap1 = uside.tmap_num;
 	paging_touch_wall_effects(Effects, Textures, Vclip, tmap1);
-	if (const auto tmap2 = segp->sides[sidenum].tmap_num2)
+	if (const auto tmap2 = uside.tmap_num2)
 	{
 		texmerge_get_cached_bitmap( tmap1, tmap2 );
 		paging_touch_wall_effects(Effects, Textures, Vclip, tmap2 & 0x3FFF);

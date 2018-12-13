@@ -588,7 +588,7 @@ int SetPlayerFromCursegMinusOne()
 	array<g3s_point, 4> corner_p;
 	fix max,view_dist=f1_0*10;
         static int edgenum=0;
-	const auto view_vec = vm_vec_negated(Cursegp->sides[Curside].normals[0]);
+	const auto view_vec = vm_vec_negated(Cursegp->shared_segment::sides[Curside].normals[0]);
 
 	const auto &&side_center = compute_center_point_on_side(vcvertptr, Cursegp, Curside);
 	const auto view_vec2 = vm_vec_copy_scale(view_vec,view_dist);
@@ -1330,7 +1330,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 					med_create_new_segment_from_cursegp();
 					editor_status("Texture assigned");
 				} else if (keyd_pressed[KEY_G])	{
-					tmap = Segments[seg].sides[side].tmap_num;
+					tmap = Segments[seg].unique_segment::sides[side].tmap_num;
 					texpage_grab_current(tmap);
 					editor_status( "Texture grabbed." );
 				} else if (keyd_pressed[ KEY_LAPOSTRO] ) {

@@ -255,7 +255,9 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 		old_Cursegp_num = Cursegp;
 		old_Curside = Curside;
 		gr_uprintf(canvas, *canvas.cv_font, 0, 48, "Cursegp/side: %3hu/%1d", static_cast<segnum_t>(Cursegp), Curside);
-		gr_uprintf(canvas, *canvas.cv_font, 0, 128, " tmap1,2,o: %3d/%3dx%1d", Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2 & 0x3FFF, (Cursegp->sides[Curside].tmap_num2 >> 14) & 3);
+		unique_segment &useg = *Cursegp;
+		auto &uside = useg.sides[Curside];
+		gr_uprintf(canvas, *canvas.cv_font, 0, 128, " tmap1,2,o: %3d/%3dx%1d", uside.tmap_num, uside.tmap_num2 & 0x3FFF, (uside.tmap_num2 >> 14) & 3);
 	}
 
 	//--------------- Current_vertex_numbers -------------

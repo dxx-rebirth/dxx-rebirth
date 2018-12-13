@@ -175,7 +175,7 @@ struct shared_segment
 	/* if DXX_BUILD_DESCENT_II */
 	uint8_t s2_flags;
 	/* endif */
-	array<side, MAX_SIDES_PER_SEGMENT>    sides;       // 6 sides
+	array<shared_side, MAX_SIDES_PER_SEGMENT> sides;
 };
 
 struct unique_segment
@@ -187,6 +187,7 @@ struct unique_segment
 	uint8_t slide_textures;
 	/* endif */
 	fix     static_light;
+	array<unique_side, MAX_SIDES_PER_SEGMENT> sides;
 };
 
 struct segment : unique_segment, shared_segment
