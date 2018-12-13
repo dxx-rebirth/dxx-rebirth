@@ -78,7 +78,7 @@ struct trigger_dialog
 // If there is a trigger already present, it returns the trigger number. (To be replaced)
 static trgnum_t add_trigger(trigger_array &Triggers, fvmwallptr &vmwallptr, const shared_segment &seg, const unsigned side)
 {
-	trgnum_t trigger_num = Num_triggers;
+	trgnum_t trigger_num = Triggers.get_count();
 
 	Assert(trigger_num < MAX_TRIGGERS);
 	if (trigger_num>=MAX_TRIGGERS) return trigger_none;
@@ -237,8 +237,8 @@ int remove_trigger_num(int trigger_num)
 {
 	if (trigger_num != trigger_none)
 	{
-		auto r = partial_range(Triggers, static_cast<unsigned>(trigger_num), Num_triggers);
-		Triggers.set_count(Num_triggers - 1);
+		auto r = partial_range(Triggers, static_cast<unsigned>(trigger_num), Triggers.get_count());
+		Triggers.set_count(Triggers.get_count() - 1);
 		std::move(std::next(r.begin()), r.end(), r.begin());
 	
 		range_for (const auto &&w, vmwallptr)

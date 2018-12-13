@@ -1099,7 +1099,7 @@ static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, 
 	range_for (const auto &&p, vmwallptr)
 	{
 		auto &w = *p;
-		if (w.trigger >= Num_triggers) {
+		if (w.trigger >= Triggers.get_count()) {
 			w.trigger = trigger_none;	//kill trigger
 		}
 	}
@@ -1108,7 +1108,7 @@ static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, 
 	//go through all triggers, killing unused ones
 	{
 		const auto &&wr = make_range(vmwallptr);
-	for (uint_fast32_t i = 0;i < Num_triggers;) {
+	for (uint_fast32_t i = 0;i < Triggers.get_count();) {
 		auto a = [i](const wall &w) { return w.trigger == i; };
 		//	Find which wall this trigger is connected to.
 		auto w = std::find_if(wr.begin(), wr.end(), a);
@@ -1589,7 +1589,7 @@ static int save_game_data(PHYSFS_File *SaveFile)
 	WRITE_HEADER_ENTRY(object, Highest_object_index + 1);
 	WRITE_HEADER_ENTRY(wall, Num_walls);
 	WRITE_HEADER_ENTRY(active_door, ActiveDoors.get_count());
-	WRITE_HEADER_ENTRY(trigger, Num_triggers);
+	WRITE_HEADER_ENTRY(trigger, Triggers.get_count());
 	WRITE_HEADER_ENTRY(0, 0);		// links (removed by Parallax)
 	WRITE_HEADER_ENTRY(control_center_triggers, 1);
 	WRITE_HEADER_ENTRY(matcen_info, Num_robot_centers);

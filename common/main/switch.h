@@ -172,8 +172,6 @@ DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(trigger, trg, Triggers);
 
 constexpr std::integral_constant<uint8_t, 0xff> trigger_none{};
 
-#define Num_triggers	Triggers.get_count()
-
 extern void trigger_init();
 namespace dsx {
 window_event_result check_trigger(vcsegptridx_t seg, short side, object &plrobj, vcobjptridx_t objnum, int shot);

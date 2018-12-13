@@ -2266,7 +2266,7 @@ static void multi_do_trigger(const playernum_t pnum, const ubyte *buf)
 		Int3(); // Got trigger from illegal playernum
 		return;
 	}
-	if ((trigger < 0) || (trigger >= Num_triggers))
+	if ((trigger < 0) || (trigger >= Triggers.get_count()))
 	{
 		Int3(); // Illegal trigger number in multiplayer
 		return;

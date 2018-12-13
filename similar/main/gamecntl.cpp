@@ -1078,7 +1078,7 @@ static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptri
 
 	do_controlcen_destroyed_stuff(object_none);
 
-	for (trgnum_t i = 0; i < Num_triggers; i++)
+	for (trgnum_t i = 0; i < Triggers.get_count(); i++)
 	{
 		const auto &&t = vctrgptr(i);
 		if (trigger_is_exit(t))

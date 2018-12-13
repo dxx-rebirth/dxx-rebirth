@@ -532,7 +532,7 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 			w.segnum, w.sidenum, w.linked_wall, Wall_names[w.type], w.flags, w.hps >> 16, w.trigger, w.clip_num, w.keys, w.state);
 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (w.trigger >= Num_triggers)
+		if (w.trigger >= Triggers.get_count())
 			PHYSFSX_printf(my_file, "Wall %03d points to invalid trigger %d\n",i,w.trigger);
 #endif
 
@@ -653,7 +653,7 @@ void write_game_text_file(const char *filename)
 	PHYSFSX_printf(my_file, "Number of objects:    %4i\n", Highest_object_index+1);
 	PHYSFSX_printf(my_file, "Number of walls:      %4i\n", Num_walls);
 	PHYSFSX_printf(my_file, "Number of open doors: %4i\n", ActiveDoors.get_count());
-	PHYSFSX_printf(my_file, "Number of triggers:   %4i\n", Num_triggers);
+	PHYSFSX_printf(my_file, "Number of triggers:   %4i\n", Triggers.get_count());
 	PHYSFSX_printf(my_file, "Number of matcens:    %4i\n", Num_robot_centers);
 	PHYSFSX_printf(my_file, "\n");
 

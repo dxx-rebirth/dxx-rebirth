@@ -987,11 +987,11 @@ int check_walls()
 	};
 	unsigned trigger_count = std::count_if(used_walls.begin(), used_walls.end(), predicate);
 
-	if (trigger_count != Num_triggers) {
+	if (trigger_count != Triggers.get_count()) {
 		if (ui_messagebox(-2, -2, 2, "Num_triggers is bogus\nDo you wish to correct it?\n", "Yes", "No") == 1)
 		{
 			Triggers.set_count(trigger_count);
-			editor_status_fmt("Num_triggers set to %d\n", Num_triggers);
+			editor_status_fmt("Num_triggers set to %d\n", Triggers.get_count());
 		}
 	}
 
@@ -1037,18 +1037,6 @@ static void copy_old_wall_data_to_new(wallnum_t owall, wallnum_t nwall)
 		editor_status("Warning: Trigger not copied in group copy.");
 	}
 }
-
-//typedef struct trigger {
-//	sbyte		type;
-//	short		flags;
-//	fix		value;
-//	fix		time;
-//	sbyte		link_num;
-//	short 	num_links;
-//	short 	seg[MAX_WALLS_PER_LINK];
-//	short		side[MAX_WALLS_PER_LINK];
-//	} trigger;
-
 
 // ------------------------------------------------------------------------------------------------
 void copy_group_walls(int old_group, int new_group)

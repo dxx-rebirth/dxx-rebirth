@@ -372,7 +372,6 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	newseg_verts_offset = newsegment_offset + sizeof(segment);
 	walls_offset = newseg_verts_offset + (sizeof(vms_vector)*8);
 	triggers_offset =	walls_offset + (sizeof(wall)*Num_walls);
-// 	doors_offset = triggers_offset + (sizeof(trigger)*Num_triggers);
 
 	//===================== SAVE FILE INFO ========================
 
@@ -399,7 +398,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	mine_fileinfo.walls_howmany	  =	Num_walls;
 	mine_fileinfo.walls_sizeof		  =	sizeof(wall);  
 	mine_fileinfo.triggers_offset	  =	triggers_offset;
-	mine_fileinfo.triggers_howmany  =	Num_triggers;
+	mine_fileinfo.triggers_howmany  =	Triggers.get_count();
 	mine_fileinfo.triggers_sizeof	  =	sizeof(trigger);  
 
 	// Write the fileinfo
