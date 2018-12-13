@@ -94,13 +94,13 @@ static window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &eve
 // Add a wall (removable 2 sided)
 static int add_wall(const vmsegptridx_t seg, short side)
 {
-	if (Num_walls < MAX_WALLS-2)
+	if (Walls.get_count() < MAX_WALLS-2)
   	if (IS_CHILD(seg->children[side])) {
 		shared_segment &sseg = seg;
 		auto &side0 = sseg.sides[side];
 		if (side0.wall_num == wall_none) {
- 			side0.wall_num = Num_walls;
-			Walls.set_count(Num_walls + 1);
+ 			side0.wall_num = Walls.get_count();
+			Walls.set_count(Walls.get_count() + 1);
 			}
 				 
 		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
@@ -109,8 +109,8 @@ static int add_wall(const vmsegptridx_t seg, short side)
 		shared_segment &scseg = csegp;
 		auto &side1 = scseg.sides[Connectside];
 		if (side1.wall_num == wall_none) {
-			side1.wall_num = Num_walls;
-			Walls.set_count(Num_walls + 1);
+			side1.wall_num = Walls.get_count();
+			Walls.set_count(Walls.get_count() + 1);
 			}
 		
 		create_removable_wall( seg, side, CurrentTexture );
@@ -207,12 +207,12 @@ static int GotoPrevWall() {
 	shared_segment &sseg = Cursegp;
 	auto &side = sseg.sides[Curside];
 	if (side.wall_num == wall_none)
-		current_wall = Num_walls;
+		current_wall = Walls.get_count();
 	else
 		current_wall = side.wall_num;
 
 	current_wall--;
-	if (current_wall >= Num_walls) current_wall = Num_walls-1;
+	if (current_wall >= Walls.get_count()) current_wall = Walls.get_count()-1;
 
 	auto &w = *vcwallptr(current_wall);
 	if (w.segnum == segment_none)
@@ -239,7 +239,7 @@ static int GotoNextWall() {
 
 	current_wall++;
 
-	if (current_wall >= Num_walls) current_wall = 0;
+	if (current_wall >= Walls.get_count()) current_wall = 0;
 
 	auto &w = *vcwallptr(current_wall);
 	if (w.segnum == segment_none)
@@ -669,7 +669,7 @@ int wall_remove_side(const vmsegptridx_t seg, short side)
 		}
 
 		{
-			const auto num_walls = Num_walls;
+			const auto num_walls = Walls.get_count();
 			auto &&sr = partial_const_range(Walls, static_cast<wallnum_t>(lower_wallnum + 2), num_walls);
 			std::move(sr.begin(), sr.end(), partial_range(Walls, lower_wallnum, num_walls - 2).begin());
 			Walls.set_count(num_walls - 2);
@@ -959,16 +959,16 @@ int check_walls()
 		}
 	}
 
-	if (wall_count != Num_walls) {
+	if (wall_count != Walls.get_count()) {
 		if (ui_messagebox(-2, -2, 2, "Num_walls is bogus\nDo you wish to correct it?\n", "Yes", "No") == 1)
 		{
 			Walls.set_count(wall_count);
-			editor_status_fmt("Num_walls set to %d\n", Num_walls);
+			editor_status_fmt("Num_walls set to %d\n", Walls.get_count());
 		}
 	}
 
 	// Check validity of Walls array.
-	range_for (auto &cw, partial_const_range(CountedWalls, Num_walls))
+	range_for (auto &cw, partial_const_range(CountedWalls, Walls.get_count()))
 	{
 		auto &w = *vmwallptr(cw.wallnum);
 		if (w.segnum != cw.segnum || w.sidenum != cw.sidenum)
@@ -1050,13 +1050,13 @@ void copy_group_walls(int old_group, int new_group)
 		auto &ns = vmsegptr(new_seg)->shared_segment::sides;
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 			if (os[j].wall_num != wall_none) {
-				ns[j].wall_num = Num_walls;
-				copy_old_wall_data_to_new(os[j].wall_num, Num_walls);
-				auto &w = *vmwallptr(static_cast<wallnum_t>(Num_walls));
+				ns[j].wall_num = Walls.get_count();
+				copy_old_wall_data_to_new(os[j].wall_num, Walls.get_count());
+				auto &w = *vmwallptr(static_cast<wallnum_t>(Walls.get_count()));
 				w.segnum = new_seg;
 				w.sidenum = j;
-				Walls.set_count(Num_walls + 1);
-				Assert(Num_walls < MAX_WALLS);
+				Walls.set_count(Walls.get_count() + 1);
+				Assert(Walls.get_count() < MAX_WALLS);
 			}
 		}
 	}

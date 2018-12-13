@@ -1587,7 +1587,7 @@ static int save_game_data(PHYSFS_File *SaveFile)
 #define WRITE_HEADER_ENTRY(t, n) do { PHYSFS_writeSLE32(SaveFile, -1); PHYSFS_writeSLE32(SaveFile, n); PHYSFS_writeSLE32(SaveFile, sizeof(t)); } while(0)
 
 	WRITE_HEADER_ENTRY(object, Highest_object_index + 1);
-	WRITE_HEADER_ENTRY(wall, Num_walls);
+	WRITE_HEADER_ENTRY(wall, Walls.get_count());
 	WRITE_HEADER_ENTRY(active_door, ActiveDoors.get_count());
 	WRITE_HEADER_ENTRY(trigger, Triggers.get_count());
 	WRITE_HEADER_ENTRY(0, 0);		// links (removed by Parallax)

@@ -2344,7 +2344,7 @@ static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, fvmwallptr &
 	hps = GET_INTEL_INT(buf + count);           count += 4;
 
 	auto &w = *vmwallptr(wallnum);
-	if (wallnum >= Num_walls || hps < 0 || w.type != WALL_BLASTABLE)
+	if (wallnum >= Walls.get_count() || hps < 0 || w.type != WALL_BLASTABLE)
 	{
 		Int3(); // Non-terminal, see Rob
 		return;

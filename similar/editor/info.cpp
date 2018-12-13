@@ -273,10 +273,9 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 
 	//--------------- Num walls/links/triggers -------------------------
 
-	if ( old_Num_walls != Num_walls ) {
-//		gr_uprintf(*grd_curcanv, 0, 96, "Walls/Links %d/%d", Num_walls, Num_links );
-		old_Num_walls = Num_walls;
-		gr_uprintf(canvas, *canvas.cv_font, 0, 96, "Walls %3d", Num_walls);
+	if ( old_Num_walls != Walls.get_count() ) {
+		old_Num_walls = Walls.get_count();
+		gr_uprintf(canvas, *canvas.cv_font, 0, 96, "Walls %3d", Walls.get_count());
 	}
 
 	//--------------- Num triggers ----------------------

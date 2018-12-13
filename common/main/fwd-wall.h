@@ -201,7 +201,6 @@ constexpr valptridx<wall>::magic_constant<0xffff> wall_none{};
 
 namespace dcx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(active_door, actdoor);
-#define Num_walls Walls.get_count()
 extern unsigned Num_wall_anims;
 }
 #endif

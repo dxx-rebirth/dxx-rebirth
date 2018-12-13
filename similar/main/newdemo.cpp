@@ -1571,7 +1571,7 @@ void newdemo_set_new_level(int level_num)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (nd_record_v_juststarted==1)
 	{
-		nd_write_int(Num_walls);
+		nd_write_int(Walls.get_count());
 		range_for (const auto &&wp, vcwallptr)
 		{
 			auto &w = *wp;
@@ -3186,7 +3186,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_read_int (&num_walls);
 				Walls.set_count(num_walls);
 				if (rewrite)
-					nd_write_int (Num_walls);
+					nd_write_int (Walls.get_count());
 				range_for (const auto &&wp, vmwallptr)
 				// restore the walls
 				{

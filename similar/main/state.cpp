@@ -1101,7 +1101,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	
 //Save wall info
 	{
-		const int i = Num_walls;
+		const int i = Walls.get_count();
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	}
 	range_for (const auto &&w, vcwallptr)
