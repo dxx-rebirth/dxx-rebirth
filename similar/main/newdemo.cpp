@@ -2367,7 +2367,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				wall_toggle(vmsegptridx(segnum), side);
+				wall_toggle(vmwallptr, vmsegptridx(segnum), side);
 		}
 			break;
 

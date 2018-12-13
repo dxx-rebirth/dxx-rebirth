@@ -228,11 +228,11 @@ void wall_damage(vmsegptridx_t seg, unsigned side, fix damage);
 // Destroys a blastable wall. (So it is an opening afterwards)
 void wall_destroy(vmsegptridx_t seg, unsigned side);
 
-void wall_illusion_on(vmsegptridx_t seg, int side);
-void wall_illusion_off(vmsegptridx_t seg, int side);
-
 #ifdef dsx
 namespace dsx {
+
+void wall_illusion_on(fvmwallptr &, vcsegptridx_t seg, unsigned side);
+void wall_illusion_off(fvmwallptr &, vcsegptridx_t seg, unsigned side);
 
 // Opens a door
 void wall_open_door(vmsegptridx_t seg, int side);
@@ -240,7 +240,7 @@ void wall_open_door(vmsegptridx_t seg, int side);
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
 // Closes a door
-void wall_close_door(vmsegptridx_t seg, unsigned side);
+void wall_close_door(fvmwallptr &vmwallptr, vmsegptridx_t seg, unsigned side);
 #endif
 }
 #endif
@@ -264,7 +264,7 @@ wall_hit_process_t wall_hit_process(player_flags, vmsegptridx_t seg, int side, f
 // Opens/destroys specified door.
 }
 #endif
-void wall_toggle(vmsegptridx_t segnum, unsigned side);
+void wall_toggle(fvmwallptr &vmwallptr, vmsegptridx_t segnum, unsigned side);
 
 // Called once per frame..
 #ifdef dsx

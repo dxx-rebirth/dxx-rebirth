@@ -82,7 +82,10 @@ static inline void trigger_wall_op(const trigger &t, T1 &segment_factory, const 
 // Opens doors, Blasts blast walls, turns off illusions.
 static void do_link(const trigger &t)
 {
-	trigger_wall_op(t, vmsegptridx, wall_toggle);
+	const auto &&op = [](const vmsegptridx_t segnum, const unsigned sidenum) {
+		wall_toggle(vmwallptr, segnum, sidenum);
+	};
+	trigger_wall_op(t, vmsegptridx, op);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -90,7 +93,10 @@ namespace dsx {
 //close a door
 static void do_close_door(const trigger &t)
 {
-	trigger_wall_op(t, vmsegptridx, wall_close_door);
+	const auto &&op = [](const vmsegptridx_t segnum, const unsigned sidenum) {
+		wall_close_door(vmwallptr, segnum, sidenum);
+	};
+	trigger_wall_op(t, vmsegptridx, op);
 }
 
 //turns lighting on.  returns true if lights were actually turned on. (they
@@ -136,7 +142,7 @@ static void do_unlock_doors(const trigger &t)
 		w.flags &= ~WALL_DOOR_LOCKED;
 		w.keys = KEY_NONE;
 	};
-	trigger_wall_op(t, vmsegptr, op);
+	trigger_wall_op(t, vcsegptr, op);
 }
 
 // Locks all doors linked to the switch.
@@ -147,7 +153,7 @@ static void do_lock_doors(const trigger &t)
 		auto &w = *vmwallptr(wall_num);
 		w.flags |= WALL_DOOR_LOCKED;
 	};
-	trigger_wall_op(t, vmsegptr, op);
+	trigger_wall_op(t, vcsegptr, op);
 }
 
 // Changes walls pointed to by a trigger. returns true if any walls changed
@@ -259,22 +265,23 @@ static void do_matcen(const trigger &t)
 
 static void do_il_on(const trigger &t)
 {
-	trigger_wall_op(t, vmsegptridx, wall_illusion_on);
+	const auto &&op = [](const vcsegptridx_t seg, const unsigned side) {
+		wall_illusion_on(vmwallptr, seg, side);
+	};
+	trigger_wall_op(t, vcsegptridx, op);
 }
 
 namespace dsx {
 static void do_il_off(const trigger &t)
 {
-#if defined(DXX_BUILD_DESCENT_I)
-	auto &op = wall_illusion_off;
-#elif defined(DXX_BUILD_DESCENT_II)
-	const auto op = [](const vmsegptridx_t &seg, unsigned side) {
-		wall_illusion_off(seg, side);
+	const auto &&op = [](const vcsegptridx_t seg, const unsigned side) {
+		wall_illusion_off(vmwallptr, seg, side);
+#if defined(DXX_BUILD_DESCENT_II)
 		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
 		digi_link_sound_to_pos(SOUND_WALL_REMOVED, seg, side, cp, 0, F1_0);
-	};
 #endif
-	trigger_wall_op(t, vmsegptridx, op);
+	};
+	trigger_wall_op(t, vcsegptridx, op);
 }
 
 // Slight variation on window_event_result meaning

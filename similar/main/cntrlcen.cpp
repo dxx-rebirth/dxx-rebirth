@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "state.h"
 #include "args.h"
+#include "wall.h"
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
@@ -279,7 +280,7 @@ void do_controlcen_destroyed_stuff(const imobjptridx_t objp)
 
 	// Must toggle walls whether it is a boss or control center.
 	for (i=0;i<ControlCenterTriggers.num_links;i++)
-		wall_toggle(vmsegptridx(ControlCenterTriggers.seg[i]), ControlCenterTriggers.side[i]);
+		wall_toggle(vmwallptr, vmsegptridx(ControlCenterTriggers.seg[i]), ControlCenterTriggers.side[i]);
 
 	// And start the countdown stuff.
 	Control_center_destroyed = 1;

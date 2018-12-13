@@ -683,7 +683,7 @@ static unsigned is_door_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegpt
 #if defined(DXX_BUILD_DESCENT_II)
 //-----------------------------------------------------------------
 // Closes a door
-void wall_close_door(const vmsegptridx_t seg, const unsigned side)
+void wall_close_door(fvmwallptr &vmwallptr, const vmsegptridx_t seg, const unsigned side)
 {
 	active_door *d;
 
@@ -922,46 +922,58 @@ static bool do_door_close(active_door &d)
 	}
 	return remove;
 }
-}
 
-template <typename F>
-static void wall_illusion_op(const vmsegptridx_t seg, unsigned side, F op)
+static std::pair<wall *, wall *> wall_illusion_op(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const unsigned side)
 {
 	const auto wall0 = seg->shared_segment::sides[side].wall_num;
 	if (wall0 == wall_none)
-		return;
-	const shared_segment &csegp = *vcsegptr(seg->children[side]);
+		return {nullptr, nullptr};
+	const shared_segment &csegp = *seg.absolute_sibling(seg->children[side]);
 	const auto &&cside = find_connect_side(seg, csegp);
 	if (cside == side_none)
 	{
 		assert(cside != side_none);
-		return;
+		return {nullptr, nullptr};
 	}
 	const auto wall1 = csegp.sides[cside].wall_num;
-	op(wall0);
-	op(wall1);
+	if (wall1 == wall_none)
+		return {nullptr, nullptr};
+	return {vmwallptr(wall0), vmwallptr(wall1)};
+}
+
+template <typename F>
+static void wall_illusion_op(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const unsigned side, const F op)
+{
+	const auto &&r = wall_illusion_op(vmwallptr, seg, side);
+	if (r.first)
+	{
+		op(*r.first);
+		op(*r.second);
+	}
 }
 
 //-----------------------------------------------------------------
 // Turns off an illusionary wall (This will be used primarily for
 //  wall switches or triggers that can turn on/off illusionary walls.)
-void wall_illusion_off(const vmsegptridx_t seg, int side)
+void wall_illusion_off(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const unsigned side)
 {
-	const auto op = [](const wallnum_t wall_num) {
-		vmwallptr(wall_num)->flags |= WALL_ILLUSION_OFF;
+	const auto &&op = [](wall &w) {
+		w.flags |= WALL_ILLUSION_OFF;
 	};
-	wall_illusion_op(seg, side, op);
+	wall_illusion_op(vmwallptr, seg, side, op);
 }
 
 //-----------------------------------------------------------------
 // Turns on an illusionary wall (This will be used primarily for
 //  wall switches or triggers that can turn on/off illusionary walls.)
-void wall_illusion_on(const vmsegptridx_t seg, int side)
+void wall_illusion_on(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const unsigned side)
 {
-	const auto op = [](const wallnum_t wall_num) {
-		vmwallptr(wall_num)->flags &= ~WALL_ILLUSION_OFF;
+	const auto &&op = [](wall &w) {
+		w.flags &= ~WALL_ILLUSION_OFF;
 	};
-	wall_illusion_op(seg, side, op);
+	wall_illusion_op(vmwallptr, seg, side, op);
+}
+
 }
 
 //	-----------------------------------------------------------------------------
@@ -1076,7 +1088,7 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 
 //-----------------------------------------------------------------
 // Opens doors/destroys wall/shuts off triggers.
-void wall_toggle(const vmsegptridx_t segp, unsigned side)
+void wall_toggle(fvmwallptr &vmwallptr, const vmsegptridx_t segp, const unsigned side)
 {
 	if (side >= MAX_SIDES_PER_SEGMENT)
 	{
