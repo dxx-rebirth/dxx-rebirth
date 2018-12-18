@@ -101,7 +101,7 @@ static bool have_segment_header(const MVEFILE *movie)
 	if (movie->next_segment >= movie->cur_chunk.size())
 		return false;
 	/* if we don't have enough data to get a segment, fail */
-	if (movie->cur_chunk.size() - movie->next_segment < 4)
+	if (movie->cur_chunk.size() - movie->next_segment <= 4)
 		return false;
 	return true;
 }
