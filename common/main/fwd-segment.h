@@ -145,10 +145,9 @@ constexpr std::integral_constant<std::size_t, 32000> MAX_DELTA_LIGHTS{}; // Orig
 
 constexpr std::integral_constant<fix, 2048> DL_SCALE{};    // Divide light to allow 3 bits integer, 5 bits fraction.
 
-extern array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
+using d_delta_light_array = array<delta_light, MAX_DELTA_LIGHTS>;
+extern d_delta_light_array Delta_lights;
 
-int subtract_light(vmsegptridx_t segnum, sidenum_fast_t sidenum);
-int add_light(vmsegptridx_t segnum, sidenum_fast_t sidenum);
 void clear_light_subtracted();
 
 void segment2_write(vcsegptr_t s2, PHYSFS_File *fp);
@@ -164,6 +163,8 @@ using dlindexnum_t = uint16_t;
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, dl_index, dlindexnum_t, 500);
 namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(dl_index, dlindex);
+int subtract_light(const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices, vmsegptridx_t segnum, sidenum_fast_t sidenum);
+int add_light(const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices, vmsegptridx_t segnum, sidenum_fast_t sidenum);
 }
 #endif
 

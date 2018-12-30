@@ -301,16 +301,32 @@ void do_replacements_all(void)
 {
 	for (int i = 0; i < Last_level; i++)
 	{
-		load_level(Level_names[i]);
+		load_level(
+#if defined(DXX_BUILD_DESCENT_II)
+			Delta_lights, Dl_indices,
+#endif
+			Level_names[i]);
 		do_replacements();
-		save_level(Level_names[i]);
+		save_level(
+#if defined(DXX_BUILD_DESCENT_II)
+			Delta_lights, Dl_indices,
+#endif
+			Level_names[i]);
 	}
 
 	for (int i = 0; i < -Last_secret_level; i++)
 	{
-		load_level(Secret_level_names[i]);
+		load_level(
+#if defined(DXX_BUILD_DESCENT_II)
+			Delta_lights, Dl_indices,
+#endif
+			Secret_level_names[i]);
 		do_replacements();
-		save_level(Secret_level_names[i]);
+		save_level(
+#if defined(DXX_BUILD_DESCENT_II)
+			Delta_lights, Dl_indices,
+#endif
+			Secret_level_names[i]);
 	}
 
 }

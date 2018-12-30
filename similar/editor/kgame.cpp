@@ -117,7 +117,11 @@ int SaveGameData()
 			else
 				Perm_player_segnum=segment_none;		//position was bogus
 		}
-      saved_flag=save_level(game_filename);
+		saved_flag = save_level(
+#if defined(DXX_BUILD_DESCENT_II)
+			Delta_lights, Dl_indices,
+#endif
+			game_filename);
 		if (Perm_player_segnum!=segment_none) {
 
 			if (save_segnum > Highest_segment_index)
@@ -150,7 +154,11 @@ if (SafetyCheck())  {
 	if (ui_get_filename( game_filename, "*." DXX_LEVEL_FILE_EXTENSION, "Load Level" ))
 		{
 		checkforgamext(game_filename);
-		if (load_level(game_filename))
+		if (load_level(
+#if defined(DXX_BUILD_DESCENT_II)
+				Delta_lights, Dl_indices,
+#endif
+				game_filename))
 			return 0;
 		Current_level_num = 1;			// assume level 1
 		gamestate = editor_gamestate::none;

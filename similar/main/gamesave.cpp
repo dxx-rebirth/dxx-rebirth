@@ -826,7 +826,11 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 	}
 }
 
-static int load_game_data(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, PHYSFS_File *LoadFile)
+static int load_game_data(
+#if defined(DXX_BUILD_DESCENT_II)
+	d_delta_light_array &Delta_lights, dl_index_array &Dl_indices,
+#endif
+	fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, PHYSFS_File *LoadFile)
 {
 	const auto &vcsegptridx = vmsegptridx;
 	short game_top_fileinfo_version;
@@ -1215,7 +1219,11 @@ int no_old_level_file_error=0;
 //loads a level (.LVL) file from disk
 //returns 0 if success, else error code
 namespace dsx {
-int load_level(const char * filename_passed)
+int load_level(
+#if defined(DXX_BUILD_DESCENT_II)
+	d_delta_light_array &Delta_lights, dl_index_array &Dl_indices,
+#endif
+	const char * filename_passed)
 {
 #if DXX_USE_EDITOR
 	int use_compiled_level=1;
@@ -1399,7 +1407,11 @@ int load_level(const char * filename_passed)
 	}
 
 	PHYSFSX_fseek(LoadFile,gamedata_offset,SEEK_SET);
-	game_err = load_game_data(vmobjptridx, vmsegptridx, LoadFile);
+	game_err = load_game_data(
+#if defined(DXX_BUILD_DESCENT_II)
+		Delta_lights, Dl_indices,
+#endif
+		vmobjptridx, vmsegptridx, LoadFile);
 
 	if (game_err == -1) {   //error!!
 		return 3;
@@ -1548,12 +1560,13 @@ int create_new_mine(void)
 
 int	Errors_in_mine;
 
+namespace dsx {
 // -----------------------------------------------------------------------------
 #if defined(DXX_BUILD_DESCENT_II)
-static int compute_num_delta_light_records(void)
+static unsigned compute_num_delta_light_records(fvcdlindexptr &vcdlindexptr)
 {
-	int	total = 0;
-	range_for (const auto &&i, Dl_indices.vcptr)
+	unsigned total = 0;
+	range_for (const auto &&i, vcdlindexptr)
 		total += i->count;
 	return total;
 
@@ -1562,8 +1575,11 @@ static int compute_num_delta_light_records(void)
 
 // -----------------------------------------------------------------------------
 // Save game
-namespace dsx {
-static int save_game_data(PHYSFS_File *SaveFile)
+static int save_game_data(
+#if defined(DXX_BUILD_DESCENT_II)
+	const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices,
+#endif
+	PHYSFS_File *SaveFile)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : GAME_VERSION;
@@ -1600,7 +1616,7 @@ static int save_game_data(PHYSFS_File *SaveFile)
 	{
 		const unsigned Num_static_lights = Dl_indices.get_count();
 		WRITE_HEADER_ENTRY(dl_index, Num_static_lights);
-		WRITE_HEADER_ENTRY(delta_light, num_delta_lights = compute_num_delta_light_records());
+		WRITE_HEADER_ENTRY(delta_light, num_delta_lights = compute_num_delta_light_records(Dl_indices.vcptr));
 	}
 
 	// Write the mine name
@@ -1705,12 +1721,14 @@ static int save_game_data(PHYSFS_File *SaveFile)
 
 	return 0;
 }
-}
 
 // -----------------------------------------------------------------------------
 // Save game
-namespace dsx {
-static int save_level_sub(fvmobjptridx &vmobjptridx, const char * filename)
+static int save_level_sub(
+#if defined(DXX_BUILD_DESCENT_II)
+	const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices,
+#endif
+	fvmobjptridx &vmobjptridx, const char *const filename)
 {
 	char temp_filename[PATH_MAX];
 	int minedata_offset=0,gamedata_offset=0;
@@ -1829,7 +1847,11 @@ static int save_level_sub(fvmobjptridx &vmobjptridx, const char * filename)
 #endif
 		save_mine_data_compiled(SaveFile);
 	gamedata_offset = PHYSFS_tell(SaveFile);
-	save_game_data(SaveFile);
+	save_game_data(
+#if defined(DXX_BUILD_DESCENT_II)
+		Delta_lights, Dl_indices,
+#endif
+		SaveFile);
 #if defined(DXX_BUILD_DESCENT_I)
 	hostagetext_offset = PHYSFS_tell(SaveFile);
 #endif
@@ -1855,9 +1877,12 @@ static int save_level_sub(fvmobjptridx &vmobjptridx, const char * filename)
 	return 0;
 
 }
-}
 
-int save_level(const char * filename)
+int save_level(
+#if defined(DXX_BUILD_DESCENT_II)
+	const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices,
+#endif
+	const char * filename)
 {
 	int r1;
 
@@ -1865,9 +1890,14 @@ int save_level(const char * filename)
 	//save_level_sub(filename, 0);	// just save compiled one
 
 	// Save compiled version...
-	r1 = save_level_sub(vmobjptridx, filename);
+	r1 = save_level_sub(
+#if defined(DXX_BUILD_DESCENT_II)
+		Delta_lights, Dl_indices,
+#endif
+		vmobjptridx, filename);
 
 	return r1;
+}
 }
 
 #endif	//EDITOR

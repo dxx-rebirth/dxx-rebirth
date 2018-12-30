@@ -127,17 +127,6 @@ static void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &r, const a
 	vm_vec_copy_scale(r, vp, F1_0 / 8);
 }
 
-}
-
-namespace dsx {
-#if defined(DXX_BUILD_DESCENT_II)
-array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
-#endif
-
-}
-
-namespace dcx {
-
 // ------------------------------------------------------------------------------------------
 // Compute the center point of a side of a segment.
 //	The center point is defined to be the average of the 4 points defining the side.
@@ -1689,7 +1678,7 @@ static void change_segment_light(const vmsegptridx_t segp,int sidenum,int dir)
 //	dir = -1 -> subtract light
 //	dir = 17 -> add 17x light
 //	dir =  0 -> you are dumb
-static void change_light(const vmsegptridx_t segnum, const uint8_t sidenum, const int dir)
+static void change_light(const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices, const vmsegptridx_t segnum, const uint8_t sidenum, const int dir)
 {
 	const fix ds = dir * DL_SCALE;
 	const auto &&pr = cast_range_result<const dl_index &>(Dl_indices.vcptr);
@@ -1718,14 +1707,14 @@ static void change_light(const vmsegptridx_t segnum, const uint8_t sidenum, cons
 //	Subtract light cast by a light source from all surfaces to which it applies light.
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 // returns 1 if lights actually subtracted, else 0
-int subtract_light(const vmsegptridx_t segnum, sidenum_fast_t sidenum)
+int subtract_light(const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices, const vmsegptridx_t segnum, const sidenum_fast_t sidenum)
 {
 	if (segnum->light_subtracted & (1 << sidenum)) {
 		return 0;
 	}
 
 	segnum->light_subtracted |= (1 << sidenum);
-	change_light(segnum, sidenum, -1);
+	change_light(Delta_lights, Dl_indices, segnum, sidenum, -1);
 	return 1;
 }
 
@@ -1733,57 +1722,27 @@ int subtract_light(const vmsegptridx_t segnum, sidenum_fast_t sidenum)
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 //	You probably only want to call this after light has been subtracted.
 // returns 1 if lights actually added, else 0
-int add_light(const vmsegptridx_t segnum, sidenum_fast_t sidenum)
+int add_light(const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices, const vmsegptridx_t segnum, sidenum_fast_t sidenum)
 {
 	if (!(segnum->light_subtracted & (1 << sidenum))) {
 		return 0;
 	}
 
 	segnum->light_subtracted &= ~(1 << sidenum);
-	change_light(segnum, sidenum, 1);
+	change_light(Delta_lights, Dl_indices, segnum, sidenum, 1);
 	return 1;
 }
 
 //	Parse the Light_subtracted array, turning on or off all lights.
-void apply_all_changed_light(void)
+void apply_all_changed_light(const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices, fvmsegptridx &vmsegptridx)
 {
 	range_for (const auto &&segp, vmsegptridx)
 	{
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (segp->light_subtracted & (1 << j))
-				change_light(segp, j, -1);
+				change_light(Delta_lights, Dl_indices, segp, j, -1);
 	}
 }
-
-//@@//	Scans Light_subtracted bit array.
-//@@//	For all light sources which have had their light subtracted, adds light back in.
-//@@void restore_all_lights_in_mine(void)
-//@@{
-//@@	int	i, j, k;
-//@@
-//@@	for (i=0; i<Num_static_lights; i++) {
-//@@		int	segnum, sidenum;
-//@@		delta_light	*dlp;
-//@@
-//@@		segnum = Dl_indices[i].segnum;
-//@@		sidenum = Dl_indices[i].sidenum;
-//@@		if (Light_subtracted[segnum] & (1 << sidenum)) {
-//@@			dlp = &Delta_lights[Dl_indices[i].index];
-//@@
-//@@			Light_subtracted[segnum] &= ~(1 << sidenum);
-//@@			for (j=0; j<Dl_indices[i].count; j++) {
-//@@				for (k=0; k<4; k++) {
-//@@					fix	dl;
-//@@					dl = dlp->vert_light[k] * DL_SCALE;
-//@@					Assert((dlp->segnum >= 0) && (dlp->segnum <= Highest_segment_index));
-//@@					Assert((dlp->sidenum >= 0) && (dlp->sidenum < MAX_SIDES_PER_SEGMENT));
-//@@					Segments[dlp->segnum].sides[dlp->sidenum].uvls[k].l += dl;
-//@@				}
-//@@				dlp++;
-//@@			}
-//@@		}
-//@@	}
-//@@}
 
 //	Should call this whenever a new mine gets loaded.
 //	More specifically, should call this whenever something global happens

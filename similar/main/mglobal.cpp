@@ -97,6 +97,7 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 valptridx<cloaking_wall>::array_managed_type CloakingWalls;
 valptridx<dl_index>::array_managed_type Dl_indices;
+d_delta_light_array Delta_lights;
 #endif
 d_level_object_state ObjectState;
 valptridx<object>::array_managed_type Objects;

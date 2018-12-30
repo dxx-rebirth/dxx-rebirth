@@ -726,7 +726,10 @@ static int Ignore_tmap_num2_error;
 
 // ----------------------------------------------------------------------------
 namespace dsx {
-static void determine_used_textures_level(int load_level_flag, int shareware_flag, int level_num, perm_tmap_buffer_type &tmap_buf, wall_buffer_type &wall_buf, level_tmap_buffer_type &level_tmap_buf, int max_tmap)
+#if defined(DXX_BUILD_DESCENT_I)
+#define determine_used_textures_level(Delta_lights,Dl_indices,load_level_flag,shareware_flag,level_num,tmap_buf,wall_buffer_type,level_tmap_buf,max_tmap)	determine_used_textures_level(load_level_flag,shareware_flag,level_num,tmap_buf,wall_buffer_type,level_tmap_buf,max_tmap)
+#endif
+static void determine_used_textures_level(d_delta_light_array &Delta_lights, dl_index_array &Dl_indices, int load_level_flag, int shareware_flag, int level_num, perm_tmap_buffer_type &tmap_buf, wall_buffer_type &wall_buf, level_tmap_buffer_type &level_tmap_buf, int max_tmap)
 {
 	int	sidenum;
 	int	j;
@@ -796,7 +799,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 	tmap_buf = {};
 
 	if (load_level_flag) {
-		load_level(Adam_level_names[level_num]);
+		load_level(Delta_lights, Dl_indices, Adam_level_names[level_num]);
 	}
 
 
@@ -1073,7 +1076,7 @@ static void say_totals_all(void)
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	for (i=First_dump_level; i<=Last_dump_level; i++) {
-		load_level(Adam_level_names[i]);
+		load_level(Delta_lights, Dl_indices, Adam_level_names[i]);
 		say_totals(vcobjptridx, my_file, Adam_level_names[i]);
 	}
 #endif
@@ -1088,7 +1091,7 @@ static void dump_used_textures_level(PHYSFS_File *my_file, int level_num)
 	level_tmap_buf.fill(-1);
 
 	wall_buffer_type temp_wall_buf;
-	determine_used_textures_level(0, 1, level_num, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
+	determine_used_textures_level(Delta_lights, Dl_indices, 0, 1, level_num, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
 	PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Gamesave_current_filename);
 	say_used_tmaps(my_file, temp_tmap_buf);
 }
@@ -1120,7 +1123,7 @@ say_totals_all();
 
 	for (i=0; i<NUM_SHAREWARE_LEVELS; i++) {
 		wall_buffer_type temp_wall_buf;
-		determine_used_textures_level(1, 1, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
+		determine_used_textures_level(Delta_lights, Dl_indices, 1, 1, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
 		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Shareware_level_names[i]);
 		say_used_tmaps(my_file, temp_tmap_buf);
 		merge_buffers(perm_tmap_buf, temp_tmap_buf);
@@ -1145,7 +1148,7 @@ say_totals_all();
 #endif
 	{
 		wall_buffer_type temp_wall_buf;
-		determine_used_textures_level(1, 0, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
+		determine_used_textures_level(Delta_lights, Dl_indices, 1, 0, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
 #if defined(DXX_BUILD_DESCENT_I)
 		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Registered_level_names[i]);
 #elif defined(DXX_BUILD_DESCENT_II)

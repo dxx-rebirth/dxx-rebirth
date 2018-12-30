@@ -148,7 +148,7 @@ static void powerup_grab_cheat_all();
 #if defined(DXX_BUILD_DESCENT_II)
 d_flickering_light_state Flickering_light_state;
 static void slide_textures(void);
-static void flicker_lights(d_flickering_light_state &fls, fvmsegptridx &vmsegptridx);
+static void flicker_lights(const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices, d_flickering_light_state &fls, fvmsegptridx &vmsegptridx);
 #endif
 
 // Cheats
@@ -1889,7 +1889,7 @@ window_event_result GameProcessFrame()
 #if defined(DXX_BUILD_DESCENT_II)
 	omega_charge_frame(player_info);
 	slide_textures();
-	flicker_lights(Flickering_light_state, vmsegptridx);
+	flicker_lights(Delta_lights, Dl_indices, Flickering_light_state, vmsegptridx);
 
 	//if the player is taking damage, give up guided missile control
 	if (local_player_shields_ref != player_shields)
@@ -1978,7 +1978,7 @@ static void slide_textures(void)
 
 constexpr std::integral_constant<fix, INT32_MIN> flicker_timer_disabled{};
 
-static void flicker_lights(d_flickering_light_state &fls, fvmsegptridx &vmsegptridx)
+static void flicker_lights(const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices, d_flickering_light_state &fls, fvmsegptridx &vmsegptridx)
 {
 	range_for (auto &f, partial_range(fls.Flickering_lights, fls.Num_flickering_lights))
 	{
@@ -2002,9 +2002,9 @@ static void flicker_lights(d_flickering_light_state &fls, fvmsegptridx &vmsegptr
 				f.timer += f.delay;
 			f.mask = ((f.mask & 0x80000000) ? 1 : 0) + (f.mask << 1);
 			if (f.mask & 1)
-				add_light(segp, sidenum);
+				add_light(Delta_lights, Dl_indices, segp, sidenum);
 			else
-				subtract_light(segp, sidenum);
+				subtract_light(Delta_lights, Dl_indices, segp, sidenum);
 		}
 	}
 }

@@ -101,14 +101,14 @@ static void do_close_door(const trigger &t)
 
 //turns lighting on.  returns true if lights were actually turned on. (they
 //would not be if they had previously been shot out).
-static int do_light_on(const trigger &t)
+static int do_light_on(const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices, d_flickering_light_state &Flickering_light_state, const trigger &t)
 {
 	int ret=0;
-	const auto op = [&ret](const vmsegptridx_t segnum, const unsigned sidenum) {
+	const auto op = [&Delta_lights, &Dl_indices, &Flickering_light_state, &ret](const vmsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light on.  This
 			//is to keep us from turning on blown-out lights
 			if (TmapInfo[segnum->unique_segment::sides[sidenum].tmap_num2 & 0x3fff].lighting) {
-				ret |= add_light(segnum, sidenum); 		//any light sets flag
+				ret |= add_light(Delta_lights, Dl_indices, segnum, sidenum);		//any light sets flag
 				enable_flicker(Flickering_light_state, segnum, sidenum);
 			}
 	};
@@ -118,14 +118,14 @@ static int do_light_on(const trigger &t)
 
 //turns lighting off.  returns true if lights were actually turned off. (they
 //would not be if they had previously been shot out).
-static int do_light_off(const trigger &t)
+static int do_light_off(const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices, d_flickering_light_state &Flickering_light_state, const trigger &t)
 {
 	int ret=0;
-	const auto op = [&ret](const vmsegptridx_t segnum, const unsigned sidenum) {
+	const auto op = [&Delta_lights, &Dl_indices, &Flickering_light_state, &ret](const vmsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light off.  This
 			//is to keep us from turning off blown-out lights
 			if (TmapInfo[segnum->unique_segment::sides[sidenum].tmap_num2 & 0x3fff].lighting) {
-				ret |= subtract_light(segnum, sidenum); 	//any light sets flag
+				ret |= subtract_light(Delta_lights, Dl_indices, segnum, sidenum);	//any light sets flag
 				disable_flicker(Flickering_light_state, segnum, sidenum);
 			}
 	};
@@ -487,12 +487,12 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 			break;
 
 		case TT_LIGHT_OFF:
-			if (do_light_off(trigger))
+			if (do_light_off(Delta_lights, Dl_indices, Flickering_light_state, trigger))
 				print_trigger_message(pnum, trigger, shot, "Light%s off!");
 			break;
 
 		case TT_LIGHT_ON:
-			if (do_light_on(trigger))
+			if (do_light_on(Delta_lights, Dl_indices, Flickering_light_state, trigger))
 				print_trigger_message(pnum, trigger, shot, "Light%s on!");
 
 			break;

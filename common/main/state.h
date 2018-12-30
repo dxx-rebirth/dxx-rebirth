@@ -86,10 +86,6 @@ int state_get_game_id(const char *filename);
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 int state_restore_all_sub(const char *filename);
-static inline int state_restore_all_sub(const char *filename, secret_restore)
-{
-	return state_restore_all_sub(filename);
-}
 static inline void set_pos_from_return_segment(void)
 {
 }
@@ -115,7 +111,7 @@ static inline void init_player_stats_level(player &p, object &o, secret_restore)
 	init_player_stats_level(p, o);
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-int state_restore_all_sub(const char *filename, secret_restore);
+int state_restore_all_sub(const dl_index_array &Dl_indices, secret_restore, const char *filename);
 void set_pos_from_return_segment(void);
 int state_save_all(secret_save, blind_save);
 int state_restore_all(int in_game, secret_restore, const char *filename_override, blind_save);

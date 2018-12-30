@@ -940,7 +940,7 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	load_level_robots(level_num);
 
-	int load_ret = load_level(level_name);		//actually load the data from disk!
+	int load_ret = load_level(Delta_lights, Dl_indices, level_name);		//actually load the data from disk!
 
 	if (load_ret)
 		Error("Could not load level file <%s>, error = %d",static_cast<const char *>(level_name),load_ret);

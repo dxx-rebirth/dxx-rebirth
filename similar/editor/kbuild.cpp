@@ -102,7 +102,11 @@ int CreateSloppyAdjacentJoint()
 	int		adj_side;
 	imsegptridx_t adj_sp = segment_none;
 
-	save_level("SLOPPY.LVL");
+	save_level(
+#if defined(DXX_BUILD_DESCENT_II)
+		Delta_lights, Dl_indices,
+#endif
+		"SLOPPY.LVL");
 
 	if (med_find_closest_threshold_segment_side(Cursegp, Curside, adj_sp, &adj_side, 20*F1_0)) {
 		if (Cursegp->children[Curside] != adj_sp) {

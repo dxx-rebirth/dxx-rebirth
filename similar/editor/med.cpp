@@ -281,7 +281,11 @@ int	GotoGameScreen()
 			// Always use the simple mission when playing level (for now at least)
 			create_new_mission();
 			Current_level_num = 1;
-			if (save_level("GAMESAVE.LVL"))
+			if (save_level(
+#if defined(DXX_BUILD_DESCENT_II)
+					Delta_lights, Dl_indices,
+#endif
+					"GAMESAVE.LVL"))
 				return 0;
 			editor_status("Level saved.\n");
 			break;
@@ -937,11 +941,12 @@ static void close_editor()
 					break;
 
 				case editor_gamestate::saved:
-					state_restore_all_sub(PLAYER_DIRECTORY_STRING("gamesave.sge")
+					state_restore_all_sub(
 #if defined(DXX_BUILD_DESCENT_II)
-											   , secret_restore::none
+						Dl_indices, secret_restore::none,
 #endif
-										  );
+						PLAYER_DIRECTORY_STRING("gamesave.sge")
+					);
 					break;
 
 				default:
@@ -996,11 +1001,12 @@ void gamestate_restore_check()
 			Save_position.orient = ConsoleObject->orient;
 			Save_position.segnum = ConsoleObject->segnum;
 
-			if (!state_restore_all_sub(PLAYER_DIRECTORY_STRING("gamesave.sge")
+			if (!state_restore_all_sub(
 #if defined(DXX_BUILD_DESCENT_II)
-								  , secret_restore::none
+					Dl_indices, secret_restore::none,
 #endif
-								  ))
+					PLAYER_DIRECTORY_STRING("gamesave.sge")
+			))
 				return;
 
 			// Switch back to slew mode - loading saved game made ConsoleObject flying
@@ -1025,11 +1031,12 @@ int RestoreGameState()
 	if (!SafetyCheck())
 		return 0;
 
-	if (!state_restore_all_sub(PLAYER_DIRECTORY_STRING("gamesave.sge")
+	if (!state_restore_all_sub(
 #if defined(DXX_BUILD_DESCENT_II)
-						  , secret_restore::none
+			Dl_indices, secret_restore::none,
 #endif
-						  ))
+			PLAYER_DIRECTORY_STRING("gamesave.sge")
+	))
 		return 0;
 
 	// Switch back to slew mode - loading saved game made ConsoleObject flying
