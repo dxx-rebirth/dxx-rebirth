@@ -5368,13 +5368,9 @@ class hoard_resources_type
 	static constexpr auto invalid_bm_idx = std::integral_constant<int, -1>{};
 	static constexpr auto invalid_snd_idx = std::integral_constant<unsigned, ~0u>{};
 public:
-	int bm_idx;
-	unsigned snd_idx;
+	int bm_idx = invalid_bm_idx;
+	unsigned snd_idx = invalid_snd_idx;
 	void reset();
-	constexpr hoard_resources_type() :
-		bm_idx(invalid_bm_idx), snd_idx(invalid_snd_idx)
-	{
-	}
 	~hoard_resources_type()
 	{
 		reset();

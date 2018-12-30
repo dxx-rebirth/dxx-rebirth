@@ -208,13 +208,9 @@ struct physics_info_rw
 
 struct laser_parent
 {
-	short   parent_type;        // The type of the parent of this object
-	objnum_t   parent_num;         // The object's parent's number
-	object_signature_t     parent_signature;   // The object's parent's signature...
-	constexpr laser_parent() :
-		parent_type{}, parent_num{}, parent_signature(0)
-	{
-	}
+	int16_t parent_type = {};        // The type of the parent of this object
+	objnum_t parent_num = {};         // The object's parent's number
+	object_signature_t parent_signature = {};   // The object's parent's signature...
 };
 
 }
@@ -223,7 +219,7 @@ namespace dsx {
 
 struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 {
-	fix64   creation_time;      // Absolute time of creation.
+	fix64 creation_time = 0;      // Absolute time of creation.
 	/* hitobj_pos specifies the next position to which a value should be
 	 * written.  That position may have a defined value if the array has
 	 * wrapped, but should be treated as write-only in the general case.
@@ -233,20 +229,13 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 	 * hitobj_count == hitobj_values.size(), hitobj_pos wraps around and
 	 * begins erasing the oldest elements first.
 	 */
-	uint8_t hitobj_pos, hitobj_count;
-	std::array<objnum_t, 83> hitobj_values;
-	objnum_t   track_goal;         // Object this object is tracking.
-	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
+	uint8_t hitobj_pos = 0, hitobj_count = 0;
+	std::array<objnum_t, 83> hitobj_values = {};
+	objnum_t track_goal = 0;         // Object this object is tracking.
+	fix multiplier = 0;         // Power if this is a fusion bolt (or other super weapon to be added).
 #if defined(DXX_BUILD_DESCENT_II)
-	fix64	last_afterburner_time;	//	Time at which this object last created afterburner blobs.
+	fix64 last_afterburner_time = 0;	//	Time at which this object last created afterburner blobs.
 #endif
-	constexpr laser_info() :
-		creation_time{}, hitobj_pos{}, hitobj_count{}, hitobj_values{}, track_goal{}, multiplier{}
-#if defined(DXX_BUILD_DESCENT_II)
-		, last_afterburner_time{}
-#endif
-	{
-	}
 	bool test_set_hitobj(const vcobjidx_t o);
 	bool test_hitobj(const vcobjidx_t o) const;
 	icobjidx_t get_last_hitobj() const

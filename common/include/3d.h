@@ -56,11 +56,8 @@ struct g3s_lrgb {
 
 //Stucture to store clipping codes in a word
 struct g3s_codes {
-	ubyte uor,uand;   //or is low byte, and is high byte
-	constexpr g3s_codes() :
-		uor(0), uand(0xff)
-	{
-	}
+	//or is low byte, and is high byte
+	uint8_t uor = 0, uand = 0xff;
 };
 
 //flags for point structure
@@ -95,16 +92,6 @@ struct g3s_point {
 #define p3_x p3_vec.x
 #define p3_y p3_vec.y
 #define p3_z p3_vec.z
-
-//An object, such as a robot
-struct g3s_object {
-	vms_vector o3_pos;       //location of this object
-	vms_angvec o3_orient;    //orientation of this object
-	int o3_nverts;           //number of points in the object
-	int o3_nfaces;           //number of faces in the object
-
-	//this will be filled in later
-};
 
 #ifdef __cplusplus
 //Functions in library
