@@ -66,7 +66,6 @@ using std::max;
 
 static int Do_dynamic_light=1;
 static int use_fcd_lighting;
-array<g3s_lrgb, MAX_VERTICES> Dynamic_light;
 
 #define	HEADLIGHT_CONE_DOT	(F1_0*9/10)
 #define	HEADLIGHT_SCALE		(F1_0*10)
@@ -100,6 +99,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 				is_marker = 1;
 #endif
 
+		auto &Dynamic_light = LevelUniqueLightState.Dynamic_light;
 		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		// for pretty dim sources, only process vertices in object's own segment.
@@ -496,6 +496,7 @@ void set_dynamic_light(render_state_t &rstate)
 	std::bitset<MAX_VERTICES> render_vertex_flags;
 
 	//	Create list of vertices that need to be looked at for setting of ambient light.
+	auto &Dynamic_light = LevelUniqueLightState.Dynamic_light;
 	uint_fast32_t n_render_vertices = 0;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	range_for (const auto segnum, partial_const_range(rstate.Render_list, rstate.N_render_segs))
@@ -579,9 +580,9 @@ static fix compute_headlight_light_on_object(const object_base &objp)
 #endif
 
 //compute the average dynamic light in a segment.  Takes the segment number
-static g3s_lrgb compute_seg_dynamic_light(const shared_segment &seg)
+static g3s_lrgb compute_seg_dynamic_light(array<g3s_lrgb, MAX_VERTICES> &Dynamic_light, const shared_segment &seg)
 {
-	auto op = [](g3s_lrgb r, const unsigned v) {
+	const auto &&op = [&Dynamic_light](g3s_lrgb r, const unsigned v) {
 		r.r += Dynamic_light[v].r;
 		r.g += Dynamic_light[v].g;
 		r.b += Dynamic_light[v].b;
@@ -654,7 +655,8 @@ g3s_lrgb compute_object_light(const vcobjptridx_t obj)
 	}
 
 	//Finally, add in dynamic light for this segment
-	const auto &&seg_dl = compute_seg_dynamic_light(objsegp);
+	auto &Dynamic_light = LevelUniqueLightState.Dynamic_light;
+	const auto &&seg_dl = compute_seg_dynamic_light(Dynamic_light, objsegp);
 #if defined(DXX_BUILD_DESCENT_II)
 	//Next, add in (NOTE: WHITE) headlight on this object
 	const fix mlight = compute_headlight_light_on_object(obj);

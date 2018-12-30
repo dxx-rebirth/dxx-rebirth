@@ -291,6 +291,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 	const auto seismic_tremor_magnitude = Seismic_tremor_magnitude;
 	const auto control_center_destroyed = Control_center_destroyed;
 	const auto need_flashing_lights = (control_center_destroyed | seismic_tremor_magnitude);	//make lights flash
+	auto &Dynamic_light = LevelUniqueLightState.Dynamic_light;
 	//set light values for each vertex & build pointlist
 	for (uint_fast32_t i = 0;i < nv;i++)
 	{
