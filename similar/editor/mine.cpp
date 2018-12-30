@@ -447,6 +447,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 
 	if (vertex_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	PHYSFS_write(SaveFile, Vertices, sizeof(vms_vector), LevelSharedVertexState.Num_vertices);
 
 	//===================== SAVE SEGMENT INFO =========================
@@ -560,6 +561,7 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 		ui_messagebox( -2, -2, 1, message, "Ok" );
 	}
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	if (Vertices.get_count() > MAX_VERTICES)
 	{
 		char	message[128];

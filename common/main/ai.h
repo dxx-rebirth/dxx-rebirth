@@ -113,7 +113,7 @@ extern vms_vector Believed_player_pos;
 }
 
 namespace dsx {
-void move_towards_segment_center(object_base &objp);
+void move_towards_segment_center(const d_level_shared_segment_state &, object_base &objp);
 imobjptridx_t gate_in_robot(int type, vmsegptridx_t segnum);
 void do_ai_frame(vmobjptridx_t objp);
 void do_ai_frame_all();

@@ -197,6 +197,8 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 
 			ret |= 1;
 
+			auto &Vertices = LevelSharedVertexState.get_vertices();
+			auto &vcvertptr = Vertices.vcptr;
 			switch (t.type)
 			{
 				case TT_OPEN_WALL:
@@ -277,6 +279,8 @@ static void do_il_off(const trigger &t)
 	const auto &&op = [](const vcsegptridx_t seg, const unsigned side) {
 		wall_illusion_off(vmwallptr, seg, side);
 #if defined(DXX_BUILD_DESCENT_II)
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
 		digi_link_sound_to_pos(SOUND_WALL_REMOVED, seg, side, cp, 0, F1_0);
 #endif

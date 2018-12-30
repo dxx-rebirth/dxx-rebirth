@@ -29,6 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-segment.h"
 
 #ifdef __cplusplus
+#include "fwd-wall.h"
 
 // Restores all the walls to original status
 extern int wall_restore_all();
@@ -47,7 +48,7 @@ extern int wall_remove_blastable();
 
 // Adds a wall. (visually)
 extern int wall_add_to_curside();
-int wall_add_to_markedside(int8_t type);
+int wall_add_to_markedside(fvcvertptr &vcvertptr, wall_array &Walls, int8_t type);
  
 // Removes a wall. (visually)
 extern int wall_remove();

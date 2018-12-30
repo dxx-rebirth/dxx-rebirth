@@ -1358,6 +1358,8 @@ int load_level(
 	 * Descent 1 - Level 19: OBERON MINE has some ugly overlapping rooms (segment 484).
 	 * HACK to make this issue less visible by moving one vertex a little.
 	 */
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vmvertptr = Vertices.vmptr;
 	if (Current_mission && !d_stricmp("Descent: First Strike",Current_mission_longname) && !d_stricmp("level19.rdl",filename) && PHYSFS_fileLength(LoadFile) == 136706)
 		vmvertptr(1905u)->z = -385 * F1_0;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1520,6 +1522,7 @@ int create_new_mine(void)
 	
 	
 	LevelSharedVertexState.Num_vertices = 0;		// Number of vertices in global array.
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	Vertices.set_count(1);
 	LevelSharedSegmentState.Num_segments = 0;		// Number of segments in global array, will get increased in med_create_segment
 	Segments.set_count(1);
@@ -1780,6 +1783,8 @@ static int save_level_sub(
 		{
 			if (plr->segnum > Highest_segment_index)
 				plr->segnum = segment_first;
+			auto &Vertices = LevelSharedVertexState.get_vertices();
+			auto &vcvertptr = Vertices.vcptr;
 			compute_segment_center(vcvertptr, plr->pos, vcsegptr(plr->segnum));
 		}
 	}

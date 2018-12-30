@@ -591,6 +591,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.vertex_offset, SEEK_SET ))
 			Error( "Error seeking to vertex_offset in gamemine.c" );
 
+		auto &Vertices = LevelSharedVertexState.get_vertices();
 		range_for (auto &i, partial_range(Vertices, mine_fileinfo.vertex_howmany))
 		{
 			// Set the default values for this vertex
@@ -737,10 +738,12 @@ int load_mine_data(PHYSFS_File *LoadFile)
 		Error("Sorry, v20 segment support is broken.");
 	}
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	if ( (mine_fileinfo.newseg_verts_offset > -1) && (mine_fileinfo.newseg_verts_howmany > 0))
 	{
 		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.newseg_verts_offset, SEEK_SET ))
 			Error( "Error seeking to newseg_verts_offset in gamemine.c" );
+		auto &vmvertptr = Vertices.vmptr;
 		for (unsigned i = 0; i < mine_fileinfo.newseg_verts_howmany; ++i)
 		{
 			// Set the default values for this vertex
@@ -879,6 +882,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 	compiled_version = PHYSFSX_readByte(LoadFile);
 	(void)compiled_version;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	DXX_POISON_VAR(Vertices, 0xfc);
 	if (New_file_format_load)
 		LevelSharedVertexState.Num_vertices = PHYSFSX_readShort(LoadFile);

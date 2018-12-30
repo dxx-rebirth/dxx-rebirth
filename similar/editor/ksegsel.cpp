@@ -112,7 +112,11 @@ int SelectCurrentSegForward()
 		Curside = newside;
 		Update_flags |= UF_ED_STATE_CHANGED;
 		if (Lock_view_to_cursegp)
+		{
+			auto &Vertices = LevelSharedVertexState.get_vertices();
+			auto &vcvertptr = Vertices.vcptr;
 			set_view_target_from_segment(vcvertptr, Cursegp);
+		}
 
 		med_create_new_segment_from_cursegp();
 		mine_changed = 1;
@@ -129,7 +133,11 @@ int SelectCurrentSegBackward()
 	Curside = p.second;
 
 	if (Lock_view_to_cursegp)
+	{
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
+	}
 	Update_flags |= UF_ED_STATE_CHANGED;
 	mine_changed = 1;
 	med_create_new_segment_from_cursegp();

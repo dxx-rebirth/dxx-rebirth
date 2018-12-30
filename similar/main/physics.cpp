@@ -387,6 +387,8 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 	}
 
 	int count = 0;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	do {
 		try_again = 0;
 

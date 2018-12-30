@@ -366,6 +366,9 @@ static inline vms_matrix med_create_group_rotation_matrix(int delta_flag, const 
 static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type_t &group_seglist, const vcsegptr_t first_seg, int first_side)
 {
 	array<int8_t, MAX_VERTICES> vertex_list;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	auto &vmvertptridx = Vertices.vmptridx;
 	const auto &&rotate_center = compute_center_point_on_side(vcvertptr, first_seg, first_side);
 
 	//	Create list of points to rotate.
@@ -435,6 +438,8 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 	new_vertex_ids.fill(-1);
 
 	//	duplicate vertices
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptridx = Vertices.vcptridx;
 	range_for (auto &&v, vcvertptridx)
 	{
 		if (vertex_ids[v])
@@ -583,6 +588,8 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 		s.matcen_num = -1;
 	}
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	// Breaking connections between segments in the current group and segments not in the group.
 	range_for(const auto &gs, GroupList[new_current_group].segments)
 	{
@@ -601,6 +608,7 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	//	Now do the copy
 	//	First, xlate all vertices so center of group_seg:group_side is at origin
 	const auto &&srcv = compute_center_point_on_side(vcvertptr, group_seg, group_side);
+	auto &vmvertptridx = Vertices.vmptridx;
 	range_for (auto &&v, vmvertptridx)
 		if (in_vertex_list[v])
 			vm_vec_sub2(*v, srcv);
@@ -691,6 +699,9 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	// create an extra copy of the vertex so we can just move the ones in the in list.
 	//	Can't use Highest_vertex_index as loop termination because it gets increased by med_create_duplicate_vertex.
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	auto &vmvertptridx = Vertices.vmptridx;
 	range_for (auto &&v, vmvertptridx)
 		if (in_vertex_list[v])
 			if (out_vertex_list[v]) {
@@ -787,6 +798,8 @@ static segnum_t place_new_segment_in_world(void)
 	auto &seg = *segnum;
 	seg = New_segment;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	for (unsigned v = 0; v != MAX_VERTICES_PER_SEGMENT; ++v)
 		seg.verts[v] = med_create_duplicate_vertex(vcvertptr(New_segment.verts[v]));
 
@@ -816,7 +829,11 @@ static int AttachSegmentNewAng(const vms_angvec &pbh)
 		med_create_new_segment_from_cursegp();
 
 		if (Lock_view_to_cursegp)
+		{
+			auto &Vertices = LevelSharedVertexState.get_vertices();
+			auto &vcvertptr = Vertices.vcptr;
 			set_view_target_from_segment(vcvertptr, Cursegp);
+		}
 
 		Update_flags |= UF_WORLD_CHANGED;
 		mine_changed = 1;
@@ -842,6 +859,8 @@ int AttachSegmentNew(void)
 //	-----------------------------------------------------------------------------
 void validate_selected_segments(void)
 {
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	range_for (const auto &gs, GroupList[current_group].segments)
 		validate_segment(vcvertptr, vmsegptridx(gs));
 }
@@ -945,7 +964,11 @@ int RotateSegmentNew(vms_angvec *pbh)
 	rval = rotate_segment_new(*pbh);
 
 	if (Lock_view_to_cursegp)
+	{
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
+	}
 
 	Update_flags |= UF_WORLD_CHANGED;
 	mine_changed = 1;
@@ -1512,7 +1535,11 @@ int Degroup( void )
 		current_group = -1;
 
    if (Lock_view_to_cursegp)
+	{
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
        set_view_target_from_segment(vcvertptr, Cursegp);
+	}
    Update_flags |= UF_WORLD_CHANGED;
    mine_changed = 1;
    diagnostic_message("Group UNgrouped.");
@@ -1770,7 +1797,11 @@ int DeleteGroup( void )
 
 	undo_status[Autosave_count] = "Delete Group UNDONE.";
    if (Lock_view_to_cursegp)
+	{
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
        set_view_target_from_segment(vcvertptr, Cursegp);
+	}
 
    Update_flags |= UF_WORLD_CHANGED;
    mine_changed = 1;

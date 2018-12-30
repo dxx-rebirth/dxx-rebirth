@@ -142,6 +142,8 @@ int generate_curve( fix r1scale, fix r4scale ) {
     fixang rangle, uangle;
 
 	const vcsegptr_t cursegp = Cursegp;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	compute_center_point_on_side(vcvertptr, p1, cursegp, Curside);
 
     switch( Curside ) {
@@ -300,6 +302,8 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
     if (CurveNumSegs) {
 
 		const vcsegptr_t cursegp = Cursegp;
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		extract_up_vector_from_segment(vcvertptr, cursegp, b4r4t);
     uangle = vm_vec_delta_ang( b4r4t, r4t, r4 );
     if (uangle >= F1_0 * 1/8) uangle -= F1_0 * 1/4;

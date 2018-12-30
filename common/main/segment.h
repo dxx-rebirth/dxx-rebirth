@@ -224,8 +224,6 @@ struct vertex : vms_vector
 	{
 	}
 };
-
-DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(vertex, vert, Vertices);
 }
 
 #ifdef dsx
@@ -299,6 +297,17 @@ namespace dcx {
 struct d_level_shared_vertex_state
 {
 	unsigned Num_vertices;
+private:
+	vertex_array Vertices;
+public:
+	auto &get_vertices()
+	{
+		return Vertices;
+	}
+	const auto &get_vertices() const
+	{
+		return Vertices;
+	}
 };
 extern d_level_shared_vertex_state LevelSharedVertexState;
 
@@ -313,13 +322,13 @@ struct d_level_shared_segment_state
 	{
 		return Segments;
 	}
-	auto &get_vertices()
+	auto &get_vertex_state()
 	{
-		return Vertices;
+		return LevelSharedVertexState;
 	}
-	const auto &get_vertices() const
+	const auto &get_vertex_state() const
 	{
-		return Vertices;
+		return LevelSharedVertexState;
 	}
 };
 

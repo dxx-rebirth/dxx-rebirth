@@ -512,15 +512,19 @@ void calc_frame_time()
 
 namespace dsx {
 
-void move_player_2_segment(const vmsegptridx_t seg,int side)
+#if DXX_USE_EDITOR
+void move_player_2_segment(const vmsegptridx_t seg, const unsigned side)
 {
 	const auto &&console = vmobjptridx(ConsoleObject);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, console->pos, seg);
 	auto vp = compute_center_point_on_side(vcvertptr, seg, side);
 	vm_vec_sub2(vp, console->pos);
 	vm_vector_2_matrix(console->orient, vp, nullptr, nullptr);
 	obj_relink(vmobjptr, vmsegptr, console, seg);
 }
+#endif
 
 }
 

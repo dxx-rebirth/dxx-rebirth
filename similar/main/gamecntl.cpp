@@ -1089,6 +1089,8 @@ static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptri
 				if (w.trigger == i)
 				{
 					const auto &&segp = vmsegptridx(w.segnum);
+					auto &Vertices = LevelSharedVertexState.get_vertices();
+					auto &vcvertptr = Vertices.vcptr;
 					compute_segment_center(vcvertptr, ConsoleObject->pos, segp);
 					obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), segp);
 					return;
@@ -1198,6 +1200,8 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 		{
 			static int i = 0;
 			const auto &&segp = vmsegptridx(ConsoleObject->segnum);
+			auto &Vertices = LevelSharedVertexState.get_vertices();
+			auto &vcvertptr = Vertices.vcptr;
 			const auto &&new_obj = create_morph_robot(segp, compute_segment_center(vcvertptr, segp), i);
 			if (new_obj != object_none)
 				morph_start( new_obj );

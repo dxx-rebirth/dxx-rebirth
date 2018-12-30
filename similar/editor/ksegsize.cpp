@@ -48,6 +48,8 @@ static void validate_modified_segments(void)
 {
 	int	v0;
 	visited_segment_bitarray_t modified_segments;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	for (int v=0; v<Modified_vertex_index; v++) {
 		v0 = Modified_vertices[v];
 
@@ -77,6 +79,8 @@ static void validate_modified_segments(void)
 //	Scale vertex *vertp by vector *vp, scaled by scale factor scale_factor
 static void scale_vert_aux(const unsigned vertex_ind, const vms_vector &vp, const fix scale_factor)
 {
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vmvertptr = Vertices.vmptr;
 	auto &vertp = *vmvertptr(vertex_ind);
 
 	vertp.x += fixmul(vp.x,scale_factor)/2;
@@ -179,6 +183,8 @@ static void extract_vector_from_segment_side(const vmsegptr_t sp, const unsigned
 {
 	auto &sv = Side_to_verts[side];
 	auto &verts = sp->verts;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	const auto v1 = vm_vec_sub(vcvertptr(verts[sv[vra]]), vcvertptr(verts[sv[vla]]));
 	const auto v2 = vm_vec_sub(vcvertptr(verts[sv[vrb]]), vcvertptr(verts[sv[vlb]]));
 	vm_vec_add(vp, v1, v2);
@@ -216,6 +222,8 @@ static int segsize_common(int dimension, fix amount)
 
 	med_extract_up_vector_from_segment_side(Cursegp, Curside, uvec);
 	med_extract_right_vector_from_segment_side(Cursegp, Curside, rvec);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	extract_forward_vector_from_segment(vcvertptr, Cursegp, fvec);
 
 	scalevec.x = vm_vec_mag(rvec);
@@ -378,6 +386,8 @@ static int	PerturbCursideCommon(fix amount)
 
 	Modified_vertex_index = 0;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	extract_forward_vector_from_segment(vcvertptr, Cursegp, fvec);
 	extract_right_vector_from_segment(vcvertptr, Cursegp, rvec);
 	extract_up_vector_from_segment(vcvertptr, Cursegp, uvec);

@@ -72,6 +72,8 @@ struct hostage_dialog
 static int PlaceHostage()	{
 	int ctype,i;
 	//update_due_to_new_segment();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	const auto cur_object_loc = compute_segment_center(vcvertptr, Cursegp);
 
 	ctype = -1;

@@ -48,6 +48,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //find the distance between a segment and a point
 static fix compute_dist(const vcsegptr_t seg,const vms_vector &pos)
 {
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	auto delta = compute_segment_center(vcvertptr, seg);
 	vm_vec_sub2(delta,pos);
 
@@ -85,7 +87,11 @@ int SelectNextFoundSeg(void)
 	Update_flags |= UF_WORLD_CHANGED;
 
 	if (Lock_view_to_cursegp)
+	{
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
+	}
 
 	editor_status("Curseg assigned to next found segment.");
 
@@ -105,7 +111,11 @@ int SelectPreviousFoundSeg(void)
 	Update_flags |= UF_WORLD_CHANGED;
 
 	if (Lock_view_to_cursegp)
+	{
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
+	}
 
 	editor_status("Curseg assigned to previous found segment.");
 

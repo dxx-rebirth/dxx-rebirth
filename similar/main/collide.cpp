@@ -2229,6 +2229,8 @@ void collide_player_and_nasty_robot(const vmobjptridx_t playerobj, const vmobjpt
 
 static vms_vector find_exit_direction(vms_vector result, const vcobjptr_t objp, const vcsegptr_t segp)
 {
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	for (unsigned side = MAX_SIDES_PER_SEGMENT; side --;)
 		if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, side) & WID_FLY_FLAG)
 		{

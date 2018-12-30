@@ -118,6 +118,8 @@ static void draw_segment(grs_canvas &canvas, const shared_segment &seg, const ui
 		return;
 
 	auto &svp = seg.verts;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 		for (unsigned i = 0; i < 4; ++i)
@@ -138,6 +140,8 @@ static void draw_segment(grs_canvas &canvas, const shared_segment &seg, const ui
 static void check_segment(const vmsegptridx_t seg)
 {
 	auto &svp = seg->verts;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 #if DXX_USE_OGL
@@ -176,9 +180,11 @@ static void check_segment(const vmsegptridx_t seg)
 }
 
 // ----------------------------------------------------------------------------
-static void draw_seg_side(const vcsegptr_t seg, int side, const uint8_t color)
+static void draw_seg_side(const shared_segment &seg, const unsigned side, const uint8_t color)
 {
-	auto &svp = seg->verts;
+	auto &svp = seg.verts;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 		int i;
@@ -191,9 +197,11 @@ static void draw_seg_side(const vcsegptr_t seg, int side, const uint8_t color)
 	}
 }
 
-static void draw_side_edge(const vcsegptr_t seg,int side,int edge, const uint8_t color)
+static void draw_side_edge(const shared_segment &seg, const unsigned side, const unsigned edge, const uint8_t color)
 {
-	auto &svp = seg->verts;
+	auto &svp = seg.verts;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)		//on screen?
 	{
 		auto &stv = Side_to_verts[side];
@@ -373,6 +381,8 @@ static void add_edge(int v0,int v1,ubyte type)
 static void add_edges(const shared_segment &seg)
 {
 	auto &svp = seg.verts;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 		int	i,fn,vn;
@@ -430,6 +440,8 @@ static void add_edges(const shared_segment &seg)
 static void draw_trigger_side(const shared_segment &seg, const unsigned side, const uint8_t color)
 {
 	auto &svp = seg.verts;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 		// Draw diagonals
@@ -442,6 +454,8 @@ static void draw_trigger_side(const shared_segment &seg, const unsigned side, co
 static void draw_wall_side(const shared_segment &seg, const unsigned side, const uint8_t color)
 {
 	auto &svp = seg.verts;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 		// Draw diagonals
@@ -695,6 +709,9 @@ static void draw_coordinate_axes(void)
 
 	create_coordinate_axes_from_segment(Cursegp,Axes_verts);
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	auto &vmvertptr = Vertices.vmptr;
 	const auto &&av0 = vcvertptr(Axes_verts[0]);
 	const auto &&av1 = vcvertptr(Axes_verts[1]);
 	const auto &&av2 = vcvertptr(Axes_verts[2]);

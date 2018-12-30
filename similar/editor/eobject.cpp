@@ -309,6 +309,8 @@ int ObjectPlaceObject(void)
 	}
 
 	//update_due_to_new_segment();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	const auto cur_object_loc = compute_segment_center(vcvertptr, Cursegp);
 
 	old_cur_object_index = Cur_object_index;
@@ -327,6 +329,8 @@ int ObjectPlaceObjectTmap(void)
 {
 	int	rval, old_cur_object_index;
 	//update_due_to_new_segment();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	const auto cur_object_loc = compute_segment_center(vcvertptr, Cursegp);
 
 	old_cur_object_index = Cur_object_index;
@@ -442,9 +446,9 @@ int ObjectDelete(void)
 //	Object has moved to another segment, (or at least poked through).
 //	If still in mine, that is legal, so relink into new segment.
 //	Return value:	0 = in mine, 1 = not in mine
-static int move_object_within_mine(const vmobjptridx_t obj, const vms_vector &newpos)
+static int move_object_within_mine(fvmobjptr &vmobjptr, segment_array &Segments, fvcvertptr &vcvertptr, const vmobjptridx_t obj, const vms_vector &newpos)
 {
-	range_for (const auto &&segp, vmsegptridx)
+	range_for (const auto &&segp, Segments.vmptridx)
 	{
 		if (get_seg_masks(vcvertptr, obj->pos, segp, 0).centermask == 0) {
 			int	fate;
@@ -464,26 +468,23 @@ static int move_object_within_mine(const vmobjptridx_t obj, const vms_vector &ne
 
 			if (fate != HIT_WALL) {
 				if (segp != obj->segnum)
-					obj_relink(vmobjptr, vmsegptr, obj, segp);
+					obj_relink(vmobjptr, Segments.vmptr, obj, segp);
 				obj->pos = newpos;
 				return 0;
 			}
 		}
 	}
-
 	return 1;
-
 }
 
-
 //	Return 0 if object is in expected segment, else return 1
-static int verify_object_seg(const vmobjptridx_t objp, const vms_vector &newpos)
+static int verify_object_seg(fvmobjptr &vmobjptr, segment_array &Segments, fvcvertptr &vcvertptr, const vmobjptridx_t objp, const vms_vector &newpos)
 {
-	const auto &&result = get_seg_masks(vcvertptr, newpos, vcsegptr(objp->segnum), objp->size);
+	const auto &&result = get_seg_masks(vcvertptr, newpos, Segments.vcptr(objp->segnum), objp->size);
 	if (result.facemask == 0)
 		return 0;
 	else
-		return move_object_within_mine(objp, newpos);
+		return move_object_within_mine(vmobjptr, Segments, vcvertptr, objp, newpos);
 }
 
 namespace {
@@ -531,7 +532,9 @@ static int ObjectMovePos(const vmobjptridx_t obj, vms_vector &&vec, int scale)
 {
 	vm_vec_normalize(vec);
 	const auto &&newpos = vm_vec_add(obj->pos, vm_vec_scale(vec, scale));
-	if (!verify_object_seg(obj, newpos))
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	if (!verify_object_seg(vmobjptr, Segments, vcvertptr, obj, newpos))
 		obj->pos = newpos;
 	Update_flags |= UF_WORLD_CHANGED;
 	return 1;
@@ -544,6 +547,8 @@ static int ObjectMove()
 	if (i == object_none)
 		return ObjectMoveFailed();
 	const auto &&obj = vmobjptridx(i);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	return ObjectMovePos(obj, extract_type::get(vcvertptr, vcsegptr(obj->segnum)), direction * OBJ_SCALE);
 }
 
@@ -584,6 +589,8 @@ int	ObjectSetDefault(void)
 	}
 
 	const auto &&objp = vmobjptr(Cur_object_index);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, objp->pos, vcsegptr(objp->segnum));
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -699,11 +706,13 @@ template int ObjectIncreaseHeadingBig();
 
 static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &newpos)
 {
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	if (get_seg_masks(vcvertptr, newpos, vcsegptr(objp->segnum), objp->size).facemask == 0)
 	{
 		objp->pos = newpos;
 	} else {
-		if (verify_object_seg(objp, newpos)) {
+		if (verify_object_seg(vmobjptr, Segments, vcvertptr, objp, newpos)) {
 			int		fate;
 			object	temp_viewer_obj;
 			fvi_query fq;

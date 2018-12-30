@@ -238,6 +238,8 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 	 */
 	constexpr fix size_scalar = 0x18000;	// 1.5 in fixed point
 	unsigned segments_with_spare_capacity = 0;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	for (unsigned i = 0; i < preplaced_starts; ++i)
 	{
 		/* For each existing Player_init, compute whether the segment is
@@ -977,6 +979,8 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	plr = save_player;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	set_sound_sources(vcsegptridx, vcvertptr);
 
 #if DXX_USE_EDITOR

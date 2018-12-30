@@ -100,6 +100,8 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 				is_marker = 1;
 #endif
 
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		// for pretty dim sources, only process vertices in object's own segment.
 		//	12/04/95, MK, markers only cast light in own segment.
 		if ((abs(obji_64) <= F1_0*8) || is_marker) {
@@ -495,6 +497,7 @@ void set_dynamic_light(render_state_t &rstate)
 
 	//	Create list of vertices that need to be looked at for setting of ambient light.
 	uint_fast32_t n_render_vertices = 0;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	range_for (const auto segnum, partial_const_range(rstate.Render_list, rstate.N_render_segs))
 	{
 		if (segnum != segment_none) {

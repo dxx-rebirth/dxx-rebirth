@@ -785,6 +785,8 @@ constexpr fix CROSS_HEIGHT = i2f(8);
 static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, const unsigned _side, const unsigned edge, const unsigned vert)
 {
 	auto &verts = seg.verts;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, verts).uand)
 	{		//all off screen?
 		g3s_point *pnt;
@@ -944,7 +946,7 @@ static bool compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, c
 //see if the order matters for these two children.
 //returns 0 if order doesn't matter, 1 if c0 before c1, -1 if c1 before c0
 __attribute_warn_unused_result
-static bool compare_children(const vms_vector &Viewer_eye, const vcsegptridx_t seg, const sidenum_fast_t s0, const sidenum_fast_t s1)
+static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const vcsegptridx_t seg, const sidenum_fast_t s0, const sidenum_fast_t s1)
 {
 	Assert(s0 != side_none && s1 != side_none);
 
@@ -959,14 +961,14 @@ static bool compare_children(const vms_vector &Viewer_eye, const vcsegptridx_t s
 	if (edge_verts[0] == -1 || edge_verts[1] == -1)
 		throw std::logic_error("invalid edge vert");
 	const auto &&seg0 = seg.absolute_sibling(seg->children[s0]);
-	auto edgeside0 = find_seg_side(seg0,edge_verts,find_connect_side(seg,seg0));
+	const auto edgeside0 = find_seg_side(seg0, edge_verts, find_connect_side(seg, seg0));
 	if (edgeside0 == side_none)
 		return false;
-	auto r0 = compare_child(vcvertptr, Viewer_eye, seg, seg0, edgeside0);
+	const auto r0 = compare_child(vcvertptr, Viewer_eye, seg, seg0, edgeside0);
 	if (!r0)
 		return r0;
 	const auto &&seg1 = seg.absolute_sibling(seg->children[s1]);
-	auto edgeside1 = find_seg_side(seg1,edge_verts,find_connect_side(seg,seg1));
+	const auto edgeside1 = find_seg_side(seg1, edge_verts, find_connect_side(seg, seg1));
 	if (edgeside1 == side_none)
 		return false;
 	return !compare_child(vcvertptr, Viewer_eye, seg, seg1, edgeside1);
@@ -975,13 +977,13 @@ static bool compare_children(const vms_vector &Viewer_eye, const vcsegptridx_t s
 //short the children of segment to render in the correct order
 //returns non-zero if swaps were made
 typedef array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> sort_child_array_t;
-static void sort_seg_children(const vms_vector &Viewer_eye, const vcsegptridx_t seg, const partial_range_t<sort_child_array_t::iterator> &r)
+static void sort_seg_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const vcsegptridx_t seg, const partial_range_t<sort_child_array_t::iterator> &r)
 {
 	//for each child,  compare with other children and see if order matters
 	//if order matters, fix if wrong
-	auto predicate = [&Viewer_eye, seg](const sidenum_fast_t a, const sidenum_fast_t b)
+	auto predicate = [&vcvertptr, &Viewer_eye, seg](const sidenum_fast_t a, const sidenum_fast_t b)
 	{
-		return compare_children(Viewer_eye, seg, a, b);
+		return compare_children(vcvertptr, Viewer_eye, seg, a, b);
 	};
 		std::sort(r.begin(), r.end(), predicate);
 }
@@ -1085,6 +1087,8 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 {
 	int nn;
 	const auto viewer = Viewer;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	for (nn=0;nn < rstate.N_render_segs;nn++) {
 		const auto segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
@@ -1270,6 +1274,8 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 
 	//build list
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	for (l=0;l<Render_depth;l++) {
 		for (scnt=0;scnt < ecnt;scnt++) {
 			auto segnum = rstate.Render_list[scnt];
@@ -1314,7 +1320,7 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 
 			//now order the sides in some magical way
 			const auto &&child_range = partial_range(child_list, n_children);
-			sort_seg_children(Viewer_eye, seg, child_range);
+			sort_seg_children(vcvertptr, Viewer_eye, seg, child_range);
 			project_list(seg->verts);
 			range_for (const auto siden, child_range)
 			{
@@ -1541,6 +1547,8 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
         // GL_DEPTH_TEST helps to sort everything in view but we should make sure translucent sprites are rendered after geometry to prevent them to turn walls invisible (if rendered BEFORE geometry but still in FRONT of it).
         // If walls use blending, they should be rendered along with objects (in same pass) to prevent some ugly clipping.
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
         // First Pass: render opaque level geometry and level geometry with alpha pixels (high Alpha-Test func)
 	range_for (const auto segnum, reversed_render_range)
 	{

@@ -76,7 +76,7 @@ struct trigger_dialog
 //-----------------------------------------------------------------
 // Adds a trigger to wall, and returns the trigger number. 
 // If there is a trigger already present, it returns the trigger number. (To be replaced)
-static trgnum_t add_trigger(trigger_array &Triggers, fvmwallptr &vmwallptr, const shared_segment &seg, const unsigned side)
+static trgnum_t add_trigger(trigger_array &Triggers, fvcvertptr &vcvertptr, wall_array &Walls, const shared_segment &seg, const unsigned side)
 {
 	trgnum_t trigger_num = Triggers.get_count();
 
@@ -85,8 +85,9 @@ static trgnum_t add_trigger(trigger_array &Triggers, fvmwallptr &vmwallptr, cons
 
 	auto wall_num = seg.sides[side].wall_num;
 	wall *wp;
+	auto &vmwallptr = Walls.vmptr;
 	if (wall_num == wall_none) {
-		wall_add_to_markedside(WALL_OPEN);
+		wall_add_to_markedside(vcvertptr, Walls, WALL_OPEN);
 		wall_num = seg.sides[side].wall_num;
 		wp = vmwallptr(wall_num);
 		// Set default values first time trigger is added
@@ -126,7 +127,9 @@ static int trigger_flag_Markedside(const TRIGGER_FLAG flag, const int value)
 	// If no wall just return
 	const auto wall_num = Markedsegp->shared_segment::sides[Markedside].wall_num;
 	if (!value && wall_num == wall_none) return 0;
-	const auto trigger_num = value ? add_trigger(Triggers, vmwallptr, Markedsegp, Markedside) : vcwallptr(wall_num)->trigger;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	const auto trigger_num = value ? add_trigger(Triggers, vcvertptr, Walls, Markedsegp, Markedside) : vcwallptr(wall_num)->trigger;
 
 	if (trigger_num == trigger_none) {
 		editor_status(value ? "Cannot add trigger at Markedside." : "No trigger at Markedside.");

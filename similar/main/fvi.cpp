@@ -141,6 +141,8 @@ static unsigned check_point_to_face(const vms_vector &checkp, const vms_vector &
 	check_i = checkp.*ij.i;
 	check_j = checkp.*ij.j;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	for (edge=edgemask=0;edge<nv;edge++) {
 		vec2d edgevec,checkvec;
 		fix64 d;
@@ -189,6 +191,8 @@ static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal,
 
 		for (edgenum=0;!(edgemask&1);(edgemask>>=1),edgenum++);
 
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		auto &v0 = *vcvertptr(vertex_list[facenum * 3 + edgenum]);
 		auto &v1 = *vcvertptr(vertex_list[facenum * 3 + ((edgenum + 1) % nv)]);
 
@@ -254,6 +258,8 @@ static int check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_
 		vertnum = *std::min_element(b, std::next(b, 4));
 	}
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	auto pli = find_plane_line_intersection(newp, vcvertptr(vertnum), norm, p0, p1, rad);
 
 	if (!pli) return IT_NONE;
@@ -330,6 +336,8 @@ static int special_check_line_to_face(vms_vector &newp, const vms_vector &p0, co
 
 	for (edgenum=0;!(edgemask&1);edgemask>>=1,edgenum++);
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	auto &edge_v0 = *vcvertptr(vertex_list[facenum * 3 + edgenum]);
 	auto &edge_v1 = *vcvertptr(vertex_list[facenum * 3 + ((edgenum + 1) % nv)]);
 
@@ -645,6 +653,8 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 		return hit_data.hit_type;
 	}
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	// Viewer is not in segment as claimed, so say there is no hit.
 	if(!(get_seg_masks(vcvertptr, *fq.p0, vcsegptr(fq.startseg), 0).centermask == 0))
 	{
@@ -870,6 +880,8 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 
 	//now, check segment walls
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	startmask = get_seg_masks(vcvertptr, p0, startseg, rad).facemask;
 
 	const auto &&masks = get_seg_masks(vcvertptr, p1, startseg, rad);    //on back of which faces?
@@ -1117,6 +1129,8 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, co
 	//2. compute u,v of intersection point
 
 	//vec from 1 -> 0
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	auto &vf1 = *vcvertptr(vn[facenum * 3 + 1].vertex);
 	const vec2d p1{vf1.*ii, vf1.*jj};
 
@@ -1199,6 +1213,8 @@ static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg
 	visited[segnum] = true;
 	++visited.count;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	facemask = get_seg_masks(vcvertptr, pnt, segnum, rad).facemask;
 
 	const auto &seg = segnum;

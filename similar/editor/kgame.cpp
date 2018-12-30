@@ -107,6 +107,8 @@ int SaveGameData()
 		if (Perm_player_segnum > Highest_segment_index)
 			Perm_player_segnum = segment_none;
 
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		if (Perm_player_segnum!=segment_none) {
 			if (get_seg_masks(vcvertptr, Perm_player_position, vcsegptr(Perm_player_segnum), 0).centermask == 0)
 			{
@@ -132,6 +134,9 @@ int SaveGameData()
 			auto found_save_segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, save_pos, save_segp);
 			if (found_save_segnum == segment_none) {
 				found_save_segnum = save_segp;
+				auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+				auto &Vertices = LevelSharedVertexState.get_vertices();
+				auto &vcvertptr = Vertices.vcptr;
 				compute_segment_center(vcvertptr, save_pos, save_segp);
 			}
 

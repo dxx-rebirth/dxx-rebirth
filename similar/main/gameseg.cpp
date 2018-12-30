@@ -598,7 +598,8 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 	else
 		vs = true;
 
-	auto &Vertices = LevelSharedSegmentState.get_vertices();
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	centermask = get_side_dists(Vertices.vcptr, p0, oldsegnum, side_dists);		//check old segment
 	if (centermask == 0) // we are in the old segment
 		return oldsegnum; //..say so
@@ -656,7 +657,8 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegm
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
 		auto &Segments = LevelSharedSegmentState.get_segments();
-		auto &Vertices = LevelSharedSegmentState.get_vertices();
+		auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+		auto &Vertices = LevelSharedVertexState.get_vertices();
 		range_for (const auto &&segp, Segments.vmptridx)
 		{
 			if (get_seg_masks(Vertices.vcptr, p, segp, 0).centermask == 0)
@@ -913,6 +915,8 @@ fcd_done1: ;
 			return fcd_abort_return_value;
 		}
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	while (qtail >= 0) {
 		segnum_t	parent_seg, this_seg;
 
@@ -977,7 +981,8 @@ namespace dsx {
 void create_shortpos_native(const d_level_shared_segment_state &LevelSharedSegmentState, shortpos &spp, const object_base &objp)
 {
 	auto &vcsegptr = LevelSharedSegmentState.get_segments().vcptr;
-	auto &vcvertptr = LevelSharedSegmentState.get_vertices().vcptr;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	spp.bytemat[0] = convert_to_byte(objp.orient.rvec.x);
 	spp.bytemat[1] = convert_to_byte(objp.orient.uvec.x);
 	spp.bytemat[2] = convert_to_byte(objp.orient.fvec.x);
@@ -1036,6 +1041,8 @@ void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 	Assert(segnum <= Highest_segment_index);
 
 	const auto &&segp = vmsegptridx(segnum);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	auto &vp = *vcvertptr(segp->verts[0]);
 	objp->pos.x = (INTEL_SHORT(spp->xo) << RELPOS_PRECISION) + vp.x;
 	objp->pos.y = (INTEL_SHORT(spp->yo) << RELPOS_PRECISION) + vp.y;
@@ -1535,7 +1542,8 @@ void validate_segment(fvcvertptr &vcvertptr, const vmsegptridx_t sp)
 void validate_segment_all(d_level_shared_segment_state &LevelSharedSegmentState)
 {
 	auto &Segments = LevelSharedSegmentState.get_segments();
-	auto &Vertices = LevelSharedSegmentState.get_vertices();
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	range_for (const auto &&segp, Segments.vmptridx)
 	{
 #if DXX_USE_EDITOR
@@ -1616,6 +1624,8 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 	if (!visited[segnum])
 	{
 		visited[segnum] = true;
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		const auto r_segment_center = compute_segment_center(vcvertptr, segp);
 		dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 	
@@ -1661,6 +1671,8 @@ static void change_segment_light(const vmsegptridx_t segp,int sidenum,int dir)
 
 		light_intensity = TmapInfo[sidep.tmap_num].lighting + TmapInfo[sidep.tmap_num2 & 0x3fff].lighting;
 		if (light_intensity) {
+			auto &Vertices = LevelSharedVertexState.get_vertices();
+			auto &vcvertptr = Vertices.vcptr;
 			const auto segment_center = compute_segment_center(vcvertptr, segp);
 			visited_segment_bitarray_t visited;
 			apply_light_to_segment(visited, segp, segment_center, light_intensity * dir, 0);

@@ -248,7 +248,7 @@ int med_rotate_segment(vmsegptridx_t seg, const vms_matrix &rotmat);
 //    Creates wall at sp->sides[side], making it part of segment sp
 //    Removable walls must be placed between two connected segments.  You should add the removable
 //    wall on both sides.  In fact, you really must.
-void create_removable_wall(vmsegptridx_t sp, int side, int tmap_num);
+void create_removable_wall(fvcvertptr &vcvertptr, vmsegptridx_t sp, unsigned side, unsigned tmap_num);
 }
 #endif
 

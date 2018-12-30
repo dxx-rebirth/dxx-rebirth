@@ -277,6 +277,8 @@ static void my_extract_shortpos(object_base &objp, const shortpos *const spp)
 	segnum_t segnum = spp->segment;
 	objp.segnum = segnum;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	auto &v = *vcvertptr(vcsegptr(segnum)->verts[0]);
 	objp.pos.x = (spp->xo << RELPOS_PRECISION) + v.x;
 	objp.pos.y = (spp->yo << RELPOS_PRECISION) + v.y;
@@ -546,7 +548,11 @@ static void nd_read_shortpos(object_base &obj)
 
 	my_extract_shortpos(obj, &sp);
 	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == VCLIP_MORPHING_ROBOT && render_type == RT_FIREBALL && obj.control_type == CT_EXPLOSION)
+	{
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		extract_orient_from_segment(vcvertptr, obj.orient, vcsegptr(obj.segnum));
+	}
 
 }
 

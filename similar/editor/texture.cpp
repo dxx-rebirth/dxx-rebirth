@@ -86,6 +86,8 @@ static int DoTexSlideLeft(int value)
 	auto &vp = Side_to_verts[Curside];
 	auto &uvls = Cursegp->unique_segment::sides[Curside].uvls;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[3]]), vcvertptr(Cursegp->verts[vp[0]]));
 	dist *= value;
 	if (dist < F1_0/(64*value))
@@ -123,6 +125,8 @@ static int DoTexSlideUp(int value)
 	auto &vp = Side_to_verts[Curside];
 	auto &uvls = Cursegp->unique_segment::sides[Curside].uvls;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[1]]), vcvertptr(Cursegp->verts[vp[0]]));
 	dist *= value;
 
@@ -162,6 +166,8 @@ static int DoTexSlideDown(int value)
 	auto &vp = Side_to_verts[Curside];
 	auto &uvls = Cursegp->unique_segment::sides[Curside].uvls;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[1]]), vcvertptr(Cursegp->verts[vp[0]]));
 	dist *= value;
 	if (dist < F1_0/(64*value))
@@ -279,6 +285,8 @@ static int DoTexSlideRight(int value)
 	auto &vp = Side_to_verts[Curside];
 	auto &uvls = Cursegp->unique_segment::sides[Curside].uvls;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[3]]), vcvertptr(Cursegp->verts[vp[0]]));
 	dist *= value;
 	if (dist < F1_0/(64*value))

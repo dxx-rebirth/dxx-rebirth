@@ -57,7 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-static int wall_add_to_side(const vmsegptridx_t segp, int side, sbyte type);
+static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t segp, unsigned side, unsigned type);
 
 //-------------------------------------------------------------------------
 // Variables for this module...
@@ -92,7 +92,7 @@ static window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &eve
 
 //---------------------------------------------------------------------
 // Add a wall (removable 2 sided)
-static int add_wall(const vmsegptridx_t seg, short side)
+static int add_wall(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t seg, const unsigned side)
 {
 	if (Walls.get_count() < MAX_WALLS-2)
   	if (IS_CHILD(seg->children[side])) {
@@ -113,8 +113,8 @@ static int add_wall(const vmsegptridx_t seg, short side)
 			Walls.set_count(Walls.get_count() + 1);
 			}
 		
-		create_removable_wall( seg, side, CurrentTexture );
-		create_removable_wall( csegp, Connectside, CurrentTexture );
+		create_removable_wall(vcvertptr, seg, side, CurrentTexture);
+		create_removable_wall(vcvertptr, csegp, Connectside, CurrentTexture);
 
 		return 1;
 		}
@@ -165,17 +165,23 @@ static int wall_assign_door(int door_type)
 
 int wall_add_blastable()
 {
-	return wall_add_to_side(Cursegp, Curside, WALL_BLASTABLE);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	return wall_add_to_side(vcvertptr, Walls, Cursegp, Curside, WALL_BLASTABLE);
 }
 
 int wall_add_door()
 {
-	return wall_add_to_side(Cursegp, Curside, WALL_DOOR);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	return wall_add_to_side(vcvertptr, Walls, Cursegp, Curside, WALL_DOOR);
 }
 
 int wall_add_closed_wall()
 {
-	return wall_add_to_side(Cursegp, Curside, WALL_CLOSED);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	return wall_add_to_side(vcvertptr, Walls, Cursegp, Curside, WALL_CLOSED);
 }
 
 int wall_add_external_wall()
@@ -198,7 +204,9 @@ int wall_add_external_wall()
 
 int wall_add_illusion()
 {
-	return wall_add_to_side(Cursegp, Curside, WALL_ILLUSION);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	return wall_add_to_side(vcvertptr, Walls, Cursegp, Curside, WALL_ILLUSION);
 }
 
 static int GotoPrevWall() {
@@ -727,12 +735,13 @@ int wall_remove()
 
 //---------------------------------------------------------------------
 // Add a wall to curside
-static int wall_add_to_side(const vmsegptridx_t segp, int side, sbyte type)
+static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t segp, const unsigned side, const unsigned type)
 {
-	if (add_wall(segp, side)) {
+	if (add_wall(vcvertptr, Walls, segp, side)) {
 		const auto &&csegp = segp.absolute_sibling(segp->children[side]);
 		auto connectside = find_connect_side(segp, csegp);
 
+		auto &vmwallptr = Walls.vmptr;
 		auto &w0 = *vmwallptr(segp->shared_segment::sides[side].wall_num);
 		auto &w1 = *vmwallptr(csegp->shared_segment::sides[connectside].wall_num);
 		w0.segnum = segp;
@@ -786,14 +795,15 @@ static int wall_add_to_side(const vmsegptridx_t segp, int side, sbyte type)
 
 //---------------------------------------------------------------------
 // Add a wall to markedside
-int wall_add_to_markedside(sbyte type)
+int wall_add_to_markedside(fvcvertptr &vcvertptr, wall_array &Walls, const int8_t type)
 {
-	if (add_wall(Markedsegp, Markedside)) {
+	if (add_wall(vcvertptr, Walls, Markedsegp, Markedside)) {
 		const auto &&csegp = vmsegptridx(Markedsegp->children[Markedside]);
 		auto Connectside = find_connect_side(Markedsegp, csegp);
 
 		const auto wall_num = Markedsegp->shared_segment::sides[Markedside].wall_num;
 		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
+		auto &vmwallptr = Walls.vmptr;
 		auto &w0 = *vmwallptr(wall_num);
 		auto &w1 = *vmwallptr(cwall_num);
 

@@ -866,6 +866,8 @@ static int find_exit_side(const object_base &obj)
 	vm_vec_normalized_dir_quick(prefvec, obj.pos, obj.last_pos);
 
 	auto &pseg = *vcsegptr(obj.segnum);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	const auto segcenter = compute_segment_center(vcvertptr, pseg);
 
 	best_side=-1;
@@ -1181,6 +1183,8 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		//update target point & angles
 
 		//where we are heading (center of exit_side)
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		auto dest_point = compute_center_point_on_side(vcvertptr, pseg, exit_side);
 		const vms_vector nextcenter = (pseg.children[exit_side] == segment_exit)
 			? dest_point
@@ -1457,6 +1461,8 @@ try_again:
 	Assert(exit_segnum!=segment_none);
 
 	const auto &&exit_seg = vmsegptr(exit_segnum);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, mine_exit_point, exit_seg);
 	extract_orient_from_segment(vcvertptr, mine_exit_orient, exit_seg);
 	compute_center_point_on_side(vcvertptr, mine_side_exit_point, exit_seg, exit_side);

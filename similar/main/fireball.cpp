@@ -580,6 +580,8 @@ static vmsegptridx_t choose_drop_segment(fvcsegptridx &vcsegptridx, fvmsegptridx
 	const auto &&player_seg = vcsegptridx(drop_playerobj.segnum);
 
 	segnum_t	segnum = segment_none;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	for (; (segnum == segment_none) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2); --cur_drop_depth)
 	{
 		pnum = (d_rand() * N_players) >> 15;
@@ -660,6 +662,8 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 			return;
 
 		const auto &&segnum = choose_drop_segment(LevelSharedSegmentState.get_segments().vcptridx, LevelUniqueSegmentState.get_segments().vmptridx, pnum);
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		const auto &&new_pos = pick_random_point_in_seg(vcvertptr, segnum);
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
 		objnum->pos = new_pos;
@@ -1354,6 +1358,8 @@ void do_exploding_wall_frame(wall &w1)
 
 	const auto vertnum_list = get_side_verts(seg, w1sidenum);
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	auto &v0 = *vcvertptr(vertnum_list[0]);
 	auto &v1 = *vcvertptr(vertnum_list[1]);
 	auto &v2 = *vcvertptr(vertnum_list[2]);

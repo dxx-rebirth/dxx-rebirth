@@ -711,7 +711,7 @@ int player_is_visible_from_object(const vmobjptridx_t objp, vms_vector &pos, fix
 		if (segnum == segment_none) {
 			fq.startseg = objp->segnum;
 			pos = objp->pos;
-			move_towards_segment_center(objp);
+			move_towards_segment_center(LevelSharedSegmentState, objp);
 		} else
 		{
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1140,7 +1140,7 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 			fate = find_vector_intersection(fq, hit_data);
 			if (fate != HIT_NONE) {
 				Int3();		//	This bot's gun is poking through a wall, so don't fire.
-				move_towards_segment_center(obj);		//	And decrease chances it will happen again.
+				move_towards_segment_center(LevelSharedSegmentState, obj);		//	And decrease chances it will happen again.
 				return;
 			}
 		}
@@ -1695,7 +1695,7 @@ static void compute_vis_and_vec(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
 // --------------------------------------------------------------------------------------------------------------------
 //	Move object one object radii from current position towards segment center.
 //	If segment center is nearer than 2 radii, move it to center.
-void move_towards_segment_center(object_base &objp)
+void move_towards_segment_center(const d_level_shared_segment_state &LevelSharedSegmentState, object_base &objp)
 {
 /* ZICO's change of 20081103:
    Make move to segment center smoother by using move_towards vector.
@@ -1704,7 +1704,9 @@ void move_towards_segment_center(object_base &objp)
 	const auto segnum = objp.segnum;
 	vms_vector	vec_to_center;
 
-	const auto &&segment_center = compute_segment_center(vcvertptr, vcsegptr(segnum));
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &SSegments = LevelSharedSegmentState.get_segments();
+	const auto &&segment_center = compute_segment_center(Vertices.vcptr, SSegments.vcptr(segnum));
 	vm_vec_normalized_dir_quick(vec_to_center, segment_center, objp.pos);
 	move_towards_vector(objp, vec_to_center, 1);
 }
@@ -1903,6 +1905,8 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 		return object_none;
 	}
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	const auto object_pos = pos ? *pos : pick_random_point_in_seg(vcvertptr, segp);
 
 	//	See if legal to place object here.  If not, move about in segment and try again.
@@ -2010,6 +2014,8 @@ void create_buddy_bot(void)
 			break;
 	}
 	const auto &&segp = vmsegptridx(ConsoleObject->segnum);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	const auto &&object_pos = compute_segment_center(vcvertptr, segp);
 	create_morph_robot(segp, object_pos, buddy_id);
 }
@@ -2036,6 +2042,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 	Selected_segs.clear();
 #endif
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	{
 		int			head, tail;
 		array<segnum_t, QUEUE_SIZE> seg_queue;
@@ -2044,6 +2051,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 		head = 0;
 		tail = 0;
 		seg_queue[head++] = original_boss_seg;
+		auto &vcvertptr = Vertices.vcptr;
 
 		if ((!size_check) || boss_fits_in_seg(vcvertptr, boss_objp, vcsegptridx(original_boss_seg)))
 		{
@@ -2128,6 +2136,8 @@ static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx,
 		multi_send_boss_teleport(objp, rand_segnum);
 
 	const auto &&rand_segp = vmsegptridx(rand_segnum);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, objp->pos, rand_segp);
 	obj_relink(vmobjptr, vmsegptr, objp, rand_segp);
 
@@ -3166,7 +3176,7 @@ _exit_cheat:
 			switch (ailp.mode) {
 #if defined(DXX_BUILD_DESCENT_II)
 				case ai_mode::AIM_GOTO_PLAYER:
-					move_towards_segment_center(obj);
+					move_towards_segment_center(LevelSharedSegmentState, obj);
 					create_path_to_player(obj, 100, create_path_safety_flag::safe);
 					break;
 				case ai_mode::AIM_GOTO_OBJECT:
@@ -3181,7 +3191,7 @@ _exit_cheat:
 					if (!((aip->behavior == ai_behavior::AIB_STILL) || (aip->behavior == ai_behavior::AIB_STATION)))	//	Behavior is still, so don't follow path.
 #elif defined(DXX_BUILD_DESCENT_II)
 					if (robptr.attack_type)
-						move_towards_segment_center(obj);
+						move_towards_segment_center(LevelSharedSegmentState, obj);
 					else if (!((aip->behavior == ai_behavior::AIB_STILL) || (aip->behavior == ai_behavior::AIB_STATION) || (aip->behavior == ai_behavior::AIB_FOLLOW)))    // Behavior is still, so don't follow path.
 #endif
 						attempt_to_resume_path(obj);
@@ -3193,14 +3203,14 @@ _exit_cheat:
 						attempt_to_resume_path(obj);
 					break;
 				case ai_mode::AIM_RUN_FROM_OBJECT:
-					move_towards_segment_center(obj);
+					move_towards_segment_center(LevelSharedSegmentState, obj);
 					obj->mtype.phys_info.velocity = {};
 					create_n_segment_path(obj, 5, segment_none);
 					ailp.mode = ai_mode::AIM_RUN_FROM_OBJECT;
 					break;
 #if defined(DXX_BUILD_DESCENT_I)
 				case ai_mode::AIM_HIDE:
-					move_towards_segment_center(obj);
+					move_towards_segment_center(LevelSharedSegmentState, obj);
 					obj->mtype.phys_info.velocity = {};
 					if (Overall_agitation > (50 - Difficulty_level*4))
 						create_path_to_player(obj, 4 + Overall_agitation/8, create_path_safety_flag::safe);
@@ -3210,7 +3220,7 @@ _exit_cheat:
 					break;
 #elif defined(DXX_BUILD_DESCENT_II)
 				case ai_mode::AIM_BEHIND:
-					move_towards_segment_center(obj);
+					move_towards_segment_center(LevelSharedSegmentState, obj);
 					obj->mtype.phys_info.velocity = {};
 					break;
 				case ai_mode::AIM_SNIPE_ATTACK:
@@ -3845,6 +3855,8 @@ _exit_cheat:
 
 			if (!ai_multiplayer_awareness(obj, 62))
 				return;
+			auto &Vertices = LevelSharedVertexState.get_vertices();
+			auto &vcvertptr = Vertices.vcptr;
 			const auto &&center_point = compute_center_point_on_side(vcvertptr, vcsegptr(obj->segnum), aip->GOALSIDE);
 			const auto goal_vector = vm_vec_normalized_quick(vm_vec_sub(center_point, obj->pos));
 			ai_turn_towards_vector(goal_vector, obj, robptr.turn_time[Difficulty_level]);

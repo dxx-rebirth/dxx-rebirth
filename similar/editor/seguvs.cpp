@@ -284,7 +284,7 @@ fix	Stretch_scale_y = F1_0;
 //	(Actually, assign them to the coordinates in the faces.)
 //	va, vb = face-relative vertex indices corresponding to uva, uvb.  Ie, they are always in 0..3 and should be looked up in
 //	Side_to_verts[side] to get the segment relative index.
-static void assign_uvs_to_side(const vmsegptridx_t segp, int sidenum, uvl *uva, uvl *uvb, int va, int vb)
+static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, int sidenum, uvl *uva, uvl *uvb, int va, int vb)
 {
 	int			vlo,vhi;
 	unsigned v0, v1, v2, v3;
@@ -407,9 +407,11 @@ void assign_default_uvs_to_side(const vmsegptridx_t segp, const unsigned side)
 	uv0.v = 0;
 	auto &vp = Side_to_verts[side];
 	uv1.u = 0;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	uv1.v = Num_tilings * fixmul(Vmag, vm_vec_dist(vcvertptr(segp->verts[vp[1]]), vcvertptr(segp->verts[vp[0]])));
 
-	assign_uvs_to_side(segp, side, &uv0, &uv1, 0, 1);
+	assign_uvs_to_side(vcvertptr, segp, side, &uv0, &uv1, 0, 1);
 }
 
 // -----------------------------------------------------------------------------------------------------------
@@ -433,7 +435,9 @@ void stretch_uvs_from_curedge(const vmsegptridx_t segp, int side)
 	uv1.u = uvls[v1].u;
 	uv1.v = uvls[v1].v;
 
-	assign_uvs_to_side(segp, side, &uv0, &uv1, v0, v1);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	assign_uvs_to_side(vcvertptr, segp, side, &uv0, &uv1, v0, v1);
 }
 
 // --------------------------------------------------------------------------------------------------------------
@@ -585,7 +589,9 @@ void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned con_comm
 
 	Assert((uv1.u != uv2.u) || (uv1.v != uv2.v));
 	Assert( (vv1 != -1) && (vv2 != -1) );
-	assign_uvs_to_side(con_seg, con_common_side, &uv1, &uv2, vv1, vv2);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	assign_uvs_to_side(vcvertptr, con_seg, con_common_side, &uv1, &uv2, vv1, vv2);
 }
 
 
@@ -883,6 +889,8 @@ static int Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
 	int			sidenum,vertnum;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	const auto segment_center = compute_segment_center(vcvertptr, segp);
 	//	Do for four lights, one just inside each corner of side containing light.
 	range_for (const auto lightnum, Side_to_verts[light_side])
@@ -1040,7 +1048,9 @@ static void calim_zero_light_values(void)
 //	of all segments.
 static void cast_light_from_side_to_center(const vmsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
-	const auto segment_center = compute_segment_center(vcvertptr, segp);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	const auto &&segment_center = compute_segment_center(vcvertptr, segp);
 	//	Do for four lights, one just inside each corner of side containing light.
 	range_for (const auto lightnum, Side_to_verts[light_side])
 	{

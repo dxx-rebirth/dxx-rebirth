@@ -1086,6 +1086,8 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 	if (type == OBJ_DEBRIS && ObjectState.Debris_object_count >= Max_debris_objects && !PERSISTENT_DEBRIS)
 		return object_none;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	if (get_seg_masks(vcvertptr, pos, segnum, 0).centermask != 0)
 	{
 		const auto &&p = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, segnum);
@@ -1840,6 +1842,8 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 
 			auto &playing = obj->ctype.player_info.lavafall_hiss_playing;
 			const auto &&segp = vcsegptr(obj->segnum);
+			auto &Vertices = LevelSharedVertexState.get_vertices();
+			auto &vcvertptr = Vertices.vcptr;
 			if (const auto sidemask = get_seg_masks(vcvertptr, obj->pos, segp, obj->size).sidemask)
 			{
 				for (unsigned sidenum = 0; sidenum != MAX_SIDES_PER_SEGMENT; ++sidenum)
@@ -2071,6 +2075,8 @@ void set_powerup_id(const d_powerup_info_array &Powerup_info, const d_vclip_arra
 //go through all objects and make sure they have the correct segment numbers
 void fix_object_segs()
 {
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	range_for (const auto &&o, vmobjptridx)
 	{
 		if (o->type != OBJ_NONE)

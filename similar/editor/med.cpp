@@ -562,6 +562,9 @@ static void move_player_2_segment_and_rotate(const vmsegptridx_t seg, const unsi
 {
         static int edgenum=0;
 
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, ConsoleObject->pos,seg);
 	auto vp = compute_center_point_on_side(vcvertptr, seg, side);
 	vm_vec_sub2(vp,ConsoleObject->pos);
@@ -594,6 +597,9 @@ int SetPlayerFromCursegMinusOne()
         static int edgenum=0;
 	const auto view_vec = vm_vec_negated(Cursegp->shared_segment::sides[Curside].normals[0]);
 
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	const auto &&side_center = compute_center_point_on_side(vcvertptr, Cursegp, Curside);
 	const auto view_vec2 = vm_vec_copy_scale(view_vec,view_dist);
 	vm_vec_sub(ConsoleObject->pos,side_center,view_vec2);
@@ -1279,7 +1285,11 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 			Cursegp = imsegptridx(Found_segs[0]);
 			med_create_new_segment_from_cursegp();
 			if (Lock_view_to_cursegp)
+			{
+				auto &Vertices = LevelSharedVertexState.get_vertices();
+				auto &vcvertptr = Vertices.vcptr;
 				set_view_target_from_segment(vcvertptr, Cursegp);
+			}
 		}
 
 		Update_flags |= UF_ED_STATE_CHANGED | UF_VIEWPOINT_MOVED;

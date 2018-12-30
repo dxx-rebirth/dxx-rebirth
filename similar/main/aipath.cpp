@@ -109,6 +109,8 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 		Assert(connect_side != side_none);	//	Impossible!  These two segments must be connected, they were created by create_path_points (which was created by mk!)
 		if (connect_side == side_none)			//	Try to blow past the assert, this should at least prevent a hang.
 			connect_side = 0;
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		const auto &&center_point = compute_center_point_on_side(vcvertptr, seg1, connect_side);
 		auto new_point = vm_vec_sub(psegs[i-1].point, center_point);
 		new_point.x /= 16;
@@ -161,6 +163,9 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 	assert(num_points < new_psegs.size());
 
 	auto &Segments = LevelSharedSegmentState.get_segments();
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	for (i = 1; i < num_points - 1; ++i)
 	{
 		fix			segment_size;
@@ -323,6 +328,9 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 	visited[cur_seg] = true;
 	cur_depth = 0;
 
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	while (cur_seg != end_seg) {
 		const auto &&segp = vcsegptr(cur_seg);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1446,7 +1454,7 @@ void attempt_to_resume_path(const vmobjptridx_t objp)
 		aip->cur_path_index = new_path_index;
 	} else {
 		// At end of line and have nowhere to go.
-		move_towards_segment_center(objp);
+		move_towards_segment_center(LevelSharedSegmentState, objp);
 		create_path_to_station(objp, 15);
 	}
 }

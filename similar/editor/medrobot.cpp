@@ -343,7 +343,11 @@ static int LocalObjectSelectNextinSegment(void)
 	}
 
 	if (Cur_object_index != first_obj)
+	{
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
+	}
 
 	return rval;
 }
@@ -372,7 +376,11 @@ static int LocalObjectSelectNextinMine(void)
 	}
 
 	if (Cur_object_index != first_obj)
+	{
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
+	}
 
 	return rval;
 }
@@ -401,7 +409,11 @@ static int LocalObjectSelectPrevinMine(void)
 	}
 
 	if (Cur_object_index != first_obj)
+	{
+		auto &Vertices = LevelSharedVertexState.get_vertices();
+		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
+	}
 
 	return rval;
 }
@@ -419,6 +431,8 @@ static int LocalObjectDelete(void)
 		Cur_goody_count = objp.contains_count;
 	}
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	set_view_target_from_segment(vcvertptr, Cursegp);
 
 	return rval;
@@ -446,6 +460,8 @@ static int LocalObjectPlaceObject(void)
 	objp->contains_id = Cur_goody_id;
 	objp->contains_count = Cur_goody_count;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	set_view_target_from_segment(vcvertptr, Cursegp);
 
 	return rval;

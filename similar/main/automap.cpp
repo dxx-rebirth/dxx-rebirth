@@ -1128,6 +1128,8 @@ void draw_all_edges(grs_canvas &canvas, automap *const am)
 	fix distance;
 	fix min_distance = INT32_MAX;
 
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	range_for (auto &i, unchecked_partial_range(am->edges.get(), am->end_valid_edges))
 	{
 		const auto e = &i;
