@@ -193,7 +193,17 @@ struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
 DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(cloaking_wall, clwall, CloakingWalls);
 #endif
 
-DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(wall, wall, Walls);
+struct d_level_unique_wall_state
+{
+	wall_array Walls;
+};
+
+struct d_level_unique_wall_subsystem_state :
+	d_level_unique_wall_state
+{
+};
+
+extern d_level_unique_wall_subsystem_state LevelUniqueWallSubsystemState;
 
 struct wclip : public prohibit_void_ptr<wclip>
 {

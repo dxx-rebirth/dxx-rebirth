@@ -478,6 +478,8 @@ static void draw_wall_side(const shared_segment &seg, const unsigned side, const
 // Draws special walls (for now these are just removable walls.)
 static void draw_special_wall(const shared_segment &seg, const unsigned side)
 {
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	auto &w = *vcwallptr(seg.sides[side].wall_num);
 	const auto get_color = [=]() {
 		const auto type = w.type;

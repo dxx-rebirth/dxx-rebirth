@@ -1779,6 +1779,8 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static void net_udp_send_door_updates(void)
 {
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptridx = Walls.vcptridx;
 	// Send door status when new player joins
 	range_for (const auto &&p, vcwallptridx)
 	{
@@ -1794,6 +1796,8 @@ static void net_udp_send_door_updates(void)
 static void net_udp_send_door_updates(const playernum_t pnum)
 {
 	// Send door status when new player joins
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptridx = Walls.vcptridx;
 	range_for (const auto &&p, vcwallptridx)
 	{
 		auto &w = *p;

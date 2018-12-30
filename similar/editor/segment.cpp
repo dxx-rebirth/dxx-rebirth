@@ -463,6 +463,8 @@ static void compress_segments(void)
 	segnum_t		hole,seg;
 	seg = Highest_segment_index;
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vmwallptr = Walls.vmptr;
 	for (hole=0; hole < seg; hole++)
 		if (Segments[hole].segnum == segment_none) {
 			// found an unused segment which is a hole if a used segment follows (not necessarily immediately) it.

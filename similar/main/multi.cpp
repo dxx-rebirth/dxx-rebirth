@@ -2334,7 +2334,7 @@ static void multi_do_drop_marker(object_array &objects, fvmsegptridx &vmsegptrid
 }
 #endif
 
-static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, fvmwallptr &vmwallptr, const uint8_t *const buf)
+static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, wall_array &Walls, const uint8_t *const buf)
 {
 	// Update hit point status of a door
 
@@ -2344,6 +2344,7 @@ static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, fvmwallptr &
 	wallnum_t wallnum = GET_INTEL_SHORT(buf + count);     count += 2;
 	hps = GET_INTEL_INT(buf + count);           count += 4;
 
+	auto &vmwallptr = Walls.vmptr;
 	auto &w = *vmwallptr(wallnum);
 	if (wallnum >= Walls.get_count() || hps < 0 || w.type != WALL_BLASTABLE)
 	{
@@ -5606,6 +5607,8 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 {
 	// Take an entire message (that has already been checked for validity,
 	// if necessary) and act on it.
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vmwallptr = Walls.vmptr;
 	switch(type)
 	{
 		case MULTI_POSITION:
@@ -5736,7 +5739,7 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_CREATE_ROBOT_POWERUPS:
 			multi_do_create_robot_powerups(pnum, buf); break;
 		case MULTI_HOSTAGE_DOOR:
-			multi_do_hostage_door_status(vmsegptridx, vmwallptr, buf);
+			multi_do_hostage_door_status(vmsegptridx, Walls, buf);
 			break;
 		case MULTI_SAVE_GAME:
 			multi_do_save_game(buf); break;

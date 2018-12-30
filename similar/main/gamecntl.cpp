@@ -1078,6 +1078,8 @@ static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptri
 
 	do_controlcen_destroyed_stuff(object_none);
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	for (trgnum_t i = 0; i < Triggers.get_count(); i++)
 	{
 		const auto &&t = vctrgptr(i);

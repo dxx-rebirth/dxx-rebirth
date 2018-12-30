@@ -1452,6 +1452,8 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 	am->num_edges = 0;
 	am->end_valid_edges = 0;
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	if (add_all_edges)	{
 		// Cheating, add all edges as visited
 		range_for (const auto &&segp, vcsegptridx)

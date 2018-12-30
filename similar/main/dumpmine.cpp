@@ -594,6 +594,8 @@ static void write_trigger_text(PHYSFS_File *my_file)
 {
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Triggers:\n");
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	range_for (auto &&t, vctrgptridx)
 	{
 		const auto i = static_cast<trgnum_t>(t);
@@ -651,6 +653,8 @@ void write_game_text_file(const char *filename)
 
 	PHYSFSX_printf(my_file, "\nNumber of segments:   %4i\n", Highest_segment_index+1);
 	PHYSFSX_printf(my_file, "Number of objects:    %4i\n", Highest_object_index+1);
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptridx = Walls.vcptridx;
 	PHYSFSX_printf(my_file, "Number of walls:      %4i\n", Walls.get_count());
 	PHYSFSX_printf(my_file, "Number of open doors: %4i\n", ActiveDoors.get_count());
 	PHYSFSX_printf(my_file, "Number of triggers:   %4i\n", Triggers.get_count());
@@ -734,6 +738,7 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 	int	sidenum;
 	int	j;
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 #if defined(DXX_BUILD_DESCENT_I)
 	tmap_buf = {};
 

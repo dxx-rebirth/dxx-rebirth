@@ -1102,6 +1102,8 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 		}
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	//	Handle problem of a robot firing through a wall because its gun tip is on the other
 	//	side of the wall than the robot's center.  For speed reasons, we normally only compute
 	//	the vector from the gun point to the player.  But we need to know whether the gun point
@@ -1729,6 +1731,8 @@ int ai_door_is_openable(
 	if (wall_num == wall_none)		//if there's no door at all...
 		return 0;				//..then say it can't be opened
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	auto &wall = *vcwallptr(wall_num);
 	//	The mighty console object can open all doors (for purposes of determining paths).
 	if (objp == ConsoleObject) {
@@ -2042,6 +2046,8 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 #endif
 
 	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	{
 		int			head, tail;
 		array<segnum_t, QUEUE_SIZE> seg_queue;
@@ -3379,6 +3385,8 @@ _exit_cheat:
 			}
 			else if (ailp.mode != ai_mode::AIM_STILL)
 			{
+				auto &Walls = LevelUniqueWallSubsystemState.Walls;
+				auto &vcwallptr = Walls.vcptr;
 				const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(obj->segnum));
 				if (r != side_none)
 				{
@@ -3440,6 +3448,8 @@ _exit_cheat:
 			return;
 	}
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	// More special ability stuff, but based on a property of a robot, not its ID.
 	if (robot_is_companion(robptr)) {
 

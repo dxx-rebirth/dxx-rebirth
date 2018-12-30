@@ -742,6 +742,8 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 
 	digi_init_sounds();		//clear old sounds
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	Dont_start_sound_objects = 1;
 #endif
 

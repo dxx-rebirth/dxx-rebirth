@@ -1982,6 +1982,8 @@ constexpr std::integral_constant<fix, INT32_MIN> flicker_timer_disabled{};
 
 static void flicker_lights(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, d_flickering_light_state &fls, fvmsegptridx &vmsegptridx)
 {
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	range_for (auto &f, partial_range(fls.Flickering_lights, fls.Num_flickering_lights))
 	{
 		if (f.timer == flicker_timer_disabled)		//disabled

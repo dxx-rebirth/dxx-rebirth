@@ -99,7 +99,7 @@ valptridx<cloaking_wall>::array_managed_type CloakingWalls;
 d_level_unique_object_state LevelUniqueObjectState;
 valptridx<object>::array_managed_type Objects;
 valptridx<trigger>::array_managed_type Triggers;
-valptridx<wall>::array_managed_type Walls;
+d_level_unique_wall_subsystem_state LevelUniqueWallSubsystemState;
 }
 
 /*

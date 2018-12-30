@@ -82,7 +82,9 @@ static inline void trigger_wall_op(const trigger &t, T1 &segment_factory, const 
 // Opens doors, Blasts blast walls, turns off illusions.
 static void do_link(const trigger &t)
 {
-	const auto &&op = [](const vmsegptridx_t segnum, const unsigned sidenum) {
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vmwallptr = Walls.vmptr;
+	const auto &&op = [&vmwallptr](const vmsegptridx_t segnum, const unsigned sidenum) {
 		wall_toggle(vmwallptr, segnum, sidenum);
 	};
 	trigger_wall_op(t, vmsegptridx, op);
@@ -93,8 +95,9 @@ namespace dsx {
 //close a door
 static void do_close_door(const trigger &t)
 {
-	const auto &&op = [](const vmsegptridx_t segnum, const unsigned sidenum) {
-		wall_close_door(vmwallptr, segnum, sidenum);
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	const auto &&op = [&Walls](const vmsegptridx_t segnum, const unsigned sidenum) {
+		wall_close_door(Walls, segnum, sidenum);
 	};
 	trigger_wall_op(t, vmsegptridx, op);
 }
@@ -136,7 +139,9 @@ static int do_light_off(const d_level_shared_destructible_light_state &LevelShar
 // Unlocks all doors linked to the switch.
 static void do_unlock_doors(const trigger &t)
 {
-	const auto op = [](const shared_segment &segp, const unsigned sidenum) {
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vmwallptr = Walls.vmptr;
+	const auto op = [&vmwallptr](const shared_segment &segp, const unsigned sidenum) {
 		const auto wall_num = segp.sides[sidenum].wall_num;
 		auto &w = *vmwallptr(wall_num);
 		w.flags &= ~WALL_DOOR_LOCKED;
@@ -148,7 +153,9 @@ static void do_unlock_doors(const trigger &t)
 // Locks all doors linked to the switch.
 static void do_lock_doors(const trigger &t)
 {
-	const auto op = [](const shared_segment &segp, const unsigned sidenum) {
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vmwallptr = Walls.vmptr;
+	const auto op = [&vmwallptr](const shared_segment &segp, const unsigned sidenum) {
 		const auto wall_num = segp.sides[sidenum].wall_num;
 		auto &w = *vmwallptr(wall_num);
 		w.flags |= WALL_DOOR_LOCKED;
@@ -161,6 +168,8 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 {
 	int ret=0;
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vmwallptr = Walls.vmptr;
 	for (unsigned i = 0; i < t.num_links; ++i)
 	{
 		uint8_t cside;
@@ -267,7 +276,9 @@ static void do_matcen(const trigger &t)
 
 static void do_il_on(const trigger &t)
 {
-	const auto &&op = [](const vcsegptridx_t seg, const unsigned side) {
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vmwallptr = Walls.vmptr;
+	const auto &&op = [&vmwallptr](const vcsegptridx_t seg, const unsigned side) {
 		wall_illusion_on(vmwallptr, seg, side);
 	};
 	trigger_wall_op(t, vcsegptridx, op);
@@ -276,7 +287,9 @@ static void do_il_on(const trigger &t)
 namespace dsx {
 static void do_il_off(const trigger &t)
 {
-	const auto &&op = [](const vcsegptridx_t seg, const unsigned side) {
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vmwallptr = Walls.vmptr;
+	const auto &&op = [&vmwallptr](const vcsegptridx_t seg, const unsigned side) {
 		wall_illusion_off(vmwallptr, seg, side);
 #if defined(DXX_BUILD_DESCENT_II)
 		auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -536,7 +549,9 @@ window_event_result check_trigger(const vcsegptridx_t seg, short side, object &p
 		const auto wall_num = seg->shared_segment::sides[side].wall_num;
 		if ( wall_num == wall_none ) return window_event_result::ignored;
 
-		const auto trigger_num = vmwallptr(wall_num)->trigger;
+		auto &Walls = LevelUniqueWallSubsystemState.Walls;
+		auto &vcwallptr = Walls.vcptr;
+		const auto trigger_num = vcwallptr(wall_num)->trigger;
 		if (trigger_num == trigger_none)
 			return window_event_result::ignored;
 
@@ -560,7 +575,7 @@ window_event_result check_trigger(const vcsegptridx_t seg, short side, object &p
 			if (cwall_num == wall_none)
 				return window_event_result::ignored;
 			
-			const auto ctrigger_num = vmwallptr(cwall_num)->trigger;
+			const auto ctrigger_num = vcwallptr(cwall_num)->trigger;
 			auto &ct = *vmtrgptr(ctrigger_num);
 			ct.flags &= ~TRIGGER_ON;
 		}

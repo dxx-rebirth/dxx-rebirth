@@ -1810,6 +1810,10 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
+#endif
 	//	If player and moved to another segment, see if hit any triggers.
 	// also check in player under a lavafall
 	if (prepare_seglist)

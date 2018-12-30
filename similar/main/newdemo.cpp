@@ -1577,6 +1577,8 @@ void newdemo_set_new_level(int level_num)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (nd_record_v_juststarted==1)
 	{
+		auto &Walls = LevelUniqueWallSubsystemState.Walls;
+		auto &vcwallptr = Walls.vcptr;
 		nd_write_int(Walls.get_count());
 		range_for (const auto &&wp, vcwallptr)
 		{
@@ -1618,6 +1620,8 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 	// This will record tmaps for all walls and properly show doors which were opened before demo recording started.
 	if (wallupdate)
 	{
+		auto &Walls = LevelUniqueWallSubsystemState.Walls;
+		auto &vcwallptr = Walls.vcptr;
 		range_for (const auto &&wp, vcwallptr)
 		{
 			auto &w = *wp;
@@ -1942,6 +1946,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 static void newdemo_pop_ctrlcen_triggers()
 {
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	for (int i = 0; i < ControlCenterTriggers.num_links; i++) {
 		const auto &&seg = vmsegptridx(ControlCenterTriggers.seg[i]);
 		const auto side = ControlCenterTriggers.side[i];
@@ -1996,6 +2002,11 @@ static int newdemo_read_frame_information(int rewrite)
 
 	prev_obj = NULL;
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &vcwallptr = Walls.vcptr;
+#endif
+	auto &vmwallptr = Walls.vmptr;
 	while( !done ) {
 		nd_read_byte(&c);
 		if (nd_playback_v_bad_read) { done = -1; break; }

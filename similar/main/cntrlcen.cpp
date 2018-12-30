@@ -278,6 +278,8 @@ void do_controlcen_destroyed_stuff(const imobjptridx_t objp)
 		return; // Don't allow resetting if control center and boss on same level
 #endif
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vmwallptr = Walls.vmptr;
 	// Must toggle walls whether it is a boss or control center.
 	for (i=0;i<ControlCenterTriggers.num_links;i++)
 		wall_toggle(vmwallptr, vmsegptridx(ControlCenterTriggers.seg[i]), ControlCenterTriggers.side[i]);

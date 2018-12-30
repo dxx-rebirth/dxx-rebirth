@@ -554,8 +554,12 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 	if (Game_mode & GM_MULTI)
 		trigger_check = (!(blower.parent_type == OBJ_PLAYER && (blower.parent_num == get_local_player().objnum || remote)));
 	if ( wall_num != wall_none )
+	{
+		auto &Walls = LevelUniqueWallSubsystemState.Walls;
+		auto &vcwallptr = Walls.vcptr;
 		if (vcwallptr(wall_num)->trigger != trigger_none)
 			is_trigger = 1;
+	}
 	if (trigger_check && is_trigger)
 		return(0);
 #endif
@@ -2229,6 +2233,8 @@ static vms_vector find_exit_direction(vms_vector result, const vcobjptr_t objp, 
 {
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	for (unsigned side = MAX_SIDES_PER_SEGMENT; side --;)
 		if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, side) & WID_FLY_FLAG)
 		{
@@ -2674,8 +2680,12 @@ window_event_result collide_object_with_wall(
 
 	case OBJ_FIREBALL:	break;		//collide_fireball_and_wall(A,hitspeed,hitseg,hitwall,hitpt);
 		case OBJ_ROBOT:
+		{
+			auto &Walls = LevelUniqueWallSubsystemState.Walls;
+			auto &vcwallptr = Walls.vcptr;
 			collide_robot_and_wall(vcwallptr, A, hitseg, hitwall, hitpt);
 			break;
+		}
 	case OBJ_HOSTAGE:		break;		//collide_hostage_and_wall(A,hitspeed,hitseg,hitwall,hitpt);
 	case OBJ_CAMERA:		break;		//collide_camera_and_wall(A,hitspeed,hitseg,hitwall,hitpt);
 	case OBJ_POWERUP:		break;		//collide_powerup_and_wall(A,hitspeed,hitseg,hitwall,hitpt);

@@ -274,6 +274,7 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 
 	//--------------- Num walls/links/triggers -------------------------
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	if ( old_Num_walls != Walls.get_count() ) {
 		old_Num_walls = Walls.get_count();
 		gr_uprintf(canvas, *canvas.cv_font, 0, 96, "Walls %3d", Walls.get_count());

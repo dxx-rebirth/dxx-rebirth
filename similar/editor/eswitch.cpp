@@ -129,6 +129,8 @@ static int trigger_flag_Markedside(const TRIGGER_FLAG flag, const int value)
 	if (!value && wall_num == wall_none) return 0;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	const auto trigger_num = value ? add_trigger(Triggers, vcvertptr, Walls, Markedsegp, Markedside) : vcwallptr(wall_num)->trigger;
 
 	if (trigger_num == trigger_none) {
@@ -157,6 +159,8 @@ static int bind_matcen_to_trigger() {
 		editor_status("No wall at Markedside.");
 		return 0;
 	}
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	const auto trigger_num = vcwallptr(wall_num)->trigger;
 	if (trigger_num == trigger_none) {
 		editor_status("No trigger at Markedside.");
@@ -200,6 +204,8 @@ int bind_wall_to_trigger() {
 		editor_status("No wall at Markedside.");
 		return 0;
 	}
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	const auto trigger_num = vcwallptr(wall_num)->trigger;
 	if (trigger_num == trigger_none) {
 		editor_status("No trigger at Markedside.");
@@ -244,6 +250,8 @@ int remove_trigger_num(int trigger_num)
 		Triggers.set_count(Triggers.get_count() - 1);
 		std::move(std::next(r.begin()), r.end(), r.begin());
 	
+		auto &Walls = LevelUniqueWallSubsystemState.Walls;
+		auto &vmwallptr = Walls.vmptr;
 		range_for (const auto &&w, vmwallptr)
 		{
 			auto &trigger = w->trigger;
@@ -268,6 +276,8 @@ unsigned remove_trigger(shared_segment &seg, const unsigned side)
 		return 0;
 	}
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	return remove_trigger_num(vcwallptr(wall_num)->trigger);
 }
 
@@ -385,6 +395,8 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	// of the checkboxes that control the wall flags.  
 	//------------------------------------------------------------
 	const auto Markedwall = Markedsegp->shared_segment::sides[Markedside].wall_num;
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	const auto trigger_num = (Markedwall != wall_none) ? vcwallptr(Markedwall)->trigger : trigger_none;
 
 	if (t->old_trigger_num != trigger_num)

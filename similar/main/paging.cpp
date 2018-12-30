@@ -258,6 +258,8 @@ static void paging_touch_object(const d_robot_info_array &Robot_info, const Text
 
 static void paging_touch_side(const d_eclip_array &Effects, const Textures_array &Textures, const d_vclip_array &Vclip, const vcsegptr_t segp, int sidenum )
 {
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	if (!(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) & WID_RENDER_FLAG))
 		return;
 	auto &uside = segp->unique_segment::sides[sidenum];
@@ -332,6 +334,8 @@ void paging_touch_all(const d_vclip_array &Vclip)
 	{
 		paging_touch_segment(Effects, Robot_info, Textures, Vclip, Weapon_info, vcobjptridx, vcsegptr, segp);
 	}	
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	paging_touch_walls(Textures, WallAnims, vcwallptr);
 
 	range_for (auto &s, partial_const_range(Powerup_info, N_powerup_types))

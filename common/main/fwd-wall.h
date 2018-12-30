@@ -239,7 +239,7 @@ void wall_open_door(vmsegptridx_t seg, int side);
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
 // Closes a door
-void wall_close_door(fvmwallptr &vmwallptr, vmsegptridx_t seg, unsigned side);
+void wall_close_door(wall_array &Walls, vmsegptridx_t seg, unsigned side);
 #endif
 }
 #endif

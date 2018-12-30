@@ -242,6 +242,8 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 	//handle cloaked walls
 	if (wid_flags & WID_CLOAKED_FLAG) {
 		const auto wall_num = segp.shared_segment::sides[sidenum].wall_num;
+		auto &Walls = LevelUniqueWallSubsystemState.Walls;
+		auto &vcwallptr = Walls.vcptr;
 		gr_settransblend(canvas, vcwallptr(wall_num)->cloak_value, GR_BLEND_NORMAL);
 		const uint8_t color = BM_XRGB(0, 0, 0);
 		// set to black (matters for s3)
@@ -1085,6 +1087,8 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 	const auto viewer = Viewer;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	for (nn=0;nn < rstate.N_render_segs;nn++) {
 		const auto segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
@@ -1268,6 +1272,8 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	for (l=0;l<Render_depth;l++) {
 		for (scnt=0;scnt < ecnt;scnt++) {
 			auto segnum = rstate.Render_list[scnt];
@@ -1522,6 +1528,8 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
         // First Pass: render opaque level geometry and level geometry with alpha pixels (high Alpha-Test func)
 	range_for (const auto segnum, reversed_render_range)
 	{

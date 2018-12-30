@@ -891,6 +891,8 @@ static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix l
 	int			sidenum,vertnum;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	const auto segment_center = compute_segment_center(vcvertptr, segp);
 	//	Do for four lights, one just inside each corner of side containing light.
 	range_for (const auto lightnum, Side_to_verts[light_side])
@@ -1127,6 +1129,8 @@ static void calim_process_all_lights(int quick_light)
 {
 	int	sidenum;
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	range_for (const auto &&segp, vmsegptridx)
 	{
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {

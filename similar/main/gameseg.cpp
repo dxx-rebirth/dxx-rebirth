@@ -824,6 +824,8 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 		max_depth = MAX_LOC_POINT_SEGS-2;
 	}
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	if (seg0 == seg1) {
 		return vm_vec_dist_quick(p0, p1);
 	} else {
@@ -1652,11 +1654,14 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 	}
 
 	if (recursion_depth < 2)
+	{
+		auto &Walls = LevelUniqueWallSubsystemState.Walls;
+		auto &vcwallptr = Walls.vcptr;
 		for (int sidenum=0; sidenum<6; sidenum++) {
 			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) & WID_RENDPAST_FLAG)
 				apply_light_to_segment(visited, segp.absolute_sibling(segp->children[sidenum]), segment_center, light_intensity, recursion_depth+1);
 		}
-
+	}
 }
 
 
@@ -1664,6 +1669,8 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 //this code is copied from the editor routine calim_process_all_lights()
 static void change_segment_light(const vmsegptridx_t segp,int sidenum,int dir)
 {
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) & WID_RENDER_FLAG)
 	{
 		auto &sidep = segp->unique_segment::sides[sidenum];
@@ -1793,6 +1800,8 @@ static void ambient_mark_bfs(const vmsegptridx_t segp, segment_lava_depth_array 
 	if (!segdepth_lava && !segdepth_water)
 		return;
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	for (unsigned i = 0; i < MAX_SIDES_PER_SEGMENT; ++i)
 	{
 		const auto child = segp->children[i];

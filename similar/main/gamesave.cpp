@@ -798,6 +798,8 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 {
 	auto &rwn0 = side.wall_num;
 	const auto wn0 = rwn0;
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	auto &w0 = *vcwallptr(wn0);
 	switch (w0.type)
 	{
@@ -857,6 +859,7 @@ static int load_game_data(
 	PHYSFSX_fseek(LoadFile, 8, SEEK_CUR);
 
 	init_exploding_walls();
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	Walls.set_count(PHYSFSX_readInt(LoadFile));
 	PHYSFSX_fseek(LoadFile, 20, SEEK_CUR);
 
@@ -937,6 +940,7 @@ static int load_game_data(
 
 	//===================== READ WALL INFO ============================
 
+	auto &vmwallptr = Walls.vmptr;
 	range_for (const auto &&vw, vmwallptr)
 	{
 		auto &nw = *vw;
@@ -1610,6 +1614,7 @@ static int save_game_data(
 #define WRITE_HEADER_ENTRY(t, n) do { PHYSFS_writeSLE32(SaveFile, -1); PHYSFS_writeSLE32(SaveFile, n); PHYSFS_writeSLE32(SaveFile, sizeof(t)); } while(0)
 
 	WRITE_HEADER_ENTRY(object, Highest_object_index + 1);
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	WRITE_HEADER_ENTRY(wall, Walls.get_count());
 	WRITE_HEADER_ENTRY(active_door, ActiveDoors.get_count());
 	WRITE_HEADER_ENTRY(trigger, Triggers.get_count());
@@ -1658,6 +1663,7 @@ static int save_game_data(
 	//==================== SAVE WALL INFO =============================
 
 	walls_offset = PHYSFS_tell(SaveFile);
+	auto &vcwallptr = Walls.vcptr;
 	range_for (const auto &&w, vcwallptr)
 		wall_write(SaveFile, *w, game_top_fileinfo_version);
 

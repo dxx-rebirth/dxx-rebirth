@@ -236,6 +236,8 @@ static int ok_for_buddy_to_talk(void)
 
 	const shared_segment &segp = vcsegptr(buddy->segnum);
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		const auto wall_num = segp.sides[i].wall_num;
 

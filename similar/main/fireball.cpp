@@ -476,6 +476,8 @@ imsegidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 		swap(side_rand[ind1], side_rand[i]);
 	}
 
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
 	while (tail != head) {
 		int		sidenum, count;
 		int		ind1, ind2;
@@ -1324,6 +1326,8 @@ void do_exploding_wall_frame(wall &w1)
 		const auto n = WallAnims[a].num_frames;
 		wall_set_tmap_num(WallAnims[a], seg, w1sidenum, csegp, cside, n - 1);
 
+		auto &Walls = LevelUniqueWallSubsystemState.Walls;
+		auto &vmwallptr = Walls.vmptr;
 		auto &w2 = *vmwallptr(csegp->shared_segment::sides[cside].wall_num);
 		assert(&w1 != &w2);
 		assert((w1.flags & WALL_EXPLODING) || (w2.flags & WALL_EXPLODING));

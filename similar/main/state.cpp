@@ -1101,6 +1101,9 @@ int state_save_all_sub(const char *filename, const char *desc)
 	
 //Save wall info
 	{
+		auto &Walls = LevelUniqueWallSubsystemState.Walls;
+		auto &vcwallptr = Walls.vcptr;
+	{
 		const int i = Walls.get_count();
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	}
@@ -1111,6 +1114,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 //Save exploding wall info
 	expl_wall_write(Walls.vmptr, fp);
 #endif
+	}
 
 //Save door info
 	{
@@ -1684,14 +1688,16 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 	//Restore wall info
 	init_exploding_walls();
+	{
+		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	Walls.set_count(PHYSFSX_readSXE32(fp, swap));
-	range_for (const auto &&w, vmwallptr)
+	range_for (const auto &&w, Walls.vmptr)
 		wall_read(fp, *w);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//now that we have the walls, check if any sounds are linked to
 	//walls that are now open
-	range_for (const auto &&wp, vcwallptr)
+	range_for (const auto &&wp, Walls.vcptr)
 	{
 		auto &w = *wp;
 		if (w.type == WALL_OPEN)
@@ -1704,6 +1710,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		expl_wall_read_n_swap(Walls.vmptr, fp, swap, i);
 	}
 #endif
+	}
 
 	//Restore door info
 	ActiveDoors.set_count(PHYSFSX_readSXE32(fp, swap));
