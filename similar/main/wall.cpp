@@ -1514,7 +1514,7 @@ void blast_nearby_glass_context::process_segment(const vmsegptridx_t segp, const
 					if ((dist > 0) && (dist < damage/2))
 					{
 						assert(objp.type == OBJ_WEAPON);
-						check_effect_blowup(Delta_lights, LevelSharedSegmentState.DestructibleLights, Vclip, segp, sidenum, pnt, objp.ctype.laser_info, 1, 0);
+						check_effect_blowup(LevelSharedSegmentState.DestructibleLights, Vclip, segp, sidenum, pnt, objp.ctype.laser_info, 1, 0);
 					}
 				}
 			}

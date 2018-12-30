@@ -95,7 +95,6 @@ namespace dsx {
 d_level_shared_segment_state LevelSharedSegmentState;
 #if defined(DXX_BUILD_DESCENT_II)
 valptridx<cloaking_wall>::array_managed_type CloakingWalls;
-d_delta_light_array Delta_lights;
 #endif
 d_level_unique_object_state LevelUniqueObjectState;
 valptridx<object>::array_managed_type Objects;

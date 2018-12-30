@@ -1690,12 +1690,13 @@ static void change_segment_light(const vmsegptridx_t segp,int sidenum,int dir)
 //	dir = -1 -> subtract light
 //	dir = 17 -> add 17x light
 //	dir =  0 -> you are dumb
-static void change_light(const d_delta_light_array &Delta_lights, const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, const uint8_t sidenum, const int dir)
+static void change_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, const uint8_t sidenum, const int dir)
 {
 	const fix ds = dir * DL_SCALE;
 	auto &Dl_indices = LevelSharedDestructibleLightState.Dl_indices;
 	const auto &&pr = cast_range_result<const dl_index &>(Dl_indices.vcptr);
 	const auto &&er = std::equal_range(pr.begin(), pr.end(), dl_index{segnum, sidenum, 0, 0});
+	auto &Delta_lights = LevelSharedDestructibleLightState.Delta_lights;
 	range_for (auto &i, partial_range_t<const dl_index *>(er.first.base().base(), er.second.base().base()))
 	{
 		const uint_fast32_t idx = i.index;
@@ -1720,14 +1721,14 @@ static void change_light(const d_delta_light_array &Delta_lights, const d_level_
 //	Subtract light cast by a light source from all surfaces to which it applies light.
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 // returns 1 if lights actually subtracted, else 0
-int subtract_light(const d_delta_light_array &Delta_lights, const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, const sidenum_fast_t sidenum)
+int subtract_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, const sidenum_fast_t sidenum)
 {
 	if (segnum->light_subtracted & (1 << sidenum)) {
 		return 0;
 	}
 
 	segnum->light_subtracted |= (1 << sidenum);
-	change_light(Delta_lights, LevelSharedDestructibleLightState, segnum, sidenum, -1);
+	change_light(LevelSharedDestructibleLightState, segnum, sidenum, -1);
 	return 1;
 }
 
@@ -1735,25 +1736,25 @@ int subtract_light(const d_delta_light_array &Delta_lights, const d_level_shared
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 //	You probably only want to call this after light has been subtracted.
 // returns 1 if lights actually added, else 0
-int add_light(const d_delta_light_array &Delta_lights, const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, sidenum_fast_t sidenum)
+int add_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, sidenum_fast_t sidenum)
 {
 	if (!(segnum->light_subtracted & (1 << sidenum))) {
 		return 0;
 	}
 
 	segnum->light_subtracted &= ~(1 << sidenum);
-	change_light(Delta_lights, LevelSharedDestructibleLightState, segnum, sidenum, 1);
+	change_light(LevelSharedDestructibleLightState, segnum, sidenum, 1);
 	return 1;
 }
 
 //	Parse the Light_subtracted array, turning on or off all lights.
-void apply_all_changed_light(const d_delta_light_array &Delta_lights, const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, fvmsegptridx &vmsegptridx)
+void apply_all_changed_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, fvmsegptridx &vmsegptridx)
 {
 	range_for (const auto &&segp, vmsegptridx)
 	{
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (segp->light_subtracted & (1 << j))
-				change_light(Delta_lights, LevelSharedDestructibleLightState, segp, j, -1);
+				change_light(LevelSharedDestructibleLightState, segp, j, -1);
 	}
 }
 

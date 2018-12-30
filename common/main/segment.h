@@ -288,6 +288,7 @@ struct dl_index {
 struct d_level_shared_destructible_light_state
 {
 	valptridx<dl_index>::array_managed_type Dl_indices;
+	d_delta_light_array Delta_lights;
 };
 #endif
 

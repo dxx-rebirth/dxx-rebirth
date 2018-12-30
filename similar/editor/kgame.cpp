@@ -121,7 +121,7 @@ int SaveGameData()
 		}
 		saved_flag = save_level(
 #if defined(DXX_BUILD_DESCENT_II)
-			Delta_lights, LevelSharedSegmentState.DestructibleLights,
+			LevelSharedSegmentState.DestructibleLights,
 #endif
 			game_filename);
 		if (Perm_player_segnum!=segment_none) {
@@ -161,7 +161,7 @@ if (SafetyCheck())  {
 		checkforgamext(game_filename);
 		if (load_level(
 #if defined(DXX_BUILD_DESCENT_II)
-				Delta_lights, LevelSharedSegmentState.DestructibleLights,
+				LevelSharedSegmentState.DestructibleLights,
 #endif
 				game_filename))
 			return 0;

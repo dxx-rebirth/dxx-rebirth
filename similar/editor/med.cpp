@@ -283,7 +283,7 @@ int	GotoGameScreen()
 			Current_level_num = 1;
 			if (save_level(
 #if defined(DXX_BUILD_DESCENT_II)
-					Delta_lights, LevelSharedSegmentState.DestructibleLights,
+					LevelSharedSegmentState.DestructibleLights,
 #endif
 					"GAMESAVE.LVL"))
 				return 0;

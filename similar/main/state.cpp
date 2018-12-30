@@ -1907,7 +1907,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 				PHYSFS_read(fp, &i.light_subtracted, sizeof(i.light_subtracted), 1);
 			}
 		}
-		apply_all_changed_light(Delta_lights, LevelSharedDestructibleLightState, Segments.vmptridx);
+		apply_all_changed_light(LevelSharedDestructibleLightState, Segments.vmptridx);
 	} else {
 		range_for (const auto &&segp, vmsegptr)
 		{

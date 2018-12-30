@@ -2303,7 +2303,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	laser.parent_num = pnum;
 
 	auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
-	check_effect_blowup(Delta_lights, LevelSharedDestructibleLightState, Vclip, *useg, side, hitpnt, laser, 0, 1);
+	check_effect_blowup(LevelSharedDestructibleLightState, Vclip, *useg, side, hitpnt, laser, 0, 1);
 }
 
 static void multi_do_drop_marker(object_array &objects, fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
@@ -4085,7 +4085,7 @@ static void multi_do_light (const ubyte *buf)
 		if ((sides & (1<<i)))
 		{
 			auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
-			subtract_light(Delta_lights, LevelSharedDestructibleLightState, segp, i);
+			subtract_light(LevelSharedDestructibleLightState, segp, i);
 			side_array[i].tmap_num2 = GET_INTEL_SHORT(&buf[4 + (2 * i)]);
 		}
 	}
