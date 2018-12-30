@@ -163,6 +163,7 @@ namespace dsx {
 // Read compiled properties data from descent.pig
 void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
+	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	//  bitmap_index is a short
 	
@@ -296,6 +297,7 @@ namespace dsx {
 
 void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
+	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	unsigned t;
 
@@ -420,6 +422,7 @@ static void bm_free_extra_models()
 //type==1 means 1.1, type==2 means 1.2 (with weapons)
 void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 {
+	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	int t,version;
 
 	auto fp = PHYSFSX_openReadBuffered(fname);
@@ -503,6 +506,7 @@ int Robot_replacements_loaded = 0;
 
 void load_robot_replacements(const d_fname &level_name)
 {
+	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	int t,i,j;
 	char ifile_name[FILENAME_LEN];
 

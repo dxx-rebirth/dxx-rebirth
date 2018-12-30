@@ -38,13 +38,6 @@ namespace dcx {
 unsigned N_robot_joints;
 }
 
-namespace dsx {
-//	Robot stuff
-
-//Big array of joint positions.  All robots index into this array
-array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
-}
-
 #if 0
 static inline void PHYSFSX_writeAngleVec(PHYSFS_File *fp, const vms_angvec &v)
 {
@@ -108,6 +101,7 @@ partial_range_t<const jointpos *> robot_get_anim_state(const d_level_shared_robo
 static void set_robot_state(object_base &obj, const unsigned state) __attribute_used;
 static void set_robot_state(object_base &obj, const unsigned state)
 {
+	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	int g,j,jo;
 	jointlist *jl;
 
@@ -138,6 +132,7 @@ static void set_robot_state(object_base &obj, const unsigned state)
 //be filled in.
 void robot_set_angles(robot_info *r,polymodel *pm,array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs)
 {
+	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	int g,state;
 	array<int, MAX_SUBMODELS> gun_nums;			//which gun each submodel is part of
 

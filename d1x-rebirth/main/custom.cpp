@@ -452,6 +452,7 @@ namespace dsx {
 
 static void load_hxm(const d_fname &hxmname)
 {
+	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	unsigned int repl_num;
 	int i;
 	auto f = PHYSFSX_openReadBuffered(hxmname);

@@ -771,6 +771,7 @@ static int do_silly_animation(object &objp)
 
 	robot_type = get_robot_id(objp);
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	auto &robptr = Robot_info[robot_type];
 	num_guns = robptr.n_guns;
 	attack_type = robptr.attack_type;

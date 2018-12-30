@@ -53,9 +53,9 @@ namespace dcx {
 //describes the position of a certain joint
 struct jointpos : prohibit_void_ptr<jointpos>
 {
-	short jointnum;
+	uint16_t jointnum;
 	vms_angvec angles;
-} __pack__;
+};
 
 //describes a list of joint positions
 struct jointlist
@@ -213,7 +213,16 @@ imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_level_shared_robot_
 using robot_names_array = array<array<char, ROBOT_NAME_LENGTH>, MAX_ROBOT_TYPES>;
 extern robot_names_array Robot_names;
 #endif
-extern array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
+
+/* Robot joints can be customized by hxm files, which are per-level.
+ */
+struct d_level_shared_robot_joint_state
+{
+	//Big array of joint positions.  All robots index into this array
+	array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
+};
+
+extern d_level_shared_robot_joint_state LevelSharedRobotJointState;
 }
 
 namespace dcx {
