@@ -277,13 +277,15 @@ void wall_set_tmap_num(const wclip &, vmsegptridx_t seg, unsigned side, vmsegptr
 
 #if defined(DXX_BUILD_DESCENT_II)
 //start wall open <-> closed transitions
+namespace dsx {
 void start_wall_cloak(vmsegptridx_t seg, unsigned side);
 void start_wall_decloak(vmsegptridx_t seg, unsigned side);
 
 void cloaking_wall_read(cloaking_wall &cw, PHYSFS_File *fp);
 void cloaking_wall_write(const cloaking_wall &cw, PHYSFS_File *fp);
-#endif
 void blast_nearby_glass(const object &objp, fix damage);
+}
+#endif
 #endif
 
 void wclip_read(PHYSFS_File *, wclip &wc);

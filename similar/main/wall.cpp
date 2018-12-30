@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"		//	For seeing if a flare is stuck in a wall.
 #include "effects.h"
 
+#include "d_enumerate.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 #include "segiter.h"
@@ -478,6 +479,8 @@ void wall_open_door(const vmsegptridx_t seg, int side)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+
 //-----------------------------------------------------------------
 // start the transition from closed -> open wall
 void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
@@ -628,6 +631,8 @@ void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 		df[i] = s0_uvls[i].l;
 		db[i] = s1_uvls[i].l;
 	}
+}
+
 }
 #endif
 
@@ -1426,28 +1431,66 @@ void d_level_unique_stuck_object_state::init_stuck_objects()
 // -----------------------------------------------------------------------------------
 #define	MAX_BLAST_GLASS_DEPTH	5
 
-static void bng_process_segment(const object &objp, fix damage, const vmsegptridx_t segp, int depth, visited_segment_bitarray_t &visited)
+namespace dsx {
+namespace {
+
+class blast_nearby_glass_context
+{
+	const object &obj;
+	const fix damage;
+	const d_eclip_array &Effects;
+	const GameBitmaps_array &GameBitmaps;
+	const Textures_array &Textures;
+	const TmapInfo_array &TmapInfo;
+	const d_vclip_array &Vclip;
+	fvcvertptr &vcvertptr;
+	fvcwallptr &vcwallptr;
+	visited_segment_bitarray_t visited;
+	unsigned can_blast(const int16_t &tmap_num2) const;
+public:
+	blast_nearby_glass_context(const object &obj, const fix damage, const d_eclip_array &Effects, const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, const TmapInfo_array &TmapInfo, const d_vclip_array &Vclip, fvcvertptr &vcvertptr, fvcwallptr &vcwallptr) :
+		obj(obj), damage(damage), Effects(Effects), GameBitmaps(GameBitmaps),
+		Textures(Textures), TmapInfo(TmapInfo), Vclip(Vclip),
+		vcvertptr(vcvertptr), vcwallptr(vcwallptr), visited{}
+	{
+	}
+	blast_nearby_glass_context(const blast_nearby_glass_context &) = delete;
+	blast_nearby_glass_context &operator=(const blast_nearby_glass_context &) = delete;
+	void process_segment(vmsegptridx_t segp, unsigned steps_remaining);
+};
+
+unsigned blast_nearby_glass_context::can_blast(const int16_t &tmap_num2) const
+{
+	const auto tm = tmap_num2 & 0x3fff;			//tm without flags
+	auto &ti = TmapInfo[tm];
+	const auto ec = ti.eclip_num;
+	if (ec == eclip_none)
+	{
+		return ti.destroyed != -1;
+	}
+	else
+	{
+		auto &e = Effects[ec];
+		return e.dest_bm_num != ~0u && !(e.flags & EF_ONE_SHOT);
+	}
+}
+
+void blast_nearby_glass_context::process_segment(const vmsegptridx_t segp, const unsigned steps_remaining)
 {
 	visited[segp] = true;
-	int	i, sidenum;
 
-	if (depth > MAX_BLAST_GLASS_DEPTH)
-		return;
-
-	depth++;
-
-	for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-		int			tm;
+	const auto &objp = obj;
+	range_for (const auto &&e, enumerate(segp->unique_segment::sides))
+	{
 		fix			dist;
 
 		//	Process only walls which have glass.
-		if ((tm=segp->unique_segment::sides[sidenum].tmap_num2) != 0) {
-			tm &= 0x3fff;			//tm without flags
-
-			const auto ec = TmapInfo[tm].eclip_num;
-			if ((ec != eclip_none &&
-				 (Effects[ec].dest_bm_num != ~0u && !(Effects[ec].flags & EF_ONE_SHOT))) || (ec == eclip_none && TmapInfo[tm].destroyed != -1))
+		auto &&uside = e.value;
+		if (const auto &tmap_num2 = uside.tmap_num2)
+		{
+			if (can_blast(tmap_num2))
 			{
+				auto &&sidenum = e.idx;
 				const auto &&pnt = compute_center_point_on_side(vcvertptr, segp, sidenum);
 				dist = vm_vec_dist_quick(pnt, objp.pos);
 				if (dist < damage/2) {
@@ -1462,37 +1505,45 @@ static void bng_process_segment(const object &objp, fix damage, const vmsegptrid
 		}
 	}
 
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		const auto segnum = segp->children[i];
-
+	const unsigned next_steps_remaining = steps_remaining - 1;
+	if (!next_steps_remaining)
+		return;
+	range_for (const auto &&e, enumerate(segp->children))
+	{
+		auto &&segnum = e.value;
 		if (segnum != segment_none) {
 			if (!visited[segnum]) {
+				auto &&i = e.idx;
 				if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, i) & WID_FLY_FLAG)
 				{
-					bng_process_segment(objp, damage, segp.absolute_sibling(segnum), depth, visited);
+					process_segment(segp.absolute_sibling(segnum), next_steps_remaining);
 				}
 			}
 		}
 	}
 }
 
-// -----------------------------------------------------------------------------------
-//	objp is going to detonate
-//	blast nearby monitors, lights, maybe other things
-void blast_nearby_glass(const object &objp, fix damage)
-{
-	visited_segment_bitarray_t visited;
-	bng_process_segment(objp, damage, vmsegptridx(objp.segnum), 0, visited);
-}
-
 struct d1wclip
 {
-	wclip *wc;
+	wclip *const wc;
 	d1wclip(wclip &w) : wc(&w) {}
 };
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1wclip, dwc, (dwc.wc->play_time, dwc.wc->num_frames, dwc.wc->d1_frames, dwc.wc->open_sound, dwc.wc->close_sound, dwc.wc->flags, dwc.wc->filename, serial::pad<1>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1wclip, 26 + (sizeof(int16_t) * MAX_CLIP_FRAMES_D1));
+
+}
+
+// -----------------------------------------------------------------------------------
+//	objp is going to detonate
+//	blast nearby monitors, lights, maybe other things
+void blast_nearby_glass(const object &objp, const fix damage)
+{
+	blast_nearby_glass_context{objp, damage, Effects, GameBitmaps, Textures, TmapInfo, Vclip, vcvertptr, vcwallptr}.process_segment(vmsegptridx(objp.segnum), MAX_BLAST_GLASS_DEPTH);
+}
+
+}
+
 #endif
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(wclip, wc, (wc.play_time, wc.num_frames, wc.frames, wc.open_sound, wc.close_sound, wc.flags, wc.filename, serial::pad<1>()));
@@ -1599,6 +1650,7 @@ void wall_write(PHYSFS_File *fp, const wall &w, short version)
 DEFINE_SERIAL_UDT_TO_MESSAGE(cloaking_wall, cw, (cw.front_wallnum, cw.back_wallnum, cw.front_ls, cw.back_ls, cw.time));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(cloaking_wall, 40);
 
+namespace dsx {
 void cloaking_wall_read(cloaking_wall &cw, PHYSFS_File *fp)
 {
 	PHYSFSX_serialize_read(fp, cw);
@@ -1607,5 +1659,6 @@ void cloaking_wall_read(cloaking_wall &cw, PHYSFS_File *fp)
 void cloaking_wall_write(const cloaking_wall &cw, PHYSFS_File *fp)
 {
 	PHYSFSX_serialize_write(fp, cw);
+}
 }
 #endif
