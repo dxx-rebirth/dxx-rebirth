@@ -217,7 +217,7 @@ void wall_init();
 // Automatically checks if a there is a doorway (i.e. can fly through)
 #ifdef dsx
 namespace dsx {
-WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const shared_side &sside, const unique_side &uside);
+WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const shared_segment &sseg, const unique_segment &useg, const uint_fast32_t side);
 
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 }

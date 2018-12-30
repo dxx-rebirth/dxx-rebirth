@@ -165,7 +165,7 @@ static uint_fast32_t check_transparency(const GameBitmaps_array &GameBitmaps, co
 //		WID_NO_WALL					5	//	1/0/1		no wall, can fly through
 namespace dsx {
 
-WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const shared_side &sside, const unique_side &uside)
+static WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const shared_side &sside, const unique_side &uside)
 {
 	auto &w = *vcwallptr(sside.wall_num);
 	const auto type = w.type;
@@ -206,6 +206,21 @@ WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBitmaps, c
 	else
 		return WID_WALL; // There are children behind the door.
 }
+
+WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const shared_segment &sseg, const unique_segment &useg, const uint_fast32_t side)
+{
+	const auto child = sseg.children[side];
+	if (unlikely(child == segment_none))
+		return WID_WALL;
+	if (unlikely(child == segment_exit))
+		return WID_EXTERNAL;
+	auto &sside = sseg.sides[side];
+	if (likely(sside.wall_num == wall_none))
+		return WID_NO_WALL;
+	auto &uside = useg.sides[side];
+	return wall_is_doorway(GameBitmaps, Textures, vcwallptr, sside, uside);
+}
+
 }
 
 #if DXX_USE_EDITOR
@@ -1396,6 +1411,7 @@ void d_level_unique_stuck_object_state::kill_stuck_objects(fvmobjptr &vmobjptr, 
 	DXX_POISON_VAR(empty, 0xcc);
 	std::fill(i, pr.end(), empty[0]);
 }
+
 }
 
 namespace dcx {
