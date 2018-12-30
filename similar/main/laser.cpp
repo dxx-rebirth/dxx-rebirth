@@ -360,7 +360,7 @@ static int omega_cleanup(fvcobjptr &vcobjptr, const vmobjptridx_t weapon)
 	if (objp->signature == parent_sig)
 		if (vm_vec_dist2(weapon->pos, objp->pos) > MAX_OMEGA_DIST_SQUARED)
 		{
-			obj_delete(ObjectState, Segments, weapon);
+			obj_delete(LevelUniqueObjectState, Segments, weapon);
 			return 1;
 		}
 
@@ -556,7 +556,7 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 		auto &player_info = parent_objp->ctype.player_info;
 		auto &Omega_charge = player_info.Omega_charge;
 		if (!((Omega_charge >= MIN_OMEGA_CHARGE) || (Omega_charge && !player_info.energy))) {
-			obj_delete(ObjectState, Segments, weapon_objp);
+			obj_delete(LevelUniqueObjectState, Segments, weapon_objp);
 			return;
 		}
 
@@ -590,7 +590,7 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 	// -- }
 
 	//	Delete the original object.  Its only purpose in life was to determine which object to home in on.
-	obj_delete(ObjectState, Segments, weapon_objp);
+	obj_delete(LevelUniqueObjectState, Segments, weapon_objp);
 
 	//	If couldn't lock on anything, fire straight ahead.
 	if (lock_objnum == object_none) {
@@ -785,7 +785,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (weapon_type == weapon_id_type::GUIDEDMISS_ID) {
 			if (parent==get_local_player().objnum) {
-				ObjectState.Guided_missile.set_player_active_guided_missile(obj, Player_num);
+				LevelUniqueObjectState.Guided_missile.set_player_active_guided_missile(obj, Player_num);
 				if (Newdemo_state==ND_STATE_RECORDING)
 					newdemo_record_guided_start();
 			}
@@ -1401,7 +1401,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, c
 		return objnum;
 
 	if (laser_type == weapon_id_type::GUIDEDMISS_ID && Multi_is_guided) {
-		ObjectState.Guided_missile.set_player_active_guided_missile(objnum, get_player_id(obj));
+		LevelUniqueObjectState.Guided_missile.set_player_active_guided_missile(objnum, get_player_id(obj));
 	}
 
 	Multi_is_guided=0;
@@ -1533,13 +1533,13 @@ void Flare_create(const vmobjptridx_t obj)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define	HOMING_MISSILE_SCALE	16
 
-static bool is_active_guided_missile(d_level_object_state &ObjectState, const vcobjptridx_t obj)
+static bool is_active_guided_missile(d_level_unique_object_state &LevelUniqueObjectState, const vcobjptridx_t obj)
 {
 	if (obj->ctype.laser_info.parent_type != OBJ_PLAYER)
 		return false;
-	auto &vcobjptr = ObjectState.get_objects().vcptr;
+	auto &vcobjptr = LevelUniqueObjectState.get_objects().vcptr;
 	const auto pnum = get_player_id(vcobjptr(obj->ctype.laser_info.parent_num));
-	return ObjectState.Guided_missile.get_player_active_guided_missile(pnum) == obj;
+	return LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(pnum) == obj;
 }
 #endif
 
@@ -1582,7 +1582,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 			(get_weapon_id(obj) != weapon_id_type::FLARE_ID) &&
 			(Weapon_info[get_weapon_id(obj)].speed[Difficulty_level] > 0) &&
 			(vm_vec_mag_quick(obj->mtype.phys_info.velocity) < F2_0)) {
-		obj_delete(ObjectState, Segments, obj);
+		obj_delete(LevelUniqueObjectState, Segments, obj);
 		return;
 	}
 
@@ -1597,7 +1597,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 #if defined(DXX_BUILD_DESCENT_I)
 	if (Weapon_info[get_weapon_id(obj)].homing_flag)
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (Weapon_info[get_weapon_id(obj)].homing_flag && !is_active_guided_missile(ObjectState, obj))
+	if (Weapon_info[get_weapon_id(obj)].homing_flag && !is_active_guided_missile(LevelUniqueObjectState, obj))
 #endif
 	{
 		vms_vector		vector_to_object, temp_vec;
@@ -2291,11 +2291,11 @@ void create_robot_smart_children(const vmobjptridx_t objp, const uint_fast32_t n
 }
 
 //give up control of the guided missile
-void release_guided_missile(d_level_object_state &ObjectState, const unsigned player_num)
+void release_guided_missile(d_level_unique_object_state &LevelUniqueObjectState, const unsigned player_num)
 {
 	if (player_num == Player_num)
 	 {
-		const auto &&gimobj = ObjectState.Guided_missile.get_player_active_guided_missile(ObjectState.get_objects().vmptr, player_num);
+		const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, player_num);
 		if (gimobj == nullptr)
 			return;
 
@@ -2305,7 +2305,7 @@ void release_guided_missile(d_level_object_state &ObjectState, const unsigned pl
 		if (Newdemo_state==ND_STATE_RECORDING)
 		 newdemo_record_guided_end();
 	 }
-	ObjectState.Guided_missile.clear_player_active_guided_missile(player_num);
+	LevelUniqueObjectState.Guided_missile.clear_player_active_guided_missile(player_num);
 }
 #endif
 
@@ -2326,10 +2326,10 @@ void do_missile_firing(int drop_bomb)
 		fire_frame_overhead = GameTime64 - Next_missile_fire_time;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	const auto &&gimobj = ObjectState.Guided_missile.get_player_active_guided_missile(ObjectState.get_objects().vmptr, Player_num);
+	const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, Player_num);
 	if (gimobj != nullptr)
 	{
-		release_guided_missile(ObjectState, Player_num);
+		release_guided_missile(LevelUniqueObjectState, Player_num);
 		Next_missile_fire_time = GameTime64 + Weapon_info[Secondary_weapon_to_weapon_info[weapon]].fire_wait - fire_frame_overhead;
 		return;
 	}

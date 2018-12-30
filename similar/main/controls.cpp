@@ -72,7 +72,7 @@ void read_flying_controls(object &obj)
 		return;	//references to player_ship require that this obj be the player
 
 	const auto control_guided_missile = [&] {
-		const auto &&gimobj = ObjectState.Guided_missile.get_player_active_guided_missile(ObjectState.get_objects().vmptr, Player_num);
+		const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, Player_num);
 		if (gimobj == nullptr)
 			return false;
 		auto &gmobj = *gimobj;

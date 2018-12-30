@@ -103,7 +103,7 @@ imobjptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vecto
 
 #if defined(DXX_BUILD_DESCENT_II)
 // give up control of the guided missile
-void release_guided_missile(d_level_object_state &, unsigned player_num);
+void release_guided_missile(d_level_unique_object_state &, unsigned player_num);
 
 // Omega cannon stuff.
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw

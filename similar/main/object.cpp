@@ -822,7 +822,7 @@ void init_objects()
 {
 	for (objnum_t i = 0; i< MAX_OBJECTS; ++i)
 	{
-		ObjectState.free_obj_list[i] = i;
+		LevelUniqueObjectState.free_obj_list[i] = i;
 		auto &obj = *vmobjptr(i);
 		DXX_POISON_VAR(obj, 0xfd);
 		obj.type = OBJ_NONE;
@@ -835,29 +835,29 @@ void init_objects()
 
 	init_player_object();
 	obj_link_unchecked(Objects.vmptr, Objects.vmptridx(ConsoleObject), Segments.vmptridx(segment_first));	//put in the world in segment 0
-	ObjectState.num_objects = 1;						//just the player
+	LevelUniqueObjectState.num_objects = 1;						//just the player
 	Objects.set_count(1);
 }
 
 //after calling init_object(), the network code has grabbed specific
 //object slots without allocating them.  Go though the objects & build
 //the free list, then set the apporpriate globals
-void special_reset_objects(d_level_object_state &ObjectState)
+void special_reset_objects(d_level_unique_object_state &LevelUniqueObjectState)
 {
 	unsigned num_objects = MAX_OBJECTS;
 
-	auto &Objects = ObjectState.get_objects();
+	auto &Objects = LevelUniqueObjectState.get_objects();
 	Objects.set_count(1);
 	assert(Objects.front().type != OBJ_NONE);		//0 should be used
 
-	DXX_POISON_VAR(ObjectState.free_obj_list, 0xfd);
+	DXX_POISON_VAR(LevelUniqueObjectState.free_obj_list, 0xfd);
 	for (objnum_t i = MAX_OBJECTS; i--;)
 		if (Objects.vcptr(i)->type == OBJ_NONE)
-			ObjectState.free_obj_list[--num_objects] = i;
+			LevelUniqueObjectState.free_obj_list[--num_objects] = i;
 		else
 			if (i > Highest_object_index)
 				Objects.set_count(i + 1);
-	ObjectState.num_objects = num_objects;
+	LevelUniqueObjectState.num_objects = num_objects;
 }
 
 //link the object into the list for its segment
@@ -940,13 +940,13 @@ object_signature_t obj_get_signature()
 //Generally, obj_create() should be called to get an object, since it
 //fills in important fields and does the linking.
 //returns -1 if no free objects
-imobjptridx_t obj_allocate(d_level_object_state &ObjectState)
+imobjptridx_t obj_allocate(d_level_unique_object_state &LevelUniqueObjectState)
 {
-	auto &Objects = ObjectState.get_objects();
-	if (ObjectState.num_objects >= Objects.size())
+	auto &Objects = LevelUniqueObjectState.get_objects();
+	if (LevelUniqueObjectState.num_objects >= Objects.size())
 		return object_none;
 
-	const auto objnum = ObjectState.free_obj_list[ObjectState.num_objects++];
+	const auto objnum = LevelUniqueObjectState.free_obj_list[LevelUniqueObjectState.num_objects++];
 	if (objnum >= Objects.get_count())
 	{
 		Objects.set_count(objnum + 1);
@@ -959,12 +959,12 @@ imobjptridx_t obj_allocate(d_level_object_state &ObjectState)
 //frees up an object.  Generally, obj_delete() should be called to get
 //rid of an object.  This function deallocates the object entry after
 //the object has been unlinked
-static void obj_free(d_level_object_state &ObjectState, const vmobjidx_t objnum)
+static void obj_free(d_level_unique_object_state &LevelUniqueObjectState, const vmobjidx_t objnum)
 {
-	const auto num_objects = -- ObjectState.num_objects;
-	assert(num_objects < ObjectState.free_obj_list.size());
-	ObjectState.free_obj_list[num_objects] = objnum;
-	auto &Objects = ObjectState.get_objects();
+	const auto num_objects = -- LevelUniqueObjectState.num_objects;
+	assert(num_objects < LevelUniqueObjectState.free_obj_list.size());
+	LevelUniqueObjectState.free_obj_list[num_objects] = objnum;
+	auto &Objects = LevelUniqueObjectState.get_objects();
 
 	objnum_t o = objnum;
 	if (o == Highest_object_index)
@@ -1083,7 +1083,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
 	Assert(ctype <= CT_CNTRLCEN);
 
-	if (type == OBJ_DEBRIS && ObjectState.Debris_object_count >= Max_debris_objects && !PERSISTENT_DEBRIS)
+	if (type == OBJ_DEBRIS && LevelUniqueObjectState.Debris_object_count >= Max_debris_objects && !PERSISTENT_DEBRIS)
 		return object_none;
 
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -1098,7 +1098,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 	}
 
 	// Find next free object
-	const auto &&obj = obj_allocate(ObjectState);
+	const auto &&obj = obj_allocate(LevelUniqueObjectState);
 
 	if (obj == object_none)		//no free objects
 		return object_none;
@@ -1178,7 +1178,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;
 
 	if (obj->type == OBJ_DEBRIS)
-		++ ObjectState.Debris_object_count;
+		++ LevelUniqueObjectState.Debris_object_count;
 
 	return obj;
 }
@@ -1187,7 +1187,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 imobjptridx_t obj_create_copy(const object &srcobj, const vmsegptridx_t newsegnum)
 {
 	// Find next free object
-	const auto &&obj = obj_allocate(ObjectState);
+	const auto &&obj = obj_allocate(LevelUniqueObjectState);
 
 	if (obj == object_none)
 		return object_none;
@@ -1204,9 +1204,9 @@ imobjptridx_t obj_create_copy(const object &srcobj, const vmsegptridx_t newsegnu
 }
 
 //remove object from the world
-void obj_delete(d_level_object_state &ObjectState, segment_array &Segments, const vmobjptridx_t obj)
+void obj_delete(d_level_unique_object_state &LevelUniqueObjectState, segment_array &Segments, const vmobjptridx_t obj)
 {
-	auto &Objects = ObjectState.get_objects();
+	auto &Objects = LevelUniqueObjectState.get_objects();
 	Assert(obj->type != OBJ_NONE);
 	Assert(obj != ConsoleObject);
 
@@ -1214,10 +1214,10 @@ void obj_delete(d_level_object_state &ObjectState, segment_array &Segments, cons
 	if (obj->type==OBJ_WEAPON && get_weapon_id(obj)==weapon_id_type::GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER)
 	{
 		const auto pnum = get_player_id(Objects.vcptr(obj->ctype.laser_info.parent_num));
-		const auto &&gimobj = ObjectState.Guided_missile.get_player_active_guided_missile(Objects.vmptridx, pnum);
+		const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(Objects.vmptridx, pnum);
 		if (gimobj == obj)
 		{
-			ObjectState.Guided_missile.clear_player_active_guided_missile(pnum);
+			LevelUniqueObjectState.Guided_missile.clear_player_active_guided_missile(pnum);
 			if (pnum == Player_num)
 			{
 				if (!PlayerCfg.GuidedInBigWindow)
@@ -1239,14 +1239,14 @@ void obj_delete(d_level_object_state &ObjectState, segment_array &Segments, cons
 		obj_detach_all(Objects, obj);
 
 	if (obj->type == OBJ_DEBRIS)
-		-- ObjectState.Debris_object_count;
+		-- LevelUniqueObjectState.Debris_object_count;
 
 	if (obj->movement_type == MT_PHYSICS && (obj->mtype.phys_info.flags & PF_STICK))
 		LevelUniqueStuckObjectState.remove_stuck_object(obj);
 	obj_unlink(Objects.vmptr, Segments.vmptr, obj);
 	DXX_POISON_VAR(*obj, 0xfa);
 	obj->type = OBJ_NONE;		//unused!
-	obj_free(ObjectState, obj);
+	obj_free(LevelUniqueObjectState, obj);
 }
 
 #define	DEATH_SEQUENCE_LENGTH			(F1_0*5)
@@ -1274,7 +1274,7 @@ void dead_player_end(void)
 		newdemo_record_restore_cockpit();
 
 	Player_dead_state = player_dead_state::no;
-	obj_delete(ObjectState, Segments, vmobjptridx(Dead_player_camera));
+	obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(Dead_player_camera));
 	Dead_player_camera = NULL;
 	select_cockpit(PlayerCfg.CockpitMode[0]);
 	Viewer = Viewer_save;
@@ -1556,7 +1556,7 @@ static void obj_delete_all_that_should_be_dead()
 					// kill_player();
 				}
 			} else {					
-				obj_delete(ObjectState, Segments, objp);
+				obj_delete(LevelUniqueObjectState, Segments, objp);
 			}
 		}
 	}
@@ -1880,7 +1880,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//see if guided missile has flown through exit trigger
-	if (obj == ObjectState.Guided_missile.get_player_active_guided_missile(Player_num))
+	if (obj == LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(Player_num))
 	{
 		if (previous_segment != obj->segnum) {
 			const auto &&psegp = vcsegptr(previous_segment);
@@ -2017,23 +2017,23 @@ void compress_objects(void)
 			
 		}
 	}
-	reset_objects(ObjectState, ObjectState.num_objects);
+	reset_objects(LevelUniqueObjectState, LevelUniqueObjectState.num_objects);
 }
 
 //called after load.  Takes number of objects,  and objects should be
 //compressed.  resets free list, marks unused objects as unused
-void reset_objects(d_level_object_state &ObjectState, const unsigned n_objs)
+void reset_objects(d_level_unique_object_state &LevelUniqueObjectState, const unsigned n_objs)
 {
-	ObjectState.Debris_object_count = 0;
-	ObjectState.num_objects = n_objs;
-	assert(ObjectState.num_objects > 0);
-	auto &Objects = ObjectState.get_objects();
-	assert(ObjectState.num_objects < Objects.size());
+	LevelUniqueObjectState.Debris_object_count = 0;
+	LevelUniqueObjectState.num_objects = n_objs;
+	assert(LevelUniqueObjectState.num_objects > 0);
+	auto &Objects = LevelUniqueObjectState.get_objects();
+	assert(LevelUniqueObjectState.num_objects < Objects.size());
 	Objects.set_count(n_objs);
 
 	for (objnum_t i = n_objs; i < MAX_OBJECTS; ++i)
 	{
-		ObjectState.free_obj_list[i] = i;
+		LevelUniqueObjectState.free_obj_list[i] = i;
 		auto &obj = *Objects.vmptr(i);
 		DXX_POISON_VAR(obj, 0xfd);
 		obj.type = OBJ_NONE;
@@ -2155,7 +2155,7 @@ void clear_transient_objects(int clear_all)
 			 obj->type == OBJ_FIREBALL ||
 			 obj->type == OBJ_DEBRIS ||
 			 (obj->type!=OBJ_NONE && obj->flags & OF_EXPLODING)) {
-			obj_delete(ObjectState, Segments, obj);
+			obj_delete(LevelUniqueObjectState, Segments, obj);
 		}
 	}
 }

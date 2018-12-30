@@ -596,7 +596,7 @@ public:
 };
 #endif
 
-struct d_level_object_state
+struct d_level_unique_object_state
 {
 	unsigned num_objects = 0;
 	unsigned Debris_object_count = 0;
@@ -614,7 +614,7 @@ struct d_level_object_state
 	}
 };
 
-extern d_level_object_state ObjectState;
+extern d_level_unique_object_state LevelUniqueObjectState;
 
 static inline powerup_type_t get_powerup_id(const object_base &o)
 {

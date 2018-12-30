@@ -1894,7 +1894,7 @@ window_event_result GameProcessFrame()
 
 	//if the player is taking damage, give up guided missile control
 	if (local_player_shields_ref != player_shields)
-		release_guided_missile(ObjectState, Player_num);
+		release_guided_missile(LevelUniqueObjectState, Player_num);
 #endif
 
 	// Check if we have to close in-game menus for multiplayer

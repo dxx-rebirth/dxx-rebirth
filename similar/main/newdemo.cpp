@@ -1634,7 +1634,7 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	(void)wallupdate;
-	if (Viewer == ObjectState.Guided_missile.get_player_active_guided_missile(ObjectState.get_objects().vmptr, Player_num))
+	if (Viewer == LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, Player_num))
 		newdemo_record_guided_start();
 	else
 		newdemo_record_guided_end();
@@ -1990,7 +1990,7 @@ static int newdemo_read_frame_information(int rewrite)
 			segp->objects = object_none;
 		}
 
-	reset_objects(ObjectState, 1);
+	reset_objects(LevelUniqueObjectState, 1);
 	auto &plrobj = get_local_plrobj();
 	plrobj.ctype.player_info.homing_object_dist = -1;
 
@@ -2081,7 +2081,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_RENDER_OBJECT:       // Followed by an object structure
 		{
-			const auto &&obj = obj_allocate(ObjectState);
+			const auto &&obj = obj_allocate(LevelUniqueObjectState);
 			if (obj==object_none)
 				break;
 			nd_read_object(obj);
@@ -2339,7 +2339,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (newdemo_read( md->submodel_active, sizeof(md->submodel_active), 1 )!=1) { done=-1; break; }
 			if (newdemo_read( md->submodel_startpoints, sizeof(md->submodel_startpoints), 1 )!=1) { done=-1; break; }
 #endif
-			const auto &&obj = obj_allocate(ObjectState);
+			const auto &&obj = obj_allocate(LevelUniqueObjectState);
 			if (obj==object_none)
 				break;
 			nd_read_object(obj);

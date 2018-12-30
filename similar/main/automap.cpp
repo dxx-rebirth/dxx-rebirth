@@ -375,7 +375,7 @@ static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, con
 
 	auto &marker_objidx = MarkerState.imobjidx[marker_num];
 	if (marker_objidx != object_none)
-		obj_delete(ObjectState, Segments, vmobjptridx(marker_objidx));
+		obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(marker_objidx));
 
 	marker_objidx = drop_marker_object(plrobj.pos, vmsegptridx(plrobj.segnum), plrobj.orient, marker_num);
 
@@ -395,7 +395,7 @@ void DropBuddyMarker(const vmobjptr_t objp)
 
 	auto &marker_objidx = MarkerState.imobjidx[marker_num];
 	if (marker_objidx != object_none)
-		obj_delete(ObjectState, Segments, vmobjptridx(marker_objidx));
+		obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(marker_objidx));
 
 	marker_objidx = drop_marker_object(objp->pos, vmsegptridx(objp->segnum), objp->orient, marker_num);
 }
@@ -914,7 +914,7 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 					/* FIXME: this event should be sent to other players
 					 * so that they remove the marker.
 					 */
-					obj_delete(ObjectState, Segments, vmobjptridx(exchange(mo, object_none)));
+					obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(exchange(mo, object_none)));
 					MarkerState.message[HighlightMarker] = {};
 					MarkerState.HighlightMarker = UINT8_MAX;
 				}

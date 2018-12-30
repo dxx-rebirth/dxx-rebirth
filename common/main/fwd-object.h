@@ -32,7 +32,7 @@ constexpr std::integral_constant<std::size_t, MAX_OBJECTS - 20> MAX_USED_OBJECTS
 #ifdef dsx
 namespace dsx {
 struct object;
-struct d_level_object_state;
+struct d_level_unique_object_state;
 }
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, object, objnum_t, MAX_OBJECTS);
 
@@ -235,11 +235,11 @@ imobjptridx_t obj_create(object_type_t type, ubyte id, vmsegptridx_t segnum, con
 imobjptridx_t obj_create_copy(const object &srcobj, vmsegptridx_t newsegnum);
 
 // remove object from the world
-void obj_delete(d_level_object_state &ObjectState, segment_array &Segments, vmobjptridx_t objnum);
+void obj_delete(d_level_unique_object_state &LevelUniqueObjectState, segment_array &Segments, vmobjptridx_t objnum);
 
 // called after load.  Takes number of objects, and objects should be
 // compressed
-void reset_objects(d_level_object_state &, unsigned n_objs);
+void reset_objects(d_level_unique_object_state &, unsigned n_objs);
 
 // make object array non-sparse
 void compress_objects();
@@ -310,13 +310,13 @@ object_signature_t obj_get_signature();
 // Generally, obj_create() should be called to get an object, since it
 // fills in important fields and does the linking.  returns -1 if no
 // free objects
-imobjptridx_t obj_allocate(d_level_object_state &);
+imobjptridx_t obj_allocate(d_level_unique_object_state &);
 
 // after calling init_object(), the network code has grabbed specific
 // object slots without allocating them.  Go though the objects &
 // build the free list, then set the apporpriate globals Don't call
 // this function if you don't know what you're doing.
-void special_reset_objects(d_level_object_state &);
+void special_reset_objects(d_level_unique_object_state &);
 
 // attaches an object, such as a fireball, to another object, such as
 // a robot

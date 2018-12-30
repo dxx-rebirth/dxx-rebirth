@@ -2324,7 +2324,7 @@ static void multi_do_drop_marker(object_array &objects, fvmsegptridx &vmsegptrid
 
 	auto &mo = MarkerState.imobjidx[mnum];
 	if (mo != object_none)
-		obj_delete(ObjectState, Segments, objects.vmptridx(mo));
+		obj_delete(LevelUniqueObjectState, Segments, objects.vmptridx(mo));
 
 	const auto &&plr_objp = objects.vcptr(vcplayerptr(pnum)->objnum);
 	mo = drop_marker_object(position, vmsegptridx(plr_objp->segnum), plr_objp->orient, mnum);
@@ -3340,7 +3340,7 @@ void multi_prep_level_objects(const d_vclip_array &Vclip)
 		if ((o->type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
 			const auto objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, vmsegptridx(o->segnum), o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
-			obj_delete(ObjectState, Segments, o);
+			obj_delete(LevelUniqueObjectState, Segments, o);
 			if (objnum != object_none)
 			{
 				objnum->rtype.vclip_info.vclip_num = Powerup_info[POW_SHIELD_BOOST].vclip_num;
@@ -3676,7 +3676,7 @@ void multi_update_objects_for_non_cooperative()
 				if (objp->contains_count && (objp->contains_type == OBJ_POWERUP))
 					object_create_robot_egg(objp);
 #endif
-			obj_delete(ObjectState, Segments, objp);
+			obj_delete(LevelUniqueObjectState, Segments, objp);
 		}
 	}
 	powerup_shuffle.shuffle();
@@ -3843,17 +3843,17 @@ void multi_send_guided_info(const object_base &miss, const char done)
 	multi_send_data(multibuf, 0);
 }
 
-static void multi_do_guided(d_level_object_state &ObjectState, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t pnum, const uint8_t *const buf)
 {
 	int count=3;
 
 	if (buf[2])
 	{
-		release_guided_missile(ObjectState, pnum);
+		release_guided_missile(LevelUniqueObjectState, pnum);
 		return;
 	}
 
-	const auto &&gimobj = ObjectState.Guided_missile.get_player_active_guided_missile(ObjectState.get_objects().vmptridx, pnum);
+	const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptridx, pnum);
 	if (gimobj == nullptr)
 		return;
 	const vmobjptridx_t guided_missile = gimobj;
@@ -5641,7 +5641,7 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_DROP_FLAG:
 			multi_do_drop_flag(pnum, buf); break;
 		case MULTI_GUIDED:
-			multi_do_guided(ObjectState, pnum, buf);
+			multi_do_guided(LevelUniqueObjectState, pnum, buf);
 			break;
 		case MULTI_STOLEN_ITEMS:
 			multi_do_stolen_items(buf); break;

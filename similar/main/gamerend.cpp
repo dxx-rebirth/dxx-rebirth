@@ -615,9 +615,9 @@ static void show_extra_views()
 		return;
 	}
 
-	auto &Objects = ObjectState.get_objects();
+	auto &Objects = LevelUniqueObjectState.get_objects();
 	auto &vmobjptr = Objects.vmptr;
-	const auto &&gimobj = ObjectState.Guided_missile.get_player_active_guided_missile(vmobjptr, Player_num);
+	const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(vmobjptr, Player_num);
 	if (gimobj != nullptr)
 	{
 		if (PlayerCfg.GuidedInBigWindow)
@@ -752,7 +752,7 @@ void game_render_frame_mono()
 #if defined(DXX_BUILD_DESCENT_II)
 	if (const auto &&gimobj = (
 			PlayerCfg.GuidedInBigWindow
-			? ObjectState.Guided_missile.get_player_active_guided_missile(ObjectState.get_objects().vmptr, Player_num)
+			? LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, Player_num)
 			: nullptr))
 	{
 		const auto viewer_save = Viewer;

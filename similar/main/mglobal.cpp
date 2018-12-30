@@ -98,7 +98,7 @@ valptridx<cloaking_wall>::array_managed_type CloakingWalls;
 valptridx<dl_index>::array_managed_type Dl_indices;
 d_delta_light_array Delta_lights;
 #endif
-d_level_object_state ObjectState;
+d_level_unique_object_state LevelUniqueObjectState;
 valptridx<object>::array_managed_type Objects;
 valptridx<trigger>::array_managed_type Triggers;
 valptridx<wall>::array_managed_type Walls;

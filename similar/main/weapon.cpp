@@ -1341,8 +1341,8 @@ imobjptridx_t spit_powerup(const d_vclip_array &Vclip, const object_base &spitte
 
 void DropCurrentWeapon (player_info &player_info)
 {
-	auto &Objects = ObjectState.get_objects();
-	if (ObjectState.num_objects >= Objects.size())
+	auto &Objects = LevelUniqueObjectState.get_objects();
+	if (LevelUniqueObjectState.num_objects >= Objects.size())
 		return;
 
 	powerup_type_t drop_type;
@@ -1449,8 +1449,8 @@ void DropSecondaryWeapon (player_info &player_info)
 	int seed;
 	ushort sub_ammo=0;
 
-	auto &Objects = ObjectState.get_objects();
-	if (ObjectState.num_objects >= Objects.size())
+	auto &Objects = LevelUniqueObjectState.get_objects();
+	if (LevelUniqueObjectState.num_objects >= Objects.size())
 		return;
 
 	auto &Secondary_weapon = player_info.Secondary_weapon;

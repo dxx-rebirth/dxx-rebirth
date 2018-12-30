@@ -1058,7 +1058,7 @@ static int load_game_data(
 
 	//========================= UPDATE VARIABLES ======================
 
-	reset_objects(ObjectState, gs_num_objects);
+	reset_objects(LevelUniqueObjectState, gs_num_objects);
 
 	range_for (auto &i, Objects)
 	{
@@ -1515,7 +1515,7 @@ int create_new_mine(void)
 #endif
 	
 	Cur_object_index = -1;
-	reset_objects(ObjectState, 1);		//just one object, the player
+	reset_objects(LevelUniqueObjectState, 1);		//just one object, the player
 	
 	num_groups = 0;
 	current_group = -1;
