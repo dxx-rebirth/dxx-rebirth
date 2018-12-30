@@ -226,7 +226,6 @@ struct vertex : vms_vector
 };
 
 DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(vertex, vert, Vertices);
-#define Highest_vertex_index (Vertices.get_count() - 1)
 }
 
 #ifdef dsx

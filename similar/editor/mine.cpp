@@ -560,9 +560,10 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 		ui_messagebox( -2, -2, 1, message, "Ok" );
 	}
 
-	if (Highest_vertex_index >= MAX_VERTICES) {
+	if (Vertices.get_count() > MAX_VERTICES)
+	{
 		char	message[128];
-		snprintf(message, sizeof(message), "Error: Too many vertices (%i > %" PRIuFAST32 ") for game (not editor)", Highest_vertex_index+1, static_cast<uint_fast32_t>(MAX_VERTICES));
+		snprintf(message, sizeof(message), "Error: Too many vertices (%i > %" PRIuFAST32 ") for game (not editor)", Vertices.get_count(), static_cast<uint_fast32_t>(MAX_VERTICES));
 		ui_messagebox( -2, -2, 1, message, "Ok" );
 	}
 

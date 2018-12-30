@@ -501,7 +501,7 @@ void set_dynamic_light(render_state_t &rstate)
 			auto &vp = Segments[segnum].verts;
 			range_for (const auto vnum, vp)
 			{
-				if (vnum > Highest_vertex_index)
+				if (vnum > Vertices.get_count() - 1)
 				{
 					Int3();		//invalid vertex number
 					continue;	//ignore it, and go on to next one

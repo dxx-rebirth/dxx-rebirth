@@ -142,7 +142,7 @@ int med_add_vertex(const vertex &vp)
 
 	++LevelSharedVertexState.Num_vertices;
 
-	if (free_index > Highest_vertex_index)
+	if (Vertices.get_count() - 1 < free_index)
 		Vertices.set_count(free_index + 1);
 
 	return free_index;
@@ -205,7 +205,7 @@ int med_create_duplicate_vertex(const vertex &vp)
 
 	++LevelSharedVertexState.Num_vertices;
 
-	if (free_index > Highest_vertex_index)
+	if (Vertices.get_count() - 1 < free_index)
 		Vertices.set_count(free_index + 1);
 
 	return free_index;
@@ -222,7 +222,7 @@ int med_set_vertex(const unsigned vnum, const vertex &vp)
 	if (!Vertex_active[vnum]) {
 		Vertex_active[vnum] = 1;
 		++LevelSharedVertexState.Num_vertices;
-		if ((vnum > Highest_vertex_index) && (vnum < NEW_SEGMENT_VERTICES)) {
+		if ((vnum > Vertices.get_count() - 1) && (vnum < NEW_SEGMENT_VERTICES)) {
 			Vertices.set_count(vnum + 1);
 		}
 	}
@@ -417,10 +417,10 @@ static void change_vertex_occurrences(int dest, int src)
 static void compress_vertices(void)
 {
 	const auto Num_vertices = LevelSharedVertexState.Num_vertices;
-	if (Highest_vertex_index == Num_vertices - 1)
+	if (Vertices.get_count() == Num_vertices)
 		return;
 
-	unsigned vert = Highest_vertex_index;	//MAX_SEGMENT_VERTICES-1;
+	unsigned vert = Vertices.get_count() - 1;	//MAX_SEGMENT_VERTICES-1;
 
 	for (unsigned hole = 0; hole < vert; ++hole)
 		if (!Vertex_active[hole]) {
@@ -750,7 +750,7 @@ static void update_num_vertices(void)
 {
 	// Now count the number of vertices.
 	unsigned n = 0;
-	range_for (const auto v, partial_range(Vertex_active, Highest_vertex_index + 1))
+	range_for (const auto v, partial_range(Vertex_active, Vertices.get_count()))
 		if (v)
 			++n;
 	LevelSharedVertexState.Num_vertices = n;
