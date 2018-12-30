@@ -68,17 +68,20 @@ Add versions as needed.
   * [ ] Fedora 27
   * [ ] Fedora 28
   * [ ] Fedora 29
+  * [ ] Rawhide
 * Ubuntu
   * [ ] Ubuntu 16.04 LTS (Xenial Xerus)
   * [ ] Ubuntu 16.10 (Yakkety Yak)
   * [ ] Ubuntu 17.04 (Zesty Zapus)
   * [ ] Ubuntu 17.10 (Artful Aardvark)
   * [ ] Ubuntu 18.04 LTS (Bionic Beaver)
+  * [ ] Ubuntu 18.10 (Cosmic Cuttlefish)
 
 * [ ] Arch
 * [ ] Gentoo
 
 * [ ] OpenBSD
+* [ ] FreeBSD
 
 #### CPU environment
 
