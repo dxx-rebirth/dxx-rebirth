@@ -35,7 +35,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 
 namespace dcx {
-unsigned N_robot_types;
 unsigned N_robot_joints;
 }
 
@@ -62,7 +61,7 @@ namespace dsx {
 void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_num)
 {
 	Assert(obj.render_type == RT_POLYOBJ || obj.render_type == RT_MORPH);
-	Assert(get_robot_id(obj) < N_robot_types);
+	assert(get_robot_id(obj) < LevelSharedRobotInfoState.N_robot_types);
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	const auto &r = Robot_info[get_robot_id(obj)];

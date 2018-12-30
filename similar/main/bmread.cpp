@@ -761,7 +761,7 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 	Textures[NumTextures++].index = 0;		//entry for bogus tmap
 	InfoFile.reset();
 #endif
-	Assert(N_robot_types == Num_robot_ais);		//should be one ai info per robot
+	assert(LevelSharedRobotInfoState.N_robot_types == Num_robot_ais);		//should be one ai info per robot
 
 	verify_textures();
 
@@ -1414,17 +1414,16 @@ void bm_read_robot(int skip)
 	int			attack_sound = ROBOT_ATTACK_SOUND_DEFAULT;
 	int			claw_sound = ROBOT_CLAW_SOUND_DEFAULT;
 
-	Assert(N_robot_types < MAX_ROBOT_TYPES);
+	assert(LevelSharedRobotInfoState.N_robot_types < MAX_ROBOT_TYPES);
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (skip) {
-		Robot_info[N_robot_types].model_num = -1;
-		N_robot_types++;
+		auto &ri = Robot_info[LevelSharedRobotInfoState.N_robot_types++];
+		ri.model_num = -1;
 #if defined(DXX_BUILD_DESCENT_I)
 		Num_total_object_types++;
 		clear_to_end_of_line(arg);
 #elif defined(DXX_BUILD_DESCENT_II)
-		Assert(N_robot_types < MAX_ROBOT_TYPES);
 		clear_to_end_of_line();
 #endif
 		return;
@@ -1551,7 +1550,7 @@ void bm_read_robot(int skip)
 #endif
 			else if (!d_stricmp( arg, "name" )) {
 #if DXX_USE_EDITOR
-				auto &name = Robot_names[N_robot_types];
+				auto &name = Robot_names[LevelSharedRobotInfoState.N_robot_types];
 				const auto len = strlen(equal_ptr);
 				assert(len < name.size());	//	Oops, name too long.
 				memcpy(name.data(), &equal_ptr[1], len - 2);
@@ -1577,8 +1576,9 @@ void bm_read_robot(int skip)
 		arg = strtok( NULL, space_tab );
 	}
 
+	auto &current_robot_info = Robot_info[LevelSharedRobotInfoState.N_robot_types];
 	//clear out anim info
-	range_for (auto &g, Robot_info[N_robot_types].anim_states)
+	range_for (auto &g, current_robot_info.anim_states)
 		range_for (auto &s, g)
 			s.n_joints = 0;
 
@@ -1591,10 +1591,10 @@ void bm_read_robot(int skip)
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
 
-		model_num = load_polygon_model(model_name[i],n_textures,first_bitmap_num[i], (i == 0) ? &Robot_info[N_robot_types] : nullptr);
+		model_num = load_polygon_model(model_name[i],n_textures,first_bitmap_num[i], (i == 0) ? &current_robot_info : nullptr);
 
 		if (i==0)
-			Robot_info[N_robot_types].model_num = model_num;
+			current_robot_info.model_num = model_num;
 		else
 			Polygon_models[last_model_num].simpler_model = model_num+1;
 
@@ -1603,69 +1603,66 @@ void bm_read_robot(int skip)
 
 #if defined(DXX_BUILD_DESCENT_I)
 	ObjType[Num_total_object_types] = OL_ROBOT;
-	ObjId[Num_total_object_types] = N_robot_types;
+	ObjId[Num_total_object_types] = LevelSharedRobotInfoState.N_robot_types;
 #elif defined(DXX_BUILD_DESCENT_II)
 	if ((glow > i2f(15)) || (glow < 0) || (glow != 0 && glow < 0x1000)) {
 		Int3();
 	}
 #endif
 
-	Robot_info[N_robot_types].exp1_vclip_num = exp1_vclip_num;
-	Robot_info[N_robot_types].exp2_vclip_num = exp2_vclip_num;
-	Robot_info[N_robot_types].exp1_sound_num = exp1_sound_num;
-	Robot_info[N_robot_types].exp2_sound_num = exp2_sound_num;
-	Robot_info[N_robot_types].lighting = lighting;
-	Robot_info[N_robot_types].weapon_type = weapon_type;
+	current_robot_info.exp1_vclip_num = exp1_vclip_num;
+	current_robot_info.exp2_vclip_num = exp2_vclip_num;
+	current_robot_info.exp1_sound_num = exp1_sound_num;
+	current_robot_info.exp2_sound_num = exp2_sound_num;
+	current_robot_info.lighting = lighting;
+	current_robot_info.weapon_type = weapon_type;
 #if defined(DXX_BUILD_DESCENT_II)
-	Robot_info[N_robot_types].weapon_type2 = weapon_type2;
+	current_robot_info.weapon_type2 = weapon_type2;
 #endif
-	Robot_info[N_robot_types].strength = strength;
-	Robot_info[N_robot_types].mass = mass;
-	Robot_info[N_robot_types].drag = drag;
-	Robot_info[N_robot_types].cloak_type = cloak_type;
-	Robot_info[N_robot_types].attack_type = attack_type;
-	Robot_info[N_robot_types].boss_flag = boss_flag;
+	current_robot_info.strength = strength;
+	current_robot_info.mass = mass;
+	current_robot_info.drag = drag;
+	current_robot_info.cloak_type = cloak_type;
+	current_robot_info.attack_type = attack_type;
+	current_robot_info.boss_flag = boss_flag;
 
-	Robot_info[N_robot_types].contains_id = contains_id;
-	Robot_info[N_robot_types].contains_count = contains_count;
-	Robot_info[N_robot_types].contains_prob = contains_prob;
+	current_robot_info.contains_id = contains_id;
+	current_robot_info.contains_count = contains_count;
+	current_robot_info.contains_prob = contains_prob;
 #if defined(DXX_BUILD_DESCENT_II)
-	Robot_info[N_robot_types].companion = companion;
-	Robot_info[N_robot_types].badass = badass;
-	Robot_info[N_robot_types].lightcast = lightcast;
-	Robot_info[N_robot_types].glow = (glow>>12);		//convert to 4:4
-	Robot_info[N_robot_types].death_roll = death_roll;
-	Robot_info[N_robot_types].deathroll_sound = deathroll_sound;
-	Robot_info[N_robot_types].thief = thief;
-	Robot_info[N_robot_types].flags = flags;
-	Robot_info[N_robot_types].kamikaze = kamikaze;
-	Robot_info[N_robot_types].pursuit = pursuit;
-	Robot_info[N_robot_types].smart_blobs = smart_blobs;
-	Robot_info[N_robot_types].energy_blobs = energy_blobs;
-	Robot_info[N_robot_types].energy_drain = energy_drain;
+	current_robot_info.companion = companion;
+	current_robot_info.badass = badass;
+	current_robot_info.lightcast = lightcast;
+	current_robot_info.glow = (glow>>12);		//convert to 4:4
+	current_robot_info.death_roll = death_roll;
+	current_robot_info.deathroll_sound = deathroll_sound;
+	current_robot_info.thief = thief;
+	current_robot_info.flags = flags;
+	current_robot_info.kamikaze = kamikaze;
+	current_robot_info.pursuit = pursuit;
+	current_robot_info.smart_blobs = smart_blobs;
+	current_robot_info.energy_blobs = energy_blobs;
+	current_robot_info.energy_drain = energy_drain;
 #endif
-	Robot_info[N_robot_types].score_value = score_value;
-	Robot_info[N_robot_types].see_sound = see_sound;
-	Robot_info[N_robot_types].attack_sound = attack_sound;
-	Robot_info[N_robot_types].claw_sound = claw_sound;
+	current_robot_info.score_value = score_value;
+	current_robot_info.see_sound = see_sound;
+	current_robot_info.attack_sound = attack_sound;
+	current_robot_info.claw_sound = claw_sound;
 #if defined(DXX_BUILD_DESCENT_II)
-	Robot_info[N_robot_types].taunt_sound = taunt_sound;
-	Robot_info[N_robot_types].behavior = behavior;		//	Default behavior for this robot, if coming out of matcen.
-	Robot_info[N_robot_types].aim = min(f2i(aim*255), 255);		//	how well this robot type can aim.  255=perfect
+	current_robot_info.taunt_sound = taunt_sound;
+	current_robot_info.behavior = behavior;		//	Default behavior for this robot, if coming out of matcen.
+	current_robot_info.aim = min(f2i(aim*255), 255);		//	how well this robot type can aim.  255=perfect
 #endif
 
 	if (contains_type)
-		Robot_info[N_robot_types].contains_type = OBJ_ROBOT;
+		current_robot_info.contains_type = OBJ_ROBOT;
 	else
-		Robot_info[N_robot_types].contains_type = OBJ_POWERUP;
+		current_robot_info.contains_type = OBJ_POWERUP;
 
-	N_robot_types++;
+	++LevelSharedRobotInfoState.N_robot_types;
 #if defined(DXX_BUILD_DESCENT_I)
 	Num_total_object_types++;
 #elif defined(DXX_BUILD_DESCENT_II)
-
-	Assert(N_robot_types < MAX_ROBOT_TYPES);
-
 	bm_flag = BM_NONE;
 #endif
 }

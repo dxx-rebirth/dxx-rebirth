@@ -2023,7 +2023,7 @@ void create_buddy_bot(void)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	for (buddy_id=0;; buddy_id++)
 	{
-		if (!(buddy_id < N_robot_types))
+		if (!(buddy_id < LevelSharedRobotInfoState.N_robot_types))
 			return;
 		const robot_info &robptr = Robot_info[buddy_id];
 		if (robptr.companion)
@@ -2470,7 +2470,6 @@ static void do_super_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
 
 				Assert(randtype < MAX_GATE_INDEX);
 				randtype = Super_boss_gate_list[randtype];
-				Assert(randtype < N_robot_types);
 
 				const auto &&rtval = gate_in_robot(vmsegptridx, randtype);
 				if (rtval != object_none && (Game_mode & GM_MULTI))
@@ -3013,7 +3012,7 @@ void do_ai_frame(const vmobjptridx_t obj)
 	}
 
 	Assert(obj->segnum != segment_none);
-	Assert(get_robot_id(obj) < N_robot_types);
+	assert(get_robot_id(obj) < LevelSharedRobotInfoState.N_robot_types);
 
 	obj_ref = objnum ^ d_tick_count;
 

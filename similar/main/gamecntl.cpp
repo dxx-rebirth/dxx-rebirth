@@ -1214,7 +1214,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 			if (new_obj != object_none)
 				morph_start( new_obj );
 			i++;
-			if (i >= N_robot_types)
+			if (i >= LevelSharedRobotInfoState.N_robot_types)
 				i = 0;
 			break;
 		}

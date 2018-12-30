@@ -132,6 +132,7 @@ static window_event_result centers_dialog_created(UI_DIALOG *const w, centers_di
 #elif defined(DXX_BUILD_DESCENT_II)
 	const unsigned d = 6;
 #endif
+	const auto N_robot_types = LevelSharedRobotInfoState.N_robot_types;
 	for (i=0; i < N_robot_types; i++)
 		c->robotMatFlag[i] = ui_add_gadget_checkbox( w, 128 + (i%d)*92, 20+(i/d)*24, 16, 16, 0, Robot_names[i].data());
 	c->old_seg_num = -2;		// Set to some dummy value so everything works ok on the first frame.
@@ -173,6 +174,8 @@ window_event_result centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	// Call the ui code..
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
+
+	const auto N_robot_types = LevelSharedRobotInfoState.N_robot_types;
 
 	//------------------------------------------------------------
 	// If we change centers, we need to reset the ui code for all

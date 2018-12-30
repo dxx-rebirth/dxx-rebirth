@@ -2147,7 +2147,7 @@ void copy_defaults_to_robot(const vmobjptr_t objp)
 
 	Assert(objp->type == OBJ_ROBOT);
 	objid = get_robot_id(objp);
-	Assert(objid < N_robot_types);
+	assert(objid < LevelSharedRobotInfoState.N_robot_types);
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[objid];

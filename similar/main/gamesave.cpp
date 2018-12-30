@@ -200,6 +200,7 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 		Gamesave_num_org_robots++;
 
 		// Make sure valid id...
+		const auto N_robot_types = LevelSharedRobotInfoState.N_robot_types;
 		if (get_robot_id(obj) >= N_robot_types )
 			set_robot_id(obj, get_robot_id(obj) % N_robot_types);
 

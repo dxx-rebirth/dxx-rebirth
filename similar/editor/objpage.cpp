@@ -265,7 +265,7 @@ int objpage_goto_next_object()
 		case OBJ_CNTRLCEN:
 		default:
 			Cur_object_type = OBJ_ROBOT;
-			Num_object_subtypes = N_robot_types;
+			Num_object_subtypes = LevelSharedRobotInfoState.N_robot_types;
 			break;
 	}
 
@@ -327,7 +327,6 @@ void objpage_init( UI_DIALOG *dlg )
 	//Assert (Num_total_object_types < MAX_OBJTYPE );
 	//Assert (N_hostage_types < MAX_HOSTAGE_TYPES ); 
 	//Assert (N_powerup_types < MAX_POWERUP_TYPES );
-	// Assert (N_robot_types < MAX_ROBOTS);
 
 	auto &o = objpage_dialog;
 	o.prev_object = ui_add_gadget_button( dlg, OBJCURBOX_X + 00, OBJCURBOX_Y - 27, 30, 20, "<<", objpage_goto_prev );

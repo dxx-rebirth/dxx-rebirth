@@ -114,7 +114,7 @@ static int RobotNextType()
 		if (obj->type == OBJ_ROBOT)
 		{
 			obj->id++;
-			if (obj->id >= N_robot_types )
+			if (obj->id >= LevelSharedRobotInfoState.N_robot_types)
 				obj->id = 0;
 
 			//Set polygon-object-specific data
@@ -144,7 +144,7 @@ static int RobotPrevType()
 		if (obj->type == OBJ_ROBOT)
 		{
 			if (obj->id == 0 ) 
-				obj->id = N_robot_types-1;
+				obj->id = LevelSharedRobotInfoState.N_robot_types - 1;
 			else
 				obj->id--;
 
@@ -263,7 +263,7 @@ int GoodyNextID()
 {
 	Cur_goody_id++;
 	if (Cur_goody_type == OBJ_ROBOT) {
-		if (Cur_goody_id >= N_robot_types)
+		if (Cur_goody_id >= LevelSharedRobotInfoState.N_robot_types)
 			Cur_goody_id=0;
 	} else {
 		if (Cur_goody_id >= N_powerup_types)
@@ -279,7 +279,7 @@ int GoodyPrevID()
 	Cur_goody_id--;
 	if (Cur_goody_type == OBJ_ROBOT) {
 		if (Cur_goody_id < 0)
-			Cur_goody_id = N_robot_types-1;
+			Cur_goody_id = LevelSharedRobotInfoState.N_robot_types - 1;
 	} else {
 		if (Cur_goody_id < 0)
 			Cur_goody_id = N_powerup_types-1;
@@ -450,7 +450,7 @@ static int LocalObjectPlaceObject(void)
 	{
 		Cur_object_type = OBJ_ROBOT;
 		Cur_object_id = 3;	// class 1 drone
-		Num_object_subtypes = N_robot_types;
+		Num_object_subtypes = LevelSharedRobotInfoState.N_robot_types;
 	}
 
 	rval = ObjectPlaceObject();

@@ -196,6 +196,8 @@ static inline int robot_is_thief(const robot_info &robptr)
 struct d_level_shared_robot_info_state
 {
 	using d_robot_info_array = array<robot_info, MAX_ROBOT_TYPES>;
+	//how many kinds of robots
+	unsigned N_robot_types;      // Number of robot types.  We used to assume this was the same as N_polygon_models.
 	// Robot info for AI system, loaded from bitmaps.tbl.
 	d_robot_info_array Robot_info;
 };
@@ -215,8 +217,6 @@ extern array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
 }
 
 namespace dcx {
-//how many kinds of robots
-extern unsigned N_robot_types;      // Number of robot types.  We used to assume this was the same as N_polygon_models.
 
 extern unsigned N_robot_joints;
 }

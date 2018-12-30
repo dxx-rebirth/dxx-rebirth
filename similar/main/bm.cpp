@@ -187,7 +187,7 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 	range_for (auto &w, WallAnims)
 		wclip_read(fp, w);
 
-	N_robot_types = PHYSFSX_readInt(fp);
+	LevelSharedRobotInfoState.N_robot_types = PHYSFSX_readInt(fp);
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (auto &r, Robot_info)
 		robot_info_read(fp, r);
@@ -320,9 +320,9 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 	range_for (auto &w, partial_range(WallAnims, Num_wall_anims))
 		wclip_read(fp, w);
 
-	N_robot_types = PHYSFSX_readInt(fp);
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	range_for (auto &r, partial_range(Robot_info, N_robot_types))
+	LevelSharedRobotInfoState.N_robot_types = PHYSFSX_readInt(fp);
+	range_for (auto &r, partial_range(Robot_info, LevelSharedRobotInfoState.N_robot_types))
 		robot_info_read(fp, r);
 
 	N_robot_joints = PHYSFSX_readInt(fp);
@@ -454,7 +454,7 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 	//now read robot info
 
 	t = PHYSFSX_readInt(fp);
-	N_robot_types = N_D2_ROBOT_TYPES+t;
+	const auto N_robot_types = LevelSharedRobotInfoState.N_robot_types = N_D2_ROBOT_TYPES + t;
 	if (N_robot_types >= MAX_ROBOT_TYPES)
 		Error("Too many robots (%d) in <%s>.  Max is %d.",t,fname,MAX_ROBOT_TYPES-N_D2_ROBOT_TYPES);
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -522,6 +522,7 @@ void load_robot_replacements(const d_fname &level_name)
 
 	t = PHYSFSX_readInt(fp);			//read number of robots
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+	const auto N_robot_types = LevelSharedRobotInfoState.N_robot_types;
 	for (j=0;j<t;j++) {
 		i = PHYSFSX_readInt(fp);		//read robot number
 		if (i<0 || i>=N_robot_types)
