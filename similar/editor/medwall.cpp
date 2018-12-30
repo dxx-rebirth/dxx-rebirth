@@ -615,7 +615,7 @@ int wall_restore_all()
 	}
 
 	range_for (auto &&i, vmactdoorptr)
-		wall_close_door_ref(i);
+		wall_close_door_ref(Segments.vmptridx, Walls, WallAnims, i);
 
 	range_for (auto &&i, vmsegptr)
 		range_for (auto &&e, enumerate(i->shared_segment::sides))	// d_zip

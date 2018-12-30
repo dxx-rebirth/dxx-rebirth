@@ -299,5 +299,5 @@ void active_door_read(PHYSFS_File *fp, active_door &ad);
 void active_door_write(PHYSFS_File *fp, const active_door &ad);
 
 void wall_write(PHYSFS_File *fp, const wall &w, short version);
-void wall_close_door_ref(active_door &);
+void wall_close_door_ref(fvmsegptridx &vmsegptridx, wall_array &Walls, const wall_animations_array &WallAnims, active_door &);
 #endif

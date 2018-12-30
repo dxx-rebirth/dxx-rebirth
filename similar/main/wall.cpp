@@ -634,17 +634,15 @@ void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 //-----------------------------------------------------------------
 // This function closes the specified door and restores the closed
 //  door texture.  This is called when the animation is done
-void wall_close_door_ref(active_door &d)
+void wall_close_door_ref(fvmsegptridx &vmsegptridx, wall_array &Walls, const wall_animations_array &WallAnims, active_door &d)
 {
 	range_for (const auto p, partial_const_range(d.front_wallnum, d.n_parts))
 	{
-		int side;
+		wall &w = *Walls.vmptr(p);
 
-		wall *const w = vmwallptr(p);
-
-		const auto &&seg = vmsegptridx(w->segnum);
-		side = w->sidenum;
-		w->state = WALL_DOOR_CLOSED;
+		const auto &&seg = vmsegptridx(w.segnum);
+		const auto side = w.sidenum;
+		w.state = WALL_DOOR_CLOSED;
 
 		assert(seg->shared_segment::sides[side].wall_num != wall_none);		//Closing door on illegal wall
 
@@ -652,10 +650,10 @@ void wall_close_door_ref(active_door &d)
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != side_none);
 		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
-		if (const auto &&w1 = imwallptr(cwall_num))
+		if (const auto &&w1 = Walls.imptr(cwall_num))
 			w1->state = WALL_DOOR_CLOSED;
 
-		wall_set_tmap_num(WallAnims[w->clip_num], seg, side, csegp, Connectside, 0);
+		wall_set_tmap_num(WallAnims[w.clip_num], seg, side, csegp, Connectside, 0);
 	}
 }
 
@@ -933,7 +931,7 @@ static bool do_door_close(active_door &d)
 			w1.state = WALL_DOOR_CLOSING;
 		} else
 		{
-			wall_close_door_ref(d);
+			wall_close_door_ref(Segments.vmptridx, Walls, WallAnims, d);
 			remove = true;
 		}
 	}
