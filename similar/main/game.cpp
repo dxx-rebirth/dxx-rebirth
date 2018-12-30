@@ -1534,9 +1534,6 @@ window *game_setup(void)
 		Cursegp = imsegptridx(segment_first);
 		Curside = 0;
 	}
-	
-	if (vcsegptr(ConsoleObject->segnum)->segnum == segment_none)      //segment no longer exists
-		obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), Cursegp);
 #endif
 
 	Viewer = ConsoleObject;
