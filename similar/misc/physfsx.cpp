@@ -220,6 +220,15 @@ bool PHYSFSX_init(int argc, char *argv[])
 		con_puts(CON_DEBUG, "PHYSFS: append sharepath directory \"" DXX_SHAREPATH "\" to search path");
 		PHYSFS_addToSearchPath(DXX_SHAREPATH, 1);
 	}
+	else
+	{
+		con_puts(CON_DEBUG, "PHYSFS: skipping built-in sharepath \"" DXX_SHAREPATH "\"");
+	}
+#else
+	else
+	{
+		con_puts(CON_DEBUG, "PHYSFS: no built-in sharepath");
+	}
 #endif
 	
 	PHYSFSX_addRelToSearchPath("data", 1);	// 'Data' subdirectory
