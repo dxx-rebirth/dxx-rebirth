@@ -90,7 +90,7 @@ struct cwframe
 {
 	wall &w;
 	array<uvl, 4> &uvls;
-	cwframe(wall &wr) :
+	cwframe(fvmsegptr &vmsegptr, wall &wr) :
 		w(wr),
 		uvls(vmsegptr(w.segnum)->unique_segment::sides[w.sidenum].uvls)
 	{
@@ -110,6 +110,8 @@ struct cwresult
 
 struct cw_removal_predicate
 {
+	fvmsegptr &vmsegptr;
+	wall_array &Walls;
 	unsigned num_cloaking_walls = 0;
 	bool operator()(cloaking_wall &d);
 };
@@ -1221,9 +1223,9 @@ static cwresult do_decloaking_wall_frame(const bool initial, cloaking_wall &d, c
 
 bool cw_removal_predicate::operator()(cloaking_wall &d)
 {
-	const cwframe front(*vmwallptr(d.front_wallnum));
-	const auto &&wpback = imwallptr(d.back_wallnum);
-	const cwframe back = (wpback ? cwframe(*wpback) : front);
+	const cwframe front(vmsegptr, *Walls.vmptr(d.front_wallnum));
+	const auto &&wpback = Walls.imptr(d.back_wallnum);
+	const cwframe back = (wpback ? cwframe(vmsegptr, *wpback) : front);
 	const bool initial = (d.time == 0);
 	d.time += FrameTime;
 
@@ -1290,7 +1292,7 @@ void wall_frame_process()
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 	{
 		const auto &&r = partial_range(CloakingWalls, CloakingWalls.get_count());
-		cw_removal_predicate rp;
+		cw_removal_predicate rp{Segments.vmptr, Walls};
 		std::remove_if(r.begin(), r.end(), std::ref(rp));
 		CloakingWalls.set_count(rp.num_cloaking_walls);
 	}
