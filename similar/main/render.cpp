@@ -829,10 +829,6 @@ static ubyte code_window_point(fix x,fix y,const rect &w)
 	return code;
 }
 
-#ifndef NDEBUG
-static array<char, MAX_SEGMENTS> visited2;
-#endif
-
 //Given two sides of segment, tell the two verts which form the 
 //edge between them
 constexpr array<
@@ -1251,10 +1247,6 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 
 	rstate.render_pos.fill(-1);
 
-	#ifndef NDEBUG
-	visited2 = {};
-	#endif
-
 	lcnt = scnt = 0;
 
 	rstate.Render_list[lcnt] = start_seg_num;
@@ -1446,25 +1438,6 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 	const auto &&render_range = partial_const_range(rstate.Render_list, rstate.N_render_segs);
 	const auto &&reversed_render_range = render_range.reversed();
 	//render away
-	#ifndef NDEBUG
-#if defined(DXX_BUILD_DESCENT_I)
-	if (!(_search_mode || eye_offset>0))
-#elif defined(DXX_BUILD_DESCENT_II)
-	if (!(_search_mode))
-#endif
-	{
-		range_for (const auto segnum, render_range)
-		{
-			if (segnum != segment_none)
-			{
-				if (visited2[segnum])
-					Int3();		//get Matt
-				else
-					visited2[segnum] = 1;
-			}
-		}
-	}
-	#endif
 
 	//if (!(_search_mode))
 		build_object_lists(Objects, vcsegptr, Viewer_eye, rstate);
