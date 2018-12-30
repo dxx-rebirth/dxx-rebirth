@@ -62,6 +62,7 @@ struct fvi_info : prohibit_void_ptr<fvi_info>
 #define FQ_GET_SEGLIST	8		//build a list of segments
 #define FQ_IGNORE_POWERUPS	16		//ignore powerups
 
+#ifdef dsx
 //this data contains the parms to fvi()
 struct fvi_query : prohibit_void_ptr<fvi_query>
 {
@@ -69,7 +70,7 @@ struct fvi_query : prohibit_void_ptr<fvi_query>
 	segnum_t startseg;
 	objnum_t thisobjnum;
 	fix rad;
-	std::pair<const objnum_t *, const objnum_t *> ignore_obj_list;
+	std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list;
 	int flags;
 };
 
@@ -90,7 +91,6 @@ struct fvi_hitpoint
 //Returns the hit_data->hit_type
 int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data);
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also
 namespace dsx {

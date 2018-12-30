@@ -270,22 +270,25 @@ namespace {
 
 class ignore_objects_array_t
 {
-	typedef array<objnum_t, MAX_IGNORE_OBJS> array_t;
-	array_t a;
+	using array_t = array<vcobjidx_t, MAX_IGNORE_OBJS>;
 	array_t::iterator e;
+	union {
+		array_t a;
+	};
 public:
 	ignore_objects_array_t() :
 		e(a.begin())
 	{
 	}
-	bool push_back(objnum_t o)
+	bool push_back(const vcobjidx_t o)
 	{
-		if (e == a.end())
+		if (unlikely(e == a.end()))
 			return false;
-		*e++ = o;
+		std::uninitialized_fill_n(e, 1, o);
+		++e;
 		return true;
 	}
-	operator std::pair<const objnum_t *, const objnum_t *>() const
+	operator std::pair<const vcobjidx_t *, const vcobjidx_t *>() const
 	{
 		return {a.begin(), e};
 	}
