@@ -66,60 +66,40 @@ namespace {
 
 // Subtitle data
 struct subtitle {
-	short first_frame,last_frame;
-	char *msg;
+	typename std::conditional<sizeof(char *) == sizeof(uint32_t), uint16_t, uint32_t>::type first_frame, last_frame;
+	const char *msg;
 };
 
-}
-
-static int init_subtitles(const char *filename);
-
-#define MAX_SUBTITLES 500
 #define MAX_ACTIVE_SUBTITLES 3
-static subtitle Subtitles[MAX_SUBTITLES];
-static int Num_subtitles;
-static char *subtitle_raw_data;
 
-namespace {
-
-class RunSubtitles
+struct d_subtitle_state
 {
-public:
-	RunSubtitles(const char *filename)
-	{
-		init_subtitles(filename);
-	}
-	~RunSubtitles()
-	{
-		if (subtitle_raw_data)
-			d_free(subtitle_raw_data);
-		Num_subtitles = 0;
-	}
+	unsigned Num_subtitles = 0;
+	std::unique_ptr<char[]> subtitle_raw_data;
+	array<subtitle, 500> Subtitles;
 };
 
-}
+static int init_subtitles(d_subtitle_state &SubtitleState, const char *filename);
 
 // Movielib data
 
 constexpr array<array<char, 8>, 3> movielib_files{{
 	{"intro"}, {"other"}, {"robots"}
 }};
-namespace {
 
 struct loaded_movie_t
 {
 	array<char, FILENAME_LEN + 2> filename;
 };
 
-}
 static loaded_movie_t extra_robot_movie_mission;
 
 static RWops_ptr RoboFile;
 
 // Function Prototypes
-static int RunMovie(char *filename, int highres_flag, int allow_abort,int dx,int dy);
+static int RunMovie(const char *filename, const char *subtitles, int highres_flag, int allow_abort,int dx,int dy);
 
-static void draw_subtitles(int frame_num);
+static void draw_subtitles(const d_subtitle_state &, int frame_num);
 
 // ----------------------------------------------------------------------
 static void* MPlayAlloc(size_t size)
@@ -132,7 +112,6 @@ static void MPlayFree(void *p)
     d_free(p);
 }
 
-
 //-----------------------------------------------------------------------
 
 static unsigned int FileRead(void *handle, void *buf, unsigned int count)
@@ -142,6 +121,7 @@ static unsigned int FileRead(void *handle, void *buf, unsigned int count)
     return (numread == count);
 }
 
+}
 
 //-----------------------------------------------------------------------
 
@@ -152,8 +132,6 @@ int PlayMovie(const char *subtitles, const char *filename, int must_have)
 {
 	char name[FILENAME_LEN],*p;
 	int ret;
-
-	RunSubtitles runsubtitles(subtitles);
 
 	if (GameArg.SysNoMovies)
 		return MOVIE_NOT_PLAYED;
@@ -176,7 +154,7 @@ int PlayMovie(const char *subtitles, const char *filename, int must_have)
 	// Start sound
 	MVE_sndInit(!CGameArg.SndNoSound ? 1 : -1);
 
-	ret = RunMovie(name, !GameArg.GfxSkipHiresMovie, must_have, -1, -1);
+	ret = RunMovie(name, subtitles, !GameArg.GfxSkipHiresMovie, must_have, -1, -1);
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
 	if (!CGameArg.SndNoSound
@@ -188,6 +166,8 @@ int PlayMovie(const char *subtitles, const char *filename, int must_have)
 
 	return ret;
 }
+
+namespace {
 
 static void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh)
 {
@@ -262,8 +242,6 @@ static void MovieSetPalette(const unsigned char *p, unsigned start, unsigned cou
 	memcpy(&gr_palette[start],p+start*3,count*3);
 }
 
-namespace {
-
 struct movie : ignore_window_pointer_t
 {
 	MVE_StepStatus result;
@@ -271,9 +249,8 @@ struct movie : ignore_window_pointer_t
 	int frame_num;
 	int paused;
 	MVESTREAM_ptr_t pMovie;
+	d_subtitle_state SubtitleState;
 };
-
-}
 
 static window_event_result show_pause_message(window *, const d_event &event, const unused_window_userdata_t *)
 {
@@ -362,7 +339,7 @@ static window_event_result MovieHandler(window *, const d_event &event, movie *m
 				}
 			}
 
-			draw_subtitles(m->frame_num);
+			draw_subtitles(m->SubtitleState, m->frame_num);
 
 			gr_palette_load(gr_palette);
 
@@ -385,7 +362,7 @@ static window_event_result MovieHandler(window *, const d_event &event, movie *m
 }
 
 //returns status.  see movie.h
-int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
+int RunMovie(const char *const filename, const char *const subtitles, const int hires_flag, const int must_have, const int dx, const int dy)
 {
 	movie m;
 	int track = 0;
@@ -393,6 +370,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 #if DXX_USE_OGL
 	palette_array_t pal_save;
 #endif
+
+	init_subtitles(m.SubtitleState, subtitles);
 
 	m.result = MVE_StepStatus::EndOfFile;
 	m.aborted = 0;
@@ -404,8 +383,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	auto filehndl = PHYSFSRWOPS_openRead(filename);
 	if (!filehndl)
 	{
-		if (must_have)
-			con_printf(CON_URGENT, "Can't open movie <%s>: %s", filename, PHYSFS_getLastError());
+		con_printf(must_have ? CON_URGENT : CON_VERBOSE, "Failed to open movie <%s>: %s", filename, PHYSFS_getLastError());
 		return MOVIE_NOT_PLAYED;
 	}
 	const auto reshow = hide_menus();
@@ -466,6 +444,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	return (aborted?MOVIE_ABORTED:MOVIE_PLAYED_FULL);
 }
 
+}
 
 //returns 1 if frame updated ok
 int RotateRobot(MVESTREAM_ptr_t &pMovie)
@@ -528,11 +507,11 @@ int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 	return 1;
 }
 
+namespace {
 
 /*
  *		Subtitle system code
  */
-
 
 //search for next field following whitespace
 static char *next_field (char *p)
@@ -552,8 +531,7 @@ static char *next_field (char *p)
 	return p;
 }
 
-
-static int init_subtitles(const char *filename)
+static int init_subtitles(d_subtitle_state &SubtitleState, const char *const filename)
 {
 	if (!filename)
 		return 0;
@@ -561,10 +539,13 @@ static int init_subtitles(const char *filename)
 	char *p;
 	int have_binary = 0;
 
-	Num_subtitles = 0;
+	SubtitleState.Num_subtitles = 0;
 
 	if (!GameCfg.MovieSubtitles)
+	{
+		con_puts(CON_VERBOSE, "Rebirth: movie subtitles are disabled");
 		return 0;
+	}
 
 	auto ifile = PHYSFSX_openReadBuffered(filename);		//try text version
 
@@ -573,23 +554,28 @@ static int init_subtitles(const char *filename)
 		change_filename_extension(filename2, filename, ".txb");
 		ifile = PHYSFSX_openReadBuffered(filename2);
 		if (!ifile)
+		{
+			con_printf(CON_VERBOSE, "Rebirth: skipping subtitles because cannot open \"%s\" or \"%s\"", filename, filename2);
 			return 0;
+		}
 		have_binary = 1;
+		con_printf(CON_VERBOSE, "Rebirth: found encoded subtitles in \"%s\"", filename2);
 	}
+	else
+		con_printf(CON_VERBOSE, "Rebirth: found text subtitles in \"%s\"", filename);
 
 	size = PHYSFS_fileLength(ifile);
 
-	MALLOC (subtitle_raw_data, char, size+1);
-
+	const auto subtitle_raw_data = (SubtitleState.subtitle_raw_data = make_unique<char[]>(size + 1)).get();
 	read_count = PHYSFS_read(ifile, subtitle_raw_data, 1, size);
 	ifile.reset();
-	subtitle_raw_data[size] = 0;
 
 	if (read_count != size) {
-		d_free(subtitle_raw_data);
+		con_puts(CON_VERBOSE, "Rebirth: skipping subtitles because cannot read full subtitle file");
 		return 0;
 	}
 
+	subtitle_raw_data[size] = 0;
 	p = subtitle_raw_data;
 
 	while (p && p < subtitle_raw_data+size) {
@@ -606,27 +592,29 @@ static int init_subtitles(const char *filename)
 			decode_text_line(p);
 
 		if (*p != ';') {
-			Subtitles[Num_subtitles].first_frame = atoi(p);
+			const auto Num_subtitles = SubtitleState.Num_subtitles;
+			auto &Subtitles = SubtitleState.Subtitles;
+			auto &s = Subtitles[SubtitleState.Num_subtitles++];
+			s.first_frame = atoi(p);
 			p = next_field(p); if (!p) continue;
-			Subtitles[Num_subtitles].last_frame = atoi(p);
+			s.last_frame = atoi(p);
 			p = next_field(p); if (!p) continue;
-			Subtitles[Num_subtitles].msg = p;
+			s.msg = p;
 
-			Assert(Num_subtitles==0 || Subtitles[Num_subtitles].first_frame >= Subtitles[Num_subtitles-1].first_frame);
-			Assert(Subtitles[Num_subtitles].last_frame >= Subtitles[Num_subtitles].first_frame);
-
-			Num_subtitles++;
+			if (Num_subtitles)
+			{
+				assert(s.first_frame >= Subtitles[Num_subtitles - 1].first_frame);
+			}
+			assert(s.last_frame >= s.first_frame);
 		}
 
 		p = endp+1;
-
 	}
-
 	return 1;
 }
 
 //draw the subtitles for this frame
-static void draw_subtitles(int frame_num)
+static void draw_subtitles(const d_subtitle_state &SubtitleState, const int frame_num)
 {
 	static int active_subtitles[MAX_ACTIVE_SUBTITLES];
 	static int next_subtitle;
@@ -642,6 +630,7 @@ static void draw_subtitles(int frame_num)
 	}
 
 	//get rid of any subtitles that have expired
+	auto &Subtitles = SubtitleState.Subtitles;
 	for (int t=0;t<num_active_subtitles;)
 		if (frame_num > Subtitles[active_subtitles[t]].last_frame) {
 			int t2;
@@ -654,7 +643,7 @@ static void draw_subtitles(int frame_num)
 			t++;
 
 	//get any subtitles new for this frame
-	while (next_subtitle < Num_subtitles && frame_num >= Subtitles[next_subtitle].first_frame) {
+	while (next_subtitle < SubtitleState.Num_subtitles && frame_num >= Subtitles[next_subtitle].first_frame) {
 		if (num_active_subtitles >= MAX_ACTIVE_SUBTITLES)
 			Error("Too many active subtitles!");
 		active_subtitles[num_active_subtitles++] = next_subtitle;
@@ -700,6 +689,8 @@ static void init_movie(const char *movielib, int required, loaded_movie_t &movie
 			return;
 	}
 	init_movie(movielib, 'l', required, movie);
+}
+
 }
 
 //find and initialize the movie libraries
