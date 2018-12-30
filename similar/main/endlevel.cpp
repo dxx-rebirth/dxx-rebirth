@@ -916,7 +916,7 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 #endif
 	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
 
-	Viewer_eye = Viewer->pos;
+	auto Viewer_eye = Viewer->pos;
 
 	if (eye_offset)
 		vm_vec_scale_add2(Viewer_eye,Viewer->orient.rvec,eye_offset);
@@ -955,7 +955,7 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 	ogl_toggle_depth_test(0);
 	Render_depth = (200-(vm_vec_dist_quick(mine_ground_exit_point, Viewer_eye)/F1_0))/36;
 #endif
-	render_terrain(canvas, mine_ground_exit_point, exit_point_bmx, exit_point_bmy);
+	render_terrain(canvas, Viewer_eye, mine_ground_exit_point, exit_point_bmx, exit_point_bmy);
 #if DXX_USE_OGL
 	Render_depth = orig_Render_depth;
 	ogl_toggle_depth_test(1);
@@ -1055,7 +1055,7 @@ void draw_stars(grs_canvas &canvas)
 
 static void endlevel_render_mine(const d_level_shared_segment_state &LevelSharedSegmentState, grs_canvas &canvas, fix eye_offset)
 {
-	Viewer_eye = Viewer->pos;
+	auto Viewer_eye = Viewer->pos;
 
 	if (Viewer->type == OBJ_PLAYER )
 		vm_vec_scale_add2(Viewer_eye,Viewer->orient.fvec,(Viewer->size*3)/4);
@@ -1085,7 +1085,7 @@ static void endlevel_render_mine(const d_level_shared_segment_state &LevelShared
 		: Viewer->orient, Render_zoom);
 
 	window_rendered_data window;
-	render_mine(canvas, start_seg_num, eye_offset, window);
+	render_mine(canvas, Viewer_eye, start_seg_num, eye_offset, window);
 }
 
 void render_endlevel_frame(grs_canvas &canvas, fix eye_offset)

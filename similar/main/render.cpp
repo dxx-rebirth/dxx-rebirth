@@ -99,8 +99,6 @@ namespace dsx {
 const object * Viewer = NULL;
 }
 
-vms_vector Viewer_eye;  //valid during render
-
 #if !DXX_USE_EDITOR && defined(RELEASE)
 constexpr
 #endif
@@ -751,7 +749,7 @@ static void project_list(const array<unsigned, 8> &pointnumlist)
 // -----------------------------------------------------------------------------------
 #if !DXX_USE_OGL
 namespace dsx {
-static void render_segment(grs_canvas &canvas, const vcsegptridx_t seg)
+static void render_segment(const vms_vector &Viewer_eye, grs_canvas &canvas, const vcsegptridx_t seg)
 {
 	int			sn;
 
@@ -934,11 +932,11 @@ static int find_seg_side(const shared_segment &seg, const array<unsigned, 2> &ve
 }
 
 __attribute_warn_unused_result
-static bool compare_child(const vcsegptridx_t seg, const shared_segment &cseg, const sidenum_fast_t edgeside)
+static bool compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const shared_segment &seg, const shared_segment &cseg, const sidenum_fast_t edgeside)
 {
 	const auto &cside = cseg.sides[edgeside];
 	const auto &sv = Side_to_verts[edgeside][cside.get_type() == SIDE_IS_TRI_13 ? 1 : 0];
-	const auto &temp = vm_vec_sub(Viewer_eye, vcvertptr(seg->verts[sv]));
+	const auto &temp = vm_vec_sub(Viewer_eye, vcvertptr(seg.verts[sv]));
 	const auto &cnormal = cside.normals;
 	return vm_vec_dot(cnormal[0], temp) < 0 || vm_vec_dot(cnormal[1], temp) < 0;
 }
@@ -946,7 +944,7 @@ static bool compare_child(const vcsegptridx_t seg, const shared_segment &cseg, c
 //see if the order matters for these two children.
 //returns 0 if order doesn't matter, 1 if c0 before c1, -1 if c1 before c0
 __attribute_warn_unused_result
-static bool compare_children(const vcsegptridx_t seg, sidenum_fast_t s0, sidenum_fast_t s1)
+static bool compare_children(const vms_vector &Viewer_eye, const vcsegptridx_t seg, const sidenum_fast_t s0, const sidenum_fast_t s1)
 {
 	Assert(s0 != side_none && s1 != side_none);
 
@@ -964,26 +962,26 @@ static bool compare_children(const vcsegptridx_t seg, sidenum_fast_t s0, sidenum
 	auto edgeside0 = find_seg_side(seg0,edge_verts,find_connect_side(seg,seg0));
 	if (edgeside0 == side_none)
 		return false;
-	auto r0 = compare_child(seg, seg0, edgeside0);
+	auto r0 = compare_child(vcvertptr, Viewer_eye, seg, seg0, edgeside0);
 	if (!r0)
 		return r0;
 	const auto &&seg1 = seg.absolute_sibling(seg->children[s1]);
 	auto edgeside1 = find_seg_side(seg1,edge_verts,find_connect_side(seg,seg1));
 	if (edgeside1 == side_none)
 		return false;
-	return !compare_child(seg, seg1, edgeside1);
+	return !compare_child(vcvertptr, Viewer_eye, seg, seg1, edgeside1);
 }
 
 //short the children of segment to render in the correct order
 //returns non-zero if swaps were made
 typedef array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> sort_child_array_t;
-static void sort_seg_children(const vcsegptridx_t seg, const partial_range_t<sort_child_array_t::iterator> &r)
+static void sort_seg_children(const vms_vector &Viewer_eye, const vcsegptridx_t seg, const partial_range_t<sort_child_array_t::iterator> &r)
 {
 	//for each child,  compare with other children and see if order matters
 	//if order matters, fix if wrong
-	auto predicate = [seg](sidenum_fast_t a, sidenum_fast_t b)
+	auto predicate = [&Viewer_eye, seg](const sidenum_fast_t a, const sidenum_fast_t b)
 	{
-		return compare_children(seg, a, b);
+		return compare_children(Viewer_eye, seg, a, b);
 	};
 		std::sort(r.begin(), r.end(), predicate);
 }
@@ -1008,7 +1006,7 @@ class render_compare_context_t
 	{
 		fix64 dist_squared;
 #if defined(DXX_BUILD_DESCENT_II)
-		object *objp;
+		const object *objp;
 #endif
 	};
 	typedef array<element, MAX_OBJECTS> array_t;
@@ -1016,12 +1014,13 @@ class render_compare_context_t
 public:
 	array_t::reference operator[](std::size_t i) { return m_array[i]; }
 	array_t::const_reference operator[](std::size_t i) const { return m_array[i]; }
-	render_compare_context_t(const render_state_t::per_segment_state_t &segstate)
+	render_compare_context_t(fvcobjptr &vcobjptr, const vms_vector &Viewer_eye, const render_state_t::per_segment_state_t &segstate)
 	{
 		range_for (const auto t, segstate.objects)
 		{
-			auto &objp = *vmobjptr(t.objnum);
-			auto &e = (*this)[t.objnum];
+			const auto objnum = t.objnum;
+			auto &objp = *vcobjptr(objnum);
+			auto &e = (*this)[objnum];
 #if defined(DXX_BUILD_DESCENT_II)
 			e.objp = &objp;
 #endif
@@ -1073,22 +1072,23 @@ bool render_compare_context_t::operator()(const distant_object &a, const distant
 
 }
 
-static void sort_segment_object_list(render_state_t::per_segment_state_t &segstate)
+static void sort_segment_object_list(fvcobjptr &vcobjptr, const vms_vector &Viewer_eye, render_state_t::per_segment_state_t &segstate)
 {
-	render_compare_context_t context(segstate);
+	render_compare_context_t context(vcobjptr, Viewer_eye, segstate);
 	auto &v = segstate.objects;
 	std::sort(v.begin(), v.end(), std::cref(context));
 }
 
 namespace dsx {
-static void build_object_lists(render_state_t &rstate)
+
+static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const vms_vector &Viewer_eye, render_state_t &rstate)
 {
 	int nn;
 	const auto viewer = Viewer;
 	for (nn=0;nn < rstate.N_render_segs;nn++) {
 		const auto segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
-			range_for (const auto obj, objects_in(vcsegptr(segnum), vcobjptridx, vcsegptr))
+			range_for (const auto obj, objects_in(vcsegptr(segnum), Objects.vcptridx, vcsegptr))
 			{
 				int list_pos;
 				if (obj->type == OBJ_NONE)
@@ -1158,7 +1158,7 @@ static void build_object_lists(render_state_t &rstate)
 	range_for (const auto segnum, partial_const_range(rstate.Render_list, rstate.N_render_segs))
 	{
 		if (segnum != segment_none) {
-			sort_segment_object_list(rstate.render_seg_map[segnum]);
+			sort_segment_object_list(Objects.vcptr, Viewer_eye, rstate.render_seg_map[segnum]);
 		}
 	}
 }
@@ -1189,7 +1189,7 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
   
 	g3_start_frame(canvas);
 
-	Viewer_eye = Viewer->pos;
+	auto Viewer_eye = Viewer->pos;
 
 //	if (Viewer->type == OBJ_PLAYER && (PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW))
 //		vm_vec_scale_add2(&Viewer_eye,&Viewer->orient.fvec,(Viewer->size*3)/4);
@@ -1220,7 +1220,7 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 		gr_clear_canvas(canvas, Clear_window_color);
 	}
 
-	render_mine(canvas, start_seg_num, eye_offset, window);
+	render_mine(canvas, Viewer_eye, start_seg_num, eye_offset, window);
 
 	g3_end_frame();
 
@@ -1240,7 +1240,7 @@ void update_rendered_data(window_rendered_data &window, const object &viewer, in
 
 //build a list of segments to be rendered
 //fills in Render_list & N_render_segs
-static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &visited, unsigned &first_terminal_seg, const vcsegidx_t start_seg_num)
+static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_eye, visited_twobit_array_t &visited, unsigned &first_terminal_seg, const vcsegidx_t start_seg_num)
 {
 	int	lcnt,scnt,ecnt;
 	int	l;
@@ -1314,7 +1314,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 			//now order the sides in some magical way
 			const auto &&child_range = partial_range(child_list, n_children);
-			sort_seg_children(seg, child_range);
+			sort_seg_children(Viewer_eye, seg, child_range);
 			project_list(seg->verts);
 			range_for (const auto siden, child_range)
 			{
@@ -1408,7 +1408,7 @@ done_list:
 }
 
 //renders onto current canvas
-void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix eye_offset, window_rendered_data &window)
+void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegidx_t start_seg_num, const fix eye_offset, window_rendered_data &window)
 {
 	using std::advance;
 	render_state_t rstate;
@@ -1435,7 +1435,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 	//else
 	#endif
 		//NOTE LINK TO ABOVE!!	-Link killed by kreatordxx to get editor selection working again
-		build_segment_list(rstate, visited, first_terminal_seg, start_seg_num);		//fills in Render_list & N_render_segs
+		build_segment_list(rstate, Viewer_eye, visited, first_terminal_seg, start_seg_num);		//fills in Render_list & N_render_segs
 
 	const auto &&render_range = partial_const_range(rstate.Render_list, rstate.N_render_segs);
 	const auto &&reversed_render_range = render_range.reversed();
@@ -1461,7 +1461,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 	#endif
 
 	//if (!(_search_mode))
-		build_object_lists(rstate);
+		build_object_lists(Objects, vcsegptr, Viewer_eye, rstate);
 
 	if (eye_offset<=0) // Do for left eye or zero.
 		set_dynamic_light(rstate);
@@ -1513,7 +1513,7 @@ void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix e
 				Window_clip_bot   = rw.bot;
 			}
 
-			render_segment(*grd_curcanv, vcsegptridx(segnum));
+			render_segment(Viewer_eye, *grd_curcanv, vcsegptridx(segnum));
 			visited[segnum]=3;
 			if (srsm.objects.empty())
 				continue;

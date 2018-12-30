@@ -69,7 +69,7 @@ static int org_i,org_j;
 static void build_light_table(void);
 
 // ------------------------------------------------------------------------
-static void draw_cell(grs_canvas &canvas, const int i, const int j, cg3s_point &p0, cg3s_point &p1, cg3s_point &p2, cg3s_point &p3, int &mine_tiles_drawn)
+static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const int i, const int j, cg3s_point &p0, cg3s_point &p1, cg3s_point &p2, cg3s_point &p3, int &mine_tiles_drawn)
 {
 	array<cg3s_point *, 3> pointlist;
 
@@ -140,7 +140,7 @@ static void draw_cell(grs_canvas &canvas, const int i, const int j, cg3s_point &
 		//draw_exit_model();
 		mine_tiles_drawn=-1;
 		window_rendered_data window;
-		render_mine(canvas, exit_segnum, 0, window);
+		render_mine(canvas, Viewer_eye, exit_segnum, 0, window);
 		//if (ext_expl_playing)
 		//	draw_fireball(&external_explosion);
 	}
@@ -175,7 +175,7 @@ vms_vector &terrain_y_cache::operator()(uint_fast32_t h)
 	return dyp;
 }
 
-void render_terrain(grs_canvas &canvas, const vms_vector &org_point,int org_2dx,int org_2dy)
+void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_vector &org_point,int org_2dx,int org_2dy)
 {
 	vms_vector delta_i,delta_j;		//delta_y;
 	g3s_point p,save_p_low,save_p_high;
@@ -242,7 +242,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &org_point,int org_2dx,
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i+1,j+1)));
 
-			draw_cell(canvas, i, j, save_row[j], save_row[j+1], p2, last_p2, mine_tiles_drawn);
+			draw_cell(canvas, Viewer_eye, i, j, save_row[j], save_row[j+1], p2, last_p2, mine_tiles_drawn);
 
 			last_p = p;
 			save_row[j] = last_p2;
@@ -262,7 +262,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &org_point,int org_2dx,
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i+1,j)));
 
-			draw_cell(canvas, i, j, save_row[j], save_row[j+1], last_p2, p2, mine_tiles_drawn);
+			draw_cell(canvas, Viewer_eye, i, j, save_row[j], save_row[j+1], last_p2, p2, mine_tiles_drawn);
 
 			last_p = p;
 			save_row[j+1] = last_p2;
@@ -305,7 +305,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &org_point,int org_2dx,
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i,j+1)));
 
-			draw_cell(canvas, i, j, last_p2, p2, save_row[j+1], save_row[j], mine_tiles_drawn);
+			draw_cell(canvas, Viewer_eye, i, j, last_p2, p2, save_row[j+1], save_row[j], mine_tiles_drawn);
 
 			last_p = p;
 			save_row[j] = last_p2;
@@ -325,7 +325,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &org_point,int org_2dx,
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i,j)));
 
-			draw_cell(canvas, i, j, p2, last_p2, save_row[j+1], save_row[j], mine_tiles_drawn);
+			draw_cell(canvas, Viewer_eye, i, j, p2, last_p2, save_row[j+1], save_row[j], mine_tiles_drawn);
 
 			last_p = p;
 			save_row[j+1] = last_p2;
