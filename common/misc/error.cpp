@@ -36,12 +36,12 @@ namespace dcx {
 
 #define MAX_MSG_LEN 2048
 
-//takes string in register, calls printf with string on stack
 static void warn_printf(const char *s)
 {
 	con_puts(CON_URGENT,s);
 }
 
+#if DXX_USE_EDITOR
 static void (*warn_func)(const char *s)=warn_printf;
 
 //provides a function to call with warning messages
@@ -55,6 +55,9 @@ void clear_warn_func()
 {
 	warn_func = warn_printf;
 }
+#else
+constexpr auto warn_func = &warn_printf;
+#endif
 
 static void print_exit_message(const char *exit_message, size_t len)
 {

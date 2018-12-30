@@ -900,7 +900,7 @@ static void close_editor()
 {
 	//	_MARK_("end of editor");//Nuked to compile -KRB
 	
-#if !defined(__linux__) && !defined(__OpenBSD__)
+#if defined(WIN32) || defined(__APPLE__) || defined(__MACH__)
 	set_warn_func(msgbox_warning);
 #else
 	clear_warn_func();

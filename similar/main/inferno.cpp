@@ -38,6 +38,7 @@ char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORAT
 char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPORATION";
 #endif
 
+#include "dxxsconf.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,7 +64,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "dxxerror.h"
 #include "player.h"
 #include "game.h"
-#include "segment.h"		//for Side_to_verts
 #include "u_mem.h"
 #include "screens.h"
 #include "texmap.h"
@@ -95,14 +95,11 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #endif
 #include "event.h"
 #include "rbaudio.h"
-#if !defined(__linux__) && !defined(__OpenBSD__)
-#include "messagebox.h"
-#else
 #if DXX_WORDS_NEED_ALIGNMENT
 #include <sys/prctl.h>
 #endif
-#endif
 #if DXX_USE_EDITOR
+#include "messagebox.h"
 #include "editor/editor.h"
 #include "editor/kdefs.h"
 #include "ui.h"
@@ -111,8 +108,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #if DXX_USE_UDP
 #include "net_udp.h"
 #endif
-
-#include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-begin.h"
 
@@ -715,16 +710,17 @@ static int main(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
 	mem_init();
-#if defined(__linux__) || defined(__OpenBSD__)
 #if DXX_WORDS_NEED_ALIGNMENT
 	prctl(PR_SET_UNALIGN, PR_UNALIGN_NOPRINT, 0, 0, 0);
 #endif
-#else
+#if defined(WIN32) || defined(__APPLE__) || defined(__MACH__)
+#if DXX_USE_EDITOR
 	set_warn_func(msgbox_warning);
 #endif
 #ifdef WIN32
 	void d_set_exception_handler();
 	d_set_exception_handler();
+#endif
 #endif
 	return dsx::main(argc, argv);
 }
