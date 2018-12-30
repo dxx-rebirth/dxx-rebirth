@@ -1144,7 +1144,7 @@ void draw_all_edges(grs_canvas &canvas, automap *const am)
 		if (min_distance>distance )
 			min_distance = distance;
 
-		if (!rotate_list(e->verts).uand)
+		if (!rotate_list(vcvertptr, e->verts).uand)
 		{			//all off screen?
 			nfacing = nnfacing = 0;
 			auto &tv1 = *vcvertptr(e->verts[0]);

@@ -701,12 +701,12 @@ void render_start_frame()
 }
 
 //Given a lit of point numbers, rotate any that haven't been rotated this frame
-g3s_codes rotate_list(const std::size_t nv, const unsigned *const pointnumlist)
+g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::size_t nv, const unsigned *const pointnumlist)
 {
 	g3s_codes cc;
 	const auto current_generation = s_current_generation;
 	const auto cheats_acid = cheats.acid;
-	float f = likely(!cheats_acid)
+	const float f = likely(!cheats_acid)
 		? 0.0f /* unused */
 		: 2.0f * (static_cast<float>(timer_query()) / F1_0);
 
@@ -753,7 +753,7 @@ static void render_segment(const vms_vector &Viewer_eye, grs_canvas &canvas, con
 {
 	int			sn;
 
-	if (!rotate_list(seg->verts).uand)
+	if (!rotate_list(vcvertptr, seg->verts).uand)
 	{		//all off screen?
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -785,7 +785,7 @@ constexpr fix CROSS_HEIGHT = i2f(8);
 static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, const unsigned _side, const unsigned edge, const unsigned vert)
 {
 	auto &verts = seg.verts;
-	if (!rotate_list(verts).uand)
+	if (!rotate_list(vcvertptr, verts).uand)
 	{		//all off screen?
 		g3s_point *pnt;
 
@@ -1288,7 +1288,7 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 			processed = true;
 
 			const auto &&seg = vcsegptridx(segnum);
-			const auto uor = rotate_list(seg->verts).uor & CC_BEHIND;
+			const auto uor = rotate_list(vcvertptr, seg->verts).uor & CC_BEHIND;
 
 			//look at all sides of this segment.
 			//tricky code to look at sides in correct order follows
@@ -1562,7 +1562,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 				const auto &&seg = vcsegptridx(segnum);
 				int			sn;
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
-				if (!rotate_list(seg->verts).uand)
+				if (!rotate_list(vcvertptr, seg->verts).uand)
 				{		//all off screen?
 
 					if (Viewer->type!=OBJ_ROBOT)
@@ -1612,7 +1612,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 				const auto &&seg = vcsegptridx(segnum);
 				int			sn;
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
-				if (!rotate_list(seg->verts).uand)
+				if (!rotate_list(vcvertptr, seg->verts).uand)
 				{		//all off screen?
 
 					if (Viewer->type!=OBJ_ROBOT)

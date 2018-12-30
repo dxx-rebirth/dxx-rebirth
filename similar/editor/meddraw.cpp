@@ -118,7 +118,7 @@ static void draw_segment(grs_canvas &canvas, const shared_segment &seg, const ui
 		return;
 
 	auto &svp = seg.verts;
-	if (!rotate_list(svp).uand)
+	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 		for (unsigned i = 0; i < 4; ++i)
 			draw_line(canvas, svp[i], svp[i+4], color);
@@ -138,7 +138,7 @@ static void draw_segment(grs_canvas &canvas, const shared_segment &seg, const ui
 static void check_segment(const vmsegptridx_t seg)
 {
 	auto &svp = seg->verts;
-	if (!rotate_list(svp).uand)
+	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 #if DXX_USE_OGL
 		g3_end_frame();
@@ -179,7 +179,7 @@ static void check_segment(const vmsegptridx_t seg)
 static void draw_seg_side(const vcsegptr_t seg, int side, const uint8_t color)
 {
 	auto &svp = seg->verts;
-	if (!rotate_list(svp).uand)
+	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 		int i;
 
@@ -194,7 +194,7 @@ static void draw_seg_side(const vcsegptr_t seg, int side, const uint8_t color)
 static void draw_side_edge(const vcsegptr_t seg,int side,int edge, const uint8_t color)
 {
 	auto &svp = seg->verts;
-	if (!rotate_list(svp).uand)		//on screen?
+	if (!rotate_list(vcvertptr, svp).uand)		//on screen?
 	{
 		auto &stv = Side_to_verts[side];
 		draw_line(*grd_curcanv, svp[stv[edge]], svp[stv[(edge + 1) % 4]], color);
@@ -373,7 +373,7 @@ static void add_edge(int v0,int v1,ubyte type)
 static void add_edges(const shared_segment &seg)
 {
 	auto &svp = seg.verts;
-	if (!rotate_list(svp).uand)
+	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 		int	i,fn,vn;
 		int	flag;
@@ -430,7 +430,7 @@ static void add_edges(const shared_segment &seg)
 static void draw_trigger_side(const shared_segment &seg, const unsigned side, const uint8_t color)
 {
 	auto &svp = seg.verts;
-	if (!rotate_list(svp).uand)
+	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 		// Draw diagonals
 		auto &stv = Side_to_verts[side];
@@ -442,7 +442,7 @@ static void draw_trigger_side(const shared_segment &seg, const unsigned side, co
 static void draw_wall_side(const shared_segment &seg, const unsigned side, const uint8_t color)
 {
 	auto &svp = seg.verts;
-	if (!rotate_list(svp).uand)
+	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 		// Draw diagonals
 		auto &stv = Side_to_verts[side];
@@ -743,7 +743,7 @@ static void draw_coordinate_axes(void)
 	vm_vec_add(vmvertptr(Axes_verts[13]), av12, tvec);
 	vm_vec_add(vmvertptr(Axes_verts[15]), av14, tvec);
 
-	rotate_list(Axes_verts);
+	rotate_list(vcvertptr, Axes_verts);
 
 	const uint8_t color = AXIS_COLOR;
 

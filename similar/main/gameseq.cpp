@@ -734,7 +734,7 @@ void update_player_stats()
 //go through this level and start any eclip sounds
 namespace dsx {
 
-static void set_sound_sources(fvcsegptridx &vcsegptridx)
+static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 {
 	int sidenum;
 
@@ -977,7 +977,7 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	plr = save_player;
 
-	set_sound_sources(vcsegptridx);
+	set_sound_sources(vcsegptridx, vcvertptr);
 
 #if DXX_USE_EDITOR
 	if (!EditorWindow)
