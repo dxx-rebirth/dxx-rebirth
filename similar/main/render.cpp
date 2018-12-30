@@ -885,7 +885,7 @@ constexpr array<
 
 //given an edge, tell what side is on that edge
 __attribute_warn_unused_result
-static int find_seg_side(const vcsegptr_t seg, const array<unsigned, 2> &verts, const unsigned notside)
+static int find_seg_side(const shared_segment &seg, const array<unsigned, 2> &verts, const unsigned notside)
 {
 	if (notside >= MAX_SIDES_PER_SEGMENT)
 		throw std::logic_error("invalid notside");
@@ -893,8 +893,8 @@ static int find_seg_side(const vcsegptr_t seg, const array<unsigned, 2> &verts, 
 	const auto v0 = verts[0];
 	const auto v1 = verts[1];
 
-	auto b = begin(seg->verts);
-	auto e = end(seg->verts);
+	const auto b = begin(seg.verts);
+	const auto e = end(seg.verts);
 	auto iv0 = e;
 	auto iv1 = e;
 	for (auto i = b;;)

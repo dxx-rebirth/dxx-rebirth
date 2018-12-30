@@ -583,8 +583,8 @@ static segnum_t exists_fuelcen_in_mine(const vcsegidx_t start_seg, const player_
 	}
 	{
 		const auto &rh = vcsegptr;
-		const auto a = [](const vcsegptr_t &s) {
-			return s->special == SEGMENT_IS_FUELCEN;
+		const auto a = [](const shared_segment &s) {
+			return s.special == SEGMENT_IS_FUELCEN;
 		};
 		if (std::find_if(rh.begin(), rh.end(), a) != rh.end())
 			return segment_exit;

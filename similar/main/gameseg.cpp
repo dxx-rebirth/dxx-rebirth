@@ -1554,11 +1554,11 @@ void validate_segment_all(d_level_shared_segment_state &LevelSharedSegmentState)
 //	------------------------------------------------------------------------------------------------------
 //	Picks a random point in a segment like so:
 //		From center, go up to 50% of way towards any of the 8 vertices.
-void pick_random_point_in_seg(vms_vector &new_pos, const vcsegptr_t sp)
+void pick_random_point_in_seg(fvcvertptr &vcvertptr, vms_vector &new_pos, const shared_segment &sp)
 {
 	compute_segment_center(vcvertptr, new_pos, sp);
 	const unsigned vnum = (d_rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
-	auto &&vec2 = vm_vec_sub(vcvertptr(sp->verts[vnum]), new_pos);
+	auto &&vec2 = vm_vec_sub(vcvertptr(sp.verts[vnum]), new_pos);
 	vm_vec_scale(vec2, d_rand());          // d_rand() always in 0..1/2
 	vm_vec_add2(new_pos, vec2);
 }

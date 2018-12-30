@@ -204,11 +204,11 @@ void create_walls_on_side(fvcvertptr &, shared_segment &sp, unsigned sidenum);
 void validate_segment_side(fvcvertptr &, vmsegptridx_t sp, unsigned sidenum);
 #endif
 
-void pick_random_point_in_seg(vms_vector &new_pos, vcsegptr_t sp);
-static inline vms_vector pick_random_point_in_seg(vcsegptr_t sp)
+void pick_random_point_in_seg(fvcvertptr &vcvertptr, vms_vector &new_pos, const shared_segment &sp);
+static inline vms_vector pick_random_point_in_seg(fvcvertptr &vcvertptr, const shared_segment &sp)
 {
 	vms_vector v;
-	return pick_random_point_in_seg(v, sp), v;
+	return pick_random_point_in_seg(vcvertptr, v, sp), v;
 }
 
 int check_segment_connections(void);

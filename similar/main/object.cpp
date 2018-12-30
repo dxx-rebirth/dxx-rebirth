@@ -1677,12 +1677,12 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 		const auto &&segp = vmsegptr(obj->segnum);
 #if defined(DXX_BUILD_DESCENT_II)
 		if (game_mode_capture_flag())
-			fuelcen_check_for_goal(segp);
+			fuelcen_check_for_goal(obj, segp);
 		else if (game_mode_hoard())
-			fuelcen_check_for_hoard_goal(segp);
+			fuelcen_check_for_hoard_goal(obj, segp);
 #endif
 
-		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &player_info = obj->ctype.player_info;
 		auto &energy = player_info.energy;
 		const fix fuel = fuelcen_give_fuel(segp, INITIAL_ENERGY - energy);
 		if (fuel > 0 )	{

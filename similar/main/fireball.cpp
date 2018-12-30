@@ -660,7 +660,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 			return;
 
 		const auto &&segnum = choose_drop_segment(LevelSharedSegmentState.get_segments().vcptridx, LevelUniqueSegmentState.get_segments().vmptridx, pnum);
-		const auto &&new_pos = pick_random_point_in_seg(segnum);
+		const auto &&new_pos = pick_random_point_in_seg(vcvertptr, segnum);
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
 		objnum->pos = new_pos;
 		vm_vec_zero(objnum->mtype.phys_info.velocity);
@@ -672,36 +672,39 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if current segment contains some object.
-static icsegptr_t segment_contains_powerup(const vcsegptr_t segnum, const powerup_type_t obj_id)
+static const object *segment_contains_powerup(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const unique_segment &segnum, const powerup_type_t obj_id)
 {
 	range_for (const auto objp, objects_in(segnum, vcobjptridx, vcsegptr))
-		if (objp->type == OBJ_POWERUP && get_powerup_id(objp) == obj_id)
-			return segnum;
-	return segment_none;
+	{
+		auto &o = *objp;
+		if (o.type == OBJ_POWERUP && get_powerup_id(o) == obj_id)
+			return &o;
+	}
+	return nullptr;
 }
 
 //	------------------------------------------------------------------------------------------------------
-static icsegptr_t powerup_nearby_aux(const vcsegptr_t segnum, powerup_type_t object_id, uint_fast32_t depth)
+static const object *powerup_nearby_aux(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const vcsegidx_t segnum, const powerup_type_t object_id, uint_fast32_t depth)
 {
-	if (auto r = segment_contains_powerup(segnum, object_id))
+	auto &&segp = vcsegptr(segnum);
+	if (auto r = segment_contains_powerup(vcobjptridx, vcsegptr, segp, object_id))
 		return r;
 	if (! -- depth)
-		return segment_none;
-	range_for (const auto seg2, segnum->children)
+		return nullptr;
+	range_for (const auto seg2, segp->children)
 	{
 		if (seg2 != segment_none)
-			if (auto r = powerup_nearby_aux(vcsegptr(seg2), object_id, depth))
+			if (auto r = powerup_nearby_aux(vcobjptridx, vcsegptr, seg2, object_id, depth))
 				return r;
 	}
-	return segment_none;
+	return nullptr;
 }
-
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if some powerup is nearby (within 3 segments).
-static icsegptr_t weapon_nearby(const object_base &objp, powerup_type_t weapon_id)
+static const object *weapon_nearby(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const object_base &objp, const powerup_type_t weapon_id)
 {
-	return powerup_nearby_aux(vcsegptr(objp.segnum), weapon_id, 2);
+	return powerup_nearby_aux(vcobjptridx, vcsegptr, objp.segnum, weapon_id, 2);
 }
 
 //	------------------------------------------------------------------------------------------------------
@@ -714,7 +717,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 
 	switch (del_obj.contains_id) {
 		case POW_CLOAK:
-			if (weapon_nearby(del_obj, POW_CLOAK) != nullptr)
+			if (weapon_nearby(vcobjptridx, vcsegptr, del_obj, POW_CLOAK) != nullptr)
 			{
 				del_obj.contains_count = 0;
 			}
@@ -753,7 +756,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 		player_info.vulcan_ammo >= VULCAN_AMMO_MAX)
 		del_obj.contains_count = 0;
 	else if (weapon_index != -1) {
-		if (player_has_primary_weapon(player_info, weapon_index).has_weapon() || weapon_nearby(del_obj, static_cast<powerup_type_t>(del_obj.contains_id)) != nullptr)
+		if (player_has_primary_weapon(player_info, weapon_index).has_weapon() || weapon_nearby(vcobjptridx, vcsegptr, del_obj, static_cast<powerup_type_t>(del_obj.contains_id)) != nullptr)
 		{
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -777,7 +780,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 		}
 	} else if (del_obj.contains_id == POW_QUAD_FIRE)
 	{
-		if ((player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(del_obj, static_cast<powerup_type_t>(del_obj.contains_id)) != nullptr)
+		if ((player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(vcobjptridx, vcsegptr, del_obj, static_cast<powerup_type_t>(del_obj.contains_id)) != nullptr)
 		{
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)

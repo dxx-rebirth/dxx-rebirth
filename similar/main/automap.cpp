@@ -1423,14 +1423,13 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 
 // Adds all the edges from a segment we haven't visited yet.
 
-static void add_unknown_segment_edges(automap *am, const vcsegptridx_t seg)
+static void add_unknown_segment_edges(automap *am, const shared_segment &seg)
 {
-	const auto &segnum = seg;
 	for (unsigned sn = 0; sn < MAX_SIDES_PER_SEGMENT; ++sn)
 	{
 		// Only add edges that have no children
-		if (seg->children[sn] == segment_none) {
-			const auto vertex_list = get_side_verts(segnum,sn);
+		if (seg.children[sn] == segment_none) {
+			const auto vertex_list = get_side_verts(seg, sn);
 	
 			add_one_unknown_edge( am, vertex_list[0], vertex_list[1] );
 			add_one_unknown_edge( am, vertex_list[1], vertex_list[2] );

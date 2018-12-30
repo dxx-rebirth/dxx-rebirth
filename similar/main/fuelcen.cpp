@@ -604,11 +604,12 @@ fix fuelcen_give_fuel(const shared_segment &segp, fix MaxAmountCanTake)
 // DM/050904
 // Repair centers
 // use same values as fuel centers
-fix repaircen_give_shields(const vcsegptr_t segp, fix MaxAmountCanTake)
+fix repaircen_give_shields(const shared_segment &segp, const fix MaxAmountCanTake)
 {
 	static fix last_play_time=0;
 
-	if (segp->special==SEGMENT_IS_REPAIRCEN) {
+	if (segp.special == SEGMENT_IS_REPAIRCEN)
+	{
 		fix amount;
 //             detect_escort_goal_accomplished(-4);    //      UGLY! Hack! -4 means went through fuelcen.
 //             if (Station[segp->value].Capacity<=0)   {
@@ -732,13 +733,13 @@ void matcen_info_read(PHYSFS_File *fp, matcen_info &mi, int version)
 		PHYSFSX_serialize_read<const d1mi_v25>(fp, mi);
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-void fuelcen_check_for_goal(const vcsegptr_t segp)
+void fuelcen_check_for_goal(object &plrobj, const shared_segment &segp)
 {
 	Assert (game_mode_capture_flag());
 
 	unsigned check_team;
 	powerup_type_t powerup_to_drop;
-	switch(segp->special)
+	switch(segp.special)
 	{
 		case SEGMENT_IS_GOAL_BLUE:
 			check_team = TEAM_BLUE;
@@ -753,7 +754,6 @@ void fuelcen_check_for_goal(const vcsegptr_t segp)
 	}
 	if (get_team(Player_num) != check_team)
 		return;
-	auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;
 	if (player_info.powerup_flags & PLAYER_FLAGS_FLAG)
 	{
@@ -763,16 +763,17 @@ void fuelcen_check_for_goal(const vcsegptr_t segp)
 	}
 }
 
-void fuelcen_check_for_hoard_goal(const vcsegptr_t segp)
+void fuelcen_check_for_hoard_goal(object &plrobj, const shared_segment &segp)
 {
 	Assert (game_mode_hoard());
 
    if (Player_dead_state != player_dead_state::no)
 		return;
 
-	if (segp->special==SEGMENT_IS_GOAL_BLUE || segp->special==SEGMENT_IS_GOAL_RED  )	
+	const auto special = segp.special;
+	if (special==SEGMENT_IS_GOAL_BLUE || special==SEGMENT_IS_GOAL_RED)
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &player_info = plrobj.ctype.player_info;
 		if (auto &hoard_orbs = player_info.hoard.orbs)
 		{
 				player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;

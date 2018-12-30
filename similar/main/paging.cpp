@@ -272,7 +272,7 @@ static void paging_touch_side(const d_eclip_array &Effects, const Textures_array
 	}
 }
 
-static void paging_touch_robot_maker(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const segment &segp)
+static void paging_touch_robot_maker(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const shared_segment &segp)
 {
 		paging_touch_vclip(Vclip[VCLIP_MORPHING_ROBOT]);
 			const auto &robot_flags = RobotCenters[segp.matcen_num].robot_flags;

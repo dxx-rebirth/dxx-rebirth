@@ -83,7 +83,7 @@ void fuelcen_update_all();
 namespace dsx {
 #define MAX_NUM_FUELCENS 128 // Original D1: 50, Original D2: 70
 #if defined(DXX_BUILD_DESCENT_II)
-fix repaircen_give_shields(vcsegptr_t segp, fix MaxAmountCanTake);
+fix repaircen_give_shields(const shared_segment &segp, fix MaxAmountCanTake);
 #endif
 }
 #endif
@@ -153,7 +153,7 @@ extern void init_all_matcens(void);
  * reads a matcen_info structure from a PHYSFS_File
  */
 #if defined(DXX_BUILD_DESCENT_II)
-void fuelcen_check_for_hoard_goal(vcsegptr_t segp);
+void fuelcen_check_for_hoard_goal(object &plrobj, const shared_segment &segp);
 
 /*
  * reads an d1_matcen_info structure from a PHYSFS_File

@@ -781,12 +781,12 @@ void set_vertex_counts(void)
 //	Delete all vertices in segment *sp from the vertex list if they are not contained in another segment.
 //	This is kind of a dangerous routine.  It modifies the global array Vertex_active, using the field as
 //	a count.
-static void delete_vertices_in_segment(const vmsegptr_t sp)
+static void delete_vertices_in_segment(const shared_segment &sp)
 {
 //	init_vertices();
 	set_vertex_counts();
 	// Subtract one count for each appearance of vertex in deleted segment
-	range_for (auto &v, sp->verts)
+	range_for (auto &v, sp.verts)
 		delete_vertex(v);
 
 	update_num_vertices();

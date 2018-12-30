@@ -332,7 +332,7 @@ imobjptridx_t drop_marker_object(const vms_vector &pos, vmsegptridx_t segnum, co
 
 void wake_up_rendered_objects(const object &gmissp, window_rendered_data &window);
 
-void fuelcen_check_for_goal(vcsegptr_t);
+void fuelcen_check_for_goal(object &plrobj, const shared_segment &segp);
 #endif
 imobjptridx_t obj_find_first_of_type(int type);
 
