@@ -1397,7 +1397,7 @@ int state_restore_all(const int in_game, const secret_restore secret, const char
 	}
 	return state_restore_all_sub(
 #if defined(DXX_BUILD_DESCENT_II)
-		Dl_indices, secret,
+		LevelSharedSegmentState.DestructibleLights, secret,
 #endif
 		filename);
 }
@@ -1405,7 +1405,7 @@ int state_restore_all(const int in_game, const secret_restore secret, const char
 #if defined(DXX_BUILD_DESCENT_I)
 int state_restore_all_sub(const char *filename)
 #elif defined(DXX_BUILD_DESCENT_II)
-int state_restore_all_sub(const dl_index_array &Dl_indices, const secret_restore secret, const char *const filename)
+int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const secret_restore secret, const char *const filename)
 #endif
 {
 	int version, coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;
@@ -1907,7 +1907,7 @@ int state_restore_all_sub(const dl_index_array &Dl_indices, const secret_restore
 				PHYSFS_read(fp, &i.light_subtracted, sizeof(i.light_subtracted), 1);
 			}
 		}
-		apply_all_changed_light(Delta_lights, Dl_indices, Segments.vmptridx);
+		apply_all_changed_light(Delta_lights, LevelSharedDestructibleLightState, Segments.vmptridx);
 	} else {
 		range_for (const auto &&segp, vmsegptr)
 		{

@@ -2302,7 +2302,8 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	laser.parent_type = OBJ_PLAYER;
 	laser.parent_num = pnum;
 
-	check_effect_blowup(Delta_lights, Dl_indices, Vclip, *useg, side, hitpnt, laser, 0, 1);
+	auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
+	check_effect_blowup(Delta_lights, LevelSharedDestructibleLightState, Vclip, *useg, side, hitpnt, laser, 0, 1);
 }
 
 static void multi_do_drop_marker(object_array &objects, fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
@@ -4083,7 +4084,8 @@ static void multi_do_light (const ubyte *buf)
 	{
 		if ((sides & (1<<i)))
 		{
-			subtract_light(Delta_lights, Dl_indices, segp, i);
+			auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
+			subtract_light(Delta_lights, LevelSharedDestructibleLightState, segp, i);
 			side_array[i].tmap_num2 = GET_INTEL_SHORT(&buf[4 + (2 * i)]);
 		}
 	}
@@ -4963,10 +4965,13 @@ void multi_restore_game(ubyte slot, uint id)
 		nm_messagebox(NULL, 1, TXT_OK, "A multi-save game was restored\nthat you are missing or does not\nmatch that of the others.\nYou must rejoin if you wish to\ncontinue.");
 		return;
 	}
-  
+
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
+#endif
 	state_restore_all_sub(
 #if defined(DXX_BUILD_DESCENT_II)
-		Dl_indices, secret_restore::none,
+		LevelSharedDestructibleLightState, secret_restore::none,
 #endif
 		filename);
 	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...

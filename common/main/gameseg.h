@@ -217,7 +217,7 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 static inline void flush_fcd_cache() {}
 #elif defined(DXX_BUILD_DESCENT_II)
 void flush_fcd_cache();
-void apply_all_changed_light(const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices, fvmsegptridx &vmsegptridx);
+void apply_all_changed_light(const d_delta_light_array &Delta_lights, const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, fvmsegptridx &vmsegptridx);
 void	set_ambient_sound_flags(void);
 #endif
 }

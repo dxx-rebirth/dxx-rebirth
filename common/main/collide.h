@@ -37,8 +37,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 void collide_two_objects(vmobjptridx_t A, vmobjptridx_t B, vms_vector &collision_point);
-window_event_result collide_object_with_wall(vmobjptridx_t A, fix hitspeed, vmsegptridx_t hitseg, short hitwall, const vms_vector &hitpt);
 namespace dsx {
+window_event_result collide_object_with_wall(
+#if defined(DXX_BUILD_DESCENT_II)
+	const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
+#endif
+	vmobjptridx_t A, fix hitspeed, vmsegptridx_t hitseg, short hitwall, const vms_vector &hitpt);
 void apply_damage_to_player(object &player, icobjptridx_t killer, fix damage, uint8_t possibly_friendly);
 }
 
@@ -74,7 +78,7 @@ void collide_live_local_player_and_powerup(const vmobjptridx_t powerup);
 #endif
 #ifdef dsx
 namespace dsx {
-int check_effect_blowup(const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices, const d_vclip_array &Vclip, vmsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
+int check_effect_blowup(const d_delta_light_array &Delta_lights, const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, vmsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
 }
 #endif
 void apply_damage_to_controlcen(vmobjptridx_t controlcen, fix damage, vcobjptr_t who);

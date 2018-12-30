@@ -39,7 +39,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 d_level_shared_vertex_state LevelSharedVertexState;
-d_level_shared_segment_state LevelSharedSegmentState;
 d_level_unique_segment_state LevelUniqueSegmentState;
 // Global array of vertices, common to one mine.
 valptridx<active_door>::array_managed_type ActiveDoors;
@@ -93,9 +92,9 @@ valptridx<managed_type>::array_managed_type::array_managed_type()
 #endif
 
 namespace dsx {
+d_level_shared_segment_state LevelSharedSegmentState;
 #if defined(DXX_BUILD_DESCENT_II)
 valptridx<cloaking_wall>::array_managed_type CloakingWalls;
-valptridx<dl_index>::array_managed_type Dl_indices;
 d_delta_light_array Delta_lights;
 #endif
 d_level_unique_object_state LevelUniqueObjectState;

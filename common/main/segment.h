@@ -285,7 +285,10 @@ struct dl_index {
 	}
 };
 
-DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(dl_index, dlindex, Dl_indices);
+struct d_level_shared_destructible_light_state
+{
+	valptridx<dl_index>::array_managed_type Dl_indices;
+};
 #endif
 
 }
@@ -357,7 +360,6 @@ struct d_level_unique_segment_state
 	}
 };
 
-extern d_level_shared_segment_state LevelSharedSegmentState;
 extern d_level_unique_segment_state LevelUniqueSegmentState;
 #endif
 
@@ -485,6 +487,19 @@ public:
 		return this->template make_maskproxy<typename base_type::template maskproxy_assignable_type<typename base_type::array_t::const_reference>>(this->a, segnum);
 	}
 };
+
+}
+
+namespace dsx {
+
+#if defined(DXX_BUILD_DESCENT_II)
+struct d_level_shared_segment_state : ::dcx::d_level_shared_segment_state
+{
+	d_level_shared_destructible_light_state DestructibleLights;
+};
+#endif
+
+extern d_level_shared_segment_state LevelSharedSegmentState;
 
 }
 #endif

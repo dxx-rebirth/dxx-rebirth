@@ -2654,15 +2654,16 @@ static int newdemo_read_frame_information(int rewrite)
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
 			{
 #if defined(DXX_BUILD_DESCENT_I)
-				check_effect_blowup(Delta_lights, Dl_indices, Vclip, vmsegptridx(segnum), side, pnt, nullptr, 0, 0);
+				check_effect_blowup(Delta_lights, LevelSharedDestructibleLightState, Vclip, vmsegptridx(segnum), side, pnt, nullptr, 0, 0);
 #elif defined(DXX_BUILD_DESCENT_II)
+				auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
 			//create a dummy object which will be the weapon that hits
 			//the monitor. the blowup code wants to know who the parent of the
 			//laser is, so create a laser whose parent is the player
 				laser_parent dummy;
 				dummy.parent_type = OBJ_PLAYER;
 				dummy.parent_num = Player_num;
-				check_effect_blowup(Delta_lights, Dl_indices, Vclip, vmsegptridx(segnum), side, pnt, dummy, 0, 0);
+				check_effect_blowup(Delta_lights, LevelSharedDestructibleLightState, Vclip, vmsegptridx(segnum), side, pnt, dummy, 0, 0);
 #endif
 			}
 			break;

@@ -303,13 +303,13 @@ void do_replacements_all(void)
 	{
 		load_level(
 #if defined(DXX_BUILD_DESCENT_II)
-			Delta_lights, Dl_indices,
+			Delta_lights, LevelSharedSegmentState.DestructibleLights,
 #endif
 			Level_names[i]);
 		do_replacements();
 		save_level(
 #if defined(DXX_BUILD_DESCENT_II)
-			Delta_lights, Dl_indices,
+			Delta_lights, LevelSharedSegmentState.DestructibleLights,
 #endif
 			Level_names[i]);
 	}
@@ -318,13 +318,13 @@ void do_replacements_all(void)
 	{
 		load_level(
 #if defined(DXX_BUILD_DESCENT_II)
-			Delta_lights, Dl_indices,
+			Delta_lights, LevelSharedSegmentState.DestructibleLights,
 #endif
 			Secret_level_names[i]);
 		do_replacements();
 		save_level(
 #if defined(DXX_BUILD_DESCENT_II)
-			Delta_lights, Dl_indices,
+			Delta_lights, LevelSharedSegmentState.DestructibleLights,
 #endif
 			Secret_level_names[i]);
 	}

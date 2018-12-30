@@ -55,12 +55,12 @@ int get_level_name(void);
 namespace dsx {
 int load_level(
 #if defined(DXX_BUILD_DESCENT_II)
-	d_delta_light_array &Delta_lights, dl_index_array &Dl_indices,
+	d_delta_light_array &Delta_lights, d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	const char *filename);
 int save_level(
 #if defined(DXX_BUILD_DESCENT_II)
-	const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices,
+	const d_delta_light_array &Delta_lights, const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	const char *filename);
 }

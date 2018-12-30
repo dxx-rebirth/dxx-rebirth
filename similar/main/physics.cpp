@@ -546,7 +546,11 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 				wall_part = vm_vec_dot(moved_v,hit_info.hit_wallnorm);
 
 				if ((wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0) || obj->type == OBJ_WEAPON || obj->type == OBJ_DEBRIS)
-					result = collide_object_with_wall(obj, hit_speed, Segments.vmptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
+					result = collide_object_with_wall(
+#if defined(DXX_BUILD_DESCENT_II)
+						LevelSharedSegmentState.DestructibleLights,
+#endif
+						obj, hit_speed, Segments.vmptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
 				/*
 				 * Due to the nature of this loop, it's possible that a local player may receive scrape damage multiple times in one frame.
 				 * Check if we received damage and do not apply more damage (nor produce damage sounds/flashes/bumps, etc) for the rest of the loop.

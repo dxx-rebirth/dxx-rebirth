@@ -283,7 +283,7 @@ int	GotoGameScreen()
 			Current_level_num = 1;
 			if (save_level(
 #if defined(DXX_BUILD_DESCENT_II)
-					Delta_lights, Dl_indices,
+					Delta_lights, LevelSharedSegmentState.DestructibleLights,
 #endif
 					"GAMESAVE.LVL"))
 				return 0;
@@ -949,7 +949,7 @@ static void close_editor()
 				case editor_gamestate::saved:
 					state_restore_all_sub(
 #if defined(DXX_BUILD_DESCENT_II)
-						Dl_indices, secret_restore::none,
+						LevelSharedSegmentState.DestructibleLights, secret_restore::none,
 #endif
 						PLAYER_DIRECTORY_STRING("gamesave.sge")
 					);
@@ -1009,7 +1009,7 @@ void gamestate_restore_check()
 
 			if (!state_restore_all_sub(
 #if defined(DXX_BUILD_DESCENT_II)
-					Dl_indices, secret_restore::none,
+					LevelSharedSegmentState.DestructibleLights, secret_restore::none,
 #endif
 					PLAYER_DIRECTORY_STRING("gamesave.sge")
 			))
@@ -1039,7 +1039,7 @@ int RestoreGameState()
 
 	if (!state_restore_all_sub(
 #if defined(DXX_BUILD_DESCENT_II)
-			Dl_indices, secret_restore::none,
+			LevelSharedSegmentState.DestructibleLights, secret_restore::none,
 #endif
 			PLAYER_DIRECTORY_STRING("gamesave.sge")
 	))

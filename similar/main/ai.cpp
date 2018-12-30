@@ -1689,7 +1689,6 @@ static void compute_vis_and_vec(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
 			ailp.time_player_seen = GameTime64;
 		}
 	}
-
 }
 
 // --------------------------------------------------------------------------------------------------------------------

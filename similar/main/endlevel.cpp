@@ -1055,6 +1055,8 @@ void draw_stars(grs_canvas &canvas)
 
 }
 
+namespace dsx {
+
 static void endlevel_render_mine(const d_level_shared_segment_state &LevelSharedSegmentState, grs_canvas &canvas, fix eye_offset)
 {
 	auto Viewer_eye = Viewer->pos;
@@ -1088,6 +1090,8 @@ static void endlevel_render_mine(const d_level_shared_segment_state &LevelShared
 
 	window_rendered_data window;
 	render_mine(canvas, Viewer_eye, start_seg_num, eye_offset, window);
+}
+
 }
 
 void render_endlevel_frame(grs_canvas &canvas, fix eye_offset)

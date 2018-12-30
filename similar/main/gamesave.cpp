@@ -828,7 +828,7 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 
 static int load_game_data(
 #if defined(DXX_BUILD_DESCENT_II)
-	d_delta_light_array &Delta_lights, dl_index_array &Dl_indices,
+	d_delta_light_array &Delta_lights, d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, PHYSFS_File *LoadFile)
 {
@@ -1028,6 +1028,8 @@ static int load_game_data(
 #if defined(DXX_BUILD_DESCENT_II)
 	//================ READ DL_INDICES INFO ===============
 
+	{
+	auto &Dl_indices = LevelSharedDestructibleLightState.Dl_indices;
 	Dl_indices.set_count(Num_static_lights);
 	if (game_top_fileinfo_version < 29)
 	{
@@ -1040,6 +1042,7 @@ static int load_game_data(
 		range_for (auto &i, lr)
 			dl_index_read(&i, LoadFile);
 		std::sort(lr.begin(), lr.end());
+	}
 	}
 
 	//	Indicate that no light has been subtracted from any vertices.
@@ -1221,7 +1224,7 @@ int no_old_level_file_error=0;
 namespace dsx {
 int load_level(
 #if defined(DXX_BUILD_DESCENT_II)
-	d_delta_light_array &Delta_lights, dl_index_array &Dl_indices,
+	d_delta_light_array &Delta_lights, d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	const char * filename_passed)
 {
@@ -1411,7 +1414,7 @@ int load_level(
 	PHYSFSX_fseek(LoadFile,gamedata_offset,SEEK_SET);
 	game_err = load_game_data(
 #if defined(DXX_BUILD_DESCENT_II)
-		Delta_lights, Dl_indices,
+		Delta_lights, LevelSharedDestructibleLightState,
 #endif
 		vmobjptridx, vmsegptridx, LoadFile);
 
@@ -1580,7 +1583,7 @@ static unsigned compute_num_delta_light_records(fvcdlindexptr &vcdlindexptr)
 // Save game
 static int save_game_data(
 #if defined(DXX_BUILD_DESCENT_II)
-	const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices,
+	const d_delta_light_array &Delta_lights, const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	PHYSFS_File *SaveFile)
 {
@@ -1617,6 +1620,7 @@ static int save_game_data(
 	unsigned num_delta_lights = 0;
 	if (game_top_fileinfo_version >= 29)
 	{
+		auto &Dl_indices = LevelSharedDestructibleLightState.Dl_indices;
 		const unsigned Num_static_lights = Dl_indices.get_count();
 		WRITE_HEADER_ENTRY(dl_index, Num_static_lights);
 		WRITE_HEADER_ENTRY(delta_light, num_delta_lights = compute_num_delta_light_records(Dl_indices.vcptr));
@@ -1687,6 +1691,7 @@ static int save_game_data(
 	if (game_top_fileinfo_version >= 29)
 	{
 		dl_indices_offset = PHYSFS_tell(SaveFile);
+		auto &Dl_indices = LevelSharedDestructibleLightState.Dl_indices;
 		range_for (const auto &&i, Dl_indices.vcptr)
 			dl_index_write(i, SaveFile);
 
@@ -1729,7 +1734,7 @@ static int save_game_data(
 // Save game
 static int save_level_sub(
 #if defined(DXX_BUILD_DESCENT_II)
-	const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices,
+	const d_delta_light_array &Delta_lights, const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	fvmobjptridx &vmobjptridx, const char *const filename)
 {
@@ -1854,7 +1859,7 @@ static int save_level_sub(
 	gamedata_offset = PHYSFS_tell(SaveFile);
 	save_game_data(
 #if defined(DXX_BUILD_DESCENT_II)
-		Delta_lights, Dl_indices,
+		Delta_lights, LevelSharedDestructibleLightState,
 #endif
 		SaveFile);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1885,7 +1890,7 @@ static int save_level_sub(
 
 int save_level(
 #if defined(DXX_BUILD_DESCENT_II)
-	const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices,
+	const d_delta_light_array &Delta_lights, const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	const char * filename)
 {
@@ -1897,7 +1902,7 @@ int save_level(
 	// Save compiled version...
 	r1 = save_level_sub(
 #if defined(DXX_BUILD_DESCENT_II)
-		Delta_lights, Dl_indices,
+		Delta_lights, LevelSharedDestructibleLightState,
 #endif
 		vmobjptridx, filename);
 

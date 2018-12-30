@@ -538,7 +538,7 @@ static int effect_parent_is_guidebot(fvcobjptr &vcobjptr, const laser_parent &la
 
 //if an effect is hit, and it can blow up, then blow it up
 //returns true if it blew up
-int check_effect_blowup(const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices, const d_vclip_array &Vclip, const vmsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
+int check_effect_blowup(const d_delta_light_array &Delta_lights, const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, const vmsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
 {
 	int tm;
 
@@ -613,7 +613,7 @@ int check_effect_blowup(const d_delta_light_array &Delta_lights, const dl_index_
 				//note: this must get called before the texture changes,
 				//because we use the light value of the texture to change
 				//the static light in the segment
-				subtract_light(Delta_lights, Dl_indices, seg, side);
+				subtract_light(Delta_lights, LevelSharedDestructibleLightState, seg, side);
 
 				// we blew up something connected to a trigger. Send it to others!
 				if ((Game_mode & GM_MULTI) && is_trigger && !remote && !force_blowup_flag)
@@ -704,7 +704,7 @@ int check_effect_blowup(const d_delta_light_array &Delta_lights, const dl_index_
 namespace dsx {
 static window_event_result collide_weapon_and_wall(
 #if defined(DXX_BUILD_DESCENT_II)
-	const d_delta_light_array &Delta_lights, const dl_index_array &Dl_indices,
+	const d_delta_light_array &Delta_lights, const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	object_array &Objects, fvmsegptridx &vmsegptridx, const vmobjptridx_t weapon, const vmsegptridx_t hitseg, const unsigned hitwall, const vms_vector &hitpt)
 {
@@ -750,9 +750,9 @@ static window_event_result collide_weapon_and_wall(
 			//	MK: Real pain when you need to know a seg:side and you've got quad lasers.
 			HUD_init_message(HM_DEFAULT, "Hit at segment = %hu, side = %i", static_cast<vmsegptridx_t::integral_type>(hitseg), hitwall);
 			if (get_weapon_id(weapon) < 4)
-				subtract_light(Delta_lights, Dl_indices, hitseg, hitwall);
+				subtract_light(Delta_lights, LevelSharedDestructibleLightState, hitseg, hitwall);
 			else if (get_weapon_id(weapon) == weapon_id_type::FLARE_ID)
-				add_light(Delta_lights, Dl_indices, hitseg, hitwall);
+				add_light(Delta_lights, LevelSharedDestructibleLightState, hitseg, hitwall);
 		}
 
 		//@@#ifdef EDITOR
@@ -767,7 +767,7 @@ static window_event_result collide_weapon_and_wall(
 		return window_event_result::ignored;
 	}
 
-	blew_up = check_effect_blowup(Delta_lights, Dl_indices, Vclip, hitseg, hitwall, hitpt, weapon->ctype.laser_info, 0, 0);
+	blew_up = check_effect_blowup(Delta_lights, LevelSharedDestructibleLightState, Vclip, hitseg, hitwall, hitpt, weapon->ctype.laser_info, 0, 0);
 
 	int	robot_escort;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1494,7 +1494,6 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 	} else
 		return 0;
 }
-}
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace {
@@ -1615,7 +1614,6 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_level_share
 #endif
 
 //	------------------------------------------------------------------------------------------------------
-namespace dsx {
 static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptridx_t  weapon, vms_vector &collision_point)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2652,8 +2650,13 @@ constexpr collision_outer_array_t CollisionResult = collide_init(make_tree_index
 #endif
 	ENABLE_COLLISION( OBJ_DEBRIS, OBJ_WALL );
 
+namespace dsx {
 
-window_event_result collide_object_with_wall(const vmobjptridx_t A, fix hitspeed, const vmsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
+window_event_result collide_object_with_wall(
+#if defined(DXX_BUILD_DESCENT_II)
+	const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
+#endif
+	const vmobjptridx_t A, fix hitspeed, const vmsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
 {
 
 	switch( A->type )	{
@@ -2664,7 +2667,7 @@ window_event_result collide_object_with_wall(const vmobjptridx_t A, fix hitspeed
 		case OBJ_WEAPON:
 			return collide_weapon_and_wall(
 #if defined(DXX_BUILD_DESCENT_II)
-				Delta_lights, Dl_indices,
+				Delta_lights, LevelSharedDestructibleLightState,
 #endif
 				Objects, vmsegptridx, A, hitseg, hitwall, hitpt);
 	case OBJ_DEBRIS:		collide_debris_and_wall(A,hitseg,hitwall,hitpt); break;
@@ -2683,4 +2686,6 @@ window_event_result collide_object_with_wall(const vmobjptridx_t A, fix hitspeed
 	}
 
 	return window_event_result::handled;	// assume handled
+}
+
 }

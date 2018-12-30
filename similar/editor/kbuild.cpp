@@ -104,7 +104,7 @@ int CreateSloppyAdjacentJoint()
 
 	save_level(
 #if defined(DXX_BUILD_DESCENT_II)
-		Delta_lights, Dl_indices,
+		Delta_lights, LevelSharedSegmentState.DestructibleLights,
 #endif
 		"SLOPPY.LVL");
 
