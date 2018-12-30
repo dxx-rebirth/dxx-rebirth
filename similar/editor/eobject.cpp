@@ -115,6 +115,7 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 
 	imobjptridx_t objnum = object_none;
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	switch (object_type)
 	{
 

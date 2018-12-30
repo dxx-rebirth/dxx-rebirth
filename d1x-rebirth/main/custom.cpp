@@ -475,6 +475,7 @@ static void load_hxm(const d_fname &hxmname)
 	// read robot info
 	if ((n_items = PHYSFSX_readInt(f)) != 0)
 	{
+		auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 		for (i = 0; i < n_items; i++)
 		{
 			repl_num = PHYSFSX_readInt(f);

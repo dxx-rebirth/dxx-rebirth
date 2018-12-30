@@ -513,6 +513,7 @@ void init_ai_object(vmobjptridx_t objp, ai_behavior behavior, const imsegidx_t h
 		ailp->mode = ai_behavior_to_mode(aip->behavior);
 	}
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 #if defined(DXX_BUILD_DESCENT_II)
 	if (robot_is_companion(robptr)) {
@@ -639,6 +640,7 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, object_base &objp, fi
 		}
 	}
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (Seismic_tremor_magnitude) {
 		fix			scale;
 		scale = fixdiv(2*Seismic_tremor_magnitude, Robot_info[get_robot_id(objp)].mass);
@@ -768,6 +770,7 @@ static int do_silly_animation(object &objp)
 	int				flinch_attack_scale = 1;
 
 	robot_type = get_robot_id(objp);
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[robot_type];
 	num_guns = robptr.n_guns;
 	attack_type = robptr.attack_type;
@@ -904,6 +907,7 @@ static void set_next_fire_time(const vmobjptr_t objp, ai_local &ailp, const robo
 void do_ai_robot_hit_attack(const vmobjptridx_t robot, const vmobjptridx_t playerobj, const vms_vector &collision_point)
 {
 	ai_local &ailp = robot->ctype.ai_info.ail;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(robot)];
 
 //#ifndef NDEBUG
@@ -984,6 +988,7 @@ static int lead_player(const object_base &objp, const vms_vector &fire_point, co
 		return 0;
 
 	//	Looks like it might be worth trying to lead the player.
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	const auto weapon_type = get_robot_weapon(Robot_info[get_robot_id(objp)], gun_num);
 
 	const weapon_info *const wptr = &Weapon_info[weapon_type];
@@ -1037,6 +1042,7 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 {
 	const auto powerup_flags = player_info.powerup_flags;
 	ai_local &ailp = obj->ctype.ai_info.ail;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(obj)];
 	vms_vector	fire_vec;
 	vms_vector	bpp_diff;
@@ -1213,6 +1219,7 @@ player_led: ;
 static void move_towards_vector(object_base &objp, const vms_vector &vec_goal, int dot_based)
 {
 	auto &velocity = objp.mtype.phys_info.velocity;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 
 	//	Trying to move towards player.  If forward vector much different than velocity vector,
@@ -1311,6 +1318,7 @@ static void move_around_player(const vmobjptridx_t objp, const player_flags powe
 	evade_vector.y = fixmul(evade_vector.y, frametime32);
 	evade_vector.z = fixmul(evade_vector.z, frametime32);
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 	//	Note: -1 means normal circling about the player.  > 0 means fast evasion.
 	if (fast_flag > 0) {
@@ -1367,6 +1375,7 @@ static void move_away_from_player(const vmobjptridx_t objp, const vms_vector &ve
 
 	auto speed = vm_vec_mag_quick(pptr->velocity);
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 	if (speed > robptr.max_speed[Difficulty_level])
 	{
@@ -1383,6 +1392,7 @@ static void move_away_from_player(const vmobjptridx_t objp, const vms_vector &ve
 //	If the flag evade_only is set, then only allowed to evade, not allowed to move otherwise (must have mode == AIM_STILL).
 static void ai_move_relative_to_player(const vmobjptridx_t objp, ai_local &ailp, fix dist_to_player, const vms_vector &vec_to_player, fix circle_distance, int evade_only, int player_visibility, const player_info &player_info)
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 
 	(void)player_visibility;	// only used for Assert
@@ -1566,9 +1576,6 @@ void do_ai_robot_hit(const vmobjptridx_t objp, player_awareness_type_t type)
 				case ai_behavior::AIB_STILL:
 				{
 					int	r;
-
-					//	Attack robots (eg, green guy) shouldn't have behavior = still.
-					Assert(Robot_info[get_robot_id(objp)].attack_type == 0);
 
 					r = d_rand();
 					//	1/8 time, charge player, 1/4 time create path, rest of time, do nothing
@@ -1761,6 +1768,7 @@ int ai_door_is_openable(
 		}
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (Robot_info[get_robot_id(objp)].companion)
 	{
 		const auto wt = wall.type;
@@ -1915,6 +1923,7 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 	const auto object_pos = pos ? *pos : pick_random_point_in_seg(vcvertptr, segp);
 
 	//	See if legal to place object here.  If not, move about in segment and try again.
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[object_id];
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const fix objsize = Polygon_models[robptr.model_num].rad;
@@ -2011,6 +2020,7 @@ static int boss_fits_in_seg(fvcvertptr &vcvertptr, const object &boss_objp, cons
 void create_buddy_bot(void)
 {
 	int	buddy_id;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	for (buddy_id=0;; buddy_id++)
 	{
 		if (!(buddy_id < N_robot_types))
@@ -2171,6 +2181,7 @@ static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx,
 //	----------------------------------------------------------------------
 void start_boss_death_sequence(const vmobjptr_t objp)
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 	if (robptr.boss_flag)
 	{
@@ -2216,6 +2227,7 @@ imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos)
 {
 	int		boss_index;
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_index = Robot_info[get_robot_id(objp)].boss_flag - BOSS_D2;
 
 	Assert((boss_index >= 0) && (boss_index < NUM_D2_BOSSES));
@@ -2300,6 +2312,7 @@ static void do_boss_dying_frame(const vmobjptridx_t objp)
 {
 	int	rval;
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	rval = do_robot_dying_frame(objp, Boss_dying_start_time, BOSS_DEATH_DURATION, &Boss_dying_sound_playing, Robot_info[get_robot_id(objp)].deathroll_sound, F1_0*4, F1_0*4);
 
 	if (rval)
@@ -2314,6 +2327,7 @@ static void do_boss_dying_frame(const vmobjptridx_t objp)
 //	----------------------------------------------------------------------
 static int do_any_robot_dying_frame(const vmobjptridx_t objp)
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (objp->ctype.ai_info.dying_start_time) {
 		int	rval, death_roll;
 
@@ -2472,6 +2486,7 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 {
 	int	boss_id, boss_index;
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_id = Robot_info[get_robot_id(objp)].boss_flag;
 
 	Assert((boss_id >= BOSS_D2) && (boss_id < BOSS_D2 + NUM_D2_BOSSES));
@@ -2628,6 +2643,7 @@ static void ai_do_actual_firing_stuff(fvmobjptridx &vmobjptridx, const vmobjptri
 {
 	fix	dot;
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if ((player_visibility == 2) || (Dist_to_last_fired_upon_player_pos < FIRE_AT_NEARBY_PLAYER_THRESHOLD )) {
 		vms_vector	fire_pos;
 
@@ -2814,6 +2830,7 @@ static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const vmobjptr_t robot,
 	 */
 	const auto bfs_length = create_bfs_list(robot, ConsoleObject->segnum, powerup_flags, bfs_list);
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (auto &i, partial_const_range(bfs_list, bfs_length)) {
 		range_for (const auto objp, objects_in(vmsegptr(i), vmobjptridx, vmsegptr))
 		{
@@ -2951,6 +2968,7 @@ void do_ai_frame(const vmobjptridx_t obj)
 		return;
 	}
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(obj)];
 	Assert(robptr.always_0xabcd == 0xabcd);
 
@@ -4363,6 +4381,7 @@ void do_ai_frame_all(void)
 	}
 
 	// (Moved here from do_d2_boss_stuff() because that only gets called if robot aware of player.)
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (Boss_dying) {
 		range_for (const auto &&objp, vmobjptridx)
 		{
@@ -4692,6 +4711,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 
 	// If boss teleported, set the looping 'see' sound -kreatordxx
 	// Also make sure any bosses that were generated/released during the game have teleport segs
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #if DXX_USE_EDITOR
 	if (!EditorWindow)
 #endif

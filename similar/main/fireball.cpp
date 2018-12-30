@@ -127,6 +127,7 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 
 static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvmobjptridx &vmobjptridx, const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto obj = obj_create( OBJ_FIREBALL,vclip_type,segnum,position,&vmd_identity_matrix,size,
 					CT_EXPLOSION,MT_NONE,RT_FIREBALL);
 
@@ -200,9 +201,6 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 										obj0p->mtype.phys_info.rotthrust.y = ((d_rand() - 16384) * force_val)/16;
 										obj0p->mtype.phys_info.rotthrust.z = ((d_rand() - 16384) * force_val)/16;
 										obj0p->mtype.phys_info.flags |= PF_USES_THRUST;
-
-										//@@if (Robot_info[obj0p->id].companion)
-										//@@	buddy_message("Daisy, Daisy, Give me...");
 									} else
 										aip->SKIP_AI_COUNT--;
 								}
@@ -938,6 +936,7 @@ static imobjptridx_t drop_robot_egg(const int type, const int id, const unsigned
 	imobjptridx_t	objnum = object_none;
 	unsigned count;
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 
 			for (count=0; count<num; count++) {
 				int	rand_scale;
@@ -1075,6 +1074,7 @@ int get_explosion_vclip(const object_base &obj, explosion_vclip_stage stage)
 		const auto vclip_ptr = stage == explosion_vclip_stage::s0
 			? &robot_info::exp1_vclip_num
 			: &robot_info::exp2_vclip_num;
+		auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 		const auto vclip_num = Robot_info[get_robot_id(obj)].*vclip_ptr;
 		if (vclip_num > -1)
 			return vclip_num;
@@ -1195,6 +1195,7 @@ void do_debris_frame(const vmobjptridx_t obj)
 void do_explosion_sequence(const vmobjptr_t obj)
 {
 	Assert(obj->control_type == CT_EXPLOSION);
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 
 	//See if we should die of old age
 	if (obj->lifeleft <= 0 ) 	{	// We died of old age

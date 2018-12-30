@@ -108,6 +108,7 @@ static void call_init_ai_object(vmobjptridx_t objp, ai_behavior behavior)
 //-------------------------------------------------------------------------
 static int RobotNextType()
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (Cur_object_index != object_none )	{
 		const auto &&obj = vmobjptridx(Cur_object_index);
 		if (obj->type == OBJ_ROBOT)
@@ -137,6 +138,7 @@ static int RobotNextType()
 //-------------------------------------------------------------------------
 static int RobotPrevType()
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (Cur_object_index != object_none )	{
 		const auto &&obj = vmobjptridx(Cur_object_index);
 		if (obj->type == OBJ_ROBOT)

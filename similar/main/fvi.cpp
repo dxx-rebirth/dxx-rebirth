@@ -585,6 +585,7 @@ static vm_distance_squared check_vector_to_object(vms_vector &intp, const vms_ve
 {
 	fix size = obj.size;
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (obj.type == OBJ_ROBOT && Robot_info[get_robot_id(obj)].attack_type)
 		size = (size*3)/4;
 
@@ -804,6 +805,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 	segnum_t hit_seg=segment_none;
 	segnum_t hit_none_seg=segment_none;
 	fvi_info::segment_array_t hit_none_seglist;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 
 	seglist.clear();
 	if (flags&FQ_GET_SEGLIST)

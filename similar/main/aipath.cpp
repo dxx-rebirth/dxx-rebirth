@@ -487,6 +487,7 @@ cpp_done1: ;
 // -- MK, 10/30/95 -- This code causes apparent discontinuities in the path, moving a point
 //	into a new segment.  It is not necessarily bad, but it makes it hard to track down actual
 //	discontinuity problems.
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (objp->type == OBJ_ROBOT)
 		if (Robot_info[get_robot_id(objp)].companion)
 			move_towards_outside(LevelSharedSegmentState, original_psegs, l_num_points, objp, create_path_random_flag::nonrandom);
@@ -519,6 +520,7 @@ int polish_path(const vmobjptridx_t objp, point_seg *psegs, int num_points)
 		return num_points;
 
 	//	Prevent the buddy from polishing his path twice in one tick, which can cause him to get hung up.  Pretty ugly, huh?
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (Robot_info[get_robot_id(objp)].companion)
 	{
 		if (d_tick_count == Last_buddy_polish_path_tick)
@@ -918,6 +920,7 @@ void ai_follow_path(const vmobjptridx_t objp, int player_visibility, const vms_v
 
 	vms_vector	goal_point, new_goal_point;
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 #endif
 	int			forced_break, original_dir, original_index;
@@ -1245,6 +1248,7 @@ void ai_path_set_orient_and_vel(const vmobjptr_t objp, const vms_vector &goal_po
 	vms_vector	cur_pos = objp->pos;
 	fix			speed_scale;
 	fix			dot;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 	fix			max_speed;
 
@@ -1437,6 +1441,9 @@ void attempt_to_resume_path(const vmobjptridx_t objp)
 {
 	ai_static *aip = &objp->ctype.ai_info;
 	int new_path_index;
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+#endif
 
 	if (aip->behavior == ai_behavior::AIB_STATION
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1524,11 +1531,11 @@ static void player_path_set_orient_and_vel(object &objp, const vms_vector &goal_
 	fix			speed_scale;
 	fix			dot;
 
-	const fix max_speed =
 #if defined(DXX_BUILD_DESCENT_I)
-	F1_0*50;
+	const fix max_speed = F1_0*50;
 #elif defined(DXX_BUILD_DESCENT_II)
-	Robot_info[get_robot_id(objp)].max_speed[Difficulty_level];
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+	const fix max_speed = Robot_info[get_robot_id(objp)].max_speed[Difficulty_level];
 #endif
 
 	const auto norm_vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(goal_point, cur_pos));

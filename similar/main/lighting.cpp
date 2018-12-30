@@ -259,7 +259,10 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vmobjpt
 	float cscale = 255.0;
 	fix light_intensity = 0;
 	g3s_lrgb lemission, obj_color = { 255, 255, 255 };
-        
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+#endif
+
 	switch (obj->type)
 	{
 		case OBJ_PLAYER:

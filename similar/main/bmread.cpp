@@ -1291,6 +1291,7 @@ void bm_read_robot_ai(const int skip)
 	robotnum_text = strtok(NULL, space_tab);
 	robotnum = atoi(robotnum_text);
 	Assert(robotnum < MAX_ROBOT_TYPES);
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[robotnum];
 
 	Assert(robotnum == Num_robot_ais);		//make sure valid number
@@ -1415,6 +1416,7 @@ void bm_read_robot(int skip)
 
 	Assert(N_robot_types < MAX_ROBOT_TYPES);
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (skip) {
 		Robot_info[N_robot_types].model_num = -1;
 		N_robot_types++;

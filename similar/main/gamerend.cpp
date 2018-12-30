@@ -662,6 +662,7 @@ static void show_extra_views()
 
 static void show_one_extra_view(const int w)
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 		//show special views if selected
 		switch (PlayerCfg.Cockpit3DView[w]) {
 			case CV_NONE:

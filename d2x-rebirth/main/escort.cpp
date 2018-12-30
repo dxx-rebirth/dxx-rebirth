@@ -131,6 +131,7 @@ void init_buddy_for_level(void)
 	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	Escort_goal_index = object_none;
 	Buddy_messages_suppressed = 0;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 	Buddy_sorry_time = -F1_0;
 
@@ -463,6 +464,7 @@ void set_escort_special_goal(int special_key)
 	if (!Buddy_allowed_to_talk) {
 		ok_for_buddy_to_talk();
 		if (!Buddy_allowed_to_talk) {
+			auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 			const auto &&o = find_escort(vmobjptridx, Robot_info);
 			if (o == object_none)
 				HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in mine.");
@@ -526,6 +528,7 @@ void set_escort_special_goal(int special_key)
 //	Return id of boss.
 static int get_boss_id(void)
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (const auto &&objp, vcobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
@@ -543,6 +546,7 @@ static int get_boss_id(void)
 //	"special" is used to find objects spewed by player which is hacked into flags field of powerup.
 static objnum_t exists_in_mine_2(const unique_segment &segp, const int objtype, const int objid, const int special)
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (const auto curobjp, objects_in(segp, vcobjptridx, vcsegptr))
 	{
 		const auto &objnum = curobjp;
@@ -990,6 +994,7 @@ static void do_buddy_dude_stuff(void)
 
 	if (Buddy_last_missile_time + F1_0*2 < GameTime64) {
 		//	See if a robot potentially in view cone
+		auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 		auto &&rh = make_range(vmobjptridx);
 		range_for (const auto &&objp, rh)
 		{
@@ -1257,6 +1262,7 @@ constexpr array<fix, NDL> Thief_wait_times = {{
 //	-------------------------------------------------------------------------------------------------
 void do_thief_frame(const vmobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player)
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			connected_distance;
 
@@ -1755,6 +1761,7 @@ void do_escort_menu(void)
 		return;
 	}
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	const auto &&buddy = find_escort(vmobjptridx, Robot_info);
 	if (buddy == object_none)
 	{

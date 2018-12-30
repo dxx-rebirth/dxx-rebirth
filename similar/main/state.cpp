@@ -1433,6 +1433,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret{};
 #elif defined(DXX_BUILD_DESCENT_II)
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	fix64	old_gametime = GameTime64;
 #endif
 

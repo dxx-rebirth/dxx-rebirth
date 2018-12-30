@@ -188,6 +188,7 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 		wclip_read(fp, w);
 
 	N_robot_types = PHYSFSX_readInt(fp);
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (auto &r, Robot_info)
 		robot_info_read(fp, r);
 
@@ -320,6 +321,7 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 		wclip_read(fp, w);
 
 	N_robot_types = PHYSFSX_readInt(fp);
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (auto &r, partial_range(Robot_info, N_robot_types))
 		robot_info_read(fp, r);
 
@@ -455,6 +457,7 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 	N_robot_types = N_D2_ROBOT_TYPES+t;
 	if (N_robot_types >= MAX_ROBOT_TYPES)
 		Error("Too many robots (%d) in <%s>.  Max is %d.",t,fname,MAX_ROBOT_TYPES-N_D2_ROBOT_TYPES);
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (auto &r, partial_range(Robot_info, N_D2_ROBOT_TYPES.value, N_robot_types))
 		robot_info_read(fp, r);
 
@@ -518,6 +521,7 @@ void load_robot_replacements(const d_fname &level_name)
 		Error("HXM! version too old (%d)",t);
 
 	t = PHYSFSX_readInt(fp);			//read number of robots
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	for (j=0;j<t;j++) {
 		i = PHYSFSX_readInt(fp);		//read robot number
 		if (i<0 || i>=N_robot_types)

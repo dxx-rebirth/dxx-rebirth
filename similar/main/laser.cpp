@@ -1052,6 +1052,9 @@ static int object_is_trackable(const imobjptridx_t objp, const vmobjptridx_t tra
 	//	Don't track player if he's cloaked.
 	if ((objp == get_local_player().objnum) && (objp->ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED))
 		return 0;
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+#endif
 
 	//	Can't track AI object if he's cloaked.
 	if (objp->type == OBJ_ROBOT) {
@@ -1138,6 +1141,7 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 
 	const auto tracker_id = get_weapon_id(tracker);
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (tracker_id != weapon_id_type::OMEGA_ID)
 	//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
 #endif
@@ -2182,6 +2186,9 @@ static void create_smart_children(object_array &objects, const vmobjptridx_t obj
 	weapon_id_type blob_id;
 
 	array<objnum_t, MAX_OBJDISTS> objlist;
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+#endif
 	{
 		if (Game_mode & GM_MULTI)
 			d_srand(8321L);

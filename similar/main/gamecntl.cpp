@@ -597,6 +597,7 @@ static int select_next_window_function(int w)
 {
 	Assert(w==0 || w==1);
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	switch (PlayerCfg.Cockpit3DView[w]) {
 		case CV_NONE:
 			PlayerCfg.Cockpit3DView[w] = CV_REAR;
@@ -1016,6 +1017,7 @@ static void kill_all_robots(void)
 {
 	int	dead_count=0;
 	//int	boss_index = -1;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 
 	// Kill all bots except for Buddy bot and boss.  However, if only boss and buddy left, kill boss.
 	range_for (const auto &&objp, vmobjptr)
@@ -1128,6 +1130,7 @@ static void kill_all_snipers(void)
 static void kill_thief(void) __attribute_used;
 static void kill_thief(void)
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	//	Kill thief.
 	range_for (const auto &&objp, vmobjptr)
 	{
@@ -1143,6 +1146,7 @@ static void kill_thief(void)
 static void kill_buddy(void) __attribute_used;
 static void kill_buddy(void)
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	//	Kill buddy.
 	range_for (const auto &&objp, vmobjptr)
 	{

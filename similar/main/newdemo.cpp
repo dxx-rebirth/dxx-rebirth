@@ -561,6 +561,7 @@ object *prev_obj=NULL;      //ptr to last object read in
 namespace dsx {
 static void nd_read_object(const vmobjptridx_t obj)
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	short shortsig = 0;
 	const auto &pl_info = get_local_plrobj().ctype.player_info;
 	const auto saved = (&pl_info == &obj->ctype.player_info)
@@ -818,6 +819,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 namespace dsx {
 static void nd_write_object(const vcobjptr_t obj)
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	int life;
 	short shortsig = 0;
 

@@ -372,6 +372,7 @@ static void gameseq_init_network_players(object_array &objects)
 #if defined(DXX_BUILD_DESCENT_II)
 	const auto remove_thief = Netgame.ThiefModifierFlags & ThiefModifier::Absent;
 	const auto multiplayer = Game_mode & GM_MULTI;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #endif
 	const auto multiplayer_coop = Game_mode & GM_MULTI_COOP;
 	auto &vmobjptridx = objects.vmptridx;
@@ -445,6 +446,7 @@ void gameseq_remove_unused_players()
 			obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(i.objnum));
 		}
 #if defined(DXX_BUILD_DESCENT_II)
+		auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 		if (PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent)
 		{
 			range_for (const auto &&o, vmobjptridx)
@@ -2147,6 +2149,7 @@ void copy_defaults_to_robot(const vmobjptr_t objp)
 	objid = get_robot_id(objp);
 	Assert(objid < N_robot_types);
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[objid];
 
 	//	Boost shield for Thief and Buddy based on level.

@@ -41,7 +41,6 @@ unsigned N_robot_joints;
 
 namespace dsx {
 //	Robot stuff
-d_robot_info_array Robot_info;
 
 //Big array of joint positions.  All robots index into this array
 array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
@@ -65,6 +64,7 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 	Assert(obj.render_type == RT_POLYOBJ || obj.render_type == RT_MORPH);
 	Assert(get_robot_id(obj) < N_robot_types);
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	const auto &r = Robot_info[get_robot_id(obj)];
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto &pm = Polygon_models[r.model_num];
@@ -95,7 +95,7 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 
 //fills in ptr to list of joints, and returns the number of joints in list
 //takes the robot type (object id), gun number, and desired state
-partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array &robot_info, const array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const unsigned gun_num, const unsigned state)
+partial_range_t<const jointpos *> robot_get_anim_state(const d_level_shared_robot_info_state::d_robot_info_array &robot_info, const array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const unsigned gun_num, const unsigned state)
 {
 	auto &rirt = robot_info[robot_type];
 	assert(gun_num <= rirt.n_guns);
@@ -114,6 +114,7 @@ static void set_robot_state(object_base &obj, const unsigned state)
 
 	assert(obj.type == OBJ_ROBOT);
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &ri = Robot_info[get_robot_id(obj)];
 
 	for (g = 0; g < ri.n_guns + 1; g++)

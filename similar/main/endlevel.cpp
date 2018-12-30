@@ -289,6 +289,7 @@ window_event_result start_endlevel_sequence()
 	con_puts(CON_NORMAL, "You have escaped the mine!");
 
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	//	Dematerialize Buddy!
 	range_for (const auto &&objp, vmobjptr)
 	{

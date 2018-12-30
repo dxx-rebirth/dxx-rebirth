@@ -1209,6 +1209,7 @@ static void init_spinning_robot(grs_canvas &canvas, briefing &br) //(int x,int y
 
 static void show_spinning_robot_frame(briefing *br, int robot_num)
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (robot_num != -1) {
 		br->robot_angles.p = br->robot_angles.b = 0;
 		br->robot_angles.h += 150;

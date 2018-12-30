@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "player.h"
 #include "bm.h"
+#include "robot.h"
 #include "3d.h"
 #include "game.h"
 #include "textures.h"
@@ -96,6 +97,7 @@ namespace dsx {
 d_level_shared_segment_state LevelSharedSegmentState;
 d_level_unique_object_state LevelUniqueObjectState;
 d_level_shared_polygon_model_state LevelSharedPolygonModelState;
+d_level_shared_robot_info_state LevelSharedRobotInfoState;
 valptridx<object>::array_managed_type Objects;
 d_level_unique_wall_subsystem_state LevelUniqueWallSubsystemState;
 }

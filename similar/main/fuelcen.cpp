@@ -301,6 +301,7 @@ imobjptridx_t  create_morph_robot( const vmsegptridx_t segp, const vms_vector &o
 	plr.num_robots_total++;
 
 	ai_behavior default_behavior;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #if defined(DXX_BUILD_DESCENT_I)
 	default_behavior = ai_behavior::AIB_NORMAL;
 	if (object_id == 10)						//	This is a toaster guy!

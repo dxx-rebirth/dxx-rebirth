@@ -883,6 +883,9 @@ void phys_apply_rot(object &obj, const vms_vector &force_vec)
 	if (obj.movement_type != MT_PHYSICS)
 		return;
 
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+#endif
 	auto vecmag = vm_vec_mag(force_vec);
 	if (vecmag < F1_0/32)
 		rate = 4*F1_0;

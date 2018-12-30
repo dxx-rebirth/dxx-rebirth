@@ -453,6 +453,7 @@ void init_controlcen_for_level(void)
 {
 	imobjptr_t cntrlcen_objnum = nullptr, boss_objnum = nullptr;
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (const auto &&objp, vmobjptridx)
 	{
 		if (objp->type == OBJ_CNTRLCEN)

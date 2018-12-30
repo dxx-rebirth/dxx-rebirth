@@ -327,6 +327,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 //draw an object which renders as a polygon model
 static void draw_polygon_object(grs_canvas &canvas, const vcobjptridx_t obj)
 {
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	g3s_lrgb light;
 	glow_values_t engine_glow_value;
 	engine_glow_value[0] = 0;

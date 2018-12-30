@@ -193,12 +193,18 @@ static inline int robot_is_thief(const robot_info &robptr)
 #endif
 
 //the array of robots types
-using d_robot_info_array = array<robot_info, MAX_ROBOT_TYPES>;
-extern d_robot_info_array Robot_info;     // Robot info for AI system, loaded from bitmaps.tbl.
+struct d_level_shared_robot_info_state
+{
+	using d_robot_info_array = array<robot_info, MAX_ROBOT_TYPES>;
+	// Robot info for AI system, loaded from bitmaps.tbl.
+	d_robot_info_array Robot_info;
+};
+
+extern d_level_shared_robot_info_state LevelSharedRobotInfoState;
 
 #if defined(DXX_BUILD_DESCENT_II)
 // returns ptr to escort robot, or NULL
-imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_robot_info_array &Robot_info);
+imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_level_shared_robot_info_state::d_robot_info_array &Robot_info);
 #endif
 
 #if DXX_USE_EDITOR
@@ -239,7 +245,7 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 //  On exit:
 //      Returns number of joints in list.
 //      jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
-partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array &, const array<jointpos, MAX_ROBOT_JOINTS> &, unsigned robot_type, unsigned gun_num, unsigned state);
+partial_range_t<const jointpos *> robot_get_anim_state(const d_level_shared_robot_info_state::d_robot_info_array &, const array<jointpos, MAX_ROBOT_JOINTS> &, unsigned robot_type, unsigned gun_num, unsigned state);
 
 /*
  * reads n robot_info structs from a PHYSFS_File
@@ -259,16 +265,17 @@ void jointpos_write(PHYSFS_File *fp, const jointpos &jp);
 namespace dsx {
 void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
 weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num);
-}
 
 static inline void boss_link_see_sound(const vcobjptridx_t objp)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	constexpr unsigned soundnum = SOUND_BOSS_SHARE_SEE;
 #elif defined(DXX_BUILD_DESCENT_II)
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	const unsigned soundnum = Robot_info[get_robot_id(objp)].see_sound;
 #endif
 	digi_link_sound_to_object2(soundnum, objp, 1, F1_0, sound_stack::allow_stacking, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
+}
 }
 #endif
 

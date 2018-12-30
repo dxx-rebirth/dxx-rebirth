@@ -80,6 +80,7 @@ void draw_object_picture(grs_canvas &canvas, const unsigned id, const vms_angvec
 	if (id >= Num_object_subtypes)
 		return;
 
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	switch (type) {
 
 		case OBJ_HOSTAGE:
