@@ -757,7 +757,7 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 	}
 
 	NumTextures = texture_count;
-	Num_tmaps = tmap_count;
+	LevelUniqueTmapInfoState.Num_tmaps = tmap_count;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	Textures[NumTextures++].index = 0;		//entry for bogus tmap
@@ -800,6 +800,7 @@ void verify_textures()
 	grs_bitmap * bmp;
 	int j;
 	j=0;
+	const auto Num_tmaps = LevelUniqueTmapInfoState.Num_tmaps;
 	for (uint_fast32_t i = 0; i < Num_tmaps; ++i)
 	{
 		bmp = &GameBitmaps[Textures[i].index];

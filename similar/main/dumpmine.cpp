@@ -920,6 +920,7 @@ static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_ty
 	int	count = 0;
 
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
+	const auto Num_tmaps = LevelUniqueTmapInfoState.Num_tmaps;
 	for (i=0; i<Num_tmaps; i++)
 		if (tb[i]) {
 			PHYSFSX_printf(my_file, "[%3i %8s (%4i)] ", i, static_cast<const char *>(TmapInfo[i].filename), tb[i]);
@@ -945,6 +946,7 @@ static void say_used_once_tmaps(PHYSFS_File *const my_file, const perm_tmap_buff
 	const char	*level_name;
 
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
+	const auto Num_tmaps = LevelUniqueTmapInfoState.Num_tmaps;
 	for (i=0; i<Num_tmaps; i++)
 		if (tb[i] == 1) {
 			int	level_num = tb_lnum[i];
@@ -969,7 +971,7 @@ static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &tb)
 	int	count = 0;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	const unsigned bound = Num_tmaps;
+	const unsigned bound = LevelUniqueTmapInfoState.Num_tmaps;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 #elif defined(DXX_BUILD_DESCENT_II)
 	const unsigned bound = MAX_BITMAP_FILES;

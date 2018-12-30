@@ -94,7 +94,6 @@ struct player_ship;
 extern struct player_ship only_player_ship;
 constexpr struct player_ship *Player_ship = &only_player_ship;
 extern unsigned Num_cockpits;
-extern unsigned Num_tmaps;
 }
 
 namespace dsx {
@@ -110,6 +109,7 @@ extern tmap_xlate_table_array tmap_xlate_table;
 struct d_level_unique_tmap_info_state
 {
 	using TmapInfo_array = array<tmap_info, MAX_TEXTURES>;
+	unsigned Num_tmaps;
 	TmapInfo_array TmapInfo;
 };
 

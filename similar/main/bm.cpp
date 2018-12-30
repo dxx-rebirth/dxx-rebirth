@@ -104,7 +104,6 @@ player_ship only_player_ship;
 
 //----------------- Miscellaneous bitmap pointers ---------------
 unsigned Num_cockpits;
-unsigned Num_tmaps;
 }
 
 //---------------- Variables for wall textures ------------------
@@ -253,7 +252,7 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 #if DXX_USE_EDITOR
         //Build tmaplist
 	auto &&effect_range = partial_const_range(Effects, Num_effects);
-	Num_tmaps = TextureEffects + std::count_if(effect_range.begin(), effect_range.end(), [](const eclip &e) { return e.changing_wall_texture >= 0; });
+	LevelUniqueTmapInfoState.Num_tmaps = TextureEffects + std::count_if(effect_range.begin(), effect_range.end(), [](const eclip &e) { return e.changing_wall_texture >= 0; });
         #endif
 }
 
