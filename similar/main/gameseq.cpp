@@ -749,21 +749,35 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 	Dont_start_sound_objects = 1;
 #endif
 
+	const auto get_eclip_for_tmap = [](const TmapInfo_array &TmapInfo, const unique_side &side) {
+		if (const auto tm2 = side.tmap_num2)
+		{
+			const auto ec = TmapInfo[tm2 & 0x3fff].eclip_num;
+#if defined(DXX_BUILD_DESCENT_II)
+			if (ec != eclip_none)
+#endif
+				return ec;
+		}
+#if defined(DXX_BUILD_DESCENT_I)
+		return eclip_none.value;
+#elif defined(DXX_BUILD_DESCENT_II)
+		return TmapInfo[side.tmap_num].eclip_num;
+#endif
+	};
+
 	range_for (const auto &&seg, vcsegptridx)
 	{
 		for (sidenum=0;sidenum<MAX_SIDES_PER_SEGMENT;sidenum++) {
-			int tm,ec,sn;
+			int sn;
 
-#if defined(DXX_BUILD_DESCENT_I)
-			if ((tm=seg->unique_segment::sides[sidenum].tmap_num2) != 0)
-				if ((ec = TmapInfo[tm & 0x3fff].eclip_num) != eclip_none)
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 			const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sidenum);
-			if (wid & WID_RENDER_FLAG)
-				if ((((tm = seg->unique_segment::sides[sidenum].tmap_num2) != 0) &&
-					 ((ec = TmapInfo[tm & 0x3fff].eclip_num) != eclip_none)) ||
-					(ec = TmapInfo[seg->unique_segment::sides[sidenum].tmap_num].eclip_num) != eclip_none)
+			if (!(wid & WID_RENDER_FLAG))
+				continue;
 #endif
+			const auto ec = get_eclip_for_tmap(TmapInfo, seg->unique_segment::sides[sidenum]);
+			if (ec != eclip_none)
+			{
 					if ((sn=Effects[ec].sound_num)!=-1) {
 #if defined(DXX_BUILD_DESCENT_II)
 						auto csegnum = seg->children[sidenum];
@@ -787,6 +801,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 						const auto &&pnt = compute_center_point_on_side(vcvertptr, seg, sidenum);
 						digi_link_sound_to_pos(sn, seg, sidenum, pnt, 1, F1_0/2);
 					}
+			}
 		}
 	}
 
