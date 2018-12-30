@@ -1118,11 +1118,14 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 //Save door info
 	{
+		auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
+	{
 		const int i = ActiveDoors.get_count();
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	}
-	range_for (auto &&ad, vcactdoorptr)
+		range_for (auto &&ad, ActiveDoors.vcptr)
 		active_door_write(fp, ad);
+	}
 
 #if defined(DXX_BUILD_DESCENT_II)
 //Save cloaking wall info
@@ -1716,9 +1719,12 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	}
 
 	//Restore door info
+	{
+		auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	ActiveDoors.set_count(PHYSFSX_readSXE32(fp, swap));
-	range_for (auto &&ad, vmactdoorptr)
+	range_for (auto &&ad, ActiveDoors.vmptr)
 		active_door_read(fp, ad);
+	}
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (version >= 14) {		//Restore cloaking wall info

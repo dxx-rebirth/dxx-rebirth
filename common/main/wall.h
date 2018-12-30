@@ -176,7 +176,10 @@ struct active_door : public prohibit_void_ptr<active_door>
 	fix     time;               // how long been opening, closing, waiting
 };
 
-DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(active_door, actdoor, ActiveDoors);
+struct d_level_unique_active_door_state
+{
+	active_door_array ActiveDoors;
+};
 
 }
 
@@ -203,6 +206,7 @@ struct d_level_unique_wall_state
 };
 
 struct d_level_unique_wall_subsystem_state :
+	d_level_unique_active_door_state,
 	d_level_unique_wall_state
 #if defined(DXX_BUILD_DESCENT_II)
 	, d_level_unique_cloaking_wall_state

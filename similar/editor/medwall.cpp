@@ -641,7 +641,8 @@ int wall_restore_all()
 		w.flags &= ~(WALL_BLASTED | WALL_DOOR_OPENED | WALL_DOOR_OPENING | WALL_EXPLODING);
 	}
 
-	range_for (auto &&i, vmactdoorptr)
+	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
+	range_for (auto &&i, ActiveDoors.vmptr)
 		wall_close_door_ref(Segments.vmptridx, Walls, WallAnims, i);
 
 	range_for (auto &&i, vmsegptr)

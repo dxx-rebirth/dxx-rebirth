@@ -244,6 +244,7 @@ void wall_init()
 		w.clip_num = -1;
 		w.linked_wall = -1;
 	}
+	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	ActiveDoors.set_count(0);
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
@@ -408,6 +409,8 @@ void wall_open_door(const vmsegptridx_t seg, int side)
 		return;
 #endif
 
+	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
+	auto &vmactdoorptr = ActiveDoors.vmptr;
 	if (w->state == WALL_DOOR_CLOSING) {		//closing, so reuse door
 		const auto &&r = make_range(vmactdoorptr);
 		const auto &&i = std::find_if(r.begin(), r.end(), find_active_door_predicate(wall_num));
@@ -745,6 +748,8 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned 
 	if (is_door_obstructed(vcobjptridx, vcsegptr, seg, side))
 		return;
 
+	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
+	auto &vmactdoorptr = ActiveDoors.vmptr;
 	if (w->state == WALL_DOOR_OPENING) {	//reuse door
 		const auto &&r = make_range(vmactdoorptr);
 		const auto &&i = std::find_if(r.begin(), r.end(), find_active_door_predicate(wall_num));
@@ -1342,6 +1347,7 @@ void wall_frame_process()
 {
 	process_exploding_walls();
 	{
+		auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 		const auto &&r = partial_range(ActiveDoors, ActiveDoors.get_count());
 		auto &&i = std::remove_if(r.begin(), r.end(), ad_removal_predicate());
 		ActiveDoors.set_count(std::distance(r.begin(), i));

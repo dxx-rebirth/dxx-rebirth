@@ -656,6 +656,7 @@ void write_game_text_file(const char *filename)
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptridx = Walls.vcptridx;
 	PHYSFSX_printf(my_file, "Number of walls:      %4i\n", Walls.get_count());
+	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	PHYSFSX_printf(my_file, "Number of open doors: %4i\n", ActiveDoors.get_count());
 	PHYSFSX_printf(my_file, "Number of triggers:   %4i\n", Triggers.get_count());
 	PHYSFSX_printf(my_file, "Number of matcens:    %4i\n", Num_robot_centers);

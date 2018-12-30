@@ -1105,6 +1105,7 @@ static int load_game_data(
 			validate_segment_wall(i, side, eside.idx);
 		}
 
+	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	ActiveDoors.set_count(0);
 
 	//go through all walls, killing references to invalid triggers
@@ -1545,6 +1546,7 @@ int create_new_mine(void)
 	}
 	
 	Num_robot_centers = 0;
+	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	ActiveDoors.set_count(0);
 	wall_init();
 	trigger_init();
@@ -1616,6 +1618,7 @@ static int save_game_data(
 	WRITE_HEADER_ENTRY(object, Highest_object_index + 1);
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	WRITE_HEADER_ENTRY(wall, Walls.get_count());
+	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	WRITE_HEADER_ENTRY(active_door, ActiveDoors.get_count());
 	WRITE_HEADER_ENTRY(trigger, Triggers.get_count());
 	WRITE_HEADER_ENTRY(0, 0);		// links (removed by Parallax)

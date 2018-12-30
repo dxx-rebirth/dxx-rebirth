@@ -41,7 +41,6 @@ namespace dcx {
 d_level_shared_vertex_state LevelSharedVertexState;
 d_level_unique_segment_state LevelUniqueSegmentState;
 // Global array of vertices, common to one mine.
-valptridx<active_door>::array_managed_type ActiveDoors;
 valptridx<player>::array_managed_type Players;
 valptridx<segment>::array_managed_type Segments;
 }
