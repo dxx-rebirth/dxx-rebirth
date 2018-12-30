@@ -190,7 +190,11 @@ struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
 	array<fix, 4> back_ls;      // back wall saved light values
 	fix     time;               // how long been cloaking or decloaking
 };
-DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(cloaking_wall, clwall, CloakingWalls);
+
+struct d_level_unique_cloaking_wall_state
+{
+	cloaking_wall_array CloakingWalls;
+};
 #endif
 
 struct d_level_unique_wall_state
@@ -200,6 +204,9 @@ struct d_level_unique_wall_state
 
 struct d_level_unique_wall_subsystem_state :
 	d_level_unique_wall_state
+#if defined(DXX_BUILD_DESCENT_II)
+	, d_level_unique_cloaking_wall_state
+#endif
 {
 };
 

@@ -246,6 +246,7 @@ void wall_init()
 	}
 	ActiveDoors.set_count(0);
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
 	CloakingWalls.set_count(0);
 #endif
 
@@ -517,8 +518,9 @@ void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
 	Assert(Connectside != side_none);
 	const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 
+	auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
 	if (w->state == WALL_DOOR_DECLOAKING) {	//decloaking, so reuse door
-		const auto &&r = make_range(vmclwallptr);
+		const auto &&r = make_range(CloakingWalls.vmptr);
 		const auto i = std::find_if(r.begin(), r.end(), find_cloaked_wall_predicate(w));
 		if (i == r.end())
 		{
@@ -539,7 +541,7 @@ void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
 			return;
 		}
 		CloakingWalls.set_count(c + 1);
-		d = vmclwallptr(c);
+		d = CloakingWalls.vmptr(c);
 		d->time = 0;
 	}
 	else {
@@ -591,8 +593,9 @@ void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 	if (w->type == WALL_CLOSED || w->state == WALL_DOOR_DECLOAKING)		//already closed or decloaking
 		return;
 
+	auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
 	if (w->state == WALL_DOOR_CLOAKING) {	//cloaking, so reuse door
-		const auto &&r = make_range(vmclwallptr);
+		const auto &&r = make_range(CloakingWalls.vmptr);
 		const auto i = std::find_if(r.begin(), r.end(), find_cloaked_wall_predicate(w));
 		if (i == r.end())
 		{
@@ -614,7 +617,7 @@ void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 			return;
 		}
 		CloakingWalls.set_count(c + 1);
-		d = vmclwallptr(c);
+		d = CloakingWalls.vmptr(c);
 		d->time = 0;
 	}
 	else {
@@ -1346,6 +1349,7 @@ void wall_frame_process()
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 	{
+		auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
 		const auto &&r = partial_range(CloakingWalls, CloakingWalls.get_count());
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 		cw_removal_predicate rp{Segments.vmptr, Walls};

@@ -1127,11 +1127,14 @@ int state_save_all_sub(const char *filename, const char *desc)
 #if defined(DXX_BUILD_DESCENT_II)
 //Save cloaking wall info
 	{
+		auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
+	{
 		const int i = CloakingWalls.get_count();
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	}
-	range_for (auto &&w, vcclwallptr)
+		range_for (auto &&w, CloakingWalls.vcptr)
 		cloaking_wall_write(w, fp);
+	}
 #endif
 
 //Save trigger info
@@ -1720,8 +1723,9 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 #if defined(DXX_BUILD_DESCENT_II)
 	if (version >= 14) {		//Restore cloaking wall info
 		unsigned num_cloaking_walls = PHYSFSX_readSXE32(fp, swap);
+		auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
 		CloakingWalls.set_count(num_cloaking_walls);
-		range_for (auto &&w, vmclwallptr)
+		range_for (auto &&w, CloakingWalls.vmptr)
 			cloaking_wall_read(w, fp);
 	}
 #endif

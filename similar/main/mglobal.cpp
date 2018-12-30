@@ -93,9 +93,6 @@ valptridx<managed_type>::array_managed_type::array_managed_type()
 
 namespace dsx {
 d_level_shared_segment_state LevelSharedSegmentState;
-#if defined(DXX_BUILD_DESCENT_II)
-valptridx<cloaking_wall>::array_managed_type CloakingWalls;
-#endif
 d_level_unique_object_state LevelUniqueObjectState;
 valptridx<object>::array_managed_type Objects;
 valptridx<trigger>::array_managed_type Triggers;
