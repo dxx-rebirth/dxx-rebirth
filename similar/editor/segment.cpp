@@ -115,6 +115,7 @@ int med_add_vertex(const vertex &vp)
 
 //	set_vertex_counts();
 
+	const auto Num_vertices = LevelSharedVertexState.Num_vertices;
 	Assert(Num_vertices < MAX_SEGMENT_VERTICES);
 
 	count = 0;
@@ -139,7 +140,7 @@ int med_add_vertex(const vertex &vp)
 	*vmvertptr(free_index) = vp;
 	Vertex_active[free_index] = 1;
 
-	Num_vertices++;
+	++LevelSharedVertexState.Num_vertices;
 
 	if (free_index > Highest_vertex_index)
 		Vertices.set_count(free_index + 1);
@@ -187,6 +188,7 @@ segnum_t med_create_duplicate_segment(segment_array &Segments, const segment &sp
 //	This is the same as med_add_vertex, except that it does not search for the presence of the vertex.
 int med_create_duplicate_vertex(const vertex &vp)
 {
+	const auto Num_vertices = LevelSharedVertexState.Num_vertices;
 	Assert(Num_vertices < MAX_SEGMENT_VERTICES);
 
 	Do_duplicate_vertex_check = 1;
@@ -201,7 +203,7 @@ int med_create_duplicate_vertex(const vertex &vp)
 	*vmvertptr(free_index) = vp;
 	Vertex_active[free_index] = 1;
 
-	Num_vertices++;
+	++LevelSharedVertexState.Num_vertices;
 
 	if (free_index > Highest_vertex_index)
 		Vertices.set_count(free_index + 1);
@@ -219,7 +221,7 @@ int med_set_vertex(const unsigned vnum, const vertex &vp)
 	// Just in case this vertex wasn't active, mark it as active.
 	if (!Vertex_active[vnum]) {
 		Vertex_active[vnum] = 1;
-		Num_vertices++;
+		++LevelSharedVertexState.Num_vertices;
 		if ((vnum > Highest_vertex_index) && (vnum < NEW_SEGMENT_VERTICES)) {
 			Vertices.set_count(vnum + 1);
 		}
@@ -414,6 +416,7 @@ static void change_vertex_occurrences(int dest, int src)
 // --------------------------------------------------------------------------------------------------
 static void compress_vertices(void)
 {
+	const auto Num_vertices = LevelSharedVertexState.Num_vertices;
 	if (Highest_vertex_index == Num_vertices - 1)
 		return;
 
@@ -750,7 +753,7 @@ static void update_num_vertices(void)
 	range_for (const auto v, partial_range(Vertex_active, Highest_vertex_index + 1))
 		if (v)
 			++n;
-	Num_vertices = n;
+	LevelSharedVertexState.Num_vertices = n;
 }
 
 namespace dsx {
@@ -760,7 +763,7 @@ namespace dsx {
 //	Set Num_vertices.
 void set_vertex_counts(void)
 {
-	Num_vertices = 0;
+	unsigned Num_vertices = 0;
 
 	Vertex_active = {};
 
@@ -775,6 +778,7 @@ void set_vertex_counts(void)
 				++ Vertex_active[v];
 			}
 	}
+	LevelSharedVertexState.Num_vertices = Num_vertices;
 }
 
 // -------------------------------------------------------------------------------
@@ -1263,7 +1267,7 @@ void med_create_new_segment(const vms_vector &scale)
 	sp->segnum = 1;						// What to put here?  I don't know.
 
 	//	Create relative-to-center vertices, which are the points on the box defined by length, width, height
-	t = Num_vertices;
+	t = LevelSharedVertexState.Num_vertices;
 	sp->verts[0] = med_set_vertex(NEW_SEGMENT_VERTICES+0,{+width/2,+height/2,-length/2});
 	sp->verts[1] = med_set_vertex(NEW_SEGMENT_VERTICES+1,{+width/2,-height/2,-length/2});
 	sp->verts[2] = med_set_vertex(NEW_SEGMENT_VERTICES+2,{-width/2,-height/2,-length/2});
@@ -1272,7 +1276,7 @@ void med_create_new_segment(const vms_vector &scale)
 	sp->verts[5] = med_set_vertex(NEW_SEGMENT_VERTICES+5,{+width/2,-height/2,+length/2});
 	sp->verts[6] = med_set_vertex(NEW_SEGMENT_VERTICES+6,{-width/2,-height/2,+length/2});
 	sp->verts[7] = med_set_vertex(NEW_SEGMENT_VERTICES+7,{-width/2,+height/2,+length/2});
-	Num_vertices = t;
+	LevelSharedVertexState.Num_vertices = t;
 
 //	sp->scale = *scale;
 

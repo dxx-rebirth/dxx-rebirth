@@ -123,10 +123,9 @@ DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(vertex, vert);
 struct count_segment_array_t;
 struct group;
 
+struct d_level_shared_vertex_state;
 struct d_level_shared_segment_state;
 struct d_level_unique_segment_state;
-extern unsigned Num_vertices;
-
 
 #define Side_to_verts Side_to_verts_int
 extern const array<array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int;    // Side_to_verts[my_side] is list of vertices forming side my_side.

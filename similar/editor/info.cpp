@@ -233,9 +233,10 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 
 	//---------------- Number of vertics -----------------
 	
-	if ( old_Num_vertices != Num_vertices )	{
-		old_Num_vertices = Num_vertices;
-		gr_uprintf(canvas, *canvas.cv_font, 0, 16, "Vertices: %4d/%4" PRIuFAST32, Num_vertices, static_cast<uint_fast32_t>(MAX_VERTICES));
+	if (old_Num_vertices != LevelSharedVertexState.Num_vertices)
+	{
+		old_Num_vertices = LevelSharedVertexState.Num_vertices;
+		gr_uprintf(canvas, *canvas.cv_font, 0, 16, "Vertices: %4d/%4" PRIuFAST32, LevelSharedVertexState.Num_vertices, static_cast<uint_fast32_t>(MAX_VERTICES));
 	}
 
 	//---------------- Number of objects -----------------

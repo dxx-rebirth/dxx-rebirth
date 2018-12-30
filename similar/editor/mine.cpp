@@ -367,7 +367,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	editor_offset = header_offset + sizeof(mine_header);
 	texture_offset = editor_offset + sizeof(mine_editor);
 	vertex_offset  = texture_offset + (13*NumTextures);
-	segment_offset = vertex_offset + (sizeof(vms_vector)*Num_vertices);
+	segment_offset = vertex_offset + (sizeof(vms_vector) * LevelSharedVertexState.Num_vertices);
 	newsegment_offset = segment_offset + (sizeof(segment) * LevelSharedSegmentState.Num_segments);
 	newseg_verts_offset = newsegment_offset + sizeof(segment);
 	walls_offset = newseg_verts_offset + (sizeof(vms_vector)*8);
@@ -383,7 +383,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	mine_fileinfo.editor_offset     =   editor_offset;
 	mine_fileinfo.editor_size       =   sizeof(mine_editor);
 	mine_fileinfo.vertex_offset     =   vertex_offset;
-	mine_fileinfo.vertex_howmany    =   Num_vertices;
+	mine_fileinfo.vertex_howmany    =   LevelSharedVertexState.Num_vertices;
 	mine_fileinfo.vertex_sizeof     =   sizeof(vms_vector);
 	mine_fileinfo.segment_offset    =   segment_offset;
 	mine_fileinfo.segment_howmany   =   LevelSharedSegmentState.Num_segments;
@@ -406,7 +406,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 
 	//===================== SAVE HEADER INFO ========================
 
-	mine_header.num_vertices        =   Num_vertices;
+	mine_header.num_vertices        =   LevelSharedVertexState.Num_vertices;
 	mine_header.num_segments        =   LevelSharedSegmentState.Num_segments;
 
 	// Write the editor info
@@ -447,7 +447,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 
 	if (vertex_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	PHYSFS_write( SaveFile, Vertices, sizeof(vms_vector), Num_vertices );
+	PHYSFS_write(SaveFile, Vertices, sizeof(vms_vector), LevelSharedVertexState.Num_vertices);
 
 	//===================== SAVE SEGMENT INFO =========================
 
@@ -570,16 +570,16 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 	PHYSFSX_writeU8(SaveFile, version);						// 1 byte = compiled version
 	if (New_file_format_save)
 	{
-		PHYSFS_writeSLE16(SaveFile, Num_vertices);					// 2 bytes = Num_vertices
+		PHYSFS_writeSLE16(SaveFile, LevelSharedVertexState.Num_vertices);					// 2 bytes = Num_vertices
 		PHYSFS_writeSLE16(SaveFile, LevelSharedSegmentState.Num_segments);					// 2 bytes = Num_segments
 	}
 	else
 	{
-		PHYSFS_writeSLE32(SaveFile, Num_vertices);					// 4 bytes = Num_vertices
+		PHYSFS_writeSLE32(SaveFile, LevelSharedVertexState.Num_vertices);					// 4 bytes = Num_vertices
 		PHYSFS_writeSLE32(SaveFile, LevelSharedSegmentState.Num_segments);					// 4 bytes = Num_segments
 	}
 
-	range_for (auto &i, partial_const_range(Vertices, Num_vertices))
+	range_for (auto &i, partial_const_range(Vertices, LevelSharedVertexState.Num_vertices))
 		PHYSFSX_writeVector(SaveFile, i);
 	
 	const auto Num_segments = LevelSharedSegmentState.Num_segments;

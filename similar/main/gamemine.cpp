@@ -777,8 +777,8 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 	#endif
 
-	Num_vertices = mine_fileinfo.vertex_howmany;
-	Vertices.set_count(Num_vertices);
+	LevelSharedVertexState.Num_vertices = mine_fileinfo.vertex_howmany;
+	Vertices.set_count(LevelSharedVertexState.Num_vertices);
 	LevelSharedSegmentState.Num_segments = mine_fileinfo.segment_howmany;
 	Segments.set_count(LevelSharedSegmentState.Num_segments);
 
@@ -788,7 +788,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 	Vertices.set_count(MAX_SEGMENT_VERTICES);
 	Segments.set_count(MAX_SEGMENTS);
 	set_vertex_counts();
-	Vertices.set_count(Num_vertices);
+	Vertices.set_count(LevelSharedVertexState.Num_vertices);
 	Segments.set_count(LevelSharedSegmentState.Num_segments);
 
 	warn_if_concave_segments();
@@ -881,10 +881,10 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 
 	DXX_POISON_VAR(Vertices, 0xfc);
 	if (New_file_format_load)
-		Num_vertices = PHYSFSX_readShort(LoadFile);
+		LevelSharedVertexState.Num_vertices = PHYSFSX_readShort(LoadFile);
 	else
-		Num_vertices = PHYSFSX_readInt(LoadFile);
-	Assert( Num_vertices <= MAX_VERTICES );
+		LevelSharedVertexState.Num_vertices = PHYSFSX_readInt(LoadFile);
+	assert(LevelSharedVertexState.Num_vertices <= MAX_VERTICES);
 
 	DXX_POISON_VAR(Segments, 0xfc);
 	if (New_file_format_load)
@@ -893,7 +893,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 		LevelSharedSegmentState.Num_segments = PHYSFSX_readInt(LoadFile);
 	assert(LevelSharedSegmentState.Num_segments <= MAX_SEGMENTS);
 
-	range_for (auto &i, partial_range(Vertices, Num_vertices))
+	range_for (auto &i, partial_range(Vertices, LevelSharedVertexState.Num_vertices))
 		PHYSFSX_readVector(LoadFile, i);
 
 	const auto Num_segments = LevelSharedSegmentState.Num_segments;
@@ -1004,7 +1004,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 		}
 	}
 
-	Vertices.set_count(Num_vertices);
+	Vertices.set_count(LevelSharedVertexState.Num_vertices);
 	Segments.set_count(Num_segments);
 
 	validate_segment_all(LevelSharedSegmentState);			// Fill in side type and normals.

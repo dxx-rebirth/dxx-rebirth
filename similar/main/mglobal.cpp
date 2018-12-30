@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 
 namespace dcx {
+d_level_shared_vertex_state LevelSharedVertexState;
 d_level_shared_segment_state LevelSharedSegmentState;
 d_level_unique_segment_state LevelUniqueSegmentState;
 // Global array of vertices, common to one mine.
@@ -62,7 +63,6 @@ int d_tick_step = 0;  // true once every 33.33ms
 
 //	Translate table to get opposite side of a face on a segment.
 
-unsigned Num_vertices;
 const array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite{{
 	WRIGHT, WBOTTOM, WLEFT, WTOP, WFRONT, WBACK
 }};

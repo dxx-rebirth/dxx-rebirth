@@ -297,6 +297,12 @@ DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(dl_index, dlindex, Dl_indices);
 namespace dcx {
 
 #ifdef dsx
+struct d_level_shared_vertex_state
+{
+	unsigned Num_vertices;
+};
+extern d_level_shared_vertex_state LevelSharedVertexState;
+
 struct d_level_shared_segment_state
 {
 	unsigned Num_segments;
