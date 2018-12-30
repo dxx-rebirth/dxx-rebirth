@@ -2609,21 +2609,24 @@ where the cast is useless.
 	(void)ts;
 	return 0;
 ''', msg='for struct timespec', successflags=_successflags)
-	__preferred_compiler_options = [
+	__preferred_compiler_options = (
 		'-fvisibility=hidden',
 		'-Wduplicated-branches',
 		'-Wduplicated-cond',
 		'-Wsuggest-attribute=noreturn',
 		'-Wlogical-op',
 		'-Wold-style-cast',
-	]
-	__preferred_win32_linker_options = [
+	)
+	__preferred_win32_linker_options = (
 		'-Wl,--large-address-aware',
 		'-Wl,--dynamicbase',
 		'-Wl,--nxcompat',
-	]
+	)
+	# No build directives can modify the process environment, so
+	# modifying this at class scope is safe.  Either every build will
+	# have $SOURCE_DATE_EPOCH set or every build will have it clear.
 	if os.getenv('SOURCE_DATE_EPOCH') is None:
-		__preferred_win32_linker_options += ['-Wl,--insert-timestamp']
+		__preferred_win32_linker_options += ('-Wl,--insert-timestamp',)
 	def __mangle_compiler_option_name(opt):
 		return 'check_compiler_option%s' % opt.replace('-', '_').replace('=', '_')
 	def __mangle_linker_option_name(opt):
