@@ -94,7 +94,6 @@ namespace dsx {
 d_level_shared_segment_state LevelSharedSegmentState;
 d_level_unique_object_state LevelUniqueObjectState;
 valptridx<object>::array_managed_type Objects;
-valptridx<trigger>::array_managed_type Triggers;
 d_level_unique_wall_subsystem_state LevelUniqueWallSubsystemState;
 }
 

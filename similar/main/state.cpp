@@ -1142,11 +1142,14 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 //Save trigger info
 	{
+		auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+	{
 		unsigned num_triggers = Triggers.get_count();
 		PHYSFS_write(fp, &num_triggers, sizeof(int), 1);
 	}
-	range_for (const auto vt, vctrgptr)
+	range_for (const auto vt, Triggers.vcptr)
 		trigger_write(fp, *vt);
+	}
 
 //Save tmap info
 	range_for (const auto &&segp, vcsegptr)
@@ -1737,9 +1740,12 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 #endif
 
 	//Restore trigger info
+	{
+		auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	Triggers.set_count(PHYSFSX_readSXE32(fp, swap));
-	range_for (const auto t, vmtrgptr)
+	range_for (const auto t, Triggers.vmptr)
 		trigger_read(fp, *t);
+	}
 
 	//Restore tmap info (to temp values so we can use compiled-in tmap info to compute static_light
 	range_for (const auto &&segp, vmsegptridx)

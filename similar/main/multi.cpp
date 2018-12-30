@@ -2266,6 +2266,7 @@ static void multi_do_trigger(const playernum_t pnum, const ubyte *buf)
 		Int3(); // Got trigger from illegal playernum
 		return;
 	}
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	if ((trigger < 0) || (trigger >= Triggers.get_count()))
 	{
 		Int3(); // Illegal trigger number in multiplayer
@@ -4591,6 +4592,8 @@ void multi_send_trigger_specific(const playernum_t pnum, const uint8_t trig)
 
 static void multi_do_start_trigger(const uint8_t *const buf)
 {
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+	auto &vmtrgptr = Triggers.vmptr;
 	vmtrgptr(static_cast<trgnum_t>(buf[1]))->flags |= TF_DISABLED;
 }
 #endif

@@ -1896,6 +1896,8 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 					auto trigger_num = vcwallptr(wall_num)->trigger;
 					if (trigger_num != trigger_none)
 					{
+						auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+						auto &vctrgptr = Triggers.vcptr;
 						const auto &&t = vctrgptr(trigger_num);
 						if (t->type == TT_EXIT)
 							obj->lifeleft = 0;

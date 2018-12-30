@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-wall.h"
 #include "fwd-object.h"
 #include "pack.h"
-#include "valptridx.h"
+#include "switch.h"
 
 namespace dcx {
 
@@ -207,6 +207,7 @@ struct d_level_unique_wall_state
 
 struct d_level_unique_wall_subsystem_state :
 	d_level_unique_active_door_state,
+	d_level_unique_trigger_state,
 	d_level_unique_wall_state
 #if defined(DXX_BUILD_DESCENT_II)
 	, d_level_unique_cloaking_wall_state

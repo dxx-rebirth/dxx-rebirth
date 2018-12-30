@@ -658,6 +658,8 @@ int wall_restore_all()
 			}
  		}
 
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+	auto &vmtrgptr = Triggers.vmptr;
 	range_for (const auto i, vmtrgptr)
 		i->flags |= TRIGGER_ON;
 	
@@ -715,6 +717,8 @@ int wall_remove_side(const vmsegptridx_t seg, short side)
 		}
 
 		// Destroy any links to the deleted wall.
+		auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+		auto &vmtrgptr = Triggers.vmptr;
 		range_for (const auto vt, vmtrgptr)
 		{
 			auto &t = *vt;
@@ -1027,6 +1031,7 @@ int check_walls()
 	};
 	unsigned trigger_count = std::count_if(used_walls.begin(), used_walls.end(), predicate);
 
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	if (trigger_count != Triggers.get_count()) {
 		if (ui_messagebox(-2, -2, 2, "Num_triggers is bogus\nDo you wish to correct it?\n", "Yes", "No") == 1)
 		{
@@ -1049,6 +1054,7 @@ int delete_all_walls()
 			range_for (auto &side, segp.sides)
 				side.wall_num = wall_none;
 		}
+		auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 		Walls.set_count(0);
 		Triggers.set_count(0);

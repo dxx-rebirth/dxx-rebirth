@@ -65,6 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Initializes all the switches.
 void trigger_init()
 {
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	Triggers.set_count(0);
 }
 #endif
@@ -311,6 +312,8 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 
 	if ((Game_mode & GM_MULTI) && vcplayerptr(pnum)->connected != CONNECT_PLAYING) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
 		return window_event_result::handled;
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+	auto &vmtrgptr = Triggers.vmptr;
 	auto &trigger = *vmtrgptr(trigger_num);
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -562,6 +565,8 @@ window_event_result check_trigger(const vcsegptridx_t seg, short side, object &p
 		}
 
 #if defined(DXX_BUILD_DESCENT_I)
+		auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+		auto &vmtrgptr = Triggers.vmptr;
 		auto &t = *vmtrgptr(trigger_num);
 		if (t.flags & TRIGGER_ONE_SHOT)
 		{

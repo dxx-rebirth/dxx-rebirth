@@ -371,6 +371,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	newsegment_offset = segment_offset + (sizeof(segment) * LevelSharedSegmentState.Num_segments);
 	newseg_verts_offset = newsegment_offset + sizeof(segment);
 	walls_offset = newseg_verts_offset + (sizeof(vms_vector)*8);
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	triggers_offset =	walls_offset + (sizeof(wall)*Walls.get_count());
 

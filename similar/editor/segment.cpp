@@ -501,6 +501,8 @@ static void compress_segments(void)
 					if (f.segnum == seg)
 						f.segnum = hole;
 
+				auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+				auto &vmtrgptr = Triggers.vmptr;
 				range_for (const auto vt, vmtrgptr)
 				{
 					auto &t = *vt;

@@ -5501,6 +5501,8 @@ static void net_udp_send_smash_lights (const playernum_t pnum)
 static void net_udp_send_fly_thru_triggers (const playernum_t pnum)
  {
   // send the fly thru triggers that have been disabled
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+	auto &vctrgptridx = Triggers.vcptridx;
 	range_for (const auto &&t, vctrgptridx)
 	{
 		if (t->flags & TF_DISABLED)

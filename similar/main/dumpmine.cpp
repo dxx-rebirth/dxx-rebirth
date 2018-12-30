@@ -213,6 +213,8 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 
 	//	---------- Find exit triggers ----------
 	count=0;
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+	auto &vctrgptridx = Triggers.vcptridx;
 	range_for (const auto &&t, vctrgptridx)
 	{
 		if (trigger_is_exit(t))
@@ -480,6 +482,8 @@ static void write_matcen_text(PHYSFS_File *my_file)
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Materialization centers:\n");
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+	auto &vctrgptridx = Triggers.vcptridx;
 	for (i=0; i<Num_robot_centers; i++) {
 		int	trigger_count=0, fuelcen_num;
 
@@ -522,6 +526,9 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Walls:\n");
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+#endif
 	range_for (auto &&wp, vcwallptridx)
 	{
 		auto &w = *wp;
@@ -594,6 +601,8 @@ static void write_trigger_text(PHYSFS_File *my_file)
 {
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Triggers:\n");
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+	auto &vctrgptridx = Triggers.vcptridx;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 	range_for (auto &&t, vctrgptridx)
@@ -657,7 +666,10 @@ void write_game_text_file(const char *filename)
 	PHYSFSX_printf(my_file, "Number of walls:      %4i\n", Walls.get_count());
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	PHYSFSX_printf(my_file, "Number of open doors: %4i\n", ActiveDoors.get_count());
+	{
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	PHYSFSX_printf(my_file, "Number of triggers:   %4i\n", Triggers.get_count());
+	}
 	PHYSFSX_printf(my_file, "Number of matcens:    %4i\n", Num_robot_centers);
 	PHYSFSX_printf(my_file, "\n");
 

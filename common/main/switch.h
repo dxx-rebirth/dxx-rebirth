@@ -163,8 +163,11 @@ struct trigger : public prohibit_void_ptr<trigger>
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, trigger, trgnum_t, MAX_TRIGGERS);
 namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(trigger, trg);
-DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(trigger, trg, Triggers);
 
+struct d_level_unique_trigger_state
+{
+	valptridx<trigger>::array_managed_type Triggers;
+};
 }
 
 constexpr std::integral_constant<uint8_t, 0xff> trigger_none{};

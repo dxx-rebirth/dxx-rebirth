@@ -1331,6 +1331,8 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			auto &w = *vcwallptr(wall_num);
 #if defined(DXX_BUILD_DESCENT_II)
 			auto trigger_num = w.trigger;
+			auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+			auto &vmtrgptr = Triggers.vmptr;
 			if (trigger_num != trigger_none && vmtrgptr(trigger_num)->type == TT_SECRET_EXIT)
 				{
 			    color = BM_XRGB( 29, 0, 31 );

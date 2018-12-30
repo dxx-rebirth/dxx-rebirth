@@ -282,9 +282,12 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 
 	//--------------- Num triggers ----------------------
 
+	{
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	if ( old_Num_triggers != Triggers.get_count() ) {
 		old_Num_triggers = Triggers.get_count();
 		gr_uprintf(canvas, *canvas.cv_font, 0, 112, "Num_triggers %2d", Triggers.get_count());
+	}
 	}
 
 	//--------------- Current texture number -------------

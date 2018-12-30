@@ -127,6 +127,7 @@ static int trigger_flag_Markedside(const TRIGGER_FLAG flag, const int value)
 	// If no wall just return
 	const auto wall_num = Markedsegp->shared_segment::sides[Markedside].wall_num;
 	if (!value && wall_num == wall_none) return 0;
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
@@ -138,6 +139,7 @@ static int trigger_flag_Markedside(const TRIGGER_FLAG flag, const int value)
 		return 0;
 	}
 
+	auto &vmtrgptr = Triggers.vmptr;
 	auto &flags = vmtrgptr(trigger_num)->flags;
  	if (value)
 		flags |= flag;
@@ -173,6 +175,8 @@ static int bind_matcen_to_trigger() {
 		return 0;
 	}
 
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+	auto &vmtrgptr = Triggers.vmptr;
 	const auto &&t = vmtrgptr(trigger_num);
 	const auto link_num = t->num_links;
 	for (int i=0;i<link_num;i++)
@@ -223,6 +227,8 @@ int bind_wall_to_trigger() {
 		return 0;
 	}
 
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+	auto &vmtrgptr = Triggers.vmptr;
 	const auto &&t = vmtrgptr(trigger_num);
 	const auto link_num = t->num_links;
 	for (int i=0;i<link_num;i++)
@@ -246,6 +252,7 @@ int remove_trigger_num(int trigger_num)
 {
 	if (trigger_num != trigger_none)
 	{
+		auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 		auto r = partial_range(Triggers, static_cast<unsigned>(trigger_num), Triggers.get_count());
 		Triggers.set_count(Triggers.get_count() - 1);
 		std::move(std::next(r.begin()), r.end(), r.begin());
@@ -290,6 +297,8 @@ static int trigger_remove()
 
 static int trigger_turn_all_ON()
 {
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+	auto &vmtrgptr = Triggers.vmptr;
 	range_for (const auto t, vmtrgptr)
 		t->flags &= TRIGGER_ON;
 	return 1;
@@ -403,6 +412,8 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	{
 		if (trigger_num != trigger_none)
 		{
+			auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+			auto &vctrgptr = Triggers.vcptr;
 			const auto &&trig = vctrgptr(trigger_num);
 
   			ui_checkbox_check(t->triggerFlag[0].get(), trig->flags & TRIGGER_CONTROL_DOORS);

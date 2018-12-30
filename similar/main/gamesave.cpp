@@ -863,6 +863,7 @@ static int load_game_data(
 	Walls.set_count(PHYSFSX_readInt(LoadFile));
 	PHYSFSX_fseek(LoadFile, 20, SEEK_CUR);
 
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	Triggers.set_count(PHYSFSX_readInt(LoadFile));
 	PHYSFSX_fseek(LoadFile, 24, SEEK_CUR);
 
@@ -983,6 +984,7 @@ static int load_game_data(
 
 	//==================== READ TRIGGER INFO ==========================
 
+	auto &vmtrgptr = Triggers.vmptr;
 	range_for (const auto vt, vmtrgptr)
 	{
 		auto &i = *vt;
@@ -1143,6 +1145,7 @@ static int load_game_data(
 			w->controlling_trigger = -1;
 #endif
 
+		auto &vctrgptridx = Triggers.vcptridx;
 		range_for (const auto &&t, vctrgptridx)
 		{
 			auto &tr = *t;
@@ -1620,6 +1623,7 @@ static int save_game_data(
 	WRITE_HEADER_ENTRY(wall, Walls.get_count());
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	WRITE_HEADER_ENTRY(active_door, ActiveDoors.get_count());
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	WRITE_HEADER_ENTRY(trigger, Triggers.get_count());
 	WRITE_HEADER_ENTRY(0, 0);		// links (removed by Parallax)
 	WRITE_HEADER_ENTRY(control_center_triggers, 1);
@@ -1673,6 +1677,7 @@ static int save_game_data(
 	//==================== SAVE TRIGGER INFO =============================
 
 	triggers_offset = PHYSFS_tell(SaveFile);
+	auto &vctrgptr = Triggers.vcptr;
 	range_for (const auto vt, vctrgptr)
 	{
 		auto &t = *vt;
