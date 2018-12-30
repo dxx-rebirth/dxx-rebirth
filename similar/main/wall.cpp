@@ -283,11 +283,10 @@ void wall_set_tmap_num(const wclip &anim, const vmsegptridx_t seg, const unsigne
 
 // -------------------------------------------------------------------------------
 //when the wall has used all its hitpoints, this will destroy it
-static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side)
+static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side, wall &w0)
 {
 	auto &sside = seg->shared_segment::sides[side];
 	const auto wall_num = sside.wall_num;
-	auto &w0 = *vmwallptr(wall_num);
 	w0.hps = -1;	//say it's blasted
 
 	const auto &&csegp = seg.absolute_sibling(seg->children[side]);
@@ -326,7 +325,7 @@ void wall_destroy(const vmsegptridx_t seg, const unsigned side)
 {
 	auto &w = *vmwallptr(seg->shared_segment::sides[side].wall_num);
 	if (w.type == WALL_BLASTABLE)
-		blast_blastable_wall( seg, side );
+		blast_blastable_wall(seg, side, w);
 	else
 		Error("Hey bub, you are trying to destroy an indestructable wall.");
 }
@@ -364,7 +363,7 @@ void wall_damage(const vmsegptridx_t seg, const unsigned side, fix damage)
 		const auto n = WallAnims[a].num_frames;
 		
 		if (w0.hps < WALL_HPS*1/n) {
-			blast_blastable_wall( seg, side );			
+			blast_blastable_wall(seg, side, w0);
 			if (Game_mode & GM_MULTI)
 				multi_send_door_open(seg, side, w0.flags);
 		}
