@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "fwd-object.h"
 #include "fwd-window.h"
+#include "morph.h"
 
 class object_signature_t;
 
@@ -68,8 +69,6 @@ extern int Newdemo_num_written;
 extern ubyte DemoDoRight,DemoDoLeft;
 extern struct object DemoRightExtra,DemoLeftExtra;
 #endif
-
-struct morph_data;
 
 // Functions called during recording process...
 #ifdef dsx

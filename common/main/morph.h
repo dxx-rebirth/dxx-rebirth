@@ -39,6 +39,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef dsx
 #include "object.h"
 
+namespace dsx {
+
 struct morph_data : prohibit_void_ptr<morph_data>
 {
 	object *obj;                                // object which is morphing
@@ -54,8 +56,14 @@ struct morph_data : prohibit_void_ptr<morph_data>
 		submodel_startpoints;    // first point for each submodel
 };
 
-constexpr std::integral_constant<unsigned, 5> MAX_MORPH_OBJECTS{};
-extern array<morph_data, MAX_MORPH_OBJECTS> morph_objects;
+struct d_level_unique_morph_object_state
+{
+	array<morph_data, 5> morph_objects;
+};
+
+extern d_level_unique_morph_object_state LevelUniqueMorphObjectState;
+
+}
 
 void morph_start(vmobjptr_t obj);
 void draw_morph_object(grs_canvas &, vmobjptridx_t obj);

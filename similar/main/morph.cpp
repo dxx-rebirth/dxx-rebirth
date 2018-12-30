@@ -45,11 +45,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::max;
 
-array<morph_data, MAX_MORPH_OBJECTS> morph_objects;
+namespace dsx {
+
+d_level_unique_morph_object_state LevelUniqueMorphObjectState;
+
+}
 
 //returns ptr to data for this object, or NULL if none
 morph_data *find_morph_data(object &obj)
 {
+	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
 		morph_objects[0].obj = &obj;
 		return &morph_objects[0];
@@ -268,6 +273,7 @@ constexpr vms_vector morph_rotvel{0x4000,0x2000,0x1000};
 
 void init_morphs()
 {
+	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	range_for (auto &i, morph_objects)
 		i.obj = nullptr;
 }
@@ -280,6 +286,7 @@ void morph_start(const vmobjptr_t obj)
 	vms_vector pmmin,pmmax;
 	vms_vector box_size;
 
+	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	const auto mob = morph_objects.begin();
 	const auto moe = morph_objects.end();
 	const auto mop = [](const morph_data &mo) {
