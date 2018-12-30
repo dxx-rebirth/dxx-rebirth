@@ -95,6 +95,7 @@ valptridx<managed_type>::array_managed_type::array_managed_type()
 namespace dsx {
 d_level_shared_segment_state LevelSharedSegmentState;
 d_level_unique_object_state LevelUniqueObjectState;
+d_level_shared_polygon_model_state LevelSharedPolygonModelState;
 valptridx<object>::array_managed_type Objects;
 d_level_unique_wall_subsystem_state LevelUniqueWallSubsystemState;
 }

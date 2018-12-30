@@ -114,6 +114,7 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 	med_extract_matrix_from_segment(segp, seg_matrix);
 
 	imobjptridx_t objnum = object_none;
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	switch (object_type)
 	{
 

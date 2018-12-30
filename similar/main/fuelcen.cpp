@@ -309,6 +309,7 @@ imobjptridx_t  create_morph_robot( const vmsegptridx_t segp, const vms_vector &o
 	default_behavior = Robot_info[object_id].behavior;
 #endif
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	auto obj = robot_create(object_id, segp, object_pos,
 				&vmd_identity_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 				default_behavior);

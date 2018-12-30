@@ -395,11 +395,7 @@ static void draw_polygon_object(grs_canvas &canvas, const vcobjptridx_t obj)
 #endif
 
 	if (obj->rtype.pobj_info.tmap_override != -1) {
-#ifndef NDEBUG
-		polymodel *pm = &Polygon_models[obj->rtype.pobj_info.model_num];
-#endif
 		array<bitmap_index, 12> bm_ptrs;
-		Assert(pm->n_textures<=12);
 
 		//fill whole array, in case simple model needs more
 		bm_ptrs.fill(Textures[obj->rtype.pobj_info.tmap_override]);
@@ -809,6 +805,7 @@ void init_player_object()
 	console->type = OBJ_PLAYER;
 	set_player_id(console, 0);					//no sub-types for player
 	console->signature = object_signature_t{0};			//player has zero, others start at 1
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	console->size = Polygon_models[Player_ship->model_num].rad;
 	console->control_type = CT_SLEW;			//default is player slewing
 	console->movement_type = MT_PHYSICS;		//change this sometime
@@ -2234,6 +2231,7 @@ static void obj_detach_all(object_array &Objects, object_base &parent)
 imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segnum, const vms_matrix &orient, int marker_num)
 {
 	Assert(Marker_model_num != -1);
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto &&obj = obj_create(OBJ_MARKER, marker_num, segnum, pos, &orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_SPINNING, RT_POLYOBJ);
 	if (obj != object_none) {
 		auto &o = *obj;

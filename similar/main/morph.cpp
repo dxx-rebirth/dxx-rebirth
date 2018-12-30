@@ -238,6 +238,7 @@ void do_morph_frame(object &obj)
 	}
 	assert(md->obj == &obj);
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	pm = &Polygon_models[obj.rtype.pobj_info.model_num];
 
 	for (uint_fast32_t i = 0; i != pm->n_models; ++i)
@@ -316,6 +317,7 @@ void morph_start(const vmobjptr_t obj)
 
 	obj->mtype.phys_info.rotvel = morph_rotvel;
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	pm = &Polygon_models[obj->rtype.pobj_info.model_num];
 
 	find_min_max(pm,0,pmmin,pmmax);
@@ -407,6 +409,7 @@ void draw_morph_object(grs_canvas &canvas, const vmobjptridx_t obj)
 	md = find_morph_data(obj);
 	Assert(md != NULL);
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	po=&Polygon_models[obj->rtype.pobj_info.model_num];
 
 	light = compute_object_light(obj);

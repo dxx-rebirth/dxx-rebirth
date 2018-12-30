@@ -298,6 +298,7 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 		return object_none;
 
 	if (Weapon_info[weapon_type].render_type == WEAPON_RENDER_POLYMODEL) {
+		auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 		obj->rtype.pobj_info.model_num = Weapon_info[get_weapon_id(obj)].model_num;
 		obj->size = fixdiv(Polygon_models[obj->rtype.pobj_info.model_num].rad,Weapon_info[get_weapon_id(obj)].po_len_to_width_ratio);
 	}
@@ -803,7 +804,10 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 		obj->mtype.phys_info.flags |= PF_BOUNCE;
 
 	if (weapon_info.render_type == WEAPON_RENDER_POLYMODEL)
+	{
+		auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 		laser_length = Polygon_models[obj->rtype.pobj_info.model_num].rad * 2;
+	}
 
 	if (weapon_type == weapon_id_type::FLARE_ID)
 		obj->mtype.phys_info.flags |= PF_STICK;		//this obj sticks to walls

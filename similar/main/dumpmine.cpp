@@ -819,7 +819,7 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 		load_level(LevelSharedDestructibleLightState, Adam_level_names[level_num]);
 	}
 
-
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	//	Process robots.
 	range_for (const auto &&objp, vcobjptr)
 	{

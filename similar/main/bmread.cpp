@@ -1582,6 +1582,7 @@ void bm_read_robot(int skip)
 
 	first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	for (i=0;i<n_models;i++) {
 		int n_textures;
 		int model_num,last_model_num=0;
@@ -1973,6 +1974,7 @@ void bm_read_player_ship(void)
 
 	Assert(last_multi_bitmap_num-First_multi_bitmap_num == (MAX_PLAYERS-1)*2);
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	for (i=0;i<n_models;i++) {
 		int n_textures;
 		int model_num,last_model_num=0;
@@ -2396,6 +2398,7 @@ void bm_read_weapon(int skip, int unused_flag)
 
 	first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	for (i=0;i<n_models;i++) {
 		int n_textures;
 		int model_num,last_model_num=0;

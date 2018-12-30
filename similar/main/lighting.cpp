@@ -400,6 +400,7 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vmobjpt
 				break; // no object - no light
 			case RT_POLYOBJ:
 			{
+				auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 				polymodel *po = &Polygon_models[obj->rtype.pobj_info.model_num];
 				if (po->n_textures <= 0)
 				{

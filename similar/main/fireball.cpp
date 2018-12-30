@@ -375,6 +375,7 @@ static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &p
 {
 	Assert(parent.type == OBJ_ROBOT || parent.type == OBJ_PLAYER);
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto &&obj = obj_create(OBJ_DEBRIS, 0, vmsegptridx(parent.segnum), parent.pos, &parent.orient, Polygon_models[parent.rtype.pobj_info.model_num].submodel_rads[subobj_num],
 				CT_DEBRIS,MT_PHYSICS,RT_POLYOBJ);
 
@@ -936,6 +937,7 @@ static imobjptridx_t drop_robot_egg(const int type, const int id, const unsigned
 	}
 	imobjptridx_t	objnum = object_none;
 	unsigned count;
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 
 			for (count=0; count<num; count++) {
 				int	rand_scale;
@@ -1093,6 +1095,7 @@ static void explode_model(object_base &obj)
 	const auto model_num = (dying_model_num != -1)
 		? (obj.rtype.pobj_info.model_num = dying_model_num)
 		: poly_model_num;
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto n_models = Polygon_models[model_num].n_models;
 	if (n_models > 1) {
 		for (unsigned i = 1; i < n_models; ++i)

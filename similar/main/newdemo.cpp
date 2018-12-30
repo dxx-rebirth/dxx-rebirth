@@ -600,6 +600,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 
 	obj->attached_obj = object_none;
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	switch(obj->type) {
 
 	case OBJ_HOSTAGE:
@@ -924,6 +925,7 @@ static void nd_write_object(const vcobjptr_t obj)
 
 	}
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	switch (obj->render_type) {
 
 	case RT_NONE:
@@ -2002,6 +2004,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 	prev_obj = NULL;
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &vcwallptr = Walls.vcptr;

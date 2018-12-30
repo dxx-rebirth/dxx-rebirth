@@ -101,8 +101,17 @@ void init_polygon_models();
 }
 #ifdef dsx
 namespace dsx {
+
+/* Individual levels can customize the polygon models through robot overrides,
+ * so this must be scoped to the level, not to the mission.
+ */
+struct d_level_shared_polygon_model_state
+{
+	array<polymodel, MAX_POLYGON_MODELS> Polygon_models;
+};
+
 // array of pointers to polygon objects
-extern array<polymodel, MAX_POLYGON_MODELS> Polygon_models;
+extern d_level_shared_polygon_model_state LevelSharedPolygonModelState;
 
 void free_polygon_models();
 

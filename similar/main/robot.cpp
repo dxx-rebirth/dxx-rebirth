@@ -66,6 +66,7 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 	Assert(get_robot_id(obj) < N_robot_types);
 
 	const auto &r = Robot_info[get_robot_id(obj)];
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto &pm = Polygon_models[r.model_num];
 
 	if (gun_num >= r.n_guns)

@@ -121,6 +121,7 @@ static void paging_touch_object_effects( int tmap_num )
 
 static void paging_touch_model( int modelnum )
 {
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto &pm = Polygon_models[modelnum];
 	const uint_fast32_t b = pm.first_texture;
 	const uint_fast32_t e = b + pm.n_textures;

@@ -786,6 +786,7 @@ static int do_silly_animation(object &objp)
 		flinch_attack_scale = Flinch_scale;
 
 	at_goal = 1;
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	for (gun_num=0; gun_num <= num_guns; gun_num++) {
 		const auto &&ras = robot_get_anim_state(Robot_info, Robot_joints, robot_type, gun_num, robot_state);
 
@@ -837,6 +838,7 @@ static void ai_frame_animation(object &objp)
 {
 	int	joint;
 	auto &pobj_info = objp.rtype.pobj_info;
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto num_joints = Polygon_models[pobj_info.model_num].n_models;
 	const auto &ail = objp.ctype.ai_info.ail;
 	for (joint=1; joint<num_joints; joint++) {
@@ -1914,6 +1916,7 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 
 	//	See if legal to place object here.  If not, move about in segment and try again.
 	auto &robptr = Robot_info[object_id];
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const fix objsize = Polygon_models[robptr.model_num].rad;
 	if (check_object_object_intersection(object_pos, objsize, segp)) {
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;

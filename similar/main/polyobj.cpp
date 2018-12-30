@@ -57,9 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 unsigned N_polygon_models = 0;
 }
-namespace dsx {
-array<polymodel, MAX_POLYGON_MODELS> Polygon_models;	// = {&bot11,&bot17,&robot_s2,&robot_b2,&bot11,&bot17,&robot_s2,&robot_b2};
-}
 
 #define PM_COMPATIBLE_VERSION 6
 #define PM_OBJFILE_VERSION 8
@@ -507,6 +504,7 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_mat
 	polymodel *po;
 	Assert(model_num < N_polygon_models);
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	po=&Polygon_models[model_num];
 
 	//check if should use simple model
@@ -572,6 +570,7 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_mat
 
 void free_polygon_models()
 {
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	range_for (auto &i, partial_range(Polygon_models, N_polygon_models))
 		free_model(i);
 }
@@ -657,6 +656,7 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 	const auto n_models = N_polygon_models;
 	strcpy(Pof_names[n_models], filename);
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	auto &model = Polygon_models[n_models];
 	read_model_file(&model, filename, r);
 
@@ -710,6 +710,7 @@ void draw_model_picture(grs_canvas &canvas, const uint_fast32_t mn, const vms_an
 	vms_vector temp_pos{};
 	g3_set_view_matrix(temp_pos,vmd_identity_matrix,0x9000);
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	if (Polygon_models[mn].rad != 0)
 		temp_pos.z = fixmuldiv(DEFAULT_VIEW_DIST,Polygon_models[mn].rad,BASE_MODEL_SIZE);
 	else

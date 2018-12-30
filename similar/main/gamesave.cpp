@@ -193,6 +193,7 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 {
 	obj.lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	if (obj.type == OBJ_ROBOT)
 	{
 		Gamesave_num_org_robots++;

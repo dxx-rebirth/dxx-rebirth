@@ -363,6 +363,7 @@ static void ogl_texwrap(ogl_texture *const gltexture, const int state)
 
 void ogl_cache_polymodel_textures(const unsigned model_num)
 {
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	if (model_num >= Polygon_models.size())
 		return;
 	const auto &po = Polygon_models[model_num];

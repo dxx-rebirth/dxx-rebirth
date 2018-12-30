@@ -202,6 +202,7 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 	range_for (auto &p, Powerup_info)
 		powerup_type_info_read(fp, p);
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	N_polygon_models = PHYSFSX_readInt(fp);
 	{
 		const auto &&r = partial_range(Polygon_models, N_polygon_models);
@@ -333,6 +334,7 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 	range_for (auto &p, partial_range(Powerup_info, N_powerup_types))
 		powerup_type_info_read(fp, p);
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	N_polygon_models = PHYSFSX_readInt(fp);
 	{
 		const auto &&r = partial_range(Polygon_models, N_polygon_models);
@@ -408,6 +410,7 @@ static void bm_free_extra_objbitmaps()
 static void bm_free_extra_models()
 {
 	const auto base = std::min(N_D2_POLYGON_MODELS.value, exit_modelnum);
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	range_for (auto &p, partial_range(Polygon_models, base, exchange(N_polygon_models, base)))
 		free_model(p);
 }
@@ -463,6 +466,7 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 		jointpos_read(fp, r);
 
 	unsigned u = PHYSFSX_readInt(fp);
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	N_polygon_models = N_D2_POLYGON_MODELS+u;
 	if (N_polygon_models >= MAX_POLYGON_MODELS)
 		Error("Too many polygon models (%d) in <%s>.  Max is %d.",u,fname,MAX_POLYGON_MODELS-N_D2_POLYGON_MODELS);
@@ -529,6 +533,7 @@ void load_robot_replacements(const d_fname &level_name)
 		jointpos_read(fp, Robot_joints[i]);
 	}
 
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	t = PHYSFSX_readInt(fp);			//read number of polygon models
 	for (j=0;j<t;j++)
 	{
@@ -643,6 +648,7 @@ int load_exit_models()
 		con_puts(CON_NORMAL, "Can't load exit models!");
 		return 0;
 	}
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	if (auto exit_hamfile = PHYSFSX_openReadBuffered("exit.ham"))
 	{
 		exit_modelnum = N_polygon_models++;

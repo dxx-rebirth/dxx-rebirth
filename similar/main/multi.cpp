@@ -2418,6 +2418,7 @@ static void multi_reset_object_texture(object_base &objp)
 	pobj_info.alt_textures = id;
 	if (id)
 	{
+		auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 		auto &model = Polygon_models[pobj_info.model_num];
 		const unsigned n_textures = model.n_textures;
 		if (N_PLAYER_SHIP_TEXTURES < n_textures)
