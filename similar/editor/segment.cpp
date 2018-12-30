@@ -121,6 +121,7 @@ int med_add_vertex(const vertex &vp)
 	count = 0;
 	unsigned free_index = UINT32_MAX;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	for (unsigned v = 0; v < MAX_SEGMENT_VERTICES && count < Num_vertices; ++v)
 		if (Vertex_active[v]) {
 			count++;
@@ -196,6 +197,7 @@ int med_create_duplicate_vertex(const vertex &vp)
 
 	unsigned free_index = Num_vertices;
 
+	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	while (Vertex_active[free_index] && (free_index < MAX_VERTICES))
 		free_index++;
 
@@ -222,6 +224,7 @@ int med_set_vertex(const unsigned vnum, const vertex &vp)
 	*Vertices.vmptr(vnum) = vp;
 
 	// Just in case this vertex wasn't active, mark it as active.
+	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	if (!Vertex_active[vnum]) {
 		Vertex_active[vnum] = 1;
 		++LevelSharedVertexState.Num_vertices;
@@ -430,6 +433,7 @@ static void compress_vertices(void)
 
 	auto &vcvertptr = Vertices.vcptr;
 	auto &vmvertptr = Vertices.vmptr;
+	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	for (unsigned hole = 0; hole < vert; ++hole)
 		if (!Vertex_active[hole]) {
 			// found an unused vertex which is a hole if a used vertex follows (not necessarily immediately) it.
@@ -574,6 +578,7 @@ void med_combine_duplicate_vertices(array<uint8_t, MAX_VERTICES> &vlp)
 void med_compress_mine(void)
 {
 	if (Do_duplicate_vertex_check) {
+		auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 		med_combine_duplicate_vertices(Vertex_active);
 		Do_duplicate_vertex_check = 0;
 	}
@@ -749,6 +754,7 @@ int med_attach_segment(const vmsegptridx_t destseg, const vmsegptr_t newseg, int
 static void delete_vertex(const unsigned v)
 {
 	Assert(v < MAX_VERTICES);			// abort if vertex is not in array Vertices
+	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	Assert(Vertex_active[v] >= 1);	// abort if trying to delete a non-existent vertex
 
 	Vertex_active[v]--;
@@ -763,6 +769,7 @@ static void update_num_vertices(void)
 	// Now count the number of vertices.
 	unsigned n = 0;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	range_for (const auto v, partial_range(Vertex_active, Vertices.get_count()))
 		if (v)
 			++n;
@@ -778,6 +785,7 @@ void set_vertex_counts(void)
 {
 	unsigned Num_vertices = 0;
 
+	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	Vertex_active = {};
 
 	// Count number of occurrences of each vertex.
@@ -1351,6 +1359,7 @@ void med_create_new_segment_from_cursegp(void)
 //	Initialize all vertices to inactive status.
 void init_all_vertices(void)
 {
+	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	Vertex_active = {};
 	range_for (auto &s, Segments)
 		s.segnum = segment_none;

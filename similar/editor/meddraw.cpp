@@ -682,6 +682,7 @@ static int alloc_vert()
 	const auto Num_vertices = LevelSharedVertexState.Num_vertices;
 	assert(Num_vertices < MAX_SEGMENT_VERTICES);
 
+	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	for (vn=0; (vn < Num_vertices) && Vertex_active[vn]; vn++) ;
 
 	Vertex_active[vn] = 1;
@@ -694,6 +695,7 @@ static int alloc_vert()
 //frees a vertex
 static void free_vert(int vert_num)
 {
+	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	Vertex_active[vert_num] = 0;
 	--LevelSharedVertexState.Num_vertices;
 }

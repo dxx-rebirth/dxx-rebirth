@@ -42,8 +42,6 @@ int Markedside;          // Marked side on Markedsegp.
 
 int Draw_all_segments;   // Set to 1 means draw_world draws all segments in Segments, else draw only connected segments
 
-array<uint8_t, MAX_VERTICES> Vertex_active; // !0 means vertex is in use, 0 means not in use.
-
 selected_segment_array_t Selected_segs; // List of segment numbers currently selected
 
 warning_segment_array_t Warning_segs; // List of segment numbers currently selected

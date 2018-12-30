@@ -170,6 +170,7 @@ int CreateAdjacentJointsSegment()
 {
 	int		adj_side;
 
+	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	med_combine_duplicate_vertices(Vertex_active);
 
 	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
@@ -195,6 +196,7 @@ int CreateAdjacentJointsAll()
 {
 	int		adj_side;
 
+	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	med_combine_duplicate_vertices(Vertex_active);
 
 	range_for (const auto &&segp, vmsegptridx)

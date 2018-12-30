@@ -299,6 +299,9 @@ struct d_level_shared_vertex_state
 	unsigned Num_vertices;
 private:
 	vertex_array Vertices;
+#if DXX_USE_EDITOR
+	array<uint8_t, MAX_VERTICES> Vertex_active; // !0 means vertex is in use, 0 means not in use.
+#endif
 public:
 	auto &get_vertices()
 	{
@@ -308,6 +311,16 @@ public:
 	{
 		return Vertices;
 	}
+#if DXX_USE_EDITOR
+	auto &get_vertex_active()
+	{
+		return Vertex_active;
+	}
+	const auto &get_vertex_active() const
+	{
+		return Vertex_active;
+	}
+#endif
 };
 extern d_level_shared_vertex_state LevelSharedVertexState;
 
