@@ -107,8 +107,9 @@ static void do_close_door(const trigger &t)
 //would not be if they had previously been shot out).
 static int do_light_on(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, d_flickering_light_state &Flickering_light_state, const trigger &t)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	int ret=0;
-	const auto op = [&LevelSharedDestructibleLightState, &Flickering_light_state, &ret](const vmsegptridx_t segnum, const unsigned sidenum) {
+	const auto op = [&LevelSharedDestructibleLightState, &Flickering_light_state, &TmapInfo, &ret](const vmsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light on.  This
 			//is to keep us from turning on blown-out lights
 			if (TmapInfo[segnum->unique_segment::sides[sidenum].tmap_num2 & 0x3fff].lighting) {
@@ -124,8 +125,9 @@ static int do_light_on(const d_level_shared_destructible_light_state &LevelShare
 //would not be if they had previously been shot out).
 static int do_light_off(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, d_flickering_light_state &Flickering_light_state, const trigger &t)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	int ret=0;
-	const auto op = [&LevelSharedDestructibleLightState, &Flickering_light_state, &ret](const vmsegptridx_t segnum, const unsigned sidenum) {
+	const auto op = [&LevelSharedDestructibleLightState, &Flickering_light_state, &TmapInfo, &ret](const vmsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light off.  This
 			//is to keep us from turning off blown-out lights
 			if (TmapInfo[segnum->unique_segment::sides[sidenum].tmap_num2 & 0x3fff].lighting) {
@@ -169,6 +171,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 {
 	int ret=0;
 
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
 	for (unsigned i = 0; i < t.num_links; ++i)

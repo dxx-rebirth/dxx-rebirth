@@ -1669,6 +1669,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 //this code is copied from the editor routine calim_process_all_lights()
 static void change_segment_light(const vmsegptridx_t segp,int sidenum,int dir)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 	if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) & WID_RENDER_FLAG)
@@ -1821,6 +1822,7 @@ static void ambient_mark_bfs(const vmsegptridx_t segp, segment_lava_depth_array 
 //	and so should hear ambient gurgles.
 void set_ambient_sound_flags()
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	range_for (const auto &&segp, vmsegptr)
 		segp->s2_flags = 0;
 	//	Now, all segments containing ambient lava or water sound makers are flagged.

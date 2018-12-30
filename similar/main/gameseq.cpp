@@ -740,6 +740,7 @@ namespace dsx {
 
 static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	int sidenum;
 
 	digi_init_sounds();		//clear old sounds
@@ -749,7 +750,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 	Dont_start_sound_objects = 1;
 #endif
 
-	const auto get_eclip_for_tmap = [](const TmapInfo_array &TmapInfo, const unique_side &side) {
+	const auto get_eclip_for_tmap = [](const d_level_unique_tmap_info_state::TmapInfo_array &TmapInfo, const unique_side &side) {
 		if (const auto tm2 = side.tmap_num2)
 		{
 			const auto ec = TmapInfo[tm2 & 0x3fff].eclip_num;

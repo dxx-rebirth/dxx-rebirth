@@ -94,7 +94,6 @@ namespace dsx {
 Textures_array Textures;		// All textures.
 //for each model, a model number for dying & dead variants, or -1 if none
 array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
-TmapInfo_array TmapInfo;
 array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
 }
 
@@ -165,6 +164,7 @@ namespace dsx {
 // Read compiled properties data from descent.pig
 void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	//  bitmap_index is a short
 	
 	NumTextures = PHYSFSX_readInt(fp);
@@ -297,6 +297,7 @@ namespace dsx {
 
 void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	unsigned t;
 
 	NumTextures = PHYSFSX_readInt(fp);

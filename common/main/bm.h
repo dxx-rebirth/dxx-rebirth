@@ -103,8 +103,17 @@ extern array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
 using tmap_xlate_table_array = array<short, MAX_TEXTURES>;
 extern tmap_xlate_table_array tmap_xlate_table;
 #endif
-using TmapInfo_array = array<tmap_info, MAX_TEXTURES>;
-extern TmapInfo_array TmapInfo;
+
+/* This is level-unique because hoard mode assumes it can overwrite a
+ * texture.
+ */
+struct d_level_unique_tmap_info_state
+{
+	using TmapInfo_array = array<tmap_info, MAX_TEXTURES>;
+	TmapInfo_array TmapInfo;
+};
+
+extern d_level_unique_tmap_info_state LevelUniqueTmapInfoState;
 // Initializes the palette, bitmap system...
 void gamedata_close();
 }

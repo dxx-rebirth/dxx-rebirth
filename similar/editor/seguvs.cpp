@@ -1129,6 +1129,7 @@ static void calim_process_all_lights(int quick_light)
 {
 	int	sidenum;
 
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 	range_for (const auto &&segp, vmsegptridx)

@@ -100,6 +100,7 @@ d_level_shared_polygon_model_state LevelSharedPolygonModelState;
 d_level_shared_robot_info_state LevelSharedRobotInfoState;
 valptridx<object>::array_managed_type Objects;
 d_level_unique_wall_subsystem_state LevelUniqueWallSubsystemState;
+d_level_unique_tmap_info_state LevelUniqueTmapInfoState;
 }
 
 /*

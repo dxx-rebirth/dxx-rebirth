@@ -320,6 +320,9 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 	int bounced=0;
 	bool Player_ScrapeFrame=false;
 	auto result = window_event_result::handled;
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
+#endif
 
 	Assert(obj->movement_type == MT_PHYSICS);
 

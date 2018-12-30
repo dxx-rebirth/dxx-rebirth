@@ -396,6 +396,7 @@ struct me mine_editor;
 namespace dsx {
 int load_mine_data(PHYSFS_File *LoadFile)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	char old_tmap_list[MAX_TEXTURES][FILENAME_LEN];
 	int 	translate;
 	char 	*temptr;

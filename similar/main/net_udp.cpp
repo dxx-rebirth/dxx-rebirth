@@ -1815,6 +1815,7 @@ static void net_udp_send_door_updates(const playernum_t pnum)
 
 static void net_udp_process_monitor_vector(uint32_t vector)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	if (!vector)
 		return;
 	range_for (unique_segment &seg, vmsegptr)
@@ -1874,6 +1875,7 @@ public:
 
 static unsigned net_udp_create_monitor_vector(void)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	blown_bitmap_array blown_bitmaps;
 	constexpr size_t max_textures = Textures.size();
 	range_for (auto &i, partial_const_range(Effects, Num_effects))

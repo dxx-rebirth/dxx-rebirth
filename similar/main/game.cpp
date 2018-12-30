@@ -1911,6 +1911,7 @@ window_event_result GameProcessFrame()
 #if defined(DXX_BUILD_DESCENT_II)
 void compute_slide_segs()
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	range_for (const auto &&segp, vmsegptr)
 	{
 		uint8_t slide_textures = 0;
@@ -1949,6 +1950,7 @@ static void update_uv(array<uvl, 4> &uvls, uvl &i, fix a)
 //	-----------------------------------------------------------------------------
 static void slide_textures(void)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	range_for (const auto &&segp, vmsegptr)
 	{
 		if (const auto slide_seg = segp->slide_textures)
@@ -1982,6 +1984,7 @@ constexpr std::integral_constant<fix, INT32_MIN> flicker_timer_disabled{};
 
 static void flicker_lights(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, d_flickering_light_state &fls, fvmsegptridx &vmsegptridx)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 	range_for (auto &f, partial_range(fls.Flickering_lights, fls.Num_flickering_lights))

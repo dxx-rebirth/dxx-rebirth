@@ -56,8 +56,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static int save_mine_data(PHYSFS_File * SaveFile);
 
-static array<d_fname, MAX_TEXTURES> current_tmap_list;
-
 int	New_file_format_save = 1;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -358,6 +356,8 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	med_compress_mine();
 	warn_if_concave_segments();
 	
+	array<d_fname, MAX_TEXTURES> current_tmap_list;
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	for (int i=0;i<NumTextures;i++)
 		current_tmap_list[i] = TmapInfo[i].filename;
 

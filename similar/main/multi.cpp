@@ -103,7 +103,7 @@ static void multi_send_heartbeat();
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 static std::size_t find_goal_texture(ubyte t);
-static tmap_info &find_required_goal_texture(ubyte t);
+static const tmap_info &find_required_goal_texture(uint8_t t);
 static void multi_do_capture_bonus(const playernum_t pnum);
 static void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf);
 static void multi_send_drop_flag(vmobjptridx_t objnum,int seed);
@@ -3477,6 +3477,7 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 static void apply_segment_goal_texture(unique_segment &seg, const std::size_t tex)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	seg.static_light = i2f(100);	//make static light bright
 	if (tex < TmapInfo.size())
 		range_for (auto &s, seg.sides)
@@ -3517,12 +3518,14 @@ void multi_apply_goal_textures()
 
 std::size_t find_goal_texture (ubyte t)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	const auto &&r = partial_const_range(TmapInfo, NumTextures);
 	return std::distance(r.begin(), std::find_if(r.begin(), r.end(), [t](const tmap_info &i) { return (i.flags & t); }));
 }
 
-tmap_info &find_required_goal_texture(ubyte t)
+const tmap_info &find_required_goal_texture(const uint8_t t)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	std::size_t r = find_goal_texture(t);
 	if (r < TmapInfo.size())
 		return TmapInfo[r];
@@ -5423,6 +5426,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 	uint8_t *bitmap_data1;
 	int save_pos;
 	int bitmap_num = hoard_resources.bm_idx = Num_bitmap_files;
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 
 	auto ifile = PHYSFSX_openReadBuffered("hoard.ham");
 	if (!ifile)

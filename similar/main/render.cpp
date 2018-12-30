@@ -222,6 +222,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
 static void render_face(grs_canvas &canvas, const shared_segment &segp, const unsigned sidenum, const unsigned nv, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	grs_bitmap  *bm;
 
 	array<cg3s_point *, 4> pointlist;
@@ -1415,6 +1416,7 @@ done_list:
 //renders onto current canvas
 void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegidx_t start_seg_num, const fix eye_offset, window_rendered_data &window)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	using std::advance;
 	render_state_t rstate;
 	#ifndef NDEBUG

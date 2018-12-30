@@ -338,6 +338,7 @@ void bump_one_object(object_base &obj0, const vms_vector &hit_dir, fix damage)
 namespace dsx {
 static void collide_player_and_wall(const vmobjptridx_t playerobj, fix hitspeed, const vmsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	fix damage;
 
 	if (get_player_id(playerobj) != Player_num) // Execute only for local player
@@ -439,6 +440,7 @@ volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const unique_s
 {
 	Assert(obj->type==OBJ_PLAYER);
 
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	const auto &ti = TmapInfo[side.tmap_num];
 	const fix d = ti.damage;
 	if (d > 0
@@ -544,6 +546,7 @@ static int effect_parent_is_guidebot(fvcobjptr &vcobjptr, const laser_parent &la
 //returns true if it blew up
 int check_effect_blowup(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, const vmsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	int tm;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -716,6 +719,7 @@ static window_event_result collide_weapon_and_wall(
 #endif
 	object_array &Objects, fvmsegptridx &vmsegptridx, const vmobjptridx_t weapon, const vmsegptridx_t hitseg, const unsigned hitwall, const vms_vector &hitpt)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &imobjptridx = Objects.imptridx;
 	auto &vcobjptr = Objects.vcptr;
 	int blew_up;
@@ -992,9 +996,9 @@ static window_event_result collide_weapon_and_wall(
 
 static void collide_debris_and_wall(const vmobjptridx_t debris, const unique_segment &hitseg, const unsigned hitwall, const vms_vector &)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	if (!PERSISTENT_DEBRIS || TmapInfo[hitseg.sides[hitwall].tmap_num].damage)
 		explode_object(debris,0);
-	return;
 }
 
 //	-------------------------------------------------------------------------------------------------------------------

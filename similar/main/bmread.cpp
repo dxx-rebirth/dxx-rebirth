@@ -413,6 +413,7 @@ static int get_int()
 //loads a texture and returns the texture num
 static int get_texture(char *name)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	char short_name[FILENAME_LEN];
 	int i;
 
@@ -445,6 +446,7 @@ namespace dsx {
 // If no editor, properties_read_cmp() is called.
 int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	int	have_bin_tbl;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -837,6 +839,7 @@ static void set_lighting_flag(grs_bitmap &bmp)
 
 static void set_texture_name(const char *name)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	TmapInfo[texture_count].filename.copy_if(name, FILENAME_LEN);
 	REMOVE_DOTS(&TmapInfo[texture_count].filename[0u]);
 }
@@ -847,6 +850,7 @@ static void bm_read_eclip(const std::string &dest_bm, const char *const arg, int
 static void bm_read_eclip(int skip)
 #endif
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	bitmap_index bitmap;
 
 	assert(clip_num < Effects.size());
@@ -1057,6 +1061,7 @@ static void bm_read_gauges_hires()
 static void bm_read_wclip(int skip)
 #endif
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	bitmap_index bitmap;
 	Assert(clip_num < MAX_WALL_ANIMS);
 

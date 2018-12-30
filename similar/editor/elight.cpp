@@ -139,6 +139,7 @@ static void propagate_light_intensity(const vmsegptr_t segp, int sidenum)
 
 	intensity = 0;
 	auto &us = segp->unique_segment::sides[sidenum];
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	texmap = us.tmap_num;
 	intensity += TmapInfo[texmap].lighting;
 	texmap = us.tmap_num2 & 0x3fff;

@@ -198,6 +198,7 @@ static void info_display_segsize(grs_canvas &canvas, int show_all)
 //	---------------------------------------------------------------------------------------------------
 static void info_display_default(grs_canvas &canvas, int show_all)
 {
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	static int old_Num_segments = -1;
 	static int old_Num_vertices = -1;
 	static int old_Num_objects = -1;
