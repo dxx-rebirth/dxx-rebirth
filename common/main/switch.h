@@ -155,9 +155,6 @@ struct trigger : public prohibit_void_ptr<trigger>
 	uint8_t   num_links;  //how many doors, etc. linked to this
 #endif
 	fix     value;
-#if defined(DXX_BUILD_DESCENT_I)
-	int8_t		link_num;
-#endif
 	array<segnum_t, MAX_WALLS_PER_LINK>   seg;
 	array<short, MAX_WALLS_PER_LINK>   side;
 };

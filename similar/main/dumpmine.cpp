@@ -600,8 +600,7 @@ static void write_trigger_text(PHYSFS_File *my_file)
 	{
 		const auto i = static_cast<trgnum_t>(t);
 #if defined(DXX_BUILD_DESCENT_I)
-		PHYSFSX_printf(my_file, "Trigger %03i: flags=%04x, value=%08x, time=%8x, linknum=%i, num_links=%i ", i, 
-                        t->flags, static_cast<unsigned>(t->value), 0, t->link_num, t->num_links);
+		PHYSFSX_printf(my_file, "Trigger %03i: flags=%04x, value=%08x, time=%8x, num_links=%i ", i, t->flags, static_cast<unsigned>(t->value), 0, t->num_links);
 #elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_printf(my_file, "Trigger %03i: type=%02x flags=%04x, value=%08x, time=%8x, num_links=%i ", i,
 			t->type, t->flags, t->value, 0, t->num_links);

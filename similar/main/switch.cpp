@@ -642,7 +642,7 @@ extern void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp)
 	t->flags = PHYSFSX_readShort(fp);
 	t->value = PHYSFSX_readFix(fp);
 	PHYSFSX_readFix(fp);
-	t->link_num = PHYSFSX_readByte(fp);
+	PHYSFSX_readByte(fp);
 	t->num_links = PHYSFSX_readShort(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->seg[i] = PHYSFSX_readShort(fp);
@@ -752,7 +752,7 @@ void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t)
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I)
-DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (serial::pad<1>(), t.flags, t.value, serial::pad<4>(), t.link_num, t.num_links, t.seg, t.side));
+DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (serial::pad<1>(), t.flags, t.value, serial::pad<5>(), t.num_links, t.seg, t.side));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 54);
 #elif defined(DXX_BUILD_DESCENT_II)
 DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (t.type, t.flags, t.num_links, serial::pad<1>(), t.value, serial::pad<4>(), t.seg, t.side));
@@ -833,11 +833,7 @@ void v29_trigger_write(PHYSFS_File *fp, const trigger &rt)
 	PHYSFSX_writeFix(fp, t->value);
 	PHYSFSX_writeFix(fp, 0);
 
-#if defined(DXX_BUILD_DESCENT_I)
-	PHYSFSX_writeU8(fp, t->link_num);
-#elif defined(DXX_BUILD_DESCENT_II)
 	PHYSFSX_writeU8(fp, -1);	//t->link_num
-#endif
 	PHYSFS_writeSLE16(fp, t->num_links);
 
 	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
