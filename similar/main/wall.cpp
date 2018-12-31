@@ -115,6 +115,10 @@ struct cw_removal_predicate
 	wall_array &Walls;
 	unsigned num_cloaking_walls = 0;
 	bool operator()(cloaking_wall &d);
+	cw_removal_predicate(fvmsegptr &v, wall_array &w) :
+		vmsegptr(v), Walls(w)
+	{
+	}
 };
 
 struct find_cloaked_wall_predicate
