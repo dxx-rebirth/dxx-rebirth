@@ -70,11 +70,11 @@ void trigger_init()
 }
 #endif
 
-template <typename T1, typename T2>
-static inline void trigger_wall_op(const trigger &t, T1 &segment_factory, const T2 &op)
+template <typename SF, typename O, typename... Oa>
+static inline void trigger_wall_op(const trigger &t, SF &segment_factory, const O &op, Oa &&... oargs)
 {
 	for (unsigned i = 0, num_links = t.num_links; i != num_links; ++i)
-		op(segment_factory(t.seg[i]), t.side[i]);
+		op(std::forward<Oa>(oargs)..., segment_factory(t.seg[i]), t.side[i]);
 }
 
 //-----------------------------------------------------------------
@@ -85,10 +85,7 @@ static void do_link(const trigger &t)
 {
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
-	const auto &&op = [&vmwallptr](const vmsegptridx_t segnum, const unsigned sidenum) {
-		wall_toggle(vmwallptr, segnum, sidenum);
-	};
-	trigger_wall_op(t, vmsegptridx, op);
+	trigger_wall_op(t, vmsegptridx, wall_toggle, vmwallptr);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -97,10 +94,7 @@ namespace dsx {
 static void do_close_door(const trigger &t)
 {
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
-	const auto &&op = [&Walls](const vmsegptridx_t segnum, const unsigned sidenum) {
-		wall_close_door(Walls, segnum, sidenum);
-	};
-	trigger_wall_op(t, vmsegptridx, op);
+	trigger_wall_op(t, vmsegptridx, wall_close_door, Walls);
 }
 
 //turns lighting on.  returns true if lights were actually turned on. (they
@@ -282,10 +276,7 @@ static void do_il_on(const trigger &t)
 {
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
-	const auto &&op = [&vmwallptr](const vcsegptridx_t seg, const unsigned side) {
-		wall_illusion_on(vmwallptr, seg, side);
-	};
-	trigger_wall_op(t, vcsegptridx, op);
+	trigger_wall_op(t, vcsegptridx, wall_illusion_on, vmwallptr);
 }
 
 namespace dsx {
