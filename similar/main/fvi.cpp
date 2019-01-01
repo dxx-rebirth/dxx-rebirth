@@ -1281,12 +1281,6 @@ int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg, const
 	return sphere_intersects_wall(pnt, seg, rad, hresult, visited);
 }
 
-//Returns true if the object is through any walls
-int object_intersects_wall(const vcobjptr_t objp)
-{
-	return sphere_intersects_wall(objp->pos, vcsegptridx(objp->segnum), objp->size, nullptr);
-}
-
 int object_intersects_wall_d(const vcobjptr_t objp, object_intersects_wall_result_t &result)
 {
 	return sphere_intersects_wall(objp->pos, vcsegptridx(objp->segnum), objp->size, &result);
