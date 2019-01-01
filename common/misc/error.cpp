@@ -117,11 +117,14 @@ void (UserError)(const char *fmt,...)
 
 void Warning_puts(const char *str)
 {
-	if (warn_func == NULL)
+	const auto warn = warn_func;
+#if DXX_USE_EDITOR
+	if (warn == NULL)
 		return;
+#endif
 	char warn_message[MAX_MSG_LEN];
 	snprintf(warn_message, sizeof(warn_message), "Warning: %s", str);
-	(*warn_func)(warn_message);
+	(*warn)(warn_message);
 }
 
 //print out warning message to user
@@ -129,8 +132,11 @@ void (Warning)(const char *fmt,...)
 {
 	va_list arglist;
 
-	if (warn_func == NULL)
+	const auto warn = warn_func;
+#if DXX_USE_EDITOR
+	if (warn == NULL)
 		return;
+#endif
 
 	char warn_message[MAX_MSG_LEN];
 	strcpy(warn_message,"Warning: ");
@@ -139,8 +145,7 @@ void (Warning)(const char *fmt,...)
 	vsnprintf(warn_message+9,sizeof(warn_message)-9,fmt,arglist);
 	va_end(arglist);
 
-	(*warn_func)(warn_message);
-
+	(*warn)(warn_message);
 }
 
 }
