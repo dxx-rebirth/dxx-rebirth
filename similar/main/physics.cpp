@@ -276,9 +276,20 @@ class ignore_objects_array_t
 		array_t a;
 	};
 public:
-	ignore_objects_array_t() :
-		e(a.begin())
+	/* The iterator should be initialized in a
+	 * member-initialization-list.  However, clang complains that the
+	 * union is uninitialized during the member-initialization-list, but
+	 * accepts the still-uninitialized union member once the constructor
+	 * body starts.  Assign the iterator in the body to silence this
+	 * useless clang warning.
+	 *
+	 * Known bad:
+	 *	clang-5
+	 *	clang-7
+	 */
+	ignore_objects_array_t()
 	{
+		e = a.begin();
 	}
 	bool push_back(const vcobjidx_t o)
 	{
