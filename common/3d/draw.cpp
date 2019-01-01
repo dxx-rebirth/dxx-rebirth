@@ -187,9 +187,11 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 		cc.uand &= p->p3_codes;
 		cc.uor  |= p->p3_codes;
 
+#if !DXX_USE_OGL
 		p->p3_u = uvl_list[i].u;
 		p->p3_v = uvl_list[i].v;
 		p->p3_l = (light_rgb[i].r+light_rgb[i].g+light_rgb[i].b)/3;
+#endif
 
 		p->p3_flags |= PF_UVS + PF_LS;
 
