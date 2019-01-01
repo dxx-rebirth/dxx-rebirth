@@ -99,9 +99,8 @@ static void do_close_door(const trigger &t)
 
 //turns lighting on.  returns true if lights were actually turned on. (they
 //would not be if they had previously been shot out).
-static int do_light_on(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, d_flickering_light_state &Flickering_light_state, const trigger &t)
+static int do_light_on(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_level_unique_tmap_info_state::TmapInfo_array &TmapInfo, d_flickering_light_state &Flickering_light_state, const trigger &t)
 {
-	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	int ret=0;
 	const auto op = [&LevelSharedDestructibleLightState, &Flickering_light_state, &TmapInfo, &ret](const vmsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light on.  This
@@ -117,9 +116,8 @@ static int do_light_on(const d_level_shared_destructible_light_state &LevelShare
 
 //turns lighting off.  returns true if lights were actually turned off. (they
 //would not be if they had previously been shot out).
-static int do_light_off(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, d_flickering_light_state &Flickering_light_state, const trigger &t)
+static int do_light_off(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_level_unique_tmap_info_state::TmapInfo_array &TmapInfo, d_flickering_light_state &Flickering_light_state, const trigger &t)
 {
-	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	int ret=0;
 	const auto op = [&LevelSharedDestructibleLightState, &Flickering_light_state, &TmapInfo, &ret](const vmsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light off.  This
@@ -134,10 +132,8 @@ static int do_light_off(const d_level_shared_destructible_light_state &LevelShar
 }
 
 // Unlocks all doors linked to the switch.
-static void do_unlock_doors(const trigger &t)
+static void do_unlock_doors(fvcsegptr &vcsegptr, fvmwallptr &vmwallptr, const trigger &t)
 {
-	auto &Walls = LevelUniqueWallSubsystemState.Walls;
-	auto &vmwallptr = Walls.vmptr;
 	const auto op = [&vmwallptr](const shared_segment &segp, const unsigned sidenum) {
 		const auto wall_num = segp.sides[sidenum].wall_num;
 		auto &w = *vmwallptr(wall_num);
@@ -148,10 +144,8 @@ static void do_unlock_doors(const trigger &t)
 }
 
 // Locks all doors linked to the switch.
-static void do_lock_doors(const trigger &t)
+static void do_lock_doors(fvcsegptr &vcsegptr, fvmwallptr &vmwallptr, const trigger &t)
 {
-	auto &Walls = LevelUniqueWallSubsystemState.Walls;
-	auto &vmwallptr = Walls.vmptr;
 	const auto op = [&vmwallptr](const shared_segment &segp, const unsigned sidenum) {
 		const auto wall_num = segp.sides[sidenum].wall_num;
 		auto &w = *vmwallptr(wall_num);
@@ -272,29 +266,29 @@ static void do_matcen(const trigger &t)
 		trigger_matcen(vmsegptridx(i));
 }
 
-static void do_il_on(const trigger &t)
+static void do_il_on(fvcsegptridx &vcsegptridx, fvmwallptr &vmwallptr, const trigger &t)
 {
-	auto &Walls = LevelUniqueWallSubsystemState.Walls;
-	auto &vmwallptr = Walls.vmptr;
 	trigger_wall_op(t, vcsegptridx, wall_illusion_on, vmwallptr);
 }
 
 namespace dsx {
-static void do_il_off(const trigger &t)
+
+#if defined(DXX_BUILD_DESCENT_I)
+static void do_il_off(fvcsegptridx &vcsegptridx, fvmwallptr &vmwallptr, const trigger &t)
 {
-	auto &Walls = LevelUniqueWallSubsystemState.Walls;
-	auto &vmwallptr = Walls.vmptr;
-	const auto &&op = [&vmwallptr](const vcsegptridx_t seg, const unsigned side) {
+	trigger_wall_op(t, vcsegptridx, wall_illusion_off, vmwallptr);
+}
+#elif defined(DXX_BUILD_DESCENT_II)
+static void do_il_off(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, fvmwallptr &vmwallptr, const trigger &t)
+{
+	const auto &&op = [&vcvertptr, &vmwallptr](const vcsegptridx_t seg, const unsigned side) {
 		wall_illusion_off(vmwallptr, seg, side);
-#if defined(DXX_BUILD_DESCENT_II)
-		auto &Vertices = LevelSharedVertexState.get_vertices();
-		auto &vcvertptr = Vertices.vcptr;
 		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
 		digi_link_sound_to_pos(SOUND_WALL_REMOVED, seg, side, cp, 0, F1_0);
-#endif
 	};
 	trigger_wall_op(t, vcsegptridx, op);
 }
+#endif
 
 // Slight variation on window_event_result meaning
 // 'ignored' means we still want check_trigger to call multi_send_trigger
@@ -309,6 +303,8 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vmtrgptr = Triggers.vmptr;
 	auto &trigger = *vmtrgptr(trigger_num);
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vmwallptr = Walls.vmptr;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)shot;
@@ -355,11 +351,11 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 	}
 
 	if (trigger.flags & TRIGGER_ILLUSION_ON) {
-		do_il_on(trigger);
+		do_il_on(vcsegptridx, vmwallptr, trigger);
 	}
 
 	if (trigger.flags & TRIGGER_ILLUSION_OFF) {
-		do_il_off(trigger);
+		do_il_off(vcsegptridx, vmwallptr, trigger);
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (trigger.flags & TF_DISABLED)
@@ -369,6 +365,9 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 		trigger.flags |= TF_DISABLED;		//..then don't let it happen again
 
 	auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
 	switch (trigger.type)
 	{
 		case TT_EXIT:
@@ -460,15 +459,14 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 			break;
 
 		case TT_UNLOCK_DOOR:
-			do_unlock_doors(trigger);
+			do_unlock_doors(vcsegptr, vmwallptr, trigger);
 			print_trigger_message(pnum, trigger, shot, "Door%s unlocked!");
 
 			break;
 
 		case TT_LOCK_DOOR:
-			do_lock_doors(trigger);
+			do_lock_doors(vcsegptr, vmwallptr, trigger);
 			print_trigger_message(pnum, trigger, shot, "Door%s locked!");
-
 			break;
 
 		case TT_OPEN_WALL:
@@ -492,22 +490,22 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 			break;
 
 		case TT_ILLUSION_ON:
-			do_il_on(trigger);
+			do_il_on(vcsegptridx, vmwallptr, trigger);
 			print_trigger_message(pnum, trigger, shot, "Illusion%s on!");
 			break;
 
 		case TT_ILLUSION_OFF:
-			do_il_off(trigger);
+			do_il_off(vcsegptridx, vcvertptr, vmwallptr, trigger);
 			print_trigger_message(pnum, trigger, shot, "Illusion%s off!");
 			break;
 
 		case TT_LIGHT_OFF:
-			if (do_light_off(LevelSharedDestructibleLightState, Flickering_light_state, trigger))
+			if (do_light_off(LevelSharedDestructibleLightState, TmapInfo, Flickering_light_state, trigger))
 				print_trigger_message(pnum, trigger, shot, "Light%s off!");
 			break;
 
 		case TT_LIGHT_ON:
-			if (do_light_on(LevelSharedDestructibleLightState, Flickering_light_state, trigger))
+			if (do_light_on(LevelSharedDestructibleLightState, TmapInfo, Flickering_light_state, trigger))
 				print_trigger_message(pnum, trigger, shot, "Light%s on!");
 
 			break;
