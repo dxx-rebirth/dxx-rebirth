@@ -760,31 +760,45 @@ help:assume C++ compiler works
 	implicit_tests.append(_implicit_test.RecordedTest('check_cxx14', "assume C++ compiler supports C++14"))
 	__cxx_conformance_CXXFLAGS = [None]
 	def _check_cxx_conformance_level(self,context,_levels=(
-			# List standards in descending order of preference
-			# C++14 is required, so list it last.  Omit the comma as a
-			# reminder not to append elements to the list.
-			_cxx_conformance_cxx14
+			# List standards in descending order of preference.
+			#
+			# Currently, no C++17 features are both useful and easy to
+			# emulate in supported older compilers, so C++17 is not
+			# requested.
+			#
+			# C++14 is required, so list it last.
+			_cxx_conformance_cxx14,
 		), _CXXFLAGS=__cxx_conformance_CXXFLAGS,
 		_successflags={'CXXFLAGS' : __cxx_conformance_CXXFLAGS}
 		):
 		# Testing the compiler option parser only needs Compile, even when LTO
 		# is enabled.
 		Compile = self._Compile
-		# GCC started with -std=gnu++0x for C++0x (later C++11).
-		#
 		# Accepted options by version:
 		#
-		#	gcc-4.9 -std=gnu++0x
-		#	gcc-4.9 -std=gnu++11
 		#	gcc-4.9 -std=gnu++1y
 		#	gcc-4.9 -std=gnu++14
 		#
-		#	gcc-5 -std=gnu++0x
-		#	gcc-5 -std=gnu++11
 		#	gcc-5 -std=gnu++1y
 		#	gcc-5 -std=gnu++14
 		#	gcc-5 -std=gnu++1z
 		#	gcc-5 -std=gnu++17
+		#
+		#	gcc-6 -std=gnu++1y
+		#	gcc-6 -std=gnu++14
+		#	gcc-6 -std=gnu++1z
+		#	gcc-6 -std=gnu++17
+		#
+		#	gcc-7 -std=gnu++1y
+		#	gcc-7 -std=gnu++14
+		#	gcc-7 -std=gnu++1z
+		#	gcc-7 -std=gnu++17
+		#
+		#	gcc-8 -std=gnu++1y
+		#	gcc-8 -std=gnu++14
+		#	gcc-8 -std=gnu++1z
+		#	gcc-8 -std=gnu++17
+		#	gcc-8 -std=gnu++2a
 		for level in _levels:
 			opt = '-std=gnu++%u' % level
 			_CXXFLAGS[0] = opt
