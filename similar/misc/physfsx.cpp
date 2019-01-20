@@ -215,7 +215,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 		PHYSFS_addToSearchPath(p, 1);
 	}
 #if DXX_USE_SHAREPATH
-	else if (!CGameArg.SysNoHogDir)
+	else if (!GameArg.SysNoHogDir)
 	{
 		con_puts(CON_DEBUG, "PHYSFS: append sharepath directory \"" DXX_SHAREPATH "\" to search path");
 		PHYSFS_addToSearchPath(DXX_SHAREPATH, 1);

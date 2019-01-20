@@ -452,7 +452,7 @@ static int main(int argc, char *argv[])
 #define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
 			      "\t$HOME/.d" DXX_NAME_NUMBER "x-rebirth\n"	\
 					DXX_HOGFILE_SHAREPATH_INDENTED
-#ifdef DXX_SHAREPATH
+#if DXX_USE_SHAREPATH
 #define DXX_HOGFILE_SHAREPATH_INDENTED	\
 			      "\t" DXX_SHAREPATH "\n"
 #else

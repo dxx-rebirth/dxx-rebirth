@@ -69,9 +69,6 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgForbidConsoleGrab;
 	bool DbgShowMemInfo;
 	bool DbgSafelog;
-#if DXX_USE_SHAREPATH
-	bool SysNoHogDir;
-#endif
 	bool SysShowCmdHelp;
 	bool SysLowMem;
 	int8_t SysUsePlayersDir;
@@ -139,6 +136,9 @@ extern CArg CGameArg;
 namespace dsx {
 struct Arg : prohibit_void_ptr<Arg>
 {
+#if DXX_USE_SHAREPATH
+	bool SysNoHogDir;
+#endif
 #ifdef DXX_BUILD_DESCENT_I
 	bool EdiNoBm;
 #endif

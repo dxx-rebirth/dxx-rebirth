@@ -217,7 +217,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			 * pass it via a cross-platform ini.
 			 */
 #if DXX_USE_SHAREPATH
-			CGameArg.SysNoHogDir = true;
+			GameArg.SysNoHogDir = true;
 #endif
 		}
 		else if (!d_stricmp(p, "-use_players_dir"))

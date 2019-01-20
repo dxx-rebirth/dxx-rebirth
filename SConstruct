@@ -1095,12 +1095,6 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			self.check_curl(context)
 			self.check_jsoncpp(context)
 
-	@_custom_test
-	def _check_user_settings_sharepath(self,context):
-		sharepath = self.user_settings.sharepath
-		self._define_macro(context, 'DXX_USE_SHAREPATH', int(not not sharepath))
-		context.Result('%s: checking default path to game data...%r' % (self.msgprefix, sharepath or None))
-
 	@_implicit_test
 	def check_libpng(self,context,
 		_header=(
@@ -4724,11 +4718,18 @@ class DXXProgram(DXXCommon):
 		# Must use [] here, not (), since it is concatenated with other
 		# lists.
 		env.__dxx_CPPDEFINE_SHAREPATH = [('DXX_SHAREPATH', self._quote_cppdefine(sharepath, f=str))] if sharepath else []
+		message(self, "default sharepath is %r" % (sharepath or None))
 		env.Append(
 			CPPDEFINES = [
 				self.env_CPPDEFINES,
 		# For PRIi64
 				('__STDC_FORMAT_MACROS',),
+				# Every file that sees `GameArg` must know whether a
+				# sharepath exists.  Most files do not need to know the
+				# value of sharepath.  Pass only its existence, so that
+				# changing the sharepath does not needlessly rebuild
+				# those files.
+				('DXX_USE_SHAREPATH', int(not not sharepath)),
 			],
 			CPPPATH = [os.path.join(self.srcdir, 'main')],
 			LIBS = ['m'],
