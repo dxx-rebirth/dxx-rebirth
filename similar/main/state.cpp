@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "gamemine.h"
 #include "dxxerror.h"
+#include "console.h"
 #include "gamefont.h"
 #include "gameseg.h"
 #include "switch.h"
@@ -956,6 +957,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 	auto fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) {
+		con_printf(CON_URGENT, "Failed to open %s: %s", filename, PHYSFS_getLastError());
 		nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
 		return 0;
 	}
