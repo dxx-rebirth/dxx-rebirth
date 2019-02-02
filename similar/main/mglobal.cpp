@@ -41,6 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 
 namespace dcx {
+d_level_shared_boss_state LevelSharedBossState;
 d_level_shared_vertex_state LevelSharedVertexState;
 d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
 d_level_unique_light_state LevelUniqueLightState;

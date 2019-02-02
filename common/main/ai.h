@@ -41,6 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "countarray.h"
 #include "aistruct.h"
+#include "valptridx.h"
 #endif
 
 namespace dcx {
@@ -90,12 +91,6 @@ extern const object *Ai_last_missile_camera;
 }
 #endif
 
-namespace dcx {
-struct boss_special_segment_array_t : public count_array_t<segnum_t, 100> {};
-struct boss_teleport_segment_array_t : public boss_special_segment_array_t {};
-struct boss_gate_segment_array_t : public boss_special_segment_array_t {};
-extern boss_teleport_segment_array_t Boss_teleport_segs;
-}
 namespace dsx {
 void create_awareness_event(vmobjptr_t objp, player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
 ai_mode ai_behavior_to_mode(ai_behavior behavior);
@@ -104,6 +99,17 @@ void init_ai_object(vmobjptridx_t objp, ai_behavior initial_mode, imsegidx_t hid
 }
 
 namespace dcx {
+
+struct d_level_shared_boss_state
+{
+	struct special_segment_array_t : public count_array_t<vcsegidx_t, 100> {};
+	struct gate_segment_array_t : public special_segment_array_t {};
+	struct teleport_segment_array_t : public special_segment_array_t {};
+	gate_segment_array_t Gate_segs;
+	teleport_segment_array_t Teleport_segs;
+};
+
+extern d_level_shared_boss_state LevelSharedBossState;
 extern fix64 Boss_cloak_start_time;
 extern fix64 Last_teleport_time;
 constexpr fix Boss_cloak_duration = F1_0*7;

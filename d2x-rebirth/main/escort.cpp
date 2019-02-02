@@ -871,6 +871,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 //	Returns goal object.
 static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
 {
+	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
 	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 		return ESCORT_GOAL_UNSPECIFIED;
 	if (!(pl_flags & PLAYER_FLAGS_BLUE_KEY) && exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_BLUE, -1, pl_flags) != object_none)

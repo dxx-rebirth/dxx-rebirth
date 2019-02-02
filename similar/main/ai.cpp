@@ -89,7 +89,7 @@ using std::min;
 #define	BABY_SPIDER_ID	14
 
 namespace dsx {
-static void init_boss_segments(const segment_array &segments, const object &boss_objnum, boss_special_segment_array_t &imsegptr, int size_check, int one_wall_hack);
+static void init_boss_segments(const segment_array &segments, const object &boss_objnum, d_level_shared_boss_state::special_segment_array_t &a, int size_check, int one_wall_hack);
 static void ai_multi_send_robot_position(object &objnum, int force);
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -144,10 +144,6 @@ constexpr array<int8_t, 8> Mike_to_matt_xlate{{
 #define	BOSS_DEATH_DURATION	(F1_0*6)
 //	Amount of time since the current robot was last processed for things such as movement.
 //	It is not valid to use FrameTime because robots do not get moved every frame.
-
-boss_teleport_segment_array_t	Boss_teleport_segs;
-
-static boss_gate_segment_array_t Boss_gate_segs;
 
 // ---------- John: These variables must be saved as part of gamesave. --------
 static int             Overall_agitation;
@@ -477,6 +473,8 @@ void ai_init_boss_for_ship(void)
 
 static void boss_init_all_segments(const segment_array &Segments, const object &boss_objnum)
 {
+	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
+	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
 	if (!Boss_teleport_segs.empty())
 		return;	// already have boss segs
 
@@ -580,6 +578,8 @@ void init_ai_object(vmobjptridx_t objp, ai_behavior behavior, const imsegidx_t h
 // ---------------------------------------------------------------------------------------------------------------------
 void init_ai_objects(void)
 {
+	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
+	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
 	Point_segs_free_ptr = Point_segs.begin();
 	Boss_gate_segs.clear();
 	Boss_teleport_segs.clear();
@@ -1991,6 +1991,7 @@ imobjptridx_t gate_in_robot(int type, const vmsegptridx_t segnum)
 
 static imobjptridx_t gate_in_robot(fvmsegptridx &vmsegptridx, int type)
 {
+	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
 	auto segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.size()) >> 15];
 	return gate_in_robot(type, vmsegptridx(segnum));
 }
@@ -2045,7 +2046,7 @@ void create_buddy_bot(void)
 //	he can reach from his initial position (calls find_connected_distance).
 //	If size_check is set, then only add segment if boss can fit in it, else any segment is legal.
 //	one_wall_hack added by MK, 10/13/95: A mega-hack!  Set to !0 to ignore the 
-static void init_boss_segments(const segment_array &segments, const object &boss_objp, boss_special_segment_array_t &a, const int size_check, int one_wall_hack)
+static void init_boss_segments(const segment_array &segments, const object &boss_objp, d_level_shared_boss_state::special_segment_array_t &a, const int size_check, int one_wall_hack)
 {
 	constexpr unsigned QUEUE_SIZE = 256;
 	auto &vcsegptridx = segments.vcptridx;
@@ -2142,6 +2143,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 // --------------------------------------------------------------------------------------------------------------------
 static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const vms_vector &target_pos)
 {
+	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
 	segnum_t			rand_segnum;
 	int			rand_index;
 	assert(!Boss_teleport_segs.empty());
@@ -4489,6 +4491,10 @@ namespace dsx {
 
 int ai_save_state(PHYSFS_File *fp)
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
+	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
+#endif
 	fix tmptime32 = 0;
 
 	const int Ai_initialized = 0;
@@ -4695,6 +4701,10 @@ static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS
 
 int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
+	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
+#endif
 	fix tmptime32 = 0;
 
 	PHYSFSX_readSXE32(fp, swap);
