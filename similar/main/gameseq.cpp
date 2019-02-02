@@ -409,6 +409,8 @@ static void gameseq_init_network_players(object_array &objects)
 		}
 #endif
 	}
+	if (multiplayer_coop)
+	{
 	const unsigned total_required_num_starts = Netgame.max_numplayers;
 	if (k < total_required_num_starts)
 	{
@@ -422,6 +424,7 @@ static void gameseq_init_network_players(object_array &objects)
 	}
 	else
 		con_printf(CON_NORMAL, "Found %u cooperative starts in mission \"%s\" level %u.", k, Current_mission_filename, Current_level_num);
+	}
 	NumNetPlayerPositions = k;
 }
 
