@@ -1760,8 +1760,8 @@ class cheat_menu_bit_invulnerability :
 	public menu_bit_wrapper_t<player_flags, std::integral_constant<PLAYER_FLAG, PLAYER_FLAGS_INVULNERABLE>>
 {
 public:
-	cheat_menu_bit_invulnerability(player &plr) :
-		reference_wrapper(vmobjptr(plr.objnum)->ctype.player_info),
+	cheat_menu_bit_invulnerability(object &player) :
+		reference_wrapper(player.ctype.player_info),
 		menu_bit_wrapper_t(get().powerup_flags, {})
 	{
 	}
@@ -1783,8 +1783,8 @@ class cheat_menu_bit_cloak :
 	public menu_bit_wrapper_t<player_flags, std::integral_constant<PLAYER_FLAG, PLAYER_FLAGS_CLOAKED>>
 {
 public:
-	cheat_menu_bit_cloak(player &plr) :
-		reference_wrapper(vmobjptr(plr.objnum)->ctype.player_info),
+	cheat_menu_bit_cloak(object &player) :
+		reference_wrapper(player.ctype.player_info),
 		menu_bit_wrapper_t(get().powerup_flags, {})
 	{
 	}
@@ -1816,8 +1816,8 @@ public:
 #endif
 
 #define DXX_WIMP_MENU(VERB)	\
-	DXX_MENUITEM(VERB, CHECK, TXT_INVULNERABILITY, opt_invul, cheat_menu_bit_invulnerability(plr))	\
-	DXX_MENUITEM(VERB, CHECK, TXT_CLOAKED, opt_cloak, cheat_menu_bit_cloak(plr))	\
+	DXX_MENUITEM(VERB, CHECK, TXT_INVULNERABILITY, opt_invul, cheat_menu_bit_invulnerability(plrobj))	\
+	DXX_MENUITEM(VERB, CHECK, TXT_CLOAKED, opt_cloak, cheat_menu_bit_cloak(plrobj))	\
 	DXX_MENUITEM(VERB, CHECK, "BLUE KEY", opt_key_blue, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_BLUE_KEY))	\
 	DXX_MENUITEM(VERB, CHECK, "GOLD KEY", opt_key_gold, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_GOLD_KEY))	\
 	DXX_MENUITEM(VERB, CHECK, "RED KEY", opt_key_red, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_RED_KEY))	\
@@ -1837,7 +1837,6 @@ static void do_cheat_menu()
 	int mmn;
 	array<newmenu_item, DXX_WIMP_MENU(COUNT)> m;
 	char score_text[sizeof("2147483647")];
-	auto &plr = get_local_player();
 	auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;
 	snprintf(score_text, sizeof(score_text), "%d", player_info.mission.score);
