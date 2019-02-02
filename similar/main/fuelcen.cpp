@@ -75,8 +75,6 @@ unsigned Num_fuelcenters;
 static int Num_extry_robots = 15;
 }
 namespace dsx {
-array<matcen_info, MAX_ROBOT_CENTERS> RobotCenters;
-
 array<FuelCenter, MAX_NUM_FUELCENS> Station;
 
 #if DXX_USE_EDITOR
@@ -97,6 +95,7 @@ const char	Special_names[MAX_CENTER_TYPES][11] = {
 // Resets all fuel center info
 void fuelcen_reset()
 {
+	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	DXX_MAKE_MEM_UNDEFINED(Station.begin(), Station.end());
 	DXX_MAKE_MEM_UNDEFINED(RobotCenters.begin(), RobotCenters.end());
 	Num_fuelcenters = 0;
@@ -161,6 +160,7 @@ void fuelcen_create(const vmsegptridx_t segp)
 // This function is separate from other fuelcens because we don't want values reset.
 static void matcen_create(const vmsegptridx_t segp)
 {
+	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	int	station_type = segp->special;
 
 	Assert(station_type == SEGMENT_IS_ROBOTMAKER);
@@ -175,11 +175,11 @@ static void matcen_create(const vmsegptridx_t segp)
 	Station[Num_fuelcenters].Timer = -1;
 	Station[Num_fuelcenters].Flag = 0;
 
-	segp->matcen_num = Num_robot_centers;
-	Num_robot_centers++;
-
-	RobotCenters[segp->matcen_num].segnum = segp;
-	RobotCenters[segp->matcen_num].fuelcen_num = Num_fuelcenters;
+	const auto next_robot_center_idx = Num_robot_centers++;
+	segp->matcen_num = next_robot_center_idx;
+	auto &robotcenter = RobotCenters[next_robot_center_idx];
+	robotcenter.segnum = segp;
+	robotcenter.fuelcen_num = Num_fuelcenters;
 
 	Num_fuelcenters++;
 }
@@ -203,6 +203,7 @@ void fuelcen_activate(const vmsegptridx_t segp)
 //	Trigger (enable) the materialization center in segment segnum
 void trigger_matcen(const vmsegptridx_t segnum)
 {
+	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	const auto &segp = segnum;
 	FuelCenter	*robotcen;
 
@@ -250,6 +251,7 @@ void trigger_matcen(const vmsegptridx_t segnum)
 //	Deletes the segment point entry in the FuelCenter list.
 void fuelcen_delete(const vmsegptr_t segp)
 {
+	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 Restart: ;
 	segp->special = 0;
 
@@ -352,6 +354,7 @@ imobjptridx_t  create_morph_robot( const vmsegptridx_t segp, const vms_vector &o
 //	----------------------------------------------------------------------------------------------------------
 static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, FuelCenter *const robotcen, const unsigned numrobotcen)
 {
+	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	int		matcen_num;
 	fix		top_time;
 
@@ -665,6 +668,7 @@ void disable_matcens(void)
 //	Give them all the right number of lives.
 void init_all_matcens(void)
 {
+	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	const auto &&robot_range = partial_const_range(RobotCenters, Num_robot_centers);
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++)
 		if (Station[i].Type == SEGMENT_IS_ROBOTMAKER) {

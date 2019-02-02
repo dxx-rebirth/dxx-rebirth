@@ -111,8 +111,6 @@ struct FuelCenter : public prohibit_void_ptr<FuelCenter>
 };
 
 // The max number of robot centers per mine.
-#define MAX_ROBOT_CENTERS  128 // Original D1/D2: 20
-
 struct d1_matcen_info : public prohibit_void_ptr<d1_matcen_info>
 {
 	array<unsigned, 1>     robot_flags;    // Up to 32 different robots
@@ -138,7 +136,14 @@ void matcen_info_read(PHYSFS_File *fp, matcen_info &ps);
 
 extern const char Special_names[MAX_CENTER_TYPES][11];
 
-extern array<matcen_info, MAX_ROBOT_CENTERS> RobotCenters;
+struct d_level_shared_robotcenter_state
+{
+	// Original D1/D2 size: 20
+	array<matcen_info, 128> RobotCenters;
+};
+
+extern d_level_shared_robotcenter_state LevelSharedRobotcenterState;
+
 extern array<FuelCenter, MAX_NUM_FUELCENS> Station;
 
 // Called when a materialization center gets triggered by the player

@@ -947,6 +947,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 
 int state_save_all_sub(const char *filename, const char *desc)
 {
+	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	char mission_filename[9];
 	fix tmptime32 = 0;
 
@@ -1423,6 +1424,7 @@ int state_restore_all_sub(const char *filename)
 int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const secret_restore secret, const char *const filename)
 #endif
 {
+	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	int version, coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	int current_level;

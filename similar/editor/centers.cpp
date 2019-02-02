@@ -150,6 +150,7 @@ void close_centers_window()
 
 window_event_result centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *c)
 {
+	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	switch(event.type)
 	{
 		case EVENT_WINDOW_CREATED:

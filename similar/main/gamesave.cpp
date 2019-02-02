@@ -837,6 +837,7 @@ static int load_game_data(
 #endif
 	fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, PHYSFS_File *LoadFile)
 {
+	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	const auto &vcsegptridx = vmsegptridx;
 	short game_top_fileinfo_version;
 	int object_offset;
@@ -1600,6 +1601,7 @@ static int save_game_data(
 #endif
 	PHYSFS_File *SaveFile)
 {
+	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 #if defined(DXX_BUILD_DESCENT_I)
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : GAME_VERSION;
 #elif defined(DXX_BUILD_DESCENT_II)

@@ -971,6 +971,7 @@ int wall_unlink_door()
 
 int check_walls() 
 {
+	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	array<count_wall, MAX_WALLS> CountedWalls;
 	int matcen_num;
 

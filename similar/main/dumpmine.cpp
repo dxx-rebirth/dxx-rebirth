@@ -482,6 +482,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Materialization centers:\n");
+	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vctrgptridx = Triggers.vcptridx;
 	for (i=0; i<Num_robot_centers; i++) {

@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "inferno.h"
 #include "lighting.h"
+#include "fuelcen.h"
 #include "segment.h"
 #include "switch.h"
 #include "object.h"
@@ -97,6 +98,7 @@ namespace dsx {
 d_level_shared_segment_state LevelSharedSegmentState;
 d_level_unique_object_state LevelUniqueObjectState;
 d_level_shared_polygon_model_state LevelSharedPolygonModelState;
+d_level_shared_robotcenter_state LevelSharedRobotcenterState;
 d_level_shared_robot_info_state LevelSharedRobotInfoState;
 d_level_shared_robot_joint_state LevelSharedRobotJointState;
 valptridx<object>::array_managed_type Objects;
