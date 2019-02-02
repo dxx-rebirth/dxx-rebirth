@@ -1996,23 +1996,30 @@ static imobjptridx_t gate_in_robot(fvmsegptridx &vmsegptridx, int type)
 	return gate_in_robot(type, vmsegptridx(segnum));
 }
 
-// --------------------------------------------------------------------------------------------------------------------
-static int boss_fits_in_seg(fvcvertptr &vcvertptr, const object &boss_objp, const vcsegptridx_t segp)
+}
+
+namespace dcx {
+
+static const shared_segment *boss_intersects_wall(fvcvertptr &vcvertptr, const object_base &boss_objp, const vcsegptridx_t segp)
 {
 	const auto size = boss_objp.size;
 	const auto &&segcenter = compute_segment_center(vcvertptr, segp);
 	auto pos = segcenter;
 	for (uint_fast32_t posnum = 0;;)
 	{
-		if (!sphere_intersects_wall(vcvertptr, pos, segp, size).seg)
-			return 1;
+		const auto seg = sphere_intersects_wall(vcvertptr, pos, segp, size).seg;
+		if (!seg)
+			return seg;
 		if (posnum == segp->verts.size())
-			break;
+			return seg;
 		auto &vertex_pos = *vcvertptr(segp->verts[posnum ++]);
 		vm_vec_avg(pos, vertex_pos, segcenter);
 	}
-	return 0;
 }
+
+}
+
+namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
 // --------------------------------------------------------------------------------------------------------------------
@@ -2073,7 +2080,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 		seg_queue[head++] = original_boss_seg;
 		auto &vcvertptr = Vertices.vcptr;
 
-		if ((!size_check) || boss_fits_in_seg(vcvertptr, boss_objp, vcsegptridx(original_boss_seg)))
+		if (!size_check || !boss_intersects_wall(vcvertptr, boss_objp, vcsegptridx(original_boss_seg)))
 		{
 			a.emplace_back(original_boss_seg);
 #if DXX_USE_EDITOR
@@ -2118,7 +2125,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 							if (head+QUEUE_SIZE == tail + QUEUE_SIZE-1)
 								Int3();	//	queue overflow.  Make it bigger!
 	
-						if (!size_check || boss_fits_in_seg(vcvertptr, boss_objp, vcsegptridx(csegnum))) {
+						if (!size_check || !boss_intersects_wall(vcvertptr, boss_objp, vcsegptridx(csegnum))) {
 							a.emplace_back(csegnum);
 #if DXX_USE_EDITOR
 							Selected_segs.emplace_back(csegnum);
