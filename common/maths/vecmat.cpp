@@ -612,7 +612,7 @@ fix vm_dist_to_plane(const vms_vector &checkp,const vms_vector &norm,const vms_v
 }
 
 // convert vms_matrix to vms_quaternion
-void vms_quaternion_from_matrix(vms_quaternion &q, const vms_matrix &m)
+void vms_quaternion_from_matrix(vms_quaternion &rq, const vms_matrix &m)
 {
 	const auto rx = m.rvec.x;
 	const auto ry = m.rvec.y;
@@ -624,31 +624,36 @@ void vms_quaternion_from_matrix(vms_quaternion &q, const vms_matrix &m)
 	const auto fy = m.fvec.y;
 	const auto fz = m.fvec.z;
 	const fix tr = rx + uy + fz;
+	vms_quaternion q;
 	if (tr > 0) {
 		fix s = fixmul(fix_sqrt(tr + fl2f(1.0)), fl2f(2.0));
-		q.w = fixmul(fl2f(0.25), s) * .5;
-		q.x = fixdiv(fy - uz, s) * .5;
-		q.y = fixdiv(rz - fx, s) * .5;
-		q.z = fixdiv(ux - ry, s) * .5;
+		q.w = fixmul(fl2f(0.25), s);
+		q.x = fixdiv(fy - uz, s);
+		q.y = fixdiv(rz - fx, s);
+		q.z = fixdiv(ux - ry, s);
 	} else if ((rx > uy) & (rx > fz)) {
 		fix s = fixmul(fix_sqrt(fl2f(1.0) + rx - uy - fz), fl2f(2.0));
-		q.w = fixdiv(fy - uz, s) * .5;
-		q.x = fixmul(fl2f(0.25), s) * .5;
-		q.y = fixdiv(ry + ux, s) * .5; 
-		q.z = fixdiv(rz + fx, s) * .5;
+		q.w = fixdiv(fy - uz, s);
+		q.x = fixmul(fl2f(0.25), s);
+		q.y = fixdiv(ry + ux, s); 
+		q.z = fixdiv(rz + fx, s);
 	} else if (uy > fz) { 
 		fix s = fixmul(fix_sqrt(fl2f(1.0) + uy - rx - fz), fl2f(2.0));
-		q.w = fixdiv(rz - fx, s) * .5;
-		q.x = fixdiv(ry + ux, s) * .5; 
-		q.y = fixmul(fl2f(0.25), s) * .5;
-		q.z = fixdiv(uz + fy, s) * .5;
+		q.w = fixdiv(rz - fx, s);
+		q.x = fixdiv(ry + ux, s); 
+		q.y = fixmul(fl2f(0.25), s);
+		q.z = fixdiv(uz + fy, s);
 	} else { 
 		fix s = fixmul(fix_sqrt(fl2f(1.0) + fz - rx - uy), fl2f(2.0));
-		q.w = fixdiv(ux - ry, s) * .5;
-		q.x = fixdiv(rz + fx, s) * .5;
-		q.y = fixdiv(uz + fy, s) * .5;
-		q.z = fixmul(fl2f(0.25), s) * .5;
+		q.w = fixdiv(ux - ry, s);
+		q.x = fixdiv(rz + fx, s);
+		q.y = fixdiv(uz + fy, s);
+		q.z = fixmul(fl2f(0.25), s);
 	}
+	rq.w = q.w / 2;
+	rq.x = q.x / 2;
+	rq.y = q.y / 2;
+	rq.z = q.z / 2;
 }
 
 // convert vms_quaternion to vms_matrix
