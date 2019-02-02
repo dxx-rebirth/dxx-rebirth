@@ -42,9 +42,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-make_unique.h"
 #include "ntstring.h"
 
-struct grs_bitmap;
-struct grs_font;
-
 namespace dcx {
 
 struct UI_KEYPAD {

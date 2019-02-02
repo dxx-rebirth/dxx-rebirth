@@ -103,28 +103,6 @@ public:
 	ubyte   avg_color;  //  Average color of all pixels in texture map.
 };
 
-//font structure
-struct grs_font : public prohibit_void_ptr<grs_font>
-{
-	short       ft_w;           // Width in pixels
-	short       ft_h;           // Height in pixels
-	short       ft_flags;       // Proportional?
-	short       ft_baseline;    //
-	ubyte       ft_minchar;     // First char defined by this font
-	ubyte       ft_maxchar;     // Last char defined by this font
-	array<char, 13> ft_filename;
-	const uint8_t *ft_data;        // Ptr to raw data.
-	const uint8_t *const *ft_chars;       // Ptrs to data for each char (required for prop font)
-	const int16_t *ft_widths;      // Array of widths (required for prop font)
-	const uint8_t *ft_kerndata;    // Array of kerning triplet data
-	std::unique_ptr<uint8_t[]> ft_allocdata;
-#if DXX_USE_OGL
-	// These fields do not participate in disk i/o!
-	std::unique_ptr<grs_bitmap[]> ft_bitmaps;
-	grs_bitmap ft_parent_bitmap;
-#endif /* def OGL */
-};
-
 struct grs_canvas : prohibit_void_ptr<grs_canvas>
 {
 	~grs_canvas()
@@ -284,6 +262,28 @@ public:
 // Free the bitmap, but not the pixel data buffer
 class grs_subbitmap : public grs_bitmap
 {
+};
+
+//font structure
+struct grs_font : public prohibit_void_ptr<grs_font>
+{
+	int16_t     ft_w;           // Width in pixels
+	int16_t     ft_h;           // Height in pixels
+	int16_t     ft_flags;       // Proportional?
+	int16_t     ft_baseline;    //
+	uint8_t     ft_minchar;     // First char defined by this font
+	uint8_t     ft_maxchar;     // Last char defined by this font
+	array<char, 13> ft_filename;
+	const uint8_t *ft_data = nullptr;        // Ptr to raw data.
+	const uint8_t *const *ft_chars = nullptr;       // Ptrs to data for each char (required for prop font)
+	const int16_t *ft_widths = nullptr;      // Array of widths (required for prop font)
+	const uint8_t *ft_kerndata = nullptr;    // Array of kerning triplet data
+	std::unique_ptr<uint8_t[]> ft_allocdata;
+#if DXX_USE_OGL
+	// These fields do not participate in disk i/o!
+	std::unique_ptr<grs_bitmap[]> ft_bitmaps;
+	grs_main_bitmap ft_parent_bitmap;
+#endif /* def OGL */
 };
 
 }

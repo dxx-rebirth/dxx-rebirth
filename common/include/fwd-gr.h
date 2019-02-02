@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <utility>
 #include "palette.h"
 #include "maths.h"
+#include "u_mem.h"
 
 // some defines for transparency and blending
 #define TRANSPARENCY_COLOR   255            // palette entry of transparency color -- 255 on the PC
@@ -90,7 +91,6 @@ enum bm_mode : uint8_t
 struct grs_bitmap;
 struct grs_canvas;
 #define GRS_FONT_SIZE 28    // how much space it takes up on disk
-struct grs_font;
 struct grs_point;
 
 union screen_mode;
@@ -108,6 +108,8 @@ typedef std::unique_ptr<grs_subcanvas> grs_subcanvas_ptr;
 // Free the bitmap and its pixel data
 class grs_main_bitmap;
 typedef std::unique_ptr<grs_main_bitmap> grs_bitmap_ptr;
+
+struct grs_font;
 
 #if SDL_MAJOR_VERSION == 1
 uint_fast32_t gr_list_modes(array<screen_mode, 50> &modes);
@@ -152,7 +154,8 @@ void gr_clear_canvas(grs_canvas &, color_t color);
 // Bitmap functions:
 
 // these are the two workhorses, the others just use these
-void gr_init_bitmap(grs_bitmap &bm, bm_mode mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, const uint8_t* data);
+void gr_init_bitmap(grs_bitmap &bm, bm_mode mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, const uint8_t *data) noexcept;
+void gr_init_main_bitmap(grs_main_bitmap &bm, bm_mode mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, RAIIdmem<uint8_t[]> data);
 void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 void gr_init_bitmap_alloc(grs_main_bitmap &bm, bm_mode mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline);

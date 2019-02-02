@@ -159,6 +159,12 @@ RAIIdmem<T> &MALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const ch
 }
 
 template <typename T>
+RAIIdmem<T[]> &MALLOC(RAIIdmem<T[]> &r, const std::size_t count, const char *const var, const char *const file, const unsigned line)
+{
+	return MALLOC<T[]>(r, count, var, file, line);
+}
+
+template <typename T>
 void CALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, unsigned line)
 {
 	typename RAIIdmem<T>::pointer p;

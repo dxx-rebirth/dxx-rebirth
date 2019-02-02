@@ -507,15 +507,18 @@ static void ogl_init_font(grs_font * font)
 	int oglflags = OGL_FLAG_ALPHA;
 	int	nchars = font->ft_maxchar-font->ft_minchar+1;
 	int w,h,tw,th,curx=0,cury=0;
-	uint8_t *data;
 	int gap=1; // x/y offset between the chars so we can filter
 
 	th = tw = 0xffff;
 
 	ogl_font_choose_size(font,gap,&tw,&th);
-	MALLOC(data, ubyte, tw*th);
-	memset(data, TRANSPARENCY_COLOR, tw * th); // map the whole data with transparency so we won't have borders if using gap
-	gr_init_bitmap(font->ft_parent_bitmap,bm_mode::linear,0,0,tw,th,tw,data);
+	{
+		RAIIdmem<uint8_t[]> data;
+		const unsigned length = tw * th;
+		MALLOC(data, uint8_t, length);
+		std::fill_n(data.get(), TRANSPARENCY_COLOR, length); // map the whole data with transparency so we won't have borders if using gap
+		gr_init_main_bitmap(font->ft_parent_bitmap, bm_mode::linear, 0, 0, tw, th, tw, std::move(data));
+	}
 	gr_set_transparent(font->ft_parent_bitmap, 1);
 
 	if (!(font->ft_flags & FT_COLOR))
@@ -853,9 +856,6 @@ void gr_close_font(std::unique_ptr<grs_font> font)
 {
 	if (font)
 	{
-#if DXX_USE_OGL
-		gr_free_bitmap_data(font->ft_parent_bitmap);
-#endif
 		//find font in list
 		if (!(font->ft_flags & FT_COLOR))
 			return;
@@ -1063,9 +1063,6 @@ void gr_remap_font(grs_font *font, const char *fontname)
 		return;
 	if (!(n->ft_flags & FT_COLOR))
 		return;
-#if DXX_USE_OGL
-	gr_free_bitmap_data(font->ft_parent_bitmap);
-#endif
 	*font = std::move(*n.get());
 #if DXX_USE_OGL
 	ogl_init_font(font);

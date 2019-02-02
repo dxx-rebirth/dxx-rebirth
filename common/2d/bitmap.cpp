@@ -41,7 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 
 // Allocated a bitmap and makes its data be raw_data that is already somewhere.
-static grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char * raw_data);
+static grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, RAIIdmem<uint8_t[]> raw_data);
 
 void gr_set_bitmap_data(grs_bitmap &bm, const uint8_t *data)
 {
@@ -53,19 +53,20 @@ void gr_set_bitmap_data(grs_bitmap &bm, const uint8_t *data)
 
 grs_bitmap_ptr gr_create_bitmap(uint16_t w, uint16_t h )
 {
-	unsigned char *d;
+	RAIIdmem<uint8_t[]> d;
 	MALLOC(d, unsigned char, MAX_BMP_SIZE(w, h));
-	return gr_create_bitmap_raw (w, h, d);
+	return gr_create_bitmap_raw(w, h, std::move(d));
 }
 
-grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char * raw_data )
+grs_bitmap_ptr gr_create_bitmap_raw(const uint16_t w, const uint16_t h, RAIIdmem<uint8_t[]> raw_data)
 {
 	auto n = make_unique<grs_main_bitmap>();
-	gr_init_bitmap(*n.get(), bm_mode::linear, 0, 0, w, h, w, raw_data);
+	gr_init_main_bitmap(*n.get(), bm_mode::linear, 0, 0, w, h, w, std::move(raw_data));
 	return n;
 }
 
-void gr_init_bitmap(grs_bitmap &bm, const bm_mode mode, const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h, const uint16_t bytesperline, const uint8_t *const data) // TODO: virtualize
+// TODO: virtualize
+void gr_init_bitmap(grs_bitmap &bm, const bm_mode mode, const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h, const uint16_t bytesperline, const uint8_t *const data) noexcept
 {
 	bm.bm_x = x;
 	bm.bm_y = y;
@@ -75,19 +76,24 @@ void gr_init_bitmap(grs_bitmap &bm, const bm_mode mode, const uint16_t x, const 
 	bm.set_type(mode);
 	bm.bm_rowsize = bytesperline;
 
-	bm.bm_data = nullptr;
+	bm.bm_data = data;
 #if DXX_USE_OGL
 	bm.bm_parent = nullptr;
 	bm.gltexture = nullptr;
 #endif
-	gr_set_bitmap_data(bm, data);
+}
+
+void gr_init_main_bitmap(grs_main_bitmap &bm, const bm_mode mode, const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h, const uint16_t bytesperline, RAIIdmem<uint8_t[]> data)
+{
+	gr_init_bitmap(bm, mode, x, y, w, h, bytesperline, data.get());
+	data.release();
 }
 
 void gr_init_bitmap_alloc(grs_main_bitmap &bm, const bm_mode mode, const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h, const uint16_t bytesperline)
 {
-	unsigned char *d;
+	RAIIdmem<uint8_t[]> d;
 	MALLOC(d, unsigned char, MAX_BMP_SIZE(w, h));
-	gr_init_bitmap(bm, mode, x, y, w, h, bytesperline, d);
+	gr_init_main_bitmap(bm, mode, x, y, w, h, bytesperline, std::move(d));
 }
 
 grs_main_bitmap::grs_main_bitmap()
