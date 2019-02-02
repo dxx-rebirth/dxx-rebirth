@@ -2104,7 +2104,11 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, int level, int flags, in
 	return nfires;
 }
 
-bool laser_info::test_set_hitobj(const vcobjidx_t o)
+}
+
+namespace dcx {
+
+uint_fast8_t laser_info::test_set_hitobj(const vcobjidx_t o)
 {
 	if (const auto r = test_hitobj(o))
 		return r;
@@ -2119,7 +2123,7 @@ bool laser_info::test_set_hitobj(const vcobjidx_t o)
 	return false;
 }
 
-bool laser_info::test_hitobj(const vcobjidx_t o) const
+uint_fast8_t laser_info::test_hitobj(const vcobjidx_t o) const
 {
 	/* Search backward so that the highest added element is the first
 	 * one considered.  This preserves most of the benefit of tracking
@@ -2136,6 +2140,10 @@ bool laser_info::test_hitobj(const vcobjidx_t o) const
 	const auto &&e = r.end();
 	return std::find(r.begin(), e, o) != e;
 }
+
+}
+
+namespace dsx {
 
 //	-------------------------------------------------------------------------------------------
 //	if goal_obj == -1, then create random vector

@@ -213,10 +213,6 @@ struct laser_parent
 	object_signature_t parent_signature = {};   // The object's parent's signature...
 };
 
-}
-
-namespace dsx {
-
 struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 {
 	fix64 creation_time = 0;      // Absolute time of creation.
@@ -233,11 +229,8 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 	std::array<objnum_t, 83> hitobj_values = {};
 	objnum_t track_goal = 0;         // Object this object is tracking.
 	fix multiplier = 0;         // Power if this is a fusion bolt (or other super weapon to be added).
-#if defined(DXX_BUILD_DESCENT_II)
-	fix64 last_afterburner_time = 0;	//	Time at which this object last created afterburner blobs.
-#endif
-	bool test_set_hitobj(const vcobjidx_t o);
-	bool test_hitobj(const vcobjidx_t o) const;
+	uint_fast8_t test_set_hitobj(const vcobjidx_t o);
+	uint_fast8_t test_hitobj(const vcobjidx_t o) const;
 	icobjidx_t get_last_hitobj() const
 	{
 		if (!hitobj_count)
@@ -277,10 +270,6 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 		hitobj_values[0] = o;
 	}
 };
-
-}
-
-namespace dcx {
 
 // Same as above but structure Savegames/Multiplayer objects expect
 struct laser_info_rw
@@ -433,6 +422,13 @@ struct object_base
 }
 
 namespace dsx {
+
+#if defined(DXX_BUILD_DESCENT_II)
+struct laser_info : public ::dcx::laser_info
+{
+	fix64 last_afterburner_time = 0;	//	Time at which this object last created afterburner blobs.
+};
+#endif
 
 struct object : public ::dcx::object_base
 {
