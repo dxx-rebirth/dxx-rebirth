@@ -106,6 +106,8 @@ struct flythrough_data
 
 #define MAX_FLY_OBJECTS 2
 
+d_unique_endlevel_state UniqueEndlevelState;
+
 }
 
 static array<flythrough_data, MAX_FLY_OBJECTS> fly_objects;
@@ -132,9 +134,9 @@ static object *endlevel_camera;
 #define FLY_SPEED i2f(50)
 
 static void do_endlevel_flythrough(flythrough_data *flydata);
-static void draw_stars(grs_canvas &);
+static void draw_stars(grs_canvas &, const d_unique_endlevel_state::starfield_type &stars);
 static int find_exit_side(const object_base &obj);
-static void generate_starfield();
+static void generate_starfield(d_unique_endlevel_state::starfield_type &stars);
 static void start_endlevel_flythrough(flythrough_data *flydata,const vmobjptr_t obj,fix speed);
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -234,23 +236,6 @@ void free_endlevel_data()
 
 	free_light_table();
 	free_height_array();
-}
-
-void init_endlevel()
-{
-	//##satellite_bitmap = bm_load("earth.bbm");
-	//##terrain_bitmap = bm_load("moon.bbm");
-	//##
-	//##load_terrain("matt5b.bbm");		//load bitmap as height array
-	//##//load_terrain("ttest2.bbm");		//load bitmap as height array
-
-//!!	exit_bitmap = bm_load("steel1.bbm");
-//!!	exit_bitmap_list[0] = &exit_bitmap;
-
-//!!	exit_modelnum = load_polygon_model("exit01.pof",1,exit_bitmap_list,NULL);
-//!!	destroyed_exit_modelnum = load_polygon_model("exit01d.pof",1,exit_bitmap_list,NULL);
-
-	generate_starfield();
 }
 
 static object *external_explosion;
@@ -417,7 +402,7 @@ window_event_result start_endlevel_sequence()
 
 	flash_scale = f1_0;
 
-	//init_endlevel();
+	generate_starfield(UniqueEndlevelState.stars);
 
 	mine_destroyed=0;
 
@@ -930,7 +915,7 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 	gr_clear_canvas(canvas, BM_XRGB(0,0,0));
 
 	g3_start_instance_matrix(vmd_zero_vector, surface_orient);
-	draw_stars(canvas);
+	draw_stars(canvas, UniqueEndlevelState.stars);
 	g3_done_instance();
 
 	{	//draw satellite
@@ -989,9 +974,7 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 #endif
 }
 
-static array<vms_vector, 500> stars;
-
-static void generate_starfield()
+static void generate_starfield(d_unique_endlevel_state::starfield_type &stars)
 {
 	range_for (auto &i, stars)
 	{
@@ -1001,7 +984,7 @@ static void generate_starfield()
 	}
 }
 
-void draw_stars(grs_canvas &canvas)
+void draw_stars(grs_canvas &canvas, const d_unique_endlevel_state::starfield_type &stars)
 {
 	int intensity=31;
 	g3s_point p;

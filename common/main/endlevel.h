@@ -26,10 +26,21 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #ifdef __cplusplus
+#include <array>
 #include "vecmat.h"
 #include "fwd-segment.h"
 #include "gr.h"
 #include "fwd-window.h"
+
+namespace dcx {
+
+struct d_unique_endlevel_state
+{
+	using starfield_type = std::array<vms_vector, 500>;
+	starfield_type stars;
+};
+
+}
 
 extern int Endlevel_sequence;
 #ifdef dsx
@@ -47,7 +58,6 @@ void render_endlevel_frame(grs_canvas &, fix eye_offset);
 
 void draw_exit_model(grs_canvas &);
 void free_endlevel_data();
-void init_endlevel();
 
 extern grs_bitmap *terrain_bitmap;  //*satellite_bitmap,*station_bitmap,
 extern segnum_t exit_segnum;

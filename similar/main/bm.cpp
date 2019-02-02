@@ -148,7 +148,6 @@ int gamedata_init()
 	int retval;
 	
 	init_polygon_models();
-	init_endlevel();//adb: added, is also in bm_init_use_tbl (Chris: *Was* in bm_init_use_tbl)
 	retval = properties_init();				// This calls properties_read_cmp if appropriate
 	if (retval)
 		gamedata_read_tbl(Vclip, retval == PIGGY_PC_SHAREWARE);
@@ -278,7 +277,6 @@ static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 int gamedata_init()
 {
 	init_polygon_models();
-	init_endlevel();
 
 #if DXX_USE_EDITOR
 	// The pc_shareware argument is currently unused for Descent 2,
