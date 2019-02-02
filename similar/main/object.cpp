@@ -1749,15 +1749,18 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 		case CT_WEAPON:		Laser_do_weapon_sequence(obj); break;
 		case CT_EXPLOSION:	do_explosion_sequence(obj); break;
 
-		#ifndef RELEASE
 		case CT_SLEW:
+#ifdef RELEASE
+			obj->control_type = CT_NONE;
+			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "BUG: object %hu has control type CT_SLEW, sig/type/id = %i/%i/%i"), static_cast<objnum_t>(obj), obj->signature.get(), obj->type, obj->id);
+#else
 			if ( keyd_pressed[KEY_PAD5] ) slew_stop();
 			if ( keyd_pressed[KEY_NUMLOCK] ) 		{
 				slew_reset_orient();
 			}
 			slew_frame(0 );		// Does velocity addition for us.
+#endif
 			break;
-		#endif
 
 //		case CT_FLYTHROUGH:
 //			do_flythrough(obj,0);			// HACK:do_flythrough should operate on an object!!!!
