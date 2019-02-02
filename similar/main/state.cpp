@@ -1179,6 +1179,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		matcen_info_write(fp, r, 0x7f);
 #endif
 	control_center_triggers_write(&ControlCenterTriggers, fp);
+	const auto Num_fuelcenters = LevelUniqueFuelcenterState.Num_fuelcenters;
 	PHYSFS_write(fp, &Num_fuelcenters, sizeof(int), 1);
 	range_for (auto &s, partial_range(Station, Num_fuelcenters))
 	{
@@ -1781,7 +1782,8 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		matcen_info_read(fp, r);
 #endif
 	control_center_triggers_read(&ControlCenterTriggers, fp);
-	Num_fuelcenters = PHYSFSX_readSXE32(fp, swap);
+	const unsigned Num_fuelcenters = PHYSFSX_readSXE32(fp, swap);
+	LevelUniqueFuelcenterState.Num_fuelcenters = Num_fuelcenters;
 	range_for (auto &s, partial_range(Station, Num_fuelcenters))
 	{
 		fuelcen_read(fp, s);

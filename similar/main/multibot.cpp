@@ -988,7 +988,7 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 	objnum_t objnum;
 	objnum = GET_INTEL_SHORT(buf + 3);
 
-	if (fuelcen_num >= Num_fuelcenters || pnum >= N_players)
+	if (fuelcen_num >= LevelUniqueFuelcenterState.Num_fuelcenters || pnum >= N_players)
 	{
 		Int3(); // Bogus data
 		return;

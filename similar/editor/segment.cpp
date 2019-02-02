@@ -464,7 +464,6 @@ static void compress_segments(void)
 	seg = Highest_segment_index;
 
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
-	auto &Station = LevelUniqueFuelcenterState.Station;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
 	for (hole=0; hole < seg; hole++)
@@ -495,7 +494,7 @@ static void compress_segments(void)
 						w->segnum = hole;
 
 				// Fix fuelcenters, robotcens, and triggers... added 2/1/95 -Yuan
-				range_for (auto &f, partial_range(Station, Num_fuelcenters))
+				range_for (auto &f, partial_range(LevelUniqueFuelcenterState.Station, LevelUniqueFuelcenterState.Num_fuelcenters))
 					if (f.segnum == seg)
 						f.segnum = hole;
 

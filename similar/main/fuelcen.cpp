@@ -70,7 +70,6 @@ constexpr fix Fuelcen_max_amount = i2f(100);
 constexpr fix EnergyToCreateOneRobot = i2f(1);
 
 unsigned Num_robot_centers;
-unsigned Num_fuelcenters;
 
 static int Num_extry_robots = 15;
 }
@@ -97,7 +96,7 @@ void fuelcen_reset()
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	DXX_MAKE_MEM_UNDEFINED(Station.begin(), Station.end());
 	DXX_MAKE_MEM_UNDEFINED(RobotCenters.begin(), RobotCenters.end());
-	Num_fuelcenters = 0;
+	LevelUniqueFuelcenterState.Num_fuelcenters = 0;
 	range_for (auto &i, Segments)
 		i.special = SEGMENT_IS_NOTHING;
 
@@ -144,8 +143,9 @@ void fuelcen_create(const vmsegptridx_t segp)
 		Error( "Invalid station type %d in fuelcen.c\n", station_type );
 	}
 
-	segp->station_idx = Num_fuelcenters;
-	auto &station = Station.at(Num_fuelcenters++);
+	const auto next_fuelcenter_idx = LevelUniqueFuelcenterState.Num_fuelcenters++;
+	segp->station_idx = next_fuelcenter_idx;
+	auto &station = Station.at(next_fuelcenter_idx);
 	station.Type = station_type;
 	station.Capacity = Fuelcen_max_amount;
 	station.segnum = segp;
@@ -164,7 +164,7 @@ static void matcen_create(const vmsegptridx_t segp)
 
 	Assert(station_type == SEGMENT_IS_ROBOTMAKER);
 
-	const auto next_fuelcenter_idx = Num_fuelcenters++;
+	const auto next_fuelcenter_idx = LevelUniqueFuelcenterState.Num_fuelcenters++;
 	segp->station_idx = next_fuelcenter_idx;
 	auto &station = Station.at(next_fuelcenter_idx);
 
@@ -177,6 +177,7 @@ static void matcen_create(const vmsegptridx_t segp)
 	const auto next_robot_center_idx = Num_robot_centers++;
 	segp->matcen_num = next_robot_center_idx;
 	auto &robotcenter = RobotCenters[next_robot_center_idx];
+	robotcenter.fuelcen_num = next_fuelcenter_idx;
 	robotcenter.segnum = segp;
 	robotcenter.fuelcen_num = next_fuelcenter_idx;
 }
@@ -206,7 +207,7 @@ void trigger_matcen(const vmsegptridx_t segnum)
 	FuelCenter	*robotcen;
 
 	Assert(segp->special == SEGMENT_IS_ROBOTMAKER);
-	Assert(segp->matcen_num < Num_fuelcenters);
+	assert(segp->matcen_num < LevelUniqueFuelcenterState.Num_fuelcenters);
 	Assert((segp->matcen_num >= 0) && (segp->matcen_num <= Highest_segment_index));
 
 	robotcen = &Station[RobotCenters[segp->matcen_num].fuelcen_num];
@@ -251,6 +252,7 @@ void fuelcen_delete(const vmsegptr_t segp)
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
+	auto Num_fuelcenters = LevelUniqueFuelcenterState.Num_fuelcenters;
 Restart: ;
 	segp->special = 0;
 
@@ -289,7 +291,7 @@ Restart: ;
 			goto Restart;
 		}
 	}
-
+	LevelUniqueFuelcenterState.Num_fuelcenters = Num_fuelcenters;
 }
 #endif
 
@@ -541,7 +543,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 void fuelcen_update_all()
 {
 	auto &Station = LevelUniqueFuelcenterState.Station;
-	range_for (auto &&e, enumerate(partial_range(Station, Num_fuelcenters)))
+	range_for (auto &&e, enumerate(partial_range(Station, LevelUniqueFuelcenterState.Num_fuelcenters)))
 	{
 		auto &i = e.value;
 		if (i.Type == SEGMENT_IS_ROBOTMAKER)
@@ -629,7 +631,7 @@ fix repaircen_give_shields(const shared_segment &segp, const fix MaxAmountCanTak
 void disable_matcens(void)
 {
 	auto &Station = LevelUniqueFuelcenterState.Station;
-	range_for (auto &s, partial_range(Station, Num_fuelcenters))
+	range_for (auto &s, partial_range(Station, LevelUniqueFuelcenterState.Num_fuelcenters))
 		if (s.Type == SEGMENT_IS_ROBOTMAKER)
 		{
 			s.Enabled = 0;
@@ -644,6 +646,7 @@ void init_all_matcens(void)
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
+	const auto Num_fuelcenters = LevelUniqueFuelcenterState.Num_fuelcenters;
 	const auto &&robot_range = partial_const_range(RobotCenters, Num_robot_centers);
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++)
 		if (Station[i].Type == SEGMENT_IS_ROBOTMAKER) {

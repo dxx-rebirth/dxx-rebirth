@@ -121,6 +121,7 @@ struct d1_matcen_info : public prohibit_void_ptr<d1_matcen_info>
 
 struct d_level_unique_fuelcenter_state
 {
+	unsigned Num_fuelcenters;
 	// Original D1 size: 50, Original D2 size: 70
 	array<FuelCenter, 128> Station;
 };
@@ -181,7 +182,6 @@ void matcen_info_write(PHYSFS_File *fp, const matcen_info &mi, short version);
 namespace dcx {
 constexpr std::integral_constant<uint8_t, 0xff> station_none{};
 extern unsigned Num_robot_centers;
-extern unsigned Num_fuelcenters;
 extern const fix EnergyToCreateOneRobot;
 }
 #endif

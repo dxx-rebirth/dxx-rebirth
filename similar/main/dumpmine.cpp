@@ -431,6 +431,7 @@ static void write_fuelcen_text(PHYSFS_File *my_file)
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Fuel Center stuff: (Note: This means fuel, repair, materialize, control centers!)\n");
 
+	const auto Num_fuelcenters = LevelUniqueFuelcenterState.Num_fuelcenters;
 	for (i=0; i<Num_fuelcenters; i++) {
 		PHYSFSX_printf(my_file, "Fuelcenter %i: Type=%i (%s), segment = %3i\n", i, Station[i].Type, Special_names[Station[i].Type], Station[i].segnum);
 		if (Segments[Station[i].segnum].special != Station[i].Type)
