@@ -1215,14 +1215,12 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 
 //new function for Mike
 //note: n_segs_visited must be set to zero before this is called
-static sphere_intersects_wall_result sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t segnum, const fix rad, fvi_segments_visited_t &visited)
+static sphere_intersects_wall_result sphere_intersects_wall(fvcvertptr &vcvertptr, const vms_vector &pnt, const vcsegptridx_t segnum, const fix rad, fvi_segments_visited_t &visited)
 {
 	int facemask;
 	visited[segnum] = true;
 	++visited.count;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
-	auto &vcvertptr = Vertices.vcptr;
 	facemask = get_seg_masks(vcvertptr, pnt, segnum, rad).facemask;
 
 	const auto &seg = segnum;
@@ -1260,7 +1258,7 @@ static sphere_intersects_wall_result sphere_intersects_wall(const vms_vector &pn
 							return {static_cast<const segment *>(segnum), side};
 						}
 						else if (!visited[child]) {                //haven't visited here yet
-							const auto &&r = sphere_intersects_wall(pnt, seg.absolute_sibling(child), rad, visited);
+							const auto &&r = sphere_intersects_wall(vcvertptr, pnt, seg.absolute_sibling(child), rad, visited);
 							if (r.seg)
 								return r;
 						}
@@ -1272,8 +1270,8 @@ static sphere_intersects_wall_result sphere_intersects_wall(const vms_vector &pn
 	return {};
 }
 
-sphere_intersects_wall_result sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg, const fix rad)
+sphere_intersects_wall_result sphere_intersects_wall(fvcvertptr &vcvertptr, const vms_vector &pnt, const vcsegptridx_t seg, const fix rad)
 {
 	fvi_segments_visited_t visited;
-	return sphere_intersects_wall(pnt, seg, rad, visited);
+	return sphere_intersects_wall(vcvertptr, pnt, seg, rad, visited);
 }

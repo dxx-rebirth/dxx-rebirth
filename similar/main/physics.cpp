@@ -258,7 +258,9 @@ static void fix_illegal_wall_intersection(const vmobjptridx_t obj)
 	if (!(obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT))
 		return;
 
-	const auto &&hresult = sphere_intersects_wall(obj->pos, vcsegptridx(obj->segnum), obj->size);
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	const auto &&hresult = sphere_intersects_wall(vcvertptr, obj->pos, vcsegptridx(obj->segnum), obj->size);
 	if (hresult.seg)
 	{
 		vm_vec_scale_add2(obj->pos, hresult.seg->sides[hresult.side].normals[0], FrameTime*10);
