@@ -979,6 +979,7 @@ namespace dsx {
 
 void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
 {
+	auto &Station = LevelUniqueFuelcenterState.Station;
 	const uint_fast32_t fuelcen_num = buf[2];
 	int type = buf[5];
 

@@ -75,8 +75,6 @@ unsigned Num_fuelcenters;
 static int Num_extry_robots = 15;
 }
 namespace dsx {
-array<FuelCenter, MAX_NUM_FUELCENS> Station;
-
 #if DXX_USE_EDITOR
 const char	Special_names[MAX_CENTER_TYPES][11] = {
 	"NOTHING   ",
@@ -96,6 +94,7 @@ const char	Special_names[MAX_CENTER_TYPES][11] = {
 void fuelcen_reset()
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
+	auto &Station = LevelUniqueFuelcenterState.Station;
 	DXX_MAKE_MEM_UNDEFINED(Station.begin(), Station.end());
 	DXX_MAKE_MEM_UNDEFINED(RobotCenters.begin(), RobotCenters.end());
 	Num_fuelcenters = 0;
@@ -124,6 +123,7 @@ static void reset_all_robot_centers()
 // Turns a segment into a fully charged up fuel center...
 void fuelcen_create(const vmsegptridx_t segp)
 {
+	auto &Station = LevelUniqueFuelcenterState.Station;
 	int	station_type;
 
 	station_type = segp->special;
@@ -144,15 +144,13 @@ void fuelcen_create(const vmsegptridx_t segp)
 		Error( "Invalid station type %d in fuelcen.c\n", station_type );
 	}
 
-	Assert( Num_fuelcenters < MAX_NUM_FUELCENS );
-
 	segp->station_idx = Num_fuelcenters;
-	Station[Num_fuelcenters].Type = station_type;
-	Station[Num_fuelcenters].Capacity = Fuelcen_max_amount;
-	Station[Num_fuelcenters].segnum = segp;
-	Station[Num_fuelcenters].Timer = -1;
-	Station[Num_fuelcenters].Flag = 0;
-	Num_fuelcenters++;
+	auto &station = Station.at(Num_fuelcenters++);
+	station.Type = station_type;
+	station.Capacity = Fuelcen_max_amount;
+	station.segnum = segp;
+	station.Timer = -1;
+	station.Flag = 0;
 }
 
 //------------------------------------------------------------
@@ -161,27 +159,26 @@ void fuelcen_create(const vmsegptridx_t segp)
 static void matcen_create(const vmsegptridx_t segp)
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
+	auto &Station = LevelUniqueFuelcenterState.Station;
 	int	station_type = segp->special;
 
 	Assert(station_type == SEGMENT_IS_ROBOTMAKER);
 
-	Assert( Num_fuelcenters < MAX_NUM_FUELCENS );
+	const auto next_fuelcenter_idx = Num_fuelcenters++;
+	segp->station_idx = next_fuelcenter_idx;
+	auto &station = Station.at(next_fuelcenter_idx);
 
-	segp->station_idx = Num_fuelcenters;
-	Station[Num_fuelcenters].Type = station_type;
-	Station[Num_fuelcenters].Capacity = i2f(Difficulty_level + 3);
-
-	Station[Num_fuelcenters].segnum = segp;
-	Station[Num_fuelcenters].Timer = -1;
-	Station[Num_fuelcenters].Flag = 0;
+	station.Type = station_type;
+	station.Capacity = i2f(Difficulty_level + 3);
+	station.segnum = segp;
+	station.Timer = -1;
+	station.Flag = 0;
 
 	const auto next_robot_center_idx = Num_robot_centers++;
 	segp->matcen_num = next_robot_center_idx;
 	auto &robotcenter = RobotCenters[next_robot_center_idx];
 	robotcenter.segnum = segp;
-	robotcenter.fuelcen_num = Num_fuelcenters;
-
-	Num_fuelcenters++;
+	robotcenter.fuelcen_num = next_fuelcenter_idx;
 }
 
 //------------------------------------------------------------
@@ -204,6 +201,7 @@ void fuelcen_activate(const vmsegptridx_t segp)
 void trigger_matcen(const vmsegptridx_t segnum)
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
+	auto &Station = LevelUniqueFuelcenterState.Station;
 	const auto &segp = segnum;
 	FuelCenter	*robotcen;
 
@@ -252,6 +250,7 @@ void trigger_matcen(const vmsegptridx_t segnum)
 void fuelcen_delete(const vmsegptr_t segp)
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
+	auto &Station = LevelUniqueFuelcenterState.Station;
 Restart: ;
 	segp->special = 0;
 
@@ -541,6 +540,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 // Called once per frame, replenishes fuel supply.
 void fuelcen_update_all()
 {
+	auto &Station = LevelUniqueFuelcenterState.Station;
 	range_for (auto &&e, enumerate(partial_range(Station, Num_fuelcenters)))
 	{
 		auto &i = e.value;
@@ -574,13 +574,7 @@ fix fuelcen_give_fuel(const shared_segment &segp, fix MaxAmountCanTake)
 		detect_escort_goal_fuelcen_accomplished();
 #endif
 
-//		if (Station[segp->value].Capacity<=0)	{
-//			HUD_init_message(HM_DEFAULT, "Fuelcenter %d is empty.", segp->value );
-//			return 0;
-//		}
-
 		if (MaxAmountCanTake <= 0 )	{
-//			//gauge_message( "Fueled up!");
 			return 0;
 		}
 
@@ -588,14 +582,6 @@ fix fuelcen_give_fuel(const shared_segment &segp, fix MaxAmountCanTake)
 
 		if (amount > MaxAmountCanTake )
 			amount = MaxAmountCanTake;
-
-//		if (!(Game_mode & GM_MULTI))
-//			if ( Station[segp->value].Capacity < amount  )	{
-//				amount = Station[segp->value].Capacity;
-//				Station[segp->value].Capacity = 0;
-//			} else {
-//				Station[segp->value].Capacity -= amount;
-//			}
 
 		if (last_play_time + FUELCEN_SOUND_DELAY < GameTime64 || last_play_time > GameTime64)
 		{
@@ -620,25 +606,12 @@ fix repaircen_give_shields(const shared_segment &segp, const fix MaxAmountCanTak
 	if (segp.special == SEGMENT_IS_REPAIRCEN)
 	{
 		fix amount;
-//             detect_escort_goal_accomplished(-4);    //      UGLY! Hack! -4 means went through fuelcen.
-//             if (Station[segp->value].Capacity<=0)   {
-//                     HUD_init_message(HM_DEFAULT, "Repaircenter %d is empty.", segp->value );
-//                     return 0;
-//             }
 		if (MaxAmountCanTake <= 0 ) {
-			//gauge_message( "Shields restored!");
 			return 0;
 		}
 		amount = fixmul(FrameTime,Fuelcen_give_amount);
 		if (amount > MaxAmountCanTake )
 			amount = MaxAmountCanTake;
-//        if (!(Game_mode & GM_MULTI))
-//                     if ( Station[segp->value].Capacity < amount  )  {
-//                             amount = Station[segp->value].Capacity;
-//                             Station[segp->value].Capacity = 0;
-//                     } else {
-//                             Station[segp->value].Capacity -= amount;
-//                     }
 		if (last_play_time > GameTime64)
 			last_play_time = 0;
 		if (GameTime64 > last_play_time+FUELCEN_SOUND_DELAY) {
@@ -655,6 +628,7 @@ fix repaircen_give_shields(const shared_segment &segp, const fix MaxAmountCanTak
 //	--------------------------------------------------------------------------------------------
 void disable_matcens(void)
 {
+	auto &Station = LevelUniqueFuelcenterState.Station;
 	range_for (auto &s, partial_range(Station, Num_fuelcenters))
 		if (s.Type == SEGMENT_IS_ROBOTMAKER)
 		{
@@ -669,6 +643,7 @@ void disable_matcens(void)
 void init_all_matcens(void)
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
+	auto &Station = LevelUniqueFuelcenterState.Station;
 	const auto &&robot_range = partial_const_range(RobotCenters, Num_robot_centers);
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++)
 		if (Station[i].Type == SEGMENT_IS_ROBOTMAKER) {

@@ -464,6 +464,7 @@ static void compress_segments(void)
 	seg = Highest_segment_index;
 
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
+	auto &Station = LevelUniqueFuelcenterState.Station;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
 	for (hole=0; hole < seg; hole++)

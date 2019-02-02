@@ -425,6 +425,7 @@ static void write_control_center_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my
 // ----------------------------------------------------------------------------
 static void write_fuelcen_text(PHYSFS_File *my_file)
 {
+	auto &Station = LevelUniqueFuelcenterState.Station;
 	int	i;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
@@ -483,6 +484,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Materialization centers:\n");
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
+	auto &Station = LevelUniqueFuelcenterState.Station;
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vctrgptridx = Triggers.vcptridx;
 	for (i=0; i<Num_robot_centers; i++) {

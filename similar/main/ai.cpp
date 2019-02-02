@@ -2969,6 +2969,9 @@ void do_ai_frame(const vmobjptridx_t obj)
 	}
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Station = LevelUniqueFuelcenterState.Station;
+#endif
 	auto &robptr = Robot_info[get_robot_id(obj)];
 	Assert(robptr.always_0xabcd == 0xabcd);
 

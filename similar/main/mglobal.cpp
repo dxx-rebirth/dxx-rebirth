@@ -42,6 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 d_level_shared_vertex_state LevelSharedVertexState;
+d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
 d_level_unique_light_state LevelUniqueLightState;
 d_level_unique_segment_state LevelUniqueSegmentState;
 // Global array of vertices, common to one mine.

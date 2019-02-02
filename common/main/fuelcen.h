@@ -81,7 +81,6 @@ void fuelcen_update_all();
 //--repair-- int refuel_do_repair_effect( object * obj, int first_time, int repair_seg );
 
 namespace dsx {
-#define MAX_NUM_FUELCENS 128 // Original D1: 50, Original D2: 70
 #if defined(DXX_BUILD_DESCENT_II)
 fix repaircen_give_shields(const shared_segment &segp, fix MaxAmountCanTake);
 #endif
@@ -96,6 +95,8 @@ fix repaircen_give_shields(const shared_segment &segp, fix MaxAmountCanTake);
 //--repair--
 //--repair-- //if repairing, cut it short
 //--repair-- abort_repair_center();
+
+namespace dcx {
 
 // An array of pointers to segments with fuel centers.
 struct FuelCenter : public prohibit_void_ptr<FuelCenter>
@@ -117,6 +118,16 @@ struct d1_matcen_info : public prohibit_void_ptr<d1_matcen_info>
 	segnum_t   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
 };
+
+struct d_level_unique_fuelcenter_state
+{
+	// Original D1 size: 50, Original D2 size: 70
+	array<FuelCenter, 128> Station;
+};
+
+extern d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
+
+}
 
 #ifdef dsx
 namespace dsx {
@@ -143,8 +154,6 @@ struct d_level_shared_robotcenter_state
 };
 
 extern d_level_shared_robotcenter_state LevelSharedRobotcenterState;
-
-extern array<FuelCenter, MAX_NUM_FUELCENS> Station;
 
 // Called when a materialization center gets triggered by the player
 // flying through some trigger!
