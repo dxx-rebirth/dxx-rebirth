@@ -2004,7 +2004,7 @@ static int boss_fits_in_seg(fvcvertptr &vcvertptr, const object &boss_objp, cons
 	auto pos = segcenter;
 	for (uint_fast32_t posnum = 0;;)
 	{
-		if (!sphere_intersects_wall(pos, segp, size, nullptr))
+		if (!sphere_intersects_wall(pos, segp, size).seg)
 			return 1;
 		if (posnum == segp->verts.size())
 			break;

@@ -1215,7 +1215,7 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 
 //new function for Mike
 //note: n_segs_visited must be set to zero before this is called
-static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t segnum, const fix rad, object_intersects_wall_result_t *const hresult, fvi_segments_visited_t &visited)
+static sphere_intersects_wall_result sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t segnum, const fix rad, fvi_segments_visited_t &visited)
 {
 	int facemask;
 	visited[segnum] = true;
@@ -1229,7 +1229,8 @@ static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg
 
 	if (facemask != 0) {				//on the back of at least one face
 
-		int side,bit,face;
+		int bit,face;
+		uint_fast32_t side;
 
 		//for each face we are on the back of, check if intersected
 
@@ -1256,15 +1257,11 @@ static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg
 
 						if (!IS_CHILD(child))
 						{
-							if (hresult)
-							{
-								hresult->seg = segnum;
-								hresult->side = side;
-							}
-							return 1;
+							return {static_cast<const segment *>(segnum), side};
 						}
 						else if (!visited[child]) {                //haven't visited here yet
-							if (auto r = sphere_intersects_wall(pnt, seg.absolute_sibling(child), rad, hresult, visited))
+							const auto &&r = sphere_intersects_wall(pnt, seg.absolute_sibling(child), rad, visited);
+							if (r.seg)
 								return r;
 						}
 					}
@@ -1272,16 +1269,11 @@ static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg
 			}
 		}
 	}
-	return 0;
+	return {};
 }
 
-int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg, const fix rad, object_intersects_wall_result_t *const hresult)
+sphere_intersects_wall_result sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg, const fix rad)
 {
 	fvi_segments_visited_t visited;
-	return sphere_intersects_wall(pnt, seg, rad, hresult, visited);
-}
-
-int object_intersects_wall_d(const vcobjptr_t objp, object_intersects_wall_result_t &result)
-{
-	return sphere_intersects_wall(objp->pos, vcsegptridx(objp->segnum), objp->size, &result);
+	return sphere_intersects_wall(pnt, seg, rad, visited);
 }

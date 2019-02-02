@@ -258,10 +258,10 @@ static void fix_illegal_wall_intersection(const vmobjptridx_t obj)
 	if (!(obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT))
 		return;
 
-	object_intersects_wall_result_t hresult;
-	if (object_intersects_wall_d(obj, hresult))
+	const auto &&hresult = sphere_intersects_wall(obj->pos, vcsegptridx(obj->segnum), obj->size);
+	if (hresult.seg)
 	{
-		vm_vec_scale_add2(obj->pos, vcsegptr(hresult.seg)->shared_segment::sides[hresult.side].normals[0], FrameTime*10);
+		vm_vec_scale_add2(obj->pos, hresult.seg->sides[hresult.side].normals[0], FrameTime*10);
 		update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, obj);
 	}
 }

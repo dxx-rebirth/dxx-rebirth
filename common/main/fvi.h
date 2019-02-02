@@ -98,15 +98,14 @@ __attribute_warn_unused_result
 fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, vcsegptridx_t seg, uint_fast32_t sidenum, uint_fast32_t facenum);
 }
 
-struct object_intersects_wall_result_t
+struct sphere_intersects_wall_result
 {
-	segnum_t seg;
-	uint8_t side;
+	const shared_segment *seg;
+	uint_fast32_t side;
 };
 
 //Returns true if the object is through any walls
-int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg, const fix rad, object_intersects_wall_result_t *const hresult);
-int object_intersects_wall_d(vcobjptr_t objp, object_intersects_wall_result_t &); // same as above but more detailed
+sphere_intersects_wall_result sphere_intersects_wall(const vms_vector &pnt, vcsegptridx_t seg, fix rad);
 #endif
 
 #endif
