@@ -261,10 +261,13 @@ public:
 	}
 	grs_main_bitmap &operator=(grs_main_bitmap &&r)
 	{
+		if (this == &r)
+			return *this;
+		reset();
 		grs_bitmap::operator=(std::move(static_cast<grs_bitmap &>(r)));
-		bm_data = exchange(r.bm_data, nullptr);
+		r.bm_data = nullptr;
 #if DXX_USE_OGL
-		gltexture = exchange(r.gltexture, nullptr);
+		r.gltexture = nullptr;
 #endif
 		return *this;
 	}
