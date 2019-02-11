@@ -2634,6 +2634,34 @@ where the cast is useless.
 #if defined(__APPLE__) && defined(__MACH__)
 #include <HIServices/Processes.h>
 #endif
+
+/* gcc's warning -Wduplicated-branches was initially overzealous and
+ * warned if the branches were identical after expanding template
+ * parameters.  This was documented in gcc bug #82541, which was fixed
+ * for gcc-8.x.  As of this writing, the fix has not been backported to
+ * gcc-7.x.
+ *
+ * Work around this unwanted quirk by including code which will provoke
+ * a -Wduplicated-branches warning in affected versions, but not in
+ * fixed versions, so that the configure stage blacklists the warning on
+ * affected versions.
+ */
+
+namespace gcc_pr82541 {
+
+template <unsigned U1, unsigned U2>
+unsigned u(bool b)
+{
+	return b ? U1 : U2;
+}
+
+unsigned u2(bool b);
+unsigned u2(bool b)
+{
+	return u<1, 1>(b);
+}
+
+}
 ''',
 		_mangle_compiler_option_name=__mangle_compiler_option_name,
 		_mangle_linker_option_name=__mangle_linker_option_name
