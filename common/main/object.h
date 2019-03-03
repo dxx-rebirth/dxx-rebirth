@@ -577,6 +577,7 @@ struct d_unique_buddy_state
 	uint8_t Buddy_gave_hint_count;
 	uint8_t Looking_for_marker;
 	int Last_buddy_key;
+	int Last_buddy_polish_path_tick;
 	escort_goal_t Escort_goal_object;
 };
 

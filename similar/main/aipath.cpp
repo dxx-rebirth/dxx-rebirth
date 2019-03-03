@@ -504,8 +504,6 @@ cpp_done1: ;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-int	Last_buddy_polish_path_tick;
-
 //	-------------------------------------------------------------------------------------------------------
 //	polish_path
 //	Takes an existing path and makes it nicer.
@@ -518,6 +516,7 @@ int	Last_buddy_polish_path_tick;
 //				Only drop up to the first three points.
 int polish_path(const vmobjptridx_t objp, point_seg *psegs, int num_points)
 {
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	int	i, first_point=0;
 
 	if (num_points <= 4)
@@ -527,10 +526,10 @@ int polish_path(const vmobjptridx_t objp, point_seg *psegs, int num_points)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (Robot_info[get_robot_id(objp)].companion)
 	{
-		if (d_tick_count == Last_buddy_polish_path_tick)
+		if (d_tick_count == BuddyState.Last_buddy_polish_path_tick)
 			return num_points;
 		else
-			Last_buddy_polish_path_tick = d_tick_count;
+			BuddyState.Last_buddy_polish_path_tick = d_tick_count;
 	}
 
 	// -- MK: 10/18/95: for (i=0; i<num_points-3; i++)
