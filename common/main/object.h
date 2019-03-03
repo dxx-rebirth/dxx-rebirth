@@ -576,6 +576,7 @@ struct d_unique_buddy_state
 	uint8_t Buddy_messages_suppressed;
 	uint8_t Buddy_gave_hint_count;
 	uint8_t Looking_for_marker;
+	int Last_buddy_key;
 	escort_goal_t Escort_goal_object;
 };
 

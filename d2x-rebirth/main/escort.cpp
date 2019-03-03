@@ -115,7 +115,6 @@ int	Stolen_item_index;
 fix64	Escort_last_path_created = 0;
 escort_goal_t Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 fix64	Buddy_sorry_time;
-static int Last_buddy_key;
 
 static fix64 Last_buddy_message_time;
 
@@ -131,10 +130,9 @@ void init_buddy_for_level(void)
 	BuddyState.Buddy_gave_hint_count = 5;
 	BuddyState.Looking_for_marker = UINT8_MAX;
 	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
+	BuddyState.Last_buddy_key = -1;
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 	Buddy_sorry_time = -F1_0;
-
-	Last_buddy_key = -1;
 }
 
 //	-----------------------------------------------------------------------------
@@ -495,7 +493,7 @@ void set_escort_special_goal(int special_key)
 
 	marker_key = special_key;
 	
-	if (Last_buddy_key == special_key)
+	if (BuddyState.Last_buddy_key == special_key)
 	{
 		auto &Looking_for_marker = BuddyState.Looking_for_marker;
 		if (Looking_for_marker == UINT8_MAX && special_key != KEY_0)
@@ -511,7 +509,7 @@ void set_escort_special_goal(int special_key)
 		}
 	}
 
-	Last_buddy_key = special_key;
+	BuddyState.Last_buddy_key = special_key;
 
 	if (special_key == KEY_0)
 		BuddyState.Looking_for_marker = UINT8_MAX;
@@ -1755,9 +1753,9 @@ window_event_result escort_menu::event_key_command(const d_event &event)
 		case KEY_8:
 		case KEY_9:
 			BuddyState.Looking_for_marker = UINT8_MAX;
-			Last_buddy_key = -1;
+			BuddyState.Last_buddy_key = -1;
 			set_escort_special_goal(key);
-			Last_buddy_key = -1;
+			BuddyState.Last_buddy_key = -1;
 			return window_event_result::close;
 		case KEY_ESC:
 		case KEY_ENTER:
