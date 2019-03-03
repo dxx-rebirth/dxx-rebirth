@@ -187,6 +187,15 @@ static void jointlist_read(PHYSFS_File *fp, array<jointlist, N_ANIM_STATES> &jl)
 }
 
 namespace dsx {
+
+imobjptridx_t robot_create(const unsigned id, const vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const ai_behavior behavior, const imsegidx_t hide_segment)
+{
+	const auto &&objp = obj_create(OBJ_ROBOT, id, segnum, pos, orient, size, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+	if (objp)
+		init_ai_object(objp, behavior, hide_segment);
+	return objp;
+}
+
 /*
  * reads n robot_info structs from a PHYSFS_File
  */
