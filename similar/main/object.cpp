@@ -1092,8 +1092,7 @@ static void free_object_slots(uint_fast32_t num_used)
 //note that segnum is really just a suggestion, since this routine actually
 //searches for the correct segment
 //returns the object number
-imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const vms_vector &pos,
-				const vms_matrix *orient,fix size,ubyte ctype,ubyte mtype,ubyte rtype)
+imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const unsigned ctype, const movement_type_t mtype, const unsigned rtype)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
@@ -2277,7 +2276,7 @@ static void obj_detach_all(object_array &Objects, object_base &parent)
 
 #if defined(DXX_BUILD_DESCENT_II)
 //creates a marker object in the world.  returns the object number
-imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segnum, const vms_matrix &orient, int marker_num)
+imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segnum, const vms_matrix &orient, const unsigned marker_num)
 {
 	Assert(Marker_model_num != -1);
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;

@@ -297,7 +297,7 @@ Restart: ;
 
 #define	ROBOT_GEN_TIME (i2f(5))
 
-imobjptridx_t  create_morph_robot( const vmsegptridx_t segp, const vms_vector &object_pos, int object_id)
+imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &object_pos, const unsigned object_id)
 {
 	auto &plr = get_local_player();
 	plr.num_robots_level++;

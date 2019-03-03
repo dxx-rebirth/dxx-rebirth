@@ -523,7 +523,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 
 //-----------------------------------------------------------------
 // Checks for a trigger whenever an object hits a trigger side.
-window_event_result check_trigger(const vcsegptridx_t seg, short side, object &plrobj, const vcobjptridx_t objnum, int shot)
+window_event_result check_trigger(const vcsegptridx_t seg, const unsigned side, object &plrobj, const vcobjptridx_t objnum, int shot)
 {
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
 		return window_event_result::ignored;

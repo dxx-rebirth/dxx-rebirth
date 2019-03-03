@@ -445,7 +445,7 @@ void digi_link_sound_to_object(const unsigned soundnum, const vcobjptridx_t objn
 	digi_link_sound_to_object2(soundnum, objnum, forever, max_volume, once, vm_distance{256*F1_0});
 }
 
-static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum, const vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
+static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum, const vcsegptridx_t segnum, const unsigned sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
 {
 	const auto &&viewer = vcobjptr(Viewer);
 	int volume, pan;
@@ -483,7 +483,7 @@ static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum,
 	digi_link_sound_common(viewer, so, pos, forever, max_volume, max_distance, soundnum, segnum);
 }
 
-void digi_link_sound_to_pos(int soundnum, const vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume)
+void digi_link_sound_to_pos(const unsigned soundnum, const vcsegptridx_t segnum, const unsigned sidenum, const vms_vector &pos, const int forever, const fix max_volume)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -491,7 +491,7 @@ void digi_link_sound_to_pos(int soundnum, const vcsegptridx_t segnum, short side
 }
 
 //if soundnum==-1, kill any sound
-void digi_kill_sound_linked_to_segment( segnum_t segnum, int sidenum, int soundnum )
+void digi_kill_sound_linked_to_segment(const vmsegidx_t segnum, const unsigned sidenum, int soundnum)
 {
 	if (soundnum != -1)
 		soundnum = digi_xlat_sound(soundnum);

@@ -396,7 +396,7 @@ void wall_damage(const vmsegptridx_t seg, const unsigned side, fix damage)
 //-----------------------------------------------------------------
 // Opens a door
 namespace dsx {
-void wall_open_door(const vmsegptridx_t seg, int side)
+void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1068,7 +1068,7 @@ static int special_boss_opening_allowed(segnum_t segnum, int sidenum)
 //playernum is the number the player who hit the wall or fired the weapon,
 //or -1 if a robot fired the weapon
 namespace dsx {
-wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmsegptridx_t seg, int side, fix damage, int playernum, const object &obj)
+wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmsegptridx_t seg, const unsigned side, const fix damage, const unsigned playernum, const object &obj)
 {
 	fix	show_message;
 

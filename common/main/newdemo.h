@@ -109,8 +109,8 @@ extern void newdemo_record_homing_distance(fix);
 extern void newdemo_record_letterbox(void);
 extern void newdemo_record_rearview(void);
 extern void newdemo_record_restore_cockpit(void);
-extern void newdemo_record_wall_set_tmap_num1(short seg,ubyte side,short cseg,ubyte cside,short tmap);
-extern void newdemo_record_wall_set_tmap_num2(short seg,ubyte side,short cseg,ubyte cside,short tmap);
+void newdemo_record_wall_set_tmap_num1(vcsegidx_t seg, unsigned side, vcsegidx_t cseg, unsigned cside, int16_t tmap);
+void newdemo_record_wall_set_tmap_num2(vcsegidx_t seg, unsigned side, vcsegidx_t cseg, unsigned cside, int16_t tmap);
 extern void newdemo_record_multi_cloak(int pnum);
 extern void newdemo_record_multi_decloak(int pnum);
 #ifdef dsx
@@ -132,7 +132,7 @@ extern void newdemo_record_secondary_ammo(int new_ammo);
 void newdemo_record_door_opening(segnum_t segnum, int side);
 extern void newdemo_record_laser_level(sbyte old_level, sbyte new_level);
 #if defined(DXX_BUILD_DESCENT_II)
-void newdemo_record_trigger( segnum_t segnum, int side, objnum_t objnum,int shot );
+void newdemo_record_trigger(vcsegidx_t segnum, unsigned side, objnum_t objnum, unsigned shot);
 extern void newdemo_record_player_afterburner(fix afterburner);
 extern void newdemo_record_cloaking_wall(int front_wall_num, int back_wall_num, ubyte type, ubyte state, fix cloak_value, fix l0, fix l1, fix l2, fix l3);
 extern void newdemo_record_secret_exit_blown(int truth);

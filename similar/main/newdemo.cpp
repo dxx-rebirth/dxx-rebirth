@@ -1276,7 +1276,7 @@ void newdemo_record_secret_exit_blown(int truth)
 	nd_write_int( truth );
 }
 
-void newdemo_record_trigger( segnum_t segnum, int side, objnum_t objnum,int shot )
+void newdemo_record_trigger(const vcsegidx_t segnum, const unsigned side, const objnum_t objnum, const unsigned shot)
 {
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_TRIGGER );
@@ -1433,7 +1433,7 @@ void newdemo_record_restore_rearview(void)
 	nd_write_byte(ND_EVENT_RESTORE_REARVIEW);
 }
 
-void newdemo_record_wall_set_tmap_num1(short seg,ubyte side,short cseg,ubyte cside,short tmap)
+void newdemo_record_wall_set_tmap_num1(const vcsegidx_t seg, const unsigned side, const vcsegidx_t cseg, const unsigned cside, const int16_t tmap)
 {
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_WALL_SET_TMAP_NUM1);
@@ -1444,7 +1444,7 @@ void newdemo_record_wall_set_tmap_num1(short seg,ubyte side,short cseg,ubyte csi
 	nd_write_short(tmap);
 }
 
-void newdemo_record_wall_set_tmap_num2(short seg,ubyte side,short cseg,ubyte cside,short tmap)
+void newdemo_record_wall_set_tmap_num2(const vcsegidx_t seg, const unsigned side, const vcsegidx_t cseg, const unsigned cside, const int16_t tmap)
 {
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_WALL_SET_TMAP_NUM2);

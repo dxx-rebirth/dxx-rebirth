@@ -67,7 +67,7 @@ void fuelcen_activate(vmsegptridx_t segp);
 void fuelcen_delete(vmsegptr_t segp);
 
 // Create a matcen robot
-imobjptridx_t create_morph_robot(vmsegptridx_t segp, const vms_vector &object_pos, int object_id);
+imobjptridx_t create_morph_robot(vmsegptridx_t segp, const vms_vector &object_pos, unsigned object_id);
 
 // Returns the amount of fuel/shields this segment can give up.
 // Can be from 0 to 100.

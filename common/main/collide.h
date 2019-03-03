@@ -78,7 +78,7 @@ void collide_live_local_player_and_powerup(const vmobjptridx_t powerup);
 #endif
 #ifdef dsx
 namespace dsx {
-int check_effect_blowup(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, vmsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
+int check_effect_blowup(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, vmsegptridx_t seg, unsigned side, const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
 }
 #endif
 void apply_damage_to_controlcen(vmobjptridx_t controlcen, fix damage, vcobjptr_t who);

@@ -174,7 +174,7 @@ constexpr std::integral_constant<uint8_t, 0xff> trigger_none{};
 
 extern void trigger_init();
 namespace dsx {
-window_event_result check_trigger(vcsegptridx_t seg, short side, object &plrobj, vcobjptridx_t objnum, int shot);
+window_event_result check_trigger(vcsegptridx_t seg, unsigned side, object &plrobj, vcobjptridx_t objnum, int shot);
 window_event_result check_trigger_sub(object &, trgnum_t trigger_num, playernum_t player_num, unsigned shot);
 
 static inline int trigger_is_exit(const trigger *t)

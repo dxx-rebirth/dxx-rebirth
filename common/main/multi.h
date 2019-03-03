@@ -350,7 +350,7 @@ static inline laser_level_t map_granted_flags_to_laser_level(const packed_spawn_
 player_flags map_granted_flags_to_player_flags(packed_spawn_granted_items grant);
 uint_fast32_t map_granted_flags_to_primary_weapon_flags(packed_spawn_granted_items grant);
 uint16_t map_granted_flags_to_vulcan_ammo(packed_spawn_granted_items grant);
-void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume);
+void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, unsigned sidenum, const vms_vector &pos, int forever, fix max_volume);
 void multi_object_to_object_rw(vmobjptr_t obj, object_rw *obj_rw);
 void multi_object_rw_to_object(object_rw *obj_rw, vmobjptr_t obj);
 

@@ -123,7 +123,7 @@ static int check_collision_delayfunc_exec()
 //	-------------------------------------------------------------------------------------------------------------
 //	The only reason this routine is called (as of 10/12/94) is so Brain guys can open doors.
 namespace dsx {
-static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const vmsegptridx_t hitseg, short hitwall, const vms_vector &)
+static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const vmsegptridx_t hitseg, const unsigned hitwall, const vms_vector &)
 {
 	const ubyte robot_id = get_robot_id(robot);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -339,7 +339,7 @@ void bump_one_object(object_base &obj0, const vms_vector &hit_dir, fix damage)
 }
 
 namespace dsx {
-static void collide_player_and_wall(const vmobjptridx_t playerobj, fix hitspeed, const vmsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
+static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hitspeed, const vmsegptridx_t hitseg, const unsigned hitwall, const vms_vector &hitpt)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -549,7 +549,7 @@ static int effect_parent_is_guidebot(fvcobjptr &vcobjptr, const laser_parent &la
 
 //if an effect is hit, and it can blow up, then blow it up
 //returns true if it blew up
-int check_effect_blowup(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, const vmsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
+int check_effect_blowup(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, const vmsegptridx_t seg, unsigned side, const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;

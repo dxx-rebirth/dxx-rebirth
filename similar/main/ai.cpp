@@ -1902,7 +1902,7 @@ static int check_object_object_intersection(const vms_vector &pos, fix size, con
 // --------------------------------------------------------------------------------------------------------------------
 //	Return objnum if object created, else return -1.
 //	If pos == NULL, pick random spot in segment.
-static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &vcobjptr, const vmsegptridx_t segp, int object_id, const vms_vector *const pos)
+static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &vcobjptr, const vmsegptridx_t segp, const unsigned object_id, const vms_vector *const pos)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	const unsigned maximum_gated_robots = 2*Difficulty_level + 3;
@@ -1992,7 +1992,7 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 //	The process of him bringing in a robot takes one second.
 //	Then a robot appears somewhere near the player.
 //	Return objnum if robot successfully created, else return -1
-imobjptridx_t gate_in_robot(int type, const vmsegptridx_t segnum)
+imobjptridx_t gate_in_robot(const unsigned type, const vmsegptridx_t segnum)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;

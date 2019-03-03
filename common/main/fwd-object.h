@@ -230,7 +230,7 @@ void obj_unlink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, object_base &obj);
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
-imobjptridx_t obj_create(object_type_t type, ubyte id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, ubyte ctype, ubyte mtype, ubyte rtype);
+imobjptridx_t obj_create(object_type_t type, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, unsigned ctype, movement_type_t mtype, unsigned rtype);
 
 // make a copy of an object. returs num of new object
 imobjptridx_t obj_create_copy(const object &srcobj, vmsegptridx_t newsegnum);
@@ -329,7 +329,7 @@ window_event_result dead_player_frame();
 #if defined(DXX_BUILD_DESCENT_II)
 extern int Drop_afterburner_blob_flag;		//ugly hack
 // returns object number
-imobjptridx_t drop_marker_object(const vms_vector &pos, vmsegptridx_t segnum, const vms_matrix &orient, int marker_num);
+imobjptridx_t drop_marker_object(const vms_vector &pos, vmsegptridx_t segnum, const vms_matrix &orient, unsigned marker_num);
 
 void wake_up_rendered_objects(const object &gmissp, window_rendered_data &window);
 

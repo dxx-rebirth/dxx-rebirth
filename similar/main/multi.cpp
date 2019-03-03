@@ -3039,7 +3039,7 @@ void multi_digi_play_sample(int soundnum, fix max_volume)
 
 namespace dsx {
 
-void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume)
+void multi_digi_link_sound_to_pos(const int soundnum, const vcsegptridx_t segnum, const unsigned sidenum, const vms_vector &pos, const int forever, const fix max_volume)
 {
 	if (Game_mode & GM_MULTI)
 		multi_send_play_sound(soundnum, max_volume, sound_stack::allow_stacking);

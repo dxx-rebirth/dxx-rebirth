@@ -234,7 +234,7 @@ void wall_illusion_on(fvmwallptr &, vcsegptridx_t seg, unsigned side);
 void wall_illusion_off(fvmwallptr &, vcsegptridx_t seg, unsigned side);
 
 // Opens a door
-void wall_open_door(vmsegptridx_t seg, int side);
+void wall_open_door(vmsegptridx_t seg, unsigned side);
 
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -258,7 +258,7 @@ enum class wall_hit_process_t : unsigned
 #ifdef dsx
 class player_flags;
 namespace dsx {
-wall_hit_process_t wall_hit_process(player_flags, vmsegptridx_t seg, int side, fix damage, int playernum, const object &obj);
+wall_hit_process_t wall_hit_process(player_flags, vmsegptridx_t seg, unsigned side, fix damage, unsigned playernum, const object &obj);
 
 // Opens/destroys specified door.
 }
