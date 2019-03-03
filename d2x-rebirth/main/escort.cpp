@@ -131,6 +131,7 @@ void init_buddy_for_level(void)
 	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	BuddyState.Last_buddy_key = -1;
 	BuddyState.Buddy_sorry_time = -F1_0;
+	BuddyState.Buddy_last_seen_player = 0;
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 }
 
@@ -935,14 +936,15 @@ static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
 
 #define	MAX_ESCORT_TIME_AWAY		(F1_0*4)
 
-fix64	Buddy_last_seen_player = 0, Buddy_last_player_path_created;
+fix64 Buddy_last_player_path_created;
 
 //	-----------------------------------------------------------------------------
 static int time_to_visit_player(const vmobjptr_t objp, ai_local *ailp, ai_static *aip)
 {
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	//	Note: This one has highest priority because, even if already going towards player,
 	//	might be necessary to create a new path, as player can move.
-	if (GameTime64 - Buddy_last_seen_player > MAX_ESCORT_TIME_AWAY)
+	if (GameTime64 - BuddyState.Buddy_last_seen_player > MAX_ESCORT_TIME_AWAY)
 		if (GameTime64 - Buddy_last_player_path_created > F1_0)
 			return 1;
 
@@ -1079,7 +1081,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 
 	auto &player_info = plrobj.ctype.player_info;
 	if (player_visibility) {
-		Buddy_last_seen_player = GameTime64;
+		BuddyState.Buddy_last_seen_player = GameTime64;
 		if (player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
 		{
 			const auto energy = player_info.energy;
@@ -1154,7 +1156,9 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 		create_path_to_player(objp, max_len, create_path_safety_flag::safe);	//	MK!: Last parm used to be 1!
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
-	}	else if (GameTime64 - Buddy_last_seen_player > MAX_ESCORT_TIME_AWAY) {
+	}
+	else if (GameTime64 - BuddyState.Buddy_last_seen_player > MAX_ESCORT_TIME_AWAY)
+	{
 		//	This is to prevent buddy from looking for a goal, which he will do because we only allow path creation once/second.
 		return;
 	} else if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) && (dist_to_player < MIN_ESCORT_DISTANCE)) {
