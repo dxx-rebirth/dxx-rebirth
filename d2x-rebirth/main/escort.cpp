@@ -1412,6 +1412,7 @@ static int maybe_steal_flag_item(const vmobjptr_t playerobjp, const PLAYER_FLAG 
 					msg = "Full map stolen!";
 					break;
 				case PLAYER_FLAGS_QUAD_LASERS:
+					update_laser_weapon_info();
 					powerup_index = POW_QUAD_FIRE;
 					msg = "Quad lasers stolen!";
 					break;
@@ -1634,9 +1635,6 @@ int attempt_to_steal_item(const vmobjptridx_t objp, const vmobjptr_t player_num)
 	ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 	if (rval) {
 		PALETTE_FLASH_ADD(30, 15, -20);
-		update_laser_weapon_info();
-//		digi_link_sound_to_pos( SOUND_NASTY_ROBOT_HIT_1, objp->segnum, 0, &objp->pos, 0 , DEFAULT_ROBOT_SOUND_VOLUME);
-//	I removed this to make the "steal sound" more obvious -AP
                 if (Game_mode & GM_NETWORK)
                  multi_send_stolen_items();
 	}

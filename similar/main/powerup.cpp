@@ -186,10 +186,6 @@ void do_megawow_powerup(int quantity)
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_laser_level(player_info.laser_level, laser_level);
 	player_info.laser_level = laser_level;
-
-
-	update_laser_weapon_info();
-
 }
 }
 //#endif
@@ -465,7 +461,6 @@ int do_powerup(const vmobjptridx_t obj)
 					newdemo_record_laser_level(player_info.laser_level, player_info.laser_level + 1);
 				++ player_info.laser_level;
 				powerup_basic(10, 0, 10, LASER_SCORE, "%s %s %d",TXT_LASER,TXT_BOOSTED_TO, player_info.laser_level+1);
-				update_laser_weapon_info();
 				pick_up_primary(player_info, primary_weapon_index_t::LASER_INDEX);
 				used=1;
 			}
@@ -691,7 +686,6 @@ int do_powerup(const vmobjptridx_t obj)
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_laser_level(old_level, player_info.laser_level);
 				powerup_basic(10, 0, 10, LASER_SCORE, "Super Boost to Laser level %d", player_info.laser_level + 1);
-				update_laser_weapon_info();
 				if (player_info.Primary_weapon != primary_weapon_index_t::LASER_INDEX)
 					check_to_use_primary_super_laser(player_info);
 				used=1;

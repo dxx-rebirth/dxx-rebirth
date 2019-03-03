@@ -3545,10 +3545,8 @@ void draw_hud(grs_canvas &canvas, const object &plrobj)
 		gr_string(canvas, game_font, 0x8000, canvas.cv_bitmap.bm_h - LINE_SPACING(game_font, game_font), TXT_REAR_VIEW);
 	}
 }
-}
 
 //print out some player statistics
-namespace dsx {
 void render_gauges()
 {
 	auto &plrobj = get_local_plrobj();
@@ -3651,20 +3649,14 @@ void render_gauges()
 		draw_player_ship(hudctx, player_info, cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
 #endif
 }
-}
 
 //	---------------------------------------------------------------------------------------------------------
-//	Call when picked up a laser powerup.
+//	Call when picked up a quad laser powerup.
 //	If laser is active, set old_weapon[0] to -1 to force redraw.
-namespace dsx {
 void update_laser_weapon_info(void)
 {
 	if (old_weapon[0] == 0)
-#if defined(DXX_BUILD_DESCENT_II)
-		if (!(get_local_plrobj().ctype.player_info.laser_level > MAX_LASER_LEVEL && old_laser_level <= MAX_LASER_LEVEL))
-#endif
 			old_weapon[0] = -1;
-}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -3823,3 +3815,4 @@ abort:;
 	gr_set_default_canvas();
 }
 #endif
+}

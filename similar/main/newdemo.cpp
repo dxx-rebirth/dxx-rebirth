@@ -1850,7 +1850,6 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	const stored_laser_level laser_level(i);
 	if ((purpose != PURPOSE_REWRITE) && (laser_level != player_info.laser_level)) {
 		player_info.laser_level = laser_level;
-		update_laser_weapon_info();
 	}
 	else if (purpose == PURPOSE_REWRITE)
 		nd_write_byte(laser_level);
@@ -2598,7 +2597,8 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				player_info.powerup_flags = new_player_flags;
 			}
-			update_laser_weapon_info();     // in case of quad laser change
+			if ((old_player_flags & PLAYER_FLAGS_QUAD_LASERS) != (new_player_flags & PLAYER_FLAGS_QUAD_LASERS))
+				update_laser_weapon_info();
 			break;
 		}
 
@@ -3094,10 +3094,8 @@ static int newdemo_read_frame_information(int rewrite)
 			auto &player_info = get_local_plrobj().ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				player_info.laser_level = stored_laser_level(old_level);
-				update_laser_weapon_info();
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				player_info.laser_level = stored_laser_level(new_level);
-				update_laser_weapon_info();
 			}
 			break;
 		}
@@ -3454,8 +3452,6 @@ window_event_result newdemo_goto_end(int to_rewrite)
 	const stored_laser_level laser_level(i);
 	if (player_info.laser_level != laser_level) {
 		player_info.laser_level = laser_level;
-		if (!to_rewrite)
-			update_laser_weapon_info();
 	}
 	}
 

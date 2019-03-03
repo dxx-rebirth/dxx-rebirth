@@ -108,6 +108,7 @@ constexpr rgb_array_wrapper player_rgb{};
 #define WBU_MARKER      6       // a dropped marker
 #define WBU_STATIC      7       // playing static after missile hits
 
+namespace dsx {
 // draws a 3d view into one of the cockpit windows.  win is 0 for
 // left, 1 for right.  viewer is object.  NULL object means give up
 // window user is one of the WBU_ constants.  If rear_view_flag is
@@ -115,6 +116,7 @@ constexpr rgb_array_wrapper player_rgb{};
 // the top of the window.
 void do_cockpit_window_view(int win, const object &viewer, int rear_view_flag, int user, const char *label, const player_info * = nullptr);
 void do_cockpit_window_view(int win, int user);
+}
 #endif
 
 #define GAUGE_HUD_NUMMODES 4
