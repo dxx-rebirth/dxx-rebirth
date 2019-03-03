@@ -116,7 +116,6 @@ fix64	Escort_last_path_created = 0;
 escort_goal_t Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 escort_goal_t Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 fix64	Buddy_sorry_time;
-static int Looking_for_marker;
 static int Last_buddy_key;
 
 static fix64 Last_buddy_message_time;
@@ -131,10 +130,10 @@ void init_buddy_for_level(void)
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	BuddyState = {};
 	BuddyState.Escort_goal_index = object_none;
+	BuddyState.Looking_for_marker = UINT8_MAX;
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 	Buddy_sorry_time = -F1_0;
 
-	Looking_for_marker = -1;
 	Last_buddy_key = -1;
 }
 
@@ -281,9 +280,9 @@ static void record_escort_goal_accomplished()
 	if (ok_for_buddy_to_talk()) {
 		digi_play_sample_once(SOUND_BUDDY_MET_GOAL, F1_0);
 		BuddyState.Escort_goal_index = object_none;
+		BuddyState.Looking_for_marker = UINT8_MAX;
 		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
-		Looking_for_marker = -1;
 	}
 }
 
@@ -498,24 +497,27 @@ void set_escort_special_goal(int special_key)
 	
 	if (Last_buddy_key == special_key)
 	{
-		if ((Looking_for_marker == -1) && (special_key != KEY_0)) {
+		auto &Looking_for_marker = BuddyState.Looking_for_marker;
+		if (Looking_for_marker == UINT8_MAX && special_key != KEY_0)
+		{
 			if (marker_exists_in_mine(marker_key - KEY_1))
 				Looking_for_marker = marker_key - KEY_1;
 			else {
 				buddy_message_ignore_time("Marker %i not placed.", marker_key - KEY_1 + 1);
-				Looking_for_marker = -1;
+				Looking_for_marker = UINT8_MAX;
 			}
 		} else {
-			Looking_for_marker = -1;
+			Looking_for_marker = UINT8_MAX;
 		}
 	}
 
 	Last_buddy_key = special_key;
 
 	if (special_key == KEY_0)
-		Looking_for_marker = -1;
+		BuddyState.Looking_for_marker = UINT8_MAX;
 		
-	if ( Looking_for_marker != -1 ) {
+	else if (BuddyState.Looking_for_marker != UINT8_MAX)
+	{
 		Escort_special_goal = static_cast<escort_goal_t>(ESCORT_GOAL_MARKER1 + marker_key - KEY_1);
 	} else {
 		switch (special_key) {
@@ -745,7 +747,8 @@ static void say_escort_goal(const escort_goal_t goal_num)
 
 static void clear_escort_goals()
 {
-	Looking_for_marker = -1;
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	BuddyState.Looking_for_marker = UINT8_MAX;
 	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 }
@@ -764,13 +767,14 @@ static void escort_goal_unreachable(escort_goal_t goal)
 
 static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *aip, segnum_t goal_seg)
 {
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	create_path_to_segment(objp, goal_seg, Max_escort_length, create_path_safety_flag::safe);	//	MK!: Last parm (safety_flag) used to be 1!!
 	if (aip->path_length > 3)
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 	if ((aip->path_length > 0) && (Point_segs[aip->hide_index + aip->path_length - 1].segnum != goal_seg)) {
 		fix	dist_to_player;
 		buddy_message_ignore_time("Can't reach %s.", Escort_goal_text[Escort_goal_object - 1]);
-		Looking_for_marker = -1;
+		BuddyState.Looking_for_marker = UINT8_MAX;
 		Escort_goal_object = ESCORT_GOAL_SCRAM;
 		dist_to_player = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 100, WID_FLY_FLAG);
 		if (dist_to_player > MIN_ESCORT_DISTANCE)
@@ -808,7 +812,8 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 		Escort_goal_object = Escort_special_goal;
 
 	const auto powerup_flags = player_info.powerup_flags;
-	if (Looking_for_marker != -1) {
+	if (BuddyState.Looking_for_marker != UINT8_MAX)
+	{
 		goal_seg = escort_get_goal_segment(objp, OBJ_MARKER, Escort_goal_object - ESCORT_GOAL_MARKER1, powerup_flags);
 	} else {
 		switch (Escort_goal_object) {
@@ -1749,7 +1754,7 @@ window_event_result escort_menu::event_key_command(const d_event &event)
 		case KEY_7:
 		case KEY_8:
 		case KEY_9:
-			Looking_for_marker = -1;
+			BuddyState.Looking_for_marker = UINT8_MAX;
 			Last_buddy_key = -1;
 			set_escort_special_goal(key);
 			Last_buddy_key = -1;
