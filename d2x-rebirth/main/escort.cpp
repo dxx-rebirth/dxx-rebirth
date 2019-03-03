@@ -117,7 +117,6 @@ static int Buddy_messages_suppressed;
 escort_goal_t Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 escort_goal_t Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 fix64	Buddy_sorry_time;
-objnum_t	 Escort_goal_index;
 static int Looking_for_marker;
 static int Last_buddy_key;
 
@@ -129,11 +128,11 @@ void init_buddy_for_level(void)
 	auto &vmobjptridx = Objects.vmptridx;
 	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
-	Escort_goal_index = object_none;
 	Buddy_messages_suppressed = 0;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	BuddyState = {};
+	BuddyState.Escort_goal_index = object_none;
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 	Buddy_sorry_time = -F1_0;
 
@@ -280,9 +279,10 @@ static uint8_t ok_for_buddy_to_talk(void)
 
 static void record_escort_goal_accomplished()
 {
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	if (ok_for_buddy_to_talk()) {
 		digi_play_sample_once(SOUND_BUDDY_MET_GOAL, F1_0);
-		Escort_goal_index = object_none;
+		BuddyState.Escort_goal_index = object_none;
 		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 		Looking_for_marker = -1;
@@ -308,6 +308,7 @@ void detect_escort_goal_accomplished(const vmobjptridx_t index)
 		return;
 
 	// If goal is not an object (FUELCEN, EXIT, SCRAM), bail. FUELCEN is handled in detect_escort_goal_fuelcen_accomplished(), EXIT and SCRAM are never accomplished.
+	const auto Escort_goal_index = BuddyState.Escort_goal_index;
 	if (Escort_goal_index == object_none)
 		return;
 
@@ -627,7 +628,7 @@ static segnum_t exists_fuelcen_in_mine(const vcsegidx_t start_seg, const player_
 //	If special == ESCORT_GOAL_PLAYER_SPEW, then looking for any object spewed by player.
 //	-1 means object does not exist in mine.
 //	-2 means object does exist in mine, but buddy-bot can't reach it (eg, behind triggered wall)
-static objnum_t exists_in_mine(const vcsegidx_t start_seg, const int objtype, const int objid, const int special, const player_flags powerup_flags)
+static icobjidx_t exists_in_mine(const vcsegidx_t start_seg, const int objtype, const int objid, const int special, const player_flags powerup_flags)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -784,10 +785,11 @@ static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *aip, segnum_t
 //	-----------------------------------------------------------------------------
 static imsegidx_t escort_get_goal_segment(const vcobjptr_t objp, int objtype, int objid, const player_flags powerup_flags)
 {
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	const auto egi = exists_in_mine(objp->segnum, objtype, objid, -1, powerup_flags);
-	Escort_goal_index = egi;
+	BuddyState.Escort_goal_index = egi;
 	if (egi != object_none && egi != object_guidebot_cannot_reach)
 		return vcobjptr(egi)->segnum;
 	return segment_none;
@@ -795,6 +797,7 @@ static imsegidx_t escort_get_goal_segment(const vcobjptr_t objp, int objtype, in
 
 static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_info &player_info)
 {
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	segnum_t	goal_seg = segment_none;
@@ -823,7 +826,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 				break;
 			case ESCORT_GOAL_EXIT:
 				goal_seg = find_exit_segment();
-				Escort_goal_index = object_none;
+				BuddyState.Escort_goal_index = object_none;
 				if (goal_seg == segment_none)
 					escort_goal_does_not_exist(ESCORT_GOAL_EXIT);
 				else if (goal_seg == segment_exit)
@@ -836,7 +839,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 				break;
 			case ESCORT_GOAL_ENERGYCEN:
 				goal_seg = exists_fuelcen_in_mine(objp->segnum, powerup_flags);
-				Escort_goal_index = object_none;
+				BuddyState.Escort_goal_index = object_none;
 				if (goal_seg == segment_none)
 					escort_goal_does_not_exist(ESCORT_GOAL_ENERGYCEN);
 				else if (goal_seg == segment_exit)
@@ -857,12 +860,14 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 				goal_seg = escort_get_goal_segment(objp, OBJ_HOSTAGE, -1, powerup_flags);
 				break;
 			case ESCORT_GOAL_PLAYER_SPEW:
-				Escort_goal_index = exists_in_mine(objp->segnum, -1, -1, ESCORT_GOAL_PLAYER_SPEW, powerup_flags);
+				{
+					const auto Escort_goal_index = BuddyState.Escort_goal_index = exists_in_mine(objp->segnum, -1, -1, ESCORT_GOAL_PLAYER_SPEW, powerup_flags);
 				if (Escort_goal_index != object_none)
 					goal_seg = vcobjptr(Escort_goal_index)->segnum;
+				}
 				break;
 			case ESCORT_GOAL_SCRAM:
-				Escort_goal_index = object_none;
+				BuddyState.Escort_goal_index = object_none;
 				break;
 			case ESCORT_GOAL_BOSS: {
 				int	boss_id;
@@ -875,11 +880,13 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 			default:
 				Int3();	//	Oops, Illegal value in Escort_goal_object.
 				goal_seg = 0;
-				Escort_goal_index = object_none;
+				BuddyState.Escort_goal_index = object_none;
 				break;
 		}
 	}
 
+	{
+		const auto Escort_goal_index = BuddyState.Escort_goal_index;
 		if (Escort_goal_index == object_none) {
 			escort_goal_does_not_exist(Escort_goal_object);
 		} else if (Escort_goal_index == object_guidebot_cannot_reach) {
@@ -898,6 +905,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 		say_escort_goal(Escort_goal_object);
 	}
 
+	}
 }
 
 //	-----------------------------------------------------------------------------

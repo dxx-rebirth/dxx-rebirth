@@ -226,7 +226,6 @@ enum escort_goal_t
 
 extern fix64 Escort_last_path_created;
 extern escort_goal_t Escort_goal_object, Escort_special_goal;
-extern objnum_t	 Escort_goal_index;
 
 #define SNIPE_RETREAT_TIME  (F1_0*5)
 #define SNIPE_ABORT_RETREAT_TIME (SNIPE_RETREAT_TIME/2) // Can abort a retreat with this amount of time left in retreat

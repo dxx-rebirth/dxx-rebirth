@@ -4526,6 +4526,7 @@ int ai_save_state(PHYSFS_File *fp)
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 #endif
 	auto &Objects = LevelUniqueObjectState.Objects;
 	fix tmptime32 = 0;
@@ -4611,7 +4612,7 @@ int ai_save_state(PHYSFS_File *fp)
 	PHYSFS_write(fp, &Escort_goal_object, sizeof(Escort_goal_object), 1);
 	PHYSFS_write(fp, &Escort_special_goal, sizeof(Escort_special_goal), 1);
 	{
-		int egi = Escort_goal_index;
+		const int egi = BuddyState.Escort_goal_index;
 		PHYSFS_write(fp, &egi, sizeof(int), 1);
 	}
 	PHYSFS_write(fp, &Stolen_items, sizeof(Stolen_items[0]) * Stolen_items.size(), 1);
@@ -4737,6 +4738,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 #endif
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -4811,13 +4813,13 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 		Escort_last_path_created = static_cast<fix64>(tmptime32);
 		Escort_goal_object = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
 		Escort_special_goal = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
-		Escort_goal_index = PHYSFSX_readSXE32(fp, swap);
+		BuddyState.Escort_goal_index = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_read(fp, &Stolen_items, sizeof(Stolen_items[0]) * Stolen_items.size(), 1);
 	} else {
 		Escort_last_path_created = 0;
 		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
-		Escort_goal_index = -1;
+		BuddyState.Escort_goal_index = object_none;
 
 		Stolen_items.fill(255);
 	}
