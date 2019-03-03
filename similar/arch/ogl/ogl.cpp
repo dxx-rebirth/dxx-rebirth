@@ -411,6 +411,7 @@ namespace dsx {
 
 void ogl_cache_level_textures(void)
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
 	int max_efx=0,ef;

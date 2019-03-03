@@ -5510,6 +5510,7 @@ void hoard_resources_type::reset()
 
 void init_hoard_data(d_vclip_array &Vclip)
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	hoard_resources.reset();
 	static int orb_vclip;
 	unsigned n_orb_frames,n_goal_frames;

@@ -108,7 +108,7 @@ static void paging_touch_wall_effects(const d_eclip_array &Effects, const Textur
 	}
 }
 
-static void paging_touch_object_effects( int tmap_num )
+static void paging_touch_object_effects(const d_eclip_array &Effects, const unsigned tmap_num)
 {
 	range_for (auto &i, partial_const_range(Effects, Num_effects))
 	{
@@ -121,6 +121,7 @@ static void paging_touch_object_effects( int tmap_num )
 
 static void paging_touch_model( int modelnum )
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto &pm = Polygon_models[modelnum];
 	const uint_fast32_t b = pm.first_texture;
@@ -128,7 +129,7 @@ static void paging_touch_model( int modelnum )
 	range_for (const auto p, partial_range(ObjBitmapPtrs, b, e))
 	{
 		PIGGY_PAGE_IN(ObjBitmaps[p]);
-		paging_touch_object_effects(p);
+		paging_touch_object_effects(Effects, p);
 	}
 }
 
@@ -327,6 +328,7 @@ static void paging_touch_walls(const Textures_array &Textures, const wall_animat
 namespace dsx {
 void paging_touch_all(const d_vclip_array &Vclip)
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
 	pause_game_world_time p;

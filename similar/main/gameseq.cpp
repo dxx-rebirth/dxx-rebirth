@@ -758,6 +758,7 @@ namespace dsx {
 
 static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	int sidenum;
 

@@ -446,6 +446,7 @@ namespace dsx {
 // If no editor, properties_read_cmp() is called.
 int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	int	have_bin_tbl;
 
@@ -797,6 +798,9 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 
 void verify_textures()
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
+#endif
 	grs_bitmap * bmp;
 	int j;
 	j=0;
@@ -851,6 +855,7 @@ static void bm_read_eclip(const std::string &dest_bm, const char *const arg, int
 static void bm_read_eclip(int skip)
 #endif
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	bitmap_index bitmap;
 
@@ -1344,6 +1349,7 @@ void bm_read_robot_ai(const int skip)
 //returns a pointer to the bitmap
 static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	assert(N_ObjBitmaps < ObjBitmaps.size());
 
 //	Assert( N_ObjBitmaps == N_ObjBitmapPtrs );

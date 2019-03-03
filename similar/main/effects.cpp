@@ -46,16 +46,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 
 unsigned Num_effects;
-d_eclip_array Effects;
 
 void init_special_effects()
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	range_for (eclip &ec, partial_range(Effects, Num_effects))
 		ec.time_left = ec.vc.frame_time;
 }
 
 void reset_special_effects()
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	range_for (eclip &ec, partial_range(Effects, Num_effects))
 	{
 		ec.segnum = segment_none;					//clear any active one-shots
@@ -73,6 +74,7 @@ void reset_special_effects()
 
 void do_special_effects()
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	range_for (eclip &ec, partial_range(Effects, Num_effects))
 	{
 		if ((ec.changing_wall_texture == -1) && (ec.changing_object_texture==-1) )
@@ -129,6 +131,7 @@ void do_special_effects()
 
 void restore_effect_bitmap_icons()
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	range_for (auto &ec, partial_const_range(Effects, Num_effects))
 	{
 		if (! (ec.flags & EF_CRITICAL))	{
@@ -144,6 +147,7 @@ void restore_effect_bitmap_icons()
 //stop an effect from animating.  Show first frame.
 void stop_effect(int effect_num)
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	eclip *ec = &Effects[effect_num];
 	
 	//Assert(ec->bm_ptr != -1);
@@ -164,6 +168,7 @@ void stop_effect(int effect_num)
 //restart a stopped effect
 void restart_effect(int effect_num)
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	Effects[effect_num].flags &= ~EF_STOPPED;
 
 	//Assert(Effects[effect_num].bm_ptr != -1);

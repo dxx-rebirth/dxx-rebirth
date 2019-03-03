@@ -72,8 +72,6 @@ struct eclip : public prohibit_void_ptr<eclip>
 };
 
 extern unsigned Num_effects;
-using d_eclip_array = array<eclip, MAX_EFFECTS>;
-extern d_eclip_array Effects;
 
 // Set up special effects.
 extern void init_special_effects();
@@ -99,6 +97,21 @@ void restart_effect(int effect_num);
 void eclip_read(PHYSFS_File *fp, eclip &ec);
 #if 0
 void eclip_write(PHYSFS_File *fp, const eclip &ec);
+#endif
+
+#ifdef dsx
+namespace dsx {
+
+using d_eclip_array = array<eclip, MAX_EFFECTS>;
+
+struct d_level_unique_effects_clip_state
+{
+	d_eclip_array Effects;
+};
+
+extern d_level_unique_effects_clip_state LevelUniqueEffectsClipState;
+
+}
 #endif
 
 #endif

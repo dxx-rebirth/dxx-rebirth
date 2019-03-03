@@ -162,6 +162,7 @@ namespace dsx {
 // Read compiled properties data from descent.pig
 void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	//  bitmap_index is a short
@@ -295,6 +296,7 @@ namespace dsx {
 
 void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
+	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	unsigned t;

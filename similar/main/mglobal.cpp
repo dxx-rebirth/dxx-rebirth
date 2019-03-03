@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "inferno.h"
 #include "lighting.h"
+#include "effects.h"
 #include "fuelcen.h"
 #include "segment.h"
 #include "switch.h"
@@ -97,6 +98,7 @@ valptridx<managed_type>::array_managed_type::array_managed_type()
 #endif
 
 namespace dsx {
+d_level_unique_effects_clip_state LevelUniqueEffectsClipState;
 d_level_shared_segment_state LevelSharedSegmentState;
 d_level_unique_object_state LevelUniqueObjectState;
 d_level_shared_polygon_model_state LevelSharedPolygonModelState;
