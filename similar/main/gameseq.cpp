@@ -167,8 +167,8 @@ public:
 namespace dsx {
 static window_event_result AdvanceLevel(int secret_flag);
 static void StartLevel(int random_flag);
-}
 static void copy_defaults_to_robot_all(void);
+}
 
 namespace dcx {
 //Current_level_num starts at 1 for the first level
@@ -1266,8 +1266,8 @@ static void do_screen_message(const char *msg)
 	newmenu_do( NULL, msg, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+#if defined(DXX_BUILD_DESCENT_II)
 static void do_screen_message_fmt(const char *fmt, ...) __attribute_format_printf(1, 2);
 static void do_screen_message_fmt(const char *fmt, ...)
 {
@@ -1495,11 +1495,9 @@ void EnterSecretLevel(void)
 		window_set_visible(Game_wind, 1);
 	reset_time();
 }
-}
 #endif
 
 //called when the player has finished a level
-namespace dsx {
 window_event_result PlayerFinishedLevel(int secret_flag)
 {
 	if (Game_wind)
@@ -1531,14 +1529,11 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 
 	return result;
 }
-}
 
 #if defined(DXX_BUILD_DESCENT_II)
 #define MOVIE_REQUIRED 1
 #define ENDMOVIE "end"
 #endif
-
-namespace dsx {
 
 //called when the player has finished the last level
 static void DoEndGame()
@@ -1949,6 +1944,8 @@ static void filter_objects_from_level(fvmobjptr &vmobjptr)
 
  }
 
+namespace {
+
 struct intro_movie_t {
 	int	level_num;
 	char	movie_name[4];
@@ -1963,6 +1960,8 @@ const array<intro_movie_t, 7> intro_movie{{
 	{21, "PLF"},
 	{24, "PLG"}
 }};
+
+}
 
 static void ShowLevelIntro(int level_num)
 {
@@ -2051,7 +2050,6 @@ window_event_result StartNewLevel(int level_num)
 	return StartNewLevelSub(level_num, 1, secret_restore::none);
 
 }
-}
 
 namespace
 {
@@ -2115,8 +2113,6 @@ public:
 
 }
 
-namespace dsx {
-
 //initialize the player object position & orientation (at start of game, or new ship)
 static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, int random_flag)
 {
@@ -2154,47 +2150,44 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 	reset_player_object();
 }
 
-}
-
 //	-----------------------------------------------------------------------------------------------------
 //	Initialize default parameters for one robot, copying from Robot_info to *objp.
 //	What about setting size!?  Where does that come from?
-namespace dsx {
-void copy_defaults_to_robot(const vmobjptr_t objp)
+void copy_defaults_to_robot(object_base &objp)
 {
-	int			objid;
-
-	Assert(objp->type == OBJ_ROBOT);
-	objid = get_robot_id(objp);
+	assert(objp.type == OBJ_ROBOT);
+	const unsigned objid = get_robot_id(objp);
 	assert(objid < LevelSharedRobotInfoState.N_robot_types);
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[objid];
 
 	//	Boost shield for Thief and Buddy based on level.
-	objp->shields = robptr.strength;
+	fix shields = robptr.strength;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if ((robot_is_thief(robptr)) || (robot_is_companion(robptr))) {
-		objp->shields = (objp->shields * (abs(Current_level_num)+7))/8;
+		shields = (shields * (abs(Current_level_num)+7))/8;
 
 		if (robot_is_companion(robptr)) {
 			//	Now, scale guide-bot hits by skill level
 			switch (Difficulty_level) {
-				case 0:	objp->shields = i2f(20000);	break;		//	Trainee, basically unkillable
-				case 1:	objp->shields *= 3;				break;		//	Rookie, pretty dang hard
-				case 2:	objp->shields *= 2;				break;		//	Hotshot, a bit tough
+				case 0:	shields = i2f(20000);	break;		//	Trainee, basically unkillable
+				case 1:	shields *= 3;				break;		//	Rookie, pretty dang hard
+				case 2:	shields *= 2;				break;		//	Hotshot, a bit tough
 				default:	break;
 			}
 		}
 	} else if (robptr.boss_flag)	//	MK, 01/16/95, make boss shields lower on lower diff levels.
-		objp->shields = objp->shields/(NDL+3) * (Difficulty_level+4);
+	{
+		shields = shields/(NDL+3) * (Difficulty_level+4);
 
 	//	Additional wimpification of bosses at Trainee
-	if (robptr.boss_flag && Difficulty_level == 0)
-		objp->shields /= 2;
+	if (Difficulty_level == 0)
+		shields /= 2;
+	}
 #endif
-}
+	objp.shields = shields;
 }
 
 //	-----------------------------------------------------------------------------------------------------
@@ -2203,16 +2196,15 @@ void copy_defaults_to_robot(const vmobjptr_t objp)
 //	This function should be called at level load time.
 static void copy_defaults_to_robot_all(void)
 {
-	range_for (const auto &&objp, vmobjptr)
+	range_for (object_base &objp, vmobjptr)
 	{
-		if (objp->type == OBJ_ROBOT)
+		if (objp.type == OBJ_ROBOT)
 			copy_defaults_to_robot(objp);
 	}
 }
 
 //	-----------------------------------------------------------------------------------------------------
 //called when the player is starting a level (new game or new ship)
-namespace dsx {
 static void StartLevel(int random_flag)
 {
 	assert(Player_dead_state == player_dead_state::no);

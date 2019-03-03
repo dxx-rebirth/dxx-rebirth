@@ -123,7 +123,7 @@ void close_message_window(void);
 namespace dsx {
 void create_player_appearance_effect(const d_vclip_array &Vclip, const object_base &player_obj);
 void bash_to_shield(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip, object_base &i);
-void copy_defaults_to_robot(vmobjptr_t objp);
+void copy_defaults_to_robot(object_base &objp);
 void gameseq_remove_unused_players();
 }
 #endif
