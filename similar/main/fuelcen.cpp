@@ -355,6 +355,9 @@ imobjptridx_t  create_morph_robot( const vmsegptridx_t segp, const vms_vector &o
 //	----------------------------------------------------------------------------------------------------------
 static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, FuelCenter *const robotcen, const unsigned numrobotcen)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	int		matcen_num;
 	fix		top_time;

@@ -156,6 +156,8 @@ void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const c
 namespace dsx {
 void do_megawow_powerup(int quantity)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	powerup_basic(30, 0, 30, 1, "MEGA-WOWIE-ZOWIE!");
 	auto &player_info = get_local_plrobj().ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -380,6 +382,9 @@ static int player_hit_powerup(player_info &player_info, const char *const desc_h
 
 int do_powerup(const vmobjptridx_t obj)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	int used=0;
 #if defined(DXX_BUILD_DESCENT_I)
 	int vulcan_ammo_to_add_with_cannon;

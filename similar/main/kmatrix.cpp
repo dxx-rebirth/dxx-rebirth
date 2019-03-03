@@ -184,6 +184,8 @@ struct kmatrix_screen : ignore_window_pointer_t
 namespace dsx {
 static void kmatrix_redraw(kmatrix_screen *km)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	playernum_array_t sorted;
 
 	gr_set_default_canvas();
@@ -380,6 +382,8 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 
 kmatrix_result kmatrix_view(int network)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	kmatrix_screen km;
 	if (pcx_read_bitmap(STARS_BACKGROUND, km.background, gr_palette) != PCX_ERROR_NONE)
 	{

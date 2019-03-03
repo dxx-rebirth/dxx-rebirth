@@ -515,6 +515,9 @@ namespace dsx {
 #if DXX_USE_EDITOR
 void move_player_2_segment(const vmsegptridx_t seg, const unsigned side)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	const auto &&console = vmobjptridx(ConsoleObject);
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
@@ -915,6 +918,8 @@ namespace dsx {
 //	------------------------------------------------------------------------------------
 static void do_cloak_stuff(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	range_for (auto &&e, enumerate(partial_range(Players, N_players)))
 	{
 		auto &plobj = *vmobjptr(e.value.objnum);
@@ -972,10 +977,10 @@ fix64	Time_flash_last_played;
 #define AFTERBURNER_LOOP_START	((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
 #define AFTERBURNER_LOOP_END		((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
 
-static void do_afterburner_stuff(object_array &objects)
+static void do_afterburner_stuff(object_array &Objects)
 {
-	auto &vmobjptr = objects.vmptr;
-	auto &vcobjptridx = objects.vcptridx;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vcobjptridx = Objects.vcptridx;
 	static sbyte func_play = 0;
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
@@ -1741,6 +1746,8 @@ namespace dsx {
 
 window_event_result GameProcessFrame()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;
 	auto &local_player_shields_ref = plrobj.shields;
@@ -2053,6 +2060,9 @@ void enable_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, cons
 //				    cannon.
 bool FireLaser(player_info &player_info)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	if (!Controls.state.fire_primary)
 		return false;
 	if (!allowed_to_fire_laser(player_info))
@@ -2147,6 +2157,9 @@ static void powerup_grab_cheat(object &player, const vmobjptridx_t powerup)
 //	way before the player gets there.
 void powerup_grab_cheat_all(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	if (Endlevel_sequence)
 		return;
 	if (Player_dead_state != player_dead_state::no)
@@ -2213,6 +2226,8 @@ static int mark_player_path_to_segment(const d_vclip_array &Vclip, fvmobjptridx 
 //	Return true if it happened, else return false.
 int create_special_path(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	//	---------- Find exit doors ----------
 	range_for (const auto &&segp, vcsegptridx)
 	{

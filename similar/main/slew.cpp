@@ -80,6 +80,8 @@ void slew_reset_orient()
 
 static int do_slew_movement(const vmobjptridx_t obj, int check_keys )
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	constexpr int ROT_SPEED = 2;		//rate of rotation while key held down
 	constexpr int SLIDE_SPEED = 700;
 	constexpr int ZOOM_SPEED_FACTOR = 1000;	//(1500)
@@ -149,6 +151,8 @@ static int do_slew_movement(const vmobjptridx_t obj, int check_keys )
 //do slew for this frame
 int slew_frame(int check_keys)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	return do_slew_movement(vmobjptridx(slew_obj), !check_keys);
 }
 

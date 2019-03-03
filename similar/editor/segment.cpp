@@ -457,6 +457,8 @@ static void compress_vertices(void)
 // --------------------------------------------------------------------------------------------------
 static void compress_segments(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	if (Highest_segment_index == LevelSharedSegmentState.Num_segments - 1)
 		return;
 
@@ -829,6 +831,9 @@ static void delete_vertices_in_segment(const shared_segment &sp)
 //		1	unable to delete.
 int med_delete_segment(const vmsegptridx_t sp)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	segnum_t segnum = sp;
 	// Cannot delete segment if only segment.
 	if (LevelSharedSegmentState.Num_segments == 1)

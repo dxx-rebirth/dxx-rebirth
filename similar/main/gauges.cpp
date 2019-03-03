@@ -3300,6 +3300,9 @@ namespace dsx {
 
 void show_HUD_names(grs_canvas &canvas)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vcobjptridx = Objects.vcptridx;
 	for (playernum_t pnum = 0;pnum < N_players; ++pnum)
 	{
 		if (pnum == Player_num || vcplayerptr(pnum)->connected != CONNECT_PLAYING)
@@ -3426,6 +3429,8 @@ void show_HUD_names(grs_canvas &canvas)
 //draw all the things on the HUD
 void draw_hud(grs_canvas &canvas, const object &plrobj)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	auto &player_info = plrobj.ctype.player_info;
 	if (Newdemo_state == ND_STATE_RECORDING)
 	{
@@ -3549,6 +3554,8 @@ void draw_hud(grs_canvas &canvas, const object &plrobj)
 //print out some player statistics
 void render_gauges()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;
 	const auto energy = f2ir(player_info.energy);

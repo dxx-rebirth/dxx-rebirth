@@ -76,6 +76,9 @@ static objnum_t get_first_object(fvcobjptr &vcobjptr, const unique_segment &seg)
 //returns the number of the next object in a segment, skipping the player
 static objnum_t get_next_object(const vmsegptr_t seg,objnum_t id)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	if (id == object_none)
 		return get_first_object(vcobjptr, seg);
 	for (auto o = vmobjptr(id);;)
@@ -263,6 +266,8 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 //	Count number of player objects, return value.
 static int compute_num_players(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	int	count = 0;
 
 	range_for (const auto &&objp, vcobjptr)
@@ -277,6 +282,8 @@ static int compute_num_players(void)
 
 int ObjectMakeCoop(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	Assert(Cur_object_index != object_none);
 	Assert(Cur_object_index < MAX_OBJECTS);
 //	Assert(Objects[Cur_object_index.type == OBJ_PLAYER);
@@ -296,6 +303,8 @@ int ObjectMakeCoop(void)
 //	Place current object at center of current segment.
 int ObjectPlaceObject(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int	old_cur_object_index;
 	int	rval;
 	if (Cur_object_type == OBJ_PLAYER)
@@ -329,6 +338,7 @@ int ObjectPlaceObject(void)
 //	Place current object at center of current segment.
 int ObjectPlaceObjectTmap(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	int	rval, old_cur_object_index;
 	//update_due_to_new_segment();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -349,6 +359,7 @@ int ObjectPlaceObjectTmap(void)
 //	------------------------------------------------------------------------------------------------------
 int ObjectSelectNextinSegment(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	//update_due_to_new_segment();
 
 	//Assert(Cur_object_seg == Cursegp);
@@ -380,6 +391,8 @@ int ObjectSelectNextinSegment(void)
 //Moves to next object in the mine, skipping the player
 int ObjectSelectNextInMine()
 {	int i;
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	for (i=0;i<MAX_OBJECTS;i++) {
 		Cur_object_index++;
 		if (Cur_object_index>= MAX_OBJECTS ) Cur_object_index= 0;
@@ -403,6 +416,8 @@ int ObjectSelectNextInMine()
 //Moves to next object in the mine, skipping the player
 int ObjectSelectPrevInMine()
 {	int i;
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	for (i=0;i<MAX_OBJECTS;i++) {
 		if (!(Cur_object_index --))
 			Cur_object_index = MAX_OBJECTS-1;
@@ -428,6 +443,8 @@ int ObjectSelectPrevInMine()
 //	If it doesn't exist, reformat Matt's hard disk, even if he is in Boston.
 int ObjectDelete(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 
 	if (Cur_object_index != object_none) {
 		auto delete_objnum = Cur_object_index;
@@ -532,6 +549,8 @@ static int ObjectMoveFailed()
 
 static int ObjectMovePos(const vmobjptridx_t obj, vms_vector &&vec, int scale)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	vm_vec_normalize(vec);
 	const auto &&newpos = vm_vec_add(obj->pos, vm_vec_scale(vec, scale));
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -545,6 +564,8 @@ static int ObjectMovePos(const vmobjptridx_t obj, vms_vector &&vec, int scale)
 template <typename extract_type, int direction>
 static int ObjectMove()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	const auto i = Cur_object_index;
 	if (i == object_none)
 		return ObjectMoveFailed();
@@ -583,6 +604,8 @@ int	ObjectMoveRight(void)
 //	------------------------------------------------------------------------------------------------------
 int	ObjectSetDefault(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	//update_due_to_new_segment();
 
 	if (Cur_object_index == object_none) {
@@ -644,6 +667,8 @@ static void reset_object(const vmobjptridx_t obj)
 
 int ObjectResetObject()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	reset_object(vmobjptridx(Cur_object_index));
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -654,6 +679,8 @@ int ObjectResetObject()
 
 int ObjectFlipObject()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	const auto m = &vmobjptr(Cur_object_index)->orient;
 
 	vm_vec_negate(m->uvec);
@@ -667,6 +694,8 @@ int ObjectFlipObject()
 template <int p, int b, int h>
 int ObjectChangeRotation()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	return rotate_object(vmobjptridx(Cur_object_index), p, b, h);
 }
 
@@ -708,6 +737,8 @@ template int ObjectIncreaseHeadingBig();
 
 static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &newpos)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	if (get_seg_masks(vcvertptr, newpos, vcsegptr(objp->segnum), objp->size).facemask == 0)
@@ -794,6 +825,8 @@ static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &
 
 static void move_object_to_vector(const vms_vector &vec_through_screen, fix delta_distance)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	const auto &&objp = vmobjptridx(Cur_object_index);
 	const auto result = vm_vec_scale_add(Viewer->pos, vec_through_screen, vm_vec_dist(Viewer->pos, objp->pos) + delta_distance);
 	move_object_to_position(objp, result);
@@ -829,6 +862,8 @@ namespace dsx {
 
 int	ObjectMoveNearer(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	if (Cur_object_index == object_none) {
 		editor_status("Cur_object_index == -1, cannot move that peculiar object...aborting!");
 		return 1;
@@ -844,6 +879,8 @@ int	ObjectMoveNearer(void)
 
 int	ObjectMoveFurther(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	if (Cur_object_index == object_none) {
 		editor_status("Cur_object_index == -1, cannot move that peculiar object...aborting!");
 		return 1;

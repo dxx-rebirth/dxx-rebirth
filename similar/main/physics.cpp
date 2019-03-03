@@ -255,6 +255,8 @@ static void do_physics_sim_rot(object_base &obj)
 // On joining edges fvi tends to get inaccurate as hell. Approach is to check if the object interects with the wall and if so, move away from it.
 static void fix_illegal_wall_intersection(const vmobjptridx_t obj)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (!(obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT))
 		return;
 
@@ -314,6 +316,9 @@ public:
 namespace dsx {
 window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist *const phys_segs)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	ignore_objects_array_t ignore_obj_list;
 	int try_again;
 	int fate=0;

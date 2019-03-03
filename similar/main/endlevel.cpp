@@ -250,6 +250,8 @@ static int endlevel_data_loaded;
 namespace dsx {
 window_event_result start_endlevel_sequence()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	reset_rear_view(); //turn off rear view if set - NOTE: make sure this happens before we pause demo recording!!
 
 	if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
@@ -509,6 +511,8 @@ static void get_angs_to_object(vms_angvec &av,const vms_vector &targ_pos,const v
 namespace dsx {
 window_event_result do_endlevel_frame()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	static fix timer;
 	static fix bank_rate;
 	vms_vector save_last_pos;
@@ -899,6 +903,8 @@ static fix satellite_size = i2f(400);
 constexpr vms_vector vmd_zero_vector{};
 static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas, fix eye_offset)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 #if DXX_USE_OGL
 	int orig_Render_depth = Render_depth;
 #endif
@@ -1080,6 +1086,8 @@ static void endlevel_render_mine(const d_level_shared_segment_state &LevelShared
 
 void render_endlevel_frame(grs_canvas &canvas, fix eye_offset)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	g3_start_frame(canvas);
 
 	if (Endlevel_sequence < EL_OUTSIDE)
@@ -1122,6 +1130,9 @@ static void angvec_add2_scale(vms_angvec &dest,const vms_vector &src,fix s)
 
 void do_endlevel_flythrough(flythrough_data *flydata)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	const auto &&obj = vmobjptridx(flydata->obj);
 	
 	vcsegidx_t old_player_seg = obj->segnum;

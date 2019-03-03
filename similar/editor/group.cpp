@@ -365,6 +365,8 @@ static inline vms_matrix med_create_group_rotation_matrix(int delta_flag, const 
 // Rotate all vertices and objects in group.
 static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type_t &group_seglist, const vcsegptr_t first_seg, int first_side)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	array<int8_t, MAX_VERTICES> vertex_list;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
@@ -431,6 +433,8 @@ static void create_group_list(const vmsegptridx_t segp, group::segment_array_typ
 // ------------------------------------------------------------------------------------------------
 static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::segment_array_type_t &segments)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	group::segment_array_type_t new_segments;
 	array<int, MAX_VERTICES> new_vertex_ids;		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
 
@@ -523,6 +527,8 @@ static int in_group(segnum_t segnum, int group_num)
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
 static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base_side, vcsegptr_t group_seg, int group_side, const vms_matrix &orient_matrix)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	int 			x;
 	int			new_current_group;
 	int 			c;
@@ -660,6 +666,8 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
 static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base_side, const vmsegptridx_t group_seg, int group_side, const vms_matrix &orient_matrix, int orientation)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	int			c, d;
 
 	if (IS_CHILD(base_seg->children[base_side]))

@@ -391,6 +391,8 @@ static void write_key_text(fvcobjptridx &vcobjptridx, segment_array &segments, f
 // ----------------------------------------------------------------------------
 static void write_control_center_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	int	count, count2;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
@@ -442,6 +444,8 @@ static void write_fuelcen_text(PHYSFS_File *my_file)
 // ----------------------------------------------------------------------------
 static void write_segment_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Segment stuff:\n");
 
@@ -639,6 +643,8 @@ static void write_trigger_text(PHYSFS_File *my_file)
 // ----------------------------------------------------------------------------
 void write_game_text_file(const char *filename)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	char	my_filename[128];
 	int	namelen;
 	Errors_in_mine = 0;
@@ -751,6 +757,10 @@ namespace dsx {
 #endif
 static void determine_used_textures_level(d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, int load_level_flag, int shareware_flag, int level_num, perm_tmap_buffer_type &tmap_buf, wall_buffer_type &wall_buf, level_tmap_buffer_type &level_tmap_buf, int max_tmap)
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+#endif
 	int	sidenum;
 	int	j;
 
@@ -1013,6 +1023,7 @@ static void say_unused_walls(PHYSFS_File *my_file, const wall_buffer_type &tb)
 
 static void say_totals(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file, const char *level_name)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	int	total_robots = 0;
 	int	objects_processed = 0;
 
@@ -1081,6 +1092,8 @@ int	Last_dump_level = NUM_ADAM_LEVELS-1;
 namespace dsx {
 static void say_totals_all(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	int	i;
 	auto my_file = PHYSFSX_openWriteBuffered("levels.all");
 	if (!my_file)	{

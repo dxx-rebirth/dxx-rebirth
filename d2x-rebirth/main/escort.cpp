@@ -126,6 +126,8 @@ static fix64 Last_buddy_message_time;
 
 void init_buddy_for_level(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	Buddy_allowed_to_talk = 0;
 	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
@@ -223,6 +225,8 @@ std::size_t create_bfs_list(const vmobjptr_t robot, const vcsegidx_t start_seg, 
 //	AND he has never yet, since being initialized for level, been allowed to talk.
 static int ok_for_buddy_to_talk(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	if (Buddy_objnum == object_none)
 		return 0;
 
@@ -291,6 +295,8 @@ void detect_escort_goal_fuelcen_accomplished()
 
 void detect_escort_goal_accomplished(const vmobjptridx_t index)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	if (!Buddy_allowed_to_talk)
 		return;
 
@@ -445,6 +451,8 @@ static void thief_message(const char * format, ... )
 //	Return true if marker #id has been placed.
 static int marker_exists_in_mine(int id)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	range_for (const auto &&objp, vcobjptr)
 	{
 		if (objp->type == OBJ_MARKER)
@@ -457,6 +465,8 @@ static int marker_exists_in_mine(int id)
 //	-----------------------------------------------------------------------------
 void set_escort_special_goal(int special_key)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	int marker_key;
 
 	Buddy_messages_suppressed = 0;
@@ -528,6 +538,8 @@ void set_escort_special_goal(int special_key)
 //	Return id of boss.
 static int get_boss_id(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (const auto &&objp, vcobjptr)
 	{
@@ -546,6 +558,8 @@ static int get_boss_id(void)
 //	"special" is used to find objects spewed by player which is hacked into flags field of powerup.
 static objnum_t exists_in_mine_2(const unique_segment &segp, const int objtype, const int objid, const int special)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (const auto curobjp, objects_in(segp, vcobjptridx, vcsegptr))
 	{
@@ -578,6 +592,8 @@ static objnum_t exists_in_mine_2(const unique_segment &segp, const int objtype, 
 //	-----------------------------------------------------------------------------
 static segnum_t exists_fuelcen_in_mine(const vcsegidx_t start_seg, const player_flags powerup_flags)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
 	const auto length = create_bfs_list(vmobjptr(Buddy_objnum), start_seg, powerup_flags, bfs_list);
 	auto predicate = [](const segnum_t &s) { return vcsegptr(s)->special == SEGMENT_IS_FUELCEN; };
@@ -604,6 +620,8 @@ static segnum_t exists_fuelcen_in_mine(const vcsegidx_t start_seg, const player_
 //	-2 means object does exist in mine, but buddy-bot can't reach it (eg, behind triggered wall)
 static objnum_t exists_in_mine(const vcsegidx_t start_seg, const int objtype, const int objid, const int special, const player_flags powerup_flags)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
 	const auto length = create_bfs_list(vmobjptr(Buddy_objnum), start_seg, powerup_flags, bfs_list);
 
@@ -755,6 +773,8 @@ static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *aip, segnum_t
 //	-----------------------------------------------------------------------------
 static imsegidx_t escort_get_goal_segment(const vcobjptr_t objp, int objtype, int objid, const player_flags powerup_flags)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	const auto egi = exists_in_mine(objp->segnum, objtype, objid, -1, powerup_flags);
 	Escort_goal_index = egi;
 	if (egi != object_none && egi != object_guidebot_cannot_reach)
@@ -764,6 +784,8 @@ static imsegidx_t escort_get_goal_segment(const vcobjptr_t objp, int objtype, in
 
 static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_info &player_info)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	segnum_t	goal_seg = segment_none;
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -825,7 +847,8 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 				break;
 			case ESCORT_GOAL_PLAYER_SPEW:
 				Escort_goal_index = exists_in_mine(objp->segnum, -1, -1, ESCORT_GOAL_PLAYER_SPEW, powerup_flags);
-				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
+				if (Escort_goal_index != object_none)
+					goal_seg = vcobjptr(Escort_goal_index)->segnum;
 				break;
 			case ESCORT_GOAL_SCRAM:
 				Escort_goal_index = object_none;
@@ -918,6 +941,8 @@ static int time_to_visit_player(const vmobjptr_t objp, ai_local *ailp, ai_static
 //	-----------------------------------------------------------------------------
 static void bash_buddy_weapon_info(const vmobjptridx_t objp)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &laser_info = objp->ctype.laser_info;
 	const auto console = ConsoleObject;
 	laser_info.parent_num = vmobjptridx(console);
@@ -987,6 +1012,8 @@ static int maybe_buddy_fire_smart(const vmobjptridx_t objp)
 //	-----------------------------------------------------------------------------
 static void do_buddy_dude_stuff(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	if (!ok_for_buddy_to_talk())
 		return;
 
@@ -1749,6 +1776,9 @@ window_event_result escort_menu::event_handler(window *, const d_event &event, e
 
 void do_escort_menu(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	int	next_goal;
 	char	goal_str[12];
 	const char *goal_txt;

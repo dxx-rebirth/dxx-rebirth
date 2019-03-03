@@ -201,6 +201,8 @@ namespace dsx {
 //returns which bomb will be dropped next time the bomb key is pressed
 int which_bomb()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	//use the last one selected, unless there aren't any, in which case use
 	//the other if there are any
 	auto &player_info = get_local_plrobj().ctype.player_info;
@@ -218,10 +220,10 @@ int which_bomb()
 }
 #endif
 
-static void do_weapon_n_item_stuff(object_array &objects)
+static void do_weapon_n_item_stuff(object_array &Objects)
 {
-	auto &vmobjptridx = objects.vmptridx;
-	auto &vmobjptr = objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
+	auto &vmobjptr = Objects.vmptr;
 	auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;
 	if (Controls.state.fire_flare > 0)
@@ -381,6 +383,8 @@ static window_event_result pause_handler(window *, const d_event &event, pause_w
 
 static int do_game_pause()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	char total_time[9],level_time[9];
 
 	if (Game_mode & GM_MULTI)
@@ -395,7 +399,7 @@ static int do_game_pause()
 	auto &plr = get_local_player();
 	format_time(total_time, f2i(plr.time_total), plr.hours_total);
 	format_time(level_time, f2i(plr.time_level), plr.hours_level);
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &player_info = vcobjptr(plr.objnum)->ctype.player_info;
 	if (Newdemo_state!=ND_STATE_PLAYBACK)
 		snprintf(&p->msg[0], p->msg.size(), "PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s", MENU_DIFFICULTY_TEXT(Difficulty_level), player_info.mission.hostages_on_board, level_time, total_time);
 	else
@@ -595,6 +599,8 @@ static window_event_result HandleDemoKey(int key)
 //switch a cockpit window to the next function
 static int select_next_window_function(int w)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	Assert(w==0 || w==1);
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -898,6 +904,8 @@ static window_event_result HandleSystemKey(int key)
 namespace dsx {
 static window_event_result HandleGameKey(int key)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	switch (key) {
 #if defined(DXX_BUILD_DESCENT_II)
 		case KEY_1 + KEY_SHIFTED:
@@ -1015,6 +1023,8 @@ static window_event_result HandleGameKey(int key)
 #if defined(DXX_BUILD_DESCENT_II)
 static void kill_all_robots(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int	dead_count=0;
 	//int	boss_index = -1;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -1062,6 +1072,8 @@ static void kill_all_robots(void)
 //	Yippee!!
 static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	HUD_init_message_literal(HM_DEFAULT, "Killing, awarding, etc.!");
 
 	range_for (const auto &&o, vmobjptridx)
@@ -1111,6 +1123,8 @@ static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptri
 static void kill_all_snipers(void) __attribute_used;
 static void kill_all_snipers(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int     dead_count=0;
 
 	//	Kill all snipers.
@@ -1130,6 +1144,8 @@ static void kill_all_snipers(void)
 static void kill_thief(void) __attribute_used;
 static void kill_thief(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	//	Kill thief.
 	range_for (const auto &&objp, vmobjptr)
@@ -1146,6 +1162,8 @@ static void kill_thief(void)
 static void kill_buddy(void) __attribute_used;
 static void kill_buddy(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	//	Kill buddy.
 	range_for (const auto &&objp, vmobjptr)
@@ -1163,6 +1181,9 @@ static void kill_buddy(void)
 namespace dsx {
 static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	switch (key)
 	{
 
@@ -1448,6 +1469,9 @@ constexpr cheat_code cheat_codes[] = {
 namespace dsx {
 static window_event_result FinalCheats()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	int game_cheats::*gotcha;
 
 	if (Game_mode & GM_MULTI)
@@ -1831,6 +1855,8 @@ public:
 
 static void do_cheat_menu()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	enum {
 		DXX_WIMP_MENU(ENUM)
 	};
@@ -1874,6 +1900,7 @@ namespace dsx {
 
 window_event_result ReadControls(const d_event &event)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	int key;
 	static ubyte exploding_flag=0;
 

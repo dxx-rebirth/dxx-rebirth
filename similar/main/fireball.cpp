@@ -309,16 +309,22 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 
 void object_create_muzzle_flash(const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	object_create_explosion_sub(Vclip, vmobjptridx, object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
 imobjptridx_t object_create_explosion(const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	return object_create_explosion_sub(Vclip, vmobjptridx, object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
 imobjptridx_t object_create_badass_explosion(const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	const imobjptridx_t rval = object_create_explosion_sub(Vclip, vmobjptridx, objp, segnum, position, size, vclip_type, maxdamage, maxdistance, maxforce, parent);
 
 	if ((objp != object_none) && (objp->type == OBJ_WEAPON))
@@ -330,6 +336,8 @@ imobjptridx_t object_create_badass_explosion(const imobjptridx_t objp, const vms
 //return the explosion object
 void explode_badass_weapon(const vmobjptridx_t obj,const vms_vector &pos)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &imobjptridx = Objects.imptridx;
 	const auto weapon_id = get_weapon_id(obj);
 	const weapon_info *wi = &Weapon_info[weapon_id];
 
@@ -371,6 +379,7 @@ void explode_badass_player(const vmobjptridx_t objp)
 
 static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &parent, int subobj_num)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	Assert(parent.type == OBJ_ROBOT || parent.type == OBJ_PLAYER);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
@@ -567,6 +576,9 @@ static imsegidx_t pick_connected_drop_segment(const segment_array &Segments, fvc
 //	Don't drop if control center in segment.
 static vmsegptridx_t choose_drop_segment(fvcsegptridx &vcsegptridx, fvmsegptridx &vmsegptridx, const playernum_t drop_pnum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	playernum_t	pnum = 0;
 	int	cur_drop_depth;
 	int	count;
@@ -623,6 +635,8 @@ static vmsegptridx_t choose_drop_segment(fvcsegptridx &vcsegptridx, fvmsegptridx
 //	(Re)spawns powerup if in a network game.
 void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool random_player)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
         playernum_t pnum = Player_num;
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) {
 		if ((Game_mode & GM_NETWORK) && adjust_cap)
@@ -715,6 +729,9 @@ static const object *weapon_nearby(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegpt
 //	------------------------------------------------------------------------------------------------------
 void maybe_replace_powerup_with_energy(object_base &del_obj)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
+	auto &vmobjptr = Objects.vmptr;
 	int	weapon_index=-1;
 
 	if (del_obj.contains_type != OBJ_POWERUP)
@@ -1037,6 +1054,8 @@ static bool skip_create_egg_powerup(const object &player, powerup_type_t powerup
 imobjptridx_t object_create_robot_egg(const int type, const int id, const int num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
 {
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (!(Game_mode & GM_MULTI))
 	{
 		if (type == OBJ_POWERUP)
@@ -1194,6 +1213,9 @@ void do_debris_frame(const vmobjptridx_t obj)
 //do whatever needs to be done for this explosion for this frame
 void do_explosion_sequence(const vmobjptr_t obj)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	Assert(obj->control_type == CT_EXPLOSION);
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 

@@ -108,6 +108,8 @@ static void call_init_ai_object(vmobjptridx_t objp, ai_behavior behavior)
 //-------------------------------------------------------------------------
 static int RobotNextType()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (Cur_object_index != object_none )	{
 		const auto &&obj = vmobjptridx(Cur_object_index);
@@ -138,6 +140,8 @@ static int RobotNextType()
 //-------------------------------------------------------------------------
 static int RobotPrevType()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (Cur_object_index != object_none )	{
 		const auto &&obj = vmobjptridx(Cur_object_index);
@@ -200,6 +204,8 @@ int		Cur_goody_count = 0;
 
 static void update_goody_info(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (Cur_object_index != object_none )	{
 		auto &obj = *vmobjptr(Cur_object_index);
 		if (obj.type == OBJ_ROBOT)
@@ -316,6 +322,8 @@ static int is_legal_type(int the_type)
 
 static int is_legal_type_for_this_window(const imobjidx_t objnum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (objnum == object_none)
 		return 1;
 	else
@@ -324,6 +332,8 @@ static int is_legal_type_for_this_window(const imobjidx_t objnum)
 
 static int LocalObjectSelectNextinSegment(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int	rval, first_obj;
 
 	rval = ObjectSelectNextinSegment();
@@ -356,6 +366,8 @@ static int LocalObjectSelectNextinSegment(void)
 
 static int LocalObjectSelectNextinMine(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int	rval, first_obj;
 
 	rval = ObjectSelectNextInMine();
@@ -389,6 +401,8 @@ static int LocalObjectSelectNextinMine(void)
 
 static int LocalObjectSelectPrevinMine(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int	rval, first_obj;
 
 	rval = ObjectSelectPrevInMine();
@@ -422,6 +436,8 @@ static int LocalObjectSelectPrevinMine(void)
 
 static int LocalObjectDelete(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	int	rval;
 
 	rval = ObjectDelete();
@@ -442,6 +458,8 @@ static int LocalObjectDelete(void)
 
 static int LocalObjectPlaceObject(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int	rval;
 
 	Cur_goody_count = 0;
@@ -547,6 +565,10 @@ void robot_close_window()
 namespace dsx {
 window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	switch(event.type)
 	{
 		case EVENT_WINDOW_CREATED:
@@ -788,6 +810,8 @@ void object_close_window()
 //-------------------------------------------------------------------------
 int do_object_dialog()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (Cur_object_index == object_none)
 		Cur_object_index = object_first;
 
@@ -831,6 +855,8 @@ static window_event_result object_dialog_created(UI_DIALOG *const w, object_dial
 
 static window_event_result object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	switch(event.type)
 	{
 		case EVENT_WINDOW_CREATED:

@@ -1176,6 +1176,8 @@ namespace dsx {
 //renders onto current canvas
 void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &window)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	if (Endlevel_sequence) {
 		render_endlevel_frame(canvas, eye_offset);
 		return;
@@ -1416,6 +1418,8 @@ done_list:
 //renders onto current canvas
 void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegidx_t start_seg_num, const fix eye_offset, window_rendered_data &window)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	using std::advance;
 	render_state_t rstate;

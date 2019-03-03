@@ -180,6 +180,8 @@ static void int_to_string( int number, char *dest )
 
 static void scores_fill_struct(stats_info * stats)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto &plr = get_local_player();
 	stats->name = plr.callsign;
 	auto &player_info = get_local_plrobj().ctype.player_info;
@@ -223,6 +225,8 @@ static inline const char *get_placement_slot_string(const unsigned position)
 
 void scores_maybe_add_player()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int position;
 	all_scores scores;
 	stats_info last_game;

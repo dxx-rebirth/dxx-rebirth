@@ -171,6 +171,8 @@ static void show_framerate(grs_canvas &canvas)
 namespace dsx {
 static void show_netplayerinfo()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	int x=0, y=0;
 	static const char *const eff_strings[]={"trashing","really hurting","seriously affecting","hurting","affecting","tarnishing"};
 
@@ -314,8 +316,9 @@ static void show_netplayerinfo()
 
 fix Show_view_text_timer = -1;
 
-static void draw_window_label(fvcobjptridx &vcobjptridx, grs_canvas &canvas)
+static void draw_window_label(object_array &Objects, grs_canvas &canvas)
 {
+	auto &vcobjptridx = Objects.vcptridx;
 	if ( Show_view_text_timer > 0 )
 	{
 		const char	*viewer_name,*control_name,*viewer_id;
@@ -327,7 +330,7 @@ static void draw_window_label(fvcobjptridx &vcobjptridx, grs_canvas &canvas)
 			case OBJ_FIREBALL:	viewer_name = "Fireball"; break;
 			case OBJ_ROBOT:		viewer_name = "Robot";
 #if DXX_USE_EDITOR
-				viewer_id = Robot_names[get_robot_id(vcobjptr(Viewer))].data();
+				viewer_id = Robot_names[get_robot_id(Objects.vcptr(Viewer))].data();
 #endif
 				break;
 			case OBJ_HOSTAGE:		viewer_name = "Hostage"; break;
@@ -336,7 +339,7 @@ static void draw_window_label(fvcobjptridx &vcobjptridx, grs_canvas &canvas)
 			case OBJ_CAMERA:		viewer_name = "Camera"; break;
 			case OBJ_POWERUP:		viewer_name = "Powerup";
 #if DXX_USE_EDITOR
-				viewer_id = Powerup_names[get_powerup_id(vcobjptr(Viewer))].data();
+				viewer_id = Powerup_names[get_powerup_id(Objects.vcptr(Viewer))].data();
 #endif
 				break;
 			case OBJ_DEBRIS:		viewer_name = "Debris"; break;
@@ -388,8 +391,10 @@ static void render_countdown_gauge(grs_canvas &canvas)
 
 static void game_draw_hud_stuff(grs_canvas &canvas)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 #ifndef NDEBUG
-	draw_window_label(vcobjptridx, canvas);
+	draw_window_label(Objects, canvas);
 #endif
 
 	game_draw_multi_message(canvas);
@@ -505,6 +510,9 @@ static bool is_viewable_missile(weapon_id_type laser_type)
 
 static bool choose_missile_viewer()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	const auto MissileViewEnabled = PlayerCfg.MissileViewEnabled;
 	if (unlikely(MissileViewEnabled == MissileViewMode::None))
 		return false;
@@ -580,6 +588,8 @@ static bool choose_missile_viewer()
 static void show_one_extra_view(const int w);
 static void show_extra_views()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int did_missile_view=0;
 	int save_newdemo_state = Newdemo_state;
 	if (Newdemo_state==ND_STATE_PLAYBACK)
@@ -615,8 +625,6 @@ static void show_extra_views()
 		return;
 	}
 
-	auto &Objects = LevelUniqueObjectState.get_objects();
-	auto &vmobjptr = Objects.vmptr;
 	const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(vmobjptr, Player_num);
 	if (gimobj != nullptr)
 	{
@@ -662,6 +670,9 @@ static void show_extra_views()
 
 static void show_one_extra_view(const int w)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 		//show special views if selected
 		switch (PlayerCfg.Cockpit3DView[w]) {
@@ -751,6 +762,8 @@ void game_render_frame_mono()
 
 	gr_set_current_canvas(Screen_3d_window);
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (const auto &&gimobj = (
 			PlayerCfg.GuidedInBigWindow
 			? LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, Player_num)
@@ -929,6 +942,8 @@ static void update_cockpits()
 
 void game_render_frame()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	set_screen_mode( SCREEN_GAME );
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	play_homing_warning(player_info);

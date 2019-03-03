@@ -129,6 +129,8 @@ static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const v
 #if defined(DXX_BUILD_DESCENT_I)
 	if (robot_id == ROBOT_BRAIN || robot.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
 #elif defined(DXX_BUILD_DESCENT_II)
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[robot_id];
 	if (robot_id == ROBOT_BRAIN || robot.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM || robot_is_companion(robptr) == 1 || robot.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
@@ -338,6 +340,8 @@ void bump_one_object(object_base &obj0, const vms_vector &hit_dir, fix damage)
 namespace dsx {
 static void collide_player_and_wall(const vmobjptridx_t playerobj, fix hitspeed, const vmsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	fix damage;
 
@@ -552,6 +556,8 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<int, 0> force_blowup_flag{};
 #elif defined(DXX_BUILD_DESCENT_II)
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	int trigger_check = 0, is_trigger = 0;
 	const auto wall_num = seg->shared_segment::sides[side].wall_num;
 
@@ -722,6 +728,7 @@ static window_event_result collide_weapon_and_wall(
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &imobjptridx = Objects.imptridx;
 	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	int blew_up;
 	int playernum;
 	auto result = window_event_result::handled;
@@ -1252,6 +1259,8 @@ static void maybe_kill_weapon(object_base &weapon, const object_base &other_obj)
 namespace dsx {
 static void collide_weapon_and_controlcen(const vmobjptridx_t weapon, const vmobjptridx_t controlcen, vms_vector &collision_point)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	fix explosion_size = ((controlcen->size/3)*3)/4;
@@ -1362,6 +1371,8 @@ window_event_result do_final_boss_frame(void)
 //	which would ruin the logic of the cut sequence.
 void do_final_boss_hacks(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (Player_dead_state != player_dead_state::no)
 	{
 		Int3();		//	Uh-oh, player is dead.  Try to rescue him.
@@ -1404,6 +1415,8 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(robot)];
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (robptr.boss_flag)
 		Boss_hit_time = GameTime64;
 
@@ -1627,7 +1640,10 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_level_share
 //	------------------------------------------------------------------------------------------------------
 static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptridx_t  weapon, vms_vector &collision_point)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &icobjptridx = Objects.icptridx;
 	if (get_weapon_id(weapon) == weapon_id_type::OMEGA_ID)
 		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return;
@@ -2143,6 +2159,8 @@ void apply_damage_to_player(object &playerobj, const icobjptridx_t killer, fix d
 namespace dsx {
 static void collide_player_and_weapon(const vmobjptridx_t playerobj, const vmobjptridx_t weapon, vms_vector &collision_point)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &imobjptridx = Objects.imptridx;
 	fix		damage = weapon->shields;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2675,6 +2693,7 @@ window_event_result collide_object_with_wall(
 #endif
 	const vmobjptridx_t A, fix hitspeed, const vmsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 
 	switch( A->type )	{
 	case OBJ_NONE:

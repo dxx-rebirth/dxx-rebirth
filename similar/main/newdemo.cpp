@@ -307,6 +307,8 @@ static typename std::enable_if<std::is_integral<T>::value, int>::type newdemo_re
 
 icobjptridx_t newdemo_find_object(object_signature_t signature)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	range_for (const auto &&objp, vcobjptridx)
 	{
 		if ( (objp->type != OBJ_NONE) && (objp->signature == signature))
@@ -561,6 +563,8 @@ object *prev_obj=NULL;      //ptr to last object read in
 namespace dsx {
 static void nd_read_object(const vmobjptridx_t obj)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	short shortsig = 0;
 	const auto &pl_info = get_local_plrobj().ctype.player_info;
@@ -1029,6 +1033,9 @@ static void nd_rbe()
 namespace dsx {
 void newdemo_record_start_demo()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	nd_record_v_recordframe_last_time=GameTime64-REC_DELAY; // make sure first frame is recorded!
 
@@ -1221,6 +1228,8 @@ void newdemo_record_sound_3d_once( int soundno, int angle, int volume )
 
 void newdemo_record_link_sound_to_object3( int soundno, objnum_t objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end )
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_LINK_SOUND_TO_OBJ );
 	nd_write_int( soundno );
@@ -1280,6 +1289,8 @@ void newdemo_record_trigger( segnum_t segnum, int side, objnum_t objnum,int shot
 
 void newdemo_record_morph_frame(morph_data *md)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	if (!nd_record_v_recordframe)
 		return;
 	pause_game_world_time p;
@@ -1365,6 +1376,8 @@ void newdemo_record_player_flags(uint flags)
 
 void newdemo_record_player_weapon(int weapon_type, int weapon_num)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (nd_record_v_weapon_type == weapon_type && nd_record_v_weapon_num == weapon_num)
 		return;
 	pause_game_world_time p;
@@ -1473,6 +1486,8 @@ void newdemo_record_multi_kill(int pnum, sbyte kill)
 
 void newdemo_record_multi_connect(const unsigned pnum, const unsigned new_player, const char *const new_callsign)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_MULTI_CONNECT);
 	nd_write_byte(static_cast<int8_t>(pnum));
@@ -1510,6 +1525,8 @@ void newdemo_record_player_score(int score)
 
 void newdemo_record_multi_score(const unsigned pnum, const int score)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_MULTI_SCORE);
 	nd_write_byte(static_cast<int8_t>(pnum));
@@ -1660,6 +1677,8 @@ enum purpose_type
 namespace dsx {
 static int newdemo_read_demo_start(enum purpose_type purpose)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	sbyte version=0, game_type=0, c=0;
 	ubyte energy=0, shield=0;
 	char current_mission[9];
@@ -1988,6 +2007,10 @@ static void newdemo_pop_ctrlcen_triggers()
 namespace dsx {
 static int newdemo_read_frame_information(int rewrite)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	int done, angle, volume;
 	sbyte c;
 
@@ -3331,6 +3354,8 @@ window_event_result newdemo_goto_beginning()
 namespace dsx {
 window_event_result newdemo_goto_end(int to_rewrite)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	short frame_length=0, byte_count=0, bshort=0;
 	sbyte level=0, bbyte=0, c=0, cloaked=0;
 	ubyte energy=0, shield=0;
@@ -3528,6 +3553,8 @@ static window_event_result newdemo_back_frames(int frames)
 
 static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	fix factor;
 	static fix InterpolStep = fl2f(.01);
 
@@ -3626,6 +3653,8 @@ static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 
 window_event_result newdemo_playback_one_frame()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int frames_back;
 	static fix base_interpol_time = 0;
 	static fix d_recorded = 0;
@@ -3834,6 +3863,9 @@ void newdemo_start_recording()
 
 static void newdemo_write_end()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	sbyte cloaked = 0;
 	unsigned short byte_count = 0;
 	nd_write_byte(ND_EVENT_EOF);
@@ -4079,6 +4111,7 @@ namespace dsx {
 
 void newdemo_start_playback(const char * filename)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	enum purpose_type rnd_demo = PURPOSE_CHOSE_PLAY;
 	char filename2[PATH_MAX+FILENAME_LEN] = DEMO_DIR;
 

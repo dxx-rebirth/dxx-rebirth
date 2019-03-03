@@ -157,6 +157,8 @@ constexpr int	D2_Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
 //	Called every frame.  If control center been destroyed, then actually do something.
 window_event_result do_controlcen_dead_frame()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // if out of level already there's no need for this
 		return window_event_result::ignored;
 
@@ -314,6 +316,8 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 {
 	int			best_gun_num;
 	static fix controlcen_death_silence = 0;
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 
 	//	If a boss level, then Control_center_present will be 0.
 	if (!Control_center_present)
@@ -453,6 +457,8 @@ void init_controlcen_for_level(void)
 {
 	imobjptr_t cntrlcen_objnum = nullptr, boss_objnum = nullptr;
 
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (const auto &&objp, vmobjptridx)
 	{

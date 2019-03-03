@@ -286,6 +286,10 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 //	If end_seg == -2, then end seg will never be found and this routine will drop out due to depth (probably called by create_n_segment_path).
 std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t objp, const vcsegidx_t start_seg, icsegidx_t end_seg, point_seg_array_t::iterator psegs, const unsigned max_depth, create_path_random_flag random_flag, const create_path_safety_flag safety_flag, icsegidx_t avoid_seg)
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+#endif
 	segnum_t		cur_seg;
 	int		sidenum;
 	int		qtail = 0, qhead = 0;
@@ -601,6 +605,8 @@ void validate_all_paths(void)
 {
 
 #if PATH_VALIDATION
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	range_for (const auto &&objp, vmobjptr)
 	{
 		auto &obj = *objp;
@@ -1327,6 +1333,9 @@ void ai_path_garbage_collect()
 	int	objind;
 	obj_path		object_list[MAX_OBJECTS];
 
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
+	auto &vmobjptridx = Objects.vmptridx;
 #ifndef NDEBUG
 	force_dump_ai_objects_all("***** Start ai_path_garbage_collect *****");
 #endif
@@ -1376,6 +1385,7 @@ void ai_path_garbage_collect()
 	{
 	force_dump_ai_objects_all("***** Finish ai_path_garbage_collect *****");
 
+	auto &vcobjptr = Objects.vcptr;
 	range_for (const auto &&objp, vcobjptr)
 	{
 		auto &obj = *objp;
@@ -1421,12 +1431,15 @@ void maybe_ai_path_garbage_collect(void)
 //	Should be called at the start of each level.
 void ai_reset_all_paths(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	range_for (const auto &&objp, vmobjptr)
 	{
-		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
+		auto &obj = *objp;
+		if (obj.type == OBJ_ROBOT && obj.control_type == CT_AI)
 		{
-			objp->ctype.ai_info.hide_index = -1;
-			objp->ctype.ai_info.path_length = 0;
+			obj.ctype.ai_info.hide_index = -1;
+			obj.ctype.ai_info.path_length = 0;
 		}
 	}
 
@@ -1674,6 +1687,8 @@ segnum_t	Player_goal_segment = segment_none;
 
 void check_create_player_path(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	if (Player_goal_segment != segment_none)
 		create_player_path_to_segment(vmobjptridx, Player_goal_segment);
 

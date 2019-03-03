@@ -91,6 +91,9 @@ int SetPlayerPosition()
 //	returns 0 if unsuccessful
 int SaveGameData()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	if (gamestate == editor_gamestate::unsaved) {
 		if (ui_messagebox(-2, -2, 2, "Game State has not been saved...\nContinue?\n", "NO", "Yes") == 1)
 			return 0;

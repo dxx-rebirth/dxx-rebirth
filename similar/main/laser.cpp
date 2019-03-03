@@ -371,6 +371,8 @@ static int omega_cleanup(fvcobjptr &vcobjptr, const vmobjptridx_t weapon)
 // Return true if ok to do Omega damage. For Multiplayer games. See comment for omega_cleanup()
 int ok_to_do_omega_damage(const vcobjptr_t weapon)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	if (weapon->type != OBJ_WEAPON || get_weapon_id(weapon) != weapon_id_type::OMEGA_ID)
 		return 1;
 	if (!(Game_mode & GM_MULTI))
@@ -639,6 +641,8 @@ static inline int is_laser_weapon_type(weapon_id_type weapon_type)
 //	Returns object number.
 imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, const vmsegptridx_t segnum, const vmobjptridx_t parent, weapon_id_type weapon_type, int make_sound )
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	fix parent_speed, weapon_speed;
 	fix volume;
 	fix laser_length=0;
@@ -1137,6 +1141,9 @@ static imobjptridx_t find_homing_object(const vms_vector &curpos, const vmobjptr
 //	Make homing objects not track parent's prox bombs.
 imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjptridx_t tracker, int track_obj_type1, int track_obj_type2)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	fix	max_dot = -F1_0*2;
 
 	const auto tracker_id = get_weapon_id(tracker);
@@ -1240,6 +1247,8 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 // and increments d_homer_tick_count accordingly
 void calc_d_homer_tick()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
         static fix timer = 0;
 	auto t = timer + FrameTime;
 	d_homer_tick_step = t >= HOMING_TURN_TIME;
@@ -1503,6 +1512,8 @@ imobjptridx_t Laser_player_fire(const vmobjptridx_t obj, const weapon_id_type la
 //	-----------------------------------------------------------------------------------------------------------
 void Flare_create(const vmobjptridx_t obj)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	fix	energy_usage;
 
 	energy_usage = Weapon_info[weapon_id_type::FLARE_ID].energy_usage;
@@ -1571,6 +1582,10 @@ static void homing_missile_turn_towards_velocity(object_base &objp, const vms_ve
 //sequence this laser object for this _frame_ (underscores added here to aid MK in his searching!)
 void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &imobjptridx = Objects.imptridx;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	Assert(obj->control_type == CT_WEAPON);
 
 	if (obj->lifeleft < 0 ) {		// We died of old age
@@ -1809,6 +1824,8 @@ namespace dsx {
 
 void do_laser_firing_player(object &plrobj)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	fix		energy_used;
 	int		ammo_used;
 	int		rval = 0;
@@ -2186,10 +2203,10 @@ struct miniparent
 
 //-----------------------------------------------------------------------------
 // Create the children of a smart bomb, which is a bunch of homing missiles.
-static void create_smart_children(object_array &objects, const vmobjptridx_t objp, const uint_fast32_t num_smart_children, const miniparent parent)
+static void create_smart_children(object_array &Objects, const vmobjptridx_t objp, const uint_fast32_t num_smart_children, const miniparent parent)
 {
-	auto &vcobjptridx = objects.vcptridx;
-	auto &vcobjptr = objects.vcptr;
+	auto &vcobjptridx = Objects.vcptridx;
+	auto &vcobjptr = Objects.vcptr;
 	unsigned numobjs = 0;
 	weapon_id_type blob_id;
 
@@ -2277,7 +2294,7 @@ static void create_smart_children(object_array &objects, const vmobjptridx_t obj
 		for (auto i = num_smart_children; i--;)
 		{
 			const auto &&sel_objnum = numobjs
-				? objects.imptridx((numobjs == 1)
+				? Objects.imptridx((numobjs == 1)
 					? objlist[0]
 					: get_random_different_object())
 				: object_none;
@@ -2288,6 +2305,7 @@ static void create_smart_children(object_array &objects, const vmobjptridx_t obj
 
 void create_weapon_smart_children(const vmobjptridx_t objp)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	const auto wid = get_weapon_id(objp);
 #if defined(DXX_BUILD_DESCENT_I)
 	if (wid != weapon_id_type::SMART_ID)
@@ -2306,6 +2324,7 @@ void create_weapon_smart_children(const vmobjptridx_t objp)
 
 void create_robot_smart_children(const vmobjptridx_t objp, const uint_fast32_t num_smart_children)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	create_smart_children(Objects, objp, num_smart_children, {OBJ_ROBOT, objp});
 }
 
@@ -2332,6 +2351,9 @@ void release_guided_missile(d_level_unique_object_state &LevelUniqueObjectState,
 //changed on 31/3/10 by kreatordxx to distinguish between drop bomb and secondary fire
 void do_missile_firing(int drop_bomb)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	int gun_flag=0;
 	fix fire_frame_overhead = 0;
 

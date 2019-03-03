@@ -1026,6 +1026,8 @@ int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, cons
 
 void weapons_homing_all()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	range_for(auto &&objp, vmobjptr)
 		if (objp->type == OBJ_WEAPON)
 			objp->ctype.laser_info.track_goal = object_none;
@@ -1071,6 +1073,8 @@ static void start_seismic_sound()
 //	Maybe this should affect all robots, being called when they get their physics done.
 void rock_the_mine_frame(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	range_for (auto &i, Smega_detonate_times)
 	{
 		if (i != 0) {
@@ -1147,6 +1151,8 @@ static bool seismic_disturbance_active()
 
 static void seismic_disturbance_frame(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (Level_shake_frequency) {
 		if (seismic_disturbance_active()) {
 			int	fc, rx, rz;
@@ -1221,6 +1227,8 @@ static bool immediate_detonate_smart_mine(const vcobjptridx_t smart_mine, const 
 //	Call this once/frame to process all super mines in the level.
 void process_super_mines_frame(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	int	start, add;
 
 	//	If we don't know of there being any super mines in the level, just
@@ -1341,7 +1349,8 @@ imobjptridx_t spit_powerup(const d_vclip_array &Vclip, const object_base &spitte
 
 void DropCurrentWeapon (player_info &player_info)
 {
-	auto &Objects = LevelUniqueObjectState.get_objects();
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (LevelUniqueObjectState.num_objects >= Objects.size())
 		return;
 
@@ -1446,10 +1455,11 @@ void DropCurrentWeapon (player_info &player_info)
 
 void DropSecondaryWeapon (player_info &player_info)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int seed;
 	ushort sub_ammo=0;
 
-	auto &Objects = LevelUniqueObjectState.get_objects();
 	if (LevelUniqueObjectState.num_objects >= Objects.size())
 		return;
 

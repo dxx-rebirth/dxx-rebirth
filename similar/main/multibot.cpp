@@ -157,6 +157,8 @@ int multi_can_move_robot(const vmobjptridx_t objnum, int agitation)
 
 void multi_check_robot_timeout()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	static fix64 lastcheck = 0;
 	int i;
 
@@ -186,6 +188,9 @@ void multi_check_robot_timeout()
 
 void multi_strip_robots(const int playernum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	// Grab all robots away from a player 
 	// (player died or exited the game)
 	if (Game_mode & GM_MULTI_ROBOTS) {
@@ -242,6 +247,9 @@ void multi_strip_robots(const int playernum)
 namespace dsx {
 int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	int i;
 	int lowest_agitation = INT32_MAX; // MAX POSITIVE INT
 	int lowest_agitated_bot = -1;
@@ -380,6 +388,8 @@ void multi_send_release_robot(const vmobjptridx_t objnum)
 
 int multi_send_robot_frame(int sent)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	static int last_sent = 0;
 
 	int i;
@@ -420,6 +430,8 @@ int multi_send_robot_frame(int sent)
  */
 void multi_send_thief_frame()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
         if (!(Game_mode & GM_MULTI_ROBOTS))
                 return;
@@ -716,6 +728,8 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 
 void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	multi_claim_robot b;
 	multi_serialize_read(buf, b);
 	auto botnum = objnum_remote_to_local(b.robjnum, b.owner);
@@ -749,6 +763,8 @@ void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
 
 void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	short remote_botnum;
 
 	remote_botnum = GET_INTEL_SHORT(buf + 2);
@@ -778,6 +794,8 @@ void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
 
 void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	// Process robot movement sent by another player
 
 	short remote_botnum;
@@ -847,6 +865,8 @@ static inline vms_vector calc_gun_point(const object_base &obj, unsigned gun_num
 namespace dsx {
 void multi_do_robot_fire(const uint8_t *const buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	// Send robot fire event
 	int loc = 1;
@@ -953,6 +973,8 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 
 void multi_do_robot_explode(const uint8_t *const buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	multi_explode_robot b;
 	multi_serialize_read(buf, b);
@@ -1030,6 +1052,10 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 
 void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_teleport b;
 	multi_serialize_read(buf, b);
@@ -1066,6 +1092,8 @@ void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, 
 
 void multi_do_boss_cloak(const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_cloak b;
 	multi_serialize_read(buf, b);
@@ -1086,6 +1114,8 @@ void multi_do_boss_cloak(const ubyte *buf)
 
 void multi_do_boss_start_gate(const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_start_gate b;
 	multi_serialize_read(buf, b);
@@ -1100,6 +1130,8 @@ void multi_do_boss_start_gate(const ubyte *buf)
 
 void multi_do_boss_stop_gate(const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_start_gate b;
 	multi_serialize_read(buf, b);
@@ -1114,6 +1146,8 @@ void multi_do_boss_stop_gate(const ubyte *buf)
 
 void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_create_robot b;
 	multi_serialize_read(buf, b);
@@ -1137,6 +1171,8 @@ void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 
 void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	// Code to drop remote-controlled robot powerups
 
 	int loc = 1;

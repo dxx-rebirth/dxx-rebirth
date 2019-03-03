@@ -489,7 +489,7 @@ static void boss_init_all_segments(const segment_array &Segments, const object &
 
 // ---------------------------------------------------------------------------------------------------------------------
 //	initial_mode == -1 means leave mode unchanged.
-void init_ai_object(vmobjptridx_t objp, ai_behavior behavior, const imsegidx_t hide_segment)
+void init_ai_object(const vmobjptridx_t objp, ai_behavior behavior, const imsegidx_t hide_segment)
 {
 	ai_static	*const aip = &objp->ctype.ai_info;
 	ai_local		*const ailp = &aip->ail;
@@ -580,14 +580,17 @@ void init_ai_objects(void)
 {
 	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	Point_segs_free_ptr = Point_segs.begin();
 	Boss_gate_segs.clear();
 	Boss_teleport_segs.clear();
 
 	range_for (const auto &&o, vmobjptridx)
 	{
-		if (o->type == OBJ_ROBOT && o->control_type == CT_AI)
-			init_ai_object(o, o->ctype.ai_info.behavior, o->ctype.ai_info.hide_segment);
+		auto &obj = *o;
+		if (obj.type == OBJ_ROBOT && obj.control_type == CT_AI)
+			init_ai_object(o, obj.ctype.ai_info.behavior, obj.ctype.ai_info.hide_segment);
 	}
 
 	Boss_dying_sound_playing = 0;
@@ -1880,11 +1883,14 @@ static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_se
 //	Return true if placing an object of size size at pos *pos intersects a (player or robot or control center) in segment *segp.
 static int check_object_object_intersection(const vms_vector &pos, fix size, const unique_segment &segp)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	//	If this would intersect with another object (only check those in this segment), then try to move.
-	range_for (const auto curobjp, objects_in(segp, vcobjptridx, vcsegptr))
+	range_for (const object_base &curobj, objects_in(segp, vcobjptridx, vcsegptr))
 	{
-		if ((curobjp->type == OBJ_PLAYER) || (curobjp->type == OBJ_ROBOT) || (curobjp->type == OBJ_CNTRLCEN)) {
-			if (vm_vec_dist_quick(pos, curobjp->pos) < size + curobjp->size)
+		if (curobj.type == OBJ_PLAYER || curobj.type == OBJ_ROBOT || curobj.type == OBJ_CNTRLCEN)
+		{
+			if (vm_vec_dist_quick(pos, curobj.pos) < size + curobj.size)
 				return 1;
 		}
 	}
@@ -1894,7 +1900,7 @@ static int check_object_object_intersection(const vms_vector &pos, fix size, con
 // --------------------------------------------------------------------------------------------------------------------
 //	Return objnum if object created, else return -1.
 //	If pos == NULL, pick random spot in segment.
-static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &vcobjptr, const vmsegptridx_t segp, int object_id, const vms_vector *pos)
+static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &vcobjptr, const vmsegptridx_t segp, int object_id, const vms_vector *const pos)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	const unsigned maximum_gated_robots = 2*Difficulty_level + 3;
@@ -1986,7 +1992,9 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 //	Return objnum if robot successfully created, else return -1
 imobjptridx_t gate_in_robot(int type, const vmsegptridx_t segnum)
 {
-	return create_gated_robot(Vclip, vcobjptr, segnum, type, NULL);
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	return create_gated_robot(Vclip, vcobjptr, segnum, type, nullptr);
 }
 
 static imobjptridx_t gate_in_robot(fvmsegptridx &vmsegptridx, int type)
@@ -2154,6 +2162,8 @@ static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx,
 	segnum_t			rand_segnum;
 	int			rand_index;
 	assert(!Boss_teleport_segs.empty());
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 
 	//	Pick a random segment from the list of boss-teleportable-to segments.
 	rand_index = (d_rand() * Boss_teleport_segs.size()) >> 15;
@@ -2235,6 +2245,8 @@ static int do_any_robot_dying_frame(const vmobjptridx_t)
 //	objp points at a boss.  He was presumably just hit and he's supposed to create a bot at the hit location *pos.
 imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	int		boss_index;
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -2400,6 +2412,8 @@ namespace dsx {
 //	Do special stuff for a boss.
 static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const int player_visibility)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 #ifndef NDEBUG
 	if (objp->shields != Prev_boss_shields) {
 		Prev_boss_shields = objp->shields;
@@ -2493,6 +2507,8 @@ static void do_super_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
 #if defined(DXX_BUILD_DESCENT_II)
 static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, int player_visibility)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int	boss_id, boss_index;
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -2831,6 +2847,8 @@ void init_ai_frame(const player_flags powerup_flags)
 #define	MNRS_SEG_MAX	70
 static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const vmobjptr_t robot, const player_flags powerup_flags)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	array<segnum_t, MNRS_SEG_MAX> bfs_list;
 	/* Passing powerup_flags here seems wrong.  Sniping robots do not
 	 * open doors, so they should not care what doors the player can
@@ -2958,8 +2976,12 @@ void do_ai_frame(const vmobjptridx_t obj)
 	int			previous_visibility;
 	vms_vector	gun_point;
 	vms_vector	vis_vec_pos;
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &vcobjptr = Objects.vcptr;
 	ailp.next_action_time -= FrameTime;
 #endif
 
@@ -4372,6 +4394,8 @@ namespace dsx {
 //  Setting player_awareness (a fix, time in seconds which object is aware of player)
 void do_ai_frame_all(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 #ifndef NDEBUG
 	dump_ai_objects_all();
 #endif
@@ -4379,6 +4403,7 @@ void do_ai_frame_all(void)
 	set_player_awareness_all(vmobjptr, vcsegptridx);
 
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &vmobjptridx = Objects.vmptridx;
 	if (Ai_last_missile_camera)
 	{
 		// Clear if supposed misisle camera is not a weapon, or just every so often, just in case.
@@ -4502,6 +4527,7 @@ int ai_save_state(PHYSFS_File *fp)
 	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
 #endif
+	auto &Objects = LevelUniqueObjectState.Objects;
 	fix tmptime32 = 0;
 
 	const int Ai_initialized = 0;
@@ -4712,6 +4738,8 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
 #endif
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	fix tmptime32 = 0;
 
 	PHYSFSX_readSXE32(fp, swap);

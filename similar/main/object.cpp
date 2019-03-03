@@ -111,6 +111,10 @@ namespace dsx {
 //set viewer object to next object in array
 void object_goto_next_viewer()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vcobjptridx = Objects.vcptridx;
+	auto &vmobjptr = Objects.vmptr;
 	objnum_t start_obj;
 	start_obj = vcobjptridx(Viewer);		//get viewer object number
 	
@@ -135,6 +139,8 @@ void object_goto_next_viewer()
 
 imobjptridx_t obj_find_first_of_type(int type)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	range_for (const auto &&i, vmobjptridx)
 	{
 		if (i->type==type)
@@ -561,6 +567,8 @@ namespace dsx {
 //the screen, and if so and the player had fired, "warns" the robot
 static void set_robot_location_info(object &objp)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	if (Player_fired_laser_this_frame != object_none) {
 		const auto &&temp = g3_rotate_point(objp.pos);
 		if (temp.p3_codes & CC_BEHIND)		//robot behind the screen
@@ -579,6 +587,7 @@ static void set_robot_location_info(object &objp)
 //	------------------------------------------------------------------------------------------------------------------
 void create_small_fireball_on_object(const vmobjptridx_t objp, fix size_scale, int sound_flag)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	fix			size;
 	vms_vector	pos;
 
@@ -802,6 +811,8 @@ void reset_player_object()
 //make object0 the player, setting all relevant fields
 void init_player_object()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	const auto &&console = vmobjptr(ConsoleObject);
 	console->type = OBJ_PLAYER;
 	set_player_id(console, 0);					//no sub-types for player
@@ -818,6 +829,8 @@ void init_player_object()
 //sets up the free list & init player & whatever else
 void init_objects()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	for (objnum_t i = 0; i< MAX_OBJECTS; ++i)
 	{
 		LevelUniqueObjectState.free_obj_list[i] = i;
@@ -915,6 +928,8 @@ void obj_unlink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, object_base &obj)
 // Returns a new, unique signature for a new object
 object_signature_t obj_get_signature()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	static short sig = 0; // Yes! Short! a) We do not need higher values b) the demo system only stores shorts
 	uint_fast32_t lsig = sig;
 	for (const auto &&b = vcobjptr.begin(), &&e = vcobjptr.end();;)
@@ -940,7 +955,7 @@ object_signature_t obj_get_signature()
 //returns -1 if no free objects
 imobjptridx_t obj_allocate(d_level_unique_object_state &LevelUniqueObjectState)
 {
-	auto &Objects = LevelUniqueObjectState.get_objects();
+	auto &Objects = LevelUniqueObjectState.Objects;
 	if (LevelUniqueObjectState.num_objects >= Objects.size())
 		return object_none;
 
@@ -984,6 +999,8 @@ static void obj_free(d_level_unique_object_state &LevelUniqueObjectState, const 
 //	Returns number of slots freed.
 static void free_object_slots(uint_fast32_t num_used)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	array<object *, MAX_OBJECTS>	obj_list;
 	unsigned	num_already_free, num_to_free, olind = 0;
 
@@ -1039,7 +1056,7 @@ static void free_object_slots(uint_fast32_t num_used)
 
 	// Capture before num_to_free modified
 	const auto &&r = partial_const_range(obj_list, num_to_free);
-	auto l = [&r, &num_to_free](bool (*predicate)(const vcobjptr_t)) -> bool {
+	auto l = [&vmobjptr, &r, &num_to_free](bool (*predicate)(const vcobjptr_t)) -> bool {
 		range_for (const auto i, r)
 		{
 			const auto &&o = vmobjptr(i);
@@ -1078,6 +1095,7 @@ static void free_object_slots(uint_fast32_t num_used)
 imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const vms_vector &pos,
 				const vms_matrix *orient,fix size,ubyte ctype,ubyte mtype,ubyte rtype)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
 	Assert(ctype <= CT_CNTRLCEN);
 
@@ -1184,6 +1202,7 @@ imobjptridx_t obj_create(object_type_t type, ubyte id,vmsegptridx_t segnum,const
 //create a copy of an object. returns new object number
 imobjptridx_t obj_create_copy(const object &srcobj, const vmsegptridx_t newsegnum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	// Find next free object
 	const auto &&obj = obj_allocate(LevelUniqueObjectState);
 
@@ -1265,6 +1284,8 @@ namespace dsx {
 //	------------------------------------------------------------------------------------------------------------------
 void dead_player_end(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	if (Player_dead_state == player_dead_state::no)
 		return;
 
@@ -1340,6 +1361,10 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 //	------------------------------------------------------------------------------------------------------------------
 window_event_result dead_player_frame()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	static fix	time_dead = 0;
 
 	if (Player_dead_state != player_dead_state::no)
@@ -1453,6 +1478,11 @@ window_event_result dead_player_frame()
 //	------------------------------------------------------------------------------------------------------------------
 static void start_player_death_sequence(object &player)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &vmobjptr = Objects.vmptr;
+#endif
+	auto &vmobjptridx = Objects.vmptridx;
 	assert(&player == ConsoleObject);
 	if (Player_dead_state != player_dead_state::no ||
 		Dead_player_camera != NULL ||
@@ -1478,7 +1508,7 @@ static void start_player_death_sequence(object &player)
 			auto &proximity = player_info.hoard.orbs;
 			if (proximity < player_info.max_hoard_orbs)
 			{
-				const auto is_bad_kill = []{
+				const auto is_bad_kill = [&vmobjptr]{
 					auto &lplr = get_local_player();
 					auto &lplrobj = get_local_plrobj();
 					const auto killer_objnum = lplrobj.ctype.player_info.killer_objnum;
@@ -1536,6 +1566,8 @@ static void start_player_death_sequence(object &player)
 //	------------------------------------------------------------------------------------------------------------------
 static void obj_delete_all_that_should_be_dead()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	objnum_t		local_dead_player_object=object_none;
 
 	// Move all objects
@@ -1571,12 +1603,13 @@ void obj_relink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, const vmobjptridx_t ob
 // for getting out of messed up linking situations (i.e. caused by demo playback)
 void obj_relink_all(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	range_for (const auto &&segp, vmsegptr)
 	{
 		segp->objects = object_none;
 	}
 	
-	range_for (const auto &&obj, vmobjptridx)
+	range_for (const auto &&obj, Objects.vmptridx)
 	{
 		if (obj->type != OBJ_NONE)
 		{
@@ -1668,6 +1701,8 @@ int Drop_afterburner_blob_flag;		//ugly hack
 //move an object for the current frame
 static window_event_result object_move_one(const vmobjptridx_t obj)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	const auto previous_segment = obj->segnum;
 	auto result = window_event_result::handled;
 
@@ -1948,6 +1983,8 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 //move all objects for the current frame
 window_event_result object_move_all()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto result = window_event_result::ignored;
 
 	if (Highest_object_index > MAX_USED_OBJECTS)
@@ -1990,6 +2027,9 @@ window_event_result object_move_all()
 //make object array non-sparse
 void compress_objects(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	//last_i = find_last_obj(MAX_OBJECTS);
 
 	//	Note: It's proper to do < (rather than <=) Highest_object_index here because we
@@ -2082,6 +2122,9 @@ void set_powerup_id(const d_powerup_info_array &Powerup_info, const d_vclip_arra
 //go through all objects and make sure they have the correct segment numbers
 void fix_object_segs()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	range_for (const auto &&o, vmobjptridx)
@@ -2156,6 +2199,8 @@ static unsigned object_is_clearable_weapon(const weapon_info_array &Weapon_info,
 //if clear_all is set, clear even proximity bombs
 void clear_transient_objects(int clear_all)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	range_for (const auto &&obj, vmobjptridx)
 	{
 		if (object_is_clearable_weapon(Weapon_info, obj, clear_all) ||
@@ -2262,6 +2307,8 @@ imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segn
 //	wake up all robots that were rendered last frame subject to some constraints.
 void wake_up_rendered_objects(const object &viewer, window_rendered_data &window)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	//	Make sure that we are processing current data.
 	if (timer_query() != window.time) {
 		return;

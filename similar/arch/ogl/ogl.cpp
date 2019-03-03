@@ -411,6 +411,8 @@ namespace dsx {
 
 void ogl_cache_level_textures(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	int max_efx=0,ef;
 	
 	ogl_reset_texture_stats_internal();//loading a new lev should reset textures

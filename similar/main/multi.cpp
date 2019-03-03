@@ -332,6 +332,7 @@ objnum_t objnum_remote_to_local(uint16_t remote_objnum, int8_t owner)
 
 owned_remote_objnum objnum_local_to_remote(objnum_t local_objnum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	// Map a local object number to a remote + owner
 	if (local_objnum > Highest_object_index)
 	{
@@ -423,6 +424,8 @@ namespace dsx {
 // Show a score list to end of net players
 kmatrix_result multi_endlevel_score()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int old_connect=0, game_wind_visible = 0;
 
 	// If there still is a Game_wind and it's suspended (usually both should be the case), bring it up again so host can still take actions of the game
@@ -543,6 +546,8 @@ namespace dsx {
 
 void multi_make_player_ghost(const playernum_t playernum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	if (playernum == Player_num || playernum >= MAX_PLAYERS)
 	{
 		Int3(); // Non-terminal, see Rob
@@ -558,6 +563,8 @@ void multi_make_player_ghost(const playernum_t playernum)
 
 void multi_make_ghost_player(const playernum_t playernum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	if ((playernum == Player_num) || (playernum >= MAX_PLAYERS))
 	{
 		Int3(); // Non-terminal, see rob
@@ -595,6 +602,8 @@ namespace dsx {
 
 void multi_sort_kill_list()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	// Sort the kills list each time a new kill is added
 	array<int, MAX_PLAYERS> kills;
 	for (playernum_t i = 0; i < MAX_PLAYERS; ++i)
@@ -663,6 +672,9 @@ namespace dsx {
 
 static void multi_compute_kill(const imobjptridx_t killer, const vmobjptridx_t killed)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
 
@@ -1047,6 +1059,8 @@ namespace dsx {
 
 void multi_leave_game()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 
 	if (!(Game_mode & GM_MULTI))
 		return;
@@ -1513,6 +1527,8 @@ static void multi_define_macro_end()
 
 window_event_result multi_message_input_sub(int key)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	switch( key )
 	{
 		case KEY_F8:
@@ -1577,6 +1593,8 @@ window_event_result multi_message_input_sub(int key)
 
 void multi_do_death(int)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	// Do any miscellaneous stuff for a new network player after death
 	if (!(Game_mode & GM_MULTI_COOP))
 	{
@@ -1714,6 +1732,8 @@ static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum,
 
 static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	const objnum_t objnum = GET_INTEL_SHORT(&buf[2]);
 
 	const auto &&uobj = vcobjptr.check_untrusted(objnum);
@@ -1738,10 +1758,10 @@ static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 	create_player_appearance_effect(Vclip, obj);
 }
 
-static void multi_do_player_deres(object_array &objects, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_player_deres(object_array &Objects, const playernum_t pnum, const uint8_t *const buf)
 {
-	auto &vmobjptridx = objects.vmptridx;
-	auto &vmobjptr = objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
+	auto &vmobjptr = Objects.vmptr;
 	// Only call this for players, not robots.  pnum is player number, not
 	// Object number.
 
@@ -1845,7 +1865,7 @@ static void multi_do_player_deres(object_array &objects, const playernum_t pnum,
 /*
  * Process can compute a kill. If I am a Client this might be my own one (see multi_send_kill()) but with more specific data so I can compute my kill correctly.
  */
-static void multi_do_kill(object_array &objects, const uint8_t *const buf)
+static void multi_do_kill(object_array &Objects, const uint8_t *const buf)
 {
 	int count = 1;
 	int type = static_cast<int>(buf[0]);
@@ -1885,7 +1905,7 @@ static void multi_do_kill(object_array &objects, const uint8_t *const buf)
 		Bounty_target = buf[6];
 	}
 
-	multi_compute_kill(objects.imptridx(killer), objects.vmptridx(killed));
+	multi_compute_kill(Objects.imptridx(killer), Objects.vmptridx(killed));
 
 	if (Game_mode & GM_BOUNTY && multi_i_am_master()) // update in case if needed... we could attach this to this packet but... meh...
 		multi_send_bounty();
@@ -2153,6 +2173,8 @@ static void multi_do_create_explosion(fvmobjptridx &vmobjptridx, const playernum
 
 static void multi_do_controlcen_fire(const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	vms_vector to_target;
 	int gun_num;
 	objnum_t objnum;
@@ -2223,8 +2245,9 @@ static void multi_do_create_powerup(fvmobjptr &vmobjptr, fvmsegptridx &vmsegptri
 	object_create_explosion(segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
 }
 
-static void multi_do_play_sound(fvcobjptridx &vcobjptridx, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, const uint8_t *const buf)
 {
+	auto &vcobjptridx = Objects.vcptridx;
 	const auto &plr = *vcplayerptr(pnum);
 	if (!plr.connected)
 		return;
@@ -2260,6 +2283,8 @@ static void multi_do_score(fvmobjptr &vmobjptr, const playernum_t pnum, const ui
 
 static void multi_do_trigger(const playernum_t pnum, const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int trigger = buf[2];
 	if (pnum >= N_players || pnum == Player_num)
 	{
@@ -2307,7 +2332,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	check_effect_blowup(LevelSharedDestructibleLightState, Vclip, *useg, side, hitpnt, laser, 0, 1);
 }
 
-static void multi_do_drop_marker(object_array &objects, fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
 {
 	int i;
 	int mesnum=buf[2];
@@ -2326,9 +2351,9 @@ static void multi_do_drop_marker(object_array &objects, fvmsegptridx &vmsegptrid
 
 	auto &mo = MarkerState.imobjidx[mnum];
 	if (mo != object_none)
-		obj_delete(LevelUniqueObjectState, Segments, objects.vmptridx(mo));
+		obj_delete(LevelUniqueObjectState, Segments, Objects.vmptridx(mo));
 
-	const auto &&plr_objp = objects.vcptr(vcplayerptr(pnum)->objnum);
+	const auto &&plr_objp = Objects.vcptr(vcplayerptr(pnum)->objnum);
 	mo = drop_marker_object(position, vmsegptridx(plr_objp->segnum), plr_objp->orient, mnum);
 }
 
@@ -2359,6 +2384,8 @@ static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, wall_array &
 
 void multi_reset_stuff()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	// A generic, emergency function to solve problems that crop up
 	// when a player exits quick-out from the game because of a
 	// connection loss.  Fixes several weird bugs!
@@ -2474,6 +2501,8 @@ namespace dsx {
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, const imobjptridx_t is_bomb_objnum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	static fix64 last_fireup_time = 0;
 
 	// provoke positional update if possible (20 times per second max. matches vulcan, the fastest firing weapon)
@@ -2564,6 +2593,8 @@ void multi_send_drop_marker (int player,const vms_vector &position,char messagen
 
 void multi_send_markers()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	// send marker positions/text to new player
 	int i;
 
@@ -2611,6 +2642,9 @@ void multi_send_endlevel_start()
 
 void multi_send_player_deres(deres_type_t type)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	int count = 0;
 	if (Network_send_objects)
 	{
@@ -2705,6 +2739,8 @@ void multi_send_message()
 
 void multi_send_reappear()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &plr = get_local_player();
 	multi_send_position(vmobjptridx(plr.objnum));
 	multi_command<MULTI_REAPPEAR> multibuf;
@@ -2748,6 +2784,9 @@ void multi_send_position(const vmobjptridx_t obj)
  */
 void multi_send_kill(const vmobjptridx_t objnum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &imobjptridx = Objects.imptridx;
+	auto &vmobjptr = Objects.vmptr;
 	// I died, tell the world.
 	int count = 0;
 
@@ -2935,6 +2974,8 @@ namespace dsx {
 
 void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx_t segnum, const vcobjidx_t objnum, const vms_vector &pos)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	// Create a powerup on a remote machine, used for remote
 	// placement of used powerups like missiles and cloaking
 	// powerups.
@@ -2979,6 +3020,8 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 
 static void multi_digi_play_sample(const int soundnum, const fix max_volume, const sound_stack once)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	if (Game_mode & GM_MULTI)
 		multi_send_play_sound(soundnum, max_volume, once);
 	digi_link_sound_to_object(soundnum, vcobjptridx(Viewer), 0, max_volume, once);
@@ -3021,6 +3064,8 @@ void multi_send_play_sound(const int sound_num, const fix volume, const sound_st
 
 void multi_send_score()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	// Send my current score to all other players so it will remain
 	// synced.
 	int count = 0;
@@ -3327,6 +3372,8 @@ public:
  */
 void multi_prep_level_objects(const d_vclip_array &Vclip)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
         if (!(Game_mode & GM_MULTI_COOP))
 	{
 		multi_update_objects_for_non_cooperative(); // Removes monsters from level
@@ -3392,6 +3439,8 @@ void multi_prep_level_objects(const d_vclip_array &Vclip)
 
 void multi_prep_level_player(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	// Do any special stuff to the level required for games
 	// before we begin playing in it.
 
@@ -3621,6 +3670,8 @@ void powerup_shuffle_state::record_powerup(const vmobjptridx_t o)
 
 void powerup_shuffle_state::shuffle() const
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (!count)
 		return;
 	std::minstd_rand mr(seed);
@@ -3654,6 +3705,8 @@ void powerup_shuffle_state::shuffle() const
 
 void multi_update_objects_for_non_cooperative()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	// Go through the object list and remove any objects not used in
 	// 'Anarchy!' games.
 
@@ -3713,6 +3766,8 @@ static
 #endif
 int multi_all_players_alive()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	range_for (auto &i, partial_const_range(Players, N_players))
 	{
 		if (i.connected == CONNECT_PLAYING && vcobjptr(i.objnum)->type == OBJ_GHOST) // player alive?
@@ -3725,6 +3780,8 @@ int multi_all_players_alive()
 
 void multi_send_drop_weapon(const vmobjptridx_t objnum, int seed)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	int count=0;
 	int ammo_count;
 
@@ -3852,6 +3909,8 @@ void multi_send_guided_info(const object_base &miss, const char done)
 
 static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t pnum, const uint8_t *const buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int count=3;
 
 	if (buf[2])
@@ -3947,6 +4006,8 @@ static void multi_do_wall_status(fvmwallptr &vmwallptr, const uint8_t *const buf
 
 void multi_send_kill_goal_counts()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	int count=1;
 
 	multi_command<MULTI_KILLGOALS> multibuf;
@@ -3994,6 +4055,8 @@ static void multi_do_heartbeat (const ubyte *buf)
 
 void multi_check_for_killgoal_winner ()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	if (Control_center_destroyed)
 		return;
 
@@ -4108,6 +4171,8 @@ static void multi_do_flags(fvmobjptr &vmobjptr, const playernum_t pnum, const ui
 
 void multi_send_flags (const playernum_t pnum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	multi_command<MULTI_FLAGS> multibuf;
 	multibuf[1]=pnum;
 	PUT_INTEL_INT(&multibuf[2], vmobjptr(vcplayerptr(pnum)->objnum)->ctype.player_info.powerup_flags.get_player_flags());
@@ -4151,6 +4216,8 @@ void multi_send_sound_function (char whichfunc, char sound)
 
 static void multi_do_sound_function (const playernum_t pnum, const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	// for afterburner
 
 	char whichfunc;
@@ -4194,6 +4261,9 @@ void multi_send_orb_bonus (const playernum_t pnum, const uint8_t hoard_orbs)
 
 void multi_do_capture_bonus(const playernum_t pnum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
 
@@ -4253,6 +4323,9 @@ static int GetOrbBonus (char num)
 
 void multi_do_orb_bonus(const playernum_t pnum, const uint8_t *const buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
 
@@ -4343,6 +4416,8 @@ void multi_send_got_orb (const playernum_t pnum)
 
 static void multi_do_got_flag (const playernum_t pnum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	digi_start_sound_queued(pnum == Player_num
 		? SOUND_HUD_YOU_GOT_FLAG
 		: (get_team(pnum) == TEAM_RED
@@ -4355,6 +4430,8 @@ static void multi_do_got_flag (const playernum_t pnum)
 
 static void multi_do_got_orb (const playernum_t pnum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	Assert (game_mode_hoard());
 
 	digi_play_sample((Game_mode & GM_TEAM) && get_team(pnum) == get_team(Player_num)
@@ -4369,6 +4446,8 @@ static void multi_do_got_orb (const playernum_t pnum)
 
 static void DropOrb ()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int seed;
 
 	if (!game_mode_hoard())
@@ -4405,6 +4484,8 @@ static void DropOrb ()
 
 void DropFlag ()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int seed;
 
 	if (!game_mode_capture_flag() && !game_mode_hoard())
@@ -4457,6 +4538,8 @@ void multi_send_drop_flag(const vmobjptridx_t objp, int seed)
 
 static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int remote_objnum,seed;
 	const auto powerup_id = static_cast<powerup_type_t>(buf[1]);
 	remote_objnum = GET_INTEL_SHORT(buf + 2);
@@ -5015,6 +5098,8 @@ void multi_send_gmode_update()
 
 static void multi_do_gmode_update(const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (multi_i_am_master())
 		return;
 	if (Game_mode & GM_TEAM)
@@ -5041,6 +5126,8 @@ static void multi_do_gmode_update(const ubyte *buf)
 namespace dsx {
 void multi_send_player_inventory(int priority)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	multi_command<MULTI_PLAYER_INV> multibuf;
 	int count = 0;
 
@@ -5078,6 +5165,8 @@ void multi_send_player_inventory(int priority)
 namespace dsx {
 static void multi_do_player_inventory(const playernum_t pnum, const ubyte *buf)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	int count;
 
 #ifdef NDEBUG
@@ -5127,6 +5216,8 @@ static void multi_do_player_inventory(const playernum_t pnum, const ubyte *buf)
 namespace dsx {
 static void MultiLevelInv_CountLevelPowerups()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
         if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_COOP))
                 return;
         MultiLevelInv.Current = {};
@@ -5213,6 +5304,8 @@ static void MultiLevelInv_CountLevelPowerups()
 namespace dsx {
 static void MultiLevelInv_CountPlayerInventory()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	auto &Current = MultiLevelInv.Current;
                 for (playernum_t i = 0; i < MAX_PLAYERS; i++)
                 {
@@ -5609,6 +5702,10 @@ void save_hoard_data(void)
 
 static void multi_process_data(const playernum_t pnum, const ubyte *buf, const uint_fast32_t type)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &imobjptridx = Objects.imptridx;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	// Take an entire message (that has already been checked for validity,
 	// if necessary) and act on it.
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
@@ -5685,7 +5782,7 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 			multi_do_create_powerup(vmobjptr, vmsegptridx, pnum, buf);
 			break;
 		case MULTI_PLAY_SOUND:
-			multi_do_play_sound(vcobjptridx, pnum, buf);
+			multi_do_play_sound(Objects, pnum, buf);
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_CAPTURE_BONUS:

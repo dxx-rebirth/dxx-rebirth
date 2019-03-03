@@ -253,7 +253,7 @@ static array<const object *, MAX_HEADLIGHTS> Headlights;
 
 // ---------------------------------------------------------
 namespace dsx {
-static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vmobjptridx_t obj)
+static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjptridx_t obj)
 {
 	int compute_color = 0;
 	float cscale = 255.0;
@@ -481,6 +481,8 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vmobjpt
 // ----------------------------------------------------------------------------------------------
 void set_dynamic_light(render_state_t &rstate)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	array<unsigned, MAX_VERTICES> render_vertices;
 	array<segnum_t, MAX_VERTICES> vert_segnum_list;
 	static fix light_time; 
@@ -529,7 +531,7 @@ void set_dynamic_light(render_state_t &rstate)
 
 	cast_muzzle_flash_light(vmsegptridx, n_render_vertices, render_vertices, vert_segnum_list);
 
-	range_for (const auto &&obj, vmobjptridx)
+	range_for (const auto &&obj, vcobjptridx)
 	{
 		const auto &&obj_light_emission = compute_light_emission(Vclip, obj);
 

@@ -232,6 +232,8 @@ static void clear_editor_status(void)
 
 static inline void editor_slew_init()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	Viewer = ConsoleObject;
 	slew_init(vmobjptr(ConsoleObject));
 	init_player_object();
@@ -263,6 +265,8 @@ int ExitEditor()
 
 int	GotoGameScreen()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	pause_game_world_time p;
 
 //@@	init_player_stats();
@@ -560,6 +564,9 @@ int fuelcen_delete_from_curseg() {
 
 static void move_player_2_segment_and_rotate(const vmsegptridx_t seg, const unsigned side)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
         static int edgenum=0;
 
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -592,6 +599,9 @@ int SetPlayerFromCursegAndRotate()
 //far enough away to see all of curside
 int SetPlayerFromCursegMinusOne()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	array<g3s_point, 4> corner_p;
 	fix max,view_dist=f1_0*10;
         static int edgenum=0;
@@ -995,6 +1005,9 @@ static void add_found_segments_to_selected_list(void) {
 
 void gamestate_restore_check()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	obj_position Save_position;
 
 	if (gamestate == editor_gamestate::saved)

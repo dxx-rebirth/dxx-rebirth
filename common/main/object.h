@@ -564,8 +564,6 @@ struct object_number_array : array<T, N>
 
 namespace dsx {
 
-DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(object, obj, Objects);
-
 #if defined(DXX_BUILD_DESCENT_II)
 class d_guided_missile_indices : object_number_array<imobjidx_t, MAX_PLAYERS>
 {
@@ -589,6 +587,7 @@ struct d_level_unique_object_state
 	d_guided_missile_indices Guided_missile;
 #endif
 	object_number_array<imobjidx_t, MAX_OBJECTS> free_obj_list;
+	object_array Objects;
 	auto &get_objects()
 	{
 		return Objects;

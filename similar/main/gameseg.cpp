@@ -1026,6 +1026,8 @@ void create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegme
 
 void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto sp = spp->bytemat;
 
 	objp->orient.rvec.x = *sp++ << MATRIX_PRECISION;
@@ -1070,6 +1072,8 @@ void create_quaternionpos(quaternionpos &qpp, const object_base &objp)
 
 void extract_quaternionpos(const vmobjptridx_t objp, quaternionpos &qpp)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	vms_matrix_from_quaternion(objp->orient, qpp.orient);
 
 	objp->pos = qpp.pos;

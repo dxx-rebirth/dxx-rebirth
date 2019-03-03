@@ -59,6 +59,8 @@ void draw_hostage(const d_vclip_array &Vclip, grs_canvas &canvas, const vmobjptr
 //------------- Called once when a hostage is rescued -------------------------
 void hostage_rescue()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	PALETTE_FLASH_ADD(0, 0, 25);		//small blue flash
 
 	auto &player_info = get_local_plrobj().ctype.player_info;

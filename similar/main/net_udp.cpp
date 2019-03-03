@@ -1546,6 +1546,8 @@ void net_udp_disconnect_player(int playernum)
 namespace dsx {
 static void net_udp_new_player(UDP_sequence_packet *const their)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	unsigned pnum = their->player.connected;
 
 	Assert(pnum < Netgame.max_numplayers);
@@ -1604,6 +1606,8 @@ static void net_udp_new_player(UDP_sequence_packet *const their)
 
 static void net_udp_welcome_player(UDP_sequence_packet *their)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	// Add a player to a game already in progress
 	WaitForRefuseAnswer=0;
 
@@ -1935,6 +1939,8 @@ static void net_udp_stop_resync(UDP_sequence_packet *their)
 namespace dsx {
 void net_udp_send_objects(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	sbyte owner, player_num = UDP_sync_player.player.connected;
 	static int obj_count = 0;
 	int loc = 0, remote_objnum = 0, obj_count_frame = 0;
@@ -2063,6 +2069,8 @@ void net_udp_send_objects(void)
 
 static int net_udp_verify_objects(int remote, int local)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	int nplayers = 0;
 
 	if ((remote-local) > 10)
@@ -2082,6 +2090,8 @@ static int net_udp_verify_objects(int remote, int local)
 
 static void net_udp_read_object_packet( ubyte *data )
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	// Object from another net player we need to sync with
 	sbyte obj_owner;
 	static int mode = 0, object_count = 0, my_pnum = 0;
@@ -2174,6 +2184,8 @@ namespace dsx {
 
 void net_udp_send_rejoin_sync(const unsigned player_num)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	vmplayerptr(player_num)->connected = CONNECT_PLAYING; // connect the new guy
 	Netgame.players[player_num].LastPacketTime = timer_query();
 
@@ -2231,6 +2243,8 @@ void net_udp_send_rejoin_sync(const unsigned player_num)
 
 static void net_udp_resend_sync_due_to_packet_loss()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	if (!multi_i_am_master())
 		return;
 
@@ -2255,6 +2269,8 @@ static void net_udp_resend_sync_due_to_packet_loss()
 
 static void net_udp_add_player(UDP_sequence_packet *p)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	range_for (auto &i, partial_range(Netgame.players, N_players))
 	{
 		if (i.protocol.udp.addr == p->player.protocol.udp.addr)
@@ -2334,6 +2350,8 @@ void net_udp_dump_player(const _sockaddr &dump_addr, int why)
 namespace dsx {
 void net_udp_update_netgame(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	// Update the netgame struct with current game variables
 	Netgame.numconnected=0;
 	range_for (auto &i, partial_const_range(Players, N_players))
@@ -2388,6 +2406,9 @@ void net_udp_update_netgame(void)
 /* Send an updated endlevel status to everyone (if we are host) or host (if we are client)  */
 void net_udp_send_endlevel_packet(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	int len = 0;
 
 	if (multi_i_am_master())
@@ -3083,6 +3104,8 @@ static void net_udp_process_packet(ubyte *data, const _sockaddr &sender_addr, in
 // Packet for end of level syncing
 void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_addr)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int len = 0;
 	ubyte tmpvar = 0;
 	
@@ -4061,6 +4084,9 @@ static void net_udp_set_game_mode(const int gamemode)
 namespace dsx {
 void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, const _sockaddr &sender_addr)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	if (data)
 	{
 		net_udp_process_game_info(data, data_len, sender_addr, 0);
@@ -5323,6 +5349,8 @@ void net_udp_process_mdata(uint8_t *data, uint_fast32_t data_len, const _sockadd
 
 void net_udp_send_pdata()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	array<uint8_t, 3 + quaternionpos::packed_size::value> buf;
 	int len = 0;
 
@@ -5426,6 +5454,8 @@ void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _s
 
 void net_udp_read_pdata_packet(UDP_frame_info *pd)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	const unsigned TheirPlayernum = pd->Player_num;
 	auto &tplr = *vmplayerptr(TheirPlayernum);
 	const auto TheirObjnum = tplr.objnum;

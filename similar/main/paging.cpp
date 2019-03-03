@@ -327,6 +327,8 @@ static void paging_touch_walls(const Textures_array &Textures, const wall_animat
 namespace dsx {
 void paging_touch_all(const d_vclip_array &Vclip)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	pause_game_world_time p;
 
 #if defined(DXX_BUILD_DESCENT_I)

@@ -401,6 +401,8 @@ static void digi_link_sound_common(const object_base &viewer, sound_object &so, 
 
 void digi_link_sound_to_object3(const unsigned org_soundnum, const vcobjptridx_t objnum, const uint8_t forever, const fix max_volume, const sound_stack once, const vm_distance max_distance, const int loop_start, const int loop_end)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	const auto &&viewer = vcobjptr(Viewer);
 	int soundnum;
 
@@ -483,6 +485,8 @@ static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum,
 
 void digi_link_sound_to_pos(int soundnum, const vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	digi_link_sound_to_pos2(vcobjptr, soundnum, segnum, sidenum, pos, forever, max_volume, vm_distance{F1_0 * 256});
 }
 
@@ -547,6 +551,8 @@ void digi_sync_sounds()
 	SoundQ_process();
 	if (!Viewer)
 		return;
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	const auto &&viewer = vcobjptr(Viewer);
 	range_for (auto &s, SoundObjects)
 	{
@@ -572,7 +578,7 @@ void digi_sync_sounds()
                                 &s.volume, &s.pan, s.max_distance );
 
 			} else if ( s.flags & SOF_LINK_TO_OBJ )	{
-				const auto objp = [&s]{
+				const auto objp = [&vcobjptr, &s]{
 					if (Newdemo_state != ND_STATE_PLAYBACK)
 						return vcobjptr(s.link_type.obj.objnum);
 					auto objnum = newdemo_find_object(s.link_type.obj.objsignature);

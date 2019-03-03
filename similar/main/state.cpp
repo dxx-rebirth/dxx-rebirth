@@ -947,6 +947,9 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 
 int state_save_all_sub(const char *filename, const char *desc)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	char mission_filename[9];
@@ -1319,6 +1322,9 @@ int state_save_all_sub(const char *filename, const char *desc)
 #if defined(DXX_BUILD_DESCENT_II)
 void set_pos_from_return_segment(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	const auto &&plobjnum = vmobjptridx(get_local_player().objnum);
 	const auto &&segp = vmsegptridx(Secret_return_segment);
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -1426,6 +1432,9 @@ int state_restore_all_sub(const char *filename)
 int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const secret_restore secret, const char *const filename)
 #endif
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	int version, coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;

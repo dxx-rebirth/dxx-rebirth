@@ -157,6 +157,8 @@ static void do_lock_doors(fvcsegptr &vcsegptr, fvmwallptr &vmwallptr, const trig
 // Changes walls pointed to by a trigger. returns true if any walls changed
 static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int ret=0;
 
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;

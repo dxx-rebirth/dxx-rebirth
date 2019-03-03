@@ -292,6 +292,8 @@ void wall_set_tmap_num(const wclip &anim, const vmsegptridx_t seg, const unsigne
 //when the wall has used all its hitpoints, this will destroy it
 static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side, wall &w0)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto &sside = seg->shared_segment::sides[side];
 	const auto wall_num = sside.wall_num;
 	w0.hps = -1;	//say it's blasted
@@ -396,6 +398,8 @@ void wall_damage(const vmsegptridx_t seg, const unsigned side, fix damage)
 namespace dsx {
 void wall_open_door(const vmsegptridx_t seg, int side)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	active_door *d;
 
 	auto &sside = seg->shared_segment::sides[side];
@@ -740,6 +744,8 @@ static unsigned is_door_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegpt
 // Closes a door
 void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned side)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	active_door *d;
 
 	const auto wall_num = seg->shared_segment::sides[side].wall_num;
@@ -819,6 +825,8 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned 
 // Called in the game loop.
 static bool do_door_open(active_door &d)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	bool remove = false;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
@@ -893,6 +901,8 @@ static bool do_door_open(active_door &d)
 // Called from the game loop.
 static bool do_door_close(active_door &d)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
 	auto &w0 = *vmwallptr(d.front_wallnum[0]);
@@ -1184,6 +1194,10 @@ void wall_toggle(fvmwallptr &vmwallptr, const vmsegptridx_t segp, const unsigned
 
 bool ad_removal_predicate::operator()(active_door &d) const
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
+#endif
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	wall &w = *Walls.vmptr(d.front_wallnum[0]);
 	if (w.state == WALL_DOOR_OPENING)

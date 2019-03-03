@@ -837,6 +837,8 @@ static int load_game_data(
 #endif
 	fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, PHYSFS_File *LoadFile)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	const auto &vcsegptridx = vmsegptridx;
 	short game_top_fileinfo_version;
@@ -1241,6 +1243,8 @@ int load_level(
 #endif
 	const char * filename_passed)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 #if DXX_USE_EDITOR
 	int use_compiled_level=1;
 #endif
@@ -1601,6 +1605,8 @@ static int save_game_data(
 #endif
 	PHYSFS_File *SaveFile)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 #if defined(DXX_BUILD_DESCENT_I)
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : GAME_VERSION;
@@ -1759,6 +1765,8 @@ static int save_level_sub(
 #endif
 	fvmobjptridx &vmobjptridx, const char *const filename)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	char temp_filename[PATH_MAX];
 	int minedata_offset=0,gamedata_offset=0;
 
@@ -1915,10 +1923,9 @@ int save_level(
 #endif
 	const char * filename)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	int r1;
-
-	// Save normal version...
-	//save_level_sub(filename, 0);	// just save compiled one
 
 	// Save compiled version...
 	r1 = save_level_sub(

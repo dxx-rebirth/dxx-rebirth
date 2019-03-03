@@ -385,6 +385,8 @@ static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, con
 
 void DropBuddyMarker(const vmobjptr_t objp)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	int marker_num;
 
 	static_assert(MAX_DROP_SINGLE + 1 <= NUM_MARKERS - 1, "not enough markers");
@@ -827,6 +829,13 @@ static void recompute_automap_segment_visibility(const object &plrobj, automap *
 
 static window_event_result automap_key_command(window *, const d_event &event, automap *am)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+#if defined(DXX_BUILD_DESCENT_I) || !defined(NDEBUG)
+	auto &vmobjptr = Objects.vmptr;
+#endif
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &vmobjptridx = Objects.vmptridx;
+#endif
 	int c = event_key_get(event);
 
 	switch (c)
@@ -962,6 +971,9 @@ static window_event_result automap_process_input(window *, const d_event &event,
 
 static window_event_result automap_handler(window *wind,const d_event &event, automap *am)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
@@ -1030,6 +1042,8 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 
 void do_automap()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	palette_array_t pal;
 	automap *am = new automap{};
 	window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, automap_handler, am);
@@ -1298,6 +1312,10 @@ static void add_one_unknown_edge( automap *am, int va, int vb )
 
 static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automap *am, const vcsegptridx_t seg)
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+#endif
 	ubyte	color;
 	const auto &segnum = seg;
 	
@@ -1556,6 +1574,9 @@ void InitMarkerInput ()
 
 window_event_result MarkerInputMessage(int key)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	auto &vmobjptridx = Objects.vmptridx;
 	switch( key )
 	{
 		case KEY_LEFT:

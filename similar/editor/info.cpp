@@ -143,6 +143,7 @@ static ai_type_name &get_ai_behavior(ai_behavior num)
 //	---------------------------------------------------------------------------------------------------
 static void info_display_object_placement(grs_canvas &canvas, int show_all)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	static	int	old_Cur_object_index;
 	static	int	old_type;
 	static	int	old_movement_type;

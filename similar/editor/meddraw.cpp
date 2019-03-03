@@ -88,6 +88,8 @@ static int	Automap_test=0;		//	Set to 1 to show wireframe in automap mode.
 
 static void draw_seg_objects(grs_canvas &canvas, const unique_segment &seg)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptridx = Objects.vcptridx;
 	range_for (const auto obj, objects_in(seg, vcobjptridx, vcsegptr))
 	{
 		auto sphere_point = g3_rotate_point(obj->pos);

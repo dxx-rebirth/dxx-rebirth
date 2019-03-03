@@ -147,14 +147,14 @@ class preserve_player_object_info
 	 */
 	const objnum_t &objnum;
 public:
-	preserve_player_object_info(const objnum_t &o) :
+	preserve_player_object_info(fvcobjptr &vcobjptr, const objnum_t &o) :
 		objnum(o)
 	{
 		auto &plr = *vcobjptr(objnum);
 		plr_shields = plr.shields;
 		plr_info = plr.ctype.player_info;
 	}
-	void restore() const
+	void restore(fvmobjptr &vmobjptr) const
 	{
 		auto &plr = *vmobjptr(objnum);
 		plr.shields = plr_shields;
@@ -200,6 +200,8 @@ namespace dsx {
 //--------------------------------------------------------------------
 static void verify_console_object()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	Assert(Player_num < Players.size());
 	const auto &&console = vmobjptr(get_local_player().objnum);
 	ConsoleObject = console;
@@ -223,6 +225,9 @@ static bool operator!=(const vms_vector &a, const vms_vector &b)
 
 static unsigned generate_extra_starts_by_displacement_within_segment(const unsigned preplaced_starts, const unsigned total_required_num_starts)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
 	array<uint8_t, MAX_PLAYERS> player_init_segment_capacity_flag{};
 	DXX_MAKE_VAR_UNDEFINED(player_init_segment_capacity_flag);
 	static_assert(WRIGHT + 1 == WBOTTOM, "side ordering error");
@@ -362,12 +367,12 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 }
 
 //added 10/12/95: delete buddy bot if coop game.  Probably doesn't really belong here. -MT
-static void gameseq_init_network_players(object_array &objects)
+static void gameseq_init_network_players(object_array &Objects)
 {
 
 	// Initialize network player start locations and object numbers
 
-	ConsoleObject = &objects.front();
+	ConsoleObject = &Objects.front();
 	unsigned j = 0, k = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	const auto remove_thief = Netgame.ThiefModifierFlags & ThiefModifier::Absent;
@@ -375,7 +380,7 @@ static void gameseq_init_network_players(object_array &objects)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #endif
 	const auto multiplayer_coop = Game_mode & GM_MULTI_COOP;
-	auto &vmobjptridx = objects.vmptridx;
+	auto &vmobjptridx = Objects.vmptridx;
 	range_for (const auto &&o, vmobjptridx)
 	{
 		const auto type = o->type;
@@ -430,6 +435,8 @@ static void gameseq_init_network_players(object_array &objects)
 
 void gameseq_remove_unused_players()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	// 'Remove' the unused players
 
 	if (Game_mode & GM_MULTI)
@@ -470,6 +477,8 @@ void gameseq_remove_unused_players()
 // Setup player for new game
 void init_player_stats_game(const playernum_t pnum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto &plr = *vmplayerptr(pnum);
 	plr.lives = INITIAL_LIVES;
 	plr.level = 1;
@@ -540,8 +549,12 @@ void init_player_stats_level(player &plr, object &plrobj)
 void init_player_stats_level(player &plr, object &plrobj, const secret_restore secret_flag)
 #endif
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret_flag{};
+#elif defined(DXX_BUILD_DESCENT_II)
+	auto &vcobjptridx = Objects.vcptridx;
 #endif
 
 	plr.level = Current_level_num;
@@ -599,6 +612,8 @@ void init_player_stats_level(player &plr, object &plrobj, const secret_restore s
 // Setup player for a brand-new ship
 void init_player_stats_new_ship(const playernum_t pnum)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	auto &plr = *vcplayerptr(pnum);
 	const auto &&plrobj = vmobjptridx(plr.objnum);
 	plrobj->shields = StartingShields;
@@ -947,7 +962,10 @@ void load_level_robots(int level_num)
 namespace dsx {
 void LoadLevel(int level_num,int page_in_textures)
 {
-	preserve_player_object_info p(vcplayerptr(Player_num)->objnum);
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	auto &vmobjptr = Objects.vmptr;
+	preserve_player_object_info p(vcobjptr, vcplayerptr(Player_num)->objnum);
 
 	auto &plr = get_local_player();
 	auto save_player = plr;
@@ -1019,13 +1037,15 @@ void LoadLevel(int level_num,int page_in_textures)
 #endif
 
 	gameseq_init_network_players(Objects);
-	p.restore();
+	p.restore(vmobjptr);
 }
 }
 
 //sets up Player_num & ConsoleObject
 void InitPlayerObject()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	Assert(Player_num<MAX_PLAYERS);
 
 	if (Player_num != 0 )	{
@@ -1079,6 +1099,8 @@ void StartNewGame(int start_level)
 //	Call with dead_flag = 1 if player died, but deserves some portion of bonus (only skill points), anyway.
 static void DoEndLevelScoreGlitz()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	int level_points, skill_points, energy_points, shield_points, hostage_points;
 	#define N_GLITZITEMS 9
 	char				m_str[N_GLITZITEMS][32];
@@ -1189,6 +1211,8 @@ static void DoEndLevelScoreGlitz()
 //called when the player is starting a level (new game or new ship)
 static void StartSecretLevel()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	Assert(Player_dead_state == player_dead_state::no);
 
 	InitPlayerPosition(vmobjptridx, vmsegptridx, 0);
@@ -1287,6 +1311,8 @@ static void do_screen_message_fmt(const char *fmt, ...)
 //	robots, powerups, walls, doors, etc.
 static void StartNewLevelSecret(int level_num, int page_in_textures)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
         ThisLevelTime=0;
 
 	last_drawn_cockpit = -1;
@@ -1376,6 +1402,8 @@ static int Entered_from_level;
 //	Called from switch.c when player is on a secret level and hits exit to return to base level.
 window_event_result ExitSecretLevel()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	auto result = window_event_result::handled;
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
@@ -1500,6 +1528,8 @@ void EnterSecretLevel(void)
 //called when the player has finished a level
 window_event_result PlayerFinishedLevel(int secret_flag)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (Game_wind)
 		window_set_visible(Game_wind, 0);
 
@@ -1679,6 +1709,8 @@ static window_event_result AdvanceLevel(int secret_flag)
 
 window_event_result DoPlayerDead()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	const bool pause = !(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (!Endlevel_sequence));
 	auto result = window_event_result::handled;
 
@@ -1798,6 +1830,8 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 window_event_result StartNewLevelSub(const int level_num, const int page_in_textures, const secret_restore secret_flag)
 #endif
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	if (!(Game_mode & GM_MULTI)) {
 		last_drawn_cockpit = -1;
 	}
@@ -2060,10 +2094,10 @@ class respawn_locations
 	unsigned max_usable_spawn_sites;
 	array<site, MAX_PLAYERS> sites;
 public:
-	respawn_locations(fvcsegptridx &vcsegptridx)
+	respawn_locations(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptridx)
 	{
 		const auto player_num = Player_num;
-		const auto find_closest_player = [player_num, &vcsegptridx](const obj_position &candidate) {
+		const auto find_closest_player = [player_num, &vmobjptr, &vcsegptridx](const obj_position &candidate) {
 			fix closest_dist = INT32_MAX;
 			const auto &&candidate_segp = vcsegptridx(candidate.segnum);
 			for (playernum_t i = N_players; i--;)
@@ -2116,6 +2150,8 @@ public:
 //initialize the player object position & orientation (at start of game, or new ship)
 static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, int random_flag)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	reset_cruise();
 	int NewPlayer=0;
 
@@ -2123,7 +2159,7 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 		NewPlayer = Player_num;
 	else if (random_flag == 1)
 	{
-		const respawn_locations locations(vcsegptridx);
+		const respawn_locations locations(vmobjptr, vcsegptridx);
 		if (!locations.get_usable_sites())
 			return;
 		uint_fast32_t trys=0;
@@ -2196,6 +2232,8 @@ void copy_defaults_to_robot(object_base &objp)
 //	This function should be called at level load time.
 static void copy_defaults_to_robot_all(void)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
 	range_for (object_base &objp, vmobjptr)
 	{
 		if (objp.type == OBJ_ROBOT)
@@ -2207,6 +2245,8 @@ static void copy_defaults_to_robot_all(void)
 //called when the player is starting a level (new game or new ship)
 static void StartLevel(int random_flag)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
 	assert(Player_dead_state == player_dead_state::no);
 
 	InitPlayerPosition(vmobjptridx, vmsegptridx, random_flag);
