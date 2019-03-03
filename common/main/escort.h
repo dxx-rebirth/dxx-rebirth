@@ -35,7 +35,6 @@ void recreate_thief(uint8_t thief_id);
 void init_buddy_for_level(void);
 void invalidate_escort_goal(d_unique_buddy_state &);
 void drop_stolen_items (vcobjptr_t);
-extern fix64	Buddy_sorry_time;
 
 enum escort_goal_t : uint8_t
 {

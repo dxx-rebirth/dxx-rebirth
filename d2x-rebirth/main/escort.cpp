@@ -114,7 +114,6 @@ stolen_items_t Stolen_items;
 int	Stolen_item_index;
 fix64	Escort_last_path_created = 0;
 escort_goal_t Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
-fix64	Buddy_sorry_time;
 
 static fix64 Last_buddy_message_time;
 
@@ -131,8 +130,8 @@ void init_buddy_for_level(void)
 	BuddyState.Looking_for_marker = UINT8_MAX;
 	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	BuddyState.Last_buddy_key = -1;
+	BuddyState.Buddy_sorry_time = -F1_0;
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
-	Buddy_sorry_time = -F1_0;
 }
 
 //	-----------------------------------------------------------------------------
@@ -1095,10 +1094,10 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 		do_buddy_dude_stuff();
 
 	{
-		const auto buddy_sorry_time = Buddy_sorry_time;
+		const auto buddy_sorry_time = BuddyState.Buddy_sorry_time;
 		if (buddy_sorry_time + F1_0 > GameTime64)
 		{
-			Buddy_sorry_time = -F1_0*2;
+			BuddyState.Buddy_sorry_time = -F1_0*2;
 			if (buddy_sorry_time < GameTime64 + F1_0*2)
 			{
 				buddy_message_ignore_time("Oops, sorry 'bout that...");

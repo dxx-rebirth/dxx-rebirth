@@ -2108,6 +2108,9 @@ namespace dsx {
 
 void apply_damage_to_player(object &playerobj, const icobjptridx_t killer, fix damage, ubyte possibly_friendly)
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+#endif
 	if (Player_dead_state != player_dead_state::no)
 		return;
 
@@ -2147,7 +2150,7 @@ void apply_damage_to_player(object &playerobj, const icobjptridx_t killer, fix d
 #if defined(DXX_BUILD_DESCENT_II)
 			auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 				if (killer && killer->type == OBJ_ROBOT && robot_is_companion(Robot_info[get_robot_id(killer)]))
-					Buddy_sorry_time = GameTime64;
+					BuddyState.Buddy_sorry_time = GameTime64;
 #endif
 		}
 	}

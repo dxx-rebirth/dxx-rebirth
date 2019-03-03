@@ -579,6 +579,7 @@ struct d_unique_buddy_state
 	int Last_buddy_key;
 	int Last_buddy_polish_path_tick;
 	escort_goal_t Escort_goal_object;
+	fix64 Buddy_sorry_time;
 };
 
 class d_guided_missile_indices : object_number_array<imobjidx_t, MAX_PLAYERS>
