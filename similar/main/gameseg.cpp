@@ -1443,12 +1443,9 @@ void validate_segment_side(fvcvertptr &vcvertptr, const vmsegptridx_t sp, const 
 {
 	auto &sside = sp->shared_segment::sides[sidenum];
 	auto &uside = sp->unique_segment::sides[sidenum];
-	const auto old_tmap_num = uside.tmap_num;
 	create_walls_on_side(vcvertptr, sp, sidenum);
-	/* If the texture is correct, put it back.  This is sometimes a
-	 * wasted store, but never harmful.
-	 *
-	 * If the texture was wrong, fix it, and log a diagnostic.  For
+	/*
+	 * If the texture was wrong, then fix it and log a diagnostic.  For
 	 * builtin missions, log the diagnostic at level CON_VERBOSE, since
 	 * retail levels trigger this during normal play.  For external
 	 * missions, log the diagnostic at level CON_URGENT.  External
@@ -1507,9 +1504,9 @@ segment #104 side #3 has invalid tmap 910 (NumTextures=910)
 Levels 9-end: unchecked
 
 	 */
-	uside.tmap_num = old_tmap_num < NumTextures
-		? old_tmap_num
-		: (
+	const auto old_tmap_num = uside.tmap_num;
+	if (old_tmap_num >= NumTextures)
+		uside.tmap_num = (
 			LevelErrorV(PLAYING_BUILTIN_MISSION ? CON_VERBOSE : CON_URGENT, "segment #%hu side #%i has invalid tmap %u (NumTextures=%u).", static_cast<segnum_t>(sp), sidenum, old_tmap_num, NumTextures),
 			(sside.wall_num == wall_none)
 		);
