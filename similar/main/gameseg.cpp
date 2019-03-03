@@ -1623,14 +1623,15 @@ unsigned set_segment_depths(vcsegidx_t start_seg, const array<uint8_t, MAX_SEGME
 
 //	------------------------------------------------------------------------------------------
 //cast static light from a segment to nearby segments
-static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vmsegptridx_t segp,const vms_vector &segment_center, fix light_intensity,int recursion_depth)
+static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vmsegptridx_t segp, const vms_vector &segment_center, const fix light_intensity, const unsigned recursion_depth)
 {
 	fix			dist_to_rseg;
-	segnum_t segnum=segp;
-
-	if (!visited[segnum])
+	if (auto &&visited_ref = visited[segp])
 	{
-		visited[segnum] = true;
+	}
+	else
+	{
+		visited_ref = true;
 		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		const auto r_segment_center = compute_segment_center(vcvertptr, segp);
@@ -1672,7 +1673,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 
 //update the static_light field in a segment, which is used for object lighting
 //this code is copied from the editor routine calim_process_all_lights()
-static void change_segment_light(const vmsegptridx_t segp,int sidenum,int dir)
+static void change_segment_light(const vmsegptridx_t segp, const unsigned sidenum, const unsigned dir)
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
