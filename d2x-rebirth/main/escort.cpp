@@ -78,7 +78,6 @@ namespace dsx {
 
 static void show_escort_menu(const array<char, 300> &);
 static void say_escort_goal(escort_goal_t goal_num);
-static fix64 Last_come_back_message_time;
 
 constexpr array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
 	"BLUE KEY",
@@ -132,6 +131,7 @@ void init_buddy_for_level(void)
 	BuddyState.Buddy_last_seen_player = 0;
 	BuddyState.Buddy_last_missile_time = 0;
 	BuddyState.Last_time_buddy_gave_hint = 0;
+	BuddyState.Last_come_back_message_time = 0;
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 }
 
@@ -1144,9 +1144,10 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 		Buddy_last_player_path_created = GameTime64;
 		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
 		if (!player_visibility) {
-			if ((Last_come_back_message_time + F1_0 < GameTime64) || (Last_come_back_message_time > GameTime64)) {
+			if (BuddyState.Last_come_back_message_time + F1_0 < GameTime64)
+			{
+				BuddyState.Last_come_back_message_time = GameTime64;
 				buddy_message("Coming back to get you.");
-				Last_come_back_message_time = GameTime64;
 			}
 		}
 		//	No point in Buddy creating very long path if he's not allowed to talk.  Really kills framerate.

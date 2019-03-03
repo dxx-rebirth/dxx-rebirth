@@ -584,6 +584,7 @@ struct d_unique_buddy_state
 	fix64 Buddy_last_seen_player;
 	fix64 Buddy_last_missile_time;
 	fix64 Last_time_buddy_gave_hint;
+	fix64 Last_come_back_message_time;
 };
 
 class d_guided_missile_indices : object_number_array<imobjidx_t, MAX_PLAYERS>
