@@ -515,6 +515,8 @@ void init_ai_object(const vmobjptridx_t objp, ai_behavior behavior, const imsegi
 	auto &robptr = Robot_info[get_robot_id(objp)];
 #if defined(DXX_BUILD_DESCENT_II)
 	if (robot_is_companion(robptr)) {
+		auto &BuddyState = LevelUniqueObjectState.BuddyState;
+		BuddyState.Buddy_objnum = objp;
 		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
 	}
 
@@ -4438,7 +4440,8 @@ void init_robots_for_level(void)
 #if defined(DXX_BUILD_DESCENT_II)
 	Final_boss_is_dead=0;
 
-	Buddy_objnum = object_none;
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	BuddyState.Buddy_objnum = object_none;
 	Buddy_allowed_to_talk = 0;
 
 	Boss_dying_start_time = 0;

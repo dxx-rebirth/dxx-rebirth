@@ -1105,6 +1105,8 @@ void rock_the_mine_frame(void)
 					ConsoleObject->mtype.phys_info.rotvel.z += rz;
 
 					//	Shake the buddy!
+					auto &BuddyState = LevelUniqueObjectState.BuddyState;
+					const auto Buddy_objnum = BuddyState.Buddy_objnum;
 					if (Buddy_objnum != object_none) {
 						const auto &&objp = vmobjptr(Buddy_objnum);
 						objp->mtype.phys_info.rotvel.x += rx*4;
@@ -1176,6 +1178,8 @@ static void seismic_disturbance_frame(void)
 				ConsoleObject->mtype.phys_info.rotvel.z += rz;
 
 				//	Shake the buddy!
+				auto &BuddyState = LevelUniqueObjectState.BuddyState;
+				const auto Buddy_objnum = BuddyState.Buddy_objnum;
 				if (Buddy_objnum != object_none) {
 					const auto &&objp = vmobjptr(Buddy_objnum);
 					objp->mtype.phys_info.rotvel.x += rx*4;

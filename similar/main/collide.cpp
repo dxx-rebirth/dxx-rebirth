@@ -1542,6 +1542,7 @@ static fix64 Last_time_buddy_gave_hint;
 //	Return true if damage done to boss, else return false.
 static boss_weapon_collision_result do_boss_weapon_collision(const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const vcobjptridx_t robotptridx, object &weapon, const vms_vector &collision_point)
 {
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	const object_base &robot = robotptridx;
 	int	d2_boss_index;
 
@@ -1579,7 +1580,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_level_share
 		if (dot > Boss_invulnerable_dot()) {
 			if (const auto &&segp = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, Segments.vmptridx(robot.segnum)))
 				digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, segp, 0, collision_point, 0, F1_0);
-			if (Buddy_objnum != object_none)
+			if (BuddyState.Buddy_objnum != object_none)
 			{
 				if (Last_time_buddy_gave_hint == 0)
 					Last_time_buddy_gave_hint = d_rand()*32 + F1_0*16;
@@ -2146,7 +2147,6 @@ void apply_damage_to_player(object &playerobj, const icobjptridx_t killer, fix d
 
 #if defined(DXX_BUILD_DESCENT_II)
 			auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-			if (Buddy_objnum != object_none)
 				if (killer && killer->type == OBJ_ROBOT && robot_is_companion(Robot_info[get_robot_id(killer)]))
 					Buddy_sorry_time = GameTime64;
 #endif

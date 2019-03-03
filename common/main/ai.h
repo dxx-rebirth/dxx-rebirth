@@ -269,8 +269,6 @@ std::size_t create_bfs_list(const vmobjptr_t &robot, const vcsegidx_t &start_seg
 }
 extern void init_thief_for_level();
 
-
-extern objnum_t Buddy_objnum;
 extern int Buddy_allowed_to_talk;
 
 void start_robot_death_sequence(object &objp);

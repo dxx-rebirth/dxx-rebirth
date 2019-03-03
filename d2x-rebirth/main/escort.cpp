@@ -117,7 +117,7 @@ static int Buddy_messages_suppressed;
 escort_goal_t Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 escort_goal_t Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 fix64	Buddy_sorry_time;
-objnum_t	 Escort_goal_index,Buddy_objnum;
+objnum_t	 Escort_goal_index;
 int Buddy_allowed_to_talk;
 static int Looking_for_marker;
 static int Last_buddy_key;
@@ -134,7 +134,8 @@ void init_buddy_for_level(void)
 	Escort_goal_index = object_none;
 	Buddy_messages_suppressed = 0;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	Buddy_objnum = find_escort(vmobjptridx, Robot_info);
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 	Buddy_sorry_time = -F1_0;
 
 	Looking_for_marker = -1;
@@ -227,12 +228,17 @@ static int ok_for_buddy_to_talk(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	const auto Buddy_objnum = BuddyState.Buddy_objnum;
 	if (Buddy_objnum == object_none)
 		return 0;
 
 	const vmobjptridx_t buddy = vmobjptridx(Buddy_objnum);
-	if (buddy->type != OBJ_ROBOT) {
+	const auto buddy_type = buddy->type;
+	if (buddy_type != OBJ_ROBOT) {
 		Buddy_allowed_to_talk = 0;
+		BuddyState.Buddy_objnum = object_none;
+		con_printf(CON_URGENT, "BUG: buddy is object %u, but that object is type %u.", Buddy_objnum.get_unchecked_index(), buddy_type);
 		return 0;
 	}
 
@@ -595,6 +601,8 @@ static segnum_t exists_fuelcen_in_mine(const vcsegidx_t start_seg, const player_
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	const auto Buddy_objnum = BuddyState.Buddy_objnum;
 	const auto length = create_bfs_list(vmobjptr(Buddy_objnum), start_seg, powerup_flags, bfs_list);
 	auto predicate = [](const segnum_t &s) { return vcsegptr(s)->special == SEGMENT_IS_FUELCEN; };
 	{
@@ -623,6 +631,8 @@ static objnum_t exists_in_mine(const vcsegidx_t start_seg, const int objtype, co
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	const auto Buddy_objnum = BuddyState.Buddy_objnum;
 	const auto length = create_bfs_list(vmobjptr(Buddy_objnum), start_seg, powerup_flags, bfs_list);
 
 	range_for (const auto segnum, partial_const_range(bfs_list, length))
@@ -953,6 +963,8 @@ static void bash_buddy_weapon_info(const vmobjptridx_t objp)
 //	-----------------------------------------------------------------------------
 static int maybe_buddy_fire_mega(const vmobjptridx_t objp)
 {
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	const auto Buddy_objnum = BuddyState.Buddy_objnum;
 	const auto &&buddy_objp = objp.absolute_sibling(Buddy_objnum);
 	fix		dist, dot;
 	auto vec_to_robot = vm_vec_sub(buddy_objp->pos, objp->pos);
@@ -988,6 +1000,8 @@ static int maybe_buddy_fire_mega(const vmobjptridx_t objp)
 //-----------------------------------------------------------------------------
 static int maybe_buddy_fire_smart(const vmobjptridx_t objp)
 {
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	const auto Buddy_objnum = BuddyState.Buddy_objnum;
 	const auto &&buddy_objp = objp.absolute_sibling(Buddy_objnum);
 	fix		dist;
 
@@ -1051,8 +1065,6 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
-
-	Buddy_objnum = objp;
 
 	auto &player_info = plrobj.ctype.player_info;
 	if (player_visibility) {

@@ -565,6 +565,11 @@ struct object_number_array : array<T, N>
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
+struct d_unique_buddy_state
+{
+	icobjidx_t Buddy_objnum = object_none;
+};
+
 class d_guided_missile_indices : object_number_array<imobjidx_t, MAX_PLAYERS>
 {
 	template <typename R, typename F>
@@ -584,6 +589,7 @@ struct d_level_unique_object_state
 	unsigned num_objects = 0;
 	unsigned Debris_object_count = 0;
 #if defined(DXX_BUILD_DESCENT_II)
+	d_unique_buddy_state BuddyState;
 	d_guided_missile_indices Guided_missile;
 #endif
 	object_number_array<imobjidx_t, MAX_OBJECTS> free_obj_list;
