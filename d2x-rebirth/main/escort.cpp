@@ -132,6 +132,7 @@ void init_buddy_for_level(void)
 	BuddyState.Last_time_buddy_gave_hint = 0;
 	BuddyState.Last_come_back_message_time = 0;
 	BuddyState.Escort_last_path_created = 0;
+	BuddyState.Buddy_last_player_path_created = 0;
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 }
 
@@ -938,8 +939,6 @@ static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
 
 #define	MAX_ESCORT_TIME_AWAY		(F1_0*4)
 
-fix64 Buddy_last_player_path_created;
-
 //	-----------------------------------------------------------------------------
 static int time_to_visit_player(const vmobjptr_t objp, ai_local *ailp, ai_static *aip)
 {
@@ -947,7 +946,7 @@ static int time_to_visit_player(const vmobjptr_t objp, ai_local *ailp, ai_static
 	//	Note: This one has highest priority because, even if already going towards player,
 	//	might be necessary to create a new path, as player can move.
 	if (GameTime64 - BuddyState.Buddy_last_seen_player > MAX_ESCORT_TIME_AWAY)
-		if (GameTime64 - Buddy_last_player_path_created > F1_0)
+		if (GameTime64 - BuddyState.Buddy_last_player_path_created > F1_0)
 			return 1;
 
 	if (ailp->mode == ai_mode::AIM_GOTO_PLAYER)
@@ -1141,7 +1140,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 	if (BuddyState.Escort_special_goal != ESCORT_GOAL_SCRAM && time_to_visit_player(objp, ailp, aip)) {
 		unsigned max_len;
 
-		Buddy_last_player_path_created = GameTime64;
+		BuddyState.Buddy_last_player_path_created = GameTime64;
 		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
 		if (!player_visibility) {
 			if (BuddyState.Last_come_back_message_time + F1_0 < GameTime64)
