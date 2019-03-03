@@ -194,8 +194,6 @@ extern vms_vector Last_fired_upon_player_pos;
 
 #define MIN_ESCORT_DISTANCE     (F1_0*40)
 
-extern fix64 Escort_last_path_created;
-
 #define SNIPE_RETREAT_TIME  (F1_0*5)
 #define SNIPE_ABORT_RETREAT_TIME (SNIPE_RETREAT_TIME/2) // Can abort a retreat with this amount of time left in retreat
 #define SNIPE_ATTACK_TIME   (F1_0*10)

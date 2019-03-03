@@ -110,7 +110,6 @@ constexpr array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
 constexpr std::integral_constant<unsigned, 200> Max_escort_length{};
 stolen_items_t Stolen_items;
 int	Stolen_item_index;
-fix64	Escort_last_path_created = 0;
 
 static fix64 Last_buddy_message_time;
 
@@ -132,6 +131,7 @@ void init_buddy_for_level(void)
 	BuddyState.Buddy_last_missile_time = 0;
 	BuddyState.Last_time_buddy_gave_hint = 0;
 	BuddyState.Last_come_back_message_time = 0;
+	BuddyState.Escort_last_path_created = 0;
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 }
 
@@ -1123,19 +1123,19 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 
 	if (BuddyState.Escort_special_goal == ESCORT_GOAL_SCRAM) {
 		if (player_visibility)
-			if (Escort_last_path_created + F1_0*3 < GameTime64) {
+			if (BuddyState.Escort_last_path_created + F1_0*3 < GameTime64) {
+				BuddyState.Escort_last_path_created = GameTime64;
 				create_n_segment_path(objp, 10 + d_rand() * 16, ConsoleObject->segnum);
-				Escort_last_path_created = GameTime64;
 			}
 
 		return;
 	}
 
 	//	Force checking for new goal every 5 seconds, and create new path, if necessary.
-	if ((BuddyState.Escort_special_goal != ESCORT_GOAL_SCRAM && (Escort_last_path_created + F1_0*5) < GameTime64) ||
-		((BuddyState.Escort_special_goal == ESCORT_GOAL_SCRAM) && ((Escort_last_path_created + F1_0*15) < GameTime64))) {
+	if (BuddyState.Escort_last_path_created + (BuddyState.Escort_special_goal != ESCORT_GOAL_SCRAM ? (F1_0 * 5) : (F1_0 * 15)) < GameTime64)
+	{
 		BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
-		Escort_last_path_created = GameTime64;
+		BuddyState.Escort_last_path_created = GameTime64;
 	}
 
 	if (BuddyState.Escort_special_goal != ESCORT_GOAL_SCRAM && time_to_visit_player(objp, ailp, aip)) {

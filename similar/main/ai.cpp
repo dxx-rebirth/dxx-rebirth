@@ -4604,10 +4604,10 @@ int ai_save_state(PHYSFS_File *fp)
 		tmptime32 = Boss_hit_time - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_writeSLE32(fp, -1);
-	if (Escort_last_path_created - GameTime64 < F1_0*(-18000))
+	if (BuddyState.Escort_last_path_created - GameTime64 < F1_0*(-18000))
 		tmptime32 = F1_0*(-18000);
 	else
-		tmptime32 = Escort_last_path_created - GameTime64;
+		tmptime32 = BuddyState.Escort_last_path_created - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	{
 		const uint32_t Escort_goal_object = BuddyState.Escort_goal_object;
@@ -4816,13 +4816,13 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	if (version >= 8) {
 		PHYSFSX_readSXE32(fp, swap);
 		tmptime32 = PHYSFSX_readSXE32(fp, swap);
-		Escort_last_path_created = static_cast<fix64>(tmptime32);
+		BuddyState.Escort_last_path_created = static_cast<fix64>(tmptime32);
 		BuddyState.Escort_goal_object = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
 		BuddyState.Escort_special_goal = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
 		BuddyState.Escort_goal_index = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_read(fp, &Stolen_items, sizeof(Stolen_items[0]) * Stolen_items.size(), 1);
 	} else {
-		Escort_last_path_created = 0;
+		BuddyState.Escort_last_path_created = 0;
 		BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		BuddyState.Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 		BuddyState.Escort_goal_index = object_none;
