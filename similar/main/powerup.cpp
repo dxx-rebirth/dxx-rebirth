@@ -239,8 +239,6 @@ static int pick_up_vulcan_ammo(player_info &player_info)
 	return used;
 }
 
-}
-
 static int pick_up_key(const int r, const int g, const int b, player_flags &player_flags, const PLAYER_FLAG key_flag, const char *const key_name, const powerup_type_t id)
 {
 	if (player_flags & key_flag)
@@ -248,13 +246,14 @@ static int pick_up_key(const int r, const int g, const int b, player_flags &play
 	player_flags |= key_flag;
 	powerup_basic(r, g, b, KEY_SCORE, "%s %s", key_name, TXT_ACCESS_GRANTED);
 	multi_digi_play_sample(Powerup_info[id].hit_sound, F1_0);
-	invalidate_escort_goal();
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	invalidate_escort_goal(BuddyState);
+#endif
 	return (Game_mode & GM_MULTI) ? 0 : 1;
 }
 
 //	returns true if powerup consumed
-namespace dsx {
-
 namespace {
 
 #if defined(DXX_BUILD_DESCENT_II)

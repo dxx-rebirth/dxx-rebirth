@@ -113,7 +113,6 @@ constexpr std::integral_constant<unsigned, 200> Max_escort_length{};
 stolen_items_t Stolen_items;
 int	Stolen_item_index;
 fix64	Escort_last_path_created = 0;
-escort_goal_t Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 escort_goal_t Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 fix64	Buddy_sorry_time;
 static int Last_buddy_key;
@@ -124,13 +123,13 @@ void init_buddy_for_level(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	BuddyState = {};
 	BuddyState.Escort_goal_index = object_none;
 	BuddyState.Looking_for_marker = UINT8_MAX;
+	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 	Buddy_sorry_time = -F1_0;
 
@@ -281,7 +280,7 @@ static void record_escort_goal_accomplished()
 		digi_play_sample_once(SOUND_BUDDY_MET_GOAL, F1_0);
 		BuddyState.Escort_goal_index = object_none;
 		BuddyState.Looking_for_marker = UINT8_MAX;
-		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
+		BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	}
 }
@@ -326,7 +325,7 @@ void detect_escort_goal_accomplished(const vmobjptridx_t index)
 			(index_id == POW_KEY_RED && (goal_key = ESCORT_GOAL_RED_KEY, true))
 		)
 		{
-			if (Escort_goal_object == goal_key)
+			if (BuddyState.Escort_goal_object == goal_key)
 			{
 				record_escort_goal_accomplished();
 				return;
@@ -539,9 +538,7 @@ void set_escort_special_goal(int special_key)
 	Last_buddy_message_time = GameTime64 - 2*F1_0;	//	Allow next message to come through.
 
 	say_escort_goal(Escort_special_goal);
-	// -- Escort_goal_object = escort_set_goal_object();
-
-	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
+	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 }
 
 //	-----------------------------------------------------------------------------
@@ -749,7 +746,7 @@ static void clear_escort_goals()
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	BuddyState.Looking_for_marker = UINT8_MAX;
-	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
+	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 }
 
@@ -773,9 +770,9 @@ static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *aip, segnum_t
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 	if ((aip->path_length > 0) && (Point_segs[aip->hide_index + aip->path_length - 1].segnum != goal_seg)) {
 		fix	dist_to_player;
-		buddy_message_ignore_time("Can't reach %s.", Escort_goal_text[Escort_goal_object - 1]);
+		const unsigned goal_text_index = exchange(BuddyState.Escort_goal_object, ESCORT_GOAL_SCRAM) - 1;
 		BuddyState.Looking_for_marker = UINT8_MAX;
-		Escort_goal_object = ESCORT_GOAL_SCRAM;
+		buddy_message_ignore_time("Cannot reach %s.", goal_text_index < Escort_goal_text.size() ? Escort_goal_text[goal_text_index] : "<unknown>");
 		dist_to_player = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 100, WID_FLY_FLAG);
 		if (dist_to_player > MIN_ESCORT_DISTANCE)
 			create_path_to_player(objp, Max_escort_length, create_path_safety_flag::safe);	//	MK!: Last parm used to be 1!
@@ -809,9 +806,10 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
 	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
-		Escort_goal_object = Escort_special_goal;
+		BuddyState.Escort_goal_object = Escort_special_goal;
 
 	const auto powerup_flags = player_info.powerup_flags;
+	const auto Escort_goal_object = BuddyState.Escort_goal_object;
 	if (BuddyState.Looking_for_marker != UINT8_MAX)
 	{
 		goal_seg = escort_get_goal_segment(objp, OBJ_MARKER, Escort_goal_object - ESCORT_GOAL_MARKER1, powerup_flags);
@@ -1136,7 +1134,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 	//	Force checking for new goal every 5 seconds, and create new path, if necessary.
 	if (((Escort_special_goal != ESCORT_GOAL_SCRAM) && ((Escort_last_path_created + F1_0*5) < GameTime64)) ||
 		((Escort_special_goal == ESCORT_GOAL_SCRAM) && ((Escort_last_path_created + F1_0*15) < GameTime64))) {
-		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
+		BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		Escort_last_path_created = GameTime64;
 	}
 
@@ -1162,7 +1160,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 		//	This is to prevent buddy from looking for a goal, which he will do because we only allow path creation once/second.
 		return;
 	} else if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) && (dist_to_player < MIN_ESCORT_DISTANCE)) {
-		Escort_goal_object = escort_set_goal_object(player_info.powerup_flags);
+		BuddyState.Escort_goal_object = escort_set_goal_object(player_info.powerup_flags);
 		ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
 		escort_create_path_to_goal(objp, player_info);
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
@@ -1170,9 +1168,11 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 			create_n_segment_path(objp, 5, Believed_player_seg);
 		}
 		ailp->mode = ai_mode::AIM_GOTO_OBJECT;
-	} else if (Escort_goal_object == ESCORT_GOAL_UNSPECIFIED) {
+	}
+	else if (BuddyState.Escort_goal_object == ESCORT_GOAL_UNSPECIFIED)
+	{
 		if ((ailp->mode != ai_mode::AIM_GOTO_PLAYER) || (dist_to_player < MIN_ESCORT_DISTANCE)) {
-			Escort_goal_object = escort_set_goal_object(player_info.powerup_flags);
+			BuddyState.Escort_goal_object = escort_set_goal_object(player_info.powerup_flags);
 			ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
 			escort_create_path_to_goal(objp, player_info);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
@@ -1182,12 +1182,11 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 			ailp->mode = ai_mode::AIM_GOTO_OBJECT;
 		}
 	}
-
 }
 
-void invalidate_escort_goal(void)
+void invalidate_escort_goal(d_unique_buddy_state &BuddyState)
 {
-	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
+	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 }
 
 //	-------------------------------------------------------------------------------------------------

@@ -20,9 +20,6 @@
 #ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void invalidate_escort_goal(void)
-{
-}
 static inline void detect_escort_goal_accomplished(const vmobjptridx_t &)
 {
 }
@@ -36,9 +33,41 @@ void detect_escort_goal_fuelcen_accomplished();
 extern void set_escort_special_goal(int key);
 void recreate_thief(uint8_t thief_id);
 void init_buddy_for_level(void);
-void invalidate_escort_goal(void);
+void invalidate_escort_goal(d_unique_buddy_state &);
 void drop_stolen_items (vcobjptr_t);
 extern fix64	Buddy_sorry_time;
+
+enum escort_goal_t : uint8_t
+{
+	ESCORT_GOAL_UNSPECIFIED = UINT8_MAX,
+	ESCORT_GOAL_BLUE_KEY = 1,
+	ESCORT_GOAL_GOLD_KEY = 2,
+	ESCORT_GOAL_RED_KEY = 3,
+	ESCORT_GOAL_CONTROLCEN = 4,
+	ESCORT_GOAL_EXIT = 5,
+
+// Custom escort goals.
+	ESCORT_GOAL_ENERGY = 6,
+	ESCORT_GOAL_ENERGYCEN = 7,
+	ESCORT_GOAL_SHIELD = 8,
+	ESCORT_GOAL_POWERUP = 9,
+	ESCORT_GOAL_ROBOT = 10,
+	ESCORT_GOAL_HOSTAGE = 11,
+	ESCORT_GOAL_PLAYER_SPEW = 12,
+	ESCORT_GOAL_SCRAM = 13,
+	ESCORT_GOAL_BOSS = 15,
+	ESCORT_GOAL_MARKER1 = 16,
+	ESCORT_GOAL_MARKER2 = 17,
+	ESCORT_GOAL_MARKER3 = 18,
+	ESCORT_GOAL_MARKER4 = 19,
+	ESCORT_GOAL_MARKER5 = 20,
+	ESCORT_GOAL_MARKER6 = 21,
+	ESCORT_GOAL_MARKER7 = 22,
+	ESCORT_GOAL_MARKER8 = 23,
+	ESCORT_GOAL_MARKER9 = 24,
+};
+
+extern escort_goal_t Escort_special_goal;
 #endif
 }
 #endif

@@ -159,6 +159,7 @@ namespace dsx {
 constexpr std::integral_constant<unsigned, 4> MAX_CONTROLCEN_GUNS{};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<unsigned, 8> MAX_CONTROLCEN_GUNS{};
+struct d_unique_buddy_state;
 #endif
 
 struct powerup_info_rw;

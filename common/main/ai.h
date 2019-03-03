@@ -192,40 +192,9 @@ void init_ai_for_ship();
 #if defined(DXX_BUILD_DESCENT_II)
 extern vms_vector Last_fired_upon_player_pos;
 
-enum escort_goal_t
-{
-	ESCORT_GOAL_UNSPECIFIED = -1,
-	ESCORT_GOAL_BLUE_KEY = 1,
-	ESCORT_GOAL_GOLD_KEY = 2,
-	ESCORT_GOAL_RED_KEY = 3,
-	ESCORT_GOAL_CONTROLCEN = 4,
-	ESCORT_GOAL_EXIT = 5,
-
-// Custom escort goals.
-	ESCORT_GOAL_ENERGY = 6,
-	ESCORT_GOAL_ENERGYCEN = 7,
-	ESCORT_GOAL_SHIELD = 8,
-	ESCORT_GOAL_POWERUP = 9,
-	ESCORT_GOAL_ROBOT = 10,
-	ESCORT_GOAL_HOSTAGE = 11,
-	ESCORT_GOAL_PLAYER_SPEW = 12,
-	ESCORT_GOAL_SCRAM = 13,
-	ESCORT_GOAL_BOSS = 15,
-	ESCORT_GOAL_MARKER1 = 16,
-	ESCORT_GOAL_MARKER2 = 17,
-	ESCORT_GOAL_MARKER3 = 18,
-	ESCORT_GOAL_MARKER4 = 19,
-	ESCORT_GOAL_MARKER5 = 20,
-	ESCORT_GOAL_MARKER6 = 21,
-	ESCORT_GOAL_MARKER7 = 22,
-	ESCORT_GOAL_MARKER8 = 23,
-	ESCORT_GOAL_MARKER9 = 24,
-};
-
 #define MIN_ESCORT_DISTANCE     (F1_0*40)
 
 extern fix64 Escort_last_path_created;
-extern escort_goal_t Escort_goal_object, Escort_special_goal;
 
 #define SNIPE_RETREAT_TIME  (F1_0*5)
 #define SNIPE_ABORT_RETREAT_TIME (SNIPE_RETREAT_TIME/2) // Can abort a retreat with this amount of time left in retreat

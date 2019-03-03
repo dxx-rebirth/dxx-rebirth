@@ -51,6 +51,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-integer_sequence.h"
 #include "compiler-poison.h"
 #include "player-flags.h"
+#if defined(DXX_BUILD_DESCENT_II)
+#include "escort.h"
+#endif
 
 namespace dcx {
 
@@ -572,6 +575,7 @@ struct d_unique_buddy_state
 	uint8_t Buddy_allowed_to_talk;
 	uint8_t Buddy_messages_suppressed;
 	uint8_t Looking_for_marker;
+	escort_goal_t Escort_goal_object;
 };
 
 class d_guided_missile_indices : object_number_array<imobjidx_t, MAX_PLAYERS>
