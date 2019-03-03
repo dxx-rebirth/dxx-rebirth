@@ -113,7 +113,6 @@ constexpr std::integral_constant<unsigned, 200> Max_escort_length{};
 stolen_items_t Stolen_items;
 int	Stolen_item_index;
 fix64	Escort_last_path_created = 0;
-static int Buddy_messages_suppressed;
 escort_goal_t Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 escort_goal_t Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 fix64	Buddy_sorry_time;
@@ -128,7 +127,6 @@ void init_buddy_for_level(void)
 	auto &vmobjptridx = Objects.vmptridx;
 	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
-	Buddy_messages_suppressed = 0;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	BuddyState = {};
@@ -376,7 +374,8 @@ void change_guidebot_name()
 //	-----------------------------------------------------------------------------
 static uint8_t show_buddy_message()
 {
-	if (Buddy_messages_suppressed)
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	if (BuddyState.Buddy_messages_suppressed)
 		return 0;
 
 	if (Game_mode & GM_MULTI)
@@ -407,7 +406,8 @@ static void buddy_message_force_va(const char *const fmt, va_list vl)
 __attribute_format_printf(1, 2)
 static void buddy_message_ignore_time(const char *const fmt, ...)
 {
-	if (Buddy_messages_suppressed)
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	if (BuddyState.Buddy_messages_suppressed)
 		return;
 	va_list	args;
 	va_start(args, fmt);
@@ -478,7 +478,7 @@ void set_escort_special_goal(int special_key)
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	int marker_key;
 
-	Buddy_messages_suppressed = 0;
+	BuddyState.Buddy_messages_suppressed = 0;
 
 	if (!BuddyState.Buddy_allowed_to_talk) {
 		if (!ok_for_buddy_to_talk()) {
@@ -1736,6 +1736,7 @@ struct escort_menu : ignore_window_pointer_t
 
 window_event_result escort_menu::event_key_command(const d_event &event)
 {
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	switch (const auto key = event_key_get(event))
 	{
 		case KEY_0:
@@ -1757,9 +1758,9 @@ window_event_result escort_menu::event_key_command(const d_event &event)
 		case KEY_ENTER:
 			return window_event_result::close;
 		case KEY_T: {
-			auto temp = exchange(Buddy_messages_suppressed, 0);
+			const auto temp = exchange(BuddyState.Buddy_messages_suppressed, 0);
 			buddy_message("Messages %s.", temp ? "enabled" : "suppressed");
-			Buddy_messages_suppressed = ~temp;
+			BuddyState.Buddy_messages_suppressed = ~temp;
 			return window_event_result::close;
 		}
 			
@@ -1798,6 +1799,7 @@ window_event_result escort_menu::event_handler(window *, const d_event &event, e
 
 void do_escort_menu(void)
 {
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1888,7 +1890,7 @@ void do_escort_menu(void)
 
 	}
 			
-	if (!Buddy_messages_suppressed)
+	if (!BuddyState.Buddy_messages_suppressed)
 		tstr =  "Suppress";
 	else
 		tstr =  "Enable";
