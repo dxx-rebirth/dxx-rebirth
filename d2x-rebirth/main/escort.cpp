@@ -111,8 +111,6 @@ constexpr std::integral_constant<unsigned, 200> Max_escort_length{};
 stolen_items_t Stolen_items;
 int	Stolen_item_index;
 
-static fix64 Last_buddy_message_time;
-
 void init_buddy_for_level(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -133,6 +131,7 @@ void init_buddy_for_level(void)
 	BuddyState.Last_come_back_message_time = 0;
 	BuddyState.Escort_last_path_created = 0;
 	BuddyState.Buddy_last_player_path_created = 0;
+	BuddyState.Last_buddy_message_time = 0;
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 }
 
@@ -379,7 +378,7 @@ static uint8_t show_buddy_message()
 	if (Game_mode & GM_MULTI)
 		return 0;
 
-	if (Last_buddy_message_time + F1_0 < GameTime64) {
+	if (BuddyState.Last_buddy_message_time + F1_0 < GameTime64) {
 		if (auto r = ok_for_buddy_to_talk())
 			return r;
 	}
@@ -389,7 +388,8 @@ static uint8_t show_buddy_message()
 __attribute_nonnull()
 static void buddy_message_force_str(const char *str)
 {
-	Last_buddy_message_time = GameTime64;
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	BuddyState.Last_buddy_message_time = GameTime64;
 	HUD_init_message(HM_DEFAULT, "%c%c%s:%c%c %s", CC_COLOR, BM_XRGB(28, 0, 0), static_cast<const char *>(PlayerCfg.GuidebotName), CC_COLOR, BM_XRGB(0, 31, 0), str);
 }
 
@@ -536,7 +536,7 @@ void set_escort_special_goal(int special_key)
 		}
 	}
 
-	Last_buddy_message_time = GameTime64 - 2*F1_0;	//	Allow next message to come through.
+	BuddyState.Last_buddy_message_time = GameTime64 - 2*F1_0;	//	Allow next message to come through.
 
 	say_escort_goal(BuddyState.Escort_special_goal);
 	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
