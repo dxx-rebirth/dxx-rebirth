@@ -925,6 +925,7 @@ void ai_follow_path(const vmobjptridx_t objp, int player_visibility, const vms_v
 
 	vms_vector	goal_point, new_goal_point;
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 #endif
@@ -1082,7 +1083,7 @@ void ai_follow_path(const vmobjptridx_t objp, int player_visibility, const vms_v
 			//	Buddy bot.  If he's in mode to get away from player and at end of line,
 			//	if player visible, then make a new path, else just return.
 			if (robot_is_companion(robptr)) {
-				if (Escort_special_goal == ESCORT_GOAL_SCRAM)
+				if (BuddyState.Escort_special_goal == ESCORT_GOAL_SCRAM)
 				{
 					if (player_visibility) {
 						create_n_segment_path(objp, 16 + d_rand() * 16, segment_none);

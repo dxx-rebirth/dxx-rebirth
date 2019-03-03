@@ -129,6 +129,7 @@ static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const v
 #if defined(DXX_BUILD_DESCENT_I)
 	if (robot_id == ROBOT_BRAIN || robot.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
 #elif defined(DXX_BUILD_DESCENT_II)
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -149,7 +150,7 @@ static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const v
 			else if (robot_is_companion(robptr) && w.type == WALL_DOOR)
 			{
 				ai_local *const ailp = &robot.ctype.ai_info.ail;
-				if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) || (Escort_special_goal == ESCORT_GOAL_SCRAM)) {
+				if (ailp->mode == ai_mode::AIM_GOTO_PLAYER || BuddyState.Escort_special_goal == ESCORT_GOAL_SCRAM) {
 					if (w.keys != KEY_NONE)
 					{
 						auto &player_info = get_local_plrobj().ctype.player_info;

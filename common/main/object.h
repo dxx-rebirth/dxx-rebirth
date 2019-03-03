@@ -579,6 +579,7 @@ struct d_unique_buddy_state
 	int Last_buddy_key;
 	int Last_buddy_polish_path_tick;
 	escort_goal_t Escort_goal_object;
+	escort_goal_t Escort_special_goal;
 	fix64 Buddy_sorry_time;
 	fix64 Buddy_last_seen_player;
 	fix64 Buddy_last_missile_time;

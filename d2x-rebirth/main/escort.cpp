@@ -112,7 +112,6 @@ constexpr std::integral_constant<unsigned, 200> Max_escort_length{};
 stolen_items_t Stolen_items;
 int	Stolen_item_index;
 fix64	Escort_last_path_created = 0;
-escort_goal_t Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 
 static fix64 Last_buddy_message_time;
 
@@ -120,7 +119,6 @@ void init_buddy_for_level(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	BuddyState = {};
@@ -128,6 +126,7 @@ void init_buddy_for_level(void)
 	BuddyState.Buddy_gave_hint_count = 5;
 	BuddyState.Looking_for_marker = UINT8_MAX;
 	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
+	BuddyState.Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	BuddyState.Last_buddy_key = -1;
 	BuddyState.Buddy_sorry_time = -F1_0;
 	BuddyState.Buddy_last_seen_player = 0;
@@ -280,7 +279,7 @@ static void record_escort_goal_accomplished()
 		BuddyState.Escort_goal_index = object_none;
 		BuddyState.Looking_for_marker = UINT8_MAX;
 		BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
-		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
+		BuddyState.Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	}
 }
 
@@ -290,7 +289,7 @@ void detect_escort_goal_fuelcen_accomplished()
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	if (!BuddyState.Buddy_allowed_to_talk)
 		return;
-	if (Escort_special_goal == ESCORT_GOAL_ENERGYCEN)
+	if (BuddyState.Escort_special_goal == ESCORT_GOAL_ENERGYCEN)
 		record_escort_goal_accomplished();
 }
 
@@ -310,7 +309,7 @@ void detect_escort_goal_accomplished(const vmobjptridx_t index)
 	// See if goal found was a key.  Need to handle default goals differently.
 	// Note, no buddy_met_goal sound when blow up reactor or exit.  Not great, but ok
 	// since for reactor, noisy, for exit, buddy is disappearing.
-	if (Escort_special_goal == ESCORT_GOAL_UNSPECIFIED && Escort_goal_index == index)
+	if (BuddyState.Escort_special_goal == ESCORT_GOAL_UNSPECIFIED && Escort_goal_index == index)
 	{
 		record_escort_goal_accomplished();
 		return;
@@ -331,9 +330,9 @@ void detect_escort_goal_accomplished(const vmobjptridx_t index)
 			}
 		}
 	}
-	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
+	if (BuddyState.Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 	{
-		if ((index->type == OBJ_POWERUP) && (Escort_special_goal == ESCORT_GOAL_POWERUP))
+		if (index->type == OBJ_POWERUP && BuddyState.Escort_special_goal == ESCORT_GOAL_POWERUP)
 			record_escort_goal_accomplished();	//	Any type of powerup picked up will do.
 		else if (Escort_goal_index != object_guidebot_cannot_reach)
 		{
@@ -516,8 +515,9 @@ void set_escort_special_goal(int special_key)
 		
 	else if (BuddyState.Looking_for_marker != UINT8_MAX)
 	{
-		Escort_special_goal = static_cast<escort_goal_t>(ESCORT_GOAL_MARKER1 + marker_key - KEY_1);
+		BuddyState.Escort_special_goal = static_cast<escort_goal_t>(ESCORT_GOAL_MARKER1 + marker_key - KEY_1);
 	} else {
+		auto &Escort_special_goal = BuddyState.Escort_special_goal;
 		switch (special_key) {
 			case KEY_1:	Escort_special_goal = ESCORT_GOAL_ENERGY;			break;
 			case KEY_2:	Escort_special_goal = ESCORT_GOAL_ENERGYCEN;		break;
@@ -536,7 +536,7 @@ void set_escort_special_goal(int special_key)
 
 	Last_buddy_message_time = GameTime64 - 2*F1_0;	//	Allow next message to come through.
 
-	say_escort_goal(Escort_special_goal);
+	say_escort_goal(BuddyState.Escort_special_goal);
 	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 }
 
@@ -746,7 +746,7 @@ static void clear_escort_goals()
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	BuddyState.Looking_for_marker = UINT8_MAX;
 	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
-	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
+	BuddyState.Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 }
 
 static void escort_goal_does_not_exist(escort_goal_t goal)
@@ -804,8 +804,8 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
-	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
-		BuddyState.Escort_goal_object = Escort_special_goal;
+	if (BuddyState.Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
+		BuddyState.Escort_goal_object = BuddyState.Escort_special_goal;
 
 	const auto powerup_flags = player_info.powerup_flags;
 	const auto Escort_goal_object = BuddyState.Escort_goal_object;
@@ -916,7 +916,8 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
 {
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
-	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	if (BuddyState.Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 		return ESCORT_GOAL_UNSPECIFIED;
 	if (!(pl_flags & PLAYER_FLAGS_BLUE_KEY) && exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_BLUE, -1, pl_flags) != object_none)
 		return ESCORT_GOAL_BLUE_KEY;
@@ -1119,7 +1120,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		}
 
-	if (Escort_special_goal == ESCORT_GOAL_SCRAM) {
+	if (BuddyState.Escort_special_goal == ESCORT_GOAL_SCRAM) {
 		if (player_visibility)
 			if (Escort_last_path_created + F1_0*3 < GameTime64) {
 				create_n_segment_path(objp, 10 + d_rand() * 16, ConsoleObject->segnum);
@@ -1130,13 +1131,13 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 	}
 
 	//	Force checking for new goal every 5 seconds, and create new path, if necessary.
-	if (((Escort_special_goal != ESCORT_GOAL_SCRAM) && ((Escort_last_path_created + F1_0*5) < GameTime64)) ||
-		((Escort_special_goal == ESCORT_GOAL_SCRAM) && ((Escort_last_path_created + F1_0*15) < GameTime64))) {
+	if ((BuddyState.Escort_special_goal != ESCORT_GOAL_SCRAM && (Escort_last_path_created + F1_0*5) < GameTime64) ||
+		((BuddyState.Escort_special_goal == ESCORT_GOAL_SCRAM) && ((Escort_last_path_created + F1_0*15) < GameTime64))) {
 		BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		Escort_last_path_created = GameTime64;
 	}
 
-	if ((Escort_special_goal != ESCORT_GOAL_SCRAM) && time_to_visit_player(objp, ailp, aip)) {
+	if (BuddyState.Escort_special_goal != ESCORT_GOAL_SCRAM && time_to_visit_player(objp, ailp, aip)) {
 		unsigned max_len;
 
 		Buddy_last_player_path_created = GameTime64;
@@ -1846,12 +1847,12 @@ void do_escort_menu(void)
 	auto &plrobj = get_local_plrobj();
 	//	This prevents the buddy from coming back if you've told him to scram.
 	//	If we don't set next_goal, we get garbage there.
-	if (Escort_special_goal == ESCORT_GOAL_SCRAM) {
-		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;	//	Else setting next goal might fail.
+	if (BuddyState.Escort_special_goal == ESCORT_GOAL_SCRAM) {
+		BuddyState.Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;	//	Else setting next goal might fail.
 		next_goal = escort_set_goal_object(plrobj.ctype.player_info.powerup_flags);
-		Escort_special_goal = ESCORT_GOAL_SCRAM;
+		BuddyState.Escort_special_goal = ESCORT_GOAL_SCRAM;
 	} else {
-		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;	//	Else setting next goal might fail.
+		BuddyState.Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;	//	Else setting next goal might fail.
 		next_goal = escort_set_goal_object(plrobj.ctype.player_info.powerup_flags);
 	}
 

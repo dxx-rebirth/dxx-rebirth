@@ -65,8 +65,6 @@ enum escort_goal_t : uint8_t
 	ESCORT_GOAL_MARKER8 = 23,
 	ESCORT_GOAL_MARKER9 = 24,
 };
-
-extern escort_goal_t Escort_special_goal;
 #endif
 }
 #endif
