@@ -79,7 +79,8 @@ What's new in 0.60
 * Added experimental support for libADLMIDI [contributed by jpcima].
   - Users must separately install a compatible libADLMIDI library on the library search path.
 * ... and many, many more bugfixes and improvements.
-
+* Fixed original bug that buddy was limited to 5 hints per program run, not 5 per boss as it probably should have been.
+  - Due to savegame format limitations, this still is not right.  Reloading the game should restore Buddy_gave_hint_count to its value at save time, but will not.
 
 Known issues
 ------------

@@ -574,6 +574,7 @@ struct d_unique_buddy_state
 	icobjidx_t Escort_goal_index = object_none;
 	uint8_t Buddy_allowed_to_talk;
 	uint8_t Buddy_messages_suppressed;
+	uint8_t Buddy_gave_hint_count;
 	uint8_t Looking_for_marker;
 	escort_goal_t Escort_goal_object;
 };

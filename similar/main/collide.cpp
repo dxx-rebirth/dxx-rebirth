@@ -1535,7 +1535,6 @@ static inline int Boss_invulnerable_dot()
 	return F1_0/4 - i2f(Difficulty_level)/8;
 }
 
-static int Buddy_gave_hint_count = 5;
 static fix64 Last_time_buddy_gave_hint;
 
 //	------------------------------------------------------------------------------------------------------
@@ -1585,11 +1584,11 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_level_share
 				if (Last_time_buddy_gave_hint == 0)
 					Last_time_buddy_gave_hint = d_rand()*32 + F1_0*16;
 
-				if (Buddy_gave_hint_count) {
+				if (BuddyState.Buddy_gave_hint_count) {
 					if (Last_time_buddy_gave_hint + F1_0*20 < GameTime64) {
 						int	sval;
 
-						Buddy_gave_hint_count--;
+						BuddyState.Buddy_gave_hint_count--;
 						Last_time_buddy_gave_hint = GameTime64;
 						sval = (d_rand()*4) >> 15;
 						const char *msg;

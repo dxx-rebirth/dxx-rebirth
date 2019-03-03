@@ -128,6 +128,7 @@ void init_buddy_for_level(void)
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	BuddyState = {};
 	BuddyState.Escort_goal_index = object_none;
+	BuddyState.Buddy_gave_hint_count = 5;
 	BuddyState.Looking_for_marker = UINT8_MAX;
 	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
