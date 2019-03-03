@@ -581,6 +581,7 @@ struct d_unique_buddy_state
 	escort_goal_t Escort_goal_object;
 	fix64 Buddy_sorry_time;
 	fix64 Buddy_last_seen_player;
+	fix64 Buddy_last_missile_time;
 };
 
 class d_guided_missile_indices : object_number_array<imobjidx_t, MAX_PLAYERS>

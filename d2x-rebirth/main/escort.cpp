@@ -79,7 +79,6 @@ namespace dsx {
 static void show_escort_menu(const array<char, 300> &);
 static void say_escort_goal(escort_goal_t goal_num);
 static fix64 Last_come_back_message_time;
-static fix64 Buddy_last_missile_time;
 
 constexpr array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
 	"BLUE KEY",
@@ -132,6 +131,7 @@ void init_buddy_for_level(void)
 	BuddyState.Last_buddy_key = -1;
 	BuddyState.Buddy_sorry_time = -F1_0;
 	BuddyState.Buddy_last_seen_player = 0;
+	BuddyState.Buddy_last_missile_time = 0;
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 }
 
@@ -1039,14 +1039,12 @@ static int maybe_buddy_fire_smart(const vmobjptridx_t objp)
 static void do_buddy_dude_stuff(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &vmobjptridx = Objects.vmptridx;
 	if (!ok_for_buddy_to_talk())
 		return;
 
-	if (Buddy_last_missile_time > GameTime64)
-		Buddy_last_missile_time = 0;
-
-	if (Buddy_last_missile_time + F1_0*2 < GameTime64) {
+	if (BuddyState.Buddy_last_missile_time + F1_0*2 < GameTime64) {
 		//	See if a robot potentially in view cone
 		auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 		auto &&rh = make_range(vmobjptridx);
@@ -1054,7 +1052,7 @@ static void do_buddy_dude_stuff(void)
 		{
 			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)
 				if (maybe_buddy_fire_mega(objp)) {
-					Buddy_last_missile_time = GameTime64;
+					BuddyState.Buddy_last_missile_time = GameTime64;
 					return;
 				}
 		}
@@ -1064,7 +1062,7 @@ static void do_buddy_dude_stuff(void)
 		{
 			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)
 				if (maybe_buddy_fire_smart(objp)) {
-					Buddy_last_missile_time = GameTime64;
+					BuddyState.Buddy_last_missile_time = GameTime64;
 					return;
 				}
 		}
