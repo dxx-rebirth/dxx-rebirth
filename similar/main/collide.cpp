@@ -1536,8 +1536,6 @@ static inline int Boss_invulnerable_dot()
 	return F1_0/4 - i2f(Difficulty_level)/8;
 }
 
-static fix64 Last_time_buddy_gave_hint;
-
 //	------------------------------------------------------------------------------------------------------
 //	Return true if damage done to boss, else return false.
 static boss_weapon_collision_result do_boss_weapon_collision(const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const vcobjptridx_t robotptridx, object &weapon, const vms_vector &collision_point)
@@ -1582,15 +1580,12 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_level_share
 				digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, segp, 0, collision_point, 0, F1_0);
 			if (BuddyState.Buddy_objnum != object_none)
 			{
-				if (Last_time_buddy_gave_hint == 0)
-					Last_time_buddy_gave_hint = d_rand()*32 + F1_0*16;
-
 				if (BuddyState.Buddy_gave_hint_count) {
-					if (Last_time_buddy_gave_hint + F1_0*20 < GameTime64) {
+					if (BuddyState.Last_time_buddy_gave_hint + F1_0*20 < GameTime64) {
 						int	sval;
 
 						BuddyState.Buddy_gave_hint_count--;
-						Last_time_buddy_gave_hint = GameTime64;
+						BuddyState.Last_time_buddy_gave_hint = GameTime64;
 						sval = (d_rand()*4) >> 15;
 						const char *msg;
 						switch (sval) {

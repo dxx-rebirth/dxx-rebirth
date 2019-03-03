@@ -131,6 +131,7 @@ void init_buddy_for_level(void)
 	BuddyState.Buddy_sorry_time = -F1_0;
 	BuddyState.Buddy_last_seen_player = 0;
 	BuddyState.Buddy_last_missile_time = 0;
+	BuddyState.Last_time_buddy_gave_hint = 0;
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 }
 

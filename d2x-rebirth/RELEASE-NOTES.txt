@@ -81,6 +81,7 @@ What's new in 0.60
 * ... and many, many more bugfixes and improvements.
 * Fixed original bug that buddy was limited to 5 hints per program run, not 5 per boss as it probably should have been.
   - Due to savegame format limitations, this still is not right.  Reloading the game should restore Buddy_gave_hint_count to its value at save time, but will not.
+* Fixed bug that buddy's determination of when to give the next hint was never reset.  A player who received a hint late in a level, then advanced to a new level and fought another hit-from-behind boss would not be eligible for a hint until late in the new level.  A player who saved on the new level, restarted the program, and loaded the saved game, would be eligible without waiting.  Reset the timer when reloading buddy state.  This is still wrong, but less so.  Fixing it properly requires a savegame format change.
 
 Known issues
 ------------
