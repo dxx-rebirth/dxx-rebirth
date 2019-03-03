@@ -118,7 +118,6 @@ escort_goal_t Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 escort_goal_t Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 fix64	Buddy_sorry_time;
 objnum_t	 Escort_goal_index;
-int Buddy_allowed_to_talk;
 static int Looking_for_marker;
 static int Last_buddy_key;
 
@@ -128,13 +127,13 @@ void init_buddy_for_level(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	Buddy_allowed_to_talk = 0;
 	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	Escort_goal_index = object_none;
 	Buddy_messages_suppressed = 0;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	BuddyState = {};
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 	Buddy_sorry_time = -F1_0;
 
@@ -224,7 +223,7 @@ std::size_t create_bfs_list(const vmobjptr_t robot, const vcsegidx_t start_seg, 
 //	Return true if ok for buddy to talk, else return false.
 //	Buddy is allowed to talk if the segment he is in does not contain a blastable wall that has not been blasted
 //	AND he has never yet, since being initialized for level, been allowed to talk.
-static int ok_for_buddy_to_talk(void)
+static uint8_t ok_for_buddy_to_talk(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -236,13 +235,13 @@ static int ok_for_buddy_to_talk(void)
 	const vmobjptridx_t buddy = vmobjptridx(Buddy_objnum);
 	const auto buddy_type = buddy->type;
 	if (buddy_type != OBJ_ROBOT) {
-		Buddy_allowed_to_talk = 0;
+		BuddyState.Buddy_allowed_to_talk = 0;
 		BuddyState.Buddy_objnum = object_none;
 		con_printf(CON_URGENT, "BUG: buddy is object %u, but that object is type %u.", Buddy_objnum.get_unchecked_index(), buddy_type);
 		return 0;
 	}
 
-	if (Buddy_allowed_to_talk)
+	if (const auto Buddy_allowed_to_talk = BuddyState.Buddy_allowed_to_talk)
 		return Buddy_allowed_to_talk;
 
 	const shared_segment &segp = vcsegptr(buddy->segnum);
@@ -275,7 +274,7 @@ static int ok_for_buddy_to_talk(void)
 		}
 	}
 
-	Buddy_allowed_to_talk = 1;
+	BuddyState.Buddy_allowed_to_talk = 1;
 	return 1;
 }
 
@@ -293,7 +292,8 @@ static void record_escort_goal_accomplished()
 //	--------------------------------------------------------------------------------------------
 void detect_escort_goal_fuelcen_accomplished()
 {
-	if (!Buddy_allowed_to_talk)
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	if (!BuddyState.Buddy_allowed_to_talk)
 		return;
 	if (Escort_special_goal == ESCORT_GOAL_ENERGYCEN)
 		record_escort_goal_accomplished();
@@ -303,7 +303,8 @@ void detect_escort_goal_accomplished(const vmobjptridx_t index)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	if (!Buddy_allowed_to_talk)
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	if (!BuddyState.Buddy_allowed_to_talk)
 		return;
 
 	// If goal is not an object (FUELCEN, EXIT, SCRAM), bail. FUELCEN is handled in detect_escort_goal_fuelcen_accomplished(), EXIT and SCRAM are never accomplished.
@@ -372,7 +373,7 @@ void change_guidebot_name()
 #undef DXX_GUIDEBOT_RENAME_MENU
 
 //	-----------------------------------------------------------------------------
-static int show_buddy_message()
+static uint8_t show_buddy_message()
 {
 	if (Buddy_messages_suppressed)
 		return 0;
@@ -473,13 +474,13 @@ void set_escort_special_goal(int special_key)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	int marker_key;
 
 	Buddy_messages_suppressed = 0;
 
-	if (!Buddy_allowed_to_talk) {
-		ok_for_buddy_to_talk();
-		if (!Buddy_allowed_to_talk) {
+	if (!BuddyState.Buddy_allowed_to_talk) {
+		if (!ok_for_buddy_to_talk()) {
 			auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 			const auto &&o = find_escort(vmobjptridx, Robot_info);
 			if (o == object_none)
@@ -1063,6 +1064,7 @@ static void do_buddy_dude_stuff(void)
 //	Called every frame (or something).
 void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to_player, int player_visibility)
 {
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
@@ -1095,7 +1097,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 	}
 
 	//	If buddy not allowed to talk, then he is locked in his room.  Make him mostly do nothing unless you're nearby.
-	if (!Buddy_allowed_to_talk)
+	if (!BuddyState.Buddy_allowed_to_talk)
 		if (dist_to_player > F1_0*100)
 			aip->SKIP_AI_COUNT = (F1_0/4)/FrameTime;
 
@@ -1138,7 +1140,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 		}
 		//	No point in Buddy creating very long path if he's not allowed to talk.  Really kills framerate.
 		max_len = Max_escort_length;
-		if (!Buddy_allowed_to_talk)
+		if (!BuddyState.Buddy_allowed_to_talk)
 			max_len = 3;
 		create_path_to_player(objp, max_len, create_path_safety_flag::safe);	//	MK!: Last parm used to be 1!
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
@@ -1809,9 +1811,8 @@ void do_escort_menu(void)
 		HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot present in mine!");
 		return;
 	}
-	ok_for_buddy_to_talk();	//	Needed here or we might not know buddy can talk when he can.
-
-	if (!Buddy_allowed_to_talk) {
+	//	Needed here or we might not know buddy can talk when he can.
+	if (!ok_for_buddy_to_talk()) {
 		HUD_init_message(HM_DEFAULT, "%s has not been released.", static_cast<const char *>(PlayerCfg.GuidebotName));
 		return;
 	}

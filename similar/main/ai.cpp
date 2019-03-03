@@ -2983,6 +2983,7 @@ void do_ai_frame(const vmobjptridx_t obj)
 	auto &vmobjptridx = Objects.vmptridx;
 
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &vcobjptr = Objects.vcptr;
 	ailp.next_action_time -= FrameTime;
 #endif
@@ -3534,7 +3535,7 @@ _exit_cheat:
 			if (do_stuff) {
 				Laser_create_new_easy( obj->orient.fvec, obj->pos, obj, weapon_id_type::FLARE_ID, 1);
 				ailp.next_fire = F1_0/2;
-				if (!Buddy_allowed_to_talk) // If buddy not talking, make him fire flares less often.
+				if (!BuddyState.Buddy_allowed_to_talk) // If buddy not talking, make him fire flares less often.
 					ailp.next_fire += d_rand()*4;
 			}
 
@@ -4439,10 +4440,6 @@ void init_robots_for_level(void)
 	Overall_agitation = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	Final_boss_is_dead=0;
-
-	auto &BuddyState = LevelUniqueObjectState.BuddyState;
-	BuddyState.Buddy_objnum = object_none;
-	Buddy_allowed_to_talk = 0;
 
 	Boss_dying_start_time = 0;
 	
