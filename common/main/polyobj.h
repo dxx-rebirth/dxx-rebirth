@@ -61,8 +61,8 @@ constexpr std::integral_constant<unsigned, 10> MAX_SUBMODELS{};
 struct polymodel : prohibit_void_ptr<polymodel>
 {
 	unsigned n_models;
-	int     model_data_size;
-	std::unique_ptr<ubyte[]>   model_data;
+	unsigned model_data_size;
+	std::unique_ptr<uint8_t[]>   model_data;
 	array<int, MAX_SUBMODELS> submodel_ptrs;
 	array<vms_vector, MAX_SUBMODELS> submodel_offsets;
 	array<vms_vector, MAX_SUBMODELS> submodel_norms;   // norm for sep plane

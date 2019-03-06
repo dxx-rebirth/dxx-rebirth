@@ -18,6 +18,7 @@
 #include "dxxerror.h"
 
 #include "interp.h"
+#include "console.h"
 #include "common/3d/globvars.h"
 #include "polyobj.h"
 #include "gr.h"
@@ -44,14 +45,12 @@ int g3d_interp_outline;
 
 namespace dsx {
 
-static int16_t init_model_sub(uint8_t *p, int16_t);
+static int16_t init_model_sub(uint8_t *model_sub_ptr, const uint8_t *model_base_ptr, std::size_t model_size, int16_t highest_texture_num);
 
-#if defined(DXX_BUILD_DESCENT_I) || DXX_WORDS_BIGENDIAN
 static inline int16_t *wp(uint8_t *p)
 {
 	return reinterpret_cast<int16_t *>(p);
 }
-#endif
 
 static inline const int16_t *wp(const uint8_t *p)
 {
@@ -126,6 +125,32 @@ public:
 	}
 };
 
+class interpreter_track_model_extent
+{
+protected:
+	const uint8_t *const model_base;
+	const std::size_t model_length;
+public:
+	constexpr interpreter_track_model_extent(const uint8_t *const b, const std::size_t l) :
+		model_base(b), model_length(l)
+	{
+	}
+	uint8_t truncate_invalid_model(const unsigned line, uint8_t *const p, const std::ptrdiff_t d, const std::size_t size) const
+	{
+		const std::ptrdiff_t offset_from_base = p - model_base;
+		const std::ptrdiff_t offset_of_value = offset_from_base + d;
+		if (offset_of_value >= model_length || offset_of_value + size >= model_length)
+		{
+			auto &opref = *wp(p);
+			const auto badop = opref;
+			opref = OP_EOF;
+			con_printf(CON_URGENT, "warning: %s:%u: invalid polymodel at %p with length %u; opcode %u at offset %li references invalid offset %li; replacing invalid operation with EOF", __FILE__, line, model_base, static_cast<unsigned>(model_length), badop, offset_from_base, offset_of_value);
+			return 1;
+		}
+		return 0;
+	}
+};
+
 class interpreter_base
 {
 public:
@@ -142,9 +167,11 @@ public:
 		return w(p + 2);
 	}
 	__attribute_cold
-	static void op_default()
+	static void op_default(const unsigned op, const uint8_t *const p)
 	{
-		throw std::runtime_error("invalid polygon model");
+		char buf[64];
+		snprintf(buf, sizeof(buf), "invalid polygon model opcode %u at %p", op, p);
+		throw std::runtime_error(buf);
 	}
 };
 
@@ -415,6 +442,7 @@ public:
 };
 
 class init_model_sub_state :
+	public interpreter_track_model_extent,
 	public interpreter_ignore_op_defpoints,
 	public interpreter_ignore_op_defp_start,
 	public interpreter_ignore_op_rodbm,
@@ -423,11 +451,12 @@ class init_model_sub_state :
 {
 public:
 	int16_t highest_texture_num;
-	init_model_sub_state(int16_t h) :
+	init_model_sub_state(const uint8_t *const model_base_ptr, const std::size_t model_size, const int16_t h) :
+		interpreter_track_model_extent(model_base_ptr, model_size),
 		highest_texture_num(h)
 	{
 	}
-	void op_flatpoly(uint8_t *const p, const uint_fast32_t nv)
+	void op_flatpoly(uint8_t *const p, const uint_fast32_t nv) const
 	{
 		(void)nv;
 		Assert(nv > 2);		//must have 3 or more points
@@ -437,21 +466,36 @@ public:
 		(void)p;
 #endif
 	}
-	void op_tmappoly(const uint8_t *const p, const uint_fast32_t nv)
+	void op_tmappoly(uint8_t *const p, const uint_fast32_t nv)
 	{
 		(void)nv;
 		Assert(nv > 2);		//must have 3 or more points
+		if (truncate_invalid_model(__LINE__, p, 28, sizeof(uint16_t)))
+			return;
 		if (w(p+28) > highest_texture_num)
 			highest_texture_num = w(p+28);
 	}
+	uint16_t init_bounded_model_sub(const unsigned line, uint8_t *const p, const std::ptrdiff_t d, const uint16_t highest_texture_num) const
+	{
+		if (truncate_invalid_model(line, p, d, sizeof(uint16_t)))
+			return 0;
+		return init_model_sub(p + d, model_base, model_length, highest_texture_num);
+	}
 	void op_sortnorm(uint8_t *const p)
 	{
-		auto h = init_model_sub(p+w(p+28), highest_texture_num);
-		highest_texture_num = init_model_sub(p+w(p+30), h);
+		if (truncate_invalid_model(__LINE__, p, 30, sizeof(uint16_t)))
+			return;
+		const auto n0 = w(p + 28);
+		const auto n1 = w(p + 30);
+		auto h = init_bounded_model_sub(__LINE__, p, n0, highest_texture_num);
+		highest_texture_num = init_bounded_model_sub(__LINE__, p, n1, h);
 	}
 	void op_subcall(uint8_t *const p)
 	{
-		highest_texture_num = init_model_sub(p+w(p+16), highest_texture_num);
+		if (truncate_invalid_model(__LINE__, p, 16, sizeof(uint16_t)))
+			return;
+		const auto n0 = w(p + 16);
+		highest_texture_num = init_bounded_model_sub(__LINE__, p, n0, highest_texture_num);
 	}
 };
 
@@ -509,7 +553,7 @@ static std::size_t dispatch_polymodel_op(const P p, State &state, const uint_fas
 			return record_size;
 		}
 		default:
-			state.op_default();
+			state.op_default(op, p);
 			return 2;
 	}
 }
@@ -747,22 +791,21 @@ void g3_draw_morphing_model(grs_canvas &canvas, const uint8_t *const p, grs_bitm
 	iterate_polymodel(p, state);
 }
 
-static int16_t init_model_sub(uint8_t *p, int16_t highest_texture_num)
+static int16_t init_model_sub(uint8_t *const model_sub_ptr, const uint8_t *const model_base_ptr, const std::size_t model_size, const int16_t highest_texture_num)
 {
-	init_model_sub_state state(highest_texture_num);
+	init_model_sub_state state(model_base_ptr, model_size, highest_texture_num);
 	Assert(++nest_count < 1000);
-	iterate_polymodel(p, state);
+	iterate_polymodel(model_sub_ptr, state);
 	return state.highest_texture_num;
 }
 
 //init code for bitmap models
-int16_t g3_init_polygon_model(void *model_ptr)
+int16_t g3_init_polygon_model(uint8_t *const model_ptr, const std::size_t model_size)
 {
 	#ifndef NDEBUG
 	nest_count = 0;
 	#endif
-
-	return init_model_sub(reinterpret_cast<uint8_t *>(model_ptr), -1);
+	return init_model_sub(model_ptr, model_ptr, model_size, -1);
 }
 
 }

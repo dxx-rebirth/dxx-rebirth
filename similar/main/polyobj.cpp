@@ -252,8 +252,7 @@ static void align_polygon_model_data(polymodel *pm)
 				pm->submodel_ptrs[i] += (cur_new - tmp.get()) - (cur_old - pm->model_data.get());
  	}
 	pm->model_data_size += total_correction;
-	pm->model_data = make_unique<ubyte[]>(pm->model_data_size);
-	Assert(pm->model_data != NULL);
+	pm->model_data = make_unique<uint8_t[]>(pm->model_data_size);
 	memcpy(pm->model_data.get(), tmp.get(), pm->model_data_size);
 }
 #endif //def WORDS_NEED_ALIGNMENT
@@ -398,7 +397,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			
 			case ID_IDTA:		//Interpreter data
 				pm->model_data_size = len;
-				pm->model_data = make_unique<ubyte[]>(pm->model_data_size);
+				pm->model_data = make_unique<uint8_t[]>(pm->model_data_size);
 
 				pof_cfread(pm->model_data.get(),1,len,model_buf);
 
@@ -662,7 +661,7 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 
 	polyobj_find_min_max(&model);
 
-	const auto highest_texture_num = g3_init_polygon_model(model.model_data.get());
+	const auto highest_texture_num = g3_init_polygon_model(model.model_data.get(), model.model_data_size);
 
 	if (highest_texture_num+1 != n_textures)
 		Error("Model <%s> references %d textures but specifies %d.",filename,highest_texture_num+1,n_textures);
@@ -751,15 +750,14 @@ void polymodel_write(PHYSFS_File *fp, const polymodel &pm)
 namespace dsx {
 void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 {
-	pm->model_data = make_unique<ubyte[]>(pm->model_data_size);
-	PHYSFS_read(fp, pm->model_data, sizeof(ubyte), pm->model_data_size);
+	const auto model_data_size = pm->model_data_size;
+	pm->model_data = make_unique<uint8_t[]>(model_data_size);
+	PHYSFS_read(fp, pm->model_data, sizeof(uint8_t), model_data_size);
 #if DXX_WORDS_NEED_ALIGNMENT
 	align_polygon_model_data(pm);
 #endif
 	if (words_bigendian)
 	swap_polygon_model_data(pm->model_data.get());
-#if defined(DXX_BUILD_DESCENT_II)
-	g3_init_polygon_model(pm->model_data.get());
-#endif
+	g3_init_polygon_model(pm->model_data.get(), model_data_size);
 }
 }
