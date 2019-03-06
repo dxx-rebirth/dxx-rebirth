@@ -1095,8 +1095,6 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 	if (playernum != Player_num)	//return if was robot fire
 		return wall_hit_process_t::WHP_NOT_SPECIAL;
 
-	Assert( playernum > -1 );
-	
 	//	Determine whether player is moving forward.  If not, don't say negative
 	//	messages because he probably didn't intentionally hit the door.
 	if (obj.type == OBJ_PLAYER)
