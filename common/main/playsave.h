@@ -70,7 +70,7 @@ void plyr_save_stats();
 
 struct hli
 {
-	char	Shortname[9];
+	array<char, 9> Shortname;
 	uint8_t LevelNum;
 };
 

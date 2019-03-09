@@ -848,9 +848,9 @@ window_event_result do_new_game_menu()
 	int new_level_num,player_highest_level;
 
 	new_level_num = 1;
-#ifdef NDEBUG
 	player_highest_level = get_highest_level();
 
+#ifdef NDEBUG
 	if (player_highest_level > Last_level)
 #endif
 		player_highest_level = Last_level;

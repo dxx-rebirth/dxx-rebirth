@@ -825,12 +825,9 @@ static int write_player_dxx(const char *filename)
 	}
 	else
 		return errno;
-
-}
 }
 
 //read in the player's saved games.  returns errno (0 == no error)
-namespace dsx {
 int read_player_file()
 {
 	char filename[PATH_MAX];
@@ -1163,27 +1160,32 @@ int read_player_file()
 }
 }
 
-
-//finds entry for this level in table.  if not found, returns ptr to 
-//empty entry.  If no empty entries, takes over last one 
-static array<hli, MAX_MISSIONS>::iterator find_hli_entry()
+/* Given a Mission_path, return a pair of pointers.
+ * - If the mission cannot be saved, both pointers are nullptr.
+ * - If the mission name was previously used, return a pointer to that
+ *   entry and a pointer to end.
+ * - If the mission name is not recorded, return a pointer to the first
+ *   unused element (which may be end() if all elements are used) and a
+ *   pointer to end().  The caller must check that the first unused
+ *   element is not end().
+ */
+static std::array<array<hli, MAX_MISSIONS>::pointer, 2> find_hli_entry(const partial_range_t<hli *> &r, const Mission_path &m)
 {
-	auto r = partial_range(PlayerCfg.HighestLevels, PlayerCfg.NHighestLevels);
-	auto a = [](const hli &h) {
-		return !d_stricmp(h.Shortname, Current_mission_filename);
-	};
-	auto i = std::find_if(r.begin(), r.end(), a);
-	if (i == r.end())
-	{ //not found. create entry
-		if (i == PlayerCfg.HighestLevels.end())
-			i--; //take last entry
-		else
-			PlayerCfg.NHighestLevels++;
-
-		strcpy(i->Shortname, Current_mission_filename);
-		i->LevelNum = 0;
+	const auto mission_filename = m.filename;
+	const auto mission_length = std::distance(mission_filename, m.path.end());
+	if (mission_length >= sizeof(hli::Shortname))
+	{
+		/* Name is too long to store, so there will never be a match
+		 * and it is never stored.
+		 */
+		con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "warning: highest level information cannot be tracked because the mission name is too long to store (should be at most 8 bytes, but is \"%s\")."), &*mission_filename);
+		return {{nullptr, nullptr}};
 	}
-	return i;
+	const auto &&a = [p = &*mission_filename](const hli &h) {
+		return !d_stricmp(h.Shortname.data(), p);
+	};
+	const auto i = std::find_if(r.begin(), r.end(), a);
+	return {{&*i, r.end()}};
 }
 
 //set a new highest level for player for this mission
@@ -1195,11 +1197,80 @@ void set_highest_level(int levelnum)
 		if (ret != ENOENT)		//if file doesn't exist, that's ok
 			return;
 
-	auto i = find_hli_entry();
+	const auto &&r = partial_range(PlayerCfg.HighestLevels, PlayerCfg.NHighestLevels);
+	const auto &&i = find_hli_entry(r, *Current_mission);
+	const auto ie = i[1];
+	if (!ie)
+		return;
 
-	if (levelnum > i->LevelNum)
+	auto ii = i[0];
+	const hli *d1_preferred = nullptr;
+#if defined(DXX_BUILD_DESCENT_II)
+	const hli *d2_preferred = nullptr, *d2x_preferred = nullptr;
+#endif
+	range_for (auto &m, r)
 	{
-		i->LevelNum = levelnum;
+		hli *preferred;
+		/* Swapping instead of rotating will perturb the order a bit,
+		 * but this is a one-time fix to get builtin missions to
+		 * reserved storage.
+		 */
+		const auto ms = m.Shortname.data();
+		if (!d1_preferred && !strcmp("descent", ms))
+			d1_preferred = preferred = &PlayerCfg.HighestLevels[0];
+#if defined(DXX_BUILD_DESCENT_II)
+		else if (!d2_preferred && !strcmp("d2", ms))
+			d2_preferred = preferred = &PlayerCfg.HighestLevels[1];
+		else if (!d2x_preferred && !strcmp("d2x", ms))
+			d2x_preferred = preferred = &PlayerCfg.HighestLevels[2];
+#endif
+		else
+			continue;
+		if (preferred == &m)
+			continue;
+		std::swap(*preferred, m);
+	}
+	const unsigned reserved_slots = !!d1_preferred
+#if defined(DXX_BUILD_DESCENT_II)
+		+ !!d2_preferred + !!d2x_preferred
+#endif
+		;
+	auto &hl = PlayerCfg.HighestLevels;
+	const auto irs = &hl[reserved_slots];
+
+	uint8_t previous_best_levelnum = 0;
+	if (ii == ie)
+	{
+		/*
+		 * If ii == ie, the mission is unknown.  If there is no free
+		 * space available, move everything, so that the
+		 * least-recently-used element (at *irs) is discarded to make
+		 * room to add this mission as most recently used.
+		 */
+		if (ie == PlayerCfg.HighestLevels.end())
+		{
+			std::move(std::next(irs), ie, irs);
+			--ii;
+		}
+		else
+			PlayerCfg.NHighestLevels++;
+		ii->Shortname.back() = 0;
+		strncpy(ii->Shortname.data(), Current_mission_filename, ii->Shortname.size() - 1);
+	}
+	else if (ii != ie - 1)
+	{
+		/* If this mission is not the most recently used, reorder the
+		 * list so that it becomes the most recently used.
+		 */
+		std::rotate(ii, std::next(ii), ie);
+		ii = ie - 1;
+	}
+	else
+		previous_best_levelnum = ii->LevelNum;
+
+	if (previous_best_levelnum < levelnum)
+	{
+		ii->LevelNum = levelnum;
 		write_player_file();
 	}
 }
@@ -1207,18 +1278,16 @@ void set_highest_level(int levelnum)
 //gets the player's highest level from the file for this mission
 int get_highest_level(void)
 {
-	int i;
-	int highest_saturn_level = 0;
 	read_player_file();
-	if (*Current_mission->filename == 0)	{
-		for (i=0;i < PlayerCfg.NHighestLevels;i++)
-			if (!d_stricmp(PlayerCfg.HighestLevels[i].Shortname, "DESTSAT")) // Destination Saturn.
-				highest_saturn_level = PlayerCfg.HighestLevels[i].LevelNum;
-	}
-	i = find_hli_entry()->LevelNum;
-	if ( highest_saturn_level > i )
-		i = highest_saturn_level;
-	return i;
+	const Mission_path &mission = *Current_mission;
+	// Destination Saturn.
+	const auto &&r = partial_range(PlayerCfg.HighestLevels, PlayerCfg.NHighestLevels);
+	const auto &&i = find_hli_entry(r, *mission.filename == 0 ? Mission_path{"DESTSAT", 0} : mission);
+	const auto ie = i[1];
+	const auto ii = i[0];
+	if (ii == ie)
+		return 0;
+	return ii->LevelNum;
 }
 
 //write out player's saved games.  returns errno (0 == no error)
