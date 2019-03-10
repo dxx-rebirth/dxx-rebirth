@@ -856,30 +856,29 @@ window_event_result do_new_game_menu()
 		player_highest_level = Last_level;
 	if (player_highest_level > 1) {
 		char info_text[80];
-		int choice;
-		int valid = 0;
 
 		snprintf(info_text,sizeof(info_text),"%s %d",TXT_START_ANY_LEVEL, player_highest_level);
-		while (!valid)
+		for (;;)
 		{
 			array<char, 10> num_text{"1"};
 			array<newmenu_item, 2> m{{
 				nm_item_text(info_text),
 				nm_item_input(num_text),
 			}};
-			choice = newmenu_do( NULL, TXT_SELECT_START_LEV, m, unused_newmenu_subfunction, unused_newmenu_userdata );
+			const int choice = newmenu_do(nullptr, TXT_SELECT_START_LEV, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 
-			if (choice==-1 || m[1].text[0]==0)
+			if (choice == -1 || !num_text[0])
 				return window_event_result::handled;
 
-			new_level_num = atoi(m[1].text);
+			char *p = nullptr;
+			new_level_num = strtol(num_text.data(), &p, 10);
 
-			if (!(new_level_num>0 && new_level_num<=player_highest_level)) {
+			if (*p || new_level_num <= 0 || new_level_num > player_highest_level)
+			{
 				nm_messagebox( NULL, 1, TXT_OK, TXT_INVALID_LEVEL);
-				valid = 0;
 			}
 			else
-				valid = 1;
+				break;
 		}
 	}
 
@@ -1553,12 +1552,11 @@ static int hud_config_menuset(newmenu *, const d_event &event, const unused_newm
 namespace dsx {
 void hud_config()
 {
-	int i = 0;
-
-	do {
-		newmenu_item m[DXX_HUD_MENU_OPTIONS(COUNT)];
+	for (;;)
+	{
+		array<newmenu_item, DXX_HUD_MENU_OPTIONS(COUNT)> m;
 		DXX_HUD_MENU_OPTIONS(ADD);
-		i = newmenu_do1( NULL, "Hud Options", sizeof(m)/sizeof(*m), m, hud_config_menuset, unused_newmenu_userdata, 0 );
+		const auto i = newmenu_do1( NULL, "Hud Options", m.size(), m.data(), hud_config_menuset, unused_newmenu_userdata, 0 );
 		DXX_HUD_MENU_OPTIONS(READ);
 #if defined(DXX_BUILD_DESCENT_II)
 		PlayerCfg.MissileViewEnabled = m[opt_missileview_selfandallies].value
@@ -1567,8 +1565,9 @@ void hud_config()
 				? MissileViewMode::EnabledSelfOnly
 				: MissileViewMode::None);
 #endif
-	} while( i>-1 );
-
+		if (i == -1)
+			break;
+	}
 }
 }
 
@@ -2276,7 +2275,7 @@ static int gameplay_config_menuset(newmenu *, const d_event &event, const unused
 			auto &citem = static_cast<const d_select_event &>(event).citem;
                         if (citem == opt_gameplay_reorderprimary_menu)
                                 ReorderPrimary();
-                        if (citem == opt_gameplay_reordersecondary_menu)
+			else if (citem == opt_gameplay_reordersecondary_menu)
                                 ReorderSecondary();
 			return 1;		// stay in menu
 		}
@@ -2290,16 +2289,15 @@ static int gameplay_config_menuset(newmenu *, const d_event &event, const unused
 
 void gameplay_config()
 {
-	int i = 0;
-
-	do {
-		newmenu_item m[DXX_GAMEPLAY_MENU_OPTIONS(COUNT)];
+	for (;;)
+	{
+		array<newmenu_item, DXX_GAMEPLAY_MENU_OPTIONS(COUNT)> m;
 #if defined(DXX_BUILD_DESCENT_II)
 		auto thief_absent = PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent;
 		auto thief_cannot_steal_energy_weapons = PlayerCfg.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons;
 #endif
 		DXX_GAMEPLAY_MENU_OPTIONS(ADD);
-                i = newmenu_do1( NULL, "Gameplay Options", sizeof(m)/sizeof(*m), m, gameplay_config_menuset, unused_newmenu_userdata, 0 );
+		const auto i = newmenu_do1( NULL, "Gameplay Options", m.size(), m.data(), gameplay_config_menuset, unused_newmenu_userdata, 0 );
 		DXX_GAMEPLAY_MENU_OPTIONS(READ);
 		PlayerCfg.NoFireAutoselect = m[opt_autoselect_firing_delayed].value
 			? FiringAutoselectMode::Delayed
@@ -2311,8 +2309,9 @@ void gameplay_config()
 			(thief_absent ? ThiefModifier::Absent : 0) |
 			(thief_cannot_steal_energy_weapons ? ThiefModifier::NoEnergyWeapons : 0);
 #endif
-	} while( i>-1 );
-
+		if (i == -1)
+			break;
+	}
 }
 
 #if DXX_USE_UDP

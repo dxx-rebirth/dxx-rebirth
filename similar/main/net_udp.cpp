@@ -3621,33 +3621,15 @@ static void net_udp_set_grant_power()
 
 void more_game_options_menu_items::net_udp_more_game_options()
 {
-	int i;
 	more_game_options_menu_items menu;
-	for (;;)
-	{
-		i = newmenu_do(nullptr, "Advanced netgame options", menu.get_menu_items(), handler, &menu);
-		switch (i)
-		{
-			case opt_setpower:
-				net_udp_set_power();
-				continue;
-			case opt_setgrant:
-				net_udp_set_grant_power();
-				continue;
-			default:
-				break;
-		}
-		break;
-	}
-
+	newmenu_do(nullptr, "Advanced netgame options", menu.get_menu_items(), handler, &menu);
 	menu.read();
 	if (Netgame.PacketsPerSec>MAX_PPS)
 	{
 		Netgame.PacketsPerSec=MAX_PPS;
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to %i",MAX_PPS);
 	}
-
-	if (Netgame.PacketsPerSec<MIN_PPS)
+	else if (Netgame.PacketsPerSec < MIN_PPS)
 	{
 		Netgame.PacketsPerSec=MIN_PPS;
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to %i", MIN_PPS);
@@ -3722,6 +3704,17 @@ int more_game_options_menu_items::handler(newmenu *, const d_event &event, more_
 				items->update_secluded_spawn_string();
 			}
 			break;
+		}
+		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
+			if (citem == opt_setpower)
+				net_udp_set_power();
+			else if (citem == opt_setgrant)
+				net_udp_set_grant_power();
+			else
+				break;
+			return 1;
 		}
 		default:
 			break;
@@ -4026,8 +4019,7 @@ window_event_result net_udp_setup_game()
 	}
 #endif
 
-	int i;
-	i = newmenu_do1(nullptr, TXT_NETGAME_SETUP, optnum, m.data(), net_udp_game_param_handler, &opt, opt.start_game);
+	const int i = newmenu_do1(nullptr, TXT_NETGAME_SETUP, optnum, m.data(), net_udp_game_param_handler, &opt, opt.start_game);
 
 	if (i < 0)
 		net_udp_close();
