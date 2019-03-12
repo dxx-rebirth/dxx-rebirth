@@ -256,9 +256,7 @@ namespace dsx {
 static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjptridx_t obj)
 {
 	int compute_color = 0;
-	float cscale = 255.0;
 	fix light_intensity = 0;
-	g3s_lrgb lemission, obj_color = { 255, 255, 255 };
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #endif
@@ -348,10 +346,12 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjpt
 			break;
 	}
 
-	lemission.r = lemission.g = lemission.b = light_intensity;
+	const auto &&white_light = [light_intensity] {
+		return g3s_lrgb{light_intensity, light_intensity, light_intensity};
+	};
 
 	if (!PlayerCfg.DynLightColor) // colored lights not desired so use intensity only OR no intensity (== no light == no color) at all
-		return lemission;
+		return white_light();
 
 	switch (obj->type) // find out if given object should cast colored light and compute if so
 	{
@@ -395,7 +395,7 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjpt
 		if (light_intensity < F1_0) // for every effect we want color, increase light_intensity so the effect becomes barely visible
 			light_intensity = F1_0;
 
-		obj_color.r = obj_color.g = obj_color.b = 255;
+		g3s_lrgb obj_color = { 255, 255, 255 };
 
 		switch (obj->render_type)
 		{
@@ -463,18 +463,20 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjpt
 			}
 		}
 
+		const fix rgbsum = obj_color.r + obj_color.g + obj_color.b;
 		// obviously this object did not give us any usable color. so let's do our own but with blackjack and hookers!
-		if (obj_color.r <= 0 && obj_color.g <= 0 && obj_color.b <= 0)
-			obj_color.r = obj_color.g = obj_color.b = 255;
-
+		if (rgbsum <= 0)
+			return white_light();
 		// scale color to light intensity
-		cscale = (static_cast<float>(light_intensity*3)/(obj_color.r+obj_color.g+obj_color.b));
-		lemission.r = obj_color.r * cscale;
-		lemission.g = obj_color.g * cscale;
-		lemission.b = obj_color.b * cscale;
+		const float cscale = static_cast<float>(light_intensity * 3) / rgbsum;
+		return g3s_lrgb{
+			static_cast<fix>(obj_color.r * cscale),
+			static_cast<fix>(obj_color.g * cscale),
+			static_cast<fix>(obj_color.b * cscale)
+		};
 	}
 
-	return lemission;
+	return white_light();
 }
 }
 
@@ -533,6 +535,9 @@ void set_dynamic_light(render_state_t &rstate)
 
 	range_for (const auto &&obj, vcobjptridx)
 	{
+		const object &objp = obj;
+		if (objp.type == OBJ_NONE)
+			continue;
 		const auto &&obj_light_emission = compute_light_emission(Vclip, obj);
 
 		if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
