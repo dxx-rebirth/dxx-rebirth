@@ -878,7 +878,8 @@ static int load_game_data(
 	(void)trig_size;
 	PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 
-	Num_robot_centers = PHYSFSX_readInt(LoadFile);
+	const unsigned Num_robot_centers = PHYSFSX_readInt(LoadFile);
+	LevelSharedRobotcenterState.Num_robot_centers = Num_robot_centers;
 	PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1020,21 +1021,24 @@ static int load_game_data(
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============
 
-	for (uint_fast32_t i = 0; i < Num_robot_centers; i++) {
+	range_for (auto &&e, enumerate(partial_range(RobotCenters, Num_robot_centers)))
+	{
+		const uint_fast32_t i = e.idx;
+		auto &r = e.value;
 #if defined(DXX_BUILD_DESCENT_I)
-		matcen_info_read(LoadFile, RobotCenters[i], game_top_fileinfo_version);
+		matcen_info_read(LoadFile, r, game_top_fileinfo_version);
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (game_top_fileinfo_version < 27) {
-			d1_matcen_info_read(LoadFile, RobotCenters[i]);
+			d1_matcen_info_read(LoadFile, r);
 		}
 		else
-			matcen_info_read(LoadFile, RobotCenters[i]);
+			matcen_info_read(LoadFile, r);
 #endif
 			//	Set links in RobotCenters to Station array
 		range_for (auto &seg, partial_const_range(Segments, Highest_segment_index + 1))
 			if (seg.special == SEGMENT_IS_ROBOTMAKER)
 				if (seg.matcen_num == i)
-					RobotCenters[i].fuelcen_num = seg.station_idx;
+					r.fuelcen_num = seg.station_idx;
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1556,7 +1560,7 @@ int create_new_mine(void)
 		Groupside[s] = 0;
 	}
 	
-	Num_robot_centers = 0;
+	LevelSharedRobotcenterState.Num_robot_centers = 0;
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	ActiveDoors.set_count(0);
 	wall_init();
@@ -1638,6 +1642,7 @@ static int save_game_data(
 	WRITE_HEADER_ENTRY(trigger, Triggers.get_count());
 	WRITE_HEADER_ENTRY(0, 0);		// links (removed by Parallax)
 	WRITE_HEADER_ENTRY(control_center_triggers, 1);
+	const auto Num_robot_centers = LevelSharedRobotcenterState.Num_robot_centers;
 	WRITE_HEADER_ENTRY(matcen_info, Num_robot_centers);
 
 #if defined(DXX_BUILD_DESCENT_II)

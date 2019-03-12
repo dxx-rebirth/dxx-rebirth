@@ -1174,6 +1174,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 #elif defined(DXX_BUILD_DESCENT_II)
 	PHYSFS_write(fp, &Countdown_timer, sizeof(int), 1);
 #endif
+	const unsigned Num_robot_centers = LevelSharedRobotcenterState.Num_robot_centers;
 	PHYSFS_write(fp, &Num_robot_centers, sizeof(int), 1);
 	range_for (auto &r, partial_const_range(RobotCenters, Num_robot_centers))
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1783,7 +1784,8 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 #elif defined(DXX_BUILD_DESCENT_II)
 	Countdown_timer = PHYSFSX_readSXE32(fp, swap);
 #endif
-	Num_robot_centers = PHYSFSX_readSXE32(fp, swap);
+	const unsigned Num_robot_centers = PHYSFSX_readSXE32(fp, swap);
+	LevelSharedRobotcenterState.Num_robot_centers = Num_robot_centers;
 	range_for (auto &r, partial_range(RobotCenters, Num_robot_centers))
 #if defined(DXX_BUILD_DESCENT_I)
 		matcen_info_read(fp, r, STATE_MATCEN_VERSION);

@@ -69,8 +69,6 @@ constexpr fix Fuelcen_max_amount = i2f(100);
 // by this amount... when capacity gets to 0, no more morphers...
 constexpr fix EnergyToCreateOneRobot = i2f(1);
 
-unsigned Num_robot_centers;
-
 static int Num_extry_robots = 15;
 }
 namespace dsx {
@@ -96,12 +94,10 @@ void fuelcen_reset()
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	DXX_MAKE_MEM_UNDEFINED(Station.begin(), Station.end());
 	DXX_MAKE_MEM_UNDEFINED(RobotCenters.begin(), RobotCenters.end());
+	LevelSharedRobotcenterState.Num_robot_centers = 0;
 	LevelUniqueFuelcenterState.Num_fuelcenters = 0;
 	range_for (auto &i, Segments)
 		i.special = SEGMENT_IS_NOTHING;
-
-	Num_robot_centers = 0;
-
 }
 
 #ifndef NDEBUG		//this is sometimes called by people from the debugger
@@ -174,7 +170,7 @@ static void matcen_create(const vmsegptridx_t segp)
 	station.Timer = -1;
 	station.Flag = 0;
 
-	const auto next_robot_center_idx = Num_robot_centers++;
+	const auto next_robot_center_idx = LevelSharedRobotcenterState.Num_robot_centers++;
 	segp->matcen_num = next_robot_center_idx;
 	auto &robotcenter = RobotCenters[next_robot_center_idx];
 	robotcenter.fuelcen_num = next_fuelcenter_idx;
@@ -261,11 +257,15 @@ Restart: ;
 		if (vmsegptr(fi.segnum) == segp)
 		{
 
+			auto &Num_robot_centers = LevelSharedRobotcenterState.Num_robot_centers;
 			// If Robot maker is deleted, fix Segments and RobotCenters.
 			if (fi.Type == SEGMENT_IS_ROBOTMAKER) {
-				Assert(Num_robot_centers > 0);
-				const auto &&range = partial_range(RobotCenters, static_cast<unsigned>(segp->matcen_num), Num_robot_centers);
-				Num_robot_centers--;
+				if (!Num_robot_centers)
+				{
+					con_printf(CON_URGENT, "%s:%u: error: Num_robot_centers=0 while deleting robot maker", __FILE__, __LINE__);
+					return;
+				}
+				const auto &&range = partial_range(RobotCenters, static_cast<unsigned>(segp->matcen_num), Num_robot_centers--);
 
 				std::move(std::next(range.begin()), range.end(), range.begin());
 				range_for (auto &fj, partial_const_range(Station, Num_fuelcenters))
@@ -276,12 +276,10 @@ Restart: ;
 				}
 			}
 
-#if defined(DXX_BUILD_DESCENT_II)
 			//fix RobotCenters so they point to correct fuelcenter
 			range_for (auto &j, partial_range(RobotCenters, Num_robot_centers))
 				if (j.fuelcen_num > i)		//this robotcenter's fuelcen is changing
 					j.fuelcen_num--;
-#endif
 			Assert(Num_fuelcenters > 0);
 			Num_fuelcenters--;
 			for (uint_fast32_t j = i; j < Num_fuelcenters; j++ )	{
@@ -650,7 +648,7 @@ void init_all_matcens(void)
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	const auto Num_fuelcenters = LevelUniqueFuelcenterState.Num_fuelcenters;
-	const auto &&robot_range = partial_const_range(RobotCenters, Num_robot_centers);
+	const auto &&robot_range = partial_const_range(RobotCenters, LevelSharedRobotcenterState.Num_robot_centers);
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++)
 		if (Station[i].Type == SEGMENT_IS_ROBOTMAKER) {
 			Station[i].Lives = 3;

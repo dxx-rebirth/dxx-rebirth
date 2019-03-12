@@ -492,6 +492,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vctrgptridx = Triggers.vcptridx;
+	const auto Num_robot_centers = LevelSharedRobotcenterState.Num_robot_centers;
 	for (i=0; i<Num_robot_centers; i++) {
 		int	trigger_count=0, fuelcen_num;
 
@@ -680,7 +681,7 @@ void write_game_text_file(const char *filename)
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	PHYSFSX_printf(my_file, "Number of triggers:   %4i\n", Triggers.get_count());
 	}
-	PHYSFSX_printf(my_file, "Number of matcens:    %4i\n", Num_robot_centers);
+	PHYSFSX_printf(my_file, "Number of matcens:    %4i\n", LevelSharedRobotcenterState.Num_robot_centers);
 	PHYSFSX_printf(my_file, "\n");
 
 	write_segment_text(vcsegptridx, my_file);

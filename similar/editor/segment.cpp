@@ -500,7 +500,7 @@ static void compress_segments(void)
 					if (f.segnum == seg)
 						f.segnum = hole;
 
-				range_for (auto &f, partial_range(RobotCenters, Num_robot_centers))
+				range_for (auto &f, partial_range(RobotCenters, LevelSharedRobotcenterState.Num_robot_centers))
 					if (f.segnum == seg)
 						f.segnum = hole;
 

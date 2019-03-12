@@ -150,6 +150,7 @@ extern const char Special_names[MAX_CENTER_TYPES][11];
 
 struct d_level_shared_robotcenter_state
 {
+	unsigned Num_robot_centers;
 	// Original D1/D2 size: 20
 	array<matcen_info, 128> RobotCenters;
 };
@@ -181,7 +182,6 @@ void matcen_info_write(PHYSFS_File *fp, const matcen_info &mi, short version);
 
 namespace dcx {
 constexpr std::integral_constant<uint8_t, 0xff> station_none{};
-extern unsigned Num_robot_centers;
 extern const fix EnergyToCreateOneRobot;
 }
 #endif
