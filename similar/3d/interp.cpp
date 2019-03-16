@@ -144,7 +144,10 @@ public:
 			auto &opref = *wp(p);
 			const auto badop = opref;
 			opref = OP_EOF;
-			con_printf(CON_URGENT, "warning: %s:%u: invalid polymodel at %p with length %u; opcode %u at offset %li references invalid offset %li; replacing invalid operation with EOF", __FILE__, line, model_base, static_cast<unsigned>(model_length), badop, offset_from_base, offset_of_value);
+			const unsigned long uml = model_length;
+			const long ofb = offset_from_base;
+			const long oov = offset_of_value;
+			con_printf(CON_URGENT, "%s:%u: warning: invalid polymodel at %p with length %lu; opcode %u at offset %li references invalid offset %li; replacing invalid operation with EOF", __FILE__, line, model_base, uml, badop, ofb, oov);
 			return 1;
 		}
 		return 0;
