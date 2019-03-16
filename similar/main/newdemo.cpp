@@ -395,15 +395,16 @@ static void nd_write_angvec(const vms_angvec &v)
 	nd_write_fixang(v.h);
 }
 
-static void nd_write_shortpos(const vcobjptr_t obj)
+static void nd_write_shortpos(const object_base &obj)
 {
 	shortpos sp;
 	ubyte render_type;
 
 	create_shortpos_native(LevelSharedSegmentState, sp, obj);
 
-	render_type = obj->render_type;
-	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
+	render_type = obj.render_type;
+	if ((render_type == RT_POLYOBJ || render_type == RT_HOSTAGE || render_type == RT_MORPH) || obj.type == OBJ_CAMERA)
+	{
 		uint8_t mask = 0;
 		range_for (auto &i, sp.bytemat)
 		{
@@ -821,14 +822,14 @@ static void nd_read_object(const vmobjptridx_t obj)
 }
 
 namespace dsx {
-static void nd_write_object(const vcobjptr_t obj)
+static void nd_write_object(const object &obj)
 {
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	int life;
 	short shortsig = 0;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if ((obj->type == OBJ_ROBOT) && (get_robot_id(obj) == SPECIAL_REACTOR_ROBOT))
+	if (obj.type == OBJ_ROBOT && get_robot_id(obj) == SPECIAL_REACTOR_ROBOT)
 		Int3();
 #endif
 
@@ -836,38 +837,39 @@ static void nd_write_object(const vcobjptr_t obj)
 	 * Do render_type first so on read, we can make determination of
 	 * what else to read in
 	 */
-	nd_write_byte(obj->render_type);
-	nd_write_byte(obj->type);
-	if ((obj->render_type == RT_NONE) && (obj->type != OBJ_CAMERA))
+	nd_write_byte(obj.render_type);
+	nd_write_byte(obj.type);
+	if (obj.render_type == RT_NONE && obj.type != OBJ_CAMERA)
 		return;
 
-	nd_write_byte(obj->id);
-	nd_write_byte(obj->flags);
-	shortsig = obj->signature.get();  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
+	nd_write_byte(obj.id);
+	nd_write_byte(obj.flags);
+	shortsig = obj.signature.get();  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
 	nd_write_short(shortsig);
 	nd_write_shortpos(obj);
 
-	if ((obj->type != OBJ_HOSTAGE) && (obj->type != OBJ_ROBOT) && (obj->type != OBJ_PLAYER) && (obj->type != OBJ_POWERUP) && (obj->type != OBJ_CLUTTER)) {
-		nd_write_byte(obj->control_type);
-		nd_write_byte(obj->movement_type);
-		nd_write_fix(obj->size);
+	if (obj.type != OBJ_HOSTAGE && obj.type != OBJ_ROBOT && obj.type != OBJ_PLAYER && obj.type != OBJ_POWERUP && obj.type != OBJ_CLUTTER)
+	{
+		nd_write_byte(obj.control_type);
+		nd_write_byte(obj.movement_type);
+		nd_write_fix(obj.size);
 	}
-	if (obj->type == OBJ_POWERUP)
-		nd_write_byte(obj->movement_type);
+	if (obj.type == OBJ_POWERUP)
+		nd_write_byte(obj.movement_type);
 
-	nd_write_vector(obj->last_pos);
+	nd_write_vector(obj.last_pos);
 
-	if ((obj->type == OBJ_WEAPON) && (obj->render_type == RT_WEAPON_VCLIP))
-		nd_write_fix(obj->lifeleft);
+	if (obj.type == OBJ_WEAPON && obj.render_type == RT_WEAPON_VCLIP)
+		nd_write_fix(obj.lifeleft);
 	else {
-		life = static_cast<int>(obj->lifeleft);
+		life = static_cast<int>(obj.lifeleft);
 		life = life >> 12;
 		if (life > 255)
 			life = 255;
 		nd_write_byte(static_cast<uint8_t>(life));
 	}
 
-	if (obj->type == OBJ_ROBOT) {
+	if (obj.type == OBJ_ROBOT) {
 		if (Robot_info[get_robot_id(obj)].boss_flag) {
 			if (GameTime64 > Boss_cloak_start_time &&
 				GameTime64 < (Boss_cloak_start_time + Boss_cloak_duration))
@@ -877,15 +879,15 @@ static void nd_write_object(const vcobjptr_t obj)
 		}
 	}
 
-	switch (obj->movement_type) {
+	switch (obj.movement_type) {
 
 	case MT_PHYSICS:
-		nd_write_vector(obj->mtype.phys_info.velocity);
-		nd_write_vector(obj->mtype.phys_info.thrust);
+		nd_write_vector(obj.mtype.phys_info.velocity);
+		nd_write_vector(obj.mtype.phys_info.thrust);
 		break;
 
 	case MT_SPINNING:
-		nd_write_vector(obj->mtype.spin_rate);
+		nd_write_vector(obj.mtype.spin_rate);
 		break;
 
 	case MT_NONE:
@@ -895,15 +897,15 @@ static void nd_write_object(const vcobjptr_t obj)
 		Int3();
 	}
 
-	switch (obj->control_type) {
+	switch (obj.control_type) {
 
 	case CT_AI:
 		break;
 
 	case CT_EXPLOSION:
-		nd_write_fix(obj->ctype.expl_info.spawn_time);
-		nd_write_fix(obj->ctype.expl_info.delete_time);
-		nd_write_short(obj->ctype.expl_info.delete_objnum);
+		nd_write_fix(obj.ctype.expl_info.spawn_time);
+		nd_write_fix(obj.ctype.expl_info.delete_time);
+		nd_write_short(obj.ctype.expl_info.delete_objnum);
 		break;
 
 	case CT_WEAPON:
@@ -911,7 +913,7 @@ static void nd_write_object(const vcobjptr_t obj)
 
 	case CT_LIGHT:
 
-		nd_write_fix(obj->ctype.light_info.intensity);
+		nd_write_fix(obj.ctype.light_info.intensity);
 		break;
 
 	case CT_NONE:
@@ -932,27 +934,23 @@ static void nd_write_object(const vcobjptr_t obj)
 	}
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	switch (obj->render_type) {
+	switch (obj.render_type) {
 
 	case RT_NONE:
 		break;
 
 	case RT_MORPH:
 	case RT_POLYOBJ: {
-		if ((obj->type != OBJ_ROBOT) && (obj->type != OBJ_PLAYER) && (obj->type != OBJ_CLUTTER)) {
-			nd_write_int(obj->rtype.pobj_info.model_num);
-			nd_write_int(obj->rtype.pobj_info.subobj_flags);
+		if ((obj.type != OBJ_ROBOT) && (obj.type != OBJ_PLAYER) && (obj.type != OBJ_CLUTTER)) {
+			nd_write_int(obj.rtype.pobj_info.model_num);
+			nd_write_int(obj.rtype.pobj_info.subobj_flags);
 		}
 
-		if ((obj->type != OBJ_PLAYER) && (obj->type != OBJ_DEBRIS))
-#if 0
-			range_for (auto &i, obj->pobj_info.anim_angles)
-				nd_write_angvec(&i);
-#endif
-		range_for (auto &i, partial_const_range(obj->rtype.pobj_info.anim_angles, Polygon_models[obj->rtype.pobj_info.model_num].n_models))
+		if ((obj.type != OBJ_PLAYER) && (obj.type != OBJ_DEBRIS))
+			range_for (auto &i, partial_const_range(obj.rtype.pobj_info.anim_angles, Polygon_models[obj.rtype.pobj_info.model_num].n_models))
 			nd_write_angvec(i);
 
-		nd_write_int(obj->rtype.pobj_info.tmap_override);
+		nd_write_int(obj.rtype.pobj_info.tmap_override);
 
 		break;
 	}
@@ -961,9 +959,9 @@ static void nd_write_object(const vcobjptr_t obj)
 	case RT_WEAPON_VCLIP:
 	case RT_FIREBALL:
 	case RT_HOSTAGE:
-		nd_write_int(obj->rtype.vclip_info.vclip_num);
-		nd_write_fix(obj->rtype.vclip_info.frametime);
-		nd_write_byte(obj->rtype.vclip_info.framenum);
+		nd_write_int(obj.rtype.vclip_info.vclip_num);
+		nd_write_fix(obj.rtype.vclip_info.frametime);
+		nd_write_byte(obj.rtype.vclip_info.framenum);
 		break;
 
 	case RT_LASER:
@@ -1289,13 +1287,11 @@ void newdemo_record_trigger(const vcsegidx_t segnum, const unsigned side, const 
 
 void newdemo_record_morph_frame(morph_data *md)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
 	if (!nd_record_v_recordframe)
 		return;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_MORPH_FRAME );
-	nd_write_object(vcobjptr(md->obj));
+	nd_write_object(*md->obj);
 }
 
 void newdemo_record_wall_toggle( segnum_t segnum, int side )
