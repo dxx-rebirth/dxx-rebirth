@@ -45,7 +45,10 @@ int g3d_interp_outline;
 
 namespace dsx {
 
-static int16_t init_model_sub(uint8_t *model_sub_ptr, const uint8_t *model_base_ptr, std::size_t model_size, int16_t highest_texture_num);
+static int16_t init_model_sub(uint8_t *model_sub_ptr, const uint8_t *model_base_ptr, std::size_t model_size);
+#if defined(DXX_BUILD_DESCENT_I)
+static void validate_model_sub(uint8_t *model_sub_ptr, const uint8_t *model_base_ptr, std::size_t model_size);
+#endif
 
 static inline int16_t *wp(uint8_t *p)
 {
@@ -444,7 +447,8 @@ public:
 	}
 };
 
-class init_model_sub_state :
+template <typename T>
+class model_load_state :
 	public interpreter_track_model_extent,
 	public interpreter_ignore_op_defpoints,
 	public interpreter_ignore_op_defp_start,
@@ -453,54 +457,93 @@ class init_model_sub_state :
 	public interpreter_base
 {
 public:
-	int16_t highest_texture_num;
-	init_model_sub_state(const uint8_t *const model_base_ptr, const std::size_t model_size, const int16_t h) :
-		interpreter_track_model_extent(model_base_ptr, model_size),
-		highest_texture_num(h)
-	{
-	}
-	void op_flatpoly(uint8_t *const p, const uint_fast32_t nv) const
-	{
-		(void)nv;
-		Assert(nv > 2);		//must have 3 or more points
-#if defined(DXX_BUILD_DESCENT_I)
-		*wp(p+28) = static_cast<short>(gr_find_closest_color_15bpp(w(p+28)));
-#elif defined(DXX_BUILD_DESCENT_II)
-		(void)p;
-#endif
-	}
-	void op_tmappoly(uint8_t *const p, const uint_fast32_t nv)
-	{
-		(void)nv;
-		Assert(nv > 2);		//must have 3 or more points
-		if (truncate_invalid_model(__LINE__, p, 28, sizeof(uint16_t)))
-			return;
-		if (w(p+28) > highest_texture_num)
-			highest_texture_num = w(p+28);
-	}
-	uint16_t init_bounded_model_sub(const unsigned line, uint8_t *const p, const std::ptrdiff_t d, const uint16_t highest_texture_num) const
+	using interpreter_track_model_extent::interpreter_track_model_extent;
+	int16_t init_bounded_model_sub(const unsigned line, uint8_t *const p, const std::ptrdiff_t d) const
 	{
 		if (truncate_invalid_model(line, p, d, sizeof(uint16_t)))
 			return 0;
-		return init_model_sub(p + d, model_base, model_length, highest_texture_num);
+		return static_cast<const T *>(this)->init_sub_model(p + d);
+	}
+	void op_tmappoly(uint8_t *const p, const uint_fast32_t nv)
+	{
+		constexpr unsigned offset_texture = 28;
+		(void)nv;
+		Assert(nv > 2);		//must have 3 or more points
+		if (truncate_invalid_model(__LINE__, p, offset_texture, sizeof(uint16_t)))
+			return;
+		static_cast<T *>(this)->update_texture(w(p + offset_texture));
 	}
 	void op_sortnorm(uint8_t *const p)
 	{
-		if (truncate_invalid_model(__LINE__, p, 30, sizeof(uint16_t)))
+		constexpr unsigned offset_submodel0 = 28;
+		constexpr unsigned offset_submodel1 = offset_submodel0 + sizeof(uint16_t);
+		if (truncate_invalid_model(__LINE__, p, offset_submodel1, sizeof(uint16_t)))
 			return;
-		const auto n0 = w(p + 28);
-		const auto n1 = w(p + 30);
-		auto h = init_bounded_model_sub(__LINE__, p, n0, highest_texture_num);
-		highest_texture_num = init_bounded_model_sub(__LINE__, p, n1, h);
+		const auto n0 = w(p + offset_submodel0);
+		const auto h0 = init_bounded_model_sub(__LINE__, p, n0);
+		const auto n1 = w(p + offset_submodel1);
+		const auto h1 = init_bounded_model_sub(__LINE__, p, n1);
+		const auto hm = std::max(h0, h1);
+		static_cast<T *>(this)->update_texture(hm);
 	}
 	void op_subcall(uint8_t *const p)
 	{
-		if (truncate_invalid_model(__LINE__, p, 16, sizeof(uint16_t)))
+		constexpr unsigned offset_displacement = 16;
+		if (truncate_invalid_model(__LINE__, p, offset_displacement, sizeof(uint16_t)))
 			return;
-		const auto n0 = w(p + 16);
-		highest_texture_num = init_bounded_model_sub(__LINE__, p, n0, highest_texture_num);
+		const auto n0 = w(p + offset_displacement);
+		const auto h0 = init_bounded_model_sub(__LINE__, p, n0);
+		static_cast<T *>(this)->update_texture(h0);
 	}
 };
+
+class init_model_sub_state :
+	public model_load_state<init_model_sub_state>
+#if defined(DXX_BUILD_DESCENT_II)
+	, public interpreter_ignore_op_flatpoly
+#endif
+{
+public:
+	int16_t highest_texture_num = -1;
+	using model_load_state::model_load_state;
+	int16_t init_sub_model(uint8_t *const p) const
+	{
+		return init_model_sub(p, model_base, model_length);
+	}
+	void update_texture(const int16_t t)
+	{
+		if (highest_texture_num < t)
+			highest_texture_num = t;
+	}
+#if defined(DXX_BUILD_DESCENT_I)
+	void op_flatpoly(uint8_t *const p, const uint_fast32_t nv) const
+	{
+		//must have 3 or more points
+		if (nv <= 2)
+			return;
+		const auto p16 = wp(p + 28);
+		*p16 = static_cast<short>(gr_find_closest_color_15bpp(*p16));
+	}
+#endif
+};
+
+#if defined(DXX_BUILD_DESCENT_I)
+class validate_model_sub_state :
+	public model_load_state<validate_model_sub_state>,
+	public interpreter_ignore_op_flatpoly
+{
+public:
+	using model_load_state::model_load_state;
+	unsigned init_sub_model(uint8_t *const p) const
+	{
+		validate_model_sub(p, model_base, model_length);
+		return 0;
+	}
+	void update_texture(int16_t)
+	{
+	}
+};
+#endif
 
 constexpr const glow_values_t *g3_draw_morphing_model_state::glow_values;
 
@@ -794,9 +837,9 @@ void g3_draw_morphing_model(grs_canvas &canvas, const uint8_t *const p, grs_bitm
 	iterate_polymodel(p, state);
 }
 
-static int16_t init_model_sub(uint8_t *const model_sub_ptr, const uint8_t *const model_base_ptr, const std::size_t model_size, const int16_t highest_texture_num)
+static int16_t init_model_sub(uint8_t *const model_sub_ptr, const uint8_t *const model_base_ptr, const std::size_t model_size)
 {
-	init_model_sub_state state(model_base_ptr, model_size, highest_texture_num);
+	init_model_sub_state state(model_base_ptr, model_size);
 	Assert(++nest_count < 1000);
 	iterate_polymodel(model_sub_ptr, state);
 	return state.highest_texture_num;
@@ -808,7 +851,24 @@ int16_t g3_init_polygon_model(uint8_t *const model_ptr, const std::size_t model_
 	#ifndef NDEBUG
 	nest_count = 0;
 	#endif
-	return init_model_sub(model_ptr, model_ptr, model_size, -1);
+	return init_model_sub(model_ptr, model_ptr, model_size);
 }
+
+#if defined(DXX_BUILD_DESCENT_I)
+static void validate_model_sub(uint8_t *const model_sub_ptr, const uint8_t *const model_base_ptr, const std::size_t model_size)
+{
+	validate_model_sub_state state(model_base_ptr, model_size);
+	assert(++nest_count < 1000);
+	iterate_polymodel(model_sub_ptr, state);
+}
+
+void g3_validate_polygon_model(uint8_t *const model_ptr, const std::size_t model_size)
+{
+#ifndef NDEBUG
+	nest_count = 0;
+#endif
+	return validate_model_sub(model_ptr, model_ptr, model_size);
+}
+#endif
 
 }

@@ -46,6 +46,9 @@ void g3_draw_polygon_model(grs_bitmap *const *model_bitmaps, polygon_model_point
 
 //init code for bitmap models
 int16_t g3_init_polygon_model(uint8_t *model_ptr, std::size_t model_size);
+#if defined(DXX_BUILD_DESCENT_I)
+void g3_validate_polygon_model(uint8_t *model_ptr, std::size_t model_size);
+#endif
 }
 #endif
 

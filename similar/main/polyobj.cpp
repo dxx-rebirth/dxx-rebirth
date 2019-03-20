@@ -758,6 +758,10 @@ void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 #endif
 	if (words_bigendian)
 	swap_polygon_model_data(pm->model_data.get());
+#if defined(DXX_BUILD_DESCENT_I)
+	g3_validate_polygon_model(pm->model_data.get(), model_data_size);
+#elif defined(DXX_BUILD_DESCENT_II)
 	g3_init_polygon_model(pm->model_data.get(), model_data_size);
+#endif
 }
 }
