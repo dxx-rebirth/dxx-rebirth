@@ -1322,8 +1322,6 @@ static void kick_player(const player &plr, netplayer_info &nplr)
 
 static void multi_send_message_end(fvmobjptr &vmobjptr)
 {
-	char *mytempbuf;
-
 #if defined(DXX_BUILD_DESCENT_I)
 	multi_message_index = 0;
 	multi_sending_message[Player_num] = msgsend_none;
@@ -1335,20 +1333,19 @@ static void multi_send_message_end(fvmobjptr &vmobjptr)
 
 	if (!d_strnicmp(Network_message.data(), "/Handicap: "))
 	{
-		mytempbuf=&Network_message[11];
-		StartingShields=atol (mytempbuf);
-		if (StartingShields<10)
-			StartingShields=10;
+		constexpr auto minimum_allowed_shields = 10ul;
+		constexpr auto maximum_allowed_shields = 100ul;
 		auto &plr = get_local_player();
-		if (StartingShields>100)
-		{
-			snprintf(Network_message.data(), Network_message.size(), "%s has tried to cheat!",static_cast<const char *>(plr.callsign));
-			StartingShields=100;
-		}
+		const char *const callsign = plr.callsign;
+		const auto requested_handicap = strtoul(&Network_message[11], 0, 10);
+		const auto clamped_handicap_max = std::max(minimum_allowed_shields, requested_handicap);
+		const auto clamped_handicap_min = std::min(maximum_allowed_shields, clamped_handicap_max);
+		StartingShields = i2f(clamped_handicap_min);
+		if (clamped_handicap_min != clamped_handicap_max)
+			snprintf(Network_message.data(), Network_message.size(), "%s has tried to cheat!", callsign);
 		else
-			snprintf(Network_message.data(), Network_message.size(), "%s handicap is now %d",static_cast<const char *>(plr.callsign), StartingShields);
-		HUD_init_message(HM_MULTI, "Telling others of your handicap of %d!",StartingShields);
-		StartingShields=i2f(StartingShields);
+			snprintf(Network_message.data(), Network_message.size(), "%s handicap is now %lu", callsign, clamped_handicap_min);
+		HUD_init_message(HM_MULTI, "Telling others of your handicap of %lu!",clamped_handicap_min);
 	}
 	else if (!d_strnicmp(Network_message.data(), "/move: "))
 	{
