@@ -516,7 +516,7 @@ static void ogl_init_font(grs_font * font)
 		RAIIdmem<uint8_t[]> data;
 		const unsigned length = tw * th;
 		MALLOC(data, uint8_t, length);
-		std::fill_n(data.get(), TRANSPARENCY_COLOR, length); // map the whole data with transparency so we won't have borders if using gap
+		std::fill_n(data.get(), length, TRANSPARENCY_COLOR); // map the whole data with transparency so we won't have borders if using gap
 		gr_init_main_bitmap(font->ft_parent_bitmap, bm_mode::linear, 0, 0, tw, th, tw, std::move(data));
 	}
 	gr_set_transparent(font->ft_parent_bitmap, 1);
