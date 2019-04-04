@@ -242,7 +242,7 @@ class ConfigureTests(_ConfigureTests):
 		__slots__ = ('main', 'name', 'text')
 		def __init__(self,name,text,main=''):
 			self.name = name
-			name = {'N' : 'test_' + name.replace(' ', '_')}
+			name = {'N' : 'test_' + ''.join([c if c.isalnum() else '_' for c in name])}
 			self.text = text % name
 			self.main = ('{' + (main % name) + '}\n') if main else ''
 	class CxxRequiredFeatures(object):
@@ -394,7 +394,6 @@ class ConfigureTests(_ConfigureTests):
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
 	__python_import_struct = None
-	_cxx_conformance_cxx11 = 11
 	_cxx_conformance_cxx14 = 14
 	__cxx_conformance = None
 	__cxx11_required_features = CxxRequiredFeatures([
@@ -459,6 +458,18 @@ struct %(N)s_derived : %(N)s_base {
 	b[0]=1;
 '''
 ),
+		Cxx11RequiredFeature('std::begin(), std::end()', '''
+#include <array>
+''', '''
+	char ac[1];
+	std::array<char, 1> as;
+%s
+''' % (''.join(['''
+	auto %(i)s = std::%(f)s(%(a)s);
+	(void)%(i)s;
+''' % {'i' : 'i%s%s' % (f, a), 'f' : f, 'a' : a} for f in ('begin', 'end', 'cbegin', 'cend') for a in ('ac', 'as')]
+	)
+	)),
 		Cxx11RequiredFeature('range-based for', '''
 #include "compiler-range_for.h"
 ''', '''
@@ -2123,33 +2134,6 @@ help:assume compiler supports explicitly deleted functions with named parameters
 help:assume compiler supports explicitly deleted functions with anonymous parameters
 """
 		return self.Compile(context, text=f % '', msg='for explicitly deleted functions with anonymous parameters')
-	@_implicit_test
-	def check_cxx11_free_begin(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_BEGIN']},**kwargs):
-		return self.Compile(context, msg='for C++11 functions begin(), end()', successflags=_successflags, **kwargs)
-	@_implicit_test
-	def check_boost_free_begin(self,context,**kwargs):
-		return self.Compile(context, msg='for Boost.Range functions begin(), end()', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_BEGIN']}, **kwargs)
-	@_custom_test
-	def _check_free_begin_function(self,context):
-		f = '''
-#include "compiler-begin.h"
-struct A {
-	typedef int *iterator;
-	typedef const int *const_iterator;
-	iterator begin(){return 0;}
-	iterator end(){return 0;}
-	const_iterator begin() const{return 0;}
-	const_iterator end() const{return 0;}
-};
-#define F(C){\
-	C int a[1]{0};\
-	C A b{};\
-	if(begin(a)||end(a)||begin(b)||end(b))return 1;\
-}
-'''
-		main = 'F()F(const)'
-		if not self.check_cxx11_free_begin(context, text=f, main=main) and not self.check_boost_free_begin(context, text=f, main=main):
-			raise SCons.Errors.StopError("C++ compiler does not support free functions begin() and end().")
 	@_implicit_test
 	def check_cxx11_addressof(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_ADDRESSOF']},**kwargs):
 		return self.Compile(context, msg='for C++11 function addressof()', successflags=_successflags, **kwargs)
