@@ -251,7 +251,8 @@ static const char *load_mission_d1()
 			}
 			break;
 		default:
-			Int3(); // fall through
+			Int3();
+			DXX_BOOST_FALLTHROUGH;
 		case D1_MISSION_HOGSIZE:
 		case D1_MISSION_HOGSIZE2:
 		case D1_10_MISSION_HOGSIZE:
@@ -325,7 +326,8 @@ static const char *load_mission_shareware()
 			Secret_level_names[0] = "d2leva-s.rl2";
 			break;
 		default:
-			Int3(); // fall through
+			Int3();
+			DXX_BOOST_FALLTHROUGH;
 		case SHAREWARE_MISSION_HOGSIZE:
 			N_secret_levels = 0;
 
@@ -524,7 +526,7 @@ static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 	default:
 		Warning("Unknown D1 hogsize %d\n", size);
 		Int3();
-		// fall through
+		DXX_BOOST_FALLTHROUGH;
 	case D1_MISSION_HOGSIZE:
 	case D1_MISSION_HOGSIZE2:
 	case D1_10_MISSION_HOGSIZE:
@@ -571,7 +573,8 @@ static void add_builtin_mission_to_list(mission_list_type &mission_list, d_fname
 		break;
 	default:
 		Warning("Unknown hogsize %d, trying %s\n", size, FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II);
-		Int3(); //fall through
+		Int3();
+		DXX_BOOST_FALLTHROUGH;
 	case FULL_MISSION_HOGSIZE:
 	case FULL_10_MISSION_HOGSIZE:
 	case MAC_FULL_MISSION_HOGSIZE:
@@ -883,7 +886,8 @@ static const char *load_mission(const mle *const mission)
 			Ending_text_filename = BIMD2_ENDING_FILE_OEM;
 			return load_mission_oem();
 		default:
-			Int3(); // fall through
+			Int3();
+			DXX_BOOST_FALLTHROUGH;
 		case FULL_MISSION_HOGSIZE:
 		case FULL_10_MISSION_HOGSIZE:
 		case MAC_FULL_MISSION_HOGSIZE:

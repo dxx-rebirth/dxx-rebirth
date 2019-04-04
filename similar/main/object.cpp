@@ -1772,7 +1772,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 		case CT_MORPH:			//morph implies AI
 			do_morph_frame(obj);
 			//NOTE: FALLS INTO AI HERE!!!!
-			/*-fallthrough*/
+			DXX_BOOST_FALLTHROUGH;
 
 		case CT_AI:
 			//NOTE LINK TO CT_MORPH ABOVE!!!

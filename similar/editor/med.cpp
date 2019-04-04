@@ -1118,7 +1118,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 			case EVENT_MOUSE_MOVED:
 				if (!keyd_pressed[ KEY_LCTRL ] && !keyd_pressed[ KEY_RCTRL ])
 					break;
-				//-fallthrough
+				DXX_BOOST_FALLTHROUGH;
 			case EVENT_JOYSTICK_BUTTON_UP:
 			case EVENT_JOYSTICK_BUTTON_DOWN:
 			case EVENT_JOYSTICK_MOVED:

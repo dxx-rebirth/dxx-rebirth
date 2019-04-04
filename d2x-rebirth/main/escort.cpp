@@ -1537,7 +1537,7 @@ static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_nu
 			if (!player_info.vulcan_ammo)
 				return 0;
 			is_energy_weapon = false;
-			//-fallthrough
+			DXX_BOOST_FALLTHROUGH;
 		default:
 			if (!(player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)))
 				return 0;

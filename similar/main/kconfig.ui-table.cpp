@@ -5,6 +5,7 @@
  * terms and a link to the Git history.
  */
 
+#define DXX_SCONF_NO_INCLUDES
 #include "dxxsconf.h"
 
 #define DXX_KCONFIG_UI_UDLR3(A,B)	DXX_KCONFIG_UI_UDLR_A_ ## A ## _B_ ## B()

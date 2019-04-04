@@ -1532,8 +1532,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 				case KEY_SPACEBAR:
 				case KEY_ENTER:
 					br->delay_count = 0;
-					// fall through
-
+					DXX_BOOST_FALLTHROUGH;
 				default:
 					if ((result = call_default_handler(event)) != window_event_result::ignored)
 						return result;

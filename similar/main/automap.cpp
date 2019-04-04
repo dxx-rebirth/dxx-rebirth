@@ -1593,7 +1593,7 @@ window_event_result MarkerInputMessage(int key)
 				MarkerState.message[MarkerState.get_biased_marker_num(Game_mode, Player_num, MarkerBeingDefined)] = Marker_input;
 				DropMarker(vmobjptridx, vmsegptridx, get_local_plrobj(), MarkerBeingDefined);
 			}
-			/* fallthrough */
+			DXX_BOOST_FALLTHROUGH;
 		case KEY_F8:
 		case KEY_ESC:
 			MarkerState.MarkerBeingDefined = UINT8_MAX;

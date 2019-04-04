@@ -498,11 +498,11 @@ int properties_init()
 		default:
 			Warning("Unknown size for " DEFAULT_PIGFILE_REGISTERED);
 			Int3();
-			// fall through
+			DXX_BOOST_FALLTHROUGH;
 		case D1_MAC_PIGSIZE:
 		case D1_MAC_SHARE_PIGSIZE:
 			MacPig = 1;
-			//-fallthrough
+			DXX_BOOST_FALLTHROUGH;
 		case D1_PIGSIZE:
 		case D1_OEM_PIGSIZE:
 			Pigdata_start = PHYSFSX_readInt(Piggy_fp );
@@ -1342,8 +1342,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			default:
 				if (!GameArg.EdiMacData)
 					break;
-				// otherwise, fall through...
-				/*-fallthrough*/
+				DXX_BOOST_FALLTHROUGH;
 			case MAC_ALIEN1_PIGSIZE:
 			case MAC_ALIEN2_PIGSIZE:
 			case MAC_FIRE_PIGSIZE:
@@ -1386,8 +1385,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			default:
 				if (!GameArg.EdiMacData)
 					break;
-				// otherwise, fall through...
-				/*-fallthrough*/
+				DXX_BOOST_FALLTHROUGH;
 			case MAC_ALIEN1_PIGSIZE:
 			case MAC_ALIEN2_PIGSIZE:
 			case MAC_FIRE_PIGSIZE:
@@ -2012,7 +2010,7 @@ void load_d1_bitmap_replacements()
 	default:
 		Warning("Unknown size for " D1_PIGFILE);
 		Int3();
-		// fall through
+		DXX_BOOST_FALLTHROUGH;
 	case D1_PIGSIZE:
 	case D1_OEM_PIGSIZE:
 	case D1_MAC_PIGSIZE:
@@ -2114,7 +2112,7 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 		default:
 			Warning("Unknown size for " D1_PIGFILE);
 			Int3();
-			// fall through
+			DXX_BOOST_FALLTHROUGH;
 		case D1_PIGSIZE:
 		case D1_OEM_PIGSIZE:
 		case D1_MAC_PIGSIZE:

@@ -415,7 +415,7 @@ static void draw_item(grs_canvas &canvas, newmenu_item *item, int is_current, in
 				nm_string(canvas, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
 				break;
 			}
-			//-fallthrough
+			DXX_BOOST_FALLTHROUGH;
 		case NM_TYPE_INPUT:
 			nm_string_inputbox(canvas, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, is_current);
 			break;

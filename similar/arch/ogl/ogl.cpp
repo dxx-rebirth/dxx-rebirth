@@ -1373,7 +1373,7 @@ static void ogl_filltexbuf(const palette_array_t &pal, const uint8_t *const data
 					case GL_RGBA:
 						(*(texp++)) = 255;
 						(*(texp++)) = 255;
-						//-fallthrough
+						DXX_BOOST_FALLTHROUGH;
 					case GL_LUMINANCE_ALPHA:
 						(*(texp++)) = 255;
 						(*(texp++)) = 0; // transparent pixel
@@ -1394,13 +1394,13 @@ static void ogl_filltexbuf(const palette_array_t &pal, const uint8_t *const data
 				{
 					case GL_RGBA:
 						(*(texp++))=0;
-						//-fallthrough
+						DXX_BOOST_FALLTHROUGH;
 					case GL_RGB:
 						(*(texp++))=0;
-						//-fallthrough
+						DXX_BOOST_FALLTHROUGH;
 					case GL_LUMINANCE_ALPHA:
 						(*(texp++))=0;
-						//-fallthrough
+						DXX_BOOST_FALLTHROUGH;
 					case GL_LUMINANCE:
 						(*(texp++))=0;//transparent pixel
 						break;
@@ -1420,7 +1420,7 @@ static void ogl_filltexbuf(const palette_array_t &pal, const uint8_t *const data
 				{
 					case GL_LUMINANCE_ALPHA:
 						(*(texp++))=255;
-						//-fallthrough
+						DXX_BOOST_FALLTHROUGH;
 					case GL_LUMINANCE://these could prolly be done to make the intensity based upon the intensity of the resulting color, but its not needed for anything (yet?) so no point. :)
 						(*(texp++))=255;
 						break;

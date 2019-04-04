@@ -93,7 +93,7 @@ void Laser_render(grs_canvas &canvas, const object_base &obj)
 		break;
 	case WEAPON_RENDER_VCLIP:
 		Int3();	//	Oops, not supported, type added by mk on 09/09/94, but not for lasers...
-		/*-fallthrough*/
+		DXX_BOOST_FALLTHROUGH;
 	default:
 		Error( "Invalid weapon render type in Laser_render\n" );
 	}

@@ -104,7 +104,7 @@ static void con_scrub_markup(char *buffer)
 			case CC_LSPACING:
 				if (!*++p1)
 					break;
-				/*-fallthrough*/
+				DXX_BOOST_FALLTHROUGH;
 			case CC_UNDERLINE:
 				p1++;
 				break;

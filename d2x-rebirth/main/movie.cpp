@@ -261,8 +261,7 @@ static window_event_result show_pause_message(window *, const d_event &event, co
 		case EVENT_MOUSE_BUTTON_DOWN:
 			if (event_mouse_get_button(event) != 0)
 				return window_event_result::ignored;
-			// else fall through
-
+			DXX_BOOST_FALLTHROUGH;
 		case EVENT_KEY_COMMAND:
 			if ((result = call_default_handler(event)) == window_event_result::ignored)
 			{

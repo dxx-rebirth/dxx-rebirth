@@ -615,10 +615,10 @@ static int select_next_window_function(int w)
 				break;
 			}
 			//if no ecort, fall through
-			/*-fallthrough*/
+			DXX_BOOST_FALLTHROUGH;
 		case CV_ESCORT:
 			Coop_view_player[w] = UINT_MAX;		//force first player
-			/*-fallthrough*/
+			DXX_BOOST_FALLTHROUGH;
 		case CV_COOP:
 			Marker_viewer_num[w] = ~0u;
 			if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) {
@@ -644,7 +644,7 @@ static int select_next_window_function(int w)
 				break;
 			}
 			//if not multi,
-			//-fallthrough
+			DXX_BOOST_FALLTHROUGH;
 		case CV_MARKER:
 		case_marker:;
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view) {	//anarchy only

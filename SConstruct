@@ -2583,6 +2583,33 @@ where the cast is useless.
 	(void)ts;
 	return 0;
 ''', msg='for struct timespec', successflags=_successflags)
+	@_implicit_test
+	def check_warn_implicit_fallthrough(self,context,text,main,testflags,_successflags={'CXXFLAGS' : ['-Wimplicit-fallthrough=5']}):
+		self.Compile(context, text=text, main=main, msg='for -Wimplicit-fallthrough=5', testflags=testflags, successflags=_successflags)
+	@_custom_test
+	def check_boost_config(self,context,_successflags={'CPPDEFINES' : [('DXX_BOOST_FALLTHROUGH', 'BOOST_FALLTHROUGH')]}):
+		text ='''
+#include <boost/config.hpp>
+'''
+		main = '''
+	switch (argc) {
+		case 1:
+			DXX_BOOST_FALLTHROUGH;
+		case 2:
+			break;
+	}
+'''
+		sconf = context.sconf
+		if not self.Compile(context, text=text, main=main, msg='for Boost.Config', successflags=_successflags):
+			sconf.Define('DXX_BOOST_FALLTHROUGH', '((void)0)')
+			return
+		else:
+			sconf.config_h_text += '''
+#ifndef DXX_SCONF_NO_INCLUDES
+#include <boost/config.hpp>
+#endif
+'''
+		self.check_warn_implicit_fallthrough(context, text, main, testflags=_successflags)
 	__preferred_compiler_options = (
 		'-fvisibility=hidden',
 		'-Wduplicated-branches',
@@ -2643,6 +2670,23 @@ unsigned u2(bool b);
 unsigned u2(bool b)
 {
 	return u<1, 1>(b);
+}
+
+}
+
+namespace test_fallthrough {
+
+int a(int i);
+int a(int i)
+{
+	switch (i) {
+		case 1:
+			DXX_BOOST_FALLTHROUGH;
+		case 2:
+			return i + 1;
+		default:
+			return 0;
+	}
 }
 
 }
