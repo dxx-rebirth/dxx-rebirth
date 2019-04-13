@@ -328,10 +328,9 @@ void joy_init()
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 			range_for (auto &&e, enumerate(partial_range(joystick.button_map(), n_buttons), 1))
 			{
-				cf_assert(e.idx <= DXX_MAX_BUTTONS_PER_JOYSTICK);
 				auto &text = joybutton_text[joystick_n_buttons];
 				e.value = joystick_n_buttons++;
-				snprintf(&text[0], sizeof(text), "J%d B%d", i + 1, e.idx);
+				snprintf(&text[0], sizeof(text), "J%u B%u", i + 1, e.idx);
 			}
 #endif
 #if DXX_MAX_HATS_PER_JOYSTICK
@@ -340,10 +339,10 @@ void joy_init()
 				e.value = joystick_n_buttons;
 				cf_assert(e.idx <= DXX_MAX_HATS_PER_JOYSTICK);
 				//a hat counts as four buttons
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, e.idx, 0202);
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, e.idx, 0177);
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, e.idx, 0200);
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, e.idx, 0201);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, e.idx, 0202);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, e.idx, 0177);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, e.idx, 0200);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, e.idx, 0201);
 			}
 #endif
 #endif
