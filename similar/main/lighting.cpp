@@ -62,13 +62,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 
 using std::min;
-using std::max;
 
 static int Do_dynamic_light=1;
 static int use_fcd_lighting;
 
 #define	HEADLIGHT_CONE_DOT	(F1_0*9/10)
 #define	HEADLIGHT_SCALE		(F1_0*10)
+
+namespace dcx {
 
 static void add_light_div(g3s_lrgb &d, const g3s_lrgb &light, const fix &scale)
 {
@@ -83,6 +84,30 @@ static void add_light_dot_square(g3s_lrgb &d, const g3s_lrgb &light, const fix &
 	d.r += fixmul(square, light.r)/8;
 	d.g += fixmul(square, light.g)/8;
 	d.b += fixmul(square, light.b)/8;
+}
+
+static fix compute_player_light_emission_intensity(const object_base &objp)
+{
+	auto &phys_info = objp.mtype.phys_info;
+	const auto drag = phys_info.drag;
+	const fix k = fixmuldiv(phys_info.mass, drag, (F1_0 - drag));
+	// smooth thrust value like set_thrust_from_velocity()
+	const auto sthrust = vm_vec_copy_scale(phys_info.velocity, k);
+	return std::max(static_cast<fix>(vm_vec_mag_quick(sthrust) / 4), F2_0) + F0_5;
+}
+
+static fix compute_fireball_light_emission_intensity(const d_vclip_array &Vclip, const object_base &objp)
+{
+	const auto oid = get_fireball_id(objp);
+	if (oid >= Vclip.size())
+		return 0;
+	auto &v = Vclip[oid];
+	const auto light_intensity = v.light_value;
+	if (objp.lifeleft < F1_0*4)
+		return fixmul(fixdiv(objp.lifeleft, v.play_time), light_intensity);
+	return light_intensity;
+}
+
 }
 
 // ----------------------------------------------------------------------------------------------
@@ -246,13 +271,38 @@ const array<fix, 16> Obj_light_xlate{{0x1234, 0x3321, 0x2468, 0x1735,
 			    0x3123, 0x29af, 0x1f03, 0x032a
 }};
 #if defined(DXX_BUILD_DESCENT_I)
+#define compute_player_light_emission_intensity(LevelUniqueHeadlightState, obj)	compute_player_light_emission_intensity(obj)
 #define compute_light_emission(LevelSharedRobotInfoState, LevelUniqueHeadlightState, Vclip, obj)	compute_light_emission(Vclip, obj)
 #elif defined(DXX_BUILD_DESCENT_II)
+#undef compute_player_light_emission_intensity
 #undef compute_light_emission
 #endif
 
 // ---------------------------------------------------------
 namespace dsx {
+
+#if defined(DXX_BUILD_DESCENT_II)
+static fix compute_player_light_emission_intensity(d_level_unique_headlight_state &LevelUniqueHeadlightState, const object &objp)
+{
+	if (objp.ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)
+	{
+		auto &Headlights = LevelUniqueHeadlightState.Headlights;
+		auto &Num_headlights = LevelUniqueHeadlightState.Num_headlights;
+		if (Num_headlights < Headlights.size())
+			Headlights[Num_headlights++] = &objp;
+		return HEADLIGHT_SCALE;
+	}
+	uint8_t hoard_orbs;
+	// If hoard game and player, add extra light based on how many orbs you have Pulse as well.
+	if (game_mode_hoard() && (hoard_orbs = objp.ctype.player_info.hoard.orbs))
+	{
+		const fix hoardlight = 1 + (i2f(hoard_orbs) / 2);
+		const auto s = fix_sin(static_cast<fix>(GameTime64 >> 1) & 0xFFFF); // probably a bad way to do it
+		return fixmul((s + F1_0) >> 1, hoardlight);
+	}
+	return compute_player_light_emission_intensity(objp);
+}
+#endif
 
 static g3s_lrgb compute_light_emission(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_level_unique_headlight_state &LevelUniqueHeadlightState, const d_vclip_array &Vclip, const vcobjptridx_t obj)
 {
@@ -265,47 +315,10 @@ static g3s_lrgb compute_light_emission(const d_level_shared_robot_info_state &Le
 	switch (objp.type)
 	{
 		case OBJ_PLAYER:
-#if defined(DXX_BUILD_DESCENT_II)
-			uint8_t hoard_orbs;
-			if (objp.ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)
-			{
-				auto &Headlights = LevelUniqueHeadlightState.Headlights;
-				auto &Num_headlights = LevelUniqueHeadlightState.Num_headlights;
-				if (Num_headlights < Headlights.size())
-					Headlights[Num_headlights++] = &objp;
-				light_intensity = HEADLIGHT_SCALE;
-			}
-			else if (game_mode_hoard() && (hoard_orbs = objp.ctype.player_info.hoard.orbs)) // If hoard game and player, add extra light based on how many orbs you have Pulse as well.
-			{
-				fix hoardlight = 1 + (i2f(hoard_orbs) / 2);
-				auto s = fix_sin(static_cast<fix>(GameTime64 >> 1) & 0xFFFF); // probably a bad way to do it
-				s+=F1_0; 
-				s>>=1;
-				hoardlight=fixmul (s,hoardlight);
-				light_intensity = (hoardlight);
-			}
-			else
-#endif
-			{
-				const fix k = fixmuldiv(objp.mtype.phys_info.mass, objp.mtype.phys_info.drag, (f1_0 - objp.mtype.phys_info.drag));
-				// smooth thrust value like set_thrust_from_velocity()
-				const auto sthrust = vm_vec_copy_scale(objp.mtype.phys_info.velocity, k);
-				light_intensity = max(static_cast<fix>(vm_vec_mag_quick(sthrust) / 4), F1_0*2) + F1_0/2;
-			}
+			light_intensity = compute_player_light_emission_intensity(LevelUniqueHeadlightState, objp);
 			break;
 		case OBJ_FIREBALL:
-			{
-				const auto oid = get_fireball_id(objp);
-			if (oid < Vclip.size())
-			{
-				auto &v = Vclip[oid];
-				light_intensity = v.light_value;
-				if (objp.lifeleft < F1_0*4)
-					light_intensity = fixmul(fixdiv(objp.lifeleft, v.play_time), light_intensity);
-			}
-			else
-				 light_intensity = 0;
-			}
+			light_intensity = compute_fireball_light_emission_intensity(Vclip, objp);
 			break;
 		case OBJ_ROBOT:
 #if defined(DXX_BUILD_DESCENT_I)
