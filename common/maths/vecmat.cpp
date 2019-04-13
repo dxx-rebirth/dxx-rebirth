@@ -624,36 +624,36 @@ void vms_quaternion_from_matrix(vms_quaternion &rq, const vms_matrix &m)
 	const auto fy = m.fvec.y;
 	const auto fz = m.fvec.z;
 	const fix tr = rx + uy + fz;
-	vms_quaternion q;
+	fix qw, qx, qy, qz;
 	if (tr > 0) {
 		fix s = fixmul(fix_sqrt(tr + fl2f(1.0)), fl2f(2.0));
-		q.w = fixmul(fl2f(0.25), s);
-		q.x = fixdiv(fy - uz, s);
-		q.y = fixdiv(rz - fx, s);
-		q.z = fixdiv(ux - ry, s);
+		qw = fixmul(fl2f(0.25), s);
+		qx = fixdiv(fy - uz, s);
+		qy = fixdiv(rz - fx, s);
+		qz = fixdiv(ux - ry, s);
 	} else if ((rx > uy) & (rx > fz)) {
 		fix s = fixmul(fix_sqrt(fl2f(1.0) + rx - uy - fz), fl2f(2.0));
-		q.w = fixdiv(fy - uz, s);
-		q.x = fixmul(fl2f(0.25), s);
-		q.y = fixdiv(ry + ux, s); 
-		q.z = fixdiv(rz + fx, s);
+		qw = fixdiv(fy - uz, s);
+		qx = fixmul(fl2f(0.25), s);
+		qy = fixdiv(ry + ux, s);
+		qz = fixdiv(rz + fx, s);
 	} else if (uy > fz) { 
 		fix s = fixmul(fix_sqrt(fl2f(1.0) + uy - rx - fz), fl2f(2.0));
-		q.w = fixdiv(rz - fx, s);
-		q.x = fixdiv(ry + ux, s); 
-		q.y = fixmul(fl2f(0.25), s);
-		q.z = fixdiv(uz + fy, s);
+		qw = fixdiv(rz - fx, s);
+		qx = fixdiv(ry + ux, s);
+		qy = fixmul(fl2f(0.25), s);
+		qz = fixdiv(uz + fy, s);
 	} else { 
 		fix s = fixmul(fix_sqrt(fl2f(1.0) + fz - rx - uy), fl2f(2.0));
-		q.w = fixdiv(ux - ry, s);
-		q.x = fixdiv(rz + fx, s);
-		q.y = fixdiv(uz + fy, s);
-		q.z = fixmul(fl2f(0.25), s);
+		qw = fixdiv(ux - ry, s);
+		qx = fixdiv(rz + fx, s);
+		qy = fixdiv(uz + fy, s);
+		qz = fixmul(fl2f(0.25), s);
 	}
-	rq.w = q.w / 2;
-	rq.x = q.x / 2;
-	rq.y = q.y / 2;
-	rq.z = q.z / 2;
+	rq.w = qw / 2;
+	rq.x = qx / 2;
+	rq.y = qy / 2;
+	rq.z = qz / 2;
 }
 
 // convert vms_quaternion to vms_matrix
