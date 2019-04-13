@@ -39,6 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "bm.h"
 #include "interp.h"
+#include "render.h"
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
@@ -399,11 +400,12 @@ static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, p
 
 }
 
-void draw_morph_object(grs_canvas &canvas, const vmobjptridx_t obj)
+namespace dsx {
+
+void draw_morph_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj)
 {
 //	int save_light;
 	polymodel *po;
-	g3s_lrgb light;
 	morph_data *md;
 
 	md = find_morph_data(obj);
@@ -412,7 +414,7 @@ void draw_morph_object(grs_canvas &canvas, const vmobjptridx_t obj)
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	po=&Polygon_models[obj->rtype.pobj_info.model_num];
 
-	light = compute_object_light(obj);
+	const auto light = compute_object_light(LevelUniqueLightState, obj);
 
 	g3_start_instance_matrix(obj->pos, obj->orient);
 	polygon_model_points robot_points;
@@ -422,4 +424,6 @@ void draw_morph_object(grs_canvas &canvas, const vmobjptridx_t obj)
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_morph_frame(md);
+}
+
 }

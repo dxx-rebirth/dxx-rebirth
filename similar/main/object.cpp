@@ -183,7 +183,7 @@ void draw_object_blob(grs_canvas &canvas, const object_base &obj, const bitmap_i
 namespace dsx {
 
 //draw an object that is a texture-mapped rod
-void draw_object_tmap_rod(grs_canvas &canvas, const vcobjptridx_t obj, const bitmap_index bitmapi, int lighted)
+void draw_object_tmap_rod(grs_canvas &canvas, const d_level_unique_light_state *const LevelUniqueLightState, const vcobjptridx_t obj, const bitmap_index bitmapi)
 {
 	g3s_lrgb light;
 	PIGGY_PAGE_IN(bitmapi);
@@ -198,9 +198,9 @@ void draw_object_tmap_rod(grs_canvas &canvas, const vcobjptridx_t obj, const bit
 	const auto top_p = g3_rotate_point(top_v);
 	const auto bot_p = g3_rotate_point(bot_v);
 
-	if (lighted)
+	if (LevelUniqueLightState)
 	{
-		light = compute_object_light(obj);
+		light = compute_object_light(*LevelUniqueLightState, obj);
 	}
 	else
 	{
@@ -331,7 +331,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 }
 
 //draw an object which renders as a polygon model
-static void draw_polygon_object(grs_canvas &canvas, const vcobjptridx_t obj)
+static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vcobjptridx_t obj)
 {
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	g3s_lrgb light;
@@ -344,7 +344,7 @@ static void draw_polygon_object(grs_canvas &canvas, const vcobjptridx_t obj)
 	//	If option set for bright players in netgame, brighten them!
 	light = unlikely(Netgame.BrightPlayers && (Game_mode & GM_MULTI) && obj->type == OBJ_PLAYER)
 		? g3s_lrgb{F1_0 * 2, F1_0 * 2, F1_0 * 2}
-		: compute_object_light(obj);
+		: compute_object_light(LevelUniqueLightState, obj);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//make robots brighter according to robot glow field
@@ -632,7 +632,7 @@ void create_small_fireball_on_object(const vmobjptridx_t objp, fix size_scale, i
 
 // -----------------------------------------------------------------------------
 //	Render an object.  Calls one of several routines based on type
-void render_object(grs_canvas &canvas, const vmobjptridx_t obj)
+void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj)
 {
 	if (unlikely(obj == Viewer))
 		return;
@@ -660,14 +660,14 @@ void render_object(grs_canvas &canvas, const vmobjptridx_t obj)
 				gr_settransblend(canvas, 10, GR_BLEND_ADDITIVE_A);
 			}
 #endif
-			draw_polygon_object(canvas, obj);
+			draw_polygon_object(canvas, LevelUniqueLightState, obj);
 
 			if (obj->type == OBJ_ROBOT) //"warn" robot if being shot at
 				set_robot_location_info(obj);
 			break;
 
 		case RT_MORPH:
-			draw_morph_object(canvas, obj);
+			draw_morph_object(canvas, LevelUniqueLightState, obj);
 			break;
 
 		case RT_FIREBALL:
@@ -691,7 +691,7 @@ void render_object(grs_canvas &canvas, const vmobjptridx_t obj)
 			break;
 
 		case RT_HOSTAGE:
-			draw_hostage(Vclip, canvas, obj);
+			draw_hostage(Vclip, canvas, LevelUniqueLightState, obj);
 			break;
 
 		case RT_POWERUP:

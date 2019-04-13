@@ -62,11 +62,9 @@ struct d_level_unique_morph_object_state
 };
 
 extern d_level_unique_morph_object_state LevelUniqueMorphObjectState;
-
 }
 
 void morph_start(vmobjptr_t obj);
-void draw_morph_object(grs_canvas &, vmobjptridx_t obj);
 
 //process the morphing object for one frame
 void do_morph_frame(object &obj);

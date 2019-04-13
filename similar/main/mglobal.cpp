@@ -45,7 +45,6 @@ namespace dcx {
 d_level_shared_boss_state LevelSharedBossState;
 d_level_shared_vertex_state LevelSharedVertexState;
 d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
-d_level_unique_light_state LevelUniqueLightState;
 d_level_unique_segment_state LevelUniqueSegmentState;
 // Global array of vertices, common to one mine.
 valptridx<player>::array_managed_type Players;
@@ -101,6 +100,7 @@ namespace dsx {
 d_level_unique_effects_clip_state LevelUniqueEffectsClipState;
 d_level_shared_segment_state LevelSharedSegmentState;
 d_level_unique_object_state LevelUniqueObjectState;
+d_level_unique_light_state LevelUniqueLightState;
 d_level_shared_polygon_model_state LevelSharedPolygonModelState;
 d_level_shared_robotcenter_state LevelSharedRobotcenterState;
 d_level_shared_robot_info_state LevelSharedRobotInfoState;

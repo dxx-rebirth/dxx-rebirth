@@ -553,10 +553,9 @@ im_so_ashamed: ;
 	}
 
 }
-}
 
 #if DXX_USE_EDITOR
-static void render_object_search(grs_canvas &canvas, const vmobjptridx_t obj)
+static void render_object_search(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj)
 {
 	int changed=0;
 
@@ -583,7 +582,7 @@ static void render_object_search(grs_canvas &canvas, const vmobjptridx_t obj)
 	gr_pixel(canvas.cv_bitmap, _search_x, _search_y, color);
 #endif
 	}
-	render_object(canvas, obj);
+	render_object(canvas, LevelUniqueLightState, obj);
 	if (gr_ugpixel(canvas.cv_bitmap,_search_x,_search_y) != 0)
 		changed=1;
 
@@ -597,7 +596,7 @@ static void render_object_search(grs_canvas &canvas, const vmobjptridx_t obj)
 	gr_pixel(canvas.cv_bitmap, _search_x, _search_y, color);
 #endif
 	}
-	render_object(canvas, obj);
+	render_object(canvas, LevelUniqueLightState, obj);
 	if (gr_ugpixel(canvas.cv_bitmap,_search_x,_search_y) != 1)
 		changed=1;
 
@@ -610,8 +609,7 @@ static void render_object_search(grs_canvas &canvas, const vmobjptridx_t obj)
 }
 #endif
 
-namespace dsx {
-static void do_render_object(grs_canvas &canvas, const vmobjptridx_t obj, window_rendered_data &window)
+static void do_render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj, window_rendered_data &window)
 {
 #if DXX_USE_EDITOR
 	int save_3d_outline=0;
@@ -665,11 +663,11 @@ static void do_render_object(grs_canvas &canvas, const vmobjptridx_t obj, window
 
 #if DXX_USE_EDITOR
 	if (_search_mode)
-		render_object_search(canvas, obj);
+		render_object_search(canvas, LevelUniqueLightState, obj);
 	else
 	#endif
 		//NOTE LINK TO ABOVE
-		render_object(canvas, obj);
+		render_object(canvas, LevelUniqueLightState, obj);
 
 	for (auto n = obj->attached_obj; n != object_none;)
 	{
@@ -679,7 +677,7 @@ static void do_render_object(grs_canvas &canvas, const vmobjptridx_t obj, window
 		Assert(o->flags & OF_ATTACHED);
 		n = o->ctype.expl_info.next_attach;
 
-		render_object(canvas, o);
+		render_object(canvas, LevelUniqueLightState, o);
 	}
 
 
@@ -1521,7 +1519,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 				const auto save_linear_depth = exchange(Max_linear_depth, Max_linear_depth_objects);
 				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(canvas, vmobjptridx(v.objnum), window);	// note link to above else
+					do_render_object(canvas, LevelUniqueLightState, vmobjptridx(v.objnum), window);	// note link to above else
 				}
 				Max_linear_depth = save_linear_depth;
 			}
@@ -1640,7 +1638,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 			{
 				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(canvas, vmobjptridx(v.objnum), window);	// note link to above else
+					do_render_object(canvas, LevelUniqueLightState, vmobjptridx(v.objnum), window);	// note link to above else
 				}
 			}
 		}
@@ -1656,6 +1654,13 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 		outline_seg_side(canvas, Cursegp, Curside, Curedge, Curvert);
 	#endif
 #endif
+}
+
+//-------------- Renders a hostage --------------------------------------------
+void draw_hostage(const d_vclip_array &Vclip, grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj)
+{
+	auto &vci = obj->rtype.vclip_info;
+	draw_object_tmap_rod(canvas, &LevelUniqueLightState, obj, Vclip[vci.vclip_num].frames[vci.framenum]);
 }
 
 }

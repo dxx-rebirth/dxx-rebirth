@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "vclip.h"
 #include "physfs-serial.h"
+#include "render.h"
 #include "weapon.h"
 #include "object.h"
 #if defined(DXX_BUILD_DESCENT_II)
@@ -56,7 +57,7 @@ void draw_vclip_object(grs_canvas &canvas, const vcobjptridx_t obj, const fix ti
 
 	if (bitmapnum >= 0 )	{
 		if (vc.flags & VF_ROD)
-			draw_object_tmap_rod(canvas, obj, vc.frames[bitmapnum], 0);
+			draw_object_tmap_rod(canvas, nullptr, obj, vc.frames[bitmapnum]);
 		else {
 			draw_object_blob(canvas, obj, vc.frames[bitmapnum]);
 		}

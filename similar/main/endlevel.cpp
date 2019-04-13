@@ -901,7 +901,10 @@ static fix satellite_size = i2f(400);
 #define SATELLITE_HEIGHT	((satellite_size*9)/4)		//((satellite_size*5)/2)
 
 constexpr vms_vector vmd_zero_vector{};
-static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas, fix eye_offset)
+
+namespace dsx {
+
+static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const fix eye_offset)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -974,10 +977,12 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 #if !DXX_USE_OGL
 	Lighting_on=0;
 #endif
-	render_object(canvas, vmobjptridx(ConsoleObject));
+	render_object(canvas, LevelUniqueLightState, vmobjptridx(ConsoleObject));
 #if !DXX_USE_OGL
 	Lighting_on=1;
 #endif
+}
+
 }
 
 static void generate_starfield(d_unique_endlevel_state::starfield_type &stars)
@@ -1093,7 +1098,7 @@ void render_endlevel_frame(grs_canvas &canvas, fix eye_offset)
 	if (Endlevel_sequence < EL_OUTSIDE)
 		endlevel_render_mine(LevelSharedSegmentState, canvas, eye_offset);
 	else
-		render_external_scene(vcobjptridx, canvas, eye_offset);
+		render_external_scene(vcobjptridx, canvas, LevelUniqueLightState, eye_offset);
 
 	g3_end_frame();
 }

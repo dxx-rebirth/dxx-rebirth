@@ -245,34 +245,37 @@ const array<fix, 16> Obj_light_xlate{{0x1234, 0x3321, 0x2468, 0x1735,
 			    0x2123, 0x39af, 0x0f03, 0x132a,
 			    0x3123, 0x29af, 0x1f03, 0x032a
 }};
-#if defined(DXX_BUILD_DESCENT_II)
-constexpr std::integral_constant<unsigned, 8> MAX_HEADLIGHTS{};
-static unsigned Num_headlights;
-static array<const object *, MAX_HEADLIGHTS> Headlights;
+#if defined(DXX_BUILD_DESCENT_I)
+#define compute_light_emission(LevelSharedRobotInfoState, LevelUniqueHeadlightState, Vclip, obj)	compute_light_emission(Vclip, obj)
+#elif defined(DXX_BUILD_DESCENT_II)
+#undef compute_light_emission
 #endif
 
 // ---------------------------------------------------------
 namespace dsx {
-static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjptridx_t obj)
+
+static g3s_lrgb compute_light_emission(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_level_unique_headlight_state &LevelUniqueHeadlightState, const d_vclip_array &Vclip, const vcobjptridx_t obj)
 {
 	int compute_color = 0;
 	fix light_intensity = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #endif
-
-	switch (obj->type)
+	const object &objp = obj;
+	switch (objp.type)
 	{
 		case OBJ_PLAYER:
 #if defined(DXX_BUILD_DESCENT_II)
 			uint8_t hoard_orbs;
-			if (obj->ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)
+			if (objp.ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)
 			{
-				if (Num_headlights < MAX_HEADLIGHTS)
-					Headlights[Num_headlights++] = obj;
+				auto &Headlights = LevelUniqueHeadlightState.Headlights;
+				auto &Num_headlights = LevelUniqueHeadlightState.Num_headlights;
+				if (Num_headlights < Headlights.size())
+					Headlights[Num_headlights++] = &objp;
 				light_intensity = HEADLIGHT_SCALE;
 			}
-			else if (game_mode_hoard() && (hoard_orbs = obj->ctype.player_info.hoard.orbs)) // If hoard game and player, add extra light based on how many orbs you have Pulse as well.
+			else if (game_mode_hoard() && (hoard_orbs = objp.ctype.player_info.hoard.orbs)) // If hoard game and player, add extra light based on how many orbs you have Pulse as well.
 			{
 				fix hoardlight = 1 + (i2f(hoard_orbs) / 2);
 				auto s = fix_sin(static_cast<fix>(GameTime64 >> 1) & 0xFFFF); // probably a bad way to do it
@@ -284,21 +287,21 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjpt
 			else
 #endif
 			{
-				fix k = fixmuldiv(obj->mtype.phys_info.mass,obj->mtype.phys_info.drag,(f1_0-obj->mtype.phys_info.drag));
+				const fix k = fixmuldiv(objp.mtype.phys_info.mass, objp.mtype.phys_info.drag, (f1_0 - objp.mtype.phys_info.drag));
 				// smooth thrust value like set_thrust_from_velocity()
-				auto sthrust = vm_vec_copy_scale(obj->mtype.phys_info.velocity,k);
+				const auto sthrust = vm_vec_copy_scale(objp.mtype.phys_info.velocity, k);
 				light_intensity = max(static_cast<fix>(vm_vec_mag_quick(sthrust) / 4), F1_0*2) + F1_0/2;
 			}
 			break;
 		case OBJ_FIREBALL:
 			{
-				const auto oid = get_fireball_id(obj);
+				const auto oid = get_fireball_id(objp);
 			if (oid < Vclip.size())
 			{
 				auto &v = Vclip[oid];
 				light_intensity = v.light_value;
-				if (obj->lifeleft < F1_0*4)
-					light_intensity = fixmul(fixdiv(obj->lifeleft, v.play_time), light_intensity);
+				if (objp.lifeleft < F1_0*4)
+					light_intensity = fixmul(fixdiv(objp.lifeleft, v.play_time), light_intensity);
 			}
 			else
 				 light_intensity = 0;
@@ -308,14 +311,15 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjpt
 #if defined(DXX_BUILD_DESCENT_I)
 			light_intensity = F1_0/2;	// F1_0*Robot_info[obj->id].lightcast;
 #elif defined(DXX_BUILD_DESCENT_II)
-			light_intensity = F1_0*Robot_info[get_robot_id(obj)].lightcast;
+			light_intensity = F1_0*Robot_info[get_robot_id(objp)].lightcast;
 #endif
 			break;
 		case OBJ_WEAPON:
 		{
-			fix tval = Weapon_info[get_weapon_id(obj)].light;
-			if (get_weapon_id(obj) == weapon_id_type::FLARE_ID )
-				light_intensity = 2*(min(tval, obj->lifeleft) + ((static_cast<fix>(GameTime64) ^ Obj_light_xlate[obj.get_unchecked_index() % Obj_light_xlate.size()]) & 0x3fff));
+			const auto wid = get_weapon_id(objp);
+			const fix tval = Weapon_info[wid].light;
+			if (wid == weapon_id_type::FLARE_ID)
+				light_intensity = 2 * (min(tval, objp.lifeleft) + ((static_cast<fix>(GameTime64) ^ Obj_light_xlate[obj.get_unchecked_index() % Obj_light_xlate.size()]) & 0x3fff));
 			else
 				light_intensity = tval;
 			break;
@@ -323,7 +327,7 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjpt
 #if defined(DXX_BUILD_DESCENT_II)
 		case OBJ_MARKER:
 		{
-			fix lightval = obj->lifeleft;
+			fix lightval = objp.lifeleft;
 
 			lightval &= 0xffff;
 			lightval = 8 * abs(F1_0/2 - lightval);
@@ -333,13 +337,13 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjpt
 		}
 #endif
 		case OBJ_POWERUP:
-			light_intensity = Powerup_info[get_powerup_id(obj)].light;
+			light_intensity = Powerup_info[get_powerup_id(objp)].light;
 			break;
 		case OBJ_DEBRIS:
 			light_intensity = F1_0/4;
 			break;
 		case OBJ_LIGHT:
-			light_intensity = obj->ctype.light_info.intensity;
+			light_intensity = objp.ctype.light_info.intensity;
 			break;
 		default:
 			light_intensity = 0;
@@ -353,7 +357,7 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjpt
 	if (!PlayerCfg.DynLightColor) // colored lights not desired so use intensity only OR no intensity (== no light == no color) at all
 		return white_light();
 
-	switch (obj->type) // find out if given object should cast colored light and compute if so
+	switch (objp.type) // find out if given object should cast colored light and compute if so
 	{
 		default:
 			break;
@@ -366,7 +370,7 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjpt
 			break;
 		case OBJ_POWERUP:
 		{
-			switch (get_powerup_id(obj))
+			switch (get_powerup_id(objp))
 			{
 				case POW_EXTRA_LIFE:
 				case POW_ENERGY:
@@ -397,14 +401,14 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjpt
 
 		g3s_lrgb obj_color = { 255, 255, 255 };
 
-		switch (obj->render_type)
+		switch (objp.render_type)
 		{
 			case RT_NONE:
 				break; // no object - no light
 			case RT_POLYOBJ:
 			{
 				auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-				polymodel *po = &Polygon_models[obj->rtype.pobj_info.model_num];
+				const polymodel *const po = &Polygon_models[objp.rtype.pobj_info.model_num];
 				if (po->n_textures <= 0)
 				{
 					int color = g3_poly_get_color(po->model_data.get());
@@ -424,24 +428,28 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjpt
 			}
 			case RT_LASER:
 			{
-				t_idx_s = t_idx_e = Weapon_info[get_weapon_id(obj)].bitmap.index;
+				t_idx_s = t_idx_e = Weapon_info[get_weapon_id(objp)].bitmap.index;
 				break;
 			}
 			case RT_POWERUP:
 			{
-				t_idx_s = Vclip[obj->rtype.vclip_info.vclip_num].frames[0].index;
-				t_idx_e = Vclip[obj->rtype.vclip_info.vclip_num].frames[Vclip[obj->rtype.vclip_info.vclip_num].num_frames-1].index;
+				auto &v = Vclip[objp.rtype.vclip_info.vclip_num];
+				auto &f = v.frames;
+				t_idx_s = f[0].index;
+				t_idx_e = f[v.num_frames - 1].index;
 				break;
 			}
 			case RT_WEAPON_VCLIP:
 			{
-				t_idx_s = Vclip[Weapon_info[get_weapon_id(obj)].weapon_vclip].frames[0].index;
-				t_idx_e = Vclip[Weapon_info[get_weapon_id(obj)].weapon_vclip].frames[Vclip[Weapon_info[get_weapon_id(obj)].weapon_vclip].num_frames-1].index;
+				auto &v = Vclip[Weapon_info[get_weapon_id(objp)].weapon_vclip];
+				auto &f = v.frames;
+				t_idx_s = f[0].index;
+				t_idx_e = f[v.num_frames - 1].index;
 				break;
 			}
 			default:
 			{
-				const auto &vc = Vclip[obj->id];
+				const auto &vc = Vclip[objp.id];
 				t_idx_s = vc.frames[0].index;
 				t_idx_e = vc.frames[vc.num_frames-1].index;
 				break;
@@ -478,7 +486,6 @@ static g3s_lrgb compute_light_emission(const d_vclip_array &Vclip, const vcobjpt
 
 	return white_light();
 }
-}
 
 // ----------------------------------------------------------------------------------------------
 void set_dynamic_light(render_state_t &rstate)
@@ -490,7 +497,7 @@ void set_dynamic_light(render_state_t &rstate)
 	static fix light_time; 
 
 #if defined(DXX_BUILD_DESCENT_II)
-	Num_headlights = 0;
+	LevelUniqueLightState.Num_headlights = 0;
 #endif
 
 	if (!Do_dynamic_light)
@@ -538,17 +545,16 @@ void set_dynamic_light(render_state_t &rstate)
 		const object &objp = obj;
 		if (objp.type == OBJ_NONE)
 			continue;
-		const auto &&obj_light_emission = compute_light_emission(Vclip, obj);
+		const auto &&obj_light_emission = compute_light_emission(LevelSharedRobotInfoState, LevelUniqueLightState, Vclip, obj);
 
 		if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
-			apply_light(vmsegptridx, obj_light_emission, vmsegptridx(obj->segnum), obj->pos, n_render_vertices, render_vertices, vert_segnum_list, obj);
+			apply_light(vmsegptridx, obj_light_emission, vcsegptridx(objp.segnum), objp.pos, n_render_vertices, render_vertices, vert_segnum_list, obj);
 	}
 }
 
 // ---------------------------------------------------------
 
 #if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
 
 void toggle_headlight_active(object &player)
 {
@@ -560,7 +566,7 @@ void toggle_headlight_active(object &player)
 	}
 }
 
-static fix compute_headlight_light_on_object(const object_base &objp)
+static fix compute_headlight_light_on_object(const d_level_unique_headlight_state &LevelUniqueHeadlightState, const object_base &objp)
 {
 	fix	light;
 
@@ -570,13 +576,12 @@ static fix compute_headlight_light_on_object(const object_base &objp)
 
 	light = 0;
 
-	range_for (const auto light_objp, partial_const_range(Headlights, Num_headlights))
+	range_for (const object_base *const light_objp, partial_const_range(LevelUniqueHeadlightState.Headlights, LevelUniqueHeadlightState.Num_headlights))
 	{
-		fix			dot, dist;
 		auto vec_to_obj = vm_vec_sub(objp.pos, light_objp->pos);
-		dist = vm_vec_normalize_quick(vec_to_obj);
+		const fix dist = vm_vec_normalize_quick(vec_to_obj);
 		if (dist > 0) {
-			dot = vm_vec_dot(light_objp->orient.fvec, vec_to_obj);
+			const fix dot = vm_vec_dot(light_objp->orient.fvec, vec_to_obj);
 
 			if (dot < F1_0/2)
 				light += fixdiv(HEADLIGHT_SCALE, fixmul(HEADLIGHT_SCALE, dist));	//	Do the normal thing, but darken around headlight.
@@ -586,12 +591,12 @@ static fix compute_headlight_light_on_object(const object_base &objp)
 	}
 	return light;
 }
-
-}
 #endif
 
+}
+
 //compute the average dynamic light in a segment.  Takes the segment number
-static g3s_lrgb compute_seg_dynamic_light(array<g3s_lrgb, MAX_VERTICES> &Dynamic_light, const shared_segment &seg)
+static g3s_lrgb compute_seg_dynamic_light(const array<g3s_lrgb, MAX_VERTICES> &Dynamic_light, const shared_segment &seg)
 {
 	const auto &&op = [&Dynamic_light](g3s_lrgb r, const unsigned v) {
 		r.r += Dynamic_light[v].r;
@@ -618,10 +623,12 @@ void start_lighting_frame(const object &viewer)
 	old_viewer = &viewer;
 }
 
+namespace dsx {
+
 //compute the lighting for an object.  Takes a pointer to the object,
 //and possibly a rotated 3d point.  If the point isn't specified, the
 //object's center point is rotated.
-g3s_lrgb compute_object_light(const vcobjptridx_t obj)
+g3s_lrgb compute_object_light(const d_level_unique_light_state &LevelUniqueLightState, const vcobjptridx_t obj)
 {
 	g3s_lrgb light;
 	const vcobjidx_t objnum = obj;
@@ -670,7 +677,7 @@ g3s_lrgb compute_object_light(const vcobjptridx_t obj)
 	const auto &&seg_dl = compute_seg_dynamic_light(Dynamic_light, objsegp);
 #if defined(DXX_BUILD_DESCENT_II)
 	//Next, add in (NOTE: WHITE) headlight on this object
-	const fix mlight = compute_headlight_light_on_object(obj);
+	const fix mlight = compute_headlight_light_on_object(LevelUniqueLightState, obj);
 	light.r += mlight;
 	light.g += mlight;
 	light.b += mlight;
@@ -681,4 +688,6 @@ g3s_lrgb compute_object_light(const vcobjptridx_t obj)
 	light.b += seg_dl.b;
 
 	return light;
+}
+
 }

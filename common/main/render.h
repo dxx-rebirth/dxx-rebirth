@@ -32,6 +32,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "objnum.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
+#include "fwd-vclip.h"
+#include "lighting.h"
 
 #ifdef dsx
 namespace dsx {
@@ -136,6 +138,15 @@ static inline void render_frame(grs_canvas &canvas, fix eye_offset)
 	window_rendered_data window;
 	render_frame(canvas, eye_offset, window);
 }
+
+// Render an object.  Calls one of several routines based on type
+void render_object(grs_canvas &, const d_level_unique_light_state &LevelUniqueLightState, vmobjptridx_t obj);
+
+// draw an object that is a texture-mapped rod
+void draw_object_tmap_rod(grs_canvas &, const d_level_unique_light_state *const LevelUniqueLightState, vcobjptridx_t obj, bitmap_index bitmap);
+
+void draw_hostage(const d_vclip_array &Vclip, grs_canvas &, const d_level_unique_light_state &, vmobjptridx_t obj);
+void draw_morph_object(grs_canvas &, const d_level_unique_light_state &LevelUniqueLightState, vmobjptridx_t obj);
 }
 #endif
 

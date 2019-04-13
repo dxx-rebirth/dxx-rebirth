@@ -245,12 +245,6 @@ void reset_objects(d_level_unique_object_state &, unsigned n_objs);
 // make object array non-sparse
 void compress_objects();
 
-// Render an object.  Calls one of several routines based on type
-void render_object(grs_canvas &, vmobjptridx_t obj);
-
-// draw an object that is a texture-mapped rod
-void draw_object_tmap_rod(grs_canvas &, vcobjptridx_t obj, bitmap_index bitmap, int lighted);
-
 // move all objects for the current frame
 window_event_result object_move_all();     // moves all objects
 

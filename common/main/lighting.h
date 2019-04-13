@@ -43,20 +43,37 @@ struct d_level_unique_light_state
 {
 	array<g3s_lrgb, MAX_VERTICES> Dynamic_light;
 };
-extern d_level_unique_light_state LevelUniqueLightState;
 
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+
+#if defined(DXX_BUILD_DESCENT_II)
+struct d_level_unique_headlight_state
+{
+	unsigned Num_headlights = 0;
+	array<const object_base *, 8> Headlights = {};
+};
+
+struct d_level_unique_light_state :
+	d_level_unique_headlight_state,
+	::dcx::d_level_unique_light_state
+{
+};
+#endif
+
+extern d_level_unique_light_state LevelUniqueLightState;
+}
 extern const object *old_viewer;
 
+namespace dsx {
 // compute the lighting for an object.  Takes a pointer to the object,
 // and possibly a rotated 3d point.  If the point isn't specified, the
 // object's center point is rotated.
-g3s_lrgb compute_object_light(vcobjptridx_t obj);
+g3s_lrgb compute_object_light(const d_level_unique_light_state &LevelUniqueLightState, vcobjptridx_t obj);
 
 // turn headlight boost on & off
-namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 void toggle_headlight_active(object &);
 #endif
