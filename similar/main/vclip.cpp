@@ -46,7 +46,7 @@ namespace dsx {
 d_vclip_array Vclip;		// General purpose vclips.
 
 //draw an object which renders as a vclip
-void draw_vclip_object(grs_canvas &canvas, const vcobjptridx_t obj, const fix timeleft, const int lighted, const vclip &vc)
+void draw_vclip_object(grs_canvas &canvas, const vcobjptridx_t obj, const fix timeleft, const vclip &vc)
 {
 	const auto nf = vc.num_frames;
 	int bitmapnum = (nf - f2i(fixdiv((nf - 1) * timeleft, vc.play_time))) - 1;
@@ -56,9 +56,8 @@ void draw_vclip_object(grs_canvas &canvas, const vcobjptridx_t obj, const fix ti
 
 	if (bitmapnum >= 0 )	{
 		if (vc.flags & VF_ROD)
-			draw_object_tmap_rod(canvas, obj, vc.frames[bitmapnum], lighted);
+			draw_object_tmap_rod(canvas, obj, vc.frames[bitmapnum], 0);
 		else {
-			Assert(lighted==0);		//blob cannot now be lighted
 			draw_object_blob(canvas, obj, vc.frames[bitmapnum]);
 		}
 	}
@@ -87,7 +86,7 @@ void draw_weapon_vclip(const d_vclip_array &Vclip, const weapon_info_array &Weap
 
 	}
 
-	draw_vclip_object(canvas, obj, modtime, 0, Vclip[vclip_num]);
+	draw_vclip_object(canvas, obj, modtime, Vclip[vclip_num]);
 }
 
 }

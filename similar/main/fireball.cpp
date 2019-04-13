@@ -430,7 +430,7 @@ static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &p
 void draw_fireball(const d_vclip_array &Vclip, grs_canvas &canvas, const vcobjptridx_t obj)
 {
 	if ( obj->lifeleft > 0 )
-		draw_vclip_object(canvas, obj, obj->lifeleft, 0, Vclip[get_fireball_id(obj)]);
+		draw_vclip_object(canvas, obj, obj->lifeleft, Vclip[get_fireball_id(obj)]);
 }
 
 // --------------------------------------------------------------------------------------------------------------------

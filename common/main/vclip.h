@@ -73,7 +73,7 @@ constexpr std::integral_constant<int, -1> vclip_none{};
 
 namespace dsx {
 // draw an object which renders as a vclip.
-void draw_vclip_object(grs_canvas &, vcobjptridx_t obj, fix timeleft, int lighted, const vclip &);
+void draw_vclip_object(grs_canvas &, vcobjptridx_t obj, fix timeleft, const vclip &);
 void draw_weapon_vclip(const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, grs_canvas &, vcobjptridx_t obj);
 }
 
