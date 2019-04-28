@@ -330,6 +330,7 @@ void joy_init()
 			{
 				auto &text = joybutton_text[joystick_n_buttons];
 				e.value = joystick_n_buttons++;
+				cf_assert(e.idx <= DXX_MAX_BUTTONS_PER_JOYSTICK);
 				snprintf(&text[0], sizeof(text), "J%u B%u", i + 1, e.idx);
 			}
 #endif
