@@ -467,7 +467,7 @@ struct %(N)s_derived : %(N)s_base {
 ''' % (''.join(['''
 	auto %(i)s = std::%(f)s(%(a)s);
 	(void)%(i)s;
-''' % {'i' : 'i%s%s' % (f, a), 'f' : f, 'a' : a} for f in ('begin', 'end', 'cbegin', 'cend') for a in ('ac', 'as')]
+''' % {'i' : 'i%s%s' % (f, a), 'f' : f, 'a' : a} for f in ('begin', 'end') for a in ('ac', 'as')]
 	)
 	)),
 		Cxx11RequiredFeature('range-based for', '''
