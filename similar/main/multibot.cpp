@@ -1055,17 +1055,22 @@ void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, 
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_teleport b;
 	multi_serialize_read(buf, b);
-	const vmobjptridx_t boss_obj = vmobjptridx(b.objnum);
+	const auto &&guarded_boss_obj = Objects.vmptridx.check_untrusted(b.objnum);
+	if (!guarded_boss_obj)
+		return;
+	const auto &&boss_obj = *guarded_boss_obj;
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
 	}
-	const auto &&teleport_segnum = vmsegptridx(b.where);
+	const auto &&guarded_teleport_segnum = vmsegptridx.check_untrusted(b.where);
+	if (!guarded_teleport_segnum)
+		return;
+	const auto &&teleport_segnum = *guarded_teleport_segnum;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, boss_obj->pos, teleport_segnum);
@@ -1097,8 +1102,11 @@ void multi_do_boss_cloak(const ubyte *buf)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_cloak b;
 	multi_serialize_read(buf, b);
-	const vmobjptridx_t boss_obj = vmobjptridx(b.objnum);
-	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
+	const auto &&guarded_boss_obj = vmobjptridx.check_untrusted(b.objnum);
+	if (!guarded_boss_obj)
+		return;
+	const auto &&boss_obj = *guarded_boss_obj;
+	if (boss_obj->type != OBJ_ROBOT || !Robot_info[get_robot_id(boss_obj)].boss_flag)
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
@@ -1119,8 +1127,11 @@ void multi_do_boss_start_gate(const ubyte *buf)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_start_gate b;
 	multi_serialize_read(buf, b);
-	const vmobjptridx_t boss_obj = vmobjptridx(b.objnum);
-	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
+	const auto &&guarded_boss_obj = vmobjptridx.check_untrusted(b.objnum);
+	if (!guarded_boss_obj)
+		return;
+	const object_base &boss_obj = *guarded_boss_obj;
+	if (boss_obj.type != OBJ_ROBOT || !Robot_info[get_robot_id(boss_obj)].boss_flag)
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
@@ -1135,8 +1146,11 @@ void multi_do_boss_stop_gate(const ubyte *buf)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_start_gate b;
 	multi_serialize_read(buf, b);
-	const vmobjptridx_t boss_obj = vmobjptridx(b.objnum);
-	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
+	const auto &&guarded_boss_obj = vmobjptridx.check_untrusted(b.objnum);
+	if (!guarded_boss_obj)
+		return;
+	const object_base &boss_obj = *guarded_boss_obj;
+	if (boss_obj.type != OBJ_ROBOT || !Robot_info[get_robot_id(boss_obj)].boss_flag)
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
@@ -1151,8 +1165,11 @@ void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_create_robot b;
 	multi_serialize_read(buf, b);
-	const vmobjptridx_t boss_obj = vmobjptridx(b.objnum);
-	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
+	const auto &&guarded_boss_obj = vmobjptridx.check_untrusted(b.objnum);
+	if (!guarded_boss_obj)
+		return;
+	const object_base &boss_obj = *guarded_boss_obj;
+	if (boss_obj.type != OBJ_ROBOT || !Robot_info[get_robot_id(boss_obj)].boss_flag)
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;

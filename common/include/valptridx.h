@@ -781,6 +781,7 @@ class valptridx<managed_type>::guarded
 	};
 	mutable state m_state;
 public:
+	__attribute_cold
 	guarded(std::nullptr_t) :
 		m_dummy(), m_state(empty)
 	{
@@ -798,7 +799,7 @@ public:
 		 * return true.  operator*() uses m_state to enforce that the
 		 * result is tested.
 		 */
-		if (m_state == empty)
+		if (unlikely(m_state == empty))
 			return false;
 		m_state = checked;
 		return true;
