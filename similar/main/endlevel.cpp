@@ -247,6 +247,60 @@ vms_matrix surface_orient;
 
 static int endlevel_data_loaded;
 
+static unsigned get_tunnel_length(fvcsegptridx &vcsegptridx, const vcsegptridx_t console_seg, const unsigned exit_console_side)
+{
+	auto seg = console_seg;
+	auto exit_side = exit_console_side;
+	unsigned tunnel_length = 0;
+	for (;;)
+	{
+		const auto child = seg->children[exit_side];
+		if (child == segment_none)
+			return 0;
+		++tunnel_length;
+		if (child == segment_exit)
+		{
+			assert(seg == exit_segnum);
+			return tunnel_length;
+		}
+		const vcsegidx_t old_segidx = seg;
+		seg = vcsegptridx(child);
+		const auto entry_side = matt_find_connect_side(seg, old_segidx);
+		if (entry_side >= Side_opposite.size())
+			return 0;
+		exit_side = Side_opposite[entry_side];
+	}
+}
+
+static vcsegidx_t get_tunnel_transition_segment(const unsigned tunnel_length, const vcsegptridx_t console_seg, const unsigned exit_console_side)
+{
+	auto seg = console_seg;
+	auto exit_side = exit_console_side;
+	for (auto i = tunnel_length / 3;; --i)
+	{
+		/*
+		 * If the tunnel ended with segment_none, the caller would have
+		 * returned immediately after the prior loop.  If the tunnel
+		 * ended with segment_exit, then tunnel_length is the count of
+		 * segments to reach the exit.  The termination condition on
+		 * this loop quits at (tunnel_length / 3), so the loop will quit
+		 * before it reaches segment_exit.
+		 */
+		const auto child = seg->children[exit_side];
+		if (!IS_CHILD(child))
+			/* This is only a sanity check.  It should never execute
+			 * unless there is a bug elsewhere.
+			 */
+			return seg;
+		if (!i)
+			return child;
+		const vcsegidx_t old_segidx = seg;
+		seg = vcsegptridx(child);
+		const auto entry_side = matt_find_connect_side(seg, old_segidx);
+		exit_side = Side_opposite[entry_side];
+	}
+}
+
 namespace dsx {
 window_event_result start_endlevel_sequence()
 {
@@ -325,66 +379,26 @@ window_event_result start_endlevel_sequence()
 	if (!exit_models_loaded)
 		return window_event_result::ignored;
 #endif
-#ifndef NDEBUG
-	segnum_t last_segnum;
-#endif
 	{
 		//count segments in exit tunnel
 
 		const object_base &console = vmobjptr(ConsoleObject);
 		const auto exit_console_side = find_exit_side(console);
-		auto old_segnum = vcsegptridx(console.segnum);
-		auto child = old_segnum->children[exit_console_side];
-		unsigned tunnel_length = 0;
-		for (;;)
+		const auto &&console_seg = vcsegptridx(console.segnum);
+		const auto tunnel_length = get_tunnel_length(vcsegptridx, console_seg, exit_console_side);
+		if (!tunnel_length)
 		{
-			if (child == segment_none)
-			{
 				return PlayerFinishedLevel(0);		//don't do special sequence
-			}
-			tunnel_length++;
-			if (child == segment_exit)
-				break;
-			const auto segnum = vcsegptridx(child);
-			const auto entry_side = matt_find_connect_side(segnum, old_segnum);
-			const auto exit_side = Side_opposite[entry_side];
-			old_segnum = segnum;
-			child = segnum->children[exit_side];
 		}
-#ifndef NDEBUG
-		last_segnum = old_segnum;
-#endif
 		//now pick transition segnum 1/3 of the way in
 
-		old_segnum = vcsegptridx(console.segnum);
-		child = old_segnum->children[exit_console_side];
-		for (auto i = tunnel_length / 3; i; --i)
-		{
-			/*
-			 * No sanity checks here.  If the tunnel ended with
-			 * segment_none, the function would have returned from the
-			 * prior loop.  If the tunnel ended with segment_exit, then
-			 * tunnel_length is the count of segments to reach the exit.
-			 * The termination condition on this loop quits at
-			 * (tunnel_length / 3), so the loop will quit before it
-			 * reaches segment_exit.
-			 */
-			auto segnum = vcsegptridx(child);
-			const auto entry_side = matt_find_connect_side(segnum, old_segnum);
-			const auto exit_side = Side_opposite[entry_side];
-			old_segnum = segnum;
-			child = segnum->children[exit_side];
-		}
-		transition_segnum = child;
+		transition_segnum = get_tunnel_transition_segment(tunnel_length, console_seg, exit_console_side);
 	}
 
 	if (Game_mode & GM_MULTI) {
 		multi_send_endlevel_start(multi_endlevel_type::normal);
 		multi_do_protocol_frame(1, 1);
 	}
-#ifndef NDEBUG
-	Assert(last_segnum == exit_segnum);
-#endif
 	songs_play_song( SONG_ENDLEVEL, 0 );
 
 	Endlevel_sequence = EL_FLYTHROUGH;
