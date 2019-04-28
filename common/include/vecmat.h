@@ -42,13 +42,13 @@ struct vms_vector
 class vm_distance
 {
 public:
-	fix d;
+	fix d = 0;
 	/* Default constructor only required because Fcd_cache,SoundObjects
 	 * have global scope instances of vm_distance.  They should be
 	 * converted to construct as needed, then the default constructor
 	 * should be removed.
 	 */
-	constexpr vm_distance() : d(0) {}
+	constexpr vm_distance() = default;
 	constexpr explicit vm_distance(const fix &f) :
 		d(f)
 	{

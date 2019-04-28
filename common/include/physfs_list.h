@@ -52,13 +52,9 @@ class PHYSFSX_counted_list_template : public PHYSFSX_uncounted_list_template<D>
 {
 	typedef PHYSFSX_uncounted_list_template<D> base_ptr;
 	using typename base_ptr::pointer;
-	uint_fast32_t count;
+	uint_fast32_t count = 0;
 public:
-	PHYSFSX_counted_list_template() = default;
-	PHYSFSX_counted_list_template(char **p) :
-		base_ptr(p), count(0)
-	{
-	}
+	using base_ptr::base_ptr;
 	uint_fast32_t get_count() const
 	{
 		return count;

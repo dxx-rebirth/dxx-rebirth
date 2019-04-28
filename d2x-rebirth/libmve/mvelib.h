@@ -31,9 +31,9 @@ struct MVEFILE
 {
 	MVEFILE();
 	~MVEFILE();
-    void           *stream;
+	void *stream = nullptr;
 	std::vector<uint8_t> cur_chunk;
-	std::size_t next_segment;
+	std::size_t next_segment = 0;
 };
 
 /*
@@ -85,8 +85,8 @@ struct MVESTREAM
 	MVESTREAM();
 	~MVESTREAM();
 	std::unique_ptr<MVEFILE> movie;
-    void                       *context;
-	array<MVESEGMENTHANDLER, 32> handlers;
+	void *context = nullptr;
+	array<MVESEGMENTHANDLER, 32> handlers = {};
 };
 
 struct MVESTREAM_deleter_t

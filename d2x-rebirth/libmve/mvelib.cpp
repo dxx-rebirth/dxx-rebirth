@@ -258,9 +258,7 @@ int mve_play_next_chunk(MVESTREAM &movie)
 /*
  * allocate an MVEFILE
  */
-MVEFILE::MVEFILE() :
-	stream(nullptr),
-	next_segment(0)
+MVEFILE::MVEFILE()
 {
 }
 
@@ -371,11 +369,8 @@ static uint16_t _mve_get_ushort(const unsigned char *data)
 /*
  * allocate an MVESTREAM
  */
-MVESTREAM::MVESTREAM() :
+MVESTREAM::MVESTREAM()
     /* allocate and zero-initialize everything */
-	movie(nullptr),
-	context(0),
-	handlers{}
 {
 }
 

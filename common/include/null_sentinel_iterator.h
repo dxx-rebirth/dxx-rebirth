@@ -5,13 +5,10 @@
 template <typename I>
 class null_sentinel_iterator : public std::iterator<std::forward_iterator_tag, I>
 {
-	I *p;
+	I *p = nullptr;
 public:
-	null_sentinel_iterator() :
-		p(nullptr)
-	{
-	}
-	null_sentinel_iterator(I *i) :
+	null_sentinel_iterator() = default;
+	null_sentinel_iterator(I *const i) :
 		p(i)
 	{
 	}

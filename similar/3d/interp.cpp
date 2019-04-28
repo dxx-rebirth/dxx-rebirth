@@ -190,11 +190,7 @@ class g3_poly_get_color_state :
 	public interpreter_base
 {
 public:
-	int color;
-	g3_poly_get_color_state() :
-		color(0)
-	{
-	}
+	int color = 0;
 	void op_flatpoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
 		if (nv > MAX_POINTS_PER_POLY)
@@ -302,12 +298,11 @@ class g3_draw_polygon_model_state :
 	g3_interpreter_draw_base
 {
 	const glow_values_t *const glow_values;
-	unsigned glow_num;
+	unsigned glow_num = ~0u;		//glow off by default
 public:
 	g3_draw_polygon_model_state(grs_bitmap *const *const mbitmaps, polygon_model_points &plist, grs_canvas &ccanvas, const submodel_angles aangles, const g3s_lrgb &mlight, const glow_values_t *const glvalues) :
 		g3_interpreter_draw_base(mbitmaps, plist, ccanvas, aangles, mlight),
-		glow_values(glvalues),
-		glow_num(~0u)		//glow off by default
+		glow_values(glvalues)
 	{
 	}
 	void op_defpoints(const uint8_t *const p, const uint_fast32_t n)

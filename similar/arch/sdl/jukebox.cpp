@@ -40,14 +40,10 @@ struct m3u_bytes
 	using range_type = partial_range_t<char *>;
 	using ptr_range_type = partial_range_t<char **>;
 	using alloc_type = std::unique_ptr<char *[]>;
-	range_type range;
-	ptr_range_type ptr_range;
+	range_type range = {nullptr, nullptr};
+	ptr_range_type ptr_range = {nullptr, nullptr};
 	alloc_type alloc;
-	m3u_bytes() :
-		range(nullptr, nullptr),
-		ptr_range(nullptr, nullptr)
-	{
-	}
+	m3u_bytes() = default;
 	m3u_bytes(m3u_bytes &&) = default;
 	m3u_bytes(range_type &&r, ptr_range_type &&p, alloc_type &&b) :
 		range(std::move(r)),

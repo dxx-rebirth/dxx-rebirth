@@ -165,17 +165,13 @@ namespace dcx {
 class RAIIdigi_sound
 {
 	static constexpr auto invalid_channel = std::integral_constant<int, -1>{};
-	int channel;
+	int channel = invalid_channel;
 	static void stop(int channel)
 	{
 		if (channel != invalid_channel)
 			digi_stop_sound(channel);
 	}
 public:
-	RAIIdigi_sound() :
-		channel(invalid_channel)
-	{
-	}
 	~RAIIdigi_sound()
 	{
 		stop(channel);
