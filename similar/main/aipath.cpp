@@ -297,6 +297,7 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 	array<seg_seg, MAX_SEGMENTS> seg_queue;
 	int		cur_depth;
 	array<uint8_t, MAX_SIDES_PER_SEGMENT> random_xlate;
+	DXX_POISON_VAR(random_xlate, 0xcc);
 	point_seg_array_t::iterator	original_psegs = psegs;
 	unsigned l_num_points = 0;
 
@@ -310,9 +311,6 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 	// Int3();
 }
 
-//	for (i=0; i<=Highest_segment_index; i++) {
-//		depth[i] = 0;
-//	}
 	visited_segment_bitarray_t visited;
 	array<uint16_t, MAX_SEGMENTS> depth{};
 
@@ -321,7 +319,6 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 		Assert(avoid_seg <= Highest_segment_index);
 		if ((start_seg != avoid_seg) && (end_seg != avoid_seg)) {
 			visited[avoid_seg] = true;
-			depth[avoid_seg] = 0;
 		}
 	}
 
@@ -348,14 +345,18 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 			const unsigned snum = (random_flag != create_path_random_flag::nonrandom) ? random_xlate[sidenum] : sidenum;
 
+			if (!IS_CHILD(segp->children[snum]))
+				continue;
 #if defined(DXX_BUILD_DESCENT_I)
-			if ((WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, segp, snum)))
+#define AI_DOOR_OPENABLE_PLAYER_FLAGS
 #elif defined(DXX_BUILD_DESCENT_II)
+#define AI_DOOR_OPENABLE_PLAYER_FLAGS	player_info.powerup_flags,
 			auto &player_info = get_local_plrobj().ctype.player_info;
-			if (IS_CHILD(segp->children[snum]) && ((WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, player_info.powerup_flags, segp, snum))))
 #endif
+			if ((WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, snum) & WID_FLY_FLAG) || ai_door_is_openable(objp, AI_DOOR_OPENABLE_PLAYER_FLAGS segp, snum))
+#undef AI_DOOR_OPENABLE_PLAYER_FLAGS
 			{
-				auto this_seg = segp->children[snum];
+				const auto this_seg = segp->children[snum];
 #if defined(DXX_BUILD_DESCENT_II)
 				Assert(this_seg != segment_none);
 				if (((cur_seg == avoid_seg) || (this_seg == avoid_seg)) && (ConsoleObject->segnum == avoid_seg)) {
