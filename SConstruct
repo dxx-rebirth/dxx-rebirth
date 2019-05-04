@@ -2583,33 +2583,46 @@ where the cast is useless.
 	(void)ts;
 	return 0;
 ''', msg='for struct timespec', successflags=_successflags)
+
 	@_implicit_test
 	def check_warn_implicit_fallthrough(self,context,text,main,testflags,_successflags={'CXXFLAGS' : ['-Wimplicit-fallthrough=5']}):
 		self.Compile(context, text=text, main=main, msg='for -Wimplicit-fallthrough=5', testflags=testflags, successflags=_successflags)
+
+	@_implicit_test
+	def check_no_warn_implicit_fallthrough(self,context,_successflags={'CXXFLAGS' : ['-Wno-implicit-fallthrough']}):
+		self.Compile(context, text='', main='', msg='for -Wno-implicit-fallthrough', successflags=_successflags)
+
 	@_custom_test
 	def check_boost_config(self,context,_successflags={'CPPDEFINES' : [('DXX_BOOST_FALLTHROUGH', 'BOOST_FALLTHROUGH')]}):
 		text ='''
 #include <boost/config.hpp>
 '''
 		main = '''
+	int a = 1;
 	switch (argc) {
 		case 1:
+			++ a;
 			DXX_BOOST_FALLTHROUGH;
 		case 2:
+			++ a;
 			break;
 	}
+	(void)a;
 '''
 		sconf = context.sconf
 		if not self.Compile(context, text=text, main=main, msg='for Boost.Config', successflags=_successflags):
 			sconf.Define('DXX_BOOST_FALLTHROUGH', '((void)0)')
+			self.check_no_warn_implicit_fallthrough(context)
 			return
 		else:
 			sconf.config_h_text += '''
 #ifndef DXX_SCONF_NO_INCLUDES
+/* For BOOST_FALLTHROUGH */
 #include <boost/config.hpp>
 #endif
 '''
 		self.check_warn_implicit_fallthrough(context, text, main, testflags=_successflags)
+
 	__preferred_compiler_options = (
 		'-fvisibility=hidden',
 		'-Wduplicated-branches',
