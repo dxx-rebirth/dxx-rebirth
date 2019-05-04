@@ -81,7 +81,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "segiter.h"
-#include "partial_range.h"
+#include "d_enumerate.h"
+#include "d_range.h"
 
 using std::min;
 
@@ -1864,9 +1865,9 @@ int ai_door_is_openable(
 //	Return side of openable door in segment, if any.  If none, return side_none.
 static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_segment &segp)
 {
-	int	i;
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		const auto wall_num = segp.sides[i].wall_num;
+	range_for (const auto &&es, enumerate(segp.sides))
+	{
+		const auto wall_num = es.value.wall_num;
 		if (wall_num != wall_none)
 		{
 			auto &w = *vcwallptr(wall_num);
@@ -1882,7 +1883,7 @@ static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_se
 			if (WallAnims[w.clip_num].flags & WCF_HIDDEN)
 				continue;
 #endif
-			return i;
+			return es.idx;
 		}
 	}
 	return side_none;
@@ -2108,16 +2109,17 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 		visited_segment_bitarray_t visited;
 
 		while (tail != head) {
-			int		sidenum;
 			auto &segp = *vmsegptr(seg_queue[tail++]);
 
 			tail &= QUEUE_SIZE-1;
 
-			for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
+			range_for (const auto &&es, enumerate(segp.children))
+			{
+				const uint_fast32_t sidenum = es.idx;
 				const auto w = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum);
 				if ((w & WID_FLY_FLAG) || one_wall_hack)
 				{
-					const auto csegnum = segp.children[sidenum];
+					const auto csegnum = es.value;
 #if defined(DXX_BUILD_DESCENT_II)
 					//	If we get here and w == WID_WALL, then we want to process through this wall, else not.
 					if (IS_CHILD(csegnum)) {
@@ -2150,7 +2152,6 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 							if (a.size() >= a.max_size())
 							{
 								tail = head;
-								sidenum=MAX_SIDES_PER_SEGMENT;
 								break;
 							}
 						}

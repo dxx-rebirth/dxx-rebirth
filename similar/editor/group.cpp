@@ -46,6 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medwall.h"
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 #include "d_range.h"
 #include "partial_range.h"
 #include "segiter.h"
@@ -532,7 +533,6 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	auto &vmobjptridx = Objects.vmptridx;
 	int 			x;
 	int			new_current_group;
-	int 			c;
 
 	if (IS_CHILD(base_seg->children[base_side])) {
 		editor_status("Error -- unable to copy group, base_seg:base_side must be free.");
@@ -601,11 +601,13 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	range_for(const auto &gs, GroupList[new_current_group].segments)
 	{
 		const auto &&segp = base_seg.absolute_sibling(gs);
-		for (c=0; c < MAX_SIDES_PER_SEGMENT; c++) 
-			if (IS_CHILD(segp->children[c])) {
-				if (!in_group(segp->children[c], new_current_group)) {
-					segp->children[c] = segment_none;
-					validate_segment_side(vcvertptr, segp, c);					// we have converted a connection to a side so validate the segment
+		range_for (const auto &&es, enumerate(segp->children))
+			if (IS_CHILD(es.value))
+			{
+				if (!in_group(es.value, new_current_group))
+				{
+					es.value = segment_none;
+					validate_segment_side(vcvertptr, segp, es.idx);					// we have converted a connection to a side so validate the segment
 				}
 			}
 	}
@@ -669,8 +671,6 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	int			c, d;
-
 	if (IS_CHILD(base_seg->children[base_side]))
 		if (base_seg->children[base_side] != group_seg) {
 			editor_status("Error -- unable to move group, base_seg:base_side must be free or point to group_seg.");
@@ -735,24 +735,24 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	range_for(const auto &gs, GroupList[current_group].segments)
 		{
 		const auto &&segp = base_seg.absolute_sibling(gs);
-		for (c=0; c < MAX_SIDES_PER_SEGMENT; c++) 
-			if (IS_CHILD(segp->children[c]))
+		range_for (const auto &&es0, enumerate(segp->children))
+			if (IS_CHILD(es0.value))
 				{
-				const auto &&csegp = base_seg.absolute_sibling(segp->children[c]);
+				const auto &&csegp = base_seg.absolute_sibling(es0.value);
 				if (csegp->group != current_group)
 					{
-					for (d=0; d<MAX_SIDES_PER_SEGMENT; d++)
-						if (IS_CHILD(csegp->children[d]))
+					range_for (const auto &&es1, enumerate(csegp->children))
+						if (IS_CHILD(es1.value))
 							{
-							auto &dsegp = *vmsegptr(csegp->children[d]);
+							auto &dsegp = *vmsegptr(es1.value);
 							if (dsegp.group == current_group)
 								{
-								csegp->children[d] = segment_none;
-								validate_segment_side(vcvertptr, csegp, d);					// we have converted a connection to a side so validate the segment
+								es1.value = segment_none;
+								validate_segment_side(vcvertptr, csegp, es1.idx);					// we have converted a connection to a side so validate the segment
 								}
 							}
-					segp->children[c] = segment_none;
-					validate_segment_side(vcvertptr, segp, c);					// we have converted a connection to a side so validate the segment
+					es0.value = segment_none;
+					validate_segment_side(vcvertptr, segp, es0.idx);					// we have converted a connection to a side so validate the segment
 					}
 				}
 		}

@@ -1072,13 +1072,12 @@ static int get_index_of_best_fit(const vcsegptr_t seg1, int side1, const vcsegpt
 //	vp contains absolute vertex indices.
 static void remap_side_uvs(const vmsegptridx_t sp, const array<int, 4> &vp)
 {
-	int	s;
-
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-		range_for (auto &v, Side_to_verts[s])
+	range_for (const auto &&es, enumerate(Side_to_verts))
+	{
+		range_for (const auto v, es.value)
 			range_for (auto &i, vp) // scan each vertex in vp[4]
 				if (v == i) {
-					assign_default_uvs_to_side(sp,s);					// Side s needs to be remapped
+					assign_default_uvs_to_side(sp, es.idx);					// Side s needs to be remapped
 					goto next_side;
 				}
 next_side: ;
@@ -1498,7 +1497,6 @@ void warn_if_concave_segment(const vmsegptridx_t s)
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
 int med_find_adjacent_segment_side(const vmsegptridx_t sp, int side, imsegptridx_t &adj_sp, int *adj_side)
 {
-	int			s;
 	array<int, 4> abs_verts;
 
 	//	Stuff abs_verts[4] array with absolute vertex indices
@@ -1521,8 +1519,9 @@ int med_find_adjacent_segment_side(const vmsegptridx_t sp, int side, imsegptridx
 
 			//	All four vertices in sp:side are present in segment seg.
 			//	Determine side and return
-			for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-				range_for (auto &v, Side_to_verts[s])
+			range_for (const auto &&es, enumerate(Side_to_verts))
+			{
+				range_for (const auto v, es.value)
 				{
 					range_for (auto &vv, abs_verts)
 					{
@@ -1534,7 +1533,7 @@ int med_find_adjacent_segment_side(const vmsegptridx_t sp, int side, imsegptridx
 				}
 				// Found all four vertices in current side.  We are done!
 				adj_sp = segp;
-				*adj_side = s;
+				*adj_side = es.idx;
 				return 1;
 			fass_next_side: ;
 			}
@@ -1556,7 +1555,6 @@ int med_find_adjacent_segment_side(const vmsegptridx_t sp, int side, imsegptridx
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
 int med_find_closest_threshold_segment_side(const vmsegptridx_t sp, int side, imsegptridx_t &adj_sp, int *adj_side, fix threshold)
 {
-	int			s;
 	fix			current_dist, closest_seg_dist;
 
 	if (IS_CHILD(sp->children[side]))
@@ -1572,13 +1570,15 @@ int med_find_closest_threshold_segment_side(const vmsegptridx_t sp, int side, im
 	range_for (const auto &&segp, vmsegptridx)
 	{
 		if (segp != sp) 
-			for (s=0;s<MAX_SIDES_PER_SEGMENT;s++) {
-				if (!IS_CHILD(segp->children[s])) {
-					const auto &&vtc = compute_center_point_on_side(vcvertptr, segp, s);
+			range_for (const auto &&es, enumerate(segp->children))
+			{
+				if (!IS_CHILD(es.value))
+				{
+					const auto &&vtc = compute_center_point_on_side(vcvertptr, segp, es.idx);
 					current_dist = vm_vec_dist( vsc, vtc );
 					if (current_dist < closest_seg_dist) {
 						adj_sp = segp;
-						*adj_side = s;
+						*adj_side = es.idx;
 						closest_seg_dist = current_dist;
 					}
 				}

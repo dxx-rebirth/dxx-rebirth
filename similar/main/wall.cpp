@@ -34,7 +34,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_enumerate.h"
 #include "d_range.h"
 #include "compiler-range_for.h"
-#include "partial_range.h"
 #include "segiter.h"
 
 //	Special door on boss level which is locked if not in multiplayer...sorry for this awful solution --MK.

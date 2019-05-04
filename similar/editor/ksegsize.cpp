@@ -249,9 +249,8 @@ static int segsize_common(int dimension, fix amount)
 		const auto c = Cursegp->children[i];
 		if (IS_CHILD(c))
 		{
-			int	s;
-			for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-				propagated[s]++;
+			range_for (auto &s, propagated)
+				++s;
                         propagated[static_cast<int>(Side_opposite[i])]--;
 			med_propagate_tmaps_to_segments(vmsegptridx(c), Cursegp, 1);
 		}

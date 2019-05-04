@@ -48,7 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 
 #include "compiler-range_for.h"
-#include "partial_range.h"
+#include "d_enumerate.h"
 
 //	Length in segments of avoidance path
 #define	AVOID_SEG_LENGTH	7
@@ -291,7 +291,6 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 	auto &vmobjptr = Objects.vmptr;
 #endif
 	segnum_t		cur_seg;
-	int		sidenum;
 	int		qtail = 0, qhead = 0;
 	int		i;
 	array<seg_seg, MAX_SEGMENTS> seg_queue;
@@ -342,8 +341,9 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 				create_random_xlate(random_xlate);
 #endif
 
-		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
-			const unsigned snum = (random_flag != create_path_random_flag::nonrandom) ? random_xlate[sidenum] : sidenum;
+		range_for (const auto &&es, enumerate(random_xlate))
+		{
+			const unsigned snum = (random_flag != create_path_random_flag::nonrandom) ? es.value : es.idx;
 
 			if (!IS_CHILD(segp->children[snum]))
 				continue;
@@ -395,7 +395,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 #if defined(DXX_BUILD_DESCENT_II)
 dont_add: ;
 #endif
-		}	//	for (sidenum...
+		}
 
 		if (qtail <= 0)
 			break;

@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <bitset>
 #include <stdio.h>
+#include <cinttypes>
 #include <string.h>
 #include <stdarg.h>
 #include <errno.h>
@@ -65,6 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
+#include "d_range.h"
 #include "d_zip.h"
 #include "segiter.h"
 
@@ -207,7 +209,7 @@ static void warning_printf(PHYSFS_File *my_file, const char * format, ... )
 namespace dsx {
 static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptridx, PHYSFS_File *my_file)
 {
-	int	j, count;
+	int	count;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Exit stuff\n");
@@ -257,12 +259,14 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 	count = 0;
 	range_for (const auto &&segp, vcsegptridx)
 	{
-		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-			if (segp->children[j] == segment_exit)
+		range_for (const auto &&es, enumerate(segp->children))
+		{
+			if (es.value == segment_exit)
 			{
-				PHYSFSX_printf(my_file, "Segment %3hu, side %i is an exit door.\n", static_cast<uint16_t>(segp), j);
+				PHYSFSX_printf(my_file, "Segment %3hu, side %" PRIuFAST32 " is an exit door.\n", segp.get_unchecked_index(), es.idx);
 				count++;
 			}
+		}
 	}
 
 	if (count == 0)
@@ -531,7 +535,6 @@ static void write_matcen_text(PHYSFS_File *my_file)
 namespace dsx {
 static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptridx, PHYSFS_File *my_file)
 {
-	int	j;
 	array<int8_t, MAX_WALLS> wall_flags;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
@@ -564,12 +567,13 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 
 	range_for (const auto &&segp, vcsegptridx)
 	{
-		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
-			const auto sidep = &segp->shared_segment::sides[j];
+		range_for (const auto &&es, enumerate(segp->shared_segment::sides))
+		{
+			const auto sidep = &es.value;
 			if (sidep->wall_num != wall_none)
 			{
 				if (wall_flags[sidep->wall_num])
-					err_printf(my_file, "Error: Wall %hu appears in two or more segments, including segment %hu, side %i.", static_cast<int16_t>(sidep->wall_num), static_cast<segnum_t>(segp), j);
+					err_printf(my_file, "Error: Wall %hu appears in two or more segments, including segment %hu, side %" PRIuFAST32 ".", static_cast<int16_t>(sidep->wall_num), static_cast<segnum_t>(segp), es.idx);
 				else
 					wall_flags[sidep->wall_num] = 1;
 			}

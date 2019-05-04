@@ -607,18 +607,19 @@ void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned con_comm
 //	great confusion.
 static void get_side_ids(const vmsegptr_t base_seg, const vmsegptr_t con_seg, int base_side, int con_side, int abs_id1, int abs_id2, int *base_common_side, int *con_common_side)
 {
-	int		v0,side;
+	int		v0;
 
 	*base_common_side = -1;
 
 	//	Find side in base segment which contains the two global vertex ids.
-	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
-		if (side != base_side) {
-			auto &base_vp = Side_to_verts[side];
+	range_for (const auto &&es, enumerate(Side_to_verts))
+	{
+		if (es.idx != base_side) {
+			auto &base_vp = es.value;
 			for (v0=0; v0<4; v0++)
                                 if (((base_seg->verts[static_cast<int>(base_vp[v0])] == abs_id1) && (base_seg->verts[static_cast<int>(base_vp[(v0+1) % 4])] == abs_id2)) || ((base_seg->verts[static_cast<int>(base_vp[v0])] == abs_id2) && (base_seg->verts[static_cast<int>(base_vp[ (v0+1) % 4])] == abs_id1))) {
 					Assert(*base_common_side == -1);		// This means two different sides shared the same edge with base_side == impossible!
-					*base_common_side = side;
+					*base_common_side = es.idx;
 				}
 		}
 	}
@@ -627,13 +628,14 @@ static void get_side_ids(const vmsegptr_t base_seg, const vmsegptr_t con_seg, in
 	*con_common_side = -1;
 
 	//	Find side in connecting segment which contains the two global vertex ids.
-	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
-		if (side != con_side) {
-			auto &con_vp = Side_to_verts[side];
+	range_for (const auto &&es, enumerate(Side_to_verts))
+	{
+		if (es.idx != con_side) {
+			auto &con_vp = es.value;
 			for (v0=0; v0<4; v0++)
                                 if (((con_seg->verts[static_cast<int>(con_vp[(v0 + 1) % 4])] == abs_id1) && (con_seg->verts[static_cast<int>(con_vp[v0])] == abs_id2)) || ((con_seg->verts[static_cast<int>(con_vp[(v0 + 1) % 4])] == abs_id2) && (con_seg->verts[static_cast<int>(con_vp[v0])] == abs_id1))) {
 					Assert(*con_common_side == -1);		// This means two different sides shared the same edge with con_side == impossible!
-					*con_common_side = side;
+					*con_common_side = es.idx;
 				}
 		}
 	}
@@ -710,35 +712,40 @@ namespace dsx {
 void med_propagate_tmaps_to_back_side(const vmsegptridx_t base_seg, int back_side, int uv_only_flag)
 {
         int     v1=0,v2=0;
-	int	s,ss,tmap_num,back_side_tmap;
 
 	if (IS_CHILD(base_seg->children[back_side]))
 		return;		// connection, so no sides here.
 
 	//	Scan all sides, look for an occupied side which is not back_side or Side_opposite[back_side]
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+	range_for (const auto &&es, enumerate(Edge_between_sides))
+	{
+		const auto s = es.idx;
 		if ((s != back_side) && (s != Side_opposite[back_side])) {
-			v1 = Edge_between_sides[s][back_side][0];
-			v2 = Edge_between_sides[s][back_side][1];
+			auto &ebs = es.value;
+			v1 = ebs[back_side][0];
+			v2 = ebs[back_side][1];
+			propagate_tmaps_to_segment_side(base_seg, s, base_seg, back_side, base_seg->verts[v1], base_seg->verts[v2], uv_only_flag);
 			goto found1;
 		}
+	}
 	Assert(0);		// Error -- couldn't find edge != back_side and Side_opposite[back_side]
 found1: ;
 	Assert( (v1 != -1) && (v2 != -1));		// This means there was no shared edge between the two sides.
-
-	propagate_tmaps_to_segment_side(base_seg, s, base_seg, back_side, base_seg->verts[v1], base_seg->verts[v2], uv_only_flag);
 
 	//	Assign an unused tmap id to the back side.
 	//	Note that this can get undone by the caller if this was not part of a new attach, but a rotation or a scale (which
 	//	both do attaches).
 	//	First see if tmap on back side is anywhere else.
 	if (!uv_only_flag) {
-		back_side_tmap = base_seg->unique_segment::sides[back_side].tmap_num;
-		for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-			if (s != back_side)
-				if (base_seg->unique_segment::sides[s].tmap_num == back_side_tmap) {
-					for (tmap_num=0; tmap_num < MAX_SIDES_PER_SEGMENT; tmap_num++) {
-						for (ss=0; ss<MAX_SIDES_PER_SEGMENT; ss++)
+		const auto back_side_tmap = base_seg->unique_segment::sides[back_side].tmap_num;
+		range_for (const auto &&es, enumerate(base_seg->unique_segment::sides))
+		{
+			if (es.idx != back_side)
+				if (es.value.tmap_num == back_side_tmap)
+				{
+					range_for (const uint_fast32_t tmap_num, xrange(MAX_SIDES_PER_SEGMENT))
+					{
+						range_for (const uint_fast32_t ss, xrange(MAX_SIDES_PER_SEGMENT))
 							if (ss != back_side)
 								if (base_seg->unique_segment::sides[ss].tmap_num == New_segment.unique_segment::sides[tmap_num].tmap_num)
 									goto found2;		// current texture map (tmap_num) is used on current (ss) side, so try next one
@@ -771,11 +778,10 @@ static void fix_bogus_uvs_on_side1(const vmsegptridx_t sp, const unsigned sidenu
 
 static void fix_bogus_uvs_seg(const vmsegptridx_t segp)
 {
-	int	s;
-
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-		if (!IS_CHILD(segp->children[s]))
-			fix_bogus_uvs_on_side1(segp, s, 1);
+	range_for (const auto &&es, enumerate(segp->children))
+	{
+		if (!IS_CHILD(es.value))
+			fix_bogus_uvs_on_side1(segp, es.idx, 1);
 	}
 }
 
@@ -819,11 +825,9 @@ static void propagate_tmaps_to_segment_sides(const vmsegptridx_t base_seg, int b
 //	of interest.  Continue searching in this way until a wall of interest is present.
 void med_propagate_tmaps_to_segments(const vmsegptridx_t base_seg,const vmsegptridx_t con_seg, int uv_only_flag)
 {
-	int		s;
-
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		if (base_seg->children[s] == con_seg)
-			propagate_tmaps_to_segment_sides(base_seg, s, con_seg, find_connect_side(base_seg, con_seg), uv_only_flag);
+	range_for (const auto &&es, enumerate(base_seg->children))
+		if (es.value == con_seg)
+			propagate_tmaps_to_segment_sides(base_seg, es.idx, con_seg, find_connect_side(base_seg, con_seg), uv_only_flag);
 
 	con_seg->static_light = base_seg->static_light;
 
@@ -1133,17 +1137,17 @@ static void cast_light_from_side_to_center(const vmsegptridx_t segp, int light_s
 //	Process all lights.
 static void calim_process_all_lights(int quick_light)
 {
-	int	sidenum;
-
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 	range_for (const auto &&segp, vmsegptridx)
 	{
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
+		range_for (const auto &&es, enumerate(segp->unique_segment::sides))
+		{
+			const uint_fast32_t sidenum = es.idx;
 			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) != WID_NO_WALL)
 			{
-				const auto sidep = &segp->unique_segment::sides[sidenum];
+				const auto sidep = &es.value;
 				fix	light_intensity;
 
 				light_intensity = TmapInfo[sidep->tmap_num].lighting + TmapInfo[sidep->tmap_num2 & 0x3fff].lighting;
