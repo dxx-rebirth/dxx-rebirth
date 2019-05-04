@@ -210,7 +210,7 @@ static void check_weapon_reorder(array<ubyte, N> &w)
 	if (m != ((1 << N) | ((1 << (N - 1)) - 1)))
 	{
 		w[0] = 255;
-		for (uint_fast32_t i = 1; i != N; ++i)
+		range_for (const uint_fast32_t i, xrange(1u, N))
 			w[i] = i - 1;
 	}
 }
