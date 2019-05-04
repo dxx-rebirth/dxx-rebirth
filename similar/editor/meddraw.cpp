@@ -57,6 +57,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_range.h"
 #include "compiler-range_for.h"
 #include "segiter.h"
+#include "d_range.h"
+#include "d_zip.h"
 
 #if DXX_USE_OGL
 #include "ogl_init.h"
@@ -522,18 +524,20 @@ static void draw_mine_sub(const vmsegptridx_t segnum,int depth, visited_segment_
 	// If this segment is active, process it, else skip it.
 
 	if (mine_ptr->segnum != segment_none) {
-		int	side;
 
 		if (Search_mode) check_segment(mine_ptr);
 		else add_edges(mine_ptr);	//add this segments edges to list
 
 		if (depth != 0) {
-			for (side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
-				const auto child_segnum = mine_ptr->children[side];
+			const shared_segment &sseg = *mine_ptr;
+			range_for (const auto &&ez, enumerate(zip(sseg.children, sseg.sides)))
+			{
+				const auto child_segnum = std::get<0>(ez.value);
 				if (IS_CHILD(child_segnum))
 				{
-					if (mine_ptr->shared_segment::sides[side].wall_num != wall_none)
-						draw_special_wall(mine_ptr, side);
+					auto &sside = std::get<1>(ez.value);
+					if (sside.wall_num != wall_none)
+						draw_special_wall(mine_ptr, ez.idx);
 					draw_mine_sub(segnum.absolute_sibling(child_segnum), depth-1, visited);
 				}
 			}

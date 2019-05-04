@@ -51,7 +51,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "d_range.h"
-#include "partial_range.h"
+#include "d_enumerate.h"
+#include "d_zip.h"
 #include "segiter.h"
 
 int	Do_duplicate_vertex_check = 0;		// Gets set to 1 in med_create_duplicate_vertex, means to check for duplicate vertices in compress_mine
@@ -608,11 +609,11 @@ namespace dsx {
 //	Copy texture map ids for each face in sseg to dseg.
 static void copy_tmap_ids(unique_segment &dseg, const unique_segment &sseg)
 {
-	int	s;
-
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-		dseg.sides[s].tmap_num = sseg.sides[s].tmap_num;
-		dseg.sides[s].tmap_num2 = 0;
+	range_for (const auto &&z, zip(sseg.sides, dseg.sides))
+	{
+		auto &ds = std::get<1>(z);
+		ds.tmap_num = std::get<0>(z).tmap_num;
+		ds.tmap_num2 = 0;
 	}
 }
 
@@ -922,14 +923,21 @@ int med_delete_segment(const vmsegptridx_t sp)
 
 // ------------------------------------------------------------------------------------------
 //	Copy texture maps from sseg to dseg
-static void copy_tmaps_to_segment(const vmsegptr_t dseg, const vcsegptr_t sseg)
+static void copy_tmaps_to_segment(segment &dstseg, const segment &srcseg)
 {
-	int	s;
-
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-		dseg->shared_segment::sides[s].set_type(sseg->shared_segment::sides[s].get_type());
-		dseg->unique_segment::sides[s].tmap_num = sseg->unique_segment::sides[s].tmap_num;
-		dseg->unique_segment::sides[s].tmap_num2 = sseg->unique_segment::sides[s].tmap_num2;
+	shared_segment &shared_dst_seg = dstseg;
+	unique_segment &unique_dst_seg = dstseg;
+	const shared_segment &shared_src_seg = srcseg;
+	const unique_segment &unique_src_seg = srcseg;
+	range_for (const auto &&z, zip(shared_src_seg.sides, shared_dst_seg.sides, unique_src_seg.sides, unique_dst_seg.sides))
+	{
+		auto &shared_src_side = std::get<0>(z);
+		auto &shared_dst_side = std::get<1>(z);
+		auto &unique_src_side = std::get<2>(z);
+		auto &unique_dst_side = std::get<3>(z);
+		shared_dst_side.set_type(shared_src_side.get_type());
+		unique_dst_side.tmap_num = unique_src_side.tmap_num;
+		unique_dst_side.tmap_num2 = unique_src_side.tmap_num2;
 	}
 
 }
@@ -947,16 +955,16 @@ static void copy_tmaps_to_segment(const vmsegptr_t dseg, const vcsegptr_t sseg)
 //	 3 = Unable to rotate because not connected to exactly 1 segment.
 int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 {
-        int             newside=0,destside,s;
+	int             newside=0,destside;
 	int		count;
-	int		side_tmaps[MAX_SIDES_PER_SEGMENT];
 
 	// Find side of attachment
 	count = 0;
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		if (IS_CHILD(seg->children[s])) {
+	range_for (const auto &&es, enumerate(seg->children))
+		if (IS_CHILD(es.value))
+		{
 			count++;
-			newside = s;
+			newside = es.idx;
 		}
 
 	// Return if passed in segment is connected to other than 1 segment.
@@ -979,17 +987,24 @@ int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 
 	//	Save tmap_num on each side to restore after call to med_propagate_tmaps_to_segments and _back_side
 	//	which will change the tmap nums.
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		side_tmaps[s] = seg->unique_segment::sides[s].tmap_num;
+	array<int16_t, MAX_SIDES_PER_SEGMENT> side_tmaps;
+	range_for (const auto &&z, zip(side_tmaps, seg->unique_segment::sides))
+	{
+		const unique_side &us = std::get<1>(z);
+		std::get<0>(z) = us.tmap_num;
+	}
 
 	auto back_side = Side_opposite[find_connect_side(destseg, seg)];
 
 	med_propagate_tmaps_to_segments(destseg, seg,0);
 	med_propagate_tmaps_to_back_side(seg, back_side,0);
 
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		if (s != back_side)
-			seg->unique_segment::sides[s].tmap_num = side_tmaps[s];
+	range_for (const auto &&ez, enumerate(zip(side_tmaps, seg->unique_segment::sides)))
+		if (ez.idx != back_side)
+		{
+			unique_side &us = std::get<1>(ez.value);
+			us.tmap_num = std::get<0>(ez.value);
+		}
 
 	return	0;
 }
@@ -1164,20 +1179,21 @@ int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2
 //	Note that no new vertices are created by this process.
 int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2, int side2)
 {
-	int			v,bfi,i;
+	int			v,bfi;
 
 	if (IS_CHILD(seg1->children[side1]) || IS_CHILD(seg2->children[side2]))
 		return 1;
 
 	const auto &&bs = seg1.absolute_sibling(get_free_segment_number(Segments));
-	bs->segnum = bs;
+	shared_segment &sbs = *bs;
+	sbs.segnum = bs;
 	bs->objects = object_none;
 
 	// Copy vertices from seg2 into last 4 vertices of bridge segment.
 	{
 	auto &sv = Side_to_verts[side2];
 	for (v=0; v<4; v++)
-                bs->verts[(3-v)+4] = seg2->verts[static_cast<int>(sv[v])];
+		sbs.verts[(3-v)+4] = seg2->verts[static_cast<int>(sv[v])];
 	}
 
 	// Copy vertices from seg1 into first 4 vertices of bridge segment.
@@ -1190,9 +1206,10 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptri
 	}
 
 	// Form connections to children, first initialize all to unconnected.
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		bs->children[i] = segment_none;
-		bs->shared_segment::sides[i].wall_num = wall_none;
+	range_for (const auto &&z, zip(sbs.children, sbs.sides))
+	{
+		std::get<0>(z) = segment_none;
+		std::get<1>(z).wall_num = wall_none;
 	}
 
 	// Now form connections between segments.
@@ -1299,7 +1316,7 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 //	Create New_segment using a specified scale factor.
 void med_create_new_segment(const vms_vector &scale)
 {
-	int			s,t;
+	int			t;
 	const auto &&sp = vmsegptridx(&New_segment);
 	fix			length,width,height;
 
@@ -1326,13 +1343,16 @@ void med_create_new_segment(const vms_vector &scale)
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	// Form connections to children, of which it has none, init faces and tmaps.
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-		sp->children[s] = segment_none;
-//		sp->sides[s].render_flag = 0;
-		sp->shared_segment::sides[s].wall_num = wall_none;
+	range_for (const auto &&ez, enumerate(zip(sp->children, sp->shared_segment::sides, sp->unique_segment::sides)))
+	{
+		const auto s = ez.idx;
+		std::get<0>(ez.value) = segment_none;
+		shared_side &ss = std::get<1>(ez.value);
+		unique_side &us = std::get<2>(ez.value);
+		ss.wall_num = wall_none;
 		create_walls_on_side(vcvertptr, sp, s);
-		sp->unique_segment::sides[s].tmap_num = s;					// assign some stupid old tmap to this side.
-		sp->unique_segment::sides[s].tmap_num2 = 0;
+		us.tmap_num = s + 1;					// assign some stupid old tmap to this side.
+		us.tmap_num2 = 0;
 	}
 
 	Seg_orientation = {};

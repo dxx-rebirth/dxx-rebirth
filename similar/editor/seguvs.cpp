@@ -43,6 +43,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "seguvs.h"
 
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
+#include "d_range.h"
+#include "d_zip.h"
 
 namespace dcx {
 static void cast_all_light_in_mine(int quick_flag);
@@ -56,7 +59,6 @@ static void cast_all_light_in_mine(int quick_flag);
 //	segs = output array for segments containing vertex, terminated by -1.
 static fix get_average_light_at_vertex(int vnum, segnum_t *segs)
 {
-	int	sidenum;
 	fix	total_light;
 	int	num_occurrences;
 //	#ifndef NDEBUG //Removed this ifdef because the version of Assert that I used to get it to compile doesn't work without this symbol. -KRB
@@ -79,10 +81,11 @@ static fix get_average_light_at_vertex(int vnum, segnum_t *segs)
 			Assert(segs - original_segs < MAX_LIGHT_SEGS);
 			(void)original_segs;
 
-			for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
-				if (!IS_CHILD(segp->children[sidenum])) {
-					auto &uside = segp->unique_segment::sides[sidenum];
-					auto &vp = Side_to_verts[sidenum];
+			range_for (const auto &&z, zip(segp->children, segp->unique_segment::sides, Side_to_verts))
+			{
+				if (!IS_CHILD(std::get<0>(z))) {
+					auto &uside = std::get<1>(z);
+					auto &vp = std::get<2>(z);
 					const auto vb = begin(vp);
 					const auto ve = end(vp);
 					const auto vi = std::find(vb, ve, relvnum);
@@ -108,7 +111,7 @@ static fix get_average_light_at_vertex(int vnum, segnum_t *segs)
 
 static void set_average_light_at_vertex(int vnum)
 {
-	int	relvnum, sidenum;
+	int	relvnum;
 	segnum_t	Segment_indices[MAX_LIGHT_SEGS];
 	int	segind;
 
@@ -131,10 +134,11 @@ static void set_average_light_at_vertex(int vnum)
 				break;
 
 		if (relvnum < MAX_VERTICES_PER_SEGMENT) {
-			for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
-				if (!IS_CHILD(ssegp.children[sidenum])) {
-					auto &sidep = usegp.sides[sidenum];
-					auto &vp = Side_to_verts[sidenum];
+			range_for (const auto &&z, zip(ssegp.children, usegp.sides, Side_to_verts))
+			{
+				if (!IS_CHILD(std::get<0>(z))) {
+					unique_side &sidep = std::get<1>(z);
+					auto &vp = std::get<2>(z);
 					const auto vb = begin(vp);
 					const auto ve = end(vp);
 					const auto vi = std::find(vb, ve, relvnum);
@@ -444,9 +448,8 @@ void stretch_uvs_from_curedge(const vmsegptridx_t segp, int side)
 //	Assign default uvs to a segment.
 void assign_default_uvs_to_segment(const vmsegptridx_t segp)
 {
-	int	s;
-
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
+	range_for (const uint_fast32_t s, xrange(MAX_SIDES_PER_SEGMENT))
+	{
 		assign_default_uvs_to_side(segp,s);
 		assign_light_to_side(segp, s);
 	}
@@ -834,11 +837,12 @@ void med_propagate_tmaps_to_segments(const vmsegptridx_t base_seg,const vmsegptr
 //	then assign uvs according to side vertex id, not face vertex id.
 void copy_uvs_seg_to_seg(unique_segment &destseg, const unique_segment &srcseg)
 {
-	int	s;
-
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-		destseg.sides[s].tmap_num = srcseg.sides[s].tmap_num;
-		destseg.sides[s].tmap_num2 = srcseg.sides[s].tmap_num2;
+	range_for (const auto &&z, zip(destseg.sides, srcseg.sides))
+	{
+		auto &ds = std::get<0>(z);
+		auto &ss = std::get<1>(z);
+		ds.tmap_num = ss.tmap_num;
+		ds.tmap_num2 = ss.tmap_num2;
 	}
 
 	destseg.static_light = srcseg.static_light;
@@ -888,7 +892,7 @@ static int Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 //	If quick_light set, then don't use find_vector_intersection
 static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
-	int			sidenum,vertnum;
+	int			vertnum;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
@@ -924,11 +928,13 @@ static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix l
 			dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 
 			if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
-				for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
+				range_for (const auto &&ez, enumerate(zip(rsegp->shared_segment::sides, rsegp->unique_segment::sides)))
+				{
+					const uint_fast32_t sidenum = ez.idx;
 					if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, rsegp, rsegp, sidenum) != WID_NO_WALL)
 					{
-						auto &srside = rsegp->shared_segment::sides[sidenum];
-						auto &urside = rsegp->unique_segment::sides[sidenum];
+						auto &srside = std::get<0>(ez.value);
+						auto &urside = std::get<1>(ez.value);
 						auto &side_normalp = srside.normals[0];	//	kinda stupid? always use vector 0.
 
 						for (vertnum=0; vertnum<4; vertnum++) {

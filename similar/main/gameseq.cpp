@@ -116,6 +116,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
 #include "partial_range.h"
+#include "d_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #include "custom.h"
@@ -762,8 +763,6 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	int sidenum;
-
 	digi_init_sounds();		//clear old sounds
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
@@ -789,7 +788,8 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 
 	range_for (const auto &&seg, vcsegptridx)
 	{
-		for (sidenum=0;sidenum<MAX_SIDES_PER_SEGMENT;sidenum++) {
+		range_for (const uint_fast32_t sidenum, xrange(MAX_SIDES_PER_SEGMENT))
+		{
 			int sn;
 
 #if defined(DXX_BUILD_DESCENT_II)

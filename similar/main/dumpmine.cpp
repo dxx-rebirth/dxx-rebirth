@@ -64,7 +64,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 
 #include "compiler-range_for.h"
-#include "partial_range.h"
+#include "d_enumerate.h"
+#include "d_zip.h"
 #include "segiter.h"
 
 #if DXX_USE_EDITOR
@@ -762,7 +763,6 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 #endif
-	int	sidenum;
 	int	j;
 
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
@@ -774,10 +774,10 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 	}
 
 	range_for (const auto &&segp, vcsegptr)
-         {
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++)
-                 {
-			auto &sside = segp->shared_segment::sides[sidenum];
+	{
+		range_for (const auto &&z, zip(segp->shared_segment::sides, segp->unique_segment::sides))
+		{
+			auto &sside = std::get<0>(z);
 			if (sside.wall_num != wall_none)
 			{
 				const auto clip_num = Walls.vcptr(sside.wall_num)->clip_num;
@@ -798,7 +798,7 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 				}
 			}
 
-			auto &uside = segp->unique_segment::sides[sidenum];
+			auto &uside = std::get<1>(z);
 			if (uside.tmap_num >= 0)
                          {
 				if (uside.tmap_num < max_tmap)
@@ -863,9 +863,11 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 	//	Process walls and segment sides.
 	range_for (const auto &&segp, vmsegptr)
 	{
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-			auto &sside = segp->shared_segment::sides[sidenum];
-			auto &uside = segp->unique_segment::sides[sidenum];
+		range_for (const auto &&z, zip(segp->shared_segment::sides, segp->unique_segment::sides, segp->children))
+		{
+			auto &sside = std::get<0>(z);
+			auto &uside = std::get<1>(z);
+			const auto child = std::get<2>(z);
 			if (sside.wall_num != wall_none) {
 				const auto clip_num = Walls.vcptr(sside.wall_num)->clip_num;
 				if (clip_num != -1) {
@@ -882,7 +884,7 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 							level_tmap_buf[tmap_num] = level_num;
 					}
 				}
-			} else if (segp->children[sidenum] == segment_none) {
+			} else if (child == segment_none) {
 
 				if (uside.tmap_num >= 0)
 				{

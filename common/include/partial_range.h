@@ -67,6 +67,7 @@ template <typename I>
 class partial_range_t
 {
 public:
+	using range_owns_iterated_storage = std::false_type;
 	typedef I iterator;
 	/* When using the unminimized type, forward declare a structure.
 	 *

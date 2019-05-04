@@ -9,6 +9,7 @@
 #include <inttypes.h>
 #include "dxxsconf.h"
 #include "partial_range.h"
+#include "ephemeral_range.h"
 
 /*
  * This could have been done using a std::pair, but using a custom type
@@ -17,7 +18,7 @@
 template <typename range_value_type, typename index_type>
 struct enumerated_value
 {
-	range_value_type &value;
+	range_value_type value;
 	const index_type idx;
 };
 
@@ -33,7 +34,7 @@ public:
 	}
 	result_type operator*() const
 	{
-		return {*m_iter, m_idx};
+		return result_type{*m_iter, m_idx};
 	}
 	enumerated_iterator &operator++()
 	{
@@ -51,17 +52,20 @@ template <typename range_iterator_type, typename index_type>
 class enumerated_range : partial_range_t<range_iterator_type>
 {
 	using base_type = partial_range_t<range_iterator_type>;
-	using enumerated_iterator_type = enumerated_iterator<range_iterator_type, index_type, enumerated_value<decltype(*std::declval<range_iterator_type>()), index_type>>;
+	using iterator_dereference_type = decltype(*std::declval<range_iterator_type>());
+	using enumerated_iterator_type = enumerated_iterator<range_iterator_type, index_type, enumerated_value<iterator_dereference_type, index_type>>;
 	const index_type m_idx;
 public:
+	using range_owns_iterated_storage = std::false_type;
 	enumerated_range(const range_iterator_type b, const range_iterator_type e, const index_type i) :
 		base_type(b, e), m_idx(i)
 	{
 	}
 	template <typename range_type>
-		enumerated_range(range_type &t, const index_type i) :
+		enumerated_range(range_type &&t, const index_type i) :
 			base_type(t), m_idx(i)
 	{
+		static_assert(std::is_rvalue_reference<range_type &&>::value || std::is_lvalue_reference<iterator_dereference_type>::value, "lvalue range must produce lvalue reference enumerated_value");
 	}
 	enumerated_iterator_type begin() const
 	{
@@ -74,22 +78,8 @@ public:
 };
 
 template <typename range_type, typename index_type = uint_fast32_t, typename range_iterator_type = decltype(begin(std::declval<range_type &>()))>
-static enumerated_range<range_iterator_type, index_type> enumerate(range_type &r, const index_type start = 0)
+static auto enumerate(range_type &&r, const index_type start = 0)
 {
-	return enumerated_range<range_iterator_type, index_type>(r, start);
-}
-
-/*
- * As a special case, allow rvalue reference to
- * partial_range_t<range_iterator_type>, since partial_range_t does not
- * own the data over which it iterates, and so it does not need to
- * persist past the creation of the enumerated_range.
- *
- * This special case is legal for any temporary range which acts as a
- * view on a persistent sequence.
- */
-template <typename range_iterator_type, typename index_type = uint_fast32_t>
-static enumerated_range<range_iterator_type, index_type> enumerate(partial_range_t<range_iterator_type> &&r, const index_type start = 0)
-{
-	return enumerated_range<range_iterator_type, index_type>(r, start);
+	static_assert(!any_ephemeral_range<range_type &&>::value, "cannot enumerate storage of ephemeral ranges");
+	return enumerated_range<range_iterator_type, index_type>(std::forward<range_type>(r), start);
 }

@@ -1208,7 +1208,7 @@ static unsigned check_for_degenerate_segment(fvcvertptr &vcvertptr, const shared
 {
 	vms_vector	fvec, rvec, uvec;
 	fix			dot;
-	int			i, degeneracy_flag = 0;				// degeneracy flag for current segment
+	int			degeneracy_flag = 0;				// degeneracy flag for current segment
 
 	extract_forward_vector_from_segment(vcvertptr, sp, fvec);
 	extract_right_vector_from_segment(vcvertptr, sp, rvec);
@@ -1228,7 +1228,7 @@ static unsigned check_for_degenerate_segment(fvcvertptr &vcvertptr, const shared
 	}
 
 	//	Now, see if degenerate because of any side.
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
+	range_for (const uint_fast32_t i, xrange(MAX_SIDES_PER_SEGMENT))
 		degeneracy_flag |= check_for_degenerate_side(vcvertptr, sp, i);
 
 #if DXX_USE_EDITOR
