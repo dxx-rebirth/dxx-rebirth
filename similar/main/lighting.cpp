@@ -60,6 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include "d_range.h"
 
 using std::min;
 
@@ -179,7 +180,8 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 					}
 			}
 #endif
-			for (int vv=0; vv<n_render_vertices; vv++) {
+			range_for (const unsigned vv, xrange(n_render_vertices))
+			{
 				fix			dist;
 				int			apply_light = 0;
 
@@ -472,7 +474,7 @@ static g3s_lrgb compute_light_emission(const d_level_shared_robot_info_state &Le
 		if (t_idx_s != -1 && t_idx_e != -1)
 		{
 			obj_color.r = obj_color.g = obj_color.b = 0;
-			for (int i = t_idx_s; i <= t_idx_e; i++)
+			range_for (const int i, xrange(t_idx_s, t_idx_e + 1))
 			{
 				grs_bitmap *bm = &GameBitmaps[i];
 				bitmap_index bi;

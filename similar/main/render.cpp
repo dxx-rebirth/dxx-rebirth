@@ -68,6 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-integer_sequence.h"
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -145,15 +146,14 @@ int toggle_outline_mode(void)
 #if DXX_USE_OGL
 #define draw_outline(C,a,b)	draw_outline(a,b)
 #endif
-static void draw_outline(grs_canvas &canvas, const int nverts, cg3s_point *const *const pointlist)
+static void draw_outline(grs_canvas &canvas, const unsigned nverts, cg3s_point *const *const pointlist)
 {
-	int i;
-
 	const uint8_t color = BM_XRGB(63, 63, 63);
 
-	for (i=0;i<nverts-1;i++)
+	const unsigned e = nverts - 1;
+	range_for (const unsigned i, xrange(e))
 		g3_draw_line(canvas, *pointlist[i], *pointlist[i + 1], color);
-	g3_draw_line(canvas, *pointlist[i], *pointlist[0], color);
+	g3_draw_line(canvas, *pointlist[e], *pointlist[0], color);
 }
 #endif
 
@@ -229,7 +229,8 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 
 	Assert(nv <= pointlist.size());
 
-	for (uint_fast32_t i = 0; i < nv; i++) {
+	range_for (const uint_fast32_t i, xrange(nv))
+	{
 		pointlist[i] = &Segment_points[vp[i]];
 	}
 
@@ -294,7 +295,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 	const auto need_flashing_lights = (control_center_destroyed | seismic_tremor_magnitude);	//make lights flash
 	auto &Dynamic_light = LevelUniqueLightState.Dynamic_light;
 	//set light values for each vertex & build pointlist
-	for (uint_fast32_t i = 0;i < nv;i++)
+	range_for (const uint_fast32_t i, xrange(nv))
 	{
 		auto &dli = dyn_light[i];
 		auto &uvli = uvl_copy[i];
@@ -389,7 +390,8 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsign
 		else
 			bm = &GameBitmaps[Textures[tmap1].index];
 #endif
-		for (uint_fast32_t i = 0; i < nv; i++) {
+		range_for (const uint_fast32_t i, xrange(nv))
+		{
 			dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l;
 			pointlist[i] = &Segment_points[vp[i]];
 		}
@@ -753,8 +755,6 @@ static void project_list(const array<unsigned, 8> &pointnumlist)
 namespace dsx {
 static void render_segment(const vms_vector &Viewer_eye, grs_canvas &canvas, const vcsegptridx_t seg)
 {
-	int			sn;
-
 	if (!rotate_list(vcvertptr, seg->verts).uand)
 	{		//all off screen?
 
@@ -765,7 +765,7 @@ static void render_segment(const vms_vector &Viewer_eye, grs_canvas &canvas, con
 		Automap_visited[seg]=1;
 		}
 
-		for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
+		range_for (const uint_fast32_t sn, xrange(MAX_SIDES_PER_SEGMENT))
 			render_side(vcvertptr, canvas, seg, sn, WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sn), Viewer_eye);
 	}
 
@@ -1083,13 +1083,14 @@ namespace dsx {
 
 static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const vms_vector &Viewer_eye, render_state_t &rstate)
 {
-	int nn;
 	const auto viewer = Viewer;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	for (nn=0;nn < rstate.N_render_segs;nn++) {
+	const auto N_render_segs = rstate.N_render_segs;
+	range_for (const unsigned nn, xrange(N_render_segs))
+	{
 		const auto segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
 			range_for (const auto obj, objects_in(vcsegptr(segnum), Objects.vcptridx, vcsegptr))
@@ -1554,7 +1555,6 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 			// render segment
 			{
 				const auto &&seg = vcsegptridx(segnum);
-				int			sn;
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
 				if (!rotate_list(vcvertptr, seg->verts).uand)
 				{		//all off screen?
@@ -1562,7 +1562,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 					if (Viewer->type!=OBJ_ROBOT)
 						Automap_visited[segnum]=1;
 
-					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
+					range_for (const uint_fast32_t sn, xrange(MAX_SIDES_PER_SEGMENT))
 					{
 						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sn);
 						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
@@ -1604,7 +1604,6 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 			// render segment
 			{
 				const auto &&seg = vcsegptridx(segnum);
-				int			sn;
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
 				if (!rotate_list(vcvertptr, seg->verts).uand)
 				{		//all off screen?
@@ -1612,7 +1611,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 					if (Viewer->type!=OBJ_ROBOT)
 						Automap_visited[segnum]=1;
 
-					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
+					range_for (const uint_fast32_t sn, xrange(MAX_SIDES_PER_SEGMENT))
 					{
 						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sn);
 						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
