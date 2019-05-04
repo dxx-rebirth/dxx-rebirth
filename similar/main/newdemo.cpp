@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <errno.h>
 #include <ctype.h>
 #include <type_traits>
+#include "d_range.h"
 
 #include "u_mem.h"
 #include "inferno.h"
@@ -3702,8 +3703,9 @@ window_event_result newdemo_playback_one_frame()
 	else if (Newdemo_vcr_state == ND_STATE_FASTFORWARD) {
 		if (!nd_playback_v_at_eof)
 		{
-			for (int i = 0; i < 10; i++)
+			range_for (const auto i, xrange(10u))
 			{
+				(void)i;
 				if (newdemo_read_frame_information(0) == -1)
 				{
 					if (nd_playback_v_at_eof)

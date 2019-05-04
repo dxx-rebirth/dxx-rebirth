@@ -750,6 +750,7 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 		const auto &&buf = make_unique<uint8_t[]>(bm_w);
 		for (uint_fast32_t i = 0; i != bm_h; ++i)
 		{
+			(void)i;
 			const auto &&range = unchecked_partial_range(buf.get(), bm_w);
 			if (expander.step(bm_rle_expand_range(range.begin(), range.end())) != bm_rle_expand::again)
 				break;

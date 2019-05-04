@@ -145,7 +145,7 @@ static void gr_ubitmap012m(grs_canvas &canvas, const unsigned x, const unsigned 
 }
 #endif
 
-static void gr_ubitmapGENERIC(grs_canvas &canvas, unsigned x, unsigned y, const grs_bitmap &bm)
+static void gr_ubitmapGENERIC(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm)
 {
 	const uint_fast32_t bm_h = bm.bm_h;
 	const uint_fast32_t bm_w = bm.bm_w;
@@ -231,7 +231,7 @@ void gr_ubitmapm(grs_canvas &canvas, const unsigned x, const unsigned y, grs_bit
 }
 
 // From Linear to Linear
-static void gr_bm_ubitblt00(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest)
+static void gr_bm_ubitblt00(const unsigned w, const unsigned h, const unsigned dx, const unsigned dy, const unsigned sx, const unsigned sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	//int	src_bm_rowsize_2, dest_bm_rowsize_2;
 	auto sbits = &src.get_bitmap_data()[(src.bm_rowsize * sy) + sx];
@@ -248,7 +248,7 @@ static void gr_bm_ubitblt00(unsigned w, unsigned h, unsigned dx, unsigned dy, un
 }
 
 // From Linear to Linear Masked
-static void gr_bm_ubitblt00m(const unsigned w, const uint_fast32_t h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest)
+static void gr_bm_ubitblt00m(const unsigned w, const uint_fast32_t h, const unsigned dx, const unsigned dy, const unsigned sx, const unsigned sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	//int	src_bm_rowsize_2, dest_bm_rowsize_2;
 	auto sbits = &src.get_bitmap_data()[(src.bm_rowsize * sy) + sx];
@@ -411,14 +411,14 @@ void bm_rle_window::apply(const uint_fast32_t w, const uint_fast32_t h, const ui
 
 }
 
-static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
+static void gr_bm_ubitblt00_rle(const unsigned w, const unsigned h, const int dx, const int dy, const int sx, const int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	bm_rle_window bw(src);
 	bw.apply(sx + w - 1, h, sx, bw.init(dx, dy, sy, dest), dest.bm_rowsize, gr_rle_expand_scanline);
 }
 
 #if !DXX_USE_OGL
-static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
+static void gr_bm_ubitblt00m_rle(const unsigned w, const unsigned h, const int dx, const int dy, const int sx, const int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	bm_rle_window bw(src);
 	bw.apply(sx + w - 1, h, sx, bw.init(dx, dy, sy, dest), dest.bm_rowsize, gr_rle_expand_scanline_masked);
@@ -426,7 +426,7 @@ static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx,
 
 // in rle.c
 
-static void gr_bm_ubitblt0x_rle(grs_canvas &canvas, unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src)
+static void gr_bm_ubitblt0x_rle(grs_canvas &canvas, const unsigned w, const unsigned h, const int dx, const int dy, const int sx, const int sy, const grs_bitmap &src)
 {
 	bm_rle_window bw(src);
 	bw.skip_upper_rows(sy);
