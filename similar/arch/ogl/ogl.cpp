@@ -63,6 +63,7 @@
 #include "compiler-exchange.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 #include <algorithm>
@@ -1005,7 +1006,7 @@ void _g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const g3s_point *con
 		}
 		else
 		{
-			for (unsigned i = 0; i != nv; ++i)
+			range_for (const unsigned i, xrange(nv))
 			{
 				auto &e = ca[i];
 				auto &l = light_rgb[i];

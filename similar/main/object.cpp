@@ -81,6 +81,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 using std::min;
@@ -1885,7 +1886,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 			auto &vcvertptr = Vertices.vcptr;
 			if (const auto sidemask = get_seg_masks(vcvertptr, obj->pos, segp, obj->size).sidemask)
 			{
-				for (unsigned sidenum = 0; sidenum != MAX_SIDES_PER_SEGMENT; ++sidenum)
+				range_for (const unsigned sidenum, xrange(MAX_SIDES_PER_SEGMENT))
 				{
 					if (!(sidemask & (1 << sidenum)))
 						continue;

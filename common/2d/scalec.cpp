@@ -20,6 +20,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include "rle.h"
 #include "compiler-array.h"
+#include "compiler-range_for.h"
+#include "d_range.h"
 
 namespace dcx {
 
@@ -40,7 +42,7 @@ static void decode_row(const grs_bitmap &bmp, array<ubyte, 640> &scale_rle_data,
 {
 	int offset=4+bmp.bm_h;
 
-	for (uint_fast32_t i = 0; i != y; ++i)
+	range_for (const uint_fast32_t i, xrange(y))
 		offset += bmp.bm_data[4+i];
 	gr_rle_decode(&bmp.bm_data[offset], scale_rle_data.data(), rle_end(bmp, scale_rle_data));
 }

@@ -32,11 +32,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/medmisc.h"
 #include "gameseg.h"
 #include "kdefs.h"
+#include "compiler-range_for.h"
+#include "d_range.h"
 
 __attribute_warn_unused_result
 static vmsegptridx_t get_any_attached_segment(const vmsegptridx_t curseg_num, const uint_fast32_t skipside)
 {
-	for (uint_fast32_t s = 0; s != MAX_SIDES_PER_SEGMENT; ++s)
+	range_for (const uint_fast32_t s, xrange(MAX_SIDES_PER_SEGMENT))
 	{
 		if (unlikely(s == skipside))
 			continue;
@@ -84,7 +86,7 @@ static std::pair<vmsegptridx_t, uint_fast32_t> get_next_segment_side(const vmseg
 		const auto newside = Side_opposite[find_connect_side(curseg_num, newseg_num)];
 		// If there is nothing attached on the side opposite to what we came in (*newside), pick any other side
 		if (!IS_CHILD(newseg_num->children[newside]))
-			for (uint_fast32_t s = 0; s != MAX_SIDES_PER_SEGMENT; ++s)
+			range_for (const uint_fast32_t s, xrange(MAX_SIDES_PER_SEGMENT))
 			{
 				const auto cseg = newseg_num->children[s];
 				if (cseg != curseg_num && IS_CHILD(cseg))

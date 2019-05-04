@@ -38,6 +38,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-array.h"
 #include "compiler-exchange.h"
+#include "compiler-range_for.h"
+#include "d_range.h"
 
 namespace dcx {
 
@@ -149,9 +151,9 @@ static void gr_ubitmapGENERIC(grs_canvas &canvas, const unsigned x, const unsign
 {
 	const uint_fast32_t bm_h = bm.bm_h;
 	const uint_fast32_t bm_w = bm.bm_w;
-	for (uint_fast32_t y1 = 0; y1 != bm_h; ++y1)
+	range_for (const uint_fast32_t y1, xrange(bm_h))
 	{
-		for (uint_fast32_t x1 = 0; x1 != bm_w; ++x1)
+		range_for (const uint_fast32_t x1, xrange(bm_w))
 		{
 			const auto color = gr_gpixel(bm, x1, y1);
 			gr_upixel(canvas.cv_bitmap, x + x1, y + y1, color);
@@ -164,9 +166,9 @@ static void gr_ubitmapGENERICm(grs_canvas &canvas, const unsigned x, const unsig
 {
 	const uint_fast32_t bm_h = bm.bm_h;
 	const uint_fast32_t bm_w = bm.bm_w;
-	for (uint_fast32_t y1 = 0; y1 != bm_h; ++y1)
+	range_for (const uint_fast32_t y1, xrange(bm_h))
 	{
-		for (uint_fast32_t x1 = 0; x1 != bm_w; ++x1)
+		range_for (const uint_fast32_t x1, xrange(bm_w))
 		{
 			const auto c = gr_gpixel(bm,x1,y1);
 			if ( c != 255 )	{
@@ -284,8 +286,8 @@ void gr_bm_ubitblt(grs_canvas &canvas, const unsigned w, const unsigned h, const
 	 	return;
 	}
 
-	for (uint_fast32_t y1 = 0; y1 != h; ++y1)
-		for (uint_fast32_t x1 = 0; x1 != w; ++x1)
+	range_for (const uint_fast32_t y1, xrange(h))
+		range_for (const uint_fast32_t x1, xrange(w))
 			gr_bm_pixel(canvas, dest, dx + x1, dy + y1, gr_gpixel(src, sx + x1, sy + y1));
 }
 #endif
@@ -360,8 +362,8 @@ void gr_bm_ubitbltm(grs_canvas &canvas, const unsigned w, const unsigned h, cons
 	ubyte c;
 
 	auto &dest = canvas.cv_bitmap;
-	for (uint_fast32_t y1 = 0; y1 != h; ++y1)
-		for (uint_fast32_t x1 = 0; x1 != w; ++x1)
+	range_for (const uint_fast32_t y1, xrange(h))
+		range_for (const uint_fast32_t x1, xrange(w))
 			if ((c=gr_gpixel(src,sx+x1,sy+y1))!=255)
 				gr_bm_pixel(canvas, dest, dx + x1, dy + y1, c);
 }
@@ -430,7 +432,7 @@ static void gr_bm_ubitblt0x_rle(grs_canvas &canvas, const unsigned w, const unsi
 {
 	bm_rle_window bw(src);
 	bw.skip_upper_rows(sy);
-	for (uint_fast32_t y1 = 0; y1 != h; ++y1)
+	range_for (const uint_fast32_t y1, xrange(h))
 	{
 		const auto sbits = bw.src_bits;
 		gr_rle_expand_scanline_generic(canvas, canvas.cv_bitmap, dx, dy + y1, sbits, sx, sx + w-1);
@@ -539,14 +541,14 @@ void gr_bitblt_find_transparent_area(const grs_bitmap &bm, unsigned &minx, unsig
 			array<uint8_t, 4096> buf;
 			if (expander.step(bm_rle_expand_range(buf)) != bm_rle_expand::again)
 				break;
-			for (uint_fast32_t x = 0; x != bm_w; ++x)
+			range_for (const uint_fast32_t x, xrange(bm_w))
 				check(x, y, buf[x]);
 		}
 	}
 	else
 	{
-		for (uint_fast32_t y = 0; y != bm_h; ++y)
-			for (uint_fast32_t x = 0; x != bm_w; ++x)
+		range_for (const uint_fast32_t y, xrange(bm_h))
+			range_for (const uint_fast32_t x, xrange(bm_w))
 				check(x, y, bm.bm_data[i++]);
 	}
 	Assert (count);

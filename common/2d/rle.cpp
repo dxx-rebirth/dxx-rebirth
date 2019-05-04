@@ -38,6 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteutil.h"
 
 #include "compiler-range_for.h"
+#include "d_range.h"
 
 namespace dcx {
 
@@ -304,7 +305,7 @@ int gr_bitmap_rle_compress(grs_bitmap &bmp)
 
 	const uint_fast32_t bm_h = bmp.bm_h;
 	const uint_fast32_t bm_w = bmp.bm_w;
-	for (uint_fast32_t y = 0; y != bm_h; ++y)
+	range_for (const uint_fast32_t y, xrange(bm_h))
 	{
 		auto d1 = gr_rle_getsize(bm_w, &bmp.get_bitmap_data()[bm_w * y]);
 		if (d1 > 255) {
@@ -321,7 +322,7 @@ int gr_bitmap_rle_compress(grs_bitmap &bmp)
 	else
 		doffset = 4 + (2 * bm_h);		// each row of rle'd bitmap has short instead of byte offset now
 
-	for (uint_fast32_t y = 0; y != bm_h; ++y)
+	range_for (const uint_fast32_t y, xrange(bm_h))
 	{
 		auto d1 = gr_rle_getsize(bm_w, &bmp.get_bitmap_data()[bm_w * y]);
 		if ( ((doffset+d1) > bmp.bm_w*bmp.bm_h) || (d1 > (large_rle?32767:255) ) ) {

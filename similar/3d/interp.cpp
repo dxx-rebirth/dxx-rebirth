@@ -25,6 +25,9 @@
 #include "byteutil.h"
 #include "u_mem.h"
 
+#include "compiler-range_for.h"
+#include "d_range.h"
+
 namespace dcx {
 
 constexpr std::integral_constant<unsigned, 0> OP_EOF{};   //eof
@@ -354,7 +357,7 @@ public:
 		array<g3s_uvl, MAX_POINTS_PER_POLY> uvl_list;
 		array<g3s_lrgb, MAX_POINTS_PER_POLY> lrgb_list;
 		const fix average_light = (light.r + light.g + light.b) / 3;
-		for (uint_fast32_t i = 0; i != nv; i++)
+		range_for (const uint_fast32_t i, xrange(nv))
 		{
 			lrgb_list[i] = light;
 			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
@@ -422,7 +425,7 @@ public:
 		array<g3s_uvl, MAX_POINTS_PER_POLY> uvl_list;
 		array<g3s_lrgb, MAX_POINTS_PER_POLY> lrgb_list;
 		lrgb_list.fill(get_noglow_light(p));
-		for (uint_fast32_t i = 0; i != nv; i++)
+		range_for (const uint_fast32_t i, xrange(nv))
 			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
 		const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
 		g3_draw_tmap(canvas, nv, point_list, uvl_list, lrgb_list, *model_bitmaps[w(p + 28)]);
@@ -660,14 +663,14 @@ public:
 	static void op_defpoints(uint8_t *const p, const uint_fast32_t n)
 	{
 		*wp(p + 2) = n;
-		for (uint_fast32_t i = 0; i != n; ++i)
+		range_for (const uint_fast32_t i, xrange(n))
 			vms_vector_swap(*vp((p + 4) + (i * sizeof(vms_vector))));
 	}
 	static void op_defp_start(uint8_t *const p, const uint_fast32_t n)
 	{
 		*wp(p + 2) = n;
 		short_swap(wp(p + 4));
-		for (uint_fast32_t i = 0; i != n; ++i)
+		range_for (const uint_fast32_t i, xrange(n))
 			vms_vector_swap(*vp((p + 8) + (i * sizeof(vms_vector))));
 	}
 	static void op_flatpoly(uint8_t *const p, const uint_fast32_t n)
@@ -684,13 +687,13 @@ public:
 		*wp(p + 2) = n;
 		vms_vector_swap(*vp(p + 4));
 		vms_vector_swap(*vp(p + 16));
-		for (uint_fast32_t i = 0; i != n; ++i) {
+		range_for (const uint_fast32_t i, xrange(n)) {
 			const auto uvl_val = reinterpret_cast<g3s_uvl *>((p+30+((n&~1)+1)*2) + (i * sizeof(g3s_uvl)));
 			fix_swap(&uvl_val->u);
 			fix_swap(&uvl_val->v);
 		}
 		short_swap(wp(p+28));
-		for (uint_fast32_t i = 0; i != n; ++i)
+		range_for (const uint_fast32_t i, xrange(n))
 			short_swap(wp(p + 30 + (i * 2)));
 	}
 	void op_sortnorm(uint8_t *const p)

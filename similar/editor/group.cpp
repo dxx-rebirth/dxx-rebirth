@@ -46,6 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medwall.h"
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -808,7 +809,7 @@ static segnum_t place_new_segment_in_world(void)
 
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	for (unsigned v = 0; v != MAX_VERTICES_PER_SEGMENT; ++v)
+	range_for (const unsigned v, xrange(MAX_VERTICES_PER_SEGMENT))
 		seg.verts[v] = med_create_duplicate_vertex(vcvertptr(New_segment.verts[v]));
 
 	return segnum;

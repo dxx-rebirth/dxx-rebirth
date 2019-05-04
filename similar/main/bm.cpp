@@ -67,6 +67,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "compiler-make_unique.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
@@ -748,7 +749,7 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 	{
 		bm_rle_expand expander(*bm);
 		const auto &&buf = make_unique<uint8_t[]>(bm_w);
-		for (uint_fast32_t i = 0; i != bm_h; ++i)
+		range_for (const uint_fast32_t i, xrange(bm_h))
 		{
 			(void)i;
 			const auto &&range = unchecked_partial_range(buf.get(), bm_w);

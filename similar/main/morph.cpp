@@ -42,6 +42,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 using std::max;
@@ -354,7 +355,7 @@ static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, p
 	sort_n = 1;
 
 	const uint_fast32_t n_models = pm->n_models;
-	for (uint_fast32_t i = 0; i != n_models; ++i)
+	range_for (const uint_fast32_t i, xrange(n_models))
 		if (md->submodel_active[i] && pm->submodel_parents[i]==submodel_num) {
 			const auto facing = g3_check_normal_facing(pm->submodel_pnts[i],pm->submodel_norms[i]);
 			if (!facing)
