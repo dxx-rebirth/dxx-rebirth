@@ -1274,7 +1274,7 @@ static void get_verts_for_normal(verts_for_normal &r, const unsigned va, const u
 	v[2] = vc;
 	v[3] = vd;
 
-	for (unsigned i = 1; i != 4; ++i)
+	range_for (const unsigned i, xrange(1u, 4u))
 		for (unsigned j = 0; j != i; ++j)
 			if (v[j] > v[i]) {
 				using std::swap;
