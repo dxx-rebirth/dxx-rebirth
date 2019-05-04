@@ -27,6 +27,7 @@
 #include "compiler-cf_assert.h"
 #include "compiler-integer_sequence.h"
 #include "d_enumerate.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 namespace dcx {
@@ -221,7 +222,7 @@ window_event_result joy_hat_handler(SDL_JoyHatEvent *jhe)
 	static_assert((SDL_HAT_UP | SDL_HAT_RIGHT | SDL_HAT_DOWN | SDL_HAT_LEFT) == 0xf, "unexpected hat mask");
 
 	//determine if a hat-button up or down event based on state and last_state
-	for (unsigned i = 0; i != 4; ++i)
+	range_for (const unsigned i, xrange(4u))
 	{
 		const auto current_button_state = !!(jhe_value & (1 << i));
 		auto &saved_button_state = Joystick.button_state[hat + i];

@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "effects.h"
 
 #include "d_enumerate.h"
+#include "d_range.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 #include "segiter.h"
@@ -580,7 +581,7 @@ void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
 	auto &s0_uvls = seg->unique_segment::sides[side].uvls;
 	auto &s1_uvls = csegp->unique_segment::sides[Connectside].uvls;
 	// d_zip
-	for (unsigned i = 0; i < 4; ++i)
+	range_for (const unsigned i, xrange(4u))
 	{
 		df[i] = s0_uvls[i].l;
 		db[i] = s1_uvls[i].l;
@@ -663,7 +664,7 @@ void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 	auto &s0_uvls = seg->unique_segment::sides[side].uvls;
 	auto &s1_uvls = csegp->unique_segment::sides[Connectside].uvls;
 	// d_zip
-	for (unsigned i = 0; i < 4; ++i)
+	range_for (const unsigned i, xrange(4u))
 	{
 		df[i] = s0_uvls[i].l;
 		db[i] = s1_uvls[i].l;
@@ -1223,7 +1224,7 @@ bool ad_removal_predicate::operator()(active_door &d) const
 #if defined(DXX_BUILD_DESCENT_II)
 static void copy_cloaking_wall_light_to_wall(array<uvl, 4> &back_uvls, array<uvl, 4> &front_uvls, const cloaking_wall &d)
 {
-	for (uint_fast32_t i = 0; i != 4; ++i)
+	range_for (const uint_fast32_t i, xrange(4u))
 	{
 		back_uvls[i].l = d.back_ls[i];
 		front_uvls[i].l = d.front_ls[i];
@@ -1232,7 +1233,7 @@ static void copy_cloaking_wall_light_to_wall(array<uvl, 4> &back_uvls, array<uvl
 
 static void scale_cloaking_wall_light_to_wall(array<uvl, 4> &back_uvls, array<uvl, 4> &front_uvls, const cloaking_wall &d, const fix light_scale)
 {
-	for (uint_fast32_t i = 0; i != 4; ++i)
+	range_for (const uint_fast32_t i, xrange(4u))
 	{
 		back_uvls[i].l = fixmul(d.back_ls[i], light_scale);
 		front_uvls[i].l = fixmul(d.front_ls[i], light_scale);

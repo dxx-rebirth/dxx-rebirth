@@ -55,6 +55,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-exchange.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t segp, unsigned side, unsigned type);
@@ -497,7 +498,7 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 		// If any of the radio buttons that control the mode are set, then
 		// update the corresponding key.
 		//------------------------------------------------------------
-		for (	int i=0; i < 4; i++ ) {
+		range_for (const int i, xrange(4u)) {
 			if (GADGET_PRESSED(wd->keyFlag[i].get()))
 			{
 				w->keys = 1<<i;		// Set the ai_state to the cooresponding radio button

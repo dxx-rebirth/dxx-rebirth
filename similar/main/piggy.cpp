@@ -60,6 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-cf_assert.h"
 #include "compiler-range_for.h"
 #include "compiler-make_unique.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -68,9 +69,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DEFAULT_PIGFILE_REGISTERED      "descent.pig"
 
 #elif defined(DXX_BUILD_DESCENT_II)
-#include "compiler-range_for.h"
-#include "partial_range.h"
-
 #define DEFAULT_PIGFILE_REGISTERED      "groupa.pig"
 #define DEFAULT_PIGFILE_SHAREWARE       "d2demo.pig"
 #define DEFAULT_HAMFILE_REGISTERED      "descent2.ham"
@@ -455,7 +453,7 @@ int properties_init()
 		bogus_data.fill(c);
 		c = gr_find_closest_color( 63, 0, 0 );
 		// Make a big red X !
-		for (unsigned i = 0; i < 64; ++i)
+		range_for (const unsigned i, xrange(64u))
 		{
 			bogus_data[i*64+i] = c;
 			bogus_data[i*64+(63-i)] = c;
@@ -1115,7 +1113,7 @@ int properties_init(void)
 		bogus_data.fill(c);
 		c = gr_find_closest_color( 63, 0, 0 );
 		// Make a big red X !
-		for (unsigned i = 0; i < 64; ++i)
+		range_for (const unsigned i, xrange(64u))
 		{
 			bogus_data[i*64+i] = c;
 			bogus_data[i*64+(63-i)] = c;

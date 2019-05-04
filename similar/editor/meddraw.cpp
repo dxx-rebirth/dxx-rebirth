@@ -54,6 +54,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "meddraw.h"
 #include "d_enumerate.h"
+#include "d_range.h"
 #include "compiler-range_for.h"
 #include "segiter.h"
 
@@ -124,10 +125,10 @@ static void draw_segment(grs_canvas &canvas, const shared_segment &seg, const ui
 	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
-		for (unsigned i = 0; i < 4; ++i)
+		range_for (const unsigned i, xrange(4u))
 			draw_line(canvas, svp[i], svp[i+4], color);
 
-		for (unsigned i = 0; i < 3; ++i)
+		range_for (const unsigned i, xrange(3u))
 		{
 			draw_line(canvas, svp[i], svp[i+1], color);
 			draw_line(canvas, svp[i+4], svp[i+4+1], color);

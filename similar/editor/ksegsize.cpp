@@ -32,6 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kdefs.h"
 
 #include "compiler-range_for.h"
+#include "d_range.h"
 
 #define XDIM	0
 #define YDIM	1
@@ -110,7 +111,7 @@ static void scale_vert(const shared_segment &sp, const unsigned vertex_ind, cons
 			break;
 		}
 		case SEGSIZEMODE_EDGE: {
-			for (int v=0; v<2; v++)
+			range_for (const int v, xrange(2u))
 				if (verts[Side_to_verts[Curside][(Curedge+v)%4]] == vertex_ind)
 					scale_vert_aux(vertex_ind, vp, scale_factor);
 			break;

@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
+#include "d_range.h"
 
 namespace dcx {
 
@@ -286,7 +287,7 @@ static void ui_pad_set_active( int n )
 	const char * name;
 	
 
-	for (int i=0; i<17; i++ )
+	range_for (const int i, xrange(17u))
 	{
 		Pad[i]->text = KeyPad[n]->buttontext[i].data();
 		Pad[i]->status = 1;

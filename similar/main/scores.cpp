@@ -52,6 +52,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "rbaudio.h"
 #include "physfsx.h"
+#include "compiler-range_for.h"
+#include "d_range.h"
 
 #if DXX_USE_OGL
 #include "ogl_init.h"
@@ -118,7 +120,7 @@ static void scores_read(all_scores *scores)
 		scores->stats[8].name = "Dan";
 		scores->stats[9].name = "Jason";
 
-		for (int i=0; i<10; i++)
+		range_for (const int i, xrange(10u))
 			scores->stats[i].score = (10-i)*1000;
 		return;
 	}

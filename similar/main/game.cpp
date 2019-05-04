@@ -119,6 +119,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "d_enumerate.h"
+#include "d_range.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 #include "segiter.h"
@@ -1922,7 +1923,7 @@ void compute_slide_segs()
 	range_for (const auto &&segp, vmsegptr)
 	{
 		uint8_t slide_textures = 0;
-		for (int sidenum=0;sidenum<6;sidenum++) {
+		range_for (const int sidenum, xrange(6u)) {
 			const auto &sside = segp->shared_segment::sides[sidenum];
 			const auto &uside = segp->unique_segment::sides[sidenum];
 			const auto &ti = TmapInfo[uside.tmap_num];
@@ -1962,7 +1963,7 @@ static void slide_textures(void)
 	{
 		if (const auto slide_seg = segp->slide_textures)
 		{
-			for (int sidenum=0;sidenum<6;sidenum++) {
+			range_for (const int sidenum, xrange(6u)) {
 				if (slide_seg & (1 << sidenum))
 				{
 					auto &side = segp->unique_segment::sides[sidenum];

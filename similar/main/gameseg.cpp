@@ -50,6 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "cast_range_result.h"
 
 using std::min;
@@ -484,7 +485,7 @@ int check_segment_connections(void)
 
 	range_for (const auto &&seg, vmsegptridx)
 	{
-		for (int sidenum=0;sidenum<6;sidenum++) {
+		range_for (const int sidenum, xrange(6u)) {
 #ifndef NDEBUG
 			const auto v = create_abs_vertex_lists(seg, sidenum);
 			const auto &num_faces = v.first;
@@ -1100,7 +1101,7 @@ static void extract_vector_from_segment(fvcvertptr &vcvertptr, const shared_segm
 	auto &start = Side_to_verts[istart];
 	auto &end = Side_to_verts[iend];
 	auto &verts = sp.verts;
-	for (uint_fast32_t i = 0; i != 4; ++i)
+	range_for (const uint_fast32_t i, xrange(4u))
 	{
 		vm_vec_sub2(vp, vcvertptr(verts[start[i]]));
 		vm_vec_add2(vp, vcvertptr(verts[end[i]]));
@@ -1265,7 +1266,7 @@ static void get_verts_for_normal(verts_for_normal &r, const unsigned va, const u
 	array<unsigned, 4> w;
 
 	//	w is a list that shows how things got scrambled so we know if our normal is pointing backwards
-	for (unsigned i = 0; i < 4; ++i)
+	range_for (const unsigned i, xrange(4u))
 		w[i] = i;
 
 	v[0] = va;
@@ -1337,7 +1338,7 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 	} else {
 		array<unsigned, 4> v;
 
-		for (unsigned i = 0; i < 4; ++i)
+		range_for (const unsigned i, xrange(4u))
 			v[i] = sp.verts[vs[i]];
 
 		verts_for_normal vfn;
@@ -1663,7 +1664,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 	{
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 		auto &vcwallptr = Walls.vcptr;
-		for (int sidenum=0; sidenum<6; sidenum++) {
+		range_for (const int sidenum, xrange(6u)) {
 			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) & WID_RENDPAST_FLAG)
 				apply_light_to_segment(visited, segp.absolute_sibling(segp->children[sidenum]), segment_center, light_intensity, recursion_depth+1);
 		}
@@ -1719,7 +1720,7 @@ static void change_light(const d_level_shared_destructible_light_state &LevelSha
 				assert(j.sidenum < MAX_SIDES_PER_SEGMENT);
 				const auto &&segp = vmsegptr(j.segnum);
 				auto &uvls = segp->unique_segment::sides[j.sidenum].uvls;
-				for (int k=0; k<4; k++) {
+				range_for (const int k, xrange(4u)) {
 					auto &l = uvls[k].l;
 					const fix dl = ds * j.vert_light[k];
 					if ((l += dl) < 0)

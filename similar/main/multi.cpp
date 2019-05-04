@@ -85,6 +85,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "net_udp.h"
 #endif
 #include "d_enumerate.h"
+#include "d_range.h"
 
 #include "compiler-begin.h"
 #include "compiler-exchange.h"
@@ -5615,7 +5616,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 
 	//Load sounds for orb game
 	hoard_resources.snd_idx = Num_sound_files;
-	for (unsigned i = 0; i < 4; ++i)
+	range_for (const unsigned i, xrange(4u))
 	{
 		int len;
 
@@ -5672,7 +5673,7 @@ void save_hoard_data(void)
 	range_for (auto &i, partial_const_range(bm, nframes))
 		PHYSFS_write(ofile, i->bm_data, i->bm_w * i->bm_h, 1);
 
-	for (unsigned i = 0; i < 2; ++i)
+	range_for (const unsigned i, xrange(2u))
 	{
 		iff_error = iff_read_bitmap(i ? "orbb.bbm" : "orb.bbm", icon, &palette);
 		Assert(iff_error == IFF_NO_ERROR);

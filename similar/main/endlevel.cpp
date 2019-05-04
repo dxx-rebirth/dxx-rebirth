@@ -85,6 +85,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-begin.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
+#include "d_range.h"
 
 using std::min;
 using std::max;
@@ -1191,7 +1192,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 		{										//find closest side to align to
 			fix d,largest_d=-f1_0;
-			for (int i=0;i<6;i++) {
+			range_for (const int i, xrange(6u)) {
 				d = vm_vec_dot(pseg.shared_segment::sides[i].normals[0], flydata->obj->orient.uvec);
 				if (d > largest_d) {largest_d = d; up_side=i;}
 			}
@@ -1215,7 +1216,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 			int s0=-1,s1=0;
 			fix dist;
 
-			for (int i=0;i<6;i++)
+			range_for (const int i, xrange(6u))
 				if (i!=entry_side && i!=exit_side && i!=up_side && i!=Side_opposite[up_side])
 				 {
 					if (s0==-1)
@@ -1465,7 +1466,7 @@ try_again:
 	exit_segnum = segment_none;
 	range_for (const auto &&segp, vcsegptridx)
 	{
-		for (int sidenum=0;sidenum<6;sidenum++)
+		range_for (const int sidenum, xrange(6u))
 			if (segp->children[sidenum] == segment_exit)
 			{
 				exit_segnum = segp;

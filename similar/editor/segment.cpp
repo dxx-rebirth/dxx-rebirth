@@ -50,6 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hostage.h"
 
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -670,7 +671,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegpt
 	auto &dvp = Side_to_verts[destside];
 
 	// Set the vertex indices for the four vertices forming the front of the new side
-	for (unsigned v = 0; v < 4; ++v)
+	range_for (const unsigned v, xrange(4u))
                 nsp->verts[v] = destseg->verts[static_cast<int>(dvp[v])];
 
 	// The other 4 vertices must be created.
@@ -697,7 +698,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegpt
 
 	// Now rotate the free vertices in the segment
 	array<vertex, 4> tvs;
-	for (unsigned v = 0; v < 4; ++v)
+	range_for (const unsigned v, xrange(4u))
 		vm_vec_rotate(tvs[v], vcvertptr(newseg->verts[v + 4]), rotmat2);
 
 	// Now translate the new segment so that the center point of the attaching faces are the same.
@@ -705,7 +706,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegpt
 	const auto xlate_vec = vm_vec_sub(vc1,vr);
 
 	// Create and add the 4 new vertices.
-	for (unsigned v = 0; v < 4; ++v)
+	range_for (const unsigned v, xrange(4u))
 	{
 		vm_vec_add2(tvs[v],xlate_vec);
 		nsp->verts[v+4] = med_add_vertex(tvs[v]);
@@ -1006,7 +1007,7 @@ static fix seg_seg_vertex_distsum(const vcsegptr_t seg1, const unsigned side1, c
 	distsum = 0;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	for (unsigned secondv = 0; secondv < 4; ++secondv)
+	range_for (const unsigned secondv, xrange(4u))
 	{
 		const unsigned firstv = (4 - secondv + (3 - firstv1)) % 4;
 		distsum += vm_vec_dist(vcvertptr(seg1->verts[Side_to_verts[side1][firstv]]),vcvertptr(seg2->verts[Side_to_verts[side2][secondv]]));
@@ -1481,7 +1482,7 @@ int med_find_adjacent_segment_side(const vmsegptridx_t sp, int side, imsegptridx
 	array<int, 4> abs_verts;
 
 	//	Stuff abs_verts[4] array with absolute vertex indices
-	for (unsigned v=0; v < 4; v++)
+	range_for (const unsigned v, xrange(4u))
 		abs_verts[v] = sp->verts[Side_to_verts[side][v]];
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts

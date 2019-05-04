@@ -237,7 +237,7 @@ void gr_palette_step_up( int r, int g, int b )
 		return; // Display is not palettised
 
 	array<SDL_Color, 256> colors{};
-	for (int i=0; i<256; i++)
+	range_for (const int i, xrange(256u))
 	{
 		const auto ir = static_cast<int>(p[i].r) + r + gr_palette_gamma;
 		colors[i].r = std::min(std::max(ir, 0), 63) * 4;
@@ -267,7 +267,7 @@ void gr_palette_load( palette_array_t &pal )
 	if (palette == NULL)
 		return; // Display is not palettised
 
-	for (int i=0;i<64;i++)
+	range_for (const int i, xrange(64u))
 		gamma[i] = static_cast<int>((pow((static_cast<double>(14)/static_cast<double>(32)), 1.0)*i) + 0.5);
 
 	array<SDL_Color, 256> colors{};

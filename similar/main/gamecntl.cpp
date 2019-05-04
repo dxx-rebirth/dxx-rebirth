@@ -108,6 +108,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 #include <SDL.h>
@@ -1514,7 +1515,7 @@ static window_event_result FinalCheats()
 
 		player_info.vulcan_ammo = VULCAN_AMMO_MAX;
 		auto &secondary_ammo = player_info.secondary_ammo;
-		for (unsigned i=0; i<3; i++)
+		range_for (const unsigned i, xrange(3u))
 			secondary_ammo[i] = Secondary_ammo_max[i];
 
 		if (Newdemo_state == ND_STATE_RECORDING)

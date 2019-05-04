@@ -59,6 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "nvparse.h"
 
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 #define PLAYER_EFFECTIVENESS_FILENAME_FORMAT	PLAYER_DIRECTORY_STRING("%s.eff")
@@ -1059,7 +1060,7 @@ int read_player_file()
 #if defined(DXX_BUILD_DESCENT_II)
 		PlayerCfg.ControlType = control_type_dos;
 	
-		for (unsigned i=0;i < 11;i++)
+		range_for (const unsigned i, xrange(11u))
 		{
 			PlayerCfg.PrimaryOrder[i] = PHYSFSX_readByte(file);
 			PlayerCfg.SecondaryOrder[i] = PHYSFSX_readByte(file);
@@ -1432,7 +1433,7 @@ void write_player_file()
 		if (PHYSFS_write(file, &old_avg_joy_sensitivity, sizeof(ubyte), 1) != 1)
 			goto write_player_file_failed;
 
-		for (unsigned i = 0; i < 11; i++)
+		range_for (const unsigned i, xrange(11u))
 		{
 			PHYSFS_write(file, &PlayerCfg.PrimaryOrder[i], sizeof(ubyte), 1);
 			PHYSFS_write(file, &PlayerCfg.SecondaryOrder[i], sizeof(ubyte), 1);

@@ -199,7 +199,7 @@ void ui_close_dialog( UI_DIALOG * dlg )
 void restore_state()
 {
 	_disable();
-	for (int i=0; i<256; i++ )
+	range_for (const int i, xrange(256u))
 	{
 		keyd_pressed[i] = SavedState[i];
 	}

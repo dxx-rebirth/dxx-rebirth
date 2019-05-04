@@ -85,6 +85,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1768,7 +1769,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	//Restore tmap info (to temp values so we can use compiled-in tmap info to compute static_light
 	range_for (const auto &&segp, vmsegptridx)
 	{
-		for (unsigned j = 0; j < 6; ++j)
+		range_for (const unsigned j, xrange(6u))
 		{
 			segp->shared_segment::sides[j].wall_num = PHYSFSX_readSXE16(fp, swap);
 			TempTmapNum[segp][j] = PHYSFSX_readSXE16(fp, swap);
@@ -1993,7 +1994,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	// static_light should now be computed - now actually set tmap info
 	range_for (const auto &&segp, vmsegptridx)
 	{
-		for (unsigned j = 0; j < 6; ++j)
+		range_for (const unsigned j, xrange(6u))
 		{
 			auto &uside = segp->unique_segment::sides[j];
 			uside.tmap_num = TempTmapNum[segp][j];

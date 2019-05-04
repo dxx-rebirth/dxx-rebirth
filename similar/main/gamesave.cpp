@@ -71,6 +71,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "makesig.h"
 #include "textures.h"
 #include "d_enumerate.h"
+#include "d_range.h"
 
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
@@ -1190,7 +1191,7 @@ static int load_game_data(
 	if (game_top_fileinfo_version < 17) {
 		range_for (const auto &&segp, vcsegptridx)
 		{
-			for (int sidenum=0;sidenum<6;sidenum++)
+			range_for (const int sidenum, xrange(6u))
 			{
 				const auto wallnum = segp->shared_segment::sides[sidenum].wall_num;
 				if (wallnum != wall_none)

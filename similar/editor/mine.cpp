@@ -50,6 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
@@ -429,9 +430,9 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	else									  
 		mine_editor.Markedsegp       =   -1;
 	mine_editor.Markedside          =   Markedside;
-	for (int i=0;i<10;i++)
+	range_for (const int i, xrange(10u))
 		mine_editor.Groupsegp[i]	  =	vmsegptridx(Groupsegp[i]);
-	for (int i=0;i<10;i++)
+	range_for (const int i, xrange(10u))
 		mine_editor.Groupside[i]     =	Groupside[i];
 
 	if (editor_offset != PHYSFS_tell(SaveFile))

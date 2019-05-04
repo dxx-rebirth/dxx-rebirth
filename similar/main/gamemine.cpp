@@ -45,6 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if DXX_USE_EDITOR
 #include "editor/editor.h"
 #include "editor/esegment.h"
+#include "d_range.h"
 #endif
 #include "fuelcen.h"
 #include "hash.h"
@@ -772,7 +773,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 	
  	Markedside = mine_editor.Markedside;
 	Curside = mine_editor.Curside;
-	for (int i=0;i<10;i++)
+	range_for (const int i, xrange(10u))
 		Groupside[i] = mine_editor.Groupside[i];
 
 	Cursegp = mine_editor.current_seg != -1 ? imsegptridx(static_cast<segnum_t>(mine_editor.current_seg)) : imsegptridx(segment_first);

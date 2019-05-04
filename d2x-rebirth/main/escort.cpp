@@ -68,6 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segiter.h"
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 #if DXX_USE_EDITOR
@@ -1611,7 +1612,7 @@ static int attempt_to_steal_item_3(const vmobjptr_t objp, const vmobjptr_t playe
 			return r;
 
 	//	Makes it more likely to steal primary than secondary.
-	for (int i=0; i<2; i++)
+	range_for (const int i, xrange(2u))
 	{
 		(void)i;
 		if (auto r = maybe_steal_primary_weapon(player_num, Primary_weapon))
@@ -1681,7 +1682,7 @@ int attempt_to_steal_item(const vmobjptridx_t objp, const vmobjptr_t player_num)
 
 	rval += attempt_to_steal_item_2(objp, player_num);
 
-	for (int i=0; i<3; i++) {
+	range_for (const int i, xrange(3u)) {
 		(void)i;
 		if (!rval || (d_rand() < 11000)) {	//	about 1/3 of time, steal another item
 			rval += attempt_to_steal_item_2(objp, player_num);

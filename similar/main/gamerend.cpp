@@ -61,6 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 
 #include "compiler-range_for.h"
+#include "d_range.h"
 
 #if DXX_USE_OGL
 #include "ogl_init.h"
@@ -657,7 +658,7 @@ static void show_extra_views()
 			}
 	}
 
-	for (int w=0;w<2;w++) {
+	range_for (const int w, xrange(2u)) {
 
 		if (w==1 && did_missile_view)
 			continue;		//if showing missile view in right window, can't show anything else

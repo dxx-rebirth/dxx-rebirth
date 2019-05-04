@@ -95,6 +95,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-exchange.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 // Menu IDs...
@@ -1149,7 +1150,7 @@ static void input_config_keyboard()
 	constexpr uint_fast32_t keysens = items.opt_label_kb + 1;
 	const auto &m = items.m;
 
-	for (unsigned i = 0; i < 5; i++)
+	range_for (const unsigned i, xrange(5u))
 	{
 		PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
 	}
@@ -1667,7 +1668,7 @@ void graphics_config()
 	if (CGameCfg.VSync != m[opt_gr_vsync].value || CGameCfg.Multisample != m[opt_gr_multisample].value)
 		nm_messagebox( NULL, 1, TXT_OK, "Setting VSync or 4x Multisample\nrequires restart on some systems.");
 
-	for (uint_fast32_t i = 0; i != 3; ++i)
+	range_for (const uint_fast32_t i, xrange(3u))
 		if (m[i+opt_filter_none].value)
 		{
 			CGameCfg.TexFilt = i;

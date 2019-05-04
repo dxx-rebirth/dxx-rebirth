@@ -34,6 +34,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfs_list.h"
 
 #include "compiler-make_unique.h"
+#include "compiler-range_for.h"
+#include "d_range.h"
 
 namespace dcx {
 
@@ -268,7 +270,7 @@ int ui_get_filename(char (&filename)[PATH_MAX], const char *const filespec, cons
 	}
 
 	//ui_messagebox( -2,-2, 1,"DEBUG:0", "Ok" );
-	for (int i=0; i<35; i++)
+	range_for (const int i, xrange(35u))
 		b->spaces[i] = ' ';
 	b->spaces[34] = 0;
 

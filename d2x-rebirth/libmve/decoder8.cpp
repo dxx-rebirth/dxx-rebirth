@@ -15,6 +15,8 @@
 
 #include "dxxsconf.h"
 #include "compiler-array.h"
+#include "compiler-range_for.h"
+#include "d_range.h"
 
 static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
 
@@ -77,7 +79,7 @@ static void relFar(int i, int sign, int *x, int *y)
 static void copyFrame(uint8_t *pDest, const uint8_t *pSrc)
 {
 	const auto width = g_width;
-	for (int i=0; i<8; i++)
+	range_for (const int i, xrange(8u))
 	{
 		(void)i;
 		memcpy(pDest, pSrc, 8);
@@ -156,7 +158,7 @@ static void patternQuadrant4Pixels(unsigned char *pFrame, unsigned char pat0, un
 	unsigned long pat = (pat3 << 24) | (pat2 << 16) | (pat1 << 8) | pat0;
 
 	const auto width = g_width;
-	for (int i=0; i<16; i++)
+	range_for (const int i, xrange(16u))
 	{
 		pFrame[i&3] = p[(pat & mask) >> shift];
 
@@ -209,9 +211,9 @@ static void patternQuadrant2Pixels(unsigned char *pFrame, unsigned char pat0, un
 	unsigned short pat = (pat1 << 8) | pat0;
 
 	const auto width = g_width;
-	for (int i=0; i<4; i++)
+	range_for (const int i, xrange(4u))
 	{
-		for (int j=0; j<4; j++)
+		range_for (const int j, xrange(4u))
 		{
 			pel = p[(pat & mask) ? 1 : 0];
 
@@ -324,7 +326,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		*/
 		{
 			const auto width = g_width;
-		for (int i=0; i<2; i++)
+		range_for (const int i, xrange(2u))
 		{
 			(void)i;
 			*pFrame += 16;
@@ -410,7 +412,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 			const auto width = g_width;
 		if (p[0] <= p[1])
 		{
-			for (int i=0; i<8; i++)
+			range_for (const int i, xrange(8u))
 			{
 				(void)i;
 				patternRow2Pixels(*pFrame, *(*pData)++, p);
@@ -420,7 +422,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		else
 		{
 			const auto width2 = 2 * width;
-			for (int i=0; i<2; i++)
+			range_for (const int i, xrange(2u))
 			{
 				(void)i;
 				patternRow2Pixels2(*pFrame, *(*pData) & 0xf, p);
@@ -527,7 +529,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		if ( (*pData)[0] <= (*pData)[1])
 		{
 			// four quadrant case
-			for (int i=0; i<4; i++)
+			range_for (const int i, xrange(4u))
 			{
 				p[0] = *(*pData)++;
 				p[1] = *(*pData)++;
@@ -545,7 +547,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		else if ( (*pData)[6] <= (*pData)[7])
 		{
 			// split horizontal
-			for (int i=0; i<4; i++)
+			range_for (const int i, xrange(4u))
 			{
 				if ((i & 1) == 0)
 				{
@@ -565,7 +567,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		else
 		{
 			// split vertical
-			for (int i=0; i<8; i++)
+			range_for (const int i, xrange(8u))
 			{
 				if ((i & 3) == 0)
 				{
@@ -617,7 +619,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 				p[2] = *(*pData)++;
 				p[3] = *(*pData)++;
 
-				for (int i=0; i<8; i++)
+				range_for (const int i, xrange(8u))
 				{
 					(void)i;
 					pat[0] = *(*pData)++;
@@ -655,7 +657,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 				p[2] = *(*pData)++;
 				p[3] = *(*pData)++;
 
-				for (int i=0; i<8; i++)
+				range_for (const int i, xrange(8u))
 				{
 					(void)i;
 					pat[0] = *(*pData)++;
@@ -671,7 +673,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 				p[2] = *(*pData)++;
 				p[3] = *(*pData)++;
 
-				for (int i=0; i<4; i++)
+				range_for (const int i, xrange(4u))
 				{
 					(void)i;
 					pat[0] = *(*pData)++;
@@ -725,7 +727,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 			const auto width = g_width;
 		if ( (*pData)[0] <= (*pData)[1])
 		{
-			for (int i=0; i<4; i++)
+			range_for (const int i, xrange(4u))
 			{
 				p[0] = *(*pData)++;
 				p[1] = *(*pData)++;
@@ -749,7 +751,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 			if ( (*pData)[12] <= (*pData)[13])
 			{
 				// split vertical
-				for (int i=0; i<4; i++)
+				range_for (const int i, xrange(4u))
 				{
 					if ((i&1) == 0)
 					{
@@ -775,7 +777,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 			else
 			{
 				// split horizontal
-				for (int i=0; i<8; i++)
+				range_for (const int i, xrange(8u))
 				{
 					if ((i&3) == 0)
 					{
@@ -804,7 +806,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		*/
 		{
 			const auto width = g_width;
-		for (int i=0; i<8; i++)
+		range_for (const int i, xrange(8u))
 		{
 			(void)i;
 			memcpy(*pFrame, *pData, 8);
@@ -823,13 +825,13 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		*/
 		{
 			const auto width = g_width;
-		for (int i=0; i<4; i++)
+		range_for (const int i, xrange(4u))
 		{
 			(void)i;
-			for (int j=0; j<2; j++)
+			range_for (const int j, xrange(2u))
 			{
 				(void)j;
-				for (int k=0; k<4; k++)
+				range_for (const int k, xrange(4u))
 				{
 					(*pFrame)[2*k]   = (*pData)[k];
 					(*pFrame)[2*k+1] = (*pData)[k];
@@ -850,12 +852,12 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		*/
 		{
 			const auto width = g_width;
-		for (int i=0; i<2; i++)
+		range_for (const int i, xrange(2u))
 		{
 			(void)i;
-			for (int j=0; j<4; j++)
+			range_for (const int j, xrange(4u))
 			{
-				for (int k=0; k<4; k++)
+				range_for (const int k, xrange(4u))
 				{
 					(*pFrame)[k * width+j] = (*pData)[0];
 					(*pFrame)[k * width+j+4] = (*pData)[1];
@@ -875,7 +877,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		*/
 		{
 			const auto width = g_width;
-		for (int i=0; i<8; i++)
+		range_for (const int i, xrange(8u))
 		{
 			(void)i;
 			memset(*pFrame, **pData, 8);
@@ -901,9 +903,9 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		*/
 		{
 			const auto width = g_width;
-		for (int i=0; i<8; i++)
+		range_for (const int i, xrange(8u))
 		{
-			for (int j=0; j<8; j++)
+			range_for (const int j, xrange(8u))
 			{
 				(*pFrame)[j] = (*pData)[(i+j)&1];
 			}

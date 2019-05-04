@@ -29,6 +29,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 #include "key.h"
 #include "window.h"
+#include "compiler-range_for.h"
+#include "d_range.h"
 
 namespace dcx {
 
@@ -78,7 +80,7 @@ int DecodeKeyText( const char * text )
 	if (strstr(text, "{Shift}") )
 		code |= KEY_SHIFTED;
 
-	for (int i=0; i<256; i++ )
+	range_for (const int i, xrange(256u))
 	{
 		if ( strlen(KeyDesc[i])>0 && strstr(text, KeyDesc[i]) )
 		{

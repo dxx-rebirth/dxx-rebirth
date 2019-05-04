@@ -38,6 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmap.h"
 
 #include "compiler-range_for.h"
+#include "d_range.h"
 
 // -----------------------------------------------------------------------------
 //	Return light intensity at an instance of a vertex on a side in a segment.
@@ -205,7 +206,7 @@ int LightCopyIntensity(void)
 	const vmsegptr_t segp = Cursegp;
 	intensity = get_light_intensity(segp, Curside, Curvert);
 
-	for (int v=0; v<4; v++)
+	range_for (const int v, xrange(4u))
 		if (v != Curvert)
 			set_light_intensity(segp, Curside, v, intensity);
 
@@ -222,7 +223,7 @@ int LightCopyIntensitySegment(void)
 	intensity = get_light_intensity(segp, Curside, Curvert);
 
 	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		for (int v=0; v<4; v++)
+		range_for (const int v, xrange(4u))
 			if ((s != Curside) || (v != Curvert))
 				set_light_intensity(segp, s, v, intensity);
 
@@ -251,7 +252,7 @@ int LightIncreaseLightVertex(void)
 int LightDecreaseLightSide(void)
 {
 	const vmsegptr_t segp = Cursegp;
-	for (int v=0; v<4; v++)
+	range_for (const int v, xrange(4u))
 		set_light_intensity(segp, Curside, v, get_light_intensity(segp, Curside, v) - F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
@@ -261,7 +262,7 @@ int LightDecreaseLightSide(void)
 int LightIncreaseLightSide(void)
 {
 	const vmsegptr_t segp = Cursegp;
-	for (int v=0; v<4; v++)
+	range_for (const int v, xrange(4u))
 		set_light_intensity(segp, Curside, v, get_light_intensity(segp, Curside, v) + F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
@@ -272,7 +273,7 @@ int LightDecreaseLightSegment(void)
 {
 	const vmsegptr_t segp = Cursegp;
 	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		for (int v=0; v<4; v++)
+		range_for (const int v, xrange(4u))
 			set_light_intensity(segp, s, v, get_light_intensity(segp, s, v) - F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
@@ -283,7 +284,7 @@ int LightIncreaseLightSegment(void)
 {
 	const vmsegptr_t segp = Cursegp;
 	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		for (int v=0; v<4; v++)
+		range_for (const int v, xrange(4u))
 			set_light_intensity(segp, s, v, get_light_intensity(segp, s, v) + F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
@@ -293,7 +294,7 @@ int LightIncreaseLightSegment(void)
 int LightSetDefault(void)
 {
 	const vmsegptr_t segp = Cursegp;
-	for (int v=0; v<4; v++)
+	range_for (const int v, xrange(4u))
 		set_light_intensity(segp, Curside, v, DEFAULT_LIGHTING);
 
 	return	1;
@@ -304,7 +305,7 @@ int LightSetDefault(void)
 int LightSetMaximum(void)
 {
 	const vmsegptr_t segp = Cursegp;
-	for (int v=0; v<4; v++)
+	range_for (const int v, xrange(4u))
 		set_light_intensity(segp, Curside, v, (NUM_LIGHTING_LEVELS - 1) * F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;

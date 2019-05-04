@@ -408,7 +408,7 @@ static void setup_tempo(hmp_file *hmp, unsigned long tempo) {
 void hmp_setvolume(hmp_file *hmp, int volume)
 {
 	if (hmp)
-		for (int channel = 0; channel < 16; channel++)
+		range_for (const int channel, xrange(16u))
 			midiOutShortMsg(reinterpret_cast<HMIDIOUT>(hmp->hmidi), static_cast<DWORD>(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_VOLUME << 8 | (channel_volume[channel] * volume / MIDI_VOLUME_SCALE) << 16));
 
 	midi_volume = volume;
@@ -512,7 +512,7 @@ void hmp_reset()
 		return;
 	}
 
-	for (int channel = 0; channel < 16; channel++)
+	range_for (const int channel, xrange(16u))
 	{
 		midiOutShortMsg(hmidi, static_cast<DWORD>(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_ALL_SOUNDS_OFF << 8 | 0 << 16));
 		midiOutShortMsg(hmidi, static_cast<DWORD>(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_RESET_ALL_CONTROLLERS << 8 | 0 << 16));
@@ -590,7 +590,7 @@ void hmp_reset()
 		}
 	}
 
-	for (int channel = 0; channel < 16; channel++)
+	range_for (const int channel, xrange(16u))
 		midiOutShortMsg(hmidi, static_cast<DWORD>(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_VOLUME << 8 | (100 * midi_volume / MIDI_VOLUME_SCALE) << 16));
 	midiOutClose(hmidi);
 }
