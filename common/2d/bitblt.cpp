@@ -119,8 +119,8 @@ static inline void gr_for_each_bitmap_byte(grs_canvas &canvas, const uint_fast32
 	auto src = bm.bm_data;
 	const auto ey = by + bm.bm_h;
 	const auto ex = bx + bm.bm_w;
-	for (auto iy = by; iy != ey; ++iy)
-		for (auto ix = bx; ix != ex; ++ix)
+	range_for (const auto iy, xrange(by, ey))
+		range_for (const auto ix, xrange(bx, ex))
 			f(canvas, src++, ix, iy);
 }
 
