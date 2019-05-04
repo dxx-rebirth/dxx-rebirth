@@ -126,9 +126,11 @@ struct player_info
 	player_selected_weapon<secondary_weapon_index_t> Secondary_weapon;
 	stored_laser_level laser_level;
 	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
+	uint8_t Spreadfire_toggle;
 #if defined(DXX_BUILD_DESCENT_II)
 	uint8_t Primary_last_was_super;
 	uint8_t Secondary_last_was_super;
+	uint8_t Helix_orientation;
 #endif
 	int16_t net_killed_total;		// Number of times killed total
 	int16_t net_kills_total;		// Number of net kills total

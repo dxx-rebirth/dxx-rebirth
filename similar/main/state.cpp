@@ -1837,6 +1837,10 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	player_info.FakingInvul = false;
 	player_info.lavafall_hiss_playing = false;
 	player_info.missile_gun = 0;
+	player_info.Spreadfire_toggle = 0;
+#if defined(DXX_BUILD_DESCENT_II)
+	player_info.Helix_orientation = 0;
+#endif
 	player_info.Last_bumped_local_player = 0;
 	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
 	auto &Next_missile_fire_time = player_info.Next_missile_fire_time;

@@ -715,9 +715,11 @@ void init_player_stats_ship(object &plrobj)
 	auto &player_info = plrobj.ctype.player_info;
 	player_info.lavafall_hiss_playing = false;
 	player_info.missile_gun = 0;
+	player_info.Spreadfire_toggle = 0;
 	player_info.killer_objnum = object_none;
 #if defined(DXX_BUILD_DESCENT_II)
 	player_info.Omega_recharge_delay = 0;
+	player_info.Helix_orientation = 0;
 #endif
 	player_info.mission.hostages_on_board = 0;
 	player_info.homing_object_dist = -F1_0; // Added by RH

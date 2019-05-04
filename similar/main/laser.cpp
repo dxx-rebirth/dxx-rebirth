@@ -1830,10 +1830,6 @@ void do_laser_firing_player(object &plrobj)
 	int		ammo_used;
 	int		rval = 0;
 	int 		nfires = 1;
-	static int Spreadfire_toggle=0;
-#if defined(DXX_BUILD_DESCENT_II)
-	static int Helix_orientation = 0;
-#endif
 
 	if (Player_dead_state != player_dead_state::no)
 		return;
@@ -1894,7 +1890,7 @@ void do_laser_firing_player(object &plrobj)
 						flags |= LASER_QUAD;
 					break;
 				case primary_weapon_index_t::SPREADFIRE_INDEX:
-					flags |= (Spreadfire_toggle ^= LASER_SPREADFIRE_TOGGLED) & LASER_SPREADFIRE_TOGGLED;
+					flags |= (player_info.Spreadfire_toggle ^= LASER_SPREADFIRE_TOGGLED) & LASER_SPREADFIRE_TOGGLED;
 					break;
 				case primary_weapon_index_t::VULCAN_INDEX:
 				case primary_weapon_index_t::PLASMA_INDEX:
@@ -1903,7 +1899,7 @@ void do_laser_firing_player(object &plrobj)
 					break;
 #if defined(DXX_BUILD_DESCENT_II)
 				case primary_weapon_index_t::HELIX_INDEX:
-					flags |= (Helix_orientation++ & LASER_HELIX_MASK);
+					flags |= (player_info.Helix_orientation++ & LASER_HELIX_MASK);
 					break;
 				case primary_weapon_index_t::SUPER_LASER_INDEX:
 				case primary_weapon_index_t::GAUSS_INDEX:
