@@ -1870,12 +1870,19 @@ static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_se
 		if (wall_num != wall_none)
 		{
 			auto &w = *vcwallptr(wall_num);
-#if defined(DXX_BUILD_DESCENT_I)
-			if (w.type == WALL_DOOR && w.keys == KEY_NONE && w.state == WALL_DOOR_CLOSED && !(w.flags & WALL_DOOR_LOCKED))
-#elif defined(DXX_BUILD_DESCENT_II)
-			if (w.type == WALL_DOOR && w.keys == KEY_NONE && w.state == WALL_DOOR_CLOSED && !(w.flags & WALL_DOOR_LOCKED) && !(WallAnims[w.clip_num].flags & WCF_HIDDEN))
+			if (w.type != WALL_DOOR)
+				continue;
+			if (w.keys != KEY_NONE)
+				continue;
+			if (w.state != WALL_DOOR_CLOSED)
+				continue;
+			if (w.flags & WALL_DOOR_LOCKED)
+				continue;
+#if defined(DXX_BUILD_DESCENT_II)
+			if (WallAnims[w.clip_num].flags & WCF_HIDDEN)
+				continue;
 #endif
-				return i;
+			return i;
 		}
 	}
 	return side_none;
