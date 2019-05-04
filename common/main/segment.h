@@ -491,6 +491,7 @@ public:
 
 }
 
+#ifdef dsx
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -503,4 +504,5 @@ struct d_level_shared_segment_state : ::dcx::d_level_shared_segment_state
 extern d_level_shared_segment_state LevelSharedSegmentState;
 
 }
+#endif
 #endif
