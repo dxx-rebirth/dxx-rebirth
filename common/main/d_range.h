@@ -134,7 +134,7 @@ template <
 	>::type,
 	typename B = typename std::enable_if<
 		std::is_unsigned<Te_rr_rc>::value,
-		std::integral_constant<Te_rr_rc, 0>
+		std::integral_constant<typename std::common_type<Te_rr_rc, unsigned>::type, 0u>
 	>::type
 >
 static typename std::enable_if<std::is_unsigned<Te_rr_rc>::value, xrange_extent<Te_rr_rc, B, Te>>::type xrange(Te &&e)
