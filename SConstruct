@@ -2686,23 +2686,6 @@ unsigned u2(bool b)
 }
 
 }
-
-namespace test_fallthrough {
-
-int a(int i);
-int a(int i)
-{
-	switch (i) {
-		case 1:
-			DXX_BOOST_FALLTHROUGH;
-		case 2:
-			return i + 1;
-		default:
-			return 0;
-	}
-}
-
-}
 ''',
 		_mangle_compiler_option_name=__mangle_compiler_option_name,
 		_mangle_linker_option_name=__mangle_linker_option_name
