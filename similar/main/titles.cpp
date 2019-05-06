@@ -566,7 +566,8 @@ static void briefing_init(briefing *br, short level_num)
 		br->level_num = 0;	// for start of game stuff
 
 	br->cur_screen = 0;
-	strncpy(br->background_name, DEFAULT_BRIEFING_BKG, sizeof(br->background_name));
+	br->background_name[sizeof(br->background_name) - 1] = 0;
+	strncpy(br->background_name, DEFAULT_BRIEFING_BKG, sizeof(br->background_name) - 1);
 #if defined(DXX_BUILD_DESCENT_II)
 	br->robot_playing = 0;
 #endif
@@ -1308,8 +1309,7 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 		if (!PHYSFSX_exists(fname2,1))
 			snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
 	}
-	if (d_stricmp(br->background_name, fname2))
-		strncpy (br->background_name,fname2, sizeof(br->background_name));
+	strncpy(br->background_name, fname2, sizeof(br->background_name) - 1);
 
 	if ((!d_stricmp(fname2, "brief02.pcx") || !d_stricmp(fname2, "brief02h.pcx")) && cheats.baldguy &&
 		(bald_guy_load("btexture.xxx", &br->background, gr_palette) == PCX_ERROR_NONE))
@@ -1345,8 +1345,7 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 	int pcx_error;
 
 	free_briefing_screen(br);
-	if (d_stricmp(br->background_name, fname))
-		strncpy (br->background_name,fname, sizeof(br->background_name));
+	strncpy(br->background_name, fname, sizeof(br->background_name) - 1);
 
 	if ((pcx_error = pcx_read_bitmap(fname, br->background, gr_palette))!=PCX_ERROR_NONE)
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);

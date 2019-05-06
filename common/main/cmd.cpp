@@ -151,7 +151,8 @@ static void cmd_parse(char *input)
 
 	/* Strip leading spaces */
 	while( isspace(*input) ) { ++input; }
-	strncpy( buffer, input, sizeof(buffer) );
+	buffer[sizeof(buffer) - 1] = 0;
+	strncpy(buffer, input, sizeof(buffer) - 1);
 
 	//printf("lead strip \"%s\"\n",buffer);
 	l = strlen(buffer);
@@ -343,7 +344,8 @@ static void cmd_alias(unsigned long argc, const char *const *const argv)
 	if (i.second)
 	{
 		alias = (i.first->second = make_unique<cmd_alias_t>()).get();
-		strncpy(alias->name, argv[1], sizeof(alias->name));
+		alias->name[sizeof(alias->name) - 1] = 0;
+		strncpy(alias->name, argv[1], sizeof(alias->name) - 1);
 	}
 	alias->value.reset(d_strdup(buf));
 }

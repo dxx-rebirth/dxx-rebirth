@@ -661,7 +661,7 @@ void piggy_init_pigfile(const char *filename)
 		#endif
 	}
 
-	strncpy(Current_pigfile,filename,sizeof(Current_pigfile));
+	strncpy(Current_pigfile, filename, sizeof(Current_pigfile) - 1);
 
 	N_bitmaps = PHYSFSX_readInt(Piggy_fp);
 
@@ -734,7 +734,7 @@ void piggy_new_pigfile(char *pigname)
 
 	Piggy_bitmap_cache_next = 0;            //free up cache
 
-	strncpy(Current_pigfile,pigname,sizeof(Current_pigfile));
+	strncpy(Current_pigfile, pigname, sizeof(Current_pigfile) - 1);
 
 	Piggy_fp = PHYSFSX_openReadBuffered(pigname);
 

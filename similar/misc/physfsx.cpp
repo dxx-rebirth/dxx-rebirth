@@ -150,15 +150,17 @@ bool PHYSFSX_init(int argc, char *argv[])
 	if (path[0] == '~') // yes, this tilde can be put before non-unix paths.
 	{
 		const char *home = PHYSFS_getUserDir();
-		
-		strcpy(fullPath, home); // prepend home to the path
 		path++;
+		// prepend home to the path
 		if (*path == *PHYSFS_getDirSeparator())
 			path++;
-		strncat(fullPath, path, PATH_MAX + 5 - strlen(home));
+		snprintf(fullPath, sizeof(fullPath), "%s%s", home, path);
 	}
 	else
-		strncpy(fullPath, path, PATH_MAX + 5);
+	{
+		fullPath[sizeof(fullPath) - 1] = 0;
+		strncpy(fullPath, path, sizeof(fullPath) - 1);
+	}
 	
 	PHYSFS_setWriteDir(fullPath);
 	if (!(writedir = PHYSFS_getWriteDir()))
