@@ -58,7 +58,7 @@ int load_palette(const char *name,int used_for_level,int no_change_screen)
 
 	//special hack to tell that palette system about a pig that's been loaded elsewhere
 	if (used_for_level == -2) {
-		strncpy(last_palette_loaded_pig,name,sizeof(last_palette_loaded_pig));
+		strncpy(last_palette_loaded_pig, name, sizeof(last_palette_loaded_pig) - 1);
 		return 1;
 	}
 
