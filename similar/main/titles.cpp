@@ -526,7 +526,6 @@ struct briefing : ignore_window_pointer_t
 	short	cur_screen;
 	std::unique_ptr<briefing_screen, briefing_screen_deleter> screen;
 	grs_main_bitmap background;
-	char	background_name[PATH_MAX];
 #if defined(DXX_BUILD_DESCENT_II)
 	int		got_z;
 	RAIIdigi_sound		hum_channel, printing_channel;
@@ -555,6 +554,7 @@ struct briefing : ignore_window_pointer_t
 	grs_main_bitmap  guy_bitmap;
 	sbyte   door_dir, door_div_count, animating_bitmap_type;
 	sbyte	prev_ch;
+	char background_name[16];
 };
 
 }
@@ -1290,26 +1290,37 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	int pcx_error;
-	char fname2[PATH_MAX], forigin[PATH_MAX];
+	char forigin[PATH_MAX];
+	auto &fname2 = br->background_name;
 
 	free_briefing_screen(br);
 
-	snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
-	snprintf(forigin, sizeof(char)*PATH_MAX, "%s", PHYSFS_getRealDir(fname));
+	snprintf(fname2, sizeof(fname2), "%s", fname);
+	snprintf(forigin, sizeof(forigin), "%s", PHYSFS_getRealDir(fname));
 	d_strlwr(forigin);
 
 	// check if we have a hires version of this image (not included in PC-version by default)
 	// Also if this hires image comes via external AddOn pack, only apply if requested image would be loaded from descent.hog - not a seperate mission which might want to show something else.
 	if (SWIDTH >= 640 && SHEIGHT >= 480 && (strstr(forigin,"descent.hog") != NULL))
 	{
-		char *ptr;
-		if ((ptr = strrchr(fname2,'.')))
-			*ptr = '\0';
-		strncat(fname2, "h.pcx", sizeof(char)*PATH_MAX);
+		char *ptr = fname2;
+		for (; const char c = *ptr; ++ptr)
+		{
+			if (c == '.')
+			{
+				*ptr = 0;
+				break;
+			}
+		}
+		auto &hires_pcx = "h.pcx";
+		const size_t len_fname2 = std::distance(fname2, ptr);
+		if (len_fname2 + sizeof(hires_pcx) < sizeof(fname2))
+		{
+			strcpy(ptr, hires_pcx);
 		if (!PHYSFSX_exists(fname2,1))
-			snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
+			snprintf(fname2, sizeof(fname2), "%s", fname);
+		}
 	}
-	strncpy(br->background_name, fname2, sizeof(br->background_name) - 1);
 
 	if ((!d_stricmp(fname2, "brief02.pcx") || !d_stricmp(fname2, "brief02h.pcx")) && cheats.baldguy &&
 		(bald_guy_load("btexture.xxx", &br->background, gr_palette) == PCX_ERROR_NONE))
