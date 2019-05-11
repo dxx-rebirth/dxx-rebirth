@@ -560,23 +560,22 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 #elif defined(DXX_BUILD_DESCENT_II)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	int trigger_check = 0, is_trigger = 0;
 	const auto wall_num = seg->shared_segment::sides[side].wall_num;
 
-	// If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
-	trigger_check = !(blower.parent_type == OBJ_PLAYER || effect_parent_is_guidebot(vcobjptr, blower));
-	// For Multiplayer perform an additional check to see if it's a local-player hit. If a remote player hits, a packet is expected (remote 1) which would be followed by MULTI_TRIGGER to ensure sync with the switch and the actual trigger.
-	if (Game_mode & GM_MULTI)
-		trigger_check = (!(blower.parent_type == OBJ_PLAYER && (blower.parent_num == get_local_player().objnum || remote)));
-	if ( wall_num != wall_none )
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
+	const auto is_trigger = wall_num != wall_none && vcwallptr(wall_num)->trigger != trigger_none;
+	if (is_trigger)
 	{
-		auto &Walls = LevelUniqueWallSubsystemState.Walls;
-		auto &vcwallptr = Walls.vcptr;
-		if (vcwallptr(wall_num)->trigger != trigger_none)
-			is_trigger = 1;
+		if (force_blowup_flag || (
+				(Game_mode & GM_MULTI)
+	// If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
+	// For Multiplayer perform an additional check to see if it's a local-player hit. If a remote player hits, a packet is expected (remote 1) which would be followed by MULTI_TRIGGER to ensure sync with the switch and the actual trigger.
+				? (!(blower.parent_type == OBJ_PLAYER && (blower.parent_num == get_local_player().objnum || remote)))
+				: !(blower.parent_type == OBJ_PLAYER || effect_parent_is_guidebot(vcobjptr, blower)))
+			)
+			return(0);
 	}
-	if (trigger_check && is_trigger)
-		return(0);
 #endif
 
 	if ((tm=seg->unique_segment::sides[side].tmap_num2) != 0) {
