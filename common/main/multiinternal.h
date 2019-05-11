@@ -84,7 +84,7 @@
 #define DXX_MP_SIZE_DOOR_OPEN	5
 #define D2X_MP_COMMANDS(VALUE)	\
 	VALUE(MULTI_MARKER               , 55)	\
-	VALUE(MULTI_GUIDED               , 3+sizeof(shortpos))	\
+	VALUE(MULTI_GUIDED               , 26)	\
 	VALUE(MULTI_STOLEN_ITEMS         , 11)	\
 	VALUE(MULTI_WALL_STATUS          , 6)	/* send to new players */	\
 	VALUE(MULTI_SEISMIC              , 5)	\

@@ -164,13 +164,13 @@ struct player_info
 namespace dcx {
 
 // A compressed form for sending crucial data
-struct shortpos
+struct shortpos : prohibit_void_ptr<shortpos>
 {
-	sbyte   bytemat[9];
-	short   xo,yo,zo;
-	short   segment;
-	short   velx, vely, velz;
-} __pack__;
+	array<int8_t, 9> bytemat;
+	int16_t xo, yo, zo;
+	segnum_t segment;
+	int16_t velx, vely, velz;
+};
 
 // Another compressed form for object position, velocity, orientation and rotvel using quaternion
 struct quaternionpos : prohibit_void_ptr<quaternionpos>

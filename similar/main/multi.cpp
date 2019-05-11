@@ -116,6 +116,7 @@ static void multi_restore_game(ubyte slot, uint id);
 static void multi_send_gmode_update();
 namespace dcx {
 static void multi_send_quit();
+DEFINE_SERIAL_UDT_TO_MESSAGE(shortpos, s, (s.bytemat, s.xo, s.yo, s.zo, s.segment, s.velx, s.vely, s.velz));
 }
 static playernum_t multi_who_is_master();
 static void multi_show_player_list();
@@ -3879,39 +3880,36 @@ static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const uint8_
 		obj->ctype.powerup_info.count = ammo;
 }
 
+namespace {
+
+struct multi_guided_info
+{
+	uint8_t pnum;
+	uint8_t release;
+	shortpos sp;
+};
+
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_GUIDED, multi_guided_info, g, (g.pnum, g.release, g.sp));
+
+}
+
 void multi_send_guided_info(const object_base &miss, const char done)
 {
-	int count=0;
-
-	count++;
-	multi_command<MULTI_GUIDED> multibuf;
-	multibuf[count++]=static_cast<char>(Player_num);
-	multibuf[count++]=done;
-
-	if (words_bigendian)
-	{
-		shortpos sp;
-		create_shortpos_little(LevelSharedSegmentState, sp, miss);
-		memcpy(&multibuf[count], sp.bytemat, 9);
-	count += 9;
-		memcpy(&multibuf[count], &sp.xo, 14);
-	count += 14;
-	}
-	else
-	{
-		create_shortpos_little(LevelSharedSegmentState, *reinterpret_cast<shortpos *>(&multibuf[count]), miss);
-		count += sizeof(shortpos);
-	}
-	multi_send_data(multibuf, 0);
+	multi_guided_info gi;
+	gi.pnum = static_cast<uint8_t>(Player_num);
+	gi.release = done;
+	create_shortpos_little(LevelSharedSegmentState, gi.sp, miss);
+	multi_serialize_write(0, gi);
 }
 
 static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t pnum, const uint8_t *const buf)
 {
+	multi_guided_info b;
+	multi_serialize_read(buf, b);
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	int count=3;
 
-	if (buf[2])
+	if (b.release)
 	{
 		release_guided_missile(LevelUniqueObjectState, pnum);
 		return;
@@ -3921,19 +3919,7 @@ static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState,
 	if (gimobj == nullptr)
 		return;
 	const vmobjptridx_t guided_missile = gimobj;
-	if (words_bigendian)
-	{
-		shortpos sp;
-		memcpy(sp.bytemat, &buf[count], 9);
-		memcpy(&sp.xo, &buf[count + 9], 14);
-		extract_shortpos_little(guided_missile, &sp);
-	}
-	else
-	{
-		extract_shortpos_little(guided_missile, reinterpret_cast<const shortpos *>(&buf[count]));
-	}
-
-	count+=sizeof (shortpos);
+	extract_shortpos_little(guided_missile, &b.sp);
 	update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, guided_missile);
 }
 

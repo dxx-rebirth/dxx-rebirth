@@ -262,7 +262,7 @@ int newdemo_get_percent_done()	{
 
 static void my_extract_shortpos(object_base &objp, const shortpos *const spp)
 {
-	auto sp = spp->bytemat;
+	auto sp = spp->bytemat.data();
 	objp.orient.rvec.x = *sp++ << MATRIX_PRECISION;
 	objp.orient.uvec.x = *sp++ << MATRIX_PRECISION;
 	objp.orient.fvec.x = *sp++ << MATRIX_PRECISION;

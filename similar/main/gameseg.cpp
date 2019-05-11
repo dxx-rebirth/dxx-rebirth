@@ -1029,7 +1029,7 @@ void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	auto sp = spp->bytemat;
+	auto sp = spp->bytemat.data();
 
 	objp->orient.rvec.x = *sp++ << MATRIX_PRECISION;
 	objp->orient.uvec.x = *sp++ << MATRIX_PRECISION;
@@ -1041,7 +1041,7 @@ void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 	objp->orient.uvec.z = *sp++ << MATRIX_PRECISION;
 	objp->orient.fvec.z = *sp++ << MATRIX_PRECISION;
 
-	const auto segnum = static_cast<segnum_t>(INTEL_SHORT(spp->segment));
+	const segnum_t segnum = INTEL_SHORT(spp->segment);
 
 	Assert(segnum <= Highest_segment_index);
 
