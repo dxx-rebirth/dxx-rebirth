@@ -55,7 +55,7 @@ constexpr uint16_t UDP_PORT_DEFAULT = 42424;
 #if DXX_USE_TRACKER
 #ifndef TRACKER_ADDR_DEFAULT
 /* Allow an alternate default at compile time */
-#define TRACKER_ADDR_DEFAULT "dxxtracker.hopto.org"
+#define TRACKER_ADDR_DEFAULT "tracker.dxx-rebirth.com"
 #endif
 constexpr uint16_t TRACKER_PORT_DEFAULT = 9999;
 #endif
