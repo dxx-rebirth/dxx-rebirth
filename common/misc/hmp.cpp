@@ -26,6 +26,7 @@
 #include "dsx-ns.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 namespace dcx {
