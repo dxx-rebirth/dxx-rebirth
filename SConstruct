@@ -5097,6 +5097,8 @@ def register_program(program,other_program,variables,filtered_help,append,_itert
 			append(program(tuple(('%s%s%s' % (s, '_' if p else '', p) for p in prefix)) + prefix, variables, filtered_help))
 
 def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
+	if os.path.isdir('build'):
+		SConsignFile('build/.sconsign')
 	variables = Variables([v for k, v in ARGLIST if k == 'site'] or ['site-local.py'], ARGUMENTS)
 	filtered_help = FilterHelpText()
 	dxx = []
