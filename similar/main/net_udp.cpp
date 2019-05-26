@@ -177,6 +177,8 @@ constexpr std::integral_constant<int, -1> INVALID_SOCKET{};
 
 namespace {
 
+constexpr std::integral_constant<int, -2> network_checksum_marker_object{};
+
 class RAIIsocket
 {
 #ifndef _WIN32
@@ -2043,7 +2045,7 @@ void net_udp_send_objects(void)
 			// Send count so other side can make sure he got them all
 			object_buffer[0] = UPID_OBJECT_DATA;
 			PUT_INTEL_INT(&object_buffer[1], 1);
-			PUT_INTEL_INT(&object_buffer[5], -2);
+			PUT_INTEL_INT(&object_buffer[5], network_checksum_marker_object);
 			object_buffer[9] = player_num;
 			PUT_INTEL_INT(&object_buffer[10], obj_count);
 			dxx_sendto(UDP_sync_player.player.protocol.udp.addr, UDP_Socket[0], &object_buffer[0], 14, 0);
@@ -2117,7 +2119,7 @@ static void net_udp_read_object_packet( ubyte *data )
 			mode = 1;
 			object_count = 0;
 		}
-		else if (objnum == object_guidebot_cannot_reach)
+		else if (objnum == network_checksum_marker_object)
 		{
 			// Special debug checksum marker for entire send
 			if (mode == 1)

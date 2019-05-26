@@ -39,7 +39,6 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, object, objnum_t, MAX_OBJECTS);
 namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(object, obj);
 
-static constexpr valptridx<object>::magic_constant<0xfffe> object_guidebot_cannot_reach{};
 static constexpr valptridx<object>::magic_constant<0xffff> object_none{};
 static constexpr valptridx<object>::magic_constant<0> object_first{};
 

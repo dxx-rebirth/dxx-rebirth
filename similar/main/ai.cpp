@@ -4626,7 +4626,7 @@ int ai_save_state(PHYSFS_File *fp)
 	PHYSFS_write(fp, &Escort_special_goal, sizeof(Escort_special_goal), 1);
 	}
 	{
-		const int egi = BuddyState.Escort_goal_index;
+		const int egi = BuddyState.Escort_goal_reachable == d_unique_buddy_state::Escort_goal_reachability::unreachable ? -2 : BuddyState.Escort_goal_objidx.get_unchecked_index();
 		PHYSFS_write(fp, &egi, sizeof(int), 1);
 	}
 	PHYSFS_write(fp, &Stolen_items, sizeof(Stolen_items[0]) * Stolen_items.size(), 1);
@@ -4827,13 +4827,24 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 		BuddyState.Escort_last_path_created = static_cast<fix64>(tmptime32);
 		BuddyState.Escort_goal_object = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
 		BuddyState.Escort_special_goal = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
-		BuddyState.Escort_goal_index = PHYSFSX_readSXE32(fp, swap);
+		const int egi = PHYSFSX_readSXE32(fp, swap);
+		if (static_cast<unsigned>(egi) < Objects.size())
+		{
+			BuddyState.Escort_goal_objidx = egi;
+			BuddyState.Escort_goal_reachable = d_unique_buddy_state::Escort_goal_reachability::reachable;
+		}
+		else
+		{
+			BuddyState.Escort_goal_objidx = object_none;
+			BuddyState.Escort_goal_reachable = d_unique_buddy_state::Escort_goal_reachability::unreachable;
+		}
 		PHYSFS_read(fp, &Stolen_items, sizeof(Stolen_items[0]) * Stolen_items.size(), 1);
 	} else {
 		BuddyState.Escort_last_path_created = 0;
 		BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		BuddyState.Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
-		BuddyState.Escort_goal_index = object_none;
+		BuddyState.Escort_goal_objidx = object_none;
+		BuddyState.Escort_goal_reachable = d_unique_buddy_state::Escort_goal_reachability::unreachable;
 
 		Stolen_items.fill(255);
 	}

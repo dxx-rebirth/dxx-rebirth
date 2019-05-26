@@ -572,8 +572,14 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 struct d_unique_buddy_state
 {
+	enum class Escort_goal_reachability : uint8_t
+	{
+		unreachable,
+		reachable,
+	};
 	icobjidx_t Buddy_objnum = object_none;
-	icobjidx_t Escort_goal_index = object_none;
+	icobjidx_t Escort_goal_objidx = object_none;
+	Escort_goal_reachability Escort_goal_reachable = Escort_goal_reachability::unreachable;
 	uint8_t Buddy_allowed_to_talk;
 	uint8_t Buddy_messages_suppressed;
 	uint8_t Buddy_gave_hint_count;
