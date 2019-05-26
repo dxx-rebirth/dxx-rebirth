@@ -3467,7 +3467,7 @@ class DXXCommon(LazyObjectConstructor):
 				)))
 				default_builddir += '-'.join([f for f in fields if f])
 				if builddir_suffix is not None:
-					default_builddir += builddir_prefix
+					default_builddir += builddir_suffix
 			return default_builddir
 		def default_memdebug(self):
 			return self.debug
