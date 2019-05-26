@@ -1,22 +1,23 @@
+---
+name: Runtime bug
+about: Report a bug in any supported configuration.
+labels: 'bug'
+title: 'Runtime bug: '
+assignees: 'vLKp'
+
+---
+
 <!--
 These instructions are wrapped in comment markers.  Write your answers outside the comment markers.  You may delete the commented text as you go, or leave it in and let the system remove the comments when you submit the issue.
 
-Please use a descriptive title.  If you are reporting a build failure, start the title with "Build failure:" and include in the title the _first_ error message.  If you are reporting a program crash, start the title with "Crash:" and summarize your actions immediately prior to the crash.
-
-For your convenience, various multiple choice queries include many of the common answers with a leading `[ ]`.  For each possible answer, if the issue was tested and applies, change `[ ]` to `[x]`.  If the issue was tested and did not apply, leave `[ ]` unchanged.  If the issue was not tested, remove the line.  You are not expected to test every combination.  In many cases, you are likely to delete more possible answers as untested than you keep.
-
-If you need to include program output inline (build log snippets, gamelog, etc.), wrap single-line output in `backticks` and wrap multi-line output in
-```
-triple backticks
-```
-For triple backticks, place the backticks alone on a line.
+Use this template if a current build crashes at runtime.  If your problem happens at build time, or is a crash, please use the issue template `Failure to build` or the issue template `Runtime crash`, as appropriate.
 -->
 ### Environment
 
 <!--
-If you fetched the source from Git, state the Git commit you used, preferably as the full 40-digit commit hash.  Please do **not** say "HEAD", "current", or similar relative references.  The meaning of relative references can change as contributors publish new code.  The 40-digit commit hash will not change.
+If you fetched the source from Git and compiled your own build, state the Git commit you used, preferably as the full 40-digit commit hash.  Please do **not** say "HEAD", "current", or similar relative references.  The meaning of relative references can change as contributors publish new code.  The 40-digit commit hash will not change.
 
-If you received a pre-compiled program from someone, describe how others can get the same program.  For publicly linked downloads, the download URL of the pre-compiled program is sufficient.  Please link to the program archive, not to the web page which links to the program archive.
+If you received a pre-packaged program from someone, describe how others can get the same program.  For publicly linked downloads, the download URL of the program is sufficient.  Please link to the program archive, not to the web page which links to the program archive.
 
   Good URL: https://www.dxx-rebirth.com/download/dxx/user/afuturepilot/dxx-rebirth_v0.60-weekly-04-14-18-win.zip
   Bad URL: https://www.dxx-rebirth.com/download-dxx-rebirth/
@@ -68,6 +69,7 @@ Add versions as needed.
   * [ ] Fedora 27
   * [ ] Fedora 28
   * [ ] Fedora 29
+  * [ ] Fedora 30
   * [ ] Rawhide
 * Ubuntu
   * [ ] Ubuntu 16.04 LTS (Xenial Xerus)
@@ -76,12 +78,14 @@ Add versions as needed.
   * [ ] Ubuntu 17.10 (Artful Aardvark)
   * [ ] Ubuntu 18.04 LTS (Bionic Beaver)
   * [ ] Ubuntu 18.10 (Cosmic Cuttlefish)
+  * [ ] Ubuntu 19.04 (Disco Dingo)
 
 * [ ] Arch
 * [ ] Gentoo
 
 * [ ] OpenBSD
 * [ ] FreeBSD
+* [ ] NetBSD
 
 #### CPU environment
 
@@ -121,13 +125,7 @@ What is the oldest Git commit known to present the problem?  What is the newest 
 ### Steps to Reproduce
 
 <!--
-For build failures, provide:
-- The `scons` command executed.
-- All output from `scons`, starting at the prompt where the command was entered and ending at the first shell prompt after the error.
-- If sconf.log is mentioned in the output, attach it.  If it is mentioned, it will be in the last lines before SCons exits.  You do not need to read the full output searching for references to it.  If in doubt, attach it.
-- If `dxxsconf.h` is generated, attach it.  It will be in the root of the build directory.  If you did not set a build directory, it will be in the same directory as `SConstruct`.
-
-For runtime problems (crashes, hangs, incorrect results), provide:
+Provide:
 - Expected behavior
 - Observed behavior
 - Engines affected (D1X-Rebirth, D2X-Rebirth)
@@ -135,7 +133,6 @@ For runtime problems (crashes, hangs, incorrect results), provide:
 - If possible, describe the frequency of the problem.  Does it happen every time the steps to reproduce are followed?  If it is intermittent, are there any events correlated with the error?
 - If the game produced any error messages, include their text verbatim.  If you paraphrase the message, you will likely be asked to reproduce the error and collect a verbatim copy of the text.
 - For in-game problems, indicate whether it happens in single player, multiplayer cooperative, or multiplayer competitive.  If you do not know, state that.  You do not need to check every combination before filing, but please report which combinations you checked and the results you found for those combinations.
-- If the game crashed and a crash dump was created, include the dump backtrace.
 -->
 
 * Engines affected:
