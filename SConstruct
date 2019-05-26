@@ -3391,6 +3391,20 @@ class DXXCommon(LazyObjectConstructor):
 	DXX_VERSION_SEQ = ','.join([str(VERSION_MAJOR), str(VERSION_MINOR), str(VERSION_MICRO)])
 	pch_manager = None
 	runtime_test_boost_tests = None
+	# dict compilation_database_dict_fn_to_entries:
+	#	key: str: name of JSON file to which the data will be written
+	#	value: tuple: (SCons.Environment, list_of_entries_to_write)
+	# The first environment to use the named JSON file will be stored as
+	# the environment in the tuple, and later used to provide
+	# env.Textfile for all the entries written to the file.  When other
+	# environments write to the same JSON file, they will append their
+	# entries to the original list, and reuse the initial environment.
+	# Since the build system does not customize env.Textfile, any
+	# instance of it should be equally good.  This design permits
+	# writing all the records for a build into a single file, even
+	# though the build will use multiple SCons.Environment instances to
+	# compile its source files.
+	compilation_database_dict_fn_to_entries = {}
 
 	class RuntimeTest(LazyObjectConstructor):
 		nodefaultlibs = True
@@ -3674,6 +3688,7 @@ class DXXCommon(LazyObjectConstructor):
 					('RC', getenv('RC'), 'Windows resource compiler command'),
 					('extra_version', None, 'text to append to version, such as VCS identity'),
 					('ccache', None, 'path to ccache'),
+					('compilation_database', None, None),
 					('distcc', None, 'path to distcc'),
 					('distcc_hosts', getenv('DISTCC_HOSTS'), 'hosts to distribute compilation'),
 				),
@@ -4030,6 +4045,29 @@ class DXXCommon(LazyObjectConstructor):
 		)
 		return StaticObject(target=target, source=source, DXX_EFFECTIVE_SOURCE=DXX_EFFECTIVE_SOURCE, *args, **kwargs)
 
+	def _compilation_database_StaticObject(self,target=None,source=None,*args,**kwargs):
+		env = self.env
+		StaticObject = env.__compilation_database_StaticObject
+		objects = StaticObject(target=target, source=source, *args, **kwargs)
+		# Exclude ccache/distcc from the persisted command line.  Store
+		# `directory` as the directory of the `SConstruct` file.
+		# Calls to `str` are necessary here to coerce SCons.Node objects
+		# into strings that `json.dumps` can handle.
+		relative_file_path = str(source)
+		# clang documentation is silent on whether this must be
+		# absolute, but `clang-check` refuses to find files when this is
+		# relative.
+		directory = env.Dir('.').get_abspath()
+		self._compilation_database_entries.extend([
+			{
+				'command' : env.subst(env._dxx_cxxcom_no_prefix, target=[o], source=source),
+				'directory' : directory,
+				'file' : relative_file_path,
+				'output' : str(o),
+				}
+			for o in objects])
+		return objects
+
 	def create_special_target_nodes(self,archive):
 		env = self.env
 		StaticObject = env.StaticObject
@@ -4037,7 +4075,10 @@ class DXXCommon(LazyObjectConstructor):
 		user_settings = self.user_settings
 		if user_settings.register_cpp_output_targets:
 			env.__cpp_output_StaticObject = StaticObject
-			env.StaticObject = self._cpp_output_StaticObject
+			env.StaticObject = StaticObject = self._cpp_output_StaticObject
+		if user_settings.compilation_database:
+			env.__compilation_database_StaticObject = StaticObject
+			env.StaticObject = self._compilation_database_StaticObject
 		if user_settings.check_header_includes:
 			# Create header targets before creating the PCHManager, so that
 			# create_header_targets() does not call the PCHManager
@@ -4248,6 +4289,16 @@ class DXXCommon(LazyObjectConstructor):
 	def process_user_settings(self):
 		env = self.env
 		user_settings = self.user_settings
+		compilation_database = self.user_settings.compilation_database
+		if compilation_database:
+			# Only set self._compilation_database_entries if collection
+			# of the compilation database is enabled.
+			try:
+				compilation_database_entries = self.compilation_database_dict_fn_to_entries[compilation_database][1]
+			except KeyError:
+				compilation_database_entries = []
+				self.compilation_database_dict_fn_to_entries[compilation_database] = (env, compilation_database_entries)
+			self._compilation_database_entries = compilation_database_entries
 
 		# Insert default CXXFLAGS.  User-specified CXXFLAGS, if any, are
 		# appended to this list and will override these defaults.  The
@@ -5125,6 +5176,24 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 	)
 	if not dxx:
 		return
+	compilation_database_dict_fn_to_entries = DXXCommon.compilation_database_dict_fn_to_entries
+	if compilation_database_dict_fn_to_entries:
+		import json
+		for fn, entry_tuple in get_dictionary_item_view(compilation_database_dict_fn_to_entries):
+			env, entries = entry_tuple
+			e = env.Entry(fn)
+			# clang tools search for this specific filename.  As a
+			# convenience to the caller, if the target is a directory,
+			# assume this filename in the named directory.  If the
+			# caller wishes to generate the file under some other name,
+			# that will be respected, though clang tools may refuse to
+			# see it.
+			if e.isdir() or fn.endswith('/'):
+				e = e.File('compile_commands.json')
+			# Sort by key so that dictionary ordering changes do not
+			# cause unnecessary regeneration of the file.
+			env.Textfile(target=e, source=env.Value(json.dumps(entries, indent=4, sort_keys=True)))
+
 	unknown = variables.UnknownVariables()
 	# Delete known unregistered variables
 	unknown.pop('d1x', None)
