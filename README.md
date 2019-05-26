@@ -12,7 +12,7 @@ DXX-Rebirth is based on the late D1X and D2X source ports (which, in turn, were 
 
 It is the goal of DXX-Rebirth to keep Descent 1 & 2 alive and well, updating them for modern PCs while also keeping them the same games you remember playing back in 1995!
 
-If you have any questions, comments, or suggestions, contact zico [at] dxx-rebirth [dot] com, or come to our forum: http://dxx-rebirth.com/frm
+If you have any questions, comments, or suggestions, contact zico [at] dxx-rebirth [dot] com, or come to our forum: https://forum.dxx-rebirth.com/
 
 > Now Material Defender...Prepare for Descent!
 
@@ -23,7 +23,7 @@ DXX-Rebirth has every little feature you may remember from the original Descent 
 For example:
 
 * Full compatibility with Descent and Descent 2, including all expansions and third-party levels.
-* DXX-Rebirth runs on your favourite Operating System. We officially support Linux (and other *NIXs), Mac OS X and Windows. The source code can also be compiled on many other systems!
+* DXX-Rebirth runs on your favourite Operating System. We officially support Linux (and other \*NIXs), Mac OS X and Windows. The source code can also be compiled on many other systems!
 * OpenGL provides fast and smooth rendering - even on low-end systems.
 * Optionally you can enable several effects like Transparency, Colored Lighting, Texture Filtering, FSAA, etc.
 * Thanks to SDL, a wide variety of Joysticks are supported. Also you can use more Joysticks, buttons and axes than you can ever operate in your state of evolution.
@@ -65,9 +65,9 @@ See [COPYING.txt](COPYING.txt) and [GPL-3.txt](GPL-3.txt)
 ## 5. Contact:
 
 - https://www.dxx-rebirth.com/
-- [Forum](http://dxx-rebirth.com/frm)
+- [Forum](https://forum.dxx-rebirth.com/)
 - zico [at] dxx-rebirth [dot] com
    
 ## 6. Issue Reporting
 
-See [ISSUE_TEMPLATE.md](ISSUE_TEMPLATE.md) for the old style template for creating issues.
+Use GitHub issues tab report a [new issue](https://github.com/dxx-rebirth/dxx-rebirth/issues/new), be sure to add as much detail as possible in the template provided.
