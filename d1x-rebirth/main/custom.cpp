@@ -162,7 +162,6 @@ static int load_pog(PHYSFS_File *f, int pog_sig, int pog_ver, unsigned &num_cust
 	int data_ofs;
 	int num_bitmaps;
 	int no_repl = 0;
-	int i;
 	DiskBitmapHeader2 bmh;
 
 #ifdef D2TMAP_CONV
@@ -193,9 +192,7 @@ static int load_pog(PHYSFS_File *f, int pog_sig, int pog_ver, unsigned &num_cust
 
 	if (!no_repl)
 	{
-		i = num_bitmaps;
-
-		while (i--)
+		for (int i = num_bitmaps; i--;)
 			(cip++)->repl_idx = PHYSFSX_readShort(f);
 
 		cip = ci.get();
@@ -217,10 +214,7 @@ static int load_pog(PHYSFS_File *f, int pog_sig, int pog_ver, unsigned &num_cust
 				}
 		}
 #endif
-
-	i = num_bitmaps;
-
-	while (i--)
+	for (int i = num_bitmaps; i--;)
 	{
 		if (PHYSFS_read(f, &bmh, sizeof(DiskBitmapHeader2), 1) < 1)
 		{
