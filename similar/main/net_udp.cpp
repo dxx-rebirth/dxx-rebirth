@@ -177,7 +177,7 @@ constexpr std::integral_constant<int, -1> INVALID_SOCKET{};
 
 namespace {
 
-constexpr std::integral_constant<int, -2> network_checksum_marker_object{};
+constexpr std::integral_constant<uint32_t, 0xfffffffe> network_checksum_marker_object{};
 
 class RAIIsocket
 {
@@ -2105,7 +2105,8 @@ static void net_udp_read_object_packet( ubyte *data )
 
 	for (int i = 0; i < nobj; i++)
 	{
-		objnum_t objnum = GET_INTEL_INT(data + loc);                         loc += 4;
+		const unsigned uobjnum = GET_INTEL_INT(data + loc);
+		objnum_t objnum = uobjnum;                         loc += 4;
 		obj_owner = data[loc];                                      loc += 1;
 		remote_objnum = GET_INTEL_INT(data + loc);                  loc += 4;
 
@@ -2119,7 +2120,7 @@ static void net_udp_read_object_packet( ubyte *data )
 			mode = 1;
 			object_count = 0;
 		}
-		else if (objnum == network_checksum_marker_object)
+		else if (uobjnum == network_checksum_marker_object)
 		{
 			// Special debug checksum marker for entire send
 			if (mode == 1)
