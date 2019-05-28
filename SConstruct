@@ -1436,6 +1436,7 @@ static void terminate_handler()
 	Mix_Quit();
 ''',
 			lib=mixer, successflags=successflags)
+
 	@_custom_test
 	def check_compiler_missing_field_initializers(self,context,
 		_testflags_warn={'CXXFLAGS' : ['-Wmissing-field-initializers']},
@@ -1460,6 +1461,7 @@ variables to their default-constructed value.
 			not Compile(context, text=text, main=main, msg='whether C++ compiler always errors for {} initialization', expect_failure=True):
 			return
 		raise SCons.Errors.StopError("C++ compiler errors on {} initialization, even with -Wno-missing-field-initializers.")
+
 	@_custom_test
 	def check_compiler_extended_identifiers(self,context,main=r'''
 #define DXX_RENAME_IDENTIFIER2(I,N)	I##$##N
@@ -1838,6 +1840,7 @@ C++11 deleted functions cannot be used here because the compiler raises
 an error for the call before the optimizer has an opportunity to delete
 the call via a dead code elimination pass.
 ''')
+
 	@_custom_test
 	def check_attribute_always_inline(self,context):
 		"""
@@ -2622,6 +2625,46 @@ where the cast is useless.
 #endif
 '''
 		self.check_warn_implicit_fallthrough(context, text, main, testflags=_successflags)
+
+	@_custom_test
+	def check_compiler_overzealous_unused_lambda_capture(self,context):
+		'''
+<clang-5: untested
+>clang-8: untested
+>=clang-5 && <=clang-8: when -Wunused is passed, clang will warn when a lambda captures by reference a local variable that is itself a reference, regardless of whether the lambda body uses the captured value.  The warning is:
+
+```
+similar/main/object.cpp:1060:13: error: lambda capture 'vmobjptr' is not required to be captured for this use [-Werror,-Wunused-lambda-capture]
+	auto l = [&vmobjptr, &r, &num_to_free](bool (*predicate)(const vcobjptr_t)) -> bool {
+```
+
+<gcc-8 require such variables to be captured and will fail the build if the capture is removed.
+>=gcc-8 permit the variable not to be captured, and will not warn regardless of whether it is captured.
+
+Test whether the compiler warns for this case and, if it does, tell it
+not to warn.  Once support is removed for gcc versions which require the
+capture, this test can be dropped and the warning reinstated.
+
+If clang learns to treat -Wunused-lambda-capture (by way of -Wunused) as
+a request to warn only about captures that are _actually_ unused, rather
+than also those that are used but not required, this test will stop
+disabling the warning on clang.  Since this quirk was discussed when the
+warning was added[1], and the warning was added in its current form
+anyway, it seems unlikely this will be fixed soon.
+
+[1]: https://marc.info/?l=cfe-commits&m=148494796318826&w=2
+|: https://marc.info/?l=cfe-commits&m=148509467111194&w=2
+|: https://marc.info/?l=cfe-commits&m=148520882106501&w=2
+		'''
+		if not self.Compile(context, text='''
+int a;
+''', main='''
+	auto &b = a;
+	[&b]() {
+		++b;
+	}();
+''', msg='whether compiler allows lambda capture of local references'):
+			self.successful_flags['CXXFLAGS'].append('-Wno-unused-lambda-capture')
 
 	__preferred_compiler_options = (
 		'-fvisibility=hidden',
