@@ -554,7 +554,7 @@ struct briefing : ignore_window_pointer_t
 	grs_main_bitmap  guy_bitmap;
 	sbyte   door_dir, door_div_count, animating_bitmap_type;
 	sbyte	prev_ch;
-	char background_name[16];
+	array<char, 16> background_name;
 };
 
 }
@@ -566,8 +566,8 @@ static void briefing_init(briefing *br, short level_num)
 		br->level_num = 0;	// for start of game stuff
 
 	br->cur_screen = 0;
-	br->background_name[sizeof(br->background_name) - 1] = 0;
-	strncpy(br->background_name, DEFAULT_BRIEFING_BKG, sizeof(br->background_name) - 1);
+	br->background_name.back() = 0;
+	strncpy(br->background_name.data(), DEFAULT_BRIEFING_BKG, br->background_name.size() - 1);
 #if defined(DXX_BUILD_DESCENT_II)
 	br->robot_playing = 0;
 #endif
@@ -1228,7 +1228,7 @@ static void init_new_page(briefing *br)
 	br->new_page = 0;
 	br->robot_num = -1;
 
-	load_briefing_screen(*grd_curcanv, br, br->background_name);
+	load_briefing_screen(*grd_curcanv, br, br->background_name.data());
 	br->text_x = br->screen->text_ulx;
 	br->text_y = br->screen->text_uly;
 
@@ -1291,11 +1291,11 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 #if defined(DXX_BUILD_DESCENT_I)
 	int pcx_error;
 	char forigin[PATH_MAX];
-	auto &fname2 = br->background_name;
+	decltype(br->background_name) fname2a;
 
 	free_briefing_screen(br);
 
-	snprintf(fname2, sizeof(fname2), "%s", fname);
+	snprintf(fname2a.data(), fname2a.size(), "%s", fname);
 	snprintf(forigin, sizeof(forigin), "%s", PHYSFS_getRealDir(fname));
 	d_strlwr(forigin);
 
@@ -1303,7 +1303,8 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 	// Also if this hires image comes via external AddOn pack, only apply if requested image would be loaded from descent.hog - not a seperate mission which might want to show something else.
 	if (SWIDTH >= 640 && SHEIGHT >= 480 && (strstr(forigin,"descent.hog") != NULL))
 	{
-		char *ptr = fname2;
+		const auto fb = fname2a.begin();
+		auto ptr = fb;
 		for (; const char c = *ptr; ++ptr)
 		{
 			if (c == '.')
@@ -1313,14 +1314,16 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 			}
 		}
 		auto &hires_pcx = "h.pcx";
-		const size_t len_fname2 = std::distance(fname2, ptr);
-		if (len_fname2 + sizeof(hires_pcx) < sizeof(fname2))
+		const size_t len_fname2 = std::distance(fb, ptr);
+		if (len_fname2 + sizeof(hires_pcx) < fname2a.size())
 		{
 			strcpy(ptr, hires_pcx);
-		if (!PHYSFSX_exists(fname2,1))
-			snprintf(fname2, sizeof(fname2), "%s", fname);
+			if (!PHYSFSX_exists(fname2a.data(), 1))
+				snprintf(fname2a.data(), fname2a.size(), "%s", fname);
 		}
 	}
+	br->background_name = fname2a;
+	const auto fname2 = fname2a.data();
 
 	if ((!d_stricmp(fname2, "brief02.pcx") || !d_stricmp(fname2, "brief02h.pcx")) && cheats.baldguy &&
 		(bald_guy_load("btexture.xxx", &br->background, gr_palette) == PCX_ERROR_NONE))
@@ -1356,7 +1359,8 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 	int pcx_error;
 
 	free_briefing_screen(br);
-	strncpy(br->background_name, fname, sizeof(br->background_name) - 1);
+	br->background_name.back() = 0;
+	strncpy(br->background_name.data(), fname, br->background_name.size() - 1);
 
 	if ((pcx_error = pcx_read_bitmap(fname, br->background, gr_palette))!=PCX_ERROR_NONE)
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
