@@ -15,7 +15,7 @@ if [[ "$PV" = 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dxx-rebirth/dxx-rebirth"
 else
-	MY_COMMIT='00894792eb225a611ca5fd4b10156d959a0b51f9'
+	MY_COMMIT='4e18ed1ac9bc74d151af7fb9c2c9f6c60e2583bd'
 	S="$WORKDIR/$PN-$MY_COMMIT"
 	SRC_URI="https://github.com/dxx-rebirth/dxx-rebirth/archive/$MY_COMMIT.zip -> $PN-$PVR.zip"
 	unset MY_COMMIT
@@ -40,11 +40,9 @@ SLOT="0"
 KEYWORDS="amd64 x86"
 # Default to building both game engines.  The total size is relatively
 # small.
-IUSE="+d1x +d2x debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +music +opengl opl3-musicpack +png sc55-musicpack tracker +vorbis"
+IUSE="+d1x +d2x debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +music +opengl opl3-musicpack +png sc55-musicpack sdl2 tracker +vorbis"
 
 DEPEND="dev-games/physfs[hog,mvl,zip]
-	media-libs/libsdl[joystick?,opengl?,sound,video]
-	music? ( media-libs/sdl-mixer )
 	opengl? (
 		virtual/opengl
 		virtual/glu )
@@ -96,13 +94,29 @@ DXX_RDEPEND_ENGINE_FRAGMENT='
 		"'
 	)
 '
+
+DXX_DEPEND_USE_SDL_VERSION_FRAGMENT='
+	media-libs/lib${SDL_version}[joystick?,opengl?,sound,video]
+	music? ( media-libs/${SDL_version}-mixer )
+'
+DXX_RDEPEND_USE_SDL_VERSION_FRAGMENT='
+	music? ( media-libs/${SDL_version}-mixer[flac?,midi?,mp3?,vorbis?] )
+'
+DEPEND="${DEPEND}
+	!sdl2? ( ${DXX_DEPEND_USE_SDL_VERSION_FRAGMENT//\$\{SDL_version\}/sdl} )
+	sdl2? ( ${DXX_DEPEND_USE_SDL_VERSION_FRAGMENT//\$\{SDL_version\}/sdl2} )
+"
+unset DXX_DEPEND_USE_SDL_VERSION_FRAGMENT
+
 unset DXX_RDEPEND_USE_FREEDATA_FRAGMENT
 RDEPEND="${DEPEND}
-	music? ( media-libs/sdl-mixer[flac?,midi?,mp3?,vorbis?] )
+	!sdl2? ( ${DXX_RDEPEND_USE_SDL_VERSION_FRAGMENT//\$\{SDL_version\}/sdl} )
+	sdl2? ( ${DXX_RDEPEND_USE_SDL_VERSION_FRAGMENT//\$\{SDL_version\}/sdl2} )
 	${DXX_RDEPEND_ENGINE_FRAGMENT//\$\{ENGINE\}/1}
 	${DXX_RDEPEND_ENGINE_FRAGMENT//\$\{ENGINE\}/2}
 "
 unset DXX_RDEPEND_ENGINE_FRAGMENT
+unset DXX_RDEPEND_USE_SDL_VERSION_FRAGMENT
 
 # This ebuild builds d1x-rebirth, d2x-rebirth, or both.  Building none
 # would mean this ebuild installs zero files.
@@ -123,6 +137,7 @@ REQUIRED_USE='
 	vorbis? ( music )
 	opl3-musicpack? ( vorbis )
 	sc55-musicpack? ( vorbis )
+	sdl2? ( opengl )
 '
 
 # As of this writing, IUSE_RUNTIME is a GLEP, but not an implemented
@@ -151,6 +166,7 @@ dxx_scons() {
 	#   profile to affect both engines:
 	#   EXTRA_ESCONS="site_verbosebuild=0".
 	local scons_build_profile=m mysconsargs=(
+		sdl2=$(usex sdl2 1 0)
 		sdlmixer=$(usex music 1 0)
 		verbosebuild=1
 		debug=$(usex debug 1 0)
