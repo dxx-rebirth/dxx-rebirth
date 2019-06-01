@@ -3458,6 +3458,11 @@ class DXXCommon(LazyObjectConstructor):
 	@cached_property
 	def program_message_prefix(self):
 		return '%s.%d' % (self.PROGRAM_NAME, self.program_instance)
+
+	@cached_property
+	def builddir(self):
+		return self.env.Dir(self.user_settings.builddir)
+
 	# Settings which affect how the files are compiled
 	class UserBuildSettings:
 		class IntVariable(object):
@@ -3952,8 +3957,9 @@ class DXXCommon(LazyObjectConstructor):
 				CXXFLAGS = ['-pthread'],
 			)
 
-	def __init__(self,__program_instance=itertools.count(1)):
+	def __init__(self,user_settings,__program_instance=itertools.count(1)):
 		self.program_instance = next(__program_instance)
+		self.user_settings = user_settings
 
 	def create_header_targets(self,__shared_header_file_list=[],__shared_cpp_dict={}):
 		fs = SCons.Node.FS.get_default_fs()
@@ -4257,7 +4263,6 @@ class DXXCommon(LazyObjectConstructor):
 		if user_settings.editor:
 			add_flags['CPPPATH'].append('common/include/editor')
 		CLVar = SCons.Util.CLVar
-		self.builddir = env.Dir(user_settings.builddir)
 		for flags in ('CPPFLAGS', 'CXXFLAGS', 'LIBS', 'LINKFLAGS'):
 			value = getattr(self.user_settings, flags)
 			if value is not None:
@@ -4501,8 +4506,8 @@ class DXXArchive(DXXCommon):
 		))
 
 	def __init__(self,user_settings):
-		DXXCommon.__init__(self)
-		self.user_settings = user_settings.clone()
+		user_settings = user_settings.clone()
+		DXXCommon.__init__(self, user_settings)
 		if not user_settings.register_compile_target:
 			return
 		self.prepare_environment()
@@ -4832,13 +4837,13 @@ class DXXProgram(DXXCommon):
 	def __init__(self,prefix,variables,filtered_help):
 		self.variables = variables
 		self._argument_prefix_list = prefix
-		DXXCommon.__init__(self)
+		user_settings = self.UserSettings(program=self)
+		DXXCommon.__init__(self, user_settings)
 		git_describe_version = Git.compute_extra_version().describe
 		extra_version = 'v%s.%s.%s' % (self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO)
 		if git_describe_version and not (extra_version == git_describe_version or extra_version[1:] == git_describe_version):
 			extra_version += ' ' + git_describe_version
 		print('===== %s %s =====' % (self.PROGRAM_NAME, extra_version))
-		self.user_settings = user_settings = self.UserSettings(program=self)
 		user_settings.register_variables(prefix, variables, filtered_help)
 
 	def init(self,substenv):
