@@ -132,7 +132,7 @@ void create_path_to_station(vmobjptridx_t objp, int max_length);
 #else
 #undef ai_follow_path
 #endif
-void ai_follow_path(vmobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player);
+void ai_follow_path(vmobjptridx_t objp, const player_visibility_state player_visibility, const vms_vector *vec_to_player);
 void ai_turn_towards_vector(const vms_vector &vec_to_player, object_base &obj, fix rate);
 extern void init_ai_objects(void);
 void create_n_segment_path(vmobjptridx_t objp, unsigned path_length, imsegidx_t avoid_seg);
@@ -147,6 +147,9 @@ static inline vms_vector make_random_vector()
 	vms_vector v;
 	return make_random_vector(v), v;
 }
+
+extern player_visibility_state Control_center_player_been_seen;
+
 }
 #ifdef dsx
 namespace dsx {
@@ -168,15 +171,15 @@ int ai_door_is_openable(
 	player_flags,
 #endif
 	const shared_segment &segp, unsigned sidenum);
-int player_is_visible_from_object(vmobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
+player_visibility_state player_is_visible_from_object(vmobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
 int ai_multiplayer_awareness(vmobjptridx_t objp, int awareness_level);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // In escort.c
-void do_escort_frame(vmobjptridx_t objp, const object &plrobj, fix dist_to_player, int player_visibility);
-void do_snipe_frame(vmobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player);
-void do_thief_frame(vmobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player);
+void do_escort_frame(vmobjptridx_t objp, const object &plrobj, fix dist_to_player, player_visibility_state player_visibility);
+void do_snipe_frame(vmobjptridx_t objp, fix dist_to_player, player_visibility_state player_visibility, const vms_vector &vec_to_player);
+void do_thief_frame(vmobjptridx_t objp, fix dist_to_player, player_visibility_state player_visibility, const vms_vector &vec_to_player);
 #endif
 }
 

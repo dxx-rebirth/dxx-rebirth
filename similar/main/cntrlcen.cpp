@@ -70,7 +70,7 @@ control_center_triggers ControlCenterTriggers;
 namespace dcx {
 
 int	Control_center_been_hit;
-int	Control_center_player_been_seen;
+player_visibility_state Control_center_player_been_seen;
 int	Control_center_next_fire_time;
 int	Control_center_present;
 
@@ -332,7 +332,8 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 #endif
 
 	auto &plrobj = get_local_plrobj();
-	if (!(Control_center_been_hit || Control_center_player_been_seen)) {
+	if (!(Control_center_been_hit || player_is_visible(Control_center_player_been_seen)))
+	{
 		if (!(d_tick_count % 8)) {		//	Do every so often...
 			// This is a hack.  Since the control center is not processed by
 			// ai_do_frame, it doesn't know to deal with cloaked dudes.  It
@@ -364,7 +365,8 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Periodically, make the reactor fall asleep if player not visible.
-	if (Control_center_been_hit || Control_center_player_been_seen) {
+	if (Control_center_been_hit || player_is_visible(Control_center_player_been_seen))
+	{
 		if ((Last_time_cc_vis_check + F1_0*5 < GameTime64) || (Last_time_cc_vis_check > GameTime64)) {
 			fix			dist_to_player;
 
@@ -373,7 +375,7 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 			Last_time_cc_vis_check = GameTime64;
 			if (dist_to_player < F1_0*120) {
 				Control_center_player_been_seen = player_is_visible_from_object(obj, obj->pos, 0, vec_to_player);
-				if (!Control_center_player_been_seen)
+				if (!player_is_visible(Control_center_player_been_seen))
 					Control_center_been_hit = 0;
 			}
 		}
@@ -404,7 +406,7 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 			if (dist_to_player > F1_0*300)
 			{
 				Control_center_been_hit = 0;
-				Control_center_player_been_seen = 0;
+				Control_center_player_been_seen = player_visibility_state::no_line_of_sight;
 				return;
 			}
 	
@@ -519,7 +521,7 @@ void init_controlcen_for_level(void)
 
 	//	Say the control center has not yet been hit.
 	Control_center_been_hit = 0;
-	Control_center_player_been_seen = 0;
+	Control_center_player_been_seen = player_visibility_state::no_line_of_sight;
 	Control_center_next_fire_time = 0;
 	
 	Dead_controlcen_object_num = object_none;

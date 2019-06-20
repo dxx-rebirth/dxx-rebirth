@@ -1100,14 +1100,15 @@ static void do_buddy_dude_stuff(void)
 
 //	-----------------------------------------------------------------------------
 //	Called every frame (or something).
-void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to_player, int player_visibility)
+void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, const fix dist_to_player, const player_visibility_state player_visibility)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
 	auto &player_info = plrobj.ctype.player_info;
-	if (player_visibility) {
+	if (player_is_visible(player_visibility))
+	{
 		BuddyState.Buddy_last_seen_player = GameTime64;
 		if (player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
 		{
@@ -1143,13 +1144,14 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 	//	It means the object has been told to get lost and has come to the end of its path.
 	//	If the player is now visible, then create a path.
 	if (ailp->mode == ai_mode::AIM_WANDER)
-		if (player_visibility) {
+		if (player_is_visible(player_visibility))
+		{
 			create_n_segment_path(objp, 16 + d_rand() * 16, segment_none);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		}
 
 	if (BuddyState.Escort_special_goal == ESCORT_GOAL_SCRAM) {
-		if (player_visibility)
+		if (player_is_visible(player_visibility))
 			if (BuddyState.Escort_last_path_created + F1_0*3 < GameTime64) {
 				BuddyState.Escort_last_path_created = GameTime64;
 				create_n_segment_path(objp, 10 + d_rand() * 16, ConsoleObject->segnum);
@@ -1170,7 +1172,8 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, fix dist_to
 
 		BuddyState.Buddy_last_player_path_created = GameTime64;
 		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
-		if (!player_visibility) {
+		if (!player_is_visible(player_visibility))
+		{
 			if (BuddyState.Last_come_back_message_time + F1_0 < GameTime64)
 			{
 				BuddyState.Last_come_back_message_time = GameTime64;
@@ -1220,7 +1223,7 @@ void invalidate_escort_goal(d_unique_buddy_state &BuddyState)
 }
 
 //	-------------------------------------------------------------------------------------------------
-void do_snipe_frame(const vmobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player)
+void do_snipe_frame(const vmobjptridx_t objp, const fix dist_to_player, const player_visibility_state player_visibility, const vms_vector &vec_to_player)
 {
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			connected_distance;
@@ -1248,7 +1251,9 @@ void do_snipe_frame(const vmobjptridx_t objp, fix dist_to_player, int player_vis
 			if (ailp->next_action_time < 0) {
 				ailp->mode = ai_mode::AIM_SNIPE_WAIT;
 				ailp->next_action_time = SNIPE_WAIT_TIME;
-			} else if ((player_visibility == 0) || (ailp->next_action_time > SNIPE_ABORT_RETREAT_TIME)) {
+			}
+			else if (player_visibility == player_visibility_state::no_line_of_sight || ailp->next_action_time > SNIPE_ABORT_RETREAT_TIME)
+			{
 				ai_follow_path(objp, player_visibility, &vec_to_player);
 				ailp->mode = ai_mode::AIM_SNIPE_RETREAT_BACKWARDS;
 			} else {
@@ -1263,7 +1268,8 @@ void do_snipe_frame(const vmobjptridx_t objp, fix dist_to_player, int player_vis
 				ailp->next_action_time = SNIPE_WAIT_TIME;
 			} else {
 				ai_follow_path(objp, player_visibility, &vec_to_player);
-				if (player_visibility) {
+				if (player_is_visible(player_visibility))
+				{
 					ailp->mode = ai_mode::AIM_SNIPE_FIRE;
 					ailp->next_action_time = SNIPE_FIRE_TIME;
 				} else
@@ -1344,7 +1350,7 @@ constexpr array<fix, NDL> Thief_wait_times = {{
 }};
 
 //	-------------------------------------------------------------------------------------------------
-void do_thief_frame(const vmobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player)
+void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const player_visibility_state player_visibility, const vms_vector &vec_to_player)
 {
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -1370,7 +1376,9 @@ void do_thief_frame(const vmobjptridx_t objp, fix dist_to_player, int player_vis
 				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 				ailp->next_action_time = THIEF_ATTACK_TIME/2;
 				return;
-			} else if (player_visibility) {
+			}
+			else if (player_is_visible(player_visibility))
+			{
 				create_n_segment_path(objp, 15, ConsoleObject->segnum);
 				ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 				return;
@@ -1394,7 +1402,9 @@ void do_thief_frame(const vmobjptridx_t objp, fix dist_to_player, int player_vis
 			if (ailp->next_action_time < 0) {
 				ailp->mode = ai_mode::AIM_THIEF_WAIT;
 				ailp->next_action_time = Thief_wait_times[Difficulty_level];
-			} else if ((dist_to_player < F1_0*100) || player_visibility || (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)) {
+			}
+			else if (dist_to_player < F1_0 * 100 || player_is_visible(player_visibility) || ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)
+			{
 				ai_follow_path(objp, player_visibility, &vec_to_player);
 				if ((dist_to_player < F1_0*100) || (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)) {
 					ai_static	*aip = &objp->ctype.ai_info;
@@ -1438,7 +1448,8 @@ void do_thief_frame(const vmobjptridx_t objp, fix dist_to_player, int player_vis
 				create_path_to_player(objp, 100, create_path_safety_flag::unsafe);
 				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 			} else {
-				if (player_visibility && (dist_to_player < F1_0*100)) {
+				if (player_is_visible(player_visibility) && dist_to_player < F1_0*100)
+				{
 					//	If the player is close to looking at the thief, thief shall run away.
 					//	No more stupid thief trying to sneak up on you when you're looking right at him!
 					if (dist_to_player > F1_0*60) {

@@ -106,7 +106,6 @@ static inline reactor &get_reactor_definition(int id)
 namespace dcx {
 //@@extern int N_controlcen_guns;
 extern int Control_center_been_hit;
-extern int Control_center_player_been_seen;
 extern int Control_center_next_fire_time;
 extern int Control_center_present;
 extern objnum_t Dead_controlcen_object_num;

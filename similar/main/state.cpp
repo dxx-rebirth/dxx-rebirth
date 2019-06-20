@@ -1198,7 +1198,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 // Save the control cen info
 	PHYSFS_write(fp, &Control_center_been_hit, sizeof(int), 1);
-	PHYSFS_write(fp, &Control_center_player_been_seen, sizeof(int), 1);
+	{
+		const auto cc = static_cast<int>(Control_center_player_been_seen);
+		PHYSFS_write(fp, &cc, sizeof(int), 1);
+	}
 	PHYSFS_write(fp, &Control_center_next_fire_time, sizeof(int), 1);
 	PHYSFS_write(fp, &Control_center_present, sizeof(int), 1);
 	int dead_controlcen_object_num = Dead_controlcen_object_num == object_none ? -1 : Dead_controlcen_object_num;
@@ -1808,7 +1811,10 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 	// Restore the control cen info
 	Control_center_been_hit = PHYSFSX_readSXE32(fp, swap);
-	Control_center_player_been_seen = PHYSFSX_readSXE32(fp, swap);
+	{
+		const int cc = PHYSFSX_readSXE32(fp, swap);
+		Control_center_player_been_seen = static_cast<player_visibility_state>(cc);
+	}
 	Control_center_next_fire_time = PHYSFSX_readSXE32(fp, swap);
 	Control_center_present = PHYSFSX_readSXE32(fp, swap);
 	Dead_controlcen_object_num = PHYSFSX_readSXE32(fp, swap);

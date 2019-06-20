@@ -62,7 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dsx {
 static void ai_path_set_orient_and_vel(const vmobjptr_t objp, const vms_vector &goal_point
 #if defined(DXX_BUILD_DESCENT_II)
-								, int player_visibility, const vms_vector *vec_to_player
+								, player_visibility_state player_visibility, const vms_vector *vec_to_player
 #endif
 								);
 static void maybe_ai_path_garbage_collect(void);
@@ -820,7 +820,8 @@ void create_n_segment_path(const vmobjptridx_t objp, unsigned path_length, const
 #if defined(DXX_BUILD_DESCENT_II)
 	//	If this robot is visible (player_visibility is not available) and it's running away, move towards outside with
 	//	randomness to prevent a stream of bots from going away down the center of a corridor.
-	if (ailp->previous_visibility) {
+	if (player_is_visible(ailp->previous_visibility))
+	{
 		if (aip->path_length) {
 			int	t_num_points = aip->path_length;
 			move_towards_outside(LevelSharedSegmentState, &Point_segs[aip->hide_index], t_num_points, objp, create_path_random_flag::random);
@@ -917,7 +918,7 @@ static void create_path(const vmobjptridx_t objp)
 
 //	----------------------------------------------------------------------------------------------------------
 //	Optimization: If current velocity will take robot near goal, don't change velocity
-void ai_follow_path(const vmobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player)
+void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state player_visibility, const vms_vector *const vec_to_player)
 {
 	ai_static		*aip = &objp->ctype.ai_info;
 
@@ -1004,7 +1005,8 @@ void ai_follow_path(const vmobjptridx_t objp, int player_visibility, const vms_v
 
 	//	If running from player, only run until can't be seen.
 	if (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT) {
-		if ((player_visibility == 0) && (ailp->player_awareness_type == player_awareness_type_t::PA_NONE)) {
+		if (player_visibility == player_visibility_state::no_line_of_sight && ailp->player_awareness_type == player_awareness_type_t::PA_NONE)
+		{
 			fix	vel_scale;
 
 			vel_scale = F1_0 - FrameTime/2;
@@ -1035,7 +1037,8 @@ void ai_follow_path(const vmobjptridx_t objp, int player_visibility, const vms_v
 					break;
 				}
 			}
-			if (player_visibility) {
+			if (player_is_visible(player_visibility))
+			{
 				ailp->player_awareness_type = player_awareness_type_t::PA_NEARBY_ROBOT_FIRED;
 				ailp->player_awareness_time = F1_0;
 			}
@@ -1083,7 +1086,8 @@ void ai_follow_path(const vmobjptridx_t objp, int player_visibility, const vms_v
 			if (robot_is_companion(robptr)) {
 				if (BuddyState.Escort_special_goal == ESCORT_GOAL_SCRAM)
 				{
-					if (player_visibility) {
+					if (player_is_visible(player_visibility))
+					{
 						create_n_segment_path(objp, 16 + d_rand() * 16, segment_none);
 						aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 						Assert(aip->path_length != 0);
@@ -1244,7 +1248,7 @@ namespace dsx {
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
 void ai_path_set_orient_and_vel(const vmobjptr_t objp, const vms_vector &goal_point
 #if defined(DXX_BUILD_DESCENT_II)
-								, int player_visibility, const vms_vector *vec_to_player
+								, const player_visibility_state player_visibility, const vms_vector *const vec_to_player
 #endif
 								)
 {
@@ -1310,7 +1314,7 @@ void ai_path_set_orient_and_vel(const vmobjptr_t objp, const vms_vector &goal_po
 		) {
 #if defined(DXX_BUILD_DESCENT_II)
 		if (ailp->mode == ai_mode::AIM_SNIPE_RETREAT_BACKWARDS) {
-			if ((player_visibility) && (vec_to_player != NULL))
+			if (player_is_visible(player_visibility) && vec_to_player)
 				norm_vec_to_goal = *vec_to_player;
 			else
 				vm_vec_negate(norm_vec_to_goal);

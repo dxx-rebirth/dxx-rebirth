@@ -2330,7 +2330,7 @@ void wake_up_rendered_objects(const object &viewer, window_rendered_data &window
 						objp->ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_CAMERA_AWAKE;
 						ailp->player_awareness_type = player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION;
 						ailp->player_awareness_time = F1_0*3;
-						ailp->previous_visibility = 2;
+						ailp->previous_visibility = player_visibility_state::visible_and_in_field_of_view;
 					}
 				}
 			}

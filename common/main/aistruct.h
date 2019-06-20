@@ -52,6 +52,18 @@ enum class player_awareness_type_t : uint8_t
 	PA_WEAPON_ROBOT_COLLISION	= 4,  // Level of robot awareness after player weapon hits nearby robot
 };
 
+enum class player_visibility_state : int8_t
+{
+	no_line_of_sight,
+	visible_not_in_field_of_view,
+	visible_and_in_field_of_view,
+};
+
+static inline unsigned player_is_visible(const player_visibility_state s)
+{
+	return static_cast<unsigned>(s) > 0;
+}
+
 }
 
 // Constants indicating currently moving forward or backward through
@@ -190,7 +202,7 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 	player_awareness_type_t      player_awareness_type;           // type of awareness of player
 	uint8_t retry_count;                     // number of retries in physics last time this object got moved.
 	uint8_t consecutive_retries;             // number of retries in consecutive frames (ie, without a retry_count of 0)
-	uint8_t previous_visibility;             // Visibility of player last time we checked.
+	player_visibility_state previous_visibility;             // Visibility of player last time we checked.
 	uint8_t rapidfire_count;                 // number of shots fired rapidly
 	ai_mode mode;                            // current mode within behavior
 	segnum_t      goal_segment;                    // goal segment for current path
