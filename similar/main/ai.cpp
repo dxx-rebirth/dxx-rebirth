@@ -3869,8 +3869,21 @@ _exit_cheat:
 				if (dot > 0) {          // Remember, we're interested in the rear vector dot being < 0.
 					goal_vector = vm_vec_negated(ConsoleObject->orient.fvec);
 				} else {
-					auto &rvec = ConsoleObject->orient.rvec;
-					goal_vector = (vm_vec_dot(rvec, vec_to_player) > 0) ? vm_vec_negated(rvec) : rvec;
+					auto &orient = ConsoleObject->orient;
+					constexpr unsigned choice_count = 15;
+					const unsigned selector = (ConsoleObject->id ^ obj.get_unchecked_index() ^ ConsoleObject->segnum ^ obj->segnum) % (choice_count + 1);
+					if (selector == 0)
+						goal_vector = orient.rvec;
+					else if (selector == choice_count)
+						goal_vector = orient.uvec;
+					else
+					{
+						vm_vec_scale_add2(goal_vector, orient.rvec, (choice_count - selector) * F1_0);
+						vm_vec_copy_scale(goal_vector, orient.uvec, selector * F1_0);
+						vm_vec_normalize_quick(goal_vector);
+					}
+					if (vm_vec_dot(goal_vector, vec_to_player) > 0)
+						vm_vec_negate(goal_vector);
 				}
 
 				vm_vec_scale(goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + d_tick_count) & 63) << 12)));
