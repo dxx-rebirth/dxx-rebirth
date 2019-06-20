@@ -59,6 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "null_sentinel_iterator.h"
 
 #include "compiler-make_unique.h"
+#include "compiler-poison.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
 
@@ -607,23 +608,25 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 	 * recurse into subdirectories and to open individual missions will
 	 * not work correctly.
 	 */
-	assert(std::distance(path.begin(), rel_path) < path.size());
+	assert(std::distance(path.begin(), rel_path) < path.size() - 1);
 	assert(!*rel_path);
 	assert(path.begin() == rel_path || *std::prev(rel_path) == '/');
 	const std::size_t space_remaining = std::distance(rel_path, path.end());
+	*rel_path = '.';
+	*std::next(rel_path) = 0;
 	range_for (const auto i, PHYSFSX_uncounted_list{PHYSFS_enumerateFiles(path.data())})
 	{
 		/* Add 1 to include the terminating null. */
 		const std::size_t il = strlen(i) + 1;
-		/* Add 1 for the slash in case it is a directory. */
-		if (il + 1 >= space_remaining)
+		/* Add 2 for the slash+dot in case it is a directory. */
+		if (il + 2 >= space_remaining)
 			continue;	// path is too long
 
 		auto j = std::copy_n(i, il, rel_path);
 		const char *ext;
 		if (PHYSFS_isDirectory(path.data()))
 		{
-			auto null = std::prev(j);
+			const auto null = std::prev(j);
 			*j = 0;
 			*null = '/';
 			mission_list_type sublist;
@@ -667,6 +670,7 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 			break;
 		}
 		*rel_path = 0;	// chop off the entry
+		DXX_POISON_MEMORY(std::next(rel_path), path.end(), 0xcc);
 	}
 }
 }
@@ -726,6 +730,7 @@ static mission_list_type build_mission_list(int anarchy_mode)
 #endif
 	add_d1_builtin_mission_to_list(mission_list);
 	mission_candidate_search_path search_str = {{MISSION_DIR}};
+	DXX_POISON_MEMORY(std::next(search_str.begin(), sizeof(MISSION_DIR)), search_str.end(), 0xcc);
 	add_missions_to_list(mission_list, search_str, search_str.begin() + sizeof(MISSION_DIR) - 1, anarchy_mode);
 	
 	// move original missions (in story-chronological order)
