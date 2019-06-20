@@ -1343,19 +1343,12 @@ static void process_exploding_walls()
 			if (w1.flags & WALL_EXPLODING)
 			{
 				assert(num_exploding_walls);
-				do_exploding_wall_frame(w1);
-				if (! -- num_exploding_walls)
-				{
-					/* In debug builds, iterate over all remaining walls
-					 * to verify that none are marked as WALL_EXPLODING.
-					 */
-#ifdef NDEBUG
+				const auto n = do_exploding_wall_frame(w1);
+				num_exploding_walls -= n;
+				if (!num_exploding_walls)
 					break;
-#endif
-				}
 			}
 		}
-		assert(!num_exploding_walls);
 	}
 }
 

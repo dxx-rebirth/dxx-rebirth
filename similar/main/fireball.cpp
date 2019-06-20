@@ -1332,8 +1332,9 @@ void explode_wall(fvcvertptr &vcvertptr, const vcsegptridx_t segnum, const unsig
 	digi_link_sound_to_pos( SOUND_EXPLODING_WALL,segnum, sidenum, pos, 0, F1_0 );
 }
 
-void do_exploding_wall_frame(wall &w1)
+unsigned do_exploding_wall_frame(wall &w1)
 {
+	assert(w1.flags & WALL_EXPLODING);
 	fix w1_explode_time_elapsed = w1.explode_time_elapsed;
 	const fix oldfrac = fixdiv(w1_explode_time_elapsed, EXPL_WALL_TIME);
 
@@ -1344,6 +1345,7 @@ void do_exploding_wall_frame(wall &w1)
 
 	const auto w1sidenum = w1.sidenum;
 	const auto &&seg = vmsegptridx(w1.segnum);
+	unsigned walls_updated = 0;
 	if (w1_explode_time_elapsed > (EXPL_WALL_TIME * 3) / 4)
 	{
 		const auto &&csegp = seg.absolute_sibling(seg->shared_segment::children[w1sidenum]);
@@ -1362,18 +1364,17 @@ void do_exploding_wall_frame(wall &w1)
 		w2.flags |= WALL_BLASTED;
 		if (w1_explode_time_elapsed >= EXPL_WALL_TIME)
 		{
-			unsigned num_exploding_walls = Num_exploding_walls;
 			if (w1.flags & WALL_EXPLODING)
 			{
 				w1.flags &= ~WALL_EXPLODING;
-				-- num_exploding_walls;
+				++ walls_updated;
 			}
 			if (w2.flags & WALL_EXPLODING)
 			{
 				w2.flags &= ~WALL_EXPLODING;
-				-- num_exploding_walls;
+				++ walls_updated;
 			}
-			Num_exploding_walls = num_exploding_walls;
+			Num_exploding_walls -= walls_updated;
 		}
 	}
 
@@ -1385,7 +1386,7 @@ void do_exploding_wall_frame(wall &w1)
 		/* for loop would exit with zero iterations if this `if` is
 		 * true.  Skip the setup for the loop in that case.
 		 */
-		return;
+		return walls_updated;
 
 	const auto vertnum_list = get_side_verts(seg, w1sidenum);
 
@@ -1425,6 +1426,7 @@ void do_exploding_wall_frame(wall &w1)
 										   object_none		//	parent id
 			);
 	}
+	return walls_updated;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
