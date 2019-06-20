@@ -919,9 +919,6 @@ static void create_path(const vmobjptridx_t objp)
 //	Optimization: If current velocity will take robot near goal, don't change velocity
 void ai_follow_path(const vmobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player)
 {
-#if defined(DXX_BUILD_DESCENT_I)
-	(void)vec_to_player;
-#endif
 	ai_static		*aip = &objp->ctype.ai_info;
 
 	vms_vector	goal_point, new_goal_point;

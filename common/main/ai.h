@@ -127,6 +127,11 @@ void do_ai_frame_all();
 extern void create_all_paths(void);
 namespace dsx {
 void create_path_to_station(vmobjptridx_t objp, int max_length);
+#if defined(DXX_BUILD_DESCENT_I)
+#define ai_follow_path(o,pv,vec)	ai_follow_path(o,pv)
+#else
+#undef ai_follow_path
+#endif
 void ai_follow_path(vmobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player);
 void ai_turn_towards_vector(const vms_vector &vec_to_player, object_base &obj, fix rate);
 extern void init_ai_objects(void);
