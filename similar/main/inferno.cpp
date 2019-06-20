@@ -493,12 +493,14 @@ static int main(int argc, char *argv[])
 #if defined(DXX_BUILD_DESCENT_I)
 	con_printf(CON_NORMAL, "%s  %s", DESCENT_VERSION, g_descent_build_datetime); // D1X version
 	con_puts(CON_NORMAL, "This is a MODIFIED version of Descent, based on " BASED_VERSION ".");
-	con_printf(CON_NORMAL, "%s\n%s",TXT_COPYRIGHT,TXT_TRADEMARK);
+	con_puts(CON_NORMAL, TXT_COPYRIGHT);
+	con_puts(CON_NORMAL, TXT_TRADEMARK);
 	con_puts(CON_NORMAL, "Copyright (C) 2005-2013 Christian Beckhaeuser, 2013-2017 Kp");
 #elif defined(DXX_BUILD_DESCENT_II)
 	con_printf(CON_NORMAL, "%s%s  %s", DESCENT_VERSION, PHYSFSX_exists(MISSION_DIR "d2x.hog",1) ? "  Vertigo Enhanced" : "", g_descent_build_datetime); // D2X version
 	con_puts(CON_NORMAL, "This is a MODIFIED version of Descent 2, based on " BASED_VERSION ".");
-	con_printf(CON_NORMAL, "%s\n%s",TXT_COPYRIGHT,TXT_TRADEMARK);
+	con_puts(CON_NORMAL, TXT_COPYRIGHT);
+	con_puts(CON_NORMAL, TXT_TRADEMARK);
 	con_puts(CON_NORMAL, "Copyright (C) 1999 Peter Hawkins, 2002 Bradley Bell, 2005-2013 Christian Beckhaeuser, 2013-2017 Kp");
 #endif
 
