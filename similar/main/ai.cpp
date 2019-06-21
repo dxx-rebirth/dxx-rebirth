@@ -2883,14 +2883,22 @@ static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const vmobjptr_t robot,
 	range_for (auto &i, partial_const_range(bfs_list, bfs_length)) {
 		range_for (const auto objp, objects_in(vmsegptr(i), vmobjptridx, vmsegptr))
 		{
-			auto &robptr = Robot_info[get_robot_id(objp)];
-
-			if ((objp->type == OBJ_ROBOT) && (get_robot_id(objp) != ROBOT_BRAIN)) {
-				if ((objp->ctype.ai_info.behavior != ai_behavior::AIB_SNIPE) && (objp->ctype.ai_info.behavior != ai_behavior::AIB_RUN_FROM) && !Robot_info[get_robot_id(objp)].boss_flag && !robot_is_companion(robptr)) {
-					objp->ctype.ai_info.behavior = ai_behavior::AIB_SNIPE;
-					objp->ctype.ai_info.ail.mode = ai_mode::AIM_SNIPE_ATTACK;
+			object &obj = *objp;
+			if (obj.type != OBJ_ROBOT)
+				continue;
+			if (obj.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
+				continue;
+			if (obj.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
+				continue;
+			const auto rid = get_robot_id(obj);
+			if (rid == ROBOT_BRAIN)
+				continue;
+			auto &robptr = Robot_info[rid];
+			if (!robptr.boss_flag && !robot_is_companion(robptr))
+			{
+					obj.ctype.ai_info.behavior = ai_behavior::AIB_SNIPE;
+					obj.ctype.ai_info.ail.mode = ai_mode::AIM_SNIPE_ATTACK;
 					return;
-				}
 			}
 		}
 	}
