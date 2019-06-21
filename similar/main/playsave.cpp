@@ -1217,10 +1217,10 @@ void set_highest_level(int levelnum)
 		 * reserved storage.
 		 */
 		const auto ms = m.Shortname.data();
-		if (!d1_preferred && !strcmp("descent", ms))
+		if (!d1_preferred && !strcmp(D1_MISSION_FILENAME, ms))
 			d1_preferred = preferred = &PlayerCfg.HighestLevels[0];
 #if defined(DXX_BUILD_DESCENT_II)
-		else if (!d2_preferred && !strcmp("d2", ms))
+		else if (!d2_preferred && !strcmp(FULL_MISSION_FILENAME, ms))
 			d2_preferred = preferred = &PlayerCfg.HighestLevels[1];
 		else if (!d2x_preferred && !strcmp("d2x", ms))
 			d2x_preferred = preferred = &PlayerCfg.HighestLevels[2];
@@ -1283,12 +1283,32 @@ int get_highest_level(void)
 	const Mission_path &mission = *Current_mission;
 	// Destination Saturn.
 	const auto &&r = partial_range(PlayerCfg.HighestLevels, PlayerCfg.NHighestLevels);
-	const auto &&i = find_hli_entry(r, *mission.filename == 0 ? Mission_path{"DESTSAT", 0} : mission);
+#if defined(DXX_BUILD_DESCENT_I)
+	unsigned highest_saturn_level = 0;
+	if (!*mission.filename)
+		range_for (auto &m, r)
+			if (!d_stricmp("DESTSAT", m.Shortname.data()))
+				highest_saturn_level = m.LevelNum;
+#endif
+	const auto &&i = find_hli_entry(r, mission);
 	const auto ie = i[1];
 	const auto ii = i[0];
 	if (ii == ie)
 		return 0;
-	return ii->LevelNum;
+	auto LevelNum = ii->LevelNum;
+#if defined(DXX_BUILD_DESCENT_I)
+	/* Override `LevelNum` of the full campaign with the player's
+	 * progress in the OEM mini-campaign, so that users who switch can
+	 * keep their progress.
+	 *
+	 * If the player never played Destination Saturn, or if this is not
+	 * the built-in campaign, highest_saturn_level will be 0 and this
+	 * will be skipped.
+	 */
+	if (LevelNum < highest_saturn_level)
+		LevelNum = highest_saturn_level;
+#endif
+	return LevelNum;
 }
 
 //write out player's saved games.  returns errno (0 == no error)
