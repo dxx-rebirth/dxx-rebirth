@@ -1068,9 +1068,11 @@ void InitPlayerObject()
 
 //starts a new game on the given level
 namespace dsx {
-void StartNewGame(int start_level)
+
+void StartNewGame(const int start_level)
 {
 	state_quick_item = -1;	// for first blind save, pick slot to save in
+	reset_globals_for_new_game();
 
 	Game_mode = GM_NORMAL;
 

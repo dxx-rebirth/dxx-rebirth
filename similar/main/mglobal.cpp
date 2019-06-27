@@ -42,6 +42,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 
 namespace dcx {
+
+template <typename T>
+static void reconstruct_global_variable(T &t)
+{
+	t.~T();
+	new(&t) T();
+}
+
 d_level_shared_boss_state LevelSharedBossState;
 d_level_shared_vertex_state LevelSharedVertexState;
 d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
@@ -86,6 +94,17 @@ const array<array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int{{
 //--unused-- fix	Laser_delay_time = F1_0/6;		//	Delay between laser fires.
 
 Difficulty_level_type Difficulty_level=DEFAULT_DIFFICULTY;	//	Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
+
+static void reset_globals_for_new_game()
+{
+	reconstruct_global_variable(LevelSharedBossState);
+	reconstruct_global_variable(LevelSharedVertexState);
+	reconstruct_global_variable(LevelUniqueFuelcenterState);
+	reconstruct_global_variable(LevelUniqueSegmentState);
+	reconstruct_global_variable(Players);
+	reconstruct_global_variable(Segments);
+}
+
 }
 
 #if DXX_HAVE_POISON_UNDEFINED
@@ -107,6 +126,19 @@ d_level_shared_robot_info_state LevelSharedRobotInfoState;
 d_level_shared_robot_joint_state LevelSharedRobotJointState;
 d_level_unique_wall_subsystem_state LevelUniqueWallSubsystemState;
 d_level_unique_tmap_info_state LevelUniqueTmapInfoState;
+
+void reset_globals_for_new_game()
+{
+	::dcx::reset_globals_for_new_game();
+	/* Skip LevelUniqueEffectsClipState because it contains some fields
+	 * that are initialized from game data, and those fields should not
+	 * be reconstructed.
+	 */
+	reconstruct_global_variable(LevelUniqueObjectState);
+	reconstruct_global_variable(LevelUniqueLightState);
+	reconstruct_global_variable(LevelUniqueWallSubsystemState);
+	/* Same for LevelUniqueTmapInfoState */
+}
 }
 
 /*

@@ -369,6 +369,7 @@ window *game_setup();
 window_event_result game_handler(window *wind,const d_event &event, const unused_window_userdata_t *);
 window_event_result ReadControls(const d_event &event);
 bool allowed_to_fire_laser(const player_info &);
+void reset_globals_for_new_game();
 }
 #endif
 int cheats_enabled();
