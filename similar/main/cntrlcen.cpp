@@ -182,7 +182,6 @@ window_event_result do_controlcen_dead_frame()
 window_event_result do_countdown_frame()
 {
 	fix	old_time;
-	int	fc, div_scale;
 
 	if (!Control_center_destroyed)	return window_event_result::ignored;
 
@@ -201,19 +200,21 @@ window_event_result do_countdown_frame()
 #endif
 
 	//	Control center destroyed, rock the player's ship.
-	fc = Countdown_seconds_left;
-	if (fc > 16)
-		fc = 16;
-
-	//	At Trainee, decrease rocking of ship by 4x.
-	div_scale = 1;
-	if (Difficulty_level == 0)
-		div_scale = 4;
-
 	if (d_tick_step)
 	{
-		ConsoleObject->mtype.phys_info.rotvel.x += (fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32))/div_scale;
-		ConsoleObject->mtype.phys_info.rotvel.z += (fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32))/div_scale;
+		auto &rotvel = ConsoleObject->mtype.phys_info.rotvel;
+		const auto get_base_disturbance = [fc = std::max(Countdown_seconds_left, 16)]() {
+			return fixmul(d_rand() - 16384, 3 * F1_0 / 16 + (F1_0 * (16 - fc)) / 32);
+		};
+		fix disturb_x = get_base_disturbance(), disturb_z = get_base_disturbance();
+		//	At Trainee, decrease rocking of ship by 4x.
+		if (Difficulty_level == Difficulty_0)
+		{
+			disturb_x /= 4;
+			disturb_z /= 4;
+		}
+		rotvel.x += disturb_x;
+		rotvel.z += disturb_z;
 	}
 	//	Hook in the rumble sound effect here.
 
