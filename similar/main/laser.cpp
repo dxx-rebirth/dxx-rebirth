@@ -1854,10 +1854,10 @@ void do_laser_firing_player(object &plrobj)
 	if (weapon_index == weapon_id_type::HELIX_ID)
 		if (Game_mode & GM_MULTI)
 			energy_used *= 2;
+#endif
 
 	if	(!(sufficient_energy(energy_used, pl_energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, player_info.vulcan_ammo)))
 		auto_select_primary_weapon(player_info);		//	Make sure the player can fire from this weapon.
-#endif
 
 	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
 	while (Next_laser_fire_time <= GameTime64) {
