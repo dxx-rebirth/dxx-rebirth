@@ -1546,24 +1546,13 @@ static void player_path_set_orient_and_vel(object &objp, const vms_vector &goal_
 	fix			speed_scale;
 	fix			dot;
 
-#if defined(DXX_BUILD_DESCENT_I)
 	const fix max_speed = F1_0*50;
-#elif defined(DXX_BUILD_DESCENT_II)
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	const fix max_speed = Robot_info[get_robot_id(objp)].max_speed[Difficulty_level];
-#endif
 
 	const auto norm_vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(goal_point, cur_pos));
 	auto norm_cur_vel = vm_vec_normalized_quick(cur_vel);
 	const auto &&norm_fvec = vm_vec_normalized_quick(objp.orient.fvec);
 
 	dot = vm_vec_dot(norm_vec_to_goal, norm_fvec);
-#if defined(DXX_BUILD_DESCENT_II)
-	ai_local *const ailp = &objp.ctype.ai_info.ail;
-	if (ailp->mode == ai_mode::AIM_SNIPE_RETREAT_BACKWARDS) {
-		dot = -dot;
-	}
-#endif
 
 	//	If very close to facing opposite desired vector, perturb vector
 	if (dot < -15*F1_0/16) {
@@ -1587,7 +1576,7 @@ static void player_path_set_orient_and_vel(object &objp, const vms_vector &goal_
 	speed_scale = fixmul(max_speed, dot);
 	vm_vec_scale(norm_cur_vel, speed_scale);
 	objp.mtype.phys_info.velocity = norm_cur_vel;
-	ai_turn_towards_vector(norm_vec_to_goal, objp, F1_0);
+	physics_turn_towards_vector(norm_vec_to_goal, objp, F1_0);
 }
 
 //	----------------------------------------------------------------------------------------------------------
