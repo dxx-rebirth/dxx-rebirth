@@ -3640,7 +3640,7 @@ void more_game_options_menu_items::net_udp_more_game_options()
 		Netgame.PacketsPerSec=MIN_PPS;
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to %i", MIN_PPS);
 	}
-	Difficulty_level = Netgame.difficulty;
+	GameUniqueState.Difficulty_level = Netgame.difficulty;
 }
 
 int more_game_options_menu_items::handler(newmenu *, const d_event &event, more_game_options_menu_items *items)
@@ -4093,7 +4093,7 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 	}
 
 	N_players = Netgame.numplayers;
-	Difficulty_level = Netgame.difficulty;
+	GameUniqueState.Difficulty_level = Netgame.difficulty;
 	Network_status = Netgame.game_status;
 
 	if (Netgame.segments_checksum != my_segments_checksum)
@@ -4706,7 +4706,7 @@ int net_udp_do_join_game()
 	}
 
 	// Choice is valid, prepare to join in
-	Difficulty_level = Netgame.difficulty;
+	GameUniqueState.Difficulty_level = Netgame.difficulty;
 	change_playernum_to(1);
 
 	net_udp_set_game_mode(Netgame.gamemode);

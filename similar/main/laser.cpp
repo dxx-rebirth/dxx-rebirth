@@ -439,6 +439,7 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 
 	Doing_lighting_hack_flag = 1;	//	Ugly, but prevents blobs which are probably outside the mine from killing framerate.
 
+	const auto &Difficulty_level = GameUniqueState.Difficulty_level;
 	for (int i=0; i<num_omega_blobs; i++) {
 		//	This will put the last blob right at the destination object, causing damage.
 		if (i == num_omega_blobs-1)
@@ -499,6 +500,7 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 fix get_omega_energy_consumption(const fix delta_charge)
 {
 	const fix energy_used = fixmul(F1_0 * 190 / 17, delta_charge);
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	return Difficulty_level < 2
 		? fixmul(energy_used, i2f(Difficulty_level + 2) / 4)
 		: energy_used;
@@ -816,6 +818,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	if (weapon_type == weapon_id_type::FLARE_ID)
 		obj->mtype.phys_info.flags |= PF_STICK;		//this obj sticks to walls
 
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	obj->shields = weapon_info.strength[Difficulty_level];
 
 	// Fill in laser-specific data
@@ -1368,7 +1371,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, c
 
 	//	If supposed to fire at a delayed time (delay_time), then move this point backwards.
 	if (delay_time)
-		vm_vec_scale_add2(LaserPos, shot_orientation, -fixmul(delay_time, Weapon_info[laser_type].speed[Difficulty_level]));
+		vm_vec_scale_add2(LaserPos, shot_orientation, -fixmul(delay_time, Weapon_info[laser_type].speed[GameUniqueState.Difficulty_level]));
 
 //	do_muzzle_stuff(obj, &Pos);
 
@@ -1524,7 +1527,7 @@ void Flare_create(const vmobjptridx_t obj)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 
-	const auto energy_usage = get_weapon_energy_usage_with_difficulty(Weapon_info[weapon_id_type::FLARE_ID], Difficulty_level);
+	const auto energy_usage = get_weapon_energy_usage_with_difficulty(Weapon_info[weapon_id_type::FLARE_ID], GameUniqueState.Difficulty_level);
 
 //	MK, 11/04/95: Allowed to fire flare even if no energy.
 // -- 	if (Players[Player_num].energy >= energy_usage)
@@ -1606,6 +1609,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 #endif
 
 	//delete weapons that are not moving
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	if (	!((d_tick_count ^ obj->signature.get()) & 3) &&
 			(get_weapon_id(obj) != weapon_id_type::FLARE_ID) &&
 			(Weapon_info[get_weapon_id(obj)].speed[Difficulty_level] > 0) &&
@@ -1853,7 +1857,7 @@ void do_laser_firing_player(object &plrobj)
 		? 0	//	Omega consumes energy when recharging, not when firing.
 		:
 #endif
-		get_weapon_energy_usage_with_difficulty(Weapon_info[weapon_index], Difficulty_level);
+		get_weapon_energy_usage_with_difficulty(Weapon_info[weapon_index], GameUniqueState.Difficulty_level);
 
 	const auto energy_used =
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2319,7 +2323,7 @@ void create_weapon_smart_children(const vmobjptridx_t objp)
 		return;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (wid == weapon_id_type::EARTHSHAKER_ID)
-		blast_nearby_glass(objp, Weapon_info[weapon_id_type::EARTHSHAKER_ID].strength[Difficulty_level]);
+		blast_nearby_glass(objp, Weapon_info[weapon_id_type::EARTHSHAKER_ID].strength[GameUniqueState.Difficulty_level]);
 #endif
 	create_smart_children(Objects, objp, NUM_SMART_CHILDREN, {objp->ctype.laser_info.parent_type, objp->ctype.laser_info.parent_num});
 }

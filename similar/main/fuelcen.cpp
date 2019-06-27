@@ -165,7 +165,7 @@ static void matcen_create(const vmsegptridx_t segp)
 	auto &station = Station.at(next_fuelcenter_idx);
 
 	station.Type = station_type;
-	station.Capacity = i2f(Difficulty_level + 3);
+	station.Capacity = i2f(GameUniqueState.Difficulty_level + 3);
 	station.segnum = segp;
 	station.Timer = -1;
 	station.Flag = 0;
@@ -214,6 +214,7 @@ void trigger_matcen(const vmsegptridx_t segnum)
 	if (!robotcen->Lives)
 		return;
 
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #if defined(DXX_BUILD_DESCENT_II)
 	//	MK: 11/18/95, At insane, matcens work forever!
 	if (Difficulty_level+1 < NDL)
@@ -438,7 +439,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 					if ((obj.matcen_creator ^ 0x80) == my_station_num)
 						count++;
 			}
-			if (count > Difficulty_level + 3) {
+			if (count > GameUniqueState.Difficulty_level + 3) {
 				robotcen->Timer /= 2;
 				return;
 			}

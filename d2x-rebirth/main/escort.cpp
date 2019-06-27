@@ -1408,6 +1408,7 @@ constexpr array<fix, NDL> Thief_wait_times = {{
 //	-------------------------------------------------------------------------------------------------
 void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const player_visibility_state player_visibility, const vms_vector &vec_to_player)
 {
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			connected_distance;
@@ -1785,7 +1786,7 @@ int attempt_to_steal_item(const vmobjptridx_t objp, const vmobjptr_t player_num)
 	}
 	create_n_segment_path(objp, 10, ConsoleObject->segnum);
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
-	ailp->next_action_time = Thief_wait_times[Difficulty_level]/2;
+	ailp->next_action_time = Thief_wait_times[GameUniqueState.Difficulty_level] / 2;
 	ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 	if (rval) {
 		PALETTE_FLASH_ADD(30, 15, -20);

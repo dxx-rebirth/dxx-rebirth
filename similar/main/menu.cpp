@@ -824,6 +824,7 @@ static int do_difficulty_menu()
 		nm_item_menu(MENU_DIFFICULTY_TEXT(4)),
 	}};
 
+	auto &Difficulty_level = GameUniqueState.Difficulty_level;
 	const unsigned s = newmenu_do1(nullptr, TXT_DIFFICULTY_LEVEL, m.size(), &m.front(), unused_newmenu_subfunction, unused_newmenu_userdata, Difficulty_level);
 
 	if (s <= Difficulty_4)
@@ -879,7 +880,7 @@ window_event_result do_new_game_menu()
 		}
 	}
 
-	Difficulty_level = PlayerCfg.DefaultDifficulty;
+	GameUniqueState.Difficulty_level = PlayerCfg.DefaultDifficulty;
 
 	if (!do_difficulty_menu())
 		return window_event_result::handled;

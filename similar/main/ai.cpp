@@ -610,6 +610,7 @@ void init_ai_objects(void)
 	Boss_dying_sound_playing = 0;
 	Boss_dying = 0;
 
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #if defined(DXX_BUILD_DESCENT_I)
 	Gate_interval = F1_0*5 - Difficulty_level*F1_0/2;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -877,6 +878,7 @@ static void ai_frame_animation(object &objp)
 // ----------------------------------------------------------------------------------
 static void set_next_fire_time(const vmobjptr_t objp, ai_local &ailp, const robot_info &robptr, const unsigned gun_num)
 {
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)objp;
 	(void)gun_num;
@@ -1011,6 +1013,7 @@ static int lead_player(const object_base &objp, const vms_vector &fire_point, co
 	const auto weapon_type = get_robot_weapon(Robot_info[get_robot_id(objp)], gun_num);
 
 	const weapon_info *const wptr = &Weapon_info[weapon_type];
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	fix max_weapon_speed = wptr->speed[Difficulty_level];
 	if (max_weapon_speed < F1_0)
 		return 0;
@@ -1059,6 +1062,7 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 #endif
 									)
 {
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	const auto powerup_flags = player_info.powerup_flags;
 	ai_local &ailp = obj->ctype.ai_info.ail;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -1254,6 +1258,7 @@ static void move_towards_vector(object_base &objp, const vms_vector &vec_goal, i
 		dot = (F1_0+dot)/2;
 #endif
 
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	if (dot_based && (dot < 3*F1_0/4)) {
 		//	This funny code is supposed to slow down the robot and move his velocity towards his direction
 		//	more quickly than the general code
@@ -1339,6 +1344,7 @@ static void move_around_player(const vmobjptridx_t objp, const player_flags powe
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	//	Note: -1 means normal circling about the player.  > 0 means fast evasion.
 	if (fast_flag > 0) {
 		fix	dot;
@@ -1367,7 +1373,7 @@ static void move_around_player(const vmobjptridx_t objp, const player_flags powe
 	pptr->velocity.y += evade_vector.y;
 	pptr->velocity.z += evade_vector.z;
 
-	auto speed = vm_vec_mag_quick(pptr->velocity);
+	const auto speed = vm_vec_mag_quick(pptr->velocity);
 	if (speed > robptr.max_speed[Difficulty_level]) {
 		pptr->velocity.x = (pptr->velocity.x*3)/4;
 		pptr->velocity.y = (pptr->velocity.y*3)/4;
@@ -1396,6 +1402,7 @@ static void move_away_from_player(const vmobjptridx_t objp, const vms_vector &ve
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	if (speed > robptr.max_speed[Difficulty_level])
 	{
 		pptr->velocity.x = (pptr->velocity.x*3)/4;
@@ -1411,6 +1418,7 @@ static void move_away_from_player(const vmobjptridx_t objp, const vms_vector &ve
 //	If the flag evade_only is set, then only allowed to evade, not allowed to move otherwise (must have mode == AIM_STILL).
 static void ai_move_relative_to_player(const vmobjptridx_t objp, ai_local &ailp, const fix dist_to_player, const fix circle_distance, const int evade_only, const robot_to_player_visibility_state &player_visibility, const player_info &player_info)
 {
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	auto &vec_to_player = player_visibility.vec_to_player;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
@@ -1637,6 +1645,7 @@ static void compute_vis_and_vec(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
 {
 	if (player_visibility.initialized)
 		return;
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	const auto powerup_flags = player_info.powerup_flags;
 		if (powerup_flags & PLAYER_FLAGS_CLOAKED)
 		{
@@ -1752,7 +1761,7 @@ static void compute_buddy_vis_vec(const vmobjptridx_t buddy_obj, const vms_vecto
 
 	auto &ailp = buddy_obj->ctype.ai_info.ail;
 	player_visibility.visibility = (hit_type == HIT_NONE)
-		? ((ailp.time_player_seen = GameTime64, vm_vec_dot(player_visibility.vec_to_player, buddy_obj->orient.fvec) > robptr.field_of_view[Difficulty_level])
+		? ((ailp.time_player_seen = GameTime64, vm_vec_dot(player_visibility.vec_to_player, buddy_obj->orient.fvec) > robptr.field_of_view[GameUniqueState.Difficulty_level])
 		   ? player_visibility_state::visible_and_in_field_of_view
 		   : player_visibility_state::visible_not_in_field_of_view
 		)
@@ -1965,6 +1974,7 @@ static int check_object_object_intersection(const vms_vector &pos, fix size, con
 //	If pos == NULL, pick random spot in segment.
 static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &vcobjptr, const vmsegptridx_t segp, const unsigned object_id, const vms_vector *const pos)
 {
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #if defined(DXX_BUILD_DESCENT_I)
 	const unsigned maximum_gated_robots = 2*Difficulty_level + 3;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2667,7 +2677,7 @@ static void ai_do_actual_firing_stuff(fvmobjptridx &vmobjptridx, const vmobjptri
 					if (robptr.attack_type == 1) {
 						if (Player_dead_state != player_dead_state::exploded &&
 							dist_to_player < obj->size + ConsoleObject->size + F1_0*2)
-						{		// robptr.circle_distance[Difficulty_level] + ConsoleObject->size)
+						{
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
 							do_ai_robot_hit_attack(obj, vmobjptridx(ConsoleObject), obj->pos);
@@ -2754,7 +2764,7 @@ static void ai_do_actual_firing_stuff(fvmobjptridx &vmobjptridx, const vmobjptri
 					if (robptr.attack_type == 1) {
 						if (Player_dead_state != player_dead_state::exploded &&
 							dist_to_player < obj->size + ConsoleObject->size + F1_0*2)
-						{		// robptr.circle_distance[Difficulty_level] + ConsoleObject->size)
+						{
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
 							do_ai_robot_hit_attack(obj, vmobjptridx(ConsoleObject), obj->pos);
@@ -2831,7 +2841,7 @@ static void ai_do_actual_firing_stuff(fvmobjptridx &vmobjptridx, const vmobjptri
 
 		vms_vector	vec_to_last_pos;
 
-		if (d_rand()/2 < fixmul(FrameTime, (Difficulty_level << 12) + 0x4000)) {
+		if (d_rand()/2 < fixmul(FrameTime, (GameUniqueState.Difficulty_level << 12) + 0x4000)) {
 		if ((!object_animates || ready_to_fire_any_weapon(robptr, ailp, 0)) && (Dist_to_last_fired_upon_player_pos < FIRE_AT_NEARBY_PLAYER_THRESHOLD)) {
 			vm_vec_normalized_dir_quick(vec_to_last_pos, Believed_player_pos, obj->pos);
 			dot = vm_vec_dot(obj->orient.fvec, vec_to_last_pos);
@@ -2841,7 +2851,7 @@ static void ai_do_actual_firing_stuff(fvmobjptridx &vmobjptridx, const vmobjptri
 					if (robptr.attack_type == 1) {
 						if (Player_dead_state != player_dead_state::exploded &&
 							dist_to_player < obj->size + ConsoleObject->size + F1_0*2)
-						{		// robptr.circle_distance[Difficulty_level] + ConsoleObject->size)
+						{
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
 							do_ai_robot_hit_attack(obj, vmobjptridx(ConsoleObject), obj->pos);
@@ -3068,6 +3078,7 @@ static bool skip_ai_for_time_splice(const vcobjptridx_t robot, const robot_info 
 // --------------------------------------------------------------------------------------------------------------------
 void do_ai_frame(const vmobjptridx_t obj)
 {
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	const objnum_t &objnum = obj;
 	ai_static	*aip = &obj->ctype.ai_info;
 	ai_local &ailp = obj->ctype.ai_info.ail;
@@ -3485,7 +3496,7 @@ _exit_cheat:
 		fix sval, rval;
 
 		rval = d_rand();
-		sval = (dist_to_player * (Difficulty_level+1))/64;
+		sval = (dist_to_player * (static_cast<int>(Difficulty_level) + 1)) / 64;
 
 		if ((fixmul(rval, sval) < FrameTime) || (player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)) {
 			ailp.player_awareness_type = player_awareness_type_t::PA_PLAYER_COLLISION;
@@ -3896,7 +3907,7 @@ _exit_cheat:
 					ailp.mode = ai_mode::AIM_CHASE_OBJECT;
 				// This should not just be distance based, but also time-since-player-seen based.
 			}
-			else if ((dist_to_player > F1_0*(20*(2*Difficulty_level + robptr.pursuit)))
+			else if ((dist_to_player > F1_0 * (20 * (2 * static_cast<int>(Difficulty_level) + robptr.pursuit)))
 				&& (GameTime64 - ailp.time_player_seen > (F1_0/2*(Difficulty_level + robptr.pursuit)))
 				&& !player_is_visible(player_visibility.visibility)
 				&& (aip->behavior == ai_behavior::AIB_NORMAL)
@@ -3980,7 +3991,7 @@ _exit_cheat:
 			break;
 
 		case ai_mode::AIM_STILL:
-			if ((dist_to_player < F1_0*120+Difficulty_level*F1_0*20) || (static_cast<unsigned>(ailp.player_awareness_type) >= static_cast<unsigned>(player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION) - 1))
+			if ((dist_to_player < F1_0 * 120 + static_cast<int>(Difficulty_level) * F1_0 * 20) || (static_cast<unsigned>(ailp.player_awareness_type) >= static_cast<unsigned>(player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION) - 1))
 			{
 				compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 

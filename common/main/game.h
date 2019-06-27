@@ -127,7 +127,7 @@ void calc_d_tick();
 
 extern int Game_suspended;          // if non-zero, nothing moves but player
 
-enum Difficulty_level_type : int
+enum Difficulty_level_type : unsigned
 {
 	Difficulty_0,
 	Difficulty_1,
@@ -136,13 +136,19 @@ enum Difficulty_level_type : int
 	Difficulty_4,
 };
 
-#define DEFAULT_DIFFICULTY		Difficulty_1
+constexpr Difficulty_level_type DEFAULT_DIFFICULTY = Difficulty_1;
 
-extern Difficulty_level_type Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 static inline Difficulty_level_type cast_clamp_difficulty(const unsigned d)
 {
 	return (d <= Difficulty_4) ? static_cast<Difficulty_level_type>(d) : Difficulty_4;
 }
+
+struct d_game_unique_state
+{
+	Difficulty_level_type Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
+};
+
+extern d_game_unique_state GameUniqueState;
 
 extern int Global_missile_firing_count;
 

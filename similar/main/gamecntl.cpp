@@ -402,7 +402,7 @@ static int do_game_pause()
 	format_time(level_time, f2i(plr.time_level), plr.hours_level);
 	auto &player_info = vcobjptr(plr.objnum)->ctype.player_info;
 	if (Newdemo_state!=ND_STATE_PLAYBACK)
-		snprintf(&p->msg[0], p->msg.size(), "PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s", MENU_DIFFICULTY_TEXT(Difficulty_level), player_info.mission.hostages_on_board, level_time, total_time);
+		snprintf(&p->msg[0], p->msg.size(), "PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s", MENU_DIFFICULTY_TEXT(GameUniqueState.Difficulty_level), player_info.mission.hostages_on_board, level_time, total_time);
 	else
 		snprintf(&p->msg[0], p->msg.size(), "PAUSE\n\n\n\n");
 	set_screen_mode(SCREEN_MENU);

@@ -50,6 +50,7 @@ static void reconstruct_global_variable(T &t)
 	new(&t) T();
 }
 
+d_game_unique_state GameUniqueState;
 d_level_shared_boss_state LevelSharedBossState;
 d_level_shared_vertex_state LevelSharedVertexState;
 d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
@@ -92,8 +93,6 @@ const array<array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int{{
 // Texture map stuff
 
 //--unused-- fix	Laser_delay_time = F1_0/6;		//	Delay between laser fires.
-
-Difficulty_level_type Difficulty_level=DEFAULT_DIFFICULTY;	//	Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 
 static void reset_globals_for_new_game()
 {

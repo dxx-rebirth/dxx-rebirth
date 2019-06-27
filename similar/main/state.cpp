@@ -1061,7 +1061,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 	}
 
 // Save the difficulty level
+	{
+		const int Difficulty_level = GameUniqueState.Difficulty_level;
 	PHYSFS_write(fp, &Difficulty_level, sizeof(int), 1);
+	}
 
 // Save cheats enabled
 	PHYSFS_write(fp, &cheats.enabled, sizeof(int), 1);
@@ -1629,7 +1632,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 // Restore the difficulty level
 	{
 		const unsigned u = PHYSFSX_readSXE32(fp, swap);
-		Difficulty_level = cast_clamp_difficulty(u);
+		GameUniqueState.Difficulty_level = cast_clamp_difficulty(u);
 	}
 
 // Restore the cheats enabled flag

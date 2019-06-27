@@ -1276,6 +1276,7 @@ void ai_path_set_orient_and_vel(const vmobjptr_t objp, const vms_vector &goal_po
 	fix			max_speed;
 
 	//	If evading player, use highest difficulty level speed, plus something based on diff level
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	max_speed = robptr.max_speed[Difficulty_level];
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	if (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT

@@ -244,7 +244,7 @@ static void apply_force_damage(const vmobjptridx_t obj,fix force,const vmobjptri
 
 #if defined(DXX_BUILD_DESCENT_II)
 			//	Make trainee easier.
-			if (Difficulty_level == 0)
+			if (GameUniqueState.Difficulty_level == 0)
 				damage /= 2;
 #endif
 
@@ -293,6 +293,7 @@ static void bump_this_object(const vmobjptridx_t objp, const vmobjptridx_t other
 		} else if ((objp->type == OBJ_ROBOT) || (objp->type == OBJ_CLUTTER) || (objp->type == OBJ_CNTRLCEN)) {
 			if (!Robot_info[get_robot_id(objp)].boss_flag) {
 				vms_vector force2;
+				const auto Difficulty_level = GameUniqueState.Difficulty_level;
 				force2.x = force.x/(4 + Difficulty_level);
 				force2.y = force.y/(4 + Difficulty_level);
 				force2.z = force.z/(4 + Difficulty_level);
@@ -469,7 +470,7 @@ volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const unique_s
 				fix damage = fixmul(d,((FrameTime>DESIGNATED_GAME_FRAMETIME)?FrameTime:DESIGNATED_GAME_FRAMETIME));
 
 #if defined(DXX_BUILD_DESCENT_II)
-				if (Difficulty_level == 0)
+				if (GameUniqueState.Difficulty_level == 0)
 					damage /= 2;
 #endif
 
@@ -824,6 +825,7 @@ static window_event_result collide_weapon_and_wall(
 
 	const auto wall_type = wall_hit_process(player_info.powerup_flags, hitseg, hitwall, weapon->shields, playernum, weapon);
 
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	// Wall is volatile if either tmap 1 or 2 is volatile
 	if ((TmapInfo[uhitside.tmap_num].flags & TMI_VOLATILE) ||
 		(uhitside.tmap_num2 && (TmapInfo[uhitside.tmap_num2 & 0x3fff].flags & TMI_VOLATILE))
@@ -1519,7 +1521,7 @@ enum class boss_weapon_collision_result : uint8_t
 
 static inline int Boss_invulnerable_dot()
 {
-	return F1_0/4 - i2f(Difficulty_level)/8;
+	return F1_0 / 4 - i2f(GameUniqueState.Difficulty_level) / 8;
 }
 
 //	------------------------------------------------------------------------------------------------------
@@ -1670,6 +1672,7 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 		return;
 
 #if defined(DXX_BUILD_DESCENT_II)
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	//	Changed, 10/04/95, put out blobs based on skill level and power of weapon doing damage.
 	//	Also, only a weapon hit from a player weapon causes smart blobs.
 	if ((weapon->ctype.laser_info.parent_type == OBJ_PLAYER) && (robptr.energy_blobs))
@@ -2236,9 +2239,7 @@ void collide_player_and_nasty_robot(const vmobjptridx_t playerobj, const vmobjpt
 
 	bump_two_objects(playerobj, robot, 0);	//no damage from bump
 
-	apply_damage_to_player( playerobj, robot, F1_0*(Difficulty_level+1), 0);
-
-	return;
+	apply_damage_to_player(playerobj, robot, F1_0 * (GameUniqueState.Difficulty_level + 1), 0);
 }
 
 static vms_vector find_exit_direction(vms_vector result, const vcobjptr_t objp, const vcsegptr_t segp)

@@ -77,7 +77,7 @@ void read_flying_controls(object &obj)
 			return false;
 		auto &gmobj = *gimobj;
 		const auto gmid = get_weapon_id(gmobj);
-		const auto speed = Weapon_info[gmid].speed[Difficulty_level];
+		const auto speed = Weapon_info[gmid].speed[GameUniqueState.Difficulty_level];
 		vms_angvec rotangs;
 		//this is a horrible hack.  guided missile stuff should not be
 		//handled in the middle of a routine that is dealing with the player

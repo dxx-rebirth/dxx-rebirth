@@ -208,7 +208,7 @@ window_event_result do_countdown_frame()
 		};
 		fix disturb_x = get_base_disturbance(), disturb_z = get_base_disturbance();
 		//	At Trainee, decrease rocking of ship by 4x.
-		if (Difficulty_level == Difficulty_0)
+		if (GameUniqueState.Difficulty_level == Difficulty_0)
 		{
 			disturb_x /= 4;
 			disturb_z /= 4;
@@ -290,6 +290,7 @@ void do_controlcen_destroyed_stuff(const imobjptridx_t objp)
 	// And start the countdown stuff.
 	Control_center_destroyed = 1;
 
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #if defined(DXX_BUILD_DESCENT_II)
 	// If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
 	if (Current_level_num < 0)
@@ -435,6 +436,7 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 				count++;
 			}
 
+			const auto Difficulty_level = GameUniqueState.Difficulty_level;
 			delta_fire_time = (NDL - Difficulty_level) * F1_0/4;
 #if defined(DXX_BUILD_DESCENT_II)
 			if (Difficulty_level == 0)
@@ -532,7 +534,7 @@ void init_controlcen_for_level(void)
 void special_reactor_stuff()
 {
 	if (Control_center_destroyed) {
-		Countdown_timer += i2f(Base_control_center_explosion_time + (NDL-1-Difficulty_level)*Base_control_center_explosion_time/(NDL-1));
+		Countdown_timer += i2f(Base_control_center_explosion_time + (NDL - 1 - GameUniqueState.Difficulty_level) * Base_control_center_explosion_time / (NDL - 1));
 		Total_countdown_time = f2i(Countdown_timer)+2;	//	Will prevent "Self destruct sequence activated" message from replaying.
 	}
 }

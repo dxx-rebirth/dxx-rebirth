@@ -201,7 +201,7 @@ static void scores_fill_struct(stats_info * stats)
 
 	stats->seconds = f2i(plr.time_total) + (plr.hours_total * 3600);
 
-	stats->diff_level = Difficulty_level;
+	stats->diff_level = GameUniqueState.Difficulty_level;
 	stats->starting_level = plr.starting_level;
 }
 

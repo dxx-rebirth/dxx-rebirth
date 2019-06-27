@@ -206,6 +206,7 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 								}
 #endif
 
+								const auto Difficulty_level = GameUniqueState.Difficulty_level;
 								//	When a robot gets whacked by a badass force, he looks towards it because robots tend to get blasted from behind.
 								{
 									vms_vector neg_vforce;
@@ -284,7 +285,7 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 								if (obj0p->shields >= 0)
 								{
 #if defined(DXX_BUILD_DESCENT_II)
-								if (Difficulty_level == 0)
+									if (GameUniqueState.Difficulty_level == 0)
 									damage /= 4;
 #endif
 									apply_damage_to_player(obj0p, killer, damage, 1 );
@@ -348,6 +349,7 @@ void explode_badass_weapon(const vmobjptridx_t obj,const vms_vector &pos)
 #endif
 	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj, 0, F1_0, sound_stack::allow_stacking);
 
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	object_create_badass_explosion(obj, vmsegptridx(obj->segnum), pos,
 	                                      wi->impact_size,
 	                                      wi->robot_hit_vclip,

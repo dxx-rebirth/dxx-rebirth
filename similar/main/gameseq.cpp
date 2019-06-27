@@ -194,6 +194,11 @@ static bool is_object_of_type(const object_base &o)
 	return o.type == type;
 }
 
+static unsigned get_starting_concussion_missile_count()
+{
+	return 2 + NDL - GameUniqueState.Difficulty_level;
+}
+
 }
 
 namespace dsx {
@@ -536,9 +541,10 @@ static void init_ammo_and_energy(object &plrobj)
 		if (shields < StartingShields)
 			shields = StartingShields;
 	}
+	const unsigned minimum_missiles = get_starting_concussion_missile_count();
 	auto &concussion = player_info.secondary_ammo[CONCUSSION_INDEX];
-	if (concussion < 2 + NDL - Difficulty_level)
-		concussion = 2 + NDL - Difficulty_level;
+	if (concussion < minimum_missiles)
+		concussion = minimum_missiles;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -623,7 +629,7 @@ void init_player_stats_new_ship(const playernum_t pnum)
 	auto &player_info = plrobj->ctype.player_info;
 	player_info.energy = INITIAL_ENERGY;
 	player_info.secondary_ammo = {{
-		static_cast<uint8_t>(2 + NDL - Difficulty_level)
+		static_cast<uint8_t>(get_starting_concussion_missile_count())
 	}};
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
 	player_info.vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems);
@@ -1129,6 +1135,7 @@ static void DoEndLevelScoreGlitz()
 	auto &player_info = plrobj.ctype.player_info;
 	level_points = player_info.mission.score - player_info.mission.last_score;
 
+	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	if (!cheats.enabled) {
 		if (Difficulty_level > 1) {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2209,6 +2216,7 @@ void copy_defaults_to_robot(object_base &objp)
 	fix shields = robptr.strength;
 
 #if defined(DXX_BUILD_DESCENT_II)
+	const auto &Difficulty_level = GameUniqueState.Difficulty_level;
 	if ((robot_is_thief(robptr)) || (robot_is_companion(robptr))) {
 		shields = (shields * (abs(Current_level_num)+7))/8;
 
@@ -2223,11 +2231,8 @@ void copy_defaults_to_robot(object_base &objp)
 		}
 	} else if (robptr.boss_flag)	//	MK, 01/16/95, make boss shields lower on lower diff levels.
 	{
-		shields = shields/(NDL+3) * (Difficulty_level+4);
-
 	//	Additional wimpification of bosses at Trainee
-	if (Difficulty_level == 0)
-		shields /= 2;
+		shields = shields / (NDL + 3) * (Difficulty_level ? Difficulty_level + 4 : 2);
 	}
 #endif
 	objp.shields = shields;
