@@ -982,6 +982,14 @@ namespace dcx {
 
 array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 
+static fix get_weapon_energy_usage_with_difficulty(const weapon_info &wi, const Difficulty_level_type Difficulty_level)
+{
+	const auto energy_usage = wi.energy_usage;
+	if (Difficulty_level < 2)
+		return fixmul(energy_usage, i2f(Difficulty_level + 2) / 4);
+	return energy_usage;
+}
+
 }
 
 namespace dsx {
@@ -1275,11 +1283,12 @@ void calc_d_homer_tick()
 static imobjptridx_t track_track_goal(fvcobjptr &vcobjptr, const imobjptridx_t track_goal, const vmobjptridx_t tracker, fix *dot, fix tick_count)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	if (object_is_trackable(track_goal, tracker, dot)) {
+	if (object_is_trackable(track_goal, tracker, dot))
 #elif defined(DXX_BUILD_DESCENT_II)
 	//	Every 8 frames for each object, scan all objects.
-	if (object_is_trackable(track_goal, tracker, dot) && (((tracker ^ tick_count) % 8) != 0)) {
+	if (object_is_trackable(track_goal, tracker, dot) && (((tracker ^ tick_count) % 8) != 0))
 #endif
+	{
 		return track_goal;
 	} else if (((tracker ^ tick_count) % 4) == 0)
 	{
@@ -1514,12 +1523,8 @@ void Flare_create(const vmobjptridx_t obj)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	fix	energy_usage;
 
-	energy_usage = Weapon_info[weapon_id_type::FLARE_ID].energy_usage;
-
-	if (Difficulty_level < 2)
-		energy_usage = fixmul(energy_usage, i2f(Difficulty_level+2)/4);
+	const auto energy_usage = get_weapon_energy_usage_with_difficulty(Weapon_info[weapon_id_type::FLARE_ID], Difficulty_level);
 
 //	MK, 11/04/95: Allowed to fire flare even if no energy.
 // -- 	if (Players[Player_num].energy >= energy_usage)
@@ -1826,7 +1831,6 @@ void do_laser_firing_player(object &plrobj)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	fix		energy_used;
 	int		ammo_used;
 	int		rval = 0;
 	int 		nfires = 1;
@@ -1837,24 +1841,28 @@ void do_laser_firing_player(object &plrobj)
 	auto &player_info = plrobj.ctype.player_info;
 	const auto Primary_weapon = player_info.Primary_weapon;
 	const auto weapon_index = Primary_weapon_to_weapon_info[Primary_weapon];
-	energy_used = Weapon_info[weapon_index].energy_usage;
-
-	if (Difficulty_level < 2)
-		energy_used = fixmul(energy_used, i2f(Difficulty_level+2)/4);
 
 	ammo_used = Weapon_info[weapon_index].ammo_usage;
 
-	int uses_vulcan_ammo = weapon_index_uses_vulcan_ammo(Primary_weapon);
+	const auto uses_vulcan_ammo = weapon_index_uses_vulcan_ammo(Primary_weapon);
 
 	auto &pl_energy = player_info.energy;
+	const auto base_energy_used =
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
-		energy_used = 0;	//	Omega consumes energy when recharging, not when firing.
-	//	MK, 01/26/96, Helix use 2x energy in multiplayer.  bitmaps.tbl parm should have been reduced for single player.
-	if (weapon_index == weapon_id_type::HELIX_ID)
-		if (Game_mode & GM_MULTI)
-			energy_used *= 2;
+		(Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
+		? 0	//	Omega consumes energy when recharging, not when firing.
+		:
 #endif
+		get_weapon_energy_usage_with_difficulty(Weapon_info[weapon_index], Difficulty_level);
+
+	const auto energy_used =
+#if defined(DXX_BUILD_DESCENT_II)
+	//	MK, 01/26/96, Helix use 2x energy in multiplayer.  bitmaps.tbl parm should have been reduced for single player.
+		(weapon_index == weapon_id_type::HELIX_ID && (Game_mode & GM_MULTI))
+		? base_energy_used * 2
+		:
+#endif
+		base_energy_used;
 
 	if	(!(sufficient_energy(energy_used, pl_energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, player_info.vulcan_ammo)))
 		auto_select_primary_weapon(player_info);		//	Make sure the player can fire from this weapon.
