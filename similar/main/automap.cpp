@@ -714,10 +714,16 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 	DrawMarkers(vcobjptr, canvas, am);
 	
 	// Draw player(s)...
-	if ( (Game_mode & (GM_TEAM | GM_MULTI_COOP)) || (Netgame.game_flag.show_on_map) )	{
+	const unsigned show_all_players = (Game_mode & GM_MULTI_COOP) || Netgame.game_flag.show_on_map;
+	if (show_all_players || (Game_mode & GM_TEAM))
+	{
+		const unsigned local_player_team = get_team(Player_num);
 		for (unsigned i = 0; i < N_players; ++i)
 		{
-			if ( (i != Player_num) && ((Game_mode & GM_MULTI_COOP) || (get_team(Player_num) == get_team(i)) || (Netgame.game_flag.show_on_map)) )	{
+			if (i == Player_num)
+				continue;
+			if (show_all_players || local_player_team == get_team(i))
+			{
 				auto &plr = *vcplayerptr(i);
 				auto &objp = *vcobjptr(plr.objnum);
 				if (objp.type == OBJ_PLAYER)
