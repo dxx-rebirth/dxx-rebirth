@@ -376,7 +376,7 @@ static window_event_result player_menu_handler( listbox *lb,const d_event &event
 }
 
 //Inputs the player's name, without putting up the background screen
-int RegisterPlayer()
+static void RegisterPlayer()
 {
 	static const array<file_extension_t, 1> types{{"plr"}};
 	int i = 0, NumItems;
@@ -400,11 +400,11 @@ int RegisterPlayer()
 
 	auto list = PHYSFSX_findFiles(PLAYER_DIRECTORY_STRING(""), types);
 	if (!list)
-		return 0;	// memory error
+		return;	// memory error
 	if (!list[0])
 	{
 		MakeNewPlayerFile(0);	// make a new player without showing listbox
-		return 0;
+		return;
 	}
 
 
@@ -414,9 +414,7 @@ int RegisterPlayer()
 	RAIIdmem<const char *[]> m;
 	MALLOC(m, const char *[], NumItems);
 	if (m == NULL)
-	{
-		return 0;
-	}
+		return;
 
 	m[i++] = TXT_CREATE_NEW;
 
@@ -439,7 +437,7 @@ int RegisterPlayer()
 	if (NumItems <= 1) // so it seems all plr files we found were too long. funny. let's make a real player
 	{
 		MakeNewPlayerFile(0);	// make a new player without showing listbox
-		return 0;
+		return;
 	}
 
 	// Sort by name, except the <Create New Player> string
@@ -450,7 +448,6 @@ int RegisterPlayer()
 			citem = i;
 
 	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m.release(), allow_abort_flag, citem, player_menu_handler, list.release());
-	return 1;
 }
 
 // Draw Copyright and Version strings
@@ -475,13 +472,12 @@ static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choic
 
 	switch (event.type)
 	{
+		case EVENT_WINDOW_CREATED:
+			RegisterPlayer();
+			break;
 		case EVENT_WINDOW_ACTIVATED:
 			load_palette(MENU_PALETTE,0,1);		//get correct palette
-
-			if (!*static_cast<const char *>(get_local_player().callsign))
-				RegisterPlayer();
-			else
-				keyd_time_when_last_pressed = timer_query();		// .. 20 seconds from now!
+			keyd_time_when_last_pressed = timer_query();		// .. 20 seconds from now!
 			break;
 
 		case EVENT_KEY_COMMAND:

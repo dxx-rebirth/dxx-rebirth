@@ -32,9 +32,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern int hide_menus(void);
 extern void show_menus(void);
 
-// called once at program startup to get the player's name
-extern int RegisterPlayer();
-
 #ifdef dsx
 namespace dsx {
 // returns number of item chosen
