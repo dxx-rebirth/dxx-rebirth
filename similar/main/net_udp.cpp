@@ -2609,6 +2609,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		buf[len++] = Netgame.Allow_marker_view;
 		buf[len++] = Netgame.AlwaysLighting;
 		buf[len++] = Netgame.ThiefModifierFlags;
+		buf[len++] = Netgame.AllowGuidebot;
 #endif
 		buf[len++] = Netgame.ShowEnemyNames;
 		buf[len++] = Netgame.BrightPlayers;
@@ -2852,6 +2853,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		Netgame.Allow_marker_view = data[len++];
 		Netgame.AlwaysLighting = data[len++];
 		Netgame.ThiefModifierFlags = data[len++];
+		Netgame.AllowGuidebot = data[len++];
 #endif
 		Netgame.ShowEnemyNames = data[len];				len += 1;
 		Netgame.BrightPlayers = data[len];				len += 1;
@@ -3318,6 +3320,7 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 	DXX_MENUITEM(VERB, CHECK, "Indestructible lights", opt_light, Netgame.AlwaysLighting)	\
 	DXX_MENUITEM(VERB, CHECK, "Remove Thief at level start", opt_thief_presence, thief_absent)	\
 	DXX_MENUITEM(VERB, CHECK, "Prevent Thief Stealing Energy Weapons", opt_thief_steal_energy, thief_cannot_steal_energy_weapons)	\
+	DXX_MENUITEM(VERB, CHECK, "Allow Guidebot (coop only; experimental)", opt_guidebot_enabled, Netgame.AllowGuidebot)	\
 
 #endif
 

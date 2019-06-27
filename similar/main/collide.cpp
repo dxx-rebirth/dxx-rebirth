@@ -789,25 +789,17 @@ static window_event_result collide_weapon_and_wall(
 
 	blew_up = check_effect_blowup(LevelSharedDestructibleLightState, Vclip, hitseg, hitwall, hitpt, weapon->ctype.laser_info, 0, 0);
 
-	int	robot_escort;
-#if defined(DXX_BUILD_DESCENT_II)
-	robot_escort = effect_parent_is_guidebot(vcobjptr, weapon->ctype.laser_info);
+#if defined(DXX_BUILD_DESCENT_I)
+	const unsigned robot_escort = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
+	const unsigned robot_escort = effect_parent_is_guidebot(vcobjptr, weapon->ctype.laser_info);
 	if (robot_escort) {
-
-		if (Game_mode & GM_MULTI)
-		 {
-			 Int3();  // Get Jason!
-		    return window_event_result::ignored;
-	    }
-
-
-		playernum = Player_num;		//if single player, he's the player's buddy
+		/* Guidebot is always associated with the host */
+		playernum = 0;
 	}
 	else
 #endif
 	{
-		robot_escort = 0;
-
 		auto &objp = *vcobjptr(weapon->ctype.laser_info.parent_num);
 		if (objp.type == OBJ_PLAYER)
 			playernum = get_player_id(objp);

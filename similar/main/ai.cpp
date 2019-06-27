@@ -934,18 +934,19 @@ void do_ai_robot_hit_attack(const vmobjptridx_t robot, const vmobjptridx_t playe
 //#endif
 
 	//	If player is dead, stop firing.
-	if (playerobj->type == OBJ_GHOST)
+	object &plrobj = *playerobj;
+	if (plrobj.type == OBJ_GHOST)
 		return;
 
 	if (robptr.attack_type == 1) {
 		if (ready_to_fire_weapon1(ailp, 0)) {
-			auto &player_info = playerobj->ctype.player_info;
+			auto &player_info = plrobj.ctype.player_info;
 			if (!(player_info.powerup_flags & PLAYER_FLAGS_CLOAKED))
-				if (vm_vec_dist_quick(ConsoleObject->pos, robot->pos) < robot->size + ConsoleObject->size + F1_0*2)
+				if (vm_vec_dist_quick(plrobj.pos, robot->pos) < robot->size + plrobj.size + F1_0*2)
 				{
 					collide_player_and_nasty_robot( playerobj, robot, collision_point );
 #if defined(DXX_BUILD_DESCENT_II)
-					auto &energy = playerobj->ctype.player_info.energy;
+					auto &energy = player_info.energy;
 					if (robptr.energy_drain && energy) {
 						energy -= robptr.energy_drain * F1_0;
 						if (energy < 0)
@@ -988,8 +989,8 @@ static int lead_player(const object_base &objp, const vms_vector &fire_point, co
 	if (plrobj.ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
 		return 0;
 
-	const auto &velocity = ConsoleObject->mtype.phys_info.velocity;
-	vms_vector player_movement_dir = ConsoleObject->mtype.phys_info.velocity;
+	const auto &velocity = plrobj.mtype.phys_info.velocity;
+	auto player_movement_dir = velocity;
 	const fix player_speed = vm_vec_normalize_quick(player_movement_dir);
 
 	if (player_speed < MIN_LEAD_SPEED)
@@ -1598,7 +1599,7 @@ void do_ai_robot_hit(const vmobjptridx_t objp, player_awareness_type_t type)
 					//	1/8 time, charge player, 1/4 time create path, rest of time, do nothing
 					ai_local		*ailp = &objp->ctype.ai_info.ail;
 					if (r < 4096) {
-						create_path_to_player(objp, 10, create_path_safety_flag::safe);
+						create_path_to_believed_player_segment(objp, 10, create_path_safety_flag::safe);
 						objp->ctype.ai_info.behavior = ai_behavior::AIB_STATION;
 						objp->ctype.ai_info.hide_segment = objp->segnum;
 						ailp->mode = ai_mode::AIM_CHASE_OBJECT;
@@ -1716,6 +1717,50 @@ static void compute_vis_and_vec(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
 		}
 	player_visibility.initialized = 1;
 }
+
+#if defined(DXX_BUILD_DESCENT_II)
+static void compute_buddy_vis_vec(const vmobjptridx_t buddy_obj, const vms_vector &buddy_pos, robot_to_player_visibility_state &player_visibility, const robot_info &robptr)
+{
+	if (player_visibility.initialized)
+		return;
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &plr = get_player_controlling_guidebot(BuddyState, Players);
+	if (plr.objnum == object_none)
+	{
+		player_visibility.vec_to_player = {};
+		player_visibility.visibility = player_visibility_state::no_line_of_sight;
+		player_visibility.initialized = 1;
+		return;
+	}
+	auto &plrobj = *Objects.vcptr(plr.objnum);
+	/* Buddy ignores cloaking */
+	vm_vec_normalized_dir_quick(player_visibility.vec_to_player, plrobj.pos, buddy_pos);
+	if (player_visibility.vec_to_player.x == 0 && player_visibility.vec_to_player.y == 0 && player_visibility.vec_to_player.z == 0)
+		player_visibility.vec_to_player.x = F1_0;
+
+	fvi_query fq;
+	fq.p0 = &buddy_pos;
+	fq.startseg = buddy_obj->segnum;
+	fq.p1 = &plrobj.pos;
+	fq.rad = F1_0/4;
+	fq.thisobjnum = buddy_obj;
+	fq.ignore_obj_list.first = nullptr;
+	fq.flags = FQ_TRANSWALL;
+	fvi_info hit_data;
+	const auto hit_type = find_vector_intersection(fq, hit_data);
+
+	auto &ailp = buddy_obj->ctype.ai_info.ail;
+	player_visibility.visibility = (hit_type == HIT_NONE)
+		? ((ailp.time_player_seen = GameTime64, vm_vec_dot(player_visibility.vec_to_player, buddy_obj->orient.fvec) > robptr.field_of_view[Difficulty_level])
+		   ? player_visibility_state::visible_and_in_field_of_view
+		   : player_visibility_state::visible_not_in_field_of_view
+		)
+		: player_visibility_state::no_line_of_sight;
+	ailp.previous_visibility = player_visibility.visibility;
+	player_visibility.initialized = 1;
+}
+#endif
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Move object one object radii from current position towards segment center.
@@ -2934,6 +2979,35 @@ static int openable_door_on_near_path(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr
 	}
 	return 0;
 }
+
+static unsigned guidebot_should_fire_flare(fvcobjptr &vcobjptr, fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, d_unique_buddy_state &BuddyState, const robot_info &robptr, const object &buddy_obj)
+{
+	auto &ais = buddy_obj.ctype.ai_info;
+	auto &ail = ais.ail;
+	if (const auto r = ready_to_fire_any_weapon(robptr, ail, 0))
+	{
+	}
+	else
+		return r;
+	if (const auto r = openable_door_on_near_path(vcsegptr, vcwallptr, buddy_obj, ais))
+		return r;
+	if (ail.mode != ai_mode::AIM_GOTO_PLAYER)
+		return 0;
+	auto &plr = get_player_controlling_guidebot(BuddyState, Players);
+	if (plr.objnum == object_none)
+		/* should never happen */
+		return 0;
+	auto &plrobj = *vcobjptr(plr.objnum);
+	if (plrobj.type != OBJ_PLAYER)
+		return 0;
+	vms_vector vec_to_controller;
+	const auto dist_to_controller = vm_vec_normalized_dir_quick(vec_to_controller, plrobj.pos, buddy_obj.pos);
+	if (dist_to_controller >= 3 * MIN_ESCORT_DISTANCE / 2)
+		return 0;
+	if (vm_vec_dot(plrobj.orient.fvec, vec_to_controller) <= -F1_0 / 4)
+		return 0;
+	return 1;
+}
 #endif
 
 #ifdef NDEBUG
@@ -3244,7 +3318,7 @@ _exit_cheat:
 		if (Overall_agitation > 70) {
 			if ((dist_to_player < F1_0*200) && (d_rand() < FrameTime/4)) {
 				if (d_rand() * (Overall_agitation - 40) > F1_0*5) {
-					create_path_to_player(obj, 4 + Overall_agitation/8 + Difficulty_level, create_path_safety_flag::safe);
+					create_path_to_believed_player_segment(obj, 4 + Overall_agitation/8 + Difficulty_level, create_path_safety_flag::safe);
 					return;
 				}
 			}
@@ -3266,14 +3340,14 @@ _exit_cheat:
 #if defined(DXX_BUILD_DESCENT_II)
 				case ai_mode::AIM_GOTO_PLAYER:
 					move_towards_segment_center(LevelSharedSegmentState, obj);
-					create_path_to_player(obj, 100, create_path_safety_flag::safe);
+					create_path_to_guidebot_player_segment(obj, 100, create_path_safety_flag::safe);
 					break;
 				case ai_mode::AIM_GOTO_OBJECT:
 					BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 					break;
 #endif
 				case ai_mode::AIM_CHASE_OBJECT:
-					create_path_to_player(obj, 4 + Overall_agitation/8 + Difficulty_level, create_path_safety_flag::safe);
+					create_path_to_believed_player_segment(obj, 4 + Overall_agitation/8 + Difficulty_level, create_path_safety_flag::safe);
 					break;
 				case ai_mode::AIM_STILL:
 #if defined(DXX_BUILD_DESCENT_I)
@@ -3302,7 +3376,7 @@ _exit_cheat:
 					move_towards_segment_center(LevelSharedSegmentState, obj);
 					obj->mtype.phys_info.velocity = {};
 					if (Overall_agitation > (50 - Difficulty_level*4))
-						create_path_to_player(obj, 4 + Overall_agitation/8, create_path_safety_flag::safe);
+						create_path_to_believed_player_segment(obj, 4 + Overall_agitation/8, create_path_safety_flag::safe);
 					else {
 						create_n_segment_path(obj, 5, segment_none);
 					}
@@ -3390,7 +3464,7 @@ _exit_cheat:
 						if (dist_to_player < F1_0*30)
 							create_n_segment_path(obj, 5, segment_none);
 						else
-							create_path_to_player(obj, 20, create_path_safety_flag::safe);
+							create_path_to_believed_player_segment(obj, 20, create_path_safety_flag::safe);
 					}
 			}
 		}
@@ -3538,35 +3612,30 @@ _exit_cheat:
 	auto &vcwallptr = Walls.vcptr;
 	// More special ability stuff, but based on a property of a robot, not its ID.
 	if (robot_is_companion(robptr)) {
-
-		compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
-		do_escort_frame(obj, plrobj, dist_to_player, player_visibility.visibility);
+		compute_buddy_vis_vec(obj, obj->pos, player_visibility, robptr);
+		auto &player_controlling_guidebot = get_player_controlling_guidebot(BuddyState, Players);
+		if (player_controlling_guidebot.objnum != object_none)
+		{
+			auto &plrobj_controlling_guidebot = *Objects.vcptr(player_controlling_guidebot.objnum);
+			do_escort_frame(obj, plrobj_controlling_guidebot, player_visibility.visibility);
+		}
 
 		if (obj->ctype.ai_info.danger_laser_num != object_none) {
-			const auto &&dobjp = vmobjptr(obj->ctype.ai_info.danger_laser_num);
-			if ((dobjp->type == OBJ_WEAPON) && (dobjp->signature == obj->ctype.ai_info.danger_laser_signature)) {
+			auto &dobjp = *vcobjptr(obj->ctype.ai_info.danger_laser_num);
+			if ((dobjp.type == OBJ_WEAPON) && (dobjp.signature == obj->ctype.ai_info.danger_laser_signature))
+			{
 				fix circle_distance;
 				circle_distance = robptr.circle_distance[Difficulty_level] + ConsoleObject->size;
 				ai_move_relative_to_player(obj, ailp, dist_to_player, circle_distance, 1, player_visibility, player_info);
 			}
 		}
 
-		if (ready_to_fire_any_weapon(robptr, ailp, 0)) {
-			int do_stuff = 0;
-			if (openable_door_on_near_path(vmsegptr, vcwallptr, *obj, *aip))
-				do_stuff = 1;
-			else if (ailp.mode == ai_mode::AIM_GOTO_PLAYER && dist_to_player < 3 * MIN_ESCORT_DISTANCE / 2 && (vm_vec_dot(ConsoleObject->orient.fvec, vec_to_player) > -F1_0 / 4))
-			{
-				do_stuff = 1;
-			}
-
-			if (do_stuff) {
+		if (guidebot_should_fire_flare(vcobjptr, vcsegptr, vcwallptr, BuddyState, robptr, *obj))
+		{
 				Laser_create_new_easy( obj->orient.fvec, obj->pos, obj, weapon_id_type::FLARE_ID, 1);
 				ailp.next_fire = F1_0/2;
 				if (!BuddyState.Buddy_allowed_to_talk) // If buddy not talking, make him fire flares less often.
 					ailp.next_fire += d_rand()*4;
-			}
-
 		}
 	}
 
@@ -3611,7 +3680,7 @@ _exit_cheat:
 						ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 					return;
 				}
-				create_path_to_player(obj, 8, create_path_safety_flag::safe);
+				create_path_to_believed_player_segment(obj, 8, create_path_safety_flag::safe);
 				ai_multi_send_robot_position(obj, -1);
 			} else if (!player_is_visible(player_visibility.visibility) && dist_to_player > F1_0 * 80 && !(Game_mode & GM_MULTI))
 			{
@@ -3661,7 +3730,7 @@ _exit_cheat:
 					return;
 				}
 #if defined(DXX_BUILD_DESCENT_I)
-				create_path_to_player(obj, 10, create_path_safety_flag::safe);
+				create_path_to_believed_player_segment(obj, 10, create_path_safety_flag::safe);
 				ai_multi_send_robot_position(obj, -1);
 #endif
 			} else if ((aip->CURRENT_STATE != AIS_REST) && (aip->GOAL_STATE != AIS_REST)) {

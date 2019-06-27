@@ -382,10 +382,13 @@ static uint8_t show_buddy_message()
 		return 0;
 
 	if (Game_mode & GM_MULTI)
-		return 0;
+	{
+		if (!Netgame.AllowGuidebot)
+			return 0;
+	}
 
 	if (BuddyState.Last_buddy_message_time + F1_0 < GameTime64) {
-		if (auto r = ok_for_buddy_to_talk())
+		if (const auto r = ok_for_buddy_to_talk())
 			return r;
 	}
 	return 0;
@@ -475,11 +478,10 @@ static int marker_exists_in_mine(int id)
 }
 
 //	-----------------------------------------------------------------------------
-void set_escort_special_goal(int special_key)
+void set_escort_special_goal(d_unique_buddy_state &BuddyState, const int raw_special_key)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	int marker_key;
 
 	BuddyState.Buddy_messages_suppressed = 0;
@@ -496,7 +498,7 @@ void set_escort_special_goal(int special_key)
 		}
 	}
 
-	special_key = special_key & (~KEY_SHIFTED);
+	const int special_key = raw_special_key & (~KEY_SHIFTED);
 
 	marker_key = special_key;
 	
@@ -546,6 +548,7 @@ void set_escort_special_goal(int special_key)
 
 	say_escort_goal(BuddyState.Escort_special_goal);
 	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
+	multi_send_escort_goal(BuddyState);
 }
 
 //	-----------------------------------------------------------------------------
@@ -770,20 +773,27 @@ static void escort_goal_unreachable(const escort_goal_t goal)
 	clear_escort_goals();
 }
 
-static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *aip, segnum_t goal_seg)
+static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *const aip, const segnum_t goal_seg)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	auto &Objects = LevelUniqueObjectState.Objects;
 	create_path_to_segment(objp, goal_seg, Max_escort_length, create_path_safety_flag::safe);	//	MK!: Last parm (safety_flag) used to be 1!!
 	if (aip->path_length > 3)
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 	if ((aip->path_length > 0) && (Point_segs[aip->hide_index + aip->path_length - 1].segnum != goal_seg)) {
-		fix	dist_to_player;
 		const unsigned goal_text_index = exchange(BuddyState.Escort_goal_object, ESCORT_GOAL_SCRAM) - 1;
 		BuddyState.Looking_for_marker = UINT8_MAX;
+		auto &plr = get_player_controlling_guidebot(BuddyState, Players);
+		if (plr.objnum == object_none)
+			return;
+		auto &plrobj = *Objects.vcptr(plr.objnum);
+		if (plrobj.type != OBJ_PLAYER)
+			return;
 		buddy_message_ignore_time("Cannot reach %s.", goal_text_index < Escort_goal_text.size() ? Escort_goal_text[goal_text_index] : "<unknown>");
-		dist_to_player = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 100, WID_FLY_FLAG);
+		const auto goal_segment = plrobj.segnum;
+		const fix dist_to_player = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), plrobj.pos, vmsegptridx(goal_segment), 100, WID_FLY_FLAG);
 		if (dist_to_player > MIN_ESCORT_DISTANCE)
-			create_path_to_player(objp, Max_escort_length, create_path_safety_flag::safe);	//	MK!: Last parm used to be 1!
+			create_path_to_segment(objp, Max_escort_length, create_path_safety_flag::safe, goal_segment);
 		else {
 			create_n_segment_path(objp, 8 + d_rand() * 8, segment_none);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
@@ -935,14 +945,24 @@ static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
 {
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	auto &Objects = LevelUniqueObjectState.Objects;
 	if (BuddyState.Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 		return ESCORT_GOAL_UNSPECIFIED;
-	const auto need_key_and_key_exists = [pl_flags, segnum = ConsoleObject->segnum](const PLAYER_FLAG flag_key, const powerup_type_t powerup_key) {
+
+	auto &plr = get_player_controlling_guidebot(BuddyState, Players);
+	if (plr.objnum == object_none)
+		/* should never happen */
+		return ESCORT_GOAL_UNSPECIFIED;
+	auto &plrobj = *Objects.vcptr(plr.objnum);
+	if (plrobj.type != OBJ_PLAYER)
+		return ESCORT_GOAL_UNSPECIFIED;
+
+	const auto need_key_and_key_exists = [pl_flags, start_search_seg = plrobj.segnum](const PLAYER_FLAG flag_key, const powerup_type_t powerup_key) {
 		if (pl_flags & flag_key)
 			/* Player already has this key, so no need to get it again.
 			 */
 			return false;
-		const auto &&e = exists_in_mine(segnum, OBJ_POWERUP, powerup_key, -1, pl_flags);
+		const auto &&e = exists_in_mine(start_search_seg, OBJ_POWERUP, powerup_key, -1, pl_flags);
 		/* For compatibility with classic Descent 2, test only whether
 		 * the key exists, but ignore whether it can be reached by the
 		 * guide bot.
@@ -968,43 +988,56 @@ static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
 #define	MAX_ESCORT_TIME_AWAY		(F1_0*4)
 
 //	-----------------------------------------------------------------------------
-static int time_to_visit_player(const vmobjptr_t objp, ai_local *ailp, ai_static *aip)
+static const player *time_to_visit_player(const d_level_unique_object_state &LevelUniqueObjectState, const object &buddy_object)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	auto &plr = get_player_controlling_guidebot(BuddyState, Players);
+	if (plr.objnum == object_none)
+		/* should never happen */
+		return nullptr;
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &plrobj = *Objects.vcptr(plr.objnum);
+	if (plrobj.type != OBJ_PLAYER)
+		return nullptr;
 	//	Note: This one has highest priority because, even if already going towards player,
 	//	might be necessary to create a new path, as player can move.
 	if (GameTime64 - BuddyState.Buddy_last_seen_player > MAX_ESCORT_TIME_AWAY)
 		if (GameTime64 - BuddyState.Buddy_last_player_path_created > F1_0)
-			return 1;
+			return &plr;
 
-	if (ailp->mode == ai_mode::AIM_GOTO_PLAYER)
-		return 0;
+	auto &ais = buddy_object.ctype.ai_info;
+	if (ais.ail.mode == ai_mode::AIM_GOTO_PLAYER)
+		return nullptr;
 
-	if (objp->segnum == ConsoleObject->segnum)
-		return 0;
+	if (ais.cur_path_index < ais.path_length / 2)
+		return nullptr;
 
-	if (aip->cur_path_index < aip->path_length/2)
-		return 0;
-	
-	return 1;
+	if (buddy_object.segnum == plrobj.segnum)
+		return nullptr;
+	return &plr;
 }
 
 //	-----------------------------------------------------------------------------
-static void bash_buddy_weapon_info(const vmobjptridx_t objp)
+static void bash_buddy_weapon_info(d_unique_buddy_state &BuddyState, fvmobjptridx &vmobjptridx, object &weapon_obj)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptridx = Objects.vmptridx;
-	auto &laser_info = objp->ctype.laser_info;
-	const auto console = ConsoleObject;
-	laser_info.parent_num = vmobjptridx(console);
+	auto &plr = get_player_controlling_guidebot(BuddyState, Players);
+	if (plr.objnum == object_none)
+		/* should never happen */
+		return;
+	/* Buddy can still fire while player is dead, so skip check for
+	 * plrobj.type */
+	auto &&plrobj = vmobjptridx(plr.objnum);
+	auto &laser_info = weapon_obj.ctype.laser_info;
+	laser_info.parent_num = plrobj;
 	laser_info.parent_type = OBJ_PLAYER;
-	laser_info.parent_signature = console->signature;
+	laser_info.parent_signature = plrobj->signature;
 }
 
 //	-----------------------------------------------------------------------------
 static int maybe_buddy_fire_mega(const vmobjptridx_t objp)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	auto &Objects = LevelUniqueObjectState.Objects;
 	const auto Buddy_objnum = BuddyState.Buddy_objnum;
 	const auto &&buddy_objp = objp.absolute_sibling(Buddy_objnum);
 	fix		dist, dot;
@@ -1033,7 +1066,7 @@ static int maybe_buddy_fire_mega(const vmobjptridx_t objp)
 	const imobjptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::MEGA_ID, 1);
 
 	if (weapon_objnum != object_none)
-		bash_buddy_weapon_info(weapon_objnum);
+		bash_buddy_weapon_info(BuddyState, Objects.vmptridx, weapon_objnum);
 
 	return 1;
 }
@@ -1042,6 +1075,7 @@ static int maybe_buddy_fire_mega(const vmobjptridx_t objp)
 static int maybe_buddy_fire_smart(const vmobjptridx_t objp)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	auto &Objects = LevelUniqueObjectState.Objects;
 	const auto Buddy_objnum = BuddyState.Buddy_objnum;
 	const auto &&buddy_objp = objp.absolute_sibling(Buddy_objnum);
 	fix		dist;
@@ -1059,7 +1093,7 @@ static int maybe_buddy_fire_smart(const vmobjptridx_t objp)
 	const imobjptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::SMART_ID, 1);
 
 	if (weapon_objnum != object_none)
-		bash_buddy_weapon_info(weapon_objnum);
+		bash_buddy_weapon_info(BuddyState, Objects.vmptridx, weapon_objnum);
 
 	return 1;
 }
@@ -1098,11 +1132,30 @@ static void do_buddy_dude_stuff(void)
 	}
 }
 
+static void escort_set_goal_toward_controlling_player(d_unique_buddy_state &BuddyState, fvcobjptr &vcobjptr, const vmobjptridx_t buddy_obj)
+{
+	auto &aip = buddy_obj->ctype.ai_info;
+	aip.path_length = polish_path(buddy_obj, &Point_segs[aip.hide_index], aip.path_length);
+	if (aip.path_length < 3) {
+		auto &plr = get_player_controlling_guidebot(BuddyState, Players);
+		if (plr.objnum != object_none)
+		{
+			auto &plrobj = *vcobjptr(plr.objnum);
+			if (plrobj.type == OBJ_PLAYER)
+				create_n_segment_path(buddy_obj, 5, plrobj.segnum);
+		}
+	}
+	aip.ail.mode = ai_mode::AIM_GOTO_OBJECT;
+}
+
 //	-----------------------------------------------------------------------------
 //	Called every frame (or something).
-void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, const fix dist_to_player, const player_visibility_state player_visibility)
+void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, const player_visibility_state player_visibility)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
+	const auto dist_to_player = vm_vec_dist_quick(plrobj.pos, objp->pos);
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
@@ -1151,10 +1204,16 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, const fix d
 		}
 
 	if (BuddyState.Escort_special_goal == ESCORT_GOAL_SCRAM) {
+		auto &plr = get_player_controlling_guidebot(BuddyState, Players);
+		if (plr.objnum == object_none)
+			return;
+		auto &plrobj = *Objects.vcptr(plr.objnum);
+		if (plrobj.type != OBJ_PLAYER)
+			return;
 		if (player_is_visible(player_visibility))
 			if (BuddyState.Escort_last_path_created + F1_0*3 < GameTime64) {
 				BuddyState.Escort_last_path_created = GameTime64;
-				create_n_segment_path(objp, 10 + d_rand() * 16, ConsoleObject->segnum);
+				create_n_segment_path(objp, 10 + d_rand() * 16, plrobj.segnum);
 			}
 
 		return;
@@ -1167,9 +1226,10 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, const fix d
 		BuddyState.Escort_last_path_created = GameTime64;
 	}
 
-	if (BuddyState.Escort_special_goal != ESCORT_GOAL_SCRAM && time_to_visit_player(objp, ailp, aip)) {
+	const player *guidebot_controller_player;
+	if (BuddyState.Escort_special_goal != ESCORT_GOAL_SCRAM && (guidebot_controller_player = time_to_visit_player(LevelUniqueObjectState, objp)))
+	{
 		unsigned max_len;
-
 		BuddyState.Buddy_last_player_path_created = GameTime64;
 		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
 		if (!player_is_visible(player_visibility))
@@ -1177,14 +1237,18 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, const fix d
 			if (BuddyState.Last_come_back_message_time + F1_0 < GameTime64)
 			{
 				BuddyState.Last_come_back_message_time = GameTime64;
-				buddy_message("Coming back to get you.");
+				auto &local_player = *Players.vcptr(Player_num);
+				if (guidebot_controller_player == &local_player)
+					buddy_message_str("Coming back to get you.");
+				else
+					buddy_message("Going back to get %s.", guidebot_controller_player->callsign.operator const char *());
 			}
 		}
 		//	No point in Buddy creating very long path if he's not allowed to talk.  Really kills framerate.
 		max_len = Max_escort_length;
 		if (!BuddyState.Buddy_allowed_to_talk)
 			max_len = 3;
-		create_path_to_player(objp, max_len, create_path_safety_flag::safe);	//	MK!: Last parm used to be 1!
+		create_path_to_segment(objp, max_len, create_path_safety_flag::safe, Believed_player_seg);	//	MK!: Last parm used to be 1!
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
 	}
@@ -1196,11 +1260,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, const fix d
 		BuddyState.Escort_goal_object = escort_set_goal_object(player_info.powerup_flags);
 		ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
 		escort_create_path_to_goal(objp, player_info);
-		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
-		if (aip->path_length < 3) {
-			create_n_segment_path(objp, 5, Believed_player_seg);
-		}
-		ailp->mode = ai_mode::AIM_GOTO_OBJECT;
+		escort_set_goal_toward_controlling_player(BuddyState, vcobjptr, objp);
 	}
 	else if (BuddyState.Escort_goal_object == ESCORT_GOAL_UNSPECIFIED)
 	{
@@ -1208,11 +1268,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, const fix d
 			BuddyState.Escort_goal_object = escort_set_goal_object(player_info.powerup_flags);
 			ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
 			escort_create_path_to_goal(objp, player_info);
-			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
-			if (aip->path_length < 3) {
-				create_n_segment_path(objp, 5, Believed_player_seg);
-			}
-			ailp->mode = ai_mode::AIM_GOTO_OBJECT;
+			escort_set_goal_toward_controlling_player(BuddyState, vcobjptr, objp);
 		}
 	}
 }
@@ -1240,7 +1296,7 @@ void do_snipe_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 
 			connected_distance = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 30, WID_FLY_FLAG);
 			if (connected_distance < F1_0*500) {
-				create_path_to_player(objp, 30, create_path_safety_flag::safe);
+				create_path_to_believed_player_segment(objp, 30, create_path_safety_flag::safe);
 				ailp->mode = ai_mode::AIM_SNIPE_ATTACK;
 				ailp->next_action_time = SNIPE_ATTACK_TIME;	//	have up to 10 seconds to find player.
 			}
@@ -1372,7 +1428,7 @@ void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 		case ai_mode::AIM_THIEF_WAIT:
 			if (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION) {
 				ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
-				create_path_to_player(objp, 30, create_path_safety_flag::safe);
+				create_path_to_believed_player_segment(objp, 30, create_path_safety_flag::safe);
 				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 				ailp->next_action_time = THIEF_ATTACK_TIME/2;
 				return;
@@ -1391,7 +1447,7 @@ void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 
 			connected_distance = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 30, WID_FLY_FLAG);
 			if (connected_distance < F1_0*500) {
-				create_path_to_player(objp, 30, create_path_safety_flag::safe);
+				create_path_to_believed_player_segment(objp, 30, create_path_safety_flag::safe);
 				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 				ailp->next_action_time = THIEF_ATTACK_TIME;	//	have up to 10 seconds to find player.
 			}
@@ -1445,7 +1501,7 @@ void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 			} else if (ailp->next_action_time < 0) {
 				//	This forces him to create a new path every second.
 				ailp->next_action_time = F1_0;
-				create_path_to_player(objp, 100, create_path_safety_flag::unsafe);
+				create_path_to_believed_player_segment(objp, 100, create_path_safety_flag::unsafe);
 				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 			} else {
 				if (player_is_visible(player_visibility) && dist_to_player < F1_0*100)
@@ -1800,7 +1856,7 @@ window_event_result escort_menu::event_key_command(const d_event &event)
 		case KEY_9:
 			BuddyState.Looking_for_marker = UINT8_MAX;
 			BuddyState.Last_buddy_key = -1;
-			set_escort_special_goal(key);
+			set_escort_special_goal(BuddyState, key);
 			BuddyState.Last_buddy_key = -1;
 			return window_event_result::close;
 		case KEY_ESC:
@@ -1846,10 +1902,30 @@ window_event_result escort_menu::event_handler(window *, const d_event &event, e
 	return window_event_result::handled;
 }
 
+unsigned check_warn_local_player_can_control_guidebot(fvcobjptr &vcobjptr, const d_unique_buddy_state &BuddyState, const netgame_info &Netgame)
+{
+	if (!Netgame.AllowGuidebot || !(Game_mode & GM_MULTI_COOP))
+	{
+		HUD_init_message_literal(HM_DEFAULT, "Guide-Bot is not enabled!");
+		return 0;
+	}
+	auto &plr = get_player_controlling_guidebot(BuddyState, Players);
+	if (plr.objnum == object_none)
+		return 0;
+	auto &plrobj = *vcobjptr(plr.objnum);
+	if (ConsoleObject != &plrobj)
+	{
+		HUD_init_message(HM_DEFAULT, "Guide-Bot is controlled by %s!", plr.callsign.operator const char *());
+		return 0;
+	}
+	return 1;
+}
+
 void do_escort_menu(void)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	int	next_goal;
@@ -1859,8 +1935,8 @@ void do_escort_menu(void)
 	escort_menu *menu;
 
 	if (Game_mode & GM_MULTI) {
-		HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in Multiplayer!");
-		return;
+		if (!check_warn_local_player_can_control_guidebot(vcobjptr, BuddyState, Netgame))
+			return;
 	}
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;

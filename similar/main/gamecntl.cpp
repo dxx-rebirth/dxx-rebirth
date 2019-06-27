@@ -921,10 +921,13 @@ static window_event_result HandleGameKey(int key)
 		case KEY_0 + KEY_SHIFTED:
 			if (PlayerCfg.EscortHotKeys)
 			{
-				if (!(Game_mode & GM_MULTI))
-					set_escort_special_goal(key);
-				else
-					HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in Multiplayer!");
+				auto &BuddyState = LevelUniqueObjectState.BuddyState;
+				if (Game_mode & GM_MULTI)
+				{
+					if (!check_warn_local_player_can_control_guidebot(Objects.vcptr, BuddyState, Netgame))
+						return window_event_result::handled;
+				}
+				set_escort_special_goal(BuddyState, key);
 				game_flush_inputs();
 				return window_event_result::handled;
 			}

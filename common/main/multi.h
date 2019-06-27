@@ -96,7 +96,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION	static_cast<uint16_t>(9)
+#define MULTI_PROTO_VERSION	static_cast<uint16_t>(10)
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -706,6 +706,8 @@ void DropFlag();
 void multi_send_finish_game ();
 void init_hoard_data(d_vclip_array &Vclip);
 void multi_apply_goal_textures();
+void multi_send_escort_goal(const d_unique_buddy_state &);
+void multi_recv_escort_goal(d_unique_buddy_state &, const uint8_t *);
 
 int HoardEquipped();
 #if DXX_USE_EDITOR
@@ -800,6 +802,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	uint8_t Allow_marker_view;
 	uint8_t AlwaysLighting;
 	uint8_t ThiefModifierFlags;
+	uint8_t AllowGuidebot;
 #endif
 	uint8_t ShowEnemyNames;
 	uint8_t BrightPlayers;

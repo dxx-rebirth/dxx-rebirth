@@ -423,6 +423,7 @@ int multi_send_robot_frame(int sent)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 /*
  * The thief bot moves around even when not controlled by a player. Due to its erratic and random behaviour, it's movement will diverge heavily between players and cause it to teleport when a player takes over.
  * To counter this, let host update positions when no one controls it OR the client which does.
@@ -450,6 +451,8 @@ void multi_send_thief_frame()
                         }
                 }
         }
+}
+
 }
 #endif
 
@@ -597,6 +600,8 @@ void multi_send_create_robot(int station, objnum_t objnum, int type)
 	multi_send_data(multibuf, 2);
 }
 
+namespace {
+
 struct boss_teleport
 {
 	objnum_t objnum;
@@ -630,6 +635,18 @@ struct boss_create_robot
 	uint8_t robot_type;
 };
 DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_CREATE_ROBOT, boss_create_robot, b, (b.objnum, b.objrobot, b.where, b.robot_type));
+
+#if defined(DXX_BUILD_DESCENT_II)
+struct update_buddy_state
+{
+	uint8_t Looking_for_marker;
+	escort_goal_t Escort_special_goal;
+	int Last_buddy_key;
+};
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_UPDATE_BUDDY_STATE, update_buddy_state, b, (b.Looking_for_marker, b.Escort_special_goal, b.Last_buddy_key));
+#endif
+
+}
 
 template <typename T, typename... Args>
 static inline void multi_send_boss_action(objnum_t bossobjnum, Args&&... args)
@@ -1050,6 +1067,29 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 	Assert(obj->ctype.ai_info.REMOTE_OWNER == -1);
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
+void multi_send_escort_goal(const d_unique_buddy_state &BuddyState)
+{
+	update_buddy_state b;
+	b.Looking_for_marker = BuddyState.Looking_for_marker;
+	b.Escort_special_goal = BuddyState.Escort_special_goal;
+	b.Last_buddy_key = BuddyState.Last_buddy_key;
+	multi_serialize_write(2, b);
+}
+
+void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const uint8_t *const buf)
+{
+	update_buddy_state b;
+	multi_serialize_read(buf, b);
+	BuddyState.Looking_for_marker = b.Looking_for_marker;
+	BuddyState.Escort_special_goal = b.Escort_special_goal;
+	BuddyState.Last_buddy_key = b.Last_buddy_key;
+	BuddyState.Buddy_messages_suppressed = 0;
+	BuddyState.Last_buddy_message_time = GameTime64 - 2 * F1_0;
+	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
+}
+#endif
+
 void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1339,4 +1379,5 @@ void multi_robot_request_change(const vmobjptridx_t robot, int player_num)
 		robot->ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;  // Hands-off period
 	}
 }
+
 }

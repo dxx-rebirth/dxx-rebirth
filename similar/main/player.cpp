@@ -11,11 +11,24 @@
  *
  */
 
+#include "object.h"
 #include "player.h"
 #include "physfsx.h"
 #include "compiler-range_for.h"
 
 namespace dsx {
+
+#if defined(DXX_BUILD_DESCENT_II)
+const player &get_player_controlling_guidebot(const d_unique_buddy_state & /* reserved for future use */, const valptridx<player>::array_managed_type &Players)
+{
+	/* One day, the game may support letting someone other than player 0
+	 * control the guidebot.  For now, only player 0 will ever control
+	 * it.
+	 */
+	return Players.front();
+}
+#endif
+
 void player_rw_swap(player_rw *p, int swap)
 {
 	if (!swap)

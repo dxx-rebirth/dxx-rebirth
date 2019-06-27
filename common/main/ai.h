@@ -177,7 +177,7 @@ int ai_multiplayer_awareness(vmobjptridx_t objp, int awareness_level);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // In escort.c
-void do_escort_frame(vmobjptridx_t objp, const object &plrobj, fix dist_to_player, player_visibility_state player_visibility);
+void do_escort_frame(vmobjptridx_t objp, const object &plrobj, player_visibility_state player_visibility);
 void do_snipe_frame(vmobjptridx_t objp, fix dist_to_player, player_visibility_state player_visibility, const vms_vector &vec_to_player);
 void do_thief_frame(vmobjptridx_t objp, fix dist_to_player, player_visibility_state player_visibility, const vms_vector &vec_to_player);
 #endif
@@ -292,7 +292,9 @@ extern fix64            Boss_hit_time;
 void create_path_to_segment(vmobjptridx_t objp, segnum_t goalseg, unsigned max_length, create_path_safety_flag safety_flag);
 #endif
 
-void create_path_to_player(vmobjptridx_t objp, unsigned max_length, create_path_safety_flag safety_flag);
+void create_path_to_segment(vmobjptridx_t objp, unsigned max_length, create_path_safety_flag safety_flag, icsegidx_t);
+void create_path_to_believed_player_segment(vmobjptridx_t objp, unsigned max_length, create_path_safety_flag safety_flag);
+void create_path_to_guidebot_player_segment(vmobjptridx_t objp, unsigned max_length, create_path_safety_flag safety_flag);
 std::pair<create_path_result, unsigned> create_path_points(vmobjptridx_t objp, vcsegidx_t start_seg, icsegidx_t end_seg, point_seg_array_t::iterator point_segs, unsigned max_depth, create_path_random_flag random_flag, create_path_safety_flag safety_flag, icsegidx_t avoid_seg);
 
 int ai_save_state(PHYSFS_File * fp);

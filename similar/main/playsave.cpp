@@ -75,7 +75,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DuplicateSecondariesStr "DuplicateSecondaries"
 #define DuplicateAccessoriesStr "DuplicateAccessories"
 #define ShufflePowerupsStr "ShufflePowerups"
-#define AllowMarkerViewStr "Allow_marker_view"
 #define AlwaysLightingStr "AlwaysLighting"
 #define ShowEnemyNamesStr "ShowEnemyNames"
 #define BrightPlayersStr "BrightPlayers"
@@ -130,8 +129,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define PLAYER_FILE_VERSION 24 //increment this every time the player file changes
 #define COMPATIBLE_PLAYER_FILE_VERSION 17
+#define AllowMarkerViewStr "Allow_marker_view"
 #define ThiefAbsenceFlagStr	"ThiefAbsent"
 #define ThiefNoEnergyWeaponsFlagStr	"ThiefNoEnergyWeapons"
+#define AllowGuidebotStr "AllowGuidebot"
 #endif
 #define KEYBOARD_HEADER_TEXT	"[keyboard]"
 #define SENSITIVITY_NAME_TEXT	"sensitivity"
@@ -1582,6 +1583,8 @@ void read_netgame_profile(netgame_info *ng)
 			if (strtoul(value, 0, 10))
 				ng->ThiefModifierFlags |= ThiefModifier::NoEnergyWeapons;
 		}
+		else if (cmp(lb, eq, AllowGuidebotStr))
+			convert_integer(ng->AllowGuidebot, value);
 #endif
 		else if (cmp(lb, eq, ShufflePowerupsStr))
 			convert_integer(ng->ShufflePowerupSeed, value);
@@ -1636,6 +1639,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, AlwaysLightingStr "=%i\n", ng->AlwaysLighting);
 	PHYSFSX_printf(file, ThiefAbsenceFlagStr "=%i\n", ng->ThiefModifierFlags & ThiefModifier::Absent);
 	PHYSFSX_printf(file, ThiefNoEnergyWeaponsFlagStr "=%i\n", ng->ThiefModifierFlags & ThiefModifier::NoEnergyWeapons);
+	PHYSFSX_printf(file, AllowGuidebotStr "=%i\n", ng->AllowGuidebot);
 #endif
 	PHYSFSX_printf(file, ShufflePowerupsStr "=%i\n", !!ng->ShufflePowerupSeed);
 	PHYSFSX_printf(file, ShowEnemyNamesStr "=%i\n", ng->ShowEnemyNames);

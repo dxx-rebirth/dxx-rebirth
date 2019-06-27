@@ -375,12 +375,13 @@ static void gameseq_init_network_players(object_array &Objects)
 
 	ConsoleObject = &Objects.front();
 	unsigned j = 0, k = 0;
+	const auto multiplayer_coop = Game_mode & GM_MULTI_COOP;
 #if defined(DXX_BUILD_DESCENT_II)
 	const auto remove_thief = Netgame.ThiefModifierFlags & ThiefModifier::Absent;
 	const auto multiplayer = Game_mode & GM_MULTI;
+	const auto retain_guidebot = Netgame.AllowGuidebot;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #endif
-	const auto multiplayer_coop = Game_mode & GM_MULTI_COOP;
 	auto &vmobjptridx = Objects.vmptridx;
 	range_for (const auto &&o, vmobjptridx)
 	{
@@ -410,7 +411,8 @@ static void gameseq_init_network_players(object_array &Objects)
 		else if (type == OBJ_ROBOT && multiplayer)
 		{
 			auto &ri = Robot_info[get_robot_id(o)];
-			if (robot_is_companion(ri) || (robot_is_thief(ri) && remove_thief))
+			if ((!retain_guidebot && robot_is_companion(ri)) ||
+				(remove_thief && robot_is_thief(ri)))
 				obj_delete(LevelUniqueObjectState, Segments, o);		//kill the buddy in netgames
 		}
 #endif

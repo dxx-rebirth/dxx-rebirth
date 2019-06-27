@@ -5696,7 +5696,7 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 	// if necessary) and act on it.
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
-	switch(type)
+	switch (static_cast<multiplayer_command_t>(type))
 	{
 		case MULTI_POSITION:
 			multi_do_position(vmobjptridx, pnum, buf);
@@ -5812,6 +5812,9 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_DROP_BLOB:
 			multi_do_drop_blob(vmobjptr, pnum);
 			break;
+		case MULTI_UPDATE_BUDDY_STATE:
+			multi_recv_escort_goal(LevelUniqueObjectState.BuddyState, buf);
+			break;
 #endif
 		case MULTI_BOSS_TELEPORT:
 			multi_do_boss_teleport(Vclip, pnum, buf); break;
@@ -5851,8 +5854,6 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 			break;
 		case MULTI_PLAYER_INV:
 			multi_do_player_inventory( pnum, buf ); break;
-		default:
-			throw std::runtime_error("invalid message type");
 	}
 }
 
@@ -6209,9 +6210,9 @@ void show_netgame_info(const netgame_info &netgame)
         newmenu_item *m;
         int loc=0, ngilen = 50;
 #if defined(DXX_BUILD_DESCENT_I)
-        int nginum = 50;
+	constexpr int nginum = 50;
 #elif defined(DXX_BUILD_DESCENT_II)
-	constexpr int nginum = 77;
+	constexpr int nginum = 78;
 #endif
 
         CALLOC(m, newmenu_item, nginum);
@@ -6304,6 +6305,7 @@ void show_netgame_info(const netgame_info &netgame)
         snprintf(ngii+(ngilen*loc),ngilen,"Indestructible Lights\t  %s", netgame.AlwaysLighting?TXT_YES:TXT_NO);                                            loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Thief permitted\t  %s", (netgame.ThiefModifierFlags & ThiefModifier::Absent) ? TXT_NO : TXT_YES);                                            loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Thief steals energy weapons\t  %s", (netgame.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons) ? TXT_NO : TXT_YES);                                            loc++;
+	snprintf(ngii+(ngilen*loc),ngilen,"Guidebot enabled (experimental)\t  %s", Netgame.AllowGuidebot ? TXT_YES : TXT_NO);                                            loc++;
 #endif
         snprintf(ngii+(ngilen*loc),ngilen,"Bright Player Ships\t  %s", netgame.BrightPlayers?TXT_YES:TXT_NO);                                               loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Enemy Names On Hud\t  %s", netgame.ShowEnemyNames?TXT_YES:TXT_NO);                                               loc++;

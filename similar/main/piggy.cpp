@@ -876,7 +876,7 @@ void piggy_new_pigfile(char *pigname)
 				char bbmname[FILENAME_LEN];
 				int SuperX;
 
-				snprintf(bbmname, sizeof(bbmname), "%s.bbm", AllBitmaps[i].name.data());
+				snprintf(bbmname, sizeof(bbmname), "%.8s.bbm", AllBitmaps[i].name.data());
 				iff_error = iff_read_bitmap(bbmname, n, &newpal);
 
 				if (iff_error != IFF_NO_ERROR)          {

@@ -635,22 +635,17 @@ void validate_all_paths(void)
 //	Sets	objp->ctype.ai_info.hide_index,		a pointer into Point_segs, the first point_seg of the path.
 //			objp->ctype.ai_info.path_length,		length of path
 //			Point_segs_free_ptr				global pointer into Point_segs array
-//	Change, 10/07/95: Used to create path to ConsoleObject->pos.  Now creates path to Believed_player_pos.
-void create_path_to_player(const vmobjptridx_t objp, const unsigned max_length, const create_path_safety_flag safety_flag)
+void create_path_to_segment(const vmobjptridx_t objp, const unsigned max_length, const create_path_safety_flag safety_flag, const icsegidx_t goal_segment)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
 	ailp->time_player_seen = GameTime64;			//	Prevent from resetting path quickly.
-#if defined(DXX_BUILD_DESCENT_I)
-	ailp->goal_segment = ConsoleObject->segnum;
-#elif defined(DXX_BUILD_DESCENT_II)
-	ailp->goal_segment = Believed_player_seg;
-#endif
+	ailp->goal_segment = goal_segment;
 
-	segnum_t			start_seg, end_seg;
+	segnum_t			start_seg;
 	start_seg = objp->segnum;
-	end_seg = ailp->goal_segment;
+	const auto end_seg = goal_segment;
 
 	if (end_seg == segment_none) {
 		;
@@ -681,12 +676,32 @@ void create_path_to_player(const vmobjptridx_t objp, const unsigned max_length, 
 		ailp->mode = ai_mode::AIM_FOLLOW_PATH;
 		ailp->player_awareness_type = player_awareness_type_t::PA_NONE;		//	If robot too aware of player, will set mode to chase
 	}
-
 	maybe_ai_path_garbage_collect();
+}
 
+//	Change, 10/07/95: Used to create path to ConsoleObject->pos.  Now creates path to Believed_player_pos.
+void create_path_to_believed_player_segment(const vmobjptridx_t objp, const unsigned max_length, const create_path_safety_flag safety_flag)
+{
+#if defined(DXX_BUILD_DESCENT_I)
+	const auto goal_segment = ConsoleObject->segnum;
+#elif defined(DXX_BUILD_DESCENT_II)
+	const auto goal_segment = Believed_player_seg;
+#endif
+	create_path_to_segment(objp, max_length, safety_flag, goal_segment);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+void create_path_to_guidebot_player_segment(const vmobjptridx_t objp, const unsigned max_length, const create_path_safety_flag safety_flag)
+{
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &plr = get_player_controlling_guidebot(BuddyState, Players);
+	if (plr.objnum == object_none)
+		return;
+	auto &plrobj = *Objects.vcptr(plr.objnum);
+	const auto goal_segment = plrobj.segnum;
+	create_path_to_segment(objp, max_length, safety_flag, goal_segment);
+}
 //	-------------------------------------------------------------------------------------------------------
 //	Creates a path from the object's current segment (objp->segnum) to segment goalseg.
 void create_path_to_segment(const vmobjptridx_t objp, segnum_t goalseg, const unsigned max_length, const create_path_safety_flag safety_flag)
@@ -1131,7 +1146,7 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 					   && (aip->behavior != ai_behavior::AIB_FOLLOW_PATH)
 #endif
 					   ) {
-				create_path_to_player(objp, 10, create_path_safety_flag::safe);
+				create_path_to_believed_player_segment(objp, 10, create_path_safety_flag::safe);
 #if defined(DXX_BUILD_DESCENT_II)
 				if (aip->hide_segment != Point_segs[aip->hide_index+aip->path_length-1].segnum) {
 					ailp->mode = ai_mode::AIM_STILL;
@@ -1203,7 +1218,7 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 
 		//	If went all the way around to original point, in same direction, then get out of here!
 		if ((aip->cur_path_index == original_index) && (aip->PATH_DIR == original_dir)) {
-			create_path_to_player(objp, 3, create_path_safety_flag::safe);
+			create_path_to_believed_player_segment(objp, 3, create_path_safety_flag::safe);
 			forced_break = 1;
 		}
 	}	//	end while

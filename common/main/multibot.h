@@ -64,10 +64,10 @@ int multi_send_robot_frame(int sent);
 #ifdef dsx
 namespace dsx {
 void multi_robot_request_change(vmobjptridx_t robot, int playernum);
-}
-#endif
 #if defined(DXX_BUILD_DESCENT_II)
 void multi_send_thief_frame();
+#endif
+}
 #endif
 #endif
 
