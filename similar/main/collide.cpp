@@ -835,22 +835,16 @@ static window_event_result collide_weapon_and_wall(
 
 		digi_link_sound_to_pos( SOUND_VOLATILE_WALL_HIT,hitseg, 0, hitpt, 0, F1_0 );
 
-		int vclip;
-#if defined(DXX_BUILD_DESCENT_I)
-		vclip = VCLIP_VOLATILE_WALL_HIT;
-#elif defined(DXX_BUILD_DESCENT_II)
-		//for most weapons, use volatile wall hit.  For mega, use its special vclip
-		vclip = (get_weapon_id(weapon) == weapon_id_type::MEGA_ID)?wi->robot_hit_vclip:VCLIP_VOLATILE_WALL_HIT;
-
 		//	New by MK: If powerful badass, explode as badass, not due to lava, fixes megas being wimpy in lava.
 		if (wi->damage_radius >= VOLATILE_WALL_DAMAGE_RADIUS/2) {
 			explode_badass_weapon(weapon, hitpt);
-		} else
-#endif
+		}
+		else
 		{
 			object_create_badass_explosion( weapon, hitseg, hitpt,
 				wi->impact_size + VOLATILE_WALL_IMPACT_SIZE,
-				vclip,
+		//for most weapons, use volatile wall hit.  For mega, use its special vclip
+				(get_weapon_id(weapon) == weapon_id_type::MEGA_ID) ? wi->robot_hit_vclip : VCLIP_VOLATILE_WALL_HIT,
 				wi->strength[Difficulty_level]/4+VOLATILE_WALL_EXPL_STRENGTH,	//	diminished by mk on 12/08/94, i was doing 70 damage hitting lava on lvl 1.
 				wi->damage_radius+VOLATILE_WALL_DAMAGE_RADIUS,
 				wi->strength[Difficulty_level]/2+VOLATILE_WALL_DAMAGE_FORCE,
