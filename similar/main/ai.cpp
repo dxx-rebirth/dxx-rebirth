@@ -2054,21 +2054,19 @@ namespace dsx {
 //	It is available as a cheat in a non-debug (release) version.
 void create_buddy_bot(void)
 {
-	int	buddy_id;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	for (buddy_id=0;; buddy_id++)
-	{
-		if (!(buddy_id < LevelSharedRobotInfoState.N_robot_types))
-			return;
-		const robot_info &robptr = Robot_info[buddy_id];
-		if (robptr.companion)
-			break;
-	}
+	const auto &&range = enumerate(partial_const_range(LevelSharedRobotInfoState.Robot_info, LevelSharedRobotInfoState.N_robot_types));
+	const auto &&predicate = [](const auto &ev) {
+		const robot_info &robptr = ev.value;
+		return robptr.companion;
+	};
+	const auto &&it = std::find_if(range.begin(), range.end(), predicate);
+	if (!(it != range.end()))
+		return;
 	const auto &&segp = vmsegptridx(ConsoleObject->segnum);
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&object_pos = compute_segment_center(vcvertptr, segp);
-	create_morph_robot(segp, object_pos, buddy_id);
+	create_morph_robot(segp, object_pos, (*it).idx);
 }
 #endif
 

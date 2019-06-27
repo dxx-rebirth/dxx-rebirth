@@ -7,6 +7,7 @@
 #pragma once
 
 #include <inttypes.h>
+#include <iterator>
 #include "dxxsconf.h"
 #include "partial_range.h"
 #include "ephemeral_range.h"
@@ -23,7 +24,7 @@ struct enumerated_value
 };
 
 template <typename range_iterator_type, typename index_type, typename result_type>
-class enumerated_iterator
+class enumerated_iterator : public std::iterator<std::forward_iterator_tag, result_type>
 {
 	range_iterator_type m_iter;
 	index_type m_idx;
