@@ -203,7 +203,7 @@ window_event_result do_countdown_frame()
 	if (d_tick_step)
 	{
 		auto &rotvel = ConsoleObject->mtype.phys_info.rotvel;
-		const auto get_base_disturbance = [fc = std::max(Countdown_seconds_left, 16)]() {
+		const auto get_base_disturbance = [fc = std::min(Countdown_seconds_left, 16)]() {
 			return fixmul(d_rand() - 16384, 3 * F1_0 / 16 + (F1_0 * (16 - fc)) / 32);
 		};
 		fix disturb_x = get_base_disturbance(), disturb_z = get_base_disturbance();
