@@ -365,11 +365,15 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 	set_object_type(*obj, PHYSFSX_readByte(f));
 	obj->id             = PHYSFSX_readByte(f);
 
+	if (obj->type == OBJ_ROBOT)
+	{
 #if defined(DXX_BUILD_DESCENT_I)
-	if (obj->type == OBJ_ROBOT && get_robot_id(obj) > 23) {
-		set_robot_id(obj, get_robot_id(obj) % 24);
-	}
+		const auto id = get_robot_id(obj);
+		if (id > 23)
+			set_robot_id(obj, id % 24);
 #endif
+		obj->matcen_creator = 0;
+	}
 	obj->control_type   = PHYSFSX_readByte(f);
 	set_object_movement_type(*obj, PHYSFSX_readByte(f));
 	obj->render_type    = PHYSFSX_readByte(f);

@@ -805,7 +805,6 @@ void reset_player_object()
 	// Clear misc
 
 	ConsoleObject->flags = 0;
-        ConsoleObject->matcen_creator = 0;
 }
 
 
