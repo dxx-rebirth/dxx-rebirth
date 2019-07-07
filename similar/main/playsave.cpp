@@ -845,7 +845,7 @@ int read_player_file()
 	Assert(Player_num < MAX_PLAYERS);
 
 	memset(filename, '\0', PATH_MAX);
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(get_local_player().callsign));
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(InterfaceUniqueState.PilotName));
 	if (!PHYSFSX_exists(filename,0))
 		return ENOENT;
 	auto file = PHYSFSX_openReadBuffered(filename);
@@ -1324,10 +1324,9 @@ void write_player_file()
 
 	errno_ret = WriteConfigFile();
 
-	auto &plr = get_local_player();
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plx"), static_cast<const char *>(plr.callsign));
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plx"), static_cast<const char *>(InterfaceUniqueState.PilotName));
 	write_player_dxx(filename);
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(plr.callsign));
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(InterfaceUniqueState.PilotName));
 	auto file = PHYSFSX_openWriteBuffered(filename);
 	if (!file)
 		return;
@@ -1525,7 +1524,7 @@ void read_netgame_profile(netgame_info *ng)
 	ng->TrackerNATWarned = TrackerNATHolePunchWarn::Unset;
 #endif
 
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(get_local_player().callsign));
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(InterfaceUniqueState.PilotName));
 	auto file = PHYSFSX_openReadBuffered(filename);
 	if (!file)
 		return;
@@ -1619,7 +1618,7 @@ void read_netgame_profile(netgame_info *ng)
 void write_netgame_profile(netgame_info *ng)
 {
 	char filename[PATH_MAX];
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(get_local_player().callsign));
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(InterfaceUniqueState.PilotName));
 	auto file = PHYSFSX_openWriteBuffered(filename);
 	if (!file)
 		return;

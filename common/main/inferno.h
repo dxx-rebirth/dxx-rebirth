@@ -25,9 +25,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include "dxxsconf.h"
 #include "fwd-event.h"
 #include "dsx-ns.h"
 #include "ntstring.h"
+#include "player-callsign.h"
 
 namespace dcx {
 
@@ -63,6 +65,16 @@ struct d_fname : ntstring<FILENAME_LEN - 1>
 			copy_if(i);
 		}
 };
+
+struct d_interface_unique_state
+{
+	callsign_t PilotName;
+#if DXX_HAVE_POISON
+	d_interface_unique_state();
+#endif
+};
+
+extern d_interface_unique_state InterfaceUniqueState;
 
 }
 

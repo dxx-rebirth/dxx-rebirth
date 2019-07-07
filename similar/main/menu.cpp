@@ -239,7 +239,7 @@ static int MakeNewPlayerFile(int allow_abort)
 {
 	int x;
 	char filename[PATH_MAX];
-	callsign_t text = get_local_player().callsign;
+	auto text = InterfaceUniqueState.PilotName;
 
 try_again:
 	{
@@ -272,8 +272,7 @@ try_again:
 	if ( !new_player_config() )
 		goto try_again;			// They hit Esc during New player config
 
-	get_local_player().callsign = text;
-
+	InterfaceUniqueState.PilotName = text;
 	write_player_file();
 
 	return 1;
@@ -352,10 +351,9 @@ static window_event_result player_menu_handler( listbox *lb,const d_event &event
 			}
 			else
 			{
-				get_local_player().callsign.copy_lower(items[citem], strlen(items[citem]));
+				InterfaceUniqueState.PilotName.copy_lower(items[citem], strlen(items[citem]));
 			}
 			return window_event_result::close;
-			break;
 		}
 
 		case EVENT_WINDOW_CLOSE:
@@ -383,18 +381,18 @@ static void RegisterPlayer()
 	int citem = 0;
 	int allow_abort_flag = 1;
 
-	auto &plr = get_local_player();
-	if (!*static_cast<const char *>(plr.callsign))
+	auto &callsign = InterfaceUniqueState.PilotName;
+	if (!callsign[0])
 	{
 		if (!*static_cast<const char *>(GameCfg.LastPlayer))
 		{
-			plr.callsign = "player";
+			callsign = "player";
 			allow_abort_flag = 0;
 		}
 		else
 		{
 			// Read the last player's name from config file, not lastplr.txt
-			plr.callsign = GameCfg.LastPlayer;
+			callsign = GameCfg.LastPlayer;
 		}
 	}
 
@@ -444,7 +442,7 @@ static void RegisterPlayer()
 	qsort(&m[1], NumItems - 1, sizeof(char *), string_array_sort_func);
 
 	for ( i=0; i<NumItems; i++ )
-		if (!d_stricmp(static_cast<const char *>(get_local_player().callsign), m[i]) )
+		if (!d_stricmp(static_cast<const char *>(callsign), m[i]))
 			citem = i;
 
 	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m.release(), allow_abort_flag, citem, player_menu_handler, list.release());

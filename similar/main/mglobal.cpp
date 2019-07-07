@@ -50,6 +50,7 @@ static void reconstruct_global_variable(T &t)
 	new(&t) T();
 }
 
+d_interface_unique_state InterfaceUniqueState;
 d_game_unique_state GameUniqueState;
 d_level_shared_boss_state LevelSharedBossState;
 d_level_shared_vertex_state LevelSharedVertexState;

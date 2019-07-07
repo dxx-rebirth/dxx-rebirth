@@ -240,7 +240,7 @@ static void show_netplayerinfo()
 		const auto color = get_player_or_team_color(i);
 		auto &prgb = player_rgb[color];
 		gr_set_fontcolor(canvas, BM_XRGB(prgb.r, prgb.g, prgb.b), -1);
-		gr_printf(canvas, game_font, x, y, "%s\n", static_cast<const char *>(plr.callsign));
+		gr_string(canvas, game_font, x, y, plr.callsign);
 		{
 			auto &plrobj = *vcobjptr(plr.objnum);
 			auto &player_info = plrobj.ctype.player_info;

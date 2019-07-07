@@ -398,6 +398,13 @@ window_event_result standard_handler(const d_event &event)
 	return window_event_result::ignored;
 }
 
+#if DXX_HAVE_POISON
+d_interface_unique_state::d_interface_unique_state()
+{
+	DXX_MAKE_VAR_UNDEFINED(PilotName);
+}
+#endif
+
 }
 
 namespace dsx {
@@ -617,20 +624,11 @@ static int main(int argc, char *argv[])
 	con_puts(CON_DEBUG, "Running game...");
 	init_game();
 
-	get_local_player().callsign = {};
-
 #if defined(DXX_BUILD_DESCENT_I)
 	key_flush();
-#elif defined(DXX_BUILD_DESCENT_II)
-	//	If built with editor, option to auto-load a level and quit game
-	//	to write certain data.
-	#ifdef	EDITOR
-	if (!GameArg.EdiAutoLoad.empty()) {
-		Players[0u].callsign = "dummy";
-	} else
-	#endif
 #endif
 	{
+		InterfaceUniqueState.PilotName.fill(0);
 		if (!CGameArg.SysPilot.empty())
 		{
 			char filename[sizeof(PLAYER_DIRECTORY_TEXT) + CALLSIGN_LEN + 4];
@@ -658,7 +656,7 @@ static int main(int argc, char *argv[])
 			}
 			if(PHYSFSX_exists(filename,0))
 			{
-				get_local_player().callsign.copy(b, std::distance(b, &filename[j - 4]));
+				InterfaceUniqueState.PilotName.copy(b, std::distance(b, &filename[j - 4]));
 				read_player_file();
 				WriteConfigFile();
 			}

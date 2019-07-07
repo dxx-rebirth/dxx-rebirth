@@ -271,7 +271,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic3Str, CGameCfg.CMMiscMusic[SONG_ENDGAME].data());
 	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic4Str, CGameCfg.CMMiscMusic[SONG_CREDITS].data());
 	PHYSFSX_printf(infile, "%s=%d\n", GammaLevelStr, GameCfg.GammaLevel);
-	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, static_cast<const char *>(get_local_player().callsign));
+	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, static_cast<const char *>(InterfaceUniqueState.PilotName));
 	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, static_cast<const char *>(CGameCfg.LastMission));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
