@@ -573,7 +573,11 @@ static int main(int argc, char *argv[])
 #endif
 
 	con_puts(CON_VERBOSE, "Going into graphics mode...");
+#if DXX_USE_OGL
 	gr_set_mode_from_window_size();
+#else
+	gr_set_mode(Game_screen_mode);
+#endif
 
 	// Load the palette stuff. Returns non-zero if error.
 	con_puts(CON_DEBUG, "Initializing palette system...");
