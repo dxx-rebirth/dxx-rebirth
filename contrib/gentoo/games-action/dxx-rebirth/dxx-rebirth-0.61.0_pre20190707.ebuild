@@ -15,7 +15,7 @@ if [[ "$PV" = 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dxx-rebirth/dxx-rebirth"
 else
-	MY_COMMIT='4e18ed1ac9bc74d151af7fb9c2c9f6c60e2583bd'
+	MY_COMMIT='d413a5da1389a46882821815791f7e76d321f648'
 	S="$WORKDIR/$PN-$MY_COMMIT"
 	SRC_URI="https://github.com/dxx-rebirth/dxx-rebirth/archive/$MY_COMMIT.zip -> $PN-$PVR.zip"
 	unset MY_COMMIT

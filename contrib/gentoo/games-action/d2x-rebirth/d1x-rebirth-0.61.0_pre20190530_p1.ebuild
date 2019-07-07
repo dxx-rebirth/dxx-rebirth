@@ -1,1 +1,0 @@
-../d1x-rebirth/d1x-rebirth-0.61.0_pre20190530_p1.ebuild
