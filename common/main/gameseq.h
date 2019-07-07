@@ -143,7 +143,6 @@ namespace dsx {
 void do_cloak_invul_secret_stuff(fix64 old_gametime, player_info &player_info);
 #endif
 void EnterSecretLevel(void);
-void init_player_stats_ship(object &);
 void init_player_stats_new_ship(playernum_t pnum);
 }
 #endif

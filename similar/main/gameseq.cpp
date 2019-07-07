@@ -166,6 +166,7 @@ public:
 }
 
 namespace dsx {
+static void init_player_stats_ship(object &, fix GameTime64);
 static window_event_result AdvanceLevel(int secret_flag);
 static void StartLevel(int random_flag);
 static void copy_defaults_to_robot_all(void);
@@ -615,7 +616,7 @@ void init_player_stats_level(player &plr, object &plrobj, const secret_restore s
 #if defined(DXX_BUILD_DESCENT_II)
 	Missile_viewer = NULL;
 #endif
-	init_player_stats_ship(plrobj);
+	init_player_stats_ship(plrobj, GameTime64);
 }
 
 // Setup player for a brand-new ship
@@ -716,10 +717,10 @@ void init_player_stats_new_ship(const playernum_t pnum)
 		init_ai_for_ship();
 	}
 	digi_kill_sound_linked_to_object(plrobj);
-	init_player_stats_ship(plrobj);
+	init_player_stats_ship(plrobj, GameTime64);
 }
 
-void init_player_stats_ship(object &plrobj)
+void init_player_stats_ship(object &plrobj, const fix GameTime64)
 {
 	auto &player_info = plrobj.ctype.player_info;
 	player_info.lavafall_hiss_playing = false;
