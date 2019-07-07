@@ -30,6 +30,8 @@
 #include "palette.h"
 
 #include "compiler-make_unique.h"
+#include "compiler-range_for.h"
+#include "d_range.h"
 
 using std::min;
 
