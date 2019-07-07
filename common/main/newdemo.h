@@ -94,7 +94,7 @@ extern void newdemo_record_sound_3d_once( int soundno, int angle, int volume );
 extern void newdemo_record_sound_once( int soundno );
 extern void newdemo_record_sound( int soundno );
 void newdemo_record_wall_hit_process( segnum_t segnum, int side, int damage, int playernum );
-extern void newdemo_record_morph_frame(struct morph_data *);
+void newdemo_record_morph_frame(vcobjptridx_t);
 extern void newdemo_record_player_stats(int shields, int energy, int score );
 void newdemo_record_wall_toggle(segnum_t segnum, int side );
 extern void newdemo_record_control_center_destroyed();

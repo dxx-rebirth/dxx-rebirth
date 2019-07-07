@@ -197,6 +197,8 @@ static int apply_damage_to_clutter(const vmobjptridx_t clutter, fix damage)
 namespace dsx {
 static void apply_force_damage(const vmobjptridx_t obj,fix force,const vmobjptridx_t other_obj)
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	fix damage;
 
 	if (obj->flags & (OF_EXPLODING|OF_SHOULD_BE_DEAD))
@@ -230,7 +232,7 @@ static void apply_force_damage(const vmobjptridx_t obj,fix force,const vmobjptri
 
 			const auto console = ConsoleObject;
 			if ((other_type == OBJ_PLAYER && other_obj == console) ||
-				(other_type == OBJ_WEAPON && other_obj->ctype.laser_info.parent_signature == console->signature))
+				(other_type == OBJ_WEAPON && laser_parent_is_player(vcobjptr, other_obj->ctype.laser_info, *console)))
 				add_points_to_score(console->ctype.player_info, robptr.score_value);
 			break;
 		}
@@ -1668,7 +1670,7 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 			return;
 	}
 
-	if (weapon->ctype.laser_info.parent_signature == robot->signature)
+	if (laser_parent_is_object(weapon->ctype.laser_info, robot))
 		return;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1770,7 +1772,8 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 
 			if (! apply_damage_to_robot(robot, damage, weapon->ctype.laser_info.parent_num))
 				bump_two_objects(robot, weapon, 0);		//only bump if not dead. no damage from bump
-			else if (weapon->ctype.laser_info.parent_signature == ConsoleObject->signature) {
+			else if (laser_parent_is_player(vcobjptr, weapon->ctype.laser_info, *ConsoleObject))
+			{
 				add_points_to_score(ConsoleObject->ctype.player_info, robptr.score_value);
 				detect_escort_goal_accomplished(robot);
 			}

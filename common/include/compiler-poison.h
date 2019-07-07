@@ -19,6 +19,15 @@ static inline void DXX_MAKE_MEM_UNDEFINED(T *b, unsigned long l)
 #endif
 }
 
+template <typename T>
+static inline void DXX_CHECK_MEM_IS_DEFINED(const T *const b, unsigned long l)
+{
+	(void)b;(void)l;
+#if DXX_HAVE_POISON_VALGRIND
+	VALGRIND_CHECK_MEM_IS_DEFINED(b, l);
+#endif
+}
+
 /* Convenience function to invoke
  * `DXX_MAKE_MEM_UNDEFINED(T *, unsigned long)`
  */
@@ -27,6 +36,17 @@ static inline void DXX_MAKE_MEM_UNDEFINED(T *b, T *e)
 {
 	unsigned char *bc = reinterpret_cast<unsigned char *>(b);
 	DXX_MAKE_MEM_UNDEFINED(bc, reinterpret_cast<unsigned char *>(e) - bc);
+}
+
+/* Convenience function to invoke
+ * `DXX_CHECK_MEM_IS_DEFINED(T *, unsigned long)` for exactly one instance
+ * of `T`.
+ */
+template <typename T>
+static inline void DXX_CHECK_VAR_IS_DEFINED(const T &b)
+{
+	const unsigned char *const bc = reinterpret_cast<const unsigned char *>(&b);
+	DXX_CHECK_MEM_IS_DEFINED(bc, sizeof(T));
 }
 
 /* Convenience function to invoke

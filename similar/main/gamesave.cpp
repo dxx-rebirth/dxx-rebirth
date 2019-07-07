@@ -360,9 +360,8 @@ namespace dsx {
 static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 {
 	const auto poison_obj = reinterpret_cast<uint8_t *>(&*obj);
-	const auto signature = obj_get_signature();
 	DXX_POISON_MEMORY(poison_obj, sizeof(*obj), 0xfd);
-	obj->signature = signature;
+	obj->signature = object_signature_t{0};
 	set_object_type(*obj, PHYSFSX_readByte(f));
 	obj->id             = PHYSFSX_readByte(f);
 

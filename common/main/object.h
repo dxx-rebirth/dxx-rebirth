@@ -215,7 +215,7 @@ struct laser_parent
 {
 	int16_t parent_type = {};        // The type of the parent of this object
 	objnum_t parent_num = {};         // The object's parent's number
-	object_signature_t parent_signature = {};   // The object's parent's signature...
+	object_signature_t parent_signature = object_signature_t{0};   // The object's parent's signature...
 };
 
 struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
@@ -563,6 +563,8 @@ struct object_number_array : array<T, N>
 	}
 };
 
+unsigned laser_parent_is_matching_signature(const laser_parent &l, const object_base &o);
+
 }
 
 #define Highest_object_index (Objects.get_count() - 1)
@@ -635,6 +637,11 @@ struct d_level_unique_object_state
 };
 
 extern d_level_unique_object_state LevelUniqueObjectState;
+
+unsigned laser_parent_is_player(fvcobjptr &, const laser_parent &, const object_base &);
+unsigned laser_parent_is_object(fvcobjptr &, const laser_parent &, const object_base &);
+unsigned laser_parent_is_object(const laser_parent &, vcobjptridx_t);
+unsigned laser_parent_object_exists(fvcobjptr &, const laser_parent &);
 
 static inline powerup_type_t get_powerup_id(const object_base &o)
 {

@@ -7,7 +7,7 @@ class object_signature_t
 {
 	uint16_t signature;
 public:
-	object_signature_t() = default;
+	explicit object_signature_t() = default;
 	constexpr explicit object_signature_t(uint16_t s) :
 		signature(s)
 	{

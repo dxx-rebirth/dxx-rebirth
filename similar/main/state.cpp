@@ -307,7 +307,10 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, const vmobj
 	DXX_POISON_VAR(*obj, 0xfd);
 	set_object_type(*obj, obj_rw->type);
 	if (obj->type == OBJ_NONE)
+	{
+		obj->signature = object_signature_t{0};
 		return;
+	}
 
 	obj->signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
 	obj->id            = obj_rw->id;

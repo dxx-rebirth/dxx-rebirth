@@ -178,7 +178,7 @@ bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 {
 	// See if o2 is the parent of o1
 	if (o1->type == OBJ_WEAPON)
-		if (o1->ctype.laser_info.parent_num == o2 && o1->ctype.laser_info.parent_signature == o2->signature)
+		if (laser_parent_is_object(o1->ctype.laser_info, o2))
 		{
 			//	o1 is a weapon, o2 is the parent of 1, so if o1 is PROXIMITY_BOMB and o2 is player, they are related only if o1 < 2.0 seconds old
 			if (ignore_proximity_weapon(o1) || ignore_guided_missile_weapon(o1) || ignore_phoenix_weapon(o1))
@@ -191,7 +191,7 @@ bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 	// See if o1 is the parent of o2
 	if (o2->type == OBJ_WEAPON)
 	{
-		if (o2->ctype.laser_info.parent_num == o1 && o2->ctype.laser_info.parent_signature == o1->signature)
+		if (laser_parent_is_object(o2->ctype.laser_info, o1))
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			//	o2 is a weapon, o1 is the parent of 2, so if o2 is PROXIMITY_BOMB and o1 is player, they are related only if o1 < 2.0 seconds old
@@ -211,12 +211,17 @@ bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 	//	Here is the 09/07/94 change -- Siblings must be identical, others can hurt each other
 	// See if they're siblings...
 	//	MK: 06/08/95, Don't allow prox bombs to detonate for 3/4 second.  Else too likely to get toasted by your own bomb if hit by opponent.
-	if (o1->ctype.laser_info.parent_signature == o2->ctype.laser_info.parent_signature)
+	const auto o1id = get_weapon_id(o1);
+	const auto o2id = get_weapon_id(o2);
+	auto &o1li = o1->ctype.laser_info;
+	auto &o2li = o2->ctype.laser_info;
+	if (o1li.parent_num == o2li.parent_num && o1li.parent_signature == o2li.parent_signature)
 	{
-		if (is_proximity_bomb_or_smart_mine(get_weapon_id(o1)) || is_proximity_bomb_or_smart_mine(get_weapon_id(o2))) {
+		if (is_proximity_bomb_or_smart_mine(o1id) || is_proximity_bomb_or_smart_mine(o2id))
+		{
 			//	If neither is older than 1/2 second, then can't blow up!
 #if defined(DXX_BUILD_DESCENT_II)
-			if (!(GameTime64 > o1->ctype.laser_info.creation_time + F1_0/2 || GameTime64 > o2->ctype.laser_info.creation_time + F1_0/2))
+			if (!(GameTime64 > o1li.creation_time + F1_0/2 || GameTime64 > o2li.creation_time + F1_0/2))
 				return 1;
 			else
 #endif
@@ -228,10 +233,10 @@ bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Anything can cause a collision with a robot super prox mine.
 	if (!(
-		get_weapon_id(o1) == weapon_id_type::ROBOT_SUPERPROX_ID || get_weapon_id(o2) == weapon_id_type::ROBOT_SUPERPROX_ID ||
-		get_weapon_id(o1) == weapon_id_type::PROXIMITY_ID || get_weapon_id(o2) == weapon_id_type::PROXIMITY_ID ||
-		get_weapon_id(o1) == weapon_id_type::SUPERPROX_ID || get_weapon_id(o2) == weapon_id_type::SUPERPROX_ID ||
-		get_weapon_id(o1) == weapon_id_type::PMINE_ID || get_weapon_id(o2) == weapon_id_type::PMINE_ID
+		o1id == weapon_id_type::ROBOT_SUPERPROX_ID || o2id == weapon_id_type::ROBOT_SUPERPROX_ID ||
+		o1id == weapon_id_type::PROXIMITY_ID || o2id == weapon_id_type::PROXIMITY_ID ||
+		o1id == weapon_id_type::SUPERPROX_ID || o2id == weapon_id_type::SUPERPROX_ID ||
+		o1id == weapon_id_type::PMINE_ID || o2id == weapon_id_type::PMINE_ID
 	))
 		return 1;
 #endif
@@ -355,11 +360,10 @@ static int omega_cleanup(fvcobjptr &vcobjptr, const vmobjptridx_t weapon)
 {
 	if (weapon->type != OBJ_WEAPON || get_weapon_id(weapon) != weapon_id_type::OMEGA_ID)
 		return 0;
-	const auto parent_sig = weapon->ctype.laser_info.parent_signature;
-	const auto parent_num = weapon->ctype.laser_info.parent_num;
-	const auto &&objp = vcobjptr(parent_num);
-	if (objp->signature == parent_sig)
-		if (vm_vec_dist2(weapon->pos, objp->pos) > MAX_OMEGA_DIST_SQUARED)
+	auto &weapon_laser_info = weapon->ctype.laser_info;
+	auto &obj = *vcobjptr(weapon_laser_info.parent_num);
+	if (laser_parent_is_matching_signature(weapon_laser_info, obj))
+		if (vm_vec_dist2(weapon->pos, obj.pos) > MAX_OMEGA_DIST_SQUARED)
 		{
 			obj_delete(LevelUniqueObjectState, Segments, weapon);
 			return 1;
@@ -377,11 +381,10 @@ int ok_to_do_omega_damage(const vcobjptr_t weapon)
 		return 1;
 	if (!(Game_mode & GM_MULTI))
 		return 1;
-	const auto parent_sig = weapon->ctype.laser_info.parent_signature;
-	const auto parent_num = weapon->ctype.laser_info.parent_num;
-	const auto &&objp = vcobjptr(parent_num);
-	if (objp->signature == parent_sig)
-		if (vm_vec_dist2(objp->pos, weapon->pos) > MAX_OMEGA_DIST_SQUARED)
+	auto &weapon_laser_info = weapon->ctype.laser_info;
+	auto &obj = *vcobjptr(weapon_laser_info.parent_num);
+	if (laser_parent_is_matching_signature(weapon_laser_info, obj))
+		if (vm_vec_dist2(obj.pos, weapon->pos) > MAX_OMEGA_DIST_SQUARED)
 			return 0;
 
 	return 1;
@@ -836,9 +839,9 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 
 		count = 0;
 		while ((count++ < 10) && (highest_parent->type == OBJ_WEAPON)) {
-			auto next_parent = highest_parent->ctype.laser_info.parent_num;
+			const auto next_parent = highest_parent->ctype.laser_info.parent_num;
 			const auto &&parent_objp = parent.absolute_sibling(next_parent);
-			if (parent_objp->signature != highest_parent->ctype.laser_info.parent_signature)
+			if (!laser_parent_is_object(highest_parent->ctype.laser_info, parent_objp))
 				break;	//	Probably means parent was killed.  Just continue.
 
 			if (next_parent == highest_parent) {
@@ -1190,7 +1193,9 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			if ((curobjp->type == OBJ_WEAPON) && (is_proximity_bomb_or_smart_mine(get_weapon_id(curobjp)))) {
-				if (curobjp->ctype.laser_info.parent_signature != tracker->ctype.laser_info.parent_signature)
+				auto &cur_laser_info = curobjp->ctype.laser_info;
+				auto &tracker_laser_info = tracker->ctype.laser_info;
+				if (cur_laser_info.parent_num != tracker_laser_info.parent_num || cur_laser_info.parent_signature != tracker_laser_info.parent_signature)
 					is_proximity = 1;
 				else
 					continue;

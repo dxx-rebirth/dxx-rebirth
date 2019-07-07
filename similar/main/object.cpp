@@ -817,7 +817,7 @@ void init_player_object()
 	const auto &&console = vmobjptr(ConsoleObject);
 	console->type = OBJ_PLAYER;
 	set_player_id(console, 0);					//no sub-types for player
-	console->signature = object_signature_t{0};			//player has zero, others start at 1
+	console->signature = object_signature_t{0};
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	console->size = Polygon_models[Player_ship->model_num].rad;
 	console->control_type = CT_SLEW;			//default is player slewing
@@ -924,30 +924,6 @@ void obj_unlink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, object_base &obj)
 		vmobjptr(next)->prev = obj.prev;
 	DXX_POISON_VAR(obj.next, 0xfa);
 	DXX_POISON_VAR(obj.prev, 0xfa);
-}
-
-// Returns a new, unique signature for a new object
-object_signature_t obj_get_signature()
-{
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
-	static short sig = 0; // Yes! Short! a) We do not need higher values b) the demo system only stores shorts
-	uint_fast32_t lsig = sig;
-	for (const auto &&b = vcobjptr.begin(), &&e = vcobjptr.end();;)
-	{
-		if (unlikely(lsig == std::numeric_limits<decltype(sig)>::max()))
-			lsig = 0;
-		++ lsig;
-		const auto predicate = [lsig](const object_base &o) {
-			if (o.type == OBJ_NONE)
-				return false;
-			return o.signature.get() == lsig;
-		};
-		if (std::any_of(b, e, predicate))
-			continue;
-		sig = static_cast<int16_t>(lsig);
-		return object_signature_t{static_cast<uint16_t>(lsig)};
-	}
 }
 
 //returns the number of a free object, updating Highest_object_index.
@@ -1119,14 +1095,19 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 	if (obj == object_none)		//no free objects
 		return object_none;
 
-	auto signature = obj_get_signature();
 	// Zero out object structure to keep weird bugs from happening
 	// in uninitialized fields.
+	const auto signature = obj->signature;
+	/* Test the version in the object structure, not the local copy.
+	 * This produces a more useful diagnostic from Valgrind if the
+	 * test reports a problem.
+	 */
+	DXX_CHECK_VAR_IS_DEFINED(obj->signature);
 	*obj = {};
 	// Tell Valgrind to warn on any uninitialized fields.
 	DXX_POISON_VAR(*obj, 0xfd);
 
-	obj->signature				= signature;
+	obj->signature = object_signature_t(signature.get() + 1);
 	obj->type 				= type;
 	obj->id 				= id;
 	obj->last_pos				= pos;
@@ -1209,11 +1190,11 @@ imobjptridx_t obj_create_copy(const object &srcobj, const vmsegptridx_t newsegnu
 	if (obj == object_none)
 		return object_none;
 
+	const auto signature = obj->signature;
 	*obj = srcobj;
 
 	obj_link_unchecked(Objects.vmptr, obj, newsegnum);
-
-	obj->signature				= obj_get_signature();
+	obj->signature = object_signature_t(signature.get() + 1);
 
 	//we probably should initialize sub-structures here
 
@@ -1261,8 +1242,15 @@ void obj_delete(d_level_unique_object_state &LevelUniqueObjectState, segment_arr
 	if (obj->movement_type == MT_PHYSICS && (obj->mtype.phys_info.flags & PF_STICK))
 		LevelUniqueStuckObjectState.remove_stuck_object(obj);
 	obj_unlink(Objects.vmptr, Segments.vmptr, obj);
+	const auto signature = obj->signature;
 	DXX_POISON_VAR(*obj, 0xfa);
 	obj->type = OBJ_NONE;		//unused!
+	/* Preserve signature across the poison value.  When the object slot
+	 * is reused, the allocator will need the old signature so that the
+	 * new one can be derived from it.  No other sites should read it
+	 * until that happens.
+	 */
+	obj->signature = signature;
 	obj_free(LevelUniqueObjectState, obj);
 }
 
@@ -1278,6 +1266,14 @@ static int Player_flags_save;
 int		Death_sequence_aborted=0;
 static fix Camera_to_player_dist_goal = F1_0*4;
 static uint8_t Control_type_save, Render_type_save;
+
+unsigned laser_parent_is_matching_signature(const laser_parent &l, const object_base &o)
+{
+	if (l.parent_type != o.type)
+		return 0;
+	return l.parent_signature == o.signature;
+}
+
 }
 
 namespace dsx {
@@ -2084,6 +2080,7 @@ void reset_objects(d_level_unique_object_state &LevelUniqueObjectState, const un
 		auto &obj = *Objects.vmptr(i);
 		DXX_POISON_VAR(obj, 0xfd);
 		obj.type = OBJ_NONE;
+		obj.signature = object_signature_t{0};
 	}
 }
 
@@ -2108,6 +2105,36 @@ int update_object_seg(fvmobjptr &vmobjptr, const d_level_shared_segment_state &L
 		obj_relink(vmobjptr, LevelUniqueSegmentState.get_segments().vmptr, obj, newseg);
 
 	return 1;
+}
+
+unsigned laser_parent_is_player(fvcobjptr &vcobjptr, const laser_parent &l, const object_base &o)
+{
+	/* Player objects are never recycled, so skip the signature check.
+	 */
+	if (l.parent_type != o.type)
+		return 0;
+	auto &parent_object = *vcobjptr(l.parent_num);
+	return (&parent_object == &o);
+}
+
+unsigned laser_parent_is_object(fvcobjptr &vcobjptr, const laser_parent &l, const object_base &o)
+{
+	auto &parent_object = *vcobjptr(l.parent_num);
+	if (&parent_object != &o)
+		return 0;
+	return laser_parent_is_matching_signature(l, o);
+}
+
+unsigned laser_parent_is_object(const laser_parent &l, const vcobjptridx_t o)
+{
+	if (l.parent_num != o.get_unchecked_index())
+		return 0;
+	return laser_parent_is_matching_signature(l, *o);
+}
+
+unsigned laser_parent_object_exists(fvcobjptr &vcobjptr, const laser_parent &l)
+{
+	return laser_parent_is_matching_signature(l, *vcobjptr(l.parent_num));
 }
 
 void set_powerup_id(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip, object_base &o, powerup_type_t id)

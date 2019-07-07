@@ -563,6 +563,12 @@ static void nd_read_shortpos(object_base &obj)
 object *prev_obj=NULL;      //ptr to last object read in
 
 namespace dsx {
+
+static uint16_t nd_get_object_signature(const vcobjptridx_t objp)
+{
+	return (objp->signature.get() << 9) ^ objp.get_unchecked_index();  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
+}
+
 static void nd_read_object(const vmobjptridx_t obj)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -820,11 +826,10 @@ static void nd_read_object(const vmobjptridx_t obj)
 
 	prev_obj = obj;
 }
-}
 
-namespace dsx {
-static void nd_write_object(const object &obj)
+static void nd_write_object(const vcobjptridx_t objp)
 {
+	auto &obj = *objp;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	int life;
 	short shortsig = 0;
@@ -845,7 +850,7 @@ static void nd_write_object(const object &obj)
 
 	nd_write_byte(obj.id);
 	nd_write_byte(obj.flags);
-	shortsig = obj.signature.get();  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
+	shortsig = nd_get_object_signature(objp);
 	nd_write_short(shortsig);
 	nd_write_shortpos(obj);
 
@@ -1228,11 +1233,10 @@ void newdemo_record_sound_3d_once( int soundno, int angle, int volume )
 void newdemo_record_link_sound_to_object3( int soundno, objnum_t objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end )
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_LINK_SOUND_TO_OBJ );
 	nd_write_int( soundno );
-	nd_write_int(vcobjptr(objnum)->signature.get());
+	nd_write_int(nd_get_object_signature(Objects.vcptridx(objnum)));
 	nd_write_int( max_volume );
 	nd_write_int( max_distance );
 	nd_write_int( loop_start );
@@ -1243,7 +1247,7 @@ void newdemo_record_kill_sound_linked_to_object(const vcobjptridx_t objp)
 {
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_KILL_SOUND_TO_OBJ );
-	nd_write_int(objp->signature.get());
+	nd_write_int(nd_get_object_signature(objp));
 }
 
 
@@ -1286,13 +1290,13 @@ void newdemo_record_trigger(const vcsegidx_t segnum, const unsigned side, const 
 }
 #endif
 
-void newdemo_record_morph_frame(morph_data *md)
+void newdemo_record_morph_frame(const vcobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
 		return;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_MORPH_FRAME );
-	nd_write_object(*md->obj);
+	nd_write_object(obj);
 }
 
 void newdemo_record_wall_toggle( segnum_t segnum, int side )
@@ -2005,7 +2009,6 @@ namespace dsx {
 static int newdemo_read_frame_information(int rewrite)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	int done, angle, volume;
@@ -2095,7 +2098,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
-				nd_write_object(vcobjptr(Viewer));
+				nd_write_object(viewer_vmobj);
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {

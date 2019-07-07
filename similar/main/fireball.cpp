@@ -127,6 +127,9 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 
 static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvmobjptridx &vmobjptridx, const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Objects = LevelUniqueObjectState.Objects;
+#endif
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto obj = obj_create( OBJ_FIREBALL,vclip_type,segnum,position,&vmd_identity_matrix,size,
 					CT_EXPLOSION,MT_NONE,RT_FIREBALL);
@@ -257,7 +260,8 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 
 									fe = min(F1_0 * 4, force*Weapon_info[get_weapon_id(objp)].flash / 32);	//	For four seconds or less
 
-									if (objp->ctype.laser_info.parent_signature == ConsoleObject->signature) {
+									if (laser_parent_is_player(Objects.vcptr, objp->ctype.laser_info, *ConsoleObject))
+									{
 										fe /= 2;
 										force /= 2;
 									}

@@ -424,7 +424,7 @@ void draw_morph_object(grs_canvas &canvas, const d_level_unique_light_state &Lev
 	g3_done_instance();
 
 	if (Newdemo_state == ND_STATE_RECORDING)
-		newdemo_record_morph_frame(md);
+		newdemo_record_morph_frame(obj);
 }
 
 }
