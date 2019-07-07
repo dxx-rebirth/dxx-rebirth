@@ -85,6 +85,7 @@ void gr_init_bitmap(grs_bitmap &bm, const bm_mode mode, const uint16_t x, const 
 
 void gr_init_main_bitmap(grs_main_bitmap &bm, const bm_mode mode, const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h, const uint16_t bytesperline, RAIIdmem<uint8_t[]> data)
 {
+	bm.reset();
 	gr_init_bitmap(bm, mode, x, y, w, h, bytesperline, data.get());
 	data.release();
 }
