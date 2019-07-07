@@ -1121,8 +1121,6 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 	obj->control_type 		        = ctype;
 	set_object_movement_type(*obj, mtype);
 	obj->render_type 			= rtype;
-	obj->contains_type                      = -1;
-        obj->contains_id                        = -1;
         obj->contains_count                     = 0;
         obj->matcen_creator                     = 0;
 	obj->lifeleft 				= IMMORTAL_TIME;		//assume immortal
