@@ -483,6 +483,10 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 
 			if (obj->type == OBJ_POWERUP)
 			{
+				/* Objects loaded from a level file were not ejected by
+				 * the player.
+				 */
+				obj->ctype.powerup_info.flags = 0;
 				/* Hostages have control type CT_POWERUP, but object
 				 * type OBJ_HOSTAGE.  Hostages are never weapons, so
 				 * prevent checking their IDs.
