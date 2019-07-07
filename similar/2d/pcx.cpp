@@ -101,7 +101,7 @@ static int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_File *fp)
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
 
-int bald_guy_load(const char *const filename, grs_bitmap *const bmp, palette_array_t &palette)
+pcx_result bald_guy_load(const char *const filename, grs_bitmap *const bmp, palette_array_t &palette)
 {
 	PCXHeader header;
 	int i, count, fsize;
@@ -111,7 +111,7 @@ int bald_guy_load(const char *const filename, grs_bitmap *const bmp, palette_arr
 	
 	auto PCXfile = PHYSFSX_openReadBuffered(filename);
 	if ( !PCXfile )
-		return PCX_ERROR_OPENING;
+		return pcx_result::SUCCESS;
 	
 	PHYSFSX_fseek(PCXfile, -1, SEEK_END);
 	fsize = PHYSFS_tell(PCXfile);
@@ -137,7 +137,7 @@ int bald_guy_load(const char *const filename, grs_bitmap *const bmp, palette_arr
 	
 	// Is it a 256 color PCX file?
 	if ((header.Manufacturer != 10)||(header.Encoding != 1)||(header.Nplanes != 1)||(header.BitsPerPixel != 8)||(header.Version != 5))	{
-		return PCX_ERROR_WRONG_VERSION;
+		return pcx_result::ERROR_WRONG_VERSION;
 	}
 	header.Xmin= INTEL_SHORT(header.Xmin);
 	header.Xmax = INTEL_SHORT(header.Xmax);
@@ -152,7 +152,7 @@ int bald_guy_load(const char *const filename, grs_bitmap *const bmp, palette_arr
 		*bmp = {};
 		MALLOC(bmp->bm_mdata, unsigned char, xsize * ysize );
 		if ( bmp->bm_data == NULL )	{
-			return PCX_ERROR_MEMORY;
+			return pcx_result::ERROR_MEMORY;
 		}
 		bmp->bm_w = bmp->bm_rowsize = xsize;
 		bmp->bm_h = ysize;
@@ -184,7 +184,7 @@ int bald_guy_load(const char *const filename, grs_bitmap *const bmp, palette_arr
 	
 	p++;
 	copy_diminish_palette(palette, p);
-	return PCX_ERROR_NONE;
+	return pcx_result::SUCCESS;
 }
 
 }
@@ -197,16 +197,14 @@ struct PCX_PHYSFS_file
 	RAIIPHYSFS_File PCXfile;
 };
 
-static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_main_bitmap &bmp, palette_array_t &palette);
+static pcx_result pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_main_bitmap &bmp, palette_array_t &palette);
 
-int pcx_read_bitmap(const char *const filename, grs_main_bitmap &bmp, palette_array_t &palette)
+pcx_result pcx_read_bitmap(const char *const filename, grs_main_bitmap &bmp, palette_array_t &palette)
 {
-	int result;
 	PCX_PHYSFS_file pcxphysfs{PHYSFSX_openReadBuffered(filename)};
 	if (!pcxphysfs.PCXfile)
-		return PCX_ERROR_OPENING;
-	result = pcx_read_bitmap_file(&pcxphysfs, bmp, palette);
-	return result;
+		return pcx_result::ERROR_OPENING;
+	return pcx_read_bitmap_file(&pcxphysfs, bmp, palette);
 }
 
 static int PCX_PHYSFS_read(struct PCX_PHYSFS_file *pcxphysfs, ubyte *data, unsigned size)
@@ -214,27 +212,27 @@ static int PCX_PHYSFS_read(struct PCX_PHYSFS_file *pcxphysfs, ubyte *data, unsig
 	return PHYSFS_read(pcxphysfs->PCXfile, data, size, sizeof(*data));
 }
 
-static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_main_bitmap &bmp, palette_array_t &palette)
+static pcx_result pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_main_bitmap &bmp, palette_array_t &palette)
 {
 	PCXHeader header;
 
 	// read 128 char PCX header
 	if (PCXHeader_read_n( &header, 1, pcxphysfs->PCXfile )!=1) {
-		return PCX_ERROR_NO_HEADER;
+		return pcx_result::ERROR_NO_HEADER;
 	}
 
 	// Is it a 256 color PCX file?
 	if ((header.Manufacturer != 10)||(header.Encoding != 1)||(header.Nplanes != 1)||(header.BitsPerPixel != 8)||(header.Version != 5))	{
-		return PCX_ERROR_WRONG_VERSION;
+		return pcx_result::ERROR_WRONG_VERSION;
 	}
 
 	// Find the size of the image
 	const unsigned xsize = header.Xmax - header.Xmin + 1;
 	if (xsize > 3840)
-		return PCX_ERROR_MEMORY;
+		return pcx_result::ERROR_MEMORY;
 	const unsigned ysize = header.Ymax - header.Ymin + 1;
 	if (ysize > 2400)
-		return PCX_ERROR_MEMORY;
+		return pcx_result::ERROR_MEMORY;
 
 	gr_init_bitmap_alloc(bmp, bm_mode::linear, 0, 0, xsize, ysize, xsize);
 
@@ -246,12 +244,12 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_mai
 			{
 				uint8_t data;
 				if (PCX_PHYSFS_read(pcxphysfs, &data, 1) != 1)	{
-					return PCX_ERROR_READING;
+					return pcx_result::ERROR_READING;
 				}
 				if ((data & 0xC0) == 0xC0)     {
 					const unsigned count = std::min(data & 0x3Fu, xsize - col);
 					if (PCX_PHYSFS_read(pcxphysfs, &data, 1) != 1)	{
-						return PCX_ERROR_READING;
+						return pcx_result::ERROR_READING;
 					}
 					memset( pixdata, data, count );
 					pixdata += count;
@@ -271,19 +269,19 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_mai
 		if (PCX_PHYSFS_read(pcxphysfs, &data, 1) == 1)	{
 			if ( data == 12 )	{
 				if (PCX_PHYSFS_read(pcxphysfs, reinterpret_cast<ubyte *>(&palette[0]), palette.size() * sizeof(palette[0])) != 1)	{
-					return PCX_ERROR_READING;
+					return pcx_result::ERROR_READING;
 				}
 				diminish_palette(palette);
 			}
 		} else {
-			return PCX_ERROR_NO_PALETTE;
+			return pcx_result::ERROR_NO_PALETTE;
 		}
 	}
-	return PCX_ERROR_NONE;
+	return pcx_result::SUCCESS;
 }
 
 #if !DXX_USE_OGL && DXX_USE_SCREENSHOT_FORMAT_LEGACY
-int pcx_write_bitmap(PHYSFS_File *const PCXfile, const grs_bitmap *const bmp, palette_array_t &palette)
+pcx_result pcx_write_bitmap(PHYSFS_File *const PCXfile, const grs_bitmap *const bmp, palette_array_t &palette)
 {
 	int retval;
 	ubyte data;
@@ -300,7 +298,7 @@ int pcx_write_bitmap(PHYSFS_File *const PCXfile, const grs_bitmap *const bmp, pa
 
 	if (PHYSFS_write(PCXfile, &header, PCXHEADER_SIZE, 1) != 1)
 	{
-		return PCX_ERROR_WRITING;
+		return pcx_result::ERROR_WRITING;
 	}
 
 	{
@@ -312,7 +310,7 @@ int pcx_write_bitmap(PHYSFS_File *const PCXfile, const grs_bitmap *const bmp, pa
 		{
 			if (!pcx_encode_line(i, bm_w, PCXfile))
 			{
-			return PCX_ERROR_WRITING;
+			return pcx_result::ERROR_WRITING;
 			}
 		}
 	}
@@ -321,14 +319,14 @@ int pcx_write_bitmap(PHYSFS_File *const PCXfile, const grs_bitmap *const bmp, pa
 	data = 12;
 	if (PHYSFS_write(PCXfile, &data, 1, 1) != 1)
 	{
-		return PCX_ERROR_WRITING;
+		return pcx_result::ERROR_WRITING;
 	}
 
 	retval = PHYSFS_write(PCXfile, &palette[0], sizeof(palette), 1);
 	if (retval !=1)	{
-		return PCX_ERROR_WRITING;
+		return pcx_result::ERROR_WRITING;
 	}
-	return PCX_ERROR_NONE;
+	return pcx_result::SUCCESS;
 }
 
 // returns number of bytes written into outBuff, 0 if failed
@@ -413,10 +411,11 @@ constexpr char pcx_error_messages[] = {
 
 
 //function to return pointer to error message
-const char *pcx_errormsg(int error_number)
+const char *pcx_errormsg(const pcx_result r)
 {
 	const char *p = pcx_error_messages;
 
+	unsigned error_number = static_cast<unsigned>(r);
 	while (error_number--) {
 
 		if (p == pcx_error_messages + lengthof(pcx_error_messages)) return NULL;

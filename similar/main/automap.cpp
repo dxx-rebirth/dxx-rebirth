@@ -1105,7 +1105,7 @@ void do_automap()
 	// KREATOR - Now applies to all platforms so double buffering is supported
 	{
 		const auto pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, am->automap_background, pal);
-		if (pcx_error != PCX_ERROR_NONE)
+		if (pcx_error != pcx_result::SUCCESS)
 			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "automap: File %s - PCX error: %s"), MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
 		else
 			gr_remap_bitmap_good(am->automap_background, pal, -1, -1);

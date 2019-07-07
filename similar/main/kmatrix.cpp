@@ -385,7 +385,7 @@ kmatrix_result kmatrix_view(int network)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
 	kmatrix_screen km;
-	if (pcx_read_bitmap(STARS_BACKGROUND, km.background, gr_palette) != PCX_ERROR_NONE)
+	if (pcx_read_bitmap(STARS_BACKGROUND, km.background, gr_palette) != pcx_result::SUCCESS)
 	{
 		return kmatrix_result::abort;
 	}

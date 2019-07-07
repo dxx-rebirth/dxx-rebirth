@@ -166,7 +166,6 @@ static window_event_result title_handler(window *, const d_event &event, title_s
 
 static void show_title_screen(const char * filename, int allow_keys, int from_hog_only )
 {
-	int pcx_error;
 	char new_filename[PATH_MAX] = "";
 
 	auto ts = make_unique<title_screen>();
@@ -181,11 +180,14 @@ static void show_title_screen(const char * filename, int allow_keys, int from_ho
 
 	strcat(new_filename,filename);
 	filename = new_filename;
-	if ((pcx_error=pcx_read_bitmap( filename, ts->title_bm, gr_palette ))!=PCX_ERROR_NONE)	{
-		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
-	}
 
 	ts->timer = timer_query() + i2f(3);
+	const auto pcx_error = pcx_read_bitmap(filename, ts->title_bm, gr_palette);
+	if (pcx_error != pcx_result::SUCCESS)
+	{
+		con_printf(CON_URGENT, "%s:%u: error: loading briefing screen <%s> failed: PCX load error: %s (%u)", __FILE__, __LINE__, filename, pcx_errormsg(pcx_error), static_cast<unsigned>(pcx_error));
+		return;
+	}
 
 	gr_palette_load( gr_palette );
 
@@ -1289,7 +1291,6 @@ static void free_briefing_screen(briefing *br);
 static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const char *const fname)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	int pcx_error;
 	char forigin[PATH_MAX];
 	decltype(br->background_name) fname2a;
 
@@ -1325,13 +1326,14 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 	br->background_name = fname2a;
 	const auto fname2 = fname2a.data();
 
+	pcx_result pcx_error;
 	if ((!d_stricmp(fname2, "brief02.pcx") || !d_stricmp(fname2, "brief02h.pcx")) && cheats.baldguy &&
-		(bald_guy_load("btexture.xxx", &br->background, gr_palette) == PCX_ERROR_NONE))
+		bald_guy_load("btexture.xxx", &br->background, gr_palette) == pcx_result::SUCCESS)
 	{
 	}
-	else if ((pcx_error = pcx_read_bitmap(fname2, br->background, gr_palette))!=PCX_ERROR_NONE)
+	else if ((pcx_error = pcx_read_bitmap(fname2, br->background, gr_palette)) != pcx_result::SUCCESS)
 	{
-		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname2, pcx_errormsg(pcx_error), pcx_error);
+		con_printf(CON_URGENT, "%s:%u: error: loading briefing screen <%s> failed: PCX load error: %s (%u)", __FILE__, __LINE__, fname2, pcx_errormsg(pcx_error), static_cast<unsigned>(pcx_error));
 	}
 
 	// Hack: Make sure black parts of robot are shown black
@@ -1356,14 +1358,16 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 	br->screen->text_height = rescale_y(canvas.cv_bitmap, br->screen->text_height);
 	init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 #elif defined(DXX_BUILD_DESCENT_II)
-	int pcx_error;
-
 	free_briefing_screen(br);
 	br->background_name.back() = 0;
 	strncpy(br->background_name.data(), fname, br->background_name.size() - 1);
 
-	if ((pcx_error = pcx_read_bitmap(fname, br->background, gr_palette))!=PCX_ERROR_NONE)
-		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
+	pcx_result pcx_error;
+	if ((pcx_error = pcx_read_bitmap(fname, br->background, gr_palette)) != pcx_result::SUCCESS)
+	{
+		con_printf(CON_URGENT, "%s:%u: error: loading briefing screen <%s> failed: PCX load error: %s (%u)", __FILE__, __LINE__, fname, pcx_errormsg(pcx_error), static_cast<unsigned>(pcx_error));
+		return 0;
+	}
 	show_fullscr(canvas, br->background);
 	if (EMULATING_D1 && !d_stricmp(fname, "brief03.pcx")) // HACK, FIXME: D1 missions should use their own palette (PALETTE.256), but texture replacements not complete
 		gr_use_palette_table("groupa.256");

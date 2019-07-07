@@ -250,7 +250,8 @@ static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 	cr->backdrop.bm_data=NULL;
 
 	const auto pcx_error = pcx_read_bitmap(STARS_BACKGROUND, cr->backdrop,backdrop_palette);
-	if (pcx_error != PCX_ERROR_NONE)		{
+	if (pcx_error != pcx_result::SUCCESS)
+	{
 		return;
 	}
 

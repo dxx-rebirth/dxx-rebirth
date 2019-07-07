@@ -34,38 +34,38 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 struct palette_array_t;
-}
 
-#define PCX_ERROR_NONE          0
-#define PCX_ERROR_OPENING       1
-#define PCX_ERROR_NO_HEADER     2
-#define PCX_ERROR_WRONG_VERSION 3
-#define PCX_ERROR_READING       4
-#define PCX_ERROR_NO_PALETTE    5
-#define PCX_ERROR_WRITING       6
-#define PCX_ERROR_MEMORY        7
-
-#if defined(DXX_BUILD_DESCENT_I)
-namespace dsx {
-// Load bitmap for little-known 'baldguy' cheat.
-extern int bald_guy_load(const char *filename, grs_bitmap *bmp, palette_array_t &palette);
-}
-#endif
-
-namespace dcx {
+enum class pcx_result
+{
+	SUCCESS = 0,
+	ERROR_OPENING = 1,
+	ERROR_NO_HEADER = 2,
+	ERROR_WRONG_VERSION = 3,
+	ERROR_READING = 4,
+	ERROR_NO_PALETTE = 5,
+	ERROR_WRITING = 6,
+	ERROR_MEMORY = 7
+};
 
 // Reads filename into bitmap bmp, and fills in palette.  If bmp->bm_data==NULL,
 // then bmp->bm_data is allocated and the w,h are filled.
 // If palette==NULL the palette isn't read in.  Returns error code.
 
-int pcx_read_bitmap(const char * filename, grs_main_bitmap &bmp, palette_array_t &palette);
+pcx_result pcx_read_bitmap(const char * filename, grs_main_bitmap &bmp, palette_array_t &palette);
 
 // Writes the bitmap bmp to filename, using palette. Returns error code.
 
 #if !DXX_USE_OGL && DXX_USE_SCREENSHOT_FORMAT_LEGACY
-int pcx_write_bitmap(PHYSFS_File *, const grs_bitmap *bmp, palette_array_t &palette);
+pcx_result pcx_write_bitmap(PHYSFS_File *, const grs_bitmap *bmp, palette_array_t &palette);
 #endif
 
-extern const char *pcx_errormsg(int error_number);
+const char *pcx_errormsg(pcx_result error_number);
 
 }
+
+#if defined(DXX_BUILD_DESCENT_I)
+namespace dsx {
+// Load bitmap for little-known 'baldguy' cheat.
+pcx_result bald_guy_load(const char *filename, grs_bitmap *bmp, palette_array_t &palette);
+}
+#endif
