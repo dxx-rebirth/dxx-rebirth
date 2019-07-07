@@ -753,7 +753,7 @@ static void project_list(const array<unsigned, 8> &pointnumlist)
 // -----------------------------------------------------------------------------------
 #if !DXX_USE_OGL
 namespace dsx {
-static void render_segment(const vms_vector &Viewer_eye, grs_canvas &canvas, const vcsegptridx_t seg)
+static void render_segment(fvcvertptr &vcvertptr, fvcwallptr &vcwallptr, const vms_vector &Viewer_eye, grs_canvas &canvas, const vcsegptridx_t seg)
 {
 	if (!rotate_list(vcvertptr, seg->verts).uand)
 	{		//all off screen?
@@ -1419,7 +1419,14 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
+#if DXX_USE_OGL
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
+#else
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vcvertptr = Vertices.vcptr;
+	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcwallptr = Walls.vcptr;
+#endif
 	using std::advance;
 	render_state_t rstate;
 	#ifndef NDEBUG
@@ -1504,7 +1511,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 				Window_clip_bot   = rw.bot;
 			}
 
-			render_segment(Viewer_eye, *grd_curcanv, vcsegptridx(segnum));
+			render_segment(vcvertptr, vcwallptr, Viewer_eye, *grd_curcanv, vcsegptridx(segnum));
 			visited[segnum]=3;
 			if (srsm.objects.empty())
 				continue;
