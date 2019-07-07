@@ -37,6 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include "compiler-lengthof.h"
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 namespace dcx {
@@ -196,7 +197,7 @@ struct PCX_PHYSFS_file
 	RAIIPHYSFS_File PCXfile;
 };
 
-static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_main_bitmap &bmp, bm_mode bitmap_type, palette_array_t &palette);
+static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_main_bitmap &bmp, palette_array_t &palette);
 
 int pcx_read_bitmap(const char *const filename, grs_main_bitmap &bmp, palette_array_t &palette)
 {
@@ -204,7 +205,7 @@ int pcx_read_bitmap(const char *const filename, grs_main_bitmap &bmp, palette_ar
 	PCX_PHYSFS_file pcxphysfs{PHYSFSX_openReadBuffered(filename)};
 	if (!pcxphysfs.PCXfile)
 		return PCX_ERROR_OPENING;
-	result = pcx_read_bitmap_file(&pcxphysfs, bmp, bm_mode::linear, palette);
+	result = pcx_read_bitmap_file(&pcxphysfs, bmp, palette);
 	return result;
 }
 
@@ -213,11 +214,9 @@ static int PCX_PHYSFS_read(struct PCX_PHYSFS_file *pcxphysfs, ubyte *data, unsig
 	return PHYSFS_read(pcxphysfs->PCXfile, data, size, sizeof(*data));
 }
 
-static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_main_bitmap &bmp, const bm_mode bitmap_type, palette_array_t &palette)
+static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_main_bitmap &bmp, palette_array_t &palette)
 {
 	PCXHeader header;
-	int i, row, col, count, xsize, ysize;
-	ubyte data;
 
 	// read 128 char PCX header
 	if (PCXHeader_read_n( &header, 1, pcxphysfs->PCXfile )!=1) {
@@ -230,25 +229,27 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_mai
 	}
 
 	// Find the size of the image
-	xsize = header.Xmax - header.Xmin + 1;
-	ysize = header.Ymax - header.Ymin + 1;
+	const unsigned xsize = header.Xmax - header.Xmin + 1;
+	if (xsize > 3840)
+		return PCX_ERROR_MEMORY;
+	const unsigned ysize = header.Ymax - header.Ymin + 1;
+	if (ysize > 2400)
+		return PCX_ERROR_MEMORY;
 
-	if ( bitmap_type == bm_mode::linear )	{
-		if ( bmp.bm_data == NULL )	{
-			gr_init_bitmap_alloc(bmp, bitmap_type, 0, 0, xsize, ysize, xsize);
-		}
-	}
+	gr_init_bitmap_alloc(bmp, bm_mode::linear, 0, 0, xsize, ysize, xsize);
 
-	if (bmp.get_type() == bm_mode::linear)
 	{
-		for (row=0; row< ysize ; row++)      {
+		range_for (const unsigned row, xrange(ysize))
+		{
 			auto pixdata = &bmp.get_bitmap_data()[bmp.bm_rowsize*row];
-			for (col=0; col< xsize ; )      {
+			for (unsigned col = 0; col < xsize;)
+			{
+				uint8_t data;
 				if (PCX_PHYSFS_read(pcxphysfs, &data, 1) != 1)	{
 					return PCX_ERROR_READING;
 				}
 				if ((data & 0xC0) == 0xC0)     {
-					count =  data & 0x3F;
+					const unsigned count = std::min(data & 0x3Fu, xsize - col);
 					if (PCX_PHYSFS_read(pcxphysfs, &data, 1) != 1)	{
 						return PCX_ERROR_READING;
 					}
@@ -261,30 +262,12 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_mai
 				}
 			}
 		}
-	} else {
-		for (row=0; row< ysize ; row++)      {
-			for (col=0; col< xsize ; )      {
-				if (PCX_PHYSFS_read(pcxphysfs, &data, 1) != 1)	{
-					return PCX_ERROR_READING;
-				}
-				if ((data & 0xC0) == 0xC0)     {
-					count =  data & 0x3F;
-					if (PCX_PHYSFS_read(pcxphysfs, &data, 1) != 1)	{
-						return PCX_ERROR_READING;
-					}
-					for (i=0;i<count;i++)
-						gr_bm_pixel(*grd_curcanv, bmp, col+i, row, data);
-					col += count;
-				} else {
-					gr_bm_pixel(*grd_curcanv, bmp, col, row, data);
-					col++;
-				}
-			}
-		}
 	}
 
 	// Read the extended palette at the end of PCX file
 		// Read in a character which should be 12 to be extended palette file
+	{
+		uint8_t data;
 		if (PCX_PHYSFS_read(pcxphysfs, &data, 1) == 1)	{
 			if ( data == 12 )	{
 				if (PCX_PHYSFS_read(pcxphysfs, reinterpret_cast<ubyte *>(&palette[0]), palette.size() * sizeof(palette[0])) != 1)	{
@@ -295,6 +278,7 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_mai
 		} else {
 			return PCX_ERROR_NO_PALETTE;
 		}
+	}
 	return PCX_ERROR_NONE;
 }
 
