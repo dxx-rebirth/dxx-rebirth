@@ -405,6 +405,22 @@ d_interface_unique_state::d_interface_unique_state()
 }
 #endif
 
+void d_interface_unique_state::update_window_title()
+{
+#if SDL_MAJOR_VERSION == 1
+	if (!PilotName[0])
+		SDL_WM_SetCaption(DESCENT_VERSION, DXX_SDL_WINDOW_CAPTION);
+	else
+	{
+		const char *const pilot = PilotName;
+		std::array<char, 80> wm_caption_name, wm_caption_iconname;
+		snprintf(wm_caption_name.data(), wm_caption_name.size(), "%s: %s", DESCENT_VERSION, pilot);
+		snprintf(wm_caption_iconname.data(), wm_caption_iconname.size(), "%s: %s", DXX_SDL_WINDOW_CAPTION, pilot);
+		SDL_WM_SetCaption(wm_caption_name.data(), wm_caption_iconname.data());
+	}
+#endif
+}
+
 }
 
 namespace dsx {
@@ -657,6 +673,7 @@ static int main(int argc, char *argv[])
 			if(PHYSFSX_exists(filename,0))
 			{
 				InterfaceUniqueState.PilotName.copy(b, std::distance(b, &filename[j - 4]));
+				InterfaceUniqueState.update_window_title();
 				read_player_file();
 				WriteConfigFile();
 			}

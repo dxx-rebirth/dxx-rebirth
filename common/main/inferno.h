@@ -72,6 +72,7 @@ struct d_interface_unique_state
 #if DXX_HAVE_POISON
 	d_interface_unique_state();
 #endif
+	void update_window_title();
 };
 
 extern d_interface_unique_state InterfaceUniqueState;

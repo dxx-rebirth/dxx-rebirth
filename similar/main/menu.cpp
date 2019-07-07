@@ -273,6 +273,7 @@ try_again:
 		goto try_again;			// They hit Esc during New player config
 
 	InterfaceUniqueState.PilotName = text;
+	InterfaceUniqueState.update_window_title();
 	write_player_file();
 
 	return 1;
@@ -352,6 +353,7 @@ static window_event_result player_menu_handler( listbox *lb,const d_event &event
 			else
 			{
 				InterfaceUniqueState.PilotName.copy_lower(items[citem], strlen(items[citem]));
+				InterfaceUniqueState.update_window_title();
 			}
 			return window_event_result::close;
 		}
@@ -394,6 +396,7 @@ static void RegisterPlayer()
 			// Read the last player's name from config file, not lastplr.txt
 			callsign = GameCfg.LastPlayer;
 		}
+		InterfaceUniqueState.update_window_title();
 	}
 
 	auto list = PHYSFSX_findFiles(PLAYER_DIRECTORY_STRING(""), types);
