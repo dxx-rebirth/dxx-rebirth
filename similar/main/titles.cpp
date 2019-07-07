@@ -1359,8 +1359,12 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 	init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 #elif defined(DXX_BUILD_DESCENT_II)
 	free_briefing_screen(br);
-	br->background_name.back() = 0;
-	strncpy(br->background_name.data(), fname, br->background_name.size() - 1);
+	const auto bndata = br->background_name.data();
+	if (fname != bndata)
+	{
+		br->background_name.back() = 0;
+		strncpy(bndata, fname, br->background_name.size() - 1);
+	}
 
 	pcx_result pcx_error;
 	if ((pcx_error = pcx_read_bitmap(fname, br->background, gr_palette)) != pcx_result::SUCCESS)
