@@ -124,8 +124,10 @@ struct d_level_shared_boss_state : ::dcx::d_level_shared_boss_state
 	// Time between cloaks
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<fix, F1_0 * 10> Boss_cloak_interval{};
+	static constexpr std::integral_constant<fix, F1_0 * 8> Boss_teleport_interval{};
 #elif defined(DXX_BUILD_DESCENT_II)
 	fix Boss_cloak_interval;
+	fix Boss_teleport_interval;
 #endif
 };
 

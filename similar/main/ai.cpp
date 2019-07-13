@@ -153,15 +153,6 @@ point_seg_array_t::iterator       Point_segs_free_ptr;
 static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
 fix64           Boss_cloak_start_time;
 fix64           Last_teleport_time;
-}
-namespace dsx {
-static
-#if defined(DXX_BUILD_DESCENT_I)
-const
-#endif
-fix             Boss_teleport_interval = F1_0*8;
-}
-namespace dcx {
 static fix64 Boss_dying_start_time;
 sbyte           Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
 
@@ -616,11 +607,11 @@ void init_ai_objects(void)
 
 	if (Current_mission && (Current_level_num == Last_level))
 	{
-		Boss_teleport_interval = F1_0*10;
+		LevelSharedBossState.Boss_teleport_interval = F1_0*10;
 		LevelSharedBossState.Boss_cloak_interval = F1_0*15;					//	Time between cloaks
 	} else
 	{
-		Boss_teleport_interval = F1_0*7;
+		LevelSharedBossState.Boss_teleport_interval = F1_0*7;
 		LevelSharedBossState.Boss_cloak_interval = F1_0*10;					//	Time between cloaks
 	}
 #endif
@@ -1218,7 +1209,7 @@ player_led: ;
 
 	//	If the boss fired, allow him to teleport very soon (right after firing, cool!), pending other factors.
 	if (robptr.boss_flag == BOSS_D1 || robptr.boss_flag == BOSS_SUPER)
-		Last_teleport_time -= Boss_teleport_interval/2;
+		Last_teleport_time -= LevelSharedBossState.Boss_teleport_interval / 2;
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -2491,13 +2482,13 @@ static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 		if (objp->ctype.ai_info.CLOAKED == 1) {
 			if (GameTime64 - Boss_cloak_start_time > Boss_cloak_duration / 3 &&
 				(Boss_cloak_start_time + Boss_cloak_duration) - GameTime64 > Boss_cloak_duration / 3 &&
-				GameTime64 - Last_teleport_time > Boss_teleport_interval)
+				GameTime64 - Last_teleport_time > LevelSharedBossState.Boss_teleport_interval)
 			{
 				if (ai_multiplayer_awareness(objp, 98))
 					teleport_boss(Vclip, vmsegptridx, objp, get_local_plrobj().pos);
 			} else if (Boss_hit_this_frame) {
 				Boss_hit_this_frame = 0;
-				Last_teleport_time -= Boss_teleport_interval/4;
+				Last_teleport_time -= LevelSharedBossState.Boss_teleport_interval / 4;
 			}
 
 			if (GameTime64 > (Boss_cloak_start_time + Boss_cloak_duration) ||
@@ -2601,12 +2592,12 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 			Boss_hit_time = GameTime64;	//	Keep the cloak:teleport process going.
 			if (GameTime64 - Boss_cloak_start_time > Boss_cloak_duration / 3 &&
 				(Boss_cloak_start_time + Boss_cloak_duration) - GameTime64 > Boss_cloak_duration / 3 &&
-				GameTime64 - Last_teleport_time > Boss_teleport_interval)
+				GameTime64 - Last_teleport_time > LevelSharedBossState.Boss_teleport_interval)
 			{
 				if (ai_multiplayer_awareness(objp, 98))
 					teleport_boss(Vclip, vmsegptridx, objp, get_local_plrobj().pos);
 			} else if (GameTime64 - Boss_hit_time > F1_0*2) {
-				Last_teleport_time -= Boss_teleport_interval/4;
+				Last_teleport_time -= LevelSharedBossState.Boss_teleport_interval / 4;
 			}
 
 			if (GameTime64 > (Boss_cloak_start_time + Boss_cloak_duration) ||
@@ -4713,8 +4704,9 @@ int ai_save_state(PHYSFS_File *fp)
 	else
 		tmptime32 = Last_teleport_time - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_teleport_interval, sizeof(fix), 1);
 	{
+		const fix Boss_teleport_interval = LevelSharedBossState.Boss_teleport_interval;
+		PHYSFS_write(fp, &Boss_teleport_interval, sizeof(fix), 1);
 		const fix Boss_cloak_interval = LevelSharedBossState.Boss_cloak_interval;
 		PHYSFS_write(fp, &Boss_cloak_interval, sizeof(fix), 1);
 	}
@@ -4942,7 +4934,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 		}
 	
 #if defined(DXX_BUILD_DESCENT_II)
-	Boss_teleport_interval =
+	LevelSharedBossState.Boss_teleport_interval =
 #endif
 		PHYSFSX_readSXE32(fp, swap);
 #if defined(DXX_BUILD_DESCENT_II)
