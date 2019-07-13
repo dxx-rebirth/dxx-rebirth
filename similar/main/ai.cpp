@@ -168,7 +168,6 @@ fix             Boss_cloak_interval = F1_0*10;                    //    Time bet
 }
 namespace dcx {
 static fix64 Boss_dying_start_time;
-fix             Gate_interval = F1_0*6;
 sbyte           Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
@@ -612,9 +611,9 @@ void init_ai_objects(void)
 
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #if defined(DXX_BUILD_DESCENT_I)
-	Gate_interval = F1_0*5 - Difficulty_level*F1_0/2;
+	GameUniqueState.Boss_gate_interval = F1_0*5 - Difficulty_level*F1_0/2;
 #elif defined(DXX_BUILD_DESCENT_II)
-	Gate_interval = F1_0*4 - Difficulty_level*i2f(2)/3;
+	GameUniqueState.Boss_gate_interval = F1_0*4 - Difficulty_level*i2f(2)/3;
 
 	ai_do_cloak_stuff();
 
@@ -1967,6 +1966,7 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
+	const auto Gate_interval = GameUniqueState.Boss_gate_interval;
 #if defined(DXX_BUILD_DESCENT_I)
 	const unsigned maximum_gated_robots = 2*Difficulty_level + 3;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2543,6 +2543,7 @@ static void do_super_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
                 return;
 
 	if (dist_to_player < BOSS_TO_PLAYER_GATE_DISTANCE || player_is_visible(player_visibility) || (Game_mode & GM_MULTI)) {
+		const auto Gate_interval = GameUniqueState.Boss_gate_interval;
 		if (GameTime64 - BossUniqueState.Last_gate_time > Gate_interval/2) {
 			restart_effect(ECLIP_NUM_BOSS);
 			if (eclip_state == 0) {
@@ -4725,7 +4726,7 @@ int ai_save_state(PHYSFS_File *fp)
 	else
 		tmptime32 = BossUniqueState.Last_gate_time - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
-	PHYSFS_write(fp, &Gate_interval, sizeof(fix), 1);
+	PHYSFS_write(fp, &GameUniqueState.Boss_gate_interval, sizeof(fix), 1);
 	if (Boss_dying_start_time == 0) // if Boss not dead, yet we expect this to be 0, so do not convert!
 	{
 		tmptime32 = 0;
@@ -4953,7 +4954,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	BossUniqueState.Last_gate_time = static_cast<fix64>(tmptime32);
-	Gate_interval = PHYSFSX_readSXE32(fp, swap);
+	GameUniqueState.Boss_gate_interval = PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Boss_dying_start_time = static_cast<fix64>(tmptime32);
 	Boss_dying = PHYSFSX_readSXE32(fp, swap);
