@@ -2479,6 +2479,10 @@ fix	Prev_boss_shields = -1;
 
 namespace dsx {
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define do_d1_boss_stuff(FS,FO,PV)	do_d1_boss_stuff(FS,FO)
+#endif
+
 // --------------------------------------------------------------------------------------------------------------------
 //	Do special stuff for a boss.
 static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const player_visibility_state player_visibility)
@@ -2491,8 +2495,10 @@ static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 	}
 #endif
 
-	if (!player_is_visible(player_visibility) && !Boss_hit_this_frame)
+#if defined(DXX_BUILD_DESCENT_II)
+	if (!EMULATING_D1 && !player_is_visible(player_visibility) && !Boss_hit_this_frame)
 		return;
+#endif
 
 	if (!Boss_dying) {
 		if (objp->ctype.ai_info.CLOAKED == 1) {
@@ -3301,13 +3307,13 @@ _exit_cheat:
 			
 			compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 			
+#if defined(DXX_BUILD_DESCENT_II)
 			auto pv = player_visibility.visibility;
 			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
 			if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) {
 				pv = player_visibility_state::no_line_of_sight;
 			}
-			
-#if defined(DXX_BUILD_DESCENT_II)
+
 			if (boss_flag != BOSS_D1)
 			{
 				do_d2_boss_stuff(vmsegptridx, obj, pv);
