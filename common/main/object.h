@@ -565,6 +565,11 @@ struct object_number_array : array<T, N>
 
 unsigned laser_parent_is_matching_signature(const laser_parent &l, const object_base &o);
 
+struct d_level_unique_boss_state
+{
+	fix64 Last_gate_time;
+};
+
 }
 
 #define Highest_object_index (Objects.get_count() - 1)
@@ -626,6 +631,7 @@ struct d_level_unique_object_state
 #endif
 	object_number_array<imobjidx_t, MAX_OBJECTS> free_obj_list;
 	object_array Objects;
+	d_level_unique_boss_state BossState;
 	auto &get_objects()
 	{
 		return Objects;

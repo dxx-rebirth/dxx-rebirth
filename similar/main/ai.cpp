@@ -167,7 +167,6 @@ const
 fix             Boss_cloak_interval = F1_0*10;                    //    Time between cloaks
 }
 namespace dcx {
-fix64           Last_gate_time;
 static fix64 Boss_dying_start_time;
 fix             Gate_interval = F1_0*6;
 sbyte           Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
@@ -503,6 +502,7 @@ static void boss_init_all_segments(const segment_array &Segments, const object &
 //	initial_mode == -1 means leave mode unchanged.
 void init_ai_object(const vmobjptridx_t objp, ai_behavior behavior, const imsegidx_t hide_segment)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	ai_static	*const aip = &objp->ctype.ai_info;
 	ai_local		*const ailp = &aip->ail;
 
@@ -582,7 +582,7 @@ void init_ai_object(const vmobjptridx_t objp, ai_behavior behavior, const imsegi
 #endif
 		)
 	{
-		Last_gate_time = 0;
+		BossUniqueState.Last_gate_time = 0;
 		Last_teleport_time = 0;
 		Boss_cloak_start_time = 0;
 		boss_init_all_segments(Segments, objp);
@@ -1965,11 +1965,12 @@ static int check_object_object_intersection(const vms_vector &pos, fix size, con
 //	If pos == NULL, pick random spot in segment.
 static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &vcobjptr, const vmsegptridx_t segp, const unsigned object_id, const vms_vector *const pos)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #if defined(DXX_BUILD_DESCENT_I)
 	const unsigned maximum_gated_robots = 2*Difficulty_level + 3;
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (GameTime64 - Last_gate_time < Gate_interval)
+	if (GameTime64 - BossUniqueState.Last_gate_time < Gate_interval)
 		return object_none;
 	const unsigned maximum_gated_robots = 2*Difficulty_level + 6;
 #endif
@@ -1985,7 +1986,7 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 
 	if (count > maximum_gated_robots)
 	{
-		Last_gate_time = GameTime64 - 3*Gate_interval/4;
+		BossUniqueState.Last_gate_time = GameTime64 - 3*Gate_interval/4;
 		return object_none;
 	}
 
@@ -1999,7 +2000,7 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const fix objsize = Polygon_models[robptr.model_num].rad;
 	if (check_object_object_intersection(object_pos, objsize, segp)) {
-		Last_gate_time = GameTime64 - 3*Gate_interval/4;
+		BossUniqueState.Last_gate_time = GameTime64 - 3*Gate_interval/4;
 		return object_none;
 	}
 
@@ -2013,7 +2014,7 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 	auto objp = robot_create(object_id, segp, object_pos, &vmd_identity_matrix, objsize, default_behavior);
 
 	if ( objp == object_none ) {
-		Last_gate_time = GameTime64 - 3*Gate_interval/4;
+		BossUniqueState.Last_gate_time = GameTime64 - 3*Gate_interval/4;
 		return object_none;
 	}
 
@@ -2040,7 +2041,7 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segp, 0, object_pos, 0 , F1_0);
 	morph_start(objp);
 
-	Last_gate_time = GameTime64;
+	BossUniqueState.Last_gate_time = GameTime64;
 
 	auto &player = get_local_player();
 	++player.num_robots_level;
@@ -2533,6 +2534,7 @@ static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 //	Do special stuff for a boss.
 static void do_super_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const fix dist_to_player, const player_visibility_state player_visibility)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	static int eclip_state = 0;
 	do_d1_boss_stuff(vmsegptridx, objp, player_visibility);
 
@@ -2541,7 +2543,7 @@ static void do_super_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
                 return;
 
 	if (dist_to_player < BOSS_TO_PLAYER_GATE_DISTANCE || player_is_visible(player_visibility) || (Game_mode & GM_MULTI)) {
-		if (GameTime64 - Last_gate_time > Gate_interval/2) {
+		if (GameTime64 - BossUniqueState.Last_gate_time > Gate_interval/2) {
 			restart_effect(ECLIP_NUM_BOSS);
 			if (eclip_state == 0) {
 				multi_send_boss_start_gate(objp);
@@ -2556,7 +2558,7 @@ static void do_super_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
 			}
 		}
 
-		if (GameTime64 - Last_gate_time > Gate_interval)
+		if (GameTime64 - BossUniqueState.Last_gate_time > Gate_interval)
 			if (ai_multiplayer_awareness(objp, 99)) {
 				uint_fast32_t randtype = (d_rand() * MAX_GATE_INDEX) >> 15;
 
@@ -4672,6 +4674,7 @@ namespace dsx {
 
 int ai_save_state(PHYSFS_File *fp)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
@@ -4717,10 +4720,10 @@ int ai_save_state(PHYSFS_File *fp)
 	PHYSFS_write(fp, &Boss_teleport_interval, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_cloak_interval, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_cloak_duration, sizeof(fix), 1);
-	if (Last_gate_time - GameTime64 < F1_0*(-18000))
+	if (BossUniqueState.Last_gate_time - GameTime64 < F1_0*(-18000))
 		tmptime32 = F1_0*(-18000);
 	else
-		tmptime32 = Last_gate_time - GameTime64;
+		tmptime32 = BossUniqueState.Last_gate_time - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Gate_interval, sizeof(fix), 1);
 	if (Boss_dying_start_time == 0) // if Boss not dead, yet we expect this to be 0, so do not convert!
@@ -4890,6 +4893,7 @@ static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS
 
 int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
@@ -4948,7 +4952,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 		PHYSFSX_readSXE32(fp, swap);
 	PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	Last_gate_time = static_cast<fix64>(tmptime32);
+	BossUniqueState.Last_gate_time = static_cast<fix64>(tmptime32);
 	Gate_interval = PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Boss_dying_start_time = static_cast<fix64>(tmptime32);

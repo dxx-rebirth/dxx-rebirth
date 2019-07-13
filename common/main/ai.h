@@ -254,7 +254,6 @@ extern void special_reactor_stuff(void);
 }
 
 namespace dcx {
-extern fix64            Last_gate_time;
 extern sbyte            Boss_dying_sound_playing;
 extern fix              Gate_interval;
 struct point_seg_array_t : public array<point_seg, MAX_POINT_SEGS> {};

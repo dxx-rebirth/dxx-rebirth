@@ -1530,6 +1530,7 @@ static inline int Boss_invulnerable_dot()
 //	Return true if damage done to boss, else return false.
 static boss_weapon_collision_result do_boss_weapon_collision(const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const vcobjptridx_t robotptridx, object &weapon, const vms_vector &collision_point)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	const object_base &robot = robotptridx;
 	int	d2_boss_index;
@@ -1550,7 +1551,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_level_share
 					const auto &&spew = boss_spew_robot(robot, collision_point);
 					if (spew != object_none)
 					{
-						Last_gate_time = GameTime64 - Gate_interval - 1;	//	Force allowing spew of another bot.
+						BossUniqueState.Last_gate_time = GameTime64 - Gate_interval - 1;	//	Force allowing spew of another bot.
 						multi_send_boss_create_robot(robotptridx, spew);
 					}
 				}
