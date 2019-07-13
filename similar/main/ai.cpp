@@ -748,22 +748,13 @@ player_visibility_state player_is_visible_from_object(const vmobjptridx_t objp, 
 	fq.rad					= F1_0/4;
 	fq.thisobjnum			= objp;
 	fq.ignore_obj_list.first = nullptr;
-#if defined(DXX_BUILD_DESCENT_I)
-	fq.flags					= FQ_TRANSWALL | FQ_CHECK_OBJS;		//what about trans walls???
-#elif defined(DXX_BUILD_DESCENT_II)
 	fq.flags					= FQ_TRANSWALL; // -- Why were we checking objects? | FQ_CHECK_OBJS;		//what about trans walls???
-#endif
 
 	Hit_type = find_vector_intersection(fq, Hit_data);
 
 	Hit_pos = Hit_data.hit_pnt;
 
-#if defined(DXX_BUILD_DESCENT_I)
-	if ((Hit_type == HIT_NONE) || ((Hit_type == HIT_OBJECT) && (Hit_data.hit_object == get_local_player().objnum)))
-#elif defined(DXX_BUILD_DESCENT_II)
-	// -- when we stupidly checked objects -- if ((Hit_type == HIT_NONE) || ((Hit_type == HIT_OBJECT) && (Hit_data.hit_object == Players[Player_num].objnum)))
 	if (Hit_type == HIT_NONE)
-#endif
 	{
 		dot = vm_vec_dot(vec_to_player, objp->orient.fvec);
 		if (dot > field_of_view - (Overall_agitation << 9)) {
