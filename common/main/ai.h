@@ -109,7 +109,6 @@ struct d_level_shared_boss_state
 	teleport_segment_array_t Teleport_segs;
 };
 
-extern d_level_shared_boss_state LevelSharedBossState;
 extern fix64 Boss_cloak_start_time;
 extern fix64 Last_teleport_time;
 constexpr fix Boss_cloak_duration = F1_0*7;
@@ -119,6 +118,18 @@ extern vms_vector Believed_player_pos;
 }
 
 namespace dsx {
+
+struct d_level_shared_boss_state : ::dcx::d_level_shared_boss_state
+{
+	// Time between cloaks
+#if defined(DXX_BUILD_DESCENT_I)
+	static constexpr std::integral_constant<fix, F1_0 * 10> Boss_cloak_interval{};
+#elif defined(DXX_BUILD_DESCENT_II)
+	fix Boss_cloak_interval;
+#endif
+};
+
+extern d_level_shared_boss_state LevelSharedBossState;
 void move_towards_segment_center(const d_level_shared_segment_state &, object_base &objp);
 imobjptridx_t gate_in_robot(unsigned type, vmsegptridx_t segnum);
 void do_ai_frame(vmobjptridx_t objp);

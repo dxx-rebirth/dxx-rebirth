@@ -160,11 +160,6 @@ static
 const
 #endif
 fix             Boss_teleport_interval = F1_0*8;
-static
-#if defined(DXX_BUILD_DESCENT_I)
-const
-#endif
-fix             Boss_cloak_interval = F1_0*10;                    //    Time between cloaks
 }
 namespace dcx {
 static fix64 Boss_dying_start_time;
@@ -622,11 +617,11 @@ void init_ai_objects(void)
 	if (Current_mission && (Current_level_num == Last_level))
 	{
 		Boss_teleport_interval = F1_0*10;
-		Boss_cloak_interval = F1_0*15;					//	Time between cloaks
+		LevelSharedBossState.Boss_cloak_interval = F1_0*15;					//	Time between cloaks
 	} else
 	{
 		Boss_teleport_interval = F1_0*7;
-		Boss_cloak_interval = F1_0*10;					//	Time between cloaks
+		LevelSharedBossState.Boss_cloak_interval = F1_0*10;					//	Time between cloaks
 	}
 #endif
 }
@@ -2510,7 +2505,7 @@ static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 				objp->ctype.ai_info.CLOAKED = 0;
 		} else {
 			if (Boss_hit_this_frame ||
-				GameTime64 - (Boss_cloak_start_time + Boss_cloak_duration) > Boss_cloak_interval)
+				GameTime64 - (Boss_cloak_start_time + Boss_cloak_duration) > LevelSharedBossState.Boss_cloak_interval)
 			{
 				if (ai_multiplayer_awareness(objp, 95))
 				{
@@ -2617,7 +2612,7 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 			if (GameTime64 > (Boss_cloak_start_time + Boss_cloak_duration) ||
 				GameTime64 < Boss_cloak_start_time)
 				objp->ctype.ai_info.CLOAKED = 0;
-		} else if (GameTime64 - (Boss_cloak_start_time + Boss_cloak_duration) > Boss_cloak_interval ||
+		} else if (GameTime64 - (Boss_cloak_start_time + Boss_cloak_duration) > LevelSharedBossState.Boss_cloak_interval ||
 				GameTime64 - (Boss_cloak_start_time + Boss_cloak_duration) < -Boss_cloak_duration) {
 			if (ai_multiplayer_awareness(objp, 95)) {
 				Boss_cloak_start_time = GameTime64;
@@ -4719,7 +4714,10 @@ int ai_save_state(PHYSFS_File *fp)
 		tmptime32 = Last_teleport_time - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_teleport_interval, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_cloak_interval, sizeof(fix), 1);
+	{
+		const fix Boss_cloak_interval = LevelSharedBossState.Boss_cloak_interval;
+		PHYSFS_write(fp, &Boss_cloak_interval, sizeof(fix), 1);
+	}
 	PHYSFS_write(fp, &Boss_cloak_duration, sizeof(fix), 1);
 	if (BossUniqueState.Last_gate_time - GameTime64 < F1_0*(-18000))
 		tmptime32 = F1_0*(-18000);
@@ -4948,7 +4946,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 #endif
 		PHYSFSX_readSXE32(fp, swap);
 #if defined(DXX_BUILD_DESCENT_II)
-	Boss_cloak_interval =
+	LevelSharedBossState.Boss_cloak_interval =
 #endif
 		PHYSFSX_readSXE32(fp, swap);
 	PHYSFSX_readSXE32(fp, swap);
