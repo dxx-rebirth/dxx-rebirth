@@ -525,6 +525,7 @@ void multi_new_game()
 	LevelUniqueObjectState.accumulated_robots = 0;
 	LevelUniqueObjectState.total_hostages = 0;
 	GameUniqueState.accumulated_robots = 0;
+	GameUniqueState.total_hostages = 0;
 	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 		init_player_stats_game(i);
 

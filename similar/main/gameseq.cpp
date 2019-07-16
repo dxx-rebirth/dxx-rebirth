@@ -497,7 +497,6 @@ void init_player_stats_game(const playernum_t pnum)
 	plr.hours_total = 0;
 	plr.num_kills_level = 0;
 	plr.num_kills_total = 0;
-	plr.hostages_total = 0;
 	const auto &&plobj = vmobjptr(plr.objnum);
 	auto &player_info = plobj->ctype.player_info;
 	player_info.powerup_flags = {};
@@ -568,8 +567,6 @@ static void init_player_stats_level(player &plr, object &plrobj, const secret_re
 	player_info.mission.last_score = player_info.mission.score;
 
 	plr.num_kills_level = 0;
-
-	plr.hostages_total += LevelUniqueObjectState.total_hostages;
 
 	if (secret_flag == secret_restore::none) {
 		init_ammo_and_energy(plrobj);
@@ -1079,6 +1076,7 @@ void StartNewGame(const int start_level)
 	LevelUniqueObjectState.accumulated_robots = 0;
 	LevelUniqueObjectState.total_hostages = 0;
 	GameUniqueState.accumulated_robots = 0;
+	GameUniqueState.total_hostages = 0;
 	init_player_stats_game(Player_num);		//clear all stats
 
 	N_players = 1;
@@ -1881,6 +1879,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 	LevelUniqueObjectState.accumulated_robots = count_number_of_robots(Objects.vcptr);
 	GameUniqueState.accumulated_robots += LevelUniqueObjectState.accumulated_robots;
 	LevelUniqueObjectState.total_hostages = count_number_of_hostages(Objects.vcptr);
+	GameUniqueState.total_hostages += LevelUniqueObjectState.total_hostages;
 	init_player_stats_level(get_local_player(), get_local_plrobj(), secret_flag);
 
 #if defined(DXX_BUILD_DESCENT_I)

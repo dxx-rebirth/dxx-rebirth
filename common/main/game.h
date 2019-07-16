@@ -148,6 +148,7 @@ struct d_game_unique_state
 	Difficulty_level_type Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 	fix Boss_gate_interval;
 	unsigned accumulated_robots;
+	unsigned total_hostages;
 };
 
 extern d_game_unique_state GameUniqueState;

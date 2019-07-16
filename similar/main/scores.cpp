@@ -194,7 +194,7 @@ static void scores_fill_struct(stats_info * stats)
 	else
 		stats->kill_ratio = 0;
 
-	if (const auto hostages_total = plr.hostages_total)
+	if (const auto hostages_total = GameUniqueState.total_hostages)
 		stats->hostage_ratio = (player_info.mission.hostages_rescued_total * 100) / hostages_total;
 	else
 		stats->hostage_ratio = 0;

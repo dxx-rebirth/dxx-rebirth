@@ -133,6 +133,7 @@ struct relocated_player_data
 	fix shields;
 	int16_t num_robots_level;
 	int16_t num_robots_total;
+	uint16_t hostages_total;
 	uint8_t hostages_level;
 };
 
@@ -569,7 +570,7 @@ static void state_player_to_player_rw(const relocated_player_data &rpd, const pl
 	pl_rw->num_robots_level          = LevelUniqueObjectState.accumulated_robots;
 	pl_rw->num_robots_total          = GameUniqueState.accumulated_robots;
 	pl_rw->hostages_rescued_total    = pl_info.mission.hostages_rescued_total;
-	pl_rw->hostages_total            = pl->hostages_total;
+	pl_rw->hostages_total            = GameUniqueState.total_hostages;
 	pl_rw->hostages_on_board         = pl_info.mission.hostages_on_board;
 	pl_rw->hostages_level            = LevelUniqueObjectState.total_hostages;
 	pl_rw->homing_object_dist        = pl_info.homing_object_dist;
@@ -617,7 +618,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	rpd.num_robots_level = pl_rw->num_robots_level;
 	rpd.num_robots_total = pl_rw->num_robots_total;
 	pl_info.mission.hostages_rescued_total    = pl_rw->hostages_rescued_total;
-	pl->hostages_total            = pl_rw->hostages_total;
+	rpd.hostages_total            = pl_rw->hostages_total;
 	pl_info.mission.hostages_on_board         = pl_rw->hostages_on_board;
 	rpd.hostages_level            = pl_rw->hostages_level;
 	pl_info.homing_object_dist        = pl_rw->homing_object_dist;
@@ -1065,6 +1066,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		plrobj.shields,
 		static_cast<int16_t>(LevelUniqueObjectState.accumulated_robots),
 		static_cast<int16_t>(GameUniqueState.accumulated_robots),
+		static_cast<uint16_t>(GameUniqueState.total_hostages),
 		static_cast<uint8_t>(LevelUniqueObjectState.total_hostages)
 		}, player_info);
 
@@ -1325,7 +1327,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		 * than using it only for the one slot where it may matter.
 		 */
 		const auto shields = plrobj.shields;
-		const relocated_player_data rpd{shields, 0, 0, 0};
+		const relocated_player_data rpd{shields, 0, 0, 0, 0};
 		// I know, I know we only allow 4 players in coop. I screwed that up. But if we ever allow 8 players in coop, who's gonna laugh then?
 		range_for (auto &i, partial_const_range(Players, MAX_PLAYERS))
 		{
@@ -1553,6 +1555,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	LevelUniqueObjectState.accumulated_robots = 0;
 	LevelUniqueObjectState.total_hostages = 0;
 	GameUniqueState.accumulated_robots = 0;
+	GameUniqueState.total_hostages = 0;
 	if (!(Game_mode & GM_MULTI_COOP))
 	{
 		Game_mode = GM_NORMAL;
@@ -1604,7 +1607,6 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 				plr.level = dummy_player.level;
 				plr.time_level = dummy_player.time_level;
 
-				plr.hostages_total = dummy_player.hostages_total;
 				ret_pl_info.homing_object_dist = -1;
 				plr.hours_level = dummy_player.hours_level;
 				plr.hours_total = dummy_player.hours_total;
@@ -1626,6 +1628,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		LevelUniqueObjectState.accumulated_robots = rpd.num_robots_level;
 		LevelUniqueObjectState.total_hostages = rpd.hostages_level;
 		GameUniqueState.accumulated_robots = rpd.num_robots_total;
+		GameUniqueState.total_hostages = rpd.hostages_total;
 	}
 	{
 		auto &plr = get_local_player();
