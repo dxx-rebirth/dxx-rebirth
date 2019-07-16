@@ -1453,33 +1453,9 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 		plr.num_kills_level++;
 		plr.num_kills_total++;
 		if (Game_mode & GM_MULTI) {
-#if defined(DXX_BUILD_DESCENT_II)
-			char isthief;
-			stolen_items_t temp_stolen;
-
-		 if (robot_is_thief(robptr))
-			{
-			isthief=1;
-				temp_stolen = Stolen_items;
-			}
-		 else
-			isthief=0;
-#endif
-
 			if (multi_explode_robot_sub(robot))
 			{
-#if defined(DXX_BUILD_DESCENT_II)
-			 if (isthief)
-				Stolen_items = temp_stolen;
-#endif
-
 				multi_send_robot_explode(robot, killer_objnum);
-
-#if defined(DXX_BUILD_DESCENT_II)
-	     	   if (isthief)
-					Stolen_items.fill(255);
-#endif
-
 				return 1;
 			}
 			else
