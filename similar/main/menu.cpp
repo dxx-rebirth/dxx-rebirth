@@ -474,6 +474,8 @@ static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choic
 	switch (event.type)
 	{
 		case EVENT_WINDOW_CREATED:
+			if (InterfaceUniqueState.PilotName[0])
+				break;
 			RegisterPlayer();
 			break;
 		case EVENT_WINDOW_ACTIVATED:
