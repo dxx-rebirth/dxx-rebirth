@@ -3916,7 +3916,7 @@ window_event_result net_udp_setup_game()
 #endif
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
 	Netgame.PacketsPerSec=DEFAULT_PPS;
-	snprintf(Netgame.game_name.data(), Netgame.game_name.size(), "%s%s", static_cast<const char *>(self.callsign), TXT_S_GAME);
+	snprintf(Netgame.game_name.data(), Netgame.game_name.size(), "%s%s", static_cast<const char *>(InterfaceUniqueState.PilotName), TXT_S_GAME);
 	reset_UDP_MyPort();
 	Netgame.ShufflePowerupSeed = 0;
 	Netgame.BrightPlayers = 1;
