@@ -328,6 +328,7 @@ struct ai_cloak_info_rw
 // Maximum number kept track of, will keep stealing, causes stolen weapons to be lost!
 struct d_thief_unique_state
 {
+	unsigned Stolen_item_index;   // Used in ai.c for controlling rate of Thief flare firing.
 	array<uint8_t, 10> Stolen_items;
 };
 

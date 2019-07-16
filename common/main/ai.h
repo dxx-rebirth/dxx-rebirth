@@ -236,8 +236,6 @@ imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos);
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
 
-extern int Stolen_item_index;   // Used in ai.c for controlling rate of Thief flare firing.
-
 // -- unused, 08/07/95 -- extern void ai_turn_randomly(vms_vector *vec_to_player, object *obj, fix rate, int previous_visibility);
 void init_ai_frame(player_flags);
 

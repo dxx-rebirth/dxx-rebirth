@@ -109,7 +109,6 @@ constexpr array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
 }};
 
 constexpr std::integral_constant<unsigned, 200> Max_escort_length{};
-int	Stolen_item_index;
 
 void init_buddy_for_level(void)
 {
@@ -1583,7 +1582,7 @@ static int maybe_steal_flag_item(const vmobjptr_t playerobjp, const PLAYER_FLAG 
 					assert(false);
 					return 0;
 			}
-			ThiefUniqueState.Stolen_items[Stolen_item_index] = powerup_index;
+			ThiefUniqueState.Stolen_items[ThiefUniqueState.Stolen_item_index] = powerup_index;
 			thief_message_str(msg);
 			return 1;
 		}
@@ -1606,7 +1605,7 @@ static int maybe_steal_secondary_weapon(const vmobjptr_t playerobjp, int weapon_
 			}
 			//	Smart mines and proxbombs don't get dropped because they only come in 4 packs.
 			else
-				ThiefUniqueState.Stolen_items[Stolen_item_index] = Secondary_weapon_to_powerup[weapon_num];
+				ThiefUniqueState.Stolen_items[ThiefUniqueState.Stolen_item_index] = Secondary_weapon_to_powerup[weapon_num];
 			thief_message("%s stolen!", SECONDARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
 			if (-- secondary_ammo == 0)
 				auto_select_secondary_weapon(player_info);
@@ -1675,7 +1674,7 @@ static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_nu
 				thief_message("%s stolen!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
 				auto_select_primary_weapon(player_info);
 			}
-			ThiefUniqueState.Stolen_items[Stolen_item_index] = primary_weapon_powerup;
+			ThiefUniqueState.Stolen_items[ThiefUniqueState.Stolen_item_index] = primary_weapon_powerup;
 			return 1;
 		}
 	}
@@ -1754,13 +1753,13 @@ static int attempt_to_steal_item_2(const vmobjptr_t objp, const vmobjptr_t playe
 	const auto rval = attempt_to_steal_item_3(objp, player_num);
 	if (rval) {
 		digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
-		auto i = Stolen_item_index;
+		auto i = ThiefUniqueState.Stolen_item_index;
 		if (d_rand() > 20000)	//	Occasionally, boost the value again
 			++i;
 		constexpr auto size = std::tuple_size<decltype(ThiefUniqueState.Stolen_items)>::value;
 		if (++ i >= size)
 			i -= size;
-		Stolen_item_index = i;
+		ThiefUniqueState.Stolen_item_index = i;
 	}
 	return rval;
 }
@@ -1803,6 +1802,7 @@ int attempt_to_steal_item(const vmobjptridx_t objp, const vmobjptr_t player_num)
 void init_thief_for_level(void)
 {
 	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
+	ThiefUniqueState.Stolen_item_index = 0;
 	auto &Stolen_items = ThiefUniqueState.Stolen_items;
 	Stolen_items.fill(255);
 
@@ -1814,8 +1814,6 @@ void init_thief_for_level(void)
 			Stolen_items[2*i] = POW_SHIELD_BOOST;
 			Stolen_items[2*i+1] = POW_ENERGY;
 		}
-
-	Stolen_item_index = 0;
 }
 
 // --------------------------------------------------------------------------------------------------------------

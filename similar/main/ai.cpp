@@ -3640,15 +3640,12 @@ _exit_cheat:
 		do_thief_frame(obj, dist_to_player, player_visibility.visibility, vec_to_player);
 
 		if (ready_to_fire_any_weapon(robptr, ailp, 0)) {
-			int do_stuff = 0;
 			if (openable_door_on_near_path(vmsegptr, vcwallptr, *obj, *aip))
-				do_stuff = 1;
-
-			if (do_stuff) {
+			{
 				// @mk, 05/08/95: Firing flare from center of object, this is dumb...
 				Laser_create_new_easy( obj->orient.fvec, obj->pos, obj, weapon_id_type::FLARE_ID, 1);
 				ailp.next_fire = F1_0/2;
-				if (Stolen_item_index == 0)     // If never stolen an item, fire flares less often (bad: Stolen_item_index wraps, but big deal)
+				if (LevelUniqueObjectState.ThiefState.Stolen_item_index == 0)     // If never stolen an item, fire flares less often (bad: Stolen_item_index wraps, but big deal)
 					ailp.next_fire += d_rand()*4;
 			}
 		}
