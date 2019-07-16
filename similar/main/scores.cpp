@@ -189,8 +189,8 @@ static void scores_fill_struct(stats_info * stats)
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	stats->score = player_info.mission.score;
 	stats->ending_level = plr.level;
-	if (plr.num_robots_total > 0)
-		stats->kill_ratio = (plr.num_kills_total * 100) / plr.num_robots_total;
+	if (const auto robots_total = GameUniqueState.accumulated_robots)
+		stats->kill_ratio = (plr.num_kills_total * 100) / robots_total;
 	else
 		stats->kill_ratio = 0;
 

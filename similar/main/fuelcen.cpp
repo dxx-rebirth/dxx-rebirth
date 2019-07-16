@@ -298,9 +298,8 @@ Restart: ;
 
 imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &object_pos, const unsigned object_id)
 {
-	auto &plr = get_local_player();
 	++LevelUniqueObjectState.accumulated_robots;
-	plr.num_robots_total++;
+	++GameUniqueState.accumulated_robots;
 
 	ai_behavior default_behavior;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;

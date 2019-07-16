@@ -2028,10 +2028,8 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 	morph_start(objp);
 
 	BossUniqueState.Last_gate_time = GameTime64;
-
-	auto &player = get_local_player();
 	++LevelUniqueObjectState.accumulated_robots;
-	++player.num_robots_total;
+	++GameUniqueState.accumulated_robots;
 
 	return objp;
 }
