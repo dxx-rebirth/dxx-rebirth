@@ -497,7 +497,6 @@ void init_player_stats_game(const playernum_t pnum)
 	plr.hours_total = 0;
 	plr.num_kills_level = 0;
 	plr.num_kills_total = 0;
-	plr.num_robots_level = 0;
 	plr.num_robots_total = 0;
 	plr.hostages_level = 0;
 	plr.hostages_total = 0;
@@ -573,8 +572,7 @@ static void init_player_stats_level(player &plr, object &plrobj, const secret_re
 	player_info.mission.last_score = player_info.mission.score;
 
 	plr.num_kills_level = 0;
-	plr.num_robots_level = count_number_of_robots(vcobjptr);
-	plr.num_robots_total += plr.num_robots_level;
+	plr.num_robots_total += LevelUniqueObjectState.accumulated_robots;
 
 	plr.hostages_level = count_number_of_hostages(vcobjptr);
 	plr.hostages_total += plr.hostages_level;
@@ -1084,6 +1082,7 @@ void StartNewGame(const int start_level)
 
 	InitPlayerObject();				//make sure player's object set up
 
+	LevelUniqueObjectState.accumulated_robots = 0;
 	init_player_stats_game(Player_num);		//clear all stats
 
 	N_players = 1;
@@ -1883,6 +1882,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 
 	automap_clear_visited();
 
+	LevelUniqueObjectState.accumulated_robots = count_number_of_robots(Objects.vcptr);
 	init_player_stats_level(get_local_player(), get_local_plrobj(), secret_flag);
 
 #if defined(DXX_BUILD_DESCENT_I)

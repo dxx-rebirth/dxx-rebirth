@@ -522,6 +522,7 @@ void multi_new_game()
 	// Reset variables for a new net game
 	reset_globals_for_new_game();
 
+	LevelUniqueObjectState.accumulated_robots = 0;
 	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 		init_player_stats_game(i);
 

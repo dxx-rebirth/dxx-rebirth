@@ -2030,7 +2030,7 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 	BossUniqueState.Last_gate_time = GameTime64;
 
 	auto &player = get_local_player();
-	++player.num_robots_level;
+	++LevelUniqueObjectState.accumulated_robots;
 	++player.num_robots_total;
 
 	return objp;

@@ -299,7 +299,7 @@ Restart: ;
 imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &object_pos, const unsigned object_id)
 {
 	auto &plr = get_local_player();
-	plr.num_robots_level++;
+	++LevelUniqueObjectState.accumulated_robots;
 	plr.num_robots_total++;
 
 	ai_behavior default_behavior;
@@ -400,7 +400,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
    //	  <<<<<<<<<<<<<<<< Num robots in mine >>>>>>>>>>>>>>>>>>>>>>>>>>    <<<<<<<<<<<< Max robots in mine >>>>>>>>>>>>>>>
 	{
 		auto &plr = get_local_player();
-		if ((plr.num_robots_level - plr.num_kills_level) >= (Gamesave_num_org_robots + Num_extry_robots))
+		if (LevelUniqueObjectState.accumulated_robots - plr.num_kills_level >= Gamesave_num_org_robots + Num_extry_robots)
 		{
 		return;
 		}

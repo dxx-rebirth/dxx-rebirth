@@ -624,6 +624,12 @@ const player &get_player_controlling_guidebot(const d_unique_buddy_state & /* re
 struct d_level_unique_object_state
 {
 	unsigned num_objects = 0;
+	/* `accumulated_robots` counts robots present at level entry and
+	 * robots added later via materialization centers / boss gating.  It
+	 * never decreases, so it is not a shortcut for counting the number
+	 * of currently live objects with type OBJ_ROBOT.
+	 */
+	unsigned accumulated_robots;
 	unsigned Debris_object_count = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	d_unique_buddy_state BuddyState;

@@ -131,6 +131,7 @@ namespace {
 struct relocated_player_data
 {
 	fix shields;
+	int16_t num_robots_level;
 };
 
 }
@@ -563,7 +564,7 @@ static void state_player_to_player_rw(const relocated_player_data &rpd, const pl
 	pl_rw->net_kills_total           = pl_info.net_kills_total;
 	pl_rw->num_kills_level           = pl->num_kills_level;
 	pl_rw->num_kills_total           = pl->num_kills_total;
-	pl_rw->num_robots_level          = pl->num_robots_level;
+	pl_rw->num_robots_level          = LevelUniqueObjectState.accumulated_robots;
 	pl_rw->num_robots_total          = pl->num_robots_total;
 	pl_rw->hostages_rescued_total    = pl_info.mission.hostages_rescued_total;
 	pl_rw->hostages_total            = pl->hostages_total;
@@ -611,7 +612,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	pl_info.net_kills_total           = pl_rw->net_kills_total;
 	pl->num_kills_level           = pl_rw->num_kills_level;
 	pl->num_kills_total           = pl_rw->num_kills_total;
-	pl->num_robots_level          = pl_rw->num_robots_level;
+	rpd.num_robots_level = pl_rw->num_robots_level;
 	pl->num_robots_total          = pl_rw->num_robots_total;
 	pl_info.mission.hostages_rescued_total    = pl_rw->hostages_rescued_total;
 	pl->hostages_total            = pl_rw->hostages_total;
@@ -1058,7 +1059,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	//PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
 	const auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;
-	state_write_player(fp, get_local_player(), relocated_player_data{plrobj.shields}, player_info);
+	state_write_player(fp, get_local_player(), relocated_player_data{plrobj.shields, static_cast<int16_t>(LevelUniqueObjectState.accumulated_robots)}, player_info);
 
 // Save the current weapon info
 	{
@@ -1317,7 +1318,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		 * than using it only for the one slot where it may matter.
 		 */
 		const auto shields = plrobj.shields;
-		const relocated_player_data rpd{shields};
+		const relocated_player_data rpd{shields, 0};
 		// I know, I know we only allow 4 players in coop. I screwed that up. But if we ever allow 8 players in coop, who's gonna laugh then?
 		range_for (auto &i, partial_const_range(Players, MAX_PLAYERS))
 		{
@@ -1542,6 +1543,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 // Start new game....
 	callsign_t org_callsign;
+	LevelUniqueObjectState.accumulated_robots = 0;
 	if (!(Game_mode & GM_MULTI_COOP))
 	{
 		Game_mode = GM_NORMAL;
@@ -1593,7 +1595,6 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 				plr.level = dummy_player.level;
 				plr.time_level = dummy_player.time_level;
 
-				plr.num_robots_level = dummy_player.num_robots_level;
 				plr.num_robots_total = dummy_player.num_robots_total;
 				plr.hostages_total = dummy_player.hostages_total;
 				plr.hostages_level = dummy_player.hostages_level;
@@ -1615,6 +1616,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		{
 			state_read_player(fp, plr, swap, pl_info, rpd);
 		}
+		LevelUniqueObjectState.accumulated_robots = rpd.num_robots_level;
 	}
 	{
 		auto &plr = get_local_player();
@@ -2037,6 +2039,9 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			// read the stored players
 			player_info pl_info;
 			relocated_player_data rpd;
+			/* No need to reload num_robots_level again.  It was already
+			 * restored above when the local player was restored.
+			 */
 			state_read_player(fp, restore_players[i], swap, pl_info, rpd);
 			
 			// make all (previous) player objects to ghosts but store them first for later remapping
