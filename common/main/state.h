@@ -105,18 +105,12 @@ static inline window_event_result StartNewLevelSub(int level_num, int page_in_te
 {
 	return StartNewLevelSub(level_num, page_in_textures);
 }
-void init_player_stats_level(player &, object &);
-static inline void init_player_stats_level(player &p, object &o, secret_restore)
-{
-	init_player_stats_level(p, o);
-}
 #elif defined(DXX_BUILD_DESCENT_II)
 int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, secret_restore, const char *filename);
 void set_pos_from_return_segment(void);
 int state_save_all(secret_save, blind_save);
 int state_restore_all(int in_game, secret_restore, const char *filename_override, blind_save);
 window_event_result StartNewLevelSub(int level_num, int page_in_textures, secret_restore);
-void init_player_stats_level(player &, object &, secret_restore);
 #endif
 }
 #endif

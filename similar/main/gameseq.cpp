@@ -553,16 +553,11 @@ extern	ubyte	Last_afterburner_state;
 #endif
 
 // Setup player for new level (After completion of previous level)
-#if defined(DXX_BUILD_DESCENT_I)
-void init_player_stats_level(player &plr, object &plrobj)
-#elif defined(DXX_BUILD_DESCENT_II)
-void init_player_stats_level(player &plr, object &plrobj, const secret_restore secret_flag)
-#endif
+static void init_player_stats_level(player &plr, object &plrobj, const secret_restore secret_flag)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 #if defined(DXX_BUILD_DESCENT_I)
-	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret_flag{};
 #elif defined(DXX_BUILD_DESCENT_II)
 	auto &vcobjptridx = Objects.vcptridx;
 #endif
