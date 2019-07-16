@@ -109,7 +109,6 @@ constexpr array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
 }};
 
 constexpr std::integral_constant<unsigned, 200> Max_escort_length{};
-stolen_items_t Stolen_items;
 int	Stolen_item_index;
 
 void init_buddy_for_level(void)
@@ -1542,6 +1541,7 @@ void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 //	Return true if this item (whose presence is indicated by Players[player_num].flags) gets stolen.
 static int maybe_steal_flag_item(const vmobjptr_t playerobjp, const PLAYER_FLAG flagval)
 {
+	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
 	auto &plr_flags = playerobjp->ctype.player_info.powerup_flags;
 	if (plr_flags & flagval)
 	{
@@ -1583,7 +1583,7 @@ static int maybe_steal_flag_item(const vmobjptr_t playerobjp, const PLAYER_FLAG 
 					assert(false);
 					return 0;
 			}
-			Stolen_items[Stolen_item_index] = powerup_index;
+			ThiefUniqueState.Stolen_items[Stolen_item_index] = powerup_index;
 			thief_message_str(msg);
 			return 1;
 		}
@@ -1595,6 +1595,7 @@ static int maybe_steal_flag_item(const vmobjptr_t playerobjp, const PLAYER_FLAG 
 //	----------------------------------------------------------------------------
 static int maybe_steal_secondary_weapon(const vmobjptr_t playerobjp, int weapon_num)
 {
+	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
 	auto &player_info = playerobjp->ctype.player_info;
 	if (auto &secondary_ammo = player_info.secondary_ammo[weapon_num])
 		if (d_rand() < THIEF_PROBABILITY) {
@@ -1605,7 +1606,7 @@ static int maybe_steal_secondary_weapon(const vmobjptr_t playerobjp, int weapon_
 			}
 			//	Smart mines and proxbombs don't get dropped because they only come in 4 packs.
 			else
-				Stolen_items[Stolen_item_index] = Secondary_weapon_to_powerup[weapon_num];
+				ThiefUniqueState.Stolen_items[Stolen_item_index] = Secondary_weapon_to_powerup[weapon_num];
 			thief_message("%s stolen!", SECONDARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
 			if (-- secondary_ammo == 0)
 				auto_select_secondary_weapon(player_info);
@@ -1620,6 +1621,7 @@ static int maybe_steal_secondary_weapon(const vmobjptr_t playerobjp, int weapon_
 //	----------------------------------------------------------------------------
 static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_num)
 {
+	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
 	auto &player_info = playerobjp->ctype.player_info;
 	bool is_energy_weapon = true;
 	switch (static_cast<primary_weapon_index_t>(weapon_num))
@@ -1648,15 +1650,13 @@ static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_nu
 	}
 	{
 		if (d_rand() < THIEF_PROBABILITY) {
+			powerup_type_t primary_weapon_powerup;
 			if (weapon_num == primary_weapon_index_t::LASER_INDEX)
 			{
 				auto &laser_level = player_info.laser_level;
-					if (laser_level > MAX_LASER_LEVEL)
-					{
-						Stolen_items[Stolen_item_index] = POW_SUPER_LASER;
-					} else {
-						Stolen_items[Stolen_item_index] = Primary_weapon_to_powerup[weapon_num];
-					}
+				primary_weapon_powerup = (laser_level > MAX_LASER_LEVEL)
+					? POW_SUPER_LASER
+					: Primary_weapon_to_powerup[weapon_num];
 					/* Laser levels are zero-based, so print the old
 					 * level, then decrement it.  Decrementing first
 					 * would produce confusing output, particularly when
@@ -1670,11 +1670,12 @@ static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_nu
 			else
 			{
 				player_info.primary_weapon_flags &= ~HAS_PRIMARY_FLAG(weapon_num);
-				Stolen_items[Stolen_item_index] = Primary_weapon_to_powerup[weapon_num];
+				primary_weapon_powerup = Primary_weapon_to_powerup[weapon_num];
 
 				thief_message("%s stolen!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
 				auto_select_primary_weapon(player_info);
 			}
+			ThiefUniqueState.Stolen_items[Stolen_item_index] = primary_weapon_powerup;
 			return 1;
 		}
 	}
@@ -1749,13 +1750,14 @@ static int attempt_to_steal_item_3(const vmobjptr_t objp, const vmobjptr_t playe
 //	----------------------------------------------------------------------------
 static int attempt_to_steal_item_2(const vmobjptr_t objp, const vmobjptr_t player_num)
 {
+	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
 	const auto rval = attempt_to_steal_item_3(objp, player_num);
 	if (rval) {
 		digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 		auto i = Stolen_item_index;
 		if (d_rand() > 20000)	//	Occasionally, boost the value again
 			++i;
-		constexpr auto size = Stolen_items.size();
+		constexpr auto size = std::tuple_size<decltype(ThiefUniqueState.Stolen_items)>::value;
 		if (++ i >= size)
 			i -= size;
 		Stolen_item_index = i;
@@ -1800,10 +1802,12 @@ int attempt_to_steal_item(const vmobjptridx_t objp, const vmobjptr_t player_num)
 //	Indicate no items have been stolen.
 void init_thief_for_level(void)
 {
+	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
+	auto &Stolen_items = ThiefUniqueState.Stolen_items;
 	Stolen_items.fill(255);
 
 	constexpr unsigned iterations = 3;
-	static_assert (Stolen_items.size() >= iterations * 2, "Stolen_items too small");	//	Oops!  Loop below will overwrite memory!
+	static_assert (std::tuple_size<decltype(ThiefUniqueState.Stolen_items)>::value >= iterations * 2, "Stolen_items too small");	//	Oops!  Loop below will overwrite memory!
    if (!(Game_mode & GM_MULTI))    
 		for (unsigned i = 0; i < iterations; i++)
 		{
@@ -1817,8 +1821,9 @@ void init_thief_for_level(void)
 // --------------------------------------------------------------------------------------------------------------
 void drop_stolen_items(const vcobjptr_t objp)
 {
+	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
 	const auto &&segp = vmsegptridx(objp->segnum);
-	range_for (auto &i, Stolen_items)
+	range_for (auto &i, ThiefUniqueState.Stolen_items)
 	{
 		if (i != 255)
 		{

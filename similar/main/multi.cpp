@@ -3930,23 +3930,16 @@ static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState,
 
 void multi_send_stolen_items ()
 {
-	int count=1;
-
 	multi_command<MULTI_STOLEN_ITEMS> multibuf;
-	for (unsigned i = 0; i < Stolen_items.size(); ++i)
-	{
-		multibuf[i+1]=Stolen_items[i];
-		count++;      // So I like to break my stuff into smaller chunks, so what?
-	}
+	auto &Stolen_items = LevelUniqueObjectState.ThiefState.Stolen_items;
+	std::copy(Stolen_items.begin(), Stolen_items.end(), std::next(multibuf.begin()));
 	multi_send_data(multibuf, 2);
 }
 
-static void multi_do_stolen_items (const ubyte *buf)
+static void multi_do_stolen_items(const uint8_t *const buf)
 {
-	for (unsigned i = 0; i < Stolen_items.size(); ++i)
-	{
-		Stolen_items[i]=buf[i+1];
-	}
+	auto &Stolen_items = LevelUniqueObjectState.ThiefState.Stolen_items;
+	std::copy_n(buf + 1, Stolen_items.size(), Stolen_items.begin());
 }
 
 void multi_send_wall_status_specific(const playernum_t pnum,uint16_t wallnum,ubyte type,ubyte flags,ubyte state)
@@ -5362,7 +5355,7 @@ static void MultiLevelInv_CountPlayerInventory()
 #if defined(DXX_BUILD_DESCENT_II)
                 if (Game_mode & GM_MULTI_ROBOTS) // Add (possible) thief inventory
                 {
-                        range_for (auto &i, Stolen_items)
+                        range_for (auto &i, LevelUniqueObjectState.ThiefState.Stolen_items)
                         {
 						if (i >= Current.size() || i == POW_ENERGY || i == POW_SHIELD_BOOST)
                                         continue;

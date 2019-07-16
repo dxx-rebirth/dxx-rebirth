@@ -223,10 +223,6 @@ extern vms_vector Last_fired_upon_player_pos;
 
 #define THIEF_PROBABILITY   16384   // 50% chance of stealing an item at each attempt
 
-// Maximum number kept track of, will keep stealing, causes stolen weapons to be lost!
-struct stolen_items_t : public array<uint8_t, 10> {};
-extern stolen_items_t Stolen_items;
-
 extern void  create_buddy_bot(void);
 
 imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos);

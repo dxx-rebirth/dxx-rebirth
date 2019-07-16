@@ -85,7 +85,7 @@
 #define D2X_MP_COMMANDS(VALUE)	\
 	VALUE(MULTI_MARKER               , 55)	\
 	VALUE(MULTI_GUIDED               , 26)	\
-	VALUE(MULTI_STOLEN_ITEMS         , 11)	\
+	VALUE(MULTI_STOLEN_ITEMS         , 1 + std::tuple_size<decltype(d_thief_unique_state::Stolen_items)>::value)	\
 	VALUE(MULTI_WALL_STATUS          , 6)	/* send to new players */	\
 	VALUE(MULTI_SEISMIC              , 5)	\
 	VALUE(MULTI_LIGHT                , 16)	\

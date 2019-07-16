@@ -634,6 +634,7 @@ struct d_level_unique_object_state
 	unsigned Debris_object_count = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	d_unique_buddy_state BuddyState;
+	d_thief_unique_state ThiefState;
 	d_guided_missile_indices Guided_missile;
 #endif
 	object_number_array<imobjidx_t, MAX_OBJECTS> free_obj_list;

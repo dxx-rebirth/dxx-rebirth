@@ -322,6 +322,16 @@ struct ai_cloak_info_rw
 #endif
 	vms_vector  last_position;
 };
+
+#if defined(DXX_BUILD_DESCENT_II)
+
+// Maximum number kept track of, will keep stealing, causes stolen weapons to be lost!
+struct d_thief_unique_state
+{
+	array<uint8_t, 10> Stolen_items;
+};
+
+#endif
 }
 #endif
 
