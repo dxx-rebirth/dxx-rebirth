@@ -497,7 +497,6 @@ void init_player_stats_game(const playernum_t pnum)
 	plr.hours_total = 0;
 	plr.num_kills_level = 0;
 	plr.num_kills_total = 0;
-	plr.hostages_level = 0;
 	plr.hostages_total = 0;
 	const auto &&plobj = vmobjptr(plr.objnum);
 	auto &player_info = plobj->ctype.player_info;
@@ -553,10 +552,8 @@ extern	ubyte	Last_afterburner_state;
 // Setup player for new level (After completion of previous level)
 static void init_player_stats_level(player &plr, object &plrobj, const secret_restore secret_flag)
 {
+#if defined(DXX_BUILD_DESCENT_II)
 	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
-#if defined(DXX_BUILD_DESCENT_I)
-#elif defined(DXX_BUILD_DESCENT_II)
 	auto &vcobjptridx = Objects.vcptridx;
 #endif
 
@@ -572,8 +569,7 @@ static void init_player_stats_level(player &plr, object &plrobj, const secret_re
 
 	plr.num_kills_level = 0;
 
-	plr.hostages_level = count_number_of_hostages(vcobjptr);
-	plr.hostages_total += plr.hostages_level;
+	plr.hostages_total += LevelUniqueObjectState.total_hostages;
 
 	if (secret_flag == secret_restore::none) {
 		init_ammo_and_energy(plrobj);
@@ -1081,6 +1077,7 @@ void StartNewGame(const int start_level)
 	InitPlayerObject();				//make sure player's object set up
 
 	LevelUniqueObjectState.accumulated_robots = 0;
+	LevelUniqueObjectState.total_hostages = 0;
 	GameUniqueState.accumulated_robots = 0;
 	init_player_stats_game(Player_num);		//clear all stats
 
@@ -1174,7 +1171,7 @@ static void DoEndLevelScoreGlitz()
 	auto &hostage_text = m_str[c++];
 	if (cheats.enabled)
 		snprintf(hostage_text, sizeof(hostage_text), "Hostages saved:   \t%u", hostages_on_board);
-	else if (const auto hostages_lost = plr.hostages_level - hostages_on_board)
+	else if (const auto hostages_lost = LevelUniqueObjectState.total_hostages - hostages_on_board)
 		snprintf(hostage_text, sizeof(hostage_text), "Hostages lost:    \t%u", hostages_lost);
 	else
 	{
@@ -1883,6 +1880,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 
 	LevelUniqueObjectState.accumulated_robots = count_number_of_robots(Objects.vcptr);
 	GameUniqueState.accumulated_robots += LevelUniqueObjectState.accumulated_robots;
+	LevelUniqueObjectState.total_hostages = count_number_of_hostages(Objects.vcptr);
 	init_player_stats_level(get_local_player(), get_local_plrobj(), secret_flag);
 
 #if defined(DXX_BUILD_DESCENT_I)

@@ -630,6 +630,7 @@ struct d_level_unique_object_state
 	 * of currently live objects with type OBJ_ROBOT.
 	 */
 	unsigned accumulated_robots;
+	unsigned total_hostages;
 	unsigned Debris_object_count = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	d_unique_buddy_state BuddyState;
