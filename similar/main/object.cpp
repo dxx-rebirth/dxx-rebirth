@@ -2108,7 +2108,12 @@ unsigned laser_parent_is_player(fvcobjptr &vcobjptr, const laser_parent &l, cons
 {
 	/* Player objects are never recycled, so skip the signature check.
 	 */
-	if (l.parent_type != o.type)
+	if (l.parent_type != OBJ_PLAYER)
+		return 0;
+	/* As a special case, let the player be recognized even if he died
+	 * before the weapon hit the target.
+	 */
+	if (o.type != OBJ_PLAYER && o.type != OBJ_GHOST)
 		return 0;
 	auto &parent_object = *vcobjptr(l.parent_num);
 	return (&parent_object == &o);
