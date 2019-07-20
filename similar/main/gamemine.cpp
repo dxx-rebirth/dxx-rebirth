@@ -69,8 +69,9 @@ static void segment2_read(shared_segment &s2, unique_segment &u2, PHYSFS_File *f
 {
 	s2.special = PHYSFSX_readByte(fp);
 	s2.matcen_num = PHYSFSX_readByte(fp);
-	/* station_idx overwritten by caller */
-	PHYSFSX_readByte(fp);
+	/* station_idx is overwritten by the caller in some cases, but set
+	 * it here for compatibility with how the game previously worked */
+	s2.station_idx = PHYSFSX_readByte(fp);
 	const auto s2_flags = PHYSFSX_readByte(fp);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)s2_flags;	// descent 2 ambient sound handling
