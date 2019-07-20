@@ -61,7 +61,7 @@ struct vclip : public prohibit_void_ptr<vclip>
 	fix             play_time;          // total time (in seconds) of clip
 	unsigned        num_frames;
 	fix             frame_time;         // time (in seconds) of each frame
-	int             flags;
+	uint8_t         flags;
 	short           sound_num;
 	array<bitmap_index, VCLIP_MAX_FRAMES>    frames;
 	fix             light_value;
@@ -90,7 +90,7 @@ void vclip_write(PHYSFS_File *fp, const vclip &vc);
 /* Defer expansion to source file so that serial.h not needed here */
 #define DEFINE_VCLIP_SERIAL_UDT()	\
 	DEFINE_SERIAL_UDT_TO_MESSAGE(bitmap_index, bi, (bi.index));	\
-	DEFINE_SERIAL_UDT_TO_MESSAGE(vclip, vc, (vc.play_time, vc.num_frames, vc.frame_time, vc.flags, vc.sound_num, vc.frames, vc.light_value));	\
+	DEFINE_SERIAL_UDT_TO_MESSAGE(vclip, vc, (vc.play_time, vc.num_frames, vc.frame_time, vc.flags, serial::pad<3>(), vc.sound_num, vc.frames, vc.light_value));	\
 	ASSERT_SERIAL_UDT_MESSAGE_SIZE(vclip, 82);
 #endif
 
