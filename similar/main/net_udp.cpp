@@ -1398,7 +1398,7 @@ void net_udp_init()
 	UDP_MData = {};
 	net_udp_noloss_init_mdata_queue();
 	UDP_Seq.type = UPID_REQUEST;
-	UDP_Seq.player.callsign = get_local_player().callsign;
+	UDP_Seq.player.callsign = InterfaceUniqueState.PilotName;
 
 	UDP_Seq.player.rank=GetMyNetRanking();	
 
@@ -4106,7 +4106,7 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 
 	// Discover my player number
 
-	callsign_t temp_callsign = get_local_player().callsign;
+	auto &temp_callsign = InterfaceUniqueState.PilotName;
 	
 	Player_num = MULTI_PNUM_UNDEF;
 
