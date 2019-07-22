@@ -384,7 +384,7 @@ static void RegisterPlayer()
 	int allow_abort_flag = 1;
 
 	auto &callsign = InterfaceUniqueState.PilotName;
-	if (!callsign[0])
+	if (!callsign[0u])
 	{
 		if (!*static_cast<const char *>(GameCfg.LastPlayer))
 		{
@@ -474,7 +474,7 @@ static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choic
 	switch (event.type)
 	{
 		case EVENT_WINDOW_CREATED:
-			if (InterfaceUniqueState.PilotName[0])
+			if (InterfaceUniqueState.PilotName[0u])
 				break;
 			RegisterPlayer();
 			break;

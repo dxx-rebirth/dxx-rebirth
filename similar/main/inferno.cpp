@@ -408,7 +408,7 @@ d_interface_unique_state::d_interface_unique_state()
 void d_interface_unique_state::update_window_title()
 {
 #if SDL_MAJOR_VERSION == 1
-	if (!PilotName[0])
+	if (!PilotName[0u])
 		SDL_WM_SetCaption(DESCENT_VERSION, DXX_SDL_WINDOW_CAPTION);
 	else
 	{
