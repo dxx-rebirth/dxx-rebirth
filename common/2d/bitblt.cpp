@@ -77,7 +77,9 @@ static void gr_for_each_bitmap_line(grs_canvas &canvas, const unsigned x, const 
 	}
 }
 
-#if defined(WIN32) && defined(__GNUC__) && (__GNUC__ >= 6 && __GNUC__ <= 7)
+static void gr_ubitmap00(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm)
+{
+#if defined(WIN32) && defined(__GNUC__) && (__GNUC__ >= 6 && __GNUC__ <= 9)
 /*
  * When using memcpy directly, i686-w64-mingw32-g++-6.3.0 fails to
  * deduce the template instantiation correctly, leading to a compiler
@@ -85,24 +87,19 @@ static void gr_for_each_bitmap_line(grs_canvas &canvas, const unsigned x, const 
  * work correctly.  For the affected cases, define a trivial wrapper,
  * which gcc deduces correctly.
  *
+ * This appears to be gcc bug #71740.
+ * <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71740>
+ *
  * Known affected:
  * - i686-w64-mingw32-g++-6.3.0
  * - i686-w64-mingw32-g++-7.3.0
  *
- * Restrict this workaround to known broken versions, since some
- * compiler versions may have a special case to treat a call to `memcpy`
- * differently from a call to a function that wraps `memcpy`.
+ * Restrict this workaround to known broken versions.
  */
-static void d_memcpy(void *const __restrict__ dest, const void *const __restrict__ src, std::size_t len)
-{
-	memcpy(dest, src, len);
-}
+	void *(__attribute__((__cdecl__)) *d_memcpy)(void*, const void*, size_t) = memcpy;
 #else
 #define d_memcpy memcpy
 #endif
-
-static void gr_ubitmap00(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm)
-{
 	gr_for_each_bitmap_line(canvas, x, y, bm, d_memcpy);
 }
 
