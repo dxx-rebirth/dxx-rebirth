@@ -1049,16 +1049,11 @@ static int do_pal_step;
 
 void ogl_do_palfx(void)
 {
-	// scale negative effect by 2.5 to match D1/D2 on GL
-	alast_r = abs(last_r) * (last_r < 0 ? 2.5 : 1.0);
-	alast_g = abs(last_g) * (last_g < 0 ? 2.5 : 1.0);
-	alast_b = abs(last_b) * (last_b < 0 ? 2.5 : 1.0);
-
 	GLfloat color_array[] = { 
-		alast_r, alast_g, alast_b, 1.0,
-		alast_r, alast_g, alast_b, 1.0,
-		alast_r, alast_g, alast_b, 1.0,
-		alast_r, alast_g, alast_b, 1.0
+		last_r, last_g, last_b, 1.0,
+		last_r, last_g, last_b, 1.0,
+		last_r, last_g, last_b, 1.0,
+		last_r, last_g, last_b, 1.0
 	};
 
 	OGL_DISABLE(TEXTURE_2D);
@@ -1066,13 +1061,26 @@ void ogl_do_palfx(void)
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
  
-	if (do_pal_step)
+	if (do_pal_step && ((last_r <= 0) & (last_g <= 0) & (last_b <= 0))) {
+		// scale negative effect by 2.5 to match D1/D2 on GL
+		alast_r = abs(last_r) * 2.5;
+		alast_g = abs(last_g) * 2.5;
+		alast_b = abs(last_b) * 2.5;
+
+		color_array[ 0] = color_array[ 4] = alast_r;
+		color_array[ 8] = color_array[12] = alast_r;
+		color_array[ 1] = color_array[ 5] = alast_g;
+		color_array[ 9] = color_array[13] = alast_g;
+		color_array[ 2] = color_array[ 6] = alast_b;
+		color_array[10] = color_array[14] = alast_b;
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ZERO,GL_ONE_MINUS_SRC_COLOR);
+	} 
+	else if (do_pal_step)
 	{
 		glEnable(GL_BLEND);
-		if ((last_r <= 0) & (last_g <= 0) & (last_b <= 0))
-			glBlendFunc(GL_ZERO,GL_ONE_MINUS_SRC_COLOR);
-		else
-			glBlendFunc(GL_ONE,GL_ONE);
+		glBlendFunc(GL_ONE,GL_ONE);
 	}
 	else
 		return;
