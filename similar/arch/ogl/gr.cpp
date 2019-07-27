@@ -77,7 +77,6 @@
 
 using std::min;
 using std::max;
-using std::abs;
 
 namespace dcx {
 
@@ -1063,9 +1062,10 @@ void ogl_do_palfx(void)
  
 	if (do_pal_step && ((last_r <= 0) & (last_g <= 0) & (last_b <= 0))) {
 		// scale negative effect by 2.5 to match D1/D2 on GL
-		alast_r = abs(last_r) * 2.5;
-		alast_g = abs(last_g) * 2.5;
-		alast_b = abs(last_b) * 2.5;
+		// also make values positive to actually have an effect
+		alast_r = last_r * -2.5;
+		alast_g = last_g * -2.5;
+		alast_b = last_b * -2.5;
 
 		color_array[ 0] = color_array[ 4] = alast_r;
 		color_array[ 8] = color_array[12] = alast_r;
