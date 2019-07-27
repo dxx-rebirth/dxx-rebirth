@@ -113,7 +113,7 @@ void create_robot_smart_children(vmobjptridx_t objp, uint_fast32_t count);
 #endif
 
 void create_weapon_smart_children(vmobjptridx_t objp);
-int object_to_object_visibility(vcobjptridx_t obj1, vcobjptr_t obj2, int trans_type);
+int object_to_object_visibility(vcobjptridx_t obj1, const object_base &obj2, int trans_type);
 }
 #endif
 

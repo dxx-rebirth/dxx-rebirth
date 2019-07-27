@@ -1003,14 +1003,14 @@ namespace dsx {
 //	-----------------------------------------------------------------------------------------------------------
 //	Determine if two objects are on a line of sight.  If so, return true, else return false.
 //	Calls fvi.
-int object_to_object_visibility(const vcobjptridx_t obj1, const vcobjptr_t obj2, int trans_type)
+int object_to_object_visibility(const vcobjptridx_t obj1, const object_base &obj2, int trans_type)
 {
 	fvi_query	fq;
 	fvi_info		hit_data;
 
 	fq.p0						= &obj1->pos;
 	fq.startseg				= obj1->segnum;
-	fq.p1						= &obj2->pos;
+	fq.p1						= &obj2.pos;
 	fq.rad					= 0x10;
 	fq.thisobjnum			= obj1;
 	fq.ignore_obj_list.first = nullptr;
@@ -1023,7 +1023,7 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const vcobjptr_t obj2,
 		case HIT_WALL:
 			return 0;
 		default:
-			con_printf(CON_VERBOSE, "object_to_object_visibility: fate=%u for object %hu{%hu/%i,%i,%i} to {%i,%i,%i}", fate, static_cast<vcobjptridx_t::integral_type>(obj1), obj1->segnum, obj1->pos.x, obj1->pos.y, obj1->pos.z, obj2->pos.x, obj2->pos.y, obj2->pos.z);
+			con_printf(CON_VERBOSE, "object_to_object_visibility: fate=%u for object %hu{%hu/%i,%i,%i} to {%i,%i,%i}", fate, static_cast<vcobjptridx_t::integral_type>(obj1), obj1->segnum, obj1->pos.x, obj1->pos.y, obj1->pos.z, obj2.pos.x, obj2.pos.y, obj2.pos.z);
 		// Int3();		//	Contact Mike: Oops, what happened?  What is fate?
 						// 2 = hit object (impossible), 3 = bad starting point (bad)
 			break;
