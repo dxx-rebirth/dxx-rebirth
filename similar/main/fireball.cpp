@@ -125,85 +125,86 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 	}
 }
 
-static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvmobjptridx &vmobjptridx, const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
+static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvmobjptridx &vmobjptridx, const imobjptridx_t obj_explosion_origin, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const int vclip_type, const fix maxdamage, const fix maxdistance, const fix maxforce, const icobjptridx_t parent)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Objects = LevelUniqueObjectState.Objects;
 #endif
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	auto obj = obj_create( OBJ_FIREBALL,vclip_type,segnum,position,&vmd_identity_matrix,size,
+	const auto &&obj_fireball = obj_create(OBJ_FIREBALL, vclip_type, segnum, position, &vmd_identity_matrix, size,
 					CT_EXPLOSION,MT_NONE,RT_FIREBALL);
 
-	if (obj == object_none)
+	if (obj_fireball == object_none)
 	{
 		return object_none;
 	}
 
 	//now set explosion-specific data
 
-	obj->lifeleft = Vclip[vclip_type ].play_time;
-	obj->ctype.expl_info.spawn_time = -1;
-	obj->ctype.expl_info.delete_objnum = object_none;
-	obj->ctype.expl_info.delete_time = -1;
+	obj_fireball->lifeleft = Vclip[vclip_type ].play_time;
+	obj_fireball->ctype.expl_info.spawn_time = -1;
+	obj_fireball->ctype.expl_info.delete_objnum = object_none;
+	obj_fireball->ctype.expl_info.delete_time = -1;
 
 	if (maxdamage > 0) {
 		fix force;
 		vms_vector pos_hit, vforce;
 		fix damage;
-		// -- now legal for badass explosions on a wall. Assert(objp != NULL);
+		// -- now legal for badass explosions on a wall. Assert(obj_explosion_origin != NULL);
 
-		range_for (const auto &&obj0p, vmobjptridx)
+		range_for (const auto &&obj_iter, vmobjptridx)
 		{
 			//	Weapons used to be affected by badass explosions, but this introduces serious problems.
 			//	When a smart bomb blows up, if one of its children goes right towards a nearby wall, it will
 			//	blow up, blowing up all the children.  So I remove it.  MK, 09/11/94
-			if (can_collide(objp, obj0p, parent))
+			if (can_collide(obj_explosion_origin, obj_iter, parent))
 			{
-				const auto dist = vm_vec_dist_quick( obj0p->pos, obj->pos );
+				const auto dist = vm_vec_dist_quick(obj_iter->pos, obj_fireball->pos);
 				// Make damage be from 'maxdamage' to 0.0, where 0.0 is 'maxdistance' away;
 				if ( dist < maxdistance ) {
-					if (object_to_object_visibility(obj, obj0p, FQ_TRANSWALL)) {
-
+					if (object_to_object_visibility(obj_fireball, obj_iter, FQ_TRANSWALL))
+					{
 						damage = maxdamage - fixmuldiv( dist, maxdamage, maxdistance );
 						force = maxforce - fixmuldiv( dist, maxforce, maxdistance );
 
 						// Find the force vector on the object
-						vm_vec_normalized_dir_quick( vforce, obj0p->pos, obj->pos );
+						vm_vec_normalized_dir_quick(vforce, obj_iter->pos, obj_fireball->pos);
 						vm_vec_scale(vforce, force );
 	
 						// Find where the point of impact is... ( pos_hit )
-						vm_vec_scale(vm_vec_sub(pos_hit, obj->pos, obj0p->pos), fixdiv(obj0p->size, obj0p->size + dist));
-	
-						switch ( obj0p->type )	{
+						vm_vec_scale(vm_vec_sub(pos_hit, obj_fireball->pos, obj_iter->pos), fixdiv(obj_iter->size, obj_iter->size + dist));
+						switch (obj_iter->type)
+						{
 #if defined(DXX_BUILD_DESCENT_II)
 							case OBJ_WEAPON:
-								phys_apply_force(obj0p,vforce);
+								phys_apply_force(obj_iter, vforce);
 
-								if (is_proximity_bomb_or_smart_mine(get_weapon_id(obj0p)))
+								if (is_proximity_bomb_or_smart_mine(get_weapon_id(obj_iter)))
 								{		//prox bombs have chance of blowing up
 									if (fixmul(dist,force) > i2f(8000)) {
-										obj0p->flags |= OF_SHOULD_BE_DEAD;
-										explode_badass_weapon(obj0p, obj0p->pos);
+										obj_iter->flags |= OF_SHOULD_BE_DEAD;
+										explode_badass_weapon(obj_iter, obj_iter->pos);
 									}
 								}
 								break;
 #endif
 							case OBJ_ROBOT:
 								{
-								phys_apply_force(obj0p,vforce);
+								phys_apply_force(obj_iter, vforce);
 #if defined(DXX_BUILD_DESCENT_II)
 								//	If not a boss, stun for 2 seconds at 32 force, 1 second at 16 force
-								if (objp != object_none && objp->type == OBJ_WEAPON && !Robot_info[get_robot_id(obj0p)].boss_flag && Weapon_info[get_weapon_id(objp)].flash)
+								if (obj_explosion_origin != object_none && obj_explosion_origin->type == OBJ_WEAPON && !Robot_info[get_robot_id(obj_iter)].boss_flag && Weapon_info[get_weapon_id(obj_explosion_origin)].flash)
 								{
-									ai_static	*aip = &obj0p->ctype.ai_info;
-									int			force_val = f2i(fixdiv(vm_vec_mag_quick(vforce) * Weapon_info[get_weapon_id(objp)].flash, FrameTime)/128) + 2;
+									ai_static *const aip = &obj_iter->ctype.ai_info;
+									int			force_val = f2i(fixdiv(vm_vec_mag_quick(vforce) * Weapon_info[get_weapon_id(obj_explosion_origin)].flash, FrameTime)/128) + 2;
 
-									if (obj->ctype.ai_info.SKIP_AI_COUNT * FrameTime < F1_0) {
+									if (obj_fireball->ctype.ai_info.SKIP_AI_COUNT * FrameTime < F1_0)
+									{
 										aip->SKIP_AI_COUNT += force_val;
-										obj0p->mtype.phys_info.rotthrust.x = ((d_rand() - 16384) * force_val)/16;
-										obj0p->mtype.phys_info.rotthrust.y = ((d_rand() - 16384) * force_val)/16;
-										obj0p->mtype.phys_info.rotthrust.z = ((d_rand() - 16384) * force_val)/16;
-										obj0p->mtype.phys_info.flags |= PF_USES_THRUST;
+										obj_iter->mtype.phys_info.rotthrust.x = ((d_rand() - 16384) * force_val) / 16;
+										obj_iter->mtype.phys_info.rotthrust.y = ((d_rand() - 16384) * force_val) / 16;
+										obj_iter->mtype.phys_info.rotthrust.z = ((d_rand() - 16384) * force_val) / 16;
+										obj_iter->mtype.phys_info.flags |= PF_USES_THRUST;
 									} else
 										aip->SKIP_AI_COUNT--;
 								}
@@ -216,20 +217,21 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 									neg_vforce.x = vforce.x * -2 * (7 - Difficulty_level)/8;
 									neg_vforce.y = vforce.y * -2 * (7 - Difficulty_level)/8;
 									neg_vforce.z = vforce.z * -2 * (7 - Difficulty_level)/8;
-									phys_apply_rot(obj0p,neg_vforce);
+									phys_apply_rot(obj_iter, neg_vforce);
 								}
-								if ( obj0p->shields >= 0 ) {
+								if (obj_iter->shields >= 0)
+								{
 #if defined(DXX_BUILD_DESCENT_II)
-									const auto &robot_info = Robot_info[get_robot_id(obj0p)];
+									const auto &robot_info = Robot_info[get_robot_id(obj_iter)];
 									if (robot_info.boss_flag >= BOSS_D2 && Boss_invulnerable_matter[robot_info.boss_flag - BOSS_D2])
 											damage /= 4;
 #endif
-									if (apply_damage_to_robot(obj0p, damage, parent))
-										if ((objp != object_none) && (parent == get_local_player().objnum))
-											add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(obj0p)].score_value);
+									if (apply_damage_to_robot(obj_iter, damage, parent))
+										if (obj_explosion_origin != object_none && parent == get_local_player().objnum)
+											add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(obj_iter)].score_value);
 								}
 #if defined(DXX_BUILD_DESCENT_II)
-								if (objp != object_none && Robot_info[get_robot_id(obj0p)].companion && !Weapon_info[get_weapon_id(objp)].flash)
+								if (obj_explosion_origin != object_none && Robot_info[get_robot_id(obj_iter)].companion && !Weapon_info[get_weapon_id(obj_explosion_origin)].flash)
 								{
 									static const char ouch_str[] = "ouch! " "ouch! " "ouch! " "ouch! ";
 									int	count;
@@ -245,22 +247,22 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 								break;
 								}
 							case OBJ_CNTRLCEN:
-								if (parent != object_none && obj0p->shields >= 0)
+								if (parent != object_none && obj_iter->shields >= 0)
 								{
-									apply_damage_to_controlcen(obj0p, damage, parent );
+									apply_damage_to_controlcen(obj_iter, damage, parent);
 								}
 								break;
 							case OBJ_PLAYER:	{
 								icobjptridx_t killer = object_none;
 #if defined(DXX_BUILD_DESCENT_II)
 								//	Hack! Warning! Test code!
-								if (objp != object_none && Weapon_info[get_weapon_id(objp)].flash && get_player_id(obj0p) == Player_num)
+								if (obj_explosion_origin != object_none && Weapon_info[get_weapon_id(obj_explosion_origin)].flash && get_player_id(obj_iter) == Player_num)
 								{
 									int	fe;
 
-									fe = min(F1_0 * 4, force*Weapon_info[get_weapon_id(objp)].flash / 32);	//	For four seconds or less
+									fe = min(F1_0 * 4, force * Weapon_info[get_weapon_id(obj_explosion_origin)].flash / 32);	//	For four seconds or less
 
-									if (laser_parent_is_player(Objects.vcptr, objp->ctype.laser_info, *ConsoleObject))
+									if (laser_parent_is_player(Objects.vcptr, obj_explosion_origin->ctype.laser_info, *ConsoleObject))
 									{
 										fe /= 2;
 										force /= 2;
@@ -271,8 +273,9 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 									}
 								}
 #endif
-								if ((objp != object_none) && (Game_mode & GM_MULTI) && (objp->type == OBJ_PLAYER)) {
-									killer = objp;
+								if (obj_explosion_origin != object_none && (Game_mode & GM_MULTI) && obj_explosion_origin->type == OBJ_PLAYER)
+								{
+									killer = obj_explosion_origin;
 								}
 								auto vforce2 = vforce;
 								if (parent != object_none ) {
@@ -284,15 +287,15 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 								}
 								vforce2.x /= 2;	vforce2.y /= 2;	vforce2.z /= 2;
 
-								phys_apply_force(obj0p,vforce);
-								phys_apply_rot(obj0p,vforce2);
-								if (obj0p->shields >= 0)
+								phys_apply_force(obj_iter, vforce);
+								phys_apply_rot(obj_iter, vforce2);
+								if (obj_iter->shields >= 0)
 								{
 #if defined(DXX_BUILD_DESCENT_II)
 									if (GameUniqueState.Difficulty_level == 0)
 									damage /= 4;
 #endif
-									apply_damage_to_player(obj0p, killer, damage, 1 );
+									apply_damage_to_player(obj_iter, killer, damage, 1 );
 								}
 							}
 								break;
@@ -307,9 +310,7 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 			}
 		}	// end for
 	}	// end if (maxdamage...
-
-	return obj;
-
+	return obj_fireball;
 }
 
 void object_create_muzzle_flash(const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
