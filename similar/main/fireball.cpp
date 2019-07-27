@@ -95,6 +95,10 @@ constexpr int	PK1=1, PK2=8;
 
 static bool can_collide(const object *const weapon_object, const object_base &iter_object, const object *const parent_object)
 {
+	/* `weapon_object` may not be a weapon in some cases, though the
+	 * caller originally expected it would be.  For this function, the
+	 * distinction is currently irrelevant.
+	 */
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)weapon_object;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -127,6 +131,9 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 
 static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvmobjptridx &vmobjptridx, const imobjptridx_t obj_explosion_origin, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const int vclip_type, const fix maxdamage, const fix maxdistance, const fix maxforce, const icobjptridx_t parent)
 {
+	/* `obj_explosion_origin` may not be a weapon in some cases, though
+	 * this function originally expected it would be.
+	 */
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Objects = LevelUniqueObjectState.Objects;
 #endif
@@ -193,13 +200,14 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 								phys_apply_force(obj_iter, vforce);
 #if defined(DXX_BUILD_DESCENT_II)
 								//	If not a boss, stun for 2 seconds at 32 force, 1 second at 16 force
-								if (obj_explosion_origin != object_none && obj_explosion_origin->type == OBJ_WEAPON && !Robot_info[get_robot_id(obj_iter)].boss_flag && Weapon_info[get_weapon_id(obj_explosion_origin)].flash)
+								fix flash;
+								if (obj_explosion_origin != object_none && obj_explosion_origin->type == OBJ_WEAPON && !Robot_info[get_robot_id(obj_iter)].boss_flag && (flash = Weapon_info[get_weapon_id(obj_explosion_origin)].flash))
 								{
 									ai_static *const aip = &obj_iter->ctype.ai_info;
-									int			force_val = f2i(fixdiv(vm_vec_mag_quick(vforce) * Weapon_info[get_weapon_id(obj_explosion_origin)].flash, FrameTime)/128) + 2;
 
 									if (obj_fireball->ctype.ai_info.SKIP_AI_COUNT * FrameTime < F1_0)
 									{
+										const int force_val = f2i(fixdiv(vm_vec_mag_quick(vforce) * flash, FrameTime) / 128) + 2;
 										aip->SKIP_AI_COUNT += force_val;
 										obj_iter->mtype.phys_info.rotthrust.x = ((d_rand() - 16384) * force_val) / 16;
 										obj_iter->mtype.phys_info.rotthrust.y = ((d_rand() - 16384) * force_val) / 16;
@@ -231,7 +239,7 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 											add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(obj_iter)].score_value);
 								}
 #if defined(DXX_BUILD_DESCENT_II)
-								if (obj_explosion_origin != object_none && Robot_info[get_robot_id(obj_iter)].companion && !Weapon_info[get_weapon_id(obj_explosion_origin)].flash)
+								if (obj_explosion_origin != object_none && Robot_info[get_robot_id(obj_iter)].companion && !(obj_explosion_origin->type == OBJ_WEAPON && Weapon_info[get_weapon_id(obj_explosion_origin)].flash))
 								{
 									static const char ouch_str[] = "ouch! " "ouch! " "ouch! " "ouch! ";
 									int	count;
@@ -256,11 +264,10 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 								icobjptridx_t killer = object_none;
 #if defined(DXX_BUILD_DESCENT_II)
 								//	Hack! Warning! Test code!
-								if (obj_explosion_origin != object_none && Weapon_info[get_weapon_id(obj_explosion_origin)].flash && get_player_id(obj_iter) == Player_num)
+								fix flash;
+								if (obj_explosion_origin != object_none && obj_explosion_origin->type == OBJ_WEAPON && (flash = Weapon_info[get_weapon_id(obj_explosion_origin)].flash) && get_player_id(obj_iter) == Player_num)
 								{
-									int	fe;
-
-									fe = min(F1_0 * 4, force * Weapon_info[get_weapon_id(obj_explosion_origin)].flash / 32);	//	For four seconds or less
+									int fe = min(F1_0 * 4, force * flash / 32);	//	For four seconds or less
 
 									if (laser_parent_is_player(Objects.vcptr, obj_explosion_origin->ctype.laser_info, *ConsoleObject))
 									{
