@@ -75,7 +75,9 @@
 
 #include "compiler-make_unique.h"
 
+using std::min;
 using std::max;
+using std::abs;
 
 namespace dcx {
 
@@ -1042,11 +1044,22 @@ void ogl_ulinec(grs_canvas &canvas, const int left, const int top, const int rig
 }
 
 static GLfloat last_r, last_g, last_b;
+static GLfloat alast_r, alast_g, alast_b;
 static int do_pal_step;
 
 void ogl_do_palfx(void)
 {
-	GLfloat color_array[] = { last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0 };
+	// scale negative effect by 2.5 to match D1/D2 on GL
+	alast_r = abs(last_r) * (last_r < 0 ? 2.5 : 1.0);
+	alast_g = abs(last_g) * (last_g < 0 ? 2.5 : 1.0);
+	alast_b = abs(last_b) * (last_b < 0 ? 2.5 : 1.0);
+
+	GLfloat color_array[] = { 
+		alast_r, alast_g, alast_b, 1.0,
+		alast_r, alast_g, alast_b, 1.0,
+		alast_r, alast_g, alast_b, 1.0,
+		alast_r, alast_g, alast_b, 1.0
+	};
 
 	OGL_DISABLE(TEXTURE_2D);
 
@@ -1056,7 +1069,10 @@ void ogl_do_palfx(void)
 	if (do_pal_step)
 	{
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE,GL_ONE);
+		if ((last_r <= 0) & (last_g <= 0) & (last_b <= 0))
+			glBlendFunc(GL_ZERO,GL_ONE_MINUS_SRC_COLOR);
+		else
+			glBlendFunc(GL_ONE,GL_ONE);
 	}
 	else
 		return;
@@ -1082,9 +1098,20 @@ void gr_palette_step_up(int r, int g, int b)
 	old_b_g = ogl_brightness_g;
 	old_b_b = ogl_brightness_b;
 
-	ogl_brightness_r = max(r + gr_palette_gamma, 0);
-	ogl_brightness_g = max(g + gr_palette_gamma, 0);
-	ogl_brightness_b = max(b + gr_palette_gamma, 0);
+	if (r >= 0)
+		ogl_brightness_r = max(r + gr_palette_gamma, 0);
+	else
+		ogl_brightness_r = min(r + gr_palette_gamma, 0);
+	
+	if (g >= 0)
+		ogl_brightness_g = max(g + gr_palette_gamma, 0);
+	else
+		ogl_brightness_g = min(g + gr_palette_gamma, 0);
+
+	if (b >= 0)
+		ogl_brightness_b = max(b + gr_palette_gamma, 0);
+	else
+		ogl_brightness_b = min(b + gr_palette_gamma, 0);
 
 	if (!ogl_brightness_ok)
 	{
