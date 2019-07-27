@@ -1043,7 +1043,6 @@ void ogl_ulinec(grs_canvas &canvas, const int left, const int top, const int rig
 }
 
 static GLfloat last_r, last_g, last_b;
-static GLfloat alast_r, alast_g, alast_b;
 static int do_pal_step;
 
 void ogl_do_palfx(void)
@@ -1063,9 +1062,9 @@ void ogl_do_palfx(void)
 	if (do_pal_step && ((last_r <= 0) & (last_g <= 0) & (last_b <= 0))) {
 		// scale negative effect by 2.5 to match D1/D2 on GL
 		// also make values positive to actually have an effect
-		alast_r = last_r * -2.5;
-		alast_g = last_g * -2.5;
-		alast_b = last_b * -2.5;
+		GLfloat alast_r = last_r * -2.5;
+		GLfloat alast_g = last_g * -2.5;
+		GLfloat alast_b = last_b * -2.5;
 
 		color_array[ 0] = color_array[ 4] = alast_r;
 		color_array[ 8] = color_array[12] = alast_r;
