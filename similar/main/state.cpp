@@ -725,7 +725,7 @@ static int state_get_savegame_filename(d_game_unique_state::savegame_file_path &
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
 	state_userdata userdata;
 	auto &sc_bmp = userdata.sc_bmp;
-	char id[5], dummy_callsign[CALLSIGN_LEN+1];
+	char id[4];
 	int valid;
 
 	nsaves=0;
@@ -743,8 +743,7 @@ static int state_get_savegame_filename(d_game_unique_state::savegame_file_path &
 				// In case it's Coop, read state_game_id & callsign as well
 				if (Game_mode & GM_MULTI_COOP)
 				{
-					PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // skip state_game_id
-					PHYSFS_read(fp, &dummy_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
+					PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32) + sizeof(char)*CALLSIGN_LEN+1); // skip state_game_id, callsign
 				}
 				if ((version >= STATE_COMPATIBLE_VERSION) || (SWAPINT(version) >= STATE_COMPATIBLE_VERSION)) {
 					// Read description
