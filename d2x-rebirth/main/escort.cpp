@@ -414,6 +414,8 @@ static void buddy_message_ignore_time(const char *const fmt, ...)
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	if (BuddyState.Buddy_messages_suppressed)
 		return;
+	if (!ok_for_buddy_to_talk())
+		return;
 	va_list	args;
 	va_start(args, fmt);
 	buddy_message_force_va(fmt, args);
