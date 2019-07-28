@@ -898,32 +898,29 @@ static int find_exit_side(const object_base &obj)
 	return best_side;
 }
 
+inline void prepare_mine_exit_cover_point(g3s_point& p, const vms_vector &v, fix u, fix r)
+{
+	vms_vector tv;
+	vm_vec_scale_add(tv,v,mine_exit_orient.uvec,u);
+	vm_vec_scale_add2(tv,mine_exit_orient.rvec,r);
+	p = g3_rotate_point(tv);
+}
+
 void draw_mine_exit_cover(grs_canvas &canvas)
 {
 	int of=10;
 	fix u=i2f(6),d=i2f(9),ur=i2f(14),dr=i2f(17);
 	const uint8_t color = BM_XRGB(0, 0, 0);
 	array<cg3s_point *, 4> pointlist;
-	vms_vector v, v0, v1, v2, v3;
+	vms_vector v;
 	g3s_point p0, p1, p2, p3;
 
 	vm_vec_scale_add(v,mine_exit_point,mine_exit_orient.fvec,i2f(of));
 
-	vm_vec_scale_add(v0,v,mine_exit_orient.uvec,+u);
-	vm_vec_scale_add2(v0,mine_exit_orient.rvec,+ur);
-	p0 = g3_rotate_point(v0);
-
-	vm_vec_scale_add(v1,v,mine_exit_orient.uvec,+u);
-	vm_vec_scale_add2(v1,mine_exit_orient.rvec,-ur);
-	p1 = g3_rotate_point(v1);
-
-	vm_vec_scale_add(v2,v,mine_exit_orient.uvec,-d);
-	vm_vec_scale_add2(v2,mine_exit_orient.rvec,-dr);
-	p2 = g3_rotate_point(v2);
-
-	vm_vec_scale_add(v3,v,mine_exit_orient.uvec,-d);
-	vm_vec_scale_add2(v3,mine_exit_orient.rvec,+dr);
-	p3 = g3_rotate_point(v3);
+	prepare_mine_exit_cover_point(p0,v,+u,+ur);
+	prepare_mine_exit_cover_point(p1,v,+u,-ur);
+	prepare_mine_exit_cover_point(p2,v,-d,-dr);
+	prepare_mine_exit_cover_point(p3,v,-d,+dr);
 
 	pointlist[0] = &p0;
 	pointlist[1] = &p1;
