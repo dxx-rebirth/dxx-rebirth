@@ -846,19 +846,29 @@ static int do_difficulty_menu()
 
 window_event_result do_new_game_menu()
 {
-	int new_level_num,player_highest_level;
+	int new_level_num;
 
 	new_level_num = 1;
-	player_highest_level = get_highest_level();
-
+	const auto recorded_player_highest_level = get_highest_level();
+	const auto clamped_player_highest_level = std::min<decltype(recorded_player_highest_level)>(recorded_player_highest_level, Last_level);
+	const auto allowed_highest_level =
 #ifdef NDEBUG
-	if (player_highest_level > Last_level)
+#define DXX_START_ANY_LEVEL_FORMAT	""
+#define DXX_START_ANY_LEVEL_ARGS
+		clamped_player_highest_level
+#else
+#define DXX_START_ANY_LEVEL_FORMAT	"\n\nYou have beaten level %d."
+#define DXX_START_ANY_LEVEL_ARGS	, clamped_player_highest_level
+		Last_level
 #endif
-		player_highest_level = Last_level;
-	if (player_highest_level > 1) {
-		char info_text[80];
+		;
+	if (allowed_highest_level > 1)
+	{
+		char info_text[128];
 
-		snprintf(info_text,sizeof(info_text),"%s %d",TXT_START_ANY_LEVEL, player_highest_level);
+		snprintf(info_text, sizeof(info_text), "This mission has\n%u levels.\n\n%s %d." DXX_START_ANY_LEVEL_FORMAT, static_cast<unsigned>(Last_level), TXT_START_ANY_LEVEL, allowed_highest_level DXX_START_ANY_LEVEL_ARGS);
+#undef DXX_START_ANY_LEVEL_ARGS
+#undef DXX_START_ANY_LEVEL_FORMAT
 		for (;;)
 		{
 			array<char, 10> num_text{"1"};
@@ -874,10 +884,12 @@ window_event_result do_new_game_menu()
 			char *p = nullptr;
 			new_level_num = strtol(num_text.data(), &p, 10);
 
-			if (*p || new_level_num <= 0 || new_level_num > player_highest_level)
+			if (*p || new_level_num <= 0 || new_level_num > Last_level)
 			{
-				nm_messagebox( NULL, 1, TXT_OK, TXT_INVALID_LEVEL);
+				nm_messagebox(TXT_INVALID_LEVEL, 1, TXT_OK, "You must enter a\npositive level number\nless than or\nequal to %u.\n", static_cast<unsigned>(Last_level));
 			}
+			else if (new_level_num > allowed_highest_level)
+				nm_messagebox(TXT_INVALID_LEVEL, 1, TXT_OK, "You have beaten level %d.\n\nYou cannot start on level %d.", allowed_highest_level, new_level_num);
 			else
 				break;
 		}
