@@ -4880,7 +4880,6 @@ void multi_initiate_save_game()
 {
 	fix game_id = 0;
 	int slot;
-	char filename[PATH_MAX];
 	char desc[24];
 
 	if ((Network_status == NETSTAT_ENDLEVEL) || (Control_center_destroyed))
@@ -4911,8 +4910,8 @@ void multi_initiate_save_game()
 	}
 	}
 
-	memset(&filename, '\0', PATH_MAX);
 	memset(&desc, '\0', 24);
+	d_game_unique_state::savegame_file_path filename{};
 	slot = state_get_save_file(filename, desc, blind_save::no);
 	if (!slot)
 		return;
@@ -4959,7 +4958,6 @@ void multi_initiate_save_game()
 void multi_initiate_restore_game()
 {
 	int slot;
-	char filename[PATH_MAX];
 
 	if ((Network_status == NETSTAT_ENDLEVEL) || (Control_center_destroyed))
 		return;
@@ -4988,6 +4986,7 @@ void multi_initiate_restore_game()
 		}
 	}
 	}
+	d_game_unique_state::savegame_file_path filename;
 	slot = state_get_restore_file(filename, blind_save::no);
 	if (!slot)
 		return;
@@ -5016,14 +5015,13 @@ void multi_save_game(ubyte slot, uint id, char *desc)
 
 void multi_restore_game(ubyte slot, uint id)
 {
-	char filename[PATH_MAX];
-	int thisid;
+	d_game_unique_state::savegame_file_path filename;
 
 	if ((Network_status == NETSTAT_ENDLEVEL) || (Control_center_destroyed))
 		return;
 
 	auto &plr = get_local_player();
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%d"), static_cast<const char *>(plr.callsign), slot);
+	snprintf(filename.data(), filename.size(), PLAYER_DIRECTORY_STRING("%s.mg%d"), static_cast<const char *>(plr.callsign), slot);
    
 	for (unsigned i = 0, n = N_players; i < n; ++i)
 		multi_strip_robots(i);
@@ -5032,7 +5030,7 @@ void multi_restore_game(ubyte slot, uint id)
 			if (i.connected == CONNECT_PLAYING && &i != &plr)
 				i.connected = CONNECT_WAITING;
    
-	thisid=state_get_game_id(filename);
+	const auto thisid = state_get_game_id(filename);
 	if (thisid!=id)
 	{
 		nm_messagebox(NULL, 1, TXT_OK, "A multi-save game was restored\nthat you are missing or does not\nmatch that of the others.\nYou must rejoin if you wish to\ncontinue.");
@@ -5046,7 +5044,7 @@ void multi_restore_game(ubyte slot, uint id)
 #if defined(DXX_BUILD_DESCENT_II)
 		LevelSharedDestructibleLightState, secret_restore::none,
 #endif
-		filename);
+		filename.data());
 	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...
 }
 

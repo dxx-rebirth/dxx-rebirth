@@ -145,6 +145,7 @@ static inline Difficulty_level_type cast_clamp_difficulty(const unsigned d)
 
 struct d_game_unique_state
 {
+	using savegame_file_path = array<char, PATH_MAX>;
 	Difficulty_level_type Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 	fix Boss_gate_interval;
 	unsigned accumulated_robots;

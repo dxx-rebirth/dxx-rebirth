@@ -717,11 +717,11 @@ namespace dsx {
  * For restoring, dsc should be NULL, in which case empty slots will not be
  * selectable and savagames descriptions will not be editable.
  */
-static int state_get_savegame_filename(char * fname, char * dsc, const char * caption, blind_save blind)
+static int state_get_savegame_filename(d_game_unique_state::savegame_file_path &fname, char *const dsc, const char *const caption, blind_save blind)
 {
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES+1];
-	char filename[NUM_SAVES][PATH_MAX];
+	array<d_game_unique_state::savegame_file_path, NUM_SAVES> filename;
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
 	state_userdata userdata;
 	auto &sc_bmp = userdata.sc_bmp;
@@ -731,9 +731,9 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	nsaves=0;
 	nm_set_item_text(m[0], "\n\n\n\n");
 	for (i=0;i<NUM_SAVES; i++ )	{
-		snprintf(filename[i], sizeof(filename[i]), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), static_cast<const char *>(InterfaceUniqueState.PilotName), (Game_mode & GM_MULTI_COOP)?'m':'s', i );
+		snprintf(filename[i].data(), filename[i].size(), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), static_cast<const char *>(InterfaceUniqueState.PilotName), (Game_mode & GM_MULTI_COOP)?'m':'s', i);
 		valid = 0;
-		if (auto fp = PHYSFSX_openReadBuffered(filename[i]))
+		if (const auto fp = PHYSFSX_openReadBuffered(filename[i].data()))
 		{
 			//Read id
 			PHYSFS_read(fp, id, sizeof(char) * 4, 1);
@@ -768,7 +768,6 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 		} 
 		if (!valid) {
 			strcpy( desc[i], TXT_EMPTY );
-			//rpad_string( desc[i], DESC_LENGTH-1 );
 			if (dsc == NULL) m[i+1].type = NM_TYPE_TEXT;
 		}
 		if (dsc != NULL) {
@@ -797,7 +796,7 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	}
 
 	if (choice > 0) {
-		strcpy( fname, filename[choice-1] );
+		fname = filename[choice - 1];
 		if ( dsc != NULL ) strcpy( dsc, desc[choice-1] );
 		state_quick_item = state_default_item = choice - 1;
 		return choice;
@@ -805,12 +804,12 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	return 0;
 }
 
-int state_get_save_file(char * fname, char * dsc, blind_save blind_save)
+int state_get_save_file(d_game_unique_state::savegame_file_path &fname, char *const dsc, const blind_save blind_save)
 {
 	return state_get_savegame_filename(fname, dsc, "Save Game", blind_save);
 }
 
-int state_get_restore_file(char * fname, blind_save blind_save)
+int state_get_restore_file(d_game_unique_state::savegame_file_path &fname, const blind_save blind_save)
 {
 	return state_get_savegame_filename(fname, NULL, "Select Game to Restore", blind_save);
 }
@@ -868,7 +867,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 #endif
 {
 	int	filenum = -1;
-	char	filename[PATH_MAX], desc[DESC_LENGTH+1];
+	char desc[DESC_LENGTH+1];
 
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<secret_save, secret_save::none> secret{};
@@ -899,23 +898,25 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 	}
 #endif
 
+	d_game_unique_state::savegame_file_path filename_storage;
+	const char *filename;
 	{
 		pause_game_world_time p;
 
-	memset(&filename, '\0', PATH_MAX);
 	memset(&desc, '\0', DESC_LENGTH+1);
 #if defined(DXX_BUILD_DESCENT_II)
 	if (secret == secret_save::b) {
-		strcpy(filename, SECRETB_FILENAME);
+		filename = SECRETB_FILENAME;
 	} else if (secret == secret_save::c) {
-		strcpy(filename, SECRETC_FILENAME);
+		filename = SECRETC_FILENAME;
 	} else
 #endif
 	{
-		if (!(filenum = state_get_save_file(filename, desc, blind_save)))
+		if (!(filenum = state_get_save_file(filename_storage, desc, blind_save)))
 		{
 			return 0;
 		}
+		filename = filename_storage.data();
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	//	MK, 1/1/96
@@ -1372,7 +1373,6 @@ int state_restore_all(const int in_game, std::nullptr_t, const blind_save blind)
 int state_restore_all(const int in_game, const secret_restore secret, const char *const filename_override, const blind_save blind)
 #endif
 {
-	char filename[PATH_MAX];
 	int	filenum = -1;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1398,18 +1398,23 @@ int state_restore_all(const int in_game, const secret_restore secret, const char
 		return 0;
 	}
 
+	d_game_unique_state::savegame_file_path filename_storage;
+	const char *filename;
 	{
 		pause_game_world_time p;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (filename_override) {
-		strcpy(filename, filename_override);
+		filename = filename_override;
 		filenum = NUM_SAVES+1; // place outside of save slots
 	} else
 #endif
-	if (!(filenum = state_get_restore_file(filename, blind)))
 	{
-		return 0;
+		if (!(filenum = state_get_restore_file(filename_storage, blind)))
+		{
+			return 0;
+		}
+		filename = filename_storage.data();
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	//	MK, 1/1/96
@@ -2143,7 +2148,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 }
 
-int state_get_game_id(const char *filename)
+int state_get_game_id(const d_game_unique_state::savegame_file_path &filename)
 {
 	int version;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
@@ -2151,14 +2156,14 @@ int state_get_game_id(const char *filename)
 	callsign_t saved_callsign;
 
 	#ifndef NDEBUG
-	if (CGameArg.SysUsePlayersDir && strncmp(filename, PLAYER_DIRECTORY_TEXT, sizeof(PLAYER_DIRECTORY_TEXT) - 1))
+	if (CGameArg.SysUsePlayersDir && strncmp(filename.data(), PLAYER_DIRECTORY_TEXT, sizeof(PLAYER_DIRECTORY_TEXT) - 1))
 		Int3();
 	#endif
 
 	if (!(Game_mode & GM_MULTI_COOP))
 		return 0;
 
-	auto fp = PHYSFSX_openReadBuffered(filename);
+	auto fp = PHYSFSX_openReadBuffered(filename.data());
 	if ( !fp ) return 0;
 
 //Read id
