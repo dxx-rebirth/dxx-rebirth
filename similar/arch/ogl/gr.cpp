@@ -75,6 +75,7 @@
 
 #include "compiler-make_unique.h"
 
+using std::min;
 using std::max;
 
 namespace dcx {
@@ -1046,20 +1047,41 @@ static int do_pal_step;
 
 void ogl_do_palfx(void)
 {
-	GLfloat color_array[] = { last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0 };
-
 	OGL_DISABLE(TEXTURE_2D);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
- 
-	if (do_pal_step)
+
+	GLfloat alast_r = last_r;
+	GLfloat alast_g = last_g;
+	GLfloat alast_b = last_b;
+	
+	if (!do_pal_step) {
+		return;
+	}
+	else if (last_r <= 0 && last_g <= 0 && last_b <= 0) 
+	{
+		// scale negative effect by 2.5 to match D1/D2 on GL
+		// also make values positive to actually have an effect
+		alast_r = last_r * -2.5;
+		alast_g = last_g * -2.5;
+		alast_b = last_b * -2.5;
+		
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ZERO,GL_ONE_MINUS_SRC_COLOR);
+	} 
+	else
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE,GL_ONE);
 	}
-	else
-		return;
+
+	GLfloat color_array[] = { 
+		alast_r, alast_g, alast_b, 1.0,
+		alast_r, alast_g, alast_b, 1.0,
+		alast_r, alast_g, alast_b, 1.0,
+		alast_r, alast_g, alast_b, 1.0
+	};
 
 	array<GLfloat, 8> vertices = {{
 		0, 0, 0, 1, 1, 1, 1, 0
@@ -1076,15 +1098,23 @@ void ogl_do_palfx(void)
 static int ogl_brightness_ok;
 static int old_b_r, old_b_g, old_b_b;
 
+inline int gr_apply_gamma_clamp(int v)
+{
+	if (v >= 0)
+		return max(v + gr_palette_gamma, 0);
+	else
+		return min(v + gr_palette_gamma, 0);
+}
+
 void gr_palette_step_up(int r, int g, int b)
 {
 	old_b_r = ogl_brightness_r;
 	old_b_g = ogl_brightness_g;
 	old_b_b = ogl_brightness_b;
 
-	ogl_brightness_r = max(r + gr_palette_gamma, 0);
-	ogl_brightness_g = max(g + gr_palette_gamma, 0);
-	ogl_brightness_b = max(b + gr_palette_gamma, 0);
+	ogl_brightness_r = gr_apply_gamma_clamp(r);
+	ogl_brightness_g = gr_apply_gamma_clamp(g);
+	ogl_brightness_b = gr_apply_gamma_clamp(b);
 
 	if (!ogl_brightness_ok)
 	{
