@@ -111,7 +111,7 @@ static void multi_send_drop_flag(vmobjptridx_t objnum,int seed);
 }
 #endif
 static void multi_send_ranking(uint8_t);
-static void multi_save_game(ubyte slot, uint id, char *desc);
+static void multi_save_game(unsigned slot, unsigned id, const d_game_unique_state::savegame_description &desc);
 static void multi_restore_game(ubyte slot, uint id);
 static void multi_send_gmode_update();
 namespace dcx {
@@ -4830,11 +4830,12 @@ static void multi_do_save_game(const ubyte *buf)
 	int count = 1;
 	ubyte slot;
 	uint id;
-	char desc[25];
+	d_game_unique_state::savegame_description desc;
 
 	slot = buf[count];			count += 1;
 	id = GET_INTEL_INT(buf+count);			count += 4;
-	memcpy( desc, &buf[count], 20 );		count += 20;
+	memcpy(desc.data(), &buf[count], desc.size());
+	desc.back() = 0;
 
 	multi_save_game( slot, id, desc );
 }
@@ -4851,7 +4852,7 @@ static void multi_do_restore_game(const ubyte *buf)
 	multi_restore_game( slot, id );
 }
 
-static void multi_send_save_game(ubyte slot, uint id, char * desc)
+static void multi_send_save_game(const unsigned slot, const unsigned id, const d_game_unique_state::savegame_description &desc)
 {
 	int count = 0;
 	
@@ -4859,7 +4860,7 @@ static void multi_send_save_game(ubyte slot, uint id, char * desc)
 	multi_command<MULTI_SAVE_GAME> multibuf;
 	multibuf[count] = slot;				count += 1; // Save slot=0
 	PUT_INTEL_INT(&multibuf[count], id );		count += 4; // Save id
-	memcpy( &multibuf[count], desc, 20 );		count += 20;
+	memcpy(&multibuf[count], desc.data(), desc.size());
 
 	multi_send_data(multibuf, 2);
 }
@@ -4880,7 +4881,6 @@ void multi_initiate_save_game()
 {
 	fix game_id = 0;
 	int slot;
-	char desc[24];
 
 	if ((Network_status == NETSTAT_ENDLEVEL) || (Control_center_destroyed))
 		return;
@@ -4910,9 +4910,9 @@ void multi_initiate_save_game()
 	}
 	}
 
-	memset(&desc, '\0', 24);
 	d_game_unique_state::savegame_file_path filename{};
-	slot = state_get_save_file(filename, desc, blind_save::no);
+	d_game_unique_state::savegame_description desc{};
+	slot = state_get_save_file(filename, &desc, blind_save::no);
 	if (!slot)
 		return;
 	slot--;
@@ -4999,7 +4999,7 @@ void multi_initiate_restore_game()
 	multi_restore_game(slot,state_game_id);
 }
 
-void multi_save_game(ubyte slot, uint id, char *desc)
+void multi_save_game(const unsigned slot, const unsigned id, const d_game_unique_state::savegame_description &desc)
 {
 	char filename[PATH_MAX];
 
@@ -5007,10 +5007,10 @@ void multi_save_game(ubyte slot, uint id, char *desc)
 		return;
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%d"), static_cast<const char *>(get_local_player().callsign), slot);
-	HUD_init_message(HM_MULTI,  "Saving game #%d, '%s'", slot, desc);
+	HUD_init_message(HM_MULTI, "Saving game #%d, '%s'", slot, desc.data());
 	state_game_id = id;
 	pause_game_world_time p;
-	state_save_all_sub(filename, desc );
+	state_save_all_sub(filename, desc.data());
 }
 
 void multi_restore_game(ubyte slot, uint id)

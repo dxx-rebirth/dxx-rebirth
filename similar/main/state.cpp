@@ -120,7 +120,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define NUM_SAVES 10
 #define THUMBNAIL_W 100
 #define THUMBNAIL_H 50
-#define DESC_LENGTH 20
 
 constexpr char dgss_id[4] = {'D', 'G', 'S', 'S'};
 
@@ -717,12 +716,12 @@ namespace dsx {
  * For restoring, dsc should be NULL, in which case empty slots will not be
  * selectable and savagames descriptions will not be editable.
  */
-static int state_get_savegame_filename(d_game_unique_state::savegame_file_path &fname, char *const dsc, const char *const caption, blind_save blind)
+static int state_get_savegame_filename(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const char *const caption, blind_save blind)
 {
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES+1];
 	array<d_game_unique_state::savegame_file_path, NUM_SAVES> filename;
-	char desc[NUM_SAVES][DESC_LENGTH + 16];
+	array<d_game_unique_state::savegame_description, NUM_SAVES> desc;
 	state_userdata userdata;
 	auto &sc_bmp = userdata.sc_bmp;
 	char id[4];
@@ -747,9 +746,10 @@ static int state_get_savegame_filename(d_game_unique_state::savegame_file_path &
 				}
 				if ((version >= STATE_COMPATIBLE_VERSION) || (SWAPINT(version) >= STATE_COMPATIBLE_VERSION)) {
 					// Read description
-					PHYSFS_read(fp, desc[i], sizeof(char) * DESC_LENGTH, 1);
-					//rpad_string( desc[i], DESC_LENGTH-1 );
-					if (dsc == NULL) m[i+1].type = NM_TYPE_MENU;
+					PHYSFS_read(fp, desc[i].data(), desc[i].size(), 1);
+					desc[i].back() = 0;
+					if (!dsc)
+						m[i + 1].type = NM_TYPE_MENU;
 					// Read thumbnail
 					sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
 					PHYSFS_read(fp, sc_bmp[i]->get_bitmap_data(), THUMBNAIL_W * THUMBNAIL_H, 1);
@@ -765,19 +765,22 @@ static int state_get_savegame_filename(d_game_unique_state::savegame_file_path &
 				}
 			}
 		} 
+		auto &mi = m[i + 1];
 		if (!valid) {
-			strcpy( desc[i], TXT_EMPTY );
-			if (dsc == NULL) m[i+1].type = NM_TYPE_TEXT;
+			strcpy(desc[i].data(), TXT_EMPTY);
+			if (!dsc)
+				mi.type = NM_TYPE_TEXT;
 		}
-		if (dsc != NULL) {
-			auto &mi = m[i + 1];
-			m[i+1].type = NM_TYPE_INPUT_MENU;
-			mi.imenu().text_len = DESC_LENGTH - 1;
+		mi.text = desc[i].data();
+		if (dsc)
+		{
+			mi.type = NM_TYPE_INPUT_MENU;
+			mi.imenu().text_len = desc[i].size() - 1;
 		}
-		m[i+1].text = desc[i];
 	}
 
-	if ( dsc == NULL && nsaves < 1 )	{
+	if (!dsc && nsaves < 1)
+	{
 		nm_messagebox( NULL, 1, "Ok", "No saved games were found!" );
 		return 0;
 	}
@@ -796,14 +799,15 @@ static int state_get_savegame_filename(d_game_unique_state::savegame_file_path &
 
 	if (choice > 0) {
 		fname = filename[choice - 1];
-		if ( dsc != NULL ) strcpy( dsc, desc[choice-1] );
+		if (dsc)
+			*dsc = desc[choice - 1];
 		state_quick_item = state_default_item = choice - 1;
 		return choice;
 	}
 	return 0;
 }
 
-int state_get_save_file(d_game_unique_state::savegame_file_path &fname, char *const dsc, const blind_save blind_save)
+int state_get_save_file(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const blind_save blind_save)
 {
 	return state_get_savegame_filename(fname, dsc, "Save Game", blind_save);
 }
@@ -866,7 +870,6 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 #endif
 {
 	int	filenum = -1;
-	char desc[DESC_LENGTH+1];
 
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<secret_save, secret_save::none> secret{};
@@ -899,10 +902,10 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 
 	d_game_unique_state::savegame_file_path filename_storage;
 	const char *filename;
+	d_game_unique_state::savegame_description desc{};
 	{
 		pause_game_world_time p;
 
-	memset(&desc, '\0', DESC_LENGTH+1);
 #if defined(DXX_BUILD_DESCENT_II)
 	if (secret == secret_save::b) {
 		filename = SECRETB_FILENAME;
@@ -911,7 +914,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 	} else
 #endif
 	{
-		if (!(filenum = state_get_save_file(filename_storage, desc, blind_save)))
+		if (!(filenum = state_get_save_file(filename_storage, &desc, blind_save)))
 		{
 			return 0;
 		}
@@ -951,7 +954,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 #endif
 	}
 
-	const int rval = state_save_all_sub(filename, desc);
+	const int rval = state_save_all_sub(filename, desc.data());
 
 	if (rval && secret == secret_save::none)
 		HUD_init_message_literal(HM_DEFAULT, "Game saved");
@@ -1001,7 +1004,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	}
 
 //Save description
-	PHYSFS_write(fp, desc, sizeof(char) * DESC_LENGTH, 1);
+	PHYSFS_write(fp, desc, 20, 1);
 
 // Save the current screen shot...
 
@@ -1474,7 +1477,6 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	int current_level;
 	char mission[16];
-	char desc[DESC_LENGTH+1];
 	char id[5];
 	fix tmptime32 = 0;
 	array<array<short, MAX_SIDES_PER_SEGMENT>, MAX_SEGMENTS> TempTmapNum, TempTmapNum2;
@@ -1526,7 +1528,9 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	}
 
 // Read description
-	PHYSFS_read(fp, desc, sizeof(char) * DESC_LENGTH, 1);
+	d_game_unique_state::savegame_description desc;
+	PHYSFS_read(fp, desc.data(), 20, 1);
+	desc.back() = 0;
 
 // Skip the current screen shot...
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + THUMBNAIL_W * THUMBNAIL_H);

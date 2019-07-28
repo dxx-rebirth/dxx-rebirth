@@ -146,6 +146,10 @@ static inline Difficulty_level_type cast_clamp_difficulty(const unsigned d)
 struct d_game_unique_state
 {
 	using savegame_file_path = array<char, PATH_MAX>;
+	/* 20 is required by the save game ABI and the multiplayer
+	 * save/restore command ABI.
+	 */
+	using savegame_description = array<char, 20>;
 	Difficulty_level_type Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 	fix Boss_gate_interval;
 	unsigned accumulated_robots;

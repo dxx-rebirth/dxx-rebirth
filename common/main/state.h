@@ -78,7 +78,7 @@ enum class blind_save
 namespace dsx {
 int state_save_all_sub(const char *filename, const char *desc);
 
-int state_get_save_file(d_game_unique_state::savegame_file_path &fname, char * dsc, blind_save);
+int state_get_save_file(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *dsc, blind_save);
 int state_get_restore_file(d_game_unique_state::savegame_file_path &fname, blind_save);
 }
 int state_get_game_id(const d_game_unique_state::savegame_file_path &filename);
