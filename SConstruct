@@ -4109,7 +4109,7 @@ class DXXCommon(LazyObjectConstructor):
 		directory = env.Dir('.').get_abspath()
 		self._compilation_database_entries.extend([
 			{
-				'command' : env.subst(env._dxx_cxxcom_no_prefix, target=[o], source=source),
+				'command' : env.Override(kwargs).subst(env._dxx_cxxcom_no_prefix, target=[o], source=source),
 				'directory' : directory,
 				'file' : relative_file_path,
 				'output' : str(o),
