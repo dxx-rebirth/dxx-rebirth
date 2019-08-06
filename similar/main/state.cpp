@@ -2150,6 +2150,8 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 }
 
+namespace dcx {
+
 int state_get_game_id(const d_game_unique_state::savegame_file_path &filename)
 {
 	int version;
@@ -2194,4 +2196,6 @@ int state_get_game_id(const d_game_unique_state::savegame_file_path &filename)
 		return 0;
 
 	return state_game_id;
+}
+
 }

@@ -98,6 +98,8 @@ static void multi_reset_object_texture(object_base &objp);
 static void multi_new_bounty_target(playernum_t pnum);
 static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t type);
 static void multi_update_objects_for_non_cooperative();
+static void multi_restore_game(unsigned slot, unsigned id);
+static void multi_save_game(unsigned slot, unsigned id, const d_game_unique_state::savegame_description &desc);
 }
 static void multi_add_lifetime_killed();
 static void multi_send_heartbeat();
@@ -111,8 +113,6 @@ static void multi_send_drop_flag(vmobjptridx_t objnum,int seed);
 }
 #endif
 static void multi_send_ranking(uint8_t);
-static void multi_save_game(unsigned slot, unsigned id, const d_game_unique_state::savegame_description &desc);
-static void multi_restore_game(ubyte slot, uint id);
 static void multi_send_gmode_update();
 namespace dcx {
 static void multi_send_quit();
@@ -4823,9 +4823,7 @@ void multi_new_bounty_target(const playernum_t pnum )
 #endif
 }
 
-}
-
-static void multi_do_save_game(const ubyte *buf)
+static void multi_do_save_game(const uint8_t *const buf)
 {
 	int count = 1;
 	ubyte slot;
@@ -4840,6 +4838,8 @@ static void multi_do_save_game(const ubyte *buf)
 	multi_save_game( slot, id, desc );
 }
 
+}
+
 static void multi_do_restore_game(const ubyte *buf)
 {
 	int count = 1;
@@ -4851,6 +4851,8 @@ static void multi_do_restore_game(const ubyte *buf)
 
 	multi_restore_game( slot, id );
 }
+
+namespace dcx {
 
 static void multi_send_save_game(const unsigned slot, const unsigned id, const d_game_unique_state::savegame_description &desc)
 {
@@ -4876,6 +4878,10 @@ static void multi_send_restore_game(ubyte slot, uint id)
 
 	multi_send_data(multibuf, 2);
 }
+
+}
+
+namespace dsx {
 
 void multi_initiate_save_game()
 {
@@ -5013,7 +5019,7 @@ void multi_save_game(const unsigned slot, const unsigned id, const d_game_unique
 	state_save_all_sub(filename, desc.data());
 }
 
-void multi_restore_game(ubyte slot, uint id)
+void multi_restore_game(const unsigned slot, const unsigned id)
 {
 	d_game_unique_state::savegame_file_path filename;
 
@@ -5046,6 +5052,8 @@ void multi_restore_game(ubyte slot, uint id)
 #endif
 		filename.data());
 	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...
+}
+
 }
 
 static void multi_do_msgsend_state(const uint8_t *buf)

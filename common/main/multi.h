@@ -501,12 +501,12 @@ void multi_sort_kill_list(void);
 #endif
 void multi_reset_stuff(void);
 int get_team(playernum_t pnum);
-void multi_initiate_save_game();
-void multi_initiate_restore_game();
 void multi_disconnect_player(playernum_t);
 
 #ifdef dsx
 namespace dsx {
+void multi_initiate_save_game();
+void multi_initiate_restore_game();
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void multi_send_got_flag (playernum_t) {}
 #elif defined(DXX_BUILD_DESCENT_II)
