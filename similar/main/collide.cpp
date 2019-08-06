@@ -1406,10 +1406,11 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(robot)];
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	if (robptr.boss_flag)
-		Boss_hit_time = GameTime64;
+		BossUniqueState.Boss_hit_time = GameTime64;
 
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.
 	//	Also invulnerable if his cheat for firing weapons is in effect.
@@ -1619,7 +1620,7 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 	{
 		BossUniqueState.Boss_hit_this_frame = 1;
 #if defined(DXX_BUILD_DESCENT_II)
-		Boss_hit_time = GameTime64;
+		BossUniqueState.Boss_hit_time = GameTime64;
 #endif
 	}
 #if defined(DXX_BUILD_DESCENT_II)

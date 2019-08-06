@@ -290,7 +290,6 @@ enum class create_path_result : uint8_t
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
-extern fix64            Boss_hit_time;
 void create_path_to_segment(vmobjptridx_t objp, segnum_t goalseg, unsigned max_length, create_path_safety_flag safety_flag);
 #endif
 

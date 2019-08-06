@@ -1157,7 +1157,7 @@ void multi_do_boss_cloak(const ubyte *buf)
 	}
 	BossUniqueState.Boss_hit_this_frame = 0;
 #if defined(DXX_BUILD_DESCENT_II)
-	Boss_hit_time = -F1_0*10;
+	BossUniqueState.Boss_hit_time = -F1_0*10;
 #endif
 	BossUniqueState.Boss_cloak_start_time = GameTime64;
 	boss_obj->ctype.ai_info.CLOAKED = 1;

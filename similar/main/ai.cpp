@@ -188,7 +188,6 @@ constexpr array<int8_t, 21> Super_boss_gate_list{{
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-fix64           Boss_hit_time;
 
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
@@ -459,7 +458,8 @@ ai_mode ai_behavior_to_mode(ai_behavior behavior)
 void ai_init_boss_for_ship(void)
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	Boss_hit_time = -F1_0*10;
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
+	BossUniqueState.Boss_hit_time = -F1_0*10;
 #endif
 }
 
@@ -2600,20 +2600,20 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 	//	@mk, 10/13/95:  Reason:
 	//		Level 4 boss behind locked door.  But he's allowed to teleport out of there.  So he
 	//		teleports out of there right away, and blasts player right after first door.
-	if (!player_is_visible(player_visibility) && GameTime64 - Boss_hit_time > F1_0 * 2)
+	if (!player_is_visible(player_visibility) && GameTime64 - BossUniqueState.Boss_hit_time > F1_0 * 2)
 		return;
 
 	if (!BossUniqueState.Boss_dying && Boss_teleports[boss_index]) {
 		const auto Boss_cloak_start_time = BossUniqueState.Boss_cloak_start_time;
 		if (objp->ctype.ai_info.CLOAKED == 1) {
-			Boss_hit_time = GameTime64;	//	Keep the cloak:teleport process going.
+			BossUniqueState.Boss_hit_time = GameTime64;	//	Keep the cloak:teleport process going.
 			if (GameTime64 - Boss_cloak_start_time > Boss_cloak_duration / 3 &&
 				(Boss_cloak_start_time + Boss_cloak_duration) - GameTime64 > Boss_cloak_duration / 3 &&
 				GameTime64 - BossUniqueState.Last_teleport_time > LevelSharedBossState.Boss_teleport_interval)
 			{
 				if (ai_multiplayer_awareness(objp, 98))
 					teleport_boss(Vclip, vmsegptridx, objp, get_local_plrobj().pos);
-			} else if (GameTime64 - Boss_hit_time > F1_0*2) {
+			} else if (GameTime64 - BossUniqueState.Boss_hit_time > F1_0*2) {
 				BossUniqueState.Last_teleport_time -= LevelSharedBossState.Boss_teleport_interval / 4;
 			}
 
@@ -4766,10 +4766,10 @@ int ai_save_state(PHYSFS_File *fp)
 	const int Boss_been_hit = 0;
 	PHYSFS_write(fp, &Boss_been_hit, sizeof(int), 1);
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (Boss_hit_time - GameTime64 < F1_0*(-18000))
+	if (BossUniqueState.Boss_hit_time - GameTime64 < F1_0*(-18000))
 		tmptime32 = F1_0*(-18000);
 	else
-		tmptime32 = Boss_hit_time - GameTime64;
+		tmptime32 = BossUniqueState.Boss_hit_time - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_writeSLE32(fp, -1);
 	if (BuddyState.Escort_last_path_created - GameTime64 < F1_0*(-18000))
@@ -4984,7 +4984,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	PHYSFSX_readSXE32(fp, swap);
 #elif defined(DXX_BUILD_DESCENT_II)
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	Boss_hit_time = static_cast<fix64>(tmptime32);
+	BossUniqueState.Boss_hit_time = static_cast<fix64>(tmptime32);
 
 	if (version >= 8) {
 		PHYSFSX_readSXE32(fp, swap);

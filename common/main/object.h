@@ -624,6 +624,11 @@ public:
 	void clear_player_active_guided_missile(unsigned pnum);
 };
 
+struct d_level_unique_boss_state : ::dcx::d_level_unique_boss_state
+{
+	fix64 Boss_hit_time;
+};
+
 const player &get_player_controlling_guidebot(const d_unique_buddy_state & /* reserved for future use */, const valptridx<player>::array_managed_type &Players);
 #endif
 
