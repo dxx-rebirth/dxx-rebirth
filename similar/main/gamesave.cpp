@@ -1305,8 +1305,6 @@ int load_level(
 		#endif
 	}
 
-	strcpy( Gamesave_current_filename, filename );
-
 	sig                      = PHYSFSX_readInt(LoadFile);
 	Gamesave_current_version = PHYSFSX_readInt(LoadFile);
 	minedata_offset          = PHYSFSX_readInt(LoadFile);
@@ -1384,7 +1382,7 @@ int load_level(
 	} else
 	#endif
 		//NOTE LINK TO ABOVE!!
-		mine_err = load_mine_data_compiled(LoadFile);
+		mine_err = load_mine_data_compiled(LoadFile, filename);
 
 	/* !!!HACK!!!
 	 * Descent 1 - Level 19: OBERON MINE has some ugly overlapping rooms (segment 484).

@@ -98,7 +98,7 @@ const array<char[10], 7> Wall_names{{
 }};
 }
 
-static void dump_used_textures_level(PHYSFS_File *my_file, int level_num);
+static void dump_used_textures_level(PHYSFS_File *my_file, int level_num, const char *Gamesave_current_filename);
 static void say_totals(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file, const char *level_name);
 
 namespace dsx {
@@ -672,8 +672,8 @@ void write_game_text_file(const char *filename)
 		return;
 	}
 
-	dump_used_textures_level(my_file, 0);
-	say_totals(vcobjptridx, my_file, Gamesave_current_filename);
+	dump_used_textures_level(my_file, 0, filename);
+	say_totals(vcobjptridx, my_file, filename);
 
 	PHYSFSX_printf(my_file, "\nNumber of segments:   %4i\n", Highest_segment_index+1);
 	PHYSFSX_printf(my_file, "Number of objects:    %4i\n", Highest_object_index+1);
@@ -1129,7 +1129,7 @@ static void say_totals_all(void)
 }
 }
 
-static void dump_used_textures_level(PHYSFS_File *my_file, int level_num)
+static void dump_used_textures_level(PHYSFS_File *my_file, int level_num, const char *const Gamesave_current_filename)
 {
 	perm_tmap_buffer_type temp_tmap_buf;
 	level_tmap_buffer_type level_tmap_buf;

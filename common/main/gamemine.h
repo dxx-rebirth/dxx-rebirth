@@ -139,7 +139,7 @@ extern struct me mine_editor;
 #ifdef dsx
 namespace dsx {
 int load_mine_data(PHYSFS_File *LoadFile);
-int load_mine_data_compiled(PHYSFS_File *LoadFile);
+int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *Gamesave_current_filename);
 
 }
 #endif

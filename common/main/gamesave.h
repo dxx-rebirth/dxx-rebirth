@@ -66,8 +66,6 @@ int save_level(
 }
 #endif
 
-extern char Gamesave_current_filename[PATH_MAX];
-
 extern int Gamesave_current_version;
 
 extern int Gamesave_num_org_robots;

@@ -855,7 +855,8 @@ static void read_special(shared_segment &segp, const unsigned bit_mask, PHYSFS_F
 }
 
 namespace dsx {
-int load_mine_data_compiled(PHYSFS_File *LoadFile)
+
+int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_current_filename)
 {
 	ubyte   compiled_version;
 	short   temp_short;
