@@ -1053,15 +1053,14 @@ void init_smega_detonates()
 }
 
 fix	Seismic_tremor_magnitude;
-static fix64 Next_seismic_sound_time;
 
 constexpr std::integral_constant<int, SOUND_SEISMIC_DISTURBANCE_START> Seismic_sound{};
 
 static void start_seismic_sound()
 {
-	if (Next_seismic_sound_time)
+	if (LevelUniqueSeismicState.Next_seismic_sound_time)
 		return;
-	Next_seismic_sound_time = GameTime64 + d_rand()/2;
+	LevelUniqueSeismicState.Next_seismic_sound_time = GameTime64 + d_rand()/2;
 	digi_play_sample_looping(Seismic_sound, F1_0, -1, -1);
 }
 
@@ -1594,9 +1593,9 @@ void do_seismic_stuff(void)
 		if (Seismic_tremor_volume == 0)
 		{
 			digi_stop_looping_sound();
-			Next_seismic_sound_time = 0;
+			LevelUniqueSeismicState.Next_seismic_sound_time = 0;
 		}
-		else if (GameTime64 > Next_seismic_sound_time)
+		else if (GameTime64 > LevelUniqueSeismicState.Next_seismic_sound_time)
 		{
 			int	volume;
 
@@ -1604,7 +1603,7 @@ void do_seismic_stuff(void)
 			if (volume > F1_0)
 				volume = F1_0;
 			digi_change_looping_volume(volume);
-			Next_seismic_sound_time = GameTime64 + d_rand()/4 + 8192;
+			LevelUniqueSeismicState.Next_seismic_sound_time = GameTime64 + d_rand()/4 + 8192;
 		}
 	}
 

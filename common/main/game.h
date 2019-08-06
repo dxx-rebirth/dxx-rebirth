@@ -185,6 +185,7 @@ struct d_level_shared_seismic_state
 struct d_level_unique_seismic_state
 {
 	fix64 Seismic_disturbance_end_time;
+	fix64 Next_seismic_sound_time;
 	int Seismic_tremor_volume;
 };
 
