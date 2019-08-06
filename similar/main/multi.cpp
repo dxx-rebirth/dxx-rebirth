@@ -5503,7 +5503,6 @@ void init_hoard_data(d_vclip_array &Vclip)
 	static int orb_vclip;
 	unsigned n_orb_frames,n_goal_frames;
 	int orb_w,orb_h;
-	int icon_w,icon_h;
 	palette_array_t palette;
 	uint8_t *bitmap_data1;
 	int save_pos;
@@ -5593,14 +5592,19 @@ void init_hoard_data(d_vclip_array &Vclip)
 	//Load and remap bitmap data for HUD icons
 	range_for (auto &i, Orb_icons)
 	{
-		uint8_t *bitmap_data2;
-		icon_w = PHYSFSX_readShort(ifile);
-		icon_h = PHYSFSX_readShort(ifile);
-		MALLOC( bitmap_data2, ubyte, icon_w*icon_h );
-		gr_init_bitmap(i,bm_mode::linear,0,0,icon_w,icon_h,icon_w,bitmap_data2);
-		gr_set_transparent(i, 1);
+		const unsigned icon_w = PHYSFSX_readShort(ifile);
+		if (icon_w > 32)
+			return;
+		const unsigned icon_h = PHYSFSX_readShort(ifile);
+		if (icon_h > 32)
+			return;
+		const unsigned extent = icon_w * icon_h;
+		RAIIdmem<uint8_t[]> bitmap_data2;
+		MALLOC(bitmap_data2, uint8_t, extent);
 		PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
-		PHYSFS_read(ifile,i.get_bitmap_data(),1,icon_w*icon_h);
+		PHYSFS_read(ifile, bitmap_data2.get(), 1, extent);
+		gr_init_main_bitmap(i, bm_mode::linear, 0, 0, icon_w, icon_h, icon_w, std::move(bitmap_data2));
+		gr_set_transparent(i, 1);
 		gr_remap_bitmap_good(i, palette, 255, -1);
 	}
 
