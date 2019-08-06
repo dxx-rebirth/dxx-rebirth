@@ -179,6 +179,7 @@ struct d_game_unique_state : ::dcx::d_game_unique_state
 struct d_level_shared_seismic_state
 {
 	fix Level_shake_frequency;
+	fix Level_shake_duration;
 };
 
 struct d_level_unique_seismic_state

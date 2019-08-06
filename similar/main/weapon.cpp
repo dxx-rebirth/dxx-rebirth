@@ -1131,7 +1131,7 @@ void init_seismic_disturbances()
 //	Return true if time to start a seismic disturbance.
 static bool seismic_disturbance_active()
 {
-	const auto level_shake_duration = Level_shake_duration;
+	const auto level_shake_duration = LevelSharedSeismicState.Level_shake_duration;
 	if (level_shake_duration < 1)
 		return false;
 
@@ -1158,7 +1158,7 @@ static void seismic_disturbance_frame(void)
 		if (seismic_disturbance_active()) {
 			int	fc, rx, rz;
 			fix delta_time = static_cast<fix>(GameTime64 - LevelUniqueSeismicState.Seismic_disturbance_end_time);
-			fc = abs(delta_time - Level_shake_duration / 2);
+			fc = abs(delta_time - LevelSharedSeismicState.Level_shake_duration / 2);
 			fc /= F1_0/16;
 			if (fc > 16)
 				fc = 16;
