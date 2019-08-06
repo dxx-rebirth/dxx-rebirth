@@ -1364,7 +1364,7 @@ void set_pos_from_return_segment(void)
 	compute_segment_center(vcvertptr, plobjnum->pos, segp);
 	obj_relink(vmobjptr, vmsegptr, plobjnum, segp);
 	reset_player_object();
-	plobjnum->orient = Secret_return_orient;
+	plobjnum->orient = LevelSharedSegmentState.Secret_return_orient;
 }
 #endif
 

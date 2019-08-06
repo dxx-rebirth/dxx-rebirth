@@ -148,7 +148,6 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *Gamesave_current_
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 extern int d1_pig_present;
-extern vms_matrix Secret_return_orient;
 
 /* stuff for loading descent.pig of descent 1 */
 extern short convert_d1_tmap_num(short d1_tmap_num);

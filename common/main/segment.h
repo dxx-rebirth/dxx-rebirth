@@ -505,6 +505,7 @@ struct d_level_shared_segment_state : ::dcx::d_level_shared_segment_state
 {
 	d_level_shared_destructible_light_state DestructibleLights;
 	segnum_t Secret_return_segment;
+	vms_matrix Secret_return_orient;
 };
 #endif
 
