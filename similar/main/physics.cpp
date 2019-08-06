@@ -74,8 +74,7 @@ static void do_physics_align_object(object_base &obj)
 {
 	vms_vector desired_upvec;
 	fixang delta_ang,roll_ang;
-	//vms_vector forvec = {0,0,f1_0};
-	fix largest_d=-f1_0;
+	fix largest_d = INT32_MIN;
 	const shared_side *best_side = nullptr;
 	// bank player according to segment orientation
 
@@ -93,12 +92,14 @@ static void do_physics_align_object(object_base &obj)
 	}
 
 	// new player leveling code: use normal of side closest to our up vec
+	if (!best_side)
+		return;
 	if (!get_side_is_quad(*best_side))
 	{
 		desired_upvec = vm_vec_avg(best_side->normals[0], best_side->normals[1]);
-				vm_vec_normalize(desired_upvec);
-		}
-		else
+		vm_vec_normalize(desired_upvec);
+	}
+	else
 		desired_upvec = best_side->normals[0];
 
 	if (labs(vm_vec_dot(desired_upvec, obj.orient.fvec)) < f1_0 / 2)
