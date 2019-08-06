@@ -1334,8 +1334,6 @@ static void collide_weapon_and_clutter(object_base &weapon, const vmobjptridx_t 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 
-fix	Final_boss_countdown_time = 0;
-
 //	------------------------------------------------------------------------------------------------------
 window_event_result do_final_boss_frame(void)
 {
@@ -1345,11 +1343,11 @@ window_event_result do_final_boss_frame(void)
 	if (!Control_center_destroyed)
 		return window_event_result::ignored;
 
-	if (Final_boss_countdown_time == 0)
-		Final_boss_countdown_time = F1_0*2;
+	if (GameUniqueState.Final_boss_countdown_time == 0)
+		GameUniqueState.Final_boss_countdown_time = F1_0*2;
 
-	Final_boss_countdown_time -= FrameTime;
-	if (Final_boss_countdown_time > 0)
+	GameUniqueState.Final_boss_countdown_time -= FrameTime;
+	if (GameUniqueState.Final_boss_countdown_time > 0)
 		return window_event_result::ignored;
 
 	return start_endlevel_sequence();		//pretend we hit the exit trigger
