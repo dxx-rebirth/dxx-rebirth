@@ -596,25 +596,35 @@ void init_ai_objects(void)
 	Boss_dying = 0;
 
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
+#define D1_Boss_gate_interval	F1_0*5 - Difficulty_level*F1_0/2
 #if defined(DXX_BUILD_DESCENT_I)
-	GameUniqueState.Boss_gate_interval = F1_0*5 - Difficulty_level*F1_0/2;
+	GameUniqueState.Boss_gate_interval = D1_Boss_gate_interval;
 #elif defined(DXX_BUILD_DESCENT_II)
-	GameUniqueState.Boss_gate_interval = F1_0*4 - Difficulty_level*i2f(2)/3;
-
 	ai_do_cloak_stuff();
 
 	init_buddy_for_level();
 
-	if (Current_mission && (Current_level_num == Last_level))
+	if (EMULATING_D1)
 	{
+		LevelSharedBossState.Boss_cloak_interval = d_level_shared_boss_state::D1_Boss_cloak_interval::value;
+		LevelSharedBossState.Boss_teleport_interval = d_level_shared_boss_state::D1_Boss_teleport_interval::value;
+		GameUniqueState.Boss_gate_interval = D1_Boss_gate_interval;
+	}
+	else
+	{
+		GameUniqueState.Boss_gate_interval = F1_0*4 - Difficulty_level*i2f(2)/3;
+		if (Current_level_num == Last_level)
+		{
 		LevelSharedBossState.Boss_teleport_interval = F1_0*10;
 		LevelSharedBossState.Boss_cloak_interval = F1_0*15;					//	Time between cloaks
-	} else
-	{
+		} else
+		{
 		LevelSharedBossState.Boss_teleport_interval = F1_0*7;
 		LevelSharedBossState.Boss_cloak_interval = F1_0*10;					//	Time between cloaks
+		}
 	}
 #endif
+#undef D1_Boss_gate_interval
 }
 
 //-------------------------------------------------------------------------------------------
