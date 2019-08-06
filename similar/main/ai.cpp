@@ -4594,7 +4594,7 @@ void init_robots_for_level(void)
 	BossUniqueState.Boss_dying_start_time = 0;
 	Overall_agitation = 0;
 #if defined(DXX_BUILD_DESCENT_II)
-	Final_boss_is_dead=0;
+	GameUniqueState.Final_boss_is_dead = 0;
 	Ai_last_missile_camera = nullptr;
 #endif
 }

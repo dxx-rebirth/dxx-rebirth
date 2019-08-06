@@ -880,7 +880,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 		return 0;
 	}
 
-	if (Final_boss_is_dead)		//don't allow save while final boss is dying
+	if (GameUniqueState.Final_boss_is_dead)		//don't allow save while final boss is dying
 		return 0;
 #endif
 

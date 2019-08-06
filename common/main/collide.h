@@ -98,7 +98,6 @@ enum class volatile_wall_result : int8_t
 window_event_result do_final_boss_frame(void);
 void do_final_boss_hacks(void);
 volatile_wall_result check_volatile_wall(vmobjptridx_t obj, const unique_side &seg);
-extern int	Final_boss_is_dead;
 #endif
 }
 #endif

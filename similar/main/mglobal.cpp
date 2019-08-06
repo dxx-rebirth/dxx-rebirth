@@ -51,7 +51,6 @@ static void reconstruct_global_variable(T &t)
 }
 
 d_interface_unique_state InterfaceUniqueState;
-d_game_unique_state GameUniqueState;
 d_level_shared_vertex_state LevelSharedVertexState;
 d_level_unique_automap_state LevelUniqueAutomapState;
 d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
@@ -116,6 +115,7 @@ valptridx<managed_type>::array_managed_type::array_managed_type()
 #endif
 
 namespace dsx {
+d_game_unique_state GameUniqueState;
 d_level_shared_boss_state LevelSharedBossState;
 d_level_unique_effects_clip_state LevelUniqueEffectsClipState;
 d_level_shared_segment_state LevelSharedSegmentState;

@@ -1334,14 +1334,12 @@ static void collide_weapon_and_clutter(object_base &weapon, const vmobjptridx_t 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 
-int	Final_boss_is_dead = 0;
 fix	Final_boss_countdown_time = 0;
 
 //	------------------------------------------------------------------------------------------------------
 window_event_result do_final_boss_frame(void)
 {
-
-	if (!Final_boss_is_dead)
+	if (!GameUniqueState.Final_boss_is_dead)
 		return window_event_result::ignored;
 
 	if (!Control_center_destroyed)
@@ -1388,7 +1386,7 @@ void do_final_boss_hacks(void)
 	if (!(Game_mode & GM_MULTI))
 		buddy_message("Nice job, %s!", static_cast<const char *>(get_local_player().callsign));
 
-	Final_boss_is_dead = 1;
+	GameUniqueState.Final_boss_is_dead = 1;
 }
 
 }

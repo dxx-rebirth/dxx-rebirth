@@ -156,8 +156,6 @@ struct d_game_unique_state
 	unsigned total_hostages;
 };
 
-extern d_game_unique_state GameUniqueState;
-
 extern int Global_missile_firing_count;
 
 extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
@@ -171,6 +169,15 @@ void game();
 void init_game();
 void init_cockpit();
 extern void PALETTE_FLASH_ADD(int dr, int dg, int db);
+
+#if defined(DXX_BUILD_DESCENT_II)
+struct d_game_unique_state : ::dcx::d_game_unique_state
+{
+	uint8_t Final_boss_is_dead;
+};
+#endif
+
+extern d_game_unique_state GameUniqueState;
 }
 #endif
 
