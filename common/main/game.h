@@ -174,7 +174,6 @@ extern void PALETTE_FLASH_ADD(int dr, int dg, int db);
 struct d_game_unique_state : ::dcx::d_game_unique_state
 {
 	fix Final_boss_countdown_time;
-	uint8_t Final_boss_is_dead;
 };
 #endif
 

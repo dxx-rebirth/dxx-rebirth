@@ -1337,18 +1337,25 @@ namespace dsx {
 //	------------------------------------------------------------------------------------------------------
 window_event_result do_final_boss_frame(void)
 {
-	if (!GameUniqueState.Final_boss_is_dead)
+	auto Final_boss_countdown_time = GameUniqueState.Final_boss_countdown_time;
+	if (!Final_boss_countdown_time)
 		return window_event_result::ignored;
 
 	if (!Control_center_destroyed)
 		return window_event_result::ignored;
 
-	if (GameUniqueState.Final_boss_countdown_time == 0)
-		GameUniqueState.Final_boss_countdown_time = F1_0*2;
-
-	GameUniqueState.Final_boss_countdown_time -= FrameTime;
-	if (GameUniqueState.Final_boss_countdown_time > 0)
+	Final_boss_countdown_time -= FrameTime;
+	if (Final_boss_countdown_time > 0)
 		return window_event_result::ignored;
+	/* Ensure that GameUniqueState.Final_boss_countdown_time is not 0,
+	 * so that the flag remains raised.  If Final_boss_countdown_time
+	 * were greater than 0, the function already returned.  If
+	 * Final_boss_countdown_time is exactly 0, write -1.  Otherwise,
+	 * write a slightly more negative number.  If
+	 * Final_boss_countdown_time is INT32_MIN, this would roll over, but
+	 * that would only happen if FrameTime had an absurd value.
+	 */
+	GameUniqueState.Final_boss_countdown_time = --Final_boss_countdown_time;
 
 	return start_endlevel_sequence();		//pretend we hit the exit trigger
 }
@@ -1384,7 +1391,7 @@ void do_final_boss_hacks(void)
 	if (!(Game_mode & GM_MULTI))
 		buddy_message("Nice job, %s!", static_cast<const char *>(get_local_player().callsign));
 
-	GameUniqueState.Final_boss_is_dead = 1;
+	GameUniqueState.Final_boss_countdown_time = F1_0*2;
 }
 
 }
