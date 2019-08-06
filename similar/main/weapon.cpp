@@ -1053,7 +1053,6 @@ void init_smega_detonates()
 }
 
 fix	Seismic_tremor_magnitude;
-int	Seismic_tremor_volume;
 static fix64 Next_seismic_sound_time;
 static bool Seismic_sound_playing;
 
@@ -1094,7 +1093,7 @@ void rock_the_mine_frame(void)
 				if (fc == 0)
 					fc = 1;
 
-				Seismic_tremor_volume += fc;
+				LevelUniqueSeismicState.Seismic_tremor_volume += fc;
 
 				if (d_tick_step)
 				{
@@ -1166,7 +1165,7 @@ static void seismic_disturbance_frame(void)
 			if (fc == 0)
 				fc = 1;
 
-			Seismic_tremor_volume += fc;
+			LevelUniqueSeismicState.Seismic_tremor_volume += fc;
 
 			if (d_tick_step)
 			{
@@ -1586,22 +1585,21 @@ void DropSecondaryWeapon (player_info &player_info)
 //	Do seismic disturbance stuff including the looping sounds with changing volume.
 void do_seismic_stuff(void)
 {
-	int	stv_save;
-
-	stv_save = Seismic_tremor_volume;
+	const auto stv_save = exchange(LevelUniqueSeismicState.Seismic_tremor_volume, 0);
 	Seismic_tremor_magnitude = 0;
-	Seismic_tremor_volume = 0;
 
 	rock_the_mine_frame();
 	seismic_disturbance_frame();
 
 	if (stv_save != 0) {
-		if (Seismic_tremor_volume == 0) {
+		const auto Seismic_tremor_volume = LevelUniqueSeismicState.Seismic_tremor_volume;
+		if (Seismic_tremor_volume == 0)
+		{
 			digi_stop_looping_sound();
 			Seismic_sound_playing = false;
 		}
-
-		if ((GameTime64 > Next_seismic_sound_time) && Seismic_tremor_volume) {
+		else if (GameTime64 > Next_seismic_sound_time)
+		{
 			int	volume;
 
 			volume = Seismic_tremor_volume * 2048;
