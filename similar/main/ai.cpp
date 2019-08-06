@@ -151,7 +151,6 @@ static int             Overall_agitation;
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
 static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
-sbyte           Boss_hit_this_frame;
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
 
@@ -2489,7 +2488,7 @@ static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (!EMULATING_D1 && !player_is_visible(player_visibility) && !Boss_hit_this_frame)
+	if (!EMULATING_D1 && !player_is_visible(player_visibility) && !BossUniqueState.Boss_hit_this_frame)
 		return;
 #endif
 
@@ -2502,8 +2501,8 @@ static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 			{
 				if (ai_multiplayer_awareness(objp, 98))
 					teleport_boss(Vclip, vmsegptridx, objp, get_local_plrobj().pos);
-			} else if (Boss_hit_this_frame) {
-				Boss_hit_this_frame = 0;
+			} else if (BossUniqueState.Boss_hit_this_frame) {
+				BossUniqueState.Boss_hit_this_frame = 0;
 				BossUniqueState.Last_teleport_time -= LevelSharedBossState.Boss_teleport_interval / 4;
 			}
 
@@ -2511,12 +2510,12 @@ static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 				GameTime64 < Boss_cloak_start_time)
 				objp->ctype.ai_info.CLOAKED = 0;
 		} else {
-			if (Boss_hit_this_frame ||
+			if (BossUniqueState.Boss_hit_this_frame ||
 				GameTime64 - (Boss_cloak_start_time + Boss_cloak_duration) > LevelSharedBossState.Boss_cloak_interval)
 			{
 				if (ai_multiplayer_awareness(objp, 95))
 				{
-					Boss_hit_this_frame = 0;
+					BossUniqueState.Boss_hit_this_frame = 0;
 					BossUniqueState.Boss_cloak_start_time = GameTime64;
 					objp->ctype.ai_info.CLOAKED = 1;
 					if (Game_mode & GM_MULTI)
@@ -4762,7 +4761,7 @@ int ai_save_state(PHYSFS_File *fp)
 	const int boss_dying_sound_playing = BossUniqueState.Boss_dying_sound_playing;
 	PHYSFS_write(fp, &boss_dying_sound_playing, sizeof(int), 1);
 #if defined(DXX_BUILD_DESCENT_I)
-	int boss_hit_this_frame = Boss_hit_this_frame;
+	const int boss_hit_this_frame = BossUniqueState.Boss_hit_this_frame;
 	PHYSFS_write(fp, &boss_hit_this_frame, sizeof(int), 1);
 	const int Boss_been_hit = 0;
 	PHYSFS_write(fp, &Boss_been_hit, sizeof(int), 1);
@@ -4981,7 +4980,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	BossUniqueState.Boss_dying_sound_playing = PHYSFSX_readSXE32(fp, swap);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)version;
-	Boss_hit_this_frame = PHYSFSX_readSXE32(fp, swap);
+	BossUniqueState.Boss_hit_this_frame = PHYSFSX_readSXE32(fp, swap);
 	PHYSFSX_readSXE32(fp, swap);
 #elif defined(DXX_BUILD_DESCENT_II)
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);

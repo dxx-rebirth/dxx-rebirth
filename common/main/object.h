@@ -571,6 +571,7 @@ struct d_level_unique_boss_state
 	fix64 Boss_cloak_start_time;
 	fix64 Last_teleport_time;
 	fix64 Boss_dying_start_time;
+	int8_t Boss_hit_this_frame;
 	int8_t Boss_dying;
 	int8_t Boss_dying_sound_playing;
 };

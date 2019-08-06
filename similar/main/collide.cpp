@@ -1603,6 +1603,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_level_share
 //	------------------------------------------------------------------------------------------------------
 static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptridx_t  weapon, vms_vector &collision_point)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1616,7 +1617,7 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 	auto &robptr = Robot_info[get_robot_id(robot)];
 	if (robptr.boss_flag)
 	{
-		Boss_hit_this_frame = 1;
+		BossUniqueState.Boss_hit_this_frame = 1;
 #if defined(DXX_BUILD_DESCENT_II)
 		Boss_hit_time = GameTime64;
 #endif

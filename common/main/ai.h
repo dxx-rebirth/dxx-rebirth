@@ -46,7 +46,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 struct point_seg;
-extern sbyte Boss_hit_this_frame;
 }
 struct PHYSFS_File;
 
