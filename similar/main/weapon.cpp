@@ -1050,8 +1050,6 @@ void init_smega_detonates()
 	LevelUniqueSeismicState.Earthshaker_detonate_times = {};
 }
 
-fix	Seismic_tremor_magnitude;
-
 constexpr std::integral_constant<int, SOUND_SEISMIC_DISTURBANCE_START> Seismic_sound{};
 
 static void start_seismic_sound()
@@ -1091,7 +1089,7 @@ static void apply_seismic_effect(const int entry_fc)
 		rotvel.z += disturb_z * 4;
 	}
 	//	Shake a guided missile!
-	Seismic_tremor_magnitude += disturb_x;
+	LevelUniqueSeismicState.Seismic_tremor_magnitude += disturb_x;
 }
 
 //	If a smega missile been detonated, rock the mine!
@@ -1553,7 +1551,7 @@ void DropSecondaryWeapon (player_info &player_info)
 void do_seismic_stuff(void)
 {
 	const auto stv_save = exchange(LevelUniqueSeismicState.Seismic_tremor_volume, 0);
-	Seismic_tremor_magnitude = 0;
+	LevelUniqueSeismicState.Seismic_tremor_magnitude = 0;
 
 	rock_the_mine_frame();
 	seismic_disturbance_frame();

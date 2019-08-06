@@ -92,10 +92,8 @@ fix Render_zoom;     // the player's zoom factor
 #ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr std::integral_constant<fix, 0> Seismic_tremor_magnitude{};
 constexpr std::integral_constant<uint8_t, 0> RenderingType{};
 #elif defined(DXX_BUILD_DESCENT_II)
-extern fix Seismic_tremor_magnitude;
 extern uint8_t RenderingType;
 #endif
 }

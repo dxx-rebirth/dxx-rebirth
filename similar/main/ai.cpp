@@ -646,12 +646,15 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, object_base &objp, fi
 		}
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	if (Seismic_tremor_magnitude) {
+	if (const auto Seismic_tremor_magnitude = LevelUniqueSeismicState.Seismic_tremor_magnitude)
+	{
 		fix			scale;
 		scale = fixdiv(2*Seismic_tremor_magnitude, Robot_info[get_robot_id(objp)].mass);
 		vm_vec_scale_add2(new_fvec, make_random_vector(), scale);
 	}
+#endif
 
 	vm_vector_2_matrix(objp.orient, new_fvec, nullptr, &objp.orient.rvec);
 }
@@ -1163,9 +1166,9 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 	fix aim = FIRE_K*F1_0 - (FIRE_K-1)*(robptr.aim << 8);	//	F1_0 in bitmaps.tbl = same as used to be.  Worst is 50% more error.
 
 	//	Robots aim more poorly during seismic disturbance.
-	if (Seismic_tremor_magnitude) {
+	if (const auto Seismic_tremor_magnitude = LevelUniqueSeismicState.Seismic_tremor_magnitude)
+	{
 		fix	temp;
-
 		temp = F1_0 - abs(Seismic_tremor_magnitude);
 		if (temp < F1_0/2)
 			temp = F1_0/2;

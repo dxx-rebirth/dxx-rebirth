@@ -169,9 +169,6 @@ void flash_frame()
 {
 	static fixang flash_ang=0;
 
-	if (!Control_center_destroyed && !Seismic_tremor_magnitude)
-		return;
-
 	if (Endlevel_sequence)
 		return;
 
@@ -180,7 +177,8 @@ void flash_frame()
 
 //	flash_ang += fixmul(FLASH_CYCLE_RATE,FrameTime);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Seismic_tremor_magnitude) {
+	if (const auto Seismic_tremor_magnitude = LevelUniqueSeismicState.Seismic_tremor_magnitude)
+	{
 		fix	added_flash;
 
 		added_flash = abs(Seismic_tremor_magnitude);
@@ -192,6 +190,7 @@ void flash_frame()
 		flash_scale = (flash_scale + F1_0*3)/4;	//	gets in range 0.5 to 1.0
 	} else
 #endif
+	if (Control_center_destroyed)
 	{
 		flash_ang += fixmul(Flash_rate,FrameTime);
 		flash_scale = fix_fastsin(flash_ang);
@@ -290,9 +289,13 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 	assert(!bm->get_flag_mask(BM_FLAG_PAGED_OUT));
 
 	array<g3s_lrgb, 4>		dyn_light;
-	const auto seismic_tremor_magnitude = Seismic_tremor_magnitude;
+#if defined(DXX_BUILD_DESCENT_I)
+	const auto Seismic_tremor_magnitude = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
+	const auto Seismic_tremor_magnitude = LevelUniqueSeismicState.Seismic_tremor_magnitude;
+#endif
 	const auto control_center_destroyed = Control_center_destroyed;
-	const auto need_flashing_lights = (control_center_destroyed | seismic_tremor_magnitude);	//make lights flash
+	const auto need_flashing_lights = (control_center_destroyed | Seismic_tremor_magnitude);	//make lights flash
 	auto &Dynamic_light = LevelUniqueLightState.Dynamic_light;
 	//set light values for each vertex & build pointlist
 	range_for (const uint_fast32_t i, xrange(nv))
@@ -318,7 +321,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 		if (need_flashing_lights)	//make lights flash
 		{
 			dli.g = dli.b = fixmul(flash_scale, uvli.l);
-			dli.r = (!seismic_tremor_magnitude && PlayerCfg.DynLightColor)
+			dli.r = (!Seismic_tremor_magnitude && PlayerCfg.DynLightColor)
 				? fixmul(std::max(static_cast<double>(flash_scale), f0_5 * 1.5), uvli.l) // let the mine glow red a little
 				: dli.g;
 		}
