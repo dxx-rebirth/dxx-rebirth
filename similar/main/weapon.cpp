@@ -1042,14 +1042,12 @@ void weapons_homing_all_reset()
 }
 
 #define	SMEGA_SHAKE_TIME		(F1_0*2)
-#define	MAX_SMEGA_DETONATES	4
-static array<fix64, MAX_SMEGA_DETONATES> Smega_detonate_times;
 
 //	Call this to initialize for a new level.
 //	Sets all super mega missile detonation times to 0 which means there aren't any.
 void init_smega_detonates()
 {
-	Smega_detonate_times = {};
+	LevelUniqueSeismicState.Earthshaker_detonate_times = {};
 }
 
 fix	Seismic_tremor_magnitude;
@@ -1071,7 +1069,7 @@ void rock_the_mine_frame(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	range_for (auto &i, Smega_detonate_times)
+	range_for (auto &i, LevelUniqueSeismicState.Earthshaker_detonate_times)
 	{
 		if (i != 0) {
 			fix	delta_time = GameTime64 - i;
@@ -1191,8 +1189,8 @@ static void seismic_disturbance_frame(void)
 //	Call this when a smega detonates to start the process of rocking the mine.
 void smega_rock_stuff(void)
 {
-	fix64 *least = &Smega_detonate_times[0];
-	range_for (auto &i, Smega_detonate_times)
+	auto least = &LevelUniqueSeismicState.Earthshaker_detonate_times[0];
+	range_for (auto &i, LevelUniqueSeismicState.Earthshaker_detonate_times)
 	{
 		if (i + SMEGA_SHAKE_TIME < GameTime64)
 			i = 0;
