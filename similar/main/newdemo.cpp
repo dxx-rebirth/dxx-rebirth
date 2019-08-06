@@ -829,6 +829,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 
 static void nd_write_object(const vcobjptridx_t objp)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &obj = *objp;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	int life;
@@ -877,6 +878,7 @@ static void nd_write_object(const vcobjptridx_t objp)
 
 	if (obj.type == OBJ_ROBOT) {
 		if (Robot_info[get_robot_id(obj)].boss_flag) {
+			const auto Boss_cloak_start_time = BossUniqueState.Boss_cloak_start_time;
 			if (GameTime64 > Boss_cloak_start_time &&
 				GameTime64 < (Boss_cloak_start_time + Boss_cloak_duration))
 				nd_write_byte(1);
@@ -1688,6 +1690,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	Rear_view=0;
 #if defined(DXX_BUILD_DESCENT_I)
 	shareware = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 #endif
 
 	nd_read_byte(&c);
@@ -1747,7 +1751,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		nd_write_int(Newdemo_game_mode);
 	}
 
-	Boss_cloak_start_time=GameTime64;
+	BossUniqueState.Boss_cloak_start_time = GameTime64;
 #endif
 
 	change_playernum_to((Newdemo_game_mode >> 16) & 0x7);

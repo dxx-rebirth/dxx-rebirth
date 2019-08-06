@@ -151,7 +151,6 @@ static int             Overall_agitation;
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
 static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
-fix64           Boss_cloak_start_time;
 fix64           Last_teleport_time;
 static fix64 Boss_dying_start_time;
 sbyte           Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
@@ -567,9 +566,8 @@ void init_ai_object(const vmobjptridx_t objp, ai_behavior behavior, const imsegi
 #endif
 		)
 	{
-		BossUniqueState.Last_gate_time = 0;
+		BossUniqueState = {};
 		Last_teleport_time = 0;
-		Boss_cloak_start_time = 0;
 		boss_init_all_segments(Segments, objp);
 	}
 }
@@ -2473,6 +2471,7 @@ namespace dsx {
 //	Do special stuff for a boss.
 static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const player_visibility_state player_visibility)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 #ifndef NDEBUG
@@ -2487,6 +2486,7 @@ static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 #endif
 
 	if (!Boss_dying) {
+		const auto Boss_cloak_start_time = BossUniqueState.Boss_cloak_start_time;
 		if (objp->ctype.ai_info.CLOAKED == 1) {
 			if (GameTime64 - Boss_cloak_start_time > Boss_cloak_duration / 3 &&
 				(Boss_cloak_start_time + Boss_cloak_duration) - GameTime64 > Boss_cloak_duration / 3 &&
@@ -2509,7 +2509,7 @@ static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 				if (ai_multiplayer_awareness(objp, 95))
 				{
 					Boss_hit_this_frame = 0;
-					Boss_cloak_start_time = GameTime64;
+					BossUniqueState.Boss_cloak_start_time = GameTime64;
 					objp->ctype.ai_info.CLOAKED = 1;
 					if (Game_mode & GM_MULTI)
 						multi_send_boss_cloak(objp);
@@ -2572,6 +2572,7 @@ static void do_super_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
 #if defined(DXX_BUILD_DESCENT_II)
 static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const player_visibility_state player_visibility)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	int	boss_id, boss_index;
@@ -2596,6 +2597,7 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 		return;
 
 	if (!Boss_dying && Boss_teleports[boss_index]) {
+		const auto Boss_cloak_start_time = BossUniqueState.Boss_cloak_start_time;
 		if (objp->ctype.ai_info.CLOAKED == 1) {
 			Boss_hit_time = GameTime64;	//	Keep the cloak:teleport process going.
 			if (GameTime64 - Boss_cloak_start_time > Boss_cloak_duration / 3 &&
@@ -2614,7 +2616,7 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 		} else if (GameTime64 - (Boss_cloak_start_time + Boss_cloak_duration) > LevelSharedBossState.Boss_cloak_interval ||
 				GameTime64 - (Boss_cloak_start_time + Boss_cloak_duration) < -Boss_cloak_duration) {
 			if (ai_multiplayer_awareness(objp, 95)) {
-				Boss_cloak_start_time = GameTime64;
+				BossUniqueState.Boss_cloak_start_time = GameTime64;
 				objp->ctype.ai_info.CLOAKED = 1;
 				if (Game_mode & GM_MULTI)
 					multi_send_boss_cloak(objp);
@@ -4694,6 +4696,8 @@ int ai_save_state(PHYSFS_File *fp)
 		state_ai_cloak_info_to_ai_cloak_info_rw(&i, &aic_rw);
 		PHYSFS_write(fp, &aic_rw, sizeof(aic_rw), 1);
 	}
+	{
+		const auto Boss_cloak_start_time = BossUniqueState.Boss_cloak_start_time;
 	if (Boss_cloak_start_time - GameTime64 < F1_0*(-18000))
 		tmptime32 = F1_0*(-18000);
 	else
@@ -4704,6 +4708,7 @@ int ai_save_state(PHYSFS_File *fp)
 	else
 		tmptime32 = (Boss_cloak_start_time + Boss_cloak_duration) - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	}
 	if (Last_teleport_time - GameTime64 < F1_0*(-18000))
 		tmptime32 = F1_0*(-18000);
 	else
@@ -4912,7 +4917,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	PHYSFSX_serialize_read(fp, Point_segs);
 	ai_cloak_info_read_n_swap(Ai_cloak_info.data(), Ai_cloak_info.size(), swap, fp);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	Boss_cloak_start_time = static_cast<fix64>(tmptime32);
+	BossUniqueState.Boss_cloak_start_time = static_cast<fix64>(tmptime32);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Last_teleport_time = static_cast<fix64>(tmptime32);
@@ -4934,7 +4939,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 #endif
 				)
 				{
-					if (Last_teleport_time != 0 && Last_teleport_time != Boss_cloak_start_time)
+					if (Last_teleport_time != 0 && Last_teleport_time != BossUniqueState.Boss_cloak_start_time)
 						boss_link_see_sound(o);
 					boss_init_all_segments(Segments, o);
 				}

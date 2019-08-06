@@ -1137,6 +1137,7 @@ void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, 
 
 void multi_do_boss_cloak(const ubyte *buf)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -1155,7 +1156,7 @@ void multi_do_boss_cloak(const ubyte *buf)
 #if defined(DXX_BUILD_DESCENT_II)
 	Boss_hit_time = -F1_0*10;
 #endif
-	Boss_cloak_start_time = GameTime64;
+	BossUniqueState.Boss_cloak_start_time = GameTime64;
 	boss_obj->ctype.ai_info.CLOAKED = 1;
 }
 }

@@ -568,6 +568,7 @@ unsigned laser_parent_is_matching_signature(const laser_parent &l, const object_
 struct d_level_unique_boss_state
 {
 	fix64 Last_gate_time;
+	fix64 Boss_cloak_start_time;
 };
 
 }

@@ -334,6 +334,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 //draw an object which renders as a polygon model
 static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vcobjptridx_t obj)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	g3s_lrgb light;
 	glow_values_t engine_glow_value;
@@ -427,7 +428,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 		}
 		else if ((obj->type == OBJ_ROBOT) && (obj->ctype.ai_info.CLOAKED)) {
 			if (Robot_info[get_robot_id(obj)].boss_flag)
-				cloak_duration = {Boss_cloak_start_time, Boss_cloak_duration};
+				cloak_duration = {BossUniqueState.Boss_cloak_start_time, Boss_cloak_duration};
 			else
 				cloak_duration = {GameTime64-F1_0*10, F1_0 * 20};
 			cloak_fade = {CLOAK_FADEIN_DURATION_ROBOT, CLOAK_FADEOUT_DURATION_ROBOT};
