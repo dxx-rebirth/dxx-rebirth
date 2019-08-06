@@ -4454,13 +4454,12 @@ static void set_player_awareness_all(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptr
 			if (New_awareness[objp->segnum] > ailp.player_awareness_type) {
 				ailp.player_awareness_type = New_awareness[objp->segnum];
 				ailp.player_awareness_time = PLAYER_AWARENESS_INITIAL_TIME;
-			}
 
 #if defined(DXX_BUILD_DESCENT_II)
 			// Clear the bit that says this robot is only awake because a camera woke it up.
-			if (New_awareness[objp->segnum] > ailp.player_awareness_type)
 				objp->ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
 #endif
+			}
 		}
 	}
 }

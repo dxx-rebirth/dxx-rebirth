@@ -7,6 +7,7 @@ What's new in 0.61
   * Raised limit on cooperative players from 4 to 8.  The limit cannot be raised further without changes to the savegame format.
   * When more than 4 players are permitted, the per-player marker limit is reduced to 2, regardless of whether more than 4 players are actually in the game.  Due to savegame limitations, at most 16 markers can be in use.  The 0.60.x limit of 4 per-player is retained when there are at most 4 players permitted in the game.
 * Partially fixed a bug relating to the orientation of spreadfire/helix cannons.  Weapon orientation was neither saved nor loaded, which caused illogical results when saving, firing, loading, and firing again.  The orientation cannot be saved without altering the savegame format, but it is now reset when appropriate.
+* Fixed original game bug that meant to reset camera flag, but did not.
 
 What's new in 0.60
 ------------------
