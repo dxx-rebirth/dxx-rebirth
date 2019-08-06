@@ -1347,7 +1347,7 @@ int load_level(
 		Flickering_light_state.Num_flickering_lights = 0;
 
 	if (Gamesave_current_version < 6) {
-		Secret_return_segment = 0;
+		LevelSharedSegmentState.Secret_return_segment = segment_first;
 		Secret_return_orient.rvec.x = F1_0;
 		Secret_return_orient.rvec.y = 0;
 		Secret_return_orient.rvec.z = 0;
@@ -1358,7 +1358,7 @@ int load_level(
 		Secret_return_orient.uvec.y = 0;
 		Secret_return_orient.uvec.z = F1_0;
 	} else {
-		Secret_return_segment = PHYSFSX_readInt(LoadFile);
+		LevelSharedSegmentState.Secret_return_segment = PHYSFSX_readInt(LoadFile);
 		Secret_return_orient.rvec.x = PHYSFSX_readInt(LoadFile);
 		Secret_return_orient.rvec.y = PHYSFSX_readInt(LoadFile);
 		Secret_return_orient.rvec.z = PHYSFSX_readInt(LoadFile);
@@ -1882,7 +1882,7 @@ static int save_level_sub(
 
 	if (Gamesave_current_version >= 6)
 	{
-		PHYSFS_writeSLE32(SaveFile, Secret_return_segment);
+		PHYSFS_writeSLE32(SaveFile, LevelSharedSegmentState.Secret_return_segment);
 		PHYSFSX_writeVector(SaveFile, Secret_return_orient.rvec);
 		PHYSFSX_writeVector(SaveFile, Secret_return_orient.fvec);
 		PHYSFSX_writeVector(SaveFile, Secret_return_orient.uvec);

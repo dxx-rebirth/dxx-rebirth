@@ -1358,7 +1358,7 @@ void set_pos_from_return_segment(void)
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	const auto &&plobjnum = vmobjptridx(get_local_player().objnum);
-	const auto &&segp = vmsegptridx(Secret_return_segment);
+	const auto &&segp = vmsegptridx(LevelSharedSegmentState.Secret_return_segment);
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, plobjnum->pos, segp);
