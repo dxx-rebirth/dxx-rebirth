@@ -139,7 +139,6 @@ static void draw_stars(grs_canvas &, const d_unique_endlevel_state::starfield_ty
 static int find_exit_side(const object_base &obj);
 static void generate_starfield(d_unique_endlevel_state::starfield_type &stars);
 static void start_endlevel_flythrough(flythrough_data *flydata,const vmobjptr_t obj,fix speed);
-static void draw_mine_exit_cover(grs_canvas &);
 
 #if defined(DXX_BUILD_DESCENT_II)
 constexpr array<const char, 24> movie_table{{
@@ -898,34 +897,40 @@ static int find_exit_side(const object_base &obj)
 	return best_side;
 }
 
-inline void prepare_mine_exit_cover_point(g3s_point& p, const vms_vector &v, fix u, fix r)
+static void draw_mine_exit_cover(grs_canvas &canvas)
 {
-	vms_vector tv;
-	vm_vec_scale_add(tv,v,mine_exit_orient.uvec,u);
-	vm_vec_scale_add2(tv,mine_exit_orient.rvec,r);
-	p = g3_rotate_point(tv);
-}
-
-void draw_mine_exit_cover(grs_canvas &canvas)
-{
-	int of=10;
-	fix u=i2f(6),d=i2f(9),ur=i2f(14),dr=i2f(17);
+	const int of = 10;
+	const fix u = i2f(6), d = i2f(9), ur = i2f(14), dr = i2f(17);
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	array<cg3s_point *, 4> pointlist;
 	vms_vector v;
 	g3s_point p0, p1, p2, p3;
 
 	vm_vec_scale_add(v,mine_exit_point,mine_exit_orient.fvec,i2f(of));
 
-	prepare_mine_exit_cover_point(p0,v,+u,+ur);
-	prepare_mine_exit_cover_point(p1,v,+u,-ur);
-	prepare_mine_exit_cover_point(p2,v,-d,-dr);
-	prepare_mine_exit_cover_point(p3,v,-d,+dr);
-
-	pointlist[0] = &p0;
-	pointlist[1] = &p1;
-	pointlist[2] = &p2;
-	pointlist[3] = &p3;
+	auto mrd = mine_exit_orient.rvec;
+	{
+		vms_vector vu;
+		vm_vec_scale_add(vu, v, mine_exit_orient.uvec, u);
+		auto mru = mrd;
+		vm_vec_scale(mru, ur);
+		vms_vector p;
+		g3_rotate_point(p0, (vm_vec_add(p, vu, mru), p));
+		g3_rotate_point(p1, (vm_vec_sub(p, vu, mru), p));
+	}
+	{
+		vms_vector vd;
+		vm_vec_scale_add(vd, v, mine_exit_orient.uvec, -d);
+		vm_vec_scale(mrd, dr);
+		vms_vector p;
+		g3_rotate_point(p2, (vm_vec_sub(p, vd, mrd), p));
+		g3_rotate_point(p3, (vm_vec_add(p, vd, mrd), p));
+	}
+	const array<cg3s_point *, 4> pointlist{{
+		&p0,
+		&p1,
+		&p2,
+		&p3,
+	}};
 
 	g3_draw_poly(canvas, pointlist.size(), pointlist, color);
 }
