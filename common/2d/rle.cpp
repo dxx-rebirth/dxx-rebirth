@@ -79,6 +79,7 @@ uint8_t *gr_rle_decode(const uint8_t *sb, uint8_t *db, const rle_position_t e)
 	return db;
 }
 
+#if !DXX_USE_OGL
 // Given pointer to start of one scanline of rle data, uncompress it to
 // dest, from source pixels x1 to x2.
 void gr_rle_expand_scanline_masked(uint8_t *dest, const uint8_t *src, int x1, int x2)
@@ -140,6 +141,7 @@ void gr_rle_expand_scanline_masked(uint8_t *dest, const uint8_t *src, int x1, in
 		}
 	}
 }
+#endif
 
 void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, int x1, int x2)
 {
@@ -441,6 +443,7 @@ grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 	return least_recently_used->expanded_bitmap.get();
 }
 
+#if !DXX_USE_OGL
 void gr_rle_expand_scanline_generic(grs_canvas &canvas, grs_bitmap &dest, int dx, const int dy, const uint8_t *src, const int x1, const int x2)
 {
 	int i = 0;
@@ -497,6 +500,7 @@ void gr_rle_expand_scanline_generic(grs_canvas &canvas, grs_bitmap &dest, int dx
 		i += count;
 	}
 }
+#endif
 
 /*
  * swaps entries 0 and 255 in an RLE bitmap without uncompressing it

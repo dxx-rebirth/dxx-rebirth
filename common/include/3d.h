@@ -256,7 +256,9 @@ static inline void g3_check_and_draw_tmap(grs_canvas &canvas, const array<cg3s_p
 }
 
 //draws a line. takes two points.
+#if !DXX_USE_OGL
 struct temporary_points_t;
+#endif
 
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew

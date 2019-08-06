@@ -15,6 +15,7 @@
 
 namespace dcx {
 
+#if !DXX_USE_OGL
 temporary_points_t::temporary_points_t() :
 	free_point_num(0)
 {
@@ -104,7 +105,6 @@ static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt,
 	return tmp;
 }
 
-#if !DXX_USE_OGL
 //clips a line to the viewing pyramid.
 void clip_line(g3s_point *&p0,g3s_point *&p1,const uint_fast8_t codes_or, temporary_points_t &tp)
 {
@@ -122,7 +122,6 @@ void clip_line(g3s_point *&p0,g3s_point *&p1,const uint_fast8_t codes_or, tempor
 				tp.free_temp_point(old_p1);
 		}
 }
-#endif
 
 static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_points &dest,int *nv,g3s_codes *cc, temporary_points_t &tp)
 {
@@ -186,5 +185,6 @@ const polygon_clip_points &clip_polygon(polygon_clip_points &rsrc,polygon_clip_p
 
 	return *src;		//we swapped after we copied
 }
+#endif
 
 }
