@@ -85,7 +85,7 @@ static void segment2_read(shared_segment &s2, unique_segment &u2, PHYSFS_File *f
 
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
-fix Level_shake_frequency = 0, Level_shake_duration = 0;
+fix Level_shake_duration = 0;
 segnum_t Secret_return_segment;
 vms_matrix Secret_return_orient;
 
@@ -492,12 +492,12 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (mine_top_fileinfo.fileinfo_version < 18) {
-		Level_shake_frequency = 0;
+		LevelSharedSeismicState.Level_shake_frequency = 0;
 		Level_shake_duration = 0;
 		Secret_return_segment = segment_first;
 		Secret_return_orient = vmd_identity_matrix;
 	} else {
-		Level_shake_frequency = mine_fileinfo.level_shake_frequency << 12;
+		LevelSharedSeismicState.Level_shake_frequency = mine_fileinfo.level_shake_frequency << 12;
 		Level_shake_duration = mine_fileinfo.level_shake_duration << 12;
 		Secret_return_segment = mine_fileinfo.secret_return_segment;
 		Secret_return_orient = mine_fileinfo.secret_return_orient;

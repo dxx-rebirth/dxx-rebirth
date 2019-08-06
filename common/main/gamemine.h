@@ -148,7 +148,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *Gamesave_current_
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 extern int d1_pig_present;
-extern fix Level_shake_frequency, Level_shake_duration;
+extern fix Level_shake_duration;
 extern segnum_t Secret_return_segment;
 extern vms_matrix Secret_return_orient;
 
