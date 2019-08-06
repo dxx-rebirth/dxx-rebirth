@@ -110,7 +110,6 @@ struct d_level_shared_boss_state
 };
 
 constexpr fix Boss_cloak_duration = F1_0*7;
-extern sbyte Boss_dying;
 
 extern vms_vector Believed_player_pos;
 }

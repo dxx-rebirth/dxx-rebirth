@@ -152,7 +152,7 @@ point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
 static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
 static fix64 Boss_dying_start_time;
-sbyte           Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
+sbyte           Boss_dying_sound_playing, Boss_hit_this_frame;
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
 
@@ -573,6 +573,7 @@ void init_ai_object(const vmobjptridx_t objp, ai_behavior behavior, const imsegi
 // ---------------------------------------------------------------------------------------------------------------------
 void init_ai_objects(void)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -589,7 +590,7 @@ void init_ai_objects(void)
 	}
 
 	Boss_dying_sound_playing = 0;
-	Boss_dying = 0;
+	BossUniqueState.Boss_dying = 0;
 
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #define D1_Boss_gate_interval	F1_0*5 - Difficulty_level*F1_0/2
@@ -2256,11 +2257,12 @@ static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx,
 //	----------------------------------------------------------------------
 void start_boss_death_sequence(const vmobjptr_t objp)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 	if (robptr.boss_flag)
 	{
-		Boss_dying = 1;
+		BossUniqueState.Boss_dying = 1;
 		Boss_dying_start_time = GameTime64;
 	}
 
@@ -2485,7 +2487,7 @@ static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 		return;
 #endif
 
-	if (!Boss_dying) {
+	if (!BossUniqueState.Boss_dying) {
 		const auto Boss_cloak_start_time = BossUniqueState.Boss_cloak_start_time;
 		if (objp->ctype.ai_info.CLOAKED == 1) {
 			if (GameTime64 - Boss_cloak_start_time > Boss_cloak_duration / 3 &&
@@ -2596,7 +2598,7 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 	if (!player_is_visible(player_visibility) && GameTime64 - Boss_hit_time > F1_0 * 2)
 		return;
 
-	if (!Boss_dying && Boss_teleports[boss_index]) {
+	if (!BossUniqueState.Boss_dying && Boss_teleports[boss_index]) {
 		const auto Boss_cloak_start_time = BossUniqueState.Boss_cloak_start_time;
 		if (objp->ctype.ai_info.CLOAKED == 1) {
 			Boss_hit_time = GameTime64;	//	Keep the cloak:teleport process going.
@@ -4551,6 +4553,7 @@ void do_ai_frame_all(void)
 	set_player_awareness_all(vmobjptr, vcsegptridx);
 
 #if defined(DXX_BUILD_DESCENT_II)
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &vmobjptridx = Objects.vmptridx;
 	if (Ai_last_missile_camera)
 	{
@@ -4567,7 +4570,7 @@ void do_ai_frame_all(void)
 
 	// (Moved here from do_d2_boss_stuff() because that only gets called if robot aware of player.)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	if (Boss_dying) {
+	if (BossUniqueState.Boss_dying) {
 		range_for (const auto &&objp, vmobjptridx)
 		{
 			if (objp->type == OBJ_ROBOT)
@@ -4744,8 +4747,10 @@ int ai_save_state(PHYSFS_File *fp)
 			tmptime32 = -1;
 	}
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
-	int boss_dying = Boss_dying;
+	{
+	const int boss_dying = BossUniqueState.Boss_dying;
 	PHYSFS_write(fp, &boss_dying, sizeof(int), 1);
+	}
 	int boss_dying_sound_playing = Boss_dying_sound_playing;
 	PHYSFS_write(fp, &boss_dying_sound_playing, sizeof(int), 1);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -4964,7 +4969,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	GameUniqueState.Boss_gate_interval = PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Boss_dying_start_time = static_cast<fix64>(tmptime32);
-	Boss_dying = PHYSFSX_readSXE32(fp, swap);
+	BossUniqueState.Boss_dying = PHYSFSX_readSXE32(fp, swap);
 	Boss_dying_sound_playing = PHYSFSX_readSXE32(fp, swap);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)version;

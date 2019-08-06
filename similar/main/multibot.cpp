@@ -107,6 +107,7 @@ ubyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 
 int multi_can_move_robot(const vmobjptridx_t objnum, int agitation)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	// Determine whether or not I am allowed to move this robot.
 	// Claim robot if necessary.
 
@@ -122,7 +123,7 @@ int multi_can_move_robot(const vmobjptridx_t objnum, int agitation)
 	}
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	if (Robot_info[get_robot_id(objnum)].boss_flag && Boss_dying)
+	if (Robot_info[get_robot_id(objnum)].boss_flag && BossUniqueState.Boss_dying)
 		return 0;
 	else if (objnum->ctype.ai_info.REMOTE_OWNER == Player_num) // Already my robot!
 	{
@@ -927,6 +928,7 @@ void multi_do_robot_fire(const uint8_t *const buf)
 namespace dsx {
 int multi_explode_robot_sub(const vmobjptridx_t robot)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (robot->type != OBJ_ROBOT) { // Object is robot?
 		return 0;
@@ -961,7 +963,7 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 		drop_stolen_items(robot);
 
 	if (Robot_info[get_robot_id(robot)].boss_flag) {
-		if (!Boss_dying)
+		if (!BossUniqueState.Boss_dying)
 			start_boss_death_sequence(robot);	
 		else
 			return (0);
