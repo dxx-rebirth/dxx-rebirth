@@ -151,7 +151,6 @@ static int             Overall_agitation;
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
 static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
-static fix64 Boss_dying_start_time;
 sbyte           Boss_dying_sound_playing, Boss_hit_this_frame;
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
@@ -1076,7 +1075,7 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 
 	//	Don't let the boss fire while in death roll.  Sorry, this is the easiest way to do this.
 	//	If you try to key the boss off obj->ctype.ai_info.dying_start_time, it will hose the endlevel stuff.
-	if (Boss_dying_start_time && Robot_info[get_robot_id(obj)].boss_flag)
+	if (BossUniqueState.Boss_dying_start_time && Robot_info[get_robot_id(obj)].boss_flag)
 		return;
 #endif
 
@@ -2263,7 +2262,7 @@ void start_boss_death_sequence(const vmobjptr_t objp)
 	if (robptr.boss_flag)
 	{
 		BossUniqueState.Boss_dying = 1;
-		Boss_dying_start_time = GameTime64;
+		BossUniqueState.Boss_dying_start_time = GameTime64;
 	}
 
 }
@@ -2272,11 +2271,16 @@ void start_boss_death_sequence(const vmobjptr_t objp)
 #if defined(DXX_BUILD_DESCENT_I)
 static void do_boss_dying_frame(const vmobjptridx_t objp)
 {
-	objp->mtype.phys_info.rotvel.x = (GameTime64 - Boss_dying_start_time)/9;
-	objp->mtype.phys_info.rotvel.y = (GameTime64 - Boss_dying_start_time)/5;
-	objp->mtype.phys_info.rotvel.z = (GameTime64 - Boss_dying_start_time)/7;
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
+	const auto time_boss_dying = GameTime64 - BossUniqueState.Boss_dying_start_time;
+	{
+		auto &rotvel = objp->mtype.phys_info.rotvel;
+		rotvel.x = time_boss_dying / 9;
+		rotvel.y = time_boss_dying / 5;
+		rotvel.z = time_boss_dying / 7;
+	}
 
-	if (Boss_dying_start_time + BOSS_DEATH_DURATION - BOSS_DEATH_SOUND_DURATION < GameTime64) {
+	if (BossUniqueState.Boss_dying_start_time + BOSS_DEATH_DURATION - BOSS_DEATH_SOUND_DURATION < GameTime64) {
 		if (!Boss_dying_sound_playing) {
 			Boss_dying_sound_playing = 1;
 			digi_link_sound_to_object2(SOUND_BOSS_SHARE_DIE, objp, 0, F1_0*4, sound_stack::allow_stacking, vm_distance{F1_0*1024});	//	F1_0*512 means play twice as loud
@@ -2285,9 +2289,9 @@ static void do_boss_dying_frame(const vmobjptridx_t objp)
         } else if (d_rand() < FrameTime*8)
                 create_small_fireball_on_object(objp, (F1_0/2 + d_rand()) * 8, 1);
 
-	if (Boss_dying_start_time + BOSS_DEATH_DURATION < GameTime64 || GameTime64+(F1_0*2) < Boss_dying_start_time)
+	if (BossUniqueState.Boss_dying_start_time + BOSS_DEATH_DURATION < GameTime64 || GameTime64+(F1_0*2) < BossUniqueState.Boss_dying_start_time)
 	{
-		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
+		BossUniqueState.Boss_dying_start_time = GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
 		explode_object(objp, F1_0/4);
 		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, sound_stack::allow_stacking, vm_distance{F1_0*512});
@@ -2389,14 +2393,15 @@ static int do_robot_dying_frame(const vmobjptridx_t objp, fix64 start_time, fix 
 //	----------------------------------------------------------------------
 static void do_boss_dying_frame(const vmobjptridx_t objp)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	int	rval;
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	rval = do_robot_dying_frame(objp, Boss_dying_start_time, BOSS_DEATH_DURATION, &Boss_dying_sound_playing, Robot_info[get_robot_id(objp)].deathroll_sound, F1_0*4, F1_0*4);
+	rval = do_robot_dying_frame(objp, BossUniqueState.Boss_dying_start_time, BOSS_DEATH_DURATION, &Boss_dying_sound_playing, Robot_info[get_robot_id(objp)].deathroll_sound, F1_0*4, F1_0*4);
 
 	if (rval)
 	{
-		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
+		BossUniqueState.Boss_dying_start_time = GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
 		explode_object(objp, F1_0/4);
 		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, sound_stack::allow_stacking, vm_distance{F1_0*512});
@@ -4585,12 +4590,11 @@ void do_ai_frame_all(void)
 // Initializations to be performed for all robots for a new level.
 void init_robots_for_level(void)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
+	BossUniqueState.Boss_dying_start_time = 0;
 	Overall_agitation = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	Final_boss_is_dead=0;
-
-	Boss_dying_start_time = 0;
-	
 	Ai_last_missile_camera = nullptr;
 #endif
 }
@@ -4733,6 +4737,8 @@ int ai_save_state(PHYSFS_File *fp)
 		tmptime32 = BossUniqueState.Last_gate_time - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &GameUniqueState.Boss_gate_interval, sizeof(fix), 1);
+	{
+		const auto Boss_dying_start_time = BossUniqueState.Boss_dying_start_time;
 	if (Boss_dying_start_time == 0) // if Boss not dead, yet we expect this to be 0, so do not convert!
 	{
 		tmptime32 = 0;
@@ -4747,6 +4753,7 @@ int ai_save_state(PHYSFS_File *fp)
 			tmptime32 = -1;
 	}
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	}
 	{
 	const int boss_dying = BossUniqueState.Boss_dying;
 	PHYSFS_write(fp, &boss_dying, sizeof(int), 1);
@@ -4968,7 +4975,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	BossUniqueState.Last_gate_time = static_cast<fix64>(tmptime32);
 	GameUniqueState.Boss_gate_interval = PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	Boss_dying_start_time = static_cast<fix64>(tmptime32);
+	BossUniqueState.Boss_dying_start_time = static_cast<fix64>(tmptime32);
 	BossUniqueState.Boss_dying = PHYSFSX_readSXE32(fp, swap);
 	Boss_dying_sound_playing = PHYSFSX_readSXE32(fp, swap);
 #if defined(DXX_BUILD_DESCENT_I)
