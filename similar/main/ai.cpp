@@ -151,7 +151,7 @@ static int             Overall_agitation;
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
 static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
-sbyte           Boss_dying_sound_playing, Boss_hit_this_frame;
+sbyte           Boss_hit_this_frame;
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
 
@@ -588,7 +588,7 @@ void init_ai_objects(void)
 			init_ai_object(o, obj.ctype.ai_info.behavior, obj.ctype.ai_info.hide_segment);
 	}
 
-	Boss_dying_sound_playing = 0;
+	BossUniqueState.Boss_dying_sound_playing = 0;
 	BossUniqueState.Boss_dying = 0;
 
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
@@ -2281,8 +2281,9 @@ static void do_boss_dying_frame(const vmobjptridx_t objp)
 	}
 
 	if (BossUniqueState.Boss_dying_start_time + BOSS_DEATH_DURATION - BOSS_DEATH_SOUND_DURATION < GameTime64) {
-		if (!Boss_dying_sound_playing) {
-			Boss_dying_sound_playing = 1;
+		if (!BossUniqueState.Boss_dying_sound_playing)
+		{
+			BossUniqueState.Boss_dying_sound_playing = 1;
 			digi_link_sound_to_object2(SOUND_BOSS_SHARE_DIE, objp, 0, F1_0*4, sound_stack::allow_stacking, vm_distance{F1_0*1024});	//	F1_0*512 means play twice as loud
                 } else if (d_rand() < FrameTime*16)
                         create_small_fireball_on_object(objp, (F1_0 + d_rand()) * 8, 0);
@@ -2397,7 +2398,7 @@ static void do_boss_dying_frame(const vmobjptridx_t objp)
 	int	rval;
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	rval = do_robot_dying_frame(objp, BossUniqueState.Boss_dying_start_time, BOSS_DEATH_DURATION, &Boss_dying_sound_playing, Robot_info[get_robot_id(objp)].deathroll_sound, F1_0*4, F1_0*4);
+	rval = do_robot_dying_frame(objp, BossUniqueState.Boss_dying_start_time, BOSS_DEATH_DURATION, &BossUniqueState.Boss_dying_sound_playing, Robot_info[get_robot_id(objp)].deathroll_sound, F1_0*4, F1_0*4);
 
 	if (rval)
 	{
@@ -4758,7 +4759,7 @@ int ai_save_state(PHYSFS_File *fp)
 	const int boss_dying = BossUniqueState.Boss_dying;
 	PHYSFS_write(fp, &boss_dying, sizeof(int), 1);
 	}
-	int boss_dying_sound_playing = Boss_dying_sound_playing;
+	const int boss_dying_sound_playing = BossUniqueState.Boss_dying_sound_playing;
 	PHYSFS_write(fp, &boss_dying_sound_playing, sizeof(int), 1);
 #if defined(DXX_BUILD_DESCENT_I)
 	int boss_hit_this_frame = Boss_hit_this_frame;
@@ -4977,7 +4978,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	BossUniqueState.Boss_dying_start_time = static_cast<fix64>(tmptime32);
 	BossUniqueState.Boss_dying = PHYSFSX_readSXE32(fp, swap);
-	Boss_dying_sound_playing = PHYSFSX_readSXE32(fp, swap);
+	BossUniqueState.Boss_dying_sound_playing = PHYSFSX_readSXE32(fp, swap);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)version;
 	Boss_hit_this_frame = PHYSFSX_readSXE32(fp, swap);
