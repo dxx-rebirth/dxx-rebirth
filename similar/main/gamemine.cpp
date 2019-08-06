@@ -862,6 +862,8 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 	ubyte   bit_mask;
 
 #if defined(DXX_BUILD_DESCENT_II)
+	LevelSharedSeismicState.Level_shake_frequency = 0;
+	LevelSharedSeismicState.Level_shake_duration = 0;
 	d1_pig_present = PHYSFSX_exists(D1_PIGFILE,1);
 #endif
 	if (!strcmp(strchr(Gamesave_current_filename, '.'), ".sdl"))
