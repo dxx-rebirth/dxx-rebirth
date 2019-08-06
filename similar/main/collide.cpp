@@ -403,7 +403,7 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 		int	volume;
 		volume = (hitspeed-(WALL_DAMAGE_SCALE*WALL_DAMAGE_THRESHOLD)) / WALL_LOUDNESS_SCALE ;
 
-		create_awareness_event(playerobj, player_awareness_type_t::PA_WEAPON_WALL_COLLISION);
+		create_awareness_event(playerobj, player_awareness_type_t::PA_WEAPON_WALL_COLLISION, LevelUniqueRobotAwarenessState);
 
 		if ( volume > F1_0 )
 			volume = F1_0;
@@ -932,7 +932,7 @@ static window_event_result collide_weapon_and_wall(
 	if (( weapon->ctype.laser_info.parent_type== OBJ_PLAYER ) || robot_escort) {
 
 		if (!(weapon->flags & OF_SILENT) && (weapon->ctype.laser_info.parent_num == get_local_player().objnum))
-			create_awareness_event(weapon, player_awareness_type_t::PA_WEAPON_WALL_COLLISION);			// object "weapon" can attract attention to player
+			create_awareness_event(weapon, player_awareness_type_t::PA_WEAPON_WALL_COLLISION, LevelUniqueRobotAwarenessState);			// object "weapon" can attract attention to player
 
 //	We now allow flares to open doors.
 		{
@@ -1052,7 +1052,7 @@ static void collide_robot_and_player(const vmobjptridx_t robot, const vmobjptrid
 		}
 #endif
 
-		create_awareness_event(playerobj, player_awareness_type_t::PA_PLAYER_COLLISION);			// object robot can attract attention to player
+		create_awareness_event(playerobj, player_awareness_type_t::PA_PLAYER_COLLISION, LevelUniqueRobotAwarenessState);			// object robot can attract attention to player
 		do_ai_robot_hit_attack(robot, playerobj, collision_point);
 		do_ai_robot_hit(robot, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 	}
@@ -1715,7 +1715,7 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 #endif
 	{
 		if (weapon->ctype.laser_info.parent_num == get_local_player().objnum) {
-			create_awareness_event(weapon, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);			// object "weapon" can attract attention to player
+			create_awareness_event(weapon, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION, LevelUniqueRobotAwarenessState);			// object "weapon" can attract attention to player
 			do_ai_robot_hit(robot, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 		}
 	       	else

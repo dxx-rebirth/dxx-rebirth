@@ -79,6 +79,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 //end addition -MM
 
+#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "segiter.h"
 #include "d_enumerate.h"
@@ -209,6 +210,8 @@ segnum_t             Believed_player_seg;
 }
 #endif
 
+namespace dcx {
+
 namespace {
 
 struct robot_to_player_visibility_state
@@ -218,13 +221,11 @@ struct robot_to_player_visibility_state
 	uint8_t initialized = 0;
 };
 
-constexpr std::integral_constant<std::size_t, 64> MAX_AWARENESS_EVENTS{};
-struct awareness_event
+struct awareness_t : array<player_awareness_type_t, MAX_SEGMENTS>
 {
-	segnum_t	segnum;				// segment the event occurred in
-	player_awareness_type_t type;					// type of event, defines behavior
-	vms_vector	pos;					// absolute 3 space location of event
 };
+
+}
 
 }
 
@@ -235,9 +236,6 @@ static int ai_evaded;
 static vms_vector  Hit_pos;
 static int         Hit_type;
 static fvi_info    Hit_data;
-
-static unsigned             Num_awareness_events;
-static array<awareness_event, MAX_AWARENESS_EVENTS> Awareness_events;
 
 namespace dcx {
 vms_vector      Believed_player_pos;
@@ -1209,7 +1207,7 @@ player_led: ;
 		multi_send_robot_fire(obj, obj->ctype.ai_info.CURRENT_GUN, fire_vec);
 	}
 
-	create_awareness_event(obj, player_awareness_type_t::PA_NEARBY_ROBOT_FIRED);
+	create_awareness_event(obj, player_awareness_type_t::PA_NEARBY_ROBOT_FIRED, LevelUniqueRobotAwarenessState);
 
 	set_next_fire_time(obj, ailp, robptr, gun_num);
 
@@ -4349,7 +4347,7 @@ void init_ai_for_ship()
 
 // ----------------------------------------------------------------------------
 // Returns false if awareness is considered too puny to add, else returns true.
-static int add_awareness_event(const object_base &objp, player_awareness_type_t type)
+static int add_awareness_event(const object_base &objp, player_awareness_type_t type, d_level_unique_robot_awareness_state &awareness)
 {
 	// If player cloaked and hit a robot, then increase awareness
 	if (type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION ||
@@ -4357,14 +4355,15 @@ static int add_awareness_event(const object_base &objp, player_awareness_type_t 
 		type == player_awareness_type_t::PA_PLAYER_COLLISION)
 		ai_do_cloak_stuff();
 
-	if (Num_awareness_events < MAX_AWARENESS_EVENTS) {
+	if (awareness.Num_awareness_events < awareness.Awareness_events.size())
+	{
 		if (type == player_awareness_type_t::PA_WEAPON_WALL_COLLISION ||
 			type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION)
 			if (objp.type == OBJ_WEAPON && get_weapon_id(objp) == weapon_id_type::VULCAN_ID)
 				if (d_rand() > 3276)
 					return 0;       // For vulcan cannon, only about 1/10 actually cause awareness
 
-		auto &e = Awareness_events[Num_awareness_events++];
+		auto &e = awareness.Awareness_events[awareness.Num_awareness_events++];
 		e.segnum = objp.segnum;
 		e.pos = objp.pos;
 		e.type = type;
@@ -4380,26 +4379,19 @@ static int add_awareness_event(const object_base &objp, player_awareness_type_t 
 // ----------------------------------------------------------------------------------
 // Robots will become aware of the player based on something that occurred.
 // The object (probably player or weapon) which created the awareness is objp.
-void create_awareness_event(const vmobjptr_t objp, player_awareness_type_t type)
+void create_awareness_event(const vmobjptr_t objp, player_awareness_type_t type, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState)
 {
 	// If not in multiplayer, or in multiplayer with robots, do this, else unnecessary!
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
 	{
-		if (add_awareness_event(objp, type)) {
+		if (add_awareness_event(objp, type, LevelUniqueRobotAwarenessState))
+		{
 			if (((d_rand() * (static_cast<unsigned>(type) + 4)) >> 15) > 4)
 				Overall_agitation++;
 			if (Overall_agitation > OVERALL_AGITATION_MAX)
 				Overall_agitation = OVERALL_AGITATION_MAX;
 		}
 	}
-}
-
-namespace {
-
-struct awareness_t : array<player_awareness_type_t, MAX_SEGMENTS>
-{
-};
-
 }
 
 // ----------------------------------------------------------------------------------
@@ -4427,24 +4419,23 @@ static void pae_aux(const vcsegptridx_t segnum, const player_awareness_type_t ty
 
 
 // ----------------------------------------------------------------------------------
-static void process_awareness_events(fvcsegptridx &vcsegptridx, awareness_t &New_awareness)
+static void process_awareness_events(fvcsegptridx &vcsegptridx, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState, awareness_t &New_awareness)
 {
+	const auto Num_awareness_events = exchange(LevelUniqueRobotAwarenessState.Num_awareness_events, 0);
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
 	{
 		New_awareness.fill(player_awareness_type_t::PA_NONE);
-		range_for (auto &i, partial_const_range(Awareness_events, Num_awareness_events))
+		range_for (auto &i, partial_const_range(LevelUniqueRobotAwarenessState.Awareness_events, Num_awareness_events))
 			pae_aux(vcsegptridx(i.segnum), i.type, 1, New_awareness);
 	}
-
-	Num_awareness_events = 0;
 }
 
 // ----------------------------------------------------------------------------------
-static void set_player_awareness_all(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptridx)
+static void set_player_awareness_all(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptridx, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState)
 {
 	awareness_t New_awareness;
 
-	process_awareness_events(vcsegptridx, New_awareness);
+	process_awareness_events(vcsegptridx, LevelUniqueRobotAwarenessState, New_awareness);
 
 	range_for (const auto &&objp, vmobjptr)
 	{
@@ -4554,7 +4545,7 @@ void do_ai_frame_all(void)
 	dump_ai_objects_all();
 #endif
 
-	set_player_awareness_all(vmobjptr, vcsegptridx);
+	set_player_awareness_all(vmobjptr, vcsegptridx, LevelUniqueRobotAwarenessState);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;

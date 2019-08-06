@@ -46,6 +46,22 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 struct point_seg;
+
+struct awareness_event
+{
+	segnum_t segnum;				// segment the event occurred in
+	player_awareness_type_t type;	// type of event, defines behavior
+	vms_vector pos;					// absolute 3 space location of event
+};
+
+struct d_level_unique_robot_awareness_state
+{
+	unsigned Num_awareness_events;
+	array<awareness_event, 64> Awareness_events;
+};
+
+extern d_level_unique_robot_awareness_state LevelUniqueRobotAwarenessState;
+
 }
 struct PHYSFS_File;
 
@@ -89,7 +105,7 @@ extern const object *Ai_last_missile_camera;
 #endif
 
 namespace dsx {
-void create_awareness_event(vmobjptr_t objp, player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
+void create_awareness_event(vmobjptr_t objp, player_awareness_type_t type, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState);         // object *objp can create awareness of player, amount based on "type"
 ai_mode ai_behavior_to_mode(ai_behavior behavior);
 void do_ai_robot_hit(vmobjptridx_t robot, player_awareness_type_t type);
 void init_ai_object(vmobjptridx_t objp, ai_behavior initial_mode, imsegidx_t hide_segment);

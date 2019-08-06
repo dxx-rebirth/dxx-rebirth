@@ -54,6 +54,7 @@ d_interface_unique_state InterfaceUniqueState;
 d_level_shared_vertex_state LevelSharedVertexState;
 d_level_unique_automap_state LevelUniqueAutomapState;
 d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
+d_level_unique_robot_awareness_state LevelUniqueRobotAwarenessState;
 d_level_unique_segment_state LevelUniqueSegmentState;
 // Global array of vertices, common to one mine.
 valptridx<player>::array_managed_type Players;

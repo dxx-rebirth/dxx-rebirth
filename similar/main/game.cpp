@@ -2119,7 +2119,7 @@ bool FireLaser(player_info &player_info)
 					const auto cobjp = vmobjptridx(ConsoleObject);
 					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, 0);
 				} else {
-					create_awareness_event(vmobjptr(ConsoleObject), player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
+					create_awareness_event(vmobjptr(ConsoleObject), player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION, LevelUniqueRobotAwarenessState);
 					multi_digi_play_sample(SOUND_FUSION_WARMUP, F1_0);
 				}
 				Fusion_next_sound_time = GameTime64 + F1_0/8 + d_rand()/4;
