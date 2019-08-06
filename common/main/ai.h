@@ -109,7 +109,6 @@ struct d_level_shared_boss_state
 	teleport_segment_array_t Teleport_segs;
 };
 
-extern fix64 Last_teleport_time;
 constexpr fix Boss_cloak_duration = F1_0*7;
 extern sbyte Boss_dying;
 

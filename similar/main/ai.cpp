@@ -151,7 +151,6 @@ static int             Overall_agitation;
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
 static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
-fix64           Last_teleport_time;
 static fix64 Boss_dying_start_time;
 sbyte           Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
 
@@ -567,7 +566,6 @@ void init_ai_object(const vmobjptridx_t objp, ai_behavior behavior, const imsegi
 		)
 	{
 		BossUniqueState = {};
-		Last_teleport_time = 0;
 		boss_init_all_segments(Segments, objp);
 	}
 }
@@ -1046,6 +1044,7 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 #endif
 									)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	const auto powerup_flags = player_info.powerup_flags;
 	ai_local &ailp = obj->ctype.ai_info.ail;
@@ -1217,7 +1216,7 @@ player_led: ;
 
 	//	If the boss fired, allow him to teleport very soon (right after firing, cool!), pending other factors.
 	if (robptr.boss_flag == BOSS_D1 || robptr.boss_flag == BOSS_SUPER)
-		Last_teleport_time -= LevelSharedBossState.Boss_teleport_interval / 2;
+		BossUniqueState.Last_teleport_time -= LevelSharedBossState.Boss_teleport_interval / 2;
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -2213,6 +2212,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 // --------------------------------------------------------------------------------------------------------------------
 static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const vms_vector &target_pos)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
 	segnum_t			rand_segnum;
 	int			rand_index;
@@ -2234,7 +2234,7 @@ static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx,
 	compute_segment_center(vcvertptr, objp->pos, rand_segp);
 	obj_relink(vmobjptr, vmsegptr, objp, rand_segp);
 
-	Last_teleport_time = GameTime64;
+	BossUniqueState.Last_teleport_time = GameTime64;
 
 	//	make boss point right at player
 	const auto boss_dir = vm_vec_sub(target_pos, objp->pos);
@@ -2490,13 +2490,13 @@ static void do_d1_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 		if (objp->ctype.ai_info.CLOAKED == 1) {
 			if (GameTime64 - Boss_cloak_start_time > Boss_cloak_duration / 3 &&
 				(Boss_cloak_start_time + Boss_cloak_duration) - GameTime64 > Boss_cloak_duration / 3 &&
-				GameTime64 - Last_teleport_time > LevelSharedBossState.Boss_teleport_interval)
+				GameTime64 - BossUniqueState.Last_teleport_time > LevelSharedBossState.Boss_teleport_interval)
 			{
 				if (ai_multiplayer_awareness(objp, 98))
 					teleport_boss(Vclip, vmsegptridx, objp, get_local_plrobj().pos);
 			} else if (Boss_hit_this_frame) {
 				Boss_hit_this_frame = 0;
-				Last_teleport_time -= LevelSharedBossState.Boss_teleport_interval / 4;
+				BossUniqueState.Last_teleport_time -= LevelSharedBossState.Boss_teleport_interval / 4;
 			}
 
 			if (GameTime64 > (Boss_cloak_start_time + Boss_cloak_duration) ||
@@ -2602,12 +2602,12 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 			Boss_hit_time = GameTime64;	//	Keep the cloak:teleport process going.
 			if (GameTime64 - Boss_cloak_start_time > Boss_cloak_duration / 3 &&
 				(Boss_cloak_start_time + Boss_cloak_duration) - GameTime64 > Boss_cloak_duration / 3 &&
-				GameTime64 - Last_teleport_time > LevelSharedBossState.Boss_teleport_interval)
+				GameTime64 - BossUniqueState.Last_teleport_time > LevelSharedBossState.Boss_teleport_interval)
 			{
 				if (ai_multiplayer_awareness(objp, 98))
 					teleport_boss(Vclip, vmsegptridx, objp, get_local_plrobj().pos);
 			} else if (GameTime64 - Boss_hit_time > F1_0*2) {
-				Last_teleport_time -= LevelSharedBossState.Boss_teleport_interval / 4;
+				BossUniqueState.Last_teleport_time -= LevelSharedBossState.Boss_teleport_interval / 4;
 			}
 
 			if (GameTime64 > (Boss_cloak_start_time + Boss_cloak_duration) ||
@@ -4709,11 +4709,14 @@ int ai_save_state(PHYSFS_File *fp)
 		tmptime32 = (Boss_cloak_start_time + Boss_cloak_duration) - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	}
+	{
+		const auto Last_teleport_time = BossUniqueState.Last_teleport_time;
 	if (Last_teleport_time - GameTime64 < F1_0*(-18000))
 		tmptime32 = F1_0*(-18000);
 	else
 		tmptime32 = Last_teleport_time - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	}
 	{
 		const fix Boss_teleport_interval = LevelSharedBossState.Boss_teleport_interval;
 		PHYSFS_write(fp, &Boss_teleport_interval, sizeof(fix), 1);
@@ -4920,7 +4923,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	BossUniqueState.Boss_cloak_start_time = static_cast<fix64>(tmptime32);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	Last_teleport_time = static_cast<fix64>(tmptime32);
+	BossUniqueState.Last_teleport_time = static_cast<fix64>(tmptime32);
 
 	// If boss teleported, set the looping 'see' sound -kreatordxx
 	// Also make sure any bosses that were generated/released during the game have teleport segs
@@ -4939,6 +4942,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 #endif
 				)
 				{
+					const auto Last_teleport_time = BossUniqueState.Last_teleport_time;
 					if (Last_teleport_time != 0 && Last_teleport_time != BossUniqueState.Boss_cloak_start_time)
 						boss_link_see_sound(o);
 					boss_init_all_segments(Segments, o);

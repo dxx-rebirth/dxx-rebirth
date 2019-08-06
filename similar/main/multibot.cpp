@@ -1092,6 +1092,7 @@ void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const uint8_t *con
 
 void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
 {
+	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
@@ -1115,7 +1116,7 @@ void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, 
 	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, boss_obj->pos, teleport_segnum);
 	obj_relink(vmobjptr, vmsegptr, boss_obj, teleport_segnum);
-	Last_teleport_time = GameTime64;
+	BossUniqueState.Last_teleport_time = GameTime64;
 
 	const auto boss_dir = vm_vec_sub(vcobjptr(vcplayerptr(pnum)->objnum)->pos, boss_obj->pos);
 	vm_vector_2_matrix(boss_obj->orient, boss_dir, nullptr, nullptr);
