@@ -1237,7 +1237,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	ai_save_state( fp );
 
 // Save the automap visited info
-	PHYSFS_write(fp, &Automap_visited[0], sizeof(uint8_t), std::max<std::size_t>(Highest_segment_index + 1, MAX_SEGMENTS_ORIGINAL));
+	PHYSFS_write(fp, LevelUniqueAutomapState.Automap_visited.data(), sizeof(uint8_t), std::max<std::size_t>(Highest_segment_index + 1, MAX_SEGMENTS_ORIGINAL));
 
 	PHYSFS_write(fp, &state_game_id, sizeof(unsigned), 1);
 	{
@@ -1861,14 +1861,13 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	// Restore the AI state
 	ai_restore_state( fp, version, swap );
 
-	// Restore the automap visited info
-	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 	{
+		auto &Automap_visited = LevelUniqueAutomapState.Automap_visited;
+	// Restore the automap visited info
 		Automap_visited = {};
-		PHYSFS_read(fp, &Automap_visited[0], sizeof(ubyte), Highest_segment_index + 1);
+		DXX_MAKE_MEM_UNDEFINED(Automap_visited.begin(), Automap_visited.end());
+		PHYSFS_read(fp, Automap_visited.data(), sizeof(uint8_t), std::max<std::size_t>(Highest_segment_index + 1, MAX_SEGMENTS_ORIGINAL));
 	}
-	else
-		PHYSFS_read(fp, &Automap_visited[0], sizeof(ubyte), MAX_SEGMENTS_ORIGINAL);
 
 	{
 	//	Restore hacked up weapon system stuff.

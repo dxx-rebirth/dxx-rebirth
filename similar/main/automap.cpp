@@ -188,6 +188,15 @@ namespace dcx {
 
 int Automap_active = 0;
 static int Automap_debug_show_all_segments;
+
+static void automap_clear_visited()	
+{
+#ifndef NDEBUG
+	Automap_debug_show_all_segments = 0;
+#endif
+	LevelUniqueAutomapState.Automap_visited = {};
+}
+
 }
 
 namespace dsx {
@@ -208,11 +217,6 @@ static void init_automap_colors(automap *am)
 	am->blue_48 = gr_find_closest_color_current(0,0,48);
 	am->red_48 = gr_find_closest_color_current(48,0,0);
 }
-}
-
-namespace dcx {
-array<ubyte, MAX_SEGMENTS> Automap_visited; // Segment visited list
-}
 
 // Map movement defines
 #define PITCH_DEFAULT 9000
@@ -220,9 +224,7 @@ array<ubyte, MAX_SEGMENTS> Automap_visited; // Segment visited list
 #define ZOOM_MIN_VALUE i2f(20*5)
 #define ZOOM_MAX_VALUE i2f(20*100)
 
-
 // Function Prototypes
-namespace dsx {
 static void adjust_segment_limit(automap *am, int SegmentLimit);
 static void automap_build_edge_list(automap *am, int add_all_edges);
 }
@@ -462,10 +464,7 @@ static void ClearMarkers()
 
 void automap_clear_visited()	
 {
-	Automap_visited = {};
-#ifndef NDEBUG
-	Automap_debug_show_all_segments = 0;
-#endif
+	::dcx::automap_clear_visited();
 		ClearMarkers();
 }
 
@@ -745,7 +744,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 			}
 			break;
 		case OBJ_POWERUP:
-			if (Automap_visited[objp->segnum] || Automap_debug_show_all_segments)
+			if (LevelUniqueAutomapState.Automap_visited[objp->segnum] || Automap_debug_show_all_segments)
 			{
 				ubyte id = get_powerup_id(objp);
 				unsigned r, g, b;
@@ -828,7 +827,7 @@ static void recompute_automap_segment_visibility(const object &plrobj, automap *
 	if (Automap_debug_show_all_segments)
 		compute_depth_all_segments = 1;
 	automap_build_edge_list(am, compute_depth_all_segments);
-	am->max_segments_away = set_segment_depths(plrobj.segnum, compute_depth_all_segments ? nullptr : &Automap_visited, am->depth_array);
+	am->max_segments_away = set_segment_depths(plrobj.segnum, compute_depth_all_segments ? nullptr : &LevelUniqueAutomapState.Automap_visited, am->depth_array);
 	am->segment_limit = am->max_segments_away;
 	adjust_segment_limit(am, am->segment_limit);
 }
@@ -1427,7 +1426,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			if (!Automap_debug_show_all_segments)
 			{
 			auto &player_info = get_local_plrobj().ctype.player_info;
-			if ((cheats.fullautomap || player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL) && (!Automap_visited[segnum]))	
+				if ((cheats.fullautomap || player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL) && !LevelUniqueAutomapState.Automap_visited[segnum])
 				color = am->wall_revealed_color;
 			}
 			Here:
@@ -1498,7 +1497,8 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 #if DXX_USE_EDITOR
 			if (segp->segnum != segment_none)
 #endif
-				if (Automap_visited[segp]) {
+				if (LevelUniqueAutomapState.Automap_visited[segp])
+				{
 					add_segment_edges(vcsegptr, vcwallptr, am, segp);
 				}
 		}
@@ -1507,7 +1507,8 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 #if DXX_USE_EDITOR
 			if (segp->segnum != segment_none)
 #endif
-				if (!Automap_visited[segp]) {
+				if (!LevelUniqueAutomapState.Automap_visited[segp])
+				{
 					add_unknown_segment_edges(am, segp);
 				}
 		}

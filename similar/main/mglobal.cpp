@@ -53,6 +53,7 @@ static void reconstruct_global_variable(T &t)
 d_interface_unique_state InterfaceUniqueState;
 d_game_unique_state GameUniqueState;
 d_level_shared_vertex_state LevelSharedVertexState;
+d_level_unique_automap_state LevelUniqueAutomapState;
 d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
 d_level_unique_segment_state LevelUniqueSegmentState;
 // Global array of vertices, common to one mine.

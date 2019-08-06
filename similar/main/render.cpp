@@ -762,7 +762,7 @@ static void render_segment(fvcvertptr &vcvertptr, fvcwallptr &vcwallptr, const v
 		if (Viewer->type != OBJ_ROBOT)
 #endif
 		{
-		Automap_visited[seg]=1;
+			LevelUniqueAutomapState.Automap_visited[seg] = 1;
 		}
 
 		range_for (const uint_fast32_t sn, xrange(MAX_SIDES_PER_SEGMENT))
@@ -1567,7 +1567,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 				{		//all off screen?
 
 					if (Viewer->type!=OBJ_ROBOT)
-						Automap_visited[segnum]=1;
+						LevelUniqueAutomapState.Automap_visited[segnum] = 1;
 
 					range_for (const uint_fast32_t sn, xrange(MAX_SIDES_PER_SEGMENT))
 					{
@@ -1616,7 +1616,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 				{		//all off screen?
 
 					if (Viewer->type!=OBJ_ROBOT)
-						Automap_visited[segnum]=1;
+						LevelUniqueAutomapState.Automap_visited[segnum] = 1;
 
 					range_for (const uint_fast32_t sn, xrange(MAX_SIDES_PER_SEGMENT))
 					{

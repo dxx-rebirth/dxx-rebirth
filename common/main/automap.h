@@ -43,9 +43,6 @@ void do_automap();
 extern void automap_clear_visited();
 }
 #endif
-namespace dcx {
-extern array<ubyte, MAX_SEGMENTS> Automap_visited;
-}
 
 #if defined(DXX_BUILD_DESCENT_II)
 #include "object.h"

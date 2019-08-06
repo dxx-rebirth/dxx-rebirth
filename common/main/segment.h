@@ -349,6 +349,11 @@ struct d_level_shared_segment_state
 	}
 };
 
+struct d_level_unique_automap_state
+{
+	array<uint8_t, MAX_SEGMENTS> Automap_visited;
+};
+
 struct d_level_unique_segment_state
 {
 	auto &get_segments()
@@ -361,6 +366,7 @@ struct d_level_unique_segment_state
 	}
 };
 
+extern d_level_unique_automap_state LevelUniqueAutomapState;
 extern d_level_unique_segment_state LevelUniqueSegmentState;
 #endif
 
