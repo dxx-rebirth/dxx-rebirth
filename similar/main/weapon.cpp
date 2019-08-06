@@ -1062,13 +1062,43 @@ static void start_seismic_sound()
 	digi_play_sample_looping(Seismic_sound, F1_0, -1, -1);
 }
 
+static void apply_seismic_effect(const int entry_fc)
+{
+	const auto fc = std::min(std::max(entry_fc, 16), 1);
+	LevelUniqueSeismicState.Seismic_tremor_volume += fc;
+
+	if (!d_tick_step)
+		return;
+	const auto get_base_disturbance = [fc]() {
+		return fixmul(d_rand() - 16384, 3 * F1_0 / 16 + (F1_0 * (16 - fc)) / 32);
+	};
+	const fix disturb_x = get_base_disturbance();
+	const fix disturb_z = get_base_disturbance();
+
+	{
+		auto &rotvel = ConsoleObject->mtype.phys_info.rotvel;
+		rotvel.x += disturb_x;
+		rotvel.z += disturb_z;
+	}
+
+	//	Shake the buddy!
+	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	const auto Buddy_objnum = BuddyState.Buddy_objnum;
+	if (Buddy_objnum != object_none) {
+		auto &objp = *LevelUniqueObjectState.Objects.vmptr(Buddy_objnum);
+		auto &rotvel = objp.mtype.phys_info.rotvel;
+		rotvel.x += disturb_x * 4;
+		rotvel.z += disturb_z * 4;
+	}
+	//	Shake a guided missile!
+	Seismic_tremor_magnitude += disturb_x;
+}
+
 //	If a smega missile been detonated, rock the mine!
 //	This should be called every frame.
 //	Maybe this should affect all robots, being called when they get their physics done.
 void rock_the_mine_frame(void)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
 	range_for (auto &i, LevelUniqueSeismicState.Earthshaker_detonate_times)
 	{
 		if (i != 0) {
@@ -1077,38 +1107,10 @@ void rock_the_mine_frame(void)
 			if (delta_time < SMEGA_SHAKE_TIME) {
 
 				//	Control center destroyed, rock the player's ship.
-				int	fc, rx, rz;
 				// -- fc = abs(delta_time - SMEGA_SHAKE_TIME/2);
 				//	Changed 10/23/95 to make decreasing for super mega missile.
-				fc = (SMEGA_SHAKE_TIME - delta_time)/2;
-				fc /= SMEGA_SHAKE_TIME/32;
-				if (fc > 16)
-					fc = 16;
-
-				if (fc == 0)
-					fc = 1;
-
-				LevelUniqueSeismicState.Seismic_tremor_volume += fc;
-
-				if (d_tick_step)
-				{
-					rx = fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
-					rz = fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
-
-					ConsoleObject->mtype.phys_info.rotvel.x += rx;
-					ConsoleObject->mtype.phys_info.rotvel.z += rz;
-
-					//	Shake the buddy!
-					auto &BuddyState = LevelUniqueObjectState.BuddyState;
-					const auto Buddy_objnum = BuddyState.Buddy_objnum;
-					if (Buddy_objnum != object_none) {
-						const auto &&objp = vmobjptr(Buddy_objnum);
-						objp->mtype.phys_info.rotvel.x += rx*4;
-						objp->mtype.phys_info.rotvel.z += rz*4;
-					}
-					//	Shake a guided missile!
-					Seismic_tremor_magnitude += rx;
-				}
+				const int fc = (SMEGA_SHAKE_TIME - delta_time) / 2;
+				apply_seismic_effect(fc / (SMEGA_SHAKE_TIME / 32));
 			} else
 				i = 0;
 		}
@@ -1146,41 +1148,11 @@ static bool seismic_disturbance_active()
 
 static void seismic_disturbance_frame(void)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
 	if (LevelSharedSeismicState.Level_shake_frequency) {
 		if (seismic_disturbance_active()) {
-			int	fc, rx, rz;
 			fix delta_time = static_cast<fix>(GameTime64 - LevelUniqueSeismicState.Seismic_disturbance_end_time);
-			fc = abs(delta_time - LevelSharedSeismicState.Level_shake_duration / 2);
-			fc /= F1_0/16;
-			if (fc > 16)
-				fc = 16;
-
-			if (fc == 0)
-				fc = 1;
-
-			LevelUniqueSeismicState.Seismic_tremor_volume += fc;
-
-			if (d_tick_step)
-			{
-				rx = fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
-				rz = fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
-
-				ConsoleObject->mtype.phys_info.rotvel.x += rx;
-				ConsoleObject->mtype.phys_info.rotvel.z += rz;
-
-				//	Shake the buddy!
-				auto &BuddyState = LevelUniqueObjectState.BuddyState;
-				const auto Buddy_objnum = BuddyState.Buddy_objnum;
-				if (Buddy_objnum != object_none) {
-					const auto &&objp = vmobjptr(Buddy_objnum);
-					objp->mtype.phys_info.rotvel.x += rx*4;
-					objp->mtype.phys_info.rotvel.z += rz*4;
-				}
-				//	Shake a guided missile!
-				Seismic_tremor_magnitude += rx;
-			}
+			const int fc = abs(delta_time - LevelSharedSeismicState.Level_shake_duration / 2);
+			apply_seismic_effect(fc / (F1_0 / 16));
 		}
 	}
 }
