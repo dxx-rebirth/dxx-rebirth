@@ -2082,9 +2082,8 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 	bitmap_num.index = 0;
 
 	{
-		DiskBitmapHeader bmh;
 		int pig_data_start, bitmap_header_start, bitmap_data_start;
-		int i, N_bitmaps;
+		int N_bitmaps;
 		palette_array_t d1_palette;
 		int pigsize;
 		auto d1_Piggy_fp = PHYSFSX_openReadBuffered(D1_PIGFILE);
@@ -2130,20 +2129,21 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 			bitmap_data_start = bitmap_header_start + header_size;
 		}
 
-		for (i = 1; i <= N_bitmaps; i++)
+		for (unsigned i = 1;; ++i)
 		{
+			if (i > N_bitmaps)
+			{
+				con_printf(CON_DEBUG, "could not find bitmap %s", name);
+				return bitmap_num;
+			}
+			DiskBitmapHeader bmh;
 			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
 			if (!d_strnicmp(bmh.name, name, 8))
+			{
+				bitmap_read_d1(n, d1_Piggy_fp, bitmap_data_start, &bmh, 0, d1_palette, colormap);
 				break;
+			}
 		}
-
-		if (d_strnicmp(bmh.name, name, 8))
-		{
-			con_printf(CON_DEBUG, "could not find bitmap %s", name);
-			return bitmap_num;
-		}
-
-		bitmap_read_d1( n, d1_Piggy_fp, bitmap_data_start, &bmh, 0, d1_palette, colormap );
 	}
 
 	n->avg_color = 0;	//compute_average_pixel(n);
