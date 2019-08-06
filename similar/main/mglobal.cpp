@@ -129,6 +129,10 @@ d_level_shared_robot_joint_state LevelSharedRobotJointState;
 d_level_unique_wall_subsystem_state LevelUniqueWallSubsystemState;
 d_level_unique_tmap_info_state LevelUniqueTmapInfoState;
 
+#if defined(DXX_BUILD_DESCENT_II)
+d_level_unique_seismic_state LevelUniqueSeismicState;
+#endif
+
 void reset_globals_for_new_game()
 {
 	::dcx::reset_globals_for_new_game();

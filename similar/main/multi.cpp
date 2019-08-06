@@ -4097,7 +4097,7 @@ void multi_send_seismic(fix duration)
 static void multi_do_seismic (const ubyte *buf)
 {
 	const fix duration = GET_INTEL_INT(&buf[1]);
-	Seismic_disturbance_end_time = GameTime64 + duration;
+	LevelUniqueSeismicState.Seismic_disturbance_end_time = GameTime64 + duration;
 	digi_play_sample (SOUND_SEISMIC_DISTURBANCE_START, F1_0);
 }
 

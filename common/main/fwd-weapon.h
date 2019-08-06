@@ -218,7 +218,6 @@ void weapons_homing_all_reset();
 extern void rock_the_mine_frame(void);
 extern void smega_rock_stuff(void);
 extern void init_smega_detonates(void);
-extern fix64 Seismic_disturbance_end_time;
 #endif
 }
 #endif

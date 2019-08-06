@@ -1123,10 +1123,9 @@ void rock_the_mine_frame(void)
 	//	Hook in the rumble sound effect here.
 }
 
-fix64 Seismic_disturbance_end_time;
 void init_seismic_disturbances()
 {
-	Seismic_disturbance_end_time = 0;
+	LevelUniqueSeismicState.Seismic_disturbance_end_time = 0;
 }
 
 //	Return true if time to start a seismic disturbance.
@@ -1135,7 +1134,7 @@ static bool seismic_disturbance_active()
 	if (Level_shake_duration < 1)
 		return false;
 
-	if (Seismic_disturbance_end_time && Seismic_disturbance_end_time < GameTime64)
+	if (LevelUniqueSeismicState.Seismic_disturbance_end_time && LevelUniqueSeismicState.Seismic_disturbance_end_time < GameTime64)
 		return true;
 
 	const fix level_shake_duration = Level_shake_duration;
@@ -1143,7 +1142,7 @@ static bool seismic_disturbance_active()
 	rval =  (2 * fixmul(d_rand(), Level_shake_frequency)) < FrameTime;
 
 	if (rval) {
-		Seismic_disturbance_end_time = GameTime64 + level_shake_duration;
+		LevelUniqueSeismicState.Seismic_disturbance_end_time = GameTime64 + level_shake_duration;
 		start_seismic_sound();
 		if (Game_mode & GM_MULTI)
 			multi_send_seismic(level_shake_duration);
@@ -1158,7 +1157,7 @@ static void seismic_disturbance_frame(void)
 	if (Level_shake_frequency) {
 		if (seismic_disturbance_active()) {
 			int	fc, rx, rz;
-			fix delta_time = static_cast<fix>(GameTime64 - Seismic_disturbance_end_time);
+			fix delta_time = static_cast<fix>(GameTime64 - LevelUniqueSeismicState.Seismic_disturbance_end_time);
 			fc = abs(delta_time - Level_shake_duration / 2);
 			fc /= F1_0/16;
 			if (fc > 16)

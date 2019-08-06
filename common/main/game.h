@@ -175,6 +175,13 @@ struct d_game_unique_state : ::dcx::d_game_unique_state
 {
 	fix Final_boss_countdown_time;
 };
+
+struct d_level_unique_seismic_state
+{
+	fix64 Seismic_disturbance_end_time;
+};
+
+extern d_level_unique_seismic_state LevelUniqueSeismicState;
 #endif
 
 extern d_game_unique_state GameUniqueState;
