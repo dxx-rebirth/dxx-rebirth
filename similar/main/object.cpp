@@ -683,7 +683,11 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 			break;
 
 		case RT_WEAPON_VCLIP:
-			if (PlayerCfg.AlphaBlendWeapons && !is_proximity_bomb_or_smart_mine(get_weapon_id(obj))) // set nice transparency/blending for certain objects
+			if (PlayerCfg.AlphaBlendWeapons && (!is_proximity_bomb_or_smart_mine(get_weapon_id(obj))
+#if defined(DXX_BUILD_DESCENT_II)
+                && get_weapon_id(obj) != ROBOT_SUPERPROX_ID // superprox dropped by robots have their own ID not considered by is_proximity_bomb_or_smart_mine() and since that function is used in many other places, I didn't feel safe to add this weapon type in it
+#endif
+                )) // set nice transparency/blending for certain objects
 			{
 				alpha = true;
 				gr_settransblend(canvas, 7, GR_BLEND_ADDITIVE_A);

@@ -207,7 +207,7 @@ void flash_frame()
 static inline int is_alphablend_eclip(int eclip_num)
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	if (eclip_num == ECLIP_NUM_FORCE_FIELD)
+	if (eclip_num == ECLIP_NUM_FORCE_FIELD || eclip_num == ECLIP_NUM_FORCE_FIELD2)
 		return 1;
 #endif
 	return eclip_num == ECLIP_NUM_FUELCEN;

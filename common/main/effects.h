@@ -50,7 +50,8 @@ constexpr std::integral_constant<uint16_t, UINT16_MAX> eclip_none{};
 #define ECLIP_NUM_FUELCEN     2
 #define ECLIP_NUM_BOSS        53
 #ifdef DXX_BUILD_DESCENT_II
-#define ECLIP_NUM_FORCE_FIELD 78
+#define ECLIP_NUM_FORCE_FIELD 78 // diagonal force field texture
+#define ECLIP_NUM_FORCE_FIELD2 93 // straight force field texture
 #endif
 
 struct eclip : public prohibit_void_ptr<eclip>
