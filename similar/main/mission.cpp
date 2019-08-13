@@ -753,7 +753,16 @@ static mission_list_type build_mission_list(int anarchy_mode)
 
 int load_mission_ham()
 {
-	read_hamfile();
+	read_hamfile(); // intentionally can also read from the HOG
+		
+	if (Piggy_hamfile_version >= 3)
+	{
+		// re-read sounds in case mission has custom .sXX
+		Num_sound_files = 0;
+		read_sndfile();
+		piggy_read_sounds();
+	}
+
 	if (Current_mission->descent_version == Mission::descent_version_type::descent2a &&
 		Current_mission->alternate_ham_file)
 	{

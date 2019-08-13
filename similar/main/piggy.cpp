@@ -1045,7 +1045,7 @@ int read_hamfile()
 	return 1;
 }
 
-static int read_sndfile()
+int read_sndfile()
 {
 	int snd_id,snd_version;
 	int N_sounds;
