@@ -127,7 +127,6 @@ window_event_result do_controlcen_dead_frame();
 
 namespace dcx {
 extern fix Countdown_timer;
-extern int Total_countdown_time;
 
 }
 

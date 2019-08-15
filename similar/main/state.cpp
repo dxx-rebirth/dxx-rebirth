@@ -1862,8 +1862,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	Control_center_present = PHYSFSX_readSXE32(fp, swap);
 	Dead_controlcen_object_num = PHYSFSX_readSXE32(fp, swap);
 	if (LevelUniqueControlCenterState.Control_center_destroyed)
-		Total_countdown_time = Countdown_timer/F0_5; // we do not need to know this, but it should not be 0 either...
-		
+		LevelUniqueControlCenterState.Total_countdown_time = Countdown_timer / F0_5; // we do not need to know this, but it should not be 0 either...
 
 	// Restore the AI state
 	ai_restore_state( fp, version, swap );
