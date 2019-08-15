@@ -58,8 +58,6 @@ namespace dsx {
 array<reactor, MAX_REACTORS> Reactors;
 #if defined(DXX_BUILD_DESCENT_II)
 unsigned Num_reactors;
-//how long to blow up on insane
-int Reactor_strength=-1;		//-1 mean not set by designer
 #endif
 }
 
@@ -499,6 +497,7 @@ void init_controlcen_for_level(void)
 		const unsigned secret_level_shield_multiplier = 100;
 #elif defined(DXX_BUILD_DESCENT_II)
 		const unsigned secret_level_shield_multiplier = 150;
+		const auto Reactor_strength = LevelSharedControlCenterState.Reactor_strength;
 		if (Reactor_strength != -1)
 			objp->shields = i2f(Reactor_strength);
 		else

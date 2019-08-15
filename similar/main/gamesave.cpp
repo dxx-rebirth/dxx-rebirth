@@ -1334,9 +1334,9 @@ int load_level(
 		LevelSharedControlCenterState.Base_control_center_explosion_time = DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
 
 	if (Gamesave_current_version >= 4)
-		Reactor_strength = PHYSFSX_readInt(LoadFile);
+		LevelSharedControlCenterState.Reactor_strength = PHYSFSX_readInt(LoadFile);
 	else
-		Reactor_strength = -1;  //use old defaults
+		LevelSharedControlCenterState.Reactor_strength = -1;  //use old defaults
 
 	if (Gamesave_current_version >= 7) {
 		Flickering_light_state.Num_flickering_lights = PHYSFSX_readInt(LoadFile);
@@ -1873,7 +1873,7 @@ static int save_level_sub(
 	if (Gamesave_current_version >= 3)
 		PHYSFS_writeSLE32(SaveFile, LevelSharedControlCenterState.Base_control_center_explosion_time);
 	if (Gamesave_current_version >= 4)
-		PHYSFS_writeSLE32(SaveFile, Reactor_strength);
+		PHYSFS_writeSLE32(SaveFile, LevelSharedControlCenterState.Reactor_strength);
 
 	if (Gamesave_current_version >= 7)
 	{

@@ -74,12 +74,12 @@ constexpr std::integral_constant<unsigned, 7> MAX_REACTORS{};
 struct d_level_shared_control_center_state
 {
 	int Base_control_center_explosion_time;      // how long to blow up on insane
+	int Reactor_strength;
 };
 
 extern d_level_shared_control_center_state LevelSharedControlCenterState;
 
 extern unsigned Num_reactors;
-extern int Reactor_strength;
 
 /*
  * reads n reactor structs from a PHYSFS_File
