@@ -70,7 +70,6 @@ control_center_triggers ControlCenterTriggers;
 namespace dcx {
 
 player_visibility_state Control_center_player_been_seen;
-int	Control_center_present;
 
 }
 
@@ -311,7 +310,7 @@ void do_controlcen_destroyed_stuff(const imobjptridx_t objp)
 	LevelUniqueControlCenterState.Total_countdown_time = Total_countdown_time;
 	LevelUniqueControlCenterState.Countdown_timer = i2f(Total_countdown_time);
 
-	if (!Control_center_present || objp==object_none)
+	if (!LevelUniqueControlCenterState.Control_center_present || objp==object_none)
 		return;
 
 	Dead_controlcen_object_num = objp;
@@ -328,7 +327,7 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 	auto &vmobjptr = Objects.vmptr;
 
 	//	If a boss level, then Control_center_present will be 0.
-	if (!Control_center_present)
+	if (!LevelUniqueControlCenterState.Control_center_present)
 		return;
 
 #ifndef NDEBUG
@@ -502,7 +501,7 @@ void init_controlcen_for_level(void)
 			objp.type = OBJ_GHOST;
 			objp.control_type = CT_NONE;
 			objp.render_type = RT_NONE;
-			Control_center_present = 0;
+			LevelUniqueControlCenterState.Control_center_present = 0;
 		}
 	}
 	else if (cntrlcen_objnum != nullptr)
@@ -510,7 +509,7 @@ void init_controlcen_for_level(void)
 		//	Compute all gun positions.
 		const vmobjptr_t objp = cntrlcen_objnum;
 		calc_controlcen_gun_point(objp);
-		Control_center_present = 1;
+		LevelUniqueControlCenterState.Control_center_present = 1;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		const unsigned secret_level_shield_multiplier = 100;

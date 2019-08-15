@@ -1317,6 +1317,7 @@ static void add_one_unknown_edge( automap *am, int va, int vb )
 
 static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automap *am, const vcsegptridx_t seg)
 {
+	auto &ControlCenterState = LevelUniqueObjectState.ControlCenterState;
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1340,7 +1341,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			color = BM_XRGB( 29, 27, 13 );
 			break;
 		case SEGMENT_IS_CONTROLCEN:
-			if (Control_center_present)
+			if (ControlCenterState.Control_center_present)
 				color = BM_XRGB( 29, 0, 0 );
 			break;
 		case SEGMENT_IS_ROBOTMAKER:
