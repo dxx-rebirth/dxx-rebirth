@@ -60,7 +60,6 @@ array<reactor, MAX_REACTORS> Reactors;
 unsigned Num_reactors;
 //how long to blow up on insane
 int Base_control_center_explosion_time=DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
-fix64	Last_time_cc_vis_check = 0;
 int Reactor_strength=-1;		//-1 mean not set by designer
 #endif
 }
@@ -367,12 +366,12 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 	//	Periodically, make the reactor fall asleep if player not visible.
 	if (LevelUniqueControlCenterState.Control_center_been_hit || player_is_visible(LevelUniqueControlCenterState.Control_center_player_been_seen))
 	{
-		if ((Last_time_cc_vis_check + F1_0*5 < GameTime64) || (Last_time_cc_vis_check > GameTime64)) {
+		if (LevelUniqueControlCenterState.Last_time_cc_vis_check + F1_0 * 5 < GameTime64 || LevelUniqueControlCenterState.Last_time_cc_vis_check > GameTime64)
+		{
+			LevelUniqueControlCenterState.Last_time_cc_vis_check = GameTime64;
 			fix			dist_to_player;
-
 			auto vec_to_player = vm_vec_sub(ConsoleObject->pos, obj->pos);
 			dist_to_player = vm_vec_normalize_quick(vec_to_player);
-			Last_time_cc_vis_check = GameTime64;
 			if (dist_to_player < F1_0*120) {
 				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(obj, obj->pos, 0, vec_to_player);
 				if (!player_is_visible(LevelUniqueControlCenterState.Control_center_player_been_seen))

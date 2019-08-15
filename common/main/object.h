@@ -624,6 +624,12 @@ struct d_unique_buddy_state
 	fix64 Last_buddy_message_time;
 };
 
+struct d_level_unique_control_center_state :
+	::dcx::d_level_unique_control_center_state
+{
+	fix64 Last_time_cc_vis_check;
+};
+
 class d_guided_missile_indices : object_number_array<imobjidx_t, MAX_PLAYERS>
 {
 	template <typename R, typename F>
