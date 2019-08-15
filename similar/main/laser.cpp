@@ -63,8 +63,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 
 #ifdef NEWHOMER
+#define HOMING_TRACKABLE_DOT_FRAME_TIME	HOMING_TURN_TIME
 static ubyte d_homer_tick_step = 0;
 static fix d_homer_tick_count = 0;
+#else
+#define HOMING_TRACKABLE_DOT_FRAME_TIME	FrameTime
 #endif
 
 static int Muzzle_queue_index;
@@ -998,6 +1001,21 @@ static fix get_weapon_energy_usage_with_difficulty(const weapon_info &wi, const 
 
 }
 
+namespace d1x {
+
+static fix get_scaled_min_trackable_dot()
+{
+	const fix curFT = HOMING_TRACKABLE_DOT_FRAME_TIME;
+	if (curFT <= F1_0 / 16)
+		return (3 * (F1_0 - HOMING_MIN_TRACKABLE_DOT) / 4 + HOMING_MIN_TRACKABLE_DOT);
+	else if (curFT < F1_0 / 4)
+		return (fixmul(F1_0 - HOMING_MIN_TRACKABLE_DOT, F1_0 - 4 * curFT) + HOMING_MIN_TRACKABLE_DOT);
+	else
+		return (HOMING_MIN_TRACKABLE_DOT);
+}
+
+}
+
 namespace dsx {
 
 //	-----------------------------------------------------------------------------------------------------------
@@ -1031,20 +1049,12 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const object_base &obj
 	return 0;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 static fix get_scaled_min_trackable_dot()
 {
-	fix curFT = FrameTime;
-#ifdef NEWHOMER
-	curFT = HOMING_TURN_TIME;
-#endif
-#if defined(DXX_BUILD_DESCENT_I)
-	if (curFT <= F1_0/16)
-		return (3*(F1_0 - HOMING_MIN_TRACKABLE_DOT)/4 + HOMING_MIN_TRACKABLE_DOT);
-	else if (curFT < F1_0/4)
-		return (fixmul(F1_0 - HOMING_MIN_TRACKABLE_DOT, F1_0-4*curFT) + HOMING_MIN_TRACKABLE_DOT);
-	else
-		return (HOMING_MIN_TRACKABLE_DOT);
-#elif defined(DXX_BUILD_DESCENT_II)
+	if (EMULATING_D1)
+		return ::d1x::get_scaled_min_trackable_dot();
+	const fix curFT = HOMING_TRACKABLE_DOT_FRAME_TIME;
 	if (curFT <= F1_0/64)
 		return (HOMING_MIN_TRACKABLE_DOT);
 	else if (curFT < F1_0/32)
@@ -1053,9 +1063,8 @@ static fix get_scaled_min_trackable_dot()
 		return (HOMING_MIN_TRACKABLE_DOT + F1_0/64 - F1_0/16 - curFT);
 	else
 		return (HOMING_MIN_TRACKABLE_DOT + F1_0/64 - F1_0/8);
-#endif
 }
-
+#endif
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Return true if weapon *tracker is able to track object Objects[track_goal], else return false.
