@@ -945,6 +945,7 @@ static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
 {
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	if (BuddyState.Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 		return ESCORT_GOAL_UNSPECIFIED;
@@ -975,7 +976,7 @@ static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
 		return ESCORT_GOAL_GOLD_KEY;
 	else if (need_key_and_key_exists(PLAYER_FLAGS_RED_KEY, POW_KEY_RED))
 		return ESCORT_GOAL_RED_KEY;
-	else if (Control_center_destroyed == 0)
+	else if (LevelUniqueControlCenterState.Control_center_destroyed == 0)
 	{
 		if (!Boss_teleport_segs.empty())
 			return ESCORT_GOAL_BOSS;

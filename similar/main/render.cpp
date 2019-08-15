@@ -167,6 +167,7 @@ constexpr std::integral_constant<fix, FLASH_CYCLE_RATE> Flash_rate{};
 namespace dsx {
 void flash_frame()
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	static fixang flash_ang=0;
 
 	if (Endlevel_sequence)
@@ -190,7 +191,7 @@ void flash_frame()
 		flash_scale = (flash_scale + F1_0*3)/4;	//	gets in range 0.5 to 1.0
 	} else
 #endif
-	if (Control_center_destroyed)
+	if (LevelUniqueControlCenterState.Control_center_destroyed)
 	{
 		flash_ang += fixmul(Flash_rate,FrameTime);
 		flash_scale = fix_fastsin(flash_ang);
@@ -221,6 +222,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
 static void render_face(grs_canvas &canvas, const shared_segment &segp, const unsigned sidenum, const unsigned nv, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	grs_bitmap  *bm;
 
@@ -294,7 +296,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto Seismic_tremor_magnitude = LevelUniqueSeismicState.Seismic_tremor_magnitude;
 #endif
-	const auto control_center_destroyed = Control_center_destroyed;
+	const auto control_center_destroyed = LevelUniqueControlCenterState.Control_center_destroyed;
 	const auto need_flashing_lights = (control_center_destroyed | Seismic_tremor_magnitude);	//make lights flash
 	auto &Dynamic_light = LevelUniqueLightState.Dynamic_light;
 	//set light values for each vertex & build pointlist

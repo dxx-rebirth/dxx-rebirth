@@ -872,6 +872,7 @@ static void hud_show_score(grs_canvas &canvas, const player_info &player_info)
 
 static void hud_show_timer_count(grs_canvas &canvas)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int	i;
 	fix timevar=0;
 
@@ -884,7 +885,7 @@ static void hud_show_timer_count(grs_canvas &canvas)
 		i=f2i(timevar-ThisLevelTime);
 		i++;
 
-		if (i>-1 && !Control_center_destroyed)
+		if (i>-1 && !LevelUniqueControlCenterState.Control_center_destroyed)
 		{
 		if (Color_0_31_0 == -1)
 			Color_0_31_0 = BM_XRGB(0,31,0);

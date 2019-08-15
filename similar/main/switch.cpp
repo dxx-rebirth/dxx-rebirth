@@ -298,6 +298,7 @@ static void do_il_off(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, fvmwallp
 // 'close' will still close the game window
 window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num, const playernum_t pnum, const unsigned shot)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto result = window_event_result::ignored;
 
 	if ((Game_mode & GM_MULTI) && vcplayerptr(pnum)->connected != CONNECT_PLAYING) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
@@ -334,7 +335,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 			if (Game_mode & GM_NETWORK)
 				multi_do_protocol_frame(1, 1);
 			result = std::max(PlayerFinishedLevel(1), result);		//1 means go to secret level
-			Control_center_destroyed = 0;
+			LevelUniqueControlCenterState.Control_center_destroyed = 0;
 			return std::max(result, window_event_result::handled);
 		}
 
@@ -443,10 +444,8 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 			digi_stop_digi_sounds();
 
 			EnterSecretLevel();
-			Control_center_destroyed = 0;
+			LevelUniqueControlCenterState.Control_center_destroyed = 0;
 			return window_event_result::handled;
-			break;
-
 		}
 
 		case TT_OPEN_DOOR:

@@ -1747,6 +1747,7 @@ namespace dsx {
 
 window_event_result GameProcessFrame()
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &plrobj = get_local_plrobj();
@@ -1833,7 +1834,8 @@ window_event_result GameProcessFrame()
 		wall_frame_process();
 	}
 
-	if (Control_center_destroyed) {
+	if (LevelUniqueControlCenterState.Control_center_destroyed)
+	{
 		if (Newdemo_state==ND_STATE_RECORDING )
 			newdemo_record_control_center_destroyed();
 	}
@@ -1909,7 +1911,7 @@ window_event_result GameProcessFrame()
 	// Check if we have to close in-game menus for multiplayer
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected == CONNECT_PLAYING))
 	{
-		if (Endlevel_sequence || (Player_dead_state != player_was_dead) || (local_player_shields_ref < player_shields) || (Control_center_destroyed && Countdown_seconds_left < 10))
+		if (Endlevel_sequence || (Player_dead_state != player_was_dead) || (local_player_shields_ref < player_shields) || (LevelUniqueControlCenterState.Control_center_destroyed && Countdown_seconds_left < 10))
                         game_leave_menus();
 	}
 

@@ -1904,6 +1904,7 @@ namespace dsx {
 
 window_event_result ReadControls(const d_event &event)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	int key;
 	static ubyte exploding_flag=0;
@@ -1999,7 +2000,7 @@ window_event_result ReadControls(const d_event &event)
 		if ( Controls.state.automap )
 		{
 			Controls.state.automap = 0;
-			if (Player_is_dead != player_dead_state::no || (!((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10))))
+			if (Player_is_dead != player_dead_state::no || !((Game_mode & GM_MULTI) && LevelUniqueControlCenterState.Control_center_destroyed && Countdown_seconds_left < 10))
 			{
 				do_automap();
 				return window_event_result::handled;

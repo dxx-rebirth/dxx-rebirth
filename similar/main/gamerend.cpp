@@ -369,7 +369,9 @@ static void draw_window_label(object_array &Objects, grs_canvas &canvas)
 namespace dsx {
 static void render_countdown_gauge(grs_canvas &canvas)
 {
-	if (!Endlevel_sequence && Control_center_destroyed  && (Countdown_seconds_left>-1)) { // && (Countdown_seconds_left<127))
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
+	if (!Endlevel_sequence && LevelUniqueControlCenterState.Control_center_destroyed && (Countdown_seconds_left>-1))
+	{ // && (Countdown_seconds_left<127))
 #if defined(DXX_BUILD_DESCENT_II)
 		if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)    // no countdown on registered only
 		{

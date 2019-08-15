@@ -874,6 +874,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<secret_save, secret_save::none> secret{};
 #elif defined(DXX_BUILD_DESCENT_II)
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	if (Current_level_num < 0 && secret == secret_save::none)
 	{
 		HUD_init_message_literal(HM_DEFAULT,  "Can't save in secret level!" );
@@ -894,7 +895,8 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 #if defined(DXX_BUILD_DESCENT_II)
 	//	If this is a secret save and the control center has been destroyed, don't allow
 	//	return to the base level.
-	if (secret != secret_save::none && Control_center_destroyed) {
+	if (secret != secret_save::none && LevelUniqueControlCenterState.Control_center_destroyed)
+	{
 		PHYSFS_delete(SECRETB_FILENAME);
 		return 0;
 	}
@@ -965,6 +967,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 
 int state_save_all_sub(const char *filename, const char *desc)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
@@ -1195,7 +1198,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 	}
 
 // Save the fuelcen info
+	{
+		const int Control_center_destroyed = LevelUniqueControlCenterState.Control_center_destroyed;
 	PHYSFS_write(fp, &Control_center_destroyed, sizeof(int), 1);
+	}
 #if defined(DXX_BUILD_DESCENT_I)
 	PHYSFS_write(fp, &Countdown_seconds_left, sizeof(int), 1);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1468,6 +1474,7 @@ int state_restore_all_sub(const char *filename)
 int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const secret_restore secret, const char *const filename)
 #endif
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1817,7 +1824,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	}
 
 	//Restore the fuelcen info
-	Control_center_destroyed = PHYSFSX_readSXE32(fp, swap);
+	LevelUniqueControlCenterState.Control_center_destroyed = PHYSFSX_readSXE32(fp, swap);
 #if defined(DXX_BUILD_DESCENT_I)
 	Countdown_seconds_left = PHYSFSX_readSXE32(fp, swap);
 	Countdown_timer = 0;
@@ -1854,7 +1861,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	Control_center_next_fire_time = PHYSFSX_readSXE32(fp, swap);
 	Control_center_present = PHYSFSX_readSXE32(fp, swap);
 	Dead_controlcen_object_num = PHYSFSX_readSXE32(fp, swap);
-	if (Control_center_destroyed)
+	if (LevelUniqueControlCenterState.Control_center_destroyed)
 		Total_countdown_time = Countdown_timer/F0_5; // we do not need to know this, but it should not be 0 either...
 		
 

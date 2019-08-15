@@ -41,6 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "segment.h"
 #include "dxxerror.h"
+#include "object.h"
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
@@ -74,6 +75,7 @@ void reset_special_effects()
 
 void do_special_effects()
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	range_for (eclip &ec, partial_range(Effects, Num_effects))
 	{
@@ -108,7 +110,8 @@ void do_special_effects()
 		if (ec.flags & EF_CRITICAL)
 			continue;
 
-		if (ec.crit_clip!=-1 && Control_center_destroyed) {
+		if (ec.crit_clip!=-1 && LevelUniqueControlCenterState.Control_center_destroyed)
+		{
 			int n = ec.crit_clip;
 
 			if (ec.changing_wall_texture != -1)

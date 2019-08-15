@@ -1091,7 +1091,9 @@ static void collide_robot_and_player(const vmobjptridx_t robot, const vmobjptrid
 //	was actually in another object.
 void net_destroy_controlcen(const imobjptridx_t controlcen)
 {
-	if (Control_center_destroyed != 1) {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
+	if (LevelUniqueControlCenterState.Control_center_destroyed != 1)
+	{
 		do_controlcen_destroyed_stuff(controlcen);
 
 		if ((controlcen != object_none) && !(controlcen->flags&(OF_EXPLODING|OF_DESTROYED))) {
@@ -1337,11 +1339,12 @@ namespace dsx {
 //	------------------------------------------------------------------------------------------------------
 window_event_result do_final_boss_frame(void)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto Final_boss_countdown_time = GameUniqueState.Final_boss_countdown_time;
 	if (!Final_boss_countdown_time)
 		return window_event_result::ignored;
 
-	if (!Control_center_destroyed)
+	if (!LevelUniqueControlCenterState.Control_center_destroyed)
 		return window_event_result::ignored;
 
 	Final_boss_countdown_time -= FrameTime;

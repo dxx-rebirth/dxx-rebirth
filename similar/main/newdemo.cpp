@@ -2012,6 +2012,7 @@ static void newdemo_pop_ctrlcen_triggers()
 namespace dsx {
 static int newdemo_read_frame_information(int rewrite)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -2423,7 +2424,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_CONTROL_CENTER_DESTROYED:
 			nd_read_int(&Countdown_seconds_left);
-			Control_center_destroyed = 1;
+			LevelUniqueControlCenterState.Control_center_destroyed = 1;
 			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
@@ -3657,6 +3658,7 @@ static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 
 window_event_result newdemo_playback_one_frame()
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	int frames_back;
@@ -3677,7 +3679,7 @@ window_event_result newdemo_playback_one_frame()
 	if (Newdemo_vcr_state == ND_STATE_PAUSED)       // render a frame or not
 		return window_event_result::ignored;
 
-	Control_center_destroyed = 0;
+	LevelUniqueControlCenterState.Control_center_destroyed = 0;
 	Countdown_seconds_left = -1;
 	PALETTE_FLASH_SET(0,0,0);       //clear flash
 

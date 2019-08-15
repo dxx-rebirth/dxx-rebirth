@@ -1314,6 +1314,7 @@ static void do_screen_message_fmt(const char *fmt, ...)
 //	robots, powerups, walls, doors, etc.
 static void StartNewLevelSecret(int level_num, int page_in_textures)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
         ThisLevelTime=0;
@@ -1356,7 +1357,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 
 	Game_suspended = 0;
 
-	Control_center_destroyed = 0;
+	LevelUniqueControlCenterState.Control_center_destroyed = 0;
 
 	init_cockpit();
 	reset_palette_add();
@@ -1405,6 +1406,7 @@ static int Entered_from_level;
 //	Called from switch.c when player is on a secret level and hits exit to return to base level.
 window_event_result ExitSecretLevel()
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto result = window_event_result::handled;
@@ -1415,7 +1417,8 @@ window_event_result ExitSecretLevel()
 	if (Game_wind)
 		window_set_visible(Game_wind, 0);
 
-	if (!Control_center_destroyed) {
+	if (!LevelUniqueControlCenterState.Control_center_destroyed)
+	{
 		state_save_all(secret_save::c, blind_save::no);
 	}
 
@@ -1479,6 +1482,7 @@ void do_cloak_invul_secret_stuff(fix64 old_gametime, player_info &player_info)
 //	Do a savegame.
 void EnterSecretLevel(void)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int i;
 
 	Assert(! (Game_mode & GM_MULTI) );
@@ -1490,7 +1494,7 @@ void EnterSecretLevel(void)
 	
 	Entered_from_level = Current_level_num;
 
-	if (Control_center_destroyed)
+	if (LevelUniqueControlCenterState.Control_center_destroyed)
 		DoEndLevelScoreGlitz();
 
 	if (Newdemo_state != ND_STATE_PLAYBACK)
@@ -1626,6 +1630,7 @@ static void DoEndGame()
 //	Return true if game over.
 static window_event_result AdvanceLevel(int secret_flag)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto rval = window_event_result::handled;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1652,7 +1657,7 @@ static window_event_result AdvanceLevel(int secret_flag)
 			DoEndLevelScoreGlitz();		//give bonuses
 	}
 
-	Control_center_destroyed = 0;
+	LevelUniqueControlCenterState.Control_center_destroyed = 0;
 
 	if (Game_mode & GM_MULTI)
 	{
@@ -1712,6 +1717,7 @@ static window_event_result AdvanceLevel(int secret_flag)
 
 window_event_result DoPlayerDead()
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	const bool pause = !(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (!Endlevel_sequence));
@@ -1743,8 +1749,8 @@ window_event_result DoPlayerDead()
 		}
 	}
 
-	if ( Control_center_destroyed ) {
-
+	if (LevelUniqueControlCenterState.Control_center_destroyed)
+	{
 		//clear out stuff so no bonus
 		auto &plrobj = get_local_plrobj();
 		auto &player_info = plrobj.ctype.player_info;
@@ -1792,7 +1798,7 @@ window_event_result DoPlayerDead()
 		if (PHYSFSX_exists(SECRETB_FILENAME,0))
 		{
 			do_screen_message(TXT_SECRET_RETURN);
-			if (!Control_center_destroyed)
+			if (!LevelUniqueControlCenterState.Control_center_destroyed)
 				state_save_all(secret_save::c, blind_save::no);
 			state_restore_all(1, secret_restore::died, SECRETB_FILENAME, blind_save::no);
 			set_pos_from_return_segment();
@@ -1833,6 +1839,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 window_event_result StartNewLevelSub(const int level_num, const int page_in_textures, const secret_restore secret_flag)
 #endif
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	if (!(Game_mode & GM_MULTI)) {
@@ -1907,7 +1914,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 
 	Game_suspended = 0;
 
-	Control_center_destroyed = 0;
+	LevelUniqueControlCenterState.Control_center_destroyed = 0;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	set_screen_mode(SCREEN_GAME);

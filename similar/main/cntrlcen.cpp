@@ -142,7 +142,6 @@ static int calc_best_gun(const unsigned num_guns, const object &objreactor, cons
 namespace dcx {
 objnum_t	Dead_controlcen_object_num=object_none;
 
-int Control_center_destroyed = 0;
 fix Countdown_timer=0;
 int Countdown_seconds_left=0, Total_countdown_time=0;		//in whole seconds
 
@@ -157,6 +156,7 @@ constexpr int	D2_Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
 //	Called every frame.  If control center been destroyed, then actually do something.
 window_event_result do_controlcen_dead_frame()
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // if out of level already there's no need for this
@@ -171,7 +171,7 @@ window_event_result do_controlcen_dead_frame()
 #endif
 			create_small_fireball_on_object(vmobjptridx(Dead_controlcen_object_num), CC_FIREBALL_SCALE, 1);
 
-	if (Control_center_destroyed && !Endlevel_sequence)
+	if (LevelUniqueControlCenterState.Control_center_destroyed && !Endlevel_sequence)
 		return do_countdown_frame();
 
 	return window_event_result::ignored;
@@ -181,9 +181,11 @@ window_event_result do_controlcen_dead_frame()
 
 window_event_result do_countdown_frame()
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	fix	old_time;
 
-	if (!Control_center_destroyed)	return window_event_result::ignored;
+	if (!LevelUniqueControlCenterState.Control_center_destroyed)
+		return window_event_result::ignored;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)   // get countdown in OEM and SHAREWARE only
@@ -274,10 +276,11 @@ window_event_result do_countdown_frame()
 //	if objp == NULL that means the boss was the control center and don't set Dead_controlcen_object_num
 void do_controlcen_destroyed_stuff(const imobjptridx_t objp)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int i;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if ((Game_mode & GM_MULTI_ROBOTS) && Control_center_destroyed)
+	if ((Game_mode & GM_MULTI_ROBOTS) && LevelUniqueControlCenterState.Control_center_destroyed)
 		return; // Don't allow resetting if control center and boss on same level
 #endif
 
@@ -288,7 +291,7 @@ void do_controlcen_destroyed_stuff(const imobjptridx_t objp)
 		wall_toggle(vmwallptr, vmsegptridx(ControlCenterTriggers.seg[i]), ControlCenterTriggers.side[i]);
 
 	// And start the countdown stuff.
-	Control_center_destroyed = 1;
+	LevelUniqueControlCenterState.Control_center_destroyed = 1;
 
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -533,7 +536,8 @@ void init_controlcen_for_level(void)
 #if defined(DXX_BUILD_DESCENT_II)
 void special_reactor_stuff()
 {
-	if (Control_center_destroyed) {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
+	if (LevelUniqueControlCenterState.Control_center_destroyed) {
 		Countdown_timer += i2f(Base_control_center_explosion_time + (NDL - 1 - GameUniqueState.Difficulty_level) * Base_control_center_explosion_time / (NDL - 1));
 		Total_countdown_time = f2i(Countdown_timer)+2;	//	Will prevent "Self destruct sequence activated" message from replaying.
 	}

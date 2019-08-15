@@ -686,6 +686,9 @@ namespace dsx {
 
 static void multi_compute_kill(const imobjptridx_t killer, const vmobjptridx_t killed)
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
+#endif
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	// Figure out the results of a network kills and add it to the
@@ -715,7 +718,7 @@ static void multi_compute_kill(const imobjptridx_t killer, const vmobjptridx_t k
 	digi_play_sample( SOUND_HUD_KILL, F3_0 );
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Control_center_destroyed)
+	if (LevelUniqueControlCenterState.Control_center_destroyed)
 		vmplayerptr(killed_pnum)->connected = CONNECT_DIED_IN_MINE;
 #endif
 
@@ -1332,6 +1335,7 @@ static void kick_player(const player &plr, netplayer_info &nplr)
 
 static void multi_send_message_end(fvmobjptr &vmobjptr)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 #if defined(DXX_BUILD_DESCENT_I)
 	multi_message_index = 0;
 	multi_sending_message[Player_num] = msgsend_none;
@@ -1481,7 +1485,7 @@ static void multi_send_message_end(fvmobjptr &vmobjptr)
 				return;
 			}
 	}
-	else if (!d_stricmp (Network_message.data(), "/killreactor") && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
+	else if (!d_stricmp (Network_message.data(), "/killreactor") && (Game_mode & GM_NETWORK) && !LevelUniqueControlCenterState.Control_center_destroyed)
 	{
 		if (!multi_i_am_master())
 			HUD_init_message(HM_MULTI, "Only %s can kill the reactor this way!", static_cast<const char *>(Players[multi_who_is_master()].callsign));
@@ -1924,10 +1928,11 @@ namespace dsx {
 // which means not a controlcen object, but contained in another object
 static void multi_do_controlcen_destroy(fimobjptridx &imobjptridx, const uint8_t *const buf)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	objnum_t objnum = GET_INTEL_SHORT(buf + 1);
 	const playernum_t who = buf[3];
 
-	if (Control_center_destroyed != 1)
+	if (LevelUniqueControlCenterState.Control_center_destroyed != 1)
 	{
 		if ((who < N_players) && (who != Player_num)) {
 			HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(vcplayerptr(who)->callsign), TXT_HAS_DEST_CONTROL);
@@ -2206,11 +2211,12 @@ static void multi_do_controlcen_fire(const ubyte *buf)
 
 static void multi_do_create_powerup(fvmobjptr &vmobjptr, fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int count = 1;
 	vms_vector new_pos;
 	char powerup_type;
 
-	if ((Network_status == NETSTAT_ENDLEVEL) || Control_center_destroyed)
+	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
 	count++;
@@ -4040,9 +4046,10 @@ static void multi_do_heartbeat (const ubyte *buf)
 
 void multi_check_for_killgoal_winner ()
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	if (Control_center_destroyed)
+	if (LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
 	/* For historical compatibility, this routine has some quirks with
@@ -4877,10 +4884,11 @@ namespace dsx {
 
 void multi_initiate_save_game()
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	fix game_id = 0;
 	int slot;
 
-	if ((Network_status == NETSTAT_ENDLEVEL) || (Control_center_destroyed))
+	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
 	if (!multi_i_am_master())
@@ -4955,9 +4963,10 @@ void multi_initiate_save_game()
 
 void multi_initiate_restore_game()
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int slot;
 
-	if ((Network_status == NETSTAT_ENDLEVEL) || (Control_center_destroyed))
+	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
 	if (!multi_i_am_master())
@@ -4999,9 +5008,10 @@ void multi_initiate_restore_game()
 
 void multi_save_game(const unsigned slot, const unsigned id, const d_game_unique_state::savegame_description &desc)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	char filename[PATH_MAX];
 
-	if ((Network_status == NETSTAT_ENDLEVEL) || (Control_center_destroyed))
+	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%d"), static_cast<const char *>(get_local_player().callsign), slot);
@@ -5013,9 +5023,10 @@ void multi_save_game(const unsigned slot, const unsigned id, const d_game_unique
 
 void multi_restore_game(const unsigned slot, const unsigned id)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	d_game_unique_state::savegame_file_path filename;
 
-	if ((Network_status == NETSTAT_ENDLEVEL) || (Control_center_destroyed))
+	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
 	auto &plr = get_local_player();
@@ -5386,7 +5397,8 @@ void MultiLevelInv_Recount()
 namespace dsx {
 bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
 {
-        if ((Game_mode & GM_MULTI_COOP) || Control_center_destroyed || (Network_status != NETSTAT_PLAYING))
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
+	if ((Game_mode & GM_MULTI_COOP) || LevelUniqueControlCenterState.Control_center_destroyed || Network_status != NETSTAT_PLAYING)
                 return 0;
 
         int req_amount = 1; // required amount of item to drop a powerup.
@@ -5411,7 +5423,8 @@ bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
 // Repopulate the level with missing items.
 void MultiLevelInv_Repopulate(fix frequency)
 {
-        if (!multi_i_am_master() || (Game_mode & GM_MULTI_COOP) || Control_center_destroyed)
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
+	if (!multi_i_am_master() || (Game_mode & GM_MULTI_COOP) || LevelUniqueControlCenterState.Control_center_destroyed)
                 return;
 
 	MultiLevelInv_Recount(); // recount current items

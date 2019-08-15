@@ -1608,6 +1608,7 @@ static void net_udp_new_player(UDP_sequence_packet *const their)
 
 static void net_udp_welcome_player(UDP_sequence_packet *their)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	// Add a player to a game already in progress
@@ -1616,7 +1617,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 	// Don't accept new players if we're ending this level.  Its safe to
 	// ignore since they'll request again later
 
-	if ((Network_status == NETSTAT_ENDLEVEL) || (Control_center_destroyed))
+	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 	{
 		net_udp_dump_player(their->player.protocol.udp.addr, DUMP_ENDLEVEL);
 		return; 
@@ -1943,6 +1944,7 @@ static void net_udp_stop_resync(UDP_sequence_packet *their)
 namespace dsx {
 void net_udp_send_objects(void)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	sbyte owner, player_num = UDP_sync_player.player.connected;
@@ -1960,7 +1962,7 @@ void net_udp_send_objects(void)
 	Assert(player_num >= 0);
 	Assert(player_num < Netgame.max_numplayers);
 
-	if ((Network_status == NETSTAT_ENDLEVEL) || Control_center_destroyed)
+	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 	{
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
@@ -2189,12 +2191,13 @@ namespace dsx {
 
 void net_udp_send_rejoin_sync(const unsigned player_num)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	vmplayerptr(player_num)->connected = CONNECT_PLAYING; // connect the new guy
 	Netgame.players[player_num].LastPacketTime = timer_query();
 
-	if ((Network_status == NETSTAT_ENDLEVEL) || Control_center_destroyed)
+	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 	{
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
@@ -2524,6 +2527,7 @@ struct game_info_heavy
 
 static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	uint_fast32_t len = 0;
 	uint8_t *const buf = info.buf.data();
 		buf[0] = UPID_GAME_INFO_LITE;								len++;				// 1
@@ -2537,7 +2541,7 @@ static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 		buf[len] = Netgame.difficulty;							len++;
 		int tmpvar;
 		tmpvar = Netgame.game_status;
-		if ((Network_status == NETSTAT_ENDLEVEL) || Control_center_destroyed)
+	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 			tmpvar = NETSTAT_ENDLEVEL;
 		if (Netgame.PlayTimeAllowed)
 		{
@@ -2558,6 +2562,7 @@ static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 
 static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyte info_upid, game_info_heavy &info)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	uint8_t *const buf = info.buf.data();
 	uint_fast32_t len = 0;
 
@@ -2581,7 +2586,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		buf[len] = Netgame.difficulty;							len++;
 		int tmpvar;
 		tmpvar = Netgame.game_status;
-		if ((Network_status == NETSTAT_ENDLEVEL) || Control_center_destroyed)
+	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 			tmpvar = NETSTAT_ENDLEVEL;
 		if (Netgame.PlayTimeAllowed)
 		{
@@ -4852,6 +4857,7 @@ void net_udp_timeout_check(fix64 time)
 namespace dsx {
 void net_udp_do_frame(int force, int listen)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	static fix64 last_pdata_time = 0, last_mdata_time = 16, last_endlevel_time = 32, last_bcast_time = 48, last_resync_time = 64;
 
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
@@ -4887,7 +4893,7 @@ void net_udp_do_frame(int force, int listen)
 		net_udp_resend_sync_due_to_packet_loss(); // This will resend to UDP_sync_player
 	}
 
-	if ((time>=last_endlevel_time+F1_0) && Control_center_destroyed)
+	if (time >= last_endlevel_time + F1_0 && LevelUniqueControlCenterState.Control_center_destroyed)
 	{
 		last_endlevel_time = time;
 		net_udp_send_endlevel_packet();

@@ -650,6 +650,7 @@ static vmsegptridx_t choose_drop_segment(fvcsegptridx &vcsegptridx, fvmsegptridx
 //	(Re)spawns powerup if in a network game.
 void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool random_player)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
         playernum_t pnum = Player_num;
@@ -661,7 +662,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 				return;
 		}
 
-		if (Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
+		if (LevelUniqueControlCenterState.Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
 			return;
 
                 if (random_player)
