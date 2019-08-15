@@ -1242,8 +1242,11 @@ int state_save_all_sub(const char *filename, const char *desc)
 		const int Control_center_present = LevelUniqueControlCenterState.Control_center_present;
 	PHYSFS_write(fp, &Control_center_present, sizeof(int), 1);
 	}
+	{
+		const auto Dead_controlcen_object_num = LevelUniqueControlCenterState.Dead_controlcen_object_num;
 	int dead_controlcen_object_num = Dead_controlcen_object_num == object_none ? -1 : Dead_controlcen_object_num;
 	PHYSFS_write(fp, &dead_controlcen_object_num, sizeof(int), 1);
+	}
 
 // Save the AI state
 	ai_save_state( fp );
@@ -1866,7 +1869,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	}
 	LevelUniqueControlCenterState.Frametime_until_next_fire = PHYSFSX_readSXE32(fp, swap);
 	LevelUniqueControlCenterState.Control_center_present = PHYSFSX_readSXE32(fp, swap);
-	Dead_controlcen_object_num = PHYSFSX_readSXE32(fp, swap);
+	LevelUniqueControlCenterState.Dead_controlcen_object_num = PHYSFSX_readSXE32(fp, swap);
 	if (LevelUniqueControlCenterState.Control_center_destroyed)
 		LevelUniqueControlCenterState.Total_countdown_time = LevelUniqueControlCenterState.Countdown_timer / F0_5; // we do not need to know this, but it should not be 0 either...
 

@@ -101,14 +101,7 @@ static inline reactor &get_reactor_definition(int id)
 	return Reactors[id];
 #endif
 }
-}
 
-namespace dcx {
-//@@extern int N_controlcen_guns;
-extern objnum_t Dead_controlcen_object_num;
-}
-
-namespace dsx {
 // do whatever this thing does in a frame
 void do_controlcen_frame(vmobjptridx_t obj);
 

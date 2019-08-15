@@ -137,8 +137,6 @@ static int calc_best_gun(const unsigned num_guns, const object &objreactor, cons
 }
 
 namespace dcx {
-objnum_t	Dead_controlcen_object_num=object_none;
-
 constexpr int	D1_Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
 }
 namespace dsx {
@@ -156,6 +154,7 @@ window_event_result do_controlcen_dead_frame()
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // if out of level already there's no need for this
 		return window_event_result::ignored;
 
+	const auto Dead_controlcen_object_num = LevelUniqueControlCenterState.Dead_controlcen_object_num;
 	if (Dead_controlcen_object_num != object_none && LevelUniqueControlCenterState.Countdown_seconds_left > 0)
 		if (d_rand() < FrameTime*4)
 #if defined(DXX_BUILD_DESCENT_I)
@@ -313,7 +312,7 @@ void do_controlcen_destroyed_stuff(const imobjptridx_t objp)
 	if (!LevelUniqueControlCenterState.Control_center_present || objp==object_none)
 		return;
 
-	Dead_controlcen_object_num = objp;
+	LevelUniqueControlCenterState.Dead_controlcen_object_num = objp;
 }
 
 //	-----------------------------------------------------------------------------
@@ -485,14 +484,6 @@ void init_controlcen_for_level(void)
 		}
 	}
 
-#ifndef NDEBUG
-	if (cntrlcen_objnum == nullptr)
-	{
-		Dead_controlcen_object_num = object_none;
-		return;
-	}
-#endif
-
 	if (boss_objnum != nullptr && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)))
 	{
 		if (cntrlcen_objnum != nullptr)
@@ -533,7 +524,7 @@ void init_controlcen_for_level(void)
 	Control_center_player_been_seen = player_visibility_state::no_line_of_sight;
 	LevelUniqueControlCenterState.Frametime_until_next_fire = 0;
 	
-	Dead_controlcen_object_num = object_none;
+	LevelUniqueControlCenterState.Dead_controlcen_object_num = object_none;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

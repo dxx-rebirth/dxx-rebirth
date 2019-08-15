@@ -570,6 +570,7 @@ struct d_level_unique_control_center_state
 	uint8_t Control_center_destroyed;
 	uint8_t Control_center_been_hit;
 	uint8_t Control_center_present;
+	objnum_t Dead_controlcen_object_num;
 	int Countdown_seconds_left;
 	fix Countdown_timer;
 	fix Frametime_until_next_fire;
