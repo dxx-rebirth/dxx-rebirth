@@ -568,6 +568,7 @@ unsigned laser_parent_is_matching_signature(const laser_parent &l, const object_
 struct d_level_unique_control_center_state
 {
 	uint8_t Control_center_destroyed;
+	uint8_t Control_center_been_hit;
 	int Countdown_seconds_left;
 	fix Countdown_timer;
 	int Total_countdown_time;		//in whole seconds

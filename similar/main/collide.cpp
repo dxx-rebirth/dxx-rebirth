@@ -1107,6 +1107,7 @@ void net_destroy_controlcen(const imobjptridx_t controlcen)
 //	-----------------------------------------------------------------------------
 void apply_damage_to_controlcen(const vmobjptridx_t controlcen, fix damage, const vcobjptr_t who)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int	whotype;
 
 	//	Only allow a player to damage the control center.
@@ -1131,7 +1132,7 @@ void apply_damage_to_controlcen(const vmobjptridx_t controlcen, fix damage, cons
 	}
 
 	if (get_player_id(who) == Player_num) {
-		Control_center_been_hit = 1;
+		LevelUniqueControlCenterState.Control_center_been_hit = 1;
 		ai_do_cloak_stuff();
 	}
 
@@ -1157,8 +1158,9 @@ void apply_damage_to_controlcen(const vmobjptridx_t controlcen, fix damage, cons
 
 static void collide_player_and_controlcen(const vmobjptridx_t playerobj, const vmobjptridx_t controlcen, const vms_vector &collision_point)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	if (get_player_id(playerobj) == Player_num) {
-		Control_center_been_hit = 1;
+		LevelUniqueControlCenterState.Control_center_been_hit = 1;
 		ai_do_cloak_stuff();				//	In case player cloaked, make control center know where he is.
 	}
 
@@ -1252,6 +1254,7 @@ static void maybe_kill_weapon(object_base &weapon, const object_base &other_obj)
 namespace dsx {
 static void collide_weapon_and_controlcen(const vmobjptridx_t weapon, const vmobjptridx_t controlcen, vms_vector &collision_point)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 
@@ -1279,7 +1282,7 @@ static void collide_weapon_and_controlcen(const vmobjptridx_t weapon, const vmob
 		}
 
 		if (get_player_id(vcobjptr(weapon->ctype.laser_info.parent_num)) == Player_num)
-			Control_center_been_hit = 1;
+			LevelUniqueControlCenterState.Control_center_been_hit = 1;
 
 		if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 		{
