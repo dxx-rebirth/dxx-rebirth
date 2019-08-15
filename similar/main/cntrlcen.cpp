@@ -143,7 +143,7 @@ namespace dcx {
 objnum_t	Dead_controlcen_object_num=object_none;
 
 fix Countdown_timer=0;
-int Countdown_seconds_left=0, Total_countdown_time=0;		//in whole seconds
+int Total_countdown_time=0;		//in whole seconds
 
 constexpr int	D1_Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
 }
@@ -162,7 +162,7 @@ window_event_result do_controlcen_dead_frame()
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // if out of level already there's no need for this
 		return window_event_result::ignored;
 
-	if ((Dead_controlcen_object_num != object_none) && (Countdown_seconds_left > 0))
+	if (Dead_controlcen_object_num != object_none && LevelUniqueControlCenterState.Countdown_seconds_left > 0)
 		if (d_rand() < FrameTime*4)
 #if defined(DXX_BUILD_DESCENT_I)
 #define CC_FIREBALL_SCALE	F1_0*3
@@ -205,7 +205,7 @@ window_event_result do_countdown_frame()
 	if (d_tick_step)
 	{
 		auto &rotvel = ConsoleObject->mtype.phys_info.rotvel;
-		const auto get_base_disturbance = [fc = std::min(Countdown_seconds_left, 16)]() {
+		const auto get_base_disturbance = [fc = std::min(LevelUniqueControlCenterState.Countdown_seconds_left, 16)]() {
 			return fixmul(d_rand() - 16384, 3 * F1_0 / 16 + (F1_0 * (16 - fc)) / 32);
 		};
 		fix disturb_x = get_base_disturbance(), disturb_z = get_base_disturbance();
@@ -222,15 +222,16 @@ window_event_result do_countdown_frame()
 
 	old_time = Countdown_timer;
 	Countdown_timer -= FrameTime;
-	Countdown_seconds_left = f2i(Countdown_timer + F1_0*7/8);
+	const auto Countdown_seconds_left = LevelUniqueControlCenterState.Countdown_seconds_left = f2i(Countdown_timer + F1_0*7/8);
 
 	if ( (old_time > COUNTDOWN_VOICE_TIME ) && (Countdown_timer <= COUNTDOWN_VOICE_TIME) )	{
 		digi_play_sample( SOUND_COUNTDOWN_13_SECS, F3_0 );
 	}
-	if ( f2i(old_time + F1_0*7/8) != Countdown_seconds_left )	{
-		if ( (Countdown_seconds_left>=0) && (Countdown_seconds_left<10) )
-			digi_play_sample( SOUND_COUNTDOWN_0_SECS+Countdown_seconds_left, F3_0 );
-		if ( Countdown_seconds_left==Total_countdown_time-1)
+	if (f2i(old_time + F1_0 * 7 / 8) != Countdown_seconds_left)
+	{
+		if (Countdown_seconds_left >= 0 && Countdown_seconds_left < 10)
+			digi_play_sample(SOUND_COUNTDOWN_0_SECS + Countdown_seconds_left, F3_0);
+		if (Countdown_seconds_left == Total_countdown_time - 1)
 			digi_play_sample( SOUND_COUNTDOWN_29_SECS, F3_0 );
 	}						
 
@@ -238,7 +239,8 @@ window_event_result do_countdown_frame()
 		fix size,old_size;
 		size = (i2f(Total_countdown_time)-Countdown_timer) / fl2f(0.65);
 		old_size = (i2f(Total_countdown_time)-old_time) / fl2f(0.65);
-		if (size != old_size && (Countdown_seconds_left < (Total_countdown_time-5) ))		{			// Every 2 seconds!
+		if (size != old_size && Countdown_seconds_left < Total_countdown_time - 5)
+		{			// Every 2 seconds!
 			//@@if (Dead_controlcen_object_num != -1) {
 			//@@	vms_vector vp;	//,v,c;
 			//@@	compute_segment_center(&vp, &Segments[Objects[Dead_controlcen_object_num].segnum]);

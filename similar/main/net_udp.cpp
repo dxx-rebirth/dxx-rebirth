@@ -2414,6 +2414,7 @@ void net_udp_update_netgame(void)
 /* Send an updated endlevel status to everyone (if we are host) or host (if we are client)  */
 void net_udp_send_endlevel_packet(void)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
@@ -2423,7 +2424,7 @@ void net_udp_send_endlevel_packet(void)
 	{
 		array<uint8_t, 2 + (5 * Players.size()) + sizeof(kill_matrix)> buf;
 		buf[len] = UPID_ENDLEVEL_H;											len++;
-		buf[len] = Countdown_seconds_left;									len++;
+		buf[len] = LevelUniqueControlCenterState.Countdown_seconds_left;				len++;
 
 		range_for (auto &i, Players)
 		{
@@ -2454,7 +2455,7 @@ void net_udp_send_endlevel_packet(void)
 		buf[len] = UPID_ENDLEVEL_C;											len++;
 		buf[len] = Player_num;												len++;
 		buf[len] = get_local_player().connected;							len++;
-		buf[len] = Countdown_seconds_left;									len++;
+		buf[len] = LevelUniqueControlCenterState.Countdown_seconds_left;				len++;
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		PUT_INTEL_SHORT(&buf[len], player_info.net_kills_total);
 		len += 2;
@@ -3116,6 +3117,7 @@ static void net_udp_process_packet(ubyte *data, const _sockaddr &sender_addr, in
 // Packet for end of level syncing
 void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_addr)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	int len = 0;
@@ -3134,8 +3136,8 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 			multi_disconnect_player(pnum);
 		vmplayerptr(pnum)->connected = data[len];					len++;
 		tmpvar = data[len];							len++;
-		if ((Network_status != NETSTAT_PLAYING) && (vcplayerptr(pnum)->connected == CONNECT_PLAYING) && (tmpvar < Countdown_seconds_left))
-			Countdown_seconds_left = tmpvar;
+		if (Network_status != NETSTAT_PLAYING && vcplayerptr(pnum)->connected == CONNECT_PLAYING && tmpvar < LevelUniqueControlCenterState.Countdown_seconds_left)
+			LevelUniqueControlCenterState.Countdown_seconds_left = tmpvar;
 		auto &objp = *vmobjptr(vcplayerptr(pnum)->objnum);
 		auto &player_info = objp.ctype.player_info;
 		player_info.net_kills_total = GET_INTEL_SHORT(&data[len]);
@@ -3158,8 +3160,8 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 		len++;
 
 		tmpvar = data[len];							len++;
-		if ((Network_status != NETSTAT_PLAYING) && (tmpvar < Countdown_seconds_left))
-			Countdown_seconds_left = tmpvar;
+		if (Network_status != NETSTAT_PLAYING && tmpvar < LevelUniqueControlCenterState.Countdown_seconds_left)
+			LevelUniqueControlCenterState.Countdown_seconds_left = tmpvar;
 
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++)
 		{

@@ -1311,11 +1311,12 @@ void newdemo_record_wall_toggle( segnum_t segnum, int side )
 
 void newdemo_record_control_center_destroyed()
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	if (!nd_record_v_recordframe)
 		return;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_CONTROL_CENTER_DESTROYED );
-	nd_write_int( Countdown_seconds_left );
+	nd_write_int(LevelUniqueControlCenterState.Countdown_seconds_left);
 }
 
 void newdemo_record_hud_message(const char * message )
@@ -2423,12 +2424,12 @@ static int newdemo_read_frame_information(int rewrite)
 			break;
 
 		case ND_EVENT_CONTROL_CENTER_DESTROYED:
-			nd_read_int(&Countdown_seconds_left);
+			nd_read_int(&LevelUniqueControlCenterState.Countdown_seconds_left);
 			LevelUniqueControlCenterState.Control_center_destroyed = 1;
 			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
-				nd_write_int(Countdown_seconds_left);
+				nd_write_int(LevelUniqueControlCenterState.Countdown_seconds_left);
 				break;
 			}
 			if (!nd_playback_v_cntrlcen_destroyed) {
@@ -3680,7 +3681,7 @@ window_event_result newdemo_playback_one_frame()
 		return window_event_result::ignored;
 
 	LevelUniqueControlCenterState.Control_center_destroyed = 0;
-	Countdown_seconds_left = -1;
+	LevelUniqueControlCenterState.Countdown_seconds_left = -1;
 	PALETTE_FLASH_SET(0,0,0);       //clear flash
 
 	if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))

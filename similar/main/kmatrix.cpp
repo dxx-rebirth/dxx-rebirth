@@ -279,6 +279,7 @@ static void kmatrix_redraw_coop(fvcobjptr &vcobjptr)
 namespace dsx {
 static window_event_result kmatrix_handler(window *, const d_event &event, kmatrix_screen *km)
 {
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int k = 0, choice = 0;
 	
 	switch (event.type)
@@ -316,6 +317,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 			break;
 			
 		case EVENT_WINDOW_DRAW:
+			{
 			timer_delay2(50);
 
 			if (km->network)
@@ -334,9 +336,10 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 			
 			// ... and let the reactor blow sky high!
 			if (!km->playing)
-				Countdown_seconds_left = -1;
+				LevelUniqueControlCenterState.Countdown_seconds_left = -1;
 			
 			// If Reactor is finished and end_time not inited, set the time when we will exit this loop
+			const auto Countdown_seconds_left = LevelUniqueControlCenterState.Countdown_seconds_left;
 			if (km->end_time == -1 && Countdown_seconds_left < 0 && !km->playing)
 				km->end_time = timer_query() + (KMATRIX_VIEW_SEC * F1_0);
 			
@@ -367,6 +370,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 			kmatrix_redraw(km);
 			kmatrix_status_msg(*grd_curcanv, km->playing ? Countdown_seconds_left : f2i(timer_query() - km->end_time), km->playing);
 			break;
+			}
 			
 		case EVENT_WINDOW_CLOSE:
 			game_flush_inputs();

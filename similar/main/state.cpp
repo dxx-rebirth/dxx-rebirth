@@ -1203,7 +1203,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, &Control_center_destroyed, sizeof(int), 1);
 	}
 #if defined(DXX_BUILD_DESCENT_I)
-	PHYSFS_write(fp, &Countdown_seconds_left, sizeof(int), 1);
+	PHYSFS_write(fp, &LevelUniqueControlCenterState.Countdown_seconds_left, sizeof(int), 1);
 #elif defined(DXX_BUILD_DESCENT_II)
 	PHYSFS_write(fp, &Countdown_timer, sizeof(int), 1);
 #endif
@@ -1826,7 +1826,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	//Restore the fuelcen info
 	LevelUniqueControlCenterState.Control_center_destroyed = PHYSFSX_readSXE32(fp, swap);
 #if defined(DXX_BUILD_DESCENT_I)
-	Countdown_seconds_left = PHYSFSX_readSXE32(fp, swap);
+	LevelUniqueControlCenterState.Countdown_seconds_left = PHYSFSX_readSXE32(fp, swap);
 	Countdown_timer = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 	Countdown_timer = PHYSFSX_readSXE32(fp, swap);
