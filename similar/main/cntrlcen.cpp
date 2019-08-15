@@ -59,7 +59,6 @@ array<reactor, MAX_REACTORS> Reactors;
 #if defined(DXX_BUILD_DESCENT_II)
 unsigned Num_reactors;
 //how long to blow up on insane
-int Base_control_center_explosion_time=DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
 int Reactor_strength=-1;		//-1 mean not set by designer
 #endif
 }
@@ -291,6 +290,7 @@ void do_controlcen_destroyed_stuff(const imobjptridx_t objp)
 	if (Current_level_num < 0)
 		PHYSFS_delete(SECRETC_FILENAME);
 
+	const auto Base_control_center_explosion_time = LevelSharedControlCenterState.Base_control_center_explosion_time;
 	if (Base_control_center_explosion_time != DEFAULT_CONTROL_CENTER_EXPLOSION_TIME)
 		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL-Difficulty_level-1)/2;
 	else if (!EMULATING_D1)
@@ -524,6 +524,7 @@ void special_reactor_stuff()
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	if (LevelUniqueControlCenterState.Control_center_destroyed) {
+		const auto Base_control_center_explosion_time = LevelSharedControlCenterState.Base_control_center_explosion_time;
 		LevelUniqueControlCenterState.Countdown_timer += i2f(Base_control_center_explosion_time + (NDL - 1 - GameUniqueState.Difficulty_level) * Base_control_center_explosion_time / (NDL - 1));
 		LevelUniqueControlCenterState.Total_countdown_time = f2i(LevelUniqueControlCenterState.Countdown_timer) + 2;	//	Will prevent "Self destruct sequence activated" message from replaying.
 	}

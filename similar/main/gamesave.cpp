@@ -1329,9 +1329,9 @@ int load_level(
 		strcpy(Current_level_palette.next().data(), DEFAULT_LEVEL_PALETTE);
 
 	if (Gamesave_current_version >= 3)
-		Base_control_center_explosion_time = PHYSFSX_readInt(LoadFile);
+		LevelSharedControlCenterState.Base_control_center_explosion_time = PHYSFSX_readInt(LoadFile);
 	else
-		Base_control_center_explosion_time = DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
+		LevelSharedControlCenterState.Base_control_center_explosion_time = DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
 
 	if (Gamesave_current_version >= 4)
 		Reactor_strength = PHYSFSX_readInt(LoadFile);
@@ -1871,7 +1871,7 @@ static int save_level_sub(
 		PHYSFSX_printf(SaveFile, "%s\n", static_cast<const char *>(Current_level_palette));
 
 	if (Gamesave_current_version >= 3)
-		PHYSFS_writeSLE32(SaveFile, Base_control_center_explosion_time);
+		PHYSFS_writeSLE32(SaveFile, LevelSharedControlCenterState.Base_control_center_explosion_time);
 	if (Gamesave_current_version >= 4)
 		PHYSFS_writeSLE32(SaveFile, Reactor_strength);
 

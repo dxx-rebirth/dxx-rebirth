@@ -71,8 +71,14 @@ constexpr std::integral_constant<unsigned, 1> Num_reactors{};
 constexpr std::integral_constant<unsigned, 7> MAX_REACTORS{};
 #define DEFAULT_CONTROL_CENTER_EXPLOSION_TIME 30    // Note: Usually uses Alan_pavlish_reactor_times, but can be overridden in editor.
 
+struct d_level_shared_control_center_state
+{
+	int Base_control_center_explosion_time;      // how long to blow up on insane
+};
+
+extern d_level_shared_control_center_state LevelSharedControlCenterState;
+
 extern unsigned Num_reactors;
-extern int Base_control_center_explosion_time;      // how long to blow up on insane
 extern int Reactor_strength;
 
 /*

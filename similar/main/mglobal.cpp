@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "inferno.h"
 #include "lighting.h"
+#include "cntrlcen.h"
 #include "effects.h"
 #include "fuelcen.h"
 #include "segment.h"
@@ -118,6 +119,9 @@ valptridx<managed_type>::array_managed_type::array_managed_type()
 namespace dsx {
 d_game_unique_state GameUniqueState;
 d_level_shared_boss_state LevelSharedBossState;
+#if defined(DXX_BUILD_DESCENT_II)
+d_level_shared_control_center_state LevelSharedControlCenterState;
+#endif
 d_level_unique_effects_clip_state LevelUniqueEffectsClipState;
 d_level_shared_segment_state LevelSharedSegmentState;
 d_level_unique_object_state LevelUniqueObjectState;
