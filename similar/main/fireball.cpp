@@ -113,7 +113,7 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		case OBJ_WEAPON:
-			return is_proximity_bomb_or_smart_mine_or_placed_mine(get_weapon_id(iter_object));
+			return is_proximity_bomb_or_player_smart_mine_or_placed_mine(get_weapon_id(iter_object));
 #endif
 		case OBJ_CNTRLCEN:
 		case OBJ_PLAYER:
@@ -186,7 +186,7 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 							case OBJ_WEAPON:
 								phys_apply_force(obj_iter, vforce);
 
-								if (is_proximity_bomb_or_smart_mine(get_weapon_id(obj_iter)))
+								if (is_proximity_bomb_or_player_smart_mine(get_weapon_id(obj_iter)))
 								{		//prox bombs have chance of blowing up
 									if (fixmul(dist,force) > i2f(8000)) {
 										obj_iter->flags |= OF_SHOULD_BE_DEAD;

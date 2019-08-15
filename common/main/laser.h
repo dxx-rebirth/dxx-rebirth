@@ -132,12 +132,12 @@ extern array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 #ifdef dsx
 namespace d1x {
 
-static inline int is_proximity_bomb_or_smart_mine(const weapon_id_type id)
+static inline int is_proximity_bomb_or_player_smart_mine(const weapon_id_type id)
 {
 	return id == weapon_id_type::PROXIMITY_ID;
 }
 
-static inline int is_proximity_bomb_or_smart_mine_or_placed_mine(const weapon_id_type id)
+static inline int is_proximity_bomb_or_player_smart_mine_or_placed_mine(const weapon_id_type id)
 {
 	/* Descent 1 has no smart mines or placed mines. */
 	return id == weapon_id_type::PROXIMITY_ID;
@@ -150,18 +150,18 @@ namespace dsx {
 // Omega cannon stuff.
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw
 
-static inline int is_proximity_bomb_or_smart_mine(const weapon_id_type id)
+static inline int is_proximity_bomb_or_player_smart_mine(const weapon_id_type id)
 {
 	if (id == weapon_id_type::SUPERPROX_ID)
 		return 1;
-	return ::d1x::is_proximity_bomb_or_smart_mine(id);
+	return ::d1x::is_proximity_bomb_or_player_smart_mine(id);
 }
 
-static inline int is_proximity_bomb_or_smart_mine_or_placed_mine(const weapon_id_type id)
+static inline int is_proximity_bomb_or_player_smart_mine_or_placed_mine(const weapon_id_type id)
 {
 	if (id == weapon_id_type::PMINE_ID)
 		return 1;
-	return is_proximity_bomb_or_smart_mine(id);
+	return is_proximity_bomb_or_player_smart_mine(id);
 }
 }
 #endif

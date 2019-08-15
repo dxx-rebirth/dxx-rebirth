@@ -1201,7 +1201,7 @@ static void collide_player_and_marker(const object_base &playerobj, const vmobjp
 namespace dsx {
 static void maybe_kill_weapon(object_base &weapon, const object_base &other_obj)
 {
-	if (is_proximity_bomb_or_smart_mine_or_placed_mine(get_weapon_id(weapon))) {
+	if (is_proximity_bomb_or_player_smart_mine_or_placed_mine(get_weapon_id(weapon))) {
 		weapon.flags |= OF_SHOULD_BE_DEAD;
 		return;
 	}

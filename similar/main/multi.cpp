@@ -2520,7 +2520,7 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 	multibuf[0] = static_cast<char>(MULTI_FIRE);
 	if (is_bomb_objnum != object_none)
 	{
-		if (is_proximity_bomb_or_smart_mine(get_weapon_id(is_bomb_objnum)))
+		if (is_proximity_bomb_or_player_smart_mine(get_weapon_id(is_bomb_objnum)))
 			multibuf[0] = static_cast<char>(MULTI_FIRE_BOMB);
 	}
 	else if (laser_track != object_none)

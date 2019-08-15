@@ -447,7 +447,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 		if (fate == HIT_OBJECT) {
 			auto &objp = *vcobjptr(hit_info.hit_object);
 
-			if ((objp.type == OBJ_WEAPON && is_proximity_bomb_or_smart_mine(get_weapon_id(objp))) ||
+			if ((objp.type == OBJ_WEAPON && is_proximity_bomb_or_player_smart_mine(get_weapon_id(objp))) ||
 				objp.type == OBJ_POWERUP) // do not increase count for powerups since they *should* not change our movement
 				count--;
 		}

@@ -139,7 +139,7 @@ void Laser_render(grs_canvas &canvas, const object_base &obj)
 
 static bool ignore_proximity_weapon(const object &o)
 {
-	if (!is_proximity_bomb_or_smart_mine(get_weapon_id(o)))
+	if (!is_proximity_bomb_or_player_smart_mine(get_weapon_id(o)))
 		return false;
 #if defined(DXX_BUILD_DESCENT_I)
 	return GameTime64 > o.ctype.laser_info.creation_time + F1_0*2;
@@ -217,7 +217,7 @@ bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 	auto &o2li = o2->ctype.laser_info;
 	if (o1li.parent_num == o2li.parent_num && o1li.parent_signature == o2li.parent_signature)
 	{
-		if (is_proximity_bomb_or_smart_mine(o1id) || is_proximity_bomb_or_smart_mine(o2id))
+		if (is_proximity_bomb_or_player_smart_mine(o1id) || is_proximity_bomb_or_player_smart_mine(o2id))
 		{
 			//	If neither is older than 1/2 second, then can't blow up!
 #if defined(DXX_BUILD_DESCENT_II)
@@ -906,7 +906,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 
 	//	Here's where to fix the problem with objects which are moving backwards imparting higher velocity to their weaponfire.
 	//	Find out if moving backwards.
-	if (is_proximity_bomb_or_smart_mine(weapon_type)) {
+	if (is_proximity_bomb_or_player_smart_mine(weapon_type)) {
 		parent_speed = vm_vec_mag_quick(parent->mtype.phys_info.velocity);
 		if (vm_vec_dot(parent->mtype.phys_info.velocity, parent->orient.fvec) < 0)
 			parent_speed = -parent_speed;
@@ -1192,7 +1192,7 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 		if ((curobjp->type != track_obj_type1) && (curobjp->type != track_obj_type2))
 		{
 #if defined(DXX_BUILD_DESCENT_II)
-			if ((curobjp->type == OBJ_WEAPON) && (is_proximity_bomb_or_smart_mine(get_weapon_id(curobjp)))) {
+			if ((curobjp->type == OBJ_WEAPON) && (is_proximity_bomb_or_player_smart_mine(get_weapon_id(curobjp)))) {
 				auto &cur_laser_info = curobjp->ctype.laser_info;
 				auto &tracker_laser_info = tracker->ctype.laser_info;
 				if (cur_laser_info.parent_num != tracker_laser_info.parent_num || cur_laser_info.parent_signature != tracker_laser_info.parent_signature)
@@ -1494,7 +1494,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, c
 	//	New by MK on 6/8/95, don't let robots evade proximity bombs, thereby decreasing uselessness of bombs.
 	if (obj == ConsoleObject)
 #if defined(DXX_BUILD_DESCENT_II)
-		if (!is_proximity_bomb_or_smart_mine(get_weapon_id(objnum)))
+		if (!is_proximity_bomb_or_player_smart_mine(get_weapon_id(objnum)))
 #endif
 		Player_fired_laser_this_frame = objnum;
 

@@ -73,7 +73,7 @@ void draw_weapon_vclip(const d_vclip_array &Vclip, const weapon_info_array &Weap
 	const auto play_time = Vclip[vclip_num].play_time;
 	fix modtime = lifeleft % play_time;
 
-	if (is_proximity_bomb_or_smart_mine_or_placed_mine(get_weapon_id(obj)))
+	if (is_proximity_bomb_or_player_smart_mine_or_placed_mine(get_weapon_id(obj)))
 	{		//make prox bombs spin out of sync
 		int objnum = obj;
 
