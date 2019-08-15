@@ -312,7 +312,6 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int			best_gun_num;
-	static fix controlcen_death_silence = 0;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 
@@ -380,12 +379,17 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 	}
 #endif
 
+	constexpr fix Relative_frametime_cease_fire = F1_0 * 2;
+	auto &Frametime_since_player_died = LevelUniqueControlCenterState.Frametime_since_player_died;
 	if (Player_dead_state != player_dead_state::no)
-		controlcen_death_silence += FrameTime;
+	{
+		if (Frametime_since_player_died <= Relative_frametime_cease_fire)
+			Frametime_since_player_died += FrameTime;
+	}
 	else
-		controlcen_death_silence = 0;
+		Frametime_since_player_died = 0;
 
-	if (LevelUniqueControlCenterState.Frametime_until_next_fire < 0 && !(controlcen_death_silence > F1_0*2))
+	if (LevelUniqueControlCenterState.Frametime_until_next_fire < 0 && !(Frametime_since_player_died > Relative_frametime_cease_fire))
 	{
 		auto &player_info = plrobj.ctype.player_info;
 		const auto &player_pos = (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) ? Believed_player_pos : ConsoleObject->pos;

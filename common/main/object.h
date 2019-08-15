@@ -575,6 +575,14 @@ struct d_level_unique_control_center_state
 	int Countdown_seconds_left;
 	fix Countdown_timer;
 	fix Frametime_until_next_fire;
+	/* If the player is not dead, this stays 0.  If the player is dead,
+	 * this accumulates FrameTime, up until it saturates.  When it
+	 * saturates, the reactor stops firing.
+	 *
+	 * FIXME: The original game defined this in terms of "the player",
+	 * but reactors are present in multiplayer games.
+	 */
+	fix Frametime_since_player_died;
 	int Total_countdown_time;		//in whole seconds
 };
 
