@@ -432,21 +432,25 @@ static window_event_result HandleEndlevelKey(int key)
 
 static int HandleDeathInput(const d_event &event)
 {
-	if (event.type == EVENT_KEY_COMMAND)
-	{
-		int key = event_key_get(event);
+	const auto input_aborts_death_sequence = [&]() {
+		const auto RespawnMode = PlayerCfg.RespawnMode;
+		if (event.type == EVENT_KEY_COMMAND)
+		{
+			const auto key = event_key_get(event);
+			if ((RespawnMode == RespawnPress::Any && !key_isfunc(key) && key != KEY_PAUSE && key) ||
+				(key == KEY_ESC && ConsoleObject->flags & OF_EXPLODING))
+				return 1;
+		}
 
-		if ((PlayerCfg.RespawnMode == RespawnPress::Any && Player_dead_state == player_dead_state::exploded && !key_isfunc(key) && key != KEY_PAUSE && key) ||
-			(key == KEY_ESC && ConsoleObject->flags & OF_EXPLODING))
-				GameViewUniqueState.Death_sequence_aborted = 1;
-	}
-
-	if (Player_dead_state == player_dead_state::exploded)
-	{
-		if (PlayerCfg.RespawnMode == RespawnPress::Any
+		if (RespawnMode == RespawnPress::Any
 			? (event.type == EVENT_JOYSTICK_BUTTON_UP || event.type == EVENT_MOUSE_BUTTON_UP)
 			: (Controls.state.fire_primary || Controls.state.fire_secondary || Controls.state.fire_flare))
-			GameViewUniqueState.Death_sequence_aborted = 1;
+			return 1;
+		return 0;
+	};
+	if (Player_dead_state == player_dead_state::exploded && input_aborts_death_sequence())
+	{
+		GameViewUniqueState.Death_sequence_aborted = 1;
 	}
 
 	if (GameViewUniqueState.Death_sequence_aborted)
