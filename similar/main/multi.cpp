@@ -1940,10 +1940,7 @@ static void multi_do_controlcen_destroy(fimobjptridx &imobjptridx, const uint8_t
 		else
 			HUD_init_message_literal(HM_MULTI, who == Player_num ? TXT_YOU_DEST_CONTROL : TXT_CONTROL_DESTROYED);
 
-		if (objnum != object_none)
-			net_destroy_controlcen(imobjptridx(objnum));
-		else
-			net_destroy_controlcen(object_none);
+		net_destroy_controlcen(objnum == object_none ? object_none : imobjptridx(objnum));
 	}
 }
 
