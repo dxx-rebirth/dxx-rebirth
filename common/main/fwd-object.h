@@ -325,7 +325,7 @@ void wake_up_rendered_objects(const object &gmissp, window_rendered_data &window
 
 void fuelcen_check_for_goal(object &plrobj, const shared_segment &segp);
 #endif
-imobjptridx_t obj_find_first_of_type(int type);
+imobjptridx_t obj_find_first_of_type(fvmobjptridx &, object_type_t type);
 
 void object_rw_swap(struct object_rw *obj_rw, int swap);
 void reset_player_object();

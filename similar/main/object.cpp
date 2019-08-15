@@ -151,10 +151,8 @@ void object_goto_next_viewer()
 }
 #endif
 
-imobjptridx_t obj_find_first_of_type(int type)
+imobjptridx_t obj_find_first_of_type(fvmobjptridx &vmobjptridx, const object_type_t type)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptridx = Objects.vmptridx;
 	range_for (const auto &&i, vmobjptridx)
 	{
 		if (i->type==type)

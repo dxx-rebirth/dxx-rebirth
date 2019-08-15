@@ -662,6 +662,13 @@ static void print_kill_goal_tables(fvcobjptr &vcobjptr)
 	}
 }
 
+static void net_destroy_controlcen(object_array &Objects)
+{
+	print_kill_goal_tables(Objects.vcptr);
+	HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
+	net_destroy_controlcen(obj_find_first_of_type(Objects.vmptridx, OBJ_CNTRLCEN));
+}
+
 }
 
 static const char *prepare_kill_name(const playernum_t pnum, char (&buf)[(CALLSIGN_LEN*2)+4])
@@ -680,7 +687,6 @@ namespace dsx {
 static void multi_compute_kill(const imobjptridx_t killer, const vmobjptridx_t killed)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
@@ -908,10 +914,7 @@ static void multi_compute_kill(const imobjptridx_t killer, const vmobjptridx_t k
 				char buf[(CALLSIGN_LEN*2)+4];
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!", prepare_kill_name(killer_pnum, buf));
 			}
-
-			print_kill_goal_tables(vcobjptr);
-			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
-			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
+			net_destroy_controlcen(Objects);
 		}
 	}
 
@@ -4076,10 +4079,7 @@ void multi_check_for_killgoal_winner ()
 	}
 	else
 		HUD_init_message(HM_MULTI, "%s has the best score with %d kills!", static_cast<const char *>(bestplr->callsign), highest_kill_goal_count);
-
-	print_kill_goal_tables(vcobjptr);
-	HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
-	net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
+	net_destroy_controlcen(Objects);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -4244,7 +4244,6 @@ void multi_send_orb_bonus (const playernum_t pnum, const uint8_t hoard_orbs)
 void multi_do_capture_bonus(const playernum_t pnum)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
@@ -4284,10 +4283,7 @@ void multi_do_capture_bonus(const playernum_t pnum)
 			}
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",static_cast<const char *>(vcplayerptr(pnum)->callsign));
-
-			print_kill_goal_tables(vcobjptr);
-			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
-			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
+			net_destroy_controlcen(Objects);
 		}
 	}
 
@@ -4306,7 +4302,6 @@ static int GetOrbBonus (char num)
 void multi_do_orb_bonus(const playernum_t pnum, const uint8_t *const buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
@@ -4364,10 +4359,7 @@ void multi_do_orb_bonus(const playernum_t pnum, const uint8_t *const buf)
 			}
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",static_cast<const char *>(vcplayerptr(pnum)->callsign));
-
-			print_kill_goal_tables(vcobjptr);
-			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
-			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
+			net_destroy_controlcen(Objects);
 		}
 	}
 	multi_sort_kill_list();
