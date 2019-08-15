@@ -1273,7 +1273,6 @@ static const object *Viewer_save;
 namespace dcx {
 player_dead_state Player_dead_state = player_dead_state::no;			//	If !0, then player is dead, but game continues so he can watch.
 static int Player_flags_save;
-int		Death_sequence_aborted=0;
 static fix Camera_to_player_dist_goal = F1_0*4;
 static uint8_t Control_type_save, Render_type_save;
 
@@ -1460,7 +1459,7 @@ window_event_result dead_player_frame()
 		}
 
 
-		if (Death_sequence_aborted)
+		if (GameViewUniqueState.Death_sequence_aborted)
 		{
 			auto &player_info = get_local_plrobj().ctype.player_info;
 			if (!player_info.Player_eggs_dropped) {
@@ -1502,7 +1501,7 @@ static void start_player_death_sequence(object &player)
 	if (!(Game_mode & GM_MULTI))
 		HUD_clear_messages();
 
-	Death_sequence_aborted = 0;
+	GameViewUniqueState.Death_sequence_aborted = 0;
 
 	if (Game_mode & GM_MULTI)
 	{

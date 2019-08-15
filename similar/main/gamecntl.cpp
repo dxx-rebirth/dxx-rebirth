@@ -438,7 +438,7 @@ static int HandleDeathInput(const d_event &event)
 
 		if ((PlayerCfg.RespawnMode == RespawnPress::Any && Player_dead_state == player_dead_state::exploded && !key_isfunc(key) && key != KEY_PAUSE && key) ||
 			(key == KEY_ESC && ConsoleObject->flags & OF_EXPLODING))
-				Death_sequence_aborted = 1;
+				GameViewUniqueState.Death_sequence_aborted = 1;
 	}
 
 	if (Player_dead_state == player_dead_state::exploded)
@@ -446,10 +446,10 @@ static int HandleDeathInput(const d_event &event)
 		if (PlayerCfg.RespawnMode == RespawnPress::Any
 			? (event.type == EVENT_JOYSTICK_BUTTON_UP || event.type == EVENT_MOUSE_BUTTON_UP)
 			: (Controls.state.fire_primary || Controls.state.fire_secondary || Controls.state.fire_flare))
-			Death_sequence_aborted = 1;
+			GameViewUniqueState.Death_sequence_aborted = 1;
 	}
 
-	if (Death_sequence_aborted)
+	if (GameViewUniqueState.Death_sequence_aborted)
 	{
 		game_flush_respawn_inputs();
 		return 1;

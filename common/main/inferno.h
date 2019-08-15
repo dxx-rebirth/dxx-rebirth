@@ -77,6 +77,13 @@ struct d_interface_unique_state
 
 extern d_interface_unique_state InterfaceUniqueState;
 
+struct d_game_view_unique_state
+{
+	uint8_t Death_sequence_aborted;
+};
+
+extern d_game_view_unique_state GameViewUniqueState;
+
 }
 
 #ifdef dsx

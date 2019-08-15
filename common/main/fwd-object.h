@@ -195,7 +195,6 @@ enum class player_dead_state : uint8_t
 
 namespace dcx {
 extern player_dead_state Player_dead_state;          // !0 means player is dead!
-extern int Death_sequence_aborted;
 extern objnum_t Player_fired_laser_this_frame;
 
 // Draw a blob-type object, like a fireball
