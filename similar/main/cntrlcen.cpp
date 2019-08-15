@@ -70,7 +70,6 @@ control_center_triggers ControlCenterTriggers;
 namespace dcx {
 
 player_visibility_state Control_center_player_been_seen;
-int	Control_center_next_fire_time;
 int	Control_center_present;
 
 }
@@ -365,7 +364,7 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 			auto dist_to_player = vm_vec_normalize_quick(vec_to_player);
 			if (dist_to_player < F1_0*200) {
 				Control_center_player_been_seen = player_is_visible_from_object(obj, obj->pos, 0, vec_to_player);
-				Control_center_next_fire_time = 0;
+				LevelUniqueControlCenterState.Control_center_next_fire_time = 0;
 			}
 		}			
 
@@ -397,7 +396,8 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 	else
 		controlcen_death_silence = 0;
 
-	if ((Control_center_next_fire_time < 0) && !(controlcen_death_silence > F1_0*2)) {
+	if (LevelUniqueControlCenterState.Control_center_next_fire_time < 0 && !(controlcen_death_silence > F1_0*2))
+	{
 		auto &player_info = plrobj.ctype.player_info;
 		const auto &player_pos = (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) ? Believed_player_pos : ConsoleObject->pos;
 		best_gun_num = calc_best_gun(
@@ -453,12 +453,11 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 			if (Game_mode & GM_MULTI) // slow down rate of fire in multi player
 				delta_fire_time *= 2;
 
-			Control_center_next_fire_time = delta_fire_time;
+			LevelUniqueControlCenterState.Control_center_next_fire_time = delta_fire_time;
 
 		}
 	} else
-		Control_center_next_fire_time -= FrameTime;
-
+		LevelUniqueControlCenterState.Control_center_next_fire_time -= FrameTime;
 }
 
 //	-----------------------------------------------------------------------------
@@ -533,7 +532,7 @@ void init_controlcen_for_level(void)
 	//	Say the control center has not yet been hit.
 	LevelUniqueControlCenterState.Control_center_been_hit = 0;
 	Control_center_player_been_seen = player_visibility_state::no_line_of_sight;
-	Control_center_next_fire_time = 0;
+	LevelUniqueControlCenterState.Control_center_next_fire_time = 0;
 	
 	Dead_controlcen_object_num = object_none;
 }
