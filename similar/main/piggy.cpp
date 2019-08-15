@@ -1045,6 +1045,9 @@ int read_hamfile()
 	return 1;
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
+static
+#endif
 int read_sndfile()
 {
 	int snd_id,snd_version;

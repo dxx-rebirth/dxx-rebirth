@@ -180,10 +180,10 @@ extern hashtable AllBitmapsNames;
 extern hashtable AllDigiSndNames;
 #elif defined(DXX_BUILD_DESCENT_II)
 extern array<BitmapFile, MAX_BITMAP_FILES> AllBitmaps;
+int read_sndfile();
 #endif
 void piggy_init_pigfile(const char *filename);
 int read_hamfile();
-int read_sndfile();
 void swap_0_255(grs_bitmap &bmp);
 
 #endif

@@ -754,7 +754,7 @@ static mission_list_type build_mission_list(int anarchy_mode)
 int load_mission_ham()
 {
 	read_hamfile(); // intentionally can also read from the HOG
-		
+
 	if (Piggy_hamfile_version >= 3)
 	{
 		// re-read sounds in case mission has custom .sXX
