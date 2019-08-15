@@ -364,7 +364,7 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Periodically, make the reactor fall asleep if player not visible.
-	if (LevelUniqueControlCenterState.Control_center_been_hit || player_is_visible(LevelUniqueControlCenterState.Control_center_player_been_seen))
+	if (!EMULATING_D1 && (LevelUniqueControlCenterState.Control_center_been_hit || player_is_visible(LevelUniqueControlCenterState.Control_center_player_been_seen)))
 	{
 		if (LevelUniqueControlCenterState.Last_time_cc_vis_check + F1_0 * 5 < GameTime64 || LevelUniqueControlCenterState.Last_time_cc_vis_check > GameTime64)
 		{
