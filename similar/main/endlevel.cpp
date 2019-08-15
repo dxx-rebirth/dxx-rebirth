@@ -127,7 +127,6 @@ static array<flythrough_data, MAX_FLY_OBJECTS> fly_objects;
 
 int Endlevel_sequence = 0;
 
-static segnum_t transition_segnum;
 segnum_t exit_segnum;
 
 static object *endlevel_camera;
@@ -393,7 +392,7 @@ window_event_result start_endlevel_sequence()
 		}
 		//now pick transition segnum 1/3 of the way in
 
-		transition_segnum = get_tunnel_transition_segment(tunnel_length, console_seg, exit_console_side);
+		PlayerUniqueEndlevelState.transition_segnum = get_tunnel_transition_segment(tunnel_length, console_seg, exit_console_side);
 	}
 
 	if (Game_mode & GM_MULTI) {
@@ -659,8 +658,8 @@ window_event_result do_endlevel_frame()
 
 			do_endlevel_flythrough(&fly_objects[0]);
 
-			if (ConsoleObject->segnum == transition_segnum) {
-
+			if (ConsoleObject->segnum == PlayerUniqueEndlevelState.transition_segnum)
+			{
 #if defined(DXX_BUILD_DESCENT_II)
 				if (PLAYING_BUILTIN_MISSION && endlevel_movie_played != MOVIE_NOT_PLAYED)
 					result = std::max(stop_endlevel_sequence(), result);

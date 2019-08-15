@@ -40,10 +40,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player-callsign.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#include "fwd-segment.h"
 #include "player-flags.h"
 #include "valptridx.h"
 
 namespace dcx {
+
+struct d_player_unique_endlevel_state
+{
+	segnum_t transition_segnum;
+};
+
+extern d_player_unique_endlevel_state PlayerUniqueEndlevelState;
+
 // When this structure changes, increment the constant
 // SAVE_FILE_VERSION in playsave.c
 struct player : public prohibit_void_ptr<player>

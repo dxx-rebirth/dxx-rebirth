@@ -53,6 +53,7 @@ static void reconstruct_global_variable(T &t)
 
 d_interface_unique_state InterfaceUniqueState;
 d_game_view_unique_state GameViewUniqueState;
+d_player_unique_endlevel_state PlayerUniqueEndlevelState;
 d_level_shared_vertex_state LevelSharedVertexState;
 d_level_unique_automap_state LevelUniqueAutomapState;
 d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
