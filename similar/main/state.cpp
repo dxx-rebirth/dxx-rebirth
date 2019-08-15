@@ -1234,7 +1234,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, &Control_center_been_hit, sizeof(int), 1);
 	}
 	{
-		const auto cc = static_cast<int>(Control_center_player_been_seen);
+		const auto cc = static_cast<int>(LevelUniqueControlCenterState.Control_center_player_been_seen);
 		PHYSFS_write(fp, &cc, sizeof(int), 1);
 	}
 	PHYSFS_write(fp, &LevelUniqueControlCenterState.Frametime_until_next_fire, sizeof(int), 1);
@@ -1865,7 +1865,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	LevelUniqueControlCenterState.Control_center_been_hit = PHYSFSX_readSXE32(fp, swap);
 	{
 		const int cc = PHYSFSX_readSXE32(fp, swap);
-		Control_center_player_been_seen = static_cast<player_visibility_state>(cc);
+		LevelUniqueControlCenterState.Control_center_player_been_seen = static_cast<player_visibility_state>(cc);
 	}
 	LevelUniqueControlCenterState.Frametime_until_next_fire = PHYSFSX_readSXE32(fp, swap);
 	LevelUniqueControlCenterState.Control_center_present = PHYSFSX_readSXE32(fp, swap);

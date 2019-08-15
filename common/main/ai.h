@@ -173,8 +173,6 @@ static inline vms_vector make_random_vector()
 	return make_random_vector(v), v;
 }
 
-extern player_visibility_state Control_center_player_been_seen;
-
 }
 #ifdef dsx
 namespace dsx {
