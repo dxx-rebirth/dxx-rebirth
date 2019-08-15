@@ -142,8 +142,6 @@ static int calc_best_gun(const unsigned num_guns, const object &objreactor, cons
 namespace dcx {
 objnum_t	Dead_controlcen_object_num=object_none;
 
-fix Countdown_timer=0;
-
 constexpr int	D1_Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
 }
 namespace dsx {
@@ -219,11 +217,13 @@ window_event_result do_countdown_frame()
 	}
 	//	Hook in the rumble sound effect here.
 
-	old_time = Countdown_timer;
-	Countdown_timer -= FrameTime;
+	old_time = LevelUniqueControlCenterState.Countdown_timer;
+	LevelUniqueControlCenterState.Countdown_timer -= FrameTime;
+	const auto Countdown_timer = LevelUniqueControlCenterState.Countdown_timer;
 	const auto Countdown_seconds_left = LevelUniqueControlCenterState.Countdown_seconds_left = f2i(Countdown_timer + F1_0*7/8);
 
-	if ( (old_time > COUNTDOWN_VOICE_TIME ) && (Countdown_timer <= COUNTDOWN_VOICE_TIME) )	{
+	if (old_time > COUNTDOWN_VOICE_TIME && Countdown_timer <= COUNTDOWN_VOICE_TIME)
+	{
 		digi_play_sample( SOUND_COUNTDOWN_13_SECS, F3_0 );
 	}
 	if (f2i(old_time + F1_0 * 7 / 8) != Countdown_seconds_left)
@@ -311,7 +311,7 @@ void do_controlcen_destroyed_stuff(const imobjptridx_t objp)
 		Total_countdown_time = D1_Alan_pavlish_reactor_times[Difficulty_level];
 
 	LevelUniqueControlCenterState.Total_countdown_time = Total_countdown_time;
-	Countdown_timer = i2f(Total_countdown_time);
+	LevelUniqueControlCenterState.Countdown_timer = i2f(Total_countdown_time);
 
 	if (!Control_center_present || objp==object_none)
 		return;
@@ -542,8 +542,8 @@ void special_reactor_stuff()
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	if (LevelUniqueControlCenterState.Control_center_destroyed) {
-		Countdown_timer += i2f(Base_control_center_explosion_time + (NDL - 1 - GameUniqueState.Difficulty_level) * Base_control_center_explosion_time / (NDL - 1));
-		LevelUniqueControlCenterState.Total_countdown_time = f2i(Countdown_timer) + 2;	//	Will prevent "Self destruct sequence activated" message from replaying.
+		LevelUniqueControlCenterState.Countdown_timer += i2f(Base_control_center_explosion_time + (NDL - 1 - GameUniqueState.Difficulty_level) * Base_control_center_explosion_time / (NDL - 1));
+		LevelUniqueControlCenterState.Total_countdown_time = f2i(LevelUniqueControlCenterState.Countdown_timer) + 2;	//	Will prevent "Self destruct sequence activated" message from replaying.
 	}
 }
 

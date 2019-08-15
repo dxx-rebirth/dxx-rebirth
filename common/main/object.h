@@ -569,6 +569,7 @@ struct d_level_unique_control_center_state
 {
 	uint8_t Control_center_destroyed;
 	int Countdown_seconds_left;
+	fix Countdown_timer;
 	int Total_countdown_time;		//in whole seconds
 };
 

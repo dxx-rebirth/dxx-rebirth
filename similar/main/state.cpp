@@ -1205,7 +1205,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 #if defined(DXX_BUILD_DESCENT_I)
 	PHYSFS_write(fp, &LevelUniqueControlCenterState.Countdown_seconds_left, sizeof(int), 1);
 #elif defined(DXX_BUILD_DESCENT_II)
-	PHYSFS_write(fp, &Countdown_timer, sizeof(int), 1);
+	PHYSFS_write(fp, &LevelUniqueControlCenterState.Countdown_timer, sizeof(int), 1);
 #endif
 	const unsigned Num_robot_centers = LevelSharedRobotcenterState.Num_robot_centers;
 	PHYSFS_write(fp, &Num_robot_centers, sizeof(int), 1);
@@ -1223,7 +1223,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 #if defined(DXX_BUILD_DESCENT_I)
 		// NOTE: Usually Descent1 handles countdown by Timer value of the Reactor Station. Since we now use Descent2 code to handle countdown (which we do in case there IS NO Reactor Station which causes potential trouble in Multiplayer), let's find the Reactor here and store the timer in it.
 		if (s.Type == SEGMENT_IS_CONTROLCEN)
-			s.Timer = Countdown_timer;
+			s.Timer = LevelUniqueControlCenterState.Countdown_timer;
 #endif
 		fuelcen_write(fp, s);
 	}
@@ -1827,9 +1827,9 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	LevelUniqueControlCenterState.Control_center_destroyed = PHYSFSX_readSXE32(fp, swap);
 #if defined(DXX_BUILD_DESCENT_I)
 	LevelUniqueControlCenterState.Countdown_seconds_left = PHYSFSX_readSXE32(fp, swap);
-	Countdown_timer = 0;
+	LevelUniqueControlCenterState.Countdown_timer = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
-	Countdown_timer = PHYSFSX_readSXE32(fp, swap);
+	LevelUniqueControlCenterState.Countdown_timer = PHYSFSX_readSXE32(fp, swap);
 #endif
 	const unsigned Num_robot_centers = PHYSFSX_readSXE32(fp, swap);
 	LevelSharedRobotcenterState.Num_robot_centers = Num_robot_centers;
@@ -1848,7 +1848,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 #if defined(DXX_BUILD_DESCENT_I)
 		// NOTE: Usually Descent1 handles countdown by Timer value of the Reactor Station. Since we now use Descent2 code to handle countdown (which we do in case there IS NO Reactor Station which causes potential trouble in Multiplayer), let's find the Reactor here and read the timer from it.
 		if (s.Type == SEGMENT_IS_CONTROLCEN)
-			Countdown_timer = s.Timer;
+			LevelUniqueControlCenterState.Countdown_timer = s.Timer;
 #endif
 	}
 
@@ -1862,7 +1862,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	Control_center_present = PHYSFSX_readSXE32(fp, swap);
 	Dead_controlcen_object_num = PHYSFSX_readSXE32(fp, swap);
 	if (LevelUniqueControlCenterState.Control_center_destroyed)
-		LevelUniqueControlCenterState.Total_countdown_time = Countdown_timer / F0_5; // we do not need to know this, but it should not be 0 either...
+		LevelUniqueControlCenterState.Total_countdown_time = LevelUniqueControlCenterState.Countdown_timer / F0_5; // we do not need to know this, but it should not be 0 either...
 
 	// Restore the AI state
 	ai_restore_state( fp, version, swap );

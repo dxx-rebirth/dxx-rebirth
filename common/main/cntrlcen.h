@@ -125,11 +125,6 @@ window_event_result do_controlcen_dead_frame();
 }
 #endif
 
-namespace dcx {
-extern fix Countdown_timer;
-
-}
-
 /*
  * reads n control_center_triggers structs from a PHYSFS_File
  */
