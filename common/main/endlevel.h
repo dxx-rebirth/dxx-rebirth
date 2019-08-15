@@ -60,7 +60,6 @@ void draw_exit_model(grs_canvas &);
 void free_endlevel_data();
 
 extern grs_bitmap *terrain_bitmap;  //*satellite_bitmap,*station_bitmap,
-extern segnum_t exit_segnum;
 
 //@@extern vms_vector mine_exit_point;
 //@@extern object external_explosion;

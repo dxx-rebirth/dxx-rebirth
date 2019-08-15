@@ -127,8 +127,6 @@ static array<flythrough_data, MAX_FLY_OBJECTS> fly_objects;
 
 int Endlevel_sequence = 0;
 
-segnum_t exit_segnum;
-
 static object *endlevel_camera;
 
 #define FLY_SPEED i2f(50)
@@ -260,7 +258,7 @@ static unsigned get_tunnel_length(fvcsegptridx &vcsegptridx, const vcsegptridx_t
 		++tunnel_length;
 		if (child == segment_exit)
 		{
-			assert(seg == exit_segnum);
+			assert(seg == PlayerUniqueEndlevelState.exit_segnum);
 			return tunnel_length;
 		}
 		const vcsegidx_t old_segidx = seg;
@@ -572,7 +570,7 @@ window_event_result do_endlevel_frame()
 
 				outside_mine = 1;
 
-				const auto &&exit_segp = vmsegptridx(exit_segnum);
+				const auto &&exit_segp = vmsegptridx(PlayerUniqueEndlevelState.exit_segnum);
 				const auto &&tobj = object_create_explosion(exit_segp, mine_side_exit_point, i2f(50), VCLIP_BIG_PLAYER_EXPLOSION);
 
 				if (tobj) {
@@ -712,7 +710,8 @@ window_event_result do_endlevel_frame()
 					fly_objects[1].speed = fly_objects[0].speed;
 			}
 
-			if (endlevel_camera->segnum == exit_segnum) {
+			if (endlevel_camera->segnum == PlayerUniqueEndlevelState.exit_segnum)
+			{
 				Endlevel_sequence = EL_OUTSIDE;
 
 				timer = i2f(2);
@@ -1127,8 +1126,7 @@ static void endlevel_render_mine(const d_level_shared_segment_state &LevelShared
 
 	segnum_t start_seg_num;
 	if (Endlevel_sequence >= EL_OUTSIDE) {
-
-		start_seg_num = exit_segnum;
+		start_seg_num = PlayerUniqueEndlevelState.exit_segnum;
 	}
 	else {
 		start_seg_num = find_point_seg(LevelSharedSegmentState, Viewer_eye, Segments.vcptridx(Viewer->segnum));
@@ -1506,23 +1504,23 @@ try_again:
 	//find the exit sequence by searching all segments for a side with
 	//children == -2
 
-	exit_segnum = segment_none;
+	PlayerUniqueEndlevelState.exit_segnum = segment_none;
 	range_for (const auto &&segp, vcsegptridx)
 	{
 		range_for (const int sidenum, xrange(6u))
 			if (segp->children[sidenum] == segment_exit)
 			{
-				exit_segnum = segp;
+				PlayerUniqueEndlevelState.exit_segnum = segp;
 				exit_side = sidenum;
 				break;
 			}
-		if (exit_segnum != segment_none)
+		if (PlayerUniqueEndlevelState.exit_segnum != segment_none)
 			break;
 	}
 
-	Assert(exit_segnum!=segment_none);
+	assert(PlayerUniqueEndlevelState.exit_segnum!=segment_none);
 
-	const auto &&exit_seg = vmsegptr(exit_segnum);
+	const auto &&exit_seg = vmsegptr(PlayerUniqueEndlevelState.exit_segnum);
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, mine_exit_point, exit_seg);

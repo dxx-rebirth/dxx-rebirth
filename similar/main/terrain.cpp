@@ -40,6 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "fireball.h"
 #include "render.h"
+#include "player.h"
 #include "terrain.h"
 
 #include "compiler-make_unique.h"
@@ -140,7 +141,7 @@ static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const in
 		//draw_exit_model();
 		mine_tiles_drawn=-1;
 		window_rendered_data window;
-		render_mine(canvas, Viewer_eye, exit_segnum, 0, window);
+		render_mine(canvas, Viewer_eye, PlayerUniqueEndlevelState.exit_segnum, 0, window);
 		//if (ext_expl_playing)
 		//	draw_fireball(&external_explosion);
 	}

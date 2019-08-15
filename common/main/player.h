@@ -49,6 +49,7 @@ namespace dcx {
 struct d_player_unique_endlevel_state
 {
 	segnum_t transition_segnum;
+	segnum_t exit_segnum;
 };
 
 extern d_player_unique_endlevel_state PlayerUniqueEndlevelState;
