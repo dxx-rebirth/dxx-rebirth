@@ -571,7 +571,7 @@ struct d_level_unique_control_center_state
 	uint8_t Control_center_been_hit;
 	int Countdown_seconds_left;
 	fix Countdown_timer;
-	fix Control_center_next_fire_time;
+	fix Frametime_until_next_fire;
 	int Total_countdown_time;		//in whole seconds
 };
 
