@@ -29,6 +29,19 @@ namespace dcx {
 
 #if SDL_MAJOR_VERSION == 2
 extern SDL_Window *g_pRebirthSDLMainWindow;
+
+static void windowevent_handler(const SDL_WindowEvent &windowevent)
+{
+	switch (windowevent.event)
+	{
+		case SDL_WINDOWEVENT_SIZE_CHANGED:
+			{
+				const d_window_size_event e{windowevent.data1, windowevent.data2};
+				event_send(e);
+				break;
+			}
+	}
+}
 #endif
 
 window_event_result event_poll()
@@ -43,6 +56,11 @@ window_event_result event_poll()
 	while ((highest_result != window_event_result::deleted) && (wind == window_get_front()) && (event = {}, SDL_PollEvent(&event)))
 	{
 		switch(event.type) {
+#if SDL_MAJOR_VERSION == 2
+			case SDL_WINDOWEVENT:
+				windowevent_handler(event.window);
+				break;
+#endif
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
 				if (clean_uniframe)

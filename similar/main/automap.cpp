@@ -139,7 +139,7 @@ struct automap : ignore_window_pointer_t
 	std::unique_ptr<Edge_info *[]>			drawingListBright;
 	
 	// Screen canvas variables
-	grs_canvas		automap_view;
+	grs_subcanvas		automap_view;
 	
 	grs_main_bitmap		automap_background;
 	
@@ -167,6 +167,16 @@ struct automap : ignore_window_pointer_t
 	control_info controls;
 	segment_depth_array_t depth_array;
 };
+
+static void init_automap_subcanvas(grs_subcanvas &view, grs_canvas &container)
+{
+#if defined(DXX_BUILD_DESCENT_I)
+	if (MacHog)
+		gr_init_sub_canvas(view, container, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));
+	else
+#endif
+		gr_init_sub_canvas(view, container, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
+}
 
 }
 
@@ -992,6 +1002,12 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 			key_toggle_repeat(1);
 			break;
 
+#if SDL_MAJOR_VERSION == 2
+		case EVENT_WINDOW_RESIZE:
+			init_automap_subcanvas(am->automap_view, grd_curscreen->sc_canvas);
+			break;
+#endif
+
 		case EVENT_IDLE:
 		case EVENT_JOYSTICK_BUTTON_UP:
 		case EVENT_JOYSTICK_BUTTON_DOWN:
@@ -1109,12 +1125,7 @@ void do_automap()
 		else
 			gr_remap_bitmap_good(am->automap_background, pal, -1, -1);
 	}
-#if defined(DXX_BUILD_DESCENT_I)
-	if (MacHog)
-		gr_init_sub_canvas(am->automap_view, grd_curscreen->sc_canvas, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));
-	else
-#endif
-		gr_init_sub_canvas(am->automap_view, grd_curscreen->sc_canvas, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
+	init_automap_subcanvas(am->automap_view, grd_curscreen->sc_canvas);
 
 	gr_palette_load( gr_palette );
 	Automap_active = 1;

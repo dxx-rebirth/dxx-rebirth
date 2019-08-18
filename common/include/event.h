@@ -8,8 +8,13 @@
 
 #pragma once
 
+#include <SDL_version.h>
 #include "fwd-event.h"
 #include "maths.h"
+
+#if SDL_MAJOR_VERSION == 2
+#include <SDL_video.h>
+#endif
 
 #ifdef __cplusplus
 namespace dcx {
@@ -32,6 +37,9 @@ enum event_type : unsigned
 	EVENT_KEY_RELEASE,
 
 	EVENT_WINDOW_CREATED,
+#if SDL_MAJOR_VERSION == 2
+	EVENT_WINDOW_RESIZE,
+#endif
 	EVENT_WINDOW_ACTIVATED,
 	EVENT_WINDOW_DEACTIVATED,
 	EVENT_WINDOW_DRAW,
@@ -95,6 +103,18 @@ struct d_select_event : d_event
 	{
 	}
 };
+
+#if SDL_MAJOR_VERSION == 2
+struct d_window_size_event : d_event
+{
+	Sint32 width;
+	Sint32 height;
+	d_window_size_event(const Sint32 w, const Sint32 h) :
+		d_event{EVENT_WINDOW_RESIZE}, width(w), height(h)
+	{
+	}
+};
+#endif
 
 #if DXX_USE_EDITOR
 fix event_get_idle_seconds();
