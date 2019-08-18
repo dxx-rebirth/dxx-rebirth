@@ -37,8 +37,14 @@ SLOT="0"
 KEYWORDS="amd64 x86"
 # Default to building both game engines.  The total size is relatively
 # small.
-IUSE="+d1x +d2x debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +music +opengl opl3-musicpack +png sc55-musicpack sdl2 tracker +vorbis"
+IUSE="+d1x +d2x debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +music +opengl opl3-musicpack +png sc55-musicpack sdl2 tracker valgrind +vorbis"
 
+# Game data is stored in HOG files.
+# Game movies are in MVL files.
+# Various add-ons use zip files to bundle their content together.
+#
+# PNG support enables writing screenshots as PNG instead of TGA (for
+# USE=opengl) or PCX (for USE=-opengl).
 DEPEND="dev-games/physfs[hog,mvl,zip]
 	opengl? (
 		virtual/opengl
@@ -114,6 +120,13 @@ RDEPEND="${DEPEND}
 "
 unset DXX_RDEPEND_ENGINE_FRAGMENT
 unset DXX_RDEPEND_USE_SDL_VERSION_FRAGMENT
+# USE=valgrind enables use of a Valgrind header.  A build with valgrind
+# instrumentation can be run without installing Valgrind, so this
+# dependency is only in DEPEND, instead of being in both DEPEND and
+# RDEPEND.
+DEPEND+='
+	valgrind? ( dev-util/valgrind )
+'
 
 # This ebuild builds d1x-rebirth, d2x-rebirth, or both.  Building none
 # would mean this ebuild installs zero files.
@@ -193,6 +206,7 @@ dxx_scons() {
 	# named profile would be used.
 	use d1x && mysconsargs+=( d1x_sharepath="/usr/share/games/d1x" d1x="$scons_build_profile,site," )
 	use d2x && mysconsargs+=( d2x_sharepath="/usr/share/games/d2x" d2x="$scons_build_profile,site," )
+	use valgrind && mysconsargs+=( poison=valgrind )
 	escons "${mysconsargs[@]}" "$@"
 }
 
