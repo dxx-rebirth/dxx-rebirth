@@ -80,7 +80,8 @@ void songs_set_volume(int volume)
 #endif
 }
 
-namespace dsx {
+namespace dcx {
+
 static int is_valid_song_extension(const char* dot)
 {
 	return (!d_stricmp(dot, SONG_EXT_HMP)
@@ -93,6 +94,10 @@ static int is_valid_song_extension(const char* dot)
 #endif
 			);
 }
+
+}
+
+namespace dsx {
 
 // Set up everything for our music
 // NOTE: you might think this is done once per runtime but it's not! It's done for EACH song so that each mission can have it's own descent.sng structure. We COULD optimize that by only doing this once per mission.
@@ -116,8 +121,6 @@ static void songs_init()
 		fp = PHYSFSX_openReadBuffered( "descent.sng" );
 	else
 		canUseExtensions = 1; // can use extensions ONLY if dxx-r.sng
-
-	Num_secret_bim_songs = 0;
 
 	if (!fp) // No descent.sng available. Define a default song-set
 	{
@@ -152,11 +155,13 @@ static void songs_init()
 			{
 				if (canUseExtensions)
 				{
+					auto &secret_label = "!Rebirth.secret ";
+					constexpr auto secret_label_len = sizeof(secret_label) - 1;
 					// extension stuffs
-					if (!d_strnicmp(inputline, "!Rebirth.secret ", 16)) {
+					if (!strncmp(inputline, secret_label, secret_label_len)) {
 						BIMSecretSongs = reinterpret_cast<bim_song_info *>(d_realloc(BIMSecretSongs, sizeof(bim_song_info) * (Num_secret_bim_songs + 1)));
 						memset(BIMSecretSongs[Num_secret_bim_songs].filename, '\0', sizeof(BIMSecretSongs[Num_secret_bim_songs].filename));
-						sscanf( inputline + 16, "%15s", BIMSecretSongs[Num_secret_bim_songs].filename );
+						sscanf( inputline + secret_label_len, "%15s", BIMSecretSongs[Num_secret_bim_songs].filename );
 
 						const char *dot = strrchr(BIMSecretSongs[Num_secret_bim_songs].filename, '.');
 						if (dot)
