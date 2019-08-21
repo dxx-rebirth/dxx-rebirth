@@ -1579,7 +1579,10 @@ static bool is_active_guided_missile(d_level_unique_object_state &LevelUniqueObj
 	if (obj->ctype.laser_info.parent_type != OBJ_PLAYER)
 		return false;
 	auto &vcobjptr = LevelUniqueObjectState.get_objects().vcptr;
-	const auto pnum = get_player_id(vcobjptr(obj->ctype.laser_info.parent_num));
+	auto &parent_obj = *vcobjptr(obj->ctype.laser_info.parent_num);
+	if (parent_obj.type != OBJ_PLAYER)
+		return false;
+	const auto pnum = get_player_id(parent_obj);
 	return LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(pnum) == obj;
 }
 #endif
