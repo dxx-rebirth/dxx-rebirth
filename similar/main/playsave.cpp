@@ -1264,6 +1264,7 @@ void set_highest_level(int levelnum)
 		/* If this mission is not the most recently used, reorder the
 		 * list so that it becomes the most recently used.
 		 */
+		previous_best_levelnum = ii->LevelNum;
 		std::rotate(ii, std::next(ii), ie);
 		ii = ie - 1;
 	}
