@@ -1934,9 +1934,10 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 		filter_objects_from_level(vmobjptr);
 #endif
 
-	read_player_file();		//get window sizes and highest level data
 	if (!(Game_mode & GM_MULTI) && !cheats.enabled)
 		set_highest_level(Current_level_num);
+	else
+		read_player_file();		//get window sizes
 
 	reset_special_effects();
 
