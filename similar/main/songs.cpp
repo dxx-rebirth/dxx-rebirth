@@ -54,6 +54,9 @@ static int Redbook_playing = 0; // Redbook track num differs from Song_playing. 
 bim_song_info *BIMSongs = NULL;
 int Num_bim_songs;
 
+bim_song_info *BIMSecretSongs = NULL;
+int Num_secret_bim_songs;
+
 #define EXTMUSIC_VOLUME_SCALE	(255)
 
 //takes volume in range 0..8
@@ -77,9 +80,27 @@ void songs_set_volume(int volume)
 #endif
 }
 
+namespace dcx {
+
+static int is_valid_song_extension(const char* dot)
+{
+	return (!d_stricmp(dot, SONG_EXT_HMP)
+#if DXX_USE_SDLMIXER
+			||
+			!d_stricmp(dot, SONG_EXT_MID) ||
+			!d_stricmp(dot, SONG_EXT_OGG) ||
+			!d_stricmp(dot, SONG_EXT_FLAC) ||
+			!d_stricmp(dot, SONG_EXT_MP3)
+#endif
+			);
+}
+
+}
+
+namespace dsx {
+
 // Set up everything for our music
 // NOTE: you might think this is done once per runtime but it's not! It's done for EACH song so that each mission can have it's own descent.sng structure. We COULD optimize that by only doing this once per mission.
-namespace dsx {
 static void songs_init()
 {
 	int i = 0;
@@ -87,12 +108,19 @@ static void songs_init()
 
 	if (BIMSongs != NULL)
 		d_free(BIMSongs);
+	if (BIMSecretSongs != NULL)
+		d_free(BIMSecretSongs);
 
+	Num_secret_bim_songs = 0;
+
+	int canUseExtensions = 0;
 	// try dxx-r.sng - a songfile specifically for dxx which level authors CAN use (dxx does not care if descent.sng contains MP3/OGG/etc. as well) besides the normal descent.sng containing files other versions of the game cannot play. this way a mission can contain a DOS-Descent compatible OST (hmp files) as well as a OST using MP3, OGG, etc.
 	auto fp = PHYSFSX_openReadBuffered("dxx-r.sng");
 
 	if (!fp) // try to open regular descent.sng
 		fp = PHYSFSX_openReadBuffered( "descent.sng" );
+	else
+		canUseExtensions = 1; // can use extensions ONLY if dxx-r.sng
 
 	if (!fp) // No descent.sng available. Define a default song-set
 	{
@@ -125,6 +153,28 @@ static void songs_init()
 		{
 			if ( strlen( inputline ) )
 			{
+				if (canUseExtensions)
+				{
+					auto &secret_label = "!Rebirth.secret ";
+					constexpr auto secret_label_len = sizeof(secret_label) - 1;
+					// extension stuffs
+					if (!strncmp(inputline, secret_label, secret_label_len)) {
+						BIMSecretSongs = reinterpret_cast<bim_song_info *>(d_realloc(BIMSecretSongs, sizeof(bim_song_info) * (Num_secret_bim_songs + 1)));
+						memset(BIMSecretSongs[Num_secret_bim_songs].filename, '\0', sizeof(BIMSecretSongs[Num_secret_bim_songs].filename));
+						sscanf( inputline + secret_label_len, "%15s", BIMSecretSongs[Num_secret_bim_songs].filename );
+
+						const char *dot = strrchr(BIMSecretSongs[Num_secret_bim_songs].filename, '.');
+						if (dot)
+						{
+							++ dot;
+							if (is_valid_song_extension(dot))
+								Num_secret_bim_songs++;
+						}
+
+						continue;
+					}
+				}
+
 				BIMSongs = reinterpret_cast<bim_song_info *>(d_realloc(BIMSongs, sizeof(bim_song_info) * (i + 1)));
 				memset(BIMSongs[i].filename, '\0', sizeof(BIMSongs[i].filename));
 				sscanf( inputline, "%15s", BIMSongs[i].filename );
@@ -133,15 +183,7 @@ static void songs_init()
 				if (dot)
 				{
 					++ dot;
-					if (!d_stricmp(dot, SONG_EXT_HMP)
-#if DXX_USE_SDLMIXER
-						||
-						!d_stricmp(dot, SONG_EXT_MID) ||
-						!d_stricmp(dot, SONG_EXT_OGG) ||
-						!d_stricmp(dot, SONG_EXT_FLAC) ||
-						!d_stricmp(dot, SONG_EXT_MP3)
-#endif
-						)
+					if (is_valid_song_extension(dot))
 						i++;
 				}
 			}
@@ -197,6 +239,8 @@ void songs_uninit()
 #if DXX_USE_SDLMIXER
 	jukebox_unload();
 #endif
+	if (BIMSecretSongs != NULL)
+		d_free(BIMSecretSongs);
 	if (BIMSongs != NULL)
 		d_free(BIMSongs);
 	Songs_initialized = 0;
@@ -500,7 +544,7 @@ static void redbook_first_song_func()
 namespace dsx {
 int songs_play_level_song( int levelnum, int offset )
 {
-	int songnum;
+	int songnum, secretsongnum;
 
 	Assert( levelnum != 0 );
 
@@ -508,6 +552,7 @@ int songs_play_level_song( int levelnum, int offset )
 	if (!Songs_initialized)
 		return 0;
 	
+	secretsongnum = (levelnum>0)?-1:-levelnum-1;
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
 	switch (GameCfg.MusicType)
@@ -518,7 +563,13 @@ int songs_play_level_song( int levelnum, int offset )
 				return Song_playing;
 
 			Song_playing = -1;
-			if ((Num_bim_songs - SONG_FIRST_LEVEL_SONG) > 0)
+			if (secretsongnum >= 0 && Num_secret_bim_songs > 0)
+			{
+				secretsongnum = secretsongnum % Num_secret_bim_songs;
+				if (songs_play_file(BIMSecretSongs[secretsongnum].filename, 1, NULL))
+					Song_playing = secretsongnum;
+			}
+			else if ((Num_bim_songs - SONG_FIRST_LEVEL_SONG) > 0)
 			{
 				songnum = SONG_FIRST_LEVEL_SONG + (songnum % (Num_bim_songs - SONG_FIRST_LEVEL_SONG));
 				if (songs_play_file(BIMSongs[songnum].filename, 1, NULL))
