@@ -1258,22 +1258,31 @@ void set_highest_level(int levelnum)
 			PlayerCfg.NHighestLevels++;
 		ii->Shortname.back() = 0;
 		strncpy(ii->Shortname.data(), Current_mission_filename, ii->Shortname.size() - 1);
+		// make sure we overwrite it in the following code
+		ii->LevelNum = 0;
 	}
 	else if (ii != ie - 1)
 	{
 		/* If this mission is not the most recently used, reorder the
 		 * list so that it becomes the most recently used.
 		 */
-		previous_best_levelnum = ii->LevelNum;
 		std::rotate(ii, std::next(ii), ie);
 		ii = ie - 1;
 	}
 	else
 		previous_best_levelnum = ii->LevelNum;
 
+  // only use previous_best_levelnum to determine if we need to save again
 	if (previous_best_levelnum < levelnum)
 	{
-		ii->LevelNum = levelnum;
+		/*
+		 * make sure we don't actually send the player back from the
+		 * previously highest level. in case of rotation, the previous
+		 * level number is never checked, which can cause the player to not
+		 * be able to choose as late into the mission as they should.
+		 */
+	 
+		ii->LevelNum = std::max(ii->LevelNum, static_cast<uint8_t>(levelnum));
 		write_player_file();
 	}
 }
