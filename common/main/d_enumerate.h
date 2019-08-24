@@ -47,6 +47,10 @@ public:
 	{
 		return m_iter != i.m_iter;
 	}
+	bool operator==(const enumerated_iterator &i) const
+	{
+		return m_iter == i.m_iter;
+	}
 };
 
 template <typename range_iterator_type, typename index_type>
