@@ -1811,6 +1811,8 @@ static void hud_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_sca
 {
 	if (HUD_toolong)
 		return;
+	if (Newdemo_state == ND_STATE_PLAYBACK)
+		return;
 
 	const int x = (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
 		? static_cast<int>(hudctx.xscale(7))
@@ -1840,6 +1842,8 @@ static void hud_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_sca
 
 static void sb_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_scale_float hud_scale_ar, const player_info &player_info)
 {
+	if (Newdemo_state == ND_STATE_PLAYBACK)
+		return;
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 	const auto y = SB_LIVES_Y;
 
