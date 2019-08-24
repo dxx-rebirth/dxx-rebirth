@@ -1191,7 +1191,7 @@ static std::array<array<hli, MAX_MISSIONS>::pointer, 2> find_hli_entry(const par
 }
 
 //set a new highest level for player for this mission
-void set_highest_level(int levelnum)
+void set_highest_level(const uint8_t best_levelnum_this_game)
 {
 	int ret;
 
@@ -1248,6 +1248,9 @@ void set_highest_level(int levelnum)
 		 * space available, move everything, so that the
 		 * least-recently-used element (at *irs) is discarded to make
 		 * room to add this mission as most recently used.
+		 *
+		 * Leave previous_best_levelnum set to 0, so that any progress
+		 * at all qualifies for a save.
 		 */
 		if (ie == PlayerCfg.HighestLevels.end())
 		{
@@ -1263,16 +1266,24 @@ void set_highest_level(int levelnum)
 	{
 		/* If this mission is not the most recently used, reorder the
 		 * list so that it becomes the most recently used.
+		 *
+		 * Leave previous_best_levelnum set to 0, so that a save is
+		 * required, even if the player has not set a new record.
 		 */
 		std::rotate(ii, std::next(ii), ie);
 		ii = ie - 1;
 	}
 	else
+		/* Update previous_best_levelnum so that progress is only saved
+		 * if this is a new best.
+		 */
 		previous_best_levelnum = ii->LevelNum;
 
-	if (previous_best_levelnum < levelnum)
+	if (previous_best_levelnum < best_levelnum_this_game)
 	{
-		ii->LevelNum = levelnum;
+		auto &best_levelnum_recorded = ii->LevelNum;
+		if (best_levelnum_recorded < best_levelnum_this_game)
+			best_levelnum_recorded = best_levelnum_this_game;
 		write_player_file();
 	}
 }

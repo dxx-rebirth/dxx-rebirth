@@ -208,7 +208,7 @@ int read_player_file();
 // set a new highest level for player for this mission
 }
 #endif
-void set_highest_level(int levelnum);
+void set_highest_level(uint8_t levelnum);
 
 // gets the player's highest level from the file for this mission
 int get_highest_level(void);
