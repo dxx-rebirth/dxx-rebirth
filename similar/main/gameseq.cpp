@@ -1088,7 +1088,9 @@ void StartNewGame(const int start_level)
 #endif
 		StartNewLevel(start_level);
 
-	get_local_player().starting_level = start_level;		// Mark where they started
+	auto &plr = get_local_player();
+	plr.starting_level = start_level;		// Mark where they started
+	plr.callsign = InterfaceUniqueState.PilotName;
 
 	game_disable_cheats();
 #if defined(DXX_BUILD_DESCENT_II)
