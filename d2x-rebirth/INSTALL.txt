@@ -79,14 +79,14 @@ Needed files:
 
    With the PC version, these files - except the Movies (*.mvl) - are archived in the file
    'descent2.sow' on the Descent2 CD-Rom.
-   This is an ARJ-archive and can be extracted with an adapted archiver like ‘unarj’ or by installing the
+   This is an ARJ-archive and can be extracted with an adapted archiver like unarj or by installing the
    game on a Windows/DOS system.
 
    Note that the above files must be lowercase if you use an operating system with case-sensitive file management.
 
    For the Mac CD-ROM, download The Unarchiver (http://wakaba.c3.cx/s/apps/unarchiver.html) and drag the
    installer program onto it. Alternatively, use a computer with Mac OS 9 to run the installer, then copy over.
-   After installing, copy all the files from 'Data' on the CD to the 'Data' folder created.
+   After installing, copy all the files from 'Data' on the CD to the 'data' folder created.
    Unfortunately the movies do not work; if you want the movies consider purchasing Descent 2 for PC
    (e.g. from Good Old Games) and extract that installer with The Unarchiver. Hey, then you'll have
    another license for multiplayer. ;)

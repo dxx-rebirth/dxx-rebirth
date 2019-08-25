@@ -494,7 +494,7 @@ static int main(int argc, char *argv[])
 #define DXX_MISSING_HOGFILE_ERROR_TEXT	\
 		"Could not find a valid hog file (" DXX_HOGFILE_NAMES ")\nPossible locations are:\n"	\
 		DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
-		"\tIn a subdirectory called 'Data'\n"	\
+		"\tIn a subdirectory called 'data'\n"	\
 		DXX_HOGFILE_APPLICATION_BUNDLE	\
 		"Or use the -hogdir option to specify an alternate location."
 		UserError(DXX_MISSING_HOGFILE_ERROR_TEXT);
