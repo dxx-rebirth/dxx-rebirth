@@ -44,6 +44,47 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "physfsx.h"
 #include "game.h"
+#include "compiler-make_unique.h"
+
+namespace dcx {
+
+namespace {
+
+class user_configured_level_songs : std::unique_ptr<bim_song_info[]>
+{
+	using base_type = std::unique_ptr<bim_song_info[]>;
+	unsigned count;
+public:
+	using base_type::operator[];
+	using base_type::operator bool;
+	user_configured_level_songs() = default;
+	user_configured_level_songs(const std::size_t length) :
+		base_type(make_unique<bim_song_info[]>(length)), count(length)
+	{
+	}
+	unsigned size() const
+	{
+		return count;
+	}
+	void reset()
+	{
+		count = 0;
+		base_type::reset();
+	}
+	void resize(const std::size_t length)
+	{
+		base_type::operator=(make_unique<bim_song_info[]>(length));
+		count = length;
+	}
+	user_configured_level_songs &operator=(user_configured_level_songs &&) = default;
+	void operator=(std::vector<bim_song_info> &&v);
+};
+
+void user_configured_level_songs::operator=(std::vector<bim_song_info> &&v)
+{
+	resize(v.size());
+	std::move(v.begin(), v.end(), &this->operator[](0u));
+}
 
 int Songs_initialized = 0;
 static int Song_playing = -1; // -1 if no song playing, else the Descent song number
@@ -51,11 +92,10 @@ static int Song_playing = -1; // -1 if no song playing, else the Descent song nu
 static int Redbook_playing = 0; // Redbook track num differs from Song_playing. We need this for Redbook repeat hooks.
 #endif
 
-bim_song_info *BIMSongs = NULL;
-int Num_bim_songs;
+user_configured_level_songs BIMSongs;
+user_configured_level_songs BIMSecretSongs;
 
-bim_song_info *BIMSecretSongs = NULL;
-int Num_secret_bim_songs;
+}
 
 #define EXTMUSIC_VOLUME_SCALE	(255)
 
@@ -80,8 +120,6 @@ void songs_set_volume(int volume)
 #endif
 }
 
-namespace dcx {
-
 static int is_valid_song_extension(const char* dot)
 {
 	return (!d_stricmp(dot, SONG_EXT_HMP)
@@ -95,6 +133,27 @@ static int is_valid_song_extension(const char* dot)
 			);
 }
 
+template <std::size_t N>
+static inline void assign_builtin_song(bim_song_info &song, const char (&str)[N])
+{
+	strncpy(song.filename, str, sizeof(song.filename));
+}
+
+static void add_song(std::vector<bim_song_info> &songs, const char *const input)
+{
+	songs.emplace_back();
+	auto &filename = songs.back().filename;
+	sscanf(input, "%15s", filename);
+
+	if (const char *dot = strrchr(filename, '.'))
+	{
+		++ dot;
+		if (is_valid_song_extension(dot))
+			return;
+	}
+	songs.pop_back();
+}
+
 }
 
 namespace dsx {
@@ -103,15 +162,10 @@ namespace dsx {
 // NOTE: you might think this is done once per runtime but it's not! It's done for EACH song so that each mission can have it's own descent.sng structure. We COULD optimize that by only doing this once per mission.
 static void songs_init()
 {
-	int i = 0;
 	Songs_initialized = 0;
 
-	if (BIMSongs != NULL)
-		d_free(BIMSongs);
-	if (BIMSecretSongs != NULL)
-		d_free(BIMSecretSongs);
-
-	Num_secret_bim_songs = 0;
+	BIMSongs.reset();
+	BIMSecretSongs.reset();
 
 	int canUseExtensions = 0;
 	// try dxx-r.sng - a songfile specifically for dxx which level authors CAN use (dxx does not care if descent.sng contains MP3/OGG/etc. as well) besides the normal descent.sng containing files other versions of the game cannot play. this way a mission can contain a DOS-Descent compatible OST (hmp files) as well as a OST using MP3, OGG, etc.
@@ -122,36 +176,39 @@ static void songs_init()
 	else
 		canUseExtensions = 1; // can use extensions ONLY if dxx-r.sng
 
+	unsigned i = 0;
 	if (!fp) // No descent.sng available. Define a default song-set
 	{
-		int predef=30; // define 30 songs - period
+		constexpr std::size_t predef = 30; // define 30 songs - period
 
-		MALLOC(BIMSongs, bim_song_info, predef);
-		if (!BIMSongs)
-			return;
+		user_configured_level_songs builtin_songs(predef);
 
-		strncpy(BIMSongs[SONG_TITLE].filename, "descent.hmp",sizeof(BIMSongs[SONG_TITLE].filename));
-		strncpy(BIMSongs[SONG_BRIEFING].filename, "briefing.hmp",sizeof(BIMSongs[SONG_BRIEFING].filename));
-		strncpy(BIMSongs[SONG_CREDITS].filename, "credits.hmp",sizeof(BIMSongs[SONG_CREDITS].filename));
-		strncpy(BIMSongs[SONG_ENDLEVEL].filename, "endlevel.hmp",sizeof(BIMSongs[SONG_ENDLEVEL].filename));	// can't find it? give a warning
-		strncpy(BIMSongs[SONG_ENDGAME].filename, "endgame.hmp",sizeof(BIMSongs[SONG_ENDGAME].filename));	// ditto
+		assign_builtin_song(builtin_songs[SONG_TITLE], "descent.hmp");
+		assign_builtin_song(builtin_songs[SONG_BRIEFING], "briefing.hmp");
+		assign_builtin_song(builtin_songs[SONG_CREDITS], "credits.hmp");
+		assign_builtin_song(builtin_songs[SONG_ENDLEVEL], "endlevel.hmp");	// can't find it? give a warning
+		assign_builtin_song(builtin_songs[SONG_ENDGAME], "endgame.hmp");	// ditto
 
 		for (i = SONG_FIRST_LEVEL_SONG; i < predef; i++) {
-			snprintf(BIMSongs[i].filename, sizeof(BIMSongs[i].filename), "game%02d.hmp", i - SONG_FIRST_LEVEL_SONG + 1);
-			if (!PHYSFSX_exists(BIMSongs[i].filename,1) &&
-				!PHYSFSX_exists((snprintf(BIMSongs[i].filename, sizeof(BIMSongs[i].filename), "game%d.hmp", i - SONG_FIRST_LEVEL_SONG), BIMSongs[i].filename), 1))
+			auto &s = builtin_songs[i];
+			snprintf(s.filename, sizeof(s.filename), "game%02d.hmp", i - SONG_FIRST_LEVEL_SONG + 1);
+			if (!PHYSFSX_exists(s.filename,1) &&
+				!PHYSFSX_exists((snprintf(s.filename, sizeof(s.filename), "game%d.hmp", i - SONG_FIRST_LEVEL_SONG), s.filename), 1))
 			{
-				memset(BIMSongs[i].filename, '\0', sizeof(BIMSongs[i].filename)); // music not available
+				s = {};	// music not available
 				break;
 			}
 		}
+		BIMSongs = std::move(builtin_songs);
 	}
 	else
 	{
 		PHYSFSX_gets_line_t<81> inputline;
+		std::vector<bim_song_info> main_songs, secret_songs;
 		while (PHYSFSX_fgets(inputline, fp))
 		{
-			if ( strlen( inputline ) )
+			if (!inputline[0])
+				continue;
 			{
 				if (canUseExtensions)
 				{
@@ -159,47 +216,31 @@ static void songs_init()
 					constexpr auto secret_label_len = sizeof(secret_label) - 1;
 					// extension stuffs
 					if (!strncmp(inputline, secret_label, secret_label_len)) {
-						BIMSecretSongs = reinterpret_cast<bim_song_info *>(d_realloc(BIMSecretSongs, sizeof(bim_song_info) * (Num_secret_bim_songs + 1)));
-						memset(BIMSecretSongs[Num_secret_bim_songs].filename, '\0', sizeof(BIMSecretSongs[Num_secret_bim_songs].filename));
-						sscanf( inputline + secret_label_len, "%15s", BIMSecretSongs[Num_secret_bim_songs].filename );
-
-						const char *dot = strrchr(BIMSecretSongs[Num_secret_bim_songs].filename, '.');
-						if (dot)
-						{
-							++ dot;
-							if (is_valid_song_extension(dot))
-								Num_secret_bim_songs++;
-						}
-
+						add_song(secret_songs, &inputline[secret_label_len]);
 						continue;
 					}
 				}
 
-				BIMSongs = reinterpret_cast<bim_song_info *>(d_realloc(BIMSongs, sizeof(bim_song_info) * (i + 1)));
-				memset(BIMSongs[i].filename, '\0', sizeof(BIMSongs[i].filename));
-				sscanf( inputline, "%15s", BIMSongs[i].filename );
-
-				const char *dot = strrchr(BIMSongs[i].filename, '.');
-				if (dot)
-				{
-					++ dot;
-					if (is_valid_song_extension(dot))
-						i++;
-				}
+				add_song(main_songs, inputline);
 			}
 		}
 #if defined(DXX_BUILD_DESCENT_I)
 		// HACK: If Descent.hog is patched from 1.0 to 1.5, descent.sng is turncated. So let's patch it up here
-		if (i==12 && PHYSFSX_fsize("descent.sng")==422)
+		constexpr std::size_t truncated_song_count = 12;
+		if (!canUseExtensions && main_songs.size() == truncated_song_count && PHYSFSX_fsize("descent.sng") == 422)
 		{
-			BIMSongs = reinterpret_cast<bim_song_info *>(d_realloc(BIMSongs, sizeof(bim_song_info) * (i + 15)));
+			main_songs.resize(truncated_song_count + 15);
 			for (i = 12; i <= 26; i++)
-				snprintf(BIMSongs[i].filename, sizeof(BIMSongs[i].filename), "game%02d.hmp", i-4);
+			{
+				auto &s = main_songs[i];
+				snprintf(s.filename, sizeof(s.filename), "game%02d.hmp", i - 4);
+			}
 		}
 #endif
+		BIMSongs = std::move(main_songs);
+		BIMSecretSongs = std::move(secret_songs);
 	}
 
-	Num_bim_songs = i;
 	Songs_initialized = 1;
 	fp.reset();
 
@@ -239,10 +280,8 @@ void songs_uninit()
 #if DXX_USE_SDLMIXER
 	jukebox_unload();
 #endif
-	if (BIMSecretSongs != NULL)
-		d_free(BIMSecretSongs);
-	if (BIMSongs != NULL)
-		d_free(BIMSongs);
+	BIMSecretSongs.reset();
+	BIMSongs.reset();
 	Songs_initialized = 0;
 }
 
@@ -439,11 +478,12 @@ int songs_play_song( int songnum, int repeat )
 		case MUSIC_TYPE_BUILTIN:
 		{
 			// EXCEPTION: If SONG_ENDLEVEL is not available, continue playing level song.
-			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !PHYSFSX_exists(BIMSongs[songnum].filename, 1))
+			auto &s = BIMSongs[songnum];
+			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !PHYSFSX_exists(s.filename, 1))
 				return Song_playing;
 
 			Song_playing = -1;
-			if (songs_play_file(BIMSongs[songnum].filename, repeat, NULL))
+			if (songs_play_file(s.filename, repeat, NULL))
 				Song_playing = songnum;
 			break;
 		}
@@ -544,7 +584,7 @@ static void redbook_first_song_func()
 namespace dsx {
 int songs_play_level_song( int levelnum, int offset )
 {
-	int songnum, secretsongnum;
+	int songnum;
 
 	Assert( levelnum != 0 );
 
@@ -552,7 +592,6 @@ int songs_play_level_song( int levelnum, int offset )
 	if (!Songs_initialized)
 		return 0;
 	
-	secretsongnum = (levelnum>0)?-1:-levelnum-1;
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
 	switch (GameCfg.MusicType)
@@ -563,15 +602,22 @@ int songs_play_level_song( int levelnum, int offset )
 				return Song_playing;
 
 			Song_playing = -1;
-			if (secretsongnum >= 0 && Num_secret_bim_songs > 0)
+			/* count_level_songs excludes songs assigned to non-levels,
+			 * such as SONG_TITLE, SONG_BRIEFING, etc.
+			 */
+			int count_level_songs;
+			if (levelnum < 0 && BIMSecretSongs)
 			{
-				secretsongnum = secretsongnum % Num_secret_bim_songs;
+				/* Secret songs are processed separately and do not need
+				 * to exclude non-levels.
+				 */
+				const int secretsongnum = (-levelnum - 1) % BIMSecretSongs.size();
 				if (songs_play_file(BIMSecretSongs[secretsongnum].filename, 1, NULL))
 					Song_playing = secretsongnum;
 			}
-			else if ((Num_bim_songs - SONG_FIRST_LEVEL_SONG) > 0)
+			else if ((count_level_songs = BIMSongs.size() - SONG_FIRST_LEVEL_SONG) > 0)
 			{
-				songnum = SONG_FIRST_LEVEL_SONG + (songnum % (Num_bim_songs - SONG_FIRST_LEVEL_SONG));
+				songnum = SONG_FIRST_LEVEL_SONG + (songnum % count_level_songs);
 				if (songs_play_file(BIMSongs[songnum].filename, 1, NULL))
 					Song_playing = songnum;
 			}

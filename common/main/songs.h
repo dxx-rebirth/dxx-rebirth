@@ -65,8 +65,12 @@ void songs_pause(void);
 void songs_resume(void);
 void songs_pause_resume(void);
 
+namespace dcx {
+
 // set volume for selected music playback system
 void songs_set_volume(int volume);
+
+}
 
 void songs_uninit();
 
