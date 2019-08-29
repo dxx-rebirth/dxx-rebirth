@@ -1585,7 +1585,9 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		Game_mode = GM_NORMAL;
 		change_playernum_to(0);
 		N_players = 1;
-		org_callsign = vcplayerptr(0u)->callsign;
+		auto &callsign = vmplayerptr(0u)->callsign;
+		callsign = InterfaceUniqueState.PilotName;
+		org_callsign = callsign;
 		if (secret == secret_restore::none)
 		{
 			InitPlayerObject();				//make sure player's object set up
