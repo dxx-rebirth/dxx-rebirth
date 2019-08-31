@@ -1319,6 +1319,8 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 #define STATION_DIST	i2f(1024)
 
+namespace dcx {
+
 static int convert_ext(d_fname &dest, const char (&ext)[4])
 {
 	auto b = begin(dest);
@@ -1333,6 +1335,25 @@ static int convert_ext(d_fname &dest, const char (&ext)[4])
 		return 0;
 }
 
+static std::pair<icsegidx_t, sidenum_fast_t> find_exit_segment_side(fvcsegptridx &vcsegptridx)
+{
+	range_for (const auto &&segp, vcsegptridx)
+	{
+		range_for (const auto &&e, enumerate(segp->children))
+		{
+			const auto child_segnum = e.value;
+			if (child_segnum == segment_exit)
+			{
+				const auto sidenum = e.idx;
+				return {segp, sidenum};
+			}
+		}
+	}
+	return {segment_none, side_none};
+}
+
+}
+
 //called for each level to load & setup the exit sequence
 namespace dsx {
 void load_endlevel_data(int level_num)
@@ -1340,7 +1361,6 @@ void load_endlevel_data(int level_num)
 	d_fname filename;
 	char *p;
 	int var;
-	int exit_side = 0;
 	int have_binary = 0;
 
 	endlevel_data_loaded = 0;		//not loaded yet
@@ -1504,23 +1524,15 @@ try_again:
 	//find the exit sequence by searching all segments for a side with
 	//children == -2
 
-	PlayerUniqueEndlevelState.exit_segnum = segment_none;
-	range_for (const auto &&segp, vcsegptridx)
-	{
-		range_for (const int sidenum, xrange(6u))
-			if (segp->children[sidenum] == segment_exit)
-			{
-				PlayerUniqueEndlevelState.exit_segnum = segp;
-				exit_side = sidenum;
-				break;
-			}
-		if (PlayerUniqueEndlevelState.exit_segnum != segment_none)
-			break;
-	}
+	const auto &&exit_segside = find_exit_segment_side(vcsegptridx);
+	const icsegidx_t &exit_segnum = exit_segside.first;
+	const auto &exit_side = exit_segside.second;
 
-	assert(PlayerUniqueEndlevelState.exit_segnum!=segment_none);
+	PlayerUniqueEndlevelState.exit_segnum = exit_segnum;
+	if (exit_segnum == segment_none)
+		return;
 
-	const auto &&exit_seg = vmsegptr(PlayerUniqueEndlevelState.exit_segnum);
+	const auto &&exit_seg = vmsegptr(exit_segnum);
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, mine_exit_point, exit_seg);
