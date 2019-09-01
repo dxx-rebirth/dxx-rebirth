@@ -1551,6 +1551,9 @@ void Flare_create(const vmobjptridx_t obj)
 	if (energy > 0)
 #endif
 	{
+		const auto &&flare = Laser_player_fire(obj, weapon_id_type::FLARE_ID, 6, 1, get_local_plrobj().orient.fvec, object_none);
+		if (flare == object_none)
+			return;
 		energy -= energy_usage;
 
 		if (energy <= 0)
@@ -1560,8 +1563,6 @@ void Flare_create(const vmobjptridx_t obj)
 			auto_select_primary_weapon(player_info);
 #endif
 		}
-
-		Laser_player_fire(obj, weapon_id_type::FLARE_ID, 6, 1, get_local_plrobj().orient.fvec, object_none);
 
 		if (Game_mode & GM_MULTI)
 			multi_send_fire(FLARE_ADJUST, 0, 0, 1, object_none, object_none);
@@ -2408,8 +2409,6 @@ void do_missile_firing(int drop_bomb)
 
 		int weapon_gun;
 
-		-- secondary_weapon_ammo;
-
 		const auto weapon_index = Secondary_weapon_to_weapon_info[weapon];
 
 		if (!cheats.rapidfire)
@@ -2426,6 +2425,8 @@ void do_missile_firing(int drop_bomb)
 		}
 
 		const auto &&objnum = Laser_player_fire(vmobjptridx(ConsoleObject), weapon_index, weapon_gun, 1, get_local_plrobj().orient.fvec, object_none);
+		if (objnum != object_none)
+			-- secondary_weapon_ammo;
 
                 if (weapon != CONCUSSION_INDEX)
 			maybe_drop_net_powerup(Secondary_weapon_to_powerup[weapon], 1, 0);
