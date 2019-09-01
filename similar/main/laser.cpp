@@ -1897,18 +1897,6 @@ void do_laser_firing_player(object &plrobj)
 			if (GameTime64 - Next_laser_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
 				fire_frame_overhead = GameTime64 - Next_laser_fire_time;
 
-			Next_laser_fire_time = GameTime64 - fire_frame_overhead + (unlikely(cheats.rapidfire)
-				? (F1_0 / 25)
-				: (
-#if defined(DXX_BUILD_DESCENT_II)
-					weapon_index == weapon_id_type::OMEGA_ID
-					? OMEGA_BASE_TIME
-					:
-#endif
-					Weapon_info[weapon_index].fire_wait
-				)
-			);
-
 			laser_level = player_info.laser_level;
 
 			flags = 0;
@@ -1939,7 +1927,22 @@ void do_laser_firing_player(object &plrobj)
 #endif
 			}
 
-			rval += do_laser_firing(vmobjptridx(get_local_player().objnum), Primary_weapon, laser_level, flags, nfires, plrobj.orient.fvec, object_none);
+			const auto shot_fired = do_laser_firing(vmobjptridx(get_local_player().objnum), Primary_weapon, laser_level, flags, nfires, plrobj.orient.fvec, object_none);
+			rval += shot_fired;
+
+			if (!shot_fired)
+				break;
+			Next_laser_fire_time = GameTime64 - fire_frame_overhead + (unlikely(cheats.rapidfire)
+				? (F1_0 / 25)
+				: (
+#if defined(DXX_BUILD_DESCENT_II)
+					weapon_index == weapon_id_type::OMEGA_ID
+					? OMEGA_BASE_TIME
+					:
+#endif
+					Weapon_info[weapon_index].fire_wait
+				)
+			);
 
 			pl_energy -= (energy_used * rval) / Weapon_info[weapon_index].fire_count;
 			if (pl_energy < 0)
@@ -1951,19 +1954,16 @@ void do_laser_firing_player(object &plrobj)
 					v = 0;
 				else
 					v -= ammo_used;
-                                maybe_drop_net_powerup(POW_VULCAN_AMMO, 1, 0);
+				maybe_drop_net_powerup(POW_VULCAN_AMMO, 1, 0);
 			}
-
-			auto_select_primary_weapon(player_info);		//	Make sure the player can fire from this weapon.
-
 		} else {
 #if defined(DXX_BUILD_DESCENT_II)
-			auto_select_primary_weapon(player_info);		//	Make sure the player can fire from this weapon.
 			Next_laser_fire_time = GameTime64;	//	Prevents shots-to-fire from building up.
 #endif
 			break;	//	Couldn't fire weapon, so abort.
 		}
 	}
+	auto_select_primary_weapon(player_info);		//	Make sure the player can fire from this weapon.
 }
 
 //	--------------------------------------------------------------------------------------------------
