@@ -129,6 +129,7 @@ class d_physical_joystick
 	VERB(button_map)	\
 	VERB(axis_map)	\
 	VERB(axis_value)	\
+	VERB(axis_button_map)	\
 
 #if DXX_USE_SIZE_SORTED_TUPLE
 	template <typename... Ts>
@@ -164,12 +165,14 @@ class d_physical_joystick
 	struct tuple_member_type_button_map : array<unsigned, DXX_MAX_BUTTONS_PER_JOYSTICK> {};
 	struct tuple_member_type_axis_map : array<unsigned, DXX_MAX_AXES_PER_JOYSTICK> {};
 	struct tuple_member_type_axis_value : array<int, DXX_MAX_AXES_PER_JOYSTICK> {};
+	struct tuple_member_type_axis_button_map : array<unsigned, DXX_MAX_AXES_PER_JOYSTICK> {};
 	tuple_type<
 		tuple_member_type_handle,
 		maybe_empty_array<tuple_member_type_hat_map>,
 		maybe_empty_array<tuple_member_type_button_map>,
 		maybe_empty_array<tuple_member_type_axis_map>,
-		maybe_empty_array<tuple_member_type_axis_value>
+		maybe_empty_array<tuple_member_type_axis_value>,
+		maybe_empty_array<tuple_member_type_axis_button_map>
 	> t;
 public:
 	for_each_tuple_item(define_handle_getter, define_array_getter);
@@ -247,6 +250,46 @@ window_event_result joy_hat_handler(SDL_JoyHatEvent *jhe)
 #endif
 
 #if DXX_MAX_AXES_PER_JOYSTICK
+static window_event_result send_axis_button_event(unsigned button, event_type e)
+{
+	Joystick.button_state[button] = (e == EVENT_JOYSTICK_BUTTON_UP) ? 0 : 1;
+	const d_event_joystickbutton event{ e, button };
+	con_printf(CON_DEBUG, "Sending event %s, button %d", (e == EVENT_JOYSTICK_BUTTON_UP) ? "EVENT_JOYSTICK_BUTTON_UP" : "EVENT_JOYSTICK_BUTTON_DOWN", event.button);
+	return event_send(event);
+}
+
+window_event_result joy_axisbutton_handler(SDL_JoyAxisEvent *jae)
+{
+	auto &js = SDL_Joysticks[jae->which];
+	auto axis_value = js.axis_value()[jae->axis];
+	auto button = js.axis_button_map()[jae->axis];
+	window_event_result highest_result(window_event_result::ignored);
+
+	// We have to hardcode a deadzone here. It's not mapped into the settings.
+	// We could add another deadzone slider called "axis button deadzone".
+	// I think it's safe to assume a 30% deadzone on analog button presses for now.
+	const decltype(axis_value) deadzone = 38;
+	auto prev_value = apply_deadzone(axis_value, deadzone);
+	auto new_value = apply_deadzone(jae->value/256, deadzone);
+
+	if (prev_value <= 0 && new_value >= 0) // positive pressed
+	{
+		if (prev_value < 0) // Do previous direction release first if the case
+			highest_result = std::max(send_axis_button_event(button + 1, EVENT_JOYSTICK_BUTTON_UP), highest_result);
+		if (new_value > 0)
+			highest_result = std::max(send_axis_button_event(button, EVENT_JOYSTICK_BUTTON_DOWN), highest_result);
+	}
+	else if (prev_value >= 0 && new_value <= 0) // negative pressed
+	{
+		if (prev_value > 0) // Do previous direction release first if the case
+			highest_result = std::max(send_axis_button_event(button, EVENT_JOYSTICK_BUTTON_UP), highest_result);
+		if (new_value < 0)
+			highest_result = std::max(send_axis_button_event(button + 1, EVENT_JOYSTICK_BUTTON_DOWN), highest_result);
+	}
+
+	return highest_result;
+}
+
 window_event_result joy_axis_handler(SDL_JoyAxisEvent *jae)
 {
 	auto &js = SDL_Joysticks[jae->which];
@@ -290,7 +333,7 @@ void joy_init()
 #if DXX_MAX_AXES_PER_JOYSTICK
 	joyaxis_text.clear();
 #endif
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK || DXX_MAX_AXES_PER_JOYSTICK
 	joybutton_text.clear();
 #endif
 
@@ -320,13 +363,15 @@ void joy_init()
 				e.value = joystick_n_axes++;
 				snprintf(&text[0], sizeof(text), "J%d A%u", i + 1, e.idx);
 			}
+#else
+            const auto n_axes = 0;
 #endif
 
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK || DXX_MAX_AXES_PER_JOYSTICK
 			const auto n_buttons = check_warn_joy_support_limit(SDL_JoystickNumButtons(handle), "button", DXX_MAX_BUTTONS_PER_JOYSTICK);
 			const auto n_hats = check_warn_joy_support_limit(SDL_JoystickNumHats(handle), "hat", DXX_MAX_HATS_PER_JOYSTICK);
 
-			joybutton_text.resize(joybutton_text.size() + n_buttons + (4 * n_hats));
+			joybutton_text.resize(joybutton_text.size() + n_buttons + (4 * n_hats) + (2 * n_axes));
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 			range_for (auto &&e, enumerate(partial_range(joystick.button_map(), n_buttons), 1))
 			{
@@ -348,6 +393,16 @@ void joy_init()
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, e.idx, 0201);
 			}
 #endif
+#if DXX_MAX_AXES_PER_JOYSTICK
+			range_for (auto &&e, enumerate(partial_range(joystick.axis_button_map(), n_axes), 1))
+			{
+				e.value = joystick_n_buttons;
+				cf_assert(e.idx <= DXX_MAX_AXES_PER_JOYSTICK);
+				//an axis count as 2 buttons. negative - and positive +
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u -A%u", i + 1, e.idx);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u +A%u", i + 1, e.idx);
+			}
+#endif
 #endif
 
 			num_joysticks++;
@@ -367,7 +422,7 @@ void joy_close()
 #if DXX_MAX_AXES_PER_JOYSTICK
 	joyaxis_text.clear();
 #endif
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK || DXX_MAX_AXES_PER_JOYSTICK
 	joybutton_text.clear();
 #endif
 }
@@ -399,6 +454,16 @@ int event_joystick_get_button(const d_event &event)
 	auto &e = static_cast<const d_event_joystickbutton &>(event);
 	Assert(e.type == EVENT_JOYSTICK_BUTTON_DOWN || e.type == EVENT_JOYSTICK_BUTTON_UP);
 	return e.button;
+}
+
+int apply_deadzone(int value, int deadzone)
+{
+	if (value > deadzone)
+		return ((value - deadzone) * 128) / (128 - deadzone);
+	else if (value < -deadzone)
+		return ((value + deadzone) * 128) / (128 - deadzone);
+	else
+		return 0;
 }
 
 }
