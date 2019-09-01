@@ -90,6 +90,7 @@ window_event_result event_poll()
 			case SDL_JOYAXISMOTION:
 				if (CGameArg.CtlNoJoystick)
 					break;
+				highest_result = std::max(joy_axisbutton_handler(&event.jaxis), highest_result);
 				highest_result = std::max(joy_axis_handler(&event.jaxis), highest_result);
 				break;
 			case SDL_JOYHATMOTION:

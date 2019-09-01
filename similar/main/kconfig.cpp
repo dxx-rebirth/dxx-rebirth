@@ -1114,7 +1114,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 				}
 			}
 			break;
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK || DXX_MAX_AXES_PER_JOYSTICK
 		case EVENT_JOYSTICK_BUTTON_DOWN:
 		case EVENT_JOYSTICK_BUTTON_UP:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))
@@ -1189,13 +1189,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			else if (axis == PlayerCfg.KeySettings.Joystick[dxx_kconfig_ui_kc_joystick_throttle]) // Throttle - default deadzone
 				joy_null_value = PlayerCfg.JoystickDead[5]*3;
 
-			if (value > joy_null_value)
-				value = ((value - joy_null_value) * 128) / (128 - joy_null_value);
-			else if (value < -joy_null_value)
-				value = ((value + joy_null_value) * 128) / (128 - joy_null_value);
-			else
-				value = 0;
-			Controls.raw_joy_axis[axis] = value;
+			Controls.raw_joy_axis[axis] = apply_deadzone(value, joy_null_value);
 			break;
 		}
 #endif

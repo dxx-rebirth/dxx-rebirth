@@ -37,6 +37,7 @@ extern void joy_close();
 const d_event_joystick_axis_value &event_joystick_get_axis(const d_event &event);
 extern void joy_flush();
 extern int event_joystick_get_button(const d_event &event);
+extern int apply_deadzone(int value, int deadzone);
 
 }
 #else
@@ -60,9 +61,11 @@ extern window_event_result joy_hat_handler(SDL_JoyHatEvent *jhe);
 #endif
 
 #if DXX_MAX_AXES_PER_JOYSTICK
+extern window_event_result joy_axisbutton_handler(SDL_JoyAxisEvent *jae);
 extern window_event_result joy_axis_handler(SDL_JoyAxisEvent *jae);
 #else
 #define joy_axis_handler(jbe) (static_cast<SDL_JoyAxisEvent *const &>(jbe), window_event_result::ignored)
+#define joy_axisbutton_handler(jbe) (static_cast<SDL_JoyAxisEvent *const &>(jbe), window_event_result::ignored)
 #endif
 
 }
