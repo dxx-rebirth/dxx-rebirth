@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "window.h"
 #include "console.h"
+#include "collide.h"
 #include "strutil.h"
 #include "game.h"
 #include "player.h"
@@ -1088,7 +1089,7 @@ static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptri
 	{
 		switch (o->type) {
 			case OBJ_ROBOT:
-				o->flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+				apply_damage_to_robot(o, o->shields + 1, get_local_player().objnum);
 				break;
 			case OBJ_POWERUP:
 				do_powerup(o);
