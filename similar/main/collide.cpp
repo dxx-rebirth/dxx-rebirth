@@ -1352,7 +1352,10 @@ window_event_result do_final_boss_frame(void)
 
 	Final_boss_countdown_time -= FrameTime;
 	if (Final_boss_countdown_time > 0)
+	{
+		GameUniqueState.Final_boss_countdown_time = Final_boss_countdown_time;
 		return window_event_result::ignored;
+	}
 	/* Ensure that GameUniqueState.Final_boss_countdown_time is not 0,
 	 * so that the flag remains raised.  If Final_boss_countdown_time
 	 * were greater than 0, the function already returned.  If
