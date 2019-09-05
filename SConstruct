@@ -841,14 +841,13 @@ help:assume C++ compiler works
 {macros}
 {text}
 
-{undef_SDL_main}
+#undef main	/* avoid -Dmain=SDL_main from libSDL (and, on some platforms, from libSDL2) */
 
 {main}
 '''.format(
 	tools=self.__tool_versions,
 	macros=self.__defined_macros,
 	text=text,
-	undef_SDL_main='' if self.user_settings.sdl2 else '#undef main	/* avoid -Dmain=SDL_main from libSDL */',
 	main=('' if main is None else
 '''
 int main(int argc,char**argv){(void)argc;(void)argv;
