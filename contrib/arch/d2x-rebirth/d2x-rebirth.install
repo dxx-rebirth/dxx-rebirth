@@ -1,0 +1,117 @@
+post_install() {
+  function install_datas() {
+  read -p "I'm about to install Descent 2 datas to /usr/share/d2x-rebirth/, would you like to continue (Y/n) ? "
+  case $REPLY in
+    n|N) return 1;;
+  esac
+
+  type unarj &> /dev/null
+  if (($?)); then
+    echo 'I need unarj to continue';
+    read -p 'Do you want install it (Y/n) ? '
+    case $REPLY in
+      n|N) return 1;;
+    esac
+    pacman -Sy unarj || return 2
+  fi
+  
+  cont=1
+  while (($cont)); do
+  echo 'Give me the complete path to "descent2.sow" file (example, with the cd drive : /path/to/drive/d2data/descent2.sow)'
+  read
+  if [ -z "$REPLY" ]; then return 2; fi
+  if [ -f "$REPLY" ]; then
+    cont=0;
+  else
+    echo -e "Bad path (Enter to abort)\n"
+  fi
+  done
+
+  descent_file="$REPLY"
+  
+  cd /usr/share/d2x-rebirth/
+  unarj e "$descent_file" &> /dev/null
+  if (($?)); then echo -e '!! Error with unarj !!\n' >&2; return 2; fi
+  rm *.exe *.dll *.txt *.bat descent.cfg descentg.ini \
+  descent.hi *.doc eregcard.ini &>/dev/null
+
+  read -p 'Would you like to include movies files (need 210 MB more space) (N/y) ? '
+  case $REPLY in
+    y|Y) :;;
+    *) return 0;;
+  esac
+
+  cont=1
+  while (($cont)); do
+  echo 'Give me the complete path to the directory that contains those movies (example, with the cd drive : /path/to/drive/d2data/)'
+  read
+  if [ -z "$REPLY" ]; then return 2; fi
+  if [ -d "$REPLY" ]; then
+    cont=0;
+  else
+    echo -e "Bad path (Enter to abort)\n"
+  fi
+  done
+
+  movies_path="$REPLY"
+  cp "$movies_path"/*-h.mvl . &> /dev/null
+
+  chmod 644 * &> /dev/null
+  return 0
+  }
+
+  old_path=`pwd`
+  install_datas
+  ret=$?
+  cd $old_path
+
+  if (($ret)); then
+    echo 'Put your Descent 2 datas either to /usr/share/d2x-rebirth/ or ~/.d2x-rebirth/'
+
+    cat << EOF
+Following files are needed to run the game:
+
+descent2.ham
+descent2.hog
+descent2.s11
+descent2.s22
+alien1.pig
+alien2.pig
+fire.pig
+groupa.pig
+ice.pig
+water.pig
+
+And these movies files (but not mandatory):
+
+intro-h.mvl and/or intro-l.mvl
+other-h.mvl and/or other-l.mvl
+robots-h.mvl and/or robots-l.mvl
+
+These files - except the Movies (*.mvl) - are archived in the file descent2.sow
+This file is an ARJ-archive and can be extracted with an archiver like unarj
+
+You don't own the full game, yet?
+Just visit GOOD OLD GAMES via:
+http://www.gog.com/en/gamecard/descent_1_descent_2/pp/fc074d501302eb2b93e2554793fcaf50b3bf7291
+and download it for a very low price! DRM-FREE!
+
+You can get AddOns for the game from http://www.dxx-rebirth.com/addons/
+
+EOF
+
+  fi
+}
+
+post_upgrade() {
+post_install
+}
+
+pre_remove() {
+/bin/true
+}
+
+op=$1
+shift
+
+$op "$@"

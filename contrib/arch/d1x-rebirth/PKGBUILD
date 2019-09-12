@@ -1,0 +1,37 @@
+# Contributor : zico <zico@dxx-rebirth.com>
+
+pkgname=d1x-rebirth
+pkgver=0.61
+pkgrel=1
+pkgdesc="An enhanced engine to play with Descent1 datas"
+arch=('i686' 'x86_64')
+url="http://www.dxx-rebirth.com/"
+license=('custom:D1x' 'LGPL' 'custom:as-is')
+depends=('sdl' 'sdl_mixer' 'mesa' 'physfs')
+makedepends=('scons')
+install=$pkgname.install
+source=(git+https://github.com/dxx-rebirth/dxx-rebirth.git $pkgname.desktop $pkgname.install http://www.dxx-rebirth.com/download/dxx/res/d1xr-hires.dxa)
+noextract=(d1xr-hires.dxa d1xr-sc55-music.dxa)
+md5sums=('SKIP'
+         'ded1f8c2deb3825134e1a984985684cb'
+         '78c79b2b82175ebd4073edf257a9bd68'
+         '7d978ce3875995e54cbf426167e88b94') 
+
+package() {
+  cd $srcdir/dxx-rebirth
+  #sed -ie "/^PREFIX =/s|/usr/local/|/usr/|" SConstruct
+  scons sharepath="/usr/share/$pkgname" d1x=1 d2x=0 -j4 || return 1
+  
+  mkdir -p $pkgdir/usr/bin/
+  mkdir -p $pkgdir/usr/share/$pkgname/
+  mkdir -p $pkgdir/usr/share/pixmaps/
+  mkdir -p $pkgdir/usr/share/applications/
+  mkdir -p $pkgdir/usr/share/licenses/$pkgname/
+
+  install -m755 $pkgname/$pkgname $pkgdir/usr/bin/
+  install -m755 $pkgname/$pkgname.xpm $pkgdir/usr/share/pixmaps/
+  install -m644 COPYING.txt $pkgdir/usr/share/licenses/$pkgname/
+  cd $srcdir/
+  install -m644 $srcdir/$pkgname.desktop $pkgdir/usr/share/applications/
+  install -m644 d1xr-hires.dxa $pkgdir/usr/share/$pkgname/
+} 

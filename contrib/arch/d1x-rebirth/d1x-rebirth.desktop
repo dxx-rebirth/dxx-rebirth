@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Categories=Game;ActionGame;
+Name=Descent 1 Rebirth 
+GenericName=FP Action Game
+Comment=First person action game controlling a ship with 6 degrees of freedom
+Comment[fr]=Jeu à la première personne où l'on contrôle un vaisseau qui permet de se déplacer avec 6 degrés de liberté
+Exec=d1x-rebirth
+Icon=d1x-rebirth
