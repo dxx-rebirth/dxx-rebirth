@@ -1353,6 +1353,8 @@ window_event_result do_final_boss_frame(void)
 	Final_boss_countdown_time -= FrameTime;
 	if (Final_boss_countdown_time > 0)
 	{
+		int flash_value = f2i(((F1_0*2)-Final_boss_countdown_time)*16); // countdown is 2 seconds (as set by do_final_boss_hacks()), so make a flash value that maxes out over that time
+		PALETTE_FLASH_SET(-flash_value,-flash_value,-flash_value); // set palette to inverted flash_value to fade to black
 		GameUniqueState.Final_boss_countdown_time = Final_boss_countdown_time;
 		return window_event_result::ignored;
 	}
