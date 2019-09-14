@@ -17,20 +17,18 @@ md5sums=('SKIP'
          '6836b665ac0c67117c810de77ca5e739')
 
 package() {
-  cd $srcdir/dxx-rebirth
-  #sed -ie "/^PREFIX =/s|/usr/local/|/usr/|" SConstruct
-  scons sharepath="/usr/share/$pkgname" d1x=0 d2x=1 -j4 || return 1
-  
-  mkdir -p $pkgdir/usr/bin/
-  mkdir -p $pkgdir/usr/share/$pkgname/
-  mkdir -p $pkgdir/usr/share/pixmaps/
-  mkdir -p $pkgdir/usr/share/applications/
-  mkdir -p $pkgdir/usr/share/licenses/$pkgname/
+	cd "$srcdir/dxx-rebirth"
+	scons sharepath="/usr/share/$pkgname" d1x=0 d2x=1 -j4 || return $?
 
-  install -m755 $pkgname/$pkgname $pkgdir/usr/bin/
-  install -m755 $pkgname/$pkgname.xpm $pkgdir/usr/share/pixmaps/
-  install -m644 COPYING.txt $pkgdir/usr/share/licenses/$pkgname/
-  cd $srcdir/
-  install -m644 $srcdir/$pkgname.desktop $pkgdir/usr/share/applications/
-  
+	mkdir -p "$pkgdir/usr/bin/"	\
+		"$pkgdir/usr/share/$pkgname/"	\
+		"$pkgdir/usr/share/pixmaps/"	\
+		"$pkgdir/usr/share/applications/"	\
+		"$pkgdir/usr/share/licenses/$pkgname/"
+
+	install -m755 "$pkgname/$pkgname" "$pkgdir/usr/bin/"
+	install -m755 "$pkgname/$pkgname.xpm" "$pkgdir/usr/share/pixmaps/"
+	install -m644 COPYING.txt "$pkgdir/usr/share/licenses/$pkgname/"
+	cd "$srcdir/"
+	install -m644 "$srcdir/$pkgname.desktop" "$pkgdir/usr/share/applications/"
 } 

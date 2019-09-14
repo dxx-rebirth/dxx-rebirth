@@ -10,7 +10,7 @@ license=('custom:D1x' 'LGPL' 'custom:as-is')
 depends=('sdl' 'sdl_mixer' 'mesa' 'physfs')
 makedepends=('scons')
 install=$pkgname.install
-source=(git+https://github.com/dxx-rebirth/dxx-rebirth.git $pkgname.desktop $pkgname.install http://www.dxx-rebirth.com/download/dxx/res/d1xr-hires.dxa)
+source=(git+https://github.com/dxx-rebirth/dxx-rebirth.git $pkgname.desktop $pkgname.install https://www.dxx-rebirth.com/download/dxx/res/d1xr-hires.dxa)
 noextract=(d1xr-hires.dxa d1xr-sc55-music.dxa)
 md5sums=('SKIP'
          'ded1f8c2deb3825134e1a984985684cb'
@@ -18,20 +18,19 @@ md5sums=('SKIP'
          '7d978ce3875995e54cbf426167e88b94') 
 
 package() {
-  cd $srcdir/dxx-rebirth
-  #sed -ie "/^PREFIX =/s|/usr/local/|/usr/|" SConstruct
-  scons sharepath="/usr/share/$pkgname" d1x=1 d2x=0 -j4 || return 1
+	cd "$srcdir/dxx-rebirth"
+	scons sharepath="/usr/share/$pkgname" d1x=1 d2x=0 -j4 || return $?
   
-  mkdir -p $pkgdir/usr/bin/
-  mkdir -p $pkgdir/usr/share/$pkgname/
-  mkdir -p $pkgdir/usr/share/pixmaps/
-  mkdir -p $pkgdir/usr/share/applications/
-  mkdir -p $pkgdir/usr/share/licenses/$pkgname/
+	mkdir -p "$pkgdir/usr/bin/"	\
+		"$pkgdir/usr/share/$pkgname/"	\
+		"$pkgdir/usr/share/pixmaps/"	\
+		"$pkgdir/usr/share/applications/"	\
+		"$pkgdir/usr/share/licenses/$pkgname/"
 
-  install -m755 $pkgname/$pkgname $pkgdir/usr/bin/
-  install -m755 $pkgname/$pkgname.xpm $pkgdir/usr/share/pixmaps/
-  install -m644 COPYING.txt $pkgdir/usr/share/licenses/$pkgname/
-  cd $srcdir/
-  install -m644 $srcdir/$pkgname.desktop $pkgdir/usr/share/applications/
-  install -m644 d1xr-hires.dxa $pkgdir/usr/share/$pkgname/
+	install -m755 "$pkgname/$pkgname" "$pkgdir/usr/bin/"
+	install -m755 "$pkgname/$pkgname.xpm" "$pkgdir/usr/share/pixmaps/"
+	install -m644 COPYING.txt "$pkgdir/usr/share/licenses/$pkgname/"
+	cd "$srcdir/"
+	install -m644 "$srcdir/$pkgname.desktop" "$pkgdir/usr/share/applications/"
+	install -m644 d1xr-hires.dxa "$pkgdir/usr/share/$pkgname/"
 } 
