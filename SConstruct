@@ -4362,9 +4362,9 @@ class DXXCommon(LazyObjectConstructor):
 			# are not very clean and would trigger some warnings we usually consider as
 			# errors. Using them as system headers will make gcc ignoring any warnings.
 				CPPFLAGS = [
-				'-isystem=%s/include' % rpi_vc_path,
-				'-isystem=%s/include/interface/vcos/pthreads' % rpi_vc_path,
-				'-isystem=%s/include/interface/vmcs_host/linux' % rpi_vc_path,
+				'-isystem%s/include' % rpi_vc_path,
+				'-isystem%s/include/interface/vcos/pthreads' % rpi_vc_path,
+				'-isystem%s/include/interface/vmcs_host/linux' % rpi_vc_path,
 			],
 				LIBPATH = '%s/lib' % rpi_vc_path,
 				LIBS = ['bcm_host'],
