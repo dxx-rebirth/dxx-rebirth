@@ -1353,8 +1353,11 @@ window_event_result do_final_boss_frame(void)
 	Final_boss_countdown_time -= FrameTime;
 	if (Final_boss_countdown_time > 0)
 	{
-		int flash_value = f2i(((F1_0*2)-Final_boss_countdown_time)*16); // countdown is 2 seconds (as set by do_final_boss_hacks()), so make a flash value that maxes out over that time
-		PALETTE_FLASH_SET(-flash_value,-flash_value,-flash_value); // set palette to inverted flash_value to fade to black
+		if (Final_boss_countdown_time <= F1_0*2)
+		{
+			int flash_value = f2i(((F1_0*2)-Final_boss_countdown_time)*16); // during final 2 seconds of final boss countdown (as set by do_final_boss_hacks()), make a flash value that maxes out over that time
+			PALETTE_FLASH_SET(-flash_value,-flash_value,-flash_value); // set palette to inverted flash_value to fade to black
+		}
 		GameUniqueState.Final_boss_countdown_time = Final_boss_countdown_time;
 		return window_event_result::ignored;
 	}
@@ -1402,7 +1405,7 @@ void do_final_boss_hacks(void)
 	if (!(Game_mode & GM_MULTI))
 		buddy_message("Nice job, %s!", static_cast<const char *>(get_local_player().callsign));
 
-	GameUniqueState.Final_boss_countdown_time = F1_0*2;
+	GameUniqueState.Final_boss_countdown_time = F1_0*4; // was F1_0*2 originally. extended to F1_0*4 to play fade to black which happened after countdown ended in the original game.
 }
 
 }
