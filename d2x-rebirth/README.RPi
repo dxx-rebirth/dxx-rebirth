@@ -25,12 +25,17 @@ scons raspberrypi=1 egl_lib=EGL opengles_lib=GLESv2
 This assumes that the development files (libs/headers) for the VideoCore APIs 
 are located in /opt/vc. You can use rpi_vc_path to specify another location.
 
-If you wish to build against the experimental Mesa VC4 driver, use:
+If you wish to build for Raspberry Pi 4B or the experimental Mesa VC4 driver:
 
 scons raspberrypi=mesa
 
-This will select the GLES interface by default, but you can select OpenGL by
-adding opengles=0. For all other options, check "scons -h".
+This will select the GL interface with SDL2 by default, but you can select
+GLES & SDL1 by adding "opengles=1 sdl2=0". Keep in mind that as of Raspbian buster,
+the Mesa packages no longer ship with GLESv1 headers, making GLES builds impossible.
+Additionally, SDL2 is highly recommended, as its KMSDRM video driver is the only
+way to run DXX-Rebirth on a Raspberry Pi 4B outside of an Xorg session.
+
+For all other options, check "scons -h".
 
 Currently, there is no direct support for crosscompiling.
 

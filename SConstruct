@@ -3534,7 +3534,11 @@ class DXXCommon(LazyObjectConstructor):
 			return self.debug
 		# automatic setup for raspberrypi
 		def default_opengles(self):
-			if self.raspberrypi in ('yes', 'mesa'):
+			if self.raspberrypi in ('yes'):
+				return True
+			return False
+		def default_sdl2(self):
+			if self.raspberrypi in ('mesa'):
 				return True
 			return False
 		@classmethod
@@ -3698,7 +3702,7 @@ class DXXCommon(LazyObjectConstructor):
 					('opengl', True, 'build with OpenGL support'),
 					('opengles', self.default_opengles, 'build with OpenGL ES support'),
 					('editor', False, 'include editor into build (!EXPERIMENTAL!)'),
-					('sdl2', False, 'use libSDL2+SDL2_mixer (!EXPERIMENTAL!)'),
+					('sdl2', self.default_sdl2, 'use libSDL2+SDL2_mixer (!EXPERIMENTAL!)'),
 					('sdlmixer', True, 'build with SDL_Mixer support for sound and music (includes external music support)'),
 					('ipv6', False, 'enable UDP/IPv6 for multiplayer'),
 					('use_udp', True, 'enable UDP support'),
