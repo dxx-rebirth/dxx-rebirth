@@ -3534,11 +3534,11 @@ class DXXCommon(LazyObjectConstructor):
 			return self.debug
 		# automatic setup for raspberrypi
 		def default_opengles(self):
-			if self.raspberrypi in ('yes'):
+			if self.raspberrypi in ('yes',):
 				return True
 			return False
 		def default_sdl2(self):
-			if self.raspberrypi in ('mesa'):
+			if self.raspberrypi in ('mesa',):
 				return True
 			return False
 		@classmethod
