@@ -2322,11 +2322,17 @@ imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segn
 {
 	Assert(Marker_model_num != -1);
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	const auto &&obj = obj_create(OBJ_MARKER, marker_num, segnum, pos, &orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_SPINNING, RT_POLYOBJ);
+	const movement_type_t movement_type =
+		((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view)
+		? MT_NONE
+		: MT_SPINNING;
+	const auto &&obj = obj_create(OBJ_MARKER, marker_num, segnum, pos, &orient, Polygon_models[Marker_model_num].rad, CT_NONE, movement_type, RT_POLYOBJ);
 	if (obj != object_none) {
 		auto &o = *obj;
 		o.rtype.pobj_info.model_num = Marker_model_num;
 
+		if (movement_type == MT_SPINNING)
+		{
 		constexpr fix scale = F1_0 / 2;
 		const auto oi = obj.get_unchecked_index();
 		auto &spin_vec = o.mtype.spin_rate;
@@ -2337,6 +2343,7 @@ imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segn
 			vm_vec_scale_add2(spin_vec, o.orient.uvec, (oi & 16) ? scale : -scale);
 		if (oi & 4)
 			vm_vec_scale_add2(spin_vec, o.orient.rvec, (oi & 32) ? scale : -scale);
+		}
 
 		//	MK, 10/16/95: Using lifeleft to make it flash, thus able to trim lightlevel from all objects.
 		o.lifeleft = IMMORTAL_TIME - 1;
