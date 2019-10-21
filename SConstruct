@@ -3758,6 +3758,12 @@ class DXXCommon(LazyObjectConstructor):
 					('CPPFLAGS_unchecked', None, None),
 					('CXXFLAGS_unchecked', None, None),
 					('LINKFLAGS_unchecked', None, None),
+					# Flags that are injected into the compilation
+					# database, but which are not used in the actual
+					# compilation.  Use this to work around clang's
+					# inability to find its own headers when invoked
+					# from custom tools.
+					('CXXFLAGS_compilation_database', None, None),
 				),
 			},
 			{
@@ -4110,9 +4116,14 @@ class DXXCommon(LazyObjectConstructor):
 		# absolute, but `clang-check` refuses to find files when this is
 		# relative.
 		directory = env.Dir('.').get_abspath()
+		CXXFLAGS_compilation_database = self.user_settings.CXXFLAGS_compilation_database
+		_dxx_cxxcom_no_prefix = env._dxx_cxxcom_no_prefix
+		if CXXFLAGS_compilation_database:
+			_dxx_cxxcom_no_prefix = _dxx_cxxcom_no_prefix.replace('$CXXFLAGS', '$CXXFLAGS $CXXFLAGS_compilation_database')
+			kwargs['CXXFLAGS_compilation_database'] = CXXFLAGS_compilation_database
 		self._compilation_database_entries.extend([
 			{
-				'command' : env.Override(kwargs).subst(env._dxx_cxxcom_no_prefix, target=[o], source=source),
+				'command' : env.Override(kwargs).subst(_dxx_cxxcom_no_prefix, target=[o], source=source),
 				'directory' : directory,
 				'file' : relative_file_path,
 				'output' : str(o),
