@@ -726,6 +726,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 		case weapon_id_type::ROBOT_47_WEAPON_57_ID:
 		case weapon_id_type::ROBOT_62_WEAPON_61_ID:
 		case weapon_id_type::ROBOT_71_WEAPON_62_ID:
+		case weapon_id_type::ROBOT_70_WEAPON_64_ID:
 #endif
 			break;
 		default:

@@ -110,6 +110,7 @@ enum weapon_id_type : uint8_t
 	ROBOT_47_WEAPON_57_ID = 57,
 	ROBOT_62_WEAPON_61_ID = 61,
 	ROBOT_71_WEAPON_62_ID = 62,	// M.A.X. homing flash missile
+	ROBOT_70_WEAPON_64_ID = 64,	// Vertigo smelter Phoenix
 #endif
 	unspecified = 0xff,
 };
