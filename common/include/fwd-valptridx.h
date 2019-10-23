@@ -61,6 +61,7 @@ class valptridx :
 	using array_base_storage_type = std::array<managed_type, array_size>;
 public:
 	class array_managed_type;
+	using typename specialized_types::report_error_uses_exception;
 
 protected:
 	using const_pointer_type = const managed_type *;
