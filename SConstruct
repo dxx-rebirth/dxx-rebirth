@@ -3946,7 +3946,7 @@ class DXXCommon(LazyObjectConstructor):
 				CPPDEFINES = ['__unix__'],
 				CPPPATH = [os.path.join(library_frameworks, 'SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'],
 				FRAMEWORKS = ['ApplicationServices', 'Cocoa', 'SDL'],
-				FRAMEWORKPATH = [library_frameworks, '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'],
+				FRAMEWORKPATH = [library_frameworks],
 				LINKFLAGS = ['-Wl,-rpath,@loader_path/../Frameworks'],	# Allow libraries & frameworks to go in app bundle
 			)
 			if self.user_settings.opengl or self.user_settings.opengles:
