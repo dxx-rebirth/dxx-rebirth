@@ -4804,7 +4804,7 @@ class DXXProgram(DXXCommon):
 				RCFLAGS = ['-D%s' % d for d in program.env_CPPDEFINES],
 			)
 			env.Append(
-				LIBS = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL'],
+				LIBS = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32'],
 			)
 	# Settings to apply to Apple builds
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
