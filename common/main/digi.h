@@ -123,7 +123,7 @@ extern void digi_start_sound_queued( short soundnum, fix volume );
 
 #define MUSIC_TYPE_NONE		0
 #define MUSIC_TYPE_BUILTIN	1
-#if SDL_MAJOR_VERSION == 1
+#if DXX_USE_SDL_REDBOOK_AUDIO
 #define MUSIC_TYPE_REDBOOK	2
 #endif
 #define MUSIC_TYPE_CUSTOM	3

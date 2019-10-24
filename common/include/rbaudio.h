@@ -74,7 +74,37 @@ unsigned long RBAGetDiscID();
 
 // List the tracks on the CD
 void RBAList(void);
+
+#elif SDL_MAJOR_VERSION == 2
+
+extern void RBAInit(void);
+extern void RBAExit();
+extern int RBAPlayTrack(int track);
+extern int RBAPlayTracks(int first, int last, void (*hook_finished)(void));	//plays tracks first through last, inclusive
+extern int	RBAPeekPlayStatus(void);
+extern void RBAStop(void);
+extern void RBAEjectDisk(void);
+extern void RBASetVolume(int volume);
+
+extern int	RBAEnabled(void);
+extern int	RBAGetNumberOfTracks(void);
+extern void RBACheckFinishedHook();
+extern void	RBAPause();
+extern int	RBAResume();
+extern int	RBAPauseResume();
+
+//return the track number currently playing.  Useful if RBAPlayTracks() 
+//is called.  Returns 0 if no track playing, else track number
+int RBAGetTrackNum();
+
+// get the cddb discid for the current cd.
+unsigned long RBAGetDiscID();
+
+// List the tracks on the CD
+void RBAList(void);
+
+#endif
+
 #endif
 
 }
-#endif

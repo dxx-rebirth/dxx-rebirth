@@ -1358,7 +1358,7 @@ static void terminate_handler()
 			('DXX_MAX_AXES_PER_JOYSTICK', user_settings.max_axes_per_joystick),
 			('DXX_MAX_BUTTONS_PER_JOYSTICK', user_settings.max_buttons_per_joystick),
 			('DXX_MAX_HATS_PER_JOYSTICK', user_settings.max_hats_per_joystick),
-			('DXX_USE_SDL_REDBOOK_AUDIO', int(not sdl2)),
+			('DXX_USE_SDL_REDBOOK_AUDIO', int(not sdl2 or sys.platform in ['win32', 'msys'])), # there is a win32 rbaudio now
 		))
 		context.Display('%s: checking whether to enable joystick support...%s\n' % (self.msgprefix, 'yes' if user_settings.max_joysticks else 'no'))
 		# SDL2 removed CD-rom support.
@@ -4512,6 +4512,7 @@ class DXXArchive(DXXCommon):
 		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter((
 'common/arch/win32/except.cpp',
 'common/arch/win32/messagebox.cpp',
+'common/arch/win32/rbaudio.cpp',
 ))
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
 		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter((

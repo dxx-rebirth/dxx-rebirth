@@ -17,6 +17,7 @@
 #include "text.h"
 #include "args.h"
 #include "window.h"
+#include "fwd-event.h"
 
 namespace dsx {
 
@@ -78,6 +79,8 @@ void arch_init(void)
 
 	if ((t = gr_init()) != 0)
 		Error(TXT_CANT_INIT_GFX,t);
+
+	event_init();
 
 	atexit(arch_close);
 }
