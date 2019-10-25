@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <mmsystem.h>
+#include <climits>
 
 #include "pstypes.h"
 #include "dxxerror.h"
@@ -36,7 +37,9 @@ namespace dcx {
 
 static UINT wCDDeviceID = 0U;
 static int initialised = 0;
-static DWORD playEnd;
+static int playEnd = 0;
+static int lastFrames = 0;
+static int isPaused = 0;
 
 void RBAExit()
 {
@@ -48,9 +51,9 @@ void RBAExit()
     }
 }
 
-static int mci_HasMedia()
+static bool mci_HasMedia()
 {
-    if (!wCDDeviceID) return 0;
+    if (!wCDDeviceID) return false;
 
     MCIERROR mciError;
     MCI_STATUS_PARMS mciStatusParms;
@@ -58,81 +61,104 @@ static int mci_HasMedia()
     mciStatusParms.dwItem = MCI_STATUS_MEDIA_PRESENT;
     if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
     {
-		Warning("RBAudio win32: cannot determine MCI media status (%lx)", mciError);
+        Warning("RBAudio win32/MCI: cannot determine MCI media status (%lx)", mciError);
         RBAExit();
-		return 0;
+        return false;
     }
-    return static_cast<int>(mciStatusParms.dwReturn);
+    return mciStatusParms.dwReturn != 0;
 }
 
-static int mci_enableMsf()
+static unsigned int mci_TotalFramesMsf(int msf)
 {
-    if (!wCDDeviceID) return 0;
+    return (MCI_MSF_MINUTE(msf) * 60 + MCI_MSF_SECOND(msf)) * CD_FPS + MCI_MSF_FRAME(msf);
+}
 
+static int mci_FramesToMsf(int frames)
+{
+    int m = frames / (CD_FPS * 60);
+    int s = (frames / CD_FPS) % 60;
+    int f = frames % CD_FPS;
+    return MCI_MAKE_MSF(m, s, f);
+}
+
+static int mci_GetTrackOffset(int track)
+{
     MCIERROR mciError;
-    MCI_SET_PARMS mciSetParms;
+    MCI_STATUS_PARMS mciStatusParms;
 
-    mciSetParms.dwTimeFormat = MCI_FORMAT_MSF;
-    if ((mciError = mciSendCommand(wCDDeviceID, MCI_SET, MCI_SET_TIME_FORMAT, reinterpret_cast<DWORD_PTR>(&mciSetParms))))
+    mciStatusParms.dwItem = MCI_STATUS_POSITION;
+    mciStatusParms.dwTrack = track;
+    if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM | MCI_TRACK, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
     {
-		con_puts(CON_NORMAL, "RBAudio win32: cannot set time format for CD to MSF (strange)");
-        return 0;
+        Warning("RBAudio win32/MCI: cannot determine track %i offset (%lx)", track, mciError);
+        return -1;
     }
-    return 1;
+    return mci_TotalFramesMsf(mciStatusParms.dwReturn);
 }
 
-static int mci_restoreTmsf()
+static int mci_GetTrackLength(int track)
 {
-    if (!wCDDeviceID) return 0;
-
     MCIERROR mciError;
-    MCI_SET_PARMS mciSetParms;
+    MCI_STATUS_PARMS mciStatusParms;
 
-    mciSetParms.dwTimeFormat = MCI_FORMAT_TMSF;
-    if ((mciError = mciSendCommand(wCDDeviceID, MCI_SET, MCI_SET_TIME_FORMAT, reinterpret_cast<DWORD_PTR>(&mciSetParms))))
+    mciStatusParms.dwItem = MCI_STATUS_LENGTH;
+    mciStatusParms.dwTrack = track;
+    if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM | MCI_TRACK, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
     {
-		con_puts(CON_NORMAL, "RBAudio win32: cannot set time format for CD to TMSF (strange)");
-        return 0;
+        Warning("RBAudio win32/MCI: cannot determine track %i length (%lx)", track, mciError);
+        return -1;
     }
-    return 1;
+    return mci_TotalFramesMsf(mciStatusParms.dwReturn);
 }
 
-static int mci_tmsfToTrack(int track)
+static int mci_GetTotalLength()
 {
-    return MCI_MAKE_TMSF(track, 0, 0, 0);
+    MCIERROR mciError;
+    MCI_STATUS_PARMS mciStatusParms;
+
+    mciStatusParms.dwItem = MCI_STATUS_LENGTH;
+    if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
+    {
+        Warning("RBAudio win32/MCI: cannot determine media length (%lx)", mciError);
+        return -1;
+    }
+    return mci_TotalFramesMsf(mciStatusParms.dwReturn);
 }
 
 void RBAInit()
 {
     MCIERROR mciError;
     MCI_OPEN_PARMS mciOpenParms;
+    MCI_SET_PARMS mciSetParms;
 
     if (initialised) return;
     
     mciOpenParms.lpstrDeviceType = "cdaudio";
     if ((mciError = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_SHAREABLE, reinterpret_cast<DWORD_PTR>(&mciOpenParms))))
     {
-		con_puts(CON_NORMAL, "RBAudio win32: cannot find MCI cdaudio (no CD drive?)");
-		return;
+        con_puts(CON_NORMAL, "RBAudio win32/MCI: cannot find MCI cdaudio (no CD drive?)");
+        return;
     }
 
     wCDDeviceID = mciOpenParms.wDeviceID;
 
     if (!mci_HasMedia())
     {
-		con_puts(CON_NORMAL, "RBAudio win32: no media in CD drive.");
+        con_puts(CON_NORMAL, "RBAudio win32/MCI: no media in CD drive.");
         RBAExit();
-		return;
+        return;
     }
 
-    if (!mci_restoreTmsf())
+    mciSetParms.dwTimeFormat = MCI_FORMAT_MSF;
+    if ((mciError = mciSendCommand(wCDDeviceID, MCI_SET, MCI_SET_TIME_FORMAT, reinterpret_cast<DWORD_PTR>(&mciSetParms))))
     {
+        Warning("RBAudio win32/MCI: cannot set time format for CD to MSF (strange)");
         RBAExit();
-		return;
+        return;
     }
 
     initialised = 1;
-	RBAList();
+    RBAList();
 }
 
 int RBAEnabled()
@@ -144,73 +170,63 @@ static void (*redbook_finished_hook)() = NULL;
 
 int RBAPlayTrack(int a)
 {
-	if (!wCDDeviceID)
-		return 0;
+    if (!wCDDeviceID)
+        return 0;
 
-	if (mci_HasMedia())
-	{
+    if (mci_HasMedia())
+    {
         MCIERROR mciError;
         MCI_PLAY_PARMS mciPlayParms;
-        int trackCount = RBAGetNumberOfTracks();
-        int flags = MCI_FROM;
+        int playStart;
 
-		con_printf(CON_VERBOSE, "RBAudio win32: Playing track %i", a);
+        con_printf(CON_VERBOSE, "RBAudio win32/MCI: Playing track %i", a);
 
-        mciPlayParms.dwFrom = mci_tmsfToTrack(a);
-        if (a < trackCount)
+        playStart = mci_GetTrackOffset(a);
+        playEnd = playStart + mci_GetTrackLength(a);
+
+        mciPlayParms.dwFrom = mci_FramesToMsf(playStart);
+        mciPlayParms.dwTo = mci_FramesToMsf(playEnd);
+
+        if ((mciError = mciSendCommand(wCDDeviceID, MCI_PLAY, MCI_FROM | MCI_TO, reinterpret_cast<DWORD_PTR>(&mciPlayParms))))
         {
-            mciPlayParms.dwTo = mci_tmsfToTrack(a + 1);
-            flags |= MCI_TO;
-        }
-        else
-            mciPlayParms.dwTo = 0L;
-
-		if ((mciError = mciSendCommand(wCDDeviceID, MCI_PLAY, flags, reinterpret_cast<DWORD_PTR>(&mciPlayParms))))
-        {
-		    Warning("RBAudio win32: could not play track (%lx)", mciError);
+            Warning("RBAudio win32/MCI: could not play track (%lx)", mciError);
             return 0;
         }
 
         return 1;
-	}
-	return 0;
+    }
+    return 0;
 }
 
 // plays tracks first through last, inclusive
 int RBAPlayTracks(int first, int last, void (*hook_finished)(void))
 {
-	if (!wCDDeviceID)
-		return 0;
+    if (!wCDDeviceID)
+        return 0;
 
-	if (mci_HasMedia())
-	{
+    if (mci_HasMedia())
+    {
         MCIERROR mciError;
         MCI_PLAY_PARMS mciPlayParms;
-        int trackCount = RBAGetNumberOfTracks();
-        int flags = MCI_FROM;
 
-		redbook_finished_hook = hook_finished;
+        redbook_finished_hook = hook_finished;
 
-		con_printf(CON_VERBOSE, "RBAudio win32: Playing tracks %i to %i", first, last);
+        con_printf(CON_VERBOSE, "RBAudio win32/MCI: Playing tracks %i to %i", first, last);
 
-        mciPlayParms.dwFrom = mci_tmsfToTrack(first);
-        if (last < trackCount)
+        playEnd = mci_GetTrackOffset(last) + mci_GetTrackLength(last);
+
+        mciPlayParms.dwFrom = mci_FramesToMsf(mci_GetTrackOffset(first));
+        mciPlayParms.dwTo = mci_FramesToMsf(playEnd);
+
+        if ((mciError = mciSendCommand(wCDDeviceID, MCI_PLAY, MCI_FROM | MCI_TO, reinterpret_cast<DWORD_PTR>(&mciPlayParms))))
         {
-            mciPlayParms.dwTo = mci_tmsfToTrack(last + 1);
-            flags |= MCI_TO;
-        }
-        else
-            mciPlayParms.dwTo = 0L;
-
-		if ((mciError = mciSendCommand(wCDDeviceID, MCI_PLAY, flags, reinterpret_cast<DWORD_PTR>(&mciPlayParms))))
-        {
-		    Warning("RBAudio win32: could not play tracks (%lx)", mciError);
+            Warning("RBAudio win32/MCI: could not play tracks (%lx)", mciError);
             return 0;
         }
 
         return 1;
-	}
-	return 0;
+    }
+    return 0;
 }
 
 void RBAStop()
@@ -221,9 +237,9 @@ void RBAStop()
 
     if ((mciError = mciSendCommand(wCDDeviceID, MCI_STOP, 0, 0)))
     {
-		Warning("RBAudio win32: could not stop music (%lx)", mciError);
+        Warning("RBAudio win32/MCI: could not stop music (%lx)", mciError);
     }
-	redbook_finished_hook = NULL;
+    redbook_finished_hook = NULL;
 }
 
 void RBAEjectDisk()
@@ -234,7 +250,7 @@ void RBAEjectDisk()
 
     if ((mciError = mciSendCommand(wCDDeviceID, MCI_SET, MCI_SET_DOOR_OPEN | MCI_WAIT, 0)))
     {
-		Warning("RBAudio win32: could not open CD tray (%lx)", mciError);
+        Warning("RBAudio win32/MCI: could not open CD tray (%lx)", mciError);
     }
     initialised = 0;
 }
@@ -250,12 +266,13 @@ void RBAPause()
     
     MCIERROR mciError;
 
-    if ((mciError = mciSendCommand(wCDDeviceID, MCI_PAUSE, MCI_WAIT, 0)))
+    if ((mciError = mciSendCommand(wCDDeviceID, MCI_PAUSE, 0, 0)))
     {
-		Warning("RBAudio win32: could not pause music (%lx)", mciError);
+        Warning("RBAudio win32/MCI: could not pause music (%lx)", mciError);
         return;
     }
-	con_puts(CON_VERBOSE, "RBAudio win32: Playback paused");
+    con_puts(CON_VERBOSE, "RBAudio win32/MCI: Playback paused");
+    isPaused = 1;
 }
 
 int RBAResume()
@@ -266,10 +283,11 @@ int RBAResume()
 
     if ((mciError = mciSendCommand(wCDDeviceID, MCI_RESUME, 0, 0)))
     {
-		Warning("RBAudio win32: could not resume music (%lx)", mciError);
+        Warning("RBAudio win32/MCI: could not resume music (%lx)", mciError);
         return -1;
     }
-	con_puts(CON_VERBOSE, "RBAudio win32: Playback resumed");
+    con_puts(CON_VERBOSE, "RBAudio win32/MCI: Playback resumed");
+    isPaused = 0;
     return 1;
 }
 
@@ -283,24 +301,25 @@ int RBAPauseResume()
     mciStatusParms.dwItem = MCI_STATUS_MODE;
     if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
     {
-		Warning("RBAudio win32: cannot determine MCI media status (%lx)", mciError);
+        Warning("RBAudio win32/MCI: cannot determine MCI media status (%lx)", mciError);
         return 0;
     }
 
-	if (mciStatusParms.dwReturn == MCI_MODE_PLAY)
-	{
-		con_puts(CON_VERBOSE, "RBAudio win32: Toggle Playback pause");
-		RBAPause();
-	}
-	else if (mciStatusParms.dwReturn == MCI_MODE_PAUSE)
-	{
-		con_puts(CON_VERBOSE, "RBAudio win32: Toggle Playback resume");
-		return RBAResume() > 0;
-	}
-	else
-		return 0;
+    if (mciStatusParms.dwReturn == MCI_MODE_PLAY)
+    {
+        con_puts(CON_VERBOSE, "RBAudio win32/MCI: Toggle Playback pause");
+        RBAPause();
+    }
+        // MCI_MODE_STOP is actually paused, because logic
+    else if (mciStatusParms.dwReturn == MCI_MODE_PAUSE || (isPaused && mciStatusParms.dwReturn == MCI_MODE_STOP))
+    {
+        con_puts(CON_VERBOSE, "RBAudio win32/MCI: Toggle Playback resume");
+        return RBAResume() > 0;
+    }
+    else
+        return 0;
 
-	return 1;
+    return 1;
 }
 
 int RBAGetNumberOfTracks()
@@ -313,7 +332,7 @@ int RBAGetNumberOfTracks()
     mciStatusParms.dwItem = MCI_STATUS_NUMBER_OF_TRACKS;
     if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
     {
-		Warning("RBAudio win32: could not get track count (%lx)", mciError);
+        Warning("RBAudio win32/MCI: could not get track count (%lx)", mciError);
         return -1;
     }
 
@@ -322,24 +341,23 @@ int RBAGetNumberOfTracks()
 
 // check if we need to call the 'finished' hook
 // needs to go in all event loops
-// MCI has a hook function via Win32 messages but either it's buggy
-//   or SDL won't give it even via syswm events
+// MCI has a hook function via Win32 messages, but it doesn't work for CDs
+//   for whatever reason
 void RBACheckFinishedHook()
 {
-	static fix64 last_check_time = 0;
-	
-	if (!wCDDeviceID) return;
+    static fix64 last_check_time = 0;
+    
+    if (!wCDDeviceID) return;
 
-
-	if ((timer_query() - last_check_time) >= F2_0)
-	{
+    if ((timer_query() - last_check_time) >= F2_0)
+    {
         MCIERROR mciError;
         MCI_STATUS_PARMS mciStatusParms;
 
-        mciStatusParms.dwItem = MCI_STATUS_MODE;
+        mciStatusParms.dwItem = MCI_STATUS_POSITION;
         if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
         {
-            Warning("RBAudio win32: cannot determine MCI media status (%lx)", mciError);
+            Warning("RBAudio win32/MCI: cannot determine MCI position (%lx)", mciError);
             return;
         }
 
@@ -376,17 +394,17 @@ int RBAGetTrackNum()
     mciStatusParms.dwItem = MCI_STATUS_MODE;
     if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
     {
-		Warning("RBAudio win32: cannot determine MCI media status (%lx)", mciError);
+        Warning("RBAudio win32/MCI: cannot determine MCI media status (%lx)", mciError);
         return 0;
     }
 
-	if (mciStatusParms.dwReturn != MCI_MODE_PLAY)
+    if (mciStatusParms.dwReturn != MCI_MODE_PLAY)
         return 0;
 
     mciStatusParms.dwItem = MCI_STATUS_CURRENT_TRACK;
     if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
     {
-		Warning("RBAudio win32: cannot determine MCI media status (%lx)", mciError);
+        Warning("RBAudio win32/MCI: cannot determine MCI track number (%lx)", mciError);
         return 0;
     }
 
@@ -403,92 +421,70 @@ int RBAPeekPlayStatus()
     mciStatusParms.dwItem = MCI_STATUS_MODE;
     if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
     {
-		Warning("RBAudio win32: cannot determine MCI media status (%lx)", mciError);
+        Warning("RBAudio win32/MCI: cannot determine MCI media status (%lx)", mciError);
         return 0;
     }
 
-	if (mciStatusParms.dwReturn == MCI_MODE_PLAY)
+    if (mciStatusParms.dwReturn == MCI_MODE_PLAY)
         return 1;
-	else if (mciStatusParms.dwReturn == MCI_MODE_PAUSE)
-		return -1; // hack so it doesn't keep restarting paused music
-	else
-		return 0;
+    else if (mciStatusParms.dwReturn == MCI_MODE_PAUSE || (isPaused && mciStatusParms.dwReturn == MCI_MODE_STOP))
+        return -1; // hack so it doesn't keep restarting paused music
+        // MCI_MODE_STOP is actually paused, because logic
+    else
+        return 0;
 }
 
 static int cddb_sum(int n)
 {
-	int ret;
+    int ret;
 
-	/* For backward compatibility this algorithm must not change */
+    /* For backward compatibility this algorithm must not change */
 
-	ret = 0;
+    ret = 0;
 
-	while (n > 0) {
-		ret = ret + (n % 10);
-		n = n / 10;
-	}
+    while (n > 0) {
+        ret = ret + (n % 10);
+        n = n / 10;
+    }
 
-	return (ret);
+    return (ret);
 }
-
-static int mci_msf_totalSeconds(int msf)
-{
-    return MCI_MSF_MINUTE(msf) * 60 + MCI_MSF_SECOND(msf);
-}
-
-static int mci_msf_totalFrames(int msf)
-{
-    return mci_msf_totalSeconds(msf) * CD_FPS + MCI_MSF_FRAME(msf);
-}
-
 
 unsigned long RBAGetDiscID()
 {
-	int i, t = 0, n = 0, trackCount, totalLength;
+    int i, t = 0, n = 0, trackCount, totalLength;
 
-	if (!wCDDeviceID)
-		return 0;
+    if (!wCDDeviceID)
+        return 0;
 
     MCIERROR mciError;
-    MCI_STATUS_PARMS mciStatusParms;
     trackCount = RBAGetNumberOfTracks();
-
-    mciStatusParms.dwItem = MCI_STATUS_LENGTH;
-    if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
+    totalLength = mci_GetTotalLength();
+    if (totalLength < 0)
     {
-        Warning("RBAudio win32: cannot determine total length (%lx)", mciError);
-        return 0;
-    }
-    totalLength = static_cast<int>(mciStatusParms.dwReturn);
-
-    // we must switch to MSF to actually get starting times
-    if (!mci_enableMsf())
-    {
+        Warning("RBAudio win32/MCI: cannot determine total length (%lx)", mciError);
         return 0;
     }
 
-	/* For backward compatibility this algorithm must not change */
+    /* For backward compatibility this algorithm must not change */
 
-	i = 1;
+    i = 1;
 
-	while (i <= trackCount)
+    while (i <= trackCount)
     {
-        mciStatusParms.dwItem = MCI_STATUS_POSITION;
-        mciStatusParms.dwTrack = i;
-        if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM | MCI_TRACK, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
+        int offset = mci_GetTrackOffset(i);
+        if (offset < 0)
         {
-            Warning("RBAudio win32: cannot determine track %i offset (%lx)", i, mciError);
-            mci_restoreTmsf();
+            Warning("RBAudio win32/MCI: cannot determine track %i offset (%lx)", i, mciError);
             return 0;
         }
-		n += cddb_sum(mci_msf_totalSeconds(static_cast<int>(mciStatusParms.dwReturn)));
-		i++;
-	}
+        n += cddb_sum(offset / CD_FPS);
+        i++;
+    }
 
-	t = mci_msf_totalSeconds(totalLength);
+    t = totalLength / CD_FPS;
 
-    mci_restoreTmsf();
-	return ((n % 0xff) << 24 | t << 8 | trackCount);
+    return ((n % 0xff) << 24 | t << 8 | trackCount);
 }
 
 void RBAList(void)
@@ -499,8 +495,6 @@ void RBAList(void)
     MCI_STATUS_PARMS mciStatusParms;
     int trackCount = RBAGetNumberOfTracks();
 
-    mci_enableMsf();
-
     for (int i = 1; i <= trackCount; ++i) {
         int isAudioTrack, length, offset;
         mciStatusParms.dwTrack = i;
@@ -508,31 +502,25 @@ void RBAList(void)
         mciStatusParms.dwItem = MCI_CDA_STATUS_TYPE_TRACK;
         if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM | MCI_TRACK, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
         {
-            Warning("RBAudio win32: cannot determine track %d type (%lx)", i, mciError);
+            Warning("RBAudio win32/MCI: cannot determine track %d type (%lx)", i, mciError);
             continue;
         }
         isAudioTrack = mciStatusParms.dwReturn == MCI_CDA_TRACK_AUDIO;
 
-        mciStatusParms.dwItem = MCI_STATUS_POSITION;
-        if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM | MCI_TRACK, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
+        offset = mci_GetTrackOffset(i);
+        if (offset < 0)
         {
-            Warning("RBAudio win32: cannot determine track %d offset (%lx)", i, mciError);
             continue;
         }
-        offset = mci_msf_totalFrames(static_cast<int>(mciStatusParms.dwReturn));
 
-        mciStatusParms.dwItem = MCI_STATUS_LENGTH;
-        if ((mciError = mciSendCommand(wCDDeviceID, MCI_STATUS, MCI_STATUS_ITEM | MCI_TRACK, reinterpret_cast<DWORD_PTR>(&mciStatusParms))))
+        length = mci_GetTrackLength(i);
+        if (length < 0)
         {
-            Warning("RBAudio win32: cannot determine track %d length (%lx)", i, mciError);
             continue;
         }
-        length = mci_msf_totalFrames(static_cast<int>(mciStatusParms.dwReturn));
 
-		con_printf(CON_VERBOSE, "RBAudio win32: CD track %d, type %s, length %d, offset %d", i, isAudioTrack ? "audio" : "data", length, offset);
+        con_printf(CON_VERBOSE, "RBAudio win32/MCI: CD track %d, type %s, length %d, offset %d", i, isAudioTrack ? "audio" : "data", length, offset);
     }
-    
-    mci_restoreTmsf();
 }
 
 }
