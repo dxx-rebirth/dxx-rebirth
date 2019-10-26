@@ -760,8 +760,8 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	Dont_start_sound_objects = 1;
 #endif
+	Dont_start_sound_objects = 1;
 
 	const auto get_eclip_for_tmap = [](const d_level_unique_tmap_info_state::TmapInfo_array &TmapInfo, const unique_side &side) {
 		if (const auto tm2 = side.tmap_num2)
@@ -819,10 +819,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 			}
 		}
 	}
-
-#if defined(DXX_BUILD_DESCENT_II)
 	Dont_start_sound_objects = 0;
-#endif
 }
 
 constexpr fix flash_dist=fl2f(.9);

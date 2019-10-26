@@ -333,10 +333,8 @@ static void digi_unpause_looping_sound()
 	digi_play_sample_looping_sub();
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
 //hack to not start object when loading level
 int Dont_start_sound_objects = 0;
-#endif
 
 static void digi_start_sound_object(sound_object &s)
 {
@@ -346,10 +344,8 @@ static void digi_start_sound_object(sound_object &s)
 	if ( s.volume <= 0 )
 		return;
 
-#if defined(DXX_BUILD_DESCENT_II)
 	if ( Dont_start_sound_objects )
 		return;
-#endif
 
 	// only use up to half the sound channels for "permanent" sounts
 	if ((s.flags & SOF_PERMANENT) && (N_active_sound_objects >= max(1, digi_max_channels / 4)))
@@ -378,13 +374,11 @@ static void digi_link_sound_common(const object_base &viewer, sound_object &so, 
 	so.max_distance = max_distance;
 	so.volume = 0;
 	so.pan = 0;
-#if defined(DXX_BUILD_DESCENT_II)
 	if (Dont_start_sound_objects) {		//started at level start
 		so.flags |= SOF_PERMANENT;
 		so.channel =  -1;
 	}
 	else
-#endif
 	{
 		digi_get_sound_loc(viewer.orient, viewer.pos, segnum.absolute_sibling(viewer.segnum),
                        pos, segnum, so.max_volume,
