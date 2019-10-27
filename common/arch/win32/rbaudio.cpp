@@ -93,6 +93,7 @@ static unsigned mci_GetTrackOffset(const int track)
 		Warning("RBAudio win32/MCI: cannot determine track %i offset (%lx)", track, mciError);
 		return -1;
 	}
+	// dwReturn is a 32-bit value in MSF format, so DWORD_PTR > DWORD is not a problem
 	return mci_TotalFramesMsf(mciStatusParms.dwReturn);
 }
 
@@ -108,6 +109,7 @@ static unsigned mci_GetTrackLength(const int track)
 		Warning("RBAudio win32/MCI: cannot determine track %i length (%lx)", track, mciError);
 		return -1;
 	}
+	// dwReturn is a 32-bit value in MSF format, so DWORD_PTR > DWORD is not a problem
 	return mci_TotalFramesMsf(mciStatusParms.dwReturn);
 }
 
@@ -367,12 +369,13 @@ void RBACheckFinishedHook()
 		// and allow a bit of a leeway when checking if so.
 
 		DWORD checkValue = playEnd;
+		// dwReturn is a 32-bit value in MSF format, so DWORD_PTR > DWORD is not a problem
 		DWORD thisFrames = mci_TotalFramesMsf(mciStatusParms.dwReturn);
 
 		if (thisFrames == lastFrames)
 			checkValue = checkValue < 64 ? 0 : checkValue - 64; // prevent underflow
 
-		if (redbook_finished_hook && playEnd > 0 && lastFrames >= checkValue)
+		if (redbook_finished_hook && playEnd > 0 && thisFrames >= checkValue)
 		{
 			con_puts(CON_VERBOSE, "RBAudio win32/MCI: Playback done, calling finished-hook");
 			redbook_finished_hook();
