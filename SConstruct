@@ -4513,11 +4513,19 @@ class DXXArchive(DXXCommon):
 'common/arch/sdl/digi_mixer_music.cpp',
 ))
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
-		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter((
+		__get_platform_objects = LazyObjectConstructor.create_lazy_object_getter((
 'common/arch/win32/except.cpp',
 'common/arch/win32/messagebox.cpp',
+))
+		__get_sdl2_objects = LazyObjectConstructor.create_lazy_object_getter((
 'common/arch/win32/rbaudio.cpp',
 ))
+		def get_platform_objects(self):
+			result = self.__get_platform_objects()
+			if self.user_settings.sdl2:
+				result += self.__get_sdl2_objects()
+			return result
+
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
 		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter((
 			'common/arch/cocoa/messagebox.mm',
