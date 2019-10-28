@@ -34,10 +34,13 @@ struct RBACHANNELCTL
 	unsigned int out2in, out2vol;
 	unsigned int out3in, out3vol;
 };
+#endif
 
 extern void RBAInit(void);
 extern void RBAExit();
+#if SDL_MAJOR_VERSION == 1
 extern long RBAGetDeviceStatus(void);
+#endif
 extern int RBAPlayTrack(int track);
 extern int RBAPlayTracks(int first, int last, void (*hook_finished)(void));	//plays tracks first through last, inclusive
 extern int RBACheckMediaChange();
@@ -45,20 +48,25 @@ extern long	RBAGetHeadLoc(int *min, int *sec, int *frame);
 extern int	RBAPeekPlayStatus(void);
 extern void RBAStop(void);
 extern void RBAEjectDisk(void);
+#if SDL_MAJOR_VERSION == 1
 extern void RBASetStereoAudio(RBACHANNELCTL *channels);
 extern void RBASetQuadAudio(RBACHANNELCTL *channels);
 extern void RBAGetAudioInfo(RBACHANNELCTL *channels);
 extern void RBASetChannelVolume(int channel, int volume);
-#ifdef __linux__
+#endif
+#if defined(__linux__) || SDL_MAJOR_VERSION != 1
 extern void RBASetVolume(int volume);
 #else
 static inline void RBASetVolume(int)
 {
 }
 #endif
+
 extern int	RBAEnabled(void);
+#if SDL_MAJOR_VERSION == 1
 extern void RBADisable(void);
 extern void RBAEnable(void);
+#endif
 extern int	RBAGetNumberOfTracks(void);
 extern void RBACheckFinishedHook();
 extern void	RBAPause();
@@ -74,7 +82,7 @@ unsigned long RBAGetDiscID();
 
 // List the tracks on the CD
 void RBAList(void);
+
 #endif
 
 }
-#endif

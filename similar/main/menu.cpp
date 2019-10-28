@@ -1991,7 +1991,7 @@ namespace {
 #define DXX_SOUND_ADDON_MUSIC_MENU_ITEM(VERB)
 #endif
 
-#if SDL_MAJOR_VERSION == 1
+#if DXX_USE_SDL_REDBOOK_AUDIO
 #define DXX_SOUND_CD_MUSIC_MENU_ITEM(VERB)	\
 	DXX_MENUITEM(VERB, RADIO, "CD music", opt_sm_mtype2, GameCfg.MusicType == MUSIC_TYPE_REDBOOK, optgrp_music_type)	\
 
@@ -2128,7 +2128,7 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 				replay = 1;
 			}
 #endif
-#if SDL_MAJOR_VERSION == 1
+#if DXX_USE_SDL_REDBOOK_AUDIO
 			else if (citem == opt_sm_mtype2)
 			{
 				GameCfg.MusicType = MUSIC_TYPE_REDBOOK;

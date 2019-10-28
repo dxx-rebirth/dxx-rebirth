@@ -1353,12 +1353,16 @@ static void terminate_handler()
 			# inputs.
 			user_settings.max_axes_per_joystick = user_settings.max_buttons_per_joystick = user_settings.max_hats_per_joystick = 0
 		successflags['CPPDEFINES'] = CPPDEFINES = successflags.get('CPPDEFINES', [])[:]
+		# use Redbook if at least one of the following applies
+		#    1. we are on SDL1
+		#    2. we are building for a platform for which we have a custom CD implementation (currently only win32)
+		use_redbook = int(not sdl2 or user_settings.host_platform == 'win32')
 		CPPDEFINES.extend((
 			('DXX_MAX_JOYSTICKS', user_settings.max_joysticks),
 			('DXX_MAX_AXES_PER_JOYSTICK', user_settings.max_axes_per_joystick),
 			('DXX_MAX_BUTTONS_PER_JOYSTICK', user_settings.max_buttons_per_joystick),
 			('DXX_MAX_HATS_PER_JOYSTICK', user_settings.max_hats_per_joystick),
-			('DXX_USE_SDL_REDBOOK_AUDIO', int(not sdl2)),
+			('DXX_USE_SDL_REDBOOK_AUDIO', use_redbook),
 		))
 		context.Display('%s: checking whether to enable joystick support...%s\n' % (self.msgprefix, 'yes' if user_settings.max_joysticks else 'no'))
 		# SDL2 removed CD-rom support.
@@ -4512,6 +4516,7 @@ class DXXArchive(DXXCommon):
 		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter((
 'common/arch/win32/except.cpp',
 'common/arch/win32/messagebox.cpp',
+'common/arch/win32/rbaudio.cpp',
 ))
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
 		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter((

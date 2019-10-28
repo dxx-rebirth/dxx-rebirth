@@ -45,6 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "game.h"
 #include "compiler-make_unique.h"
+#include "console.h"
 
 namespace dcx {
 
@@ -389,6 +390,7 @@ static int songs_have_cd()
 		return 0;
 
 	discid = RBAGetDiscID();
+	con_printf(CON_DEBUG, "CD-ROM disc ID is 0x%08lx", discid);
 
 	switch (discid) {
 #if defined(DXX_BUILD_DESCENT_I)
