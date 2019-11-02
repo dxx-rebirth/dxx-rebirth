@@ -83,6 +83,20 @@ public:
 
 void user_configured_level_songs::operator=(std::vector<bim_song_info> &&v)
 {
+	if (v.empty())
+	{
+		/* If the vector is empty, use `reset` so that this object
+		 * stores `nullptr` instead of a pointer to a zero-length array.
+		 * Storing `nullptr` causes `operator bool()` to return false.
+		 * Storing a zero-length array causes `operator bool()` to
+		 * return true.
+		 *
+		 * A true return causes a divide-by-zero later when the object
+		 * is considered true, but then reports a length of zero.
+		 */
+		reset();
+		return;
+	}
 	resize(v.size());
 	std::move(v.begin(), v.end(), &this->operator[](0u));
 }
