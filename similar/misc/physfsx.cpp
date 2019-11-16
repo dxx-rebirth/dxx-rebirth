@@ -17,7 +17,7 @@
 #if defined(__APPLE__) && defined(__MACH__)
 #include <sys/mount.h>
 #include <unistd.h>	// for chdir hack
-#include <HIServices/Processes.h>
+#include <ApplicationServices/ApplicationServices.h>
 #endif
 
 #include "args.h"
