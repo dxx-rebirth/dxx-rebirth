@@ -1008,6 +1008,8 @@ static imobjptridx_t drop_robot_egg(const int type, const int id, const unsigned
 					return object_none;
 				}
 
+				++LevelUniqueObjectState.accumulated_robots;
+				++GameUniqueState.accumulated_robots;
 				if (Game_mode & GM_MULTI)
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
