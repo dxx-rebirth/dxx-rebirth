@@ -298,9 +298,6 @@ Restart: ;
 
 imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &object_pos, const unsigned object_id)
 {
-	++LevelUniqueObjectState.accumulated_robots;
-	++GameUniqueState.accumulated_robots;
-
 	ai_behavior default_behavior;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -322,6 +319,8 @@ imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &obj
 		return object_none;
 	}
 
+	++LevelUniqueObjectState.accumulated_robots;
+	++GameUniqueState.accumulated_robots;
 	//Set polygon-object-specific data
 
 	obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
