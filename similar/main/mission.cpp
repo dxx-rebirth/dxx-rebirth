@@ -647,7 +647,10 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 				mission_list.emplace_back(std::move(sli));
 			}
 			else
+			{
+				std::sort(sublist.begin(), sublist.end(), ml_sort_func);
 				mission_list.emplace_back(path.data(), std::move(sublist));
+			}
 		}
 		else if (il > 5 &&
 			((ext = &i[il - 5], !d_strnicmp(ext, MISSION_EXTENSION_DESCENT_I))
