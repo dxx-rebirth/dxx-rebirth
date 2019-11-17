@@ -421,6 +421,20 @@ static char *get_parm_value(PHYSFSX_gets_line_t<80> &buf, const char *const parm
 
 static bool ml_sort_func(const mle &e0,const mle &e1)
 {
+	const auto d0 = e0.directory.empty();
+	const auto d1 = e1.directory.empty();
+	if (d0 != d1)
+		/* If d0 is a directory and d1 is a mission, or if d0 is a
+		 * mission and d1 is a directory, then apply a special case.
+		 *
+		 * Consider d0 to be less (and therefore ordered earlier) if d1
+		 * is a mission.  This moves directories to the top of the list.
+		 */
+		return d1;
+	/* If both d0 and d1 are directories, or if both are missions, then
+	 * apply the usual sorting rule.  This makes directories sort
+	 * as usual relative to each other.
+	 */
 	return d_stricmp(e0.mission_name,e1.mission_name) < 0;
 }
 
