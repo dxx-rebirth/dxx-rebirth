@@ -127,7 +127,11 @@ void calc_d_tick();
 
 extern int Game_suspended;          // if non-zero, nothing moves but player
 
-enum Difficulty_level_type : unsigned
+/* This must be a signed type.  Some sites, such as `bump_this_object`,
+ * use Difficulty_level_type in arithmetic expressions, and those
+ * expressions must be signed to produce the correct result.
+ */
+enum Difficulty_level_type : signed int
 {
 	Difficulty_0,
 	Difficulty_1,
