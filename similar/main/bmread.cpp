@@ -568,10 +568,11 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 		SuperX = -1;
 
 		if ( (temp_ptr=strstr( inputline, "superx=" )) )	{
-			char *p;
-			const auto s = strtol(&temp_ptr[7], &p, 10);
-			if (!*p)
-				SuperX = s;
+			/* Historically, this was done with atoi, so the input
+			 * source was allowed to have unconvertible characters.
+			 * Accept such lines by ignoring any trailing content.
+			 */
+			SuperX = strtol(&temp_ptr[7], nullptr, 10);
 #if defined(DXX_BUILD_DESCENT_II)
 			Assert(SuperX == 254);
 				//the superx color isn't kept around, so the new piggy regeneration
