@@ -1693,8 +1693,8 @@ void bm_read_reactor(void)
 	char *equal_ptr;
 	short model_num;
 	fix	lighting = F1_0/2;		// Default
-	int type=-1;
 #if defined(DXX_BUILD_DESCENT_I)
+	int type = -1;
 	fix strength=0;
 #elif defined(DXX_BUILD_DESCENT_II)
 	assert(Num_reactors < Reactors.size());
@@ -1772,10 +1772,10 @@ void bm_read_reactor(void)
 	else
 		Dead_modelnums[model_num] = -1;
 
+#if defined(DXX_BUILD_DESCENT_I)
 	if (type == -1)
 		Error("No object type specfied for object in BITMAPS.TBL on line %d\n",linenum);
 
-#if defined(DXX_BUILD_DESCENT_I)
 	ObjType[Num_total_object_types] = type;
 	ObjId[Num_total_object_types] = model_num;
 	ObjStrength[Num_total_object_types] = strength;
