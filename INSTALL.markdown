@@ -7,9 +7,8 @@ The DXX-Rebirth maintainers have no control over the sites linked below.  The ma
 
 ### Prerequisites
 
-* [Python 2.x](https://www.python.org/) to run [scons](https://www.scons.org/), the processor for SConstruct scripts.
-[Python 2.7](https://www.python.org/downloads/release/python-2714/) is recommended.
-As of this writing, **scons** does not support Python 3.x, but has plans to do so.
+* [Python 3.x](https://www.python.org/) to run [scons](https://www.scons.org/), the processor for SConstruct scripts.
+[Python 3.6](https://www.python.org/downloads/release/python-369/) is recommended.
 * C++ compiler with support for selected C++11 features.  One of:
     * [gcc](https://gcc.gnu.org/) 4.9.4 or later
     * [clang](https://clang.llvm.org/) 3.3 or later
@@ -18,20 +17,17 @@ As of this writing, **scons** does not support Python 3.x, but has plans to do s
 	  implements sufficient C++11 features for the code to build with
 	  few or no modifications.
 * [SDL 1.2](https://www.libsdl.org/).
-SDL 2 is **not** supported at this time.
-SDL 2 support is planned.
-If you would like to help, please post patches that resolve build failures that occur when SDL 2 is activated.
-Patches must not break support for SDL 1.
+SDL 2 is also supported, and will become the default soon.
 * [PhysicsFS](https://icculus.org/physfs/).
-PhysFS 2.x is recommended.
+PhysFS 3.x is recommended.
 
 Optional, but recommended:
 
 * [SDL\_mixer 1.2](https://www.libsdl.org/projects/SDL_mixer/).
-SDL\_mixer 2 is **not** supported at this time.
+* [libpng](http://www.libpng.org/).
 * C++ compiler with support for selected C++14 features.  One of:
-    * [gcc](https://gcc.gnu.org/) 4.9.4 or later
-    * [clang](https://clang.llvm.org/) 3.4 or later
+    * [gcc](https://gcc.gnu.org/) 9.2.0 or later
+    * [clang](https://clang.llvm.org/) 9.0 or later
 
 Unless otherwise noted, using the newest release available is recommended.  For example, prefer gcc-5.4 to gcc-4.9, even though both should work.
 
@@ -42,9 +38,9 @@ Where possible, Windows users should try to obtain a compiled package, rather th
 
 If you are not sure whether your system is Windows x86 or Windows x64, use the packages for Windows x86.  Systems running Windows x64 support running Windows x86 programs, but Windows x86 systems do not run Windows x64 programs.
 
-* [Python x86 MSI](https://www.python.org/ftp/python/2.7.14/python-2.7.14.msi) |
-[Python x64 MSI](https://www.python.org/ftp/python/2.7.14/python-2.7.14.amd64.msi)
-* [SCons](https://prdownloads.sourceforge.net/scons/scons-2.3.6-setup.exe)
+* [Python x86 installer](https://www.python.org/ftp/python/3.6.7/python-3.6.7.exe) |
+[Python x64 installer](https://www.python.org/ftp/python/3.6.7/python-3.6.7-amd64.exe)
+* [SCons](http://prdownloads.sourceforge.net/scons/scons-3.1.1.zip)
 * C++ compiler
     * mingw-gcc: [Getting Started](http://www.mingw.org/wiki/Getting_Started) |
 	[Direct download](https://sourceforge.net/projects/mingw/files/latest/download)
@@ -54,7 +50,7 @@ If you are not sure whether your system is Windows x86 or Windows x64, use the p
 [SDL 1.2 x64 zip](https://www.libsdl.org/release/SDL-1.2.15-win32-x64.zip)
 * No published PhysFS package for Windows is known.
 You must [build it](https://hg.icculus.org/icculus/physfs/raw-file/bf155bd2127b/INSTALL.txt)
-from [source](https://icculus.org/physfs/downloads/physfs-2.0.3.tar.bz2).
+from [source](https://icculus.org/physfs/downloads/physfs-3.0.2.tar.bz2).
 You may be able avoid building from source by copying PhysFS DLLs from a
 previous Rebirth release and installing current PhysFS headers.
 However, building from source is recommended to ensure a consistent
@@ -62,6 +58,9 @@ environment.
 
 #### Linux
 Install the listed prerequisites through your system package manager.
+* Arch PKGBUILD files are in `contrib/arch/`
+* An RPM spec file is in `contrib/rpm/`
+* Gentoo ebuild files are in `contrib/gentoo/`
 
 ##### Arch
 * **pacman -S
