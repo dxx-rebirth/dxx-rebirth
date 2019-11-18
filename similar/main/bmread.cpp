@@ -237,7 +237,7 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 		return bitmap_num;
 	}
 
-	array<char, 20> fname;
+	array<char, 20> fname{};
 #if defined(DXX_BUILD_DESCENT_I)
 	removeext(filename, fname);
 #elif defined(DXX_BUILD_DESCENT_II)
