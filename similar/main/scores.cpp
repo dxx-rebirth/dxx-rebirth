@@ -323,7 +323,7 @@ static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx66 = fspacx(66);
 	const auto &&fspacy_y = FSPACY(y);
-	if (!stats->name[0])
+	if (!stats->name[0u])
 	{
 		gr_string(canvas, cv_font, fspacx66, fspacy_y, TXT_EMPTY);
 		return;
