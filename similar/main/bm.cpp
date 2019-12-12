@@ -674,6 +674,17 @@ int load_exit_models()
 	}
 #endif
 
+	con_printf(CON_VERBOSE, "Space to load %d textures, %d models\n", ObjBitmaps.size() - N_ObjBitmaps, MAX_POLYGON_MODELS - N_polygon_models);
+	// make sure there is enough space to load textures and models
+	if (N_ObjBitmaps > ObjBitmaps.size() - 6)
+	{
+		return 0;
+	}
+	if (N_polygon_models > MAX_POLYGON_MODELS - 2)
+	{
+		return 0;
+	}
+
 	start_num = N_ObjBitmaps;
 	if (!bm_load_extra_objbitmap("steel1.bbm") ||
 		!bm_load_extra_objbitmap("rbot061.bbm") ||
