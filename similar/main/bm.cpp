@@ -161,6 +161,7 @@ int gamedata_init()
 namespace dsx {
 
 // Read compiled properties data from descent.pig
+// (currently only ever called if D1)
 void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
@@ -295,6 +296,7 @@ int gamedata_init()
 
 namespace dsx {
 
+// (currently only ever called if EDITOR is set)
 void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
@@ -396,6 +398,7 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 }
 
 int extra_bitmap_num = 0;
+int Exit_models_loaded = 0; // only really used for D2
 
 static void bm_free_extra_objbitmaps()
 {
@@ -410,10 +413,12 @@ static void bm_free_extra_objbitmaps()
 		d_free(GameBitmaps[i].bm_mdata);
 	}
 	extra_bitmap_num = Num_bitmap_files;
+	Exit_models_loaded = 0;
 }
 
 static void bm_free_extra_models()
 {
+	Exit_models_loaded = 0;
 	const auto base = std::min(N_D2_POLYGON_MODELS.value, exit_modelnum);
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	range_for (auto &p, partial_range(Polygon_models, base, exchange(N_polygon_models, base)))
@@ -584,6 +589,7 @@ void load_robot_replacements(const d_fname &level_name)
  * Used by d1 levels (including some add-ons), and by d2 shareware.
  * Could potentially be used by d2 add-on levels, but only if they
  * don't use "extra" robots...
+ *     or maybe they do
  */
 
 // formerly exitmodel_bm_load_sub
@@ -640,12 +646,33 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 	}
 }
 
+static void bm_unload_last_objbitmaps(int count)
+{
+	extra_bitmap_num = Num_bitmap_files;
+	// unload last texture count times
+	while (count--)
+		d_free(GameBitmaps[ObjBitmaps[--N_ObjBitmaps].index].bm_mdata);
+}
+
+// only called for D2 registered, but there is a D1 check anyway for later
 int load_exit_models()
 {
 	int start_num;
 
+#if defined(DXX_BUILD_DESCENT_I)
 	bm_free_extra_models();
 	bm_free_extra_objbitmaps();
+#elif defined(DXX_BUILD_DESCENT_II)
+/*
+	don't free extra models -- ziplantil. it's our responsibility to make
+	sure the exit stuff is already loaded rather than loading it all again
+*/
+	if (Exit_models_loaded)
+	{
+		// loaded already
+		return 1;
+	}
+#endif
 
 	start_num = N_ObjBitmaps;
 	if (!bm_load_extra_objbitmap("steel1.bbm") ||
@@ -655,6 +682,8 @@ int load_exit_models()
 		!bm_load_extra_objbitmap("rbot061.bbm") ||
 		!bm_load_extra_objbitmap("rbot063.bbm"))
 	{
+		// unload the textures that we already loaded
+		bm_unload_last_objbitmaps(N_ObjBitmaps - start_num);
 		con_puts(CON_NORMAL, "Can't load exit models!");
 		return 0;
 	}
@@ -702,6 +731,8 @@ int load_exit_models()
 		case D1_OEM_PIGSIZE:
 		case D1_MAC_PIGSIZE:
 		case D1_MAC_SHARE_PIGSIZE:
+			// unload the textures that we already loaded
+			bm_unload_last_objbitmaps(N_ObjBitmaps - start_num);
 			con_puts(CON_NORMAL, "Can't load exit models!");
 			return 0;
 		}
@@ -717,10 +748,13 @@ int load_exit_models()
 		polygon_model_data_read(&Polygon_models[exit_modelnum], exit_hamfile);
 		polygon_model_data_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
 	} else {
+		// unload the textures that we already loaded
+		bm_unload_last_objbitmaps(N_ObjBitmaps - start_num);
 		con_puts(CON_NORMAL, "Can't load exit models!");
 		return 0;
 	}
 
+	Exit_models_loaded = 1;
 	return 1;
 }
 #endif

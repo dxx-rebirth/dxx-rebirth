@@ -150,6 +150,7 @@ extern int Robot_replacements_loaded;
 constexpr std::integral_constant<unsigned, 610> MAX_OBJ_BITMAPS{};
 extern unsigned N_ObjBitmaps;
 extern int extra_bitmap_num;
+extern int Exit_models_loaded;
 #endif
 
 extern int  Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed
