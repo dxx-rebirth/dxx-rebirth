@@ -674,7 +674,6 @@ int load_exit_models()
 	}
 #endif
 
-	con_printf(CON_VERBOSE, "Space to load %d textures, %d models\n", ObjBitmaps.size() - N_ObjBitmaps, MAX_POLYGON_MODELS - N_polygon_models);
 	// make sure there is enough space to load textures and models
 	if (N_ObjBitmaps > ObjBitmaps.size() - 6)
 	{
