@@ -195,11 +195,10 @@ void fuelcen_activate(const vmsegptridx_t segp)
 
 //------------------------------------------------------------
 //	Trigger (enable) the materialization center in segment segnum
-void trigger_matcen(const vmsegptridx_t segnum)
+void trigger_matcen(const vmsegptridx_t segp)
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
-	const auto &segp = segnum;
 	FuelCenter	*robotcen;
 
 	Assert(segp->special == SEGMENT_IS_ROBOTMAKER);
@@ -230,9 +229,9 @@ void trigger_matcen(const vmsegptridx_t segnum)
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &&pos = compute_segment_center(vcvertptr, segp);
-	const auto &&delta = vm_vec_sub(vcvertptr(segnum->verts[0]), pos);
+	const auto &&delta = vm_vec_sub(vcvertptr(segp->verts[0]), pos);
 	vm_vec_scale_add2(pos, delta, F1_0/2);
-	auto objnum = obj_create( OBJ_LIGHT, 0, segnum, pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
+	auto objnum = obj_create( OBJ_LIGHT, 0, segp, pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
 	if (objnum != object_none) {
 		objnum->lifeleft = MATCEN_LIFE;
 		objnum->ctype.light_info.intensity = i2f(8);	//	Light cast by a fuelcen.

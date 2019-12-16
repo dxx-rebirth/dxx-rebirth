@@ -1334,7 +1334,6 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 	auto &vmobjptr = Objects.vmptr;
 #endif
 	ubyte	color;
-	const auto &segnum = seg;
 	
 	for (unsigned sn = 0; sn < MAX_SIDES_PER_SEGMENT; ++sn)
 	{
@@ -1428,7 +1427,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			}
 		}
 	
-		if (segnum==Player_init[Player_num].segnum)
+		if (seg==Player_init[Player_num].segnum)
 			color = BM_XRGB(31,0,31);
 
 		if ( color != 255 )	{
@@ -1438,22 +1437,22 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			if (!Automap_debug_show_all_segments)
 			{
 			auto &player_info = get_local_plrobj().ctype.player_info;
-				if ((cheats.fullautomap || player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL) && !LevelUniqueAutomapState.Automap_visited[segnum])
+				if ((cheats.fullautomap || player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL) && !LevelUniqueAutomapState.Automap_visited[seg])
 				color = am->wall_revealed_color;
 			}
 			Here:
 #endif
-			const auto vertex_list = get_side_verts(segnum,sn);
+			const auto vertex_list = get_side_verts(seg,sn);
 			const uint8_t flags = hidden_flag | no_fade;
-			add_one_edge(am, vertex_list[0], vertex_list[1], color, sn, segnum, flags);
-			add_one_edge(am, vertex_list[1], vertex_list[2], color, sn, segnum, flags);
-			add_one_edge(am, vertex_list[2], vertex_list[3], color, sn, segnum, flags);
-			add_one_edge(am, vertex_list[3], vertex_list[0], color, sn, segnum, flags);
+			add_one_edge(am, vertex_list[0], vertex_list[1], color, sn, seg, flags);
+			add_one_edge(am, vertex_list[1], vertex_list[2], color, sn, seg, flags);
+			add_one_edge(am, vertex_list[2], vertex_list[3], color, sn, seg, flags);
+			add_one_edge(am, vertex_list[3], vertex_list[0], color, sn, seg, flags);
 
 			if ( is_grate )	{
 				const uint8_t grate_flags = flags | EF_GRATE;
-				add_one_edge(am, vertex_list[0], vertex_list[2], color, sn, segnum, grate_flags);
-				add_one_edge(am, vertex_list[1], vertex_list[3], color, sn, segnum, grate_flags);
+				add_one_edge(am, vertex_list[0], vertex_list[2], color, sn, seg, grate_flags);
+				add_one_edge(am, vertex_list[1], vertex_list[3], color, sn, seg, grate_flags);
 			}
 		}
 	}

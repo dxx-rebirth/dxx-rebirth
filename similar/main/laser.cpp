@@ -461,13 +461,11 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 		const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, temp_pos, last_segnum);
 		if (segnum != segment_none) {
 			last_segnum = segnum;
-			auto blob_objnum = obj_create(OBJ_WEAPON, weapon_id_type::OMEGA_ID, segnum, temp_pos, NULL, 0, CT_WEAPON, MT_PHYSICS, RT_WEAPON_VCLIP );
-			if (blob_objnum == object_none)
+			auto objp = obj_create(OBJ_WEAPON, weapon_id_type::OMEGA_ID, segnum, temp_pos, NULL, 0, CT_WEAPON, MT_PHYSICS, RT_WEAPON_VCLIP );
+			if (objp == object_none)
 				break;
 
-			last_created_objnum = blob_objnum;
-
-			auto &objp = blob_objnum;
+			last_created_objnum = objp;
 
 			objp->lifeleft = OMEGA_BASE_TIME+(d_rand()/8); // add little randomness so the lighting effect becomes a little more interesting
 			objp->mtype.phys_info.velocity = vec_to_goal;

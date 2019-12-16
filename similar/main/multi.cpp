@@ -1669,16 +1669,15 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 		if (weapon == primary_weapon_index_t::FUSION_INDEX) {
 			obj->ctype.player_info.Fusion_charge = flags << 12;
 		}
-		auto &objp = obj;
 		if (weapon == weapon_id_type::LASER_ID) {
-			auto &powerup_flags = objp->ctype.player_info.powerup_flags;
+			auto &powerup_flags = obj->ctype.player_info.powerup_flags;
 			if (flags & LASER_QUAD)
 				powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
 			else
 				powerup_flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 		}
 
-		do_laser_firing(objp, weapon, static_cast<int>(buf[3]), flags, static_cast<int>(buf[5]), shot_orientation, Network_laser_track);
+		do_laser_firing(obj, weapon, static_cast<int>(buf[3]), flags, static_cast<int>(buf[5]), shot_orientation, Network_laser_track);
 	}
 }
 
@@ -3788,7 +3787,7 @@ int multi_all_players_alive()
 	return (1);
 }
 
-void multi_send_drop_weapon(const vmobjptridx_t objnum, int seed)
+void multi_send_drop_weapon(const vmobjptridx_t objp, int seed)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -3796,7 +3795,6 @@ void multi_send_drop_weapon(const vmobjptridx_t objnum, int seed)
 	int ammo_count;
 
 	multi_send_position(vmobjptridx(get_local_player().objnum));
-	const auto &objp = objnum;
 	ammo_count = objp->ctype.powerup_info.count;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -3809,12 +3807,12 @@ void multi_send_drop_weapon(const vmobjptridx_t objnum, int seed)
 	count++;
 	multi_command<MULTI_DROP_WEAPON> multibuf;
 	multibuf[count++]=static_cast<char>(get_powerup_id(objp));
-	PUT_INTEL_SHORT(&multibuf[count], objnum); count += 2;
+	PUT_INTEL_SHORT(&multibuf[count], objp); count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], static_cast<uint16_t>(ammo_count)); count += 2;
 	PUT_INTEL_INT(&multibuf[count], seed);
 	count += 4;
 
-	map_objnum_local_to_local(objnum);
+	map_objnum_local_to_local(objp);
 
 	multi_send_data(multibuf, 2);
 }
