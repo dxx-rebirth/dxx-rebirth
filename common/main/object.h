@@ -236,21 +236,7 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 	fix multiplier = 0;         // Power if this is a fusion bolt (or other super weapon to be added).
 	uint_fast8_t test_set_hitobj(const vcobjidx_t o);
 	uint_fast8_t test_hitobj(const vcobjidx_t o) const;
-	icobjidx_t get_last_hitobj() const
-	{
-		if (!hitobj_count)
-			/* If no elements, return object_none */
-			return object_none;
-		/* Return the most recently written element.  `hitobj_pos`
-		 * indicates the element to write next, so return
-		 * hitobj_values[hitobj_pos - 1].  When hitobj_pos == 0, the
-		 * most recently written element is at the end of the array, not
-		 * before the beginning of the array.
-		 */
-		if (!hitobj_pos)
-			return hitobj_values.back();
-		return hitobj_values[hitobj_pos - 1];
-	}
+	icobjidx_t get_last_hitobj() const;
 	void clear_hitobj()
 	{
 		hitobj_pos = hitobj_count = 0;

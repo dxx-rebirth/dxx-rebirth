@@ -165,6 +165,22 @@ imobjptridx_t obj_find_first_of_type(fvmobjptridx &vmobjptridx, const object_typ
 
 namespace dcx {
 
+icobjidx_t laser_info::get_last_hitobj() const
+{
+	if (!hitobj_count)
+		/* If no elements, return object_none */
+		return object_none;
+	/* Return the most recently written element.  `hitobj_pos`
+	 * indicates the element to write next, so return
+	 * hitobj_values[hitobj_pos - 1].  When hitobj_pos == 0, the
+	 * most recently written element is at the end of the array, not
+	 * before the beginning of the array.
+	 */
+	if (!hitobj_pos)
+		return hitobj_values.back();
+	return hitobj_values[hitobj_pos - 1];
+}
+
 //draw an object that has one bitmap & doesn't rotate
 void draw_object_blob(grs_canvas &canvas, const object_base &obj, const bitmap_index bmi)
 {
