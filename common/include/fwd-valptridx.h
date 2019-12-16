@@ -75,14 +75,16 @@ protected:
 	using index_type = integral_type;	// deprecated; should be dedicated UDT
 
 	/* ptridx<policy> publicly inherits from idx<policy> and
-	 * ptr<policy>, but should not be implicitly sliced to one of
-	 * the base types.  To prevent slicing, idx and ptr take
-	 * a dummy parameter that is set to 0 for freestanding use and 1
-	 * when used as a base class.
+	 * ptr<policy>, but should not be implicitly sliced to one of the
+	 * base types.  To prevent slicing, define
+	 * DXX_VALPTRIDX_ENFORCE_STRICT_PI_SEPARATION to a non-zero value.
+	 * When enabled, slicing prevention makes *ptr and *idx derive from
+	 * ptr<policy> / idx<policy>.  When disabled, *ptr and *idx are
+	 * typedef aliases for ptr<policy> / idx<policy>.
 	 */
-	template <typename policy, unsigned>
+	template <typename policy>
 		class idx;
-	template <typename policy, unsigned>
+	template <typename policy>
 		class ptr;
 	template <typename policy>
 		class ptridx;
@@ -150,14 +152,12 @@ public:
 	typedef ptridx<im>	imptridx;
 	typedef ptridx<vc>	vcptridx;
 	typedef ptridx<vm>	vmptridx;
-	typedef idx<ic, 0>	icidx;
-	typedef idx<im, 0>	imidx;
-	typedef idx<vc, 0>	vcidx;
-	typedef idx<vm, 0>	vmidx;
-	typedef ptr<ic, 0>	icptr;
-	typedef ptr<im, 0>	imptr;
-	typedef ptr<vc, 0>	vcptr;
-	typedef ptr<vm, 0>	vmptr;
+
+#define DXX_VALPTRIDX_DECLARE_PI_TYPE(MANAGED_TYPE, DERIVED_TYPE_PREFIX, CONTEXT, PISUFFIX, IVPREFIX, MCPREFIX)	\
+	using IVPREFIX ## MCPREFIX ## PISUFFIX = typename specialized_types::template wrapper< PISUFFIX < IVPREFIX ## MCPREFIX > >
+	DXX_VALPTRIDX_FOR_EACH_IDX_TYPE(DXX_VALPTRIDX_DECLARE_PI_TYPE,,,);
+	DXX_VALPTRIDX_FOR_EACH_PTR_TYPE(DXX_VALPTRIDX_DECLARE_PI_TYPE,,,);
+#undef DXX_VALPTRIDX_DEFINE_PI_TYPE
 
 #define DXX_VALPTRIDX_MC_qualifier_m
 #define DXX_VALPTRIDX_MC_qualifier_c	const
