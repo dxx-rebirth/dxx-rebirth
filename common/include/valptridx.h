@@ -659,9 +659,9 @@ public:
 	{
 	}
 	template <typename rpolicy>
-		ptridx(ptridx<rpolicy> &&rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) :
-			vptr_type(static_cast<typename ptridx<rpolicy>::vptr_type &&>(rhs) DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_PASS_VARS),
-			vidx_type(static_cast<typename ptridx<rpolicy>::vidx_type &&>(rhs) DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_PASS_VARS)
+		ptridx(ptridx<rpolicy> &&rhs) :
+			vptr_type(static_cast<typename ptridx<rpolicy>::vptr_type &&>(rhs)),
+			vidx_type(static_cast<typename ptridx<rpolicy>::vidx_type &&>(rhs))
 	{
 	}
 	template <integral_type v>
