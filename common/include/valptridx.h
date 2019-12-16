@@ -335,7 +335,12 @@ public:
 
 	index_type get_unchecked_index() const { return m_idx; }
 
-	template <typename rpolicy, unsigned ru>
+	template <typename rpolicy, unsigned ru, typename std::enable_if<policy::allow_nullptr || !rpolicy::allow_nullptr, int>::type = 0>
+		idx(const idx<rpolicy, ru> &rhs) :
+			m_idx(rhs.get_unchecked_index())
+	{
+	}
+	template <typename rpolicy, unsigned ru, typename std::enable_if<!(policy::allow_nullptr || !rpolicy::allow_nullptr), int>::type = 0>
 		idx(const idx<rpolicy, ru> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) :
 			m_idx(rhs.get_unchecked_index())
 	{
@@ -344,8 +349,7 @@ public:
 		 * needed.
 		 * If moving from require_valid to anything, no check is needed.
 		 */
-		if (!(allow_nullptr || !rhs.allow_nullptr))
-			check_index_range<index_range_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS m_idx, nullptr);
+		check_index_range<index_range_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS m_idx, nullptr);
 	}
 	template <typename rpolicy, unsigned ru>
 		idx(idx<rpolicy, ru> &&rhs) :
@@ -478,12 +482,16 @@ public:
 	{
 		static_assert(static_cast<std::size_t>(v) < array_size, "valid magic index required when using array");
 	}
-	template <typename rpolicy, unsigned ru>
+	template <typename rpolicy, unsigned ru, typename std::enable_if<policy::allow_nullptr || !rpolicy::allow_nullptr, int>::type = 0>
+		ptr(const ptr<rpolicy, ru> &rhs) :
+			m_ptr(rhs.get_unchecked_pointer())
+	{
+	}
+	template <typename rpolicy, unsigned ru, typename std::enable_if<!(policy::allow_nullptr || !rpolicy::allow_nullptr), int>::type = 0>
 		ptr(const ptr<rpolicy, ru> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) :
 			m_ptr(rhs.get_unchecked_pointer())
 	{
-		if (!(allow_nullptr || !rhs.allow_nullptr))
-			check_null_pointer_conversion<null_pointer_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS m_ptr);
+		check_null_pointer_conversion<null_pointer_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS m_ptr);
 	}
 	template <typename rpolicy, unsigned ru>
 		ptr(ptr<rpolicy, ru> &&rhs) :
@@ -652,7 +660,13 @@ public:
 	/* Prevent implicit conversion.  Require use of the factory function.
 	 */
 	ptridx(pointer_type p) = delete;
-	template <typename rpolicy>
+	template <typename rpolicy, typename std::enable_if<policy::allow_nullptr || !rpolicy::allow_nullptr, int>::type = 0>
+		ptridx(const ptridx<rpolicy> &rhs) :
+			vptr_type(static_cast<const typename ptridx<rpolicy>::vptr_type &>(rhs)),
+			vidx_type(static_cast<const typename ptridx<rpolicy>::vidx_type &>(rhs))
+	{
+	}
+	template <typename rpolicy, typename std::enable_if<!(policy::allow_nullptr || !rpolicy::allow_nullptr), int>::type = 0>
 		ptridx(const ptridx<rpolicy> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) :
 			vptr_type(static_cast<const typename ptridx<rpolicy>::vptr_type &>(rhs) DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_PASS_VARS),
 			vidx_type(static_cast<const typename ptridx<rpolicy>::vidx_type &>(rhs) DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_PASS_VARS)
