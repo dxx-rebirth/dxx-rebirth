@@ -644,6 +644,7 @@ struct strong_typedef : T
 			T(std::forward<O>(o))
 	{
 	}
+	strong_typedef() = default;
 	strong_typedef(const strong_typedef &) = default;
 	strong_typedef(strong_typedef &&) = default;
 	strong_typedef &operator=(const strong_typedef &) & = default;
