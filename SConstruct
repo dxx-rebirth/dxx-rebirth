@@ -4163,7 +4163,7 @@ class DXXCommon(LazyObjectConstructor):
 		prior = False
 		for c in f(s):
 			# No xdigit support in str
-			if c in ' ()*+,-./:=[]_' or (c.isalnum() and not (prior and (c.isdigit() or c in 'abcdefABCDEF'))):
+			if c in '+,-./:=_' or (c.isalnum() and not (prior and (c.isdigit() or c in 'abcdefABCDEF'))):
 				r += c
 			elif c == '\n':
 				r += r'\n'
