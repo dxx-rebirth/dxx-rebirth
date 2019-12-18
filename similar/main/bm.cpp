@@ -296,7 +296,6 @@ int gamedata_init()
 
 namespace dsx {
 
-// (currently only ever called if EDITOR is set)
 void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
@@ -387,18 +386,19 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 	//@@PHYSFS_read( fp, controlcen_gun_points, sizeof(vms_vector), N_controlcen_guns );
 	//@@PHYSFS_read( fp, controlcen_gun_dirs, sizeof(vms_vector), N_controlcen_guns );
 
-	if (Piggy_hamfile_version < 3) {
+	if (Piggy_hamfile_version < 3) { // D1
 		exit_modelnum = PHYSFSX_readInt(fp);
 		destroyed_exit_modelnum = PHYSFSX_readInt(fp);
 	}
-	else
+	else	// D2: to be loaded later
 		exit_modelnum = destroyed_exit_modelnum = N_polygon_models;
 }
 
 }
 
 int extra_bitmap_num = 0;
-int Exit_models_loaded = 0; // only really used for D2
+bool Exit_models_loaded; // this and below only really used for D2
+bool Exit_bitmaps_loaded;
 
 static void bm_free_extra_objbitmaps()
 {
@@ -413,12 +413,12 @@ static void bm_free_extra_objbitmaps()
 		d_free(GameBitmaps[i].bm_mdata);
 	}
 	extra_bitmap_num = Num_bitmap_files;
-	Exit_models_loaded = 0;
+	Exit_bitmaps_loaded = false;
 }
 
 static void bm_free_extra_models()
 {
-	Exit_models_loaded = 0;
+	Exit_models_loaded = false;
 	const auto base = std::min(N_D2_POLYGON_MODELS.value, exit_modelnum);
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	range_for (auto &p, partial_range(Polygon_models, base, exchange(N_polygon_models, base)))
@@ -588,8 +588,7 @@ void load_robot_replacements(const d_fname &level_name)
  *
  * Used by d1 levels (including some add-ons), and by d2 shareware.
  * Could potentially be used by d2 add-on levels, but only if they
- * don't use "extra" robots...
- *     or maybe they do
+ * don't use "extra" robots... or maybe they do
  */
 
 // formerly exitmodel_bm_load_sub
@@ -646,15 +645,18 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 	}
 }
 
-static void bm_unload_last_objbitmaps(int count)
+static void bm_unload_last_objbitmaps(unsigned count)
 {
-	extra_bitmap_num = Num_bitmap_files;
-	// unload last texture count times
-	while (count--)
-		d_free(GameBitmaps[ObjBitmaps[--N_ObjBitmaps].index].bm_mdata);
+	assert(N_ObjBitmaps >= count);
+
+	unsigned new_N_ObjBitmaps = N_ObjBitmaps - count;
+	range_for (auto &o, partial_range(ObjBitmaps, new_N_ObjBitmaps, N_ObjBitmaps))
+		d_free(GameBitmaps[o.index].bm_mdata);
+	N_ObjBitmaps = new_N_ObjBitmaps;
 }
 
-// only called for D2 registered, but there is a D1 check anyway for later
+// only called for D2 registered, but there is a D1 check anyway for
+// possible later use
 int load_exit_models()
 {
 	int start_num;
@@ -667,36 +669,39 @@ int load_exit_models()
 	don't free extra models -- ziplantil. it's our responsibility to make
 	sure the exit stuff is already loaded rather than loading it all again
 */
-	if (Exit_models_loaded)
-	{
-		// loaded already
-		return 1;
-	}
 #endif
 
 	// make sure there is enough space to load textures and models
-	if (N_ObjBitmaps > ObjBitmaps.size() - 6)
+	if (!Exit_bitmaps_loaded && N_ObjBitmaps > ObjBitmaps.size() - 6)
 	{
 		return 0;
 	}
-	if (N_polygon_models > MAX_POLYGON_MODELS - 2)
+	if (!Exit_models_loaded && N_polygon_models > MAX_POLYGON_MODELS - 2)
 	{
 		return 0;
 	}
 
 	start_num = N_ObjBitmaps;
-	if (!bm_load_extra_objbitmap("steel1.bbm") ||
+	if (!Exit_bitmaps_loaded && (
+		!bm_load_extra_objbitmap("steel1.bbm") ||
 		!bm_load_extra_objbitmap("rbot061.bbm") ||
 		!bm_load_extra_objbitmap("rbot062.bbm") ||
 		!bm_load_extra_objbitmap("steel1.bbm") ||
 		!bm_load_extra_objbitmap("rbot061.bbm") ||
-		!bm_load_extra_objbitmap("rbot063.bbm"))
+		!bm_load_extra_objbitmap("rbot063.bbm")))
 	{
 		// unload the textures that we already loaded
 		bm_unload_last_objbitmaps(N_ObjBitmaps - start_num);
 		con_puts(CON_NORMAL, "Can't load exit models!");
 		return 0;
 	}
+
+	if (Exit_models_loaded)
+	{
+		// already loaded
+		return 1;
+	}
+
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	if (auto exit_hamfile = PHYSFSX_openReadBuffered("exit.ham"))
 	{
@@ -764,7 +769,7 @@ int load_exit_models()
 		return 0;
 	}
 
-	Exit_models_loaded = 1;
+	Exit_models_loaded = Exit_bitmaps_loaded = true;
 	return 1;
 }
 #endif

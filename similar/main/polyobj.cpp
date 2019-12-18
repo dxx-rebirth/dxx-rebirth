@@ -570,12 +570,12 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_mat
 
 void free_polygon_models()
 {
-#if defined(DXX_BUILD_DESCENT_II)
-	Exit_models_loaded = 0; // reload exit models again if needed
-#endif
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	range_for (auto &i, partial_range(Polygon_models, N_polygon_models))
 		free_model(i);
+#if defined(DXX_BUILD_DESCENT_II)
+	Exit_models_loaded = false;
+#endif
 }
 
 }
