@@ -399,6 +399,7 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 int extra_bitmap_num = 0;
 bool Exit_models_loaded; // this and below only really used for D2
 bool Exit_bitmaps_loaded;
+unsigned Exit_bitmap_index;
 
 static void bm_free_extra_objbitmaps()
 {
@@ -682,27 +683,32 @@ int load_exit_models()
 	}
 
 	start_num = N_ObjBitmaps;
-	if (!Exit_bitmaps_loaded && (
-		!bm_load_extra_objbitmap("steel1.bbm") ||
-		!bm_load_extra_objbitmap("rbot061.bbm") ||
-		!bm_load_extra_objbitmap("rbot062.bbm") ||
-		!bm_load_extra_objbitmap("steel1.bbm") ||
-		!bm_load_extra_objbitmap("rbot061.bbm") ||
-		!bm_load_extra_objbitmap("rbot063.bbm")))
+	if (!Exit_bitmaps_loaded)
 	{
-		// unload the textures that we already loaded
-		bm_unload_last_objbitmaps(N_ObjBitmaps - start_num);
-		con_puts(CON_NORMAL, "Can't load exit models!");
-		return 0;
-	}
-
-	if (Exit_models_loaded)
-	{
-		// already loaded
-		return 1;
+		if (!bm_load_extra_objbitmap("steel1.bbm") ||
+			!bm_load_extra_objbitmap("rbot061.bbm") ||
+			!bm_load_extra_objbitmap("rbot062.bbm") ||
+			!bm_load_extra_objbitmap("steel1.bbm") ||
+			!bm_load_extra_objbitmap("rbot061.bbm") ||
+			!bm_load_extra_objbitmap("rbot063.bbm"))
+		{
+			// unload the textures that we already loaded
+			bm_unload_last_objbitmaps(N_ObjBitmaps - start_num);
+			con_puts(CON_NORMAL, "Can't load exit models!");
+			return 0;
+		}	
+		Exit_bitmap_index = start_num;
 	}
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+	if (Exit_models_loaded && exit_modelnum < N_polygon_models && destroyed_exit_modelnum < N_polygon_models)
+	{
+		// already loaded, just adjust texture indexes
+		Polygon_models[exit_modelnum].first_texture = Exit_bitmap_index;
+		Polygon_models[destroyed_exit_modelnum].first_texture = Exit_bitmap_index+3;
+		return 1;
+	}
+
 	if (auto exit_hamfile = PHYSFSX_openReadBuffered("exit.ham"))
 	{
 		exit_modelnum = N_polygon_models++;
