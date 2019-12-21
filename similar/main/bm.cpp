@@ -662,15 +662,19 @@ int load_exit_models()
 {
 	int start_num;
 
-#if defined(DXX_BUILD_DESCENT_I)
-	bm_free_extra_models();
-	bm_free_extra_objbitmaps();
-#elif defined(DXX_BUILD_DESCENT_II)
 /*
-	don't free extra models -- ziplantil. it's our responsibility to make
-	sure the exit stuff is already loaded rather than loading it all again
+	don't free extra models in native D2 mode -- ziplantil. it's our
+	responsibility to make sure the exit stuff is already loaded rather than
+	loading it all again.
+
+	however, in D1 mode, we always need to reload everything due to how
+	the exit data is loaded (which is different from D2 native mode)
 */
-#endif
+	if (EMULATING_D1) // D1?
+	{
+		bm_free_extra_models();
+		bm_free_extra_objbitmaps();
+	}
 
 	// make sure there is enough space to load textures and models
 	if (!Exit_bitmaps_loaded && N_ObjBitmaps > ObjBitmaps.size() - 6)
@@ -775,7 +779,8 @@ int load_exit_models()
 		return 0;
 	}
 
-	Exit_models_loaded = Exit_bitmaps_loaded = true;
+	// set to be loaded, but only on D2 - always reload the data on D1
+	Exit_models_loaded = Exit_bitmaps_loaded = !EMULATING_D1;
 	return 1;
 }
 #endif
