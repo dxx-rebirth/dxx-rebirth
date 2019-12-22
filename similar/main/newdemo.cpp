@@ -676,7 +676,10 @@ static void nd_read_object(const vmobjptridx_t obj)
 	}
 
 
-	nd_read_vector(obj->last_pos);
+	{
+		vms_vector last_pos;
+		nd_read_vector(last_pos);
+	}
 	if ((obj->type == OBJ_WEAPON) && (obj->render_type == RT_WEAPON_VCLIP))
 		nd_read_fix(&(obj->lifeleft));
 	else {
@@ -864,7 +867,7 @@ static void nd_write_object(const vcobjptridx_t objp)
 	if (obj.type == OBJ_POWERUP)
 		nd_write_byte(obj.movement_type);
 
-	nd_write_vector(obj.last_pos);
+	nd_write_vector(obj.pos);
 
 	if (obj.type == OBJ_WEAPON && obj.render_type == RT_WEAPON_VCLIP)
 		nd_write_fix(obj.lifeleft);

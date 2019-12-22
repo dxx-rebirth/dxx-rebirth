@@ -388,7 +388,10 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 	obj->size           = PHYSFSX_readFix(f);
 	obj->shields        = PHYSFSX_readFix(f);
 
-	PHYSFSX_readVector(f, obj->last_pos);
+	{
+		vms_vector last_pos;
+		PHYSFSX_readVector(f, last_pos);
+	}
 
 	obj->contains_type  = PHYSFSX_readByte(f);
 	obj->contains_id    = PHYSFSX_readByte(f);
@@ -639,7 +642,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 	PHYSFSX_writeFix(f, obj.size);
 	PHYSFSX_writeFix(f, obj.shields);
 
-	PHYSFSX_writeVector(f, obj.last_pos);
+	PHYSFSX_writeVector(f, obj.pos);
 
 	PHYSFSX_writeU8(f, obj.contains_type);
 	PHYSFSX_writeU8(f, obj.contains_id);

@@ -5889,7 +5889,7 @@ void multi_object_to_object_rw(object &obj, object_rw *obj_rw)
 	obj_rw->orient = obj.orient;
 	obj_rw->size          = obj.size;
 	obj_rw->shields       = obj.shields;
-	obj_rw->last_pos    = obj.last_pos;
+	obj_rw->last_pos    = obj.pos;
 	obj_rw->contains_type = obj.contains_type;
 	obj_rw->contains_id   = obj.contains_id;
 	obj_rw->contains_count= obj.contains_count;
@@ -6050,7 +6050,6 @@ void multi_object_rw_to_object(object_rw *obj_rw, object &obj)
 	obj.orient = obj_rw->orient;
 	obj.size          = obj_rw->size;
 	obj.shields       = obj_rw->shields;
-	obj.last_pos    = obj_rw->last_pos;
 	obj.contains_type = obj_rw->contains_type;
 	obj.contains_id   = obj_rw->contains_id;
 	obj.contains_count= obj_rw->contains_count;

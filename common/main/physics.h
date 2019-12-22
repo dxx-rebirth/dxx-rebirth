@@ -48,7 +48,7 @@ struct phys_visited_seglist
 
 #ifdef dsx
 namespace dsx {
-window_event_result do_physics_sim(vmobjptridx_t obj, phys_visited_seglist *phys_segs);
+window_event_result do_physics_sim(vmobjptridx_t obj, const vms_vector &obj_previous_position, phys_visited_seglist *phys_segs);
 
 }
 #endif

@@ -315,7 +315,7 @@ public:
 //	-----------------------------------------------------------------------------------------------------------
 //Simulate a physics object for this frame
 namespace dsx {
-window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist *const phys_segs)
+window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &obj_previous_position, phys_visited_seglist *const phys_segs)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -502,9 +502,9 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 			if (n == segment_none)
 			{
 				//Int3();
-				if (obj->type == OBJ_PLAYER && (n = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj->last_pos, obj_segp)) != segment_none)
+				if (obj->type == OBJ_PLAYER && (n = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj_previous_position, obj_segp)) != segment_none)
 				{
-					obj->pos = obj->last_pos;
+					obj->pos = obj_previous_position;
 					obj_relink(vmobjptr, Segments.vmptr, obj, n);
 				}
 				else {
@@ -791,9 +791,9 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 
 			//Int3();
 			const auto &&obj_segp = Segments.vmptridx(obj->segnum);
-			if (obj->type == OBJ_PLAYER && (n = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj->last_pos, obj_segp)) != segment_none)
+			if (obj->type == OBJ_PLAYER && (n = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj_previous_position, obj_segp)) != segment_none)
 			{
-				obj->pos = obj->last_pos;
+				obj->pos = obj_previous_position;
 				obj_relink(vmobjptr, Segments.vmptr, obj, Segments.vmptridx(n));
 			}
 			else {

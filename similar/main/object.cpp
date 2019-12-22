@@ -1156,7 +1156,6 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 	obj->signature = object_signature_t(signature.get() + 1);
 	obj->type 				= type;
 	obj->id 				= id;
-	obj->last_pos				= pos;
 	obj->pos 				= pos;
 	obj->size 				= size;
 	obj->flags 				= 0;
@@ -1745,7 +1744,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 	const auto previous_segment = obj->segnum;
 	auto result = window_event_result::handled;
 
-	obj->last_pos = obj->pos;			// Save the current position
+	const auto obj_previous_position = obj->pos;			// Save the current position
 
 	if ((obj->type==OBJ_PLAYER) && (Player_num==get_player_id(obj)))	{
 		const auto &&segp = vmsegptr(obj->segnum);
@@ -1878,7 +1877,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 		case MT_NONE:			break;				//this doesn't move
 
 		case MT_PHYSICS:	//move by physics
-			result = do_physics_sim(obj, obj->type == OBJ_PLAYER ? (prepare_seglist = true, phys_visited_segs.nsegs = 0, &phys_visited_segs) : nullptr);
+			result = do_physics_sim(obj, obj_previous_position, obj->type == OBJ_PLAYER ? (prepare_seglist = true, phys_visited_segs.nsegs = 0, &phys_visited_segs) : nullptr);
 			break;
 
 		case MT_SPINNING:		spin_object(obj); break;
@@ -2035,6 +2034,7 @@ window_event_result object_move_all()
 		ConsoleObject->mtype.phys_info.flags |= PF_LEVELLING;
 	else
 		ConsoleObject->mtype.phys_info.flags &= ~PF_LEVELLING;
+	LevelUniqueObjectState.last_console_player_position = ConsoleObject->pos;
 
 	// Move all objects
 	range_for (const auto &&objp, vmobjptridx)

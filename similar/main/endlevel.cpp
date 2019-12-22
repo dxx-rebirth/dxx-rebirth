@@ -527,14 +527,13 @@ window_event_result do_endlevel_frame()
 	auto &vmobjptr = Objects.vmptr;
 	static fix timer;
 	static fix bank_rate;
-	vms_vector save_last_pos;
 	static fix explosion_wait1=0;
 	static fix explosion_wait2=0;
 	static fix ext_expl_halflife;
 
-	save_last_pos = ConsoleObject->last_pos;	//don't let move code change this
+	const auto save_last_pos = LevelUniqueObjectState.last_console_player_position;	//don't let move code change this
 	auto result = object_move_all();
-	ConsoleObject->last_pos = save_last_pos;
+	LevelUniqueObjectState.last_console_player_position = save_last_pos;
 
 	if (ext_expl_playing) {
 
@@ -866,7 +865,7 @@ static int find_exit_side(const object_base &obj)
 
 	//find exit side
 
-	vm_vec_normalized_dir_quick(prefvec, obj.pos, obj.last_pos);
+	vm_vec_normalized_dir_quick(prefvec, obj.pos, LevelUniqueObjectState.last_console_player_position);
 
 	const shared_segment &pseg = *vcsegptr(obj.segnum);
 	auto &Vertices = LevelSharedVertexState.get_vertices();

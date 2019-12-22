@@ -379,7 +379,6 @@ struct object_base
 	vms_matrix orient;      // orientation of object in world
 	fix     size;           // 3d size of object - for collision detection
 	fix     shields;        // Starts at maximum, when <0, object dies..
-	vms_vector last_pos;    // where object was last frame
 	sbyte   contains_type;  // Type of object this object contains (eg, spider contains powerup)
 	sbyte   contains_id;    // ID of object this object contains (eg, id = blue type = key)
 	sbyte   contains_count; // number of objects of type:id this object contains
@@ -665,6 +664,7 @@ struct d_level_unique_object_state
 	object_array Objects;
 	d_level_unique_boss_state BossState;
 	d_level_unique_control_center_state ControlCenterState;
+	vms_vector last_console_player_position;
 	auto &get_objects()
 	{
 		return Objects;

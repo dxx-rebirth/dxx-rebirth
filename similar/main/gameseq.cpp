@@ -352,7 +352,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 			vm_vec_scale(disp, fixmul(old_player_obj.size, size_scalar >> 1));
 			con_printf(CON_NORMAL, "Displace player %u at {%i, %i, %i} by {%i, %i, %i}.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, disp.x, disp.y, disp.z);
 			vm_vec_add2(Player_init[plridx].pos, disp);
-			plrobj.pos = plrobj.last_pos = Player_init[plridx].pos;
+			plrobj.pos = Player_init[plridx].pos;
 		};
 		for (unsigned extra_player_idx = preplaced_starts, displacements = 0; extra_player_idx < k; ++extra_player_idx)
 		{
