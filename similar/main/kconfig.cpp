@@ -105,19 +105,6 @@ const array<uint8_t, 19> system_keys{{
 
 fix Cruise_speed=0;
 
-#define BT_KEY 			0
-#define BT_MOUSE_BUTTON 	1
-#define BT_MOUSE_AXIS		2
-#define BT_JOY_BUTTON 		3
-#define BT_JOY_AXIS		4
-#define BT_INVERT		5
-#define STATE_NONE		0
-#define STATE_BIT1		1
-#define STATE_BIT2		2
-#define STATE_BIT3		4
-#define STATE_BIT4		8
-#define STATE_BIT5		16
-
 #define INFO_Y (188)
 
 namespace dcx {
@@ -141,14 +128,34 @@ control_info Controls;
 
 namespace {
 
+enum kc_type : uint8_t
+{
+	BT_KEY = 0,
+	BT_MOUSE_BUTTON = 1,
+	BT_MOUSE_AXIS = 2,
+	BT_JOY_BUTTON = 3,
+	BT_JOY_AXIS = 4,
+	BT_INVERT = 5,
+};
+
+enum kc_state : uint8_t
+{
+	STATE_NONE = 0,
+	STATE_BIT1 = 1,
+	STATE_BIT2 = 2,
+	STATE_BIT3 = 4,
+	STATE_BIT4 = 8,
+	STATE_BIT5 = 16,
+};
+
 struct kc_item
 {
 	const short x, y;              // x, y pos of label
 	const short xinput;                // x pos of input field
 	const int8_t w2;                // length of input field
 	const uint8_t u,d,l,r;           // neighboring field ids for cursor navigation
-	const uint8_t type;
-	const uint8_t state_bit;
+	const kc_type type;
+	const kc_state state_bit;
 	union {
 		uint8_t control_info::state_controls_t::*const ci_state_ptr;
 		uint8_t control_info::state_controls_t::*const ci_count_ptr;
