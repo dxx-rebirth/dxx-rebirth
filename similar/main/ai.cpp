@@ -2647,18 +2647,21 @@ static void ai_multi_send_robot_position(object &obj, int force)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Returns true if this object should be allowed to fire at the player.
-static int maybe_ai_do_actual_firing_stuff(object &obj, ai_static *aip)
+static int maybe_ai_do_actual_firing_stuff(object &obj)
 {
 	if (Game_mode & GM_MULTI)
-		if ((aip->GOAL_STATE != AIS_FLIN) && (get_robot_id(obj) != ROBOT_BRAIN))
+	{
+		auto &aip = obj.ctype.ai_info;
+		if (aip.GOAL_STATE != AIS_FLIN && get_robot_id(obj) != ROBOT_BRAIN)
 		{
-			const auto s = aip->CURRENT_STATE;
+			const auto s = aip.CURRENT_STATE;
 			if (s == AIS_FIRE)
 			{
 				static_assert(AIS_FIRE != 0, "AIS_FIRE must be nonzero for this shortcut to work properly.");
 				return s;
 			}
 		}
+	}
 
 	return 0;
 }
@@ -3084,7 +3087,7 @@ void do_ai_frame(const vmobjptridx_t obj)
 {
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	const objnum_t &objnum = obj;
-	ai_static	*aip = &obj->ctype.ai_info;
+	ai_static	*const aip = &obj->ctype.ai_info;
 	ai_local &ailp = obj->ctype.ai_info.ail;
 	int			obj_ref;
 	int			object_animates;
@@ -3688,7 +3691,7 @@ _exit_cheat:
 			if (player_visibility.visibility != player_visibility_state::visible_and_in_field_of_view && previous_visibility == player_visibility_state::visible_and_in_field_of_view)
 			{ // this is redundant: mk, 01/15/95: && (ailp->mode == ai_mode::AIM_CHASE_OBJECT))
 				if (!ai_multiplayer_awareness(obj, 53)) {
-					if (maybe_ai_do_actual_firing_stuff(obj, aip))
+					if (maybe_ai_do_actual_firing_stuff(obj))
 						ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 					return;
 				}
@@ -3737,7 +3740,7 @@ _exit_cheat:
 				}
 
 				if (!ai_multiplayer_awareness(obj, 64)) {
-					if (maybe_ai_do_actual_firing_stuff(obj, aip))
+					if (maybe_ai_do_actual_firing_stuff(obj))
 						ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 					return;
 				}
@@ -3747,7 +3750,7 @@ _exit_cheat:
 #endif
 			} else if ((aip->CURRENT_STATE != AIS_REST) && (aip->GOAL_STATE != AIS_REST)) {
 				if (!ai_multiplayer_awareness(obj, 70)) {
-					if (maybe_ai_do_actual_firing_stuff(obj, aip))
+					if (maybe_ai_do_actual_firing_stuff(obj))
 						ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 					return;
 				}
@@ -3861,7 +3864,7 @@ _exit_cheat:
 			compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 			if (!ai_multiplayer_awareness(obj, anger_level)) {
-				if (maybe_ai_do_actual_firing_stuff(obj, aip)) {
+				if (maybe_ai_do_actual_firing_stuff(obj)) {
 					ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 				}
 				return;
@@ -3931,7 +3934,7 @@ _exit_cheat:
 		case ai_mode::AIM_BEHIND:
 #endif
 			if (!ai_multiplayer_awareness(obj, 71)) {
-				if (maybe_ai_do_actual_firing_stuff(obj, aip)) {
+				if (maybe_ai_do_actual_firing_stuff(obj)) {
 					compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 					ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 				}
@@ -4005,7 +4008,7 @@ _exit_cheat:
 #endif
 				{
 					if (!ai_multiplayer_awareness(obj, 71)) {
-						if (maybe_ai_do_actual_firing_stuff(obj, aip))
+						if (maybe_ai_do_actual_firing_stuff(obj))
 							ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 						return;
 					}
@@ -4023,7 +4026,7 @@ _exit_cheat:
 					if (robptr.attack_type == 1) {
 						aip->behavior = ai_behavior::AIB_NORMAL;
 						if (!ai_multiplayer_awareness(obj, 80)) {
-							if (maybe_ai_do_actual_firing_stuff(obj, aip))
+							if (maybe_ai_do_actual_firing_stuff(obj))
 								ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 							return;
 						}
@@ -4032,7 +4035,7 @@ _exit_cheat:
 					} else {
 						// Robots in hover mode are allowed to evade at half normal speed.
 						if (!ai_multiplayer_awareness(obj, 81)) {
-							if (maybe_ai_do_actual_firing_stuff(obj, aip))
+							if (maybe_ai_do_actual_firing_stuff(obj))
 								ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 							return;
 						}
