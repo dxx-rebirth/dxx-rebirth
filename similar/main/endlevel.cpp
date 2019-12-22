@@ -531,9 +531,7 @@ window_event_result do_endlevel_frame()
 	static fix explosion_wait2=0;
 	static fix ext_expl_halflife;
 
-	const auto save_last_pos = LevelUniqueObjectState.last_console_player_position;	//don't let move code change this
-	auto result = object_move_all();
-	LevelUniqueObjectState.last_console_player_position = save_last_pos;
+	auto result = endlevel_move_all_objects();
 
 	if (ext_expl_playing) {
 

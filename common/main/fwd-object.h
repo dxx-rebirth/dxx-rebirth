@@ -244,7 +244,8 @@ void reset_objects(d_level_unique_object_state &, unsigned n_objs);
 void compress_objects();
 
 // move all objects for the current frame
-window_event_result object_move_all();     // moves all objects
+window_event_result game_move_all_objects();     // moves all objects
+window_event_result endlevel_move_all_objects();
 
 // set viewer object to next object in array
 void object_goto_next_viewer();

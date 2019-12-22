@@ -1856,7 +1856,7 @@ window_event_result GameProcessFrame()
 #ifndef NEWHOMER
 		player_info.homing_object_dist = -1; // Assume not being tracked.  Laser_do_weapon_sequence modifies this.
 #endif
-		result = std::max(object_move_all(), result);
+		result = std::max(game_move_all_objects(), result);
 		powerup_grab_cheat_all();
 
 		if (Endlevel_sequence)	//might have been started during move

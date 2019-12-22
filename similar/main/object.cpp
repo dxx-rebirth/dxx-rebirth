@@ -2019,7 +2019,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 
 //--------------------------------------------------------------------
 //move all objects for the current frame
-window_event_result object_move_all()
+static window_event_result object_move_all()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -2034,7 +2034,6 @@ window_event_result object_move_all()
 		ConsoleObject->mtype.phys_info.flags |= PF_LEVELLING;
 	else
 		ConsoleObject->mtype.phys_info.flags &= ~PF_LEVELLING;
-	LevelUniqueObjectState.last_console_player_position = ConsoleObject->pos;
 
 	// Move all objects
 	range_for (const auto &&objp, vmobjptridx)
@@ -2050,6 +2049,16 @@ window_event_result object_move_all()
 	return result;
 }
 
+window_event_result game_move_all_objects()
+{
+	LevelUniqueObjectState.last_console_player_position = ConsoleObject->pos;
+	return object_move_all();
+}
+
+window_event_result endlevel_move_all_objects()
+{
+	return object_move_all();
+}
 
 //--unused-- // -----------------------------------------------------------
 //--unused-- //	Moved here from eobject.c on 02/09/94 by MK.
