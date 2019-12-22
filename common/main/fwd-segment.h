@@ -158,7 +158,7 @@ using d_delta_light_array = array<delta_light, MAX_DELTA_LIGHTS>;
 
 void clear_light_subtracted();
 
-void segment2_write(vcsegptr_t s2, PHYSFS_File *fp);
+void segment2_write(const segment &s2, PHYSFS_File *fp);
 
 void delta_light_read(delta_light *dl, PHYSFS_File *fp);
 void delta_light_write(const delta_light *dl, PHYSFS_File *fp);

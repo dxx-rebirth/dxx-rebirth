@@ -572,7 +572,7 @@ void digi_sync_sounds()
                                 &s.volume, &s.pan, s.max_distance );
 
 			} else if ( s.flags & SOF_LINK_TO_OBJ )	{
-				const auto objp = [&vcobjptr, &s]{
+				const object &objp = [&vcobjptr, &s]{
 					if (Newdemo_state != ND_STATE_PLAYBACK)
 						return vcobjptr(s.link_type.obj.objnum);
 					auto objnum = newdemo_find_object(s.link_type.obj.objsignature);
@@ -581,7 +581,7 @@ void digi_sync_sounds()
 					return vcobjptr(object_first);
 				}();
 
-				if ((objp->type==OBJ_NONE) || (objp->signature!=s.link_type.obj.objsignature))	{
+				if ((objp.type==OBJ_NONE) || (objp.signature!=s.link_type.obj.objsignature))	{
 					// The object that this is linked to is dead, so just end this sound if it is looping.
 					if ( s.channel>-1 )	{
 						if (s.flags & SOF_PLAY_FOREVER)
@@ -593,7 +593,7 @@ void digi_sync_sounds()
 					s.flags = 0;	// Mark as dead, so some other sound can use this sound
 					continue;		// Go on to next sound...
 				} else {
-					digi_get_sound_loc(viewer->orient, viewer->pos, vcsegptridx(viewer->segnum), objp->pos, vcsegptridx(objp->segnum), s.max_volume,
+					digi_get_sound_loc(viewer->orient, viewer->pos, vcsegptridx(viewer->segnum), objp.pos, vcsegptridx(objp.segnum), s.max_volume,
                                    &s.volume, &s.pan, s.max_distance );
 				}
 			}

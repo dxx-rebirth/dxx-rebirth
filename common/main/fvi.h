@@ -95,7 +95,7 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data);
 //fills in u & v. if l is non-NULL fills it in also
 namespace dsx {
 __attribute_warn_unused_result
-fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, vcsegptridx_t seg, uint_fast32_t sidenum, uint_fast32_t facenum);
+fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const segment &seg, uint_fast32_t sidenum, uint_fast32_t facenum);
 }
 
 struct sphere_intersects_wall_result

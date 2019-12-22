@@ -74,7 +74,7 @@ static int Muzzle_queue_index;
 
 namespace dsx {
 static imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjptridx_t tracker, int track_obj_type1, int track_obj_type2);
-static imobjptridx_t find_homing_object(const vms_vector &curpos, const vmobjptridx_t tracker);
+static imobjptridx_t find_homing_object(const vms_vector &curpos, vmobjptridx_t tracker);
 
 //---------------------------------------------------------------------------------
 // Called by render code.... determines if the laser is from a robot or the
@@ -376,18 +376,18 @@ static int omega_cleanup(fvcobjptr &vcobjptr, const vmobjptridx_t weapon)
 }
 
 // Return true if ok to do Omega damage. For Multiplayer games. See comment for omega_cleanup()
-int ok_to_do_omega_damage(const vcobjptr_t weapon)
+int ok_to_do_omega_damage(const object &weapon)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	if (weapon->type != OBJ_WEAPON || get_weapon_id(weapon) != weapon_id_type::OMEGA_ID)
+	if (weapon.type != OBJ_WEAPON || get_weapon_id(weapon) != weapon_id_type::OMEGA_ID)
 		return 1;
 	if (!(Game_mode & GM_MULTI))
 		return 1;
-	auto &weapon_laser_info = weapon->ctype.laser_info;
+	auto &weapon_laser_info = weapon.ctype.laser_info;
 	auto &obj = *vcobjptr(weapon_laser_info.parent_num);
 	if (laser_parent_is_matching_signature(weapon_laser_info, obj))
-		if (vm_vec_dist2(obj.pos, weapon->pos) > MAX_OMEGA_DIST_SQUARED)
+		if (vm_vec_dist2(obj.pos, weapon.pos) > MAX_OMEGA_DIST_SQUARED)
 			return 0;
 
 	return 1;

@@ -105,7 +105,7 @@ extern const object *Ai_last_missile_camera;
 #endif
 
 namespace dsx {
-void create_awareness_event(vmobjptr_t objp, player_awareness_type_t type, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState);         // object *objp can create awareness of player, amount based on "type"
+void create_awareness_event(object &objp, player_awareness_type_t type, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState);         // object *objp can create awareness of player, amount based on "type"
 ai_mode ai_behavior_to_mode(ai_behavior behavior);
 void do_ai_robot_hit(vmobjptridx_t robot, player_awareness_type_t type);
 void init_ai_object(vmobjptridx_t objp, ai_behavior initial_mode, imsegidx_t hide_segment);
@@ -179,7 +179,7 @@ namespace dsx {
 void init_robots_for_level();
 #if defined(DXX_BUILD_DESCENT_II)
 int polish_path(vmobjptridx_t objp, point_seg *psegs, int num_points);
-void move_towards_player(vmobjptr_t objp, const vms_vector &vec_to_player);
+void move_towards_player(object &objp, const vms_vector &vec_to_player);
 #endif
 
 // max_length is maximum depth of path to create.
@@ -216,7 +216,7 @@ static inline void force_dump_ai_objects_all(const char *msg)
 #endif
 
 namespace dsx {
-void start_boss_death_sequence(vmobjptr_t objp);
+void start_boss_death_sequence(object &objp);
 extern void ai_init_boss_for_ship(void);
 void init_ai_for_ship();
 
@@ -314,7 +314,7 @@ int ai_save_state(PHYSFS_File * fp);
 int ai_restore_state(PHYSFS_File *fp, int version, int swap);
 
 #if DXX_USE_EDITOR
-void player_follow_path(vmobjptr_t objp);
+void player_follow_path(object &objp);
 void check_create_player_path();
 #endif
 }

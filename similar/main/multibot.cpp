@@ -60,10 +60,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 
 namespace dsx {
-static int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation);
+static int multi_add_controlled_robot(vmobjptridx_t objnum, int agitation);
 }
 static void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now);
-static void multi_send_release_robot(const vmobjptridx_t objnum);
+static void multi_send_release_robot(vmobjptridx_t objnum);
 static void multi_delete_controlled_robot(const vmobjptridx_t objnum);
 
 constexpr serial::endian_access::foreign_endian_type serial::endian_access::foreign_endian;
@@ -1277,7 +1277,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	}
 }
 
-void multi_drop_robot_powerups(const vmobjptridx_t del_obj)
+void multi_drop_robot_powerups(const vmobjptr_t del_obj)
 {
 	// Code to handle dropped robot powerups in network mode ONLY!
 

@@ -709,9 +709,9 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 //	Return true if current segment contains some object.
 static const object *segment_contains_powerup(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const unique_segment &segnum, const powerup_type_t obj_id)
 {
-	range_for (const auto objp, objects_in(segnum, vcobjptridx, vcsegptr))
+	range_for (const object &objp, objects_in(segnum, vcobjptridx, vcsegptr))
 	{
-		auto &o = *objp;
+		auto &o = objp;
 		if (o.type == OBJ_POWERUP && get_powerup_id(o) == obj_id)
 			return &o;
 	}
@@ -1086,9 +1086,9 @@ imobjptridx_t object_create_robot_egg(const int type, const int id, const int nu
 	return drop_robot_egg(type, id, num, init_vel, pos, segnum);
 }
 
-imobjptridx_t object_create_robot_egg(const vmobjptr_t objp)
+imobjptridx_t object_create_robot_egg(object &objp)
 {
-	return object_create_robot_egg(objp->contains_type, objp->contains_id, objp->contains_count, objp->mtype.phys_info.velocity, objp->pos, vmsegptridx(objp->segnum));
+	return object_create_robot_egg(objp.contains_type, objp.contains_id, objp.contains_count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum));
 }
 
 //	-------------------------------------------------------------------------------------------------------
@@ -1191,7 +1191,7 @@ void explode_object(const vmobjptridx_t hitobj,fix delay_time)
 
 		vclip_num = get_explosion_vclip(hitobj, explosion_vclip_stage::s0);
 
-		auto expl_obj = object_create_explosion(vmsegptridx(hitobj->segnum), hitobj->pos, fixmul(hitobj->size,EXPLOSION_SCALE), vclip_num);
+		imobjptr_t expl_obj = object_create_explosion(vmsegptridx(hitobj->segnum), hitobj->pos, fixmul(hitobj->size,EXPLOSION_SCALE), vclip_num);
 	
 		if (! expl_obj) {
 			maybe_delete_object(hitobj);		//no explosion, die instantly
@@ -1229,23 +1229,23 @@ void do_debris_frame(const vmobjptridx_t obj)
 }
 
 //do whatever needs to be done for this explosion for this frame
-void do_explosion_sequence(const vmobjptr_t obj)
+void do_explosion_sequence(object &obj)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
-	Assert(obj->control_type == CT_EXPLOSION);
+	Assert(obj.control_type == CT_EXPLOSION);
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 
 	//See if we should die of old age
-	if (obj->lifeleft <= 0 ) 	{	// We died of old age
-		obj->flags |= OF_SHOULD_BE_DEAD;
-		obj->lifeleft = 0;
+	if (obj.lifeleft <= 0 ) 	{	// We died of old age
+		obj.flags |= OF_SHOULD_BE_DEAD;
+		obj.lifeleft = 0;
 	}
 
 	//See if we should create a secondary explosion
-	if (obj->lifeleft <= obj->ctype.expl_info.spawn_time) {
-		auto del_obj = vmobjptridx(obj->ctype.expl_info.delete_objnum);
+	if (obj.lifeleft <= obj.ctype.expl_info.spawn_time) {
+		auto del_obj = vmobjptridx(obj.ctype.expl_info.delete_objnum);
 		auto &spawn_pos = del_obj->pos;
 		Assert(del_obj->type==OBJ_ROBOT || del_obj->type==OBJ_CLUTTER || del_obj->type==OBJ_CNTRLCEN || del_obj->type == OBJ_PLAYER);
 		Assert(del_obj->segnum != segment_none);
@@ -1294,7 +1294,7 @@ void do_explosion_sequence(const vmobjptr_t obj)
 			digi_link_sound_to_pos(robptr.exp2_sound_num, vmsegptridx(del_obj->segnum), 0, spawn_pos, 0, F1_0);
 			//PLAY_SOUND_3D( Robot_info[del_obj->id].exp2_sound_num, spawn_pos, del_obj->segnum  );
 
-		obj->ctype.expl_info.spawn_time = -1;
+		obj.ctype.expl_info.spawn_time = -1;
 
 		//make debris
 		if (del_obj->render_type==RT_POLYOBJ)
@@ -1319,9 +1319,9 @@ void do_explosion_sequence(const vmobjptr_t obj)
 	}
 
 	//See if we should delete an object
-	if (obj->lifeleft <= obj->ctype.expl_info.delete_time) {
-		const auto &&del_obj = vmobjptr(obj->ctype.expl_info.delete_objnum);
-		obj->ctype.expl_info.delete_time = -1;
+	if (obj.lifeleft <= obj.ctype.expl_info.delete_time) {
+		const auto &&del_obj = vmobjptr(obj.ctype.expl_info.delete_objnum);
+		obj.ctype.expl_info.delete_time = -1;
 		maybe_delete_object(del_obj);
 	}
 }
@@ -1448,16 +1448,16 @@ unsigned do_exploding_wall_frame(wall &w1)
 
 #if defined(DXX_BUILD_DESCENT_II)
 //creates afterburner blobs behind the specified object
-void drop_afterburner_blobs(const vmobjptr_t obj, int count, fix size_scale, fix lifetime)
+void drop_afterburner_blobs(object &obj, int count, fix size_scale, fix lifetime)
 {
-	auto pos_left = vm_vec_scale_add(obj->pos, obj->orient.fvec, -obj->size);
-	vm_vec_scale_add2(pos_left, obj->orient.rvec, -obj->size/4);
-	const auto pos_right = vm_vec_scale_add(pos_left, obj->orient.rvec, obj->size/2);
+	auto pos_left = vm_vec_scale_add(obj.pos, obj.orient.fvec, -obj.size);
+	vm_vec_scale_add2(pos_left, obj.orient.rvec, -obj.size/4);
+	const auto pos_right = vm_vec_scale_add(pos_left, obj.orient.rvec, obj.size/2);
 
 	if (count == 1)
 		vm_vec_avg(pos_left, pos_left, pos_right);
 
-	const auto &&objseg = Segments.vmptridx(obj->segnum);
+	const auto &&objseg = Segments.vmptridx(obj.segnum);
 	{
 		const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos_left, objseg);
 	if (segnum != segment_none)

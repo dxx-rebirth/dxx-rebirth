@@ -395,7 +395,7 @@ static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, con
 		multi_send_drop_marker(Player_num, plrobj.pos, player_marker_num, MarkerState.message[marker_num]);
 }
 
-void DropBuddyMarker(const vmobjptr_t objp)
+void DropBuddyMarker(object &objp)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -411,7 +411,7 @@ void DropBuddyMarker(const vmobjptr_t objp)
 	if (marker_objidx != object_none)
 		obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(marker_objidx));
 
-	marker_objidx = drop_marker_object(objp->pos, vmsegptridx(objp->segnum), objp->orient, marker_num);
+	marker_objidx = drop_marker_object(objp.pos, vmsegptridx(objp.segnum), objp.orient, marker_num);
 }
 
 #define MARKER_SPHERE_SIZE 0x58000

@@ -65,14 +65,14 @@ void collide_robot_and_materialization_center(vmobjptridx_t objp);
 #ifdef dsx
 namespace dsx {
 bool scrape_player_on_wall(vmobjptridx_t obj, vmsegptridx_t hitseg, unsigned hitwall, const vms_vector &hitpt);
-int maybe_detonate_weapon(vmobjptridx_t obj0p, vmobjptr_t obj, const vms_vector &pos);
+int maybe_detonate_weapon(vmobjptridx_t obj0p, object &obj, const vms_vector &pos);
 
 }
 #endif
 void collide_player_and_nasty_robot(vmobjptridx_t player, vmobjptridx_t robot, const vms_vector &collision_point);
 
 void net_destroy_controlcen(imobjptridx_t controlcen);
-void collide_live_local_player_and_powerup(const vmobjptridx_t powerup);
+void collide_live_local_player_and_powerup(vmobjptridx_t powerup);
 #if defined(DXX_BUILD_DESCENT_I)
 #define check_effect_blowup(DestructibleLightsState,Vclip,seg,side,pnt,blower,force_blowup_flag,remote) check_effect_blowup(Vclip,seg,side,pnt)
 #endif
@@ -81,7 +81,7 @@ namespace dsx {
 int check_effect_blowup(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, vmsegptridx_t seg, unsigned side, const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
 }
 #endif
-void apply_damage_to_controlcen(vmobjptridx_t controlcen, fix damage, vcobjptr_t who);
+void apply_damage_to_controlcen(vmobjptridx_t controlcen, fix damage, const object &who);
 void bump_one_object(object_base &obj0, const vms_vector &hit_dir, fix damage);
 #ifdef dsx
 namespace dsx {

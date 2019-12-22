@@ -708,7 +708,7 @@ static unsigned check_poke(fvcvertptr &vcvertptr, const object_base &obj, const 
 }
 
 namespace dsx {
-static unsigned is_door_side_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const vcsegptr_t seg, const unsigned side)
+static unsigned is_door_side_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const segment &seg, const unsigned side)
 {
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;

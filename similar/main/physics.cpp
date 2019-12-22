@@ -753,7 +753,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 	//hack to keep player from going through closed doors
 	if (obj->type==OBJ_PLAYER && obj->segnum!=orig_segnum && (!cheats.ghostphysics) ) {
 
-		const auto orig_segp = vcsegptr(orig_segnum);
+		const segment &orig_segp = vcsegptr(orig_segnum);
 		const auto &&sidenum = find_connect_side(vcsegptridx(obj->segnum), orig_segp);
 		if (sidenum != side_none)
 		{
@@ -764,7 +764,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, phys_visited_seglist
 
 				//bump object back
 
-				auto &s = orig_segp->shared_segment::sides[sidenum];
+				auto &s = orig_segp.shared_segment::sides[sidenum];
 
 				const auto v = create_abs_vertex_lists(orig_segp, s, sidenum);
 				const auto &vertex_list = v.second;

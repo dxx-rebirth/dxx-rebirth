@@ -1105,13 +1105,13 @@ void net_destroy_controlcen(const imobjptridx_t controlcen)
 }
 
 //	-----------------------------------------------------------------------------
-void apply_damage_to_controlcen(const vmobjptridx_t controlcen, fix damage, const vcobjptr_t who)
+void apply_damage_to_controlcen(const vmobjptridx_t controlcen, fix damage, const object &who)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int	whotype;
 
 	//	Only allow a player to damage the control center.
-	whotype = who->type;
+	whotype = who.type;
 	if (whotype != OBJ_PLAYER) {
 		return;
 	}
@@ -2242,7 +2242,7 @@ void collide_player_and_nasty_robot(const vmobjptridx_t playerobj, const vmobjpt
 	apply_damage_to_player(playerobj, robot, F1_0 * (GameUniqueState.Difficulty_level + 1), 0);
 }
 
-static vms_vector find_exit_direction(vms_vector result, const vcobjptr_t objp, const vcsegptr_t segp)
+static vms_vector find_exit_direction(vms_vector result, const object &objp, const segment &segp)
 {
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
@@ -2252,7 +2252,7 @@ static vms_vector find_exit_direction(vms_vector result, const vcobjptr_t objp, 
 		if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, side) & WID_FLY_FLAG)
 		{
 			const auto &&exit_point = compute_center_point_on_side(vcvertptr, segp, side);
-			vm_vec_add2(result, vm_vec_normalized_quick(vm_vec_sub(exit_point, objp->pos)));
+			vm_vec_add2(result, vm_vec_normalized_quick(vm_vec_sub(exit_point, objp.pos)));
 			break;
 		}
 	return result;
@@ -2352,10 +2352,10 @@ static void collide_player_and_clutter(const vmobjptridx_t  playerobj, const vmo
 //	See if weapon1 creates a badass explosion.  If so, create the explosion
 //	Return true if weapon does proximity (as opposed to only contact) damage when it explodes.
 namespace dsx {
-int maybe_detonate_weapon(const vmobjptridx_t weapon1, const vmobjptr_t weapon2, const vms_vector &collision_point)
+int maybe_detonate_weapon(const vmobjptridx_t weapon1, object &weapon2, const vms_vector &collision_point)
 {
 	if ( Weapon_info[get_weapon_id(weapon1)].damage_radius ) {
-		auto dist = vm_vec_dist_quick(weapon1->pos, weapon2->pos);
+		auto dist = vm_vec_dist_quick(weapon1->pos, weapon2.pos);
 		if (dist < F1_0*5) {
 			maybe_kill_weapon(weapon1,weapon2);
 			if (weapon1->flags & OF_SHOULD_BE_DEAD) {

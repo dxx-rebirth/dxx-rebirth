@@ -194,7 +194,7 @@ int Newdemo_num_written;
 ubyte DemoDoRight=0,DemoDoLeft=0;
 object DemoRightExtra,DemoLeftExtra;
 
-static void nd_render_extras (ubyte which,const vcobjptr_t obj);
+static void nd_render_extras (ubyte which,const object &obj);
 #endif
 
 // local var used for swapping endian demos
@@ -4352,7 +4352,7 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void nd_render_extras (ubyte which,const vcobjptr_t obj)
+static void nd_render_extras (ubyte which,const object &obj)
 {
 	ubyte w=which>>4;
 	ubyte type=which&15;
@@ -4366,11 +4366,11 @@ static void nd_render_extras (ubyte which,const vcobjptr_t obj)
 
 	if (w)
 	{
-		DemoRightExtra = *obj;  DemoDoRight=type;
+		DemoRightExtra = obj;  DemoDoRight=type;
 	}
 	else
 	{
-		DemoLeftExtra = *obj; DemoDoLeft=type;
+		DemoLeftExtra = obj; DemoDoLeft=type;
 	}
 
 }

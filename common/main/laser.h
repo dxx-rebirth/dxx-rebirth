@@ -108,7 +108,7 @@ void release_guided_missile(d_level_unique_object_state &, unsigned player_num);
 // Omega cannon stuff.
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw
 // NOTE: OMEGA_CHARGE_SCALE moved to laser.c to avoid long rebuilds if changed
-int ok_to_do_omega_damage(vcobjptr_t weapon);
+int ok_to_do_omega_damage(const object &weapon);
 void create_robot_smart_children(vmobjptridx_t objp, uint_fast32_t count);
 #endif
 

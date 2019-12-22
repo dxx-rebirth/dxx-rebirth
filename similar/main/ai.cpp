@@ -858,7 +858,7 @@ static void ai_frame_animation(object &objp)
 }
 
 // ----------------------------------------------------------------------------------
-static void set_next_fire_time(const vmobjptr_t objp, ai_local &ailp, const robot_info &robptr, const unsigned gun_num)
+static void set_next_fire_time(object &objp, ai_local &ailp, const robot_info &robptr, const unsigned gun_num)
 {
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -875,7 +875,7 @@ static void set_next_fire_time(const vmobjptr_t objp, ai_local &ailp, const robo
 #elif defined(DXX_BUILD_DESCENT_II)
 	//	For guys in snipe mode, they have a 50% shot of getting this shot in free.
 	if ((gun_num != 0) || (robptr.weapon_type2 == weapon_none))
-		if ((objp->ctype.ai_info.behavior != ai_behavior::AIB_SNIPE) || (d_rand() > 16384))
+		if ((objp.ctype.ai_info.behavior != ai_behavior::AIB_SNIPE) || (d_rand() > 16384))
 			ailp.rapidfire_count++;
 
 	//	Old way, 10/15/95: Continuous rapidfire if rapidfire_count set.
@@ -1279,7 +1279,7 @@ static void move_towards_vector(object_base &objp, const vms_vector &vec_goal, i
 #if defined(DXX_BUILD_DESCENT_I)
 static
 #endif
-void move_towards_player(const vmobjptr_t objp, const vms_vector &vec_to_player)
+void move_towards_player(object &objp, const vms_vector &vec_to_player)
 //	vec_to_player must be normalized, or close to it.
 {
 	move_towards_vector(objp, vec_to_player, 1);
@@ -2254,7 +2254,7 @@ static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx,
 }
 
 //	----------------------------------------------------------------------
-void start_boss_death_sequence(const vmobjptr_t objp)
+void start_boss_death_sequence(object &objp)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -2647,7 +2647,7 @@ static void ai_multi_send_robot_position(object &obj, int force)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Returns true if this object should be allowed to fire at the player.
-static int maybe_ai_do_actual_firing_stuff(const vmobjptr_t obj, ai_static *aip)
+static int maybe_ai_do_actual_firing_stuff(object &obj, ai_static *aip)
 {
 	if (Game_mode & GM_MULTI)
 		if ((aip->GOAL_STATE != AIS_FLIN) && (get_robot_id(obj) != ROBOT_BRAIN))
@@ -2938,9 +2938,9 @@ static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const vmobjptr_t robot,
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (auto &i, partial_const_range(bfs_list, bfs_length)) {
-		range_for (const auto objp, objects_in(vmsegptr(i), vmobjptridx, vmsegptr))
+		range_for (object &objp, objects_in(vmsegptr(i), vmobjptridx, vmsegptr))
 		{
-			object &obj = *objp;
+			object &obj = objp;
 			if (obj.type != OBJ_ROBOT)
 				continue;
 			if (obj.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
@@ -4382,7 +4382,7 @@ static int add_awareness_event(const object_base &objp, player_awareness_type_t 
 // ----------------------------------------------------------------------------------
 // Robots will become aware of the player based on something that occurred.
 // The object (probably player or weapon) which created the awareness is objp.
-void create_awareness_event(const vmobjptr_t objp, player_awareness_type_t type, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState)
+void create_awareness_event(object &objp, player_awareness_type_t type, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState)
 {
 	// If not in multiplayer, or in multiplayer with robots, do this, else unnecessary!
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))

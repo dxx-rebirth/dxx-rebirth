@@ -783,7 +783,7 @@ static bool obj_in_list(const vcobjidx_t objnum, const std::pair<const vcobjidx_
 }
 
 namespace dsx {
-static int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,int facenum);
+static int check_trans_wall(const vms_vector &pnt,vcsegptridx_t seg,int sidenum,int facenum);
 }
 
 static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segment_array_t &src)
@@ -1107,9 +1107,9 @@ quit_looking:
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also
 namespace dsx {
-fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, const uint_fast32_t sidenum, const uint_fast32_t facenum)
+fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const segment &seg, const uint_fast32_t sidenum, const uint_fast32_t facenum)
 {
-	auto &side = seg->shared_segment::sides[sidenum];
+	auto &side = seg.shared_segment::sides[sidenum];
 	fix k0,k1;
 	int i;
 
@@ -1162,7 +1162,7 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, co
 		k0 = fixdiv(fixmul(-k1,vec1.j) + checkp.j - p1.j,vec0.j);
 
 	array<uvl, 3> uvls;
-	auto &uside = seg->unique_segment::sides[sidenum];
+	auto &uside = seg.unique_segment::sides[sidenum];
 	for (i=0;i<3;i++)
 		uvls[i] = uside.uvls[vn[facenum * 3 + i].vertnum];
 
