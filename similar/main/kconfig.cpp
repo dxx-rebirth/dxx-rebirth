@@ -111,6 +111,7 @@ fix Cruise_speed=0;
 #define BT_JOY_BUTTON 		3
 #define BT_JOY_AXIS		4
 #define BT_INVERT		5
+#define STATE_NONE		0
 #define STATE_BIT1		1
 #define STATE_BIT2		2
 #define STATE_BIT3		4
