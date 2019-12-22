@@ -258,13 +258,13 @@ static void paging_touch_object(const d_level_shared_robot_info_state::d_robot_i
 
 	
 
-static void paging_touch_side(const d_eclip_array &Effects, const Textures_array &Textures, const d_vclip_array &Vclip, const segment &segp, int sidenum )
+static void paging_touch_side(const d_eclip_array &Effects, const Textures_array &Textures, const d_vclip_array &Vclip, const cscusegment segp, int sidenum )
 {
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 	if (!(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) & WID_RENDER_FLAG))
 		return;
-	auto &uside = segp.unique_segment::sides[sidenum];
+	auto &uside = segp.u.sides[sidenum];
 	const auto tmap1 = uside.tmap_num;
 	paging_touch_wall_effects(Effects, Textures, Vclip, tmap1);
 	if (const auto tmap2 = uside.tmap_num2)

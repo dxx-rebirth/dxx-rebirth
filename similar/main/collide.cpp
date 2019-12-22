@@ -2242,7 +2242,7 @@ void collide_player_and_nasty_robot(const vmobjptridx_t playerobj, const vmobjpt
 	apply_damage_to_player(playerobj, robot, F1_0 * (GameUniqueState.Difficulty_level + 1), 0);
 }
 
-static vms_vector find_exit_direction(vms_vector result, const object &objp, const segment &segp)
+static vms_vector find_exit_direction(vms_vector result, const object &objp, const cscusegment segp)
 {
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;

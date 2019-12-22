@@ -72,13 +72,13 @@ void dl_index_read(dl_index *di, PHYSFS_File *fp)
 	di->index = PHYSFSX_readShort(fp);
 }
 
-void segment2_write(const segment &s2, PHYSFS_File *fp)
+void segment2_write(const cscusegment s2, PHYSFS_File *fp)
 {
-	PHYSFSX_writeU8(fp, s2.special);
-	PHYSFSX_writeU8(fp, s2.matcen_num);
-	PHYSFSX_writeU8(fp, s2.station_idx);
-	PHYSFSX_writeU8(fp, s2.s2_flags);
-	PHYSFSX_writeFix(fp, s2.static_light);
+	PHYSFSX_writeU8(fp, s2.s.special);
+	PHYSFSX_writeU8(fp, s2.s.matcen_num);
+	PHYSFSX_writeU8(fp, s2.s.station_idx);
+	PHYSFSX_writeU8(fp, s2.s.s2_flags);
+	PHYSFSX_writeFix(fp, s2.u.static_light);
 }
 
 void delta_light_write(const delta_light *dl, PHYSFS_File *fp)
