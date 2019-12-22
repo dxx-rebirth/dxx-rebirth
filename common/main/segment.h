@@ -189,6 +189,38 @@ struct unique_segment
 struct segment : unique_segment, shared_segment
 {
 };
+
+template <typename S, typename U>
+struct susegment
+{
+	using qualified_segment = typename std::conditional<std::is_const<S>::value && std::is_const<U>::value, const segment, segment>::type;
+	S &s;
+	U &u;
+	constexpr susegment(qualified_segment &b) :
+		s(b), u(b)
+	{
+	}
+	constexpr susegment(const susegment &) = default;
+	constexpr susegment(susegment &&) = default;
+	template <typename S2, typename U2, typename std::enable_if<std::is_convertible<S2 &, S &>::value && std::is_convertible<U2 &, U &>::value, int>::type = 0>
+		constexpr susegment(const susegment<S2, U2> &r) :
+			s(r.s), u(r.u)
+	{
+	}
+	template <typename T, typename std::enable_if<std::is_convertible<T &&, qualified_segment &>::value, int>::type = 0>
+		constexpr susegment(T &&t) :
+			susegment(static_cast<qualified_segment &>(t))
+	{
+	}
+	operator S &() const
+	{
+		return s;
+	}
+	operator U &() const
+	{
+		return u;
+	}
+};
 #endif
 
 struct count_segment_array_t : public count_array_t<segnum_t, MAX_SEGMENTS> {};
