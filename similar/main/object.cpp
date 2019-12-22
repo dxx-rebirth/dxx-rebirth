@@ -586,11 +586,33 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 
 namespace dcx {
 objnum_t	Player_fired_laser_this_frame=object_none;
+
+static bool predicate_debris(const object_base &o)
+{
+	return o.type == OBJ_DEBRIS;
+}
+
+static bool predicate_flare(const object_base &o)
+{
+	return (o.type == OBJ_WEAPON) && (get_weapon_id(o) == weapon_id_type::FLARE_ID);
+}
+
+static bool predicate_nonflare_weapon(const object_base &o)
+{
+	return (o.type == OBJ_WEAPON) && (get_weapon_id(o) != weapon_id_type::FLARE_ID);
+}
+
 }
 
 
 
 namespace dsx {
+
+static bool predicate_fireball(const object &o)
+{
+	return o.type == OBJ_FIREBALL && o.ctype.expl_info.delete_objnum == object_none;
+}
+
 // -----------------------------------------------------------------------------
 //this routine checks to see if an robot rendered near the middle of
 //the screen, and if so and the player had fired, "warns" the robot
@@ -1061,13 +1083,13 @@ static void free_object_slots(uint_fast32_t num_used)
 
 	// Capture before num_to_free modified
 	const auto &&r = partial_const_range(obj_list, num_to_free);
-	auto l = [&vmobjptr, &r, &num_to_free](bool (*predicate)(const vcobjptr_t)) -> bool {
+	auto l = [&vmobjptr, &r, &num_to_free](const auto predicate) -> bool {
 		range_for (const auto i, r)
 		{
-			const auto &&o = vmobjptr(i);
+			auto &o = *vmobjptr(i);
 			if (predicate(o))
 			{
-				o->flags |= OF_SHOULD_BE_DEAD;
+				o.flags |= OF_SHOULD_BE_DEAD;
 				if (!-- num_to_free)
 					return true;
 			}
@@ -1075,19 +1097,15 @@ static void free_object_slots(uint_fast32_t num_used)
 		return false;
 	};
 
-	auto predicate_debris = [](const vcobjptr_t o) { return o->type == OBJ_DEBRIS; };
 	if (l(predicate_debris))
 		return;
 
-	auto predicate_fireball = [](const vcobjptr_t o) { return o->type == OBJ_FIREBALL && o->ctype.expl_info.delete_objnum == object_none; };
 	if (l(predicate_fireball))
 		return;
 
-	auto predicate_flare = [](const vcobjptr_t o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) == weapon_id_type::FLARE_ID); };
 	if (l(predicate_flare))
 		return;
 
-	auto predicate_nonflare_weapon = [](const vcobjptr_t o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) != weapon_id_type::FLARE_ID); };
 	if (l(predicate_nonflare_weapon))
 		return;
 }
