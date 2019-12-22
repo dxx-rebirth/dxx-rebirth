@@ -4630,6 +4630,16 @@ class DXXProgram(DXXCommon):
 			# Bypass ccache, if any, since this is a preprocess only
 			# call.
 			kwargs['CXXFLAGS'] = (env['CXXFLAGS'] or []) + ['-E']
+			kwargs['CPPDEFINES'] = (env['CPPDEFINES'] or []) + [
+					# Define these tokens to themselves so that
+					# `#ifndef` does not try to redefine them.
+					('DXX_KCONFIG_UI_ENUM', 'DXX_KCONFIG_UI_ENUM'),
+					('DXX_KCONFIG_UI_LABEL', 'DXX_KCONFIG_UI_LABEL'),
+					# Define this token to itself so that instances of
+					# the kc_item structure are defined in the output
+					# file.
+					('kc_item', 'kc_item'),
+					]
 			cpp_kconfig_udlr = env._rebirth_nopch_StaticObject(target=str(target)[:-1] + 'ui-table.i', source=source[:-3] + 'ui-table.cpp', CXXCOM=env._dxx_cxxcom_no_ccache_prefix, **kwargs)
 			generated_udlr_header = builddir.File('kconfig.udlr.h')
 			generate_kconfig_udlr = env.File('similar/main/generate-kconfig-udlr.py')

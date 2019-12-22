@@ -8,6 +8,20 @@
 #define DXX_SCONF_NO_INCLUDES
 #include "dxxsconf.h"
 
+/* These macros are present in the input text to pass information to the
+ * Python script `similar/main/generate-kconfig-udlr.py`.  Their content
+ * is made available to the compiler in generated definitions, rather
+ * than by exposing them in their original location in the source file.
+ * Instruct the preprocessor to remove them when performing a regular
+ * compile of the table. */
+#ifndef DXX_KCONFIG_UI_ENUM
+#define DXX_KCONFIG_UI_ENUM(ENUM)
+#endif
+
+#ifndef DXX_KCONFIG_UI_LABEL
+#define DXX_KCONFIG_UI_LABEL(LABEL)
+#endif
+
 #define DXX_KCONFIG_UI_UDLR3(A,B)	DXX_KCONFIG_UI_UDLR_A_ ## A ## _B_ ## B()
 #define DXX_KCONFIG_UI_UDLR2(A,B)	DXX_KCONFIG_UI_UDLR3(A,B)
 #define DXX_KCONFIG_UI_UDLR()	DXX_KCONFIG_UI_UDLR2(0,__LINE__)
@@ -34,6 +48,7 @@
 #define DXX_KCONFIG_UI_KEYBOARD_INPUT_X2_C1	241
 #define DXX_KCONFIG_UI_KEYBOARD_INPUT_X2_C2	270
 
+#ifdef kc_item
 //	  x,  y, xi, w2,  u,  d,   l, r, type, state_bit, state_ptr
 constexpr kc_item kc_keyboard[] = {
 	{DXX_KCONFIG_UI_KEYBOARD_LABEL_X1, DXX_KCONFIG_UI_KEYBOARD_X1_GROUP1_Y + DXX_KCONFIG_UI_ROW_CELL_HEIGHT( 0), DXX_KCONFIG_UI_KEYBOARD_INPUT_X1_C1, DXX_KCONFIG_UI_CELL_WIDTH, DXX_KCONFIG_UI_LABEL("Pitch forward") DXX_KCONFIG_UI_UDLR(), BT_KEY, STATE_BIT1, {&control_info::state_controls_t::key_pitch_forward} },
@@ -107,6 +122,7 @@ constexpr kc_item kc_keyboard[] = {
 	{DXX_KCONFIG_UI_KEYBOARD_LABEL_X2, DXX_KCONFIG_UI_KEYBOARD_X2_GROUP5_Y + DXX_KCONFIG_UI_ROW_CELL_HEIGHT(14), DXX_KCONFIG_UI_KEYBOARD_INPUT_X2_C1, DXX_KCONFIG_UI_CELL_WIDTH, DXX_KCONFIG_UI_LABEL("Toggle Bomb") DXX_KCONFIG_UI_UDLR(), BT_KEY, STATE_NONE, {&control_info::state_controls_t::toggle_bomb} },
 #endif
 };
+#endif
 
 #undef DXX_KCONFIG_UI_KEYBOARD_LABEL_X2
 #undef DXX_KCONFIG_UI_KEYBOARD_LABEL_X1
@@ -138,6 +154,7 @@ constexpr kc_item kc_keyboard[] = {
 #define DXX_KCONFIG_UI_JOYSTICK_AXES_INPUT_X2_C1	222
 #define DXX_KCONFIG_UI_JOYSTICK_AXES_INPUT_X2_CI	270
 
+#ifdef kc_item
 constexpr kc_item kc_joystick[] = {
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 	{DXX_KCONFIG_UI_JOYSTICK_BUTTONS_LABEL_X1, DXX_KCONFIG_UI_JOYSTICK_BUTTONS_TOP_Y + DXX_KCONFIG_UI_ROW_CELL_HEIGHT( 0), DXX_KCONFIG_UI_JOYSTICK_BUTTONS_INPUT_X1_C1, DXX_KCONFIG_UI_CELL_WIDTH, DXX_KCONFIG_UI_LABEL("Fire primary") DXX_KCONFIG_UI_UDLR(), BT_JOY_BUTTON, STATE_BIT3, {&control_info::state_controls_t::fire_primary} },
@@ -214,6 +231,7 @@ constexpr kc_item kc_joystick[] = {
 #endif
 #endif
 };
+#endif
 
 #undef DXX_KCONFIG_UI_JOYSTICK_AXES_INPUT_X2_CI
 #undef DXX_KCONFIG_UI_JOYSTICK_AXES_INPUT_X2_C1
@@ -243,6 +261,7 @@ constexpr kc_item kc_joystick[] = {
 #define DXX_KCONFIG_UI_MOUSE_BUTTONS_TOP_Y	DXX_KCONFIG_UI_MOUSE_TOP_Y
 #define DXX_KCONFIG_UI_MOUSE_AXES_TOP_Y	DXX_KCONFIG_UI_MOUSE_TOP_Y + 108
 
+#ifdef kc_item
 constexpr kc_item kc_mouse[] = {
 	{DXX_KCONFIG_UI_MOUSE_BUTTONS_LABEL_X1, DXX_KCONFIG_UI_MOUSE_BUTTONS_TOP_Y + DXX_KCONFIG_UI_ROW_CELL_HEIGHT( 0), DXX_KCONFIG_UI_MOUSE_BUTTONS_INPUT_X1, DXX_KCONFIG_UI_CELL_WIDTH, DXX_KCONFIG_UI_LABEL("Fire primary") DXX_KCONFIG_UI_UDLR(), BT_MOUSE_BUTTON, STATE_BIT5, {&control_info::state_controls_t::fire_primary} },
 	{DXX_KCONFIG_UI_MOUSE_BUTTONS_LABEL_X1, DXX_KCONFIG_UI_MOUSE_BUTTONS_TOP_Y + DXX_KCONFIG_UI_ROW_CELL_HEIGHT( 1), DXX_KCONFIG_UI_MOUSE_BUTTONS_INPUT_X1, DXX_KCONFIG_UI_CELL_WIDTH, DXX_KCONFIG_UI_LABEL("Fire secondary") DXX_KCONFIG_UI_UDLR(), BT_MOUSE_BUTTON, STATE_BIT5, {&control_info::state_controls_t::fire_secondary} },
@@ -280,6 +299,7 @@ constexpr kc_item kc_mouse[] = {
 	{DXX_KCONFIG_UI_MOUSE_BUTTONS_LABEL_X1, DXX_KCONFIG_UI_MOUSE_BUTTONS_TOP_Y + DXX_KCONFIG_UI_ROW_CELL_HEIGHT( 9), DXX_KCONFIG_UI_MOUSE_BUTTONS_INPUT_X1, DXX_KCONFIG_UI_CELL_WIDTH, DXX_KCONFIG_UI_LABEL("Cycle Secondary") DXX_KCONFIG_UI_UDLR(), BT_MOUSE_BUTTON, STATE_NONE, {&control_info::state_controls_t::cycle_secondary} },
 #endif
 };
+#endif
 
 #define DXX_KCONFIG_UI_WEAPON_KEYS_LABEL_X1	15
 #define DXX_KCONFIG_UI_WEAPON_KEYS_INPUT_X1_C1	157
@@ -287,6 +307,7 @@ constexpr kc_item kc_mouse[] = {
 #define DXX_KCONFIG_UI_WEAPON_KEYS_INPUT_X1_C3	273
 #define DXX_KCONFIG_UI_WEAPON_KEYS_TOP_Y	69
 
+#ifdef kc_item
 constexpr kc_item kc_rebirth[] = {
 	{DXX_KCONFIG_UI_WEAPON_KEYS_LABEL_X1, DXX_KCONFIG_UI_WEAPON_KEYS_TOP_Y + DXX_KCONFIG_UI_ROW_CELL_HEIGHT( 0), DXX_KCONFIG_UI_WEAPON_KEYS_INPUT_X1_C1, DXX_KCONFIG_UI_CELL_WIDTH, DXX_KCONFIG_UI_LABEL(WEAPON_STRING_LASER) DXX_KCONFIG_UI_UDLR(), BT_KEY, STATE_NONE, {&control_info::state_controls_t::select_weapon} },
 	{DXX_KCONFIG_UI_WEAPON_KEYS_LABEL_X1, DXX_KCONFIG_UI_WEAPON_KEYS_TOP_Y + DXX_KCONFIG_UI_ROW_CELL_HEIGHT( 0), DXX_KCONFIG_UI_WEAPON_KEYS_INPUT_X1_C2, DXX_KCONFIG_ITEM_JOY_WIDTH(DXX_KCONFIG_UI_CELL_WIDTH), DXX_KCONFIG_UI_UDLR(), BT_JOY_BUTTON, STATE_NONE, {&control_info::state_controls_t::select_weapon} },
@@ -319,6 +340,7 @@ constexpr kc_item kc_rebirth[] = {
 	{DXX_KCONFIG_UI_WEAPON_KEYS_LABEL_X1, DXX_KCONFIG_UI_WEAPON_KEYS_TOP_Y + DXX_KCONFIG_UI_ROW_CELL_HEIGHT( 9), DXX_KCONFIG_UI_WEAPON_KEYS_INPUT_X1_C2, DXX_KCONFIG_ITEM_JOY_WIDTH(DXX_KCONFIG_UI_CELL_WIDTH), DXX_KCONFIG_UI_UDLR(), BT_JOY_BUTTON, STATE_NONE, {&control_info::state_controls_t::select_weapon} },
 	{DXX_KCONFIG_UI_WEAPON_KEYS_LABEL_X1, DXX_KCONFIG_UI_WEAPON_KEYS_TOP_Y + DXX_KCONFIG_UI_ROW_CELL_HEIGHT( 9), DXX_KCONFIG_UI_WEAPON_KEYS_INPUT_X1_C3, DXX_KCONFIG_UI_CELL_WIDTH, DXX_KCONFIG_UI_UDLR(), BT_MOUSE_BUTTON, STATE_NONE, {&control_info::state_controls_t::select_weapon} },
 };
+#endif
 
 #undef DXX_KCONFIG_UI_WEAPON_KEYS_INPUT_X1_C3
 #undef DXX_KCONFIG_UI_WEAPON_KEYS_INPUT_X1_C2

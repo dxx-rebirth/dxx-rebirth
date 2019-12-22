@@ -148,6 +148,7 @@ enum kc_state : uint8_t
 	STATE_BIT5 = 16,
 };
 
+#define kc_item kc_item
 struct kc_item
 {
 	const short x, y;              // x, y pos of label
