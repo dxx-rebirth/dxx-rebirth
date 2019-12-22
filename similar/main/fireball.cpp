@@ -573,7 +573,7 @@ static imsegidx_t pick_connected_drop_segment(const segment_array &Segments, fvc
 	{
 		if (!IS_CHILD(ch))
 			continue;
-		auto &childsegp = *Segments.vcptr(ch);
+		const shared_segment &childsegp = *Segments.vcptr(ch);
 		if (childsegp.special == SEGMENT_IS_CONTROLCEN)
 			return segment_none;
 	}

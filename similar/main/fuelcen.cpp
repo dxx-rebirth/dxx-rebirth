@@ -96,7 +96,7 @@ void fuelcen_reset()
 	DXX_MAKE_MEM_UNDEFINED(RobotCenters.begin(), RobotCenters.end());
 	LevelSharedRobotcenterState.Num_robot_centers = 0;
 	LevelUniqueFuelcenterState.Num_fuelcenters = 0;
-	range_for (auto &i, Segments)
+	range_for (shared_segment &i, Segments)
 		i.special = SEGMENT_IS_NOTHING;
 }
 
@@ -105,7 +105,7 @@ static void reset_all_robot_centers() __attribute_used;
 static void reset_all_robot_centers()
 {
 	// Remove all materialization centers
-	range_for (auto &i, partial_range(Segments, LevelSharedSegmentState.Num_segments))
+	range_for (shared_segment &i, partial_range(Segments, LevelSharedSegmentState.Num_segments))
 		if (i.special == SEGMENT_IS_ROBOTMAKER)
 		{
 			i.special = SEGMENT_IS_NOTHING;

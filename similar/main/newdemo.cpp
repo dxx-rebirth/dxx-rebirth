@@ -2813,8 +2813,8 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD)) {
 				assert(tmap != 0);
-				auto &s0 = *vmsegptr(seg);
-				auto &tmap_num2 = s0.unique_segment::sides[side].tmap_num2;
+				unique_segment &s0 = *vmsegptr(seg);
+				auto &tmap_num2 = s0.sides[side].tmap_num2;
 				assert(tmap_num2 != 0);
 				tmap_num2 = vmsegptr(cseg)->unique_segment::sides[cside].tmap_num2 = tmap;
 			}

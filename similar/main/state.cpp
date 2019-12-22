@@ -2008,7 +2008,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		}
 		else
 		{
-			range_for (auto &i, partial_range(Segments, MAX_SEGMENTS_ORIGINAL))
+			range_for (unique_segment &i, partial_range(Segments, MAX_SEGMENTS_ORIGINAL))
 			{
 				PHYSFS_read(fp, &i.light_subtracted, sizeof(i.light_subtracted), 1);
 			}

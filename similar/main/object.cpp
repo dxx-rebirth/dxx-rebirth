@@ -890,7 +890,7 @@ void init_objects()
 		obj.type = OBJ_NONE;
 	}
 
-	range_for (auto &j, Segments)
+	range_for (unique_segment &j, Segments)
 		j.objects = object_none;
 
 	Viewer = ConsoleObject = &Objects.front();

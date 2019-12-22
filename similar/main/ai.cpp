@@ -2153,11 +2153,11 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 		visited_segment_bitarray_t visited;
 
 		while (tail != head) {
-			auto &segp = *vmsegptr(seg_queue[tail++]);
+			const cscusegment segp = *vmsegptr(seg_queue[tail++]);
 
 			tail &= QUEUE_SIZE-1;
 
-			range_for (const auto &&es, enumerate(segp.children))
+			range_for (const auto &&es, enumerate(segp.s.children))
 			{
 				const uint_fast32_t sidenum = es.idx;
 				const auto w = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum);
@@ -3429,7 +3429,7 @@ _exit_cheat:
 	// If in materialization center, exit
 	if (!(Game_mode & GM_MULTI))
 	{
-		const auto &seg = *vcsegptr(obj->segnum);
+		const shared_segment &seg = *vcsegptr(obj->segnum);
 		if (seg.special == SEGMENT_IS_ROBOTMAKER)
 		{
 #if defined(DXX_BUILD_DESCENT_II)

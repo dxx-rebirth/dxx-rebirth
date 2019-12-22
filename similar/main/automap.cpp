@@ -1386,9 +1386,9 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 				} else if (!(WallAnims[w.clip_num].flags & WCF_HIDDEN)) {
 					auto connected_seg = seg->children[sn];
 					if (connected_seg != segment_none) {
-						auto &vcseg = *vcsegptr(connected_seg);
+						const shared_segment &vcseg = *vcsegptr(connected_seg);
 						const auto &connected_side = find_connect_side(seg, vcseg);
-						auto &wall = *vcwallptr(vcseg.shared_segment::sides[connected_side].wall_num);
+						auto &wall = *vcwallptr(vcseg.sides[connected_side].wall_num);
 						switch (wall.keys)
 						{
 							case KEY_BLUE:
