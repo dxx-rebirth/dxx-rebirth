@@ -141,134 +141,134 @@ struct relocated_player_data
 // Following functions convert object to object_rw and back to be written to/read from Savegames. Mostly object differs to object_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 // turn object to object_rw to be saved to Savegame.
 namespace dsx {
-static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *const obj_rw)
+static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw)
 {
-	const auto otype = obj->type;
+	const auto otype = obj.type;
 	obj_rw->type = otype;
-	obj_rw->signature     = obj->signature.get();
-	obj_rw->id            = obj->id;
-	obj_rw->next          = obj->next;
-	obj_rw->prev          = obj->prev;
-	obj_rw->control_type  = obj->control_type;
-	obj_rw->movement_type = obj->movement_type;
-	obj_rw->render_type   = obj->render_type;
-	obj_rw->flags         = obj->flags;
-	obj_rw->segnum        = obj->segnum;
-	obj_rw->attached_obj  = obj->attached_obj;
-	obj_rw->pos.x         = obj->pos.x;
-	obj_rw->pos.y         = obj->pos.y;
-	obj_rw->pos.z         = obj->pos.z;
-	obj_rw->orient.rvec.x = obj->orient.rvec.x;
-	obj_rw->orient.rvec.y = obj->orient.rvec.y;
-	obj_rw->orient.rvec.z = obj->orient.rvec.z;
-	obj_rw->orient.fvec.x = obj->orient.fvec.x;
-	obj_rw->orient.fvec.y = obj->orient.fvec.y;
-	obj_rw->orient.fvec.z = obj->orient.fvec.z;
-	obj_rw->orient.uvec.x = obj->orient.uvec.x;
-	obj_rw->orient.uvec.y = obj->orient.uvec.y;
-	obj_rw->orient.uvec.z = obj->orient.uvec.z;
-	obj_rw->size          = obj->size;
-	obj_rw->shields       = obj->shields;
-	obj_rw->last_pos    = obj->last_pos;
-	obj_rw->contains_type = obj->contains_type;
-	obj_rw->contains_id   = obj->contains_id;
-	obj_rw->contains_count= obj->contains_count;
-	obj_rw->matcen_creator= obj->matcen_creator;
-	obj_rw->lifeleft      = obj->lifeleft;
+	obj_rw->signature     = obj.signature.get();
+	obj_rw->id            = obj.id;
+	obj_rw->next          = obj.next;
+	obj_rw->prev          = obj.prev;
+	obj_rw->control_type  = obj.control_type;
+	obj_rw->movement_type = obj.movement_type;
+	obj_rw->render_type   = obj.render_type;
+	obj_rw->flags         = obj.flags;
+	obj_rw->segnum        = obj.segnum;
+	obj_rw->attached_obj  = obj.attached_obj;
+	obj_rw->pos.x         = obj.pos.x;
+	obj_rw->pos.y         = obj.pos.y;
+	obj_rw->pos.z         = obj.pos.z;
+	obj_rw->orient.rvec.x = obj.orient.rvec.x;
+	obj_rw->orient.rvec.y = obj.orient.rvec.y;
+	obj_rw->orient.rvec.z = obj.orient.rvec.z;
+	obj_rw->orient.fvec.x = obj.orient.fvec.x;
+	obj_rw->orient.fvec.y = obj.orient.fvec.y;
+	obj_rw->orient.fvec.z = obj.orient.fvec.z;
+	obj_rw->orient.uvec.x = obj.orient.uvec.x;
+	obj_rw->orient.uvec.y = obj.orient.uvec.y;
+	obj_rw->orient.uvec.z = obj.orient.uvec.z;
+	obj_rw->size          = obj.size;
+	obj_rw->shields       = obj.shields;
+	obj_rw->last_pos    = obj.pos;
+	obj_rw->contains_type = obj.contains_type;
+	obj_rw->contains_id   = obj.contains_id;
+	obj_rw->contains_count= obj.contains_count;
+	obj_rw->matcen_creator= obj.matcen_creator;
+	obj_rw->lifeleft      = obj.lifeleft;
 
 	switch (obj_rw->movement_type)
 	{
 		case MT_PHYSICS:
-			obj_rw->mtype.phys_info.velocity.x  = obj->mtype.phys_info.velocity.x;
-			obj_rw->mtype.phys_info.velocity.y  = obj->mtype.phys_info.velocity.y;
-			obj_rw->mtype.phys_info.velocity.z  = obj->mtype.phys_info.velocity.z;
-			obj_rw->mtype.phys_info.thrust.x    = obj->mtype.phys_info.thrust.x;
-			obj_rw->mtype.phys_info.thrust.y    = obj->mtype.phys_info.thrust.y;
-			obj_rw->mtype.phys_info.thrust.z    = obj->mtype.phys_info.thrust.z;
-			obj_rw->mtype.phys_info.mass        = obj->mtype.phys_info.mass;
-			obj_rw->mtype.phys_info.drag        = obj->mtype.phys_info.drag;
+			obj_rw->mtype.phys_info.velocity.x  = obj.mtype.phys_info.velocity.x;
+			obj_rw->mtype.phys_info.velocity.y  = obj.mtype.phys_info.velocity.y;
+			obj_rw->mtype.phys_info.velocity.z  = obj.mtype.phys_info.velocity.z;
+			obj_rw->mtype.phys_info.thrust.x    = obj.mtype.phys_info.thrust.x;
+			obj_rw->mtype.phys_info.thrust.y    = obj.mtype.phys_info.thrust.y;
+			obj_rw->mtype.phys_info.thrust.z    = obj.mtype.phys_info.thrust.z;
+			obj_rw->mtype.phys_info.mass        = obj.mtype.phys_info.mass;
+			obj_rw->mtype.phys_info.drag        = obj.mtype.phys_info.drag;
 			obj_rw->mtype.phys_info.obsolete_brakes = 0;
-			obj_rw->mtype.phys_info.rotvel.x    = obj->mtype.phys_info.rotvel.x;
-			obj_rw->mtype.phys_info.rotvel.y    = obj->mtype.phys_info.rotvel.y;
-			obj_rw->mtype.phys_info.rotvel.z    = obj->mtype.phys_info.rotvel.z;
-			obj_rw->mtype.phys_info.rotthrust.x = obj->mtype.phys_info.rotthrust.x;
-			obj_rw->mtype.phys_info.rotthrust.y = obj->mtype.phys_info.rotthrust.y;
-			obj_rw->mtype.phys_info.rotthrust.z = obj->mtype.phys_info.rotthrust.z;
-			obj_rw->mtype.phys_info.turnroll    = obj->mtype.phys_info.turnroll;
-			obj_rw->mtype.phys_info.flags       = obj->mtype.phys_info.flags;
+			obj_rw->mtype.phys_info.rotvel.x    = obj.mtype.phys_info.rotvel.x;
+			obj_rw->mtype.phys_info.rotvel.y    = obj.mtype.phys_info.rotvel.y;
+			obj_rw->mtype.phys_info.rotvel.z    = obj.mtype.phys_info.rotvel.z;
+			obj_rw->mtype.phys_info.rotthrust.x = obj.mtype.phys_info.rotthrust.x;
+			obj_rw->mtype.phys_info.rotthrust.y = obj.mtype.phys_info.rotthrust.y;
+			obj_rw->mtype.phys_info.rotthrust.z = obj.mtype.phys_info.rotthrust.z;
+			obj_rw->mtype.phys_info.turnroll    = obj.mtype.phys_info.turnroll;
+			obj_rw->mtype.phys_info.flags       = obj.mtype.phys_info.flags;
 			break;
 			
 		case MT_SPINNING:
-			obj_rw->mtype.spin_rate.x = obj->mtype.spin_rate.x;
-			obj_rw->mtype.spin_rate.y = obj->mtype.spin_rate.y;
-			obj_rw->mtype.spin_rate.z = obj->mtype.spin_rate.z;
+			obj_rw->mtype.spin_rate.x = obj.mtype.spin_rate.x;
+			obj_rw->mtype.spin_rate.y = obj.mtype.spin_rate.y;
+			obj_rw->mtype.spin_rate.z = obj.mtype.spin_rate.z;
 			break;
 	}
 	
 	switch (obj_rw->control_type)
 	{
 		case CT_WEAPON:
-			obj_rw->ctype.laser_info.parent_type      = obj->ctype.laser_info.parent_type;
-			obj_rw->ctype.laser_info.parent_num       = obj->ctype.laser_info.parent_num;
-			obj_rw->ctype.laser_info.parent_signature = obj->ctype.laser_info.parent_signature.get();
-			if (obj->ctype.laser_info.creation_time - GameTime64 < F1_0*(-18000))
+			obj_rw->ctype.laser_info.parent_type      = obj.ctype.laser_info.parent_type;
+			obj_rw->ctype.laser_info.parent_num       = obj.ctype.laser_info.parent_num;
+			obj_rw->ctype.laser_info.parent_signature = obj.ctype.laser_info.parent_signature.get();
+			if (obj.ctype.laser_info.creation_time - GameTime64 < F1_0*(-18000))
 				obj_rw->ctype.laser_info.creation_time = F1_0*(-18000);
 			else
-				obj_rw->ctype.laser_info.creation_time = obj->ctype.laser_info.creation_time - GameTime64;
-			obj_rw->ctype.laser_info.last_hitobj      = obj->ctype.laser_info.get_last_hitobj();
-			obj_rw->ctype.laser_info.track_goal       = obj->ctype.laser_info.track_goal;
-			obj_rw->ctype.laser_info.multiplier       = obj->ctype.laser_info.multiplier;
+				obj_rw->ctype.laser_info.creation_time = obj.ctype.laser_info.creation_time - GameTime64;
+			obj_rw->ctype.laser_info.last_hitobj      = obj.ctype.laser_info.get_last_hitobj();
+			obj_rw->ctype.laser_info.track_goal       = obj.ctype.laser_info.track_goal;
+			obj_rw->ctype.laser_info.multiplier       = obj.ctype.laser_info.multiplier;
 			break;
 			
 		case CT_EXPLOSION:
-			obj_rw->ctype.expl_info.spawn_time    = obj->ctype.expl_info.spawn_time;
-			obj_rw->ctype.expl_info.delete_time   = obj->ctype.expl_info.delete_time;
-			obj_rw->ctype.expl_info.delete_objnum = obj->ctype.expl_info.delete_objnum;
-			obj_rw->ctype.expl_info.attach_parent = obj->ctype.expl_info.attach_parent;
-			obj_rw->ctype.expl_info.prev_attach   = obj->ctype.expl_info.prev_attach;
-			obj_rw->ctype.expl_info.next_attach   = obj->ctype.expl_info.next_attach;
+			obj_rw->ctype.expl_info.spawn_time    = obj.ctype.expl_info.spawn_time;
+			obj_rw->ctype.expl_info.delete_time   = obj.ctype.expl_info.delete_time;
+			obj_rw->ctype.expl_info.delete_objnum = obj.ctype.expl_info.delete_objnum;
+			obj_rw->ctype.expl_info.attach_parent = obj.ctype.expl_info.attach_parent;
+			obj_rw->ctype.expl_info.prev_attach   = obj.ctype.expl_info.prev_attach;
+			obj_rw->ctype.expl_info.next_attach   = obj.ctype.expl_info.next_attach;
 			break;
 			
 		case CT_AI:
 		{
 			int i;
-			obj_rw->ctype.ai_info.behavior               = static_cast<uint8_t>(obj->ctype.ai_info.behavior);
+			obj_rw->ctype.ai_info.behavior               = static_cast<uint8_t>(obj.ctype.ai_info.behavior);
 			for (i = 0; i < MAX_AI_FLAGS; i++)
-				obj_rw->ctype.ai_info.flags[i]       = obj->ctype.ai_info.flags[i]; 
-			obj_rw->ctype.ai_info.hide_segment           = obj->ctype.ai_info.hide_segment;
-			obj_rw->ctype.ai_info.hide_index             = obj->ctype.ai_info.hide_index;
-			obj_rw->ctype.ai_info.path_length            = obj->ctype.ai_info.path_length;
-			obj_rw->ctype.ai_info.cur_path_index         = obj->ctype.ai_info.cur_path_index;
-			obj_rw->ctype.ai_info.danger_laser_num       = obj->ctype.ai_info.danger_laser_num;
-			if (obj->ctype.ai_info.danger_laser_num != object_none)
-				obj_rw->ctype.ai_info.danger_laser_signature = obj->ctype.ai_info.danger_laser_signature.get();
+				obj_rw->ctype.ai_info.flags[i]       = obj.ctype.ai_info.flags[i]; 
+			obj_rw->ctype.ai_info.hide_segment           = obj.ctype.ai_info.hide_segment;
+			obj_rw->ctype.ai_info.hide_index             = obj.ctype.ai_info.hide_index;
+			obj_rw->ctype.ai_info.path_length            = obj.ctype.ai_info.path_length;
+			obj_rw->ctype.ai_info.cur_path_index         = obj.ctype.ai_info.cur_path_index;
+			obj_rw->ctype.ai_info.danger_laser_num       = obj.ctype.ai_info.danger_laser_num;
+			if (obj.ctype.ai_info.danger_laser_num != object_none)
+				obj_rw->ctype.ai_info.danger_laser_signature = obj.ctype.ai_info.danger_laser_signature.get();
 			else
 				obj_rw->ctype.ai_info.danger_laser_signature = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 			obj_rw->ctype.ai_info.follow_path_start_seg  = segment_none;
 			obj_rw->ctype.ai_info.follow_path_end_seg    = segment_none;
 #elif defined(DXX_BUILD_DESCENT_II)
-			obj_rw->ctype.ai_info.dying_sound_playing    = obj->ctype.ai_info.dying_sound_playing;
-			if (obj->ctype.ai_info.dying_start_time == 0) // if bot not dead, anything but 0 will kill it
+			obj_rw->ctype.ai_info.dying_sound_playing    = obj.ctype.ai_info.dying_sound_playing;
+			if (obj.ctype.ai_info.dying_start_time == 0) // if bot not dead, anything but 0 will kill it
 				obj_rw->ctype.ai_info.dying_start_time = 0;
 			else
-				obj_rw->ctype.ai_info.dying_start_time = obj->ctype.ai_info.dying_start_time - GameTime64;
+				obj_rw->ctype.ai_info.dying_start_time = obj.ctype.ai_info.dying_start_time - GameTime64;
 #endif
 			break;
 		}
 			
 		case CT_LIGHT:
-			obj_rw->ctype.light_info.intensity = obj->ctype.light_info.intensity;
+			obj_rw->ctype.light_info.intensity = obj.ctype.light_info.intensity;
 			break;
 			
 		case CT_POWERUP:
-			obj_rw->ctype.powerup_info.count         = obj->ctype.powerup_info.count;
+			obj_rw->ctype.powerup_info.count         = obj.ctype.powerup_info.count;
 #if defined(DXX_BUILD_DESCENT_II)
-			if (obj->ctype.powerup_info.creation_time - GameTime64 < F1_0*(-18000))
+			if (obj.ctype.powerup_info.creation_time - GameTime64 < F1_0*(-18000))
 				obj_rw->ctype.powerup_info.creation_time = F1_0*(-18000);
 			else
-				obj_rw->ctype.powerup_info.creation_time = obj->ctype.powerup_info.creation_time - GameTime64;
-			obj_rw->ctype.powerup_info.flags         = obj->ctype.powerup_info.flags;
+				obj_rw->ctype.powerup_info.creation_time = obj.ctype.powerup_info.creation_time - GameTime64;
+			obj_rw->ctype.powerup_info.flags         = obj.ctype.powerup_info.flags;
 #endif
 			break;
 	}
@@ -280,18 +280,18 @@ static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *const obj
 		case RT_NONE: // HACK below
 		{
 			int i;
-			if (obj->render_type == RT_NONE && obj->type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time. Here it's not important, but it might be for Multiplayer Savegames.
+			if (obj.render_type == RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time. Here it's not important, but it might be for Multiplayer Savegames.
 				break;
-			obj_rw->rtype.pobj_info.model_num                = obj->rtype.pobj_info.model_num;
+			obj_rw->rtype.pobj_info.model_num                = obj.rtype.pobj_info.model_num;
 			for (i=0;i<MAX_SUBMODELS;i++)
 			{
-				obj_rw->rtype.pobj_info.anim_angles[i].p = obj->rtype.pobj_info.anim_angles[i].p;
-				obj_rw->rtype.pobj_info.anim_angles[i].b = obj->rtype.pobj_info.anim_angles[i].b;
-				obj_rw->rtype.pobj_info.anim_angles[i].h = obj->rtype.pobj_info.anim_angles[i].h;
+				obj_rw->rtype.pobj_info.anim_angles[i].p = obj.rtype.pobj_info.anim_angles[i].p;
+				obj_rw->rtype.pobj_info.anim_angles[i].b = obj.rtype.pobj_info.anim_angles[i].b;
+				obj_rw->rtype.pobj_info.anim_angles[i].h = obj.rtype.pobj_info.anim_angles[i].h;
 			}
-			obj_rw->rtype.pobj_info.subobj_flags             = obj->rtype.pobj_info.subobj_flags;
-			obj_rw->rtype.pobj_info.tmap_override            = obj->rtype.pobj_info.tmap_override;
-			obj_rw->rtype.pobj_info.alt_textures             = obj->rtype.pobj_info.alt_textures;
+			obj_rw->rtype.pobj_info.subobj_flags             = obj.rtype.pobj_info.subobj_flags;
+			obj_rw->rtype.pobj_info.tmap_override            = obj.rtype.pobj_info.tmap_override;
+			obj_rw->rtype.pobj_info.alt_textures             = obj.rtype.pobj_info.alt_textures;
 			break;
 		}
 			
@@ -299,9 +299,9 @@ static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *const obj
 		case RT_HOSTAGE:
 		case RT_POWERUP:
 		case RT_FIREBALL:
-			obj_rw->rtype.vclip_info.vclip_num = obj->rtype.vclip_info.vclip_num;
-			obj_rw->rtype.vclip_info.frametime = obj->rtype.vclip_info.frametime;
-			obj_rw->rtype.vclip_info.framenum  = obj->rtype.vclip_info.framenum;
+			obj_rw->rtype.vclip_info.vclip_num = obj.rtype.vclip_info.vclip_num;
+			obj_rw->rtype.vclip_info.frametime = obj.rtype.vclip_info.frametime;
+			obj_rw->rtype.vclip_info.framenum  = obj.rtype.vclip_info.framenum;
 			break;
 			
 		case RT_LASER:
@@ -311,140 +311,139 @@ static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *const obj
 }
 
 // turn object_rw to object after reading from Savegame
-static void state_object_rw_to_object(const object_rw *const obj_rw, const vmobjptr_t obj)
+static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 {
-	*obj = {};
-	DXX_POISON_VAR(*obj, 0xfd);
-	set_object_type(*obj, obj_rw->type);
-	if (obj->type == OBJ_NONE)
+	obj = {};
+	DXX_POISON_VAR(obj, 0xfd);
+	set_object_type(obj, obj_rw->type);
+	if (obj.type == OBJ_NONE)
 	{
-		obj->signature = object_signature_t{0};
+		obj.signature = object_signature_t{0};
 		return;
 	}
 
-	obj->signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
-	obj->id            = obj_rw->id;
-	obj->next          = obj_rw->next;
-	obj->prev          = obj_rw->prev;
-	obj->control_type  = obj_rw->control_type;
-	set_object_movement_type(*obj, obj_rw->movement_type);
-	obj->render_type   = obj_rw->render_type;
-	obj->flags         = obj_rw->flags;
-	obj->segnum        = obj_rw->segnum;
-	obj->attached_obj  = obj_rw->attached_obj;
-	obj->pos.x         = obj_rw->pos.x;
-	obj->pos.y         = obj_rw->pos.y;
-	obj->pos.z         = obj_rw->pos.z;
-	obj->orient.rvec.x = obj_rw->orient.rvec.x;
-	obj->orient.rvec.y = obj_rw->orient.rvec.y;
-	obj->orient.rvec.z = obj_rw->orient.rvec.z;
-	obj->orient.fvec.x = obj_rw->orient.fvec.x;
-	obj->orient.fvec.y = obj_rw->orient.fvec.y;
-	obj->orient.fvec.z = obj_rw->orient.fvec.z;
-	obj->orient.uvec.x = obj_rw->orient.uvec.x;
-	obj->orient.uvec.y = obj_rw->orient.uvec.y;
-	obj->orient.uvec.z = obj_rw->orient.uvec.z;
-	obj->size          = obj_rw->size;
-	obj->shields       = obj_rw->shields;
-	obj->last_pos    = obj_rw->last_pos;
-	obj->contains_type = obj_rw->contains_type;
-	obj->contains_id   = obj_rw->contains_id;
-	obj->contains_count= obj_rw->contains_count;
-	obj->matcen_creator= obj_rw->matcen_creator;
-	obj->lifeleft      = obj_rw->lifeleft;
+	obj.signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
+	obj.id            = obj_rw->id;
+	obj.next          = obj_rw->next;
+	obj.prev          = obj_rw->prev;
+	obj.control_type  = obj_rw->control_type;
+	set_object_movement_type(obj, obj_rw->movement_type);
+	obj.render_type   = obj_rw->render_type;
+	obj.flags         = obj_rw->flags;
+	obj.segnum        = obj_rw->segnum;
+	obj.attached_obj  = obj_rw->attached_obj;
+	obj.pos.x         = obj_rw->pos.x;
+	obj.pos.y         = obj_rw->pos.y;
+	obj.pos.z         = obj_rw->pos.z;
+	obj.orient.rvec.x = obj_rw->orient.rvec.x;
+	obj.orient.rvec.y = obj_rw->orient.rvec.y;
+	obj.orient.rvec.z = obj_rw->orient.rvec.z;
+	obj.orient.fvec.x = obj_rw->orient.fvec.x;
+	obj.orient.fvec.y = obj_rw->orient.fvec.y;
+	obj.orient.fvec.z = obj_rw->orient.fvec.z;
+	obj.orient.uvec.x = obj_rw->orient.uvec.x;
+	obj.orient.uvec.y = obj_rw->orient.uvec.y;
+	obj.orient.uvec.z = obj_rw->orient.uvec.z;
+	obj.size          = obj_rw->size;
+	obj.shields       = obj_rw->shields;
+	obj.contains_type = obj_rw->contains_type;
+	obj.contains_id   = obj_rw->contains_id;
+	obj.contains_count= obj_rw->contains_count;
+	obj.matcen_creator= obj_rw->matcen_creator;
+	obj.lifeleft      = obj_rw->lifeleft;
 	
-	switch (obj->movement_type)
+	switch (obj.movement_type)
 	{
 		case MT_NONE:
 			break;
 		case MT_PHYSICS:
-			obj->mtype.phys_info.velocity.x  = obj_rw->mtype.phys_info.velocity.x;
-			obj->mtype.phys_info.velocity.y  = obj_rw->mtype.phys_info.velocity.y;
-			obj->mtype.phys_info.velocity.z  = obj_rw->mtype.phys_info.velocity.z;
-			obj->mtype.phys_info.thrust.x    = obj_rw->mtype.phys_info.thrust.x;
-			obj->mtype.phys_info.thrust.y    = obj_rw->mtype.phys_info.thrust.y;
-			obj->mtype.phys_info.thrust.z    = obj_rw->mtype.phys_info.thrust.z;
-			obj->mtype.phys_info.mass        = obj_rw->mtype.phys_info.mass;
-			obj->mtype.phys_info.drag        = obj_rw->mtype.phys_info.drag;
-			obj->mtype.phys_info.rotvel.x    = obj_rw->mtype.phys_info.rotvel.x;
-			obj->mtype.phys_info.rotvel.y    = obj_rw->mtype.phys_info.rotvel.y;
-			obj->mtype.phys_info.rotvel.z    = obj_rw->mtype.phys_info.rotvel.z;
-			obj->mtype.phys_info.rotthrust.x = obj_rw->mtype.phys_info.rotthrust.x;
-			obj->mtype.phys_info.rotthrust.y = obj_rw->mtype.phys_info.rotthrust.y;
-			obj->mtype.phys_info.rotthrust.z = obj_rw->mtype.phys_info.rotthrust.z;
-			obj->mtype.phys_info.turnroll    = obj_rw->mtype.phys_info.turnroll;
-			obj->mtype.phys_info.flags       = obj_rw->mtype.phys_info.flags;
+			obj.mtype.phys_info.velocity.x  = obj_rw->mtype.phys_info.velocity.x;
+			obj.mtype.phys_info.velocity.y  = obj_rw->mtype.phys_info.velocity.y;
+			obj.mtype.phys_info.velocity.z  = obj_rw->mtype.phys_info.velocity.z;
+			obj.mtype.phys_info.thrust.x    = obj_rw->mtype.phys_info.thrust.x;
+			obj.mtype.phys_info.thrust.y    = obj_rw->mtype.phys_info.thrust.y;
+			obj.mtype.phys_info.thrust.z    = obj_rw->mtype.phys_info.thrust.z;
+			obj.mtype.phys_info.mass        = obj_rw->mtype.phys_info.mass;
+			obj.mtype.phys_info.drag        = obj_rw->mtype.phys_info.drag;
+			obj.mtype.phys_info.rotvel.x    = obj_rw->mtype.phys_info.rotvel.x;
+			obj.mtype.phys_info.rotvel.y    = obj_rw->mtype.phys_info.rotvel.y;
+			obj.mtype.phys_info.rotvel.z    = obj_rw->mtype.phys_info.rotvel.z;
+			obj.mtype.phys_info.rotthrust.x = obj_rw->mtype.phys_info.rotthrust.x;
+			obj.mtype.phys_info.rotthrust.y = obj_rw->mtype.phys_info.rotthrust.y;
+			obj.mtype.phys_info.rotthrust.z = obj_rw->mtype.phys_info.rotthrust.z;
+			obj.mtype.phys_info.turnroll    = obj_rw->mtype.phys_info.turnroll;
+			obj.mtype.phys_info.flags       = obj_rw->mtype.phys_info.flags;
 			break;
 			
 		case MT_SPINNING:
-			obj->mtype.spin_rate.x = obj_rw->mtype.spin_rate.x;
-			obj->mtype.spin_rate.y = obj_rw->mtype.spin_rate.y;
-			obj->mtype.spin_rate.z = obj_rw->mtype.spin_rate.z;
+			obj.mtype.spin_rate.x = obj_rw->mtype.spin_rate.x;
+			obj.mtype.spin_rate.y = obj_rw->mtype.spin_rate.y;
+			obj.mtype.spin_rate.z = obj_rw->mtype.spin_rate.z;
 			break;
 	}
 	
-	switch (obj->control_type)
+	switch (obj.control_type)
 	{
 		case CT_WEAPON:
-			obj->ctype.laser_info.parent_type      = obj_rw->ctype.laser_info.parent_type;
-			obj->ctype.laser_info.parent_num       = obj_rw->ctype.laser_info.parent_num;
-			obj->ctype.laser_info.parent_signature = object_signature_t{static_cast<uint16_t>(obj_rw->ctype.laser_info.parent_signature)};
-			obj->ctype.laser_info.creation_time    = obj_rw->ctype.laser_info.creation_time;
-			obj->ctype.laser_info.reset_hitobj(obj_rw->ctype.laser_info.last_hitobj);
-			obj->ctype.laser_info.track_goal       = obj_rw->ctype.laser_info.track_goal;
-			obj->ctype.laser_info.multiplier       = obj_rw->ctype.laser_info.multiplier;
+			obj.ctype.laser_info.parent_type      = obj_rw->ctype.laser_info.parent_type;
+			obj.ctype.laser_info.parent_num       = obj_rw->ctype.laser_info.parent_num;
+			obj.ctype.laser_info.parent_signature = object_signature_t{static_cast<uint16_t>(obj_rw->ctype.laser_info.parent_signature)};
+			obj.ctype.laser_info.creation_time    = obj_rw->ctype.laser_info.creation_time;
+			obj.ctype.laser_info.reset_hitobj(obj_rw->ctype.laser_info.last_hitobj);
+			obj.ctype.laser_info.track_goal       = obj_rw->ctype.laser_info.track_goal;
+			obj.ctype.laser_info.multiplier       = obj_rw->ctype.laser_info.multiplier;
 #if defined(DXX_BUILD_DESCENT_II)
-			obj->ctype.laser_info.last_afterburner_time = 0;
+			obj.ctype.laser_info.last_afterburner_time = 0;
 #endif
 			break;
 			
 		case CT_EXPLOSION:
-			obj->ctype.expl_info.spawn_time    = obj_rw->ctype.expl_info.spawn_time;
-			obj->ctype.expl_info.delete_time   = obj_rw->ctype.expl_info.delete_time;
-			obj->ctype.expl_info.delete_objnum = obj_rw->ctype.expl_info.delete_objnum;
-			obj->ctype.expl_info.attach_parent = obj_rw->ctype.expl_info.attach_parent;
-			obj->ctype.expl_info.prev_attach   = obj_rw->ctype.expl_info.prev_attach;
-			obj->ctype.expl_info.next_attach   = obj_rw->ctype.expl_info.next_attach;
+			obj.ctype.expl_info.spawn_time    = obj_rw->ctype.expl_info.spawn_time;
+			obj.ctype.expl_info.delete_time   = obj_rw->ctype.expl_info.delete_time;
+			obj.ctype.expl_info.delete_objnum = obj_rw->ctype.expl_info.delete_objnum;
+			obj.ctype.expl_info.attach_parent = obj_rw->ctype.expl_info.attach_parent;
+			obj.ctype.expl_info.prev_attach   = obj_rw->ctype.expl_info.prev_attach;
+			obj.ctype.expl_info.next_attach   = obj_rw->ctype.expl_info.next_attach;
 			break;
 			
 		case CT_AI:
 		{
 			int i;
-			obj->ctype.ai_info.behavior               = static_cast<ai_behavior>(obj_rw->ctype.ai_info.behavior);
+			obj.ctype.ai_info.behavior               = static_cast<ai_behavior>(obj_rw->ctype.ai_info.behavior);
 			for (i = 0; i < MAX_AI_FLAGS; i++)
-				obj->ctype.ai_info.flags[i]       = obj_rw->ctype.ai_info.flags[i]; 
-			obj->ctype.ai_info.hide_segment           = obj_rw->ctype.ai_info.hide_segment;
-			obj->ctype.ai_info.hide_index             = obj_rw->ctype.ai_info.hide_index;
-			obj->ctype.ai_info.path_length            = obj_rw->ctype.ai_info.path_length;
-			obj->ctype.ai_info.cur_path_index         = obj_rw->ctype.ai_info.cur_path_index;
-			obj->ctype.ai_info.danger_laser_num       = obj_rw->ctype.ai_info.danger_laser_num;
-			if (obj->ctype.ai_info.danger_laser_num != object_none)
-				obj->ctype.ai_info.danger_laser_signature = object_signature_t{static_cast<uint16_t>(obj_rw->ctype.ai_info.danger_laser_signature)};
+				obj.ctype.ai_info.flags[i]       = obj_rw->ctype.ai_info.flags[i]; 
+			obj.ctype.ai_info.hide_segment           = obj_rw->ctype.ai_info.hide_segment;
+			obj.ctype.ai_info.hide_index             = obj_rw->ctype.ai_info.hide_index;
+			obj.ctype.ai_info.path_length            = obj_rw->ctype.ai_info.path_length;
+			obj.ctype.ai_info.cur_path_index         = obj_rw->ctype.ai_info.cur_path_index;
+			obj.ctype.ai_info.danger_laser_num       = obj_rw->ctype.ai_info.danger_laser_num;
+			if (obj.ctype.ai_info.danger_laser_num != object_none)
+				obj.ctype.ai_info.danger_laser_signature = object_signature_t{static_cast<uint16_t>(obj_rw->ctype.ai_info.danger_laser_signature)};
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
-			obj->ctype.ai_info.dying_sound_playing    = obj_rw->ctype.ai_info.dying_sound_playing;
-			obj->ctype.ai_info.dying_start_time       = obj_rw->ctype.ai_info.dying_start_time;
+			obj.ctype.ai_info.dying_sound_playing    = obj_rw->ctype.ai_info.dying_sound_playing;
+			obj.ctype.ai_info.dying_start_time       = obj_rw->ctype.ai_info.dying_start_time;
 #endif
 			break;
 		}
 			
 		case CT_LIGHT:
-			obj->ctype.light_info.intensity = obj_rw->ctype.light_info.intensity;
+			obj.ctype.light_info.intensity = obj_rw->ctype.light_info.intensity;
 			break;
 			
 		case CT_POWERUP:
-			obj->ctype.powerup_info.count         = obj_rw->ctype.powerup_info.count;
+			obj.ctype.powerup_info.count         = obj_rw->ctype.powerup_info.count;
 #if defined(DXX_BUILD_DESCENT_I)
-			obj->ctype.powerup_info.creation_time = 0;
-			obj->ctype.powerup_info.flags         = 0;
+			obj.ctype.powerup_info.creation_time = 0;
+			obj.ctype.powerup_info.flags         = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
-			obj->ctype.powerup_info.creation_time = obj_rw->ctype.powerup_info.creation_time;
-			obj->ctype.powerup_info.flags         = obj_rw->ctype.powerup_info.flags;
+			obj.ctype.powerup_info.creation_time = obj_rw->ctype.powerup_info.creation_time;
+			obj.ctype.powerup_info.flags         = obj_rw->ctype.powerup_info.flags;
 #endif
 			break;
 		case CT_CNTRLCEN:
 		{
-			if (obj->type == OBJ_GHOST)
+			if (obj.type == OBJ_GHOST)
 			{
 				/* Boss missions convert the reactor into OBJ_GHOST
 				 * instead of freeing it.  Old releases (before
@@ -459,7 +458,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, const vmobj
 				 * Add a special case here to correct this
 				 * inconsistency.
 				 */
-				obj->control_type = CT_NONE;
+				obj.control_type = CT_NONE;
 				break;
 			}
 			// gun points of reactor now part of the object but of course not saved in object_rw and overwritten due to reset_objects(). Let's just recompute them.
@@ -468,25 +467,25 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, const vmobj
 		}
 	}
 	
-	switch (obj->render_type)
+	switch (obj.render_type)
 	{
 		case RT_MORPH:
 		case RT_POLYOBJ:
 		case RT_NONE: // HACK below
 		{
 			int i;
-			if (obj->render_type == RT_NONE && obj->type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time. Here it's not important, but it might be for Multiplayer Savegames.
+			if (obj.render_type == RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time. Here it's not important, but it might be for Multiplayer Savegames.
 				break;
-			obj->rtype.pobj_info.model_num                = obj_rw->rtype.pobj_info.model_num;
+			obj.rtype.pobj_info.model_num                = obj_rw->rtype.pobj_info.model_num;
 			for (i=0;i<MAX_SUBMODELS;i++)
 			{
-				obj->rtype.pobj_info.anim_angles[i].p = obj_rw->rtype.pobj_info.anim_angles[i].p;
-				obj->rtype.pobj_info.anim_angles[i].b = obj_rw->rtype.pobj_info.anim_angles[i].b;
-				obj->rtype.pobj_info.anim_angles[i].h = obj_rw->rtype.pobj_info.anim_angles[i].h;
+				obj.rtype.pobj_info.anim_angles[i].p = obj_rw->rtype.pobj_info.anim_angles[i].p;
+				obj.rtype.pobj_info.anim_angles[i].b = obj_rw->rtype.pobj_info.anim_angles[i].b;
+				obj.rtype.pobj_info.anim_angles[i].h = obj_rw->rtype.pobj_info.anim_angles[i].h;
 			}
-			obj->rtype.pobj_info.subobj_flags             = obj_rw->rtype.pobj_info.subobj_flags;
-			obj->rtype.pobj_info.tmap_override            = obj_rw->rtype.pobj_info.tmap_override;
-			obj->rtype.pobj_info.alt_textures             = obj_rw->rtype.pobj_info.alt_textures;
+			obj.rtype.pobj_info.subobj_flags             = obj_rw->rtype.pobj_info.subobj_flags;
+			obj.rtype.pobj_info.tmap_override            = obj_rw->rtype.pobj_info.tmap_override;
+			obj.rtype.pobj_info.alt_textures             = obj_rw->rtype.pobj_info.alt_textures;
 			break;
 		}
 			
@@ -494,9 +493,9 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, const vmobj
 		case RT_HOSTAGE:
 		case RT_POWERUP:
 		case RT_FIREBALL:
-			obj->rtype.vclip_info.vclip_num = obj_rw->rtype.vclip_info.vclip_num;
-			obj->rtype.vclip_info.frametime = obj_rw->rtype.vclip_info.frametime;
-			obj->rtype.vclip_info.framenum  = obj_rw->rtype.vclip_info.framenum;
+			obj.rtype.vclip_info.vclip_num = obj_rw->rtype.vclip_info.vclip_num;
+			obj.rtype.vclip_info.frametime = obj_rw->rtype.vclip_info.frametime;
+			obj.rtype.vclip_info.framenum  = obj_rw->rtype.vclip_info.framenum;
 			break;
 			
 		case RT_LASER:
@@ -1184,8 +1183,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 		unsigned num_triggers = Triggers.get_count();
 		PHYSFS_write(fp, &num_triggers, sizeof(int), 1);
 	}
-	range_for (const auto vt, Triggers.vcptr)
-		trigger_write(fp, *vt);
+	range_for (const trigger &vt, Triggers.vcptr)
+		trigger_write(fp, vt);
 	}
 
 //Save tmap info
@@ -1819,8 +1818,8 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	{
 		auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	Triggers.set_count(PHYSFSX_readSXE32(fp, swap));
-	range_for (const auto t, Triggers.vmptr)
-		trigger_read(fp, *t);
+	range_for (trigger &t, Triggers.vmptr)
+		trigger_read(fp, t);
 	}
 
 	//Restore tmap info (to temp values so we can use compiled-in tmap info to compute static_light
@@ -2008,7 +2007,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		}
 		else
 		{
-			range_for (auto &i, partial_range(Segments, MAX_SEGMENTS_ORIGINAL))
+			range_for (unique_segment &i, partial_range(Segments, MAX_SEGMENTS_ORIGINAL))
 			{
 				PHYSFS_read(fp, &i.light_subtracted, sizeof(i.light_subtracted), 1);
 			}

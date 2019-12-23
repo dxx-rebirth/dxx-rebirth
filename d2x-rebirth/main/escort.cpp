@@ -580,11 +580,10 @@ static icobjidx_t exists_in_mine_2(const unique_segment &segp, const int objtype
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (const auto curobjp, objects_in(segp, vcobjptridx, vcsegptr))
 	{
-		const auto &objnum = curobjp;
 			if (special == ESCORT_GOAL_PLAYER_SPEW && curobjp->type == OBJ_POWERUP)
 			{
 				if (curobjp->flags & OF_PLAYER_DROPPED)
-					return objnum;
+					return curobjp;
 			}
 
 			if (curobjp->type == objtype) {
@@ -592,16 +591,16 @@ static icobjidx_t exists_in_mine_2(const unique_segment &segp, const int objtype
 				if ((curobjp->type == OBJ_ROBOT) && (Robot_info[get_robot_id(curobjp)].companion))
 					;
 				else if (objid == -1) {
-						return objnum;
+						return curobjp;
 				} else if (curobjp->id == objid)
-					return objnum;
+					return curobjp;
 			}
 
 			if (objtype == OBJ_POWERUP && curobjp->type == OBJ_ROBOT)
 				if (curobjp->contains_count)
 					if (curobjp->contains_type == OBJ_POWERUP)
 						if (curobjp->contains_id == objid)
-							return objnum;
+							return curobjp;
 	}
 	return object_none;
 }

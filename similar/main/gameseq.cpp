@@ -259,7 +259,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 		 */
 		const auto &pi = Player_init[i];
 		const auto segnum = pi.segnum;
-		auto &seg = *vcsegptr(segnum);
+		const shared_segment &seg = *vcsegptr(segnum);
 		auto &plr = *Players.vcptr(i);
 		auto &old_player_obj = *vcobjptr(plr.objnum);
 		const vm_distance_squared size2(fixmul64(old_player_obj.size * old_player_obj.size, size_scalar));
@@ -317,7 +317,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 		auto &old_player_obj = *vmobjptr(Players.vcptr(old_player_idx)->objnum);
 		array<vms_vector, 3> vec_displacement{};
 		DXX_MAKE_VAR_UNDEFINED(vec_displacement);
-		auto &seg = *vcsegptr(old_player_init.segnum);
+		const shared_segment &seg = *vcsegptr(old_player_init.segnum);
 		/* For each of [right, bottom, back], compute the vector between
 		 * the center of that side and the reference player's start
 		 * point.  This will be used in the next loop.
@@ -352,7 +352,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 			vm_vec_scale(disp, fixmul(old_player_obj.size, size_scalar >> 1));
 			con_printf(CON_NORMAL, "Displace player %u at {%i, %i, %i} by {%i, %i, %i}.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, disp.x, disp.y, disp.z);
 			vm_vec_add2(Player_init[plridx].pos, disp);
-			plrobj.pos = plrobj.last_pos = Player_init[plridx].pos;
+			plrobj.pos = Player_init[plridx].pos;
 		};
 		for (unsigned extra_player_idx = preplaced_starts, displacements = 0; extra_player_idx < k; ++extra_player_idx)
 		{
@@ -878,14 +878,14 @@ static ushort netmisc_calc_checksum()
 	sum1 = sum2 = 0;
 	range_for (auto &&segp, vcsegptr)
 	{
-		auto &i = *segp;
-		range_for (auto &&e, enumerate(i.shared_segment::sides))	// d_zip
+		const cscusegment i = *segp;
+		range_for (auto &&e, enumerate(i.s.sides))	// d_zip
 		{
 			auto &j = e.value;
 			do_checksum_calc(reinterpret_cast<const uint8_t *>(&(j.get_type())), 1, &sum1, &sum2);
 			s = INTEL_SHORT(j.wall_num);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
-			auto &uside = i.unique_segment::sides[e.idx];
+			auto &uside = i.u.sides[e.idx];
 			s = INTEL_SHORT(uside.tmap_num);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 			s = INTEL_SHORT(uside.tmap_num2);
@@ -909,25 +909,25 @@ static ushort netmisc_calc_checksum()
 				do_checksum_calc(reinterpret_cast<uint8_t *>(&t), 4, &sum1, &sum2);
 			}
 		}
-		range_for (auto &j, i.children)
+		range_for (auto &j, i.s.children)
 		{
 			s = INTEL_SHORT(j);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 		}
-		range_for (const uint16_t j, i.verts)
+		range_for (const uint16_t j, i.s.verts)
 		{
 			s = INTEL_SHORT(j);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 		}
-		s = INTEL_SHORT(i.objects);
+		s = INTEL_SHORT(i.u.objects);
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 #if defined(DXX_BUILD_DESCENT_I)
-		do_checksum_calc(&i.special, 1, &sum1, &sum2);
-		do_checksum_calc(reinterpret_cast<const uint8_t *>(&i.matcen_num), 1, &sum1, &sum2);
-		t = INTEL_INT(i.static_light);
+		do_checksum_calc(&i.s.special, 1, &sum1, &sum2);
+		do_checksum_calc(reinterpret_cast<const uint8_t *>(&i.s.matcen_num), 1, &sum1, &sum2);
+		t = INTEL_INT(i.u.static_light);
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&t), 4, &sum1, &sum2);
 #endif
-		do_checksum_calc(&i.station_idx, 1, &sum1, &sum2);
+		do_checksum_calc(&i.s.station_idx, 1, &sum1, &sum2);
 	}
 	sum2 %= 255;
 	return ((sum1<<8)+ sum2);

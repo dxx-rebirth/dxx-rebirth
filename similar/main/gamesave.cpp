@@ -388,7 +388,10 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 	obj->size           = PHYSFSX_readFix(f);
 	obj->shields        = PHYSFSX_readFix(f);
 
-	PHYSFSX_readVector(f, obj->last_pos);
+	{
+		vms_vector last_pos;
+		PHYSFSX_readVector(f, last_pos);
+	}
 
 	obj->contains_type  = PHYSFSX_readByte(f);
 	obj->contains_id    = PHYSFSX_readByte(f);
@@ -639,7 +642,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 	PHYSFSX_writeFix(f, obj.size);
 	PHYSFSX_writeFix(f, obj.shields);
 
-	PHYSFSX_writeVector(f, obj.last_pos);
+	PHYSFSX_writeVector(f, obj.pos);
 
 	PHYSFSX_writeU8(f, obj.contains_type);
 	PHYSFSX_writeU8(f, obj.contains_id);
@@ -823,9 +826,9 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 					LevelError("segment %u side %u wall %u has no child segment; removing orphan wall.", seg.get_unchecked_index(), sidenum, wn0);
 					return;
 				}
-				auto &vcseg = *vcsegptr(connected_seg);
+				const shared_segment &vcseg = *vcsegptr(connected_seg);
 				const unsigned connected_side = find_connect_side(seg, vcseg);
-				const auto wn1 = vcseg.shared_segment::sides[connected_side].wall_num;
+				const auto wn1 = vcseg.sides[connected_side].wall_num;
 				if (wn1 == wall_none)
 				{
 					rwn0 = wall_none;
@@ -1043,7 +1046,7 @@ static int load_game_data(
 			matcen_info_read(LoadFile, r);
 #endif
 			//	Set links in RobotCenters to Station array
-		range_for (auto &seg, partial_const_range(Segments, Highest_segment_index + 1))
+		range_for (const shared_segment &seg, partial_const_range(Segments, Highest_segment_index + 1))
 			if (seg.special == SEGMENT_IS_ROBOTMAKER)
 				if (seg.matcen_num == i)
 					r.fuelcen_num = seg.station_idx;
@@ -1403,12 +1406,12 @@ int load_level(
 	 */
 	if (Current_mission && !d_stricmp("Descent 2: Counterstrike!",Current_mission_longname) && !d_stricmp("d2levc-4.rl2",filename))
 	{
-		auto &s104 = *vmsegptr(vmsegidx_t(104));
+		shared_segment &s104 = *vmsegptr(vmsegidx_t(104));
 		auto &s104v0 = *vmvertptr(s104.verts[0]);
-		auto &s104s1 = s104.shared_segment::sides[1];
+		auto &s104s1 = s104.sides[1];
 		auto &s104s1n0 = s104s1.normals[0];
 		auto &s104s1n1 = s104s1.normals[1];
-		auto &s104s2 = s104.shared_segment::sides[2];
+		auto &s104s2 = s104.sides[2];
 		auto &s104s2n0 = s104s2.normals[0];
 		auto &s104s2n1 = s104s2.normals[1];
 		if (

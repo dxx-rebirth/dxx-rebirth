@@ -708,7 +708,7 @@ static unsigned check_poke(fvcvertptr &vcvertptr, const object_base &obj, const 
 }
 
 namespace dsx {
-static unsigned is_door_side_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const vcsegptr_t seg, const unsigned side)
+static unsigned is_door_side_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const cscusegment seg, const unsigned side)
 {
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
@@ -906,15 +906,15 @@ static bool do_door_close(active_door &d)
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
 	auto &w0 = *vmwallptr(d.front_wallnum[0]);
-	const auto &&wsegp = vmsegptridx(w0.segnum);
+	const auto &&seg = vmsegptridx(w0.segnum);
 
 	//check for objects in doorway before closing
 	if (w0.flags & WALL_DOOR_AUTO)
-		if (is_door_obstructed(vcobjptridx, vcsegptr, wsegp, w0.sidenum))
+		if (is_door_obstructed(vcobjptridx, vcsegptr, seg, w0.sidenum))
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			digi_kill_sound_linked_to_segment(w0.segnum, w0.sidenum, -1);
-			wall_open_door(wsegp, w0.sidenum);		//re-open door
+			wall_open_door(seg, w0.sidenum);		//re-open door
 #endif
 			return false;
 		}
@@ -929,7 +929,6 @@ static bool do_door_close(active_door &d)
 
 		auto &wp = *vmwallptr(p);
 
-		const auto &seg = wsegp;
 		side = wp.sidenum;
 
 		if (seg->shared_segment::sides[side].wall_num == wall_none) {

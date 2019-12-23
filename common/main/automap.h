@@ -51,7 +51,7 @@ extern void automap_clear_visited();
 #include "segment.h"
 
 namespace dsx {
-void DropBuddyMarker(vmobjptr_t objp);
+void DropBuddyMarker(object &objp);
 void InitMarkerInput();
 window_event_result MarkerInputMessage(int key);
 

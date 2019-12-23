@@ -41,6 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "render.h"
 #include "player.h"
+#include "segment.h"
 #include "terrain.h"
 
 #include "compiler-make_unique.h"

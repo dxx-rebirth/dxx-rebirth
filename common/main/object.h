@@ -236,21 +236,7 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 	fix multiplier = 0;         // Power if this is a fusion bolt (or other super weapon to be added).
 	uint_fast8_t test_set_hitobj(const vcobjidx_t o);
 	uint_fast8_t test_hitobj(const vcobjidx_t o) const;
-	icobjidx_t get_last_hitobj() const
-	{
-		if (!hitobj_count)
-			/* If no elements, return object_none */
-			return object_none;
-		/* Return the most recently written element.  `hitobj_pos`
-		 * indicates the element to write next, so return
-		 * hitobj_values[hitobj_pos - 1].  When hitobj_pos == 0, the
-		 * most recently written element is at the end of the array, not
-		 * before the beginning of the array.
-		 */
-		if (!hitobj_pos)
-			return hitobj_values.back();
-		return hitobj_values[hitobj_pos - 1];
-	}
+	icobjidx_t get_last_hitobj() const;
 	void clear_hitobj()
 	{
 		hitobj_pos = hitobj_count = 0;
@@ -393,7 +379,6 @@ struct object_base
 	vms_matrix orient;      // orientation of object in world
 	fix     size;           // 3d size of object - for collision detection
 	fix     shields;        // Starts at maximum, when <0, object dies..
-	vms_vector last_pos;    // where object was last frame
 	sbyte   contains_type;  // Type of object this object contains (eg, spider contains powerup)
 	sbyte   contains_id;    // ID of object this object contains (eg, id = blue type = key)
 	sbyte   contains_count; // number of objects of type:id this object contains
@@ -679,6 +664,7 @@ struct d_level_unique_object_state
 	object_array Objects;
 	d_level_unique_boss_state BossState;
 	d_level_unique_control_center_state ControlCenterState;
+	vms_vector last_console_player_position;
 	auto &get_objects()
 	{
 		return Objects;

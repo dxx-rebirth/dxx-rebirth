@@ -68,7 +68,7 @@ void explode_badass_weapon(vmobjptridx_t obj,const vms_vector &pos);
 void explode_badass_player(vmobjptridx_t obj);
 
 void explode_object(vmobjptridx_t obj,fix delay_time);
-void do_explosion_sequence(vmobjptr_t obj);
+void do_explosion_sequence(object &obj);
 void do_debris_frame(vmobjptridx_t obj);      // deal with debris for this frame
 
 void draw_fireball(const d_vclip_array &Vclip, grs_canvas &, vcobjptridx_t obj);
@@ -95,7 +95,7 @@ int get_explosion_vclip(const object_base &obj, explosion_vclip_stage stage);
 imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, unsigned num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player);
 
 // creates afterburner blobs behind the specified object
-void drop_afterburner_blobs(vmobjptr_t obj, int count, fix size_scale, fix lifetime);
+void drop_afterburner_blobs(object &obj, int count, fix size_scale, fix lifetime);
 
 /*
  * reads n expl_wall structs from a PHYSFS_File and swaps if specified

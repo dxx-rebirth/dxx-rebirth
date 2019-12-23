@@ -498,8 +498,8 @@ int check_segment_connections(void)
 
 				if (csidenum == side_none)
 				{
-					auto &rseg = *seg;
-					auto &rcseg = *cseg;
+					shared_segment &rseg = *seg;
+					const shared_segment &rcseg = *cseg;
 					const unsigned segi = seg.get_unchecked_index();
 					LevelError("Segment #%u side %u has asymmetric link to segment %u.  Coercing to segment_none; Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}, Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}.", segi, sidenum, csegnum, segi, rseg.children[0], rseg.children[1], rseg.children[2], rseg.children[3], rseg.children[4], rseg.children[5], csegnum, rcseg.children[0], rcseg.children[1], rcseg.children[2], rcseg.children[3], rcseg.children[4], rcseg.children[5]);
 					rseg.children[sidenum] = segment_none;
@@ -868,12 +868,12 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 	cur_depth = 0;
 
 	while (cur_seg != seg1) {
-		auto &segp = *vmsegptr(cur_seg);
+		const cscusegment segp = *vmsegptr(cur_seg);
 		for (int sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 
 			int	snum = sidenum;
 
-			const auto this_seg = segp.children[snum];
+			const auto this_seg = segp.s.children[snum];
 			if (!IS_CHILD(this_seg))
 				continue;
 			if (!wid_flag.value || (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, snum) & wid_flag))
@@ -997,7 +997,7 @@ void create_shortpos_native(const d_level_shared_segment_state &LevelSharedSegme
 	spp.bytemat[8] = convert_to_byte(objp.orient.fvec.z);
 
 	spp.segment = objp.segnum;
-	auto &segp = *vcsegptr(objp.segnum);
+	const shared_segment &segp = *vcsegptr(objp.segnum);
 	auto &vert = *vcvertptr(segp.verts[0]);
 	spp.xo = (objp.pos.x - vert.x) >> RELPOS_PRECISION;
 	spp.yo = (objp.pos.y - vert.y) >> RELPOS_PRECISION;
@@ -1557,7 +1557,7 @@ void validate_segment_all(d_level_shared_segment_state &LevelSharedSegmentState)
 	}
 
 #if DXX_USE_EDITOR
-	range_for (auto &s, partial_range(Segments, Highest_segment_index + 1, Segments.size()))
+	range_for (shared_segment &s, partial_range(Segments, Highest_segment_index + 1, Segments.size()))
 		s.segnum = segment_none;
 	#endif
 }

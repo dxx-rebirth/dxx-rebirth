@@ -262,7 +262,7 @@ window_event_result do_countdown_frame()
 //	This code is common to whether control center is implicitly imbedded in a boss,
 //	or is an object of its own.
 //	if objp == NULL that means the boss was the control center and don't set Dead_controlcen_object_num
-void do_controlcen_destroyed_stuff(const imobjptridx_t objp)
+void do_controlcen_destroyed_stuff(const imobjidx_t objp)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int i;
@@ -493,7 +493,7 @@ void init_controlcen_for_level(void)
 	else if (cntrlcen_objnum != nullptr)
 	{
 		//	Compute all gun positions.
-		const vmobjptr_t objp = cntrlcen_objnum;
+		object &objp = cntrlcen_objnum;
 		calc_controlcen_gun_point(objp);
 		LevelUniqueControlCenterState.Control_center_present = 1;
 
@@ -503,15 +503,15 @@ void init_controlcen_for_level(void)
 		const unsigned secret_level_shield_multiplier = 150;
 		const auto Reactor_strength = LevelSharedControlCenterState.Reactor_strength;
 		if (Reactor_strength != -1)
-			objp->shields = i2f(Reactor_strength);
+			objp.shields = i2f(Reactor_strength);
 		else
 #endif
 		{		//use old defaults
 			//	Boost control center strength at higher levels.
 			if (Current_level_num >= 0)
-				objp->shields = F1_0*200 + (F1_0*200/4) * Current_level_num;
+				objp.shields = F1_0*200 + (F1_0*200/4) * Current_level_num;
 			else
-				objp->shields = F1_0*200 - Current_level_num*F1_0*secret_level_shield_multiplier;
+				objp.shields = F1_0*200 - Current_level_num*F1_0*secret_level_shield_multiplier;
 		}
 	}
 

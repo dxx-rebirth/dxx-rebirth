@@ -244,7 +244,8 @@ void reset_objects(d_level_unique_object_state &, unsigned n_objs);
 void compress_objects();
 
 // move all objects for the current frame
-window_event_result object_move_all();     // moves all objects
+window_event_result game_move_all_objects();     // moves all objects
+window_event_result endlevel_move_all_objects();
 
 // set viewer object to next object in array
 void object_goto_next_viewer();
@@ -269,8 +270,8 @@ imsegptridx_t find_object_seg(const d_level_shared_segment_state &, d_level_uniq
 void fix_object_segs();
 
 // Drops objects contained in objp.
-imobjptridx_t object_create_robot_egg(vmobjptr_t objp);
-imobjptridx_t object_create_robot_egg(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum);
+imobjptridx_t object_create_robot_egg(object &objp);
+imobjptridx_t object_create_robot_egg(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum);
 
 // Interface to object_create_egg, puts count objects of type type, id
 // = id in objp and then drops them.

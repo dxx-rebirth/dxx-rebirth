@@ -165,6 +165,22 @@ imobjptridx_t obj_find_first_of_type(fvmobjptridx &vmobjptridx, const object_typ
 
 namespace dcx {
 
+icobjidx_t laser_info::get_last_hitobj() const
+{
+	if (!hitobj_count)
+		/* If no elements, return object_none */
+		return object_none;
+	/* Return the most recently written element.  `hitobj_pos`
+	 * indicates the element to write next, so return
+	 * hitobj_values[hitobj_pos - 1].  When hitobj_pos == 0, the
+	 * most recently written element is at the end of the array, not
+	 * before the beginning of the array.
+	 */
+	if (!hitobj_pos)
+		return hitobj_values.back();
+	return hitobj_values[hitobj_pos - 1];
+}
+
 //draw an object that has one bitmap & doesn't rotate
 void draw_object_blob(grs_canvas &canvas, const object_base &obj, const bitmap_index bmi)
 {
@@ -570,11 +586,33 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 
 namespace dcx {
 objnum_t	Player_fired_laser_this_frame=object_none;
+
+static bool predicate_debris(const object_base &o)
+{
+	return o.type == OBJ_DEBRIS;
+}
+
+static bool predicate_flare(const object_base &o)
+{
+	return (o.type == OBJ_WEAPON) && (get_weapon_id(o) == weapon_id_type::FLARE_ID);
+}
+
+static bool predicate_nonflare_weapon(const object_base &o)
+{
+	return (o.type == OBJ_WEAPON) && (get_weapon_id(o) != weapon_id_type::FLARE_ID);
+}
+
 }
 
 
 
 namespace dsx {
+
+static bool predicate_fireball(const object &o)
+{
+	return o.type == OBJ_FIREBALL && o.ctype.expl_info.delete_objnum == object_none;
+}
+
 // -----------------------------------------------------------------------------
 //this routine checks to see if an robot rendered near the middle of
 //the screen, and if so and the player had fired, "warns" the robot
@@ -852,7 +890,7 @@ void init_objects()
 		obj.type = OBJ_NONE;
 	}
 
-	range_for (auto &j, Segments)
+	range_for (unique_segment &j, Segments)
 		j.objects = object_none;
 
 	Viewer = ConsoleObject = &Objects.front();
@@ -1045,13 +1083,13 @@ static void free_object_slots(uint_fast32_t num_used)
 
 	// Capture before num_to_free modified
 	const auto &&r = partial_const_range(obj_list, num_to_free);
-	auto l = [&vmobjptr, &r, &num_to_free](bool (*predicate)(const vcobjptr_t)) -> bool {
+	auto l = [&vmobjptr, &r, &num_to_free](const auto predicate) -> bool {
 		range_for (const auto i, r)
 		{
-			const auto &&o = vmobjptr(i);
+			auto &o = *vmobjptr(i);
 			if (predicate(o))
 			{
-				o->flags |= OF_SHOULD_BE_DEAD;
+				o.flags |= OF_SHOULD_BE_DEAD;
 				if (!-- num_to_free)
 					return true;
 			}
@@ -1059,19 +1097,15 @@ static void free_object_slots(uint_fast32_t num_used)
 		return false;
 	};
 
-	auto predicate_debris = [](const vcobjptr_t o) { return o->type == OBJ_DEBRIS; };
 	if (l(predicate_debris))
 		return;
 
-	auto predicate_fireball = [](const vcobjptr_t o) { return o->type == OBJ_FIREBALL && o->ctype.expl_info.delete_objnum == object_none; };
 	if (l(predicate_fireball))
 		return;
 
-	auto predicate_flare = [](const vcobjptr_t o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) == weapon_id_type::FLARE_ID); };
 	if (l(predicate_flare))
 		return;
 
-	auto predicate_nonflare_weapon = [](const vcobjptr_t o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) != weapon_id_type::FLARE_ID); };
 	if (l(predicate_nonflare_weapon))
 		return;
 }
@@ -1122,7 +1156,6 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 	obj->signature = object_signature_t(signature.get() + 1);
 	obj->type 				= type;
 	obj->id 				= id;
-	obj->last_pos				= pos;
 	obj->pos 				= pos;
 	obj->size 				= size;
 	obj->flags 				= 0;
@@ -1711,7 +1744,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 	const auto previous_segment = obj->segnum;
 	auto result = window_event_result::handled;
 
-	obj->last_pos = obj->pos;			// Save the current position
+	const auto obj_previous_position = obj->pos;			// Save the current position
 
 	if ((obj->type==OBJ_PLAYER) && (Player_num==get_player_id(obj)))	{
 		const auto &&segp = vmsegptr(obj->segnum);
@@ -1844,7 +1877,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 		case MT_NONE:			break;				//this doesn't move
 
 		case MT_PHYSICS:	//move by physics
-			result = do_physics_sim(obj, obj->type == OBJ_PLAYER ? (prepare_seglist = true, phys_visited_segs.nsegs = 0, &phys_visited_segs) : nullptr);
+			result = do_physics_sim(obj, obj_previous_position, obj->type == OBJ_PLAYER ? (prepare_seglist = true, phys_visited_segs.nsegs = 0, &phys_visited_segs) : nullptr);
 			break;
 
 		case MT_SPINNING:		spin_object(obj); break;
@@ -1986,7 +2019,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 
 //--------------------------------------------------------------------
 //move all objects for the current frame
-window_event_result object_move_all()
+static window_event_result object_move_all()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -2016,6 +2049,16 @@ window_event_result object_move_all()
 	return result;
 }
 
+window_event_result game_move_all_objects()
+{
+	LevelUniqueObjectState.last_console_player_position = ConsoleObject->pos;
+	return object_move_all();
+}
+
+window_event_result endlevel_move_all_objects()
+{
+	return object_move_all();
+}
 
 //--unused-- // -----------------------------------------------------------
 //--unused-- //	Moved here from eobject.c on 02/09/94 by MK.

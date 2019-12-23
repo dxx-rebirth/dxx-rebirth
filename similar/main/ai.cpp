@@ -858,7 +858,7 @@ static void ai_frame_animation(object &objp)
 }
 
 // ----------------------------------------------------------------------------------
-static void set_next_fire_time(const vmobjptr_t objp, ai_local &ailp, const robot_info &robptr, const unsigned gun_num)
+static void set_next_fire_time(object &objp, ai_local &ailp, const robot_info &robptr, const unsigned gun_num)
 {
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -875,7 +875,7 @@ static void set_next_fire_time(const vmobjptr_t objp, ai_local &ailp, const robo
 #elif defined(DXX_BUILD_DESCENT_II)
 	//	For guys in snipe mode, they have a 50% shot of getting this shot in free.
 	if ((gun_num != 0) || (robptr.weapon_type2 == weapon_none))
-		if ((objp->ctype.ai_info.behavior != ai_behavior::AIB_SNIPE) || (d_rand() > 16384))
+		if ((objp.ctype.ai_info.behavior != ai_behavior::AIB_SNIPE) || (d_rand() > 16384))
 			ailp.rapidfire_count++;
 
 	//	Old way, 10/15/95: Continuous rapidfire if rapidfire_count set.
@@ -1279,7 +1279,7 @@ static void move_towards_vector(object_base &objp, const vms_vector &vec_goal, i
 #if defined(DXX_BUILD_DESCENT_I)
 static
 #endif
-void move_towards_player(const vmobjptr_t objp, const vms_vector &vec_to_player)
+void move_towards_player(object &objp, const vms_vector &vec_to_player)
 //	vec_to_player must be normalized, or close to it.
 {
 	move_towards_vector(objp, vec_to_player, 1);
@@ -2153,11 +2153,11 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 		visited_segment_bitarray_t visited;
 
 		while (tail != head) {
-			auto &segp = *vmsegptr(seg_queue[tail++]);
+			const cscusegment segp = *vmsegptr(seg_queue[tail++]);
 
 			tail &= QUEUE_SIZE-1;
 
-			range_for (const auto &&es, enumerate(segp.children))
+			range_for (const auto &&es, enumerate(segp.s.children))
 			{
 				const uint_fast32_t sidenum = es.idx;
 				const auto w = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum);
@@ -2254,7 +2254,7 @@ static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx,
 }
 
 //	----------------------------------------------------------------------
-void start_boss_death_sequence(const vmobjptr_t objp)
+void start_boss_death_sequence(object &objp)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -2647,18 +2647,21 @@ static void ai_multi_send_robot_position(object &obj, int force)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Returns true if this object should be allowed to fire at the player.
-static int maybe_ai_do_actual_firing_stuff(const vmobjptr_t obj, ai_static *aip)
+static int maybe_ai_do_actual_firing_stuff(object &obj)
 {
 	if (Game_mode & GM_MULTI)
-		if ((aip->GOAL_STATE != AIS_FLIN) && (get_robot_id(obj) != ROBOT_BRAIN))
+	{
+		auto &aip = obj.ctype.ai_info;
+		if (aip.GOAL_STATE != AIS_FLIN && get_robot_id(obj) != ROBOT_BRAIN)
 		{
-			const auto s = aip->CURRENT_STATE;
+			const auto s = aip.CURRENT_STATE;
 			if (s == AIS_FIRE)
 			{
 				static_assert(AIS_FIRE != 0, "AIS_FIRE must be nonzero for this shortcut to work properly.");
 				return s;
 			}
 		}
+	}
 
 	return 0;
 }
@@ -2938,9 +2941,9 @@ static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const vmobjptr_t robot,
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (auto &i, partial_const_range(bfs_list, bfs_length)) {
-		range_for (const auto objp, objects_in(vmsegptr(i), vmobjptridx, vmsegptr))
+		range_for (object &objp, objects_in(vmsegptr(i), vmobjptridx, vmsegptr))
 		{
-			object &obj = *objp;
+			object &obj = objp;
 			if (obj.type != OBJ_ROBOT)
 				continue;
 			if (obj.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
@@ -3084,7 +3087,7 @@ void do_ai_frame(const vmobjptridx_t obj)
 {
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	const objnum_t &objnum = obj;
-	ai_static	*aip = &obj->ctype.ai_info;
+	ai_static	*const aip = &obj->ctype.ai_info;
 	ai_local &ailp = obj->ctype.ai_info.ail;
 	int			obj_ref;
 	int			object_animates;
@@ -3429,7 +3432,7 @@ _exit_cheat:
 	// If in materialization center, exit
 	if (!(Game_mode & GM_MULTI))
 	{
-		const auto &seg = *vcsegptr(obj->segnum);
+		const shared_segment &seg = *vcsegptr(obj->segnum);
 		if (seg.special == SEGMENT_IS_ROBOTMAKER)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
@@ -3688,7 +3691,7 @@ _exit_cheat:
 			if (player_visibility.visibility != player_visibility_state::visible_and_in_field_of_view && previous_visibility == player_visibility_state::visible_and_in_field_of_view)
 			{ // this is redundant: mk, 01/15/95: && (ailp->mode == ai_mode::AIM_CHASE_OBJECT))
 				if (!ai_multiplayer_awareness(obj, 53)) {
-					if (maybe_ai_do_actual_firing_stuff(obj, aip))
+					if (maybe_ai_do_actual_firing_stuff(obj))
 						ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 					return;
 				}
@@ -3737,7 +3740,7 @@ _exit_cheat:
 				}
 
 				if (!ai_multiplayer_awareness(obj, 64)) {
-					if (maybe_ai_do_actual_firing_stuff(obj, aip))
+					if (maybe_ai_do_actual_firing_stuff(obj))
 						ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 					return;
 				}
@@ -3747,7 +3750,7 @@ _exit_cheat:
 #endif
 			} else if ((aip->CURRENT_STATE != AIS_REST) && (aip->GOAL_STATE != AIS_REST)) {
 				if (!ai_multiplayer_awareness(obj, 70)) {
-					if (maybe_ai_do_actual_firing_stuff(obj, aip))
+					if (maybe_ai_do_actual_firing_stuff(obj))
 						ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 					return;
 				}
@@ -3861,7 +3864,7 @@ _exit_cheat:
 			compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 			if (!ai_multiplayer_awareness(obj, anger_level)) {
-				if (maybe_ai_do_actual_firing_stuff(obj, aip)) {
+				if (maybe_ai_do_actual_firing_stuff(obj)) {
 					ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 				}
 				return;
@@ -3931,7 +3934,7 @@ _exit_cheat:
 		case ai_mode::AIM_BEHIND:
 #endif
 			if (!ai_multiplayer_awareness(obj, 71)) {
-				if (maybe_ai_do_actual_firing_stuff(obj, aip)) {
+				if (maybe_ai_do_actual_firing_stuff(obj)) {
 					compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 					ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 				}
@@ -4005,7 +4008,7 @@ _exit_cheat:
 #endif
 				{
 					if (!ai_multiplayer_awareness(obj, 71)) {
-						if (maybe_ai_do_actual_firing_stuff(obj, aip))
+						if (maybe_ai_do_actual_firing_stuff(obj))
 							ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 						return;
 					}
@@ -4023,7 +4026,7 @@ _exit_cheat:
 					if (robptr.attack_type == 1) {
 						aip->behavior = ai_behavior::AIB_NORMAL;
 						if (!ai_multiplayer_awareness(obj, 80)) {
-							if (maybe_ai_do_actual_firing_stuff(obj, aip))
+							if (maybe_ai_do_actual_firing_stuff(obj))
 								ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 							return;
 						}
@@ -4032,7 +4035,7 @@ _exit_cheat:
 					} else {
 						// Robots in hover mode are allowed to evade at half normal speed.
 						if (!ai_multiplayer_awareness(obj, 81)) {
-							if (maybe_ai_do_actual_firing_stuff(obj, aip))
+							if (maybe_ai_do_actual_firing_stuff(obj))
 								ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 							return;
 						}
@@ -4382,7 +4385,7 @@ static int add_awareness_event(const object_base &objp, player_awareness_type_t 
 // ----------------------------------------------------------------------------------
 // Robots will become aware of the player based on something that occurred.
 // The object (probably player or weapon) which created the awareness is objp.
-void create_awareness_event(const vmobjptr_t objp, player_awareness_type_t type, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState)
+void create_awareness_event(object &objp, player_awareness_type_t type, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState)
 {
 	// If not in multiplayer, or in multiplayer with robots, do this, else unnecessary!
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))

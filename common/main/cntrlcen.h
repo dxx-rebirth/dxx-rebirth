@@ -116,7 +116,7 @@ void do_controlcen_frame(vmobjptridx_t obj);
 void init_controlcen_for_level();
 void calc_controlcen_gun_point(object &obj);
 
-void do_controlcen_destroyed_stuff(imobjptridx_t objp);
+void do_controlcen_destroyed_stuff(imobjidx_t objp);
 window_event_result do_controlcen_dead_frame();
 }
 #endif

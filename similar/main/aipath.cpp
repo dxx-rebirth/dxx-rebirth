@@ -60,7 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 namespace dsx {
-static void ai_path_set_orient_and_vel(const vmobjptr_t objp, const vms_vector &goal_point
+static void ai_path_set_orient_and_vel(object &objp, const vms_vector &goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 								, player_visibility_state player_visibility, const vms_vector *vec_to_player
 #endif
@@ -216,7 +216,7 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 		if (vm_vec_mag_quick(e) < F1_0/2)
 	Int3();
 
-		auto &segp = *vcsegptr(segnum);
+		const shared_segment &segp = *vcsegptr(segnum);
 		segment_size = vm_vec_dist_quick(vcvertptr(segp.verts[0]), vcvertptr(segp.verts[6]));
 		if (segment_size > F1_0*40)
 			segment_size = F1_0*40;
@@ -1261,14 +1261,14 @@ namespace dsx {
 
 //	----------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
-void ai_path_set_orient_and_vel(const vmobjptr_t objp, const vms_vector &goal_point
+void ai_path_set_orient_and_vel(object &objp, const vms_vector &goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 								, const player_visibility_state player_visibility, const vms_vector *const vec_to_player
 #endif
 								)
 {
-	vms_vector	cur_vel = objp->mtype.phys_info.velocity;
-	vms_vector	cur_pos = objp->pos;
+	vms_vector	cur_vel = objp.mtype.phys_info.velocity;
+	vms_vector	cur_pos = objp.pos;
 	fix			speed_scale;
 	fix			dot;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -1278,17 +1278,17 @@ void ai_path_set_orient_and_vel(const vmobjptr_t objp, const vms_vector &goal_po
 	//	If evading player, use highest difficulty level speed, plus something based on diff level
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	max_speed = robptr.max_speed[Difficulty_level];
-	ai_local		*ailp = &objp->ctype.ai_info.ail;
+	ai_local		*ailp = &objp.ctype.ai_info.ail;
 	if (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT
 #if defined(DXX_BUILD_DESCENT_II)
-		|| objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE
+		|| objp.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE
 #endif
 		)
 		max_speed = max_speed*3/2;
 
 	auto norm_vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(goal_point, cur_pos));
 	auto norm_cur_vel = vm_vec_normalized_quick(cur_vel);
-	const auto norm_fvec = vm_vec_normalized_quick(objp->orient.fvec);
+	const auto norm_fvec = vm_vec_normalized_quick(objp.orient.fvec);
 
 	dot = vm_vec_dot(norm_vec_to_goal, norm_fvec);
 
@@ -1313,19 +1313,19 @@ void ai_path_set_orient_and_vel(const vmobjptr_t objp, const vms_vector &goal_po
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	If in snipe mode, can move fast even if not facing that direction.
-	if (objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
+	if (objp.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
 		if (dot < F1_0/2)
 			dot = (dot + F1_0)/2;
 #endif
 
 	speed_scale = fixmul(max_speed, dot);
 	vm_vec_scale(norm_cur_vel, speed_scale);
-	objp->mtype.phys_info.velocity = norm_cur_vel;
+	objp.mtype.phys_info.velocity = norm_cur_vel;
 
 	fix rate;
 	if (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT
 #if defined(DXX_BUILD_DESCENT_II)
-		|| robot_is_companion(robptr) == 1 || objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE
+		|| robot_is_companion(robptr) == 1 || objp.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE
 #endif
 		) {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1388,8 +1388,8 @@ void ai_path_garbage_collect()
 		int			old_index;
 
 		auto objnum = object_list[objind].objnum;
-		auto objp = vmobjptridx(objnum);
-		aip = &objp->ctype.ai_info;
+		object &objp = vmobjptridx(objnum);
+		aip = &objp.ctype.ai_info;
 		old_index = aip->hide_index;
 
 		aip->hide_index = free_path_index;
@@ -1597,7 +1597,7 @@ static void player_path_set_orient_and_vel(object &objp, const vms_vector &goal_
 
 //	----------------------------------------------------------------------------------------------------------
 //	Optimization: If current velocity will take robot near goal, don't change velocity
-void player_follow_path(const vmobjptr_t objp)
+void player_follow_path(object &objp)
 {
 	vms_vector	goal_point;
 	int			count, forced_break, original_index;
@@ -1616,7 +1616,7 @@ void player_follow_path(const vmobjptr_t objp)
 	goal_seg = Point_segs[Player_hide_index + Player_cur_path_index].segnum;
 	Assert((goal_seg >= 0) && (goal_seg <= Highest_segment_index));
 	(void)goal_seg;
-	auto dist_to_goal = vm_vec_dist_quick(goal_point, objp->pos);
+	auto dist_to_goal = vm_vec_dist_quick(goal_point, objp.pos);
 
 	if (Player_cur_path_index < 0)
 		Player_cur_path_index = 0;
@@ -1631,7 +1631,7 @@ void player_follow_path(const vmobjptr_t objp)
 	forced_break = 0;		//	Gets set for short paths.
 	//original_dir = 1;
 	original_index = Player_cur_path_index;
-	const vm_distance threshold_distance{fixmul(vm_vec_mag_quick(objp->mtype.phys_info.velocity), FrameTime)*2 + F1_0*2};
+	const vm_distance threshold_distance{fixmul(vm_vec_mag_quick(objp.mtype.phys_info.velocity), FrameTime)*2 + F1_0*2};
 
 	while ((dist_to_goal < threshold_distance) && !forced_break) {
 
@@ -1656,7 +1656,7 @@ void player_follow_path(const vmobjptr_t objp)
 		}
 
 		goal_point = Point_segs[Player_hide_index + Player_cur_path_index].point;
-		dist_to_goal = vm_vec_dist_quick(goal_point, objp->pos);
+		dist_to_goal = vm_vec_dist_quick(goal_point, objp.pos);
 
 	}	//	end while
 

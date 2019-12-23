@@ -194,7 +194,7 @@ int Newdemo_num_written;
 ubyte DemoDoRight=0,DemoDoLeft=0;
 object DemoRightExtra,DemoLeftExtra;
 
-static void nd_render_extras (ubyte which,const vcobjptr_t obj);
+static void nd_render_extras (ubyte which,const object &obj);
 #endif
 
 // local var used for swapping endian demos
@@ -676,7 +676,10 @@ static void nd_read_object(const vmobjptridx_t obj)
 	}
 
 
-	nd_read_vector(obj->last_pos);
+	{
+		vms_vector last_pos;
+		nd_read_vector(last_pos);
+	}
 	if ((obj->type == OBJ_WEAPON) && (obj->render_type == RT_WEAPON_VCLIP))
 		nd_read_fix(&(obj->lifeleft));
 	else {
@@ -864,7 +867,7 @@ static void nd_write_object(const vcobjptridx_t objp)
 	if (obj.type == OBJ_POWERUP)
 		nd_write_byte(obj.movement_type);
 
-	nd_write_vector(obj.last_pos);
+	nd_write_vector(obj.pos);
 
 	if (obj.type == OBJ_WEAPON && obj.render_type == RT_WEAPON_VCLIP)
 		nd_write_fix(obj.lifeleft);
@@ -2813,8 +2816,8 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD)) {
 				assert(tmap != 0);
-				auto &s0 = *vmsegptr(seg);
-				auto &tmap_num2 = s0.unique_segment::sides[side].tmap_num2;
+				unique_segment &s0 = *vmsegptr(seg);
+				auto &tmap_num2 = s0.sides[side].tmap_num2;
 				assert(tmap_num2 != 0);
 				tmap_num2 = vmsegptr(cseg)->unique_segment::sides[cside].tmap_num2 = tmap;
 			}
@@ -4352,7 +4355,7 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void nd_render_extras (ubyte which,const vcobjptr_t obj)
+static void nd_render_extras (ubyte which,const object &obj)
 {
 	ubyte w=which>>4;
 	ubyte type=which&15;
@@ -4366,11 +4369,11 @@ static void nd_render_extras (ubyte which,const vcobjptr_t obj)
 
 	if (w)
 	{
-		DemoRightExtra = *obj;  DemoDoRight=type;
+		DemoRightExtra = obj;  DemoDoRight=type;
 	}
 	else
 	{
-		DemoLeftExtra = *obj; DemoDoLeft=type;
+		DemoLeftExtra = obj; DemoDoLeft=type;
 	}
 
 }

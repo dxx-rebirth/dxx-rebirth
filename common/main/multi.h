@@ -351,8 +351,8 @@ player_flags map_granted_flags_to_player_flags(packed_spawn_granted_items grant)
 uint_fast32_t map_granted_flags_to_primary_weapon_flags(packed_spawn_granted_items grant);
 uint16_t map_granted_flags_to_vulcan_ammo(packed_spawn_granted_items grant);
 void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, unsigned sidenum, const vms_vector &pos, int forever, fix max_volume);
-void multi_object_to_object_rw(vmobjptr_t obj, object_rw *obj_rw);
-void multi_object_rw_to_object(object_rw *obj_rw, vmobjptr_t obj);
+void multi_object_to_object_rw(object &obj, object_rw *obj_rw);
+void multi_object_rw_to_object(object_rw *obj_rw, object &obj);
 
 using GMNames_array = array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT>;
 extern const GMNames_array GMNames;
@@ -370,12 +370,12 @@ namespace dsx {
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, imobjptridx_t is_bomb_objnum);
 void multi_send_destroy_controlcen(objnum_t objnum, playernum_t player);
-void multi_send_position(vmobjptridx_t objnum);
+void multi_send_position(object &objnum);
 void multi_send_kill(vmobjptridx_t objnum);
-void multi_send_remobj(vmobjptridx_t objnum);
+void multi_send_remobj(vmobjidx_t objnum);
 void multi_send_door_open(vcsegidx_t segnum, unsigned side, uint8_t flag);
 void multi_send_drop_weapon(vmobjptridx_t objnum,int seed);
-void multi_reset_player_object(vmobjptr_t objp);
+void multi_reset_player_object(object &objp);
 int multi_maybe_disable_friendly_fire(const object *killer);
 }
 #endif

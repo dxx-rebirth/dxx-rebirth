@@ -395,7 +395,7 @@ static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, con
 		multi_send_drop_marker(Player_num, plrobj.pos, player_marker_num, MarkerState.message[marker_num]);
 }
 
-void DropBuddyMarker(const vmobjptr_t objp)
+void DropBuddyMarker(object &objp)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -411,7 +411,7 @@ void DropBuddyMarker(const vmobjptr_t objp)
 	if (marker_objidx != object_none)
 		obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(marker_objidx));
 
-	marker_objidx = drop_marker_object(objp->pos, vmsegptridx(objp->segnum), objp->orient, marker_num);
+	marker_objidx = drop_marker_object(objp.pos, vmsegptridx(objp.segnum), objp.orient, marker_num);
 }
 
 #define MARKER_SPHERE_SIZE 0x58000
@@ -1334,7 +1334,6 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 	auto &vmobjptr = Objects.vmptr;
 #endif
 	ubyte	color;
-	const auto &segnum = seg;
 	
 	for (unsigned sn = 0; sn < MAX_SIDES_PER_SEGMENT; ++sn)
 	{
@@ -1387,9 +1386,9 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 				} else if (!(WallAnims[w.clip_num].flags & WCF_HIDDEN)) {
 					auto connected_seg = seg->children[sn];
 					if (connected_seg != segment_none) {
-						auto &vcseg = *vcsegptr(connected_seg);
+						const shared_segment &vcseg = *vcsegptr(connected_seg);
 						const auto &connected_side = find_connect_side(seg, vcseg);
-						auto &wall = *vcwallptr(vcseg.shared_segment::sides[connected_side].wall_num);
+						auto &wall = *vcwallptr(vcseg.sides[connected_side].wall_num);
 						switch (wall.keys)
 						{
 							case KEY_BLUE:
@@ -1428,7 +1427,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			}
 		}
 	
-		if (segnum==Player_init[Player_num].segnum)
+		if (seg==Player_init[Player_num].segnum)
 			color = BM_XRGB(31,0,31);
 
 		if ( color != 255 )	{
@@ -1438,22 +1437,22 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			if (!Automap_debug_show_all_segments)
 			{
 			auto &player_info = get_local_plrobj().ctype.player_info;
-				if ((cheats.fullautomap || player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL) && !LevelUniqueAutomapState.Automap_visited[segnum])
+				if ((cheats.fullautomap || player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL) && !LevelUniqueAutomapState.Automap_visited[seg])
 				color = am->wall_revealed_color;
 			}
 			Here:
 #endif
-			const auto vertex_list = get_side_verts(segnum,sn);
+			const auto vertex_list = get_side_verts(seg,sn);
 			const uint8_t flags = hidden_flag | no_fade;
-			add_one_edge(am, vertex_list[0], vertex_list[1], color, sn, segnum, flags);
-			add_one_edge(am, vertex_list[1], vertex_list[2], color, sn, segnum, flags);
-			add_one_edge(am, vertex_list[2], vertex_list[3], color, sn, segnum, flags);
-			add_one_edge(am, vertex_list[3], vertex_list[0], color, sn, segnum, flags);
+			add_one_edge(am, vertex_list[0], vertex_list[1], color, sn, seg, flags);
+			add_one_edge(am, vertex_list[1], vertex_list[2], color, sn, seg, flags);
+			add_one_edge(am, vertex_list[2], vertex_list[3], color, sn, seg, flags);
+			add_one_edge(am, vertex_list[3], vertex_list[0], color, sn, seg, flags);
 
 			if ( is_grate )	{
 				const uint8_t grate_flags = flags | EF_GRATE;
-				add_one_edge(am, vertex_list[0], vertex_list[2], color, sn, segnum, grate_flags);
-				add_one_edge(am, vertex_list[1], vertex_list[3], color, sn, segnum, grate_flags);
+				add_one_edge(am, vertex_list[0], vertex_list[2], color, sn, seg, grate_flags);
+				add_one_edge(am, vertex_list[1], vertex_list[3], color, sn, seg, grate_flags);
 			}
 		}
 	}

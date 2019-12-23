@@ -24,6 +24,14 @@ namespace dcx {
 struct shared_segment;
 struct unique_segment;
 struct segment;
+
+template <typename S, typename U>
+struct susegment;
+
+using msmusegment = susegment<shared_segment, unique_segment>;
+using mscusegment = susegment<shared_segment, const unique_segment>;	/* unusual, but supported */
+using csmusegment = susegment<const shared_segment, unique_segment>;
+using cscusegment = susegment<const shared_segment, const unique_segment>;
 }
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, segment, segnum_t, MAX_SEGMENTS);
 #endif
@@ -150,7 +158,7 @@ using d_delta_light_array = array<delta_light, MAX_DELTA_LIGHTS>;
 
 void clear_light_subtracted();
 
-void segment2_write(vcsegptr_t s2, PHYSFS_File *fp);
+void segment2_write(const cscusegment s2, PHYSFS_File *fp);
 
 void delta_light_read(delta_light *dl, PHYSFS_File *fp);
 void delta_light_write(const delta_light *dl, PHYSFS_File *fp);

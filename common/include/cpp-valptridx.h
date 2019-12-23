@@ -9,6 +9,19 @@
 #include <cstddef>
 #include <type_traits>
 
+#ifndef DXX_VALPTRIDX_ENFORCE_STRICT_PI_SEPARATION
+#ifdef NDEBUG
+#define DXX_VALPTRIDX_ENFORCE_STRICT_PI_SEPARATION	0
+#else
+#define DXX_VALPTRIDX_ENFORCE_STRICT_PI_SEPARATION	1
+#endif
+#endif
+
+#if DXX_VALPTRIDX_ENFORCE_STRICT_PI_SEPARATION
+template <typename T>
+struct strong_typedef;
+#endif
+
 /* valptridx_specialized_types is never defined, but is specialized to
  * define a typedef for a type-specific class suitable for use as a base
  * of valptridx<T>.
@@ -88,6 +101,15 @@ public:
 		 */
 		exception,
 	};
+
+#if DXX_VALPTRIDX_ENFORCE_STRICT_PI_SEPARATION
+	template <typename T>
+		using wrapper = strong_typedef<T>;
+#else
+	template <typename T>
+		using wrapper = T;
+#endif
+
 protected:
 	/* These classes contain a static method `report` called when an
 	 * error occurs.  The report method implements the error reporting
