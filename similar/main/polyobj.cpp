@@ -50,6 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
+#include "bm.h"
 
 #include "compiler-make_unique.h"
 #include "partial_range.h"
@@ -572,6 +573,9 @@ void free_polygon_models()
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	range_for (auto &i, partial_range(Polygon_models, N_polygon_models))
 		free_model(i);
+#if defined(DXX_BUILD_DESCENT_II)
+	Exit_models_loaded = false;
+#endif
 }
 
 }
