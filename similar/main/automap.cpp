@@ -1416,7 +1416,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			case WALL_CLOSED:
 				// Make grates draw properly
 				// NOTE: In original D1, is_grate is 1, hidden_flag not used so grates never fade. I (zico) like this so I leave this alone for now. 
-				if (!(is_grate = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sn) & WID_RENDPAST_FLAG))
+				if (!(is_grate = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn) & WID_RENDPAST_FLAG))
 					hidden_flag = EF_SECRET;
 				color = am->wall_normal_color;
 				break;

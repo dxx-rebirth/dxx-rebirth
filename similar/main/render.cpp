@@ -771,7 +771,7 @@ static void render_segment(fvcvertptr &vcvertptr, fvcwallptr &vcwallptr, const v
 		}
 
 		range_for (const uint_fast32_t sn, xrange(MAX_SIDES_PER_SEGMENT))
-			render_side(vcvertptr, canvas, seg, sn, WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sn), Viewer_eye);
+			render_side(vcvertptr, canvas, seg, sn, WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn), Viewer_eye);
 	}
 
 	//draw any objects that happen to be in this segment
@@ -1139,7 +1139,7 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 								const auto &&seg = vcsegptr(new_segnum);
 #endif
 		
-								if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sn) & WID_FLY_FLAG)
+								if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn) & WID_FLY_FLAG)
 								{		//can explosion migrate through
 									int child = seg->children[sn];
 									int checknp;
@@ -1308,7 +1308,7 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 			sort_child_array_t child_list;		//list of ordered sides to process
 			uint_fast32_t n_children = 0;							//how many sides in child_list
 			for (uint_fast32_t c = 0;c < MAX_SIDES_PER_SEGMENT;c++) {		//build list of sides
-				const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, c);
+				const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, c);
 				if (wid & WID_RENDPAST_FLAG)
 				{
 					if (auto codes_and = uor)
@@ -1576,7 +1576,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 
 					range_for (const uint_fast32_t sn, xrange(MAX_SIDES_PER_SEGMENT))
 					{
-						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sn);
+						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn);
 						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
 #if defined(DXX_BUILD_DESCENT_II)
 							|| (wid & WID_CLOAKED_FLAG)
@@ -1625,7 +1625,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 
 					range_for (const uint_fast32_t sn, xrange(MAX_SIDES_PER_SEGMENT))
 					{
-						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sn);
+						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn);
 						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
 #if defined(DXX_BUILD_DESCENT_II)
 							|| (wid & WID_CLOAKED_FLAG)

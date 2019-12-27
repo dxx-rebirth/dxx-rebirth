@@ -932,7 +932,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 					if (face_hit_type) {            //through this wall/door
 						auto &Walls = LevelUniqueWallSubsystemState.Walls;
 						auto &vcwallptr = Walls.vcptr;
-						auto wid_flag = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, startseg, startseg, side);
+						auto wid_flag = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, startseg, side);
 
 						//if what we have hit is a door, check the adjoining seg
 
@@ -1186,7 +1186,7 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 #ifndef NDEBUG
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	assert(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sidenum) == WID_TRANSPARENT_WALL);
+	assert(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sidenum) == WID_TRANSPARENT_WALL);
 #endif
 #endif
 

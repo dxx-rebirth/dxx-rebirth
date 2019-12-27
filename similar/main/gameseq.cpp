@@ -786,7 +786,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 			int sn;
 
 #if defined(DXX_BUILD_DESCENT_II)
-			const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, seg, sidenum);
+			const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sidenum);
 			if (!(wid & WID_RENDER_FLAG))
 				continue;
 #endif

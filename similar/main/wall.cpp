@@ -212,17 +212,17 @@ static WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBit
 		return WID_WALL; // There are children behind the door.
 }
 
-WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const shared_segment &sseg, const unique_segment &useg, const uint_fast32_t side)
+WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const cscusegment seg, const uint_fast32_t side)
 {
-	const auto child = sseg.children[side];
+	const auto child = seg.s.children[side];
 	if (unlikely(child == segment_none))
 		return WID_WALL;
 	if (unlikely(child == segment_exit))
 		return WID_EXTERNAL;
-	auto &sside = sseg.sides[side];
+	auto &sside = seg.s.sides[side];
 	if (likely(sside.wall_num == wall_none))
 		return WID_NO_WALL;
-	auto &uside = useg.sides[side];
+	auto &uside = seg.u.sides[side];
 	return wall_is_doorway(GameBitmaps, Textures, vcwallptr, sside, uside);
 }
 
@@ -1571,7 +1571,7 @@ void blast_nearby_glass_context::process_segment(const vmsegptridx_t segp, const
 		if (segnum != segment_none) {
 			if (!visited[segnum]) {
 				auto &&i = e.idx;
-				if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, i) & WID_FLY_FLAG)
+				if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, i) & WID_FLY_FLAG)
 				{
 					process_segment(segp.absolute_sibling(segnum), next_steps_remaining);
 				}

@@ -693,7 +693,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 					auto &iusidej = i->unique_segment::sides[j];
 					const auto tmap_xlate = iusidej.tmap_num;
 					iusidej.tmap_num = tmap_xlate_table[tmap_xlate];
-					const auto render = (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, i, i, j) & WID_RENDER_FLAG);
+					const auto render = (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, i, j) & WID_RENDER_FLAG);
 					if (render)
 						if (iusidej.tmap_num < 0)	{
 							Int3();

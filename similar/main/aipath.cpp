@@ -353,7 +353,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 #define AI_DOOR_OPENABLE_PLAYER_FLAGS	player_info.powerup_flags,
 			auto &player_info = get_local_plrobj().ctype.player_info;
 #endif
-			if ((WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, snum) & WID_FLY_FLAG) || ai_door_is_openable(objp, AI_DOOR_OPENABLE_PLAYER_FLAGS segp, snum))
+			if ((WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, snum) & WID_FLY_FLAG) || ai_door_is_openable(objp, AI_DOOR_OPENABLE_PLAYER_FLAGS segp, snum))
 #undef AI_DOOR_OPENABLE_PLAYER_FLAGS
 			{
 				const auto this_seg = segp->children[snum];

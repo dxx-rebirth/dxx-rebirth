@@ -935,7 +935,7 @@ static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix l
 				range_for (const auto &&ez, enumerate(zip(rsegp->shared_segment::sides, rsegp->unique_segment::sides)))
 				{
 					const uint_fast32_t sidenum = ez.idx;
-					if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, rsegp, rsegp, sidenum) != WID_NO_WALL)
+					if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, rsegp, sidenum) != WID_NO_WALL)
 					{
 						auto &srside = std::get<0>(ez.value);
 						auto &urside = std::get<1>(ez.value);
@@ -1145,7 +1145,7 @@ static void calim_process_all_lights(int quick_light)
 		range_for (const auto &&es, enumerate(segp->unique_segment::sides))
 		{
 			const uint_fast32_t sidenum = es.idx;
-			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) != WID_NO_WALL)
+			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum) != WID_NO_WALL)
 			{
 				const auto sidep = &es.value;
 				fix	light_intensity;

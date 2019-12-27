@@ -262,7 +262,7 @@ static void paging_touch_side(const d_eclip_array &Effects, const Textures_array
 {
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	if (!(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, segp, sidenum) & WID_RENDER_FLAG))
+	if (!(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum) & WID_RENDER_FLAG))
 		return;
 	auto &uside = segp.u.sides[sidenum];
 	const auto tmap1 = uside.tmap_num;
