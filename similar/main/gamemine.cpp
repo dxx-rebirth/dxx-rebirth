@@ -65,22 +65,22 @@ namespace dsx {
 /*
  * reads a segment2 structure from a PHYSFS_File
  */
-static void segment2_read(shared_segment &s2, unique_segment &u2, PHYSFS_File *fp)
+static void segment2_read(const msmusegment s2, PHYSFS_File *fp)
 {
-	s2.special = PHYSFSX_readByte(fp);
-	s2.matcen_num = PHYSFSX_readByte(fp);
+	s2.s.special = PHYSFSX_readByte(fp);
+	s2.s.matcen_num = PHYSFSX_readByte(fp);
 	/* station_idx is overwritten by the caller in some cases, but set
 	 * it here for compatibility with how the game previously worked */
-	s2.station_idx = PHYSFSX_readByte(fp);
+	s2.s.station_idx = PHYSFSX_readByte(fp);
 	const auto s2_flags = PHYSFSX_readByte(fp);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)s2_flags;	// descent 2 ambient sound handling
-	if (s2.special >= MAX_CENTER_TYPES)
-		s2.special = SEGMENT_IS_NOTHING; // remove goals etc.
+	if (s2.s.special >= MAX_CENTER_TYPES)
+		s2.s.special = SEGMENT_IS_NOTHING; // remove goals etc.
 #elif defined(DXX_BUILD_DESCENT_II)
-	s2.s2_flags = s2_flags;
+	s2.s.s2_flags = s2_flags;
 #endif
-	u2.static_light = PHYSFSX_readFix(fp);
+	s2.u.static_light = PHYSFSX_readFix(fp);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -718,7 +718,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 		if (mine_top_fileinfo.fileinfo_version >= 20)
 			range_for (const auto &&segp, vmsegptridx)
 			{
-				segment2_read(segp, segp, LoadFile);
+				segment2_read(segp, LoadFile);
 				fuelcen_activate(segp);
 			}
 #endif
@@ -1021,7 +1021,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 	range_for (const auto &&pi, vmsegptridx)
 	{
 		if (Gamesave_current_version > 5)
-			segment2_read(pi, pi, LoadFile);
+			segment2_read(pi, LoadFile);
 		fuelcen_activate(pi);
 	}
 
