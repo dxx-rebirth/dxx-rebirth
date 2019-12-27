@@ -777,9 +777,9 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 		load_level(shareware_flag ? Shareware_level_names[level_num] : Registered_level_names[level_num]);
 	}
 
-	range_for (const auto &&segp, vcsegptr)
+	range_for (const cscusegment segp, vcsegptr)
 	{
-		range_for (const auto &&z, zip(segp->shared_segment::sides, segp->unique_segment::sides))
+		range_for (const auto &&z, zip(segp.s.sides, segp.u.sides))
 		{
 			auto &sside = std::get<0>(z);
 			if (sside.wall_num != wall_none)
@@ -865,9 +865,9 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 	Ignore_tmap_num2_error = 0;
 
 	//	Process walls and segment sides.
-	range_for (const auto &&segp, vmsegptr)
+	range_for (const csmusegment segp, vmsegptr)
 	{
-		range_for (const auto &&z, zip(segp->shared_segment::sides, segp->unique_segment::sides, segp->children))
+		range_for (const auto &&z, zip(segp.s.sides, segp.u.sides, segp.s.children))
 		{
 			auto &sside = std::get<0>(z);
 			auto &uside = std::get<1>(z);
