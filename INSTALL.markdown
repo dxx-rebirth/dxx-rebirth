@@ -10,7 +10,7 @@ The DXX-Rebirth maintainers have no control over the sites linked below.  The ma
 * [Python 3.x](https://www.python.org/) to run [scons](https://www.scons.org/), the processor for SConstruct scripts.
 [Python 3.6](https://www.python.org/downloads/release/python-369/) is recommended.
 * C++ compiler with support for selected C++11 features.  One of:
-    * [gcc](https://gcc.gnu.org/) 4.9.4 or later
+    * [gcc](https://gcc.gnu.org/) 4.9.4 or later[1]
     * [clang](https://clang.llvm.org/) 3.3 or later
     * Microsoft Visual Studio is **not** supported at this time.
 	  Support for Microsoft Visual Studio will be added when it
@@ -33,6 +33,18 @@ Unless otherwise noted, using the newest release available is recommended.  For 
 
 DXX-Rebirth can be built on one system to run on a different system, such as using Linux to build for Windows (a "cross-compiled build").  The sections below specify where to get prerequisites for a build meant to run on the system where it is built (a "native build").
 
+For each prerequisite, its development headers (files ending in **.h**) and its libraries (ending in **.so** for Linux, **.dylib** for Mac OS X, and **.dll** for Windows) must be found by the compiler.  You can do this by placing these files in an existing directory which the compiler will search, or by placing these files in a directory which you instruct the compiler to search.
+
+#### Placing files in a directory which you instruct the compiler to search (preferred)
+
+If you choose to install the headers and/or libraries in a new path, you must instruct the build system to search that path.  To do this for development headers, add to the scons command line **"CPPFLAGS=-isystem** _/absolute/path/to/header/directory_**"**.  To do this for libraries, add to the scons command line **"LINKFLAGS=-L** _/absolute/path/to/library/directory_**"**.
+
+#### Adding files to an existing directory which the compiler will search
+
+To find these paths for gcc:
+* Get the compiler's header search path by running **gcc -Wp,-v -S -x c++ /dev/null** and looking at the lines under the label **#include <...> search starts here:**.  Any of these lines will work.  The paths _without_ a compiler version number in them are preferable.  Windows users may need to write **gcc -Wp,-v -S -x c++ nul** instead, due to Windows using a different name for the null device.
+* Get the compiler's library search path by running **gcc -print-search-dirs** and looking at the line labeled **libraries:**.  This line is a list of directories that will be searched.  Any of the directories will work.  Again, prefer directories that are do not have a compile version number in them.
+
 #### Windows
 Where possible, Windows users should try to obtain a compiled package, rather than locally compiling from source.  To build from source, read on.
 
@@ -44,8 +56,6 @@ If you are not sure whether your system is Windows x86 or Windows x64, use the p
 * C++ compiler
     * mingw-gcc: [Getting Started](http://www.mingw.org/wiki/Getting_Started) |
 	[Direct download](https://sourceforge.net/projects/mingw/files/latest/download)
-    * [clang](https://llvm.org/releases/3.6.2/LLVM-3.6.2-win32.exe)
-	([.sig](https://llvm.org/releases/3.6.2/LLVM-3.6.2-win32.exe.sig))
 * [SDL 1.2 x86 zip](https://www.libsdl.org/release/SDL-1.2.15-win32.zip) |
 [SDL 1.2 x64 zip](https://www.libsdl.org/release/SDL-1.2.15-win32-x64.zip)
 * No published PhysFS package for Windows is known.
@@ -195,3 +205,7 @@ For Windows and Linux, DXX-Rebirth installs only the main game binary.  The bina
 As a convenience, if **register\_install\_target=True**, **SConstruct** registers a pseudo-target named **install** which copies the compiled files to *DESTDIR*__/__*BINDIR*.  By default, **register\_install\_target=True**, *DESTDIR* is *empty*, and *BINDIR* is *PREFIX*__/bin__, which expands to **/usr/local/bin**.
 
 DXX-Rebirth [requires game data](https://www.dxx-rebirth.com/game-content/) to play.  The build system has no support for interacting with game data.  You can get [Descent 1 PC shareware data](https://www.dxx-rebirth.com/download/dxx/content/descent-pc-shareware.zip) and [Descent 2 PC demo data](https://www.dxx-rebirth.com/download/dxx/content/descent2-pc-demo.zip) from the DXX-Rebirth website.  Full game data is supported (and recommended), but is not freely available.  You can [buy full Descent 1 game data](https://www.gog.com/game/descent) and/or [buy full Descent 2 game data](https://www.gog.com/game/descent_2) from GOG.com.  Historically, both Descent 1 and Descent 2 were sold as a single unit.  After a nearly two-year hiatus from sale, the games returned to GOG.com in November 2017 as separate units.  DXX-Rebirth contains engines for both games.  Each engine works for its respective game without the data from the other, so players who wish to purchase only one game may do so.
+
+[1] gcc-4.9.2 works, but has a known bug[2] that miscompiles[3] valid C++ code.  All known uses of the affected code have been removed from Rebirth, but there is no test preventing their reintroduction.  To be safe, gcc-4.9.4 is recommended.
+[2]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66501
+[3]: https://github.com/dxx-rebirth/dxx-rebirth/issues/289
