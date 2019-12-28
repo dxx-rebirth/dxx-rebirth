@@ -4261,7 +4261,6 @@ class DXXCommon(LazyObjectConstructor):
 			Werror + 'pointer-arith',
 			Werror + 'cast-qual',
 			Werror + 'missing-declarations',
-			Werror + 'redundant-decls',
 			Werror + 'vla',
 		])
 		env.Append(
