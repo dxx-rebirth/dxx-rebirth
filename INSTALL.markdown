@@ -35,6 +35,8 @@ DXX-Rebirth can be built on one system to run on a different system, such as usi
 
 For each prerequisite, its development headers (files ending in **.h**) and its libraries (ending in **.so** for Linux, **.dylib** for Mac OS X, and **.dll** for Windows) must be found by the compiler.  You can do this by placing these files in an existing directory which the compiler will search, or by placing these files in a directory which you instruct the compiler to search.
 
+In general, avoid installing prerequisites to paths which contain embedded spaces.  Although Rebirth quotes paths to handle this, some prerequisites may use `pkg-config` files that do not handle embedded spaces well.
+
 #### Placing files in a directory which you instruct the compiler to search (preferred)
 
 If you choose to install the headers and/or libraries in a new path, you must instruct the build system to search that path.  To do this for development headers, add to the scons command line **"CPPFLAGS=-isystem** _/absolute/path/to/header/directory_**"**.  To do this for libraries, add to the scons command line **"LINKFLAGS=-L** _/absolute/path/to/library/directory_**"**.
