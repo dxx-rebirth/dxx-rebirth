@@ -93,7 +93,7 @@ class StaticSubprocess:
 		try:
 			return v.__version_head
 		except AttributeError:
-			v.__version_head = r = (v.out or v.err).splitlines()[0] if not v.returncode and (v.out or v.err) else None
+			v.__version_head = r = (v.out or v.err).splitlines()[0].decode() if not v.returncode and (v.out or v.err) else None
 			return r
 	pcall = staticmethod(pcall)
 	qcall = staticmethod(qcall)
@@ -175,9 +175,9 @@ class Git(StaticSubprocess):
 			v = cls.__compute_extra_version()
 			cls.__computed_extra_version = c = cls.ComputedExtraVersion(
 				v,
-				_spcall(cls, ['status', '--short', '--branch']),
-				_spcall(cls, ['diff', '--stat', 'HEAD']),
-				_spcall(cls, ['rev-parse', 'HEAD']).rstrip(),
+				_spcall(cls, ['status', '--short', '--branch']).decode(),
+				_spcall(cls, ['diff', '--stat', 'HEAD']).decode(),
+				_spcall(cls, ['rev-parse', 'HEAD']).rstrip().decode(),
 			) if v is not None else cls.UnknownExtraVersion
 		return c
 	# Run `git describe --tags --abbrev=12`.
@@ -4972,7 +4972,7 @@ class DXXProgram(DXXCommon):
 			# field.
 			('DESCENT_VERSION_EXTRA', _quote_cppdefine(extra_version, f=str)),
 			('DESCENT_CXX_version', _quote_cppdefine(get_version_head(env['CXX']))),
-			('DESCENT_LINK', _quote_cppdefine(ld_path)),
+			('DESCENT_LINK', _quote_cppdefine(ld_path.decode())),
 			('DESCENT_git_status', _quote_cppdefine(git_describe_version.status)),
 			('DESCENT_git_diffstat', _quote_cppdefine(git_describe_version.diffstat_HEAD)),
 		))
