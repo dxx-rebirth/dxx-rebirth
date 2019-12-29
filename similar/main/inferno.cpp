@@ -429,7 +429,7 @@ namespace dsx {
 #define DXX_RENAME_IDENTIFIER2(I,N)	I##$##N
 #define DXX_RENAME_IDENTIFIER(I,N)	DXX_RENAME_IDENTIFIER2(I,N)
 #define argc	DXX_RENAME_IDENTIFIER(argc_gc, DXX_git_commit)
-#define argv	DXX_RENAME_IDENTIFIER(argv_gd, DXX_git_describe)
+#define argv	DXX_RENAME_IDENTIFIER(argv_gd$b32, DXX_git_describe)
 
 //	DESCENT by Parallax Software
 //	DESCENT II by Parallax Software
