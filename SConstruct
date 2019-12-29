@@ -1,5 +1,6 @@
 #SConstruct
 # vim: set fenc=utf-8 sw=4 ts=4 :
+# $Format:%H$
 
 # needed imports
 from collections import (defaultdict, Counter as collections_counter)
@@ -131,6 +132,16 @@ class ToolchainInformation(StaticSubprocess):
 			f("$%s: %r" % (v, penv.get(v, None)))
 
 class Git(StaticSubprocess):
+	__git_archive_export_commit = '$Format:%H$'
+	if len(__git_archive_export_commit) == 40:
+		# If the length is 40, then `git archive` has rewritten the
+		# string to be a commit ID.  Use that commit ID as a guessed
+		# default when Git is not available to resolve a current commit
+		# ID.
+		__git_archive_export_commit = 'archive-{}'.format(__git_archive_export_commit)
+	else:
+		# Otherwise, assume that this is a checked-in copy.
+		__git_archive_export_commit = None
 	class ComputedExtraVersion(object):
 		__slots__ = ('describe', 'status', 'diffstat_HEAD', 'revparse_HEAD')
 		def __init__(self,describe,status,diffstat_HEAD,revparse_HEAD):
@@ -140,7 +151,7 @@ class Git(StaticSubprocess):
 			self.revparse_HEAD = revparse_HEAD
 		def __repr__(self):
 			return 'ComputedExtraVersion(%r,%r,%r,%r)' % (self.describe, self.status, self.diffstat_HEAD, self.revparse_HEAD)
-	UnknownExtraVersion = ComputedExtraVersion(None, None, None, None)
+	UnknownExtraVersion = ComputedExtraVersion(None, None, None, __git_archive_export_commit)
 	# None when unset.  Instance of ComputedExtraVersion once cached.
 	__computed_extra_version = None
 	__path_git = None
@@ -4855,11 +4866,12 @@ class DXXProgram(DXXCommon):
 		self._argument_prefix_list = prefix
 		user_settings = self.UserSettings(program=self)
 		DXXCommon.__init__(self, user_settings)
-		git_describe_version = Git.compute_extra_version().describe
+		compute_extra_version = Git.compute_extra_version()
+		git_describe_version = compute_extra_version.describe
 		extra_version = 'v%s.%s.%s' % (self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO)
 		if git_describe_version and not (extra_version == git_describe_version or extra_version[1:] == git_describe_version):
 			extra_version += ' ' + git_describe_version
-		print('===== %s %s =====' % (self.PROGRAM_NAME, extra_version))
+		print('===== %s %s %s =====' % (self.PROGRAM_NAME, extra_version, compute_extra_version.revparse_HEAD))
 		user_settings.register_variables(prefix, variables, filtered_help)
 
 	def init(self,substenv):
