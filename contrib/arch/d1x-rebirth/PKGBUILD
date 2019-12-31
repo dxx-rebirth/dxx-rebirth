@@ -3,8 +3,8 @@
 # Maintainer: SanskritFritz (gmail)
 
 pkgname=d1x-rebirth
-pkgver=20191121
-pkgrel=3
+pkgver=20191227
+pkgrel=1
 pkgdesc="An enhanced engine to play with Descent1 data."
 arch=('x86_64')
 url="https://www.dxx-rebirth.com/"
