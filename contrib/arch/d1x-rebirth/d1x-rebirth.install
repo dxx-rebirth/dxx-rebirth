@@ -1,5 +1,5 @@
 post_install() {
-  echo 'Put your Descent 1 datas either to /usr/share/d1x-rebirth/ or ~/.d1x-rebirth/'
+  echo 'Put your Descent 1 data files either to /usr/share/d1x-rebirth/ or ~/.d1x-rebirth/'
 
   cat << EOF
 Following files are needed to run the game:
@@ -9,7 +9,7 @@ descent.pig
 
 You don't own the full game, yet?
 Just visit GOOD OLD GAMES via:
-https://www.gog.com/game/descent/pp/fc074d501302eb2b93e2554793fcaf50b3bf7291
+https://www.gog.com/game/descent
 and download it for a very low price! DRM-FREE!
 
 You can get AddOns for the game from https://www.dxx-rebirth.com/addons/
