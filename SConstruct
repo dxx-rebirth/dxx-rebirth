@@ -138,7 +138,7 @@ class Git(StaticSubprocess):
 		# string to be a commit ID.  Use that commit ID as a guessed
 		# default when Git is not available to resolve a current commit
 		# ID.
-		__git_archive_export_commit = 'archive-{}'.format(__git_archive_export_commit)
+		__git_archive_export_commit = 'archive_{}'.format(__git_archive_export_commit)
 	else:
 		# Otherwise, assume that this is a checked-in copy.
 		__git_archive_export_commit = None
