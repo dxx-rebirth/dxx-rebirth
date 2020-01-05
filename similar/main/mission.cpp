@@ -1124,9 +1124,9 @@ static const char *load_mission(const mle *const mission)
 
 //Extends load_mission_by_name with a recursive search if necessary
 //Returns nullptr if mission loaded ok, else error string.
-const char *load_mission_by_name_from_subdir(const char *const mission_name, mission_list_type &subdir);
+const char *load_mission_by_name_from_subdir(const char *const mission_name, mission_list_type &subdir, bool &inSubdir);
 
-const char *load_mission_by_name_from_subdir(const char *const mission_name, mission_list_type &subdir)
+const char *load_mission_by_name_from_subdir(const char *const mission_name, mission_list_type &subdir, bool &inSubdir)
 {
 	const char *found = nullptr;
 
@@ -1135,20 +1135,20 @@ const char *load_mission_by_name_from_subdir(const char *const mission_name, mis
 		if (!d_stricmp(mission_name, &*i.filename))
 		{
 			found = load_mission(&i);
+            inSubdir = true;
 			break;
 		}
     }
     
     if (!found)
-	range_for (auto &i, subdir)
-    {
-		if (!i.directory.empty())
-		{
-			found = load_mission_by_name_from_subdir(mission_name, i.directory);
-			break;
-		}
-    }
-    
+        range_for (auto &i, subdir)
+            if (!i.directory.empty())
+            {
+                found = load_mission_by_name_from_subdir(mission_name, i.directory, inSubdir);
+                if (inSubdir)
+                    break;
+            }
+        
     return found;
 }
 
@@ -1168,15 +1168,15 @@ const char *load_mission_by_name(const char *const mission_name)
 		}
     }
     
+    bool inSubdir = false;
     if (!found)
-	range_for (auto &i, mission_list)
-    {
-		if (!i.directory.empty())
-		{
-			found = load_mission_by_name_from_subdir(mission_name, i.directory);
-			break;
-		}
-    }
+        range_for (auto &i, mission_list)
+            if (!i.directory.empty())
+            {
+                found = load_mission_by_name_from_subdir(mission_name, i.directory, inSubdir);
+                if (inSubdir)
+                    break;
+            }
 
 	return found;
 }
