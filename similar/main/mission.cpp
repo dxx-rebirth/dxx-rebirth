@@ -1127,15 +1127,10 @@ static const char *load_mission(const mle *const mission)
 const char *load_mission_by_name(const char *const mission_name)
 {
 	auto mission_list = build_mission_list(1);
-	const char *found = nullptr;
-
 	range_for (auto &i, mission_list)
 		if (!d_stricmp(mission_name, &*i.filename))
-		{
-			found = load_mission(&i);
-			break;
-		}
-	return found;
+			return load_mission(&i);
+	return "No matching mission found in\ninstalled mission list.";
 }
 
 namespace {
