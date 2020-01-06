@@ -272,7 +272,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 		if (vm_vec_dist2(v0, vcvertptr(seg.verts[4])) > size2)
 			capacity_flag |= capacity_z;
 		player_init_segment_capacity_flag[i] = capacity_flag;
-		con_printf(CON_NORMAL, "Original player %u has size %u and segment capacity flags %x.", i, old_player_obj.size, capacity_flag);
+		con_printf(CON_NORMAL, "Original player %u has size %u, starts in segment #%hu, and has segment capacity flags %x.", i, old_player_obj.size, static_cast<segnum_t>(segnum), capacity_flag);
 		if (capacity_flag)
 			++segments_with_spare_capacity;
 	}
@@ -350,8 +350,14 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 				return;
 			vm_vec_normalize(disp);
 			vm_vec_scale(disp, fixmul(old_player_obj.size, size_scalar >> 1));
-			con_printf(CON_NORMAL, "Displace player %u at {%i, %i, %i} by {%i, %i, %i}.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, disp.x, disp.y, disp.z);
-			vm_vec_add2(Player_init[plridx].pos, disp);
+			const auto target_position = vm_vec_add(Player_init[plridx].pos, disp);
+			if (const auto sidemask = get_seg_masks(vcvertptr, target_position, vcsegptr(plrobj.segnum), 1).sidemask)
+			{
+				con_printf(CON_NORMAL, "Cannot displace player %u at {%i, %i, %i} to {%i, %i, %i}: would be outside segment for sides %x.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, target_position.x, target_position.y, target_position.z, sidemask);
+				return;
+			}
+			con_printf(CON_NORMAL, "Displace player %u at {%i, %i, %i} by {%i, %i, %i} to {%i, %i, %i}.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, disp.x, disp.y, disp.z, target_position.x, target_position.y, target_position.z);
+			Player_init[plridx].pos = target_position;
 			plrobj.pos = Player_init[plridx].pos;
 		};
 		for (unsigned extra_player_idx = preplaced_starts, displacements = 0; extra_player_idx < k; ++extra_player_idx)
