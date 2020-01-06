@@ -39,7 +39,12 @@ static void arch_close(void)
 	SDL_Quit();
 }
 
-void arch_init(void)
+arch_atexit::~arch_atexit()
+{
+	arch_close();
+}
+
+arch_atexit arch_init()
 {
 	int t;
 
@@ -79,7 +84,7 @@ void arch_init(void)
 	if ((t = gr_init()) != 0)
 		Error(TXT_CANT_INIT_GFX,t);
 
-	atexit(arch_close);
+	return {};
 }
 
 }

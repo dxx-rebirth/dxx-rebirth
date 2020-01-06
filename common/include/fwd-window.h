@@ -13,7 +13,13 @@
 
 #ifdef dsx
 namespace dsx {
-void arch_init();
+struct arch_atexit
+{
+	~arch_atexit();
+};
+
+__attribute_warn_unused_result
+arch_atexit arch_init();
 }
 #endif
 namespace dcx {

@@ -562,7 +562,7 @@ static int main(int argc, char *argv[])
 
 	PHYSFSX_addArchiveContent();
 
-	arch_init();
+	const auto &&arch_atexit_result = arch_init();
 
 #if !DXX_USE_OGL
 	select_tmap(CGameArg.DbgTexMap);
