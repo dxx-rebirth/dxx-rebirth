@@ -183,6 +183,16 @@ static void jointlist_read(PHYSFS_File *fp, array<jointlist, N_ANIM_STATES> &jl)
 	{
 		i.n_joints = PHYSFSX_readShort(fp);
 		i.offset = PHYSFSX_readShort(fp);
+		if (!i.n_joints)
+			/* The custom campaign `Descent 2: Enemy Vignettes` has
+			 * custom robots with invalid joints.  These joints have
+			 * invalid offsets, but `n_joints` of 0.  This makes the
+			 * invalid data easy to detect and clean.
+			 *
+			 * When the number of joints is zero, discard the loaded
+			 * offset and set it to 0, which will always be in range.
+			 */
+			i.offset = 0;
 	}
 }
 
