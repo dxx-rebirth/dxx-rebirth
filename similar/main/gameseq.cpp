@@ -420,7 +420,10 @@ static void gameseq_init_network_players(object_array &Objects)
 			if ((!retain_guidebot && robot_is_companion(ri)) ||
 				(remove_thief && robot_is_thief(ri)))
 			{
-				object_create_robot_egg(o);
+				if (o->contains_count > 0)
+				{
+					object_create_robot_egg(o);
+				}
 				obj_delete(LevelUniqueObjectState, Segments, o);		//kill the buddy in netgames
 			}
 		}
@@ -479,7 +482,10 @@ void gameseq_remove_unused_players()
 					auto &ri = Robot_info[get_robot_id(o)];
 					if (robot_is_thief(ri))
 					{
-						object_create_robot_egg(o);
+						if (o->contains_count > 0)
+						{
+							object_create_robot_egg(o);
+						}
 						obj_delete(LevelUniqueObjectState, Segments, o);
 					}
 				}
