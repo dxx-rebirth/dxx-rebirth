@@ -72,10 +72,19 @@ using std::min;
 #define MISSION_EXTENSION_DESCENT_II	".mn2"
 #endif
 
+#define CON_PRIORITY_DEBUG_MISSION_LOAD	CON_DEBUG
+
+namespace {
+
+using mission_candidate_search_path = array<char, PATH_MAX>;
+
+}
+
+namespace dsx {
+
 namespace {
 
 struct mle;
-using mission_candidate_search_path = array<char, PATH_MAX>;
 using mission_list_type = std::vector<mle>;
 
 //mission list entry
@@ -169,6 +178,67 @@ mle::mle(const char *const name, std::vector<mle> &&d) :
 	ss.count(directory);
 	array<char, 12> dirbuf;
 	snprintf(mission_name.data(), mission_name.size(), "%s/ [%sMSN:L%zu;T%zu]", name, prepare_mission_list_count_dirbuf(dirbuf, ss.immediate_directories), ss.immediate_missions, ss.total_missions);
+}
+
+static const mle *compare_mission_predicate_to_leaf(const mission_entry_predicate mission_predicate, const mle &candidate, const char *candidate_filesystem_name)
+{
+#if defined(DXX_BUILD_DESCENT_II)
+	if (mission_predicate.check_version && mission_predicate.descent_version != candidate.descent_version)
+	{
+		con_printf(CON_PRIORITY_DEBUG_MISSION_LOAD, DXX_STRINGIZE_FL(__FILE__, __LINE__, "mission version check requires %u, but found %u; skipping string comparison for mission \"%s\""), static_cast<unsigned>(mission_predicate.descent_version), static_cast<unsigned>(candidate.descent_version), candidate.path.data());
+		return nullptr;
+	}
+#endif
+	if (!d_stricmp(mission_predicate.filesystem_name, candidate_filesystem_name))
+	{
+		con_printf(CON_PRIORITY_DEBUG_MISSION_LOAD, DXX_STRINGIZE_FL(__FILE__, __LINE__, "found mission \"%s\"[\"%s\"] at %p"), candidate.path.data(), &*candidate.filename, &candidate);
+		return &candidate;
+	}
+	con_printf(CON_PRIORITY_DEBUG_MISSION_LOAD, DXX_STRINGIZE_FL(__FILE__, __LINE__, "want mission \"%s\", no match for mission \"%s\"[\"%s\"] at %p"), mission_predicate.filesystem_name, candidate.path.data(), &*candidate.filename, &candidate);
+	return nullptr;
+}
+
+static const mle *compare_mission_by_guess(const mission_entry_predicate mission_predicate, const mle &candidate)
+{
+	if (candidate.directory.empty())
+		return compare_mission_predicate_to_leaf(mission_predicate, candidate, &*candidate.filename);
+	{
+		const unsigned long size = candidate.directory.size();
+		con_printf(CON_PRIORITY_DEBUG_MISSION_LOAD, DXX_STRINGIZE_FL(__FILE__, __LINE__, "want mission \"%s\", check %lu missions under \"%s\""), mission_predicate.filesystem_name, size, candidate.path.data());
+	}
+	range_for (auto &i, candidate.directory)
+	{
+		if (const auto r = compare_mission_by_guess(mission_predicate, i))
+			return r;
+	}
+	con_printf(CON_PRIORITY_DEBUG_MISSION_LOAD, DXX_STRINGIZE_FL(__FILE__, __LINE__, "no matches under \"%s\""), candidate.path.data());
+	return nullptr;
+}
+
+static const mle *compare_mission_by_pathname(const mission_entry_predicate mission_predicate, const mle &candidate)
+{
+	if (candidate.directory.empty())
+		return compare_mission_predicate_to_leaf(mission_predicate, candidate, candidate.path.data());
+	const auto mission_name = mission_predicate.filesystem_name;
+	const auto path_length = candidate.path.size();
+	if (!strncmp(mission_name, candidate.path.data(), path_length) && mission_name[path_length] == '/')
+	{
+		{
+			const unsigned long size = candidate.directory.size();
+			con_printf(CON_PRIORITY_DEBUG_MISSION_LOAD, DXX_STRINGIZE_FL(__FILE__, __LINE__, "want mission pathname \"%s\", check %lu missions under \"%s\""), mission_predicate.filesystem_name, size, candidate.path.data());
+		}
+		range_for (auto &i, candidate.directory)
+		{
+			if (const auto r = compare_mission_by_pathname(mission_predicate, i))
+				return r;
+		}
+		con_printf(CON_PRIORITY_DEBUG_MISSION_LOAD, DXX_STRINGIZE_FL(__FILE__, __LINE__, "no matches under \"%s\""), candidate.path.data());
+	}
+	else
+		con_printf(CON_PRIORITY_DEBUG_MISSION_LOAD, DXX_STRINGIZE_FL(__FILE__, __LINE__, "want mission pathname \"%s\", ignore non-matching directory \"%s\""), mission_predicate.filesystem_name, candidate.path.data());
+	return nullptr;
+}
+
 }
 
 }
@@ -496,6 +566,8 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 		const auto idx_file_extension = str_pathname.find_first_of('.', idx_filename);
 		if (idx_file_extension == str_pathname.npos)
 			return 0;	//missing extension
+		if (idx_file_extension >= DXX_MAX_MISSION_PATH_LENGTH)
+			return 0;	// path too long, would be truncated in save game files
 		str_pathname.resize(idx_file_extension);
 		mission_list.emplace_back(Mission_path(std::move(str_pathname), idx_filename));
 		mle *mission = &mission_list.back();
@@ -1133,12 +1205,43 @@ static const char *load_mission(const mle *const mission)
 
 //loads the named mission if exists.
 //Returns nullptr if mission loaded ok, else error string.
-const char *load_mission_by_name(const char *const mission_name)
+const char *load_mission_by_name (const mission_entry_predicate mission_name, const mission_name_type name_match_mode)
 {
 	auto &&mission_list = build_mission_list(mission_filter_mode::include_anarchy);
-	range_for (auto &i, mission_list)
-		if (!d_stricmp(mission_name, &*i.filename))
-			return load_mission(&i);
+	{
+		range_for (auto &i, mission_list)
+		{
+			switch (name_match_mode)
+			{
+				case mission_name_type::basename:
+					if (!d_stricmp(mission_name.filesystem_name, &*i.filename))
+						return load_mission(&i);
+					continue;
+				case mission_name_type::pathname:
+				case mission_name_type::guess:
+					if (const auto r = compare_mission_by_pathname(mission_name, i))
+						return load_mission(r);
+					continue;
+				default:
+					return "Unhandled load mission type";
+			}
+		}
+	}
+	if (name_match_mode == mission_name_type::guess)
+	{
+		const auto p = strrchr(mission_name.filesystem_name, '/');
+		const auto &guess_predicate = p
+			? mission_name.with_filesystem_name(p + 1)
+			: mission_name;
+		range_for (auto &i, mission_list)
+		{
+			if (const auto r = compare_mission_by_guess(guess_predicate, i))
+			{
+				con_printf(CON_NORMAL, "%s:%u: request for guessed mission name \"%s\" found \"%s\"", __FILE__, __LINE__, mission_name.filesystem_name, r->path.c_str());
+				return load_mission(r);
+			}
+		}
+	}
 	return "No matching mission found in\ninstalled mission list.";
 }
 

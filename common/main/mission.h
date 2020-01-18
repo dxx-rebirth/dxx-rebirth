@@ -79,6 +79,8 @@ constexpr std::integral_constant<uint8_t, 127> MAX_SECRET_LEVELS_PER_MISSION{};	
 //where the missions go
 #define MISSION_DIR "missions/"
 
+constexpr std::integral_constant<std::size_t, 128> DXX_MAX_MISSION_PATH_LENGTH{};
+
 /* Path and filename must be kept in sync. */
 class Mission_path
 {
@@ -116,6 +118,11 @@ public:
 	enum class descent_version_type : uint8_t
 	{
 #if defined(DXX_BUILD_DESCENT_II)
+		/* These values are written to the binary savegame as part of
+		 * the mission name.  If the values are reordered or renumbered,
+		 * old savegames will be unable to find the matching mission
+		 * file.
+		 */
 		descent2a,	// !name
 		descent2z,	// zname
 		descent2x,	// xname
@@ -217,6 +224,17 @@ enum class mission_filter_mode
 
 #ifdef dsx
 
+namespace dcx {
+
+enum class mission_name_type
+{
+	basename,
+	pathname,
+	guess,
+};
+
+}
+
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -228,9 +246,29 @@ int load_mission_ham();
 void bm_read_extra_robots(const char *fname, Mission::descent_version_type type);
 #endif
 
+struct mission_entry_predicate
+{
+	/* May be a basename or may be a path relative to the root of the
+	 * PHYSFS virtual filesystem, depending on what the caller provides.
+	 *
+	 * In both cases, the file extension is omitted.
+	 */
+	const char *filesystem_name;
+#if defined(DXX_BUILD_DESCENT_II)
+	bool check_version;
+	Mission::descent_version_type descent_version;
+#endif
+	mission_entry_predicate with_filesystem_name(const char *fsname) const
+	{
+		mission_entry_predicate m = *this;
+		m.filesystem_name = fsname;
+		return m;
+	}
+};
+
 //loads the named mission if it exists.
 //Returns nullptr if mission loaded ok, else error string.
-const char *load_mission_by_name (const char *mission_name);
+const char *load_mission_by_name (mission_entry_predicate mission_name, mission_name_type);
 
 //Handles creating and selecting from the mission list.
 //Returns 1 if a mission was loaded.

@@ -4672,10 +4672,21 @@ int net_udp_do_join_game()
 	}
 
 	// Check for valid mission name
-	if (const auto errstr = load_mission_by_name(Netgame.mission_name))
+	{
+		mission_entry_predicate mission_predicate;
+		mission_predicate.filesystem_name = Netgame.mission_name;
+#if defined(DXX_BUILD_DESCENT_II)
+		/* FIXME: This should be set to true and the version set
+		 * accordingly.  However, currently the host does not provide
+		 * the mission version to the guests.
+		 */
+		mission_predicate.check_version = false;
+#endif
+	if (const auto errstr = load_mission_by_name(mission_predicate, mission_name_type::guess))
 	{
 		nm_messagebox(nullptr, 1, TXT_OK, "%s\n\n%s", TXT_MISSION_NOT_FOUND, errstr);
 		return 0;
+	}
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)

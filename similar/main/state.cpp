@@ -136,6 +136,19 @@ struct relocated_player_data
 	uint8_t hostages_level;
 };
 
+struct savegame_mission_path {
+	array<char, 9> original;
+	array<char, DXX_MAX_MISSION_PATH_LENGTH> full;
+};
+
+enum class savegame_mission_name_abi : uint8_t
+{
+	original,
+	pathname,
+};
+
+static_assert(sizeof(savegame_mission_path) == sizeof(savegame_mission_path::original) + sizeof(savegame_mission_path::full), "padding error");
+
 }
 
 // Following functions convert object to object_rw and back to be written to/read from Savegames. Mostly object differs to object_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
@@ -972,7 +985,6 @@ int state_save_all_sub(const char *filename, const char *desc)
 	auto &vmobjptr = Objects.vmptr;
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
-	char mission_filename[9];
 	fix tmptime32 = 0;
 
 	#ifndef NDEBUG
@@ -1050,9 +1062,15 @@ int state_save_all_sub(const char *filename, const char *desc)
 	}
 
 // Save the mission info...
-	memset(&mission_filename, '\0', 9);
-	snprintf(mission_filename, 9, "%s", &*Current_mission->filename); // Current_mission_filename is not necessarily 9 bytes long so for saving we use a proper string - preventing corruptions
-	PHYSFS_write(fp, &mission_filename, 9 * sizeof(char), 1);
+	savegame_mission_path mission_pathname{};
+#if defined(DXX_BUILD_DESCENT_II)
+	mission_pathname.original[1] = static_cast<uint8_t>(Current_mission->descent_version);
+#endif
+	mission_pathname.original.back() = static_cast<uint8_t>(savegame_mission_name_abi::pathname);
+	auto Current_mission_pathname = Current_mission->path.c_str();
+	// Current_mission_filename is not necessarily 9 bytes long so for saving we use a proper string - preventing corruptions
+	snprintf(mission_pathname.full.data(), mission_pathname.full.size(), "%s", Current_mission_pathname);
+	PHYSFS_write(fp, &mission_pathname, sizeof(mission_pathname), 1);
 
 //Save level info
 	PHYSFS_write(fp, &Current_level_num, sizeof(int), 1);
@@ -1491,7 +1509,6 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	int version, coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	int current_level;
-	char mission[16];
 	char id[5];
 	fix tmptime32 = 0;
 	array<array<short, MAX_SIDES_PER_SEGMENT>, MAX_SEGMENTS> TempTmapNum, TempTmapNum2;
@@ -1557,11 +1574,43 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	PHYSFSX_readSXE32(fp, swap);
 
 // Read the mission info...
-	PHYSFS_read(fp, mission, sizeof(char) * 9, 1);
-
-	if (const auto errstr = load_mission_by_name(mission))
+	savegame_mission_path mission_pathname{};
+	PHYSFS_read(fp, mission_pathname.original.data(), mission_pathname.original.size(), 1);
+	mission_name_type name_match_mode;
+	mission_entry_predicate mission_predicate;
+	switch (static_cast<savegame_mission_name_abi>(mission_pathname.original.back()))
 	{
-		nm_messagebox(nullptr, 1, TXT_OK, "Error!\nUnable to load mission\n'%s'\n\n%s", mission, errstr);
+		case savegame_mission_name_abi::original:	/* Save game without the ability to do extended mission names */
+			name_match_mode = mission_name_type::basename;
+			mission_predicate.filesystem_name = mission_pathname.original.data();
+#if defined(DXX_BUILD_DESCENT_II)
+			mission_predicate.check_version = false;
+#endif
+			break;
+		case savegame_mission_name_abi::pathname:	/* Save game with extended mission name */
+			{
+				PHYSFS_read(fp, mission_pathname.full.data(), mission_pathname.full.size(), 1);
+				if (mission_pathname.full.back())
+				{
+					nm_messagebox("ERROR", 1, TXT_OK, "Unable to load game\nUnrecognized mission name format");
+					return 0;
+				}
+			}
+			name_match_mode = mission_name_type::pathname;
+			mission_predicate.filesystem_name = mission_pathname.full.data();
+#if defined(DXX_BUILD_DESCENT_II)
+			mission_predicate.check_version = true;
+			mission_predicate.descent_version = static_cast<Mission::descent_version_type>(mission_pathname.original[1]);
+#endif
+			break;
+		default:	/* Save game written by a future version of Rebirth.  ABI unknown. */
+			nm_messagebox("ERROR", 1, TXT_OK, "Unable to load game\nUnrecognized save game format");
+			return 0;
+	}
+
+	if (const auto errstr = load_mission_by_name(mission_predicate, name_match_mode))
+	{
+		nm_messagebox("ERROR", 1, TXT_OK, "Unable to load mission\n'%s'\n\n%s", mission_pathname.full.data(), errstr);
 		return 0;
 	}
 
