@@ -78,6 +78,7 @@ unsigned NumTextures;
 int Num_object_subtypes = 1;
 #endif
 
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 int Num_total_object_types;
 
@@ -91,7 +92,6 @@ unsigned N_ObjBitmaps;
 static void bm_free_extra_objbitmaps();
 #endif
 
-namespace dsx {
 Textures_array Textures;		// All textures.
 //for each model, a model number for dying & dead variants, or -1 if none
 array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
@@ -392,8 +392,6 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 	}
 	else	// D2: to be loaded later
 		exit_modelnum = destroyed_exit_modelnum = N_polygon_models;
-}
-
 }
 
 int extra_bitmap_num = 0;
@@ -782,6 +780,8 @@ int load_exit_models()
 	// set to be loaded, but only on D2 - always reload the data on D1
 	Exit_models_loaded = Exit_bitmaps_loaded = !EMULATING_D1;
 	return 1;
+}
+
 }
 #endif
 

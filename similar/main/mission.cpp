@@ -610,7 +610,7 @@ static void add_builtin_mission_to_list(mission_list_type &mission_list, d_fname
 
 namespace dsx {
 
-static void add_missions_to_list(mission_list_type &mission_list, mission_candidate_search_path &path, const mission_candidate_search_path::iterator rel_path, const int anarchy_mode)
+static void add_missions_to_list(mission_list_type &mission_list, mission_candidate_search_path &path, const mission_candidate_search_path::iterator rel_path, const mission_filter_mode mission_filter)
 {
 	/* rel_path must point within the array `path`.
 	 * rel_path must point to the null that follows a possibly empty
@@ -644,7 +644,7 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 			*j = 0;
 			*null = '/';
 			mission_list_type sublist;
-			add_missions_to_list(sublist, path, j, anarchy_mode);
+			add_missions_to_list(sublist, path, j, mission_filter);
 			*null = 0;
 			const auto found = sublist.size();
 			if (!found)
@@ -674,7 +674,7 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 			))
 			if (read_mission_file(mission_list, path))
 			{
-				if (anarchy_mode || !mission_list.back().anarchy_only_flag)
+				if (mission_filter != mission_filter_mode::exclude_anarchy || !mission_list.back().anarchy_only_flag)
 				{
 					mission_list.back().builtin_hogsize = 0;
 				}
@@ -722,9 +722,9 @@ Mission::~Mission()
 //in the list.  If anarchy_mode is set, then also add anarchy-only missions.
 
 namespace dsx {
-static mission_list_type build_mission_list(int anarchy_mode)
-{
 
+static mission_list_type build_mission_list(const mission_filter_mode mission_filter)
+{
 	//now search for levels on disk
 
 //@@Took out this code because after this routine was called once for
@@ -748,7 +748,7 @@ static mission_list_type build_mission_list(int anarchy_mode)
 	add_d1_builtin_mission_to_list(mission_list);
 	mission_candidate_search_path search_str = {{MISSION_DIR}};
 	DXX_POISON_MEMORY(std::next(search_str.begin(), sizeof(MISSION_DIR)), search_str.end(), 0xcc);
-	add_missions_to_list(mission_list, search_str, search_str.begin() + sizeof(MISSION_DIR) - 1, anarchy_mode);
+	add_missions_to_list(mission_list, search_str, search_str.begin() + sizeof(MISSION_DIR) - 1, mission_filter);
 	
 	// move original missions (in story-chronological order)
 	// to top of mission list
@@ -762,7 +762,6 @@ static mission_list_type build_mission_list(int anarchy_mode)
 	if (mission_list.size() > top_place)
 		std::sort(next(begin(mission_list), top_place), end(mission_list), ml_sort_func);
 	return mission_list;
-}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -817,6 +816,7 @@ int load_mission_ham()
 		return 0;
 }
 #endif
+}
 
 #define tex ".tex"
 static void set_briefing_filename(d_fname &f, const char *const v, std::size_t d)
@@ -1120,17 +1120,17 @@ static const char *load_mission(const mle *const mission)
 	return nullptr;
 }
 
-}
-
 //loads the named mission if exists.
 //Returns nullptr if mission loaded ok, else error string.
 const char *load_mission_by_name(const char *const mission_name)
 {
-	auto mission_list = build_mission_list(1);
+	auto &&mission_list = build_mission_list(mission_filter_mode::include_anarchy);
 	range_for (auto &i, mission_list)
 		if (!d_stricmp(mission_name, &*i.filename))
 			return load_mission(&i);
 	return "No matching mission found in\ninstalled mission list.";
+}
+
 }
 
 namespace {
@@ -1292,9 +1292,11 @@ static mission_menu_create_state_ptr prepare_mission_menu_state(const mission_li
 	return p;
 }
 
-int select_mission(int anarchy_mode, const char *message, window_event_result (*when_selected)(void))
+namespace dsx {
+
+int select_mission(const mission_filter_mode mission_filter, const char *message, window_event_result (*when_selected)(void))
 {
-	auto mission_list = build_mission_list(anarchy_mode);
+	auto &&mission_list = build_mission_list(mission_filter);
 	int new_mission_num;
 
     if (mission_list.size() <= 1)
@@ -1439,3 +1441,5 @@ void create_new_mission(void)
 	write_mission();
 }
 #endif
+
+}

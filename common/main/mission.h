@@ -34,7 +34,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include "fwd-window.h"
 
-#ifdef __cplusplus
 #include "ntstring.h"
 
 #define MAX_MISSIONS                    5000 // ZICO - changed from 300 to get more levels in list
@@ -199,6 +198,16 @@ extern Mission_ptr Current_mission; // current mission
 #endif
 #define PLAYING_BUILTIN_MISSION	(Current_mission->builtin_hogsize != 0)
 #define ANARCHY_ONLY_MISSION	(1 == Current_mission->anarchy_only_flag)
+
+namespace dcx {
+
+enum class mission_filter_mode
+{
+	exclude_anarchy,
+	include_anarchy,
+};
+
+}
 #endif
 
 //values for d1 built-in mission
@@ -206,6 +215,10 @@ extern Mission_ptr Current_mission; // current mission
 #define BIMD1_LAST_SECRET_LEVEL		-3
 #define BIMD1_ENDING_FILE_OEM		"endsat.txb"
 #define BIMD1_ENDING_FILE_SHARE		"ending.txb"
+
+#ifdef dsx
+
+namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
 //values for d2 built-in mission
@@ -222,11 +235,13 @@ const char *load_mission_by_name (const char *mission_name);
 
 //Handles creating and selecting from the mission list.
 //Returns 1 if a mission was loaded.
-int select_mission (int anarchy_mode, const char *message, window_event_result (*when_selected)(void));
+int select_mission (mission_filter_mode anarchy_mode, const char *message, window_event_result (*when_selected)(void));
 
 #if DXX_USE_EDITOR
 void create_new_mission(void);
 #endif
+
+}
 
 #endif
 

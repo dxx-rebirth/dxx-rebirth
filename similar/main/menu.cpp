@@ -622,7 +622,7 @@ int do_option ( int select)
 {
 	switch (select) {
 		case MENU_NEW_GAME:
-			select_mission(0, "New Game\n\nSelect mission", do_new_game_menu);
+			select_mission(mission_filter_mode::exclude_anarchy, "New Game\n\nSelect mission", do_new_game_menu);
 			break;
 		case MENU_GAME:
 			break;
@@ -665,7 +665,7 @@ int do_option ( int select)
 #if DXX_USE_UDP
 		case MENU_START_UDP_NETGAME:
 			multi_protocol = MULTI_PROTO_UDP;
-			select_mission(1, TXT_MULTI_MISSION, net_udp_setup_game);
+			select_mission(mission_filter_mode::include_anarchy, TXT_MULTI_MISSION, net_udp_setup_game);
 			break;
 		case MENU_JOIN_MANUAL_UDP_NETGAME:
 			multi_protocol = MULTI_PROTO_UDP;

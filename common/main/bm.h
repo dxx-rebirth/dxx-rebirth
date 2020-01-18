@@ -123,6 +123,10 @@ void bm_close();
 // Initializes the Texture[] array of bmd_bitmap structures.
 void init_textures();
 
+#ifdef dsx
+
+namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_I)
 
 #define OL_ROBOT 				1
@@ -154,15 +158,19 @@ extern bool Exit_models_loaded;
 extern bool Exit_bitmaps_loaded;
 #endif
 
+}
+
+#endif
+
 extern int  Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed
 
 extern array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
 extern array<ushort, MAX_OBJ_BITMAPS> ObjBitmapPtrs;
 extern int First_multi_bitmap_num;
 void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb);
-void load_robot_replacements(const d_fname &level_name);
 
 namespace dsx {
+void load_robot_replacements(const d_fname &level_name);
 // Initializes all bitmaps from BITMAPS.TBL file.
 int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware);
 
@@ -173,12 +181,12 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp);
 }
 #endif
 
-int load_exit_models();
 int ds_load(int skip, const char * filename );
 int compute_average_pixel(grs_bitmap *n);
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+int load_exit_models();
 //these values are the number of each item in the release of d2
 //extra items added after the release get written in an additional hamfile
 constexpr std::integral_constant<unsigned, 66> N_D2_ROBOT_TYPES{};
