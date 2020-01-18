@@ -128,6 +128,30 @@ struct mission_subdir_stats
 	}
 };
 
+struct mission_name_and_version
+{
+#if defined(DXX_BUILD_DESCENT_II)
+	Mission::descent_version_type descent_version;
+#endif
+	char *name;
+	mission_name_and_version() :
+		name(nullptr)
+	{
+	}
+	mission_name_and_version(Mission::descent_version_type, char *);
+};
+
+mission_name_and_version::mission_name_and_version(Mission::descent_version_type const v, char *const n) :
+#if defined(DXX_BUILD_DESCENT_II)
+	descent_version(v),
+#endif
+	name(n)
+{
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)v;
+#endif
+}
+
 const char *prepare_mission_list_count_dirbuf(array<char, 12> &dirbuf, const std::size_t immediate_directories)
 {
 	if (immediate_directories)
@@ -388,7 +412,6 @@ static const char *load_mission_oem()
 static int istok(const char *buf,const char *tok)
 {
 	return d_strnicmp(buf,tok,strlen(tok)) == 0;
-
 }
 
 //returns ptr to string after '=' & white space, or NULL if no '='
@@ -407,16 +430,39 @@ static char *get_value(char *buf)
 	return NULL;		//error!
 }
 
-//reads a line, returns ptr to value of passed parm.  returns NULL if none
-static char *get_parm_value(PHYSFSX_gets_line_t<80> &buf, const char *const parm, PHYSFS_File *const f)
+static mission_name_and_version get_any_mission_type_name_value(PHYSFSX_gets_line_t<80> &buf, PHYSFS_File *const f, const Mission::descent_version_type descent_version)
 {
 	if (!PHYSFSX_fgets(buf,f))
-		return NULL;
-
-	if (istok(buf,parm))
-		return get_value(buf);
-	else
-		return NULL;
+		return {};
+	if (istok(buf, "name"))
+		return {descent_version, get_value(buf)};
+#if defined(DXX_BUILD_DESCENT_II)
+	if (descent_version == Mission::descent_version_type::descent1)
+		/* If reading a Descent 1 `.msn` file, do not check for the
+		 * extended mission types.  D1X-Rebirth would ignore them, so
+		 * D2X-Rebirth should also ignore them.
+		 */
+		return {};
+	struct name_type_pair
+	{
+		/* std::pair cannot be used here because direct initialization
+		 * from a string literal fails to compile.
+		 */
+		char name[7];
+		Mission::descent_version_type descent_version;
+	};
+	static constexpr name_type_pair mission_name_type_values[] = {
+		{"xname", Mission::descent_version_type::descent2x},	// enhanced mission
+		{"zname", Mission::descent_version_type::descent2z},	// super-enhanced mission
+		{"!name", Mission::descent_version_type::descent2a},	// extensible-enhanced mission
+	};
+	range_for (const auto &parm, mission_name_type_values)
+	{
+		if (istok(buf, parm.name))
+			return {parm.descent_version, get_value(buf)};
+	}
+#endif
+	return {};
 }
 
 static bool ml_sort_func(const mle &e0,const mle &e1)
@@ -453,40 +499,33 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 		str_pathname.resize(idx_file_extension);
 		mission_list.emplace_back(Mission_path(std::move(str_pathname), idx_filename));
 		mle *mission = &mission_list.back();
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+		constexpr auto descent_version = Mission::descent_version_type::descent1;
+#elif defined(DXX_BUILD_DESCENT_II)
 		// look if it's .mn2 or .msn
-		mission->descent_version = (pathname[idx_file_extension + 3] == MISSION_EXTENSION_DESCENT_II[3])
+		auto descent_version = (pathname[idx_file_extension + 3] == MISSION_EXTENSION_DESCENT_II[3])
 			? Mission::descent_version_type::descent2
 			: Mission::descent_version_type::descent1;
 #endif
 		mission->anarchy_only_flag = 0;
 
 		PHYSFSX_gets_line_t<80> buf;
-		auto p = get_parm_value(buf, "name",mfile);
+		const auto &&nv = get_any_mission_type_name_value(buf, mfile, descent_version);
 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (!p) {		//try enhanced mission
-			PHYSFSX_fseek(mfile,0,SEEK_SET);
-			p = get_parm_value(buf, "xname",mfile);
-		}
-
-		if (!p) {       //try super-enhanced mission!
-			PHYSFSX_fseek(mfile,0,SEEK_SET);
-			p = get_parm_value(buf, "zname",mfile);
-		}
-
-		if (!p) {       //try extensible-enhanced mission!
-			PHYSFSX_fseek(mfile,0,SEEK_SET);
-			p = get_parm_value(buf, "!name",mfile);
-		}
+		mission->descent_version = nv.descent_version;
 #endif
 
-		if (p) {
+		if (const auto p = nv.name) {
 			char *t;
 			if ((t=strchr(p,';'))!=NULL)
+			{
 				*t=0;
-			t = p + strlen(p)-1;
-			while (isspace(*t))
+				--t;
+			}
+			else
+				t = p + strlen(p) - 1;
+			while (isspace(static_cast<unsigned>(*t)))
 				*t-- = 0; // remove trailing whitespace
 			mission->mission_name.copy_if(p, mission->mission_name.size() - 1);
 		}
@@ -501,7 +540,7 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 		{
 			if (istok(temp,"type"))
 			{
-				p = get_value(temp);
+				const auto p = get_value(temp);
 				//get mission type
 				if (p)
 					mission->anarchy_only_flag = istok(p,"anarchy");
@@ -933,7 +972,7 @@ static const char *load_mission(const mle *const mission)
 
 	auto &msn_extension =
 #if defined(DXX_BUILD_DESCENT_II)
-	(mission->descent_version == Mission::descent_version_type::descent2) ? MISSION_EXTENSION_DESCENT_II :
+	(mission->descent_version != Mission::descent_version_type::descent1) ? MISSION_EXTENSION_DESCENT_II :
 #endif
 		MISSION_EXTENSION_DESCENT_I;
 	array<char, PATH_MAX> mission_filename;
@@ -944,12 +983,13 @@ static const char *load_mission(const mle *const mission)
 	auto &&mfile = PHYSFSX_openReadBuffered(mission_filename.data());
 	if (!mfile) {
 		Current_mission.reset();
+		con_printf(CON_NORMAL, DXX_STRINGIZE_FL(__FILE__, __LINE__, "error: failed to open mission \"%s\""), mission_filename.data());
 		return "Failed to open mission file";		//error!
 	}
 
 	//for non-builtin missions, load HOG
 #if defined(DXX_BUILD_DESCENT_II)
-	bool have_mn2_version = false;
+	Current_mission->descent_version = mission->descent_version;
 	if (!PLAYING_BUILTIN_MISSION)
 #endif
 	{
@@ -961,35 +1001,6 @@ static const char *load_mission(const mle *const mission)
 
 	for (PHYSFSX_gets_line_t<PATH_MAX> buf; PHYSFSX_fgets(buf,mfile);)
 	{
-#if defined(DXX_BUILD_DESCENT_II)
-		if (!have_mn2_version)
-		{
-			if (istok(buf,"name"))
-			{
-				Current_mission->descent_version = Mission::descent_version_type::descent2;
-				have_mn2_version = true;
-			continue;						//already have name, go to next line
-			}
-			if (istok(buf,"xname"))
-			{
-				Current_mission->descent_version = Mission::descent_version_type::descent2x;
-				have_mn2_version = true;
-			continue;						//already have name, go to next line
-			}
-			if (istok(buf,"zname"))
-			{
-				Current_mission->descent_version = Mission::descent_version_type::descent2z;
-				have_mn2_version = true;
-			continue;						//already have name, go to next line
-			}
-			if (istok(buf,"!name"))
-			{
-				Current_mission->descent_version = Mission::descent_version_type::descent2a;
-				have_mn2_version = true;
-			continue;						//already have name, go to next line
-			}
-		}
-#endif
 		if (istok(buf,"type"))
 			continue;						//already have name, go to next line
 		else if (istok(buf,"briefing")) {

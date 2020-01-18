@@ -113,16 +113,16 @@ public:
 	/* Must be in this order for move constructor to work properly */
 	std::string path;				// relative file path
 	std::string::const_iterator filename;          // filename without extension
-#if defined(DXX_BUILD_DESCENT_II)
 	enum class descent_version_type : uint8_t
 	{
+#if defined(DXX_BUILD_DESCENT_II)
 		descent2a,	// !name
 		descent2z,	// zname
 		descent2x,	// xname
 		descent2,
+#endif
 		descent1,
 	};
-#endif
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
