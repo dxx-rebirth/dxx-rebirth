@@ -563,6 +563,12 @@ static int main(int argc, char *argv[])
 	PHYSFSX_addArchiveContent();
 
 	const auto &&arch_atexit_result = arch_init();
+	/* This variable exists for the side effects that occur when it is
+	 * destroyed.  clang-9 fails to recognize those side effects as a
+	 * "use" and warns that the variable is unused.  Cast it to void to
+	 * create a "use" to suppress the warning.
+	 */
+	(void)arch_atexit_result;
 
 #if !DXX_USE_OGL
 	select_tmap(CGameArg.DbgTexMap);
