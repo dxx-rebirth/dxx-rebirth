@@ -176,7 +176,6 @@ typedef std::unique_ptr<Mission> Mission_ptr;
 extern Mission_ptr Current_mission; // current mission
 
 #define Current_mission_longname	Current_mission->mission_name
-#define Current_mission_filename	&*Current_mission->filename
 #define Briefing_text_filename		Current_mission->briefing_text_filename
 #define Ending_text_filename		Current_mission->ending_text_filename
 #define Last_level			Current_mission->last_level

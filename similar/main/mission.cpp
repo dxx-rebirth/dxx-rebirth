@@ -809,7 +809,7 @@ int load_mission_ham()
 				Current_mission->descent_version == Mission::descent_version_type::descent2x)
 	{
 		char t[50];
-		snprintf(t,sizeof(t), "%s.ham", Current_mission_filename);
+		snprintf(t,sizeof(t), "%s.ham", &*Current_mission->filename);
 		bm_read_extra_robots(t, Current_mission->descent_version);
 		return 1;
 	} else
@@ -896,7 +896,7 @@ static const char *load_mission(const mle *const mission)
 #elif defined(DXX_BUILD_DESCENT_II)
 			Warning("descent.hog not available, this mission may be missing some files required for briefings and exit sequence\n");
 #endif
-		if (!d_stricmp(Current_mission_filename, D1_MISSION_FILENAME))
+		if (!d_stricmp(Current_mission->path.c_str(), D1_MISSION_FILENAME))
 			return load_mission_d1();
 	}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -955,7 +955,7 @@ static const char *load_mission(const mle *const mission)
 	{
 		strcpy(&mission_filename[mission->path.size() + 1], "hog");		//change extension
 			PHYSFSX_contfile_init(mission_filename.data(), 0);
-		set_briefing_filename(Briefing_text_filename, Current_mission_filename);
+		set_briefing_filename(Briefing_text_filename, &*Current_mission->filename);
 		Ending_text_filename = Briefing_text_filename;
 	}
 
@@ -1115,7 +1115,7 @@ static const char *load_mission(const mle *const mission)
 	free_polygon_models();
 
 	if (load_mission_ham())
-		init_extra_robot_movie(Current_mission_filename);
+		init_extra_robot_movie(&*Current_mission->filename);
 #endif
 	return nullptr;
 }

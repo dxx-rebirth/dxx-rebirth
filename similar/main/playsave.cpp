@@ -1260,7 +1260,7 @@ void set_highest_level(const uint8_t best_levelnum_this_game)
 		else
 			PlayerCfg.NHighestLevels++;
 		ii->Shortname.back() = 0;
-		strncpy(ii->Shortname.data(), Current_mission_filename, ii->Shortname.size() - 1);
+		strncpy(ii->Shortname.data(), &*Current_mission->filename, ii->Shortname.size() - 1);
 	}
 	else if (ii != ie - 1)
 	{

@@ -434,7 +434,7 @@ static void gameseq_init_network_players(object_array &Objects)
 	const unsigned total_required_num_starts = Netgame.max_numplayers;
 	if (k < total_required_num_starts)
 	{
-		con_printf(CON_NORMAL, "Insufficient cooperative starts found in mission \"%s\" level %u (need %u, found %u).  Generating extra starts...", Current_mission_filename, Current_level_num, total_required_num_starts, k);
+		con_printf(CON_NORMAL, "Insufficient cooperative starts found in mission \"%s\" level %u (need %u, found %u).  Generating extra starts...", Current_mission->path.c_str(), Current_level_num, total_required_num_starts, k);
 		/*
 		 * First, try displacing the starts within the existing segment.
 		 */
@@ -443,7 +443,7 @@ static void gameseq_init_network_players(object_array &Objects)
 		con_printf(CON_NORMAL, "Generated %u starts by displacement within the original segment.", k - preplaced_starts);
 	}
 	else
-		con_printf(CON_NORMAL, "Found %u cooperative starts in mission \"%s\" level %u.", k, Current_mission_filename, Current_level_num);
+		con_printf(CON_NORMAL, "Found %u cooperative starts in mission \"%s\" level %u.", k, Current_mission->path.c_str(), Current_level_num);
 	}
 	NumNetPlayerPositions = k;
 }
@@ -1608,7 +1608,7 @@ static void DoEndGame()
 		do_end_briefing_screens (Ending_text_filename);
 
 		//try doing special credits
-		snprintf(tname, sizeof(tname), "%s.ctb", Current_mission_filename);
+		snprintf(tname, sizeof(tname), "%s.ctb", &*Current_mission->filename);
 		credits_show(tname);
 	}
 

@@ -1100,7 +1100,7 @@ void newdemo_record_start_demo()
 
 //  Support for missions added here
 
-	nd_write_string(Current_mission_filename);
+	nd_write_string(&*Current_mission->filename);
 
 	nd_write_byte(nd_record_v_player_energy = static_cast<int8_t>(f2ir(player_info.energy)));
 	nd_write_byte(nd_record_v_player_shields = static_cast<int8_t>(f2ir(get_local_plrobj().shields)));
@@ -4008,7 +4008,7 @@ static bool guess_demo_name(ntstring<PATH_MAX - 16> &filename)
 			switch(*++p)
 			{
 				case 'm':	/* mission */
-					insert = Current_mission_filename;
+					insert = &*Current_mission->filename;
 					break;
 				case 'p':	/* pilot */
 					insert = get_local_player().callsign;

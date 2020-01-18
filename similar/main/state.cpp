@@ -1051,7 +1051,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 // Save the mission info...
 	memset(&mission_filename, '\0', 9);
-	snprintf(mission_filename, 9, "%s", Current_mission_filename); // Current_mission_filename is not necessarily 9 bytes long so for saving we use a proper string - preventing corruptions
+	snprintf(mission_filename, 9, "%s", &*Current_mission->filename); // Current_mission_filename is not necessarily 9 bytes long so for saving we use a proper string - preventing corruptions
 	PHYSFS_write(fp, &mission_filename, 9 * sizeof(char), 1);
 
 //Save level info

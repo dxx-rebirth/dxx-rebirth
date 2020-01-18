@@ -3945,7 +3945,7 @@ window_event_result net_udp_setup_game()
 		Netgame.gamemode = NETGAME_ANARCHY;
 #endif
 
-	Netgame.mission_name.copy_if(Current_mission_filename, Netgame.mission_name.size());
+	Netgame.mission_name.copy_if(&*Current_mission->filename, Netgame.mission_name.size());
 	Netgame.mission_title = Current_mission_longname;
 
 	Netgame.levelnum = 1;
