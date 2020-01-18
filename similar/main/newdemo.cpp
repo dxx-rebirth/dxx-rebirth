@@ -493,12 +493,20 @@ static void nd_read_objnum32(objnum_t &o)
 	o = i;
 }
 
-static void nd_read_string(char *str)
+static void nd_read_string(char *str, std::size_t max_length)
 {
 	sbyte len;
 
 	nd_read_byte(&len);
+	if (static_cast<unsigned>(len) > max_length)
+		throw std::runtime_error("demo string too long");
 	newdemo_read(str, len, 1);
+}
+
+template <std::size_t max_length>
+static void nd_read_string(char (&str)[max_length])
+{
+	nd_read_string(str, max_length);
 }
 
 static void nd_read_fix(fix *f)
@@ -2449,7 +2457,7 @@ static int newdemo_read_frame_information(int rewrite)
 		case ND_EVENT_HUD_MESSAGE: {
 			char hud_msg[60];
 
-			nd_read_string(&(hud_msg[0]));
+			nd_read_string(hud_msg);
 			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
