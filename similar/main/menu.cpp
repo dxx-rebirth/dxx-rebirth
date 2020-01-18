@@ -156,11 +156,11 @@ using select_file_subfunction = window_event_result (*)(T *, const char *);
 }
 
 __attribute_nonnull()
-static int select_file_recursive2(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<void> when_selected, void *userdata);
+static int select_file_recursive2(const char *title, const array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<void> when_selected, void *userdata);
 
 template <typename T>
 __attribute_nonnull()
-static int select_file_recursive(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<T> when_selected, T *userdata)
+static int select_file_recursive(const char *title, const array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<T> when_selected, T *userdata)
 {
 	return select_file_recursive2(title, orig_path, ext_list, select_dir, reinterpret_cast<select_file_subfunction<void>>(when_selected), reinterpret_cast<void *>(userdata));
 }
@@ -1721,7 +1721,7 @@ struct browser
 	const partial_range_t<const file_extension_t *> ext_range;
 	int		select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
 	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
-	char	view_path[PATH_MAX];	// The absolute path we're currently looking at
+	array<char, PATH_MAX> view_path;	// The absolute path we're currently looking at
 };
 
 }
@@ -1732,7 +1732,7 @@ static void list_dir_el(void *vb, const char *, const char *fname)
 	const char *r = PHYSFS_getRealDir(fname);
 	if (!r)
 		r = "";
-	if (!strcmp(r, b->view_path) && (PHYSFS_isDirectory(fname) || PHYSFSX_checkMatchingExtension(fname, b->ext_range))
+	if (!strcmp(r, b->view_path.data()) && (PHYSFS_isDirectory(fname) || PHYSFSX_checkMatchingExtension(fname, b->ext_range))
 #if defined(__APPLE__) && defined(__MACH__)
 		&& d_stricmp(fname, "Volumes")	// this messes things up, use '..' instead
 #endif
@@ -1763,10 +1763,9 @@ static int list_directory(browser *b)
 
 static window_event_result select_file_handler(listbox *menu,const d_event &event, browser *b)
 {
-	char newpath[PATH_MAX];
+	array<char, PATH_MAX> newpath{};
 	const char **list = listbox_get_items(menu);
 	const char *sep = PHYSFS_getDirSeparator();
-	memset(newpath, 0, sizeof(char)*PATH_MAX);
 	switch (event.type)
 	{
 #ifdef _WIN32
@@ -1797,22 +1796,20 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
-			strcpy(newpath, b->view_path);
+			newpath = b->view_path;
 			if (citem == 0)		// go to parent dir
 			{
-				char *p;
-				
-				size_t len_newpath = strlen(newpath);
-				size_t len_sep = strlen(sep);
-				if ((p = strstr(&newpath[len_newpath - len_sep], sep)))
-					if (p != strstr(newpath, sep))	// if this isn't the only separator (i.e. it's not about to look at the root)
+				const size_t len_newpath = strlen(newpath.data());
+				const size_t len_sep = strlen(sep);
+				if (auto p = strstr(&newpath[len_newpath - len_sep], sep))
+					if (p != strstr(newpath.data(), sep))	// if this isn't the only separator (i.e. it's not about to look at the root)
 						*p = 0;
 				
-				p = newpath + len_newpath - 1;
-				while ((p > newpath) && strncmp(p, sep, len_sep))	// make sure full separator string is matched (typically is)
+				auto p = &newpath[len_newpath - 1];
+				while (p != newpath.begin() && strncmp(p, sep, len_sep))	// make sure full separator string is matched (typically is)
 					p--;
 				
-				if (p == strstr(newpath, sep))	// Look at root directory next, if not already
+				if (p == strstr(newpath.data(), sep))	// Look at root directory next, if not already
 				{
 #if defined(__APPLE__) && defined(__MACH__)
 					if (!d_stricmp(p, "/Volumes"))
@@ -1837,15 +1834,13 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 				return (*b->when_selected)(b->userdata, "");
 			else
 			{
-				size_t len_newpath = strlen(newpath);
-				size_t len_sep = strlen(sep);
-				if (strncmp(&newpath[len_newpath - len_sep], sep, len_sep))
+				const size_t len_newpath = strlen(newpath.data());
+				const size_t len_item = strlen(list[citem]);
+				if (len_newpath + len_item < newpath.size())
 				{
-					strncat(newpath, sep, PATH_MAX - 1 - len_newpath);
-					newpath[PATH_MAX - 1] = '\0';
+					const size_t len_sep = strlen(sep);
+					snprintf(&newpath[len_newpath], newpath.size() - len_newpath, "%s%s", strncmp(&newpath[len_newpath - len_sep], sep, len_sep) ? sep : "", list[citem]);
 				}
-				strncat(newpath, list[citem], PATH_MAX - 1 - len_newpath);
-				newpath[PATH_MAX - 1] = '\0';
 			}
 			if ((citem == 0) || PHYSFS_isDirectory(list[citem]))
 			{
@@ -1856,7 +1851,7 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 		}
 		case EVENT_WINDOW_CLOSE:
 			if (b->new_path)
-				PHYSFS_removeFromSearchPath(b->view_path);
+				PHYSFS_removeFromSearchPath(b->view_path.data());
 
 			std::default_delete<browser>()(b);
 			break;
@@ -1868,10 +1863,10 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 	return window_event_result::ignored;
 }
 
-static int select_file_recursive2(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, select_file_subfunction<void> when_selected, void *userdata)
+static int select_file_recursive2(const char *title, const array<char, PATH_MAX> &orig_path_storage, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, select_file_subfunction<void> when_selected, void *userdata)
 {
+	auto orig_path = orig_path_storage.data();
 	const char *sep = PHYSFS_getDirSeparator();
-	char *p;
 	array<char, PATH_MAX> new_path;
 	
 	auto b = make_unique<browser>(ext_range);
@@ -1892,6 +1887,7 @@ static int select_file_recursive2(const char *title, const char *orig_path, cons
 	// Set the viewing directory to orig_path, or some parent of it
 	if (orig_path)
 	{
+		const char *base;
 		// Must make this an absolute path for directory browsing to work properly
 #ifdef _WIN32
 		if (!(isalpha(orig_path[0]) && (orig_path[1] == ':')))	// drive letter prompt (e.g. "C:"
@@ -1901,29 +1897,24 @@ static int select_file_recursive2(const char *title, const char *orig_path, cons
 		if (orig_path[0] != '/')
 #endif
 		{
-			strncpy(b->view_path, PHYSFS_getBaseDir(), PATH_MAX - 1);		// current write directory must be set to base directory
-			b->view_path[PATH_MAX - 1] = '\0';
 #ifdef macintosh
 			orig_path++;	// go past ':'
 #endif
-			strncat(b->view_path, orig_path, PATH_MAX - 1 - strlen(b->view_path));
-			b->view_path[PATH_MAX - 1] = '\0';
+			base = PHYSFS_getBaseDir();
 		}
 		else
 		{
-			strncpy(b->view_path, orig_path, PATH_MAX - 1);
-			b->view_path[PATH_MAX - 1] = '\0';
+			base = "";
 		}
-
-		p = b->view_path + strlen(b->view_path) - 1;
+		auto p = std::next(b->view_path.begin(), snprintf(b->view_path.data(), b->view_path.size(), "%s%s", base, orig_path) - 1);
 		const size_t len_sep = strlen(sep);
-		while (b->new_path = PHYSFSX_isNewPath(b->view_path), !PHYSFS_addToSearchPath(b->view_path, 0))
+		while (b->new_path = PHYSFSX_isNewPath(b->view_path.data()), !PHYSFS_addToSearchPath(b->view_path.data(), 0))
 		{
-			while ((p > b->view_path) && strncmp(p, sep, len_sep))
+			while (p != b->view_path.begin() && strncmp(p, sep, len_sep))
 				p--;
 			*p = '\0';
 			
-			if (p == b->view_path)
+			if (p == b->view_path.begin())
 				break;
 		}
 	}
@@ -1931,10 +1922,9 @@ static int select_file_recursive2(const char *title, const char *orig_path, cons
 	// Set to user directory if we couldn't find a searchpath
 	if (!b->view_path[0])
 	{
-		strncpy(b->view_path, PHYSFS_getUserDir(), PATH_MAX - 1);
-		b->view_path[PATH_MAX - 1] = '\0';
-		b->new_path = PHYSFSX_isNewPath(b->view_path);
-		if (!PHYSFS_addToSearchPath(b->view_path, 0))
+		snprintf(b->view_path.data(), b->view_path.size(), "%s", PHYSFS_getUserDir());
+		b->new_path = PHYSFSX_isNewPath(b->view_path.data());
+		if (!PHYSFS_addToSearchPath(b->view_path.data(), 0))
 		{
 			return 0;
 		}
@@ -1972,7 +1962,7 @@ static window_event_result get_absolute_path(char *full_path, const char *rel_pa
 	return window_event_result::close;
 }
 
-#define SELECT_SONG(t, s)	select_file_recursive(t, CGameCfg.CMMiscMusic[s].data(), jukebox_exts, 0, get_absolute_path, CGameCfg.CMMiscMusic[s].data())
+#define SELECT_SONG(t, s)	select_file_recursive(t, CGameCfg.CMMiscMusic[s], jukebox_exts, 0, get_absolute_path, CGameCfg.CMMiscMusic[s].data())
 #endif
 
 namespace {
@@ -2181,7 +2171,7 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 				const auto cfgpath = CGameCfg.CMLevelMusicPath.data();
 				select_file_recursive(
 					"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT,
-									  cfgpath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
+									  CGameCfg.CMLevelMusicPath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
 									  get_absolute_path, cfgpath);	// just copy the absolute path
 			}
 			else if (citem == opt_sm_cm_mtype3_file1_b)
