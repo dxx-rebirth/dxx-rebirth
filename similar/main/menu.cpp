@@ -1781,7 +1781,7 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 				}};
 				rval = newmenu_do( NULL, "Enter drive letter", m, unused_newmenu_subfunction, unused_newmenu_userdata );
 				text[1] = '\0'; 
-				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
+				snprintf(newpath.data(), newpath.size(), "%s:%s", text, sep);
 				if (!rval && text[0])
 				{
 					select_file_recursive(b->title, newpath, b->ext_range, b->select_dir, b->when_selected, b->userdata);
