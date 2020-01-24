@@ -479,9 +479,10 @@ void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 		w2->state = WALL_DOOR_OPENING;
 
 		const auto &&seg2 = vcsegptridx(w2->segnum);
-		Connectside = find_connect_side(seg2, vcsegptr(seg2->children[w2->sidenum]));
+		const auto &&csegp2 = vcsegptr(seg2->children[w2->sidenum]);
+		Connectside = find_connect_side(seg2, csegp2);
 		Assert(Connectside != side_none);
-		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
+		const auto cwall_num = csegp2->shared_segment::sides[Connectside].wall_num;
 		auto &imwallptr = Walls.imptr;
 		if (const auto &&w3 = imwallptr(cwall_num))
 			w3->state = WALL_DOOR_OPENING;
@@ -906,15 +907,15 @@ static bool do_door_close(active_door &d)
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
 	auto &w0 = *vmwallptr(d.front_wallnum[0]);
-	const auto &&seg = vmsegptridx(w0.segnum);
+	const auto &&seg0 = vmsegptridx(w0.segnum);
 
 	//check for objects in doorway before closing
 	if (w0.flags & WALL_DOOR_AUTO)
-		if (is_door_obstructed(vcobjptridx, vcsegptr, seg, w0.sidenum))
+		if (is_door_obstructed(vcobjptridx, vcsegptr, seg0, w0.sidenum))
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			digi_kill_sound_linked_to_segment(w0.segnum, w0.sidenum, -1);
-			wall_open_door(seg, w0.sidenum);		//re-open door
+			wall_open_door(seg0, w0.sidenum);		//re-open door
 #endif
 			return false;
 		}
@@ -929,6 +930,7 @@ static bool do_door_close(active_door &d)
 
 		auto &wp = *vmwallptr(p);
 
+		const auto &&seg = vmsegptridx(wp.segnum);
 		side = wp.sidenum;
 
 		if (seg->shared_segment::sides[side].wall_num == wall_none) {
@@ -989,11 +991,11 @@ static bool do_door_close(active_door &d)
 			wp.state = WALL_DOOR_CLOSING;
 			w1.state = WALL_DOOR_CLOSING;
 		} else
-		{
-			wall_close_door_ref(Segments.vmptridx, Walls, WallAnims, d);
 			remove = true;
-		}
 	}
+
+	if (remove)
+		wall_close_door_ref(Segments.vmptridx, Walls, WallAnims, d);
 	return remove;
 }
 
