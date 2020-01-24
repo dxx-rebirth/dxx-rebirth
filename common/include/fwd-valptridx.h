@@ -59,10 +59,6 @@ class valptridx :
 		class guarded;
 	class array_base_count_type;
 	using array_base_storage_type = std::array<managed_type, array_size>;
-public:
-	class array_managed_type;
-	using typename specialized_types::report_error_uses_exception;
-
 protected:
 	using const_pointer_type = const managed_type *;
 	using const_reference_type = const managed_type &;
@@ -74,6 +70,9 @@ protected:
 	using typename specialized_types::integral_type;
 	using index_type = integral_type;	// deprecated; should be dedicated UDT
 
+public:
+	class array_managed_type;
+	using typename specialized_types::report_error_uses_exception;
 	/* ptridx<policy> publicly inherits from idx<policy> and
 	 * ptr<policy>, but should not be implicitly sliced to one of the
 	 * base types.  To prevent slicing, define
@@ -88,6 +87,7 @@ protected:
 		class ptr;
 	template <typename policy>
 		class ptridx;
+protected:
 	template <typename Pc, typename Pm>
 		class basic_ival_member_factory;
 	template <typename Pc, typename Pm>
