@@ -45,12 +45,12 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	{
 		MAX_VECS = 5000,
 	};
-	object *obj;                                // object which is morphing
-	int n_submodels_active;
+	object *obj = nullptr;                      // object which is morphing
+	uint8_t n_submodels_active;
 	uint8_t morph_save_control_type;
 	uint8_t morph_save_movement_type;
-	physics_info morph_save_phys_info;
 	object_signature_t Morph_sig;
+	physics_info morph_save_phys_info;
 	array<vms_vector, MAX_VECS> morph_vecs, morph_deltas;
 	array<fix, MAX_VECS> morph_times;
 	array<int, MAX_SUBMODELS> submodel_active,         // which submodels are active
