@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef dsx
 #include "object.h"
+#include <memory>
 
 namespace dcx {
 
@@ -51,11 +52,11 @@ struct morph_data : prohibit_void_ptr<morph_data>
 		animating,
 		visible,
 	};
-	object_base *obj = nullptr;                      // object which is morphing
-	uint8_t n_submodels_active;
+	object_base *const obj;                      // object which is morphing
+	const object_signature_t Morph_sig;
 	uint8_t morph_save_control_type;
 	uint8_t morph_save_movement_type;
-	object_signature_t Morph_sig;
+	uint8_t n_submodels_active;
 	physics_info morph_save_phys_info;
 	array<submodel_state, MAX_SUBMODELS> submodel_active;         // which submodels are active
 	array<vms_vector, MAX_VECS> morph_vecs, morph_deltas;
@@ -63,14 +64,20 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	array<int, MAX_SUBMODELS>
 		n_morphing_points,       // how many active points in each part
 		submodel_startpoints;    // first point for each submodel
+	explicit morph_data(object_base &o) :
+		obj(&o), Morph_sig(o.signature)
+	{
+	}
 };
 
 struct d_level_unique_morph_object_state
 {
-	array<morph_data, 5> morph_objects;
+	array<std::unique_ptr<morph_data>, 5> morph_objects;
 };
 
 extern d_level_unique_morph_object_state LevelUniqueMorphObjectState;
+
+std::unique_ptr<morph_data> *find_morph_data(object_base &obj);
 }
 
 void morph_start(vmobjptr_t obj);
@@ -80,8 +87,6 @@ void do_morph_frame(object &obj);
 
 //called at the start of a level
 void init_morphs();
-
-morph_data *find_morph_data(object &obj);
 #endif
 
 #endif

@@ -1120,14 +1120,14 @@ int state_save_all_sub(const char *filename, const char *desc)
 	{
 		if (objp->type != OBJ_NONE && objp->render_type == RT_MORPH)
 		{
-			morph_data *md;
-			md = find_morph_data(objp);
-			if (md) {					
+			if (const auto umd = find_morph_data(objp))
+			{
+				const auto md = umd->get();
 				md->obj->control_type = md->morph_save_control_type;
 				set_object_movement_type(*md->obj, md->morph_save_movement_type);
 				md->obj->render_type = RT_POLYOBJ;
 				md->obj->mtype.phys_info = md->morph_save_phys_info;
-				md->obj = NULL;
+				umd->reset();
 			} else {						//maybe loaded half-morphed from disk
 				objp->flags |= OF_SHOULD_BE_DEAD;
 				objp->render_type = RT_POLYOBJ;

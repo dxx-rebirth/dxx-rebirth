@@ -52,21 +52,21 @@ namespace dcx {
 
 d_level_unique_morph_object_state LevelUniqueMorphObjectState;
 
-}
-
 //returns ptr to data for this object, or NULL if none
-morph_data *find_morph_data(object &obj)
+std::unique_ptr<morph_data> *find_morph_data(object_base &obj)
 {
 	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
-		morph_objects[0].obj = &obj;
+		morph_objects[0] = make_unique<morph_data>(obj);
 		return &morph_objects[0];
 	}
 
 	range_for (auto &i, morph_objects)
-		if (i.obj == &obj)
+		if (i && i->obj == &obj)
 			return &i;
 	return nullptr;
+}
+
 }
 
 static void assign_max(fix &a, const fix &b)
@@ -214,14 +214,13 @@ static void update_points(const polymodel *const pm, const unsigned submodel_num
 //process the morphing object for one frame
 void do_morph_frame(object &obj)
 {
-	morph_data *md;
+	const auto umd = find_morph_data(obj);
 
-	md = find_morph_data(obj);
-
-	if (md == NULL) {					//maybe loaded half-morphed from disk
+	if (!umd) {					//maybe loaded half-morphed from disk
 		obj.flags |= OF_SHOULD_BE_DEAD;		//..so kill it
 		return;
 	}
+	const auto md = umd->get();
 	assert(md->obj == &obj);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
@@ -252,7 +251,7 @@ void do_morph_frame(object &obj)
 		obj.render_type = RT_POLYOBJ;
 
 		obj.mtype.phys_info = md->morph_save_phys_info;
-		md->obj = NULL;
+		umd->reset();
 	}
 }
 
@@ -261,8 +260,7 @@ constexpr vms_vector morph_rotvel{0x4000,0x2000,0x1000};
 void init_morphs()
 {
 	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
-	range_for (auto &i, morph_objects)
-		i.obj = nullptr;
+	morph_objects = {};
 }
 
 
@@ -276,20 +274,21 @@ void morph_start(const vmobjptr_t obj)
 	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	const auto mob = morph_objects.begin();
 	const auto moe = morph_objects.end();
-	const auto mop = [](const morph_data &mo) {
-		return mo.obj == nullptr || mo.obj->type == OBJ_NONE || mo.obj->signature != mo.Morph_sig;
+	const auto mop = [](const std::unique_ptr<morph_data> &pmo) {
+		if (!pmo)
+			return true;
+		auto &mo = *pmo.get();
+		return mo.obj->type == OBJ_NONE || mo.obj->signature != mo.Morph_sig;
 	};
 	const auto moi = std::find_if(mob, moe, mop);
 
 	if (moi == moe)		//no free slots
 		return;
 
-	morph_data *const md = &*moi;
+	*moi = make_unique<morph_data>(obj);
+	morph_data *const md = moi->get();
 
 	Assert(obj->render_type == RT_POLYOBJ);
-
-	md->obj = obj;
-	md->Morph_sig = obj->signature;
 
 	md->morph_save_control_type = obj->control_type;
 	md->morph_save_movement_type = obj->movement_type;
@@ -391,10 +390,11 @@ void draw_morph_object(grs_canvas &canvas, const d_level_unique_light_state &Lev
 {
 //	int save_light;
 	polymodel *po;
-	morph_data *md;
 
-	md = find_morph_data(obj);
-	Assert(md != NULL);
+	const auto umd = find_morph_data(obj);
+	if (!umd)
+		throw std::runtime_error("missing morph data");
+	const auto md = umd->get();
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	po=&Polygon_models[obj->rtype.pobj_info.model_num];
