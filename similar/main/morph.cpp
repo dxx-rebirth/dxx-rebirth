@@ -129,6 +129,18 @@ static void find_min_max(polymodel *pm,int submodel_num,vms_vector &minv,vms_vec
 
 constexpr fix morph_rate = MORPH_RATE;
 
+static fix update_bounding_box_extent(const vms_vector &vp, const vms_vector &box_size, fix vms_vector::*const p, const fix entry_extent)
+{
+	if (!(vp.*p))
+		return entry_extent;
+	const auto box_size_p = box_size.*p;
+	const auto abs_vp_p = abs(vp.*p);
+	if (f2i(box_size_p) >= abs_vp_p / 2)
+		return entry_extent;
+	const fix t = fixdiv(box_size_p, abs_vp_p);
+	return std::min(entry_extent, t);
+}
+
 static void init_points(const polymodel *const pm, const vms_vector *const box_size, const unsigned submodel_num, morph_data *const md)
 {
 	auto data = reinterpret_cast<const uint16_t *>(&pm->model_data[pm->submodel_ptrs[submodel_num]]);
@@ -157,17 +169,14 @@ static void init_points(const polymodel *const pm, const vms_vector *const box_s
 		fix k,dist;
 
 		if (box_size) {
-			fix t;
-
 			k = INT32_MAX;
 
-			if (vp->x && f2i(box_size->x)<abs(vp->x)/2 && (t = fixdiv(box_size->x,abs(vp->x))) < k) k=t;
-			if (vp->y && f2i(box_size->y)<abs(vp->y)/2 && (t = fixdiv(box_size->y,abs(vp->y))) < k) k=t;
-			if (vp->z && f2i(box_size->z)<abs(vp->z)/2 && (t = fixdiv(box_size->z,abs(vp->z))) < k) k=t;
+			k = update_bounding_box_extent(*vp, *box_size, &vms_vector::x, k);
+			k = update_bounding_box_extent(*vp, *box_size, &vms_vector::y, k);
+			k = update_bounding_box_extent(*vp, *box_size, &vms_vector::z, k);
 
 			if (k == INT32_MAX)
 				k = 0;
-
 		}
 		else
 			k=0;
