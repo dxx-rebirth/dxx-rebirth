@@ -122,13 +122,13 @@ static void find_min_max(polymodel *pm,int submodel_num,vms_vector &minv,vms_vec
 
 constexpr fix morph_rate = MORPH_RATE;
 
-static void init_points(polymodel *pm,const vms_vector *box_size,int submodel_num,morph_data *md)
+static void init_points(const polymodel *const pm, const vms_vector *const box_size, const unsigned submodel_num, morph_data *const md)
 {
 	ushort nverts;
 	uint16_t type;
 	int i;
 
-	auto data = reinterpret_cast<uint16_t *>(&pm->model_data[pm->submodel_ptrs[submodel_num]]);
+	auto data = reinterpret_cast<const uint16_t *>(&pm->model_data[pm->submodel_ptrs[submodel_num]]);
 
 	type = *data++;
 
@@ -186,7 +186,7 @@ static void init_points(polymodel *pm,const vms_vector *box_size,int submodel_nu
 	}
 }
 
-static void update_points(polymodel *pm,int submodel_num,morph_data *md)
+static void update_points(const polymodel *const pm, const unsigned submodel_num, morph_data *const md)
 {
 	ushort nverts;
 	uint16_t type;
@@ -229,7 +229,6 @@ static void update_points(polymodel *pm,int submodel_num,morph_data *md)
 //process the morphing object for one frame
 void do_morph_frame(object &obj)
 {
-	polymodel *pm;
 	morph_data *md;
 
 	md = find_morph_data(obj);
@@ -241,7 +240,7 @@ void do_morph_frame(object &obj)
 	assert(md->obj == &obj);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	pm = &Polygon_models[obj.rtype.pobj_info.model_num];
+	const polymodel *const pm = &Polygon_models[obj.rtype.pobj_info.model_num];
 
 	for (uint_fast32_t i = 0; i != pm->n_models; ++i)
 		if (md->submodel_active[i] == morph_data::submodel_state::animating)
