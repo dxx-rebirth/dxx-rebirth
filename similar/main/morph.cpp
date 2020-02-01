@@ -244,18 +244,18 @@ void do_morph_frame(object &obj)
 	pm = &Polygon_models[obj.rtype.pobj_info.model_num];
 
 	for (uint_fast32_t i = 0; i != pm->n_models; ++i)
-		if (md->submodel_active[i]==1) {
+		if (md->submodel_active[i] == morph_data::submodel_state::animating)
+		{
 			update_points(pm,i,md);
 			if (md->n_morphing_points[i] == 0) {		//maybe start submodel
-				md->submodel_active[i] = 2;		//not animating, just visible
+				md->submodel_active[i] = morph_data::submodel_state::visible;		//not animating, just visible
 				md->n_submodels_active--;		//this one done animating
 				for (uint_fast32_t t = 0; t != pm->n_models; ++t)
 					if (pm->submodel_parents[t] == i) {		//start this one
 
 						init_points(pm,nullptr,t,md);
 						md->n_submodels_active++;
-						md->submodel_active[t] = 1;
-
+						md->submodel_active[t] = morph_data::submodel_state::animating;
 					}
 			}
 		}
@@ -333,7 +333,7 @@ void morph_start(const vmobjptr_t obj)
 	//clear all parts
 	md->submodel_active = {};
 
-	md->submodel_active[0] = 1;		//1 means visible & animating
+	md->submodel_active[0] = morph_data::submodel_state::animating;		//1 means visible & animating
 
 	md->n_submodels_active = 1;
 
@@ -356,7 +356,8 @@ static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, p
 
 	const uint_fast32_t n_models = pm->n_models;
 	range_for (const uint_fast32_t i, xrange(n_models))
-		if (md->submodel_active[i] && pm->submodel_parents[i]==submodel_num) {
+		if (md->submodel_active[i] != morph_data::submodel_state::invisible && pm->submodel_parents[i] == submodel_num)
+		{
 			const auto facing = g3_check_normal_facing(pm->submodel_pnts[i],pm->submodel_norms[i]);
 			if (!facing)
 				sort_list[sort_n] = i;
