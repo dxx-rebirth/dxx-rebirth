@@ -44,6 +44,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
 #include "d_range.h"
+#include "d_zip.h"
 #include "partial_range.h"
 
 using std::max;
@@ -157,16 +158,23 @@ static void init_points(const polymodel *const pm, const vms_vector *const box_s
 		? *exchange(data, data + 2)		//get start point number, skip pad
 		: 0;				//start at zero
 
-	if (startpoint + nverts >= morph_data::MAX_VECS)
-		throw std::runtime_error("too many vertices in morph model");
+	const unsigned endpoint = startpoint + nverts;
 
 	md->submodel_startpoints[submodel_num] = startpoint;
 
-	range_for (auto &&e, enumerate(unchecked_partial_range(reinterpret_cast<const vms_vector *>(data), nverts), startpoint))
+	auto &&zr = zip(
+		unchecked_partial_range(reinterpret_cast<const vms_vector *>(data), nverts),
+		partial_range(md->morph_vecs, startpoint, endpoint),
+		partial_range(md->morph_deltas, startpoint, endpoint),
+		partial_range(md->morph_times, startpoint, endpoint)
+	);
+	range_for (auto &&z, zr)
 	{
-		const auto vp = &e.value;
-		const auto i = e.idx;
-		fix k,dist;
+		const auto vp = &std::get<0>(z);
+		auto &morph_vec = std::get<1>(z);
+		auto &morph_delta = std::get<2>(z);
+		auto &morph_time = std::get<3>(z);
+		fix k;
 
 		if (box_size) {
 			k = INT32_MAX;
@@ -181,16 +189,15 @@ static void init_points(const polymodel *const pm, const vms_vector *const box_s
 		else
 			k=0;
 
-		vm_vec_copy_scale(md->morph_vecs[i],*vp,k);
+		vm_vec_copy_scale(morph_vec, *vp, k);
 
-		dist = vm_vec_normalized_dir_quick(md->morph_deltas[i],*vp,md->morph_vecs[i]);
+		const fix dist = vm_vec_normalized_dir_quick(morph_delta, *vp, morph_vec);
+		morph_time = fixdiv(dist, morph_rate);
 
-		md->morph_times[i] = fixdiv(dist,morph_rate);
-
-		if (md->morph_times[i] != 0)
+		if (morph_time != 0)
 			md->n_morphing_points[submodel_num]++;
 
-		vm_vec_scale(md->morph_deltas[i],morph_rate);
+		vm_vec_scale(morph_delta, morph_rate);
 	}
 }
 
