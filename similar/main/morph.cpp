@@ -31,7 +31,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmap.h"
 #include "dxxerror.h"
 #include "inferno.h"
-#include "morph.h"
 #include "polyobj.h"
 #include "game.h"
 #include "lighting.h"
@@ -40,6 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "interp.h"
 #include "render.h"
+#include "object.h"
 
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
@@ -50,11 +50,17 @@ using std::max;
 
 namespace dcx {
 
-d_level_unique_morph_object_state LevelUniqueMorphObjectState;
+morph_data::morph_data(object_base &o) :
+	obj(&o), Morph_sig(o.signature)
+{
+}
+
+d_level_unique_morph_object_state::~d_level_unique_morph_object_state() = default;
 
 //returns ptr to data for this object, or NULL if none
 std::unique_ptr<morph_data> *find_morph_data(object_base &obj)
 {
+	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
 		morph_objects[0] = make_unique<morph_data>(obj);
@@ -259,6 +265,7 @@ constexpr vms_vector morph_rotvel{0x4000,0x2000,0x1000};
 
 void init_morphs()
 {
+	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	morph_objects = {};
 }
@@ -271,6 +278,7 @@ void morph_start(const vmobjptr_t obj)
 	vms_vector pmmin,pmmax;
 	vms_vector box_size;
 
+	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	const auto mob = morph_objects.begin();
 	const auto moe = morph_objects.end();

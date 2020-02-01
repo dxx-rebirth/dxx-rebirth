@@ -586,6 +586,18 @@ struct d_level_unique_boss_state
 
 #define Highest_object_index (Objects.get_count() - 1)
 
+#include "morph.h"
+
+namespace dcx {
+
+struct d_level_unique_morph_object_state
+{
+	array<std::unique_ptr<morph_data>, 5> morph_objects;
+	~d_level_unique_morph_object_state();
+};
+
+}
+
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -665,6 +677,7 @@ struct d_level_unique_object_state
 	d_level_unique_boss_state BossState;
 	d_level_unique_control_center_state ControlCenterState;
 	vms_vector last_console_player_position;
+	d_level_unique_morph_object_state MorphObjectState;
 	auto &get_objects()
 	{
 		return Objects;

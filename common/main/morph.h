@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 
 #ifdef dsx
-#include "object.h"
+#include "fwd-object.h"
 #include <memory>
 
 namespace dcx {
@@ -64,18 +64,8 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	array<int, MAX_SUBMODELS>
 		n_morphing_points,       // how many active points in each part
 		submodel_startpoints;    // first point for each submodel
-	explicit morph_data(object_base &o) :
-		obj(&o), Morph_sig(o.signature)
-	{
-	}
+	explicit morph_data(object_base &o);
 };
-
-struct d_level_unique_morph_object_state
-{
-	array<std::unique_ptr<morph_data>, 5> morph_objects;
-};
-
-extern d_level_unique_morph_object_state LevelUniqueMorphObjectState;
 
 std::unique_ptr<morph_data> *find_morph_data(object_base &obj);
 }
