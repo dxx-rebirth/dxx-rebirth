@@ -48,7 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::max;
 
-namespace dsx {
+namespace dcx {
 
 d_level_unique_morph_object_state LevelUniqueMorphObjectState;
 

@@ -37,7 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef dsx
 #include "object.h"
 
-namespace dsx {
+namespace dcx {
 
 struct morph_data : prohibit_void_ptr<morph_data>
 {
@@ -51,7 +51,7 @@ struct morph_data : prohibit_void_ptr<morph_data>
 		animating,
 		visible,
 	};
-	object *obj = nullptr;                      // object which is morphing
+	object_base *obj = nullptr;                      // object which is morphing
 	uint8_t n_submodels_active;
 	uint8_t morph_save_control_type;
 	uint8_t morph_save_movement_type;
