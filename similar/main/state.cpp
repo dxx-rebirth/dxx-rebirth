@@ -1659,6 +1659,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	relocated_player_data rpd;
 #if defined(DXX_BUILD_DESCENT_II)
 	player_info ret_pl_info;
+	ret_pl_info.mission.hostages_on_board = get_local_plrobj().ctype.player_info.mission.hostages_on_board;
 #endif
 	{
 #if DXX_USE_EDITOR
@@ -1676,7 +1677,9 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			player	dummy_player;
 			state_read_player(fp, dummy_player, swap, pl_info, rpd);
 			if (secret == secret_restore::survived) {		//	This means he didn't die, so he keeps what he got in the secret level.
+				const auto hostages_on_board = ret_pl_info.mission.hostages_on_board;
 				ret_pl_info = plrobj.ctype.player_info;
+				ret_pl_info.mission.hostages_on_board = hostages_on_board;
 				rpd.shields = plrobj.shields;
 				plr.level = dummy_player.level;
 				plr.time_level = dummy_player.time_level;
