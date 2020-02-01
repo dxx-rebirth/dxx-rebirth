@@ -42,6 +42,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 #include "d_range.h"
 #include "partial_range.h"
 
@@ -138,16 +139,15 @@ static void init_points(const polymodel *const pm, const vms_vector *const box_s
 		? *exchange(data, data + 2)		//get start point number, skip pad
 		: 0;				//start at zero
 
-	unsigned i = startpoint;
-	assert(i + nverts < morph_data::MAX_VECS);
+	if (startpoint + nverts >= morph_data::MAX_VECS)
+		throw std::runtime_error("too many vertices in morph model");
 
-	md->submodel_startpoints[submodel_num] = i;
+	md->submodel_startpoints[submodel_num] = startpoint;
 
-	auto vp = reinterpret_cast<const vms_vector *>(data);
-
-	range_for (auto &&iteration, xrange(nverts))
+	range_for (auto &&e, enumerate(unchecked_partial_range(reinterpret_cast<const vms_vector *>(data), nverts), startpoint))
 	{
-		(void)iteration;
+		const auto vp = &e.value;
+		const auto i = e.idx;
 		fix k,dist;
 
 		if (box_size) {
@@ -176,9 +176,6 @@ static void init_points(const polymodel *const pm, const vms_vector *const box_s
 			md->n_morphing_points[submodel_num]++;
 
 		vm_vec_scale(md->morph_deltas[i],morph_rate);
-
-		vp++; i++;
-
 	}
 }
 
@@ -196,12 +193,10 @@ static void update_points(const polymodel *const pm, const unsigned submodel_num
 		? *exchange(data, data + 2)		//get start point number, skip pad
 		: 0;				//start at zero
 
-	unsigned i = startpoint;
-	auto vp = reinterpret_cast<const vms_vector *>(data);
-
-	range_for (auto &&iteration, xrange(nverts))
+	range_for (auto &&e, enumerate(unchecked_partial_range(reinterpret_cast<const vms_vector *>(data), nverts), startpoint))
 	{
-		(void)iteration;
+		const auto vp = &e.value;
+		const auto i = e.idx;
 		if (md->morph_times[i])		//not done yet
 		{
 			if ((md->morph_times[i] -= FrameTime) <= 0) {
@@ -212,7 +207,6 @@ static void update_points(const polymodel *const pm, const unsigned submodel_num
 			else
 				vm_vec_scale_add2(md->morph_vecs[i],md->morph_deltas[i],FrameTime);
 		}
-		vp++; i++;
 	}
 }
 
@@ -330,7 +324,6 @@ void morph_start(const vmobjptr_t obj)
 	//now, project points onto surface of box
 
 	init_points(pm,&box_size,0,md);
-
 }
 
 static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, polymodel *const pm, const unsigned submodel_num, const submodel_angles anim_angles, g3s_lrgb light, morph_data *const md)
