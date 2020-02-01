@@ -4400,8 +4400,11 @@ class DXXArchive(DXXCommon):
 	runtime_test_boost_tests = (
 		RuntimeTest('test-valptridx-range', (
 			'common/unittest/valptridx-range.cpp',
-			))
-			,)
+			)),
+		RuntimeTest('test-xrange', (
+			'common/unittest/xrange.cpp',
+			)),
+			)
 	del RuntimeTest
 
 	def get_objects_common(self,
