@@ -124,34 +124,30 @@ constexpr fix morph_rate = MORPH_RATE;
 
 static void init_points(const polymodel *const pm, const vms_vector *const box_size, const unsigned submodel_num, morph_data *const md)
 {
-	ushort nverts;
-	uint16_t type;
-	int i;
-
 	auto data = reinterpret_cast<const uint16_t *>(&pm->model_data[pm->submodel_ptrs[submodel_num]]);
 
-	type = *data++;
+	const uint16_t type = *data++;
 
 	Assert(type == 7 || type == 1);
 
-	nverts = *data++;
+	const uint16_t nverts = *data++;
 
 	md->n_morphing_points[submodel_num] = 0;
 
-	if (type==7) {
-		i = *data++;		//get start point number
-		data++;				//skip pad
-	}
-	else
-		i = 0;				//start at zero
+	const unsigned startpoint = (type == 7)
+		? *exchange(data, data + 2)		//get start point number, skip pad
+		: 0;				//start at zero
 
+	unsigned i = startpoint;
 	assert(i + nverts < morph_data::MAX_VECS);
 
 	md->submodel_startpoints[submodel_num] = i;
 
 	auto vp = reinterpret_cast<const vms_vector *>(data);
 
-	while (nverts--) {
+	range_for (auto &&iteration, xrange(nverts))
+	{
+		(void)iteration;
 		fix k,dist;
 
 		if (box_size) {
