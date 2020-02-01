@@ -34,8 +34,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include "compiler-array.h"
 
-#define MAX_VECS 5000
-
 #ifdef dsx
 #include "object.h"
 
@@ -43,6 +41,10 @@ namespace dsx {
 
 struct morph_data : prohibit_void_ptr<morph_data>
 {
+	enum
+	{
+		MAX_VECS = 5000,
+	};
 	object *obj;                                // object which is morphing
 	int n_submodels_active;
 	uint8_t morph_save_control_type;

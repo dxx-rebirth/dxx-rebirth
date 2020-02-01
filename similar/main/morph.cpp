@@ -145,7 +145,7 @@ static void init_points(polymodel *pm,const vms_vector *box_size,int submodel_nu
 	else
 		i = 0;				//start at zero
 
-	Assert(i+nverts < MAX_VECS);
+	assert(i + nverts < morph_data::MAX_VECS);
 
 	md->submodel_startpoints[submodel_num] = i;
 
