@@ -142,6 +142,17 @@ static fix update_bounding_box_extent(const vms_vector &vp, const vms_vector &bo
 	return std::min(entry_extent, t);
 }
 
+static fix compute_bounding_box_extents(const vms_vector &vp, const vms_vector &box_size)
+{
+	fix k = INT32_MAX;
+
+	k = update_bounding_box_extent(vp, box_size, &vms_vector::x, k);
+	k = update_bounding_box_extent(vp, box_size, &vms_vector::y, k);
+	k = update_bounding_box_extent(vp, box_size, &vms_vector::z, k);
+
+	return k;
+}
+
 static void init_points(const polymodel *const pm, const vms_vector *const box_size, const unsigned submodel_num, morph_data *const md)
 {
 	auto data = reinterpret_cast<const uint16_t *>(&pm->model_data[pm->submodel_ptrs[submodel_num]]);
@@ -176,20 +187,10 @@ static void init_points(const polymodel *const pm, const vms_vector *const box_s
 		auto &morph_time = std::get<3>(z);
 		fix k;
 
-		if (box_size) {
-			k = INT32_MAX;
-
-			k = update_bounding_box_extent(*vp, *box_size, &vms_vector::x, k);
-			k = update_bounding_box_extent(*vp, *box_size, &vms_vector::y, k);
-			k = update_bounding_box_extent(*vp, *box_size, &vms_vector::z, k);
-
-			if (k == INT32_MAX)
-				k = 0;
-		}
+		if (box_size && (k = compute_bounding_box_extents(*vp, *box_size) != INT32_MAX))
+			vm_vec_copy_scale(morph_vec, *vp, k);
 		else
-			k=0;
-
-		vm_vec_copy_scale(morph_vec, *vp, k);
+			morph_vec = {};
 
 		const fix dist = vm_vec_normalized_dir_quick(morph_delta, *vp, morph_vec);
 		morph_time = fixdiv(dist, morph_rate);
