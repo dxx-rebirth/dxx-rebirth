@@ -96,6 +96,10 @@ static void ai_multi_send_robot_position(object &objnum, int force);
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define	BOSS_DEATH_SOUND_DURATION	0x2ae14		//	2.68 seconds
+
+constexpr d_level_shared_boss_state::D1_Boss_cloak_interval d_level_shared_boss_state::Boss_cloak_interval;
+constexpr d_level_shared_boss_state::D1_Boss_teleport_interval d_level_shared_boss_state::Boss_teleport_interval;
+
 #elif defined(DXX_BUILD_DESCENT_II)
 #define	FIRE_AT_NEARBY_PLAYER_THRESHOLD	(F1_0*40)
 
