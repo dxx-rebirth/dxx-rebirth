@@ -70,8 +70,7 @@ std::unique_ptr<morph_data> *find_morph_data(object_base &obj)
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
-		morph_objects[0] = make_unique<morph_data>(obj);
-		return &morph_objects[0];
+		return nullptr;
 	}
 
 	range_for (auto &i, morph_objects)
@@ -419,7 +418,8 @@ namespace dsx {
 
 void draw_morph_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj)
 {
-//	int save_light;
+	if (Newdemo_state == ND_STATE_PLAYBACK)
+		return;
 	polymodel *po;
 
 	const auto umd = find_morph_data(obj);
