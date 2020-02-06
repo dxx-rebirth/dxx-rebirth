@@ -72,6 +72,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/texpage.h"
 #endif
 
+#include "compiler-cf_assert.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 #include "d_enumerate.h"
@@ -330,6 +331,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 #endif
 	range_for (const uint_fast32_t i, xrange(nf))
 	{
+		cf_assert(i < bm.size());
 #if defined(DXX_BUILD_DESCENT_I)
 		snprintf(tempname.data(), tempname.size(), "%s#%" PRIuFAST32, fname.data(), i);
 #elif defined(DXX_BUILD_DESCENT_II)
