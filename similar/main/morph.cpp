@@ -54,6 +54,12 @@ namespace dcx {
 morph_data::morph_data(object_base &o) :
 	obj(&o), Morph_sig(o.signature)
 {
+	DXX_POISON_VAR(submodel_active, 0xcc);
+	DXX_POISON_VAR(morph_vecs, 0xcc);
+	DXX_POISON_VAR(morph_deltas, 0xcc);
+	DXX_POISON_VAR(morph_times, 0xcc);
+	DXX_POISON_VAR(n_morphing_points, 0xcc);
+	DXX_POISON_VAR(submodel_startpoints, 0xcc);
 }
 
 d_level_unique_morph_object_state::~d_level_unique_morph_object_state() = default;
