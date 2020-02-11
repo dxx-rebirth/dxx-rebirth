@@ -1276,7 +1276,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	)
 
 void decode_text_line(char *text_line); // decryption for bitmaps.tbl
-void decode_text(char *text, int len);  // decryption for briefings, etc.
+void decode_text(char *text, unsigned len);  // decryption for briefings, etc.
 #ifdef dsx
 namespace dsx {
 void load_text(void);

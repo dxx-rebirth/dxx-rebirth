@@ -53,38 +53,35 @@ static std::unique_ptr<char[]> text;
 static std::unique_ptr<char[]> overwritten_text;
 
 // rotates a byte left one bit, preserving the bit falling off the right
-static void encode_rotate_left(char *c)
+static uint8_t encode_rotate_left(const uint8_t v)
 {
-	unsigned char v = *c;
-	*c = (v >> 7) | (v << 1);
+	return (v >> 7) | (v << 1);
 }
 
-#define BITMAP_TBL_XOR 0xD3
+constexpr std::integral_constant<uint8_t, 0xd3> BITMAP_TBL_XOR{};
+
+static uint8_t decode_char(const uint8_t c)
+{
+	const auto c1 = encode_rotate_left(c);
+	const auto c2 = c1 ^ BITMAP_TBL_XOR;
+	return encode_rotate_left(c2);
+}
 
 //decode an encoded line of text of bitmaps.tbl
 void decode_text_line(char *p)
 {
-	for (;*p;p++) {
-		encode_rotate_left(p);
-		*p = *p ^ BITMAP_TBL_XOR;
-		encode_rotate_left(p);
-	}
+	for (; const char c = *p; p++)
+		*p = decode_char(c);
 }
 
 // decode buffer of text, preserves newlines
-void decode_text(char *buf, int len)
+void decode_text(char *ptr, unsigned len)
 {
-	char *ptr;
-	int i;
-
-	for (i = 0, ptr = buf; i < len; i++, ptr++)
+	for (; len--; ptr++)
 	{
-		if (*ptr != '\n')
-		{
-			encode_rotate_left(ptr);
-			*ptr = *ptr  ^ BITMAP_TBL_XOR;
-			encode_rotate_left(ptr);
-		}
+		const char c = *ptr;
+		if (c != '\n')
+			*ptr = decode_char(c);
 	}
 }
 
