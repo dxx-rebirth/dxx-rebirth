@@ -4027,7 +4027,7 @@ class DXXCommon(LazyObjectConstructor):
 			# every env.Textfile created by this block is whitelisted.
 			c._dxx_node_header_target_set.add(check_header_includes[0])
 		if not __shared_header_file_list:
-			headers = Git.pcall(['ls-files', '-z', '--', '*.h']).out
+			headers = Git.pcall(['ls-files', '-z', '--', '*.h']).out.decode()
 			if not headers:
 				g = Git.pcall(['--version'], stderr=subprocess.STDOUT)
 				raise SCons.Errors.StopError(
