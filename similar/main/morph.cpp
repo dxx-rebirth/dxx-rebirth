@@ -41,6 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #include "object.h"
 
+#include "compiler-poison.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
 #include "d_range.h"

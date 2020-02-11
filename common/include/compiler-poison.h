@@ -1,5 +1,11 @@
 #pragma once
 
+#if DXX_HAVE_POISON
+#include <algorithm>
+#endif
+
+#include <memory>
+
 #if DXX_HAVE_POISON_VALGRIND
 #include <valgrind/memcheck.h>
 #endif
@@ -45,7 +51,7 @@ static inline void DXX_MAKE_MEM_UNDEFINED(T *b, T *e)
 template <typename T>
 static inline void DXX_CHECK_VAR_IS_DEFINED(const T &b)
 {
-	const unsigned char *const bc = reinterpret_cast<const unsigned char *>(&b);
+	const unsigned char *const bc = reinterpret_cast<const unsigned char *>(std::addressof(b));
 	DXX_CHECK_MEM_IS_DEFINED(bc, sizeof(T));
 }
 
@@ -56,7 +62,7 @@ static inline void DXX_CHECK_VAR_IS_DEFINED(const T &b)
 template <typename T>
 static inline void DXX_MAKE_VAR_UNDEFINED(T &b)
 {
-	unsigned char *const bc = reinterpret_cast<unsigned char *>(&b);
+	unsigned char *const bc = reinterpret_cast<unsigned char *>(std::addressof(b));
 	DXX_MAKE_MEM_UNDEFINED(bc, sizeof(T));
 }
 
@@ -67,7 +73,7 @@ static inline void DXX_MAKE_VAR_UNDEFINED(T &b)
  * If disabled, this is a no-op.
  */
 template <typename T, typename V>
-static inline void _DXX_POISON_MEMORY_RANGE(T b, T e, const V &v)
+static inline void DXX_POISON_MEMORY_RANGE(T b, T e, const V &v)
 {
 #if DXX_HAVE_POISON
 	int store = DXX_HAVE_POISON_OVERWRITE;
@@ -77,8 +83,7 @@ static inline void _DXX_POISON_MEMORY_RANGE(T b, T e, const V &v)
 #endif
 	if (!store)
 		return;
-	for (; b != e; ++b)
-		*b = v;
+	std::fill(b, e, v);
 #else
 	(void)b;(void)e;(void)v;
 #endif
@@ -93,7 +98,7 @@ static inline void _DXX_POISON_MEMORY_RANGE(T b, T e, const V &v)
 template <typename T, typename V>
 static inline void DXX_POISON_DEFINED_MEMORY(T b, unsigned long l, const V &v)
 {
-	_DXX_POISON_MEMORY_RANGE(b, b + l, v);
+	DXX_POISON_MEMORY_RANGE(b, b + l, v);
 }
 
 /* Poison a memory range, then mark it unreadable.
@@ -111,7 +116,7 @@ static inline void DXX_POISON_MEMORY(T b, unsigned long l, const V &v)
 template <typename T, typename V>
 static inline void DXX_POISON_MEMORY(T b, T e, const V &v)
 {
-	_DXX_POISON_MEMORY_RANGE(b, e, v);
+	DXX_POISON_MEMORY_RANGE(b, e, v);
 	DXX_MAKE_MEM_UNDEFINED(b, e);
 }
 
@@ -122,7 +127,7 @@ static inline void DXX_POISON_MEMORY(T b, T e, const V &v)
 template <typename T>
 static inline void DXX_POISON_VAR(T &b, const unsigned char v)
 {
-	DXX_POISON_MEMORY(reinterpret_cast<unsigned char *>(&b), sizeof(T), v);
+	DXX_POISON_MEMORY(reinterpret_cast<unsigned char *>(std::addressof(b)), sizeof(T), v);
 }
 
 /* Convenience function to invoke
@@ -132,7 +137,7 @@ static inline void DXX_POISON_VAR(T &b, const unsigned char v)
 template <typename T>
 static inline void DXX_POISON_DEFINED_VAR(T &b, const unsigned char v)
 {
-	DXX_POISON_DEFINED_MEMORY(reinterpret_cast<unsigned char *>(&b), sizeof(T), v);
+	DXX_POISON_DEFINED_MEMORY(reinterpret_cast<unsigned char *>(std::addressof(b)), sizeof(T), v);
 }
 
 #ifndef DXX_HAVE_POISON_UNDEFINED
