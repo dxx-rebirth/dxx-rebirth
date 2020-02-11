@@ -1280,10 +1280,6 @@ void decode_text(char *text, int len);  // decryption for briefings, etc.
 #ifdef dsx
 namespace dsx {
 void load_text(void);
-
-}
-#endif
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #ifndef USE_BUILTIN_ENGLISH_TEXT_STRINGS
 //Array of pointers to text
 extern array<const char *, N_TEXT_STRINGS> Text_string;
@@ -1299,6 +1295,7 @@ static inline const char *dxx_gettext(unsigned expr, const char *fmt)
 	(void)fmt;
 	return Text_string[expr];
 #endif
+}
 }
 #endif
 

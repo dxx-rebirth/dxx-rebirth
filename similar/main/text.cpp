@@ -52,8 +52,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static std::unique_ptr<char[]> text;
 static std::unique_ptr<char[]> overwritten_text;
 
-array<const char *, N_TEXT_STRINGS> Text_string;
-
 // rotates a byte left one bit, preserving the bit falling off the right
 static void encode_rotate_left(char *c)
 {
@@ -92,6 +90,12 @@ void decode_text(char *buf, int len)
 
 //load all the text strings for Descent
 namespace dsx {
+
+#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
+static
+#endif
+array<const char *, N_TEXT_STRINGS> Text_string;
+
 void load_text()
 {
 	int len,i, have_binary = 0;
