@@ -611,14 +611,14 @@ const gauge_box gauge_boxes[] = {
 		{SB_SECONDARY_W_BOX_LEFT_H,SB_SECONDARY_W_BOX_TOP_H,SB_SECONDARY_W_BOX_RIGHT_H,SB_SECONDARY_W_BOX_BOT_H},
 	};
 
-struct span
+struct d_gauge_span
 {
 	unsigned l, r;
 };
 
 struct dspan
 {
-	span l, r;
+	d_gauge_span l, r;
 };
 
 //store delta x values from left of box
@@ -2006,7 +2006,7 @@ static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *c
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 	const unsigned lower_y = ((multires_gauge_graphic.get(364, 151)));
 	unsigned i = bm_w * lower_y;
-	const auto fill_alpha_one_line = [](unsigned o, const span &s) {
+	const auto fill_alpha_one_line = [](unsigned o, const d_gauge_span &s) {
 		std::fill_n(&cockpitbuf[o + s.l], s.r - s.l + 1, TRANSPARENCY_COLOR);
 	};
 	range_for (auto &s,
