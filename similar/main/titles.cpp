@@ -599,20 +599,16 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 
 	len = PHYSFS_fileLength(tfile);
 	buf = make_unique<char[]>(len + 1);
-#if defined(DXX_BUILD_DESCENT_I)
 	PHYSFS_read(tfile, buf.get(), 1, len);
+#if defined(DXX_BUILD_DESCENT_I)
+	const auto endbuf = &buf[len];
 #elif defined(DXX_BUILD_DESCENT_II)
-	for (int x=0, i=0; i < len; i++, x++) {
-		PHYSFS_read(tfile, &buf[x], 1, 1);
-		if (buf[x] == 13)
-			x--;
-	}
+	const auto endbuf = std::remove(&buf[0], &buf[len], 13);
 #endif
+	*endbuf = 0;
 
 	if (have_binary)
 		decode_text(buf.get(), len);
-
-	buf[len] = '\0';
 
 	return (1);
 }
