@@ -46,11 +46,21 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	using ptr = std::unique_ptr<morph_data>;
 	enum
 	{
-		MAX_VECS = 5000,
+		MAX_VECS = 5000u,
 	};
 	struct max_vectors
 	{
-		static constexpr std::size_t count = MAX_VECS;
+		std::size_t count;
+		explicit max_vectors(std::size_t c) : count(c)
+		{
+		}
+	};
+	struct polymodel_idx
+	{
+		std::size_t idx;
+		explicit polymodel_idx(std::size_t i) : idx(i)
+		{
+		}
 	};
 	static void *operator new(std::size_t bytes) = delete;	/* require caller to use placement-form to specify the number of vectors to allocate */
 	static void operator delete(void *p)
@@ -72,18 +82,19 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	uint8_t morph_save_control_type;
 	uint8_t morph_save_movement_type;
 	uint8_t n_submodels_active;
-	physics_info morph_save_phys_info;
 	array<submodel_state, MAX_SUBMODELS> submodel_active;         // which submodels are active
+	const max_vectors max_vecs;
+	physics_info morph_save_phys_info;
 	array<int, MAX_SUBMODELS>
 		n_morphing_points,       // how many active points in each part
 		submodel_startpoints;    // first point for each submodel
-	static ptr create(object_base &);
+	static ptr create(object_base &, const polymodel &, polymodel_idx);
 	span<fix> get_morph_times();
 	span<vms_vector> get_morph_vecs();
 	span<vms_vector> get_morph_deltas();
 private:
 	static void *operator new(std::size_t bytes, max_vectors);
-	explicit morph_data(object_base &o);
+	explicit morph_data(object_base &o, max_vectors);
 };
 
 struct d_level_unique_morph_object_state;

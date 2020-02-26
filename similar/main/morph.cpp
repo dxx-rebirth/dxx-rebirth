@@ -70,6 +70,23 @@ public:
 	}
 };
 
+class invalid_morph_model_vertex_count : public std::runtime_error
+{
+	__attribute_cold
+	static std::string prepare_message(const unsigned count, const morph_data::polymodel_idx idx, const unsigned submodel_num)
+	{
+		char buf[68 + 3 * sizeof("4294967295")];
+		const unsigned uidx = idx.idx;
+		const auto len = std::snprintf(buf, sizeof buf, "too many vertices in morph model: found %u in model %u, submodel %u", count, uidx, submodel_num);
+		return std::string(buf, len);
+	}
+public:
+	invalid_morph_model_vertex_count(const unsigned count, const morph_data::polymodel_idx idx, const unsigned submodel_num) :
+		runtime_error(prepare_message(count, idx, submodel_num))
+	{
+	}
+};
+
 struct submodel_data
 {
 	const uint16_t *body;
@@ -95,6 +112,73 @@ submodel_data parse_model_data_header(const polymodel &pm, const unsigned submod
 	return {data, type, nverts, startpoint};
 }
 
+std::size_t count_submodel_points(const polymodel &pm, const morph_data::polymodel_idx model_idx, const unsigned submodel_num)
+{
+	/* Return the minimum array size that will not cause this submodel
+	 * to index past the end of the array.
+	 */
+	const auto &&sd = parse_model_data_header(pm, submodel_num);
+	const std::size_t count = sd.startpoint + sd.nverts;
+	if (count > morph_data::MAX_VECS)
+		throw invalid_morph_model_vertex_count(count, model_idx, submodel_num);
+	return count;
+}
+
+std::size_t count_model_points(const polymodel &pm, const morph_data::polymodel_idx model_idx)
+{
+	/* Return the minimum array size that will not cause any used
+	 * submodel of this model to index past the end of the array.
+	 *
+	 * Unused submodels are not considered.  A submodel is used if:
+	 * - its index is not above pm.n_models
+	 * - its parent index is valid
+	 * - its parent index is a used submodel
+	 *
+	 * Submodel 0 is always used.
+	 */
+	auto count = count_submodel_points(pm, model_idx, 0);
+	unsigned visited_submodels = 1;
+	const unsigned mask_all_enabled_models = (1 << pm.n_models) - 1;
+	const auto &&submodel_parents = enumerate(partial_range(pm.submodel_parents, pm.n_models));
+	for (;;)
+	{
+		if (visited_submodels == mask_all_enabled_models)
+			/* Every submodel has been checked, so the next pass through
+			 * the loop will ignore every element.  Break out early to
+			 * avoid the extra iteration.
+			 */
+			break;
+		const auto previous_visited_submodels = visited_submodels;
+		range_for (auto &&e, submodel_parents)
+		{
+			const unsigned mask_this_submodel = 1 << e.idx;
+			if (mask_this_submodel & visited_submodels)
+				/* Already tested on a prior iteration */
+				continue;
+			if (e.value >= pm.submodel_parents.size())
+				/* Ignore submodels with out-of-range parents.  This
+				 * avoids undefined behavior in the shift, since some
+				 * submodels have a parent of 0xff.
+				 */
+				continue;
+			const unsigned mask_parent_submodel = 1 << e.value;
+			if (mask_parent_submodel & visited_submodels)
+			{
+				visited_submodels |= mask_this_submodel;
+				/* Parent is in use, so this submodel is also in use. */
+				const auto subcount = count_submodel_points(pm, model_idx, e.idx);
+				count = std::max(count, subcount);
+			}
+		}
+		if (previous_visited_submodels == visited_submodels)
+			/* No changes on the most recent pass, so no changes will
+			 * occur on any subsequent pass.  Break out.
+			 */
+			break;
+	}
+	return count;
+}
+
 }
 
 void *morph_data::operator new(std::size_t, const max_vectors max_vecs)
@@ -102,13 +186,20 @@ void *morph_data::operator new(std::size_t, const max_vectors max_vecs)
 	return ::operator new(sizeof(morph_data) + (max_vecs.count * (sizeof(fix) + sizeof(vms_vector) + sizeof(vms_vector))));
 }
 
-morph_data::ptr morph_data::create(object_base &o)
+morph_data::ptr morph_data::create(object_base &o, const polymodel &pm, const polymodel_idx model_idx)
 {
-	return ptr(new(max_vectors{}) morph_data(o));
+	const max_vectors m{count_model_points(pm, model_idx)};
+	/* This is an unusual form of `new` overload.  Although arguments to
+	 * `new` are typically considered a use of `placement new`, this is
+	 * not used to place the object.  Instead, it is used to pass extra
+	 * information to `operator new` so that the count of allocated
+	 * bytes can be adjusted.
+	 */
+	return ptr(new(m) morph_data(o, m));
 }
 
-morph_data::morph_data(object_base &o) :
-	obj(&o), Morph_sig(o.signature)
+morph_data::morph_data(object_base &o, const max_vectors m) :
+	obj(&o), Morph_sig(o.signature), max_vecs(m)
 {
 	DXX_POISON_VAR(submodel_active, 0xcc);
 	const auto morph_times = get_morph_times();
@@ -123,17 +214,17 @@ morph_data::morph_data(object_base &o) :
 
 span<fix> morph_data::get_morph_times()
 {
-	return {reinterpret_cast<fix *>(this + 1), MAX_VECS};
+	return {reinterpret_cast<fix *>(this + 1), max_vecs.count};
 }
 
 span<vms_vector> morph_data::get_morph_vecs()
 {
-	return {reinterpret_cast<vms_vector *>(get_morph_times().end()), MAX_VECS};
+	return {reinterpret_cast<vms_vector *>(get_morph_times().end()), max_vecs.count};
 }
 
 span<vms_vector> morph_data::get_morph_deltas()
 {
-	return {get_morph_vecs().end(), MAX_VECS};
+	return {get_morph_vecs().end(), max_vecs.count};
 }
 
 d_level_unique_morph_object_state::~d_level_unique_morph_object_state() = default;
@@ -380,7 +471,11 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 	if (moi == moe)		//no free slots
 		return;
 
-	*moi = morph_data::create(obj);
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+	const morph_data::polymodel_idx pmi(obj.rtype.pobj_info.model_num);
+	auto &pm = Polygon_models[pmi.idx];
+
+	*moi = morph_data::create(obj, pm, pmi);
 	morph_data *const md = moi->get();
 
 	assert(obj.render_type == RT_POLYOBJ);
@@ -396,9 +491,6 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 	obj.movement_type = MT_PHYSICS;		//RT_NONE;
 
 	obj.mtype.phys_info.rotvel = morph_rotvel;
-
-	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	auto &pm = Polygon_models[obj.rtype.pobj_info.model_num];
 
 	find_min_max(pm,0,pmmin,pmmax);
 
