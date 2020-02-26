@@ -99,7 +99,7 @@ submodel_data parse_model_data_header(const polymodel &pm, const unsigned submod
 
 void *morph_data::operator new(std::size_t, const max_vectors max_vecs)
 {
-	return ::operator new(sizeof(morph_data) + (max_vecs.count * (sizeof(fix) + sizeof(vms_vector))));
+	return ::operator new(sizeof(morph_data) + (max_vecs.count * (sizeof(fix) + sizeof(vms_vector) + sizeof(vms_vector))));
 }
 
 morph_data::ptr morph_data::create(object_base &o)
@@ -111,11 +111,12 @@ morph_data::morph_data(object_base &o) :
 	obj(&o), Morph_sig(o.signature)
 {
 	DXX_POISON_VAR(submodel_active, 0xcc);
-	DXX_POISON_VAR(morph_deltas, 0xcc);
 	const auto morph_times = get_morph_times();
 	DXX_POISON_MEMORY(morph_times.begin(), morph_times.end(), 0xcc);
 	const auto morph_vecs = get_morph_times();
 	DXX_POISON_MEMORY(morph_vecs.begin(), morph_vecs.end(), 0xcc);
+	const auto morph_deltas = get_morph_times();
+	DXX_POISON_MEMORY(morph_deltas.begin(), morph_deltas.end(), 0xcc);
 	DXX_POISON_VAR(n_morphing_points, 0xcc);
 	DXX_POISON_VAR(submodel_startpoints, 0xcc);
 }
@@ -128,6 +129,11 @@ span<fix> morph_data::get_morph_times()
 span<vms_vector> morph_data::get_morph_vecs()
 {
 	return {reinterpret_cast<vms_vector *>(get_morph_times().end()), MAX_VECS};
+}
+
+span<vms_vector> morph_data::get_morph_deltas()
+{
+	return {get_morph_vecs().end(), MAX_VECS};
 }
 
 d_level_unique_morph_object_state::~d_level_unique_morph_object_state() = default;
@@ -227,10 +233,11 @@ static void init_points(const polymodel &pm, const vms_vector *const box_size, c
 
 	const auto morph_times = md->get_morph_times();
 	const auto morph_vecs = md->get_morph_vecs();
+	const auto morph_deltas = md->get_morph_deltas();
 	auto &&zr = zip(
 		unchecked_partial_range(reinterpret_cast<const vms_vector *>(sd.body), sd.nverts),
 		partial_range(morph_vecs, startpoint, endpoint),
-		partial_range(md->morph_deltas, startpoint, endpoint),
+		partial_range(morph_deltas, startpoint, endpoint),
 		partial_range(morph_times, startpoint, endpoint)
 	);
 	range_for (auto &&z, zr)
@@ -264,10 +271,11 @@ static void update_points(const polymodel &pm, const unsigned submodel_num, morp
 
 	const auto morph_times = md->get_morph_times();
 	const auto morph_vecs = md->get_morph_vecs();
+	const auto morph_deltas = md->get_morph_deltas();
 	auto &&zr = zip(
 		unchecked_partial_range(reinterpret_cast<const vms_vector *>(sd.body), sd.nverts),
 		partial_range(morph_vecs, startpoint, endpoint),
-		partial_range(md->morph_deltas, startpoint, endpoint),
+		partial_range(morph_deltas, startpoint, endpoint),
 		partial_range(morph_times, startpoint, endpoint)
 	);
 	range_for (auto &&z, zr)
