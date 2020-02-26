@@ -99,7 +99,7 @@ submodel_data parse_model_data_header(const polymodel &pm, const unsigned submod
 
 void *morph_data::operator new(std::size_t, const max_vectors max_vecs)
 {
-	return ::operator new(sizeof(morph_data) + (max_vecs.count * sizeof(fix)));
+	return ::operator new(sizeof(morph_data) + (max_vecs.count * (sizeof(fix) + sizeof(vms_vector))));
 }
 
 morph_data::ptr morph_data::create(object_base &o)
@@ -111,10 +111,11 @@ morph_data::morph_data(object_base &o) :
 	obj(&o), Morph_sig(o.signature)
 {
 	DXX_POISON_VAR(submodel_active, 0xcc);
-	DXX_POISON_VAR(morph_vecs, 0xcc);
 	DXX_POISON_VAR(morph_deltas, 0xcc);
 	const auto morph_times = get_morph_times();
 	DXX_POISON_MEMORY(morph_times.begin(), morph_times.end(), 0xcc);
+	const auto morph_vecs = get_morph_times();
+	DXX_POISON_MEMORY(morph_vecs.begin(), morph_vecs.end(), 0xcc);
 	DXX_POISON_VAR(n_morphing_points, 0xcc);
 	DXX_POISON_VAR(submodel_startpoints, 0xcc);
 }
@@ -122,6 +123,11 @@ morph_data::morph_data(object_base &o) :
 span<fix> morph_data::get_morph_times()
 {
 	return {reinterpret_cast<fix *>(this + 1), MAX_VECS};
+}
+
+span<vms_vector> morph_data::get_morph_vecs()
+{
+	return {reinterpret_cast<vms_vector *>(get_morph_times().end()), MAX_VECS};
 }
 
 d_level_unique_morph_object_state::~d_level_unique_morph_object_state() = default;
@@ -220,9 +226,10 @@ static void init_points(const polymodel &pm, const vms_vector *const box_size, c
 	md->submodel_startpoints[submodel_num] = startpoint;
 
 	const auto morph_times = md->get_morph_times();
+	const auto morph_vecs = md->get_morph_vecs();
 	auto &&zr = zip(
 		unchecked_partial_range(reinterpret_cast<const vms_vector *>(sd.body), sd.nverts),
-		partial_range(md->morph_vecs, startpoint, endpoint),
+		partial_range(morph_vecs, startpoint, endpoint),
 		partial_range(md->morph_deltas, startpoint, endpoint),
 		partial_range(morph_times, startpoint, endpoint)
 	);
@@ -256,9 +263,10 @@ static void update_points(const polymodel &pm, const unsigned submodel_num, morp
 	const unsigned endpoint = startpoint + sd.nverts;
 
 	const auto morph_times = md->get_morph_times();
+	const auto morph_vecs = md->get_morph_vecs();
 	auto &&zr = zip(
 		unchecked_partial_range(reinterpret_cast<const vms_vector *>(sd.body), sd.nverts),
-		partial_range(md->morph_vecs, startpoint, endpoint),
+		partial_range(morph_vecs, startpoint, endpoint),
 		partial_range(md->morph_deltas, startpoint, endpoint),
 		partial_range(morph_times, startpoint, endpoint)
 	);
@@ -450,7 +458,8 @@ static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, p
 			// Hmmm... cache got flushed in the middle of paging all these in,
 			// so we need to reread them all in.
 			// Make sure that they can all fit in memory.
-			g3_draw_morphing_model(canvas, &pm->model_data[pm->submodel_ptrs[submodel_num]], &texture_list[0], anim_angles, light, &md->morph_vecs[md->submodel_startpoints[submodel_num]], robot_points);
+			const auto morph_vecs = md->get_morph_vecs();
+			g3_draw_morphing_model(canvas, &pm->model_data[pm->submodel_ptrs[submodel_num]], &texture_list[0], anim_angles, light, &morph_vecs[md->submodel_startpoints[submodel_num]], robot_points);
 		}
 		else {
 			const auto &&orient = vm_angles_2_matrix(anim_angles[mn]);

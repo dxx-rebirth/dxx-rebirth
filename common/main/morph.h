@@ -74,12 +74,13 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	uint8_t n_submodels_active;
 	physics_info morph_save_phys_info;
 	array<submodel_state, MAX_SUBMODELS> submodel_active;         // which submodels are active
-	array<vms_vector, MAX_VECS> morph_vecs, morph_deltas;
+	array<vms_vector, MAX_VECS> morph_deltas;
 	array<int, MAX_SUBMODELS>
 		n_morphing_points,       // how many active points in each part
 		submodel_startpoints;    // first point for each submodel
 	static ptr create(object_base &);
 	span<fix> get_morph_times();
+	span<vms_vector> get_morph_vecs();
 private:
 	static void *operator new(std::size_t bytes, max_vectors);
 	explicit morph_data(object_base &o);
