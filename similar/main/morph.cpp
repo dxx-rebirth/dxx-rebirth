@@ -52,6 +52,51 @@ using std::max;
 
 namespace dcx {
 
+namespace {
+
+class invalid_morph_model_type : public std::runtime_error
+{
+	__attribute_cold
+	static std::string prepare_message(const unsigned type)
+	{
+		char buf[32 + sizeof("4294967295")];
+		const auto len = std::snprintf(buf, sizeof buf, "invalid morph model type: %u", type);
+		return std::string(buf, len);
+	}
+public:
+	invalid_morph_model_type(const unsigned type) :
+		runtime_error(prepare_message(type))
+	{
+	}
+};
+
+struct submodel_data
+{
+	const uint16_t *body;
+	const unsigned type;
+	const unsigned nverts;
+	const unsigned startpoint;
+};
+
+submodel_data parse_model_data_header(const polymodel &pm, const unsigned submodel_num)
+{
+	auto data = reinterpret_cast<const uint16_t *>(&pm.model_data[pm.submodel_ptrs[submodel_num]]);
+	const auto ptype = data++;
+
+	const uint16_t type = *ptype;
+	const auto pnverts = data++;
+
+	const uint16_t startpoint = (type == 7)
+		? *exchange(data, data + 2)		//get start point number, skip pad
+		: (type == 1)
+		? 0				//start at zero
+		: throw invalid_morph_model_type(type);
+	const uint16_t nverts = *pnverts;
+	return {data, type, nverts, startpoint};
+}
+
+}
+
 morph_data::morph_data(object_base &o) :
 	obj(&o), Morph_sig(o.signature)
 {
@@ -91,44 +136,34 @@ static void assign_min(fix &a, const fix &b)
 	a = std::min(a, b);
 }
 
-template <fix vms_vector::*p>
-static void update_bounds(vms_vector &minv, vms_vector &maxv, const vms_vector *vp)
+static void update_bounds(vms_vector &minv, vms_vector &maxv, const vms_vector &v, fix vms_vector::*const p)
 {
 	auto &mx = maxv.*p;
-	assign_max(mx, vp->*p);
+	assign_max(mx, v.*p);
 	auto &mn = minv.*p;
-	assign_min(mn, vp->*p);
+	assign_min(mn, v.*p);
 }
 
 //takes pm, fills in min & max
-static void find_min_max(polymodel *pm,int submodel_num,vms_vector &minv,vms_vector &maxv)
+static void find_min_max(const polymodel &pm, const unsigned submodel_num, vms_vector &minv, vms_vector &maxv)
 {
-	ushort nverts;
-	uint16_t type;
-
-	auto data = reinterpret_cast<uint16_t *>(&pm->model_data[pm->submodel_ptrs[submodel_num]]);
-
-	type = *data++;
-
-	Assert(type == 7 || type == 1);
-
-	nverts = *data++;
-
-	if (type==7)
-		data+=2;		//skip start & pad
-
-	auto vp = reinterpret_cast<const vms_vector *>(data);
-
-	minv = maxv = *vp++;
-	nverts--;
-
-	while (nverts--) {
-		update_bounds<&vms_vector::x>(minv, maxv, vp);
-		update_bounds<&vms_vector::y>(minv, maxv, vp);
-		update_bounds<&vms_vector::z>(minv, maxv, vp);
-		vp++;
+	const auto &&sd = parse_model_data_header(pm, submodel_num);
+	const unsigned nverts = sd.nverts;
+	if (!nverts)
+	{
+		minv = maxv = {};
+		return;
 	}
+	const auto vp = reinterpret_cast<const vms_vector *>(sd.body);
 
+	minv = maxv = *vp;
+
+	range_for (auto &v, unchecked_partial_range(vp + 1, nverts - 1))
+	{
+		update_bounds(minv, maxv, v, &vms_vector::x);
+		update_bounds(minv, maxv, v, &vms_vector::y);
+		update_bounds(minv, maxv, v, &vms_vector::z);
+	}
 }
 
 #define MORPH_RATE (f1_0*3)
@@ -158,28 +193,17 @@ static fix compute_bounding_box_extents(const vms_vector &vp, const vms_vector &
 	return k;
 }
 
-static void init_points(const polymodel *const pm, const vms_vector *const box_size, const unsigned submodel_num, morph_data *const md)
+static void init_points(const polymodel &pm, const vms_vector *const box_size, const unsigned submodel_num, morph_data *const md)
 {
-	auto data = reinterpret_cast<const uint16_t *>(&pm->model_data[pm->submodel_ptrs[submodel_num]]);
-
-	const uint16_t type = *data++;
-
-	Assert(type == 7 || type == 1);
-
-	const uint16_t nverts = *data++;
+	const auto &&sd = parse_model_data_header(pm, submodel_num);
+	const unsigned startpoint = sd.startpoint;
+	const unsigned endpoint = sd.startpoint + sd.nverts;
 
 	md->n_morphing_points[submodel_num] = 0;
-
-	const unsigned startpoint = (type == 7)
-		? *exchange(data, data + 2)		//get start point number, skip pad
-		: 0;				//start at zero
-
-	const unsigned endpoint = startpoint + nverts;
-
 	md->submodel_startpoints[submodel_num] = startpoint;
 
 	auto &&zr = zip(
-		unchecked_partial_range(reinterpret_cast<const vms_vector *>(data), nverts),
+		unchecked_partial_range(reinterpret_cast<const vms_vector *>(sd.body), sd.nverts),
 		partial_range(md->morph_vecs, startpoint, endpoint),
 		partial_range(md->morph_deltas, startpoint, endpoint),
 		partial_range(md->morph_times, startpoint, endpoint)
@@ -207,21 +231,12 @@ static void init_points(const polymodel *const pm, const vms_vector *const box_s
 	}
 }
 
-static void update_points(const polymodel *const pm, const unsigned submodel_num, morph_data *const md)
+static void update_points(const polymodel &pm, const unsigned submodel_num, morph_data *const md)
 {
-	auto data = reinterpret_cast<uint16_t *>(&pm->model_data[pm->submodel_ptrs[submodel_num]]);
+	const auto &&sd = parse_model_data_header(pm, submodel_num);
+	const unsigned startpoint = sd.startpoint;
 
-	const uint16_t type = *data++;
-
-	Assert(type == 7 || type == 1);
-
-	const uint16_t nverts = *data++;
-
-	const unsigned startpoint = (type == 7)
-		? *exchange(data, data + 2)		//get start point number, skip pad
-		: 0;				//start at zero
-
-	range_for (auto &&e, enumerate(unchecked_partial_range(reinterpret_cast<const vms_vector *>(data), nverts), startpoint))
+	range_for (auto &&e, enumerate(unchecked_partial_range(reinterpret_cast<const vms_vector *>(sd.body), sd.nverts), startpoint))
 	{
 		const auto vp = &e.value;
 		const auto i = e.idx;
@@ -238,7 +253,6 @@ static void update_points(const polymodel *const pm, const unsigned submodel_num
 	}
 }
 
-
 //process the morphing object for one frame
 void do_morph_frame(object &obj)
 {
@@ -253,17 +267,17 @@ void do_morph_frame(object &obj)
 	assert(md->obj == &obj);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	const polymodel *const pm = &Polygon_models[obj.rtype.pobj_info.model_num];
+	const polymodel &pm = Polygon_models[obj.rtype.pobj_info.model_num];
 
-	for (uint_fast32_t i = 0; i != pm->n_models; ++i)
+	for (uint_fast32_t i = 0; i != pm.n_models; ++i)
 		if (md->submodel_active[i] == morph_data::submodel_state::animating)
 		{
 			update_points(pm,i,md);
 			if (md->n_morphing_points[i] == 0) {		//maybe start submodel
 				md->submodel_active[i] = morph_data::submodel_state::visible;		//not animating, just visible
 				md->n_submodels_active--;		//this one done animating
-				for (uint_fast32_t t = 0; t != pm->n_models; ++t)
-					if (pm->submodel_parents[t] == i) {		//start this one
+				for (uint_fast32_t t = 0; t != pm.n_models; ++t)
+					if (pm.submodel_parents[t] == i) {		//start this one
 
 						init_points(pm,nullptr,t,md);
 						md->n_submodels_active++;
@@ -297,7 +311,6 @@ void init_morphs()
 //make the object morph
 void morph_start(const vmobjptr_t obj)
 {
-	polymodel *pm;
 	vms_vector pmmin,pmmax;
 	vms_vector box_size;
 
@@ -334,7 +347,7 @@ void morph_start(const vmobjptr_t obj)
 	obj->mtype.phys_info.rotvel = morph_rotvel;
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	pm = &Polygon_models[obj->rtype.pobj_info.model_num];
+	auto &pm = Polygon_models[obj->rtype.pobj_info.model_num];
 
 	find_min_max(pm,0,pmmin,pmmax);
 
