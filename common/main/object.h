@@ -592,7 +592,7 @@ namespace dcx {
 
 struct d_level_unique_morph_object_state
 {
-	array<std::unique_ptr<morph_data>, 5> morph_objects;
+	array<morph_data::ptr, 5> morph_objects;
 	~d_level_unique_morph_object_state();
 };
 

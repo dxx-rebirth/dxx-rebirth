@@ -42,10 +42,24 @@ namespace dcx {
 
 struct morph_data : prohibit_void_ptr<morph_data>
 {
+	using ptr = std::unique_ptr<morph_data>;
 	enum
 	{
 		MAX_VECS = 5000,
 	};
+	struct max_vectors
+	{
+		static constexpr std::size_t count = MAX_VECS;
+	};
+	static void *operator new(std::size_t bytes) = delete;	/* require caller to use placement-form to specify the number of vectors to allocate */
+	static void operator delete(void *p)
+	{
+		::operator delete(p);
+	}
+	static void operator delete(void *p, max_vectors)
+	{
+		::operator delete(p);
+	}
 	enum class submodel_state : uint8_t
 	{
 		invisible,
@@ -64,12 +78,15 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	array<int, MAX_SUBMODELS>
 		n_morphing_points,       // how many active points in each part
 		submodel_startpoints;    // first point for each submodel
+	static ptr create(object_base &);
+private:
+	static void *operator new(std::size_t bytes, max_vectors);
 	explicit morph_data(object_base &o);
 };
 
 struct d_level_unique_morph_object_state;
 
-std::unique_ptr<morph_data> *find_morph_data(d_level_unique_morph_object_state &LevelUniqueMorphObjectState, object_base &obj);
+morph_data::ptr *find_morph_data(d_level_unique_morph_object_state &LevelUniqueMorphObjectState, object_base &obj);
 }
 
 void morph_start(d_level_unique_morph_object_state &, d_level_shared_polygon_model_state &, object_base &obj);

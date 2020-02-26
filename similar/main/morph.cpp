@@ -97,6 +97,17 @@ submodel_data parse_model_data_header(const polymodel &pm, const unsigned submod
 
 }
 
+void *morph_data::operator new(std::size_t, const max_vectors max_vecs)
+{
+	(void)max_vecs;
+	return ::operator new(sizeof(morph_data));
+}
+
+morph_data::ptr morph_data::create(object_base &o)
+{
+	return ptr(new(max_vectors{}) morph_data(o));
+}
+
 morph_data::morph_data(object_base &o) :
 	obj(&o), Morph_sig(o.signature)
 {
@@ -111,7 +122,7 @@ morph_data::morph_data(object_base &o) :
 d_level_unique_morph_object_state::~d_level_unique_morph_object_state() = default;
 
 //returns ptr to data for this object, or NULL if none
-std::unique_ptr<morph_data> *find_morph_data(d_level_unique_morph_object_state &LevelUniqueMorphObjectState, object_base &obj)
+morph_data::ptr *find_morph_data(d_level_unique_morph_object_state &LevelUniqueMorphObjectState, object_base &obj)
 {
 	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
@@ -335,7 +346,7 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	const auto mob = morph_objects.begin();
 	const auto moe = morph_objects.end();
-	const auto mop = [](const std::unique_ptr<morph_data> &pmo) {
+	const auto mop = [](const morph_data::ptr &pmo) {
 		if (!pmo)
 			return true;
 		auto &mo = *pmo.get();
@@ -346,7 +357,7 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 	if (moi == moe)		//no free slots
 		return;
 
-	*moi = make_unique<morph_data>(obj);
+	*moi = morph_data::create(obj);
 	morph_data *const md = moi->get();
 
 	assert(obj.render_type == RT_POLYOBJ);
