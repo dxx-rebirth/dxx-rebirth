@@ -8,6 +8,7 @@
 
 #include <type_traits>
 #include <utility>
+#include "ephemeral_range.h"
 
 template <typename T, bool begin>
 class xrange_endpoint
@@ -89,6 +90,7 @@ class xrange_extent :
 		return begin_type(b);
 	}
 public:
+	using range_owns_iterated_storage = std::false_type;
 	xrange_extent(B b, E e) :
 		begin_type(init_begin(std::move(b), e, std::is_same<B, E>())), end_type(std::move(e))
 	{
