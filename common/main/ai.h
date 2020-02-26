@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 #include "countarray.h"
 #include "aistruct.h"
 #include "valptridx.h"
@@ -47,6 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 struct point_seg;
 
+#ifdef dsx
 struct awareness_event
 {
 	segnum_t segnum;				// segment the event occurred in
@@ -61,6 +62,7 @@ struct d_level_unique_robot_awareness_state
 };
 
 extern d_level_unique_robot_awareness_state LevelUniqueRobotAwarenessState;
+#endif
 
 }
 struct PHYSFS_File;

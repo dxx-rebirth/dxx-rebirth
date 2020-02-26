@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstddef>
 #include "dsx-ns.h"
 #include "fwd-window.h"
+#include "game.h"
 
 extern unsigned state_game_id;
 extern int state_quick_item;
