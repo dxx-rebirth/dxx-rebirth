@@ -236,20 +236,29 @@ static void update_points(const polymodel &pm, const unsigned submodel_num, morp
 {
 	const auto &&sd = parse_model_data_header(pm, submodel_num);
 	const unsigned startpoint = sd.startpoint;
+	const unsigned endpoint = startpoint + sd.nverts;
 
-	range_for (auto &&e, enumerate(unchecked_partial_range(reinterpret_cast<const vms_vector *>(sd.body), sd.nverts), startpoint))
+	auto &&zr = zip(
+		unchecked_partial_range(reinterpret_cast<const vms_vector *>(sd.body), sd.nverts),
+		partial_range(md->morph_vecs, startpoint, endpoint),
+		partial_range(md->morph_deltas, startpoint, endpoint),
+		partial_range(md->morph_times, startpoint, endpoint)
+	);
+	range_for (auto &&z, zr)
 	{
-		const auto vp = &e.value;
-		const auto i = e.idx;
-		if (md->morph_times[i])		//not done yet
+		const auto vp = &std::get<0>(z);
+		auto &morph_vec = std::get<1>(z);
+		auto &morph_delta = std::get<2>(z);
+		auto &morph_time = std::get<3>(z);
+		if (morph_time)		//not done yet
 		{
-			if ((md->morph_times[i] -= FrameTime) <= 0) {
-				md->morph_vecs[i] = *vp;
-				md->morph_times[i] = 0;
+			if ((morph_time -= FrameTime) <= 0) {
+				morph_vec = *vp;
+				morph_time = 0;
 				md->n_morphing_points[submodel_num]--;
 			}
 			else
-				vm_vec_scale_add2(md->morph_vecs[i],md->morph_deltas[i],FrameTime);
+				vm_vec_scale_add2(morph_vec, morph_delta, FrameTime);
 		}
 	}
 }
