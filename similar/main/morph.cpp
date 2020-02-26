@@ -199,6 +199,7 @@ static void init_points(const polymodel &pm, const vms_vector *const box_size, c
 	const unsigned startpoint = sd.startpoint;
 	const unsigned endpoint = sd.startpoint + sd.nverts;
 
+	md->submodel_active[submodel_num] = morph_data::submodel_state::animating;
 	md->n_morphing_points[submodel_num] = 0;
 	md->submodel_startpoints[submodel_num] = startpoint;
 
@@ -269,22 +270,31 @@ void do_morph_frame(object &obj)
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const polymodel &pm = Polygon_models[obj.rtype.pobj_info.model_num];
 
-	for (uint_fast32_t i = 0; i != pm.n_models; ++i)
-		if (md->submodel_active[i] == morph_data::submodel_state::animating)
+	const auto n_models = pm.n_models;
+	range_for (const auto &&zi, zip(xrange(n_models), md->submodel_active, md->n_morphing_points))
+	{
+		const unsigned i = std::get<0>(zi);
+		auto &submodel_active = std::get<1>(zi);
+		if (submodel_active == morph_data::submodel_state::animating)
 		{
 			update_points(pm,i,md);
-			if (md->n_morphing_points[i] == 0) {		//maybe start submodel
-				md->submodel_active[i] = morph_data::submodel_state::visible;		//not animating, just visible
+			const auto &n_morphing_points = std::get<2>(zi);
+			if (n_morphing_points == 0) {		//maybe start submodel
+				submodel_active = morph_data::submodel_state::visible;		//not animating, just visible
 				md->n_submodels_active--;		//this one done animating
-				for (uint_fast32_t t = 0; t != pm.n_models; ++t)
-					if (pm.submodel_parents[t] == i) {		//start this one
-
+				range_for (const auto &&zt, zip(xrange(n_models), pm.submodel_parents))
+				{
+					auto &submodel_parents = std::get<1>(zt);
+					if (submodel_parents == i)
+					{		//start this one
+						const auto t = std::get<0>(zt);
 						init_points(pm,nullptr,t,md);
 						md->n_submodels_active++;
-						md->submodel_active[t] = morph_data::submodel_state::animating;
 					}
+				}
 			}
 		}
+	}
 
 	if (!md->n_submodels_active) {			//done morphing!
 
@@ -357,8 +367,6 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 	md->morph_times = {};
 	//clear all parts
 	md->submodel_active = {};
-
-	md->submodel_active[0] = morph_data::submodel_state::animating;		//1 means visible & animating
 
 	md->n_submodels_active = 1;
 
