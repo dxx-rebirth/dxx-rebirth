@@ -241,7 +241,7 @@ static inline void check_range_object_size(const char *, unsigned, const char *,
 
 template <typename I, std::size_t required_buffer_size>
 __attribute_warn_unused_result
-static inline partial_range_t<I> (unchecked_partial_range)(const char *file, unsigned line, const char *estr, I range_begin, const std::size_t o, const std::size_t l, std::true_type)
+static inline partial_range_t<I> (unchecked_partial_range)(const char *file, unsigned line, const char *estr, I range_begin, const std::size_t o, const std::size_t l)
 {
 #ifdef DXX_CONSTANT_TRUE
 	/* Compile-time only check.  Runtime handles (o > l) correctly, and
@@ -276,17 +276,15 @@ static inline partial_range_t<I> (unchecked_partial_range)(const char *file, uns
 	return {range_begin, range_end};
 }
 
-template <typename I, std::size_t N>
-static inline partial_range_t<I> (unchecked_partial_range)(const char *, unsigned, const char *, I, std::size_t, std::size_t, std::false_type) = delete;
-
 template <typename I, typename UO, typename UL, std::size_t NF, std::size_t NE>
 __attribute_warn_unused_result
 static inline partial_range_t<I> (unchecked_partial_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], I range_begin, const UO &o, const UL &l)
 {
 	/* Require unsigned length */
+	static_assert(std::is_unsigned<UO>::value, "offset to partial_range must be unsigned");
+	static_assert(std::is_unsigned<UL>::value, "length to partial_range must be unsigned");
 	return unchecked_partial_range<I, partial_range_detail::required_buffer_size<NF, NE>::value>(
-		file, line, estr, range_begin, o, l,
-		typename std::conditional<std::is_unsigned<UO>::value, std::is_unsigned<UL>, std::false_type>::type()
+		file, line, estr, range_begin, o, l
 	);
 }
 
