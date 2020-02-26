@@ -67,7 +67,9 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	explicit morph_data(object_base &o);
 };
 
-std::unique_ptr<morph_data> *find_morph_data(object_base &obj);
+struct d_level_unique_morph_object_state;
+
+std::unique_ptr<morph_data> *find_morph_data(d_level_unique_morph_object_state &LevelUniqueMorphObjectState, object_base &obj);
 }
 
 void morph_start(vmobjptr_t obj);

@@ -983,6 +983,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
+	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	fix tmptime32 = 0;
@@ -1120,7 +1121,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	{
 		if (objp->type != OBJ_NONE && objp->render_type == RT_MORPH)
 		{
-			if (const auto umd = find_morph_data(objp))
+			if (const auto umd = find_morph_data(LevelUniqueMorphObjectState, objp))
 			{
 				const auto md = umd->get();
 				md->obj->control_type = md->morph_save_control_type;

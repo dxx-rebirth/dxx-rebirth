@@ -66,9 +66,8 @@ morph_data::morph_data(object_base &o) :
 d_level_unique_morph_object_state::~d_level_unique_morph_object_state() = default;
 
 //returns ptr to data for this object, or NULL if none
-std::unique_ptr<morph_data> *find_morph_data(object_base &obj)
+std::unique_ptr<morph_data> *find_morph_data(d_level_unique_morph_object_state &LevelUniqueMorphObjectState, object_base &obj)
 {
-	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
 		return nullptr;
@@ -243,7 +242,8 @@ static void update_points(const polymodel *const pm, const unsigned submodel_num
 //process the morphing object for one frame
 void do_morph_frame(object &obj)
 {
-	const auto umd = find_morph_data(obj);
+	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
+	const auto umd = find_morph_data(LevelUniqueMorphObjectState, obj);
 
 	if (!umd) {					//maybe loaded half-morphed from disk
 		obj.flags |= OF_SHOULD_BE_DEAD;		//..so kill it
@@ -423,7 +423,8 @@ void draw_morph_object(grs_canvas &canvas, const d_level_unique_light_state &Lev
 		return;
 	polymodel *po;
 
-	const auto umd = find_morph_data(obj);
+	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
+	const auto umd = find_morph_data(LevelUniqueMorphObjectState, obj);
 	if (!umd)
 		throw std::runtime_error("missing morph data");
 	const auto md = umd->get();
