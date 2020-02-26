@@ -4404,6 +4404,9 @@ class DXXArchive(DXXCommon):
 		RuntimeTest('test-xrange', (
 			'common/unittest/xrange.cpp',
 			)),
+		RuntimeTest('test-zip', (
+			'common/unittest/zip.cpp',
+			)),
 			)
 	del RuntimeTest
 

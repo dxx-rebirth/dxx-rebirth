@@ -6,38 +6,76 @@
  */
 #pragma once
 
+#include <iterator>
 #include <tuple>
 #include <type_traits>
 #include "dxxsconf.h"
 #include "compiler-integer_sequence.h"
 #include "ephemeral_range.h"
 
-/* This iterator terminates when the first zipped range terminates.  The caller
- * is responsible for ensuring that the first zipped range is not longer than
- * any other zipped range.
+namespace d_zip {
+
+namespace detail {
+
+template <typename... T>
+void discard_arguments(T &&...)
+{
+}
+
+template <std::size_t... N, typename... range_iterator_type>
+void increment_iterator(std::tuple<range_iterator_type...> &iterator, std::index_sequence<N...>)
+{
+	/* Order of evaluation is irrelevant, so pass the results to a
+	 * discarding function.  This permits the compiler to evaluate the
+	 * expression elements in any order.
+	 */
+	discard_arguments(++(std::get<N>(iterator))...);
+}
+
+template <std::size_t... N, typename... range_iterator_type>
+auto dereference_iterator(const std::tuple<range_iterator_type...> &iterator, std::index_sequence<N...>)
+{
+	/* std::make_tuple is not appropriate here, because the result of
+	 * dereferencing the iterator may be a reference, and the resulting
+	 * tuple should store the reference, not the underlying object.
+	 * Calling std::make_tuple would decay such references into the
+	 * underlying type.
+	 *
+	 * std::tie is not appropriate here, because it captures all
+	 * arguments as `T &`, so it fails to compile if the result of
+	 * dereferencing the iterator is not a reference.
+	 */
+	return std::tuple<
+		decltype(*(std::get<N>(iterator)))...
+		>(*(std::get<N>(iterator))...);
+}
+
+}
+
+}
+
+/* This iterator terminates when the first zipped range terminates.  The
+ * caller is responsible for ensuring that use of the zip_iterator does
+ * not increment past the end of any zipped range.  This can be done by
+ * ensuring that the first zipped range is not longer than any other
+ * zipped range, or by ensuring that external logic stops the traversal
+ * before the zip_iterator increments past the end.
+ *
+ * There is no initialization time check that the below loop would be
+ * safe, since a check external to the zip_iterator could stop before
+ * undefined behaviour occurs.
+
+	for (auto i = zip_range.begin(), e = zip_range.end(); i != e; ++i)
+	{
+		if (condition())
+			break;
+	}
+
  */
 template <typename... range_iterator_type>
 class zip_iterator : std::tuple<range_iterator_type...>
 {
 	using base_type = std::tuple<range_iterator_type...>;
-	template <typename... T>
-		void discard_arguments(T &&...)
-		{
-		}
-	template <std::size_t... N>
-		void increment(std::index_sequence<N...>)
-		{
-			/* Order of evaluation is irrelevant, so pass the results to
-			 * a discarding function.  This permits the compiler to
-			 * evaluate the expression elements in any order.
-			 */
-			discard_arguments(++(std::get<N>(*this))...);
-		}
-	template <std::size_t... N>
-		auto dereference(std::index_sequence<N...>) const
-		{
-			return std::tie(*(std::get<N>(*this))...);
-		}
 protected:
 	/* Prior to C++17, range-based for insisted on the same type for
 	 * `begin` and `end`, so method `end_internal` must return a full iterator,
@@ -65,11 +103,11 @@ public:
 	using base_type::base_type;
 	auto operator*() const
 	{
-		return dereference(index_type());
+		return d_zip::detail::dereference_iterator(*this, index_type());
 	}
 	zip_iterator &operator++()
 	{
-		increment(index_type());
+		d_zip::detail::increment_iterator(*this, index_type());
 		return *this;
 	}
 	bool operator!=(const zip_iterator &i) const
@@ -101,6 +139,8 @@ public:
 template <typename range0, typename... rangeN>
 static auto zip(range0 &&r0, rangeN &&... rN)
 {
+	using std::begin;
+	using std::end;
 	using R = zipped_range<decltype(begin(r0)), decltype(begin(rN))...>;
 	static_assert((!any_ephemeral_range<range0 &&, rangeN &&...>::value), "cannot zip storage of ephemeral ranges");
 	return R(typename R::iterator(begin(r0), begin(rN)...), end(r0));
