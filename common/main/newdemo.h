@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "physfsx.h"
 #include "fwd-object.h"
+#include "fwd-segment.h"
 #include "fwd-window.h"
 
 class object_signature_t;
@@ -87,13 +88,13 @@ icobjptridx_t newdemo_find_object(object_signature_t signature);
 void newdemo_record_kill_sound_linked_to_object(vcobjptridx_t);
 namespace dsx {
 void newdemo_start_playback(const char *filename);
+void newdemo_record_morph_frame(vcobjptridx_t);
 }
 #endif
 extern void newdemo_record_sound_3d_once( int soundno, int angle, int volume );
 extern void newdemo_record_sound_once( int soundno );
 extern void newdemo_record_sound( int soundno );
 void newdemo_record_wall_hit_process( segnum_t segnum, int side, int damage, int playernum );
-void newdemo_record_morph_frame(vcobjptridx_t);
 extern void newdemo_record_player_stats(int shields, int energy, int score );
 void newdemo_record_wall_toggle(segnum_t segnum, int side );
 extern void newdemo_record_control_center_destroyed();
@@ -132,12 +133,17 @@ extern void newdemo_record_primary_ammo(int new_ammo);
 extern void newdemo_record_secondary_ammo(int new_ammo);
 void newdemo_record_door_opening(segnum_t segnum, int side);
 extern void newdemo_record_laser_level(sbyte old_level, sbyte new_level);
+
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
+void newdemo_record_player_afterburner(fix afterburner);
+void newdemo_record_cloaking_wall(int front_wall_num, int back_wall_num, ubyte type, ubyte state, fix cloak_value, fix l0, fix l1, fix l2, fix l3);
+void newdemo_record_guided_start();
+void newdemo_record_guided_end();
+void newdemo_record_secret_exit_blown(int truth);
 void newdemo_record_trigger(vcsegidx_t segnum, unsigned side, objnum_t objnum, unsigned shot);
-extern void newdemo_record_player_afterburner(fix afterburner);
-extern void newdemo_record_cloaking_wall(int front_wall_num, int back_wall_num, ubyte type, ubyte state, fix cloak_value, fix l0, fix l1, fix l2, fix l3);
-extern void newdemo_record_secret_exit_blown(int truth);
 #endif
+}
 
 // Functions called during playback process...
 extern void newdemo_object_move_all();
@@ -163,8 +169,6 @@ extern int newdemo_swap_endian(const char *filename);
 extern int newdemo_get_percent_done();
 
 extern void newdemo_record_link_sound_to_object3( int soundno, objnum_t objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end );
-void newdemo_record_guided_end();
-void newdemo_record_guided_start();
 int newdemo_count_demos();
 void newdemo_strip_frames(char *, int);
 

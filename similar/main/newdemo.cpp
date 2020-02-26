@@ -1274,6 +1274,8 @@ void newdemo_record_wall_hit_process( segnum_t segnum, int side, int damage, int
 	nd_write_int( playernum );
 }
 
+namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_II)
 void newdemo_record_guided_start ()
 {
@@ -1310,6 +1312,8 @@ void newdemo_record_morph_frame(const vcobjptridx_t obj)
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_MORPH_FRAME );
 	nd_write_object(obj);
+}
+
 }
 
 void newdemo_record_wall_toggle( segnum_t segnum, int side )
@@ -1358,6 +1362,8 @@ void newdemo_record_player_energy(int energy)
 	nd_write_byte(static_cast<int8_t>(energy));
 }
 
+namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_II)
 void newdemo_record_player_afterburner(fix afterburner)
 {
@@ -1369,6 +1375,8 @@ void newdemo_record_player_afterburner(fix afterburner)
 	nd_write_byte(static_cast<int8_t>(afterburner >> 9));
 }
 #endif
+
+}
 
 void newdemo_record_player_shields(int shield)
 {
@@ -1584,6 +1592,8 @@ void newdemo_record_laser_level(sbyte old_level, sbyte new_level)
 	nd_write_byte(new_level);
 }
 
+namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_II)
 void newdemo_record_cloaking_wall(int front_wall_num, int back_wall_num, ubyte type, ubyte state, fix cloak_value, fix l0, fix l1, fix l2, fix l3)
 {
@@ -1603,7 +1613,6 @@ void newdemo_record_cloaking_wall(int front_wall_num, int back_wall_num, ubyte t
 }
 #endif
 
-namespace dsx {
 void newdemo_set_new_level(int level_num)
 {
 	pause_game_world_time p;
