@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 
 #ifdef dsx
+#include "compiler-span.h"
 #include "fwd-object.h"
 #include <memory>
 
@@ -74,11 +75,11 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	physics_info morph_save_phys_info;
 	array<submodel_state, MAX_SUBMODELS> submodel_active;         // which submodels are active
 	array<vms_vector, MAX_VECS> morph_vecs, morph_deltas;
-	array<fix, MAX_VECS> morph_times;
 	array<int, MAX_SUBMODELS>
 		n_morphing_points,       // how many active points in each part
 		submodel_startpoints;    // first point for each submodel
 	static ptr create(object_base &);
+	span<fix> get_morph_times();
 private:
 	static void *operator new(std::size_t bytes, max_vectors);
 	explicit morph_data(object_base &o);
