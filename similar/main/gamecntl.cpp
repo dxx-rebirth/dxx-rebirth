@@ -1190,6 +1190,7 @@ static void kill_buddy(void)
 namespace dsx {
 static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 {
+	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1242,7 +1243,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 			auto &vcvertptr = Vertices.vcptr;
 			const auto &&new_obj = create_morph_robot(segp, compute_segment_center(vcvertptr, segp), i);
 			if (new_obj != object_none)
-				morph_start( new_obj );
+				morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, new_obj);
 			i++;
 			if (i >= LevelSharedRobotInfoState.N_robot_types)
 				i = 0;

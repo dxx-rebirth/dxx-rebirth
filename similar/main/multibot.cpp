@@ -1020,6 +1020,7 @@ namespace dsx {
 
 void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
 {
+	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	const uint_fast32_t fuelcen_num = buf[2];
 	int type = buf[5];
@@ -1062,7 +1063,7 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 //	extract_orient_from_segment(&obj->orient, &Segments[robotcen->segnum]);
 	const auto direction = vm_vec_sub(ConsoleObject->pos, obj->pos );
 	vm_vector_2_matrix( obj->orient, direction, &obj->orient.uvec, nullptr);
-	morph_start( obj );
+	morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, obj);
 
 	map_objnum_local_to_remote(obj, objnum, pnum);
 

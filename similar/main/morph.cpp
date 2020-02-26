@@ -307,14 +307,12 @@ void init_morphs()
 	morph_objects = {};
 }
 
-
 //make the object morph
-void morph_start(const vmobjptr_t obj)
+void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState, d_level_shared_polygon_model_state &LevelSharedPolygonModelState, object_base &obj)
 {
 	vms_vector pmmin,pmmax;
 	vms_vector box_size;
 
-	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	const auto mob = morph_objects.begin();
 	const auto moe = morph_objects.end();
@@ -332,22 +330,22 @@ void morph_start(const vmobjptr_t obj)
 	*moi = make_unique<morph_data>(obj);
 	morph_data *const md = moi->get();
 
-	Assert(obj->render_type == RT_POLYOBJ);
+	assert(obj.render_type == RT_POLYOBJ);
 
-	md->morph_save_control_type = obj->control_type;
-	md->morph_save_movement_type = obj->movement_type;
-	md->morph_save_phys_info = obj->mtype.phys_info;
+	md->morph_save_control_type = obj.control_type;
+	md->morph_save_movement_type = obj.movement_type;
+	md->morph_save_phys_info = obj.mtype.phys_info;
 
-	Assert(obj->control_type == CT_AI);		//morph objects are also AI objects
+	assert(obj.control_type == CT_AI);		//morph objects are also AI objects
 
-	obj->control_type = CT_MORPH;
-	obj->render_type = RT_MORPH;
-	obj->movement_type = MT_PHYSICS;		//RT_NONE;
+	obj.control_type = CT_MORPH;
+	obj.render_type = RT_MORPH;
+	obj.movement_type = MT_PHYSICS;		//RT_NONE;
 
-	obj->mtype.phys_info.rotvel = morph_rotvel;
+	obj.mtype.phys_info.rotvel = morph_rotvel;
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	auto &pm = Polygon_models[obj->rtype.pobj_info.model_num];
+	auto &pm = Polygon_models[obj.rtype.pobj_info.model_num];
 
 	find_min_max(pm,0,pmmin,pmmax);
 

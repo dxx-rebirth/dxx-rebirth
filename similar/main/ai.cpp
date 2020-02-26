@@ -1962,6 +1962,7 @@ static int check_object_object_intersection(const vms_vector &pos, fix size, con
 static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &vcobjptr, const vmsegptridx_t segp, const unsigned object_id, const vms_vector *const pos)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
+	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	const auto Gate_interval = GameUniqueState.Boss_gate_interval;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2036,7 +2037,7 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 
 	object_create_explosion(segp, object_pos, i2f(10), VCLIP_MORPHING_ROBOT );
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segp, 0, object_pos, 0 , F1_0);
-	morph_start(objp);
+	morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, objp);
 
 	BossUniqueState.Last_gate_time = GameTime64;
 	++LevelUniqueObjectState.accumulated_robots;

@@ -351,6 +351,7 @@ imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &obj
 //	----------------------------------------------------------------------------------------------------------
 static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, FuelCenter *const robotcen, const unsigned numrobotcen)
 {
+	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -523,7 +524,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 					const auto direction = vm_vec_sub(ConsoleObject->pos,obj->pos );
 					vm_vector_2_matrix( obj->orient, direction, &obj->orient.uvec, nullptr);
 	
-					morph_start( obj );
+					morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, obj);
 					//robotcen->last_created_obj = obj;
 					//robotcen->last_created_sig = robotcen->last_created_obj->signature;
 				}
