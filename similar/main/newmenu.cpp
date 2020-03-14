@@ -1708,20 +1708,19 @@ int listbox_get_citem(listbox *lb)
 
 void listbox_delete_item(listbox *lb, int item)
 {
-	int i;
-
 	Assert(item >= 0);
 
-	if (lb->nitems)
+	const auto nitems = lb->nitems;
+	if (nitems <= 0)
+		return;
+	if (item < nitems - 1)
 	{
-		for (i=item; i<lb->nitems-1; i++ )
-			lb->item[i] = lb->item[i+1];
-		lb->nitems--;
-		lb->item[lb->nitems] = NULL;
-
-		if (lb->citem >= lb->nitems)
-			lb->citem = lb->nitems ? lb->nitems - 1 : 0;
+		auto &items = lb->item;
+		std::rotate(&items[item], &items[item + 1], &items[nitems]);
 	}
+	-- lb->nitems;
+	if (lb->citem >= lb->nitems)
+		lb->citem = lb->nitems ? lb->nitems - 1 : 0;
 }
 
 static void update_scroll_position(listbox *lb)
