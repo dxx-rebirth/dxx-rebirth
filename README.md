@@ -12,8 +12,6 @@ DXX-Rebirth is based on the late D1X and D2X source ports (which, in turn, were 
 
 It is the goal of DXX-Rebirth to keep Descent 1 & 2 alive and well, updating them for modern PCs while also keeping them the same games you remember playing back in 1995!
 
-If you have any questions, comments, or suggestions, contact zico [at] dxx-rebirth [dot] com, or come to our forum: https://forum.dxx-rebirth.com/
-
 > Now Material Defender...Prepare for Descent!
 
 ## 1. Features:
@@ -65,7 +63,6 @@ See [COPYING.txt](COPYING.txt) and [GPL-3.txt](GPL-3.txt)
 ## 5. Contact:
 
 - https://www.dxx-rebirth.com/
-- [Forum](https://forum.dxx-rebirth.com/)
 - zico [at] dxx-rebirth [dot] com
    
 ## 6. Issue Reporting
