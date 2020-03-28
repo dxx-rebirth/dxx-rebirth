@@ -239,8 +239,8 @@ void init_cockpit()
 			break;
 
 		case CM_LETTERBOX:	{
-			const unsigned gsm_height = SM_H(Game_screen_mode);
-			const unsigned w = SM_W(Game_screen_mode);
+			const unsigned gsm_height = grd_curscreen->get_screen_height();
+			const unsigned w = grd_curscreen->get_screen_width();
 			const unsigned h = (gsm_height * 3) / 4; // true letterbox size (16:9)
 			const unsigned x = 0;
 			const unsigned y = (gsm_height - h) / 2;
