@@ -319,7 +319,9 @@ public:
 	void abandon_auto_select()
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_NO_PRIMARY);
-		select_primary_weapon(pl_info, nullptr, 0, 1);
+		if (pl_info.Primary_weapon == primary_weapon_index_t::LASER_INDEX)
+			return;
+		select_primary_weapon(pl_info, nullptr, primary_weapon_index_t::LASER_INDEX, 1);
 	}
 	static const char *get_weapon_name(uint8_t i)
 	{
@@ -466,6 +468,7 @@ void select_primary_weapon(player_info &player_info, const char *const weapon_na
 	{
 		auto &Primary_weapon = player_info.Primary_weapon;
 		if (Primary_weapon != weapon_num) {
+			Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 #ifndef FUSION_KEEPS_CHARGE
 			//added 8/6/98 by Victor Rachels to fix fusion charge bug
 			player_info.Fusion_charge=0;
@@ -479,12 +482,22 @@ void select_primary_weapon(player_info &player_info, const char *const weapon_na
 			}
 			else
 				Next_laser_fire_time = 0;
-		} else 	{
+		}
+		else
+		{
 #if defined(DXX_BUILD_DESCENT_I)
-			if (wait_for_rearm) digi_play_sample( SOUND_ALREADY_SELECTED, F1_0 );
+			if (wait_for_rearm)
+				/*
+				 * In Descent 1, requesting a weapon that is already
+				 * armed is pointless, so play a warning sound.
+				 *
+				 * In Descent 2, the player may be trying to toggle
+				 * between the base and super forms of a weapon, so do
+				 * not generate a warning sound in that case.
+				 */
+				digi_play_sample(SOUND_ALREADY_SELECTED, F1_0);
 #endif
 		}
-		Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
 		set_weapon_last_was_super(player_info.Primary_last_was_super, weapon_num);
