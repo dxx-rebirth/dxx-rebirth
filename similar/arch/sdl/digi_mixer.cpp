@@ -187,20 +187,22 @@ static void mixdigi_convert_sound(int i)
 // Volume 0-F1_0
 int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, sound_object *)
 {
-	int mix_vol = fix2byte(fixmul(digi_volume, volume));
-	int mix_pan = fix2byte(pan);
-	int mix_loop = looping * -1;
-	int channel;
-
 	if (!digi_initialised) return -1;
 
 	if (soundnum < 0)
+		return -1;
+
+	const int channel = digi_mixer_find_channel();
+	if (channel < 0)
 		return -1;
 
 	Assert(GameSounds[soundnum].data != reinterpret_cast<void *>(-1));
 
 	mixdigi_convert_sound(soundnum);
 
+	const int mix_vol = fix2byte(fixmul(digi_volume, volume));
+	const uint8_t mix_distance = (volume > F1_0) ? 0 : UINT8_MAX - mix_vol;
+	const int mix_pan = fix2byte(pan);
 #if MIX_DIGI_DEBUG
 	con_printf(CON_DEBUG, "digi_start_sound %d, volume %d, pan %d (start=%d, end=%d)", soundnum, mix_vol, mix_pan, loop_start, loop_end);
 #else
@@ -208,16 +210,10 @@ int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int
 	(void)loop_end;
 #endif
 
-	channel = digi_mixer_find_channel();
-	if (channel < 0)
-		return -1;
-
+	const int mix_loop = looping * -1;
 	Mix_PlayChannel(channel, &(SoundChunks[soundnum]), mix_loop);
 	Mix_SetPanning(channel, 255-mix_pan, mix_pan);
-	if (volume > F1_0)
-		Mix_SetDistance(channel, 0);
-	else
-		Mix_SetDistance(channel, 255-mix_vol);
+	Mix_SetDistance(channel, mix_distance);
 	channels[channel] = 1;
 
 	return channel;
