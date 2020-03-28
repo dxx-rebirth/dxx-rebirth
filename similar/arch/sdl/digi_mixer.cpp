@@ -56,17 +56,24 @@ namespace {
 
 struct RAIIMix_Chunk : public Mix_Chunk
 {
+	RAIIMix_Chunk() = default;
 	~RAIIMix_Chunk()
 	{
 		delete [] abuf;
 	}
+	RAIIMix_Chunk(const RAIIMix_Chunk &) = delete;
+	RAIIMix_Chunk &operator=(const RAIIMix_Chunk &) = delete;
 };
+
+static int fix2byte(const fix f)
+{
+	return (f / 256) % 256;
+}
 
 }
 
-static int digi_initialised = 0;
+static uint8_t digi_initialised = 0;
 static int digi_mixer_max_channels = MAX_SOUND_SLOTS;
-static inline int fix2byte(fix f) { return (f / 256) % 256; }
 static array<RAIIMix_Chunk, MAX_SOUNDS> SoundChunks;
 static array<uint8_t, MAX_SOUND_SLOTS> channels;
 
