@@ -77,6 +77,11 @@ static int digi_mixer_max_channels = MAX_SOUND_SLOTS;
 static array<RAIIMix_Chunk, MAX_SOUNDS> SoundChunks;
 static array<uint8_t, MAX_SOUND_SLOTS> channels;
 
+static void digi_mixer_free_channel(const int channel_num)
+{
+	channels[channel_num] = 0;
+}
+
 /* Initialise audio */
 int digi_mixer_init()
 {
@@ -101,6 +106,7 @@ int digi_mixer_init()
 	digi_mixer_max_channels = Mix_AllocateChannels(digi_mixer_max_channels);
 	channels = {};
 	Mix_Pause(0);
+	Mix_ChannelFinished(digi_mixer_free_channel);
 
 	digi_initialised = 1;
 
@@ -126,11 +132,6 @@ static int digi_mixer_find_channel()
 		if (channels[i] == 0)
 			return i;
 	return -1;
-}
-
-static void digi_mixer_free_channel(int channel_num)
-{
-	channels[channel_num] = 0;
 }
 
 /*
@@ -218,7 +219,6 @@ int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int
 	else
 		Mix_SetDistance(channel, 255-mix_vol);
 	channels[channel] = 1;
-	Mix_ChannelFinished(digi_mixer_free_channel);
 
 	return channel;
 }
