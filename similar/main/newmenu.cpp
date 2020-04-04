@@ -1753,31 +1753,41 @@ static void update_scroll_position(listbox *lb)
 
 static window_event_result listbox_mouse(window *, const d_event &event, listbox *lb, int button)
 {
-	int mx, my, mz, x1, x2, y1, y2;
-
 	switch (button)
 	{
 		case MBTN_LEFT:
 		{
 			if (lb->mouse_state)
 			{
+				int mx, my, mz;
 				mouse_get_pos(&mx, &my, &mz);
-				const auto &&line_spacing = LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT);
-				for (int i = lb->first_item; i < lb->first_item + lb->items_on_screen; ++i)
-				{
-					if (i >= lb->nitems)
-						break;
-					int h;
-					gr_get_string_size(*grd_curcanv->cv_font, lb->item[i], nullptr, &h, nullptr);
-					x1 = lb->box_x;
-					x2 = lb->box_x + lb->box_w;
-					y1 = (i - lb->first_item) * line_spacing + lb->box_y;
-					y2 = y1+h;
-					if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
-						lb->citem = i;
-						return window_event_result::handled;
-					}
-				}
+				const int x1 = lb->box_x;
+				if (mx <= x1)
+					break;
+				const int x2 = x1 + lb->box_w;
+				if (mx >= x2)
+					break;
+				const int by = lb->box_y;
+				if (my <= by)
+					break;
+				const int my_relative_by = my - by;
+				const auto &&line_spacing = LINE_SPACING(*MEDIUM3_FONT, *GAME_FONT);
+				if (line_spacing < 1)
+					break;
+				const int idx_relative_first_visible_item = my_relative_by / line_spacing;
+				const auto first_visible_item = lb->first_item;
+				const auto nitems = lb->nitems;
+				const auto last_visible_item = std::min(first_visible_item + lb->items_on_screen, nitems);
+				if (idx_relative_first_visible_item >= last_visible_item)
+					break;
+				const int px_within_item = my_relative_by % static_cast<int>(line_spacing);
+				const int h = gr_get_string_height(*MEDIUM3_FONT, 1);
+				if (px_within_item >= h)
+					break;
+				const int idx_absolute_item = idx_relative_first_visible_item + first_visible_item;
+				if (idx_absolute_item >= nitems)
+					break;
+				lb->citem = idx_absolute_item;
 			}
 			else if (event.type == EVENT_MOUSE_BUTTON_UP)
 			{
@@ -1786,12 +1796,13 @@ static window_event_result listbox_mouse(window *, const d_event &event, listbox
 				if (lb->citem < 0)
 					return window_event_result::ignored;
 
+				int mx, my, mz;
 				mouse_get_pos(&mx, &my, &mz);
-				gr_get_string_size(*grd_curcanv->cv_font, lb->item[lb->citem], nullptr, &h, nullptr);
-				x1 = lb->box_x;
-				x2 = lb->box_x + lb->box_w;
-				y1 = (lb->citem - lb->first_item) * LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT) + lb->box_y;
-				y2 = y1+h;
+				gr_get_string_size(*MEDIUM3_FONT, lb->item[lb->citem], nullptr, &h, nullptr);
+				const int x1 = lb->box_x;
+				const int x2 = lb->box_x + lb->box_w;
+				const int y1 = (lb->citem - lb->first_item) * LINE_SPACING(*MEDIUM3_FONT, *GAME_FONT) + lb->box_y;
+				const int y2 = y1 + h;
 				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) )
 				{
 					// Tell callback, if it wants to close it will return window_event_result::close

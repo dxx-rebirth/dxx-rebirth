@@ -771,6 +771,12 @@ void gr_ustring(grs_canvas &canvas, const grs_font &cv_font, const int x, const 
 		gr_ustring_mono(canvas, cv_font, x, y, s);
 }
 
+int gr_get_string_height(const grs_font &cv_font, const unsigned lines)
+{
+	const auto fontscale_y = FONTSCALE_Y(cv_font.ft_h);
+	return static_cast<int>(fontscale_y + (lines * (fontscale_y + FSPACY(1))));
+}
+
 void gr_get_string_size(const grs_font &cv_font, const char *s, int *const string_width, int *const string_height, int *const average_width)
 {
 	gr_get_string_size(cv_font, s, string_width, string_height, average_width, UINT_MAX);
@@ -815,10 +821,7 @@ void gr_get_string_size(const grs_font &cv_font, const char *s, int *const strin
 	if (string_width)
 		*string_width = std::max(longest_width, string_width_f);
 	if (string_height)
-	{
-		const auto fontscale_y = FONTSCALE_Y(cv_font.ft_h);
-		*string_height = static_cast<int>(fontscale_y + (lines * (fontscale_y + FSPACY(1))));
-	}
+		*string_height = gr_get_string_height(cv_font, lines);
 }
 
 std::pair<const char *, unsigned> gr_get_string_wrap(const grs_font &cv_font, const char *s, unsigned limit)

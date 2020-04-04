@@ -293,6 +293,7 @@ void gr_printt(grs_canvas &, const grs_font &, int x, int y, const char *format,
 #define gr_printf(A1,A2,A3,A4,F,...)	dxx_call_printf_checked(gr_printfs,gr_string,(A1,A2,A3,A4),(F),##__VA_ARGS__)
 #define gr_uprintf(A1,A2,A3,A4,F,...)	dxx_call_printf_checked(gr_printfus,gr_ustring,(A1,A2,A3,A4),(F),##__VA_ARGS__)
 std::pair<const char *, unsigned> gr_get_string_wrap(const grs_font &, const char *s, unsigned limit);
+int gr_get_string_height(const grs_font &cv_font, unsigned lines);
 void gr_get_string_size(const grs_font &, const char *s, int *string_width, int *string_height, int *average_width);
 void gr_get_string_size(const grs_font &, const char *s, int *string_width, int *string_height, int *average_width, const unsigned max_chars_per_line);
 
