@@ -14,6 +14,7 @@
  *  -- MD2211 (2006-10-12)
  */
 
+#include <bitset>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -38,19 +39,15 @@
 
 #include "compiler-make_unique.h"
 
-namespace dsx {
-
 #define MIX_DIGI_DEBUG 0
 #define MIX_OUTPUT_FORMAT	AUDIO_S16
 #define MIX_OUTPUT_CHANNELS	2
 
-#define MAX_SOUND_SLOTS 64
 #if !((defined(__APPLE__) && defined(__MACH__)) || defined(macintosh))
 #define SOUND_BUFFER_SIZE 2048
 #else
 #define SOUND_BUFFER_SIZE 1024
 #endif
-#define MIN_VOLUME 10
 
 namespace {
 
@@ -70,23 +67,26 @@ static int fix2byte(const fix f)
 	return (f / 256) % 256;
 }
 
-}
+uint8_t digi_initialised;
+std::bitset<64> channels;
+int digi_mixer_max_channels = channels.size();
 
-static uint8_t digi_initialised = 0;
-static int digi_mixer_max_channels = MAX_SOUND_SLOTS;
-static array<RAIIMix_Chunk, MAX_SOUNDS> SoundChunks;
-static array<uint8_t, MAX_SOUND_SLOTS> channels;
-
-static void digi_mixer_free_channel(const int channel_num)
+void digi_mixer_free_channel(const int channel_num)
 {
-	channels[channel_num] = 0;
+	channels.reset(channel_num);
 }
+
+}
+
+namespace dsx {
+
+static array<RAIIMix_Chunk, MAX_SOUNDS> SoundChunks;
 
 /* Initialise audio */
 int digi_mixer_init()
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	unsigned
+	const unsigned
 #endif
 	digi_sample_rate = SAMPLE_RATE_44K;
 
@@ -104,7 +104,7 @@ int digi_mixer_init()
 	}
 
 	digi_mixer_max_channels = Mix_AllocateChannels(digi_mixer_max_channels);
-	channels = {};
+	channels.reset();
 	Mix_Pause(0);
 	Mix_ChannelFinished(digi_mixer_free_channel);
 
@@ -114,6 +114,10 @@ int digi_mixer_init()
 
 	return 0;
 }
+
+}
+
+namespace dcx {
 
 /* Shut down audio */
 void digi_mixer_close() {
@@ -133,6 +137,10 @@ static int digi_mixer_find_channel()
 			return i;
 	return -1;
 }
+
+}
+
+namespace dsx {
 
 /*
  * Play-time conversion. Performs output conversion only once per sound effect used.
@@ -215,10 +223,14 @@ int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int
 	Mix_PlayChannel(channel, &(SoundChunks[soundnum]), mix_loop);
 	Mix_SetPanning(channel, 255-mix_pan, mix_pan);
 	Mix_SetDistance(channel, mix_distance);
-	channels[channel] = 1;
+	channels.set(channel);
 
 	return channel;
 }
+
+}
+
+namespace dcx {
 
 void digi_mixer_set_channel_volume(int channel, int volume)
 {
@@ -239,13 +251,13 @@ void digi_mixer_stop_sound(int channel) {
 	con_printf(CON_DEBUG, "digi_stop_sound %d", channel);
 #endif
 	Mix_HaltChannel(channel);
-	channels[channel] = 0;
+	channels.reset(channel);
 }
 
 void digi_mixer_end_sound(int channel)
 {
 	digi_mixer_stop_sound(channel);
-	channels[channel] = 0;
+	channels.reset(channel);
 }
 
 void digi_mixer_set_digi_volume( int dvolume )
