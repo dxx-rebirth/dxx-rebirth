@@ -330,6 +330,7 @@ void paging_touch_all(const d_vclip_array &Vclip)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &WallAnims = GameSharedState.WallAnims;
 	auto &vcobjptridx = Objects.vcptridx;
 	pause_game_world_time p;
 

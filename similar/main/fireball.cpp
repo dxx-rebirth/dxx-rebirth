@@ -1351,6 +1351,7 @@ void explode_wall(fvcvertptr &vcvertptr, const vcsegptridx_t segnum, const unsig
 
 unsigned do_exploding_wall_frame(wall &w1)
 {
+	auto &WallAnims = GameSharedState.WallAnims;
 	assert(w1.flags & WALL_EXPLODING);
 	fix w1_explode_time_elapsed = w1.explode_time_elapsed;
 	const fix oldfrac = fixdiv(w1_explode_time_elapsed, EXPL_WALL_TIME);
@@ -1369,8 +1370,9 @@ unsigned do_exploding_wall_frame(wall &w1)
 		const auto cside = find_connect_side(seg, csegp);
 
 		const auto a = w1.clip_num;
-		const auto n = WallAnims[a].num_frames;
-		wall_set_tmap_num(WallAnims[a], seg, w1sidenum, csegp, cside, n - 1);
+		auto &wa = WallAnims[a];
+		const auto n = wa.num_frames;
+		wall_set_tmap_num(wa, seg, w1sidenum, csegp, cside, n - 1);
 
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 		auto &vmwallptr = Walls.vmptr;

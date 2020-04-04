@@ -459,6 +459,7 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
+	auto &WallAnims = GameSharedState.WallAnims;
 	int	have_bin_tbl;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -489,6 +490,7 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 		AltSounds[i] = 255;
 	}
 
+	DXX_MAKE_VAR_UNDEFINED(TmapInfo);
 	range_for (auto &ti, TmapInfo)
 	{
 		ti.eclip_num = eclip_none;
@@ -500,11 +502,13 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
+	DXX_MAKE_VAR_UNDEFINED(Reactors);
 	range_for (auto &i, Reactors)
 		i.model_num = -1;
 #endif
 
 	Num_effects = 0;
+	DXX_MAKE_VAR_UNDEFINED(Effects);
 	range_for (auto &ec, Effects)
 	{
 		//Effects[i].bm_ptr = (grs_bitmap **) -1;
@@ -518,12 +522,14 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 		Dying_modelnums[i] = Dead_modelnums[i] = -1;
 
 	Num_vclips = 0;
+	DXX_MAKE_VAR_UNDEFINED(Vclip);
 	range_for (auto &vc, Vclip)
 	{
 		vc.num_frames = -1;
 		vc.flags = 0;
 	}
 
+	DXX_MAKE_VAR_UNDEFINED(WallAnims);
 	range_for (auto &wa, WallAnims)
 		wa.num_frames = wclip_frames_none;
 	Num_wall_anims = 0;
@@ -1081,22 +1087,24 @@ static void bm_read_wclip(int skip)
 #endif
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
+	auto &WallAnims = GameSharedState.WallAnims;
 	bitmap_index bitmap;
 	Assert(clip_num < MAX_WALL_ANIMS);
 
-	WallAnims[clip_num].flags = wall_explodes_flag | wall_blastable_flag | wall_hidden_flag | tmap1_flag;
+	auto &wa = WallAnims[clip_num];
+	wa.flags = wall_explodes_flag | wall_blastable_flag | wall_hidden_flag | tmap1_flag;
 
 	if (!abm_flag)	{
 		bitmap = bm_load_sub(skip, arg);
-		if (WallAnims[clip_num].num_frames != wclip_frames_none && clip_count == 0)
+		if (wa.num_frames != wclip_frames_none && clip_count == 0)
 			Error( "Wall Clip %d is already used!", clip_num );
-		WallAnims[clip_num].play_time = fl2f(play_time);
-		WallAnims[clip_num].num_frames = frames;
+		wa.play_time = fl2f(play_time);
+		wa.num_frames = frames;
 		//WallAnims[clip_num].frame_time = fl2f(play_time)/frames;
 		Assert(clip_count < frames);
-		WallAnims[clip_num].frames[clip_count++] = texture_count;
-		WallAnims[clip_num].open_sound = wall_open_sound;
-		WallAnims[clip_num].close_sound = wall_close_sound;
+		wa.frames[clip_count++] = texture_count;
+		wa.open_sound = wall_open_sound;
+		wa.close_sound = wall_close_sound;
 		Textures[texture_count] = bitmap;
 		set_lighting_flag(GameBitmaps[bitmap.index]);
 		set_texture_name( arg );
@@ -1107,7 +1115,7 @@ static void bm_read_wclip(int skip)
 	} else {
 		array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
 		unsigned nframes;
-		if (WallAnims[clip_num].num_frames != wclip_frames_none)
+		if (wa.num_frames != wclip_frames_none)
 			Error( "AB_Wall clip %d is already used!", clip_num );
 		abm_flag = 0;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1115,24 +1123,22 @@ static void bm_read_wclip(int skip)
 #elif defined(DXX_BUILD_DESCENT_II)
 		ab_load(0, arg, bm, &nframes );
 #endif
-		WallAnims[clip_num].num_frames = nframes;
-		WallAnims[clip_num].play_time = fl2f(play_time);
+		wa.num_frames = nframes;
+		wa.play_time = fl2f(play_time);
 		//WallAnims[clip_num].frame_time = fl2f(play_time)/nframes;
-		WallAnims[clip_num].open_sound = wall_open_sound;
-		WallAnims[clip_num].close_sound = wall_close_sound;
-
-		WallAnims[clip_num].close_sound = wall_close_sound;
-		strcpy(&WallAnims[clip_num].filename[0], arg);
-		REMOVE_DOTS(&WallAnims[clip_num].filename[0]);
+		wa.open_sound = wall_open_sound;
+		wa.close_sound = wall_close_sound;
+		strcpy(&wa.filename[0], arg);
+		REMOVE_DOTS(&wa.filename[0]);
 
 		if (clip_num >= Num_wall_anims) Num_wall_anims = clip_num+1;
 
 		set_lighting_flag(GameBitmaps[bm[clip_count].index]);
 
-		for (clip_count=0;clip_count < WallAnims[clip_num].num_frames; clip_count++)	{
+		for (clip_count=0;clip_count < wa.num_frames; clip_count++)	{
 			Textures[texture_count] = bm[clip_count];
 			set_lighting_flag(GameBitmaps[bm[clip_count].index]);
-			WallAnims[clip_num].frames[clip_count] = texture_count;
+			wa.frames[clip_count] = texture_count;
 			REMOVE_DOTS(arg);
 			snprintf(&TmapInfo[texture_count].filename[0u], TmapInfo[texture_count].filename.size(), "%s#%d", arg, clip_count);
 			Assert(texture_count < MAX_TEXTURES);

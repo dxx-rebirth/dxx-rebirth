@@ -1329,6 +1329,7 @@ static void add_one_unknown_edge( automap *am, int va, int vb )
 static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automap *am, const vcsegptridx_t seg)
 {
 	auto &ControlCenterState = LevelUniqueObjectState.ControlCenterState;
+	auto &WallAnims = GameSharedState.WallAnims;
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;

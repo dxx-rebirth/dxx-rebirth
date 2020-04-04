@@ -46,7 +46,6 @@ unsigned Num_wall_anims;
 }
 
 namespace dsx {
-wall_animations_array WallAnims;		// Wall animations
 
 namespace {
 
@@ -303,6 +302,7 @@ static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side, w
 	Assert(Connectside != side_none);
 	const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &WallAnims = GameSharedState.WallAnims;
 	auto &imwallptr = Walls.imptr;
 	const auto &&w1 = imwallptr(cwall_num);
 	if (w1)
@@ -311,8 +311,9 @@ static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side, w
 	flush_fcd_cache();
 
 	const auto a = w0.clip_num;
+	auto &wa = WallAnims[a];
 	//if this is an exploding wall, explode it
-	if (WallAnims[a].flags & WCF_EXPLODES)
+	if (wa.flags & WCF_EXPLODES)
 	{
 		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
@@ -320,11 +321,11 @@ static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side, w
 	}
 	else {
 		//if not exploding, set final frame, and make door passable
-		const auto n = WallAnims[a].num_frames;
+		const auto n = wa.num_frames;
 		w0.flags |= WALL_BLASTED;
 		if (w1)
 			w1->flags |= WALL_BLASTED;
-		wall_set_tmap_num(WallAnims[a], seg, side, csegp, Connectside, n - 1);
+		wall_set_tmap_num(wa, seg, side, csegp, Connectside, n - 1);
 	}
 
 }
@@ -347,6 +348,7 @@ void wall_destroy(const vmsegptridx_t seg, const unsigned side)
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 void wall_damage(const vmsegptridx_t seg, const unsigned side, fix damage)
 {
+	auto &WallAnims = GameSharedState.WallAnims;
 	int i;
 
 	auto &sside = seg->shared_segment::sides[side];
@@ -399,6 +401,7 @@ namespace dsx {
 void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &WallAnims = GameSharedState.WallAnims;
 	auto &vmobjptr = Objects.vmptr;
 	active_door *d;
 
@@ -501,8 +504,9 @@ void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
-		if (WallAnims[w->clip_num].open_sound > -1 )
-			digi_link_sound_to_pos( WallAnims[w->clip_num].open_sound, seg, side, cp, 0, F1_0 );
+		const auto open_sound = WallAnims[w->clip_num].open_sound;
+		if (open_sound > -1)
+			digi_link_sound_to_pos(open_sound, seg, side, cp, 0, F1_0);
 
 	}
 }
@@ -746,6 +750,7 @@ static unsigned is_door_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegpt
 void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned side)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &WallAnims = GameSharedState.WallAnims;
 	auto &vcobjptridx = Objects.vcptridx;
 	active_door *d;
 
@@ -814,8 +819,9 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned 
 		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
-		if (WallAnims[w->clip_num].open_sound > -1 )
-			digi_link_sound_to_pos( WallAnims[w->clip_num].open_sound, seg, side, cp, 0, F1_0 );
+		const auto open_sound = WallAnims[w->clip_num].open_sound;
+		if (open_sound > -1)
+			digi_link_sound_to_pos(open_sound, seg, side, cp, 0, F1_0);
 
 	}
 }
@@ -827,6 +833,7 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned 
 static bool do_door_open(active_door &d)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &WallAnims = GameSharedState.WallAnims;
 	auto &vmobjptr = Objects.vmptr;
 	bool remove = false;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
@@ -866,7 +873,7 @@ static bool do_door_open(active_door &d)
 		i = time_elapsed/one_frame;
 
 		if (i < n)
-			wall_set_tmap_num(WallAnims[w.clip_num], seg, side, csegp, Connectside, i);
+			wall_set_tmap_num(wa, seg, side, csegp, Connectside, i);
 
 		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 		auto &w1 = *vmwallptr(cwall_num);
@@ -876,7 +883,7 @@ static bool do_door_open(active_door &d)
 		}
 
 		if (i >= n-1) {
-			wall_set_tmap_num(WallAnims[w.clip_num], seg, side, csegp, Connectside, n - 1);
+			wall_set_tmap_num(wa, seg, side, csegp, Connectside, n - 1);
 
 			// If our door is not automatic just remove it from the list.
 			if (!(w.flags & WALL_DOOR_AUTO)) {
@@ -905,6 +912,7 @@ static bool do_door_close(active_door &d)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &WallAnims = GameSharedState.WallAnims;
 	auto &vmwallptr = Walls.vmptr;
 	auto &w0 = *vmwallptr(d.front_wallnum[0]);
 	const auto &&seg0 = vmsegptridx(w0.segnum);
@@ -949,6 +957,7 @@ static bool do_door_close(active_door &d)
 		Assert(Connectside != side_none);
 
 
+		auto &wa = WallAnims[wp.clip_num];
 		if ( Newdemo_state != ND_STATE_PLAYBACK )
 		{
 			// NOTE THE LINK TO ABOVE!!
@@ -957,11 +966,12 @@ static bool do_door_close(active_door &d)
 				played_sound = true;
 				if (d.time == 0)
 				{		//first time
-					if (WallAnims[wp.clip_num].close_sound > -1 )
+					const auto close_sound = wa.close_sound;
+					if (close_sound > -1)
 					{
 						auto &Vertices = LevelSharedVertexState.get_vertices();
 						auto &vcvertptr = Vertices.vcptr;
-						digi_link_sound_to_pos(WallAnims[wp.clip_num].close_sound, seg, side, compute_center_point_on_side(vcvertptr, seg, side), 0, F1_0);
+						digi_link_sound_to_pos(close_sound, seg, side, compute_center_point_on_side(vcvertptr, seg, side), 0, F1_0);
 					}
 				}
 			}
@@ -970,8 +980,8 @@ static bool do_door_close(active_door &d)
 		d.time += FrameTime;
 
 		time_elapsed = d.time;
-		const auto n = WallAnims[wp.clip_num].num_frames;
-		time_total = WallAnims[wp.clip_num].play_time;
+		const auto n = wa.num_frames;
+		time_total = wa.play_time;
 
 		one_frame = time_total/n;	
 
@@ -986,7 +996,7 @@ static bool do_door_close(active_door &d)
 
 		// Animate door.
 		if (i > 0) {
-			wall_set_tmap_num(WallAnims[wp.clip_num], seg, side, csegp, Connectside, i);
+			wall_set_tmap_num(wa, seg, side, csegp, Connectside, i);
 
 			wp.state = WALL_DOOR_CLOSING;
 			w1.state = WALL_DOOR_CLOSING;

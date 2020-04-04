@@ -850,6 +850,7 @@ static int load_game_data(
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
+	auto &WallAnims = GameSharedState.WallAnims;
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	const auto &vcsegptridx = vmsegptridx;
 	short game_top_fileinfo_version;
@@ -1118,10 +1119,11 @@ static int load_game_data(
 			auto &w = *vmwallptr(side.wall_num);
 			if (w.clip_num != -1)
 			{
-				if (WallAnims[w.clip_num].flags & WCF_TMAP1)
+				auto &wa = WallAnims[w.clip_num];
+				if (wa.flags & WCF_TMAP1)
 				{
 					auto &uside = i->unique_segment::sides[eside.idx];
-					uside.tmap_num = WallAnims[w.clip_num].frames[0];
+					uside.tmap_num = wa.frames[0];
 					uside.tmap_num2 = 0;
 				}
 			}

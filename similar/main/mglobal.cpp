@@ -119,6 +119,7 @@ valptridx<managed_type>::array_managed_type::array_managed_type()
 #endif
 
 namespace dsx {
+d_game_shared_state GameSharedState;
 d_game_unique_state GameUniqueState;
 d_level_shared_boss_state LevelSharedBossState;
 #if defined(DXX_BUILD_DESCENT_II)

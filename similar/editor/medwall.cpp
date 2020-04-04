@@ -35,6 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "dxxerror.h"
 #include "event.h"
+#include "game.h"
 #include "gameseg.h"
 #include "textures.h"
 #include "screens.h"
@@ -86,6 +87,20 @@ struct count_wall
 	segnum_t	segnum;
 	short sidenum;
 };
+
+static unsigned predicate_find_nonblastable_wall(const wclip &w)
+{
+	if (w.num_frames == wclip_frames_none)
+		return 0;
+	return !(w.flags & WCF_BLASTABLE);
+}
+
+static unsigned predicate_find_blastable_wall(const wclip &w)
+{
+	if (w.num_frames == wclip_frames_none)
+		return 0;
+	return w.flags & WCF_BLASTABLE;
+}
 
 }
 
@@ -151,15 +166,16 @@ static int wall_assign_door(int door_type)
 	unique_segment &ucseg = csegp;
 	vmwallptr(scseg.sides[Connectside].wall_num)->clip_num = door_type;
 
-	if (WallAnims[door_type].flags & WCF_TMAP1) {
-		useg.sides[Curside].tmap_num = WallAnims[door_type].frames[0];
-		ucseg.sides[Connectside].tmap_num = WallAnims[door_type].frames[0];
+	auto &wa = GameSharedState.WallAnims[door_type];
+	if (wa.flags & WCF_TMAP1) {
+		useg.sides[Curside].tmap_num = wa.frames[0];
+		ucseg.sides[Connectside].tmap_num = wa.frames[0];
 		useg.sides[Curside].tmap_num2 = 0;
 		ucseg.sides[Connectside].tmap_num2 = 0;
 	}
 	else {
-		useg.sides[Curside].tmap_num2 = WallAnims[door_type].frames[0];
-		ucseg.sides[Connectside].tmap_num2 = WallAnims[door_type].frames[0];
+		useg.sides[Curside].tmap_num2 = wa.frames[0];
+		ucseg.sides[Connectside].tmap_num2 = wa.frames[0];
 	}
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -277,6 +293,45 @@ static int GotoNextWall() {
 	return 1;
 }
 
+template <typename I, typename P>
+I wraparound_find_if(const I begin, const I start, const I end, P &&predicate)
+{
+	for (I iter = start;;)
+	{
+		++ iter;
+		if (iter == end)
+			iter = begin;
+		if (iter == start)
+			return iter;
+		if (predicate(*iter))
+			return iter;
+	}
+}
+
+/*
+ * Given a range defined by [`begin`, `end`), a starting point `start`
+ * that is within that range, and a predicate `predicate`, examine each
+ * element in the range (`start`, `begin`].  If `predicate(*iter)`
+ * returns true, return `iter`.  Otherwise, perform the same search on
+ * the range (`end`, `start`).  If traversal reaches `start` without
+ * finding such an element, return `start` without calling
+ * `predicate(*start)`.
+ */
+template <typename I, typename P>
+I wraparound_backward_find_if(const I begin, const I start, const I end, P &&predicate)
+{
+	for (I iter = start;;)
+	{
+		if (iter == begin)
+			iter = end;
+		-- iter;
+		if (iter == start)
+			return iter;
+		if (predicate(*iter))
+			return iter;
+	}
+}
+
 static int PrevWall() {
 	int wall_type;
 	const auto cur_wall_num = Cursegp->shared_segment::sides[Curside].wall_num;
@@ -290,26 +345,24 @@ static int PrevWall() {
 	auto &vcwallptr = Walls.vcptr;
 	auto &w = *vcwallptr(cur_wall_num);
 	wall_type = w.clip_num;
+	auto &WallAnims = GameSharedState.WallAnims;
 
+	const auto b = WallAnims.begin();
+	const auto s = std::next(b, wall_type);
+	const auto e = std::next(b, Num_wall_anims);
 	if (w.type == WALL_DOOR)
 	{
-	 	do {
-			wall_type--;
-			if (wall_type < 0)
-				wall_type = Num_wall_anims-1;
-			if (wall_type == w.clip_num)
-				Error("Cannot find clip for door."); 
-		} while (WallAnims[wall_type].num_frames == wclip_frames_none || WallAnims[wall_type].flags & WCF_BLASTABLE);
+		auto iter = wraparound_backward_find_if(b, s, e, predicate_find_nonblastable_wall);
+		if (iter == s)
+			throw std::runtime_error("Cannot find clip for door.");
+		wall_type = std::distance(b, iter);
 	}
 	else if (w.type == WALL_BLASTABLE)
 	{
-	 	do {
-			wall_type--;
-			if (wall_type < 0)
-				wall_type = Num_wall_anims-1;
-			if (wall_type == w.clip_num)
-				Error("Cannot find clip for blastable wall."); 
-		} while (WallAnims[wall_type].num_frames == wclip_frames_none || !(WallAnims[wall_type].flags & WCF_BLASTABLE));
+		auto iter = wraparound_backward_find_if(b, s, e, predicate_find_blastable_wall);
+		if (iter == s)
+			throw std::runtime_error("Cannot find clip for blastable wall.");
+		wall_type = std::distance(b, iter);
 	}
 
 	wall_assign_door(wall_type);
@@ -328,31 +381,27 @@ static int NextWall() {
 	}
 
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &WallAnims = GameSharedState.WallAnims;
 	auto &vcwallptr = Walls.vcptr;
 	auto &w = *vcwallptr(cur_wall_num);
 	wall_type = w.clip_num;
 
+	const auto b = WallAnims.begin();
+	const auto s = std::next(b, wall_type);
+	const auto e = std::next(b, Num_wall_anims);
 	if (w.type == WALL_DOOR)
 	{
-	 	do {
-			wall_type++;
-			if (wall_type >= Num_wall_anims) {
-				wall_type = 0;
-				if (w.clip_num==-1)
-					Error("Cannot find clip for door."); 
-			}
-		} while (WallAnims[wall_type].num_frames == wclip_frames_none || WallAnims[wall_type].flags & WCF_BLASTABLE);
+		auto iter = wraparound_find_if(b, s, e, predicate_find_nonblastable_wall);
+		if (iter == s)
+			throw std::runtime_error("Cannot find clip for door.");
+		wall_type = std::distance(b, iter);
 	}
 	else if (w.type == WALL_BLASTABLE)
 	{
-	 	do {
-			wall_type++;
-			if (wall_type >= Num_wall_anims) {
-				wall_type = 0;
-				if (w.clip_num==-1)
-					Error("Cannot find clip for blastable wall."); 
-			}
-		} while (WallAnims[wall_type].num_frames == wclip_frames_none || !(WallAnims[wall_type].flags & WCF_BLASTABLE));
+		auto iter = wraparound_find_if(b, s, e, predicate_find_blastable_wall);
+		if (iter == s)
+			throw std::runtime_error("Cannot find clip for blastable wall.");
+		wall_type = std::distance(b, iter);
 	}
 
 	wall_assign_door(wall_type);	
@@ -449,6 +498,7 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 	ui_button_any_drawn = 0;
 
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &WallAnims = GameSharedState.WallAnims;
 	auto &imwallptridx = Walls.imptridx;
 	const auto &&w = imwallptridx(Cursegp->shared_segment::sides[Curside].wall_num);
 	//------------------------------------------------------------
@@ -545,10 +595,13 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 					wd->framenum++;
 					wd->time = Temp;
 				}
-				if (wd->framenum >= WallAnims[w->clip_num].num_frames)
+				auto &wa = WallAnims[w->clip_num];
+				if (wd->framenum >= wa.num_frames)
 					wd->framenum=0;
-				PIGGY_PAGE_IN(Textures[WallAnims[w->clip_num].frames[wd->framenum]]);
-				gr_ubitmap(*grd_curcanv, GameBitmaps[Textures[WallAnims[w->clip_num].frames[wd->framenum]].index]);
+				const auto frame = wa.frames[wd->framenum];
+				auto &texture = Textures[frame];
+				PIGGY_PAGE_IN(texture);
+				gr_ubitmap(*grd_curcanv, GameBitmaps[texture.index]);
 			} else {
 				if (type == WALL_OPEN)
 					gr_clear_canvas(*grd_curcanv, CBLACK);
@@ -631,6 +684,7 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 int wall_restore_all()
 {
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &WallAnims = GameSharedState.WallAnims;
 	auto &vcwallptr = Walls.vcptr;
 	auto &vmwallptr = Walls.vmptr;
 	range_for (const auto &&wp, vmwallptr)

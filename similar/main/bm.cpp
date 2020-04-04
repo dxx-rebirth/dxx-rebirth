@@ -167,6 +167,7 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
+	auto &WallAnims = GameSharedState.WallAnims;
 	//  bitmap_index is a short
 	
 	NumTextures = PHYSFSX_readInt(fp);
@@ -301,6 +302,7 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
+	auto &WallAnims = GameSharedState.WallAnims;
 	unsigned t;
 
 	NumTextures = PHYSFSX_readInt(fp);

@@ -1824,6 +1824,7 @@ int ai_door_is_openable(
 		}
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
+	auto &WallAnims = GameSharedState.WallAnims;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (Robot_info[get_robot_id(objp)].companion)
 	{
@@ -1914,6 +1915,9 @@ int ai_door_is_openable(
 //	Return side of openable door in segment, if any.  If none, return side_none.
 static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_segment &segp)
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &WallAnims = GameSharedState.WallAnims;
+#endif
 	range_for (const auto &&es, enumerate(segp.sides))
 	{
 		const auto wall_num = es.value.wall_num;

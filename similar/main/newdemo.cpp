@@ -1999,6 +1999,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 static void newdemo_pop_ctrlcen_triggers()
 {
+	auto &WallAnims = GameSharedState.WallAnims;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 	for (int i = 0; i < ControlCenterTriggers.num_links; i++) {
@@ -2027,11 +2028,12 @@ static void newdemo_pop_ctrlcen_triggers()
 			continue;
 		}
 		const auto anim_num = vcwallptr(wall_num)->clip_num;
-		const auto n = WallAnims[anim_num].num_frames;
-		const auto t = WallAnims[anim_num].flags & WCF_TMAP1
+		auto &wa = WallAnims[anim_num];
+		const auto n = wa.num_frames;
+		const auto t = wa.flags & WCF_TMAP1
 			? &unique_side::tmap_num
 			: &unique_side::tmap_num2;
-		seg->unique_segment::sides[side].*t = csegp->unique_segment::sides[cside].*t = WallAnims[anim_num].frames[n-1];
+		seg->unique_segment::sides[side].*t = csegp->unique_segment::sides[cside].*t = wa.frames[n-1];
 	}
 }
 
@@ -2040,6 +2042,7 @@ static int newdemo_read_frame_information(int rewrite)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &WallAnims = GameSharedState.WallAnims;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	int done, angle, volume;
@@ -3126,10 +3129,11 @@ static int newdemo_read_frame_information(int rewrite)
 				const auto &&csegp = vmsegptr(segp->children[side]);
 				const auto &&cside = find_connect_side(segp, csegp);
 				const auto anim_num = vmwallptr(segp->shared_segment::sides[side].wall_num)->clip_num;
-				const auto t = WallAnims[anim_num].flags & WCF_TMAP1
+				auto &wa = WallAnims[anim_num];
+				const auto t = wa.flags & WCF_TMAP1
 					? &unique_side::tmap_num
 					: &unique_side::tmap_num2;
-				segp->unique_segment::sides[side].*t = csegp->unique_segment::sides[cside].*t = WallAnims[anim_num].frames[0];
+				segp->unique_segment::sides[side].*t = csegp->unique_segment::sides[cside].*t = wa.frames[0];
 			}
 			break;
 		}

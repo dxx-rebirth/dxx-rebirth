@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-player.h"
 #include "fwd-segment.h"
 #include "fwd-window.h"
+#include "wall.h"
 
 #define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30
 #define DESIGNATED_GAME_FRAMETIME (F1_0/DESIGNATED_GAME_FPS) 
@@ -147,6 +148,10 @@ static inline Difficulty_level_type cast_clamp_difficulty(const unsigned d)
 	return (d <= Difficulty_4) ? static_cast<Difficulty_level_type>(d) : Difficulty_4;
 }
 
+struct d_game_shared_state
+{
+};
+
 struct d_game_unique_state
 {
 	using savegame_file_path = array<char, PATH_MAX>;
@@ -174,6 +179,11 @@ void init_game();
 void init_cockpit();
 extern void PALETTE_FLASH_ADD(int dr, int dg, int db);
 
+struct d_game_shared_state : ::dcx::d_game_shared_state
+{
+	wall_animations_array WallAnims;
+};
+
 #if defined(DXX_BUILD_DESCENT_II)
 struct d_game_unique_state : ::dcx::d_game_unique_state
 {
@@ -199,6 +209,7 @@ extern d_level_shared_seismic_state LevelSharedSeismicState;
 extern d_level_unique_seismic_state LevelUniqueSeismicState;
 #endif
 
+extern d_game_shared_state GameSharedState;
 extern d_game_unique_state GameUniqueState;
 }
 #endif

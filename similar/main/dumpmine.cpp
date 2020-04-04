@@ -770,6 +770,7 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 	int	j;
 
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &WallAnims = GameSharedState.WallAnims;
 #if defined(DXX_BUILD_DESCENT_I)
 	tmap_buf = {};
 
