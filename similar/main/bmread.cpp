@@ -95,6 +95,15 @@ using std::min;
 #define BM_ROBOT			14
 #define BM_GAUGES			20
 
+namespace {
+
+uint8_t wall_explodes_flag;
+uint8_t wall_blastable_flag;
+uint8_t wall_hidden_flag;
+uint8_t tmap1_flag;		//flag if this is used as tmap_num (not tmap_num2)
+
+}
+
 #if defined(DXX_BUILD_DESCENT_I)
 static short		N_ObjBitmaps=0;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -132,7 +141,7 @@ static int			hit_sound = -1;
 static sbyte 		bm_flag = BM_NONE;
 static int 			abm_flag = 0;
 static int 			rod_flag = 0;
-static short		wall_open_sound, wall_close_sound,wall_explodes,wall_blastable, wall_hidden;
+static short		wall_open_sound, wall_close_sound;
 static float		vlighting=0;
 static int			obj_eclip;
 static int			dest_vclip;		//what vclip to play when exploding
@@ -140,7 +149,6 @@ static int			dest_eclip;		//what eclip to play when exploding
 static fix			dest_size;		//3d size of explosion
 static int			crit_clip;		//clip number to play when destroyed
 static int			crit_flag;		//flag if this is a destroyed eclip
-static int			tmap1_flag;		//flag if this is used as tmap_num (not tmap_num2)
 static int			num_sounds=0;
 
 static int linenum;		//line int table currently being parsed
@@ -637,10 +645,11 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 				bm_flag = BM_WCLIP;
 				vlighting = 0;
 				clip_count = 0;
-				wall_explodes = wall_blastable = 0;
 				wall_open_sound=wall_close_sound=sound_none;
+				wall_explodes_flag = 0;
+				wall_blastable_flag = 0;
 				tmap1_flag=0;
-				wall_hidden=0;
+				wall_hidden_flag = 0;
 			}
 
 			else IFTOK("$EFFECTS")		{bm_flag = BM_EFFECTS;	clip_num = 0;}
@@ -694,15 +703,15 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 			else IFTOK("obj_eclip")			obj_eclip = get_int();
 			else IFTOK("hit_sound") 		hit_sound = get_int();
 			else IFTOK("abm_flag")			abm_flag = get_int();
-			else IFTOK("tmap1_flag")		tmap1_flag = get_int();
+			else IFTOK("tmap1_flag")		tmap1_flag = get_int() ? WCF_TMAP1 : 0;
 			else IFTOK("vlighting")			vlighting = get_float();
 			else IFTOK("rod_flag")			rod_flag = get_int();
 			else IFTOK("superx") 			get_int();
 			else IFTOK("open_sound") 		wall_open_sound = get_int();
 			else IFTOK("close_sound") 		wall_close_sound = get_int();
-			else IFTOK("explodes")	 		wall_explodes = get_int();
-			else IFTOK("blastable")	 		wall_blastable = get_int();
-			else IFTOK("hidden")	 			wall_hidden = get_int();
+			else IFTOK("explodes")	 		wall_explodes_flag = get_int() ? WCF_EXPLODES : 0;
+			else IFTOK("blastable")	 		wall_blastable_flag = get_int() ? WCF_BLASTABLE : 0;
+			else IFTOK("hidden")	 		wall_hidden_flag = get_int() ? WCF_HIDDEN : 0;
 #if defined(DXX_BUILD_DESCENT_I)
 			else IFTOK("$ROBOT_AI") 		bm_read_robot_ai(arg, skip);
 
@@ -1075,12 +1084,7 @@ static void bm_read_wclip(int skip)
 	bitmap_index bitmap;
 	Assert(clip_num < MAX_WALL_ANIMS);
 
-	WallAnims[clip_num].flags = 0;
-
-	if (wall_explodes)	WallAnims[clip_num].flags |= WCF_EXPLODES;
-	if (wall_blastable)	WallAnims[clip_num].flags |= WCF_BLASTABLE;
-	if (wall_hidden)		WallAnims[clip_num].flags |= WCF_HIDDEN;
-	if (tmap1_flag)		WallAnims[clip_num].flags |= WCF_TMAP1;
+	WallAnims[clip_num].flags = wall_explodes_flag | wall_blastable_flag | wall_hidden_flag | tmap1_flag;
 
 	if (!abm_flag)	{
 		bitmap = bm_load_sub(skip, arg);
