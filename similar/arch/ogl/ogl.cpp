@@ -372,6 +372,7 @@ void ogl_cache_polymodel_textures(const unsigned model_num)
 	const unsigned last_texture = i + po.n_textures;
 	for (; i != last_texture; ++i)
 	{
+		PIGGY_PAGE_IN(ObjBitmaps[ObjBitmapPtrs[i]]);
 		ogl_loadbmtexture(GameBitmaps[ObjBitmaps[ObjBitmapPtrs[i]].index], 1);
 	}
 }
