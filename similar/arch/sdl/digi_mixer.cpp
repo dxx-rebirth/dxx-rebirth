@@ -138,8 +138,11 @@ static int digi_mixer_find_channel()
  * Play-time conversion. Performs output conversion only once per sound effect used.
  * Once the sound sample has been converted, it is cached in SoundChunks[]
  */
-static void mixdigi_convert_sound(int i)
+static void mixdigi_convert_sound(const unsigned i)
 {
+	if (SoundChunks[i].abuf)
+		//proceed only if not converted yet
+		return;
 	SDL_AudioCVT cvt;
 	Uint8 *data = GameSounds[i].data;
 	Uint32 dlen = GameSounds[i].length;
@@ -156,8 +159,6 @@ static void mixdigi_convert_sound(int i)
 	Mix_QuerySpec(&out_freq, &out_format, &out_channels); // get current output settings
 	freq = GameArg.SndDigiSampleRate;
 #endif
-
-	if (SoundChunks[i].abuf) return; //proceed only if not converted yet
 
 	if (data)
 	{
