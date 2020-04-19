@@ -1447,7 +1447,7 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 			 {
 				if (Game_mode & GM_MULTI)
 				  {
-					 if (!multi_all_players_alive()) // everyones gotta be alive
+					 if (!multi_all_players_alive(Objects.vcptr, partial_range(Players, N_players))) // everyones gotta be alive
 					   robot->shields=1;
 					 else
 					  {

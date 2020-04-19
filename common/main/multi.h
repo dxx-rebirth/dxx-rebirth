@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-wall.h"
 #include "window.h"
 #include "game.h"
+#include "gameplayopt.h"
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -507,6 +508,7 @@ void multi_disconnect_player(playernum_t);
 namespace dsx {
 void multi_initiate_save_game();
 void multi_initiate_restore_game();
+void multi_execute_save_game(int slot, const d_game_unique_state::savegame_description &desc, partial_range_t<const player *> player_range);
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void multi_send_got_flag (playernum_t) {}
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -681,11 +683,9 @@ namespace dsx {
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems);
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems, const unsigned SpawnGrantedItems);
 void show_netgame_info(const netgame_info &netgame);
-}
-#endif
-#ifdef dsx
-namespace dsx {
 extern void multi_send_player_inventory(int priority);
+const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, partial_range_t<const player *> player_range);
+const char *multi_interactive_deny_save_game(const fvcobjptr &vcobjptr, partial_range_t<const player *> player_range, const d_level_unique_control_center_state &);
 }
 #endif
 extern void multi_send_kill_goal_counts();
@@ -698,7 +698,7 @@ void multi_send_door_open_specific(playernum_t pnum, vcsegidx_t segnum, unsigned
 void multi_send_wall_status_specific(playernum_t pnum,uint16_t wallnum,ubyte type,ubyte flags,ubyte state);
 void multi_send_light_specific (playernum_t pnum, vcsegptridx_t segnum, uint8_t val);
 void multi_send_capture_bonus (playernum_t pnum);
-int multi_all_players_alive();
+int multi_all_players_alive(const fvcobjptr &, partial_range_t<const player *>);
 void multi_send_seismic(fix);
 void multi_send_drop_blobs(playernum_t);
 void multi_send_sound_function (char,char);
@@ -799,6 +799,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	packed_spawn_granted_items SpawnGrantedItems;
 	packed_netduplicate_items DuplicatePowerups;
 	unsigned ShufflePowerupSeed;
+	d_mp_gameplay_options MPGameplayOptions;
 #if defined(DXX_BUILD_DESCENT_II)
 	uint8_t Allow_marker_view;
 	uint8_t AlwaysLighting;

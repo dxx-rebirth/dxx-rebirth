@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamemine.h"
 #include "dxxerror.h"
 #include "console.h"
+#include "config.h"
 #include "gamefont.h"
 #include "gameseg.h"
 #include "switch.h"
@@ -47,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "piggy.h"
 #include "player.h"
+#include "playsave.h"
 #include "cntrlcen.h"
 #include "morph.h"
 #include "weapon.h"
@@ -117,7 +119,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // 20- First_secret_visit
 // 22- Omega_charge
 
-#define NUM_SAVES 10
+constexpr unsigned NUM_SAVES = 11;
 #define THUMBNAIL_W 100
 #define THUMBNAIL_H 50
 
@@ -154,6 +156,7 @@ static_assert(sizeof(savegame_mission_path) == sizeof(savegame_mission_path::ori
 // Following functions convert object to object_rw and back to be written to/read from Savegames. Mostly object differs to object_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 // turn object to object_rw to be saved to Savegame.
 namespace dsx {
+
 static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw)
 {
 	const auto otype = obj.type;
@@ -517,6 +520,21 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	}
 }
 
+deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_control_center_state &LevelUniqueControlCenterState, const d_game_unique_state &GameUniqueState)
+{
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)GameUniqueState;
+#elif defined(DXX_BUILD_DESCENT_II)
+	if (Current_level_num < 0)
+		return deny_save_result::denied;
+	if (GameUniqueState.Final_boss_countdown_time)		//don't allow save while final boss is dying
+		return deny_save_result::denied;
+#endif
+	return ::dcx::deny_save_game(vcobjptr, LevelUniqueControlCenterState);
+}
+
+namespace {
+
 // Following functions convert player to player_rw and back to be written to/read from Savegames. player only differ to player_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 // turn player to player_rw to be saved to Savegame.
 static void state_player_to_player_rw(const relocated_player_data &rpd, const player *pl, player_rw *pl_rw, const player_info &pl_info)
@@ -591,8 +609,6 @@ static void state_player_to_player_rw(const relocated_player_data &rpd, const pl
 
 // turn player_rw to player after reading from Savegame
 
-namespace {
-
 static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player_info &pl_info, relocated_player_data &rpd)
 {
 	int i=0;
@@ -651,7 +667,76 @@ static void state_read_player(PHYSFS_File *fp, player &pl, int swap, player_info
 	player_rw_swap(&pl_rw, swap);
 	state_player_rw_to_player(&pl_rw, &pl, pl_info, rpd);
 }
+
+void state_format_savegame_filename(d_game_unique_state::savegame_file_path &filename, const unsigned i)
+{
+	snprintf(filename.data(), filename.size(), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), static_cast<const char *>(InterfaceUniqueState.PilotName), (Game_mode & GM_MULTI_COOP) ? 'm' : 's', i);
 }
+
+void state_autosave_game(const int multiplayer)
+{
+	d_game_unique_state::savegame_description desc;
+	const char *p;
+	time_t t = time(nullptr);
+	if (struct tm *ptm = (t == -1) ? nullptr : localtime(&t))
+	{
+		p = desc.data();
+		strftime(desc.data(), desc.size(), "auto %m-%d %H:%M:%S", ptm);
+	}
+	else
+		p = "<autosave>";
+	if (multiplayer)
+	{
+		const auto &&player_range = partial_const_range(Players, N_players);
+		multi_execute_save_game(NUM_SAVES - 1, desc, player_range);
+	}
+	else
+	{
+		d_game_unique_state::savegame_file_path filename;
+		state_format_savegame_filename(filename, NUM_SAVES - 1);
+		if (state_save_all_sub(filename.data(), p))
+			con_printf(CON_NORMAL, "Autosave written to \"%s\"", filename.data());
+	}
+}
+
+}
+
+void state_set_immediate_autosave(d_game_unique_state &GameUniqueState)
+{
+	GameUniqueState.Next_autosave = {};
+}
+
+void state_set_next_autosave(d_game_unique_state &GameUniqueState, const std::chrono::steady_clock::time_point now, const autosave_interval_type interval)
+{
+	GameUniqueState.Next_autosave = now + interval;
+}
+
+void state_set_next_autosave(d_game_unique_state &GameUniqueState, const autosave_interval_type interval)
+{
+	const auto now = std::chrono::steady_clock::now();
+	state_set_next_autosave(GameUniqueState, now, interval);
+}
+
+void state_poll_autosave_game(d_game_unique_state &GameUniqueState, const d_level_unique_object_state &LevelUniqueObjectState)
+{
+	const auto multiplayer = Game_mode & GM_MULTI;
+	if (multiplayer && !multi_i_am_master())
+		return;
+	const auto interval = (multiplayer ? static_cast<const d_gameplay_options &>(Netgame.MPGameplayOptions) : PlayerCfg.SPGameplayOptions).AutosaveInterval;
+	if (interval.count() <= 0)
+		/* Autosave is disabled */
+		return;
+	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
+	auto &Objects = LevelUniqueObjectState.Objects;
+	if (deny_save_game(Objects.vcptr, LevelUniqueControlCenterState, GameUniqueState) != deny_save_result::allowed)
+		return;
+	const auto now = std::chrono::steady_clock::now();
+	if (now < GameUniqueState.Next_autosave)
+		return;
+	state_set_next_autosave(GameUniqueState, now, interval);
+	state_autosave_game(multiplayer);
+}
+
 }
 
 namespace {
@@ -730,8 +815,8 @@ namespace dsx {
  */
 static int state_get_savegame_filename(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const char *const caption, blind_save blind)
 {
-	int i, choice, version, nsaves;
-	newmenu_item m[NUM_SAVES+1];
+	int choice, version, nsaves;
+	array<newmenu_item, NUM_SAVES + 1> m;
 	array<d_game_unique_state::savegame_file_path, NUM_SAVES> filename;
 	array<d_game_unique_state::savegame_description, NUM_SAVES> desc;
 	state_userdata userdata;
@@ -740,9 +825,16 @@ static int state_get_savegame_filename(d_game_unique_state::savegame_file_path &
 	int valid;
 
 	nsaves=0;
-	nm_set_item_text(m[0], "\n\n\n\n");
-	for (i=0;i<NUM_SAVES; i++ )	{
-		snprintf(filename[i].data(), filename[i].size(), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), static_cast<const char *>(InterfaceUniqueState.PilotName), (Game_mode & GM_MULTI_COOP)?'m':'s', i);
+	nm_set_item_text(m[0], "\n\n\n");
+	/* Always subtract 1 for the fixed text leader.  Conditionally
+	 * subtract another 1 if the call is for saving, since interactive
+	 * saves should not access the last slot.  The last slot is reserved
+	 * for autosaves.
+	 */
+	const unsigned max_slots_shown = dsc ? m.size() - 2 : m.size() - 1;
+	range_for (const unsigned i, xrange(max_slots_shown))
+	{
+		state_format_savegame_filename(filename[i], i);
 		valid = 0;
 		if (const auto fp = PHYSFSX_openReadBuffered(filename[i].data()))
 		{
@@ -805,7 +897,7 @@ static int state_get_savegame_filename(d_game_unique_state::savegame_file_path &
 	else
 	{
 		userdata.citem = 0;
-		newmenu_do2( NULL, caption, NUM_SAVES+1, m, state_callback, &userdata, state_default_item + 1, NULL );
+		newmenu_do2(nullptr, caption, max_slots_shown + 1, m.data(), state_callback, &userdata, state_default_item + 1, nullptr);
 		choice = userdata.citem;
 	}
 
@@ -975,7 +1067,6 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 
 	return rval;
 }
-
 
 int state_save_all_sub(const char *filename, const char *desc)
 {
@@ -2220,6 +2311,21 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 }
 
 namespace dcx {
+
+deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_control_center_state &LevelUniqueControlCenterState)
+{
+	if (LevelUniqueControlCenterState.Control_center_destroyed)
+		return deny_save_result::denied;
+	if (Game_mode & GM_MULTI)
+	{
+		if (!(Game_mode & GM_MULTI_COOP))
+			/* Deathmatch games can never be saved */
+			return deny_save_result::denied;
+		if (multi_common_deny_save_game(vcobjptr, partial_const_range(Players, N_players)))
+			return deny_save_result::denied;
+	}
+	return deny_save_result::allowed;
+}
 
 int state_get_game_id(const d_game_unique_state::savegame_file_path &filename)
 {

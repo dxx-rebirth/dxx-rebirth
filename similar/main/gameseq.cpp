@@ -1092,10 +1092,22 @@ void StartNewGame(const int start_level)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (start_level < 0)
+	{
+		/* Allow an autosave as soon as the user exits the secret level.
+		 */
+		state_set_immediate_autosave(GameUniqueState);
 		StartNewLevelSecret(start_level, 0);
+	}
 	else
 #endif
+	{
 		StartNewLevel(start_level);
+		/* Override Next_autosave to avoid creating an autosave
+		 * immediately after starting a new game.  No state can be lost
+		 * at that point, so there is no reason to save.
+		 */
+		state_set_next_autosave(GameUniqueState, PlayerCfg.SPGameplayOptions.AutosaveInterval);
+	}
 
 	auto &plr = get_local_player();
 	plr.starting_level = start_level;		// Mark where they started
@@ -2091,6 +2103,8 @@ window_event_result StartNewLevel(int level_num)
 	hide_menus();
 
 	GameTime64 = 0;
+	/* Autosave is permitted immediately on entering a new level */
+	state_set_immediate_autosave(GameUniqueState);
 	ThisLevelTime = {};
 
 #if defined(DXX_BUILD_DESCENT_I)

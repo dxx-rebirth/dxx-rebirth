@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <vector>
 #include "fwd-event.h"
 #include "compiler-array.h"
+#include "strutil.h"
 
 #ifdef dsx
 namespace dcx {
@@ -113,6 +114,8 @@ constexpr std::integral_constant<unsigned, 60> MAX_CONTROLS{};		// there are act
 #endif
 }
 namespace dcx {
+extern fix Cruise_speed;
+
 constexpr std::integral_constant<unsigned, 30> MAX_DXX_REBIRTH_CONTROLS{};
 extern const array<uint8_t, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsRebirth;
 }
@@ -137,18 +140,8 @@ extern void kc_set_controls();
 //set the cruise speed to zero
 extern void reset_cruise(void);
 
-extern fix Cruise_speed;
-
-
 #if DXX_MAX_JOYSTICKS
-template <std::size_t N>
-struct joystick_text_length : std::integral_constant<std::size_t, joystick_text_length<N / 10>::value + (N >= 10)>
-{
-};
-template <>
-struct joystick_text_length<0> : std::integral_constant<std::size_t, 1>
-{
-};
+namespace dcx {
 
 template <std::size_t N>
 class joystick_text_t : std::vector<array<char, N>>
@@ -165,16 +158,17 @@ public:
 };
 
 #if DXX_MAX_AXES_PER_JOYSTICK
-using joyaxis_text_t = joystick_text_t<sizeof("J A") + joystick_text_length<DXX_MAX_JOYSTICKS>::value + joystick_text_length<DXX_MAX_AXES_PER_JOYSTICK>::value>;
+using joyaxis_text_t = joystick_text_t<sizeof("J A") + number_to_text_length<DXX_MAX_JOYSTICKS> + number_to_text_length<DXX_MAX_AXES_PER_JOYSTICK>>;
 extern joyaxis_text_t joyaxis_text;
 #endif
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK || DXX_MAX_AXES_PER_JOYSTICK
 #define DXX_JOY_MAX(A,B)	((A) < (B) ? (B) : (A))
-using joybutton_text_t = joystick_text_t<joystick_text_length<DXX_MAX_JOYSTICKS>::value + DXX_JOY_MAX(DXX_JOY_MAX(sizeof("J H ") + joystick_text_length<DXX_MAX_HATS_PER_JOYSTICK>::value, sizeof("J B") + joystick_text_length<DXX_MAX_BUTTONS_PER_JOYSTICK>::value), sizeof("J -A") + joystick_text_length<DXX_MAX_AXES_PER_JOYSTICK>::value)>;
+using joybutton_text_t = joystick_text_t<number_to_text_length<DXX_MAX_JOYSTICKS> + DXX_JOY_MAX(DXX_JOY_MAX(sizeof("J H ") + number_to_text_length<DXX_MAX_HATS_PER_JOYSTICK>, sizeof("J B") + number_to_text_length<DXX_MAX_BUTTONS_PER_JOYSTICK>), sizeof("J -A") + number_to_text_length<DXX_MAX_AXES_PER_JOYSTICK>)>;
 #undef DXX_JOY_MAX
 extern joybutton_text_t joybutton_text;
 #endif
 
+}
 #endif
 #endif

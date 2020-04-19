@@ -26,8 +26,23 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MENU_H
 #define _MENU_H
 
-#ifdef __cplusplus
+#include <array>
+#include <chrono>
 #include "dsx-ns.h"
+#include "strutil.h"
+
+namespace dcx {
+
+template <typename Rep, std::size_t MaximumValue = std::numeric_limits<Rep>::max()>
+using human_readable_mmss_time = array<char, number_to_text_length<MaximumValue / 60> + number_to_text_length<60> + sizeof("ms")>;
+
+template <typename Rep, std::size_t S>
+void format_human_readable_time(std::array<char, S> &buf, const std::chrono::duration<Rep, std::chrono::seconds::period> duration);
+
+template <typename Rep, std::size_t S>
+void parse_human_readable_time(std::chrono::duration<Rep, std::chrono::seconds::period> &duration, const std::array<char, S> &buf);
+
+}
 
 extern int hide_menus(void);
 extern void show_menus(void);
@@ -53,8 +68,6 @@ extern int select_demo(void);
 // name of background bitmap
 #define Menu_pcx_name (PHYSFSX_exists(MENU_PCX_FULL,1)?MENU_PCX_FULL:(PHYSFSX_exists(MENU_PCX_OEM,1)?MENU_PCX_OEM:PHYSFSX_exists(MENU_PCX_SHAREWARE,1)?MENU_PCX_SHAREWARE:MENU_PCX_MAC_SHARE))
 #define STARS_BACKGROUND ((HIRESMODE && PHYSFSX_exists("starsb.pcx",1))?"starsb.pcx":PHYSFSX_exists("stars.pcx",1)?"stars.pcx":"starsb.pcx")
-#endif
-
 #endif
 
 #endif /* _MENU_H */

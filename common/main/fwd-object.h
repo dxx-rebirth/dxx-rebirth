@@ -26,6 +26,7 @@ namespace dcx {
 enum movement_type_t : uint8_t;
 constexpr std::integral_constant<std::size_t, 350> MAX_OBJECTS{};
 constexpr std::integral_constant<std::size_t, MAX_OBJECTS - 20> MAX_USED_OBJECTS{};
+struct d_level_unique_control_center_state;
 
 }
 
@@ -46,6 +47,7 @@ static constexpr valptridx<object>::magic_constant<0> object_first{};
 constexpr std::integral_constant<unsigned, 15> MAX_OBJECT_TYPES{};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<unsigned, 16> MAX_OBJECT_TYPES{};
+struct d_level_unique_control_center_state;
 #endif
 
 }

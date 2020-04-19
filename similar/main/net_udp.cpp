@@ -45,6 +45,7 @@
 #include "kmatrix.h"
 #include "newdemo.h"
 #include "multibot.h"
+#include "state.h"
 #include "wall.h"
 #include "bm.h"
 #include "effects.h"
@@ -3371,6 +3372,8 @@ constexpr std::integral_constant<unsigned, 5 * reactor_invul_time_mini_scale> re
 	DXX_MENUITEM(VERB, CHECK, "No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
 	DXX_MENUITEM(VERB, FCHECK, (Game_mode & GM_MULTI_COOP) ? "Allow coop mouselook" : "Allow anarchy mouselook", opt_mouselook, Netgame.MouselookFlags, MouselookMPFlag(Game_mode))	\
 	DXX_MENUITEM(VERB, TEXT, "", blank_4)                                     \
+	DXX_MENUITEM_AUTOSAVE_LABEL_INPUT(VERB)	\
+	DXX_MENUITEM(VERB, TEXT, "", blank_6)                                     \
 	DXX_MENUITEM(VERB, TEXT, "Network Options", network_label)	               \
 	DXX_MENUITEM(VERB, TEXT, "Packets per second (" DXX_STRINGIZE_PPS(MIN_PPS) " - " DXX_STRINGIZE_PPS(MAX_PPS) ")", opt_label_pps)	\
 	DXX_MENUITEM(VERB, INPUT, packstring, opt_packets)	\
@@ -3440,6 +3443,7 @@ class more_game_options_menu_items
 #if DXX_USE_TRACKER
         char tracker_addr_txt[sizeof("65535") + 28];
 #endif
+	human_readable_mmss_time<decltype(d_gameplay_options::AutosaveInterval)::rep> AutosaveInterval;
 	typedef array<newmenu_item, DXX_UDP_MENU_OPTIONS(COUNT)> menu_array;
 	menu_array m;
 	static const char *get_annotated_difficulty_string(const Difficulty_level_type d)
@@ -3549,6 +3553,7 @@ public:
 		const unsigned TrackerNATWarned = Netgame.TrackerNATWarned == TrackerNATHolePunchWarn::UserEnabledHP;
 #endif
 		const unsigned PlayTimeAllowed = std::chrono::duration_cast<std::chrono::duration<int, netgame_info::play_time_allowed_abi_ratio>>(Netgame.PlayTimeAllowed).count();
+		format_human_readable_time(AutosaveInterval, Netgame.MPGameplayOptions.AutosaveInterval);
 		DXX_UDP_MENU_OPTIONS(ADD);
 #if DXX_USE_TRACKER
 		const auto &tracker_addr = CGameArg.MplTrackerAddr;
@@ -3596,6 +3601,7 @@ public:
 		Netgame.TrackerNATWarned = TrackerNATWarned ? TrackerNATHolePunchWarn::UserEnabledHP : TrackerNATHolePunchWarn::UserRejectedHP;
 #endif
 		convert_text_portstring(portstring, UDP_MyPort, false, false);
+		parse_human_readable_time(Netgame.MPGameplayOptions.AutosaveInterval, AutosaveInterval);
 	}
 	static void net_udp_more_game_options();
 };
@@ -4515,6 +4521,7 @@ static int net_udp_start_game(void)
 		Game_mode = GM_GAME_OVER;
 		return 0;	// see if we want to tweak the game we setup
 	}
+	state_set_next_autosave(GameUniqueState, Netgame.MPGameplayOptions.AutosaveInterval);
 	net_udp_broadcast_game_info(UPID_GAME_INFO_LITE); // game started. broadcast our current status to everyone who wants to know
 
 	return 1;	// don't keep params menu or mission listbox (may want to join a game next time)

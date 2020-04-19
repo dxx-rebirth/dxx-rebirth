@@ -40,7 +40,7 @@ enum class MissileViewMode : uint8_t
 };
 #endif
 
-#ifdef __cplusplus
+#include "gameplayopt.h"
 #include <cstdint>
 
 #define N_SAVE_SLOTS    10
@@ -184,6 +184,7 @@ struct player_config : prohibit_void_ptr<player_config>
 		int AlphaBlendEClips;
 	};
 	int DynLightColor;
+	d_sp_gameplay_options SPGameplayOptions;
 };
 #endif
 
@@ -219,5 +220,4 @@ void read_netgame_profile(struct netgame_info *ng);
 void write_netgame_profile(struct netgame_info *ng);
 }
 
-#endif
 #endif

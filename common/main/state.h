@@ -31,11 +31,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SECRETC_FILENAME	PLAYER_DIRECTORY_STRING("secret.sgc")
 #endif
 
-#ifdef __cplusplus
 #include <cstddef>
 #include "dsx-ns.h"
 #include "fwd-window.h"
+#include "fwd-object.h"
 #include "game.h"
+#include "gameplayopt.h"
 
 extern unsigned state_game_id;
 extern int state_quick_item;
@@ -73,11 +74,24 @@ enum class blind_save
 	yes,
 };
 
+enum class deny_save_result
+{
+	allowed,
+	denied,
+};
+
 int state_get_game_id(const d_game_unique_state::savegame_file_path &filename);
+deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_control_center_state &LevelUniqueControlCenterState);
+
 }
 
 #ifdef dsx
 namespace dsx {
+deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_control_center_state &LevelUniqueControlCenterState, const d_game_unique_state &GameUniqueState);
+void state_poll_autosave_game(d_game_unique_state &GameUniqueState, const d_level_unique_object_state &LevelUniqueObjectState);
+void state_set_immediate_autosave(d_game_unique_state &GameUniqueState);
+void state_set_next_autosave(d_game_unique_state &GameUniqueState, std::chrono::steady_clock::time_point now, autosave_interval_type interval);
+void state_set_next_autosave(d_game_unique_state &GameUniqueState, autosave_interval_type interval);
 int state_save_all_sub(const char *filename, const char *desc);
 
 int state_get_save_file(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *dsc, blind_save);
@@ -112,6 +126,4 @@ int state_restore_all(int in_game, secret_restore, const char *filename_override
 window_event_result StartNewLevelSub(int level_num, int page_in_textures, secret_restore);
 #endif
 }
-#endif
-
 #endif

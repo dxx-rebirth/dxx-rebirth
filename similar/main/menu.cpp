@@ -149,10 +149,66 @@ static void do_multi_player_menu();
 static void do_sandbox_menu();
 #endif
 
+namespace dcx {
+
 namespace {
 
 template <typename T>
 using select_file_subfunction = window_event_result (*)(T *, const char *);
+
+void format_human_readable_time(char *const data, std::size_t size, const int duration_seconds)
+{
+	const auto &&split_interval = std::div(duration_seconds, static_cast<int>(std::chrono::minutes::period::num));
+	snprintf(data, size, "%im%is", split_interval.quot, split_interval.rem);
+}
+
+std::pair<std::chrono::seconds, bool> parse_human_readable_time(const char *const buf)
+{
+	char *p{};
+	const std::chrono::minutes m(strtoul(buf, &p, 10));
+	if (*p == 0)
+		/* Assume that a pure-integer string is a count of minutes. */
+		return {m, true};
+	const auto c0 = *p;
+	if (c0 == 'm')
+	{
+		const std::chrono::seconds s(strtoul(p + 1, &p, 10));
+		if (*p == 's')
+			/* The trailing 's' is optional, but no character other than
+			 * the optional 's' can follow the number.
+			 */
+			++p;
+		if (*p == 0)
+			return {m + s, true};
+	}
+	else if (c0 == 's' && p[1] == 0)
+		/* Input is only seconds.  Use `.count()` to extract the raw
+		 * value without scaling.
+		 */
+		return {std::chrono::seconds(m.count()), true};
+	return {{}, false};
+}
+
+}
+
+template <typename Rep, std::size_t S>
+void format_human_readable_time(std::array<char, S> &buf, const std::chrono::duration<Rep, std::chrono::seconds::period> duration)
+{
+	static_assert(S >= std::tuple_size<human_readable_mmss_time<Rep>>::value, "array is too small");
+	static_assert(std::numeric_limits<Rep>::max() <= std::numeric_limits<int>::max(), "Rep allows too large a value");
+	format_human_readable_time(buf.data(), buf.size(), duration.count());
+}
+
+template <typename Rep, std::size_t S>
+void parse_human_readable_time(std::chrono::duration<Rep, std::chrono::seconds::period> &duration, const std::array<char, S> &buf)
+{
+	const auto &&r = parse_human_readable_time(buf.data());
+	if (r.second)
+		duration = r.first;
+}
+
+template void format_human_readable_time(human_readable_mmss_time<autosave_interval_type::rep> &buf, autosave_interval_type);
+template void parse_human_readable_time(autosave_interval_type &, const human_readable_mmss_time<autosave_interval_type::rep> &buf);
 
 }
 
@@ -703,10 +759,8 @@ int do_option ( int select)
 
 static void delete_player_saved_games(const char * name)
 {
-	int i;
 	char filename[PATH_MAX];
-
-	for (i=0;i<10; i++)
+	for (unsigned i = 0; i < 11; ++i)
 	{
 		snprintf( filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.sg%x"), name, i );
 		PHYSFS_delete(filename);
@@ -2265,6 +2319,7 @@ enum {
 	DXX_MENUITEM(VERB, RADIO, "Never", opt_autoselect_firing_never, PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Never, optgrp_autoselect_firing)	\
 	DXX_MENUITEM(VERB, RADIO, "When firing stops", opt_autoselect_firing_delayed, PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Delayed, optgrp_autoselect_firing)	\
 	DXX_MENUITEM(VERB, CHECK, "Only Cycle Autoselect Weapons",opt_only_autoselect,PlayerCfg.CycleAutoselectOnly)	\
+	DXX_MENUITEM_AUTOSAVE_LABEL_INPUT(VERB)	\
 
 enum {
         DXX_GAMEPLAY_MENU_OPTIONS(ENUM)
@@ -2300,6 +2355,8 @@ void gameplay_config()
 		auto thief_absent = PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent;
 		auto thief_cannot_steal_energy_weapons = PlayerCfg.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons;
 #endif
+		human_readable_mmss_time<decltype(d_gameplay_options::AutosaveInterval)::rep> AutosaveInterval;
+		format_human_readable_time(AutosaveInterval, PlayerCfg.SPGameplayOptions.AutosaveInterval);
 		DXX_GAMEPLAY_MENU_OPTIONS(ADD);
 		const auto i = newmenu_do1( NULL, "Gameplay Options", m.size(), m.data(), gameplay_config_menuset, unused_newmenu_userdata, 0 );
 		DXX_GAMEPLAY_MENU_OPTIONS(READ);
@@ -2313,6 +2370,7 @@ void gameplay_config()
 			(thief_absent ? ThiefModifier::Absent : 0) |
 			(thief_cannot_steal_energy_weapons ? ThiefModifier::NoEnergyWeapons : 0);
 #endif
+		parse_human_readable_time(PlayerCfg.SPGameplayOptions.AutosaveInterval, AutosaveInterval);
 		if (i == -1)
 			break;
 	}

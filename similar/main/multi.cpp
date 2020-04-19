@@ -2119,6 +2119,18 @@ static void multi_do_cloak(fvmobjptr &vmobjptr, const playernum_t pnum)
 
 namespace dcx {
 
+static const char *deny_multi_save_game_duplicate_callsign(const partial_range_t<const player *> range)
+{
+	const auto e = range.end();
+	for (auto i = range.begin(); i != e; ++i)
+		for (auto j = std::next(i); j != e; ++j)
+		{
+			if (i->callsign == j->callsign)
+				return "Multiple players with same callsign!";
+		}
+	return nullptr;
+}
+
 static void multi_do_decloak(const playernum_t pnum)
 {
 	if (Newdemo_state == ND_STATE_RECORDING)
@@ -3773,18 +3785,36 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static
 #endif
-int multi_all_players_alive()
+int multi_all_players_alive(const fvcobjptr &vcobjptr, const partial_range_t<const player *> player_range)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
-	range_for (auto &i, partial_const_range(Players, N_players))
+	range_for (auto &plr, player_range)
 	{
-		if (i.connected == CONNECT_PLAYING && vcobjptr(i.objnum)->type == OBJ_GHOST) // player alive?
-			return (0);
-		if ((i.connected != CONNECT_DISCONNECTED) && (i.connected != CONNECT_PLAYING)) // ... and actually playing?
-			return (0);
+		const auto connected = plr.connected;
+		if (connected == CONNECT_PLAYING)
+		{
+			if (vcobjptr(plr.objnum)->type == OBJ_GHOST) // player alive?
+				return 0;
+		}
+		else if (connected != CONNECT_DISCONNECTED) // ... and actually playing?
+			return 0;
 	}
 	return (1);
+}
+
+const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, const partial_range_t<const player *> player_range)
+{
+	if (Network_status == NETSTAT_ENDLEVEL)
+		return "Level is ending";
+	if (!multi_all_players_alive(vcobjptr, player_range))
+		return "All players must be alive and playing!";
+	return deny_multi_save_game_duplicate_callsign(player_range);
+}
+
+const char *multi_interactive_deny_save_game(const fvcobjptr &vcobjptr, const partial_range_t<const player *> player_range, const d_level_unique_control_center_state &LevelUniqueControlCenterState)
+{
+	if (LevelUniqueControlCenterState.Control_center_destroyed)
+		return "Countdown in progress";
+	return multi_common_deny_save_game(vcobjptr, player_range);
 }
 
 void multi_send_drop_weapon(const vmobjptridx_t objp, int seed)
@@ -4879,36 +4909,15 @@ namespace dsx {
 
 void multi_initiate_save_game()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	fix game_id = 0;
+	auto &vcobjptr = Objects.vcptr;
 	int slot;
 
-	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
+	if (const auto reason = multi_i_am_master() ? multi_interactive_deny_save_game(vcobjptr, partial_range(Players, N_players), LevelUniqueControlCenterState) : "Only the host is allowed to save a game!")
+	{
+		HUD_init_message(HM_MULTI, "Cannot save: %s", reason);
 		return;
-
-	if (!multi_i_am_master())
-	{
-		HUD_init_message_literal(HM_MULTI, "Only host is allowed to save a game!");
-		return;
-	}
-	if (!multi_all_players_alive())
-	{
-		HUD_init_message_literal(HM_MULTI, "Can't save! All players must be alive and playing!");
-		return;
-	}
-	{
-		const auto &&range = partial_const_range(Players, N_players);
-	for (auto i = range.begin(); i != range.end(); ++i)
-	{
-		for (auto j = i + 1; j != range.end(); ++j)
-		{
-			if (i->callsign == j->callsign)
-			{
-				HUD_init_message_literal(HM_MULTI, "Can't save! Multiple players with same callsign!");
-				return;
-			}
-		}
-	}
 	}
 
 	d_game_unique_state::savegame_file_path filename{};
@@ -4917,11 +4926,23 @@ void multi_initiate_save_game()
 	if (!slot)
 		return;
 	slot--;
+	const auto &&player_range = partial_const_range(Players, N_players);
+	// Execute "alive" and "duplicate callsign" checks again in case things changed while host decided upon the savegame.
+	if (const auto reason = multi_interactive_deny_save_game(vcobjptr, player_range, LevelUniqueControlCenterState))
+	{
+		HUD_init_message(HM_MULTI, "Cannot save: %s", reason);
+		return;
+	}
+	multi_execute_save_game(slot, desc, player_range);
+}
 
+void multi_execute_save_game(const int slot, const d_game_unique_state::savegame_description &desc, const partial_range_t<const player *> player_range)
+{
 	// Make a unique game id
+	fix game_id;
 	game_id = static_cast<fix>(timer_query());
 	game_id ^= N_players<<4;
-	range_for (auto &i, partial_const_range(Players, N_players))
+	range_for (auto &i, player_range)
 	{
 		fix call2i;
 		memcpy(&call2i, static_cast<const char *>(i.callsign), sizeof(fix));
@@ -4930,27 +4951,6 @@ void multi_initiate_save_game()
 	if ( game_id == 0 )
 		game_id = 1; // 0 is invalid
 
-	// Execute "alive" and "duplicate callsign" checks again in case things changed while host decided upon the savegame.
-	if (!multi_all_players_alive())
-	{
-		HUD_init_message_literal(HM_MULTI, "Can't save! All players must be alive and playing!");
-		return;
-	}
-	{
-		const auto &&range = partial_const_range(Players, N_players);
-	for (auto i = range.begin(); i != range.end(); ++i)
-	{
-		for (auto j = i + 1; j != range.end(); ++j)
-		{
-			if (i->callsign == j->callsign)
-			{
-				HUD_init_message_literal(HM_MULTI, "Can't save! Multiple players with same callsign!");
-				return;
-			}
-		}
-	}
-	}
-
 	multi_send_save_game( slot, game_id, desc );
 	multi_do_frame();
 	multi_save_game( slot,game_id, desc );
@@ -4958,40 +4958,31 @@ void multi_initiate_save_game()
 
 void multi_initiate_restore_game()
 {
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vcobjptr = Objects.vcptr;
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int slot;
 
 	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
-	if (!multi_i_am_master())
+	if (const auto reason = multi_i_am_master() ? multi_interactive_deny_save_game(vcobjptr, partial_const_range(Players, N_players), LevelUniqueControlCenterState) : "Only host is allowed to load a game!")
 	{
-		HUD_init_message_literal(HM_MULTI, "Only host is allowed to load a game!");
+		HUD_init_message(HM_MULTI, "Cannot load: %s", reason);
 		return;
-	}
-	if (!multi_all_players_alive())
-	{
-		HUD_init_message_literal(HM_MULTI, "Can't load! All players must be alive and playing!");
-		return;
-	}
-	{
-		const auto &&range = partial_const_range(Players, N_players);
-	for (auto i = range.begin(); i != range.end(); ++i)
-	{
-		for (auto j = i + 1; j != range.end(); ++j)
-		{
-			if (i->callsign == j->callsign)
-			{
-				HUD_init_message_literal(HM_MULTI, "Can't load! Multiple players with same callsign!");
-				return;
-			}
-		}
-	}
 	}
 	d_game_unique_state::savegame_file_path filename;
 	slot = state_get_restore_file(filename, blind_save::no);
 	if (!slot)
 		return;
+	/* Recheck the interactive conditions, but not the host status.  If
+	 * this system was the host before, it must still be the host now.
+	 */
+	if (const auto reason = multi_interactive_deny_save_game(vcobjptr, partial_const_range(Players, N_players), LevelUniqueControlCenterState))
+	{
+		HUD_init_message(HM_MULTI, "Cannot load: %s", reason);
+		return;
+	}
 	state_game_id = state_get_game_id(filename);
 	if (!state_game_id)
 		return;
@@ -5009,7 +5000,7 @@ void multi_save_game(const unsigned slot, const unsigned id, const d_game_unique
 	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%d"), static_cast<const char *>(get_local_player().callsign), slot);
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%x"), static_cast<const char *>(get_local_player().callsign), slot);
 	HUD_init_message(HM_MULTI, "Saving game #%d, '%s'", slot, desc.data());
 	state_game_id = id;
 	pause_game_world_time p;
@@ -5025,7 +5016,7 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 		return;
 
 	auto &plr = get_local_player();
-	snprintf(filename.data(), filename.size(), PLAYER_DIRECTORY_STRING("%s.mg%d"), static_cast<const char *>(plr.callsign), slot);
+	snprintf(filename.data(), filename.size(), PLAYER_DIRECTORY_STRING("%s.mg%x"), static_cast<const char *>(plr.callsign), slot);
    
 	for (unsigned i = 0, n = N_players; i < n; ++i)
 		multi_strip_robots(i);

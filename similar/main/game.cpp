@@ -1757,6 +1757,7 @@ window_event_result GameProcessFrame()
 	const auto player_was_dead = Player_dead_state;
 	auto result = window_event_result::ignored;
 
+	state_poll_autosave_game(GameUniqueState, LevelUniqueObjectState);
 	update_player_stats();
 	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
 	do_afterburner_stuff(Objects);

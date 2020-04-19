@@ -84,6 +84,18 @@ public:
 
 int string_array_sort_func(const void *v0, const void *v1);
 
+/* Compute the number of digits required to represent MaximumValue in
+ * the given Base.  The result does not account for any characters other
+ * than the required digits.
+ */
+template <std::size_t MaximumValue, std::size_t Base = 10>
+constexpr std::size_t number_to_text_length = (MaximumValue < Base) ? 1 : 1 + number_to_text_length<MaximumValue / Base, Base>;
+static_assert(number_to_text_length<1> == 1, "");
+static_assert(number_to_text_length<9> == 1, "");
+static_assert(number_to_text_length<10> == 2, "");
+static_assert(number_to_text_length<255, 16> == 2, "");
+static_assert(number_to_text_length<256, 16> == 3, "");
+
 }
 
 #endif

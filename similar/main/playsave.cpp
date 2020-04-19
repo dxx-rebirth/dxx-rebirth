@@ -85,6 +85,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PacketsPerSecStr "PacketsPerSec"
 #define NoFriendlyFireStr "NoFriendlyFire"
 #define MouselookFlagsStr "Mouselook"
+#define AutosaveIntervalStr	"AutosaveInterval"
 #define TrackerStr "Tracker"
 #define TrackerNATHPStr "trackernat"
 #define NGPVersionStr "ngp version"
@@ -178,6 +179,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TOGGLES_MOUSELOOK	"mouselook"
 #define TOGGLES_THIEF_ABSENCE_SP	"thiefabsent"
 #define TOGGLES_THIEF_NO_ENERGY_WEAPONS_SP	"thiefnoenergyweapons"
+#define TOGGLES_AUTOSAVE_INTERVAL_SP	"autosaveinterval"
 #define GRAPHICS_HEADER_TEXT "[graphics]"
 #define GRAPHICS_ALPHAEFFECTS_NAME_TEXT "alphaeffects"
 #define GRAPHICS_DYNLIGHTCOLOR_NAME_TEXT "dynlightcolor"
@@ -345,6 +347,7 @@ static void read_player_dxx(const char *filename)
 	if (!f)
 		return;
 
+	PlayerCfg.SPGameplayOptions.AutosaveInterval = std::chrono::minutes(10);
 	for (PHYSFSX_gets_line_t<50> line; PHYSFSX_fgets(line,f);)
 	{
 #if defined(DXX_BUILD_DESCENT_I)
@@ -483,6 +486,11 @@ static void read_player_dxx(const char *filename)
 						PlayerCfg.ThiefModifierFlags |= ThiefModifier::NoEnergyWeapons;
 				}
 #endif
+				else if (!strcmp(line, TOGGLES_AUTOSAVE_INTERVAL_SP))
+				{
+					const auto l = strtoul(value, 0, 10);
+					PlayerCfg.SPGameplayOptions.AutosaveInterval = std::chrono::seconds(l);
+				}
 				if(!strcmp(line,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT))
 					PlayerCfg.PersistentDebris = atoi(value);
 				if(!strcmp(line,TOGGLES_PRSHOT_NAME_TEXT))
@@ -796,6 +804,7 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout, TOGGLES_THIEF_ABSENCE_SP "=%i\n", PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent);
 		PHYSFSX_printf(fout, TOGGLES_THIEF_NO_ENERGY_WEAPONS_SP "=%i\n", PlayerCfg.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons);
 #endif
+		PHYSFSX_printf(fout, TOGGLES_AUTOSAVE_INTERVAL_SP "=%i\n", PlayerCfg.SPGameplayOptions.AutosaveInterval.count());
 		PHYSFSX_printf(fout,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT "=%i\n",PlayerCfg.PersistentDebris);
 		PHYSFSX_printf(fout,TOGGLES_PRSHOT_NAME_TEXT "=%i\n",PlayerCfg.PRShot);
 		PHYSFSX_printf(fout,TOGGLES_NOREDUNDANCY_NAME_TEXT "=%i\n",PlayerCfg.NoRedundancy);
@@ -1540,6 +1549,7 @@ void read_netgame_profile(netgame_info *ng)
 	if (!file)
 		return;
 
+	ng->MPGameplayOptions.AutosaveInterval = std::chrono::minutes(10);
 	// NOTE that we do not set any defaults here or even initialize netgame_info. For flexibility, leave that to the function calling this.
 	for (PHYSFSX_gets_line_t<50> line; const char *const eol = PHYSFSX_fgets(line, file);)
 	{
@@ -1620,6 +1630,12 @@ void read_netgame_profile(netgame_info *ng)
 			convert_integer(ng->NoFriendlyFire, value);
 		else if (cmp(lb, eq, MouselookFlagsStr))
 			convert_integer(ng->MouselookFlags, value);
+		else if (cmp(lb, eq, AutosaveIntervalStr))
+		{
+			uint16_t AutosaveInterval;
+			if (convert_integer(AutosaveInterval, value))
+				ng->MPGameplayOptions.AutosaveInterval = std::chrono::seconds(AutosaveInterval);
+		}
 #if DXX_USE_TRACKER
 		else if (cmp(lb, eq, TrackerStr))
 			convert_integer(ng->Tracker, value);
@@ -1665,6 +1681,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, PacketsPerSecStr "=%i\n", ng->PacketsPerSec);
 	PHYSFSX_printf(file, NoFriendlyFireStr "=%i\n", ng->NoFriendlyFire);
 	PHYSFSX_printf(file, MouselookFlagsStr "=%i\n", ng->MouselookFlags);
+	PHYSFSX_printf(file, AutosaveIntervalStr "=%i\n", ng->MPGameplayOptions.AutosaveInterval.count());
 #if DXX_USE_TRACKER
 	PHYSFSX_printf(file, TrackerStr "=%i\n", ng->Tracker);
 	PHYSFSX_printf(file, TrackerNATHPStr "=%i\n", ng->TrackerNATWarned);

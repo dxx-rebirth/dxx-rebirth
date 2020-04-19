@@ -165,6 +165,7 @@ struct d_game_unique_state
 	fix Boss_gate_interval;
 	unsigned accumulated_robots;
 	unsigned total_hostages;
+	std::chrono::steady_clock::time_point Next_autosave;
 };
 
 extern int Global_missile_firing_count;
