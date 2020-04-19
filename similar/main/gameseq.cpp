@@ -1328,7 +1328,6 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-        ThisLevelTime=0;
 
 	last_drawn_cockpit = -1;
 
@@ -2092,7 +2091,7 @@ window_event_result StartNewLevel(int level_num)
 	hide_menus();
 
 	GameTime64 = 0;
-	ThisLevelTime=0;
+	ThisLevelTime = {};
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!(Game_mode & GM_MULTI)) {

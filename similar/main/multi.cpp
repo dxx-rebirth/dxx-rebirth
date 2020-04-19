@@ -949,7 +949,7 @@ void multi_do_protocol_frame(int force, int listen)
 
 window_event_result multi_do_frame()
 {
-	static int lasttime=0;
+	static d_time_fix lasttime;
 	static fix64 last_gmode_time = 0, last_inventory_time = 0, last_repo_time = 0;
 
 	if (!(Game_mode & GM_MULTI) || Newdemo_state == ND_STATE_PLAYBACK)
@@ -958,7 +958,7 @@ window_event_result multi_do_frame()
 		return window_event_result::ignored;
 	}
 
-	if ((Game_mode & GM_NETWORK) && Netgame.PlayTimeAllowed && lasttime!=f2i (ThisLevelTime))
+	if ((Game_mode & GM_NETWORK) && Netgame.PlayTimeAllowed.count() && lasttime != ThisLevelTime)
 	{
 		for (unsigned i = 0; i < N_players; ++i)
 			if (vcplayerptr(i)->connected)
@@ -966,7 +966,7 @@ window_event_result multi_do_frame()
 				if (i==Player_num)
 				{
 					multi_send_heartbeat();
-					lasttime=f2i(ThisLevelTime);
+					lasttime = ThisLevelTime;
 				}
 				break;
 			}
@@ -4022,11 +4022,11 @@ static void multi_do_kill_goal_counts(fvmobjptr &vmobjptr, const uint8_t *const 
 
 void multi_send_heartbeat ()
 {
-	if (!Netgame.PlayTimeAllowed)
+	if (!Netgame.PlayTimeAllowed.count())
 		return;
 
 	multi_command<MULTI_HEARTBEAT> multibuf;
-	PUT_INTEL_INT(&multibuf[1], ThisLevelTime);
+	PUT_INTEL_INT(&multibuf[1], ThisLevelTime.count());
 	multi_send_data(multibuf, 0);
 }
 
@@ -4036,7 +4036,7 @@ static void multi_do_heartbeat (const ubyte *buf)
 
 	num = GET_INTEL_INT(buf + 1);
 
-	ThisLevelTime=num;
+	ThisLevelTime = d_time_fix(num);
 }
 
 void multi_check_for_killgoal_winner ()
@@ -6243,7 +6243,7 @@ void show_netgame_info(const netgame_info &netgame)
         snprintf(ngii+(ngilen*loc),ngilen,"Game Options:");                                                                                                  loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Difficulty\t  %s", MENU_DIFFICULTY_TEXT(netgame.difficulty));                                                    loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Reactor Life\t  %i %s", netgame.control_invul_time / F1_0 / 60, TXT_MINUTES_ABBREV);                             loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Max Time\t  %i %s", netgame.PlayTimeAllowed * 5, TXT_MINUTES_ABBREV);                                            loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Max Time\t  %i %s", netgame.PlayTimeAllowed.count() / (F1_0 * 60), TXT_MINUTES_ABBREV);                                            loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Kill Goal\t  %i", netgame.KillGoal * 5);                                                                         loc++;
         snprintf(ngii+(ngilen*loc),ngilen," ");                                                                                                              loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Duplicate Powerups:");                                                                                            loc++;

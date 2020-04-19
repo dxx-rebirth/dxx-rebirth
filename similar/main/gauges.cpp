@@ -873,31 +873,36 @@ static void hud_show_score(grs_canvas &canvas, const player_info &player_info)
 static void hud_show_timer_count(grs_canvas &canvas)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	int	i;
-	fix timevar=0;
 
 	if (HUD_toolong)
 		return;
 
-	if ((Game_mode & GM_NETWORK) && Netgame.PlayTimeAllowed)
-	{
-		timevar=i2f (Netgame.PlayTimeAllowed*5*60);
-		i=f2i(timevar-ThisLevelTime);
-		i++;
+	if (!(Game_mode & GM_NETWORK))
+		return;
 
-		if (i>-1 && !LevelUniqueControlCenterState.Control_center_destroyed)
-		{
+	if (!Netgame.PlayTimeAllowed.count())
+		return;
+
+	if (LevelUniqueControlCenterState.Control_center_destroyed)
+		return;
+
+	if (Netgame.PlayTimeAllowed < ThisLevelTime)
+		return;
+
+	const auto TicksUntilPlayTimeAllowedElapses = Netgame.PlayTimeAllowed - ThisLevelTime;
+	const auto SecondsUntilPlayTimeAllowedElapses = f2i(TicksUntilPlayTimeAllowedElapses.count());
+	if (SecondsUntilPlayTimeAllowedElapses >= 0)
+	{
 		if (Color_0_31_0 == -1)
 			Color_0_31_0 = BM_XRGB(0,31,0);
 
 		gr_set_fontcolor(canvas, Color_0_31_0, -1);
 
 			char score_str[20];
-			snprintf(score_str, sizeof(score_str), "T - %5d", i);
+			snprintf(score_str, sizeof(score_str), "T - %5d", SecondsUntilPlayTimeAllowedElapses + 1);
 			int w, h;
 			gr_get_string_size(*canvas.cv_font, score_str, &w, &h, nullptr);
 			gr_string(canvas, *canvas.cv_font, canvas.cv_bitmap.bm_w - w - FSPACX(12), LINE_SPACING(*canvas.cv_font, *GAME_FONT) + FSPACY(1), score_str, w, h);
-		}
 	}
 }
 
@@ -3189,10 +3194,10 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
 			if (i==n_left)
 				y = save_y;
 
-			if (Netgame.KillGoal || Netgame.PlayTimeAllowed)
+			if (Netgame.KillGoal || Netgame.PlayTimeAllowed.count())
 				x1 -= fspacx18;
 		}
-		else  if (Netgame.KillGoal || Netgame.PlayTimeAllowed)
+		else  if (Netgame.KillGoal || Netgame.PlayTimeAllowed.count())
 		{
 			x1 = fspacx43;
 			x1 -= fspacx18;
@@ -3260,7 +3265,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
 			gr_printf(canvas, game_font, x1, y, "%3d", team_kills[i]);
 		else if (Game_mode & GM_MULTI_COOP)
 			gr_printf(canvas, game_font, x1, y, "%-6d", player_info.mission.score);
-		else if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
+		else if (Netgame.KillGoal || Netgame.PlayTimeAllowed.count())
 			gr_printf(canvas, game_font, x1, y, "%3d(%d)", player_info.net_kills_total, player_info.KillGoalCount);
 		else
 			gr_printf(canvas, game_font, x1, y, "%3d", player_info.net_kills_total);

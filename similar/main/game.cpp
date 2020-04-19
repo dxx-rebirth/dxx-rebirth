@@ -126,7 +126,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static fix64 last_timer_value=0;
 static fix64 sync_timer_value=0;
-fix ThisLevelTime=0;
+d_time_fix ThisLevelTime;
 
 grs_canvas	Screen_3d_window;							// The rectangle for rendering the mine to
 
@@ -1801,8 +1801,12 @@ window_event_result GameProcessFrame()
 	if (Game_mode & GM_MULTI)
 	{
 		result = std::max(multi_do_frame(), result);
-		if (Netgame.PlayTimeAllowed && ThisLevelTime>=i2f((Netgame.PlayTimeAllowed*5*60)))
-			multi_check_for_killgoal_winner();
+		if (Netgame.PlayTimeAllowed.count())
+		{
+			if (ThisLevelTime >= Netgame.PlayTimeAllowed)
+				multi_check_for_killgoal_winner();
+			ThisLevelTime += d_time_fix(FrameTime);
+		}
 	}
 
 	result = std::max(dead_player_frame(), result);
@@ -1816,9 +1820,6 @@ window_event_result GameProcessFrame()
 	do_seismic_stuff();
 	do_ambient_sounds();
 #endif
-
-	if ((Game_mode & GM_MULTI) && Netgame.PlayTimeAllowed)
-		ThisLevelTime +=FrameTime;
 
 	digi_sync_sounds();
 

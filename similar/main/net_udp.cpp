@@ -175,6 +175,8 @@ static fix64 StartAbortMenuTime;
 constexpr std::integral_constant<int, -1> INVALID_SOCKET{};
 #endif
 
+namespace dcx {
+
 namespace {
 
 constexpr std::integral_constant<uint32_t, 0xfffffffe> network_checksum_marker_object{};
@@ -273,10 +275,6 @@ public:
 	}
 };
 
-}
-
-namespace dcx {
-
 static const char *dxx_ntop(const _sockaddr &sa, array<char, _sockaddr::presentation_buffer_size> &dbuf)
 {
 #ifdef WIN32
@@ -339,6 +337,23 @@ static const char *dxx_ntop(const _sockaddr &sa, array<char, _sockaddr::presenta
 		return r;
 	return "address";
 #endif
+}
+
+uint8_t get_effective_netgame_status(const d_level_unique_control_center_state &LevelUniqueControlCenterState)
+{
+	if (Network_status == NETSTAT_ENDLEVEL)
+		return NETSTAT_ENDLEVEL;
+	if (LevelUniqueControlCenterState.Control_center_destroyed)
+		return NETSTAT_ENDLEVEL;
+	if (Netgame.PlayTimeAllowed.count())
+	{
+		const auto TicksPlayTimeRemaining = Netgame.PlayTimeAllowed - ThisLevelTime;
+		if (TicksPlayTimeRemaining.count() < i2f(30))
+			return NETSTAT_ENDLEVEL;
+	}
+	return Netgame.game_status;
+}
+
 }
 
 }
@@ -2540,17 +2555,7 @@ static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 		buf[len] = Netgame.gamemode;							len++;
 		buf[len] = Netgame.RefusePlayers;						len++;
 		buf[len] = Netgame.difficulty;							len++;
-		int tmpvar;
-		tmpvar = Netgame.game_status;
-	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
-			tmpvar = NETSTAT_ENDLEVEL;
-		if (Netgame.PlayTimeAllowed)
-		{
-			if ( (f2i((i2f (Netgame.PlayTimeAllowed*5*60))-ThisLevelTime)) < 30 )
-			{
-				tmpvar = NETSTAT_ENDLEVEL;
-			}
-		}
+	const auto tmpvar = get_effective_netgame_status(LevelUniqueControlCenterState);
 		buf[len] = tmpvar;								len++;
 		buf[len] = Netgame.numconnected;						len++;
 		buf[len] = Netgame.max_numplayers;						len++;
@@ -2585,17 +2590,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		buf[len] = Netgame.gamemode;							len++;
 		buf[len] = Netgame.RefusePlayers;						len++;
 		buf[len] = Netgame.difficulty;							len++;
-		int tmpvar;
-		tmpvar = Netgame.game_status;
-	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
-			tmpvar = NETSTAT_ENDLEVEL;
-		if (Netgame.PlayTimeAllowed)
-		{
-			if ( (f2i((i2f (Netgame.PlayTimeAllowed*5*60))-ThisLevelTime)) < 30 )
-			{
-				tmpvar = NETSTAT_ENDLEVEL;
-			}
-		}
+	const auto tmpvar = get_effective_netgame_status(LevelUniqueControlCenterState);
 		buf[len] = tmpvar;								len++;
 		buf[len] = Netgame.numplayers;							len++;
 		buf[len] = Netgame.max_numplayers;						len++;
@@ -2648,7 +2643,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 			PUT_INTEL_SHORT(buf + len, i);			len += 2;
 		}
 		PUT_INTEL_INT(buf + len, Netgame.KillGoal);					len += 4;
-		PUT_INTEL_INT(buf + len, Netgame.PlayTimeAllowed);				len += 4;
+		PUT_INTEL_INT(buf + len, Netgame.PlayTimeAllowed.count());				len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.level_time);					len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.control_invul_time);				len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.monitor_vector);				len += 4;
@@ -2892,7 +2887,8 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 			i = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		}
 		Netgame.KillGoal = GET_INTEL_INT(&(data[len]));					len += 4;
-		Netgame.PlayTimeAllowed = GET_INTEL_INT(&(data[len]));				len += 4;
+		Netgame.PlayTimeAllowed = d_time_fix(GET_INTEL_INT(&data[len]));
+		len += 4;
 		Netgame.level_time = GET_INTEL_INT(&(data[len]));				len += 4;
 		Netgame.control_invul_time = GET_INTEL_INT(&(data[len]));			len += 4;
 		Netgame.monitor_vector = GET_INTEL_INT(&(data[len]));				len += 4;
@@ -3352,7 +3348,7 @@ constexpr std::integral_constant<unsigned, 5 * reactor_invul_time_mini_scale> re
 	DXX_MENUITEM(VERB, TEXT, "Game Options", game_label)	                     \
 	DXX_MENUITEM(VERB, SLIDER, get_annotated_difficulty_string(Netgame.difficulty), opt_difficulty, difficulty, Difficulty_0, Difficulty_4)	\
 	DXX_MENUITEM(VERB, SCALE_SLIDER, srinvul, opt_cinvul, Netgame.control_invul_time, 0, 10, reactor_invul_time_scale)	\
-	DXX_MENUITEM(VERB, SLIDER, PlayText, opt_playtime, Netgame.PlayTimeAllowed, 0, 10)	\
+	DXX_MENUITEM(VERB, SLIDER, PlayText, opt_playtime, PlayTimeAllowed, 0, 12)	\
 	DXX_MENUITEM(VERB, SLIDER, KillText, opt_killgoal, Netgame.KillGoal, 0, 20)	\
 	DXX_MENUITEM(VERB, TEXT, "", blank_1)                                     \
 	DXX_MENUITEM(VERB, TEXT, "Duplicate Powerups", duplicate_label)	          \
@@ -3508,7 +3504,7 @@ public:
 	}
 	void update_max_play_time_string()
 	{
-		snprintf(PlayText, sizeof(PlayText), "Max time: %d %s", Netgame.PlayTimeAllowed * 5, TXT_MINUTES_ABBREV);
+		snprintf(PlayText, sizeof(PlayText), "Max time: %d %s", Netgame.PlayTimeAllowed.count() / (F1_0 * 60), TXT_MINUTES_ABBREV);
 	}
 	void update_spawn_invuln_string()
 	{
@@ -3552,6 +3548,7 @@ public:
 #if DXX_USE_TRACKER
 		const unsigned TrackerNATWarned = Netgame.TrackerNATWarned == TrackerNATHolePunchWarn::UserEnabledHP;
 #endif
+		const unsigned PlayTimeAllowed = std::chrono::duration_cast<std::chrono::duration<int, netgame_info::play_time_allowed_abi_ratio>>(Netgame.PlayTimeAllowed).count();
 		DXX_UDP_MENU_OPTIONS(ADD);
 #if DXX_USE_TRACKER
 		const auto &tracker_addr = CGameArg.MplTrackerAddr;
@@ -3578,8 +3575,10 @@ public:
 #if DXX_USE_TRACKER
 		unsigned TrackerNATWarned;
 #endif
+		unsigned PlayTimeAllowed;
 		DXX_UDP_MENU_OPTIONS(READ);
 		Netgame.difficulty = cast_clamp_difficulty(difficulty);
+		Netgame.PlayTimeAllowed = std::chrono::duration<int, netgame_info::play_time_allowed_abi_ratio>(PlayTimeAllowed);
 		auto &items = Netgame.DuplicatePowerups;
 		items.set_primary_count(primary);
 		items.set_secondary_count(secondary);
@@ -3674,7 +3673,7 @@ int more_game_options_menu_items::handler(newmenu *, const d_event &event, more_
 					return 0;
 				}
 				
-				Netgame.PlayTimeAllowed=menus[opt_playtime].value;
+				Netgame.PlayTimeAllowed = std::chrono::duration<int, netgame_info::play_time_allowed_abi_ratio>(menus[opt_playtime].value);
 				items->update_max_play_time_string();
 			}
 			else if (citem == opt_killgoal)
@@ -3796,12 +3795,8 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			{
 				Netgame.game_flag.show_on_map = 1;
 
-				if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
-				{
-					Netgame.PlayTimeAllowed=0;
-					Netgame.KillGoal=0;
-				}
-
+				Netgame.PlayTimeAllowed = {};
+				Netgame.KillGoal = 0;
 			}
 			if (citem == opt->level)
 			{
@@ -3914,7 +3909,7 @@ window_event_result net_udp_setup_game()
 
 	Netgame.max_numplayers = MAX_PLAYERS;
 	Netgame.KillGoal=0;
-	Netgame.PlayTimeAllowed=0;
+	Netgame.PlayTimeAllowed = {};
 #if defined(DXX_BUILD_DESCENT_I)
 	Netgame.RefusePlayers=0;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -5790,7 +5785,7 @@ void net_udp_send_extras ()
 	Assert (Player_joining_extras>-1);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if (Network_sending_extras==3 && (Netgame.PlayTimeAllowed || Netgame.KillGoal))
+	if (Network_sending_extras==3 && (Netgame.PlayTimeAllowed.count() || Netgame.KillGoal))
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (Network_sending_extras==9)
 		net_udp_send_fly_thru_triggers(Player_joining_extras);
@@ -5800,7 +5795,7 @@ void net_udp_send_extras ()
 		multi_send_markers();
 	if (Network_sending_extras==6 && (Game_mode & GM_MULTI_ROBOTS))
 		multi_send_stolen_items();
-	if (Network_sending_extras==5 && (Netgame.PlayTimeAllowed || Netgame.KillGoal))
+	if (Network_sending_extras==5 && (Netgame.PlayTimeAllowed.count() || Netgame.KillGoal))
 #endif
 		multi_send_kill_goal_counts();
 #if defined(DXX_BUILD_DESCENT_II)

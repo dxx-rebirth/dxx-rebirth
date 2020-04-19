@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 
 #ifdef __cplusplus
+#include <chrono>
 #include <cstdint>
 #include "pack.h"
 #include "fwd-object.h"
@@ -52,6 +53,7 @@ extern class window *Game_wind;
 
 // from mglobal.c
 namespace dcx {
+using d_time_fix = std::chrono::duration<uint32_t, std::ratio<1, F1_0>>;
 extern fix FrameTime;           // time in seconds since last frame
 extern fix64 GameTime64;            // time in game (sum of FrameTime)
 extern int d_tick_count; // increments according to DESIGNATED_GAME_FRAMETIME
@@ -434,7 +436,7 @@ window_event_result ReadControls(const d_event &event);
 void toggle_cockpit(void);
 void game_render_frame();
 extern fix Show_view_text_timer;
-extern fix ThisLevelTime;
+extern d_time_fix ThisLevelTime;
 extern int	Last_level_path_created;
 namespace dcx {
 extern int force_cockpit_redraw;

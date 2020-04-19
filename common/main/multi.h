@@ -764,6 +764,7 @@ namespace dsx {
  */
 struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 {
+	using play_time_allowed_abi_ratio = std::ratio<5 * 60>;
 #if DXX_USE_UDP
 	union
 	{
@@ -809,7 +810,12 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	uint8_t InvulAppear;
 	ushort						segments_checksum;
 	int						KillGoal;
-	fix						PlayTimeAllowed;
+	/* The UI enforces that this steps in units of 5 minutes, but for
+	 * efficiency, it is stored as ticks (1 second = F1_0).  The UI
+	 * imposes a maximum value that is small enough that overflow is
+	 * impossible.
+	 */
+	d_time_fix PlayTimeAllowed;
 	fix						level_time;
 	int						control_invul_time;
 	int						monitor_vector;

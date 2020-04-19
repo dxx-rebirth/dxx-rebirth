@@ -1607,7 +1607,11 @@ void read_netgame_profile(netgame_info *ng)
 		else if (cmp(lb, eq, KillGoalStr))
 			convert_integer(ng->KillGoal, value);
 		else if (cmp(lb, eq, PlayTimeAllowedStr))
-			convert_integer(ng->PlayTimeAllowed, value);
+		{
+			int PlayTimeAllowed;
+			if (convert_integer(PlayTimeAllowed, value))
+				ng->PlayTimeAllowed = std::chrono::duration<int, netgame_info::play_time_allowed_abi_ratio>(PlayTimeAllowed);
+		}
 		else if (cmp(lb, eq, ControlInvulTimeStr))
 			convert_integer(ng->control_invul_time, value);
 		else if (cmp(lb, eq, PacketsPerSecStr))
@@ -1656,7 +1660,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, BrightPlayersStr "=%i\n", ng->BrightPlayers);
 	PHYSFSX_printf(file, InvulAppearStr "=%i\n", ng->InvulAppear);
 	PHYSFSX_printf(file, KillGoalStr "=%i\n", ng->KillGoal);
-	PHYSFSX_printf(file, PlayTimeAllowedStr "=%i\n", ng->PlayTimeAllowed);
+	PHYSFSX_printf(file, PlayTimeAllowedStr "=%i\n", std::chrono::duration_cast<std::chrono::duration<int, netgame_info::play_time_allowed_abi_ratio>>(ng->PlayTimeAllowed).count());
 	PHYSFSX_printf(file, ControlInvulTimeStr "=%i\n", ng->control_invul_time);
 	PHYSFSX_printf(file, PacketsPerSecStr "=%i\n", ng->PacketsPerSec);
 	PHYSFSX_printf(file, NoFriendlyFireStr "=%i\n", ng->NoFriendlyFire);
