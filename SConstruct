@@ -779,7 +779,6 @@ help:assume C++ compiler works
 				if self._Compile(context, text='', msg='whether C++ compiler works with blank $CXXFLAGS', calling_function='cxx_blank_cxxflags_works'):
 					return 'C++ compiler works with blank $CXXFLAGS.  C++ compiler does not work with specified $CXXFLAGS.'
 			return 'C++ compiler does not work.'
-	implicit_tests.append(_implicit_test.RecordedTest('check_cxx11', "assume C++ compiler supports C++11"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_cxx14', "assume C++ compiler supports C++14"))
 	__cxx_conformance_CXXFLAGS = [None]
 	def _check_cxx_conformance_level(self,context,_levels=(
@@ -799,19 +798,6 @@ help:assume C++ compiler works
 		Compile = self._Compile
 		# Accepted options by version:
 		#
-		#	gcc-4.9 -std=gnu++1y
-		#	gcc-4.9 -std=gnu++14
-		#
-		#	gcc-5 -std=gnu++1y
-		#	gcc-5 -std=gnu++14
-		#	gcc-5 -std=gnu++1z
-		#	gcc-5 -std=gnu++17
-		#
-		#	gcc-6 -std=gnu++1y
-		#	gcc-6 -std=gnu++14
-		#	gcc-6 -std=gnu++1z
-		#	gcc-6 -std=gnu++17
-		#
 		#	gcc-7 -std=gnu++1y
 		#	gcc-7 -std=gnu++14
 		#	gcc-7 -std=gnu++1z
@@ -822,6 +808,12 @@ help:assume C++ compiler works
 		#	gcc-8 -std=gnu++1z
 		#	gcc-8 -std=gnu++17
 		#	gcc-8 -std=gnu++2a
+		#
+		#	gcc-9 -std=gnu++1y
+		#	gcc-9 -std=gnu++14
+		#	gcc-9 -std=gnu++1z
+		#	gcc-9 -std=gnu++17
+		#	gcc-9 -std=gnu++2a
 		for level in _levels:
 			opt = '-std=gnu++%u' % level
 			_CXXFLAGS[0] = opt
@@ -1552,6 +1544,7 @@ gcc-4.8.
 			Compile(context, text=include, main=_main, msg='whether compiler implements __builtin_bswap{32,64} functions', successflags=_successflags_bswap):
 			return
 	implicit_tests.append(_implicit_test.RecordedTest('check_optimize_builtin_constant_p', "assume compiler optimizes __builtin_constant_p"))
+
 	@_custom_test
 	def check_builtin_constant_p(self,context):
 		"""

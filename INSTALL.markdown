@@ -8,13 +8,13 @@ The DXX-Rebirth maintainers have no control over the sites linked below.  The ma
 ### Prerequisites
 
 * [Python 3.x](https://www.python.org/) to run [scons](https://www.scons.org/), the processor for SConstruct scripts.
-[Python 3.6](https://www.python.org/downloads/release/python-369/) is recommended.
+[Python 3.6](https://www.python.org/downloads/release/python-3610/) is recommended.
 * C++ compiler with support for selected C++11 features.  One of:
-    * [gcc](https://gcc.gnu.org/) 4.9.4 or later[1]
-    * [clang](https://clang.llvm.org/) 3.3 or later
+    * [gcc](https://gcc.gnu.org/) 7.5
+    * [clang](https://clang.llvm.org/) 9.0 or later
     * Microsoft Visual Studio is **not** supported at this time.
 	  Support for Microsoft Visual Studio will be added when it
-	  implements sufficient C++11 features for the code to build with
+	  implements sufficient C++17 features for the code to build with
 	  few or no modifications.
 * [SDL 1.2](https://www.libsdl.org/).
 SDL 2 is also supported, and will become the default soon.
@@ -29,7 +29,7 @@ Optional, but recommended:
     * [gcc](https://gcc.gnu.org/) 9.2.0 or later
     * [clang](https://clang.llvm.org/) 9.0 or later
 
-Unless otherwise noted, using the newest release available is recommended.  For example, prefer gcc-5.4 to gcc-4.9, even though both should work.
+Unless otherwise noted, using the newest release available is recommended.  For example, prefer gcc-9.3 to gcc-7.5, even though both should work.
 
 DXX-Rebirth can be built on one system to run on a different system, such as using Linux to build for Windows (a "cross-compiled build").  The sections below specify where to get prerequisites for a build meant to run on the system where it is built (a "native build").
 
@@ -150,28 +150,28 @@ Packaging scripts should use **builddir** with manually chosen directories.
 
 The build system supports building multiple targets in parallel.  This is primarily useful for developers, but can also be used by packagers to create secondary builds with different features enabled.  To use it, run **scons** *game*=*profile[,profile...]*.  **SConstruct** will search each profile for the known options.  The first match wins.  For example:
 
-        scons dxx=gcc5,e, d2x=gcc49,sdl, \
-            gcc49_CXX=/path/to/gcc-4.9 \
-            gcc5_CXX=/path/to/gcc-5 \
-            e_editor=1 sdl_opengl=0
+        scons dxx=gcc8,e, d2x=gcc7,sdl2, \
+            gcc7_CXX=/path/to/gcc-7 \
+            gcc8_CXX=/path/to/gcc-8 \
+            e_editor=1 sdl2_sdl2=1
 
-This tells **SConstruct** to build both games (**dxx**) with the profiles **gcc5**, **e**, *empty* and also to build D2X-Rebirth (**d2x**) with the profiles **gcc49**, **sdl**, *empty*.  Profiles **gcc49** and **gcc5** define private values for **CXX**, so the default value of **CXX** is ignored.  Profile **e** enables the **editor** option, which builds features used by players who want to create their own levels.  Profile **sdl** sets the **opengl** option to false, which produces a build that uses only the software renderer.  Profile *empty* is the default namespace, so CPPFLAGS, CXXFLAGS, etc. are found when it is searched.  Since these values were not assigned, they are drawn from the corresponding environment variables.
+This tells **SConstruct** to build both games (**dxx**) with the profiles **gcc8**, **e**, *empty* and also to build D2X-Rebirth (**d2x**) with the profiles **gcc7**, **sdl2**, *empty*.  Profiles **gcc7** and **gcc8** define private values for **CXX**, so the default value of **CXX** is ignored.  Profile **e** enables the **editor** option, which builds features used by players who want to create their own levels.  Profile **sdl2** sets the **sdl2** option to true, which produces a build that uses libSDL2 instead of libSDL.  Profile *empty* is the default namespace, so CPPFLAGS, CXXFLAGS, etc. are found when it is searched.  Since these values were not assigned, they are drawn from the corresponding environment variables.
 
 The build system supports specifying a group of closely related targets.  This is mostly redundant on shells with brace expansion support, but can be easier to type.  For example:
 
         scons builddir_prefix=build/ \
-			dxx=gcc5+gcc49,prof1,prof2,prof3,
+			dxx=gcc8+gcc9,prof1,prof2,prof3,
 
 This is equivalent to the shell brace expansion:
 
         scons builddir_prefix=build/ \
-			dxx={gcc5,gcc49},prof1,prof2,prof3,
+			dxx={gcc8,gcc9},prof1,prof2,prof3,
 
 or
 
         scons builddir_prefix=build/ \
-			dxx=gcc5,prof1,prof2,prof3, \
-			dxx=gcc49,prof1,prof2,prof3,
+			dxx=gcc8,prof1,prof2,prof3, \
+			dxx=gcc9,prof1,prof2,prof3,
 
 Profile addition can be stacked: **scons dxx=a+b,c+d,e+f** is equivalent to **scons dxx=a,c,e dxx=a,d,e dxx=b,c,e dxx=b,d,e dxx=a,c,f dxx=a,d,f dxx=b,c,f dxx=b,d,f**.
 
@@ -207,7 +207,3 @@ For Windows and Linux, DXX-Rebirth installs only the main game binary.  The bina
 As a convenience, if **register\_install\_target=True**, **SConstruct** registers a pseudo-target named **install** which copies the compiled files to *DESTDIR*__/__*BINDIR*.  By default, **register\_install\_target=True**, *DESTDIR* is *empty*, and *BINDIR* is *PREFIX*__/bin__, which expands to **/usr/local/bin**.
 
 DXX-Rebirth [requires game data](https://www.dxx-rebirth.com/game-content/) to play.  The build system has no support for interacting with game data.  You can get [Descent 1 PC shareware data](https://www.dxx-rebirth.com/download/dxx/content/descent-pc-shareware.zip) and [Descent 2 PC demo data](https://www.dxx-rebirth.com/download/dxx/content/descent2-pc-demo.zip) from the DXX-Rebirth website.  Full game data is supported (and recommended), but is not freely available.  You can [buy full Descent 1 game data](https://www.gog.com/game/descent) and/or [buy full Descent 2 game data](https://www.gog.com/game/descent_2) from GOG.com.  Historically, both Descent 1 and Descent 2 were sold as a single unit.  After a nearly two-year hiatus from sale, the games returned to GOG.com in November 2017 as separate units.  DXX-Rebirth contains engines for both games.  Each engine works for its respective game without the data from the other, so players who wish to purchase only one game may do so.
-
-[1] gcc-4.9.2 works, but has a known bug[2] that miscompiles[3] valid C++ code.  All known uses of the affected code have been removed from Rebirth, but there is no test preventing their reintroduction.  To be safe, gcc-4.9.4 is recommended.
-[2]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66501
-[3]: https://github.com/dxx-rebirth/dxx-rebirth/issues/289

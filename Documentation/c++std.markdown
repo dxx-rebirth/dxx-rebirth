@@ -1,5 +1,5 @@
 # Required C++11 features
-DXX-Rebirth code uses C++11 features present in >=clang-3.4 and >=gcc-4.9.  Some of these features are probed in the SConf tests so that an error can be reported if the feature is missing.  However, since these are considered the minimum supported compiler versions, and existing SConf tests reject gcc-4.8, some C++11 features that are new in gcc-4.9 may be used without a corresponding test in SConf.
+DXX-Rebirth code uses C++14 features present in >=clang-9.0 and >=gcc-7.5.  Some of these features are probed in the SConf tests so that an error can be reported if the feature is missing.  However, since these are considered the minimum supported compiler versions, and existing SConf tests reject older compilers, some C++14 features that are new in gcc-7.5 may be used without a corresponding test in SConf.
 
 These C++11 features are required to build DXX-Rebirth:
 
@@ -34,6 +34,7 @@ enum E { ... };`)
 * [Unique pointer template std::unique\_ptr<T\>][cppr:cpp/memory/unique_ptr]
 (`std::unique_ptr<int> i;
 std::unique_ptr<int[]> j;`)
+* [Static assertions][cppr:cpp/language/static_assert]
 
 # Optional C++11/C++14 features
 DXX-Rebirth code uses C++11 or C++14 features not present in the minimum supported compiler if the feature can be emulated easily (C++11: [inheriting constructors][cppr:cpp/language/using_declaration], [Range-based for][cppr:cpp/language/range-for] ;C++14: [`std::exchange`][cppr:cpp/utility/exchange], [`std::index_sequence`][cppr:cpp/utility/integer_sequence], [`std::make_unique`][cppr:cpp/memory/unique_ptr/make_unique]) or if the feature can be removed by a macro and the removal does not change the correctness of the program (C++11: [rvalue-qualified member methods][scppr:rvalue method]).
@@ -51,13 +52,6 @@ Use of the `range_for` macro continues because it improves readability.
 
 ### Preprocessed out if absent
 
-* [Static assertions][cppr:cpp/language/static_assert] check that a compile-time constant expressions evaluates to true.
-Static assertions are fully supported in >=gcc-4.7.
-Static assertions are partially supported in >=clang-3.4.
-Some complicated compile-time expressions are accepted by gcc, but are not considered as compile-time constant by clang.
-SConf checks whether the active compiler accepts such expressions and replaces `static_assert()` with a no-op macro if the compiler cannot handle them.
-    * As a consequence of the macro replacement, calls to `static_assert` must have two arguments as viewed by the C preprocessor.
-	When the truth argument has internal commas, the entire truth expression must be wrapped in parentheses to protect it from the preprocessor.
 * [Reference-qualified methods][scppr:rvalue method] check that an rvalue which may or may not hold a valid pointer is not used in a context where the caller assumes the rvalue holds a valid pointer.
 When the rvalue may or may not hold a valid pointer, it must be saved to an lvalue, tested for a valid pointer, and used only if a valid pointer is found.
 
