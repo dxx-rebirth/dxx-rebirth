@@ -2965,14 +2965,14 @@ class PCHManager(object):
 			self.__initialize_cls_static_variables()
 			assert self._re_preproc_match is not None
 		self.user_settings = user_settings = program.user_settings
-		assert user_settings.syspch or user_settings.pch
+		assert user_settings.syspch or user_settings.pch or not configure_pch_flags
 		self.env = env = program.env
 		# dict with key=fs.File, value=ScannedFile
 		self._instance_scanned_files = {}
 		self._common_pch_manager = common_pch_manager
 		syspch_cpp_filename = ownpch_cpp_filename = None
 		syspch_object_node = None
-		CXXFLAGS = env['CXXFLAGS'] + configure_pch_flags['CXXFLAGS']
+		CXXFLAGS = env['CXXFLAGS'] + (configure_pch_flags['CXXFLAGS'] if configure_pch_flags else [])
 		File = env.File
 		builddir = program.builddir
 		pch_subdir_node = builddir.Dir(program.srcdir)
@@ -2989,6 +2989,8 @@ class PCHManager(object):
 			env.Depends(ownpch_object_node, builddir.File('dxxsconf.h'))
 			if syspch_object_node:
 				env.Depends(ownpch_object_node, syspch_object_node)
+		if not configure_pch_flags:
+			return
 		self.pch_CXXFLAGS = ['-include', self.ownpch_cpp_node or syspch_cpp_node, '-Winvalid-pch']
 		# If assume unchanged and the file exists, set __files_included
 		# to a dummy value.  This bypasses scanning source files and
@@ -4150,7 +4152,7 @@ class DXXCommon(LazyObjectConstructor):
 		if user_settings.register_runtime_test_link_targets:
 			self._register_runtime_test_link_targets()
 		configure_pch_flags = archive.configure_pch_flags
-		if configure_pch_flags:
+		if configure_pch_flags or env.GetOption('clean'):
 			self.pch_manager = PCHManager(self, configure_pch_flags, archive.pch_manager)
 
 	@staticmethod
