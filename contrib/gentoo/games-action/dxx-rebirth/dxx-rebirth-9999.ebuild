@@ -1,4 +1,10 @@
 # Distributed under the terms of the GNU General Public License v2
+
+# This file is part of the DXX-Rebirth project.
+#
+# It is copyright by its individual contributors, as recorded in the
+# project's Git history.  See COPYING.txt at the top level for license
+# terms and a link to the Git history.
 #
 # After release 0.58.1 and before beta release 0.59.100, upstream
 # combined the source for the Descent 1 and Descent 2 engines into a
