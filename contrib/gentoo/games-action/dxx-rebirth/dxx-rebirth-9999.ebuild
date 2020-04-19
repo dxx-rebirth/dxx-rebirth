@@ -15,7 +15,10 @@ if [[ "$PV" = 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dxx-rebirth/dxx-rebirth"
 else
-	SRC_URI="https://github.com/dxx-rebirth/dxx-rebirth/archive/$PV.zip -> $PN-$PVR.zip"
+	MY_COMMIT=''
+	S="$WORKDIR/$PN-$MY_COMMIT"
+	SRC_URI="https://github.com/dxx-rebirth/dxx-rebirth/archive/$MY_COMMIT.zip -> $PN-$PVR.zip"
+	unset MY_COMMIT
 
 	# Restriction only for use in private overlays.  When this is added to a
 	# public tree, post the sources to a mirror and remove this restriction.
@@ -37,7 +40,7 @@ SLOT="0"
 KEYWORDS="amd64 x86"
 # Default to building both game engines.  The total size is relatively
 # small.
-IUSE="+d1x +d2x debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +music +opengl opl3-musicpack +png sc55-musicpack sdl2 tracker valgrind +vorbis"
+IUSE="+d1x +d2x +data debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +music +opengl opl3-musicpack +png sc55-musicpack sdl2 tracker valgrind +vorbis"
 
 # Game data is stored in HOG files.
 # Game movies are in MVL files.
@@ -73,7 +76,7 @@ DXX_RDEPEND_USE_FREEDATA_FRAGMENT='
 '
 # Block <0.59.100 due to file collision.
 #
-# Require game data package.
+# If USE=data, then require a game data package.
 # The build process does not use the game data, nor change how the game
 # is built based on what game data will be used.  At startup, the game
 # will search for both types of game data and use what it finds.  Users
@@ -86,9 +89,11 @@ DXX_RDEPEND_USE_FREEDATA_FRAGMENT='
 DXX_RDEPEND_ENGINE_FRAGMENT='
 	d${ENGINE}x? (
 		!<games-action/d${ENGINE}x-rebirth-0.59.100
-		|| (
-			games-action/descent${ENGINE}-data
-			games-action/descent${ENGINE}-demodata
+		data? (
+			|| (
+				games-action/descent${ENGINE}-data
+				games-action/descent${ENGINE}-demodata
+			)
 		)
 		'"
 		${DXX_RDEPEND_USE_FREEDATA_FRAGMENT//\$\{USE\}/l10n_de}
@@ -230,4 +235,17 @@ src_install() {
 		make_desktop_entry "${PROGRAM}" "Descent ${DV} Rebirth" "${PROGRAM}"
 		doicon "${PROGRAM}/${PROGRAM}.xpm"
 	done
+}
+
+pkg_postinst() {
+	default
+	if ! use data; then
+		elog "$PN requires game data to play."
+		elog "Game data is not included in this package.  To play the game,"
+		elog "emerge the packages required by USE=data or install the game"
+		elog "data by hand."
+		elog
+		elog "Changing USE=data does not change how this package is built,"
+		elog "only its runtime dependencies."
+	fi
 }
