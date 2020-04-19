@@ -250,13 +250,17 @@ class ConfigureTests(_ConfigureTests):
 		def RecordedTest(self,name,desc):
 			return self.__RecordedTest(name, desc, self.__guard)
 
-	class Cxx11RequiredFeature(object):
+	class CxxRequiredFeature(object):
 		__slots__ = ('main', 'name', 'text')
 		def __init__(self,name,text,main=''):
 			self.name = name
 			name = {'N' : 'test_' + ''.join([c if c.isalnum() else '_' for c in name])}
 			self.text = text % name
 			self.main = ('{' + (main % name) + '}\n') if main else ''
+	class Cxx11RequiredFeature(CxxRequiredFeature):
+		std = 11
+	class Cxx14RequiredFeature(CxxRequiredFeature):
+		std = 14
 	class CxxRequiredFeatures(object):
 		__slots__ = ('features', 'main', 'text')
 		def __init__(self,features):
@@ -408,7 +412,11 @@ class ConfigureTests(_ConfigureTests):
 	__python_import_struct = None
 	_cxx_conformance_cxx14 = 14
 	__cxx_conformance = None
-	__cxx11_required_features = CxxRequiredFeatures([
+	__cxx_std_required_features = CxxRequiredFeatures([
+		Cxx14RequiredFeature('template variables', '''
+template <unsigned U>
+int a = U + 1;
+''', ''),
 		Cxx11RequiredFeature('constexpr', '''
 struct %(N)s {};
 static constexpr %(N)s get_%(N)s(){return {};}
@@ -2024,6 +2032,7 @@ help:assume compiler supports C++ intrinsic static_assert
 		if not (_Compile(context, text=_f % _tdict, main='f(A());', msg=_msg % 'true') and \
 				_Compile(context, text=_f % _fdict, main='f(A());', msg=_msg % 'false', expect_failure=True)):
 			raise SCons.Errors.StopError('C++ compiler does not support tested versions of C++11 static_assert.')
+
 	@_custom_test
 	def check_namespace_disambiguate(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE']}):
 		self.Compile(context, text='''
@@ -2038,25 +2047,29 @@ namespace B
 }
 using namespace B;
 ''', main='return A::a;', msg='whether compiler handles classes from "using namespace"', successflags=_successflags)
+
 	@_custom_test
-	def check_cxx11_required_features(self,context,_features=__cxx11_required_features):
+	def check_cxx_std_required_features(self,context,_features=__cxx_std_required_features):
 		# First test all the features at once.  If all work, then done.
 		# If any fail, then the configure run will stop.
 		_Compile = self.Compile
-		if _Compile(context, text=_features.text, main=_features.main, msg='for required C++11 features'):
+		if _Compile(context, text=_features.text, main=_features.main, msg='for required C++11, C++14 standard features'):
 			return
 		# Some failed.  Run each test separately and report to the user
 		# which ones failed.
-		failures = [f.name for f in _features.features if not _Compile(context, text=f.text, main=f.main, msg='for C++11 %s' % f.name)]
+		failures = [f.name for f in _features.features if not _Compile(context, text=f.text, main=f.main, msg='for C++%u %s' % (f.std, f.name))]
 		raise SCons.Errors.StopError(("C++ compiler does not support %s." %
 			', '.join(failures)
 		) if failures else 'C++ compiler supports each feature individually, but not all of them together.  Please report this as a bug in the Rebirth configure script.')
+
 	def _show_pch_count_message(self,context,which,user_setting):
 		count = user_setting if user_setting else 0
 		context.Display('%s: checking when to pre-compile %s headers...%s\n' % (self.msgprefix, which, ('if used at least %u time%s' % (count, 's' if count > 1 else '')) if count > 0 else 'never'))
 		return count > 0
+
 	implicit_tests.append(_implicit_test.RecordedTest('check_pch_compile', "assume C++ compiler can create pre-compiled headers"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_pch_use', "assume C++ compiler can use pre-compiled headers"))
+
 	@_custom_test
 	def _check_pch(self,context,
 		_Test=_Test,
