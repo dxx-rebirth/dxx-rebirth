@@ -123,9 +123,9 @@ namespace dcx {
 
 class alternate_textures
 {
-	const bitmap_index *p;
+	const bitmap_index *p = nullptr;
 public:
-	alternate_textures() : p(nullptr) {}
+	alternate_textures() = default;
 	alternate_textures(std::nullptr_t) : p(nullptr) {}
 	template <std::size_t N>
 		alternate_textures(const std::array<bitmap_index, N> &a) : p(a.data())

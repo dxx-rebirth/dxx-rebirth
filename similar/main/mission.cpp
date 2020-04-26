@@ -140,13 +140,10 @@ struct mission_subdir_stats
 struct mission_name_and_version
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	Mission::descent_version_type descent_version;
+	const Mission::descent_version_type descent_version = {};
 #endif
-	char *name;
-	mission_name_and_version() :
-		name(nullptr)
-	{
-	}
+	char *const name = nullptr;
+	mission_name_and_version() = default;
 	mission_name_and_version(Mission::descent_version_type, char *);
 };
 
@@ -584,11 +581,10 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 		PHYSFSX_gets_line_t<80> buf;
 		const auto &&nv = get_any_mission_type_name_value(buf, mfile, descent_version);
 
-#if defined(DXX_BUILD_DESCENT_II)
-		mission->descent_version = nv.descent_version;
-#endif
-
 		if (const auto p = nv.name) {
+#if defined(DXX_BUILD_DESCENT_II)
+			mission->descent_version = nv.descent_version;
+#endif
 			char *t;
 			if ((t=strchr(p,';'))!=NULL)
 			{

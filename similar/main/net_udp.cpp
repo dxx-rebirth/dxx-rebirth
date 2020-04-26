@@ -191,11 +191,9 @@ class RAIIsocket
 		return close(fd);
 	}
 #endif
-	SOCKET s;
+	SOCKET s = INVALID_SOCKET;
 public:
-	constexpr RAIIsocket() : s(INVALID_SOCKET)
-	{
-	}
+	constexpr RAIIsocket() = default;
 	RAIIsocket(int domain, int type, int protocol) : s(socket(domain, type, protocol))
 	{
 	}
@@ -1870,12 +1868,8 @@ class blown_bitmap_array
 	using array_t = array<T, 32>;
 	typedef array_t::const_iterator const_iterator;
 	array_t a;
-	array_t::iterator e;
+	array_t::iterator e = a.begin();
 public:
-	blown_bitmap_array() :
-		e(a.begin())
-	{
-	}
 	bool exists(T t) const
 	{
 		const_iterator ce = e;

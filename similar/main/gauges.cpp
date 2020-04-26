@@ -74,12 +74,8 @@ namespace {
 
 class local_multires_gauge_graphic
 {
-	bool hiresmode;
+	const bool hiresmode = HIRESMODE;
 public:
-	local_multires_gauge_graphic() :
-		hiresmode(HIRESMODE)
-	{
-	}
 	bool is_hires() const
 	{
 		return hiresmode;
