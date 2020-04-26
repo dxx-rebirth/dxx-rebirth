@@ -121,7 +121,11 @@ class ToolchainInformation(StaticSubprocess):
 			(
 				'RC',
 				'RCFLAGS',
-			) if user_settings.host_platform == 'win32' else ()
+			) if user_settings.host_platform == 'win32' else (
+				'FRAMEWORKPATH',
+				'FRAMEWORKS',
+			) if user_settings.host_platform == 'darwin' else (
+			)
 		):
 			f("%s: %r" % (v, env.get(v, None)))
 		penv = env['ENV']
