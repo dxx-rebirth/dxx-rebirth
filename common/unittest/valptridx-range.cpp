@@ -222,3 +222,89 @@ BOOST_AUTO_TEST_CASE(ptr_convert_check)
 			})), valptridx_access_override::index_range_exception
 	);
 }
+
+/* For each style selector, set a type.  Test that the type is used.
+ * Reset to a different type.  Test that the second type is used.  Clear
+ * the selector, so that any further use is an error.
+ *
+ * This combination verifies that the requested style is set, and that
+ * the match is not an accident.  If the first test succeeded because
+ * the style happened to match for the wrong reason, then redefining the
+ * style would have no effect, and the second test would fail.
+ */
+
+/* Test DXX_VALPTRIDX_REPORT_ERROR_STYLE_default - the final fallback,
+ * used only when everything else is unset.
+ */
+#undef DXX_VALPTRIDX_REPORT_ERROR_STYLE_default
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_default exception
+
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(const, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::exception);
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(mutable, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::exception);
+
+#undef DXX_VALPTRIDX_REPORT_ERROR_STYLE_default
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_default undefined
+
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(const, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::undefined);
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(mutable, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::undefined);
+
+#undef DXX_VALPTRIDX_REPORT_ERROR_STYLE_default
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_default	/* invalid mapping - force an error on use */
+
+/* Test the const/mutable defaults.  These are the second lowest
+ * priority, above only DXX_VALPTRIDX_REPORT_ERROR_STYLE_default.
+ */
+#undef DXX_VALPTRIDX_REPORT_ERROR_STYLE_const_default
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_const_default trap_terse
+#undef DXX_VALPTRIDX_REPORT_ERROR_STYLE_mutable_default
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_mutable_default trap_verbose
+
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(const, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::trap_terse);
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(mutable, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::trap_verbose);
+
+#undef DXX_VALPTRIDX_REPORT_ERROR_STYLE_const_default
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_const_default exception
+#undef DXX_VALPTRIDX_REPORT_ERROR_STYLE_mutable_default
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_mutable_default trap_terse
+
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(const, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::exception);
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(mutable, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::trap_terse);
+
+#undef DXX_VALPTRIDX_REPORT_ERROR_STYLE_const_default
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_const_default
+#undef DXX_VALPTRIDX_REPORT_ERROR_STYLE_mutable_default
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_mutable_default
+
+/* Test the type-specific default.  This is the third lowest priority.
+ */
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_default_error_report_test	undefined
+
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(const, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::undefined);
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(mutable, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::undefined);
+
+#undef DXX_VALPTRIDX_REPORT_ERROR_STYLE_default_error_report_test
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_default_error_report_test	exception
+
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(const, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::exception);
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(mutable, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::exception);
+
+#undef DXX_VALPTRIDX_REPORT_ERROR_STYLE_default_error_report_test
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_default_error_report_test
+
+/* Test the const/mutable type-specific.  These are the highest
+ * priority.
+ */
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_const_error_report_test	trap_terse
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_mutable_error_report_test	trap_verbose
+
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(const, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::trap_terse);
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(mutable, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::trap_verbose);
+
+#undef DXX_VALPTRIDX_REPORT_ERROR_STYLE_const_error_report_test
+#undef DXX_VALPTRIDX_REPORT_ERROR_STYLE_mutable_error_report_test
+
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_const_error_report_test	exception
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE_mutable_error_report_test	undefined
+
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(const, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::exception);
+static_assert(valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(mutable, error_report_test)>::value == valptridx_detail::untyped_utilities::report_error_style::undefined);

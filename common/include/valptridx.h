@@ -80,12 +80,12 @@ public:
 template <
 	typename INTEGRAL_TYPE,
 	std::size_t array_size_value,
-	valptridx_untyped_utilities::report_error_style report_const_error_value,
-	valptridx_untyped_utilities::report_error_style report_mutable_error_value
+	valptridx_detail::untyped_utilities::report_error_style report_const_error_value,
+	valptridx_detail::untyped_utilities::report_error_style report_mutable_error_value
 	>
-constexpr std::integral_constant<std::size_t, array_size_value> valptridx_specialized_type_parameters<INTEGRAL_TYPE, array_size_value, report_const_error_value, report_mutable_error_value>::array_size;
+constexpr std::integral_constant<std::size_t, array_size_value> valptridx_detail::specialized_type_parameters<INTEGRAL_TYPE, array_size_value, report_const_error_value, report_mutable_error_value>::array_size;
 
-class valptridx_untyped_utilities::report_error_undefined
+class valptridx_detail::untyped_utilities::report_error_undefined
 {
 public:
 	__attribute_cold
@@ -95,7 +95,7 @@ public:
 	}
 };
 
-class valptridx_untyped_utilities::report_error_trap_terse
+class valptridx_detail::untyped_utilities::report_error_trap_terse
 {
 public:
 	__attribute_cold
@@ -107,7 +107,7 @@ public:
 	}
 };
 
-class valptridx_untyped_utilities::index_mismatch_trap_verbose
+class valptridx_detail::untyped_utilities::index_mismatch_trap_verbose
 {
 public:
 	__attribute_cold
@@ -120,7 +120,7 @@ public:
 	}
 };
 
-class valptridx_untyped_utilities::index_range_trap_verbose
+class valptridx_detail::untyped_utilities::index_range_trap_verbose
 {
 public:
 	__attribute_cold
@@ -133,7 +133,7 @@ public:
 	}
 };
 
-class valptridx_untyped_utilities::null_pointer_trap_verbose
+class valptridx_detail::untyped_utilities::null_pointer_trap_verbose
 {
 public:
 	__attribute_cold
