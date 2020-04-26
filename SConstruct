@@ -3926,11 +3926,17 @@ class DXXCommon(LazyObjectConstructor):
 		tools = ('gcc', 'g++', 'applelink')
 		def adjust_environment(self,program,env):
 			library_frameworks = os.path.join(os.getenv("HOME"), 'Library/Frameworks')
+			if os.path.isdir(library_frameworks):
+				env.Append(FRAMEWORKPATH = [library_frameworks])
+				SDL_private_framework = os.path.join(library_frameworks, 'SDL.framework/Headers')
+				if os.path.isdir(SDL_private_framework):
+					env.Append(CPPPATH = [SDL_private_framework])
+			SDL_system_framework = '/Library/Frameworks/SDL.framework/Headers'
+			if os.path.isdir(SDL_system_framework):
+				env.Append(CPPPATH = [SDL_system_framework])
 			env.Append(
 				CPPDEFINES = ['__unix__'],
-				CPPPATH = [os.path.join(library_frameworks, 'SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'],
 				FRAMEWORKS = ['ApplicationServices', 'Cocoa', 'SDL'],
-				FRAMEWORKPATH = [library_frameworks],
 				LINKFLAGS = ['-Wl,-rpath,@loader_path/../Frameworks'],	# Allow libraries & frameworks to go in app bundle
 			)
 			if self.user_settings.opengl or self.user_settings.opengles:
