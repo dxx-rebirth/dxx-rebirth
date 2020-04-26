@@ -119,7 +119,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // 20- First_secret_visit
 // 22- Omega_charge
 
-constexpr unsigned NUM_SAVES = 11;
 #define THUMBNAIL_W 100
 #define THUMBNAIL_H 50
 
@@ -127,7 +126,9 @@ constexpr char dgss_id[4] = {'D', 'G', 'S', 'S'};
 
 unsigned state_game_id;
 
+namespace dcx {
 namespace {
+constexpr unsigned NUM_SAVES = d_game_unique_state::MAXIMUM_SAVE_SLOTS.value;
 
 struct relocated_player_data
 {
@@ -151,6 +152,7 @@ enum class savegame_mission_name_abi : uint8_t
 
 static_assert(sizeof(savegame_mission_path) == sizeof(savegame_mission_path::original) + sizeof(savegame_mission_path::full), "padding error");
 
+}
 }
 
 // Following functions convert object to object_rw and back to be written to/read from Savegames. Mostly object differs to object_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
@@ -688,7 +690,7 @@ void state_autosave_game(const int multiplayer)
 	if (multiplayer)
 	{
 		const auto &&player_range = partial_const_range(Players, N_players);
-		multi_execute_save_game(NUM_SAVES - 1, desc, player_range);
+		multi_execute_save_game(d_game_unique_state::save_slot::_autosave, desc, player_range);
 	}
 	else
 	{
@@ -744,7 +746,7 @@ namespace {
 //-------------------------------------------------------------------
 struct state_userdata
 {
-	int citem;
+	unsigned citem;
 	array<grs_bitmap_ptr, NUM_SAVES> sc_bmp;
 };
 
@@ -754,10 +756,10 @@ static int state_callback(newmenu *menu,const d_event &event, state_userdata *co
 {
 	array<grs_bitmap_ptr, NUM_SAVES> &sc_bmp = userdata->sc_bmp;
 	newmenu_item *items = newmenu_get_items(menu);
-	int citem;
+	unsigned citem;
 	if (event.type == EVENT_NEWMENU_SELECTED)
 		userdata->citem = static_cast<const d_select_event &>(event).citem;
-	if (event.type == EVENT_NEWMENU_DRAW && (citem = newmenu_get_citem(menu)) > 0)
+	else if (event.type == EVENT_NEWMENU_DRAW && (citem = newmenu_get_citem(menu)) > 0)
 	{
 		if ( sc_bmp[citem-1] )	{
 			const auto &&fspacx = FSPACX();
@@ -801,10 +803,6 @@ void rpad_string( char * string, int max_chars )
 }
 #endif
 
-static int state_default_item = 0;
-//Since state_default_item should ALWAYS point to a valid savegame slot, we use this to check if we once already actually SAVED a game. If yes, state_quick_item will be equal state_default_item, otherwise it should be -1 on every new mission and tell us we need to select a slot for quicksave.
-int state_quick_item = -1;
-
 namespace dsx {
 
 /* Present a menu for selection of a savegame filename.
@@ -813,9 +811,9 @@ namespace dsx {
  * For restoring, dsc should be NULL, in which case empty slots will not be
  * selectable and savagames descriptions will not be editable.
  */
-static int state_get_savegame_filename(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const char *const caption, blind_save blind)
+static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const char *const caption, const blind_save entry_blind)
 {
-	int choice, version, nsaves;
+	int version, nsaves;
 	array<newmenu_item, NUM_SAVES + 1> m;
 	array<d_game_unique_state::savegame_file_path, NUM_SAVES> filename;
 	array<d_game_unique_state::savegame_description, NUM_SAVES> desc;
@@ -886,37 +884,48 @@ static int state_get_savegame_filename(d_game_unique_state::savegame_file_path &
 	if (!dsc && nsaves < 1)
 	{
 		nm_messagebox( NULL, 1, "Ok", "No saved games were found!" );
-		return 0;
+		return d_game_unique_state::save_slot::None;
 	}
 
-	if (blind != blind_save::no && state_quick_item < 0)
-		blind = blind_save::no;		// haven't picked a slot yet
+	const auto quicksave_selection = GameUniqueState.quicksave_selection;
+	const auto valid_selection = [dsc](d_game_unique_state::save_slot selection) {
+		return dsc
+			? GameUniqueState.valid_save_slot(selection)
+			: GameUniqueState.valid_load_slot(selection);
+	};
+	const auto blind = (entry_blind == blind_save::no || !valid_selection(quicksave_selection))
+		/* If not a blind save, or if is a blind save and no slot picked, force to ::no */
+		? blind_save::no
+		/* otherwise, user's choice */
+		: entry_blind;
 
-	if (blind != blind_save::no)
-		choice = state_default_item + 1;
-	else
+	const auto choice = (blind != blind_save::no)
+		? quicksave_selection
+		: (
+			userdata.citem = 0,
+			newmenu_do2(nullptr, caption, max_slots_shown + 1, m.data(), state_callback, &userdata, GameUniqueState.valid_save_slot(quicksave_selection) ? static_cast<unsigned>(quicksave_selection) : 0, nullptr),
+			userdata.citem == 0
+			? d_game_unique_state::save_slot::None
+			: static_cast<d_game_unique_state::save_slot>(userdata.citem - 1)
+		);
+
+	if (valid_selection(choice))
 	{
-		userdata.citem = 0;
-		newmenu_do2(nullptr, caption, max_slots_shown + 1, m.data(), state_callback, &userdata, state_default_item + 1, nullptr);
-		choice = userdata.citem;
-	}
-
-	if (choice > 0) {
-		fname = filename[choice - 1];
+		GameUniqueState.quicksave_selection = choice;
+		const auto uchoice = static_cast<std::size_t>(choice);
+		fname = filename[uchoice];
 		if (dsc)
-			*dsc = desc[choice - 1];
-		state_quick_item = state_default_item = choice - 1;
-		return choice;
+			*dsc = desc[uchoice];
 	}
-	return 0;
+	return choice;
 }
 
-int state_get_save_file(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const blind_save blind_save)
+d_game_unique_state::save_slot state_get_save_file(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const blind_save blind_save)
 {
 	return state_get_savegame_filename(fname, dsc, "Save Game", blind_save);
 }
 
-int state_get_restore_file(d_game_unique_state::savegame_file_path &fname, const blind_save blind_save)
+d_game_unique_state::save_slot state_get_restore_file(d_game_unique_state::savegame_file_path &fname, blind_save blind_save)
 {
 	return state_get_savegame_filename(fname, NULL, "Select Game to Restore", blind_save);
 }
@@ -964,6 +973,11 @@ static int copy_file(const char *old_file, const char *new_file)
 
 	return 0;
 }
+
+static void format_secret_sgc_filename(array<char, PATH_MAX> &fname, const d_game_unique_state::save_slot filenum)
+{
+	snprintf(fname.data(), fname.size(), PLAYER_DIRECTORY_STRING("%xsecret.sgc"), static_cast<unsigned>(filenum));
+}
 #endif
 
 //	-----------------------------------------------------------------------------------
@@ -973,8 +987,6 @@ int state_save_all(const blind_save blind_save)
 int state_save_all(const secret_save secret, const blind_save blind_save)
 #endif
 {
-	int	filenum = -1;
-
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<secret_save, secret_save::none> secret{};
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1009,6 +1021,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 	d_game_unique_state::savegame_file_path filename_storage;
 	const char *filename;
 	d_game_unique_state::savegame_description desc{};
+	d_game_unique_state::save_slot filenum = d_game_unique_state::save_slot::None;
 	{
 		pause_game_world_time p;
 
@@ -1020,10 +1033,9 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 	} else
 #endif
 	{
-		if (!(filenum = state_get_save_file(filename_storage, &desc, blind_save)))
-		{
+		filenum = state_get_save_file(filename_storage, &desc, blind_save);
+		if (!GameUniqueState.valid_save_slot(filenum))
 			return 0;
-		}
 		filename = filename_storage.data();
 	}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1032,17 +1044,11 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 	//	If secret.sgc exists, then copy it to Nsecret.sgc (where N = filenum).
 	//	If it doesn't exist, then delete Nsecret.sgc
 	if (secret == secret_save::none && !(Game_mode & GM_MULTI_COOP)) {
-		char	temp_fname[PATH_MAX], fc;
-
-		if (filenum != -1) {
-
-			if (filenum >= 10)
-				fc = (filenum-10) + 'a';
-			else
-				fc = '0' + filenum;
-
-			snprintf(temp_fname, sizeof(temp_fname), PLAYER_DIRECTORY_STRING("%csecret.sgc"), fc);
-
+		if (filenum != d_game_unique_state::save_slot::None)
+		{
+			array<char, PATH_MAX> fname;
+			const auto temp_fname = fname.data();
+			format_secret_sgc_filename(fname, filenum);
 			if (PHYSFSX_exists(temp_fname,0))
 			{
 				if (!PHYSFS_delete(temp_fname))
@@ -1499,7 +1505,6 @@ int state_restore_all(const int in_game, std::nullptr_t, const blind_save blind)
 int state_restore_all(const int in_game, const secret_restore secret, const char *const filename_override, const blind_save blind)
 #endif
 {
-	int	filenum = -1;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret{};
@@ -1526,17 +1531,19 @@ int state_restore_all(const int in_game, const secret_restore secret, const char
 
 	d_game_unique_state::savegame_file_path filename_storage;
 	const char *filename;
+	d_game_unique_state::save_slot filenum = d_game_unique_state::save_slot::None;
 	{
 		pause_game_world_time p;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (filename_override) {
 		filename = filename_override;
-		filenum = NUM_SAVES+1; // place outside of save slots
+		filenum = d_game_unique_state::save_slot::secret_save_filename_override; // place outside of save slots
 	} else
 #endif
 	{
-		if (!(filenum = state_get_restore_file(filename_storage, blind)))
+		filenum = state_get_restore_file(filename_storage, blind);
+		if (!GameUniqueState.valid_load_slot(filenum))
 		{
 			return 0;
 		}
@@ -1550,16 +1557,12 @@ int state_restore_all(const int in_game, const secret_restore secret, const char
 	if (secret == secret_restore::none)
 	{
 		int	rval;
-		char	temp_fname[PATH_MAX], fc;
 
-		if (filenum != -1) {
-			if (filenum >= 10)
-				fc = (filenum-10) + 'a';
-			else
-				fc = '0' + filenum;
-			
-			snprintf(temp_fname, sizeof(temp_fname), PLAYER_DIRECTORY_STRING("%csecret.sgc"), fc);
-
+		if (filenum != d_game_unique_state::save_slot::None)
+		{
+			array<char, PATH_MAX> fname;
+			const auto temp_fname = fname.data();
+			format_secret_sgc_filename(fname, filenum);
 			if (PHYSFSX_exists(temp_fname,0))
 			{
 				rval = copy_file(temp_fname, SECRETC_FILENAME);

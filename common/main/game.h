@@ -161,11 +161,37 @@ struct d_game_unique_state
 	 * save/restore command ABI.
 	 */
 	using savegame_description = array<char, 20>;
+	static constexpr std::integral_constant<unsigned, 11> MAXIMUM_SAVE_SLOTS{};
+	enum class save_slot : unsigned
+	{
+		_0,
+		_1,
+		_2,
+		_3,
+		_4,
+		_5,
+		_6,
+		_7,
+		_8,
+		_9,
+		_autosave,
+		secret_save_filename_override = MAXIMUM_SAVE_SLOTS + 1,
+		None = UINT32_MAX
+	};
 	Difficulty_level_type Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 	fix Boss_gate_interval;
 	unsigned accumulated_robots;
 	unsigned total_hostages;
 	std::chrono::steady_clock::time_point Next_autosave;
+	save_slot quicksave_selection = save_slot::None;
+	static constexpr unsigned valid_save_slot(const save_slot s)
+	{
+		return static_cast<unsigned>(s) < static_cast<unsigned>(save_slot::_autosave);
+	}
+	static constexpr unsigned valid_load_slot(const save_slot s)
+	{
+		return static_cast<unsigned>(s) <= static_cast<unsigned>(save_slot::_autosave);
+	}
 };
 
 extern int Global_missile_firing_count;

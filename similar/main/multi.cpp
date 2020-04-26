@@ -4859,7 +4859,7 @@ static void multi_do_save_game(const uint8_t *const buf)
 	memcpy(desc.data(), &buf[count], desc.size());
 	desc.back() = 0;
 
-	multi_save_game( slot, id, desc );
+	multi_save_game(static_cast<unsigned>(slot), id, desc);
 }
 
 }
@@ -4878,13 +4878,13 @@ static void multi_do_restore_game(const ubyte *buf)
 
 namespace dcx {
 
-static void multi_send_save_game(const unsigned slot, const unsigned id, const d_game_unique_state::savegame_description &desc)
+static void multi_send_save_game(const d_game_unique_state::save_slot slot, const unsigned id, const d_game_unique_state::savegame_description &desc)
 {
 	int count = 0;
 	
 	count += 1;
 	multi_command<MULTI_SAVE_GAME> multibuf;
-	multibuf[count] = slot;				count += 1; // Save slot=0
+	multibuf[count] = static_cast<uint8_t>(slot);				count += 1; // Save slot=0
 	PUT_INTEL_INT(&multibuf[count], id );		count += 4; // Save id
 	memcpy(&multibuf[count], desc.data(), desc.size());
 
@@ -4912,7 +4912,6 @@ void multi_initiate_save_game()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &vcobjptr = Objects.vcptr;
-	int slot;
 
 	if (const auto reason = multi_i_am_master() ? multi_interactive_deny_save_game(vcobjptr, partial_range(Players, N_players), LevelUniqueControlCenterState) : "Only the host is allowed to save a game!")
 	{
@@ -4922,10 +4921,9 @@ void multi_initiate_save_game()
 
 	d_game_unique_state::savegame_file_path filename{};
 	d_game_unique_state::savegame_description desc{};
-	slot = state_get_save_file(filename, &desc, blind_save::no);
-	if (!slot)
+	const auto slot = state_get_save_file(filename, &desc, blind_save::no);
+	if (!GameUniqueState.valid_save_slot(slot))
 		return;
-	slot--;
 	const auto &&player_range = partial_const_range(Players, N_players);
 	// Execute "alive" and "duplicate callsign" checks again in case things changed while host decided upon the savegame.
 	if (const auto reason = multi_interactive_deny_save_game(vcobjptr, player_range, LevelUniqueControlCenterState))
@@ -4936,7 +4934,7 @@ void multi_initiate_save_game()
 	multi_execute_save_game(slot, desc, player_range);
 }
 
-void multi_execute_save_game(const int slot, const d_game_unique_state::savegame_description &desc, const partial_range_t<const player *> player_range)
+void multi_execute_save_game(const d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, const partial_range_t<const player *> player_range)
 {
 	// Make a unique game id
 	fix game_id;
@@ -4953,7 +4951,7 @@ void multi_execute_save_game(const int slot, const d_game_unique_state::savegame
 
 	multi_send_save_game( slot, game_id, desc );
 	multi_do_frame();
-	multi_save_game( slot,game_id, desc );
+	multi_save_game(static_cast<unsigned>(slot), game_id, desc);
 }
 
 void multi_initiate_restore_game()
@@ -4961,7 +4959,6 @@ void multi_initiate_restore_game()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	int slot;
 
 	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
@@ -4972,8 +4969,8 @@ void multi_initiate_restore_game()
 		return;
 	}
 	d_game_unique_state::savegame_file_path filename;
-	slot = state_get_restore_file(filename, blind_save::no);
-	if (!slot)
+	const auto eslot = state_get_restore_file(filename, blind_save::no);
+	if (!GameUniqueState.valid_load_slot(eslot))
 		return;
 	/* Recheck the interactive conditions, but not the host status.  If
 	 * this system was the host before, it must still be the host now.
@@ -4986,7 +4983,7 @@ void multi_initiate_restore_game()
 	state_game_id = state_get_game_id(filename);
 	if (!state_game_id)
 		return;
-	slot--;
+	const unsigned slot = static_cast<unsigned>(eslot);
 	multi_send_restore_game(slot,state_game_id);
 	multi_do_frame();
 	multi_restore_game(slot,state_game_id);

@@ -1073,7 +1073,7 @@ namespace dsx {
 
 void StartNewGame(const int start_level)
 {
-	state_quick_item = -1;	// for first blind save, pick slot to save in
+	GameUniqueState.quicksave_selection = d_game_unique_state::save_slot::None;	// for first blind save, pick slot to save in
 	reset_globals_for_new_game();
 
 	Game_mode = GM_NORMAL;
