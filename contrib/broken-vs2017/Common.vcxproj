@@ -142,7 +142,6 @@
     <ClInclude Include="..\..\common\include\compiler-addressof.h" />
     <ClInclude Include="..\..\common\include\compiler-array.h" />
     <ClInclude Include="..\..\common\include\compiler-begin.h" />
-    <ClInclude Include="..\..\common\include\compiler-integer_sequence.h" />
     <ClInclude Include="..\..\common\include\compiler-lengthof.h" />
     <ClInclude Include="..\..\common\include\compiler-range_for.h" />
     <ClInclude Include="..\..\common\include\compiler-static_assert.h" />

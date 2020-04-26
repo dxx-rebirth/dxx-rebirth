@@ -16,9 +16,9 @@
 #include "dxxsconf.h"
 #include "compiler-addressof.h"
 #include "compiler-array.h"
-#include "compiler-integer_sequence.h"
 #include "compiler-range_for.h"
 #include "compiler-static_assert.h"
+#include <utility>
 
 namespace serial {
 
@@ -736,7 +736,7 @@ static typename std::enable_if<is_cxx_array<A1>::value, void>::type process_buff
 }
 
 template <typename Accessor, typename... Args, std::size_t... N>
-static inline void process_message_tuple(Accessor &&accessor, const std::tuple<Args...> &t, index_sequence<N...>)
+static inline void process_message_tuple(Accessor &&accessor, const std::tuple<Args...> &t, std::index_sequence<N...>)
 {
 	detail::sequence({(process_buffer(accessor, detail::extract_value(std::get<N>(t))), static_cast<uint8_t>(0))...});
 }
@@ -744,7 +744,7 @@ static inline void process_message_tuple(Accessor &&accessor, const std::tuple<A
 template <typename Accessor, typename A1, typename... Args>
 static void process_buffer(Accessor &&accessor, const message<A1, Args...> &m)
 {
-	process_message_tuple(std::forward<Accessor &&>(accessor), m.get_tuple(), make_tree_index_sequence<1 + sizeof...(Args)>());
+	process_message_tuple(std::forward<Accessor &&>(accessor), m.get_tuple(), std::make_index_sequence<1 + sizeof...(Args)>());
 }
 
 /* Require at least two arguments to prevent self-selection */

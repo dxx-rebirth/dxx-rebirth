@@ -45,9 +45,6 @@
     <ClInclude Include="..\..\common\include\compiler-begin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\common\include\compiler-integer_sequence.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\common\include\compiler-lengthof.h">
       <Filter>Header Files</Filter>
     </ClInclude>

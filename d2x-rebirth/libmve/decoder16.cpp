@@ -16,7 +16,7 @@
 
 #include "dxxsconf.h"
 #include "compiler-array.h"
-#include "compiler-integer_sequence.h"
+#include <utility>
 
 static unsigned short *backBuf1, *backBuf2;
 
@@ -134,7 +134,7 @@ struct lookup_table_t
 };
 
 template <std::size_t... N>
-static inline constexpr lookup_table_t genLoopkupTable(index_sequence<N...>)
+static inline constexpr lookup_table_t genLoopkupTable(std::index_sequence<N...>)
 {
 	return lookup_table_t{
 		{{relClose(N)...}},
@@ -143,7 +143,7 @@ static inline constexpr lookup_table_t genLoopkupTable(index_sequence<N...>)
 	};
 }
 
-constexpr lookup_table_t lookup_table = genLoopkupTable(make_tree_index_sequence<256>());
+constexpr lookup_table_t lookup_table = genLoopkupTable(std::make_index_sequence<256>());
 
 static void copyFrame(unsigned short *pDest, unsigned short *pSrc)
 {

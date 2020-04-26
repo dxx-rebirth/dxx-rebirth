@@ -85,7 +85,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-integer_sequence.h"
+#include <utility>
 
 using std::min;
 
@@ -2589,7 +2589,7 @@ struct collision_result_t : public std::conditional<(B < A), collision_result_t<
 COLLISION_TABLE(DISABLE, ENABLE);
 
 template <std::size_t R, std::size_t... C>
-static inline constexpr collision_inner_array_t collide_init(index_sequence<C...>)
+static inline constexpr collision_inner_array_t collide_init(std::index_sequence<C...>)
 {
 	static_assert((COLLISION_OF(R, 0) < COLLISION_OF(R, sizeof...(C) - 1)), "ambiguous collision");
 	static_assert((COLLISION_OF(R, sizeof...(C) - 1) < COLLISION_OF(R + 1, 0)), "ambiguous collision");
@@ -2599,7 +2599,7 @@ static inline constexpr collision_inner_array_t collide_init(index_sequence<C...
 }
 
 template <std::size_t... R, std::size_t... C>
-static inline constexpr collision_outer_array_t collide_init(index_sequence<R...>, index_sequence<C...> c)
+static inline constexpr collision_outer_array_t collide_init(std::index_sequence<R...>, std::index_sequence<C...> c)
 {
 	return collision_outer_array_t{{collide_init<R>(c)...}};
 }
@@ -2608,7 +2608,7 @@ static inline constexpr collision_outer_array_t collide_init(index_sequence<R...
 
 namespace dsx {
 
-constexpr collision_outer_array_t CollisionResult = collide_init(make_tree_index_sequence<MAX_OBJECT_TYPES>(), make_tree_index_sequence<MAX_OBJECT_TYPES>());
+constexpr collision_outer_array_t CollisionResult = collide_init(std::make_index_sequence<MAX_OBJECT_TYPES>(), std::make_index_sequence<MAX_OBJECT_TYPES>());
 
 }
 

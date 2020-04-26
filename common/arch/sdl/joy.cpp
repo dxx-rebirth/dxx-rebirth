@@ -25,10 +25,10 @@
 
 #if DXX_MAX_JOYSTICKS
 #include "compiler-cf_assert.h"
-#include "compiler-integer_sequence.h"
 #include "d_enumerate.h"
 #include "d_range.h"
 #include "partial_range.h"
+#include <utility>
 
 namespace dcx {
 
@@ -74,7 +74,7 @@ public:
 
 #if DXX_USE_SIZE_SORTED_TUPLE
 template <typename T, std::size_t... Is, std::size_t... Js>
-auto d_split_tuple(T &&t, index_sequence<Is...>, index_sequence<Js...>) ->
+auto d_split_tuple(T &&t, std::index_sequence<Is...>, std::index_sequence<Js...>) ->
 	std::pair<
 		std::tuple<typename std::tuple_element<Is, T>::type...>,
 		std::tuple<typename std::tuple_element<sizeof...(Is) + Js, T>::type...>
@@ -92,8 +92,8 @@ class d_size_sorted<std::tuple<Ts...>>
 {
 	using split_tuple = decltype(d_split_tuple(
 		std::declval<std::tuple<Ts...>>(),
-		make_tree_index_sequence<sizeof...(Ts) / 2>(),
-		make_tree_index_sequence<(1 + sizeof...(Ts)) / 2>()
+		std::make_index_sequence<sizeof...(Ts) / 2>(),
+		std::make_index_sequence<(1 + sizeof...(Ts)) / 2>()
 	));
 	using first_type = typename split_tuple::first_type;
 	using second_type = typename split_tuple::second_type;

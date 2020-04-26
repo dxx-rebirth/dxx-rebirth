@@ -66,7 +66,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "args.h"
 
-#include "compiler-integer_sequence.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "partial_range.h"
@@ -76,6 +75,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #endif
+#include <utility>
 
 using std::min;
 using std::max;
@@ -444,7 +444,7 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsign
 }
 
 template <std::size_t... N>
-static inline void check_render_face(grs_canvas &canvas, index_sequence<N...>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<unsigned, 4> &ovp, const unsigned tmap1, const unsigned tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N...>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<unsigned, 4> &ovp, const unsigned tmap1, const unsigned tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
 {
 	const array<unsigned, 4> vp{{ovp[N]...}};
 	const array<g3s_uvl, 4> uvl_copy{{
@@ -455,7 +455,7 @@ static inline void check_render_face(grs_canvas &canvas, index_sequence<N...>, c
 }
 
 template <std::size_t N0, std::size_t N1, std::size_t N2, std::size_t N3>
-static inline void check_render_face(grs_canvas &canvas, index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(canvas, is, segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 4);
 }
@@ -464,9 +464,9 @@ static inline void check_render_face(grs_canvas &canvas, index_sequence<N0, N1, 
  * are default constructed, gcc zero initializes all members.
  */
 template <std::size_t N0, std::size_t N1, std::size_t N2>
-static inline void check_render_face(grs_canvas &canvas, index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
-	check_render_face(canvas, index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
+	check_render_face(canvas, std::index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
 }
 
 constexpr std::integral_constant<fix, (F1_0/4)> Tulate_min_dot{};
@@ -498,7 +498,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 	const auto v_dot_n0 = vm_vec_dot(tvec, normals[0]);
 	//	========== Mark: Here is the change...beginning here: ==========
 
-	index_sequence<0, 1, 2, 3> is_quad;
+	std::index_sequence<0, 1, 2, 3> is_quad;
 	const auto &uside = segp->unique_segment::sides[sidenum];
 	if (sside.get_type() == SIDE_IS_QUAD) {
 
@@ -536,22 +536,22 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 im_so_ashamed: ;
 			if (sside.get_type() == SIDE_IS_TRI_02) {
 				if (v_dot_n0 >= 0) {
-					check_render_face(canvas, index_sequence<0, 1, 2>(), segp, sidenum, 0, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
+					check_render_face(canvas, std::index_sequence<0, 1, 2>(), segp, sidenum, 0, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
 				}
 
 				if (v_dot_n1 >= 0) {
 					// want to render from vertices 0, 2, 3 on side
-					check_render_face(canvas, index_sequence<0, 2, 3>(), segp, sidenum, 1, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
+					check_render_face(canvas, std::index_sequence<0, 2, 3>(), segp, sidenum, 1, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
 				}
 			} else if (sside.get_type() ==  SIDE_IS_TRI_13) {
 				if (v_dot_n1 >= 0) {
 					// rendering 1,2,3, so just skip 0
-					check_render_face(canvas, index_sequence<1, 2, 3>(), segp, sidenum, 1, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
+					check_render_face(canvas, std::index_sequence<1, 2, 3>(), segp, sidenum, 1, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
 				}
 
 				if (v_dot_n0 >= 0) {
 					// want to render from vertices 0,1,3
-					check_render_face(canvas, index_sequence<0, 1, 3>(), segp, sidenum, 0, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
+					check_render_face(canvas, std::index_sequence<0, 1, 3>(), segp, sidenum, 0, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
 				}
 
 			} else

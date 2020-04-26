@@ -48,12 +48,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-object.h"
 #include "weapon.h"
 #include "powerup.h"
-#include "compiler-integer_sequence.h"
 #include "compiler-poison.h"
 #include "player-flags.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "escort.h"
 #endif
+#include <utility>
 
 namespace dcx {
 
@@ -534,7 +534,7 @@ struct obj_position
 	} DXX_END_COMPOUND_STATEMENT )
 
 template <typename T, std::size_t... N>
-constexpr array<T, sizeof...(N)> init_object_number_array(index_sequence<N...>)
+constexpr array<T, sizeof...(N)> init_object_number_array(std::index_sequence<N...>)
 {
 	return {{((void)N, object_none)...}};
 }
@@ -543,7 +543,7 @@ template <typename T, std::size_t N>
 struct object_number_array : array<T, N>
 {
 	constexpr object_number_array() :
-		array<T, N>(init_object_number_array<T>(make_tree_index_sequence<N>()))
+		array<T, N>(init_object_number_array<T>(std::make_index_sequence<N>()))
 	{
 	}
 };

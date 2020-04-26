@@ -10,8 +10,8 @@
 #include <tuple>
 #include <type_traits>
 #include "dxxsconf.h"
-#include "compiler-integer_sequence.h"
 #include "ephemeral_range.h"
+#include <utility>
 
 namespace d_zip {
 
@@ -98,7 +98,7 @@ protected:
 		{
 			return zip_iterator(e0, this->template end_construct_ignored_element<N, typename std::tuple_element<N, base_type>::type>()...);
 		}
-	using index_type = make_tree_index_sequence<sizeof...(range_iterator_type)>;
+	using index_type = std::make_index_sequence<sizeof...(range_iterator_type)>;
 public:
 	using base_type::base_type;
 	auto operator*() const
