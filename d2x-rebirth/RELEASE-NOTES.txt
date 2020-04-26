@@ -10,6 +10,9 @@ What's new in 0.61
 * Fixed original game bug that meant to reset camera flag, but did not.
 * Added experimental support for automatic game saves in single player and in cooperative multiplayer.  The interval between saves can be configured separately, through the Gameplay Options and Netgame->Advanced Options dialogs, respectively.  If the interval is set to 0, then no automatic save is made.  For multiplayer, only the host can save, so only the host's auto-save interval is relevant.  Automatic saves of single player and multiplayer are given distinct names.  Automatic saves are stored in the previously inaccessible 11th slot, so only one autosave of each type can exist per pilot.  Autosaves are loaded through the usual menu interface, and use the same file format as regular saves, so they can be renamed to a regular save if desired.  Autosaves are given a description that shows the time at which they were created.
 
+Breaking change:
+* A change to how objects are tracked causes savegames that are created in new builds, then loaded in a previous release, such as 0.58.1, to behave incorrectly (issue #449).  Saves created in an old release, and loaded in a new one, should work correctly.
+
 What's new in 0.60
 ------------------
 * Merged code bases and massive code refactorization. [Massive thanks to kp]
