@@ -41,15 +41,11 @@ namespace {
 
 class ini_entry
 {
-	std::string m_filename;
 public:
+	const std::string filename;
 	ini_entry(std::string &&f) :
-		m_filename(std::move(f))
+		filename(std::move(f))
 	{
-	}
-	const std::string &filename() const
-	{
-		return m_filename;
 	}
 };
 
@@ -68,19 +64,13 @@ public:
 class missing_parameter : public argument_exception
 {
 public:
-	missing_parameter(std::string &&a) :
-		argument_exception(std::move(a))
-	{
-	}
+	using argument_exception::argument_exception;
 };
 
 class unhandled_argument : public argument_exception
 {
 public:
-	unhandled_argument(std::string &&a) :
-		argument_exception(std::move(a))
-	{
-	}
+	using argument_exception::argument_exception;
 };
 
 class conversion_failure : public argument_exception
@@ -187,7 +177,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args);
 static void ReadIniArgs(Inilist &ini)
 {
 	Arglist Args;
-	AppendIniArgs(ini.back().filename().c_str(), Args);
+	AppendIniArgs(ini.back().filename.c_str(), Args);
 	ReadCmdArgs(ini, Args);
 	ini.pop_back();
 }
@@ -444,7 +434,7 @@ static std::string ConstructIniStackExplanation(const Inilist &ini)
 	result += " while processing \"";
 	for (;;)
 	{
-		result += i->filename();
+		result += i->filename;
 		if (++ i == e)
 			return result += "\"";
 		result += "\"\n    included from \"";
