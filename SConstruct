@@ -2683,7 +2683,7 @@ int a;
  * marked as not supporting -Wold-style-cast.
  */
 #if defined(__APPLE__) && defined(__MACH__)
-#include <HIServices/Processes.h>
+#include <ApplicationServices/ApplicationServices.h>
 #endif
 
 /* gcc's warning -Wduplicated-branches was initially overzealous and
