@@ -27,7 +27,7 @@ def TOOL_SUBST(env):
             contents = f.read()
             f.close()
         except:
-            raise SCons.Errors.UserError, "Can't read source file %s"%sourcefile
+            raise SCons.Errors.UserError("Can't read source file %s" % (sourcefile,))
         for (k,v) in dict.items():
             contents = re.sub(k, v, contents)
         try:
@@ -35,12 +35,12 @@ def TOOL_SUBST(env):
             f.write(contents)
             f.close()
         except:
-            raise SCons.Errors.UserError, "Can't write target file %s"%targetfile
+            raise SCons.Errors.UserError("Can't write target file %s" % (targetfile,))
         return 0 # success
 
     def subst_in_file(target, source, env):
         if not env.has_key('SUBST_DICT'):
-            raise SCons.Errors.UserError, "SubstInFile requires SUBST_DICT to be set."
+            raise SCons.Errors.UserError("SubstInFile requires SUBST_DICT to be set.")
         d = dict(env['SUBST_DICT']) # copy it
         for (k,v) in d.items():
             if callable(v):
@@ -48,7 +48,7 @@ def TOOL_SUBST(env):
             elif SCons.Util.is_String(v):
                 d[k]=env.subst(v)
             else:
-                raise SCons.Errors.UserError, "SubstInFile: key %s: %s must be a string or callable"%(k, repr(v))
+                raise SCons.Errors.UserError("SubstInFile: key %s: %r must be a string or callable" % (k, v))
         for (t,s) in zip(target, source):
             return do_subst_in_file(str(t), str(s), d)
 
@@ -98,7 +98,7 @@ def TOOL_BUNDLE(env):
     if 'BUNDLE' in env['TOOLS']: return
     if sys.platform == 'darwin':
         #if tools_verbose:
-        print " running tool: TOOL_BUNDLE"
+        print(" running tool: TOOL_BUNDLE")
         env.Append(TOOLS = 'BUNDLE')
         # This is like the regular linker, but uses different vars.
         # XXX: NOTE: this may be out of date now, scons 0.96.91 has some bundle linker stuff built in.
@@ -146,7 +146,7 @@ def TOOL_BUNDLE(env):
             suffix=bundledir[string.rfind(bundledir,'.'):]
             if (suffix=='.app' and typecode != 'APPL' or
                 suffix!='.app' and typecode == 'APPL'):
-                raise Error, "MakeBundle: inconsistent dir suffix %s and type code %s: app bundles should end with .app and type code APPL."%(suffix, typecode)
+                raise Error("MakeBundle: inconsistent dir suffix %s and type code %s: app bundles should end with .app and type code APPL." % (suffix, typecode))
             if subst_dict is None:
                 subst_dict={'%SHORTVERSION%': '$VERSION_NUM',
                             '%LONGVERSION%': '$VERSION_NAME',
@@ -175,7 +175,7 @@ def TOOL_BUNDLE(env):
         SConsEnvironment.MakeBundle = MakeBundle
 def TOOL_WRITE_VAL(env):
     #if tools_verbose:
-    print " running tool: TOOL_WRITE_VAL"
+    print(" running tool: TOOL_WRITE_VAL")
     env.Append(TOOLS = 'WRITE_VAL')
     def write_val(target, source, env):
         """Write the contents of the first source into the target.
