@@ -249,7 +249,7 @@ void show_menus(void)
 	{
 		if (!i)
 			break;
-		
+
 		// Hidden windows don't receive events, so the only way to close is outside its handler
 		// Which there should be no cases of here
 		// window_exists could return a false positive if a new window was created
@@ -1269,7 +1269,7 @@ static void input_config_mouse()
 
 	for (unsigned i = 0; i <= 5; i++)
 	{
-		
+
 		PlayerCfg.MouseSens[i] = m[mousesens+i].value;
         PlayerCfg.MouseOverrun[i] = m[mouseoverrun+i].value;
 	}
@@ -1803,7 +1803,7 @@ static int list_directory(browser *b)
 	{
 		b->list.add("<this directory>");	// choose the directory being viewed
 	}
-	
+
 	PHYSFS_enumerateFilesCallback("", list_dir_el, b);
 	b->list.tidy(1 + (b->select_dir ? 1 : 0),
 #ifdef __linux__
@@ -1812,7 +1812,7 @@ static int list_directory(browser *b)
 					  d_stricmp
 #endif
 					  );
-					  
+
 	return 1;
 }
 
@@ -1835,7 +1835,7 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 					nm_item_input(text),
 				}};
 				rval = newmenu_do( NULL, "Enter drive letter", m, unused_newmenu_subfunction, unused_newmenu_userdata );
-				text[1] = '\0'; 
+				text[1] = '\0';
 				snprintf(newpath.data(), newpath.size(), "%s:%s", text, sep);
 				if (!rval && text[0])
 				{
@@ -1859,11 +1859,11 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 				if (auto p = strstr(&newpath[len_newpath - len_sep], sep))
 					if (p != strstr(newpath.data(), sep))	// if this isn't the only separator (i.e. it's not about to look at the root)
 						*p = 0;
-				
+
 				auto p = &newpath[len_newpath - 1];
 				while (p != newpath.begin() && strncmp(p, sep, len_sep))	// make sure full separator string is matched (typically is)
 					p--;
-				
+
 				if (p == strstr(newpath.data(), sep))	// Look at root directory next, if not already
 				{
 #if defined(__APPLE__) && defined(__MACH__)
@@ -1876,7 +1876,7 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 					{
 #if defined(__APPLE__) && defined(__MACH__)
 						// For Mac OS X, list all active volumes if we leave the root
-						strcpy(newpath, "/Volumes");
+						strcpy(newpath.data(), "/Volumes");
 #else
 						return window_event_result::handled;
 #endif
@@ -1910,11 +1910,11 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 
 			std::default_delete<browser>()(b);
 			break;
-			
+
 		default:
 			break;
 	}
-	
+
 	return window_event_result::ignored;
 }
 
@@ -1923,7 +1923,7 @@ static int select_file_recursive2(const char *title, const array<char, PATH_MAX>
 	auto orig_path = orig_path_storage.data();
 	const char *sep = PHYSFS_getDirSeparator();
 	array<char, PATH_MAX> new_path;
-	
+
 	auto b = make_unique<browser>(ext_range);
 	b->title = title;
 	b->when_selected = when_selected;
@@ -1931,7 +1931,7 @@ static int select_file_recursive2(const char *title, const array<char, PATH_MAX>
 	b->select_dir = select_dir;
 	b->view_path[0] = '\0';
 	b->new_path = 1;
-	
+
 	// Check for a PhysicsFS path first, saves complication!
 	if (strncmp(orig_path, sep, strlen(sep)) && PHYSFSX_exists(orig_path,0))
 	{
@@ -1968,12 +1968,12 @@ static int select_file_recursive2(const char *title, const array<char, PATH_MAX>
 			while (p != b->view_path.begin() && strncmp(p, sep, len_sep))
 				p--;
 			*p = '\0';
-			
+
 			if (p == b->view_path.begin())
 				break;
 		}
 	}
-	
+
 	// Set to user directory if we couldn't find a searchpath
 	if (!b->view_path[0])
 	{
@@ -1984,12 +1984,12 @@ static int select_file_recursive2(const char *title, const array<char, PATH_MAX>
 			return 0;
 		}
 	}
-	
+
 	if (!list_directory(b.get()))
 	{
 		return 0;
 	}
-	
+
 	auto pb = b.get();
 	return newmenu_listbox1(title, pb->list.pointer().size(), &pb->list.pointer().front(), 1, 0, select_file_handler, std::move(b)) != NULL;
 }
