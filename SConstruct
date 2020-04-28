@@ -2438,6 +2438,7 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 				return
 		raise SCons.Errors.StopError("C++ compiler rejects all candidate format strings for std::size_t.")
 	implicit_tests.append(_implicit_test.RecordedTest('check_compiler_accepts_useless_cast', "assume compiler accepts -Wuseless-cast"))
+
 	@_custom_test
 	def check_compiler_useless_cast(self,context):
 		Compile = self.Compile
@@ -2488,6 +2489,7 @@ public:
 		# because the compiler does not accept -Wuseless-cast or because
 		# SDL's headers provoke a warning from -Wuseless-cast.
 		Compile(context, text='', main='', msg='whether compiler accepts -Wuseless-cast', testflags=flags, calling_function='compiler_accepts_useless_cast')
+
 	@_custom_test
 	def check_compiler_ptrdiff_cast_int(self,context):
 		context.sconf.Define('DXX_ptrdiff_cast_int', 'static_cast<int>'
@@ -2517,12 +2519,14 @@ platforms where the cast is required and expands to nothing on platforms
 where the cast is useless.
 '''
 		)
+
 	@_custom_test
 	def check_strcasecmp_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_STRCASECMP']}):
 		main = '''
 	return !strcasecmp(argv[0], argv[0] + 1) && !strncasecmp(argv[0] + 1, argv[0], 1);
 '''
 		self.Compile(context, text='#include <cstring>', main=main, msg='for strcasecmp', successflags=_successflags)
+
 	@_custom_test
 	def check_getaddrinfo_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_GETADDRINFO']}):
 		self.Compile(context, text='''
@@ -2653,6 +2657,32 @@ int a;
 	}();
 ''', msg='whether compiler allows lambda capture of local references'):
 			self.successful_flags['CXXFLAGS'].append('-Wno-unused-lambda-capture')
+
+	@_custom_test
+	def check_compiler_overzealous_warn_extension_string_literal_operator_template(self,context):
+		'''
+String literal operator templates are a GNU extension.  GCC accepts them
+without complaint in mode `-std=gnu++14` (or later).  Clang warns that
+the template is a GNU extension, even when given `-std=gnu++14`, which
+requests C++14 with GNU extensions.  Since warnings are normally treated
+as errors, this breaks the build.  If the warning is suppressed, Clang
+can compile the file correctly.
+
+Test for whether the compiler will accept a string literal operator
+template with the default options and, if not, add the clang option to
+suppress the warning.
+		'''
+		if not self.Compile(context, text='''
+template <typename T, T... v>
+struct literal_as_type {};
+
+template <typename T, T... v>
+constexpr literal_as_type<T, v...> operator""_literal_as_type();
+''', main='''
+	auto b = decltype("a"_literal_as_type){};
+	(void)b;
+''', msg='whether compiler accepts string literal operator templates'):
+			self.successful_flags['CXXFLAGS'].append('-Wno-gnu-string-literal-operator-template')
 
 	__preferred_compiler_options = (
 		'-fvisibility=hidden',
