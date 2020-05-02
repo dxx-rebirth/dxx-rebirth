@@ -376,7 +376,14 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 	}
 	obj->control_type   = PHYSFSX_readByte(f);
 	set_object_movement_type(*obj, PHYSFSX_readByte(f));
-	obj->render_type    = PHYSFSX_readByte(f);
+	const uint8_t render_type = PHYSFSX_readByte(f);
+	if (valid_render_type(render_type))
+		obj->render_type = render_type_t{render_type};
+	else
+	{
+		LevelError("Level contains bogus render type %#x for object %p; using none instead", render_type, &*obj);
+		obj->render_type = RT_NONE;
+	}
 	obj->flags          = PHYSFSX_readByte(f);
 
 	obj->segnum         = PHYSFSX_readShort(f);

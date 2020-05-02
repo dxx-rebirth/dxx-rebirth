@@ -598,7 +598,17 @@ static void nd_read_object(const vmobjptridx_t obj)
 	 * Do render type first, since with render_type == RT_NONE, we
 	 * blow by all other object information
 	 */
-	nd_read_byte(&obj->render_type);
+	{
+		uint8_t render_type;
+		nd_read_byte(&render_type);
+		if (valid_render_type(render_type))
+			obj->render_type = render_type_t{render_type};
+		else
+		{
+			con_printf(CON_URGENT, "demo used bogus render type %#x for object %p; using none instead", render_type, &*obj);
+			obj->render_type = RT_NONE;
+		}
+	}
 	{
 		uint8_t object_type;
 		nd_read_byte(&object_type);

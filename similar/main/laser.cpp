@@ -278,7 +278,7 @@ namespace dsx {
 //creates a weapon object
 static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t segnum, const vms_vector &position)
 {
-	int rtype=-1;
+	render_type_t rtype;
 	fix laser_radius = -1;
 
 	switch( Weapon_info[weapon_type].render_type )	{
@@ -293,7 +293,7 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 			break;
 		case WEAPON_RENDER_LASER:
 			Int3(); 	// Not supported anymore
-			break;
+			return object_none;
 		case WEAPON_RENDER_NONE:
 			rtype = RT_NONE;
 			laser_radius = F1_0;
@@ -307,9 +307,8 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 	}
 
 	Assert(laser_radius != -1);
-	Assert(rtype != -1);
 
-	auto obj = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
+	auto &&obj = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype);
 	if (obj == object_none)
 		return object_none;
 

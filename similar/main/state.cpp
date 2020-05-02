@@ -346,7 +346,14 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	obj.prev          = obj_rw->prev;
 	obj.control_type  = obj_rw->control_type;
 	set_object_movement_type(obj, obj_rw->movement_type);
-	obj.render_type   = obj_rw->render_type;
+	const auto render_type = obj_rw->render_type;
+	if (valid_render_type(render_type))
+		obj.render_type = render_type_t{render_type};
+	else
+	{
+		con_printf(CON_URGENT, "save file used bogus render type %#x for object %p; using none instead", render_type, &obj);
+		obj.render_type = RT_NONE;
+	}
 	obj.flags         = obj_rw->flags;
 	obj.segnum        = obj_rw->segnum;
 	obj.attached_obj  = obj_rw->attached_obj;

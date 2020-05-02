@@ -28,6 +28,9 @@ constexpr std::integral_constant<std::size_t, 350> MAX_OBJECTS{};
 constexpr std::integral_constant<std::size_t, MAX_OBJECTS - 20> MAX_USED_OBJECTS{};
 struct d_level_unique_control_center_state;
 
+// Render types
+enum render_type_t : uint8_t;
+
 }
 
 #ifdef dsx
@@ -74,17 +77,6 @@ constexpr std::integral_constant<control_type_t, 13> CT_POWERUP{};	// animating 
 constexpr std::integral_constant<control_type_t, 14> CT_LIGHT{};		// doesn't actually do anything
 constexpr std::integral_constant<control_type_t, 15> CT_REMOTE{};	// controlled by another net player
 constexpr std::integral_constant<control_type_t, 16> CT_CNTRLCEN{};	// the control center/main reactor
-
-// Render types
-typedef unsigned render_type_t;
-constexpr std::integral_constant<render_type_t, 0> RT_NONE{};   // does not render
-constexpr std::integral_constant<render_type_t, 1> RT_POLYOBJ{};   // a polygon model
-constexpr std::integral_constant<render_type_t, 2> RT_FIREBALL{};   // a fireball
-constexpr std::integral_constant<render_type_t, 3> RT_LASER{};   // a laser
-constexpr std::integral_constant<render_type_t, 4> RT_HOSTAGE{};   // a hostage
-constexpr std::integral_constant<render_type_t, 5> RT_POWERUP{};   // a powerup
-constexpr std::integral_constant<render_type_t, 6> RT_MORPH{};   // a robot being morphed
-constexpr std::integral_constant<render_type_t, 7> RT_WEAPON_VCLIP{};   // a weapon that renders as a vclip
 
 // misc object flags
 typedef unsigned object_flag_t;
@@ -230,7 +222,7 @@ void obj_unlink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, object_base &obj);
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
-imobjptridx_t obj_create(object_type_t type, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, unsigned ctype, movement_type_t mtype, unsigned rtype);
+imobjptridx_t obj_create(object_type_t type, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, unsigned ctype, movement_type_t mtype, render_type_t rtype);
 
 // make a copy of an object. returs num of new object
 imobjptridx_t obj_create_copy(const object &srcobj, vmsegptridx_t newsegnum);

@@ -85,6 +85,36 @@ enum movement_type_t : uint8_t
 	MT_SPINNING = 3,   // this object doesn't move, just sits and spins
 };
 
+enum render_type_t : uint8_t
+{
+	RT_NONE = 0,   // does not render
+	RT_POLYOBJ = 1,   // a polygon model
+	RT_FIREBALL = 2,   // a fireball
+	RT_LASER = 3,   // a laser
+	RT_HOSTAGE = 4,   // a hostage
+	RT_POWERUP = 5,   // a powerup
+	RT_MORPH = 6,   // a robot being morphed
+	RT_WEAPON_VCLIP = 7,   // a weapon that renders as a vclip
+};
+
+static inline bool valid_render_type(const uint8_t r)
+{
+	switch (r)
+	{
+		case RT_NONE:
+		case RT_POLYOBJ:
+		case RT_FIREBALL:
+		case RT_LASER:
+		case RT_HOSTAGE:
+		case RT_POWERUP:
+		case RT_MORPH:
+		case RT_WEAPON_VCLIP:
+			return true;
+		default:
+			return false;
+	}
+}
+
 }
 
 namespace dsx {
@@ -371,7 +401,7 @@ struct object_base
 	objnum_t   next,prev;      // id of next and previous connected object in Objects, -1 = no connection
 	ubyte   control_type;   // how this object is controlled
 	movement_type_t   movement_type;  // how this object moves
-	ubyte   render_type;    // how this object renders
+	render_type_t render_type;    // how this object renders
 	ubyte   flags;          // misc flags
 	segnum_t   segnum;         // segment number containing object
 	objnum_t   attached_obj;   // number of attached fireball object

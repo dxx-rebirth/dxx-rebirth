@@ -6030,7 +6030,14 @@ void multi_object_rw_to_object(object_rw *obj_rw, object &obj)
 	/* obj->next,obj->prev handled by caller based on segment */
 	obj.control_type  = obj_rw->control_type;
 	set_object_movement_type(obj, obj_rw->movement_type);
-	obj.render_type   = obj_rw->render_type;
+	const auto render_type = obj_rw->render_type;
+	if (valid_render_type(render_type))
+		obj.render_type = render_type_t{render_type};
+	else
+	{
+		con_printf(CON_URGENT, "peer sent bogus render type %#x for object %p; using none instead", render_type, &obj);
+		obj.render_type = RT_NONE;
+	}
 	obj.flags         = obj_rw->flags;
 	obj.segnum        = obj_rw->segnum;
 	/* obj->attached_obj cleared by caller */

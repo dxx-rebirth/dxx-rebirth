@@ -1115,7 +1115,7 @@ static void free_object_slots(uint_fast32_t num_used)
 //note that segnum is really just a suggestion, since this routine actually
 //searches for the correct segment
 //returns the object number
-imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const unsigned ctype, const movement_type_t mtype, const unsigned rtype)
+imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const unsigned ctype, const movement_type_t mtype, const render_type_t rtype)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
@@ -1307,7 +1307,8 @@ namespace dcx {
 player_dead_state Player_dead_state = player_dead_state::no;			//	If !0, then player is dead, but game continues so he can watch.
 static int Player_flags_save;
 static fix Camera_to_player_dist_goal = F1_0*4;
-static uint8_t Control_type_save, Render_type_save;
+static uint8_t Control_type_save;
+static render_type_t Render_type_save;
 
 unsigned laser_parent_is_matching_signature(const laser_parent &l, const object_base &o)
 {
