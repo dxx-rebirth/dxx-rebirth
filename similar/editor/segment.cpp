@@ -999,11 +999,10 @@ int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 	med_propagate_tmaps_to_segments(destseg, seg,0);
 	med_propagate_tmaps_to_back_side(seg, back_side,0);
 
-	range_for (const auto &&ez, enumerate(zip(side_tmaps, seg->unique_segment::sides)))
-		if (ez.idx != back_side)
+	for (const auto &&[idx, side_tmap, us] : enumerate(zip(side_tmaps, seg->unique_segment::sides)))
+		if (idx != back_side)
 		{
-			unique_side &us = std::get<1>(ez.value);
-			us.tmap_num = std::get<0>(ez.value);
+			us.tmap_num = side_tmap;
 		}
 
 	return	0;
@@ -1342,12 +1341,9 @@ void med_create_new_segment(const vms_vector &scale)
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	// Form connections to children, of which it has none, init faces and tmaps.
-	range_for (const auto &&ez, enumerate(zip(sp->children, sp->shared_segment::sides, sp->unique_segment::sides)))
+	for (const auto &&[s, child, ss, us] : enumerate(zip(sp->children, sp->shared_segment::sides, sp->unique_segment::sides)))
 	{
-		const auto s = ez.idx;
-		std::get<0>(ez.value) = segment_none;
-		shared_side &ss = std::get<1>(ez.value);
-		unique_side &us = std::get<2>(ez.value);
+		child = segment_none;
 		ss.wall_num = wall_none;
 		create_walls_on_side(vcvertptr, sp, s);
 		us.tmap_num = s + 1;					// assign some stupid old tmap to this side.

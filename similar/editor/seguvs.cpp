@@ -932,13 +932,10 @@ static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix l
 			dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 
 			if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
-				range_for (const auto &&ez, enumerate(zip(rsegp->shared_segment::sides, rsegp->unique_segment::sides)))
+				for (const auto &&[sidenum, srside, urside] : enumerate(zip(rsegp->shared_segment::sides, rsegp->unique_segment::sides)))
 				{
-					const uint_fast32_t sidenum = ez.idx;
 					if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, rsegp, sidenum) != WID_NO_WALL)
 					{
-						auto &srside = std::get<0>(ez.value);
-						auto &urside = std::get<1>(ez.value);
 						auto &side_normalp = srside.normals[0];	//	kinda stupid? always use vector 0.
 
 						for (vertnum=0; vertnum<4; vertnum++) {

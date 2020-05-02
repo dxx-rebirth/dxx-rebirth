@@ -11,6 +11,8 @@
 #include "dxxsconf.h"
 #include "partial_range.h"
 #include "ephemeral_range.h"
+#include <tuple>
+#include <type_traits>
 
 /*
  * This could have been done using a std::pair, but using a custom type
@@ -23,24 +25,48 @@ struct enumerated_value
 	const index_type idx;
 };
 
-template <typename range_iterator_type, typename index_type, typename result_type>
+namespace d_enumerate {
+
+namespace detail {
+
+template <typename result_type, typename index_type>
+struct adjust_iterator_dereference_type : std::false_type
+{
+	using value_type = enumerated_value<result_type, index_type>;
+};
+
+template <typename... T, typename index_type>
+struct adjust_iterator_dereference_type<std::tuple<T...>, index_type> : std::true_type
+{
+	using value_type = std::tuple<index_type, T...>;
+};
+
+}
+
+}
+
+template <typename range_iterator_type, typename index_type, typename iterator_dereference_type>
 class enumerated_iterator
 {
 	range_iterator_type m_iter;
 	index_type m_idx;
+	using adjust_iterator_dereference_type = d_enumerate::detail::adjust_iterator_dereference_type<typename std::remove_cv<iterator_dereference_type>::type, index_type>;
 public:
 	using iterator_category = std::forward_iterator_tag;
-	using value_type = result_type;
+	using value_type = typename adjust_iterator_dereference_type::value_type;
 	using difference_type = std::ptrdiff_t;
-	using pointer = result_type *;
-	using reference = result_type &;
+	using pointer = value_type *;
+	using reference = value_type &;
 	enumerated_iterator(const range_iterator_type &iter, const index_type idx) :
 		m_iter(iter), m_idx(idx)
 	{
 	}
-	result_type operator*() const
+	value_type operator*() const
 	{
-		return result_type{*m_iter, m_idx};
+		if constexpr (adjust_iterator_dereference_type::value)
+			return std::tuple_cat(std::tuple<index_type>(m_idx), *m_iter);
+		else
+			return {*m_iter, m_idx};
 	}
 	enumerated_iterator &operator++()
 	{
@@ -63,7 +89,10 @@ class enumerated_range : partial_range_t<range_iterator_type>
 {
 	using base_type = partial_range_t<range_iterator_type>;
 	using iterator_dereference_type = decltype(*std::declval<range_iterator_type>());
-	using enumerated_iterator_type = enumerated_iterator<range_iterator_type, index_type, enumerated_value<iterator_dereference_type, index_type>>;
+	using enumerated_iterator_type = enumerated_iterator<
+		range_iterator_type,
+		index_type,
+		iterator_dereference_type>;
 	const index_type m_idx;
 public:
 	using range_owns_iterated_storage = std::false_type;

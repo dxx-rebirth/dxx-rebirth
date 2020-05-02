@@ -530,14 +530,12 @@ static void draw_mine_sub(const vmsegptridx_t segnum,int depth, visited_segment_
 
 		if (depth != 0) {
 			const shared_segment &sseg = *mine_ptr;
-			range_for (const auto &&ez, enumerate(zip(sseg.children, sseg.sides)))
+			for (const auto &&[idx, child_segnum, sside] : enumerate(zip(sseg.children, sseg.sides)))
 			{
-				const auto child_segnum = std::get<0>(ez.value);
 				if (IS_CHILD(child_segnum))
 				{
-					auto &sside = std::get<1>(ez.value);
 					if (sside.wall_num != wall_none)
-						draw_special_wall(mine_ptr, ez.idx);
+						draw_special_wall(mine_ptr, idx);
 					draw_mine_sub(segnum.absolute_sibling(child_segnum), depth-1, visited);
 				}
 			}

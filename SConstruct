@@ -265,6 +265,8 @@ class ConfigureTests(_ConfigureTests):
 		std = 11
 	class Cxx14RequiredFeature(CxxRequiredFeature):
 		std = 14
+	class Cxx17RequiredFeature(CxxRequiredFeature):
+		std = 17
 	class CxxRequiredFeatures(object):
 		__slots__ = ('features', 'main', 'text')
 		def __init__(self,features):
@@ -416,6 +418,26 @@ class ConfigureTests(_ConfigureTests):
 	__python_import_struct = None
 	_cxx_conformance_cxx17 = 17
 	__cxx_std_required_features = CxxRequiredFeatures([
+		Cxx17RequiredFeature('constexpr if', '''
+template <bool b>
+int f_%(N)s()
+{
+	if constexpr (b)
+		return 1;
+	else
+		return 0;
+}
+''',
+'''
+	f_%(N)s<false>();
+'''),
+		Cxx17RequiredFeature('structured binding declarations', '',
+'''
+	int a_%(N)s[2] = {0, 1};
+	auto &&[b_%(N)s, c_%(N)s] = a_%(N)s;
+	(void)b_%(N)s;
+	(void)c_%(N)s;
+'''),
 		Cxx14RequiredFeature('template variables', '''
 template <unsigned U>
 int a = U + 1;
@@ -2063,7 +2085,7 @@ using namespace B;
 		# First test all the features at once.  If all work, then done.
 		# If any fail, then the configure run will stop.
 		_Compile = self.Compile
-		if _Compile(context, text=_features.text, main=_features.main, msg='for required C++11, C++14 standard features'):
+		if _Compile(context, text=_features.text, main=_features.main, msg='for required C++11, C++14, C++17 standard features'):
 			return
 		# Some failed.  Run each test separately and report to the user
 		# which ones failed.
