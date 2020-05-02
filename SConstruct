@@ -434,6 +434,12 @@ int a = U + 1;
 	std::index_sequence<0> index_%(N)s = std::make_index_sequence<1>();
 	(void)index_%(N)s;
 '''),
+		Cxx14RequiredFeature('std::make_unique', '''
+#include <memory>
+''', '''
+	std::make_unique<int>(0);
+	std::make_unique<int[]>(1);
+'''),
 		Cxx11RequiredFeature('constexpr', '''
 struct %(N)s {};
 static constexpr %(N)s get_%(N)s(){return {};}
@@ -2172,16 +2178,6 @@ struct A {
 		if not self.check_cxx11_addressof(context, text=f, main=main) and not self.check_boost_addressof(context, text=f, main=main):
 			raise SCons.Errors.StopError("C++ compiler does not support free function addressof().")
 
-	@_custom_test
-	def check_cxx14_make_unique(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_MAKE_UNIQUE']}):
-		f = '''
-#include "compiler-make_unique.h"
-'''
-		main = '''
-	std::make_unique<int>(0);
-	std::make_unique<int[]>(1);
-'''
-		self.Cxx14Compile(context, text=f, main=main, msg='for C++14 make_unique', successflags=_successflags)
 	@_implicit_test
 	def check_cxx11_inherit_constructor(self,context,text,_macro_value=_quote_macro_value('''
 /* Use a typedef for the base type to avoid parsing issues when type
