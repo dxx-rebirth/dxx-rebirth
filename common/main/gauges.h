@@ -39,12 +39,12 @@ struct bitmap_index;
 #define MAX_GAUGE_BMS_MAC 85u
 #define MAX_GAUGE_BMS (MacPig ? MAX_GAUGE_BMS_MAC : MAX_GAUGE_BMS_PC)
 
-extern array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges;   // Array of all gauge bitmaps.
+extern std::array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges;   // Array of all gauge bitmaps.
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_GAUGE_BMS 100u   // increased from 56 to 80 by a very unhappy MK on 10/24/94.
 
-extern array<bitmap_index, MAX_GAUGE_BMS> Gauges;      // Array of all gauge bitmaps.
-extern array<bitmap_index, MAX_GAUGE_BMS> Gauges_hires;    // hires gauges
+extern std::array<bitmap_index, MAX_GAUGE_BMS> Gauges;      // Array of all gauge bitmaps.
+extern std::array<bitmap_index, MAX_GAUGE_BMS> Gauges_hires;    // hires gauges
 #endif
 
 // Flags for gauges/hud stuff
@@ -83,7 +83,7 @@ struct rgb {
 	ubyte r,g,b;
 };
 
-typedef const array<rgb, MAX_PLAYERS> rgb_array_t;
+typedef const std::array<rgb, MAX_PLAYERS> rgb_array_t;
 extern const rgb_array_t player_rgb_normal;
 
 /* Stub for mods that provide switchable player colors */

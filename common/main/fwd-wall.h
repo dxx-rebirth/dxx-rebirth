@@ -194,7 +194,7 @@ DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(cloaking_wall, clwall);
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, wall, wallnum_t, dcx::MAX_WALLS);
 namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(wall, wall);
-using wall_animations_array = array<wclip, MAX_WALL_ANIMS>;
+using wall_animations_array = std::array<wclip, MAX_WALL_ANIMS>;
 constexpr valptridx<wall>::magic_constant<0xffff> wall_none{};
 }
 

@@ -16,7 +16,7 @@ class cstring_tie
 {
 public:
 	static const std::size_t maximum_arity = N;
-	typedef array<const char *, maximum_arity> array_t;
+	typedef std::array<const char *, maximum_arity> array_t;
 	template <typename... Args>
 		cstring_tie(Args&&... args) : p(array_t{{args...}}), m_count(sizeof...(Args))
 	{

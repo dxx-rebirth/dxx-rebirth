@@ -90,7 +90,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 using std::min;
 
 #if defined(DXX_BUILD_DESCENT_II)
-constexpr array<uint8_t, MAX_WEAPON_TYPES> Weapon_is_energy{{
+constexpr std::array<uint8_t, MAX_WEAPON_TYPES> Weapon_is_energy{{
 	1, 1, 1, 1, 1,
 	1, 1, 1, 0, 1,
 	1, 0, 1, 1, 1,

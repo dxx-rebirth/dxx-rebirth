@@ -45,7 +45,7 @@ static inline bool operator==(const rgb_t &a, const rgb_t &b) { return a.r == b.
 
 namespace dcx {
 
-struct palette_array_t : public array<rgb_t, 256> {};
+struct palette_array_t : public std::array<rgb_t, 256> {};
 
 #ifdef DXX_BUILD_DESCENT_II
 #define DEFAULT_LEVEL_PALETTE "groupa.256" //don't confuse with D2_DEFAULT_PALETTE

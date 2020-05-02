@@ -176,7 +176,7 @@ static void paging_touch_weapon(const d_vclip_array &Vclip, const weapon_info_ar
 		paging_touch_weapon(Vclip, Weapon_info[weapon_type]);
 }
 
-const array<sbyte, 13> super_boss_gate_type_list{{0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22}};
+const std::array<sbyte, 13> super_boss_gate_type_list{{0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22}};
 
 static void paging_touch_robot(const d_level_shared_robot_info_state::d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const unsigned ridx)
 {

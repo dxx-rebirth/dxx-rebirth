@@ -185,7 +185,7 @@ ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &de
 //returns 1 if off screen, 0 if drew
 void _g3_draw_poly(grs_canvas &, uint_fast32_t nv, cg3s_point *const *pointlist, uint8_t color);
 template <std::size_t N>
-static inline void g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, const array<cg3s_point *, N> &pointlist, const uint8_t color)
+static inline void g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, const std::array<cg3s_point *, N> &pointlist, const uint8_t color)
 {
 	_g3_draw_poly(canvas, nv, &pointlist[0], color);
 }
@@ -197,7 +197,7 @@ constexpr std::integral_constant<std::size_t, 64> MAX_POINTS_PER_POLY{};
 void _g3_draw_tmap(grs_canvas &canvas, unsigned nv, cg3s_point *const *pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm);
 
 template <std::size_t N>
-static inline void g3_draw_tmap(grs_canvas &canvas, unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
+static inline void g3_draw_tmap(grs_canvas &canvas, unsigned nv, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	static_assert(N <= MAX_POINTS_PER_POLY, "too many points in tmap");
 #ifdef DXX_CONSTANT_TRUE
@@ -210,7 +210,7 @@ static inline void g3_draw_tmap(grs_canvas &canvas, unsigned nv, const array<cg3
 }
 
 template <std::size_t N>
-static inline void g3_draw_tmap(grs_canvas &canvas, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
+static inline void g3_draw_tmap(grs_canvas &canvas, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	g3_draw_tmap(canvas, N, pointlist, uvl_list, light_rgb, bm);
 }
@@ -228,7 +228,7 @@ void g3_draw_sphere(grs_canvas &, cg3s_point &pnt, fix rad, uint8_t color);
 //is passed, this function works like g3_check_normal_facing() plus
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
-bool do_facing_check(const array<cg3s_point *, 3> &vertlist);
+bool do_facing_check(const std::array<cg3s_point *, 3> &vertlist);
 
 //like g3_draw_poly(), but checks to see if facing.  If surface normal is
 //NULL, this routine must compute it, which will be slow.  It is better to 
@@ -236,21 +236,21 @@ bool do_facing_check(const array<cg3s_point *, 3> &vertlist);
 //is passed, this function works like g3_check_normal_facing() plus
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
-static inline void g3_check_and_draw_poly(grs_canvas &canvas, const array<cg3s_point *, 3> &pointlist, const uint8_t color)
+static inline void g3_check_and_draw_poly(grs_canvas &canvas, const std::array<cg3s_point *, 3> &pointlist, const uint8_t color)
 {
 	if (do_facing_check(pointlist))
 		g3_draw_poly(canvas, pointlist.size(), pointlist, color);
 }
 
 template <std::size_t N>
-static inline void g3_check_and_draw_tmap(grs_canvas &canvas, unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
+static inline void g3_check_and_draw_tmap(grs_canvas &canvas, unsigned nv, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	if (do_facing_check(pointlist))
 		g3_draw_tmap(canvas, nv, pointlist, uvl_list, light_rgb, bm);
 }
 
 template <std::size_t N>
-static inline void g3_check_and_draw_tmap(grs_canvas &canvas, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
+static inline void g3_check_and_draw_tmap(grs_canvas &canvas, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	g3_check_and_draw_tmap(canvas, N, pointlist, uvl_list, light_rgb, bm);
 }
@@ -305,7 +305,7 @@ using tmap_drawer_type = void (*)(grs_canvas &, const grs_bitmap &bm, uint_fast3
 
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
-void gr_upoly_tmap(grs_canvas &, uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY * 2> &vert, uint8_t color);
+void gr_upoly_tmap(grs_canvas &, uint_fast32_t nverts, const std::array<fix, MAX_POINTS_IN_POLY * 2> &vert, uint8_t color);
 #endif
 void g3_draw_line(grs_canvas &canvas, cg3s_point &p0, cg3s_point &p1, uint8_t color);
 

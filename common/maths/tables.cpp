@@ -15,7 +15,7 @@
 
 namespace dcx {
 
-const array<ubyte, 256> guess_table{{
+const std::array<ubyte, 256> guess_table{{
 	1,
 	1,1,1,
 	2,2,2,2,2,
@@ -34,7 +34,7 @@ const array<ubyte, 256> guess_table{{
 	15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15
 }};
 
-const array<int16_t, 256> sincos_table{{
+const std::array<int16_t, 256> sincos_table{{
 	0,
 	402,
 	804,
@@ -294,7 +294,7 @@ const array<int16_t, 256> sincos_table{{
 	-402,
 }};
 
-const array<ushort, 258> asin_table{{
+const std::array<ushort, 258> asin_table{{
 	0,
 	41,
 	81,
@@ -555,7 +555,7 @@ const array<ushort, 258> asin_table{{
 	16384   // extra for when exactly 1
 }};
 
-const array<ushort, 258> acos_table{{
+const std::array<ushort, 258> acos_table{{
 	16384,
 	16343,
 	16303,

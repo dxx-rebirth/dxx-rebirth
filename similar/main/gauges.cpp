@@ -477,15 +477,15 @@ static hud_ar_scale_float HUD_SCALE_AR(unsigned, unsigned, local_multires_gauge_
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define PAGE_IN_GAUGE(x,g)	PAGE_IN_GAUGE(x)
-array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges; // Array of all gauge bitmaps.
+std::array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges; // Array of all gauge bitmaps.
 #elif defined(DXX_BUILD_DESCENT_II)
 #define PAGE_IN_GAUGE	PAGE_IN_GAUGE
-array<bitmap_index, MAX_GAUGE_BMS> Gauges,   // Array of all gauge bitmaps.
+std::array<bitmap_index, MAX_GAUGE_BMS> Gauges,   // Array of all gauge bitmaps.
 	Gauges_hires;   // hires gauges
-static array<int, 2> weapon_box_user{{WBU_WEAPON, WBU_WEAPON}};		//see WBU_ constants in gauges.h
+static std::array<int, 2> weapon_box_user{{WBU_WEAPON, WBU_WEAPON}};		//see WBU_ constants in gauges.h
 #endif
 static grs_bitmap deccpt;
-static array<grs_subbitmap_ptr, 2> WinBoxOverlay; // Overlay subbitmaps for both weapon boxes
+static std::array<grs_subbitmap_ptr, 2> WinBoxOverlay; // Overlay subbitmaps for both weapon boxes
 
 namespace dsx {
 static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multires_gauge_graphic)
@@ -503,12 +503,12 @@ static void draw_ammo_info(grs_canvas &, unsigned x, unsigned y, unsigned ammo_c
 
 static int score_display;
 static fix score_time;
-static array<int, 2> old_weapon{{-1, -1}};
+static std::array<int, 2> old_weapon{{-1, -1}};
 static int old_laser_level		= -1;
 static int invulnerable_frame;
-static array<int, 2> weapon_box_states;
+static std::array<int, 2> weapon_box_states;
 static_assert(WS_SET == 0, "weapon_box_states must start at zero");
-static array<fix, 2> weapon_box_fade_values;
+static std::array<fix, 2> weapon_box_fade_values;
 int	Color_0_31_0 = -1;
 
 namespace dcx {
@@ -618,7 +618,7 @@ struct dspan
 };
 
 //store delta x values from left of box
-const array<dspan, 43> weapon_windows_lowres = {{
+const std::array<dspan, 43> weapon_windows_lowres = {{
 	{{71,114},		{208,255}},
 	{{69,116},		{206,257}},
 	{{68,117},		{205,258}},
@@ -665,7 +665,7 @@ const array<dspan, 43> weapon_windows_lowres = {{
 }};
 
 //store delta x values from left of box
-const array<dspan, 107> weapon_windows_hires = {{
+const std::array<dspan, 107> weapon_windows_hires = {{
 	{{141,231},		{416,509}},
 	{{139,234},		{413,511}},
 	{{137,235},		{412,513}},
@@ -1859,7 +1859,7 @@ static void sb_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_scal
 	if (Game_mode & GM_MULTI)
 	{
 		char killed_str[20];
-		static array<int, 4> last_x{{SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_H}};
+		static std::array<int, 4> last_x{{SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_H}};
 
 		snprintf(killed_str, sizeof(killed_str), "%5d", player_info.net_killed_total);
 		int w, h;
@@ -1967,7 +1967,7 @@ static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *c
 	 */
 #define DXX_MAX_COCKPIT_BITMAP_SIZE	(640 * 480)
 #endif
-	static array<uint8_t, DXX_MAX_COCKPIT_BITMAP_SIZE> cockpitbuf;
+	static std::array<uint8_t, DXX_MAX_COCKPIT_BITMAP_SIZE> cockpitbuf;
 
 	const unsigned bm_h = bm->bm_h;
 	if (unlikely(!bm_h))
@@ -2141,7 +2141,7 @@ static void draw_afterburner_bar(const hud_draw_context_hs_mr hudctx, const int 
 	{
 		uint8_t l, r;
 	};
-	static const array<lr, AFTERBURNER_GAUGE_H_L> afterburner_bar_table = {{
+	static const std::array<lr, AFTERBURNER_GAUGE_H_L> afterburner_bar_table = {{
 		{3, 11},
 		{3, 11},
 		{3, 11},
@@ -2175,7 +2175,7 @@ static void draw_afterburner_bar(const hud_draw_context_hs_mr hudctx, const int 
 		{5, 8},
 		{6, 7}
 	}};
-	static const array<lr, AFTERBURNER_GAUGE_H_H> afterburner_bar_table_hires = {{
+	static const std::array<lr, AFTERBURNER_GAUGE_H_H> afterburner_bar_table_hires = {{
 		{5, 20},
 		{5, 20},
 		{5, 19},
@@ -2646,7 +2646,7 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static array<fix, 2> static_time;
+static std::array<fix, 2> static_time;
 
 static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr hudctx, const unsigned win)
 {
@@ -2916,7 +2916,7 @@ struct xy {
 };
 
 //offsets for reticle parts: high-big  high-sml  low-big  low-sml
-const array<xy, 4> cross_offsets{{
+const std::array<xy, 4> cross_offsets{{
 	{-8,-5},
 	{-4,-2},
 	{-4,-2},
@@ -3673,7 +3673,7 @@ void update_laser_weapon_info(void)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static array<int, 2> overlap_dirty;
+static std::array<int, 2> overlap_dirty;
 
 //draws a 3d view into one of the cockpit windows.  win is 0 for left,
 //1 for right.  viewer is object.  NULL object means give up window

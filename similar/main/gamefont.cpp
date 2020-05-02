@@ -39,7 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
 
-const array<char[16], 5> Gamefont_filenames_l{{
+const std::array<char[16], 5> Gamefont_filenames_l{{
 	"font1-1.fnt", // Font 0
 	"font2-1.fnt", // Font 1
 	"font2-2.fnt", // Font 2
@@ -47,7 +47,7 @@ const array<char[16], 5> Gamefont_filenames_l{{
 	"font3-1.fnt"  // Font 4
 }};
 
-const array<char[16], 5> Gamefont_filenames_h{{
+const std::array<char[16], 5> Gamefont_filenames_h{{
 	"font1-1h.fnt", // Font 0
 	"font2-1h.fnt", // Font 1
 	"font2-2h.fnt", // Font 2
@@ -55,7 +55,7 @@ const array<char[16], 5> Gamefont_filenames_h{{
 	"font3-1h.fnt"  // Font 4
 }};
 
-array<grs_font_ptr, MAX_FONTS> Gamefonts;
+std::array<grs_font_ptr, MAX_FONTS> Gamefonts;
 
 static int Gamefont_installed;
 font_x_scale_proportion FNTScaleX(1);
@@ -75,10 +75,10 @@ struct a_gamefont_conf
 struct gamefont_conf
 {
 	int num,cur;
-	array<a_gamefont_conf, 10> font;
+	std::array<a_gamefont_conf, 10> font;
 };
 
-static array<gamefont_conf, MAX_FONTS> font_conf;
+static std::array<gamefont_conf, MAX_FONTS> font_conf;
 
 static void gamefont_unloadfont(int gf)
 {

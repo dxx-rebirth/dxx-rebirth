@@ -92,7 +92,7 @@ static void copyFrame(uint8_t *pDest, const uint8_t *pSrc)
 // depending on the corresponding two-bit value in pat0 and pat1
 static void patternRow4Pixels(unsigned char *pFrame,
 							  unsigned char pat0, unsigned char pat1,
-							  const array<uint8_t, 4> &p)
+							  const std::array<uint8_t, 4> &p)
 {
 	unsigned short mask=0x0003;
 	unsigned short shift=0;
@@ -110,7 +110,7 @@ static void patternRow4Pixels(unsigned char *pFrame,
 // depending on the corresponding two-bit value in pat0.
 static void patternRow4Pixels2(unsigned char *pFrame,
 							   unsigned char pat0,
-							   const array<uint8_t, 4> &p)
+							   const std::array<uint8_t, 4> &p)
 {
 	unsigned char mask=0x03;
 	unsigned char shift=0;
@@ -132,7 +132,7 @@ static void patternRow4Pixels2(unsigned char *pFrame,
 
 // Fill in the next four 2x1 pixel blocks with p[0], p[1], p[2], or p[3],
 // depending on the corresponding two-bit value in pat.
-static void patternRow4Pixels2x1(unsigned char *pFrame, unsigned char pat, const array<uint8_t, 4> &p)
+static void patternRow4Pixels2x1(unsigned char *pFrame, unsigned char pat, const std::array<uint8_t, 4> &p)
 {
 	unsigned char mask=0x03;
 	unsigned char shift=0;
@@ -151,7 +151,7 @@ static void patternRow4Pixels2x1(unsigned char *pFrame, unsigned char pat, const
 
 // Fill in the next 4x4 pixel block with p[0], p[1], p[2], or p[3],
 // depending on the corresponding two-bit value in pat0, pat1, pat2, and pat3.
-static void patternQuadrant4Pixels(unsigned char *pFrame, unsigned char pat0, unsigned char pat1, unsigned char pat2, unsigned char pat3, const array<uint8_t, 4> &p)
+static void patternQuadrant4Pixels(unsigned char *pFrame, unsigned char pat0, unsigned char pat1, unsigned char pat2, unsigned char pat3, const std::array<uint8_t, 4> &p)
 {
 	unsigned long mask = 0x00000003UL;
 	int shift=0;
@@ -171,7 +171,7 @@ static void patternQuadrant4Pixels(unsigned char *pFrame, unsigned char pat0, un
 }
 
 // fills the next 8 pixels with either p[0] or p[1], depending on pattern
-static void patternRow2Pixels(unsigned char *pFrame, unsigned char pat, const array<uint8_t, 4> &p)
+static void patternRow2Pixels(unsigned char *pFrame, unsigned char pat, const std::array<uint8_t, 4> &p)
 {
 	unsigned char mask=0x01;
 
@@ -183,7 +183,7 @@ static void patternRow2Pixels(unsigned char *pFrame, unsigned char pat, const ar
 }
 
 // fills the next four 2 x 2 pixel boxes with either p[0] or p[1], depending on pattern
-static void patternRow2Pixels2(unsigned char *pFrame, unsigned char pat, const array<uint8_t, 4> &p)
+static void patternRow2Pixels2(unsigned char *pFrame, unsigned char pat, const std::array<uint8_t, 4> &p)
 {
 	unsigned char pel;
 	unsigned char mask=0x1;
@@ -204,7 +204,7 @@ static void patternRow2Pixels2(unsigned char *pFrame, unsigned char pat, const a
 }
 
 // fills pixels in the next 4 x 4 pixel boxes with either p[0] or p[1], depending on pat0 and pat1.
-static void patternQuadrant2Pixels(unsigned char *pFrame, unsigned char pat0, unsigned char pat1, const array<uint8_t, 4> &p)
+static void patternQuadrant2Pixels(unsigned char *pFrame, unsigned char pat0, unsigned char pat1, const std::array<uint8_t, 4> &p)
 {
 	unsigned char pel;
 	unsigned short mask = 0x0001;
@@ -226,7 +226,7 @@ static void patternQuadrant2Pixels(unsigned char *pFrame, unsigned char pat0, un
 
 static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb)
 {
-	array<uint8_t, 4> p, pat;
+	std::array<uint8_t, 4> p, pat;
 	int x, y;
 
 	/* Data is processed in 8x8 pixel blocks.

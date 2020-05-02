@@ -86,7 +86,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAC_WATER_PIGSIZE       4832403
 
 unsigned Num_aliases;
-array<alias, MAX_ALIASES> alias_list;
+std::array<alias, MAX_ALIASES> alias_list;
 
 int Piggy_hamfile_version = 0;
 #endif
@@ -104,7 +104,7 @@ namespace {
 #endif
 hashtable AllBitmapsNames;
 hashtable AllDigiSndNames;
-array<int, MAX_BITMAP_FILES> GameBitmapOffset;
+std::array<int, MAX_BITMAP_FILES> GameBitmapOffset;
 #if defined(DXX_BUILD_DESCENT_II)
 }
 #endif
@@ -113,8 +113,8 @@ unsigned Num_bitmap_files;
 int Num_sound_files = 0;
 
 namespace dsx {
-array<digi_sound, MAX_SOUND_FILES> GameSounds;
-static array<int, MAX_SOUND_FILES> SoundOffset;
+std::array<digi_sound, MAX_SOUND_FILES> GameSounds;
+static std::array<int, MAX_SOUND_FILES> SoundOffset;
 GameBitmaps_array GameBitmaps;
 }
 
@@ -122,16 +122,16 @@ GameBitmaps_array GameBitmaps;
 #define DBM_FLAG_LARGE 	128		// Flags added onto the flags struct in b
 static
 #endif
-array<BitmapFile, MAX_BITMAP_FILES> AllBitmaps;
-static array<SoundFile, MAX_SOUND_FILES> AllSounds;
+std::array<BitmapFile, MAX_BITMAP_FILES> AllBitmaps;
+static std::array<SoundFile, MAX_SOUND_FILES> AllSounds;
 
 #define DBM_FLAG_ABM    64 // animated bitmap
 
 static int Piggy_bitmap_cache_size;
 static int Piggy_bitmap_cache_next;
 static uint8_t *Piggy_bitmap_cache_data;
-static array<uint8_t, MAX_BITMAP_FILES> GameBitmapFlags;
-static array<uint16_t, MAX_BITMAP_FILES> GameBitmapXlat;
+static std::array<uint8_t, MAX_BITMAP_FILES> GameBitmapFlags;
+static std::array<uint16_t, MAX_BITMAP_FILES> GameBitmapXlat;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define PIGGY_BUFFER_SIZE (2048*1024)
@@ -145,7 +145,7 @@ static array<uint16_t, MAX_BITMAP_FILES> GameBitmapXlat;
 static RAIIPHYSFS_File Piggy_fp;
 
 ubyte bogus_bitmap_initialized=0;
-array<uint8_t, 64 * 64> bogus_data;
+std::array<uint8_t, 64 * 64> bogus_data;
 namespace dsx {
 digi_sound bogus_sound;
 }
@@ -154,7 +154,7 @@ digi_sound bogus_sound;
 grs_bitmap bogus_bitmap;
 int MacPig = 0;	// using the Macintosh pigfile?
 int PCSharePig = 0; // using PC Shareware pigfile?
-static array<int, MAX_SOUND_FILES> SoundCompressed;
+static std::array<int, MAX_SOUND_FILES> SoundCompressed;
 #elif defined(DXX_BUILD_DESCENT_II)
 char Current_pigfile[FILENAME_LEN] = "";
 int Pigfile_initialized=0;
@@ -209,7 +209,7 @@ static int piggy_is_needed(int soundnum);
 
 namespace dcx {
 
-static void get_bitmap_name_from_header(array<char, 13> &output_name, const DiskBitmapHeader &bmh)
+static void get_bitmap_name_from_header(std::array<char, 13> &output_name, const DiskBitmapHeader &bmh)
 {
 	if (bmh.dflags & DBM_FLAG_ABM)
 		snprintf(output_name.data(), output_name.size(), "%.8s#%d", bmh.name, bmh.dflags & DBM_NUM_FRAMES);
@@ -427,7 +427,7 @@ static void piggy_close_file()
 int properties_init()
 {
 	int sbytes = 0;
-	array<char, 13> temp_name;
+	std::array<char, 13> temp_name;
 	digi_sound temp_sound;
 	DiskBitmapHeader bmh;
 	DiskSoundHeader sndh;
@@ -595,7 +595,7 @@ int properties_init()
 		SoundOffset[Num_sound_files] = sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start;
 		if (PCSharePig)
 			SoundCompressed[Num_sound_files] = sndh.data_length;
-		array<char, 9> temp_name_read;
+		std::array<char, 9> temp_name_read;
 		memcpy(temp_name_read.data(), sndh.name, temp_name_read.size() - 1);
 		temp_name_read.back() = 0;
 		piggy_register_sound(&temp_sound, temp_name_read.data(), 1);
@@ -626,7 +626,7 @@ int properties_init()
 void piggy_init_pigfile(const char *filename)
 {
 	int i;
-	array<char, 13> temp_name;
+	std::array<char, 13> temp_name;
 	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps, data_start;
 #if DXX_USE_EDITOR
@@ -712,7 +712,7 @@ void piggy_init_pigfile(const char *filename)
 void piggy_new_pigfile(char *pigname)
 {
 	int i;
-	array<char, 13> temp_name;
+	std::array<char, 13> temp_name;
 	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps, data_start;
 #if DXX_USE_EDITOR
@@ -826,7 +826,7 @@ void piggy_new_pigfile(char *pigname)
 
 				snprintf(abmname, sizeof(abmname), "%.8s.abm", basename);
 
-				array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
+				std::array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 				iff_error = iff_read_animbrush(abmname,bm,&nframes,newpal);
 
 				if (iff_error != IFF_NO_ERROR)  {
@@ -1759,7 +1759,7 @@ void load_bitmap_replacements(const char *level_name)
 /* calculate table to translate d1 bitmaps to current palette,
  * return -1 on error
  */
-static int get_d1_colormap( palette_array_t &d1_palette, array<color_t, 256> &colormap )
+static int get_d1_colormap( palette_array_t &d1_palette, std::array<color_t, 256> &colormap )
 {
 	auto palette_file = PHYSFSX_openReadBuffered(D1_PALETTE);
 	if (!palette_file || PHYSFS_fileLength(palette_file) != 9472)
@@ -1779,7 +1779,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
                      DiskBitmapHeader *bmh, /* header info for bitmap */
                      uint8_t **next_bitmap, /* where to write it (if 0, use malloc) */
 					 palette_array_t &d1_palette, /* what palette the bitmap has */
-					 array<color_t, 256> &colormap) /* how to translate bitmap's colors */
+					 std::array<color_t, 256> &colormap) /* how to translate bitmap's colors */
 {
 	int zsize, pigsize = PHYSFS_fileLength(d1_Piggy_fp);
 	uint8_t *data;
@@ -1840,7 +1840,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
  * "Textures" looks up a d2 bitmap index given a d2 tmap_num.
  * "d1_tmap_nums" looks up a d1 tmap_num given a d1 bitmap. "-1" means "None".
  */
-typedef array<short, D1_MAX_TMAP_NUM> d1_tmap_nums_t;
+typedef std::array<short, D1_MAX_TMAP_NUM> d1_tmap_nums_t;
 static std::unique_ptr<d1_tmap_nums_t> d1_tmap_nums;
 
 static void free_d1_tmap_nums() {
@@ -1993,7 +1993,7 @@ void load_d1_bitmap_replacements()
 	//first, free up data allocated for old bitmaps
 	free_bitmap_replacements();
 
-	array<color_t, 256> colormap;
+	std::array<color_t, 256> colormap;
 	if (get_d1_colormap( d1_palette, colormap ) != 0)
 		Warning("Could not load descent 1 color palette");
 
@@ -2096,7 +2096,7 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 			return bitmap_num;
 		}
 
-		array<color_t, 256> colormap;
+		std::array<color_t, 256> colormap;
 		if (get_d1_colormap( d1_palette, colormap ) != 0)
 			Warning("Could not load descent 1 color palette");
 

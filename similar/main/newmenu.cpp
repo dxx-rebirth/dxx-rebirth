@@ -256,7 +256,7 @@ static void nm_string(grs_canvas &canvas, const int w1, int x, const int y, cons
 		}
 		return;
 	}
-	array<int, 6> XTabs = {{18, 90, 127, 165, 231, 256}};
+	std::array<int, 6> XTabs = {{18, 90, 127, 165, 231, 256}};
 	const auto &&fspacx = FSPACX();
 	range_for (auto &i, XTabs)
 	{

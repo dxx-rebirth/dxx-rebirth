@@ -39,13 +39,13 @@ namespace dcx {
 
 #define MAX_NUM_PADS 20
 
-static array<std::unique_ptr<UI_GADGET_BUTTON>, 17> Pad;
-static array<std::unique_ptr<UI_KEYPAD>, MAX_NUM_PADS> KeyPad;
+static std::array<std::unique_ptr<UI_GADGET_BUTTON>, 17> Pad;
+static std::array<std::unique_ptr<UI_KEYPAD>, MAX_NUM_PADS> KeyPad;
 static int active_pad;
 
 static int desc_x, desc_y;
 
-static array<int, 17> HotKey, HotKey1;
+static std::array<int, 17> HotKey, HotKey1;
 
 int ui_pad_get_current()
 {

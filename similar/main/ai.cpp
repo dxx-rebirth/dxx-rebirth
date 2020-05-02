@@ -111,7 +111,7 @@ constexpr d_level_shared_boss_state::D1_Boss_teleport_interval d_level_shared_bo
 #define	MAX_LEAD_DISTANCE	(F1_0*200)
 #define	LEAD_RANGE			(F1_0/2)
 
-constexpr array<array<int, 3>, NUM_D2_BOSSES> Spew_bots{{
+constexpr std::array<std::array<int, 3>, NUM_D2_BOSSES> Spew_bots{{
 	{{38, 40, -1}},
 	{{37, -1, -1}},
 	{{43, 57, -1}},
@@ -123,7 +123,7 @@ constexpr array<array<int, 3>, NUM_D2_BOSSES> Spew_bots{{
 	{{72, 60, 73}} 
 }};
 
-constexpr array<int, NUM_D2_BOSSES> Max_spew_bots{{2, 1, 2, 3, 3, 3, 3, 3}};
+constexpr std::array<int, NUM_D2_BOSSES> Max_spew_bots{{2, 1, 2, 3, 3, 3, 3, 3}};
 static fix Dist_to_last_fired_upon_player_pos;
 #endif
 }
@@ -138,7 +138,7 @@ enum {
 #define	ANIM_RATE		(F1_0/16)
 #define	DELTA_ANG_SCALE	16
 
-constexpr array<int8_t, 8> Mike_to_matt_xlate{{
+constexpr std::array<int8_t, 8> Mike_to_matt_xlate{{
 	AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST
 }};
 
@@ -155,7 +155,7 @@ constexpr array<int8_t, 8> Mike_to_matt_xlate{{
 static int             Overall_agitation;
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
-static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
+static std::array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
 
@@ -185,7 +185,7 @@ static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
 // 23 super boss
 
 // byte	Super_boss_gate_list[] = {0, 1, 2, 9, 11, 16, 18, 19, 21, 22, 0, 9, 9, 16, 16, 18, 19, 19, 22, 22};
-constexpr array<int8_t, 21> Super_boss_gate_list{{
+constexpr std::array<int8_t, 21> Super_boss_gate_list{{
 	0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8
 }};
 }
@@ -225,7 +225,7 @@ struct robot_to_player_visibility_state
 	uint8_t initialized = 0;
 };
 
-struct awareness_t : array<player_awareness_type_t, MAX_SEGMENTS>
+struct awareness_t : std::array<player_awareness_type_t, MAX_SEGMENTS>
 {
 };
 
@@ -315,7 +315,7 @@ constexpr char mode_text[][16] = {
 };
 
 //	Index into this array with aip->behavior
-constexpr array<char[9], 6> behavior_text{
+constexpr std::array<char[9], 6> behavior_text{
 	"STILL   ",
 	"NORMAL  ",
 	"HIDE    ",
@@ -2143,7 +2143,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 	auto &vcwallptr = Walls.vcptr;
 	{
 		int			head, tail;
-		array<segnum_t, QUEUE_SIZE> seg_queue;
+		std::array<segnum_t, QUEUE_SIZE> seg_queue;
 
 		const auto original_boss_seg = boss_objp.segnum;
 		head = 0;
@@ -2940,7 +2940,7 @@ static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const vmobjptr_t robot,
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	array<segnum_t, MNRS_SEG_MAX> bfs_list;
+	std::array<segnum_t, MNRS_SEG_MAX> bfs_list;
 	/* Passing powerup_flags here seems wrong.  Sniping robots do not
 	 * open doors, so they should not care what doors the player can
 	 * open.  However, passing powerup_flags here maintains the
@@ -4671,8 +4671,8 @@ DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE();
 DEFINE_SERIAL_UDT_TO_MESSAGE(point_seg, p, (p.segnum, serial::pad<2>(), p.point));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(point_seg, 16);
 
-DEFINE_SERIAL_MUTABLE_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<array<point_seg, MAX_POINT_SEGS> &>(p)));
-DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<const array<point_seg, MAX_POINT_SEGS> &>(p)));
+DEFINE_SERIAL_MUTABLE_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<std::array<point_seg, MAX_POINT_SEGS> &>(p)));
+DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<const std::array<point_seg, MAX_POINT_SEGS> &>(p)));
 
 }
 

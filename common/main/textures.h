@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern unsigned NumTextures;
 namespace dsx {
-using Textures_array = array<bitmap_index, MAX_TEXTURES>;
+using Textures_array = std::array<bitmap_index, MAX_TEXTURES>;
 extern Textures_array Textures; // Array of all texture tmaps.
 }
 #endif

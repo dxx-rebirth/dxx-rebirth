@@ -55,7 +55,7 @@ struct color_record {
 	color_t color_num;
 };
 
-static array<color_record, MAX_COMPUTED_COLORS> Computed_colors;
+static std::array<color_record, MAX_COMPUTED_COLORS> Computed_colors;
 
 palette_array_t gr_palette;
 palette_array_t gr_current_pal;

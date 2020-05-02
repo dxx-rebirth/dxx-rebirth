@@ -128,7 +128,7 @@ char *(d_strdup)(const char *str, const char *var, const char *file, unsigned li
 #endif
 
 // remove extension from filename
-void removeext(const char *const filename, array<char, 20> &out)
+void removeext(const char *const filename, std::array<char, 20> &out)
 {
 	const char *p = nullptr;
 	auto i = filename;

@@ -63,7 +63,7 @@ struct vclip : public prohibit_void_ptr<vclip>
 	fix             frame_time;         // time (in seconds) of each frame
 	uint8_t         flags;
 	short           sound_num;
-	array<bitmap_index, VCLIP_MAX_FRAMES>    frames;
+	std::array<bitmap_index, VCLIP_MAX_FRAMES>    frames;
 	fix             light_value;
 };
 

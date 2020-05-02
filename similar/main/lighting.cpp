@@ -114,7 +114,7 @@ static fix compute_fireball_light_emission_intensity(const d_vclip_array &Vclip,
 // ----------------------------------------------------------------------------------------------
 namespace dsx {
 
-static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg, const vms_vector &obj_pos, const unsigned n_render_vertices, array<unsigned, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list, const icobjptridx_t objnum)
+static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg, const vms_vector &obj_pos, const unsigned n_render_vertices, std::array<unsigned, MAX_VERTICES> &render_vertices, const std::array<segnum_t, MAX_VERTICES> &vert_segnum_list, const icobjptridx_t objnum)
 {
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 	{
@@ -240,7 +240,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 #define FLASH_SCALE             (3*F1_0/FLASH_LEN_FIXED_SECONDS)
 
 // ----------------------------------------------------------------------------------------------
-static void cast_muzzle_flash_light(fvmsegptridx &vmsegptridx, int n_render_vertices, array<unsigned, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list)
+static void cast_muzzle_flash_light(fvmsegptridx &vmsegptridx, int n_render_vertices, std::array<unsigned, MAX_VERTICES> &render_vertices, const std::array<segnum_t, MAX_VERTICES> &vert_segnum_list)
 {
 	fix64 current_time;
 	short time_since_flash;
@@ -267,7 +267,7 @@ static void cast_muzzle_flash_light(fvmsegptridx &vmsegptridx, int n_render_vert
 }
 
 // Translation table to make flares flicker at different rates
-const array<fix, 16> Obj_light_xlate{{0x1234, 0x3321, 0x2468, 0x1735,
+const std::array<fix, 16> Obj_light_xlate{{0x1234, 0x3321, 0x2468, 0x1735,
 			    0x0123, 0x19af, 0x3f03, 0x232a,
 			    0x2123, 0x39af, 0x0f03, 0x132a,
 			    0x3123, 0x29af, 0x1f03, 0x032a
@@ -507,8 +507,8 @@ void set_dynamic_light(render_state_t &rstate)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
-	array<unsigned, MAX_VERTICES> render_vertices;
-	array<segnum_t, MAX_VERTICES> vert_segnum_list;
+	std::array<unsigned, MAX_VERTICES> render_vertices;
+	std::array<segnum_t, MAX_VERTICES> vert_segnum_list;
 	static fix light_time; 
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -611,7 +611,7 @@ static fix compute_headlight_light_on_object(const d_level_unique_headlight_stat
 }
 
 //compute the average dynamic light in a segment.  Takes the segment number
-static g3s_lrgb compute_seg_dynamic_light(const array<g3s_lrgb, MAX_VERTICES> &Dynamic_light, const shared_segment &seg)
+static g3s_lrgb compute_seg_dynamic_light(const std::array<g3s_lrgb, MAX_VERTICES> &Dynamic_light, const shared_segment &seg)
 {
 	const auto &&op = [&Dynamic_light](g3s_lrgb r, const unsigned v) {
 		r.r += Dynamic_light[v].r;
@@ -626,8 +626,8 @@ static g3s_lrgb compute_seg_dynamic_light(const array<g3s_lrgb, MAX_VERTICES> &D
 	return sum;
 }
 
-static array<g3s_lrgb, MAX_OBJECTS> object_light;
-static array<object_signature_t, MAX_OBJECTS> object_sig;
+static std::array<g3s_lrgb, MAX_OBJECTS> object_light;
+static std::array<object_signature_t, MAX_OBJECTS> object_sig;
 const object *old_viewer;
 static int reset_lighting_hack;
 #define LIGHT_RATE i2f(4) //how fast the light ramps up

@@ -113,7 +113,7 @@ static void digi_audio_stop_sound(sound_slot &s)
 	s.persistent = 0;
 }
 
-static array<sound_slot, 32> SoundSlots;
+static std::array<sound_slot, 32> SoundSlots;
 
 }
 

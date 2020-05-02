@@ -118,7 +118,7 @@ class d_level_unique_stuck_object_state
 {
 protected:
 	unsigned Num_stuck_objects = 0;
-	array<stuckobj, 32> Stuck_objects;
+	std::array<stuckobj, 32> Stuck_objects;
 public:
 	void init_stuck_objects();
 };
@@ -171,8 +171,8 @@ namespace dcx {
 struct active_door : public prohibit_void_ptr<active_door>
 {
 	unsigned n_parts;            // for linked walls
-	array<wallnum_t, 2>   front_wallnum;   // front wall numbers for this door
-	array<wallnum_t, 2>   back_wallnum;    // back wall numbers for this door
+	std::array<wallnum_t, 2>   front_wallnum;   // front wall numbers for this door
+	std::array<wallnum_t, 2>   back_wallnum;    // back wall numbers for this door
 	fix     time;               // how long been opening, closing, waiting
 };
 
@@ -189,8 +189,8 @@ struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
 {
 	wallnum_t       front_wallnum;  // front wall numbers for this door
 	wallnum_t       back_wallnum;   // back wall numbers for this door
-	array<fix, 4> front_ls;     // front wall saved light values
-	array<fix, 4> back_ls;      // back wall saved light values
+	std::array<fix, 4> front_ls;     // front wall saved light values
+	std::array<fix, 4> back_ls;      // back wall saved light values
 	fix     time;               // how long been cloaking or decloaking
 };
 
@@ -222,13 +222,13 @@ struct wclip : public prohibit_void_ptr<wclip>
 	fix     play_time;
 	uint16_t num_frames;
 	union {
-		array<int16_t, MAX_CLIP_FRAMES> frames;
-		array<int16_t, MAX_CLIP_FRAMES_D1> d1_frames;
+		std::array<int16_t, MAX_CLIP_FRAMES> frames;
+		std::array<int16_t, MAX_CLIP_FRAMES_D1> d1_frames;
 	};
 	short   open_sound;
 	short   close_sound;
 	short   flags;
-	array<char, 13> filename;
+	std::array<char, 13> filename;
 };
 
 constexpr std::integral_constant<uint16_t, 0xffff> wclip_frames_none{};

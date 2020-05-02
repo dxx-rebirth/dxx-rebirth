@@ -355,15 +355,15 @@ void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, unsigned s
 void multi_object_to_object_rw(object &obj, object_rw *obj_rw);
 void multi_object_rw_to_object(object_rw *obj_rw, object &obj);
 
-using GMNames_array = array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT>;
+using GMNames_array = std::array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT>;
 extern const GMNames_array GMNames;
-using multi_allow_powerup_text_array = array<char[MULTI_ALLOW_POWERUP_TEXT_LENGTH], MULTI_ALLOW_POWERUP_MAX>;
+using multi_allow_powerup_text_array = std::array<char[MULTI_ALLOW_POWERUP_TEXT_LENGTH], MULTI_ALLOW_POWERUP_MAX>;
 extern const multi_allow_powerup_text_array multi_allow_powerup_text;
-extern const array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt;
+extern const std::array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt;
 }
 
 namespace dcx {
-extern array<objnum_t, MAX_NET_CREATE_OBJECTS> Net_create_objnums;
+extern std::array<objnum_t, MAX_NET_CREATE_OBJECTS> Net_create_objnums;
 extern unsigned Net_create_loc;
 }
 
@@ -532,8 +532,8 @@ extern int VerifyPlayerJoined;
 extern int Player_joining_extras;
 extern int Network_player_added;
 
-extern array<array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
-extern array<int16_t, 2> team_kills;
+extern std::array<std::array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
+extern std::array<int16_t, 2> team_kills;
 
 extern ushort my_segments_checksum;
 
@@ -548,11 +548,11 @@ extern ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 extern int Network_message_reciever;
 
 // Which player 'owns' each local object for network purposes
-extern array<sbyte, MAX_OBJECTS> object_owner;
+extern std::array<sbyte, MAX_OBJECTS> object_owner;
 
 extern int multi_quit_game;
 
-extern array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
+extern std::array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
 extern int multi_defining_message;
 }
 window_event_result multi_message_input_sub(int key);
@@ -561,7 +561,7 @@ void multi_send_msgsend_state(msgsend_state_t state);
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-extern array<grs_main_bitmap, 2> Orb_icons;
+extern std::array<grs_main_bitmap, 2> Orb_icons;
 struct hoard_highest_record
 {
 	unsigned points;
@@ -574,9 +574,9 @@ extern hoard_highest_record hoard_highest_record_stats;
 namespace dcx {
 extern playernum_t Bounty_target;
 
-extern array<array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
+extern std::array<std::array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
 
-extern const array<char[16], 10> RankStrings;
+extern const std::array<char[16], 10> RankStrings;
 #define GetRankStringWithSpace(I)	(PlayerCfg.NoRankings ? std::pair<const char *, const char *>("", "") : std::pair<const char *, const char *>(RankStrings[I], " "))
 
 // Globals for protocol-bound Refuse-functions
@@ -772,7 +772,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 		struct
 		{
 			struct _sockaddr		addr; // IP address of this netgame's host
-			array<short, 4>			program_iver; // IVER of program for version checking
+			std::array<short, 4>			program_iver; // IVER of program for version checking
 			sbyte				valid; // Status of Netgame info: -1 = Failed, Wrong version; 0 = No info, yet; 1 = Success
 			uint8_t				your_index; // Tell player his designated (re)join position in players[]
 			fix				GameID;
@@ -823,15 +823,15 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	short						PacketsPerSec;
 	ubyte						PacketLossPrevention;
 	ubyte						NoFriendlyFire;
-	array<callsign_t, 2>					team_name;
-	array<uint32_t, MAX_PLAYERS>						locations;
-	array<array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS>						kills;
-	array<int16_t, 2>						team_kills;
-	array<uint16_t, MAX_PLAYERS>						killed;
-	array<uint16_t, MAX_PLAYERS>						player_kills;
-	array<uint32_t, MAX_PLAYERS>						player_score;
-	array<player_flags, MAX_PLAYERS>					net_player_flags;
-	array<netplayer_info, MAX_PLAYERS> 				players;
+	std::array<callsign_t, 2>					team_name;
+	std::array<uint32_t, MAX_PLAYERS>						locations;
+	std::array<std::array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS>						kills;
+	std::array<int16_t, 2>						team_kills;
+	std::array<uint16_t, MAX_PLAYERS>						killed;
+	std::array<uint16_t, MAX_PLAYERS>						player_kills;
+	std::array<uint32_t, MAX_PLAYERS>						player_score;
+	std::array<player_flags, MAX_PLAYERS>					net_player_flags;
+	std::array<netplayer_info, MAX_PLAYERS> 				players;
 #if DXX_USE_TRACKER
 	ubyte						Tracker;
 	TrackerNATHolePunchWarn TrackerNATWarned;
@@ -846,9 +846,9 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
  */
 struct multi_level_inv
 {
-        array<uint32_t, MAX_POWERUP_TYPES> Initial; // initial (level start) count of this powerup type
-        array<uint32_t, MAX_POWERUP_TYPES> Current; // current count of this powerup type
-        array<fix, MAX_POWERUP_TYPES> RespawnTimer; // incremented by FrameTime if initial-current > 0 and triggers respawn after 2 seconds. Since we deal with a certain delay from clients, their inventory updates may happen a while after they remove the powerup object and we do not want to respawn it on accident during that time window!
+        std::array<uint32_t, MAX_POWERUP_TYPES> Initial; // initial (level start) count of this powerup type
+        std::array<uint32_t, MAX_POWERUP_TYPES> Current; // current count of this powerup type
+        std::array<fix, MAX_POWERUP_TYPES> RespawnTimer; // incremented by FrameTime if initial-current > 0 and triggers respawn after 2 seconds. Since we deal with a certain delay from clients, their inventory updates may happen a while after they remove the powerup object and we do not want to respawn it on accident during that time window!
 };
 }
 #endif

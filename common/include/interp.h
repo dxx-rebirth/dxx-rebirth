@@ -25,7 +25,7 @@ namespace dcx {
 class submodel_angles;
 
 constexpr std::integral_constant<std::size_t, 1000> MAX_POLYGON_VECS{};
-struct polygon_model_points : array<g3s_point, MAX_POLYGON_VECS> {};
+struct polygon_model_points : std::array<g3s_point, MAX_POLYGON_VECS> {};
 }
 
 #ifdef dsx
@@ -35,7 +35,7 @@ namespace dsx {
 #elif defined(DXX_BUILD_DESCENT_II)
 #define glow_array_size	2
 #endif
-struct glow_values_t : public array<fix, glow_array_size> {};
+struct glow_values_t : public std::array<fix, glow_array_size> {};
 #undef glow_array_size
 
 //Object functions:

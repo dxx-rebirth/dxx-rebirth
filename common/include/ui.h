@@ -45,13 +45,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 
 struct UI_KEYPAD {
-	typedef array<char, 100> buttontext_element_t;
-	typedef array<buttontext_element_t, 17> buttontext_t;
+	typedef std::array<char, 100> buttontext_element_t;
+	typedef std::array<buttontext_element_t, 17> buttontext_t;
 	UI_KEYPAD();
 	unsigned numkeys;
 	ntstring<99> description;
-	array<short, 100> keycode;
-	array<int, 100> function_number;
+	std::array<short, 100> keycode;
+	std::array<int, 100> function_number;
 	buttontext_t buttontext;
 };
 

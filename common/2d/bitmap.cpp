@@ -138,7 +138,7 @@ void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint1
 	bm.bm_data = &bmParent.bm_data[static_cast<uint32_t>((y*bmParent.bm_rowsize)+x)];
 }
 
-void decode_data(ubyte *data, uint_fast32_t num_pixels, array<color_t, 256> &colormap, array<bool, 256> &used)
+void decode_data(ubyte *data, uint_fast32_t num_pixels, std::array<color_t, 256> &colormap, std::array<bool, 256> &used)
 {
 	const auto a = [&](uint8_t mapped) {
 		return used[mapped] = true, colormap[mapped];
@@ -151,7 +151,7 @@ static void gr_set_super_transparent(grs_bitmap &bm, bool bOpaque)
 	bm.set_flag_mask(!bOpaque, BM_FLAG_SUPER_TRANSPARENT);
 }
 
-void build_colormap_good(const palette_array_t &palette, array<color_t, 256> &colormap)
+void build_colormap_good(const palette_array_t &palette, std::array<color_t, 256> &colormap)
 {
 	const auto a = [](const rgb_t &p) {
 		return gr_find_closest_color(p.r, p.g, p.b);
@@ -161,7 +161,7 @@ void build_colormap_good(const palette_array_t &palette, array<color_t, 256> &co
 
 void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, uint_fast32_t transparent_color, uint_fast32_t super_transparent_color)
 {
-	array<uint8_t, 256> colormap;
+	std::array<uint8_t, 256> colormap;
 	build_colormap_good(palette, colormap);
 
 	if (super_transparent_color < colormap.size())
@@ -170,7 +170,7 @@ void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, uint_fast32
 	if (transparent_color < colormap.size())
 		colormap[transparent_color] = TRANSPARENCY_COLOR;
 
-	array<bool, 256> freq{};
+	std::array<bool, 256> freq{};
 	if (bmp.bm_w == bmp.bm_rowsize)
 		decode_data(bmp.get_bitmap_data(), bmp.bm_w * bmp.bm_h, colormap, freq );
 	else {

@@ -615,7 +615,7 @@ void record_screenshot_time(const struct tm &tm, png_struct *const png_ptr, png_
 #ifdef PNG_TEXT_SUPPORTED
 void record_screenshot_text_metadata(png_struct *const png_ptr, png_info *const info_ptr)
 {
-	array<png_text, 6> text_fields{};
+	std::array<png_text, 6> text_fields{};
 	char descent_version[80];
 	char descent_build_datetime[21];
 	std::string current_mission_path;
@@ -731,7 +731,7 @@ unsigned write_screenshot_png(PHYSFS_File *const file, const struct tm *const tm
 		record_screenshot_text_metadata(ss.png_ptr, ss.info_ptr);
 #endif
 		png_write_info(ss.png_ptr, ss.info_ptr);
-		array<png_byte *, 1024> row_pointers;
+		std::array<png_byte *, 1024> row_pointers;
 		const auto rpb = row_pointers.begin();
 		auto o = rpb;
 		const auto end_byte_buffer = begin_byte_buffer + bufsize;
@@ -1685,8 +1685,8 @@ namespace dsx {
 object *Missile_viewer=NULL;
 object_signature_t Missile_viewer_sig;
 
-array<unsigned, 2> Marker_viewer_num{{~0u, ~0u}};
-array<unsigned, 2> Coop_view_player{{UINT_MAX, UINT_MAX}};
+std::array<unsigned, 2> Marker_viewer_num{{~0u, ~0u}};
+std::array<unsigned, 2> Coop_view_player{{UINT_MAX, UINT_MAX}};
 
 //returns ptr to escort robot, or NULL
 imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_level_shared_robot_info_state::d_robot_info_array &Robot_info)
@@ -1946,7 +1946,7 @@ void compute_slide_segs()
 }
 
 template <fix uvl::*p>
-static void update_uv(array<uvl, 4> &uvls, uvl &i, fix a)
+static void update_uv(std::array<uvl, 4> &uvls, uvl &i, fix a)
 {
 	if (!a)
 		return;

@@ -188,10 +188,10 @@ fixang fix_atan2 (fix cos, fix sin);
 __attribute_warn_unused_result
 int checkmuldiv(fix *r,fix a,fix b,fix c);
 
-extern const array<ubyte, 256> guess_table;
-extern const array<int16_t, 256> sincos_table;
-extern const array<ushort, 258> asin_table;
-extern const array<ushort, 258> acos_table;
+extern const std::array<ubyte, 256> guess_table;
+extern const std::array<int16_t, 256> sincos_table;
+extern const std::array<ushort, 258> asin_table;
+extern const std::array<ushort, 258> acos_table;
 
 static inline void clamp_fix_lh(fix& f, const fix& low, const fix& high)
 {

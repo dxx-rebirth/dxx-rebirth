@@ -398,7 +398,7 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 {
 	imobjptridx_t  last_created_objnum = object_none;
 	fix		dist_to_goal = 0, omega_blob_dist = 0;
-	array<fix, MAX_OMEGA_BLOBS> perturb_array{};
+	std::array<fix, MAX_OMEGA_BLOBS> perturb_array{};
 
 	auto vec_to_goal = vm_vec_sub(goal_pos, firing_pos);
 	dist_to_goal = vm_vec_normalize_quick(vec_to_goal);
@@ -988,7 +988,7 @@ imobjptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vecto
 
 namespace dcx {
 
-array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
+std::array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 
 static fix get_weapon_energy_usage_with_difficulty(const weapon_info &wi, const Difficulty_level_type Difficulty_level)
 {
@@ -2235,7 +2235,7 @@ static void create_smart_children(object_array &Objects, const vmobjptridx_t obj
 	unsigned numobjs = 0;
 	weapon_id_type blob_id;
 
-	array<objnum_t, MAX_OBJDISTS> objlist;
+	std::array<objnum_t, MAX_OBJDISTS> objlist;
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #endif

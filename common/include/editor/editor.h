@@ -167,7 +167,7 @@ enum class editor_gamestate : uint8_t
  * 
  */
 
-extern array<editor_view *, ORTHO_VIEWS ? 4 : 1> Views;
+extern std::array<editor_view *, ORTHO_VIEWS ? 4 : 1> Views;
 extern int Large_view_index;
 extern std::unique_ptr<UI_GADGET_USERBOX> LargeViewBox, GameViewBox, GroupViewBox;
 extern int Found_seg_index;				// Index in Found_segs corresponding to Cursegp
@@ -209,7 +209,7 @@ extern int is_free_vertex(int vi);
 //	Set existing vertex vnum to value *vp.
 int med_set_vertex(unsigned vnum, const vertex &vp);
 
-void med_combine_duplicate_vertices(array<uint8_t, MAX_VERTICES> &);
+void med_combine_duplicate_vertices(std::array<uint8_t, MAX_VERTICES> &);
 
 #ifdef dsx
 namespace dsx {
@@ -317,7 +317,7 @@ struct vms_equation
 {
     union {
             struct {fix x3, x2, x1, x0, y3, y2, y1, y0, z3, z2, z1, z0;} n;
-		array<array<fix, 4>, 3> xyz;
+		std::array<std::array<fix, 4>, 3> xyz;
     };
 };
 
@@ -352,7 +352,7 @@ void assign_default_uvs_to_side(vmsegptridx_t segp, unsigned side);
 void med_assign_uvs_to_side(vmsegptridx_t con_seg, unsigned con_common_side, vmsegptr_t base_seg, unsigned base_common_side, unsigned abs_id1, unsigned abs_id2);
 
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
-void create_coordinate_axes_from_segment(vmsegptr_t sp, array<unsigned, 16> &vertnums);
+void create_coordinate_axes_from_segment(vmsegptr_t sp, std::array<unsigned, 16> &vertnums);
 
 //	Set Vertex_active to number of occurrences of each vertex.
 //	Set Num_vertices.
@@ -503,7 +503,7 @@ extern void set_editor_time_of_day();
 
 // Undo function
 extern int undo(void);
-extern array<const char *, 10> undo_status;
+extern std::array<const char *, 10> undo_status;
 }
 
 extern char mine_filename[PATH_MAX];

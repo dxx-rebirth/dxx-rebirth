@@ -76,7 +76,7 @@ using std::min;
 
 namespace {
 
-using mission_candidate_search_path = array<char, PATH_MAX>;
+using mission_candidate_search_path = std::array<char, PATH_MAX>;
 
 }
 
@@ -158,7 +158,7 @@ mission_name_and_version::mission_name_and_version(Mission::descent_version_type
 #endif
 }
 
-const char *prepare_mission_list_count_dirbuf(array<char, 12> &dirbuf, const std::size_t immediate_directories)
+const char *prepare_mission_list_count_dirbuf(std::array<char, 12> &dirbuf, const std::size_t immediate_directories)
 {
 	if (immediate_directories)
 	{
@@ -173,7 +173,7 @@ mle::mle(const char *const name, std::vector<mle> &&d) :
 {
 	mission_subdir_stats ss;
 	ss.count(directory);
-	array<char, 12> dirbuf;
+	std::array<char, 12> dirbuf;
 	snprintf(mission_name.data(), mission_name.size(), "%s/ [%sMSN:L%zu;T%zu]", name, prepare_mission_list_count_dirbuf(dirbuf, ss.immediate_directories), ss.immediate_missions, ss.total_missions);
 }
 
@@ -945,7 +945,7 @@ static void set_briefing_filename(d_fname &f, const char *const v)
 	set_briefing_filename(f, v, d);
 }
 
-static void record_briefing(d_fname &f, array<char, PATH_MAX> &buf)
+static void record_briefing(d_fname &f, std::array<char, PATH_MAX> &buf)
 {
 	const auto v = get_value(buf.data());
 	if (!v)
@@ -1043,7 +1043,7 @@ static const char *load_mission(const mle *const mission)
 	(mission->descent_version != Mission::descent_version_type::descent1) ? MISSION_EXTENSION_DESCENT_II :
 #endif
 		MISSION_EXTENSION_DESCENT_I;
-	array<char, PATH_MAX> mission_filename;
+	std::array<char, PATH_MAX> mission_filename;
 	snprintf(mission_filename.data(), mission_filename.size(), "%s%s", mission->path.c_str(), msn_extension);
 
 	PHYSFSEXT_locateCorrectCase(mission_filename.data());
@@ -1276,7 +1276,7 @@ public:
 	{
 		mission_subdir_stats ss;
 		ss.count(ml);
-		array<char, 12> dirbuf;
+		std::array<char, 12> dirbuf;
 		char buf[128];
 		snprintf(buf, sizeof(buf), "%s\n[%sMSN:LOCAL %zu; TOTAL %zu]", message, prepare_mission_list_count_dirbuf(dirbuf, ss.immediate_directories), ss.immediate_missions, ss.total_missions);
 		return RAIIdmem<char[]>(d_strdup(buf));
@@ -1452,7 +1452,7 @@ static int write_mission(void)
 	(Current_mission->descent_version != Mission::descent_version_type::descent1) ? MISSION_EXTENSION_DESCENT_II :
 #endif
 	MISSION_EXTENSION_DESCENT_I;
-	array<char, PATH_MAX> mission_filename;
+	std::array<char, PATH_MAX> mission_filename;
 	snprintf(mission_filename.data(), mission_filename.size(), "%s%s", Current_mission->path.c_str(), msn_extension);
 	
 	auto &&mfile = PHYSFSX_openWriteBuffered(mission_filename.data());

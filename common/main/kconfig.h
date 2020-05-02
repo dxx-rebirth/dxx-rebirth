@@ -91,9 +91,9 @@ struct control_info : ::dcx::control_info
 	};
 #endif
 	state_controls_t state; // to scale movement for keys only we need them to be separate from joystick/mouse buttons
-	array<fix, 3> mouse_axis, raw_mouse_axis;
+	std::array<fix, 3> mouse_axis, raw_mouse_axis;
 #if DXX_MAX_AXES_PER_JOYSTICK
-	array<fix, JOY_MAX_AXES> joy_axis, raw_joy_axis;
+	std::array<fix, JOY_MAX_AXES> joy_axis, raw_joy_axis;
 #endif
 };
 
@@ -117,7 +117,7 @@ namespace dcx {
 extern fix Cruise_speed;
 
 constexpr std::integral_constant<unsigned, 30> MAX_DXX_REBIRTH_CONTROLS{};
-extern const array<uint8_t, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsRebirth;
+extern const std::array<uint8_t, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsRebirth;
 }
 #endif
 
@@ -144,9 +144,9 @@ extern void reset_cruise(void);
 namespace dcx {
 
 template <std::size_t N>
-class joystick_text_t : std::vector<array<char, N>>
+class joystick_text_t : std::vector<std::array<char, N>>
 {
-	typedef std::vector<array<char, N> > vector_type;
+	typedef std::vector<std::array<char, N> > vector_type;
 public:
 	using vector_type::clear;
 	using vector_type::size;

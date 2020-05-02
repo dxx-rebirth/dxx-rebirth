@@ -116,7 +116,7 @@ constexpr std::integral_constant<unsigned, 12> UDP_NETGAMES_PPAGE{}; // Netgames
 struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 {
 	struct _sockaddr                game_addr;
-	array<short, 3>                 program_iver;
+	std::array<short, 3>                 program_iver;
 	fix                             GameID;
 	uint16_t			TrackerGameID;
 	ntstring<NETGAME_NAME_LEN> game_name;
@@ -146,26 +146,26 @@ struct UDP_mdata_info : prohibit_void_ptr<UDP_mdata_info>
 	ubyte				Player_num;
 	uint16_t			mbuf_size;
 	uint32_t			pkt_num;
-	array<uint8_t, UPID_MDATA_BUF_SIZE> mbuf;
+	std::array<uint8_t, UPID_MDATA_BUF_SIZE> mbuf;
 };
 
 // structure to store MDATA to maybe resend
 struct UDP_mdata_store : prohibit_void_ptr<UDP_mdata_store>
 {
 	fix64				pkt_initial_timestamp;			// initial timestamp to see if packet is outdated
-	array<fix64, MAX_PLAYERS>		pkt_timestamp;		// Packet timestamp
-	array<uint32_t, MAX_PLAYERS>	pkt_num;			// Packet number
+	std::array<fix64, MAX_PLAYERS>		pkt_timestamp;		// Packet timestamp
+	std::array<uint32_t, MAX_PLAYERS>	pkt_num;			// Packet number
 	sbyte				used;
 	ubyte				Player_num;				// sender of this packet
 	uint16_t			data_size;
-	array<uint8_t, MAX_PLAYERS>		player_ack; 		// 0 if player has not ACK'd this packet, 1 if ACK'd or not connected
-	array<uint8_t, UPID_MDATA_BUF_SIZE> data;		// extra data of a packet - contains all multibuf data we don't want to loose
+	std::array<uint8_t, MAX_PLAYERS>		player_ack; 		// 0 if player has not ACK'd this packet, 1 if ACK'd or not connected
+	std::array<uint8_t, UPID_MDATA_BUF_SIZE> data;		// extra data of a packet - contains all multibuf data we don't want to loose
 };
 
 // structure to keep track of MDATA packets we already got, which we expect from another player and the pkt_num for the next packet we want to send to another player
 struct UDP_mdata_check : public prohibit_void_ptr<UDP_mdata_check>
 {
-	array<uint32_t, UDP_MDATA_STOR_QUEUE_SIZE>			pkt_num; 	// all those we got just recently, so we can ignore them if we get them again
+	std::array<uint32_t, UDP_MDATA_STOR_QUEUE_SIZE>			pkt_num; 	// all those we got just recently, so we can ignore them if we get them again
 	int				cur_slot; 				// index we can use for a new pkt_num
 	uint32_t			pkt_num_torecv; 			// the next pkt_num we await for this player
 	uint32_t			pkt_num_tosend; 			// the next pkt_num we want to send to another player

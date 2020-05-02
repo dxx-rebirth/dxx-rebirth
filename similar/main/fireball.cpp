@@ -477,9 +477,9 @@ imsegidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 	int		cur_depth;
 	int		head, tail;
 	constexpr unsigned QUEUE_SIZE = 64;
-	array<segnum_t, QUEUE_SIZE * 2> seg_queue{};
-	array<uint8_t, MAX_SEGMENTS> depth{};
-	array<uint8_t, MAX_SIDES_PER_SEGMENT> side_rand;
+	std::array<segnum_t, QUEUE_SIZE * 2> seg_queue{};
+	std::array<uint8_t, MAX_SEGMENTS> depth{};
+	std::array<uint8_t, MAX_SIDES_PER_SEGMENT> side_rand;
 
 	visited_segment_bitarray_t visited;
 

@@ -82,14 +82,14 @@ using std::minus;
 namespace dcx {
 
 // Array used to 'blink' the cursor while waiting for a keypress.
-const array<sbyte, 64> fades{{
+const std::array<sbyte, 64> fades{{
 	1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,
 	16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,
 	31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,
 	16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1
 }};
 
-const array<char[2], 2> invert_text{{"N", "Y"}};
+const std::array<char[2], 2> invert_text{{"N", "Y"}};
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 joybutton_text_t joybutton_text;
 #endif
@@ -99,7 +99,7 @@ joyaxis_text_t joyaxis_text;
 constexpr char mouseaxis_text[][8] = { "L/R", "F/B", "WHEEL" };
 constexpr char mousebutton_text[][8] = { "LEFT", "RIGHT", "MID", "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };
 
-const array<uint8_t, 19> system_keys{{
+const std::array<uint8_t, 19> system_keys{{
 	KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN,
 	// KEY_*LOCK should always be last since we wanna skip these if -nostickykeys
 	KEY_CAPSLOCK, KEY_SCROLLOCK, KEY_NUMLOCK
@@ -109,7 +109,7 @@ fix Cruise_speed=0;
 
 #define INFO_Y (188)
 
-const array<uint8_t, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsRebirth{{ 0x2,0xff,0xff,0x3,0xff,0xff,0x4,0xff,0xff,0x5,0xff,0xff,0x6,0xff,0xff,0x7,0xff,0xff,0x8,0xff,0xff,0x9,0xff,0xff,0xa,0xff,0xff,0xb,0xff,0xff }};
+const std::array<uint8_t, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsRebirth{{ 0x2,0xff,0xff,0x3,0xff,0xff,0x4,0xff,0xff,0x5,0xff,0xff,0x6,0xff,0xff,0x7,0xff,0xff,0x8,0xff,0xff,0x9,0xff,0xff,0xa,0xff,0xff,0xb,0xff,0xff }};
 
 namespace {
 
@@ -174,9 +174,9 @@ struct kc_menu : embed_window_pointer_t
 	ubyte	changing;
 	ubyte	q_fade_i;	// for flashing the question mark
 	ubyte	mouse_state;
-	array<int, 3>	old_maxis;
+	std::array<int, 3>	old_maxis;
 #if DXX_MAX_AXES_PER_JOYSTICK
-	array<int, JOY_MAX_AXES>	old_jaxis;
+	std::array<int, JOY_MAX_AXES>	old_jaxis;
 #endif
 };
 
@@ -240,12 +240,12 @@ namespace {
 #endif
 #include "kconfig.ui-table.cpp"
 
-static array<kc_mitem, lengthof(kc_keyboard)> kcm_keyboard;
+static std::array<kc_mitem, lengthof(kc_keyboard)> kcm_keyboard;
 #if DXX_MAX_JOYSTICKS
-static array<kc_mitem, lengthof(kc_joystick)> kcm_joystick;
+static std::array<kc_mitem, lengthof(kc_joystick)> kcm_joystick;
 #endif
-static array<kc_mitem, lengthof(kc_mouse)> kcm_mouse;
-static array<kc_mitem, lengthof(kc_rebirth)> kcm_rebirth;
+static std::array<kc_mitem, lengthof(kc_mouse)> kcm_mouse;
+static std::array<kc_mitem, lengthof(kc_rebirth)> kcm_rebirth;
 
 }
 }
@@ -568,7 +568,7 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 }
 
 template <std::size_t M, std::size_t C>
-static void reset_mitem_values(array<kc_mitem, M> &m, const array<ubyte, C> &c)
+static void reset_mitem_values(std::array<kc_mitem, M> &m, const std::array<ubyte, C> &c)
 {
 	for (std::size_t i = 0; i != min(M, C); ++i)
 		m[i].value = c[i];
@@ -780,7 +780,7 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 }
 
 template <std::size_t N>
-static void kconfig_sub(const char *litems, const kc_item (&items)[N], array<kc_mitem, N> &mitems, const char *title)
+static void kconfig_sub(const char *litems, const kc_item (&items)[N], std::array<kc_mitem, N> &mitems, const char *title)
 {
 	kconfig_sub(litems, items, mitems.data(), N, title);
 }
@@ -1009,7 +1009,7 @@ static void adjust_ramped_keyboard_field(float& keydown_time, ubyte& state, fix&
 }
 
 template <std::size_t N>
-static void adjust_axis_field(fix& time, const array<fix, N> &axes, unsigned value, unsigned invert, const int& sensitivity)
+static void adjust_axis_field(fix& time, const std::array<fix, N> &axes, unsigned value, unsigned invert, const int& sensitivity)
 {
 	if (value == 255)
 		return;

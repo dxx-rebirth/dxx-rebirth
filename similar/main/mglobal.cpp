@@ -63,7 +63,7 @@ d_level_unique_segment_state LevelUniqueSegmentState;
 valptridx<player>::array_managed_type Players;
 valptridx<segment>::array_managed_type Segments;
 }
-array<g3s_point, MAX_VERTICES> Segment_points;
+std::array<g3s_point, MAX_VERTICES> Segment_points;
 
 namespace dcx {
 fix FrameTime = 0x1000;	// Time since last frame, in seconds
@@ -79,13 +79,13 @@ int d_tick_step = 0;  // true once every 33.33ms
 
 //	Translate table to get opposite side of a face on a segment.
 
-const array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite{{
+const std::array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite{{
 	WRIGHT, WBOTTOM, WLEFT, WTOP, WFRONT, WBACK
 }};
 
 #define TOLOWER(c) ((((c)>='A') && ((c)<='Z'))?((c)+('a'-'A')):(c))
 
-const array<array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int{{
+const std::array<std::array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int{{
 	{{7,6,2,3}},			// left
 	{{0,4,7,3}},			// top
 	{{0,1,5,4}},			// right

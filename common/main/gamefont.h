@@ -54,7 +54,7 @@ constexpr std::integral_constant<unsigned, 5> MAX_FONTS{};
 
 // add (scaled) spacing to given font coordinate
 
-extern array<grs_font_ptr, MAX_FONTS> Gamefonts;
+extern std::array<grs_font_ptr, MAX_FONTS> Gamefonts;
 
 class base_font_scale_proportion
 {

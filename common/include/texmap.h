@@ -74,7 +74,7 @@ struct g3ds_vertex {
 // are computed.
 struct g3ds_tmap {
 	int	nv;			// number of vertices
-	array<g3ds_vertex, MAX_TMAP_VERTS> verts;	// up to 8 vertices, this is inefficient, change
+	std::array<g3ds_vertex, MAX_TMAP_VERTS> verts;	// up to 8 vertices, this is inefficient, change
 };
 
 // -------------------------------------------------------------------------------------------------------

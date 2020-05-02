@@ -104,9 +104,9 @@ namespace {
 
 struct Edge_info
 {
-	array<unsigned, 2> verts;     // 8  bytes
-	array<uint8_t, 4> sides;     // 4  bytes
-	array<segnum_t, 4> segnum;    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
+	std::array<unsigned, 2> verts;     // 8  bytes
+	std::array<uint8_t, 4> sides;     // 4  bytes
+	std::array<segnum_t, 4> segnum;    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
 	ubyte flags;        // 1  bytes  // See the EF_??? defines above.
 	color_t color;        // 1  bytes
 	ubyte num_faces;    // 1  bytes  // 31 bytes...
@@ -300,7 +300,7 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap *am, unsigned num
 	{
 		float x0, y0, x1, y1;
 	};
-	static constexpr array<array<xy, 5>, 9> sArray = {{
+	static constexpr std::array<std::array<xy, 5>, 9> sArray = {{
 		{{
 			{-0.25, 0.75, 0, 1},
 			{0, 1, 0, -1},
@@ -356,7 +356,7 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap *am, unsigned num
 			{-1, 0, -1, 1},
 		 }}
 	}};
-	static constexpr array<uint_fast8_t, 9> NumOfPoints = {{3, 5, 4, 3, 5, 5, 2, 5, 4}};
+	static constexpr std::array<uint_fast8_t, 9> NumOfPoints = {{3, 5, 4, 3, 5, 5, 2, 5, 4}};
 
 	const auto color = (num == MarkerState.HighlightMarker ? am->white_63 : am->blue_48);
 	const auto scale_x = Matrix_scale.x;
@@ -431,7 +431,7 @@ static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap *const 
 			return;
 	}
 	const auto current_cycle_color = cyc;
-	const array<color_t, 3> colors{{
+	const std::array<color_t, 3> colors{{
 		gr_find_closest_color_current(current_cycle_color, 0, 0),
 		gr_find_closest_color_current(current_cycle_color + 10, 0, 0),
 		gr_find_closest_color_current(current_cycle_color + 20, 0, 0),

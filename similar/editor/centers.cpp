@@ -69,8 +69,8 @@ namespace {
 struct centers_dialog
 {
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
-	array<std::unique_ptr<UI_GADGET_RADIO>, MAX_CENTER_TYPES> centerFlag;
-	array<std::unique_ptr<UI_GADGET_CHECKBOX>, MAX_ROBOT_TYPES> robotMatFlag;
+	std::array<std::unique_ptr<UI_GADGET_RADIO>, MAX_CENTER_TYPES> centerFlag;
+	std::array<std::unique_ptr<UI_GADGET_CHECKBOX>, MAX_ROBOT_TYPES> robotMatFlag;
 	int old_seg_num;
 };
 

@@ -162,7 +162,7 @@ static void merge_textures(unsigned orient, const grs_bitmap &expanded_bottom_bm
 	}
 }
 
-static array<TEXTURE_CACHE, MAX_NUM_CACHE_BITMAPS> Cache;
+static std::array<TEXTURE_CACHE, MAX_NUM_CACHE_BITMAPS> Cache;
 
 static int cache_hits = 0;
 static int cache_misses = 0;

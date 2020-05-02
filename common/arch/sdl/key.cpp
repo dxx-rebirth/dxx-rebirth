@@ -40,9 +40,9 @@ namespace dcx {
 static bool keyd_repeat; // 1 = use repeats, 0 no repeats
 pressed_keys keyd_pressed;
 fix64			keyd_time_when_last_pressed;
-array<unsigned char, KEY_BUFFER_SIZE>		unicode_frame_buffer;
+std::array<unsigned char, KEY_BUFFER_SIZE>		unicode_frame_buffer;
 
-const array<key_props, 256> key_properties = {{
+const std::array<key_props, 256> key_properties = {{
 { "",       255,    SDLK_UNKNOWN                 }, // 0
 { "ESC",    255,    SDLK_ESCAPE        },
 { "1",      '1',    SDLK_1             },
@@ -417,7 +417,7 @@ unsigned char key_ascii()
 {
 	using std::move;
 	using std::next;
-	static array<unsigned char, KEY_BUFFER_SIZE> unibuffer;
+	static std::array<unsigned char, KEY_BUFFER_SIZE> unibuffer;
 	auto src = begin(unicode_frame_buffer);
 	auto dst = next(begin(unibuffer), strlen(reinterpret_cast<const char *>(&unibuffer[0])));
 	

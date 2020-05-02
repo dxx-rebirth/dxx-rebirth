@@ -198,7 +198,7 @@ int set_average_light_on_all_quick(void)
 //	---------------------------------------------------------------------------------------------
 //	Given a polygon, compress the uv coordinates so that they are as close to 0 as possible.
 //	Do this by adding a constant u and v to each uv pair.
-static void compress_uv_coordinates(array<uvl, 4> &uvls)
+static void compress_uv_coordinates(std::array<uvl, 4> &uvls)
 {
 	fix	uc, vc;
 
@@ -223,7 +223,7 @@ static void compress_uv_coordinates(array<uvl, 4> &uvls)
 	}
 }
 
-static void assign_default_lighting_on_side(array<uvl, 4> &uvls)
+static void assign_default_lighting_on_side(std::array<uvl, 4> &uvls)
 {
 	range_for (auto &uvl, uvls)
 		uvl.l = DEFAULT_LIGHTING;
@@ -292,7 +292,7 @@ static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, 
 {
 	int			vlo,vhi;
 	unsigned v0, v1, v2, v3;
-	array<uvl, 4> uvls;
+	std::array<uvl, 4> uvls;
 	uvl ruvmag,fuvmag,uvlo,uvhi;
 	fix			fmag,mag01;
 	Assert( (va<4) && (vb<4) );
@@ -875,7 +875,7 @@ struct hash_info {
 
 //	Note: This should be malloced.
 //			Also, the vector should not be 12 bytes, you should only care about some smaller portion of it.
-static array<hash_info, FVI_HASH_SIZE> fvi_cache;
+static std::array<hash_info, FVI_HASH_SIZE> fvi_cache;
 static int Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 
 //	-----------------------------------------------------------------------------------------

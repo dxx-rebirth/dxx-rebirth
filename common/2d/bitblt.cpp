@@ -534,7 +534,7 @@ void gr_bitblt_find_transparent_area(const grs_bitmap &bm, unsigned &minx, unsig
 		bm_rle_expand expander(bm);
 		for (uint_fast32_t y = 0;; ++y)
 		{
-			array<uint8_t, 4096> buf;
+			std::array<uint8_t, 4096> buf;
 			if (expander.step(bm_rle_expand_range(buf)) != bm_rle_expand::again)
 				break;
 			range_for (const uint_fast32_t x, xrange(bm_w))

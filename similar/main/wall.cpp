@@ -89,7 +89,7 @@ namespace {
 struct cwframe
 {
 	wall &w;
-	array<uvl, 4> &uvls;
+	std::array<uvl, 4> &uvls;
 	cwframe(fvmsegptr &vmsegptr, wall &wr) :
 		w(wr),
 		uvls(vmsegptr(w.segnum)->unique_segment::sides[w.sidenum].uvls)
@@ -1232,7 +1232,7 @@ bool ad_removal_predicate::operator()(active_door &d) const
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void copy_cloaking_wall_light_to_wall(array<uvl, 4> &back_uvls, array<uvl, 4> &front_uvls, const cloaking_wall &d)
+static void copy_cloaking_wall_light_to_wall(std::array<uvl, 4> &back_uvls, std::array<uvl, 4> &front_uvls, const cloaking_wall &d)
 {
 	range_for (const uint_fast32_t i, xrange(4u))
 	{
@@ -1241,7 +1241,7 @@ static void copy_cloaking_wall_light_to_wall(array<uvl, 4> &back_uvls, array<uvl
 	}
 }
 
-static void scale_cloaking_wall_light_to_wall(array<uvl, 4> &back_uvls, array<uvl, 4> &front_uvls, const cloaking_wall &d, const fix light_scale)
+static void scale_cloaking_wall_light_to_wall(std::array<uvl, 4> &back_uvls, std::array<uvl, 4> &front_uvls, const cloaking_wall &d, const fix light_scale)
 {
 	range_for (const uint_fast32_t i, xrange(4u))
 	{
@@ -1468,7 +1468,7 @@ void d_level_unique_stuck_object_state::kill_stuck_objects(fvmobjptr &vmobjptr, 
 	const auto i = std::remove_if(pr.begin(), pr.end(), predicate);
 	static_assert(std::is_trivially_destructible<stuckobj>::value, "stuckobj destructor not called");
 	Num_stuck_objects = std::distance(pr.begin(), i);
-	array<stuckobj, 1> empty;
+	std::array<stuckobj, 1> empty;
 	DXX_POISON_VAR(empty, 0xcc);
 	std::fill(i, pr.end(), empty[0]);
 }

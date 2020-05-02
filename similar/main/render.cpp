@@ -220,13 +220,13 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
-static void render_face(grs_canvas &canvas, const shared_segment &segp, const unsigned sidenum, const unsigned nv, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
+static void render_face(grs_canvas &canvas, const shared_segment &segp, const unsigned sidenum, const unsigned nv, const std::array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, std::array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	grs_bitmap  *bm;
 
-	array<cg3s_point *, 4> pointlist;
+	std::array<cg3s_point *, 4> pointlist;
 
 	Assert(nv <= pointlist.size());
 
@@ -290,7 +290,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 
 	assert(!bm->get_flag_mask(BM_FLAG_PAGED_OUT));
 
-	array<g3s_lrgb, 4>		dyn_light;
+	std::array<g3s_lrgb, 4>		dyn_light;
 #if defined(DXX_BUILD_DESCENT_I)
 	const auto Seismic_tremor_magnitude = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -379,12 +379,12 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
-static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<g3s_uvl, 4> &uvl_copy)
+static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const std::array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const std::array<g3s_uvl, 4> &uvl_copy)
 {
 #if DXX_USE_EDITOR
 	if (_search_mode) {
-		array<g3s_lrgb, 4> dyn_light{};
-		array<cg3s_point *, 4> pointlist;
+		std::array<g3s_lrgb, 4> dyn_light{};
+		std::array<cg3s_point *, 4> pointlist;
 #if DXX_USE_OGL
 		(void)tmap1;
 		(void)tmap2;
@@ -444,10 +444,10 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsign
 }
 
 template <std::size_t... N>
-static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N...>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<unsigned, 4> &ovp, const unsigned tmap1, const unsigned tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N...>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<unsigned, 4> &ovp, const unsigned tmap1, const unsigned tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
 {
-	const array<unsigned, 4> vp{{ovp[N]...}};
-	const array<g3s_uvl, 4> uvl_copy{{
+	const std::array<unsigned, 4> vp{{ovp[N]...}};
+	const std::array<g3s_uvl, 4> uvl_copy{{
 		{uvlp[N].u, uvlp[N].v, uvlp[N].l}...
 	}};
 	render_face(canvas, segnum, sidenum, nv, vp, tmap1, tmap2, uvl_copy, wid_flags);
@@ -455,7 +455,7 @@ static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N..
 }
 
 template <std::size_t N0, std::size_t N1, std::size_t N2, std::size_t N3>
-static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(canvas, is, segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 4);
 }
@@ -464,7 +464,7 @@ static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0,
  * are default constructed, gcc zero initializes all members.
  */
 template <std::size_t N0, std::size_t N1, std::size_t N2>
-static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(canvas, std::index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
 }
@@ -744,7 +744,7 @@ g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::size_t nv, const unsigne
 }
 
 //Given a lit of point numbers, project any that haven't been projected
-static void project_list(const array<unsigned, 8> &pointnumlist)
+static void project_list(const std::array<unsigned, 8> &pointnumlist)
 {
 	range_for (const auto pnum, pointnumlist)
 	{
@@ -838,9 +838,9 @@ static ubyte code_window_point(fix x,fix y,const rect &w)
 
 //Given two sides of segment, tell the two verts which form the 
 //edge between them
-constexpr array<
-	array<
-		array<int_fast8_t, 2>,
+constexpr std::array<
+	std::array<
+		std::array<int_fast8_t, 2>,
 		6>,
 	6> Two_sides_to_edge = {{
 	{{  {{edge_none,edge_none}},	 {{3,7}},	 {{edge_none,edge_none}},	 {{2,6}},	 {{6,7}},	 {{2,3}}	}},
@@ -852,9 +852,9 @@ constexpr array<
 }};
 
 //given an edge specified by two verts, give the two sides on that edge
-constexpr array<
-	array<
-		array<int_fast8_t, 2>,
+constexpr std::array<
+	std::array<
+		std::array<int_fast8_t, 2>,
 		8>,
 	8> Edge_to_sides = {{
 	{{  {{side_none,side_none}},	 {{2,5}},	 {{side_none,side_none}},	 {{1,5}},	 {{1,2}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}}	}},
@@ -888,7 +888,7 @@ constexpr array<
 
 //given an edge, tell what side is on that edge
 __attribute_warn_unused_result
-static int find_seg_side(const shared_segment &seg, const array<unsigned, 2> &verts, const unsigned notside)
+static int find_seg_side(const shared_segment &seg, const std::array<unsigned, 2> &verts, const unsigned notside)
 {
 	if (notside >= MAX_SIDES_PER_SEGMENT)
 		throw std::logic_error("invalid notside");
@@ -958,7 +958,7 @@ static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye
 	if (Side_opposite[s0] == s1)
 		return false;
 	//find normals of adjoining sides
-	const array<unsigned, 2> edge_verts = {
+	const std::array<unsigned, 2> edge_verts = {
 		{seg->verts[Two_sides_to_edge[s0][s1][0]], seg->verts[Two_sides_to_edge[s0][s1][1]]}
 	};
 	if (edge_verts[0] == -1 || edge_verts[1] == -1)
@@ -979,7 +979,7 @@ static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye
 
 //short the children of segment to render in the correct order
 //returns non-zero if swaps were made
-typedef array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> sort_child_array_t;
+typedef std::array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> sort_child_array_t;
 static void sort_seg_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const vcsegptridx_t seg, const partial_range_t<sort_child_array_t::iterator> &r)
 {
 	//for each child,  compare with other children and see if order matters
@@ -1014,7 +1014,7 @@ class render_compare_context_t
 		const object *objp;
 #endif
 	};
-	typedef array<element, MAX_OBJECTS> array_t;
+	typedef std::array<element, MAX_OBJECTS> array_t;
 	array_t m_array;
 public:
 	array_t::reference operator[](std::size_t i) { return m_array[i]; }

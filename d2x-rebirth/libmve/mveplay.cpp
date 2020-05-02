@@ -259,8 +259,8 @@ struct MVE_audio_clamp
 
 static int audiobuf_created = 0;
 static void mve_audio_callback(void *userdata, unsigned char *stream, int len);
-static array<std::unique_ptr<short[], MVE_audio_deleter>, TOTAL_AUDIO_BUFFERS> mve_audio_buffers;
-static array<unsigned, TOTAL_AUDIO_BUFFERS> mve_audio_buflens;
+static std::array<std::unique_ptr<short[], MVE_audio_deleter>, TOTAL_AUDIO_BUFFERS> mve_audio_buffers;
+static std::array<unsigned, TOTAL_AUDIO_BUFFERS> mve_audio_buflens;
 static int    mve_audio_curbuf_curpos=0;
 static int mve_audio_bufhead=0;
 static int mve_audio_buftail=0;

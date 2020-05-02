@@ -117,7 +117,7 @@ void render_start_frame(void);
 g3s_codes rotate_list(fvcvertptr &vcvertptr, std::size_t nv, const unsigned *pointnumlist);
 
 template <std::size_t N>
-static inline g3s_codes rotate_list(fvcvertptr &vcvertptr, const array<unsigned, N> &a)
+static inline g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::array<unsigned, N> &a)
 {
 	return rotate_list(vcvertptr, a.size(), &a[0]);
 }

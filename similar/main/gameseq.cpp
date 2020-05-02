@@ -183,7 +183,7 @@ PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
 unsigned	N_players=1;	// Number of players ( >1 means a net game, eh?)
 playernum_t Player_num;	// The player number who is on the console.
 fix StartingShields=INITIAL_SHIELDS;
-array<obj_position, MAX_PLAYERS> Player_init;
+std::array<obj_position, MAX_PLAYERS> Player_init;
 
 // Global variables telling what sort of game we have
 unsigned NumNetPlayerPositions;
@@ -235,7 +235,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	array<uint8_t, MAX_PLAYERS> player_init_segment_capacity_flag{};
+	std::array<uint8_t, MAX_PLAYERS> player_init_segment_capacity_flag{};
 	DXX_MAKE_VAR_UNDEFINED(player_init_segment_capacity_flag);
 	static_assert(WRIGHT + 1 == WBOTTOM, "side ordering error");
 	static_assert(WBOTTOM + 1 == WBACK, "side ordering error");
@@ -315,7 +315,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 		auto &old_player_init = Player_init[old_player_idx];
 		const auto old_player_pos = old_player_init.pos;
 		auto &old_player_obj = *vmobjptr(Players.vcptr(old_player_idx)->objnum);
-		array<vms_vector, 3> vec_displacement{};
+		std::array<vms_vector, 3> vec_displacement{};
 		DXX_MAKE_VAR_UNDEFINED(vec_displacement);
 		const shared_segment &seg = *vcsegptr(old_player_init.segnum);
 		/* For each of [right, bottom, back], compute the vector between
@@ -1310,7 +1310,7 @@ static void do_screen_message(const char *msg)
 		return;
 
 	gr_palette_load(gr_palette);
-	array<newmenu_item, 1> nm_message_items{{
+	std::array<newmenu_item, 1> nm_message_items{{
 		nm_item_menu(TXT_OK),
 	}};
 	newmenu_do( NULL, msg, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
@@ -1567,7 +1567,7 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 	player_info.mission.hostages_rescued_total += player_info.mission.hostages_on_board;
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
-		array<newmenu_item, 1> m{{
+		std::array<newmenu_item, 1> m{{
 			nm_item_text(" "),			//TXT_SECRET_EXIT;
 		}};
 		newmenu_do2(NULL, TXT_SECRET_EXIT, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 0, Menu_pcx_name);
@@ -2021,7 +2021,7 @@ struct intro_movie_t {
 	char	movie_name[4];
 };
 
-const array<intro_movie_t, 7> intro_movie{{
+const std::array<intro_movie_t, 7> intro_movie{{
 	{ 1, "PLA"},
 	{ 5, "PLB"},
 	{ 9, "PLC"},
@@ -2130,7 +2130,7 @@ class respawn_locations
 {
 	typedef std::pair<int, fix> site;
 	unsigned max_usable_spawn_sites;
-	array<site, MAX_PLAYERS> sites;
+	std::array<site, MAX_PLAYERS> sites;
 public:
 	respawn_locations(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptridx)
 	{

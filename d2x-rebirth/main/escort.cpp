@@ -77,10 +77,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dsx {
 
-static void show_escort_menu(const array<char, 300> &);
+static void show_escort_menu(const std::array<char, 300> &);
 static void say_escort_goal(escort_goal_t goal_num);
 
-constexpr array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
+constexpr std::array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
 	"BLUE KEY",
 	"YELLOW KEY",
 	"RED KEY",
@@ -356,7 +356,7 @@ void detect_escort_goal_accomplished(const vmobjptridx_t index)
 void change_guidebot_name()
 {
 	auto text = PlayerCfg.GuidebotName;
-	array<newmenu_item, DXX_GUIDEBOT_RENAME_MENU(COUNT)> m;
+	std::array<newmenu_item, DXX_GUIDEBOT_RENAME_MENU(COUNT)> m;
 	enum
 	{
 		DXX_GUIDEBOT_RENAME_MENU(ENUM)
@@ -610,7 +610,7 @@ static std::pair<icsegidx_t, d_unique_buddy_state::Escort_goal_reachability> exi
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	array<segnum_t, MAX_SEGMENTS> bfs_list;
+	std::array<segnum_t, MAX_SEGMENTS> bfs_list;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	const auto Buddy_objnum = BuddyState.Buddy_objnum;
 	const auto length = create_bfs_list(vmobjptr(Buddy_objnum), start_seg, powerup_flags, bfs_list);
@@ -643,7 +643,7 @@ static std::pair<icobjidx_t, d_unique_buddy_state::Escort_goal_reachability> exi
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	array<segnum_t, MAX_SEGMENTS> bfs_list;
+	std::array<segnum_t, MAX_SEGMENTS> bfs_list;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	const auto Buddy_objnum = BuddyState.Buddy_objnum;
 	const auto length = create_bfs_list(vmobjptr(Buddy_objnum), start_seg, powerup_flags, bfs_list);
@@ -1401,7 +1401,7 @@ void recreate_thief(const uint8_t thief_id)
 //	----------------------------------------------------------------------------
 #define	THIEF_ATTACK_TIME		(F1_0*10)
 
-constexpr array<fix, NDL> Thief_wait_times = {{
+constexpr std::array<fix, NDL> Thief_wait_times = {{
 	F1_0*30, F1_0*25, F1_0*20, F1_0*15, F1_0*10
 }};
 
@@ -1838,7 +1838,7 @@ namespace {
 
 struct escort_menu : ignore_window_pointer_t
 {
-	array<char, 300> msg;
+	std::array<char, 300> msg;
 	static window_event_result event_handler(window *wind, const d_event &event, escort_menu *menu);
 	static window_event_result event_key_command(const d_event &event);
 };
@@ -2044,7 +2044,7 @@ void do_escort_menu(void)
 
 //	-------------------------------------------------------------------------------
 //	Show the Buddy menu!
-void show_escort_menu(const array<char, 300> &amsg)
+void show_escort_menu(const std::array<char, 300> &amsg)
 {	
 	const auto msg = amsg.data();
 	int	w,h;

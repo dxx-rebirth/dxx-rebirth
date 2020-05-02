@@ -27,7 +27,7 @@ namespace dsx {
 #define VCLIP_MAXNUM	110
 #endif
 
-using d_vclip_array = array<vclip, VCLIP_MAXNUM>;
+using d_vclip_array = std::array<vclip, VCLIP_MAXNUM>;
 extern d_vclip_array Vclip;
 #undef VCLIP_MAXNUM
 }

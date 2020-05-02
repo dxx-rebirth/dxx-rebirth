@@ -127,7 +127,7 @@ void jukebox_unload()
 	JukeboxSongs.unload();
 }
 
-const array<file_extension_t, 5> jukebox_exts{{
+const std::array<file_extension_t, 5> jukebox_exts{{
 	SONG_EXT_HMP,
 	SONG_EXT_MID,
 	SONG_EXT_OGG,
@@ -140,7 +140,7 @@ const array<file_extension_t, 5> jukebox_exts{{
  */
 static std::unique_ptr<FILE, FILE_deleter> open_m3u_from_disk(const char *const cfgpath)
 {
-	array<char, PATH_MAX> absbuf;
+	std::array<char, PATH_MAX> absbuf;
 	return std::unique_ptr<FILE, FILE_deleter>(fopen(
 	// it's a child of Sharepath, build full path
 		(PHYSFSX_exists(cfgpath, 0)

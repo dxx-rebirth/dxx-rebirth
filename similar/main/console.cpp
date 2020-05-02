@@ -62,7 +62,7 @@ enum con_state {
 };
 
 static RAIIPHYSFS_File gamelog_fp;
-static array<console_buffer, CON_LINES_MAX> con_buffer;
+static std::array<console_buffer, CON_LINES_MAX> con_buffer;
 static con_state con_state;
 static int con_scroll_offset, con_size;
 static void con_force_puts(con_priority priority, char *buffer, size_t len);

@@ -38,7 +38,7 @@ struct mouseinfo : flushable_mouseinfo
 	int    x,y;
 	int    cursor_enabled;
 	fix64  cursor_time;
-	array<fix64, MOUSE_MAX_BUTTONS> time_lastpressed;
+	std::array<fix64, MOUSE_MAX_BUTTONS> time_lastpressed;
 };
 
 }
@@ -109,7 +109,7 @@ window_event_result mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		return window_event_result::ignored;
 	// to bad, SDL buttons use a different mapping as descent expects,
 	// this is at least true and tested for the first three buttons 
-	static const array<int, 17> button_remap{{
+	static const std::array<int, 17> button_remap{{
 		MBTN_LEFT,
 		MBTN_MIDDLE,
 		MBTN_RIGHT,

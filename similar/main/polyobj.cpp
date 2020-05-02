@@ -174,7 +174,7 @@ static void pof_read_angs(vms_angvec *angs,int n,ubyte *bufp)
 #define ID_IDTA 0x41544449 // 'ATDI'  //Interpreter data
 #define ID_TXTR 0x52545854 // 'RTXT'  //Texture filename list
 
-static array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> anim_angs;
+static std::array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> anim_angs;
 
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
@@ -493,7 +493,7 @@ void free_model(polymodel &po)
 	po.model_data.reset();
 }
 
-array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
+std::array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 
 //draw a polygon model
 
@@ -519,7 +519,7 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_mat
 					po = &Polygon_models[po->simpler_model-1];
 			}
 
-	array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
+	std::array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
 	if (alt_textures)
    {
 		for (int i=0;i<po->n_textures;i++) {
@@ -647,7 +647,7 @@ static void polyobj_find_min_max(polymodel *pm)
 
 namespace dsx {
 
-array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Pof_names;
+std::array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Pof_names;
 
 //returns the number of this model
 int load_polygon_model(const char *filename,int n_textures,int first_texture,robot_info *r)

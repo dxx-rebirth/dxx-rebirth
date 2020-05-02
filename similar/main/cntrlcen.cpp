@@ -55,7 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 
 namespace dsx {
-array<reactor, MAX_REACTORS> Reactors;
+std::array<reactor, MAX_REACTORS> Reactors;
 #if defined(DXX_BUILD_DESCENT_II)
 unsigned Num_reactors;
 #endif

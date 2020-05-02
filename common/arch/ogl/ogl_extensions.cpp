@@ -30,9 +30,9 @@ PFNGLCLIENTWAITSYNCPROC glClientWaitSyncFunc = NULL;
 /* GL_EXT_texture_filter_anisotropic */
 GLfloat ogl_maxanisotropy = 0.0f;
 
-static array<long, 2> parse_version_str(const char *v)
+static std::array<long, 2> parse_version_str(const char *v)
 {
-	array<long, 2> version;
+	std::array<long, 2> version;
 	version[0]=1;
 	version[1]=0;
 	if (v) {
@@ -76,7 +76,7 @@ enum support_mode {
 	SUPPORT_EXT=2
 };
 
-static support_mode is_supported(const char *extensions, const array<long, 2> &version, const char *name, long major, long minor, long major_es, long minor_es)
+static support_mode is_supported(const char *extensions, const std::array<long, 2> &version, const char *name, long major, long minor, long major_es, long minor_es)
 {
 #if DXX_USE_OGLES
 	static_cast<void>(major);

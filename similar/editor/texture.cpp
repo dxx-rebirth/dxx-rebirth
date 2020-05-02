@@ -40,13 +40,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 
 static uvl compute_uv_side_center(const unique_segment &segp, sidenum_fast_t sidenum);
-static void rotate_uv_points_on_side(unique_segment &segp, sidenum_fast_t sidenum, const array<fix, 4> &rotmat, const uvl &uvcenter);
+static void rotate_uv_points_on_side(unique_segment &segp, sidenum_fast_t sidenum, const std::array<fix, 4> &rotmat, const uvl &uvcenter);
 
 //	-----------------------------------------------------------
 int	TexFlipX()
 {
 	const auto uvcenter = compute_uv_side_center(Cursegp, Curside);
-	array<fix, 4> rotmat;
+	std::array<fix, 4> rotmat;
 	//	Create a rotation matrix
 	rotmat[0] = -0xffff;
 	rotmat[1] = 0;
@@ -64,7 +64,7 @@ int	TexFlipX()
 int	TexFlipY()
 {
 	const auto uvcenter = compute_uv_side_center(Cursegp, Curside);
-	array<fix, 4> rotmat;
+	std::array<fix, 4> rotmat;
 	//	Create a rotation matrix
 	rotmat[0] = 0xffff;
 	rotmat[1] = 0;
@@ -214,7 +214,7 @@ static uvl compute_uv_side_center(const unique_segment &segp, const sidenum_fast
 
 //	-----------------------------------------------------------
 //	rotate point *uv by matrix rotmat, return *uvrot
-static uvl rotate_uv_point(const array<fix, 4> &rotmat, const uvl &uv, const uvl &uvcenter)
+static uvl rotate_uv_point(const std::array<fix, 4> &rotmat, const uvl &uv, const uvl &uvcenter)
 {
 	const auto centered_u = uv.u - uvcenter.u;
 	const auto centered_v = uv.v - uvcenter.v;
@@ -227,7 +227,7 @@ static uvl rotate_uv_point(const array<fix, 4> &rotmat, const uvl &uv, const uvl
 
 //	-----------------------------------------------------------
 //	Compute the center of the side in u,v coordinates.
-static void rotate_uv_points_on_side(unique_segment &segp, const sidenum_fast_t sidenum, const array<fix, 4> &rotmat, const uvl &uvcenter)
+static void rotate_uv_points_on_side(unique_segment &segp, const sidenum_fast_t sidenum, const std::array<fix, 4> &rotmat, const uvl &uvcenter)
 {
 	range_for (auto &v, segp.sides[sidenum].uvls)
 	{
@@ -238,7 +238,7 @@ static void rotate_uv_points_on_side(unique_segment &segp, const sidenum_fast_t 
 //	-----------------------------------------------------------
 //	ang is in 0..ffff = 0..359.999 degrees
 //	rotmat is filled in with 4 fixes
-static array<fix, 4> create_2d_rotation_matrix(fix ang)
+static std::array<fix, 4> create_2d_rotation_matrix(fix ang)
 {
 	const auto &&a = fix_sincos(ang);
 	const auto &sinang = a.sin;

@@ -552,7 +552,7 @@ static void compress_segments(void)
 //	Combine duplicate vertices.
 //	If two vertices have the same coordinates, within some small tolerance, then assign
 //	the same vertex number to the two vertices, freeing up one of the vertices.
-void med_combine_duplicate_vertices(array<uint8_t, MAX_VERTICES> &vlp)
+void med_combine_duplicate_vertices(std::array<uint8_t, MAX_VERTICES> &vlp)
 {
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptridx = Vertices.vcptridx;
@@ -698,7 +698,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegpt
 	const auto vr = vm_vec_rotate(vc0,rotmat2);
 
 	// Now rotate the free vertices in the segment
-	array<vertex, 4> tvs;
+	std::array<vertex, 4> tvs;
 	range_for (const unsigned v, xrange(4u))
 		vm_vec_rotate(tvs[v], vcvertptr(newseg->verts[v + 4]), rotmat2);
 
@@ -987,7 +987,7 @@ int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 
 	//	Save tmap_num on each side to restore after call to med_propagate_tmaps_to_segments and _back_side
 	//	which will change the tmap nums.
-	array<int16_t, MAX_SIDES_PER_SEGMENT> side_tmaps;
+	std::array<int16_t, MAX_SIDES_PER_SEGMENT> side_tmaps;
 	range_for (const auto &&z, zip(side_tmaps, seg->unique_segment::sides))
 	{
 		const unique_side &us = std::get<1>(z);
@@ -1070,7 +1070,7 @@ static int get_index_of_best_fit(const vcsegptr_t seg1, int side1, const vcsegpt
 // ----------------------------------------------------------------------------
 //	Remap uv coordinates in all sides in segment *sp which have a vertex in vp[4].
 //	vp contains absolute vertex indices.
-static void remap_side_uvs(const vmsegptridx_t sp, const array<int, 4> &vp)
+static void remap_side_uvs(const vmsegptridx_t sp, const std::array<int, 4> &vp)
 {
 	range_for (const auto &&es, enumerate(Side_to_verts))
 	{
@@ -1096,8 +1096,8 @@ next_side: ;
 int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2, int side2)
 {
 	int		bfi,v,s1;
-	array<int, 4> lost_vertices, remap_vertices;
-	array<segnum_t, MAX_VALIDATIONS> validation_list;
+	std::array<int, 4> lost_vertices, remap_vertices;
+	std::array<segnum_t, MAX_VALIDATIONS> validation_list;
 	uint_fast32_t nv;
 
 	//	Make sure that neither side is connected.
@@ -1397,7 +1397,7 @@ void init_all_vertices(void)
 
 // -----------------------------------------------------------------------------
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
-void create_coordinate_axes_from_segment(const vmsegptr_t sp, array<unsigned, 16> &vertnums)
+void create_coordinate_axes_from_segment(const vmsegptr_t sp, std::array<unsigned, 16> &vertnums)
 {
 	vms_matrix	rotmat;
 	vms_vector t;
@@ -1497,7 +1497,7 @@ void warn_if_concave_segment(const vmsegptridx_t s)
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
 int med_find_adjacent_segment_side(const vmsegptridx_t sp, int side, imsegptridx_t &adj_sp, int *adj_side)
 {
-	array<int, 4> abs_verts;
+	std::array<int, 4> abs_verts;
 
 	//	Stuff abs_verts[4] array with absolute vertex indices
 	range_for (const unsigned v, xrange(4u))

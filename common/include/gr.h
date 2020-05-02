@@ -85,7 +85,7 @@ public:
 	                    // bit 1 on means it has supertransparency
 	                    // bit 2 on means it doesn't get passed through lighting.
 	short   bm_rowsize; // unsigned char offset to next row
-	array<fix, 3> avg_color_rgb; // same as above but real rgb value to be used to textured objects that should emit light
+	std::array<fix, 3> avg_color_rgb; // same as above but real rgb value to be used to textured objects that should emit light
 	union {
 		const uint8_t *bm_data;     // ptr to pixel data...
 	                                //   Linear = *parent+(rowsize*y+x)
@@ -272,7 +272,7 @@ struct grs_font : public prohibit_void_ptr<grs_font>
 	int16_t     ft_baseline;    //
 	uint8_t     ft_minchar;     // First char defined by this font
 	uint8_t     ft_maxchar;     // Last char defined by this font
-	array<char, 13> ft_filename;
+	std::array<char, 13> ft_filename;
 	const uint8_t *ft_data = nullptr;        // Ptr to raw data.
 	const uint8_t *const *ft_chars = nullptr;       // Ptrs to data for each char (required for prop font)
 	const int16_t *ft_widths = nullptr;      // Array of widths (required for prop font)

@@ -58,7 +58,7 @@ extern  unsigned char *write_buffer;
 extern uint8_t tmap_flat_color;
 
 constexpr std::integral_constant<std::size_t, 641> FIX_RECIP_TABLE_SIZE{};	//increased from 321 to 641, since this res is now quite achievable.. slight fps boost -MM
-extern const array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table;
+extern const std::array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table;
 static inline fix fix_recip(unsigned i)
 {
 	if (i < fix_recip_table.size())

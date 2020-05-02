@@ -1282,7 +1282,7 @@ namespace dsx {
 void load_text(void);
 #ifndef USE_BUILTIN_ENGLISH_TEXT_STRINGS
 //Array of pointers to text
-extern array<const char *, N_TEXT_STRINGS> Text_string;
+extern std::array<const char *, N_TEXT_STRINGS> Text_string;
 #endif
 
 static inline const char *dxx_gettext(unsigned expr, const char *fmt) __attribute_format_arg(2);

@@ -82,7 +82,7 @@ constexpr std::true_type EMULATING_D1{};
 
 namespace dcx {
 
-static array<color_t, 7> Briefing_text_colors;
+static std::array<color_t, 7> Briefing_text_colors;
 static color_t *Current_color;
 static color_t Erase_color;
 
@@ -379,7 +379,7 @@ static grs_subcanvas_ptr create_spinning_robot_sub_canvas(grs_canvas &canvas)
 	return gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 138), rescale_y(canvas.cv_bitmap, 55), rescale_x(canvas.cv_bitmap, 166), rescale_y(canvas.cv_bitmap, 138));
 }
 
-static void get_message_name(const char *&message, array<char, 32> &result, const char *const trailer)
+static void get_message_name(const char *&message, std::array<char, 32> &result, const char *const trailer)
 {
 	auto p = message;
 	for (; *p == ' '; ++p)
@@ -424,7 +424,7 @@ namespace {
 
 #if defined(DXX_BUILD_DESCENT_II)
 
-static array<briefing_screen, 60> Briefing_screens{{
+static std::array<briefing_screen, 60> Briefing_screens{{
 	{"brief03.pcx",0,3,8,8,257,177}
 }}; // default=0!!!
 #endif
@@ -536,7 +536,7 @@ struct briefing : ignore_window_pointer_t
 	std::unique_ptr<char[]>	text;
 	const char	*message;
 	int		text_x, text_y;
-	array<msgstream, 2048> messagestream;
+	std::array<msgstream, 2048> messagestream;
 	short	tab_stop;
 	ubyte	flashing_cursor;
 	ubyte	new_page;
@@ -552,11 +552,11 @@ struct briefing : ignore_window_pointer_t
 	int		robot_num;
 	grs_subcanvas_ptr	robot_canv;
 	vms_angvec	robot_angles;
-	array<char, 32> bitmap_name;
+	std::array<char, 32> bitmap_name;
 	grs_main_bitmap  guy_bitmap;
 	sbyte   door_dir, door_div_count, animating_bitmap_type;
 	sbyte	prev_ch;
-	array<char, 16> background_name;
+	std::array<char, 16> background_name;
 };
 
 }
@@ -834,7 +834,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 
 #endif
 		} else if (ch == 'B') {
-			array<char, 32> bitmap_name;
+			std::array<char, 32> bitmap_name;
 			palette_array_t		temp_palette;
 			int		iff_error;
 			br->robot_canv.reset();
@@ -1007,7 +1007,7 @@ static void set_briefing_fontcolor(briefing &br)
 	{
 		int r, g, b;
 	};
-	array<rgb, 3> colors;
+	std::array<rgb, 3> colors;
 	if (EMULATING_D1) {
 		//green
 		colors[0] = {0, 54, 0};

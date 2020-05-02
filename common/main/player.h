@@ -117,7 +117,7 @@ struct player_rw
 	ushort  secondary_weapon_flags; // bit set indicates the player has this weapon.
 #endif
 	union {
-		array<uint16_t, MAX_PRIMARY_WEAPONS> obsolete_primary_ammo;
+		std::array<uint16_t, MAX_PRIMARY_WEAPONS> obsolete_primary_ammo;
 		struct {
 			uint16_t laser_ammo;
 			uint16_t vulcan_ammo;
@@ -177,7 +177,7 @@ struct player_ship
 	fix     max_thrust,reverse_thrust,brakes;       //low_thrust
 	fix     wiggle;
 	fix     max_rotthrust;
-	array<vms_vector, N_PLAYER_GUNS> gun_points;
+	std::array<vms_vector, N_PLAYER_GUNS> gun_points;
 };
 
 }

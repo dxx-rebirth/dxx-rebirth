@@ -192,7 +192,7 @@ struct player_config PlayerCfg;
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static void plyr_read_stats();
-static array<saved_game_sw, N_SAVE_SLOTS> saved_games;
+static std::array<saved_game_sw, N_SAVE_SLOTS> saved_games;
 #elif defined(DXX_BUILD_DESCENT_II)
 static inline void plyr_read_stats() {}
 static int get_lifetime_checksum (int a,int b);
@@ -200,7 +200,7 @@ static int get_lifetime_checksum (int a,int b);
 }
 
 template <std::size_t N>
-static void check_weapon_reorder(array<ubyte, N> &w)
+static void check_weapon_reorder(std::array<ubyte, N> &w)
 {
 	uint_fast32_t m = 0;
 	range_for (const auto i, w)
@@ -310,7 +310,7 @@ static int convert_pattern_array(const char *name, std::size_t namelen, int *arr
 }
 
 template <std::size_t namelen, std::size_t arraylen>
-static int convert_pattern_array(const char (&name)[namelen], array<int, arraylen> &array, const char *word, const char *line)
+static int convert_pattern_array(const char (&name)[namelen], std::array<int, arraylen> &array, const char *word, const char *line)
 {
 	return convert_pattern_array(name, namelen, &array[0], arraylen, word, line);
 }
@@ -322,7 +322,7 @@ static void print_pattern_array(PHYSFS_File *fout, const char *name, const int *
 }
 
 template <std::size_t arraylen>
-static void print_pattern_array(PHYSFS_File *fout, const char *name, const array<int, arraylen> &array)
+static void print_pattern_array(PHYSFS_File *fout, const char *name, const std::array<int, arraylen> &array)
 {
 	print_pattern_array(fout, name, &array[0], arraylen);
 }
@@ -664,7 +664,7 @@ void plyr_save_stats()
 {
 	int kills = PlayerCfg.NetlifeKills,deaths = PlayerCfg.NetlifeKilled, neg, i;
 	char filename[PATH_MAX];
-	array<uint8_t, 16> buf, buf2;
+	std::array<uint8_t, 16> buf, buf2;
 	uint8_t a;
 	memset(filename, '\0', PATH_MAX);
 	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(get_local_player().callsign));
@@ -1045,7 +1045,7 @@ int read_player_file()
 #if DXX_MAX_JOYSTICKS
 		auto &KeySettingsJoystick = PlayerCfg.KeySettings.Joystick;
 #else
-		array<uint8_t, MAX_CONTROLS> KeySettingsJoystick;
+		std::array<uint8_t, MAX_CONTROLS> KeySettingsJoystick;
 #endif
 		if (PHYSFS_read(file, &KeySettingsJoystick, sizeof(KeySettingsJoystick), 1) != 1)
 			goto read_player_file_failed;
@@ -1180,7 +1180,7 @@ int read_player_file()
  *   pointer to end().  The caller must check that the first unused
  *   element is not end().
  */
-static std::array<array<hli, MAX_MISSIONS>::pointer, 2> find_hli_entry(const partial_range_t<hli *> &r, const Mission_path &m)
+static std::array<std::array<hli, MAX_MISSIONS>::pointer, 2> find_hli_entry(const partial_range_t<hli *> &r, const Mission_path &m)
 {
 	const auto mission_filename = m.filename;
 	const auto mission_length = std::distance(mission_filename, m.path.end());
@@ -1385,7 +1385,7 @@ void write_player_file()
 #if DXX_MAX_JOYSTICKS
 		auto &KeySettingsJoystick = PlayerCfg.KeySettings.Joystick;
 #else
-		const array<uint8_t, MAX_CONTROLS> KeySettingsJoystick{};
+		const std::array<uint8_t, MAX_CONTROLS> KeySettingsJoystick{};
 #endif
 		if (PHYSFS_write(file, KeySettingsJoystick, sizeof(KeySettingsJoystick), 1) != 1)
 			errno_ret=errno;
@@ -1453,7 +1453,7 @@ void write_player_file()
 #if DXX_MAX_JOYSTICKS
 		auto &KeySettingsJoystick = PlayerCfg.KeySettings.Joystick;
 #else
-		const array<uint8_t, MAX_CONTROLS> KeySettingsJoystick{};
+		const std::array<uint8_t, MAX_CONTROLS> KeySettingsJoystick{};
 #endif
 		if (PHYSFS_write(file, KeySettingsJoystick, sizeof(KeySettingsJoystick), 1) != 1)
 			goto write_player_file_failed;

@@ -86,7 +86,7 @@ void ogl_set_screen_mode(void);
 
 struct ogl_colors
 {
-	using array_type = array<GLfloat, 16>;
+	using array_type = std::array<GLfloat, 16>;
 	static const array_type white;
 	const array_type &init(int c)
 	{
@@ -125,7 +125,7 @@ void ogl_cache_level_textures();
 void _g3_draw_tmap_2(grs_canvas &, unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, unsigned orient);
 
 template <std::size_t N>
-static inline void g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, const unsigned orient)
+static inline void g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, const unsigned orient)
 {
 	static_assert(N <= MAX_POINTS_PER_POLY, "too many points in tmap");
 #ifdef DXX_CONSTANT_TRUE

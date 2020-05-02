@@ -66,13 +66,13 @@ uint8_t tmap_flat_color;
 int	Interpolation_method;	// 0 = choose best method
 // -------------------------------------------------------------------------------------
 template <std::size_t... N>
-static inline constexpr const array<fix, 1 + sizeof...(N)> init_fix_recip_table(std::index_sequence<0, N...>)
+static inline constexpr const std::array<fix, 1 + sizeof...(N)> init_fix_recip_table(std::index_sequence<0, N...>)
 {
 	/* gcc 4.5 fails on bare initializer list */
-	return array<fix, 1 + sizeof...(N)>{{F1_0, (F1_0 / N)...}};
+	return std::array<fix, 1 + sizeof...(N)>{{F1_0, (F1_0 / N)...}};
 }
 
-constexpr array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table = init_fix_recip_table(std::make_index_sequence<FIX_RECIP_TABLE_SIZE>());
+constexpr std::array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table = init_fix_recip_table(std::make_index_sequence<FIX_RECIP_TABLE_SIZE>());
 
 // -------------------------------------------------------------------------------------
 //	Initialize interface variables to assembler.

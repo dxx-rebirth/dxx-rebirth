@@ -84,7 +84,7 @@ bool g3_check_normal_facing(const vms_vector &v,const vms_vector &norm)
 	return (vm_vec_dot(vm_vec_sub(View_position,v),norm) > 0);
 }
 
-bool do_facing_check(const array<cg3s_point *, 3> &vertlist)
+bool do_facing_check(const std::array<cg3s_point *, 3> &vertlist)
 {
 	//normal not specified, so must compute
 		//get three points (rotated) and compute normal
@@ -100,7 +100,7 @@ static void must_clip_flat_face(grs_canvas &canvas, int nv, g3s_codes cc, polygo
 	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);
 
 	if (nv>0 && !(cc.uor&CC_BEHIND) && !cc.uand) {
-		array<fix, MAX_POINTS_IN_POLY*2> Vertex_list;
+		std::array<fix, MAX_POINTS_IN_POLY*2> Vertex_list;
 		for (int i=0;i<nv;i++) {
 			g3s_point *p = bufptr[i];
 	
@@ -148,7 +148,7 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
 	}
 
 	//now make list of 2d coords (& check for overflow)
-	array<fix, MAX_POINTS_IN_POLY*2> Vertex_list;
+	std::array<fix, MAX_POINTS_IN_POLY*2> Vertex_list;
 	for (int i=0;i<nv;i++) {
 		g3s_point *p = bufptr[i];
 

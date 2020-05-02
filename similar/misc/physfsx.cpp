@@ -32,7 +32,7 @@
 
 namespace dcx {
 
-const array<file_extension_t, 1> archive_exts{{"dxa"}};
+const std::array<file_extension_t, 1> archive_exts{{"dxa"}};
 
 char *PHYSFSX_fgets_t::get(char *const buf, std::size_t n, PHYSFS_File *const fp)
 {
@@ -281,7 +281,7 @@ int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end)
 	snprintf(relname2, sizeof(relname2), "%s", relname);
 	PHYSFSEXT_locateCorrectCase(relname2);
 
-	array<char, PATH_MAX> pathname;
+	std::array<char, PATH_MAX> pathname;
 	if (!PHYSFSX_getRealPath(relname2, pathname))
 	{
 		con_printf(CON_DEBUG, "PHYSFS: ignoring map request: no canonical path for relative name \"%s\"", relname2);
@@ -304,7 +304,7 @@ int PHYSFSX_removeRelFromSearchPath(const char *relname)
 	snprintf(relname2, sizeof(relname2), "%s", relname);
 	PHYSFSEXT_locateCorrectCase(relname2);
 
-	array<char, PATH_MAX> pathname;
+	std::array<char, PATH_MAX> pathname;
 	if (!PHYSFSX_getRealPath(relname2, pathname))
 	{
 		con_printf(CON_DEBUG, "PHYSFS: ignoring unmap request: no canonical path for relative name \"%s\"", relname2);
@@ -468,7 +468,7 @@ int PHYSFSX_isNewPath(const char *path)
 
 int PHYSFSX_rename(const char *oldpath, const char *newpath)
 {
-	array<char, PATH_MAX> old, n;
+	std::array<char, PATH_MAX> old, n;
 	PHYSFSX_getRealPath(oldpath, old);
 	PHYSFSX_getRealPath(newpath, n);
 	return (rename(old.data(), n.data()) == 0);
@@ -578,7 +578,7 @@ void PHYSFSX_addArchiveContent()
 	// if found, add them...
 	range_for (const auto i, list)
 	{
-		array<char, PATH_MAX> realfile;
+		std::array<char, PATH_MAX> realfile;
 		PHYSFSX_getRealPath(i,realfile);
 		if (PHYSFS_addToSearchPath(realfile.data(), 0))
 		{
@@ -595,7 +595,7 @@ void PHYSFSX_addArchiveContent()
 	{
 		char demofile[PATH_MAX];
 		snprintf(demofile, sizeof(demofile), DEMO_DIR "%s", i);
-		array<char, PATH_MAX> realfile;
+		std::array<char, PATH_MAX> realfile;
 		PHYSFSX_getRealPath(demofile,realfile);
 		if (PHYSFS_mount(realfile.data(), DEMO_DIR, 0))
 		{
@@ -621,7 +621,7 @@ void PHYSFSX_removeArchiveContent()
 	// if found, remove them...
 	range_for (const auto i, list)
 	{
-		array<char, PATH_MAX> realfile;
+		std::array<char, PATH_MAX> realfile;
 		PHYSFSX_getRealPath(i, realfile);
 		PHYSFS_removeFromSearchPath(realfile.data());
 	}
@@ -633,7 +633,7 @@ void PHYSFSX_removeArchiveContent()
 	{
 		char demofile[PATH_MAX];
 		snprintf(demofile, sizeof(demofile), DEMO_DIR "%s", i);
-		array<char, PATH_MAX> realfile;
+		std::array<char, PATH_MAX> realfile;
 		PHYSFSX_getRealPath(demofile,realfile);
 		PHYSFS_removeFromSearchPath(realfile.data());
 	}

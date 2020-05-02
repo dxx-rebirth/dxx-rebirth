@@ -111,7 +111,7 @@ d_unique_endlevel_state UniqueEndlevelState;
 
 }
 
-static array<flythrough_data, MAX_FLY_OBJECTS> fly_objects;
+static std::array<flythrough_data, MAX_FLY_OBJECTS> fly_objects;
 
 //endlevel sequence states
 
@@ -138,7 +138,7 @@ static void generate_starfield(d_unique_endlevel_state::starfield_type &stars);
 static void start_endlevel_flythrough(flythrough_data *flydata,const vmobjptr_t obj,fix speed);
 
 #if defined(DXX_BUILD_DESCENT_II)
-constexpr array<const char, 24> movie_table{{
+constexpr std::array<const char, 24> movie_table{{
 	'A','B','C','A',
 	'D','F','D','F',
 	'G','H','I','G',
@@ -920,7 +920,7 @@ static void draw_mine_exit_cover(grs_canvas &canvas)
 		g3_rotate_point(p2, (vm_vec_sub(p, vd, mrd), p));
 		g3_rotate_point(p3, (vm_vec_add(p, vd, mrd), p));
 	}
-	const array<cg3s_point *, 4> pointlist{{
+	const std::array<cg3s_point *, 4> pointlist{{
 		&p0,
 		&p1,
 		&p2,

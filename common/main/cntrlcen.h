@@ -41,8 +41,8 @@ struct control_center_triggers : public prohibit_void_ptr<control_center_trigger
 		max_links = 10
 	};
 	uint16_t num_links;
-	array<segnum_t, max_links>   seg;
-	array<uint16_t, max_links>   side;
+	std::array<segnum_t, max_links>   seg;
+	std::array<uint16_t, max_links>   side;
 };
 
 extern control_center_triggers ControlCenterTriggers;
@@ -55,9 +55,9 @@ struct reactor {
 #endif
 	int n_guns;
 	/* Location of the gun on the reactor model */
-	array<vms_vector, MAX_CONTROLCEN_GUNS> gun_points;
+	std::array<vms_vector, MAX_CONTROLCEN_GUNS> gun_points;
 	/* Orientation of the gun on the reactor model */
-	array<vms_vector, MAX_CONTROLCEN_GUNS> gun_dirs;
+	std::array<vms_vector, MAX_CONTROLCEN_GUNS> gun_dirs;
 };
 
 // fills in arrays gun_points & gun_dirs, returns the number of guns read
@@ -87,7 +87,7 @@ extern unsigned Num_reactors;
 void reactor_read_n(PHYSFS_File *fp, partial_range_t<reactor *> r);
 #endif
 
-extern array<reactor, MAX_REACTORS> Reactors;
+extern std::array<reactor, MAX_REACTORS> Reactors;
 
 static inline int get_reactor_model_number(int id)
 {

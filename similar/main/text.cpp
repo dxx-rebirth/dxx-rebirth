@@ -91,7 +91,7 @@ namespace dsx {
 #ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
 static
 #endif
-array<const char *, N_TEXT_STRINGS> Text_string;
+std::array<const char *, N_TEXT_STRINGS> Text_string;
 
 void load_text()
 {

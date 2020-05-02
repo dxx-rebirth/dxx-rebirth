@@ -146,14 +146,14 @@ struct shared_side
 	void set_type(side_type t) { m_type = t; }
 	inline void set_type(unsigned t);
 	wallnum_t wall_num;
-	array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
+	std::array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
 };
 
 struct unique_side
 {
 	int16_t tmap_num;
 	int16_t tmap_num2;
-	array<uvl, 4>     uvls;
+	std::array<uvl, 4>     uvls;
 };
 
 #ifdef dsx
@@ -163,15 +163,15 @@ struct shared_segment
 	segnum_t   segnum;     // segment number, not sure what it means
 	short   group;      // group number to which the segment belongs.
 #endif
-	array<segnum_t, MAX_SIDES_PER_SEGMENT>   children;    // indices of 6 children segments, front, left, top, right, bottom, back
-	array<unsigned, MAX_VERTICES_PER_SEGMENT> verts;    // vertex ids of 4 front and 4 back vertices
+	std::array<segnum_t, MAX_SIDES_PER_SEGMENT>   children;    // indices of 6 children segments, front, left, top, right, bottom, back
+	std::array<unsigned, MAX_VERTICES_PER_SEGMENT> verts;    // vertex ids of 4 front and 4 back vertices
 	uint8_t special;    // what type of center this is
 	int8_t matcen_num; // which center segment is associated with.
 	uint8_t station_idx;
 	/* if DXX_BUILD_DESCENT_II */
 	uint8_t s2_flags;
 	/* endif */
-	array<shared_side, MAX_SIDES_PER_SEGMENT> sides;
+	std::array<shared_side, MAX_SIDES_PER_SEGMENT> sides;
 };
 
 struct unique_segment
@@ -183,7 +183,7 @@ struct unique_segment
 	uint8_t slide_textures;
 	/* endif */
 	fix     static_light;
-	array<unique_side, MAX_SIDES_PER_SEGMENT> sides;
+	std::array<unique_side, MAX_SIDES_PER_SEGMENT> sides;
 };
 
 struct segment : unique_segment, shared_segment
@@ -298,7 +298,7 @@ struct delta_light : prohibit_void_ptr<delta_light>
 {
 	segnum_t   segnum;
 	uint8_t   sidenum;
-	array<ubyte, 4>   vert_light;
+	std::array<ubyte, 4>   vert_light;
 };
 
 // Light at segnum:sidenum casts light on count sides beginning at index (in array Delta_lights)
@@ -336,7 +336,7 @@ struct d_level_shared_vertex_state
 private:
 	vertex_array Vertices;
 #if DXX_USE_EDITOR
-	array<uint8_t, MAX_VERTICES> Vertex_active; // !0 means vertex is in use, 0 means not in use.
+	std::array<uint8_t, MAX_VERTICES> Vertex_active; // !0 means vertex is in use, 0 means not in use.
 #endif
 public:
 	auto &get_vertices()
@@ -383,7 +383,7 @@ struct d_level_shared_segment_state
 
 struct d_level_unique_automap_state
 {
-	array<uint8_t, MAX_SEGMENTS> Automap_visited;
+	std::array<uint8_t, MAX_SEGMENTS> Automap_visited;
 };
 
 struct d_level_unique_segment_state
@@ -411,7 +411,7 @@ protected:
 	{
 		divisor = 8 / bits,
 	};
-	using array_t = array<uint8_t, (MAX_SEGMENTS + (divisor - 1)) / divisor>;
+	using array_t = std::array<uint8_t, (MAX_SEGMENTS + (divisor - 1)) / divisor>;
 	typedef typename array_t::size_type size_type;
 	array_t a;
 	struct maskproxy_shift_count_type

@@ -70,7 +70,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_range.h"
 #include "partial_range.h"
 
-array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
+std::array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
 
 unsigned NumTextures;
 
@@ -94,8 +94,8 @@ static void bm_free_extra_objbitmaps();
 
 Textures_array Textures;		// All textures.
 //for each model, a model number for dying & dead variants, or -1 if none
-array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
-array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
+std::array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
+std::array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
 }
 
 //right now there's only one player ship, but we can have another by
@@ -113,8 +113,8 @@ unsigned Num_cockpits;
 
 int             First_multi_bitmap_num=-1;
 
-array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
-array<ushort, MAX_OBJ_BITMAPS>          ObjBitmapPtrs;     // These point back into ObjBitmaps, since some are used twice.
+std::array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
+std::array<ushort, MAX_OBJ_BITMAPS>          ObjBitmapPtrs;     // These point back into ObjBitmaps, since some are used twice.
 
 namespace dsx {
 void gamedata_close()
@@ -787,7 +787,7 @@ int load_exit_models()
 }
 #endif
 
-void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
+void compute_average_rgb(grs_bitmap *bm, std::array<fix, 3> &rgb)
 {
 	rgb = {};
 	if (unlikely(!bm->get_bitmap_data()))

@@ -644,7 +644,7 @@ namespace dcx {
 
 #if SDL_MAJOR_VERSION == 1
 // returns possible (fullscreen) resolutions if any.
-uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
+uint_fast32_t gr_list_modes(std::array<screen_mode, 50> &gsmodes)
 {
 	SDL_Rect** modes;
 	int modesnum = 0;
@@ -920,7 +920,7 @@ namespace dcx {
 
 void ogl_upixelc(const grs_bitmap &cv_bitmap, unsigned x, unsigned y, unsigned c)
 {
-	array<GLfloat, 2> vertices = {{
+	std::array<GLfloat, 2> vertices = {{
 		(x + cv_bitmap.bm_x) / static_cast<float>(last_width),
 		static_cast<GLfloat>(1.0 - (y + cv_bitmap.bm_y) / static_cast<float>(last_height))
 	}};
@@ -983,13 +983,13 @@ void ogl_urect(grs_canvas &canvas, const int left, const int top, const int righ
 	else
 		color_a = 1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
 
-	array<GLfloat, 16> color_array;
+	std::array<GLfloat, 16> color_array;
 	color_array[0] = color_array[4] = color_array[8] = color_array[12] = color_r;
 	color_array[1] = color_array[5] = color_array[9] = color_array[13] = color_g;
 	color_array[2] = color_array[6] = color_array[10] = color_array[14] = color_b;
 	color_array[3] = color_array[7] = color_array[11] = color_array[15] = color_a;
 
-	array<GLfloat, 8> vertices;
+	std::array<GLfloat, 8> vertices;
 	vertices[0] = xo;
 	vertices[1] = yo;
 	vertices[2] = xo;
@@ -1028,7 +1028,7 @@ void ogl_ulinec(grs_canvas &canvas, const int left, const int top, const int rig
  
 	OGL_DISABLE(TEXTURE_2D);
 
-	array<GLfloat, 4> vertices = {{
+	std::array<GLfloat, 4> vertices = {{
 		xo,
 		yo,
 		xf,
@@ -1083,7 +1083,7 @@ void ogl_do_palfx(void)
 		alast_r, alast_g, alast_b, 1.0
 	};
 
-	array<GLfloat, 8> vertices = {{
+	std::array<GLfloat, 8> vertices = {{
 		0, 0, 0, 1, 1, 1, 1, 0
 	}};
 	glVertexPointer(2, GL_FLOAT, 0, vertices.data());

@@ -39,7 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ZDIM	2
 
 #define	MAX_MODIFIED_VERTICES	32
-static array<int, MAX_MODIFIED_VERTICES>		Modified_vertices;
+static std::array<int, MAX_MODIFIED_VERTICES>		Modified_vertices;
 int		Modified_vertex_index = 0;
 
 namespace dsx {
@@ -243,7 +243,7 @@ static int segsize_common(int dimension, fix amount)
 	//	For all segments to which Cursegp is connected, propagate tmap (uv coordinates) from the connected
 	//	segment back to Cursegp.  This will meaningfully propagate uv coordinates to all sides which havve
 	//	an incident edge.  It will also do some sides more than once.  And it is probably just not what you want.
-	array<int, MAX_SIDES_PER_SEGMENT> propagated = {};
+	std::array<int, MAX_SIDES_PER_SEGMENT> propagated = {};
 	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++)
 	{
 		const auto c = Cursegp->children[i];

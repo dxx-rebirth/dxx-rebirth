@@ -45,7 +45,7 @@ constexpr std::integral_constant<unsigned, 36> LEVEL_NAME_LEN{};       //make su
 // 0 used to mean not a real level loaded (i.e. editor generated level), but this hack has been removed
 extern int Current_level_num, Next_level_num;
 extern PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
-extern array<obj_position, MAX_PLAYERS> Player_init;
+extern std::array<obj_position, MAX_PLAYERS> Player_init;
 
 // This is the highest level the player has ever reached
 extern int Player_highest_level;

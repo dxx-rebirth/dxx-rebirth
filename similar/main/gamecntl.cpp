@@ -331,7 +331,7 @@ static void format_time(char (&str)[9], unsigned secs_int, unsigned hours_extra)
 
 struct pause_window : ignore_window_pointer_t
 {
-	array<char, 1024> msg;
+	std::array<char, 1024> msg;
 };
 
 //Process selected keys until game unpaused
@@ -568,7 +568,7 @@ static window_event_result HandleDemoKey(int key)
 		case KEY_DEBUGGED + KEY_K: {
 			int how_many, c;
 			char filename[FILENAME_LEN], num[16];
-			array<newmenu_item, 2> m{{
+			std::array<newmenu_item, 2> m{{
 				nm_item_text("output file name"),
 				nm_item_input(filename),
 			}};
@@ -1393,7 +1393,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 		case KEY_DEBUGGED+KEY_B: {
 			d_fname text{};
 			int item;
-			array<newmenu_item, 1> m{{
+			std::array<newmenu_item, 1> m{{
 				nm_item_input(text),
 			}};
 			item = newmenu_do( NULL, "Briefing to play?", m, unused_newmenu_subfunction, unused_newmenu_userdata);
@@ -1487,7 +1487,7 @@ static window_event_result FinalCheats()
 	if (Game_mode & GM_MULTI)
 		return window_event_result::ignored;
 
-	static array<char, CHEAT_MAX_LEN> cheat_buffer;
+	static std::array<char, CHEAT_MAX_LEN> cheat_buffer;
 	std::move(std::next(cheat_buffer.begin()), cheat_buffer.end(), cheat_buffer.begin());
 	cheat_buffer.back() = key_ascii();
 	for (unsigned i = 0;; i++)
@@ -1662,7 +1662,7 @@ static window_event_result FinalCheats()
 		char text[10]="";
 		int new_level_num;
 		int item;
-		array<newmenu_item, 1> m{{
+		std::array<newmenu_item, 1> m{{
 			nm_item_input(text),
 		}};
 		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, m, unused_newmenu_subfunction, unused_newmenu_userdata);
@@ -1871,7 +1871,7 @@ static void do_cheat_menu()
 		DXX_WIMP_MENU(ENUM)
 	};
 	int mmn;
-	array<newmenu_item, DXX_WIMP_MENU(COUNT)> m;
+	std::array<newmenu_item, DXX_WIMP_MENU(COUNT)> m;
 	char score_text[sizeof("2147483647")];
 	auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;

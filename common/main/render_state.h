@@ -30,8 +30,8 @@ struct render_state_t
 		rect render_window;
 	};
 	unsigned N_render_segs = 0;
-	array<segnum_t, MAX_RENDER_SEGS> Render_list;
-	array<short, MAX_SEGMENTS> render_pos;	//where in render_list does this segment appear?
+	std::array<segnum_t, MAX_RENDER_SEGS> Render_list;
+	std::array<short, MAX_SEGMENTS> render_pos;	//where in render_list does this segment appear?
 	std::unordered_map<segnum_t, per_segment_state_t> render_seg_map;
 };
 

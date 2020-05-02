@@ -62,7 +62,7 @@ struct alias
 	char file_name[FILENAME_LEN];
 };
 
-extern array<alias, MAX_ALIASES> alias_list;
+extern std::array<alias, MAX_ALIASES> alias_list;
 extern unsigned Num_aliases;
 
 extern int Piggy_hamfile_version;
@@ -78,7 +78,7 @@ struct bitmap_index
 
 struct BitmapFile
 {
-	array<char, 13> name;
+	std::array<char, 13> name;
 };
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -87,7 +87,7 @@ extern int PCSharePig;
 
 extern grs_bitmap bogus_bitmap;
 #endif
-extern array<uint8_t, 64 * 64> bogus_data;
+extern std::array<uint8_t, 64 * 64> bogus_data;
 
 #ifdef dsx
 int properties_init();
@@ -121,8 +121,8 @@ namespace dsx {
 extern void piggy_bitmap_page_in( bitmap_index bmp );
 void piggy_bitmap_page_out_all();
 
-using GameBitmaps_array = array<grs_bitmap, MAX_BITMAP_FILES>;
-extern array<digi_sound, MAX_SOUND_FILES> GameSounds;
+using GameBitmaps_array = std::array<grs_bitmap, MAX_BITMAP_FILES>;
+extern std::array<digi_sound, MAX_SOUND_FILES> GameSounds;
 extern GameBitmaps_array GameBitmaps;
 #  define  PIGGY_PAGE_IN(bmp) _piggy_page_in(bmp)
 static inline void _piggy_page_in(bitmap_index bmp) {
@@ -179,7 +179,7 @@ extern digi_sound bogus_sound;
 extern hashtable AllBitmapsNames;
 extern hashtable AllDigiSndNames;
 #elif defined(DXX_BUILD_DESCENT_II)
-extern array<BitmapFile, MAX_BITMAP_FILES> AllBitmaps;
+extern std::array<BitmapFile, MAX_BITMAP_FILES> AllBitmaps;
 int read_sndfile();
 #endif
 void piggy_init_pigfile(const char *filename);

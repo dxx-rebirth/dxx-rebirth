@@ -41,7 +41,7 @@ int num_joysticks = 0;
  */
 static struct joyinfo {
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-	array<uint8_t, JOY_MAX_BUTTONS> button_state;
+	std::array<uint8_t, JOY_MAX_BUTTONS> button_state;
 #endif
 } Joystick;
 
@@ -161,11 +161,11 @@ class d_physical_joystick
 	}
 	using tuple_member_type_handle = std::unique_ptr<SDL_Joystick, SDL_Joystick_deleter>;
 	//Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
-	struct tuple_member_type_hat_map : array<unsigned, DXX_MAX_HATS_PER_JOYSTICK> {};
-	struct tuple_member_type_button_map : array<unsigned, DXX_MAX_BUTTONS_PER_JOYSTICK> {};
-	struct tuple_member_type_axis_map : array<unsigned, DXX_MAX_AXES_PER_JOYSTICK> {};
-	struct tuple_member_type_axis_value : array<int, DXX_MAX_AXES_PER_JOYSTICK> {};
-	struct tuple_member_type_axis_button_map : array<unsigned, DXX_MAX_AXES_PER_JOYSTICK> {};
+	struct tuple_member_type_hat_map : std::array<unsigned, DXX_MAX_HATS_PER_JOYSTICK> {};
+	struct tuple_member_type_button_map : std::array<unsigned, DXX_MAX_BUTTONS_PER_JOYSTICK> {};
+	struct tuple_member_type_axis_map : std::array<unsigned, DXX_MAX_AXES_PER_JOYSTICK> {};
+	struct tuple_member_type_axis_value : std::array<int, DXX_MAX_AXES_PER_JOYSTICK> {};
+	struct tuple_member_type_axis_button_map : std::array<unsigned, DXX_MAX_AXES_PER_JOYSTICK> {};
 	tuple_type<
 		tuple_member_type_handle,
 		maybe_empty_array<tuple_member_type_hat_map>,
@@ -184,7 +184,7 @@ public:
 
 }
 
-static array<d_physical_joystick, DXX_MAX_JOYSTICKS> SDL_Joysticks;
+static std::array<d_physical_joystick, DXX_MAX_JOYSTICKS> SDL_Joysticks;
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 window_event_result joy_button_handler(SDL_JoyButtonEvent *jbe)

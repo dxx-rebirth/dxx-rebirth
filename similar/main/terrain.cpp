@@ -73,13 +73,13 @@ static void build_light_table(void);
 // ------------------------------------------------------------------------
 static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const int i, const int j, cg3s_point &p0, cg3s_point &p1, cg3s_point &p2, cg3s_point &p3, int &mine_tiles_drawn)
 {
-	array<cg3s_point *, 3> pointlist;
+	std::array<cg3s_point *, 3> pointlist;
 
 	pointlist[0] = &p0;
 	pointlist[1] = &p1;
 	pointlist[2] = &p3;
-	array<g3s_lrgb, 3> lrgb_list1;
-	array<g3s_uvl, 3> uvl_list1;
+	std::array<g3s_lrgb, 3> lrgb_list1;
+	std::array<g3s_uvl, 3> uvl_list1;
 	lrgb_list1[0].r = lrgb_list1[0].g = lrgb_list1[0].b = uvl_list1[0].l = LIGHTVAL(i,j);
 	lrgb_list1[1].r = lrgb_list1[1].g = lrgb_list1[1].b = uvl_list1[1].l = LIGHTVAL(i,j+1);
 	lrgb_list1[2].r = lrgb_list1[2].g = lrgb_list1[2].b = uvl_list1[2].l = LIGHTVAL(i+1,j);
@@ -104,8 +104,8 @@ static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const in
 
 	pointlist[0] = &p1;
 	pointlist[1] = &p2;
-	array<g3s_uvl, 3> uvl_list2;
-	array<g3s_lrgb, 3> lrgb_list2;
+	std::array<g3s_uvl, 3> uvl_list2;
+	std::array<g3s_lrgb, 3> lrgb_list2;
 	lrgb_list2[0].r = lrgb_list2[0].g = lrgb_list2[0].b = uvl_list2[0].l = LIGHTVAL(i,j+1);
 	lrgb_list2[1].r = lrgb_list2[1].g = lrgb_list2[1].b = uvl_list2[1].l = LIGHTVAL(i+1,j+1);
 	lrgb_list2[2].r = lrgb_list2[2].g = lrgb_list2[2].b = uvl_list2[2].l = LIGHTVAL(i+1,j);
@@ -155,7 +155,7 @@ class terrain_y_cache
 {
 	static const std::size_t cache_size = 256;
 	std::bitset<cache_size> yc_flags;
-	array<vms_vector, cache_size> y_cache;
+	std::array<vms_vector, cache_size> y_cache;
 public:
 	vms_vector &operator()(uint_fast32_t h);
 };

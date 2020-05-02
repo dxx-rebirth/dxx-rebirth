@@ -65,8 +65,8 @@ struct segment_water_depth_array : std::array<uint8_t, MAX_SEGMENTS> {};
 
 class abs_vertex_lists_predicate
 {
-	const array<unsigned, MAX_VERTICES_PER_SEGMENT> &m_vp;
-	const array<unsigned, 4> &m_sv;
+	const std::array<unsigned, MAX_VERTICES_PER_SEGMENT> &m_vp;
+	const std::array<unsigned, 4> &m_sv;
 public:
 	abs_vertex_lists_predicate(const shared_segment &seg, const uint_fast32_t sidenum) :
 		m_vp(seg.verts), m_sv(Side_to_verts_int[sidenum])
@@ -90,7 +90,7 @@ public:
 
 struct verts_for_normal
 {
-	array<unsigned, 4> vsorted;
+	std::array<unsigned, 4> vsorted;
 	bool negate_flag;
 };
 
@@ -104,13 +104,13 @@ namespace dcx {
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
 
-static uint_fast32_t find_connect_child(const vcsegidx_t base_seg, const array<segnum_t, MAX_SIDES_PER_SEGMENT> &children)
+static uint_fast32_t find_connect_child(const vcsegidx_t base_seg, const std::array<segnum_t, MAX_SIDES_PER_SEGMENT> &children)
 {
 	const auto &&b = begin(children);
 	return std::distance(b, std::find(b, end(children), base_seg));
 }
 
-static void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &r, const array<unsigned, MAX_VERTICES_PER_SEGMENT> &verts, const unsigned side)
+static void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &r, const std::array<unsigned, MAX_VERTICES_PER_SEGMENT> &verts, const unsigned side)
 {
 	vms_vector vp;
 	vm_vec_zero(vp);
@@ -119,7 +119,7 @@ static void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &r, c
 	vm_vec_copy_scale(r, vp, F1_0 / 4);
 }
 
-static void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &r, const array<unsigned, MAX_VERTICES_PER_SEGMENT> &verts)
+static void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &r, const std::array<unsigned, MAX_VERTICES_PER_SEGMENT> &verts)
 {
 	vms_vector vp;
 	vm_vec_zero(vp);
@@ -169,7 +169,7 @@ bool get_side_is_quad(const shared_side &sidep)
 }
 
 // Fill in array with four absolute point numbers for a given side
-static void get_side_verts(side_vertnum_list_t &vertlist, const array<unsigned, MAX_VERTICES_PER_SEGMENT> &vp, const unsigned sidenum)
+static void get_side_verts(side_vertnum_list_t &vertlist, const std::array<unsigned, MAX_VERTICES_PER_SEGMENT> &vp, const unsigned sidenum)
 {
 	auto &sv = Side_to_verts[sidenum];
 	for (unsigned i = 4; i--;)
@@ -372,7 +372,7 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const sh
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
-static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &segnum, array<fix, 6> &side_dists)
+static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &segnum, std::array<fix, 6> &side_dists)
 {
 	int			sn,facebit,sidebit;
 	ubyte			mask;
@@ -587,7 +587,7 @@ int	Doing_lighting_hack_flag=0;
 static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedSegmentState, const vms_vector &p0, const vcsegptridx_t oldsegnum, const unsigned recursion_count, visited_segment_bitarray_t &visited)
 {
 	int centermask;
-	array<fix, 6> side_dists;
+	std::array<fix, 6> side_dists;
 	fix biggest_val;
 	int sidenum, bit, biggest_side;
 	if (recursion_count >= LevelSharedSegmentState.Num_segments) {
@@ -764,7 +764,7 @@ struct fcd_data {
 }
 
 int	Fcd_index = 0;
-static array<fcd_data, MAX_FCD_CACHE> Fcd_cache;
+static std::array<fcd_data, MAX_FCD_CACHE> Fcd_cache;
 fix64	Last_fcd_flush_time;
 
 //	----------------------------------------------------------------------------------------------------------
@@ -1263,7 +1263,7 @@ namespace dcx {
 static void get_verts_for_normal(verts_for_normal &r, const unsigned va, const unsigned vb, const unsigned vc, const unsigned vd)
 {
 	auto &v = r.vsorted;
-	array<unsigned, 4> w;
+	std::array<unsigned, 4> w;
 
 	//	w is a list that shows how things got scrambled so we know if our normal is pointing backwards
 	range_for (const unsigned i, xrange(4u))
@@ -1336,7 +1336,7 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		vm_vec_normal(sidep->normals[0], vvs0, vvs1, *n0v3);
 		vm_vec_normal(sidep->normals[1], *n1v1, vvs2, vvs3);
 	} else {
-		array<unsigned, 4> v;
+		std::array<unsigned, 4> v;
 
 		range_for (const unsigned i, xrange(4u))
 			v[i] = sp.verts[vs[i]];
@@ -1579,9 +1579,9 @@ void pick_random_point_in_seg(fvcvertptr &vcvertptr, vms_vector &new_pos, const 
 //	----------------------------------------------------------------------------------------------------------
 //	Set the segment depth of all segments from start_seg in *segbuf.
 //	Returns maximum depth value.
-unsigned set_segment_depths(vcsegidx_t start_seg, const array<uint8_t, MAX_SEGMENTS> *const limit, segment_depth_array_t &depth)
+unsigned set_segment_depths(vcsegidx_t start_seg, const std::array<uint8_t, MAX_SEGMENTS> *const limit, segment_depth_array_t &depth)
 {
-	array<segnum_t, MAX_SEGMENTS> queue;
+	std::array<segnum_t, MAX_SEGMENTS> queue;
 	int	head, tail;
 
 	head = 0;

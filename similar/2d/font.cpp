@@ -75,7 +75,7 @@ constexpr std::integral_constant<uint8_t, 255> kerndata_terminator{};
 namespace dcx {
 
 //list of open fonts, for use (for now) for palette remapping
-static array<grs_font *, MAX_OPEN_FONTS> open_font;
+static std::array<grs_font *, MAX_OPEN_FONTS> open_font;
 
 #define BITS_TO_BYTES(x)    (((x)+7)>>3)
 
@@ -906,7 +906,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 	const uint8_t *ptr;
 	uint8_t *ft_data;
 	struct {
-		array<char, 4> magic;
+		std::array<char, 4> magic;
 		unsigned datasize;	//size up to (but not including) palette
 	} file_header;
 
@@ -1010,13 +1010,13 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		palette_array_t palette;
-		array<uint8_t, 256> colormap;
+		std::array<uint8_t, 256> colormap;
 		/* `freq` exists so that decode_data can write to it, but it is
 		 * otherwise unused.  `decode_data` is not guaranteed to write
 		 * to every element, so `freq` must not be read without first
 		 * adding an initialization step.
 		 */
-		array<bool, 256> freq;
+		std::array<bool, 256> freq;
 
 		PHYSFS_read(fontfile,&palette[0],sizeof(palette[0]),palette.size());		//read the palette
 

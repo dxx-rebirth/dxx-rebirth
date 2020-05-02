@@ -137,7 +137,7 @@ enum MENUS
 
 #define ADD_ITEM(t,value,key)  do { nm_set_item_menu(m[num_options], t); menu_choice[num_options]=value;num_options++; } while (0)
 
-static array<window *, 16> menus;
+static std::array<window *, 16> menus;
 
 // Function Prototypes added after LINTING
 static int do_option(int select);
@@ -213,11 +213,11 @@ template void parse_human_readable_time(autosave_interval_type &, const human_re
 }
 
 __attribute_nonnull()
-static int select_file_recursive2(const char *title, const array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<void> when_selected, void *userdata);
+static int select_file_recursive2(const char *title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<void> when_selected, void *userdata);
 
 template <typename T>
 __attribute_nonnull()
-static int select_file_recursive(const char *title, const array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<T> when_selected, T *userdata)
+static int select_file_recursive(const char *title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<T> when_selected, T *userdata)
 {
 	return select_file_recursive2(title, orig_path, ext_list, select_dir, reinterpret_cast<select_file_subfunction<void>>(when_selected), reinterpret_cast<void *>(userdata));
 }
@@ -300,7 +300,7 @@ static int MakeNewPlayerFile(int allow_abort)
 
 try_again:
 	{
-		array<newmenu_item, 1> m{{
+		std::array<newmenu_item, 1> m{{
 			nm_item_input(text.buffer()),
 		}};
 	Newmenu_allowed_chars = playername_allowed_chars;
@@ -435,7 +435,7 @@ static window_event_result player_menu_handler( listbox *lb,const d_event &event
 //Inputs the player's name, without putting up the background screen
 static void RegisterPlayer()
 {
-	static const array<file_extension_t, 1> types{{"plr"}};
+	static const std::array<file_extension_t, 1> types{{"plr"}};
 	int i = 0, NumItems;
 	int citem = 0;
 	int allow_abort_flag = 1;
@@ -874,7 +874,7 @@ int select_demo(void)
 
 static int do_difficulty_menu()
 {
-	array<newmenu_item, NDL> m{{
+	std::array<newmenu_item, NDL> m{{
 		nm_item_menu(MENU_DIFFICULTY_TEXT(0)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(1)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(2)),
@@ -926,8 +926,8 @@ window_event_result do_new_game_menu()
 #undef DXX_START_ANY_LEVEL_FORMAT
 		for (;;)
 		{
-			array<char, 10> num_text{"1"};
-			array<newmenu_item, 2> m{{
+			std::array<char, 10> num_text{"1"};
+			std::array<newmenu_item, 2> m{{
 				nm_item_text(info_text),
 				nm_item_input(num_text),
 			}};
@@ -984,7 +984,7 @@ public:
 	{
 		DXX_OPTIONS_MENU(ENUM)
 	};
-	array<newmenu_item, DXX_OPTIONS_MENU(COUNT)> m;
+	std::array<newmenu_item, DXX_OPTIONS_MENU(COUNT)> m;
 	options_menu_items()
 	{
 		DXX_OPTIONS_MENU(ADD);
@@ -1045,14 +1045,14 @@ static int gcd(int a, int b)
 void change_res()
 {
 	newmenu_item m[50+8];
-	array<char, 12> crestext, casptext;
+	std::array<char, 12> crestext, casptext;
 
 	int mc = 0, citem = -1;
 
 #if SDL_MAJOR_VERSION == 1
-	array<screen_mode, 50> modes;
+	std::array<screen_mode, 50> modes;
 	const auto num_presets = gr_list_modes(modes);
-	array<array<char, 12>, 50> restext;
+	std::array<std::array<char, 12>, 50> restext;
 
 	range_for (auto &i, partial_const_range(modes, num_presets))
 	{
@@ -1203,7 +1203,7 @@ static void input_config_keyboard()
 		{
 			DXX_INPUT_CONFIG_MENU(ENUM)
 		};
-		array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
+		std::array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
 		menu_items()
 		{
 			DXX_INPUT_CONFIG_MENU(ADD);
@@ -1253,7 +1253,7 @@ static void input_config_mouse()
 		{
 			DXX_INPUT_CONFIG_MENU(ENUM)
 		};
-		array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
+		std::array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
 		menu_items()
 		{
 			DXX_INPUT_CONFIG_MENU(ADD);
@@ -1300,7 +1300,7 @@ static void input_config_joystick()
 		{
 			DXX_INPUT_CONFIG_MENU(ENUM)
 		};
-		array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
+		std::array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
 		menu_items()
 		{
 			DXX_INPUT_CONFIG_MENU(ADD);
@@ -1388,7 +1388,7 @@ public:
 	{
 		DXX_INPUT_CONFIG_MENU(ENUM)
 	};
-	array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
+	std::array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
 	input_config_menu_items()
 	{
 		DXX_INPUT_CONFIG_MENU(ADD);
@@ -1533,7 +1533,7 @@ static void reticle_config()
 		{
 			DXX_RETICLE_CONFIG_MENU(ENUM)
 		};
-		array<newmenu_item, DXX_RETICLE_CONFIG_MENU(COUNT)> m;
+		std::array<newmenu_item, DXX_RETICLE_CONFIG_MENU(COUNT)> m;
 		menu_items()
 		{
 			DXX_RETICLE_CONFIG_MENU(ADD);
@@ -1622,7 +1622,7 @@ void hud_config()
 {
 	for (;;)
 	{
-		array<newmenu_item, DXX_HUD_MENU_OPTIONS(COUNT)> m;
+		std::array<newmenu_item, DXX_HUD_MENU_OPTIONS(COUNT)> m;
 		DXX_HUD_MENU_OPTIONS(ADD);
 		const auto i = newmenu_do1( NULL, "Hud Options", m.size(), m.data(), hud_config_menuset, unused_newmenu_userdata, 0 );
 		DXX_HUD_MENU_OPTIONS(READ);
@@ -1722,7 +1722,7 @@ static int graphics_config_menuset(newmenu *, const d_event &event, newmenu_item
 namespace dsx {
 void graphics_config()
 {
-	array<newmenu_item, DXX_GRAPHICS_MENU(COUNT)> m;
+	std::array<newmenu_item, DXX_GRAPHICS_MENU(COUNT)> m;
 	DXX_GRAPHICS_MENU(ADD);
 
 #if DXX_USE_OGL
@@ -1776,7 +1776,7 @@ struct browser
 	const partial_range_t<const file_extension_t *> ext_range;
 	int		select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
 	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
-	array<char, PATH_MAX> view_path;	// The absolute path we're currently looking at
+	std::array<char, PATH_MAX> view_path;	// The absolute path we're currently looking at
 };
 
 }
@@ -1818,7 +1818,7 @@ static int list_directory(browser *b)
 
 static window_event_result select_file_handler(listbox *menu,const d_event &event, browser *b)
 {
-	array<char, PATH_MAX> newpath{};
+	std::array<char, PATH_MAX> newpath{};
 	const char **list = listbox_get_items(menu);
 	const char *sep = PHYSFS_getDirSeparator();
 	switch (event.type)
@@ -1831,7 +1831,7 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 				char text[4] = "c";
 				int rval = 0;
 
-				array<newmenu_item, 1> m{{
+				std::array<newmenu_item, 1> m{{
 					nm_item_input(text),
 				}};
 				rval = newmenu_do( NULL, "Enter drive letter", m, unused_newmenu_subfunction, unused_newmenu_userdata );
@@ -1918,11 +1918,11 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 	return window_event_result::ignored;
 }
 
-static int select_file_recursive2(const char *title, const array<char, PATH_MAX> &orig_path_storage, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, select_file_subfunction<void> when_selected, void *userdata)
+static int select_file_recursive2(const char *title, const std::array<char, PATH_MAX> &orig_path_storage, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, select_file_subfunction<void> when_selected, void *userdata)
 {
 	auto orig_path = orig_path_storage.data();
 	const char *sep = PHYSFS_getDirSeparator();
-	array<char, PATH_MAX> new_path;
+	std::array<char, PATH_MAX> new_path;
 
 	auto b = make_unique<browser>(ext_range);
 	b->title = title;
@@ -2115,7 +2115,7 @@ public:
 	{
 		DXX_SOUND_MENU(ENUM)
 	};
-	array<newmenu_item, DXX_SOUND_MENU(COUNT)> m;
+	std::array<newmenu_item, DXX_SOUND_MENU(COUNT)> m;
 	sound_menu_items()
 	{
 		DXX_SOUND_MENU(ADD);
@@ -2222,7 +2222,7 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 #endif
 			if (citem == opt_sm_mtype3_lmpath)
 			{
-				static const array<file_extension_t, 1> ext_list{{"m3u"}};		// select a directory or M3U playlist
+				static const std::array<file_extension_t, 1> ext_list{{"m3u"}};		// select a directory or M3U playlist
 				const auto cfgpath = CGameCfg.CMLevelMusicPath.data();
 				select_file_recursive(
 					"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT,
@@ -2350,7 +2350,7 @@ void gameplay_config()
 {
 	for (;;)
 	{
-		array<newmenu_item, DXX_GAMEPLAY_MENU_OPTIONS(COUNT)> m;
+		std::array<newmenu_item, DXX_GAMEPLAY_MENU_OPTIONS(COUNT)> m;
 #if defined(DXX_BUILD_DESCENT_II)
 		auto thief_absent = PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent;
 		auto thief_cannot_steal_energy_weapons = PlayerCfg.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons;
@@ -2630,7 +2630,7 @@ public:
 	{
 		DXX_SANDBOX_MENU(ENUM)
 	};
-	array<newmenu_item, DXX_SANDBOX_MENU(COUNT)> m;
+	std::array<newmenu_item, DXX_SANDBOX_MENU(COUNT)> m;
 	sandbox_menu_items()
 	{
 		DXX_SANDBOX_MENU(ADD);

@@ -513,7 +513,7 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 
 static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, polymodel *const pm, const unsigned submodel_num, const submodel_angles anim_angles, g3s_lrgb light, morph_data *const md)
 {
-	array<unsigned, MAX_SUBMODELS> sort_list;
+	std::array<unsigned, MAX_SUBMODELS> sort_list;
 	unsigned sort_n;
 
 
@@ -543,7 +543,7 @@ static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, p
 	range_for (const auto mn, partial_const_range(sort_list, sort_n))
 	{
 		if (mn == submodel_num) {
-			array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
+			std::array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
 			for (unsigned i = 0; i < pm->n_textures; ++i)
 			{
 				const auto ptr = ObjBitmapPtrs[pm->first_texture + i];

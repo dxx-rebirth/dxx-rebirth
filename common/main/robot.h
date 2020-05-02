@@ -79,8 +79,8 @@ namespace dsx {
 struct robot_info : prohibit_void_ptr<robot_info>
 {
 	int     model_num;                  // which polygon model?
-	array<vms_vector, MAX_GUNS>  gun_points;   // where each gun model is
-	array<uint8_t, MAX_GUNS>   gun_submodels;    // which submodel is each gun in?
+	std::array<vms_vector, MAX_GUNS>  gun_points;   // where each gun model is
+	std::array<uint8_t, MAX_GUNS>   gun_submodels;    // which submodel is each gun in?
 	uint16_t score_value;						//	Score from this robot.
 	short   exp1_vclip_num;
 	short   exp1_sound_num;
@@ -107,7 +107,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	fix     mass;           // how heavy is this thing?
 	fix     drag;           // how much drag does it have?
 
-	array<fix, NDL>     field_of_view, // compare this value with forward_vector.dot.vector_to_player, if field_of_view <, then robot can see player
+	std::array<fix, NDL>     field_of_view, // compare this value with forward_vector.dot.vector_to_player, if field_of_view <, then robot can see player
 		firing_wait,   //  time in seconds between shots
 #if defined(DXX_BUILD_DESCENT_II)
 		firing_wait2,  //  time in seconds between shots
@@ -116,7 +116,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 		max_speed,         //  maximum speed attainable by this robot
 		circle_distance;   //  distance at which robot circles player
 
-	array<int8_t, NDL>   rapidfire_count,   //  number of shots fired rapidly
+	std::array<int8_t, NDL>   rapidfire_count,   //  number of shots fired rapidly
 		evade_speed;       //  rate at which robot can evade shots, 0=none, 4=very fast
 	sbyte   cloak_type;     //  0=never, 1=always, 2=except-when-firing
 	sbyte   attack_type;    //  0=firing, 1=charge (like green guy)
@@ -146,7 +146,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	ubyte   aim;                //  255 = perfect, less = more likely to miss.  0 != random, would look stupid.  0=45 degree spread.  Specify in bitmaps.tbl in range 0.0..1.0
 #endif
 	//animation info
-	array<array<jointlist, N_ANIM_STATES>, MAX_GUNS+1> anim_states;
+	std::array<std::array<jointlist, N_ANIM_STATES>, MAX_GUNS+1> anim_states;
 	int     always_0xabcd;      // debugging
 };
 }
@@ -189,7 +189,7 @@ static inline int robot_is_thief(const robot_info &robptr)
 //the array of robots types
 struct d_level_shared_robot_info_state
 {
-	using d_robot_info_array = array<robot_info, MAX_ROBOT_TYPES>;
+	using d_robot_info_array = std::array<robot_info, MAX_ROBOT_TYPES>;
 	//how many kinds of robots
 	unsigned N_robot_types;      // Number of robot types.  We used to assume this was the same as N_polygon_models.
 	// Robot info for AI system, loaded from bitmaps.tbl.
@@ -204,7 +204,7 @@ imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_level_shared_robot_
 #endif
 
 #if DXX_USE_EDITOR
-using robot_names_array = array<array<char, ROBOT_NAME_LENGTH>, MAX_ROBOT_TYPES>;
+using robot_names_array = std::array<std::array<char, ROBOT_NAME_LENGTH>, MAX_ROBOT_TYPES>;
 extern robot_names_array Robot_names;
 #endif
 
@@ -213,7 +213,7 @@ extern robot_names_array Robot_names;
 struct d_level_shared_robot_joint_state
 {
 	//Big array of joint positions.  All robots index into this array
-	array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
+	std::array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
 };
 
 extern d_level_shared_robot_joint_state LevelSharedRobotJointState;
@@ -248,7 +248,7 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 //  On exit:
 //      Returns number of joints in list.
 //      jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
-partial_range_t<const jointpos *> robot_get_anim_state(const d_level_shared_robot_info_state::d_robot_info_array &, const array<jointpos, MAX_ROBOT_JOINTS> &, unsigned robot_type, unsigned gun_num, unsigned state);
+partial_range_t<const jointpos *> robot_get_anim_state(const d_level_shared_robot_info_state::d_robot_info_array &, const std::array<jointpos, MAX_ROBOT_JOINTS> &, unsigned robot_type, unsigned gun_num, unsigned state);
 
 /*
  * reads n robot_info structs from a PHYSFS_File
@@ -266,7 +266,7 @@ void jointpos_write(PHYSFS_File *fp, const jointpos &jp);
 #endif
 #ifdef dsx
 namespace dsx {
-void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
+void robot_set_angles(robot_info *r,polymodel *pm, std::array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
 weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num);
 
 static inline void boss_link_see_sound(const vcobjptridx_t objp)

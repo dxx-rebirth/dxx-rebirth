@@ -121,14 +121,14 @@ static int ogl_rgba_internalformat = GL_RGBA8;
 static int ogl_rgb_internalformat = GL_RGB8;
 #endif
 static std::unique_ptr<GLfloat[]> sphere_va, circle_va, disk_va;
-static array<std::unique_ptr<GLfloat[]>, 3> secondary_lva;
+static std::array<std::unique_ptr<GLfloat[]>, 3> secondary_lva;
 static int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc;
 #define f2glf(x) (f2fl(x))
 
 #define OGL_BINDTEXTURE(a) glBindTexture(GL_TEXTURE_2D, a);
 
 /* I assume this ought to be >= MAX_BITMAP_FILES in piggy.h? */
-static array<ogl_texture, 20000> ogl_texture_list;
+static std::array<ogl_texture, 20000> ogl_texture_list;
 static int ogl_texture_list_cur;
 
 /* some function prototypes */
@@ -552,7 +552,7 @@ void g3_draw_line(grs_canvas &canvas, const g3s_point &p0, const g3s_point &p1, 
 	color_array[1] = color_array[5] = color_g;
 	color_array[2] = color_array[6] = color_b;
 	color_array[3] = color_array[7] = 1.0;
-	array<GLfloat, 6> vertices = {{
+	std::array<GLfloat, 6> vertices = {{
 		f2glf(p0.p3_vec.x), f2glf(p0.p3_vec.y), -f2glf(p0.p3_vec.z),
 		f2glf(p1.p3_vec.x), f2glf(p1.p3_vec.y), -f2glf(p1.p3_vec.z)
 	}};
@@ -599,7 +599,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 {
 	int size=270+(size_offs*20);
 	float scale = (static_cast<float>(SWIDTH)/SHEIGHT);
-	const array<float, 4> ret_rgba{{
+	const std::array<float, 4> ret_rgba{{
 		static_cast<float>(PAL2Tr(color)),
 		static_cast<float>(PAL2Tg(color)),
 		static_cast<float>(PAL2Tb(color)),
@@ -610,7 +610,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		ret_rgba[2] / 2,
 		ret_rgba[3] / 2
 	}};
-	array<GLfloat, 16 * 4> dark_lca, bright_lca;
+	std::array<GLfloat, 16 * 4> dark_lca, bright_lca;
 	for (uint_fast32_t i = 0; i != dark_lca.size(); i += 4)
 	{
 		bright_lca[i] = ret_rgba[0];
@@ -652,7 +652,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	glEnableClientState(GL_COLOR_ARRAY);
 	
 	//cross
-	array<GLfloat, 8 * 4> cross_lca;
+	std::array<GLfloat, 8 * 4> cross_lca;
 	GLfloat *cross_lca_ptr;
 	if (cross)
 	{
@@ -675,13 +675,13 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	}
 	glColorPointer(4, GL_FLOAT, 0, cross_lca_ptr);
 
-	static const array<GLfloat, 8 * 2> cross_lva{{
+	static const std::array<GLfloat, 8 * 2> cross_lva{{
 		-4.0, 2.0, -2.0, 0, -3.0, -4.0, -2.0, -3.0, 4.0, 2.0, 2.0, 0, 3.0, -4.0, 2.0, -3.0,
 	}};
 	glVertexPointer(2, GL_FLOAT, 0, cross_lva.data());
 	glDrawArrays(GL_LINES, 0, 8);
 	
-	array<GLfloat, 4 * 4> primary_lca0;
+	std::array<GLfloat, 4 * 4> primary_lca0;
 	GLfloat *lca0_data;
 	//left primary bar
 	if(primary == 0)
@@ -699,22 +699,22 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		lca0_data = primary_lca0.data();
 	}
 	glColorPointer(4, GL_FLOAT, 0, lca0_data);
-	static const array<GLfloat, 4 * 2> primary_lva0{{
+	static const std::array<GLfloat, 4 * 2> primary_lva0{{
 		-5.5, -5.0, -6.5, -7.5, -10.0, -7.0, -10.0, -8.7
 	}};
-	static const array<GLfloat, 4 * 2> primary_lva1{{
+	static const std::array<GLfloat, 4 * 2> primary_lva1{{
 		-10.0, -7.0, -10.0, -8.7, -15.0, -8.5, -15.0, -9.5
 	}};
-	static const array<GLfloat, 4 * 2> primary_lva2{{
+	static const std::array<GLfloat, 4 * 2> primary_lva2{{
 		5.5, -5.0, 6.5, -7.5, 10.0, -7.0, 10.0, -8.7
 	}};
-	static const array<GLfloat, 4 * 2> primary_lva3{{
+	static const std::array<GLfloat, 4 * 2> primary_lva3{{
 		10.0, -7.0, 10.0, -8.7, 15.0, -8.5, 15.0, -9.5
 	}};
 	glVertexPointer(2, GL_FLOAT, 0, primary_lva0.data());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-	array<GLfloat, 4 * 4> primary_lca1;
+	std::array<GLfloat, 4 * 4> primary_lca1;
 	GLfloat *lca1_data;
 	if(primary != 2)
 		lca1_data = dark_lca.data();
@@ -778,7 +778,7 @@ void g3_draw_sphere(grs_canvas &canvas, cg3s_point &pnt, fix rad, const uint8_t 
 {
 	int i;
 	const float scale = (static_cast<float>(canvas.cv_bitmap.bm_w) / canvas.cv_bitmap.bm_h);
-	array<GLfloat, 20 * 4> color_array;
+	std::array<GLfloat, 20 * 4> color_array;
 	for (i = 0; i < 20*4; i += 4)
 	{
 		color_array[i] = CPAL2Tr(c);
@@ -1086,9 +1086,9 @@ void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, const fix iwidth,
 	{
 		GLfloat u, v;
 	};
-	array<fvertex_t, point_count> vertices;
-	array<fcolor_t, point_count> color_array;
-	array<ftexcoord_t, point_count> texcoord_array;
+	std::array<fvertex_t, point_count> vertices;
+	std::array<fcolor_t, point_count> color_array;
+	std::array<ftexcoord_t, point_count> texcoord_array;
 	const auto &v1 = vm_vec_sub(pos,View_position);
 	const auto &rpv = vm_vec_rotate(v1,View_matrix);
 	const auto bmglu = bm.gltexture->u;
@@ -1784,7 +1784,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepa
 		}
 	}
 
-	array<uint8_t, 300*1024> decodebuf;
+	std::array<uint8_t, 300*1024> decodebuf;
 	if (bm->get_flag_mask(BM_FLAG_RLE))
 	{
 		class bm_rle_expand_state
@@ -1923,13 +1923,13 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, int x, int y,int dw, int dh, grs_bitmap
 		v2=(bm.bm_h+bm.bm_y)/static_cast<float>(bm.gltexture->th);
 	}
 
-	const array<GLfloat, 8> vertices{{
+	const std::array<GLfloat, 8> vertices{{
 		xo, yo,
 		xf, yo,
 		xf, yf,
 		xo, yf,
 	}};
-	const array<GLfloat, 8> texcoord_array{{
+	const std::array<GLfloat, 8> texcoord_array{{
 		u1, v1,
 		u2, v1,
 		u2, v2,

@@ -83,8 +83,8 @@ struct v29_trigger
 	fix     time;
 	sbyte   link_num;
 	short   num_links;
-	array<segnum_t, MAX_WALLS_PER_LINK>   seg;
-	array<short, MAX_WALLS_PER_LINK>   side;
+	std::array<segnum_t, MAX_WALLS_PER_LINK>   seg;
+	std::array<short, MAX_WALLS_PER_LINK>   side;
 } __pack__;
 
 struct v30_trigger
@@ -94,8 +94,8 @@ struct v30_trigger
 	sbyte   pad;                        //keep alignment
 	fix     value;
 	fix     time;
-	array<segnum_t, MAX_WALLS_PER_LINK>   seg;
-	array<short, MAX_WALLS_PER_LINK>   side;
+	std::array<segnum_t, MAX_WALLS_PER_LINK>   seg;
+	std::array<short, MAX_WALLS_PER_LINK>   side;
 } __pack__;
 #endif
 
@@ -155,8 +155,8 @@ struct trigger : public prohibit_void_ptr<trigger>
 	uint8_t   num_links;  //how many doors, etc. linked to this
 #endif
 	fix     value;
-	array<segnum_t, MAX_WALLS_PER_LINK>   seg;
-	array<short, MAX_WALLS_PER_LINK>   side;
+	std::array<segnum_t, MAX_WALLS_PER_LINK>   seg;
+	std::array<short, MAX_WALLS_PER_LINK>   side;
 };
 
 }

@@ -246,9 +246,9 @@ private:
 	}
 protected:
 	template <std::size_t N>
-		array<cg3s_point *, N> prepare_point_list(const uint_fast32_t nv, const uint8_t *const p)
+		std::array<cg3s_point *, N> prepare_point_list(const uint_fast32_t nv, const uint8_t *const p)
 		{
-			array<cg3s_point *, N> point_list;
+			std::array<cg3s_point *, N> point_list;
 			for (uint_fast32_t i = 0; i < nv; ++i)
 				point_list[i] = &Interp_point_list[wp(p + 30)[i]];
 			return point_list;
@@ -360,8 +360,8 @@ public:
 			? get_glow_light((*glow_values)[std::exchange(glow_num, -1)]) //yes glow
 			: get_noglow_light(p); //no glow
 		//now poke light into l values
-		array<g3s_uvl, MAX_POINTS_PER_POLY> uvl_list;
-		array<g3s_lrgb, MAX_POINTS_PER_POLY> lrgb_list;
+		std::array<g3s_uvl, MAX_POINTS_PER_POLY> uvl_list;
+		std::array<g3s_lrgb, MAX_POINTS_PER_POLY> lrgb_list;
 		const fix average_light = (light.r + light.g + light.b) / 3;
 		range_for (const uint_fast32_t i, xrange(nv))
 		{
@@ -428,8 +428,8 @@ public:
 	{
 		if (nv > MAX_POINTS_PER_POLY)
 			return;
-		array<g3s_uvl, MAX_POINTS_PER_POLY> uvl_list;
-		array<g3s_lrgb, MAX_POINTS_PER_POLY> lrgb_list;
+		std::array<g3s_uvl, MAX_POINTS_PER_POLY> uvl_list;
+		std::array<g3s_lrgb, MAX_POINTS_PER_POLY> lrgb_list;
 		lrgb_list.fill(get_noglow_light(p));
 		range_for (const uint_fast32_t i, xrange(nv))
 			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];

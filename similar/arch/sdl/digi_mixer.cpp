@@ -80,7 +80,7 @@ void digi_mixer_free_channel(const int channel_num)
 
 namespace dsx {
 
-static array<RAIIMix_Chunk, MAX_SOUNDS> SoundChunks;
+static std::array<RAIIMix_Chunk, MAX_SOUNDS> SoundChunks;
 
 /* Initialise audio */
 int digi_mixer_init()

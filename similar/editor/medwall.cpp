@@ -72,8 +72,8 @@ struct wall_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton, prev_wall, next_wall, blastable, door, illusory, closed_wall, goto_prev_wall, goto_next_wall, remove, bind_trigger, bind_control;
-	array<std::unique_ptr<UI_GADGET_CHECKBOX>, 3> doorFlag;
-	array<std::unique_ptr<UI_GADGET_RADIO>, 4> keyFlag;
+	std::array<std::unique_ptr<UI_GADGET_CHECKBOX>, 3> doorFlag;
+	std::array<std::unique_ptr<UI_GADGET_RADIO>, 4> keyFlag;
 	int old_wall_num;
 	fix64 time;
 	int framenum;
@@ -1027,7 +1027,7 @@ int wall_unlink_door()
 int check_walls() 
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
-	array<count_wall, MAX_WALLS> CountedWalls;
+	std::array<count_wall, MAX_WALLS> CountedWalls;
 	int matcen_num;
 
 	unsigned wall_count = 0;
@@ -1201,7 +1201,7 @@ void check_wall_validity(void)
 		}
 	}
 
-	array<bool, MAX_WALLS> wall_flags{};
+	std::array<bool, MAX_WALLS> wall_flags{};
 
 	range_for (const auto &&segp, vmsegptridx)
 	{

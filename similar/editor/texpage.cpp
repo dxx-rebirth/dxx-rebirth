@@ -48,7 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 constexpr std::integral_constant<unsigned, 12> TMAPS_PER_PAGE{};
 
-static array<std::unique_ptr<UI_GADGET_USERBOX>, TMAPS_PER_PAGE> TmapBox;
+static std::array<std::unique_ptr<UI_GADGET_USERBOX>, TMAPS_PER_PAGE> TmapBox;
 static std::unique_ptr<UI_GADGET_USERBOX> TmapCurrent;
 
 int CurrentTexture = 0;		// Used globally
@@ -219,7 +219,7 @@ struct replacement
 };
 
 int	Num_replacements=0;
-static array<replacement, MAX_REPLACEMENTS> Replacement_list;
+static std::array<replacement, MAX_REPLACEMENTS> Replacement_list;
 
 int texpage_do(const d_event &event)
 {

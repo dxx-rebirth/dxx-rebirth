@@ -275,7 +275,7 @@ namespace {
 
 class ignore_objects_array_t
 {
-	using array_t = array<vcobjidx_t, MAX_IGNORE_OBJS>;
+	using array_t = std::array<vcobjidx_t, MAX_IGNORE_OBJS>;
 	array_t::iterator e;
 	union {
 		array_t a;

@@ -76,20 +76,20 @@ struct d_subtitle_state
 {
 	unsigned Num_subtitles = 0;
 	std::unique_ptr<char[]> subtitle_raw_data;
-	array<subtitle, 500> Subtitles;
+	std::array<subtitle, 500> Subtitles;
 };
 
 static int init_subtitles(d_subtitle_state &SubtitleState, const char *filename);
 
 // Movielib data
 
-constexpr array<array<char, 8>, 3> movielib_files{{
+constexpr std::array<std::array<char, 8>, 3> movielib_files{{
 	{"intro"}, {"other"}, {"robots"}
 }};
 
 struct loaded_movie_t
 {
-	array<char, FILENAME_LEN + 2> filename;
+	std::array<char, FILENAME_LEN + 2> filename;
 };
 
 static loaded_movie_t extra_robot_movie_mission;

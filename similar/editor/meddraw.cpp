@@ -165,7 +165,7 @@ static void check_segment(const vmsegptridx_t seg)
 
 		range_for (auto &fn, Side_to_verts)
 		{
-			array<cg3s_point *, 3> vert_list;
+			std::array<cg3s_point *, 3> vert_list;
 			vert_list[0] = &Segment_points[seg->verts[fn[0]]];
 			vert_list[1] = &Segment_points[seg->verts[fn[1]]];
 			vert_list[2] = &Segment_points[seg->verts[fn[2]]];
@@ -233,7 +233,7 @@ static
 #if defined(DXX_BUILD_DESCENT_I)
 const
 #endif
-array<color_t, 3> edge_colors{{54, 59, 64}};
+std::array<color_t, 3> edge_colors{{54, 59, 64}};
 
 namespace {
 
@@ -249,8 +249,8 @@ struct seg_edge
 
 }
 
-static array<seg_edge, MAX_EDGES> edge_list;
-static array<int, MAX_EDGES> used_list;	//which entries in edge_list have been used
+static std::array<seg_edge, MAX_EDGES> edge_list;
+static std::array<int, MAX_EDGES> used_list;	//which entries in edge_list have been used
 static int n_used;
 
 static unsigned edge_list_size;		//set each frame
@@ -712,7 +712,7 @@ static void free_vert(int vert_num)
 // -----------------------------------------------------------------------------
 static void draw_coordinate_axes(void)
 {
-	array<unsigned, 16> Axes_verts;
+	std::array<unsigned, 16> Axes_verts;
 	vms_vector	tvec;
 
 	range_for (auto &i, Axes_verts)

@@ -43,7 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct phys_visited_seglist
 {
 	unsigned nsegs;
-	array<segnum_t, MAX_FVI_SEGS> seglist;
+	std::array<segnum_t, MAX_FVI_SEGS> seglist;
 };
 
 #ifdef dsx

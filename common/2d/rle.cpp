@@ -358,7 +358,7 @@ struct rle_cache_element
 static int rle_cache_initialized;
 static int rle_counter;
 static int rle_next;
-static array<rle_cache_element, 32> rle_cache;
+static std::array<rle_cache_element, 32> rle_cache;
 
 void rle_cache_close(void)
 {
@@ -559,7 +559,7 @@ void rle_swap_0_255(grs_bitmap &bmp)
 /*
  * remaps all entries using colormap in an RLE bitmap without uncompressing it
  */
-void rle_remap(grs_bitmap &bmp, array<color_t, 256> &colormap)
+void rle_remap(grs_bitmap &bmp, std::array<color_t, 256> &colormap)
 {
 	int len, rle_big;
 	unsigned char *start;

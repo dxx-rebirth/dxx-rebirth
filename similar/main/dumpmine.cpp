@@ -75,19 +75,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dsx {
 namespace {
 #if defined(DXX_BUILD_DESCENT_I)
-using perm_tmap_buffer_type = array<int, MAX_TEXTURES>;
-using level_tmap_buffer_type = array<int8_t, MAX_TEXTURES>;
-using wall_buffer_type = array<int, MAX_WALL_ANIMS>;
+using perm_tmap_buffer_type = std::array<int, MAX_TEXTURES>;
+using level_tmap_buffer_type = std::array<int8_t, MAX_TEXTURES>;
+using wall_buffer_type = std::array<int, MAX_WALL_ANIMS>;
 #elif defined(DXX_BUILD_DESCENT_II)
-using perm_tmap_buffer_type = array<int, MAX_BITMAP_FILES>;
-using level_tmap_buffer_type = array<int8_t, MAX_BITMAP_FILES>;
-using wall_buffer_type = array<int, MAX_BITMAP_FILES>;
+using perm_tmap_buffer_type = std::array<int, MAX_BITMAP_FILES>;
+using level_tmap_buffer_type = std::array<int8_t, MAX_BITMAP_FILES>;
+using wall_buffer_type = std::array<int, MAX_BITMAP_FILES>;
 #endif
 }
 }
 
 namespace dcx {
-const array<char[10], 7> Wall_names{{
+const std::array<char[10], 7> Wall_names{{
 	"NORMAL   ",
 	"BLASTABLE",
 	"DOOR     ",
@@ -102,7 +102,7 @@ static void dump_used_textures_level(PHYSFS_File *my_file, int level_num, const 
 static void say_totals(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file, const char *level_name);
 
 namespace dsx {
-const array<char[9], MAX_OBJECT_TYPES> Object_type_names{{
+const std::array<char[9], MAX_OBJECT_TYPES> Object_type_names{{
 	"WALL    ",
 	"FIREBALL",
 	"ROBOT   ",
@@ -535,7 +535,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 namespace dsx {
 static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptridx, PHYSFS_File *my_file)
 {
-	array<int8_t, MAX_WALLS> wall_flags;
+	std::array<int8_t, MAX_WALLS> wall_flags;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Walls:\n");
@@ -928,7 +928,7 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 
 // ----------------------------------------------------------------------------
 template <std::size_t N>
-static void merge_buffers(array<int, N> &dest, const array<int, N> &src)
+static void merge_buffers(std::array<int, N> &dest, const std::array<int, N> &src)
 {
 	std::transform(dest.begin(), dest.end(), src.begin(), dest.begin(), std::plus<int>());
 }

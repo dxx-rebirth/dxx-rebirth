@@ -162,7 +162,7 @@ int Gamesave_num_players=0;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_POLYGON_MODELS_NEW 167
-static array<char[FILENAME_LEN], MAX_POLYGON_MODELS_NEW> Save_pof_names;
+static std::array<char[FILENAME_LEN], MAX_POLYGON_MODELS_NEW> Save_pof_names;
 
 static int convert_vclip(const d_vclip_array &Vclip, int vc)
 {
@@ -185,7 +185,7 @@ static int convert_polymod(int polymod) {
     return (polymod >= N_polygon_models) ? polymod % N_polygon_models : polymod;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-static array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Save_pof_names;
+static std::array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Save_pof_names;
 #endif
 
 namespace dsx {
@@ -1516,7 +1516,7 @@ int load_level(
 #if DXX_USE_EDITOR
 int get_level_name()
 {
-	array<newmenu_item, 2> m{{
+	std::array<newmenu_item, 2> m{{
 		nm_item_text("Please enter a name for this mine:"),
 		nm_item_input(Current_level_name.next()),
 	}};

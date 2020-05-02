@@ -246,7 +246,7 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 		return bitmap_num;
 	}
 
-	array<char, 20> fname{};
+	std::array<char, 20> fname{};
 #if defined(DXX_BUILD_DESCENT_I)
 	removeext(filename, fname);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -276,12 +276,12 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 	return bitmap_num;
 }
 
-static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BITMAPS_PER_BRUSH> &bmp, unsigned *nframes )
+static void ab_load(int skip, const char * filename, std::array<bitmap_index, MAX_BITMAPS_PER_BRUSH> &bmp, unsigned *nframes )
 {
 	bitmap_index bi;
 	int iff_error;		//reference parm to avoid warning message
 	palette_array_t newpal;
-	array<char, 24> tempname;
+	std::array<char, 24> tempname;
 
 	if (skip) {
 		Assert( bogus_bitmap_initialized != 0 );
@@ -296,7 +296,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 
 
 #if defined(DXX_BUILD_DESCENT_I)
-	array<char, 20> fname;
+	std::array<char, 20> fname;
 	removeext(filename, fname);
 #elif defined(DXX_BUILD_DESCENT_II)
 	struct splitpath_t path;
@@ -326,7 +326,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 //	Note that last argument passes an address to the array newpal (which is a pointer).
 //	type mismatch found using lint, will substitute this line with an adjusted
 //	one.  If fatal error, then it can be easily changed.
-	array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
+	std::array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 	iff_error = iff_read_animbrush(filename,bm,nframes,newpal);
 	if (iff_error != IFF_NO_ERROR)	{
 		Error("File <%s> - IFF error: %s, line %d",filename,iff_errormsg(iff_error),linenum);
@@ -362,7 +362,7 @@ int ds_load(int skip, const char * filename )	{
 		return piggy_register_sound( &bogus_sound, "bogus", 1 );
 	}
 
-	array<char, 20> fname;
+	std::array<char, 20> fname;
 	removeext(filename, fname);
 #if defined(DXX_BUILD_DESCENT_I)
 	snprintf(rawname, sizeof(rawname), "Sounds/%s.raw", fname.data());
@@ -941,7 +941,7 @@ static void bm_read_eclip(int skip)
 		clip_count++;
 
 	} else {
-		array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
+		std::array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
 		abm_flag = 0;
 
 		ab_load(skip, arg, bm, &Effects[clip_num].vc.num_frames );
@@ -1047,7 +1047,7 @@ static void bm_read_gauges(int skip)
 		Gauges[clip_count] = bitmap;
 		clip_count++;
 	} else {
-		array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
+		std::array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
 		abm_flag = 0;
 		ab_load(skip, arg, bm, &num_abm_frames );
 		for (i=clip_count; i<clip_count+num_abm_frames; i++) {
@@ -1072,7 +1072,7 @@ static void bm_read_gauges_hires()
 		Gauges_hires[clip_count] = bitmap;
 		clip_count++;
 	} else {
-		array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
+		std::array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
 		abm_flag = 0;
 		ab_load(0, arg, bm, &num_abm_frames );
 		for (i=clip_count; i<clip_count+num_abm_frames; i++) {
@@ -1113,7 +1113,7 @@ static void bm_read_wclip(int skip)
 		NumTextures = texture_count;
 		if (clip_num >= Num_wall_anims) Num_wall_anims = clip_num+1;
 	} else {
-		array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
+		std::array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
 		unsigned nframes;
 		if (wa.num_frames != wclip_frames_none)
 			Error( "AB_Wall clip %d is already used!", clip_num );
@@ -1182,7 +1182,7 @@ static void bm_read_vclip(d_vclip_array &Vclip, int skip)
 		}
 
 	} else	{
-		array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
+		std::array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
 		abm_flag = 0;
 		if (Vclip[clip_num].num_frames != ~0u)
 			Error( "AB_Vclip %d is already used!", clip_num );
@@ -1209,7 +1209,7 @@ static void bm_read_vclip(d_vclip_array &Vclip, int skip)
 }
 
 // ------------------------------------------------------------------------------
-static void get4fix(array<fix, NDL> &fixp)
+static void get4fix(std::array<fix, NDL> &fixp)
 {
 	char	*curtext;
 	range_for (auto &i, fixp)
@@ -1220,7 +1220,7 @@ static void get4fix(array<fix, NDL> &fixp)
 }
 
 // ------------------------------------------------------------------------------
-static void get4byte(array<int8_t, NDL> &bytep)
+static void get4byte(std::array<int8_t, NDL> &bytep)
 {
 	char	*curtext;
 	range_for (auto &i, bytep)
@@ -1232,7 +1232,7 @@ static void get4byte(array<int8_t, NDL> &bytep)
 
 // ------------------------------------------------------------------------------
 //	Convert field of view from an angle in 0..360 to cosine.
-static void adjust_field_of_view(array<fix, NDL> &fovp)
+static void adjust_field_of_view(std::array<fix, NDL> &fovp)
 {
 	fixang	tt;
 	float		ff;
@@ -1341,7 +1341,7 @@ void bm_read_robot_ai(const int skip)
 	get4byte(robptr.rapidfire_count);
 	get4fix(robptr.turn_time);
 #if defined(DXX_BUILD_DESCENT_I)
-	array<fix, NDL>		fire_power,						//	damage done by a hit from this robot
+	std::array<fix, NDL>		fire_power,						//	damage done by a hit from this robot
 		shield;							//	shield strength of this robot
 	get4fix(fire_power);
 	get4fix(shield);
@@ -2577,7 +2577,7 @@ void bm_read_hostage()
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (static_cast<const array<char, 13> &>(t.filename), t.flags, t.lighting, t.damage, t.eclip_num));
+DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (static_cast<const std::array<char, 13> &>(t.filename), t.flags, t.lighting, t.damage, t.eclip_num));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(tmap_info, 26);
 #elif defined(DXX_BUILD_DESCENT_II)
 DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (t.flags, serial::pad<3>(), t.lighting, t.damage, t.eclip_num, t.destroyed, t.slide_u, t.slide_v));

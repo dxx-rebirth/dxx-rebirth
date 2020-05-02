@@ -155,22 +155,22 @@ namespace dcx {
 playernum_t Bounty_target;
 
 
-array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
+std::array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
 int multi_defining_message = 0;
 static int multi_message_index;
 
-static array<array<objnum_t, MAX_OBJECTS>, MAX_PLAYERS> remote_to_local;  // Remote object number for each local object
-static array<uint16_t, MAX_OBJECTS> local_to_remote;
-array<sbyte, MAX_OBJECTS> object_owner;   // Who created each object in my universe, -1 = loaded at start
+static std::array<std::array<objnum_t, MAX_OBJECTS>, MAX_PLAYERS> remote_to_local;  // Remote object number for each local object
+static std::array<uint16_t, MAX_OBJECTS> local_to_remote;
+std::array<sbyte, MAX_OBJECTS> object_owner;   // Who created each object in my universe, -1 = loaded at start
 
 unsigned   Net_create_loc;       // pointer into previous array
-array<objnum_t, MAX_NET_CREATE_OBJECTS>   Net_create_objnums; // For tracking object creation that will be sent to remote
+std::array<objnum_t, MAX_NET_CREATE_OBJECTS>   Net_create_objnums; // For tracking object creation that will be sent to remote
 int   Network_status = 0;
 ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 int   Network_message_reciever=-1;
-static array<unsigned, MAX_PLAYERS>   sorted_kills;
-array<array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
-array<int16_t, 2> team_kills;
+static std::array<unsigned, MAX_PLAYERS>   sorted_kills;
+std::array<std::array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
+std::array<int16_t, 2> team_kills;
 int   multi_quit_game = 0;
 
 }
@@ -193,7 +193,7 @@ const GMNames_array GMNames = {{
 #endif
 	"Bounty"
 }};
-const array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt = {{
+const std::array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt = {{
 	"ANRCHY",
 	"TEAM",
 	"ROBO",
@@ -228,7 +228,7 @@ int     Network_player_added = 0;   // Is this a new player or a returning playe
 ushort          my_segments_checksum = 0;
 
 
-array<array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
+std::array<std::array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
 
 // Globals for protocol-bound Refuse-functions
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
@@ -249,7 +249,7 @@ multi_level_inv MultiLevelInv;
 }
 
 namespace dcx {
-const array<char[16], 10> RankStrings{{
+const std::array<char[16], 10> RankStrings{{
 	"(unpatched)",
 	"Cadet",
 	"Ensign",
@@ -612,7 +612,7 @@ void multi_sort_kill_list()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	// Sort the kills list each time a new kill is added
-	array<int, MAX_PLAYERS> kills;
+	std::array<int, MAX_PLAYERS> kills;
 	for (playernum_t i = 0; i < MAX_PLAYERS; ++i)
 	{
 		auto &player_info = vcobjptr(vcplayerptr(i)->objnum)->ctype.player_info;
@@ -3361,7 +3361,7 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 class accumulate_object_count
 {
 protected:
-	using array_reference = array<uint32_t, MAX_POWERUP_TYPES> &;
+	using array_reference = std::array<uint32_t, MAX_POWERUP_TYPES> &;
 	array_reference current;
 	accumulate_object_count(array_reference a) : current(a)
 	{
@@ -5468,7 +5468,7 @@ int HoardEquipped()
 	return (checked);
 }
 
-array<grs_main_bitmap, 2> Orb_icons;
+std::array<grs_main_bitmap, 2> Orb_icons;
 
 void hoard_resources_type::reset()
 {
@@ -5637,7 +5637,7 @@ void save_hoard_data(void)
 		
 	auto ofile = PHYSFSX_openWriteBuffered("hoard.ham");
 
-	array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
+	std::array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 	iff_error = iff_read_animbrush("orb.abm",bm,&nframes,palette);
 	Assert(iff_error == IFF_NO_ERROR);
 	PHYSFS_writeULE16(ofile, nframes);

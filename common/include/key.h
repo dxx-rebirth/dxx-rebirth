@@ -58,7 +58,7 @@ extern void key_init();
 extern fix64 keyd_time_when_last_pressed;
 
 // Stores Unicode values registered in one event_loop call
-extern array<unsigned char, KEY_BUFFER_SIZE> unicode_frame_buffer;
+extern std::array<unsigned char, KEY_BUFFER_SIZE> unicode_frame_buffer;
 
 extern void key_flush();    // Clears the 256 char buffer
 extern int event_key_get(const d_event &event);	// Get the keycode from the EVENT_KEY_COMMAND event
@@ -69,7 +69,7 @@ class pressed_keys
 {
 // Set to 1 if the key is currently down, else 0
 	uint8_t modifier_cache;
-	array<uint8_t, 256> pressed;
+	std::array<uint8_t, 256> pressed;
 public:
 	static constexpr unsigned modifier_shift = 8;
 	void update_pressed(std::size_t i, uint8_t p)
@@ -236,7 +236,7 @@ struct key_props
 #endif
 };
 
-extern const array<key_props, 256> key_properties;
+extern const std::array<key_props, 256> key_properties;
 
 }
 

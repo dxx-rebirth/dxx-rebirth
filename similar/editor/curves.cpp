@@ -48,7 +48,7 @@ static imsegptridx_t OriginalSeg = segment_none;
 static imsegptridx_t OriginalMarkedSeg = segment_none;
 static int OriginalSide;
 static int OriginalMarkedSide;
-static array<segment *, MAX_SEGMENTS> CurveSegs;
+static std::array<segment *, MAX_SEGMENTS> CurveSegs;
 static unsigned CurveNumSegs;
 
 static void generate_banked_curve(fix maxscale, vms_equation coeffs);

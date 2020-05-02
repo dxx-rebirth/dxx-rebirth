@@ -82,8 +82,8 @@ struct custom_info
 
 }
 
-static array<grs_bitmap, MAX_BITMAP_FILES> BitmapOriginal;
-static array<snd_info, MAX_SOUND_FILES> SoundOriginal;
+static std::array<grs_bitmap, MAX_BITMAP_FILES> BitmapOriginal;
+static std::array<snd_info, MAX_SOUND_FILES> SoundOriginal;
 
 static int load_pig1(PHYSFS_File *f, unsigned num_bitmaps, unsigned num_sounds, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
 {

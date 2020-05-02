@@ -97,9 +97,9 @@ extern unsigned Num_cockpits;
 }
 
 namespace dsx {
-extern array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
+extern std::array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
 #if DXX_USE_EDITOR
-using tmap_xlate_table_array = array<short, MAX_TEXTURES>;
+using tmap_xlate_table_array = std::array<short, MAX_TEXTURES>;
 extern tmap_xlate_table_array tmap_xlate_table;
 #endif
 
@@ -108,7 +108,7 @@ extern tmap_xlate_table_array tmap_xlate_table;
  */
 struct d_level_unique_tmap_info_state
 {
-	using TmapInfo_array = array<tmap_info, MAX_TEXTURES>;
+	using TmapInfo_array = std::array<tmap_info, MAX_TEXTURES>;
 	unsigned Num_tmaps;
 	TmapInfo_array TmapInfo;
 };
@@ -164,10 +164,10 @@ extern bool Exit_bitmaps_loaded;
 
 extern int  Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed
 
-extern array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
-extern array<ushort, MAX_OBJ_BITMAPS> ObjBitmapPtrs;
+extern std::array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
+extern std::array<ushort, MAX_OBJ_BITMAPS> ObjBitmapPtrs;
 extern int First_multi_bitmap_num;
-void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb);
+void compute_average_rgb(grs_bitmap *bm, std::array<fix, 3> &rgb);
 
 namespace dsx {
 void load_robot_replacements(const d_fname &level_name);

@@ -53,7 +53,7 @@ static int undo_count;
 static int Timer_save_flag;
 int		Autosave_flag;
 
-array<const char *, 10> undo_status;
+std::array<const char *, 10> undo_status;
 
 void init_autosave(void) {
 //    int i;
@@ -122,7 +122,7 @@ static void print_clock()
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	gr_set_fontcolor(canvas, CBLACK, CGREY);
-	array<char, 20> message;
+	std::array<char, 20> message;
 	if (!strftime(message.data(), message.size(), "%m-%d %H:%M:%S", &Editor_time_of_day))
 		message[0] = 0;
 	gr_get_string_size(*canvas.cv_font, message.data(), &w, &h, nullptr);

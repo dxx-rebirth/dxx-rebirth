@@ -38,7 +38,7 @@ static int scale_whole_step;
 static void rls_stretch_scanline_setup( int XDelta, int YDelta );
 static void rls_stretch_scanline(const uint8_t *, uint8_t *);
 
-static void decode_row(const grs_bitmap &bmp, array<ubyte, 640> &scale_rle_data, const uint_fast32_t y)
+static void decode_row(const grs_bitmap &bmp, std::array<ubyte, 640> &scale_rle_data, const uint_fast32_t y)
 {
 	int offset=4+bmp.bm_h;
 
@@ -101,7 +101,7 @@ static void scale_up_bitmap_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_b
 
 	v = v0;
 
-	array<ubyte, 640> scale_rle_data;
+	std::array<ubyte, 640> scale_rle_data;
 	for (int y=y0; y<=y1; y++ ) {
 		if ( f2i(v) != last_row )	{
 			last_row = f2i(v);
@@ -236,7 +236,7 @@ static void scale_bitmap_c(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, i
 	}
 }
 
-static void scale_row_transparent(const array<ubyte, 640> &sbits, ubyte * dbits, int width, fix u, fix du )
+static void scale_row_transparent(const std::array<ubyte, 640> &sbits, ubyte * dbits, int width, fix u, fix du )
 {
 	ubyte c;
 	uint8_t *dbits_end = &dbits[width-1];
@@ -328,7 +328,7 @@ static void scale_bitmap_c_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_bm
 		return;
 	}
 
-	array<ubyte, 640> scale_rle_data;
+	std::array<ubyte, 640> scale_rle_data;
 	for (int y=y0; y<=y1; y++ ) {
 		if ( f2i(v) != last_row )	{
 			last_row = f2i(v);
@@ -342,7 +342,7 @@ static void scale_bitmap_c_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_bm
 #define FIND_SCALED_NUM(x,x0,x1,y0,y1) (fixmuldiv((x)-(x0),(y1)-(y0),(x1)-(x0))+(y0))
 
 // Scales bitmap, bp, into vertbuf[0] to vertbuf[1]
-void scale_bitmap(const grs_bitmap &bp, const array<grs_point, 3> &vertbuf, int orientation, grs_bitmap &dbp)
+void scale_bitmap(const grs_bitmap &bp, const std::array<grs_point, 3> &vertbuf, int orientation, grs_bitmap &dbp)
 {
 	fix x0, y0, x1, y1;
 	fix u0, v0, u1, v1;

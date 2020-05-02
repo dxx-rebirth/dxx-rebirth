@@ -43,7 +43,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 constexpr std::integral_constant<unsigned, 8> OBJS_PER_PAGE{};
 
-static array<std::unique_ptr<UI_GADGET_USERBOX>, OBJS_PER_PAGE> ObjBox;
+static std::array<std::unique_ptr<UI_GADGET_USERBOX>, OBJS_PER_PAGE> ObjBox;
 static std::unique_ptr<UI_GADGET_USERBOX> ObjCurrent;
 
 static int ObjectPage = 0;

@@ -86,7 +86,7 @@ struct MVESTREAM
 	~MVESTREAM();
 	std::unique_ptr<MVEFILE> movie;
 	void *context = nullptr;
-	array<MVESEGMENTHANDLER, 32> handlers = {};
+	std::array<MVESEGMENTHANDLER, 32> handlers = {};
 };
 
 struct MVESTREAM_deleter_t

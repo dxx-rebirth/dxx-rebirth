@@ -114,7 +114,7 @@ struct FuelCenter : public prohibit_void_ptr<FuelCenter>
 // The max number of robot centers per mine.
 struct d1_matcen_info : public prohibit_void_ptr<d1_matcen_info>
 {
-	array<unsigned, 1>     robot_flags;    // Up to 32 different robots
+	std::array<unsigned, 1>     robot_flags;    // Up to 32 different robots
 	segnum_t   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
 };
@@ -123,7 +123,7 @@ struct d_level_unique_fuelcenter_state
 {
 	unsigned Num_fuelcenters;
 	// Original D1 size: 50, Original D2 size: 70
-	array<FuelCenter, 128> Station;
+	std::array<FuelCenter, 128> Station;
 };
 
 extern d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
@@ -138,7 +138,7 @@ void matcen_info_read(PHYSFS_File *fp, matcen_info &ps, int version);
 #elif defined(DXX_BUILD_DESCENT_II)
 struct matcen_info : public prohibit_void_ptr<matcen_info>
 {
-	array<unsigned, 2>     robot_flags; // Up to 64 different robots
+	std::array<unsigned, 2>     robot_flags; // Up to 64 different robots
 	segnum_t   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
 };
@@ -152,7 +152,7 @@ struct d_level_shared_robotcenter_state
 {
 	unsigned Num_robot_centers;
 	// Original D1/D2 size: 20
-	array<matcen_info, 128> RobotCenters;
+	std::array<matcen_info, 128> RobotCenters;
 };
 
 extern d_level_shared_robotcenter_state LevelSharedRobotcenterState;

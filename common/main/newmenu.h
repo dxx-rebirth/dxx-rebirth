@@ -191,7 +191,7 @@ static inline int newmenu_do(const char *const title, const char *const subtitle
 }
 
 template <std::size_t N, typename T>
-static inline int newmenu_do(const char *const title, const char *const subtitle, array<newmenu_item, N> &items, const newmenu_subfunction_t<T> subfunction, T *const userdata)
+static inline int newmenu_do(const char *const title, const char *const subtitle, std::array<newmenu_item, N> &items, const newmenu_subfunction_t<T> subfunction, T *const userdata)
 {
 	return newmenu_do(title, subtitle, items.size(), &items.front(), subfunction, userdata);
 }
@@ -380,7 +380,7 @@ static inline void nm_set_item_input(newmenu_item &ni, char (&text)[len])
 }
 
 template <std::size_t len>
-static inline void nm_set_item_input(newmenu_item &ni, array<char, len> &text)
+static inline void nm_set_item_input(newmenu_item &ni, std::array<char, len> &text)
 {
 	nm_set_item_input(ni, len, text.data());
 }

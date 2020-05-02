@@ -82,7 +82,7 @@ struct credits : ignore_window_pointer_t
 {
 	RAIIPHYSFS_File file;
 	int have_bin_file;
-	array<PHYSFSX_gets_line_t<80>, NUM_LINES> buffer;
+	std::array<PHYSFSX_gets_line_t<80>, NUM_LINES> buffer;
 	int buffer_line;
 	int first_line_offset;
 	int extra_inc;

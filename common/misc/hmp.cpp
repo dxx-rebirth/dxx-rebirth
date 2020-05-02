@@ -180,7 +180,7 @@ static int get_var_num(unsigned char *data, int datalen,
 }
 
 static int get_event(hmp_file *hmp, event *ev) {
-	static const array<int, 7> cmdlen{{3,3,3,3,2,2,3}};
+	static const std::array<int, 7> cmdlen{{3,3,3,3,2,2,3}};
 	unsigned long got;
 	unsigned long mindelta, delta;
 	int ev_num;
@@ -680,13 +680,13 @@ struct be_bytebuffer_t : serial::writer::bytebuffer_t
 	static uint16_t endian() { return big_endian; }
 };
 
-const array<uint8_t, 10> magic_header{{
+const std::array<uint8_t, 10> magic_header{{
 	'M', 'T', 'h', 'd',
 	0, 0, 0, 6,
 	0, 1,
 }};
-const array<uint8_t, 19> tempo{{'M','T','r','k',0,0,0,11,0,0xFF,0x51,0x03,0x18,0x80,0x00,0,0xFF,0x2F,0}};
-const array<uint8_t, 8> track_header{{'M', 'T', 'r', 'k', 0, 0, 0, 0}};
+const std::array<uint8_t, 19> tempo{{'M','T','r','k',0,0,0,11,0,0xFF,0x51,0x03,0x18,0x80,0x00,0,0xFF,0x2F,0}};
+const std::array<uint8_t, 8> track_header{{'M', 'T', 'r', 'k', 0, 0, 0, 0}};
 
 struct midhdr
 {

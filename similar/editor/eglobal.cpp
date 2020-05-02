@@ -69,7 +69,7 @@ editor_view RightView = {3,1, NULL, i2f(100),{{0,0,f1_0},{0,f1_0,0},{f1_0,0,0}},
 #endif
 
 
-array<editor_view *, ORTHO_VIEWS ? 4 : 1> Views = {{&LargeView,
+std::array<editor_view *, ORTHO_VIEWS ? 4 : 1> Views = {{&LargeView,
 #if ORTHO_VIEWS
 	&TopView,&FrontView,&RightView
 #endif

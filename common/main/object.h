@@ -95,7 +95,7 @@ namespace dsx {
 
 struct reactor_static {
 	/* Location of the gun on the reactor object */
-	array<vms_vector, MAX_CONTROLCEN_GUNS>	gun_pos,
+	std::array<vms_vector, MAX_CONTROLCEN_GUNS>	gun_pos,
 	/* Orientation of the gun on the reactor object */
 		gun_dir;
 };
@@ -125,7 +125,7 @@ struct player_info
 	player_selected_weapon<primary_weapon_index_t> Primary_weapon;
 	player_selected_weapon<secondary_weapon_index_t> Secondary_weapon;
 	stored_laser_level laser_level;
-	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
+	std::array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
 	uint8_t Spreadfire_toggle;
 #if defined(DXX_BUILD_DESCENT_II)
 	uint8_t Primary_last_was_super;
@@ -166,7 +166,7 @@ namespace dcx {
 // A compressed form for sending crucial data
 struct shortpos : prohibit_void_ptr<shortpos>
 {
-	array<int8_t, 9> bytemat;
+	std::array<int8_t, 9> bytemat;
 	int16_t xo, yo, zo;
 	segnum_t segment;
 	int16_t velx, vely, velz;
@@ -348,7 +348,7 @@ struct vclip_info_rw
 struct polyobj_info : prohibit_void_ptr<polyobj_info>
 {
 	int     model_num = 0;          // which polygon model
-	array<vms_angvec, MAX_SUBMODELS> anim_angles{}; // angles for each subobject
+	std::array<vms_angvec, MAX_SUBMODELS> anim_angles{}; // angles for each subobject
 	int     subobj_flags = 0;       // specify which subobjs to draw
 	int     tmap_override = 0;      // if this is not -1, map all face to this
 	int     alt_textures = 0;       // if not -1, use these textures instead
@@ -534,16 +534,16 @@ struct obj_position
 	} DXX_END_COMPOUND_STATEMENT )
 
 template <typename T, std::size_t... N>
-constexpr array<T, sizeof...(N)> init_object_number_array(std::index_sequence<N...>)
+constexpr std::array<T, sizeof...(N)> init_object_number_array(std::index_sequence<N...>)
 {
 	return {{((void)N, object_none)...}};
 }
 
 template <typename T, std::size_t N>
-struct object_number_array : array<T, N>
+struct object_number_array : std::array<T, N>
 {
 	constexpr object_number_array() :
-		array<T, N>(init_object_number_array<T>(std::make_index_sequence<N>()))
+		std::array<T, N>(init_object_number_array<T>(std::make_index_sequence<N>()))
 	{
 	}
 };
@@ -592,7 +592,7 @@ namespace dcx {
 
 struct d_level_unique_morph_object_state
 {
-	array<morph_data::ptr, 5> morph_objects;
+	std::array<morph_data::ptr, 5> morph_objects;
 	~d_level_unique_morph_object_state();
 };
 

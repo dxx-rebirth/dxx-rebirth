@@ -103,7 +103,7 @@ void eclip_write(PHYSFS_File *fp, const eclip &ec);
 #ifdef dsx
 namespace dsx {
 
-using d_eclip_array = array<eclip, MAX_EFFECTS>;
+using d_eclip_array = std::array<eclip, MAX_EFFECTS>;
 
 struct d_level_unique_effects_clip_state
 {

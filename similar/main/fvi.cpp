@@ -1161,7 +1161,7 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const cscusegment seg, cons
 	else
 		k0 = fixdiv(fixmul(-k1,vec1.j) + checkp.j - p1.j,vec0.j);
 
-	array<uvl, 3> uvls;
+	std::array<uvl, 3> uvls;
 	auto &uside = seg.u.sides[sidenum];
 	for (i=0;i<3;i++)
 		uvls[i] = uside.uvls[vn[facenum * 3 + i].vertnum];

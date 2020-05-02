@@ -112,7 +112,7 @@ typedef std::unique_ptr<grs_main_bitmap> grs_bitmap_ptr;
 struct grs_font;
 
 #if SDL_MAJOR_VERSION == 1
-uint_fast32_t gr_list_modes(array<screen_mode, 50> &modes);
+uint_fast32_t gr_list_modes(std::array<screen_mode, 50> &modes);
 #elif SDL_MAJOR_VERSION == 2
 extern SDL_Window *g_pRebirthSDLMainWindow;
 #endif
@@ -298,7 +298,7 @@ void gr_get_string_size(const grs_font &, const char *s, int *string_width, int 
 void gr_get_string_size(const grs_font &, const char *s, int *string_width, int *string_height, int *average_width, const unsigned max_chars_per_line);
 
 // From scale.c
-void scale_bitmap(const grs_bitmap &bp, const array<grs_point, 3> &vertbuf, int orientation, grs_bitmap &);
+void scale_bitmap(const grs_bitmap &bp, const std::array<grs_point, 3> &vertbuf, int orientation, grs_bitmap &);
 
 //===========================================================================
 // Global variables
@@ -357,7 +357,7 @@ static inline void (gr_set_current_canvas)(grs_canvas *const canv DXX_DEBUG_CURR
 #define FT_KERNED       4
 
 extern palette_array_t gr_palette;
-typedef array<array<color_t, 256>, GR_FADE_LEVELS> gft_array1;
+typedef std::array<std::array<color_t, 256>, GR_FADE_LEVELS> gft_array1;
 extern gft_array1 gr_fade_table;
 }
 

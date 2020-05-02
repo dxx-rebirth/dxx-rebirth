@@ -86,17 +86,17 @@ constexpr std::integral_constant<unsigned, 10> MAX_PRIMARY_WEAPONS{};
 constexpr std::integral_constant<unsigned, 10> MAX_SECONDARY_WEAPONS{};
 #endif
 
-extern const array<weapon_id_type, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info;
+extern const std::array<weapon_id_type, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info;
 //for each primary weapon, what kind of powerup gives weapon
-extern const array<powerup_type_t, MAX_PRIMARY_WEAPONS> Primary_weapon_to_powerup;
-extern const array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info;
+extern const std::array<powerup_type_t, MAX_PRIMARY_WEAPONS> Primary_weapon_to_powerup;
+extern const std::array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info;
 //for each Secondary weapon, what kind of powerup gives weapon
-extern const array<powerup_type_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup;
-extern const array<uint8_t, MAX_SECONDARY_WEAPONS>    Secondary_ammo_max;
+extern const std::array<powerup_type_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup;
+extern const std::array<uint8_t, MAX_SECONDARY_WEAPONS>    Secondary_ammo_max;
 /*
  * reads n weapon_info structs from a PHYSFS_File
  */
-typedef array<weapon_info, MAX_WEAPON_TYPES> weapon_info_array;
+typedef std::array<weapon_info, MAX_WEAPON_TYPES> weapon_info_array;
 extern weapon_info_array Weapon_info;
 void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp, int file_version, std::size_t offset = 0);
 
@@ -127,7 +127,7 @@ enum secondary_weapon_index_t : uint8_t;
 //flags whether the last time we use this weapon, it was the 'super' version
 #endif
 //for each Secondary weapon, which gun it fires out of
-extern const array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num;
+extern const std::array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num;
 }
 
 namespace dcx {

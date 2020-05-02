@@ -72,8 +72,8 @@ extern object_signature_t Missile_viewer_sig;
 #define CV_COOP     3
 #define CV_MARKER   4
 
-extern array<unsigned, 2> Coop_view_player;     // left & right
-extern array<unsigned, 2> Marker_viewer_num;    // left & right
+extern std::array<unsigned, 2> Coop_view_player;     // left & right
+extern std::array<unsigned, 2> Marker_viewer_num;    // left & right
 }
 #endif
 
@@ -156,11 +156,11 @@ struct d_game_shared_state
 
 struct d_game_unique_state
 {
-	using savegame_file_path = array<char, PATH_MAX>;
+	using savegame_file_path = std::array<char, PATH_MAX>;
 	/* 20 is required by the save game ABI and the multiplayer
 	 * save/restore command ABI.
 	 */
-	using savegame_description = array<char, 20>;
+	using savegame_description = std::array<char, 20>;
 	static constexpr std::integral_constant<unsigned, 11> MAXIMUM_SAVE_SLOTS{};
 	enum class save_slot : unsigned
 	{
@@ -231,7 +231,7 @@ struct d_level_unique_seismic_state
 	fix64 Next_seismic_sound_time;
 	int Seismic_tremor_volume;
 	fix Seismic_tremor_magnitude;
-	array<fix64, 4> Earthshaker_detonate_times;
+	std::array<fix64, 4> Earthshaker_detonate_times;
 };
 
 extern d_level_shared_seismic_state LevelSharedSeismicState;
@@ -376,7 +376,7 @@ struct flickering_light {
 
 struct d_flickering_light_state
 {
-	using Flickering_light_array_t = array<flickering_light, 100>;
+	using Flickering_light_array_t = std::array<flickering_light, 100>;
 	unsigned Num_flickering_lights;
 	Flickering_light_array_t Flickering_lights;
 };

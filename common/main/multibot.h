@@ -35,8 +35,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 constexpr std::integral_constant<std::size_t, 5> MAX_ROBOTS_CONTROLLED{};
 constexpr std::integral_constant<std::size_t, MAX_ROBOTS_CONTROLLED> HANDS_OFF_PERIOD{}; // i.e. one slow above max
 
-extern array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
-extern array<int, MAX_ROBOTS_CONTROLLED> robot_agitation, robot_fired;
+extern std::array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
+extern std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation, robot_fired;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 int multi_can_move_robot(vmobjptridx_t objnum, int agitation);

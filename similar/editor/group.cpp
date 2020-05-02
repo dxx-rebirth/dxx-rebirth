@@ -89,10 +89,10 @@ struct group_editor {
 	int     Groupside;
 } group_editor;
 
-array<group, MAX_GROUPS+1> GroupList;
-array<segment *, MAX_GROUPS+1> Groupsegp;
-array<int, MAX_GROUPS+1> Groupside;
-array<int, MAX_GROUPS+1> Group_orientation;
+std::array<group, MAX_GROUPS+1> GroupList;
+std::array<segment *, MAX_GROUPS+1> Groupsegp;
+std::array<int, MAX_GROUPS+1> Groupside;
+std::array<int, MAX_GROUPS+1> Group_orientation;
 int		current_group=-1;
 unsigned num_groups;
 
@@ -369,7 +369,7 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	array<int8_t, MAX_VERTICES> vertex_list;
+	std::array<int8_t, MAX_VERTICES> vertex_list;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &vmvertptridx = Vertices.vmptridx;
@@ -433,12 +433,12 @@ static void create_group_list(const vmsegptridx_t segp, group::segment_array_typ
 #define MXV MAX_VERTICES
 
 // ------------------------------------------------------------------------------------------------
-static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::segment_array_type_t &segments)
+static void duplicate_group(std::array<uint8_t, MAX_VERTICES> &vertex_ids, group::segment_array_type_t &segments)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
 	group::segment_array_type_t new_segments;
-	array<int, MAX_VERTICES> new_vertex_ids;		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
+	std::array<int, MAX_VERTICES> new_vertex_ids;		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
 
 	//	duplicate vertices
 	new_vertex_ids.fill(-1);
@@ -563,7 +563,7 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	GroupList[new_current_group] = GroupList[current_group];
 
 	//	Make a list of all vertices in group.
-	array<uint8_t, MAX_VERTICES> in_vertex_list{};
+	std::array<uint8_t, MAX_VERTICES> in_vertex_list{};
 	if (group_seg == &New_segment)
 		range_for (auto &v, group_seg->verts)
 			in_vertex_list[v] = 1;
@@ -686,8 +686,8 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 //					return 1;
 //				}
 
-	array<uint8_t, MAX_VERTICES> in_vertex_list{};
-	array<int8_t, MAX_VERTICES> out_vertex_list{};
+	std::array<uint8_t, MAX_VERTICES> in_vertex_list{};
+	std::array<int8_t, MAX_VERTICES> out_vertex_list{};
 
 	//	Make a list of all vertices in group.
 	range_for(const auto &gs, GroupList[current_group].segments)
@@ -987,7 +987,7 @@ int RotateSegmentNew(vms_angvec *pbh)
 }
 
 #if 0
-static array<d_fname, MAX_TEXTURES> current_tmap_list;
+static std::array<d_fname, MAX_TEXTURES> current_tmap_list;
 
 // -----------------------------------------------------------------------------
 // Save mine will:
@@ -1114,7 +1114,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	return 0;
 }
 
-static array<d_fname, MAX_TEXTURES> old_tmap_list;
+static std::array<d_fname, MAX_TEXTURES> old_tmap_list;
 // static short tmap_xlate_table[MAX_TEXTURES]; // ZICO - FIXME
 
 // -----------------------------------------------------------------------------
@@ -1305,7 +1305,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 		range_for (auto &i, partial_range(old_tmap_list, group_fileinfo.texture_howmany))
 		{
-			array<char, FILENAME_LEN> a;
+			std::array<char, FILENAME_LEN> a;
 			if (PHYSFS_read(LoadFile, a.data(), std::min(static_cast<size_t>(group_fileinfo.texture_sizeof), a.size()), 1) != 1)
 				Error( "Error reading old_tmap_list[i] in gamemine.c" );
 			i.copy_if(a);
@@ -1411,7 +1411,7 @@ int SaveGroup()
  		return 0;
 		}
 
-	array<int8_t, MAX_VERTICES> vertex_list{};
+	std::array<int8_t, MAX_VERTICES> vertex_list{};
 
 	//	Make a list of all vertices in group.
 	range_for (const auto &gs, GroupList[current_group].segments)

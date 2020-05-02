@@ -44,16 +44,16 @@ struct segmasks
    sbyte centermask;   //which sides center point is on back of (6 bits)
 };
 
-struct segment_depth_array_t : public array<ubyte, MAX_SEGMENTS> {};
+struct segment_depth_array_t : public std::array<ubyte, MAX_SEGMENTS> {};
 
-struct side_vertnum_list_t : array<unsigned, 4> {};
+struct side_vertnum_list_t : std::array<unsigned, 4> {};
 
-struct vertex_array_list_t : array<unsigned, 6> {};
+struct vertex_array_list_t : std::array<unsigned, 6> {};
 struct vertex_vertnum_pair
 {
 	unsigned vertex, vertnum;
 };
-using vertex_vertnum_array_list = array<vertex_vertnum_pair, 6>;
+using vertex_vertnum_array_list = std::array<vertex_vertnum_pair, 6>;
 
 #ifdef dsx
 __attribute_warn_unused_result
@@ -212,7 +212,7 @@ static inline vms_vector pick_random_point_in_seg(fvcvertptr &vcvertptr, const s
 }
 
 int check_segment_connections(void);
-unsigned set_segment_depths(vcsegidx_t start_seg, const array<uint8_t, MAX_SEGMENTS> *limit, segment_depth_array_t &depths);
+unsigned set_segment_depths(vcsegidx_t start_seg, const std::array<uint8_t, MAX_SEGMENTS> *limit, segment_depth_array_t &depths);
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void flush_fcd_cache() {}
 #elif defined(DXX_BUILD_DESCENT_II)

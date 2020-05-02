@@ -110,7 +110,7 @@ struct ui_file_browser
 	std::unique_ptr<UI_GADGET_BUTTON> button1, button2, help_button;
 	std::unique_ptr<UI_GADGET_LISTBOX> listbox1, listbox2;
 	std::unique_ptr<UI_GADGET_INPUTBOX> user_file;
-	array<char, 35> spaces;
+	std::array<char, 35> spaces;
 	char		view_dir[PATH_MAX];
 };
 

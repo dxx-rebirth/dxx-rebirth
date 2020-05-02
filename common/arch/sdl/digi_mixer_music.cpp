@@ -141,7 +141,7 @@ static CurrentMusicType load_mus_file(const char *filename);
 
 int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 {
-	array<char, PATH_MAX> full_path;
+	std::array<char, PATH_MAX> full_path;
 	const char *fptr;
 	unsigned int bufsize = 0;
 

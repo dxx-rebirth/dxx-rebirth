@@ -140,8 +140,8 @@ struct relocated_player_data
 };
 
 struct savegame_mission_path {
-	array<char, 9> original;
-	array<char, DXX_MAX_MISSION_PATH_LENGTH> full;
+	std::array<char, 9> original;
+	std::array<char, DXX_MAX_MISSION_PATH_LENGTH> full;
 };
 
 enum class savegame_mission_name_abi : uint8_t
@@ -747,14 +747,14 @@ namespace {
 struct state_userdata
 {
 	unsigned citem;
-	array<grs_bitmap_ptr, NUM_SAVES> sc_bmp;
+	std::array<grs_bitmap_ptr, NUM_SAVES> sc_bmp;
 };
 
 }
 
 static int state_callback(newmenu *menu,const d_event &event, state_userdata *const userdata)
 {
-	array<grs_bitmap_ptr, NUM_SAVES> &sc_bmp = userdata->sc_bmp;
+	std::array<grs_bitmap_ptr, NUM_SAVES> &sc_bmp = userdata->sc_bmp;
 	newmenu_item *items = newmenu_get_items(menu);
 	unsigned citem;
 	if (event.type == EVENT_NEWMENU_SELECTED)
@@ -769,7 +769,7 @@ static int state_callback(newmenu *menu,const d_event &event, state_userdata *co
 #else
 			auto temp_canv = gr_create_canvas(THUMBNAIL_W*2,(THUMBNAIL_H*24/10));
 #endif
-			const array<grs_point, 3> vertbuf{{
+			const std::array<grs_point, 3> vertbuf{{
 				{0,0},
 				{0,0},
 				{i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)}
@@ -814,9 +814,9 @@ namespace dsx {
 static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const char *const caption, const blind_save entry_blind)
 {
 	int version, nsaves;
-	array<newmenu_item, NUM_SAVES + 1> m;
-	array<d_game_unique_state::savegame_file_path, NUM_SAVES> filename;
-	array<d_game_unique_state::savegame_description, NUM_SAVES> desc;
+	std::array<newmenu_item, NUM_SAVES + 1> m;
+	std::array<d_game_unique_state::savegame_file_path, NUM_SAVES> filename;
+	std::array<d_game_unique_state::savegame_description, NUM_SAVES> desc;
 	state_userdata userdata;
 	auto &sc_bmp = userdata.sc_bmp;
 	char id[4];
@@ -974,7 +974,7 @@ static int copy_file(const char *old_file, const char *new_file)
 	return 0;
 }
 
-static void format_secret_sgc_filename(array<char, PATH_MAX> &fname, const d_game_unique_state::save_slot filenum)
+static void format_secret_sgc_filename(std::array<char, PATH_MAX> &fname, const d_game_unique_state::save_slot filenum)
 {
 	snprintf(fname.data(), fname.size(), PLAYER_DIRECTORY_STRING("%xsecret.sgc"), static_cast<unsigned>(filenum));
 }
@@ -1046,7 +1046,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 	if (secret == secret_save::none && !(Game_mode & GM_MULTI_COOP)) {
 		if (filenum != d_game_unique_state::save_slot::None)
 		{
-			array<char, PATH_MAX> fname;
+			std::array<char, PATH_MAX> fname;
 			const auto temp_fname = fname.data();
 			format_secret_sgc_filename(fname, filenum);
 			if (PHYSFSX_exists(temp_fname,0))
@@ -1399,7 +1399,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	//save last was super information
 	{
 		auto &Primary_last_was_super = player_info.Primary_last_was_super;
-		array<uint8_t, MAX_PRIMARY_WEAPONS> last_was_super{};
+		std::array<uint8_t, MAX_PRIMARY_WEAPONS> last_was_super{};
 		/* Descent 2 shipped with Primary_last_was_super and
 		 * Secondary_last_was_super each sized to contain MAX_*_WEAPONS,
 		 * but only the first half of those are ever used.
@@ -1434,8 +1434,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, &PaletteBlueAdd, sizeof(int), 1);
 	{
 		union {
-			array<uint8_t, MAX_SEGMENTS> light_subtracted;
-			array<uint8_t, MAX_SEGMENTS_ORIGINAL> light_subtracted_original;
+			std::array<uint8_t, MAX_SEGMENTS> light_subtracted;
+			std::array<uint8_t, MAX_SEGMENTS_ORIGINAL> light_subtracted_original;
 		};
 		const auto &&r = make_range(vcsegptr);
 		const unsigned count = (Highest_segment_index + 1 > MAX_SEGMENTS_ORIGINAL)
@@ -1560,7 +1560,7 @@ int state_restore_all(const int in_game, const secret_restore secret, const char
 
 		if (filenum != d_game_unique_state::save_slot::None)
 		{
-			array<char, PATH_MAX> fname;
+			std::array<char, PATH_MAX> fname;
 			const auto temp_fname = fname.data();
 			format_secret_sgc_filename(fname, filenum);
 			if (PHYSFSX_exists(temp_fname,0))
@@ -1606,7 +1606,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	int current_level;
 	char id[5];
 	fix tmptime32 = 0;
-	array<array<short, MAX_SIDES_PER_SEGMENT>, MAX_SEGMENTS> TempTmapNum, TempTmapNum2;
+	std::array<std::array<short, MAX_SIDES_PER_SEGMENT>, MAX_SEGMENTS> TempTmapNum, TempTmapNum2;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret{};
@@ -2074,7 +2074,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_read(fp, MarkerOwner, sizeof(MarkerOwner), 1); // skip obsolete MarkerOwner
 		range_for (auto &i, MarkerState.message)
 		{
-			array<char, MARKER_MESSAGE_LEN> a;
+			std::array<char, MARKER_MESSAGE_LEN> a;
 			PHYSFS_read(fp, a.data(), a.size(), 1);
 			i.copy_if(a);
 		}
@@ -2103,7 +2103,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	if (version>=12) {
 		//read last was super information
 		auto &Primary_last_was_super = player_info.Primary_last_was_super;
-		array<uint8_t, MAX_PRIMARY_WEAPONS> last_was_super;
+		std::array<uint8_t, MAX_PRIMARY_WEAPONS> last_was_super;
 		/* Descent 2 shipped with Primary_last_was_super and
 		 * Secondary_last_was_super each sized to contain MAX_*_WEAPONS,
 		 * but only the first half of those are ever used.
@@ -2273,12 +2273,12 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			}
 		}
 		{
-			array<char, MISSION_NAME_LEN + 1> a;
+			std::array<char, MISSION_NAME_LEN + 1> a;
 			PHYSFS_read(fp, a.data(), a.size(), 1);
 			Netgame.mission_title.copy_if(a);
 		}
 		{
-			array<char, 9> a;
+			std::array<char, 9> a;
 			PHYSFS_read(fp, a.data(), a.size(), 1);
 			Netgame.mission_name.copy_if(a);
 		}

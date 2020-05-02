@@ -167,8 +167,8 @@ struct powerup_info_rw;
 struct window_rendered_data;
 struct reactor_static;
 
-typedef array<uint8_t, MAX_OBJECT_TYPES> collision_inner_array_t;
-typedef array<collision_inner_array_t, MAX_OBJECT_TYPES> collision_outer_array_t;
+typedef std::array<uint8_t, MAX_OBJECT_TYPES> collision_inner_array_t;
+typedef std::array<collision_inner_array_t, MAX_OBJECT_TYPES> collision_outer_array_t;
 extern const collision_outer_array_t CollisionResult;
 
 }

@@ -72,7 +72,7 @@ struct player_ship;
 struct player;
 using playernum_t = uint32_t;
 constexpr unsigned MAX_PLAYERS = 8;
-typedef array<playernum_t, MAX_PLAYERS> playernum_array_t;
+typedef std::array<playernum_t, MAX_PLAYERS> playernum_array_t;
 
 extern unsigned N_players;   // Number of players ( >1 means a net game, eh?)
 extern playernum_t Player_num;  // The player number who is on the console.

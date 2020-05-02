@@ -126,7 +126,7 @@ struct muzzle_info
 	vms_vector  pos;
 };
 
-extern array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
+extern std::array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 }
 
 #ifdef dsx

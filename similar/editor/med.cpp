@@ -159,7 +159,7 @@ namespace {
 class editor_dialog
 {
 public:
-	array<std::unique_ptr<UI_GADGET_BUTTON>, 9> pad_goto;
+	std::array<std::unique_ptr<UI_GADGET_BUTTON>, 9> pad_goto;
 	std::unique_ptr<UI_GADGET_BUTTON>
 		pad_prev,
 		pad_next;
@@ -325,7 +325,7 @@ int GotoMainMenu()
 	return 1;
 }
 
-static array<int (*)(), 2048> KeyFunction;
+static std::array<int (*)(), 2048> KeyFunction;
 
 static void medkey_init()
 {
@@ -602,7 +602,7 @@ int SetPlayerFromCursegMinusOne()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
-	array<g3s_point, 4> corner_p;
+	std::array<g3s_point, 4> corner_p;
 	fix max,view_dist=f1_0*10;
         static int edgenum=0;
 	const auto view_vec = vm_vec_negated(Cursegp->shared_segment::sides[Curside].normals[0]);

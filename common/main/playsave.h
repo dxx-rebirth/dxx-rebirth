@@ -70,7 +70,7 @@ void plyr_save_stats();
 
 struct hli
 {
-	array<char, 9> Shortname;
+	std::array<char, 9> Shortname;
 	uint8_t LevelNum;
 };
 
@@ -113,41 +113,41 @@ struct player_config : prohibit_void_ptr<player_config>
 	HudType HudMode;
 	RespawnPress RespawnMode;
 	uint8_t MouselookFlags;
-	using primary_weapon_order = array<uint8_t, MAX_PRIMARY_WEAPONS + 1>;
-	using secondary_weapon_order = array<uint8_t, MAX_SECONDARY_WEAPONS + 1>;
+	using primary_weapon_order = std::array<uint8_t, MAX_PRIMARY_WEAPONS + 1>;
+	using secondary_weapon_order = std::array<uint8_t, MAX_SECONDARY_WEAPONS + 1>;
 	primary_weapon_order PrimaryOrder;
 	secondary_weapon_order SecondaryOrder;
 	struct KeySettings {
-		array<uint8_t, MAX_CONTROLS> Keyboard,
+		std::array<uint8_t, MAX_CONTROLS> Keyboard,
 #if DXX_MAX_JOYSTICKS
 			Joystick,
 #endif
 			Mouse;
 	} KeySettings;
-	array<ubyte, MAX_DXX_REBIRTH_CONTROLS> KeySettingsRebirth;
+	std::array<ubyte, MAX_DXX_REBIRTH_CONTROLS> KeySettingsRebirth;
 	Difficulty_level_type DefaultDifficulty;
 	int AutoLeveling;
 	uint16_t NHighestLevels;
-	array<hli, MAX_MISSIONS> HighestLevels;
-	array<int, 5> KeyboardSens;
-	array<int, 6> JoystickSens;
-	array<int, 6> JoystickDead;
-	array<int, 6> JoystickLinear;
-	array<int, 6> JoystickSpeed;
+	std::array<hli, MAX_MISSIONS> HighestLevels;
+	std::array<int, 5> KeyboardSens;
+	std::array<int, 6> JoystickSens;
+	std::array<int, 6> JoystickDead;
+	std::array<int, 6> JoystickLinear;
+	std::array<int, 6> JoystickSpeed;
 	ubyte MouseFlightSim;
-	array<int, 6> MouseSens;
-        array<int, 6> MouseOverrun;
+	std::array<int, 6> MouseSens;
+        std::array<int, 6> MouseOverrun;
 	int MouseFSDead;
 	int MouseFSIndicator;
-	array<cockpit_mode_t, 2> CockpitMode; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.
+	std::array<cockpit_mode_t, 2> CockpitMode; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.
 #if defined(DXX_BUILD_DESCENT_II)
-	array<int, 2> Cockpit3DView;
+	std::array<int, 2> Cockpit3DView;
 #endif
-	array<ntstring<MAX_MESSAGE_LEN - 1>, 4> NetworkMessageMacro;
+	std::array<ntstring<MAX_MESSAGE_LEN - 1>, 4> NetworkMessageMacro;
 	int NetlifeKills;
 	int NetlifeKilled;
 	ubyte ReticleType;
-	array<int, 4> ReticleRGBA;
+	std::array<int, 4> ReticleRGBA;
 	int ReticleSize;
 #if defined(DXX_BUILD_DESCENT_II)
 	MissileViewMode MissileViewEnabled;

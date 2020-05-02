@@ -73,7 +73,7 @@ static inline const grs_bitmap *rle_expand_texture(const grs_bitmap &bmp)
 void rle_cache_close();
 void rle_cache_flush();
 void rle_swap_0_255(grs_bitmap &bmp);
-void rle_remap(grs_bitmap &bmp, array<color_t, 256> &colormap);
+void rle_remap(grs_bitmap &bmp, std::array<color_t, 256> &colormap);
 #if !DXX_USE_OGL
 #define gr_rle_expand_scanline_generic(C,D,DX,DY,S,X1,X2) gr_rle_expand_scanline_generic(D,DX,DY,S,X1,X2)
 void gr_rle_expand_scanline_generic(grs_canvas &, grs_bitmap &dest, int dx, int dy, const ubyte *src, int x1, int x2 );
@@ -89,7 +89,7 @@ public:
 	{
 	}
 	template <std::size_t N>
-		bm_rle_expand_range(array<uint8_t, N> &a) :
+		bm_rle_expand_range(std::array<uint8_t, N> &a) :
 			iter_dbits(a.data()), end_dbits(std::next(iter_dbits, N))
 	{
 	}

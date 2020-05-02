@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef DEBUG_BIAS_MEMORY_ALLOCATIONS
 #include "compiler-array.h"
-#define DXX_DEBUG_BIAS_MEMORY_ALLOCATION (sizeof(array<double, 2>))
+#define DXX_DEBUG_BIAS_MEMORY_ALLOCATION (sizeof(std::array<double, 2>))
 #else
 #define DXX_DEBUG_BIAS_MEMORY_ALLOCATION (0)
 #endif
@@ -141,7 +141,7 @@ public:
 	DXX_INHERIT_CONSTRUCTORS(RAIIdmem, base_ptr);
 };
 
-/* Disallow C-style arrays of known bound.  Use RAIIdmem<array<T, N>>
+/* Disallow C-style arrays of known bound.  Use RAIIdmem<std::array<T, N>>
  * for this case.
  */
 template <typename T, std::size_t N>

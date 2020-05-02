@@ -114,7 +114,7 @@ constexpr std::integral_constant<unsigned, 50> MAX_POWERUP_TYPES{};
 #define VULCAN_AMMO_AMOUNT          (49*2)
 
 #if DXX_USE_EDITOR
-using powerup_names_array = array<array<char, POWERUP_NAME_LENGTH>, MAX_POWERUP_TYPES>;
+using powerup_names_array = std::array<std::array<char, POWERUP_NAME_LENGTH>, MAX_POWERUP_TYPES>;
 extern powerup_names_array Powerup_names;
 #endif
 
@@ -142,7 +142,7 @@ void draw_powerup(const d_vclip_array &Vclip, grs_canvas &, const object_base &o
 //returns true if powerup consumed
 #ifdef dsx
 namespace dsx {
-using d_powerup_info_array = array<powerup_type_info, MAX_POWERUP_TYPES>;
+using d_powerup_info_array = std::array<powerup_type_info, MAX_POWERUP_TYPES>;
 extern d_powerup_info_array Powerup_info;
 int do_powerup(vmobjptridx_t obj);
 

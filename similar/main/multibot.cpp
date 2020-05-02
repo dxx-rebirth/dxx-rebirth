@@ -88,11 +88,11 @@ constexpr serial::endian_access::native_endian_type serial::endian_access::nativ
 
 #define MIN_TO_ADD	60
 
-array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
-array<int, MAX_ROBOTS_CONTROLLED> robot_agitation,
+std::array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
+std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation,
 	robot_send_pending,
 	robot_fired;
-array<fix64, MAX_ROBOTS_CONTROLLED> robot_controlled_time,
+std::array<fix64, MAX_ROBOTS_CONTROLLED> robot_controlled_time,
 	robot_last_send_time,
 	robot_last_message_time;
 ubyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];

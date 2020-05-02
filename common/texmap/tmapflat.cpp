@@ -175,7 +175,7 @@ static void texture_map_flat(grs_canvas &canvas, const g3ds_tmap &t, int color)
 //	-----------------------------------------------------------------------------------------
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
-void gr_upoly_tmap(grs_canvas &canvas, uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY * 2> &vert, const uint8_t color)
+void gr_upoly_tmap(grs_canvas &canvas, uint_fast32_t nverts, const std::array<fix, MAX_POINTS_IN_POLY * 2> &vert, const uint8_t color)
 {
 	gr_upoly_tmap_ylr(canvas, nverts, vert.data(), color);
 }
@@ -188,8 +188,8 @@ struct pnt2d {
 void draw_tmap_flat(grs_canvas &canvas, const grs_bitmap &bp, uint_fast32_t nverts, const g3s_point *const *vertbuf)
 {
 	union {
-		array<pnt2d, MAX_TMAP_VERTS> points;
-		array<int, MAX_TMAP_VERTS * (sizeof(pnt2d) / sizeof(int))> ipoints;
+		std::array<pnt2d, MAX_TMAP_VERTS> points;
+		std::array<int, MAX_TMAP_VERTS * (sizeof(pnt2d) / sizeof(int))> ipoints;
 	};
 	static_assert(sizeof(points) == sizeof(ipoints), "array size mismatch");
 	fix	average_light;

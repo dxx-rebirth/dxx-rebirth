@@ -21,7 +21,7 @@ struct callsign_t
 {
 	static const std::size_t array_length = CALLSIGN_LEN + 1;
 	operator const void *() const = delete;
-	typedef array<char, array_length> array_t;
+	typedef std::array<char, array_length> array_t;
 	typedef char elements_t[array_length];
 	array_t a;
 	static char lower_predicate(char c)

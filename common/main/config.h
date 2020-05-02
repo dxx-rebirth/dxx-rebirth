@@ -53,10 +53,10 @@ struct CCfg : prohibit_void_ptr<CCfg>
 	bool TexAnisotropy;
 	bool Multisample;
 	bool FPSIndicator;
-	array<int, 2> CMLevelMusicTrack;
+	std::array<int, 2> CMLevelMusicTrack;
 	ntstring<MISSION_NAME_LEN> LastMission;
 	ntstring<PATH_MAX - 1> CMLevelMusicPath;
-	array<ntstring<PATH_MAX - 1>, 5> CMMiscMusic;
+	std::array<ntstring<PATH_MAX - 1>, 5> CMMiscMusic;
 };
 
 extern struct CCfg CGameCfg;

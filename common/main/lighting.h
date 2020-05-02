@@ -41,7 +41,7 @@ namespace dcx {
 
 struct d_level_unique_light_state
 {
-	array<g3s_lrgb, MAX_VERTICES> Dynamic_light;
+	std::array<g3s_lrgb, MAX_VERTICES> Dynamic_light;
 };
 
 }
@@ -53,7 +53,7 @@ namespace dsx {
 struct d_level_unique_headlight_state
 {
 	unsigned Num_headlights = 0;
-	array<const object_base *, 8> Headlights = {};
+	std::array<const object_base *, 8> Headlights = {};
 };
 
 struct d_level_unique_light_state :

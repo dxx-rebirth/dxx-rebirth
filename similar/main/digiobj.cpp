@@ -92,7 +92,7 @@ struct sound_object
 	} link_type;
 };
 
-using sound_objects_t = array<sound_object, MAX_SOUND_OBJECTS>;
+using sound_objects_t = std::array<sound_object, MAX_SOUND_OBJECTS>;
 static sound_objects_t SoundObjects;
 static short next_signature=0;
 
@@ -719,7 +719,7 @@ struct sound_q
 #define MAX_LIFE F1_0*30		// After being queued for 30 seconds, don't play it
 static int SoundQ_head, SoundQ_tail, SoundQ_num;
 int SoundQ_channel;
-static array<sound_q, 32> SoundQ;
+static std::array<sound_q, 32> SoundQ;
 
 void SoundQ_init()
 {

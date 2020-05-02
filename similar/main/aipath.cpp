@@ -74,7 +74,7 @@ static int validate_path(int, point_seg* psegs, uint_fast32_t num_points);
 }
 
 //	------------------------------------------------------------------------
-static void create_random_xlate(array<uint8_t, MAX_SIDES_PER_SEGMENT> &xt)
+static void create_random_xlate(std::array<uint8_t, MAX_SIDES_PER_SEGMENT> &xt)
 {
 	for (int i = 0; i<MAX_SIDES_PER_SEGMENT; i++)
 		xt[i] = i;
@@ -159,7 +159,7 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 static void move_towards_outside(const d_level_shared_segment_state &LevelSharedSegmentState, point_seg *const psegs, const unsigned num_points, const vmobjptridx_t objp, const create_path_random_flag rand_flag)
 {
 	int	i;
-	array<point_seg, 200> new_psegs;
+	std::array<point_seg, 200> new_psegs;
 	assert(num_points < new_psegs.size());
 
 	auto &Segments = LevelSharedSegmentState.get_segments();
@@ -293,9 +293,9 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 	segnum_t		cur_seg;
 	int		qtail = 0, qhead = 0;
 	int		i;
-	array<seg_seg, MAX_SEGMENTS> seg_queue;
+	std::array<seg_seg, MAX_SEGMENTS> seg_queue;
 	int		cur_depth;
-	array<uint8_t, MAX_SIDES_PER_SEGMENT> random_xlate;
+	std::array<uint8_t, MAX_SIDES_PER_SEGMENT> random_xlate;
 	DXX_POISON_VAR(random_xlate, 0xcc);
 	point_seg_array_t::iterator	original_psegs = psegs;
 	unsigned l_num_points = 0;
@@ -311,7 +311,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 }
 
 	visited_segment_bitarray_t visited;
-	array<uint16_t, MAX_SEGMENTS> depth{};
+	std::array<uint16_t, MAX_SEGMENTS> depth{};
 
 	//	If there is a segment we're not allowed to visit, mark it.
 	if (avoid_seg != segment_none) {
@@ -1508,7 +1508,7 @@ void attempt_to_resume_path(const vmobjptridx_t objp)
 __attribute_used
 static void test_create_path_many(fvmobjptridx &vmobjptridx, fimsegptridx &imsegptridx)
 {
-	array<point_seg, 200> point_segs;
+	std::array<point_seg, 200> point_segs;
 	int			i;
 
 	const unsigned Test_size = 1000;
@@ -1522,7 +1522,7 @@ static void test_create_path_many(fvmobjptridx &vmobjptridx, fimsegptridx &imseg
 __attribute_used
 static void test_create_path(fvmobjptridx &vmobjptridx)
 {
-	array<point_seg, 200> point_segs;
+	std::array<point_seg, 200> point_segs;
 
 	create_path_points(vmobjptridx(object_first), Cursegp, Markedsegp, point_segs.begin(), MAX_PATH_LENGTH, create_path_random_flag::nonrandom, create_path_safety_flag::unsafe, segment_none);
 }

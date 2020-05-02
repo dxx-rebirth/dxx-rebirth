@@ -82,10 +82,10 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	uint8_t morph_save_control_type;
 	uint8_t morph_save_movement_type;
 	uint8_t n_submodels_active;
-	array<submodel_state, MAX_SUBMODELS> submodel_active;         // which submodels are active
+	std::array<submodel_state, MAX_SUBMODELS> submodel_active;         // which submodels are active
 	const max_vectors max_vecs;
 	physics_info morph_save_phys_info;
-	array<int, MAX_SUBMODELS>
+	std::array<int, MAX_SUBMODELS>
 		n_morphing_points,       // how many active points in each part
 		submodel_startpoints;    // first point for each submodel
 	static ptr create(object_base &, const polymodel &, polymodel_idx);

@@ -62,7 +62,7 @@ class is_cxx_array : public std::false_type
 };
 
 template <typename T, std::size_t N>
-class is_cxx_array<array<T, N>> : public std::true_type
+class is_cxx_array<std::array<T, N>> : public std::true_type
 {
 };
 
@@ -185,7 +185,7 @@ public:
 };
 
 template <typename extended_signed_type, typename wrapped_type>
-message<array<uint8_t, sizeof(extended_signed_type)>> udt_to_message(const sign_extend_type<extended_signed_type, wrapped_type> &);
+message<std::array<uint8_t, sizeof(extended_signed_type)>> udt_to_message(const sign_extend_type<extended_signed_type, wrapped_type> &);
 
 template <std::size_t amount, uint8_t value>
 class pad_type
@@ -193,7 +193,7 @@ class pad_type
 };
 
 template <std::size_t amount, uint8_t value>
-message<array<uint8_t, amount>> udt_to_message(const pad_type<amount, value> &);
+message<std::array<uint8_t, amount>> udt_to_message(const pad_type<amount, value> &);
 
 /*
  * This can never be instantiated, but will be requested if a UDT
@@ -265,8 +265,8 @@ union pad_storage
 	static_assert(amount % SERIAL_UDT_ROUND_MULTIPLIER ? SERIAL_UDT_ROUND_UP_AMOUNT > amount && SERIAL_UDT_ROUND_UP_AMOUNT < amount + SERIAL_UDT_ROUND_MULTIPLIER : SERIAL_UDT_ROUND_UP_AMOUNT == amount, "round up error");
 	static_assert(SERIAL_UDT_ROUND_UP_AMOUNT % SERIAL_UDT_ROUND_MULTIPLIER == 0, "round modulus error");
 	static_assert(amount % FULL_SIZE == REMAINDER_SIZE || FULL_SIZE == REMAINDER_SIZE, "padding alignment error");
-	array<uint8_t, FULL_SIZE> f;
-	array<uint8_t, REMAINDER_SIZE> p;
+	std::array<uint8_t, FULL_SIZE> f;
+	std::array<uint8_t, REMAINDER_SIZE> p;
 	pad_storage(std::false_type, uint8_t value)
 	{
 		f.fill(value);

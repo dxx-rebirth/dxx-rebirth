@@ -174,7 +174,7 @@ constexpr std::integral_constant<unsigned, 254> MAX_SOUNDS{};
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
-extern array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
+extern std::array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
 
 constexpr std::integral_constant<int, -1> sound_none{};
 #endif

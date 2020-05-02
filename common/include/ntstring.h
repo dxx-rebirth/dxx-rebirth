@@ -10,11 +10,11 @@
 template <std::size_t L>
 class ntstring :
 	public prohibit_void_ptr<ntstring<L>>,
-	public array<char, L + 1>
+	public std::array<char, L + 1>
 {
 	static char terminator() { return 0; }
 public:
-	typedef array<char, L + 1> array_t;
+	typedef std::array<char, L + 1> array_t;
 	typedef char elements_t[L + 1];
 	using array_t::operator[];
 	typename array_t::reference operator[](int i) { return array_t::operator[](i); }
@@ -56,7 +56,7 @@ public:
 			return copy_if(out_offset, static_cast<I &&>(i), this->size());
 		}
 	template <std::size_t N>
-		std::size_t copy_if(std::size_t out_offset, const array<char, N> &i, std::size_t n = N)
+		std::size_t copy_if(std::size_t out_offset, const std::array<char, N> &i, std::size_t n = N)
 		{
 #ifdef DXX_CONSTANT_TRUE
 			if (DXX_CONSTANT_TRUE(n > N))
@@ -119,12 +119,12 @@ public:
 		return copy_out(src_offset, dst, 0, dst_size);
 	}
 	template <std::size_t N>
-		std::size_t copy_out(std::size_t src_offset, array<char, N> &dst, std::size_t dst_offset) const
+		std::size_t copy_out(std::size_t src_offset, std::array<char, N> &dst, std::size_t dst_offset) const
 		{
 			return copy_out(src_offset, dst.data(), dst_offset, N);
 		}
 	template <std::size_t N>
-		std::size_t copy_out(std::size_t src_offset, array<uint8_t, N> &dst, std::size_t dst_offset) const
+		std::size_t copy_out(std::size_t src_offset, std::array<uint8_t, N> &dst, std::size_t dst_offset) const
 		{
 			return copy_out(src_offset, reinterpret_cast<char *>(dst.data()), dst_offset, N);
 		}

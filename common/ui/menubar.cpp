@@ -60,12 +60,12 @@ struct MENU : embed_window_pointer_t {
 	uint16_t			NumItems;
 	short				Displayed;
 	short				Active;
-	array<ITEM, MAXITEMS> Item;
+	std::array<ITEM, MAXITEMS> Item;
 };
 
 }
 
-static array<MENU, MAXMENUS> Menu;
+static std::array<MENU, MAXMENUS> Menu;
 
 static unsigned num_menus;
 static int state;

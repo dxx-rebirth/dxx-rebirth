@@ -47,10 +47,10 @@ constexpr std::integral_constant<unsigned, 200> MAX_POLYGON_MODELS{};
 #endif
 
 // array of names of currently-loaded models
-extern array<char[13], MAX_POLYGON_MODELS> Pof_names;
+extern std::array<char[13], MAX_POLYGON_MODELS> Pof_names;
 
 //for each model, a model number for dying & dead variants, or -1 if none
-extern array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
+extern std::array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
 }
 #endif
 
@@ -63,14 +63,14 @@ struct polymodel : prohibit_void_ptr<polymodel>
 	unsigned n_models;
 	unsigned model_data_size;
 	std::unique_ptr<uint8_t[]>   model_data;
-	array<int, MAX_SUBMODELS> submodel_ptrs;
-	array<vms_vector, MAX_SUBMODELS> submodel_offsets;
-	array<vms_vector, MAX_SUBMODELS> submodel_norms;   // norm for sep plane
-	array<vms_vector, MAX_SUBMODELS> submodel_pnts;    // point on sep plane
-	array<fix, MAX_SUBMODELS> submodel_rads;       // radius for each submodel
-	array<ubyte, MAX_SUBMODELS> submodel_parents;    // what is parent for each submodel
-	array<vms_vector, MAX_SUBMODELS> submodel_mins;
-	array<vms_vector, MAX_SUBMODELS> submodel_maxs;
+	std::array<int, MAX_SUBMODELS> submodel_ptrs;
+	std::array<vms_vector, MAX_SUBMODELS> submodel_offsets;
+	std::array<vms_vector, MAX_SUBMODELS> submodel_norms;   // norm for sep plane
+	std::array<vms_vector, MAX_SUBMODELS> submodel_pnts;    // point on sep plane
+	std::array<fix, MAX_SUBMODELS> submodel_rads;       // radius for each submodel
+	std::array<ubyte, MAX_SUBMODELS> submodel_parents;    // what is parent for each submodel
+	std::array<vms_vector, MAX_SUBMODELS> submodel_mins;
+	std::array<vms_vector, MAX_SUBMODELS> submodel_maxs;
 	vms_vector mins,maxs;                       // min,max for whole model
 	fix     rad;
 	ushort  first_texture;
@@ -81,7 +81,7 @@ struct polymodel : prohibit_void_ptr<polymodel>
 
 class submodel_angles
 {
-	typedef const array<vms_angvec, MAX_SUBMODELS> array_type;
+	typedef const std::array<vms_angvec, MAX_SUBMODELS> array_type;
 	array_type *p;
 public:
 	submodel_angles(std::nullptr_t) : p(nullptr) {}
@@ -107,7 +107,7 @@ namespace dsx {
  */
 struct d_level_shared_polygon_model_state
 {
-	array<polymodel, MAX_POLYGON_MODELS> Polygon_models;
+	std::array<polymodel, MAX_POLYGON_MODELS> Polygon_models;
 };
 
 // array of pointers to polygon objects
@@ -159,7 +159,7 @@ void free_model(polymodel &po);
 #define MAX_POLYOBJ_TEXTURES 100
 constexpr std::integral_constant<unsigned, 166> N_D2_POLYGON_MODELS{};
 #endif
-extern array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
+extern std::array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 #endif
 
 namespace dcx {

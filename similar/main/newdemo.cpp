@@ -177,7 +177,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define DEMO_MAX_LEVELS				29
 
-const array<file_extension_t, 1> demo_file_extensions{{DEMO_EXT}};
+const std::array<file_extension_t, 1> demo_file_extensions{{DEMO_EXT}};
 
 // In- and Out-files
 static RAIIPHYSFS_File infile;
@@ -225,9 +225,9 @@ static fix64 nd_record_v_recordframe_last_time = 0;
 static sbyte nd_record_v_no_space;
 #if defined(DXX_BUILD_DESCENT_II)
 static int nd_record_v_juststarted = 0;
-static array<sbyte, MAX_OBJECTS> nd_record_v_objs,
+static std::array<sbyte, MAX_OBJECTS> nd_record_v_objs,
 	nd_record_v_viewobjs;
-static array<sbyte, 32> nd_record_v_rendering;
+static std::array<sbyte, 32> nd_record_v_rendering;
 static fix nd_record_v_player_afterburner = -1;
 #endif
 static int nd_record_v_player_energy = -1;
@@ -4081,12 +4081,12 @@ try_again:
 	{
 	}
 	else if (!nd_record_v_no_space) {
-		array<newmenu_item, 1> m{{
+		std::array<newmenu_item, 1> m{{
 			nm_item_input(filename),
 		}};
 		exit = newmenu_do( NULL, TXT_SAVE_DEMO_AS, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 	} else if (nd_record_v_no_space == 2) {
-		array<newmenu_item, 2> m{{
+		std::array<newmenu_item, 2> m{{
 			nm_item_text(TXT_DEMO_SAVE_NOSPACE),
 			nm_item_input(filename),
 		}};

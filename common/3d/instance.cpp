@@ -27,7 +27,7 @@ struct instance_context {
 
 }
 
-static array<instance_context, 5> instance_stack;
+static std::array<instance_context, 5> instance_stack;
 
 int instance_depth = 0;
 

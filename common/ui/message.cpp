@@ -51,7 +51,7 @@ namespace {
 struct messagebox
 {
 	const ui_messagebox_tie	*button;
-	array<std::unique_ptr<UI_GADGET_BUTTON>, 10> button_g;
+	std::array<std::unique_ptr<UI_GADGET_BUTTON>, 10> button_g;
 	const char				*text;
 	int					*choice;
 	int					width;

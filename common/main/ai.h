@@ -58,7 +58,7 @@ struct awareness_event
 struct d_level_unique_robot_awareness_state
 {
 	unsigned Num_awareness_events;
-	array<awareness_event, 64> Awareness_events;
+	std::array<awareness_event, 64> Awareness_events;
 };
 
 extern d_level_unique_robot_awareness_state LevelUniqueRobotAwarenessState;
@@ -94,7 +94,7 @@ namespace dsx {
 
 #define NUM_D2_BOSSES 8
 
-typedef array<ubyte, NUM_D2_BOSSES> boss_flags_t;
+typedef std::array<ubyte, NUM_D2_BOSSES> boss_flags_t;
 extern const boss_flags_t Boss_spew_more;     // Set byte if this boss can teleport
 extern const boss_flags_t Boss_spews_bots_energy;     // Set byte if boss spews bots when hit by energy weapon.
 extern const boss_flags_t Boss_spews_bots_matter;     // Set byte if boss spews bots when hit by matter weapon.
@@ -256,7 +256,7 @@ std::size_t create_bfs_list(vmobjptr_t robot, vcsegidx_t start_seg, player_flags
 
 template <std::size_t N>
 __attribute_warn_unused_result
-std::size_t create_bfs_list(const vmobjptr_t &robot, const vcsegidx_t &start_seg, const player_flags powerup_flags, array<segnum_t, N> &bfs_list)
+std::size_t create_bfs_list(const vmobjptr_t &robot, const vcsegidx_t &start_seg, const player_flags powerup_flags, std::array<segnum_t, N> &bfs_list)
 {
 	return create_bfs_list(robot, start_seg, powerup_flags, bfs_list.data(), N);
 }
@@ -273,7 +273,7 @@ extern void special_reactor_stuff(void);
 }
 
 namespace dcx {
-struct point_seg_array_t : public array<point_seg, MAX_POINT_SEGS> {};
+struct point_seg_array_t : public std::array<point_seg, MAX_POINT_SEGS> {};
 extern point_seg_array_t        Point_segs;
 extern point_seg_array_t::iterator        Point_segs_free_ptr;
 static inline std::size_t operator-(point_seg_array_t::iterator i, point_seg_array_t &p)

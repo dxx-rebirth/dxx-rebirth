@@ -290,7 +290,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 			{
 				case KEY_ESC:
 					{
-						array<newmenu_item, 2> nm_message_items{{
+						std::array<newmenu_item, 2> nm_message_items{{
 							nm_item_menu(TXT_YES),
 							nm_item_menu(TXT_NO),
 						}};

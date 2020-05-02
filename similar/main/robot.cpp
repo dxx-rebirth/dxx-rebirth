@@ -87,7 +87,7 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 
 //fills in ptr to list of joints, and returns the number of joints in list
 //takes the robot type (object id), gun number, and desired state
-partial_range_t<const jointpos *> robot_get_anim_state(const d_level_shared_robot_info_state::d_robot_info_array &robot_info, const array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const unsigned gun_num, const unsigned state)
+partial_range_t<const jointpos *> robot_get_anim_state(const d_level_shared_robot_info_state::d_robot_info_array &robot_info, const std::array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const unsigned gun_num, const unsigned state)
 {
 	auto &rirt = robot_info[robot_type];
 	assert(gun_num <= rirt.n_guns);
@@ -130,11 +130,11 @@ static void set_robot_state(object_base &obj, const unsigned state)
 
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
-void robot_set_angles(robot_info *r,polymodel *pm,array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs)
+void robot_set_angles(robot_info *r,polymodel *pm,std::array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	int g,state;
-	array<int, MAX_SUBMODELS> gun_nums;			//which gun each submodel is part of
+	std::array<int, MAX_SUBMODELS> gun_nums;			//which gun each submodel is part of
 
 	range_for (auto &m, partial_range(gun_nums, 1u, pm->n_models))
 		m = r->n_guns;		//assume part of body...
@@ -177,7 +177,7 @@ void robot_set_angles(robot_info *r,polymodel *pm,array<array<vms_angvec, MAX_SU
 /*
  * reads n jointlist structs from a PHYSFS_File
  */
-static void jointlist_read(PHYSFS_File *fp, array<jointlist, N_ANIM_STATES> &jl)
+static void jointlist_read(PHYSFS_File *fp, std::array<jointlist, N_ANIM_STATES> &jl)
 {
 	range_for (auto &i, jl)
 	{
@@ -300,7 +300,7 @@ void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 	ri.death_roll = PHYSFSX_readByte(fp);
 
 	ri.flags = PHYSFSX_readByte(fp);
-	array<char, 3> pad;
+	std::array<char, 3> pad;
 	PHYSFS_read(fp, pad, pad.size(), 1);
 
 	ri.deathroll_sound = PHYSFSX_readByte(fp);

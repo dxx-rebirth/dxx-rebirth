@@ -431,7 +431,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 #endif
 
 	if (obj->rtype.pobj_info.tmap_override != -1) {
-		array<bitmap_index, 12> bm_ptrs;
+		std::array<bitmap_index, 12> bm_ptrs;
 
 		//fill whole array, in case simple model needs more
 		bm_ptrs.fill(Textures[obj->rtype.pobj_info.tmap_override]);
@@ -1028,7 +1028,7 @@ static void free_object_slots(uint_fast32_t num_used)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	array<object *, MAX_OBJECTS>	obj_list;
+	std::array<object *, MAX_OBJECTS>	obj_list;
 	unsigned	num_already_free, num_to_free, olind = 0;
 
 	num_already_free = MAX_OBJECTS - Highest_object_index - 1;

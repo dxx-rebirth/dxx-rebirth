@@ -54,7 +54,7 @@ void gr_flip()
 }
 
 // returns possible (fullscreen) resolutions if any.
-uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
+uint_fast32_t gr_list_modes(std::array<screen_mode, 50> &gsmodes)
 {
 	SDL_Rect** modes;
 	int modesnum = 0;
@@ -238,7 +238,7 @@ void gr_palette_step_up( int r, int g, int b )
 	if (palette == NULL)
 		return; // Display is not palettised
 
-	array<SDL_Color, 256> colors{};
+	std::array<SDL_Color, 256> colors{};
 	range_for (const int i, xrange(256u))
 	{
 		const auto ir = static_cast<int>(p[i].r) + r + gr_palette_gamma;
@@ -254,7 +254,7 @@ void gr_palette_step_up( int r, int g, int b )
 void gr_palette_load( palette_array_t &pal )
 {
 	SDL_Palette *palette;
-	array<uint8_t, 64> gamma;
+	std::array<uint8_t, 64> gamma;
 
 	if (pal != gr_current_pal)
 		SDL_FillRect(canvas, NULL, SDL_MapRGB(canvas->format, 0, 0, 0));
@@ -272,7 +272,7 @@ void gr_palette_load( palette_array_t &pal )
 	range_for (const int i, xrange(64u))
 		gamma[i] = static_cast<int>((pow((static_cast<double>(14)/static_cast<double>(32)), 1.0)*i) + 0.5);
 
-	array<SDL_Color, 256> colors{};
+	std::array<SDL_Color, 256> colors{};
 	for (int i = 0, j = 0; j < 256; j++)
 	{
 		int c;

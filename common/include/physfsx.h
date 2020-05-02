@@ -92,7 +92,7 @@ static inline typename std::enable_if<!std::is_integral<V>::value, PHYSFS_sint64
 
 template <typename V, std::size_t N>
 __attribute_always_inline()
-static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, array<V, N> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
+static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, std::array<V, N> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	static_assert(std::is_pod<V>::value, "C++ array of non-POD elements read");
 	DXX_PHYSFS_CHECK_READ_SIZE_ARRAY_SIZE(S, C);
@@ -127,7 +127,7 @@ static inline typename std::enable_if<!std::is_integral<V>::value, PHYSFS_sint64
 
 template <typename V, std::size_t N>
 __attribute_always_inline()
-static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_File *file, const array<V, N> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
+static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_File *file, const std::array<V, N> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	static_assert(std::is_pod<V>::value, "C++ array of non-POD elements written");
 	DXX_PHYSFS_CHECK_WRITE_CONSTANTS(S,C);
@@ -236,7 +236,7 @@ struct PHYSFSX_gets_line_t
 	PHYSFSX_gets_line_t &operator=(const PHYSFSX_gets_line_t &) = delete;
 	PHYSFSX_gets_line_t(PHYSFSX_gets_line_t &&) = default;
 	PHYSFSX_gets_line_t &operator=(PHYSFSX_gets_line_t &&) = default;
-	typedef array<char, N> line_t;
+	typedef std::array<char, N> line_t;
 #if DXX_HAVE_POISON
 	/* Force onto heap to improve checker accuracy */
 	std::unique_ptr<line_t> m_line;
@@ -442,7 +442,7 @@ int PHYSFSX_checkMatchingExtension(const char *filename, const partial_range_t<c
 template <std::size_t count>
 __attribute_nonnull()
 __attribute_warn_unused_result
-static inline int PHYSFSX_checkMatchingExtension(const array<file_extension_t, count> &exts, const char *filename)
+static inline int PHYSFSX_checkMatchingExtension(const std::array<file_extension_t, count> &exts, const char *filename)
 {
 	return PHYSFSX_checkMatchingExtension(filename, exts);
 }
@@ -454,7 +454,7 @@ extern void PHYSFSX_listSearchPathContent();
 int PHYSFSX_getRealPath(const char *stdPath, char *realPath, std::size_t);
 
 template <std::size_t N>
-static inline int PHYSFSX_getRealPath(const char *stdPath, array<char, N> &realPath)
+static inline int PHYSFSX_getRealPath(const char *stdPath, std::array<char, N> &realPath)
 {
 	return PHYSFSX_getRealPath(stdPath, realPath.data(), N);
 }

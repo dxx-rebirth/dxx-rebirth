@@ -130,10 +130,10 @@ static int UDP_num_sendto, UDP_len_sendto, UDP_num_recvfrom, UDP_len_recvfrom;
 static UDP_mdata_info		UDP_MData;
 static UDP_sequence_packet UDP_Seq;
 static unsigned UDP_mdata_queue_highest;
-static array<UDP_mdata_store, UDP_MDATA_STOR_QUEUE_SIZE> UDP_mdata_queue;
-static array<UDP_mdata_check, MAX_PLAYERS> UDP_mdata_trace;
+static std::array<UDP_mdata_store, UDP_MDATA_STOR_QUEUE_SIZE> UDP_mdata_queue;
+static std::array<UDP_mdata_check, MAX_PLAYERS> UDP_mdata_trace;
 static UDP_sequence_packet UDP_sync_player; // For rejoin object syncing
-static array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games;
+static std::array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games;
 static unsigned num_active_udp_games;
 static int num_active_udp_changed;
 static uint16_t UDP_MyPort;
@@ -205,7 +205,7 @@ public:
 		reset();
 	}
 	/* This should be a move-assignment operator=, but early versions of
-	 * gcc-4.9 mishandle synthesizing array<T, N>::operator=(array &&)
+	 * gcc-4.9 mishandle synthesizing std::array<T, N>::operator=(array &&)
 	 * when the contained type is movable but not copyable.  Debian
 	 * Jessie's newest gcc is still affected (18 months after the fix
 	 * was published upstream), so use awkward syntax here to avoid the
@@ -263,7 +263,7 @@ class start_poll_menu_items
 	/* The host must play */
 	unsigned playercount = 1;
 public:
-	array<newmenu_item, MAX_PLAYERS + 4> m;
+	std::array<newmenu_item, MAX_PLAYERS + 4> m;
 	unsigned get_player_count() const
 	{
 		return playercount;
@@ -274,7 +274,7 @@ public:
 	}
 };
 
-static const char *dxx_ntop(const _sockaddr &sa, array<char, _sockaddr::presentation_buffer_size> &dbuf)
+static const char *dxx_ntop(const _sockaddr &sa, std::array<char, _sockaddr::presentation_buffer_size> &dbuf)
 {
 #ifdef WIN32
 #ifdef DXX_HAVE_INET_NTOP
@@ -357,7 +357,7 @@ uint8_t get_effective_netgame_status(const d_level_unique_control_center_state &
 
 }
 
-static array<RAIIsocket, 2> UDP_Socket;
+static std::array<RAIIsocket, 2> UDP_Socket;
 
 static void clear_UDP_Socket()
 {
@@ -394,7 +394,7 @@ static void copy_to_ntstring(const uint8_t *const buf, uint_fast32_t &len, ntstr
 	len += c;
 }
 
-static void net_udp_prepare_request_game_info(array<uint8_t, UPID_GAME_INFO_REQ_SIZE> &buf, int lite)
+static void net_udp_prepare_request_game_info(std::array<uint8_t, UPID_GAME_INFO_REQ_SIZE> &buf, int lite)
 {
 	buf[0] = lite ? UPID_GAME_INFO_LITE_REQ : UPID_GAME_INFO_REQ;
 	memcpy(&buf[1], UDP_REQ_ID, 4);
@@ -409,7 +409,7 @@ static void reset_UDP_MyPort()
 	UDP_MyPort = CGameArg.MplUdpMyPort >= 1024 ? CGameArg.MplUdpMyPort : UDP_PORT_DEFAULT;
 }
 
-static bool convert_text_portstring(const array<char, 6> &portstring, uint16_t &outport, bool allow_privileged, bool silent)
+static bool convert_text_portstring(const std::array<char, 6> &portstring, uint16_t &outport, bool allow_privileged, bool silent)
 {
 	char *porterror;
 	unsigned long myport = strtoul(&portstring[0], &porterror, 10);
@@ -533,7 +533,7 @@ public:
 			return apply_array(buf, buflen);
 		}
 	template <std::size_t N, typename... Args>
-		auto operator()(const sockaddr &to, socklen_t tolen, int sock, array<uint8_t, N> &buf, Args &&... args) const
+		auto operator()(const sockaddr &to, socklen_t tolen, int sock, std::array<uint8_t, N> &buf, Args &&... args) const
 		{
 			return apply_array(buf.data(), buf.size());
 		}
@@ -831,7 +831,7 @@ public:
 
 void net_udp_request_game_info_t::apply(const sockaddr &game_addr, socklen_t addrlen, int lite)
 {
-	array<uint8_t, UPID_GAME_INFO_REQ_SIZE> buf;
+	std::array<uint8_t, UPID_GAME_INFO_REQ_SIZE> buf;
 	net_udp_prepare_request_game_info(buf, lite);
 	dxx_sendto(game_addr, addrlen, UDP_Socket[0], buf, 0);
 }
@@ -851,14 +851,14 @@ struct direct_join
 
 struct manual_join_user_inputs
 {
-	array<char, 6> hostportbuf, myportbuf;
-	array<char, 128> addrbuf;
+	std::array<char, 6> hostportbuf, myportbuf;
+	std::array<char, 128> addrbuf;
 };
 
 struct manual_join : direct_join, manual_join_user_inputs
 {
 	static manual_join_user_inputs s_last_inputs;
-	array<newmenu_item, 7> m;
+	std::array<newmenu_item, 7> m;
 };
 
 struct list_join : direct_join
@@ -866,8 +866,8 @@ struct list_join : direct_join
 	enum {
 		entries = ((UDP_NETGAMES_PPAGE + 5) * 2) + 1,
 	};
-	array<newmenu_item, entries> m;
-	array<array<char, 92>, entries> ljtext;
+	std::array<newmenu_item, entries> m;
+	std::array<std::array<char, 92>, entries> ljtext;
 };
 
 manual_join_user_inputs manual_join::s_last_inputs;
@@ -883,7 +883,7 @@ static int net_udp_game_connect(direct_join *const dj)
 	if (timer_query() >= dj->start_time + (F1_0*10))
 	{
 		dj->connecting = 0;
-		array<char, _sockaddr::presentation_buffer_size> dbuf;
+		std::array<char, _sockaddr::presentation_buffer_size> dbuf;
 		const auto port =
 #if DXX_USE_IPv6
 			dj->host_addr.sa.sa_family == AF_INET6
@@ -1060,7 +1060,7 @@ void net_udp_manual_join_game()
 	newmenu_do1(nullptr, "ENTER GAME ADDRESS", nitems, &m[0], manual_join_game_handler, dj.release(), 0);
 }
 
-static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_float strbound, array<char, 25> &out, const ntstring<25> &in)
+static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_float strbound, std::array<char, 25> &out, const ntstring<25> &in)
 {
 	size_t k = 0, x = 0;
 	char thold[2];
@@ -1271,7 +1271,7 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 
 		const auto &&fspacx = FSPACX();
 		const auto &cv_font = *grd_curcanv->cv_font;
-		array<char, 25> MissName, GameName;
+		std::array<char, 25> MissName, GameName;
 		const auto &&fspacx55 = fspacx(55);
 		copy_truncate_string(cv_font, fspacx55, MissName, augi.mission_title);
 		copy_truncate_string(cv_font, fspacx55, GameName, augi.game_name);
@@ -1368,7 +1368,7 @@ void net_udp_list_join_game()
 
 static void net_udp_send_sequence_packet(UDP_sequence_packet seq, const _sockaddr &recv_addr)
 {
-	array<uint8_t, UPID_SEQUENCE_SIZE> buf;
+	std::array<uint8_t, UPID_SEQUENCE_SIZE> buf;
 	int len = 0;
 	buf[0] = seq.type;						len++;
 	memcpy(&buf[len], seq.player.callsign.buffer(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
@@ -1865,7 +1865,7 @@ namespace {
 class blown_bitmap_array
 {
 	typedef int T;
-	using array_t = array<T, 32>;
+	using array_t = std::array<T, 32>;
 	typedef array_t::const_iterator const_iterator;
 	array_t a;
 	array_t::iterator e = a.begin();
@@ -1981,7 +1981,7 @@ void net_udp_send_objects(void)
 		return;
 	}
 
-	array<uint8_t, UPID_MAX_SIZE> object_buffer;
+	std::array<uint8_t, UPID_MAX_SIZE> object_buffer;
 	object_buffer = {};
 	object_buffer[0] = UPID_OBJECT_DATA;
 	loc = 5;
@@ -2355,7 +2355,7 @@ static void net_udp_remove_player(UDP_sequence_packet *p)
 void net_udp_dump_player(const _sockaddr &dump_addr, int why)
 {
 	// Inform player that he was not chosen for the netgame
-	array<uint8_t, UPID_DUMP_SIZE> buf;
+	std::array<uint8_t, UPID_DUMP_SIZE> buf;
 	buf[0] = UPID_DUMP;
 	buf[1] = why;
 	dxx_sendto(dump_addr, UDP_Socket[0], buf, 0);
@@ -2432,7 +2432,7 @@ void net_udp_send_endlevel_packet(void)
 
 	if (multi_i_am_master())
 	{
-		array<uint8_t, 2 + (5 * Players.size()) + sizeof(kill_matrix)> buf;
+		std::array<uint8_t, 2 + (5 * Players.size()) + sizeof(kill_matrix)> buf;
 		buf[len] = UPID_ENDLEVEL_H;											len++;
 		buf[len] = LevelUniqueControlCenterState.Countdown_seconds_left;				len++;
 
@@ -2461,7 +2461,7 @@ void net_udp_send_endlevel_packet(void)
 	}
 	else
 	{
-		array<uint8_t, 8 + sizeof(kill_matrix[0])> buf;
+		std::array<uint8_t, 8 + sizeof(kill_matrix[0])> buf;
 		buf[len] = UPID_ENDLEVEL_C;											len++;
 		buf[len] = Player_num;												len++;
 		buf[len] = get_local_player().connected;							len++;
@@ -2484,7 +2484,7 @@ void net_udp_send_endlevel_packet(void)
 
 static void net_udp_send_version_deny(const _sockaddr &sender_addr)
 {
-	array<uint8_t, UPID_VERSION_DENY_SIZE> buf;
+	std::array<uint8_t, UPID_VERSION_DENY_SIZE> buf;
 	buf[0] = UPID_VERSION_DENY;
 	PUT_INTEL_SHORT(&buf[1], DXX_VERSION_MAJORi);
 	PUT_INTEL_SHORT(&buf[3], DXX_VERSION_MINORi);
@@ -2528,12 +2528,12 @@ namespace {
 
 struct game_info_light
 {
-	array<uint8_t, UPID_GAME_INFO_LITE_SIZE_MAX> buf;
+	std::array<uint8_t, UPID_GAME_INFO_LITE_SIZE_MAX> buf;
 };
 
 struct game_info_heavy
 {
-	array<uint8_t, UPID_GAME_INFO_SIZE_MAX> buf;
+	std::array<uint8_t, UPID_GAME_INFO_SIZE_MAX> buf;
 };
 
 static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
@@ -3423,7 +3423,7 @@ namespace {
 class more_game_options_menu_items
 {
 	char packstring[sizeof("99")];
-	array<char, sizeof("65535")> portstring;
+	std::array<char, sizeof("65535")> portstring;
 	char srinvul[sizeof("Reactor life: 50 min")];
 	char PlayText[sizeof("Max time: 50 min")];
 	char SpawnInvulnerableText[sizeof("Invul. Time: 0.0 sec")];
@@ -3438,11 +3438,11 @@ class more_game_options_menu_items
         char tracker_addr_txt[sizeof("65535") + 28];
 #endif
 	human_readable_mmss_time<decltype(d_gameplay_options::AutosaveInterval)::rep> AutosaveInterval;
-	typedef array<newmenu_item, DXX_UDP_MENU_OPTIONS(COUNT)> menu_array;
+	typedef std::array<newmenu_item, DXX_UDP_MENU_OPTIONS(COUNT)> menu_array;
 	menu_array m;
 	static const char *get_annotated_difficulty_string(const Difficulty_level_type d)
 	{
-		static const array<char[20], 5> text{{
+		static const std::array<char[20], 5> text{{
 			"Difficulty: Trainee",
 			"Difficulty: Rookie",
 			"Difficulty: Hotshot",
@@ -3607,7 +3607,7 @@ public:
 	{
 		DXX_GRANT_POWERUP_MENU(ENUM)
 	};
-	array<newmenu_item, DXX_GRANT_POWERUP_MENU(COUNT)> m;
+	std::array<newmenu_item, DXX_GRANT_POWERUP_MENU(COUNT)> m;
 	grant_powerup_menu_items(const unsigned laser_level, const packed_spawn_granted_items p)
 	{
 		auto &flags = p.mask;
@@ -3750,7 +3750,7 @@ struct param_opt
 #endif
 	char slevel[sizeof("S100")] = "1";
 	char srmaxnet[sizeof("Maximum players: 99")];
-	array<newmenu_item, 22> m;
+	std::array<newmenu_item, 22> m;
 	void update_netgame_max_players()
 	{
 		Netgame.max_numplayers = m[maxnet].value + 2;
@@ -4261,7 +4261,7 @@ static int net_udp_select_teams()
 		team_vector |= (1 << i);
 	}
 
-	array<callsign_t, 2> team_names;
+	std::array<callsign_t, 2> team_names;
 	team_names[0].copy(TXT_BLUE, ~0ul);
 	team_names[1].copy(TXT_RED, ~0ul);
 
@@ -4528,7 +4528,7 @@ static int net_udp_wait_for_sync(void)
 	
 	Network_status = NETSTAT_WAITING;
 
-	array<newmenu_item, 2> m{{
+	std::array<newmenu_item, 2> m{{
 		nm_item_text(text),
 		nm_item_text(TXT_NET_LEAVE),
 	}};
@@ -4586,7 +4586,7 @@ static int net_udp_wait_for_requests(void)
 {
 	// Wait for other players to load the level before we send the sync
 	int choice;
-	array<newmenu_item, 1> m{{
+	std::array<newmenu_item, 1> m{{
 		nm_item_text(TXT_NET_LEAVE),
 	}};
 	Network_status = NETSTAT_WAITING;
@@ -5018,7 +5018,7 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
 		return 0;
 
         // Prepare the ACK (but do not send, yet)
-	array<uint8_t, 7> buf;
+	std::array<uint8_t, 7> buf;
         buf[len] = UPID_MDATA_ACK;											len++;
         buf[len] = Player_num;												len++;
         buf[len] = pkt_sender_pnum;											len++;
@@ -5366,7 +5366,7 @@ void net_udp_send_pdata()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	array<uint8_t, 3 + quaternionpos::packed_size::value> buf;
+	std::array<uint8_t, 3 + quaternionpos::packed_size::value> buf;
 	int len = 0;
 
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
@@ -5571,7 +5571,7 @@ void net_udp_ping_frame(fix64 time)
 	
 	if ((PingTime + F1_0) < time)
 	{
-		array<uint8_t, UPID_PING_SIZE> buf;
+		std::array<uint8_t, UPID_PING_SIZE> buf;
 		int len = 0;
 		
 		memset(&buf, 0, sizeof(ubyte)*UPID_PING_SIZE);
@@ -5596,7 +5596,7 @@ void net_udp_ping_frame(fix64 time)
 void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_addr)
 {
 	fix64 host_ping_time = 0;
-	array<uint8_t, UPID_PONG_SIZE> buf;
+	std::array<uint8_t, UPID_PONG_SIZE> buf;
 	int len = 0;
 
 	if (Netgame.players[0].protocol.udp.addr != sender_addr)
@@ -5866,7 +5866,7 @@ int net_udp_show_game_info()
 #define EXPAND_ARGUMENT(A,B,...)	, B, ## __VA_ARGS__
 	snprintf(rinfo, lengthof(rinfo), GAME_INFO_FORMAT_TEXT(EXPAND_FORMAT) GAME_INFO_FORMAT_TEXT(EXPAND_ARGUMENT));
 
-	array<newmenu_item, 2> nm_message_items{{
+	std::array<newmenu_item, 2> nm_message_items{{
 		nm_item_menu("JOIN GAME"),
 		nm_item_menu("GAME INFO"),
 	}};
@@ -5957,7 +5957,7 @@ static int sender_is_tracker(const _sockaddr &sender, const _sockaddr &tracker)
 /* Unregister from the tracker */
 static int udp_tracker_unregister()
 {
-	array<uint8_t, 1> pBuf;
+	std::array<uint8_t, 1> pBuf;
 
 	pBuf[0] = UPID_TRACKER_REMOVE;
 
@@ -5972,7 +5972,7 @@ static int udp_tracker_register()
 
 	game_info_light light;
 	int len = 1, light_len = net_udp_prepare_light_game_info(light);
-	array<uint8_t, 2 + sizeof("b=") + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000,z=") + UPID_GAME_INFO_LITE_SIZE_MAX> pBuf = {};
+	std::array<uint8_t, 2 + sizeof("b=") + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000,z=") + UPID_GAME_INFO_LITE_SIZE_MAX> pBuf = {};
 
 	pBuf[0] = UPID_TRACKER_REGISTER;
 	len += snprintf(reinterpret_cast<char *>(&pBuf[1]), sizeof(pBuf)-1, "b=" UDP_REQ_ID DXX_VERSION_STR ".%hu,z=", MULTI_PROTO_VERSION );
@@ -5984,7 +5984,7 @@ static int udp_tracker_register()
 /* Ask the tracker to send us a list of games */
 static int udp_tracker_reqgames()
 {
-	array<uint8_t, 2 + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000")> pBuf = {};
+	std::array<uint8_t, 2 + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000")> pBuf = {};
 	int len = 1;
 
 	pBuf[0] = UPID_TRACKER_REQGAMES;
@@ -6003,7 +6003,7 @@ static int udp_tracker_process_game( ubyte *data, int data_len, const _sockaddr 
 
 	char *p0 = NULL, *p1 = NULL, *p2 = NULL, *p3 = NULL;
 	char sIP[47] = {};
-	array<char, 6> sPort{};
+	std::array<char, 6> sPort{};
 	uint16_t iPort = 0, TrackerGameID = 0;
 
 	// Get the IP
@@ -6096,7 +6096,7 @@ static void udp_tracker_verify_ack_timeout()
 /* We don't seem to be able to connect to a game. Ask Tracker to send hole punch request to host. */
 static void udp_tracker_request_holepunch( uint16_t TrackerGameID )
 {
-	array<uint8_t, 3> pBuf;
+	std::array<uint8_t, 3> pBuf;
 
 	pBuf[0] = UPID_TRACKER_HOLEPUNCH;
 	PUT_INTEL_SHORT(&pBuf[1], TrackerGameID);
@@ -6146,7 +6146,7 @@ static void udp_tracker_process_holepunch(uint8_t *const data, const unsigned da
 	if(udp_dns_filladdr(sAddr, sIP, iPort, true, true) < 0)
 		return;
 
-	array<uint8_t, 1> pBuf;
+	std::array<uint8_t, 1> pBuf;
 	pBuf[0] = UPID_TRACKER_HOLEPUNCH;
 	dxx_sendto(sAddr, UDP_Socket[0], &pBuf, 1, 0);
 }
