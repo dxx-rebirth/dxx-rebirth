@@ -347,11 +347,11 @@ struct vclip_info_rw
 
 struct polyobj_info : prohibit_void_ptr<polyobj_info>
 {
-	int     model_num;          // which polygon model
-	array<vms_angvec, MAX_SUBMODELS> anim_angles; // angles for each subobject
-	int     subobj_flags;       // specify which subobjs to draw
-	int     tmap_override;      // if this is not -1, map all face to this
-	int     alt_textures;       // if not -1, use these textures instead
+	int     model_num = 0;          // which polygon model
+	array<vms_angvec, MAX_SUBMODELS> anim_angles{}; // angles for each subobject
+	int     subobj_flags = 0;       // specify which subobjs to draw
+	int     tmap_override = 0;      // if this is not -1, map all face to this
+	int     alt_textures = 0;       // if not -1, use these textures instead
 };
 
 struct polyobj_info_rw

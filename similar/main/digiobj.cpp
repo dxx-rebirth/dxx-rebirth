@@ -75,7 +75,11 @@ struct sound_object
 	short			soundnum;		// The sound number that is playing
 	int			loop_start;		// The start point of the loop. -1 means no loop
 	int			loop_end;		// The end point of the loop
-	union {
+	union link {
+		constexpr link() :
+			pos{}
+		{
+		}
 		struct {
 			segnum_t			segnum;				// Used if SOF_LINK_TO_POS field is used
 			uint8_t sidenum;

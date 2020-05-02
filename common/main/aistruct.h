@@ -199,46 +199,46 @@ namespace dsx {
 struct ai_local : public prohibit_void_ptr<ai_local>
 {
 // These used to be bytes, changed to ints so I could set watchpoints on them.
-	player_awareness_type_t      player_awareness_type;           // type of awareness of player
-	uint8_t retry_count;                     // number of retries in physics last time this object got moved.
-	uint8_t consecutive_retries;             // number of retries in consecutive frames (ie, without a retry_count of 0)
-	player_visibility_state previous_visibility;             // Visibility of player last time we checked.
-	uint8_t rapidfire_count;                 // number of shots fired rapidly
-	ai_mode mode;                            // current mode within behavior
-	segnum_t      goal_segment;                    // goal segment for current path
-	fix        next_action_time;              // time in seconds until something happens, mode dependent
-	fix        next_fire;                     // time in seconds until can fire again
+	player_awareness_type_t player_awareness_type = player_awareness_type_t::PA_NONE;           // type of awareness of player
+	uint8_t retry_count = 0;                     // number of retries in physics last time this object got moved.
+	uint8_t consecutive_retries = 0;             // number of retries in consecutive frames (ie, without a retry_count of 0)
+	player_visibility_state previous_visibility{};             // Visibility of player last time we checked.
+	uint8_t rapidfire_count = 0;                 // number of shots fired rapidly
+	ai_mode mode{};                            // current mode within behavior
+	segnum_t      goal_segment{};                    // goal segment for current path
+	fix        next_action_time = 0;              // time in seconds until something happens, mode dependent
+	fix        next_fire = 0;                     // time in seconds until can fire again
 #if defined(DXX_BUILD_DESCENT_II)
-	fix        next_fire2;                    // time in seconds until can fire again from second weapon
+	fix        next_fire2 = 0;                    // time in seconds until can fire again from second weapon
 #endif
-	fix        player_awareness_time;         // time in seconds robot will be aware of player, 0 means not aware of player
-	fix        time_since_processed;          // time since this robot last processed in do_ai_frame
-	fix64      time_player_seen;              // absolute time in seconds at which player was last seen, might cause to go into follow_path mode
-	fix64      time_player_sound_attacked;    // absolute time in seconds at which player was last seen with visibility of 2.
-	fix64      next_misc_sound_time;          // absolute time in seconds at which this robot last made an angry or lurking sound.
-	array<vms_angvec, MAX_SUBMODELS> goal_angles;    // angles for each subobject
-	array<vms_angvec, MAX_SUBMODELS> delta_angles;   // angles for each subobject
-	array<sbyte, MAX_SUBMODELS>      goal_state;     // Goal state for this sub-object
-	array<sbyte, MAX_SUBMODELS>      achieved_state; // Last achieved state
+	fix        player_awareness_time = 0;         // time in seconds robot will be aware of player, 0 means not aware of player
+	fix        time_since_processed = 0;          // time since this robot last processed in do_ai_frame
+	fix64      time_player_seen = 0;              // absolute time in seconds at which player was last seen, might cause to go into follow_path mode
+	fix64      time_player_sound_attacked = 0;    // absolute time in seconds at which player was last seen with visibility of 2.
+	fix64      next_misc_sound_time = 0;          // absolute time in seconds at which this robot last made an angry or lurking sound.
+	array<vms_angvec, MAX_SUBMODELS> goal_angles{};    // angles for each subobject
+	array<vms_angvec, MAX_SUBMODELS> delta_angles{};   // angles for each subobject
+	array<sbyte, MAX_SUBMODELS> goal_state{};     // Goal state for this sub-object
+	array<sbyte, MAX_SUBMODELS> achieved_state{}; // Last achieved state
 };
 
 struct ai_static : public prohibit_void_ptr<ai_static>
 {
-	ai_behavior behavior;               //
-	array<sbyte, MAX_AI_FLAGS>   flags;    // various flags, meaning defined by constants
-	segnum_t   hide_segment;           // Segment to go to for hiding.
-	short   hide_index;             // Index in Path_seg_points
-	short   path_length;            // Length of hide path.
+	ai_behavior behavior = static_cast<ai_behavior>(0);               //
+	array<sbyte, MAX_AI_FLAGS> flags{};    // various flags, meaning defined by constants
+	segnum_t hide_segment{};           // Segment to go to for hiding.
+	short hide_index{};             // Index in Path_seg_points
+	short path_length{};            // Length of hide path.
 #if defined(DXX_BUILD_DESCENT_I)
-	short   cur_path_index;         // Current index in path.
+	short cur_path_index{};         // Current index in path.
 #elif defined(DXX_BUILD_DESCENT_II)
-	sbyte   cur_path_index;         // Current index in path.
-	sbyte   dying_sound_playing;    // !0 if this robot is playing its dying sound.
+	sbyte cur_path_index{};         // Current index in path.
+	sbyte dying_sound_playing{};    // !0 if this robot is playing its dying sound.
 #endif
-	objnum_t   danger_laser_num;
-	object_signature_t     danger_laser_signature;
+	objnum_t danger_laser_num{};
+	object_signature_t danger_laser_signature;
 #if defined(DXX_BUILD_DESCENT_II)
-	fix64   dying_start_time;       // Time at which this robot started dying.
+	fix64 dying_start_time{};       // Time at which this robot started dying.
 #endif
 	ai_local ail;
 };

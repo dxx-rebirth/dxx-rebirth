@@ -5,9 +5,9 @@ typedef uint16_t objnum_t;
 
 class object_signature_t
 {
-	uint16_t signature;
+	uint16_t signature = 0;
 public:
-	explicit object_signature_t() = default;
+	constexpr object_signature_t() = default;
 	constexpr explicit object_signature_t(uint16_t s) :
 		signature(s)
 	{
