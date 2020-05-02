@@ -660,87 +660,10 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	fix volume;
 	fix laser_length=0;
 
-	Assert( weapon_type < N_weapon_types );
-
-	switch(weapon_type)
+	if (weapon_type >= N_weapon_types)
 	{
-		case weapon_id_type::LASER_ID_L1:
-		case weapon_id_type::LASER_ID_L2:
-		case weapon_id_type::LASER_ID_L3:
-		case weapon_id_type::LASER_ID_L4:
-		case weapon_id_type::CLS1_DRONE_FIRE:
-		case weapon_id_type::CONTROLCEN_WEAPON_NUM:
-		case weapon_id_type::CONCUSSION_ID:
-		case weapon_id_type::FLARE_ID:
-		case weapon_id_type::CLS2_DRONE_LASER:
-		case weapon_id_type::VULCAN_ID:
-		case weapon_id_type::SPREADFIRE_ID:
-		case weapon_id_type::PLASMA_ID:
-		case weapon_id_type::FUSION_ID:
-		case weapon_id_type::HOMING_ID:
-		case weapon_id_type::PROXIMITY_ID:
-		case weapon_id_type::SMART_ID:
-		case weapon_id_type::MEGA_ID:
-
-		case weapon_id_type::PLAYER_SMART_HOMING_ID:
-		case weapon_id_type::SUPER_MECH_MISS:
-		case weapon_id_type::REGULAR_MECH_MISS:
-		case weapon_id_type::SILENT_SPREADFIRE_ID:
-		case weapon_id_type::MEDIUM_LIFTER_LASER:
-		case weapon_id_type::SMALL_HULK_FIRE:
-		case weapon_id_type::HEAVY_DRILLER_PLASMA:
-		case weapon_id_type::SPIDER_ROBOT_FIRE:
-		case weapon_id_type::ROBOT_MEGA_ID:
-		case weapon_id_type::ROBOT_SMART_HOMING_ID:
-#if defined(DXX_BUILD_DESCENT_II)
-		case weapon_id_type::LASER_ID_L5:
-		case weapon_id_type::LASER_ID_L6:
-
-		case weapon_id_type::GAUSS_ID:
-		case weapon_id_type::HELIX_ID:
-		case weapon_id_type::PHOENIX_ID:
-		case weapon_id_type::OMEGA_ID:
-
-		case weapon_id_type::FLASH_ID:
-		case weapon_id_type::GUIDEDMISS_ID:
-		case weapon_id_type::SUPERPROX_ID:
-		case weapon_id_type::MERCURY_ID:
-		case weapon_id_type::EARTHSHAKER_ID:
-		case weapon_id_type::SMELTER_PHOENIX_ID:
-
-		case weapon_id_type::SMART_MINE_HOMING_ID:
-		case weapon_id_type::ROBOT_SMART_MINE_HOMING_ID:
-		case weapon_id_type::ROBOT_SUPERPROX_ID:
-		case weapon_id_type::EARTHSHAKER_MEGA_ID:
-		case weapon_id_type::ROBOT_EARTHSHAKER_ID:
-		case weapon_id_type::ROBOT_EARTHSHAKER_SUBMUNITION_ID:
-
-		case weapon_id_type::PMINE_ID:
-
-		case weapon_id_type::ROBOT_26_WEAPON_46_ID:
-		case weapon_id_type::ROBOT_27_WEAPON_52_ID:
-		case weapon_id_type::ROBOT_28_WEAPON_42_ID:
-		case weapon_id_type::ROBOT_29_WEAPON_20_ID:
-		case weapon_id_type::ROBOT_30_WEAPON_48_ID:
-		case weapon_id_type::ROBOT_36_WEAPON_41_ID:
-		case weapon_id_type::ROBOT_39_WEAPON_43_ID:
-		case weapon_id_type::ROBOT_43_WEAPON_55_ID:
-		case weapon_id_type::ROBOT_45_WEAPON_45_ID:
-		case weapon_id_type::ROBOT_50_WEAPON_50_ID:
-		case weapon_id_type::ROBOT_62_WEAPON_60_ID:
-		case weapon_id_type::ROBOT_47_WEAPON_57_ID:
-		case weapon_id_type::ROBOT_62_WEAPON_61_ID:
-		case weapon_id_type::ROBOT_71_WEAPON_62_ID:
-		case weapon_id_type::ROBOT_70_WEAPON_64_ID:
-#endif
-			break;
-		default:
-			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "BUG: unexpected weapon id %u fired by parent %hu (type %u) in segment %hu"), weapon_type, parent.get_unchecked_index(), parent->type, segnum.get_unchecked_index());
-#ifdef NDEBUG
-			break;
-#else
-			return object_none;
-#endif
+		con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "invalid weapon id %u fired by parent %hu (type %u) in segment %hu"), weapon_type, parent.get_unchecked_index(), parent->type, segnum.get_unchecked_index());
+		weapon_type = weapon_id_type::LASER_ID_L1;
 	}
 
 	//	Don't let homing blobs make muzzle flash.
