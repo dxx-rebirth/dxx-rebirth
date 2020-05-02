@@ -24,11 +24,16 @@ struct enumerated_value
 };
 
 template <typename range_iterator_type, typename index_type, typename result_type>
-class enumerated_iterator : public std::iterator<std::forward_iterator_tag, result_type>
+class enumerated_iterator
 {
 	range_iterator_type m_iter;
 	index_type m_idx;
 public:
+	using iterator_category = std::forward_iterator_tag;
+	using value_type = result_type;
+	using difference_type = std::ptrdiff_t;
+	using pointer = result_type *;
+	using reference = result_type &;
 	enumerated_iterator(const range_iterator_type &iter, const index_type idx) :
 		m_iter(iter), m_idx(idx)
 	{

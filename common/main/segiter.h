@@ -73,12 +73,16 @@ public:
 
 template <typename T>
 class segment_object_range_t<T>::iterator :
-	public std::iterator<std::forward_iterator_tag, T, std::ptrdiff_t, typename detail::unspecified_pointer_t<T>, T>,
 	T
 {
 	using T::m_ptr;
 	using T::m_idx;
 public:
+	using iterator_category = std::forward_iterator_tag;
+	using value_type = T;
+	using difference_type = std::ptrdiff_t;
+	using pointer = void;
+	using reference = T;
 	iterator(T &&o) :
 		T(std::move(o))
 	{

@@ -3,24 +3,28 @@
 #include <iterator>
 
 template <typename I>
-class null_sentinel_iterator : public std::iterator<std::forward_iterator_tag, I>
+class null_sentinel_iterator
 {
-	I *p = nullptr;
 public:
+	using iterator_category = std::forward_iterator_tag;
+	using value_type = I;
+	using difference_type = std::ptrdiff_t;
+	using pointer = I *;
+	using reference = I &;
 	null_sentinel_iterator() = default;
-	null_sentinel_iterator(I *const i) :
+	null_sentinel_iterator(const pointer i) :
 		p(i)
 	{
 	}
-	I *get() const
+	pointer get() const
 	{
 		return p;
 	}
-	I operator*() const
+	value_type operator*() const
 	{
 		return *p;
 	}
-	I &operator*()
+	reference operator*()
 	{
 		return *p;
 	}
@@ -42,6 +46,8 @@ public:
 	{
 		return !(*this == rhs);
 	}
+private:
+	pointer p = nullptr;
 };
 
 template <typename I>

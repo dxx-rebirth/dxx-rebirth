@@ -225,13 +225,16 @@ template <typename Accessor, typename E>
 void check_enum(Accessor &, E) {}
 
 template <typename T, typename D>
-struct base_bytebuffer_t : std::iterator<std::random_access_iterator_tag, T>, endian_access
+struct base_bytebuffer_t : endian_access
 {
 public:
+	using iterator_category = std::random_access_iterator_tag;
+	using value_type = T;
+	using difference_type = std::ptrdiff_t;
+	using pointer = T *;
+	using reference = T &;
 	// Default bytebuffer_t usage to little endian
 	static uint16_t endian() { return little_endian; }
-	using typename std::iterator<std::random_access_iterator_tag, T>::pointer;
-	using typename std::iterator<std::random_access_iterator_tag, T>::difference_type;
 	base_bytebuffer_t(pointer u) : p(u) {}
 	operator pointer() const { return p; }
 	D &operator++()
@@ -635,6 +638,7 @@ static inline void process_integer(Accessor &buffer, A1 &a1)
 template <typename Accessor, typename A, typename T = typename A::value_type>
 static inline typename std::enable_if<sizeof(T) == 1 && std::is_integral<T>::value, void>::type process_array(Accessor &accessor, A &a)
 {
+	using std::advance;
 	std::copy_n(static_cast<typename Accessor::pointer>(accessor), a.size(), &a[0]);
 	advance(accessor, a.size());
 }
@@ -688,6 +692,7 @@ static inline void process_integer(Accessor &buffer, const A1 &a1)
 template <typename Accessor, typename A, typename T = typename A::value_type>
 static inline typename std::enable_if<sizeof(T) == 1 && std::is_integral<T>::value, void>::type process_array(Accessor &accessor, const A &a)
 {
+	using std::advance;
 	std::copy_n(&a[0], a.size(), static_cast<typename Accessor::pointer>(accessor));
 	advance(accessor, a.size());
 }
