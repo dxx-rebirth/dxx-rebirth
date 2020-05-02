@@ -334,8 +334,8 @@ int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_File *fp)
 {
 	ubyte last;
 	int i;
-	register int total;
-	register ubyte runCount; 	// max single runlength is 63
+	int total;
+	ubyte runCount; 	// max single runlength is 63
 	total = 0;
 	last = *(inBuff);
 	runCount = 1;
