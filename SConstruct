@@ -2756,7 +2756,12 @@ unsigned u2(bool b)
 		Compile = self.Compile
 		Link = self.Link
 		f, desc = (Link, 'linker') if ldopts else (Compile, 'compiler')
-		if f(context, text=_text, main='', msg='whether %s accepts preferred options' % desc, successflags={'CXXFLAGS' : ccopts, 'LINKFLAGS' : ldopts}, calling_function='preferred_%s_options' % desc):
+		if f(context, text=_text, main='''
+	using gcc_pr82541::u2;
+	u2(false);
+	u2(true);
+	u2(argc > 2);
+''', msg='whether %s accepts preferred options' % desc, successflags={'CXXFLAGS' : ccopts, 'LINKFLAGS' : ldopts}, calling_function='preferred_%s_options' % desc):
 			# Everything is supported.  Skip individual tests.
 			return
 		# Compiler+linker together failed.  Check if compiler alone will work.
