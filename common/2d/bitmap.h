@@ -10,7 +10,7 @@
 
 #ifdef __cplusplus
 #include "palette.h"
-#include "compiler-array.h"
+#include <array>
 
 namespace dcx {
 void build_colormap_good(const palette_array_t &palette, std::array<color_t, 256> &colormap);

@@ -11,7 +11,7 @@
 #include <memory>
 #include <stdexcept>
 #include "dxxsconf.h"
-#include "compiler-array.h"
+#include <array>
 
 template <typename T = unsigned>
 class base_count_array_t

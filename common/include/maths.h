@@ -20,7 +20,7 @@
 #include <cstddef>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-array.h"
+#include <array>
 
 namespace dcx {
 

@@ -15,9 +15,9 @@
 
 #include "dxxsconf.h"
 #include "compiler-addressof.h"
-#include "compiler-array.h"
 #include "compiler-range_for.h"
 #include "compiler-static_assert.h"
+#include <array>
 #include <utility>
 
 namespace serial {

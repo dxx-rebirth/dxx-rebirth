@@ -39,9 +39,9 @@
 #include "u_mem.h"
 #include "pack.h"
 #include "ntstring.h"
-#include "compiler-array.h"
 #include "compiler-make_unique.h"
 #include "partial_range.h"
+#include <array>
 
 #ifdef DXX_CONSTANT_TRUE
 #define _DXX_PHYSFS_CHECK_SIZE_CONSTANT(S,v)	DXX_CONSTANT_TRUE((S) > (v))

@@ -35,10 +35,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-segment.h"
 #include "fwd-valptridx.h"
 #include "valptridx.h"
-#include "compiler-array.h"
 #include "dsx-ns.h"
 #include "fwd-player.h"
 #include "fwd-window.h"
+#include <array>
 
 namespace dcx {
 constexpr std::integral_constant<std::size_t, 100> MAX_TRIGGERS{};

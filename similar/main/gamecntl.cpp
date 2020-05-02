@@ -106,10 +106,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #endif
 
-#include "compiler-array.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "partial_range.h"
+#include <array>
 #include <utility>
 
 #include <SDL.h>

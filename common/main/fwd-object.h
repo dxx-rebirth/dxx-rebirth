@@ -11,12 +11,12 @@
 #include <type_traits>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-array.h"
 #include "objnum.h"
 #include "fwd-vecmat.h"
 #include "fwd-segment.h"
 #include "fwd-window.h"
 #include "fwd-valptridx.h"
+#include <array>
 
 struct bitmap_index;
 

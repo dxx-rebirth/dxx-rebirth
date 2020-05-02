@@ -15,9 +15,9 @@
 
 #ifdef __cplusplus
 #include "pack.h"
-#include "compiler-array.h"
 #include "ntstring.h"
 #include "fwd-window.h"
+#include <array>
 
 // Exported functions
 #ifdef dsx

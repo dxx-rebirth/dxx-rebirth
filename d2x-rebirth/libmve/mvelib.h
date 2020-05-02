@@ -16,7 +16,7 @@
 #include <cstdint>
 #include <vector>
 #include "dxxsconf.h"
-#include "compiler-array.h"
+#include <array>
 
 extern mve_cb_Read mve_read;
 extern mve_cb_Alloc mve_alloc;

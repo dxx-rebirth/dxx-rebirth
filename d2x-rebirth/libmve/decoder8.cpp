@@ -14,9 +14,9 @@
 #include "console.h"
 
 #include "dxxsconf.h"
-#include "compiler-array.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
+#include <array>
 
 static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
 

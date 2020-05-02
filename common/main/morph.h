@@ -32,11 +32,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pack.h"
 #include "polyobj.h"
 #include "dsx-ns.h"
-#include "compiler-array.h"
 
 #ifdef dsx
 #include "compiler-span.h"
 #include "fwd-object.h"
+#include <array>
 #include <memory>
 
 namespace dcx {

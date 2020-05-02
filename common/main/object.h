@@ -39,7 +39,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cassert>
 #include <cstdint>
 #include "dxxsconf.h"
-#include "compiler-array.h"
 #include "valptridx.h"
 #include "objnum.h"
 #include "fwd-segment.h"
@@ -53,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_II)
 #include "escort.h"
 #endif
+#include <array>
 #include <utility>
 
 namespace dcx {

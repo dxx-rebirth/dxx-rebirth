@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include "fmtcheck.h"
 #include "pack.h"
-#include "compiler-array.h"
+#include <array>
 
 struct grs_point
 {

@@ -31,8 +31,8 @@
 
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-array.h"
 #include "compiler-range_for.h"
+#include <array>
 
 namespace dcx {
 

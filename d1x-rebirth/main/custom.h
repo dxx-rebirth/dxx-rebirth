@@ -12,7 +12,7 @@
 
 #ifdef __cplusplus
 #include "dxxsconf.h"
-#include "compiler-array.h"
+#include <array>
 
 /* from piggy.c */
 #define DBM_FLAG_LARGE	128		// Flags added onto the flags struct in b

@@ -32,8 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "console.h"
 #include "u_mem.h"
-
-#include "compiler-array.h"
+#include <array>
 
 namespace dcx {
 

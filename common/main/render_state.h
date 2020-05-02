@@ -4,8 +4,8 @@
 #include <vector>
 #include "dxxsconf.h"
 #include "fwd-segment.h"
-#include "compiler-array.h"
 #include "objnum.h"
+#include <array>
 
 constexpr std::integral_constant<unsigned, 500> MAX_RENDER_SEGS{};
 

@@ -10,10 +10,10 @@
 #include <string>
 #include <type_traits>
 #include "fwd-valptridx.h"
-#include "compiler-array.h"
 #include "pack.h"
 #include "compiler-poison.h"
 #include "selfiter.h"
+#include <array>
 
 #ifdef DXX_CONSTANT_TRUE
 #define DXX_VALPTRIDX_STATIC_CHECK(SUCCESS_CONDITION,FAILURE_FUNCTION,FAILURE_STRING)	\

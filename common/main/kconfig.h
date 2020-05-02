@@ -32,8 +32,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <vector>
 #include "fwd-event.h"
-#include "compiler-array.h"
 #include "strutil.h"
+#include <array>
 
 #ifdef dsx
 namespace dcx {

@@ -12,7 +12,7 @@
 #include <cstring>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-array.h"
+#include <array>
 #include <vector>
 
 namespace dcx {

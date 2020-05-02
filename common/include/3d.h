@@ -32,8 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "vecmat.h" //the vector/matrix library
 #include "fwd-gr.h"
-
-#include "compiler-array.h"
+#include <array>
 
 struct grs_bitmap;
 

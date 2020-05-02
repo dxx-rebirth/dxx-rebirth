@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 
 #ifdef __cplusplus
-#include "compiler-array.h"
+#include <array>
 
 //Symbolic constants for all the strings
 

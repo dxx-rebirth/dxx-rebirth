@@ -41,7 +41,7 @@
 
 #include "dxxsconf.h"
 #include "snddecom.h"
-#include "compiler-array.h"
+#include <array>
 
 const std::array<int, 16> index_table{{
 	-1, -1, -1, -1, 2, 4, 6, 8, -1, -1, -1, -1, 2, 4, 6, 8

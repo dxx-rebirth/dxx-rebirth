@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <algorithm>
 #include "dxxsconf.h"
-#include "compiler-array.h"
+#include <array>
 
 template <std::size_t N>
 class cstring_tie

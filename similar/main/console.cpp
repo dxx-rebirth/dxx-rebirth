@@ -32,7 +32,7 @@
 #include "cvar.h"
 
 #include "dxxsconf.h"
-#include "compiler-array.h"
+#include <array>
 
 #ifdef _WIN32
 #include <windows.h>

@@ -63,11 +63,11 @@
 #include "u_mem.h"
 
 #include "dxxsconf.h"
-#include "compiler-array.h"
 #include "compiler-cf_assert.h"
 #include "compiler-range_for.h"
 #include "compiler-lengthof.h"
 #include "partial_range.h"
+#include <array>
 #include <utility>
 
 #if defined(DXX_BUILD_DESCENT_I)

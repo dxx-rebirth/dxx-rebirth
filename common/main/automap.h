@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-segment.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-array.h"
+#include <array>
 
 namespace dcx {
 extern int Automap_active;

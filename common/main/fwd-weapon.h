@@ -31,11 +31,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-array.h"
 #include "weapon_id.h"
 
 #include "fwd-object.h"
 #include "fwd-vclip.h"
+#include <array>
 
 enum powerup_type_t : uint8_t;
 

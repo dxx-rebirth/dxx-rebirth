@@ -38,7 +38,7 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, segment, segnum_t, MAX_SEGMENTS);
 
 #include "fwd-valptridx.h"
 #include "dsx-ns.h"
-#include "compiler-array.h"
+#include <array>
 
 namespace dcx {
 constexpr std::integral_constant<std::size_t, 8> MAX_VERTICES_PER_SEGMENT{};

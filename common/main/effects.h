@@ -27,8 +27,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "vclip.h"
 #include "dxxsconf.h"
-#include "compiler-array.h"
 #include "pack.h"
+#include <array>
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 namespace dsx {

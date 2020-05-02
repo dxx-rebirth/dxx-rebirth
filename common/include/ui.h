@@ -38,9 +38,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-gr.h"
 #include "varutil.h"
 #include "window.h"
-#include "compiler-array.h"
 #include "compiler-make_unique.h"
 #include "ntstring.h"
+#include <array>
 
 namespace dcx {
 

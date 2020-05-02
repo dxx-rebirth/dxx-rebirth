@@ -484,7 +484,7 @@ struct %(N)s_derived : %(N)s_base {
 };
 '''),
 		Cxx11RequiredFeature('std::array', '''
-#include "compiler-array.h"
+#include <array>
 ''', '''
 	std::array<int,2>b;
 	b[0]=1;

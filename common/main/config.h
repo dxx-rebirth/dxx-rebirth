@@ -32,8 +32,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "mission.h"
 #include "pack.h"
-#include "compiler-array.h"
 #include "ntstring.h"
+#include <array>
 
 namespace dcx {
 struct CCfg : prohibit_void_ptr<CCfg>

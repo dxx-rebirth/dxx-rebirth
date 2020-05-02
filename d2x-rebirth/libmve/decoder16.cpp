@@ -15,7 +15,7 @@
 #include "console.h"
 
 #include "dxxsconf.h"
-#include "compiler-array.h"
+#include <array>
 #include <utility>
 
 static unsigned short *backBuf1, *backBuf2;

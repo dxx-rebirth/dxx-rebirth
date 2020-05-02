@@ -19,9 +19,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include "rle.h"
-#include "compiler-array.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
+#include <array>
 
 namespace dcx {
 

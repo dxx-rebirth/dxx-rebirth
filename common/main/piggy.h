@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-array.h"
+#include <array>
 
 #ifdef dsx
 namespace dsx {

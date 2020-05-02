@@ -172,7 +172,7 @@ constexpr std::integral_constant<unsigned, 254> MAX_SOUNDS{};
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "dxxsconf.h"
-#include "compiler-array.h"
+#include <array>
 
 extern std::array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
 

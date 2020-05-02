@@ -13,7 +13,7 @@
 #include <cctype>
 #include <cstddef>
 #include "dxxsconf.h"
-#include "compiler-array.h"
+#include <array>
 
 #define CALLSIGN_LEN                8       // so can use as filename (was: 12)
 

@@ -43,8 +43,8 @@
 #include "palette.h"
 #include "pstypes.h"
 #include "3d.h"
-#include "compiler-array.h"
 #include "ogl_extensions.h"
+#include <array>
 
 #define OGL_TEXFILT_CLASSIC  0
 #define OGL_TEXFILT_UPSCALE  1

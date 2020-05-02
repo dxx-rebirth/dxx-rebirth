@@ -86,7 +86,7 @@ enum bm_mode : uint8_t
 #ifdef __cplusplus
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-array.h"
+#include <array>
 
 struct grs_bitmap;
 struct grs_canvas;

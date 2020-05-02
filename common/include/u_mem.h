@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MEM_K 1.5	// Dynamic array growth factor
 
 #ifdef DEBUG_BIAS_MEMORY_ALLOCATIONS
-#include "compiler-array.h"
+#include <array>
 #define DXX_DEBUG_BIAS_MEMORY_ALLOCATION (sizeof(std::array<double, 2>))
 #else
 #define DXX_DEBUG_BIAS_MEMORY_ALLOCATION (0)

@@ -23,7 +23,7 @@ struct g3s_point;
 #include "dsx-ns.h"
 #include "3d.h"
 #include "globvars.h"
-#include "compiler-array.h"
+#include <array>
 
 namespace dcx {
 

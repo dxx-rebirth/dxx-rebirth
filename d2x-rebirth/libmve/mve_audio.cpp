@@ -6,7 +6,7 @@
  */
 #include "mve_audio.h"
 #include "dxxsconf.h"
-#include "compiler-array.h"
+#include <array>
 
 constexpr std::array<int, 256> audio_exp_table{
 {

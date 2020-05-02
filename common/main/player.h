@@ -35,7 +35,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <algorithm>
 #include "pack.h"
 #include "dxxsconf.h"
-#include "compiler-array.h"
 #include "objnum.h"
 #include "player-callsign.h"
 
@@ -43,6 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-segment.h"
 #include "player-flags.h"
 #include "valptridx.h"
+#include <array>
 
 namespace dcx {
 

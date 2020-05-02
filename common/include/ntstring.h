@@ -4,8 +4,8 @@
 #include <cstddef>
 #include <cstdint>
 #include "dxxsconf.h"
-#include "compiler-array.h"
 #include "pack.h"
+#include <array>
 
 template <std::size_t L>
 class ntstring :
