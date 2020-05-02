@@ -35,7 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
-#include "compiler-exchange.h"
+#include <utility>
 
 #ifdef dsx
 namespace dcx {
@@ -177,7 +177,7 @@ public:
 	}
 	void reset(int c = invalid_channel)
 	{
-		stop(exchange(channel, c));
+		stop(std::exchange(channel, c));
 	}
 	operator int() const = delete;
 	explicit operator bool() const

@@ -938,7 +938,7 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 					/* FIXME: this event should be sent to other players
 					 * so that they remove the marker.
 					 */
-					obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(exchange(mo, object_none)));
+					obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(std::exchange(mo, object_none)));
 					MarkerState.message[HighlightMarker] = {};
 					MarkerState.HighlightMarker = UINT8_MAX;
 				}

@@ -64,9 +64,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "args.h"
 
-#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include <utility>
 
 using std::min;
 
@@ -1865,7 +1865,7 @@ static void sb_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_scal
 		int w, h;
 		gr_get_string_size(game_font, killed_str, &w, &h, nullptr);
 		const auto x = scaled_score_right - w - FSPACX(1);
-		gr_rect(canvas, exchange(last_x[multires_gauge_graphic.is_hires()], x), scaled_y, scaled_score_right, scaled_y + LINE_SPACING(game_font, game_font), color);
+		gr_rect(canvas, std::exchange(last_x[multires_gauge_graphic.is_hires()], x), scaled_y, scaled_score_right, scaled_y + LINE_SPACING(game_font, game_font), color);
 		gr_string(canvas, game_font, x, scaled_y, killed_str, w, h);
 		return;
 	}

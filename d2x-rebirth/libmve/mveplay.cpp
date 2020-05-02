@@ -41,7 +41,6 @@
 #include "console.h"
 #include "u_mem.h"
 
-#include "compiler-exchange.h"
 #include "compiler-make_unique.h"
 
 #define MVE_OPCODE_ENDOFSTREAM          0x00

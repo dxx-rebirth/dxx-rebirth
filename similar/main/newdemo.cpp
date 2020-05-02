@@ -96,9 +96,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include <utility>
 
 #define ND_EVENT_EOF				0	// EOF
 #define ND_EVENT_START_DEMO			1	// Followed by 16 character, NULL terminated filename of .SAV file to use
@@ -1358,7 +1358,7 @@ void newdemo_record_player_energy(int energy)
 		return;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_PLAYER_ENERGY );
-	nd_write_byte(static_cast<int8_t>(exchange(nd_record_v_player_energy, energy)));
+	nd_write_byte(static_cast<int8_t>(std::exchange(nd_record_v_player_energy, energy)));
 	nd_write_byte(static_cast<int8_t>(energy));
 }
 
@@ -1371,7 +1371,7 @@ void newdemo_record_player_afterburner(fix afterburner)
 		return;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_PLAYER_AFTERBURNER );
-	nd_write_byte(static_cast<int8_t>(exchange(nd_record_v_player_afterburner, afterburner) >> 9));
+	nd_write_byte(static_cast<int8_t>(std::exchange(nd_record_v_player_afterburner, afterburner) >> 9));
 	nd_write_byte(static_cast<int8_t>(afterburner >> 9));
 }
 #endif
@@ -1384,7 +1384,7 @@ void newdemo_record_player_shields(int shield)
 		return;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_PLAYER_SHIELD );
-	nd_write_byte(static_cast<int8_t>(exchange(nd_record_v_player_shields, shield)));
+	nd_write_byte(static_cast<int8_t>(std::exchange(nd_record_v_player_shields, shield)));
 	nd_write_byte(static_cast<int8_t>(shield));
 }
 
@@ -1394,7 +1394,7 @@ void newdemo_record_player_flags(uint flags)
 		return;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_PLAYER_FLAGS );
-	nd_write_int((static_cast<short>(exchange(nd_record_v_player_flags, flags)) << 16) | static_cast<short>(flags));
+	nd_write_int((static_cast<short>(std::exchange(nd_record_v_player_flags, flags)) << 16) | static_cast<short>(flags));
 }
 
 void newdemo_record_player_weapon(int weapon_type, int weapon_num)

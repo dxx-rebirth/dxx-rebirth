@@ -37,7 +37,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-array.h"
-#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
 
@@ -403,7 +402,7 @@ void bm_rle_window::apply(const uint_fast32_t w, const uint_fast32_t h, const ui
 	// No interlacing, copy the whole buffer.
 	for (uint_fast32_t i = h; i; --i)
 	{
-		f(exchange(dbits, dbits + bm_rowsize), src_bits, sx, w);
+		f(std::exchange(dbits, dbits + bm_rowsize), src_bits, sx, w);
 		advance_src_bits();
 	}
 }
@@ -452,7 +451,7 @@ static void scale_line(const uint8_t *in, uint8_t *out, const uint_fast32_t ilen
 			++i;
 		}
 		auto e = out + i;
-		std::fill(exchange(out, e), e, *in++);
+		std::fill(std::exchange(out, e), e, *in++);
 	}
 }
 

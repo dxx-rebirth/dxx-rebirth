@@ -79,11 +79,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 //end addition -MM
 
-#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "segiter.h"
 #include "d_enumerate.h"
 #include "d_range.h"
+#include <utility>
 
 using std::min;
 
@@ -4436,7 +4436,7 @@ static void pae_aux(const vcsegptridx_t segnum, const player_awareness_type_t ty
 // ----------------------------------------------------------------------------------
 static void process_awareness_events(fvcsegptridx &vcsegptridx, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState, awareness_t &New_awareness)
 {
-	const auto Num_awareness_events = exchange(LevelUniqueRobotAwarenessState.Num_awareness_events, 0);
+	const auto Num_awareness_events = std::exchange(LevelUniqueRobotAwarenessState.Num_awareness_events, 0);
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
 	{
 		New_awareness.fill(player_awareness_type_t::PA_NONE);

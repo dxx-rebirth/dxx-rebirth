@@ -1563,7 +1563,7 @@ void DropSecondaryWeapon (player_info &player_info)
 //	Do seismic disturbance stuff including the looping sounds with changing volume.
 void do_seismic_stuff(void)
 {
-	const auto stv_save = exchange(LevelUniqueSeismicState.Seismic_tremor_volume, 0);
+	const auto stv_save = std::exchange(LevelUniqueSeismicState.Seismic_tremor_volume, 0);
 	LevelUniqueSeismicState.Seismic_tremor_magnitude = 0;
 
 	rock_the_mine_frame();

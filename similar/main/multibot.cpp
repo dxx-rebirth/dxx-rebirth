@@ -403,7 +403,7 @@ int multi_send_robot_frame(int sent)
 		{
 			if (robot_send_pending[sending])
 			{
-				multi_send_robot_position_sub(vmobjptridx(robot_controlled[sending]), (exchange(robot_send_pending[sending], 0) > 1));
+				multi_send_robot_position_sub(vmobjptridx(robot_controlled[sending]), (std::exchange(robot_send_pending[sending], 0) > 1));
 			}
 
 			if (robot_fired[sending])

@@ -53,11 +53,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "d_enumerate.h"
 
-#include "compiler-exchange.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "partial_range.h"
+#include <utility>
 
 static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t segp, unsigned side, unsigned type);
 
@@ -465,7 +465,7 @@ static window_event_result wall_dialog_created(UI_DIALOG *const w, wall_dialog *
 void close_wall_window()
 {
 	if (MainWindow)
-		ui_close_dialog(exchange(MainWindow, nullptr));
+		ui_close_dialog(std::exchange(MainWindow, nullptr));
 }
 
 window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)

@@ -93,11 +93,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-exchange.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "partial_range.h"
+#include <utility>
 
 // Menu IDs...
 enum MENUS
@@ -255,7 +255,7 @@ void show_menus(void)
 		// window_exists could return a false positive if a new window was created
 		// with the same pointer value as the deleted one, so killing window_exists (call and function)
 		// if (window_exists(i))
-		window_set_visible(exchange(i, nullptr), 1);
+		window_set_visible(std::exchange(i, nullptr), 1);
 	}
 }
 

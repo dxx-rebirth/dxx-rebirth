@@ -765,7 +765,7 @@ void fuelcen_check_for_hoard_goal(object &plrobj, const shared_segment &segp)
 		if (auto &hoard_orbs = player_info.hoard.orbs)
 		{
 				player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;
-			multi_send_orb_bonus(Player_num, exchange(hoard_orbs, 0));
+			multi_send_orb_bonus(Player_num, std::exchange(hoard_orbs, 0));
       }
 	}
 

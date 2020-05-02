@@ -421,6 +421,11 @@ class ConfigureTests(_ConfigureTests):
 template <unsigned U>
 int a = U + 1;
 ''', ''),
+		Cxx14RequiredFeature('std::exchange', '''
+#include <utility>
+''', '''
+	argc |= std::exchange(argc, 5);
+'''),
 		Cxx14RequiredFeature('std::index_sequence', '''
 #include <utility>
 ''', '''
@@ -2166,13 +2171,6 @@ struct A {
 '''
 		if not self.check_cxx11_addressof(context, text=f, main=main) and not self.check_boost_addressof(context, text=f, main=main):
 			raise SCons.Errors.StopError("C++ compiler does not support free function addressof().")
-	@_custom_test
-	def check_cxx14_exchange(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_EXCHANGE']}):
-		f = '''
-#include "compiler-exchange.h"
-'''
-		self.Cxx14Compile(context, text=f, main='return exchange(argc, 5)', msg='for C++14 exchange', successflags=_successflags)
-	implicit_tests.append(_implicit_test.RecordedTest('check_cxx14_tree_integer_sequence', "assume C++14 integer_sequence handles sequences longer than max template depth"))
 
 	@_custom_test
 	def check_cxx14_make_unique(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_MAKE_UNIQUE']}):

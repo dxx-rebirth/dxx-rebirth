@@ -38,9 +38,10 @@ std::unique_ptr<int[]> j;`)
 
 # Required C++14 features
 * [`std::index_sequence`][cppr:cpp/utility/integer_sequence] is a compile-time sequence of integers.
+* [`std::exchange`][cppr:cpp/utility/exchange] is a utility to update a variable, and yield the value it had before the update
 
 # Optional C++11/C++14 features
-DXX-Rebirth code may use C++11 or C++14 features not present in the minimum supported compiler if the feature can be emulated easily (C++11: [inheriting constructors][cppr:cpp/language/using_declaration], [Range-based for][cppr:cpp/language/range-for]; C++14: [`std::exchange`][cppr:cpp/utility/exchange], [`std::make_unique`][cppr:cpp/memory/unique_ptr/make_unique]) or if the feature can be removed by a macro and the removal does not change the correctness of the program (C++11: [rvalue-qualified member methods][scppr:rvalue method]).
+DXX-Rebirth code may use C++11 or C++14 features not present in the minimum supported compiler if the feature can be emulated easily (C++11: [inheriting constructors][cppr:cpp/language/using_declaration], [Range-based for][cppr:cpp/language/range-for]; C++14: [`std::make_unique`][cppr:cpp/memory/unique_ptr/make_unique]) or if the feature can be removed by a macro and the removal does not change the correctness of the program (C++11: [rvalue-qualified member methods][scppr:rvalue method]).
 
 ## Optional C++11 features
 ### Emulated if absent
@@ -59,10 +60,6 @@ Use of the `range_for` macro continues because it improves readability.
 When the rvalue may or may not hold a valid pointer, it must be saved to an lvalue, tested for a valid pointer, and used only if a valid pointer is found.
 
 ## Optional C++14 features
-* [`std::exchange`][cppr:cpp/utility/exchange] is a convenience utility function.
-If `std::exchange` is available, then [`common/include/compiler-exchange.h`][src:compiler-exchange.h] uses `using std::exchange;` to bring `exchange` into the global namespace.
-If `std::exchange` is not available, then [`common/include/compiler-exchange.h`][src:compiler-exchange.h] provides a simple implementation of `exchange` in the global namespace.
-
 * [`std::make_unique`][cppr:cpp/memory/unique_ptr/make_unique] is a convenience utility function.
 If `std::make_unique` is available, then [`common/include/compiler-make_unique.h`][src:compiler-make_unique.h] uses `using std::make_unique;` to bring `make_unique` into the global namespace.
 If `std::make_unique` is not available, then [`common/include/compiler-make_unique.h`][src:compiler-make_unique.h] provides a simple implementation of `make_unique` in the global namespace.
@@ -87,5 +84,4 @@ If `std::make_unique` is not available, then [`common/include/compiler-make_uniq
 [cppr:cpp/language/using_declaration]: https://en.cppreference.com/w/cpp/language/using_declaration
 [cppr:cpp/language/range-for]: https://en.cppreference.com/w/cpp/language/range-for
 [cppr:cpp/language/static_assert]: https://en.cppreference.com/w/cpp/language/static_assert
-[src:compiler-exchange.h]: ../common/include/compiler-exchange.h
 [src:compiler-make_unique.h]: ../common/include/compiler-make_unique.h

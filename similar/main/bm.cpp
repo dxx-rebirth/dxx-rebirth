@@ -422,7 +422,7 @@ static void bm_free_extra_models()
 	Exit_models_loaded = false;
 	const auto base = std::min(N_D2_POLYGON_MODELS.value, exit_modelnum);
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	range_for (auto &p, partial_range(Polygon_models, base, exchange(N_polygon_models, base)))
+	range_for (auto &p, partial_range(Polygon_models, base, std::exchange(N_polygon_models, base)))
 		free_model(p);
 }
 

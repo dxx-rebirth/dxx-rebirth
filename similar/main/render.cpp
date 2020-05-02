@@ -1529,7 +1529,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 
 			{
 				//int n_expl_objs=0,expl_objs[5],i;
-				const auto save_linear_depth = exchange(Max_linear_depth, Max_linear_depth_objects);
+				const auto save_linear_depth = std::exchange(Max_linear_depth, Max_linear_depth_objects);
 				range_for (auto &v, srsm.objects)
 				{
 					do_render_object(canvas, LevelUniqueLightState, vmobjptridx(v.objnum), window);	// note link to above else

@@ -88,8 +88,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_range.h"
 
 #include "compiler-begin.h"
-#include "compiler-exchange.h"
 #include "partial_range.h"
+#include <utility>
 
 constexpr std::integral_constant<int8_t, -1> owner_none{};
 
@@ -5473,10 +5473,10 @@ array<grs_main_bitmap, 2> Orb_icons;
 void hoard_resources_type::reset()
 {
 	if (bm_idx != invalid_bm_idx)
-		d_free(GameBitmaps[exchange(bm_idx, invalid_bm_idx)].bm_mdata);
+		d_free(GameBitmaps[std::exchange(bm_idx, invalid_bm_idx)].bm_mdata);
 	if (snd_idx != invalid_snd_idx)
 	{
-		const auto idx = exchange(snd_idx, invalid_snd_idx);
+		const auto idx = std::exchange(snd_idx, invalid_snd_idx);
 		range_for (auto &i, partial_range(GameSounds, idx, idx + 4))
 			d_free(i.data);
 	}

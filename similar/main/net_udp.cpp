@@ -65,10 +65,10 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 #include "compiler-cf_assert.h"
-#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "compiler-lengthof.h"
 #include "partial_range.h"
+#include <utility>
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define UDP_REQ_ID "D1XR" // ID string for a request packet
@@ -221,7 +221,7 @@ public:
 	void reset()
 	{
 		if (s != INVALID_SOCKET)
-			closesocket(exchange(s, INVALID_SOCKET));
+			closesocket(std::exchange(s, INVALID_SOCKET));
 	}
 	explicit operator bool() const { return s != INVALID_SOCKET; }
 	explicit operator bool() { return static_cast<bool>(*const_cast<const RAIIsocket *>(this)); }

@@ -107,10 +107,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-array.h"
-#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "partial_range.h"
+#include <utility>
 
 #include <SDL.h>
 
@@ -247,17 +247,17 @@ static void do_weapon_n_item_stuff(object_array &Objects)
 
 	if (Controls.state.cycle_primary > 0)
 	{
-		for (uint_fast32_t i = exchange(Controls.state.cycle_primary, 0); i--;)
+		for (uint_fast32_t i = std::exchange(Controls.state.cycle_primary, 0); i--;)
 			CyclePrimary(player_info);
 	}
 	if (Controls.state.cycle_secondary > 0)
 	{
-		for (uint_fast32_t i = exchange(Controls.state.cycle_secondary, 0); i--;)
+		for (uint_fast32_t i = std::exchange(Controls.state.cycle_secondary, 0); i--;)
 			CycleSecondary(player_info);
 	}
 	if (Controls.state.select_weapon > 0)
 	{
-		const auto select_weapon = exchange(Controls.state.select_weapon, 0) - 1;
+		const auto select_weapon = std::exchange(Controls.state.select_weapon, 0) - 1;
 		const auto weapon_num = select_weapon > 4 ? select_weapon - 5 : select_weapon;
 		if (select_weapon > 4)
 			do_secondary_weapon_select(player_info, static_cast<secondary_weapon_index_t>(select_weapon - 5));
@@ -267,7 +267,7 @@ static void do_weapon_n_item_stuff(object_array &Objects)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (auto &headlight = Controls.state.headlight)
 	{
-		if (exchange(headlight, 0) & 1)
+		if (std::exchange(headlight, 0) & 1)
 			toggle_headlight_active(plrobj);
 	}
 #endif
@@ -278,7 +278,7 @@ static void do_weapon_n_item_stuff(object_array &Objects)
 	//	Drop proximity bombs.
 	if (Controls.state.drop_bomb > 0)
 	{
-		for (uint_fast32_t i = exchange(Controls.state.drop_bomb, 0); i--;)
+		for (uint_fast32_t i = std::exchange(Controls.state.drop_bomb, 0); i--;)
 		do_missile_firing(1);
 	}
 #if defined(DXX_BUILD_DESCENT_II)

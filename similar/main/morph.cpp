@@ -104,7 +104,7 @@ submodel_data parse_model_data_header(const polymodel &pm, const unsigned submod
 	const auto pnverts = data++;
 
 	const uint16_t startpoint = (type == 7)
-		? *exchange(data, data + 2)		//get start point number, skip pad
+		? *std::exchange(data, data + 2)		//get start point number, skip pad
 		: (type == 1)
 		? 0				//start at zero
 		: throw invalid_morph_model_type(type);

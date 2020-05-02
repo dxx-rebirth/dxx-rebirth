@@ -46,8 +46,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "config.h"
 
 #include "compiler-begin.h"
-#include "compiler-exchange.h"
 #include "compiler-range_for.h"
+#include <utility>
 
 using std::max;
 
@@ -103,7 +103,7 @@ static void digi_kill_sound(sound_object &s)
 	s.flags = 0;	// Mark as dead, so some other sound can use this sound
 	if (s.channel > -1)	{
 		N_active_sound_objects--;
-		digi_stop_sound(exchange(s.channel, -1));
+		digi_stop_sound(std::exchange(s.channel, -1));
 	}
 }
 

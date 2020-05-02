@@ -60,13 +60,13 @@
 #include "object.h"
 #include "args.h"
 
-#include "compiler-exchange.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "partial_range.h"
 
 #include <algorithm>
+#include <utility>
 using std::max;
 
 //change to 1 for lots of spew.
@@ -1833,7 +1833,7 @@ static void ogl_freetexture(ogl_texture &gltexture)
 void ogl_freebmtexture(grs_bitmap &bm)
 {
 	if (auto &gltexture = bm.gltexture)
-		ogl_freetexture(*exchange(gltexture, nullptr));
+		ogl_freetexture(*std::exchange(gltexture, nullptr));
 }
 
 const ogl_colors::array_type ogl_colors::white = {{

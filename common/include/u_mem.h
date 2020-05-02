@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <memory>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-exchange.h"
+#include <utility>
 
 #define MEM_K 1.5	// Dynamic array growth factor
 
@@ -112,7 +112,7 @@ template <typename T>
 static inline void d_free(T *&ptr)
 {
 	static_assert((std::is_same<T, void>::value || std::is_pod<T>::value), "d_free cannot free non-POD");
-	mem_free(exchange(ptr, nullptr));
+	mem_free(std::exchange(ptr, nullptr));
 }
 
 template <typename T>

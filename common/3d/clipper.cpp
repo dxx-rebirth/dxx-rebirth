@@ -10,7 +10,6 @@
 #include "clipper.h"
 #include "dxxerror.h"
 
-#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 
 namespace dcx {
@@ -117,7 +116,7 @@ void clip_line(g3s_point *&p0,g3s_point *&p1,const uint_fast8_t codes_or, tempor
 
 			if (p0->p3_codes & plane_flag)
 				std::swap(p0, p1);
-			const auto old_p1 = exchange(p1, &clip_edge(plane_flag,p0,p1,tp));
+			const auto old_p1 = std::exchange(p1, &clip_edge(plane_flag,p0,p1,tp));
 			if (old_p1->p3_flags & PF_TEMP_POINT)
 				tp.free_temp_point(old_p1);
 		}

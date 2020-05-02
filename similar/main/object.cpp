@@ -79,10 +79,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "partial_range.h"
+#include <utility>
 
 using std::min;
 using std::max;
@@ -694,7 +694,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 	}
 
 #if !DXX_USE_OGL
-	const auto mld_save = exchange(Max_linear_depth, Max_linear_depth_objects);
+	const auto mld_save = std::exchange(Max_linear_depth, Max_linear_depth_objects);
 #endif
 
 	bool alpha = false;
@@ -1455,7 +1455,7 @@ window_event_result dead_player_frame()
 			if (Player_dead_state != player_dead_state::exploded)
 			{
 				auto &player_info = get_local_plrobj().ctype.player_info;
-				const auto hostages_lost = exchange(player_info.mission.hostages_on_board, 0);
+				const auto hostages_lost = std::exchange(player_info.mission.hostages_on_board, 0);
 
 				if (hostages_lost > 1)
 					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, hostages_lost);
@@ -2342,7 +2342,7 @@ void obj_detach_one(object_array &Objects, object &sub)
 	}
 
 	const auto use_prev_attach = (sub.ctype.expl_info.prev_attach != object_none);
-	auto &o = *Objects.vmptr(use_prev_attach ? exchange(sub.ctype.expl_info.prev_attach, object_none) : sub.ctype.expl_info.attach_parent);
+	auto &o = *Objects.vmptr(use_prev_attach ? std::exchange(sub.ctype.expl_info.prev_attach, object_none) : sub.ctype.expl_info.attach_parent);
 	auto &update_attach = use_prev_attach ? o.ctype.expl_info.next_attach : o.attached_obj;
 	assert(Objects.vcptr(update_attach) == &sub);
 	update_attach = sub.ctype.expl_info.next_attach;

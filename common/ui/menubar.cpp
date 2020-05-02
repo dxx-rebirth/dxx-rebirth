@@ -34,9 +34,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "func.h"
 #include "dxxerror.h"
 
-#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include <utility>
 
 namespace dcx {
 
@@ -682,7 +682,7 @@ static window_event_result menubar_handler(window *, const d_event &event, MENU 
 		{
 			if (i.wind)
 			{
-				window_close(exchange(i.wind, nullptr));
+				window_close(std::exchange(i.wind, nullptr));
 			}
 		}
 		
@@ -895,7 +895,7 @@ void menubar_close()
 {
 	if (!Menu[0].wind)
 		return;
-	window_close(exchange(Menu[0].wind, nullptr));
+	window_close(std::exchange(Menu[0].wind, nullptr));
 }
 
 }

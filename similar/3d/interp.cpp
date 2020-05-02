@@ -357,7 +357,7 @@ public:
 			return;
 		//calculate light from surface normal
 		const auto &&light = (glow_values && glow_num < glow_values->size())
-			? get_glow_light((*glow_values)[exchange(glow_num, -1)]) //yes glow
+			? get_glow_light((*glow_values)[std::exchange(glow_num, -1)]) //yes glow
 			: get_noglow_light(p); //no glow
 		//now poke light into l values
 		array<g3s_uvl, MAX_POINTS_PER_POLY> uvl_list;

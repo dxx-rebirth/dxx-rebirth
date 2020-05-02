@@ -35,7 +35,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fmtcheck.h"
 #include "pack.h"
 #include "compiler-array.h"
-#include "compiler-exchange.h"
 
 struct grs_point
 {

@@ -66,10 +66,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 
 #include "segiter.h"
-#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "partial_range.h"
+#include <utility>
 
 #if DXX_USE_EDITOR
 #include "editor/editor.h"
@@ -780,7 +780,7 @@ static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *const aip, co
 	if (aip->path_length > 3)
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 	if ((aip->path_length > 0) && (Point_segs[aip->hide_index + aip->path_length - 1].segnum != goal_seg)) {
-		const unsigned goal_text_index = exchange(BuddyState.Escort_goal_object, ESCORT_GOAL_SCRAM) - 1;
+		const unsigned goal_text_index = std::exchange(BuddyState.Escort_goal_object, ESCORT_GOAL_SCRAM) - 1;
 		BuddyState.Looking_for_marker = UINT8_MAX;
 		auto &plr = get_player_controlling_guidebot(BuddyState, Players);
 		if (plr.objnum == object_none)
@@ -1827,7 +1827,7 @@ void drop_stolen_items(const vcobjptr_t objp)
 	{
 		if (i != 255)
 		{
-			drop_powerup(Vclip, exchange(i, 255), 1, objp->mtype.phys_info.velocity, objp->pos, segp, true);
+			drop_powerup(Vclip, std::exchange(i, 255), 1, objp->mtype.phys_info.velocity, objp->pos, segp, true);
 		}
 	}
 
@@ -1869,7 +1869,7 @@ window_event_result escort_menu::event_key_command(const d_event &event)
 		case KEY_ENTER:
 			return window_event_result::close;
 		case KEY_T: {
-			const auto temp = exchange(BuddyState.Buddy_messages_suppressed, 0);
+			const auto temp = std::exchange(BuddyState.Buddy_messages_suppressed, 0);
 			buddy_message("Messages %s.", temp ? "enabled" : "suppressed");
 			BuddyState.Buddy_messages_suppressed = ~temp;
 			return window_event_result::close;
