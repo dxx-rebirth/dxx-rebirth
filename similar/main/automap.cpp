@@ -84,9 +84,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "physics.h"
 
-#include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include <memory>
 
 #define LEAVE_TIME 0x4000
 

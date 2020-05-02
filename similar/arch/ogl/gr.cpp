@@ -72,8 +72,7 @@
 #endif
 
 #include "ogl_sync.h"
-
-#include "compiler-make_unique.h"
+#include <memory>
 
 using std::min;
 using std::max;

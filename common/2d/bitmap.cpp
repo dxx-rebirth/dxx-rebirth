@@ -35,8 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 #include "bitmap.h"
-
-#include "compiler-make_unique.h"
+#include <memory>
 
 namespace dcx {
 

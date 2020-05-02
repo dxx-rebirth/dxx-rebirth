@@ -52,8 +52,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "bm.h"
 
-#include "compiler-make_unique.h"
 #include "partial_range.h"
+#include <memory>
 
 namespace dcx {
 unsigned N_polygon_models = 0;

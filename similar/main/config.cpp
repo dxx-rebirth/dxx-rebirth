@@ -43,8 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "physfsx.h"
 #include "nvparse.h"
-
-#include "compiler-make_unique.h"
+#include <memory>
 
 namespace dcx {
 CCfg CGameCfg;

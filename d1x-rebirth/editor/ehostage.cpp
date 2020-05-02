@@ -52,8 +52,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "u_mem.h"
 #include "event.h"
-
-#include "compiler-make_unique.h"
+#include <memory>
 
 //-------------------------------------------------------------------------
 // Variables for this module...

@@ -35,8 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "strutil.h"
 #include "args.h"
-
-#include "compiler-make_unique.h"
+#include <memory>
 
 #ifdef GENERATE_BUILTIN_TEXT_TABLE
 #include <ctype.h>

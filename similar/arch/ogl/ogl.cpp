@@ -60,12 +60,12 @@
 #include "object.h"
 #include "args.h"
 
-#include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "partial_range.h"
 
 #include <algorithm>
+#include <memory>
 #include <utility>
 using std::max;
 

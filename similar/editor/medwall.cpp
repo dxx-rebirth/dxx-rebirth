@@ -53,10 +53,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "d_enumerate.h"
 
-#include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "partial_range.h"
+#include <memory>
 #include <utility>
 
 static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t segp, unsigned side, unsigned type);

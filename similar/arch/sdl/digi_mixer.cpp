@@ -36,8 +36,7 @@
 #include "maths.h"
 #include "piggy.h"
 #include "u_mem.h"
-
-#include "compiler-make_unique.h"
+#include <memory>
 
 #define MIX_DIGI_DEBUG 0
 #define MIX_OUTPUT_FORMAT	AUDIO_S16

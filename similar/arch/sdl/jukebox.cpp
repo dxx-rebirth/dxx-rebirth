@@ -24,8 +24,8 @@
 #include "physfs_list.h"
 #include "digi.h"
 
-#include "compiler-make_unique.h"
 #include "partial_range.h"
+#include <memory>
 
 namespace dcx {
 

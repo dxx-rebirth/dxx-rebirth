@@ -41,8 +41,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
-#include "compiler-make_unique.h"
 #include "partial_range.h"
+#include <memory>
 
 //Internal constants and structures for this library
 

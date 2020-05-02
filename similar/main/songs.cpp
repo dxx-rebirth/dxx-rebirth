@@ -44,8 +44,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "physfsx.h"
 #include "game.h"
-#include "compiler-make_unique.h"
 #include "console.h"
+#include <memory>
 
 namespace dcx {
 

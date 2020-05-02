@@ -56,9 +56,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "u_mem.h"
 
-#include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
+#include <memory>
 
 static int GoodyNextID();
 static int GoodyPrevID();

@@ -37,8 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "timer.h"
 #include "dxxerror.h"
-
-#include "compiler-make_unique.h"
+#include <memory>
 
 namespace dcx {
 

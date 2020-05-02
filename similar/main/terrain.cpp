@@ -43,8 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "segment.h"
 #include "terrain.h"
-
-#include "compiler-make_unique.h"
+#include <memory>
 
 #define GRID_MAX_SIZE   64
 #define GRID_SCALE      i2f(2*20)

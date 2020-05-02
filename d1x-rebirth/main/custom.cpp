@@ -23,9 +23,9 @@
 #include "physfsx.h"
 
 #include "compiler-begin.h"
-#include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include <memory>
 
 //#define D2TMAP_CONV // used for testing
 

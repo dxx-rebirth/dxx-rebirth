@@ -58,10 +58,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "null_sentinel_iterator.h"
 
-#include "compiler-make_unique.h"
 #include "compiler-poison.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
+#include <memory>
 
 #define BIMD1_BRIEFING_FILE		"briefing.txb"
 

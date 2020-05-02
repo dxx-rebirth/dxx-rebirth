@@ -27,8 +27,8 @@
 #include "cvar.h"
 #include "physfsx.h"
 
-#include "compiler-make_unique.h"
 #include "compiler-range_for.h"
+#include <memory>
 
 namespace {
 

@@ -40,8 +40,7 @@
 #include "args.h"
 #include "console.h"
 #include "u_mem.h"
-
-#include "compiler-make_unique.h"
+#include <memory>
 
 #define MVE_OPCODE_ENDOFSTREAM          0x00
 #define MVE_OPCODE_ENDOFCHUNK           0x01

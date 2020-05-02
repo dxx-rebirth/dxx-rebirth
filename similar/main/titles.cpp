@@ -67,9 +67,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "strutil.h"
 
-#include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include <memory>
 
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr std::true_type EMULATING_D1{};

@@ -57,8 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #endif
 #include "piggy.h"
-
-#include "compiler-make_unique.h"
+#include <memory>
 
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14

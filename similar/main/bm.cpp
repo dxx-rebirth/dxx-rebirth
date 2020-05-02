@@ -66,9 +66,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
-#include "compiler-make_unique.h"
 #include "d_range.h"
 #include "partial_range.h"
+#include <memory>
 
 std::array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
 

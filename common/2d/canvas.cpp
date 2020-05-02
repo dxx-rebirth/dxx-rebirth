@@ -26,8 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
-
-#include "compiler-make_unique.h"
+#include <memory>
 
 namespace dcx {
 

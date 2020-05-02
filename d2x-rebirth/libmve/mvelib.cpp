@@ -13,8 +13,7 @@
 #endif
 
 #include "mvelib.h"
-
-#include "compiler-make_unique.h"
+#include <memory>
 
 static const char  MVE_HEADER[]  = "Interplay MVE File\x1A";
 constexpr short MVE_HDRCONST1 = 0x001A;
