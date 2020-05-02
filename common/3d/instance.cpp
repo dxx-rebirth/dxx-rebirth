@@ -35,11 +35,9 @@ int instance_depth = 0;
 //if matrix==NULL, don't modify matrix.  This will be like doing an offset   
 void g3_start_instance_matrix()
 {
-	assert(instance_depth < instance_stack.size());
-
-	instance_stack[instance_depth].m = View_matrix;
-	instance_stack[instance_depth].p = View_position;
-	instance_depth++;
+	auto &s = instance_stack.at(instance_depth++);
+	s.m = View_matrix;
+	s.p = View_position;
 }
 
 void g3_start_instance_matrix(const vms_vector &pos, const vms_matrix &orient)
