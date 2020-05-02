@@ -565,7 +565,7 @@ static int init_subtitles(d_subtitle_state &SubtitleState, const char *const fil
 
 	size = PHYSFS_fileLength(ifile);
 
-	const auto subtitle_raw_data = (SubtitleState.subtitle_raw_data = make_unique<char[]>(size + 1)).get();
+	const auto subtitle_raw_data = (SubtitleState.subtitle_raw_data = std::make_unique<char[]>(size + 1)).get();
 	read_count = PHYSFS_read(ifile, subtitle_raw_data, 1, size);
 	ifile.reset();
 

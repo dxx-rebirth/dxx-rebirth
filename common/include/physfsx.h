@@ -244,7 +244,7 @@ struct PHYSFSX_gets_line_t
 	line_t &line() { return *m_line.get(); }
 	line_t &next()
 	{
-		m_line = make_unique<line_t>();
+		m_line = std::make_unique<line_t>();
 		return *m_line.get();
 	}
 #else
@@ -269,7 +269,7 @@ struct PHYSFSX_gets_line_t
 template <>
 struct PHYSFSX_gets_line_t<0>
 {
-#define DXX_ALLOCATE_PHYSFS_LINE(n)	make_unique<char[]>(n)
+#define DXX_ALLOCATE_PHYSFS_LINE(n)	std::make_unique<char[]>(n)
 	std::unique_ptr<char[]> m_line;
 	std::size_t m_length;
 	PHYSFSX_gets_line_t(std::size_t n) :

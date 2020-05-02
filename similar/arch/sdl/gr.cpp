@@ -176,7 +176,7 @@ int gr_init()
 		Error("SDL library video initialisation failed: %s.",SDL_GetError());
 	}
 
-	grd_curscreen = make_unique<grs_screen>();
+	grd_curscreen = std::make_unique<grs_screen>();
 	*grd_curscreen = {};
 
 	if (!CGameCfg.WindowMode && !CGameArg.SysWindow)

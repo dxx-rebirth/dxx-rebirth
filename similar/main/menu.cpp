@@ -1924,7 +1924,7 @@ static int select_file_recursive2(const char *title, const std::array<char, PATH
 	const char *sep = PHYSFS_getDirSeparator();
 	std::array<char, PATH_MAX> new_path;
 
-	auto b = make_unique<browser>(ext_range);
+	auto b = std::make_unique<browser>(ext_range);
 	b->title = title;
 	b->when_selected = when_selected;
 	b->userdata = userdata;

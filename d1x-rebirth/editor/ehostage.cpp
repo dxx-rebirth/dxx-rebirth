@@ -107,7 +107,7 @@ int do_hostage_dialog()
 	// Close other windows
 	close_all_windows();
 	
-	auto h = make_unique<hostage_dialog>();
+	auto h = std::make_unique<hostage_dialog>();
 
 	// Open a window with a quit button
 	MainWindow = ui_create_dialog(TMAPBOX_X+10, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, hostage_dialog_handler, std::move(h));

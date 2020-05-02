@@ -104,7 +104,7 @@ std::unique_ptr<hmp_file> hmp_open(const char *filename) {
 
 		data -= 12;
 		i.len = data;
-		i.data = make_unique<uint8_t[]>(data);
+		i.data = std::make_unique<uint8_t[]>(data);
 		/* finally, read track data */
 		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, i.data.get(), data, 1) != 1))
 		{

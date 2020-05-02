@@ -253,7 +253,7 @@ static void align_polygon_model_data(polymodel *pm)
 				pm->submodel_ptrs[i] += (cur_new - tmp.get()) - (cur_old - pm->model_data.get());
  	}
 	pm->model_data_size += total_correction;
-	pm->model_data = make_unique<uint8_t[]>(pm->model_data_size);
+	pm->model_data = std::make_unique<uint8_t[]>(pm->model_data_size);
 	memcpy(pm->model_data.get(), tmp.get(), pm->model_data_size);
 }
 #endif //def WORDS_NEED_ALIGNMENT
@@ -398,7 +398,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			
 			case ID_IDTA:		//Interpreter data
 				pm->model_data_size = len;
-				pm->model_data = make_unique<uint8_t[]>(pm->model_data_size);
+				pm->model_data = std::make_unique<uint8_t[]>(pm->model_data_size);
 
 				pof_cfread(pm->model_data.get(),1,len,model_buf);
 
@@ -755,7 +755,7 @@ namespace dsx {
 void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 {
 	const auto model_data_size = pm->model_data_size;
-	pm->model_data = make_unique<uint8_t[]>(model_data_size);
+	pm->model_data = std::make_unique<uint8_t[]>(model_data_size);
 	PHYSFS_read(fp, pm->model_data, sizeof(uint8_t), model_data_size);
 #if DXX_WORDS_NEED_ALIGNMENT
 	align_polygon_model_data(pm);

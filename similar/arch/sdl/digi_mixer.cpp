@@ -176,7 +176,7 @@ static void mixdigi_convert_sound(const unsigned i)
 			return;
 		}
 
-		auto cvtbuf = make_unique<Uint8[]>(dlen * cvt.len_mult);
+		auto cvtbuf = std::make_unique<Uint8[]>(dlen * cvt.len_mult);
 		cvt.buf = cvtbuf.get();
 		cvt.len = dlen;
 		memcpy(cvt.buf, data, dlen);

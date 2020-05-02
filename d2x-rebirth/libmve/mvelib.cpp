@@ -57,7 +57,7 @@ static void _mvestream_reset(MVESTREAM *movie);
 std::unique_ptr<MVEFILE> mvefile_open(void *stream)
 {
     /* create the file */
-	auto file = make_unique<MVEFILE>();
+	auto file = std::make_unique<MVEFILE>();
 	if (! _mvefile_open(file.get(), stream))
     {
 		return nullptr;
@@ -182,7 +182,7 @@ int mvefile_fetch_next_chunk(MVEFILE *movie)
 MVESTREAM_ptr_t mve_open(void *stream)
 {
     /* allocate */
-	auto movie = make_unique<MVESTREAM>();
+	auto movie = std::make_unique<MVESTREAM>();
 
     /* open */
     if (! _mvestream_open(movie.get(), stream))

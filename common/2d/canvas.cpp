@@ -36,7 +36,7 @@ std::unique_ptr<grs_screen> grd_curscreen;  //active screen
 
 grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h)
 {
-	grs_canvas_ptr n = make_unique<grs_main_canvas>();
+	grs_canvas_ptr n = std::make_unique<grs_main_canvas>();
 	unsigned char *pixdata;
 	MALLOC(pixdata, unsigned char, MAX_BMP_SIZE(w, h));
 	gr_init_canvas(*n.get(), pixdata, bm_mode::linear, w, h);
@@ -45,7 +45,7 @@ grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h)
 
 grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas &canv, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-	auto n = make_unique<grs_subcanvas>();
+	auto n = std::make_unique<grs_subcanvas>();
 	gr_init_sub_canvas(*n.get(), canv, x, y, w, h);
 	return n;
 }

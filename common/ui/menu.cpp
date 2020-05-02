@@ -76,10 +76,10 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 	int w, h;
 	int choice;
 
-	auto m = make_unique<menu>();
+	auto m = std::make_unique<menu>();
 	m->num_buttons = NumButtons;
-	m->button_g = make_unique<std::unique_ptr<UI_GADGET_BUTTON>[]>(NumButtons);
-	m->button = make_unique<const char *[]>(NumButtons);
+	m->button_g = std::make_unique<std::unique_ptr<UI_GADGET_BUTTON>[]>(NumButtons);
+	m->button = std::make_unique<const char *[]>(NumButtons);
 	m->choice = &choice;
 
 	button_width = button_height = 0;

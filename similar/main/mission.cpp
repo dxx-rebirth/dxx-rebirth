@@ -250,12 +250,12 @@ static bool null_or_space(char c)
 // Allocate the Level_names, Secret_level_names and Secret_level_table arrays
 static int allocate_levels(void)
 {
-	Level_names = make_unique<d_fname[]>(Last_level);
+	Level_names = std::make_unique<d_fname[]>(Last_level);
 	if (Last_secret_level)
 	{
 		N_secret_levels = -Last_secret_level;
-		Secret_level_names = make_unique<d_fname[]>(N_secret_levels);
-		Secret_level_table = make_unique<ubyte[]>(N_secret_levels);
+		Secret_level_names = std::make_unique<d_fname[]>(N_secret_levels);
+		Secret_level_table = std::make_unique<ubyte[]>(N_secret_levels);
 	}
 	
 	return 1;
@@ -971,7 +971,7 @@ static const char *load_mission(const mle *const mission)
 #if defined(DXX_BUILD_DESCENT_II)
 	close_extra_robot_movie();
 #endif
-	Current_mission = make_unique<Mission>(static_cast<const Mission_path &>(*mission));
+	Current_mission = std::make_unique<Mission>(static_cast<const Mission_path &>(*mission));
 	Current_mission->builtin_hogsize = mission->builtin_hogsize;
 	Current_mission->mission_name.copy_if(mission->mission_name);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1092,7 +1092,7 @@ static const char *load_mission(const mle *const mission)
 					if (*ip && *ip != ';')
 						continue;
 				}
-				Level_names = make_unique<d_fname[]>(n_levels);
+				Level_names = std::make_unique<d_fname[]>(n_levels);
 				range_for (auto &i, unchecked_partial_range(Level_names.get(), n_levels))
 				{
 					if (!PHYSFSX_fgets(buf, mfile))
@@ -1124,8 +1124,8 @@ static const char *load_mission(const mle *const mission)
 						continue;
 				}
 				N_secret_levels = n_levels;
-				Secret_level_names = make_unique<d_fname[]>(n_levels);
-				Secret_level_table = make_unique<uint8_t[]>(n_levels);
+				Secret_level_names = std::make_unique<d_fname[]>(n_levels);
+				Secret_level_table = std::make_unique<uint8_t[]>(n_levels);
 				for (int i=0;i<N_secret_levels;i++) {
 					if (!PHYSFSX_fgets(buf, mfile))
 						break;
@@ -1159,7 +1159,7 @@ static const char *load_mission(const mle *const mission)
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (Current_mission->descent_version == Mission::descent_version_type::descent2a && buf[0] == '!') {
 			if (istok(buf+1,"ham")) {
-				Current_mission->alternate_ham_file = make_unique<d_fname>();
+				Current_mission->alternate_ham_file = std::make_unique<d_fname>();
 				if ((v=get_value(buf))!=NULL) {
 					unsigned l = strlen(v);
 					if (l <= 4)
@@ -1291,7 +1291,7 @@ struct mission_menu_create_state
 	unsigned initial_selection = UINT_MAX;
 	std::unique_ptr<mission_menu_create_state> submenu;
 	mission_menu_create_state(const std::size_t len) :
-		listbox_strings(make_unique<const char *[]>(len))
+		listbox_strings(std::make_unique<const char *[]>(len))
 	{
 	}
 	mission_menu_create_state(mission_menu_create_state &&) = default;
@@ -1329,14 +1329,14 @@ static window_event_result mission_menu_handler(listbox *const lb, const d_event
 				auto &mli = mm->ml[citem];
 				if (!mli.directory.empty())
 				{
-					auto listbox_strings = make_unique<const char *[]>(mli.directory.size() + 1);
+					auto listbox_strings = std::make_unique<const char *[]>(mli.directory.size() + 1);
 					listbox_strings[0] = mm->listbox_go_up;
 					const auto a = [](const mle &m) -> const char * {
 						return m.mission_name;
 					};
 					std::transform(mli.directory.begin(), mli.directory.end(), &listbox_strings[1], a);
 					const auto pls = listbox_strings.get();
-					auto submm = make_unique<mission_menu>(&mli.directory, std::move(listbox_strings), mli.path.c_str(), mm->when_selected, mm);
+					auto submm = std::make_unique<mission_menu>(&mli.directory, std::move(listbox_strings), mli.path.c_str(), mm->when_selected, mm);
 					const auto pmm = submm.get();
 					newmenu_listbox1(pmm->title.get(), pmm->ml.size() + 1, pls, 1, 0, mission_menu_handler, std::move(submm));
 					return window_event_result::handled;
@@ -1374,7 +1374,7 @@ using mission_menu_create_state_ptr = std::unique_ptr<mission_menu_create_state>
 static mission_menu_create_state_ptr prepare_mission_menu_state(const mission_list_type &mission_list, const char *const LastMission, const std::size_t extra_strings)
 {
 	auto mission_name_to_select = LastMission;
-	auto p = make_unique<mission_menu_create_state>(mission_list.size() + extra_strings);
+	auto p = std::make_unique<mission_menu_create_state>(mission_list.size() + extra_strings);
 	auto &create_state = *p.get();
 	auto listbox_strings = create_state.listbox_strings.get();
 	std::fill_n(listbox_strings, extra_strings, nullptr);
@@ -1422,7 +1422,7 @@ int select_mission(const mission_filter_mode mission_filter, const char *message
 		auto &create_state = *create_state_ptr.get();
 		mission_menu *parent_mission_menu;
 		{
-			auto mm = make_unique<mission_menu>(std::move(mission_list), std::move(create_state.listbox_strings), message, when_selected);
+			auto mm = std::make_unique<mission_menu>(std::move(mission_list), std::move(create_state.listbox_strings), message, when_selected);
 			parent_mission_menu = mm.get();
 			newmenu_listbox1(message, parent_mission_menu->ml.size(), parent_mission_menu->listbox_strings.get(), 1, create_state.initial_selection == UINT_MAX ? 0 : create_state.initial_selection, mission_menu_handler, std::move(mm));
 		}
@@ -1434,7 +1434,7 @@ int select_mission(const mission_filter_mode mission_filter, const char *message
 			if (parent_initial_selection >= parent_mission_list_size)
 				break;
 			const auto &substate_mission_list = parent_mission_menu->ml[parent_initial_selection];
-			auto mm = make_unique<mission_menu>(&substate_mission_list.directory, std::move(substate->listbox_strings), substate_mission_list.path.c_str(), when_selected, parent_mission_menu);
+			auto mm = std::make_unique<mission_menu>(&substate_mission_list.directory, std::move(substate->listbox_strings), substate_mission_list.path.c_str(), when_selected, parent_mission_menu);
 			const auto pmm = mm.get();
 			parent_mission_menu = pmm;
 			newmenu_listbox1(pmm->title.get(), pmm->ml.size() + 1, pmm->listbox_strings.get(), 1, substate->initial_selection + 1, mission_menu_handler, std::move(mm));
@@ -1518,12 +1518,12 @@ static int write_mission(void)
 
 void create_new_mission(void)
 {
-	Current_mission = make_unique<Mission>(Mission_path(MISSION_DIR "new_miss", sizeof(MISSION_DIR) - 1));		// limited to eight characters because of savegame format
+	Current_mission = std::make_unique<Mission>(Mission_path(MISSION_DIR "new_miss", sizeof(MISSION_DIR) - 1));		// limited to eight characters because of savegame format
 	Current_mission->mission_name.copy_if("Untitled");
 	Current_mission->builtin_hogsize = 0;
 	Current_mission->anarchy_only_flag = 0;
 	
-	Level_names = make_unique<d_fname[]>(1);
+	Level_names = std::make_unique<d_fname[]>(1);
 	if (!Level_names)
 	{
 		Current_mission.reset();

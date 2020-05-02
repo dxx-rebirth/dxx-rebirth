@@ -855,7 +855,7 @@ int gr_init()
 
 	ogl_init_texture_list_internal();
 
-	grd_curscreen = make_unique<grs_screen>();
+	grd_curscreen = std::make_unique<grs_screen>();
 	*grd_curscreen = {};
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = NULL;
 

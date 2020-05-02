@@ -168,7 +168,7 @@ static void show_title_screen(const char * filename, int allow_keys, int from_ho
 {
 	char new_filename[PATH_MAX] = "";
 
-	auto ts = make_unique<title_screen>();
+	auto ts = std::make_unique<title_screen>();
 	ts->allow_keys = allow_keys;
 
 #ifdef RELEASE
@@ -598,7 +598,7 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 		return (0);
 
 	len = PHYSFS_fileLength(tfile);
-	buf = make_unique<char[]>(len + 1);
+	buf = std::make_unique<char[]>(len + 1);
 	PHYSFS_read(tfile, buf.get(), 1, len);
 #if defined(DXX_BUILD_DESCENT_I)
 	const auto endbuf = &buf[len];
@@ -1347,7 +1347,7 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 
 	set_briefing_fontcolor();
 
-	br->screen = make_unique<briefing_screen>(D1_Briefing_screens[br->cur_screen]);
+	br->screen = std::make_unique<briefing_screen>(D1_Briefing_screens[br->cur_screen]);
 	br->screen->text_ulx = rescale_x(canvas.cv_bitmap, br->screen->text_ulx);
 	br->screen->text_uly = rescale_y(canvas.cv_bitmap, br->screen->text_uly);
 	br->screen->text_width = rescale_x(canvas.cv_bitmap, br->screen->text_width);
@@ -1379,7 +1379,7 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 	if (EMULATING_D1)
 	{
 		br->got_z = 1;
-		br->screen = make_unique<briefing_screen>(Briefing_screens[br->cur_screen]);
+		br->screen = std::make_unique<briefing_screen>(Briefing_screens[br->cur_screen]);
 		br->screen->text_ulx = rescale_x(canvas.cv_bitmap, br->screen->text_ulx);
 		br->screen->text_uly = rescale_y(canvas.cv_bitmap, br->screen->text_uly);
 		br->screen->text_width = rescale_x(canvas.cv_bitmap, br->screen->text_width);
@@ -1631,7 +1631,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 	if (!*static_cast<const char *>(filename))
 		return;
 
-	auto br = make_unique<briefing>();
+	auto br = std::make_unique<briefing>();
 	briefing_init(br.get(), level_num);
 
 	if (!load_screen_text(filename, br->text))

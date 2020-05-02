@@ -362,7 +362,7 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 				sample_rate, desired_buffer, stereo ? 1 : 0, bitsize ? 16 : 8, compressed ? 1 : 0);
 	}
 
-	mve_audio_spec = make_unique<SDL_AudioSpec>();
+	mve_audio_spec = std::make_unique<SDL_AudioSpec>();
 	mve_audio_spec->freq = sample_rate;
 	mve_audio_spec->format = format;
 	mve_audio_spec->channels = (stereo) ? 2 : 1;

@@ -228,7 +228,7 @@ void load_text()
 		len = PHYSFS_fileLength(ifile);
 
 //edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
-		text = make_unique<char[]>(len + 1);
+		text = std::make_unique<char[]>(len + 1);
 		PHYSFS_read(ifile,text,1,len);
 		text[len]=0;
 //end edit -MM
@@ -239,7 +239,7 @@ void load_text()
 		len = PHYSFS_fileLength(tfile);
 
 //edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
-		text = make_unique<char[]>(len + 1);
+		text = std::make_unique<char[]>(len + 1);
 		//fread(text,1,len,tfile);
 		p = text.get();
 		do {
@@ -326,7 +326,7 @@ void load_text()
 				{
 				  static const char extra[] = "\n<Ctrl-C> converts format\nIntel <-> PowerPC";
 				std::size_t l = strlen(ts);
-				overwritten_text = make_unique<char[]>(l + sizeof(extra));
+				overwritten_text = std::make_unique<char[]>(l + sizeof(extra));
 				char *o = overwritten_text.get();
 				std::copy_n(extra, sizeof(extra), std::copy_n(ts, l, o));
 				Text_string[i] = o;

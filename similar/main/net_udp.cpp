@@ -1029,7 +1029,7 @@ void net_udp_manual_join_game()
 {
 	int nitems = 0;
 
-	auto dj = make_unique<manual_join>();
+	auto dj = std::make_unique<manual_join>();
 	net_udp_init();
 
 	reset_UDP_MyPort();
@@ -1314,7 +1314,7 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 
 void net_udp_list_join_game()
 {
-	auto dj = make_unique<list_join>();
+	auto dj = std::make_unique<list_join>();
 
 	net_udp_init();
 	const auto gamemyport = CGameArg.MplUdpMyPort;

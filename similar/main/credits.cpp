@@ -238,7 +238,7 @@ namespace dsx {
 static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 {
 	palette_array_t backdrop_palette;
-	auto cr = make_unique<credits>();
+	auto cr = std::make_unique<credits>();
 	*cr = {};
 	cr->file = std::move(file);
 	cr->have_bin_file = have_bin_file;

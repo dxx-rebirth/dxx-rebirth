@@ -2178,8 +2178,8 @@ struct A {
 #include "compiler-make_unique.h"
 '''
 		main = '''
-	make_unique<int>(0);
-	make_unique<int[]>(1);
+	std::make_unique<int>(0);
+	std::make_unique<int[]>(1);
 '''
 		self.Cxx14Compile(context, text=f, main=main, msg='for C++14 make_unique', successflags=_successflags)
 	@_implicit_test

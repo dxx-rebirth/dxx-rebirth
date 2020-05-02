@@ -505,7 +505,7 @@ int do_robot_dialog()
 	// Only open 1 instance of this window...
 	if ( MainWindow != NULL ) return 0;
 	
-	auto r = make_unique<robot_dialog>();
+	auto r = std::make_unique<robot_dialog>();
 	// Close other windows
 	close_all_windows();
 	Cur_goody_count = 0;
@@ -823,7 +823,7 @@ int do_object_dialog()
 	if ( MattWindow != NULL )
 		return 0;
 	
-	auto o = make_unique<object_dialog>();
+	auto o = std::make_unique<object_dialog>();
 	Cur_goody_count = 0;
 
 	// Open a window with a quit button

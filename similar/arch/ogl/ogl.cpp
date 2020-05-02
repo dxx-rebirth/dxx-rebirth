@@ -571,7 +571,7 @@ static void ogl_drawcircle(const unsigned nsides, const unsigned type, GLfloat *
 
 static std::unique_ptr<GLfloat[]> circle_array_init(const unsigned nsides)
 {
-	auto vertices = make_unique<GLfloat[]>(nsides * 2);
+	auto vertices = std::make_unique<GLfloat[]>(nsides * 2);
 	for (unsigned i = 0; i < nsides; i++)
 	{
 		const float ang = 2.0 * M_PI * i / nsides;
@@ -583,7 +583,7 @@ static std::unique_ptr<GLfloat[]> circle_array_init(const unsigned nsides)
 
 static std::unique_ptr<GLfloat[]> circle_array_init_2(const unsigned nsides, const float xsc, const float xo, const float ysc, const float yo)
 {
-	auto vertices = make_unique<GLfloat[]>(nsides * 2);
+	auto vertices = std::make_unique<GLfloat[]>(nsides * 2);
 	for (unsigned i = 0; i < nsides; i++)
 	{
 		const float ang = 2.0 * M_PI * i / nsides;
@@ -866,7 +866,7 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
 	static_assert(sizeof(cfloat) == sizeof(GLfloat) * 4, "cfloat size wrong");
 	RAIIdmem<GLfloat[]> color_array;
 
-	auto &&vertices = make_unique<GLfloat[]>(nv * 3);
+	auto &&vertices = std::make_unique<GLfloat[]>(nv * 3);
 	MALLOC(color_array, GLfloat[], nv*4);
 
 	r_polyc++;
@@ -1320,7 +1320,7 @@ void ogl_init_pixel_buffers(unsigned w, unsigned h)
 	w = pow2ize(w);	// convert to OpenGL texture size
 	h = pow2ize(h);
 
-	texbuf = make_unique<GLubyte[]>(max(w, 1024u)*max(h, 256u)*4);	// must also fit big font texture
+	texbuf = std::make_unique<GLubyte[]>(max(w, 1024u)*max(h, 256u)*4);	// must also fit big font texture
 }
 
 void ogl_close_pixel_buffers(void)

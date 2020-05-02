@@ -602,7 +602,7 @@ int properties_init()
                 sbytes += sndh.length;
 	}
 
-		SoundBits = make_unique<ubyte[]>(sbytes + 16);
+		SoundBits = std::make_unique<ubyte[]>(sbytes + 16);
 	}
 
 #if 1	//def EDITOR
@@ -613,7 +613,7 @@ int properties_init()
 	if (CGameArg.SysLowMem)
 		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
 #endif
-	BitmapBits = make_unique<ubyte[]>(Piggy_bitmap_cache_size);
+	BitmapBits = std::make_unique<ubyte[]>(Piggy_bitmap_cache_size);
 	Piggy_bitmap_cache_data = BitmapBits.get();
 	Piggy_bitmap_cache_next = 0;
 
@@ -700,7 +700,7 @@ void piggy_init_pigfile(const char *filename)
 	if (CGameArg.SysLowMem)
 		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
 #endif
-	BitmapBits = make_unique<ubyte[]>(Piggy_bitmap_cache_size);
+	BitmapBits = std::make_unique<ubyte[]>(Piggy_bitmap_cache_size);
 	Piggy_bitmap_cache_data = BitmapBits.get();
 	Piggy_bitmap_cache_next = 0;
 
@@ -1040,7 +1040,7 @@ int read_hamfile()
 			if (piggy_is_needed(i))
 				sbytes += sndh.length;
 		}
-		SoundBits = make_unique<ubyte[]>(sbytes + 16);
+		SoundBits = std::make_unique<ubyte[]>(sbytes + 16);
 	}
 	return 1;
 }
@@ -1089,7 +1089,7 @@ int read_sndfile()
 		if (piggy_is_needed(i))
 			sbytes += sndh.length;
 	}
-	SoundBits = make_unique<ubyte[]>(sbytes + 16);
+	SoundBits = std::make_unique<ubyte[]>(sbytes + 16);
 	return 1;
 }
 
@@ -1723,7 +1723,7 @@ void load_bitmap_replacements(const char *level_name)
 			i = PHYSFSX_readShort(ifile);
 
 		bitmap_data_size = PHYSFS_fileLength(ifile) - PHYSFS_tell(ifile) - sizeof(DiskBitmapHeader) * n_bitmaps;
-		Bitmap_replacement_data = make_unique<ubyte[]>(bitmap_data_size);
+		Bitmap_replacement_data = std::make_unique<ubyte[]>(bitmap_data_size);
 
 		range_for (const auto i, unchecked_partial_range(indices.get(), n_bitmaps))
 		{
@@ -1852,7 +1852,7 @@ static void bm_read_d1_tmap_nums(PHYSFS_File *d1pig)
 	int i, d1_index;
 
 	PHYSFSX_fseek(d1pig, 8, SEEK_SET);
-	d1_tmap_nums = make_unique<d1_tmap_nums_t>();
+	d1_tmap_nums = std::make_unique<d1_tmap_nums_t>();
 	d1_tmap_nums->fill(-1);
 	for (i = 0; i < D1_MAX_TEXTURES; i++) {
 		d1_index = PHYSFSX_readShort(d1pig);
@@ -1901,7 +1901,7 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_File *d1_pig)
 		return;
 	}
 
-	d1_tmap_nums = make_unique<d1_tmap_nums_t>();
+	d1_tmap_nums = std::make_unique<d1_tmap_nums_t>();
 	d1_tmap_nums->fill(-1);
 
 	for (PHYSFSX_gets_line_t<LINEBUF_SIZE> inputline; PHYSFSX_fgets (inputline, bitmaps);)
@@ -2032,7 +2032,7 @@ void load_d1_bitmap_replacements()
 		bitmap_data_start = bitmap_header_start + header_size;
 	}
 
-	Bitmap_replacement_data = make_unique<ubyte[]>(D1_BITMAPS_SIZE);
+	Bitmap_replacement_data = std::make_unique<ubyte[]>(D1_BITMAPS_SIZE);
 	if (!Bitmap_replacement_data) {
 		Warning(D1_PIG_LOAD_FAILED);
 		return;

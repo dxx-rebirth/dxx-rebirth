@@ -296,7 +296,7 @@ template <typename T>
 __attribute_warn_unused_result
 static std::unique_ptr<T> ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, short x2, short y2)
 {
-	auto t = make_unique<T>();
+	auto t = std::make_unique<T>();
 	t->kind = T::s_kind;
 	ui_gadget_add(dlg, x1, y1, x2, y2, t.get());
 	return t;

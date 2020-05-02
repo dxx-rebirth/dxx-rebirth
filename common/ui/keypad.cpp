@@ -376,7 +376,7 @@ int ui_pad_read( int n, const char * filename )
 		Warning( "Could not find %s\n", filename );
 		return 0;
 	}
-	auto &kpn = *(KeyPad[n] = make_unique<UI_KEYPAD>());
+	auto &kpn = *(KeyPad[n] = std::make_unique<UI_KEYPAD>());
 
 	PHYSFSX_gets_line_t<100> buffer;
 	while ( linenumber < 22)

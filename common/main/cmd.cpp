@@ -80,7 +80,7 @@ void cmd_addcommand(const char *cmd_name, cmd_handler_t cmd_func, const char *cm
 		con_printf(CON_NORMAL, "command %s already exists, not adding", cmd_name);
 		return;
 	}
-	auto cmd = (i.first->second = make_unique<cmd_t>()).get();
+	auto cmd = (i.first->second = std::make_unique<cmd_t>()).get();
 	/* create command, insert to hashtable */
 	cmd->name = cmd_name;
 	cmd->function = cmd_func;
@@ -343,7 +343,7 @@ static void cmd_alias(unsigned long argc, const char *const *const argv)
 	auto alias = i.first->second.get();
 	if (i.second)
 	{
-		alias = (i.first->second = make_unique<cmd_alias_t>()).get();
+		alias = (i.first->second = std::make_unique<cmd_alias_t>()).get();
 		alias->name[sizeof(alias->name) - 1] = 0;
 		strncpy(alias->name, argv[1], sizeof(alias->name) - 1);
 	}

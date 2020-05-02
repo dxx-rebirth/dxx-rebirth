@@ -243,7 +243,7 @@ int ui_get_filename(char (&filename)[PATH_MAX], const char *const filespec, cons
 	char		*p;
 	UI_DIALOG	*dlg;
 	int			rval = 0;
-	auto b = make_unique<ui_file_browser>();
+	auto b = std::make_unique<ui_file_browser>();
 	if ((p = strrchr(filename, '/')))
 	{
 		*p++ = 0;

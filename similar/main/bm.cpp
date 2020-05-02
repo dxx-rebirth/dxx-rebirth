@@ -810,7 +810,7 @@ void compute_average_rgb(grs_bitmap *bm, std::array<fix, 3> &rgb)
 	if (bm->get_flag_mask(BM_FLAG_RLE))
 	{
 		bm_rle_expand expander(*bm);
-		const auto &&buf = make_unique<uint8_t[]>(bm_w);
+		const auto &&buf = std::make_unique<uint8_t[]>(bm_w);
 		range_for (const uint_fast32_t i, xrange(bm_h))
 		{
 			(void)i;

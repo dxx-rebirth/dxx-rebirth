@@ -113,7 +113,7 @@ static int load_pig1(PHYSFS_File *f, unsigned num_bitmaps, unsigned num_sounds, 
 	if (num_bitmaps >= MAX_BITMAP_FILES ||
 		num_sounds >= MAX_SOUND_FILES)
 		return -1; // invalid pig file
-	ci = make_unique<custom_info[]>(num_bitmaps + num_sounds);
+	ci = std::make_unique<custom_info[]>(num_bitmaps + num_sounds);
 	custom_info *cip = ci.get();
 	data_ofs += num_bitmaps * sizeof(DiskBitmapHeader) + num_sounds * sizeof(DiskSoundHeader);
 	i = num_bitmaps;
@@ -186,7 +186,7 @@ static int load_pog(PHYSFS_File *f, int pog_sig, int pog_ver, unsigned &num_cust
 		return -1; // no pig2/pog file/unknown version
 
 	num_bitmaps = PHYSFSX_readInt(f);
-	ci = make_unique<custom_info[]>(num_bitmaps);
+	ci = std::make_unique<custom_info[]>(num_bitmaps);
 	custom_info *cip = ci.get();
 	data_ofs = 12 + num_bitmaps * sizeof(DiskBitmapHeader2);
 
@@ -524,7 +524,7 @@ static void load_hxm(const d_fname &hxmname)
 				pm = &Polygon_models[repl_num];
 				polymodel_read(pm, f);
 				const auto model_data_size = pm->model_data_size;
-				pm->model_data = make_unique<uint8_t[]>(model_data_size);
+				pm->model_data = std::make_unique<uint8_t[]>(model_data_size);
 				if (PHYSFS_read(f, pm->model_data, model_data_size, 1) < 1)
 				{
 					pm->model_data.reset();

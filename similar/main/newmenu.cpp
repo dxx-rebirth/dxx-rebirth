@@ -1660,7 +1660,7 @@ struct listbox : embed_window_pointer_t
 		static ptr allocate(const unsigned maxchars)
 		{
 			const unsigned max_bytes = maxchars + 1 + sizeof(marquee);
-			auto pf = make_unique<fix64[]>(1 + (max_bytes / sizeof(fix64)));
+			auto pf = std::make_unique<fix64[]>(1 + (max_bytes / sizeof(fix64)));
 			auto pm = ptr(new(pf.get()) marquee(maxchars));
 			pf.release();
 			return pm;
@@ -2149,7 +2149,7 @@ listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, c
 	window *wind;
 	newmenu_free_background();
 
-	auto lb = make_unique<listbox>();
+	auto lb = std::make_unique<listbox>();
 	*lb = {};
 	lb->title = title;
 	lb->nitems = nitems;

@@ -1075,8 +1075,8 @@ void do_automap()
 	am->end_valid_edges = 0;
 	const auto max_edges = LevelSharedSegmentState.Num_segments * 12;
 	am->max_edges = max_edges;
-	am->edges = make_unique<Edge_info[]>(max_edges);
-	am->drawingListBright = make_unique<Edge_info *[]>(max_edges);
+	am->edges = std::make_unique<Edge_info[]>(max_edges);
+	am->drawingListBright = std::make_unique<Edge_info *[]>(max_edges);
 	am->zoom = 0x9000;
 	am->farthest_dist = (F1_0 * 20 * 50); // 50 segments away
 	am->viewDist = 0;

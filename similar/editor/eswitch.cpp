@@ -319,7 +319,7 @@ int do_trigger_dialog()
 	// Only open 1 instance of this window...
 	if ( MainWindow != NULL ) return 0;
 	
-	auto t = make_unique<trigger_dialog>();
+	auto t = std::make_unique<trigger_dialog>();
 	// Close other windows.	
 	robot_close_window();
 	close_wall_window();

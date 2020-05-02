@@ -176,7 +176,7 @@ static m3u_bytes read_m3u_bytes_from_disk(const char *const cfgpath)
 	/* Use T=`char*[]` to ensure alignment.  Place pointers before file
 	 * contents to keep the pointer array aligned.
 	 */
-	auto &&list_buf = make_unique<char*[]>(max_songs + 1 + (length / sizeof(char *)));
+	auto &&list_buf = std::make_unique<char*[]>(max_songs + 1 + (length / sizeof(char *)));
 	const auto p = reinterpret_cast<char *>(list_buf.get() + max_songs);
 	p[length] = '\0';	// make sure the last string is terminated
 	return fread(p, length, 1, fp)

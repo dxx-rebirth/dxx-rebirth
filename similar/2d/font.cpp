@@ -525,7 +525,7 @@ static void ogl_init_font(grs_font * font)
 		oglflags |= OGL_FLAG_NOCOLOR;
 	ogl_init_texture(*(font->ft_parent_bitmap.gltexture = ogl_get_free_texture()), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
 
-	font->ft_bitmaps = make_unique<grs_bitmap[]>(nchars);
+	font->ft_bitmaps = std::make_unique<grs_bitmap[]>(nchars);
 	h=font->ft_h;
 
 	for(int i=0;i<nchars;i++)
@@ -929,7 +929,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 	file_header.datasize -= GRS_FONT_SIZE; // subtract the size of the header.
 	const auto &datasize = file_header.datasize;
 
-	auto font = make_unique<grs_font>();
+	auto font = std::make_unique<grs_font>();
 	grs_font_read(font.get(), fontfile);
 
 	const unsigned nchars = font->ft_maxchar - font->ft_minchar + 1;
@@ -937,7 +937,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 		? sizeof(uint8_t *) * nchars
 		: 0;
 
-	auto ft_allocdata = make_unique<uint8_t[]>(datasize + ft_chars_storage);
+	auto ft_allocdata = std::make_unique<uint8_t[]>(datasize + ft_chars_storage);
 	const auto font_data = &ft_allocdata[ft_chars_storage];
 	if (PHYSFS_read(fontfile, font_data, 1, datasize) != datasize)
 	{

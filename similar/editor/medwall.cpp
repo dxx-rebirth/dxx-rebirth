@@ -419,7 +419,7 @@ int do_wall_dialog()
 	// Only open 1 instance of this window...
 	if ( MainWindow != NULL ) return 0;
 
-	auto wd = make_unique<wall_dialog>();
+	auto wd = std::make_unique<wall_dialog>();
 	wd->framenum = 0;
 
 	// Close other windows.	

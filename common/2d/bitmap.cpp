@@ -60,7 +60,7 @@ grs_bitmap_ptr gr_create_bitmap(uint16_t w, uint16_t h )
 
 grs_bitmap_ptr gr_create_bitmap_raw(const uint16_t w, const uint16_t h, RAIIdmem<uint8_t[]> raw_data)
 {
-	auto n = make_unique<grs_main_bitmap>();
+	auto n = std::make_unique<grs_main_bitmap>();
 	gr_init_main_bitmap(*n.get(), bm_mode::linear, 0, 0, w, h, w, std::move(raw_data));
 	return n;
 }
@@ -104,7 +104,7 @@ grs_main_bitmap::grs_main_bitmap()
 
 grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap &bm, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-	auto n = make_unique<grs_subbitmap>();
+	auto n = std::make_unique<grs_subbitmap>();
 	gr_init_sub_bitmap(*n.get(), bm, x, y, w, h);
 	return n;
 }

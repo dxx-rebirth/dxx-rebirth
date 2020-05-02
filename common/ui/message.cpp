@@ -107,7 +107,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 
 	int choice;
 
-	auto m = make_unique<messagebox>();
+	auto m = std::make_unique<messagebox>();
 	m->button = &Button;
 	m->text = text;
 	m->choice = &choice;

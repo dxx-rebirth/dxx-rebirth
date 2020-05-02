@@ -93,7 +93,7 @@ int do_centers_dialog()
 	close_wall_window();
 	robot_close_window();
 
-	auto c = make_unique<centers_dialog>();
+	auto c = std::make_unique<centers_dialog>();
 	// Open a window with a quit button
 #if defined(DXX_BUILD_DESCENT_I)
 	const unsigned x = TMAPBOX_X+20;

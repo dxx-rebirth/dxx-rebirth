@@ -60,7 +60,7 @@ public:
 	using base_type::operator bool;
 	user_configured_level_songs() = default;
 	user_configured_level_songs(const std::size_t length) :
-		base_type(make_unique<bim_song_info[]>(length)), count(length)
+		base_type(std::make_unique<bim_song_info[]>(length)), count(length)
 	{
 	}
 	unsigned size() const
@@ -74,7 +74,7 @@ public:
 	}
 	void resize(const std::size_t length)
 	{
-		base_type::operator=(make_unique<bim_song_info[]>(length));
+		base_type::operator=(std::make_unique<bim_song_info[]>(length));
 		count = length;
 	}
 	user_configured_level_songs &operator=(user_configured_level_songs &&) = default;
