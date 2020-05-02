@@ -263,6 +263,14 @@ static void do_muzzle_stuff(segnum_t segnum, const vms_vector &pos)
 	m.create_time = timer_query();
 }
 
+__attribute_noreturn
+static void report_invalid_weapon_render_type(const int weapon_type, const unsigned render_type)
+{
+	char buf[96];
+	snprintf(buf, sizeof(buf), "invalid weapon render type %u on weapon %i", render_type, weapon_type);
+	throw std::runtime_error(buf);
+}
+
 }
 
 namespace dsx {
@@ -295,7 +303,7 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 			laser_radius = Weapon_info[weapon_type].blob_size;
 			break;
 		default:
-			Error( "Invalid weapon render type in Laser_create_new\n" );
+			report_invalid_weapon_render_type(weapon_type, Weapon_info[weapon_type].render_type);
 	}
 
 	Assert(laser_radius != -1);
