@@ -14,10 +14,10 @@
 #include <type_traits>
 
 #include "dxxsconf.h"
-#include "compiler-addressof.h"
 #include "compiler-range_for.h"
 #include "compiler-static_assert.h"
 #include <array>
+#include <memory>
 #include <utility>
 
 namespace serial {

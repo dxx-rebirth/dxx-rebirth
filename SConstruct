@@ -440,6 +440,16 @@ int a = U + 1;
 	std::make_unique<int>(0);
 	std::make_unique<int[]>(1);
 '''),
+		Cxx11RequiredFeature('std::addressof', '''
+#include <memory>
+''', '''
+	struct A_%(N)s
+	{
+		void operator&() = delete;
+	};
+	A_%(N)s i_%(N)s;
+	(void)std::addressof(i_%(N)s);
+'''),
 		Cxx11RequiredFeature('constexpr', '''
 struct %(N)s {};
 static constexpr %(N)s get_%(N)s(){return {};}
@@ -2157,26 +2167,6 @@ help:assume compiler supports explicitly deleted functions with named parameters
 help:assume compiler supports explicitly deleted functions with anonymous parameters
 """
 		return self.Compile(context, text=f % '', msg='for explicitly deleted functions with anonymous parameters')
-	@_implicit_test
-	def check_cxx11_addressof(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_ADDRESSOF']},**kwargs):
-		return self.Compile(context, msg='for C++11 function addressof()', successflags=_successflags, **kwargs)
-	@_implicit_test
-	def check_boost_addressof(self,context,**kwargs):
-		return self.Compile(context, msg='for Boost.Utility function addressof()', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ADDRESSOF']}, **kwargs)
-	@_custom_test
-	def _check_free_addressof_function(self,context):
-		f = '''
-#include "compiler-addressof.h"
-struct A {
-	void operator&();
-};
-'''
-		main = '''
-	A b;
-	return addressof(b) != 0;
-'''
-		if not self.check_cxx11_addressof(context, text=f, main=main) and not self.check_boost_addressof(context, text=f, main=main):
-			raise SCons.Errors.StopError("C++ compiler does not support free function addressof().")
 
 	@_implicit_test
 	def check_cxx11_inherit_constructor(self,context,text,_macro_value=_quote_macro_value('''

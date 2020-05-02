@@ -35,6 +35,7 @@ enum E { ... };`)
 (`std::unique_ptr<int> i;
 std::unique_ptr<int[]> j;`)
 * [Static assertions][cppr:cpp/language/static_assert]
+* `std::addressof`
 
 # Required C++14 features
 * [`std::index_sequence`][cppr:cpp/utility/integer_sequence] is a compile-time sequence of integers.

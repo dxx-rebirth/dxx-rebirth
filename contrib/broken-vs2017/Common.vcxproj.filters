@@ -233,12 +233,6 @@
     <ClInclude Include="..\..\common\include\byteswap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\common\include\compiler-addressof.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\common\include\compiler-array.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\common\include\compiler-begin.h">
       <Filter>Header Files</Filter>
     </ClInclude>

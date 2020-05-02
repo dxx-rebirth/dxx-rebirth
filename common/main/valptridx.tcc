@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <inttypes.h>
 #include "valptridx.h"
-#include "compiler-addressof.h"
+#include <memory>
 
 namespace {
 namespace untyped_index_mismatch_exception

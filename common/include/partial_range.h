@@ -11,7 +11,7 @@
 #include <string>
 #include <type_traits>
 #include "fwd-partial_range.h"
-#include "compiler-addressof.h"
+#include <memory>
 
 /* If no value was specified for DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE,
  * then define it to true for NDEBUG builds and false for debug builds.
@@ -215,14 +215,14 @@ static constexpr std::size_t get_range_size(T &t)
 template <typename I, std::size_t N, typename T>
 static inline void check_partial_range(const char *file, unsigned line, const char *estr, const T &t, const std::size_t o, const std::size_t l)
 {
-	check_range_bounds<I, N>(file, line, estr, addressof(t), o, l, get_range_size(t));
+	check_range_bounds<I, N>(file, line, estr, std::addressof(t), o, l, get_range_size(t));
 }
 
 #ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
 template <typename I, std::size_t required_buffer_size, typename P>
 static inline void check_range_object_size(const char *file, unsigned line, const char *estr, P &ref, const std::size_t o, const std::size_t l)
 {
-	const auto ptr = addressof(ref);
+	const auto ptr = std::addressof(ref);
 	const std::size_t bos = __builtin_object_size(ptr, 1);
 	if (bos != static_cast<std::size_t>(-1))
 		check_range_bounds<I, required_buffer_size>(file, line, estr, ptr, o, l, bos / sizeof(P));

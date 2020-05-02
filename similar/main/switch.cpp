@@ -188,7 +188,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 				w0p = *uw0p;
 			else
 			{
-				LevelError("trigger %p link %u tried to open segment %hu, side %u which is an invalid wall; ignoring.", addressof(t), i, static_cast<segnum_t>(segp), side);
+				LevelError("trigger %p link %u tried to open segment %hu, side %u which is an invalid wall; ignoring.", std::addressof(t), i, static_cast<segnum_t>(segp), side);
 				continue;
 			}
 			auto &wall0 = *w0p;
