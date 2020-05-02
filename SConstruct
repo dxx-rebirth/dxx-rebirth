@@ -414,8 +414,7 @@ class ConfigureTests(_ConfigureTests):
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
 	__python_import_struct = None
-	_cxx_conformance_cxx14 = 14
-	__cxx_conformance = None
+	_cxx_conformance_cxx17 = 17
 	__cxx_std_required_features = CxxRequiredFeatures([
 		Cxx14RequiredFeature('template variables', '''
 template <unsigned U>
@@ -815,17 +814,13 @@ help:assume C++ compiler works
 				if self._Compile(context, text='', msg='whether C++ compiler works with blank $CXXFLAGS', calling_function='cxx_blank_cxxflags_works'):
 					return 'C++ compiler works with blank $CXXFLAGS.  C++ compiler does not work with specified $CXXFLAGS.'
 			return 'C++ compiler does not work.'
-	implicit_tests.append(_implicit_test.RecordedTest('check_cxx14', "assume C++ compiler supports C++14"))
+	implicit_tests.append(_implicit_test.RecordedTest('check_cxx17', "assume C++ compiler supports C++17"))
 	__cxx_conformance_CXXFLAGS = [None]
 	def _check_cxx_conformance_level(self,context,_levels=(
 			# List standards in descending order of preference.
 			#
-			# Currently, no C++17 features are both useful and easy to
-			# emulate in supported older compilers, so C++17 is not
-			# requested.
-			#
-			# C++14 is required, so list it last.
-			_cxx_conformance_cxx14,
+			# C++17 is required, so list it last.
+			_cxx_conformance_cxx17,
 		), _CXXFLAGS=__cxx_conformance_CXXFLAGS,
 		_successflags={'CXXFLAGS' : __cxx_conformance_CXXFLAGS}
 		):
@@ -854,7 +849,6 @@ help:assume C++ compiler works
 			opt = '-std=gnu++%u' % level
 			_CXXFLAGS[0] = opt
 			if Compile(context, text='', msg='whether C++ compiler accepts {opt}'.format(opt=opt), successflags=_successflags, calling_function='cxx%s' % level):
-				self.__cxx_conformance = level
 				return
 		raise SCons.Errors.StopError('C++ compiler does not accept any supported C++ -std option.')
 	def _Test(self,context,text,msg,action,main='',ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False,calling_function=None,__flags_Werror = {'CXXFLAGS' : ['-Werror']}):
@@ -1988,18 +1982,6 @@ int a(){return 0;}
 	@_custom_test
 	def check_attribute_warning(self,context,_check_function_dce_attribute=_check_function_dce_attribute):
 		_check_function_dce_attribute(self, context, 'warning')
-	def Cxx14Compile(self,context,*args,**kwargs):
-		"""
-Test whether the compiler supports a C++14 feature.  If the compiler
-failed the test for C++14 support, then the test is not run, but a
-message about skipping the test is printed and the test is assumed to
-fail.
-"""
-		self.__skip_missing_cxx_std(self._cxx_conformance_cxx14, 'no C++14 support', kwargs)
-		return self.Compile(context,*args,**kwargs)
-	def __skip_missing_cxx_std(self,level,text,kwargs):
-		if self.__cxx_conformance < level:
-			kwargs.setdefault('skipped', text)
 
 	@_custom_test
 	def check_cxx11_static_assert(self,context,_f='''
