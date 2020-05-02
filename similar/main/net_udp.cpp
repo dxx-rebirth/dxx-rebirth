@@ -3438,7 +3438,7 @@ class more_game_options_menu_items
         char tracker_addr_txt[sizeof("65535") + 28];
 #endif
 	human_readable_mmss_time<decltype(d_gameplay_options::AutosaveInterval)::rep> AutosaveInterval;
-	typedef std::array<newmenu_item, DXX_UDP_MENU_OPTIONS(COUNT)> menu_array;
+	using menu_array = std::array<newmenu_item, DXX_UDP_MENU_OPTIONS(COUNT)>;
 	menu_array m;
 	static const char *get_annotated_difficulty_string(const Difficulty_level_type d)
 	{

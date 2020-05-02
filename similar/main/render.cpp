@@ -979,7 +979,7 @@ static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye
 
 //short the children of segment to render in the correct order
 //returns non-zero if swaps were made
-typedef std::array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> sort_child_array_t;
+using sort_child_array_t = std::array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT>;
 static void sort_seg_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const vcsegptridx_t seg, const partial_range_t<sort_child_array_t::iterator> &r)
 {
 	//for each child,  compare with other children and see if order matters
@@ -1014,7 +1014,7 @@ class render_compare_context_t
 		const object *objp;
 #endif
 	};
-	typedef std::array<element, MAX_OBJECTS> array_t;
+	using array_t = std::array<element, MAX_OBJECTS>;
 	array_t m_array;
 public:
 	array_t::reference operator[](std::size_t i) { return m_array[i]; }

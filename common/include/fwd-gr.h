@@ -357,7 +357,7 @@ static inline void (gr_set_current_canvas)(grs_canvas *const canv DXX_DEBUG_CURR
 #define FT_KERNED       4
 
 extern palette_array_t gr_palette;
-typedef std::array<std::array<color_t, 256>, GR_FADE_LEVELS> gft_array1;
+using gft_array1 = std::array<std::array<color_t, 256>, GR_FADE_LEVELS>;
 extern gft_array1 gr_fade_table;
 }
 

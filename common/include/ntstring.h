@@ -14,7 +14,7 @@ class ntstring :
 {
 	static char terminator() { return 0; }
 public:
-	typedef std::array<char, L + 1> array_t;
+	using array_t = std::array<char, L + 1>;
 	typedef char elements_t[L + 1];
 	using array_t::operator[];
 	typename array_t::reference operator[](int i) { return array_t::operator[](i); }

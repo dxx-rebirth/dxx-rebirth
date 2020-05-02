@@ -83,7 +83,7 @@ struct rgb {
 	ubyte r,g,b;
 };
 
-typedef const std::array<rgb, MAX_PLAYERS> rgb_array_t;
+using rgb_array_t = const std::array<rgb, MAX_PLAYERS>;
 extern const rgb_array_t player_rgb_normal;
 
 /* Stub for mods that provide switchable player colors */

@@ -96,7 +96,7 @@ extern const std::array<uint8_t, MAX_SECONDARY_WEAPONS>    Secondary_ammo_max;
 /*
  * reads n weapon_info structs from a PHYSFS_File
  */
-typedef std::array<weapon_info, MAX_WEAPON_TYPES> weapon_info_array;
+using weapon_info_array = std::array<weapon_info, MAX_WEAPON_TYPES>;
 extern weapon_info_array Weapon_info;
 void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp, int file_version, std::size_t offset = 0);
 

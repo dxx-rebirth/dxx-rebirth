@@ -146,7 +146,7 @@ namespace dcx {
 template <std::size_t N>
 class joystick_text_t : std::vector<std::array<char, N>>
 {
-	typedef std::vector<std::array<char, N> > vector_type;
+	using vector_type = std::vector<std::array<char, N>>;
 public:
 	using vector_type::clear;
 	using vector_type::size;

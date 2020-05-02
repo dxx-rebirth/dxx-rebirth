@@ -236,7 +236,7 @@ struct PHYSFSX_gets_line_t
 	PHYSFSX_gets_line_t &operator=(const PHYSFSX_gets_line_t &) = delete;
 	PHYSFSX_gets_line_t(PHYSFSX_gets_line_t &&) = default;
 	PHYSFSX_gets_line_t &operator=(PHYSFSX_gets_line_t &&) = default;
-	typedef std::array<char, N> line_t;
+	using line_t = std::array<char, N>;
 #if DXX_HAVE_POISON
 	/* Force onto heap to improve checker accuracy */
 	std::unique_ptr<line_t> m_line;

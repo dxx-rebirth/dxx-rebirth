@@ -1840,7 +1840,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
  * "Textures" looks up a d2 bitmap index given a d2 tmap_num.
  * "d1_tmap_nums" looks up a d1 tmap_num given a d1 bitmap. "-1" means "None".
  */
-typedef std::array<short, D1_MAX_TMAP_NUM> d1_tmap_nums_t;
+using d1_tmap_nums_t = std::array<short, D1_MAX_TMAP_NUM>;
 static std::unique_ptr<d1_tmap_nums_t> d1_tmap_nums;
 
 static void free_d1_tmap_nums() {

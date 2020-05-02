@@ -81,7 +81,7 @@ struct polymodel : prohibit_void_ptr<polymodel>
 
 class submodel_angles
 {
-	typedef const std::array<vms_angvec, MAX_SUBMODELS> array_type;
+	using array_type = const std::array<vms_angvec, MAX_SUBMODELS>;
 	array_type *p;
 public:
 	submodel_angles(std::nullptr_t) : p(nullptr) {}

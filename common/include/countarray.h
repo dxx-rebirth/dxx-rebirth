@@ -29,7 +29,7 @@ template <typename T, std::size_t S>
 class count_array_t : public base_count_array_t<>
 {
 public:
-	typedef std::array<T, S> array_type;
+	using array_type = std::array<T, S>;
 	typedef typename array_type::value_type value_type;
 	typedef typename array_type::iterator iterator;
 	typedef typename array_type::const_iterator const_iterator;

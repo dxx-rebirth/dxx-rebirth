@@ -94,7 +94,7 @@ namespace dsx {
 
 #define NUM_D2_BOSSES 8
 
-typedef std::array<ubyte, NUM_D2_BOSSES> boss_flags_t;
+using boss_flags_t = std::array<ubyte, NUM_D2_BOSSES>;
 extern const boss_flags_t Boss_spew_more;     // Set byte if this boss can teleport
 extern const boss_flags_t Boss_spews_bots_energy;     // Set byte if boss spews bots when hit by energy weapon.
 extern const boss_flags_t Boss_spews_bots_matter;     // Set byte if boss spews bots when hit by matter weapon.
