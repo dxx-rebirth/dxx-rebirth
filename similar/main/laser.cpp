@@ -638,16 +638,17 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 	create_omega_blobs(firing_segnum, firing_pos, goal_pos, parent_objp);
 
 }
-#endif
 
-static inline int is_laser_weapon_type(weapon_id_type weapon_type)
+static int is_laser_weapon_type(const weapon_id_type weapon_type)
 {
-#if defined(DXX_BUILD_DESCENT_II)
-	if (weapon_type == weapon_id_type::LASER_ID_L5 || weapon_type == weapon_id_type::LASER_ID_L6)
-		return 1;
-#endif
-	return (weapon_type == weapon_id_type::LASER_ID_L1 || weapon_type == weapon_id_type::LASER_ID_L2 || weapon_type == weapon_id_type::LASER_ID_L3 || weapon_type == weapon_id_type::LASER_ID_L4);
+	return weapon_type == weapon_id_type::LASER_ID_L1 ||
+		weapon_type == weapon_id_type::LASER_ID_L2 ||
+		weapon_type == weapon_id_type::LASER_ID_L3 ||
+		weapon_type == weapon_id_type::LASER_ID_L4 ||
+		weapon_type == weapon_id_type::LASER_ID_L5 ||
+		weapon_type == weapon_id_type::LASER_ID_L6;
 }
+#endif
 
 // ---------------------------------------------------------------------------------
 // Initializes a laser after Fire is pressed
