@@ -271,8 +271,9 @@ class ConfigureTests(_ConfigureTests):
 		__slots__ = ('features', 'main', 'text')
 		def __init__(self,features):
 			self.features = features
-			self.main = ''.join([f.main for f in features])
-			self.text = ''.join([f.text for f in features])
+			s = '/* C++{} {} */\n{}'.format
+			self.main = '\n'.join((s(f.std, f.name, f.main) for f in features))
+			self.text = '\n'.join((s(f.std, f.name, f.text) for f in features))
 	class PCHAction:
 		def __init__(self,context):
 			self._context = context
@@ -439,8 +440,8 @@ int f_%(N)s()
 	(void)c_%(N)s;
 '''),
 		Cxx14RequiredFeature('template variables', '''
-template <unsigned U>
-int a = U + 1;
+template <unsigned U_%(N)s>
+int a_%(N)s = U_%(N)s + 1;
 ''', ''),
 		Cxx14RequiredFeature('std::exchange', '''
 #include <utility>
