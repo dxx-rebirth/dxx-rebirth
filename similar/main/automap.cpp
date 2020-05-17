@@ -825,9 +825,9 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define MAP_BACKGROUND_FILENAME (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("maph.pcx",1))?"MAPH.PCX":"MAP.PCX")
+#define MAP_BACKGROUND_FILENAME (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("maph.pcx",1))?"maph.pcx":"map.pcx")
 #elif defined(DXX_BUILD_DESCENT_II)
-#define MAP_BACKGROUND_FILENAME ((HIRESMODE && PHYSFSX_exists("mapb.pcx",1))?"MAPB.PCX":"MAP.PCX")
+#define MAP_BACKGROUND_FILENAME ((HIRESMODE && PHYSFSX_exists("mapb.pcx",1))?"mapb.pcx":"map.pcx")
 #endif
 
 static void recompute_automap_segment_visibility(const object &plrobj, automap *const am)
