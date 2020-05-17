@@ -66,6 +66,6 @@ const char *pcx_errormsg(pcx_result error_number);
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
 // Load bitmap for little-known 'baldguy' cheat.
-pcx_result bald_guy_load(const char *filename, grs_bitmap *bmp, palette_array_t &palette);
+pcx_result bald_guy_load(const char *filename, grs_main_bitmap &bmp, palette_array_t &palette);
 }
 #endif

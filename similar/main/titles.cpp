@@ -1324,7 +1324,7 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 
 	pcx_result pcx_error;
 	if ((!d_stricmp(fname2, "brief02.pcx") || !d_stricmp(fname2, "brief02h.pcx")) && cheats.baldguy &&
-		bald_guy_load("btexture.xxx", &br->background, gr_palette) == pcx_result::SUCCESS)
+		bald_guy_load("btexture.xxx", br->background, gr_palette) == pcx_result::SUCCESS)
 	{
 	}
 	else if ((pcx_error = pcx_read_bitmap(fname2, br->background, gr_palette)) != pcx_result::SUCCESS)

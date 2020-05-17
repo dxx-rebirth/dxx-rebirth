@@ -74,7 +74,6 @@ struct RAII_SDL_Surface
 #if !DXX_USE_OGL && DXX_USE_SCREENSHOT_FORMAT_LEGACY
 static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_File *fid);
 static int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_File *fp);
-#endif
 
 /* PCX Header data type */
 struct PCXHeader
@@ -95,6 +94,7 @@ struct PCXHeader
 	short   BytesPerLine;
 	ubyte   filler[60];
 } __pack__;
+#endif
 
 #define PCXHEADER_SIZE 128
 
@@ -166,6 +166,7 @@ static pcx_result pcx_read_blank(const char *const filename, grs_main_bitmap &bm
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
 
+#if DXX_USE_SDLIMAGE
 static std::pair<std::unique_ptr<uint8_t[]>, std::size_t> load_physfs_blob(const char *const filename)
 {
 	RAIIPHYSFS_File file(PHYSFSX_openReadBuffered(filename));
@@ -204,75 +205,20 @@ static std::pair<std::unique_ptr<uint8_t[]>, std::size_t> load_decoded_physfs_bl
 	std::transform(std::make_reverse_iterator(std::next(b, data_size)), std::make_reverse_iterator(b), decoded_buffer.get(), transform_predicate);
 	return {std::move(decoded_buffer), data_size};
 }
+#endif
 
-pcx_result bald_guy_load(const char *const filename, grs_bitmap *const bmp, palette_array_t &palette)
+pcx_result bald_guy_load(const char *const filename, grs_main_bitmap &bmp, palette_array_t &palette)
 {
-	PCXHeader header;
-	int count;
-	ubyte data;
-	unsigned int row, xsize;
-	unsigned int col, ysize;
-
+#if DXX_USE_SDLIMAGE
 	const auto &&[bguy_data, data_size] = load_decoded_physfs_blob(filename);
 	if (!bguy_data)
 		return pcx_result::ERROR_OPENING;
 
-	(void)data_size;
-	
-	auto p = bguy_data.get();
-	memcpy( &header, p, sizeof(PCXHeader) );
-	p += sizeof(PCXHeader);
-	
-	// Is it a 256 color PCX file?
-	if ((header.Manufacturer != 10)||(header.Encoding != 1)||(header.Nplanes != 1)||(header.BitsPerPixel != 8)||(header.Version != 5))	{
-		return pcx_result::ERROR_WRONG_VERSION;
-	}
-	header.Xmin= INTEL_SHORT(header.Xmin);
-	header.Xmax = INTEL_SHORT(header.Xmax);
-	header.Ymin = INTEL_SHORT(header.Ymin);
-	header.Ymax = INTEL_SHORT(header.Ymax);
-	
-	// Find the size of the image
-	xsize = header.Xmax - header.Xmin + 1;
-	ysize = header.Ymax - header.Ymin + 1;
-	
-	if ( bmp->bm_data == NULL )	{
-		*bmp = {};
-		MALLOC(bmp->bm_mdata, unsigned char, xsize * ysize );
-		if ( bmp->bm_data == NULL )	{
-			return pcx_result::ERROR_MEMORY;
-		}
-		bmp->bm_w = bmp->bm_rowsize = xsize;
-		bmp->bm_h = ysize;
-		bmp->set_type(bm_mode::linear);
-	}
-	
-	for (row=0; row< ysize ; row++)      {
-		auto pixdata = &bmp->get_bitmap_data()[bmp->bm_rowsize*row];
-			for (col=0; col< xsize ; )      {
-				data = *p;
-				p++;
-				if ((data & 0xC0) == 0xC0)     {
-					count =  data & 0x3F;
-					data = *p;
-					p++;
-					memset( pixdata, data, count );
-					pixdata += count;
-					col += count;
-				} else {
-					*pixdata++ = data;
-					col++;
-				}
-			}
-	}
-	
-	
-	// Read the extended palette at the end of PCX file
-	// Read in a character which should be 12 to be extended palette file
-	
-	p++;
-	copy_diminish_palette(palette, p);
-	return pcx_result::SUCCESS;
+	RWops_ptr rw(SDL_RWFromConstMem(bguy_data.get(), data_size));
+	return pcx_read_bitmap(filename, bmp, palette, std::move(rw));
+#else
+	return pcx_read_blank(filename, bmp, palette);
+#endif
 }
 
 }
