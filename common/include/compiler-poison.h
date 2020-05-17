@@ -103,8 +103,8 @@ static inline void DXX_POISON_DEFINED_MEMORY(T b, unsigned long l, const V &v)
 
 /* Poison a memory range, then mark it unreadable.
  */
-template <typename T, typename V>
-static inline void DXX_POISON_MEMORY(T b, unsigned long l, const V &v)
+template <typename T>
+static inline void DXX_POISON_MEMORY(T b, unsigned long l, const uint8_t v)
 {
 	DXX_POISON_DEFINED_MEMORY(b, l, v);
 	DXX_MAKE_MEM_UNDEFINED(b, l);
@@ -113,8 +113,8 @@ static inline void DXX_POISON_MEMORY(T b, unsigned long l, const V &v)
 /* Convenience function to invoke
  * `DXX_POISON_MEMORY(T &, unsigned long, V)`
  */
-template <typename T, typename V>
-static inline void DXX_POISON_MEMORY(T b, T e, const V &v)
+template <typename T>
+static inline void DXX_POISON_MEMORY(T b, T e, const uint8_t &&v)
 {
 	DXX_POISON_MEMORY_RANGE(b, e, v);
 	DXX_MAKE_MEM_UNDEFINED(b, e);
@@ -125,7 +125,7 @@ static inline void DXX_POISON_MEMORY(T b, T e, const V &v)
  * of `T`.
  */
 template <typename T>
-static inline void DXX_POISON_VAR(T &b, const unsigned char v)
+static inline void DXX_POISON_VAR(T &b, const uint8_t v)
 {
 	DXX_POISON_MEMORY(reinterpret_cast<unsigned char *>(std::addressof(b)), sizeof(T), v);
 }
