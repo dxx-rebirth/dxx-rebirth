@@ -161,8 +161,8 @@ static void nm_draw_background1(grs_canvas &canvas, const char * filename)
 		if (nm_background1.bm_data == NULL)
 		{
 			const auto pcx_error = pcx_read_bitmap(filename, nm_background1, gr_palette);
-			assert(pcx_error == pcx_result::SUCCESS);
-			(void)pcx_error;
+			if (pcx_error != pcx_result::SUCCESS)
+				return;
 		}
 		gr_palette_load( gr_palette );
 		show_fullscr(canvas, nm_background1);
@@ -186,8 +186,8 @@ void nm_draw_background(grs_canvas &canvas, int x1, int y1, int x2, int y2)
 	{
 		palette_array_t background_palette;
 		const auto pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP, nm_background,background_palette);
-		assert(pcx_error == pcx_result::SUCCESS);
-		(void)pcx_error;
+		if (pcx_error != pcx_result::SUCCESS)
+			return;
 		gr_remap_bitmap_good(nm_background, background_palette, -1, -1);
 		BGScaleX=(static_cast<float>(SWIDTH)/nm_background.bm_w);
 		BGScaleY=(static_cast<float>(SHEIGHT)/nm_background.bm_h);
