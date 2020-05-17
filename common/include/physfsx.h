@@ -74,18 +74,12 @@ namespace dcx {
 
 template <typename V>
 __attribute_always_inline()
-static inline typename std::enable_if<std::is_integral<V>::value, PHYSFS_sint64>::type PHYSFSX_check_read(PHYSFS_File *file, V *v, PHYSFS_uint32 S, PHYSFS_uint32 C)
+static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, V *v, const PHYSFS_uint32 S, const PHYSFS_uint32 C)
 {
-	static_assert(std::is_pod<V>::value, "non-POD integral value read");
-	DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(S, C, v);
-	return PHYSFS_read(file, v, S, C);
-}
-
-template <typename V>
-__attribute_always_inline()
-static inline typename std::enable_if<!std::is_integral<V>::value, PHYSFS_sint64>::type PHYSFSX_check_read(PHYSFS_File *file, V *v, PHYSFS_uint32 S, PHYSFS_uint32 C)
-{
-	static_assert(std::is_pod<V>::value, "non-POD non-integral value read");
+	if constexpr (std::is_integral<V>::value)
+		static_assert(std::is_pod<V>::value, "non-POD integral value read");
+	else
+		static_assert(std::is_pod<V>::value, "non-POD non-integral value read");
 	DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(S, C, v);
 	return PHYSFS_read(file, v, S, C);
 }
@@ -108,19 +102,15 @@ static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, const std::uni
 
 template <typename V>
 __attribute_always_inline()
-static inline typename std::enable_if<std::is_integral<V>::value, PHYSFS_sint64>::type PHYSFSX_check_write(PHYSFS_File *file, const V *v, PHYSFS_uint32 S, PHYSFS_uint32 C)
+static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_File *file, const V *v, const PHYSFS_uint32 S, const PHYSFS_uint32 C)
 {
-	static_assert(std::is_pod<V>::value, "non-POD integral value written");
-	DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C);
-	DXX_PHYSFS_CHECK_WRITE_SIZE_OBJECT_SIZE(S, C, v);
-	return PHYSFS_write(file, v, S, C);
-}
-
-template <typename V>
-__attribute_always_inline()
-static inline typename std::enable_if<!std::is_integral<V>::value, PHYSFS_sint64>::type PHYSFSX_check_write(PHYSFS_File *file, const V *v, PHYSFS_uint32 S, PHYSFS_uint32 C)
-{
-	static_assert(std::is_pod<V>::value, "non-POD non-integral value written");
+	if constexpr (std::is_integral<V>::value)
+	{
+		static_assert(std::is_pod<V>::value, "non-POD integral value written");
+		DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C);
+	}
+	else
+		static_assert(std::is_pod<V>::value, "non-POD non-integral value written");
 	DXX_PHYSFS_CHECK_WRITE_SIZE_OBJECT_SIZE(S, C, v);
 	return PHYSFS_write(file, v, S, C);
 }

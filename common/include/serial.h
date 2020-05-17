@@ -271,13 +271,6 @@ union pad_storage
 	static_assert(amount % FULL_SIZE == REMAINDER_SIZE || FULL_SIZE == REMAINDER_SIZE, "padding alignment error");
 	std::array<uint8_t, FULL_SIZE> f;
 	std::array<uint8_t, REMAINDER_SIZE> p;
-	pad_storage(std::false_type, uint8_t value)
-	{
-		f.fill(value);
-	}
-	pad_storage(std::true_type, uint8_t)
-	{
-	}
 #undef SERIAL_UDT_ROUND_UP
 };
 
@@ -289,7 +282,8 @@ static inline void process_udt(Accessor &&accessor, const pad_type<amount, value
 	 * If writing to accessor, accessor data is non-const, so initialize
 	 * buffer to be written.
 	 */
-	pad_storage<amount> s(std::is_const<
+	pad_storage<amount> s;
+	if constexpr (!std::is_const<
 		typename std::remove_pointer<
 		/* rvalue reference `Accessor &&` causes `Accessor` to be `T &`
 		 * for some type T.  Use std::remove_reference to get T.  Then
@@ -299,7 +293,8 @@ static inline void process_udt(Accessor &&accessor, const pad_type<amount, value
 			typename std::remove_reference<Accessor>::type
 			::pointer
 		>::type
-	>(), value);
+	>::value)
+		s.f.fill(value);
 	for (std::size_t count = amount; count; count -= s.f.size())
 	{
 		if (count < s.f.size())
@@ -612,16 +607,13 @@ public:
 	bytebuffer_t(bytebuffer_t &&) = default;
 };
 
-template <typename A1>
-static inline void unaligned_copy(const uint8_t *src, unaligned_storage<A1, 1> &dst)
-{
-	dst.u[0] = *src;
-}
-
 template <typename A1, std::size_t BYTES>
 static inline void unaligned_copy(const uint8_t *src, unaligned_storage<A1, BYTES> &dst)
 {
-	std::copy_n(src, sizeof(dst.u), dst.u);
+	if constexpr (BYTES == 1)
+		dst.u[0] = *src;
+	else
+		std::copy_n(src, sizeof(dst.u), dst.u);
 }
 
 template <typename Accessor, typename A1>
@@ -664,19 +656,16 @@ public:
 	bytebuffer_t(bytebuffer_t &&) = default;
 };
 
-template <typename A1>
-static inline void unaligned_copy(const unaligned_storage<A1, 1> &src, uint8_t *dst)
-{
-	*dst = src.u[0];
-}
-
-/* If inline unaligned_copy, gcc inlining of copy_n creates a loop instead
- * of a store.
+/* If unaligned_copy is manually inlined into the caller, then gcc
+ * inlining of copy_n creates a loop instead of a store.
  */
 template <typename A1, std::size_t BYTES>
 static inline void unaligned_copy(const unaligned_storage<A1, BYTES> &src, uint8_t *dst)
 {
-	std::copy_n(src.u, sizeof(src.u), dst);
+	if constexpr (BYTES == 1)
+		*dst = src.u[0];
+	else
+		std::copy_n(src.u, sizeof(src.u), dst);
 }
 
 template <typename Accessor, typename A1>
