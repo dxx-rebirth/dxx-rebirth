@@ -743,12 +743,12 @@ static void process_buffer(Accessor &&accessor, const message<A1, Args...> &m)
 }
 
 /* Require at least two arguments to prevent self-selection */
-template <typename Accessor, typename A1, typename A2, typename... An>
-static void process_buffer(Accessor &&accessor, A1 &&a1, A2 &&a2, An &&... an)
+template <typename Accessor, typename A1, typename... An>
+static typename std::enable_if<(sizeof...(An) > 0)>::type process_buffer(Accessor &&accessor, A1 &&a1, An &&... an)
 {
 	detail::sequence({
 		(process_buffer(accessor, std::forward<A1>(a1)),
-		 process_buffer(accessor, std::forward<A2>(a2)), static_cast<uint8_t>(0)),
+		 static_cast<uint8_t>(0)),
 		(process_buffer(accessor, std::forward<An>(an)), static_cast<uint8_t>(0))...
 	});
 }
