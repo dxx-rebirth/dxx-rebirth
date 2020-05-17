@@ -166,36 +166,59 @@ static pcx_result pcx_read_blank(const char *const filename, grs_main_bitmap &bm
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
 
+static std::pair<std::unique_ptr<uint8_t[]>, std::size_t> load_physfs_blob(const char *const filename)
+{
+	RAIIPHYSFS_File file(PHYSFSX_openReadBuffered(filename));
+	if (!file)
+	{
+		con_printf(CON_VERBOSE, "%s:%u: failed to open \"%s\"", __FILE__, __LINE__, filename);
+		return {};
+	}
+	const std::size_t fsize = PHYSFS_fileLength(file);
+	if (fsize > 0x100000)
+	{
+		con_printf(CON_VERBOSE, "%s:%u: file too large \"%s\"", __FILE__, __LINE__, filename);
+		return {};
+	}
+	auto encoded_buffer = std::make_unique<uint8_t[]>(fsize);
+	if (PHYSFS_read(file, encoded_buffer.get(), 1, fsize) < fsize)
+	{
+		con_printf(CON_VERBOSE, "%s:%u: failed to read \"%s\"", __FILE__, __LINE__, filename);
+		return {};
+	}
+	return {std::move(encoded_buffer), fsize};
+}
+
+static std::pair<std::unique_ptr<uint8_t[]>, std::size_t> load_decoded_physfs_blob(const char *const filename)
+{
+	auto encoded_blob = load_physfs_blob(filename);
+	auto &&[encoded_buffer, fsize] = encoded_blob;
+	if (!encoded_buffer)
+		return encoded_blob;
+	const std::size_t data_size = fsize - 1;
+	auto &&transform_predicate = [xor_value = encoded_buffer[data_size]](uint8_t c) mutable {
+		return c ^ --xor_value;
+	};
+	auto &&decoded_buffer = std::make_unique<uint8_t[]>(data_size);
+	const auto b = encoded_buffer.get();
+	std::transform(std::make_reverse_iterator(std::next(b, data_size)), std::make_reverse_iterator(b), decoded_buffer.get(), transform_predicate);
+	return {std::move(decoded_buffer), data_size};
+}
+
 pcx_result bald_guy_load(const char *const filename, grs_bitmap *const bmp, palette_array_t &palette)
 {
 	PCXHeader header;
-	int i, count, fsize;
-	ubyte data, c, xor_value;
+	int count;
+	ubyte data;
 	unsigned int row, xsize;
 	unsigned int col, ysize;
+
+	const auto &&[bguy_data, data_size] = load_decoded_physfs_blob(filename);
+	if (!bguy_data)
+		return pcx_result::ERROR_OPENING;
+
+	(void)data_size;
 	
-	auto PCXfile = PHYSFSX_openReadBuffered(filename);
-	if ( !PCXfile )
-		return pcx_result::SUCCESS;
-	
-	PHYSFSX_fseek(PCXfile, -1, SEEK_END);
-	fsize = PHYSFS_tell(PCXfile);
-	PHYSFS_read(PCXfile, &xor_value, 1, 1);
-	xor_value--;
-	PHYSFSX_fseek(PCXfile, 0, SEEK_SET);
-	
-	RAIIdmem<uint8_t[]> bguy_data, bguy_data1;
-	MALLOC(bguy_data, uint8_t[], fsize);
-	MALLOC(bguy_data1, uint8_t[], fsize);
-	
-	PHYSFS_read(PCXfile, bguy_data1, 1, fsize);
-	
-	for (i = 0; i < fsize; i++) {
-		c = bguy_data1[fsize - i - 1] ^ xor_value;
-		bguy_data[i] = c;
-		xor_value--;
-	}
-	PCXfile.reset();
 	auto p = bguy_data.get();
 	memcpy( &header, p, sizeof(PCXHeader) );
 	p += sizeof(PCXHeader);
