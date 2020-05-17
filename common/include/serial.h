@@ -23,7 +23,7 @@
 
 namespace serial {
 
-template <typename A1, typename... Args>
+template <typename... Args>
 class message;
 
 template <typename>
@@ -35,8 +35,8 @@ class is_message : public std::false_type
 {
 };
 
-template <typename A1, typename... Args>
-class is_message<message<A1, Args...>> : public std::true_type
+template <typename... Args>
+class is_message<message<Args...>> : public std::true_type
 {
 };
 
@@ -90,8 +90,8 @@ static inline typename std::enable_if<is_generic_class<A1rr>::value, void>::type
 template <typename Accessor, typename A1>
 static typename std::enable_if<is_cxx_array<A1>::value, void>::type process_buffer(Accessor &&, A1 &);
 
-template <typename Accessor, typename A1, typename... Args>
-static void process_buffer(Accessor &, const message<A1, Args...> &);
+template <typename Accessor, typename... Args>
+static void process_buffer(Accessor &, const message<Args...> &);
 
 class endian_access
 {
@@ -121,39 +121,10 @@ public:
 	/* Implementation details - avoid namespace pollution */
 namespace detail {
 
-	/*
-	 * gcc before 4.8 chokes on tuple<tuple<struct {}>> due to ambiguous
-	 * base class after applying EBO
-	 */
-template <typename T>
-class wrapped_empty_value : T
-{
-public:
-	wrapped_empty_value() = default;
-	wrapped_empty_value(T &&t) : T(std::forward<T>(t)) {}
-	T &get() { return *this; }
-	const T &get() const { return *this; }
-};
-
-template <typename T>
-static inline T &extract_value(wrapped_empty_value<T> &t)
-{
-	return t.get();
-}
-
-template <typename T>
-static inline const T &extract_value(const wrapped_empty_value<T> &t)
-{
-	return t.get();
-}
-
 template <typename T, typename Trr = typename std::remove_reference<T>::type>
 using capture_type = typename std::conditional<std::is_lvalue_reference<T>::value,
 			std::reference_wrapper<Trr>,
-			typename std::conditional<std::is_empty<Trr>::value,
-				wrapped_empty_value<Trr>,
-				std::tuple<Trr>
-			>::type
+			std::tuple<Trr>
 		>;
 
 template <typename T, typename Trr = typename std::remove_reference<T>::type>
@@ -163,13 +134,7 @@ static inline auto capture_value(Trr &t) -> decltype(std::ref(t))
 }
 
 template <typename T, typename Trr = typename std::remove_reference<T>::type>
-static inline typename std::enable_if<std::is_empty<Trr>::value, detail::wrapped_empty_value<Trr>>::type capture_value(Trr &&t)
-{
-	return std::forward<Trr>(t);
-}
-
-template <typename T, typename Trr = typename std::remove_reference<T>::type>
-static inline typename std::enable_if<!std::is_empty<Trr>::value && std::is_rvalue_reference<T>::value, std::tuple<Trr>>::type capture_value(Trr &&t)
+static inline typename std::enable_if<std::is_rvalue_reference<T>::value, std::tuple<Trr>>::type capture_value(Trr &&t)
 {
 	return std::tuple<Trr>{std::forward<T>(t)};
 }
@@ -235,7 +200,7 @@ public:
 	using pointer = T *;
 	using reference = T &;
 	// Default bytebuffer_t usage to little endian
-	static uint16_t endian() { return little_endian; }
+	static constexpr endian_access::little_endian_type endian{};
 	base_bytebuffer_t(pointer u) : p(u) {}
 	operator pointer() const { return p; }
 	D &operator++()
@@ -307,8 +272,6 @@ static inline void process_udt(Accessor &&accessor, const pad_type<amount, value
 	}
 }
 
-static inline void sequence(std::initializer_list<uint8_t>) {}
-
 template <typename T>
 static inline T &extract_value(std::reference_wrapper<T> t)
 {
@@ -369,10 +332,10 @@ static inline detail::sign_extend_type<extended_signed_type, wrapped_type> sign_
 #define ASSERT_SERIAL_UDT_MESSAGE_SIZE(T, SIZE)	\
 	assert_equal(serial::class_type<T>::maximum_size, SIZE, "sizeof(" #T ") is not " #SIZE)
 
-template <typename M1, typename T1, typename M1rcv_rr = typename std::remove_cv<typename std::remove_reference<M1>::type>::type>
-struct udt_message_compatible_same_type : std::is_same<M1rcv_rr, T1>
+template <typename M1, typename T1, typename base_type = std::is_same<typename std::remove_cv<typename std::remove_reference<M1>::type>::type, T1>>
+struct udt_message_compatible_same_type : base_type
 {
-	static_assert((std::is_same<M1rcv_rr, T1>::value), "parameter type mismatch");
+	static_assert(base_type::value, "parameter type mismatch");
 };
 
 template <bool, typename M, typename T>
@@ -383,37 +346,24 @@ class assert_udt_message_compatible2<false, M, T> : public std::false_type
 {
 };
 
-template <typename M1, typename T1>
-class assert_udt_message_compatible2<true, message<M1>, std::tuple<T1>> : public udt_message_compatible_same_type<M1, T1>
-{
-};
-
-template <typename M1, typename M2, typename... Mn, typename T1, typename T2, typename... Tn>
-class assert_udt_message_compatible2<true, message<M1, M2, Mn...>, std::tuple<T1, T2, Tn...>> :
-	public assert_udt_message_compatible2<udt_message_compatible_same_type<M1, T1>::value, message<M2, Mn...>, std::tuple<T2, Tn...>>
+template <typename... Mn, typename... Tn>
+class assert_udt_message_compatible2<true, message<Mn...>, std::tuple<Tn...>> :
+	public std::integral_constant<bool, (udt_message_compatible_same_type<Mn, Tn>::value && ...)>
 {
 };
 
 template <typename M, typename T>
-class assert_udt_message_compatible1;
+class assert_udt_message_compatible;
 
-template <typename M1, typename... Mn, typename T1, typename... Tn>
-class assert_udt_message_compatible1<message<M1, Mn...>, std::tuple<T1, Tn...>> : public assert_udt_message_compatible2<sizeof...(Mn) == sizeof...(Tn), message<M1, Mn...>, std::tuple<T1, Tn...>>
+template <typename... Mn, typename... Tn>
+class assert_udt_message_compatible<message<Mn...>, std::tuple<Tn...>> : public assert_udt_message_compatible2<sizeof...(Mn) == sizeof...(Tn), message<Mn...>, std::tuple<Tn...>>
 {
 	static_assert(sizeof...(Mn) <= sizeof...(Tn), "too few types in tuple");
 	static_assert(sizeof...(Mn) >= sizeof...(Tn), "too few types in message");
 };
 
-template <typename, typename>
-class assert_udt_message_compatible;
-
 template <typename T>
 using class_type = message_type<decltype(udt_to_message(std::declval<T>()))>;
-
-template <typename C, typename T1, typename... Tn>
-class assert_udt_message_compatible<C, std::tuple<T1, Tn...>> : public assert_udt_message_compatible1<typename class_type<C>::as_message, std::tuple<T1, Tn...>>
-{
-};
 
 #define _SERIAL_UDT_UNWRAP_LIST(A1,...)	A1, ## __VA_ARGS__
 
@@ -422,7 +372,7 @@ class assert_udt_message_compatible<C, std::tuple<T1, Tn...>> : public assert_ud
 	ASSERT_SERIAL_UDT_MESSAGE_MUTABLE_TYPE(T, TYPELIST);	\
 
 #define _ASSERT_SERIAL_UDT_MESSAGE_TYPE(T, TYPELIST)	\
-	static_assert((serial::assert_udt_message_compatible<T, std::tuple<_SERIAL_UDT_UNWRAP_LIST TYPELIST>>::value), "udt/message mismatch")
+	static_assert(serial::assert_udt_message_compatible<typename class_type<T>::as_message, std::tuple<_SERIAL_UDT_UNWRAP_LIST TYPELIST>>::value, "udt/message mismatch")
 
 #define ASSERT_SERIAL_UDT_MESSAGE_CONST_TYPE(T, TYPELIST)	\
 	_ASSERT_SERIAL_UDT_MESSAGE_TYPE(const T, TYPELIST)
@@ -500,37 +450,33 @@ public:
 	typedef message<A1> as_message;
 };
 
-template <typename A1, typename A2, typename... Args>
-class message_type<message<A1, A2, Args...>> :
+template <typename... Args>
+class message_type<message<Args...>> :
 	public detail::size_base<
-		message_type<A1>::maximum_size + message_type<message<A2, Args...>>::maximum_size,
-		message_type<A1>::minimum_size + message_type<message<A2, Args...>>::minimum_size
+		(0 + ... + message_dispatch_type<message<Args>>::effective_type::maximum_size),
+		(0 + ... + message_dispatch_type<message<Args>>::effective_type::minimum_size)
 	>
 {
 public:
-	typedef message<A1, A2, Args...> as_message;
+	using as_message = message<Args...>;
 };
 
-template <typename A1, typename... Args>
+template <typename... Args>
 class message
 {
-	typedef std::tuple<typename detail::capture_type<A1 &&>::type, typename detail::capture_type<Args &&>::type...> tuple_type;
+	static_assert(sizeof...(Args) > 0, "message must have at least one template argument");
+	using tuple_type = std::tuple<typename detail::capture_type<Args &&>::type...>;
 	template <typename T1>
 		static void check_type()
 		{
 			static_assert(message_type<T1>::maximum_size > 0, "empty field in message");
 		}
-	static void check_types()
-	{
-		check_type<A1>();
-		detail::sequence({(check_type<Args>(), static_cast<uint8_t>(0))...});
-	}
 	tuple_type t;
 public:
-	message(A1 &&a1, Args &&... args) :
-		t(detail::capture_value<A1>(std::forward<A1>(a1)), detail::capture_value<Args>(std::forward<Args>(args))...)
+	message(Args &&... args) :
+		t(detail::capture_value<Args>(std::forward<Args>(args))...)
 	{
-		check_types();
+		(check_type<Args>(), ...);
 	}
 	const tuple_type &get_tuple() const
 	{
@@ -538,10 +484,10 @@ public:
 	}
 };
 
-template <typename A1, typename... Args>
-static inline message<A1 &&, Args &&...> make_message(A1 &&a1, Args &&... args)
+template <typename... Args>
+static inline message<Args &&...> make_message(Args &&... args)
 {
-	return {std::forward<A1>(a1), std::forward<Args>(args)...};
+	return {std::forward<Args>(args)...};
 }
 
 #define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_BUILTIN(HBITS,BITS)	\
@@ -733,24 +679,20 @@ static typename std::enable_if<is_cxx_array<A1>::value, void>::type process_buff
 template <typename Accessor, typename... Args, std::size_t... N>
 static inline void process_message_tuple(Accessor &&accessor, const std::tuple<Args...> &t, std::index_sequence<N...>)
 {
-	detail::sequence({(process_buffer(accessor, detail::extract_value(std::get<N>(t))), static_cast<uint8_t>(0))...});
+	(process_buffer(accessor, detail::extract_value(std::get<N>(t))), ...);
 }
 
-template <typename Accessor, typename A1, typename... Args>
-static void process_buffer(Accessor &&accessor, const message<A1, Args...> &m)
+template <typename Accessor, typename... Args>
+static void process_buffer(Accessor &&accessor, const message<Args...> &m)
 {
-	process_message_tuple(std::forward<Accessor &&>(accessor), m.get_tuple(), std::make_index_sequence<1 + sizeof...(Args)>());
+	process_message_tuple(std::forward<Accessor &&>(accessor), m.get_tuple(), std::make_index_sequence<sizeof...(Args)>());
 }
 
 /* Require at least two arguments to prevent self-selection */
-template <typename Accessor, typename A1, typename... An>
-static typename std::enable_if<(sizeof...(An) > 0)>::type process_buffer(Accessor &&accessor, A1 &&a1, An &&... an)
+template <typename Accessor, typename... An>
+static typename std::enable_if<(sizeof...(An) > 1)>::type process_buffer(Accessor &&accessor, An &&... an)
 {
-	detail::sequence({
-		(process_buffer(accessor, std::forward<A1>(a1)),
-		 static_cast<uint8_t>(0)),
-		(process_buffer(accessor, std::forward<An>(an)), static_cast<uint8_t>(0))...
-	});
+	(process_buffer(accessor, std::forward<An>(an)), ...);
 }
 
 }

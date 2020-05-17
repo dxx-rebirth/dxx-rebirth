@@ -432,6 +432,19 @@ int f_%(N)s()
 '''
 	f_%(N)s<false>();
 '''),
+		Cxx17RequiredFeature('fold expressions', '''
+static inline void g_%(N)s(int) {}
+template <int... i>
+void f_%(N)s()
+{
+	(g_%(N)s(i), ...);
+	(g_%(N)s(i), ..., (void)0);
+	((void)0, ..., g_%(N)s(i));
+}
+''',
+'''
+	f_%(N)s<0, 1, 2, 3>();
+'''),
 		Cxx17RequiredFeature('structured binding declarations', '',
 '''
 	int a_%(N)s[2] = {0, 1};
