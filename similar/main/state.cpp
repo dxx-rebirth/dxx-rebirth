@@ -539,7 +539,7 @@ deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_contro
 	if (GameUniqueState.Final_boss_countdown_time)		//don't allow save while final boss is dying
 		return deny_save_result::denied;
 #endif
-	return ::dcx::deny_save_game(vcobjptr, LevelUniqueControlCenterState);
+	return deny_save_game(vcobjptr, LevelUniqueControlCenterState);
 }
 
 namespace {
@@ -2319,10 +2319,6 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	return 1;
 }
 
-}
-
-namespace dcx {
-
 deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_control_center_state &LevelUniqueControlCenterState)
 {
 	if (LevelUniqueControlCenterState.Control_center_destroyed)
@@ -2337,6 +2333,10 @@ deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_contro
 	}
 	return deny_save_result::allowed;
 }
+
+}
+
+namespace dcx {
 
 int state_get_game_id(const d_game_unique_state::savegame_file_path &filename)
 {

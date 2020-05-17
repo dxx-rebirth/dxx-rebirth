@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "weapon.h"
 #include "powerup.h"
 #include "compiler-poison.h"
+#include "physics_info.h"
 #include "player-flags.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "escort.h"
@@ -212,32 +213,6 @@ struct quaternionpos : prohibit_void_ptr<quaternionpos>
 	vms_vector vel;
 	vms_vector rotvel;
 };
-
-// information for physics sim for an object
-struct physics_info : prohibit_void_ptr<physics_info>
-{
-	vms_vector  velocity;   // velocity vector of this object
-	vms_vector  thrust;     // constant force applied to this object
-	fix         mass;       // the mass of this object
-	fix         drag;       // how fast this slows down
-	vms_vector  rotvel;     // rotational velecity (angles)
-	vms_vector  rotthrust;  // rotational acceleration
-	fixang      turnroll;   // rotation caused by turn banking
-	ushort      flags;      // misc physics flags
-};
-
-struct physics_info_rw
-{
-	vms_vector  velocity;   // velocity vector of this object
-	vms_vector  thrust;     // constant force applied to this object
-	fix         mass;       // the mass of this object
-	fix         drag;       // how fast this slows down
-	fix         obsolete_brakes;     // how much brakes applied
-	vms_vector  rotvel;     // rotational velecity (angles)
-	vms_vector  rotthrust;  // rotational acceleration
-	fixang      turnroll;   // rotation caused by turn banking
-	ushort      flags;      // misc physics flags
-} __pack__;
 
 // stuctures for different kinds of simulation
 

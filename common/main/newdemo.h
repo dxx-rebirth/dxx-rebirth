@@ -134,6 +134,7 @@ extern void newdemo_record_secondary_ammo(int new_ammo);
 void newdemo_record_door_opening(segnum_t segnum, int side);
 extern void newdemo_record_laser_level(sbyte old_level, sbyte new_level);
 
+#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 void newdemo_record_player_afterburner(fix afterburner);
@@ -144,6 +145,7 @@ void newdemo_record_secret_exit_blown(int truth);
 void newdemo_record_trigger(vcsegidx_t segnum, unsigned side, objnum_t objnum, unsigned shot);
 #endif
 }
+#endif
 
 // Functions called during playback process...
 extern void newdemo_object_move_all();

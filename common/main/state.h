@@ -80,12 +80,12 @@ enum class deny_save_result
 };
 
 int state_get_game_id(const d_game_unique_state::savegame_file_path &filename);
-deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_control_center_state &LevelUniqueControlCenterState);
 
 }
 
 #ifdef dsx
 namespace dsx {
+deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_control_center_state &LevelUniqueControlCenterState);
 deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_control_center_state &LevelUniqueControlCenterState, const d_game_unique_state &GameUniqueState);
 void state_poll_autosave_game(d_game_unique_state &GameUniqueState, const d_level_unique_object_state &LevelUniqueObjectState);
 void state_set_immediate_autosave(d_game_unique_state &GameUniqueState);
