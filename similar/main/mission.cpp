@@ -160,7 +160,12 @@ mission_name_and_version::mission_name_and_version(Mission::descent_version_type
 
 const char *prepare_mission_list_count_dirbuf(std::array<char, 12> &dirbuf, const std::size_t immediate_directories)
 {
-	if (immediate_directories)
+	/* Limit the count of directories to what can be formatted
+	 * successfully without truncation.  If a user has more than this
+	 * many directories, an empty string will be used instead of showing
+	 * the actual count.
+	 */
+	if (immediate_directories && immediate_directories <= 99999)
 	{
 		snprintf(dirbuf.data(), dirbuf.size(), "DIR:%zu; ", immediate_directories);
 		return dirbuf.data();
