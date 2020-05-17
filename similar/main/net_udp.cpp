@@ -5856,8 +5856,8 @@ int net_udp_show_game_info()
 	players = netgame->numconnected;
 #endif
 #define GAME_INFO_FORMAT_TEXT(F)	\
-	F("\nConnected to\n\"%s\"\n", netgame->game_name.data())	\
-	F("%s", netgame->mission_title.data())	\
+	F("\nConnected to\n\"%." DXX_STRINGIZE(NETGAME_NAME_LEN) "s\"\n", netgame->game_name.data())	\
+	F("%." DXX_STRINGIZE(MISSION_NAME_LEN) "s", netgame->mission_title.data())	\
 	F(" - Lvl " DXX_SECRET_LEVEL_FORMAT "%i", DXX_SECRET_LEVEL_PARAMETER netgame->levelnum)	\
 	F("\n\nDifficulty: %s", MENU_DIFFICULTY_TEXT(netgame->difficulty))	\
 	F("\nGame Mode: %s", gamemode < GMNames.size() ? GMNames[gamemode] : "INVALID")	\
@@ -5865,6 +5865,7 @@ int net_udp_show_game_info()
 #define EXPAND_FORMAT(A,B,...)	A
 #define EXPAND_ARGUMENT(A,B,...)	, B, ## __VA_ARGS__
 	snprintf(rinfo, lengthof(rinfo), GAME_INFO_FORMAT_TEXT(EXPAND_FORMAT) GAME_INFO_FORMAT_TEXT(EXPAND_ARGUMENT));
+#undef GAME_INFO_FORMAT_TEXT
 
 	std::array<newmenu_item, 2> nm_message_items{{
 		nm_item_menu("JOIN GAME"),
