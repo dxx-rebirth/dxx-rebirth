@@ -395,6 +395,8 @@ struct me mine_editor;
 namespace dsx {
 int load_mine_data(PHYSFS_File *LoadFile)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	char old_tmap_list[MAX_TEXTURES][FILENAME_LEN];
 	int 	translate;
@@ -591,7 +593,6 @@ int load_mine_data(PHYSFS_File *LoadFile)
 		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.vertex_offset, SEEK_SET ))
 			Error( "Error seeking to vertex_offset in gamemine.c" );
 
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		range_for (auto &i, partial_range(Vertices, mine_fileinfo.vertex_howmany))
 		{
 			// Set the default values for this vertex
@@ -740,7 +741,6 @@ int load_mine_data(PHYSFS_File *LoadFile)
 		Error("Sorry, v20 segment support is broken.");
 	}
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	if ( (mine_fileinfo.newseg_verts_offset > -1) && (mine_fileinfo.newseg_verts_howmany > 0))
 	{
 		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.newseg_verts_offset, SEEK_SET ))
@@ -855,6 +855,8 @@ namespace dsx {
 
 int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_current_filename)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	ubyte   compiled_version;
 	short   temp_short;
 	ushort  temp_ushort = 0;
@@ -887,7 +889,6 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 	compiled_version = PHYSFSX_readByte(LoadFile);
 	(void)compiled_version;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	DXX_POISON_VAR(Vertices, 0xfc);
 	if (New_file_format_load)
 		LevelSharedVertexState.Num_vertices = PHYSFSX_readShort(LoadFile);

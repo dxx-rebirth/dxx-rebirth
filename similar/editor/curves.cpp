@@ -132,7 +132,10 @@ void plot_parametric(vms_equation *coeffs, fix min_t, fix max_t, fix del_t) {
 static vms_vector p1, p4, r1, r4;
 static vms_vector r4t, r1save;
 
-int generate_curve( fix r1scale, fix r4scale ) {
+int generate_curve(const fix r1scale, const fix r4scale)
+{
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
     vms_vector vec_dir, tvec;
     vms_vector coord,prev_point;
     vms_equation coeffs;
@@ -142,7 +145,6 @@ int generate_curve( fix r1scale, fix r4scale ) {
     fixang rangle, uangle;
 
 	const vcsegptr_t cursegp = Cursegp;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	compute_center_point_on_side(vcvertptr, p1, cursegp, Curside);
 
@@ -291,7 +293,10 @@ static inline vms_matrix vm_vec_ang_2_matrix (const vms_vector &v, fixang a)
 	return vm_vec_ang_2_matrix(m, v, a), m;
 }
 
-void generate_banked_curve(fix maxscale, vms_equation coeffs) {
+void generate_banked_curve(const fix maxscale, vms_equation coeffs)
+{
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
     vms_vector vec_dir, tvec, b4r4t;
     vms_vector coord,prev_point;
     fix enddist, nextdist;
@@ -302,7 +307,6 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
     if (CurveNumSegs) {
 
 		const vcsegptr_t cursegp = Cursegp;
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		extract_up_vector_from_segment(vcvertptr, cursegp, b4r4t);
     uangle = vm_vec_delta_ang( b4r4t, r4t, r4 );

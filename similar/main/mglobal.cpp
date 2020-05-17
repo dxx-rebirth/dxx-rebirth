@@ -54,7 +54,6 @@ static void reconstruct_global_variable(T &t)
 d_interface_unique_state InterfaceUniqueState;
 d_game_view_unique_state GameViewUniqueState;
 d_player_unique_endlevel_state PlayerUniqueEndlevelState;
-d_level_shared_vertex_state LevelSharedVertexState;
 d_level_unique_automap_state LevelUniqueAutomapState;
 d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
 d_level_unique_robot_awareness_state LevelUniqueRobotAwarenessState;
@@ -101,7 +100,6 @@ const std::array<std::array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_
 static void reset_globals_for_new_game()
 {
 	reconstruct_global_variable(LevelSharedBossState);
-	reconstruct_global_variable(LevelSharedVertexState);
 	reconstruct_global_variable(LevelUniqueFuelcenterState);
 	reconstruct_global_variable(LevelUniqueSegmentState);
 	reconstruct_global_variable(Players);

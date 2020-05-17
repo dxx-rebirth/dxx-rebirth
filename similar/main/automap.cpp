@@ -1152,13 +1152,14 @@ void adjust_segment_limit(automap *am, int SegmentLimit)
 
 void draw_all_edges(grs_canvas &canvas, automap *const am)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int j;
 	unsigned nbright = 0;
 	ubyte nfacing,nnfacing;
 	fix distance;
 	fix min_distance = INT32_MAX;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	range_for (auto &i, unchecked_partial_range(am->edges.get(), am->end_valid_edges))
 	{

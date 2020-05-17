@@ -1386,9 +1386,10 @@ static fix64	Re_init_thief_time = 0x3f000000;
 //	----------------------------------------------------------------------
 void recreate_thief(const uint8_t thief_id)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	const auto segnum = choose_thief_recreation_segment(ConsoleObject->segnum);
 	const auto &&segp = vmsegptridx(segnum);
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&center_point = compute_segment_center(vcvertptr, segp);
 

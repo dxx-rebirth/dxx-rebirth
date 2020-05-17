@@ -516,11 +516,12 @@ namespace dsx {
 #if DXX_USE_EDITOR
 void move_player_2_segment(const vmsegptridx_t seg, const unsigned side)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	const auto &&console = vmobjptridx(ConsoleObject);
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, console->pos, seg);
 	auto vp = compute_center_point_on_side(vcvertptr, seg, side);

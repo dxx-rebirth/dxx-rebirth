@@ -110,11 +110,12 @@ int SaveMine()
 
 int CreateNewMine()
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	if (SafetyCheck())  {
 		texpage_goto_first();
 		create_new_mine();
 		LargeView.ev_matrix = vmd_identity_matrix;	//FrontView.ev_matrix;
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
 		Update_flags = UF_WORLD_CHANGED;

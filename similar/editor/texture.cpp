@@ -81,12 +81,13 @@ int	TexFlipY()
 //	-----------------------------------------------------------
 static int DoTexSlideLeft(int value)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	uvl	duvl03;
 	fix	dist;
 	auto &vp = Side_to_verts[Curside];
 	auto &uvls = Cursegp->unique_segment::sides[Curside].uvls;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[3]]), vcvertptr(Cursegp->verts[vp[0]]));
 	dist *= value;
@@ -120,12 +121,13 @@ int TexSlideLeftBig()
 //	-----------------------------------------------------------
 static int DoTexSlideUp(int value)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	uvl	duvl03;
 	fix	dist;
 	auto &vp = Side_to_verts[Curside];
 	auto &uvls = Cursegp->unique_segment::sides[Curside].uvls;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[1]]), vcvertptr(Cursegp->verts[vp[0]]));
 	dist *= value;
@@ -161,12 +163,13 @@ int TexSlideUpBig()
 //	-----------------------------------------------------------
 static int DoTexSlideDown(int value)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	uvl	duvl03;
 	fix	dist;
 	auto &vp = Side_to_verts[Curside];
 	auto &uvls = Cursegp->unique_segment::sides[Curside].uvls;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[1]]), vcvertptr(Cursegp->verts[vp[0]]));
 	dist *= value;
@@ -280,12 +283,13 @@ int TexRotateLeftBig()
 //	-----------------------------------------------------------
 static int DoTexSlideRight(int value)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	uvl	duvl03;
 	fix	dist;
 	auto &vp = Side_to_verts[Curside];
 	auto &uvls = Cursegp->unique_segment::sides[Curside].uvls;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[3]]), vcvertptr(Cursegp->verts[vp[0]]));
 	dist *= value;

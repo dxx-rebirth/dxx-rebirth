@@ -351,6 +351,7 @@ int med_save_mine(const char * filename)
 // saves to an already-open file
 static int save_mine_data(PHYSFS_File * SaveFile)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	int  header_offset, editor_offset, vertex_offset, segment_offset, texture_offset, walls_offset, triggers_offset; //, links_offset;
 	int  newseg_verts_offset;
 	int  newsegment_offset;
@@ -552,6 +553,7 @@ static void write_special(const shared_segment &seg, const unsigned bit_mask, PH
 namespace dsx {
 int save_mine_data_compiled(PHYSFS_File *SaveFile)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	ubyte 	version = COMPILED_MINE_VERSION;
 	ubyte		bit_mask = 0;
 

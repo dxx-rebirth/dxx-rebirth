@@ -199,6 +199,7 @@ static void info_display_segsize(grs_canvas &canvas, int show_all)
 //	---------------------------------------------------------------------------------------------------
 static void info_display_default(grs_canvas &canvas, int show_all)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	static int old_Num_segments = -1;
 	static int old_Num_vertices = -1;

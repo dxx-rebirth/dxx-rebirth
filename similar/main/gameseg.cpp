@@ -808,6 +808,8 @@ static void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance dist)
 //	Return the distance.
 vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, const vms_vector &p1, const vcsegptridx_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	segnum_t		cur_seg;
 	int		qtail = 0, qhead = 0;
 	seg_seg	seg_queue[MAX_SEGMENTS];
@@ -918,7 +920,6 @@ fcd_done1: ;
 			return fcd_abort_return_value;
 		}
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	while (qtail >= 0) {
 		segnum_t	parent_seg, this_seg;
@@ -984,6 +985,7 @@ namespace dsx {
 void create_shortpos_native(const d_level_shared_segment_state &LevelSharedSegmentState, shortpos &spp, const object_base &objp)
 {
 	auto &vcsegptr = LevelSharedSegmentState.get_segments().vcptr;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	spp.bytemat[0] = convert_to_byte(objp.orient.rvec.x);
@@ -1027,7 +1029,9 @@ void create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegme
 
 void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	auto sp = spp->bytemat.data();
 
@@ -1046,7 +1050,6 @@ void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 	Assert(segnum <= Highest_segment_index);
 
 	const auto &&segp = vmsegptridx(segnum);
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &vp = *vcvertptr(segp->verts[0]);
 	objp->pos.x = (INTEL_SHORT(spp->xo) << RELPOS_PRECISION) + vp.x;
@@ -1626,6 +1629,8 @@ unsigned set_segment_depths(vcsegidx_t start_seg, const std::array<uint8_t, MAX_
 //cast static light from a segment to nearby segments
 static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vmsegptridx_t segp, const vms_vector &segment_center, const fix light_intensity, const unsigned recursion_depth)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	fix			dist_to_rseg;
 	if (auto &&visited_ref = visited[segp])
 	{
@@ -1633,7 +1638,6 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 	else
 	{
 		visited_ref = true;
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		const auto r_segment_center = compute_segment_center(vcvertptr, segp);
 		dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
@@ -1676,7 +1680,9 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 //this code is copied from the editor routine calim_process_all_lights()
 static void change_segment_light(const vmsegptridx_t segp, const unsigned sidenum, const unsigned dir)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 	if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum) & WID_RENDER_FLAG)
@@ -1686,7 +1692,6 @@ static void change_segment_light(const vmsegptridx_t segp, const unsigned sidenu
 
 		light_intensity = TmapInfo[sidep.tmap_num].lighting + TmapInfo[sidep.tmap_num2 & 0x3fff].lighting;
 		if (light_intensity) {
-			auto &Vertices = LevelSharedVertexState.get_vertices();
 			auto &vcvertptr = Vertices.vcptr;
 			const auto segment_center = compute_segment_center(vcvertptr, segp);
 			visited_segment_bitarray_t visited;

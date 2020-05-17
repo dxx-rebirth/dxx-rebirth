@@ -367,10 +367,11 @@ static inline vms_matrix med_create_group_rotation_matrix(int delta_flag, const 
 // Rotate all vertices and objects in group.
 static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type_t &group_seglist, const vcsegptr_t first_seg, int first_side)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptridx = Objects.vmptridx;
 	std::array<int8_t, MAX_VERTICES> vertex_list;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &vmvertptridx = Vertices.vmptridx;
 	const auto &&rotate_center = compute_center_point_on_side(vcvertptr, first_seg, first_side);
@@ -435,7 +436,9 @@ static void create_group_list(const vmsegptridx_t segp, group::segment_array_typ
 // ------------------------------------------------------------------------------------------------
 static void duplicate_group(std::array<uint8_t, MAX_VERTICES> &vertex_ids, group::segment_array_type_t &segments)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptridx = Objects.vmptridx;
 	group::segment_array_type_t new_segments;
 	std::array<int, MAX_VERTICES> new_vertex_ids;		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
@@ -444,7 +447,6 @@ static void duplicate_group(std::array<uint8_t, MAX_VERTICES> &vertex_ids, group
 	new_vertex_ids.fill(-1);
 
 	//	duplicate vertices
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptridx = Vertices.vcptridx;
 	range_for (auto &&v, vcvertptridx)
 	{
@@ -529,7 +531,9 @@ static int in_group(segnum_t segnum, int group_num)
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
 static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base_side, vcsegptr_t group_seg, int group_side, const vms_matrix &orient_matrix)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptridx = Objects.vmptridx;
 	int 			x;
 	int			new_current_group;
@@ -595,7 +599,6 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 		s.matcen_num = -1;
 	}
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	// Breaking connections between segments in the current group and segments not in the group.
 	range_for(const auto &gs, GroupList[new_current_group].segments)
@@ -669,7 +672,9 @@ static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
 static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base_side, const vmsegptridx_t group_seg, int group_side, const vms_matrix &orient_matrix, int orientation)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptridx = Objects.vmptridx;
 	if (IS_CHILD(base_seg->children[base_side]))
 		if (base_seg->children[base_side] != group_seg) {
@@ -708,7 +713,6 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	// create an extra copy of the vertex so we can just move the ones in the in list.
 	//	Can't use Highest_vertex_index as loop termination because it gets increased by med_create_duplicate_vertex.
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &vmvertptridx = Vertices.vmptridx;
 	range_for (auto &&v, vmvertptridx)
@@ -803,11 +807,12 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 //	-----------------------------------------------------------------------------
 static segnum_t place_new_segment_in_world(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	const auto &&segnum = Segments.vmptridx(get_free_segment_number(Segments));
 	auto &seg = *segnum;
 	seg = New_segment;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	range_for (const unsigned v, xrange(MAX_VERTICES_PER_SEGMENT))
 		seg.verts[v] = med_create_duplicate_vertex(vcvertptr(New_segment.verts[v]));
@@ -820,6 +825,8 @@ static segnum_t place_new_segment_in_world(void)
 //	Attach segment in the new-fangled way, which is by using the CopyGroup code.
 static int AttachSegmentNewAng(const vms_angvec &pbh)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	GroupList[current_group].segments.clear();
 	const auto newseg = place_new_segment_in_world();
 	GroupList[current_group].segments.emplace_back(newseg);
@@ -839,7 +846,6 @@ static int AttachSegmentNewAng(const vms_angvec &pbh)
 
 		if (Lock_view_to_cursegp)
 		{
-			auto &Vertices = LevelSharedVertexState.get_vertices();
 			auto &vcvertptr = Vertices.vcptr;
 			set_view_target_from_segment(vcvertptr, Cursegp);
 		}
@@ -868,6 +874,7 @@ int AttachSegmentNew(void)
 //	-----------------------------------------------------------------------------
 void validate_selected_segments(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	range_for (const auto &gs, GroupList[current_group].segments)
@@ -966,6 +973,8 @@ int rotate_segment_new(const vms_angvec &pbh)
 //	Attach segment in the new-fangled way, which is by using the CopyGroup code.
 int RotateSegmentNew(vms_angvec *pbh)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int	rval;
 
 	autosave_mine(mine_filename);
@@ -974,7 +983,6 @@ int RotateSegmentNew(vms_angvec *pbh)
 
 	if (Lock_view_to_cursegp)
 	{
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
 	}
@@ -1515,6 +1523,8 @@ int GroupSegment( void )
 
 int Degroup( void )
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int i;
 
 //	GroupList[current_group].num_segments = 0;
@@ -1545,7 +1555,6 @@ int Degroup( void )
 
    if (Lock_view_to_cursegp)
 	{
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
        set_view_target_from_segment(vcvertptr, Cursegp);
 	}
@@ -1777,6 +1786,8 @@ int CreateGroup(void)
 // Deletes current group.
 int DeleteGroup( void )
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int i;
 
 	autosave_mine(mine_filename);
@@ -1807,7 +1818,6 @@ int DeleteGroup( void )
 	undo_status[Autosave_count] = "Delete Group UNDONE.";
    if (Lock_view_to_cursegp)
 	{
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
        set_view_target_from_segment(vcvertptr, Cursegp);
 	}

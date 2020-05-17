@@ -118,6 +118,8 @@ int Gameview_lockstep;		//if set, view is locked to Curseg
 
 int ToggleLockstep()
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	Gameview_lockstep = !Gameview_lockstep;
     if (Gameview_lockstep == 0) {
         //if (keypress != KEY_L)
@@ -133,7 +135,6 @@ int ToggleLockstep()
 
 		Cursegp = imsegptridx(ConsoleObject->segnum);
 		med_create_new_segment_from_cursegp();
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
 		Update_flags = UF_ED_STATE_CHANGED;
@@ -143,10 +144,11 @@ int ToggleLockstep()
 
 int medlisp_delete_segment(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
     if (!med_delete_segment(Cursegp)) {
         if (Lock_view_to_cursegp)
 		{
-			auto &Vertices = LevelSharedVertexState.get_vertices();
 			auto &vcvertptr = Vertices.vcptr;
             set_view_target_from_segment(vcvertptr, Cursegp);
 		}
@@ -189,6 +191,8 @@ int medlisp_rotate_segment(void)
 
 int ToggleLockViewToCursegp(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	Lock_view_to_cursegp = !Lock_view_to_cursegp;
 	Update_flags = UF_ED_STATE_CHANGED;
 	if (Lock_view_to_cursegp) {
@@ -196,7 +200,6 @@ int ToggleLockViewToCursegp(void)
             diagnostic_message("[ctrl-V] View locked to Cursegp.");
         //else
         //    diagnostic_message("View locked to Cursegp.");
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
         set_view_target_from_segment(vcvertptr, Cursegp);
     } else {
@@ -342,12 +345,14 @@ void draw_world_from_game(void)
 }
 
 int UndoCommand()
-{   int u;
+{  
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	int u;
 
     u = undo();
     if (Lock_view_to_cursegp)
 	{
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
 	}
@@ -380,12 +385,13 @@ int ToggleAutosave()
 
 int AttachSegment()
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
    if (med_attach_segment(Cursegp, vmsegptr(&New_segment), Curside, AttachSide)==4) // Used to be WBACK instead of Curside
         diagnostic_message("Cannot attach segment - already a connection on current side.");
    else {
 		if (Lock_view_to_cursegp)
 		{
-			auto &Vertices = LevelSharedVertexState.get_vertices();
 			auto &vcvertptr = Vertices.vcptr;
 			set_view_target_from_segment(vcvertptr, Cursegp);
 		}

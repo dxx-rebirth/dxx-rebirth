@@ -48,6 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //find the distance between a segment and a point
 static fix compute_dist(const vcsegptr_t seg,const vms_vector &pos)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto delta = compute_segment_center(vcvertptr, seg);
@@ -78,6 +79,8 @@ int SortSelectedList(void)
 
 int SelectNextFoundSeg(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	if (++Found_seg_index >= Found_segs.size())
 		Found_seg_index = 0;
 
@@ -88,7 +91,6 @@ int SelectNextFoundSeg(void)
 
 	if (Lock_view_to_cursegp)
 	{
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
 	}
@@ -100,6 +102,8 @@ int SelectNextFoundSeg(void)
 
 int SelectPreviousFoundSeg(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	if (Found_seg_index > 0)
 		Found_seg_index--;
 	else
@@ -112,7 +116,6 @@ int SelectPreviousFoundSeg(void)
 
 	if (Lock_view_to_cursegp)
 	{
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
 	}

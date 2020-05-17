@@ -119,11 +119,12 @@ static void draw_line(grs_canvas &canvas, const unsigned pnum0, const unsigned p
 // ----------------------------------------------------------------------------
 static void draw_segment(grs_canvas &canvas, const shared_segment &seg, const uint8_t color)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	if (seg.segnum == segment_none)		//this segment doesn't exitst
 		return;
 
 	auto &svp = seg.verts;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
@@ -145,6 +146,7 @@ static void draw_segment(grs_canvas &canvas, const shared_segment &seg, const ui
 static void check_segment(const vmsegptridx_t seg)
 {
 	auto &svp = seg->verts;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
@@ -188,6 +190,7 @@ static void check_segment(const vmsegptridx_t seg)
 static void draw_seg_side(const shared_segment &seg, const unsigned side, const uint8_t color)
 {
 	auto &svp = seg.verts;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
@@ -205,6 +208,7 @@ static void draw_seg_side(const shared_segment &seg, const unsigned side, const 
 static void draw_side_edge(const shared_segment &seg, const unsigned side, const unsigned edge, const uint8_t color)
 {
 	auto &svp = seg.verts;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)		//on screen?
@@ -386,6 +390,7 @@ static void add_edge(int v0,int v1,ubyte type)
 static void add_edges(const shared_segment &seg)
 {
 	auto &svp = seg.verts;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
@@ -445,6 +450,7 @@ static void add_edges(const shared_segment &seg)
 static void draw_trigger_side(const shared_segment &seg, const unsigned side, const uint8_t color)
 {
 	auto &svp = seg.verts;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
@@ -459,6 +465,7 @@ static void draw_trigger_side(const shared_segment &seg, const unsigned side, co
 static void draw_wall_side(const shared_segment &seg, const unsigned side, const uint8_t color)
 {
 	auto &svp = seg.verts;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
@@ -684,6 +691,7 @@ static void draw_special_segments(void)
 //find a free vertex. returns the vertex number
 static int alloc_vert()
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	int vn;
 
 	const auto Num_vertices = LevelSharedVertexState.Num_vertices;
@@ -702,6 +710,7 @@ static int alloc_vert()
 //frees a vertex
 static void free_vert(int vert_num)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	Vertex_active[vert_num] = 0;
 	--LevelSharedVertexState.Num_vertices;
@@ -710,6 +719,8 @@ static void free_vert(int vert_num)
 // -----------------------------------------------------------------------------
 static void draw_coordinate_axes(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	std::array<unsigned, 16> Axes_verts;
 	vms_vector	tvec;
 
@@ -718,7 +729,6 @@ static void draw_coordinate_axes(void)
 
 	create_coordinate_axes_from_segment(Cursegp,Axes_verts);
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &vmvertptr = Vertices.vmptr;
 	const auto &&av0 = vcvertptr(Axes_verts[0]);

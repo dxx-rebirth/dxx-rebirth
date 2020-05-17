@@ -1770,6 +1770,7 @@ void move_towards_segment_center(const d_level_shared_segment_state &LevelShared
 	const auto segnum = objp.segnum;
 	vms_vector	vec_to_center;
 
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &SSegments = LevelSharedSegmentState.get_segments();
 	const auto &&segment_center = compute_segment_center(Vertices.vcptr, SSegments.vcptr(segnum));
@@ -1966,7 +1967,9 @@ static int check_object_object_intersection(const vms_vector &pos, fix size, con
 static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &vcobjptr, const vmsegptridx_t segp, const unsigned object_id, const vms_vector *const pos)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	const auto Gate_interval = GameUniqueState.Boss_gate_interval;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1992,7 +1995,6 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 		return object_none;
 	}
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto object_pos = pos ? *pos : pick_random_point_in_seg(vcvertptr, segp);
 
@@ -2101,6 +2103,8 @@ namespace dsx {
 //	It is available as a cheat in a non-debug (release) version.
 void create_buddy_bot(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	const auto &&range = enumerate(partial_const_range(LevelSharedRobotInfoState.Robot_info, LevelSharedRobotInfoState.N_robot_types));
 	const auto &&predicate = [](const auto &ev) {
 		const robot_info &robptr = ev.value;
@@ -2110,7 +2114,6 @@ void create_buddy_bot(void)
 	if (!(it != range.end()))
 		return;
 	const auto &&segp = vmsegptridx(ConsoleObject->segnum);
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&object_pos = compute_segment_center(vcvertptr, segp);
 	create_morph_robot(segp, object_pos, (*it).idx);
@@ -2126,6 +2129,8 @@ void create_buddy_bot(void)
 //	one_wall_hack added by MK, 10/13/95: A mega-hack!  Set to !0 to ignore the 
 static void init_boss_segments(const segment_array &segments, const object &boss_objp, d_level_shared_boss_state::special_segment_array_t &a, const int size_check, int one_wall_hack)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	constexpr unsigned QUEUE_SIZE = 256;
 	auto &vcsegptridx = segments.vcptridx;
 	auto &vmsegptr = segments.vmptr;
@@ -2138,7 +2143,6 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 	Selected_segs.clear();
 #endif
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 	{
@@ -2223,6 +2227,7 @@ static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx,
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	segnum_t			rand_segnum;
 	int			rand_index;
 	assert(!Boss_teleport_segs.empty());
@@ -3094,6 +3099,8 @@ static bool skip_ai_for_time_splice(const vcobjptridx_t robot, const robot_info 
 // --------------------------------------------------------------------------------------------------------------------
 void do_ai_frame(const vmobjptridx_t obj)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	const objnum_t &objnum = obj;
 	ai_static	*const aip = &obj->ctype.ai_info;
@@ -4075,7 +4082,6 @@ _exit_cheat:
 
 			if (!ai_multiplayer_awareness(obj, 62))
 				return;
-			auto &Vertices = LevelSharedVertexState.get_vertices();
 			auto &vcvertptr = Vertices.vcptr;
 			const auto &&center_point = compute_center_point_on_side(vcvertptr, vcsegptr(obj->segnum), aip->GOALSIDE);
 			const auto goal_vector = vm_vec_normalized_quick(vm_vec_sub(center_point, obj->pos));

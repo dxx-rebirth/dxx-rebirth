@@ -303,7 +303,9 @@ int ObjectMakeCoop(void)
 //	Place current object at center of current segment.
 int ObjectPlaceObject(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	int	old_cur_object_index;
 	int	rval;
@@ -320,7 +322,6 @@ int ObjectPlaceObject(void)
 	}
 
 	//update_due_to_new_segment();
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto cur_object_loc = compute_segment_center(vcvertptr, Cursegp);
 
@@ -338,10 +339,11 @@ int ObjectPlaceObject(void)
 //	Place current object at center of current segment.
 int ObjectPlaceObjectTmap(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int	rval, old_cur_object_index;
 	//update_due_to_new_segment();
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto cur_object_loc = compute_segment_center(vcvertptr, Cursegp);
 
@@ -549,11 +551,12 @@ static int ObjectMoveFailed()
 
 static int ObjectMovePos(const vmobjptridx_t obj, vms_vector &&vec, int scale)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	vm_vec_normalize(vec);
 	const auto &&newpos = vm_vec_add(obj->pos, vm_vec_scale(vec, scale));
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	if (!verify_object_seg(vmobjptr, Segments, vcvertptr, obj, newpos))
 		obj->pos = newpos;
@@ -564,13 +567,14 @@ static int ObjectMovePos(const vmobjptridx_t obj, vms_vector &&vec, int scale)
 template <typename extract_type, int direction>
 static int ObjectMove()
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptridx = Objects.vmptridx;
 	const auto i = Cur_object_index;
 	if (i == object_none)
 		return ObjectMoveFailed();
 	const auto &&obj = vmobjptridx(i);
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	return ObjectMovePos(obj, extract_type::get(vcvertptr, vcsegptr(obj->segnum)), direction * OBJ_SCALE);
 }
@@ -604,7 +608,9 @@ int	ObjectMoveRight(void)
 //	------------------------------------------------------------------------------------------------------
 int	ObjectSetDefault(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	//update_due_to_new_segment();
 
@@ -614,7 +620,6 @@ int	ObjectSetDefault(void)
 	}
 
 	const auto &&objp = vmobjptr(Cur_object_index);
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, objp->pos, vcsegptr(objp->segnum));
 
@@ -737,9 +742,10 @@ template int ObjectIncreaseHeadingBig();
 
 static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &newpos)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &vmobjptr = Objects.vmptr;
 	auto &vcvertptr = Vertices.vcptr;
 	if (get_seg_masks(vcvertptr, newpos, vcsegptr(objp->segnum), objp->size).facemask == 0)
 	{

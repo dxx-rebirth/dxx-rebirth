@@ -116,6 +116,8 @@ static trgnum_t add_trigger(trigger_array &Triggers, fvcvertptr &vcvertptr, wall
 // Returns 0 if trigger flag cannot be added.
 static int trigger_flag_Markedside(const TRIGGER_FLAG flag, const int value)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	if (!Markedsegp) {
 		editor_status("No Markedside.");
 		return 0;
@@ -128,7 +130,6 @@ static int trigger_flag_Markedside(const TRIGGER_FLAG flag, const int value)
 	const auto wall_num = Markedsegp->shared_segment::sides[Markedside].wall_num;
 	if (!value && wall_num == wall_none) return 0;
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;

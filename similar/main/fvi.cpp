@@ -122,6 +122,8 @@ static ij_pair find_largest_normal(vms_vector t)
 __attribute_warn_unused_result
 static unsigned check_point_to_face(const vms_vector &checkp, const vms_vector &norm, const unsigned facenum, const unsigned nv, const vertex_array_list_t &vertex_list)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 ///
 	int edge;
 	uint edgemask;
@@ -141,7 +143,6 @@ static unsigned check_point_to_face(const vms_vector &checkp, const vms_vector &
 	check_i = checkp.*ij.i;
 	check_j = checkp.*ij.j;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	for (edge=edgemask=0;edge<nv;edge++) {
 		vec2d edgevec,checkvec;
@@ -170,6 +171,8 @@ static unsigned check_point_to_face(const vms_vector &checkp, const vms_vector &
 __attribute_warn_unused_result
 static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal, const unsigned facenum, const unsigned nv, const fix rad, const vertex_array_list_t &vertex_list)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	const auto checkp = pnt;
 	uint edgemask;
 
@@ -191,7 +194,6 @@ static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal,
 
 		for (edgenum=0;!(edgemask&1);(edgemask>>=1),edgenum++);
 
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		auto &v0 = *vcvertptr(vertex_list[facenum * 3 + edgenum]);
 		auto &v1 = *vcvertptr(vertex_list[facenum * 3 + ((edgenum + 1) % nv)]);
@@ -241,6 +243,8 @@ static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal,
 __attribute_warn_unused_result
 static int check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const unsigned side, const unsigned facenum, const unsigned nv, const fix rad)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &s = seg.sides[side];
 	const vms_vector &norm = s.normals[facenum];
 
@@ -258,7 +262,6 @@ static int check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_
 		vertnum = *std::min_element(b, std::next(b, 4));
 	}
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto pli = find_plane_line_intersection(newp, vcvertptr(vertnum), norm, p0, p1, rad);
 
@@ -317,6 +320,8 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector &p1,const vms_vec
 __attribute_warn_unused_result
 static int special_check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const unsigned side, const unsigned facenum, const unsigned nv, const fix rad)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0;
 	int edgenum;
 	auto &s = seg.sides[side];
@@ -336,7 +341,6 @@ static int special_check_line_to_face(vms_vector &newp, const vms_vector &p0, co
 
 	for (edgenum=0;!(edgemask&1);edgemask>>=1,edgenum++);
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &edge_v0 = *vcvertptr(vertex_list[facenum * 3 + edgenum]);
 	auto &edge_v1 = *vcvertptr(vertex_list[facenum * 3 + ((edgenum + 1) % nv)]);
@@ -633,7 +637,9 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 }
 int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &imobjptridx = Objects.imptridx;
 	int hit_type;
 	segnum_t hit_seg2;
@@ -656,7 +662,6 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 		return hit_data.hit_type;
 	}
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	// Viewer is not in segment as claimed, so say there is no hit.
 	if(!(get_seg_masks(vcvertptr, *fq.p0, vcsegptr(fq.startseg), 0).centermask == 0))
@@ -798,7 +803,9 @@ static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segm
 namespace dsx {
 static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, icobjptridx_t thisobjnum, const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited, unsigned &fvi_hit_side, icsegidx_t &fvi_hit_side_seg, unsigned &fvi_nest_count, icsegidx_t &fvi_hit_pt_seg, const vms_vector *&wall_norm, icobjidx_t &fvi_hit_object)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptridx = Objects.vcptridx;
 	int startmask,endmask;	//mask of faces
 	//@@int sidemask;				//mask of sides - can be on back of face but not side
@@ -883,7 +890,6 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 
 	//now, check segment walls
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	startmask = get_seg_masks(vcvertptr, p0, startseg, rad).facemask;
 
@@ -1109,6 +1115,8 @@ quit_looking:
 namespace dsx {
 fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const cscusegment seg, const uint_fast32_t sidenum, const uint_fast32_t facenum)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &side = seg.s.sides[sidenum];
 	fix k0,k1;
 	int i;
@@ -1134,7 +1142,6 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const cscusegment seg, cons
 	//2. compute u,v of intersection point
 
 	//vec from 1 -> 0
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &vf1 = *vcvertptr(vn[facenum * 3 + 1].vertex);
 	const vec2d p1{vf1.*ii, vf1.*jj};

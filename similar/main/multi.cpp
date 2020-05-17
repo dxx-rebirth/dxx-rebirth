@@ -3286,6 +3286,8 @@ public:
 
 void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, const object &o, const powerup_type_t id)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	uint_fast32_t count;
 	switch (id)
 	{
@@ -3342,7 +3344,6 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 	const auto vc_num_frames = vc.num_frames;
 	const auto &&segp = vmsegptridx(o.segnum);
 	const auto &seg_verts = segp->verts;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	for (uint_fast32_t i = count++; i; --i)
 	{

@@ -1020,8 +1020,10 @@ namespace dsx {
 
 void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &Station = LevelUniqueFuelcenterState.Station;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	const uint_fast32_t fuelcen_num = buf[2];
 	int type = buf[5];
 
@@ -1041,7 +1043,6 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 	// Play effect and sound
 
 	const auto &&robotcen_segp = vmsegptridx(robotcen->segnum);
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&cur_object_loc = compute_segment_center(vcvertptr, robotcen_segp);
 	if (const auto &&obj = object_create_explosion(robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT))
@@ -1095,8 +1096,10 @@ void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const uint8_t *con
 
 void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -1115,7 +1118,6 @@ void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, 
 	if (!guarded_teleport_segnum)
 		return;
 	const auto &&teleport_segnum = *guarded_teleport_segnum;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, boss_obj->pos, teleport_segnum);
 	obj_relink(vmobjptr, vmsegptr, boss_obj, teleport_segnum);

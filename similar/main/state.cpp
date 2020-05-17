@@ -1491,12 +1491,13 @@ int state_save_all_sub(const char *filename, const char *desc)
 #if defined(DXX_BUILD_DESCENT_II)
 void set_pos_from_return_segment(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	const auto &&plobjnum = vmobjptridx(get_local_player().objnum);
 	const auto &&segp = vmsegptridx(LevelSharedSegmentState.Secret_return_segment);
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, plobjnum->pos, segp);
 	obj_relink(vmobjptr, vmsegptr, plobjnum, segp);

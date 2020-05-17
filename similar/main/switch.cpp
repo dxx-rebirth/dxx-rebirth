@@ -157,7 +157,9 @@ static void do_lock_doors(fvcsegptr &vcsegptr, fvmwallptr &vmwallptr, const trig
 // Changes walls pointed to by a trigger. returns true if any walls changed
 static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	int ret=0;
 
@@ -200,7 +202,6 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 
 			ret |= 1;
 
-			auto &Vertices = LevelSharedVertexState.get_vertices();
 			auto &vcvertptr = Vertices.vcptr;
 			switch (t.type)
 			{
@@ -298,6 +299,10 @@ static void do_il_off(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, fvmwallp
 // 'close' will still close the game window
 window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num, const playernum_t pnum, const unsigned shot)
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+#endif
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto result = window_event_result::ignored;
 
@@ -369,7 +374,6 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 
 	auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	switch (trigger.type)
 	{

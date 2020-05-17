@@ -47,9 +47,10 @@ namespace dsx {
 // ------------------------------------------------------------------------------------------
 static void validate_modified_segments(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int	v0;
 	visited_segment_bitarray_t modified_segments;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	for (int v=0; v<Modified_vertex_index; v++) {
 		v0 = Modified_vertices[v];
@@ -80,6 +81,7 @@ static void validate_modified_segments(void)
 //	Scale vertex *vertp by vector *vp, scaled by scale factor scale_factor
 static void scale_vert_aux(const unsigned vertex_ind, const vms_vector &vp, const fix scale_factor)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmvertptr = Vertices.vmptr;
 	auto &vertp = *vmvertptr(vertex_ind);
@@ -182,9 +184,10 @@ static void med_scale_segment_new(const vmsegptr_t sp, int dimension, fix amount
 //	The point on each face is the average of the four points forming the face.
 static void extract_vector_from_segment_side(const vmsegptr_t sp, const unsigned side, vms_vector &vp, const unsigned vla, const unsigned vlb, const unsigned vra, const unsigned vrb)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &sv = Side_to_verts[side];
 	auto &verts = sp->verts;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto v1 = vm_vec_sub(vcvertptr(verts[sv[vra]]), vcvertptr(verts[sv[vla]]));
 	const auto v2 = vm_vec_sub(vcvertptr(verts[sv[vrb]]), vcvertptr(verts[sv[vlb]]));
@@ -215,6 +218,8 @@ void med_extract_up_vector_from_segment_side(const vmsegptr_t sp, int sidenum, v
 //	Increase the size of Cursegp in dimension dimension by amount
 static int segsize_common(int dimension, fix amount)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	vms_vector	uvec, rvec, fvec, scalevec;
 
 	Degenerate_segment_found = 0;
@@ -223,7 +228,6 @@ static int segsize_common(int dimension, fix amount)
 
 	med_extract_up_vector_from_segment_side(Cursegp, Curside, uvec);
 	med_extract_right_vector_from_segment_side(Cursegp, Curside, rvec);
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	extract_forward_vector_from_segment(vcvertptr, Cursegp, fvec);
 
@@ -379,6 +383,8 @@ int ToggleSegSizeMode(void)
 //	---------------------------------------------------------------------------
 static int	PerturbCursideCommon(fix amount)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int			saveSegSizeMode = SegSizeMode;
 	vms_vector	fvec, rvec, uvec;
 	fix			fmag, rmag, umag;
@@ -386,7 +392,6 @@ static int	PerturbCursideCommon(fix amount)
 
 	Modified_vertex_index = 0;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	extract_forward_vector_from_segment(vcvertptr, Cursegp, fvec);
 	extract_right_vector_from_segment(vcvertptr, Cursegp, rvec);

@@ -96,6 +96,8 @@ namespace dsx {
 // at the end of the list and go backwards.
 static uint_fast32_t insert_center_points(segment_array &segments, point_seg *psegs, uint_fast32_t count)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcsegptr = segments.vcptr;
 	auto &vcsegptridx = segments.vcptridx;
 	if (count < 2)
@@ -109,7 +111,6 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 		Assert(connect_side != side_none);	//	Impossible!  These two segments must be connected, they were created by create_path_points (which was created by mk!)
 		if (connect_side == side_none)			//	Try to blow past the assert, this should at least prevent a hang.
 			connect_side = 0;
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		const auto &&center_point = compute_center_point_on_side(vcvertptr, seg1, connect_side);
 		auto new_point = vm_vec_sub(psegs[i-1].point, center_point);

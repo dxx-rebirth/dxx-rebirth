@@ -197,8 +197,10 @@ void fuelcen_activate(const vmsegptridx_t segp)
 //	Trigger (enable) the materialization center in segment segnum
 void trigger_matcen(const vmsegptridx_t segp)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	FuelCenter	*robotcen;
 
 	Assert(segp->special == SEGMENT_IS_ROBOTMAKER);
@@ -226,7 +228,6 @@ void trigger_matcen(const vmsegptridx_t segp)
 	robotcen->Disable_time = MATCEN_LIFE;
 
 	//	Create a bright object in the segment.
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &&pos = compute_segment_center(vcvertptr, segp);
 	const auto &&delta = vm_vec_sub(vcvertptr(segp->verts[0]), pos);
@@ -351,8 +352,10 @@ imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &obj
 //	----------------------------------------------------------------------------------------------------------
 static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, FuelCenter *const robotcen, const unsigned numrobotcen)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
@@ -406,7 +409,6 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 
 	robotcen->Timer += FrameTime;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	switch( robotcen->Flag )	{
 	case 0:		// Wait until next robot can generate

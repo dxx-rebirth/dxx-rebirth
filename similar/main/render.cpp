@@ -792,6 +792,7 @@ constexpr fix CROSS_HEIGHT = i2f(8);
 static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, const unsigned _side, const unsigned edge, const unsigned vert)
 {
 	auto &verts = seg.verts;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, verts).uand)
@@ -1089,9 +1090,10 @@ namespace dsx {
 static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const vms_vector &Viewer_eye, render_state_t &rstate)
 {
 	const auto viewer = Viewer;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
+	auto &vcvertptr = Vertices.vcptr;
 	auto &vcwallptr = Walls.vcptr;
 	const auto N_render_segs = rstate.N_render_segs;
 	range_for (const unsigned nn, xrange(N_render_segs))
@@ -1254,6 +1256,8 @@ void update_rendered_data(window_rendered_data &window, const object &viewer, in
 //fills in Render_list & N_render_segs
 static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_eye, visited_twobit_array_t &visited, unsigned &first_terminal_seg, const vcsegidx_t start_seg_num)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int	lcnt,scnt,ecnt;
 	int	l;
 
@@ -1278,7 +1282,6 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 
 	//build list
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
@@ -1422,12 +1425,13 @@ done_list:
 //renders onto current canvas
 void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegidx_t start_seg_num, const fix eye_offset, window_rendered_data &window)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptridx = Objects.vmptridx;
 #if DXX_USE_OGL
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 #else
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
@@ -1544,7 +1548,6 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
         // GL_DEPTH_TEST helps to sort everything in view but we should make sure translucent sprites are rendered after geometry to prevent them to turn walls invisible (if rendered BEFORE geometry but still in FRONT of it).
         // If walls use blending, they should be rendered along with objects (in same pass) to prevent some ugly clipping.
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;

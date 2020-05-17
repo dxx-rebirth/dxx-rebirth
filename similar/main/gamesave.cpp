@@ -1267,7 +1267,9 @@ int load_level(
 #endif
 	const char * filename_passed)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptridx = Objects.vmptridx;
 #if DXX_USE_EDITOR
 	int use_compiled_level=1;
@@ -1403,7 +1405,6 @@ int load_level(
 	 * Descent 1 - Level 19: OBERON MINE has some ugly overlapping rooms (segment 484).
 	 * HACK to make this issue less visible by moving one vertex a little.
 	 */
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmvertptr = Vertices.vmptr;
 	if (Current_mission && !d_stricmp("Descent: First Strike",Current_mission_longname) && !d_stricmp("level19.rdl",filename) && PHYSFS_fileLength(LoadFile) == 136706)
 		vmvertptr(1905u)->z = -385 * F1_0;
@@ -1539,6 +1540,8 @@ int get_level_name()
 namespace dsx {
 int create_new_mine(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	vms_matrix	m1 = IDENTITY_MATRIX;
 	
 	// initialize_mine_arrays();
@@ -1567,7 +1570,6 @@ int create_new_mine(void)
 	
 	
 	LevelSharedVertexState.Num_vertices = 0;		// Number of vertices in global array.
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	Vertices.set_count(1);
 	LevelSharedSegmentState.Num_segments = 0;		// Number of segments in global array, will get increased in med_create_segment
 	Segments.set_count(1);
@@ -1791,7 +1793,9 @@ static int save_level_sub(
 #endif
 	fvmobjptridx &vmobjptridx, const char *const filename)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	char temp_filename[PATH_MAX];
 	int minedata_offset=0,gamedata_offset=0;
@@ -1843,7 +1847,6 @@ static int save_level_sub(
 		{
 			if (plr->segnum > Highest_segment_index)
 				plr->segnum = segment_first;
-			auto &Vertices = LevelSharedVertexState.get_vertices();
 			auto &vcvertptr = Vertices.vcptr;
 			compute_segment_center(vcvertptr, plr->pos, vcsegptr(plr->segnum));
 		}

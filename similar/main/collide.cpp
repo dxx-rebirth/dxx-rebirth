@@ -2244,6 +2244,7 @@ void collide_player_and_nasty_robot(const vmobjptridx_t playerobj, const vmobjpt
 
 static vms_vector find_exit_direction(vms_vector result, const object &objp, const cscusegment segp)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;

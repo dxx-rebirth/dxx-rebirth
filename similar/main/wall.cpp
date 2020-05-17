@@ -291,7 +291,9 @@ void wall_set_tmap_num(const wclip &anim, const vmsegptridx_t seg, const unsigne
 //when the wall has used all its hitpoints, this will destroy it
 static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side, wall &w0)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	auto &sside = seg->shared_segment::sides[side];
 	const auto wall_num = sside.wall_num;
@@ -315,7 +317,6 @@ static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side, w
 	//if this is an exploding wall, explode it
 	if (wa.flags & WCF_EXPLODES)
 	{
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		explode_wall(vcvertptr, seg, side, w0);
 	}
@@ -400,7 +401,9 @@ void wall_damage(const vmsegptridx_t seg, const unsigned side, fix damage)
 namespace dsx {
 void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &WallAnims = GameSharedState.WallAnims;
 	auto &vmobjptr = Objects.vmptr;
 	active_door *d;
@@ -501,7 +504,6 @@ void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 	if ( Newdemo_state != ND_STATE_PLAYBACK )
 	{
 		// NOTE THE LINK TO ABOVE!!!!
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
 		const auto open_sound = WallAnims[w->clip_num].open_sound;
@@ -519,6 +521,8 @@ namespace dsx {
 // start the transition from closed -> open wall
 void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	cloaking_wall *d;
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
@@ -574,7 +578,6 @@ void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
 	Assert(w->linked_wall == wall_none);
 
 	if ( Newdemo_state != ND_STATE_PLAYBACK ) {
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
 		digi_link_sound_to_pos( SOUND_WALL_CLOAK_ON, seg, side, cp, 0, F1_0 );
@@ -596,6 +599,8 @@ void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
 // start the transition from open -> closed wall
 void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	cloaking_wall *d;
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
@@ -657,7 +662,6 @@ void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 	Assert(w->linked_wall == wall_none);
 
 	if ( Newdemo_state != ND_STATE_PLAYBACK ) {
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
 		digi_link_sound_to_pos( SOUND_WALL_CLOAK_OFF, seg, side, cp, 0, F1_0 );
@@ -715,6 +719,7 @@ static unsigned check_poke(fvcvertptr &vcvertptr, const object_base &obj, const 
 namespace dsx {
 static unsigned is_door_side_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const cscusegment seg, const unsigned side)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	range_for (const object_base &obj, objects_in(seg, vcobjptridx, vcsegptr))
@@ -749,7 +754,9 @@ static unsigned is_door_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegpt
 // Closes a door
 void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned side)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &WallAnims = GameSharedState.WallAnims;
 	auto &vcobjptridx = Objects.vcptridx;
 	active_door *d;
@@ -816,7 +823,6 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned 
 	if ( Newdemo_state != ND_STATE_PLAYBACK )
 	{
 		// NOTE THE LINK TO ABOVE!!!!
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
 		const auto open_sound = WallAnims[w->clip_num].open_sound;
@@ -909,7 +915,9 @@ static bool do_door_open(active_door &d)
 // Called from the game loop.
 static bool do_door_close(active_door &d)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptridx = Objects.vcptridx;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &WallAnims = GameSharedState.WallAnims;
@@ -969,7 +977,6 @@ static bool do_door_close(active_door &d)
 					const auto close_sound = wa.close_sound;
 					if (close_sound > -1)
 					{
-						auto &Vertices = LevelSharedVertexState.get_vertices();
 						auto &vcvertptr = Vertices.vcptr;
 						digi_link_sound_to_pos(close_sound, seg, side, compute_center_point_on_side(vcvertptr, seg, side), 0, F1_0);
 					}
@@ -1598,6 +1605,7 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1wclip, 26 + (sizeof(int16_t) * MAX_CLIP_FRAMES_
 //	blast nearby monitors, lights, maybe other things
 void blast_nearby_glass(const object &objp, const fix damage)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &Vertices = LevelSharedVertexState.get_vertices();

@@ -91,7 +91,9 @@ int SetPlayerPosition()
 //	returns 0 if unsuccessful
 int SaveGameData()
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	if (gamestate == editor_gamestate::unsaved) {
@@ -110,7 +112,6 @@ int SaveGameData()
 		if (Perm_player_segnum > Highest_segment_index)
 			Perm_player_segnum = segment_none;
 
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		if (Perm_player_segnum!=segment_none) {
 			if (get_seg_masks(vcvertptr, Perm_player_position, vcsegptr(Perm_player_segnum), 0).centermask == 0)

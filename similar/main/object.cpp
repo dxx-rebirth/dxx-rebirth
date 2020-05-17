@@ -1117,14 +1117,15 @@ static void free_object_slots(uint_fast32_t num_used)
 //returns the object number
 imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const unsigned ctype, const movement_type_t mtype, const render_type_t rtype)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
 	Assert(ctype <= CT_CNTRLCEN);
 
 	if (type == OBJ_DEBRIS && LevelUniqueObjectState.Debris_object_count >= Max_debris_objects && !PERSISTENT_DEBRIS)
 		return object_none;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	if (get_seg_masks(vcvertptr, pos, segnum, 0).centermask != 0)
 	{
@@ -1740,6 +1741,10 @@ int Drop_afterburner_blob_flag;		//ugly hack
 //move an object for the current frame
 static window_event_result object_move_one(const vmobjptridx_t obj)
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+#endif
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	const auto previous_segment = obj->segnum;
@@ -1921,7 +1926,6 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 
 			auto &playing = obj->ctype.player_info.lavafall_hiss_playing;
 			const auto &&segp = vcsegptr(obj->segnum);
-			auto &Vertices = LevelSharedVertexState.get_vertices();
 			auto &vcvertptr = Vertices.vcptr;
 			if (const auto sidemask = get_seg_masks(vcvertptr, obj->pos, segp, obj->size).sidemask)
 			{
@@ -2207,10 +2211,11 @@ void set_powerup_id(const d_powerup_info_array &Powerup_info, const d_vclip_arra
 //go through all objects and make sure they have the correct segment numbers
 void fix_object_segs()
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	range_for (const auto &&o, vmobjptridx)
 	{

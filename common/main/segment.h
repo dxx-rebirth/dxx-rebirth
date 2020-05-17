@@ -358,11 +358,11 @@ public:
 	}
 #endif
 };
-extern d_level_shared_vertex_state LevelSharedVertexState;
 
 struct d_level_shared_segment_state
 {
 	unsigned Num_segments;
+	d_level_shared_vertex_state LevelSharedVertexState;
 	auto &get_segments()
 	{
 		return Segments;

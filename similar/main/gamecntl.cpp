@@ -1081,7 +1081,9 @@ static void kill_all_robots(void)
 //	Yippee!!
 static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	HUD_init_message_literal(HM_DEFAULT, "Killing, awarding, etc.!");
 
@@ -1116,7 +1118,6 @@ static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptri
 				if (w.trigger == i)
 				{
 					const auto &&segp = vmsegptridx(w.segnum);
-					auto &Vertices = LevelSharedVertexState.get_vertices();
 					auto &vcvertptr = Vertices.vcptr;
 					compute_segment_center(vcvertptr, ConsoleObject->pos, segp);
 					obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), segp);
@@ -1190,8 +1191,10 @@ static void kill_buddy(void)
 namespace dsx {
 static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	switch (key)
@@ -1239,7 +1242,6 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 		{
 			static int i = 0;
 			const auto &&segp = vmsegptridx(ConsoleObject->segnum);
-			auto &Vertices = LevelSharedVertexState.get_vertices();
 			auto &vcvertptr = Vertices.vcptr;
 			const auto &&new_obj = create_morph_robot(segp, compute_segment_center(vcvertptr, segp), i);
 			if (new_obj != object_none)

@@ -113,6 +113,7 @@ static int vnear(const vms_vector &vp1, const vms_vector &vp2)
 // vertices have been looked at without a match.  If no match, add a new vertex.
 int med_add_vertex(const vertex &vp)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	int	count;					// number of used vertices found, for loops exits when count == Num_vertices
 
 //	set_vertex_counts();
@@ -192,6 +193,7 @@ segnum_t med_create_duplicate_segment(segment_array &Segments, const segment &sp
 //	This is the same as med_add_vertex, except that it does not search for the presence of the vertex.
 int med_create_duplicate_vertex(const vertex &vp)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	const auto Num_vertices = LevelSharedVertexState.Num_vertices;
 	Assert(Num_vertices < MAX_SEGMENT_VERTICES);
 
@@ -222,6 +224,7 @@ int med_create_duplicate_vertex(const vertex &vp)
 //	Set the vertex *vp at index vnum in the global list of vertices, return its index (just for compatibility).
 int med_set_vertex(const unsigned vnum, const vertex &vp)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	*Vertices.vmptr(vnum) = vp;
 
@@ -330,6 +333,7 @@ void make_orthogonal(vms_matrix *rmat,vms_matrix *smat)
 // This means that the forward vector will remain unchanged.
 void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotmat)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	vms_vector	forwardvec,upvec;
 
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -426,6 +430,7 @@ static void change_vertex_occurrences(int dest, int src)
 // --------------------------------------------------------------------------------------------------
 static void compress_vertices(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	const auto Num_vertices = LevelSharedVertexState.Num_vertices;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	if (Vertices.get_count() == Num_vertices)
@@ -554,6 +559,7 @@ static void compress_segments(void)
 //	the same vertex number to the two vertices, freeing up one of the vertices.
 void med_combine_duplicate_vertices(std::array<uint8_t, MAX_VERTICES> &vlp)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptridx = Vertices.vcptridx;
 	const auto &&range = make_range(vcvertptridx);
@@ -586,6 +592,7 @@ void med_combine_duplicate_vertices(std::array<uint8_t, MAX_VERTICES> &vlp)
 //	they are properly updated.
 void med_compress_mine(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	if (Do_duplicate_vertex_check) {
 		auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 		med_combine_duplicate_vertices(Vertex_active);
@@ -627,6 +634,8 @@ static void copy_tmap_ids(unique_segment &dseg, const unique_segment &sseg)
 //	 4 = already a face attached on destseg:destside
 static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegptr_t newseg, int destside, int newside,const vms_matrix &attmat)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	vms_matrix	rotmat,rotmat2,rotmat3;
 	vms_vector	forvec,upvec;
 
@@ -692,7 +701,6 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegpt
 	vm_transpose_matrix(rotmat2);	// added 12:33 pm, 10/01/93
 
 	// Compute and rotate the center point of the attaching face.
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&vc0 = compute_center_point_on_side(vcvertptr, newseg, newside);
 	const auto vr = vm_vec_rotate(vc0,rotmat2);
@@ -763,6 +771,7 @@ int med_attach_segment(const vmsegptridx_t destseg, const vmsegptr_t newseg, int
 static void delete_vertex(const unsigned v)
 {
 	Assert(v < MAX_VERTICES);			// abort if vertex is not in array Vertices
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	Assert(Vertex_active[v] >= 1);	// abort if trying to delete a non-existent vertex
 
@@ -775,9 +784,10 @@ static void delete_vertex(const unsigned v)
 //	but then it would be called much more often than necessary, and it is a slow routine.
 static void update_num_vertices(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	// Now count the number of vertices.
 	unsigned n = 0;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	range_for (const auto v, partial_range(Vertex_active, Vertices.get_count()))
 		if (v)
@@ -792,9 +802,10 @@ namespace dsx {
 //	Set Num_vertices.
 void set_vertex_counts(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	unsigned Num_vertices = 0;
 
-	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	Vertex_active = {};
 
 	// Count number of occurrences of each vertex.
@@ -833,7 +844,9 @@ static void delete_vertices_in_segment(const shared_segment &sp)
 //		1	unable to delete.
 int med_delete_segment(const vmsegptridx_t sp)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	segnum_t segnum = sp;
@@ -858,7 +871,6 @@ int med_delete_segment(const vmsegptridx_t sp)
 		if (sp->shared_segment::sides[side].wall_num != wall_none) 
 			wall_remove_side(sp, side);
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	// Find out what this segment was connected to and break those connections at the other end.
 	range_for (auto &side, sp->children)
@@ -1016,10 +1028,11 @@ int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 //		firstv1 : 0		(firstv1+1)%4 : 1		(firstv1+2)%4 : 2		(firstv1+3)%4 : 3
 static fix seg_seg_vertex_distsum(const vcsegptr_t seg1, const unsigned side1, const vcsegptr_t seg2, const unsigned side2, const unsigned firstv1)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	fix	distsum;
 
 	distsum = 0;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	range_for (const unsigned secondv, xrange(4u))
 	{
@@ -1094,6 +1107,8 @@ next_side: ;
 //		2			unable to form joint because side1 is already used
 int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2, int side2)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int		bfi,v,s1;
 	std::array<int, 4> lost_vertices, remap_vertices;
 	std::array<segnum_t, MAX_VALIDATIONS> validation_list;
@@ -1151,7 +1166,6 @@ int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2
 	seg2->children[side2] = seg1;
 
 	// validate all segments
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	validate_segment_side(vcvertptr, seg1, side1);
 	range_for (auto &s, partial_const_range(validation_list, nv))
@@ -1177,6 +1191,8 @@ int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2
 //	Note that no new vertices are created by this process.
 int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2, int side2)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int			v,bfi;
 
 	if (IS_CHILD(seg1->children[side1]) || IS_CHILD(seg2->children[side2]))
@@ -1221,7 +1237,6 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptri
 	//	Validate bridge segment, and if degenerate, clean up mess.
 	Degenerate_segment_found = 0;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	validate_segment(vcvertptr, bs);
 
@@ -1252,6 +1267,8 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptri
 //	It will be created with walls on all sides, ie not connected to anything.
 void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int			f;
 	++ LevelSharedSegmentState.Num_segments;
 
@@ -1282,7 +1299,6 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 	const vms_vector cv{cx, cy, cz};
 
 	//	Now, add the center to all vertices, placing the segment in 3 space.
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmvertptr = Vertices.vmptr;
 	range_for (auto &i, sp->verts)
 		vm_vec_add2(vmvertptr(i), cv);
@@ -1314,6 +1330,7 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 //	Create New_segment using a specified scale factor.
 void med_create_new_segment(const vms_vector &scale)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	int			t;
 	const auto &&sp = vmsegptridx(&New_segment);
 	fix			length,width,height;
@@ -1366,12 +1383,13 @@ void med_create_new_segment(const vms_vector &scale)
 // -------------------------------------------------------------------------------
 void med_create_new_segment_from_cursegp(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	vms_vector	scalevec;
 	vms_vector	uvec, rvec, fvec;
 
 	med_extract_up_vector_from_segment_side(Cursegp, Curside, uvec);
 	med_extract_right_vector_from_segment_side(Cursegp, Curside, rvec);
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	extract_forward_vector_from_segment(vcvertptr, Cursegp, fvec);
 
@@ -1385,6 +1403,7 @@ void med_create_new_segment_from_cursegp(void)
 //	Initialize all vertices to inactive status.
 void init_all_vertices(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	Vertex_active = {};
 	range_for (auto &s, Segments)
@@ -1395,12 +1414,13 @@ void init_all_vertices(void)
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
 void create_coordinate_axes_from_segment(const vmsegptr_t sp, std::array<unsigned, 16> &vertnums)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	vms_matrix	rotmat;
 	vms_vector t;
 
 	med_extract_matrix_from_segment(sp, rotmat);
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &vmvertptr = Vertices.vmptr;
 	const auto &&v0 = vmvertptr(vertnums[0]);
@@ -1424,6 +1444,7 @@ void create_coordinate_axes_from_segment(const vmsegptr_t sp, std::array<unsigne
 static int check_seg_concavity(const vcsegptr_t s)
 {
 	vms_vector n0;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	range_for (auto &sn, Side_to_verts)
@@ -1551,12 +1572,13 @@ int med_find_adjacent_segment_side(const vmsegptridx_t sp, int side, imsegptridx
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
 int med_find_closest_threshold_segment_side(const vmsegptridx_t sp, int side, imsegptridx_t &adj_sp, int *adj_side, fix threshold)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	fix			current_dist, closest_seg_dist;
 
 	if (IS_CHILD(sp->children[side]))
 		return 0;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&vsc = compute_center_point_on_side(vcvertptr, sp, side);
 

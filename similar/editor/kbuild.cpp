@@ -168,6 +168,7 @@ int CreateSloppyAdjacentJointsGroup()
 //  ---------- Create a bridge segment between current segment and all adjacent segment:side ----------
 int CreateAdjacentJointsSegment()
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	int		adj_side;
 
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
@@ -194,6 +195,7 @@ int CreateAdjacentJointsSegment()
 //  ---------- Create a bridge segment between all segment:side and all adjacent segment:side ----------
 int CreateAdjacentJointsAll()
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	int		adj_side;
 
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();

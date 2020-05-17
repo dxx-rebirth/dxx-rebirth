@@ -104,6 +104,8 @@ static std::pair<vmsegptridx_t, uint_fast32_t> get_next_segment_side(const vmseg
 // ---------- select current segment ----------
 int SelectCurrentSegForward()
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	const auto p = get_next_segment_side(Cursegp,Curside);
 	const auto &newseg_num = p.first;
 
@@ -115,7 +117,6 @@ int SelectCurrentSegForward()
 		Update_flags |= UF_ED_STATE_CHANGED;
 		if (Lock_view_to_cursegp)
 		{
-			auto &Vertices = LevelSharedVertexState.get_vertices();
 			auto &vcvertptr = Vertices.vcptr;
 			set_view_target_from_segment(vcvertptr, Cursegp);
 		}
@@ -130,13 +131,14 @@ int SelectCurrentSegForward()
 // -------------------------------------------------------------------------------------
 int SelectCurrentSegBackward()
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	const auto &p = get_previous_segment_side(Cursegp,Curside);
 	Cursegp = p.first;
 	Curside = p.second;
 
 	if (Lock_view_to_cursegp)
 	{
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
 	}

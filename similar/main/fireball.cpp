@@ -591,7 +591,9 @@ static imsegidx_t pick_connected_drop_segment(const segment_array &Segments, fvc
 //	Don't drop if control center in segment.
 static vmsegptridx_t choose_drop_segment(fvcsegptridx &vcsegptridx, fvmsegptridx &vmsegptridx, const playernum_t drop_pnum)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
 	playernum_t	pnum = 0;
@@ -608,7 +610,6 @@ static vmsegptridx_t choose_drop_segment(fvcsegptridx &vcsegptridx, fvmsegptridx
 	const auto &&player_seg = vcsegptridx(drop_playerobj.segnum);
 
 	segnum_t	segnum = segment_none;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	for (; (segnum == segment_none) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2); --cur_drop_depth)
 	{
@@ -650,8 +651,10 @@ static vmsegptridx_t choose_drop_segment(fvcsegptridx &vcsegptridx, fvmsegptridx
 //	(Re)spawns powerup if in a network game.
 void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool random_player)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
         playernum_t pnum = Player_num;
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) {
@@ -693,7 +696,6 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 			return;
 
 		const auto &&segnum = choose_drop_segment(LevelSharedSegmentState.get_segments().vcptridx, LevelUniqueSegmentState.get_segments().vmptridx, pnum);
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		const auto &&new_pos = pick_random_point_in_seg(vcvertptr, segnum);
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
@@ -1351,6 +1353,8 @@ void explode_wall(fvcvertptr &vcvertptr, const vcsegptridx_t segnum, const unsig
 
 unsigned do_exploding_wall_frame(wall &w1)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &WallAnims = GameSharedState.WallAnims;
 	assert(w1.flags & WALL_EXPLODING);
 	fix w1_explode_time_elapsed = w1.explode_time_elapsed;
@@ -1409,7 +1413,6 @@ unsigned do_exploding_wall_frame(wall &w1)
 
 	const auto vertnum_list = get_side_verts(seg, w1sidenum);
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &v0 = *vcvertptr(vertnum_list[0]);
 	auto &v1 = *vcvertptr(vertnum_list[1]);

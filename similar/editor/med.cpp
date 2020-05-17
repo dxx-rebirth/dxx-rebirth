@@ -1072,6 +1072,8 @@ int RestoreGameState()
 // Handler for the main editor dialog
 window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	editor_view *new_cv;
 	int keypress = 0;
 	window_event_result rval = window_event_result::ignored;
@@ -1299,7 +1301,6 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 			med_create_new_segment_from_cursegp();
 			if (Lock_view_to_cursegp)
 			{
-				auto &Vertices = LevelSharedVertexState.get_vertices();
 				auto &vcvertptr = Vertices.vcptr;
 				set_view_target_from_segment(vcvertptr, Cursegp);
 			}

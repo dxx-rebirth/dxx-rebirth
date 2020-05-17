@@ -406,12 +406,13 @@ namespace dsx {
 //	v2, v3 assigned by assign_uvs_to_side
 void assign_default_uvs_to_side(const vmsegptridx_t segp, const unsigned side)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	uvl			uv0,uv1;
 	uv0.u = 0;
 	uv0.v = 0;
 	auto &vp = Side_to_verts[side];
 	uv1.u = 0;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	uv1.v = Num_tilings * fixmul(Vmag, vm_vec_dist(vcvertptr(segp->verts[vp[1]]), vcvertptr(segp->verts[vp[0]])));
 
@@ -426,6 +427,8 @@ void assign_default_uvs_to_side(const vmsegptridx_t segp, const unsigned side)
 //	v2, v3 assigned by assign_uvs_to_side
 void stretch_uvs_from_curedge(const vmsegptridx_t segp, int side)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	uvl			uv0,uv1;
 	int			v0, v1;
 
@@ -439,7 +442,6 @@ void stretch_uvs_from_curedge(const vmsegptridx_t segp, int side)
 	uv1.u = uvls[v1].u;
 	uv1.v = uvls[v1].v;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	assign_uvs_to_side(vcvertptr, segp, side, &uv0, &uv1, v0, v1);
 }
@@ -548,6 +550,8 @@ void assign_default_uvs_to_segment(const vmsegptridx_t segp)
 // --------------------------------------------------------------------------------------------------------------
 void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned con_common_side, const vmsegptr_t base_seg, const unsigned base_common_side, const unsigned abs_id1, const unsigned abs_id2)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	uvl		uv1,uv2;
         int             v,bv1,bv2, vv1, vv2;
         int             cv1=0, cv2=0;
@@ -592,7 +596,6 @@ void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned con_comm
 
 	Assert((uv1.u != uv2.u) || (uv1.v != uv2.v));
 	Assert( (vv1 != -1) && (vv2 != -1) );
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	assign_uvs_to_side(vcvertptr, con_seg, con_common_side, &uv1, &uv2, vv1, vv2);
 }
@@ -897,6 +900,7 @@ static int Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
 	int			vertnum;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
@@ -1057,6 +1061,7 @@ static void calim_zero_light_values(void)
 //	of all segments.
 static void cast_light_from_side_to_center(const vmsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&segment_center = compute_segment_center(vcvertptr, segp);

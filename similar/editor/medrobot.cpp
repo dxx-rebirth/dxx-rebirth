@@ -332,7 +332,9 @@ static int is_legal_type_for_this_window(const imobjidx_t objnum)
 
 static int LocalObjectSelectNextinSegment(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	int	rval, first_obj;
 
@@ -356,7 +358,6 @@ static int LocalObjectSelectNextinSegment(void)
 
 	if (Cur_object_index != first_obj)
 	{
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
 	}
@@ -366,7 +367,9 @@ static int LocalObjectSelectNextinSegment(void)
 
 static int LocalObjectSelectNextinMine(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	int	rval, first_obj;
 
@@ -391,7 +394,6 @@ static int LocalObjectSelectNextinMine(void)
 
 	if (Cur_object_index != first_obj)
 	{
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
 	}
@@ -401,7 +403,9 @@ static int LocalObjectSelectNextinMine(void)
 
 static int LocalObjectSelectPrevinMine(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	int	rval, first_obj;
 
@@ -426,7 +430,6 @@ static int LocalObjectSelectPrevinMine(void)
 
 	if (Cur_object_index != first_obj)
 	{
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		set_view_target_from_segment(vcvertptr, Cursegp);
 	}
@@ -436,7 +439,9 @@ static int LocalObjectSelectPrevinMine(void)
 
 static int LocalObjectDelete(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptr = Objects.vcptr;
 	int	rval;
 
@@ -449,7 +454,6 @@ static int LocalObjectDelete(void)
 		Cur_goody_count = objp.contains_count;
 	}
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	set_view_target_from_segment(vcvertptr, Cursegp);
 
@@ -458,7 +462,9 @@ static int LocalObjectDelete(void)
 
 static int LocalObjectPlaceObject(void)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	int	rval;
 
@@ -480,7 +486,6 @@ static int LocalObjectPlaceObject(void)
 	objp->contains_id = Cur_goody_id;
 	objp->contains_count = Cur_goody_count;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	set_view_target_from_segment(vcvertptr, Cursegp);
 

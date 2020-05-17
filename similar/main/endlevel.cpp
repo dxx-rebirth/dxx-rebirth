@@ -857,6 +857,8 @@ window_event_result do_endlevel_frame()
 //find which side to fly out of
 static int find_exit_side(const object_base &obj)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	vms_vector prefvec;
 	fix best_val=-f2_0;
 	int best_side;
@@ -866,7 +868,6 @@ static int find_exit_side(const object_base &obj)
 	vm_vec_normalized_dir_quick(prefvec, obj.pos, LevelUniqueObjectState.last_console_player_position);
 
 	const shared_segment &pseg = *vcsegptr(obj.segnum);
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto segcenter = compute_segment_center(vcvertptr, pseg);
 
@@ -1188,7 +1189,9 @@ static void angvec_add2_scale(vms_angvec &dest,const vms_vector &src,fix s)
 
 void do_endlevel_flythrough(flythrough_data *flydata)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	const auto &&obj = vmobjptridx(flydata->obj);
@@ -1240,7 +1243,6 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		//update target point & angles
 
 		//where we are heading (center of exit_side)
-		auto &Vertices = LevelSharedVertexState.get_vertices();
 		auto &vcvertptr = Vertices.vcptr;
 		auto dest_point = compute_center_point_on_side(vcvertptr, pseg, exit_side);
 		const vms_vector nextcenter = (pseg.children[exit_side] == segment_exit)
@@ -1355,6 +1357,8 @@ static std::pair<icsegidx_t, sidenum_fast_t> find_exit_segment_side(fvcsegptridx
 namespace dsx {
 void load_endlevel_data(int level_num)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	d_fname filename;
 	char *p;
 	int var;
@@ -1530,7 +1534,6 @@ try_again:
 		return;
 
 	const auto &&exit_seg = vmsegptr(exit_segnum);
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, mine_exit_point, exit_seg);
 	extract_orient_from_segment(vcvertptr, mine_exit_orient, exit_seg);

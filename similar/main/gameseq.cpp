@@ -232,7 +232,9 @@ static bool operator!=(const vms_vector &a, const vms_vector &b)
 
 static unsigned generate_extra_starts_by_displacement_within_segment(const unsigned preplaced_starts, const unsigned total_required_num_starts)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
 	std::array<uint8_t, MAX_PLAYERS> player_init_segment_capacity_flag{};
@@ -250,7 +252,6 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 	 */
 	constexpr fix size_scalar = 0x18000;	// 1.5 in fixed point
 	unsigned segments_with_spare_capacity = 0;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	for (unsigned i = 0; i < preplaced_starts; ++i)
 	{
@@ -967,7 +968,9 @@ void load_level_robots(int level_num)
 namespace dsx {
 void LoadLevel(int level_num,int page_in_textures)
 {
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
 	preserve_player_object_info p(vcobjptr, vcplayerptr(Player_num)->objnum);
@@ -1026,7 +1029,6 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	plr = save_player;
 
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	set_sound_sources(vcsegptridx, vcvertptr);
 

@@ -73,6 +73,7 @@ int MoveAway()
 int ToggleChaseMode()
 {
 	Funky_chase_mode = !Funky_chase_mode;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	set_view_target_from_segment(vcvertptr, Cursegp);
