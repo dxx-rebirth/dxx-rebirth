@@ -1390,17 +1390,22 @@ static void terminate_handler()
 	def _check_SDL(self,context):
 		if self.user_settings.sdl2:
 			check_libSDL = self.check_libSDL2
+			check_SDL_image = self.check_SDL2_image
 			check_SDL_mixer = self.check_SDL2_mixer
 		else:
 			check_libSDL = self.check_libSDL
+			check_SDL_image = self.check_SDL_image
 			check_SDL_mixer = self.check_SDL_mixer
 		check_libSDL(context)
+		check_SDL_image(context)
 		check_SDL_mixer(context)
+
 	@_implicit_test
 	def check_libSDL(self,context,_guess_flags={
 			'LIBS' : ['SDL'] if sys.platform != 'darwin' else [],
 		}):
 		self._check_libSDL(context, '', _guess_flags)
+
 	@_implicit_test
 	def check_libSDL2(self,context,_guess_flags={
 			'LIBS' : ['SDL2'] if sys.platform != 'darwin' else [],
@@ -1408,6 +1413,7 @@ static void terminate_handler()
 		if not self.user_settings.opengl:
 			raise SCons.Errors.StopError('Rebirth does not support SDL2 without OpenGL.  Set opengl=1 or sdl2=0.')
 		self._check_libSDL(context, '2', _guess_flags)
+
 	def _check_libSDL(self,context,sdl2,guess_flags):
 		user_settings = self.user_settings
 		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, 'sdl%s' % sdl2, 'SDL%s' % sdl2, guess_flags).copy()
@@ -1475,40 +1481,62 @@ static void terminate_handler()
 			if not e2 and e[0] == 1:
 				e = (None, error_text_opengl_mismatch)
 		raise SCons.Errors.StopError(e[1])
+
+	@_implicit_test
+	def check_SDL_image(self,context):
+		self._check_SDL_image(context, '')
+
+	@_implicit_test
+	def check_SDL2_image(self,context):
+		self._check_SDL_image(context, '2')
+
+	def _check_SDL_image(self,context,sdl2):
+		self._check_SDL_addon_library(context, sdl2, 'SDL%s_image', 'DXX_USE_SDLIMAGE', self.user_settings.sdlimage, '''
+	IMG_Init(0);
+	SDL_RWops *rw = reinterpret_cast<SDL_RWops *>(argv);
+	SDL_Surface *s = IMG_LoadPCX_RW(rw);
+	(void)s;
+	IMG_Quit();
+''')
+
 	# SDL_mixer/SDL2_mixer use the same -I line as SDL/SDL2
 	@_implicit_test
-	def check_SDL_mixer(self,context,_guess_flags={
-			'LIBS' : ['SDL_mixer'] if sys.platform != 'darwin' else [],
-		}):
-		self._check_SDL_mixer(context, '', _guess_flags)
+	def check_SDL_mixer(self,context):
+		self._check_SDL_mixer(context, '')
+
 	@_implicit_test
-	def check_SDL2_mixer(self,context,_guess_flags={
-			'LIBS' : ['SDL2_mixer'] if sys.platform != 'darwin' else [],
-		}):
-		self._check_SDL_mixer(context, '2', _guess_flags)
-	def _check_SDL_mixer(self,context,sdl2,guess_flags):
-		mixer = 'SDL%s_mixer' % sdl2
-		user_settings = self.user_settings
-		context.Display('%s: checking whether to use %s...%s\n' % (self.msgprefix, mixer, 'yes' if user_settings.sdlmixer else 'no'))
-		# SDL_mixer support?
-		use_sdlmixer = user_settings.sdlmixer
-		self._define_macro(context, 'DXX_USE_SDLMIXER', int(use_sdlmixer))
-		if not use_sdlmixer:
-			return
-		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, mixer, mixer, guess_flags)
-		if user_settings.host_platform == 'darwin':
-			successflags = successflags.copy()
-			successflags['FRAMEWORKS'] = [mixer]
-			relative_headers = 'Library/Frameworks/%s.framework/Headers' % mixer
-			successflags['CPPPATH'] = [os.path.join(os.getenv("HOME"), relative_headers), '/%s' % relative_headers]
-		self._check_system_library(context,header=['SDL_mixer.h'],main='''
+	def check_SDL2_mixer(self,context):
+		self._check_SDL_mixer(context, '2')
+
+	def _check_SDL_mixer(self,context,sdl2):
+		self._check_SDL_addon_library(context, sdl2, 'SDL%s_mixer', 'DXX_USE_SDLMIXER', self.user_settings.sdlmixer, '''
 	int i = Mix_Init(MIX_INIT_FLAC | MIX_INIT_OGG);
 	(void)i;
 	Mix_Pause(0);
 	Mix_ResumeMusic();
 	Mix_Quit();
-''',
-			lib=mixer, successflags=successflags)
+''')
+
+	def _check_SDL_addon_library(self,context,sdl2,library_format_name,macro_name,use_addon,main):
+		library_name = library_format_name % sdl2
+		self._define_macro(context, macro_name, int(use_addon))
+		context.Display('%s: checking whether to use %s...%s\n' % (self.msgprefix, library_name, 'yes' if use_addon else 'no'))
+		if not use_addon:
+			return
+		user_settings = self.user_settings
+		guess_flags = {
+			'LIBS' : [library_name] if sys.platform != 'darwin' else [],
+		}
+		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, library_name, library_name, guess_flags)
+		if user_settings.host_platform == 'darwin':
+			successflags = successflags.copy()
+			successflags['FRAMEWORKS'] = [library_name]
+			relative_headers = 'Library/Frameworks/%s.framework/Headers' % library_name
+			successflags['CPPPATH'] = [h for h in (os.path.join(os.getenv("HOME"), relative_headers), '/%s' % relative_headers) if os.path.isdir(h)]
+		# SDL2 headers still use SDL_*.h for their filename, not
+		# SDL2_*.h, so expanded library_format_name with an explicitly
+		# blank insert, regardless of whether building for SDL1 or SDL2.
+		self._check_system_library(context, header=['%s.h' % (library_format_name % '')], main=main, lib=library_name, successflags=successflags)
 
 	@_custom_test
 	def check_compiler_missing_field_initializers(self,context,
@@ -3728,6 +3756,11 @@ class DXXCommon(LazyObjectConstructor):
 					('opengles', self.default_opengles, 'build with OpenGL ES support'),
 					('editor', False, 'include editor into build (!EXPERIMENTAL!)'),
 					('sdl2', self.default_sdl2, 'use libSDL2+SDL2_mixer (!EXPERIMENTAL!)'),
+					# Build with SDL_Image support for PCX file support
+					# Currently undocumented because the user experience
+					# without PCX support is ugly, so this should always
+					# be left enabled.
+					('sdlimage', True, None),
 					('sdlmixer', True, 'build with SDL_Mixer support for sound and music (includes external music support)'),
 					('ipv6', False, 'enable UDP/IPv6 for multiplayer'),
 					('use_udp', True, 'enable UDP support'),
@@ -4490,6 +4523,7 @@ class DXXArchive(DXXCommon):
 'common/misc/hash.cpp',
 'common/misc/hmp.cpp',
 'common/misc/ignorecase.cpp',
+'common/misc/physfsrwops.cpp',
 'common/misc/strutil.cpp',
 'common/misc/vgrphys.cpp',
 'common/misc/vgwphys.cpp',
@@ -5202,7 +5236,6 @@ class D2XProgram(DXXProgram):
 'd2x-rebirth/main/escort.cpp',
 'd2x-rebirth/main/gamepal.cpp',
 'd2x-rebirth/main/movie.cpp',
-'d2x-rebirth/misc/physfsrwops.cpp',
 	))):
 		value = __get_dxx_objects_common(self)
 		value.extend(__get_dsx_objects_common(self))

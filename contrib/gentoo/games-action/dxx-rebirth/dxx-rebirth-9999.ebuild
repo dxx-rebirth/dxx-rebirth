@@ -111,6 +111,7 @@ DXX_RDEPEND_ENGINE_FRAGMENT='
 
 DXX_DEPEND_USE_SDL_VERSION_FRAGMENT='
 	media-libs/lib${SDL_version}[joystick?,opengl?,sound,video]
+	media-libs/sdl${SDL_version}-image
 	music? ( media-libs/${SDL_version}-mixer )
 '
 DXX_RDEPEND_USE_SDL_VERSION_FRAGMENT='

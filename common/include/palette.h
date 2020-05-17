@@ -52,7 +52,6 @@ struct palette_array_t : public std::array<rgb_t, 256> {};
 #endif
 
 void copy_bound_palette(palette_array_t &d, const palette_array_t &s);
-void copy_diminish_palette(palette_array_t &palette, const ubyte *p);
 void diminish_palette(palette_array_t &palette);
 extern void gr_palette_set_gamma( int gamma );
 extern int gr_palette_get_gamma();
@@ -65,6 +64,12 @@ extern void init_computed_colors(void);
 extern ubyte gr_palette_gamma;
 extern palette_array_t gr_current_pal;
 }
+
+#ifdef DXX_BUILD_DESCENT_I
+namespace dsx {
+void copy_diminish_palette(palette_array_t &palette, const uint8_t *p);
+}
+#endif
 
 #endif
 

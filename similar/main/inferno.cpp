@@ -111,6 +111,9 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "dsx-ns.h"
 #include "compiler-begin.h"
 
+#if DXX_USE_SDLIMAGE
+#include <SDL_image.h>
+#endif
 #if DXX_USE_SDLMIXER
 #include <SDL_mixer.h>
 #endif
@@ -547,6 +550,14 @@ static int main(int argc, char *argv[])
 #endif
 			con_printf(CON_VERBOSE, "D" DXX_NAME_NUMBER "X-Rebirth built with libSDL %u.%u.%u; loaded with libSDL %u.%u.%u", vc.major, vc.minor, vc.patch, vl->major, vl->minor, vl->patch);
 		}
+#if DXX_USE_SDLIMAGE
+		{
+			SDL_version vc;
+			SDL_IMAGE_VERSION(&vc);
+			const auto vl = IMG_Linked_Version();
+			con_printf(CON_VERBOSE, "D" DXX_NAME_NUMBER "X-Rebirth built with SDL_image %u.%u.%u; loaded with SDL_image %u.%u.%u", vc.major, vc.minor, vc.patch, vl->major, vl->minor, vl->patch);
+		}
+#endif
 #if DXX_USE_SDLMIXER
 		{
 			SDL_version vc;

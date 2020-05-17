@@ -23,6 +23,7 @@ PhysFS 3.x is recommended.
 
 Optional, but recommended:
 
+* [SDL\_image 1.2](https://www.libsdl.org/projects/SDL_image/).
 * [SDL\_mixer 1.2](https://www.libsdl.org/projects/SDL_mixer/).
 * [libpng](http://www.libpng.org/).
 * C++ compiler with support for selected C++14 features.  One of:
@@ -79,6 +80,7 @@ Install the listed prerequisites through your system package manager.
  base-devel
  scons
  sdl
+ sdl\_image
  sdl\_mixer
  physfs**
 
@@ -87,6 +89,7 @@ Install the listed prerequisites through your system package manager.
  gcc-c++
  scons
  SDL-devel
+ SDL\_image-devel
  SDL\_mixer-devel
  physfs-devel**
 
@@ -94,6 +97,7 @@ Install the listed prerequisites through your system package manager.
 * **emerge --ask --verbose --noreplace
  dev-util/scons
  media-libs/libsdl
+ media-libs/sdl-image
  media-libs/sdl-mixer
  dev-games/physfs**
 
@@ -102,6 +106,7 @@ Install the listed prerequisites through your system package manager.
  build-essential
  scons
  libsdl1.2-dev
+ libsdl-image1.2-dev
  libsdl-mixer1.2-dev
  libphysfs-dev**
 
@@ -125,6 +130,7 @@ DXX-Rebirth can be built from the Terminal (via SCons) without Xcode; to build u
  gcc5
  scons
  sdl
+ sdl\_image
  sdl\_mixer
  physfs**
 
