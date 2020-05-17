@@ -21,7 +21,7 @@ if [[ "$PV" = 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dxx-rebirth/dxx-rebirth"
 else
-	MY_COMMIT='3b1f33c0c34d799906905644f04b1231bcf15e3c'
+	MY_COMMIT='5c88587c014d30a60edcc68220b694c134bb2c3f'
 	S="$WORKDIR/$PN-$MY_COMMIT"
 	SRC_URI="https://github.com/dxx-rebirth/dxx-rebirth/archive/$MY_COMMIT.zip -> $PN-$PVR.zip"
 	unset MY_COMMIT
@@ -111,6 +111,7 @@ DXX_RDEPEND_ENGINE_FRAGMENT='
 
 DXX_DEPEND_USE_SDL_VERSION_FRAGMENT='
 	media-libs/lib${SDL_version}[joystick?,opengl?,sound,video]
+	media-libs/sdl${SDL_version}-image
 	music? ( media-libs/${SDL_version}-mixer )
 '
 DXX_RDEPEND_USE_SDL_VERSION_FRAGMENT='
