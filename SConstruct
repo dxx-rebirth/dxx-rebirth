@@ -4421,6 +4421,9 @@ class DXXArchive(DXXCommon):
 	target = 'dxx-common'
 	RuntimeTest = DXXCommon.RuntimeTest
 	runtime_test_boost_tests = (
+		RuntimeTest('test-serial', (
+			'common/unittest/serial.cpp',
+			)),
 		RuntimeTest('test-valptridx-range', (
 			'common/unittest/valptridx-range.cpp',
 			)),
