@@ -20,6 +20,7 @@ inherit eutils scons-utils toolchain-funcs xdg
 if [[ "$PV" = 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dxx-rebirth/dxx-rebirth"
+	PROPERTIES="live"
 else
 	MY_COMMIT=''
 	S="$WORKDIR/$PN-$MY_COMMIT"
