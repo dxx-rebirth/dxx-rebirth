@@ -52,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "bm.h"
 
+#include "d_zip.h"
 #include "partial_range.h"
 #include <memory>
 
@@ -499,11 +500,10 @@ namespace dsx {
 
 void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const unsigned model_num, unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, alternate_textures alt_textures)
 {
-	polymodel *po;
 	Assert(model_num < N_polygon_models);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	po=&Polygon_models[model_num];
+	const polymodel *po = &Polygon_models[model_num];
 
 	//check if should use simple model
 	if (po->simpler_model )					//must have a simpler model
@@ -517,26 +517,30 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_mat
 					po = &Polygon_models[po->simpler_model-1];
 			}
 
-	std::array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
 	std::array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
-	if (alt_textures)
-   {
-		for (int i=0;i<po->n_textures;i++) {
-			texture_list_index[i] = alt_textures[i];
-			texture_list[i] = &GameBitmaps[alt_textures[i].index];
+	{
+		const unsigned n_textures = po->n_textures;
+		std::array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
+		auto &&tlir = partial_range(texture_list_index, n_textures);
+		if (alt_textures)
+		{
+			for (auto &&[at, tli] : zip(unchecked_partial_range(static_cast<const bitmap_index *>(alt_textures), n_textures), tlir))
+				tli = at;
 		}
-   }
-	else
-   {
-		for (int i=0;i<po->n_textures;i++) {
-			texture_list_index[i] = ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]];
-			texture_list[i] = &GameBitmaps[ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index];
+		else
+		{
+			const unsigned first_texture = po->first_texture;
+			for (auto &&[obp, tli] : zip(partial_range(ObjBitmapPtrs, first_texture, first_texture + n_textures), tlir))
+				tli = ObjBitmaps[obp];
 		}
-   }
 
 	// Make sure the textures for this object are paged in...
-	range_for (auto &i, partial_range(texture_list_index, po->n_textures))
-		PIGGY_PAGE_IN(i);
+		for (auto &&[tli, tl] : zip(tlir, partial_range(texture_list, n_textures)))
+		{
+			tl = &GameBitmaps[tli.index];
+			PIGGY_PAGE_IN(tli);
+		}
+	}
 	// Hmmm... cache got flushed in the middle of paging all these in,
 	// so we need to reread them all in.
 	// Make sure that they can all fit in memory.
