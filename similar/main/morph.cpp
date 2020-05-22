@@ -544,6 +544,7 @@ static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, p
 	{
 		if (mn == submodel_num) {
 			std::array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
+			std::array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 			for (unsigned i = 0; i < pm->n_textures; ++i)
 			{
 				const auto ptr = ObjBitmapPtrs[pm->first_texture + i];

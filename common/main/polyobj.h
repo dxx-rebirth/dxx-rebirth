@@ -159,7 +159,6 @@ void free_model(polymodel &po);
 #define MAX_POLYOBJ_TEXTURES 100
 constexpr std::integral_constant<unsigned, 166> N_D2_POLYGON_MODELS{};
 #endif
-extern std::array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 #endif
 
 namespace dcx {

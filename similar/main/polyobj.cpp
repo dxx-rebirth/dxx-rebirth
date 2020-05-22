@@ -493,8 +493,6 @@ void free_model(polymodel &po)
 	po.model_data.reset();
 }
 
-std::array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
-
 //draw a polygon model
 
 namespace dsx {
@@ -520,6 +518,7 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_mat
 			}
 
 	std::array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
+	std::array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 	if (alt_textures)
    {
 		for (int i=0;i<po->n_textures;i++) {
