@@ -25,9 +25,6 @@ vms_matrix	View_matrix;
 vms_vector	Window_scale;		//scaling for window aspect
 vms_vector	Matrix_scale;		//how the matrix is scaled, window_scale * zoom
 
-int			Canvas_width;		//the actual width
-int			Canvas_height;		//the actual height
-
 fix			Canv_w2;				//fixed-point width/2
 fix			Canv_h2;				//fixed-point height/2
 
