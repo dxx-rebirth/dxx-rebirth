@@ -98,8 +98,9 @@ public:
 	struct grs_bitmap  *bm_parent;
 #if DXX_USE_OGL
 	struct ogl_texture *gltexture;
+#else
+	uint8_t avg_color;  //  Average color of all pixels in texture map.
 #endif /* def OGL */
-	ubyte   avg_color;  //  Average color of all pixels in texture map.
 };
 
 struct grs_canvas : prohibit_void_ptr<grs_canvas>

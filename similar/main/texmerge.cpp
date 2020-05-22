@@ -255,11 +255,15 @@ grs_bitmap &texmerge_get_cached_bitmap(unsigned tmap_bottom, unsigned tmap_top)
 	{
 		merge_textures<merge_transform_super_xparent>(orient, expanded_bottom_bmp, expanded_top_bmp, least_recently_used->bitmap->get_bitmap_data());
 		gr_set_bitmap_flags(*least_recently_used->bitmap.get(), BM_FLAG_TRANSPARENT);
+#if !DXX_USE_OGL
 		least_recently_used->bitmap->avg_color = bitmap_top->avg_color;
+#endif
 	} else	{
 		merge_textures<merge_transform_new>(orient, expanded_bottom_bmp, expanded_top_bmp, least_recently_used->bitmap->get_bitmap_data());
 		least_recently_used->bitmap->set_flags(bitmap_bottom->get_flag_mask(~BM_FLAG_RLE));
+#if !DXX_USE_OGL
 		least_recently_used->bitmap->avg_color = bitmap_bottom->avg_color;
+#endif
 	}
 
 	least_recently_used->top_bmp = bitmap_top;

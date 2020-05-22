@@ -557,7 +557,9 @@ int properties_init()
 			iwidth, bmh.height,
 			iwidth, Piggy_bitmap_cache_data);
 		temp_bitmap.add_flags(BM_FLAG_PAGED_OUT);
+#if !DXX_USE_OGL
 		temp_bitmap.avg_color = bmh.avg_color;
+#endif
 
 		if (MacPig)
 		{
@@ -683,7 +685,9 @@ void piggy_init_pigfile(const char *filename)
 		width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
 		gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + (static_cast<short>(bmh.wh_extra & 0xf0) << 4), width, NULL);
 		bm->set_flags(BM_FLAG_PAGED_OUT);
+#if !DXX_USE_OGL
 		bm->avg_color = bmh.avg_color;
+#endif
 
 		GameBitmapFlags[i+1] = bmh.flags & BM_FLAGS_TO_COPY;
 
@@ -788,7 +792,9 @@ void piggy_new_pigfile(char *pigname)
 			gr_set_bitmap_data(*bm, NULL);	// free ogl texture
 			gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + (static_cast<short>(bmh.wh_extra & 0xf0) << 4), width, NULL);
 			bm->set_flags(BM_FLAG_PAGED_OUT);
+#if !DXX_USE_OGL
 			bm->avg_color = bmh.avg_color;
+#endif
 
 			GameBitmapFlags[i] = bmh.flags & BM_FLAGS_TO_COPY;
 	
@@ -845,7 +851,9 @@ void piggy_new_pigfile(char *pigname)
 
 					gr_remap_bitmap_good(*bm[fnum].get(), newpal, iff_has_transparency ? iff_transparent_color : -1, SuperX);
 
+#if !DXX_USE_OGL
 					bm[fnum]->avg_color = compute_average_pixel(bm[fnum].get());
+#endif
 
 					if ( GameArg.EdiMacData )
 						swap_0_255(*bm[fnum].get());
@@ -888,7 +896,9 @@ void piggy_new_pigfile(char *pigname)
 
 				gr_remap_bitmap_good(n, newpal, iff_has_transparency ? iff_transparent_color : -1, SuperX);
 
+#if !DXX_USE_OGL
 				n.avg_color = compute_average_pixel(&n);
+#endif
 
 				if ( GameArg.EdiMacData )
 					swap_0_255(n);
@@ -1557,7 +1567,7 @@ static void piggy_write_pigfile(const char *filename)
 		} else {
 			bmh.flags &= ~BM_FLAG_PAGED_OUT;
 		}
-		bmh.avg_color=GameBitmaps[i].avg_color;
+		bmh.avg_color = compute_average_pixel(&GameBitmaps[i]);
 		PHYSFS_write(pig_fp, &bmh, sizeof(DiskBitmapHeader), 1);	// Mark as a bitmap
 	}
 	PHYSFSX_printf( fp1, " Dumped %d assorted bitmaps.\n", Num_bitmap_files );
@@ -1736,7 +1746,9 @@ void load_bitmap_replacements(const char *level_name)
 			width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
 			gr_set_bitmap_data(*bm, NULL);	// free ogl texture
 			gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + (static_cast<short>(bmh.wh_extra & 0xf0) << 4), width, NULL);
+#if !DXX_USE_OGL
 			bm->avg_color = bmh.avg_color;
+#endif
 			bm->bm_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(bmh.offset));
 
 			gr_set_bitmap_flags(*bm, bmh.flags & BM_FLAGS_TO_COPY);
@@ -1788,7 +1800,9 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	width = bmh->width + (static_cast<short>(bmh->wh_extra & 0x0f) << 8);
 	gr_set_bitmap_data(*bitmap, NULL);	// free ogl texture
 	gr_init_bitmap(*bitmap, bm_mode::linear, 0, 0, width, bmh->height + (static_cast<short>(bmh->wh_extra & 0xf0) << 4), width, NULL);
+#if !DXX_USE_OGL
 	bitmap->avg_color = bmh->avg_color;
+#endif
 	gr_set_bitmap_flags(*bitmap, bmh->flags & BM_FLAGS_TO_COPY);
 
 	PHYSFSX_fseek(d1_Piggy_fp, bitmap_data_start + bmh->offset, SEEK_SET);
@@ -2149,7 +2163,9 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 		}
 	}
 
+#if !DXX_USE_OGL
 	n->avg_color = 0;	//compute_average_pixel(n);
+#endif
 
 	bitmap_num.index = extra_bitmap_num;
 

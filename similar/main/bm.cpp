@@ -611,7 +611,9 @@ static bitmap_index read_extra_bitmap_iff(const char * filename )
 
 	gr_remap_bitmap_good(*n, newpal, iff_has_transparency ? iff_transparent_color : -1, 254);
 
+#if !DXX_USE_OGL
 	n->avg_color = 0;	//compute_average_pixel(new);
+#endif
 
 	bitmap_num.index = extra_bitmap_num;
 
