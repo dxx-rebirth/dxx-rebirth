@@ -603,11 +603,10 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 
 #if defined(DXX_BUILD_DESCENT_I)
 		char *arg = strtok( inputline, space_tab );
-		if (arg && arg[0] == '@')
 #elif defined(DXX_BUILD_DESCENT_II)
 		arg = strtok( inputline, space_tab );
-		if (arg[0] == '@')
 #endif
+		if (arg && arg[0] == '@')
 		{
 			arg++;
 			skip = pc_shareware;
