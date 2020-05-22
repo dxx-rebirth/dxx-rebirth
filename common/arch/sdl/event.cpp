@@ -55,11 +55,12 @@ window_event_result event_poll()
 	// like pressing 'Return' really fast at 'Difficulty Level' causing multiple games to be started
 	while ((highest_result != window_event_result::deleted) && (wind == window_get_front()) && (event = {}, SDL_PollEvent(&event)))
 	{
+		window_event_result result;
 		switch(event.type) {
 #if SDL_MAJOR_VERSION == 2
 			case SDL_WINDOWEVENT:
 				windowevent_handler(event.window);
-				break;
+				continue;
 #endif
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
@@ -68,43 +69,47 @@ window_event_result event_poll()
 					clean_uniframe=0;
 					unicode_frame_buffer = {};
 				}
-				highest_result = std::max(key_handler(&event.key), highest_result);
+				result = key_handler(&event.key);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
 				if (CGameArg.CtlNoMouse)
-					break;
-				highest_result = std::max(mouse_button_handler(&event.button), highest_result);
+					continue;
+				result = mouse_button_handler(&event.button);
 				break;
 			case SDL_MOUSEMOTION:
 				if (CGameArg.CtlNoMouse)
-					break;
-				highest_result = std::max(mouse_motion_handler(&event.motion), highest_result);
+					continue;
+				result = mouse_motion_handler(&event.motion);
 				break;
 			case SDL_JOYBUTTONDOWN:
 			case SDL_JOYBUTTONUP:
 				if (CGameArg.CtlNoJoystick)
-					break;
-				highest_result = std::max(joy_button_handler(&event.jbutton), highest_result);
+					continue;
+				result = joy_button_handler(&event.jbutton);
 				break;
 			case SDL_JOYAXISMOTION:
 				if (CGameArg.CtlNoJoystick)
-					break;
+					continue;
 				highest_result = std::max(joy_axisbutton_handler(&event.jaxis), highest_result);
-				highest_result = std::max(joy_axis_handler(&event.jaxis), highest_result);
+				result = joy_axis_handler(&event.jaxis);
 				break;
 			case SDL_JOYHATMOTION:
 				if (CGameArg.CtlNoJoystick)
-					break;
-				highest_result = std::max(joy_hat_handler(&event.jhat), highest_result);
+					continue;
+				result = joy_hat_handler(&event.jhat);
 				break;
 			case SDL_JOYBALLMOTION:
-				break;
+				continue;
 			case SDL_QUIT: {
 				d_event qevent = { EVENT_QUIT };
-				highest_result = std::max(call_default_handler(qevent), highest_result);
-			} break;
+				result = call_default_handler(qevent);
+				break;
+			}
+			default:
+				continue;
 		}
+		highest_result = std::max(result, highest_result);
 	}
 
 	// Send the idle event if there were no other events (or they were ignored)
