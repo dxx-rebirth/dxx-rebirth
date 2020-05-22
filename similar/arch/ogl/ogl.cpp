@@ -62,6 +62,7 @@
 
 #include "compiler-range_for.h"
 #include "d_range.h"
+#include "d_zip.h"
 #include "partial_range.h"
 
 #include <algorithm>
@@ -97,6 +98,14 @@ struct enable_ogl_client_state
 
 template <typename T, unsigned... Gs>
 using ogl_client_states = std::tuple<T, enable_ogl_client_state<Gs>...>;
+
+template <typename T, std::size_t N1, std::size_t N2>
+union flatten_array
+{
+	std::array<T, N1 * N2> flat;
+	std::array<std::array<T, N1>, N2> nested;
+	static_assert(sizeof(flat) == sizeof(nested), "array padding error");
+};
 
 }
 
@@ -902,12 +911,9 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
  */ 
 void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *const pointlist, const g3s_uvl *const uvl_list, const g3s_lrgb *const light_rgb, grs_bitmap &bm)
 {
-	int index2, index3, index4;
 	GLfloat color_alpha = 1.0;
 
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY> cs;
-	auto &c = std::get<0>(cs);
-	
 	if (tmap_drawer_ptr == draw_tmap) {
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		OGL_ENABLE(TEXTURE_2D);
@@ -924,37 +930,48 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 		return;
 	}
 
-	RAIIdmem<GLfloat[]> vertices, color_array, texcoord_array;
-	MALLOC(vertices, GLfloat[], nv*3);
-	MALLOC(color_array, GLfloat[], nv*4);
-	MALLOC(texcoord_array, GLfloat[], nv*2);
+	flatten_array<GLfloat, 3, MAX_POINTS_PER_POLY> vertices;
+	flatten_array<GLfloat, 4, MAX_POINTS_PER_POLY> color_array;
+	flatten_array<GLfloat, 2, MAX_POINTS_PER_POLY> texcoord_array;
 
-	for (c=0; c<nv; c++) {
-		index2 = c * 2;
-		index3 = c * 3;
-		index4 = c * 4;
-		
-		vertices[index3]     = f2glf(pointlist[c]->p3_vec.x);
-		vertices[index3+1]   = f2glf(pointlist[c]->p3_vec.y);
-		vertices[index3+2]   = -f2glf(pointlist[c]->p3_vec.z);
+	for (auto &&[point, light, uvl, vert, color, texcoord] : zip(
+			unchecked_partial_range(pointlist, nv),
+			unchecked_partial_range(light_rgb, nv),
+			unchecked_partial_range(uvl_list, nv),
+			unchecked_partial_range(vertices.nested.data(), nv),
+			unchecked_partial_range(color_array.nested.data(), nv),
+			partial_range(texcoord_array.nested, nv)
+		)
+	)
+	{
+		vert[0] = f2glf(point->p3_vec.x);
+		vert[1] = f2glf(point->p3_vec.y);
+		vert[2] = -f2glf(point->p3_vec.z);
+		color[3] = color_alpha;
 		if (tmap_drawer_ptr == draw_tmap_flat) {
-			color_array[index4]      = 0;
-			color_array[index4+1]    = color_array[index4];
-			color_array[index4+2]    = color_array[index4];
-		} else { 
-			color_array[index4]      = bm.get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].r);
-			color_array[index4+1]    = bm.get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].g);
-			color_array[index4+2]    = bm.get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].b);
+			color[0] = color[1] = color[2] = 0;
 		}
-		color_array[index4+3]    = color_alpha;
-		texcoord_array[index2]   = f2glf(uvl_list[c].u);
-		texcoord_array[index2+1] = f2glf(uvl_list[c].v);
+		else
+		{
+			if (bm.get_flag_mask(BM_FLAG_NO_LIGHTING))
+			{
+				color[0] = color[1] = color[2] = 1.0;
+			}
+			else
+			{
+				color[0] = f2glf(light.r);
+				color[1] = f2glf(light.g);
+				color[2] = f2glf(light.b);
+			}
+			texcoord[0] = f2glf(uvl.u);
+			texcoord[1] = f2glf(uvl.v);
+		}
 	}
-	
-	glVertexPointer(3, GL_FLOAT, 0, vertices.get());
-	glColorPointer(4, GL_FLOAT, 0, color_array.get());
+
+	glVertexPointer(3, GL_FLOAT, 0, vertices.flat.data());
+	glColorPointer(4, GL_FLOAT, 0, color_array.flat.data());
 	if (tmap_drawer_ptr == draw_tmap) {
-		glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.get());  
+		glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.flat.data());
 	}
 	
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
