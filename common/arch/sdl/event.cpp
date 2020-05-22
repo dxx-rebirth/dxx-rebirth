@@ -127,9 +127,18 @@ window_event_result event_poll()
 
 void event_flush()
 {
-	SDL_Event event;
-	
-	while (SDL_PollEvent(&event));
+	std::array<SDL_Event, 128> events;
+	for (;;)
+	{
+		SDL_PumpEvents();
+#if SDL_MAJOR_VERSION == 1
+		const auto peep = SDL_PeepEvents(events.data(), events.size(), SDL_GETEVENT, SDL_ALLEVENTS);
+#elif SDL_MAJOR_VERSION == 2
+		const auto peep = SDL_PeepEvents(events.data(), events.size(), SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
+#endif
+		if (peep != events.size())
+			break;
+	}
 }
 
 int event_init()
