@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 
 // some defines for transparency and blending
-#define TRANSPARENCY_COLOR   255            // palette entry of transparency color -- 255 on the PC
+constexpr uint8_t TRANSPARENCY_COLOR = 255;            // palette entry of transparency color -- 255 on the PC
 #define GR_FADE_LEVELS       34u
 #define GR_FADE_OFF          GR_FADE_LEVELS // yes, max means OFF - don't screw that up
 enum gr_blend {
