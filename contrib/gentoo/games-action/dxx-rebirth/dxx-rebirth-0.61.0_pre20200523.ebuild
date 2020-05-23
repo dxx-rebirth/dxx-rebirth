@@ -20,10 +20,11 @@ inherit eutils scons-utils toolchain-funcs xdg
 if [[ "$PV" = 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dxx-rebirth/dxx-rebirth"
+	PROPERTIES="live"
 else
-	MY_COMMIT='5c88587c014d30a60edcc68220b694c134bb2c3f'
+	MY_COMMIT='5a73a680f858de8e9babe6d0b62460cf8113b8e6'
 	S="$WORKDIR/$PN-$MY_COMMIT"
-	SRC_URI="https://github.com/dxx-rebirth/dxx-rebirth/archive/$MY_COMMIT.zip -> $PN-$PVR.zip"
+	SRC_URI="https://codeload.github.com/dxx-rebirth/dxx-rebirth/tar.gz/$MY_COMMIT -> $PN-$PVR.tar.gz"
 	unset MY_COMMIT
 
 	# Restriction only for use in private overlays.  When this is added to a
