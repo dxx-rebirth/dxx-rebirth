@@ -24,7 +24,7 @@ if [[ "$PV" = 9999 ]]; then
 else
 	MY_COMMIT=''
 	S="$WORKDIR/$PN-$MY_COMMIT"
-	SRC_URI="https://github.com/dxx-rebirth/dxx-rebirth/archive/$MY_COMMIT.zip -> $PN-$PVR.zip"
+	SRC_URI="https://codeload.github.com/dxx-rebirth/dxx-rebirth/tar.gz/$MY_COMMIT -> $PN-$PVR.tar.gz"
 	unset MY_COMMIT
 
 	# Restriction only for use in private overlays.  When this is added to a
