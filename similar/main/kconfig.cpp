@@ -1082,6 +1082,11 @@ static unsigned allow_uncapped_turning()
 		: MouselookMode::MPAnarchy);
 }
 
+void kconfig_begin_loop()
+{
+	Controls.pitch_time = Controls.vertical_thrust_time = Controls.heading_time = Controls.sideways_thrust_time = Controls.bank_time = Controls.forward_thrust_time = 0;
+}
+
 void kconfig_read_controls(const d_event &event, int automap_flag)
 {
 	static fix64 mouse_delta_time = 0;
@@ -1095,7 +1100,6 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 	}
 #endif
 
-	Controls.pitch_time = Controls.vertical_thrust_time = Controls.heading_time = Controls.sideways_thrust_time = Controls.bank_time = Controls.forward_thrust_time = 0;
 	const auto frametime = FrameTime;
 
 	switch (event.type)

@@ -1054,6 +1054,10 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 			return window_event_result::ignored;	// continue closing
 			break;
 
+		case EVENT_LOOP_BEGIN_LOOP:
+			kconfig_begin_loop();
+			break;
+
 		default:
 			return window_event_result::ignored;
 			break;

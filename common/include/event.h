@@ -48,7 +48,9 @@ enum event_type : unsigned
 	EVENT_NEWMENU_DRAW,					// draw after the newmenu stuff is drawn (e.g. savegame previews)
 	EVENT_NEWMENU_CHANGED,				// an item had its value/text changed
 	EVENT_NEWMENU_SELECTED,				// user chose something - pressed enter/clicked on it
-	
+
+	EVENT_LOOP_BEGIN_LOOP,
+
 	EVENT_UI_DIALOG_DRAW,				// draw after the dialog stuff is drawn (e.g. spinning robots)
 	EVENT_UI_GADGET_PRESSED,				// user 'pressed' a gadget
 	EVENT_UI_LISTBOX_MOVED,
@@ -115,6 +117,14 @@ struct d_window_size_event : d_event
 	}
 };
 #endif
+
+struct d_event_begin_loop : d_event
+{
+	d_event_begin_loop() :
+		d_event{EVENT_LOOP_BEGIN_LOOP}
+	{
+	}
+};
 
 #if DXX_USE_EDITOR
 fix event_get_idle_seconds();

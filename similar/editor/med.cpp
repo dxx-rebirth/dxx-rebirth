@@ -1142,7 +1142,10 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 					rval = window_event_result::handled;
 				}
 				break;
-				
+			case EVENT_LOOP_BEGIN_LOOP:
+				kconfig_begin_loop();
+				break;
+
 			default:
 				break;
 		}

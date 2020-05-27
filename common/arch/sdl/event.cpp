@@ -44,13 +44,21 @@ static void windowevent_handler(const SDL_WindowEvent &windowevent)
 }
 #endif
 
+static void event_notify_begin_loop()
+{
+	const d_event_begin_loop event;
+	event_send(event);
+}
+
 window_event_result event_poll()
 {
 	SDL_Event event;
 	int clean_uniframe=1;
 	window *wind = window_get_front();
 	window_event_result highest_result(window_event_result::ignored);
-	
+
+	event_notify_begin_loop();
+
 	// If the front window changes, exit this loop, otherwise unintended behavior can occur
 	// like pressing 'Return' really fast at 'Difficulty Level' causing multiple games to be started
 	while ((highest_result != window_event_result::deleted) && (wind == window_get_front()) && (event = {}, SDL_PollEvent(&event)))

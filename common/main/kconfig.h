@@ -122,6 +122,7 @@ extern const std::array<uint8_t, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsReb
 #endif
 
 extern void kconfig_read_controls(const d_event &event, int automap_flag);
+void kconfig_begin_loop();
 
 enum class kconfig_type
 {
