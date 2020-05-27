@@ -24,8 +24,21 @@
 
 #include "joy.h"
 #include "args.h"
+#include "partial_range.h"
 
 namespace dcx {
+
+namespace {
+
+struct event_poll_state
+{
+	uint8_t clean_uniframe = 1;
+	const window *const front_window = window_get_front();
+	window_event_result highest_result = window_event_result::ignored;
+	void process_event_batch(partial_range_t<const SDL_Event *>);
+};
+
+}
 
 #if SDL_MAJOR_VERSION == 2
 extern SDL_Window *g_pRebirthSDLMainWindow;
@@ -52,16 +65,48 @@ static void event_notify_begin_loop()
 
 window_event_result event_poll()
 {
-	SDL_Event event;
-	int clean_uniframe=1;
-	window *wind = window_get_front();
-	window_event_result highest_result(window_event_result::ignored);
-
+	event_poll_state state;
 	event_notify_begin_loop();
 
+	for (;;)
+	{
 	// If the front window changes, exit this loop, otherwise unintended behavior can occur
 	// like pressing 'Return' really fast at 'Difficulty Level' causing multiple games to be started
-	while ((highest_result != window_event_result::deleted) && (wind == window_get_front()) && (event = {}, SDL_PollEvent(&event)))
+		if (state.front_window != window_get_front())
+			break;
+		std::array<SDL_Event, 128> events;
+
+		SDL_PumpEvents();
+#if SDL_MAJOR_VERSION == 1
+		const auto peep = SDL_PeepEvents(events.data(), events.size(), SDL_GETEVENT, SDL_ALLEVENTS);
+#elif SDL_MAJOR_VERSION == 2
+		const auto peep = SDL_PeepEvents(events.data(), events.size(), SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
+#endif
+		if (peep <= 0)
+			break;
+		state.process_event_batch(unchecked_partial_range(events.data(), static_cast<unsigned>(peep)));
+		if (state.highest_result == window_event_result::deleted)
+			break;
+	}
+	// Send the idle event if there were no other events (or they were ignored)
+	if (state.highest_result == window_event_result::ignored)
+	{
+		const d_event ievent{EVENT_IDLE};
+		state.highest_result = std::max(event_send(ievent), state.highest_result);
+	}
+	else
+	{
+#if DXX_USE_EDITOR
+		event_reset_idle_seconds();
+#endif
+	}
+	mouse_cursor_autohide();
+	return state.highest_result;
+}
+
+void event_poll_state::process_event_batch(partial_range_t<const SDL_Event *> events)
+{
+	for (auto &&event : events)
 	{
 		window_event_result result;
 		switch(event.type) {
@@ -119,23 +164,6 @@ window_event_result event_poll()
 		}
 		highest_result = std::max(result, highest_result);
 	}
-
-	// Send the idle event if there were no other events (or they were ignored)
-	if (highest_result == window_event_result::ignored)
-	{
-		const d_event ievent{EVENT_IDLE};
-		highest_result = std::max(event_send(ievent), highest_result);
-	}
-	else
-	{
-#if DXX_USE_EDITOR
-		event_reset_idle_seconds();
-#endif
-	}
-	
-	mouse_cursor_autohide();
-
-	return highest_result;
 }
 
 void event_flush()
