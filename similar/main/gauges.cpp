@@ -484,7 +484,6 @@ std::array<bitmap_index, MAX_GAUGE_BMS> Gauges,   // Array of all gauge bitmaps.
 	Gauges_hires;   // hires gauges
 static std::array<int, 2> weapon_box_user{{WBU_WEAPON, WBU_WEAPON}};		//see WBU_ constants in gauges.h
 #endif
-static grs_bitmap deccpt;
 static std::array<grs_subbitmap_ptr, 2> WinBoxOverlay; // Overlay subbitmaps for both weapon boxes
 
 namespace dsx {
@@ -1967,7 +1966,6 @@ static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *c
 	 */
 #define DXX_MAX_COCKPIT_BITMAP_SIZE	(640 * 480)
 #endif
-	static std::array<uint8_t, DXX_MAX_COCKPIT_BITMAP_SIZE> cockpitbuf;
 
 	const unsigned bm_h = bm->bm_h;
 	if (unlikely(!bm_h))
@@ -1978,36 +1976,37 @@ static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *c
 	if (cur == bm->bm_data && cur_w == bm_w && cur_h == bm_h)
 		return;
 
-	cockpitbuf = {};
+	RAIIdmem<uint8_t[]> cockpitbuf;
+	MALLOC(cockpitbuf, uint8_t[], DXX_MAX_COCKPIT_BITMAP_SIZE);
 
 	// decode the bitmap
 	if (bm->get_flag_mask(BM_FLAG_RLE))
 	{
-		if (!bm_rle_expand(*bm).loop(bm_w, bm_rle_expand_range(cockpitbuf)))
+		if (!bm_rle_expand(*bm).loop(bm_w, bm_rle_expand_range(cockpitbuf.get(), cockpitbuf.get() + DXX_MAX_COCKPIT_BITMAP_SIZE)))
 		{
 				/* Out of space.  Return without adjusting the bitmap.
 				 * The result will look ugly, but run correctly.
 				 */
-				con_printf(CON_URGENT, __FILE__ ":%u: BUG: RLE-encoded bitmap with size %hux%hu exceeds decode buffer size %" DXX_PRI_size_type, __LINE__, static_cast<uint16_t>(bm_w), static_cast<uint16_t>(bm_h), cockpitbuf.size());
+				con_printf(CON_URGENT, __FILE__ ":%u: BUG: RLE-encoded bitmap with size %hux%hu exceeds decode buffer size %u", __LINE__, static_cast<uint16_t>(bm_w), static_cast<uint16_t>(bm_h), DXX_MAX_COCKPIT_BITMAP_SIZE);
 				return;
 		}
 	}
 	else
 	{
 		const std::size_t len = bm_w * bm_h;
-		if (len > cockpitbuf.size())
+		if (len > DXX_MAX_COCKPIT_BITMAP_SIZE)
 		{
-			con_printf(CON_URGENT, __FILE__ ":%u: BUG: RLE-encoded bitmap with size %hux%hu exceeds decode buffer size %" DXX_PRI_size_type, __LINE__, static_cast<uint16_t>(bm_w), static_cast<uint16_t>(bm_h), cockpitbuf.size());
+			con_printf(CON_URGENT, __FILE__ ":%u: BUG: RLE-encoded bitmap with size %hux%hu exceeds decode buffer size %u", __LINE__, static_cast<uint16_t>(bm_w), static_cast<uint16_t>(bm_h), DXX_MAX_COCKPIT_BITMAP_SIZE);
 			return;
 		}
-		memcpy(cockpitbuf.data(), bm->bm_data, len);
+		memcpy(cockpitbuf.get(), bm->bm_data, len);
 	}
 
 	// add alpha color to the pixels which are inside the window box spans
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 	const unsigned lower_y = ((multires_gauge_graphic.get(364, 151)));
 	unsigned i = bm_w * lower_y;
-	const auto fill_alpha_one_line = [](unsigned o, const d_gauge_span &s) {
+	const auto fill_alpha_one_line = [&cockpitbuf](unsigned o, const d_gauge_span &s) {
 		std::fill_n(&cockpitbuf[o + s.l], s.r - s.l + 1, TRANSPARENCY_COLOR);
 	};
 	range_for (auto &s,
@@ -2020,16 +2019,35 @@ static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *c
 		fill_alpha_one_line(i, s.r);
 		i += bm_w;
 	}
+	/* deccpt is static because it must remain allocated.  It must
+	 * remain allocated because WinBoxOverlay[*] refer to the data
+	 * managed by deccpt, so destroying deccpt would leave WinBoxOverlay
+	 * dangling.  For OpenGL, the texture would be dangling.  For
+	 * SDL-only, the bm_data pointers would be dangling.
+	 */
 #if DXX_USE_OGL
 	ogl_freebmtexture(*bm);
+	static grs_bitmap deccpt;
+	gr_init_bitmap(deccpt, bm_mode::linear, 0, 0, bm_w, bm_h, bm_w, cockpitbuf.get());
+#else
+	static grs_main_bitmap deccpt;
+	gr_init_main_bitmap(deccpt, bm_mode::linear, 0, 0, bm_w, bm_h, bm_w, std::move(cockpitbuf));
 #endif
-	gr_init_bitmap(deccpt, bm_mode::linear, 0, 0, bm_w, bm_h, bm_w, cockpitbuf.data());
 	gr_set_transparent(deccpt,1);
 #if DXX_USE_OGL
 	ogl_ubitmapm_cs(hudctx.canvas, 0, 0, -1, -1, deccpt, 255, F1_0); // render one time to init the texture
 #endif
 	WinBoxOverlay[0] = gr_create_sub_bitmap(deccpt,(PRIMARY_W_BOX_LEFT)-2,(PRIMARY_W_BOX_TOP)-2,(PRIMARY_W_BOX_RIGHT-PRIMARY_W_BOX_LEFT+4),(PRIMARY_W_BOX_BOT-PRIMARY_W_BOX_TOP+4));
 	WinBoxOverlay[1] = gr_create_sub_bitmap(deccpt,(SECONDARY_W_BOX_LEFT)-2,(SECONDARY_W_BOX_TOP)-2,(SECONDARY_W_BOX_RIGHT-SECONDARY_W_BOX_LEFT)+4,(SECONDARY_W_BOX_BOT-SECONDARY_W_BOX_TOP)+4);
+#if DXX_USE_OGL
+	/* The image has been copied to OpenGL as a texture.  The underlying
+	 * main application memory will be freed at the end of the function.
+	 * Clear bm_data to avoid leaving a dangling pointer.
+	 */
+	deccpt.bm_data = nullptr;
+	WinBoxOverlay[0]->bm_data = nullptr;
+	WinBoxOverlay[1]->bm_data = nullptr;
+#endif
 
 	cur = bm->get_bitmap_data();
 	cur_w = bm_w;
@@ -2050,6 +2068,12 @@ static void draw_wbu_overlay(const hud_draw_context_hs_mr hudctx)
 
 	cockpit_decode_alpha(hudctx, bm);
 
+	/* The code that rendered the inset windows drew simple square
+	 * boxes, which partially overwrote the frame surrounding the inset
+	 * windows in the cockpit graphic.  These calls reapply the
+	 * overwritten frame, while leaving untouched the portion that was
+	 * supposed to be overwritten.
+	 */
 	if (WinBoxOverlay[0])
 		hud_bitblt(hudctx, PRIMARY_W_BOX_LEFT - 2, PRIMARY_W_BOX_TOP - 2, *WinBoxOverlay[0].get());
 	if (WinBoxOverlay[1])
