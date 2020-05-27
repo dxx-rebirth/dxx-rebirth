@@ -479,7 +479,7 @@ void pressed_keys::update(const std::size_t keycode, const uint8_t down)
 		modifier_cache &= ~mask;
 }
 
-window_event_result key_handler(SDL_KeyboardEvent *kevent)
+window_event_result key_handler(const SDL_KeyboardEvent *const kevent)
 {
 	// Read SDLK symbol and state
 	const auto event_keysym = kevent->keysym.sym;

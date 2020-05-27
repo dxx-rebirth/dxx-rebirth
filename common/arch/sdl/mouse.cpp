@@ -101,7 +101,7 @@ static window_event_result maybe_send_doubleclick(const fix64 now, const unsigne
 	return event_send(event);
 }
 
-window_event_result mouse_button_handler(SDL_MouseButtonEvent *mbe)
+window_event_result mouse_button_handler(const SDL_MouseButtonEvent *const mbe)
 {
 	window_event_result highest_result(window_event_result::ignored);
 
@@ -151,7 +151,7 @@ window_event_result mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	return highest_result;
 }
 
-window_event_result mouse_motion_handler(SDL_MouseMotionEvent *mme)
+window_event_result mouse_motion_handler(const SDL_MouseMotionEvent *const mme)
 {
 	Mouse.cursor_time = timer_query();
 	Mouse.x += mme->xrel;

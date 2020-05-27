@@ -57,8 +57,8 @@ window_event_result mouse_in_window(class window *wind);
 extern void mouse_get_delta( int *dx, int *dy, int *dz );
 void mouse_enable_cursor();
 void mouse_disable_cursor();
-window_event_result mouse_button_handler(struct SDL_MouseButtonEvent *mbe);
-window_event_result mouse_motion_handler(struct SDL_MouseMotionEvent *mme);
+window_event_result mouse_button_handler(const SDL_MouseButtonEvent *mbe);
+window_event_result mouse_motion_handler(const SDL_MouseMotionEvent *mme);
 void mouse_cursor_autohide();
 
 class d_event_mousebutton : public d_event

@@ -187,7 +187,7 @@ public:
 static std::array<d_physical_joystick, DXX_MAX_JOYSTICKS> SDL_Joysticks;
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-window_event_result joy_button_handler(SDL_JoyButtonEvent *jbe)
+window_event_result joy_button_handler(const SDL_JoyButtonEvent *const jbe)
 {
 	const unsigned button = SDL_Joysticks[jbe->which].button_map()[jbe->button];
 
@@ -203,7 +203,7 @@ window_event_result joy_button_handler(SDL_JoyButtonEvent *jbe)
 #endif
 
 #if DXX_MAX_HATS_PER_JOYSTICK
-window_event_result joy_hat_handler(SDL_JoyHatEvent *jhe)
+window_event_result joy_hat_handler(const SDL_JoyHatEvent *const jhe)
 {
 	int hat = SDL_Joysticks[jhe->which].hat_map()[jhe->hat];
 	window_event_result highest_result(window_event_result::ignored);
@@ -258,7 +258,7 @@ static window_event_result send_axis_button_event(unsigned button, event_type e)
 	return event_send(event);
 }
 
-window_event_result joy_axisbutton_handler(SDL_JoyAxisEvent *jae)
+window_event_result joy_axisbutton_handler(const SDL_JoyAxisEvent *const jae)
 {
 	auto &js = SDL_Joysticks[jae->which];
 	auto axis_value = js.axis_value()[jae->axis];
@@ -290,7 +290,7 @@ window_event_result joy_axisbutton_handler(SDL_JoyAxisEvent *jae)
 	return highest_result;
 }
 
-window_event_result joy_axis_handler(SDL_JoyAxisEvent *jae)
+window_event_result joy_axis_handler(const SDL_JoyAxisEvent *const jae)
 {
 	auto &js = SDL_Joysticks[jae->which];
 	const auto axis = js.axis_map()[jae->axis];
