@@ -530,13 +530,13 @@ RAIIPHYSFS_File PHYSFSX_openReadBuffered(const char *filename)
 {
 	PHYSFS_uint64 bufSize;
 	char filename2[PATH_MAX];
-	
+#if 0
 	if (filename[0] == '\x01')
 	{
 		//FIXME: don't look in dir, only in hogfile
 		filename++;
 	}
-	
+#endif
 	snprintf(filename2, sizeof(filename2), "%s", filename);
 	PHYSFSEXT_locateCorrectCase(filename2);
 	

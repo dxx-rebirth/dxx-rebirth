@@ -171,12 +171,7 @@ static void show_title_screen(const char * filename, int allow_keys, int from_ho
 	auto ts = std::make_unique<title_screen>();
 	ts->allow_keys = allow_keys;
 
-#ifdef RELEASE
-	if (from_hog_only)
-		strcpy(new_filename,"\x01");	//only read from hog file
-#else
 	(void)from_hog_only;
-#endif
 
 	strcat(new_filename,filename);
 	filename = new_filename;
