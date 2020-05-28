@@ -1127,7 +1127,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 			case EVENT_KEY_COMMAND:
 			case EVENT_KEY_RELEASE:
 			case EVENT_IDLE:
-				kconfig_read_controls(event, 1);
+				kconfig_read_controls(Controls, event, 1);
 
 				if (slew_frame(0))
 				{		//do movement and check keys
@@ -1143,7 +1143,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 				}
 				break;
 			case EVENT_LOOP_BEGIN_LOOP:
-				kconfig_begin_loop();
+				kconfig_begin_loop(Controls);
 				break;
 
 			default:

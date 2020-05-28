@@ -962,9 +962,7 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 
 static window_event_result automap_process_input(window *, const d_event &event, automap *am)
 {
-	Controls = am->controls;
-	kconfig_read_controls(event, 1);
-	am->controls = Controls;
+	kconfig_read_controls(am->controls, event, 1);
 	Controls = {};
 
 	if ( !am->controls.state.automap && (am->leave_mode==1) )
@@ -1055,7 +1053,7 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 			break;
 
 		case EVENT_LOOP_BEGIN_LOOP:
-			kconfig_begin_loop();
+			kconfig_begin_loop(am->controls);
 			break;
 
 		default:

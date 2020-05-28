@@ -1997,7 +1997,7 @@ window_event_result ReadControls(const d_event &event)
 
 	if (!Endlevel_sequence && Newdemo_state != ND_STATE_PLAYBACK)
 	{
-		kconfig_read_controls(event, 0);
+		kconfig_read_controls(Controls, event, 0);
 		const auto Player_is_dead = Player_dead_state;
 		if (Player_is_dead != player_dead_state::no && HandleDeathInput(event))
 			return window_event_result::handled;

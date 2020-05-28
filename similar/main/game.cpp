@@ -1659,7 +1659,7 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 			break;
 
 		case EVENT_LOOP_BEGIN_LOOP:
-			kconfig_begin_loop();
+			kconfig_begin_loop(Controls);
 			break;
 
 		default:

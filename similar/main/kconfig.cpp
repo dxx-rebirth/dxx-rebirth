@@ -120,6 +120,11 @@ struct kc_mitem {
 
 }
 
+void kconfig_begin_loop(control_info &Controls)
+{
+	Controls.pitch_time = Controls.vertical_thrust_time = Controls.heading_time = Controls.sideways_thrust_time = Controls.bank_time = Controls.forward_thrust_time = 0;
+}
+
 }
 
 namespace dsx {
@@ -975,7 +980,9 @@ void kconfig(const kconfig_type n)
 	}
 }
 
-static void input_button_matched(const kc_item& item, int down)
+namespace dsx {
+
+static void input_button_matched(control_info &Controls, const kc_item& item, int down)
 {
 	if (item.state_bit)
 	{
@@ -992,6 +999,10 @@ static void input_button_matched(const kc_item& item, int down)
 			Controls.state.*item.ci_count_ptr += 1;
 	}
 }
+
+}
+
+namespace dcx {
 
 template <template<typename> class F>
 static void adjust_ramped_keyboard_field(float& keydown_time, ubyte& state, fix& time, const float& sensitivity, const int& speed_factor, const int& speed_divisor = 1)
@@ -1031,7 +1042,7 @@ static void clamp_symmetric_value(fix& value, const fix& bound)
 }
 
 #if DXX_MAX_AXES_PER_JOYSTICK
-static void convert_raw_joy_axis(const uint_fast32_t player_cfg_index, const uint_fast32_t i)
+static void convert_raw_joy_axis(control_info::joystick_axis_values &Controls, const uint_fast32_t player_cfg_index, const uint_fast32_t i)
 {
 	const auto raw_joy_axis = Controls.raw_joy_axis[i];
 	const auto joy_axis = (abs(raw_joy_axis) <= (128 * PlayerCfg.JoystickLinear[player_cfg_index]) / 16)
@@ -1040,11 +1051,11 @@ static void convert_raw_joy_axis(const uint_fast32_t player_cfg_index, const uin
 	Controls.joy_axis[i] = joy_axis / 128;
 }
 
-static void convert_raw_joy_axis(const uint_fast32_t kcm_index, const uint_fast32_t player_cfg_index, const uint_fast32_t i)
+static void convert_raw_joy_axis(control_info::joystick_axis_values &Controls, const uint_fast32_t kcm_index, const uint_fast32_t player_cfg_index, const uint_fast32_t i)
 {
 	if (i != kcm_joystick[kcm_index].value)
 		return;
-	convert_raw_joy_axis(player_cfg_index, i);
+	convert_raw_joy_axis(Controls, player_cfg_index, i);
 }
 #endif
 
@@ -1082,12 +1093,11 @@ static unsigned allow_uncapped_turning()
 		: MouselookMode::MPAnarchy);
 }
 
-void kconfig_begin_loop()
-{
-	Controls.pitch_time = Controls.vertical_thrust_time = Controls.heading_time = Controls.sideways_thrust_time = Controls.bank_time = Controls.forward_thrust_time = 0;
 }
 
-void kconfig_read_controls(const d_event &event, int automap_flag)
+namespace dsx {
+
+void kconfig_read_controls(control_info &Controls, const d_event &event, int automap_flag)
 {
 	static fix64 mouse_delta_time = 0;
 
@@ -1114,7 +1124,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			{
 				if (kcm_keyboard[i].value == key)
 				{
-					input_button_matched(kc_keyboard[i], (event.type==EVENT_KEY_COMMAND));
+					input_button_matched(Controls, kc_keyboard[i], (event.type==EVENT_KEY_COMMAND));
 				}
 			}
 			if (!automap_flag && event.type == EVENT_KEY_COMMAND)
@@ -1140,7 +1150,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			{
 				if (kc_joystick[i].type == BT_JOY_BUTTON && kcm_joystick[i].value == button)
 				{
-					input_button_matched(kc_joystick[i], (event.type==EVENT_JOYSTICK_BUTTON_DOWN));
+					input_button_matched(Controls, kc_joystick[i], (event.type==EVENT_JOYSTICK_BUTTON_DOWN));
 				}
 			}
 			if (!automap_flag && event.type == EVENT_JOYSTICK_BUTTON_DOWN)
@@ -1166,7 +1176,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			{
 				if (kc_mouse[i].type == BT_MOUSE_BUTTON && kcm_mouse[i].value == button)
 				{
-					input_button_matched(kc_mouse[i], (event.type==EVENT_MOUSE_BUTTON_DOWN));
+					input_button_matched(Controls, kc_mouse[i], (event.type==EVENT_MOUSE_BUTTON_DOWN));
 				}
 			}
 			if (!automap_flag && event.type == EVENT_MOUSE_BUTTON_DOWN)
@@ -1249,12 +1259,12 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 	
 #if DXX_MAX_AXES_PER_JOYSTICK
 	for (int i = 0; i < JOY_MAX_AXES; i++) {
-		convert_raw_joy_axis(15, 0, i); // Turn L/R
-		convert_raw_joy_axis(13, 1, i); // Pitch U/D
-		convert_raw_joy_axis(17, 2, i); // Slide L/R
-		convert_raw_joy_axis(19, 3, i); // Slide U/D
-		convert_raw_joy_axis(21, 4, i); // Bank
-		convert_raw_joy_axis(23, 5, i); // Throttle
+		convert_raw_joy_axis(Controls, 15, 0, i); // Turn L/R
+		convert_raw_joy_axis(Controls, 13, 1, i); // Pitch U/D
+		convert_raw_joy_axis(Controls, 17, 2, i); // Slide L/R
+		convert_raw_joy_axis(Controls, 19, 3, i); // Slide U/D
+		convert_raw_joy_axis(Controls, 21, 4, i); // Bank
+		convert_raw_joy_axis(Controls, 23, 5, i); // Throttle
 	}
 #endif
 
@@ -1397,6 +1407,8 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 		clamp_kconfig_control_with_overrun(Controls.heading_time, frametime, Controls.excess_heading_time, frametime * PlayerCfg.MouseOverrun[0]);
 		clamp_kconfig_control_with_overrun(Controls.bank_time, frametime, Controls.excess_bank_time, frametime * PlayerCfg.MouseOverrun[4]);
 	}
+}
+
 }
 
 void reset_cruise(void)
