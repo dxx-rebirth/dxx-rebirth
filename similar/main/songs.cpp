@@ -688,11 +688,11 @@ int songs_play_level_song( int levelnum, int offset )
 #if DXX_USE_SDLMIXER
 		case MUSIC_TYPE_CUSTOM:
 		{
-			if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND)
+			if (CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Random)
 				CGameCfg.CMLevelMusicTrack[0] = d_rand() % CGameCfg.CMLevelMusicTrack[1]; // simply a random selection - no check if this song has already been played. But that's how I roll!
 			else if (!offset)
 			{
-				if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)
+				if (CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Continuous)
 				{
 					static int last_songnum = -1;
 
@@ -706,7 +706,7 @@ int songs_play_level_song( int levelnum, int offset )
 							: CGameCfg.CMLevelMusicTrack[0]++);
 					last_songnum = songnum;
 				}
-				else if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)
+				else if (CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Level)
 					CGameCfg.CMLevelMusicTrack[0] = (songnum % CGameCfg.CMLevelMusicTrack[1]);
 			}
 			else

@@ -36,6 +36,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <array>
 
 namespace dcx {
+
+// play-order definitions for custom music
+/* These values are written to a file as integers, so they must not be
+ * renumbered.
+ */
+enum class LevelMusicPlayOrder : uint8_t
+{
+	Continuous,
+	Level,
+	Random,
+};
+
 struct CCfg : prohibit_void_ptr<CCfg>
 {
 #if DXX_USE_ADLMIDI
@@ -53,6 +65,7 @@ struct CCfg : prohibit_void_ptr<CCfg>
 	bool TexAnisotropy;
 	bool Multisample;
 	bool FPSIndicator;
+	LevelMusicPlayOrder CMLevelMusicPlayOrder;
 	std::array<int, 2> CMLevelMusicTrack;
 	ntstring<MISSION_NAME_LEN> LastMission;
 	ntstring<PATH_MAX - 1> CMLevelMusicPath;
@@ -67,7 +80,6 @@ namespace dsx {
 struct Cfg : prohibit_void_ptr<Cfg>
 {
 	int MusicType;
-	int CMLevelMusicPlayOrder;
 	int GammaLevel;
 	int ResolutionX;
 	int ResolutionY;

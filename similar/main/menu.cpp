@@ -2058,9 +2058,9 @@ namespace {
 	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMLevelMusicPath, opt_sm_mtype3_lmpath_input)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank3)	\
 	DXX_MENUITEM(VERB, TEXT, "Level music play order:", opt_label_lm_order)	\
-	DXX_MENUITEM(VERB, RADIO, "continuous", opt_sm_mtype3_lmplayorder1, GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT, optgrp_music_order)	\
-	DXX_MENUITEM(VERB, RADIO, "one track per level", opt_sm_mtype3_lmplayorder2, GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL, optgrp_music_order)	\
-	DXX_MENUITEM(VERB, RADIO, "random", opt_sm_mtype3_lmplayorder3, GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND, optgrp_music_order)	\
+	DXX_MENUITEM(VERB, RADIO, "continuous", opt_sm_mtype3_lmplayorder1, CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Continuous, optgrp_music_order)	\
+	DXX_MENUITEM(VERB, RADIO, "one track per level", opt_sm_mtype3_lmplayorder2, CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Level, optgrp_music_order)	\
+	DXX_MENUITEM(VERB, RADIO, "random", opt_sm_mtype3_lmplayorder3, CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Random, optgrp_music_order)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank4)	\
 	DXX_MENUITEM(VERB, TEXT, "Non-level music:", opt_label_nonlevel_music)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Main menu", opt_sm_cm_mtype3_file1_b)	\
@@ -2195,17 +2195,17 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 #if DXX_USE_SDLMIXER
 			else if (citem == opt_sm_mtype3_lmplayorder1)
 			{
-				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_CONT;
+				CGameCfg.CMLevelMusicPlayOrder = LevelMusicPlayOrder::Continuous;
 				replay = (Game_wind != NULL);
 			}
 			else if (citem == opt_sm_mtype3_lmplayorder2)
 			{
-				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_LEVEL;
+				CGameCfg.CMLevelMusicPlayOrder = LevelMusicPlayOrder::Level;
 				replay = (Game_wind != NULL);
 			}
 			else if (citem == opt_sm_mtype3_lmplayorder3)
 			{
-				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_RAND;
+				CGameCfg.CMLevelMusicPlayOrder = LevelMusicPlayOrder::Random;
 				replay = (Game_wind != NULL);
 			}
 #endif

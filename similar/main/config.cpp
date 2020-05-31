@@ -102,7 +102,7 @@ int ReadConfigFile()
 #else
 	GameCfg.MusicType = MUSIC_TYPE_BUILTIN;
 #endif
-	GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_CONT;
+	CGameCfg.CMLevelMusicPlayOrder = LevelMusicPlayOrder::Continuous;
 	CGameCfg.CMLevelMusicTrack[0] = -1;
 	CGameCfg.CMLevelMusicTrack[1] = -1;
 	CGameCfg.CMLevelMusicPath = {};
@@ -111,7 +111,7 @@ int ReadConfigFile()
 	const auto userdir = PHYSFS_getUserDir();
 	GameCfg.OrigTrackOrder = 1;
 #if defined(DXX_BUILD_DESCENT_I)
-	GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_LEVEL;
+	CGameCfg.CMLevelMusicPlayOrder = LevelMusicPlayOrder::Level;
 	CGameCfg.CMLevelMusicPath = "descent.m3u";
 	snprintf(CGameCfg.CMMiscMusic[SONG_TITLE].data(), CGameCfg.CMMiscMusic[SONG_TITLE].size(), "%s%s", userdir, "Music/iTunes/iTunes Music/Insanity/Descent/02 Primitive Rage.mp3");
 	snprintf(CGameCfg.CMMiscMusic[SONG_CREDITS].data(), CGameCfg.CMMiscMusic[SONG_CREDITS].size(), "%s%s", userdir, "Music/iTunes/iTunes Music/Insanity/Descent/05 The Darkness Of Space.mp3");
@@ -171,7 +171,11 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, MusicTypeStr))
 			convert_integer(GameCfg.MusicType, value);
 		else if (cmp(lb, eq, CMLevelMusicPlayOrderStr))
-			convert_integer(GameCfg.CMLevelMusicPlayOrder, value);
+		{
+			unsigned CMLevelMusicPlayOrder;
+			if (convert_integer(CMLevelMusicPlayOrder, value) && CMLevelMusicPlayOrder <= static_cast<unsigned>(LevelMusicPlayOrder::Random))
+				CGameCfg.CMLevelMusicPlayOrder = static_cast<LevelMusicPlayOrder>(CMLevelMusicPlayOrder);
+		}
 		else if (cmp(lb, eq, CMLevelMusicTrack0Str))
 			convert_integer(CGameCfg.CMLevelMusicTrack[0], value);
 		else if (cmp(lb, eq, CMLevelMusicTrack1Str))
@@ -260,7 +264,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, GameCfg.ReverseStereo);
 	PHYSFSX_printf(infile, "%s=%d\n", OrigTrackOrderStr, GameCfg.OrigTrackOrder);
 	PHYSFSX_printf(infile, "%s=%d\n", MusicTypeStr, GameCfg.MusicType);
-	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicPlayOrderStr, GameCfg.CMLevelMusicPlayOrder);
+	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicPlayOrderStr, static_cast<int>(CGameCfg.CMLevelMusicPlayOrder));
 	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicTrack0Str, CGameCfg.CMLevelMusicTrack[0]);
 	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicTrack1Str, CGameCfg.CMLevelMusicTrack[1]);
 	PHYSFSX_printf(infile, "%s=%s\n", CMLevelMusicPathStr, CGameCfg.CMLevelMusicPath.data());

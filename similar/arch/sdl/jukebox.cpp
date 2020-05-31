@@ -307,7 +307,7 @@ static void jukebox_hook_next()
 	if (!JukeboxSongs.list || CGameCfg.CMLevelMusicTrack[0] == -1)
 		return;
 
-	if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND)
+	if (CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Random)
 		CGameCfg.CMLevelMusicTrack[0] = d_rand() % CGameCfg.CMLevelMusicTrack[1]; // simply a random selection - no check if this song has already been played. But that's how I roll!
 	else
 		CGameCfg.CMLevelMusicTrack[0]++;
@@ -317,7 +317,7 @@ static void jukebox_hook_next()
 	jukebox_play();
 }
 
-// Play tracks from Jukebox directory. Play track specified in GameCfg.CMLevelMusicTrack[0] and loop depending on GameCfg.CMLevelMusicPlayOrder
+// Play tracks from Jukebox directory. Play track specified in GameCfg.CMLevelMusicTrack[0] and loop depending on CGameCfg.CMLevelMusicPlayOrder
 int jukebox_play()
 {
 	const char *music_filename;
@@ -347,7 +347,7 @@ int jukebox_play()
 		LevelMusicPath = cfgpath.data();
 	snprintf(full_filename.get(), size_full_filename, "%s%s", LevelMusicPath, music_filename);
 
-	int played = songs_play_file(full_filename.get(), (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL ? 1 : 0), (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL ? nullptr : jukebox_hook_next));
+	int played = songs_play_file(full_filename.get(), (CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Level ? 1 : 0), (CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Level ? nullptr : jukebox_hook_next));
 	full_filename.reset();
 	if (!played)
 	{
