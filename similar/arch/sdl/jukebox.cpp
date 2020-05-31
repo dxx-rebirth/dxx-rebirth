@@ -227,10 +227,6 @@ static int read_m3u(void)
 	return 1;
 }
 
-}
-
-namespace dsx {
-
 /* Loads music file names from a given directory or M3U playlist */
 void jukebox_load()
 {
@@ -316,6 +312,10 @@ static void jukebox_hook_next()
 
 	jukebox_play();
 }
+
+}
+
+namespace dsx {
 
 // Play tracks from Jukebox directory. Play track specified in GameCfg.CMLevelMusicTrack[0] and loop depending on CGameCfg.CMLevelMusicPlayOrder
 int jukebox_play()

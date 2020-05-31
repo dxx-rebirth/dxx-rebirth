@@ -16,9 +16,9 @@ namespace dcx {
 extern const std::array<file_extension_t, 5> jukebox_exts;
 
 void jukebox_unload();
+void jukebox_load();
 }
 namespace dsx {
-void jukebox_load();
 int jukebox_play();
 }
 #endif
