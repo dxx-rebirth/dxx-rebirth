@@ -8,8 +8,9 @@
 # terms and a link to the Git history.
 
 EAPI=7
+PYTHON_COMPAT=( python3_7 )
 
-inherit eutils scons-utils toolchain-funcs xdg
+inherit desktop eutils python-any-r1 scons-utils toolchain-funcs xdg
 if [[ "$PV" = 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dxx-rebirth/dxx-rebirth"
