@@ -41,6 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 
 struct sound_object;
+extern int digi_volume;
 
 }
 namespace dsx {
@@ -135,7 +136,6 @@ extern void digi_start_sound_queued( short soundnum, fix volume );
 
 #define SOUND_MAX_VOLUME F1_0 / 2
 
-extern int digi_volume;
 #if defined(DXX_BUILD_DESCENT_I)
 extern int digi_sample_rate;
 #endif

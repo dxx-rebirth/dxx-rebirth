@@ -33,13 +33,30 @@
 #include "hmp.h"
 #endif
 
-namespace dsx {
+namespace dcx {
 
-#ifndef __PIE__
+int digi_volume = SOUND_MAX_VOLUME;
+
+/* The values for these three defines are arbitrary and can be changed,
+ * provided that they remain unique with respect to each other.
+ */
+#define DXX_STS_MIXER_WITH_POINTER	0
+#define DXX_STS_MIXER_WITH_COPY	1
+#define DXX_STS_NO_MIXER	2
+
+#if DXX_USE_SDLMIXER
+#ifndef DXX_SOUND_TABLE_STYLE
+#ifdef __PIE__
 /* PIE -> paranoid checks
  * No PIE -> prefer speed
  */
-#define DXX_COPY_SOUND_TABLE
+#define DXX_SOUND_TABLE_STYLE	DXX_STS_MIXER_WITH_POINTER
+#else
+#define DXX_SOUND_TABLE_STYLE	DXX_STS_MIXER_WITH_COPY
+#endif
+#endif
+#else
+#define DXX_SOUND_TABLE_STYLE	DXX_STS_NO_MIXER
 #endif
 
 /* Sound system function pointers */
@@ -63,6 +80,86 @@ struct sound_function_table_t
 	void (*set_digi_volume)(int);
 };
 
+#if DXX_SOUND_TABLE_STYLE == DXX_STS_MIXER_WITH_POINTER
+[[noreturn]]
+__attribute_cold
+void report_invalid_table()
+{
+	/* Out of line due to length of generated code */
+	throw std::logic_error("invalid sound table pointer");
+}
+#endif
+
+}
+
+}
+
+#if DXX_SOUND_TABLE_STYLE == DXX_STS_MIXER_WITH_POINTER
+namespace dsx
+#else
+namespace dcx
+#endif
+{
+
+namespace {
+
+class sound_function_pointers_t
+{
+#if DXX_SOUND_TABLE_STYLE == DXX_STS_MIXER_WITH_COPY
+	sound_function_table_t table;
+#elif DXX_SOUND_TABLE_STYLE == DXX_STS_MIXER_WITH_POINTER
+	const sound_function_table_t *table;
+#endif
+public:
+	inline const sound_function_table_t *operator->();
+	inline sound_function_pointers_t &operator=(const sound_function_table_t &t);
+};
+
+#if DXX_SOUND_TABLE_STYLE == DXX_STS_MIXER_WITH_COPY
+const sound_function_table_t *sound_function_pointers_t::operator->()
+{
+	return &table;
+}
+
+sound_function_pointers_t &sound_function_pointers_t::operator=(const sound_function_table_t &t)
+{
+	table = t;
+	return *this;
+}
+#elif DXX_SOUND_TABLE_STYLE == DXX_STS_MIXER_WITH_POINTER
+
+sound_function_pointers_t &sound_function_pointers_t::operator=(const sound_function_table_t &t)
+{
+	table = &t;
+	/* Trap bad initial assignment */
+	operator->();
+	return *this;
+}
+#elif DXX_SOUND_TABLE_STYLE == DXX_STS_NO_MIXER
+const sound_function_table_t *sound_function_pointers_t::operator->()
+{
+	return &digi_audio_table;
+}
+
+sound_function_pointers_t &sound_function_pointers_t::operator=(const sound_function_table_t &)
+{
+	return *this;
+}
+#endif
+
+}
+
+static sound_function_pointers_t fptr;
+
+}
+
+namespace dsx {
+
+namespace {
+
+	/* Some of the functions are in dsx, so the definition and
+	 * initializer must be in dsx.
+	 */
 #if DXX_USE_SDLMIXER
 constexpr sound_function_table_t digi_mixer_table{
 	&digi_mixer_init,
@@ -97,71 +194,16 @@ constexpr sound_function_table_t digi_audio_table{
 	&digi_audio_set_digi_volume,
 };
 
-class sound_function_pointers_t
-{
-#if DXX_USE_SDLMIXER
-#ifdef DXX_COPY_SOUND_TABLE
-	sound_function_table_t table;
-#else
-	const sound_function_table_t *table;
-#endif
-#endif
-public:
-	__attribute_cold
-	void report_invalid_table() __noreturn;
-	inline const sound_function_table_t *operator->();
-	inline sound_function_pointers_t &operator=(const sound_function_table_t &t);
-};
-
-#if DXX_USE_SDLMIXER
-#ifdef DXX_COPY_SOUND_TABLE
-const sound_function_table_t *sound_function_pointers_t::operator->()
-{
-	return &table;
-}
-
-sound_function_pointers_t &sound_function_pointers_t::operator=(const sound_function_table_t &t)
-{
-	table = t;
-	return *this;
-}
-#else
-void sound_function_pointers_t::report_invalid_table()
-{
-	/* Out of line due to length of generated code */
-	throw std::logic_error("invalid table");
-}
-
+#if DXX_SOUND_TABLE_STYLE == DXX_STS_MIXER_WITH_POINTER
 const sound_function_table_t *sound_function_pointers_t::operator->()
 {
 	if (table != &digi_audio_table && table != &digi_mixer_table)
 		report_invalid_table();
 	return table;
 }
-
-sound_function_pointers_t &sound_function_pointers_t::operator=(const sound_function_table_t &t)
-{
-	table = &t;
-	/* Trap bad initial assignment */
-	operator->();
-	return *this;
-}
-#endif
-#else
-const sound_function_table_t *sound_function_pointers_t::operator->()
-{
-	return &digi_audio_table;
-}
-
-sound_function_pointers_t &sound_function_pointers_t::operator=(const sound_function_table_t &)
-{
-	return *this;
-}
 #endif
 
 }
-
-static sound_function_pointers_t fptr;
 
 void digi_select_system()
 {
@@ -182,7 +224,6 @@ void digi_select_system()
 #if defined(DXX_BUILD_DESCENT_I)
 int digi_sample_rate = SAMPLE_RATE_11K;
 #endif
-int digi_volume = SOUND_MAX_VOLUME;
 
 /* Stub functions */
 
