@@ -2721,6 +2721,7 @@ constexpr literal_as_type<T, v...> operator""_literal_as_type();
 		'-Wsuggest-attribute=noreturn',
 		'-Wlogical-op',
 		'-Wold-style-cast',
+		'-Wredundant-decls',
 	)
 	__preferred_win32_linker_options = (
 		'-Wl,--large-address-aware',
@@ -2749,6 +2750,8 @@ constexpr literal_as_type<T, v...> operator""_literal_as_type();
 #if defined(__APPLE__) && defined(__MACH__)
 #include <ApplicationServices/ApplicationServices.h>
 #endif
+
+#include <SDL.h>
 
 /* gcc's warning -Wduplicated-branches was initially overzealous and
  * warned if the branches were identical after expanding template
