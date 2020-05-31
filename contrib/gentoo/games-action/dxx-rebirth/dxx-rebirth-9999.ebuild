@@ -1,3 +1,4 @@
+# Copyright 2017-2020 Rebirth contributors
 # Distributed under the terms of the GNU General Public License v2
 
 # This file is part of the DXX-Rebirth project.
@@ -5,27 +6,30 @@
 # It is copyright by its individual contributors, as recorded in the
 # project's Git history.  See COPYING.txt at the top level for license
 # terms and a link to the Git history.
-#
-# After release 0.58.1 and before beta release 0.59.100, upstream
-# combined the source for the Descent 1 and Descent 2 engines into a
-# single tree.  The combined tree builds common code into a static
-# library, which is linked into both games, but not installed.  Users
-# who want both engines benefit from this because they can build the
-# common code once, rather than once per game.  This ebuild supports
-# building one or both engines, depending on USE=d1x and USE=d2x.
 
-EAPI=6
+EAPI=7
 
 inherit eutils scons-utils toolchain-funcs xdg
 if [[ "$PV" = 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dxx-rebirth/dxx-rebirth"
+	# Live ebuilds have blank keywords.
+	KEYWORDS=
 	PROPERTIES="live"
 else
 	MY_COMMIT=''
 	S="$WORKDIR/$PN-$MY_COMMIT"
 	SRC_URI="https://codeload.github.com/dxx-rebirth/dxx-rebirth/tar.gz/$MY_COMMIT -> $PN-$PVR.tar.gz"
 	unset MY_COMMIT
+
+	# Other architectures are reported to work, but not tested regularly by
+	# the core team.
+	#
+	# Raspberry Pi support is tested by an outside contributor, and his
+	# fixes are merged into the main source by upstream.
+	#
+	# Cross-compilation to Windows is also supported.
+	KEYWORDS="~amd64 ~x86"
 
 	# Restriction only for use in private overlays.  When this is added to a
 	# public tree, post the sources to a mirror and remove this restriction.
@@ -37,14 +41,7 @@ HOMEPAGE="https://www.dxx-rebirth.com/"
 
 LICENSE="DXX-Rebirth GPL-3"
 SLOT="0"
-# Other architectures are reported to work, but not tested regularly by
-# the core team.
-#
-# Raspberry Pi support is tested by an outside contributor, and his
-# fixes are merged into the main source by upstream.
-#
-# Cross-compilation to Windows is also supported.
-KEYWORDS="amd64 x86"
+
 # Default to building both game engines.  The total size is relatively
 # small.
 IUSE="+d1x +d2x +data debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +music +opengl opl3-musicpack +png sc55-musicpack sdl2 tracker valgrind +vorbis"
@@ -203,13 +200,13 @@ dxx_scons() {
 	)
 	if use editor; then
 		scons_build_profile+=+e
-		mysconsargs+=( 
+		mysconsargs+=( \
 			e_builddir=build/editor/
 			e_editor=1
 		)
 	fi
 	if ! use joystick; then
-		mysconsargs+=(
+		mysconsargs+=( \
 			max_joysticks=0
 		)
 	fi
