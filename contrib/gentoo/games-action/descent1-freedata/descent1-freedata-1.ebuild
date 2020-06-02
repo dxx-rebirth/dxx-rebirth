@@ -1,6 +1,6 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 DXX_ENGINE="${PN:7:1}"
 DESCRIPTION="Free content for games-action/d${DXX_ENGINE}x-rebirth"
@@ -22,13 +22,16 @@ fi
 LICENSE="public-domain"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
+S="$WORKDIR"
 
 # If all USE flags are unset, this ebuild installs zero files.  Require
 # at least one to be set.
 REQUIRED_USE="|| ( ${IUSE//+/} )"
 
-DEPEND=""
-RDEPEND=""
+RDEPEND="
+	!<games-action/dxx-rebirth-0.60
+	!games-action/d${DXX_ENGINE}x-rebirth
+	"
 
 unset DXX_ENGINE
 
