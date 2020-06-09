@@ -11,6 +11,7 @@
 #include "dxxerror.h"
 
 #include "compiler-range_for.h"
+#include <stdexcept>
 
 namespace dcx {
 
