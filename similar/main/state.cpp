@@ -2310,7 +2310,10 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 				multi_disconnect_player(i);
 		Viewer = ConsoleObject = &get_local_plrobj(); // make sure Viewer and ConsoleObject are set up (which we skipped by not using InitPlayerObject but we need since objects changed while loading)
 		special_reset_objects(LevelUniqueObjectState); // since we juggled around with objects to remap coop players rebuild the index of free objects
+		state_set_next_autosave(GameUniqueState, Netgame.MPGameplayOptions.AutosaveInterval);
 	}
+	else
+		state_set_next_autosave(GameUniqueState, PlayerCfg.SPGameplayOptions.AutosaveInterval);
 	if (Game_wind)
 		if (!window_is_visible(Game_wind))
 			window_set_visible(Game_wind, 1);
