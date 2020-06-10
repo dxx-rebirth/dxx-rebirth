@@ -863,20 +863,10 @@ int gr_disk(grs_canvas &canvas, const fix x, const fix y, const fix r, const uin
  */
 void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const *const pointlist, const uint8_t palette_color_index)
 {
-	struct vfloat
-	{
-		GLfloat x, y, z;
-	};
-	static_assert(sizeof(vfloat) == sizeof(GLfloat) * 3, "vfloat size wrong");
-	struct cfloat
-	{
-		GLfloat r, g, b, a;
-	};
-	static_assert(sizeof(cfloat) == sizeof(GLfloat) * 4, "cfloat size wrong");
-	RAIIdmem<GLfloat[]> color_array;
-
-	auto &&vertices = std::make_unique<GLfloat[]>(nv * 3);
-	MALLOC(color_array, GLfloat[], nv*4);
+	if (nv > MAX_POINTS_PER_POLY)
+		return;
+	flatten_array<GLfloat, 4, MAX_POINTS_PER_POLY> color_array;
+	flatten_array<GLfloat, 3, MAX_POINTS_PER_POLY> vertices;
 
 	r_polyc++;
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY> cs;
@@ -887,22 +877,25 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
 		? 1.0
 		: 1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
 
-	vfloat *const varray = reinterpret_cast<vfloat *>(vertices.get());
-	cfloat *const carray = reinterpret_cast<cfloat *>(color_array.get());
-	for (unsigned c=0; c < nv; ++c)
+	for (auto &&[p, v, c] : zip(
+			unchecked_partial_range(pointlist, nv),
+			unchecked_partial_range(vertices.nested.data(), nv),
+			unchecked_partial_range(color_array.nested.data(), nv)
+		)
+	)
 	{
-		carray[c].r = color_r;
-		carray[c].g = color_g;
-		carray[c].b = color_b;
-		carray[c].a = color_a;
-		auto &p = pointlist[c]->p3_vec;
-		varray[c].x = f2glf(p.x);
-		varray[c].y = f2glf(p.y);
-		varray[c].z = -f2glf(p.z);
+		c[0] = color_r;
+		c[1] = color_g;
+		c[2] = color_b;
+		c[3] = color_a;
+		auto &pv = p->p3_vec;
+		v[0] = f2glf(pv.x);
+		v[1] = f2glf(pv.y);
+		v[2] = -f2glf(pv.z);
 	}
 
-	glVertexPointer(3, GL_FLOAT, 0, varray);
-	glColorPointer(4, GL_FLOAT, 0, color_array.get());
+	glVertexPointer(3, GL_FLOAT, 0, vertices.flat.data());
+	glColorPointer(4, GL_FLOAT, 0, color_array.flat.data());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
 }
 
