@@ -82,10 +82,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-#include "compiler-begin.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
 #include "d_range.h"
+#include <iterator>
 
 using std::min;
 using std::max;
@@ -1322,12 +1322,12 @@ namespace dcx {
 
 static int convert_ext(d_fname &dest, const char (&ext)[4])
 {
-	auto b = begin(dest);
-	auto e = end(dest);
+	auto b = std::begin(dest);
+	auto e = std::end(dest);
 	auto t = std::find(b, e, '.');
 	if (t != e && std::distance(b, t) <= 8)
 	{
-		std::copy(begin(ext), end(ext), std::next(t));
+		std::copy(std::begin(ext), std::end(ext), std::next(t));
 		return 1;
 	}
 	else

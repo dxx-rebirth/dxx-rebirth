@@ -36,9 +36,6 @@
     <ClInclude Include="..\..\common\include\byteswap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\common\include\compiler-begin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\common\include\compiler-lengthof.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -30,8 +30,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-begin.h"
 #include "compiler-poison.h"
+#include <iterator>
 
 struct rle_position_t
 {

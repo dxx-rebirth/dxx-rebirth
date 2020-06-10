@@ -284,7 +284,6 @@
 		14F8A95C1A2D6320003AA93A /* 3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = 3d.h; sourceTree = "<group>"; };
 		14F8A95D1A2D6320003AA93A /* args.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = args.h; sourceTree = "<group>"; };
 		14F8A95E1A2D6320003AA93A /* byteutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = byteutil.h; sourceTree = "<group>"; };
-		14F8A9611A2D6320003AA93A /* compiler-begin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "compiler-begin.h"; sourceTree = "<group>"; };
 		14F8A9641A2D6320003AA93A /* compiler-lengthof.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "compiler-lengthof.h"; sourceTree = "<group>"; };
 		14F8A9651A2D6320003AA93A /* compiler-make_unique.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "compiler-make_unique.h"; sourceTree = "<group>"; };
 		14F8A9661A2D6320003AA93A /* compiler-range_for.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "compiler-range_for.h"; sourceTree = "<group>"; };
@@ -940,7 +939,6 @@
 				14F8A95C1A2D6320003AA93A /* 3d.h */,
 				14F8A95D1A2D6320003AA93A /* args.h */,
 				14F8A95E1A2D6320003AA93A /* byteutil.h */,
-				14F8A9611A2D6320003AA93A /* compiler-begin.h */,
 				14F8A9641A2D6320003AA93A /* compiler-lengthof.h */,
 				14F8A9651A2D6320003AA93A /* compiler-make_unique.h */,
 				14F8A9661A2D6320003AA93A /* compiler-range_for.h */,

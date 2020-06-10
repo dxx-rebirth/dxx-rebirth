@@ -87,7 +87,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_enumerate.h"
 #include "d_range.h"
 
-#include "compiler-begin.h"
 #include "partial_range.h"
 #include <utility>
 

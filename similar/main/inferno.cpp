@@ -109,7 +109,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "net_udp.h"
 #endif
 #include "dsx-ns.h"
-#include "compiler-begin.h"
 
 #if DXX_USE_SDLIMAGE
 #include <SDL_image.h>

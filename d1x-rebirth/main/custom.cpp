@@ -22,9 +22,9 @@
 #include "custom.h"
 #include "physfsx.h"
 
-#include "compiler-begin.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include <iterator>
 #include <memory>
 
 //#define D2TMAP_CONV // used for testing
@@ -558,8 +558,8 @@ static void load_hxm(const d_fname &hxmname)
 static void custom_remove()
 {
 	int i;
-	auto bmo = begin(BitmapOriginal);
-	auto bmp = begin(GameBitmaps);
+	auto bmo = std::begin(BitmapOriginal);
+	auto bmp = std::begin(GameBitmaps);
 
 	for (i = 0; i < MAX_BITMAP_FILES; bmo++, bmp++, i++)
 		if (bmo->get_flag_mask(0x80))
@@ -597,6 +597,8 @@ void load_custom_data(const d_fname &level_name)
 {
 	custom_remove();
 	d_fname custom_file;
+	using std::begin;
+	using std::end;
 	using std::copy;
 	using std::next;
 	auto bl = begin(level_name);

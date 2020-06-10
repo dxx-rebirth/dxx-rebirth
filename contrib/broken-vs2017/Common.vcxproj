@@ -139,7 +139,6 @@
     <ClInclude Include="..\..\common\include\3d.h" />
     <ClInclude Include="..\..\common\include\args.h" />
     <ClInclude Include="..\..\common\include\byteswap.h" />
-    <ClInclude Include="..\..\common\include\compiler-begin.h" />
     <ClInclude Include="..\..\common\include\compiler-lengthof.h" />
     <ClInclude Include="..\..\common\include\compiler-range_for.h" />
     <ClInclude Include="..\..\common\include\compiler-static_assert.h" />

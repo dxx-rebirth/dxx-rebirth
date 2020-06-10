@@ -45,8 +45,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "config.h"
 
-#include "compiler-begin.h"
 #include "compiler-range_for.h"
+#include <iterator>
 #include <utility>
 
 using std::max;
@@ -173,8 +173,8 @@ static int digi_unxlat_sound(int soundno)
 	if ( soundno < 0 ) return -1;
 
 	auto &table = (CGameArg.SysLowMem ? AltSounds : Sounds);
-	auto b = begin(table);
-	auto e = end(table);
+	auto b = std::begin(table);
+	auto e = std::end(table);
 	auto i = std::find(b, e, soundno);
 	if (i != e)
 		return std::distance(b, i);
