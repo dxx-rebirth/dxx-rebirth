@@ -988,87 +988,81 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
  */
 void _g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, const unsigned orient)
 {
-	int index2, index3;
-
-	RAIIdmem<GLfloat[]> vertices, color_array, texcoord_array;
-	MALLOC(vertices, GLfloat[], nv*3);
-	MALLOC(color_array, GLfloat[], nv*4);
-	MALLOC(texcoord_array, GLfloat[], nv*2);
-
 	_g3_draw_tmap(canvas, nv, pointlist, uvl_list, light_rgb, bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
-	
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
-	auto &c = std::get<0>(cs);
-	
+	(void)cs;
 	r_tpolyc++;
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm, 1);
 	ogl_texwrap(bm.gltexture, GL_REPEAT);
 
+	flatten_array<GLfloat, 4, MAX_POINTS_PER_POLY> color_array;
 	{
-		struct rgba
-		{
-			GLfloat r, g, b, a;
-		};
-		static_assert(sizeof(rgba) == sizeof(GLfloat) * 4, "padding error");
-		rgba *const ca = reinterpret_cast<rgba *>(color_array.get());
 		const GLfloat alpha = (canvas.cv_fade_level >= GR_FADE_OFF)
 			? 1.0
 			: (1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
+		auto &&color_range = unchecked_partial_range(color_array.nested.data(), nv);
 		if (bm.get_flag_mask(BM_FLAG_NO_LIGHTING))
 		{
-			range_for (auto &e, unchecked_partial_range(ca, nv))
+			for (auto &e : color_range)
 			{
-				e.r = e.g = e.b = 1.0;
-				e.a = alpha;
+				e[0] = e[1] = e[2] = 1.0;
+				e[3] = alpha;
 			}
 		}
 		else
 		{
-			range_for (const unsigned i, xrange(nv))
+			for (auto &&[e, l] : zip(
+					color_range,
+					unchecked_partial_range(light_rgb, nv)
+				)
+			)
 			{
-				auto &e = ca[i];
-				auto &l = light_rgb[i];
-				e.r = f2glf(l.r);
-				e.g = f2glf(l.g);
-				e.b = f2glf(l.b);
-				e.a = alpha;
+				e[0] = f2glf(l.r);
+				e[1] = f2glf(l.g);
+				e[2] = f2glf(l.b);
+				e[3] = alpha;
 			}
 		}
 	}
 
-	for (c=0; c<nv; c++) {
-		index2 = c * 2;
-		index3 = c * 3;
+	flatten_array<GLfloat, 3, MAX_POINTS_PER_POLY> vertices;
+	flatten_array<GLfloat, 2, MAX_POINTS_PER_POLY> texcoord_array;
 
-		const GLfloat uf = f2glf(uvl_list[c].u), vf = f2glf(uvl_list[c].v);
+	for (auto &&[point, uvl, vert, texcoord] : zip(
+			unchecked_partial_range(pointlist, nv),
+			unchecked_partial_range(uvl_list, nv),
+			unchecked_partial_range(vertices.nested.data(), nv),
+			partial_range(texcoord_array.nested, nv)
+		)
+	)
+	{
+		const GLfloat uf = f2glf(uvl.u), vf = f2glf(uvl.v);
 		switch(orient){
 			case 1:
-				texcoord_array[index2]   = 1.0 - vf;
-				texcoord_array[index2 + 1] = uf;
+				texcoord[0] = 1.0 - vf;
+				texcoord[1] = uf;
 				break;
 			case 2:
-				texcoord_array[index2]   = 1.0 - uf;
-				texcoord_array[index2 + 1] = 1.0 - vf;
+				texcoord[0] = 1.0 - uf;
+				texcoord[1] = 1.0 - vf;
 				break;
 			case 3:
-				texcoord_array[index2]   = vf;
-				texcoord_array[index2 + 1] = 1.0 - uf;
+				texcoord[0] = vf;
+				texcoord[1] = 1.0 - uf;
 				break;
 			default:
-				texcoord_array[index2]   = uf;
-				texcoord_array[index2 + 1] = vf;
+				texcoord[0] = uf;
+				texcoord[1] = vf;
 				break;
 		}
-		
-		vertices[index3]     = f2glf(pointlist[c]->p3_vec.x);
-		vertices[index3+1]   = f2glf(pointlist[c]->p3_vec.y);
-		vertices[index3+2]   = -f2glf(pointlist[c]->p3_vec.z);
+		vert[0] = f2glf(point->p3_vec.x);
+		vert[1] = f2glf(point->p3_vec.y);
+		vert[2] = -f2glf(point->p3_vec.z);
 	}
-	
-	glVertexPointer(3, GL_FLOAT, 0, vertices.get());
-	glColorPointer(4, GL_FLOAT, 0, color_array.get());
-	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.get());  
+	glVertexPointer(3, GL_FLOAT, 0, vertices.flat.data());
+	glColorPointer(4, GL_FLOAT, 0, color_array.flat.data());
+	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.flat.data());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
 }
 
