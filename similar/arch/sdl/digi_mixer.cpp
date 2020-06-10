@@ -48,7 +48,19 @@
 #define SOUND_BUFFER_SIZE 1024
 #endif
 
+namespace dcx {
+
 namespace {
+
+/* channel management */
+static unsigned digi_mixer_find_channel(const std::bitset<64> &channels, const unsigned max_channels)
+{
+	unsigned i = 0;
+	for (; i < max_channels; ++i)
+		if (!channels[i])
+			break;
+	return i;
+}
 
 struct RAIIMix_Chunk : public Mix_Chunk
 {
@@ -68,11 +80,13 @@ static int fix2byte(const fix f)
 
 uint8_t digi_initialised;
 std::bitset<64> channels;
-int digi_mixer_max_channels = channels.size();
+unsigned digi_mixer_max_channels = channels.size();
 
 void digi_mixer_free_channel(const int channel_num)
 {
 	channels.reset(channel_num);
+}
+
 }
 
 }
@@ -126,15 +140,6 @@ void digi_mixer_close() {
 	if (!digi_initialised) return;
 	digi_initialised = 0;
 	Mix_CloseAudio();
-}
-
-/* channel management */
-static int digi_mixer_find_channel()
-{
-	for (int i = 0; i < digi_mixer_max_channels; i++)
-		if (channels[i] == 0)
-			return i;
-	return -1;
 }
 
 }
@@ -200,8 +205,11 @@ int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int
 	if (soundnum < 0)
 		return -1;
 
-	const int channel = digi_mixer_find_channel();
-	if (channel < 0)
+	const unsigned max_channels = digi_mixer_max_channels;
+	if (max_channels > channels.size())
+		return -1;
+	const auto channel = digi_mixer_find_channel(channels, max_channels);
+	if (channel >= max_channels)
 		return -1;
 
 	Assert(GameSounds[soundnum].data != reinterpret_cast<void *>(-1));
