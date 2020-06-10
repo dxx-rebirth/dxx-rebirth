@@ -29,6 +29,7 @@
 
 #include "compiler-range_for.h"
 #include "compiler-poison.h"
+#include "partial_range.h"
 
 namespace dcx {
 

@@ -116,7 +116,7 @@ public:
 	}
 };
 
-template <typename range_type, typename index_type = uint_fast32_t, typename range_iterator_type = decltype(begin(std::declval<range_type &>()))>
+template <typename range_type, typename index_type = uint_fast32_t, typename range_iterator_type = decltype(std::begin(std::declval<range_type &>()))>
 static auto enumerate(range_type &&r, const index_type start = 0)
 {
 	static_assert(!any_ephemeral_range<range_type &&>::value, "cannot enumerate storage of ephemeral ranges");

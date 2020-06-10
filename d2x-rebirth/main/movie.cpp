@@ -61,6 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 
 #include "compiler-range_for.h"
+#include "partial_range.h"
 
 namespace {
 

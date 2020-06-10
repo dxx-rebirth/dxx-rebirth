@@ -33,7 +33,7 @@ public:
 };
 
 template <typename result_type, typename range_type, typename iterator_type = iterator_result_converter<result_type, decltype(std::begin(std::declval<range_type &>()))>>
-partial_range_t<iterator_type> cast_range_result(range_type &range)
+static inline partial_range_t<iterator_type> cast_range_result(range_type &range)
 {
 	return range;
 }

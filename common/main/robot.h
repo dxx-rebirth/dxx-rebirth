@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "weapon_id.h"
 #include "object.h"
+#include "fwd-partial_range.h"
 
 #define MAX_GUNS 8      //should be multiple of 4 for ubyte array
 

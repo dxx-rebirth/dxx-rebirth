@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <type_traits>
 #include "dxxsconf.h"
+#include "fwd-partial_range.h"
 #include "fwd-player.h"
 #include "player-callsign.h"
 #include "player-flags.h"

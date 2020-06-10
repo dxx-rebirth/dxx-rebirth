@@ -39,7 +39,7 @@
 #include "u_mem.h"
 #include "pack.h"
 #include "ntstring.h"
-#include "partial_range.h"
+#include "fwd-partial_range.h"
 #include <array>
 #include <memory>
 
