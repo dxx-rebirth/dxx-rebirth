@@ -2861,18 +2861,27 @@ BOOST_AUTO_TEST_CASE(f)
 ConfigureTests.register_preferred_compiler_options()
 
 class cached_property(object):
+	__slots__ = 'method',
 	def __init__(self,f):
 		self.method = f
-		self.name = f.__name__
 	def __get__(self,instance,cls):
 		# This should never be accessed directly on the class.
 		assert instance is not None
-		name = self.name
+		method = self.method
+		name = method.__name__
+		# Python will rewrite double-underscore references to the
+		# attribute while processing references inside the class, but
+		# will not rewrite the key used to store the computed value
+		# below, so subsequent accesses will not find the computed value
+		# and will instead call this getter again.  For now, disable
+		# attempts to use double-underscore properties instead of trying
+		# to handle their names correctly.
+		assert not name.startswith('__')
 		d = instance.__dict__
 		# After the first access, Python should find the cached value in
 		# the instance dictionary instead of calling __get__ again.
 		assert name not in d
-		d[name] = r = self.method(instance)
+		d[name] = r = method(instance)
 		return r
 
 class LazyObjectConstructor(object):
