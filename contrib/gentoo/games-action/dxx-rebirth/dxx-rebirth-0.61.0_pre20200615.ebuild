@@ -18,7 +18,7 @@ if [[ "$PV" = 9999 ]]; then
 	KEYWORDS=
 	PROPERTIES="live"
 else
-	MY_COMMIT='3b964351d925da8ef93465c6de4a3e5bcf278dea'
+	MY_COMMIT='0c2fcf691ffb2a586991350d67f3efd1cca2a1f3'
 	S="$WORKDIR/$PN-$MY_COMMIT"
 	SRC_URI="https://codeload.github.com/dxx-rebirth/dxx-rebirth/tar.gz/$MY_COMMIT -> $PN-$PVR.tar.gz"
 	unset MY_COMMIT
@@ -110,7 +110,7 @@ DXX_RDEPEND_ENGINE_FRAGMENT='
 
 DXX_DEPEND_USE_SDL_VERSION_FRAGMENT='
 	media-libs/lib${SDL_version}[joystick?,opengl?,sound,video]
-	media-libs/sdl${SDL_version}-image
+	media-libs/${SDL_version}-image
 	music? ( media-libs/${SDL_version}-mixer )
 '
 DXX_RDEPEND_USE_SDL_VERSION_FRAGMENT='
