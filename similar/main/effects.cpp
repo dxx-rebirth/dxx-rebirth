@@ -79,6 +79,9 @@ void do_special_effects()
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	range_for (eclip &ec, partial_range(Effects, Num_effects))
 	{
+		const auto vc_frame_time = ec.vc.frame_time;
+		if (!vc_frame_time)
+			continue;
 		if ((ec.changing_wall_texture == -1) && (ec.changing_object_texture==-1) )
 			continue;
 
@@ -89,7 +92,7 @@ void do_special_effects()
 
 		while (ec.time_left < 0) {
 
-			ec.time_left += ec.vc.frame_time;
+			ec.time_left += vc_frame_time;
 			
 			ec.frame_count++;
 			if (ec.frame_count >= ec.vc.num_frames) {
