@@ -52,12 +52,6 @@ void g3_validate_polygon_model(uint8_t *model_ptr, std::size_t model_size);
 }
 #endif
 
-//un-initialize, i.e., convert color entries back to RGB15
-static inline void g3_uninit_polygon_model(void *model_ptr)
-{
-	(void)model_ptr;
-}
-
 #ifdef dsx
 namespace dsx {
 //alternate interpreter for morphing object
