@@ -18,7 +18,7 @@ if [[ "$PV" = 9999 ]]; then
 	KEYWORDS=
 	PROPERTIES="live"
 else
-	MY_COMMIT='0c2fcf691ffb2a586991350d67f3efd1cca2a1f3'
+	MY_COMMIT='aba40babb47d36a88011af01e4bc0fc00dca74ef'
 	S="$WORKDIR/$PN-$MY_COMMIT"
 	SRC_URI="https://codeload.github.com/dxx-rebirth/dxx-rebirth/tar.gz/$MY_COMMIT -> $PN-$PVR.tar.gz"
 	unset MY_COMMIT
@@ -244,7 +244,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	default
+	xdg_pkg_postinst
 	if ! use data; then
 		elog "$PN requires game data to play."
 		elog "Game data is not included in this package.  To play the game,"
