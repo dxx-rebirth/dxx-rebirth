@@ -14,6 +14,7 @@
 #include <tuple>
 #include <type_traits>
 #include "joy.h"
+#include "key.h"
 #include "dxxerror.h"
 #include "timer.h"
 #include "console.h"
@@ -464,6 +465,49 @@ int apply_deadzone(int value, int deadzone)
 		return ((value + deadzone) * 128) / (128 - deadzone);
 	else
 		return 0;
+}
+
+bool joy_translate_menu_key(const d_event &event) {
+	if (event.type != EVENT_JOYSTICK_BUTTON_DOWN)
+		return false;
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK || DXX_MAX_AXES_PER_JOYSTICK
+	// Find out which button has been pressed by decoding the button
+	// description text. This might not be the ideal way to do things,
+	// but we currently don't have data structures that allow us to do
+	// such a mapping in a saner way, so we'll take what we can get.
+	auto &e = static_cast<const d_event_joystickbutton &>(event);
+	Assert((e.button >= 0) && (e.button < joybutton_text.size()));
+	const char* name = &joybutton_text[e.button][0];
+	Assert((name[0] == 'J') && name[1] && (name[2] == ' '));
+	name = &name[3];  // skip 'Jx ' prefix
+	int key = 0;
+	if      (!strcmp(name, "B1"))  { key = KEY_ENTER; }
+	else if (!strcmp(name, "B2"))  { key = KEY_ESC; }
+	else if (!strcmp(name, "B3"))  { key = KEY_SPACEBAR; }
+	else if (!strcmp(name, "B4"))  { key = KEY_DELETE; }
+	else if (!strcmp(name, "+A1")) { key = KEY_LEFT; }
+	else if (!strcmp(name, "-A1")) { key = KEY_RIGHT; }
+	else if (!strcmp(name, "+A2")) { key = KEY_UP; }
+	else if (!strcmp(name, "-A2")) { key = KEY_DOWN; }
+	else if (name[0] == 'H')
+	{	// handle 'Hxx' / hat motion
+		Assert(name[1]);
+		switch (name[2])
+		{
+			case 0201: key = KEY_LEFT; break;
+			case 0177: key = KEY_RIGHT; break;
+			case 0202: key = KEY_UP; break;
+			case 0200: key = KEY_DOWN; break;
+			default: break;
+		}
+	}
+	if (key)
+	{
+		event_keycommand_send(key);
+		return true;
+	}
+	return false;
+#endif
 }
 
 }

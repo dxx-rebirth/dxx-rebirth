@@ -655,6 +655,9 @@ static window_event_result kconfig_key_command(window *, const d_event &event, k
 namespace dsx {
 static window_event_result kconfig_handler(window *wind,const d_event &event, kc_menu *menu)
 {
+	if (!menu->changing && joy_translate_menu_key(event))
+		return window_event_result::handled;
+
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:

@@ -406,6 +406,9 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			}
 			break;
 
+		case EVENT_JOYSTICK_BUTTON_DOWN:
+			return window_event_result::close;
+
 		case EVENT_IDLE:
 			timer_delay2(50);
 			break;

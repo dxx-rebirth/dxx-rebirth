@@ -115,6 +115,9 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 			}
 			break;
 
+		case EVENT_JOYSTICK_BUTTON_DOWN:
+			return window_event_result::close;
+
 		case EVENT_IDLE:
 			if (cr->done>NUM_LINES)
 			{
