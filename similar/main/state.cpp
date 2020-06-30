@@ -922,7 +922,12 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 		const auto uchoice = static_cast<std::size_t>(choice);
 		fname = filename[uchoice];
 		if (dsc)
+		{
 			*dsc = desc[uchoice];
+			if (!dsc->data()[0]) {
+				strcpy(dsc->data(), "-no title-");
+			}
+		}
 	}
 	return choice;
 }
