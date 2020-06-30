@@ -36,7 +36,7 @@ extern void joy_init();
 extern void joy_close();
 const d_event_joystick_axis_value &event_joystick_get_axis(const d_event &event);
 extern void joy_flush();
-extern bool joy_translate_menu_key(const d_event &event);
+bool joy_translate_menu_key(const d_event &event);
 extern int event_joystick_get_button(const d_event &event);
 extern int apply_deadzone(int value, int deadzone);
 

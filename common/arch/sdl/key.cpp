@@ -587,8 +587,8 @@ void key_flush()
 		restore_sticky_key(keystate, key);
 }
 
-void event_keycommand_send(int key) {
-	const d_event_keycommand event{EVENT_KEY_COMMAND, unsigned(key)};
+void event_keycommand_send(unsigned key) {
+	const d_event_keycommand event{EVENT_KEY_COMMAND, key};
 	event_send(event);
 }
 

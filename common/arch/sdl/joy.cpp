@@ -11,6 +11,7 @@
  */
 
 #include <memory>
+#include <vector>
 #include <tuple>
 #include <type_traits>
 #include "joy.h"
@@ -36,6 +37,8 @@ namespace dcx {
 namespace {
 
 int num_joysticks = 0;
+
+std::vector<unsigned> joy_key_map;
 
 /* This struct is a "virtual" joystick, which includes all the axes
  * and buttons of every joystick found.
@@ -336,6 +339,7 @@ void joy_init()
 #endif
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK || DXX_MAX_AXES_PER_JOYSTICK
 	joybutton_text.clear();
+	joy_key_map.clear();
 #endif
 
 	const auto n = check_warn_joy_support_limit(SDL_NumJoysticks(), "joystick", DXX_MAX_JOYSTICKS);
@@ -372,10 +376,19 @@ void joy_init()
 			const auto n_buttons = check_warn_joy_support_limit(SDL_JoystickNumButtons(handle), "button", DXX_MAX_BUTTONS_PER_JOYSTICK);
 			const auto n_hats = check_warn_joy_support_limit(SDL_JoystickNumHats(handle), "hat", DXX_MAX_HATS_PER_JOYSTICK);
 
-			joybutton_text.resize(joybutton_text.size() + n_buttons + (4 * n_hats) + (2 * n_axes));
+			const auto n_virtual_buttons = n_buttons + (4 * n_hats) + (2 * n_axes);
+			joybutton_text.resize(joybutton_text.size() + n_virtual_buttons);
+			joy_key_map.resize(joy_key_map.size() + n_virtual_buttons, 0);
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 			range_for (auto &&e, enumerate(partial_range(joystick.button_map(), n_buttons), 1))
 			{
+				switch (e.idx) {
+					case 1: joy_key_map[joystick_n_buttons] = KEY_ENTER; break;
+					case 2: joy_key_map[joystick_n_buttons] = KEY_ESC; break;
+					case 3: joy_key_map[joystick_n_buttons] = KEY_SPACEBAR; break;
+					case 4: joy_key_map[joystick_n_buttons] = KEY_DELETE; break;
+					default: break;
+				}
 				auto &text = joybutton_text[joystick_n_buttons];
 				e.value = joystick_n_buttons++;
 				cf_assert(e.idx <= DXX_MAX_BUTTONS_PER_JOYSTICK);
@@ -388,9 +401,13 @@ void joy_init()
 				e.value = joystick_n_buttons;
 				cf_assert(e.idx <= DXX_MAX_HATS_PER_JOYSTICK);
 				//a hat counts as four buttons
+				joy_key_map[joystick_n_buttons] = KEY_UP;
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, e.idx, 0202);
+				joy_key_map[joystick_n_buttons] = KEY_RIGHT;
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, e.idx, 0177);
+				joy_key_map[joystick_n_buttons] = KEY_DOWN;
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, e.idx, 0200);
+				joy_key_map[joystick_n_buttons] = KEY_LEFT;
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, e.idx, 0201);
 			}
 #endif
@@ -400,7 +417,9 @@ void joy_init()
 				e.value = joystick_n_buttons;
 				cf_assert(e.idx <= DXX_MAX_AXES_PER_JOYSTICK);
 				//an axis count as 2 buttons. negative - and positive +
+				joy_key_map[joystick_n_buttons] = (e.idx == 1) ? KEY_RIGHT : (e.idx == 2) ? KEY_DOWN : 0;
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u -A%u", i + 1, e.idx);
+				joy_key_map[joystick_n_buttons] = (e.idx == 1) ? KEY_LEFT : (e.idx == 2) ? KEY_UP : 0;
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u +A%u", i + 1, e.idx);
 			}
 #endif
@@ -470,37 +489,10 @@ int apply_deadzone(int value, int deadzone)
 bool joy_translate_menu_key(const d_event &event) {
 	if (event.type != EVENT_JOYSTICK_BUTTON_DOWN)
 		return false;
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK || DXX_MAX_AXES_PER_JOYSTICK
-	// Find out which button has been pressed by decoding the button
-	// description text. This might not be the ideal way to do things,
-	// but we currently don't have data structures that allow us to do
-	// such a mapping in a saner way, so we'll take what we can get.
+#if DXX_MAX_JOYSTICKS
 	auto &e = static_cast<const d_event_joystickbutton &>(event);
-	Assert((e.button >= 0) && (e.button < joybutton_text.size()));
-	const char* name = &joybutton_text[e.button][0];
-	Assert((name[0] == 'J') && name[1] && (name[2] == ' '));
-	name = &name[3];  // skip 'Jx ' prefix
-	int key = 0;
-	if      (!strcmp(name, "B1"))  { key = KEY_ENTER; }
-	else if (!strcmp(name, "B2"))  { key = KEY_ESC; }
-	else if (!strcmp(name, "B3"))  { key = KEY_SPACEBAR; }
-	else if (!strcmp(name, "B4"))  { key = KEY_DELETE; }
-	else if (!strcmp(name, "+A1")) { key = KEY_LEFT; }
-	else if (!strcmp(name, "-A1")) { key = KEY_RIGHT; }
-	else if (!strcmp(name, "+A2")) { key = KEY_UP; }
-	else if (!strcmp(name, "-A2")) { key = KEY_DOWN; }
-	else if (name[0] == 'H')
-	{	// handle 'Hxx' / hat motion
-		Assert(name[1]);
-		switch (name[2])
-		{
-			case 0201: key = KEY_LEFT; break;
-			case 0177: key = KEY_RIGHT; break;
-			case 0202: key = KEY_UP; break;
-			case 0200: key = KEY_DOWN; break;
-			default: break;
-		}
-	}
+	assert(e.button < joy_key_map.size());
+	auto key = joy_key_map[e.button];
 	if (key)
 	{
 		event_keycommand_send(key);
