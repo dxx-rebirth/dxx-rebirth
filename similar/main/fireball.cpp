@@ -1380,25 +1380,31 @@ unsigned do_exploding_wall_frame(wall &w1)
 
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 		auto &vmwallptr = Walls.vmptr;
-		auto &w2 = *vmwallptr(csegp->shared_segment::sides[cside].wall_num);
-		assert(&w1 != &w2);
-		assert((w1.flags & WALL_EXPLODING) || (w2.flags & WALL_EXPLODING));
-		w1.flags |= WALL_BLASTED;
-		w2.flags |= WALL_BLASTED;
-		if (w1_explode_time_elapsed >= EXPL_WALL_TIME)
+
+		auto cwall_num = csegp->shared_segment::sides[cside].wall_num;
+		if (cwall_num != wall_none)
 		{
-			if (w1.flags & WALL_EXPLODING)
-			{
-				w1.flags &= ~WALL_EXPLODING;
-				++ walls_updated;
-			}
-			if (w2.flags & WALL_EXPLODING)
+			auto &w2 = *vmwallptr(cwall_num);
+			assert(&w1 != &w2);
+			w2.flags |= WALL_BLASTED;
+			assert((w1.flags & WALL_EXPLODING) || (w2.flags & WALL_EXPLODING));
+			if (w1_explode_time_elapsed >= EXPL_WALL_TIME && w2.flags & WALL_EXPLODING)
 			{
 				w2.flags &= ~WALL_EXPLODING;
 				++ walls_updated;
 			}
-			Num_exploding_walls -= walls_updated;
 		}
+		else
+			assert(w1.flags & WALL_EXPLODING);
+
+		w1.flags |= WALL_BLASTED;
+		if (w1_explode_time_elapsed >= EXPL_WALL_TIME && w1.flags & WALL_EXPLODING)
+		{
+			w1.flags &= ~WALL_EXPLODING;
+			++ walls_updated;
+		}
+
+		Num_exploding_walls -= walls_updated;
 	}
 
 	const fix newfrac = fixdiv(w1_explode_time_elapsed, EXPL_WALL_TIME);
