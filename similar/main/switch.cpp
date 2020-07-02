@@ -570,17 +570,20 @@ window_event_result check_trigger(const vcsegptridx_t seg, const unsigned side, 
 		{
 			t.flags &= ~TRIGGER_ON;
 	
-			const shared_segment &csegp = *vcsegptr(seg->children[side]);
-			auto cside = find_connect_side(seg, csegp);
-			Assert(cside != side_none);
-		
-			const auto cwall_num = csegp.sides[cside].wall_num;
-			if (cwall_num == wall_none)
-				return window_event_result::ignored;
+			if (IS_CHILD(seg->children[side]))
+			{
+				const shared_segment &csegp = *vcsegptr(seg->children[side]);
+				auto cside = find_connect_side(seg, csegp);
+				Assert(cside != side_none);
 			
-			const auto ctrigger_num = vcwallptr(cwall_num)->trigger;
-			auto &ct = *vmtrgptr(ctrigger_num);
-			ct.flags &= ~TRIGGER_ON;
+				const auto cwall_num = csegp.sides[cside].wall_num;
+				if (cwall_num == wall_none)
+				return window_event_result::ignored;
+
+				const auto ctrigger_num = vcwallptr(cwall_num)->trigger;
+				auto &ct = *vmtrgptr(ctrigger_num);
+				ct.flags &= ~TRIGGER_ON;
+			}
 		}
 #endif
 		if (Game_mode & GM_MULTI)
