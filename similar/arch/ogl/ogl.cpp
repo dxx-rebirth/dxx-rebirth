@@ -554,6 +554,7 @@ void g3_draw_line(grs_canvas &canvas, const g3s_point &p0, const g3s_point &p1, 
   
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY> cs;
 	OGL_DISABLE(TEXTURE_2D);
+	glDisable(GL_CULL_FACE);
 	color_r = PAL2Tr(c);
 	color_g = PAL2Tg(c);
 	color_b = PAL2Tb(c);
