@@ -18,26 +18,7 @@
 #include <stddef.h>
 #endif
 
-#ifdef _WIN32
-#include "loadgl.h"
-#else
-# define GL_GLEXT_LEGACY
-# if defined(__APPLE__) && defined(__MACH__)
-#  include <OpenGL/gl.h>
-#  include <OpenGL/glu.h>
-# else
-#  define GL_GLEXT_PROTOTYPES
-#  if DXX_USE_OGLES
-#  include <GLES/gl.h>
-#  else
-#  include <GL/gl.h>
-#  endif
-# endif
-# ifndef GL_CLAMP_TO_EDGE	// hack for Mac OS 9, others?
-#  define GL_CLAMP_TO_EDGE GL_CLAMP
-# endif
-#endif
-
+#include "d_gl.h"
 #include "dsx-ns.h"
 #include "fwd-gr.h"
 #include "palette.h"
