@@ -179,11 +179,18 @@ class Main:
 		# This must be a `#define` since it expands to a comma-separated
 		# list of values for a structure initializer.
 		template_define_udlr = '#define {0}()\t/* [{1:2d}] */\t{2:2d},{3:3d},{4:3d},{5:3d}'.format
-		# This `#define` could be a `static const` instead, but it does
-		# not need to be scoped and is very unlikely to be of interest
-		# after the build, so use a `#define` to avoid generating extra
-		# variables and their debug information.
-		template_define_enum_member = '#define dxx_kconfig_ui_{0}_{1} {2}u'.format
+		# Use an `enum class` here so that the values can only be used
+		# in arrays specifically marked for this index type.  This
+		# prevents mixing types, such as indexing the mouse array with
+		# joystick index values.
+		#
+		# Generate `#define` statements to allow the consuming code to
+		# use `#ifdef` to detect which members exist.
+		template_define_enum_header = 'enum class dxx_kconfig_ui_{0} : unsigned {{'.format
+		template_define_enum_member = '''\
+#define dxx_kconfig_ui_{0}_{1} dxx_kconfig_ui_{0}::{1}
+	{1} = {2},'''.format
+		define_enum_footer = '};'
 		template_define_label_value_fragment = '\t\\\n\t/* [{1:2d}] */\t{0} "\\0"'.format
 		enum = []
 		label = []
@@ -208,7 +215,9 @@ class Main:
 				label.append(template_define_label_value_fragment(il, idx))
 		if enum:
 			result.append('\n/* {0} - enum define */'.format(array_name))
+			result.append(template_define_enum_header(array_name))
 			result.extend(enum)
+			result.append(define_enum_footer)
 		else:
 			result.append('\n/* {0} - enum blank */'.format(array_name))
 		if label:

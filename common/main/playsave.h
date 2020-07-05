@@ -78,6 +78,7 @@ struct hli
 #include "kconfig.h"
 #include "multi.h"
 #include "fwd-weapon.h"
+#include "d_array.h"
 
 enum class FiringAutoselectMode : uint8_t
 {
@@ -118,13 +119,13 @@ struct player_config : prohibit_void_ptr<player_config>
 	primary_weapon_order PrimaryOrder;
 	secondary_weapon_order SecondaryOrder;
 	struct KeySettings {
-		std::array<uint8_t, MAX_CONTROLS> Keyboard,
+		enumerated_array<uint8_t, MAX_CONTROLS, dxx_kconfig_ui_kc_keyboard> Keyboard;
 #if DXX_MAX_JOYSTICKS
-			Joystick,
+		enumerated_array<uint8_t, MAX_CONTROLS, dxx_kconfig_ui_kc_joystick> Joystick;
 #endif
-			Mouse;
+		enumerated_array<uint8_t, MAX_CONTROLS, dxx_kconfig_ui_kc_mouse> Mouse;
 	} KeySettings;
-	std::array<ubyte, MAX_DXX_REBIRTH_CONTROLS> KeySettingsRebirth;
+	std::array<uint8_t, MAX_DXX_REBIRTH_CONTROLS> KeySettingsRebirth;
 	Difficulty_level_type DefaultDifficulty;
 	int AutoLeveling;
 	uint16_t NHighestLevels;

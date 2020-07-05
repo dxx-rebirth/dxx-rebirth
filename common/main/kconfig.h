@@ -93,6 +93,13 @@ void kconfig_begin_loop(control_info &);
 
 namespace dsx {
 
+enum class dxx_kconfig_ui_kc_keyboard : unsigned;
+enum class dxx_kconfig_ui_kc_mouse : unsigned;
+#if DXX_MAX_JOYSTICKS
+enum class dxx_kconfig_ui_kc_joystick : unsigned;
+#endif
+enum class dxx_kconfig_ui_kc_rebirth : unsigned;
+
 struct state_control_info
 {
 #if defined(DXX_BUILD_DESCENT_I)
