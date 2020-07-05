@@ -72,6 +72,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "d_zip.h"
 
 using std::min;
 using std::max;
@@ -738,19 +739,18 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 			
 			// Update save values...
 			
-			for (unsigned i=0; i < std::size(kc_keyboard); i++ )
-				PlayerCfg.KeySettings.Keyboard[i] = kcm_keyboard[i].value;
+			for (auto &&[setting, kcm] : zip(PlayerCfg.KeySettings.Keyboard, kcm_keyboard))
+				setting = kcm.value;
 			
 #if DXX_MAX_JOYSTICKS
-			for (unsigned i=0; i < std::size(kc_joystick); i++ )
-				PlayerCfg.KeySettings.Joystick[i] = kcm_joystick[i].value;
+			for (auto &&[setting, kcm] : zip(PlayerCfg.KeySettings.Joystick, kcm_joystick))
+				setting = kcm.value;
 #endif
 
-			for (unsigned i=0; i < std::size(kc_mouse); i++ )
-				PlayerCfg.KeySettings.Mouse[i] = kcm_mouse[i].value;
-			
-			for (unsigned i=0; i < std::size(kc_rebirth); i++)
-				PlayerCfg.KeySettingsRebirth[i] = kcm_rebirth[i].value;
+			for (auto &&[setting, kcm] : zip(PlayerCfg.KeySettings.Mouse, kcm_mouse))
+				setting = kcm.value;
+			for (auto &&[setting, kcm] : zip(PlayerCfg.KeySettingsRebirth, kcm_rebirth))
+				setting = kcm.value;
 			return window_event_result::ignored;	// continue closing
 		default:
 			return window_event_result::ignored;
@@ -1119,13 +1119,11 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 				const auto &&key = event_key_get_raw(event);
 				if (key < 255)
 				{
-					for (uint_fast32_t i = 0; i < std::size(kc_keyboard); i++)
-			{
-				if (kcm_keyboard[i].value == key)
-				{
-					input_button_matched(Controls, kc_keyboard[i], (event.type==EVENT_KEY_COMMAND));
-				}
-			}
+					for (auto &&[kc, kcm] : zip(kc_keyboard, kcm_keyboard))
+					{
+						if (kcm.value == key)
+							input_button_matched(Controls, kc, event.type == EVENT_KEY_COMMAND);
+					}
 			if (!automap_flag && event.type == EVENT_KEY_COMMAND)
 				for (uint_fast32_t i = 0, j = 0; i < 28; i += 3, j++)
 					if (kcm_rebirth[i].value == key)
@@ -1145,13 +1143,11 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 				const auto &&button = event_joystick_get_button(event);
 				if (button < 255)
 				{
-					for (uint_fast32_t i = 0; i < std::size(kc_joystick); i++)
-			{
-				if (kc_joystick[i].type == BT_JOY_BUTTON && kcm_joystick[i].value == button)
-				{
-					input_button_matched(Controls, kc_joystick[i], (event.type==EVENT_JOYSTICK_BUTTON_DOWN));
-				}
-			}
+					for (auto &&[kc, kcm] : zip(kc_joystick, kcm_joystick))
+					{
+						if (kc.type == BT_JOY_BUTTON && kcm.value == button)
+							input_button_matched(Controls, kc, event.type == EVENT_JOYSTICK_BUTTON_DOWN);
+					}
 			if (!automap_flag && event.type == EVENT_JOYSTICK_BUTTON_DOWN)
 				for (uint_fast32_t i = 1, j = 0; i < 29; i += 3, j++)
 					if (kcm_rebirth[i].value == button)
@@ -1171,13 +1167,11 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 				const auto &&button = event_mouse_get_button(event);
 				if (button < 255)
 				{
-					for (uint_fast32_t i = 0; i < std::size(kc_mouse); i++)
-			{
-				if (kc_mouse[i].type == BT_MOUSE_BUTTON && kcm_mouse[i].value == button)
-				{
-					input_button_matched(Controls, kc_mouse[i], (event.type==EVENT_MOUSE_BUTTON_DOWN));
-				}
-			}
+					for (auto &&[kc, kcm] : zip(kc_mouse, kcm_mouse))
+					{
+						if (kc.type == BT_MOUSE_BUTTON && kcm.value == button)
+							input_button_matched(Controls, kc, event.type == EVENT_MOUSE_BUTTON_DOWN);
+					}
 			if (!automap_flag && event.type == EVENT_MOUSE_BUTTON_DOWN)
 				for (uint_fast32_t i = 2, j = 0; i < 30; i += 3, j++)
 					if (kcm_rebirth[i].value == button)
@@ -1418,35 +1412,35 @@ void reset_cruise(void)
 
 void kc_set_controls()
 {
-	for (unsigned i=0; i < std::size(kc_keyboard); i++ )
-		kcm_keyboard[i].oldvalue = kcm_keyboard[i].value = PlayerCfg.KeySettings.Keyboard[i];
+	for (auto &&[setting, kcm] : zip(PlayerCfg.KeySettings.Keyboard, kcm_keyboard))
+		kcm.oldvalue = kcm.value = setting;
 
 #if DXX_MAX_JOYSTICKS
-	for (unsigned i=0; i < std::size(kc_joystick); i++ )
+	for (auto &&[setting, kcm, kc] : zip(PlayerCfg.KeySettings.Joystick, kcm_joystick, kc_joystick))
 	{
-		uint8_t value = PlayerCfg.KeySettings.Joystick[i];
-		if (kc_joystick[i].type == BT_INVERT )
+		uint8_t value = setting;
+		if (kc.type == BT_INVERT)
 		{
 			if (value != 1)
 				value = 0;
-			PlayerCfg.KeySettings.Joystick[i] = value;
+			setting = value;
 		}
-		kcm_joystick[i].oldvalue = kcm_joystick[i].value = value;
+		kcm.oldvalue = kcm.value = value;
 	}
 #endif
 
-	for (unsigned i=0; i < std::size(kc_mouse); i++ )
+	for (auto &&[setting, kcm, kc] : zip(PlayerCfg.KeySettings.Mouse, kcm_mouse, kc_mouse))
 	{
-		uint8_t value = PlayerCfg.KeySettings.Mouse[i];
-		if (kc_mouse[i].type == BT_INVERT )
+		uint8_t value = setting;
+		if (kc.type == BT_INVERT)
 		{
 			if (value != 1)
 				value = 0;
-			PlayerCfg.KeySettings.Mouse[i] = value;
+			setting = value;
 		}
-		kcm_mouse[i].oldvalue = kcm_mouse[i].value = value;
+		kcm.oldvalue = kcm.value = value;
 	}
 
-	for (unsigned i=0; i < std::size(kc_rebirth); i++ )
-		kcm_rebirth[i].oldvalue = kcm_rebirth[i].value = PlayerCfg.KeySettingsRebirth[i];
+	for (auto &&[setting, kcm] : zip(PlayerCfg.KeySettingsRebirth, kcm_rebirth))
+		kcm.oldvalue = kcm.value = setting;
 }
