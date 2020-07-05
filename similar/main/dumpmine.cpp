@@ -626,7 +626,7 @@ static void write_trigger_text(PHYSFS_File *my_file)
 		PHYSFSX_printf(my_file, "Trigger %03i: flags=%04x, value=%08x, time=%8x, num_links=%i ", i, t->flags, static_cast<unsigned>(t->value), 0, t->num_links);
 #elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_printf(my_file, "Trigger %03i: type=%02x flags=%04x, value=%08x, time=%8x, num_links=%i ", i,
-			t->type, static_cast<uint8_t>(t->flags), t->value, 0, t->num_links);
+			static_cast<uint8_t>(t->type), static_cast<uint8_t>(t->flags), t->value, 0, t->num_links);
 #endif
 
 		for (unsigned j = 0; j < t->num_links; ++j)

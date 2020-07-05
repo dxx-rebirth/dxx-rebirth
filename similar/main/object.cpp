@@ -1978,7 +1978,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 						auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 						auto &vctrgptr = Triggers.vcptr;
 						const auto &&t = vctrgptr(trigger_num);
-						if (t->type == TT_EXIT)
+						if (t->type == trigger_action::normal_exit)
 							obj->lifeleft = 0;
 					}
 				}

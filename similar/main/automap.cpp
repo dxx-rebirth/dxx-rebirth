@@ -1371,7 +1371,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			auto trigger_num = w.trigger;
 			auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 			auto &vmtrgptr = Triggers.vmptr;
-			if (trigger_num != trigger_none && vmtrgptr(trigger_num)->type == TT_SECRET_EXIT)
+			if (trigger_num != trigger_none && vmtrgptr(trigger_num)->type == trigger_action::secret_exit)
 				{
 			    color = BM_XRGB( 29, 0, 31 );
 				no_fade = EF_NO_FADE;

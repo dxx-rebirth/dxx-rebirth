@@ -2374,7 +2374,7 @@ static int newdemo_read_frame_information(int rewrite)
 							auto &w = *vcwallptr(wall_num);
 							auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 							auto &vctrgptr = Triggers.vcptr;
-							if (w.trigger != trigger_none && vctrgptr(w.trigger)->type == TT_SECRET_EXIT)
+							if (w.trigger != trigger_none && vctrgptr(w.trigger)->type == trigger_action::secret_exit)
 							{
                                         int truth;
 

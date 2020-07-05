@@ -205,7 +205,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 			auto &vcvertptr = Vertices.vcptr;
 			switch (t.type)
 			{
-				case TT_OPEN_WALL:
+				case trigger_action::open_wall:
 					if ((TmapInfo[segp->unique_segment::sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
 						ret |= 2;
 						const auto &&pos = compute_center_point_on_side(vcvertptr, segp, side);
@@ -222,14 +222,14 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 						start_wall_cloak(segp,side);
 					break;
 
-				case TT_CLOSE_WALL:
+				case trigger_action::close_wall:
 					if ((TmapInfo[segp->unique_segment::sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
 						ret |= 2;
 						{
 						const auto &&pos = compute_center_point_on_side(vcvertptr, segp, side);
 						digi_link_sound_to_pos(SOUND_FORCEFIELD_HUM,segp,side,pos,1, F1_0/2);
 						}
-					case TT_ILLUSORY_WALL:
+					case trigger_action::illusory_wall:
 						wall0.type = new_wall_type;
 						if (wall1)
 							wall1->type = new_wall_type;
@@ -377,7 +377,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 	auto &vcvertptr = Vertices.vcptr;
 	switch (trigger.type)
 	{
-		case TT_EXIT:
+		case trigger_action::normal_exit:
 			if (pnum!=Player_num)
 				break;
 
@@ -409,7 +409,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 			return std::max(result, window_event_result::handled);
 			break;
 
-		case TT_SECRET_EXIT: {
+		case trigger_action::secret_exit: {
 			int	truth;
 
 			if (pnum!=Player_num)
@@ -452,64 +452,64 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 			return window_event_result::handled;
 		}
 
-		case TT_OPEN_DOOR:
+		case trigger_action::open_door:
 			do_link(trigger);
 			print_trigger_message(pnum, trigger, shot, "Door%s opened!");
 
 			break;
 
-		case TT_CLOSE_DOOR:
+		case trigger_action::close_door:
 			do_close_door(trigger);
 			print_trigger_message(pnum, trigger, shot, "Door%s closed!");
 			break;
 
-		case TT_UNLOCK_DOOR:
+		case trigger_action::unlock_door:
 			do_unlock_doors(vcsegptr, vmwallptr, trigger);
 			print_trigger_message(pnum, trigger, shot, "Door%s unlocked!");
 
 			break;
 
-		case TT_LOCK_DOOR:
+		case trigger_action::lock_door:
 			do_lock_doors(vcsegptr, vmwallptr, trigger);
 			print_trigger_message(pnum, trigger, shot, "Door%s locked!");
 			break;
 
-		case TT_OPEN_WALL:
+		case trigger_action::open_wall:
 			if (const auto w = do_change_walls(trigger, WALL_OPEN))
 				print_trigger_message(pnum, trigger, shot, (w & 2) ? "Force field%s deactivated!" : "Wall%s opened!");
 			break;
 
-		case TT_CLOSE_WALL:
+		case trigger_action::close_wall:
 			if (const auto w = do_change_walls(trigger, WALL_CLOSED))
 				print_trigger_message(pnum, trigger, shot, (w & 2) ? "Force field%s activated!" : "Wall%s closed!");
 			break;
 
-		case TT_ILLUSORY_WALL:
+		case trigger_action::illusory_wall:
 			//don't know what to say, so say nothing
 			do_change_walls(trigger, WALL_ILLUSION);
 			break;
 
-		case TT_MATCEN:
+		case trigger_action::matcen:
 			if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
 				do_matcen(trigger);
 			break;
 
-		case TT_ILLUSION_ON:
+		case trigger_action::illusion_on:
 			do_il_on(vcsegptridx, vmwallptr, trigger);
 			print_trigger_message(pnum, trigger, shot, "Illusion%s on!");
 			break;
 
-		case TT_ILLUSION_OFF:
+		case trigger_action::illusion_off:
 			do_il_off(vcsegptridx, vcvertptr, vmwallptr, trigger);
 			print_trigger_message(pnum, trigger, shot, "Illusion%s off!");
 			break;
 
-		case TT_LIGHT_OFF:
+		case trigger_action::light_off:
 			if (do_light_off(LevelSharedDestructibleLightState, TmapInfo, Flickering_light_state, trigger))
 				print_trigger_message(pnum, trigger, shot, "Light%s off!");
 			break;
 
-		case TT_LIGHT_ON:
+		case trigger_action::light_on:
 			if (do_light_on(LevelSharedDestructibleLightState, TmapInfo, Flickering_light_state, trigger))
 				print_trigger_message(pnum, trigger, shot, "Light%s on!");
 
@@ -596,29 +596,28 @@ window_event_result check_trigger(const vcsegptridx_t seg, const unsigned side, 
 #if defined(DXX_BUILD_DESCENT_I)
 void v26_trigger_read(PHYSFS_File *fp, trigger &t)
 {
-	int type;
-	switch ((type = PHYSFSX_readByte(fp)))
+	switch (const auto type = static_cast<trigger_action>(PHYSFSX_readByte(fp)))
 	{
-		case TT_OPEN_DOOR: // door
+		case trigger_action::open_door: // door
 			t.flags = TRIGGER_CONTROL_DOORS;
 			break;
-		case TT_MATCEN: // matcen
+		case trigger_action::matcen: // matcen
 			t.flags = TRIGGER_MATCEN;
 			break;
-		case TT_EXIT: // exit
+		case trigger_action::normal_exit: // exit
 			t.flags = TRIGGER_EXIT;
 			break;
-		case TT_SECRET_EXIT: // secret exit
+		case trigger_action::secret_exit: // secret exit
 			t.flags = TRIGGER_SECRET_EXIT;
 			break;
-		case TT_ILLUSION_OFF: // illusion off
+		case trigger_action::illusion_off: // illusion off
 			t.flags = TRIGGER_ILLUSION_OFF;
 			break;
-		case TT_ILLUSION_ON: // illusion on
+		case trigger_action::illusion_on: // illusion on
 			t.flags = TRIGGER_ILLUSION_ON;
 			break;
 		default:
-			con_printf(CON_URGENT,"Warning: unsupported trigger type %d", type);
+			con_printf(CON_URGENT, "error: unsupported trigger type %d", static_cast<int>(type));
 			throw std::runtime_error("unsupported trigger type");
 	}
 	if (PHYSFSX_readByte(fp) & 2)	// one shot
@@ -675,7 +674,7 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp)
  */
 extern void trigger_read(trigger *t, PHYSFS_File *fp)
 {
-	t->type = PHYSFSX_readByte(fp);
+	t->type = trigger_action{static_cast<uint8_t>(PHYSFSX_readByte(fp))};
 	t->flags = trigger_behavior_flags{static_cast<uint8_t>(PHYSFSX_readByte(fp))};
 	t->num_links = PHYSFSX_readByte(fp);
 	PHYSFSX_readByte(fp);
@@ -687,31 +686,31 @@ extern void trigger_read(trigger *t, PHYSFS_File *fp)
 		t->side[i] = PHYSFSX_readShort(fp);
 }
 
-static ubyte trigger_type_from_flags(short flags)
+static trigger_action trigger_type_from_flags(short flags)
 {
 	if (flags & TRIGGER_CONTROL_DOORS)
-		return TT_OPEN_DOOR;
+		return trigger_action::open_door;
 	else if (flags & (TRIGGER_SHIELD_DAMAGE | TRIGGER_ENERGY_DRAIN))
 	{
 	}
 	else if (flags & TRIGGER_EXIT)
-		return TT_EXIT;
+		return trigger_action::normal_exit;
 	else if (flags & TRIGGER_MATCEN)
-		return TT_MATCEN;
+		return trigger_action::matcen;
 	else if (flags & TRIGGER_ILLUSION_OFF)
-		return TT_ILLUSION_OFF;
+		return trigger_action::illusion_off;
 	else if (flags & TRIGGER_SECRET_EXIT)
-		return TT_SECRET_EXIT;
+		return trigger_action::secret_exit;
 	else if (flags & TRIGGER_ILLUSION_ON)
-		return TT_ILLUSION_ON;
+		return trigger_action::illusion_on;
 	else if (flags & TRIGGER_UNLOCK_DOORS)
-		return TT_UNLOCK_DOOR;
+		return trigger_action::unlock_door;
 	else if (flags & TRIGGER_OPEN_WALL)
-		return TT_OPEN_WALL;
+		return trigger_action::open_wall;
 	else if (flags & TRIGGER_CLOSE_WALL)
-		return TT_CLOSE_WALL;
+		return trigger_action::close_wall;
 	else if (flags & TRIGGER_ILLUSORY_WALL)
-		return TT_ILLUSORY_WALL;
+		return trigger_action::illusory_wall;
 	throw std::runtime_error("unsupported trigger type");
 }
 
@@ -787,43 +786,43 @@ void v29_trigger_write(PHYSFS_File *fp, const trigger &rt)
 	const auto one_shot_flag = (t->flags & trigger_behavior_flags::one_shot) ? TRIGGER_ONE_SHOT : TRIGGER_FLAG{0};
 	switch (t->type)
 	{
-		case TT_OPEN_DOOR:
+		case trigger_action::open_door:
 			PHYSFS_writeSLE16(fp, TRIGGER_CONTROL_DOORS | one_shot_flag);
 			break;
 
-		case TT_EXIT:
+		case trigger_action::normal_exit:
 			PHYSFS_writeSLE16(fp, TRIGGER_EXIT | one_shot_flag);
 			break;
 
-		case TT_MATCEN:
+		case trigger_action::matcen:
 			PHYSFS_writeSLE16(fp, TRIGGER_MATCEN | one_shot_flag);
 			break;
 
-		case TT_ILLUSION_OFF:
+		case trigger_action::illusion_off:
 			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_OFF | one_shot_flag);
 			break;
 
-		case TT_SECRET_EXIT:
+		case trigger_action::secret_exit:
 			PHYSFS_writeSLE16(fp, TRIGGER_SECRET_EXIT | one_shot_flag);
 			break;
 
-		case TT_ILLUSION_ON:
+		case trigger_action::illusion_on:
 			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_ON | one_shot_flag);
 			break;
 
-		case TT_UNLOCK_DOOR:
+		case trigger_action::unlock_door:
 			PHYSFS_writeSLE16(fp, TRIGGER_UNLOCK_DOORS | one_shot_flag);
 			break;
 
-		case TT_OPEN_WALL:
+		case trigger_action::open_wall:
 			PHYSFS_writeSLE16(fp, TRIGGER_OPEN_WALL | one_shot_flag);
 			break;
 
-		case TT_CLOSE_WALL:
+		case trigger_action::close_wall:
 			PHYSFS_writeSLE16(fp, TRIGGER_CLOSE_WALL | one_shot_flag);
 			break;
 
-		case TT_ILLUSORY_WALL:
+		case trigger_action::illusory_wall:
 			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSORY_WALL | one_shot_flag);
 			break;
 
@@ -852,20 +851,24 @@ void v30_trigger_write(PHYSFS_File *fp, const trigger &rt)
 {
 	const trigger *t = &rt;
 #if defined(DXX_BUILD_DESCENT_I)
+	uint8_t action;
 	if (t->flags & TRIGGER_CONTROL_DOORS)
-		PHYSFSX_writeU8(fp, TT_OPEN_DOOR); // door
+		action = static_cast<uint8_t>(trigger_action::open_door); // door
 	else if (t->flags & TRIGGER_MATCEN)
-		PHYSFSX_writeU8(fp, TT_MATCEN); // matcen
+		action = static_cast<uint8_t>(trigger_action::matcen); // matcen
 	else if (t->flags & TRIGGER_EXIT)
-		PHYSFSX_writeU8(fp, TT_EXIT); // exit
+		action = static_cast<uint8_t>(trigger_action::normal_exit); // exit
 	else if (t->flags & TRIGGER_SECRET_EXIT)
-		PHYSFSX_writeU8(fp, TT_SECRET_EXIT); // secret exit
+		action = static_cast<uint8_t>(trigger_action::secret_exit); // secret exit
 	else if (t->flags & TRIGGER_ILLUSION_OFF)
-		PHYSFSX_writeU8(fp, TT_ILLUSION_OFF); // illusion off
+		action = static_cast<uint8_t>(trigger_action::illusion_off); // illusion off
 	else if (t->flags & TRIGGER_ILLUSION_ON)
-		PHYSFSX_writeU8(fp, TT_ILLUSION_ON); // illusion on
+		action = static_cast<uint8_t>(trigger_action::illusion_on); // illusion on
+	else
+		action = 0;
+	PHYSFSX_writeU8(fp, action);
 #elif defined(DXX_BUILD_DESCENT_II)
-	PHYSFSX_writeU8(fp, t->type);
+	PHYSFSX_writeU8(fp, static_cast<uint8_t>(t->type));
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -874,43 +877,43 @@ void v30_trigger_write(PHYSFS_File *fp, const trigger &rt)
 	const auto one_shot_flag = (t->flags & trigger_behavior_flags::one_shot) ? TRIGGER_ONE_SHOT : TRIGGER_FLAG{0};
 	switch (t->type)
 	{
-		case TT_OPEN_DOOR:
+		case trigger_action::open_door:
 			PHYSFS_writeSLE16(fp, TRIGGER_CONTROL_DOORS | one_shot_flag);
 			break;
 
-		case TT_EXIT:
+		case trigger_action::normal_exit:
 			PHYSFS_writeSLE16(fp, TRIGGER_EXIT | one_shot_flag);
 			break;
 
-		case TT_MATCEN:
+		case trigger_action::matcen:
 			PHYSFS_writeSLE16(fp, TRIGGER_MATCEN | one_shot_flag);
 			break;
 
-		case TT_ILLUSION_OFF:
+		case trigger_action::illusion_off:
 			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_OFF | one_shot_flag);
 			break;
 
-		case TT_SECRET_EXIT:
+		case trigger_action::secret_exit:
 			PHYSFS_writeSLE16(fp, TRIGGER_SECRET_EXIT | one_shot_flag);
 			break;
 
-		case TT_ILLUSION_ON:
+		case trigger_action::illusion_on:
 			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_ON | one_shot_flag);
 			break;
 
-		case TT_UNLOCK_DOOR:
+		case trigger_action::unlock_door:
 			PHYSFS_writeSLE16(fp, TRIGGER_UNLOCK_DOORS | one_shot_flag);
 			break;
 
-		case TT_OPEN_WALL:
+		case trigger_action::open_wall:
 			PHYSFS_writeSLE16(fp, TRIGGER_OPEN_WALL | one_shot_flag);
 			break;
 
-		case TT_CLOSE_WALL:
+		case trigger_action::close_wall:
 			PHYSFS_writeSLE16(fp, TRIGGER_CLOSE_WALL | one_shot_flag);
 			break;
 
-		case TT_ILLUSORY_WALL:
+		case trigger_action::illusory_wall:
 			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSORY_WALL | one_shot_flag);
 			break;
 
@@ -939,20 +942,24 @@ void v31_trigger_write(PHYSFS_File *fp, const trigger &rt)
 {
 	const trigger *t = &rt;
 #if defined(DXX_BUILD_DESCENT_I)
+	uint8_t action;
 	if (t->flags & TRIGGER_CONTROL_DOORS)
-		PHYSFSX_writeU8(fp, TT_OPEN_DOOR); // door
+		action = static_cast<uint8_t>(trigger_action::open_door); // door
 	else if (t->flags & TRIGGER_MATCEN)
-		PHYSFSX_writeU8(fp, TT_MATCEN); // matcen
+		action = static_cast<uint8_t>(trigger_action::matcen); // matcen
 	else if (t->flags & TRIGGER_EXIT)
-		PHYSFSX_writeU8(fp, TT_EXIT); // exit
+		action = static_cast<uint8_t>(trigger_action::normal_exit); // exit
 	else if (t->flags & TRIGGER_SECRET_EXIT)
-		PHYSFSX_writeU8(fp, TT_SECRET_EXIT); // secret exit
+		action = static_cast<uint8_t>(trigger_action::secret_exit); // secret exit
 	else if (t->flags & TRIGGER_ILLUSION_OFF)
-		PHYSFSX_writeU8(fp, TT_ILLUSION_OFF); // illusion off
+		action = static_cast<uint8_t>(trigger_action::illusion_off); // illusion off
 	else if (t->flags & TRIGGER_ILLUSION_ON)
-		PHYSFSX_writeU8(fp, TT_ILLUSION_ON); // illusion on
+		action = static_cast<uint8_t>(trigger_action::illusion_on); // illusion on
+	else
+		action = 0;
+	PHYSFSX_writeU8(fp, action);
 #elif defined(DXX_BUILD_DESCENT_II)
-	PHYSFSX_writeU8(fp, t->type);
+	PHYSFSX_writeU8(fp, static_cast<uint8_t>(t->type));
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I)

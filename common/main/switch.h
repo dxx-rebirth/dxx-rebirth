@@ -45,24 +45,28 @@ constexpr std::integral_constant<std::size_t, 100> MAX_TRIGGERS{};
 constexpr std::integral_constant<unsigned, 10> MAX_WALLS_PER_LINK{};
 }
 
-#define TT_OPEN_DOOR        0   // Open a door
-#define TT_MATCEN           2   // Activate a matcen
-#define TT_EXIT             3   // End the level
-#define TT_SECRET_EXIT      4   // Go to secret level
-#define TT_ILLUSION_OFF     5   // Turn an illusion off
-#define TT_ILLUSION_ON      6   // Turn an illusion on
+// Trigger types
+enum class trigger_action : uint8_t
+{
+	open_door = 0,   // Open a door
+	matcen = 2,   // Activate a matcen
+	normal_exit = 3,   // End the level
+	secret_exit = 4,   // Go to secret level
+	illusion_off = 5,   // Turn an illusion off
+	illusion_on = 6,   // Turn an illusion on
+#if defined(DXX_BUILD_DESCENT_II)
+	close_door = 1,	// Close a door
+	unlock_door = 7,	// Unlock a door
+	lock_door = 8,	// Lock a door
+	open_wall = 9,	// Makes a wall open
+	close_wall = 10,	// Makes a wall closed
+	illusory_wall = 11,	// Makes a wall illusory
+	light_off = 12,	// Turn a light off
+	light_on = 13,	// Turn a light on
+#endif
+};
 
 #if defined(DXX_BUILD_DESCENT_II)
-// Trigger types
-
-#define TT_CLOSE_DOOR       1   // Close a door
-#define TT_UNLOCK_DOOR      7   // Unlock a door
-#define TT_LOCK_DOOR        8   // Lock a door
-#define TT_OPEN_WALL        9   // Makes a wall open
-#define TT_CLOSE_WALL       10  // Makes a wall closed
-#define TT_ILLUSORY_WALL    11  // Makes a wall illusory
-#define TT_LIGHT_OFF        12  // Turn a light off
-#define TT_LIGHT_ON         13  // Turn a light on
 #define NUM_TRIGGER_TYPES   14
 
 // Trigger flags
@@ -179,7 +183,7 @@ struct trigger : public prohibit_void_ptr<trigger>
 	uint16_t flags;
 	uint16_t num_links;
 #elif defined(DXX_BUILD_DESCENT_II)
-	ubyte   type;       //what this trigger does
+	trigger_action type;       //what this trigger does
 	trigger_behavior_flags flags;
 	uint8_t   num_links;  //how many doors, etc. linked to this
 #endif
@@ -211,7 +215,7 @@ static inline int trigger_is_exit(const trigger *t)
 #if defined(DXX_BUILD_DESCENT_I)
 	return t->flags & TRIGGER_EXIT;
 #elif defined(DXX_BUILD_DESCENT_II)
-	return t->type == TT_EXIT;
+	return t->type == trigger_action::normal_exit;
 #endif
 }
 
@@ -220,7 +224,7 @@ static inline int trigger_is_matcen(const trigger &t)
 #if defined(DXX_BUILD_DESCENT_I)
 	return t.flags & TRIGGER_MATCEN;
 #elif defined(DXX_BUILD_DESCENT_II)
-	return t.type == TT_MATCEN;
+	return t.type == trigger_action::matcen;
 #endif
 }
 

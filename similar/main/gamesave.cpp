@@ -1190,7 +1190,7 @@ static int load_game_data(
 						con_printf(CON_URGENT, "matcen %u triggers non-matcen segment %hu", t.get_unchecked_index(), seg_num);
 				}
 #if defined(DXX_BUILD_DESCENT_II)
-				else if (tr.type != TT_LIGHT_OFF && tr.type != TT_LIGHT_ON)
+				else if (tr.type != trigger_action::light_off && tr.type != trigger_action::light_on)
 				{	//light triggers don't require walls
 					const auto side_num = tr.side[l];
 					auto wall_num = vmsegptr(seg_num)->shared_segment::sides[side_num].wall_num;
@@ -1198,7 +1198,7 @@ static int load_game_data(
 						(*uwall)->controlling_trigger = t;
 					else
 					{
-						LevelError("trigger %u link %u type %u references segment %hu, side %u which is an invalid wall; ignoring.", static_cast<trgnum_t>(t), l, tr.type, seg_num, side_num);
+						LevelError("trigger %u link %u type %u references segment %hu, side %u which is an invalid wall; ignoring.", static_cast<trgnum_t>(t), l, static_cast<unsigned>(tr.type), seg_num, side_num);
 					}
 				}
 #endif
