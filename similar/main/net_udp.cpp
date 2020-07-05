@@ -65,7 +65,6 @@
 #include "dxxsconf.h"
 #include "compiler-cf_assert.h"
 #include "compiler-range_for.h"
-#include "compiler-lengthof.h"
 #include "partial_range.h"
 #include <array>
 #include <utility>
@@ -5864,7 +5863,7 @@ int net_udp_show_game_info()
 	F("\nPlayers: %u/%i", players, netgame->max_numplayers)
 #define EXPAND_FORMAT(A,B,...)	A
 #define EXPAND_ARGUMENT(A,B,...)	, B, ## __VA_ARGS__
-	snprintf(rinfo, lengthof(rinfo), GAME_INFO_FORMAT_TEXT(EXPAND_FORMAT) GAME_INFO_FORMAT_TEXT(EXPAND_ARGUMENT));
+	snprintf(rinfo, std::size(rinfo), GAME_INFO_FORMAT_TEXT(EXPAND_FORMAT) GAME_INFO_FORMAT_TEXT(EXPAND_ARGUMENT));
 #undef GAME_INFO_FORMAT_TEXT
 
 	std::array<newmenu_item, 2> nm_message_items{{

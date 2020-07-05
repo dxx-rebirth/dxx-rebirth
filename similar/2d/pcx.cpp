@@ -35,7 +35,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-lengthof.h"
 #include "compiler-poison.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
@@ -378,11 +377,9 @@ const char *pcx_errormsg(const pcx_result r)
 
 	unsigned error_number = static_cast<unsigned>(r);
 	while (error_number--) {
-
-		if (p == pcx_error_messages + lengthof(pcx_error_messages)) return NULL;
-
+		if (p == std::end(pcx_error_messages))
+			return nullptr;
 		p += strlen(p)+1;
-
 	}
 
 	return p;
