@@ -757,11 +757,15 @@ void polymodel_write(PHYSFS_File *fp, const polymodel &pm)
 namespace dsx {
 void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 {
-	const auto model_data_size = pm->model_data_size;
+	auto model_data_size = pm->model_data_size;
 	pm->model_data = std::make_unique<uint8_t[]>(model_data_size);
 	PHYSFS_read(fp, pm->model_data, sizeof(uint8_t), model_data_size);
 #if DXX_WORDS_NEED_ALIGNMENT
+	/* Aligning model data changes pm->model_data_size.  Reload it
+	 * afterward.
+	 */
 	align_polygon_model_data(pm);
+	model_data_size = pm->model_data_size;
 #endif
 	if constexpr (words_bigendian)
 		swap_polygon_model_data(pm->model_data.get());
