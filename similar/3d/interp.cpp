@@ -744,7 +744,29 @@ void swap_polygon_model_data(ubyte *data)
 #endif
 
 #if DXX_WORDS_NEED_ALIGNMENT
+
+#if DXX_WORDS_NEED_ALIGNMENT
+#define MAX_CHUNKS 100 // increase if insufficent
+#endif //def WORDS_NEED_ALIGNMENT
 namespace dcx {
+
+namespace {
+
+/*
+ * A chunk struct (as used for alignment) contains all relevant data
+ * concerning a piece of data that may need to be aligned.
+ * To align it, we need to copy it to an aligned position,
+ * and update all pointers  to it.
+ * (Those pointers are actually offsets
+ * relative to start of model_data) to it.
+ */
+struct chunk
+{
+	const uint8_t *old_base; // where the offset sets off from (relative to beginning of model_data)
+	uint8_t *new_base; // where the base is in the aligned structure
+	short offset; // how much to add to base to get the address of the offset
+	short correction; // how much the value of the offset must be shifted for alignment
+};
 
 static void add_chunk(const uint8_t *old_base, uint8_t *new_base, int offset,
 	       chunk *chunk_list, int *no_chunks)
@@ -756,8 +778,6 @@ static void add_chunk(const uint8_t *old_base, uint8_t *new_base, int offset,
 	chunk_list[*no_chunks].correction = 0;
 	(*no_chunks)++;
 }
-
-namespace {
 
 class get_chunks_state :
 	public interpreter_ignore_op_defpoints,
@@ -796,8 +816,6 @@ public:
 	}
 };
 
-}
-
 /*
  * finds what chunks the data points to, adds them to the chunk_list, 
  * and returns the length of the current chunk
@@ -807,6 +825,87 @@ int get_chunks(const uint8_t *data, uint8_t *new_data, chunk *list, int *no)
 	get_chunks_state state(data, new_data, list, no);
 	auto p = iterate_polymodel(data, state);
 	return p + 2 - data;
+}
+
+static const uint8_t *old_dest(const chunk &o) // return where chunk is (in unaligned struct)
+{
+	return GET_INTEL_SHORT(&o.old_base[o.offset]) + o.old_base;
+}
+static uint8_t *new_dest(const chunk &o) // return where chunk is (in aligned struct)
+{
+	return GET_INTEL_SHORT(&o.old_base[o.offset]) + o.new_base + o.correction;
+}
+
+/*
+ * find chunk with smallest address
+ */
+static int get_first_chunks_index(chunk *chunk_list, int no_chunks)
+{
+	int first_index = 0;
+	Assert(no_chunks >= 1);
+	for (int i = 1; i < no_chunks; i++)
+		if (old_dest(chunk_list[i]) < old_dest(chunk_list[first_index]))
+			first_index = i;
+	return first_index;
+}
+
+}
+
+void align_polygon_model_data(polymodel *pm)
+{
+	int chunk_len;
+	int total_correction = 0;
+	chunk cur_ch;
+	chunk ch_list[MAX_CHUNKS];
+	int no_chunks = 0;
+	constexpr unsigned SHIFT_SPACE = 500;	// increase if insufficient
+	int tmp_size = pm->model_data_size + SHIFT_SPACE;
+	RAIIdmem<uint8_t[]> tmp;
+	MALLOC(tmp, uint8_t[], tmp_size); // where we build the aligned version of pm->model_data
+
+	Assert(tmp != NULL);
+	//start with first chunk (is always aligned!)
+	const uint8_t *cur_old = pm->model_data.get();
+	auto cur_new = tmp.get();
+	chunk_len = get_chunks(cur_old, cur_new, ch_list, &no_chunks);
+	memcpy(cur_new, cur_old, chunk_len);
+	while (no_chunks > 0) {
+		int first_index = get_first_chunks_index(ch_list, no_chunks);
+		cur_ch = ch_list[first_index];
+		// remove first chunk from array:
+		no_chunks--;
+		for (int i = first_index; i < no_chunks; i++)
+			ch_list[i] = ch_list[i + 1];
+		// if (new) address unaligned:
+		const uintptr_t u = reinterpret_cast<uintptr_t>(new_dest(cur_ch));
+		if (u % 4L != 0) {
+			// calculate how much to move to be aligned
+			short to_shift = 4 - u % 4L;
+			// correct chunks' addresses
+			cur_ch.correction += to_shift;
+			for (int i = 0; i < no_chunks; i++)
+				ch_list[i].correction += to_shift;
+			total_correction += to_shift;
+			Assert(reinterpret_cast<uintptr_t>(new_dest(cur_ch)) % 4L == 0);
+			Assert(total_correction <= SHIFT_SPACE); // if you get this, increase SHIFT_SPACE
+		}
+		//write (corrected) chunk for current chunk:
+		*(reinterpret_cast<short *>(cur_ch.new_base + cur_ch.offset))
+			= INTEL_SHORT(static_cast<short>(cur_ch.correction + GET_INTEL_SHORT(cur_ch.old_base + cur_ch.offset)));
+		//write (correctly aligned) chunk:
+		cur_old = old_dest(cur_ch);
+		cur_new = new_dest(cur_ch);
+		chunk_len = get_chunks(cur_old, cur_new, ch_list, &no_chunks);
+		memcpy(cur_new, cur_old, chunk_len);
+		//correct submodel_ptr's for pm, too
+		for (int i = 0; i < MAX_SUBMODELS; i++)
+			if (&pm->model_data[pm->submodel_ptrs[i]] >= cur_old
+				&& &pm->model_data[pm->submodel_ptrs[i]] < cur_old + chunk_len)
+				pm->submodel_ptrs[i] += (cur_new - tmp.get()) - (cur_old - pm->model_data.get());
+	}
+	pm->model_data_size += total_correction;
+	pm->model_data = std::make_unique<uint8_t[]>(pm->model_data_size);
+	memcpy(pm->model_data.get(), tmp.get(), pm->model_data_size);
 }
 
 }

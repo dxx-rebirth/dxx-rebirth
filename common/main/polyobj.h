@@ -98,6 +98,12 @@ public:
 extern unsigned N_polygon_models;
 void init_polygon_models();
 
+/* Only defined if DXX_WORDS_NEED_ALIGNMENT, but always declared, so
+ * that the header preprocesses to the same text regardless of the
+ * setting.
+ */
+void align_polygon_model_data(polymodel *pm);
+
 }
 #ifdef dsx
 namespace dsx {
