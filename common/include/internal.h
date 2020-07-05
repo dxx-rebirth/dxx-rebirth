@@ -15,10 +15,8 @@
 
 #ifdef __cplusplus
 
-
 void ogl_init_texture_list_internal(void);
 void ogl_smash_texture_list_internal(void);
-void ogl_vivify_texture_list_internal(void);
 
 namespace dcx {
 extern int linedotscale;
@@ -47,16 +45,12 @@ static inline void OGL_VIEWPORT(const unsigned x, const unsigned y, const unsign
 		glViewport(x,grd_curscreen->sc_canvas.cv_bitmap.bm_h-y-h,w,h);
 	}
 }
-}
 
 #ifdef dsx
-namespace dsx {
-
 //platform specific funcs
-extern void ogl_swap_buffers_internal(void);
-
-}
+void ogl_swap_buffers_internal();
 #endif
+}
 
 //whee
 #define CPAL2Tr(c) ((gr_current_pal[c].r)/63.0)

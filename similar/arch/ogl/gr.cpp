@@ -158,7 +158,7 @@ static bool TestEGLError(const char* pszLocation)
 }
 #endif
 
-namespace dsx {
+namespace dcx {
 
 void ogl_swap_buffers_internal(void)
 {
@@ -174,6 +174,10 @@ void ogl_swap_buffers_internal(void)
 #endif
 	sync_helper.after_swap();
 }
+
+}
+
+namespace dsx {
 
 #ifdef RPI
 
