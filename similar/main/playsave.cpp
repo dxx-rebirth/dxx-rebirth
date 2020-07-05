@@ -532,32 +532,18 @@ static void read_player_dxx(const char *filename)
 		}
 		else if (!strcmp(line,PLX_VERSION_HEADER_TEXT)) // know the version this pilot was used last with - allow modifications
 		{
+#if 0
 			int v1=0,v2=0,v3=0;
+#endif
 			while(PHYSFSX_fgets(line,f) && strcmp(line,END_TEXT))
 			{
+#if 0
 				const char *value=splitword(line,'=');
 				if (!value)
 					continue;
 				sscanf(value,"%i.%i.%i",&v1,&v2,&v3);
+#endif
 			}
-			if (v1 == 0 && v2 == 56 && v3 == 0) // was 0.56.0
-				if (DXX_VERSION_MAJORi != v1 || DXX_VERSION_MINORi != v2 || DXX_VERSION_MICROi != v3) // newer (presumably)
-				{
-					// reset joystick/mouse cycling fields
-#if defined(DXX_BUILD_DESCENT_I)
-#if DXX_MAX_JOYSTICKS
-					PlayerCfg.KeySettings.Joystick[44] = 255;
-					PlayerCfg.KeySettings.Joystick[45] = 255;
-					PlayerCfg.KeySettings.Joystick[46] = 255;
-					PlayerCfg.KeySettings.Joystick[47] = 255;
-#endif
-					PlayerCfg.KeySettings.Mouse[27] = 255;
-#endif
-					PlayerCfg.KeySettings.Mouse[28] = 255;
-#if defined(DXX_BUILD_DESCENT_II)
-					PlayerCfg.KeySettings.Mouse[29] = 255;
-#endif
-				}
 		}
 		else if (!strcmp(line,END_TEXT))
 		{
