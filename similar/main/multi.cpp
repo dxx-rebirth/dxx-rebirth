@@ -2200,7 +2200,7 @@ static void multi_do_controlcen_fire(const ubyte *buf)
 	int count = 1;
 
 	memcpy(&to_target, buf+count, 12);          count += 12;
-	if (words_bigendian)// swap the vector to_target
+	if constexpr (words_bigendian)// swap the vector to_target
 	{
 		to_target.x = INTEL_INT(to_target.x);
 		to_target.y = INTEL_INT(to_target.y);
@@ -2235,7 +2235,7 @@ static void multi_do_create_powerup(fvmobjptr &vmobjptr, fvmsegptridx &vmsegptri
 	count += 2;
 	objnum_t objnum = GET_INTEL_SHORT(buf + count); count += 2;
 	memcpy(&new_pos, buf+count, sizeof(vms_vector)); count+=sizeof(vms_vector);
-	if (words_bigendian)
+	if constexpr (words_bigendian)
 	{
 		new_pos.x = SWAPINT(new_pos.x);
 		new_pos.y = SWAPINT(new_pos.y);
@@ -2970,7 +2970,7 @@ void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, obj
 
 	count +=  1;
 	multi_command<MULTI_CONTROLCEN_FIRE> multibuf;
-	if (words_bigendian)
+	if constexpr (words_bigendian)
 	{
 		vms_vector swapped_vec;
 		swapped_vec.x = INTEL_INT(static_cast<int>(to_goal.x));
@@ -3010,7 +3010,7 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 	multibuf[count] = powerup_type;                                 count += 1;
 	PUT_INTEL_SHORT(&multibuf[count], segnum );     count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], objnum );     count += 2;
-	if (words_bigendian)
+	if constexpr (words_bigendian)
 	{
 		vms_vector swapped_vec;
 		swapped_vec.x = INTEL_INT(static_cast<int>(pos.x));

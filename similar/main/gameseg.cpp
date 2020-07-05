@@ -1015,7 +1015,7 @@ void create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegme
 	create_shortpos_native(LevelSharedSegmentState, spp, objp);
 // swap the short values for the big-endian machines.
 
-	if (words_bigendian)
+	if constexpr (words_bigendian)
 	{
 		spp.xo = INTEL_SHORT(spp.xo);
 		spp.yo = INTEL_SHORT(spp.yo);

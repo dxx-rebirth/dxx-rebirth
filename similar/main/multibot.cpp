@@ -526,7 +526,7 @@ void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vecto
         PUT_INTEL_SHORT(&multibuf[loc], s);
                                                                         loc += 3;
         multibuf[loc] = gun_num;                                        loc += 1;
-        if (words_bigendian)
+        if constexpr (words_bigendian)
         {
                 vms_vector swapped_vec;
 		swapped_vec.x = INTEL_INT(static_cast<int>(fire.x));
@@ -706,7 +706,7 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 	multibuf[loc] = del_obj.contains_type; 					loc += 1;
 	multibuf[loc] = del_obj.contains_id;						loc += 1;
 	PUT_INTEL_SHORT(&multibuf[loc], del_obj.segnum);		        loc += 2;
-	if (words_bigendian)
+	if constexpr (words_bigendian)
 	{
 		vms_vector swapped_vec;
 		swapped_vec.x = INTEL_INT(static_cast<int>(del_obj.pos.x));

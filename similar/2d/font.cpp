@@ -968,7 +968,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 		const unsigned ft_h = font->ft_h;
 		std::generate_n(ft_chars, nchars, [is_color, ft_h, &w, &ptr]{
 			const unsigned s = INTEL_SHORT(*w);
-			if (words_bigendian)
+			if constexpr (words_bigendian)
 				*w = static_cast<uint16_t>(s);
 			++w;
 			const auto r = ptr;
