@@ -67,12 +67,15 @@ struct trigger_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton, remove_trigger, bind_wall, bind_matcen, enable_all_triggers;
+#if defined(DXX_BUILD_DESCENT_I)
 	std::array<std::unique_ptr<UI_GADGET_CHECKBOX>, NUM_TRIGGER_FLAGS> triggerFlag;
+#endif
 	int old_trigger_num;
 };
 
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
 //-----------------------------------------------------------------
 // Adds a trigger to wall, and returns the trigger number. 
 // If there is a trigger already present, it returns the trigger number. (To be replaced)
@@ -104,7 +107,6 @@ static trgnum_t add_trigger(trigger_array &Triggers, fvcvertptr &vcvertptr, wall
 	t.flags = {};
 	t.value = F1_0*5;
 	t.num_links = 0;
-	t.flags &= TRIGGER_ON;
 	Triggers.set_count(trigger_num + 1);
 	return trigger_num;
 }		
@@ -149,6 +151,7 @@ static int trigger_flag_Markedside(const TRIGGER_FLAG flag, const int value)
 
 	return 1;
 }
+#endif
 
 static int bind_matcen_to_trigger() {
 
@@ -296,14 +299,16 @@ static int trigger_remove()
 	return 1;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 static int trigger_turn_all_ON()
 {
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vmtrgptr = Triggers.vmptr;
 	range_for (const auto t, vmtrgptr)
-		t->flags &= TRIGGER_ON;
+		t->flags &= ~trigger_behavior_flags::disabled;
 	return 1;
 }
+#endif
 
 static window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *t);
 
@@ -336,6 +341,7 @@ static window_event_result trigger_dialog_created(UI_DIALOG *const w, trigger_di
 {
 	// These are the checkboxes for each door flag.
 	int i = 44;
+#if defined(DXX_BUILD_DESCENT_I)
 	t->triggerFlag[0] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Door Control");  	i+=22;
 	t->triggerFlag[1] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Shield damage"); 	i+=22;
 	t->triggerFlag[2] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Energy drain");		i+=22;
@@ -346,6 +352,7 @@ static window_event_result trigger_dialog_created(UI_DIALOG *const w, trigger_di
 	t->triggerFlag[7] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Trigger ON");			i+=22;
 	t->triggerFlag[8] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Matcen Trigger"); 	i+=22;
 	t->triggerFlag[9] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Secret Exit"); 		i+=22;
+#endif
 
 	t->quitButton = ui_add_gadget_button( w, 20, i, 48, 40, "Done", NULL );
 																				 
@@ -357,7 +364,9 @@ static window_event_result trigger_dialog_created(UI_DIALOG *const w, trigger_di
 	t->remove_trigger = ui_add_gadget_button(w, 155, i, 140, 26, "Remove Trigger", trigger_remove); i += 29;
 	t->bind_wall = ui_add_gadget_button(w, 155, i, 140, 26, "Bind Wall", bind_wall_to_trigger); i += 29;
 	t->bind_matcen = ui_add_gadget_button(w, 155, i, 140, 26, "Bind Matcen", bind_matcen_to_trigger); i += 29;
+#if defined(DXX_BUILD_DESCENT_II)
 	t->enable_all_triggers = ui_add_gadget_button(w, 155, i, 140, 26, "All Triggers ON", trigger_turn_all_ON); i += 29;
+#endif
 
 	t->old_trigger_num = -2;		// Set to some dummy value so everything works ok on the first frame.
 	return window_event_result::handled;
@@ -413,6 +422,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	{
 		if (trigger_num != trigger_none)
 		{
+#if defined(DXX_BUILD_DESCENT_I)
 			auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 			auto &vctrgptr = Triggers.vcptr;
 			const auto &&trig = vctrgptr(trigger_num);
@@ -427,6 +437,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
  			ui_checkbox_check(t->triggerFlag[7].get(), trig->flags & TRIGGER_ON);
  			ui_checkbox_check(t->triggerFlag[8].get(), trig->flags & TRIGGER_MATCEN);
  			ui_checkbox_check(t->triggerFlag[9].get(), trig->flags & TRIGGER_SECRET_EXIT);
+#endif
 		}
 	}
 	
@@ -436,8 +447,8 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	//------------------------------------------------------------
 	if (IS_CHILD(Markedsegp->children[Markedside]))
 	{
+#if defined(DXX_BUILD_DESCENT_I)
 		rval = window_event_result::handled;
-		
 		if (GADGET_PRESSED(t->triggerFlag[0].get())) 
 			trigger_flag_Markedside(TRIGGER_CONTROL_DOORS, t->triggerFlag[0]->flag); 
 		else if (GADGET_PRESSED(t->triggerFlag[1].get()))
@@ -459,11 +470,16 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 		else if (GADGET_PRESSED(t->triggerFlag[9].get())) 
 			trigger_flag_Markedside(TRIGGER_SECRET_EXIT, t->triggerFlag[9]->flag);
 		else
+#endif
 			rval = window_event_result::ignored;
 
 	} else
+	{
+#if defined(DXX_BUILD_DESCENT_I)
 		range_for (auto &i, t->triggerFlag)
 			ui_checkbox_check(i.get(), 0);
+#endif
+	}
 
 	//------------------------------------------------------------
 	// Draw the wall in the little 64x64 box

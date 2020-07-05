@@ -5552,7 +5552,7 @@ static void net_udp_send_fly_thru_triggers (const playernum_t pnum)
 	auto &vctrgptridx = Triggers.vcptridx;
 	range_for (const auto &&t, vctrgptridx)
 	{
-		if (t->flags & TF_DISABLED)
+		if (t->flags & trigger_behavior_flags::disabled)
 			multi_send_trigger_specific(pnum, t);
 	}
  }

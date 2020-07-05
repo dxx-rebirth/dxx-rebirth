@@ -717,11 +717,12 @@ int wall_restore_all()
 			}
  		}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vmtrgptr = Triggers.vmptr;
 	range_for (const auto i, vmtrgptr)
-		i->flags |= TRIGGER_ON;
-	
+		i->flags &= ~trigger_behavior_flags::disabled;
+#endif
 	Update_flags |= UF_GAME_VIEW_CHANGED;
 
 	return 1;

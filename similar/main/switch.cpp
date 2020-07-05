@@ -256,7 +256,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 
 static int (print_trigger_message)(int pnum, const trigger &t, int shot)
  {
-	if (shot && pnum == Player_num && !(t.flags & TF_NO_MESSAGE))
+	if (shot && pnum == Player_num && !(t.flags & trigger_behavior_flags::no_message))
 		return 1;
 	return 0;
  }
@@ -366,11 +366,11 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 		do_il_off(vcsegptridx, vmwallptr, trigger);
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (trigger.flags & TF_DISABLED)
+	if (trigger.flags & trigger_behavior_flags::disabled)
 		return window_event_result::handled;		// don't send trigger hit to other players
 
-	if (trigger.flags & TF_ONE_SHOT)		//if this is a one-shot...
-		trigger.flags |= TF_DISABLED;		//..then don't let it happen again
+	if (trigger.flags & trigger_behavior_flags::one_shot)		//if this is a one-shot...
+		trigger.flags |= trigger_behavior_flags::disabled;		//..then don't let it happen again
 
 	auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
@@ -676,7 +676,7 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp)
 extern void trigger_read(trigger *t, PHYSFS_File *fp)
 {
 	t->type = PHYSFSX_readByte(fp);
-	t->flags = PHYSFSX_readByte(fp);
+	t->flags = trigger_behavior_flags{static_cast<uint8_t>(PHYSFSX_readByte(fp))};
 	t->num_links = PHYSFSX_readByte(fp);
 	PHYSFSX_readByte(fp);
 	t->value = PHYSFSX_readFix(fp);
@@ -718,7 +718,7 @@ static ubyte trigger_type_from_flags(short flags)
 static void v30_trigger_to_v31_trigger(trigger &t, const v30_trigger &trig)
 {
 	t.type        = trigger_type_from_flags(trig.flags & ~TRIGGER_ON);
-	t.flags       = (trig.flags & TRIGGER_ONE_SHOT) ? TF_ONE_SHOT : 0;
+	t.flags       = (trig.flags & TRIGGER_ONE_SHOT) ? trigger_behavior_flags::one_shot : trigger_behavior_flags{0};
 	t.num_links   = trig.num_links;
 	t.num_links   = trig.num_links;
 	t.value       = trig.value;
@@ -784,46 +784,47 @@ void v29_trigger_write(PHYSFS_File *fp, const trigger &rt)
 #if defined(DXX_BUILD_DESCENT_I)
 	PHYSFS_writeSLE16(fp, t->flags);
 #elif defined(DXX_BUILD_DESCENT_II)
+	const auto one_shot_flag = (t->flags & trigger_behavior_flags::one_shot) ? TRIGGER_ONE_SHOT : TRIGGER_FLAG{0};
 	switch (t->type)
 	{
 		case TT_OPEN_DOOR:
-			PHYSFS_writeSLE16(fp, TRIGGER_CONTROL_DOORS | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_CONTROL_DOORS | one_shot_flag);
 			break;
 
 		case TT_EXIT:
-			PHYSFS_writeSLE16(fp, TRIGGER_EXIT | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_EXIT | one_shot_flag);
 			break;
 
 		case TT_MATCEN:
-			PHYSFS_writeSLE16(fp, TRIGGER_MATCEN | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_MATCEN | one_shot_flag);
 			break;
 
 		case TT_ILLUSION_OFF:
-			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_OFF | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_OFF | one_shot_flag);
 			break;
 
 		case TT_SECRET_EXIT:
-			PHYSFS_writeSLE16(fp, TRIGGER_SECRET_EXIT | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_SECRET_EXIT | one_shot_flag);
 			break;
 
 		case TT_ILLUSION_ON:
-			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_ON | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_ON | one_shot_flag);
 			break;
 
 		case TT_UNLOCK_DOOR:
-			PHYSFS_writeSLE16(fp, TRIGGER_UNLOCK_DOORS | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_UNLOCK_DOORS | one_shot_flag);
 			break;
 
 		case TT_OPEN_WALL:
-			PHYSFS_writeSLE16(fp, TRIGGER_OPEN_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_OPEN_WALL | one_shot_flag);
 			break;
 
 		case TT_CLOSE_WALL:
-			PHYSFS_writeSLE16(fp, TRIGGER_CLOSE_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_CLOSE_WALL | one_shot_flag);
 			break;
 
 		case TT_ILLUSORY_WALL:
-			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSORY_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSORY_WALL | one_shot_flag);
 			break;
 
 		default:
@@ -870,46 +871,47 @@ void v30_trigger_write(PHYSFS_File *fp, const trigger &rt)
 #if defined(DXX_BUILD_DESCENT_I)
 	PHYSFS_writeSLE16(fp, t->flags);
 #elif defined(DXX_BUILD_DESCENT_II)
+	const auto one_shot_flag = (t->flags & trigger_behavior_flags::one_shot) ? TRIGGER_ONE_SHOT : TRIGGER_FLAG{0};
 	switch (t->type)
 	{
 		case TT_OPEN_DOOR:
-			PHYSFS_writeSLE16(fp, TRIGGER_CONTROL_DOORS | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_CONTROL_DOORS | one_shot_flag);
 			break;
 
 		case TT_EXIT:
-			PHYSFS_writeSLE16(fp, TRIGGER_EXIT | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_EXIT | one_shot_flag);
 			break;
 
 		case TT_MATCEN:
-			PHYSFS_writeSLE16(fp, TRIGGER_MATCEN | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_MATCEN | one_shot_flag);
 			break;
 
 		case TT_ILLUSION_OFF:
-			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_OFF | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_OFF | one_shot_flag);
 			break;
 
 		case TT_SECRET_EXIT:
-			PHYSFS_writeSLE16(fp, TRIGGER_SECRET_EXIT | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_SECRET_EXIT | one_shot_flag);
 			break;
 
 		case TT_ILLUSION_ON:
-			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_ON | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_ON | one_shot_flag);
 			break;
 
 		case TT_UNLOCK_DOOR:
-			PHYSFS_writeSLE16(fp, TRIGGER_UNLOCK_DOORS | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_UNLOCK_DOORS | one_shot_flag);
 			break;
 
 		case TT_OPEN_WALL:
-			PHYSFS_writeSLE16(fp, TRIGGER_OPEN_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_OPEN_WALL | one_shot_flag);
 			break;
 
 		case TT_CLOSE_WALL:
-			PHYSFS_writeSLE16(fp, TRIGGER_CLOSE_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_CLOSE_WALL | one_shot_flag);
 			break;
 
 		case TT_ILLUSORY_WALL:
-			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSORY_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSORY_WALL | one_shot_flag);
 			break;
 
 		default:
@@ -956,7 +958,7 @@ void v31_trigger_write(PHYSFS_File *fp, const trigger &rt)
 #if defined(DXX_BUILD_DESCENT_I)
 	PHYSFSX_writeU8(fp, (t->flags & TRIGGER_ONE_SHOT) ? 2 : 0);		// flags
 #elif defined(DXX_BUILD_DESCENT_II)
-	PHYSFSX_writeU8(fp, t->flags);
+	PHYSFSX_writeU8(fp, static_cast<uint8_t>(t->flags));
 #endif
 
 	PHYSFSX_writeU8(fp, t->num_links);

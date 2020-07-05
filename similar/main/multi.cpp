@@ -4687,7 +4687,7 @@ static void multi_do_start_trigger(const uint8_t *const buf)
 {
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vmtrgptr = Triggers.vmptr;
-	vmtrgptr(static_cast<trgnum_t>(buf[1]))->flags |= TF_DISABLED;
+	vmtrgptr(static_cast<trgnum_t>(buf[1]))->flags |= trigger_behavior_flags::disabled;
 }
 #endif
 

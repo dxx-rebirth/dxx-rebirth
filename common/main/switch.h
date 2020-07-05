@@ -69,9 +69,38 @@ constexpr std::integral_constant<unsigned, 10> MAX_WALLS_PER_LINK{};
 
 //could also use flags for one-shots
 
-#define TF_NO_MESSAGE       1   // Don't show a message when triggered
-#define TF_ONE_SHOT         2   // Only trigger once
-#define TF_DISABLED         4   // Set after one-shot fires
+enum class trigger_behavior_flags : uint8_t
+{
+	no_message = 1,	// Don't show a message when triggered
+	one_shot = 2,	// Only trigger once
+	disabled = 4,	// Set after one-shot fires
+};
+
+enum class trigger_behavior_flag_mask : uint8_t
+{
+};
+
+static constexpr trigger_behavior_flag_mask operator~(const trigger_behavior_flags value)
+{
+	return static_cast<trigger_behavior_flag_mask>(~static_cast<uint8_t>(value));
+}
+
+static constexpr uint8_t operator&(const trigger_behavior_flags value, const trigger_behavior_flags mask)
+{
+	return static_cast<uint8_t>(value) & static_cast<uint8_t>(mask);
+}
+
+static constexpr trigger_behavior_flags &operator|=(trigger_behavior_flags &value, const trigger_behavior_flags mask)
+{
+	value = static_cast<trigger_behavior_flags>(static_cast<uint8_t>(value) | static_cast<uint8_t>(mask));
+	return value;
+}
+
+static constexpr trigger_behavior_flags &operator&=(trigger_behavior_flags &value, const trigger_behavior_flag_mask mask)
+{
+	value = static_cast<trigger_behavior_flags>(static_cast<uint8_t>(value) & static_cast<uint8_t>(mask));
+	return value;
+}
 
 //old trigger structs
 
@@ -151,7 +180,7 @@ struct trigger : public prohibit_void_ptr<trigger>
 	uint16_t num_links;
 #elif defined(DXX_BUILD_DESCENT_II)
 	ubyte   type;       //what this trigger does
-	ubyte   flags;      //currently unused
+	trigger_behavior_flags flags;
 	uint8_t   num_links;  //how many doors, etc. linked to this
 #endif
 	fix     value;
