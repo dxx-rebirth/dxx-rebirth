@@ -1494,7 +1494,7 @@ static window_event_result FinalCheats()
 	cheat_buffer.back() = key_ascii();
 	for (unsigned i = 0;; i++)
 	{
-		if (i >= sizeof(cheat_codes) / sizeof(cheat_codes[0]))
+		if (i >= std::size(cheat_codes))
 			return window_event_result::ignored;
 		int cheatlen = strlen(cheat_codes[i].string);
 		Assert(cheatlen <= CHEAT_MAX_LEN);

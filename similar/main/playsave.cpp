@@ -1031,8 +1031,8 @@ int read_player_file()
 		len = MAX_MESSAGE_LEN;
 #endif
 
-		for (unsigned i = 0; i < sizeof(PlayerCfg.NetworkMessageMacro) / sizeof(PlayerCfg.NetworkMessageMacro[0]); i++)
-			if (PHYSFS_read(file, PlayerCfg.NetworkMessageMacro[i], len, 1) != 1)
+		for (auto &i : PlayerCfg.NetworkMessageMacro)
+			if (PHYSFS_read(file, i, len, 1) != 1)
 				goto read_player_file_failed;
 	}
 

@@ -356,7 +356,7 @@ void load_text()
 #endif
 
 #ifdef GENERATE_BUILTIN_TEXT_TABLE
-	for (unsigned u = 0; u < sizeof(Text_string) / sizeof(Text_string[0]); ++u)
+	for (unsigned u = 0; u < std::size(Text_string); ++u)
 	{
 		printf("\t%u\t\"", u);
 		for (char *px = Text_string[u]; *px; ++px) {

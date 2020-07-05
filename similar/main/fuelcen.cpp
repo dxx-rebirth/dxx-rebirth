@@ -391,7 +391,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 	matcen_info *mi = &RobotCenters[matcen_num];
 	for (unsigned i = 0;; ++i)
 	{
-		if (i >= (sizeof(mi->robot_flags) / sizeof(mi->robot_flags[0])))
+		if (i >= mi->robot_flags.size())
 			return;
 		if (mi->robot_flags[i])
 			break;
@@ -500,7 +500,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 				num_types = 0;
 				for (unsigned i = 0;; ++i)
 				{
-					if (i >= (sizeof(mi->robot_flags) / sizeof(mi->robot_flags[0])))
+					if (i >= mi->robot_flags.size())
 						break;
 					uint32_t flags = mi->robot_flags[i];
 					for (unsigned j = 0; flags && j < 8 * sizeof(flags); ++j)

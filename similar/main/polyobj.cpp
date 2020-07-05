@@ -268,7 +268,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 						 * Relax the assert to check only for memory
 						 * corruption.
 						 */
-						Assert(gun_id < sizeof(r->gun_submodels) / sizeof(r->gun_submodels[0]));
+						assert(gun_id < std::size(r->gun_submodels));
 						auto &submodel = r->gun_submodels[gun_id];
 						submodel = pof_read_short(model_buf);
 						Assert(submodel != 0xff);

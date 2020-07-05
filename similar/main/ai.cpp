@@ -2995,7 +2995,7 @@ static int openable_door_on_near_path(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr
 	 * sometimes the guidebot has a none.  Guard against the bogus none
 	 * until someone can track down why the guidebot does this.
 	 */
-	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none)
+	if (idx < Point_segs.size() && Point_segs[idx].segnum != segment_none)
 	{
 		if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)) - side_none)
 			return r;
@@ -3003,7 +3003,7 @@ static int openable_door_on_near_path(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr
 	if (path_length < 3)
 		return 0;
 	idx = aip.hide_index + aip.cur_path_index + 2*aip.PATH_DIR;
-	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none)
+	if (idx < Point_segs.size() && Point_segs[idx].segnum != segment_none)
 	{
 		if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)) - side_none)
 			return r;

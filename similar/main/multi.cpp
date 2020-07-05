@@ -2492,7 +2492,7 @@ void multi_process_bigdata(const playernum_t pnum, const ubyte *const buf, const
 	while( bytes_processed < len )  {
 		const uint_fast32_t type = buf[bytes_processed];
 
-		if ( (type>= sizeof(message_length)/sizeof(message_length[0])))
+		if (type >= std::size(message_length))
 		{
 			con_printf(CON_DEBUG, "multi_process_bigdata: Invalid packet type %" PRIuFAST32 "!", type);
 			return;

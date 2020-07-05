@@ -1138,7 +1138,7 @@ static void dump_used_textures_level(PHYSFS_File *my_file, int level_num, const 
 	level_tmap_buf.fill(-1);
 
 	wall_buffer_type temp_wall_buf;
-	determine_used_textures_level(LevelSharedSegmentState.DestructibleLights, 0, 1, level_num, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
+	determine_used_textures_level(LevelSharedSegmentState.DestructibleLights, 0, 1, level_num, temp_tmap_buf, temp_wall_buf, level_tmap_buf, level_tmap_buf.size());
 	PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Gamesave_current_filename);
 	say_used_tmaps(my_file, temp_tmap_buf);
 }
@@ -1170,7 +1170,7 @@ say_totals_all();
 
 	for (i=0; i<NUM_SHAREWARE_LEVELS; i++) {
 		wall_buffer_type temp_wall_buf;
-		determine_used_textures_level(LevelSharedDestructibleLightState, 1, 1, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
+		determine_used_textures_level(LevelSharedDestructibleLightState, 1, 1, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, level_tmap_buf.size());
 		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Shareware_level_names[i]);
 		say_used_tmaps(my_file, temp_tmap_buf);
 		merge_buffers(perm_tmap_buf, temp_tmap_buf);
@@ -1195,7 +1195,7 @@ say_totals_all();
 #endif
 	{
 		wall_buffer_type temp_wall_buf;
-		determine_used_textures_level(LevelSharedSegmentState.DestructibleLights, 1, 0, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
+		determine_used_textures_level(LevelSharedSegmentState.DestructibleLights, 1, 0, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, level_tmap_buf.size());
 #if defined(DXX_BUILD_DESCENT_I)
 		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Registered_level_names[i]);
 #elif defined(DXX_BUILD_DESCENT_II)
