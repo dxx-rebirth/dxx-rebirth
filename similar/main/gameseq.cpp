@@ -117,6 +117,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_enumerate.h"
 #include "partial_range.h"
 #include "d_range.h"
+#include "d_zip.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #include "custom.h"
@@ -892,13 +893,11 @@ static ushort netmisc_calc_checksum()
 	range_for (auto &&segp, vcsegptr)
 	{
 		const cscusegment i = *segp;
-		range_for (auto &&e, enumerate(i.s.sides))	// d_zip
+		for (auto &&[sside, uside] : zip(i.s.sides, i.u.sides))
 		{
-			auto &j = e.value;
-			do_checksum_calc(reinterpret_cast<const uint8_t *>(&(j.get_type())), 1, &sum1, &sum2);
-			s = INTEL_SHORT(j.wall_num);
+			do_checksum_calc(reinterpret_cast<const uint8_t *>(&(sside.get_type())), 1, &sum1, &sum2);
+			s = INTEL_SHORT(sside.wall_num);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
-			auto &uside = i.u.sides[e.idx];
 			s = INTEL_SHORT(uside.tmap_num);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 			s = INTEL_SHORT(uside.tmap_num2);
@@ -912,7 +911,7 @@ static ushort netmisc_calc_checksum()
 				t = INTEL_INT(k.l);
 				do_checksum_calc(reinterpret_cast<uint8_t *>(&t), 4, &sum1, &sum2);
 			}
-			range_for (auto &k, j.normals)
+			range_for (auto &k, sside.normals)
 			{
 				t = INTEL_INT(k.x);
 				do_checksum_calc(reinterpret_cast<uint8_t *>(&t), 4, &sum1, &sum2);

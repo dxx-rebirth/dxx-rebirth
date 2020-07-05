@@ -88,6 +88,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_enumerate.h"
 #include "d_range.h"
 #include "partial_range.h"
+#include "d_zip.h"
 #include <utility>
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1313,9 +1314,9 @@ int state_save_all_sub(const char *filename, const char *desc)
 //Save tmap info
 	range_for (const auto &&segp, vcsegptr)
 	{
-		range_for (const auto &e, enumerate(segp->shared_segment::sides))	// d_zip
+		for (auto &&[ss, us] : zip(segp->shared_segment::sides, segp->unique_segment::sides))	// d_zip
 		{
-			segment_side_wall_tmap_write(fp, e.value, segp->unique_segment::sides[e.idx]);
+			segment_side_wall_tmap_write(fp, ss, us);
 		}
 	}
 

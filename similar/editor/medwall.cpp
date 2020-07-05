@@ -56,6 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "partial_range.h"
+#include "d_zip.h"
 #include <memory>
 #include <utility>
 
@@ -705,15 +706,14 @@ int wall_restore_all()
 		wall_close_door_ref(Segments.vmptridx, Walls, WallAnims, i);
 
 	range_for (auto &&i, vmsegptr)
-		range_for (auto &&e, enumerate(i->shared_segment::sides))	// d_zip
+		for (auto &&[us, ss] : zip(i->unique_segment::sides, i->shared_segment::sides))
 		{
-			auto &j = e.value;
-			const auto wall_num = j.wall_num;
+			const auto wall_num = ss.wall_num;
 			if (wall_num != wall_none)
 			{
 				auto &w = *vcwallptr(wall_num);
 				if (w.type == WALL_BLASTABLE || w.type == WALL_DOOR)
-					i->unique_segment::sides[e.idx].tmap_num2 = WallAnims[w.clip_num].frames[0];
+					us.tmap_num2 = WallAnims[w.clip_num].frames[0];
 			}
  		}
 

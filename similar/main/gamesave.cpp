@@ -75,6 +75,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
+#include "d_zip.h"
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1118,23 +1119,21 @@ static int load_game_data(
 
 	// Make sure non-transparent doors are set correctly.
 	range_for (auto &&i, vmsegptridx)
-		range_for (const auto eside, enumerate(i->shared_segment::sides))	// d_zip
+		for (auto &&[sside, uside, side_idx] : zip(i->shared_segment::sides, i->unique_segment::sides, xrange(MAX_SIDES_PER_SEGMENT)))
 		{
-			auto &side = eside.value;
-			if (side.wall_num == wall_none)
+			if (sside.wall_num == wall_none)
 				continue;
-			auto &w = *vmwallptr(side.wall_num);
+			auto &w = *vmwallptr(sside.wall_num);
 			if (w.clip_num != -1)
 			{
 				auto &wa = WallAnims[w.clip_num];
 				if (wa.flags & WCF_TMAP1)
 				{
-					auto &uside = i->unique_segment::sides[eside.idx];
 					uside.tmap_num = wa.frames[0];
 					uside.tmap_num2 = 0;
 				}
 			}
-			validate_segment_wall(i, side, eside.idx);
+			validate_segment_wall(i, sside, side_idx);
 		}
 
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;

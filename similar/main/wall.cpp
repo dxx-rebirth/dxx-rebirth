@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_range.h"
 #include "compiler-range_for.h"
 #include "segiter.h"
+#include "d_zip.h"
 
 //	Special door on boss level which is locked if not in multiplayer...sorry for this awful solution --MK.
 #define	BOSS_LOCKED_DOOR_LEVEL	7
@@ -583,15 +584,15 @@ void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
 		digi_link_sound_to_pos( SOUND_WALL_CLOAK_ON, seg, side, cp, 0, F1_0 );
 	}
 
-	auto &df = d->front_ls;
-	auto &db = d->back_ls;
-	auto &s0_uvls = seg->unique_segment::sides[side].uvls;
-	auto &s1_uvls = csegp->unique_segment::sides[Connectside].uvls;
-	// d_zip
-	range_for (const unsigned i, xrange(4u))
+	for (auto &&[front_ls, back_ls, s0_uvls, s1_uvls] : zip(
+			d->front_ls,
+			d->back_ls,
+			seg->unique_segment::sides[side].uvls,
+			csegp->unique_segment::sides[Connectside].uvls
+	))
 	{
-		df[i] = s0_uvls[i].l;
-		db[i] = s1_uvls[i].l;
+		front_ls = s0_uvls.l;
+		back_ls = s1_uvls.l;
 	}
 }
 
@@ -667,15 +668,15 @@ void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 		digi_link_sound_to_pos( SOUND_WALL_CLOAK_OFF, seg, side, cp, 0, F1_0 );
 	}
 
-	auto &df = d->front_ls;
-	auto &db = d->back_ls;
-	auto &s0_uvls = seg->unique_segment::sides[side].uvls;
-	auto &s1_uvls = csegp->unique_segment::sides[Connectside].uvls;
-	// d_zip
-	range_for (const unsigned i, xrange(4u))
+	for (auto &&[front_ls, back_ls, s0_uvls, s1_uvls] : zip(
+			d->front_ls,
+			d->back_ls,
+			seg->unique_segment::sides[side].uvls,
+			csegp->unique_segment::sides[Connectside].uvls
+	))
 	{
-		df[i] = s0_uvls[i].l;
-		db[i] = s1_uvls[i].l;
+		front_ls = s0_uvls.l;
+		back_ls = s1_uvls.l;
 	}
 }
 
