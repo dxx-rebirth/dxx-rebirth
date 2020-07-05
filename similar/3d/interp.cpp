@@ -898,10 +898,10 @@ void align_polygon_model_data(polymodel *pm)
 		chunk_len = get_chunks(cur_old, cur_new, ch_list, &no_chunks);
 		memcpy(cur_new, cur_old, chunk_len);
 		//correct submodel_ptr's for pm, too
-		for (int i = 0; i < MAX_SUBMODELS; i++)
-			if (&pm->model_data[pm->submodel_ptrs[i]] >= cur_old
-				&& &pm->model_data[pm->submodel_ptrs[i]] < cur_old + chunk_len)
-				pm->submodel_ptrs[i] += (cur_new - tmp.get()) - (cur_old - pm->model_data.get());
+		for (auto &sp : pm->submodel_ptrs)
+			if (&pm->model_data[sp] >= cur_old &&
+				&pm->model_data[sp] < cur_old + chunk_len)
+				sp += (cur_new - tmp.get()) - (cur_old - pm->model_data.get());
 	}
 	pm->model_data_size += total_correction;
 	pm->model_data = std::make_unique<uint8_t[]>(pm->model_data_size);
