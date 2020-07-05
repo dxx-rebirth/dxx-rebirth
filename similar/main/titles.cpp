@@ -488,7 +488,6 @@ constexpr briefing_screen D1_Briefing_screens_share[] = {
 };
 
 #define D1_Briefing_screens ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?D1_Briefing_screens_share:D1_Briefing_screens_full)
-#define NUM_D1_BRIEFING_SCREENS ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?(sizeof(D1_Briefing_screens_share)/sizeof(D1_Briefing_screens_share[0])):(sizeof(D1_Briefing_screens_full)/sizeof(D1_Briefing_screens_full[0])))
 
 struct msgstream
 {
@@ -1407,15 +1406,21 @@ static void free_briefing_screen(briefing *br)
 static int new_briefing_screen(briefing *br, int first)
 {
 	br->new_screen = 0;
+	const auto descent_hog_size = PHYSFSX_fsize("descent.hog");
+	const auto num_d1_briefing_screens = (
+		(descent_hog_size == D1_SHAREWARE_MISSION_HOGSIZE || descent_hog_size == D1_SHAREWARE_10_MISSION_HOGSIZE)
+		? std::size(D1_Briefing_screens_share)
+		: std::size(D1_Briefing_screens_full)
+	);
 #if defined(DXX_BUILD_DESCENT_I)
 
 	if (!first)
 		br->cur_screen++;
 
-	while ((br->cur_screen < NUM_D1_BRIEFING_SCREENS) && (D1_Briefing_screens[br->cur_screen].level_num != br->level_num))
+	while (br->cur_screen < num_d1_briefing_screens && D1_Briefing_screens[br->cur_screen].level_num != br->level_num)
 	{
 		br->cur_screen++;
-		if ((br->cur_screen == NUM_D1_BRIEFING_SCREENS) && (br->level_num == 0))
+		if (br->cur_screen == num_d1_briefing_screens && br->level_num == 0)
 		{
 			// Showed the pre-game briefing, now show level 1 briefing
 			br->level_num++;
@@ -1423,7 +1428,7 @@ static int new_briefing_screen(briefing *br, int first)
 		}
 	}
 
-	if (br->cur_screen == NUM_D1_BRIEFING_SCREENS)
+	if (br->cur_screen == num_d1_briefing_screens)
 		return 0;		// finished
 
 	if (!load_briefing_screen(*grd_curcanv, br, D1_Briefing_screens[br->cur_screen].bs_name))
@@ -1438,13 +1443,13 @@ static int new_briefing_screen(briefing *br, int first)
 		if (!first)
 			br->cur_screen++;
 		else
-			for (int i = 0; i < NUM_D1_BRIEFING_SCREENS; i++)
+			for (int i = 0; i < num_d1_briefing_screens; i++)
 				Briefing_screens[i] = D1_Briefing_screens[i];
 
-		while ((br->cur_screen < NUM_D1_BRIEFING_SCREENS) && (Briefing_screens[br->cur_screen].level_num != br->level_num))
+		while (br->cur_screen < num_d1_briefing_screens && Briefing_screens[br->cur_screen].level_num != br->level_num)
 		{
 			br->cur_screen++;
-			if ((br->cur_screen == NUM_D1_BRIEFING_SCREENS) && (br->level_num == 0))
+			if (br->cur_screen == num_d1_briefing_screens && br->level_num == 0)
 			{
 				// Showed the pre-game briefing, now show level 1 briefing
 				br->level_num++;
@@ -1452,7 +1457,7 @@ static int new_briefing_screen(briefing *br, int first)
 			}
 		}
 
-		if (br->cur_screen == NUM_D1_BRIEFING_SCREENS)
+		if (br->cur_screen == num_d1_briefing_screens)
 			return 0;		// finished
 
 		if (!load_briefing_screen(*grd_curcanv, br, Briefing_screens[br->cur_screen].bs_name))
