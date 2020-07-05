@@ -320,8 +320,8 @@ static inline detail::sign_extend_type<extended_signed_type, wrapped_type> sign_
 	}	\
 	\
 	__attribute_unused	\
-	static inline auto udt_to_message(TYPE &NAME) -> decltype(serial::make_message MEMBERLIST) { \
-		return serial::make_message MEMBERLIST;	\
+	static inline auto udt_to_message(TYPE &NAME) { \
+		return serial::message MEMBERLIST;	\
 	}
 
 #define DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(TYPE, NAME, MEMBERLIST)	\
@@ -485,10 +485,7 @@ public:
 };
 
 template <typename... Args>
-static inline message<Args &&...> make_message(Args &&... args)
-{
-	return {std::forward<Args>(args)...};
-}
+message(Args &&... args) -> message<Args && ...>;
 
 #define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_BUILTIN(HBITS,BITS)	\
 	static inline constexpr uint##BITS##_t bswap(const uint##BITS##_t &u)	\
