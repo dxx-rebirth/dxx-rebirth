@@ -1077,12 +1077,6 @@ void gr_set_curfont(grs_canvas &canvas, const grs_font *n)
 	canvas.cv_font = n;
 }
 
-void gr_set_fontcolor(grs_canvas &canvas, const int fg_color, const int bg_color)
-{
-	canvas.cv_font_fg_color = fg_color;
-	canvas.cv_font_bg_color = bg_color;
-}
-
 template <bool masked_draws_background>
 static int gr_internal_string_clipped_template(grs_canvas &canvas, const grs_font &cv_font, int x, int y, const char *const s)
 {

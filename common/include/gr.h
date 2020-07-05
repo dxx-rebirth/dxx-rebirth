@@ -299,6 +299,24 @@ static inline void gr_set_transparent(grs_bitmap &bm, bool bTransparent)
 }
 
 namespace dcx {
+
+static inline void gr_set_font_fg_color(grs_canvas &canvas, int fg_color)
+{
+	canvas.cv_font_fg_color = fg_color;
+}
+
+static inline void gr_set_font_bg_color(grs_canvas &canvas, int bg_color)
+{
+	canvas.cv_font_bg_color = bg_color;
+}
+
+#define gr_set_fontcolor(C,F,B)	\
+	( DXX_BEGIN_COMPOUND_STATEMENT {	\
+		auto &gr_set_fontcolor = C;	\
+		gr_set_font_fg_color(gr_set_fontcolor, F);	\
+		gr_set_font_bg_color(gr_set_fontcolor, B);	\
+		} DXX_END_COMPOUND_STATEMENT )
+
 struct font_delete
 {
 	void operator()(grs_font *p) const

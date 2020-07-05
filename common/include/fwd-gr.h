@@ -282,7 +282,6 @@ namespace dcx {
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts();
 void gr_set_curfont(grs_canvas &, const grs_font *);
-void gr_set_fontcolor(grs_canvas &, int fg_color, int bg_color);
 void gr_string(grs_canvas &, const grs_font &, int x, int y, const char *s, int w, int h);
 void gr_string(grs_canvas &, const grs_font &, int x, int y, const char *s);
 void gr_ustring(grs_canvas &, const grs_font &, int x, int y, const char *s);
