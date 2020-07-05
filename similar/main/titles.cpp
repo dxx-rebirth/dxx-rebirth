@@ -487,8 +487,6 @@ constexpr briefing_screen D1_Briefing_screens_share[] = {
 	{ "end01.pcx",   ENDING_LEVEL_NUM_OEMSHARE,  1,  23, 40, 320, 200 }, // shareware end
 };
 
-#define D1_Briefing_screens ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?D1_Briefing_screens_share:D1_Briefing_screens_full)
-
 struct msgstream
 {
 	int x;
@@ -496,6 +494,13 @@ struct msgstream
 	color_t color;
 	char ch;
 };
+
+constexpr const briefing_screen *get_d1_briefing_screens(const unsigned descent_hog_size)
+{
+	if (descent_hog_size == D1_SHAREWARE_MISSION_HOGSIZE || descent_hog_size == D1_SHAREWARE_10_MISSION_HOGSIZE)
+		return D1_Briefing_screens_share;
+	return D1_Briefing_screens_full;
+}
 
 #if defined(DXX_BUILD_DESCENT_I)
 using briefing_screen_deleter = std::default_delete<briefing_screen>;
@@ -964,7 +969,8 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			br->text_x = br->screen->text_ulx;
 			if (br->text_y > br->screen->text_uly + br->screen->text_height) {
 #if defined(DXX_BUILD_DESCENT_I)
-				load_briefing_screen(*grd_curcanv, br, D1_Briefing_screens[br->cur_screen].bs_name);
+				const auto descent_hog_size = PHYSFSX_fsize("descent.hog");
+				load_briefing_screen(*grd_curcanv, br, get_d1_briefing_screens(descent_hog_size)[br->cur_screen].bs_name);
 #elif defined(DXX_BUILD_DESCENT_II)
 				load_briefing_screen(*grd_curcanv, br, Briefing_screens[br->cur_screen].bs_name);
 #endif
@@ -1281,6 +1287,7 @@ static void free_briefing_screen(briefing *br);
 static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const char *const fname)
 {
 #if defined(DXX_BUILD_DESCENT_I)
+	const auto descent_hog_size = PHYSFSX_fsize("descent.hog");
 	char forigin[PATH_MAX];
 	decltype(br->background_name) fname2a;
 
@@ -1341,7 +1348,7 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 
 	set_briefing_fontcolor();
 
-	br->screen = std::make_unique<briefing_screen>(D1_Briefing_screens[br->cur_screen]);
+	br->screen = std::make_unique<briefing_screen>(get_d1_briefing_screens(descent_hog_size)[br->cur_screen]);
 	br->screen->text_ulx = rescale_x(canvas.cv_bitmap, br->screen->text_ulx);
 	br->screen->text_uly = rescale_y(canvas.cv_bitmap, br->screen->text_uly);
 	br->screen->text_width = rescale_x(canvas.cv_bitmap, br->screen->text_width);
@@ -1417,7 +1424,8 @@ static int new_briefing_screen(briefing *br, int first)
 	if (!first)
 		br->cur_screen++;
 
-	while (br->cur_screen < num_d1_briefing_screens && D1_Briefing_screens[br->cur_screen].level_num != br->level_num)
+	auto &&d1_briefing_screens = get_d1_briefing_screens(descent_hog_size);
+	while (br->cur_screen < num_d1_briefing_screens && d1_briefing_screens[br->cur_screen].level_num != br->level_num)
 	{
 		br->cur_screen++;
 		if (br->cur_screen == num_d1_briefing_screens && br->level_num == 0)
@@ -1431,20 +1439,21 @@ static int new_briefing_screen(briefing *br, int first)
 	if (br->cur_screen == num_d1_briefing_screens)
 		return 0;		// finished
 
-	if (!load_briefing_screen(*grd_curcanv, br, D1_Briefing_screens[br->cur_screen].bs_name))
+	if (!load_briefing_screen(*grd_curcanv, br, d1_briefing_screens[br->cur_screen].bs_name))
 		return 0;
 
-	br->message = get_briefing_message(br, D1_Briefing_screens[br->cur_screen].message_num);
+	br->message = get_briefing_message(br, d1_briefing_screens[br->cur_screen].message_num);
 #elif defined(DXX_BUILD_DESCENT_II)
 	br->got_z = 0;
 
 	if (EMULATING_D1)
 	{
+		auto &&d1_briefing_screens = get_d1_briefing_screens(descent_hog_size);
 		if (!first)
 			br->cur_screen++;
 		else
 			for (int i = 0; i < num_d1_briefing_screens; i++)
-				Briefing_screens[i] = D1_Briefing_screens[i];
+				Briefing_screens[i] = d1_briefing_screens[i];
 
 		while (br->cur_screen < num_d1_briefing_screens && Briefing_screens[br->cur_screen].level_num != br->level_num)
 		{
