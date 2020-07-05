@@ -250,6 +250,7 @@ window_event_result joy_hat_handler(const SDL_JoyHatEvent *const jhe)
 #endif
 
 #if DXX_MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 static window_event_result send_axis_button_event(unsigned button, event_type e)
 {
 	Joystick.button_state[button] = (e == EVENT_JOYSTICK_BUTTON_UP) ? 0 : 1;
@@ -289,6 +290,7 @@ window_event_result joy_axisbutton_handler(const SDL_JoyAxisEvent *const jae)
 
 	return highest_result;
 }
+#endif
 
 window_event_result joy_axis_handler(const SDL_JoyAxisEvent *const jae)
 {

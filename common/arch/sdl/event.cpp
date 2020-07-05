@@ -144,7 +144,9 @@ void event_poll_state::process_event_batch(partial_range_t<const SDL_Event *> ev
 			case SDL_JOYAXISMOTION:
 				if (CGameArg.CtlNoJoystick)
 					continue;
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 				highest_result = std::max(joy_axisbutton_handler(&event.jaxis), highest_result);
+#endif
 				result = joy_axis_handler(&event.jaxis);
 				break;
 			case SDL_JOYHATMOTION:

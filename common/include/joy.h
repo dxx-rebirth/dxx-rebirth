@@ -61,10 +61,14 @@ window_event_result joy_hat_handler(const SDL_JoyHatEvent *jhe);
 #endif
 
 #if DXX_MAX_AXES_PER_JOYSTICK
-window_event_result joy_axisbutton_handler(const SDL_JoyAxisEvent *jae);
 window_event_result joy_axis_handler(const SDL_JoyAxisEvent *jae);
 #else
 #define joy_axis_handler(jbe) (static_cast<const SDL_JoyAxisEvent *const &>(jbe), window_event_result::ignored)
+#endif
+
+#if DXX_MAX_AXES_PER_JOYSTICK && (DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK)
+window_event_result joy_axisbutton_handler(const SDL_JoyAxisEvent *jae);
+#else
 #define joy_axisbutton_handler(jbe) (static_cast<const SDL_JoyAxisEvent *const &>(jbe), window_event_result::ignored)
 #endif
 
