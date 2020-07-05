@@ -212,23 +212,10 @@ inline void check_range_bounds(const char *file, unsigned line, const char *estr
 #undef PARTIAL_RANGE_COMPILE_CHECK_BOUND
 }
 
-/* C arrays lack a size method, but have a constant size */
-template <typename T, std::size_t d>
-constexpr std::integral_constant<std::size_t, d> get_range_size(T (&)[d])
-{
-	return {};
-}
-
-template <typename T>
-constexpr std::size_t get_range_size(T &t)
-{
-	return t.size();
-}
-
 template <typename I, std::size_t N, typename T>
 inline void check_partial_range(const char *file, unsigned line, const char *estr, const T &t, const std::size_t o, const std::size_t l)
 {
-	check_range_bounds<I, N>(file, line, estr, std::addressof(t), o, l, get_range_size(t));
+	check_range_bounds<I, N>(file, line, estr, std::addressof(t), o, l, std::size(t));
 }
 
 #ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
