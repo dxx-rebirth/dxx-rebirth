@@ -242,7 +242,9 @@ static void songs_init()
 #if defined(DXX_BUILD_DESCENT_I)
 		// HACK: If Descent.hog is patched from 1.0 to 1.5, descent.sng is turncated. So let's patch it up here
 		constexpr std::size_t truncated_song_count = 12;
-		if (!canUseExtensions && main_songs.size() == truncated_song_count && PHYSFSX_fsize("descent.sng") == 422)
+		if (!canUseExtensions &&
+			main_songs.size() == truncated_song_count &&
+			PHYSFS_fileLength(fp) == 422)
 		{
 			main_songs.resize(truncated_song_count + 15);
 			for (i = 12; i <= 26; i++)
