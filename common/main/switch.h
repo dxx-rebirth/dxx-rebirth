@@ -139,7 +139,6 @@ enum TRIGGER_FLAG : uint16_t
 	SHIELD_DAMAGE =      2,    // Shield Damage Trigger
 	ENERGY_DRAIN =       4,    // Energy Drain Trigger
 	EXIT =               8,    // End of level Trigger
-	ON =                16,    // Whether Trigger is active
 	ONE_SHOT =          32,    // If Trigger can only be triggered once
 	MATCEN =            64,    // Trigger for materialization centers
 	ILLUSION_OFF =     128,    // Switch Illusion OFF trigger
@@ -157,7 +156,6 @@ enum TRIGGER_FLAG : uint16_t
 #define TRIGGER_SHIELD_DAMAGE TRIGGER_FLAG::SHIELD_DAMAGE
 #define TRIGGER_ENERGY_DRAIN TRIGGER_FLAG::ENERGY_DRAIN
 #define TRIGGER_EXIT TRIGGER_FLAG::EXIT
-#define TRIGGER_ON TRIGGER_FLAG::ON
 #define TRIGGER_ONE_SHOT TRIGGER_FLAG::ONE_SHOT
 #define TRIGGER_MATCEN TRIGGER_FLAG::MATCEN
 #define TRIGGER_ILLUSION_OFF TRIGGER_FLAG::ILLUSION_OFF

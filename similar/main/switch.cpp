@@ -568,8 +568,6 @@ window_event_result check_trigger(const vcsegptridx_t seg, const unsigned side, 
 		auto &t = *vmtrgptr(trigger_num);
 		if (t.flags & TRIGGER_ONE_SHOT)
 		{
-			t.flags &= ~TRIGGER_ON;
-	
 			const shared_segment &csegp = *vcsegptr(seg->children[side]);
 			auto cside = find_connect_side(seg, csegp);
 			Assert(cside != side_none);
@@ -577,10 +575,6 @@ window_event_result check_trigger(const vcsegptridx_t seg, const unsigned side, 
 			const auto cwall_num = csegp.sides[cside].wall_num;
 			if (cwall_num == wall_none)
 				return window_event_result::ignored;
-			
-			const auto ctrigger_num = vcwallptr(cwall_num)->trigger;
-			auto &ct = *vmtrgptr(ctrigger_num);
-			ct.flags &= ~TRIGGER_ON;
 		}
 #endif
 		if (Game_mode & GM_MULTI)
@@ -716,7 +710,7 @@ static trigger_action trigger_type_from_flags(short flags)
 
 static void v30_trigger_to_v31_trigger(trigger &t, const v30_trigger &trig)
 {
-	t.type        = trigger_type_from_flags(trig.flags & ~TRIGGER_ON);
+	t.type        = trigger_type_from_flags(trig.flags);
 	t.flags       = (trig.flags & TRIGGER_ONE_SHOT) ? trigger_behavior_flags::one_shot : trigger_behavior_flags{0};
 	t.num_links   = trig.num_links;
 	t.num_links   = trig.num_links;

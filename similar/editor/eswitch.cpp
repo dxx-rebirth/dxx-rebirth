@@ -349,7 +349,7 @@ static window_event_result trigger_dialog_created(UI_DIALOG *const w, trigger_di
 	t->triggerFlag[4] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "One-shot");			i+=22;
 	t->triggerFlag[5] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Illusion ON");		i+=22;
 	t->triggerFlag[6] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Illusion OFF");		i+=22;
-	t->triggerFlag[7] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Trigger ON");			i+=22;
+	t->triggerFlag[7] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Unused");			i+=22;
 	t->triggerFlag[8] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Matcen Trigger"); 	i+=22;
 	t->triggerFlag[9] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Secret Exit"); 		i+=22;
 #endif
@@ -434,7 +434,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
  			ui_checkbox_check(t->triggerFlag[4].get(), trig->flags & TRIGGER_ONE_SHOT);
  			ui_checkbox_check(t->triggerFlag[5].get(), trig->flags & TRIGGER_ILLUSION_ON);
  			ui_checkbox_check(t->triggerFlag[6].get(), trig->flags & TRIGGER_ILLUSION_OFF);
- 			ui_checkbox_check(t->triggerFlag[7].get(), trig->flags & TRIGGER_ON);
+			ui_checkbox_check(t->triggerFlag[7].get(), 0);
  			ui_checkbox_check(t->triggerFlag[8].get(), trig->flags & TRIGGER_MATCEN);
  			ui_checkbox_check(t->triggerFlag[9].get(), trig->flags & TRIGGER_SECRET_EXIT);
 #endif
@@ -464,7 +464,8 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 		else if (GADGET_PRESSED(t->triggerFlag[6].get()))
 			trigger_flag_Markedside(TRIGGER_ILLUSION_OFF, t->triggerFlag[6]->flag);
 		else if (GADGET_PRESSED(t->triggerFlag[7].get()))
-			trigger_flag_Markedside(TRIGGER_ON, t->triggerFlag[7]->flag);
+		{
+		}
 		else if (GADGET_PRESSED(t->triggerFlag[8].get())) 
 			trigger_flag_Markedside(TRIGGER_MATCEN, t->triggerFlag[8]->flag);
 		else if (GADGET_PRESSED(t->triggerFlag[9].get())) 
