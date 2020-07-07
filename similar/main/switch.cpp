@@ -562,21 +562,6 @@ window_event_result check_trigger(const vcsegptridx_t seg, const unsigned side, 
 				return result;
 		}
 
-#if defined(DXX_BUILD_DESCENT_I)
-		auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
-		auto &vmtrgptr = Triggers.vmptr;
-		auto &t = *vmtrgptr(trigger_num);
-		if (t.flags & TRIGGER_ONE_SHOT)
-		{
-			const shared_segment &csegp = *vcsegptr(seg->children[side]);
-			auto cside = find_connect_side(seg, csegp);
-			Assert(cside != side_none);
-		
-			const auto cwall_num = csegp.sides[cside].wall_num;
-			if (cwall_num == wall_none)
-				return window_event_result::ignored;
-		}
-#endif
 		if (Game_mode & GM_MULTI)
 			multi_send_trigger(trigger_num);
 	}
