@@ -1491,6 +1491,9 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 
 static window_event_result newmenu_handler(window *wind,const d_event &event, newmenu *menu)
 {
+	if (joy_translate_menu_key(event))
+		return window_event_result::handled;
+
 	if (menu->subfunction)
 	{
 		int rval = (*menu->subfunction)(menu, event, menu->userdata);
@@ -2109,6 +2112,9 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 		if (rval != window_event_result::ignored)
 			return rval;		// event handled
 	}
+
+	if (joy_translate_menu_key(event))
+		return window_event_result::handled;
 
 	switch (event.type)
 	{

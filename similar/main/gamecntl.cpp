@@ -2018,6 +2018,13 @@ window_event_result ReadControls(const d_event &event)
 			return window_event_result::ignored;
 		do_weapon_n_item_stuff(Objects);
 	}
+
+	if (Controls.state.show_menu)
+	{
+		Controls.state.show_menu = 0;
+		return HandleSystemKey(KEY_ESC);
+	}
+
 	return window_event_result::ignored;
 }
 

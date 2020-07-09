@@ -70,7 +70,8 @@ struct control_info
 			cruise_plus, cruise_minus, cruise_off,
 			rear_view,
 			automap,
-			cycle_primary, cycle_secondary, select_weapon;
+			cycle_primary, cycle_secondary, select_weapon,
+			show_menu;
 	};
 	struct mouse_axis_values
 	{

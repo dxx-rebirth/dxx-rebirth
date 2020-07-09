@@ -141,6 +141,13 @@ static window_event_result title_handler(window *, const d_event &event, title_s
 				}
 			return result;
 
+		case EVENT_JOYSTICK_BUTTON_DOWN:
+			if (ts->allow_keys)
+			{
+				return window_event_result::close;
+			}
+			break;
+
 		case EVENT_IDLE:
 			timer_delay2(50);
 
@@ -1542,6 +1549,24 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 				return window_event_result::handled;
 			}
 			break;
+
+		case EVENT_JOYSTICK_BUTTON_DOWN:
+			// using joy_translate_menu_key doesn't work here for unclear
+			// reasons, so we build a reasonable facsimile right here
+			if (event_joystick_get_button(event) == 1)
+				return window_event_result::close;
+			if (br->new_screen)
+			{
+				if (!new_briefing_screen(br, 0))
+				{
+					return window_event_result::close;
+				}
+			}
+			else if (br->new_page)
+				init_new_page(br);
+			else
+				br->delay_count = 0;
+			return window_event_result::handled;
 
 		case EVENT_KEY_COMMAND:
 		{
