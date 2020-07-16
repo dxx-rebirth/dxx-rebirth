@@ -946,10 +946,11 @@ static void sb_show_score(const hud_draw_context_hs_mr hudctx, const player_info
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 	const auto y = hudctx.yscale(SB_SCORE_Y);
 	auto &game_font = *GAME_FONT;
-	gr_printf(canvas, game_font, hudctx.xscale(SB_SCORE_LABEL_X), y, "%s:", (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ? TXT_KILLS : TXT_SCORE);
+	const auto is_multiplayer_non_cooperative = (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP);
+	gr_printf(canvas, game_font, hudctx.xscale(SB_SCORE_LABEL_X), y, "%s:", is_multiplayer_non_cooperative ? TXT_KILLS : TXT_SCORE);
 
 	snprintf(score_str, sizeof(score_str), "%5d",
-			(Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)
+			is_multiplayer_non_cooperative
 			? player_info.net_kills_total
 			: (gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1), player_info.mission.score));
 	int	w, h;
@@ -1180,15 +1181,13 @@ static void hud_show_flag(grs_canvas &canvas, const player_info &player_info, co
 }
 #endif
 
-static void hud_show_energy(grs_canvas &canvas, const player_info &player_info)
+static void hud_show_energy(grs_canvas &canvas, const player_info &player_info, const grs_font &game_font, const unsigned current_y)
 {
 	auto &energy = player_info.energy;
 	if (PlayerCfg.HudMode == HudType::Standard || PlayerCfg.HudMode == HudType::Alternate1)
 	{
 		gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
-		auto &game_font = *GAME_FONT;
-		const auto &&line_spacing = LINE_SPACING(game_font, game_font);
-		gr_printf(canvas, game_font, FSPACX(1), canvas.cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * (5 + (N_players > 3))) : line_spacing),"%s: %i", TXT_ENERGY, f2ir(energy));
+		gr_printf(canvas, game_font, FSPACX(1), current_y, "%s: %i", TXT_ENERGY, f2ir(energy));
 	}
 
 	if (Newdemo_state == ND_STATE_RECORDING)
@@ -1196,24 +1195,15 @@ static void hud_show_energy(grs_canvas &canvas, const player_info &player_info)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void hud_show_afterburner(grs_canvas &, const player_info &)
-{
-}
 #define convert_1s(s)
 #elif defined(DXX_BUILD_DESCENT_II)
-static void hud_show_afterburner(grs_canvas &canvas, const player_info &player_info)
+static void hud_show_afterburner(grs_canvas &canvas, const player_info &player_info, const grs_font &game_font, const unsigned current_y)
 {
-	int y;
 	if (! (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER))
 		return;		//don't draw if don't have
 
 	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
-
-	auto &game_font = *GAME_FONT;
-	const auto &&line_spacing = LINE_SPACING(game_font, game_font);
-	y = (Game_mode & GM_MULTI) ? (-7 * line_spacing) : (-3 * line_spacing);
-
-	gr_printf(canvas, game_font, FSPACX(1), canvas.cv_bitmap.bm_h + y, "burn: %d%%" , fixmul(Afterburner_charge, 100));
+	gr_printf(canvas, game_font, FSPACX(1), current_y, "burn: %d%%" , fixmul(Afterburner_charge, 100));
 
 	if (Newdemo_state==ND_STATE_RECORDING )
 		newdemo_record_player_afterburner(Afterburner_charge);
@@ -1635,15 +1625,13 @@ static void hud_show_secondary_weapons_mode(grs_canvas &canvas, const player_inf
 	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 }
 
-static void hud_show_weapons(grs_canvas &canvas, const object &plrobj)
+static void hud_show_weapons(grs_canvas &canvas, const object &plrobj, const grs_font &game_font)
 {
 	auto &player_info = plrobj.ctype.player_info;
 	int	y;
 	const char	*weapon_name;
 	char	weapon_str[32];
 
-	auto &game_font = *GAME_FONT;
-	gr_set_curfont(canvas, GAME_FONT);
 	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 
 	y = canvas.cv_bitmap.bm_h;
@@ -1748,13 +1736,12 @@ static void hud_show_weapons(grs_canvas &canvas, const object &plrobj)
 }
 }
 
-static void hud_show_cloak_invuln(grs_canvas &canvas, const player_flags player_flags, const fix64 cloak_time, const fix64 invulnerable_time)
+static void hud_show_cloak_invuln(grs_canvas &canvas, const player_flags player_flags, const fix64 cloak_time, const fix64 invulnerable_time, const unsigned base_y)
 {
 	if (!(player_flags & (PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE)))
 		return;
 	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 	const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
-	const auto base_y = canvas.cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * 8 : line_spacing * 4);
 	const auto gametime64 = GameTime64;
 	const auto &&fspacx1 = FSPACX(1);
 
@@ -1785,21 +1772,14 @@ static void hud_show_cloak_invuln(grs_canvas &canvas, const player_flags player_
 	}
 }
 
-static void hud_show_cloak_invuln(grs_canvas &canvas, const player_info &player_info)
-{
-	hud_show_cloak_invuln(canvas, player_info.powerup_flags, player_info.cloak_time, player_info.invulnerable_time);
-}
-
-static void hud_show_shield(grs_canvas &canvas, const object &plrobj)
+static void hud_show_shield(grs_canvas &canvas, const object &plrobj, const grs_font &game_font, const unsigned current_y)
 {
 	if (PlayerCfg.HudMode == HudType::Standard || PlayerCfg.HudMode == HudType::Alternate1)
 	{
 		gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 
-		auto &game_font = *GAME_FONT;
-		const auto &&line_spacing = LINE_SPACING(game_font, game_font);
 		const auto shields = plrobj.shields;
-		gr_printf(canvas, game_font, FSPACX(1), canvas.cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * (6 + (N_players > 3)) : line_spacing * 2), "%s: %i", TXT_SHIELD, shields >= 0 ? f2ir(shields) : 0);
+		gr_printf(canvas, game_font, FSPACX(1), current_y, "%s: %i", TXT_SHIELD, shields >= 0 ? f2ir(shields) : 0);
 	}
 
 	if (Newdemo_state==ND_STATE_RECORDING )
@@ -1851,11 +1831,12 @@ static void sb_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_scal
 	gr_set_fontcolor(canvas, BM_XRGB(0, 20, 0), -1);
 	const auto scaled_y = hudctx.yscale(y);
 	auto &game_font = *GAME_FONT;
-	gr_printf(canvas, game_font, hudctx.xscale(SB_LIVES_LABEL_X), scaled_y, "%s:", (Game_mode & GM_MULTI) ? TXT_DEATHS : TXT_LIVES);
+	const auto is_multiplayer = (Game_mode & GM_MULTI);
+	gr_printf(canvas, game_font, hudctx.xscale(SB_LIVES_LABEL_X), scaled_y, "%s:", is_multiplayer ? TXT_DEATHS : TXT_LIVES);
 
 	const uint8_t color = BM_XRGB(0,0,0);
 	const auto scaled_score_right = hudctx.xscale(SB_SCORE_RIGHT);
-	if (Game_mode & GM_MULTI)
+	if (is_multiplayer)
 	{
 		char killed_str[20];
 		static std::array<int, 4> last_x{{SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_H}};
@@ -3176,7 +3157,8 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
 
 	x1 = fspacx43;
 
-	if (Game_mode & GM_MULTI_COOP)
+	const auto is_multiplayer_cooperative = Game_mode & GM_MULTI_COOP;
+	if (is_multiplayer_cooperative)
 		x1 = fspacx(31);
 
 	auto &game_font = *GAME_FONT;
@@ -3185,14 +3167,14 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 		save_y = y -= fspacx(6);
-		if (Game_mode & GM_MULTI_COOP)
+		if (is_multiplayer_cooperative)
 			x1 = fspacx(33);
 	}
 
 	const auto bm_w = canvas.cv_bitmap.bm_w;
 	const auto &&bmw_x0_cockpit = bm_w - fspacx(PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT ? 53 : 60);
 	// Right edge of name, change this for width problems
-	const auto &&bmw_x1_multi = bm_w - fspacx((Game_mode & GM_MULTI_COOP) ? 27 : 15);
+	const auto &&bmw_x1_multi = bm_w - fspacx(is_multiplayer_cooperative ? 27 : 15);
 	const auto &&fspacx1 = fspacx(1);
 	const auto &&fspacx2 = fspacx(2);
 	const auto &&fspacx18 = fspacx(18);
@@ -3283,7 +3265,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
 		}
 		else if (Show_kill_list == 3)
 			gr_printf(canvas, game_font, x1, y, "%3d", team_kills[i]);
-		else if (Game_mode & GM_MULTI_COOP)
+		else if (is_multiplayer_cooperative)
 			gr_printf(canvas, game_font, x1, y, "%-6d", player_info.mission.score);
 		else if (Netgame.KillGoal || Netgame.PlayTimeAllowed.count())
 			gr_printf(canvas, game_font, x1, y, "%3d(%d)", player_info.net_kills_total, player_info.KillGoalCount);
@@ -3292,7 +3274,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
 
                 if (PlayerCfg.MultiPingHud && Show_kill_list != 3)
                 {
-                        if (Game_mode & GM_MULTI_COOP)
+					if (is_multiplayer_cooperative)
                                 x2 = SWIDTH - (fspacx64/2);
                         else
                                 x2 = x0 + fspacx64;
@@ -3530,15 +3512,25 @@ void draw_hud(grs_canvas &canvas, const object &plrobj)
 		const local_multires_gauge_graphic multires_gauge_graphic = {};
 		const hud_draw_context_hs_mr hudctx(canvas, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
-			hud_show_energy(canvas, player_info);
-			hud_show_shield(canvas, plrobj);
-			hud_show_afterburner(canvas, player_info);
-			hud_show_weapons(canvas, plrobj);
+
+			auto &game_font = *GAME_FONT;
+			const auto &&line_spacing = LINE_SPACING(game_font, game_font);
+			const unsigned base_y = canvas.cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * (5 + (N_players > 3))) : line_spacing);
+			unsigned current_y = base_y;
+			hud_show_energy(canvas, player_info, game_font, current_y);
+			current_y -= line_spacing;
+			hud_show_shield(canvas, plrobj, game_font, current_y);
+			current_y -= line_spacing;
+#if defined(DXX_BUILD_DESCENT_II)
+			hud_show_afterburner(canvas, player_info, game_font, current_y);
+			current_y -= line_spacing;
+#endif
+			hud_show_weapons(canvas, plrobj, game_font);
 #if defined(DXX_BUILD_DESCENT_I)
 			if (!PCSharePig)
 #endif
 			hud_show_keys(hudctx, HUD_SCALE_AR(hudctx.xscale, hudctx.yscale), player_info);
-			hud_show_cloak_invuln(canvas, player_info);
+			hud_show_cloak_invuln(canvas, player_info.powerup_flags, player_info.cloak_time, player_info.invulnerable_time, current_y);
 
 			if (Newdemo_state==ND_STATE_RECORDING)
 				newdemo_record_player_flags(player_info.powerup_flags.get_player_flags());
