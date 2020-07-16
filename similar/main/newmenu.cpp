@@ -218,7 +218,7 @@ void nm_draw_background(grs_canvas &canvas, int x1, int y1, int x2, int y2)
 	show_fullscr(*tmp, *nm_background_sub.get());
 	}
 
-	gr_settransblend(canvas, 14, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, 14, gr_blend::normal);
 	{
 		const auto color = BM_XRGB(1, 1, 1);
 	for (w=5*BGScaleX;w>0;w--)
@@ -229,7 +229,7 @@ void nm_draw_background(grs_canvas &canvas, int x1, int y1, int x2, int y2)
 	for (h=5*BGScaleY;h>0;h--)
 			gr_urect(canvas, x1 + h * (BGScaleX / BGScaleY), y2 - h, x2 - h * (BGScaleX / BGScaleY), y2 - h, color);//bottom edge
 	}
-	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 }
 
 // Draw a left justfied string

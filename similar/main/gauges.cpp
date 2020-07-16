@@ -2377,9 +2377,9 @@ static void draw_player_ship(const hud_draw_context_hs_mr hudctx, const player_i
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
 	hud_bitblt(hudctx, x, y, bm);
 	auto &canvas = hudctx.canvas;
-	gr_settransblend(canvas, cloak_fade_value, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, cloak_fade_value, gr_blend::normal);
 	gr_rect(canvas, hudctx.xscale(x - 3), hudctx.yscale(y - 3), hudctx.xscale(x + bm.bm_w + 3), hudctx.yscale(y + bm.bm_h + 3), 0);
-	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
         // Show Cloak Timer if enabled
 	if (cloak_fade_value < GR_FADE_LEVELS/2 && show_cloak_invul_timer())
 		show_cockpit_cloak_invul_timer(canvas, player_info.cloak_time + CLOAK_TIME_MAX - GameTime64, hudctx.yscale(y + (bm.bm_h / 2)));
@@ -2660,12 +2660,12 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 		int fade_value = f2i(weapon_box_fade_values[wt]);
 		int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 
-		gr_settransblend(canvas, fade_value, GR_BLEND_NORMAL);
+		gr_settransblend(canvas, fade_value, gr_blend::normal);
 		auto &g = gauge_boxes[boxofs + wt];
 		auto &canvas = hudctx.canvas;
 		gr_rect(canvas, hudctx.xscale(g.left), hudctx.yscale(g.top), hudctx.xscale(g.right), hudctx.yscale(g.bot), 0);
 
-		gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
+		gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 	}
 }
 
@@ -3000,7 +3000,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 	Assert(cross_bm_num <= 1);
 
 	const auto color = BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]);
-	gr_settransblend(canvas, PlayerCfg.ReticleRGBA[3], GR_BLEND_NORMAL);
+	gr_settransblend(canvas, PlayerCfg.ReticleRGBA[3], gr_blend::normal);
 
 	[&]{
 		int x0, x1, y0, y1;
@@ -3126,7 +3126,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 	}
 	gr_uline(canvas, x0, y0, x1, y1, color);
 	}();
-	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 }
 }
 
@@ -3134,7 +3134,7 @@ void show_mousefs_indicator(grs_canvas &canvas, int mx, int my, int mz, int x, i
 {
 	int axscale = (MOUSEFS_DELTA_RANGE*2)/size, xaxpos = x+(mx/axscale), yaxpos = y+(my/axscale), zaxpos = y+(mz/axscale);
 
-	gr_settransblend(canvas, PlayerCfg.ReticleRGBA[3], GR_BLEND_NORMAL);
+	gr_settransblend(canvas, PlayerCfg.ReticleRGBA[3], gr_blend::normal);
 	auto &rgba = PlayerCfg.ReticleRGBA;
 	const auto color = BM_XRGB(rgba[0], rgba[1], rgba[2]);
 	gr_uline(canvas, i2f(xaxpos), i2f(y-(size/2)), i2f(xaxpos), i2f(y-(size/4)), color);
@@ -3145,7 +3145,7 @@ void show_mousefs_indicator(grs_canvas &canvas, int mx, int my, int mz, int x, i
 	auto &&hud_scale_ar = HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
 	auto &&hud_scale_ar2 = hud_scale_ar(2);
 	gr_uline(canvas, i2f(x + (size / 2) + hud_scale_ar2), i2f(y), i2f(x + (size / 2) + hud_scale_ar2), i2f(zaxpos), color);
-	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 }
 
 static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)

@@ -284,12 +284,12 @@ static void con_draw(void)
 	auto &game_font = *GAME_FONT;
 	gr_set_curfont(canvas, GAME_FONT);
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	gr_settransblend(canvas, 7, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, 7, gr_blend::normal);
 	const auto &&fspacy1 = FSPACY(1);
 	const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
 	y = fspacy1 + (line_spacing * con_size);
 	gr_rect(canvas, 0, 0, SWIDTH, y, color);
-	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 	i+=con_scroll_offset;
 
 	gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);

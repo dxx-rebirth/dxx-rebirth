@@ -343,7 +343,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 				   alt_textures );
 	}
 	else {
-		gr_settransblend(canvas, cloak_value, GR_BLEND_NORMAL);
+		gr_settransblend(canvas, cloak_value, gr_blend::normal);
 		g3_set_special_render(draw_tmap_flat);		//use special flat drawer
 		draw_polygon_model(canvas, obj.pos,
 				   obj.orient,
@@ -353,7 +353,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 				   &glow,
 				   alt_textures );
 		g3_set_special_render(draw_tmap);
-		gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
+		gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 	}
 
 }
@@ -484,7 +484,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 			bool draw_simple_model;
 			if (is_weapon_with_inner_model)
 			{
-				gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
+				gr_settransblend(canvas, GR_FADE_OFF, gr_blend::additive_a);
 				draw_simple_model = static_cast<fix>(vm_vec_dist_quick(Viewer->pos, obj->pos)) < Simple_model_threshhold_scale * F1_0*2;
 				if (draw_simple_model)
 					draw_polygon_model(canvas, obj->pos,
@@ -508,7 +508,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 			if (is_weapon_with_inner_model)
 			{
 #if !DXX_USE_OGL // in software rendering must draw inner model last
-				gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
+				gr_settransblend(canvas, GR_FADE_OFF, gr_blend::additive_a);
 				if (draw_simple_model)
 					draw_polygon_model(canvas, obj->pos,
 							   obj->orient,
@@ -519,7 +519,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 							   &engine_glow_value,
 							   alt_textures);
 #endif
-				gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
+				gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 			}
 			return;
 		}
@@ -708,7 +708,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 			if ( PlayerCfg.AlphaBlendMarkers && obj->type == OBJ_MARKER ) // set nice transparency/blending for certrain objects
 			{
 				alpha = true;
-				gr_settransblend(canvas, 10, GR_BLEND_ADDITIVE_A);
+				gr_settransblend(canvas, 10, gr_blend::additive_a);
 			}
 #endif
 			draw_polygon_object(canvas, LevelUniqueLightState, obj);
@@ -725,7 +725,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 			if (PlayerCfg.AlphaBlendFireballs) // set nice transparency/blending for certrain objects
 			{
 				alpha = true;
-				gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
+				gr_settransblend(canvas, GR_FADE_OFF, gr_blend::additive_c);
 			}
 
 			draw_fireball(Vclip, canvas, obj);
@@ -736,7 +736,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
                 )) // set nice transparency/blending for certain objects
 			{
 				alpha = true;
-				gr_settransblend(canvas, 7, GR_BLEND_ADDITIVE_A);
+				gr_settransblend(canvas, 7, gr_blend::additive_a);
 			}
 
 			draw_weapon_vclip(Vclip, Weapon_info, canvas, obj);
@@ -759,7 +759,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 					case POW_HOARD_ORB:
 #endif
 						alpha = true;
-						gr_settransblend(canvas, 7, GR_BLEND_ADDITIVE_A);
+						gr_settransblend(canvas, 7, gr_blend::additive_a);
 						break;
 					case POW_LASER:
 					case POW_KEY_BLUE:
@@ -812,7 +812,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 			if (PlayerCfg.AlphaBlendLasers) // set nice transparency/blending for certrain objects
 			{
 				alpha = true;
-				gr_settransblend(canvas, 7, GR_BLEND_ADDITIVE_A);
+				gr_settransblend(canvas, 7, gr_blend::additive_a);
 			}
 
 			Laser_render(canvas, obj);
@@ -823,7 +823,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 	}
 
 	if (alpha)
-		gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
+		gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal); // revert any transparency/blending setting back to normal
 
 	if ( obj->render_type != RT_NONE && Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_render_object(obj);

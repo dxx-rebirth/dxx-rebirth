@@ -187,10 +187,10 @@ static void show_netplayerinfo()
 	x = (SWIDTH / 2) - fspacx120;
 	y = (SHEIGHT / 2) - fspacy84;
 
-	gr_settransblend(canvas, 14, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, 14, gr_blend::normal);
 	const uint8_t color000 = BM_XRGB(0, 0, 0);
 	gr_rect(canvas, (SWIDTH / 2) - fspacx120, (SHEIGHT / 2) - fspacy84, (SWIDTH / 2) + fspacx120, (SHEIGHT / 2) + fspacy84, color000);
-	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 
 	// general game information
 	const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);

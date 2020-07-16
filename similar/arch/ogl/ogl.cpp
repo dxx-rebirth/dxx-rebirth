@@ -1233,15 +1233,15 @@ void ogl_set_blending(const gr_blend cv_blend_func)
 	GLenum s, d;
 	switch (cv_blend_func)
 	{
-		case GR_BLEND_ADDITIVE_A:
+		case gr_blend::additive_a:
 			s = GL_SRC_ALPHA;
 			d = GL_ONE;
 			break;
-		case GR_BLEND_ADDITIVE_C:
+		case gr_blend::additive_c:
 			s = GL_ONE;
 			d = GL_ONE;
 			break;
-		case GR_BLEND_NORMAL:
+		case gr_blend::normal:
 		default:
 			s = GL_SRC_ALPHA;
 			d = GL_ONE_MINUS_SRC_ALPHA;

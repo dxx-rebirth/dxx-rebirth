@@ -34,10 +34,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 constexpr auto TRANSPARENCY_COLOR = color_palette_index{255};            // palette entry of transparency color -- 255 on the PC
 #define GR_FADE_LEVELS       34u
 #define GR_FADE_OFF          GR_FADE_LEVELS // yes, max means OFF - don't screw that up
-enum gr_blend {
-	GR_BLEND_NORMAL,		// normal blending
-	GR_BLEND_ADDITIVE_A,	// additive alpha blending
-	GR_BLEND_ADDITIVE_C,	// additive color blending
+enum class gr_blend {
+	normal,		// normal blending
+	additive_a,	// additive alpha blending
+	additive_c,	// additive color blending
 };
 
 #define SWIDTH  (grd_curscreen->get_screen_width())

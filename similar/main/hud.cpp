@@ -250,10 +250,10 @@ void player_dead_message(grs_canvas &canvas)
 			x = (canvas.cv_bitmap.bm_w - w ) / 2;
 			y = (canvas.cv_bitmap.bm_h - h ) / 2;
 		
-			gr_settransblend(canvas, 14, GR_BLEND_NORMAL);
+			gr_settransblend(canvas, 14, gr_blend::normal);
 			const uint8_t color = BM_XRGB(0, 0, 0);
 			gr_rect(canvas, x, y, x + w, y + h, color);
-			gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
+			gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 		
 			gr_string(canvas, huge_font, 0x8000, (canvas.cv_bitmap.bm_h - h) / 2 + h / 8, TXT_GAME_OVER, gw, gh);
 		}
