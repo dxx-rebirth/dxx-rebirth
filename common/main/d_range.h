@@ -71,28 +71,24 @@ class xrange_extent :
 	using begin_type = xrange_endpoint<B, true>;
 	using end_type = xrange_endpoint<E, false>;
 	using iterator = xrange_iterator<index_type>;
-	static begin_type init_begin(B b, E e, std::true_type /* is_same<B, E> */)
+	static begin_type init_begin(B b, E e)
 	{
-		return (
+		if constexpr (std::is_convertible<E, B>::value)
+		{
 #ifdef DXX_CONSTANT_TRUE
-			/* Compile-time only check.  Runtime handles (b > e)
-			 * correctly, and it can happen in a correct program.  If it
-			 * is guaranteed to happen, then the range is always empty,
-			 * which likely indicates a bug.
-			 */
-			(DXX_CONSTANT_TRUE(!(b < e)) && (DXX_ALWAYS_ERROR_FUNCTION(xrange_is_always_empty, "begin never less than end"), 0)),
+			(DXX_CONSTANT_TRUE(!(b < e)) && (DXX_ALWAYS_ERROR_FUNCTION(xrange_is_always_empty, "begin never less than end"), 0));
 #endif
-			b < e ? std::move(b) : e
-		);
-	}
-	static begin_type init_begin(B b, E, std::false_type /* is_same<B, E> */)
-	{
-		return begin_type(b);
+			if (!(b < e))
+				return e;
+		}
+		else
+			(void)e;
+		return b;
 	}
 public:
 	using range_owns_iterated_storage = std::false_type;
 	xrange_extent(B b, E e) :
-		begin_type(init_begin(std::move(b), e, std::is_same<B, E>())), end_type(std::move(e))
+		begin_type(init_begin(std::move(b), e)), end_type(std::move(e))
 	{
 	}
 	iterator begin() const
