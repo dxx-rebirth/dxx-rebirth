@@ -267,8 +267,9 @@ static int gr_internal_string0_template(grs_canvas &canvas, const grs_font &cv_f
 
 				const unsigned letter = c - cv_font.ft_minchar;
 
-				if (masked_draws_background)
+				if constexpr (masked_draws_background)
 				{
+					(void)orig_color;
 					if (!INFONT(letter)) {	//not in font, draw as space
 						VideoOffset += spacing;
 						text_ptr++;
@@ -317,7 +318,7 @@ static int gr_internal_string0_template(grs_canvas &canvas, const grs_font &cv_f
 
 						const auto bit_enabled = (bits & 0x80);
 						bits <<= 1;
-						if (!masked_draws_background)
+						if constexpr (!masked_draws_background)
 						{
 							if (!bit_enabled)
 								continue;
@@ -1081,20 +1082,17 @@ void gr_set_curfont(grs_canvas &canvas, const grs_font *n)
 template <bool masked_draws_background>
 static int gr_internal_string_clipped_template(grs_canvas &canvas, const grs_font &cv_font, int x, int y, const char *const s)
 {
-	const char * text_ptr, * next_row, * text_ptr1;
 	int letter;
 	int x1 = x, last_x;
-
-	next_row = s;
 
 	const auto &&INFONT = font_character_extent(cv_font);
 	const auto ft_flags = cv_font.ft_flags;
 	const auto proportional = ft_flags & FT_PROPORTIONAL;
 	const auto cv_font_bg_color = canvas.cv_font_bg_color;
 
-	while (next_row != NULL )
+	for (auto next_row = s; next_row;)
 	{
-		text_ptr1 = next_row;
+		const auto text_ptr1 = next_row;
 		next_row = NULL;
 
 		x = x1;
@@ -1104,7 +1102,7 @@ static int gr_internal_string_clipped_template(grs_canvas &canvas, const grs_fon
 		last_x = x;
 
 		for (int r=0; r < cv_font.ft_h; r++) {
-			text_ptr = text_ptr1;
+			auto text_ptr = text_ptr1;
 			x = last_x;
 
 			for (; const uint8_t c0 = *text_ptr; ++text_ptr)
@@ -1171,7 +1169,7 @@ static int gr_internal_string_clipped_template(grs_canvas &canvas, const grs_fon
 						}
 						const auto bit_enabled = (bits & 0x80);
 						bits <<= 1;
-						if (masked_draws_background)
+						if constexpr (masked_draws_background)
 							color = bit_enabled ? cv_font_fg_color : cv_font_bg_color;
 						else
 						{
