@@ -85,7 +85,7 @@ public:
 };
 
 template <typename range_iterator_type, typename index_type>
-class enumerated_range : partial_range_t<range_iterator_type>
+class enumerate : partial_range_t<range_iterator_type>
 {
 	using base_type = partial_range_t<range_iterator_type>;
 	using iterator_dereference_type = decltype(*std::declval<range_iterator_type>());
@@ -96,14 +96,15 @@ class enumerated_range : partial_range_t<range_iterator_type>
 	const index_type m_idx;
 public:
 	using range_owns_iterated_storage = std::false_type;
-	enumerated_range(const range_iterator_type b, const range_iterator_type e, const index_type i) :
+	enumerate(const range_iterator_type b, const range_iterator_type e, const index_type i) :
 		base_type(b, e), m_idx(i)
 	{
 	}
 	template <typename range_type>
-		enumerated_range(range_type &&t, const index_type i) :
+		enumerate(range_type &&t, const index_type i = 0) :
 			base_type(t), m_idx(i)
 	{
+		static_assert(!any_ephemeral_range<range_type &&>::value, "cannot enumerate storage of ephemeral ranges");
 		static_assert(std::is_rvalue_reference<range_type &&>::value || std::is_lvalue_reference<iterator_dereference_type>::value, "lvalue range must produce lvalue reference enumerated_value");
 	}
 	enumerated_iterator_type begin() const
@@ -117,8 +118,4 @@ public:
 };
 
 template <typename range_type, typename index_type = uint_fast32_t, typename range_iterator_type = decltype(std::begin(std::declval<range_type &>()))>
-static auto enumerate(range_type &&r, const index_type start = 0)
-{
-	static_assert(!any_ephemeral_range<range_type &&>::value, "cannot enumerate storage of ephemeral ranges");
-	return enumerated_range<range_iterator_type, index_type>(std::forward<range_type>(r), start);
-}
+enumerate(range_type &&r, const index_type start = index_type(/* value ignored */)) -> enumerate<range_iterator_type, index_type>;
