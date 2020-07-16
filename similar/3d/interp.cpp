@@ -75,7 +75,7 @@ static inline int16_t w(const uint8_t *p)
 	return *wp(p);
 }
 
-static void rotate_point_list(const zipped_range<g3s_point * /* dest */, const vms_vector * /* src */> zr)
+static void rotate_point_list(const zip<g3s_point * /* dest */, const vms_vector * /* src */> zr)
 {
 	range_for (auto &&z, zr)
 	{

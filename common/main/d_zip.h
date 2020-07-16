@@ -117,15 +117,17 @@ public:
 };
 
 template <typename range0_iterator_type, typename... rangeN_iterator_type>
-class zipped_range : zip_iterator<range0_iterator_type, rangeN_iterator_type...>
+class zip : zip_iterator<range0_iterator_type, rangeN_iterator_type...>
 {
 	range0_iterator_type m_end;
 public:
 	using range_owns_iterated_storage = std::false_type;
 	using iterator = zip_iterator<range0_iterator_type, rangeN_iterator_type...>;
-	zipped_range(iterator &&i, range0_iterator_type &&e) :
-		iterator(std::move(i)), m_end(std::move(e))
+	template <typename range0, typename... rangeN>
+		zip(range0 &&r0, rangeN &&... rN) :
+			iterator(std::begin(r0), std::begin(rN)...), m_end(std::end(r0))
 	{
+		static_assert((!any_ephemeral_range<range0 &&, rangeN &&...>::value), "cannot zip storage of ephemeral ranges");
 	}
 	__attribute_warn_unused_result
 	iterator begin() const { return *this; }
@@ -137,11 +139,4 @@ public:
 };
 
 template <typename range0, typename... rangeN>
-static auto zip(range0 &&r0, rangeN &&... rN)
-{
-	using std::begin;
-	using std::end;
-	using R = zipped_range<decltype(begin(r0)), decltype(begin(rN))...>;
-	static_assert((!any_ephemeral_range<range0 &&, rangeN &&...>::value), "cannot zip storage of ephemeral ranges");
-	return R(typename R::iterator(begin(r0), begin(rN)...), end(r0));
-}
+zip(range0 &&r0, rangeN &&... rN) -> zip<decltype(std::begin(r0)), decltype(std::begin(rN))...>;
