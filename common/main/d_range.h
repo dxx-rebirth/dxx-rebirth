@@ -108,7 +108,7 @@ public:
  * kept because it is easier to find with grep.
  */
 template <typename index_type, typename B = index_type, typename E = index_type>
-class xrange_extent :
+class xrange :
 	public xrange_endpoint<B, true>,
 	public xrange_endpoint<E, false>
 {
@@ -138,11 +138,11 @@ class xrange_extent :
 	}
 public:
 	using range_owns_iterated_storage = std::false_type;
-	xrange_extent(B b, E e) :
+	xrange(B b, E e) :
 		begin_type(init_begin(std::move(b), e)), end_type(std::move(e))
 	{
 	}
-	xrange_extent(E e) :
+	xrange(E e) :
 		begin_type(), end_type(e)
 	{
 		static_assert(detail::xrange_is_unsigned<E>::value, "xrange(E) requires unsigned E; use xrange(B, E) if E must be signed");
@@ -164,26 +164,24 @@ public:
  * the next overload down instead.
  */
 template <typename Tb, typename Te, typename std::enable_if<!std::is_const<Te>::value, int>::type = 0>
-xrange_extent(Tb &&b, Te &e) -> xrange_extent<Tb, Tb, Te &>;	// provokes a static_assert failure in the constructor
+xrange(Tb &&b, Te &e) -> xrange<Tb, Tb, Te &>;	// provokes a static_assert failure in the constructor
 
 template <typename Tb, typename Te>
-xrange_extent(Tb &&b, Te &&e) -> xrange_extent<
+xrange(Tb &&b, Te &&e) -> xrange<
 	typename std::common_type<Tb, Te>::type,
 	typename std::remove_const<typename std::remove_reference<Tb>::type>::type,
 	typename std::remove_const<typename std::remove_reference<Te>::type>::type
 	>;
 
 template <typename Te>
-xrange_extent(const Te &) -> xrange_extent<Te, std::integral_constant<typename std::common_type<Te, unsigned>::type, 0u>>;
+xrange(const Te &) -> xrange<Te, std::integral_constant<typename std::common_type<Te, unsigned>::type, 0u>>;
 
 template <typename Te>
-xrange_extent(Te &) -> xrange_extent<
+xrange(Te &) -> xrange<
 	Te,
 	std::integral_constant<typename std::common_type<typename std::remove_const<Te>::type, unsigned>::type, 0u>,
 	Te &
 	>;
 
 template <typename Te, Te e>
-xrange_extent(std::integral_constant<Te, e>) -> xrange_extent<Te, std::integral_constant<Te, Te(0)>, std::integral_constant<Te, e>>;
-
-#define xrange xrange_extent
+xrange(std::integral_constant<Te, e>) -> xrange<Te, std::integral_constant<Te, Te(0)>, std::integral_constant<Te, e>>;
