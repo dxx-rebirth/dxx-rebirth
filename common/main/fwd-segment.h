@@ -87,7 +87,7 @@ constexpr std::integral_constant<std::size_t, MAX_SEGMENT_VERTICES> MAX_VERTICES
 #endif
 
 struct uvl;
-enum side_type : uint8_t;
+enum class side_type : uint8_t;
 
 using wallnum_t = uint16_t;
 struct shared_side;

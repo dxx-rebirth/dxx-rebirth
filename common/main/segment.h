@@ -64,11 +64,11 @@ struct uvl
 	fix u, v, l;
 };
 
-enum side_type : uint8_t
+enum class side_type : uint8_t
 {
-	SIDE_IS_QUAD = 1,		// render side as quadrilateral
-	SIDE_IS_TRI_02 = 2,	// render side as two triangles, triangulated along edge from 0 to 2
-	SIDE_IS_TRI_13 = 3,	 // render side as two triangles, triangulated along edge from 1 to 3
+	quad = 1,	// render side as quadrilateral
+	tri_02 = 2,	// render side as two triangles, triangulated along edge from 0 to 2
+	tri_13 = 3,	// render side as two triangles, triangulated along edge from 1 to 3
 };
 
 #if 0
@@ -144,7 +144,6 @@ struct shared_side
 	side_type m_type;           // replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
 	const side_type &get_type() const { return m_type; }
 	void set_type(side_type t) { m_type = t; }
-	inline void set_type(unsigned t);
 	wallnum_t wall_num;
 	std::array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
 };
@@ -274,20 +273,6 @@ struct shared_side::illegal_type : std::runtime_error
 	{
 	}
 };
-
-void shared_side::set_type(const unsigned t)
-{
-	switch (t)
-	{
-		case SIDE_IS_QUAD:
-		case SIDE_IS_TRI_02:
-		case SIDE_IS_TRI_13:
-			set_type(static_cast<side_type>(t));
-			break;
-		default:
-			throw illegal_type(*this);
-	}
-}
 
 namespace dsx {
 

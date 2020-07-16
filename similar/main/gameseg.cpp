@@ -158,10 +158,10 @@ bool get_side_is_quad(const shared_side &sidep)
 {
 	switch (sidep.get_type())
 	{
-		case SIDE_IS_QUAD:	
+		case side_type::quad:
 			return true;
-		case SIDE_IS_TRI_02:
-		case SIDE_IS_TRI_13:	
+		case side_type::tri_02:
+		case side_type::tri_13:
 			return false;
 		default:
 			throw shared_side::illegal_type(sidep);
@@ -196,7 +196,7 @@ template <typename T, typename V>
 static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment &segp, const shared_side &sidep, const V &&f0, const V &&f1, const V &&f2, const V &&f3)
 {
 	const auto type = sidep.get_type();
-	if (type == SIDE_IS_TRI_13)
+	if (type == side_type::tri_13)
 	{
 		va[0] = va[5] = f3;
 		va[1] = f0;
@@ -209,7 +209,7 @@ static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment
 	va[2] = f2;
 	switch (type)
 	{
-		case SIDE_IS_QUAD:
+		case side_type::quad:
 			va[3] = f3;
 			/* Unused, but required to prevent bogus
 			 * -Wmaybe-uninitialized in check_segment_connections
@@ -217,7 +217,7 @@ static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment
 			va[4] = va[5] = {};
 			DXX_MAKE_MEM_UNDEFINED(&va[4], 2 * sizeof(va[4]));
 			return 1;
-		case SIDE_IS_TRI_02:
+		case side_type::tri_02:
 			va[3] = f2;
 			va[4] = f3;
 			va[5] = f0;
@@ -476,6 +476,24 @@ static int check_norms(const shared_segment &segp, const unsigned sidenum, const
 	else
 		return 0;
 }
+
+static void invert_shared_side_triangle_type(shared_side &s)
+{
+	const auto t = s.get_type();
+	side_type nt;
+	switch (t)
+	{
+		case side_type::tri_02:
+			nt = side_type::tri_13;
+			break;
+		case side_type::tri_13:
+			nt = side_type::tri_02;
+			break;
+		default:
+			return;
+	}
+	s.set_type(nt);
+}
 #endif
 
 //heavy-duty error checking
@@ -544,7 +562,7 @@ int check_segment_connections(void)
 								 vertex_list[3] != con_vertex_list[5] ||
 								 vertex_list[5] != con_vertex_list[3]) {
 								auto &cside = vmsegptr(csegnum)->shared_segment::sides[csidenum];
-								cside.set_type(5 - cside.get_type());
+								invert_shared_side_triangle_type(cside);
 							} else {
 								errors |= check_norms(seg,sidenum,0,cseg,csidenum,0);
 								errors |= check_norms(seg,sidenum,1,cseg,csidenum,1);
@@ -559,7 +577,7 @@ int check_segment_connections(void)
 								 vertex_list[2] != con_vertex_list[3] ||
 								 vertex_list[3] != con_vertex_list[2]) {
 								auto &cside = vmsegptr(csegnum)->shared_segment::sides[csidenum];
-								cside.set_type(5 - cside.get_type());
+								invert_shared_side_triangle_type(cside);
 							} else {
 								errors |= check_norms(seg,sidenum,0,cseg,csidenum,1);
 								errors |= check_norms(seg,sidenum,1,cseg,csidenum,0);
@@ -1244,7 +1262,7 @@ static unsigned check_for_degenerate_segment(fvcvertptr &vcvertptr, const shared
 
 static void add_side_as_quad(shared_side &sidep, const vms_vector &normal)
 {
-	sidep.set_type(SIDE_IS_QUAD);
+	sidep.set_type(side_type::quad);
 	sidep.normals[0] = normal;
 	sidep.normals[1] = normal;
 	//	If there is a connection here, we only formed the faces for the purpose of determining segment boundaries,
@@ -1333,7 +1351,7 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 
 		const vertex *n0v3, *n1v1;
 		//	Now, signifiy whether to triangulate from 0:2 or 1:3
-		sidep->set_type(dot >= 0 ? (n0v3 = &vvs2, n1v1 = &vvs0, SIDE_IS_TRI_02) : (n0v3 = &vvs3, n1v1 = &vvs1, SIDE_IS_TRI_13));
+		sidep->set_type(dot >= 0 ? (n0v3 = &vvs2, n1v1 = &vvs0, side_type::tri_02) : (n0v3 = &vvs3, n1v1 = &vvs1, side_type::tri_13));
 
 		//	Now, based on triangulation type, set the normals.
 		vm_vec_normal(sidep->normals[0], vvs0, vvs1, *n0v3);
@@ -1350,12 +1368,12 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 
 		unsigned s0v2, s1v0;
 		if ((vsorted[0] == v[0]) || (vsorted[0] == v[2])) {
-			sidep->set_type(SIDE_IS_TRI_02);
+			sidep->set_type(side_type::tri_02);
 			//	Now, get vertices for normal for each triangle based on triangulation type.
 			s0v2 = v[2];
 			s1v0 = v[0];
 		} else {
-			sidep->set_type(SIDE_IS_TRI_13);
+			sidep->set_type(side_type::tri_13);
 			//	Now, get vertices for normal for each triangle based on triangulation type.
 			s0v2 = v[3];
 			s1v0 = v[1];
