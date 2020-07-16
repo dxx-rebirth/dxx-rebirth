@@ -1013,10 +1013,11 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 		std::array<uint8_t, 256> colormap;
 		/* `freq` exists so that decode_data can write to it, but it is
 		 * otherwise unused.  `decode_data` is not guaranteed to write
-		 * to every element, so `freq` must not be read without first
-		 * adding an initialization step.
+		 * to every element, but the bitset constructor will initialize
+		 * the storage, so reading unwritten fields will always return
+		 * false.
 		 */
-		std::array<bool, 256> freq;
+		std::bitset<256> freq;
 
 		PHYSFS_read(fontfile,&palette[0],sizeof(palette[0]),palette.size());		//read the palette
 

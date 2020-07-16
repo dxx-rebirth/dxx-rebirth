@@ -11,10 +11,11 @@
 #ifdef __cplusplus
 #include "palette.h"
 #include <array>
+#include <bitset>
 
 namespace dcx {
 void build_colormap_good(const palette_array_t &palette, std::array<color_t, 256> &colormap);
-void decode_data(ubyte *data, uint_fast32_t num_pixels, std::array<color_t, 256> &colormap, std::array<bool, 256> &used);
+void decode_data(uint8_t *data, uint_fast32_t num_pixels, std::array<color_t, 256> &colormap, std::bitset<256> &used);
 }
 
 #endif
