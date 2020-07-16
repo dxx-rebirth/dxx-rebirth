@@ -18,17 +18,5 @@ typename std::remove_reference<T>::type::range_owns_iterated_storage is_ephemera
 
 }
 
-template <typename...>
-struct any_ephemeral_range : std::false_type
-{
-};
-
-template <typename T1>
-struct any_ephemeral_range<T1> : decltype(detail::is_ephemeral_range<T1>(nullptr))
-{
-};
-
-template <typename T1, typename... Tn>
-struct any_ephemeral_range<T1, Tn...> : std::conditional<any_ephemeral_range<T1>::value, std::true_type, any_ephemeral_range<Tn...>>::type
-{
-};
+template <typename... Tn>
+using any_ephemeral_range = std::disjunction<decltype(detail::is_ephemeral_range<Tn>(nullptr))...>;
