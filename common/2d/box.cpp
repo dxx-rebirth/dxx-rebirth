@@ -26,13 +26,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-static void gr_ubox0(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const uint8_t color)
+static void gr_ubox0(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const color_palette_index color)
 {
 	int d;
-	unsigned char * ptr2;
 	const auto rowsize = canvas.cv_bitmap.bm_rowsize;
 	const auto ptr1 = &canvas.cv_bitmap.get_bitmap_data()[rowsize * top + left];
-	ptr2 = ptr1;
+	auto ptr2 = ptr1;
 	d = right - left;
 
 	std::fill_n(ptr1 + 1, (right - left) - 1, color);
@@ -45,7 +44,7 @@ static void gr_ubox0(grs_canvas &canvas, const int left, const int top, const in
 	std::fill_n(ptr2 + 1, (right - left) - 1, color);
 }
 
-static void gr_ubox12(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const uint8_t color)
+static void gr_ubox12(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const color_palette_index color)
 {
 	gr_uline(canvas, i2f(left), i2f(top), i2f(right), i2f(top), color);
 	gr_uline(canvas, i2f(right), i2f(top), i2f(right), i2f(bot), color);
@@ -54,7 +53,7 @@ static void gr_ubox12(grs_canvas &canvas, const int left, const int top, const i
 }
 
 #if DXX_USE_EDITOR
-static void gr_box0(grs_canvas &canvas, const uint_fast32_t left, const uint_fast32_t top, uint_fast32_t right, uint_fast32_t bot, const uint8_t color)
+static void gr_box0(grs_canvas &canvas, const uint_fast32_t left, const uint_fast32_t top, uint_fast32_t right, uint_fast32_t bot, const color_palette_index color)
 {
 	const auto maxy = canvas.cv_bitmap.bm_h - 1;
 	if (top > maxy)
@@ -69,7 +68,7 @@ static void gr_box0(grs_canvas &canvas, const uint_fast32_t left, const uint_fas
 	gr_ubox0(canvas, left, top, right, bot, color);
 }
 
-static void gr_box12(grs_canvas &canvas, const uint_fast32_t left, const uint_fast32_t top, uint_fast32_t right, uint_fast32_t bot, const uint8_t color)
+static void gr_box12(grs_canvas &canvas, const uint_fast32_t left, const uint_fast32_t top, uint_fast32_t right, uint_fast32_t bot, const color_palette_index color)
 {
 	const auto maxy = canvas.cv_bitmap.bm_h - 1;
 	if (top > maxy)
@@ -85,7 +84,7 @@ static void gr_box12(grs_canvas &canvas, const uint_fast32_t left, const uint_fa
 }
 #endif
 
-void gr_ubox(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const uint8_t color)
+void gr_ubox(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const color_palette_index color)
 {
 	if (canvas.cv_bitmap.get_type() == bm_mode::linear)
 		gr_ubox0(canvas, left, top, right, bot, color);
@@ -94,7 +93,7 @@ void gr_ubox(grs_canvas &canvas, const int left, const int top, const int right,
 }
 
 #if DXX_USE_EDITOR
-void gr_box(grs_canvas &canvas, const uint_fast32_t left, const uint_fast32_t top, const uint_fast32_t right, const uint_fast32_t bot, const uint8_t color)
+void gr_box(grs_canvas &canvas, const uint_fast32_t left, const uint_fast32_t top, const uint_fast32_t right, const uint_fast32_t bot, const color_palette_index color)
 {
 	if (canvas.cv_bitmap.get_type() == bm_mode::linear)
 		gr_box0(canvas, left, top, right, bot, color);

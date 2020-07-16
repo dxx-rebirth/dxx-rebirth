@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-unsigned char gr_ugpixel(const grs_bitmap &bitmap, int x, int y)
+color_palette_index gr_ugpixel(const grs_bitmap &bitmap, int x, int y)
 {
 	switch (bitmap.get_type())
 	{
@@ -37,14 +37,13 @@ unsigned char gr_ugpixel(const grs_bitmap &bitmap, int x, int y)
 			return ogl_ugpixel(bitmap, x, y);
 #endif
 	}
-	
-	return 0;
+	return color_palette_index{0};
 }
 
-unsigned char gr_gpixel(const grs_bitmap &bitmap, const unsigned x, const unsigned y)
+color_palette_index gr_gpixel(const grs_bitmap &bitmap, const unsigned x, const unsigned y)
 {
 	if (x >= bitmap.bm_w || y >= bitmap.bm_h)
-		return 0;
+		return color_palette_index{0};
 	return gr_ugpixel(bitmap, x, y);
 }
 

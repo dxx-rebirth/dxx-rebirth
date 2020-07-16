@@ -122,7 +122,7 @@ static inline void gr_for_each_bitmap_byte(grs_canvas &canvas, const uint_fast32
 
 static void gr_ubitmap012(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm)
 {
-	const auto a = [](grs_canvas &cv, const uint8_t *const src, const uint_fast32_t px, const uint_fast32_t py) {
+	const auto a = [](grs_canvas &cv, const color_palette_index *const src, const uint_fast32_t px, const uint_fast32_t py) {
 		const auto color = *src;
 		gr_upixel(cv.cv_bitmap, px, py, color);
 	};
@@ -132,7 +132,7 @@ static void gr_ubitmap012(grs_canvas &canvas, const unsigned x, const unsigned y
 #if !DXX_USE_OGL
 static void gr_ubitmap012m(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm)
 {
-	const auto a = [](grs_canvas &cv, const uint8_t *const src, const uint_fast32_t px, const uint_fast32_t py) {
+	const auto a = [](grs_canvas &cv, const color_palette_index *const src, const uint_fast32_t px, const uint_fast32_t py) {
 		const uint8_t c = *src;
 		if (c != 255)
 		{
@@ -167,7 +167,8 @@ static void gr_ubitmapGENERICm(grs_canvas &canvas, const unsigned x, const unsig
 		range_for (const uint_fast32_t x1, xrange(bm_w))
 		{
 			const auto c = gr_gpixel(bm,x1,y1);
-			if ( c != 255 )	{
+			if (c != TRANSPARENCY_COLOR)
+			{
 				gr_upixel(canvas.cv_bitmap, x + x1, y + y1, c);
 			}
 		}
@@ -517,7 +518,7 @@ void gr_bitblt_find_transparent_area(const grs_bitmap &bm, unsigned &minx, unsig
 	maxy = 0;
 
 	unsigned i = 0, count = 0;
-	auto check = [&](unsigned x, unsigned y, ubyte c) {
+	auto check = [&](unsigned x, unsigned y, const color_palette_index c) {
 		if (c == TRANSPARENCY_COLOR) {				// don't look for transparancy color here.
 			count++;
 			minx = min(x, minx);

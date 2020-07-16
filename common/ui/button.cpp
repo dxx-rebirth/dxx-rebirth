@@ -62,7 +62,7 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 		ui_button_any_drawn = 1;
 		gr_set_current_canvas( button->canvas );
 		auto &canvas = *grd_curcanv;
-		color_t color = 0;
+		color_palette_index color{0};
 
 		gr_set_fontcolor(canvas, dlg->keyboard_focus_gadget == button
 			? CRED

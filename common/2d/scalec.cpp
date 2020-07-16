@@ -38,7 +38,7 @@ static int scale_whole_step;
 static void rls_stretch_scanline_setup( int XDelta, int YDelta );
 static void rls_stretch_scanline(const uint8_t *, uint8_t *);
 
-static void decode_row(const grs_bitmap &bmp, std::array<ubyte, 640> &scale_rle_data, const uint_fast32_t y)
+static void decode_row(const grs_bitmap &bmp, std::array<color_palette_index, 640> &scale_rle_data, const uint_fast32_t y)
 {
 	int offset=4+bmp.bm_h;
 
@@ -101,7 +101,7 @@ static void scale_up_bitmap_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_b
 
 	v = v0;
 
-	std::array<ubyte, 640> scale_rle_data;
+	std::array<color_palette_index, 640> scale_rle_data;
 	for (int y=y0; y<=y1; y++ ) {
 		if ( f2i(v) != last_row )	{
 			last_row = f2i(v);
@@ -157,22 +157,21 @@ static void rls_stretch_scanline_setup( int XDelta, int YDelta )
 
 }
 
-static void rls_stretch_scanline(const uint8_t *scale_source_ptr, uint8_t *scale_dest_ptr)
+static void rls_stretch_scanline(const color_palette_index *scale_source_ptr, color_palette_index *scale_dest_ptr)
 {
-	uint8_t *dest_ptr;
 	int ErrorTerm, initial_count, final_count;
 
 	// Draw the first, partial run of pixels
 
 	auto src_ptr = scale_source_ptr;
-	dest_ptr = scale_dest_ptr;
+	auto dest_ptr = scale_dest_ptr;
 	ErrorTerm = scale_error_term;
 	initial_count = scale_initial_pixel_count;
 	final_count = scale_final_pixel_count;
 
 	const auto process_line = [&dest_ptr, &src_ptr](const unsigned len)
 	{
-		const uint8_t c = *src_ptr++;
+		const auto c = *src_ptr++;
 		if (c != TRANSPARENCY_COLOR)
 			std::fill_n(dest_ptr, len, c);
 		dest_ptr += len;
@@ -236,10 +235,9 @@ static void scale_bitmap_c(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, i
 	}
 }
 
-static void scale_row_transparent(const std::array<ubyte, 640> &sbits, ubyte * dbits, int width, fix u, fix du )
+static void scale_row_transparent(const std::array<ubyte, 640> &sbits, color_palette_index *dbits, int width, fix u, fix du )
 {
-	ubyte c;
-	uint8_t *dbits_end = &dbits[width-1];
+	const auto dbits_end = &dbits[width-1];
 
 	if ( du < F1_0 )	{
 		// Scaling up.
@@ -247,7 +245,7 @@ static void scale_row_transparent(const std::array<ubyte, 640> &sbits, ubyte * d
 		int next_u_int;
 
 		next_u_int = f2i(u)+1;
-		c = sbits[ next_u_int ];
+		auto c = sbits[next_u_int];
 		next_u = i2f(next_u_int);
 		if ( c != TRANSPARENCY_COLOR ) goto NonTransparent;
 
@@ -283,7 +281,7 @@ NonTransparent:
 
 	} else {
 		for ( int i=0; i<width; i++ ) {
-			c = sbits[ f2i(u) ];
+			const auto c = sbits[ f2i(u) ];
 
 			if ( c != TRANSPARENCY_COLOR )
 				*dbits = c;

@@ -111,13 +111,13 @@ static void draw_seg_objects(grs_canvas &canvas, const unique_segment &seg)
 #define draw_segment(C,S,c)	draw_segment(S,c)
 #define draw_listed_segments(C,S,c)	draw_listed_segments(S,c)
 #endif
-static void draw_line(grs_canvas &canvas, const unsigned pnum0, const unsigned pnum1, const uint8_t color)
+static void draw_line(grs_canvas &canvas, const unsigned pnum0, const unsigned pnum1, const color_palette_index color)
 {
 	g3_draw_line(canvas, Segment_points[pnum0], Segment_points[pnum1], color);
 }
 
 // ----------------------------------------------------------------------------
-static void draw_segment(grs_canvas &canvas, const shared_segment &seg, const uint8_t color)
+static void draw_segment(grs_canvas &canvas, const shared_segment &seg, const color_palette_index color)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -187,7 +187,7 @@ static void check_segment(const vmsegptridx_t seg)
 }
 
 // ----------------------------------------------------------------------------
-static void draw_seg_side(const shared_segment &seg, const unsigned side, const uint8_t color)
+static void draw_seg_side(const shared_segment &seg, const unsigned side, const color_palette_index color)
 {
 	auto &svp = seg.verts;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -205,7 +205,7 @@ static void draw_seg_side(const shared_segment &seg, const unsigned side, const 
 	}
 }
 
-static void draw_side_edge(const shared_segment &seg, const unsigned side, const unsigned edge, const uint8_t color)
+static void draw_side_edge(const shared_segment &seg, const unsigned side, const unsigned edge, const color_palette_index color)
 {
 	auto &svp = seg.verts;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -237,7 +237,7 @@ static
 #if defined(DXX_BUILD_DESCENT_I)
 const
 #endif
-std::array<color_t, 3> edge_colors{{54, 59, 64}};
+std::array<color_palette_index, 3> edge_colors{{54, 59, 64}};
 
 namespace {
 
@@ -447,7 +447,7 @@ static void add_edges(const shared_segment &seg)
 }
 
 // ----------------------------------------------------------------------------
-static void draw_trigger_side(const shared_segment &seg, const unsigned side, const uint8_t color)
+static void draw_trigger_side(const shared_segment &seg, const unsigned side, const color_palette_index color)
 {
 	auto &svp = seg.verts;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -462,7 +462,7 @@ static void draw_trigger_side(const shared_segment &seg, const unsigned side, co
 }
 
 // ----------------------------------------------------------------------------
-static void draw_wall_side(const shared_segment &seg, const unsigned side, const uint8_t color)
+static void draw_wall_side(const shared_segment &seg, const unsigned side, const color_palette_index color)
 {
 	auto &svp = seg.verts;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -781,7 +781,7 @@ static void draw_coordinate_axes(void)
 
 	rotate_list(vcvertptr, Axes_verts);
 
-	const uint8_t color = AXIS_COLOR;
+	const color_palette_index color = AXIS_COLOR;
 
 	draw_line(*grd_curcanv, Axes_verts[0], Axes_verts[1], color);
 	draw_line(*grd_curcanv, Axes_verts[0], Axes_verts[2], color);

@@ -275,8 +275,7 @@ void gr_palette_load( palette_array_t &pal )
 	std::array<SDL_Color, 256> colors{};
 	for (int i = 0, j = 0; j < 256; j++)
 	{
-		int c;
-		c = gr_find_closest_color(gamma[gr_palette[j].r],gamma[gr_palette[j].g],gamma[gr_palette[j].b]);
+		const auto c = gr_find_closest_color(gamma[gr_palette[j].r], gamma[gr_palette[j].g], gamma[gr_palette[j].b]);
 		gr_fade_table[14][j] = c;
 		colors[j].r = (min(gr_current_pal[i].r + gr_palette_gamma, 63)) * 4;
 		colors[j].g = (min(gr_current_pal[i].g + gr_palette_gamma, 63)) * 4;

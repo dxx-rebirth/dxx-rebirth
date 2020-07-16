@@ -51,18 +51,18 @@ static inline int IS_RLE_CODE(const uint8_t &x)
 }
 #define rle_stosb(_dest, _len, _color)	memset(_dest,_color,_len)
 
-uint8_t *gr_rle_decode(const uint8_t *sb, uint8_t *db, const rle_position_t e)
+uint8_t *gr_rle_decode(const color_palette_index *sb, color_palette_index *db, const rle_position_t e)
 {
 	using std::advance;
 	using std::distance;
 	for (; sb != e.src;)
 	{
-		const uint8_t *p = sb;
-		uint8_t c;
+		auto p = sb;
+		color_palette_index c;
 		for (; c = *p, !IS_RLE_CODE(c);)
 			if (++p == e.src)
 				return db;
-		size_t count = (c & NOT_RLE_CODE);
+		const size_t count = (c & NOT_RLE_CODE);
 		const size_t cn = std::min<size_t>(distance(sb, p), distance(db, e.dst));
 		memcpy(db, sb, cn);
 		advance(db, cn);
@@ -559,31 +559,32 @@ void rle_swap_0_255(grs_bitmap &bmp)
 /*
  * remaps all entries using colormap in an RLE bitmap without uncompressing it
  */
-void rle_remap(grs_bitmap &bmp, std::array<color_t, 256> &colormap)
+void rle_remap(grs_bitmap &bmp, std::array<color_palette_index, 256> &colormap)
 {
 	int len, rle_big;
-	unsigned char *start;
 	unsigned short line_size;
 
 	rle_big = bmp.get_flag_mask(BM_FLAG_RLE_BIG);
 
-	RAIIdmem<uint8_t[]> temp;
-	MALLOC(temp, uint8_t[], MAX_BMP_SIZE(bmp.bm_w, bmp.bm_h) + 30000);
+	RAIIdmem<color_palette_index[]> temp;
+	MALLOC(temp, color_palette_index[], MAX_BMP_SIZE(bmp.bm_w, bmp.bm_h) + 30000);
 
 	const std::size_t pointer_offset = rle_big ? 4 + 2 * bmp.bm_h : 4 + bmp.bm_h;
 	auto ptr = &bmp.get_bitmap_data()[pointer_offset];
 	auto ptr2 = &temp[pointer_offset];
 	for (int i = 0; i < bmp.bm_h; i++) {
-		start = ptr2;
+		auto start = ptr2;
 		if (rle_big)
 			line_size = GET_INTEL_SHORT(&bmp.get_bitmap_data()[4 + 2 * i]);
 		else
 			line_size = bmp.get_bitmap_data()[4 + i];
 		for (int j = 0; j < line_size; j++) {
-			if ( ! IS_RLE_CODE(ptr[j])) {
-				if (IS_RLE_CODE(colormap[ptr[j]])) 
-					*ptr2++ = RLE_CODE | 1; // add "escape sequence"
-				*ptr2++ = colormap[ptr[j]]; // translate
+			const uint8_t v = ptr[j];
+			if (!IS_RLE_CODE(v))
+			{
+				if (IS_RLE_CODE(colormap[v])) 
+					*ptr2++ = color_palette_index{RLE_CODE | 1}; // add "escape sequence"
+				*ptr2++ = colormap[v]; // translate
 			} else {
 				*ptr2++ = ptr[j]; // just copy current rle code
 				if ((ptr[j] & NOT_RLE_CODE) == 0)

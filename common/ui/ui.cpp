@@ -39,7 +39,7 @@ namespace dcx {
 
 static int Initialized = 0;
 
-unsigned char CBLACK,CGREY,CWHITE,CBRIGHT,CRED;
+color_palette_index CBLACK, CGREY, CWHITE, CBRIGHT, CRED;
 
 grs_font_ptr ui_small_font;
 

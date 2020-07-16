@@ -1214,7 +1214,7 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 //should figure out what's going on.
 
 #if defined(DXX_BUILD_DESCENT_I)
-	return (gr_gpixel (*bm, bmx, bmy) == 255);
+	return (gr_gpixel (*bm, bmx, bmy) == TRANSPARENCY_COLOR);
 #elif defined(DXX_BUILD_DESCENT_II)
 	return (bm->bm_data[bmy*bm->bm_w+bmx] == TRANSPARENCY_COLOR);
 #endif

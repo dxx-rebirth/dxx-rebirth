@@ -620,7 +620,7 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 			}
 
 #if defined(DXX_BUILD_DESCENT_I)
-			if (gr_gpixel (*bm, x, y) != 255)
+			if (gr_gpixel (*bm, x, y) != TRANSPARENCY_COLOR)
 #elif defined(DXX_BUILD_DESCENT_II)
 			if (force_blowup_flag || (bm->bm_data[y*bm->bm_w+x] != TRANSPARENCY_COLOR))
 #endif

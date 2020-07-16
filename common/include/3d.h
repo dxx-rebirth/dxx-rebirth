@@ -34,8 +34,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-gr.h"
 #include <array>
 
-struct grs_bitmap;
-
 #if DXX_USE_EDITOR
 namespace dcx {
 extern int g3d_interp_outline;      //if on, polygon models outlined in white

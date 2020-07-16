@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 
 // some defines for transparency and blending
-constexpr uint8_t TRANSPARENCY_COLOR = 255;            // palette entry of transparency color -- 255 on the PC
+constexpr auto TRANSPARENCY_COLOR = color_palette_index{255};            // palette entry of transparency color -- 255 on the PC
 #define GR_FADE_LEVELS       34u
 #define GR_FADE_OFF          GR_FADE_LEVELS // yes, max means OFF - don't screw that up
 enum gr_blend {
@@ -206,16 +206,16 @@ namespace dcx {
 void gr_settransblend(grs_canvas &, int fade_level, gr_blend blend_func);
 
 // Draws a point into the current canvas in the current color and drawmode.
-void gr_pixel(grs_bitmap &, unsigned x, unsigned y, uint8_t color);
-void gr_upixel(grs_bitmap &, unsigned x, unsigned y, uint8_t color);
+void gr_pixel(grs_bitmap &, unsigned x, unsigned y, color_palette_index color);
+void gr_upixel(grs_bitmap &, unsigned x, unsigned y, color_palette_index color);
 
 // Gets a pixel;
-unsigned char gr_gpixel(const grs_bitmap &bitmap, unsigned x, unsigned y);
-unsigned char gr_ugpixel(const grs_bitmap &bitmap, int x, int y);
+color_palette_index gr_gpixel(const grs_bitmap &bitmap, unsigned x, unsigned y);
+color_palette_index gr_ugpixel(const grs_bitmap &bitmap, int x, int y);
 
 // Draws a line into the current canvas in the current color and drawmode.
-void gr_line(grs_canvas &, fix x0,fix y0,fix x1,fix y1, uint8_t color);
-void gr_uline(grs_canvas &canvas, fix x0,fix y0,fix x1,fix y1, uint8_t color);
+void gr_line(grs_canvas &, fix x0,fix y0,fix x1,fix y1, color_palette_index color);
+void gr_uline(grs_canvas &canvas, fix x0,fix y0,fix x1,fix y1, color_palette_index color);
 
 // Draw the bitmap into the current canvas at the specified location.
 void gr_bitmap(grs_canvas &, unsigned x,unsigned y,grs_bitmap &bm);
@@ -232,24 +232,24 @@ void gr_ubitmapm(grs_canvas &, unsigned x, unsigned y, grs_bitmap &bm);
 #endif
 
 // Draw a rectangle into the current canvas.
-void gr_rect(grs_canvas &, int left,int top,int right,int bot, uint8_t color);
-void gr_urect(grs_canvas &, int left,int top,int right,int bot, uint8_t color);
+void gr_rect(grs_canvas &, int left,int top,int right,int bot, color_palette_index color);
+void gr_urect(grs_canvas &, int left,int top,int right,int bot, color_palette_index color);
 
 // Draw a filled circle
-int gr_disk(grs_canvas &, fix x,fix y,fix r, uint8_t color);
+int gr_disk(grs_canvas &, fix x,fix y,fix r, color_palette_index color);
 
 // Draw an outline circle
-int gr_ucircle(grs_canvas &, fix x,fix y,fix r, uint8_t color);
+int gr_ucircle(grs_canvas &, fix x,fix y,fix r, color_palette_index color);
 
 // Draw an unfilled rectangle into the current canvas
 #if DXX_USE_EDITOR
-void gr_box(grs_canvas &, uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot, uint8_t color);
+void gr_box(grs_canvas &, uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot, color_palette_index color);
 #endif
-void gr_ubox(grs_canvas &, int left,int top,int right,int bot, uint8_t color);
+void gr_ubox(grs_canvas &, int left,int top,int right,int bot, color_palette_index color);
 
-void gr_scanline(grs_canvas &canvas, int x1, int x2, unsigned y, uint8_t color);
+void gr_scanline(grs_canvas &canvas, int x1, int x2, unsigned y, color_palette_index color);
 #if !DXX_USE_OGL
-void gr_uscanline(grs_canvas &canvas, unsigned x1, unsigned x2, unsigned y, uint8_t color);
+void gr_uscanline(grs_canvas &canvas, unsigned x1, unsigned x2, unsigned y, color_palette_index color);
 #endif
 void gr_close_font(std::unique_ptr<grs_font> font);
 
@@ -387,8 +387,8 @@ void gr_palette_step_up(int r, int g, int b);
 
 // Given: r,g,b, each in range of 0-63, return the color index that
 // best matches the input.
-color_t gr_find_closest_color(int r, int g, int b);
-int gr_find_closest_color_15bpp(int rgb);
+color_palette_index gr_find_closest_color(int r, int g, int b);
+color_palette_index gr_find_closest_color_15bpp(int rgb);
 void gr_flip();
 
 /*

@@ -1771,7 +1771,7 @@ void load_bitmap_replacements(const char *level_name)
 /* calculate table to translate d1 bitmaps to current palette,
  * return -1 on error
  */
-static int get_d1_colormap( palette_array_t &d1_palette, std::array<color_t, 256> &colormap )
+static int get_d1_colormap(palette_array_t &d1_palette, std::array<color_palette_index, 256> &colormap)
 {
 	auto palette_file = PHYSFSX_openReadBuffered(D1_PALETTE);
 	if (!palette_file || PHYSFS_fileLength(palette_file) != 9472)
@@ -1779,8 +1779,8 @@ static int get_d1_colormap( palette_array_t &d1_palette, std::array<color_t, 256
 	PHYSFS_read( palette_file, &d1_palette[0], sizeof(d1_palette[0]), d1_palette.size() );
 	build_colormap_good(d1_palette, colormap);
 	// don't change transparencies:
-	colormap[254] = 254;
-	colormap[255] = 255;
+	colormap[254] = color_palette_index{254};
+	colormap[255] = TRANSPARENCY_COLOR;
 	return 0;
 }
 
@@ -1791,7 +1791,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
                      DiskBitmapHeader *bmh, /* header info for bitmap */
                      uint8_t **next_bitmap, /* where to write it (if 0, use malloc) */
 					 palette_array_t &d1_palette, /* what palette the bitmap has */
-					 std::array<color_t, 256> &colormap) /* how to translate bitmap's colors */
+					 std::array<color_palette_index, 256> &colormap) /* how to translate bitmap's colors */
 {
 	int zsize, pigsize = PHYSFS_fileLength(d1_Piggy_fp);
 	uint8_t *data;
@@ -2007,7 +2007,7 @@ void load_d1_bitmap_replacements()
 	//first, free up data allocated for old bitmaps
 	free_bitmap_replacements();
 
-	std::array<color_t, 256> colormap;
+	std::array<color_palette_index, 256> colormap;
 	if (get_d1_colormap( d1_palette, colormap ) != 0)
 		Warning("Could not load descent 1 color palette");
 
@@ -2110,7 +2110,7 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 			return bitmap_num;
 		}
 
-		std::array<color_t, 256> colormap;
+		std::array<color_palette_index, 256> colormap;
 		if (get_d1_colormap( d1_palette, colormap ) != 0)
 			Warning("Could not load descent 1 color palette");
 

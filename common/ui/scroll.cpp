@@ -42,7 +42,7 @@ void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar )
 	gr_set_current_canvas( scrollbar->canvas );
 	auto &canvas = *grd_curcanv;
 
-	uint8_t color = (dlg->keyboard_focus_gadget == scrollbar)
+	const auto color = (dlg->keyboard_focus_gadget == scrollbar)
 		? CRED
 		: CGREY;
 

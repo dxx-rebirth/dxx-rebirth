@@ -33,7 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-void gr_urect(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const uint8_t color)
+void gr_urect(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const color_palette_index color)
 {
 #if DXX_USE_OGL
 	if (canvas.cv_bitmap.get_type() == bm_mode::ogl)
@@ -47,7 +47,7 @@ void gr_urect(grs_canvas &canvas, const int left, const int top, const int right
 #endif
 }
 
-void gr_rect(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const uint8_t color)
+void gr_rect(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const color_palette_index color)
 {
 #if DXX_USE_OGL
 	if (canvas.cv_bitmap.get_type() == bm_mode::ogl)

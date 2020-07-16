@@ -247,7 +247,7 @@ void con_puts(const con_priority_wrapper priority, const char *const buffer, con
 	}
 }
 
-static color_t get_console_color_by_priority(int priority)
+static color_palette_index get_console_color_by_priority(const int priority)
 {
 	int r, g, b;
 	switch (priority)

@@ -823,7 +823,7 @@ static void kc_drawinput(grs_canvas &canvas, const grs_font &cv_font, const kc_i
 			r = 16 * 2, g = 0, b = 19 * 2;
 
 		int x, w, h;
-		const uint8_t color = gr_find_closest_color(r, g, b);
+		const auto color = gr_find_closest_color(r, g, b);
 		gr_get_string_size(cv_font, btext, &w, &h, nullptr);
 		const auto &&fspacx_item_xinput = fspacx(item.xinput);
 		const auto &&fspacy_item_y = fspacy(item.y);
@@ -846,9 +846,9 @@ namespace dsx {
 static void kc_drawquestion(grs_canvas &canvas, const grs_font &cv_font, kc_menu *const menu, const kc_item *const item)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	const uint8_t color = gr_fade_table[fades[menu->q_fade_i]][BM_XRGB(21,0,24)];
+	const auto color = gr_fade_table[fades[menu->q_fade_i]][BM_XRGB(21,0,24)];
 #elif defined(DXX_BUILD_DESCENT_II)
-	const uint8_t color = BM_XRGB(21*fades[menu->q_fade_i]/31,0,24*fades[menu->q_fade_i]/31);
+	const auto color = BM_XRGB(21*fades[menu->q_fade_i]/31,0,24*fades[menu->q_fade_i]/31);
 #endif
 	menu->q_fade_i++;
 	if (menu->q_fade_i>63) menu->q_fade_i=0;

@@ -71,7 +71,7 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 
 	for (i= listbox->first_item; i< stop; i++ )
 	{
-		uint8_t color = (i == listbox->current_item)
+		const auto color = (i == listbox->current_item)
 			? CGREY
 			: CBLACK;
 		gr_rect(canvas, x, y, listbox->width - 1, y + h - 1, color);

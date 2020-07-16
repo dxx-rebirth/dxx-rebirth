@@ -42,7 +42,7 @@ from "Graphics Gems", Academic Press, 1990
 */
 
 /* non-zero flag indicates the pixels needing EXCHG back. */
-static void plot(grs_canvas &canvas, int x, int y, int flag, const uint8_t color)
+static void plot(grs_canvas &canvas, int x, int y, int flag, const color_palette_index color)
 #define plot(x,y,f)	plot(canvas,x,y,f,color)
 {
 	if (flag)
@@ -50,7 +50,7 @@ static void plot(grs_canvas &canvas, int x, int y, int flag, const uint8_t color
 	gr_upixel(canvas.cv_bitmap, x, y, color);
 }
 
-static void gr_hline(grs_canvas &canvas, int x1, int x2, const int y, const uint8_t color)
+static void gr_hline(grs_canvas &canvas, int x1, int x2, const int y, const color_palette_index color)
 {
 	using std::swap;
 	if (x1 > x2)
@@ -59,7 +59,7 @@ static void gr_hline(grs_canvas &canvas, int x1, int x2, const int y, const uint
 		gr_upixel(canvas.cv_bitmap, i, y, color);
 }
 
-static void gr_vline(grs_canvas &canvas, int y1, int y2, const int x, const uint8_t color)
+static void gr_vline(grs_canvas &canvas, int y1, int y2, const int x, const color_palette_index color)
 {
 	using std::swap;
 	if (y1 > y2) swap(y1,y2);
@@ -67,7 +67,7 @@ static void gr_vline(grs_canvas &canvas, int y1, int y2, const int x, const uint
 		gr_upixel(canvas.cv_bitmap, x, i, color);
 }
 
-static void gr_universal_uline(grs_canvas &canvas, int a1, int b1, int a2, int b2, const uint8_t color)
+static void gr_universal_uline(grs_canvas &canvas, int a1, int b1, int a2, int b2, const color_palette_index color)
 {
 	int dx, dy, incr1, incr2, D, x, y, xend, c, pixels_left;
 	int x1, y1;
@@ -266,7 +266,7 @@ static void gr_universal_uline(grs_canvas &canvas, int a1, int b1, int a2, int b
 
 
 //unclipped version just calls clipping version for now
-void gr_uline(grs_canvas &canvas, const fix _a1, const fix _b1, const fix _a2, const fix _b2, const uint8_t color)
+void gr_uline(grs_canvas &canvas, const fix _a1, const fix _b1, const fix _a2, const fix _b2, const color_palette_index color)
 {
 	int a1,b1,a2,b2;
 	a1 = f2i(_a1); b1 = f2i(_b1); a2 = f2i(_a2); b2 = f2i(_b2);
@@ -287,7 +287,7 @@ void gr_uline(grs_canvas &canvas, const fix _a1, const fix _b1, const fix _a2, c
 // Returns 0 if drawn with no clipping, 1 if drawn but clipped, and
 // 2 if not drawn at all.
 
-void gr_line(grs_canvas &canvas, fix a1, fix b1, fix a2, fix b2, const uint8_t color)
+void gr_line(grs_canvas &canvas, fix a1, fix b1, fix a2, fix b2, const color_palette_index color)
 {
 	int x1, y1, x2, y2;
 	x1 = i2f(MINX);

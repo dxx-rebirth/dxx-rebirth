@@ -52,7 +52,7 @@ static unsigned Num_computed_colors;
 
 struct color_record {
 	ubyte	r,g,b;
-	color_t color_num;
+	color_palette_index color_num;
 };
 
 static std::array<color_record, MAX_COMPUTED_COLORS> Computed_colors;
@@ -216,7 +216,7 @@ void init_computed_colors(void)
 		i.r = 255;		//	Make impossible to match.
 }
 
-color_t gr_find_closest_color( int r, int g, int b )
+color_palette_index gr_find_closest_color(const int r, const int g, const int b)
 {
 	int j;
 	int best_value, value;
@@ -243,14 +243,15 @@ color_t gr_find_closest_color( int r, int g, int b )
 //	b &= 63;
 
 	best_value = SQUARE(r-gr_palette[0].r)+SQUARE(g-gr_palette[0].g)+SQUARE(b-gr_palette[0].b);
-	color_t best_index = 0;
+	color_palette_index best_index = 0;
 	if (best_value==0) {
 		add_computed_color(r, g, b, best_index);
  		return best_index;
 	}
 	j=0;
 	// only go to 255, 'cause we dont want to check the transparent color.
-	for (color_t i=1; i < 254; i++ )	{
+	for (color_palette_index i{1}; i < 254; ++i)
+	{
 		++j;
 		value = SQUARE(r-gr_palette[j].r)+SQUARE(g-gr_palette[j].g)+SQUARE(b-gr_palette[j].b);
 		if ( value < best_value )	{
@@ -266,13 +267,13 @@ color_t gr_find_closest_color( int r, int g, int b )
 	return best_index;
 }
 
-int gr_find_closest_color_15bpp( int rgb )
+color_palette_index gr_find_closest_color_15bpp( int rgb )
 {
 	return gr_find_closest_color( ((rgb>>10)&31)*2, ((rgb>>5)&31)*2, (rgb&31)*2 );
 }
 
 
-color_t gr_find_closest_color_current( int r, int g, int b )
+color_palette_index gr_find_closest_color_current( int r, int g, int b )
 {
 	int j;
 	int best_value, value;

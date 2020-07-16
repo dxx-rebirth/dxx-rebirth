@@ -30,6 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 #ifdef __cplusplus
+#include <cstddef>
 #include <cstdint>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
@@ -63,6 +64,29 @@ void gr_palette_read(palette_array_t &palette);
 extern void init_computed_colors(void);
 extern ubyte gr_palette_gamma;
 extern palette_array_t gr_current_pal;
+extern palette_array_t gr_palette;
+
+using color_palette_index = uint8_t;
+
+static inline const rgb_t &CPAL2T(const color_palette_index c)
+{
+	return gr_current_pal[static_cast<std::size_t>(c)];
+}
+
+static inline const rgb_t &PAL2T(const color_palette_index c)
+{
+	return gr_palette[static_cast<std::size_t>(c)];
+}
+
+#define CPAL2Tr(c) (CPAL2T(c).r / 63.0)
+#define CPAL2Tg(c) (CPAL2T(c).g / 63.0)
+#define CPAL2Tb(c) (CPAL2T(c).b / 63.0)
+#define PAL2Tr(c) (PAL2T(c).r / 63.0)
+#define PAL2Tg(c) (PAL2T(c).g / 63.0)
+#define PAL2Tb(c) (PAL2T(c).b / 63.0)
+//inline GLfloat PAL2Tr(int c);
+//inline GLfloat PAL2Tg(int c);
+//inline GLfloat PAL2Tb(int c);
 }
 
 #ifdef DXX_BUILD_DESCENT_I

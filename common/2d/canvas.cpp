@@ -106,7 +106,7 @@ void gr_set_current_canvas2(grs_canvas *canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_
 	(gr_set_current_canvas_inline)(canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS);
 }
 
-void gr_clear_canvas(grs_canvas &canvas, color_t color)
+void gr_clear_canvas(grs_canvas &canvas, const color_palette_index color)
 {
 	gr_rect(canvas, 0, 0, canvas.cv_bitmap.bm_w - 1, canvas.cv_bitmap.bm_h - 1, color);
 }

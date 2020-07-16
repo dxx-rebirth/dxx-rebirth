@@ -583,7 +583,8 @@ static void ogl_init_font(grs_font * font)
 		}
 		else
 		{
-			int BitMask,bits=0,white=gr_find_closest_color(63,63,63);
+			int BitMask, bits = 0;
+			auto white = gr_find_closest_color(63, 63, 63);
 			auto fp = (font->ft_flags & FT_PROPORTIONAL)
 				? font->ft_chars[i]
 				: font->ft_data + i * BITS_TO_BYTES(w)*h;
@@ -666,7 +667,7 @@ static int ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, cons
 				
 				if (underline)
 				{
-					const uint8_t color = canvas.cv_font_fg_color;
+					const auto color = canvas.cv_font_fg_color;
 					gr_rect(canvas, xx, yy + cv_font.ft_baseline + 2, xx + cv_font.ft_w, yy + cv_font.ft_baseline + 3, color);
 				}
 
@@ -905,7 +906,7 @@ static void grs_font_read(grs_font *gf, PHYSFS_File *fp)
 static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 {
 	const uint8_t *ptr;
-	uint8_t *ft_data;
+	color_palette_index *ft_data;
 	struct {
 		std::array<char, 4> magic;
 		unsigned datasize;	//size up to (but not including) palette
@@ -938,7 +939,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 		? sizeof(uint8_t *) * nchars
 		: 0;
 
-	auto ft_allocdata = std::make_unique<uint8_t[]>(datasize + ft_chars_storage);
+	auto ft_allocdata = std::make_unique<color_palette_index[]>(datasize + ft_chars_storage);
 	const auto font_data = &ft_allocdata[ft_chars_storage];
 	if (PHYSFS_read(fontfile, font_data, 1, datasize) != datasize)
 	{
@@ -1011,7 +1012,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		palette_array_t palette;
-		std::array<uint8_t, 256> colormap;
+		std::array<color_palette_index, 256> colormap;
 		/* `freq` exists so that decode_data can write to it, but it is
 		 * otherwise unused.  `decode_data` is not guaranteed to write
 		 * to every element, but the bitset constructor will initialize

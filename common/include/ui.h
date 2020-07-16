@@ -253,13 +253,13 @@ extern UI_GADGET * selected_gadget;
 
 #define Hline(C,x1,x2,y,c)	Hline(C,x1,y,x2,c)
 #define Vline(C,y1,y2,x,c)	Vline(C,x,y1,y2,c)
-void Hline(grs_canvas &, fix x1, fix x2, fix y, uint8_t color);
-void Vline(grs_canvas &, fix y1, fix y2, fix x, uint8_t color);
+void Hline(grs_canvas &, fix x1, fix x2, fix y, color_palette_index color);
+void Vline(grs_canvas &, fix y1, fix y2, fix x, color_palette_index color);
 void ui_string_centered(grs_canvas &, unsigned x, unsigned y, const char *s);
 void ui_draw_box_out(grs_canvas &, unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void ui_draw_box_in(grs_canvas &, unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void ui_draw_frame(grs_canvas &, unsigned x1, unsigned y1, unsigned x2, unsigned y2);
-void ui_draw_shad(grs_canvas &, unsigned x1, unsigned y1, unsigned x2, unsigned y2, unsigned c1, unsigned c2);
+void ui_draw_shad(grs_canvas &, unsigned x1, unsigned y1, unsigned x2, unsigned y2, color_palette_index c1, color_palette_index c2);
 
 int ui_init();
 void ui_close();

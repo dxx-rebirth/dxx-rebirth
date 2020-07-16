@@ -36,7 +36,7 @@ namespace dcx {
 
 static void ui_draw_box_in1(grs_canvas &canvas, const unsigned x1, const unsigned y1, const unsigned x2, const unsigned y2)
 {
-	const uint8_t color = CWHITE;
+	const auto color = CWHITE;
 	gr_urect(canvas, x1 + 1, y1 + 1, x2 - 1, y2 - 1, color);
 	ui_draw_shad(canvas, x1, y1, x2, y2, CGREY, CBRIGHT);
 }

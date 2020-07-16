@@ -921,7 +921,7 @@ void gr_close()
 
 namespace dcx {
 
-void ogl_upixelc(const grs_bitmap &cv_bitmap, unsigned x, unsigned y, unsigned c)
+void ogl_upixelc(const grs_bitmap &cv_bitmap, unsigned x, unsigned y, const color_palette_index c)
 {
 	std::array<GLfloat, 2> vertices = {{
 		(x + cv_bitmap.bm_x) / static_cast<float>(last_width),
@@ -948,7 +948,7 @@ void ogl_upixelc(const grs_bitmap &cv_bitmap, unsigned x, unsigned y, unsigned c
 	glDisableClientState(GL_COLOR_ARRAY);
 }
 
-unsigned char ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y)
+color_palette_index ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y)
 {
 	ubyte buf[4];
 
@@ -963,7 +963,7 @@ unsigned char ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y)
 	return gr_find_closest_color(buf[0]/4, buf[1]/4, buf[2]/4);
 }
 
-void ogl_urect(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const int c)
+void ogl_urect(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const color_palette_index c)
 {
 	GLfloat xo, yo, xf, yf, color_r, color_g, color_b, color_a;
 

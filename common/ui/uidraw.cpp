@@ -25,12 +25,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-void Hline(grs_canvas &canvas, const fix x1, const fix x2, const fix y, const uint8_t color)
+void Hline(grs_canvas &canvas, const fix x1, const fix x2, const fix y, const color_palette_index color)
 {
 	gr_uline(canvas, i2f(x1), i2f(y), i2f(x2), i2f(y), color);
 }
 
-void Vline(grs_canvas &canvas, const fix y1, const fix y2, const fix x, const uint8_t color)
+void Vline(grs_canvas &canvas, const fix y1, const fix y2, const fix x, const color_palette_index color)
 {
 	gr_uline(canvas, i2f(x), i2f(y1), i2f(x), i2f(y2), color);
 }
@@ -47,7 +47,7 @@ void ui_string_centered(grs_canvas &canvas, const unsigned x, const unsigned y, 
 }
 
 
-void ui_draw_shad(grs_canvas &canvas, const unsigned x1, const unsigned y1, const unsigned x2, const unsigned y2, const unsigned c1, const unsigned c2)
+void ui_draw_shad(grs_canvas &canvas, const unsigned x1, const unsigned y1, const unsigned x2, const unsigned y2, const color_palette_index c1, const color_palette_index c2)
 {
 	Hline(canvas, x1, x2 - 1, y1, c1);
 	Vline(canvas, y1 + 1, y2, x1, c1);
@@ -75,7 +75,7 @@ void ui_draw_frame(grs_canvas &canvas, const unsigned x1, const unsigned y1, con
 
 void ui_draw_box_out(grs_canvas &canvas, const unsigned x1, const unsigned y1, const unsigned x2, const unsigned y2)
 {
-	const uint8_t color = CWHITE;
+	const auto color = CWHITE;
 	const auto cbright = CBRIGHT;
 	const auto cgrey = CGREY;
 	gr_urect(canvas, x1 + 2, y1 + 2, x2 - 2, y2 - 2, color);

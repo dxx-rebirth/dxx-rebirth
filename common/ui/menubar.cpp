@@ -86,7 +86,7 @@ static void item_show( MENU * menu, int n )
 	// If this is a seperator, then draw it.
 	if ( item->Text[0] == '-'  )
 	{
-		const uint8_t color = CBLACK;
+		const auto color = CBLACK;
 		gr_urect(canvas, item->x, item->y+item->h/2, item->x+item->w-1, item->y+item->h/2, color);
 		return;
 	}	
@@ -95,14 +95,14 @@ static void item_show( MENU * menu, int n )
 	{
 		if ( menu != &Menu[0] )
 		{
-			const uint8_t color = CBLACK;
+			const auto color = CBLACK;
 			gr_urect(canvas, item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
 		}
 		gr_set_fontcolor(canvas, CWHITE, CBLACK);
 	}else {
 		if ( menu != &Menu[0] )
 		{
-			const uint8_t color = CGREY;
+			const auto color = CGREY;
 			gr_urect(canvas, item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
 		}
 		gr_set_fontcolor(canvas, CBLACK, CGREY);

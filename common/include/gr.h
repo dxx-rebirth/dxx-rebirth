@@ -87,14 +87,14 @@ public:
 	short   bm_rowsize; // unsigned char offset to next row
 	std::array<fix, 3> avg_color_rgb; // same as above but real rgb value to be used to textured objects that should emit light
 	union {
-		const uint8_t *bm_data;     // ptr to pixel data...
+		const color_palette_index *bm_data;     // ptr to pixel data...
 	                                //   Linear = *parent+(rowsize*y+x)
 	                                //   ModeX = *parent+(rowsize*y+x/4)
 	                                //   SVGA = *parent+(rowsize*y+x)
-		uint8_t *bm_mdata;
+		color_palette_index *bm_mdata;
 	};
-	const uint8_t *get_bitmap_data() const { return bm_data; }
-	uint8_t *get_bitmap_data() { return bm_mdata; }
+	const color_palette_index *get_bitmap_data() const { return bm_data; }
+	color_palette_index *get_bitmap_data() { return bm_mdata; }
 	struct grs_bitmap  *bm_parent;
 #if DXX_USE_OGL
 	struct ogl_texture *gltexture;
@@ -305,9 +305,19 @@ static inline void gr_set_font_fg_color(grs_canvas &canvas, int fg_color)
 	canvas.cv_font_fg_color = fg_color;
 }
 
+static inline void gr_set_font_fg_color(grs_canvas &canvas, color_palette_index fg_color)
+{
+	canvas.cv_font_fg_color = static_cast<int>(fg_color);
+}
+
 static inline void gr_set_font_bg_color(grs_canvas &canvas, int bg_color)
 {
 	canvas.cv_font_bg_color = bg_color;
+}
+
+static inline void gr_set_font_bg_color(grs_canvas &canvas, color_palette_index bg_color)
+{
+	canvas.cv_font_bg_color = static_cast<int>(bg_color);
 }
 
 #define gr_set_fontcolor(C,F,B)	\

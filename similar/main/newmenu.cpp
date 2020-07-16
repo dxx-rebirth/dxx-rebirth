@@ -220,12 +220,12 @@ void nm_draw_background(grs_canvas &canvas, int x1, int y1, int x2, int y2)
 
 	gr_settransblend(canvas, 14, GR_BLEND_NORMAL);
 	{
-		const uint8_t color = BM_XRGB(1, 1, 1);
+		const auto color = BM_XRGB(1, 1, 1);
 	for (w=5*BGScaleX;w>0;w--)
 			gr_urect(canvas, x2 - w, y1 + w * (BGScaleY / BGScaleX), x2 - w, y2 - w * (BGScaleY / BGScaleX), color);//right edge
 	}
 	{
-		const uint8_t color = BM_XRGB(0, 0, 0);
+		const auto color = BM_XRGB(0, 0, 0);
 	for (h=5*BGScaleY;h>0;h--)
 			gr_urect(canvas, x1 + h * (BGScaleX / BGScaleY), y2 - h, x2 - h * (BGScaleX / BGScaleY), y2 - h, color);//bottom edge
 	}

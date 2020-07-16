@@ -14,8 +14,8 @@
 #include <bitset>
 
 namespace dcx {
-void build_colormap_good(const palette_array_t &palette, std::array<color_t, 256> &colormap);
-void decode_data(uint8_t *data, uint_fast32_t num_pixels, std::array<color_t, 256> &colormap, std::bitset<256> &used);
+void build_colormap_good(const palette_array_t &palette, std::array<color_palette_index, 256> &colormap);
+void decode_data(color_palette_index *data, uint_fast32_t num_pixels, std::array<color_palette_index, 256> &colormap, std::bitset<256> &used);
 }
 
 #endif
