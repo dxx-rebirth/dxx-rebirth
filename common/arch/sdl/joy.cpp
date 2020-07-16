@@ -339,10 +339,8 @@ void joy_init()
 #if DXX_MAX_AXES_PER_JOYSTICK
 	joyaxis_text.clear();
 #endif
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK || DXX_MAX_AXES_PER_JOYSTICK
 	joybutton_text.clear();
 	joy_key_map.clear();
-#endif
 
 	const auto n = check_warn_joy_support_limit(SDL_NumJoysticks(), "joystick", DXX_MAX_JOYSTICKS);
 	cf_assert(n <= DXX_MAX_JOYSTICKS);
@@ -374,7 +372,6 @@ void joy_init()
             const auto n_axes = 0;
 #endif
 
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK || DXX_MAX_AXES_PER_JOYSTICK
 			const auto n_buttons = check_warn_joy_support_limit(SDL_JoystickNumButtons(handle), "button", DXX_MAX_BUTTONS_PER_JOYSTICK);
 			const auto n_hats = check_warn_joy_support_limit(SDL_JoystickNumHats(handle), "hat", DXX_MAX_HATS_PER_JOYSTICK);
 
@@ -425,7 +422,6 @@ void joy_init()
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u +A%u", i + 1, e.idx);
 			}
 #endif
-#endif
 
 			num_joysticks++;
 		}
@@ -444,9 +440,7 @@ void joy_close()
 #if DXX_MAX_AXES_PER_JOYSTICK
 	joyaxis_text.clear();
 #endif
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK || DXX_MAX_AXES_PER_JOYSTICK
 	joybutton_text.clear();
-#endif
 }
 
 const d_event_joystick_axis_value &event_joystick_get_axis(const d_event &event)

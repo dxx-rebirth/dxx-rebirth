@@ -91,7 +91,7 @@ const std::array<sbyte, 64> fades{{
 }};
 
 const std::array<char[2], 2> invert_text{{"N", "Y"}};
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_JOYSTICKS
 joybutton_text_t joybutton_text;
 #endif
 #if DXX_MAX_AXES_PER_JOYSTICK
