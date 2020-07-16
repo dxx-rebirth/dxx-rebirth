@@ -8,8 +8,49 @@
 
 #include <type_traits>
 #include <utility>
-#include "ephemeral_range.h"
 
+namespace detail {
+
+template <typename T>
+struct xrange_is_unsigned : std::is_unsigned<T>
+{
+	/* For the general case, delegate to std::is_unsigned.
+	 * xrange requires that the type not be a reference, so there is no
+	 * need to use std::remove_reference<T> here.
+	 */
+};
+
+template <typename T, T v>
+struct xrange_is_unsigned<std::integral_constant<T, v>> : std::is_unsigned<T>
+{
+	/* For the special case that the value is a std::integral_constant,
+	 * examine the underlying integer type.
+	 * std::is_unsigned<std::integral_constant<unsigned, N>> is
+	 * std::false_type, but xrange_is_unsigned should yield
+	 * std::true_type in that case.
+	 */
+};
+
+template <typename B, typename E>
+struct xrange_check_constant_endpoints : std::true_type
+{
+	/* By default, endpoints are not constant and are not checked. */
+};
+
+template <typename Tb, Tb b, typename Te, Te e>
+struct xrange_check_constant_endpoints<std::integral_constant<Tb, b>, std::integral_constant<Te, e>> : std::true_type
+{
+	/* If both endpoints are constant, a static_assert can validate that
+	 * the range is not empty.
+	 */
+	static_assert(b < e, "range is always empty due to value of `b` versus value of `e`");
+};
+
+}
+
+/* For the general case, store a `const`-qualified copy of the value,
+ * and provide an implicit conversion.
+ */
 template <typename T, bool begin>
 class xrange_endpoint
 {
@@ -25,6 +66,9 @@ public:
 	}
 };
 
+/* For the special case that the value is a std::integral_constant,
+ * inherit from it so that the Empty Base Optimization can apply.
+ */
 template <typename T, T V, bool begin>
 class xrange_endpoint<std::integral_constant<T, V>, begin> : public std::integral_constant<T, V>
 {
@@ -71,6 +115,13 @@ class xrange_extent :
 	using begin_type = xrange_endpoint<B, true>;
 	using end_type = xrange_endpoint<E, false>;
 	using iterator = xrange_iterator<index_type>;
+	/* This static_assert has no message, since the value is always
+	 * true.  Use of static_assert forces instantiation of the type,
+	 * which has a static_assert that checks the values and displays a
+	 * message on failure.
+	 */
+	static_assert(detail::xrange_check_constant_endpoints<B, E>::value);
+	static_assert(!std::is_reference<E>::value, "xrange<E> must be a value, not a reference");
 	static begin_type init_begin(B b, E e)
 	{
 		if constexpr (std::is_convertible<E, B>::value)
@@ -91,6 +142,11 @@ public:
 		begin_type(init_begin(std::move(b), e)), end_type(std::move(e))
 	{
 	}
+	xrange_extent(E e) :
+		begin_type(), end_type(e)
+	{
+		static_assert(detail::xrange_is_unsigned<E>::value, "xrange(E) requires unsigned E; use xrange(B, E) if E must be signed");
+	}
 	iterator begin() const
 	{
 		return iterator(static_cast<const begin_type &>(*this));
@@ -107,44 +163,27 @@ public:
  * change `e`, store it in a const qualified variable, which will select
  * the next overload down instead.
  */
-template <typename Tb, typename Te>
-typename std::enable_if<!std::is_const<Te>::value, xrange_extent<Tb>>::type xrange(Tb &&, Te &) = delete;	// mutable `e` might change during range
+template <typename Tb, typename Te, typename std::enable_if<!std::is_const<Te>::value, int>::type = 0>
+xrange_extent(Tb &&b, Te &e) -> xrange_extent<Tb, Tb, Te &>;	// provokes a static_assert failure in the constructor
 
 template <typename Tb, typename Te>
-static xrange_extent<
+xrange_extent(Tb &&b, Te &&e) -> xrange_extent<
 	typename std::common_type<Tb, Te>::type,
 	typename std::remove_const<typename std::remove_reference<Tb>::type>::type,
 	typename std::remove_const<typename std::remove_reference<Te>::type>::type
-	> xrange(Tb &&b, Te &&e)
-{
-	return {std::forward<Tb>(b), std::forward<Te>(e)};
-}
+	>;
 
-/* Disallow building an `xrange` with a default-constructed start term
- * and a non-unsigned end term.  This overload only restricts the
- * one-argument form of `xrange`.  Callers that need a non-unsigned end
- * term can use the two-argument form to bypass this check.
- */
-template <
-	typename Te,
-	typename Te_rr_rc = typename std::remove_const<
-		typename std::remove_reference<Te>::type
-	>::type,
-	typename B = typename std::enable_if<
-		std::is_unsigned<Te_rr_rc>::value,
-		std::integral_constant<typename std::common_type<Te_rr_rc, unsigned>::type, 0u>
-	>::type
->
-static typename std::enable_if<std::is_unsigned<Te_rr_rc>::value, xrange_extent<Te_rr_rc, B, Te>>::type xrange(Te &&e)
-{
-	return {B(), std::forward<Te>(e)};
-}
+template <typename Te>
+xrange_extent(const Te &) -> xrange_extent<Te, std::integral_constant<typename std::common_type<Te, unsigned>::type, 0u>>;
+
+template <typename Te>
+xrange_extent(Te &) -> xrange_extent<
+	Te,
+	std::integral_constant<typename std::common_type<typename std::remove_const<Te>::type, unsigned>::type, 0u>,
+	Te &
+	>;
 
 template <typename Te, Te e>
-typename std::enable_if<!(Te() < e), xrange_extent<Te>>::type xrange(std::integral_constant<Te, e>) = delete;	// range is invalid or always empty due to value of `e`
+xrange_extent(std::integral_constant<Te, e>) -> xrange_extent<Te, std::integral_constant<Te, Te(0)>, std::integral_constant<Te, e>>;
 
-template <typename Te, Te e, typename B = std::integral_constant<Te, Te(0)>, typename E = std::integral_constant<Te, e>>
-static typename std::enable_if<(Te(0) < e), xrange_extent<Te, B, E>>::type xrange(std::integral_constant<Te, e>)
-{
-	return {B(), E()};
-}
+#define xrange xrange_extent
