@@ -47,6 +47,8 @@ extern void automap_clear_visited();
 #if defined(DXX_BUILD_DESCENT_II)
 #include "object.h"
 #include "ntstring.h"
+#include "d_array.h"
+#include "d_range.h"
 #include "fwd-window.h"
 #include "segment.h"
 
@@ -67,23 +69,24 @@ struct marker_message_text_t : ntstring<MARKER_MESSAGE_LEN - 1>
 
 struct d_marker_object_numbers
 {
-	object_number_array<imobjidx_t, NUM_MARKERS> imobjidx;
+	enumerated_array<imobjidx_t, NUM_MARKERS, game_marker_index> imobjidx = {init_object_number_array<imobjidx_t>(std::make_index_sequence<NUM_MARKERS>())};
 };
 
 struct d_marker_state : d_marker_object_numbers
 {
-	uint8_t MarkerBeingDefined = UINT8_MAX;
-	uint8_t HighlightMarker = UINT8_MAX;
-	uint8_t LastMarkerDropped = 0;
-	std::array<marker_message_text_t, NUM_MARKERS> message;
+	player_marker_index MarkerBeingDefined = player_marker_index::None;
+	game_marker_index HighlightMarker = game_marker_index::None;
+	player_marker_index LastMarkerDropped = player_marker_index::None;
+	enumerated_array<marker_message_text_t, NUM_MARKERS, game_marker_index> message;
 	bool DefiningMarkerMessage() const
 	{
-		return MarkerBeingDefined < message.size();
+		return MarkerBeingDefined != player_marker_index::None;
 	}
-	static unsigned get_biased_marker_num(unsigned game_mode, unsigned player_num, unsigned base_marker_num);
-	static unsigned get_markers_per_player(unsigned game_mode);
+	static unsigned get_markers_per_player(unsigned game_mode, unsigned netgame_max_players);
 };
 
+game_marker_index convert_player_marker_index_to_game_marker_index(unsigned game_mode, unsigned max_numplayers, unsigned player_num, player_marker_index base_marker_num);
+xrange<player_marker_index> get_player_marker_range(unsigned maxdrop);
 extern marker_message_text_t Marker_input;
 extern d_marker_state MarkerState;
 }

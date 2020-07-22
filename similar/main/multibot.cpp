@@ -52,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 #include "sounds.h"
 #include "effects.h"
+#include "automap.h"
 #include "physics.h" 
 #include "byteutil.h"
 #include "escort.h"
@@ -1075,7 +1076,7 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 void multi_send_escort_goal(const d_unique_buddy_state &BuddyState)
 {
 	update_buddy_state b;
-	b.Looking_for_marker = BuddyState.Looking_for_marker;
+	b.Looking_for_marker = static_cast<uint8_t>(BuddyState.Looking_for_marker);
 	b.Escort_special_goal = BuddyState.Escort_special_goal;
 	b.Last_buddy_key = BuddyState.Last_buddy_key;
 	multi_serialize_write(2, b);
@@ -1085,7 +1086,10 @@ void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const uint8_t *con
 {
 	update_buddy_state b;
 	multi_serialize_read(buf, b);
-	BuddyState.Looking_for_marker = b.Looking_for_marker;
+	const auto Looking_for_marker = b.Looking_for_marker;
+	BuddyState.Looking_for_marker = MarkerState.imobjidx.valid_index(Looking_for_marker)
+		? static_cast<game_marker_index>(Looking_for_marker)
+		: game_marker_index::None;
 	BuddyState.Escort_special_goal = b.Escort_special_goal;
 	BuddyState.Last_buddy_key = b.Last_buddy_key;
 	BuddyState.Buddy_messages_suppressed = 0;

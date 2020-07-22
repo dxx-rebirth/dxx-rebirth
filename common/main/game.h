@@ -73,7 +73,7 @@ extern object_signature_t Missile_viewer_sig;
 #define CV_MARKER   4
 
 extern std::array<unsigned, 2> Coop_view_player;     // left & right
-extern std::array<unsigned, 2> Marker_viewer_num;    // left & right
+extern std::array<game_marker_index, 2> Marker_viewer_num;    // left & right
 }
 #endif
 

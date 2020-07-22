@@ -606,6 +606,49 @@ struct d_level_unique_morph_object_state
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
+
+/* game_marker_index values are assigned as the object.id field for
+ * marker objects, and are used as an index into most marker-related
+ * arrays.  These values are scoped to a single level.  Each player
+ * marker has a unique value for game_marker_index, computed based on
+ * the player's ID and the player_marker_index active for that player
+ * when the marker was created.
+ */
+enum class game_marker_index : uint8_t
+{
+	GuidebotDeathSite = 10,
+	None = UINT8_MAX
+};
+
+/* player_marker_index are per-player marker indexes.  Each player has
+ * their own private number space.  Valid values range from [0,
+ * maxdrop), where maxdrop depends on the game type (single player,
+ * competitive multiplayer, or cooperative multiplayer).
+ */
+enum class player_marker_index : uint8_t
+{
+	_0,
+	None = UINT8_MAX
+};
+
+static inline game_marker_index &operator++(game_marker_index &i)
+{
+	auto u = static_cast<unsigned>(i);
+	++ u;
+	i = static_cast<game_marker_index>(u);
+	return i;
+}
+
+static inline player_marker_index &operator++(player_marker_index &i)
+{
+	auto u = static_cast<unsigned>(i);
+	++ u;
+	i = static_cast<player_marker_index>(u);
+	return i;
+}
+
+playernum_t get_marker_owner(unsigned, game_marker_index, unsigned max_numplayers);
+
 struct d_unique_buddy_state
 {
 	enum class Escort_goal_reachability : uint8_t
@@ -619,7 +662,7 @@ struct d_unique_buddy_state
 	uint8_t Buddy_allowed_to_talk;
 	uint8_t Buddy_messages_suppressed;
 	uint8_t Buddy_gave_hint_count;
-	uint8_t Looking_for_marker;
+	game_marker_index Looking_for_marker;
 	int Last_buddy_key;
 	int Last_buddy_polish_path_tick;
 	escort_goal_t Escort_goal_object;
@@ -711,9 +754,9 @@ static inline weapon_id_type get_weapon_id(const object_base &o)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static inline uint8_t get_marker_id(const object_base &o)
+static inline game_marker_index get_marker_id(const object_base &o)
 {
-	return o.id;
+	return game_marker_index{o.id};
 }
 #endif
 

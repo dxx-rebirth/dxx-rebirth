@@ -85,6 +85,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 
 #include "compiler-range_for.h"
+#include "d_range.h"
+#include "d_zip.h"
 #include "partial_range.h"
 #include <memory>
 
@@ -242,7 +244,10 @@ static void automap_build_edge_list(automap *am, int add_all_edges);
 /* MAX_DROP_MULTI_* must be a power of 2 for LastMarkerDropped to work
  * properly.
  */
-#define	MAX_DROP_MULTI_COOP	(Netgame.max_numplayers > 4 ? 2 : 4)
+#define	MAX_DROP_MULTI_COOP_0	2
+#define	MAX_DROP_MULTI_COOP_1	4
+#define MAX_DROP_MULTI_COOP_P	(max_numplayers > 4)
+#define	MAX_DROP_MULTI_COOP	(MAX_DROP_MULTI_COOP_P ? MAX_DROP_MULTI_COOP_0 : MAX_DROP_MULTI_COOP_1)
 #define	MAX_DROP_MULTI_COMPETITIVE	2
 #define	MAX_DROP_SINGLE	9
 
@@ -254,16 +259,16 @@ static float MarkerScale=2.0;
 
 d_marker_state MarkerState;
 
-unsigned d_marker_state::get_biased_marker_num(const unsigned game_mode, const unsigned player_num, const unsigned base_marker_num)
+game_marker_index convert_player_marker_index_to_game_marker_index(const unsigned game_mode, const unsigned max_numplayers, const unsigned player_num, const player_marker_index player_marker_num)
 {
 	if (game_mode & GM_MULTI_COOP)
-		return (player_num * MAX_DROP_MULTI_COOP) + base_marker_num;
+		return static_cast<game_marker_index>((player_num * MAX_DROP_MULTI_COOP) + static_cast<unsigned>(player_marker_num));
 	if (game_mode & GM_MULTI)
-		return (player_num * MAX_DROP_MULTI_COMPETITIVE) + base_marker_num;
-	return base_marker_num;
+		return static_cast<game_marker_index>((player_num * MAX_DROP_MULTI_COMPETITIVE) + static_cast<unsigned>(player_marker_num));
+	return game_marker_index{player_marker_num};
 }
 
-unsigned d_marker_state::get_markers_per_player(const unsigned game_mode)
+unsigned d_marker_state::get_markers_per_player(const unsigned game_mode, const unsigned max_numplayers)
 {
 	if (game_mode & GM_MULTI_COOP)
 		return MAX_DROP_MULTI_COOP;
@@ -272,12 +277,47 @@ unsigned d_marker_state::get_markers_per_player(const unsigned game_mode)
 	return MAX_DROP_SINGLE;
 }
 
+xrange<player_marker_index> get_player_marker_range(const unsigned maxdrop)
+{
+	const auto base = player_marker_index::_0;
+	return {base, static_cast<player_marker_index>(static_cast<unsigned>(base) + maxdrop)};
+}
+
+playernum_t get_marker_owner(const unsigned game_mode, const game_marker_index gmi, const unsigned max_numplayers)
+{
+	const auto ugmi = static_cast<unsigned>(gmi);
+	if (game_mode & GM_MULTI_COOP)
+	{
+		/* This is split out to encourage the compiler to recognize that
+		 * the divisor is a constant in every path, and in every path,
+		 * the divisor was chosen to allow use of right shift in place
+		 * of division.
+		 */
+		if (MAX_DROP_MULTI_COOP_P)
+			return ugmi / MAX_DROP_MULTI_COOP_0;
+		return ugmi / MAX_DROP_MULTI_COOP_1;
+	}
+	if (game_mode & GM_MULTI)
+		return ugmi / MAX_DROP_MULTI_COMPETITIVE;
+	return 0;
+}
+
+namespace {
+
+xrange<game_marker_index> get_game_marker_range(const unsigned game_mode, const unsigned max_numplayers, const unsigned player_num, const unsigned maxdrop)
+{
+	const auto base = convert_player_marker_index_to_game_marker_index(game_mode, max_numplayers, player_num, player_marker_index::_0);
+	return {base, static_cast<game_marker_index>(static_cast<unsigned>(base) + maxdrop)};
+}
+
+}
+
 }
 #endif
 
 # define automap_draw_line g3_draw_line
 #if DXX_USE_OGL
-#define DrawMarkerNumber(C,a,b,c)	DrawMarkerNumber(a,b,c)
+#define DrawMarkerNumber(C,a,b,c,d)	DrawMarkerNumber(a,b,c,d)
 #define draw_all_edges(C,a)	draw_all_edges(a)
 #endif
 
@@ -294,13 +334,13 @@ static inline void ClearMarkers()
 {
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-static void DrawMarkerNumber(grs_canvas &canvas, const automap *am, unsigned num, const g3s_point &BasePoint)
+static void DrawMarkerNumber(grs_canvas &canvas, const automap *am, const game_marker_index gmi, const player_marker_index pmi, const g3s_point &BasePoint)
 {
 	struct xy
 	{
 		float x0, y0, x1, y1;
 	};
-	static constexpr std::array<std::array<xy, 5>, 9> sArray = {{
+	static constexpr enumerated_array<std::array<xy, 5>, 9, player_marker_index> sArray = {{{
 		{{
 			{-0.25, 0.75, 0, 1},
 			{0, 1, 0, -1},
@@ -355,13 +395,13 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap *am, unsigned num
 			{-1, 0, 1, 0},
 			{-1, 0, -1, 1},
 		 }}
-	}};
-	static constexpr std::array<uint_fast8_t, 9> NumOfPoints = {{3, 5, 4, 3, 5, 5, 2, 5, 4}};
+	}}};
+	static constexpr enumerated_array<uint_fast8_t, 9, player_marker_index> NumOfPoints = {{{3, 5, 4, 3, 5, 5, 2, 5, 4}}};
 
-	const auto color = (num == MarkerState.HighlightMarker ? am->white_63 : am->blue_48);
+	const auto color = (gmi == MarkerState.HighlightMarker ? am->white_63 : am->blue_48);
 	const auto scale_x = Matrix_scale.x;
 	const auto scale_y = Matrix_scale.y;
-	range_for (const auto &i, unchecked_partial_range(&sArray[num][0], NumOfPoints[num]))
+	range_for (const auto &i, unchecked_partial_range(sArray[pmi].data(), NumOfPoints[pmi]))
 	{
 		const auto ax0 = i.x0 * MarkerScale;
 		const auto ay0 = i.y0 * MarkerScale;
@@ -381,10 +421,8 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap *am, unsigned num
 	}
 }
 
-static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, const object &plrobj, const unsigned player_marker_num)
+static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, const object &plrobj, const game_marker_index marker_num, const player_marker_index player_marker_num)
 {
-	const unsigned marker_num = MarkerState.get_biased_marker_num(Game_mode, Player_num, player_marker_num);
-
 	auto &marker_objidx = MarkerState.imobjidx[marker_num];
 	if (marker_objidx != object_none)
 		obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(marker_objidx));
@@ -399,10 +437,9 @@ void DropBuddyMarker(object &objp)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	int marker_num;
 
-	static_assert(MAX_DROP_SINGLE + 1 <= NUM_MARKERS - 1, "not enough markers");
-	marker_num = MAX_DROP_SINGLE+1;
+	constexpr auto marker_num = game_marker_index::GuidebotDeathSite;
+	static_assert(MarkerState.message.valid_index(marker_num), "not enough markers");
 
 	auto &MarkerMessage = MarkerState.message[marker_num];
 	snprintf(&MarkerMessage[0], MarkerMessage.size(), "RIP: %s", static_cast<const char *>(PlayerCfg.GuidebotName));
@@ -421,31 +458,49 @@ static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap *const 
 	static int cyc=10,cycdir=1;
 
 	const auto game_mode = Game_mode;
-	const auto mb = &MarkerState.imobjidx[MarkerState.get_biased_marker_num(game_mode, Player_num, 0)];
-	const auto me = std::next(mb, MarkerState.get_markers_per_player(game_mode));
-	for (auto iter = mb;;)
+	const auto max_numplayers = Netgame.max_numplayers;
+	const auto maxdrop = MarkerState.get_markers_per_player(game_mode, max_numplayers);
+	const auto &&game_marker_range = get_game_marker_range(game_mode, max_numplayers, Player_num, maxdrop);
+	const auto &&player_marker_range = get_player_marker_range(maxdrop);
+	const auto &&zipped_marker_range = zip(game_marker_range, player_marker_range, unchecked_partial_range(&MarkerState.imobjidx[*game_marker_range.begin()], maxdrop));
+	const auto &&mb = zipped_marker_range.begin();
+	const auto &&me = zipped_marker_range.end();
+	auto iter = mb;
+	/* Find the first marker object in the player's marker range that is
+	 * not object_none.  If every marker object in the range is
+	 * object_none, then there are no markers to draw, so return.
+	 */
+	for (;;)
 	{
-		if (*iter != object_none)
+		auto &&[gmi, pmi, objidx] = *iter;
+		(void)gmi;
+		(void)pmi;
+		if (objidx != object_none)
 			break;
 		if (++ iter == me)
 			return;
 	}
+	/* A marker was found, so at least one marker will be drawn.  Set up
+	 * colors for the markers.
+	 */
 	const auto current_cycle_color = cyc;
 	const std::array<color_t, 3> colors{{
 		gr_find_closest_color_current(current_cycle_color, 0, 0),
 		gr_find_closest_color_current(current_cycle_color + 10, 0, 0),
 		gr_find_closest_color_current(current_cycle_color + 20, 0, 0),
 	}};
-	unsigned i = 0;
-	for (auto iter = mb; iter != me; ++iter, ++i)
-		if (*iter != object_none)
+	for (; iter != me; ++iter)
+	{
+		auto &&[gmi, pmi, objidx] = *iter;
+		if (objidx != object_none)
 		{
-			auto sphere_point = g3_rotate_point(vcobjptr(*iter)->pos);
+			const auto &&sphere_point = g3_rotate_point(vcobjptr(objidx)->pos);
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE, colors[0]);
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE / 2, colors[1]);
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE / 4, colors[2]);
-			DrawMarkerNumber(canvas, am, i, sphere_point);
+			DrawMarkerNumber(canvas, am, gmi, pmi, sphere_point);
 		}
+	}
 
 	if (cycdir)
 		cyc+=2;
@@ -784,14 +839,11 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	{
-		const unsigned HighlightMarker = MarkerState.HighlightMarker;
-		if (HighlightMarker < MarkerState.message.size())
+		const auto HighlightMarker = MarkerState.HighlightMarker;
+		if (MarkerState.message.valid_index(HighlightMarker))
 		{
 			auto &m = MarkerState.message[HighlightMarker];
-			if (m[0])
-			{
-				gr_printf(canvas, *canvas.cv_font, (SWIDTH/64), (SHEIGHT/18), "Marker %d: %s", HighlightMarker + 1, &m[0]);
-			}
+			gr_printf(canvas, *canvas.cv_font, (SWIDTH/64), (SHEIGHT/18), "Marker %u%c %s", static_cast<unsigned>(HighlightMarker) + 1, m[0] ? ':' : 0, &m[0]);
 		}
 	}
 #endif
@@ -910,25 +962,25 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 		case KEY_8:
 		case KEY_9:
 		case KEY_0:
-			
 			{
 				const auto game_mode = Game_mode;
-				const unsigned maxdrop = MarkerState.get_markers_per_player(game_mode);
-				const unsigned marker_num = c - KEY_1;
+				const auto max_numplayers = Netgame.max_numplayers;
+				const auto maxdrop = MarkerState.get_markers_per_player(game_mode, max_numplayers);
+				const uint8_t marker_num = c - KEY_1;
 				if (marker_num <= maxdrop)
 				{
-					const unsigned biased_marker_num = MarkerState.get_biased_marker_num(game_mode, Player_num, marker_num);
-					if (MarkerState.imobjidx[biased_marker_num] != object_none)
-						MarkerState.HighlightMarker = biased_marker_num;
+					const auto gmi = convert_player_marker_index_to_game_marker_index(game_mode, max_numplayers, Player_num, player_marker_index{marker_num});
+					if (MarkerState.imobjidx[gmi] != object_none)
+						MarkerState.HighlightMarker = gmi;
 				}
 				else
-					MarkerState.HighlightMarker = UINT8_MAX;
+					MarkerState.HighlightMarker = game_marker_index::None;
 			}
 			return window_event_result::handled;
 		case KEY_D+KEY_CTRLED:
 			{
 				const auto HighlightMarker = MarkerState.HighlightMarker;
-				if (HighlightMarker >= MarkerState.imobjidx.size())
+				if (!MarkerState.imobjidx.valid_index(HighlightMarker))
 					return window_event_result::handled;
 				auto &mo = MarkerState.imobjidx[HighlightMarker];
 				if (mo == object_none)
@@ -940,7 +992,7 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 					 */
 					obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(std::exchange(mo, object_none)));
 					MarkerState.message[HighlightMarker] = {};
-					MarkerState.HighlightMarker = UINT8_MAX;
+					MarkerState.HighlightMarker = game_marker_index::None;
 				}
 				set_screen_mode(SCREEN_GAME);
 			}
@@ -1566,23 +1618,37 @@ static unsigned Marker_index;
 
 void InitMarkerInput ()
 {
-	unsigned i;
-
 	//find free marker slot
-
 	const auto game_mode = Game_mode;
-	const auto maxdrop = MarkerState.get_markers_per_player(game_mode);
-	for (i=0;i<maxdrop;i++)
-		if (MarkerState.imobjidx[MarkerState.get_biased_marker_num(game_mode, Player_num, i)] == object_none)		//found free slot!
-			break;
-
-	if (i==maxdrop)		//no free slot
+	const auto max_numplayers = Netgame.max_numplayers;
+	const auto maxdrop = MarkerState.get_markers_per_player(game_mode, max_numplayers);
+	const auto &&game_marker_range = get_game_marker_range(game_mode, max_numplayers, Player_num, maxdrop);
+	const auto &&player_marker_range = get_player_marker_range(maxdrop);
+	const auto &&zipped_marker_range = zip(game_marker_range, player_marker_range, unchecked_partial_range(&MarkerState.imobjidx[*game_marker_range.begin()], maxdrop));
+	const auto &&mb = zipped_marker_range.begin();
+	const auto &&me = zipped_marker_range.end();
+	auto iter = mb;
+	for (;;)
 	{
-		if (game_mode & GM_MULTI)
-			i = (MarkerState.LastMarkerDropped + 1) & (maxdrop - 1);		//in multi, replace oldest
-		else {
-			HUD_init_message_literal(HM_DEFAULT, "No free marker slots");
-			return;
+		auto &&[gmi, pmi, objidx] = *iter;
+		if (objidx == object_none)		//found free slot!
+		{
+			MarkerState.MarkerBeingDefined = pmi;
+			break;
+		}
+		if (++ iter == me)		//no free slot
+		{
+			if (game_mode & GM_MULTI)
+			{
+				//in multi, replace oldest
+				MarkerState.MarkerBeingDefined = static_cast<player_marker_index>((static_cast<unsigned>(MarkerState.LastMarkerDropped) + 1) & (maxdrop - 1));
+				break;
+			}
+			else
+			{
+				HUD_init_message_literal(HM_DEFAULT, "No free marker slots");
+				return;
+			}
 		}
 	}
 
@@ -1590,7 +1656,6 @@ void InitMarkerInput ()
 
 	Marker_input[0]=0;
 	Marker_index=0;
-	MarkerState.MarkerBeingDefined = i;
 	key_toggle_repeat(1);
 }
 
@@ -1610,15 +1675,16 @@ window_event_result MarkerInputMessage(int key)
 			break;
 		case KEY_ENTER:
 			{
-				const auto MarkerBeingDefined = MarkerState.MarkerBeingDefined;
-				MarkerState.LastMarkerDropped = MarkerBeingDefined;
-				MarkerState.message[MarkerState.get_biased_marker_num(Game_mode, Player_num, MarkerBeingDefined)] = Marker_input;
-				DropMarker(vmobjptridx, vmsegptridx, get_local_plrobj(), MarkerBeingDefined);
+				const auto player_marker_num = MarkerState.MarkerBeingDefined;
+				MarkerState.LastMarkerDropped = player_marker_num;
+				const auto game_marker_num = convert_player_marker_index_to_game_marker_index(Game_mode, Netgame.max_numplayers, Player_num, player_marker_num);
+				MarkerState.message[game_marker_num] = Marker_input;
+				DropMarker(vmobjptridx, vmsegptridx, get_local_plrobj(), game_marker_num, player_marker_num);
 			}
 			DXX_BOOST_FALLTHROUGH;
 		case KEY_F8:
 		case KEY_ESC:
-			MarkerState.MarkerBeingDefined = UINT8_MAX;
+			MarkerState.MarkerBeingDefined = player_marker_index::None;
 			key_toggle_repeat(0);
 			game_flush_inputs();
 			break;

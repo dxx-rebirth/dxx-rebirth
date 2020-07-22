@@ -2367,7 +2367,7 @@ static void obj_detach_all(object_array &Objects, object_base &parent)
 
 #if defined(DXX_BUILD_DESCENT_II)
 //creates a marker object in the world.  returns the object number
-imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segnum, const vms_matrix &orient, const unsigned marker_num)
+imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segnum, const vms_matrix &orient, const game_marker_index marker_num)
 {
 	Assert(Marker_model_num != -1);
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
@@ -2375,7 +2375,7 @@ imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segn
 		((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view)
 		? MT_NONE
 		: MT_SPINNING;
-	const auto &&obj = obj_create(OBJ_MARKER, marker_num, segnum, pos, &orient, Polygon_models[Marker_model_num].rad, CT_NONE, movement_type, RT_POLYOBJ);
+	const auto &&obj = obj_create(OBJ_MARKER, static_cast<unsigned>(marker_num), segnum, pos, &orient, Polygon_models[Marker_model_num].rad, CT_NONE, movement_type, RT_POLYOBJ);
 	if (obj != object_none) {
 		auto &o = *obj;
 		o.rtype.pobj_info.model_num = Marker_model_num;

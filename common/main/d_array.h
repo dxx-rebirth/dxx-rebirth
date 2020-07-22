@@ -6,6 +6,7 @@
  */
 
 #pragma once
+#include "dxxsconf.h"
 #include <array>
 #include <cstddef>
 
@@ -43,6 +44,16 @@ struct enumerated_array : std::array<T, N>
 	constexpr const_reference operator[](E position) const
 	{
 		return this->base_type::operator[](static_cast<std::size_t>(position));
+	}
+	__attribute_warn_unused_result
+	static constexpr bool valid_index(std::size_t s)
+	{
+		return s < N;
+	}
+	__attribute_warn_unused_result
+	static constexpr bool valid_index(E e)
+	{
+		return valid_index(static_cast<std::size_t>(e));
 	}
 };
 

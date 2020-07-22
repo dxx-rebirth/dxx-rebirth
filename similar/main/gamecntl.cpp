@@ -626,7 +626,7 @@ static int select_next_window_function(int w)
 			Coop_view_player[w] = UINT_MAX;		//force first player
 			DXX_BOOST_FALLTHROUGH;
 		case CV_COOP:
-			Marker_viewer_num[w] = ~0u;
+			Marker_viewer_num[w] = game_marker_index::None;
 			if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) {
 				PlayerCfg.Cockpit3DView[w] = CV_COOP;
 				for (;;)
@@ -655,12 +655,16 @@ static int select_next_window_function(int w)
 		case_marker:;
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view) {	//anarchy only
 				PlayerCfg.Cockpit3DView[w] = CV_MARKER;
-				if (Marker_viewer_num[w] >= MarkerState.imobjidx.size())
-					Marker_viewer_num[w] = Player_num * 2;
-				else if (Marker_viewer_num[w] == Player_num * 2)
-					Marker_viewer_num[w]++;
+				auto &mvn = Marker_viewer_num[w];
+				const auto gmi0 = convert_player_marker_index_to_game_marker_index(Game_mode, Netgame.max_numplayers, Player_num, player_marker_index::_0);
+				if (!MarkerState.imobjidx.valid_index(mvn))
+					mvn = gmi0;
 				else
-					PlayerCfg.Cockpit3DView[w] = CV_NONE;
+				{
+					++ mvn;
+					if (!MarkerState.imobjidx.valid_index(mvn))
+						PlayerCfg.Cockpit3DView[w] = CV_NONE;
+				}
 			}
 			else
 				PlayerCfg.Cockpit3DView[w] = CV_NONE;

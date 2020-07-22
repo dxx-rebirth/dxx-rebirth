@@ -118,7 +118,7 @@ void init_buddy_for_level(void)
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	BuddyState = {};
 	BuddyState.Buddy_gave_hint_count = 5;
-	BuddyState.Looking_for_marker = UINT8_MAX;
+	BuddyState.Looking_for_marker = game_marker_index::None;
 	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	BuddyState.Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	BuddyState.Last_buddy_key = -1;
@@ -277,7 +277,7 @@ static void record_escort_goal_accomplished()
 		digi_play_sample_once(SOUND_BUDDY_MET_GOAL, F1_0);
 		BuddyState.Escort_goal_objidx = object_none;
 		BuddyState.Escort_goal_reachable = d_unique_buddy_state::Escort_goal_reachability::unreachable;
-		BuddyState.Looking_for_marker = UINT8_MAX;
+		BuddyState.Looking_for_marker = game_marker_index::None;
 		BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		BuddyState.Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	}
@@ -464,7 +464,7 @@ static void thief_message(const char * format, ... )
 
 //	-----------------------------------------------------------------------------
 //	Return true if marker #id has been placed.
-static int marker_exists_in_mine(int id)
+static int marker_exists_in_mine(const game_marker_index id)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -505,25 +505,26 @@ void set_escort_special_goal(d_unique_buddy_state &BuddyState, const int raw_spe
 	if (BuddyState.Last_buddy_key == special_key)
 	{
 		auto &Looking_for_marker = BuddyState.Looking_for_marker;
-		if (Looking_for_marker == UINT8_MAX && special_key != KEY_0)
+		if (Looking_for_marker == game_marker_index::None && special_key != KEY_0)
 		{
-			if (marker_exists_in_mine(marker_key - KEY_1))
-				Looking_for_marker = marker_key - KEY_1;
+			const unsigned zero_based_marker_id = marker_key - KEY_1;
+			const auto gmi = static_cast<game_marker_index>(zero_based_marker_id);
+			if (marker_exists_in_mine(gmi))
+				Looking_for_marker = gmi;
 			else {
-				buddy_message_ignore_time("Marker %i not placed.", marker_key - KEY_1 + 1);
-				Looking_for_marker = UINT8_MAX;
+				buddy_message_ignore_time("Marker %i not placed.", zero_based_marker_id + 1);
+				Looking_for_marker = game_marker_index::None;
 			}
 		} else {
-			Looking_for_marker = UINT8_MAX;
+			Looking_for_marker = game_marker_index::None;
 		}
 	}
 
 	BuddyState.Last_buddy_key = special_key;
 
 	if (special_key == KEY_0)
-		BuddyState.Looking_for_marker = UINT8_MAX;
-		
-	else if (BuddyState.Looking_for_marker != UINT8_MAX)
+		BuddyState.Looking_for_marker = game_marker_index::None;
+	else if (BuddyState.Looking_for_marker != game_marker_index::None)
 	{
 		BuddyState.Escort_special_goal = static_cast<escort_goal_t>(ESCORT_GOAL_MARKER1 + marker_key - KEY_1);
 	} else {
@@ -744,8 +745,8 @@ static void say_escort_goal(const escort_goal_t goal_num)
 		case ESCORT_GOAL_MARKER8:
 		case ESCORT_GOAL_MARKER9:
 			{
-				const unsigned zero_based_goal_num = goal_num - ESCORT_GOAL_MARKER1;
-				buddy_message("Finding marker %i: '%.24s'", zero_based_goal_num + 1, &MarkerState.message[zero_based_goal_num][0]);
+				const uint8_t zero_based_goal_num = goal_num - ESCORT_GOAL_MARKER1;
+				buddy_message("Finding marker %i: '%.24s'", zero_based_goal_num + 1, &MarkerState.message[game_marker_index{zero_based_goal_num}][0]);
 			}
 			return;
 	}
@@ -755,7 +756,7 @@ static void say_escort_goal(const escort_goal_t goal_num)
 static void clear_escort_goals()
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
-	BuddyState.Looking_for_marker = UINT8_MAX;
+	BuddyState.Looking_for_marker = game_marker_index::None;
 	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	BuddyState.Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 }
@@ -781,7 +782,7 @@ static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *const aip, co
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 	if ((aip->path_length > 0) && (Point_segs[aip->hide_index + aip->path_length - 1].segnum != goal_seg)) {
 		const unsigned goal_text_index = std::exchange(BuddyState.Escort_goal_object, ESCORT_GOAL_SCRAM) - 1;
-		BuddyState.Looking_for_marker = UINT8_MAX;
+		BuddyState.Looking_for_marker = game_marker_index::None;
 		auto &plr = get_player_controlling_guidebot(BuddyState, Players);
 		if (plr.objnum == object_none)
 			return;
@@ -834,7 +835,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 
 	const auto powerup_flags = player_info.powerup_flags;
 	const auto Escort_goal_object = BuddyState.Escort_goal_object;
-	if (BuddyState.Looking_for_marker != UINT8_MAX)
+	if (BuddyState.Looking_for_marker != game_marker_index::None)
 	{
 		goal_seg = escort_get_goal_segment(objp, OBJ_MARKER, Escort_goal_object - ESCORT_GOAL_MARKER1, powerup_flags);
 	} else {
@@ -1861,7 +1862,7 @@ window_event_result escort_menu::event_key_command(const d_event &event)
 		case KEY_7:
 		case KEY_8:
 		case KEY_9:
-			BuddyState.Looking_for_marker = UINT8_MAX;
+			BuddyState.Looking_for_marker = game_marker_index::None;
 			BuddyState.Last_buddy_key = -1;
 			set_escort_special_goal(BuddyState, key);
 			BuddyState.Last_buddy_key = -1;

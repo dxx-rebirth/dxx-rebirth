@@ -1690,7 +1690,10 @@ namespace dsx {
 object *Missile_viewer=NULL;
 object_signature_t Missile_viewer_sig;
 
-std::array<unsigned, 2> Marker_viewer_num{{~0u, ~0u}};
+std::array<game_marker_index, 2> Marker_viewer_num{{
+	game_marker_index::None,
+	game_marker_index::None,
+}};
 std::array<unsigned, 2> Coop_view_player{{UINT_MAX, UINT_MAX}};
 
 //returns ptr to escort robot, or NULL

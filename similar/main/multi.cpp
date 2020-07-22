@@ -2354,27 +2354,37 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 
 static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
 {
-	int i;
-	int mesnum=buf[2];
 	vms_vector position;
 
 	if (pnum==Player_num)  // my marker? don't set it down cuz it might screw up the orientation
+		return;
+
+	const auto mesnum = buf[2];
+	const auto game_mode = Game_mode;
+	const auto max_numplayers = Netgame.max_numplayers;
+	if (mesnum >= MarkerState.get_markers_per_player(game_mode, max_numplayers))
 		return;
 
 	position.x = GET_INTEL_INT(buf + 3);
 	position.y = GET_INTEL_INT(buf + 7);
 	position.z = GET_INTEL_INT(buf + 11);
 
-	const unsigned mnum = (pnum * 2) + mesnum;
-	for (i=0;i<40;i++)
-		MarkerState.message[mnum][i] = buf[15 + i];
+	const auto gmi = convert_player_marker_index_to_game_marker_index(game_mode, max_numplayers, pnum, player_marker_index{mesnum});
+	auto &marker_message = MarkerState.message[gmi];
+	marker_message = {};
+	for (const auto i : xrange(marker_message.size()))
+	{
+		const auto c = marker_message[i] = buf[15 + i];
+		if (!c)
+			break;
+	}
 
-	auto &mo = MarkerState.imobjidx[mnum];
+	auto &mo = MarkerState.imobjidx[gmi];
 	if (mo != object_none)
 		obj_delete(LevelUniqueObjectState, Segments, Objects.vmptridx(mo));
 
 	const auto &&plr_objp = Objects.vcptr(vcplayerptr(pnum)->objnum);
-	mo = drop_marker_object(position, vmsegptridx(plr_objp->segnum), plr_objp->orient, mnum);
+	mo = drop_marker_object(position, vmsegptridx(plr_objp->segnum), plr_objp->orient, gmi);
 }
 
 }
@@ -2595,20 +2605,17 @@ void multi_send_destroy_controlcen(const objnum_t objnum, const playernum_t play
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void multi_send_drop_marker (int player,const vms_vector &position,char messagenum,const marker_message_text_t &text)
+void multi_send_drop_marker(const unsigned player, const vms_vector &position, const player_marker_index messagenum, const marker_message_text_t &text)
 {
-	if (player<N_players)
-	{
 		uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 		multibuf[1]=static_cast<char>(player);
-		multibuf[2]=messagenum;
+		multibuf[2] = static_cast<uint8_t>(messagenum);
 		PUT_INTEL_INT(&multibuf[3], position.x);
 		PUT_INTEL_INT(&multibuf[7], position.y);
 		PUT_INTEL_INT(&multibuf[11], position.z);
-		for (unsigned i = 0; i < text.size(); i++)
+		for (const auto i : xrange(text.size()))
 			multibuf[15+i]=text[i];
 		multi_send_data<MULTI_MARKER>(multibuf, 15 + text.size(), 2);
-	}
 }
 
 void multi_send_markers()
@@ -2616,16 +2623,19 @@ void multi_send_markers()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	// send marker positions/text to new player
-	int i;
 
-	for (i = 0; i < N_players; i++)
+	const auto game_mode = Game_mode;
+	const auto max_numplayers = Netgame.max_numplayers;
+	auto &&player_marker_range = get_player_marker_range(MarkerState.get_markers_per_player(game_mode, max_numplayers));
+	for (const playernum_t pnum : xrange(max_numplayers))
 	{
-		auto mo = MarkerState.imobjidx[(i * 2)];
-		if (mo!=object_none)
-			multi_send_drop_marker(i, vcobjptr(mo)->pos, 0, MarkerState.message[i * 2]);
-		mo = MarkerState.imobjidx[(i * 2) + 1];
-		if (mo!=object_none)
-			multi_send_drop_marker(i, vcobjptr(mo)->pos, 1, MarkerState.message[(i * 2) + 1]);
+		for (const auto pmi : player_marker_range)
+		{
+			const auto gmi = convert_player_marker_index_to_game_marker_index(game_mode, max_numplayers, pnum, pmi);
+			const auto mo = MarkerState.imobjidx[gmi];
+			if (mo != object_none)
+				multi_send_drop_marker(pnum, vcobjptr(mo)->pos, pmi, MarkerState.message[gmi]);
+		}
 	}
 }
 #endif

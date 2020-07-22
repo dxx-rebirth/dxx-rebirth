@@ -114,6 +114,10 @@ public:
 	{
 		return std::get<0>(*this) != std::get<0>(i);
 	}
+	bool operator==(const zip_iterator &i) const
+	{
+		return !(*this != i);
+	}
 };
 
 template <typename range0_iterator_type, typename... rangeN_iterator_type>

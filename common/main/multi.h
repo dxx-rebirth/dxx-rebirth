@@ -456,7 +456,7 @@ namespace dsx {
 extern char Multi_is_guided;
 void multi_send_flags(playernum_t);
 struct marker_message_text_t;
-void multi_send_drop_marker (int player,const vms_vector &position,char messagenum,const marker_message_text_t &text);
+void multi_send_drop_marker(unsigned player, const vms_vector &position, player_marker_index messagenum, const marker_message_text_t &text);
 void multi_send_markers();
 void multi_send_guided_info (const object_base &miss, char);
 void multi_send_orb_bonus(playernum_t pnum, uint8_t);

@@ -312,8 +312,10 @@ window_event_result dead_player_frame();
 
 #if defined(DXX_BUILD_DESCENT_II)
 extern int Drop_afterburner_blob_flag;		//ugly hack
+enum class game_marker_index : uint8_t;
+enum class player_marker_index : uint8_t;
 // returns object number
-imobjptridx_t drop_marker_object(const vms_vector &pos, vmsegptridx_t segnum, const vms_matrix &orient, unsigned marker_num);
+imobjptridx_t drop_marker_object(const vms_vector &pos, vmsegptridx_t segnum, const vms_matrix &orient, game_marker_index marker_num);
 
 void wake_up_rendered_objects(const object &gmissp, window_rendered_data &window);
 

@@ -734,7 +734,7 @@ static void show_one_extra_view(const int w)
 				char label[10];
 				RenderingType=5+(w<<4);
 				const auto mvn = Marker_viewer_num[w];
-				if (mvn >= MarkerState.imobjidx.size())
+				if (!MarkerState.imobjidx.valid_index(mvn))
 				{
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 					break;
@@ -745,7 +745,8 @@ static void show_one_extra_view(const int w)
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 					break;
 				}
-				snprintf(label, sizeof(label), "Marker %u", mvn + 1);
+				const auto displayed_marker_id = static_cast<unsigned>(mvn) + 1;
+				snprintf(label, sizeof(label), "Marker %u", displayed_marker_id);
 				do_cockpit_window_view(w, *vcobjptr(mo), 0, WBU_MARKER, label);
 				break;
 			}

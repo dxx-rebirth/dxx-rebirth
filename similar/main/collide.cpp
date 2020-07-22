@@ -1179,18 +1179,20 @@ static void collide_player_and_marker(const object_base &playerobj, const vmobjp
 	if (get_player_id(playerobj)==Player_num) {
 		int drawn;
 
-		const unsigned marker_id = get_marker_id(marker);
+		const auto marker_id = get_marker_id(marker);
 		auto &msg = MarkerState.message[marker_id];
 		if (Game_mode & GM_MULTI)
 		{
-			drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %s: %s", static_cast<const char *>(vcplayerptr(marker_id / 2)->callsign), &msg[0]);
+			const auto marker_owner = get_marker_owner(Game_mode, marker_id, Netgame.max_numplayers);
+			drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %s: %s", static_cast<const char *>(vcplayerptr(marker_owner)->callsign), &msg[0]);
 		}
 		else
 		{
+			const auto displayed_marker_id = static_cast<unsigned>(marker_id) + 1;
 			if (msg[0])
-				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d: %s", marker_id + 1, &msg[0]);
+				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d: %s", displayed_marker_id, &msg[0]);
 			else
-				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d", marker_id + 1);
+				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d", displayed_marker_id);
 	   }
 
 		if (drawn)
