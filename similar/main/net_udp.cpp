@@ -65,6 +65,7 @@
 #include "dxxsconf.h"
 #include "compiler-cf_assert.h"
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 #include <array>
 #include <utility>
@@ -75,6 +76,8 @@
 #define UDP_REQ_ID "D2XR" // ID string for a request packet
 #endif
 
+namespace {
+
 // player position packet structure
 struct UDP_frame_info : prohibit_void_ptr<UDP_frame_info>
 {
@@ -83,6 +86,16 @@ struct UDP_frame_info : prohibit_void_ptr<UDP_frame_info>
 	ubyte				connected;
 	quaternionpos			qpp;
 };
+
+enum class join_netgame_status_code : unsigned
+{
+	game_in_disallowed_state,
+	game_has_capacity,
+	game_is_full,
+	game_refuses_players,
+};
+
+}
 
 // Prototypes
 static void net_udp_init();
@@ -1494,50 +1507,44 @@ int net_udp_endlevel(int *secret)
 }
 }
 
-int 
-static net_udp_can_join_netgame(netgame_info *game)
+static join_netgame_status_code net_udp_can_join_netgame(const netgame_info *const game)
 {
 	// Can this player rejoin a netgame in progress?
-
-	int num_players;
-
 	if (game->game_status == NETSTAT_STARTING)
-		return 1;
+		return join_netgame_status_code::game_has_capacity;
 
 	if (game->game_status != NETSTAT_PLAYING)
-	{
-		return 0;
-	}
+		return join_netgame_status_code::game_in_disallowed_state;
 
 	// Game is in progress, figure out if this guy can re-join it
 
-	num_players = game->numplayers;
+	const unsigned num_players = game->numplayers;
 
 	if (!(game->game_flag.closed)) {
 		// Look for player that is not connected
 		
 		if (game->numconnected==game->max_numplayers)
-			return (2);
+			return join_netgame_status_code::game_is_full;
 		
 		if (game->RefusePlayers)
-			return (3);
+			return join_netgame_status_code::game_refuses_players;
 		
-		if (game->numplayers < game->max_numplayers)
-			return 1;
+		if (num_players < game->max_numplayers)
+			return join_netgame_status_code::game_has_capacity;
 
 		if (game->numconnected<num_players)
-			return 1;
+			return join_netgame_status_code::game_has_capacity;
 	}
 
 	// Search to see if we were already in this closed netgame in progress
 
 	auto &plr = get_local_player();
-	for (unsigned i = 0; i < num_players; ++i)
+	for (const auto i : xrange(num_players))
 	{
 		if (plr.callsign == game->players[i].callsign && i == game->protocol.udp.your_index)
-			return 1;
+			return join_netgame_status_code::game_has_capacity;
 	}
-	return 0;
+	return join_netgame_status_code::game_in_disallowed_state;
 }
 
 // do UDP stuff to disconnect a player. Should ONLY be called from multi_disconnect_player()
@@ -4712,7 +4719,7 @@ int net_udp_do_join_game()
 	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
 #endif
 
-	if (!net_udp_can_join_netgame(&Netgame))
+	if (net_udp_can_join_netgame(&Netgame) == join_netgame_status_code::game_in_disallowed_state)
 	{
 		nm_messagebox(TXT_SORRY, 1, TXT_OK, Netgame.numplayers == Netgame.max_numplayers ? TXT_GAME_FULL : TXT_IN_PROGRESS);
 		return 0;
