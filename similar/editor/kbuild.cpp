@@ -121,7 +121,7 @@ int CreateSloppyAdjacentJoint()
 				}
 			else editor_status("Could not form sloppy joint.\n");
 		} else
-			editor_status("Attempted to form sloppy joint through connected side -- joint segment not formed (you bozo).");
+			editor_status("Attempted to form sloppy joint through connected side -- joint segment not formed.");
 	} else
 		editor_status("Could not find close threshold segment -- joint segment not formed.");
 

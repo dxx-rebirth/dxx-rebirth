@@ -169,21 +169,20 @@ public:
 
 static editor_dialog editor_window;
 
-
-static void print_status_bar(char (&message)[DIAGNOSTIC_MESSAGE_MAX])
+static void print_status_bar(const std::array<char, DIAGNOSTIC_MESSAGE_MAX> &message)
 {
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	const auto &editor_font = *::editor_font;
 	gr_set_fontcolor(canvas, CBLACK, CGREY);
 	int w,h;
-	gr_get_string_size(editor_font, message, &w, &h, nullptr);
-	gr_string(canvas, editor_font, 4, 583, message, w, h);
+	gr_get_string_size(editor_font, message.data(), &w, &h, nullptr);
+	gr_string(canvas, editor_font, 4, 583, message.data(), w, h);
 	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 	gr_rect(canvas, 4+w, 583, 799, 599, CGREY);
 }
 
-static char status_line[DIAGNOSTIC_MESSAGE_MAX] = "";
+static std::array<char, DIAGNOSTIC_MESSAGE_MAX> status_line;
 
 struct tm	Editor_status_last_time;
 
@@ -192,7 +191,7 @@ void (editor_status_fmt)( const char *format, ... )
 	va_list ap;
 
 	va_start(ap, format);
-	vsnprintf(status_line, sizeof(status_line), format, ap);
+	vsnprintf(status_line.data(), status_line.size(), format, ap);
 	va_end(ap);
 
 	Editor_status_last_time = Editor_time_of_day;
@@ -200,8 +199,8 @@ void (editor_status_fmt)( const char *format, ... )
 
 void editor_status( const char *text)
 {
-	strcpy(status_line, text);
 	Editor_status_last_time = Editor_time_of_day;
+	strcpy(status_line.data(), text);
 }
 
 // 	int  tm_sec;	/* seconds after the minute -- [0,61] */
@@ -220,12 +219,8 @@ static void clear_editor_status(void)
 	int erase_time = Editor_status_last_time.tm_hour * 3600 + Editor_status_last_time.tm_min*60 + Editor_status_last_time.tm_sec + EDITOR_STATUS_MESSAGE_DURATION;
 
 	if (cur_time > erase_time) {
-		int	i;
-
-		for (i=0; i<DIAGNOSTIC_MESSAGE_MAX-1; i++)
-			status_line[i] = ' ';
-
-		status_line[i] = 0;
+		std::fill(status_line.begin(), std::prev(status_line.end()), ' ');
+		status_line.back() = 0;
 		Editor_status_last_time.tm_hour = 99;
 	}
 }
