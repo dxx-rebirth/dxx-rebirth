@@ -754,6 +754,7 @@ namespace {
 //-------------------------------------------------------------------
 struct state_userdata
 {
+	static constexpr std::integral_constant<unsigned, 1> decorative_item_count = {};
 	unsigned citem;
 	std::array<grs_bitmap_ptr, NUM_SAVES> sc_bmp;
 };
@@ -769,7 +770,8 @@ static int state_callback(newmenu *menu,const d_event &event, state_userdata *co
 		userdata->citem = static_cast<const d_select_event &>(event).citem;
 	else if (event.type == EVENT_NEWMENU_DRAW && (citem = newmenu_get_citem(menu)) > 0)
 	{
-		if ( sc_bmp[citem-1] )	{
+		if (sc_bmp[citem - userdata->decorative_item_count])
+		{
 			const auto &&fspacx = FSPACX();
 			const auto &&fspacy = FSPACY();
 #if !DXX_USE_OGL
@@ -822,10 +824,11 @@ namespace dsx {
 static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const char *const caption, const blind_save entry_blind)
 {
 	int version, nsaves;
-	std::array<newmenu_item, NUM_SAVES + 1> m;
 	std::array<d_game_unique_state::savegame_file_path, NUM_SAVES> filename;
 	std::array<d_game_unique_state::savegame_description, NUM_SAVES> desc;
 	state_userdata userdata;
+	constexpr auto decorative_item_count = userdata.decorative_item_count;
+	std::array<newmenu_item, NUM_SAVES + decorative_item_count> m;
 	auto &sc_bmp = userdata.sc_bmp;
 	char id[4];
 	int valid;
@@ -837,11 +840,12 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 	 * saves should not access the last slot.  The last slot is reserved
 	 * for autosaves.
 	 */
-	const unsigned max_slots_shown = dsc ? m.size() - 2 : m.size() - 1;
+	const unsigned max_slots_shown = (dsc ? m.size() - 1 : m.size()) - decorative_item_count;
 	range_for (const unsigned i, xrange(max_slots_shown))
 	{
 		state_format_savegame_filename(filename[i], i);
 		valid = 0;
+		auto &mi = m[i + decorative_item_count];
 		if (const auto fp = PHYSFSX_openReadBuffered(filename[i].data()))
 		{
 			//Read id
@@ -859,7 +863,7 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 					PHYSFS_read(fp, desc[i].data(), desc[i].size(), 1);
 					desc[i].back() = 0;
 					if (!dsc)
-						m[i + 1].type = NM_TYPE_MENU;
+						mi.type = NM_TYPE_MENU;
 					// Read thumbnail
 					sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
 					PHYSFS_read(fp, sc_bmp[i]->get_bitmap_data(), THUMBNAIL_W * THUMBNAIL_H, 1);
@@ -875,13 +879,12 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 				}
 			}
 		} 
-		auto &mi = m[i + 1];
+		mi.text = desc[i].data();
 		if (!valid) {
 			strcpy(desc[i].data(), TXT_EMPTY);
 			if (!dsc)
 				mi.type = NM_TYPE_TEXT;
 		}
-		mi.text = desc[i].data();
 		if (dsc)
 		{
 			mi.type = NM_TYPE_INPUT_MENU;
@@ -911,10 +914,10 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 		? quicksave_selection
 		: (
 			userdata.citem = 0,
-			newmenu_do2(nullptr, caption, max_slots_shown + 1, m.data(), state_callback, &userdata, GameUniqueState.valid_save_slot(quicksave_selection) ? static_cast<unsigned>(quicksave_selection) : 0, nullptr),
+			newmenu_do2(nullptr, caption, max_slots_shown + decorative_item_count, m.data(), state_callback, &userdata, (GameUniqueState.valid_save_slot(quicksave_selection) ? static_cast<unsigned>(quicksave_selection) : 0) + decorative_item_count, nullptr),
 			userdata.citem == 0
 			? d_game_unique_state::save_slot::None
-			: static_cast<d_game_unique_state::save_slot>(userdata.citem - 1)
+			: static_cast<d_game_unique_state::save_slot>(userdata.citem - decorative_item_count)
 		);
 
 	if (valid_selection(choice))
@@ -1082,7 +1085,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 	const int rval = state_save_all_sub(filename, desc.data());
 
 	if (rval && secret == secret_save::none)
-		HUD_init_message_literal(HM_DEFAULT, "Game saved");
+		HUD_init_message(HM_DEFAULT, "Game saved to \"%s\": \"%s\"", filename, desc.data());
 
 	return rval;
 }
