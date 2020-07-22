@@ -927,9 +927,16 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 		fname = filename[uchoice];
 		if (dsc)
 		{
-			*dsc = desc[uchoice];
-			if (!dsc->data()[0]) {
-				strcpy(dsc->data(), "-no title-");
+			auto &d = desc[uchoice];
+			if (d.front())
+				*dsc = d;
+			else
+			{
+				time_t t = time(nullptr);
+				if (struct tm *ptm = (t == -1) ? nullptr : localtime(&t))
+					strftime(dsc->data(), dsc->size(), "%m-%d %H:%M:%S", ptm);
+				else
+					strcpy(dsc->data(), "-no title-");
 			}
 		}
 	}
