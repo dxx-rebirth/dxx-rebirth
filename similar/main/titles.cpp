@@ -119,7 +119,6 @@ struct title_screen : ignore_window_pointer_t
 {
 	grs_main_bitmap title_bm;
 	fix64 timer;
-	int allow_keys;
 };
 
 }
@@ -133,7 +132,7 @@ static window_event_result title_handler(window *, const d_event &event, title_s
 		case EVENT_MOUSE_BUTTON_DOWN:
 			if (event_mouse_get_button(event) != 0)
 				return window_event_result::ignored;
-			else if (ts->allow_keys)
+			else
 			{
 				return window_event_result::close;
 			}
@@ -141,14 +140,12 @@ static window_event_result title_handler(window *, const d_event &event, title_s
 
 		case EVENT_KEY_COMMAND:
 			if ((result = call_default_handler(event)) == window_event_result::ignored)
-				if (ts->allow_keys)
 				{
 					return window_event_result::close;
 				}
 			return result;
 
 		case EVENT_JOYSTICK_BUTTON_DOWN:
-			if (ts->allow_keys)
 			{
 				return window_event_result::close;
 			}
@@ -182,7 +179,6 @@ static void show_title_screen(const char *filename)
 	char new_filename[PATH_MAX] = "";
 
 	auto ts = std::make_unique<title_screen>();
-	ts->allow_keys = 1;
 
 	strcat(new_filename,filename);
 	filename = new_filename;
