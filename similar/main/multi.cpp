@@ -1802,6 +1802,9 @@ static void multi_do_player_deres(object_array &Objects, const playernum_t pnum,
 	auto &player_info = objp->ctype.player_info;
 	player_info.primary_weapon_flags = GET_WEAPON_FLAGS(buf, count);
 	player_info.laser_level = stored_laser_level(buf[count]);                           count++;
+	if (game_mode_hoard())
+		player_info.hoard.orbs = buf[count];
+	count++;
 
 	auto &secondary_ammo = player_info.secondary_ammo;
 	secondary_ammo[HOMING_INDEX] = buf[count];                count++;
@@ -2696,6 +2699,7 @@ void multi_send_player_deres(deres_type_t type)
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	PUT_WEAPON_FLAGS(multibuf, count, player_info.primary_weapon_flags);
 	multibuf[count++] = static_cast<char>(player_info.laser_level);
+	multibuf[count++] = game_mode_hoard() ? static_cast<char>(player_info.hoard.orbs) : 0;
 
 	auto &secondary_ammo = player_info.secondary_ammo;
 	multibuf[count++] = secondary_ammo[HOMING_INDEX];

@@ -892,6 +892,7 @@ imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const unsigned nu
 				{	
 					if (Net_create_loc >= MAX_NET_CREATE_OBJECTS)
 					{
+						con_printf(CON_URGENT, DXX_STRINGIZE_FL("%s", __LINE__, "unable to record network object; Net_create_loc=%u"), __FILE__, Net_create_loc);
 						return object_none;
 					}
 #if defined(DXX_BUILD_DESCENT_II)
