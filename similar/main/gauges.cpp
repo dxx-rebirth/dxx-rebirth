@@ -1072,6 +1072,12 @@ static void hud_show_homing_warning(grs_canvas &canvas, const int homing_object_
 
 static void hud_show_keys(const hud_draw_context_mr hudctx, const hud_ar_scale_float hud_scale_ar, const player_info &player_info)
 {
+	const auto game_mode = Game_mode;
+	if ((game_mode & GM_MULTI) && !(game_mode & GM_MULTI_COOP))
+		/* In non-cooperative multiplayer games, everyone always has all
+		 * keys.  Hide them to reduce visual clutter.
+		 */
+		return;
 	const auto player_key_flags = player_info.powerup_flags;
 	if (!(player_key_flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)))
 		return;
