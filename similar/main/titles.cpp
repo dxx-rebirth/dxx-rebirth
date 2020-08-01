@@ -109,6 +109,12 @@ static int get_message_num(const char *&message)
 
 namespace {
 
+enum class title_load_location : uint8_t
+{
+	anywhere,
+	from_hog_only,
+};
+
 struct title_screen : ignore_window_pointer_t
 {
 	grs_main_bitmap title_bm;
@@ -171,14 +177,12 @@ static window_event_result title_handler(window *, const d_event &event, title_s
 	return window_event_result::ignored;
 }
 
-static void show_title_screen(const char * filename, int allow_keys, int from_hog_only )
+static void show_title_screen(const char *filename)
 {
 	char new_filename[PATH_MAX] = "";
 
 	auto ts = std::make_unique<title_screen>();
-	ts->allow_keys = allow_keys;
-
-	(void)from_hog_only;
+	ts->allow_keys = 1;
 
 	strcat(new_filename,filename);
 	filename = new_filename;
@@ -202,6 +206,11 @@ static void show_title_screen(const char * filename, int allow_keys, int from_ho
 	event_process_all();
 }
 
+static void show_title_screen(const char *const filename, title_load_location /* from_hog_only */)
+{
+	show_title_screen(filename);
+}
+
 static void show_first_found_title_screen(const char *oem, const char *share, const char *macshare)
 {
 	const char *filename = oem;
@@ -209,7 +218,7 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 		(filename = share, PHYSFSX_exists(filename, 1)) ||
 		(filename = macshare, PHYSFSX_exists(filename, 1))
 		)
-		show_title_screen(filename, 1, 1);
+		show_title_screen(filename, title_load_location::from_hog_only);
 }
 
 }
@@ -237,8 +246,8 @@ void show_titles(void)
 	const bool resolution_at_least_640_480 = (SWIDTH >= 640 && SHEIGHT >= 480);
 	auto &logo_hires_pcx = "logoh.pcx";
 	auto &descent_hires_pcx = "descenth.pcx";
-	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists(logo_hires_pcx, 1)) ? logo_hires_pcx : "logo.pcx", 1, 1);
-	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists(descent_hires_pcx, 1)) ? descent_hires_pcx : "descent.pcx", 1, 1);
+	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists(logo_hires_pcx, 1)) ? logo_hires_pcx : "logo.pcx", title_load_location::from_hog_only);
+	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists(descent_hires_pcx, 1)) ? descent_hires_pcx : "descent.pcx", title_load_location::from_hog_only);
 #elif defined(DXX_BUILD_DESCENT_II)
 	int played=MOVIE_NOT_PLAYED;    //default is not played
 	int song_playing = 0;
@@ -257,7 +266,7 @@ void show_titles(void)
 
 			while (PHYSFSX_exists(filename,0))
 			{
-				show_title_screen( filename, 1, 0 );
+				show_title_screen(filename, title_load_location::anywhere);
 				filename[5]++;
 			}
 		}
@@ -308,7 +317,7 @@ void show_titles(void)
 			strcpy(filename, hiresmode ? "oem1b.pcx" : "oem1.pcx");
 			while (PHYSFSX_exists(filename,0))
 			{
-				show_title_screen( filename, 1, 0 );
+				show_title_screen(filename, title_load_location::anywhere);
 				filename[3]++;
 			}
 		}
@@ -322,7 +331,7 @@ void show_titles(void)
 	con_puts(CON_DEBUG, "Showing logo screen...");
 	const auto filename = hiresmode ? "descentb.pcx" : "descent.pcx";
 	if (PHYSFSX_exists(filename,1))
-		show_title_screen(filename, 1, 1);
+		show_title_screen(filename, title_load_location::from_hog_only);
 #endif
 }
 
@@ -353,7 +362,7 @@ void show_order_form()
 		// D1
 		(exit_screen = hiresmode ? "warningb.pcx" : "warning.pcx", PHYSFSX_exists(exit_screen, 1))
 		)
-		show_title_screen(exit_screen,1,0);
+		show_title_screen(exit_screen, title_load_location::anywhere);
 #endif
 #endif
 }
