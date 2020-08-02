@@ -29,12 +29,17 @@ def TOOL_SUBST(env):
         except:
             raise SCons.Errors.UserError("Can't read source file %s" % (sourcefile,))
         for (k,v) in dict.items():
+            try:
+                contents = contents.decode("UTF-8")
+            except (UnicodeDecodeError, AttributeError):
+                pass
             contents = re.sub(k, v, contents)
         try:
-            f = open(targetfile, 'wb')
+            f = open(targetfile, 'wt')
             f.write(contents)
             f.close()
-        except:
+        except Exception as e:
+            print("Text:", str(e))
             raise SCons.Errors.UserError("Can't write target file %s" % (targetfile,))
         return 0 # success
 
@@ -143,7 +148,7 @@ def TOOL_BUNDLE(env):
             if not ('.' in bundledir):
                 bundledir += '.$BUNDLEDIRSUFFIX'
             bundledir = env.subst(bundledir) # substitute again
-            suffix=bundledir[string.rfind(bundledir,'.'):]
+            suffix=bundledir[bundledir.rfind('.'):]
             if (suffix=='.app' and typecode != 'APPL' or
                 suffix!='.app' and typecode == 'APPL'):
                 raise Error("MakeBundle: inconsistent dir suffix %s and type code %s: app bundles should end with .app and type code APPL." % (suffix, typecode))
