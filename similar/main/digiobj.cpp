@@ -418,7 +418,15 @@ void digi_link_sound_to_object3(const unsigned org_soundnum, const vcobjptridx_t
 	}
 
 	if ( Newdemo_state == ND_STATE_RECORDING )		{
-		newdemo_record_link_sound_to_object3( org_soundnum, objnum, max_volume, max_distance, loop_start, loop_end );
+		if ( !forever ) { // forever flag is not recorded, use original limited sound objects hack for demo recording
+			int volume, pan;
+			auto segnum = vcsegptridx(objnum->segnum);
+			digi_get_sound_loc(viewer->orient, viewer->pos, segnum.absolute_sibling(viewer->segnum),
+			       objnum->pos, segnum, max_volume,
+			       &volume, &pan, max_distance);
+			newdemo_record_sound_3d_once( org_soundnum, pan, volume );
+		} else
+			newdemo_record_link_sound_to_object3( org_soundnum, objnum, max_volume, max_distance, loop_start, loop_end );
 	}
 
 	const auto &&f = find_sound_object(SoundObjects, soundnum, objnum, once);
