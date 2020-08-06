@@ -85,7 +85,6 @@ extern std::array<game_marker_index, 2> Marker_viewer_num;    // left & right
 #define GM_MULTI_COOP   16      // You are in a multiplayer mode and can't hurt other players.
 // #define GM_MODEM        32      // You are in a modem (serial) game // OBSOLETE
 #define GM_UNKNOWN      64      // You are not in any mode, kind of dangerous...
-#define GM_GAME_OVER    128     // Game has been finished
 #define GM_TEAM         256     // Team mode for network play
 #if defined(DXX_BUILD_DESCENT_I)
 #define GM_BOUNTY       512     // New bounty mode by Matt1360

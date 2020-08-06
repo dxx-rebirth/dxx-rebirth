@@ -4518,7 +4518,7 @@ static int net_udp_start_game(void)
 	if (!net_udp_select_players()
 		|| StartNewLevel(Netgame.levelnum) == window_event_result::close)
 	{
-		Game_mode = GM_GAME_OVER;
+		Game_mode = {};
 		return 0;	// see if we want to tweak the game we setup
 	}
 	state_set_next_autosave(GameUniqueState, Netgame.MPGameplayOptions.AutosaveInterval);
@@ -4558,7 +4558,7 @@ static int net_udp_wait_for_sync(void)
 		me.player.callsign = get_local_player().callsign;
 		net_udp_send_sequence_packet(me, Netgame.players[0].protocol.udp.addr);
 		N_players = 0;
-		Game_mode = GM_GAME_OVER;
+		Game_mode = {};
 		return(-1);     // they cancelled
 	}
 	return(0);

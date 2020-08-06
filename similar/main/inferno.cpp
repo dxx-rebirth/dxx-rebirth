@@ -711,7 +711,7 @@ static int main(int argc, char *argv[])
 #endif
 #endif
 	{
-		Game_mode = GM_GAME_OVER;
+		Game_mode = {};
 		DoMenu();
 	}
 

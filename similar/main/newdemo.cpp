@@ -4259,8 +4259,7 @@ void newdemo_stop_playback()
 #if defined(DXX_BUILD_DESCENT_II)
 	nd_playback_v_guided = 0;
 #endif
-	Newdemo_game_mode = Game_mode = GM_GAME_OVER;
-	
+	Newdemo_game_mode = Game_mode = {};
 	// Required for the editor
 	obj_relink_all();
 }

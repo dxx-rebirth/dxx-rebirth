@@ -135,7 +135,7 @@ int	force_cockpit_redraw=0;
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
 int	Game_suspended=0; //if non-zero, nothing moves but player
-int	Game_mode = GM_GAME_OVER;
+int Game_mode;
 int	Global_missile_firing_count = 0;
 }
 
@@ -1647,7 +1647,7 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 			songs_play_song( SONG_TITLE, 1 );
 
 			game_disable_cheats();
-			Game_mode = GM_GAME_OVER;
+			Game_mode = {};
 #if DXX_USE_EDITOR
 			if (!EditorWindow)		// have to do it this way because of the necessary longjmp. Yuck.
 #endif
