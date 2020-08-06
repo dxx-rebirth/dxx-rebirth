@@ -1624,13 +1624,13 @@ void InitMarkerInput ()
 	const auto maxdrop = MarkerState.get_markers_per_player(game_mode, max_numplayers);
 	const auto &&game_marker_range = get_game_marker_range(game_mode, max_numplayers, Player_num, maxdrop);
 	const auto &&player_marker_range = get_player_marker_range(maxdrop);
-	const auto &&zipped_marker_range = zip(game_marker_range, player_marker_range, unchecked_partial_range(&MarkerState.imobjidx[*game_marker_range.begin()], maxdrop));
+	const auto &&zipped_marker_range = zip(player_marker_range, unchecked_partial_range(&MarkerState.imobjidx[*game_marker_range.begin()], maxdrop));
 	const auto &&mb = zipped_marker_range.begin();
 	const auto &&me = zipped_marker_range.end();
 	auto iter = mb;
 	for (;;)
 	{
-		auto &&[gmi, pmi, objidx] = *iter;
+		auto &&[pmi, objidx] = *iter;
 		if (objidx == object_none)		//found free slot!
 		{
 			MarkerState.MarkerBeingDefined = pmi;
