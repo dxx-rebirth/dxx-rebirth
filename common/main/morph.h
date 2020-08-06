@@ -80,7 +80,7 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	};
 	object_base *const obj;                      // object which is morphing
 	const object_signature_t Morph_sig;
-	uint8_t morph_save_control_type;
+	enum object::control_type morph_save_control_type;
 	uint8_t morph_save_movement_type;
 	uint8_t n_submodels_active;
 	std::array<submodel_state, MAX_SUBMODELS> submodel_active;         // which submodels are active

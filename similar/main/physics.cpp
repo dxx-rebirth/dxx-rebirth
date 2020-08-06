@@ -350,7 +350,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 
 #ifndef NDEBUG
 	if (Dont_move_ai_objects)
-		if (obj->control_type == CT_AI)
+		if (obj->control_type == object::control_type::ai)
 			return window_event_result::ignored;
 #endif
 
@@ -724,7 +724,8 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 	} while ( try_again );
 
 	//	Pass retry count info to AI.
-	if (obj->control_type == CT_AI) {
+	if (obj->control_type == object::control_type::ai)
+	{
 		if (count > 0) {
 			obj->ctype.ai_info.ail.retry_count = count-1;
 #ifndef NDEBUG
@@ -748,7 +749,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 
 	//Assert(check_point_in_seg(&obj->pos,obj->segnum,0).centermask==0);
 
-	//if (obj->control_type == CT_FLYING)
+	//if (obj->control_type == object::control_type::flying)
 	if (obj->mtype.phys_info.flags & PF_LEVELLING)
 		do_physics_align_object( obj );
 
@@ -867,7 +868,7 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, object_base &obj
 		return;
 
 	//	Make morph objects turn more slowly.
-	if (obj.control_type == CT_MORPH)
+	if (obj.control_type == object::control_type::morph)
 		rate *= 2;
 
 	const auto dest_angles = vm_extract_angles_vector(goal_vector);

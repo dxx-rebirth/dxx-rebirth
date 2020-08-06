@@ -168,7 +168,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 	obj_rw->id            = obj.id;
 	obj_rw->next          = obj.next;
 	obj_rw->prev          = obj.prev;
-	obj_rw->control_type  = obj.control_type;
+	obj_rw->control_type  = static_cast<uint8_t>(obj.control_type);
 	obj_rw->movement_type = obj.movement_type;
 	obj_rw->render_type   = obj.render_type;
 	obj_rw->flags         = obj.flags;
@@ -224,9 +224,9 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 			break;
 	}
 	
-	switch (obj_rw->control_type)
+	switch (typename object::control_type{obj_rw->control_type})
 	{
-		case CT_WEAPON:
+		case object::control_type::weapon:
 			obj_rw->ctype.laser_info.parent_type      = obj.ctype.laser_info.parent_type;
 			obj_rw->ctype.laser_info.parent_num       = obj.ctype.laser_info.parent_num;
 			obj_rw->ctype.laser_info.parent_signature = obj.ctype.laser_info.parent_signature.get();
@@ -239,7 +239,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 			obj_rw->ctype.laser_info.multiplier       = obj.ctype.laser_info.multiplier;
 			break;
 			
-		case CT_EXPLOSION:
+		case object::control_type::explosion:
 			obj_rw->ctype.expl_info.spawn_time    = obj.ctype.expl_info.spawn_time;
 			obj_rw->ctype.expl_info.delete_time   = obj.ctype.expl_info.delete_time;
 			obj_rw->ctype.expl_info.delete_objnum = obj.ctype.expl_info.delete_objnum;
@@ -248,7 +248,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 			obj_rw->ctype.expl_info.next_attach   = obj.ctype.expl_info.next_attach;
 			break;
 			
-		case CT_AI:
+		case object::control_type::ai:
 		{
 			int i;
 			obj_rw->ctype.ai_info.behavior               = static_cast<uint8_t>(obj.ctype.ai_info.behavior);
@@ -276,11 +276,11 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 			break;
 		}
 			
-		case CT_LIGHT:
+		case object::control_type::light:
 			obj_rw->ctype.light_info.intensity = obj.ctype.light_info.intensity;
 			break;
 			
-		case CT_POWERUP:
+		case object::control_type::powerup:
 			obj_rw->ctype.powerup_info.count         = obj.ctype.powerup_info.count;
 #if defined(DXX_BUILD_DESCENT_II)
 			if (obj.ctype.powerup_info.creation_time - GameTime64 < F1_0*(-18000))
@@ -290,8 +290,18 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 			obj_rw->ctype.powerup_info.flags         = obj.ctype.powerup_info.flags;
 #endif
 			break;
+		case object::control_type::None:
+		case object::control_type::flying:
+		case object::control_type::slew:
+		case object::control_type::flythrough:
+		case object::control_type::repaircen:
+		case object::control_type::morph:
+		case object::control_type::debris:
+		case object::control_type::remote:
+		default:
+			break;
 	}
-	
+
 	switch (obj_rw->render_type)
 	{
 		case RT_MORPH:
@@ -345,7 +355,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	obj.id            = obj_rw->id;
 	obj.next          = obj_rw->next;
 	obj.prev          = obj_rw->prev;
-	obj.control_type  = obj_rw->control_type;
+	obj.control_type  = typename object::control_type{obj_rw->control_type};
 	set_object_movement_type(obj, obj_rw->movement_type);
 	const auto render_type = obj_rw->render_type;
 	if (valid_render_type(render_type))
@@ -410,7 +420,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	
 	switch (obj.control_type)
 	{
-		case CT_WEAPON:
+		case object::control_type::weapon:
 			obj.ctype.laser_info.parent_type      = obj_rw->ctype.laser_info.parent_type;
 			obj.ctype.laser_info.parent_num       = obj_rw->ctype.laser_info.parent_num;
 			obj.ctype.laser_info.parent_signature = object_signature_t{static_cast<uint16_t>(obj_rw->ctype.laser_info.parent_signature)};
@@ -423,7 +433,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 #endif
 			break;
 			
-		case CT_EXPLOSION:
+		case object::control_type::explosion:
 			obj.ctype.expl_info.spawn_time    = obj_rw->ctype.expl_info.spawn_time;
 			obj.ctype.expl_info.delete_time   = obj_rw->ctype.expl_info.delete_time;
 			obj.ctype.expl_info.delete_objnum = obj_rw->ctype.expl_info.delete_objnum;
@@ -432,7 +442,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			obj.ctype.expl_info.next_attach   = obj_rw->ctype.expl_info.next_attach;
 			break;
 			
-		case CT_AI:
+		case object::control_type::ai:
 		{
 			int i;
 			obj.ctype.ai_info.behavior               = static_cast<ai_behavior>(obj_rw->ctype.ai_info.behavior);
@@ -453,11 +463,11 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			break;
 		}
 			
-		case CT_LIGHT:
+		case object::control_type::light:
 			obj.ctype.light_info.intensity = obj_rw->ctype.light_info.intensity;
 			break;
 			
-		case CT_POWERUP:
+		case object::control_type::powerup:
 			obj.ctype.powerup_info.count         = obj_rw->ctype.powerup_info.count;
 #if defined(DXX_BUILD_DESCENT_I)
 			obj.ctype.powerup_info.creation_time = 0;
@@ -467,7 +477,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			obj.ctype.powerup_info.flags         = obj_rw->ctype.powerup_info.flags;
 #endif
 			break;
-		case CT_CNTRLCEN:
+		case object::control_type::cntrlcen:
 		{
 			if (obj.type == OBJ_GHOST)
 			{
@@ -477,20 +487,30 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 				 * control_type when ghosting reactor")) did not update
 				 * `control_type`, so games saved by those releases have an
 				 * object with obj->type == OBJ_GHOST and obj->control_type ==
-				 * CT_CNTRLCEN.  That inconsistency triggers an assertion down
+				 * object::control_type::cntrlcen.  That inconsistency triggers an assertion down
 				 * in `calc_controlcen_gun_point` because obj->type !=
 				 * OBJ_CNTRLCEN.
 				 *
 				 * Add a special case here to correct this
 				 * inconsistency.
 				 */
-				obj.control_type = CT_NONE;
+				obj.control_type = object::control_type::None;
 				break;
 			}
 			// gun points of reactor now part of the object but of course not saved in object_rw and overwritten due to reset_objects(). Let's just recompute them.
 			calc_controlcen_gun_point(obj);
 			break;
 		}
+		case object::control_type::None:
+		case object::control_type::flying:
+		case object::control_type::slew:
+		case object::control_type::flythrough:
+		case object::control_type::repaircen:
+		case object::control_type::morph:
+		case object::control_type::debris:
+		case object::control_type::remote:
+		default:
+			break;
 	}
 	
 	switch (obj.render_type)
@@ -1252,7 +1272,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 			} else {						//maybe loaded half-morphed from disk
 				objp->flags |= OF_SHOULD_BE_DEAD;
 				objp->render_type = RT_POLYOBJ;
-				objp->control_type = CT_NONE;
+				objp->control_type = object::control_type::None;
 				objp->movement_type = MT_NONE;
 			}
 		}

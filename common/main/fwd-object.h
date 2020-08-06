@@ -56,23 +56,6 @@ struct d_level_unique_control_center_state;
 }
 #endif
 
-// Control types - what tells this object what do do
-typedef unsigned control_type_t;
-constexpr std::integral_constant<control_type_t, 0> CT_NONE{};		// doesn't move (or change movement)
-constexpr std::integral_constant<control_type_t, 1> CT_AI{};			// driven by AI
-constexpr std::integral_constant<control_type_t, 2> CT_EXPLOSION{};	// explosion sequencer
-constexpr std::integral_constant<control_type_t, 4> CT_FLYING{};		// the player is flying
-constexpr std::integral_constant<control_type_t, 5> CT_SLEW{};		// slewing
-constexpr std::integral_constant<control_type_t, 6> CT_FLYTHROUGH{};	// the flythrough system
-constexpr std::integral_constant<control_type_t, 9> CT_WEAPON{};		// laser, etc.
-constexpr std::integral_constant<control_type_t, 10> CT_REPAIRCEN{};	// under the control of the repair center
-constexpr std::integral_constant<control_type_t, 11> CT_MORPH{};		// this object is being morphed
-constexpr std::integral_constant<control_type_t, 12> CT_DEBRIS{};	// this is a piece of debris
-constexpr std::integral_constant<control_type_t, 13> CT_POWERUP{};	// animating powerup blob
-constexpr std::integral_constant<control_type_t, 14> CT_LIGHT{};		// doesn't actually do anything
-constexpr std::integral_constant<control_type_t, 15> CT_REMOTE{};	// controlled by another net player
-constexpr std::integral_constant<control_type_t, 16> CT_CNTRLCEN{};	// the control center/main reactor
-
 // misc object flags
 typedef unsigned object_flag_t;
 constexpr std::integral_constant<object_flag_t, 1> OF_EXPLODING{};   // this object is exploding
@@ -218,10 +201,6 @@ void obj_link_unchecked(fvmobjptr &vmobjptr, vmobjptridx_t obj, vmsegptridx_t se
 
 // unlinks an object from a segment's list of objects
 void obj_unlink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, object_base &obj);
-
-// initialize a new object.  adds to the list for the given segment
-// returns the object number
-imobjptridx_t obj_create(object_type_t type, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, unsigned ctype, movement_type_t mtype, render_type_t rtype);
 
 // make a copy of an object. returs num of new object
 imobjptridx_t obj_create_copy(const object &srcobj, vmsegptridx_t newsegnum);

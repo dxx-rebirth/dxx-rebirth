@@ -904,7 +904,7 @@ void save_screen_shot(int automap_flag)
 //initialize flying
 void fly_init(object_base &obj)
 {
-	obj.control_type = CT_FLYING;
+	obj.control_type = object::control_type::flying;
 	obj.movement_type = MT_PHYSICS;
 
 	obj.mtype.phys_info.velocity = {};
@@ -2221,7 +2221,7 @@ static int mark_player_path_to_segment(const d_vclip_array &Vclip, fvmobjptridx 
 
 		seg_center = Point_segs[player_hide_index+i].point;
 
-		const auto &&obj = obj_create(OBJ_POWERUP, POW_ENERGY, vmsegptridx(Point_segs[player_hide_index+i].segnum), seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
+		const auto &&obj = obj_create(OBJ_POWERUP, POW_ENERGY, vmsegptridx(Point_segs[player_hide_index+i].segnum), seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, object::control_type::powerup, MT_NONE, RT_POWERUP);
 		if (obj == object_none) {
 			Int3();		//	Unable to drop energy powerup for path
 			return 1;

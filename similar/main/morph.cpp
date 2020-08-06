@@ -484,9 +484,9 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 	md->morph_save_movement_type = obj.movement_type;
 	md->morph_save_phys_info = obj.mtype.phys_info;
 
-	assert(obj.control_type == CT_AI);		//morph objects are also AI objects
+	assert(obj.control_type == object::control_type::ai);		//morph objects are also AI objects
 
-	obj.control_type = CT_MORPH;
+	obj.control_type = object::control_type::morph;
 	obj.render_type = RT_MORPH;
 	obj.movement_type = MT_PHYSICS;		//RT_NONE;
 

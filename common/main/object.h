@@ -370,11 +370,12 @@ struct polyobj_info_rw
 
 struct object_base
 {
+	enum class control_type : uint8_t;
 	object_signature_t signature;
 	object_type_t   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
 	ubyte   id;             // which form of object...which powerup, robot, etc.
 	objnum_t   next,prev;      // id of next and previous connected object in Objects, -1 = no connection
-	ubyte   control_type;   // how this object is controlled
+	enum control_type control_type;   // how this object is controlled
 	movement_type_t   movement_type;  // how this object moves
 	render_type_t render_type;    // how this object renders
 	ubyte   flags;          // misc flags
@@ -412,6 +413,25 @@ struct object_base
 			static_assert(sizeof(pobj_info) == sizeof(*this), "insufficient initialization");
 		}
 	} rtype;
+};
+
+// Control types - what tells this object what do do
+enum class object_base::control_type : uint8_t
+{
+	None	=	0,		// doesn't move (or change movement)
+	ai	=	1,			// driven by AI
+	explosion	=	2,	// explosion sequencer
+	flying	=	4,		// the player is flying
+	slew	=	5,		// slewing
+	flythrough	=	6,	// the flythrough system
+	weapon	=	9,		// laser, etc.
+	repaircen	=	10,	// under the control of the repair center
+	morph	=	11,		// this object is being morphed
+	debris	=	12,	// this is a piece of debris
+	powerup	=	13,	// animating powerup blob
+	light	=	14,		// doesn't actually do anything
+	remote	=	15,	// controlled by another net player
+	cntrlcen	=	16,	// the control center/main reactor
 };
 
 }
@@ -604,6 +624,10 @@ struct d_level_unique_morph_object_state
 }
 
 namespace dsx {
+
+// initialize a new object.  adds to the list for the given segment
+// returns the object number
+imobjptridx_t obj_create(object_type_t type, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, enum object::control_type ctype, movement_type_t mtype, render_type_t rtype);
 
 #if defined(DXX_BUILD_DESCENT_II)
 

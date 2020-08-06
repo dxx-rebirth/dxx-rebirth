@@ -308,7 +308,7 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 
 	Assert(laser_radius != -1);
 
-	auto &&obj = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype);
+	const auto &&obj = obj_create(OBJ_WEAPON, weapon_type, segnum, position, nullptr, laser_radius, object::control_type::weapon, MT_PHYSICS, rtype);
 	if (obj == object_none)
 		return object_none;
 
@@ -468,7 +468,7 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 		const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, temp_pos, last_segnum);
 		if (segnum != segment_none) {
 			last_segnum = segnum;
-			auto objp = obj_create(OBJ_WEAPON, weapon_id_type::OMEGA_ID, segnum, temp_pos, NULL, 0, CT_WEAPON, MT_PHYSICS, RT_WEAPON_VCLIP );
+			const auto &&objp = obj_create(OBJ_WEAPON, weapon_id_type::OMEGA_ID, segnum, temp_pos, nullptr, 0, object::control_type::weapon, MT_PHYSICS, RT_WEAPON_VCLIP);
 			if (objp == object_none)
 				break;
 
@@ -1542,7 +1542,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 	auto &imobjptridx = Objects.imptridx;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	Assert(obj->control_type == CT_WEAPON);
+	assert(obj->control_type == object::control_type::weapon);
 
 	if (obj->lifeleft < 0 ) {		// We died of old age
 		obj->flags |= OF_SHOULD_BE_DEAD;

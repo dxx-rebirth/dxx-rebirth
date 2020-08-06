@@ -139,7 +139,7 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 #endif
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	const auto &&obj_fireball = obj_create(OBJ_FIREBALL, vclip_type, segnum, position, &vmd_identity_matrix, size,
-					CT_EXPLOSION,MT_NONE,RT_FIREBALL);
+					object::control_type::explosion, MT_NONE, RT_FIREBALL);
 
 	if (obj_fireball == object_none)
 	{
@@ -398,7 +398,7 @@ static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &p
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto &&obj = obj_create(OBJ_DEBRIS, 0, vmsegptridx(parent.segnum), parent.pos, &parent.orient, Polygon_models[parent.rtype.pobj_info.model_num].submodel_rads[subobj_num],
-				CT_DEBRIS,MT_PHYSICS,RT_POLYOBJ);
+				object::control_type::debris, MT_PHYSICS, RT_POLYOBJ);
 
 	if ((obj == object_none ) && (Highest_object_index >= MAX_OBJECTS-1)) {
 //		Int3(); // this happens often and is normal :-)
@@ -900,7 +900,7 @@ imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const unsigned nu
 					 return object_none;
 #endif
 				}
-				auto		obj = obj_create( OBJ_POWERUP, id, segnum, new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+				const auto &&obj = obj_create(OBJ_POWERUP, id, segnum, new_pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, MT_PHYSICS, RT_POWERUP);
 				objnum = obj;
 
 				if (objnum == object_none)
@@ -1175,7 +1175,7 @@ void explode_object(const vmobjptridx_t hitobj,fix delay_time)
 	if (delay_time) {		//wait a little while before creating explosion
 		//create a placeholder object to do the delay, with id==-1
 		auto obj = obj_create(OBJ_FIREBALL, -1, vmsegptridx(hitobj->segnum), hitobj->pos, &vmd_identity_matrix, 0,
-						CT_EXPLOSION,MT_NONE,RT_NONE);
+						object::control_type::explosion, MT_NONE, RT_NONE);
 		if (obj == object_none ) {
 			maybe_delete_object(hitobj);		//no explosion, die instantly
 			Int3();
@@ -1216,7 +1216,7 @@ void explode_object(const vmobjptridx_t hitobj,fix delay_time)
 	}
 
 	hitobj->flags |= OF_EXPLODING;		//say that this is blowing up
-	hitobj->control_type = CT_NONE;		//become inert while exploding
+	hitobj->control_type = object::control_type::None;		//become inert while exploding
 
 }
 
@@ -1224,7 +1224,7 @@ void explode_object(const vmobjptridx_t hitobj,fix delay_time)
 //do whatever needs to be done for this piece of debris for this frame
 void do_debris_frame(const vmobjptridx_t obj)
 {
-	Assert(obj->control_type == CT_DEBRIS);
+	assert(obj->control_type == object::control_type::debris);
 
 	if (obj->lifeleft < 0)
 		explode_object(obj,0);
@@ -1237,7 +1237,7 @@ void do_explosion_sequence(object &obj)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
-	Assert(obj.control_type == CT_EXPLOSION);
+	assert(obj.control_type == object::control_type::explosion);
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 
 	//See if we should die of old age

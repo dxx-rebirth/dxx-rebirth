@@ -1368,7 +1368,8 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 		case KEY_DEBUGGED+KEY_SPACEBAR:		//KEY_F7:				// Toggle physics flying
 			slew_stop();
 			game_flush_inputs();
-			if ( ConsoleObject->control_type != CT_FLYING ) {
+			if (ConsoleObject->control_type != object::control_type::flying)
+			{
 				fly_init(*ConsoleObject);
 				Game_suspended &= ~SUSP_ROBOTS;	//robots move
 			} else {

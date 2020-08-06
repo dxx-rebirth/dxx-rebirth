@@ -870,7 +870,7 @@ void init_player_object()
 	console->signature = object_signature_t{0};
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	console->size = Polygon_models[Player_ship->model_num].rad;
-	console->control_type = CT_SLEW;			//default is player slewing
+	console->control_type = object::control_type::slew;			//default is player slewing
 	console->movement_type = MT_PHYSICS;		//change this sometime
 	console->lifeleft = IMMORTAL_TIME;
 	console->attached_obj = object_none;
@@ -1115,13 +1115,13 @@ static void free_object_slots(uint_fast32_t num_used)
 //note that segnum is really just a suggestion, since this routine actually
 //searches for the correct segment
 //returns the object number
-imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const unsigned ctype, const movement_type_t mtype, const render_type_t rtype)
+imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const typename object::control_type ctype, const movement_type_t mtype, const render_type_t rtype)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
-	Assert(ctype <= CT_CNTRLCEN);
+	assert(ctype <= object::control_type::cntrlcen);
 
 	if (type == OBJ_DEBRIS && LevelUniqueObjectState.Debris_object_count >= Max_debris_objects && !PERSISTENT_DEBRIS)
 		return object_none;
@@ -1173,7 +1173,7 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 	obj->lifeleft 				= IMMORTAL_TIME;		//assume immortal
 	obj->attached_obj			= object_none;
 
-	if (obj->control_type == CT_POWERUP)
+	if (obj->control_type == object::control_type::powerup)
         {
 		obj->ctype.powerup_info.count = 1;
                 obj->ctype.powerup_info.flags = 0;
@@ -1205,7 +1205,7 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 
 	//	Set (or not) persistent bit in phys_info.
 	if (obj->type == OBJ_WEAPON) {
-		Assert(obj->control_type == CT_WEAPON);
+		assert(obj->control_type == object::control_type::weapon);
 		obj->mtype.phys_info.flags |= (Weapon_info[get_weapon_id(obj)].persistent*PF_PERSISTENT);
 		obj->ctype.laser_info.creation_time = GameTime64;
 		obj->ctype.laser_info.clear_hitobj();
@@ -1215,7 +1215,7 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 #endif
 	}
 
-	if (obj->control_type == CT_EXPLOSION)
+	if (obj->control_type == object::control_type::explosion)
 		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;
 
 	if (obj->type == OBJ_DEBRIS)
@@ -1308,7 +1308,7 @@ namespace dcx {
 player_dead_state Player_dead_state = player_dead_state::no;			//	If !0, then player is dead, but game continues so he can watch.
 static int Player_flags_save;
 static fix Camera_to_player_dist_goal = F1_0*4;
-static uint8_t Control_type_save;
+static typename object::control_type Control_type_save;
 static render_type_t Render_type_save;
 
 unsigned laser_parent_is_matching_signature(const laser_parent &l, const object_base &o)
@@ -1340,7 +1340,7 @@ void dead_player_end(void)
 	ConsoleObject->type = OBJ_PLAYER;
 	ConsoleObject->flags = Player_flags_save;
 
-	Assert((Control_type_save == CT_FLYING) || (Control_type_save == CT_SLEW));
+	assert(Control_type_save == object::control_type::flying || Control_type_save == object::control_type::slew);
 
 	ConsoleObject->control_type = Control_type_save;
 	ConsoleObject->render_type = Render_type_save;
@@ -1414,7 +1414,7 @@ window_event_result dead_player_frame()
 		//	If unable to create camera at time of death, create now.
 		if (Dead_player_camera == Viewer_save) {
 			const auto &player = get_local_plrobj();
-			const auto &&objnum = obj_create(OBJ_CAMERA, 0, vmsegptridx(player.segnum), player.pos, &player.orient, 0, CT_NONE, MT_NONE, RT_NONE);
+			const auto &&objnum = obj_create(OBJ_CAMERA, 0, vmsegptridx(player.segnum), player.pos, &player.orient, 0, object::control_type::None, MT_NONE, RT_NONE);
 
 			if (objnum != object_none)
 				Viewer = Dead_player_camera = objnum;
@@ -1579,7 +1579,7 @@ static void start_player_death_sequence(object &player)
 	vm_vec_zero(player.mtype.phys_info.rotthrust);
 	vm_vec_zero(player.mtype.phys_info.thrust);
 
-	const auto &&objnum = obj_create(OBJ_CAMERA, 0, vmsegptridx(player.segnum), player.pos, &player.orient, 0, CT_NONE, MT_NONE, RT_NONE);
+	const auto &&objnum = obj_create(OBJ_CAMERA, 0, vmsegptridx(player.segnum), player.pos, &player.orient, 0, object::control_type::None, MT_NONE, RT_NONE);
 	Viewer_save = Viewer;
 	if (objnum != object_none)
 		Viewer = Dead_player_camera = objnum;
@@ -1598,7 +1598,7 @@ static void start_player_death_sequence(object &player)
 
 	player.flags &= ~OF_SHOULD_BE_DEAD;
 //	Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
-	player.control_type = CT_NONE;
+	player.control_type = object::control_type::None;
 
 	PALETTE_FLASH_SET(0,0,0);
 }
@@ -1797,41 +1797,44 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 
 	switch (obj->control_type) {
 
-		case CT_NONE: break;
-
-		case CT_FLYING:
-
-			read_flying_controls( obj );
-
+		case object::control_type::None:
 			break;
 
-		case CT_REPAIRCEN:
+		case object::control_type::flying:
+			read_flying_controls( obj );
+			break;
+
+		case object::control_type::repaircen:
 			Int3();
 			// -- hey! these are no longer supported!! -- do_repair_sequence(obj);
 			break;
 
-		case CT_POWERUP:
+		case object::control_type::powerup:
 			do_powerup_frame(Vclip, obj);
 			break;
 	
-		case CT_MORPH:			//morph implies AI
+		case object::control_type::morph:			//morph implies AI
 			do_morph_frame(obj);
 			//NOTE: FALLS INTO AI HERE!!!!
 			DXX_BOOST_FALLTHROUGH;
 
-		case CT_AI:
-			//NOTE LINK TO CT_MORPH ABOVE!!!
+		case object::control_type::ai:
+			//NOTE LINK TO object::control_type::morph ABOVE!!!
 			if (Game_suspended & SUSP_ROBOTS) return window_event_result::ignored;
 			do_ai_frame(obj);
 			break;
 
-		case CT_WEAPON:		Laser_do_weapon_sequence(obj); break;
-		case CT_EXPLOSION:	do_explosion_sequence(obj); break;
+		case object::control_type::weapon:
+			Laser_do_weapon_sequence(obj);
+			break;
+		case object::control_type::explosion:
+			do_explosion_sequence(obj);
+			break;
 
-		case CT_SLEW:
+		case object::control_type::slew:
 #ifdef RELEASE
-			obj->control_type = CT_NONE;
-			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "BUG: object %hu has control type CT_SLEW, sig/type/id = %i/%i/%i"), static_cast<objnum_t>(obj), obj->signature.get(), obj->type, obj->id);
+			obj->control_type = object::control_type::None;
+			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "BUG: object %hu has control type object::control_type::slew, sig/type/id = %i/%i/%i"), static_cast<objnum_t>(obj), obj->signature.get(), obj->type, obj->id);
 #else
 			if ( keyd_pressed[KEY_PAD5] ) slew_stop();
 			if ( keyd_pressed[KEY_NUMLOCK] ) 		{
@@ -1841,24 +1844,28 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 #endif
 			break;
 
-//		case CT_FLYTHROUGH:
+//		case object::control_type::flythrough:
 //			do_flythrough(obj,0);			// HACK:do_flythrough should operate on an object!!!!
 //			//check_object_seg(obj);
 //			return;	// DON'T DO THE REST OF OBJECT STUFF SINCE THIS IS A SPECIAL CASE!!!
 //			break;
 
-		case CT_DEBRIS: do_debris_frame(obj); break;
+		case object::control_type::debris:
+			do_debris_frame(obj);
+			break;
 
-		case CT_LIGHT: break;		//doesn't do anything
+		case object::control_type::light:
+			break;		//doesn't do anything
 
-		case CT_REMOTE: break;		//doesn't do anything
+		case object::control_type::remote:
+			break;		//doesn't do anything
 
-		case CT_CNTRLCEN: do_controlcen_frame(obj); break;
+		case object::control_type::cntrlcen:
+			do_controlcen_frame(obj);
+			break;
 
 		default:
-
-			Error("Unknown control type %d in object %hu, sig/type/id = %i/%i/%i",obj->control_type, static_cast<objnum_t>(obj), obj->signature.get(), obj->type, obj->id);
-
+			Error("Unknown control type %u in object %hu, sig/type/id = %i/%i/%i", static_cast<unsigned>(obj->control_type), static_cast<objnum_t>(obj), obj->signature.get(), obj->type, obj->id);
 			break;
 
 	}
@@ -2011,7 +2018,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 			lifetime *= 2;
 		}
 
-		assert(obj->control_type == CT_WEAPON);
+		assert(obj->control_type == object::control_type::weapon);
 		if ((obj->ctype.laser_info.last_afterburner_time + delay < GameTime64) || (obj->ctype.laser_info.last_afterburner_time > GameTime64)) {
 			drop_afterburner_blobs(obj, 1, i2f(Weapon_info[get_weapon_id(obj)].afterburner_size)/16, lifetime);
 			obj->ctype.laser_info.last_afterburner_time = GameTime64;
@@ -2306,7 +2313,7 @@ void clear_transient_objects(int clear_all)
 void obj_attach(object_array &Objects, const vmobjptridx_t parent, const vmobjptridx_t sub)
 {
 	Assert(sub->type == OBJ_FIREBALL);
-	Assert(sub->control_type == CT_EXPLOSION);
+	assert(sub->control_type == object::control_type::explosion);
 
 	Assert(sub->ctype.expl_info.next_attach==object_none);
 	Assert(sub->ctype.expl_info.prev_attach==object_none);
@@ -2375,7 +2382,7 @@ imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segn
 		((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view)
 		? MT_NONE
 		: MT_SPINNING;
-	const auto &&obj = obj_create(OBJ_MARKER, static_cast<unsigned>(marker_num), segnum, pos, &orient, Polygon_models[Marker_model_num].rad, CT_NONE, movement_type, RT_POLYOBJ);
+	const auto &&obj = obj_create(OBJ_MARKER, static_cast<unsigned>(marker_num), segnum, pos, &orient, Polygon_models[Marker_model_num].rad, object::control_type::None, movement_type, RT_POLYOBJ);
 	if (obj != object_none) {
 		auto &o = *obj;
 		o.rtype.pobj_info.model_num = Marker_model_num;
@@ -2494,9 +2501,9 @@ void object_rw_swap(object_rw *obj, int swap)
 			break;
 	}
 	
-	switch (obj->control_type)
+	switch (typename object::control_type{obj->control_type})
 	{
-		case CT_WEAPON:
+		case object::control_type::weapon:
 			obj->ctype.laser_info.parent_type      = SWAPSHORT(obj->ctype.laser_info.parent_type);
 			obj->ctype.laser_info.parent_num       = SWAPSHORT(obj->ctype.laser_info.parent_num);
 			obj->ctype.laser_info.parent_signature = SWAPINT(obj->ctype.laser_info.parent_signature);
@@ -2506,7 +2513,7 @@ void object_rw_swap(object_rw *obj, int swap)
 			obj->ctype.laser_info.multiplier       = SWAPINT(obj->ctype.laser_info.multiplier);
 			break;
 			
-		case CT_EXPLOSION:
+		case object::control_type::explosion:
 			obj->ctype.expl_info.spawn_time    = SWAPINT(obj->ctype.expl_info.spawn_time);
 			obj->ctype.expl_info.delete_time   = SWAPINT(obj->ctype.expl_info.delete_time);
 			obj->ctype.expl_info.delete_objnum = SWAPSHORT(obj->ctype.expl_info.delete_objnum);
@@ -2515,7 +2522,7 @@ void object_rw_swap(object_rw *obj, int swap)
 			obj->ctype.expl_info.next_attach   = SWAPSHORT(obj->ctype.expl_info.next_attach);
 			break;
 			
-		case CT_AI:
+		case object::control_type::ai:
 			obj->ctype.ai_info.hide_segment           = SWAPSHORT(obj->ctype.ai_info.hide_segment);
 			obj->ctype.ai_info.hide_index             = SWAPSHORT(obj->ctype.ai_info.hide_index);
 			obj->ctype.ai_info.path_length            = SWAPSHORT(obj->ctype.ai_info.path_length);
@@ -2528,16 +2535,26 @@ void object_rw_swap(object_rw *obj, int swap)
 			obj->ctype.ai_info.danger_laser_signature = SWAPINT(obj->ctype.ai_info.danger_laser_signature);
 			break;
 			
-		case CT_LIGHT:
+		case object::control_type::light:
 			obj->ctype.light_info.intensity = SWAPINT(obj->ctype.light_info.intensity);
 			break;
 			
-		case CT_POWERUP:
+		case object::control_type::powerup:
 			obj->ctype.powerup_info.count         = SWAPINT(obj->ctype.powerup_info.count);
 #if defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.powerup_info.creation_time = SWAPINT(obj->ctype.powerup_info.creation_time);
 			obj->ctype.powerup_info.flags         = SWAPINT(obj->ctype.powerup_info.flags);
 #endif
+			break;
+		case object::control_type::None:
+		case object::control_type::flying:
+		case object::control_type::slew:
+		case object::control_type::flythrough:
+		case object::control_type::repaircen:
+		case object::control_type::morph:
+		case object::control_type::debris:
+		case object::control_type::remote:
+		default:
 			break;
 	}
 	

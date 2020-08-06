@@ -613,7 +613,8 @@ void validate_all_paths(void)
 		auto &obj = *objp;
 		if (obj.type == OBJ_ROBOT) {
 			auto &aip = obj.ctype.ai_info;
-			if (obj.control_type == CT_AI) {
+			if (obj.control_type == object::control_type::ai)
+			{
 				if ((aip.hide_index != -1) && (aip.path_length > 0))
 					if (!validate_path(4, &Point_segs[aip.hide_index], aip.path_length))
 					{
@@ -1367,9 +1368,9 @@ void ai_path_garbage_collect()
 	//	Create a list of objects which have paths of length 1 or more.
 	range_for (const auto &&objp, vcobjptridx)
 	{
-		if ((objp->type == OBJ_ROBOT) && ((objp->control_type == CT_AI)
+		if (objp->type == OBJ_ROBOT && (objp->control_type == object::control_type::ai
 #if defined(DXX_BUILD_DESCENT_II)
-			|| (objp->control_type == CT_MORPH)
+			|| objp->control_type == object::control_type::morph
 #endif
 										  )) {
 			const auto &aip = objp->ctype.ai_info;
@@ -1410,7 +1411,7 @@ void ai_path_garbage_collect()
 		auto &obj = *objp;
 		const auto &aip = obj.ctype.ai_info;
 
-		if (obj.type == OBJ_ROBOT && obj.control_type == CT_AI)
+		if (obj.type == OBJ_ROBOT && obj.control_type == object::control_type::ai)
 			if ((aip.hide_index + aip.path_length > Point_segs_free_ptr - Point_segs) && (aip.path_length>0))
 				Int3();		//	Contact Mike: Debug trap for nasty, elusive bug.
 	}
@@ -1455,7 +1456,7 @@ void ai_reset_all_paths(void)
 	range_for (const auto &&objp, vmobjptr)
 	{
 		auto &obj = *objp;
-		if (obj.type == OBJ_ROBOT && obj.control_type == CT_AI)
+		if (obj.type == OBJ_ROBOT && obj.control_type == object::control_type::ai)
 		{
 			obj.ctype.ai_info.hide_index = -1;
 			obj.ctype.ai_info.path_length = 0;

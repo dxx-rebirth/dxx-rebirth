@@ -1066,7 +1066,7 @@ void InitPlayerObject()
 	ConsoleObject = console;
 	console->type				= OBJ_PLAYER;
 	set_player_id(console, Player_num);
-	console->control_type	= CT_FLYING;
+	console->control_type	= object::control_type::flying;
 	console->movement_type	= MT_PHYSICS;
 }
 
@@ -1247,7 +1247,7 @@ static void StartSecretLevel()
 
 	verify_console_object();
 
-	ConsoleObject->control_type	= CT_FLYING;
+	ConsoleObject->control_type	= object::control_type::flying;
 	ConsoleObject->movement_type	= MT_PHYSICS;
 
 	// -- WHY? -- disable_matcens();
@@ -2291,7 +2291,7 @@ static void StartLevel(int random_flag)
 
 	verify_console_object();
 
-	ConsoleObject->control_type	= CT_FLYING;
+	ConsoleObject->control_type	= object::control_type::flying;
 	ConsoleObject->movement_type	= MT_PHYSICS;
 
 	// create_player_appearance_effect(ConsoleObject);

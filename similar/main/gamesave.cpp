@@ -270,7 +270,7 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 			set_powerup_id(Powerup_info, Vclip, obj, POW_SHIELD_BOOST);
 			Assert( obj.render_type != RT_POLYOBJ );
 		}
-		obj.control_type = CT_POWERUP;
+		obj.control_type = object::control_type::powerup;
 		obj.size = Powerup_info[get_powerup_id(obj)].size;
 		obj.ctype.powerup_info.creation_time = 0;
 	}
@@ -302,7 +302,7 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 	if (obj.type == OBJ_CNTRLCEN)
 	{
 		obj.render_type = RT_POLYOBJ;
-		obj.control_type = CT_CNTRLCEN;
+		obj.control_type = object::control_type::cntrlcen;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		// Make model number is correct...	
@@ -344,7 +344,7 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 	if (obj.type == OBJ_HOSTAGE)
 	{
 		obj.render_type = RT_HOSTAGE;
-		obj.control_type = CT_POWERUP;
+		obj.control_type = object::control_type::powerup;
 	}
 }
 
@@ -375,7 +375,31 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 #endif
 		obj->matcen_creator = 0;
 	}
-	obj->control_type   = PHYSFSX_readByte(f);
+	{
+		uint8_t ctype = PHYSFSX_readByte(f);
+		switch (typename object::control_type{ctype})
+		{
+			case object::control_type::None:
+			case object::control_type::ai:
+			case object::control_type::explosion:
+			case object::control_type::flying:
+			case object::control_type::slew:
+			case object::control_type::flythrough:
+			case object::control_type::weapon:
+			case object::control_type::repaircen:
+			case object::control_type::morph:
+			case object::control_type::debris:
+			case object::control_type::powerup:
+			case object::control_type::light:
+			case object::control_type::remote:
+			case object::control_type::cntrlcen:
+				break;
+			default:
+				ctype = static_cast<uint8_t>(object::control_type::None);
+				break;
+		}
+		obj->control_type = typename object::control_type{ctype};
+	}
 	set_object_movement_type(*obj, PHYSFSX_readByte(f));
 	const uint8_t render_type = PHYSFSX_readByte(f);
 	if (valid_render_type(render_type))
@@ -438,7 +462,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 
 	switch (obj->control_type) {
 
-		case CT_AI: {
+		case object::control_type::ai: {
 			obj->ctype.ai_info.behavior				= static_cast<ai_behavior>(PHYSFSX_readByte(f));
 
 			range_for (auto &i, obj->ctype.ai_info.flags)
@@ -457,7 +481,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 			break;
 		}
 
-		case CT_EXPLOSION:
+		case object::control_type::explosion:
 
 			obj->ctype.expl_info.spawn_time		= PHYSFSX_readFix(f);
 			obj->ctype.expl_info.delete_time		= PHYSFSX_readFix(f);
@@ -466,7 +490,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 
 			break;
 
-		case CT_WEAPON:
+		case object::control_type::weapon:
 
 			//do I really need to read these?  Are they even saved to disk?
 
@@ -480,12 +504,12 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 
 			break;
 
-		case CT_LIGHT:
+		case object::control_type::light:
 
 			obj->ctype.light_info.intensity = PHYSFSX_readFix(f);
 			break;
 
-		case CT_POWERUP:
+		case object::control_type::powerup:
 
 			if (version >= 25)
 				obj->ctype.powerup_info.count = PHYSFSX_readInt(f);
@@ -498,7 +522,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 				 * the player.
 				 */
 				obj->ctype.powerup_info.flags = 0;
-				/* Hostages have control type CT_POWERUP, but object
+				/* Hostages have control type object::control_type::powerup, but object
 				 * type OBJ_HOSTAGE.  Hostages are never weapons, so
 				 * prevent checking their IDs.
 				 */
@@ -517,20 +541,20 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 			break;
 
 
-		case CT_NONE:
-		case CT_FLYING:
-		case CT_DEBRIS:
+		case object::control_type::None:
+		case object::control_type::flying:
+		case object::control_type::debris:
 			break;
 
-		case CT_SLEW:		//the player is generally saved as slew
+		case object::control_type::slew:		//the player is generally saved as slew
 			break;
 
-		case CT_CNTRLCEN:
+		case object::control_type::cntrlcen:
 			break;
 
-		case CT_MORPH:
-		case CT_FLYTHROUGH:
-		case CT_REPAIRCEN:
+		case object::control_type::morph:
+		case object::control_type::flythrough:
+		case object::control_type::repaircen:
 		default:
 			Int3();
 	
@@ -637,7 +661,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 	PHYSFSX_writeU8(f, obj.type);
 	PHYSFSX_writeU8(f, obj.id);
 
-	PHYSFSX_writeU8(f, obj.control_type);
+	PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.control_type));
 	PHYSFSX_writeU8(f, obj.movement_type);
 	PHYSFSX_writeU8(f, obj.render_type);
 	PHYSFSX_writeU8(f, obj.flags);
@@ -689,7 +713,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 
 	switch (obj.control_type) {
 
-		case CT_AI: {
+		case object::control_type::ai: {
 			PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.ctype.ai_info.behavior));
 
 			range_for (auto &i, obj.ctype.ai_info.flags)
@@ -714,7 +738,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 			break;
 		}
 
-		case CT_EXPLOSION:
+		case object::control_type::explosion:
 
 			PHYSFSX_writeFix(f, obj.ctype.expl_info.spawn_time);
 			PHYSFSX_writeFix(f, obj.ctype.expl_info.delete_time);
@@ -722,7 +746,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 
 			break;
 
-		case CT_WEAPON:
+		case object::control_type::weapon:
 
 			//do I really need to write these objects?
 
@@ -732,12 +756,12 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 
 			break;
 
-		case CT_LIGHT:
+		case object::control_type::light:
 
 			PHYSFSX_writeFix(f, obj.ctype.light_info.intensity);
 			break;
 
-		case CT_POWERUP:
+		case object::control_type::powerup:
 
 #if defined(DXX_BUILD_DESCENT_I)
 			PHYSFS_writeSLE32(f, obj.ctype.powerup_info.count);
@@ -747,20 +771,20 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 #endif
 			break;
 
-		case CT_NONE:
-		case CT_FLYING:
-		case CT_DEBRIS:
+		case object::control_type::None:
+		case object::control_type::flying:
+		case object::control_type::debris:
 			break;
 
-		case CT_SLEW:		//the player is generally saved as slew
+		case object::control_type::slew:		//the player is generally saved as slew
 			break;
 
-		case CT_CNTRLCEN:
+		case object::control_type::cntrlcen:
 			break;			//control center object.
 
-		case CT_MORPH:
-		case CT_REPAIRCEN:
-		case CT_FLYTHROUGH:
+		case object::control_type::morph:
+		case object::control_type::repaircen:
+		case object::control_type::flythrough:
 		default:
 			Int3();
 	

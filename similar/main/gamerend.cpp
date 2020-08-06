@@ -349,12 +349,12 @@ static void draw_window_label(object_array &Objects, grs_canvas &canvas)
 		}
 
 		switch ( Viewer->control_type) {
-			case CT_NONE:			control_name = "Stopped"; break;
-			case CT_AI:				control_name = "AI"; break;
-			case CT_FLYING:		control_name = "Flying"; break;
-			case CT_SLEW:			control_name = "Slew"; break;
-			case CT_FLYTHROUGH:	control_name = "Flythrough"; break;
-			case CT_MORPH:			control_name = "Morphing"; break;
+			case object::control_type::None:			control_name = "Stopped"; break;
+			case object::control_type::ai:				control_name = "AI"; break;
+			case object::control_type::flying:		control_name = "Flying"; break;
+			case object::control_type::slew:			control_name = "Slew"; break;
+			case object::control_type::flythrough:	control_name = "Flythrough"; break;
+			case object::control_type::morph:			control_name = "Morphing"; break;
 			default:					control_name = "Unknown"; break;
 		}
 

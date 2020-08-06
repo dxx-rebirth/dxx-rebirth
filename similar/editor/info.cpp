@@ -79,22 +79,22 @@ static object_type_name &get_object_type(int num)
 	}
 }
 
-static control_type_name &get_control_type(int num)
+static control_type_name &get_control_type(const typename object::control_type num)
 {
 	switch (num) {
-		case CT_NONE:
+		case object::control_type::None:
 			return "CT_NONE       ";
-		case CT_AI:
+		case object::control_type::ai:
 			return "CT_AI         ";
-		case CT_EXPLOSION:
+		case object::control_type::explosion:
 			return "CT_EXPLOSION  ";
-		case CT_FLYING:
+		case object::control_type::flying:
 			return "CT_FLYING     ";
-		case CT_SLEW:
+		case object::control_type::slew:
 			return "CT_SLEW       ";
-		case CT_FLYTHROUGH:
+		case object::control_type::flythrough:
 			return "CT_FLYTHROUGH ";
-		case CT_WEAPON:
+		case object::control_type::weapon:
 			return "CT_WEAPON     ";
 		default:
 			return " (unknown)    ";
@@ -147,7 +147,7 @@ static void info_display_object_placement(grs_canvas &canvas, int show_all)
 	static	int	old_Cur_object_index;
 	static	int	old_type;
 	static	int	old_movement_type;
-	static	int	old_control_type;
+	static typename object::control_type old_control_type;
 	static ai_behavior old_mode;
 	if (init_info || show_all ||
 		( Cur_object_index != old_Cur_object_index) || 
