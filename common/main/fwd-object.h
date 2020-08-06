@@ -56,11 +56,6 @@ struct d_level_unique_control_center_state;
 }
 #endif
 
-// Result types
-typedef unsigned result_type_t;
-constexpr std::integral_constant<result_type_t, 0> RESULT_NOTHING{};   // Ignore this collision
-constexpr std::integral_constant<result_type_t, 1> RESULT_CHECK{};   // Check for this collision
-
 // Control types - what tells this object what do do
 typedef unsigned control_type_t;
 constexpr std::integral_constant<control_type_t, 0> CT_NONE{};		// doesn't move (or change movement)
@@ -143,6 +138,12 @@ struct polyobj_info_rw;
 struct obj_position;
 struct object_rw;
 
+enum class collision_result : uint8_t
+{
+	ignore = 0,	// Ignore this collision
+	check = 1,	// Check for this collision
+};
+
 }
 
 #ifdef dsx
@@ -159,7 +160,7 @@ struct powerup_info_rw;
 struct window_rendered_data;
 struct reactor_static;
 
-using collision_inner_array_t = std::array<uint8_t, MAX_OBJECT_TYPES>;
+using collision_inner_array_t = std::array<collision_result, MAX_OBJECT_TYPES>;
 using collision_outer_array_t = std::array<collision_inner_array_t, MAX_OBJECT_TYPES>;
 extern const collision_outer_array_t CollisionResult;
 
@@ -167,8 +168,6 @@ extern const collision_outer_array_t CollisionResult;
 #endif
 
 namespace dcx {
-extern int Object_next_signature;   // The next signature for the next newly created object
-
 extern int Num_robot_types;
 }
 

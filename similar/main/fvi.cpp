@@ -839,7 +839,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 					continue;
 				if (laser_are_related(objnum, thisobjnum))
 					continue;
-				if (collision[objnum->type] == RESULT_NOTHING)
+				if (collision[objnum->type] == collision_result::ignore)
 					continue;
 			}
 			if (obj_in_list(objnum, ignore_obj_list))
@@ -885,7 +885,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 		}
 	}
 
-	if (thisobjnum != object_none && CollisionResult[thisobjnum->type][OBJ_WALL] == RESULT_NOTHING)
+	if (thisobjnum != object_none && CollisionResult[thisobjnum->type][OBJ_WALL] == collision_result::ignore)
 		rad = 0;		//HACK - ignore when edges hit walls
 
 	//now, check segment walls
