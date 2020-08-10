@@ -242,10 +242,10 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (get_robot_id(obj) == 65)						//special "reactor" robots
-			obj.movement_type = object::movement_type::None;
+			obj.movement_source = object::movement_type::None;
 #endif
 
-		if (obj.movement_type == object::movement_type::physics)
+		if (obj.movement_source == object::movement_type::physics)
 		{
 			auto &ri = Robot_info[get_robot_id(obj)];
 			obj.mtype.phys_info.mass = ri.mass;
@@ -412,7 +412,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 				mtype = static_cast<uint8_t>(object::movement_type::None);
 				break;
 		}
-		obj->movement_type = typename object::movement_type{mtype};
+		obj->movement_source = typename object::movement_type{mtype};
 	}
 	const uint8_t render_type = PHYSFSX_readByte(f);
 	if (valid_render_type(render_type))
@@ -442,7 +442,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 	obj->contains_id    = PHYSFSX_readByte(f);
 	obj->contains_count = PHYSFSX_readByte(f);
 
-	switch (obj->movement_type) {
+	switch (obj->movement_source) {
 
 		case object::movement_type::physics:
 
@@ -675,7 +675,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 	PHYSFSX_writeU8(f, obj.id);
 
 	PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.control_source));
-	PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.movement_type));
+	PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.movement_source));
 	PHYSFSX_writeU8(f, obj.render_type);
 	PHYSFSX_writeU8(f, obj.flags);
 
@@ -693,7 +693,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 	PHYSFSX_writeU8(f, obj.contains_id);
 	PHYSFSX_writeU8(f, obj.contains_count);
 
-	switch (obj.movement_type) {
+	switch (obj.movement_source) {
 
 		case object::movement_type::physics:
 

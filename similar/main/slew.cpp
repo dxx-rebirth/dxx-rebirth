@@ -53,7 +53,7 @@ void slew_init(const vmobjptr_t obj)
 	slew_obj = obj;
 
 	slew_obj->control_source = object::control_type::slew;
-	slew_obj->movement_type = object::movement_type::None;
+	slew_obj->movement_source = object::movement_type::None;
 
 	slew_stop();		//make sure not moving
 }

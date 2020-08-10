@@ -400,7 +400,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 
 	//set engine glow value
 	engine_glow_value[0] = f1_0/5;
-	if (obj->movement_type == object::movement_type::physics) {
+	if (obj->movement_source == object::movement_type::physics) {
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST && obj->type==OBJ_PLAYER && get_player_id(obj)==Player_num) {
 			fix thrust_mag = vm_vec_mag_quick(obj->mtype.phys_info.thrust);
@@ -871,7 +871,7 @@ void init_player_object()
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	console->size = Polygon_models[Player_ship->model_num].rad;
 	console->control_source = object::control_type::slew;			//default is player slewing
-	console->movement_type = object::movement_type::physics;		//change this sometime
+	console->movement_source = object::movement_type::physics;		//change this sometime
 	console->lifeleft = IMMORTAL_TIME;
 	console->attached_obj = object_none;
 	reset_player_object();
@@ -1166,7 +1166,7 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 	obj->orient 				= orient?*orient:vmd_identity_matrix;
 
 	obj->control_source 		        = ctype;
-	obj->movement_type = mtype;
+	obj->movement_source = mtype;
 	obj->render_type 			= rtype;
         obj->contains_count                     = 0;
         obj->matcen_creator                     = 0;
@@ -1181,7 +1181,7 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
         }
 
 	// Init physics info for this object
-	if (obj->movement_type == object::movement_type::physics) {
+	if (obj->movement_source == object::movement_type::physics) {
 		obj->mtype.phys_info = {};
 	}
 
@@ -1283,7 +1283,7 @@ void obj_delete(d_level_unique_object_state &LevelUniqueObjectState, segment_arr
 	if (obj->type == OBJ_DEBRIS)
 		-- LevelUniqueObjectState.Debris_object_count;
 
-	if (obj->movement_type == object::movement_type::physics && (obj->mtype.phys_info.flags & PF_STICK))
+	if (obj->movement_source == object::movement_type::physics && (obj->mtype.phys_info.flags & PF_STICK))
 		LevelUniqueStuckObjectState.remove_stuck_object(obj);
 	obj_unlink(Objects.vmptr, Segments.vmptr, obj);
 	const auto signature = obj->signature;
@@ -1447,7 +1447,7 @@ window_event_result dead_player_frame()
 		else
 		{
 			// the following line uncommented by WraithX, 4-11-00
-			Dead_player_camera->movement_type = object::movement_type::physics;
+			Dead_player_camera->movement_source = object::movement_type::physics;
 			//Dead_player_camera->mtype.phys_info.rotvel.y = F1_0/8;
 		// the following line uncommented by WraithX, 4-12-00
 		}
@@ -1665,7 +1665,7 @@ void obj_relink_all(void)
 static void spin_object(object_base &obj)
 {
 	vms_angvec rotangs;
-	assert(obj.movement_type == object::movement_type::spinning);
+	assert(obj.movement_source == object::movement_type::spinning);
 
 	const fix frametime = FrameTime;
 	rotangs.p = fixmul(obj.mtype.spin_rate.x, frametime);
@@ -1885,7 +1885,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 
 	bool prepare_seglist = false;
 	phys_visited_seglist phys_visited_segs;
-	switch (obj->movement_type) {
+	switch (obj->movement_source) {
 
 		case object::movement_type::None:
 			break;				//this doesn't move
@@ -2475,7 +2475,7 @@ void object_rw_swap(object_rw *obj, int swap)
 	obj->last_pos.z    = SWAPINT(obj->last_pos.z);
 	obj->lifeleft      = SWAPINT(obj->lifeleft);
 	
-	switch (typename object::movement_type{obj->movement_type})
+	switch (typename object::movement_type{obj->movement_source})
 	{
 		case object::movement_type::None:
 			obj->mtype = {};

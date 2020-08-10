@@ -169,7 +169,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 	obj_rw->next          = obj.next;
 	obj_rw->prev          = obj.prev;
 	obj_rw->control_source  = static_cast<uint8_t>(obj.control_source);
-	obj_rw->movement_type = static_cast<uint8_t>(obj.movement_type);
+	obj_rw->movement_source = static_cast<uint8_t>(obj.movement_source);
 	obj_rw->render_type   = obj.render_type;
 	obj_rw->flags         = obj.flags;
 	obj_rw->segnum        = obj.segnum;
@@ -195,7 +195,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 	obj_rw->matcen_creator= obj.matcen_creator;
 	obj_rw->lifeleft      = obj.lifeleft;
 
-	switch (typename object::movement_type{obj_rw->movement_type})
+	switch (typename object::movement_type{obj_rw->movement_source})
 	{
 		case object::movement_type::None:
 			obj_rw->mtype = {};
@@ -359,7 +359,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	obj.next          = obj_rw->next;
 	obj.prev          = obj_rw->prev;
 	obj.control_source  = typename object::control_type{obj_rw->control_source};
-	obj.movement_type  = typename object::movement_type{obj_rw->movement_type};
+	obj.movement_source  = typename object::movement_type{obj_rw->movement_source};
 	const auto render_type = obj_rw->render_type;
 	if (valid_render_type(render_type))
 		obj.render_type = render_type_t{render_type};
@@ -391,7 +391,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	obj.matcen_creator= obj_rw->matcen_creator;
 	obj.lifeleft      = obj_rw->lifeleft;
 	
-	switch (obj.movement_type)
+	switch (obj.movement_source)
 	{
 		case object::movement_type::None:
 			break;
@@ -1268,7 +1268,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 			{
 				const auto md = umd->get();
 				md->obj->control_source = md->morph_save_control_type;
-				md->obj->movement_type = md->morph_save_movement_type;
+				md->obj->movement_source = md->morph_save_movement_type;
 				md->obj->render_type = RT_POLYOBJ;
 				md->obj->mtype.phys_info = md->morph_save_phys_info;
 				umd->reset();
@@ -1276,7 +1276,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 				objp->flags |= OF_SHOULD_BE_DEAD;
 				objp->render_type = RT_POLYOBJ;
 				objp->control_source = object::control_type::None;
-				objp->movement_type = object::movement_type::None;
+				objp->movement_source = object::movement_type::None;
 			}
 		}
 	}
@@ -2301,7 +2301,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 					const auto &&obj = vmobjptridx(vcplayerptr(i)->objnum);
 					// since a player always uses the same object, we just have to copy the saved object properties to the existing one. i hate you...
 					obj->control_source = restore_objects[j].control_source;
-					obj->movement_type = restore_objects[j].movement_type;
+					obj->movement_source = restore_objects[j].movement_source;
 					obj->render_type = restore_objects[j].render_type;
 					obj->flags = restore_objects[j].flags;
 					obj->pos = restore_objects[j].pos;

@@ -401,7 +401,7 @@ window_event_result start_endlevel_sequence()
 
 	Endlevel_sequence = EL_FLYTHROUGH;
 
-	ConsoleObject->movement_type = object::movement_type::None;			//movement handled by flythrough
+	ConsoleObject->movement_source = object::movement_type::None;			//movement handled by flythrough
 	ConsoleObject->control_source = object::control_type::None;
 
 	Game_suspended |= SUSP_ROBOTS;          //robots don't move

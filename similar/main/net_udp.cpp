@@ -5536,7 +5536,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
                 return;
 	//------------ Read the player's ship's object info ----------------------
 	extract_quaternionpos(TheirObj, pd->qpp);
-	if (TheirObj->movement_type == object::movement_type::physics)
+	if (TheirObj->movement_source == object::movement_type::physics)
 		set_thrust_from_velocity(TheirObj);
 }
 

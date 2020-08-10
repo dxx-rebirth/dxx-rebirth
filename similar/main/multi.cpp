@@ -562,7 +562,7 @@ void multi_make_player_ghost(const playernum_t playernum)
 	const auto &&obj = vmobjptridx(vcplayerptr(playernum)->objnum);
 	obj->type = OBJ_GHOST;
 	obj->render_type = RT_NONE;
-	obj->movement_type = object::movement_type::None;
+	obj->movement_source = object::movement_type::None;
 	multi_reset_player_object(obj);
 	multi_strip_robots(playernum);
 }
@@ -578,7 +578,7 @@ void multi_make_ghost_player(const playernum_t playernum)
 	}
 	const auto &&obj = vmobjptridx(vcplayerptr(playernum)->objnum);
 	obj->type = OBJ_PLAYER;
-	obj->movement_type = object::movement_type::physics;
+	obj->movement_source = object::movement_type::physics;
 	multi_reset_player_object(obj);
 	if (playernum != Player_num)
 		init_player_stats_new_ship(playernum);
@@ -1735,7 +1735,7 @@ static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum,
 	qpp.rotvel.z = GET_INTEL_INT(&buf[count]);					count += 4;
 	extract_quaternionpos(obj, qpp);
 
-	if (obj->movement_type == object::movement_type::physics)
+	if (obj->movement_source == object::movement_type::physics)
 		set_thrust_from_velocity(obj);
 }
 
@@ -3360,7 +3360,7 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 	auto &vcvertptr = Vertices.vcptr;
 	for (uint_fast32_t i = count++; i; --i)
 	{
-		assert(o.movement_type == object::movement_type::None);
+		assert(o.movement_source == object::movement_type::None);
 		assert(o.render_type == RT_POWERUP);
 		const auto &&no = obj_create(OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, vcvertptr(seg_verts[i % seg_verts.size()])), &vmd_identity_matrix, o.size, object::control_type::powerup, object::movement_type::None, RT_POWERUP);
 		if (no == object_none)
@@ -3507,7 +3507,7 @@ void multi_prep_level_player(void)
 		const auto &&objp = vmobjptr(vcplayerptr(i)->objnum);
 		if (i != Player_num)
 			objp->control_source = object::control_type::remote;
-		objp->movement_type = object::movement_type::physics;
+		objp->movement_source = object::movement_type::physics;
 		multi_reset_player_object(objp);
 		Netgame.players[i].LastPacketTime = 0;
 	}
@@ -5883,7 +5883,7 @@ void multi_object_to_object_rw(object &obj, object_rw *obj_rw)
 	obj_rw->type          = obj.type;
 	obj_rw->id            = obj.id;
 	obj_rw->control_source  = static_cast<uint8_t>(obj.control_source);
-	obj_rw->movement_type = static_cast<uint8_t>(obj.movement_type);
+	obj_rw->movement_source = static_cast<uint8_t>(obj.movement_source);
 	obj_rw->render_type   = obj.render_type;
 	obj_rw->flags         = obj.flags;
 	obj_rw->segnum        = obj.segnum;
@@ -5898,7 +5898,7 @@ void multi_object_to_object_rw(object &obj, object_rw *obj_rw)
 	obj_rw->matcen_creator= obj.matcen_creator;
 	obj_rw->lifeleft      = obj.lifeleft;
 	
-	switch (typename object::movement_type{obj_rw->movement_type})
+	switch (typename object::movement_type{obj_rw->movement_source})
 	{
 		case object::movement_type::None:
 			obj_rw->mtype = {};
@@ -6056,7 +6056,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, object &obj)
 	obj.id            = obj_rw->id;
 	/* obj->next,obj->prev handled by caller based on segment */
 	obj.control_source  = typename object::control_type{obj_rw->control_source};
-	obj.movement_type = typename object::movement_type{obj_rw->movement_type};
+	obj.movement_source = typename object::movement_type{obj_rw->movement_source};
 	const auto render_type = obj_rw->render_type;
 	if (valid_render_type(render_type))
 		obj.render_type = render_type_t{render_type};
@@ -6078,7 +6078,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, object &obj)
 	obj.matcen_creator= obj_rw->matcen_creator;
 	obj.lifeleft      = obj_rw->lifeleft;
 	
-	switch (obj.movement_type)
+	switch (obj.movement_source)
 	{
 		case object::movement_type::None:
 			break;

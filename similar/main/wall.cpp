@@ -1468,7 +1468,7 @@ void d_level_unique_stuck_object_state::kill_stuck_objects(fvmobjptr &vmobjptr, 
 #define DXX_WEAPON_LIFELEFT	F1_0/8
 #endif
 		assert(obj.type == OBJ_WEAPON);
-		assert(obj.movement_type == object::movement_type::physics);
+		assert(obj.movement_source == object::movement_type::physics);
 		assert(obj.mtype.phys_info.flags & PF_STICK);
 		obj.lifeleft = DXX_WEAPON_LIFELEFT;
 		return true;

@@ -319,11 +319,11 @@ static void bump_this_object(const vmobjptridx_t objp, const vmobjptridx_t other
 static void bump_two_objects(const vmobjptridx_t obj0,const vmobjptridx_t obj1,int damage_flag)
 {
 	const vmobjptridx_t *pt;
-	if ((obj0->movement_type != object::movement_type::physics && (pt = &obj1, true)) ||
-		(obj1->movement_type != object::movement_type::physics && (pt = &obj0, true)))
+	if ((obj0->movement_source != object::movement_type::physics && (pt = &obj1, true)) ||
+		(obj1->movement_source != object::movement_type::physics && (pt = &obj0, true)))
 	{
 		object_base &t = *pt;
-		Assert(t.movement_type == object::movement_type::physics);
+		Assert(t.movement_source == object::movement_type::physics);
 		const auto force = vm_vec_copy_scale(t.mtype.phys_info.velocity, -t.mtype.phys_info.mass);
 		phys_apply_force(t,force);
 		return;

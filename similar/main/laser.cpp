@@ -488,7 +488,7 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 			objp->ctype.laser_info.parent_type			= parent_objp->type;
 			objp->ctype.laser_info.parent_signature	= parent_objp->signature;
 			objp->ctype.laser_info.parent_num			= parent_objp;
-			objp->movement_type = object::movement_type::None;	//	Only last one moves, that will get bashed below.
+			objp->movement_source = object::movement_type::None;	//	Only last one moves, that will get bashed below.
 
 		}
 		vm_vec_add2(blob_pos, omega_delta_vector);
@@ -497,7 +497,7 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 	//	Make last one move faster, but it's already moving at speed = F1_0*4.
 	if (last_created_objnum != object_none) {
 		vm_vec_scale(last_created_objnum->mtype.phys_info.velocity, Weapon_info[weapon_id_type::OMEGA_ID].speed[Difficulty_level]/4);
-		last_created_objnum->movement_type = object::movement_type::physics;
+		last_created_objnum->movement_source = object::movement_type::physics;
 	}
 
 	Doing_lighting_hack_flag = 0;

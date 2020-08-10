@@ -1204,8 +1204,8 @@ void explode_object(const vmobjptridx_t hitobj,fix delay_time)
 		//don't make debris explosions have physics, because they often
 		//happen when the debris has hit the wall, so the fireball is trying
 		//to move into the wall, which shows off FVI problems.   	
-		if (hitobj->type!=OBJ_DEBRIS && hitobj->movement_type==object::movement_type::physics) {
-			expl_obj->movement_type = object::movement_type::physics;
+		if (hitobj->type!=OBJ_DEBRIS && hitobj->movement_source==object::movement_type::physics) {
+			expl_obj->movement_source = object::movement_type::physics;
 			expl_obj->mtype.phys_info = hitobj->mtype.phys_info;
 		}
 	
@@ -1307,8 +1307,8 @@ void do_explosion_sequence(object &obj)
 		//If num_objects < MAX_USED_OBJECTS, expl_obj could be set to dead before this setting causing the delete_obj not to be removed. If so, directly delete del_obj
 		if (expl_obj && !(expl_obj->flags & OF_SHOULD_BE_DEAD))
 		{
-			if (del_obj->movement_type == object::movement_type::physics) {
-				expl_obj->movement_type = object::movement_type::physics;
+			if (del_obj->movement_source == object::movement_type::physics) {
+				expl_obj->movement_source = object::movement_type::physics;
 				expl_obj->mtype.phys_info = del_obj->mtype.phys_info;
 			}
 

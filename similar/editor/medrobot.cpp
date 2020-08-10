@@ -844,7 +844,7 @@ static window_event_result object_dialog_created(UI_DIALOG *const w, object_dial
 	// These are the radio buttons for each mode
 	o->initialMode[0] = ui_add_gadget_radio(w, 10, 50, 16, 16, 0, "None" );
 	o->initialMode[1] = ui_add_gadget_radio(w, 80, 50, 16, 16, 0, "Spinning" );
-	o->initialMode[c->obj->movement_type == object::movement_type::spinning?1:0]->flag = 1;
+	o->initialMode[c->obj->movement_source == object::movement_type::spinning?1:0]->flag = 1;
 	char message[MATT_LEN];
 	snprintf(message, sizeof(message), "%.2f", f2fl(c->obj->mtype.spin_rate.x));
 	o->xtext = ui_add_gadget_inputbox<MATT_LEN>(w, 30, 132, message);
@@ -898,8 +898,8 @@ static window_event_result object_dialog_handler(UI_DIALOG *dlg,const d_event &e
 	if (GADGET_PRESSED(o->quitButton.get()) || keypress == KEY_ESC)
 	{
 
-		if (o->initialMode[0]->flag) obj->movement_type = object::movement_type::None;
-		if (o->initialMode[1]->flag) obj->movement_type = object::movement_type::spinning;
+		if (o->initialMode[0]->flag) obj->movement_source = object::movement_type::None;
+		if (o->initialMode[1]->flag) obj->movement_source = object::movement_type::spinning;
 
 		obj->mtype.spin_rate.x = fl2f(atof(o->xtext->text.get()));
 		obj->mtype.spin_rate.y = fl2f(atof(o->ytext->text.get()));
