@@ -598,33 +598,29 @@ enum class gauge_hud_type : uint_fast32_t
 
 constexpr enumerated_array<
 		enumerated_array<
-			enumerated_array<gauge_box, 2, gauge_inset_window_view>,
-		2, gauge_hud_type>,
+			enumerated_array<gauge_box, 2, gauge_hud_type>,
+		2, gauge_inset_window_view>,
 	2, gauge_screen_resolution> gauge_boxes = {{{
 	{{{
 	{{{
-// primary left/right low res
 		{PRIMARY_W_BOX_LEFT_L,PRIMARY_W_BOX_TOP_L,PRIMARY_W_BOX_RIGHT_L,PRIMARY_W_BOX_BOT_L},
-		{SECONDARY_W_BOX_LEFT_L,SECONDARY_W_BOX_TOP_L,SECONDARY_W_BOX_RIGHT_L,SECONDARY_W_BOX_BOT_L},
+		{SB_PRIMARY_W_BOX_LEFT_L,SB_PRIMARY_W_BOX_TOP_L,SB_PRIMARY_W_BOX_RIGHT_L,SB_PRIMARY_W_BOX_BOT_L},
 	}}},
 
 	{{{
-//sb left/right low res
-		{SB_PRIMARY_W_BOX_LEFT_L,SB_PRIMARY_W_BOX_TOP_L,SB_PRIMARY_W_BOX_RIGHT_L,SB_PRIMARY_W_BOX_BOT_L},
+		{SECONDARY_W_BOX_LEFT_L,SECONDARY_W_BOX_TOP_L,SECONDARY_W_BOX_RIGHT_L,SECONDARY_W_BOX_BOT_L},
 		{SB_SECONDARY_W_BOX_LEFT_L,SB_SECONDARY_W_BOX_TOP_L,SB_SECONDARY_W_BOX_RIGHT_L,SB_SECONDARY_W_BOX_BOT_L},
 	}}},
 	}}},
 
 	{{{
 	{{{
-// primary left/right hires
 		{PRIMARY_W_BOX_LEFT_H,PRIMARY_W_BOX_TOP_H,PRIMARY_W_BOX_RIGHT_H,PRIMARY_W_BOX_BOT_H},
-		{SECONDARY_W_BOX_LEFT_H,SECONDARY_W_BOX_TOP_H,SECONDARY_W_BOX_RIGHT_H,SECONDARY_W_BOX_BOT_H},
+		{SB_PRIMARY_W_BOX_LEFT_H,SB_PRIMARY_W_BOX_TOP_H,SB_PRIMARY_W_BOX_RIGHT_H,SB_PRIMARY_W_BOX_BOT_H},
 	}}},
 
 	{{{
-// sb left/right hires
-		{SB_PRIMARY_W_BOX_LEFT_H,SB_PRIMARY_W_BOX_TOP_H,SB_PRIMARY_W_BOX_RIGHT_H,SB_PRIMARY_W_BOX_BOT_H},
+		{SECONDARY_W_BOX_LEFT_H,SECONDARY_W_BOX_TOP_H,SECONDARY_W_BOX_RIGHT_H,SECONDARY_W_BOX_BOT_H},
 		{SB_SECONDARY_W_BOX_LEFT_H,SB_SECONDARY_W_BOX_TOP_H,SB_SECONDARY_W_BOX_RIGHT_H,SB_SECONDARY_W_BOX_BOT_H},
 	}}}
 	}}}
@@ -2523,10 +2519,10 @@ static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const 
 		int pic_x, pic_y, text_x, text_y;
 		auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 		auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
+		auto &weaponbox = resbox[gauge_inset_window_view::primary];
 		if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		{
-			auto &hudbox = resbox[gauge_hud_type::statusbar];
-			box = &hudbox[gauge_inset_window_view::primary];
+			box = &weaponbox[gauge_hud_type::statusbar];
 			pic_x = SB_PRIMARY_W_PIC_X;
 			pic_y = SB_PRIMARY_W_PIC_Y;
 			text_x = SB_PRIMARY_W_TEXT_X;
@@ -2536,8 +2532,7 @@ static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const 
 		}
 		else
 		{
-			auto &hudbox = resbox[gauge_hud_type::cockpit];
-			box = &hudbox[gauge_inset_window_view::primary];
+			box = &weaponbox[gauge_hud_type::cockpit];
 			pic_x = PRIMARY_W_PIC_X;
 			pic_y = PRIMARY_W_PIC_Y;
 			text_x = PRIMARY_W_TEXT_X;
@@ -2567,10 +2562,10 @@ static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, cons
 		int pic_x, pic_y, text_x, text_y;
 		auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 		auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
+		auto &weaponbox = resbox[gauge_inset_window_view::secondary];
 		if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		{
-			auto &hudbox = resbox[gauge_hud_type::statusbar];
-			box = &hudbox[gauge_inset_window_view::secondary];
+			box = &weaponbox[gauge_hud_type::statusbar];
 			pic_x = SB_SECONDARY_W_PIC_X;
 			pic_y = SB_SECONDARY_W_PIC_Y;
 			text_x = SB_SECONDARY_W_TEXT_X;
@@ -2580,8 +2575,7 @@ static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, cons
 		}
 		else
 		{
-			auto &hudbox = resbox[gauge_hud_type::cockpit];
-			box = &hudbox[gauge_inset_window_view::secondary];
+			box = &weaponbox[gauge_hud_type::cockpit];
 			pic_x = SECONDARY_W_PIC_X;
 			pic_y = SECONDARY_W_PIC_Y;
 			text_x = SECONDARY_W_TEXT_X;
@@ -2686,8 +2680,8 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 
 		gr_settransblend(canvas, fade_value, gr_blend::normal);
 		auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
-		auto &hudbox = resbox[(PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) ? gauge_hud_type::statusbar : gauge_hud_type::cockpit];
-		auto &g = hudbox[wt];
+		auto &weaponbox = resbox[wt];
+		auto &g = weaponbox[(PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) ? gauge_hud_type::statusbar : gauge_hud_type::cockpit];
 		auto &canvas = hudctx.canvas;
 		gr_rect(canvas, hudctx.xscale(g.left), hudctx.yscale(g.top), hudctx.xscale(g.right), hudctx.yscale(g.bot), 0);
 
@@ -2718,8 +2712,8 @@ static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr
 
 	auto &bmp = GameBitmaps[vc->frames[framenum].index];
 	auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
-	auto &hudbox = resbox[(PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) ? gauge_hud_type::statusbar : gauge_hud_type::cockpit];
-	auto &box = hudbox[win];
+	auto &weaponbox = resbox[win];
+	auto &box = weaponbox[(PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) ? gauge_hud_type::statusbar : gauge_hud_type::cockpit];
 #if !DXX_USE_OGL
 	for (x = box.left; x < box.right; x += bmp.bm_w)
 		for (y = box.top; y < box.bot; y += bmp.bm_h)
@@ -3761,10 +3755,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 	static grs_canvas overlap_canv;
 	const auto viewer_save = Viewer;
 	static int window_x,window_y;
-	const gauge_box *box;
 	int rear_view_save = Rear_view;
-
-	box = NULL;
 
 	window_rendered_data window;
 	update_rendered_data(window, viewer, rear_view_flag);
@@ -3793,8 +3784,8 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 			goto abort;
 
 		auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
-		auto &hudbox = resbox[(PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) ? gauge_hud_type::statusbar : gauge_hud_type::cockpit];
-		box = &hudbox[win];
+		auto &weaponbox = resbox[win];
+		const auto box = &weaponbox[(PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) ? gauge_hud_type::statusbar : gauge_hud_type::cockpit];
 		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, hudctx.xscale(box->left), hudctx.yscale(box->top), hudctx.xscale(box->right - box->left + 1), hudctx.yscale(box->bot - box->top + 1));
 	}
 
