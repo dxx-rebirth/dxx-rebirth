@@ -765,7 +765,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 
 			PHYSFS_writeSLE16(f, obj.ctype.laser_info.parent_type);
 			PHYSFS_writeSLE16(f, obj.ctype.laser_info.parent_num);
-			PHYSFS_writeSLE32(f, obj.ctype.laser_info.parent_signature.get());
+			PHYSFS_writeSLE32(f, static_cast<uint16_t>(obj.ctype.laser_info.parent_signature));
 
 			break;
 

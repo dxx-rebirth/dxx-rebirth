@@ -1154,7 +1154,7 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 	// Tell Valgrind to warn on any uninitialized fields.
 	DXX_POISON_VAR(*obj, 0xfd);
 
-	obj->signature = object_signature_t(signature.get() + 1);
+	obj->signature = next(signature);
 	obj->type 				= type;
 	obj->id 				= id;
 	obj->pos 				= pos;
@@ -1238,7 +1238,7 @@ imobjptridx_t obj_create_copy(const object &srcobj, const vmsegptridx_t newsegnu
 	*obj = srcobj;
 
 	obj_link_unchecked(Objects.vmptr, obj, newsegnum);
-	obj->signature = object_signature_t(signature.get() + 1);
+	obj->signature = next(signature);
 
 	//we probably should initialize sub-structures here
 
@@ -1865,7 +1865,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 			break;
 
 		default:
-			Error("Unknown control type %u in object %hu, sig/type/id = %i/%i/%i", static_cast<unsigned>(obj->control_type), static_cast<objnum_t>(obj), obj->signature.get(), obj->type, obj->id);
+			Error("Unknown control type %u in object %hu, sig/type/id = %i/%i/%i", static_cast<unsigned>(obj->control_type), static_cast<objnum_t>(obj), static_cast<uint16_t>(obj->signature), obj->type, obj->id);
 			break;
 
 	}

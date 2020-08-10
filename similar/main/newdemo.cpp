@@ -576,7 +576,7 @@ namespace dsx {
 
 static uint16_t nd_get_object_signature(const vcobjptridx_t objp)
 {
-	return (objp->signature.get() << 9) ^ objp.get_unchecked_index();  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
+	return (static_cast<uint16_t>(objp->signature) << 9) ^ objp.get_unchecked_index();  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
 }
 
 static void nd_read_object(const vmobjptridx_t obj)

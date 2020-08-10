@@ -164,7 +164,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 {
 	const auto otype = obj.type;
 	obj_rw->type = otype;
-	obj_rw->signature     = obj.signature.get();
+	obj_rw->signature     = static_cast<uint16_t>(obj.signature);
 	obj_rw->id            = obj.id;
 	obj_rw->next          = obj.next;
 	obj_rw->prev          = obj.prev;
@@ -232,7 +232,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 		case object::control_type::weapon:
 			obj_rw->ctype.laser_info.parent_type      = obj.ctype.laser_info.parent_type;
 			obj_rw->ctype.laser_info.parent_num       = obj.ctype.laser_info.parent_num;
-			obj_rw->ctype.laser_info.parent_signature = obj.ctype.laser_info.parent_signature.get();
+			obj_rw->ctype.laser_info.parent_signature = static_cast<uint16_t>(obj.ctype.laser_info.parent_signature);
 			if (obj.ctype.laser_info.creation_time - GameTime64 < F1_0*(-18000))
 				obj_rw->ctype.laser_info.creation_time = F1_0*(-18000);
 			else
@@ -263,7 +263,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 			obj_rw->ctype.ai_info.cur_path_index         = obj.ctype.ai_info.cur_path_index;
 			obj_rw->ctype.ai_info.danger_laser_num       = obj.ctype.ai_info.danger_laser_num;
 			if (obj.ctype.ai_info.danger_laser_num != object_none)
-				obj_rw->ctype.ai_info.danger_laser_signature = obj.ctype.ai_info.danger_laser_signature.get();
+				obj_rw->ctype.ai_info.danger_laser_signature = static_cast<uint16_t>(obj.ctype.ai_info.danger_laser_signature);
 			else
 				obj_rw->ctype.ai_info.danger_laser_signature = 0;
 #if defined(DXX_BUILD_DESCENT_I)

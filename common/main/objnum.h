@@ -3,22 +3,11 @@
 
 typedef uint16_t objnum_t;
 
-class object_signature_t
+enum class object_signature_t : uint16_t
 {
-	uint16_t signature = 0;
-public:
-	constexpr object_signature_t() = default;
-	constexpr explicit object_signature_t(uint16_t s) :
-		signature(s)
-	{
-	}
-	bool operator==(const object_signature_t &rhs) const
-	{
-		return signature == rhs.signature;
-	}
-	bool operator!=(const object_signature_t &rhs) const
-	{
-		return !(*this == rhs);
-	}
-	uint16_t get() const { return signature; }
 };
+
+static constexpr object_signature_t next(object_signature_t o)
+{
+	return object_signature_t{static_cast<uint16_t>(static_cast<uint16_t>(o) + 1u)};
+}

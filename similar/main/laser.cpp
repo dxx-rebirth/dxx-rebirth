@@ -1558,7 +1558,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 
 	//delete weapons that are not moving
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
-	if (	!((d_tick_count ^ obj->signature.get()) & 3) &&
+	if (	!((d_tick_count ^ static_cast<uint16_t>(obj->signature)) & 3) &&
 			(get_weapon_id(obj) != weapon_id_type::FLARE_ID) &&
 			(Weapon_info[get_weapon_id(obj)].speed[Difficulty_level] > 0) &&
 			(vm_vec_mag_quick(obj->mtype.phys_info.velocity) < F2_0)) {

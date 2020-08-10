@@ -61,7 +61,6 @@ extern int d_tick_step;  // true once in interval of DESIGNATED_GAME_FRAMETIME
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-class object_signature_t;
 namespace dsx {
 extern struct object *Missile_viewer;
 extern object_signature_t Missile_viewer_sig;
