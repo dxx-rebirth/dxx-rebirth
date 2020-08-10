@@ -29,7 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 
-#include "pstypes.h"
 #include "window.h"
 #include "console.h"
 #include "collide.h"
@@ -107,6 +106,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "d_levelstate.h"
 #include "d_range.h"
 #include "partial_range.h"
 #include <array>

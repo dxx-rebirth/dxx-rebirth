@@ -36,6 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "gameseg.h"
 #include "kdefs.h"
+#include "d_levelstate.h"
 
 static char game_filename[PATH_MAX] = "*." DXX_LEVEL_FILE_EXTENSION;
 

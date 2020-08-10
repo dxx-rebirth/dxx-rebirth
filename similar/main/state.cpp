@@ -86,6 +86,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
+#include "d_levelstate.h"
 #include "d_range.h"
 #include "partial_range.h"
 #include "d_zip.h"

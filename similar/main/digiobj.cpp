@@ -46,6 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "config.h"
 
 #include "compiler-range_for.h"
+#include "d_levelstate.h"
 #include <iterator>
 #include <utility>
 

@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
+#include "d_levelstate.h"
 
 //	Length in segments of avoidance path
 #define	AVOID_SEG_LENGTH	7

@@ -37,7 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "newdemo.h"
 #include "text.h"
-
+#include "d_levelstate.h"
 
 //------------- Globaly used hostage variables --------------------------------
 

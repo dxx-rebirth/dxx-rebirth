@@ -35,8 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef dsx
 #include "compiler-span.h"
-#include "fwd-object.h"
-#include "physics_info.h"
+#include "object.h"
 #include <array>
 #include <memory>
 

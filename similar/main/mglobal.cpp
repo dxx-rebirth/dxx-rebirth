@@ -41,6 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "valptridx.tcc"
 #include "wall.h"
+#include "d_levelstate.h"
 
 namespace dcx {
 

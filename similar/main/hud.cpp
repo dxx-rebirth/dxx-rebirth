@@ -37,6 +37,7 @@
 #include "args.h"
 #include "playsave.h"
 #include "countarray.h"
+#include "d_levelstate.h"
 
 namespace {
 constexpr std::integral_constant<unsigned, 150> HUD_MESSAGE_LENGTH{};

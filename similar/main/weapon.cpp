@@ -52,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfs-serial.h"
 
 #include "compiler-range_for.h"
+#include "d_levelstate.h"
 #include "partial_range.h"
 
 static uint_fast32_t POrderList (uint_fast32_t num);

@@ -62,9 +62,9 @@
 #include "vers_id.h"
 #include "u_mem.h"
 
-#include "dxxsconf.h"
 #include "compiler-cf_assert.h"
 #include "compiler-range_for.h"
+#include "d_levelstate.h"
 #include "d_range.h"
 #include "partial_range.h"
 #include <array>

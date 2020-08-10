@@ -45,6 +45,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "switch.h"
 #include "info.h"
+#include "d_levelstate.h"
 
 int init_info;
 

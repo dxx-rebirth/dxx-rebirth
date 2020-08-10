@@ -60,6 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "hudmsg.h"
 #include "playsave.h"
+#include "d_levelstate.h"
 #include "partial_range.h"
 
 namespace dcx {

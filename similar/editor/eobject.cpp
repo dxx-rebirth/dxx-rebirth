@@ -56,6 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 
 #include "compiler-range_for.h"
+#include "d_levelstate.h"
 #include "segiter.h"
 
 #define	OBJ_SCALE		(F1_0/2)

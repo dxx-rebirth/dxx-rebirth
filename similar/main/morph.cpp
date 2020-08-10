@@ -39,11 +39,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "interp.h"
 #include "render.h"
-#include "object.h"
 
 #include "compiler-poison.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
+#include "d_levelstate.h"
 #include "d_range.h"
 #include "d_zip.h"
 #include "partial_range.h"

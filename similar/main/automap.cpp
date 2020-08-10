@@ -85,6 +85,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 
 #include "compiler-range_for.h"
+#include "d_levelstate.h"
 #include "d_range.h"
 #include "d_zip.h"
 #include "partial_range.h"

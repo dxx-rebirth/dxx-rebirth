@@ -98,8 +98,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamepal.h"
 #endif
 
-#include "dxxsconf.h"
 #include "compiler-range_for.h"
+#include "d_levelstate.h"
 
 //#define _MARK_ON 1
 //#include <wsample.h>		//should come after inferno.h to get mark setting //Not included here.

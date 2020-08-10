@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "physfs-serial.h"
+#include "d_levelstate.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 

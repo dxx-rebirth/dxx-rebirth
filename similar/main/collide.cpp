@@ -83,8 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "collide.h"
 #include "escort.h"
 
-#include "dxxsconf.h"
-#include "dsx-ns.h"
+#include "d_levelstate.h"
 #include "partial_range.h"
 #include <utility>
 

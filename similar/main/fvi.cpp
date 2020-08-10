@@ -42,6 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "player.h"
 #include "compiler-range_for.h"
+#include "d_levelstate.h"
 #include "segiter.h"
 
 using std::min;

@@ -94,9 +94,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-#include "dxxsconf.h"
-#include "dsx-ns.h"
 #include "compiler-range_for.h"
+#include "d_levelstate.h"
 #include "partial_range.h"
 #include <utility>
 

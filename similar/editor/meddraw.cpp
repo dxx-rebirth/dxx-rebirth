@@ -54,10 +54,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "meddraw.h"
 #include "d_enumerate.h"
+#include "d_levelstate.h"
 #include "d_range.h"
 #include "compiler-range_for.h"
 #include "segiter.h"
-#include "d_range.h"
 #include "d_zip.h"
 
 #if DXX_USE_OGL

@@ -51,7 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_OBJECT_VEL	i2f(100)
 #endif
 
-#include "dxxsconf.h"
+#include "d_levelstate.h"
 #include "compiler-range_for.h"
 
 //Global variables for physics system
