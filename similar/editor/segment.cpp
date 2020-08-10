@@ -181,7 +181,8 @@ segnum_t med_create_duplicate_segment(segment_array &Segments, const segment &sp
 
 	auto &nsp = *Segments.vmptr(segnum);
 	nsp = sp;
-	nsp.objects = object_none;
+	unique_segment &unsp = nsp;
+	unsp.objects = object_none;
 
 	return segnum;
 }
@@ -652,7 +653,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegpt
 	const auto &&nsp = destseg.absolute_sibling(segnum);
 
 	nsp->segnum = segnum;
-	nsp->objects = object_none;
+	static_cast<unique_segment &>(nsp).objects = object_none;
 	nsp->matcen_num = -1;
 
 	// Copy group value.
@@ -922,9 +923,6 @@ int med_delete_segment(const vmsegptridx_t sp)
 			} else
 				obj_delete(LevelUniqueObjectState, Segments, objnum);
 		}
-
-	// Make sure everything deleted ok...
-	Assert( sp->objects==object_none );
 
 	// If we are leaving many holes in Segments or Vertices, then compress mine, because it is inefficient to be that way
 //	if ((Highest_segment_index > Num_segments+4) || (Highest_vertex_index > Num_vertices+4*8))
@@ -1200,8 +1198,9 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptri
 
 	const auto &&bs = seg1.absolute_sibling(get_free_segment_number(Segments));
 	shared_segment &sbs = *bs;
+	unique_segment &ubs = *bs;
 	sbs.segnum = bs;
-	bs->objects = object_none;
+	ubs.objects = object_none;
 
 	// Copy vertices from seg2 into last 4 vertices of bridge segment.
 	{
@@ -1267,6 +1266,7 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptri
 //	It will be created with walls on all sides, ie not connected to anything.
 void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp)
 {
+	unique_segment &usp = sp;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int			f;
@@ -1313,7 +1313,7 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 	for (f=0; f<MAX_SIDES_PER_SEGMENT; f++)
 		create_walls_on_side(vcvertptr, sp, f);
 
-	sp->objects = object_none;		//no objects in this segment
+	usp.objects = object_none;		//no objects in this segment
 
 	// Assume nothing special about this segment
 	sp->special = 0;
@@ -1333,6 +1333,7 @@ void med_create_new_segment(const vms_vector &scale)
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	int			t;
 	const auto &&sp = vmsegptridx(&New_segment);
+	unique_segment &usp = sp;
 	fix			length,width,height;
 
 	length = scale.z;
@@ -1369,7 +1370,7 @@ void med_create_new_segment(const vms_vector &scale)
 
 	Seg_orientation = {};
 
-	sp->objects = object_none;		//no objects in this segment
+	usp.objects = object_none;		//no objects in this segment
 
 	assign_default_uvs_to_segment(sp);
 

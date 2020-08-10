@@ -934,11 +934,9 @@ void obj_link(fvmobjptr &vmobjptr, const vmobjptridx_t obj, const vmsegptridx_t 
 void obj_link_unchecked(fvmobjptr &vmobjptr, const vmobjptridx_t obj, const vmsegptridx_t segnum)
 {
 	obj->segnum = segnum;
-	
-	obj->next = segnum->objects;
+	unique_segment &useg = segnum;
+	obj->next = std::exchange(useg.objects, obj);
 	obj->prev = object_none;
-
-	segnum->objects = obj;
 
 	if (obj->next != object_none)
 		vmobjptr(obj->next)->prev = obj;
@@ -956,16 +954,16 @@ void obj_unlink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, object_base &obj)
 	 * In release builds, compute it when it is needed.
 	 */
 #ifndef NDEBUG
-	const auto &&segp = vmsegptr(obj.segnum);
+	unique_segment &segp = vmsegptr(obj.segnum);
 #endif
 	((obj.prev == object_none)
 		? (
 #ifdef NDEBUG
-			vmsegptr(obj.segnum)
+			static_cast<unique_segment &>(vmsegptr(obj.segnum))
 #else
 			segp
 #endif
-		)->objects
+		).objects
 		: vmobjptr(obj.prev)->next) = next;
 
 	obj.segnum = segment_none;
@@ -1644,11 +1642,11 @@ void obj_relink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, const vmobjptridx_t ob
 void obj_relink_all(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
-	range_for (const auto &&segp, vmsegptr)
+	for (unique_segment &useg : vmsegptr)
 	{
-		segp->objects = object_none;
+		useg.objects = object_none;
 	}
-	
+
 	range_for (const auto &&obj, Objects.vmptridx)
 	{
 		if (obj->type != OBJ_NONE)

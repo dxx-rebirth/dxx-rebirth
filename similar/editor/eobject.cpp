@@ -74,7 +74,7 @@ static objnum_t get_first_object(fvcobjptr &vcobjptr, const unique_segment &seg)
 }
 
 //returns the number of the next object in a segment, skipping the player
-static objnum_t get_next_object(const vmsegptr_t seg,objnum_t id)
+static objnum_t get_next_object(const unique_segment &seg, objnum_t id)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -366,23 +366,25 @@ int ObjectSelectNextinSegment(void)
 
 	//Assert(Cur_object_seg == Cursegp);
 
-	const vmsegptr_t objsegp = Cursegp;
+	const unique_segment &objuseg = Cursegp;
 	if (Cur_object_index == object_none) {
-		Cur_object_index = objsegp->objects;
+		Cur_object_index = objuseg.objects;
 	} else {
 		if (Objects[Cur_object_index].segnum != Cursegp)
-			Cur_object_index = objsegp->objects;
+			Cur_object_index = objuseg.objects;
 	}
 
 
 	//Debug: make sure current object is in current segment
 	objnum_t id;
-	for (id=objsegp->objects;(id != Cur_object_index)  && (id != object_none);id=Objects[id].next);
+	for (id = objuseg.objects; id != Cur_object_index && id != object_none; id = Objects[id].next)
+	{
+	}
 	Assert(id == Cur_object_index);		//should have found object
 
 	//	Select the next object, wrapping back to start if we are at the end of the linked list for this segment.
 	if (id != object_none)
-		Cur_object_index = get_next_object(objsegp,Cur_object_index);
+		Cur_object_index = get_next_object(objuseg, Cur_object_index);
 
 	Update_flags |= UF_WORLD_CHANGED;
 

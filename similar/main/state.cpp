@@ -1889,10 +1889,8 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
 
 	//Clear out all the objects from the lvl file
-	range_for (const auto &&segp, vmsegptr)
-	{
-		segp->objects = object_none;
-	}
+	for (unique_segment &useg : vmsegptr)
+		useg.objects = object_none;
 	reset_objects(LevelUniqueObjectState, 1);
 
 	//Read objects, and pop 'em into their respective segments.

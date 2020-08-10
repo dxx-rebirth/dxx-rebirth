@@ -2068,9 +2068,9 @@ static int newdemo_read_frame_information(int rewrite)
 	done = 0;
 
 	if (Newdemo_vcr_state != ND_STATE_PAUSED)
-		range_for (const auto &&segp, vmsegptr)
+		for (unique_segment &useg : vmsegptr)
 		{
-			segp->objects = object_none;
+			useg.objects = object_none;
 		}
 
 	reset_objects(LevelUniqueObjectState, 1);

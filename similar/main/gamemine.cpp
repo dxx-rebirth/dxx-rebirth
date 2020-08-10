@@ -399,7 +399,6 @@ int load_mine_data(PHYSFS_File *LoadFile)
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	char old_tmap_list[MAX_TEXTURES][FILENAME_LEN];
-	int 	translate;
 	char 	*temptr;
 	int	mine_start = PHYSFS_tell(LoadFile);
 
@@ -553,7 +552,9 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 	//=============== GENERATE TEXTURE TRANSLATION TABLE ===============
 
-	translate = 0;
+#if 0
+	int translate = 0;
+#endif
 	
 	Assert (NumTextures < MAX_TEXTURES);
 
@@ -578,7 +579,9 @@ int load_mine_data(PHYSFS_File *LoadFile)
 			if (tmap_xlate_table[j]	< 0 )	{
 				;
 			}
+#if 0
 			if (tmap_xlate_table[j] != j ) translate = 1;
+#endif
 		}
 	}
 
@@ -617,8 +620,6 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 	// [commented out by mk on 11/20/94 (weren't we supposed to hit final in October?) because it looks redundant.  I think I'll test it now...]  fuelcen_reset();
 
-	auto &Walls = LevelUniqueWallSubsystemState.Walls;
-	auto &vcwallptr = Walls.vcptr;
 	if ( (mine_fileinfo.segment_offset > -1) && (mine_fileinfo.segment_howmany > 0))	{
 
 		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.segment_offset,SEEK_SET ))
@@ -683,6 +684,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 			else 
 				Error("Invalid mine version");
 
+#if 0
 			i->objects = object_none;
 #if DXX_USE_EDITOR
 			i->group = -1;
@@ -713,6 +715,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 							}
 					}
 				}
+#endif
 		}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -908,11 +911,11 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 
 	const auto Num_segments = LevelSharedSegmentState.Num_segments;
 	for (segnum_t segnum=0; segnum < Num_segments; segnum++ )	{
-		const auto segp = vmsegptr(segnum);
+		const msmusegment segp = vmsegptr(segnum);
 
 #if DXX_USE_EDITOR
-		segp->segnum = segnum;
-		segp->group = 0;
+		segp.s.segnum = segnum;
+		segp.s.group = 0;
 		#endif
 
 		if (New_file_format_load)
@@ -932,12 +935,12 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 			}
 		}
 
-		segp->objects = object_none;
+		segp.u.objects = object_none;
 
 		if (Gamesave_current_version <= 5) { // descent 1 thru d2 SHAREWARE level
 			// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
 			temp_ushort = PHYSFSX_readShort(LoadFile);
-			segp->static_light	= static_cast<fix>(temp_ushort) << 4;
+			segp.u.static_light = static_cast<fix>(temp_ushort) << 4;
 			//PHYSFS_read( LoadFile, &Segments[segnum].static_light, sizeof(fix), 1 );
 		}
 
@@ -949,7 +952,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 		for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			ubyte byte_wallnum;
 
-			auto &sside = segp->shared_segment::sides[sidenum];
+			auto &sside = segp.s.sides[sidenum];
 			if (bit_mask & (1 << sidenum)) {
 				byte_wallnum = PHYSFSX_readByte(LoadFile);
 				if ( byte_wallnum == 255 )
@@ -961,8 +964,8 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 		}
 
 		for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ ) {
-			auto &uside = segp->unique_segment::sides[sidenum];
-			if (segp->children[sidenum] == segment_none || segp->shared_segment::sides[sidenum].wall_num != wall_none)	{
+			auto &uside = segp.u.sides[sidenum];
+			if (segp.s.children[sidenum] == segment_none || segp.s.sides[sidenum].wall_num != wall_none)	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
 				temp_ushort = PHYSFSX_readShort(LoadFile);
 #if defined(DXX_BUILD_DESCENT_I)
