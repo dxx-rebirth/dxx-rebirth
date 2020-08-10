@@ -1761,11 +1761,12 @@ static void change_light(const d_level_shared_destructible_light_state &LevelSha
 // returns 1 if lights actually subtracted, else 0
 int subtract_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, const sidenum_fast_t sidenum)
 {
-	if (segnum->light_subtracted & (1 << sidenum)) {
+	unique_segment &useg = segnum;
+	auto &light_subtracted = useg.light_subtracted;
+	const auto mask = 1u << sidenum;
+	if (light_subtracted & mask)
 		return 0;
-	}
-
-	segnum->light_subtracted |= (1 << sidenum);
+	light_subtracted |= mask;
 	change_light(LevelSharedDestructibleLightState, segnum, sidenum, -1);
 	return 1;
 }
@@ -1776,11 +1777,12 @@ int subtract_light(const d_level_shared_destructible_light_state &LevelSharedDes
 // returns 1 if lights actually added, else 0
 int add_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, sidenum_fast_t sidenum)
 {
-	if (!(segnum->light_subtracted & (1 << sidenum))) {
+	const auto mask = 1u << sidenum;
+	unique_segment &useg = segnum;
+	auto &light_subtracted = useg.light_subtracted;
+	if (!(light_subtracted & mask))
 		return 0;
-	}
-
-	segnum->light_subtracted &= ~(1 << sidenum);
+	light_subtracted &= ~mask;
 	change_light(LevelSharedDestructibleLightState, segnum, sidenum, 1);
 	return 1;
 }
@@ -1791,8 +1793,11 @@ void apply_all_changed_light(const d_level_shared_destructible_light_state &Leve
 	range_for (const auto &&segp, vmsegptridx)
 	{
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-			if (segp->light_subtracted & (1 << j))
+		{
+			unique_segment &useg = segp;
+			if (useg.light_subtracted & (1 << j))
 				change_light(LevelSharedDestructibleLightState, segp, j, -1);
+		}
 	}
 }
 
@@ -1801,10 +1806,8 @@ void apply_all_changed_light(const d_level_shared_destructible_light_state &Leve
 //	to change the status of static light in the mine.
 void clear_light_subtracted(void)
 {
-	range_for (const auto &&segp, vmsegptr)
-	{
-		segp->light_subtracted = 0;
-	}
+	for (unique_segment &useg : vmsegptr)
+		useg.light_subtracted = 0;
 }
 
 #define	AMBIENT_SEGMENT_DEPTH		5

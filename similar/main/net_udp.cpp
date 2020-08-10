@@ -5546,8 +5546,9 @@ static void net_udp_send_smash_lights (const playernum_t pnum)
   // send the lights that have been blown out
 	range_for (const auto &&segp, vmsegptridx)
 	{
-		if (segp->light_subtracted)
-			multi_send_light_specific(pnum, segp, segp->light_subtracted);
+		unique_segment &useg = segp;
+		if (const auto light_subtracted = useg.light_subtracted)
+			multi_send_light_specific(pnum, segp, light_subtracted);
 	}
  }
 

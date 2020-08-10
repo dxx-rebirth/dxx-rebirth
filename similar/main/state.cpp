@@ -1484,12 +1484,24 @@ int state_save_all_sub(const char *filename, const char *desc)
 			std::array<uint8_t, MAX_SEGMENTS_ORIGINAL> light_subtracted_original;
 		};
 		const auto &&r = make_range(vcsegptr);
+		/* For compatibility with old game versions, always write at
+		 * least MAX_SEGMENTS_ORIGINAL entries.  If the level is larger
+		 * than that, then write as many entries as needed for the
+		 * level.
+		 */
 		const unsigned count = (Highest_segment_index + 1 > MAX_SEGMENTS_ORIGINAL)
+			/* Every written element will be filled by the loop, so
+			 * there is no need to initialize the storage area.
+			 */
 			? vcsegptr.count()
+			/* The loop may fill fewer than MAX_SEGMENTS_ORIGINAL
+			 * entries, but MAX_SEGMENTS_ORIGINAL entries will be
+			 * written, so zero-initialize the elements first.
+			 */
 			: (light_subtracted_original = {}, MAX_SEGMENTS_ORIGINAL);
 		auto j = light_subtracted.begin();
-		range_for (const auto &&segp, r)
-			*j++ = segp->light_subtracted;
+		for (const unique_segment &useg : r)
+			*j++ = useg.light_subtracted;
 		PHYSFS_write(fp, light_subtracted.data(), sizeof(uint8_t), count);
 	}
 	PHYSFS_write(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
@@ -2192,9 +2204,9 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	if (version >= 16) {
 		if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 		{
-			range_for (const auto &&segp, vmsegptr)
+			for (unique_segment &useg : vmsegptr)
 			{
-				PHYSFS_read(fp, &segp->light_subtracted, sizeof(segp->light_subtracted), 1);
+				PHYSFS_read(fp, &useg.light_subtracted, sizeof(useg.light_subtracted), 1);
 			}
 		}
 		else
@@ -2206,10 +2218,8 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		}
 		apply_all_changed_light(LevelSharedDestructibleLightState, Segments.vmptridx);
 	} else {
-		range_for (const auto &&segp, vmsegptr)
-		{
-			segp->light_subtracted = 0;
-		}
+		for (unique_segment &useg : vmsegptr)
+			useg.light_subtracted = 0;
 	}
 
 	if (secret == secret_restore::none)
