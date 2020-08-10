@@ -72,13 +72,19 @@ using std::min;
 
 namespace {
 
+enum class gauge_screen_resolution : uint8_t
+{
+	low,
+	high,
+};
+
 class local_multires_gauge_graphic
 {
-	const bool hiresmode = HIRESMODE;
 public:
+	const gauge_screen_resolution hiresmode = gauge_screen_resolution{HIRESMODE};
 	bool is_hires() const
 	{
-		return hiresmode;
+		return hiresmode != gauge_screen_resolution::low;
 	}
 	template <typename T>
 		T get(T h, T l) const
@@ -482,7 +488,6 @@ std::array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges; // Array of all gauge bitmap
 #define PAGE_IN_GAUGE	PAGE_IN_GAUGE
 std::array<bitmap_index, MAX_GAUGE_BMS> Gauges,   // Array of all gauge bitmaps.
 	Gauges_hires;   // hires gauges
-static std::array<int, 2> weapon_box_user{{WBU_WEAPON, WBU_WEAPON}};		//see WBU_ constants in gauges.h
 #endif
 static std::array<grs_subbitmap_ptr, 2> WinBoxOverlay; // Overlay subbitmaps for both weapon boxes
 
@@ -502,12 +507,9 @@ static void draw_ammo_info(grs_canvas &, unsigned x, unsigned y, unsigned ammo_c
 
 static int score_display;
 static fix score_time;
-static std::array<int, 2> old_weapon{{-1, -1}};
 static int old_laser_level		= -1;
 static int invulnerable_frame;
-static std::array<int, 2> weapon_box_states;
 static_assert(WS_SET == 0, "weapon_box_states must start at zero");
-static std::array<fix, 2> weapon_box_fade_values;
 int	Color_0_31_0 = -1;
 
 namespace dcx {
@@ -587,24 +589,46 @@ struct gauge_box
 	int right,bot;		//maximal box
 };
 
-const gauge_box gauge_boxes[] = {
+enum class gauge_hud_type : uint_fast32_t
+{
+	cockpit,
+	statusbar,
+	// fullscreen mode handled separately
+};
 
+constexpr enumerated_array<
+		enumerated_array<
+			enumerated_array<gauge_box, 2, gauge_inset_window_view>,
+		2, gauge_hud_type>,
+	2, gauge_screen_resolution> gauge_boxes = {{{
+	{{{
+	{{{
 // primary left/right low res
 		{PRIMARY_W_BOX_LEFT_L,PRIMARY_W_BOX_TOP_L,PRIMARY_W_BOX_RIGHT_L,PRIMARY_W_BOX_BOT_L},
 		{SECONDARY_W_BOX_LEFT_L,SECONDARY_W_BOX_TOP_L,SECONDARY_W_BOX_RIGHT_L,SECONDARY_W_BOX_BOT_L},
+	}}},
 
+	{{{
 //sb left/right low res
 		{SB_PRIMARY_W_BOX_LEFT_L,SB_PRIMARY_W_BOX_TOP_L,SB_PRIMARY_W_BOX_RIGHT_L,SB_PRIMARY_W_BOX_BOT_L},
 		{SB_SECONDARY_W_BOX_LEFT_L,SB_SECONDARY_W_BOX_TOP_L,SB_SECONDARY_W_BOX_RIGHT_L,SB_SECONDARY_W_BOX_BOT_L},
+	}}},
+	}}},
 
+	{{{
+	{{{
 // primary left/right hires
 		{PRIMARY_W_BOX_LEFT_H,PRIMARY_W_BOX_TOP_H,PRIMARY_W_BOX_RIGHT_H,PRIMARY_W_BOX_BOT_H},
 		{SECONDARY_W_BOX_LEFT_H,SECONDARY_W_BOX_TOP_H,SECONDARY_W_BOX_RIGHT_H,SECONDARY_W_BOX_BOT_H},
+	}}},
 
+	{{{
 // sb left/right hires
 		{SB_PRIMARY_W_BOX_LEFT_H,SB_PRIMARY_W_BOX_TOP_H,SB_PRIMARY_W_BOX_RIGHT_H,SB_PRIMARY_W_BOX_BOT_H},
 		{SB_SECONDARY_W_BOX_LEFT_H,SB_SECONDARY_W_BOX_TOP_H,SB_SECONDARY_W_BOX_RIGHT_H,SB_SECONDARY_W_BOX_BOT_H},
-	};
+	}}}
+	}}}
+}}};
 
 struct d_gauge_span
 {
@@ -773,6 +797,20 @@ const std::array<dspan, 107> weapon_windows_hires = {{
 	{{131,226},		{422,519}},
 	{{133,223},		{424,518}},
 }};
+
+enumerated_array<int, 2, gauge_inset_window_view> old_weapon{
+	{{-1, -1}}
+};
+
+enumerated_array<int, 2, gauge_inset_window_view> weapon_box_states;
+enumerated_array<fix, 2, gauge_inset_window_view> weapon_box_fade_values;
+#if defined(DXX_BUILD_DESCENT_II)
+enumerated_array<int, 2, gauge_inset_window_view> weapon_box_user{
+	{{WBU_WEAPON, WBU_WEAPON}}
+};		//see WBU_ constants in gauges.h
+enumerated_array<fix, 2, gauge_inset_window_view> static_time;
+enumerated_array<uint8_t, 2, gauge_inset_window_view> overlap_dirty;
+#endif
 
 static inline void hud_bitblt_free(grs_canvas &canvas, const unsigned x, const unsigned y, const unsigned w, const unsigned h, grs_bitmap &bm)
 {
@@ -1290,12 +1328,6 @@ static void draw_primary_ammo_info(const hud_draw_context_hs_mr hudctx, const un
 
 namespace dcx {
 namespace {
-
-enum weapon_type
-{
-	primary,
-	secondary,
-};
 
 constexpr rgb_t hud_rgb_red = {40, 0, 0};
 constexpr rgb_t hud_rgb_green = {0, 30, 0};
@@ -2076,10 +2108,10 @@ void close_gauges()
 namespace dsx {
 void init_gauges()
 {
-	old_weapon[0] = old_weapon[1] = -1;
+	old_weapon[gauge_inset_window_view::primary] = old_weapon[gauge_inset_window_view::secondary] = -1;
 	old_laser_level	= -1;
 #if defined(DXX_BUILD_DESCENT_II)
-	weapon_box_user[0] = weapon_box_user[1] = WBU_WEAPON;
+	weapon_box_user[gauge_inset_window_view::primary] = weapon_box_user[gauge_inset_window_view::secondary] = WBU_WEAPON;
 #endif
 }
 }
@@ -2490,9 +2522,11 @@ static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const 
 		const gauge_box *box;
 		int pic_x, pic_y, text_x, text_y;
 		auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
+		auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
 		if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		{
-			box = &gauge_boxes[SB_PRIMARY_BOX];
+			auto &hudbox = resbox[gauge_hud_type::statusbar];
+			box = &hudbox[gauge_inset_window_view::primary];
 			pic_x = SB_PRIMARY_W_PIC_X;
 			pic_y = SB_PRIMARY_W_PIC_Y;
 			text_x = SB_PRIMARY_W_TEXT_X;
@@ -2502,7 +2536,8 @@ static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const 
 		}
 		else
 		{
-			box = &gauge_boxes[COCKPIT_PRIMARY_BOX];
+			auto &hudbox = resbox[gauge_hud_type::cockpit];
+			box = &hudbox[gauge_inset_window_view::primary];
 			pic_x = PRIMARY_W_PIC_X;
 			pic_y = PRIMARY_W_PIC_Y;
 			text_x = PRIMARY_W_TEXT_X;
@@ -2514,7 +2549,7 @@ static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const 
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
-			if (weapon_box_user[0] == WBU_WEAPON)
+			if (weapon_box_user[gauge_inset_window_view::primary] == WBU_WEAPON)
 #endif
 				hud_show_primary_weapons_mode(hudctx.canvas, player_info, 1, hudctx.xscale(x), hudctx.yscale(y));
 		}
@@ -2531,9 +2566,11 @@ static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, cons
 		const gauge_box *box;
 		int pic_x, pic_y, text_x, text_y;
 		auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
+		auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
 		if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		{
-			box = &gauge_boxes[SB_SECONDARY_BOX];
+			auto &hudbox = resbox[gauge_hud_type::statusbar];
+			box = &hudbox[gauge_inset_window_view::secondary];
 			pic_x = SB_SECONDARY_W_PIC_X;
 			pic_y = SB_SECONDARY_W_PIC_Y;
 			text_x = SB_SECONDARY_W_TEXT_X;
@@ -2543,7 +2580,8 @@ static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, cons
 		}
 		else
 		{
-			box = &gauge_boxes[COCKPIT_SECONDARY_BOX];
+			auto &hudbox = resbox[gauge_hud_type::cockpit];
+			box = &hudbox[gauge_inset_window_view::secondary];
 			pic_x = SECONDARY_W_PIC_X;
 			pic_y = SECONDARY_W_PIC_Y;
 			text_x = SECONDARY_W_TEXT_X;
@@ -2555,16 +2593,16 @@ static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, cons
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
-			if (weapon_box_user[1] == WBU_WEAPON)
+			if (weapon_box_user[gauge_inset_window_view::secondary] == WBU_WEAPON)
 #endif
 				hud_show_secondary_weapons_mode(hudctx.canvas, player_info, 1, hudctx.xscale(x), hudctx.yscale(y));
 		}
 	}
 }
 
-static void draw_weapon_info(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const unsigned weapon_num, const unsigned laser_level, const weapon_type wt)
+static void draw_weapon_info(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const unsigned weapon_num, const unsigned laser_level, const gauge_inset_window_view wt)
 {
-	if (wt == weapon_type::primary)
+	if (wt == gauge_inset_window_view::primary)
 		draw_primary_weapon_info(hudctx, player_info, weapon_num, laser_level);
 	else
 		draw_secondary_weapon_info(hudctx, player_info, weapon_num);
@@ -2592,12 +2630,12 @@ static void draw_secondary_ammo_info(const hud_draw_context_hs_mr hudctx, const 
 	draw_ammo_info(hudctx.canvas, hudctx.xscale(x), hudctx.yscale(y), ammo_count);
 }
 
-static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const unsigned weapon_num, const weapon_type wt)
+static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const unsigned weapon_num, const gauge_inset_window_view wt)
 {
 	auto &canvas = hudctx.canvas;
 	gr_set_curfont(canvas, GAME_FONT);
 
-	const auto laser_level_changed = (wt == weapon_type::primary && weapon_num == primary_weapon_index_t::LASER_INDEX && (player_info.laser_level != old_laser_level));
+	const auto laser_level_changed = (wt == gauge_inset_window_view::primary && weapon_num == primary_weapon_index_t::LASER_INDEX && (player_info.laser_level != old_laser_level));
 
 	if ((weapon_num != old_weapon[wt] || laser_level_changed) && weapon_box_states[wt] == WS_SET && (old_weapon[wt] != -1) && PlayerCfg.HudMode == HudType::Standard)
 	{
@@ -2645,10 +2683,11 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 	if (weapon_box_states[wt] != WS_SET)		//fade gauge
 	{
 		int fade_value = f2i(weapon_box_fade_values[wt]);
-		int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 
 		gr_settransblend(canvas, fade_value, gr_blend::normal);
-		auto &g = gauge_boxes[boxofs + wt];
+		auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
+		auto &hudbox = resbox[(PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) ? gauge_hud_type::statusbar : gauge_hud_type::cockpit];
+		auto &g = hudbox[wt];
 		auto &canvas = hudctx.canvas;
 		gr_rect(canvas, hudctx.xscale(g.left), hudctx.yscale(g.top), hudctx.xscale(g.right), hudctx.yscale(g.bot), 0);
 
@@ -2657,14 +2696,12 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static std::array<fix, 2> static_time;
 
-static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr hudctx, const unsigned win)
+static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr hudctx, const gauge_inset_window_view win)
 {
 	const vclip *const vc = &Vclip[VCLIP_MONITOR_STATIC];
 	int framenum;
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
-	int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 #if !DXX_USE_OGL
 	int x,y;
 #endif
@@ -2680,7 +2717,9 @@ static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr
 	PIGGY_PAGE_IN(vc->frames[framenum]);
 
 	auto &bmp = GameBitmaps[vc->frames[framenum].index];
-	auto &box = gauge_boxes[boxofs+win];
+	auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
+	auto &hudbox = resbox[(PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) ? gauge_hud_type::statusbar : gauge_hud_type::cockpit];
+	auto &box = hudbox[win];
 #if !DXX_USE_OGL
 	for (x = box.left; x < box.right; x += bmp.bm_w)
 		for (y = box.top; y < box.bot; y += bmp.bm_h)
@@ -2706,13 +2745,14 @@ namespace dsx {
 static void draw_weapon_box0(const hud_draw_context_hs_mr hudctx, const player_info &player_info)
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	if (weapon_box_user[0] == WBU_WEAPON)
+	if (weapon_box_user[gauge_inset_window_view::primary] == WBU_WEAPON)
 #endif
 	{
 		const auto Primary_weapon = player_info.Primary_weapon;
-		draw_weapon_box(hudctx, player_info, Primary_weapon, weapon_type::primary);
+		draw_weapon_box(hudctx, player_info, Primary_weapon, gauge_inset_window_view::primary);
 
-		if (weapon_box_states[0] == WS_SET) {
+		if (weapon_box_states[gauge_inset_window_view::primary] == WS_SET)
+		{
 			unsigned nd_ammo;
 			unsigned ammo_count;
 			if (weapon_index_uses_vulcan_ammo(Primary_weapon))
@@ -2736,20 +2776,20 @@ static void draw_weapon_box0(const hud_draw_context_hs_mr hudctx, const player_i
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	else if (weapon_box_user[0] == WBU_STATIC)
-		draw_static(Vclip, hudctx, 0);
+	else if (weapon_box_user[gauge_inset_window_view::primary] == WBU_STATIC)
+		draw_static(Vclip, hudctx, gauge_inset_window_view::primary);
 #endif
 }
 
 static void draw_weapon_box1(const hud_draw_context_hs_mr hudctx, const player_info &player_info)
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	if (weapon_box_user[1] == WBU_WEAPON)
+	if (weapon_box_user[gauge_inset_window_view::secondary] == WBU_WEAPON)
 #endif
 	{
 		auto &Secondary_weapon = player_info.Secondary_weapon;
-		draw_weapon_box(hudctx, player_info, Secondary_weapon, weapon_type::secondary);
-		if (weapon_box_states[1] == WS_SET)
+		draw_weapon_box(hudctx, player_info, Secondary_weapon, gauge_inset_window_view::secondary);
+		if (weapon_box_states[gauge_inset_window_view::secondary] == WS_SET)
 		{
 			const auto ammo = player_info.secondary_ammo[Secondary_weapon];
 			if (Newdemo_state == ND_STATE_RECORDING)
@@ -2758,8 +2798,8 @@ static void draw_weapon_box1(const hud_draw_context_hs_mr hudctx, const player_i
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	else if (weapon_box_user[1] == WBU_STATIC)
-		draw_static(Vclip, hudctx, 1);
+	else if (weapon_box_user[gauge_inset_window_view::secondary] == WBU_STATIC)
+		draw_static(Vclip, hudctx, gauge_inset_window_view::secondary);
 #endif
 }
 
@@ -3649,7 +3689,7 @@ void render_gauges()
 		if (Newdemo_state==ND_STATE_RECORDING )
 			newdemo_record_player_afterburner(Afterburner_charge);
 		sb_draw_afterburner(hudctx, player_info);
-		if (PlayerCfg.HudMode == HudType::Standard && weapon_box_user[1] == WBU_WEAPON)
+		if (PlayerCfg.HudMode == HudType::Standard && weapon_box_user[gauge_inset_window_view::secondary] == WBU_WEAPON)
 #endif
 			show_bomb_count(hudctx.canvas, player_info, hudctx.xscale(SB_BOMB_COUNT_X), hudctx.yscale(SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 
@@ -3690,19 +3730,18 @@ void render_gauges()
 //	If laser is active, set old_weapon[0] to -1 to force redraw.
 void update_laser_weapon_info(void)
 {
-	if (old_weapon[0] == 0)
-			old_weapon[0] = -1;
+	if (old_weapon[gauge_inset_window_view::primary] == 0)
+		old_weapon[gauge_inset_window_view::primary] = -1;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static std::array<int, 2> overlap_dirty;
 
 //draws a 3d view into one of the cockpit windows.  win is 0 for left,
 //1 for right.  viewer is object.  NULL object means give up window
 //user is one of the WBU_ constants.  If rear_view_flag is set, show a
 //rear view.  If label is non-NULL, print the label at the top of the
 //window.
-void do_cockpit_window_view(int win,int user)
+void do_cockpit_window_view(const gauge_inset_window_view win, const int user)
 {
 	Assert(user == WBU_WEAPON || user == WBU_STATIC);
 	if (user == WBU_STATIC && weapon_box_user[win] != WBU_STATIC)
@@ -3711,17 +3750,16 @@ void do_cockpit_window_view(int win,int user)
 		return;		//already set
 	weapon_box_user[win] = user;
 	if (overlap_dirty[win]) {
-		gr_set_default_canvas();
 		overlap_dirty[win] = 0;
+		gr_set_default_canvas();
 	}
 }
 
-void do_cockpit_window_view(const int win, const object &viewer, const int rear_view_flag, const int user, const char *const label, const player_info *const player_info)
+void do_cockpit_window_view(const gauge_inset_window_view win, const object &viewer, const int rear_view_flag, const int user, const char *const label, const player_info *const player_info)
 {
 	grs_canvas window_canv;
 	static grs_canvas overlap_canv;
 	const auto viewer_save = Viewer;
-	int boxnum;
 	static int window_x,window_y;
 	const gauge_box *box;
 	int rear_view_save = Rear_view;
@@ -3743,7 +3781,7 @@ void do_cockpit_window_view(const int win, const object &viewer, const int rear_
 		const unsigned w = HUD_SCALE_AR(hudctx.xscale, hudctx.yscale)(multires_gauge_graphic.get(106, 44));
 		const unsigned h = w;
 
-		const int dx = (win == 0) ? -(w + (w / 10)) : (w / 10);
+		const int dx = (win == gauge_inset_window_view::primary) ? -(w + (w / 10)) : (w / 10);
 
 		window_x = grd_curscreen->get_screen_width() / 2 + dx;
 		window_y = grd_curscreen->get_screen_height() - h - (SHEIGHT / 15);
@@ -3751,14 +3789,12 @@ void do_cockpit_window_view(const int win, const object &viewer, const int rear_
 		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, window_x, window_y, w, h);
 	}
 	else {
-		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
-			boxnum = (COCKPIT_PRIMARY_BOX)+win;
-		else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
-			boxnum = (SB_PRIMARY_BOX)+win;
-		else
+		if (PlayerCfg.CockpitMode[1] != CM_FULL_COCKPIT && PlayerCfg.CockpitMode[1] != CM_STATUS_BAR)
 			goto abort;
 
-		box = &gauge_boxes[boxnum];
+		auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
+		auto &hudbox = resbox[(PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) ? gauge_hud_type::statusbar : gauge_hud_type::cockpit];
+		box = &hudbox[win];
 		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, hudctx.xscale(box->left), hudctx.yscale(box->top), hudctx.xscale(box->right - box->left + 1), hudctx.yscale(box->bot - box->top + 1));
 	}
 

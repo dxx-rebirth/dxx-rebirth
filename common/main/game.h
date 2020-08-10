@@ -36,6 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-player.h"
 #include "fwd-segment.h"
 #include "fwd-window.h"
+#include "d_array.h"
+#include "gauges.h"
 #include "wall.h"
 
 #define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30
@@ -71,8 +73,8 @@ extern object_signature_t Missile_viewer_sig;
 #define CV_COOP     3
 #define CV_MARKER   4
 
-extern std::array<unsigned, 2> Coop_view_player;     // left & right
-extern std::array<game_marker_index, 2> Marker_viewer_num;    // left & right
+extern enumerated_array<unsigned, 2, gauge_inset_window_view> Coop_view_player;     // left & right
+extern enumerated_array<game_marker_index, 2, gauge_inset_window_view> Marker_viewer_num;    // left & right
 }
 #endif
 

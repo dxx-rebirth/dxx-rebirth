@@ -256,8 +256,9 @@ int new_player_config()
 #if defined(DXX_BUILD_DESCENT_I)
 	PlayerCfg.BombGauge = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
-	PlayerCfg.Cockpit3DView[0]=CV_NONE;
-	PlayerCfg.Cockpit3DView[1]=CV_NONE;
+	PlayerCfg.Cockpit3DView = {{{
+		CV_NONE, CV_NONE
+	}}};
 	PlayerCfg.ThiefModifierFlags = 0;
 	PlayerCfg.MissileViewEnabled = MissileViewMode::EnabledSelfOnly;
 	PlayerCfg.HeadlightActiveDefault = 1;
@@ -1066,12 +1067,14 @@ int read_player_file()
 
 		if (player_file_version>=16)
 		{
-			PHYSFS_readSLE32(file, &PlayerCfg.Cockpit3DView[0]);
-			PHYSFS_readSLE32(file, &PlayerCfg.Cockpit3DView[1]);
+			PHYSFS_readSLE32(file, &PlayerCfg.Cockpit3DView[gauge_inset_window_view::primary]);
+			PHYSFS_readSLE32(file, &PlayerCfg.Cockpit3DView[gauge_inset_window_view::secondary]);
 			if (swap)
 			{
-				PlayerCfg.Cockpit3DView[0] = SWAPINT(PlayerCfg.Cockpit3DView[0]);
-				PlayerCfg.Cockpit3DView[1] = SWAPINT(PlayerCfg.Cockpit3DView[1]);
+				auto &view_primary = PlayerCfg.Cockpit3DView[gauge_inset_window_view::primary];
+				view_primary = SWAPINT(view_primary);
+				auto &view_secondary = PlayerCfg.Cockpit3DView[gauge_inset_window_view::secondary];
+				view_secondary = SWAPINT(view_secondary);
 			}
 		}
 #endif
@@ -1465,8 +1468,8 @@ void write_player_file()
 			PHYSFS_write(file, &PlayerCfg.SecondaryOrder[i], sizeof(ubyte), 1);
 		}
 
-		PHYSFS_writeULE32(file, PlayerCfg.Cockpit3DView[0]);
-		PHYSFS_writeULE32(file, PlayerCfg.Cockpit3DView[1]);
+		PHYSFS_writeULE32(file, PlayerCfg.Cockpit3DView[gauge_inset_window_view::primary]);
+		PHYSFS_writeULE32(file, PlayerCfg.Cockpit3DView[gauge_inset_window_view::secondary]);
 
 		PHYSFS_writeULE32(file, PlayerCfg.NetlifeKills);
 		PHYSFS_writeULE32(file, PlayerCfg.NetlifeKilled);

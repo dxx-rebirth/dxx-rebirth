@@ -122,7 +122,7 @@ namespace dsx {
 int Screen_mode=-1;					//game screen or editor screen?
 
 #if defined(DXX_BUILD_DESCENT_I)
-int HiresGFXAvailable = 0;
+uint8_t HiresGFXAvailable;
 int MacHog = 0;	// using a Mac hogfile?
 #endif
 

@@ -4232,7 +4232,10 @@ void newdemo_start_playback(const char * filename)
 	nd_playback_v_style = NORMAL_PLAYBACK;
 #if defined(DXX_BUILD_DESCENT_II)
 	init_seismic_disturbances();
-	PlayerCfg.Cockpit3DView[0] = PlayerCfg.Cockpit3DView[1] = CV_NONE;       //turn off 3d views on cockpit
+	//turn off 3d views on cockpit
+	PlayerCfg.Cockpit3DView = {{{
+		CV_NONE, CV_NONE
+	}}};
 	DemoDoLeft = DemoDoRight = 0;
 	nd_playback_v_guided = 0;
 #endif
@@ -4405,7 +4408,6 @@ static void nd_render_extras (ubyte which,const object &obj)
 	if (which==255)
 	{
 		Int3(); // how'd we get here?
-		do_cockpit_window_view(w,WBU_WEAPON);
 		return;
 	}
 

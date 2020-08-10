@@ -603,11 +603,10 @@ static window_event_result HandleDemoKey(int key)
 
 #if defined(DXX_BUILD_DESCENT_II)
 //switch a cockpit window to the next function
-static int select_next_window_function(int w)
+static int select_next_window_function(const gauge_inset_window_view w)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	Assert(w==0 || w==1);
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	switch (PlayerCfg.Cockpit3DView[w]) {
@@ -706,11 +705,11 @@ static window_event_result HandleSystemKey(int key)
 
 			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_1:)
 			case KEY_SHIFTED+KEY_F1:
-				select_next_window_function(0);
+				select_next_window_function(gauge_inset_window_view::primary);
 				return window_event_result::handled;
 			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_2:)
 			case KEY_SHIFTED+KEY_F2:
-				select_next_window_function(1);
+				select_next_window_function(gauge_inset_window_view::secondary);
 				return window_event_result::handled;
 #endif
 		}

@@ -45,7 +45,7 @@ enum class gr_blend {
 
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
-extern int HiresGFXAvailable;
+extern uint8_t HiresGFXAvailable;
 }
 #define HIRESMODE HiresGFXAvailable		// descent.pig either contains hires or lowres graphics, not both
 #elif defined(DXX_BUILD_DESCENT_II)

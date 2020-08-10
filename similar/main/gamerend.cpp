@@ -589,7 +589,7 @@ static bool choose_missile_viewer()
 	return true;
 }
 
-static void show_one_extra_view(const int w);
+static void show_one_extra_view(const gauge_inset_window_view w);
 static void show_extra_views()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -603,26 +603,26 @@ static void show_extra_views()
 			DemoDoingLeft=DemoDoLeft;
 
 			if (DemoDoLeft==3)
-				do_cockpit_window_view(0, *ConsoleObject, 1, WBU_REAR, "REAR");
+				do_cockpit_window_view(gauge_inset_window_view::primary, *ConsoleObject, 1, WBU_REAR, "REAR");
 			else
-				do_cockpit_window_view(0, DemoLeftExtra, DemoRearCheck[DemoDoLeft], DemoWBUType[DemoDoLeft], DemoExtraMessage[DemoDoLeft], DemoDoLeft == 1 ? &get_local_plrobj().ctype.player_info : nullptr);
+				do_cockpit_window_view(gauge_inset_window_view::primary, DemoLeftExtra, DemoRearCheck[DemoDoLeft], DemoWBUType[DemoDoLeft], DemoExtraMessage[DemoDoLeft], DemoDoLeft == 1 ? &get_local_plrobj().ctype.player_info : nullptr);
 		}
 		else
-			do_cockpit_window_view(0,WBU_WEAPON);
+			do_cockpit_window_view(gauge_inset_window_view::primary,WBU_WEAPON);
 	
 		if (DemoDoRight)
 		{
 			DemoDoingRight=DemoDoRight;
 			
 			if (DemoDoRight==3)
-				do_cockpit_window_view(1, *ConsoleObject, 1, WBU_REAR, "REAR");
+				do_cockpit_window_view(gauge_inset_window_view::secondary, *ConsoleObject, 1, WBU_REAR, "REAR");
 			else
 			{
-				do_cockpit_window_view(1, DemoRightExtra, DemoRearCheck[DemoDoRight], DemoWBUType[DemoDoRight], DemoExtraMessage[DemoDoRight], DemoDoLeft == 1 ? &get_local_plrobj().ctype.player_info : nullptr);
+				do_cockpit_window_view(gauge_inset_window_view::secondary, DemoRightExtra, DemoRearCheck[DemoDoRight], DemoWBUType[DemoDoRight], DemoExtraMessage[DemoDoRight], DemoDoLeft == 1 ? &get_local_plrobj().ctype.player_info : nullptr);
 			}
 		}
 		else
-			do_cockpit_window_view(1,WBU_WEAPON);
+			do_cockpit_window_view(gauge_inset_window_view::secondary,WBU_WEAPON);
 		
 		DemoDoLeft=DemoDoRight=0;
 		DemoDoingLeft=DemoDoingRight=0;
@@ -635,13 +635,13 @@ static void show_extra_views()
 		if (PlayerCfg.GuidedInBigWindow)
 		{
 			RenderingType=6+(1<<4);
-			do_cockpit_window_view(1, *Viewer, 0, WBU_MISSILE, "SHIP");
+			do_cockpit_window_view(gauge_inset_window_view::secondary, *Viewer, 0, WBU_MISSILE, "SHIP");
 		}
 		else
 		{
 			RenderingType=1+(1<<4);
 			auto &player_info = get_local_plrobj().ctype.player_info;
-			do_cockpit_window_view(1, *gimobj, 0, WBU_GUIDED, "GUIDED", &player_info);
+			do_cockpit_window_view(gauge_inset_window_view::secondary, *gimobj, 0, WBU_GUIDED, "GUIDED", &player_info);
 		}
 			
 		did_missile_view=1;
@@ -651,28 +651,23 @@ static void show_extra_views()
 		//do missile view
 			{
   				RenderingType=2+(1<<4);
-				do_cockpit_window_view(1, *Missile_viewer, 0, WBU_MISSILE, get_missile_name(get_weapon_id(*Missile_viewer)));
+				do_cockpit_window_view(gauge_inset_window_view::secondary, *Missile_viewer, 0, WBU_MISSILE, get_missile_name(get_weapon_id(*Missile_viewer)));
 				did_missile_view=1;
 			}
 			else {
 				if (clear_missile_viewer())
-                                        do_cockpit_window_view(1,WBU_STATIC);
+					do_cockpit_window_view(gauge_inset_window_view::secondary, WBU_STATIC);
                                 RenderingType=255;
 			}
 	}
-
-	range_for (const int w, xrange(2u)) {
-
-		if (w==1 && did_missile_view)
-			continue;		//if showing missile view in right window, can't show anything else
-
-		show_one_extra_view(w);
-	}
+	show_one_extra_view(gauge_inset_window_view::primary);
+	if (!did_missile_view)		//if showing missile view in right window, can't show anything else
+		show_one_extra_view(gauge_inset_window_view::secondary);
 	RenderingType=0;
 	Newdemo_state = save_newdemo_state;
 }
 
-static void show_one_extra_view(const int w)
+static void show_one_extra_view(const gauge_inset_window_view w)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -685,7 +680,7 @@ static void show_one_extra_view(const int w)
 				do_cockpit_window_view(w,WBU_WEAPON);
 				break;
 			case CV_REAR:
-				RenderingType=3 + (w << 4);
+				RenderingType = 3 + (static_cast<unsigned>(w) << 4);
 				{
 					int rear_view_flag;
 					const char *label;
@@ -709,7 +704,7 @@ static void show_one_extra_view(const int w)
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 				}
 				else {
-					RenderingType=4+(w<<4);
+					RenderingType = 4 + (static_cast<unsigned>(w) << 4);
 					do_cockpit_window_view(w, *buddy, 0, WBU_ESCORT, PlayerCfg.GuidebotName);
 				}
 				break;
@@ -732,7 +727,7 @@ static void show_one_extra_view(const int w)
 			}
 			case CV_MARKER: {
 				char label[10];
-				RenderingType=5+(w<<4);
+				RenderingType = 5 + (static_cast<unsigned>(w) << 4);
 				const auto mvn = Marker_viewer_num[w];
 				if (!MarkerState.imobjidx.valid_index(mvn))
 				{

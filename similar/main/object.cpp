@@ -1263,7 +1263,7 @@ void obj_delete(d_level_unique_object_state &LevelUniqueObjectState, segment_arr
 			if (pnum == Player_num)
 			{
 				if (!PlayerCfg.GuidedInBigWindow)
-					do_cockpit_window_view(1, WBU_STATIC);
+					do_cockpit_window_view(gauge_inset_window_view::secondary, WBU_STATIC);
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_guided_end();
 			}

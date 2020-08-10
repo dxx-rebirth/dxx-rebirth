@@ -41,6 +41,7 @@ enum class MissileViewMode : uint8_t
 #endif
 
 #include "gameplayopt.h"
+#include "gauges.h"
 #include <cstdint>
 
 #define N_SAVE_SLOTS    10
@@ -142,7 +143,7 @@ struct player_config : prohibit_void_ptr<player_config>
 	int MouseFSIndicator;
 	std::array<cockpit_mode_t, 2> CockpitMode; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.
 #if defined(DXX_BUILD_DESCENT_II)
-	std::array<int, 2> Cockpit3DView;
+	enumerated_array<int, 2, gauge_inset_window_view> Cockpit3DView;
 #endif
 	std::array<ntstring<MAX_MESSAGE_LEN - 1>, 4> NetworkMessageMacro;
 	int NetlifeKills;
