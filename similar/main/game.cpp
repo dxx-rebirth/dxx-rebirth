@@ -1939,16 +1939,16 @@ window_event_result GameProcessFrame()
 void compute_slide_segs()
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	range_for (const auto &&segp, vmsegptr)
+	for (const csmusegment suseg : vmsegptr)
 	{
 		uint8_t slide_textures = 0;
 		range_for (const int sidenum, xrange(6u)) {
-			const auto &sside = segp->shared_segment::sides[sidenum];
-			const auto &uside = segp->unique_segment::sides[sidenum];
+			const auto &uside = suseg.u.sides[sidenum];
 			const auto &ti = TmapInfo[uside.tmap_num];
 			if (!(ti.slide_u || ti.slide_v))
 				continue;
-			if (IS_CHILD(segp->children[sidenum]) && sside.wall_num == wall_none)
+			const auto &sside = suseg.s.sides[sidenum];
+			if (IS_CHILD(suseg.s.children[sidenum]) && sside.wall_num == wall_none)
 				/* If a wall exists, it could be visible at start or
 				 * become visible later, so always enable sliding for
 				 * walls.
@@ -1956,7 +1956,7 @@ void compute_slide_segs()
 				continue;
 			slide_textures |= 1 << sidenum;
 		}
-		segp->slide_textures = slide_textures;
+		suseg.u.slide_textures = slide_textures;
 	}
 }
 
@@ -1978,14 +1978,14 @@ static void update_uv(std::array<uvl, 4> &uvls, uvl &i, fix a)
 static void slide_textures(void)
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	range_for (const auto &&segp, vmsegptr)
+	for (unique_segment &useg : vmsegptr)
 	{
-		if (const auto slide_seg = segp->slide_textures)
+		if (const auto slide_seg = useg.slide_textures)
 		{
 			range_for (const int sidenum, xrange(6u)) {
 				if (slide_seg & (1 << sidenum))
 				{
-					auto &side = segp->unique_segment::sides[sidenum];
+					auto &side = useg.sides[sidenum];
 					const auto &ti = TmapInfo[side.tmap_num];
 					const auto tiu = ti.slide_u;
 					const auto tiv = ti.slide_v;
