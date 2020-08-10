@@ -683,7 +683,7 @@ static void do_render_object(grs_canvas &canvas, const d_level_unique_light_stat
 	{
 		const auto &&o = obj.absolute_sibling(n);
 		Assert(o->type == OBJ_FIREBALL);
-		assert(o->control_type == object::control_type::explosion);
+		assert(o->control_source == object::control_type::explosion);
 		Assert(o->flags & OF_ATTACHED);
 		n = o->ctype.expl_info.next_attach;
 

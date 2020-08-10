@@ -155,19 +155,19 @@ static void info_display_object_placement(grs_canvas &canvas, int show_all)
 		( Cur_object_index != old_Cur_object_index) || 
 			( Objects[Cur_object_index].type != old_type) || 
 			( Objects[Cur_object_index].movement_type != old_movement_type) || 
-			( Objects[Cur_object_index].control_type != old_control_type) || 
+			( Objects[Cur_object_index].control_source != old_control_type) || 
 			( Objects[Cur_object_index].ctype.ai_info.behavior != old_mode) ) {
 
 		gr_uprintf(canvas, *canvas.cv_font, 0, 0, "Object id: %4d\n", Cur_object_index);
 		gr_uprintf(canvas, *canvas.cv_font, 0, 16, "Type: %s\n", get_object_type(Objects[Cur_object_index].type));
 		gr_uprintf(canvas, *canvas.cv_font, 0, 32, "Movmnt: %s\n", get_movement_type(Objects[Cur_object_index].movement_type));
-		gr_uprintf(canvas, *canvas.cv_font, 0, 48, "Cntrl: %s\n", get_control_type(Objects[Cur_object_index].control_type));
+		gr_uprintf(canvas, *canvas.cv_font, 0, 48, "Cntrl: %s\n", get_control_type(Objects[Cur_object_index].control_source));
 		gr_uprintf(canvas, *canvas.cv_font, 0, 64, "Mode: %s\n", get_ai_behavior(Objects[Cur_object_index].ctype.ai_info.behavior));
 
 		old_Cur_object_index = Cur_object_index;
 		old_type = Objects[Cur_object_index].type;
 		old_movement_type = Objects[Cur_object_index].movement_type;
-		old_control_type = Objects[Cur_object_index].control_type;
+		old_control_type = Objects[Cur_object_index].control_source;
 		old_mode = Objects[Cur_object_index].ctype.ai_info.behavior;
 	}
 

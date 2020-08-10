@@ -348,7 +348,7 @@ static void draw_window_label(object_array &Objects, grs_canvas &canvas)
 			default:					viewer_name = "Unknown"; break;
 		}
 
-		switch ( Viewer->control_type) {
+		switch ( Viewer->control_source) {
 			case object::control_type::None:			control_name = "Stopped"; break;
 			case object::control_type::ai:				control_name = "AI"; break;
 			case object::control_type::flying:		control_name = "Flying"; break;

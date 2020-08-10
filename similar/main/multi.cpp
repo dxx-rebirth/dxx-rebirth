@@ -3506,7 +3506,7 @@ void multi_prep_level_player(void)
 	{
 		const auto &&objp = vmobjptr(vcplayerptr(i)->objnum);
 		if (i != Player_num)
-			objp->control_type = object::control_type::remote;
+			objp->control_source = object::control_type::remote;
 		objp->movement_type = object::movement_type::physics;
 		multi_reset_player_object(objp);
 		Netgame.players[i].LastPacketTime = 0;
@@ -3530,7 +3530,7 @@ void multi_prep_level_player(void)
 
 	multi_show_player_list();
 
-	ConsoleObject->control_type = object::control_type::flying;
+	ConsoleObject->control_source = object::control_type::flying;
 
 	reset_player_object();
 
@@ -5882,7 +5882,7 @@ void multi_object_to_object_rw(object &obj, object_rw *obj_rw)
 	obj_rw->signature     = static_cast<uint16_t>(obj.signature);
 	obj_rw->type          = obj.type;
 	obj_rw->id            = obj.id;
-	obj_rw->control_type  = static_cast<uint8_t>(obj.control_type);
+	obj_rw->control_source  = static_cast<uint8_t>(obj.control_source);
 	obj_rw->movement_type = static_cast<uint8_t>(obj.movement_type);
 	obj_rw->render_type   = obj.render_type;
 	obj_rw->flags         = obj.flags;
@@ -5929,7 +5929,7 @@ void multi_object_to_object_rw(object &obj, object_rw *obj_rw)
 			break;
 	}
 	
-	switch (typename object::control_type{obj_rw->control_type})
+	switch (typename object::control_type{obj_rw->control_source})
 	{
 		case object::control_type::weapon:
 			obj_rw->ctype.laser_info.parent_type      = obj.ctype.laser_info.parent_type;
@@ -6055,7 +6055,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, object &obj)
 	obj.signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
 	obj.id            = obj_rw->id;
 	/* obj->next,obj->prev handled by caller based on segment */
-	obj.control_type  = typename object::control_type{obj_rw->control_type};
+	obj.control_source  = typename object::control_type{obj_rw->control_source};
 	obj.movement_type = typename object::movement_type{obj_rw->movement_type};
 	const auto render_type = obj_rw->render_type;
 	if (valid_render_type(render_type))
@@ -6108,7 +6108,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, object &obj)
 			break;
 	}
 	
-	switch (obj.control_type)
+	switch (obj.control_source)
 	{
 		case object::control_type::weapon:
 			obj.ctype.laser_info.parent_type      = obj_rw->ctype.laser_info.parent_type;

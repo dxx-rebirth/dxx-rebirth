@@ -1542,7 +1542,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 	auto &imobjptridx = Objects.imptridx;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	assert(obj->control_type == object::control_type::weapon);
+	assert(obj->control_source == object::control_type::weapon);
 
 	if (obj->lifeleft < 0 ) {		// We died of old age
 		obj->flags |= OF_SHOULD_BE_DEAD;

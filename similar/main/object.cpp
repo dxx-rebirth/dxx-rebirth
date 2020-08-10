@@ -870,7 +870,7 @@ void init_player_object()
 	console->signature = object_signature_t{0};
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	console->size = Polygon_models[Player_ship->model_num].rad;
-	console->control_type = object::control_type::slew;			//default is player slewing
+	console->control_source = object::control_type::slew;			//default is player slewing
 	console->movement_type = object::movement_type::physics;		//change this sometime
 	console->lifeleft = IMMORTAL_TIME;
 	console->attached_obj = object_none;
@@ -1165,7 +1165,7 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 
 	obj->orient 				= orient?*orient:vmd_identity_matrix;
 
-	obj->control_type 		        = ctype;
+	obj->control_source 		        = ctype;
 	obj->movement_type = mtype;
 	obj->render_type 			= rtype;
         obj->contains_count                     = 0;
@@ -1173,7 +1173,7 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 	obj->lifeleft 				= IMMORTAL_TIME;		//assume immortal
 	obj->attached_obj			= object_none;
 
-	if (obj->control_type == object::control_type::powerup)
+	if (obj->control_source == object::control_type::powerup)
         {
 		obj->ctype.powerup_info.count = 1;
                 obj->ctype.powerup_info.flags = 0;
@@ -1205,7 +1205,7 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 
 	//	Set (or not) persistent bit in phys_info.
 	if (obj->type == OBJ_WEAPON) {
-		assert(obj->control_type == object::control_type::weapon);
+		assert(obj->control_source == object::control_type::weapon);
 		obj->mtype.phys_info.flags |= (Weapon_info[get_weapon_id(obj)].persistent*PF_PERSISTENT);
 		obj->ctype.laser_info.creation_time = GameTime64;
 		obj->ctype.laser_info.clear_hitobj();
@@ -1215,7 +1215,7 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 #endif
 	}
 
-	if (obj->control_type == object::control_type::explosion)
+	if (obj->control_source == object::control_type::explosion)
 		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;
 
 	if (obj->type == OBJ_DEBRIS)
@@ -1342,7 +1342,7 @@ void dead_player_end(void)
 
 	assert(Control_type_save == object::control_type::flying || Control_type_save == object::control_type::slew);
 
-	ConsoleObject->control_type = Control_type_save;
+	ConsoleObject->control_source = Control_type_save;
 	ConsoleObject->render_type = Render_type_save;
 	auto &player_info = ConsoleObject->ctype.player_info;
 	player_info.powerup_flags &= ~PLAYER_FLAGS_INVULNERABLE;
@@ -1593,12 +1593,12 @@ static void start_player_death_sequence(object &player)
 		newdemo_record_letterbox();
 
 	Player_flags_save = player.flags;
-	Control_type_save = player.control_type;
+	Control_type_save = player.control_source;
 	Render_type_save = player.render_type;
 
 	player.flags &= ~OF_SHOULD_BE_DEAD;
 //	Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
-	player.control_type = object::control_type::None;
+	player.control_source = object::control_type::None;
 
 	PALETTE_FLASH_SET(0,0,0);
 }
@@ -1795,7 +1795,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 	Drop_afterburner_blob_flag = 0;
 #endif
 
-	switch (obj->control_type) {
+	switch (obj->control_source) {
 
 		case object::control_type::None:
 			break;
@@ -1833,7 +1833,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 
 		case object::control_type::slew:
 #ifdef RELEASE
-			obj->control_type = object::control_type::None;
+			obj->control_source = object::control_type::None;
 			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "BUG: object %hu has control type object::control_type::slew, sig/type/id = %i/%i/%i"), static_cast<objnum_t>(obj), obj->signature.get(), obj->type, obj->id);
 #else
 			if ( keyd_pressed[KEY_PAD5] ) slew_stop();
@@ -1865,7 +1865,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 			break;
 
 		default:
-			Error("Unknown control type %u in object %hu, sig/type/id = %i/%i/%i", static_cast<unsigned>(obj->control_type), static_cast<objnum_t>(obj), static_cast<uint16_t>(obj->signature), obj->type, obj->id);
+			Error("Unknown control type %u in object %hu, sig/type/id = %i/%i/%i", static_cast<unsigned>(obj->control_source), static_cast<objnum_t>(obj), static_cast<uint16_t>(obj->signature), obj->type, obj->id);
 			break;
 
 	}
@@ -2020,7 +2020,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 			lifetime *= 2;
 		}
 
-		assert(obj->control_type == object::control_type::weapon);
+		assert(obj->control_source == object::control_type::weapon);
 		if ((obj->ctype.laser_info.last_afterburner_time + delay < GameTime64) || (obj->ctype.laser_info.last_afterburner_time > GameTime64)) {
 			drop_afterburner_blobs(obj, 1, i2f(Weapon_info[get_weapon_id(obj)].afterburner_size)/16, lifetime);
 			obj->ctype.laser_info.last_afterburner_time = GameTime64;
@@ -2315,7 +2315,7 @@ void clear_transient_objects(int clear_all)
 void obj_attach(object_array &Objects, const vmobjptridx_t parent, const vmobjptridx_t sub)
 {
 	Assert(sub->type == OBJ_FIREBALL);
-	assert(sub->control_type == object::control_type::explosion);
+	assert(sub->control_source == object::control_type::explosion);
 
 	Assert(sub->ctype.expl_info.next_attach==object_none);
 	Assert(sub->ctype.expl_info.prev_attach==object_none);
@@ -2506,7 +2506,7 @@ void object_rw_swap(object_rw *obj, int swap)
 			break;
 	}
 	
-	switch (typename object::control_type{obj->control_type})
+	switch (typename object::control_type{obj->control_source})
 	{
 		case object::control_type::weapon:
 			obj->ctype.laser_info.parent_type      = SWAPSHORT(obj->ctype.laser_info.parent_type);

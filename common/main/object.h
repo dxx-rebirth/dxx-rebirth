@@ -369,7 +369,7 @@ struct object_base
 	object_type_t   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
 	ubyte   id;             // which form of object...which powerup, robot, etc.
 	objnum_t   next,prev;      // id of next and previous connected object in Objects, -1 = no connection
-	enum control_type control_type;   // how this object is controlled
+	enum control_type control_source;   // how this object is controlled
 	enum movement_type movement_type;  // how this object moves
 	render_type_t render_type;    // how this object renders
 	ubyte   flags;          // misc flags
@@ -476,7 +476,7 @@ struct object_rw
 	ubyte   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
 	ubyte   id;             // which form of object...which powerup, robot, etc.
 	short   next,prev;      // id of next and previous connected object in Objects, -1 = no connection
-	ubyte   control_type;   // how this object is controlled
+	ubyte   control_source;   // how this object is controlled
 	ubyte   movement_type;  // how this object moves
 	ubyte   render_type;    // how this object renders
 	ubyte   flags;          // misc flags

@@ -1216,7 +1216,7 @@ void explode_object(const vmobjptridx_t hitobj,fix delay_time)
 	}
 
 	hitobj->flags |= OF_EXPLODING;		//say that this is blowing up
-	hitobj->control_type = object::control_type::None;		//become inert while exploding
+	hitobj->control_source = object::control_type::None;		//become inert while exploding
 
 }
 
@@ -1224,7 +1224,7 @@ void explode_object(const vmobjptridx_t hitobj,fix delay_time)
 //do whatever needs to be done for this piece of debris for this frame
 void do_debris_frame(const vmobjptridx_t obj)
 {
-	assert(obj->control_type == object::control_type::debris);
+	assert(obj->control_source == object::control_type::debris);
 
 	if (obj->lifeleft < 0)
 		explode_object(obj,0);
@@ -1237,7 +1237,7 @@ void do_explosion_sequence(object &obj)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
-	assert(obj.control_type == object::control_type::explosion);
+	assert(obj.control_source == object::control_type::explosion);
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 
 	//See if we should die of old age

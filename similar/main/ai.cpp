@@ -585,7 +585,7 @@ void init_ai_objects(void)
 	range_for (const auto &&o, vmobjptridx)
 	{
 		auto &obj = *o;
-		if (obj.type == OBJ_ROBOT && obj.control_type == object::control_type::ai)
+		if (obj.type == OBJ_ROBOT && obj.control_source == object::control_type::ai)
 			init_ai_object(o, obj.ctype.ai_info.behavior, obj.ctype.ai_info.hide_segment);
 	}
 
@@ -715,7 +715,7 @@ player_visibility_state player_is_visible_from_object(const vmobjptridx_t objp, 
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Assume that robot's gun tip is in same segment as robot's center.
-	if (objp->control_type == object::control_type::ai)
+	if (objp->control_source == object::control_type::ai)
 		objp->ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_GUNSEG;
 #endif
 
@@ -731,7 +731,7 @@ player_visibility_state player_is_visible_from_object(const vmobjptridx_t objp, 
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			if (segnum != objp->segnum) {
-				if (objp->control_type == object::control_type::ai)
+				if (objp->control_source == object::control_type::ai)
 					objp->ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_GUNSEG;
 			}
 #endif
@@ -1062,7 +1062,7 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 	if (cheats.robotfiringsuspended)
 		return;
 
-	if (obj->control_type == object::control_type::morph)
+	if (obj->control_source == object::control_type::morph)
 		return;
 
 	//	If player is exploded, stop firing.
@@ -1574,7 +1574,7 @@ static void do_firing_stuff(object &obj, const player_flags powerup_flags, const
 //	If a hiding robot gets bumped or hit, he decides to find another hiding place.
 void do_ai_robot_hit(const vmobjptridx_t objp, player_awareness_type_t type)
 {
-	if (objp->control_type == object::control_type::ai)
+	if (objp->control_source == object::control_type::ai)
 	{
 		if (type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION || type == player_awareness_type_t::PA_PLAYER_COLLISION)
 			switch (objp->ctype.ai_info.behavior) {
@@ -4461,7 +4461,7 @@ static void set_player_awareness_all(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptr
 
 	range_for (const auto &&objp, vmobjptr)
 	{
-		if (objp->type == OBJ_ROBOT && objp->control_type == object::control_type::ai)
+		if (objp->type == OBJ_ROBOT && objp->control_source == object::control_type::ai)
 		{
 			auto &ailp = objp->ctype.ai_info.ail;
 			if (New_awareness[objp->segnum] > ailp.player_awareness_type) {
@@ -4517,7 +4517,7 @@ static void dump_ai_objects_all()
 
 		dist_to_player = vm_vec_dist(objp->pos, ConsoleObject->pos);
 
-		if (objp->control_type == object::control_type::ai)
+		if (objp->control_source == object::control_type::ai)
 		{
 			fprintf(Ai_dump_file, "%3i: %3i %8.3f %8s %8s [%3i %4i]\n",
 				static_cast<uint16_t>(objp), objp->segnum, f2fl(dist_to_player), mode_text[ailp->mode], behavior_text[aip->behavior-0x80], aip->hide_index, aip->path_length);

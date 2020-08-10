@@ -485,7 +485,7 @@ void init_controlcen_for_level(void)
 		{
 			auto &objp = *cntrlcen_objnum;
 			objp.type = OBJ_GHOST;
-			objp.control_type = object::control_type::None;
+			objp.control_source = object::control_type::None;
 			objp.render_type = RT_NONE;
 			LevelUniqueControlCenterState.Control_center_present = 0;
 		}

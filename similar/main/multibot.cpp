@@ -231,7 +231,7 @@ void multi_strip_robots(const int playernum)
 			auto &obj = *objp;
 			if (obj.type == OBJ_ROBOT && obj.ctype.ai_info.REMOTE_OWNER == playernum)
 			{
-				assert(obj.control_type == object::control_type::ai || obj.control_type == object::control_type::None || obj.control_type == object::control_type::morph);
+				assert(obj.control_source == object::control_type::ai || obj.control_source == object::control_type::None || obj.control_source == object::control_type::morph);
 				obj.ctype.ai_info.REMOTE_OWNER = -1;
 				if (playernum == Player_num)
 					obj.ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;

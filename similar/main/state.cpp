@@ -168,7 +168,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 	obj_rw->id            = obj.id;
 	obj_rw->next          = obj.next;
 	obj_rw->prev          = obj.prev;
-	obj_rw->control_type  = static_cast<uint8_t>(obj.control_type);
+	obj_rw->control_source  = static_cast<uint8_t>(obj.control_source);
 	obj_rw->movement_type = static_cast<uint8_t>(obj.movement_type);
 	obj_rw->render_type   = obj.render_type;
 	obj_rw->flags         = obj.flags;
@@ -227,7 +227,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 			break;
 	}
 	
-	switch (typename object::control_type{obj_rw->control_type})
+	switch (typename object::control_type{obj_rw->control_source})
 	{
 		case object::control_type::weapon:
 			obj_rw->ctype.laser_info.parent_type      = obj.ctype.laser_info.parent_type;
@@ -358,7 +358,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	obj.id            = obj_rw->id;
 	obj.next          = obj_rw->next;
 	obj.prev          = obj_rw->prev;
-	obj.control_type  = typename object::control_type{obj_rw->control_type};
+	obj.control_source  = typename object::control_type{obj_rw->control_source};
 	obj.movement_type  = typename object::movement_type{obj_rw->movement_type};
 	const auto render_type = obj_rw->render_type;
 	if (valid_render_type(render_type))
@@ -421,7 +421,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			break;
 	}
 	
-	switch (obj.control_type)
+	switch (obj.control_source)
 	{
 		case object::control_type::weapon:
 			obj.ctype.laser_info.parent_type      = obj_rw->ctype.laser_info.parent_type;
@@ -489,7 +489,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 				 * ed46a05296f9d480f934d8c951c4755ebac1d5e7 ("Update
 				 * control_type when ghosting reactor")) did not update
 				 * `control_type`, so games saved by those releases have an
-				 * object with obj->type == OBJ_GHOST and obj->control_type ==
+				 * object with obj->type == OBJ_GHOST and obj->control_source ==
 				 * object::control_type::cntrlcen.  That inconsistency triggers an assertion down
 				 * in `calc_controlcen_gun_point` because obj->type !=
 				 * OBJ_CNTRLCEN.
@@ -497,7 +497,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 				 * Add a special case here to correct this
 				 * inconsistency.
 				 */
-				obj.control_type = object::control_type::None;
+				obj.control_source = object::control_type::None;
 				break;
 			}
 			// gun points of reactor now part of the object but of course not saved in object_rw and overwritten due to reset_objects(). Let's just recompute them.
@@ -1267,7 +1267,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 			if (const auto umd = find_morph_data(LevelUniqueMorphObjectState, objp))
 			{
 				const auto md = umd->get();
-				md->obj->control_type = md->morph_save_control_type;
+				md->obj->control_source = md->morph_save_control_type;
 				md->obj->movement_type = md->morph_save_movement_type;
 				md->obj->render_type = RT_POLYOBJ;
 				md->obj->mtype.phys_info = md->morph_save_phys_info;
@@ -1275,7 +1275,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 			} else {						//maybe loaded half-morphed from disk
 				objp->flags |= OF_SHOULD_BE_DEAD;
 				objp->render_type = RT_POLYOBJ;
-				objp->control_type = object::control_type::None;
+				objp->control_source = object::control_type::None;
 				objp->movement_type = object::movement_type::None;
 			}
 		}
@@ -2300,7 +2300,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 					const auto &&obj = vmobjptridx(vcplayerptr(i)->objnum);
 					// since a player always uses the same object, we just have to copy the saved object properties to the existing one. i hate you...
-					obj->control_type = restore_objects[j].control_type;
+					obj->control_source = restore_objects[j].control_source;
 					obj->movement_type = restore_objects[j].movement_type;
 					obj->render_type = restore_objects[j].render_type;
 					obj->flags = restore_objects[j].flags;

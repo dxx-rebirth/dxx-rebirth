@@ -432,7 +432,7 @@ void do_morph_frame(object &obj)
 
 	if (!md->n_submodels_active) {			//done morphing!
 
-		obj.control_type = md->morph_save_control_type;
+		obj.control_source = md->morph_save_control_type;
 		obj.movement_type = md->morph_save_movement_type;
 
 		obj.render_type = RT_POLYOBJ;
@@ -480,13 +480,13 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 
 	assert(obj.render_type == RT_POLYOBJ);
 
-	md->morph_save_control_type = obj.control_type;
+	md->morph_save_control_type = obj.control_source;
 	md->morph_save_movement_type = obj.movement_type;
 	md->morph_save_phys_info = obj.mtype.phys_info;
 
-	assert(obj.control_type == object::control_type::ai);		//morph objects are also AI objects
+	assert(obj.control_source == object::control_type::ai);		//morph objects are also AI objects
 
-	obj.control_type = object::control_type::morph;
+	obj.control_source = object::control_type::morph;
 	obj.render_type = RT_MORPH;
 	obj.movement_type = object::movement_type::physics;		//RT_NONE;
 

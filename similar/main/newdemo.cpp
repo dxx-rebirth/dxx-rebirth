@@ -562,7 +562,7 @@ static void nd_read_shortpos(object_base &obj)
 	nd_read_short(&sp.velz);
 
 	my_extract_shortpos(obj, &sp);
-	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == VCLIP_MORPHING_ROBOT && render_type == RT_FIREBALL && obj.control_type == object::control_type::explosion)
+	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == VCLIP_MORPHING_ROBOT && render_type == RT_FIREBALL && obj.control_source == object::control_type::explosion)
 	{
 		auto &vcvertptr = Vertices.vcptr;
 		extract_orient_from_segment(vcvertptr, obj.orient, vcsegptr(obj.segnum));
@@ -637,13 +637,13 @@ static void nd_read_object(const vmobjptridx_t obj)
 	switch(obj->type) {
 
 	case OBJ_HOSTAGE:
-		obj->control_type = object::control_type::powerup;
+		obj->control_source = object::control_type::powerup;
 		obj->movement_type = object::movement_type::None;
 		obj->size = HOSTAGE_SIZE;
 		break;
 
 	case OBJ_ROBOT:
-		obj->control_type = object::control_type::ai;
+		obj->control_source = object::control_type::ai;
 		// (MarkA and MikeK said we should not do the crazy last secret stuff with multiple reactors...
 		// This necessary code is our vindication. --MK, 2/15/96)
 #if defined(DXX_BUILD_DESCENT_II)
@@ -659,7 +659,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 		break;
 
 	case OBJ_POWERUP:
-		obj->control_type = object::control_type::powerup;
+		obj->control_source = object::control_type::powerup;
 		{
 			uint8_t movement_type;
 			nd_read_byte(&movement_type);        // might have physics movement
@@ -669,7 +669,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 		break;
 
 	case OBJ_PLAYER:
-		obj->control_type = object::control_type::None;
+		obj->control_source = object::control_type::None;
 		obj->movement_type = object::movement_type::physics;
 		obj->size = Polygon_models[Player_ship->model_num].rad;
 		obj->rtype.pobj_info.model_num = Player_ship->model_num;
@@ -677,7 +677,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 		break;
 
 	case OBJ_CLUTTER:
-		obj->control_type = object::control_type::None;
+		obj->control_source = object::control_type::None;
 		obj->movement_type = object::movement_type::None;
 		obj->size = Polygon_models[obj->id].rad;
 		obj->rtype.pobj_info.model_num = obj->id;
@@ -688,7 +688,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 		{
 			uint8_t control_type;
 			nd_read_byte(&control_type);
-			obj->control_type = typename object::control_type{control_type};
+			obj->control_source = typename object::control_type{control_type};
 		}
 		{
 			uint8_t movement_type;
@@ -745,7 +745,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 		Int3();
 	}
 
-	switch (obj->control_type) {
+	switch (obj->control_source) {
 
 	case object::control_type::explosion:
 
@@ -757,7 +757,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 
 		if (obj->flags & OF_ATTACHED) {     //attach to previous object
 			Assert(prev_obj!=NULL);
-			if (prev_obj->control_type == object::control_type::explosion)
+			if (prev_obj->control_source == object::control_type::explosion)
 			{
 				if (prev_obj->flags & OF_ATTACHED && prev_obj->ctype.expl_info.attach_parent!=object_none)
 					obj_attach(Objects, Objects.vmptridx(prev_obj->ctype.expl_info.attach_parent), obj);
@@ -885,7 +885,7 @@ static void nd_write_object(const vcobjptridx_t objp)
 
 	if (obj.type != OBJ_HOSTAGE && obj.type != OBJ_ROBOT && obj.type != OBJ_PLAYER && obj.type != OBJ_POWERUP && obj.type != OBJ_CLUTTER)
 	{
-		nd_write_byte(static_cast<uint8_t>(obj.control_type));
+		nd_write_byte(static_cast<uint8_t>(obj.control_source));
 		nd_write_byte(static_cast<uint8_t>(obj.movement_type));
 		nd_write_fix(obj.size);
 	}
@@ -933,7 +933,7 @@ static void nd_write_object(const vcobjptridx_t objp)
 		Int3();
 	}
 
-	switch (obj.control_type) {
+	switch (obj.control_source) {
 
 		case object::control_type::ai:
 		break;

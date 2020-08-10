@@ -136,7 +136,7 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 			// Fill in obj->id and other hostage info
 			obj->id = 0;
 
-			obj->control_type = object::control_type::powerup;
+			obj->control_source = object::control_type::powerup;
 			
 			obj->rtype.vclip_info.vclip_num = Hostage_vclip_num[object_id];
 			obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;

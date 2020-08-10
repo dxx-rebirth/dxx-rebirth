@@ -52,7 +52,7 @@ void slew_init(const vmobjptr_t obj)
 {
 	slew_obj = obj;
 
-	slew_obj->control_type = object::control_type::slew;
+	slew_obj->control_source = object::control_type::slew;
 	slew_obj->movement_type = object::movement_type::None;
 
 	slew_stop();		//make sure not moving
@@ -61,7 +61,7 @@ void slew_init(const vmobjptr_t obj)
 
 int slew_stop()
 {
-	if (!slew_obj || slew_obj->control_type != object::control_type::slew)
+	if (!slew_obj || slew_obj->control_source != object::control_type::slew)
 		return 0;
 
 	vm_vec_zero(slew_obj->mtype.phys_info.velocity);
@@ -70,7 +70,7 @@ int slew_stop()
 
 void slew_reset_orient()
 {
-	if (!slew_obj || slew_obj->control_type != object::control_type::slew)
+	if (!slew_obj || slew_obj->control_source != object::control_type::slew)
 		return;
 
 	slew_obj->orient.rvec.x = slew_obj->orient.uvec.y = slew_obj->orient.fvec.z = f1_0;
@@ -92,7 +92,7 @@ static int do_slew_movement(const vmobjptridx_t obj, int check_keys )
 	vms_vector svel;				//scaled velocity (per this frame)
 	vms_angvec rotang;
 
-	if (!slew_obj || slew_obj->control_type != object::control_type::slew)
+	if (!slew_obj || slew_obj->control_source != object::control_type::slew)
 		return 0;
 
 	if (check_keys) {

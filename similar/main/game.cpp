@@ -904,7 +904,7 @@ void save_screen_shot(int automap_flag)
 //initialize flying
 void fly_init(object_base &obj)
 {
-	obj.control_type = object::control_type::flying;
+	obj.control_source = object::control_type::flying;
 	obj.movement_type = object::movement_type::physics;
 
 	obj.mtype.phys_info.velocity = {};

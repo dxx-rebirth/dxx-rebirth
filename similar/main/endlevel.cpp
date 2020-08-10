@@ -402,7 +402,7 @@ window_event_result start_endlevel_sequence()
 	Endlevel_sequence = EL_FLYTHROUGH;
 
 	ConsoleObject->movement_type = object::movement_type::None;			//movement handled by flythrough
-	ConsoleObject->control_type = object::control_type::None;
+	ConsoleObject->control_source = object::control_type::None;
 
 	Game_suspended |= SUSP_ROBOTS;          //robots don't move
 
@@ -720,7 +720,7 @@ window_event_result do_endlevel_frame()
 				const auto exit_seg_angles = vm_extract_angles_matrix(mine_exit_orient);
 				bank_rate = (-exit_seg_angles.b - cam_angles.b)/2;
 
-				ConsoleObject->control_type = endlevel_camera->control_type = object::control_type::None;
+				ConsoleObject->control_source = endlevel_camera->control_source = object::control_type::None;
 
 			}
 

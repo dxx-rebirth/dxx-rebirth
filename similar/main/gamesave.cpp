@@ -236,7 +236,7 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 			//@@if (Robot_info[obj.id].flags & RIF_BIG_RADIUS)
 			//@@	obj.size = (obj.size*3)/2;
 
-			//@@if (obj.control_type==CT_AI && Robot_info[obj.id].attack_type)
+			//@@if (obj.control_source==CT_AI && Robot_info[obj.id].attack_type)
 			//@@	obj.size = obj.size*3/4;
 		}
 
@@ -270,7 +270,7 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 			set_powerup_id(Powerup_info, Vclip, obj, POW_SHIELD_BOOST);
 			Assert( obj.render_type != RT_POLYOBJ );
 		}
-		obj.control_type = object::control_type::powerup;
+		obj.control_source = object::control_type::powerup;
 		obj.size = Powerup_info[get_powerup_id(obj)].size;
 		obj.ctype.powerup_info.creation_time = 0;
 	}
@@ -302,7 +302,7 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 	if (obj.type == OBJ_CNTRLCEN)
 	{
 		obj.render_type = RT_POLYOBJ;
-		obj.control_type = object::control_type::cntrlcen;
+		obj.control_source = object::control_type::cntrlcen;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		// Make model number is correct...	
@@ -344,7 +344,7 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 	if (obj.type == OBJ_HOSTAGE)
 	{
 		obj.render_type = RT_HOSTAGE;
-		obj.control_type = object::control_type::powerup;
+		obj.control_source = object::control_type::powerup;
 	}
 }
 
@@ -398,7 +398,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 				ctype = static_cast<uint8_t>(object::control_type::None);
 				break;
 		}
-		obj->control_type = typename object::control_type{ctype};
+		obj->control_source = typename object::control_type{ctype};
 	}
 	{
 		uint8_t mtype = PHYSFSX_readByte(f);
@@ -473,7 +473,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 			Int3();
 	}
 
-	switch (obj->control_type) {
+	switch (obj->control_source) {
 
 		case object::control_type::ai: {
 			obj->ctype.ai_info.behavior				= static_cast<ai_behavior>(PHYSFSX_readByte(f));
@@ -674,7 +674,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 	PHYSFSX_writeU8(f, obj.type);
 	PHYSFSX_writeU8(f, obj.id);
 
-	PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.control_type));
+	PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.control_source));
 	PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.movement_type));
 	PHYSFSX_writeU8(f, obj.render_type);
 	PHYSFSX_writeU8(f, obj.flags);
@@ -724,7 +724,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 			Int3();
 	}
 
-	switch (obj.control_type) {
+	switch (obj.control_source) {
 
 		case object::control_type::ai: {
 			PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.ctype.ai_info.behavior));
