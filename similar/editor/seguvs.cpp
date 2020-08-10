@@ -548,7 +548,7 @@ void assign_default_uvs_to_segment(const vmsegptridx_t segp)
 
 
 // --------------------------------------------------------------------------------------------------------------
-void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned con_common_side, const vmsegptr_t base_seg, const unsigned base_common_side, const unsigned abs_id1, const unsigned abs_id2)
+void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned con_common_side, const vcsegptr_t base_seg, const unsigned base_common_side, const unsigned abs_id1, const unsigned abs_id2)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -608,7 +608,7 @@ void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned con_comm
 //	Since we can attach any side of a segment to any side of another segment, and do so in each case in
 //	four different rotations (for a total of 6*6*4 = 144 ways), not having this nifty function will cause
 //	great confusion.
-static void get_side_ids(const vmsegptr_t base_seg, const vmsegptr_t con_seg, int base_side, int con_side, int abs_id1, int abs_id2, int *base_common_side, int *con_common_side)
+static void get_side_ids(const shared_segment &base_seg, const shared_segment &con_seg, int base_side, int con_side, int abs_id1, int abs_id2, int *base_common_side, int *con_common_side)
 {
 	int		v0;
 
@@ -620,10 +620,15 @@ static void get_side_ids(const vmsegptr_t base_seg, const vmsegptr_t con_seg, in
 		if (es.idx != base_side) {
 			auto &base_vp = es.value;
 			for (v0=0; v0<4; v0++)
-                                if (((base_seg->verts[static_cast<int>(base_vp[v0])] == abs_id1) && (base_seg->verts[static_cast<int>(base_vp[(v0+1) % 4])] == abs_id2)) || ((base_seg->verts[static_cast<int>(base_vp[v0])] == abs_id2) && (base_seg->verts[static_cast<int>(base_vp[ (v0+1) % 4])] == abs_id1))) {
+			{
+				auto &verts = base_seg.verts;
+				if ((verts[static_cast<int>(base_vp[v0])] == abs_id1 && verts[static_cast<int>(base_vp[(v0+1) % 4])] == abs_id2) ||
+					(verts[static_cast<int>(base_vp[v0])] == abs_id2 && verts[static_cast<int>(base_vp[ (v0+1) % 4])] == abs_id1))
+				{
 					Assert(*base_common_side == -1);		// This means two different sides shared the same edge with base_side == impossible!
 					*base_common_side = es.idx;
 				}
+			}
 		}
 	}
 
@@ -636,10 +641,15 @@ static void get_side_ids(const vmsegptr_t base_seg, const vmsegptr_t con_seg, in
 		if (es.idx != con_side) {
 			auto &con_vp = es.value;
 			for (v0=0; v0<4; v0++)
-                                if (((con_seg->verts[static_cast<int>(con_vp[(v0 + 1) % 4])] == abs_id1) && (con_seg->verts[static_cast<int>(con_vp[v0])] == abs_id2)) || ((con_seg->verts[static_cast<int>(con_vp[(v0 + 1) % 4])] == abs_id2) && (con_seg->verts[static_cast<int>(con_vp[v0])] == abs_id1))) {
+			{
+				auto &verts = con_seg.verts;
+				if ((verts[static_cast<int>(con_vp[(v0 + 1) % 4])] == abs_id1 && verts[static_cast<int>(con_vp[v0])] == abs_id2) ||
+					(verts[static_cast<int>(con_vp[(v0 + 1) % 4])] == abs_id2 && verts[static_cast<int>(con_vp[v0])] == abs_id1))
+				{
 					Assert(*con_common_side == -1);		// This means two different sides shared the same edge with con_side == impossible!
 					*con_common_side = es.idx;
 				}
+			}
 		}
 	}
 
@@ -651,7 +661,7 @@ static void get_side_ids(const vmsegptr_t base_seg, const vmsegptr_t con_seg, in
 //	The two vertices abs_id1 and abs_id2 are the only two vertices common to the two sides.
 //	If uv_only_flag is 1, then don't assign texture map ids, only update the uv coordinates
 //	If uv_only_flag is -1, then ONLY assign texture map ids, don't update the uv coordinates
-static void propagate_tmaps_to_segment_side(const vmsegptridx_t base_seg, int base_side, const vmsegptridx_t con_seg, int con_side, int abs_id1, int abs_id2, int uv_only_flag)
+static void propagate_tmaps_to_segment_side(const vcsegptridx_t base_seg, const int base_side, const vmsegptridx_t con_seg, const int con_side, const int abs_id1, const int abs_id2, const int uv_only_flag)
 {
 	int		base_common_side,con_common_side;
 	int		tmap_num;
@@ -804,7 +814,7 @@ int fix_bogus_uvs_all(void)
 //	from that side in base_seg to the wall in con_seg.  If the wall in base_seg is not present
 //	(ie, there is another segment connected through it), follow the connection through that
 //	segment to get the wall in the connected segment which shares the edge, and get tmap_num from there.
-static void propagate_tmaps_to_segment_sides(const vmsegptridx_t base_seg, int base_side, const vmsegptridx_t con_seg, int con_side, int uv_only_flag)
+static void propagate_tmaps_to_segment_sides(const vcsegptridx_t base_seg, const int base_side, const vmsegptridx_t con_seg, const int con_side, const int uv_only_flag)
 {
 	int		abs_id1,abs_id2;
 	int		v;
@@ -826,13 +836,15 @@ static void propagate_tmaps_to_segment_sides(const vmsegptridx_t base_seg, int b
 //	wall in base_seg to the wall in con_seg.  If the wall in base_seg is not present, then look at the
 //	segment connected through base_seg through the wall.  The wall with a common edge is the new wall
 //	of interest.  Continue searching in this way until a wall of interest is present.
-void med_propagate_tmaps_to_segments(const vmsegptridx_t base_seg,const vmsegptridx_t con_seg, int uv_only_flag)
+void med_propagate_tmaps_to_segments(const vcsegptridx_t base_seg, const vmsegptridx_t con_seg, const int uv_only_flag)
 {
 	range_for (const auto &&es, enumerate(base_seg->children))
 		if (es.value == con_seg)
 			propagate_tmaps_to_segment_sides(base_seg, es.idx, con_seg, find_connect_side(base_seg, con_seg), uv_only_flag);
 
-	con_seg->static_light = base_seg->static_light;
+	const unique_segment &ubase = base_seg;
+	unique_segment &ucon = con_seg;
+	ucon.static_light = ubase.static_light;
 
 	validate_uv_coordinates(con_seg);
 }
@@ -1073,7 +1085,7 @@ static void cast_light_from_side_to_center(const vmsegptridx_t segp, int light_s
 		const auto vector_to_center = vm_vec_sub(segment_center, vert_light_location);
 		const auto light_location = vm_vec_scale_add(vert_light_location, vector_to_center, F1_0/64);
 
-		range_for (const auto &&rsegp, vmsegptr)
+		for (const csmusegment &&rsegp : vmsegptr)
 		{
 			fix			dist_to_rseg;
 //if ((segp == &Segments[Bugseg]) && (rsegp == &Segments[Bugseg]))
@@ -1113,9 +1125,12 @@ static void cast_light_from_side_to_center(const vmsegptridx_t segp, int light_s
 							light_at_point = fixmul(light_at_point, light_intensity);
 							if (light_at_point >= F1_0)
 								light_at_point = F1_0-1;
-							rsegp->static_light += light_at_point;
-							if (segp->static_light < 0)	// if it went negative, saturate
-								segp->static_light = 0;
+							{
+								auto &static_light = rsegp.u.static_light;
+								static_light += light_at_point;
+								if (static_light < 0)	// if it went negative, saturate
+									static_light = 0;
+							}
 							break;
 						case HIT_WALL:
 							break;

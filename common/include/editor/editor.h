@@ -349,7 +349,7 @@ void assign_default_uvs_to_side(vmsegptridx_t segp, unsigned side);
 
 //	Assign u,v coordinates to con_seg, con_common_side from base_seg, base_common_side
 //	They are connected at the edge defined by the vertices abs_id1, abs_id2.
-void med_assign_uvs_to_side(vmsegptridx_t con_seg, unsigned con_common_side, vmsegptr_t base_seg, unsigned base_common_side, unsigned abs_id1, unsigned abs_id2);
+void med_assign_uvs_to_side(vmsegptridx_t con_seg, unsigned con_common_side, vcsegptr_t base_seg, unsigned base_common_side, unsigned abs_id1, unsigned abs_id2);
 
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
 void create_coordinate_axes_from_segment(vmsegptr_t sp, std::array<unsigned, 16> &vertnums);
@@ -374,7 +374,7 @@ int med_form_joint(vmsegptridx_t seg1, int side1, vmsegptridx_t seg2, int side2)
 extern int CurrentTexture;
 
 namespace dsx {
-void med_propagate_tmaps_to_segments(vmsegptridx_t base_seg,vmsegptridx_t con_seg, int uv_only_flag);
+void med_propagate_tmaps_to_segments(vcsegptridx_t base_seg,vmsegptridx_t con_seg, int uv_only_flag);
 void med_propagate_tmaps_to_back_side(vmsegptridx_t base_seg, int back_side, int uv_only_flag);
 
 //	Find segment adjacent to sp:side.

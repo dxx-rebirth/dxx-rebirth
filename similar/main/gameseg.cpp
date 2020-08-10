@@ -1675,9 +1675,11 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 				if (light_at_point <= -F1_0)
 					light_at_point = -(F1_0-1);
 #endif
-				segp->static_light += light_at_point;
-				if (segp->static_light < 0)	// if it went negative, saturate
-					segp->static_light = 0;
+				unique_segment &useg = segp;
+				auto &static_light = useg.static_light;
+				static_light += light_at_point;
+				if (static_light < 0)	// if it went negative, saturate
+					static_light = 0;
 			}	//	end if (light_at_point...
 		}	//	end if (dist_to_rseg...
 	}

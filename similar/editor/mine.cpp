@@ -593,14 +593,14 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 	const auto Num_segments = LevelSharedSegmentState.Num_segments;
 	for (segnum_t segnum = 0; segnum < Num_segments; segnum++)
 	{
-		const auto &&seg = vcsegptr(segnum);
+		const cscusegment &&seg = vcsegptr(segnum);
 		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
- 			if (seg->children[sidenum] != segment_none)
+			if (seg.s.children[sidenum] != segment_none)
 				bit_mask |= (1 << sidenum);
 		}
 
-		if (seg->special != 0 || seg->matcen_num != 0 || seg->station_idx != station_none)
+		if (seg.s.special != 0 || seg.s.matcen_num != 0 || seg.s.station_idx != station_none)
 			bit_mask |= (1 << MAX_SIDES_PER_SEGMENT);
 
 		if (New_file_format_save)
@@ -623,7 +623,7 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 		}
 
 		if (Gamesave_current_version <= 5) // descent 1 thru d2 SHAREWARE level
-			dump_fix_as_ushort(seg->static_light, 4, SaveFile);
+			dump_fix_as_ushort(seg.u.static_light, 4, SaveFile);
 	
 		// Write the walls as a 6 byte array
 		bit_mask = 0;
@@ -631,10 +631,10 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 		{
 			uint wallnum;
 
-			if (seg->shared_segment::sides[sidenum].wall_num != wall_none)
+			if (seg.s.sides[sidenum].wall_num != wall_none)
 			{
 				bit_mask |= (1 << sidenum);
-				wallnum = seg->shared_segment::sides[sidenum].wall_num;
+				wallnum = seg.s.sides[sidenum].wall_num;
 				Assert( wallnum < 255 );		// Get John or Mike.. can only store up to 255 walls!!! 
 				(void)wallnum;
 			}
@@ -647,17 +647,17 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
 			if (bit_mask & (1 << sidenum))
-				PHYSFSX_writeU8(SaveFile, seg->shared_segment::sides[sidenum].wall_num);
+				PHYSFSX_writeU8(SaveFile, seg.s.sides[sidenum].wall_num);
 		}
 
 		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
-			if ((seg->children[sidenum] == segment_none) || (seg->shared_segment::sides[sidenum].wall_num != wall_none))
+			if (seg.s.children[sidenum] == segment_none || seg.s.sides[sidenum].wall_num != wall_none)
 			{
 				ushort	tmap_num, tmap_num2;
 
-				tmap_num = seg->unique_segment::sides[sidenum].tmap_num;
-				tmap_num2 = seg->unique_segment::sides[sidenum].tmap_num2;
+				tmap_num = seg.u.sides[sidenum].tmap_num;
+				tmap_num2 = seg.u.sides[sidenum].tmap_num2;
 
 #if defined(DXX_BUILD_DESCENT_II)
 				if (Gamesave_current_version <= 3)	// convert texture numbers back to d1
@@ -675,7 +675,7 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 				if (tmap_num2 != 0 || !New_file_format_save)
 					PHYSFS_writeSLE16(SaveFile, tmap_num2);
 
-				range_for (auto &i, seg->unique_segment::sides[sidenum].uvls)
+				range_for (auto &i, seg.u.sides[sidenum].uvls)
 				{
 					dump_fix_as_short(i.u, 5, SaveFile);
 					dump_fix_as_short(i.v, 5, SaveFile);

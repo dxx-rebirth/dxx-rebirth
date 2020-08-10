@@ -651,8 +651,8 @@ g3s_lrgb compute_object_light(const d_level_unique_light_state &LevelUniqueLight
 	const vcobjidx_t objnum = obj;
 
 	//First, get static (mono) light for this segment
-	const auto &&objsegp = vcsegptr(obj->segnum);
-	light.r = light.g = light.b = objsegp->static_light;
+	const cscusegment objsegp = vcsegptr(obj->segnum);
+	light.r = light.g = light.b = objsegp.u.static_light;
 
 	auto &os = object_sig[objnum];
 	auto &ol = object_light[objnum];
