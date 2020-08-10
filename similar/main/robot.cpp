@@ -200,7 +200,7 @@ namespace dsx {
 
 imobjptridx_t robot_create(const unsigned id, const vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const ai_behavior behavior, const imsegidx_t hide_segment)
 {
-	const auto &&objp = obj_create(OBJ_ROBOT, id, segnum, pos, orient, size, object::control_type::ai, MT_PHYSICS, RT_POLYOBJ);
+	const auto &&objp = obj_create(OBJ_ROBOT, id, segnum, pos, orient, size, object::control_type::ai, object::movement_type::physics, RT_POLYOBJ);
 	if (objp)
 		init_ai_object(objp, behavior, hide_segment);
 	return objp;

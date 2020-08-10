@@ -23,7 +23,6 @@ struct bitmap_index;
 namespace dcx {
 
 // Movement types
-enum movement_type_t : uint8_t;
 constexpr std::integral_constant<std::size_t, 350> MAX_OBJECTS{};
 constexpr std::integral_constant<std::size_t, MAX_OBJECTS - 20> MAX_USED_OBJECTS{};
 struct d_level_unique_control_center_state;

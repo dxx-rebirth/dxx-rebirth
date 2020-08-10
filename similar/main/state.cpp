@@ -169,7 +169,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 	obj_rw->next          = obj.next;
 	obj_rw->prev          = obj.prev;
 	obj_rw->control_type  = static_cast<uint8_t>(obj.control_type);
-	obj_rw->movement_type = obj.movement_type;
+	obj_rw->movement_type = static_cast<uint8_t>(obj.movement_type);
 	obj_rw->render_type   = obj.render_type;
 	obj_rw->flags         = obj.flags;
 	obj_rw->segnum        = obj.segnum;
@@ -195,9 +195,12 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 	obj_rw->matcen_creator= obj.matcen_creator;
 	obj_rw->lifeleft      = obj.lifeleft;
 
-	switch (obj_rw->movement_type)
+	switch (typename object::movement_type{obj_rw->movement_type})
 	{
-		case MT_PHYSICS:
+		case object::movement_type::None:
+			obj_rw->mtype = {};
+			break;
+		case object::movement_type::physics:
 			obj_rw->mtype.phys_info.velocity.x  = obj.mtype.phys_info.velocity.x;
 			obj_rw->mtype.phys_info.velocity.y  = obj.mtype.phys_info.velocity.y;
 			obj_rw->mtype.phys_info.velocity.z  = obj.mtype.phys_info.velocity.z;
@@ -217,7 +220,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 			obj_rw->mtype.phys_info.flags       = obj.mtype.phys_info.flags;
 			break;
 			
-		case MT_SPINNING:
+		case object::movement_type::spinning:
 			obj_rw->mtype.spin_rate.x = obj.mtype.spin_rate.x;
 			obj_rw->mtype.spin_rate.y = obj.mtype.spin_rate.y;
 			obj_rw->mtype.spin_rate.z = obj.mtype.spin_rate.z;
@@ -356,7 +359,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	obj.next          = obj_rw->next;
 	obj.prev          = obj_rw->prev;
 	obj.control_type  = typename object::control_type{obj_rw->control_type};
-	set_object_movement_type(obj, obj_rw->movement_type);
+	obj.movement_type  = typename object::movement_type{obj_rw->movement_type};
 	const auto render_type = obj_rw->render_type;
 	if (valid_render_type(render_type))
 		obj.render_type = render_type_t{render_type};
@@ -390,9 +393,9 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	
 	switch (obj.movement_type)
 	{
-		case MT_NONE:
+		case object::movement_type::None:
 			break;
-		case MT_PHYSICS:
+		case object::movement_type::physics:
 			obj.mtype.phys_info.velocity.x  = obj_rw->mtype.phys_info.velocity.x;
 			obj.mtype.phys_info.velocity.y  = obj_rw->mtype.phys_info.velocity.y;
 			obj.mtype.phys_info.velocity.z  = obj_rw->mtype.phys_info.velocity.z;
@@ -411,7 +414,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			obj.mtype.phys_info.flags       = obj_rw->mtype.phys_info.flags;
 			break;
 			
-		case MT_SPINNING:
+		case object::movement_type::spinning:
 			obj.mtype.spin_rate.x = obj_rw->mtype.spin_rate.x;
 			obj.mtype.spin_rate.y = obj_rw->mtype.spin_rate.y;
 			obj.mtype.spin_rate.z = obj_rw->mtype.spin_rate.z;
@@ -1265,7 +1268,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 			{
 				const auto md = umd->get();
 				md->obj->control_type = md->morph_save_control_type;
-				set_object_movement_type(*md->obj, md->morph_save_movement_type);
+				md->obj->movement_type = md->morph_save_movement_type;
 				md->obj->render_type = RT_POLYOBJ;
 				md->obj->mtype.phys_info = md->morph_save_phys_info;
 				umd->reset();
@@ -1273,7 +1276,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 				objp->flags |= OF_SHOULD_BE_DEAD;
 				objp->render_type = RT_POLYOBJ;
 				objp->control_type = object::control_type::None;
-				objp->movement_type = MT_NONE;
+				objp->movement_type = object::movement_type::None;
 			}
 		}
 	}

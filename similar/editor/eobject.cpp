@@ -126,7 +126,7 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 		{
 			objnum = obj_create(OBJ_HOSTAGE, -1, 
 					segp,object_pos,&seg_matrix,HOSTAGE_SIZE,
-					object::control_type::None, MT_NONE,RT_HOSTAGE);
+					object::control_type::None, object::movement_type::None,RT_HOSTAGE);
 
 			if ( objnum == object_none)
 				return 0;
@@ -183,7 +183,7 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 		{
 			objnum = obj_create(OBJ_POWERUP, object_id,
 					segp, object_pos, &seg_matrix, Powerup_info[object_id].size,
-					object::control_type::powerup, MT_NONE, RT_POWERUP);
+					object::control_type::powerup, object::movement_type::None, RT_POWERUP);
 
 			if ( objnum == object_none)
 				return 0;
@@ -206,7 +206,7 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 		{
 			objnum = obj_create(OBJ_CNTRLCEN, object_id, segp, object_pos,
 					&seg_matrix, Polygon_models[object_id].rad,
-					object::control_type::cntrlcen, MT_NONE, RT_POLYOBJ);
+					object::control_type::cntrlcen, object::movement_type::None, RT_POLYOBJ);
 
 			if ( objnum == object_none)
 				return 0;
@@ -227,7 +227,7 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 		case OBJ_PLAYER:	{
 			objnum = obj_create(OBJ_PLAYER, object_id, segp, object_pos,
 				&seg_matrix, Polygon_models[Player_ship->model_num].rad,
-				object::control_type::None, MT_PHYSICS, RT_POLYOBJ);
+				object::control_type::None, object::movement_type::physics, RT_POLYOBJ);
 
 			if ( objnum == object_none)
 				return 0;

@@ -401,7 +401,7 @@ window_event_result start_endlevel_sequence()
 
 	Endlevel_sequence = EL_FLYTHROUGH;
 
-	ConsoleObject->movement_type = MT_NONE;			//movement handled by flythrough
+	ConsoleObject->movement_type = object::movement_type::None;			//movement handled by flythrough
 	ConsoleObject->control_type = object::control_type::None;
 
 	Game_suspended |= SUSP_ROBOTS;          //robots don't move
@@ -668,7 +668,7 @@ window_event_result do_endlevel_frame()
 
 					auto objnum = obj_create(OBJ_CAMERA, 0,
 					                    vmsegptridx(ConsoleObject->segnum), ConsoleObject->pos, &ConsoleObject->orient, 0, 
-					                    object::control_type::None, MT_NONE, RT_NONE);
+					                    object::control_type::None, object::movement_type::None, RT_NONE);
 
 					if (objnum == object_none) { //can't get object, so abort
 						return std::max(stop_endlevel_sequence(), result);

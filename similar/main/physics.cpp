@@ -346,7 +346,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 #endif
 
-	Assert(obj->movement_type == MT_PHYSICS);
+	Assert(obj->movement_type == object::movement_type::physics);
 
 #ifndef NDEBUG
 	if (Dont_move_ai_objects)
@@ -819,7 +819,7 @@ namespace dcx {
 //change in velocity.
 void phys_apply_force(object_base &obj, const vms_vector &force_vec)
 {
-	if (obj.movement_type != MT_PHYSICS)
+	if (obj.movement_type != object::movement_type::physics)
 		return;
 
 	//	Put in by MK on 2/13/96 for force getting applied to Omega blobs, which have 0 mass,
@@ -905,7 +905,7 @@ void phys_apply_rot(object &obj, const vms_vector &force_vec)
 {
 	fix	rate;
 
-	if (obj.movement_type != MT_PHYSICS)
+	if (obj.movement_type != object::movement_type::physics)
 		return;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -956,7 +956,7 @@ namespace dcx {
 //(hopefully) maintain the object's current velocity
 void set_thrust_from_velocity(object_base &obj)
 {
-	Assert(obj.movement_type == MT_PHYSICS);
+	Assert(obj.movement_type == object::movement_type::physics);
 	auto &phys_info = obj.mtype.phys_info;
 	vm_vec_copy_scale(phys_info.thrust, phys_info.velocity,
 		fixmuldiv(phys_info.mass, phys_info.drag, F1_0 - phys_info.drag)

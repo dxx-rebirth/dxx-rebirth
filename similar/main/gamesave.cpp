@@ -242,10 +242,10 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (get_robot_id(obj) == 65)						//special "reactor" robots
-			obj.movement_type = MT_NONE;
+			obj.movement_type = object::movement_type::None;
 #endif
 
-		if (obj.movement_type == MT_PHYSICS)
+		if (obj.movement_type == object::movement_type::physics)
 		{
 			auto &ri = Robot_info[get_robot_id(obj)];
 			obj.mtype.phys_info.mass = ri.mass;
@@ -400,7 +400,20 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 		}
 		obj->control_type = typename object::control_type{ctype};
 	}
-	set_object_movement_type(*obj, PHYSFSX_readByte(f));
+	{
+		uint8_t mtype = PHYSFSX_readByte(f);
+		switch (typename object::movement_type{mtype})
+		{
+			case object::movement_type::None:
+			case object::movement_type::physics:
+			case object::movement_type::spinning:
+				break;
+			default:
+				mtype = static_cast<uint8_t>(object::movement_type::None);
+				break;
+		}
+		obj->movement_type = typename object::movement_type{mtype};
+	}
 	const uint8_t render_type = PHYSFSX_readByte(f);
 	if (valid_render_type(render_type))
 		obj->render_type = render_type_t{render_type};
@@ -431,7 +444,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 
 	switch (obj->movement_type) {
 
-		case MT_PHYSICS:
+		case object::movement_type::physics:
 
 			PHYSFSX_readVector(f, obj->mtype.phys_info.velocity);
 			PHYSFSX_readVector(f, obj->mtype.phys_info.thrust);
@@ -448,12 +461,12 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 
 			break;
 
-		case MT_SPINNING:
+		case object::movement_type::spinning:
 
 			PHYSFSX_readVector(f, obj->mtype.spin_rate);
 			break;
 
-		case MT_NONE:
+		case object::movement_type::None:
 			break;
 
 		default:
@@ -662,7 +675,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 	PHYSFSX_writeU8(f, obj.id);
 
 	PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.control_type));
-	PHYSFSX_writeU8(f, obj.movement_type);
+	PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.movement_type));
 	PHYSFSX_writeU8(f, obj.render_type);
 	PHYSFSX_writeU8(f, obj.flags);
 
@@ -682,7 +695,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 
 	switch (obj.movement_type) {
 
-		case MT_PHYSICS:
+		case object::movement_type::physics:
 
 	 		PHYSFSX_writeVector(f, obj.mtype.phys_info.velocity);
 			PHYSFSX_writeVector(f, obj.mtype.phys_info.thrust);
@@ -699,12 +712,12 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 
 			break;
 
-		case MT_SPINNING:
+		case object::movement_type::spinning:
 
 			PHYSFSX_writeVector(f, obj.mtype.spin_rate);
 			break;
 
-		case MT_NONE:
+		case object::movement_type::None:
 			break;
 
 		default:

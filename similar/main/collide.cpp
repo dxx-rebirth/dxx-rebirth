@@ -259,7 +259,7 @@ static void apply_force_damage(const vmobjptridx_t obj,fix force,const vmobjptri
 			apply_damage_to_clutter(obj,damage);
 			break;
 
-		case OBJ_CNTRLCEN: // Never hits! Reactor does not have MT_PHYSICS - it's stationary! So no force damage here.
+		case OBJ_CNTRLCEN: // Never hits! Reactor does not have object::movement_type::physics - it's stationary! So no force damage here.
 
 			apply_damage_to_controlcen(obj,damage, other_obj);
 			break;
@@ -319,11 +319,11 @@ static void bump_this_object(const vmobjptridx_t objp, const vmobjptridx_t other
 static void bump_two_objects(const vmobjptridx_t obj0,const vmobjptridx_t obj1,int damage_flag)
 {
 	const vmobjptridx_t *pt;
-	if ((obj0->movement_type != MT_PHYSICS && (pt = &obj1, true)) ||
-		(obj1->movement_type != MT_PHYSICS && (pt = &obj0, true)))
+	if ((obj0->movement_type != object::movement_type::physics && (pt = &obj1, true)) ||
+		(obj1->movement_type != object::movement_type::physics && (pt = &obj0, true)))
 	{
 		object_base &t = *pt;
-		Assert(t.movement_type == MT_PHYSICS);
+		Assert(t.movement_type == object::movement_type::physics);
 		const auto force = vm_vec_copy_scale(t.mtype.phys_info.velocity, -t.mtype.phys_info.mass);
 		phys_apply_force(t,force);
 		return;

@@ -1067,7 +1067,7 @@ void InitPlayerObject()
 	console->type				= OBJ_PLAYER;
 	set_player_id(console, Player_num);
 	console->control_type	= object::control_type::flying;
-	console->movement_type	= MT_PHYSICS;
+	console->movement_type	= object::movement_type::physics;
 }
 
 //starts a new game on the given level
@@ -1248,7 +1248,7 @@ static void StartSecretLevel()
 	verify_console_object();
 
 	ConsoleObject->control_type	= object::control_type::flying;
-	ConsoleObject->movement_type	= MT_PHYSICS;
+	ConsoleObject->movement_type	= object::movement_type::physics;
 
 	// -- WHY? -- disable_matcens();
 	clear_transient_objects(0);		//0 means leave proximity bombs
@@ -2292,7 +2292,7 @@ static void StartLevel(int random_flag)
 	verify_console_object();
 
 	ConsoleObject->control_type	= object::control_type::flying;
-	ConsoleObject->movement_type	= MT_PHYSICS;
+	ConsoleObject->movement_type	= object::movement_type::physics;
 
 	// create_player_appearance_effect(ConsoleObject);
 	Do_appearance_effect = 1;

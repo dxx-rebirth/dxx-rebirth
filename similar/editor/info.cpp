@@ -101,13 +101,15 @@ static control_type_name &get_control_type(const typename object::control_type n
 	}
 }
 
-static movement_type_name &get_movement_type(int num)
+static movement_type_name &get_movement_type(const typename object::movement_type num)
 {
 	switch (num) {
-		case MT_NONE:
+		case object::movement_type::None:
 			return "MT_NONE       ";
-		case MT_PHYSICS:
+		case object::movement_type::physics:
 			return "MT_PHYSICS    ";
+		case object::movement_type::spinning:
+			return "MT_SPINNING   ";
 		default:
 			return " (unknown)    ";
 	}
@@ -146,7 +148,7 @@ static void info_display_object_placement(grs_canvas &canvas, int show_all)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	static	int	old_Cur_object_index;
 	static	int	old_type;
-	static	int	old_movement_type;
+	static typename object::movement_type old_movement_type;
 	static typename object::control_type old_control_type;
 	static ai_behavior old_mode;
 	if (init_info || show_all ||

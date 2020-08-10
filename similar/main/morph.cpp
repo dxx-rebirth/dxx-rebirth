@@ -433,7 +433,7 @@ void do_morph_frame(object &obj)
 	if (!md->n_submodels_active) {			//done morphing!
 
 		obj.control_type = md->morph_save_control_type;
-		set_object_movement_type(obj, md->morph_save_movement_type);
+		obj.movement_type = md->morph_save_movement_type;
 
 		obj.render_type = RT_POLYOBJ;
 
@@ -488,7 +488,7 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 
 	obj.control_type = object::control_type::morph;
 	obj.render_type = RT_MORPH;
-	obj.movement_type = MT_PHYSICS;		//RT_NONE;
+	obj.movement_type = object::movement_type::physics;		//RT_NONE;
 
 	obj.mtype.phys_info.rotvel = morph_rotvel;
 

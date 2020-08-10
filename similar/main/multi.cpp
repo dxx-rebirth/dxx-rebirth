@@ -562,7 +562,7 @@ void multi_make_player_ghost(const playernum_t playernum)
 	const auto &&obj = vmobjptridx(vcplayerptr(playernum)->objnum);
 	obj->type = OBJ_GHOST;
 	obj->render_type = RT_NONE;
-	obj->movement_type = MT_NONE;
+	obj->movement_type = object::movement_type::None;
 	multi_reset_player_object(obj);
 	multi_strip_robots(playernum);
 }
@@ -578,7 +578,7 @@ void multi_make_ghost_player(const playernum_t playernum)
 	}
 	const auto &&obj = vmobjptridx(vcplayerptr(playernum)->objnum);
 	obj->type = OBJ_PLAYER;
-	obj->movement_type = MT_PHYSICS;
+	obj->movement_type = object::movement_type::physics;
 	multi_reset_player_object(obj);
 	if (playernum != Player_num)
 		init_player_stats_new_ship(playernum);
@@ -1735,7 +1735,7 @@ static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum,
 	qpp.rotvel.z = GET_INTEL_INT(&buf[count]);					count += 4;
 	extract_quaternionpos(obj, qpp);
 
-	if (obj->movement_type == MT_PHYSICS)
+	if (obj->movement_type == object::movement_type::physics)
 		set_thrust_from_velocity(obj);
 }
 
@@ -3360,9 +3360,9 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 	auto &vcvertptr = Vertices.vcptr;
 	for (uint_fast32_t i = count++; i; --i)
 	{
-		assert(o.movement_type == MT_NONE);
+		assert(o.movement_type == object::movement_type::None);
 		assert(o.render_type == RT_POWERUP);
-		const auto &&no = obj_create(OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, vcvertptr(seg_verts[i % seg_verts.size()])), &vmd_identity_matrix, o.size, object::control_type::powerup, MT_NONE, RT_POWERUP);
+		const auto &&no = obj_create(OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, vcvertptr(seg_verts[i % seg_verts.size()])), &vmd_identity_matrix, o.size, object::control_type::powerup, object::movement_type::None, RT_POWERUP);
 		if (no == object_none)
 			return;
 		m_modified.set(no);
@@ -3425,7 +3425,7 @@ void multi_prep_level_objects(const d_vclip_array &Vclip)
 	{
 		if ((o->type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
-			const auto &&objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, vmsegptridx(o->segnum), o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, object::control_type::powerup, MT_PHYSICS, RT_POWERUP);
+			const auto &&objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, vmsegptridx(o->segnum), o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
 			obj_delete(LevelUniqueObjectState, Segments, o);
 			if (objnum != object_none)
 			{
@@ -3507,7 +3507,7 @@ void multi_prep_level_player(void)
 		const auto &&objp = vmobjptr(vcplayerptr(i)->objnum);
 		if (i != Player_num)
 			objp->control_type = object::control_type::remote;
-		objp->movement_type = MT_PHYSICS;
+		objp->movement_type = object::movement_type::physics;
 		multi_reset_player_object(objp);
 		Netgame.players[i].LastPacketTime = 0;
 	}
@@ -5883,7 +5883,7 @@ void multi_object_to_object_rw(object &obj, object_rw *obj_rw)
 	obj_rw->type          = obj.type;
 	obj_rw->id            = obj.id;
 	obj_rw->control_type  = static_cast<uint8_t>(obj.control_type);
-	obj_rw->movement_type = obj.movement_type;
+	obj_rw->movement_type = static_cast<uint8_t>(obj.movement_type);
 	obj_rw->render_type   = obj.render_type;
 	obj_rw->flags         = obj.flags;
 	obj_rw->segnum        = obj.segnum;
@@ -5898,9 +5898,12 @@ void multi_object_to_object_rw(object &obj, object_rw *obj_rw)
 	obj_rw->matcen_creator= obj.matcen_creator;
 	obj_rw->lifeleft      = obj.lifeleft;
 	
-	switch (obj_rw->movement_type)
+	switch (typename object::movement_type{obj_rw->movement_type})
 	{
-		case MT_PHYSICS:
+		case object::movement_type::None:
+			obj_rw->mtype = {};
+			break;
+		case object::movement_type::physics:
 			obj_rw->mtype.phys_info.velocity.x  = obj.mtype.phys_info.velocity.x;
 			obj_rw->mtype.phys_info.velocity.y  = obj.mtype.phys_info.velocity.y;
 			obj_rw->mtype.phys_info.velocity.z  = obj.mtype.phys_info.velocity.z;
@@ -5919,7 +5922,7 @@ void multi_object_to_object_rw(object &obj, object_rw *obj_rw)
 			obj_rw->mtype.phys_info.flags       = obj.mtype.phys_info.flags;
 			break;
 			
-		case MT_SPINNING:
+		case object::movement_type::spinning:
 			obj_rw->mtype.spin_rate.x = obj.mtype.spin_rate.x;
 			obj_rw->mtype.spin_rate.y = obj.mtype.spin_rate.y;
 			obj_rw->mtype.spin_rate.z = obj.mtype.spin_rate.z;
@@ -6053,7 +6056,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, object &obj)
 	obj.id            = obj_rw->id;
 	/* obj->next,obj->prev handled by caller based on segment */
 	obj.control_type  = typename object::control_type{obj_rw->control_type};
-	set_object_movement_type(obj, obj_rw->movement_type);
+	obj.movement_type = typename object::movement_type{obj_rw->movement_type};
 	const auto render_type = obj_rw->render_type;
 	if (valid_render_type(render_type))
 		obj.render_type = render_type_t{render_type};
@@ -6077,9 +6080,9 @@ void multi_object_rw_to_object(object_rw *obj_rw, object &obj)
 	
 	switch (obj.movement_type)
 	{
-		case MT_NONE:
+		case object::movement_type::None:
 			break;
-		case MT_PHYSICS:
+		case object::movement_type::physics:
 			obj.mtype.phys_info.velocity.x  = obj_rw->mtype.phys_info.velocity.x;
 			obj.mtype.phys_info.velocity.y  = obj_rw->mtype.phys_info.velocity.y;
 			obj.mtype.phys_info.velocity.z  = obj_rw->mtype.phys_info.velocity.z;
@@ -6098,7 +6101,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, object &obj)
 			obj.mtype.phys_info.flags       = obj_rw->mtype.phys_info.flags;
 			break;
 			
-		case MT_SPINNING:
+		case object::movement_type::spinning:
 			obj.mtype.spin_rate.x = obj_rw->mtype.spin_rate.x;
 			obj.mtype.spin_rate.y = obj_rw->mtype.spin_rate.y;
 			obj.mtype.spin_rate.z = obj_rw->mtype.spin_rate.z;

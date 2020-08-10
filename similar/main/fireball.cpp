@@ -139,7 +139,7 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 #endif
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	const auto &&obj_fireball = obj_create(OBJ_FIREBALL, vclip_type, segnum, position, &vmd_identity_matrix, size,
-					object::control_type::explosion, MT_NONE, RT_FIREBALL);
+					object::control_type::explosion, object::movement_type::None, RT_FIREBALL);
 
 	if (obj_fireball == object_none)
 	{
@@ -398,7 +398,7 @@ static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &p
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto &&obj = obj_create(OBJ_DEBRIS, 0, vmsegptridx(parent.segnum), parent.pos, &parent.orient, Polygon_models[parent.rtype.pobj_info.model_num].submodel_rads[subobj_num],
-				object::control_type::debris, MT_PHYSICS, RT_POLYOBJ);
+				object::control_type::debris, object::movement_type::physics, RT_POLYOBJ);
 
 	if ((obj == object_none ) && (Highest_object_index >= MAX_OBJECTS-1)) {
 //		Int3(); // this happens often and is normal :-)
@@ -900,7 +900,7 @@ imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const unsigned nu
 					 return object_none;
 #endif
 				}
-				const auto &&obj = obj_create(OBJ_POWERUP, id, segnum, new_pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, MT_PHYSICS, RT_POWERUP);
+				const auto &&obj = obj_create(OBJ_POWERUP, id, segnum, new_pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
 				objnum = obj;
 
 				if (objnum == object_none)
@@ -1175,7 +1175,7 @@ void explode_object(const vmobjptridx_t hitobj,fix delay_time)
 	if (delay_time) {		//wait a little while before creating explosion
 		//create a placeholder object to do the delay, with id==-1
 		auto obj = obj_create(OBJ_FIREBALL, -1, vmsegptridx(hitobj->segnum), hitobj->pos, &vmd_identity_matrix, 0,
-						object::control_type::explosion, MT_NONE, RT_NONE);
+						object::control_type::explosion, object::movement_type::None, RT_NONE);
 		if (obj == object_none ) {
 			maybe_delete_object(hitobj);		//no explosion, die instantly
 			Int3();
@@ -1204,8 +1204,8 @@ void explode_object(const vmobjptridx_t hitobj,fix delay_time)
 		//don't make debris explosions have physics, because they often
 		//happen when the debris has hit the wall, so the fireball is trying
 		//to move into the wall, which shows off FVI problems.   	
-		if (hitobj->type!=OBJ_DEBRIS && hitobj->movement_type==MT_PHYSICS) {
-			expl_obj->movement_type = MT_PHYSICS;
+		if (hitobj->type!=OBJ_DEBRIS && hitobj->movement_type==object::movement_type::physics) {
+			expl_obj->movement_type = object::movement_type::physics;
 			expl_obj->mtype.phys_info = hitobj->mtype.phys_info;
 		}
 	
@@ -1307,8 +1307,8 @@ void do_explosion_sequence(object &obj)
 		//If num_objects < MAX_USED_OBJECTS, expl_obj could be set to dead before this setting causing the delete_obj not to be removed. If so, directly delete del_obj
 		if (expl_obj && !(expl_obj->flags & OF_SHOULD_BE_DEAD))
 		{
-			if (del_obj->movement_type == MT_PHYSICS) {
-				expl_obj->movement_type = MT_PHYSICS;
+			if (del_obj->movement_type == object::movement_type::physics) {
+				expl_obj->movement_type = object::movement_type::physics;
 				expl_obj->mtype.phys_info = del_obj->mtype.phys_info;
 			}
 

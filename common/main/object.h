@@ -79,13 +79,6 @@ enum object_type_t : uint8_t
 	OBJ_MARKER	= 15,  // a map marker
 };
 
-enum movement_type_t : uint8_t
-{
-	MT_NONE = 0,   // doesn't move
-	MT_PHYSICS = 1,   // moves by physics
-	MT_SPINNING = 3,   // this object doesn't move, just sits and spins
-};
-
 enum render_type_t : uint8_t
 {
 	RT_NONE = 0,   // does not render
@@ -371,12 +364,13 @@ struct polyobj_info_rw
 struct object_base
 {
 	enum class control_type : uint8_t;
+	enum class movement_type : uint8_t;
 	object_signature_t signature;
 	object_type_t   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
 	ubyte   id;             // which form of object...which powerup, robot, etc.
 	objnum_t   next,prev;      // id of next and previous connected object in Objects, -1 = no connection
 	enum control_type control_type;   // how this object is controlled
-	movement_type_t   movement_type;  // how this object moves
+	enum movement_type movement_type;  // how this object moves
 	render_type_t render_type;    // how this object renders
 	ubyte   flags;          // misc flags
 	segnum_t   segnum;         // segment number containing object
@@ -432,6 +426,13 @@ enum class object_base::control_type : uint8_t
 	light	=	14,		// doesn't actually do anything
 	remote	=	15,	// controlled by another net player
 	cntrlcen	=	16,	// the control center/main reactor
+};
+
+enum class object_base::movement_type : uint8_t
+{
+	None = 0,   // doesn't move
+	physics = 1,   // moves by physics
+	spinning = 3,   // this object doesn't move, just sits and spins
 };
 
 }
@@ -546,18 +547,6 @@ struct obj_position
 		dxx_object_type_ref.type = static_cast<object_type_t>(dxx_object_type_value);	\
 	} DXX_END_COMPOUND_STATEMENT )
 
-#define set_object_movement_type(O,T)	\
-	( DXX_BEGIN_COMPOUND_STATEMENT {	\
-		object_base &dxx_object_movement_type_ref = (O);	\
-		const uint8_t &dxx_object_movement_type_value = (T);	\
-		assert(	\
-			dxx_object_movement_type_value == MT_NONE ||	\
-			dxx_object_movement_type_value == MT_PHYSICS ||	\
-			dxx_object_movement_type_value == MT_SPINNING	\
-		);	\
-		dxx_object_movement_type_ref.movement_type = static_cast<movement_type_t>(dxx_object_movement_type_value);	\
-	} DXX_END_COMPOUND_STATEMENT )
-
 template <typename T, std::size_t... N>
 constexpr std::array<T, sizeof...(N)> init_object_number_array(std::index_sequence<N...>)
 {
@@ -627,7 +616,7 @@ namespace dsx {
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
-imobjptridx_t obj_create(object_type_t type, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, enum object::control_type ctype, movement_type_t mtype, render_type_t rtype);
+imobjptridx_t obj_create(object_type_t type, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, enum object::control_type ctype, enum object::movement_type mtype, render_type_t rtype);
 
 #if defined(DXX_BUILD_DESCENT_II)
 

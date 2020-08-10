@@ -308,7 +308,7 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 
 	Assert(laser_radius != -1);
 
-	const auto &&obj = obj_create(OBJ_WEAPON, weapon_type, segnum, position, nullptr, laser_radius, object::control_type::weapon, MT_PHYSICS, rtype);
+	const auto &&obj = obj_create(OBJ_WEAPON, weapon_type, segnum, position, nullptr, laser_radius, object::control_type::weapon, object::movement_type::physics, rtype);
 	if (obj == object_none)
 		return object_none;
 
@@ -468,7 +468,7 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 		const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, temp_pos, last_segnum);
 		if (segnum != segment_none) {
 			last_segnum = segnum;
-			const auto &&objp = obj_create(OBJ_WEAPON, weapon_id_type::OMEGA_ID, segnum, temp_pos, nullptr, 0, object::control_type::weapon, MT_PHYSICS, RT_WEAPON_VCLIP);
+			const auto &&objp = obj_create(OBJ_WEAPON, weapon_id_type::OMEGA_ID, segnum, temp_pos, nullptr, 0, object::control_type::weapon, object::movement_type::physics, RT_WEAPON_VCLIP);
 			if (objp == object_none)
 				break;
 
@@ -488,7 +488,7 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 			objp->ctype.laser_info.parent_type			= parent_objp->type;
 			objp->ctype.laser_info.parent_signature	= parent_objp->signature;
 			objp->ctype.laser_info.parent_num			= parent_objp;
-			objp->movement_type = MT_NONE;	//	Only last one moves, that will get bashed below.
+			objp->movement_type = object::movement_type::None;	//	Only last one moves, that will get bashed below.
 
 		}
 		vm_vec_add2(blob_pos, omega_delta_vector);
@@ -497,7 +497,7 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 	//	Make last one move faster, but it's already moving at speed = F1_0*4.
 	if (last_created_objnum != object_none) {
 		vm_vec_scale(last_created_objnum->mtype.phys_info.velocity, Weapon_info[weapon_id_type::OMEGA_ID].speed[Difficulty_level]/4);
-		last_created_objnum->movement_type = MT_PHYSICS;
+		last_created_objnum->movement_type = object::movement_type::physics;
 	}
 
 	Doing_lighting_hack_flag = 0;

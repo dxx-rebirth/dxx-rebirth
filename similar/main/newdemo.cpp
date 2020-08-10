@@ -638,7 +638,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 
 	case OBJ_HOSTAGE:
 		obj->control_type = object::control_type::powerup;
-		obj->movement_type = MT_NONE;
+		obj->movement_type = object::movement_type::None;
 		obj->size = HOSTAGE_SIZE;
 		break;
 
@@ -648,10 +648,10 @@ static void nd_read_object(const vmobjptridx_t obj)
 		// This necessary code is our vindication. --MK, 2/15/96)
 #if defined(DXX_BUILD_DESCENT_II)
 		if (get_robot_id(obj) == SPECIAL_REACTOR_ROBOT)
-			obj->movement_type = MT_NONE;
+			obj->movement_type = object::movement_type::None;
 		else
 #endif
-			obj->movement_type = MT_PHYSICS;
+			obj->movement_type = object::movement_type::physics;
 		obj->size = Polygon_models[Robot_info[get_robot_id(obj)].model_num].rad;
 		obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
 		obj->rtype.pobj_info.subobj_flags = 0;
@@ -663,14 +663,14 @@ static void nd_read_object(const vmobjptridx_t obj)
 		{
 			uint8_t movement_type;
 			nd_read_byte(&movement_type);        // might have physics movement
-			set_object_movement_type(*obj, movement_type);
+			obj->movement_type = typename object::movement_type{movement_type};
 		}
 		obj->size = Powerup_info[get_powerup_id(obj)].size;
 		break;
 
 	case OBJ_PLAYER:
 		obj->control_type = object::control_type::None;
-		obj->movement_type = MT_PHYSICS;
+		obj->movement_type = object::movement_type::physics;
 		obj->size = Polygon_models[Player_ship->model_num].rad;
 		obj->rtype.pobj_info.model_num = Player_ship->model_num;
 		obj->rtype.pobj_info.subobj_flags = 0;
@@ -678,7 +678,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 
 	case OBJ_CLUTTER:
 		obj->control_type = object::control_type::None;
-		obj->movement_type = MT_NONE;
+		obj->movement_type = object::movement_type::None;
 		obj->size = Polygon_models[obj->id].rad;
 		obj->rtype.pobj_info.model_num = obj->id;
 		obj->rtype.pobj_info.subobj_flags = 0;
@@ -693,7 +693,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 		{
 			uint8_t movement_type;
 			nd_read_byte(&movement_type);
-			set_object_movement_type(*obj, movement_type);
+			obj->movement_type = typename object::movement_type{movement_type};
 		}
 		nd_read_fix(&(obj->size));
 		break;
@@ -729,16 +729,16 @@ static void nd_read_object(const vmobjptridx_t obj)
 
 	switch (obj->movement_type) {
 
-	case MT_PHYSICS:
+	case object::movement_type::physics:
 		nd_read_vector(obj->mtype.phys_info.velocity);
 		nd_read_vector(obj->mtype.phys_info.thrust);
 		break;
 
-	case MT_SPINNING:
+	case object::movement_type::spinning:
 		nd_read_vector(obj->mtype.spin_rate);
 		break;
 
-	case MT_NONE:
+	case object::movement_type::None:
 		break;
 
 	default:
@@ -886,11 +886,11 @@ static void nd_write_object(const vcobjptridx_t objp)
 	if (obj.type != OBJ_HOSTAGE && obj.type != OBJ_ROBOT && obj.type != OBJ_PLAYER && obj.type != OBJ_POWERUP && obj.type != OBJ_CLUTTER)
 	{
 		nd_write_byte(static_cast<uint8_t>(obj.control_type));
-		nd_write_byte(obj.movement_type);
+		nd_write_byte(static_cast<uint8_t>(obj.movement_type));
 		nd_write_fix(obj.size);
 	}
 	if (obj.type == OBJ_POWERUP)
-		nd_write_byte(obj.movement_type);
+		nd_write_byte(static_cast<uint8_t>(obj.movement_type));
 
 	nd_write_vector(obj.pos);
 
@@ -917,16 +917,16 @@ static void nd_write_object(const vcobjptridx_t objp)
 
 	switch (obj.movement_type) {
 
-	case MT_PHYSICS:
+	case object::movement_type::physics:
 		nd_write_vector(obj.mtype.phys_info.velocity);
 		nd_write_vector(obj.mtype.phys_info.thrust);
 		break;
 
-	case MT_SPINNING:
+	case object::movement_type::spinning:
 		nd_write_vector(obj.mtype.spin_rate);
 		break;
 
-	case MT_NONE:
+	case object::movement_type::None:
 		break;
 
 	default:
