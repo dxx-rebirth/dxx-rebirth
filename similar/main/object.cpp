@@ -1833,7 +1833,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 		case object::control_type::slew:
 #ifdef RELEASE
 			obj->control_source = object::control_type::None;
-			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "BUG: object %hu has control type object::control_type::slew, sig/type/id = %i/%i/%i"), static_cast<objnum_t>(obj), obj->signature.get(), obj->type, obj->id);
+			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "BUG: object %hu has control type object::control_type::slew, sig/type/id = %hu/%i/%i"), static_cast<objnum_t>(obj), static_cast<uint16_t>(obj->signature), obj->type, obj->id);
 #else
 			if ( keyd_pressed[KEY_PAD5] ) slew_stop();
 			if ( keyd_pressed[KEY_NUMLOCK] ) 		{
