@@ -109,6 +109,7 @@ class ToolchainInformation(StaticSubprocess):
 		return tool, _qcall(tool).out.strip()
 	@staticmethod
 	def show_partial_environ(env, user_settings, f):
+		f("CHOST: %r" % (user_settings.CHOST,))
 		for v in (
 			'CXX',
 			'CPPDEFINES',
