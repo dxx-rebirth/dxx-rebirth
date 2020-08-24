@@ -223,10 +223,10 @@ static void write_int(int i,PHYSFS_File *file);
 #endif
 #endif
 }
-static int piggy_is_needed(int soundnum);
 }
 
 namespace dcx {
+namespace {
 
 static void get_bitmap_name_from_header(std::array<char, 13> &output_name, const DiskBitmapHeader &bmh)
 {
@@ -239,6 +239,20 @@ static void get_bitmap_name_from_header(std::array<char, 13> &output_name, const
 	}
 }
 
+static int piggy_is_needed(const int soundnum)
+{
+	if (!CGameArg.SysLowMem)
+		return 1;
+	constexpr std::size_t upper_bound = Sounds.size();
+	for (const auto i : AltSounds)
+	{
+		if (i < upper_bound && Sounds[i] == soundnum)
+			return 1;
+	}
+	return 0;
+}
+
+}
 }
 
 /*
@@ -1160,19 +1174,6 @@ int properties_init(void)
 	return (ham_ok && snd_ok);               //read ok
 }
 #endif
-
-static int piggy_is_needed(int soundnum)
-{
-	if (!CGameArg.SysLowMem)
-		return 1;
-
-	for (const auto i : AltSounds)
-	{
-		if (i < Sounds.size() && Sounds[i] == soundnum)
-			return 1;
-	}
-	return 0;
-}
 
 #if defined(DXX_BUILD_DESCENT_I)
 void piggy_read_sounds(int pc_shareware)
