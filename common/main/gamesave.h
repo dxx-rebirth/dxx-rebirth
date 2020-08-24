@@ -42,7 +42,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern const char Shareware_level_names[NUM_SHAREWARE_LEVELS][12];
 extern const char Registered_level_names[NUM_REGISTERED_LEVELS][12];
 
+namespace dsx {
 int convert_tmap(int tmap);	// for gamemine.c
+}
 #define DXX_LEVEL_FILE_EXTENSION	D1X_LEVEL_FILE_EXTENSION
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_LEVEL_FILE_EXTENSION	D2X_LEVEL_FILE_EXTENSION

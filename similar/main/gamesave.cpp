@@ -153,7 +153,6 @@ static int is_real_level(const char *filename)
 		return 0;
 
 	return !d_strnicmp(&filename[len-11], "level");
-
 }
 #endif
 
@@ -161,9 +160,11 @@ static int is_real_level(const char *filename)
 
 int Gamesave_num_players=0;
 
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-#define MAX_POLYGON_MODELS_NEW 167
-static std::array<char[FILENAME_LEN], MAX_POLYGON_MODELS_NEW> Save_pof_names;
+namespace {
+
+using savegame_pof_names_type = std::array<char[FILENAME_LEN], 167>;
 
 static int convert_vclip(const d_vclip_array &Vclip, int vc)
 {
@@ -176,6 +177,9 @@ static int convert_vclip(const d_vclip_array &Vclip, int vc)
 static int convert_wclip(int wc) {
 	return (wc < Num_wall_anims) ? wc : wc % Num_wall_anims;
 }
+
+}
+
 int convert_tmap(int tmap)
 {
 	if (tmap == -1)
@@ -188,12 +192,12 @@ static unsigned convert_polymod(const unsigned N_polygon_models, const unsigned 
     return (polymod >= N_polygon_models) ? polymod % N_polygon_models : polymod;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-static std::array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Save_pof_names;
+namespace {
+using savegame_pof_names_type = std::array<char[FILENAME_LEN], MAX_POLYGON_MODELS>;
+}
 #endif
 
-namespace dsx {
-
-static void verify_object(const d_vclip_array &Vclip, object &obj)
+static void verify_object(const d_vclip_array &Vclip, object &obj, const savegame_pof_names_type &Save_pof_names)
 {
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	obj.lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
@@ -257,7 +261,7 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 	else {		//Robots taken care of above
 		if (obj.render_type == RT_POLYOBJ)
 		{
-			char *name = Save_pof_names[obj.rtype.pobj_info.model_num];
+			const auto name = Save_pof_names[obj.rtype.pobj_info.model_num];
 			for (auto &&[candidate_name, i] : enumerate(partial_range(Pof_names, LevelSharedPolygonModelState.N_polygon_models)))
 				if (!d_stricmp(candidate_name, name)) {		//found it!	
 					obj.rtype.pobj_info.model_num = i;
@@ -350,8 +354,6 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 	}
 }
 
-}
-
 //static gs_skip(int len,PHYSFS_File *file)
 //{
 //
@@ -359,7 +361,6 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 //}
 
 //reads one object of the given version from the given file
-namespace dsx {
 static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 {
 	const auto poison_obj = reinterpret_cast<uint8_t *>(&*obj);
@@ -977,6 +978,7 @@ static int load_game_data(
 	else
 		Current_level_name.next()[0]=0;
 
+	savegame_pof_names_type Save_pof_names;
 	if (game_top_fileinfo_version >= 19) {	//load pof names
 		const unsigned N_save_pof_names = PHYSFSX_readShort(LoadFile);
 		if (N_save_pof_names < MAX_POLYGON_MODELS)
@@ -1001,7 +1003,7 @@ static int load_game_data(
 		{
 			const auto &&o = vmobjptr(&i);
 			read_object(o, LoadFile, game_top_fileinfo_version);
-			verify_object(Vclip, o);
+			verify_object(Vclip, o, Save_pof_names);
 		}
 	}
 
