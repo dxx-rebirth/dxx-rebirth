@@ -18,7 +18,7 @@
 #define DBM_FLAG_LARGE	128		// Flags added onto the flags struct in b
 #define DBM_FLAG_ABM            64
 
-extern std::array<int, MAX_BITMAP_FILES> GameBitmapOffset;
+extern std::array<pig_bitmap_offset, MAX_BITMAP_FILES> GameBitmapOffset;
 
 void load_custom_data(const d_fname &level_file);
 

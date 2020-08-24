@@ -286,14 +286,14 @@ static int load_pigpog(const d_fname &pogname)
 				// save original bitmap info
 				BitmapOriginal[x] = *bmp;
 				BitmapOriginal[x].add_flags(0x80);
-				if (GameBitmapOffset[x]) // from pig?
+				if (GameBitmapOffset[x] != pig_bitmap_offset::None) // from pig?
 				{
 					BitmapOriginal[x].add_flags(BM_FLAG_PAGED_OUT);
 					BitmapOriginal[x].bm_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(GameBitmapOffset[x]));
 				}
 			}
 
-			GameBitmapOffset[x] = 0; // not in pig
+			GameBitmapOffset[x] = pig_bitmap_offset::None; // not in pig
 			*bmp = {};
 			gr_init_bitmap(*bmp, bm_mode::linear, 0, 0, cip->width, cip->height, cip->width, p);
 			gr_set_bitmap_flags(*bmp, cip->flags & 255);
@@ -569,7 +569,7 @@ static void custom_remove()
 
 			if (bmo->get_flag_mask(BM_FLAG_PAGED_OUT))
 			{
-				GameBitmapOffset[i] = static_cast<int>(reinterpret_cast<uintptr_t>(bmo->bm_data));
+				GameBitmapOffset[i] = static_cast<pig_bitmap_offset>(reinterpret_cast<uintptr_t>(bmo->bm_data));
 				gr_set_bitmap_flags(*bmp, BM_FLAG_PAGED_OUT);
 				gr_set_bitmap_data(*bmp, nullptr);
 			}

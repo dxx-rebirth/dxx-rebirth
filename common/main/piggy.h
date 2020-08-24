@@ -30,8 +30,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "gr.h"
 #include "fwd-partial_range.h"
-
-#ifdef __cplusplus
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include <array>
@@ -186,4 +184,7 @@ void piggy_init_pigfile(const char *filename);
 int read_hamfile();
 void swap_0_255(grs_bitmap &bmp);
 
-#endif
+enum class pig_bitmap_offset : unsigned
+{
+	None = 0
+};
