@@ -118,12 +118,15 @@ namespace dsx {
 struct d_level_shared_polygon_model_state : ::dcx::d_level_shared_polygon_model_state
 {
 	std::array<polymodel, MAX_POLYGON_MODELS> Polygon_models;
+#if defined(DXX_BUILD_DESCENT_II)
+	bool Exit_models_loaded;
+#endif
 };
 
 // array of pointers to polygon objects
 extern d_level_shared_polygon_model_state LevelSharedPolygonModelState;
 
-void free_polygon_models();
+void free_polygon_models(d_level_shared_polygon_model_state &LevelSharedPolygonModelState);
 
 int load_polygon_model(const char *filename,int n_textures,int first_texture,robot_info *r);
 }
@@ -163,8 +166,6 @@ void draw_model_picture(grs_canvas &, uint_fast32_t mn, const vms_angvec &orient
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_POLYOBJ_TEXTURES 50
 #elif defined(DXX_BUILD_DESCENT_II)
-// free up a model, getting rid of all its memory
-void free_model(polymodel &po);
 
 #define MAX_POLYOBJ_TEXTURES 100
 constexpr std::integral_constant<unsigned, 166> N_D2_POLYGON_MODELS{};
@@ -172,6 +173,16 @@ constexpr std::integral_constant<unsigned, 166> N_D2_POLYGON_MODELS{};
 #endif
 
 namespace dcx {
+
+#if defined(DXX_BUILD_DESCENT_II)
+/* This function exists in both games and has the same implementation in
+ * both, but is static in Descent 1.  Declare it in the header only for
+ * Descent 2.
+ */
+// free up a model, getting rid of all its memory
+void free_model(polymodel &po);
+#endif
+
 /*
  * reads a polymodel structure from a PHYSFS_File
  */

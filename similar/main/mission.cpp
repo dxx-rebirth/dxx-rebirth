@@ -1196,7 +1196,7 @@ static const char *load_mission(const mle *const mission)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	// re-read default HAM file, in case this mission brings it's own version of it
-	free_polygon_models();
+	free_polygon_models(LevelSharedPolygonModelState);
 
 	if (load_mission_ham())
 		init_extra_robot_movie(&*Current_mission->filename);

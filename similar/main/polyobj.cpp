@@ -402,6 +402,8 @@ void read_model_guns(const char *filename, reactor &r)
 	r.n_guns = n_guns;
 }
 
+namespace dcx {
+
 //free up a model, getting rid of all its memory
 #if defined(DXX_BUILD_DESCENT_I)
 static
@@ -409,6 +411,8 @@ static
 void free_model(polymodel &po)
 {
 	po.model_data.reset();
+}
+
 }
 
 //draw a polygon model
@@ -486,12 +490,12 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_mat
 	g3_done_instance();
 }
 
-void free_polygon_models()
+void free_polygon_models(d_level_shared_polygon_model_state &LevelSharedPolygonModelState)
 {
 	for (auto &i : partial_range(LevelSharedPolygonModelState.Polygon_models, LevelSharedPolygonModelState.N_polygon_models))
 		free_model(i);
 #if defined(DXX_BUILD_DESCENT_II)
-	Exit_models_loaded = false;
+	LevelSharedPolygonModelState.Exit_models_loaded = false;
 #endif
 }
 

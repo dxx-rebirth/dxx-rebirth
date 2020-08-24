@@ -154,7 +154,6 @@ extern int Robot_replacements_loaded;
 constexpr std::integral_constant<unsigned, 610> MAX_OBJ_BITMAPS{};
 extern unsigned N_ObjBitmaps;
 extern int extra_bitmap_num;
-extern bool Exit_models_loaded;
 extern bool Exit_bitmaps_loaded;
 #endif
 

@@ -119,7 +119,7 @@ std::array<ushort, MAX_OBJ_BITMAPS>          ObjBitmapPtrs;     // These point b
 namespace dsx {
 void gamedata_close()
 {
-	free_polygon_models();
+	free_polygon_models(LevelSharedPolygonModelState);
 #if defined(DXX_BUILD_DESCENT_II)
 	bm_free_extra_objbitmaps();
 #endif
@@ -397,7 +397,7 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 }
 
 int extra_bitmap_num = 0;
-bool Exit_models_loaded; // this and below only really used for D2
+// this and below only really used for D2
 bool Exit_bitmaps_loaded;
 unsigned Exit_bitmap_index;
 
@@ -417,9 +417,9 @@ static void bm_free_extra_objbitmaps()
 	Exit_bitmaps_loaded = false;
 }
 
-static void bm_free_extra_models()
+static void bm_free_extra_models(d_level_shared_polygon_model_state &LevelSharedPolygonModelState)
 {
-	Exit_models_loaded = false;
+	LevelSharedPolygonModelState.Exit_models_loaded = false;
 	const auto base = std::min(N_D2_POLYGON_MODELS.value, exit_modelnum);
 	for (auto &p : partial_range(LevelSharedPolygonModelState.Polygon_models, base, std::exchange(LevelSharedPolygonModelState.N_polygon_models, base)))
 		free_model(p);
@@ -451,7 +451,7 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 		version = 0;
 	(void)version; // NOTE: we do not need it, but keep it for possible further use
 
-	bm_free_extra_models();
+	bm_free_extra_models(LevelSharedPolygonModelState);
 	bm_free_extra_objbitmaps();
 
 	//read extra weapons
@@ -674,7 +674,7 @@ int load_exit_models()
 */
 	if (EMULATING_D1) // D1?
 	{
-		bm_free_extra_models();
+		bm_free_extra_models(LevelSharedPolygonModelState);
 		bm_free_extra_objbitmaps();
 	}
 
@@ -683,7 +683,7 @@ int load_exit_models()
 	{
 		return 0;
 	}
-	if (!Exit_models_loaded && LevelSharedPolygonModelState.N_polygon_models > MAX_POLYGON_MODELS - 2)
+	if (!LevelSharedPolygonModelState.Exit_models_loaded && LevelSharedPolygonModelState.N_polygon_models > MAX_POLYGON_MODELS - 2)
 	{
 		return 0;
 	}
@@ -707,7 +707,7 @@ int load_exit_models()
 	}
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	if (Exit_models_loaded && exit_modelnum < LevelSharedPolygonModelState.N_polygon_models && destroyed_exit_modelnum < LevelSharedPolygonModelState.N_polygon_models)
+	if (LevelSharedPolygonModelState.Exit_models_loaded && exit_modelnum < LevelSharedPolygonModelState.N_polygon_models && destroyed_exit_modelnum < LevelSharedPolygonModelState.N_polygon_models)
 	{
 		// already loaded, just adjust texture indexes
 		Polygon_models[exit_modelnum].first_texture = Exit_bitmap_index;
@@ -782,7 +782,7 @@ int load_exit_models()
 	}
 
 	// set to be loaded, but only on D2 - always reload the data on D1
-	Exit_models_loaded = Exit_bitmaps_loaded = !EMULATING_D1;
+	LevelSharedPolygonModelState.Exit_models_loaded = Exit_bitmaps_loaded = !EMULATING_D1;
 	return 1;
 }
 

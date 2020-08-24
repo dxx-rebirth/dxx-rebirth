@@ -961,7 +961,7 @@ void load_level_robots(int level_num)
 void load_level_robots(const d_fname &level_name)
 {
 	if (Robot_replacements_loaded) {
-		free_polygon_models();
+		free_polygon_models(LevelSharedPolygonModelState);
 		load_mission_ham();
 		Robot_replacements_loaded = 0;
 	}
