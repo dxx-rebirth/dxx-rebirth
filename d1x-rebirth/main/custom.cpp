@@ -80,9 +80,20 @@ struct custom_info
 	int width, height;
 };
 
+struct bitmap_original
+{
+	/* Reuse the type grs_bitmap since it covers most of what is needed.
+	 * However, instances of bitmap_original are not suitable for direct
+	 * use in places where a grs_bitmap is expected.
+	 */
+	grs_bitmap b;
+};
+
+constexpr std::integral_constant<uint8_t, 0x80> BM_FLAG_CUSTOMIZED{};
+
 }
 
-static std::array<grs_bitmap, MAX_BITMAP_FILES> BitmapOriginal;
+static std::array<bitmap_original, MAX_BITMAP_FILES> BitmapOriginal;
 static std::array<snd_info, MAX_SOUND_FILES> SoundOriginal;
 
 static int load_pig1(PHYSFS_File *f, unsigned num_bitmaps, unsigned num_sounds, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
@@ -279,17 +290,32 @@ static int load_pigpog(const d_fname &pogname)
 
 			bmp = &GameBitmaps[x];
 
-			if (BitmapOriginal[x].get_flag_mask(0x80)) // already customized?
+			auto &bmo = BitmapOriginal[x].b;
+			if (bmo.get_flag_mask(BM_FLAG_CUSTOMIZED)) // already customized?
+				/* If the bitmap was previously customized, and another
+				 * customization is loaded on top of it, discard the
+				 * first customization.  Retain the stock bitmap in the
+				 * backup data structure.
+				 */
 				gr_free_bitmap_data(*bmp);
 			else
 			{
+				/* If the bitmap was not previously customized, then
+				 * copy it to a backup data structure before replacing
+				 * it with the custom version.
+				 */
 				// save original bitmap info
-				BitmapOriginal[x] = *bmp;
-				BitmapOriginal[x].add_flags(0x80);
+				bmo = *bmp;
+				bmo.add_flags(BM_FLAG_CUSTOMIZED);
 				if (GameBitmapOffset[x] != pig_bitmap_offset::None) // from pig?
 				{
-					BitmapOriginal[x].add_flags(BM_FLAG_PAGED_OUT);
-					BitmapOriginal[x].bm_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(GameBitmapOffset[x]));
+					/* Borrow the data field to store the offset within
+					 * the pig file, which is not a pointer.  Attempts
+					 * to dereference bm_data will almost certainly
+					 * crash.
+					 */
+					bmo.add_flags(BM_FLAG_PAGED_OUT);
+					bmo.bm_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(GameBitmapOffset[x]));
 				}
 			}
 
@@ -562,22 +588,34 @@ static void custom_remove()
 	auto bmp = std::begin(GameBitmaps);
 
 	for (i = 0; i < MAX_BITMAP_FILES; bmo++, bmp++, i++)
-		if (bmo->get_flag_mask(0x80))
+		if (bmo->b.get_flag_mask(BM_FLAG_CUSTOMIZED))
 		{
 			gr_free_bitmap_data(*bmp);
-			*bmp = *bmo;
+			*bmp = bmo->b;
+			bmo->b.clear_flags();
 
-			if (bmo->get_flag_mask(BM_FLAG_PAGED_OUT))
+			if (bmp->get_flag_mask(BM_FLAG_PAGED_OUT))
 			{
-				GameBitmapOffset[i] = static_cast<pig_bitmap_offset>(reinterpret_cast<uintptr_t>(bmo->bm_data));
-				gr_set_bitmap_flags(*bmp, BM_FLAG_PAGED_OUT);
+				/* If the bitmap was unloaded before it was customized,
+				 * then restore GameBitmapOffset so that the stock data
+				 * can be reloaded when it is next needed.
+				 */
+				/* Casting this pointer into a smaller integer is legal
+				 * because the value in bm_data is not a pointer.  It is
+				 * a copy of the value that GameBitmapOffset had when
+				 * the bitmap_original was initialized.
+				 */
+				GameBitmapOffset[i] = static_cast<pig_bitmap_offset>(reinterpret_cast<uintptr_t>(bmo->b.bm_data));
 				gr_set_bitmap_data(*bmp, nullptr);
 			}
 			else
 			{
-				gr_set_bitmap_flags(*bmp, bmo->get_flag_mask(0x7f));
+				/* Otherwise, the bitmap was loaded before it was
+				 * overwritten, so the copy restored from the backup is
+				 * ready for use.
+				 */
+				bmp->set_flags(bmp->get_flags() & ~BM_FLAG_CUSTOMIZED);
 			}
-			bmo->clear_flags();
 		}
 	for (i = 0; i < MAX_SOUND_FILES; i++)
 		if (SoundOriginal[i].length & 0x80000000)
