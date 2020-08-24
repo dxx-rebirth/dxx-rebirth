@@ -70,8 +70,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include <memory>
 
-std::array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
-
 unsigned NumTextures;
 
 #if DXX_USE_EDITOR
@@ -79,6 +77,7 @@ int Num_object_subtypes = 1;
 #endif
 
 namespace dsx {
+std::array<uint8_t, MAX_SOUNDS> Sounds, AltSounds;
 #if defined(DXX_BUILD_DESCENT_I)
 int Num_total_object_types;
 
@@ -175,8 +174,8 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 	range_for (tmap_info &ti, TmapInfo)
 		tmap_info_read(ti, fp);
 
-	PHYSFS_read(fp, Sounds, sizeof(Sounds[0]), Sounds.size());
-	PHYSFS_read(fp, AltSounds, sizeof(AltSounds[0]), AltSounds.size());
+	PHYSFS_read(fp, Sounds, sizeof(Sounds[0]), MAX_SOUNDS);
+	PHYSFS_read(fp, AltSounds, sizeof(AltSounds[0]), MAX_SOUNDS);
 	
 	Num_vclips = PHYSFSX_readInt(fp);
 	range_for (vclip &vc, Vclip)
@@ -233,8 +232,8 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 	Num_cockpits = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(fp, cockpit_bitmap);
 
-	PHYSFS_read(fp, Sounds, sizeof(Sounds[0]), Sounds.size());
-	PHYSFS_read(fp, AltSounds, sizeof(AltSounds[0]), AltSounds.size());
+	PHYSFS_read(fp, Sounds, sizeof(Sounds[0]), MAX_SOUNDS);
+	PHYSFS_read(fp, AltSounds, sizeof(AltSounds[0]), MAX_SOUNDS);
 
 	Num_total_object_types = PHYSFSX_readInt(fp);
 	PHYSFS_read( fp, ObjType, sizeof(ubyte), MAX_OBJTYPE );

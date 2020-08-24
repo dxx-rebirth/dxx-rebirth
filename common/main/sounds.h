@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _SOUNDS_H
 
 #include "digi.h"
+#include <array>
 
 #ifdef dsx
 #if defined(DXX_BUILD_DESCENT_I)
@@ -39,6 +40,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SOUND_GOOD_SELECTION_SECONDARY	SOUND_GOOD_SELECTION_SECONDARY_FULL_DATA
 #define SOUND_CHEATER	SOUND_CHEATER_FULL_DATA
 #endif
+
+namespace d1x {
+constexpr std::integral_constant<unsigned, 250> MAX_SOUNDS{};
+}
+namespace d2x {
+//--------------------------------------------------------------
+// bad to have sound 255!
+constexpr std::integral_constant<unsigned, 254> MAX_SOUNDS{};
+}
+
 //------------------- List of sound effects --------------------
 namespace dcx {
 
@@ -70,6 +81,8 @@ enum sound_effect : unsigned
 	SOUND_LASER_HIT_CLUTTER = 30,
 	SOUND_CONTROL_CENTER_DESTROYED = 31,
 	SOUND_EXPLODING_WALL = 31,  // one long sound
+	SOUND_BIG_ENDLEVEL_EXPLOSION = SOUND_EXPLODING_WALL,
+	SOUND_TUNNEL_EXPLOSION = SOUND_EXPLODING_WALL,
 	SOUND_CONTROL_CENTER_WARNING_SIREN = 32,
 	SOUND_MINE_BLEW_UP = 33,
 	SOUND_FUSION_WARMUP = 34,
@@ -89,6 +102,7 @@ enum sound_effect : unsigned
 	SOUND_ALREADY_SELECTED = 155, // Adam: New sound number here! MK, 01/30/95
 	SOUND_BAD_SELECTION = 156,
 	SOUND_CLOAK_OFF = 161, // sound when cloak goes away
+	SOUND_WALL_CLOAK_OFF = SOUND_CLOAK_OFF,
 	SOUND_INVULNERABILITY_OFF = 163, // sound when invulnerability goes away
 	ROBOT_SEE_SOUND_DEFAULT = 170,
 	ROBOT_ATTACK_SOUND_DEFAULT = 171,
@@ -134,6 +148,7 @@ enum sound_effect : unsigned
 	SOUND_SHIP_IN_WATERFALL = 158, // under a waterfall
 
 	SOUND_CLOAK_ON = 160, // USED FOR WALL CLOAK
+	SOUND_WALL_CLOAK_ON = SOUND_CLOAK_ON,
 
 	SOUND_AMBIENT_LAVA = 222,
 	SOUND_AMBIENT_WATER = 223,
@@ -159,30 +174,13 @@ enum sound_effect : unsigned
 };
 
 }
-#endif
 
-#define SOUND_BIG_ENDLEVEL_EXPLOSION            SOUND_EXPLODING_WALL
-#define SOUND_TUNNEL_EXPLOSION                  SOUND_EXPLODING_WALL
-
-#if defined(DXX_BUILD_DESCENT_I)
-constexpr std::integral_constant<unsigned, 250> MAX_SOUNDS{};
-#elif defined(DXX_BUILD_DESCENT_II)
-#define SOUND_WALL_CLOAK_ON                     SOUND_CLOAK_ON
-#define SOUND_WALL_CLOAK_OFF                    SOUND_CLOAK_OFF
-
-//--------------------------------------------------------------
-// bad to have sound 255!
-constexpr std::integral_constant<unsigned, 254> MAX_SOUNDS{};
-#endif
-
+namespace dsx {
 // I think it would be nice to have a scrape sound...
 //#define SOUND_PLAYER_SCRAPE_WALL                72
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-#include "dxxsconf.h"
-#include <array>
-
-extern std::array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
+extern std::array<uint8_t, MAX_SOUNDS> Sounds, AltSounds;
+}
 
 constexpr std::integral_constant<int, -1> sound_none{};
 #endif

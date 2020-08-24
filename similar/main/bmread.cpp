@@ -488,11 +488,8 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 	load_palette(DEFAULT_PIG_PALETTE,-2,0);		//special: tell palette code which pig is loaded
 #endif
 
-	for (unsigned i = 0; i < MAX_SOUNDS; ++i)
-	{
-		Sounds[i] = 255;
-		AltSounds[i] = 255;
-	}
+	Sounds.fill(255);
+	AltSounds.fill(255);
 
 	DXX_MAKE_VAR_UNDEFINED(TmapInfo);
 	range_for (auto &ti, TmapInfo)

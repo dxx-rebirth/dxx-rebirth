@@ -1166,9 +1166,9 @@ static int piggy_is_needed(int soundnum)
 	if (!CGameArg.SysLowMem)
 		return 1;
 
-	range_for (auto i, AltSounds)
+	for (const auto i : AltSounds)
 	{
-		if (i < 255 && Sounds[i] == soundnum)
+		if (i < Sounds.size() && Sounds[i] == soundnum)
 			return 1;
 	}
 	return 0;
