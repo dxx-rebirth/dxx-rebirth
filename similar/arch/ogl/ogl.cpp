@@ -462,9 +462,11 @@ void ogl_cache_level_textures(void)
 				}
 				PIGGY_PAGE_IN(Textures[tmap1]);
 				grs_bitmap *bm = &GameBitmaps[Textures[tmap1].index];
-				if (tmap2 != 0){
-					PIGGY_PAGE_IN(Textures[tmap2&0x3FFF]);
-					auto &bm2 = GameBitmaps[Textures[tmap2&0x3FFF].index];
+				if (tmap2 != texture2_value::None)
+				{
+					const auto texture2 = Textures[get_texture_index(tmap2)];
+					PIGGY_PAGE_IN(texture2);
+					auto &bm2 = GameBitmaps[texture2.index];
 					if (CGameArg.DbgUseOldTextureMerge || bm2.get_flag_mask(BM_FLAG_SUPER_TRANSPARENT))
 						bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
 					else {
@@ -981,7 +983,7 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 /*
  * Everything texturemapped with secondary texture (walls with secondary texture)
  */
-void _g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, const unsigned orient)
+void _g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, const texture2_rotation_low orient)
 {
 	_g3_draw_tmap(canvas, nv, pointlist, uvl_list, light_rgb, bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
@@ -1034,15 +1036,15 @@ void _g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const g3s_point *con
 	{
 		const GLfloat uf = f2glf(uvl.u), vf = f2glf(uvl.v);
 		switch(orient){
-			case 1:
+			case texture2_rotation_low::_1:
 				texcoord[0] = 1.0 - vf;
 				texcoord[1] = uf;
 				break;
-			case 2:
+			case texture2_rotation_low::_2:
 				texcoord[0] = 1.0 - uf;
 				texcoord[1] = 1.0 - vf;
 				break;
-			case 3:
+			case texture2_rotation_low::_3:
 				texcoord[0] = vf;
 				texcoord[1] = 1.0 - uf;
 				break;

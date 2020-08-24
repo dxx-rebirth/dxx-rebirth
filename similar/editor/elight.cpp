@@ -143,8 +143,7 @@ static void propagate_light_intensity(const csmusegment segp, const unsigned sid
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	texmap = us.tmap_num;
 	intensity += TmapInfo[texmap].lighting;
-	texmap = us.tmap_num2 & 0x3fff;
-	intensity += TmapInfo[texmap].lighting;
+	intensity += TmapInfo[get_texture_index(us.tmap_num2)].lighting;
 
 	if (intensity > 0) {
 		add_light_intensity_all_verts(us, intensity);

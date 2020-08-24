@@ -1132,7 +1132,6 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 {
 	int vertnum;
 	char ErrorMessage[200];
-	short tmap_xlate;
         int     translate=0;
 	char 	*temptr;
 	segment tseg;
@@ -1293,12 +1292,11 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 				//Translate textures.
 				if (translate == 1) {
 					int	temp;
-					tmap_xlate = useg.sides[j].tmap_num;
-					useg.sides[j].tmap_num = tmap_xlate_table[tmap_xlate];
+					useg.sides[j].tmap_num = tmap_xlate_table[useg.sides[j].tmap_num];
 					temp = useg.sides[j].tmap_num2;
-					tmap_xlate = temp & 0x3fff;			// strip off orientation bits
-					if (tmap_xlate != 0)
-						useg.sides[j].tmap_num2 = (temp & (~0x3fff)) | tmap_xlate_table[tmap_xlate];  // mask on original orientation bits
+					// strip off orientation bits
+					if (const auto tmap_xlate = get_texture_index(temp); tmap_xlate != 0)
+						useg.sides[j].tmap_num2 = build_texture2_value(tmap_xlate_table[tmap_xlate], get_texture_rotation_high(temp));  // mask on original orientation bits
 					}
 				}
 			}

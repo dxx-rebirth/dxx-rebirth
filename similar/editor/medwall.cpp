@@ -171,12 +171,12 @@ static int wall_assign_door(int door_type)
 	if (wa.flags & WCF_TMAP1) {
 		useg.sides[Curside].tmap_num = wa.frames[0];
 		ucseg.sides[Connectside].tmap_num = wa.frames[0];
-		useg.sides[Curside].tmap_num2 = 0;
-		ucseg.sides[Connectside].tmap_num2 = 0;
+		useg.sides[Curside].tmap_num2 = texture2_value::None;
+		ucseg.sides[Connectside].tmap_num2 = texture2_value::None;
 	}
 	else {
-		useg.sides[Curside].tmap_num2 = wa.frames[0];
-		ucseg.sides[Connectside].tmap_num2 = wa.frames[0];
+		useg.sides[Curside].tmap_num2 = texture2_value{wa.frames[0]};
+		ucseg.sides[Connectside].tmap_num2 = texture2_value{wa.frames[0]};
 	}
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -613,7 +613,7 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 				else {
 					auto &curside = Cursegp->unique_segment::sides[Curside];
 					const auto tmap_num = curside.tmap_num;
-					if (curside.tmap_num2 > 0)
+					if (curside.tmap_num2 != texture2_value::None)
 						gr_ubitmap(*grd_curcanv, texmerge_get_cached_bitmap(tmap_num, curside.tmap_num2));
 					else	{
 						PIGGY_PAGE_IN(Textures[tmap_num]);
@@ -705,15 +705,15 @@ int wall_restore_all()
 	range_for (auto &&i, ActiveDoors.vmptr)
 		wall_close_door_ref(Segments.vmptridx, Walls, WallAnims, i);
 
-	range_for (auto &&i, vmsegptr)
-		for (auto &&[us, ss] : zip(i->unique_segment::sides, i->shared_segment::sides))
+	for (csmusegment &&i : vmsegptr)
+		for (auto &&[ss, us] : zip(i.s.sides, i.u.sides))
 		{
 			const auto wall_num = ss.wall_num;
 			if (wall_num != wall_none)
 			{
 				auto &w = *vcwallptr(wall_num);
 				if (w.type == WALL_BLASTABLE || w.type == WALL_DOOR)
-					us.tmap_num2 = WallAnims[w.clip_num].frames[0];
+					us.tmap_num2 = texture2_value{WallAnims[w.clip_num].frames[0]};
 			}
  		}
 
@@ -857,8 +857,8 @@ static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmse
 			}	
 
 		if (type != WALL_DOOR) {
-			segp->unique_segment::sides[side].tmap_num2 = 0;
-			csegp->unique_segment::sides[connectside].tmap_num2 = 0;
+			segp->unique_segment::sides[side].tmap_num2 = texture2_value::None;
+			csegp->unique_segment::sides[connectside].tmap_num2 = texture2_value::None;
 			}
 
 		if (type == WALL_DOOR) {
@@ -926,8 +926,8 @@ int wall_add_to_markedside(fvcvertptr &vcvertptr, wall_array &Walls, const int8_
 			}	
 
 		if (type != WALL_DOOR) {
-			Markedsegp->unique_segment::sides[Markedside].tmap_num2 = 0;
-			csegp->unique_segment::sides[Connectside].tmap_num2 = 0;
+			Markedsegp->unique_segment::sides[Markedside].tmap_num2 = texture2_value::None;
+			csegp->unique_segment::sides[Connectside].tmap_num2 = texture2_value::None;
 			}
 
 		Update_flags |= UF_WORLD_CHANGED;

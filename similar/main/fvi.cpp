@@ -1204,8 +1204,9 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 	auto &v = hitpoint.v;
 
 	const auto tmap_num = side.tmap_num;
-	const grs_bitmap &rbm = (side.tmap_num2 != 0) ? texmerge_get_cached_bitmap(tmap_num, side.tmap_num2 ) :
-		GameBitmaps[Textures[PIGGY_PAGE_IN(Textures[tmap_num]), tmap_num].index];
+	const grs_bitmap &rbm = (side.tmap_num2 != texture2_value::None)
+		? texmerge_get_cached_bitmap(tmap_num, side.tmap_num2)
+		: GameBitmaps[Textures[PIGGY_PAGE_IN(Textures[tmap_num]), tmap_num].index];
 	const auto bm = rle_expand_texture(rbm);
 
 	bmx = static_cast<unsigned>(f2i(u*bm->bm_w)) % bm->bm_w;

@@ -103,8 +103,8 @@ void do_special_effects()
 					ec.segnum = segment_none;		//done with this
 					assert(ec.sidenum < 6);
 					auto &side = seg.sides[ec.sidenum];
-					assert(ec.dest_bm_num != 0 && side.tmap_num2 != 0);
-					side.tmap_num2 = ec.dest_bm_num | (side.tmap_num2 & 0xc000);		//replace with destoyed
+					assert(ec.dest_bm_num != 0 && side.tmap_num2 != texture2_value::None);
+					side.tmap_num2 = build_texture2_value(ec.dest_bm_num, get_texture_rotation_high(side.tmap_num2));		//replace with destroyed
 				}
 
 				ec.frame_count = 0;

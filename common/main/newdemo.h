@@ -110,7 +110,7 @@ extern void newdemo_record_rearview(void);
 extern void newdemo_record_restore_cockpit(void);
 #ifdef dsx
 void newdemo_record_wall_set_tmap_num1(vcsegidx_t seg, unsigned side, vcsegidx_t cseg, unsigned cside, int16_t tmap);
-void newdemo_record_wall_set_tmap_num2(vcsegidx_t seg, unsigned side, vcsegidx_t cseg, unsigned cside, int16_t tmap);
+void newdemo_record_wall_set_tmap_num2(vcsegidx_t seg, unsigned side, vcsegidx_t cseg, unsigned cside, texture2_value tmap);
 #endif
 extern void newdemo_record_multi_cloak(int pnum);
 extern void newdemo_record_multi_decloak(int pnum);

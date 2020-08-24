@@ -621,7 +621,7 @@ static void copy_tmap_ids(unique_segment &dseg, const unique_segment &sseg)
 	for (auto &&[ss, ds] : zip(sseg.sides, dseg.sides))
 	{
 		ds.tmap_num = ss.tmap_num;
-		ds.tmap_num2 = 0;
+		ds.tmap_num2 = texture2_value::None;
 	}
 }
 
@@ -1365,7 +1365,7 @@ void med_create_new_segment(const vms_vector &scale)
 		ss.wall_num = wall_none;
 		create_walls_on_side(vcvertptr, sp, s);
 		us.tmap_num = s + 1;					// assign some stupid old tmap to this side.
-		us.tmap_num2 = 0;
+		us.tmap_num2 = texture2_value::None;
 	}
 
 	Seg_orientation = {};

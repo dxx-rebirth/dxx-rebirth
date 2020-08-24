@@ -27,15 +27,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TEXMERGE_H
 #define _TEXMERGE_H
 
-#ifdef __cplusplus
+#include "fwd-segment.h"
 
 struct grs_bitmap;
 
 int texmerge_init();
-grs_bitmap &texmerge_get_cached_bitmap(unsigned tmap_bottom, unsigned tmap_top);
+grs_bitmap &texmerge_get_cached_bitmap(unsigned tmap_bottom, texture2_value tmap_top);
 void texmerge_close();
 void texmerge_flush();
-
-#endif
 
 #endif /* _TEXMERGE_H */

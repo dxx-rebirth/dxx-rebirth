@@ -148,6 +148,6 @@ namespace dsx {
 extern int d1_pig_present;
 
 /* stuff for loading descent.pig of descent 1 */
-extern short convert_d1_tmap_num(short d1_tmap_num);
+uint16_t convert_d1_tmap_num(uint16_t d1_tmap_num);
 }
 #endif

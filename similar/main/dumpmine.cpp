@@ -819,7 +819,7 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
                                  }
                          }
 
-			if (const auto tmap_num2 = uside.tmap_num2 & 0x3fff)
+			if (const auto tmap_num2 = get_texture_index(uside.tmap_num2))
                          {
 				if (tmap_num2 < max_tmap) {
 					++tmap_buf[tmap_num2];
@@ -904,7 +904,7 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 						Int3();	//	Error, bogus texture map.  Should not be greater than max_tmap.
 				}
 
-				if (const auto masked_tmap_num2 = (uside.tmap_num2 & 0x3fff))
+				if (const auto masked_tmap_num2 = get_texture_index(uside.tmap_num2))
 				{
 					if (masked_tmap_num2 < Textures.size())
 					{
@@ -917,7 +917,7 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 						if (!Ignore_tmap_num2_error)
 							Int3();	//	Error, bogus texture map.  Should not be greater than max_tmap.
 						Ignore_tmap_num2_error = 1;
-						uside.tmap_num2 = 0;
+						uside.tmap_num2 = texture2_value::None;
 					}
 				}
 			}

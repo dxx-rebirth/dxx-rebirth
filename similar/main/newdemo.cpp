@@ -1483,7 +1483,7 @@ void newdemo_record_wall_set_tmap_num1(const vcsegidx_t seg, const unsigned side
 	nd_write_short(tmap);
 }
 
-void newdemo_record_wall_set_tmap_num2(const vcsegidx_t seg, const unsigned side, const vcsegidx_t cseg, const unsigned cside, const int16_t tmap)
+void newdemo_record_wall_set_tmap_num2(const vcsegidx_t seg, const unsigned side, const vcsegidx_t cseg, const unsigned cside, const texture2_value tmap)
 {
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_WALL_SET_TMAP_NUM2);
@@ -1491,7 +1491,7 @@ void newdemo_record_wall_set_tmap_num2(const vcsegidx_t seg, const unsigned side
 	nd_write_byte(side);
 	nd_write_short(cseg);
 	nd_write_byte(cside);
-	nd_write_short(tmap);
+	nd_write_short(static_cast<uint16_t>(tmap));
 }
 
 void newdemo_record_multi_cloak(int pnum)
@@ -1650,7 +1650,7 @@ void newdemo_set_new_level(int level_num)
 
 			const auto &side = vcsegptr(w.segnum)->unique_segment::sides[w.sidenum];
 			nd_write_short (side.tmap_num);
-			nd_write_short (side.tmap_num2);
+			nd_write_short(static_cast<uint16_t>(side.tmap_num2));
 			nd_record_v_juststarted=0;
 		}
 	}
@@ -1693,7 +1693,7 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 			auto &uside = seg->unique_segment::sides[side];
 			if (const auto tmap_num = uside.tmap_num)
 				newdemo_record_wall_set_tmap_num1(w.segnum,side,w.segnum,side,tmap_num);
-			if (const auto tmap_num2 = uside.tmap_num2)
+			if (const auto tmap_num2 = uside.tmap_num2; tmap_num2 != texture2_value::None)
 				newdemo_record_wall_set_tmap_num2(w.segnum,side,w.segnum,side,tmap_num2);
 		}
 	}
@@ -2046,10 +2046,13 @@ static void newdemo_pop_ctrlcen_triggers()
 		const auto anim_num = vcwallptr(wall_num)->clip_num;
 		auto &wa = WallAnims[anim_num];
 		const auto n = wa.num_frames;
-		const auto t = wa.flags & WCF_TMAP1
-			? &unique_side::tmap_num
-			: &unique_side::tmap_num2;
-		seg->unique_segment::sides[side].*t = csegp->unique_segment::sides[cside].*t = wa.frames[n-1];
+		auto &seg0uside = seg->unique_segment::sides[side];
+		auto &seg1uside = csegp->unique_segment::sides[cside];
+		const auto next_tmap = wa.frames[n - 1];
+		if (wa.flags & WCF_TMAP1)
+			seg0uside.tmap_num = seg1uside.tmap_num = next_tmap;
+		else
+			seg0uside.tmap_num2 = seg1uside.tmap_num2 = texture2_value{next_tmap};
 	}
 }
 
@@ -2856,11 +2859,9 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD)) {
-				assert(tmap != 0);
 				unique_segment &s0 = *vmsegptr(seg);
 				auto &tmap_num2 = s0.sides[side].tmap_num2;
-				assert(tmap_num2 != 0);
-				tmap_num2 = vmsegptr(cseg)->unique_segment::sides[cside].tmap_num2 = tmap;
+				tmap_num2 = vmsegptr(cseg)->unique_segment::sides[cside].tmap_num2 = texture2_value{tmap};
 			}
 			break;
 		}
@@ -3147,10 +3148,13 @@ static int newdemo_read_frame_information(int rewrite)
 				const auto &&cside = find_connect_side(segp, csegp);
 				const auto anim_num = vmwallptr(sseg.sides[side].wall_num)->clip_num;
 				auto &wa = WallAnims[anim_num];
-				const auto t = wa.flags & WCF_TMAP1
-					? &unique_side::tmap_num
-					: &unique_side::tmap_num2;
-				segp->unique_segment::sides[side].*t = csegp->unique_segment::sides[cside].*t = wa.frames[0];
+				auto &seg0uside = segp->unique_segment::sides[side];
+				auto &seg1uside = csegp->unique_segment::sides[cside];
+				const auto next_tmap = wa.frames[0];
+				if (wa.flags & WCF_TMAP1)
+					seg0uside.tmap_num = seg1uside.tmap_num = next_tmap;
+				else
+					seg0uside.tmap_num2 = seg1uside.tmap_num2 = texture2_value{next_tmap};
 			}
 			break;
 		}
@@ -3295,7 +3299,9 @@ static int newdemo_read_frame_information(int rewrite)
 
 					auto &side = vmsegptr(w.segnum)->unique_segment::sides[w.sidenum];
 					nd_read_short (&side.tmap_num);
-					nd_read_short (&side.tmap_num2);
+					uint16_t tmap_num2;
+					nd_read_short(&tmap_num2);
+					side.tmap_num2 = texture2_value{tmap_num2};
 
 					if (rewrite)
 					{
@@ -3303,7 +3309,7 @@ static int newdemo_read_frame_information(int rewrite)
 						nd_write_byte (w.flags);
 						nd_write_byte (w.state);
 						nd_write_short (side.tmap_num);
-						nd_write_short (side.tmap_num2);
+						nd_write_short(static_cast<uint16_t>(side.tmap_num2));
 					}
 				}
 

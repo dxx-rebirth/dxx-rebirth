@@ -2023,7 +2023,7 @@ static void flicker_lights(const d_level_shared_destructible_light_state &LevelS
 		const auto sidenum = f.sidenum;
 		{
 			auto &side = segp->unique_segment::sides[sidenum];
-			if (!(TmapInfo[side.tmap_num].lighting || TmapInfo[side.tmap_num2 & 0x3fff].lighting))
+			if (!(TmapInfo[side.tmap_num].lighting || TmapInfo[get_texture_index(side.tmap_num2)].lighting))
 				continue;
 		}
 

@@ -148,10 +148,75 @@ struct shared_side
 	std::array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
 };
 
+/* texture2_value uses the low 14 bits for the array index and the high
+ * 2 bits for texture2_rotation_high
+ */
+enum class texture2_value : uint16_t
+{
+	None,
+};
+
+enum class texture2_rotation_low : uint8_t
+{
+	Normal = 0,
+	_1 = 1,
+	_2 = 2,
+	_3 = 3,
+};
+
+#define TEXTURE2_ROTATION_SHIFT	14u
+#define TEXTURE2_ROTATION_INDEX_MASK	((1u << TEXTURE2_ROTATION_SHIFT) - 1u)
+
+enum class texture2_rotation_high : uint16_t
+{
+	Normal = 0,
+	_1 = static_cast<uint16_t>(texture2_rotation_low::_1) << TEXTURE2_ROTATION_SHIFT,
+	_2 = static_cast<uint16_t>(texture2_rotation_low::_2) << TEXTURE2_ROTATION_SHIFT,
+	_3 = static_cast<uint16_t>(texture2_rotation_low::_3) << TEXTURE2_ROTATION_SHIFT,
+};
+
+static constexpr texture2_rotation_high &operator++(texture2_rotation_high &t)
+{
+	/* Cast to uint32, step to the next value, cast back.  The cast back
+	 * will truncate to the low 16 bits, causing
+	 * texture2_rotation_high::_3 to roll over to
+	 * texture2_rotation_high::Normal.
+	 */
+	return (t = static_cast<texture2_rotation_high>(static_cast<uint32_t>(t) + (1u << TEXTURE2_ROTATION_SHIFT)));
+}
+
+static constexpr uint16_t get_texture_index(const texture2_value t)
+{
+	return static_cast<uint16_t>(t) & TEXTURE2_ROTATION_INDEX_MASK;
+}
+
+static constexpr texture2_rotation_high get_texture_rotation_high(const texture2_value t)
+{
+	return static_cast<texture2_rotation_high>(static_cast<uint16_t>(t) & ~TEXTURE2_ROTATION_INDEX_MASK);
+}
+
+static constexpr texture2_rotation_low get_texture_rotation_low(const texture2_rotation_high t)
+{
+	return static_cast<texture2_rotation_low>(static_cast<uint16_t>(t) >> TEXTURE2_ROTATION_SHIFT);
+}
+
+static constexpr texture2_rotation_low get_texture_rotation_low(const texture2_value t)
+{
+	return get_texture_rotation_low(get_texture_rotation_high(t));
+}
+
+static constexpr texture2_value build_texture2_value(const unsigned t, const texture2_rotation_high rotation)
+{
+	return static_cast<texture2_value>(t | static_cast<unsigned>(rotation));
+}
+
+#undef TEXTURE2_ROTATION_SHIFT
+#undef TEXTURE2_ROTATION_INDEX_MASK
+
 struct unique_side
 {
 	int16_t tmap_num;
-	int16_t tmap_num2;
+	texture2_value tmap_num2;
 	std::array<uvl, 4>     uvls;
 };
 

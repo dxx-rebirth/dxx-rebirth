@@ -1848,16 +1848,21 @@ static void net_udp_process_monitor_vector(uint32_t vector)
 		return;
 	range_for (unique_segment &seg, vmsegptr)
 	{
-		int tm, ec, bm;
 		range_for (auto &j, seg.sides)
 		{
-			if ( ((tm = j.tmap_num2) != 0) &&
-				(ec = TmapInfo[tm & 0x3fff].eclip_num) != eclip_none &&
-				(bm = Effects[ec].dest_bm_num) != ~0u)
+			const auto tm = j.tmap_num2;
+			if (tm == texture2_value::None)
+				continue;
+			const auto ec = TmapInfo[get_texture_index(tm)].eclip_num;
+			if (ec == eclip_none)
+				continue;
+			const int bm = Effects[ec].dest_bm_num;
+			if (bm == ~0u)
+				continue;
 			{
 				if (vector & 1)
 				{
-					j.tmap_num2 = bm | (tm&0xc000);
+					j.tmap_num2 = build_texture2_value(bm, get_texture_rotation_high(tm));
 				}
 				if (!(vector >>= 1))
 					return;
@@ -1916,10 +1921,10 @@ static unsigned net_udp_create_monitor_vector(void)
 	{
 		range_for (auto &j, seg->unique_segment::sides)
 		{
-			const unsigned tm2 = j.tmap_num2;
-			if (!tm2)
+			const auto tm2 = j.tmap_num2;
+			if (tm2 == texture2_value::None)
 				continue;
-			const unsigned masked_tm2 = tm2 & 0x3fff;
+			const auto masked_tm2 = get_texture_index(tm2);
 			const unsigned ec = TmapInfo[masked_tm2].eclip_num;
 			{
 				if (ec != eclip_none &&

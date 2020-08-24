@@ -284,12 +284,13 @@ void do_replacements(void)
 				if (sidep.tmap_num == old_tmap_num) {
 					sidep.tmap_num = new_tmap_num;
 				}
-				if ((sidep.tmap_num2 != 0) && ((sidep.tmap_num2 & 0x3fff) == old_tmap_num)) {
+				if (sidep.tmap_num2 != texture2_value::None && get_texture_index(sidep.tmap_num2) == old_tmap_num)
+				{
 					if (new_tmap_num == 0) {
 						Int3();	//	Error.  You have tried to replace a tmap_num2 with 
 									//	the 0th tmap_num2 which is ILLEGAL!
 					} else {
-						sidep.tmap_num2 = new_tmap_num | (sidep.tmap_num2 & 0xc000);
+						sidep.tmap_num2 = build_texture2_value(new_tmap_num, get_texture_rotation_high(sidep.tmap_num2));
 					}
 				}
 			}

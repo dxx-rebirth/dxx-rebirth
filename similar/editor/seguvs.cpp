@@ -1167,7 +1167,7 @@ static void calim_process_all_lights(int quick_light)
 				const auto sidep = &es.value;
 				fix	light_intensity;
 
-				light_intensity = TmapInfo[sidep->tmap_num].lighting + TmapInfo[sidep->tmap_num2 & 0x3fff].lighting;
+				light_intensity = TmapInfo[sidep->tmap_num].lighting + TmapInfo[get_texture_index(sidep->tmap_num2)].lighting;
 
 //				if (segp->sides[sidenum].wall_num != -1) {
 //					int	wall_num, bitmap_num, effect_num;

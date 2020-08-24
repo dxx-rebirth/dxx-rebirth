@@ -4163,7 +4163,8 @@ void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segn
 
 	range_for (auto &i, segnum->unique_segment::sides)
 	{
-		PUT_INTEL_SHORT(&multibuf[count], i.tmap_num2); count+=2;
+		PUT_INTEL_SHORT(&multibuf[count], static_cast<uint16_t>(i.tmap_num2));
+		count+=2;
 	}
 	multi_send_data_direct(multibuf, pnum, 2);
 }
@@ -4185,7 +4186,10 @@ static void multi_do_light (const ubyte *buf)
 		{
 			auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
 			subtract_light(LevelSharedDestructibleLightState, segp, i);
-			side_array[i].tmap_num2 = GET_INTEL_SHORT(&buf[4 + (2 * i)]);
+			const auto tmap_num2 = texture2_value{GET_INTEL_SHORT(&buf[4 + (2 * i)])};
+			if (get_texture_index(tmap_num2) >= Textures.size())
+				continue;
+			side_array[i].tmap_num2 = tmap_num2;
 		}
 	}
 }

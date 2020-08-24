@@ -142,7 +142,7 @@ struct find_cloaked_wall_predicate
 
 static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(const unique_side &side)
 {
-	if (const uint_fast32_t masked_tmap_num2 = side.tmap_num2 & 0x3FFF)
+	if (const auto masked_tmap_num2 = static_cast<uint_fast32_t>(get_texture_index(side.tmap_num2)))
 		return {masked_tmap_num2, BM_FLAG_SUPER_TRANSPARENT};
 	return {side.tmap_num, BM_FLAG_TRANSPARENT};
 }
@@ -278,12 +278,12 @@ void wall_set_tmap_num(const wclip &anim, const vmsegptridx_t seg, const unsigne
 				newdemo_record_wall_set_tmap_num1(seg,side,csegp,cside,tmap);
 		}
 	} else	{
-		assert(tmap != 0 && uside.tmap_num2 != 0);
-		if (tmap != uside.tmap_num2 || tmap != cuside.tmap_num2)
+		const texture2_value t2{tmap};
+		if (t2 != uside.tmap_num2 || t2 != cuside.tmap_num2)
 		{
-			uside.tmap_num2 = cuside.tmap_num2 = tmap;
+			uside.tmap_num2 = cuside.tmap_num2 = t2;
 			if (newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_wall_set_tmap_num2(seg,side,csegp,cside,tmap);
+				newdemo_record_wall_set_tmap_num2(seg,side,csegp,cside,t2);
 		}
 	}
 }
@@ -1514,7 +1514,7 @@ class blast_nearby_glass_context
 	fvcvertptr &vcvertptr;
 	fvcwallptr &vcwallptr;
 	visited_segment_bitarray_t visited;
-	unsigned can_blast(const int16_t &tmap_num2) const;
+	unsigned can_blast(texture2_value tmap_num2) const;
 public:
 	blast_nearby_glass_context(const object &obj, const fix damage, const d_eclip_array &Effects, const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, const TmapInfo_array &TmapInfo, const d_vclip_array &Vclip, fvcvertptr &vcvertptr, fvcwallptr &vcwallptr) :
 		obj(obj), damage(damage), Effects(Effects), GameBitmaps(GameBitmaps),
@@ -1527,9 +1527,9 @@ public:
 	void process_segment(vmsegptridx_t segp, unsigned steps_remaining);
 };
 
-unsigned blast_nearby_glass_context::can_blast(const int16_t &tmap_num2) const
+unsigned blast_nearby_glass_context::can_blast(const texture2_value tmap_num2) const
 {
-	const auto tm = tmap_num2 & 0x3fff;			//tm without flags
+	const auto tm = get_texture_index(tmap_num2);			//tm without flags
 	auto &ti = TmapInfo[tm];
 	const auto ec = ti.eclip_num;
 	if (ec == eclip_none)
@@ -1554,7 +1554,7 @@ void blast_nearby_glass_context::process_segment(const vmsegptridx_t segp, const
 
 		//	Process only walls which have glass.
 		auto &&uside = e.value;
-		if (const auto &tmap_num2 = uside.tmap_num2)
+		if (const auto tmap_num2 = uside.tmap_num2; tmap_num2 != texture2_value::None)
 		{
 			if (can_blast(tmap_num2))
 			{

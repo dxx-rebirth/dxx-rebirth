@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "timer.h"
 #include "piggy.h"
+#include "segment.h"
 #include "texmerge.h"
 #include "piggy.h"
 
@@ -50,7 +51,7 @@ struct TEXTURE_CACHE {
 	grs_bitmap_ptr bitmap;
 	grs_bitmap * bottom_bmp;
 	grs_bitmap * top_bmp;
-	int 		orient;
+	texture2_rotation_high orient;
 	fix64		last_time_used;
 };
 
@@ -140,23 +141,23 @@ static void merge_textures_case(const unsigned wh, const uint8_t *const top_data
  * for each byte processed.
  */
 template <typename texture_transform>
-static void merge_textures(unsigned orient, const grs_bitmap &expanded_bottom_bmp, const grs_bitmap &expanded_top_bmp, uint8_t *const dest_data)
+static void merge_textures(const texture2_rotation_high orient, const grs_bitmap &expanded_bottom_bmp, const grs_bitmap &expanded_top_bmp, uint8_t *const dest_data)
 {
 	const auto &top_data = expanded_top_bmp.bm_data;
 	const auto &bottom_data = expanded_bottom_bmp.bm_data;
 	const auto wh = expanded_bottom_bmp.bm_w;
 	switch (orient)
 	{
-		case 0:
+		case texture2_rotation_high::Normal:
 			merge_textures_case<texture_transform, merge_texture_0>(wh, top_data, bottom_data, dest_data);
 			break;
-		case 1:
+		case texture2_rotation_high::_1:
 			merge_textures_case<texture_transform, merge_texture_1>(wh, top_data, bottom_data, dest_data);
 			break;
-		case 2:
+		case texture2_rotation_high::_2:
 			merge_textures_case<texture_transform, merge_texture_2>(wh, top_data, bottom_data, dest_data);
 			break;
-		case 3:
+		case texture2_rotation_high::_3:
 			merge_textures_case<texture_transform, merge_texture_3>(wh, top_data, bottom_data, dest_data);
 			break;
 	}
@@ -177,7 +178,6 @@ int texmerge_init()
 		i.last_time_used = -1;
 		i.top_bmp = NULL;
 		i.bottom_bmp = NULL;
-		i.orient = -1;
 	}
 
 	return 1;
@@ -190,7 +190,6 @@ void texmerge_flush()
 		i.last_time_used = -1;
 		i.top_bmp = NULL;
 		i.bottom_bmp = NULL;
-		i.orient = -1;
 	}
 }
 
@@ -206,16 +205,16 @@ void texmerge_close()
 
 //--unused-- int info_printed = 0;
 
-grs_bitmap &texmerge_get_cached_bitmap(unsigned tmap_bottom, unsigned tmap_top)
+grs_bitmap &texmerge_get_cached_bitmap(const unsigned tmap_bottom, const texture2_value tmap_top)
 {
 	grs_bitmap *bitmap_top, *bitmap_bottom;
-	int orient;
 	int lowest_time_used;
 
-	bitmap_top = &GameBitmaps[Textures[tmap_top&0x3FFF].index];
+	auto &texture_top = Textures[get_texture_index(tmap_top)];
+	bitmap_top = &GameBitmaps[texture_top.index];
 	bitmap_bottom = &GameBitmaps[Textures[tmap_bottom].index];
 	
-	orient = ((tmap_top&0xC000)>>14) & 3;
+	const auto orient = get_texture_rotation_high(tmap_top);
 
 	lowest_time_used = Cache[0].last_time_used;
 	auto least_recently_used = &Cache.front();
@@ -237,12 +236,12 @@ grs_bitmap &texmerge_get_cached_bitmap(unsigned tmap_bottom, unsigned tmap_top)
 
 	// Make sure the bitmaps are paged in...
 
-	PIGGY_PAGE_IN(Textures[tmap_top&0x3FFF]);
+	PIGGY_PAGE_IN(texture_top);
 	PIGGY_PAGE_IN(Textures[tmap_bottom]);
 	if (bitmap_bottom->bm_w != bitmap_bottom->bm_h || bitmap_top->bm_w != bitmap_top->bm_h)
-		Error("Texture width != texture height!\nbottom tmap = %u; bottom bitmap = %u; bottom width = %u; bottom height = %u\ntop tmap = %u; top bitmap = %u; top width=%u; top height=%u", tmap_bottom, Textures[tmap_bottom].index, bitmap_bottom->bm_w, bitmap_bottom->bm_h, tmap_top, Textures[tmap_top & 0x3fff].index, bitmap_top->bm_w, bitmap_top->bm_h);
+		Error("Texture width != texture height!\nbottom tmap = %u; bottom bitmap = %u; bottom width = %u; bottom height = %u\ntop tmap = %hu; top bitmap = %u; top width=%u; top height=%u", tmap_bottom, Textures[tmap_bottom].index, bitmap_bottom->bm_w, bitmap_bottom->bm_h, static_cast<uint16_t>(tmap_top), texture_top.index, bitmap_top->bm_w, bitmap_top->bm_h);
 	if (bitmap_bottom->bm_w != bitmap_top->bm_w || bitmap_bottom->bm_h != bitmap_top->bm_h)
-		Error("Top and Bottom textures have different size!\nbottom tmap = %u; bottom bitmap = %u; bottom width = %u; bottom height = %u\ntop tmap = %u; top bitmap = %u; top width=%u; top height=%u", tmap_bottom, Textures[tmap_bottom].index, bitmap_bottom->bm_w, bitmap_bottom->bm_h, tmap_top, Textures[tmap_top & 0x3fff].index, bitmap_top->bm_w, bitmap_top->bm_h);
+		Error("Top and Bottom textures have different size!\nbottom tmap = %u; bottom bitmap = %u; bottom width = %u; bottom height = %u\ntop tmap = %hu; top bitmap = %u; top width=%u; top height=%u", tmap_bottom, Textures[tmap_bottom].index, bitmap_bottom->bm_w, bitmap_bottom->bm_h, static_cast<uint16_t>(tmap_top), texture_top.index, bitmap_top->bm_w, bitmap_top->bm_h);
 
 	least_recently_used->bitmap = gr_create_bitmap(bitmap_bottom->bm_w,  bitmap_bottom->bm_h);
 #if DXX_USE_OGL

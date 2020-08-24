@@ -1714,7 +1714,7 @@ static void change_segment_light(const vmsegptridx_t segp, const unsigned sidenu
 		auto &sidep = segp->unique_segment::sides[sidenum];
 		fix	light_intensity;
 
-		light_intensity = TmapInfo[sidep.tmap_num].lighting + TmapInfo[sidep.tmap_num2 & 0x3fff].lighting;
+		light_intensity = TmapInfo[sidep.tmap_num].lighting + TmapInfo[get_texture_index(sidep.tmap_num2)].lighting;
 		if (light_intensity) {
 			auto &vcvertptr = Vertices.vcptr;
 			const auto segment_center = compute_segment_center(vcvertptr, segp);
@@ -1884,7 +1884,7 @@ void set_ambient_sound_flags()
 				 * added.  Skip this side.
 				 */
 				continue;
-			const auto texture_flags = TmapInfo[uside.tmap_num].flags | TmapInfo[uside.tmap_num2 & 0x3fff].flags;
+			const auto texture_flags = TmapInfo[uside.tmap_num].flags | TmapInfo[get_texture_index(uside.tmap_num2)].flags;
 			/* These variables do not need to be named, but naming them
 			 * is the easiest way to establish sequence points, so that
 			 * `sound_flag` is passed to `ambient_mark_bfs` only after

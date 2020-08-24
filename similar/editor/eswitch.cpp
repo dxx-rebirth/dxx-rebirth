@@ -497,7 +497,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 			gr_clear_canvas(canvas, CBLACK);
 		else {
 			auto &us = markedseg.u.sides[Markedside];
-			if (us.tmap_num2 > 0) 
+			if (us.tmap_num2 != texture2_value::None) 
 			{
 				gr_ubitmap(canvas, texmerge_get_cached_bitmap(us.tmap_num, us.tmap_num2));
 			} else {

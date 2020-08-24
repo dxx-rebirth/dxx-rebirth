@@ -395,7 +395,8 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 	const auto tmap_num2 = hitseg->unique_segment::sides[hitwall].tmap_num2;
 
 	//don't do wall damage and sound if hit lava or water
-	if ((TmapInfo[tmap_num].flags & (TMI_WATER|TMI_VOLATILE)) || (tmap_num2 && (TmapInfo[tmap_num2&0x3fff].flags & (TMI_WATER|TMI_VOLATILE))))
+	constexpr auto tmi_no_damage = (TMI_WATER | TMI_VOLATILE);
+	if ((TmapInfo[tmap_num].flags & tmi_no_damage) || (tmap_num2 != texture2_value::None && (TmapInfo[get_texture_index(tmap_num2)].flags & tmi_no_damage)))
 		damage = 0;
 #endif
 
@@ -556,8 +557,6 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	int tm;
-
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<int, 0> force_blowup_flag{};
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -581,23 +580,25 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 	}
 #endif
 
-	if ((tm=seg->unique_segment::sides[side].tmap_num2) != 0) {
-		int tmf = tm&0xc000;		//tm flags
-		tm &= 0x3fff;			//tm without flags
-
-		const auto ec = TmapInfo[tm].eclip_num;
+	if (const auto tmap2 = seg->unique_segment::sides[side].tmap_num2; tmap2 != texture2_value::None)
+	{
+		const auto tm = get_texture_index(tmap2);			//tm without flags
+		auto &tmi2 = TmapInfo[tm];
+		const auto ec = tmi2.eclip_num;
 		unsigned db = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 		if (ec != eclip_none && (db = Effects[ec].dest_bm_num) != ~0u && !(Effects[ec].flags & EF_ONE_SHOT))
 #elif defined(DXX_BUILD_DESCENT_II)
 		//check if it's an animation (monitor) or casts light
-		if ((ec != eclip_none && ((db = Effects[ec].dest_bm_num) != ~0u && !(Effects[ec].flags & EF_ONE_SHOT))) || (ec == eclip_none && (TmapInfo[tm].destroyed != -1)))
+		if ((ec != eclip_none && ((db = Effects[ec].dest_bm_num) != ~0u && !(Effects[ec].flags & EF_ONE_SHOT))) || (ec == eclip_none && (tmi2.destroyed != -1)))
 #endif
 		{
-			const grs_bitmap *bm = &GameBitmaps[Textures[tm].index];
+			const auto tmf = get_texture_rotation_high(tmap2);		//tm flags
+			auto &texture2 = Textures[tm];
+			const grs_bitmap *bm = &GameBitmaps[texture2.index];
 			int x=0,y=0,t;
 
-			PIGGY_PAGE_IN(Textures[tm]);
+			PIGGY_PAGE_IN(texture2);
 
 			//this can be blown up...did we hit it?
 
@@ -610,10 +611,22 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 				y = static_cast<unsigned>(f2i(v*bm->bm_h)) % bm->bm_h;
 
 				switch (tmf) {		//adjust for orientation of paste-on
-					case 0x0000:	break;
-					case 0x4000:	t=y; y=x; x=bm->bm_w-t-1; break;
-					case 0x8000:	y=bm->bm_h-y-1; x=bm->bm_w-x-1; break;
-					case 0xc000:	t=x; x=y; y=bm->bm_h-t-1; break;
+					case texture2_rotation_high::Normal:
+						break;
+					case texture2_rotation_high::_1:
+						t = y;
+						y = x;
+						x = bm->bm_w - t - 1;
+						break;
+					case texture2_rotation_high::_2:
+						y = bm->bm_h - y - 1;
+						x = bm->bm_w - x - 1;
+						break;
+					case texture2_rotation_high::_3:
+						t = x;
+						x = y;
+						y = bm->bm_h - t - 1;
+						break;
 				}
 				bm = rle_expand_texture(*bm);
 			}
@@ -685,20 +698,18 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 
 						assert(bm_num != 0);
 						auto &tmap_num2 = seg->unique_segment::sides[side].tmap_num2;
-						assert(tmap_num2 != 0);
-						tmap_num2 = bm_num | tmf;		//replace with destroyed
+						tmap_num2 = build_texture2_value(bm_num, tmf);		//replace with destroyed
 
 					}
 					else {
 						assert(db != 0);
 						auto &tmap_num2 = seg->unique_segment::sides[side].tmap_num2;
-						assert(tmap_num2 != 0);
-						tmap_num2 = db | tmf;		//replace with destroyed
+						tmap_num2 = build_texture2_value(db, tmf);		//replace with destroyed
 					}
 				}
 #if defined(DXX_BUILD_DESCENT_II)
 				else {
-					seg->unique_segment::sides[side].tmap_num2 = TmapInfo[tm].destroyed | tmf;
+					seg->unique_segment::sides[side].tmap_num2 = build_texture2_value(tmi2.destroyed, tmf);
 
 					//assume this is a light, and play light sound
 		  			digi_link_sound_to_pos( SOUND_LIGHT_BLOWNUP, seg, 0, pnt,  0, F1_0 );
@@ -830,7 +841,7 @@ static window_event_result collide_weapon_and_wall(
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	// Wall is volatile if either tmap 1 or 2 is volatile
 	if ((TmapInfo[uhitside.tmap_num].flags & TMI_VOLATILE) ||
-		(uhitside.tmap_num2 && (TmapInfo[uhitside.tmap_num2 & 0x3fff].flags & TMI_VOLATILE))
+		(uhitside.tmap_num2 != texture2_value::None && (TmapInfo[get_texture_index(uhitside.tmap_num2)].flags & TMI_VOLATILE))
 		)
 	{
 		weapon_info *wi = &Weapon_info[get_weapon_id(weapon)];
@@ -860,7 +871,7 @@ static window_event_result collide_weapon_and_wall(
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	else if ((TmapInfo[uhitside.tmap_num].flags & TMI_WATER) ||
-			(uhitside.tmap_num2 && (TmapInfo[uhitside.tmap_num2 & 0x3fff].flags & TMI_WATER))
+			(uhitside.tmap_num2 != texture2_value::None && (TmapInfo[get_texture_index(uhitside.tmap_num2)].flags & TMI_WATER))
 			)
 	{
 		weapon_info *wi = &Weapon_info[get_weapon_id(weapon)];

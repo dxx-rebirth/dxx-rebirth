@@ -106,7 +106,8 @@ static int do_light_on(const d_level_shared_destructible_light_state &LevelShare
 	const auto op = [&LevelSharedDestructibleLightState, &Flickering_light_state, &TmapInfo, &ret](const vmsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light on.  This
 			//is to keep us from turning on blown-out lights
-			if (TmapInfo[segnum->unique_segment::sides[sidenum].tmap_num2 & 0x3fff].lighting) {
+		const auto tm2 = get_texture_index(segnum->unique_segment::sides[sidenum].tmap_num2);
+		if (TmapInfo[tm2].lighting) {
 				ret |= add_light(LevelSharedDestructibleLightState, segnum, sidenum);		//any light sets flag
 				enable_flicker(Flickering_light_state, segnum, sidenum);
 			}
@@ -123,7 +124,8 @@ static int do_light_off(const d_level_shared_destructible_light_state &LevelShar
 	const auto op = [&LevelSharedDestructibleLightState, &Flickering_light_state, &TmapInfo, &ret](const vmsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light off.  This
 			//is to keep us from turning off blown-out lights
-			if (TmapInfo[segnum->unique_segment::sides[sidenum].tmap_num2 & 0x3fff].lighting) {
+		const auto tm2 = get_texture_index(segnum->unique_segment::sides[sidenum].tmap_num2);
+		if (TmapInfo[tm2].lighting) {
 				ret |= subtract_light(LevelSharedDestructibleLightState, segnum, sidenum);	//any light sets flag
 				disable_flicker(Flickering_light_state, segnum, sidenum);
 			}

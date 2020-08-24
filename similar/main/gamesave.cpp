@@ -1171,7 +1171,7 @@ static int load_game_data(
 				if (wa.flags & WCF_TMAP1)
 				{
 					uside.tmap_num = wa.frames[0];
-					uside.tmap_num2 = 0;
+					uside.tmap_num2 = texture2_value();
 				}
 			}
 			validate_segment_wall(i, sside, side_idx);

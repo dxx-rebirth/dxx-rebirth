@@ -94,7 +94,8 @@ int d1_pig_present = 0; // can descent.pig from descent 1 be loaded?
  * If we can load the original d1 pig, we make sure this function is bijective.
  * This function was updated using the file config/convtabl.ini from devil 2.2.
  */
-short convert_d1_tmap_num(short d1_tmap_num) {
+uint16_t convert_d1_tmap_num(const uint16_t d1_tmap_num)
+{
 	switch (d1_tmap_num) {
 	case 0: case 2: case 4: case 5:
 		// all refer to grey rock001 (exception to bijectivity rule)
@@ -946,13 +947,11 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 				uside.tmap_num = convert_tmap(temp_ushort & 0x7fff);
 
 				if (New_file_format_load && !(temp_ushort & 0x8000))
-					uside.tmap_num2 = 0;
+					uside.tmap_num2 = texture2_value::None;
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
-					uside.tmap_num2 = PHYSFSX_readShort(LoadFile);
-					uside.tmap_num2 =
-						(convert_tmap(uside.tmap_num2 & 0x3fff)) |
-						(uside.tmap_num2 & 0xc000);
+					const auto tmap_num2 = texture2_value{static_cast<uint16_t>(PHYSFSX_readShort(LoadFile))};
+					uside.tmap_num2 = build_texture2_value(convert_tmap(get_texture_index(tmap_num2)), get_texture_rotation_high(tmap_num2));
 				}
 #elif defined(DXX_BUILD_DESCENT_II)
 				if (New_file_format_load) {
@@ -964,12 +963,13 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 					uside.tmap_num = convert_d1_tmap_num(uside.tmap_num);
 
 				if (New_file_format_load && !(temp_ushort & 0x8000))
-					uside.tmap_num2 = 0;
+					uside.tmap_num2 = texture2_value::None;
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
-					uside.tmap_num2 = PHYSFSX_readShort(LoadFile);
-					if (Gamesave_current_version <= 1 && uside.tmap_num2 != 0)
-						uside.tmap_num2 = convert_d1_tmap_num(uside.tmap_num2);
+					const auto tmap_num2 = static_cast<texture2_value>(PHYSFSX_readShort(LoadFile));
+					uside.tmap_num2 = (Gamesave_current_version <= 1 && uside.tmap_num2 != texture2_value::None)
+						? build_texture2_value(convert_d1_tmap_num(get_texture_index(uside.tmap_num2)), get_texture_rotation_high(tmap_num2))
+						: tmap_num2;
 				}
 #endif
 
@@ -985,7 +985,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 				}
 			} else {
 				uside.tmap_num = 0;
-				uside.tmap_num2 = 0;
+				uside.tmap_num2 = texture2_value::None;
 				uside.uvls = {};
 			}
 		}

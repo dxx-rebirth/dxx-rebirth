@@ -74,6 +74,10 @@ enum sidenum_t : uint8_t
 	WFRONT = 5
 };
 
+enum class texture2_value : uint16_t;
+enum class texture2_rotation_low : uint8_t;
+enum class texture2_rotation_high : uint16_t;
+
 //normal everyday vertices
 
 constexpr std::integral_constant<fix, 0> DEFAULT_LIGHTING{};   // (F1_0/2)

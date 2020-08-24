@@ -645,29 +645,26 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 		{
 			if (seg.s.children[sidenum] == segment_none || seg.s.sides[sidenum].wall_num != wall_none)
 			{
-				ushort	tmap_num, tmap_num2;
-
-				tmap_num = seg.u.sides[sidenum].tmap_num;
-				tmap_num2 = seg.u.sides[sidenum].tmap_num2;
+				auto tmap_num = seg.u.sides[sidenum].tmap_num;
+				auto tmap_num2 = seg.u.sides[sidenum].tmap_num2;
 
 #if defined(DXX_BUILD_DESCENT_II)
 				if (Gamesave_current_version <= 3)	// convert texture numbers back to d1
 				{
 					tmap_num = convert_to_d1_tmap_num(tmap_num);
-					if (tmap_num2)
+					if (tmap_num2 != texture2_value::None)
 					{
-						const auto orient = tmap_num2 & ~TMAP_NUM_MASK;
-						tmap_num2 = orient | convert_to_d1_tmap_num(tmap_num2 & TMAP_NUM_MASK);
+						tmap_num2 = build_texture2_value(convert_to_d1_tmap_num(get_texture_index(tmap_num2)), get_texture_rotation_high(tmap_num2));
 					}
 				}
 #endif
 
-				if (tmap_num2 != 0 && New_file_format_save)
+				if (tmap_num2 != texture2_value::None && New_file_format_save)
 					tmap_num |= 0x8000;
 
 				PHYSFS_writeSLE16(SaveFile, tmap_num);
-				if (tmap_num2 != 0 || !New_file_format_save)
-					PHYSFS_writeSLE16(SaveFile, tmap_num2);
+				if (tmap_num2 != texture2_value::None || !New_file_format_save)
+					PHYSFS_writeSLE16(SaveFile, static_cast<uint16_t>(tmap_num2));
 
 				range_for (auto &i, seg.u.sides[sidenum].uvls)
 				{

@@ -21,6 +21,7 @@
 #include "d_gl.h"
 #include "dsx-ns.h"
 #include "fwd-gr.h"
+#include "fwd-segment.h"
 #include "palette.h"
 #include "pstypes.h"
 #include "3d.h"
@@ -102,11 +103,10 @@ void ogl_cache_level_textures();
 }
 #endif
 
-#include "3d.h"
-void _g3_draw_tmap_2(grs_canvas &, unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, unsigned orient);
+void _g3_draw_tmap_2(grs_canvas &, unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, texture2_rotation_low orient);
 
 template <std::size_t N>
-static inline void g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, const unsigned orient)
+static inline void g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, const texture2_rotation_low orient)
 {
 	static_assert(N <= MAX_POINTS_PER_POLY, "too many points in tmap");
 #ifdef DXX_CONSTANT_TRUE

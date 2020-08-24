@@ -780,9 +780,9 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 	Dont_start_sound_objects = 1;
 
 	const auto get_eclip_for_tmap = [](const d_level_unique_tmap_info_state::TmapInfo_array &TmapInfo, const unique_side &side) {
-		if (const auto tm2 = side.tmap_num2)
+		if (const auto tm2 = side.tmap_num2; tm2 != texture2_value::None)
 		{
-			const auto ec = TmapInfo[tm2 & 0x3fff].eclip_num;
+			const auto ec = TmapInfo[get_texture_index(tm2)].eclip_num;
 #if defined(DXX_BUILD_DESCENT_II)
 			if (ec != eclip_none)
 #endif
@@ -902,7 +902,8 @@ static ushort netmisc_calc_checksum()
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 			s = INTEL_SHORT(uside.tmap_num);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
-			s = INTEL_SHORT(uside.tmap_num2);
+			s = static_cast<uint16_t>(uside.tmap_num2);
+			s = INTEL_SHORT(s);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 			range_for (auto &k, uside.uvls)
 			{
