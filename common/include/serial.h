@@ -545,7 +545,7 @@ namespace reader {
 class bytebuffer_t : public detail::base_bytebuffer_t<const uint8_t, bytebuffer_t>
 {
 public:
-	bytebuffer_t(pointer u) : base_bytebuffer_t(u) {}
+	using base_bytebuffer_t::base_bytebuffer_t;
 	explicit bytebuffer_t(const bytebuffer_t &) = default;
 	bytebuffer_t(bytebuffer_t &&) = default;
 };
@@ -594,7 +594,7 @@ namespace writer {
 class bytebuffer_t : public detail::base_bytebuffer_t<uint8_t, bytebuffer_t>
 {
 public:
-	bytebuffer_t(pointer u) : base_bytebuffer_t(u) {}
+	using base_bytebuffer_t::base_bytebuffer_t;
 	explicit bytebuffer_t(const bytebuffer_t &) = default;
 	bytebuffer_t(bytebuffer_t &&) = default;
 };
