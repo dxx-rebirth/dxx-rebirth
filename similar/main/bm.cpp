@@ -194,7 +194,7 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 	range_for (auto &r, Robot_info)
 		robot_info_read(fp, r);
 
-	N_robot_joints = PHYSFSX_readInt(fp);
+	LevelSharedRobotJointState.N_robot_joints = PHYSFSX_readInt(fp);
 	range_for (auto &r, Robot_joints)
 		jointpos_read(fp, r);
 
@@ -330,7 +330,7 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 	range_for (auto &r, partial_range(Robot_info, LevelSharedRobotInfoState.N_robot_types))
 		robot_info_read(fp, r);
 
-	N_robot_joints = PHYSFSX_readInt(fp);
+	const auto N_robot_joints = LevelSharedRobotJointState.N_robot_joints = PHYSFSX_readInt(fp);
 	range_for (auto &r, partial_range(Robot_joints, N_robot_joints))
 		jointpos_read(fp, r);
 
@@ -469,7 +469,7 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 		robot_info_read(fp, r);
 
 	t = PHYSFSX_readInt(fp);
-	N_robot_joints = N_D2_ROBOT_JOINTS+t;
+	const auto N_robot_joints = LevelSharedRobotJointState.N_robot_joints = N_D2_ROBOT_JOINTS+t;
 	if (N_robot_joints >= MAX_ROBOT_JOINTS)
 		Error("Too many robot joints (%d) in <%s>.  Max is %d.",t,fname,MAX_ROBOT_JOINTS-N_D2_ROBOT_JOINTS);
 	range_for (auto &r, partial_range(Robot_joints, N_D2_ROBOT_JOINTS.value, N_robot_joints))
@@ -539,6 +539,7 @@ void load_robot_replacements(const d_fname &level_name)
 	}
 
 	t = PHYSFSX_readInt(fp);			//read number of joints
+	const auto N_robot_joints = LevelSharedRobotJointState.N_robot_joints;
 	for (j=0;j<t;j++) {
 		const unsigned i = PHYSFSX_readInt(fp);		//read joint number
 		if (i >= N_robot_joints)

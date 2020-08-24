@@ -34,10 +34,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-namespace dcx {
-unsigned N_robot_joints;
-}
-
 #if 0
 static inline void PHYSFSX_writeAngleVec(PHYSFS_File *fp, const vms_angvec &v)
 {
@@ -155,15 +151,15 @@ void robot_set_angles(robot_info *r,polymodel *pm,std::array<std::array<vms_angv
 		for (state=0;state<N_ANIM_STATES;state++) {
 
 			r->anim_states[g][state].n_joints = 0;
-			r->anim_states[g][state].offset = N_robot_joints;
+			r->anim_states[g][state].offset = LevelSharedRobotJointState.N_robot_joints;
 
 			for (unsigned m = 0; m < pm->n_models; ++m)
 			{
 				if (gun_nums[m] == g) {
+					const auto N_robot_joints = LevelSharedRobotJointState.N_robot_joints ++;
 					Robot_joints[N_robot_joints].jointnum = m;
 					Robot_joints[N_robot_joints].angles = angs[state][m];
 					r->anim_states[g][state].n_joints++;
-					N_robot_joints++;
 					Assert(N_robot_joints < MAX_ROBOT_JOINTS);
 				}
 			}

@@ -66,6 +66,11 @@ struct jointlist
 };
 
 constexpr std::integral_constant<unsigned, 16> ROBOT_NAME_LENGTH{};
+
+struct d_level_shared_robot_joint_state {
+	unsigned N_robot_joints;
+};
+
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -211,18 +216,13 @@ extern robot_names_array Robot_names;
 
 /* Robot joints can be customized by hxm files, which are per-level.
  */
-struct d_level_shared_robot_joint_state
+struct d_level_shared_robot_joint_state : ::dcx::d_level_shared_robot_joint_state
 {
 	//Big array of joint positions.  All robots index into this array
 	std::array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
 };
 
 extern d_level_shared_robot_joint_state LevelSharedRobotJointState;
-}
-
-namespace dcx {
-
-extern unsigned N_robot_joints;
 }
 
 namespace dsx {
