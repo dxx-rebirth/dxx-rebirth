@@ -34,6 +34,7 @@ struct bitmap_index;
 #include <cstddef>
 #include <memory>
 #include <physfs.h>
+#include "inferno.h"
 #include "pack.h"
 
 #ifdef dsx
@@ -45,9 +46,6 @@ constexpr std::integral_constant<unsigned, 85> MAX_POLYGON_MODELS{};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<unsigned, 200> MAX_POLYGON_MODELS{};
 #endif
-
-// array of names of currently-loaded models
-extern std::array<char[13], MAX_POLYGON_MODELS> Pof_names;
 
 //for each model, a model number for dying & dead variants, or -1 if none
 extern std::array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
@@ -118,6 +116,8 @@ namespace dsx {
 struct d_level_shared_polygon_model_state : ::dcx::d_level_shared_polygon_model_state
 {
 	std::array<polymodel, MAX_POLYGON_MODELS> Polygon_models;
+	// array of names of currently-loaded models
+	std::array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Pof_names;
 #if defined(DXX_BUILD_DESCENT_II)
 	//the model number of the marker object
 	uint32_t Marker_model_num = UINT32_MAX;

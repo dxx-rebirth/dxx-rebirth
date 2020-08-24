@@ -573,8 +573,6 @@ void init_polygon_models(d_level_shared_polygon_model_state &LevelSharedPolygonM
 
 namespace dsx {
 
-std::array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Pof_names;
-
 //returns the number of this model
 int load_polygon_model(const char *filename,int n_textures,int first_texture,robot_info *r)
 {
@@ -582,7 +580,7 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 
 	Assert(strlen(filename) <= 12);
 	const auto n_models = LevelSharedPolygonModelState.N_polygon_models;
-	strcpy(Pof_names[n_models], filename);
+	strcpy(LevelSharedPolygonModelState.Pof_names[n_models], filename);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	auto &model = Polygon_models[n_models];

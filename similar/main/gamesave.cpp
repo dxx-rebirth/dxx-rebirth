@@ -262,7 +262,7 @@ static void verify_object(const d_vclip_array &Vclip, object &obj, const savegam
 		if (obj.render_type == RT_POLYOBJ)
 		{
 			const auto name = Save_pof_names[obj.rtype.pobj_info.model_num];
-			for (auto &&[candidate_name, i] : enumerate(partial_range(Pof_names, LevelSharedPolygonModelState.N_polygon_models)))
+			for (auto &&[candidate_name, i] : enumerate(partial_range(LevelSharedPolygonModelState.Pof_names, LevelSharedPolygonModelState.N_polygon_models)))
 				if (!d_stricmp(candidate_name, name)) {		//found it!	
 					obj.rtype.pobj_info.model_num = i;
 					break;
@@ -1731,7 +1731,7 @@ static int save_game_data(
 	{
 		const auto N_polygon_models = LevelSharedPolygonModelState.N_polygon_models;
 		PHYSFS_writeSLE16(SaveFile, N_polygon_models);
-		range_for (auto &i, partial_const_range(Pof_names, N_polygon_models))
+		range_for (auto &i, partial_const_range(LevelSharedPolygonModelState.Pof_names, N_polygon_models))
 			PHYSFS_write(SaveFile, &i, sizeof(i), 1);
 	}
 
