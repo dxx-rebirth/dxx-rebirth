@@ -431,7 +431,7 @@ int properties_init()
 	digi_sound temp_sound;
 	DiskBitmapHeader bmh;
 	DiskSoundHeader sndh;
-	int header_size, N_bitmaps, N_sounds;
+	int header_size, N_sounds;
 	int size;
 	int Pigdata_start;
 	int pigsize;
@@ -528,22 +528,18 @@ int properties_init()
 	PHYSFSX_fseek( Piggy_fp, Pigdata_start, SEEK_SET );
 	size = PHYSFS_fileLength(Piggy_fp) - Pigdata_start;
 
-	N_bitmaps = PHYSFSX_readInt(Piggy_fp);
+	const unsigned N_bitmaps = PHYSFSX_readInt(Piggy_fp);
 	size -= sizeof(int);
 	N_sounds = PHYSFSX_readInt(Piggy_fp);
 	size -= sizeof(int);
 
 	header_size = (N_bitmaps*sizeof(DiskBitmapHeader)) + (N_sounds*sizeof(DiskSoundHeader));
 
-	for (unsigned i = 0; i < N_bitmaps; ++i)
+	for (const unsigned i : xrange(N_bitmaps))
 	{
 		DiskBitmapHeader_read(&bmh, Piggy_fp);
 		
-		GameBitmapFlags[i+1] = 0;
-		if ( bmh.flags & BM_FLAG_TRANSPARENT ) GameBitmapFlags[i+1] |= BM_FLAG_TRANSPARENT;
-		if ( bmh.flags & BM_FLAG_SUPER_TRANSPARENT ) GameBitmapFlags[i+1] |= BM_FLAG_SUPER_TRANSPARENT;
-		if ( bmh.flags & BM_FLAG_NO_LIGHTING ) GameBitmapFlags[i+1] |= BM_FLAG_NO_LIGHTING;
-		if ( bmh.flags & BM_FLAG_RLE ) GameBitmapFlags[i+1] |= BM_FLAG_RLE;
+		GameBitmapFlags[i+1] = bmh.flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE);
 
 		GameBitmapOffset[i+1] = bmh.offset + header_size + (sizeof(int)*2) + Pigdata_start;
 		Assert( (i+1) == Num_bitmap_files );
