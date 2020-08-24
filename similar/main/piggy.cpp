@@ -1719,6 +1719,34 @@ static int piggy_is_substitutable_bitmap(char * name, char (&subst_name)[32])
 }
 #endif
 
+/* returns nonzero if d1_tmap_num references a texture which isn't available in d2. */
+int d1_tmap_num_unique(uint16_t d1_tmap_num)
+{
+	switch (d1_tmap_num) {
+	case   0: case   2: case   4: case   5: case   6: case   7: case   9:
+	case  10: case  11: case  12: case  17: case  18:
+	case  20: case  21: case  25: case  28:
+	case  38: case  39: case  41: case  44: case  49:
+	case  50: case  55: case  57: case  88:
+	case 132: case 141: case 147:
+	case 154: case 155: case 158: case 159:
+	case 160: case 161: case 167: case 168: case 169:
+	case 170: case 171: case 174: case 175: case 185:
+	case 193: case 194: case 195: case 198: case 199:
+	case 200: case 202: case 210: case 211:
+	case 220: case 226: case 227: case 228: case 229: case 230:
+	case 240: case 241: case 242: case 243: case 246:
+	case 250: case 251: case 252: case 253: case 257: case 258: case 259:
+	case 260: case 263: case 266: case 283: case 298:
+	case 315: case 317: case 319: case 320: case 321:
+	case 330: case 331: case 332: case 333: case 349:
+	case 351: case 352: case 353: case 354:
+	case 355: case 357: case 358: case 359:
+	case 362: case 370: return 1;
+	default: return 0;
+	}
+}
+
 }
 
 void load_bitmap_replacements(const char *level_name)
