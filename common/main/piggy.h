@@ -88,8 +88,8 @@ extern grs_bitmap bogus_bitmap;
 extern std::array<uint8_t, 64 * 64> bogus_data;
 
 #ifdef dsx
-int properties_init();
 namespace dsx {
+int properties_init();
 void piggy_close();
 bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const char * name, int in_file);
 int piggy_register_sound( digi_sound * snd, const char * name, int in_file );
@@ -132,9 +132,11 @@ static inline void _piggy_page_in(bitmap_index bmp) {
 }
 #endif
 
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 void piggy_read_sounds(int pc_shareware);
 #elif defined(DXX_BUILD_DESCENT_II)
+void piggy_init_pigfile(const char *filename);
 void piggy_read_sounds(void);
 
 //reads in a new pigfile (for new palette)
@@ -145,18 +147,22 @@ void piggy_new_pigfile(char *pigname);
 void load_bitmap_replacements(const char *level_name);
 //if descent.pig exists, loads descent 1 texture bitmaps
 void load_d1_bitmap_replacements();
-
 /*
  * Find and load the named bitmap from descent.pig
  */
 bitmap_index read_extra_bitmap_d1_pig(const char *name);
+int read_hamfile();
+int read_sndfile();
 #endif
+}
 
+namespace dcx {
 /*
  * reads a bitmap_index structure from a PHYSFS_File
  */
 void bitmap_index_read(PHYSFS_File *fp, bitmap_index &bi);
 void bitmap_index_read_n(PHYSFS_File *fp, partial_range_t<bitmap_index *> r);
+}
 
 extern void remove_char( char * s, char c );	// in piggy.c
 #define REMOVE_EOL(s)		remove_char((s),'\n')
@@ -178,10 +184,7 @@ extern hashtable AllBitmapsNames;
 extern hashtable AllDigiSndNames;
 #elif defined(DXX_BUILD_DESCENT_II)
 extern std::array<BitmapFile, MAX_BITMAP_FILES> AllBitmaps;
-int read_sndfile();
 #endif
-void piggy_init_pigfile(const char *filename);
-int read_hamfile();
 void swap_0_255(grs_bitmap &bmp);
 
 enum class pig_bitmap_offset : unsigned

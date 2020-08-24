@@ -167,6 +167,8 @@ static std::unique_ptr<ubyte[]> Bitmap_replacement_data;
 
 #define DBM_NUM_FRAMES  63
 
+namespace {
+
 struct DiskBitmapHeader
 {
 	char name[8];
@@ -196,16 +198,33 @@ struct DiskSoundHeader
 	int offset;
 } __pack__;
 
+}
+
+namespace dsx {
+namespace {
 #if defined(DXX_BUILD_DESCENT_II)
-static void free_bitmap_replacements();
-static void free_d1_tmap_nums();
+#define D1_MAX_TMAP_NUM 1630 // 1621 in descent.pig Mac registered
+
+/* the inverse of the d2 Textures array, but for the descent 1 pigfile.
+ * "Textures" looks up a d2 bitmap index given a d2 tmap_num.
+ * "d1_tmap_nums" looks up a d1 tmap_num given a d1 bitmap. "-1" means "None".
+ */
+using d1_tmap_nums_t = std::array<short, D1_MAX_TMAP_NUM>;
+static std::unique_ptr<d1_tmap_nums_t> d1_tmap_nums;
+
+static void free_d1_tmap_nums()
+{
+	d1_tmap_nums.reset();
+}
 #if DXX_USE_EDITOR
 static int piggy_is_substitutable_bitmap(char * name, char (&subst_name)[32]);
 static void piggy_write_pigfile(const char *filename);
 static void write_int(int i,PHYSFS_File *file);
 #endif
-static int piggy_is_needed(int soundnum);
 #endif
+}
+static int piggy_is_needed(int soundnum);
+}
 
 namespace dcx {
 
@@ -420,7 +439,6 @@ static void piggy_close_file()
 		Current_pigfile[0] = 0;
 #endif
 	}
-}
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -934,7 +952,6 @@ void piggy_new_pigfile(char *pigname)
 
 	}
 	#endif  //ifdef EDITOR
-
 }
 
 #define HAMFILE_ID              MAKE_SIG('!','M','A','H') //HAM!
@@ -1051,9 +1068,6 @@ int read_hamfile()
 	return 1;
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
-static
-#endif
 int read_sndfile()
 {
 	int snd_id,snd_version;
@@ -1270,7 +1284,6 @@ void piggy_read_sounds(void)
 }
 #endif
 
-namespace dsx {
 void piggy_bitmap_page_in( bitmap_index bitmap )
 {
 	grs_bitmap * bmp;
@@ -1462,6 +1475,8 @@ void piggy_load_level_data()
 	paging_touch_all(Vclip);
 }
 
+namespace dsx {
+namespace {
 #if defined(DXX_BUILD_DESCENT_II)
 #if DXX_USE_EDITOR
 
@@ -1578,9 +1593,19 @@ static void write_int(int i, PHYSFS_File *file)
 
 }
 #endif
-#endif
 
-namespace dsx {
+/*
+ * Functions for loading replacement textures
+ *  1) From .pog files
+ *  2) From descent.pig (for loading d1 levels)
+ */
+static void free_bitmap_replacements()
+{
+	Bitmap_replacement_data.reset();
+}
+#endif
+}
+
 void piggy_close()
 {
 	int i;
@@ -1599,6 +1624,7 @@ void piggy_close()
 	free_d1_tmap_nums();
 #endif
 }
+
 }
 
 void remove_char( char * s, char c )
@@ -1608,6 +1634,9 @@ void remove_char( char * s, char c )
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+namespace {
+
 #if DXX_USE_EDITOR
 static const BitmapFile *piggy_does_bitmap_exist_slow(const char *const name)
 {
@@ -1618,7 +1647,6 @@ static const BitmapFile *piggy_does_bitmap_exist_slow(const char *const name)
 	}
 	return nullptr;
 }
-
 
 constexpr char gauge_bitmap_names[][9] = {
 	"gauge01",
@@ -1690,16 +1718,6 @@ static int piggy_is_substitutable_bitmap(char * name, char (&subst_name)[32])
 }
 #endif
 
-
-/*
- * Functions for loading replacement textures
- *  1) From .pog files
- *  2) From descent.pig (for loading d1 levels)
- */
-
-static void free_bitmap_replacements()
-{
-	Bitmap_replacement_data.reset();
 }
 
 void load_bitmap_replacements(const char *level_name)
@@ -1846,18 +1864,6 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 }
 
 #define D1_MAX_TEXTURES 800
-#define D1_MAX_TMAP_NUM 1630 // 1621 in descent.pig Mac registered
-
-/* the inverse of the d2 Textures array, but for the descent 1 pigfile.
- * "Textures" looks up a d2 bitmap index given a d2 tmap_num.
- * "d1_tmap_nums" looks up a d1 tmap_num given a d1 bitmap. "-1" means "None".
- */
-using d1_tmap_nums_t = std::array<short, D1_MAX_TMAP_NUM>;
-static std::unique_ptr<d1_tmap_nums_t> d1_tmap_nums;
-
-static void free_d1_tmap_nums() {
-	d1_tmap_nums.reset();
-}
 
 static void bm_read_d1_tmap_nums(PHYSFS_File *d1pig)
 {
@@ -2171,8 +2177,10 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 
 	return bitmap_num;
 }
+}
 #endif
 
+namespace dcx {
 /*
  * reads a bitmap_index structure from a PHYSFS_File
  */
@@ -2188,4 +2196,5 @@ void bitmap_index_read_n(PHYSFS_File *fp, const partial_range_t<bitmap_index *> 
 {
 	range_for (auto &i, r)
 		i.index = PHYSFSX_readShort(fp);
+}
 }
