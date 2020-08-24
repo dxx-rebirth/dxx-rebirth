@@ -62,7 +62,7 @@ int	New_file_format_save = 1;
 #if defined(DXX_BUILD_DESCENT_II)
 // Converts descent 2 texture numbers back to descent 1 texture numbers.
 // Only works properly when the full Descent 1 texture set (descent.pig) is available.
-static short convert_to_d1_tmap_num(short tmap_num)
+static uint16_t convert_to_d1_tmap_num(const uint16_t tmap_num)
 {
 	switch (tmap_num)
 	{
@@ -307,17 +307,8 @@ static short convert_to_d1_tmap_num(short tmap_num)
 				if (tmap_num < 635) return tmap_num - 141;
 				if (tmap_num < 731) return tmap_num - 147;
 			}
-			{ // handle rare case where orientation != 0
-				short tmap_num_part = tmap_num &  TMAP_NUM_MASK;
-				short orient = tmap_num & ~TMAP_NUM_MASK;
-				if (orient != 0)
-					return orient | convert_to_d1_tmap_num(tmap_num_part);
-				else
-				{
-					Warning("can't convert unknown texture #%d to descent 1.\n", tmap_num_part);
-					return tmap_num;
-				}
-			}
+			Warning("can't convert unknown texture #%hu to descent 1.\n", tmap_num);
+			return tmap_num;
 	}
 }
 #endif
@@ -664,7 +655,10 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 				{
 					tmap_num = convert_to_d1_tmap_num(tmap_num);
 					if (tmap_num2)
-						tmap_num2 = convert_to_d1_tmap_num(tmap_num2);
+					{
+						const auto orient = tmap_num2 & ~TMAP_NUM_MASK;
+						tmap_num2 = orient | convert_to_d1_tmap_num(tmap_num2 & TMAP_NUM_MASK);
+					}
 				}
 #endif
 
