@@ -77,7 +77,6 @@ int Num_object_subtypes = 1;
 #endif
 
 namespace dsx {
-std::array<uint8_t, MAX_SOUNDS> Sounds, AltSounds;
 #if defined(DXX_BUILD_DESCENT_I)
 int Num_total_object_types;
 
@@ -100,6 +99,7 @@ std::array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
 //right now there's only one player ship, but we can have another by
 //adding an array and setting the pointer to the active ship.
 namespace dcx {
+std::array<uint8_t, ::d2x::MAX_SOUNDS> Sounds, AltSounds;
 player_ship only_player_ship;
 
 //----------------- Miscellaneous bitmap pointers ---------------

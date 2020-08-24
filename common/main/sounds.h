@@ -173,13 +173,10 @@ enum sound_effect : unsigned
 	/* endif */
 };
 
-}
-
-namespace dsx {
 // I think it would be nice to have a scrape sound...
 //#define SOUND_PLAYER_SCRAPE_WALL                72
 
-extern std::array<uint8_t, MAX_SOUNDS> Sounds, AltSounds;
+extern std::array<uint8_t, ::d2x::MAX_SOUNDS> Sounds, AltSounds;
 }
 
 constexpr std::integral_constant<int, -1> sound_none{};
