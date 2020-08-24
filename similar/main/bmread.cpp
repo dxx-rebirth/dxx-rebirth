@@ -1841,7 +1841,7 @@ void bm_read_marker()
 
 	n_normal_bitmaps = N_ObjBitmapPtrs-first_bitmap_num;
 
-	Marker_model_num = load_polygon_model(model_name,n_normal_bitmaps,first_bitmap_num,NULL);
+	LevelSharedPolygonModelState.Marker_model_num = load_polygon_model(model_name, n_normal_bitmaps, first_bitmap_num, NULL);
 }
 
 //read the exit model

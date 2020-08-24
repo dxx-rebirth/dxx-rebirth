@@ -85,7 +85,6 @@ sbyte	ObjId[MAX_OBJTYPE];
 fix	ObjStrength[MAX_OBJTYPE];
 #elif defined(DXX_BUILD_DESCENT_II)
 //the polygon model number to use for the marker
-int	Marker_model_num = -1;
 unsigned N_ObjBitmaps;
 static int extra_bitmap_num;
 static void bm_free_extra_objbitmaps();
@@ -382,7 +381,7 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 	Num_reactors = PHYSFSX_readInt(fp);
 	reactor_read_n(fp, partial_range(Reactors, Num_reactors));
 
-	Marker_model_num = PHYSFSX_readInt(fp);
+	LevelSharedPolygonModelState.Marker_model_num = PHYSFSX_readInt(fp);
 
 	//@@PHYSFS_read( fp, &N_controlcen_guns, sizeof(int), 1 );
 	//@@PHYSFS_read( fp, controlcen_gun_points, sizeof(vms_vector), N_controlcen_guns );

@@ -119,6 +119,8 @@ struct d_level_shared_polygon_model_state : ::dcx::d_level_shared_polygon_model_
 {
 	std::array<polymodel, MAX_POLYGON_MODELS> Polygon_models;
 #if defined(DXX_BUILD_DESCENT_II)
+	//the model number of the marker object
+	uint32_t Marker_model_num = UINT32_MAX;
 	bool Exit_models_loaded;
 #endif
 };

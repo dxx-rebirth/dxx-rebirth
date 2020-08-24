@@ -148,8 +148,6 @@ constexpr std::integral_constant<unsigned, 210> MAX_OBJ_BITMAPS{};
 
 #elif defined(DXX_BUILD_DESCENT_II)
 
-//the model number of the marker object
-extern int Marker_model_num;
 extern int Robot_replacements_loaded;
 constexpr std::integral_constant<unsigned, 610> MAX_OBJ_BITMAPS{};
 extern unsigned N_ObjBitmaps;

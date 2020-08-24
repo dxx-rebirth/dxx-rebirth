@@ -2377,8 +2377,13 @@ static void obj_detach_all(object_array &Objects, object_base &parent)
 //creates a marker object in the world.  returns the object number
 imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segnum, const vms_matrix &orient, const game_marker_index marker_num)
 {
-	Assert(Marker_model_num != -1);
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+	const auto Marker_model_num = LevelSharedPolygonModelState.Marker_model_num;
+	if (Marker_model_num >= Polygon_models.size())
+	{
+		con_printf(CON_URGENT, "%s:%u: failed to drop marker object: invalid model number %u", __FILE__, __LINE__, Marker_model_num);
+		return object_none;
+	}
 	const auto movement_type =
 		((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view)
 		? object::movement_type::None
