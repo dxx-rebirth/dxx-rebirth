@@ -1204,7 +1204,7 @@ void multi_define_macro(const int key)
 	if (multi_defining_message)     {
 		key_toggle_repeat(1);
 		multi_message_index = 0;
-		Network_message[multi_message_index] = 0;
+		Network_message = {};
 	}
 
 }
@@ -1303,7 +1303,7 @@ void multi_send_message_start()
 		multi_sending_message[Player_num] = msgsend_typing;
 		multi_send_msgsend_state(msgsend_typing);
 		multi_message_index = 0;
-		Network_message[multi_message_index] = 0;
+		Network_message = {};
 		key_toggle_repeat(1);
 	}
 }
@@ -2766,8 +2766,10 @@ void multi_send_message()
 		uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
 		loc += 1;
 		multibuf[loc] = static_cast<char>(Player_num);                       loc += 1;
-		strncpy(reinterpret_cast<char *>(multibuf+loc), Network_message, MAX_MESSAGE_LEN); loc += MAX_MESSAGE_LEN;
-		multibuf[loc-1] = '\0';
+		constexpr std::size_t bytes_to_copy = Network_message.size() - 1;
+		memcpy(reinterpret_cast<char *>(&multibuf[loc]), Network_message.data(), bytes_to_copy);
+		multibuf[loc + bytes_to_copy] = 0;
+		loc += MAX_MESSAGE_LEN;
 		multi_send_data<MULTI_MESSAGE>(multibuf, loc, 0);
 		Network_message_reciever = -1;
 	}
