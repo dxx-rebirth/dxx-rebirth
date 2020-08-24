@@ -87,6 +87,7 @@ fix	ObjStrength[MAX_OBJTYPE];
 //the polygon model number to use for the marker
 int	Marker_model_num = -1;
 unsigned N_ObjBitmaps;
+static int extra_bitmap_num;
 static void bm_free_extra_objbitmaps();
 #endif
 
@@ -395,7 +396,6 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 		exit_modelnum = destroyed_exit_modelnum = N_polygon_models;
 }
 
-int extra_bitmap_num = 0;
 // this and below only really used for D2
 bool Exit_bitmaps_loaded;
 unsigned Exit_bitmap_index;
@@ -627,23 +627,26 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 {
 	assert(N_ObjBitmaps < ObjBitmaps.size());
 	{
-		ObjBitmaps[N_ObjBitmaps] = read_extra_bitmap_iff(name);
-
-		if (ObjBitmaps[N_ObjBitmaps].index == 0)
+		auto &bitmap_idx = ObjBitmaps[N_ObjBitmaps];
+		bitmap_idx = read_extra_bitmap_iff(name);
+		if (bitmap_idx.index == 0)
 		{
 			RAIIdmem<char[]> name2(d_strdup(name));
 			*strrchr(name2.get(), '.') = '\0';
-			ObjBitmaps[N_ObjBitmaps] = read_extra_bitmap_d1_pig(name2.get());
+			const auto bitmap_store_index = bitmap_index{static_cast<uint16_t>(extra_bitmap_num)};
+			grs_bitmap &n = GameBitmaps[bitmap_store_index.index];
+			if (const auto r = read_extra_bitmap_d1_pig(name2.get(), n); !r)
+				return r;
+			++ extra_bitmap_num;
+			bitmap_idx = bitmap_store_index;
 		}
-		if (ObjBitmaps[N_ObjBitmaps].index == 0)
-			return NULL;
 
-		if (GameBitmaps[ObjBitmaps[N_ObjBitmaps].index].bm_w!=64 || GameBitmaps[ObjBitmaps[N_ObjBitmaps].index].bm_h!=64)
+		if (GameBitmaps[bitmap_idx.index].bm_w != 64 || GameBitmaps[bitmap_idx.index].bm_h != 64)
 			Error("Bitmap <%s> is not 64x64",name);
 		ObjBitmapPtrs[N_ObjBitmaps] = N_ObjBitmaps;
 		N_ObjBitmaps++;
 		assert(N_ObjBitmaps < ObjBitmaps.size());
-		return &GameBitmaps[ObjBitmaps[N_ObjBitmaps-1].index];
+		return &GameBitmaps[bitmap_idx.index];
 	}
 }
 

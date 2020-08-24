@@ -150,7 +150,7 @@ void load_d1_bitmap_replacements();
 /*
  * Find and load the named bitmap from descent.pig
  */
-bitmap_index read_extra_bitmap_d1_pig(const char *name);
+grs_bitmap *read_extra_bitmap_d1_pig(const char *name, grs_bitmap &out);
 int read_hamfile();
 int read_sndfile();
 #endif

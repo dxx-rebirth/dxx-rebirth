@@ -1785,6 +1785,8 @@ void load_bitmap_replacements(const char *level_name)
 	}
 }
 
+namespace {
+
 /* calculate table to translate d1 bitmaps to current palette,
  * return -1 on error
  */
@@ -1989,6 +1991,8 @@ static short d2_index_for_d1_index(short d1_index)
 	return Textures[convert_d1_tmap_num((*d1_tmap_nums)[d1_index])].index;
 }
 
+}
+
 #define D1_BITMAPS_SIZE 300000
 void load_d1_bitmap_replacements()
 {
@@ -2091,18 +2095,12 @@ void load_d1_bitmap_replacements()
 	texmerge_flush();       //for re-merging with new textures
 }
 
-
 /*
  * Find and load the named bitmap from descent.pig
  * similar to read_extra_bitmap_iff
  */
-bitmap_index read_extra_bitmap_d1_pig(const char *name)
+grs_bitmap *read_extra_bitmap_d1_pig(const char *name, grs_bitmap &n)
 {
-	bitmap_index bitmap_num;
-	grs_bitmap * n = &GameBitmaps[extra_bitmap_num];
-
-	bitmap_num.index = 0;
-
 	{
 		int pig_data_start, bitmap_header_start, bitmap_data_start;
 		int N_bitmaps;
@@ -2112,7 +2110,7 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 		if (!d1_Piggy_fp)
 		{
 			Warning(D1_PIG_LOAD_FAILED);
-			return bitmap_num;
+			return nullptr;
 		}
 
 		std::array<color_palette_index, 256> colormap;
@@ -2156,28 +2154,24 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 			if (i > N_bitmaps)
 			{
 				con_printf(CON_DEBUG, "could not find bitmap %s", name);
-				return bitmap_num;
+				return nullptr;
 			}
 			DiskBitmapHeader bmh;
 			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
 			if (!d_strnicmp(bmh.name, name, 8))
 			{
-				bitmap_read_d1(n, d1_Piggy_fp, bitmap_data_start, &bmh, 0, d1_palette, colormap);
+				bitmap_read_d1(&n, d1_Piggy_fp, bitmap_data_start, &bmh, 0, d1_palette, colormap);
 				break;
 			}
 		}
 	}
 
 #if !DXX_USE_OGL
-	n->avg_color = 0;	//compute_average_pixel(n);
+	n.avg_color = 0;	//compute_average_pixel(n);
 #endif
-
-	bitmap_num.index = extra_bitmap_num;
-
-	GameBitmaps[extra_bitmap_num++] = *n;
-
-	return bitmap_num;
+	return &n;
 }
+
 }
 #endif
 
