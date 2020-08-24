@@ -155,12 +155,12 @@ static void set_average_light_at_vertex(int vnum)
 	Update_flags |= UF_WORLD_CHANGED;
 }
 
-static void set_average_light_on_side(const vmsegptr_t segp, int sidenum)
+static void set_average_light_on_side(const shared_segment &segp, const unsigned sidenum)
 {
-	if (!IS_CHILD(segp->children[sidenum]))
+	if (!IS_CHILD(segp.children[sidenum]))
 		range_for (const auto v, Side_to_verts[sidenum])
 		{
-			set_average_light_at_vertex(segp->verts[v]);
+			set_average_light_at_vertex(segp.verts[v]);
 		}
 
 }

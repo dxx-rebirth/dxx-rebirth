@@ -221,7 +221,7 @@ namespace dsx {
 //  0 = successful attach
 //  1 = No room in Segments[].
 //  2 = No room in Vertices[].
-int med_attach_segment(vmsegptridx_t destseg, vmsegptr_t newseg, int destside, int newside);
+int med_attach_segment(vmsegptridx_t destseg, csmusegment newseg, unsigned destside, unsigned newside);
 
 // Delete a segment.
 // Deletes a segment from the global array Segments.
@@ -352,7 +352,7 @@ void assign_default_uvs_to_side(vmsegptridx_t segp, unsigned side);
 void med_assign_uvs_to_side(vmsegptridx_t con_seg, unsigned con_common_side, vcsegptr_t base_seg, unsigned base_common_side, unsigned abs_id1, unsigned abs_id2);
 
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
-void create_coordinate_axes_from_segment(vmsegptr_t sp, std::array<unsigned, 16> &vertnums);
+void create_coordinate_axes_from_segment(const shared_segment &sp, std::array<unsigned, 16> &vertnums);
 
 //	Set Vertex_active to number of occurrences of each vertex.
 //	Set Num_vertices.
@@ -543,8 +543,8 @@ namespace dsx {
 int place_object(vmsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id);
 
 // from ksegsize.c
-void med_extract_up_vector_from_segment_side(vmsegptr_t sp, int sidenum, vms_vector &vp);
-void med_extract_right_vector_from_segment_side(vmsegptr_t sp, int sidenum, vms_vector &vp);
+void med_extract_up_vector_from_segment_side(const shared_segment &sp, int sidenum, vms_vector &vp);
+void med_extract_right_vector_from_segment_side(const shared_segment &sp, int sidenum, vms_vector &vp);
 }
 #endif
 

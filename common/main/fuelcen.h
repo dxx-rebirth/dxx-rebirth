@@ -64,7 +64,7 @@ void fuelcen_create( vmsegptridx_t segp);
 // a segment is loaded from disk.
 void fuelcen_activate(vmsegptridx_t segp);
 // Deletes a segment as a fuel center.
-void fuelcen_delete(vmsegptr_t segp);
+void fuelcen_delete(shared_segment &segp);
 
 // Create a matcen robot
 imobjptridx_t create_morph_robot(vmsegptridx_t segp, const vms_vector &object_pos, unsigned object_id);

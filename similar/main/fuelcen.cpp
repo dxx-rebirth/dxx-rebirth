@@ -246,17 +246,17 @@ void trigger_matcen(const vmsegptridx_t segp)
 //------------------------------------------------------------
 // Takes away a segment's fuel center properties.
 //	Deletes the segment point entry in the FuelCenter list.
-void fuelcen_delete(const vmsegptr_t segp)
+void fuelcen_delete(shared_segment &segp)
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	auto Num_fuelcenters = LevelUniqueFuelcenterState.Num_fuelcenters;
 Restart: ;
-	segp->special = 0;
+	segp.special = 0;
 
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++ )	{
 		FuelCenter &fi = Station[i];
-		if (vmsegptr(fi.segnum) == segp)
+		if (vmsegptr(fi.segnum) == &segp)
 		{
 
 			auto &Num_robot_centers = LevelSharedRobotcenterState.Num_robot_centers;
@@ -267,14 +267,17 @@ Restart: ;
 					con_printf(CON_URGENT, "%s:%u: error: Num_robot_centers=0 while deleting robot maker", __FILE__, __LINE__);
 					return;
 				}
-				const auto &&range = partial_range(RobotCenters, static_cast<unsigned>(segp->matcen_num), Num_robot_centers--);
+				const auto &&range = partial_range(RobotCenters, static_cast<unsigned>(segp.matcen_num), Num_robot_centers--);
 
 				std::move(std::next(range.begin()), range.end(), range.begin());
 				range_for (auto &fj, partial_const_range(Station, Num_fuelcenters))
 				{
 					if ( fj.Type == SEGMENT_IS_ROBOTMAKER )
-						if ( Segments[fj.segnum].matcen_num > segp->matcen_num )
-							Segments[fj.segnum].matcen_num--;
+					{
+						shared_segment &sfj = vmsegptr(fj.segnum);
+						if (sfj.matcen_num > segp.matcen_num)
+							--sfj.matcen_num;
+					}
 				}
 			}
 

@@ -618,10 +618,9 @@ namespace dsx {
 //	Copy texture map ids for each face in sseg to dseg.
 static void copy_tmap_ids(unique_segment &dseg, const unique_segment &sseg)
 {
-	range_for (const auto &&z, zip(sseg.sides, dseg.sides))
+	for (auto &&[ss, ds] : zip(sseg.sides, dseg.sides))
 	{
-		auto &ds = std::get<1>(z);
-		ds.tmap_num = std::get<0>(z).tmap_num;
+		ds.tmap_num = ss.tmap_num;
 		ds.tmap_num2 = 0;
 	}
 }
@@ -634,7 +633,7 @@ static void copy_tmap_ids(unique_segment &dseg, const unique_segment &sseg)
 //  2 = No room in Vertices[].
 //  3 = newside != WFRONT -- for now, the new segment must be attached at its (own) front side
 //	 4 = already a face attached on destseg:destside
-static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegptr_t newseg, int destside, int newside,const vms_matrix &attmat)
+static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmusegment newseg, const unsigned destside, const unsigned newside, const vms_matrix &attmat)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -710,7 +709,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegpt
 	// Now rotate the free vertices in the segment
 	std::array<vertex, 4> tvs;
 	range_for (const unsigned v, xrange(4u))
-		vm_vec_rotate(tvs[v], vcvertptr(newseg->verts[v + 4]), rotmat2);
+		vm_vec_rotate(tvs[v], vcvertptr(newseg.s.verts[v + 4]), rotmat2);
 
 	// Now translate the new segment so that the center point of the attaching faces are the same.
 	const auto &&vc1 = compute_center_point_on_side(vcvertptr, destseg, destside);
@@ -750,7 +749,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const vmsegpt
 //  2 = No room in Vertices[].
 //  3 = newside != WFRONT -- for now, the new segment must be attached at its (own) front side
 //	 4 = already a face attached on side newside
-int med_attach_segment(const vmsegptridx_t destseg, const vmsegptr_t newseg, int destside, int newside)
+int med_attach_segment(const vmsegptridx_t destseg, const csmusegment newseg, const unsigned destside, const unsigned newside)
 {
 	int		rval;
 	const auto ocursegp = Cursegp;
@@ -1414,7 +1413,7 @@ void init_all_vertices(void)
 
 // -----------------------------------------------------------------------------
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
-void create_coordinate_axes_from_segment(const vmsegptr_t sp, std::array<unsigned, 16> &vertnums)
+void create_coordinate_axes_from_segment(const shared_segment &sp, std::array<unsigned, 16> &vertnums)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
