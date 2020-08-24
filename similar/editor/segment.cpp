@@ -1024,7 +1024,7 @@ int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 //	Compute the sum of the distances between the four pairs of points.
 //	The connections are:
 //		firstv1 : 0		(firstv1+1)%4 : 1		(firstv1+2)%4 : 2		(firstv1+3)%4 : 3
-static fix seg_seg_vertex_distsum(const vcsegptr_t seg1, const unsigned side1, const vcsegptr_t seg2, const unsigned side2, const unsigned firstv1)
+static fix seg_seg_vertex_distsum(const shared_segment &seg1, const unsigned side1, const shared_segment &seg2, const unsigned side2, const unsigned firstv1)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -1035,7 +1035,7 @@ static fix seg_seg_vertex_distsum(const vcsegptr_t seg1, const unsigned side1, c
 	range_for (const unsigned secondv, xrange(4u))
 	{
 		const unsigned firstv = (4 - secondv + (3 - firstv1)) % 4;
-		distsum += vm_vec_dist(vcvertptr(seg1->verts[Side_to_verts[side1][firstv]]),vcvertptr(seg2->verts[Side_to_verts[side2][secondv]]));
+		distsum += vm_vec_dist(vcvertptr(seg1.verts[Side_to_verts[side1][firstv]]),vcvertptr(seg2.verts[Side_to_verts[side2][secondv]]));
 	}
 
 	return distsum;
@@ -1053,7 +1053,7 @@ static fix seg_seg_vertex_distsum(const vcsegptr_t seg1, const unsigned side1, c
 //		to the other.  Compute the dot products of these vectors with the original vector.  Add them up.
 //		The close we are to 3, the better fit we have.  Reason:  The largest value for the dot product is
 //		1.0, and this occurs for a parallel set of vectors.
-static int get_index_of_best_fit(const vcsegptr_t seg1, int side1, const vcsegptr_t seg2, int side2)
+static int get_index_of_best_fit(const shared_segment &seg1, const unsigned side1, const shared_segment &seg2, const unsigned side2)
 {
 	int	firstv;
 	fix	min_distance;
@@ -1442,7 +1442,7 @@ void create_coordinate_axes_from_segment(const shared_segment &sp, std::array<un
 
 // -----------------------------------------------------------------------------
 //	Determine if a segment is concave. Returns true if concave
-static int check_seg_concavity(const vcsegptr_t s)
+static int check_seg_concavity(const shared_segment &s)
 {
 	vms_vector n0;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -1452,9 +1452,9 @@ static int check_seg_concavity(const vcsegptr_t s)
 		for (unsigned vn = 0; vn <= 4; ++vn)
 		{
 			const auto n1 = vm_vec_normal(
-				vcvertptr(s->verts[sn[vn % 4]]),
-				vcvertptr(s->verts[sn[(vn + 1) % 4]]),
-				vcvertptr(s->verts[sn[(vn + 2) % 4]]));
+				vcvertptr(s.verts[sn[vn % 4]]),
+				vcvertptr(s.verts[sn[(vn + 1) % 4]]),
+				vcvertptr(s.verts[sn[(vn + 2) % 4]]));
 
 			//vm_vec_normalize(&n1);
 

@@ -301,16 +301,16 @@ static void paging_touch_robot_maker(const d_level_shared_robot_info_state::d_ro
 			}
 }
 
-static void paging_touch_segment(const d_eclip_array &Effects, const d_level_shared_robot_info_state::d_robot_info_array &Robot_info, const Textures_array &Textures, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const fvcobjptridx &vcobjptridx, const fvcsegptr &vcsegptr, const vcsegptr_t segp)
+static void paging_touch_segment(const d_eclip_array &Effects, const d_level_shared_robot_info_state::d_robot_info_array &Robot_info, const Textures_array &Textures, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const fvcobjptridx &vcobjptridx, const fvcsegptr &vcsegptr, const cscusegment segp)
 {
-	if ( segp->special == SEGMENT_IS_ROBOTMAKER )
+	if (segp.s.special == SEGMENT_IS_ROBOTMAKER )
 		paging_touch_robot_maker(Robot_info, Vclip, Weapon_info, segp);
 
 	for (int sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
 		paging_touch_side(Effects, Textures, Vclip, segp, sn);
 	}
 
-	range_for (const object &objp, objects_in(*segp, vcobjptridx, vcsegptr))
+	range_for (const object &objp, objects_in(segp, vcobjptridx, vcsegptr))
 		paging_touch_object(Robot_info, Textures, Vclip, Weapon_info, objp);
 }
 

@@ -144,7 +144,7 @@ int generate_curve(const fix r1scale, const fix r4scale)
     fix t, maxscale;
     fixang rangle, uangle;
 
-	const vcsegptr_t cursegp = Cursegp;
+	const shared_segment &cursegp = Cursegp;
 	auto &vcvertptr = Vertices.vcptr;
 	compute_center_point_on_side(vcvertptr, p1, cursegp, Curside);
 
@@ -172,7 +172,7 @@ int generate_curve(const fix r1scale, const fix r4scale)
             break;
         }            
 
-	const vcsegptr_t markedsegp = Markedsegp;
+	const shared_segment &markedsegp = Markedsegp;
 	compute_center_point_on_side(vcvertptr, p4, markedsegp, Markedside);
 
     switch( Markedside ) {
@@ -306,7 +306,7 @@ void generate_banked_curve(const fix maxscale, vms_equation coeffs)
 
     if (CurveNumSegs) {
 
-		const vcsegptr_t cursegp = Cursegp;
+		const shared_segment &cursegp = Cursegp;
 		auto &vcvertptr = Vertices.vcptr;
 		extract_up_vector_from_segment(vcvertptr, cursegp, b4r4t);
     uangle = vm_vec_delta_ang( b4r4t, r4t, r4 );

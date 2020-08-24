@@ -46,7 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 
 //find the distance between a segment and a point
-static fix compute_dist(const vcsegptr_t seg,const vms_vector &pos)
+static fix compute_dist(const shared_segment &seg, const vms_vector &pos)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();

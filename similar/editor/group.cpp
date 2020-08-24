@@ -316,7 +316,7 @@ unsigned num_groups;
 //	Return value:
 //		0	group rotated
 //		1	unable to rotate group
-static void med_create_group_rotation_matrix(vms_matrix &result_mat, int delta_flag, const vcsegptr_t first_seg, int first_side, const vcsegptr_t base_seg, int base_side, const vms_matrix &orient_matrix, int orientation)
+static void med_create_group_rotation_matrix(vms_matrix &result_mat, const unsigned delta_flag, const shared_segment &first_seg, const unsigned first_side, const shared_segment &base_seg, const unsigned base_side, const vms_matrix &orient_matrix, const int orientation)
 {
 	vms_matrix	rotmat2,rotmat,rotmat3,rotmat4;
 	vms_angvec	pbh = {0,0,0};
@@ -357,7 +357,7 @@ static void med_create_group_rotation_matrix(vms_matrix &result_mat, int delta_f
 	result_mat = rotmat2;
 }
 
-static inline vms_matrix med_create_group_rotation_matrix(int delta_flag, const vcsegptr_t first_seg, int first_side, const vcsegptr_t base_seg, int base_side, const vms_matrix &orient_matrix, int orientation)
+static inline vms_matrix med_create_group_rotation_matrix(const unsigned delta_flag, const shared_segment &first_seg, const unsigned first_side, const shared_segment &base_seg, const unsigned base_side, const vms_matrix &orient_matrix, const int orientation)
 {
 	vms_matrix result_mat;
 	return med_create_group_rotation_matrix(result_mat, delta_flag, first_seg, first_side, base_seg, base_side, orient_matrix, orientation), result_mat;
@@ -365,7 +365,7 @@ static inline vms_matrix med_create_group_rotation_matrix(int delta_flag, const 
 
 // -----------------------------------------------------------------------------------------
 // Rotate all vertices and objects in group.
-static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type_t &group_seglist, const vcsegptr_t first_seg, int first_side)
+static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type_t &group_seglist, const shared_segment &first_seg, const unsigned first_side)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -529,7 +529,7 @@ static int in_group(segnum_t segnum, int group_num)
 //	The group is copied so group_seg:group_side is incident upon base_seg:base_side.
 //	group_seg and its vertices are bashed to coincide with base_seg.
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
-static int med_copy_group(int delta_flag, const vmsegptridx_t base_seg, int base_side, vcsegptr_t group_seg, int group_side, const vms_matrix &orient_matrix)
+static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_seg, const unsigned base_side, vcsegptr_t group_seg, const unsigned group_side, const vms_matrix &orient_matrix)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;

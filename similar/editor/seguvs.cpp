@@ -548,7 +548,7 @@ void assign_default_uvs_to_segment(const vmsegptridx_t segp)
 
 
 // --------------------------------------------------------------------------------------------------------------
-void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned con_common_side, const vcsegptr_t base_seg, const unsigned base_common_side, const unsigned abs_id1, const unsigned abs_id2)
+void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned con_common_side, const cscusegment base_seg, const unsigned base_common_side, const unsigned abs_id1, const unsigned abs_id2)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -560,9 +560,9 @@ void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned con_comm
 
 	// Find which vertices in segment match abs_id1, abs_id2
 	for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
-		if (base_seg->verts[v] == abs_id1)
+		if (base_seg.s.verts[v] == abs_id1)
 			bv1 = v;
-		if (base_seg->verts[v] == abs_id2)
+		if (base_seg.s.verts[v] == abs_id2)
 			bv2 = v;
 		if (con_seg->verts[v] == abs_id1)
 			cv1 = v;
@@ -579,7 +579,7 @@ void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned con_comm
 	//	Set uv1, uv2 to uv coordinates from base side which correspond to vertices bv1, bv2.
 	//	Set vv1, vv2 to relative vertex ids (in 0..3) in connecting side which correspond to cv1, cv2
 	vv1 = -1;	vv2 = -1;
-	auto &base_uvls = base_seg->unique_segment::sides[base_common_side].uvls;
+	auto &base_uvls = base_seg.u.sides[base_common_side].uvls;
 	for (v=0; v<4; v++) {
 		if (bv1 == Side_to_verts[base_common_side][v])
 			uv1 = base_uvls[v];
