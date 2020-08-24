@@ -508,7 +508,7 @@ static void draw_ammo_info(grs_canvas &, unsigned x, unsigned y, unsigned ammo_c
 
 static int score_display;
 static fix score_time;
-static int old_laser_level		= -1;
+static laser_level old_laser_level;
 static int invulnerable_frame;
 static_assert(WS_SET == 0, "weapon_box_states must start at zero");
 int	Color_0_31_0 = -1;
@@ -1475,7 +1475,7 @@ static void hud_show_primary_weapons_mode(grs_canvas &canvas, const player_info 
 			{
 				case primary_weapon_index_t::LASER_INDEX:
 					{
-						snprintf(weapon_str, sizeof(weapon_str), "%c%i", (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) ? 'Q' : 'L', player_info.laser_level + 1);
+						snprintf(weapon_str, sizeof(weapon_str), "%c%u", (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) ? 'Q' : 'L', static_cast<unsigned>(player_info.laser_level) + 1);
 					txtweapon = weapon_str;
 					}
 					break;
@@ -1712,10 +1712,11 @@ static void hud_show_weapons(grs_canvas &canvas, const object &plrobj, const grs
 		switch (Primary_weapon) {
 			case primary_weapon_index_t::LASER_INDEX:
 				{
+					const auto level = static_cast<unsigned>(player_info.laser_level) + 1;
 				if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
-					snprintf(weapon_str, sizeof(weapon_str), "%s %s %i", TXT_QUAD, weapon_name, player_info.laser_level + 1);
+					snprintf(weapon_str, sizeof(weapon_str), "%s %s %u", TXT_QUAD, weapon_name, level);
 				else
-					snprintf(weapon_str, sizeof(weapon_str), "%s %i", weapon_name, player_info.laser_level + 1);
+					snprintf(weapon_str, sizeof(weapon_str), "%s %u", weapon_name, level);
 				}
 				disp_primary_weapon_name = weapon_str;
 				break;
@@ -2106,7 +2107,7 @@ namespace dsx {
 void init_gauges()
 {
 	old_weapon[gauge_inset_window_view::primary] = old_weapon[gauge_inset_window_view::secondary] = -1;
-	old_laser_level	= -1;
+	old_laser_level	= {};
 #if defined(DXX_BUILD_DESCENT_II)
 	weapon_box_user[gauge_inset_window_view::primary] = weapon_box_user[gauge_inset_window_view::secondary] = WBU_WEAPON;
 #endif
@@ -2492,17 +2493,17 @@ static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const play
 #endif
 		{
 			const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
-			gr_printf(canvas, *canvas.cv_font, text_x, text_y + line_spacing, "%s: %i", TXT_LVL, player_info.laser_level + 1);
+			gr_printf(canvas, *canvas.cv_font, text_x, text_y + line_spacing, "%s: %u", TXT_LVL, static_cast<unsigned>(player_info.laser_level) + 1);
 			if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
 				gr_string(canvas, *canvas.cv_font, text_x, text_y + (line_spacing * 2), TXT_QUAD);
 		}
 	}
 }
 
-static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const unsigned weapon_num, const unsigned laser_level)
+static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const unsigned weapon_num, const laser_level level)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	(void)laser_level;
+	(void)level;
 #endif
 	int x,y;
 
@@ -2510,7 +2511,7 @@ static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const 
 		const auto weapon_id = Primary_weapon_to_weapon_info[weapon_num];
 		const auto info_index = 
 #if defined(DXX_BUILD_DESCENT_II)
-			(weapon_id == weapon_id_type::LASER_ID && laser_level > MAX_LASER_LEVEL)
+			(weapon_id == weapon_id_type::LASER_ID && level > MAX_LASER_LEVEL)
 			? weapon_id_type::SUPER_LASER_ID
 			:
 #endif
@@ -2595,7 +2596,7 @@ static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, cons
 	}
 }
 
-static void draw_weapon_info(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const unsigned weapon_num, const unsigned laser_level, const gauge_inset_window_view wt)
+static void draw_weapon_info(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const unsigned weapon_num, const laser_level laser_level, const gauge_inset_window_view wt)
 {
 	if (wt == gauge_inset_window_view::primary)
 		draw_primary_weapon_info(hudctx, player_info, weapon_num, laser_level);

@@ -667,7 +667,7 @@ void init_player_stats_new_ship(const playernum_t pnum)
 #if defined(DXX_BUILD_DESCENT_II)
 				if (i == primary_weapon_index_t::SUPER_LASER_INDEX)
 				{
-					if (granted_laser_level <= LASER_LEVEL_4)
+					if (granted_laser_level <= laser_level::_4)
 						/* Granted lasers are not super lasers */
 						continue;
 					/* Super lasers still set LASER_INDEX, not
@@ -699,7 +699,7 @@ void init_player_stats_new_ship(const playernum_t pnum)
 #endif
 		if (Newdemo_state == ND_STATE_RECORDING)
 		{
-			newdemo_record_laser_level(player_info.laser_level, 0);
+			newdemo_record_laser_level(player_info.laser_level, laser_level::_1);
 		}
 		set_secondary_weapon_to_concussion(player_info);
 		dead_player_end(); //player no longer dead

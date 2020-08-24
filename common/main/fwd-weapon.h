@@ -41,7 +41,7 @@ enum powerup_type_t : uint8_t;
 
 #if defined(DXX_BUILD_DESCENT_II)
 #define LASER_HELIX_MASK        7   // must match number of bits in flags
-#define MAX_SUPER_LASER_LEVEL   LASER_LEVEL_6   // Note, laser levels are numbered from 0.
+#define MAX_SUPER_LASER_LEVEL   laser_level::_6   // Note, laser levels are numbered from 0.
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -51,9 +51,11 @@ struct PHYSFS_File;
 void weapon_info_write(PHYSFS_File *, const weapon_info &);
 #endif
 
+namespace dcx {
+enum class laser_level : uint8_t;
+}
+
 namespace dsx {
-enum laser_level_t : uint8_t;
-class stored_laser_level;
 struct weapon_info;
 
 #define REARM_TIME                  (F1_0)
@@ -65,11 +67,11 @@ struct weapon_info;
 #define WEAPON_TYPE_CANNON_BALL     2
 #define WEAPON_TYPE_MISSILE         3
 
-#define WEAPON_RENDER_NONE          -1
-#define WEAPON_RENDER_LASER         0
-#define WEAPON_RENDER_BLOB          1
-#define WEAPON_RENDER_POLYMODEL     2
-#define WEAPON_RENDER_VCLIP         3
+#define WEAPON_RENDER_NONE          weapon_info::render_type::None
+#define WEAPON_RENDER_LASER         weapon_info::render_type::laser
+#define WEAPON_RENDER_BLOB          weapon_info::render_type::blob
+#define WEAPON_RENDER_POLYMODEL     weapon_info::render_type::polymodel
+#define WEAPON_RENDER_VCLIP         weapon_info::render_type::vclip
 
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr std::integral_constant<unsigned, 30> MAX_WEAPON_TYPES{};

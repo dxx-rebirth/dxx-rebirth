@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "fwd-segment.h"
 #include "fwd-object.h"
+#include "fwd-weapon.h"
 #include "weapon_id.h"
 
 // These are new defines for the value of 'flags' passed to do_laser_firing.
@@ -40,10 +41,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define LASER_QUAD                  1
 #define LASER_SPREADFIRE_TOGGLED    2
 
-#define MAX_LASER_LEVEL         LASER_LEVEL_4   // Note, laser levels are numbered from 0.
+#define MAX_LASER_LEVEL         laser_level::_4   // Note, laser levels are numbered from 0.
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define DXX_MAXIMUM_LASER_LEVEL	LASER_LEVEL_4
+#define DXX_MAXIMUM_LASER_LEVEL	laser_level::_4
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_MAXIMUM_LASER_LEVEL	MAX_SUPER_LASER_LEVEL
 #endif
@@ -90,7 +91,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 // Returns the number of shots actually fired, which will typically be
 // 1, but could be higher for low frame rates when rapidfire weapons,
 // such as vulcan or plasma are fired.
-int do_laser_firing(vmobjptridx_t objnum, int weapon_id, int level, int flags, int nfires, vms_vector shot_orientation, icobjidx_t Network_laser_track);
+int do_laser_firing(vmobjptridx_t objnum, int weapon_id, laser_level level, int flags, int nfires, vms_vector shot_orientation, icobjidx_t Network_laser_track);
 
 // Easier to call than Laser_create_new because it determines the
 // segment containing the firing point and deals with it being stuck

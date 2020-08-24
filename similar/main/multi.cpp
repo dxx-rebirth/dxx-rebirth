@@ -1677,7 +1677,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 				powerup_flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 		}
 
-		do_laser_firing(obj, weapon, static_cast<int>(buf[3]), flags, static_cast<int>(buf[5]), shot_orientation, Network_laser_track);
+		do_laser_firing(obj, weapon, laser_level{buf[3]}, flags, static_cast<int>(buf[5]), shot_orientation, Network_laser_track);
 	}
 }
 
@@ -1802,7 +1802,8 @@ static void multi_do_player_deres(object_array &Objects, const playernum_t pnum,
 	const auto &&objp = vmobjptridx(vcplayerptr(pnum)->objnum);
 	auto &player_info = objp->ctype.player_info;
 	player_info.primary_weapon_flags = GET_WEAPON_FLAGS(buf, count);
-	player_info.laser_level = stored_laser_level(buf[count]);                           count++;
+	player_info.laser_level = laser_level{buf[count]};
+	count++;
 	if (game_mode_hoard())
 		player_info.hoard.orbs = buf[count];
 	count++;
@@ -2533,7 +2534,7 @@ namespace dsx {
 //          players of something we did.
 //
 
-void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, const imobjptridx_t is_bomb_objnum)
+void multi_send_fire(int laser_gun, const laser_level level, int laser_flags, int laser_fired, objnum_t laser_track, const imobjptridx_t is_bomb_objnum)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -2559,7 +2560,7 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 	}
 	multibuf[1] = static_cast<char>(Player_num);
 	multibuf[2] = static_cast<char>(laser_gun);
-	multibuf[3] = static_cast<char>(laser_level);
+	multibuf[3] = static_cast<uint8_t>(level);
 	multibuf[4] = static_cast<char>(laser_flags);
 	multibuf[5] = static_cast<char>(laser_fired);
 
@@ -5175,7 +5176,8 @@ static void multi_do_player_inventory(const playernum_t pnum, const ubyte *buf)
 	const auto &&objp = vmobjptridx(vcplayerptr(pnum)->objnum);
 	auto &player_info = objp->ctype.player_info;
 	player_info.primary_weapon_flags = GET_WEAPON_FLAGS(buf, count);
-	player_info.laser_level = stored_laser_level(buf[count]);                           count++;
+	player_info.laser_level = laser_level{buf[count]};
+	count++;
 
 	auto &secondary_ammo = player_info.secondary_ammo;
 	secondary_ammo[HOMING_INDEX] = buf[count];                count++;
@@ -5313,12 +5315,12 @@ static void MultiLevelInv_CountPlayerInventory()
                                  * This loss possible is insignificant since we have super lasers and normal ones may respawn some time after this player dies.
                                  */
 			Current[POW_LASER] += 4;
-			Current[POW_SUPER_LASER] += player_info.laser_level-MAX_LASER_LEVEL+1; // Laser levels start at 0!
+			Current[POW_SUPER_LASER] += static_cast<unsigned>(player_info.laser_level) - static_cast<unsigned>(MAX_LASER_LEVEL) + 1; // Laser levels start at 0!
                         }
                         else
 #endif
                         {
-			Current[POW_LASER] += player_info.laser_level+1; // Laser levels start at 0!
+			Current[POW_LASER] += static_cast<unsigned>(player_info.laser_level) + 1; // Laser levels start at 0!
                         }
 						accumulate_flags_count<player_flags, PLAYER_FLAG> powerup_flags(Current, player_info.powerup_flags);
 						accumulate_flags_count<player_info::primary_weapon_flag_type, unsigned> primary_weapon_flags(Current, player_info.primary_weapon_flags);
@@ -6323,7 +6325,7 @@ void show_netgame_info(const netgame_info &netgame)
 #endif
         snprintf(ngii+(ngilen*loc),ngilen," ");                                                                                                              loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Objects Granted At Spawn:");                                                                                      loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Laser Level\t  %i", map_granted_flags_to_laser_level(netgame.SpawnGrantedItems)+1);                              loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Laser Level\t  %u", static_cast<unsigned>(map_granted_flags_to_laser_level(netgame.SpawnGrantedItems)) + 1);                              loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Quad Lasers\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_QUAD)?TXT_YES:TXT_NO);             loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Vulcan Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_VULCAN)?TXT_YES:TXT_NO);         loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Spreadfire Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_SPREAD)?TXT_YES:TXT_NO);     loc++;

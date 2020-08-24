@@ -591,7 +591,7 @@ static void state_player_to_player_rw(const relocated_player_data &rpd, const pl
 	 */
 	pl_rw->lives                     = std::min<unsigned>(pl->lives, std::numeric_limits<uint8_t>::max());
 	pl_rw->level                     = pl->level;
-	pl_rw->laser_level               = pl_info.laser_level;
+	pl_rw->laser_level               = static_cast<uint8_t>(pl_info.laser_level);
 	pl_rw->starting_level            = pl->starting_level;
 	pl_rw->killer_objnum             = pl_info.killer_objnum;
 	pl_rw->primary_weapon_flags      = pl_info.primary_weapon_flags;
@@ -654,7 +654,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	rpd.shields                    = pl_rw->shields;
 	pl->lives                     = pl_rw->lives;
 	pl->level                     = pl_rw->level;
-	pl_info.laser_level               = stored_laser_level(pl_rw->laser_level);
+	pl_info.laser_level           = laser_level{pl_rw->laser_level};
 	pl->starting_level            = pl_rw->starting_level;
 	pl_info.killer_objnum         = pl_rw->killer_objnum;
 	pl_info.primary_weapon_flags  = pl_rw->primary_weapon_flags;

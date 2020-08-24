@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
+#include "fwd-weapon.h"
 #include "fwd-window.h"
 
 #define ND_STATE_NORMAL			0
@@ -130,7 +131,7 @@ void newdemo_record_multi_score(unsigned pnum, int score);
 extern void newdemo_record_primary_ammo(int new_ammo);
 extern void newdemo_record_secondary_ammo(int new_ammo);
 void newdemo_record_door_opening(segnum_t segnum, int side);
-extern void newdemo_record_laser_level(sbyte old_level, sbyte new_level);
+void newdemo_record_laser_level(laser_level old_level, laser_level new_level);
 
 #ifdef dsx
 namespace dsx {

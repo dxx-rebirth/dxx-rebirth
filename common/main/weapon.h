@@ -40,63 +40,55 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef dsx
 #include <array>
 
+namespace dcx {
+
+enum class laser_level : uint8_t
+{
+	_1,
+	_2,
+	_3,
+	_4,
+	/* if DXX_BUILD_DESCENT_II */
+	_5,
+	_6,
+	/* endif */
+};
+
+}
+
 namespace dsx {
 
-enum laser_level_t : uint8_t
+static inline laser_level &operator+=(laser_level &a, const laser_level b)
 {
-	LASER_LEVEL_1,
-	LASER_LEVEL_2,
-	LASER_LEVEL_3,
-	LASER_LEVEL_4,
-#if defined(DXX_BUILD_DESCENT_II)
-	LASER_LEVEL_5,
-	LASER_LEVEL_6,
-#endif
-};
+	return (a = static_cast<laser_level>(static_cast<uint8_t>(a) + static_cast<uint8_t>(b)));
+}
 
-class stored_laser_level
+static inline laser_level &operator-=(laser_level &a, const laser_level b)
 {
-	laser_level_t m_level;
-public:
-	stored_laser_level() = default;
-	constexpr stored_laser_level(const laser_level_t l) :
-		m_level(l)
-	{
-	}
-	constexpr explicit stored_laser_level(uint8_t i) :
-		m_level(static_cast<laser_level_t>(i))
-	{
-	}
-	operator laser_level_t() const
-	{
-		return m_level;
-	}
-	/* Assume no overflow/underflow.
-	 * This was never checked when it was a simple ubyte.
-	 */
-	stored_laser_level &operator+=(uint8_t i)
-	{
-		m_level = static_cast<laser_level_t>(static_cast<uint8_t>(m_level) + i);
-		return *this;
-	}
-	stored_laser_level &operator-=(uint8_t i)
-	{
-		m_level = static_cast<laser_level_t>(static_cast<uint8_t>(m_level) - i);
-		return *this;
-	}
-	stored_laser_level &operator++()
-	{
-		return *this += 1;
-	}
-	stored_laser_level &operator--()
-	{
-		return *this -= 1;
-	}
-};
+	return (a = static_cast<laser_level>(static_cast<uint8_t>(a) - static_cast<uint8_t>(b)));
+}
+
+static inline laser_level &operator++(laser_level &a)
+{
+	return (a = static_cast<laser_level>(static_cast<uint8_t>(a) + 1u));
+}
+
+static inline laser_level &operator--(laser_level &a)
+{
+	return (a = static_cast<laser_level>(static_cast<uint8_t>(a) - 1u));
+}
 
 struct weapon_info : prohibit_void_ptr<weapon_info>
 {
-	sbyte   render_type;        // How to draw 0=laser, 1=blob, 2=object
+	enum class render_type : uint8_t
+	{
+		laser,
+		blob,
+		polymodel,
+		vclip,
+		None = 0xff,
+	};
+	render_type render;        // How to draw 0=laser, 1=blob, 2=object
 #if defined(DXX_BUILD_DESCENT_I)
 	sbyte	model_num;					// Model num if rendertype==2.
 	sbyte	model_num_inner;			// Model num of inner part if rendertype==2.

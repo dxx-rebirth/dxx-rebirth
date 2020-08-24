@@ -344,10 +344,10 @@ public:
 	}
 };
 
-static inline laser_level_t map_granted_flags_to_laser_level(const packed_spawn_granted_items &grant)
+static inline laser_level map_granted_flags_to_laser_level(const packed_spawn_granted_items &grant)
 {
 	/* Laser level in lowest bits */
-	return laser_level_t(grant.mask & ((1 << DXX_GRANT_LASER_LEVEL_BITS) - 1));
+	return laser_level{static_cast<uint8_t>(grant.mask & ((1 << DXX_GRANT_LASER_LEVEL_BITS) - 1))};
 }
 player_flags map_granted_flags_to_player_flags(packed_spawn_granted_items grant);
 uint_fast32_t map_granted_flags_to_primary_weapon_flags(packed_spawn_granted_items grant);
@@ -370,7 +370,7 @@ extern unsigned Net_create_loc;
 
 namespace dsx {
 
-void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, imobjptridx_t is_bomb_objnum);
+void multi_send_fire(int laser_gun, laser_level, int laser_flags, int laser_fired, objnum_t laser_track, imobjptridx_t is_bomb_objnum);
 void multi_send_destroy_controlcen(objnum_t objnum, playernum_t player);
 void multi_send_position(object &objnum);
 void multi_send_kill(vmobjptridx_t objnum);

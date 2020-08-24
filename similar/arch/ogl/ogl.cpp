@@ -411,9 +411,9 @@ static void ogl_cache_weapon_textures(const d_vclip_array &Vclip, const weapon_i
 	ogl_cache_vclipn_textures(Vclip, w.flash_vclip);
 	ogl_cache_vclipn_textures(Vclip, w.robot_hit_vclip);
 	ogl_cache_vclipn_textures(Vclip, w.wall_hit_vclip);
-	if (w.render_type == WEAPON_RENDER_VCLIP)
+	if (w.render == WEAPON_RENDER_VCLIP)
 		ogl_cache_vclipn_textures(Vclip, w.weapon_vclip);
-	else if (w.render_type == WEAPON_RENDER_POLYMODEL)
+	else if (w.render == WEAPON_RENDER_POLYMODEL)
 	{
 		ogl_cache_polymodel_textures(w.model_num);
 		ogl_cache_polymodel_textures(w.model_num_inner);

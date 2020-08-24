@@ -154,13 +154,14 @@ static void paging_touch_weapon(const d_vclip_array &Vclip, const weapon_info &w
 			paging_touch_vclip(Vclip[weapon.robot_hit_vclip]);
 	}
 
-	switch(weapon.render_type)
+	switch(weapon.render)
 	{
 	case WEAPON_RENDER_VCLIP:
 		if (weapon.weapon_vclip > -1)
 			paging_touch_vclip(Vclip[weapon.weapon_vclip]);
 		break;
 	case WEAPON_RENDER_NONE:
+	case weapon_info::render_type::laser:
 		break;
 	case WEAPON_RENDER_POLYMODEL:
 		paging_touch_model(weapon.model_num);

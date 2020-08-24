@@ -1898,11 +1898,11 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 		auto &plr_laser_level = player_info.laser_level;
 		if (const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0)
 		{
-			if (const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems))
+			if (const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems); granted_laser_level != laser_level::_1)
 			{
 				if (plr_laser_level <= granted_laser_level)
 					/* All levels were from grant */
-					plr_laser_level = LASER_LEVEL_1;
+					plr_laser_level = laser_level::_1;
 #if defined(DXX_BUILD_DESCENT_II)
 				else if (granted_laser_level > MAX_LASER_LEVEL)
 				{
@@ -1960,12 +1960,12 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 
 		//	If the player dies and he has powerful lasers, create the powerups here.
 
-		std::pair<int, int> laser_level_and_id;
+		std::pair<unsigned, int> laser_level_and_id;
 		if (
 #if defined(DXX_BUILD_DESCENT_II)
-			(plr_laser_level > MAX_LASER_LEVEL && (laser_level_and_id = {plr_laser_level - MAX_LASER_LEVEL, POW_SUPER_LASER}, true)) ||
+			(plr_laser_level > MAX_LASER_LEVEL && (laser_level_and_id = {static_cast<unsigned>(plr_laser_level) - static_cast<unsigned>(MAX_LASER_LEVEL), POW_SUPER_LASER}, true)) ||
 #endif
-			(plr_laser_level && (laser_level_and_id = {plr_laser_level, POW_LASER}, true)))
+			(plr_laser_level != laser_level::_1 && (laser_level_and_id = {static_cast<unsigned>(plr_laser_level), POW_LASER}, true)))
 			call_object_create_egg(playerobj, laser_level_and_id.first, laser_level_and_id.second);
 
 		//	Drop quad laser if appropos

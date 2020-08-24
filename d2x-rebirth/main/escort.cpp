@@ -1057,7 +1057,7 @@ static int maybe_buddy_fire_mega(const vmobjptridx_t objp)
 	if (!object_to_object_visibility(buddy_objp, objp, FQ_TRANSWALL))
 		return 0;
 
-	if (Weapon_info[weapon_id_type::MEGA_ID].render_type == 0) {
+	if (Weapon_info[weapon_id_type::MEGA_ID].render == weapon_info::render_type::laser) {
 		con_puts(CON_VERBOSE, "Buddy can't fire mega (shareware)");
 		buddy_message("CLICK!");
 		return 0;
@@ -1631,7 +1631,7 @@ static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_nu
 	switch (static_cast<primary_weapon_index_t>(weapon_num))
 	{
 		case primary_weapon_index_t::LASER_INDEX:
-			if (!player_info.laser_level)
+			if (player_info.laser_level == laser_level::_1)
 				return 0;
 			break;
 		case primary_weapon_index_t::VULCAN_INDEX:
@@ -1667,7 +1667,7 @@ static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_nu
 					 * the user loses the final laser powerup and drops
 					 * to level 0 lasers.
 					 */
-					const laser_level_t l = laser_level;
+					const unsigned l = static_cast<unsigned>(laser_level);
 					-- laser_level;
 					thief_message("%s level decreased to %u!", PRIMARY_WEAPON_NAMES(weapon_num), l);
 			}

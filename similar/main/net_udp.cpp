@@ -3416,7 +3416,7 @@ static void net_udp_set_power (void)
 #endif
 
 #define DXX_GRANT_POWERUP_MENU(VERB)	\
-	DXX_MENUITEM(VERB, NUMBER, "Laser level", opt_laser_level, menu_number_bias_wrapper<1>(laser_level), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
+	DXX_MENUITEM(VERB, NUMBER, "Laser level", opt_laser_level, menu_number_bias_wrapper<1>(laser_level), static_cast<unsigned>(laser_level::_1) + 1, static_cast<unsigned>(DXX_MAXIMUM_LASER_LEVEL) + 1)	\
 	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_QUAD, opt_quad_lasers, menu_bit_wrapper(flags, NETGRANT_QUAD))	\
 	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_VULCAN, opt_vulcan, menu_bit_wrapper(flags, NETGRANT_VULCAN))	\
 	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_SPREAD, opt_spreadfire, menu_bit_wrapper(flags, NETGRANT_SPREAD))	\
@@ -3614,9 +3614,10 @@ public:
 		DXX_GRANT_POWERUP_MENU(ENUM)
 	};
 	std::array<newmenu_item, DXX_GRANT_POWERUP_MENU(COUNT)> m;
-	grant_powerup_menu_items(const unsigned laser_level, const packed_spawn_granted_items p)
+	grant_powerup_menu_items(const laser_level level, const packed_spawn_granted_items p)
 	{
 		auto &flags = p.mask;
+		unsigned laser_level = static_cast<unsigned>(level);
 		DXX_GRANT_POWERUP_MENU(ADD);
 	}
 	void read(packed_spawn_granted_items &p) const

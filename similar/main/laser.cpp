@@ -84,7 +84,7 @@ static imobjptridx_t find_homing_object(const vms_vector &curpos, vmobjptridx_t 
 void Laser_render(grs_canvas &canvas, const object_base &obj)
 {
 	auto &wi = Weapon_info[get_weapon_id(obj)];
-	switch(wi.render_type)
+	switch(wi.render)
 	{
 	case WEAPON_RENDER_LASER:
 		Int3();	// Not supported anymore!
@@ -264,11 +264,12 @@ static void do_muzzle_stuff(segnum_t segnum, const vms_vector &pos)
 	m.create_time = timer_query();
 }
 
+__attribute_cold
 __attribute_noreturn
-static void report_invalid_weapon_render_type(const int weapon_type, const unsigned render_type)
+static void report_invalid_weapon_render_type(const int weapon_type, const weapon_info::render_type render)
 {
 	char buf[96];
-	snprintf(buf, sizeof(buf), "invalid weapon render type %u on weapon %i", render_type, weapon_type);
+	snprintf(buf, sizeof(buf), "invalid weapon render type %u on weapon %i", static_cast<unsigned>(render), weapon_type);
 	throw std::runtime_error(buf);
 }
 
@@ -282,8 +283,8 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 	render_type_t rtype;
 	fix laser_radius = -1;
 
-	switch( Weapon_info[weapon_type].render_type )	{
-
+	switch(Weapon_info[weapon_type].render)
+	{
 		case WEAPON_RENDER_BLOB:
 			rtype = RT_LASER;			// Render as a laser even if blob (see render code above for explanation)
 			laser_radius = Weapon_info[weapon_type].blob_size;
@@ -304,7 +305,7 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 			laser_radius = Weapon_info[weapon_type].blob_size;
 			break;
 		default:
-			report_invalid_weapon_render_type(weapon_type, Weapon_info[weapon_type].render_type);
+			report_invalid_weapon_render_type(weapon_type, Weapon_info[weapon_type].render);
 	}
 
 	Assert(laser_radius != -1);
@@ -313,7 +314,7 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 	if (obj == object_none)
 		return object_none;
 
-	if (Weapon_info[weapon_type].render_type == WEAPON_RENDER_POLYMODEL) {
+	if (Weapon_info[weapon_type].render == WEAPON_RENDER_POLYMODEL) {
 		auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 		obj->rtype.pobj_info.model_num = Weapon_info[get_weapon_id(obj)].model_num;
 		obj->size = fixdiv(Polygon_models[obj->rtype.pobj_info.model_num].rad,Weapon_info[get_weapon_id(obj)].po_len_to_width_ratio);
@@ -746,7 +747,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 #endif
 		obj->mtype.phys_info.flags |= PF_BOUNCE;
 
-	if (weapon_info.render_type == WEAPON_RENDER_POLYMODEL)
+	if (weapon_info.render == WEAPON_RENDER_POLYMODEL)
 	{
 		auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 		laser_length = Polygon_models[obj->rtype.pobj_info.model_num].rad * 2;
@@ -822,9 +823,9 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	// This also jitters the laser a bit so that it doesn't alias.
 	//	Don't do for weapons created by weapons.
 #if defined(DXX_BUILD_DESCENT_I)
-	if (parent->type != OBJ_WEAPON && weapon_info.render_type != WEAPON_RENDER_NONE && weapon_type != weapon_id_type::FLARE_ID)
+	if (parent->type != OBJ_WEAPON && weapon_info.render != WEAPON_RENDER_NONE && weapon_type != weapon_id_type::FLARE_ID)
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (parent->type == OBJ_PLAYER && weapon_info.render_type != WEAPON_RENDER_NONE && weapon_type != weapon_id_type::FLARE_ID)
+	if (parent->type == OBJ_PLAYER && weapon_info.render != WEAPON_RENDER_NONE && weapon_type != weapon_id_type::FLARE_ID)
 #endif
 	{
 	 	const auto end_pos = vm_vec_scale_add(obj->pos, direction, (laser_length/2) );
@@ -1496,7 +1497,7 @@ void Flare_create(const vmobjptridx_t obj)
 		}
 
 		if (Game_mode & GM_MULTI)
-			multi_send_fire(FLARE_ADJUST, 0, 0, 1, object_none, object_none);
+			multi_send_fire(FLARE_ADJUST, laser_level::_1	/* unused */, 0, 1, object_none, object_none);
 	}
 
 }
@@ -1630,7 +1631,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 #endif
 					vm_vec_add2(temp_vec, vector_to_object);
 					//	The boss' smart children track better...
-					if (Weapon_info[get_weapon_id(obj)].render_type != WEAPON_RENDER_POLYMODEL)
+					if (Weapon_info[get_weapon_id(obj)].render != WEAPON_RENDER_POLYMODEL)
 						vm_vec_add2(temp_vec, vector_to_object);
 					vm_vec_normalize_quick(temp_vec);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1661,7 +1662,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 					}
 
 					//	Only polygon objects have visible orientation, so only they should turn.
-					if (Weapon_info[get_weapon_id(obj)].render_type == WEAPON_RENDER_POLYMODEL)
+					if (Weapon_info[get_weapon_id(obj)].render == WEAPON_RENDER_POLYMODEL)
 						homing_missile_turn_towards_velocity(obj, temp_vec, HOMING_TURN_TIME);		//	temp_vec is normalized velocity.
                                 }
                         }
@@ -1695,7 +1696,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 #endif
 				vm_vec_add2(temp_vec, vector_to_object);
 				//	The boss' smart children track better...
-				if (Weapon_info[get_weapon_id(obj)].render_type != WEAPON_RENDER_POLYMODEL)
+				if (Weapon_info[get_weapon_id(obj)].render != WEAPON_RENDER_POLYMODEL)
 					vm_vec_add2(temp_vec, vector_to_object);
 				vm_vec_normalize_quick(temp_vec);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1726,7 +1727,7 @@ void Laser_do_weapon_sequence(const vmobjptridx_t obj)
 				}
 
 				//	Only polygon objects have visible orientation, so only they should turn.
-				if (Weapon_info[get_weapon_id(obj)].render_type == WEAPON_RENDER_POLYMODEL)
+				if (Weapon_info[get_weapon_id(obj)].render == WEAPON_RENDER_POLYMODEL)
 					homing_missile_turn_towards_velocity(obj, temp_vec, FrameTime);		//	temp_vec is normalized velocity.
 			}
 #endif
@@ -1823,12 +1824,12 @@ void do_laser_firing_player(object &plrobj)
 	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
 	while (Next_laser_fire_time <= GameTime64) {
 		if	(sufficient_energy(energy_used, pl_energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, player_info.vulcan_ammo)) {
-			int	laser_level, flags, fire_frame_overhead = 0;
+			int	flags, fire_frame_overhead = 0;
 
 			if (GameTime64 - Next_laser_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
 				fire_frame_overhead = GameTime64 - Next_laser_fire_time;
 
-			laser_level = player_info.laser_level;
+			auto laser_level = player_info.laser_level;
 
 			flags = 0;
 
@@ -1904,7 +1905,7 @@ void do_laser_firing_player(object &plrobj)
 //	Returns number of times a weapon was fired.  This is typically 1, but might be more for low frame rates.
 //	More than one shot is fired with a pseudo-delay so that players on slow machines can fire (for themselves
 //	or other players) often enough for things like the vulcan cannon.
-int do_laser_firing(vmobjptridx_t objp, int weapon_num, int level, int flags, int nfires, vms_vector shot_orientation, const icobjidx_t Network_laser_track)
+int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level, int flags, int nfires, vms_vector shot_orientation, const icobjidx_t Network_laser_track)
 {
 	switch (weapon_num) {
 		case primary_weapon_index_t::LASER_INDEX: {
@@ -1912,28 +1913,27 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, int level, int flags, in
 
 			switch(level)
 			{
-				case LASER_LEVEL_1:
+				case laser_level::_1:
 					weapon_type = weapon_id_type::LASER_ID_L1;
 					break;
-				case LASER_LEVEL_2:
+				case laser_level::_2:
 					weapon_type = weapon_id_type::LASER_ID_L2;
 					break;
-				case LASER_LEVEL_3:
+				case laser_level::_3:
 					weapon_type = weapon_id_type::LASER_ID_L3;
 					break;
-				case LASER_LEVEL_4:
+				case laser_level::_4:
 					weapon_type = weapon_id_type::LASER_ID_L4;
 					break;
 #if defined(DXX_BUILD_DESCENT_II)
-				case LASER_LEVEL_5:
+				case laser_level::_5:
 					weapon_type = weapon_id_type::LASER_ID_L5;
 					break;
-				case LASER_LEVEL_6:
+				case laser_level::_6:
 					weapon_type = weapon_id_type::LASER_ID_L6;
 					break;
 #endif
 				default:
-					Assert(0);
 					return nfires;
 			}
 			Laser_player_fire(objp, weapon_type, 0, 1, shot_orientation, object_none);
@@ -2384,7 +2384,7 @@ void do_missile_firing(int drop_bomb)
 
 		if (Game_mode & GM_MULTI)
 		{
-			multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, objnum == object_none ? object_none : objnum->ctype.laser_info.track_goal, weapon_index_is_player_bomb(weapon) ? objnum : object_none);
+			multi_send_fire(weapon+MISSILE_ADJUST, laser_level::_1	/* unused */, gun_flag, 1, objnum == object_none ? object_none : objnum->ctype.laser_info.track_goal, weapon_index_is_player_bomb(weapon) ? objnum : object_none);
 		}
 
 		// don't autoselect if dropping prox and prox not current weapon

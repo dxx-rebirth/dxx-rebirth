@@ -465,10 +465,12 @@ int do_powerup(const vmobjptridx_t obj)
 #endif
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_LASER);
 			} else {
-				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_laser_level(player_info.laser_level, player_info.laser_level + 1);
+				const auto level_before_powerup = player_info.laser_level;
 				++ player_info.laser_level;
-				powerup_basic(10, 0, 10, LASER_SCORE, "%s %s %d",TXT_LASER,TXT_BOOSTED_TO, player_info.laser_level+1);
+				const auto level_after_powerup = player_info.laser_level;
+				if (Newdemo_state == ND_STATE_RECORDING)
+					newdemo_record_laser_level(level_before_powerup, level_after_powerup);
+				powerup_basic(10, 0, 10, LASER_SCORE, "%s %s %u", TXT_LASER, TXT_BOOSTED_TO, static_cast<unsigned>(level_after_powerup) + 1);
 				pick_up_primary(player_info, primary_weapon_index_t::LASER_INDEX);
 				used=1;
 			}
@@ -693,7 +695,7 @@ int do_powerup(const vmobjptridx_t obj)
 				++ player_info.laser_level;
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_laser_level(old_level, player_info.laser_level);
-				powerup_basic(10, 0, 10, LASER_SCORE, "Super Boost to Laser level %d", player_info.laser_level + 1);
+				powerup_basic(10, 0, 10, LASER_SCORE, "Super Boost to Laser level %u", static_cast<unsigned>(player_info.laser_level) + 1);
 				if (player_info.Primary_weapon != primary_weapon_index_t::LASER_INDEX)
 					check_to_use_primary_super_laser(player_info);
 				used=1;

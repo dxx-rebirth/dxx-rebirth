@@ -1866,7 +1866,7 @@ public:
 	DXX_MENUITEM(VERB, NUMBER, "Shields", opt_shields, menu_fix_wrapper(plrobj.shields), 0, 200)	\
 	DXX_MENUITEM(VERB, TEXT, TXT_SCORE, opt_txt_score)	\
 	DXX_MENUITEM(VERB, INPUT, score_text, opt_score)	\
-	DXX_MENUITEM(VERB, NUMBER, "Laser Level", opt_laser_level, menu_number_bias_wrapper<1>(plr_laser_level), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
+	DXX_MENUITEM(VERB, NUMBER, "Laser Level", opt_laser_level, menu_number_bias_wrapper<1>(plr_laser_level), static_cast<uint8_t>(laser_level::_1) + 1, static_cast<uint8_t>(DXX_MAXIMUM_LASER_LEVEL) + 1)	\
 	DXX_MENUITEM(VERB, NUMBER, "Concussion", opt_concussion, plrobj.ctype.player_info.secondary_ammo[CONCUSSION_INDEX], 0, 200)	\
 
 static void do_cheat_menu()
@@ -1882,12 +1882,12 @@ static void do_cheat_menu()
 	auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;
 	snprintf(score_text, sizeof(score_text), "%d", player_info.mission.score);
-	uint8_t plr_laser_level = player_info.laser_level;
+	uint8_t plr_laser_level = static_cast<uint8_t>(player_info.laser_level);
 	DXX_WIMP_MENU(ADD);
 	mmn = newmenu_do("Wimp Menu",NULL,m, unused_newmenu_subfunction, unused_newmenu_userdata);
 	if (mmn > -1 )  {
 		DXX_WIMP_MENU(READ);
-		player_info.laser_level = laser_level_t(plr_laser_level);
+		player_info.laser_level = laser_level{plr_laser_level};
 		char *p;
 		auto ul = strtoul(score_text, &p, 10);
 		if (!*p)

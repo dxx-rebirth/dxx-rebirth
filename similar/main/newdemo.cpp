@@ -1600,12 +1600,12 @@ void newdemo_record_door_opening(segnum_t segnum, int side)
 	nd_write_byte(static_cast<int8_t>(side));
 }
 
-void newdemo_record_laser_level(sbyte old_level, sbyte new_level)
+void newdemo_record_laser_level(const laser_level old_level, const laser_level new_level)
 {
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_LASER_LEVEL);
-	nd_write_byte(old_level);
-	nd_write_byte(new_level);
+	nd_write_byte(static_cast<uint8_t>(old_level));
+	nd_write_byte(static_cast<uint8_t>(new_level));
 }
 
 namespace dsx {
@@ -1906,14 +1906,14 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			nd_write_short(i);
 	}
 
-	sbyte i;
+	uint8_t i;
 	nd_read_byte(&i);
-	const stored_laser_level laser_level(i);
+	const enum laser_level laser_level{i};
 	if ((purpose != PURPOSE_REWRITE) && (laser_level != player_info.laser_level)) {
 		player_info.laser_level = laser_level;
 	}
 	else if (purpose == PURPOSE_REWRITE)
-		nd_write_byte(laser_level);
+		nd_write_byte(static_cast<uint8_t>(laser_level));
 
 	// Support for missions
 
@@ -3155,7 +3155,7 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 		case ND_EVENT_LASER_LEVEL: {
-			sbyte old_level, new_level;
+			uint8_t old_level, new_level;
 
 			nd_read_byte(&old_level);
 			nd_read_byte(&new_level);
@@ -3167,9 +3167,9 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			auto &player_info = get_local_plrobj().ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				player_info.laser_level = stored_laser_level(old_level);
+				player_info.laser_level = laser_level{old_level};
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				player_info.laser_level = stored_laser_level(new_level);
+				player_info.laser_level = laser_level{new_level};
 			}
 			break;
 		}
@@ -3523,12 +3523,9 @@ window_event_result newdemo_goto_end(int to_rewrite)
 		i = u;
 	}
 	{
-	int8_t i;
+		uint8_t i;
 	nd_read_byte(&i);
-	const stored_laser_level laser_level(i);
-	if (player_info.laser_level != laser_level) {
-		player_info.laser_level = laser_level;
-	}
+		player_info.laser_level = laser_level{i};
 	}
 
 	if (Newdemo_game_mode & GM_MULTI) {
@@ -3957,7 +3954,7 @@ static void newdemo_write_end()
 		nd_write_short(i);
 	byte_count += (sizeof(short) * (MAX_PRIMARY_WEAPONS + MAX_SECONDARY_WEAPONS));
 
-	nd_write_byte(player_info.laser_level);
+	nd_write_byte(static_cast<uint8_t>(player_info.laser_level));
 	byte_count++;
 
 	if (Game_mode & GM_MULTI) {
