@@ -264,7 +264,7 @@ static void fix_illegal_wall_intersection(const vmobjptridx_t obj)
 		return;
 
 	auto &vcvertptr = Vertices.vcptr;
-	const auto &&hresult = sphere_intersects_wall(vcvertptr, obj->pos, vcsegptridx(obj->segnum), obj->size);
+	const auto &&hresult = sphere_intersects_wall(vcsegptridx, vcvertptr, obj->pos, vcsegptridx(obj->segnum), obj->size);
 	if (hresult.seg)
 	{
 		vm_vec_scale_add2(obj->pos, hresult.seg->sides[hresult.side].normals[0], FrameTime*10);

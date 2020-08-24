@@ -2084,7 +2084,7 @@ static const shared_segment *boss_intersects_wall(fvcvertptr &vcvertptr, const o
 	auto pos = segcenter;
 	for (uint_fast32_t posnum = 0;;)
 	{
-		const auto seg = sphere_intersects_wall(vcvertptr, pos, segp, size).seg;
+		const auto seg = sphere_intersects_wall(vcsegptridx, vcvertptr, pos, segp, size).seg;
 		if (!seg)
 			return seg;
 		if (posnum == segp->verts.size())
@@ -4434,7 +4434,7 @@ static void pae_aux(const vcsegptridx_t segnum, const player_awareness_type_t ty
 			? player_awareness_type_t::PA_PLAYER_COLLISION
 			: type;
 		const auto sublevel = level + 1;
-		range_for (auto &j, segnum->children)
+		for (const auto j : segnum->shared_segment::children)
 			if (IS_CHILD(j))
 				pae_aux(segnum.absolute_sibling(j), subtype, sublevel, New_awareness);
 	}

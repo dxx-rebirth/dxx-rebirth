@@ -2021,7 +2021,7 @@ static void newdemo_pop_ctrlcen_triggers()
 	for (int i = 0; i < ControlCenterTriggers.num_links; i++) {
 		const auto &&seg = vmsegptridx(ControlCenterTriggers.seg[i]);
 		const auto side = ControlCenterTriggers.side[i];
-		const auto csegi = seg->children[side];
+		const auto csegi = seg->shared_segment::children[side];
 		if (csegi == segment_none)
 		{
 			/* Some levels specify control center triggers for
@@ -3142,9 +3142,10 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				const auto &&segp = vmsegptridx(segnum);
-				const auto &&csegp = vmsegptr(segp->children[side]);
+				const shared_segment &sseg = segp;
+				const auto &&csegp = vmsegptr(sseg.children[side]);
 				const auto &&cside = find_connect_side(segp, csegp);
-				const auto anim_num = vmwallptr(segp->shared_segment::sides[side].wall_num)->clip_num;
+				const auto anim_num = vmwallptr(sseg.sides[side].wall_num)->clip_num;
 				auto &wa = WallAnims[anim_num];
 				const auto t = wa.flags & WCF_TMAP1
 					? &unique_side::tmap_num

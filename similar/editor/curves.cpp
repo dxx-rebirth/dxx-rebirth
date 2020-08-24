@@ -271,7 +271,7 @@ int generate_curve(const fix r1scale, const fix r4scale)
 
     if (CurveNumSegs) {
         med_form_bridge_segment( Cursegp, Side_opposite[AttachSide], Markedsegp, Markedside );
-        CurveSegs[CurveNumSegs] = vmsegptr(Markedsegp->children[Markedside]);
+        CurveSegs[CurveNumSegs] = vmsegptr(Markedsegp->shared_segment::children[Markedside]);
         CurveNumSegs++;
 	}
 
@@ -372,7 +372,7 @@ void generate_banked_curve(const fix maxscale, vms_equation coeffs)
 void delete_curve() {
 	range_for (auto &i, partial_const_range(CurveSegs, CurveNumSegs))
 	{
-        if (i->segnum != segment_none)
+        if (i->shared_segment::segnum != segment_none)
 			med_delete_segment(vmsegptridx(i));
     }
     Markedsegp = OriginalMarkedSeg;

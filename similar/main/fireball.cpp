@@ -510,7 +510,7 @@ imsegidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 			return seg_queue[tail];
 		}
 
-		const auto &&segp = vcsegptr(seg_queue[tail++]);
+		const shared_segment &segp = vcsegptr(seg_queue[tail++]);
 		tail &= QUEUE_SIZE-1;
 
 		//	to make random, switch a pair of entries in side_rand.
@@ -525,15 +525,18 @@ imsegidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 				sidenum = 0;
 
 			snrand = side_rand[sidenum];
-			auto wall_num = segp->shared_segment::sides[snrand].wall_num;
+			auto wall_num = segp.sides[snrand].wall_num;
 			sidenum++;
 
-			if ((wall_num == wall_none || door_is_openable_by_player(vcwallptr, segp, snrand)) && IS_CHILD(segp->children[snrand]))
+			const auto child_segnum = segp.children[snrand];
+			if (!IS_CHILD(child_segnum))
+				continue;
+			if (wall_num == wall_none || door_is_openable_by_player(vcwallptr, segp, snrand))
 			{
-				if (!visited[segp->children[snrand]]) {
-					seg_queue[head++] = segp->children[snrand];
-					visited[segp->children[snrand]] = true;
-					depth[segp->children[snrand]] = cur_depth+1;
+				if (!visited[child_segnum]) {
+					seg_queue[head++] = child_segnum;
+					visited[child_segnum] = true;
+					depth[child_segnum] = cur_depth+1;
 					head &= QUEUE_SIZE-1;
 					if (head > tail) {
 						if (head == tail + QUEUE_SIZE-1)
@@ -567,10 +570,11 @@ static imsegidx_t pick_connected_drop_segment(const segment_array &Segments, fvc
 	if (segnum == segment_none)
 		return segnum;
 	const auto &&segp = Segments.vcptridx(segnum);
-	if (segp->special == SEGMENT_IS_CONTROLCEN)
+	const shared_segment &sseg = segp;
+	if (sseg.special == SEGMENT_IS_CONTROLCEN)
 		return segment_none;
 	//don't drop in any children of control centers
-	range_for (const auto ch, segp->children)
+	for (const auto ch : sseg.children)
 	{
 		if (!IS_CHILD(ch))
 			continue;
@@ -579,7 +583,7 @@ static imsegidx_t pick_connected_drop_segment(const segment_array &Segments, fvc
 			return segment_none;
 	}
 	//bail if not far enough from original position
-	const auto &&tempv = compute_segment_center(vcvertptr, segp);
+	const auto &&tempv = compute_segment_center(vcvertptr, sseg);
 	if (find_connected_distance(player_pos, player_seg, tempv, segp, -1, WID_FLY_FLAG) < static_cast<fix>(i2f(20) * cur_drop_depth))
 		return segment_none;
 	return segnum;
@@ -724,12 +728,12 @@ static const object *segment_contains_powerup(fvcobjptridx &vcobjptridx, fvcsegp
 //	------------------------------------------------------------------------------------------------------
 static const object *powerup_nearby_aux(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const vcsegidx_t segnum, const powerup_type_t object_id, uint_fast32_t depth)
 {
-	auto &&segp = vcsegptr(segnum);
+	const cscusegment &&segp = vcsegptr(segnum);
 	if (auto r = segment_contains_powerup(vcobjptridx, vcsegptr, segp, object_id))
 		return r;
 	if (! -- depth)
 		return nullptr;
-	range_for (const auto seg2, segp->children)
+	for (const auto seg2 : segp.s.children)
 	{
 		if (seg2 != segment_none)
 			if (auto r = powerup_nearby_aux(vcobjptridx, vcsegptr, seg2, object_id, depth))

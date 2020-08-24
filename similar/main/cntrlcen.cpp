@@ -345,7 +345,8 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 
 			//	Hack for special control centers which are isolated and not reachable because the
 			//	real control center is inside the boss.
-			auto &children = vcsegptr(obj->segnum)->children;
+			const shared_segment &objseg = vcsegptr(obj->segnum);
+			auto &children = objseg.children;
 			if (std::none_of(children.begin(), children.end(), IS_CHILD))
 				return;
 

@@ -2252,8 +2252,8 @@ int create_special_path(void)
 	//	---------- Find exit doors ----------
 	range_for (const auto &&segp, vcsegptridx)
 	{
-		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-			if (segp->children[j] == segment_exit)
+		for (const auto child_segnum : segp->shared_segment::children)
+			if (child_segnum == segment_exit)
 			{
 				return mark_player_path_to_segment(Vclip, vmobjptridx, vmsegptridx, segp);
 			}

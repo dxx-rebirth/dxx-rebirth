@@ -963,19 +963,20 @@ static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye
 	if (Side_opposite[s0] == s1)
 		return false;
 	//find normals of adjoining sides
+	const shared_segment &sseg = seg;
 	const std::array<unsigned, 2> edge_verts = {
-		{seg->verts[Two_sides_to_edge[s0][s1][0]], seg->verts[Two_sides_to_edge[s0][s1][1]]}
+		{sseg.verts[Two_sides_to_edge[s0][s1][0]], sseg.verts[Two_sides_to_edge[s0][s1][1]]}
 	};
 	if (edge_verts[0] == -1 || edge_verts[1] == -1)
 		throw std::logic_error("invalid edge vert");
-	const auto &&seg0 = seg.absolute_sibling(seg->children[s0]);
+	const auto &&seg0 = seg.absolute_sibling(sseg.children[s0]);
 	const auto edgeside0 = find_seg_side(seg0, edge_verts, find_connect_side(seg, seg0));
 	if (edgeside0 == side_none)
 		return false;
 	const auto r0 = compare_child(vcvertptr, Viewer_eye, seg, seg0, edgeside0);
 	if (!r0)
 		return r0;
-	const auto &&seg1 = seg.absolute_sibling(seg->children[s1]);
+	const auto &&seg1 = seg.absolute_sibling(sseg.children[s1]);
 	const auto edgeside1 = find_seg_side(seg1, edge_verts, find_connect_side(seg, seg1));
 	if (edgeside1 == side_none)
 		return false;
@@ -1140,14 +1141,14 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 							if (sidemask & sf)
 							{
 #if defined(DXX_BUILD_DESCENT_I)
-								const auto &&seg = vcsegptr(obj->segnum);
+								const cscusegment &&seg = vcsegptr(obj->segnum);
 #elif defined(DXX_BUILD_DESCENT_II)
-								const auto &&seg = vcsegptr(new_segnum);
+								const cscusegment &&seg = vcsegptr(new_segnum);
 #endif
 		
 								if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn) & WID_FLY_FLAG)
 								{		//can explosion migrate through
-									int child = seg->children[sn];
+									const auto child = seg.s.children[sn];
 									int checknp;
 		
 									for (checknp=list_pos;checknp--;)
@@ -1337,7 +1338,7 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 			project_list(seg->verts);
 			range_for (const auto siden, child_range)
 			{
-				const auto ch = seg->children[siden];
+				const auto ch = seg->shared_segment::children[siden];
 				{
 					{
 						short min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;

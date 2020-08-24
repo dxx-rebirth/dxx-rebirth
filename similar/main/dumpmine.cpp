@@ -260,11 +260,11 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 	count = 0;
 	range_for (const auto &&segp, vcsegptridx)
 	{
-		range_for (const auto &&es, enumerate(segp->children))
+		for (const auto &&[child_segnum, sidenum] : enumerate(segp->shared_segment::children))
 		{
-			if (es.value == segment_exit)
+			if (child_segnum == segment_exit)
 			{
-				PHYSFSX_printf(my_file, "Segment %3hu, side %" PRIuFAST32 " is an exit door.\n", segp.get_unchecked_index(), es.idx);
+				PHYSFSX_printf(my_file, "Segment %3hu, side %" PRIuFAST32 " is an exit door.\n", segp.get_unchecked_index(), sidenum);
 				count++;
 			}
 		}

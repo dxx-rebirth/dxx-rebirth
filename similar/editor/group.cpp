@@ -411,11 +411,11 @@ static void cgl_aux(const vmsegptridx_t segp, group::segment_array_type_t &segli
 		if (ignore_list->contains(segp))
 			return;
 
-	if (!visited[segp]) {
-		visited[segp] = true;
+	if (auto &&v = visited[segp]; !v) {
+		v = true;
 		seglistp.emplace_back(segp);
 
-		range_for (const auto c, segp->children)
+		for (const auto c : segp->shared_segment::children)
 			if (IS_CHILD(c))
 				cgl_aux(segp.absolute_sibling(c), seglistp, ignore_list, visited);
 	}
@@ -475,7 +475,7 @@ static void duplicate_group(std::array<uint8_t, MAX_VERTICES> &vertex_ids, group
 	//	and correct its vertex numbers by translating through new_vertex_ids
 	range_for(const auto &gs, new_segments)
 	{
-		auto &sp = *vmsegptr(gs);
+		shared_segment &sp = vmsegptr(gs);
 		range_for (auto &seg, sp.children)
 		{
 			if (IS_CHILD(seg)) {
@@ -538,7 +538,7 @@ static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_se
 	int 			x;
 	int			new_current_group;
 
-	if (IS_CHILD(base_seg->children[base_side])) {
+	if (IS_CHILD(base_seg->shared_segment::children[base_side])) {
 		editor_status("Error -- unable to copy group, base_seg:base_side must be free.");
 		return 1;
 	}
@@ -593,7 +593,7 @@ static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_se
 
 	range_for(const auto &gs, GroupList[new_current_group].segments)
 	{
-		auto &s = *vmsegptr(gs);
+		shared_segment &s = *vmsegptr(gs);
 		s.group = new_current_group;
 		s.special = SEGMENT_IS_NOTHING;
 		s.matcen_num = -1;
@@ -604,13 +604,13 @@ static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_se
 	range_for(const auto &gs, GroupList[new_current_group].segments)
 	{
 		const auto &&segp = base_seg.absolute_sibling(gs);
-		range_for (const auto &&es, enumerate(segp->children))
-			if (IS_CHILD(es.value))
+		for (auto &&[child_segnum, sidenum] : enumerate(segp->shared_segment::children))
+			if (IS_CHILD(child_segnum))
 			{
-				if (!in_group(es.value, new_current_group))
+				if (!in_group(child_segnum, new_current_group))
 				{
-					es.value = segment_none;
-					validate_segment_side(vcvertptr, segp, es.idx);					// we have converted a connection to a side so validate the segment
+					child_segnum = segment_none;
+					validate_segment_side(vcvertptr, segp, sidenum);					// we have converted a connection to a side so validate the segment
 				}
 			}
 	}

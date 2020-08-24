@@ -510,8 +510,10 @@ int check_segment_connections(void)
 			const auto &num_faces = v.first;
 			const auto &vertex_list = v.second;
 #endif
-			auto csegnum = seg->children[sidenum];
-			if (IS_CHILD(csegnum)) {
+			const auto csegnum = seg->shared_segment::children[sidenum];
+			if (!IS_CHILD(csegnum))
+				continue;
+			{
 				auto cseg = vcsegptr(csegnum);
 				auto csidenum = find_connect_side(seg,cseg);
 
@@ -625,12 +627,12 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 		return oldsegnum; //..say so
 
 	for (;;) {
-		auto seg = oldsegnum;
+		auto &children = oldsegnum->shared_segment::children;
 		biggest_side = -1;
 		biggest_val = 0;
 		for (sidenum = 0, bit = 1; sidenum < 6; sidenum++, bit <<= 1)
 		{
-			if ((centermask & bit) && IS_CHILD(seg->children[sidenum])
+			if ((centermask & bit) && IS_CHILD(children[sidenum])
 			    && side_dists[sidenum] < biggest_val) {
 				biggest_val = side_dists[sidenum];
 				biggest_side = sidenum;
@@ -642,7 +644,7 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 
 		side_dists[biggest_side] = 0;
 		// trace into adjacent segment:
-		const auto &&check = trace_segs(LevelSharedSegmentState, p0, oldsegnum.absolute_sibling(seg->children[biggest_side]), recursion_count + 1, visited);
+		const auto &&check = trace_segs(LevelSharedSegmentState, p0, oldsegnum.absolute_sibling(children[biggest_side]), recursion_count + 1, visited);
 		if (check != segment_none)		//we've found a segment
 			return check;
 	}
@@ -1573,7 +1575,7 @@ void validate_segment_all(d_level_shared_segment_state &LevelSharedSegmentState)
 	range_for (const auto &&segp, Segments.vmptridx)
 	{
 #if DXX_USE_EDITOR
-		if (segp->segnum != segment_none)
+		if (segp->shared_segment::segnum != segment_none)
 		#endif
 			validate_segment(Vertices.vcptr, segp);
 	}
@@ -1618,9 +1620,10 @@ unsigned set_segment_depths(vcsegidx_t start_seg, const std::array<uint8_t, MAX_
 	unsigned parent_depth;
 	do {
 		const auto curseg = queue[head++];
+		auto &children = vcsegptr(curseg)->shared_segment::children;
 		parent_depth = depth[curseg];
 
-		range_for (const auto childnum, vcsegptr(curseg)->children)
+		for (const auto childnum : children)
 		{
 			if (childnum != segment_none && childnum != segment_exit)
 				if (!limit || (*limit)[childnum])

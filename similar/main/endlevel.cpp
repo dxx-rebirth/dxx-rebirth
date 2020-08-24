@@ -253,7 +253,7 @@ static unsigned get_tunnel_length(fvcsegptridx &vcsegptridx, const vcsegptridx_t
 	unsigned tunnel_length = 0;
 	for (;;)
 	{
-		const auto child = seg->children[exit_side];
+		const auto child = seg->shared_segment::children[exit_side];
 		if (child == segment_none)
 			return 0;
 		++tunnel_length;
@@ -285,7 +285,7 @@ static vcsegidx_t get_tunnel_transition_segment(const unsigned tunnel_length, co
 		 * this loop quits at (tunnel_length / 3), so the loop will quit
 		 * before it reaches segment_exit.
 		 */
-		const auto child = seg->children[exit_side];
+		const auto child = seg->shared_segment::children[exit_side];
 		if (!IS_CHILD(child))
 			/* This is only a sanity check.  It should never execute
 			 * unless there is a bug elsewhere.
@@ -1339,12 +1339,10 @@ static std::pair<icsegidx_t, sidenum_fast_t> find_exit_segment_side(fvcsegptridx
 {
 	range_for (const auto &&segp, vcsegptridx)
 	{
-		range_for (const auto &&e, enumerate(segp->children))
+		for (const auto &&[sidenum, child_segnum] : enumerate(segp->shared_segment::children))
 		{
-			const auto child_segnum = e.value;
 			if (child_segnum == segment_exit)
 			{
-				const auto sidenum = e.idx;
 				return {segp, sidenum};
 			}
 		}

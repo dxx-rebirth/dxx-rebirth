@@ -301,7 +301,7 @@ static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side, w
 	const auto wall_num = sside.wall_num;
 	w0.hps = -1;	//say it's blasted
 
-	const auto &&csegp = seg.absolute_sibling(seg->children[side]);
+	const auto &&csegp = seg.absolute_sibling(seg->shared_segment::children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != side_none);
 	const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
@@ -368,7 +368,7 @@ void wall_damage(const vmsegptridx_t seg, const unsigned side, fix damage)
 	
 	if (!(w0.flags & WALL_BLASTED) && w0.hps >= 0)
 		{
-		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
+		const auto &&csegp = seg.absolute_sibling(seg->shared_segment::children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != side_none);
 		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
@@ -457,7 +457,7 @@ void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 	w->state = WALL_DOOR_OPENING;
 
 	// So that door can't be shot while opening
-	const auto &&csegp = vcsegptr(seg->children[side]);
+	const auto &&csegp = vcsegptr(seg->shared_segment::children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	if (Connectside != side_none)
 	{
@@ -487,7 +487,7 @@ void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 		w2->state = WALL_DOOR_OPENING;
 
 		const auto &&seg2 = vcsegptridx(w2->segnum);
-		const auto &&csegp2 = vcsegptr(seg2->children[w2->sidenum]);
+		const auto &&csegp2 = vcsegptr(seg2->shared_segment::children[w2->sidenum]);
 		Connectside = find_connect_side(seg2, csegp2);
 		Assert(Connectside != side_none);
 		const auto cwall_num = csegp2->shared_segment::sides[Connectside].wall_num;
@@ -699,7 +699,7 @@ void wall_close_door_ref(fvmsegptridx &vmsegptridx, wall_array &Walls, const wal
 
 		assert(seg->shared_segment::sides[side].wall_num != wall_none);		//Closing door on illegal wall
 
-		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
+		const auto &&csegp = seg.absolute_sibling(seg->shared_segment::children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != side_none);
 		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
@@ -743,7 +743,7 @@ static unsigned is_door_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegpt
 {
 	if (const auto obstructed = is_door_side_obstructed(vcobjptridx, vcsegptr, seg, side))
 		return obstructed;
-	const auto &&csegp = vcsegptr(seg->children[side]);
+	const auto &&csegp = vcsegptr(seg->shared_segment::children[side]);
 	const auto &&Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != side_none);
 	//go through each object in each of two segments, and see if
@@ -865,7 +865,7 @@ static bool do_door_open(active_door &d)
 			continue;
 		}
 
-		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
+		const auto &&csegp = seg.absolute_sibling(seg->shared_segment::children[side]);
 		const auto &&Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != side_none);
 
@@ -962,7 +962,7 @@ static bool do_door_close(active_door &d)
 #endif
 
 		// Otherwise, close it.
-		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
+		const auto &&csegp = seg.absolute_sibling(seg->shared_segment::children[side]);
 		const auto &&Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != side_none);
 
@@ -1023,7 +1023,7 @@ static std::pair<wall *, wall *> wall_illusion_op(fvmwallptr &vmwallptr, const v
 	const auto wall0 = seg->shared_segment::sides[side].wall_num;
 	if (wall0 == wall_none)
 		return {nullptr, nullptr};
-	const shared_segment &csegp = *seg.absolute_sibling(seg->children[side]);
+	const shared_segment &csegp = *seg.absolute_sibling(seg->shared_segment::children[side]);
 	const auto &&cside = find_connect_side(seg, csegp);
 	if (cside == side_none)
 	{

@@ -732,9 +732,11 @@ int wall_restore_all()
 //	Remove a specific side.
 int wall_remove_side(const vmsegptridx_t seg, short side)
 {
-	if (IS_CHILD(seg->children[side]) && seg->shared_segment::sides[side].wall_num != wall_none)
+	const shared_segment &sseg = seg;
+	const auto seg_child = sseg.children[side];
+	if (IS_CHILD(seg_child) && sseg.sides[side].wall_num != wall_none)
 	{
-		shared_segment &csegp = *vmsegptr(seg->children[side]);
+		shared_segment &csegp = *vmsegptr(seg_child);
 		const auto Connectside = find_connect_side(seg, csegp);
 
 		remove_trigger(seg, side);

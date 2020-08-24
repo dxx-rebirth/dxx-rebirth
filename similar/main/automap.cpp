@@ -1399,7 +1399,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 		uint8_t no_fade = 0;
 
 		color = 255;
-		if (seg->children[sn] == segment_none) {
+		if (seg->shared_segment::children[sn] == segment_none) {
 			color = am->wall_normal_color;
 		}
 
@@ -1441,7 +1441,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 				{
 					no_fade = EF_NO_FADE;
 				} else if (!(WallAnims[w.clip_num].flags & WCF_HIDDEN)) {
-					auto connected_seg = seg->children[sn];
+					const auto connected_seg = seg->shared_segment::children[sn];
 					if (connected_seg != segment_none) {
 						const shared_segment &vcseg = *vcsegptr(connected_seg);
 						const auto &connected_side = find_connect_side(seg, vcseg);
@@ -1552,7 +1552,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 		range_for (const auto &&segp, vcsegptridx)
 		{
 #if DXX_USE_EDITOR
-			if (segp->segnum != segment_none)
+			if (segp->shared_segment::segnum != segment_none)
 #endif
 			{
 				add_segment_edges(vcsegptr, vcwallptr, am, segp);
@@ -1563,7 +1563,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 		range_for (const auto &&segp, vcsegptridx)
 		{
 #if DXX_USE_EDITOR
-			if (segp->segnum != segment_none)
+			if (segp->shared_segment::segnum != segment_none)
 #endif
 				if (LevelUniqueAutomapState.Automap_visited[segp])
 				{
@@ -1573,7 +1573,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 		range_for (const auto &&segp, vcsegptridx)
 		{
 #if DXX_USE_EDITOR
-			if (segp->segnum != segment_none)
+			if (segp->shared_segment::segnum != segment_none)
 #endif
 				if (!LevelUniqueAutomapState.Automap_visited[segp])
 				{

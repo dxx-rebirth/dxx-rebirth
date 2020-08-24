@@ -336,7 +336,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 	while (cur_seg != end_seg) {
-		const auto &&segp = vcsegptr(cur_seg);
+		const cscusegment &&segp = vcsegptr(cur_seg);
 #if defined(DXX_BUILD_DESCENT_II)
 		if (random_flag != create_path_random_flag::nonrandom)
 			if (d_rand() < 8192)
@@ -347,7 +347,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 		{
 			const unsigned snum = (random_flag != create_path_random_flag::nonrandom) ? es.value : es.idx;
 
-			if (!IS_CHILD(segp->children[snum]))
+			if (!IS_CHILD(segp.s.children[snum]))
 				continue;
 #if defined(DXX_BUILD_DESCENT_I)
 #define AI_DOOR_OPENABLE_PLAYER_FLAGS
@@ -358,7 +358,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 			if ((WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, snum) & WID_FLY_FLAG) || ai_door_is_openable(objp, AI_DOOR_OPENABLE_PLAYER_FLAGS segp, snum))
 #undef AI_DOOR_OPENABLE_PLAYER_FLAGS
 			{
-				const auto this_seg = segp->children[snum];
+				const auto this_seg = segp.s.children[snum];
 #if defined(DXX_BUILD_DESCENT_II)
 				Assert(this_seg != segment_none);
 				if (((cur_seg == avoid_seg) || (this_seg == avoid_seg)) && (ConsoleObject->segnum == avoid_seg)) {
@@ -586,8 +586,8 @@ int validate_path(int, point_seg *psegs, uint_fast32_t num_points)
 	{
 		auto nextseg = ps.segnum;
 		if (curseg != nextseg) {
-			const auto &&csegp = vcsegptr(curseg);
-			const auto &children = csegp->children;
+			const shared_segment &csegp = vcsegptr(curseg);
+			auto &children = csegp.children;
 			if (std::find(children.begin(), children.end(), nextseg) == children.end())
 			{
 			// Assert(sidenum != MAX_SIDES_PER_SEGMENT);	//	Hey, created path is not contiguous, why!?
@@ -1538,11 +1538,13 @@ static void test_create_all_paths(fvmobjptridx &vmobjptridx, fvcsegptridx &vcseg
 
 	range_for (const auto &&segp0, vcsegptridx)
 	{
-		if (segp0->segnum != segment_none)
+		const shared_segment &sseg0 = segp0;
+		if (sseg0.segnum != segment_none)
 		{
 			range_for (const auto &&segp1, partial_range(vcsegptridx, static_cast<segnum_t>(segp0), vcsegptridx.count()))
 			{
-				if (segp1->segnum != segment_none)
+				const shared_segment &sseg1 = segp1;
+				if (sseg1.segnum != segment_none)
 				{
 					create_path_points(vmobjptridx(object_first), segp0, segp1, Point_segs_free_ptr, MAX_PATH_LENGTH, create_path_random_flag::nonrandom, create_path_safety_flag::unsafe, segment_none);
 				}

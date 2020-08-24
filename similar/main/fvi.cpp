@@ -917,7 +917,8 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 					int face_hit_type;      //in what way did we hit the face?
 
 
-					if (startseg->children[side] == entry_seg)
+					const auto child_segnum = startseg->shared_segment::children[side];
+					if (child_segnum == entry_seg)
 						continue;		//don't go back through entry side
 
 					//did we go through this wall/door?
@@ -945,7 +946,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 
 						if (thisobjnum == get_local_player().objnum && cheats.ghostphysics)
 						{
-							if (IS_CHILD(startseg->children[side]))
+							if (IS_CHILD(child_segnum))
  								wid_flag |= WID_FLY_FLAG;
 						}
 
@@ -966,7 +967,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 
 							//do the check recursively on the next seg.
 
-							newsegnum = startseg->children[side];
+							newsegnum = child_segnum;
 
 							if (!visited[newsegnum]) {                //haven't visited here yet
 								visited[newsegnum] = true;
@@ -1224,13 +1225,14 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 
 //new function for Mike
 //note: n_segs_visited must be set to zero before this is called
-static sphere_intersects_wall_result sphere_intersects_wall(fvcvertptr &vcvertptr, const vms_vector &pnt, const vcsegptridx_t seg, const fix rad, fvi_segments_visited_t &visited)
+static sphere_intersects_wall_result sphere_intersects_wall(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, const vms_vector &pnt, const vcsegptridx_t seg, const fix rad, fvi_segments_visited_t &visited)
 {
 	int facemask;
 	visited[seg] = true;
 	++visited.count;
 
-	facemask = get_seg_masks(vcvertptr, pnt, seg, rad).facemask;
+	const shared_segment &sseg = seg;
+	facemask = get_seg_masks(vcvertptr, pnt, sseg, rad).facemask;
 
 	if (facemask != 0) {				//on the back of at least one face
 
@@ -1247,8 +1249,8 @@ static sphere_intersects_wall_result sphere_intersects_wall(fvcvertptr &vcvertpt
 					int face_hit_type;      //in what way did we hit the face?
 
 					//did we go through this wall/door?
-					auto &sidep = seg->shared_segment::sides[side];
-					const auto v = create_abs_vertex_lists(seg, sidep, side);
+					auto &sidep = sseg.sides[side];
+					const auto v = create_abs_vertex_lists(sseg, sidep, side);
 					const auto &num_faces = v.first;
 					const auto &vertex_list = v.second;
 
@@ -1258,14 +1260,14 @@ static sphere_intersects_wall_result sphere_intersects_wall(fvcvertptr &vcvertpt
 					if (face_hit_type) {            //through this wall/door
 						//if what we have hit is a door, check the adjoining seg
 
-						auto child = seg->children[side];
+						const auto child = sseg.children[side];
 
 						if (!IS_CHILD(child))
 						{
-							return {static_cast<const segment *>(seg), side};
+							return {&sseg, side};
 						}
 						else if (!visited[child]) {                //haven't visited here yet
-							const auto &&r = sphere_intersects_wall(vcvertptr, pnt, seg.absolute_sibling(child), rad, visited);
+							const auto &&r = sphere_intersects_wall(vcsegptridx, vcvertptr, pnt, vcsegptridx(child), rad, visited);
 							if (r.seg)
 								return r;
 						}
@@ -1277,8 +1279,8 @@ static sphere_intersects_wall_result sphere_intersects_wall(fvcvertptr &vcvertpt
 	return {};
 }
 
-sphere_intersects_wall_result sphere_intersects_wall(fvcvertptr &vcvertptr, const vms_vector &pnt, const vcsegptridx_t seg, const fix rad)
+sphere_intersects_wall_result sphere_intersects_wall(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, const vms_vector &pnt, const vcsegptridx_t seg, const fix rad)
 {
 	fvi_segments_visited_t visited;
-	return sphere_intersects_wall(vcvertptr, pnt, seg, rad, visited);
+	return sphere_intersects_wall(vcsegptridx, vcvertptr, pnt, seg, rad, visited);
 }

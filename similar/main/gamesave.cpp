@@ -864,7 +864,7 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 	{
 		case WALL_DOOR:
 			{
-				const auto connected_seg = seg->children[sidenum];
+				const auto connected_seg = seg->shared_segment::children[sidenum];
 				if (connected_seg == segment_none)
 				{
 					rwn0 = wall_none;

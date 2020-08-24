@@ -126,16 +126,17 @@ static int trigger_flag_Markedside(const TRIGGER_FLAG flag, const int value)
 	}
 
 	// If no child on Markedside return
-	if (!IS_CHILD(Markedsegp->children[Markedside])) return 0;
+	shared_segment &markedseg = Markedsegp;
+	if (!IS_CHILD(markedseg.children[Markedside])) return 0;
 
 	// If no wall just return
-	const auto wall_num = Markedsegp->shared_segment::sides[Markedside].wall_num;
+	const auto wall_num = markedseg.sides[Markedside].wall_num;
 	if (!value && wall_num == wall_none) return 0;
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	const auto trigger_num = value ? add_trigger(Triggers, vcvertptr, Walls, Markedsegp, Markedside) : vcwallptr(wall_num)->trigger;
+	const auto trigger_num = value ? add_trigger(Triggers, vcvertptr, Walls, markedseg, Markedside) : vcwallptr(wall_num)->trigger;
 
 	if (trigger_num == trigger_none) {
 		editor_status(value ? "Cannot add trigger at Markedside." : "No trigger at Markedside.");
@@ -413,7 +414,8 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	// If we change walls, we need to reset the ui code for all
 	// of the checkboxes that control the wall flags.  
 	//------------------------------------------------------------
-	const auto Markedwall = Markedsegp->shared_segment::sides[Markedside].wall_num;
+	msmusegment &&markedseg = Markedsegp;
+	const auto Markedwall = markedseg.s.sides[Markedside].wall_num;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 	const auto trigger_num = (Markedwall != wall_none) ? vcwallptr(Markedwall)->trigger : trigger_none;
@@ -445,7 +447,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	// If any of the checkboxes that control the wallflags are set, then
 	// update the cooresponding wall flag.
 	//------------------------------------------------------------
-	if (IS_CHILD(Markedsegp->children[Markedside]))
+	if (IS_CHILD(markedseg.s.children[Markedside]))
 	{
 #if defined(DXX_BUILD_DESCENT_I)
 		rval = window_event_result::handled;
@@ -490,11 +492,11 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 		gr_set_current_canvas( t->wallViewBox->canvas );
 		auto &canvas = *grd_curcanv;
 
-		const auto wall_num = Markedsegp->shared_segment::sides[Markedside].wall_num;
+		const auto wall_num = markedseg.s.sides[Markedside].wall_num;
 		if (wall_num == wall_none || vcwallptr(wall_num)->trigger == trigger_none)
 			gr_clear_canvas(canvas, CBLACK);
 		else {
-			auto &us = Markedsegp->unique_segment::sides[Markedside];
+			auto &us = markedseg.u.sides[Markedside];
 			if (us.tmap_num2 > 0) 
 			{
 				gr_ubitmap(canvas, texmerge_get_cached_bitmap(us.tmap_num, us.tmap_num2));
@@ -517,7 +519,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	//------------------------------------------------------------
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
-		if (Markedsegp->shared_segment::sides[Markedside].wall_num != wall_none)
+		if (markedseg.s.sides[Markedside].wall_num != wall_none)
 		{
 			ui_dprintf_at( MainWindow, 12, 6, "Trigger: %d    ", trigger_num);
 		}	else {
