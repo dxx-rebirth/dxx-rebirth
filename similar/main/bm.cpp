@@ -592,34 +592,24 @@ void load_robot_replacements(const d_fname &level_name)
  */
 
 // formerly exitmodel_bm_load_sub
-static bitmap_index read_extra_bitmap_iff(const char * filename )
+static grs_bitmap *read_extra_bitmap_iff(const char * filename, grs_bitmap &n)
 {
-	bitmap_index bitmap_num;
-	grs_bitmap * n = &GameBitmaps[extra_bitmap_num];
 	palette_array_t newpal;
 	int iff_error;		//reference parm to avoid warning message
 
-	bitmap_num.index = 0;
-
 	//MALLOC( new, grs_bitmap, 1 );
-	iff_error = iff_read_bitmap(filename, *n, &newpal);
+	iff_error = iff_read_bitmap(filename, n, &newpal);
 	if (iff_error != IFF_NO_ERROR)		{
 		con_printf(CON_DEBUG, "Error loading exit model bitmap <%s> - IFF error: %s", filename, iff_errormsg(iff_error));
-		return bitmap_num;
+		return nullptr;
 	}
 
-	gr_remap_bitmap_good(*n, newpal, iff_has_transparency ? iff_transparent_color : -1, 254);
+	gr_remap_bitmap_good(n, newpal, iff_has_transparency ? iff_transparent_color : -1, 254);
 
 #if !DXX_USE_OGL
-	n->avg_color = 0;	//compute_average_pixel(new);
+	n.avg_color = 0;	//compute_average_pixel(new);
 #endif
-
-	bitmap_num.index = extra_bitmap_num;
-
-	GameBitmaps[extra_bitmap_num++] = *n;
-
-	//d_free( n );
-	return bitmap_num;
+	return &n;
 }
 
 // formerly load_exit_model_bitmap
@@ -628,25 +618,24 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 	assert(N_ObjBitmaps < ObjBitmaps.size());
 	{
 		auto &bitmap_idx = ObjBitmaps[N_ObjBitmaps];
-		bitmap_idx = read_extra_bitmap_iff(name);
-		if (bitmap_idx.index == 0)
+		const auto bitmap_store_index = bitmap_index{static_cast<uint16_t>(extra_bitmap_num)};
+		grs_bitmap &n = GameBitmaps[bitmap_store_index.index];
+		if (!read_extra_bitmap_iff(name, n))
 		{
 			RAIIdmem<char[]> name2(d_strdup(name));
 			*strrchr(name2.get(), '.') = '\0';
-			const auto bitmap_store_index = bitmap_index{static_cast<uint16_t>(extra_bitmap_num)};
-			grs_bitmap &n = GameBitmaps[bitmap_store_index.index];
 			if (const auto r = read_extra_bitmap_d1_pig(name2.get(), n); !r)
 				return r;
-			++ extra_bitmap_num;
-			bitmap_idx = bitmap_store_index;
 		}
+		bitmap_idx = bitmap_store_index;
+		++ extra_bitmap_num;
 
-		if (GameBitmaps[bitmap_idx.index].bm_w != 64 || GameBitmaps[bitmap_idx.index].bm_h != 64)
+		if (n.bm_w != 64 || n.bm_h != 64)
 			Error("Bitmap <%s> is not 64x64",name);
 		ObjBitmapPtrs[N_ObjBitmaps] = N_ObjBitmaps;
 		N_ObjBitmaps++;
 		assert(N_ObjBitmaps < ObjBitmaps.size());
-		return &GameBitmaps[bitmap_idx.index];
+		return &n;
 	}
 }
 
