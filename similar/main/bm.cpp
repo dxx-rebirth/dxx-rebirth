@@ -148,7 +148,7 @@ int gamedata_init()
 {
 	int retval;
 	
-	init_polygon_models();
+	init_polygon_models(LevelSharedPolygonModelState);
 	retval = properties_init();				// This calls properties_read_cmp if appropriate
 	if (retval)
 		gamedata_read_tbl(Vclip, retval == PIGGY_PC_SHAREWARE);
@@ -207,7 +207,7 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 		powerup_type_info_read(fp, p);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	N_polygon_models = PHYSFSX_readInt(fp);
+	const auto N_polygon_models = LevelSharedPolygonModelState.N_polygon_models = PHYSFSX_readInt(fp);
 	{
 		const auto &&r = partial_range(Polygon_models, N_polygon_models);
 	range_for (auto &p, r)
@@ -280,7 +280,7 @@ static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 // Initializes game properties data (including texture caching system) and sound data.
 int gamedata_init()
 {
-	init_polygon_models();
+	init_polygon_models(LevelSharedPolygonModelState);
 
 #if DXX_USE_EDITOR
 	// The pc_shareware argument is currently unused for Descent 2,
@@ -343,7 +343,7 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 		powerup_type_info_read(fp, p);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	N_polygon_models = PHYSFSX_readInt(fp);
+	const auto N_polygon_models = LevelSharedPolygonModelState.N_polygon_models = PHYSFSX_readInt(fp);
 	{
 		const auto &&r = partial_range(Polygon_models, N_polygon_models);
 	range_for (auto &p, r)
@@ -421,8 +421,7 @@ static void bm_free_extra_models()
 {
 	Exit_models_loaded = false;
 	const auto base = std::min(N_D2_POLYGON_MODELS.value, exit_modelnum);
-	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	range_for (auto &p, partial_range(Polygon_models, base, std::exchange(N_polygon_models, base)))
+	for (auto &p : partial_range(LevelSharedPolygonModelState.Polygon_models, base, std::exchange(LevelSharedPolygonModelState.N_polygon_models, base)))
 		free_model(p);
 }
 
@@ -480,7 +479,7 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 
 	unsigned u = PHYSFSX_readInt(fp);
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	N_polygon_models = N_D2_POLYGON_MODELS+u;
+	const auto N_polygon_models = LevelSharedPolygonModelState.N_polygon_models = N_D2_POLYGON_MODELS+u;
 	if (N_polygon_models >= MAX_POLYGON_MODELS)
 		Error("Too many polygon models (%d) in <%s>.  Max is %d.",u,fname,MAX_POLYGON_MODELS-N_D2_POLYGON_MODELS);
 	{
@@ -514,7 +513,7 @@ int Robot_replacements_loaded = 0;
 void load_robot_replacements(const d_fname &level_name)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
-	int t,i,j;
+	int t,j;
 	char ifile_name[FILENAME_LEN];
 
 	change_filename_extension(ifile_name, level_name, ".HXM" );
@@ -535,27 +534,28 @@ void load_robot_replacements(const d_fname &level_name)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	const auto N_robot_types = LevelSharedRobotInfoState.N_robot_types;
 	for (j=0;j<t;j++) {
-		i = PHYSFSX_readInt(fp);		//read robot number
-		if (i<0 || i>=N_robot_types)
-			Error("Robots number (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),N_robot_types-1);
+		const unsigned i = PHYSFSX_readInt(fp);		//read robot number
+		if (i >= N_robot_types)
+			Error("Robots number (%u) out of range in (%s).  Range = [0..%u].", i, static_cast<const char *>(level_name), N_robot_types- 1);
 		robot_info_read(fp, Robot_info[i]);
 	}
 
 	t = PHYSFSX_readInt(fp);			//read number of joints
 	for (j=0;j<t;j++) {
-		i = PHYSFSX_readInt(fp);		//read joint number
-		if (i<0 || i>=N_robot_joints)
-			Error("Robots joint (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),N_robot_joints-1);
+		const unsigned i = PHYSFSX_readInt(fp);		//read joint number
+		if (i >= N_robot_joints)
+			Error("Robots joint (%u) out of range in (%s).  Range = [0..%u].", i, static_cast<const char *>(level_name), N_robot_joints - 1);
 		jointpos_read(fp, Robot_joints[i]);
 	}
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+	const auto N_polygon_models = LevelSharedPolygonModelState.N_polygon_models;
 	t = PHYSFSX_readInt(fp);			//read number of polygon models
 	for (j=0;j<t;j++)
 	{
-		i = PHYSFSX_readInt(fp);		//read model number
-		if (i<0 || i>=N_polygon_models)
-			Error("Polygon model (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),N_polygon_models-1);
+		const unsigned i = PHYSFSX_readInt(fp);		//read model number
+		if (i >= N_polygon_models)
+			Error("Polygon model (%u) out of range in (%s).  Range = [0..%u].", i, static_cast<const char *>(level_name), N_polygon_models - 1);
 
 		free_model(Polygon_models[i]);
 		polymodel_read(&Polygon_models[i], fp);
@@ -567,17 +567,17 @@ void load_robot_replacements(const d_fname &level_name)
 
 	t = PHYSFSX_readInt(fp);			//read number of objbitmaps
 	for (j=0;j<t;j++) {
-		i = PHYSFSX_readInt(fp);		//read objbitmap number
-		if (i < 0 || i >= ObjBitmaps.size())
-			Error("Object bitmap number (%d) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", i, static_cast<const char *>(level_name), ObjBitmaps.size() - 1);
+		const unsigned i = PHYSFSX_readInt(fp);		//read objbitmap number
+		if (i >= ObjBitmaps.size())
+			Error("Object bitmap number (%u) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", i, static_cast<const char *>(level_name), ObjBitmaps.size() - 1);
 		bitmap_index_read(fp, ObjBitmaps[i]);
 	}
 
 	t = PHYSFSX_readInt(fp);			//read number of objbitmapptrs
 	for (j=0;j<t;j++) {
-		i = PHYSFSX_readInt(fp);		//read objbitmapptr number
-		if (i < 0 || i >= ObjBitmapPtrs.size())
-			Error("Object bitmap pointer (%d) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", i, static_cast<const char *>(level_name), ObjBitmapPtrs.size() - 1);
+		const unsigned i = PHYSFSX_readInt(fp);		//read objbitmapptr number
+		if (i >= ObjBitmapPtrs.size())
+			Error("Object bitmap pointer (%u) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", i, static_cast<const char *>(level_name), ObjBitmapPtrs.size() - 1);
 		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
 	}
 	Robot_replacements_loaded = 1;
@@ -683,7 +683,7 @@ int load_exit_models()
 	{
 		return 0;
 	}
-	if (!Exit_models_loaded && N_polygon_models > MAX_POLYGON_MODELS - 2)
+	if (!Exit_models_loaded && LevelSharedPolygonModelState.N_polygon_models > MAX_POLYGON_MODELS - 2)
 	{
 		return 0;
 	}
@@ -707,7 +707,7 @@ int load_exit_models()
 	}
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	if (Exit_models_loaded && exit_modelnum < N_polygon_models && destroyed_exit_modelnum < N_polygon_models)
+	if (Exit_models_loaded && exit_modelnum < LevelSharedPolygonModelState.N_polygon_models && destroyed_exit_modelnum < LevelSharedPolygonModelState.N_polygon_models)
 	{
 		// already loaded, just adjust texture indexes
 		Polygon_models[exit_modelnum].first_texture = Exit_bitmap_index;
@@ -717,8 +717,8 @@ int load_exit_models()
 
 	if (auto exit_hamfile = PHYSFSX_openReadBuffered("exit.ham"))
 	{
-		exit_modelnum = N_polygon_models++;
-		destroyed_exit_modelnum = N_polygon_models++;
+		exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
+		destroyed_exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
 		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
 		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
 		Polygon_models[exit_modelnum].first_texture = start_num;
@@ -764,8 +764,8 @@ int load_exit_models()
 			return 0;
 		}
 		PHYSFSX_fseek(exit_hamfile, offset, SEEK_SET);
-		exit_modelnum = N_polygon_models++;
-		destroyed_exit_modelnum = N_polygon_models++;
+		exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
+		destroyed_exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
 		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
 		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
 		Polygon_models[exit_modelnum].first_texture = start_num;

@@ -56,10 +56,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include <memory>
 
-namespace dcx {
-unsigned N_polygon_models = 0;
-}
-
 #define PM_COMPATIBLE_VERSION 6
 #define PM_OBJFILE_VERSION 8
 
@@ -421,8 +417,6 @@ namespace dsx {
 
 void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const unsigned model_num, unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, alternate_textures alt_textures)
 {
-	Assert(model_num < N_polygon_models);
-
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const polymodel *po = &Polygon_models[model_num];
 
@@ -494,8 +488,7 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_mat
 
 void free_polygon_models()
 {
-	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	range_for (auto &i, partial_range(Polygon_models, N_polygon_models))
+	for (auto &i : partial_range(LevelSharedPolygonModelState.Polygon_models, LevelSharedPolygonModelState.N_polygon_models))
 		free_model(i);
 #if defined(DXX_BUILD_DESCENT_II)
 	Exit_models_loaded = false;
@@ -567,6 +560,11 @@ static void polyobj_find_min_max(polymodel *pm)
 	}
 }
 
+void init_polygon_models(d_level_shared_polygon_model_state &LevelSharedPolygonModelState)
+{
+	LevelSharedPolygonModelState.N_polygon_models = 0;
+}
+
 }
 
 namespace dsx {
@@ -576,11 +574,10 @@ std::array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Pof_names;
 //returns the number of this model
 int load_polygon_model(const char *filename,int n_textures,int first_texture,robot_info *r)
 {
-	Assert(N_polygon_models < MAX_POLYGON_MODELS);
 	Assert(n_textures < MAX_POLYOBJ_TEXTURES);
 
 	Assert(strlen(filename) <= 12);
-	const auto n_models = N_polygon_models;
+	const auto n_models = LevelSharedPolygonModelState.N_polygon_models;
 	strcpy(Pof_names[n_models], filename);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
@@ -598,21 +595,7 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 	model.first_texture = first_texture;
 	model.simpler_model = 0;
 
-//	Assert(polygon_models[N_polygon_models]!=NULL);
-
-	N_polygon_models++;
-
-	return N_polygon_models-1;
-
-}
-
-}
-
-namespace dcx {
-
-void init_polygon_models()
-{
-	N_polygon_models = 0;
+	return LevelSharedPolygonModelState.N_polygon_models++;
 }
 
 }
@@ -629,8 +612,6 @@ void init_polygon_models()
 void draw_model_picture(grs_canvas &canvas, const uint_fast32_t mn, const vms_angvec &orient_angles)
 {
 	g3s_lrgb	lrgb = { f1_0, f1_0, f1_0 };
-
-	Assert(mn<N_polygon_models);
 
 	gr_clear_canvas(canvas, BM_XRGB(0,0,0));
 	g3_start_frame(canvas);

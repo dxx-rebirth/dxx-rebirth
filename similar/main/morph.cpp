@@ -54,6 +54,8 @@ namespace dcx {
 
 namespace {
 
+constexpr vms_vector morph_rotvel{0x4000,0x2000,0x1000};
+
 class invalid_morph_model_type : public std::runtime_error
 {
 	__attribute_cold
@@ -388,6 +390,7 @@ static void update_points(const polymodel &pm, const unsigned submodel_num, morp
 	}
 }
 
+namespace dsx {
 //process the morphing object for one frame
 void do_morph_frame(object &obj)
 {
@@ -441,8 +444,6 @@ void do_morph_frame(object &obj)
 		umd->reset();
 	}
 }
-
-constexpr vms_vector morph_rotvel{0x4000,0x2000,0x1000};
 
 void init_morphs()
 {
@@ -509,6 +510,7 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 	//now, project points onto surface of box
 
 	init_points(pm,&box_size,0,md);
+}
 }
 
 static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, polymodel *const pm, const unsigned submodel_num, const submodel_angles anim_angles, g3s_lrgb light, morph_data *const md)

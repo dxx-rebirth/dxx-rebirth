@@ -102,6 +102,7 @@ struct d_level_unique_morph_object_state;
 morph_data::ptr *find_morph_data(d_level_unique_morph_object_state &LevelUniqueMorphObjectState, object_base &obj);
 }
 
+namespace dsx {
 void morph_start(d_level_unique_morph_object_state &, d_level_shared_polygon_model_state &, object_base &obj);
 
 //process the morphing object for one frame
@@ -109,6 +110,7 @@ void do_morph_frame(object &obj);
 
 //called at the start of a level
 void init_morphs();
+}
 #endif
 
 #endif

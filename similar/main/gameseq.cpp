@@ -950,11 +950,16 @@ static ushort netmisc_calc_checksum()
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-// load just the hxm file
+
 void load_level_robots(int level_num)
 {
-	Assert(level_num <= Last_level  && level_num >= Last_secret_level  && level_num != 0);
 	const d_fname &level_name = get_level_file(level_num);
+	load_level_robots(level_name);
+}
+
+// load just the hxm file
+void load_level_robots(const d_fname &level_name)
+{
 	if (Robot_replacements_loaded) {
 		free_polygon_models();
 		load_mission_ham();
@@ -962,6 +967,7 @@ void load_level_robots(int level_num)
 	}
 	load_robot_replacements(level_name);
 }
+
 }
 #endif
 
@@ -990,7 +996,7 @@ void LoadLevel(int level_num,int page_in_textures)
 	gr_set_default_canvas();
 	gr_clear_canvas(*grd_curcanv, BM_XRGB(0, 0, 0));		//so palette switching is less obvious
 
-	load_level_robots(level_num);
+	load_level_robots(level_name);
 
 	auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
 	int load_ret = load_level(LevelSharedDestructibleLightState, level_name);		//actually load the data from disk!

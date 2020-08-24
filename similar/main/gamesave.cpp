@@ -182,7 +182,9 @@ int convert_tmap(int tmap)
 		return tmap;
     return (tmap >= NumTextures) ? tmap % NumTextures : tmap;
 }
-static int convert_polymod(int polymod) {
+
+static unsigned convert_polymod(const unsigned N_polygon_models, const unsigned polymod)
+{
     return (polymod >= N_polygon_models) ? polymod % N_polygon_models : polymod;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -256,8 +258,8 @@ static void verify_object(const d_vclip_array &Vclip, object &obj)
 		if (obj.render_type == RT_POLYOBJ)
 		{
 			char *name = Save_pof_names[obj.rtype.pobj_info.model_num];
-			for (uint_fast32_t i = 0;i < N_polygon_models;i++)
-				if (!d_stricmp(Pof_names[i],name)) {		//found it!	
+			for (auto &&[candidate_name, i] : enumerate(partial_range(Pof_names, LevelSharedPolygonModelState.N_polygon_models)))
+				if (!d_stricmp(candidate_name, name)) {		//found it!	
 					obj.rtype.pobj_info.model_num = i;
 					break;
 				}
@@ -583,7 +585,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 			int tmo;
 
 #if defined(DXX_BUILD_DESCENT_I)
-			obj->rtype.pobj_info.model_num		= convert_polymod(PHYSFSX_readInt(f));
+			obj->rtype.pobj_info.model_num		= convert_polymod(LevelSharedPolygonModelState.N_polygon_models, PHYSFSX_readInt(f));
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj->rtype.pobj_info.model_num		= PHYSFSX_readInt(f);
 #endif
@@ -1725,6 +1727,7 @@ static int save_game_data(
 	if (game_top_fileinfo_version >= 19)
 #endif
 	{
+		const auto N_polygon_models = LevelSharedPolygonModelState.N_polygon_models;
 		PHYSFS_writeSLE16(SaveFile, N_polygon_models);
 		range_for (auto &i, partial_const_range(Pof_names, N_polygon_models))
 			PHYSFS_write(SaveFile, &i, sizeof(i), 1);

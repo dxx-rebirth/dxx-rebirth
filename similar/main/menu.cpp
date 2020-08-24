@@ -2468,11 +2468,12 @@ static window_event_result polygon_models_viewer_handler(window *, const d_event
 					return window_event_result::close;
 				case KEY_SPACEBAR:
 					view_idx ++;
-					if (view_idx >= N_polygon_models) view_idx = 0;
+					if (view_idx >= LevelSharedPolygonModelState.N_polygon_models)
+						view_idx = 0;
 					break;
 				case KEY_BACKSP:
 					if (!view_idx)
-						view_idx = N_polygon_models - 1;
+						view_idx = LevelSharedPolygonModelState.N_polygon_models - 1;
 					else
 						view_idx --;
 					break;
@@ -2509,7 +2510,7 @@ static window_event_result polygon_models_viewer_handler(window *, const d_event
 				draw_model_picture(canvas, view_idx, ang);
 				gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
 				auto &game_font = *GAME_FONT;
-				gr_printf(canvas, game_font, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation", view_idx, N_polygon_models - 1);
+				gr_printf(canvas, game_font, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation", view_idx, LevelSharedPolygonModelState.N_polygon_models - 1);
 			}
 			break;
 		case EVENT_WINDOW_CLOSE:

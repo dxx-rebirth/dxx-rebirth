@@ -94,9 +94,13 @@ public:
 	}
 };
 
+struct d_level_shared_polygon_model_state
+{
 // how many polygon objects there are
-extern unsigned N_polygon_models;
-void init_polygon_models();
+	unsigned N_polygon_models;
+};
+
+void init_polygon_models(d_level_shared_polygon_model_state &);
 
 /* Only defined if DXX_WORDS_NEED_ALIGNMENT, but always declared, so
  * that the header preprocesses to the same text regardless of the
@@ -111,7 +115,7 @@ namespace dsx {
 /* Individual levels can customize the polygon models through robot overrides,
  * so this must be scoped to the level, not to the mission.
  */
-struct d_level_shared_polygon_model_state
+struct d_level_shared_polygon_model_state : ::dcx::d_level_shared_polygon_model_state
 {
 	std::array<polymodel, MAX_POLYGON_MODELS> Polygon_models;
 };

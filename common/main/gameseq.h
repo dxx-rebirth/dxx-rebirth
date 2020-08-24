@@ -84,14 +84,11 @@ window_event_result DoPlayerDead(void);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void load_level_robots(int level_num)
-{
-	(void)level_num;
-}
 #elif defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 // load just the hxm file
 void load_level_robots(int level_num);
+void load_level_robots(const d_fname &level_name);
 extern int	First_secret_visit;
 window_event_result ExitSecretLevel();
 }
