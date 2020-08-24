@@ -23,6 +23,7 @@
 #include "physfsx.h"
 
 #include "compiler-range_for.h"
+#include "d_zip.h"
 #include "partial_range.h"
 #include <iterator>
 #include <memory>
@@ -584,17 +585,15 @@ static void load_hxm(const d_fname &hxmname)
 static void custom_remove()
 {
 	int i;
-	auto bmo = std::begin(BitmapOriginal);
-	auto bmp = std::begin(GameBitmaps);
 
-	for (i = 0; i < MAX_BITMAP_FILES; bmo++, bmp++, i++)
-		if (bmo->b.get_flag_mask(BM_FLAG_CUSTOMIZED))
+	for (auto &&[gbo, bmo, bmp] : zip(GameBitmapOffset, BitmapOriginal, GameBitmaps))
+		if (bmo.b.get_flag_mask(BM_FLAG_CUSTOMIZED))
 		{
-			gr_free_bitmap_data(*bmp);
-			*bmp = bmo->b;
-			bmo->b.clear_flags();
+			gr_free_bitmap_data(bmp);
+			bmp = bmo.b;
+			bmo.b.clear_flags();
 
-			if (bmp->get_flag_mask(BM_FLAG_PAGED_OUT))
+			if (bmp.get_flag_mask(BM_FLAG_PAGED_OUT))
 			{
 				/* If the bitmap was unloaded before it was customized,
 				 * then restore GameBitmapOffset so that the stock data
@@ -605,8 +604,8 @@ static void custom_remove()
 				 * a copy of the value that GameBitmapOffset had when
 				 * the bitmap_original was initialized.
 				 */
-				GameBitmapOffset[i] = static_cast<pig_bitmap_offset>(reinterpret_cast<uintptr_t>(bmo->b.bm_data));
-				gr_set_bitmap_data(*bmp, nullptr);
+				gbo = static_cast<pig_bitmap_offset>(reinterpret_cast<uintptr_t>(bmo.b.bm_data));
+				gr_set_bitmap_data(bmp, nullptr);
 			}
 			else
 			{
@@ -614,7 +613,7 @@ static void custom_remove()
 				 * overwritten, so the copy restored from the backup is
 				 * ready for use.
 				 */
-				bmp->set_flags(bmp->get_flags() & ~BM_FLAG_CUSTOMIZED);
+				bmp.set_flags(bmp.get_flags() & ~BM_FLAG_CUSTOMIZED);
 			}
 		}
 	for (i = 0; i < MAX_SOUND_FILES; i++)
