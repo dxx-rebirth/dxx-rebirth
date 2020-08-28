@@ -200,14 +200,21 @@ namespace dcx {
 #define K_GREEN_31              BM_XRGB(0, 31, 0)
 
 int Automap_active = 0;
-static int Automap_debug_show_all_segments;
 
-static void automap_clear_visited()	
+namespace {
+
+#ifndef NDEBUG
+static uint8_t Automap_debug_show_all_segments;
+#endif
+
+static void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState)
 {
 #ifndef NDEBUG
 	Automap_debug_show_all_segments = 0;
 #endif
 	LevelUniqueAutomapState.Automap_visited = {};
+}
+
 }
 
 }
@@ -328,10 +335,6 @@ namespace dsx {
 static void draw_all_edges(grs_canvas &, automap *am);
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void DrawMarkers(fvcobjptr &, grs_canvas &, automap *)
-{
-}
-
-static inline void ClearMarkers()
 {
 }
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -528,10 +531,12 @@ static void ClearMarkers()
 }
 #endif
 
-void automap_clear_visited()	
+void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState)
 {
-	::dcx::automap_clear_visited();
-		ClearMarkers();
+#if defined(DXX_BUILD_DESCENT_II)
+	ClearMarkers();
+#endif
+	::dcx::automap_clear_visited(LevelUniqueAutomapState);
 }
 
 static void draw_player(grs_canvas &canvas, const object_base &obj, const uint8_t color)
@@ -810,7 +815,11 @@ static void draw_automap(fvcobjptr &vcobjptr, automap *am)
 			}
 			break;
 		case OBJ_POWERUP:
-			if (LevelUniqueAutomapState.Automap_visited[objp->segnum] || Automap_debug_show_all_segments)
+			if (LevelUniqueAutomapState.Automap_visited[objp->segnum]
+#ifndef NDEBUG
+				|| Automap_debug_show_all_segments
+#endif
+				)
 			{
 				ubyte id = get_powerup_id(objp);
 				unsigned r, g, b;
@@ -887,8 +896,10 @@ static void recompute_automap_segment_visibility(const object &plrobj, automap *
 {
 	auto &player_info = plrobj.ctype.player_info;
 	int compute_depth_all_segments = (cheats.fullautomap || (player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL));
+#ifndef NDEBUG
 	if (Automap_debug_show_all_segments)
 		compute_depth_all_segments = 1;
+#endif
 	automap_build_edge_list(am, compute_depth_all_segments);
 	am->max_segments_away = set_segment_depths(plrobj.segnum, compute_depth_all_segments ? nullptr : &LevelUniqueAutomapState.Automap_visited, am->depth_array);
 	am->segment_limit = am->max_segments_away;
@@ -1491,7 +1502,9 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 #if defined(DXX_BUILD_DESCENT_II) 
 			// If they have a map powerup, draw unvisited areas in dark blue.
 			// NOTE: D1 originally had this part of code but w/o cheat-check. It's only supposed to draw blue with powerup that does not exist in D1. So make this D2-only
+#ifndef NDEBUG
 			if (!Automap_debug_show_all_segments)
+#endif
 			{
 			auto &player_info = get_local_plrobj().ctype.player_info;
 				if ((cheats.fullautomap || player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL) && !LevelUniqueAutomapState.Automap_visited[seg])

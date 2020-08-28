@@ -18,6 +18,7 @@
 namespace dcx {
 constexpr std::integral_constant<std::size_t, 9000> MAX_SEGMENTS{};
 using segnum_t = uint16_t;
+struct d_level_unique_automap_state;
 }
 #ifdef dsx
 namespace dcx {

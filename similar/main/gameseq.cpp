@@ -1381,7 +1381,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 
 	HUD_clear_messages();
 
-	automap_clear_visited();
+	automap_clear_visited(LevelUniqueAutomapState);
 
 	Viewer = &get_local_plrobj();
 
@@ -1913,7 +1913,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 
 	HUD_clear_messages();
 
-	automap_clear_visited();
+	automap_clear_visited(LevelUniqueAutomapState);
 
 	LevelUniqueObjectState.accumulated_robots = count_number_of_robots(Objects.vcptr);
 	GameUniqueState.accumulated_robots += LevelUniqueObjectState.accumulated_robots;

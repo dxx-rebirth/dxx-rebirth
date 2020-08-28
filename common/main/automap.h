@@ -40,7 +40,7 @@ extern int Automap_active;
 #ifdef dsx
 namespace dsx {
 void do_automap();
-extern void automap_clear_visited();
+void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState);
 }
 #endif
 
