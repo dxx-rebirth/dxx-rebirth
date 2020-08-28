@@ -115,14 +115,6 @@ struct Edge_info
 	ubyte num_faces;    // 1  bytes  // 31 bytes...
 };
 
-}
-
-}
-
-namespace dsx {
-
-namespace {
-
 struct automap : ignore_window_pointer_t
 {
 	fix64			entry_time;
@@ -133,19 +125,19 @@ struct automap : ignore_window_pointer_t
 	ushort			old_wiggle; // keep 4 byte aligned
 	int			max_segments_away;
 	int			segment_limit;
-	
+
 	// Edge list variables
 	int			num_edges;
 	unsigned max_edges; //set each frame
 	unsigned end_valid_edges;
 	std::unique_ptr<Edge_info[]>		edges;
 	std::unique_ptr<Edge_info *[]>			drawingListBright;
-	
+
 	// Screen canvas variables
 	grs_subcanvas		automap_view;
-	
+
 	grs_main_bitmap		automap_background;
-	
+
 	// Rendering variables
 	fix			zoom;
 	vms_vector		view_target;
@@ -153,22 +145,35 @@ struct automap : ignore_window_pointer_t
 	fix			farthest_dist;
 	vms_matrix		viewMatrix;
 	fix			viewDist;
-	
+
+	segment_depth_array_t depth_array;
 	color_t			wall_normal_color;
 	color_t			wall_door_color;
 	color_t			wall_door_blue;
 	color_t			wall_door_gold;
 	color_t			wall_door_red;
-#if defined(DXX_BUILD_DESCENT_II)
-	color_t			wall_revealed_color;
-#endif
 	color_t			hostage_color;
 	color_t			green_31;
 	color_t			white_63;
 	color_t			blue_48;
 	color_t			red_48;
+};
+
+}
+
+}
+
+namespace dsx {
+
+namespace {
+
+struct automap : ::dcx::automap
+{
+	using ::dcx::automap::automap;
+#if defined(DXX_BUILD_DESCENT_II)
+	color_t wall_revealed_color;
+#endif
 	control_info controls;
-	segment_depth_array_t depth_array;
 };
 
 static void init_automap_subcanvas(grs_subcanvas &view, grs_canvas &container)
@@ -181,6 +186,7 @@ static void init_automap_subcanvas(grs_subcanvas &view, grs_canvas &container)
 		gr_init_sub_canvas(view, container, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
 }
 
+static void automap_build_edge_list(automap &am, int add_all_edges);
 }
 
 }
@@ -215,11 +221,6 @@ static void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutom
 	LevelUniqueAutomapState.Automap_visited = {};
 }
 
-}
-
-}
-
-namespace dsx {
 static void init_automap_colors(automap &am)
 {
 	am.wall_normal_color = K_WALL_NORMAL_COLOR;
@@ -227,16 +228,59 @@ static void init_automap_colors(automap &am)
 	am.wall_door_blue = K_WALL_DOOR_BLUE;
 	am.wall_door_gold = K_WALL_DOOR_GOLD;
 	am.wall_door_red = K_WALL_DOOR_RED;
-#if defined(DXX_BUILD_DESCENT_II)
-	am.wall_revealed_color = K_WALL_REVEALED_COLOR;
-#endif
 	am.hostage_color = K_HOSTAGE_COLOR;
 	am.green_31 = K_GREEN_31;
-
-	am.white_63 = gr_find_closest_color_current(63,63,63);
-	am.blue_48 = gr_find_closest_color_current(0,0,48);
-	am.red_48 = gr_find_closest_color_current(48,0,0);
+	am.white_63 = gr_find_closest_color_current(63, 63, 63);
+	am.blue_48 = gr_find_closest_color_current(0, 0, 48);
+	am.red_48 = gr_find_closest_color_current(48, 0, 0);
 }
+
+void adjust_segment_limit(automap &am, const unsigned SegmentLimit)
+{
+	const auto &depth_array = am.depth_array;
+	const auto predicate = [&depth_array, SegmentLimit](const segnum_t &e1) {
+		return depth_array[e1] <= SegmentLimit;
+	};
+	for (auto &i : unchecked_partial_range(am.edges.get(), am.end_valid_edges))
+	{
+		// Unchecked for speed
+		const auto &&range = unchecked_partial_range(i.segnum.begin(), i.num_faces);
+		if (std::any_of(range.begin(), range.end(), predicate))
+			i.flags &= ~EF_TOO_FAR;
+		else
+			i.flags |= EF_TOO_FAR;
+	}
+}
+
+}
+
+}
+
+namespace dsx {
+
+namespace {
+
+static void recompute_automap_segment_visibility(const d_level_unique_automap_state &LevelUniqueAutomapState, unsigned compute_depth_all_segments, const segnum_t initial_segnum, automap &am)
+{
+#ifndef NDEBUG
+	if (Automap_debug_show_all_segments)
+		compute_depth_all_segments = 1;
+#endif
+	if (cheats.fullautomap)
+		compute_depth_all_segments = 1;
+	automap_build_edge_list(am, compute_depth_all_segments);
+	am.max_segments_away = set_segment_depths(initial_segnum, compute_depth_all_segments ? nullptr : &LevelUniqueAutomapState.Automap_visited, am.depth_array);
+	am.segment_limit = am.max_segments_away;
+	adjust_segment_limit(am, am.segment_limit);
+}
+
+#if defined(DXX_BUILD_DESCENT_II)
+void init_automap_colors(automap &am)
+{
+	::dcx::init_automap_colors(am);
+	am.wall_revealed_color = K_WALL_REVEALED_COLOR;
+}
+#endif
 
 // Map movement defines
 #define PITCH_DEFAULT 9000
@@ -244,9 +288,6 @@ static void init_automap_colors(automap &am)
 #define ZOOM_MIN_VALUE i2f(20*5)
 #define ZOOM_MAX_VALUE i2f(20*100)
 
-// Function Prototypes
-static void adjust_segment_limit(automap &am, int SegmentLimit);
-static void automap_build_edge_list(automap &am, int add_all_edges);
 }
 
 /* MAX_DROP_MULTI_* must be a power of 2 for LastMarkerDropped to work
@@ -260,8 +301,6 @@ static void automap_build_edge_list(automap &am, int add_all_edges);
 #define	MAX_DROP_SINGLE	9
 
 #if defined(DXX_BUILD_DESCENT_II)
-
-namespace dsx {
 marker_message_text_t Marker_input;
 static float MarkerScale=2.0;
 
@@ -319,8 +358,6 @@ xrange<game_marker_index> get_game_marker_range(const unsigned game_mode, const 
 }
 
 }
-
-}
 #endif
 
 # define automap_draw_line g3_draw_line
@@ -331,7 +368,8 @@ xrange<game_marker_index> get_game_marker_range(const unsigned game_mode, const 
 
 // -------------------------------------------------------------
 
-namespace dsx {
+namespace {
+
 static void draw_all_edges(grs_canvas &, automap &am);
 #if defined(DXX_BUILD_DESCENT_II)
 static void DrawMarkerNumber(grs_canvas &canvas, const automap &am, const game_marker_index gmi, const player_marker_index pmi, const g3s_point &BasePoint)
@@ -433,6 +471,8 @@ static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, con
 		multi_send_drop_marker(Player_num, plrobj.pos, player_marker_num, MarkerState.message[marker_num]);
 }
 
+}
+
 void DropBuddyMarker(object &objp)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -450,6 +490,8 @@ void DropBuddyMarker(object &objp)
 
 	marker_objidx = drop_marker_object(objp.pos, vmsegptridx(objp.segnum), objp.orient, marker_num);
 }
+
+namespace {
 
 #define MARKER_SPHERE_SIZE 0x58000
 
@@ -517,7 +559,6 @@ static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap &am)
 		cyc=10;
 		cycdir=1;
 	}
-
 }
 
 static void ClearMarkers()
@@ -526,6 +567,8 @@ static void ClearMarkers()
 	MarkerState.message = {};
 }
 #endif
+
+}
 
 void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState)
 {
@@ -890,21 +933,12 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 #define MAP_BACKGROUND_FILENAME ((HIRESMODE && PHYSFSX_exists("mapb.pcx",1))?"mapb.pcx":"map.pcx")
 #endif
 
-static void recompute_automap_segment_visibility(const object &plrobj, automap &am)
+static void recompute_automap_segment_visibility(const d_level_unique_automap_state &LevelUniqueAutomapState, const object &plrobj, automap &am)
 {
-	auto &player_info = plrobj.ctype.player_info;
-	int compute_depth_all_segments = (cheats.fullautomap || (player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL));
-#ifndef NDEBUG
-	if (Automap_debug_show_all_segments)
-		compute_depth_all_segments = 1;
-#endif
-	automap_build_edge_list(am, compute_depth_all_segments);
-	am.max_segments_away = set_segment_depths(plrobj.segnum, compute_depth_all_segments ? nullptr : &LevelUniqueAutomapState.Automap_visited, am.depth_array);
-	am.segment_limit = am.max_segments_away;
-	adjust_segment_limit(am, am.segment_limit);
+	recompute_automap_segment_visibility(LevelUniqueAutomapState, plrobj.ctype.player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL, plrobj.segnum, am);
 }
 
-static window_event_result automap_key_command(window *, const d_event &event, automap &am)
+static window_event_result automap_key_command(const d_event &event, automap &am)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 #if defined(DXX_BUILD_DESCENT_I) || !defined(NDEBUG)
@@ -937,7 +971,7 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 				cheats.fullautomap = !cheats.fullautomap;
 				// if cheat of map powerup, work with full depth
 				auto &plrobj = get_local_plrobj();
-				recompute_automap_segment_visibility(plrobj, am);
+				recompute_automap_segment_visibility(LevelUniqueAutomapState, plrobj, am);
 			}
 			return window_event_result::handled;
 #endif
@@ -945,7 +979,7 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 		case KEY_DEBUGGED+KEY_F: 	{
 				Automap_debug_show_all_segments = !Automap_debug_show_all_segments;
 				auto &plrobj = get_local_plrobj();
-				recompute_automap_segment_visibility(plrobj, am);
+				recompute_automap_segment_visibility(LevelUniqueAutomapState, plrobj, am);
 			}
 			return window_event_result::handled;
 #endif
@@ -1023,7 +1057,7 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 	return window_event_result::ignored;
 }
 
-static window_event_result automap_process_input(window *, const d_event &event, automap &am)
+static window_event_result automap_process_input(const d_event &event, automap &am)
 {
 	kconfig_read_controls(am.controls, event, 1);
 	Controls = {};
@@ -1043,7 +1077,7 @@ static window_event_result automap_process_input(window *, const d_event &event,
 	return window_event_result::ignored;
 }
 
-static window_event_result automap_handler(window *wind,const d_event &event, automap *const am)
+static window_event_result automap_handler(window *, const d_event &event, automap *am)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -1075,12 +1109,12 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_MOVED:
 		case EVENT_KEY_RELEASE:
-			return automap_process_input(wind, event, *am);
+			return automap_process_input(event, *am);
 		case EVENT_KEY_COMMAND:
 		{
-			window_event_result kret = automap_key_command(wind, event, *am);
+			window_event_result kret = automap_key_command(event, *am);
 			if (kret == window_event_result::ignored)
-				kret = automap_process_input(wind, event, *am);
+				kret = automap_process_input(event, *am);
 			return kret;
 		}
 			
@@ -1111,7 +1145,6 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 			Automap_active = 0;
 			multi_send_msgsend_state(msgsend_none);
 			return window_event_result::ignored;	// continue closing
-			break;
 
 		case EVENT_LOOP_BEGIN_LOOP:
 			kconfig_begin_loop(am->controls);
@@ -1177,7 +1210,7 @@ void do_automap()
 	am->t2 = am->t1;
 
 	//Fill in Automap_visited from Objects[Players[Player_num].objnum].segnum
-	recompute_automap_segment_visibility(plrobj, *am);
+	recompute_automap_segment_visibility(LevelUniqueAutomapState, plrobj, *am);
 
 	// ZICO - code from above to show frame in OGL correctly. Redundant, but better readable.
 	// KREATOR - Now applies to all platforms so double buffering is supported
@@ -1195,23 +1228,7 @@ void do_automap()
 	multi_send_msgsend_state(msgsend_automap);
 }
 
-void adjust_segment_limit(automap &am, int SegmentLimit)
-{
-	const auto &depth_array = am.depth_array;
-	const auto predicate = [&depth_array, SegmentLimit](const segnum_t &e1) {
-		return depth_array[e1] <= SegmentLimit;
-	};
-	range_for (auto &i, unchecked_partial_range(am.edges.get(), am.end_valid_edges))
-	{
-		const auto e = &i;
-		// Unchecked for speed
-		const auto &&range = unchecked_partial_range(e->segnum.begin(), e->num_faces);
-		if (std::any_of(range.begin(), range.end(), predicate))
-			e->flags &= ~EF_TOO_FAR;
-		else
-			e->flags |= EF_TOO_FAR;
-	}
-}
+namespace {
 
 void draw_all_edges(grs_canvas &canvas, automap &am)
 {
@@ -1232,7 +1249,7 @@ void draw_all_edges(grs_canvas &canvas, automap &am)
 		if ( e->flags & EF_TOO_FAR) continue;
 
 		if (e->flags&EF_FRONTIER) { 	// A line that is between what we have seen and what we haven't
-			if ( (!(e->flags&EF_SECRET))&&(e->color==am.wall_normal_color))
+			if ((!(e->flags & EF_SECRET)) && (e->color == am.wall_normal_color))
 				continue; 	// If a line isn't secret and is normal color, then don't draw it
 		}
 		distance = Segment_points[e->verts[1]].p3_z;
@@ -1296,13 +1313,11 @@ void draw_all_edges(grs_canvas &canvas, automap &am)
 	}
 }
 
-
 //==================================================================
 //
 // All routines below here are used to build the Edge list
 //
 //==================================================================
-
 
 //finds edge, filling in edge_ptr. if found old edge, returns index, else return -1
 static std::pair<Edge_info &, unsigned> automap_find_edge(automap &am, const unsigned v0, const unsigned v1)
@@ -1324,7 +1339,7 @@ static std::pair<Edge_info &, unsigned> automap_find_edge(automap &am, const uns
 		else if (evv == vv)
 			return {e, UINT32_MAX};
 		else {
-			if (++hash==am.max_edges) hash=0;
+			if (++hash==am.max_edges) hash = 0;
 			if (hash==oldhash) Error("Edge list full!");
 		}
 	}
@@ -1376,7 +1391,6 @@ static void add_one_edge(automap &am, unsigned va, unsigned vb, const uint8_t co
 			e->num_faces++;
 		}
 	}
-
 	e->flags |= flags;
 }
 
@@ -1531,7 +1545,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 
 static void add_unknown_segment_edges(automap &am, const shared_segment &seg)
 {
-	for (unsigned sn = 0; sn < MAX_SIDES_PER_SEGMENT; ++sn)
+	for (const auto sn : xrange(MAX_SIDES_PER_SEGMENT))
 	{
 		// Only add edges that have no children
 		if (seg.children[sn] == segment_none) {
@@ -1546,9 +1560,9 @@ static void add_unknown_segment_edges(automap &am, const shared_segment &seg)
 }
 
 void automap_build_edge_list(automap &am, int add_all_edges)
-{	
+{
 	// clear edge list
-	range_for (auto &i, unchecked_partial_range(am.edges.get(), am.max_edges))
+	for (auto &i : unchecked_partial_range(am.edges.get(), am.max_edges))
 	{
 		i.num_faces = 0;
 		i.flags = 0;
@@ -1594,7 +1608,7 @@ void automap_build_edge_list(automap &am, int add_all_edges)
 	}
 
 	// Find unnecessary lines (These are lines that don't have to be drawn because they have small curvature)
-	range_for (auto &i, unchecked_partial_range(am.edges.get(), am.end_valid_edges))
+	for (auto &i : unchecked_partial_range(am.edges.get(), am.end_valid_edges))
 	{
 		const auto e = &i;
 		if (!(e->flags&EF_USED)) continue;
@@ -1623,6 +1637,8 @@ void automap_build_edge_list(automap &am, int add_all_edges)
 				break;
 		}
 	}
+}
+
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1715,4 +1731,5 @@ window_event_result MarkerInputMessage(int key)
 	return window_event_result::handled;
 }
 #endif
+
 }
