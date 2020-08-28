@@ -73,6 +73,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "d_array.h"
+#include "d_range.h"
 #include "d_zip.h"
 #include "partial_range.h"
 
@@ -186,8 +187,9 @@ struct kc_item
 	};
 };
 
-struct kc_menu : embed_window_pointer_t
+struct kc_menu : window
 {
+	using window::window;
 	const char *litems;
 	const kc_item	*items;
 	kc_mitem	*mitems;
@@ -201,6 +203,7 @@ struct kc_menu : embed_window_pointer_t
 #if DXX_MAX_AXES_PER_JOYSTICK
 	std::array<int, JOY_MAX_AXES>	old_jaxis;
 #endif
+	virtual window_event_result event_handler(const d_event &) override;
 };
 
 }
@@ -378,7 +381,7 @@ static void kc_gr_2y_string(grs_canvas &canvas, const grs_font &cv_font, const c
 	gr_string(canvas, cv_font, x1, y, s, w, h);
 }
 
-static void kconfig_draw(kc_menu *menu)
+static void kconfig_draw(kc_menu &menu)
 {
 	grs_canvas &save_canvas = *grd_curcanv;
 	const auto &&fspacx = FSPACX();
@@ -388,20 +391,19 @@ static void kconfig_draw(kc_menu *menu)
 	gr_set_default_canvas();
 	nm_draw_background(*grd_curcanv, ((SWIDTH - w) / 2) - BORDERX, ((SHEIGHT - h) / 2) - BORDERY, ((SWIDTH - w) / 2) + w + BORDERX, ((SHEIGHT - h) / 2) + h + BORDERY);
 
-	gr_set_current_canvas(menu->wind->w_canv);
+	gr_set_current_canvas(menu.w_canv);
 	auto &canvas = *grd_curcanv;
 
 	const grs_font *save_font = canvas.cv_font;
 
-	Assert(!strchr( menu->title, '\n' ));
 	auto &medium3_font = *MEDIUM3_FONT;
-	gr_string(canvas, medium3_font, 0x8000, fspacy(8), menu->title);
+	gr_string(canvas, medium3_font, 0x8000, fspacy(8), menu.title);
 
 	auto &game_font = *GAME_FONT;
 	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 	gr_string(canvas, game_font, 0x8000, fspacy(21), "Enter changes, ctrl-d deletes, ctrl-r resets defaults, ESC exits");
 
-	if ( menu->items == kc_keyboard )
+	if (menu.items == kc_keyboard)
 	{
 		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
 		const uint8_t color = BM_XRGB(31,27,6);
@@ -424,7 +426,7 @@ static void kconfig_draw(kc_menu *menu)
 		kc_gr_2y_string(canvas, game_font, "OR", fspacy(40), fspacx(109), fspacx(264));
 	}
 #if DXX_MAX_JOYSTICKS
-	else if ( menu->items == kc_joystick )
+	else if (menu.items == kc_joystick)
 	{
 		const uint8_t color = BM_XRGB(31, 27, 6);
 		gr_set_fontcolor(canvas, color, -1);
@@ -462,7 +464,7 @@ static void kconfig_draw(kc_menu *menu)
 #endif
 	}
 #endif
-	else if ( menu->items == kc_mouse )
+	else if (menu.items == kc_mouse)
 	{
 		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
 		gr_string(canvas, game_font, 0x8000, fspacy(37), TXT_BUTTONS);
@@ -472,7 +474,7 @@ static void kconfig_draw(kc_menu *menu)
 		kc_gr_2y_string(canvas, game_font, TXT_AXIS, fspacy145, fspacx( 87), fspacx(242));
 		kc_gr_2y_string(canvas, game_font, TXT_INVERT, fspacy145, fspacx(120), fspacx(274));
 	}
-	else if ( menu->items == kc_rebirth )
+	else if (menu.items == kc_rebirth)
 	{
 		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
 
@@ -484,25 +486,27 @@ static void kconfig_draw(kc_menu *menu)
 		gr_string(canvas, game_font, fspacx(273), fspacy60, "MOUSE");
 	}
 	
-	unsigned citem = menu->citem;
+	unsigned citem = menu.citem;
 	const char *current_label = NULL;
-	const char *litem = menu->litems;
-	for (unsigned i=0; i < menu->nitems; i++ )	{
-		int next_label = (i + 1 >= menu->nitems || menu->items[i + 1].y != menu->items[i].y);
+	const char *litem = menu.litems;
+	const auto nitems = menu.nitems;
+	for (const auto i : xrange(nitems))
+	{
+		auto next_label = (i + 1 >= menu.nitems || menu.items[i + 1].y != menu.items[i].y) ? litem : nullptr;
 		if (i == citem)
 			current_label = litem;
-		else if (menu->items[i].w2)
-			kc_drawinput(canvas, game_font, menu->items[i], menu->mitems[i], 0, next_label ? litem : nullptr);
+		else if (menu.items[i].w2)
+			kc_drawinput(canvas, game_font, menu.items[i], menu.mitems[i], 0, next_label);
 		if (next_label)
 			litem += strlen(litem) + 1;
 	}
-	kc_drawinput(canvas, game_font, menu->items[citem], menu->mitems[citem], 1, current_label);
+	kc_drawinput(canvas, game_font, menu.items[citem], menu.mitems[citem], 1, current_label);
 	
 	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
-	if (menu->changing)
+	if (menu.changing)
 	{
 		const char *s;
-		switch( menu->items[menu->citem].type )
+		switch(menu.items[menu.citem].type)
 		{
 			case BT_KEY:
 				s = TXT_PRESS_NEW_KEY;
@@ -529,8 +533,8 @@ static void kconfig_draw(kc_menu *menu)
 		}
 		if (s)
 			gr_string(canvas, game_font, 0x8000, fspacy(INFO_Y), s);
-		auto &item = menu->items[menu->citem];
-		auto &menu_fade_index = menu->q_fade_i;
+		auto &item = menu.items[menu.citem];
+		auto &menu_fade_index = menu.q_fade_i;
 		const auto fade_element = fades[menu_fade_index];
 #if defined(DXX_BUILD_DESCENT_I)
 		const auto color = gr_fade_table[fade_element][BM_XRGB(21, 0, 24)];
@@ -556,28 +560,34 @@ static inline int in_bounds(unsigned mx, unsigned my, unsigned x1, unsigned xw, 
 	return 1;
 }
 
-static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_menu *menu)
+namespace dsx {
+
+namespace {
+
+static window_event_result kconfig_mouse(kc_menu &menu, const d_event &event)
 {
 	grs_canvas &save_canvas = *grd_curcanv;
 	int mx, my, mz, x1, y1;
 	window_event_result rval = window_event_result::ignored;
 
-	gr_set_current_canvas(wind->w_canv);
+	gr_set_current_canvas(menu.w_canv);
 	auto &canvas = *grd_curcanv;
 	
-	if (menu->mouse_state)
+	if (menu.mouse_state)
 	{
 		int item_height;
 		
 		mouse_get_pos(&mx, &my, &mz);
 		const auto &&fspacx = FSPACX();
 		const auto &&fspacy = FSPACY();
-		for (unsigned i=0; i<menu->nitems; i++ )	{
-			item_height = get_item_height(*canvas.cv_font, menu->items[i], menu->mitems[i]);
-			x1 = canvas.cv_bitmap.bm_x + fspacx(menu->items[i].xinput);
-			y1 = canvas.cv_bitmap.bm_y + fspacy(menu->items[i].y);
-			if (in_bounds(mx, my, x1, fspacx(menu->items[i].w2), y1, item_height)) {
-				menu->citem = i;
+		const auto nitems = menu.nitems;
+		for (const auto i : xrange(nitems))
+		{
+			item_height = get_item_height(*canvas.cv_font, menu.items[i], menu.mitems[i]);
+			x1 = canvas.cv_bitmap.bm_x + fspacx(menu.items[i].xinput);
+			y1 = canvas.cv_bitmap.bm_y + fspacy(menu.items[i].y);
+			if (in_bounds(mx, my, x1, fspacx(menu.items[i].w2), y1, item_height)) {
+				menu.citem = i;
 				rval = window_event_result::handled;
 				break;
 			}
@@ -588,18 +598,18 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 		int item_height;
 		
 		mouse_get_pos(&mx, &my, &mz);
-		item_height = get_item_height(*canvas.cv_font, menu->items[menu->citem], menu->mitems[menu->citem]);
+		item_height = get_item_height(*canvas.cv_font, menu.items[menu.citem], menu.mitems[menu.citem]);
 		const auto &&fspacx = FSPACX();
-		x1 = canvas.cv_bitmap.bm_x + fspacx(menu->items[menu->citem].xinput);
-		y1 = canvas.cv_bitmap.bm_y + FSPACY(menu->items[menu->citem].y);
-		if (in_bounds(mx, my, x1, fspacx(menu->items[menu->citem].w2), y1, item_height)) {
-			kconfig_start_changing(*menu);
+		x1 = canvas.cv_bitmap.bm_x + fspacx(menu.items[menu.citem].xinput);
+		y1 = canvas.cv_bitmap.bm_y + FSPACY(menu.items[menu.citem].y);
+		if (in_bounds(mx, my, x1, fspacx(menu.items[menu.citem].w2), y1, item_height)) {
+			kconfig_start_changing(menu);
 			rval = window_event_result::handled;
 		}
 		else
 		{
 			// Click out of changing mode - kreatordxx
-			menu->changing = 0;
+			menu.changing = 0;
 			rval = window_event_result::handled;
 		}
 	}
@@ -609,8 +619,16 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 	return rval;
 }
 
+}
+
+}
+
+namespace dcx {
+
+namespace {
+
 template <std::size_t M, std::size_t C>
-static void reset_mitem_values(std::array<kc_mitem, M> &m, const std::array<ubyte, C> &c)
+static void reset_mitem_values(std::array<kc_mitem, M> &m, const std::array<uint8_t, C> &c)
 {
 	for (std::size_t i = 0; i != min(M, C); ++i)
 		m[i].value = c[i];
@@ -623,58 +641,56 @@ static void step_citem_past_empty_cell(unsigned &citem, const kc_item *const ite
 	} while (!items[citem].w2);
 }
 
-static window_event_result kconfig_key_command(window *, const d_event &event, kc_menu *menu)
+static window_event_result kconfig_key_command(kc_menu &menu, const d_event &event)
 {
-	int k;
-
-	k = event_key_get(event);
+	auto k = event_key_get(event);
 
 	// when changing, process no keys instead of ESC
-	if (menu->changing && (k != -2 && k != KEY_ESC))
+	if (menu.changing && (k != -2 && k != KEY_ESC))
 		return window_event_result::ignored;
 	switch (k)
 	{
 		case KEY_CTRLED+KEY_D:
-			menu->mitems[menu->citem].value = 255;
+			menu.mitems[menu.citem].value = 255;
 			return window_event_result::handled;
 		case KEY_CTRLED+KEY_R:	
-			if ( menu->items==kc_keyboard )
+			if (menu.items==kc_keyboard)
 				reset_mitem_values(kcm_keyboard, DefaultKeySettings.Keyboard);
 #if DXX_MAX_JOYSTICKS
-			else if (menu->items == kc_joystick)
+			else if (menu.items == kc_joystick)
 				reset_mitem_values(kcm_joystick, DefaultKeySettings.Joystick);
 #endif
-			else if (menu->items == kc_mouse)
+			else if (menu.items == kc_mouse)
 				reset_mitem_values(kcm_mouse, DefaultKeySettings.Mouse);
-			else if (menu->items == kc_rebirth)
+			else if (menu.items == kc_rebirth)
 				reset_mitem_values(kcm_rebirth, DefaultKeySettingsRebirth);
 			return window_event_result::handled;
 		case KEY_DELETE:
-			menu->mitems[menu->citem].value=255;
+			menu.mitems[menu.citem].value = 255;
 			return window_event_result::handled;
 		case KEY_UP: 		
 		case KEY_PAD8:
-			step_citem_past_empty_cell(menu->citem, menu->items, &kc_item::u);
+			step_citem_past_empty_cell(menu.citem, menu.items, &kc_item::u);
 			return window_event_result::handled;
 		case KEY_DOWN:
 		case KEY_PAD2:
-			step_citem_past_empty_cell(menu->citem, menu->items, &kc_item::d);
+			step_citem_past_empty_cell(menu.citem, menu.items, &kc_item::d);
 			return window_event_result::handled;
 		case KEY_LEFT:
 		case KEY_PAD4:
-			step_citem_past_empty_cell(menu->citem, menu->items, &kc_item::l);
+			step_citem_past_empty_cell(menu.citem, menu.items, &kc_item::l);
 			return window_event_result::handled;
 		case KEY_RIGHT:
 		case KEY_PAD6:
-			step_citem_past_empty_cell(menu->citem, menu->items, &kc_item::r);
+			step_citem_past_empty_cell(menu.citem, menu.items, &kc_item::r);
 			return window_event_result::handled;
 		case KEY_ENTER:
 		case KEY_PADENTER:
-			kconfig_start_changing(*menu);
+			kconfig_start_changing(menu);
 			return window_event_result::handled;
 		case KEY_ESC:
-			if (menu->changing)
-				menu->changing = 0;
+			if (menu.changing)
+				menu.changing = 0;
 			else
 			{
 				return window_event_result::close;
@@ -689,10 +705,17 @@ static window_event_result kconfig_key_command(window *, const d_event &event, k
 	return window_event_result::ignored;
 }
 
+}
+
+}
+
 namespace dsx {
-static window_event_result kconfig_handler(window *wind,const d_event &event, kc_menu *menu)
+
+namespace {
+
+window_event_result kc_menu::event_handler(const d_event &event)
 {
-	if (!menu->changing && joy_translate_menu_key(event))
+	if (!changing && joy_translate_menu_key(event))
 		return window_event_result::handled;
 
 	switch (event.type)
@@ -702,21 +725,21 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 			break;
 			
 		case EVENT_WINDOW_DEACTIVATED:
-			menu->mouse_state = 0;
+			mouse_state = 0;
 			break;
 			
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
-			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event.type == EVENT_MOUSE_BUTTON_UP))
+			if (changing && (items[citem].type == BT_MOUSE_BUTTON) && (event.type == EVENT_MOUSE_BUTTON_UP))
 			{
-				kc_change_mousebutton(*menu, event, menu->mitems[menu->citem] );
-				menu->mouse_state = (event.type == EVENT_MOUSE_BUTTON_DOWN);
+				kc_change_mousebutton(*this, event, mitems[citem]);
+				mouse_state = (event.type == EVENT_MOUSE_BUTTON_DOWN);
 				return window_event_result::handled;
 			}
 
 			if (event_mouse_get_button(event) == MBTN_RIGHT)
 			{
-				if (!menu->changing)
+				if (!changing)
 				{
 					return window_event_result::close;
 				}
@@ -725,63 +748,63 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 			else if (event_mouse_get_button(event) != MBTN_LEFT)
 				return window_event_result::ignored;
 
-			menu->mouse_state = (event.type == EVENT_MOUSE_BUTTON_DOWN);
-			return kconfig_mouse(wind, event, menu);
+			mouse_state = (event.type == EVENT_MOUSE_BUTTON_DOWN);
+			return kconfig_mouse(*this, event);
 
 		case EVENT_MOUSE_MOVED:
-			if (menu->changing && menu->items[menu->citem].type == BT_MOUSE_AXIS) kc_change_mouseaxis(*menu, event, menu->mitems[menu->citem]);
+			if (changing && items[citem].type == BT_MOUSE_AXIS)
+				kc_change_mouseaxis(*this, event, mitems[citem]);
 			else
-				event_mouse_get_delta( event, &menu->old_maxis[0], &menu->old_maxis[1], &menu->old_maxis[2]);
+				event_mouse_get_delta(event, &old_maxis[0], &old_maxis[1], &old_maxis[2]);
 			break;
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 		case EVENT_JOYSTICK_BUTTON_DOWN:
-			if (menu->changing && menu->items[menu->citem].type == BT_JOY_BUTTON) kc_change_joybutton(*menu, event, menu->mitems[menu->citem]);
+			if (changing && items[citem].type == BT_JOY_BUTTON)
+				kc_change_joybutton(*this, event, mitems[citem]);
 			break;
 #endif
 
 #if DXX_MAX_AXES_PER_JOYSTICK
 		case EVENT_JOYSTICK_MOVED:
-			if (menu->changing && menu->items[menu->citem].type == BT_JOY_AXIS) kc_change_joyaxis(*menu, event, menu->mitems[menu->citem]);
+			if (changing && items[citem].type == BT_JOY_AXIS)
+				kc_change_joyaxis(*this, event, mitems[citem]);
 			else
 			{
 				const auto &av = event_joystick_get_axis(event);
 				const auto &axis = av.axis;
 				const auto &value = av.value;
-				menu->old_jaxis[axis] = value;
+				old_jaxis[axis] = value;
 			}
 			break;
 #endif
 
 		case EVENT_KEY_COMMAND:
 		{
-			window_event_result rval = kconfig_key_command(wind, event, menu);
+			window_event_result rval = kconfig_key_command(*this, event);
 			if (rval != window_event_result::ignored)
 				return rval;
-			if (menu->changing && menu->items[menu->citem].type == BT_KEY) kc_change_key(*menu, event, menu->mitems[menu->citem]);
+			if (changing && items[citem].type == BT_KEY)
+				kc_change_key(*this, event, mitems[citem]);
 			return window_event_result::ignored;
 		}
 
 		case EVENT_IDLE:
-			kconfig_mouse(wind, event, menu);
+			kconfig_mouse(*this, event);
 			break;
 			
 		case EVENT_WINDOW_DRAW:
-			if (menu->changing)
+			if (changing)
 				timer_delay(f0_1/10);
 			else
 				timer_delay2(50);
-			kconfig_draw(menu);
+			kconfig_draw(*this);
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			delete menu;
-			
 			// Update save values...
-			
 			for (auto &&[kcm, setting] : zip(kcm_keyboard, PlayerCfg.KeySettings.Keyboard))
 				setting = kcm.value;
-			
 #if DXX_MAX_JOYSTICKS
 			for (auto &&[kcm, setting] : zip(kcm_joystick, PlayerCfg.KeySettings.Joystick))
 				setting = kcm.value;
@@ -797,14 +820,17 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 	}
 	return window_event_result::handled;
 }
-}
 
 static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mitems,int nitems, const char *title)
 {
 	set_screen_mode(SCREEN_MENU);
 	kc_set_controls();
 
-	kc_menu *menu = new kc_menu{};
+	const auto &&fspacx = FSPACX();
+	const auto &&fspacy = FSPACY();
+	const auto &&window_width = fspacx(320);
+	const auto &&window_height = fspacy(220);
+	auto menu = std::make_unique<kc_menu>(grd_curscreen->sc_canvas, (SWIDTH - window_width) / 2, (SHEIGHT - window_height) / 2, window_width, window_height);
 	menu->items = items;
 	menu->litems = litems;
 	menu->mitems = mitems;
@@ -815,20 +841,18 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 		step_citem_past_empty_cell(menu->citem, items, &kc_item::r);
 	menu->changing = 0;
 	menu->mouse_state = 0;
-
-	const auto &&fspacx = FSPACX();
-	const auto &&fspacy = FSPACY();
-	const auto &&window_width = fspacx(320);
-	const auto &&window_height = fspacy(220);
-	if (!(menu->wind = window_create(grd_curscreen->sc_canvas, (SWIDTH - window_width) / 2, (SHEIGHT - window_height) / 2, window_width, window_height,
-					   kconfig_handler, menu)))
-		delete menu;
+	menu->send_creation_events(nullptr);
+	menu.release();
 }
 
 template <std::size_t N>
 static void kconfig_sub(const char *litems, const kc_item (&items)[N], std::array<kc_mitem, N> &mitems, const char *title)
 {
 	kconfig_sub(litems, items, mitems.data(), N, title);
+}
+
+}
+
 }
 
 static void kc_drawinput(grs_canvas &canvas, const grs_font &cv_font, const kc_item &item, kc_mitem &mitem, const int is_current, const char *const label)
@@ -993,6 +1017,8 @@ static void input_button_matched(control_info &Controls, const kc_item& item, in
 
 namespace dcx {
 
+namespace {
+
 template <template<typename> class F>
 static void adjust_ramped_keyboard_field(float& keydown_time, ubyte& state, fix& time, const float& sensitivity, const int& speed_factor, const int& speed_divisor = 1)
 #define adjust_ramped_keyboard_field(F, M, ...)	\
@@ -1080,6 +1106,8 @@ static unsigned allow_uncapped_turning()
 		((game_mode & GM_MULTI_COOP)
 		? MouselookMode::MPCoop
 		: MouselookMode::MPAnarchy);
+}
+
 }
 
 }
