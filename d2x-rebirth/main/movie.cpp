@@ -249,14 +249,16 @@ static void MovieSetPalette(const unsigned char *p, unsigned start, unsigned cou
 	memcpy(&gr_palette[start],p+start*3,count*3);
 }
 
-struct movie : ignore_window_pointer_t
+struct movie : window
 {
-	MVE_StepStatus result;
-	int aborted;
-	int frame_num;
-	int paused;
+	using window::window;
+	MVE_StepStatus result = MVE_StepStatus::EndOfFile;
+	int aborted = 0;
+	int frame_num = 0;
+	int paused = 0;
 	MVESTREAM_ptr_t pMovie;
 	d_subtitle_state SubtitleState;
+	virtual window_event_result event_handler(const d_event &) override;
 };
 
 window_event_result movie_pause_window::event_handler(const d_event &event)
@@ -298,18 +300,17 @@ window_event_result movie_pause_window::event_handler(const d_event &event)
 	return window_event_result::ignored;
 }
 
-static window_event_result MovieHandler(window *, const d_event &event, movie *m)
+window_event_result movie::event_handler(const d_event &event)
 {
 	int key;
-
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
-			m->paused = 0;
+			paused = 0;
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
-			m->paused = 1;
+			paused = 1;
 			MVE_rmHoldMovie();
 			break;
 
@@ -318,9 +319,9 @@ static window_event_result MovieHandler(window *, const d_event &event, movie *m
 
 			// If ESCAPE pressed, then quit movie.
 			if (key == KEY_ESC) {
-				m->result = MVE_StepStatus::EndOfFile;
-				m->aborted = 1;
-				return window_event_result::close;
+				result = MVE_StepStatus::EndOfFile;
+				aborted = 1;
+				return window_event_result::handled;
 			}
 
 			// If PAUSE pressed, then pause movie
@@ -337,30 +338,30 @@ static window_event_result MovieHandler(window *, const d_event &event, movie *m
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			if (!m->paused)
+			if (!paused)
 			{
-				m->result = MVE_rmStepMovie(*m->pMovie.get());
-				if (m->result != MVE_StepStatus::Continue)
+				result = MVE_rmStepMovie(*pMovie.get());
+				if (result != MVE_StepStatus::Continue)
 				{
-					return window_event_result::close;
+					return window_event_result::handled;
 				}
 			}
 
-			draw_subtitles(m->SubtitleState, m->frame_num);
+			draw_subtitles(SubtitleState, frame_num);
 
 			gr_palette_load(gr_palette);
 
-			if (!m->paused)
-				m->frame_num++;
+			if (!paused)
+				frame_num++;
 			break;
 
 		case EVENT_WINDOW_CLOSE:
 			if (Quitting)
 			{
-				m->result = MVE_StepStatus::EndOfFile;
-				m->aborted = 1;
+				result = MVE_StepStatus::EndOfFile;
+				aborted = 1;
 			}
-			break;
+			return window_event_result::handled;
 			
 		default:
 			break;
@@ -371,19 +372,11 @@ static window_event_result MovieHandler(window *, const d_event &event, movie *m
 //returns status.  see movie.h
 int RunMovie(const char *const filename, const char *const subtitles, const int hires_flag, const int must_have, const int dx, const int dy)
 {
-	movie m;
 	int track = 0;
 	int aborted = 0;
 #if DXX_USE_OGL
 	palette_array_t pal_save;
 #endif
-
-	init_subtitles(m.SubtitleState, subtitles);
-
-	m.result = MVE_StepStatus::EndOfFile;
-	m.aborted = 0;
-	m.frame_num = 0;
-	m.paused = 0;
 
 	// Open Movie file.  If it doesn't exist, no movie, just return.
 
@@ -394,13 +387,16 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 		return MOVIE_NOT_PLAYED;
 	}
 	const auto reshow = hide_menus();
-	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, MovieHandler, &m);
+	auto wind = std::make_unique<movie>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	if (!wind)
 	{
 		if (reshow)
 			show_menus();
 		return MOVIE_NOT_PLAYED;
 	}
+	wind->send_creation_events(nullptr);
+	init_subtitles(wind->SubtitleState, subtitles);
+
 
 	MVE_memCallbacks(MPlayAlloc, MPlayFree);
 	MVE_ioCallbacks(FileRead);
@@ -416,9 +412,9 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
 
-	if (MVE_rmPrepMovie(m.pMovie, filehndl.get(), dx, dy, track)) {
+	if (MVE_rmPrepMovie(wind->pMovie, filehndl.get(), dx, dy, track)) {
 		Int3();
-		window_close(wind);
+		window_close(wind.get());
 		if (reshow)
 			show_menus();
 		return MOVIE_NOT_PLAYED;
@@ -428,17 +424,15 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 	MVE_palCallbacks(MovieSetPalette);
 
 	do {
-		event_process_all();
-	} while(window_get_front() == wind);
+		event_process();
+	} while(!(wind->aborted || wind->result == MVE_StepStatus::EndOfFile));
 
-	assert(m.aborted || m.result == MVE_StepStatus::EndOfFile);	 ///movie should be over
-
-	m.pMovie.reset();
+	wind->pMovie.reset();
 
 	filehndl.reset();                           // Close Movie File
 	if (reshow)
 		show_menus();
-	aborted = m.aborted;
+	aborted = wind->aborted;
 
 	// Restore old graphic state
 
