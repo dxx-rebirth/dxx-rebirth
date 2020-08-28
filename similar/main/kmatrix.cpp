@@ -176,8 +176,8 @@ struct kmatrix_screen : ignore_window_pointer_t
 	grs_main_bitmap background;
 	fix64 end_time;
 	int playing;
-        int aborted;
 	kmatrix_network network;
+	kmatrix_result result;
 };
 
 }
@@ -306,7 +306,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 							multi_send_endlevel_packet();
 						
 						multi_leave_game();
-                                                km->aborted = 1;
+						km->result = kmatrix_result::abort;
 
 						return window_event_result::close;
 					}
@@ -361,7 +361,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 							multi_send_endlevel_packet();
 						
 						multi_leave_game();
-                                                km->aborted = 1;
+						km->result = kmatrix_result::abort;
 					}
 				}
 #endif
@@ -395,11 +395,11 @@ kmatrix_result kmatrix_view(const kmatrix_network network)
 		return kmatrix_result::abort;
 	}
 	gr_palette_load(gr_palette);
-	
+
 	km.network = network;
 	km.end_time = -1;
 	km.playing = 0;
-        km.aborted = 0;
+	km.result = kmatrix_result::proceed;
 	
 	set_screen_mode( SCREEN_MENU );
 	game_flush_inputs();
@@ -415,6 +415,5 @@ kmatrix_result kmatrix_view(const kmatrix_network network)
 	}
 	
 	event_process_all();
-
-	return (km.aborted ? kmatrix_result::abort : kmatrix_result::proceed);
+	return km.result;
 }
