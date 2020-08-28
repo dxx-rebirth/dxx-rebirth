@@ -175,7 +175,6 @@ struct kmatrix_screen : ignore_window_pointer_t
 {
 	grs_main_bitmap background;
 	fix64 end_time;
-	int playing;
 	kmatrix_network network;
 	kmatrix_result result;
 };
@@ -324,24 +323,24 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 			if (km->network != kmatrix_network::offline)
 				multi_do_protocol_frame(0, 1);
 			
-			km->playing = 0;
+			uint8_t playing = 0;
 
 			// Check if all connected players are also looking at this screen ...
 			range_for (auto &i, Players)
 				if (i.connected)
 					if (i.connected != CONNECT_END_MENU && i.connected != CONNECT_DIED_IN_MINE)
 					{
-						km->playing = 1;
+						playing = 1;
 						break;
 					}
 			
 			// ... and let the reactor blow sky high!
-			if (!km->playing)
+			if (!playing)
 				LevelUniqueControlCenterState.Countdown_seconds_left = -1;
 			
 			// If Reactor is finished and end_time not inited, set the time when we will exit this loop
 			const auto Countdown_seconds_left = LevelUniqueControlCenterState.Countdown_seconds_left;
-			if (km->end_time == -1 && Countdown_seconds_left < 0 && !km->playing)
+			if (km->end_time == -1 && Countdown_seconds_left < 0 && !playing)
 				km->end_time = timer_query() + (KMATRIX_VIEW_SEC * F1_0);
 			
 			// Check if end_time has been reached and exit loop
@@ -369,7 +368,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 			}
 
 			kmatrix_redraw(km);
-			kmatrix_status_msg(*grd_curcanv, km->playing ? Countdown_seconds_left : f2i(timer_query() - km->end_time), km->playing);
+			kmatrix_status_msg(*grd_curcanv, playing ? Countdown_seconds_left : f2i(timer_query() - km->end_time), playing);
 			break;
 			}
 			
@@ -398,7 +397,6 @@ kmatrix_result kmatrix_view(const kmatrix_network network)
 
 	km.network = network;
 	km.end_time = -1;
-	km.playing = 0;
 	km.result = kmatrix_result::proceed;
 	
 	set_screen_mode( SCREEN_MENU );
