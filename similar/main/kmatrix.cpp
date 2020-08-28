@@ -174,7 +174,7 @@ namespace {
 struct kmatrix_screen : ignore_window_pointer_t
 {
 	grs_main_bitmap background;
-	fix64 end_time;
+	fix64 end_time = -1;
 	kmatrix_network network;
 	kmatrix_result result;
 };
@@ -396,7 +396,6 @@ kmatrix_result kmatrix_view(const kmatrix_network network)
 	gr_palette_load(gr_palette);
 
 	km.network = network;
-	km.end_time = -1;
 	km.result = kmatrix_result::proceed;
 	
 	set_screen_mode( SCREEN_MENU );
