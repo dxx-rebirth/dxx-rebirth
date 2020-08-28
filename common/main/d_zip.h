@@ -50,6 +50,34 @@ auto dereference_iterator(const std::tuple<range_iterator_type...> &iterator, st
 		>(*(std::get<N>(iterator))...);
 }
 
+template <typename T, std::size_t N>
+static constexpr std::integral_constant<std::size_t, N> get_static_size(const T (&)[N])
+{
+	return {};
+}
+
+template <typename T, std::size_t N>
+static constexpr std::integral_constant<std::size_t, N> get_static_size(const std::array<T, N> &)
+{
+	return {};
+}
+
+static constexpr std::nullptr_t get_static_size(...)
+{
+	return nullptr;
+}
+
+template <typename range0, typename rangeN, typename range0_extent = decltype(get_static_size(std::declval<range0>())), typename rangeN_extent = decltype(get_static_size(std::declval<rangeN>()))>
+struct check_static_size_pair : std::true_type
+{
+	static_assert(range0_extent::value <= rangeN_extent::value, "first range is longer than a later range");
+};
+
+template <typename range0, typename rangeN, typename range0_extent>
+struct check_static_size_pair<range0, rangeN, range0_extent, std::nullptr_t> : std::true_type
+{
+};
+
 }
 
 }
@@ -61,9 +89,16 @@ auto dereference_iterator(const std::tuple<range_iterator_type...> &iterator, st
  * zipped range, or by ensuring that external logic stops the traversal
  * before the zip_iterator increments past the end.
  *
- * There is no initialization time check that the below loop would be
+ * There is no runtime check that the below loop would be
  * safe, since a check external to the zip_iterator could stop before
  * undefined behaviour occurs.
+ *
+ * However, if the first range is convertible to a C array of known
+ * length or to a C++ std::array, then there is a compile-time check
+ * that the first range is not longer than any other range that is
+ * likewise convertible.  If a range cannot be converted to an array,
+ * then its length is unknown and is not checked.  If the first range is
+ * not convertible, then no ranges are checked.
 
 	for (auto i = zip_range.begin(), e = zip_range.end(); i != e; ++i)
 	{
@@ -128,9 +163,23 @@ public:
 	using range_owns_iterated_storage = std::false_type;
 	using iterator = zip_iterator<range0_iterator_type, rangeN_iterator_type...>;
 	template <typename range0, typename... rangeN>
-		zip(range0 &&r0, rangeN &&... rN) :
+		constexpr zip(range0 &&r0, rangeN &&... rN) :
 			iterator(std::begin(r0), std::begin(rN)...), m_end(std::end(r0))
 	{
+		using size_r0 = decltype(d_zip::detail::get_static_size(std::declval<range0>()));
+		if constexpr (!std::is_same<size_r0, std::nullptr_t>::value)
+		{
+			/* If the first range cannot be measured, then no static
+			 * checks are done.
+			 */
+			static_assert(
+				std::conjunction<
+					d_zip::detail::check_static_size_pair<
+						range0,
+						rangeN
+					> ...
+				>::value);
+		}
 		static_assert((!any_ephemeral_range<range0 &&, rangeN &&...>::value), "cannot zip storage of ephemeral ranges");
 	}
 	__attribute_warn_unused_result
