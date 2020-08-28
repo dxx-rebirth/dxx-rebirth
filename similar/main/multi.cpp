@@ -450,7 +450,7 @@ kmatrix_result multi_endlevel_score()
 	}
 
 	// Do the actual screen we wish to show
-	const auto rval = kmatrix_view(Game_mode & GM_NETWORK);
+	const auto rval = kmatrix_view(static_cast<kmatrix_network>(Game_mode & GM_NETWORK));
 
 	// Restore connect state
 

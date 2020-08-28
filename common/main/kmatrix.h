@@ -35,7 +35,16 @@ enum class kmatrix_result
 	proceed,
 };
 
-kmatrix_result kmatrix_view(int network); // shows matrix screen. Retruns 0 if aborted (quitting game) and 1 if proceeding to next level if applicable.
+enum class kmatrix_network : uint8_t
+{
+	offline,
+	/* This has the same numeric value as GM_NETWORK, but currently,
+	 * that is not required for correct operation.
+	 */
+	multiplayer = 4,
+};
+
+kmatrix_result kmatrix_view(kmatrix_network network); // shows matrix screen. Retruns 0 if aborted (quitting game) and 1 if proceeding to next level if applicable.
 #ifdef dsx
 namespace dsx {
 kmatrix_result multi_endlevel_score();

@@ -174,10 +174,10 @@ namespace {
 struct kmatrix_screen : ignore_window_pointer_t
 {
 	grs_main_bitmap background;
-	int network;
 	fix64 end_time;
 	int playing;
         int aborted;
+	kmatrix_network network;
 };
 
 }
@@ -295,14 +295,14 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 							nm_item_menu(TXT_YES),
 							nm_item_menu(TXT_NO),
 						}};
-						choice = newmenu_do(nullptr, TXT_ABORT_GAME, nm_message_items, km->network ? get_multi_endlevel_poll2() : unused_newmenu_subfunction, unused_newmenu_userdata);
+						choice = newmenu_do(nullptr, TXT_ABORT_GAME, nm_message_items, km->network != kmatrix_network::offline ? get_multi_endlevel_poll2() : unused_newmenu_subfunction, unused_newmenu_userdata);
 					}
 					
 					if (choice==0)
 					{
 						get_local_player().connected=CONNECT_DISCONNECTED;
 						
-						if (km->network)
+						if (km->network != kmatrix_network::offline)
 							multi_send_endlevel_packet();
 						
 						multi_leave_game();
@@ -321,7 +321,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 			{
 			timer_delay2(50);
 
-			if (km->network)
+			if (km->network != kmatrix_network::offline)
 				multi_do_protocol_frame(0, 1);
 			
 			km->playing = 0;
@@ -347,7 +347,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 			// Check if end_time has been reached and exit loop
 			if (timer_query() >= km->end_time && km->end_time != -1)
 			{
-				if (km->network)
+				if (km->network != kmatrix_network::offline)
 					multi_send_endlevel_packet();  // make sure
 				
 #if defined(DXX_BUILD_DESCENT_II)
@@ -357,7 +357,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 					{
 						get_local_player().connected=CONNECT_DISCONNECTED;
 						
-						if (km->network)
+						if (km->network != kmatrix_network::offline)
 							multi_send_endlevel_packet();
 						
 						multi_leave_game();
@@ -385,7 +385,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 }
 }
 
-kmatrix_result kmatrix_view(int network)
+kmatrix_result kmatrix_view(const kmatrix_network network)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
