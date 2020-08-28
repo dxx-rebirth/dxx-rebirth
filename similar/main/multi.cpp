@@ -1149,6 +1149,8 @@ int multi_endlevel(int *const secret)
 	return(result);
 }
 
+namespace dsx {
+
 multi_endlevel_poll *get_multi_endlevel_poll2()
 {
 	switch (multi_protocol)
@@ -1160,6 +1162,8 @@ multi_endlevel_poll *get_multi_endlevel_poll2()
 		default:
 			throw std::logic_error("Protocol handling missing in multi_endlevel_poll2");
 	}
+}
+
 }
 
 void multi_send_endlevel_packet()

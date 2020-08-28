@@ -169,6 +169,8 @@ static void kmatrix_status_msg(grs_canvas &canvas, const fix time, const int rea
 	, time);
 }
 
+namespace dcx {
+
 namespace {
 
 struct kmatrix_screen : ignore_window_pointer_t
@@ -178,6 +180,8 @@ struct kmatrix_screen : ignore_window_pointer_t
 	kmatrix_network network;
 	kmatrix_result result;
 };
+
+}
 
 }
 
@@ -382,6 +386,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 	}
 	return window_event_result::ignored;
 }
+
 }
 
 kmatrix_result kmatrix_view(const kmatrix_network network)

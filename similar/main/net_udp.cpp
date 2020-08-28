@@ -1445,6 +1445,8 @@ void net_udp_close()
 #endif
 }
 
+namespace dsx {
+
 // Same as above but used when player pressed ESC during kmatrix (host also does the packets for playing clients)
 int net_udp_kmatrix_poll2( newmenu *,const d_event &event, const unused_newmenu_userdata_t *)
 {
@@ -1466,7 +1468,6 @@ int net_udp_kmatrix_poll2( newmenu *,const d_event &event, const unused_newmenu_
 	return rval;
 }
 
-namespace dsx {
 int net_udp_endlevel(int *secret)
 {
 	// Do whatever needs to be done between levels

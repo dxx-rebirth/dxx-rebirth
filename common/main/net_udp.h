@@ -38,9 +38,9 @@ void net_udp_send_data(const uint8_t *ptr, unsigned len, int priority);
 namespace dsx {
 void net_udp_leave_game();
 int net_udp_endlevel(int *secret);
+int net_udp_kmatrix_poll2( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 }
 #endif
-int net_udp_kmatrix_poll2( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 void net_udp_send_endlevel_packet();
 void net_udp_dump_player(const _sockaddr &dump_addr, int why);
 void net_udp_disconnect_player(int playernum);
