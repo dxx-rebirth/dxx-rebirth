@@ -126,13 +126,38 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::min;
 
-// Global Variables -----------------------------------------------------------
+namespace dcx {
 
-//	Function prototypes --------------------------------------------------------
+namespace {
+
+struct pause_window : window
+{
+	using window::window;
+	std::array<char, 1024> msg;
+};
+
+}
+
+}
+
+namespace dsx {
+
+namespace {
+
+struct pause_window : ::dcx::pause_window
+{
+	using ::dcx::pause_window::pause_window;
+	virtual window_event_result event_handler(const d_event &) override;
+};
+
 #ifndef RELEASE
 static void do_cheat_menu();
 static void play_test_sound();
 #endif
+
+}
+
+}
 
 #define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
 
@@ -318,6 +343,10 @@ static void do_weapon_n_item_stuff(object_array &Objects)
 }
 }
 
+namespace dcx {
+
+namespace {
+
 static void format_time(char (&str)[9], unsigned secs_int, unsigned hours_extra)
 {
 	auto d1 = std::div(secs_int, 60);
@@ -329,16 +358,17 @@ static void format_time(char (&str)[9], unsigned secs_int, unsigned hours_extra)
 	snprintf(str, sizeof(str), "%1u:%02u:%02u", h, m, s);
 }
 
-struct pause_window : ignore_window_pointer_t
-{
-	std::array<char, 1024> msg;
-};
+}
+
+}
+
+namespace dsx {
+
+namespace {
 
 //Process selected keys until game unpaused
-static window_event_result pause_handler(window *, const d_event &event, pause_window *p)
+window_event_result pause_window::event_handler(const d_event &event)
 {
-	int key;
-
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
@@ -346,9 +376,7 @@ static window_event_result pause_handler(window *, const d_event &event, pause_w
 			break;
 
 		case EVENT_KEY_COMMAND:
-			key = event_key_get(event);
-
-			switch (key)
+			switch (event_key_get(event))
 			{
 				case 0:
 					break;
@@ -369,12 +397,11 @@ static window_event_result pause_handler(window *, const d_event &event, pause_w
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			show_boxed_message(&p->msg[0], 1);
+			show_boxed_message(msg.data(), 1);
 			break;
 
 		case EVENT_WINDOW_CLOSE:
 			songs_resume();
-			delete p;
 			break;
 
 		default:
@@ -383,7 +410,7 @@ static window_event_result pause_handler(window *, const d_event &event, pause_w
 	return window_event_result::ignored;
 }
 
-static int do_game_pause()
+static void do_game_pause()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -392,10 +419,10 @@ static int do_game_pause()
 	if (Game_mode & GM_MULTI)
 	{
 		netplayerinfo_on= !netplayerinfo_on;
-		return(KEY_PAUSE);
+		return;
 	}
 
-	pause_window *p = new pause_window;
+	auto p = std::make_unique<pause_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	songs_pause();
 
 	auto &plr = get_local_player();
@@ -408,10 +435,9 @@ static int do_game_pause()
 		snprintf(&p->msg[0], p->msg.size(), "PAUSE\n\n\n\n");
 	set_screen_mode(SCREEN_MENU);
 
-	if (!window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, pause_handler, p))
-		delete p;
-
-	return 0 /*key*/;	// Keycode returning ripped out (kreatordxx)
+	p->send_creation_events(nullptr);
+	p.release();
+	// Keycode returning ripped out (kreatordxx)
 }
 
 static window_event_result HandleEndlevelKey(int key)
@@ -677,7 +703,6 @@ static int select_next_window_function(const gauge_inset_window_view w)
 
 //this is for system-level keys, such as help, etc.
 //returns 1 if screen changed
-namespace dsx {
 static window_event_result HandleSystemKey(int key)
 {
 	if (Player_dead_state == player_dead_state::no)
@@ -723,7 +748,8 @@ static window_event_result HandleSystemKey(int key)
                         break;
 		KEY_MAC( case KEY_COMMAND+KEY_P: )
 		case KEY_PAUSE:
-			do_game_pause();	break;
+			do_game_pause();
+			break;
 
 
 #if DXX_USE_SCREENSHOT
@@ -908,9 +934,7 @@ static window_event_result HandleSystemKey(int key)
 	}
 	return window_event_result::handled;
 }
-}
 
-namespace dsx {
 static window_event_result HandleGameKey(int key)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1029,7 +1053,6 @@ static window_event_result HandleGameKey(int key)
 		return window_event_result::ignored;
 
 	return window_event_result::handled;
-}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1191,7 +1214,6 @@ static void kill_buddy(void)
 }
 #endif
 
-namespace dsx {
 static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -1424,8 +1446,13 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 	}
 	return window_event_result::handled;
 }
-}
 #endif		//#ifndef RELEASE
+
+}
+
+}
+
+namespace {
 
 #define CHEAT_MAX_LEN 15
 struct cheat_code
@@ -1482,7 +1509,12 @@ constexpr cheat_code cheat_codes[] = {
 	{ "bittersweet", &game_cheats::acid },
 };
 
+}
+
 namespace dsx {
+
+namespace {
+
 static window_event_result FinalCheats()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1769,12 +1801,9 @@ static window_event_result FinalCheats()
 
 	return window_event_result::handled;
 }
-}
 
 // Internal Cheat Menu
 #ifndef RELEASE
-
-namespace {
 
 class menu_fix_wrapper
 {
@@ -1841,8 +1870,6 @@ public:
 		return *this;
 	}
 };
-
-}
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define WIMP_MENU_DXX(VERB)
@@ -1912,7 +1939,7 @@ static void play_test_sound()
 }
 #endif  //ifndef NDEBUG
 
-namespace dsx {
+}
 
 window_event_result ReadControls(const d_event &event)
 {
