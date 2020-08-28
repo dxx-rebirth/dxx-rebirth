@@ -1839,10 +1839,11 @@ void drop_stolen_items(const vcobjptr_t objp)
 // --------------------------------------------------------------------------------------------------------------
 namespace {
 
-struct escort_menu : ignore_window_pointer_t
+struct escort_menu : window
 {
+	using window::window;
 	std::array<char, 300> msg;
-	static window_event_result event_handler(window *wind, const d_event &event, escort_menu *menu);
+	virtual window_event_result event_handler(const d_event &) override;
 	static window_event_result event_key_command(const d_event &event);
 };
 
@@ -1884,7 +1885,7 @@ window_event_result escort_menu::event_key_command(const d_event &event)
 	return window_event_result::ignored;
 }
 
-window_event_result escort_menu::event_handler(window *, const d_event &event, escort_menu *menu)
+window_event_result escort_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -1899,11 +1900,10 @@ window_event_result escort_menu::event_handler(window *, const d_event &event, e
 			break;
 			
 		case EVENT_WINDOW_DRAW:
-			show_escort_menu(menu->msg);		//TXT_PAUSE);
+			show_escort_menu(msg);
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			d_free(menu);
 			return window_event_result::ignored;	// continue closing
 		default:
 			return window_event_result::ignored;
@@ -1941,7 +1941,6 @@ void do_escort_menu(void)
 	char	goal_str[12];
 	const char *goal_txt;
 	const char *tstr;
-	escort_menu *menu;
 
 	if (Game_mode & GM_MULTI) {
 		if (!check_warn_local_player_can_control_guidebot(vcobjptr, BuddyState, Netgame))
@@ -1961,18 +1960,9 @@ void do_escort_menu(void)
 		return;
 	}
 
-	MALLOC(menu, escort_menu, 1);
-	if (!menu)
-		return;
-	
 	// Just make it the full screen size and let show_escort_menu figure it out
-	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, &escort_menu::event_handler, menu);
-	if (!wind)
-	{
-		d_free(menu);
-		return;
-	}
-	
+	auto wind = std::make_unique<escort_menu>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+
 	auto &plrobj = get_local_plrobj();
 	//	This prevents the buddy from coming back if you've told him to scram.
 	//	If we don't set next_goal, we get garbage there.
@@ -2029,7 +2019,8 @@ void do_escort_menu(void)
 	else
 		tstr =  "Enable";
 
-	snprintf(menu->msg.data(), menu->msg.size(), "Select Guide-Bot Command:\n\n\n"
+	auto &msg = wind->msg;
+	snprintf(msg.data(), msg.size(), "Select Guide-Bot Command:\n\n\n"
 						"0.  Next Goal: %s" CC_LSPACING_S "3\n\n"
 						"\x84.  Find Energy Powerup" CC_LSPACING_S "3\n\n"
 						"2.  Find Energy Center" CC_LSPACING_S "3\n\n"
@@ -2043,6 +2034,8 @@ void do_escort_menu(void)
 						"T.  %s Messages"
 						// -- "9.	Find the exit" CC_LSPACING_S "3\n"
 				, goal_txt, tstr);
+	wind->send_creation_events(nullptr);
+	wind.release();
 }
 
 //	-------------------------------------------------------------------------------
