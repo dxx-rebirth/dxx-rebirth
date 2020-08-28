@@ -173,8 +173,9 @@ namespace dcx {
 
 namespace {
 
-struct kmatrix_screen : ignore_window_pointer_t
+struct kmatrix_window : window
 {
+	using window::window;
 	grs_main_bitmap background;
 	fix64 end_time = -1;
 	kmatrix_network network;
@@ -186,7 +187,16 @@ struct kmatrix_screen : ignore_window_pointer_t
 }
 
 namespace dsx {
-static void kmatrix_redraw(kmatrix_screen *km)
+
+namespace {
+
+struct kmatrix_window : ::dcx::kmatrix_window
+{
+	using ::dcx::kmatrix_window::kmatrix_window;
+	virtual window_event_result event_handler(const d_event &) override;
+};
+
+static void kmatrix_redraw(kmatrix_window *const km)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -234,6 +244,9 @@ static void kmatrix_redraw(kmatrix_screen *km)
 
 	gr_palette_load(gr_palette);
 }
+
+}
+
 }
 
 static void kmatrix_redraw_coop(fvcobjptr &vcobjptr)
@@ -281,7 +294,8 @@ static void kmatrix_redraw_coop(fvcobjptr &vcobjptr)
 }
 
 namespace dsx {
-static window_event_result kmatrix_handler(window *, const d_event &event, kmatrix_screen *km)
+
+window_event_result kmatrix_window::event_handler(const d_event &event)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int k = 0, choice = 0;
@@ -298,18 +312,18 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 							nm_item_menu(TXT_YES),
 							nm_item_menu(TXT_NO),
 						}};
-						choice = newmenu_do(nullptr, TXT_ABORT_GAME, nm_message_items, km->network != kmatrix_network::offline ? get_multi_endlevel_poll2() : unused_newmenu_subfunction, unused_newmenu_userdata);
+						choice = newmenu_do(nullptr, TXT_ABORT_GAME, nm_message_items, network != kmatrix_network::offline ? get_multi_endlevel_poll2() : unused_newmenu_subfunction, unused_newmenu_userdata);
 					}
 					
 					if (choice==0)
 					{
 						get_local_player().connected=CONNECT_DISCONNECTED;
 						
-						if (km->network != kmatrix_network::offline)
+						if (network != kmatrix_network::offline)
 							multi_send_endlevel_packet();
 						
 						multi_leave_game();
-						km->result = kmatrix_result::abort;
+						this->result = kmatrix_result::abort;
 
 						return window_event_result::close;
 					}
@@ -324,7 +338,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 			{
 			timer_delay2(50);
 
-			if (km->network != kmatrix_network::offline)
+			if (network != kmatrix_network::offline)
 				multi_do_protocol_frame(0, 1);
 			
 			uint8_t playing = 0;
@@ -344,13 +358,13 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 			
 			// If Reactor is finished and end_time not inited, set the time when we will exit this loop
 			const auto Countdown_seconds_left = LevelUniqueControlCenterState.Countdown_seconds_left;
-			if (km->end_time == -1 && Countdown_seconds_left < 0 && !playing)
-				km->end_time = timer_query() + (KMATRIX_VIEW_SEC * F1_0);
+			if (end_time == -1 && Countdown_seconds_left < 0 && !playing)
+				end_time = timer_query() + (KMATRIX_VIEW_SEC * F1_0);
 			
 			// Check if end_time has been reached and exit loop
-			if (timer_query() >= km->end_time && km->end_time != -1)
+			if (timer_query() >= end_time && end_time != -1)
 			{
-				if (km->network != kmatrix_network::offline)
+				if (network != kmatrix_network::offline)
 					multi_send_endlevel_packet();  // make sure
 				
 #if defined(DXX_BUILD_DESCENT_II)
@@ -360,19 +374,19 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 					{
 						get_local_player().connected=CONNECT_DISCONNECTED;
 						
-						if (km->network != kmatrix_network::offline)
+						if (network != kmatrix_network::offline)
 							multi_send_endlevel_packet();
 						
 						multi_leave_game();
-						km->result = kmatrix_result::abort;
+						this->result = kmatrix_result::abort;
 					}
 				}
 #endif
 				return window_event_result::close;
 			}
 
-			kmatrix_redraw(km);
-			kmatrix_status_msg(*grd_curcanv, playing ? Countdown_seconds_left : f2i(timer_query() - km->end_time), playing);
+			kmatrix_redraw(this);
+			kmatrix_status_msg(*grd_curcanv, playing ? Countdown_seconds_left : f2i(timer_query() - end_time), playing);
 			break;
 			}
 			
@@ -387,13 +401,12 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 	return window_event_result::ignored;
 }
 
-}
-
 kmatrix_result kmatrix_view(const kmatrix_network network)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
-	kmatrix_screen km;
+	const auto pkm = std::make_unique<kmatrix_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	auto &km = *pkm;
 	if (pcx_read_bitmap(STARS_BACKGROUND, km.background, gr_palette) != pcx_result::SUCCESS)
 	{
 		return kmatrix_result::abort;
@@ -410,12 +423,9 @@ kmatrix_result kmatrix_view(const kmatrix_network network)
 		if (i.objnum != object_none)
 			digi_kill_sound_linked_to_object(vcobjptridx(i.objnum));
 
-	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, kmatrix_handler, &km);
-	if (!wind)
-	{
-		return kmatrix_result::abort;
-	}
-	
+	km.send_creation_events(nullptr);
 	event_process_all();
 	return km.result;
+}
+
 }
