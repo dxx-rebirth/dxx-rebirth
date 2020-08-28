@@ -18,7 +18,7 @@
 #include "cmd.h"
 #include "d_srcloc.h"
 
-#ifdef __cplusplus
+namespace dcx {
 
 /* Priority levels */
 enum con_priority
@@ -75,4 +75,4 @@ void con_printf(con_priority_wrapper level, const char *fmt, ...) __attribute_fo
 	dxx_call_printf_checked(con_printf,con_puts,(A1),(F),##__VA_ARGS__)
 void con_showup(void);
 
-#endif
+}

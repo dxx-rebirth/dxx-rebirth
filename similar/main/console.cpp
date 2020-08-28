@@ -38,6 +38,10 @@
 #include <windows.h>
 #endif
 
+namespace dcx {
+
+namespace {
+
 #ifndef DXX_CONSOLE_TIME_SHOW_YMD
 #define DXX_CONSOLE_TIME_SHOW_YMD	0
 #endif
@@ -61,6 +65,12 @@ enum con_state {
 	CON_STATE_OPEN = 2
 };
 
+struct console_window : window
+{
+	using window::window;
+	virtual window_event_result event_handler(const d_event &) override;
+};
+
 static RAIIPHYSFS_File gamelog_fp;
 static std::array<console_buffer, CON_LINES_MAX> con_buffer;
 static con_state con_state;
@@ -79,6 +89,8 @@ static void con_add_buffer_line(const con_priority priority, const char *const b
 	memcpy(&c.line,buffer, copy);
 }
 
+}
+
 void (con_printf)(const con_priority_wrapper priority, const char *const fmt, ...)
 {
 	va_list arglist;
@@ -93,6 +105,8 @@ void (con_printf)(const con_priority_wrapper priority, const char *const fmt, ..
 		con_force_puts(priority, buffer, len);
 	}
 }
+
+namespace {
 
 static void con_scrub_markup(char *buffer)
 {
@@ -225,6 +239,8 @@ static void con_force_puts(const con_priority priority, char *const buffer, cons
 	con_print_file(buffer);
 }
 
+}
+
 void con_puts(const con_priority_wrapper priority, char *const buffer, const size_t len)
 {
 	if (priority <= CGameArg.DbgVerbose)
@@ -246,6 +262,8 @@ void con_puts(const con_priority_wrapper priority, const char *const buffer, con
 		con_print_file(b.first);
 	}
 }
+
+namespace {
 
 static color_palette_index get_console_color_by_priority(const int priority)
 {
@@ -316,7 +334,7 @@ static void con_draw(void)
 	gr_string(canvas, game_font, SWIDTH - fspacx(110), fspacy1, "PAGE-UP/DOWN TO SCROLL");
 }
 
-static window_event_result con_handler(window *wind,const d_event &event, const unused_window_userdata_t *)
+window_event_result console_window::event_handler(const d_event &event)
 {
 	int key;
 	static fix64 last_scroll_time = 0;
@@ -410,7 +428,7 @@ static window_event_result con_handler(window *wind,const d_event &event, const 
 				}
 			}
 			con_draw();
-			if (con_state == CON_STATE_CLOSED && wind)
+			if (con_state == CON_STATE_CLOSED)
 			{
 				return window_event_result::close;
 			}
@@ -424,18 +442,15 @@ static window_event_result con_handler(window *wind,const d_event &event, const 
 	return window_event_result::ignored;
 }
 
+}
+
 void con_showup(void)
 {
 	game_flush_inputs();
 	con_state = CON_STATE_OPENING;
-	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, con_handler, unused_window_userdata);
-	
-	if (!wind)
-	{
-		d_event event = { EVENT_WINDOW_CLOSE };
-		con_handler(NULL, event, NULL);
-		return;
-	}
+	auto wind = std::make_unique<console_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	wind->send_creation_events(nullptr);
+	wind.release();
 }
 
 void con_init(void)
@@ -449,5 +464,6 @@ void con_init(void)
 	cli_init();
 	cmd_init();
 	cvar_init();
+}
 
 }

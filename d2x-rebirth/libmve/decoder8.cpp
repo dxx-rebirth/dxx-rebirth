@@ -18,6 +18,8 @@
 #include "d_range.h"
 #include <array>
 
+using namespace dcx;
+
 static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
 
 void decodeFrame8(unsigned char *pFrame, const unsigned char *pMap, int mapRemain, const unsigned char *pData, int dataRemain)

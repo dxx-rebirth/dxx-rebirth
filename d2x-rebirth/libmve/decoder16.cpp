@@ -18,6 +18,8 @@
 #include <array>
 #include <utility>
 
+using namespace dcx;
+
 static unsigned short *backBuf1, *backBuf2;
 
 static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb);
