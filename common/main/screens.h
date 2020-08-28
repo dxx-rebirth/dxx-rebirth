@@ -45,6 +45,10 @@ int set_screen_mode(int sm);	// True = editor screen
 }
 #endif
 
+namespace dcx {
+extern const std::array<int8_t, 64> fades;
+}
+
 //About the screen
 
 extern grs_canvas		Screen_3d_window;		// The rectangle for rendering the mine to

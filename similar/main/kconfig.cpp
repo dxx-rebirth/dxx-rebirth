@@ -83,7 +83,7 @@ using std::minus;
 namespace dcx {
 
 // Array used to 'blink' the cursor while waiting for a keypress.
-const std::array<sbyte, 64> fades{{
+const std::array<int8_t, 64> fades{{
 	1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,
 	16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,
 	31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,
