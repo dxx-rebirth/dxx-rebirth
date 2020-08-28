@@ -122,6 +122,12 @@ static unsigned int FileRead(void *handle, void *buf, unsigned int count)
     return (numread == count);
 }
 
+struct movie_pause_window : window
+{
+	using window::window;
+	virtual window_event_result event_handler(const d_event &) override;
+};
+
 }
 
 //-----------------------------------------------------------------------
@@ -253,10 +259,8 @@ struct movie : ignore_window_pointer_t
 	d_subtitle_state SubtitleState;
 };
 
-static window_event_result show_pause_message(window *, const d_event &event, const unused_window_userdata_t *)
+window_event_result movie_pause_window::event_handler(const d_event &event)
 {
-	window_event_result result;
-
 	switch (event.type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
@@ -264,11 +268,10 @@ static window_event_result show_pause_message(window *, const d_event &event, co
 				return window_event_result::ignored;
 			DXX_BOOST_FALLTHROUGH;
 		case EVENT_KEY_COMMAND:
-			if ((result = call_default_handler(event)) == window_event_result::ignored)
-			{
+			if (const auto result = call_default_handler(event); result == window_event_result::ignored)
 				return window_event_result::close;
-			}
-			return result;
+			else
+				return result;
 
 		case EVENT_WINDOW_DRAW:
 		{
@@ -323,8 +326,12 @@ static window_event_result MovieHandler(window *, const d_event &event, movie *m
 			// If PAUSE pressed, then pause movie
 			if ((key == KEY_PAUSE) || (key == KEY_COMMAND + KEY_P))
 			{
-				if (window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, show_pause_message, unused_window_userdata))
+				if (auto pause_window = std::make_unique<movie_pause_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT))
+				{
 					MVE_rmHoldMovie();
+					pause_window->send_creation_events(nullptr);
+					pause_window.release();
+				}
 				return window_event_result::handled;
 			}
 			break;
