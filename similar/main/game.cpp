@@ -143,6 +143,9 @@ int	Global_missile_firing_count = 0;
 //	Function prototypes for GAME.C exclusively.
 
 namespace dsx {
+
+game_window *Game_wind;
+
 static window_event_result GameProcessFrame(void);
 static bool FireLaser(player_info &);
 static void powerup_grab_cheat_all();
@@ -1524,17 +1527,15 @@ void game_disable_cheats()
 
 namespace dsx {
 
-window *game_setup(void)
+game_window *game_setup()
 {
 
 	PlayerCfg.CockpitMode[1] = PlayerCfg.CockpitMode[0];
 	last_drawn_cockpit = -1;	// Force cockpit to redraw next time a frame renders.
 	Endlevel_sequence = 0;
 
-	const auto game_wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, unused_window_userdata);
-	if (!game_wind)
-		return NULL;
-
+	auto game_wind = std::make_unique<game_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	game_wind->send_creation_events(nullptr);
 	reset_palette_add();
 	init_cockpit();
 	init_gauges();
@@ -1557,17 +1558,15 @@ window *game_setup(void)
 	fix_object_segs();
 	if (CGameArg.SysAutoRecordDemo && Newdemo_state == ND_STATE_NORMAL)
 		newdemo_start_recording();
-	return game_wind;
+	return game_wind.release();
 }
 
 }
-
-window *Game_wind = NULL;
 
 namespace dsx {
 
 // Event handler for the game
-window_event_result game_handler(window *,const d_event &event, const unused_window_userdata_t *)
+window_event_result game_window::event_handler(const d_event &event)
 {
 	auto result = window_event_result::ignored;
 
@@ -1657,7 +1656,6 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 			key_toggle_repeat(1);
 			Game_wind = nullptr;
 			return window_event_result::ignored;
-			break;
 
 		case EVENT_LOOP_BEGIN_LOOP:
 			kconfig_begin_loop(Controls);

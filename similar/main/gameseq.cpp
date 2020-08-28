@@ -1447,7 +1447,7 @@ window_event_result ExitSecretLevel()
 		return window_event_result::ignored;
 
 	if (Game_wind)
-		window_set_visible(Game_wind, 0);
+		window_set_visible(*Game_wind, 0);
 
 	if (!LevelUniqueControlCenterState.Control_center_destroyed)
 	{
@@ -1477,7 +1477,7 @@ window_event_result ExitSecretLevel()
 	}
 
 	if (Game_wind)
-		window_set_visible(Game_wind, 1);
+		window_set_visible(*Game_wind, 1);
 	reset_time();
 
 	return result;
@@ -1520,7 +1520,7 @@ void EnterSecretLevel(void)
 	Assert(! (Game_mode & GM_MULTI) );
 
 	if (Game_wind)
-		window_set_visible(Game_wind, 0);
+		window_set_visible(*Game_wind, 0);
 
 	digi_play_sample( SOUND_SECRET_EXIT, F1_0 );	// after above call which stops all sounds
 	
@@ -1559,7 +1559,7 @@ void EnterSecretLevel(void)
 
 	// do_cloak_invul_stuff();
 	if (Game_wind)
-		window_set_visible(Game_wind, 1);
+		window_set_visible(*Game_wind, 1);
 	reset_time();
 }
 #endif
@@ -1570,7 +1570,7 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	if (Game_wind)
-		window_set_visible(Game_wind, 0);
+		window_set_visible(*Game_wind, 0);
 
 	//credit the player for hostages
 	auto &player_info = get_local_plrobj().ctype.player_info;
@@ -1593,7 +1593,7 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 	auto result = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 
 	if (Game_wind)
-		window_set_visible(Game_wind, 1);
+		window_set_visible(*Game_wind, 1);
 	reset_time();
 
 	return result;
@@ -1817,13 +1817,13 @@ window_event_result DoPlayerDead()
                 {
 
 			if (Game_wind)
-				window_set_visible(Game_wind, 0);
+				window_set_visible(*Game_wind, 0);
 			result = AdvanceLevel(0);			//if finished, go on to next level
 
 			init_player_stats_new_ship(Player_num);
 			last_drawn_cockpit = -1;
 			if (Game_wind)
-				window_set_visible(Game_wind, 1);
+				window_set_visible(*Game_wind, 1);
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 	} else if (Current_level_num < 0) {

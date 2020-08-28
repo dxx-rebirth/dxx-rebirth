@@ -2190,23 +2190,23 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 			else if (citem == opt_sm_redbook_playorder)
 			{
 				GameCfg.OrigTrackOrder = items[citem].value;
-				replay = (Game_wind != NULL);
+				replay = static_cast<bool>(Game_wind);
 			}
 #if DXX_USE_SDLMIXER
 			else if (citem == opt_sm_mtype3_lmplayorder1)
 			{
 				CGameCfg.CMLevelMusicPlayOrder = LevelMusicPlayOrder::Continuous;
-				replay = (Game_wind != NULL);
+				replay = static_cast<bool>(Game_wind);
 			}
 			else if (citem == opt_sm_mtype3_lmplayorder2)
 			{
 				CGameCfg.CMLevelMusicPlayOrder = LevelMusicPlayOrder::Level;
-				replay = (Game_wind != NULL);
+				replay = static_cast<bool>(Game_wind);
 			}
 			else if (citem == opt_sm_mtype3_lmplayorder3)
 			{
 				CGameCfg.CMLevelMusicPlayOrder = LevelMusicPlayOrder::Random;
-				replay = (Game_wind != NULL);
+				replay = static_cast<bool>(Game_wind);
 			}
 #endif
 			break;
@@ -2275,7 +2275,8 @@ void do_sound_menu()
 	newmenu_do1(nullptr, "Sound Effects & Music", items.m.size(), items.m.data(), &sound_menu_items::menuset, &items, 0);
 
 #if DXX_USE_SDLMIXER
-	if ((Game_wind != NULL && strcmp(old_CMLevelMusicPath.data(), CGameCfg.CMLevelMusicPath.data())) || (Game_wind == NULL && strcmp(old_CMMiscMusic0.data(), CGameCfg.CMMiscMusic[SONG_TITLE].data())))
+	if ((Game_wind && strcmp(old_CMLevelMusicPath.data(), CGameCfg.CMLevelMusicPath.data())) ||
+		(!Game_wind && strcmp(old_CMMiscMusic0.data(), CGameCfg.CMMiscMusic[SONG_TITLE].data())))
 	{
 		songs_uninit();
 

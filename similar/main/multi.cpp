@@ -433,10 +433,10 @@ kmatrix_result multi_endlevel_score()
 	// If there still is a Game_wind and it's suspended (usually both should be the case), bring it up again so host can still take actions of the game
 	if (Game_wind)
 	{
-		if (!window_is_visible(Game_wind))
+		if (!window_is_visible(*Game_wind))
 		{
 			game_wind_visible = 1;
-			window_set_visible(Game_wind, 1);
+			window_set_visible(*Game_wind, 1);
 		}
 	}
 	// Save connect state and change to new connect state
@@ -502,7 +502,7 @@ kmatrix_result multi_endlevel_score()
 
 	// hide Game_wind again if we brought it up
 	if (Game_wind && game_wind_visible)
-		window_set_visible(Game_wind, 0);
+		window_set_visible(*Game_wind, 0);
 
 	return rval;
 }
@@ -2078,10 +2078,10 @@ void multi_disconnect_player(const playernum_t pnum)
 	if (pnum == multi_who_is_master()) // Host has left - Quit game!
 	{
 		if (Game_wind)
-			window_set_visible(Game_wind, 0);
+			window_set_visible(*Game_wind, 0);
 		nm_messagebox(NULL, 1, TXT_OK, "Host left the game!");
 		if (Game_wind)
-			window_set_visible(Game_wind, 1);
+			window_set_visible(*Game_wind, 1);
 		multi_quit_game = 1;
 		game_leave_menus();
 		return;
@@ -3194,10 +3194,10 @@ void multi_consistency_error(int reset)
 		return;
 
 	if (Game_wind)
-		window_set_visible(Game_wind, 0);
+		window_set_visible(*Game_wind, 0);
 	nm_messagebox(NULL, 1, TXT_OK, TXT_CONSISTENCY_ERROR);
 	if (Game_wind)
-		window_set_visible(Game_wind, 1);
+		window_set_visible(*Game_wind, 1);
 	count = 0;
 	multi_quit_game = 1;
 	game_leave_menus();

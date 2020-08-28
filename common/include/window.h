@@ -87,9 +87,9 @@ public:
 		return w_visible;
 	}
 
-	friend int window_is_visible(window *wind)
+	friend int window_is_visible(window &wind)
 	{
-		return wind->is_visible();
+		return wind.is_visible();
 	}
 
 	void set_modal(int modal)

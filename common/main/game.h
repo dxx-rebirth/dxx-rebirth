@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-object.h"
 #include "fwd-player.h"
 #include "fwd-segment.h"
-#include "fwd-window.h"
+#include "window.h"
 #include "d_array.h"
 #include "gauges.h"
 #include "wall.h"
@@ -50,8 +50,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MINIMUM_FPS 1
 #define MAXIMUM_FPS 1000
 #endif
-
-extern class window *Game_wind;
 
 // from mglobal.c
 namespace dcx {
@@ -203,6 +201,14 @@ extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+
+struct game_window : window
+{
+	using window::window;
+	virtual window_event_result event_handler(const d_event &) override;
+};
+extern game_window *Game_wind;
+
 void game();
 void init_game();
 void init_cockpit();
@@ -448,7 +454,7 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 };
 extern game_cheats cheats;
 
-window *game_setup();
+game_window *game_setup();
 window_event_result game_handler(window *wind,const d_event &event, const unused_window_userdata_t *);
 window_event_result ReadControls(const d_event &event);
 bool allowed_to_fire_laser(const player_info &);

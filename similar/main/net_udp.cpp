@@ -2932,13 +2932,13 @@ static void net_udp_process_dump(ubyte *data, int, const _sockaddr &sender_addr)
 		case DUMP_PKTTIMEOUT:
 		case DUMP_KICKED:
 			if (Game_wind)
-				window_set_visible(Game_wind, 0);
+				window_set_visible(*Game_wind, 0);
 			if (data[1] == DUMP_PKTTIMEOUT)
 				nm_messagebox(NULL, 1, TXT_OK, "You were removed from the game.\nYou failed receiving important\npackets. Sorry.");
-			if (data[1] == DUMP_KICKED)
+			else if (data[1] == DUMP_KICKED)
 				nm_messagebox(NULL, 1, TXT_OK, "You were kicked by Host!");
 			if (Game_wind)
-				window_set_visible(Game_wind, 1);
+				window_set_visible(*Game_wind, 1);
 			multi_quit_game = 1;
 			game_leave_menus();
 			break;
@@ -4981,10 +4981,10 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const ubyte *data, ushort d
 		{
 			Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
 			if (Game_wind)
-				window_set_visible(Game_wind, 0);
+				window_set_visible(*Game_wind, 0);
 			nm_messagebox(NULL, 1, TXT_OK, "You left the game. You failed\nsending important packets.\nSorry.");
 			if (Game_wind)
-				window_set_visible(Game_wind, 1);
+				window_set_visible(*Game_wind, 1);
 			multi_quit_game = 1;
 			game_leave_menus();
 		}
@@ -5182,10 +5182,10 @@ void net_udp_noloss_process_queue(fix64 time)
 				{
 					Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
 					if (Game_wind)
-						window_set_visible(Game_wind, 0);
+						window_set_visible(*Game_wind, 0);
 					nm_messagebox(NULL, 1, TXT_OK, "You left the game. You failed\nsending important packets.\nSorry.");
 					if (Game_wind)
-						window_set_visible(Game_wind, 1);
+						window_set_visible(*Game_wind, 1);
 					multi_quit_game = 1;
 					game_leave_menus();
 				}

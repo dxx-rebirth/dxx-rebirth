@@ -1308,7 +1308,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 
 		case KEY_E + KEY_DEBUGGED:
 		{
-			window_set_visible(Game_wind, 0);	// don't let the game do anything while we set the editor up
+			window_set_visible(*Game_wind, 0);	// don't let the game do anything while we set the editor up
 			auto old_gamestate = gamestate;
 			gamestate = editor_gamestate::unsaved;	// saved game editing mode
 
@@ -1316,7 +1316,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 			// If editor failed to load, carry on playing
 			if (!EditorWindow)
 			{
-				window_set_visible(Game_wind, 1);
+				window_set_visible(*Game_wind, 1);
 				gamestate = old_gamestate;
 				return window_event_result::handled;
 			}
@@ -1707,9 +1707,9 @@ static window_event_result FinalCheats()
 		if (item != -1) {
 			new_level_num = atoi(m[0].text);
 			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level) {
-				window_set_visible(Game_wind, 0);
+				window_set_visible(*Game_wind, 0);
 				StartNewLevel(new_level_num);
-				window_set_visible(Game_wind, 1);
+				window_set_visible(*Game_wind, 1);
 			}
 		}
 	}

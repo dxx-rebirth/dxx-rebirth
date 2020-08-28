@@ -335,7 +335,7 @@ window_event_result standard_handler(const d_event &event)
 				case KEY_ALTED+KEY_ENTER:
 				case KEY_ALTED+KEY_PADENTER:
 					if (Game_wind)
-						if (Game_wind == window_get_front())
+						if (window_get_front() == Game_wind)
 							return window_event_result::ignored;
 					gr_toggle_fullscreen();
 #if SDL_MAJOR_VERSION == 2
