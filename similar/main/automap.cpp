@@ -115,8 +115,9 @@ struct Edge_info
 	ubyte num_faces;    // 1  bytes  // 31 bytes...
 };
 
-struct automap : ignore_window_pointer_t
+struct automap : ::dcx::window
 {
+	using ::dcx::window::window;
 	fix64			entry_time;
 	fix64			t1, t2;
 	int			leave_mode;
@@ -174,6 +175,7 @@ struct automap : ::dcx::automap
 	color_t wall_revealed_color;
 #endif
 	control_info controls;
+	virtual window_event_result event_handler(const d_event &) override;
 };
 
 static void init_automap_subcanvas(grs_subcanvas &view, grs_canvas &container)
@@ -1077,7 +1079,7 @@ static window_event_result automap_process_input(const d_event &event, automap &
 	return window_event_result::ignored;
 }
 
-static window_event_result automap_handler(window *, const d_event &event, automap *am)
+window_event_result automap::event_handler(const d_event &event)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -1097,7 +1099,7 @@ static window_event_result automap_handler(window *, const d_event &event, autom
 
 #if SDL_MAJOR_VERSION == 2
 		case EVENT_WINDOW_RESIZE:
-			init_automap_subcanvas(am->automap_view, grd_curscreen->sc_canvas);
+			init_automap_subcanvas(automap_view, grd_curscreen->sc_canvas);
 			break;
 #endif
 
@@ -1109,29 +1111,29 @@ static window_event_result automap_handler(window *, const d_event &event, autom
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_MOVED:
 		case EVENT_KEY_RELEASE:
-			return automap_process_input(event, *am);
+			return automap_process_input(event, *this);
 		case EVENT_KEY_COMMAND:
 		{
-			window_event_result kret = automap_key_command(event, *am);
+			window_event_result kret = automap_key_command(event, *this);
 			if (kret == window_event_result::ignored)
-				kret = automap_process_input(event, *am);
+				kret = automap_process_input(event, *this);
 			return kret;
 		}
 			
 		case EVENT_WINDOW_DRAW:
 			{
 				auto &plrobj = get_local_plrobj();
-				automap_apply_input(*am, plrobj.orient, plrobj.pos);
+				automap_apply_input(*this, plrobj.orient, plrobj.pos);
 			}
-			draw_automap(vcobjptr, *am);
+			draw_automap(vcobjptr, *this);
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			if (!am->pause_game)
-				ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
+			if (!pause_game)
+				ConsoleObject->mtype.phys_info.flags |= old_wiggle;		// Restore wiggle
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
-			/* grd_curcanv points to `am->automap_view`, so grd_curcanv
+			/* grd_curcanv points to `automap_view`, so grd_curcanv
 			 * would become a dangling pointer after the call to delete.
 			 * Redirect it to the default screen to avoid pointing to
 			 * freed memory.  Setting grd_curcanv to nullptr would be
@@ -1140,14 +1142,13 @@ static window_event_result automap_handler(window *, const d_event &event, autom
 			 * Eventually, grd_curcanv will be removed entirely.
 			 */
 			gr_set_default_canvas();
-			std::default_delete<automap>()(am);
 			window_set_visible(Game_wind, 1);
 			Automap_active = 0;
 			multi_send_msgsend_state(msgsend_none);
 			return window_event_result::ignored;	// continue closing
 
 		case EVENT_LOOP_BEGIN_LOOP:
-			kconfig_begin_loop(am->controls);
+			kconfig_begin_loop(controls);
 			break;
 
 		default:
@@ -1162,8 +1163,7 @@ void do_automap()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	palette_array_t pal;
-	automap *am = new automap{};
-	window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, automap_handler, am);
+	auto am = std::make_unique<automap>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	am->leave_mode = 0;
 	am->max_segments_away = 0;
 	am->segment_limit = 1;
@@ -1226,6 +1226,8 @@ void do_automap()
 	gr_palette_load( gr_palette );
 	Automap_active = 1;
 	multi_send_msgsend_state(msgsend_automap);
+	am->send_creation_events(nullptr);
+	am.release();
 }
 
 namespace {
