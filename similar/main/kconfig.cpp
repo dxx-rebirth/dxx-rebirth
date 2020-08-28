@@ -270,6 +270,20 @@ static enumerated_array<kc_mitem, std::size(kc_joystick), dxx_kconfig_ui_kc_joys
 static enumerated_array<kc_mitem, std::size(kc_mouse), dxx_kconfig_ui_kc_mouse> kcm_mouse;
 static std::array<kc_mitem, std::size(kc_rebirth)> kcm_rebirth;
 
+static void kconfig_start_changing(kc_menu &menu)
+{
+	const auto citem = menu.citem;
+	if (menu.items[citem].type == BT_INVERT)
+	{
+		menu.changing = 0;		// in case we were changing something else
+		auto &value = menu.mitems[citem].value;
+		value = value ? 0 : 1;
+		return;
+	}
+	menu.q_fade_i = 0;	// start question mark flasher
+	menu.changing = 1;
+}
+
 }
 }
 
@@ -283,7 +297,6 @@ static void kc_change_mousebutton( kc_menu &menu,const d_event &event, kc_mitem&
 static void kc_change_joyaxis( kc_menu &menu,const d_event &event, kc_mitem& mitem );
 #endif
 static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem& mitem );
-static void kc_change_invert( kc_menu *menu, kc_mitem * item );
 
 static const char *get_item_text(const kc_item &item, const kc_mitem &mitem, char (&buf)[10])
 {
@@ -517,18 +530,6 @@ static void kconfig_draw(kc_menu *menu)
 	gr_set_current_canvas( save_canvas );
 }
 
-static void kconfig_start_changing(kc_menu *menu)
-{
-	if (menu->items[menu->citem].type == BT_INVERT)
-	{
-		kc_change_invert(menu, &menu->mitems[menu->citem]);
-		return;
-	}
-
-	menu->q_fade_i = 0;	// start question mark flasher
-	menu->changing = 1;
-}
-
 static inline int in_bounds(unsigned mx, unsigned my, unsigned x1, unsigned xw, unsigned y1, unsigned yh)
 {
 	if (mx <= x1)
@@ -579,7 +580,7 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 		x1 = canvas.cv_bitmap.bm_x + fspacx(menu->items[menu->citem].xinput);
 		y1 = canvas.cv_bitmap.bm_y + FSPACY(menu->items[menu->citem].y);
 		if (in_bounds(mx, my, x1, fspacx(menu->items[menu->citem].w2), y1, item_height)) {
-			kconfig_start_changing(menu);
+			kconfig_start_changing(*menu);
 			rval = window_event_result::handled;
 		}
 		else
@@ -656,7 +657,7 @@ static window_event_result kconfig_key_command(window *, const d_event &event, k
 			return window_event_result::handled;
 		case KEY_ENTER:
 		case KEY_PADENTER:
-			kconfig_start_changing(menu);
+			kconfig_start_changing(*menu);
 			return window_event_result::handled;
 		case KEY_ESC:
 			if (menu->changing)
@@ -945,16 +946,6 @@ static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem &m
 	else
 		return;
 	kc_set_exclusive_binding(menu, mitem, BT_MOUSE_AXIS, code);
-}
-
-static void kc_change_invert( kc_menu *menu, kc_mitem * item )
-{
-	if (item->value)
-		item->value = 0;
-	else 
-		item->value = 1;
-
-	menu->changing = 0;		// in case we were changing something else
 }
 
 void kconfig(const kconfig_type n)
