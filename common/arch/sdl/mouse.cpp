@@ -183,7 +183,7 @@ void mouse_get_pos( int *x, int *y, int *z )
 
 window_event_result mouse_in_window(window *wind)
 {
-	auto &canv = window_get_canvas(*wind);
+	auto &canv = wind->w_canv;
 	return	(static_cast<unsigned>(Mouse.x) - canv.cv_bitmap.bm_x <= canv.cv_bitmap.bm_w) &&
 			(static_cast<unsigned>(Mouse.y) - canv.cv_bitmap.bm_y <= canv.cv_bitmap.bm_h) ? window_event_result::handled : window_event_result::ignored;
 }

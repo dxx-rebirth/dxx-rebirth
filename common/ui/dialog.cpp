@@ -181,7 +181,7 @@ window *ui_dialog_get_window(UI_DIALOG *dlg)
 
 void ui_dialog_set_current_canvas(UI_DIALOG *dlg)
 {
-	gr_set_current_canvas(window_get_canvas(*dlg->wind));
+	gr_set_current_canvas(dlg->wind->w_canv);
 }
 
 UI_DIALOG::~UI_DIALOG()

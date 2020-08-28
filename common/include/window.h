@@ -46,7 +46,9 @@ static inline void set_embedded_window_pointer(ignore_window_pointer_t *, window
 
 class window
 {
+public:
 	grs_canvas w_canv;					// the window's canvas to draw to
+private:
 	int w_visible;						// whether it's visible
 	int w_modal;						// modal = accept all user input exclusively
 	class window *prev;				// the previous window in the doubly linked list
@@ -75,12 +77,6 @@ public:
 #if !DXX_USE_OGL
 	friend void window_update_canvases();
 #endif
-	
-	friend grs_canvas &window_get_canvas(window &wind)
-	{
-		return wind.w_canv;
-	}
-	
 	friend window *window_set_visible(window *wind, int visible)
 	{
 		return window_set_visible(*wind, visible);
@@ -161,7 +157,7 @@ static inline callback_window *window_create(grs_canvas &src, int x, int y, int 
 
 static inline window_event_result (WINDOW_SEND_EVENT)(window &w, const d_event &event, const char *const file, const unsigned line)
 {
-	auto &c = window_get_canvas(w);
+	auto &c = w.w_canv;
 	con_printf(CON_DEBUG, "%s:%u: sending event %i to window of dimensions %dx%d", file, line, event.type, c.cv_bitmap.bm_w, c.cv_bitmap.bm_h);
 	return window_send_event(w, event);
 }

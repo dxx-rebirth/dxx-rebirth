@@ -349,7 +349,7 @@ static void kconfig_draw(kc_menu *menu)
 	gr_set_default_canvas();
 	nm_draw_background(*grd_curcanv, ((SWIDTH - w) / 2) - BORDERX, ((SHEIGHT - h) / 2) - BORDERY, ((SWIDTH - w) / 2) + w + BORDERX, ((SHEIGHT - h) / 2) + h + BORDERY);
 
-	gr_set_current_canvas(window_get_canvas(*menu->wind));
+	gr_set_current_canvas(menu->wind->w_canv);
 	auto &canvas = *grd_curcanv;
 
 	const grs_font *save_font = canvas.cv_font;
@@ -527,7 +527,7 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 	int mx, my, mz, x1, y1;
 	window_event_result rval = window_event_result::ignored;
 
-	gr_set_current_canvas(window_get_canvas(*wind));
+	gr_set_current_canvas(wind->w_canv);
 	auto &canvas = *grd_curcanv;
 	
 	if (menu->mouse_state)
