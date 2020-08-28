@@ -74,6 +74,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_array.h"
 #include "d_zip.h"
+#include "partial_range.h"
 
 using std::min;
 using std::max;
@@ -282,6 +283,18 @@ static void kconfig_start_changing(kc_menu &menu)
 	}
 	menu.q_fade_i = 0;	// start question mark flasher
 	menu.changing = 1;
+}
+
+static void kc_set_exclusive_binding(kc_menu &menu, kc_mitem &mitem, const unsigned type, const unsigned value)
+{
+	const auto nitems = menu.nitems;
+	for (auto &&[iterate_mitem, iterate_item] : zip(unchecked_partial_range(menu.mitems, nitems), unchecked_partial_range(menu.items, nitems)))
+	{
+		if (&iterate_mitem != &mitem && iterate_mitem.value == value && iterate_item.type == type)
+			iterate_mitem.value = 255;
+	}
+	mitem.value = value;
+	menu.changing = 0;
 }
 
 }
@@ -861,19 +874,6 @@ static void kc_drawinput(grs_canvas &canvas, const grs_font &cv_font, const kc_i
 	
 		gr_string(canvas, cv_font, x, fspacy_item_y, btext, w, h);
 	}
-}
-
-static void kc_set_exclusive_binding(kc_menu &menu, kc_mitem &mitem, unsigned type, unsigned value)
-{
-	for (unsigned i=0; i < menu.nitems; i++ )
-	{
-		if ( (&menu.mitems[i] != &mitem) && (menu.items[i].type==type) && (menu.mitems[i].value==value) )
-		{
-			menu.mitems[i].value = 255;
-		}
-	}
-	mitem.value = value;
-	menu.changing = 0;
 }
 
 static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem &mitem )
