@@ -744,17 +744,17 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 			
 			// Update save values...
 			
-			for (auto &&[setting, kcm] : zip(PlayerCfg.KeySettings.Keyboard, kcm_keyboard))
+			for (auto &&[kcm, setting] : zip(kcm_keyboard, PlayerCfg.KeySettings.Keyboard))
 				setting = kcm.value;
 			
 #if DXX_MAX_JOYSTICKS
-			for (auto &&[setting, kcm] : zip(PlayerCfg.KeySettings.Joystick, kcm_joystick))
+			for (auto &&[kcm, setting] : zip(kcm_joystick, PlayerCfg.KeySettings.Joystick))
 				setting = kcm.value;
 #endif
 
-			for (auto &&[setting, kcm] : zip(PlayerCfg.KeySettings.Mouse, kcm_mouse))
+			for (auto &&[kcm, setting] : zip(kcm_mouse, PlayerCfg.KeySettings.Mouse))
 				setting = kcm.value;
-			for (auto &&[setting, kcm] : zip(PlayerCfg.KeySettingsRebirth, kcm_rebirth))
+			for (auto &&[kcm, setting] : zip(kcm_rebirth, PlayerCfg.KeySettingsRebirth))
 				setting = kcm.value;
 			return window_event_result::ignored;	// continue closing
 		default:
@@ -1425,11 +1425,11 @@ void reset_cruise(void)
 
 void kc_set_controls()
 {
-	for (auto &&[setting, kcm] : zip(PlayerCfg.KeySettings.Keyboard, kcm_keyboard))
+	for (auto &&[kcm, setting] : zip(kcm_keyboard, PlayerCfg.KeySettings.Keyboard))
 		kcm.oldvalue = kcm.value = setting;
 
 #if DXX_MAX_JOYSTICKS
-	for (auto &&[setting, kcm, kc] : zip(PlayerCfg.KeySettings.Joystick, kcm_joystick, kc_joystick))
+	for (auto &&[kcm, kc, setting] : zip(kcm_joystick, kc_joystick, PlayerCfg.KeySettings.Joystick))
 	{
 		uint8_t value = setting;
 		if (kc.type == BT_INVERT)
@@ -1442,7 +1442,7 @@ void kc_set_controls()
 	}
 #endif
 
-	for (auto &&[setting, kcm, kc] : zip(PlayerCfg.KeySettings.Mouse, kcm_mouse, kc_mouse))
+	for (auto &&[kcm, kc, setting] : zip(kcm_mouse, kc_mouse, PlayerCfg.KeySettings.Mouse))
 	{
 		uint8_t value = setting;
 		if (kc.type == BT_INVERT)
@@ -1454,6 +1454,6 @@ void kc_set_controls()
 		kcm.oldvalue = kcm.value = value;
 	}
 
-	for (auto &&[setting, kcm] : zip(PlayerCfg.KeySettingsRebirth, kcm_rebirth))
+	for (auto &&[kcm, setting] : zip(kcm_rebirth, PlayerCfg.KeySettingsRebirth))
 		kcm.oldvalue = kcm.value = setting;
 }
