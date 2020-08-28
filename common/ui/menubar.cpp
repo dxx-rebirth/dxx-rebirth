@@ -154,10 +154,10 @@ static void menu_show( MENU * menu )
 			return;
 		
 		if (menu == &Menu[0])
-			window_set_modal(Menu[0].wind, 0);	// allow windows behind the menubar to accept events (e.g. the keypad dialogs)
+			Menu[0].wind->set_modal(0);	// allow windows behind the menubar to accept events (e.g. the keypad dialogs)
 	}
 
-	window_set_visible(menu->wind, 1);
+	window_set_visible(*menu->wind, 1);
 	
 	// Mark as displayed.
 	menu->Displayed = 1;
@@ -172,12 +172,11 @@ static void menu_hide( MENU * menu )
 	if (!menu->Displayed) return;
 	
 	if ((menu != &Menu[0]) && menu->wind)
-		window_set_visible(menu->wind, 0);	// don't draw or receive events
+		window_set_visible(*menu->wind, 0);	// don't draw or receive events
 
 	menu->Active = 0;
 	if (Menu[0].wind && menu == &Menu[0])
-		window_set_modal(Menu[0].wind, 0);
-		
+		Menu[0].wind->set_modal(0);
 	// Mark as hidden.
 	menu->Displayed = 0;
 }
@@ -262,11 +261,10 @@ static void menu_hide_all()
 {
 	range_for (auto &i, partial_range(Menu, 1u, num_menus))
 		menu_hide(&i);
-	
 	Menu[0].ShowBar = 0;
 	Menu[0].Active = 0;
 	if (Menu[0].wind)
-		window_set_modal(Menu[0].wind, 0);
+		Menu[0].wind->set_modal(0);
 	menu_show( &Menu[0] );
 
 }
@@ -283,7 +281,7 @@ static window_event_result do_state_0(const d_event &event)
 	
 	Menu[0].Active = 0;
 	if (Menu[0].wind)
-		window_set_modal(Menu[0].wind, 0);
+		Menu[0].wind->set_modal(0);
 	Menu[0].ShowBar = 0;
 
 	if ( keypress & KEY_ALTED )	{
@@ -293,7 +291,7 @@ static window_event_result do_state_0(const d_event &event)
 			Menu[0].CurrentItem = i;
 			Menu[0].Active = 0;
 			if (Menu[0].wind)
-				window_set_modal(Menu[0].wind, 0);
+				Menu[0].wind->set_modal(0);
 
 			state = 3;	
 			Menu[ CMENU ].ShowBar = 1;
@@ -329,7 +327,7 @@ static window_event_result do_state_0(const d_event &event)
 		// (Personally, I just use either the mouse or 'hotkeys' for menus)
 		window_select(*Menu[0].wind);
 
-		window_set_modal(Menu[0].wind, 1);
+		Menu[0].wind->set_modal(1);
 		menu_show( &Menu[0] );
 		return window_event_result::handled;
 	}
@@ -344,7 +342,7 @@ static window_event_result do_state_0(const d_event &event)
 		Menu[0].ShowBar = 1;
 		Menu[ CMENU ].Active = 1;
 		Menu[0].Active = 0;
-		window_set_modal(Menu[0].wind, 0);
+		Menu[0].wind->set_modal(0);
 		menu_show( &Menu[ CMENU ] );
 		menu_show( &Menu[0] );
 		return window_event_result::handled;
@@ -377,7 +375,7 @@ static window_event_result do_state_1(const d_event &event)
 	{
 		Menu[0].CurrentItem = i;
 		Menu[0].Active = 0;
-		window_set_modal(Menu[0].wind, 0);
+		Menu[0].wind->set_modal(0);
 		state = 3;	
 		Menu[ CMENU ].ShowBar = 1;
 		Menu[ CMENU ].Active = 1;
@@ -405,7 +403,7 @@ static window_event_result do_state_1(const d_event &event)
 		Menu[ CMENU ].Active = 1;
 		Menu[0].ShowBar = 1;
 		Menu[0].Active = 0;
-		window_set_modal(Menu[0].wind, 0);
+		Menu[0].wind->set_modal(0);
 		menu_show( &Menu[ CMENU ] );
 		menu_show( &Menu[0] );
 		return window_event_result::handled;
@@ -461,7 +459,7 @@ static window_event_result do_state_2(const d_event &event)
 		Menu[ CMENU ].ShowBar = 1;
 		Menu[ CMENU ].Active = 1;
 		Menu[0].Active = 0;
-		window_set_modal(Menu[0].wind, 0);
+		Menu[0].wind->set_modal(0);
 		menu_show( &Menu[ 0 ] );
 		menu_show( &Menu[ CMENU ] );
 		return window_event_result::handled;
@@ -473,7 +471,7 @@ static window_event_result do_state_2(const d_event &event)
 		{
 			Menu[0].CurrentItem = i;
 			Menu[0].Active = 0;
-			window_set_modal(Menu[0].wind, 0);
+			Menu[0].wind->set_modal(0);
 			state = 3;	
 			Menu[ CMENU ].ShowBar = 1;
 			Menu[ CMENU ].Active = 1;
@@ -496,7 +494,7 @@ static window_event_result do_state_2(const d_event &event)
 		{
 			Menu[0].CurrentItem = i;
 			Menu[0].Active = 0;
-			window_set_modal(Menu[0].wind, 0);
+			Menu[0].wind->set_modal(0);
 			state = 3;	
 			Menu[ CMENU ].ShowBar = 1;
 			Menu[ CMENU ].Active = 1;

@@ -363,8 +363,7 @@ window *info_window_create(void)
 {
 	const auto wind = window_create(*Canv_editor, PAD_X + 250, PAD_Y + 8, 180, 160, info_display_all, unused_window_userdata);
 	if (wind)
-		window_set_modal(wind, 0);
-	
+		wind->set_modal(0);
 	return wind;
 }
 

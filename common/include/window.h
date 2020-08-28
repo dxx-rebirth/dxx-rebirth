@@ -19,11 +19,11 @@
 #include "gr.h"
 #include "console.h"
 
-#ifdef __cplusplus
 #include <assert.h>
 
 #include "fwd-window.h"
 #include "event.h"
+
 namespace dcx {
 
 constexpr const unused_window_userdata_t *unused_window_userdata = nullptr;
@@ -101,11 +101,6 @@ public:
 		w_modal = modal;
 	}
 
-	friend void window_set_modal(window *wind, int modal)
-	{
-		wind->set_modal(modal);
-	}
-
 	friend int window_is_modal(window &wind)
 	{
 		return wind.w_modal;
@@ -174,4 +169,3 @@ static inline window_event_result (WINDOW_SEND_EVENT)(window &w, const d_event &
 void menu_destroy_hook(window *w);
 
 }
-#endif

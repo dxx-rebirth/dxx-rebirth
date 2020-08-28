@@ -171,7 +171,7 @@ d_callback(callback), gadget(nullptr), keyboard_focus_gadget(nullptr), d_userdat
 						 req_w, req_h, ui_dialog_handler, dlg, createdata);
 	
 	if (!(flags & DF_MODAL))
-		window_set_modal(dlg->wind, 0);	// make this window modeless, allowing events to propogate through the window stack
+		dlg->wind->set_modal(0);	// make this window modeless, allowing events to propogate through the window stack
 }
 
 window *ui_dialog_get_window(UI_DIALOG *dlg)
