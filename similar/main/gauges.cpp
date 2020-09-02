@@ -1991,7 +1991,18 @@ static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *c
 	const unsigned bm_w = bm->bm_w;
 	// check if we processed this bitmap already
 	if (cur == bm->bm_data && cur_w == bm_w && cur_h == bm_h)
+	{
+#if DXX_USE_OGL
+		// check if textures are still valid
+		if (WinBoxOverlay[0].get()->gltexture &&
+			WinBoxOverlay[0].get()->gltexture->handle &&
+			WinBoxOverlay[1].get()->gltexture &&
+			WinBoxOverlay[1].get()->gltexture->handle)
+			return;
+#else
 		return;
+#endif
+	}
 
 	RAIIdmem<uint8_t[]> cockpitbuf;
 	MALLOC(cockpitbuf, uint8_t[], DXX_MAX_COCKPIT_BITMAP_SIZE);
