@@ -127,15 +127,15 @@ DXX-Rebirth can be built from the Terminal (via SCons) without Xcode; to build u
 
 ##### [Homebrew](https://github.com/Homebrew/homebrew/)
 * **brew install
- gcc5
  scons
  sdl
  sdl\_image
  sdl\_mixer
+ libpng
  physfs**
 
 ### Building
-Once prerequisites are installed, run **scons** *options* to build.  By default, both D1X-Rebirth and D2X-Rebirth are built.  To build only D1X-Rebirth, run **scons d1x=1**.  To build only D2X-Rebirth, run **scons d2x=1**.
+Once prerequisites are installed, run **scons** *options* to build.  By default, both D1X-Rebirth and D2X-Rebirth are built.  To build only D1X-Rebirth, run **scons d1x=1**.  To build only D2X-Rebirth, run **scons d2x=1**.  If using macOS without framework builds of the SDL libraries (such as with Homebrew), run **scons mac_libs=1**.
 
 If unspecified, **SConstruct** uses $CXX for the compiler, $CPPFLAGS for preprocessor options, $CXXFLAGS for C++ compiler options, and $LDFLAGS for linker options.  You may override any or all of these choices by setting options of the corresponding name: **scons CXX=/opt/my/c++ 'CXXFLAGS=-O0 -ggdb'**.  **SConstruct** supports numerous options for adjusting build details.  Run **scons -h** to see them.  Option names are case sensitive.  Commonly used options include:
 
