@@ -483,6 +483,9 @@ static int main(int argc, char *argv[])
 #else
 #define DXX_HOGFILE_SHAREPATH_INDENTED
 #endif
+#elif (defined(__APPLE__) && defined(__MACH__)) || defined(macintosh)
+#define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
+			      "\t~/Library/Preferences/D" DXX_NAME_NUMBER "X Rebirth\n"
 #else
 #define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
 				  "\tDirectory containing D" DXX_NAME_NUMBER "X\n"
