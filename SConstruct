@@ -1530,10 +1530,12 @@ static void terminate_handler()
 		}
 		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, library_name, library_name, guess_flags)
 		if user_settings.host_platform == 'darwin':
-			successflags = successflags.copy()
-			successflags['FRAMEWORKS'] = [library_name]
-			relative_headers = 'Library/Frameworks/%s.framework/Headers' % library_name
-			successflags['CPPPATH'] = [h for h in (os.path.join(os.getenv("HOME"), relative_headers), '/%s' % relative_headers) if os.path.isdir(h)]
+			macos_libs_only = ARGUMENTS.get('mac_libs', 0)
+			if macos_libs_only == 0:
+				successflags = successflags.copy()
+				successflags['FRAMEWORKS'] = [library_name]
+				relative_headers = 'Library/Frameworks/%s.framework/Headers' % library_name
+				successflags['CPPPATH'] = [h for h in (os.path.join(os.getenv("HOME"), relative_headers), '/%s' % relative_headers) if os.path.isdir(h)]
 		# SDL2 headers still use SDL_*.h for their filename, not
 		# SDL2_*.h, so expanded library_format_name with an explicitly
 		# blank insert, regardless of whether building for SDL1 or SDL2.
@@ -4012,20 +4014,24 @@ class DXXCommon(LazyObjectConstructor):
 		# arguments are included.
 		tools = ('gcc', 'g++', 'applelink')
 		def adjust_environment(self,program,env):
+			macos_libs_only = ARGUMENTS.get('mac_libs', 0)
 			library_frameworks = os.path.join(os.getenv("HOME"), 'Library/Frameworks')
 			if os.path.isdir(library_frameworks):
 				env.Append(FRAMEWORKPATH = [library_frameworks])
 				SDL_private_framework = os.path.join(library_frameworks, 'SDL.framework/Headers')
 				if os.path.isdir(SDL_private_framework):
 					env.Append(CPPPATH = [SDL_private_framework])
-			SDL_system_framework = '/Library/Frameworks/SDL.framework/Headers'
-			if os.path.isdir(SDL_system_framework):
-				env.Append(CPPPATH = [SDL_system_framework])
+			if macos_libs_only == 0:
+				SDL_system_framework = '/Library/Frameworks/SDL.framework/Headers'
+				if os.path.isdir(SDL_system_framework):
+					env.Append(CPPPATH = [SDL_system_framework])
 			env.Append(
 				CPPDEFINES = ['__unix__'],
-				FRAMEWORKS = ['ApplicationServices', 'Cocoa', 'SDL'],
+				FRAMEWORKS = ['ApplicationServices', 'Cocoa'],
 				LINKFLAGS = ['-Wl,-rpath,@loader_path/../Frameworks'],	# Allow libraries & frameworks to go in app bundle
 			)
+			if macos_libs_only == 0:
+				env.Append(FRAMEWORKS = ['SDL'])
 			if self.user_settings.opengl or self.user_settings.opengles:
 				env.Append(FRAMEWORKS = ['OpenGL'])
 	# Settings to apply to Linux builds
@@ -5342,6 +5348,7 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 	d2x=[0/1]        Disable/enable D2X-Rebirth
 	d2x=prefix-list  Enable D2X-Rebirth with prefix-list modifiers
 	dxx=VALUE        Equivalent to d1x=VALUE d2x=VALUE
+	mac_libs=[0/1]   (macOS only) Use libraries instead of frameworks where possible
 """ +	\
 		''.join(['%s:\n%s' % (d.program_message_prefix, d.init(substenv)) for d in dxx])
 	)
@@ -5371,6 +5378,8 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 	unknown.pop('d2x', None)
 	unknown.pop('dxx', None)
 	unknown.pop('site', None)
+	if sys.platform == 'darwin':
+		unknown.pop('mac_libs', None)
 	ignore_unknown_variables = unknown.pop('ignore_unknown_variables', '0')
 	if unknown:
 		# Protect user from misspelled options by reporting an error.
