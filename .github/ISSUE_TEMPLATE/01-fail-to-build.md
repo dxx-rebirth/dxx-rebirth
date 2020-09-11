@@ -43,24 +43,24 @@ Add versions as needed.
 -->
 
 * Debian
-  * [ ] Debian Wheezy
-  * [ ] Debian Jessie
   * [ ] Debian Stretch
   * [ ] Debian Buster
+  * [ ] Debian Bullseye
+  * [ ] Debian Sid
 * Fedora
-  * [ ] Fedora 27
   * [ ] Fedora 28
   * [ ] Fedora 29
   * [ ] Fedora 30
+  * [ ] Fedora 31
+  * [ ] Fedora 32
   * [ ] Rawhide
 * Ubuntu
   * [ ] Ubuntu 16.04 LTS (Xenial Xerus)
-  * [ ] Ubuntu 16.10 (Yakkety Yak)
-  * [ ] Ubuntu 17.04 (Zesty Zapus)
-  * [ ] Ubuntu 17.10 (Artful Aardvark)
   * [ ] Ubuntu 18.04 LTS (Bionic Beaver)
   * [ ] Ubuntu 18.10 (Cosmic Cuttlefish)
   * [ ] Ubuntu 19.04 (Disco Dingo)
+  * [ ] Ubuntu 19.10 (Eoan Ermine)
+  * [ ] Ubuntu 20.04 LTS (Focal Fossa)
 
 * [ ] Arch
 * [ ] Gentoo
