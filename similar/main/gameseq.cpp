@@ -791,7 +791,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 #if defined(DXX_BUILD_DESCENT_I)
 		return eclip_none.value;
 #elif defined(DXX_BUILD_DESCENT_II)
-		return TmapInfo[side.tmap_num].eclip_num;
+		return TmapInfo[get_texture_index(side.tmap_num)].eclip_num;
 #endif
 	};
 
@@ -900,7 +900,8 @@ static ushort netmisc_calc_checksum()
 			do_checksum_calc(reinterpret_cast<const uint8_t *>(&(sside.get_type())), 1, &sum1, &sum2);
 			s = INTEL_SHORT(sside.wall_num);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
-			s = INTEL_SHORT(uside.tmap_num);
+			s = static_cast<uint16_t>(uside.tmap_num);
+			s = INTEL_SHORT(s);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 			s = static_cast<uint16_t>(uside.tmap_num2);
 			s = INTEL_SHORT(s);

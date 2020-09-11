@@ -221,7 +221,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
-static void render_face(grs_canvas &canvas, const shared_segment &segp, const unsigned sidenum, const unsigned nv, const std::array<unsigned, 4> &vp, const unsigned tmap1, const texture2_value tmap2, std::array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
+static void render_face(grs_canvas &canvas, const shared_segment &segp, const unsigned sidenum, const unsigned nv, const std::array<unsigned, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, std::array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
@@ -259,16 +259,13 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 	}
 #endif
 
-	if (tmap1 >= NumTextures) {
-		Int3();
-	}
-
 #if DXX_USE_OGL
 	grs_bitmap *bm2 = nullptr;
 	if (!CGameArg.DbgUseOldTextureMerge)
 	{
-		PIGGY_PAGE_IN(Textures[tmap1]);
-		bm = &GameBitmaps[Textures[tmap1].index];
+		auto &texture1 = Textures[get_texture_index(tmap1)];
+		PIGGY_PAGE_IN(texture1);
+		bm = &GameBitmaps[texture1.index];
 		if (tmap2 != texture2_value::None)
 		{
 			const auto texture2 = Textures[get_texture_index(tmap2)];
@@ -287,8 +284,9 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 		{
 			bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
 		} else {
-			bm = &GameBitmaps[Textures[tmap1].index];
-			PIGGY_PAGE_IN(Textures[tmap1]);
+			auto &texture1 = Textures[get_texture_index(tmap1)];
+			bm = &GameBitmaps[texture1.index];
+			PIGGY_PAGE_IN(texture1);
 		}
 
 	assert(!bm->get_flag_mask(BM_FLAG_PAGED_OUT));
@@ -351,7 +349,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 	}
 
 	bool alpha = false;
-	if (PlayerCfg.AlphaBlendEClips && is_alphablend_eclip(TmapInfo[tmap1].eclip_num)) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
+	if (PlayerCfg.AlphaBlendEClips && is_alphablend_eclip(TmapInfo[get_texture_index(tmap1)].eclip_num)) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
 	{
 		alpha = true;
 		gr_settransblend(canvas, GR_FADE_OFF, gr_blend::additive_c);
@@ -382,7 +380,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
-static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const std::array<unsigned, 4> &vp, const unsigned tmap1, const texture2_value tmap2, const std::array<g3s_uvl, 4> &uvl_copy)
+static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const std::array<unsigned, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<g3s_uvl, 4> &uvl_copy)
 {
 #if DXX_USE_EDITOR
 	if (_search_mode) {
@@ -447,7 +445,7 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsign
 }
 
 template <std::size_t... N>
-static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N...>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<unsigned, 4> &ovp, const unsigned tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N...>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<unsigned, 4> &ovp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
 {
 	const std::array<unsigned, 4> vp{{ovp[N]...}};
 	const std::array<g3s_uvl, 4> uvl_copy{{
@@ -458,7 +456,7 @@ static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N..
 }
 
 template <std::size_t N0, std::size_t N1, std::size_t N2, std::size_t N3>
-static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<unsigned, 4> &vp, const unsigned tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<unsigned, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(canvas, is, segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 4);
 }
@@ -467,7 +465,7 @@ static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0,
  * are default constructed, gcc zero initializes all members.
  */
 template <std::size_t N0, std::size_t N1, std::size_t N2>
-static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<unsigned, 4> &vp, const unsigned tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<unsigned, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(canvas, std::index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
 }
@@ -1593,7 +1591,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 #endif
 							)
 						{
-							if (PlayerCfg.AlphaBlendEClips && is_alphablend_eclip(TmapInfo[seg->unique_segment::sides[sn].tmap_num].eclip_num)) // Do NOT render geometry with blending textures. Since we've not rendered any objects, yet, they would disappear behind them.
+							if (PlayerCfg.AlphaBlendEClips && is_alphablend_eclip(TmapInfo[get_texture_index(seg->unique_segment::sides[sn].tmap_num)].eclip_num)) // Do NOT render geometry with blending textures. Since we've not rendered any objects, yet, they would disappear behind them.
                                                                 continue;
 							glAlphaFunc(GL_GEQUAL,0.8); // prevent ugly outlines if an object (which is rendered later) is shown behind a grate, door, etc. if texture filtering is enabled. These sides are rendered later again with normal AlphaFunc
 							render_side(vcvertptr, canvas, seg, sn, wid, Viewer_eye);

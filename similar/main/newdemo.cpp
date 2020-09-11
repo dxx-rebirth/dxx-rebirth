@@ -1472,7 +1472,7 @@ void newdemo_record_restore_rearview(void)
 	nd_write_byte(ND_EVENT_RESTORE_REARVIEW);
 }
 
-void newdemo_record_wall_set_tmap_num1(const vcsegidx_t seg, const unsigned side, const vcsegidx_t cseg, const unsigned cside, const int16_t tmap)
+void newdemo_record_wall_set_tmap_num1(const vcsegidx_t seg, const unsigned side, const vcsegidx_t cseg, const unsigned cside, const texture1_value tmap)
 {
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_WALL_SET_TMAP_NUM1);
@@ -1480,7 +1480,7 @@ void newdemo_record_wall_set_tmap_num1(const vcsegidx_t seg, const unsigned side
 	nd_write_byte(side);
 	nd_write_short(cseg);
 	nd_write_byte(cside);
-	nd_write_short(tmap);
+	nd_write_short(static_cast<uint16_t>(tmap));
 }
 
 void newdemo_record_wall_set_tmap_num2(const vcsegidx_t seg, const unsigned side, const vcsegidx_t cseg, const unsigned cside, const texture2_value tmap)
@@ -1649,7 +1649,7 @@ void newdemo_set_new_level(int level_num)
 			nd_write_byte (w.state);
 
 			const auto &side = vcsegptr(w.segnum)->unique_segment::sides[w.sidenum];
-			nd_write_short (side.tmap_num);
+			nd_write_short(static_cast<uint16_t>(side.tmap_num));
 			nd_write_short(static_cast<uint16_t>(side.tmap_num2));
 			nd_record_v_juststarted=0;
 		}
@@ -1691,7 +1691,7 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 			side = w.sidenum;
 			// actually this is kinda stupid: when playing ther same tmap will be put on front and back side of the wall ... for doors this is stupid so just record the front side which will do for doors just fine ...
 			auto &uside = seg->unique_segment::sides[side];
-			if (const auto tmap_num = uside.tmap_num)
+			if (const auto tmap_num = uside.tmap_num; tmap_num != texture1_value::None)
 				newdemo_record_wall_set_tmap_num1(w.segnum,side,w.segnum,side,tmap_num);
 			if (const auto tmap_num2 = uside.tmap_num2; tmap_num2 != texture2_value::None)
 				newdemo_record_wall_set_tmap_num2(w.segnum,side,w.segnum,side,tmap_num2);
@@ -2050,7 +2050,7 @@ static void newdemo_pop_ctrlcen_triggers()
 		auto &seg1uside = csegp->unique_segment::sides[cside];
 		const auto next_tmap = wa.frames[n - 1];
 		if (wa.flags & WCF_TMAP1)
-			seg0uside.tmap_num = seg1uside.tmap_num = next_tmap;
+			seg0uside.tmap_num = seg1uside.tmap_num = texture1_value{next_tmap};
 		else
 			seg0uside.tmap_num2 = seg1uside.tmap_num2 = texture2_value{next_tmap};
 	}
@@ -2836,7 +2836,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD))
-				vmsegptr(seg)->unique_segment::sides[side].tmap_num = vmsegptr(cseg)->unique_segment::sides[cside].tmap_num = tmap;
+				vmsegptr(seg)->unique_segment::sides[side].tmap_num = vmsegptr(cseg)->unique_segment::sides[cside].tmap_num = texture1_value{tmap};
 			break;
 		}
 
@@ -3152,7 +3152,7 @@ static int newdemo_read_frame_information(int rewrite)
 				auto &seg1uside = csegp->unique_segment::sides[cside];
 				const auto next_tmap = wa.frames[0];
 				if (wa.flags & WCF_TMAP1)
-					seg0uside.tmap_num = seg1uside.tmap_num = next_tmap;
+					seg0uside.tmap_num = seg1uside.tmap_num = texture1_value{next_tmap};
 				else
 					seg0uside.tmap_num2 = seg1uside.tmap_num2 = texture2_value{next_tmap};
 			}
@@ -3298,7 +3298,9 @@ static int newdemo_read_frame_information(int rewrite)
 					nd_read_byte(&w.state);
 
 					auto &side = vmsegptr(w.segnum)->unique_segment::sides[w.sidenum];
-					nd_read_short (&side.tmap_num);
+					uint16_t tmap_num1;
+					nd_read_short(&tmap_num1);
+					side.tmap_num = texture1_value{tmap_num1};
 					uint16_t tmap_num2;
 					nd_read_short(&tmap_num2);
 					side.tmap_num2 = texture2_value{tmap_num2};
@@ -3308,7 +3310,7 @@ static int newdemo_read_frame_information(int rewrite)
 						nd_write_byte (w.type);
 						nd_write_byte (w.flags);
 						nd_write_byte (w.state);
-						nd_write_short (side.tmap_num);
+						nd_write_short(static_cast<uint16_t>(side.tmap_num));
 						nd_write_short(static_cast<uint16_t>(side.tmap_num2));
 					}
 				}

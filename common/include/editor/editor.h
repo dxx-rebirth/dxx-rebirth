@@ -248,7 +248,7 @@ int med_rotate_segment(vmsegptridx_t seg, const vms_matrix &rotmat);
 //    Creates wall at sp->sides[side], making it part of segment sp
 //    Removable walls must be placed between two connected segments.  You should add the removable
 //    wall on both sides.  In fact, you really must.
-void create_removable_wall(fvcvertptr &vcvertptr, vmsegptridx_t sp, unsigned side, unsigned tmap_num);
+void create_removable_wall(fvcvertptr &vcvertptr, vmsegptridx_t sp, unsigned side, texture1_value tmap_num);
 }
 #endif
 
@@ -371,7 +371,7 @@ int med_form_joint(vmsegptridx_t seg1, int side1, vmsegptridx_t seg2, int side2)
 }
 
 // The current texture... use by saying something=bm_lock_bitmap(CurrentTexture)
-extern int CurrentTexture;
+extern texture_index CurrentTexture;
 
 namespace dsx {
 void med_propagate_tmaps_to_segments(vcsegptridx_t base_seg,vmsegptridx_t con_seg, int uv_only_flag);

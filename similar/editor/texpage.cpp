@@ -51,7 +51,7 @@ constexpr std::integral_constant<unsigned, 12> TMAPS_PER_PAGE{};
 static std::array<std::unique_ptr<UI_GADGET_USERBOX>, TMAPS_PER_PAGE> TmapBox;
 static std::unique_ptr<UI_GADGET_USERBOX> TmapCurrent;
 
-int CurrentTexture = 0;		// Used globally
+texture_index CurrentTexture;		// Used globally
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_TEXTURE_INITIALIZER(D1, D2)	D1
@@ -107,9 +107,11 @@ static void texpage_show_current()
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	gr_set_current_canvas(TmapCurrent->canvas);
-	PIGGY_PAGE_IN(Textures[CurrentTexture]);
-	gr_ubitmap(*grd_curcanv, GameBitmaps[Textures[CurrentTexture].index]);
-	texpage_print_name( TmapInfo[CurrentTexture].filename );
+	const auto ct = CurrentTexture;
+	auto &t = Textures[ct];
+	PIGGY_PAGE_IN(t);
+	gr_ubitmap(*grd_curcanv, GameBitmaps[t.index]);
+	texpage_print_name(TmapInfo[ct].filename);
 }
 
 int texpage_goto_first()
@@ -165,11 +167,9 @@ static int texpage_goto_next()
 //NOTE:  this code takes the texture map number, not this index in the
 //list of available textures.  There are different if there are holes in
 //the list
-int texpage_grab_current(int n)
+int texpage_grab_current(texture1_value n)
 {
-	if ((n < 0) || (n >= NumTextures)) return 0;
-
-	CurrentTexture = n;
+	CurrentTexture = get_texture_index(n);
 
 	TexturePage = CurrentTexture / TMAPS_PER_PAGE;
 	
@@ -213,13 +213,18 @@ void texpage_close()
 
 #define	MAX_REPLACEMENTS	32
 
+namespace {
+
 struct replacement
 {
-	int	n, old;
+	texture_index n;
+	texture_index old;
 };
 
 int	Num_replacements=0;
 static std::array<replacement, MAX_REPLACEMENTS> Replacement_list;
+
+}
 
 int texpage_do(const d_event &event)
 {
@@ -270,19 +275,15 @@ void do_replacements(void)
 	med_compress_mine();
 
 	for (int replnum=0; replnum<Num_replacements; replnum++) {
-		int	old_tmap_num, new_tmap_num;
-
-		old_tmap_num = Replacement_list[replnum].old;
-		new_tmap_num = Replacement_list[replnum].n;
-		Assert(old_tmap_num >= 0);
-		Assert(new_tmap_num >= 0);
+		const auto old_tmap_num = Replacement_list[replnum].old;
+		const auto new_tmap_num = Replacement_list[replnum].n;
 
 		range_for (unique_segment &segp, vmsegptr)
 		{
 			range_for (auto &sidep, segp.sides)
 			{
-				if (sidep.tmap_num == old_tmap_num) {
-					sidep.tmap_num = new_tmap_num;
+				if (get_texture_index(sidep.tmap_num) == old_tmap_num) {
+					sidep.tmap_num = build_texture1_value(new_tmap_num);
 				}
 				if (sidep.tmap_num2 != texture2_value::None && get_texture_index(sidep.tmap_num2) == old_tmap_num)
 				{

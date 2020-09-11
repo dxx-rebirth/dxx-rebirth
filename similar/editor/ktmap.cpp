@@ -36,9 +36,9 @@ int AssignTexture(void)
    autosave_mine( mine_filename );
 	undo_status[Autosave_count] = "Assign Texture UNDONE.";
 
-	Cursegp->unique_segment::sides[Curside].tmap_num = CurrentTexture;
-
-	New_segment.unique_segment::sides[Curside].tmap_num = CurrentTexture;
+	const auto t1 = build_texture1_value(CurrentTexture);
+	Cursegp->unique_segment::sides[Curside].tmap_num = t1;
+	New_segment.unique_segment::sides[Curside].tmap_num = t1;
 
 //	propagate_light_intensity(Cursegp, Curside, CurrentTexture, 0); 
 																					 

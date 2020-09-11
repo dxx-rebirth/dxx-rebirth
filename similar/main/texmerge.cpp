@@ -205,14 +205,15 @@ void texmerge_close()
 
 //--unused-- int info_printed = 0;
 
-grs_bitmap &texmerge_get_cached_bitmap(const unsigned tmap_bottom, const texture2_value tmap_top)
+grs_bitmap &texmerge_get_cached_bitmap(const texture1_value tmap_bottom, const texture2_value tmap_top)
 {
 	grs_bitmap *bitmap_top, *bitmap_bottom;
 	int lowest_time_used;
 
 	auto &texture_top = Textures[get_texture_index(tmap_top)];
 	bitmap_top = &GameBitmaps[texture_top.index];
-	bitmap_bottom = &GameBitmaps[Textures[tmap_bottom].index];
+	auto &texture_bottom = Textures[get_texture_index(tmap_bottom)];
+	bitmap_bottom = &GameBitmaps[texture_bottom.index];
 	
 	const auto orient = get_texture_rotation_high(tmap_top);
 
@@ -237,11 +238,11 @@ grs_bitmap &texmerge_get_cached_bitmap(const unsigned tmap_bottom, const texture
 	// Make sure the bitmaps are paged in...
 
 	PIGGY_PAGE_IN(texture_top);
-	PIGGY_PAGE_IN(Textures[tmap_bottom]);
+	PIGGY_PAGE_IN(texture_bottom);
 	if (bitmap_bottom->bm_w != bitmap_bottom->bm_h || bitmap_top->bm_w != bitmap_top->bm_h)
-		Error("Texture width != texture height!\nbottom tmap = %u; bottom bitmap = %u; bottom width = %u; bottom height = %u\ntop tmap = %hu; top bitmap = %u; top width=%u; top height=%u", tmap_bottom, Textures[tmap_bottom].index, bitmap_bottom->bm_w, bitmap_bottom->bm_h, static_cast<uint16_t>(tmap_top), texture_top.index, bitmap_top->bm_w, bitmap_top->bm_h);
+		Error("Texture width != texture height!\nbottom tmap = %u; bottom bitmap = %u; bottom width = %u; bottom height = %u\ntop tmap = %hu; top bitmap = %u; top width=%u; top height=%u", static_cast<uint16_t>(tmap_bottom), texture_bottom.index, bitmap_bottom->bm_w, bitmap_bottom->bm_h, static_cast<uint16_t>(tmap_top), texture_top.index, bitmap_top->bm_w, bitmap_top->bm_h);
 	if (bitmap_bottom->bm_w != bitmap_top->bm_w || bitmap_bottom->bm_h != bitmap_top->bm_h)
-		Error("Top and Bottom textures have different size!\nbottom tmap = %u; bottom bitmap = %u; bottom width = %u; bottom height = %u\ntop tmap = %hu; top bitmap = %u; top width=%u; top height=%u", tmap_bottom, Textures[tmap_bottom].index, bitmap_bottom->bm_w, bitmap_bottom->bm_h, static_cast<uint16_t>(tmap_top), texture_top.index, bitmap_top->bm_w, bitmap_top->bm_h);
+		Error("Top and Bottom textures have different size!\nbottom tmap = %u; bottom bitmap = %u; bottom width = %u; bottom height = %u\ntop tmap = %hu; top bitmap = %u; top width=%u; top height=%u", static_cast<uint16_t>(tmap_bottom), texture_bottom.index, bitmap_bottom->bm_w, bitmap_bottom->bm_h, static_cast<uint16_t>(tmap_top), texture_top.index, bitmap_top->bm_w, bitmap_top->bm_h);
 
 	least_recently_used->bitmap = gr_create_bitmap(bitmap_bottom->bm_w,  bitmap_bottom->bm_h);
 #if DXX_USE_OGL

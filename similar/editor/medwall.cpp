@@ -130,8 +130,9 @@ static int add_wall(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_
 			Walls.set_count(Walls.get_count() + 1);
 			}
 		
-		create_removable_wall(vcvertptr, seg, side, CurrentTexture);
-		create_removable_wall(vcvertptr, csegp, Connectside, CurrentTexture);
+		const auto t1 = build_texture1_value(CurrentTexture);
+		create_removable_wall(vcvertptr, seg, side, t1);
+		create_removable_wall(vcvertptr, csegp, Connectside, t1);
 
 		return 1;
 		}
@@ -168,15 +169,17 @@ static int wall_assign_door(int door_type)
 	vmwallptr(scseg.sides[Connectside].wall_num)->clip_num = door_type;
 
 	auto &wa = GameSharedState.WallAnims[door_type];
+	auto &side0 = useg.sides[Curside];
+	auto &side1 = ucseg.sides[Connectside];
 	if (wa.flags & WCF_TMAP1) {
-		useg.sides[Curside].tmap_num = wa.frames[0];
-		ucseg.sides[Connectside].tmap_num = wa.frames[0];
-		useg.sides[Curside].tmap_num2 = texture2_value::None;
-		ucseg.sides[Connectside].tmap_num2 = texture2_value::None;
+		const auto t1 = build_texture1_value(wa.frames[0]);
+		side0.tmap_num = t1;
+		side1.tmap_num = t1;
+		side0.tmap_num2 = texture2_value::None;
+		side1.tmap_num2 = texture2_value::None;
 	}
 	else {
-		useg.sides[Curside].tmap_num2 = texture2_value{wa.frames[0]};
-		ucseg.sides[Connectside].tmap_num2 = texture2_value{wa.frames[0]};
+		side0.tmap_num2 = side1.tmap_num2 = texture2_value{wa.frames[0]};
 	}
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -616,8 +619,9 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 					if (curside.tmap_num2 != texture2_value::None)
 						gr_ubitmap(*grd_curcanv, texmerge_get_cached_bitmap(tmap_num, curside.tmap_num2));
 					else	{
-						PIGGY_PAGE_IN(Textures[tmap_num]);
-						gr_ubitmap(*grd_curcanv, GameBitmaps[Textures[tmap_num].index]);
+						auto &texture1 = Textures[get_texture_index(tmap_num)];
+						PIGGY_PAGE_IN(texture1);
+						gr_ubitmap(*grd_curcanv, GameBitmaps[texture1.index]);
 					}
 				}
 			}

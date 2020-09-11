@@ -1530,11 +1530,11 @@ Levels 9-end: unchecked
 
 	 */
 	const auto old_tmap_num = uside.tmap_num;
-	if (old_tmap_num >= NumTextures)
-		uside.tmap_num = (
-			LevelErrorV(PLAYING_BUILTIN_MISSION ? CON_VERBOSE : CON_URGENT, "segment #%hu side #%i has invalid tmap %u (NumTextures=%u).", static_cast<segnum_t>(sp), sidenum, old_tmap_num, NumTextures),
+	if (const auto old_tmap_idx = get_texture_index(old_tmap_num); old_tmap_idx >= NumTextures)
+		uside.tmap_num = build_texture1_value((
+			LevelErrorV(PLAYING_BUILTIN_MISSION ? CON_VERBOSE : CON_URGENT, "segment #%hu side #%i has invalid tmap %u (NumTextures=%u).", static_cast<segnum_t>(sp), sidenum, old_tmap_idx, NumTextures),
 			(sside.wall_num == wall_none)
-		);
+		));
 
 	//	Set render_flag.
 	//	If side doesn't have a child, then render wall.  If it does have a child, but there is a temporary
@@ -1712,9 +1712,7 @@ static void change_segment_light(const vmsegptridx_t segp, const unsigned sidenu
 	if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum) & WID_RENDER_FLAG)
 	{
 		auto &sidep = segp->unique_segment::sides[sidenum];
-		fix	light_intensity;
-
-		light_intensity = TmapInfo[sidep.tmap_num].lighting + TmapInfo[get_texture_index(sidep.tmap_num2)].lighting;
+		const auto light_intensity = TmapInfo[get_texture_index(sidep.tmap_num)].lighting + TmapInfo[get_texture_index(sidep.tmap_num2)].lighting;
 		if (light_intensity) {
 			auto &vcvertptr = Vertices.vcptr;
 			const auto segment_center = compute_segment_center(vcvertptr, segp);
@@ -1884,7 +1882,7 @@ void set_ambient_sound_flags()
 				 * added.  Skip this side.
 				 */
 				continue;
-			const auto texture_flags = TmapInfo[uside.tmap_num].flags | TmapInfo[get_texture_index(uside.tmap_num2)].flags;
+			const auto texture_flags = TmapInfo[get_texture_index(uside.tmap_num)].flags | TmapInfo[get_texture_index(uside.tmap_num2)].flags;
 			/* These variables do not need to be named, but naming them
 			 * is the easiest way to establish sequence points, so that
 			 * `sound_flag` is passed to `ambient_mark_bfs` only after

@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct grs_bitmap;
 
 int texmerge_init();
-grs_bitmap &texmerge_get_cached_bitmap(unsigned tmap_bottom, texture2_value tmap_top);
+grs_bitmap &texmerge_get_cached_bitmap(texture1_value tmap_bottom, texture2_value tmap_top);
 void texmerge_close();
 void texmerge_flush();
 

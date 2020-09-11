@@ -837,7 +837,6 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	ubyte   compiled_version;
 	short   temp_short;
-	ushort  temp_ushort = 0;
 	ubyte   bit_mask;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -914,9 +913,8 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 
 		if (Gamesave_current_version <= 5) { // descent 1 thru d2 SHAREWARE level
 			// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
-			temp_ushort = PHYSFSX_readShort(LoadFile);
-			segp.u.static_light = static_cast<fix>(temp_ushort) << 4;
-			//PHYSFS_read( LoadFile, &Segments[segnum].static_light, sizeof(fix), 1 );
+			const uint16_t temp_static_light = PHYSFSX_readShort(LoadFile);
+			segp.u.static_light = static_cast<fix>(temp_static_light) << 4;
 		}
 
 		// Read the walls as a 6 byte array
@@ -942,11 +940,11 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 			auto &uside = segp.u.sides[sidenum];
 			if (segp.s.children[sidenum] == segment_none || segp.s.sides[sidenum].wall_num != wall_none)	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
-				temp_ushort = PHYSFSX_readShort(LoadFile);
+				const uint16_t temp_tmap1_num = PHYSFSX_readShort(LoadFile);
 #if defined(DXX_BUILD_DESCENT_I)
-				uside.tmap_num = convert_tmap(temp_ushort & 0x7fff);
+				uside.tmap_num = build_texture1_value(convert_tmap(temp_tmap1_num & 0x7fff));
 
-				if (New_file_format_load && !(temp_ushort & 0x8000))
+				if (New_file_format_load && !(temp_tmap1_num & 0x8000))
 					uside.tmap_num2 = texture2_value::None;
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
@@ -954,15 +952,13 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 					uside.tmap_num2 = build_texture2_value(convert_tmap(get_texture_index(tmap_num2)), get_texture_rotation_high(tmap_num2));
 				}
 #elif defined(DXX_BUILD_DESCENT_II)
-				if (New_file_format_load) {
-					uside.tmap_num = temp_ushort & 0x7fff;
-				} else
-					uside.tmap_num = temp_ushort;
+				const uint16_t masked_temp_tmap1_num = New_file_format_load ? (temp_tmap1_num & 0x7fff) : temp_tmap1_num;
+				uside.tmap_num = build_texture1_value(masked_temp_tmap1_num);
 
 				if (Gamesave_current_version <= 1)
-					uside.tmap_num = convert_d1_tmap_num(uside.tmap_num);
+					uside.tmap_num = build_texture1_value(convert_d1_tmap_num(get_texture_index(uside.tmap_num)));
 
-				if (New_file_format_load && !(temp_ushort & 0x8000))
+				if (New_file_format_load && !(temp_tmap1_num & 0x8000))
 					uside.tmap_num2 = texture2_value::None;
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
@@ -979,12 +975,11 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 					i.u = static_cast<fix>(temp_short) << 5;
 					temp_short = PHYSFSX_readShort(LoadFile);
 					i.v = static_cast<fix>(temp_short) << 5;
-					temp_ushort = PHYSFSX_readShort(LoadFile);
-					i.l = static_cast<fix>(temp_ushort) << 1;
-					//PHYSFS_read( LoadFile, &i.l, sizeof(fix), 1 );
+					const uint16_t temp_light = PHYSFSX_readShort(LoadFile);
+					i.l = static_cast<fix>(temp_light) << 1;
 				}
 			} else {
-				uside.tmap_num = 0;
+				uside.tmap_num = texture1_value::None;
 				uside.tmap_num2 = texture2_value::None;
 				uside.uvls = {};
 			}

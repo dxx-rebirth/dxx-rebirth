@@ -62,7 +62,7 @@ int	New_file_format_save = 1;
 #if defined(DXX_BUILD_DESCENT_II)
 // Converts descent 2 texture numbers back to descent 1 texture numbers.
 // Only works properly when the full Descent 1 texture set (descent.pig) is available.
-static uint16_t convert_to_d1_tmap_num(const uint16_t tmap_num)
+static texture_index convert_to_d1_tmap_num(const texture_index tmap_num)
 {
 	switch (tmap_num)
 	{
@@ -651,7 +651,7 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 #if defined(DXX_BUILD_DESCENT_II)
 				if (Gamesave_current_version <= 3)	// convert texture numbers back to d1
 				{
-					tmap_num = convert_to_d1_tmap_num(tmap_num);
+					tmap_num = build_texture1_value(convert_to_d1_tmap_num(get_texture_index(tmap_num)));
 					if (tmap_num2 != texture2_value::None)
 					{
 						tmap_num2 = build_texture2_value(convert_to_d1_tmap_num(get_texture_index(tmap_num2)), get_texture_rotation_high(tmap_num2));
@@ -659,10 +659,11 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 				}
 #endif
 
+				uint16_t write_tmap_num = static_cast<uint16_t>(tmap_num);
 				if (tmap_num2 != texture2_value::None && New_file_format_save)
-					tmap_num |= 0x8000;
+					write_tmap_num |= 0x8000;
 
-				PHYSFS_writeSLE16(SaveFile, tmap_num);
+				PHYSFS_writeSLE16(SaveFile, write_tmap_num);
 				if (tmap_num2 != texture2_value::None || !New_file_format_save)
 					PHYSFS_writeSLE16(SaveFile, static_cast<uint16_t>(tmap_num2));
 

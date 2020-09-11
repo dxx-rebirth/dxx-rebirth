@@ -1935,7 +1935,7 @@ void compute_slide_segs()
 		uint8_t slide_textures = 0;
 		range_for (const int sidenum, xrange(6u)) {
 			const auto &uside = suseg.u.sides[sidenum];
-			const auto &ti = TmapInfo[uside.tmap_num];
+			const auto &ti = TmapInfo[get_texture_index(uside.tmap_num)];
 			if (!(ti.slide_u || ti.slide_v))
 				continue;
 			const auto &sside = suseg.s.sides[sidenum];
@@ -1977,7 +1977,7 @@ static void slide_textures(void)
 				if (slide_seg & (1 << sidenum))
 				{
 					auto &side = useg.sides[sidenum];
-					const auto &ti = TmapInfo[side.tmap_num];
+					const auto &ti = TmapInfo[get_texture_index(side.tmap_num)];
 					const auto tiu = ti.slide_u;
 					const auto tiv = ti.slide_v;
 					if (tiu || tiv)
@@ -2013,7 +2013,7 @@ static void flicker_lights(const d_level_shared_destructible_light_state &LevelS
 		const auto sidenum = f.sidenum;
 		{
 			auto &side = segp->unique_segment::sides[sidenum];
-			if (!(TmapInfo[side.tmap_num].lighting || TmapInfo[get_texture_index(side.tmap_num2)].lighting))
+			if (!(TmapInfo[get_texture_index(side.tmap_num)].lighting || TmapInfo[get_texture_index(side.tmap_num2)].lighting))
 				continue;
 		}
 

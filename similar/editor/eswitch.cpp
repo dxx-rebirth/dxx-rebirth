@@ -502,9 +502,9 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 				gr_ubitmap(canvas, texmerge_get_cached_bitmap(us.tmap_num, us.tmap_num2));
 			} else {
 				const auto tmap_num = us.tmap_num;
-				if (tmap_num > 0)
+				if (tmap_num != texture1_value::None)
 				{
-					auto &t = Textures[tmap_num];
+					auto &t = Textures[get_texture_index(tmap_num)];
 					PIGGY_PAGE_IN(t);
 					gr_ubitmap(canvas, GameBitmaps[t.index]);
 				} else

@@ -1666,7 +1666,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	int current_level;
 	char id[5];
 	fix tmptime32 = 0;
-	std::array<std::array<short, MAX_SIDES_PER_SEGMENT>, MAX_SEGMENTS> TempTmapNum;
+	std::array<std::array<texture1_value, MAX_SIDES_PER_SEGMENT>, MAX_SEGMENTS> TempTmapNum;
 	std::array<std::array<texture2_value, MAX_SIDES_PER_SEGMENT>, MAX_SEGMENTS> TempTmapNum2;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2034,7 +2034,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		range_for (const unsigned j, xrange(6u))
 		{
 			segp->shared_segment::sides[j].wall_num = PHYSFSX_readSXE16(fp, swap);
-			TempTmapNum[segp][j] = PHYSFSX_readSXE16(fp, swap);
+			TempTmapNum[segp][j] = static_cast<texture1_value>(PHYSFSX_readSXE16(fp, swap));
 			TempTmapNum2[segp][j] = static_cast<texture2_value>(PHYSFSX_readSXE16(fp, swap));
 		}
 	}

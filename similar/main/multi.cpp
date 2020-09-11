@@ -105,8 +105,6 @@ static void multi_add_lifetime_killed();
 static void multi_send_heartbeat();
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-static std::size_t find_goal_texture(ubyte t);
-static const tmap_info &find_required_goal_texture(uint8_t t);
 static void multi_do_capture_bonus(const playernum_t pnum);
 static void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf);
 static void multi_send_drop_flag(vmobjptridx_t objnum,int seed);
@@ -115,6 +113,14 @@ static void multi_send_drop_flag(vmobjptridx_t objnum,int seed);
 static void multi_send_ranking(uint8_t);
 static void multi_send_gmode_update();
 namespace dcx {
+namespace {
+static int imulti_new_game; // to prep stuff for level only when starting new game
+static int multi_message_index;
+static std::array<std::array<objnum_t, MAX_OBJECTS>, MAX_PLAYERS> remote_to_local;  // Remote object number for each local object
+static std::array<uint16_t, MAX_OBJECTS> local_to_remote;
+static std::array<unsigned, MAX_PLAYERS> sorted_kills;
+
+}
 static void multi_send_quit();
 DEFINE_SERIAL_UDT_TO_MESSAGE(shortpos, s, (s.bytemat, s.xo, s.yo, s.zo, s.segment, s.velx, s.vely, s.velz));
 }
@@ -133,7 +139,6 @@ static void multi_add_lifetime_kills(int count);
 namespace dcx {
 
 int multi_protocol=0; // set and determinate used protocol
-static int imulti_new_game; // to prep stuff for level only when starting new game
 
 //do we draw the kill list on the HUD?
 int Show_kill_list = 1;
@@ -157,10 +162,7 @@ playernum_t Bounty_target;
 
 std::array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
 int multi_defining_message = 0;
-static int multi_message_index;
 
-static std::array<std::array<objnum_t, MAX_OBJECTS>, MAX_PLAYERS> remote_to_local;  // Remote object number for each local object
-static std::array<uint16_t, MAX_OBJECTS> local_to_remote;
 std::array<sbyte, MAX_OBJECTS> object_owner;   // Who created each object in my universe, -1 = loaded at start
 
 unsigned   Net_create_loc;       // pointer into previous array
@@ -168,7 +170,6 @@ std::array<objnum_t, MAX_NET_CREATE_OBJECTS>   Net_create_objnums; // For tracki
 int   Network_status = 0;
 ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 int   Network_message_reciever=-1;
-static std::array<unsigned, MAX_PLAYERS>   sorted_kills;
 std::array<std::array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
 std::array<int16_t, 2> team_kills;
 int   multi_quit_game = 0;
@@ -234,10 +235,12 @@ std::array<std::array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
 fix64 RefuseTimeLimit=0;
 
+namespace {
 constexpr int message_length[] = {
 #define define_message_length(NAME,SIZE)	(SIZE),
 	for_each_multiplayer_command(define_message_length)
 };
+}
 
 }
 
@@ -646,6 +649,8 @@ void multi_sort_kill_list()
 	std::sort(range.begin(), range.end(), predicate);
 }
 
+namespace {
+
 static void print_kill_goal_tables(fvcobjptr &vcobjptr)
 {
 	const auto &local_player = get_local_player();
@@ -671,6 +676,8 @@ static void net_destroy_controlcen(object_array &Objects)
 
 }
 
+}
+
 static const char *prepare_kill_name(const playernum_t pnum, char (&buf)[(CALLSIGN_LEN*2)+4])
 {
 	if (Game_mode & GM_TEAM)
@@ -683,6 +690,8 @@ static const char *prepare_kill_name(const playernum_t pnum, char (&buf)[(CALLSI
 }
 
 namespace dsx {
+
+namespace {
 
 static void multi_compute_kill(const imobjptridx_t killer, object &killed)
 {
@@ -927,6 +936,8 @@ static void multi_compute_kill(const imobjptridx_t killer, object &killed)
 	// clear the killed guys flags/headlights
 	killed.ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_HEADLIGHT_ON); 
 #endif
+}
+
 }
 
 }
@@ -1299,7 +1310,6 @@ void multi_send_macro(const int fkey)
 	HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message.data());
 	multi_message_feedback();
 }
-
 
 void multi_send_message_start()
 {
@@ -2501,7 +2511,7 @@ static void multi_reset_object_texture(object_base &objp)
 
 }
 
-void multi_process_bigdata(const playernum_t pnum, const ubyte *const buf, const uint_fast32_t len)
+void multi_process_bigdata(const playernum_t pnum, const uint8_t *const buf, const uint_fast32_t len)
 {
 	// Takes a bunch of messages, check them for validity,
 	// and pass them to multi_process_data.
@@ -3567,32 +3577,62 @@ window_event_result multi_level_sync(void)
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void apply_segment_goal_texture(unique_segment &seg, const std::size_t tex)
+namespace {
+
+void apply_segment_goal_texture(const d_level_unique_tmap_info_state &LevelUniqueTmapInfoState, unique_segment &seg, const texture1_value tex)
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	seg.static_light = i2f(100);	//make static light bright
-	if (tex < TmapInfo.size())
+	const auto bright_light = i2f(100);	//make static light bright
+	seg.static_light = bright_light;
+	if (static_cast<unsigned>(tex) < TmapInfo.size())
 		range_for (auto &s, seg.sides)
 		{
 			s.tmap_num = tex;
 			range_for (auto &uvl, s.uvls)
-				uvl.l = i2f(100);		//max out
+				uvl.l = bright_light;		//max out
 		}
+}
+
+texture_index find_goal_texture(const d_level_unique_tmap_info_state &LevelUniqueTmapInfoState, const uint8_t tmi_flag)
+{
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
+	const auto &&r = partial_const_range(TmapInfo, NumTextures);
+	const auto &&predicate = [tmi_flag](const tmap_info &i) {
+		return (i.flags & tmi_flag);
+	};
+	const auto begin = r.begin();
+	const auto idx = std::distance(begin, std::find_if(begin, r.end(), predicate));
+	return idx;
+}
+
+const tmap_info &find_required_goal_texture(const d_level_unique_tmap_info_state &LevelUniqueTmapInfoState, const uint8_t tmi_flag)
+{
+	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
+	const auto found_index = find_goal_texture(LevelUniqueTmapInfoState, tmi_flag);
+	std::size_t r = found_index;
+	if (r < TmapInfo.size())
+		return TmapInfo[r];
+	Int3(); // Hey, there is no goal texture for this PIG!!!!
+	// Edit bitmaps.tbl and designate two textures to be RED and BLUE
+	// goal textures
+	throw std::runtime_error("PIG missing goal texture");
+}
+
 }
 
 void multi_apply_goal_textures()
 {
-	std::size_t tex_blue, tex_red;
+	texture1_value tex_blue, tex_red;
 	if (game_mode_hoard())
-		tex_blue = tex_red = find_goal_texture(TMI_GOAL_HOARD);
+		tex_blue = tex_red = build_texture1_value(find_goal_texture(LevelUniqueTmapInfoState, TMI_GOAL_HOARD));
 	else
 	{
-		tex_blue = find_goal_texture(TMI_GOAL_BLUE);
-		tex_red = find_goal_texture(TMI_GOAL_RED);
+		tex_blue = build_texture1_value(find_goal_texture(LevelUniqueTmapInfoState, TMI_GOAL_BLUE));
+		tex_red = build_texture1_value(find_goal_texture(LevelUniqueTmapInfoState, TMI_GOAL_RED));
 	}
 	range_for (const auto &&seg, vmsegptr)
 	{
-		std::size_t tex;
+		texture1_value tex;
 		if (seg->special==SEGMENT_IS_GOAL_BLUE)
 		{
 			tex = tex_blue;
@@ -3604,27 +3644,8 @@ void multi_apply_goal_textures()
 		}
 		else
 			continue;
-		apply_segment_goal_texture(seg, tex);
+		apply_segment_goal_texture(LevelUniqueTmapInfoState, seg, tex);
 	}
-}
-
-std::size_t find_goal_texture (ubyte t)
-{
-	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	const auto &&r = partial_const_range(TmapInfo, NumTextures);
-	return std::distance(r.begin(), std::find_if(r.begin(), r.end(), [t](const tmap_info &i) { return (i.flags & t); }));
-}
-
-const tmap_info &find_required_goal_texture(const uint8_t t)
-{
-	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	std::size_t r = find_goal_texture(t);
-	if (r < TmapInfo.size())
-		return TmapInfo[r];
-	Int3(); // Hey, there is no goal texture for this PIG!!!!
-	// Edit bitmaps.tbl and designate two textures to be RED and BLUE
-	// goal textures
-	throw std::runtime_error("PIG missing goal texture");
 }
 #endif
 
@@ -5571,7 +5592,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 	Effects[goal_eclip].changing_wall_texture = NumTextures;
 	Effects[goal_eclip].vc.num_frames=n_goal_frames;
 
-	TmapInfo[NumTextures] = find_required_goal_texture(TMI_GOAL_BLUE);
+	TmapInfo[NumTextures] = find_required_goal_texture(LevelUniqueTmapInfoState, TMI_GOAL_BLUE);
 	TmapInfo[NumTextures].eclip_num = goal_eclip;
 	TmapInfo[NumTextures].flags = TMI_GOAL_HOARD;
 	NumTextures++;

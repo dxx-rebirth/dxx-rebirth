@@ -664,7 +664,6 @@ static void get_side_ids(const shared_segment &base_seg, const shared_segment &c
 static void propagate_tmaps_to_segment_side(const vcsegptridx_t base_seg, const int base_side, const vmsegptridx_t con_seg, const int con_side, const int abs_id1, const int abs_id2, const int uv_only_flag)
 {
 	int		base_common_side,con_common_side;
-	int		tmap_num;
 
 	Assert ((uv_only_flag == -1) || (uv_only_flag == 0) || (uv_only_flag == 1));
 
@@ -684,11 +683,13 @@ static void propagate_tmaps_to_segment_side(const vcsegptridx_t base_seg, const 
 	if (!IS_CHILD(con_seg->children[con_common_side])) {
 		if (!IS_CHILD(base_seg->children[base_common_side])) {
 			// There is at least one face here, so get the tmap_num from there.
-			tmap_num = base_seg->unique_segment::sides[base_common_side].tmap_num;
 
 			// Now assign all faces in the connecting segment on side con_common_side to tmap_num.
 			if ((uv_only_flag == -1) || (uv_only_flag == 0))
+			{
+				const auto tmap_num = base_seg->unique_segment::sides[base_common_side].tmap_num;
 				con_seg->unique_segment::sides[con_common_side].tmap_num = tmap_num;
+			}
 
 			if (uv_only_flag != -1)
 				med_assign_uvs_to_side(con_seg, con_common_side, base_seg, base_common_side, abs_id1, abs_id2);
@@ -1167,7 +1168,7 @@ static void calim_process_all_lights(int quick_light)
 				const auto sidep = &es.value;
 				fix	light_intensity;
 
-				light_intensity = TmapInfo[sidep->tmap_num].lighting + TmapInfo[get_texture_index(sidep->tmap_num2)].lighting;
+				light_intensity = TmapInfo[get_texture_index(sidep->tmap_num)].lighting + TmapInfo[get_texture_index(sidep->tmap_num2)].lighting;
 
 //				if (segp->sides[sidenum].wall_num != -1) {
 //					int	wall_num, bitmap_num, effect_num;

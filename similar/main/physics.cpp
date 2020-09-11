@@ -605,7 +605,9 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 					 */
 					forcefield_bounce = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
-					forcefield_bounce = (TmapInfo[Segments[WallHitSeg].unique_segment::sides[WallHitSide].tmap_num].flags & TMI_FORCE_FIELD);
+					const unique_segment &useg = vcsegptr(WallHitSeg);
+					auto &uside = useg.sides[WallHitSide];
+					forcefield_bounce = (TmapInfo[get_texture_index(uside.tmap_num)].flags & TMI_FORCE_FIELD);
 					int check_vel=0;
 #endif
 

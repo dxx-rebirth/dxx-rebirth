@@ -148,6 +148,11 @@ struct shared_side
 	std::array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
 };
 
+enum class texture1_value : uint16_t
+{
+	None,
+};
+
 /* texture2_value uses the low 14 bits for the array index and the high
  * 2 bits for texture2_rotation_high
  */
@@ -185,9 +190,14 @@ static constexpr texture2_rotation_high &operator++(texture2_rotation_high &t)
 	return (t = static_cast<texture2_rotation_high>(static_cast<uint32_t>(t) + (1u << TEXTURE2_ROTATION_SHIFT)));
 }
 
-static constexpr uint16_t get_texture_index(const texture2_value t)
+static constexpr texture_index get_texture_index(const texture1_value t)
 {
-	return static_cast<uint16_t>(t) & TEXTURE2_ROTATION_INDEX_MASK;
+	return static_cast<texture_index>(t);
+}
+
+static constexpr texture_index get_texture_index(const texture2_value t)
+{
+	return static_cast<texture_index>(static_cast<uint16_t>(t) & TEXTURE2_ROTATION_INDEX_MASK);
 }
 
 static constexpr texture2_rotation_high get_texture_rotation_high(const texture2_value t)
@@ -205,9 +215,14 @@ static constexpr texture2_rotation_low get_texture_rotation_low(const texture2_v
 	return get_texture_rotation_low(get_texture_rotation_high(t));
 }
 
-static constexpr texture2_value build_texture2_value(const unsigned t, const texture2_rotation_high rotation)
+static constexpr texture1_value build_texture1_value(const texture_index t)
 {
-	return static_cast<texture2_value>(t | static_cast<unsigned>(rotation));
+	return static_cast<texture1_value>(t);
+}
+
+static constexpr texture2_value build_texture2_value(const texture_index t, const texture2_rotation_high rotation)
+{
+	return static_cast<texture2_value>(static_cast<uint16_t>(t) | static_cast<uint16_t>(rotation));
 }
 
 #undef TEXTURE2_ROTATION_SHIFT
@@ -215,7 +230,7 @@ static constexpr texture2_value build_texture2_value(const unsigned t, const tex
 
 struct unique_side
 {
-	int16_t tmap_num;
+	texture1_value tmap_num;
 	texture2_value tmap_num2;
 	std::array<uvl, 4>     uvls;
 };

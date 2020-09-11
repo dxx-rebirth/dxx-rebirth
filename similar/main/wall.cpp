@@ -144,7 +144,7 @@ static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(con
 {
 	if (const auto masked_tmap_num2 = static_cast<uint_fast32_t>(get_texture_index(side.tmap_num2)))
 		return {masked_tmap_num2, BM_FLAG_SUPER_TRANSPARENT};
-	return {side.tmap_num, BM_FLAG_TRANSPARENT};
+	return {get_texture_index(side.tmap_num), BM_FLAG_TRANSPARENT};
 }
 
 // This function determines whether the current segment/side is transparent
@@ -271,11 +271,12 @@ void wall_set_tmap_num(const wclip &anim, const vmsegptridx_t seg, const unsigne
 	auto &uside = seg->unique_segment::sides[side];
 	auto &cuside = csegp->unique_segment::sides[cside];
 	if (anim.flags & WCF_TMAP1)	{
-		if (tmap != uside.tmap_num || tmap != cuside.tmap_num)
+		const texture1_value t1{tmap};
+		if (t1 != uside.tmap_num || t1 != cuside.tmap_num)
 		{
-			uside.tmap_num = cuside.tmap_num = tmap;
+			uside.tmap_num = cuside.tmap_num = t1;
 			if (newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_wall_set_tmap_num1(seg,side,csegp,cside,tmap);
+				newdemo_record_wall_set_tmap_num1(seg,side,csegp,cside,t1);
 		}
 	} else	{
 		const texture2_value t2{tmap};

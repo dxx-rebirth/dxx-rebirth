@@ -136,12 +136,11 @@ static void apply_light_intensity(const csmusegment segp, const unsigned sidenum
 static void propagate_light_intensity(const csmusegment segp, const unsigned sidenum)
 {
 	fix		intensity;
-	short		texmap;
 
 	intensity = 0;
 	auto &us = segp.u.sides[sidenum];
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	texmap = us.tmap_num;
+	const auto texmap = get_texture_index(us.tmap_num);
 	intensity += TmapInfo[texmap].lighting;
 	intensity += TmapInfo[get_texture_index(us.tmap_num2)].lighting;
 

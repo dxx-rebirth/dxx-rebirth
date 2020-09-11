@@ -805,19 +805,17 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 			}
 
 			auto &uside = std::get<1>(z);
-			if (uside.tmap_num >= 0)
-                         {
-				if (uside.tmap_num < max_tmap)
-                                 {
-					tmap_buf[uside.tmap_num]++;
-					if (level_tmap_buf[uside.tmap_num] == -1)
-						level_tmap_buf[uside.tmap_num] = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
-                                 }
+			const auto tmap1idx = get_texture_index(uside.tmap_num);
+			if (tmap1idx < max_tmap)
+			{
+				++ tmap_buf[tmap1idx];
+				if (auto &t = level_tmap_buf[tmap1idx]; t == -1)
+					t = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
+			}
                                 else
                                  {
 					Int3(); //	Error, bogus texture map.  Should not be greater than max_tmap.
                                  }
-                         }
 
 			if (const auto tmap_num2 = get_texture_index(uside.tmap_num2))
                          {
@@ -891,11 +889,10 @@ static void determine_used_textures_level(d_level_shared_destructible_light_stat
 					}
 				}
 			} else if (child == segment_none) {
-
-				if (uside.tmap_num >= 0)
 				{
-					if (uside.tmap_num < Textures.size()) {
-						const auto ti = Textures[uside.tmap_num].index;
+					const auto tmap1idx = get_texture_index(uside.tmap_num);
+					if (tmap1idx < Textures.size()) {
+						const auto ti = Textures[tmap1idx].index;
 						assert(ti < tmap_buf.size());
 						++tmap_buf[ti];
 						if (level_tmap_buf[ti] == -1)

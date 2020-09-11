@@ -1324,7 +1324,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 		(GADGET_PRESSED(LargeViewBox.get()) && render_3d_in_big_window))
 	{
 		int	xcrd,ycrd;
-		int side,face,tmap;
+		int side,face;
 
 		if (render_3d_in_big_window) {
 			xcrd = LargeViewBox->b1_drag_x1;
@@ -1359,7 +1359,8 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 					med_create_new_segment_from_cursegp();
 					editor_status("Texture assigned");
 				} else if (keyd_pressed[KEY_G])	{
-					tmap = Segments[seg].unique_segment::sides[side].tmap_num;
+					const unique_segment &us = vcsegptr(seg);
+					const auto tmap = us.sides[side].tmap_num;
 					texpage_grab_current(tmap);
 					editor_status( "Texture grabbed." );
 				} else if (keyd_pressed[ KEY_LAPOSTRO] ) {

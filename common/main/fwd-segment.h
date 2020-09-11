@@ -75,6 +75,8 @@ enum sidenum_t : uint8_t
 	WFRONT = 5
 };
 
+using texture_index = uint16_t;
+enum class texture1_value : uint16_t;
 enum class texture2_value : uint16_t;
 enum class texture2_rotation_low : uint8_t;
 enum class texture2_rotation_high : uint16_t;

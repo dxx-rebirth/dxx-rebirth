@@ -1170,7 +1170,7 @@ static int load_game_data(
 				auto &wa = WallAnims[w.clip_num];
 				if (wa.flags & WCF_TMAP1)
 				{
-					uside.tmap_num = wa.frames[0];
+					uside.tmap_num = build_texture1_value(wa.frames[0]);
 					uside.tmap_num2 = texture2_value();
 				}
 			}

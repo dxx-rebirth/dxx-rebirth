@@ -246,7 +246,7 @@ int med_set_vertex(const unsigned vnum, const vertex &vp)
 namespace dsx {
 
 // -------------------------------------------------------------------------------
-void create_removable_wall(fvcvertptr &vcvertptr, const vmsegptridx_t sp, const unsigned sidenum, const unsigned tmap_num)
+void create_removable_wall(fvcvertptr &vcvertptr, const vmsegptridx_t sp, const unsigned sidenum, const texture1_value tmap_num)
 {
 	create_walls_on_side(vcvertptr, sp, sidenum);
 
@@ -997,7 +997,7 @@ int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 
 	//	Save tmap_num on each side to restore after call to med_propagate_tmaps_to_segments and _back_side
 	//	which will change the tmap nums.
-	std::array<int16_t, MAX_SIDES_PER_SEGMENT> side_tmaps;
+	std::array<texture1_value, MAX_SIDES_PER_SEGMENT> side_tmaps;
 	range_for (const auto &&z, zip(side_tmaps, seg->unique_segment::sides))
 	{
 		const unique_side &us = std::get<1>(z);
@@ -1364,7 +1364,7 @@ void med_create_new_segment(const vms_vector &scale)
 		child = segment_none;
 		ss.wall_num = wall_none;
 		create_walls_on_side(vcvertptr, sp, s);
-		us.tmap_num = s + 1;					// assign some stupid old tmap to this side.
+		us.tmap_num = build_texture1_value(s + 1);					// assign some stupid old tmap to this side.
 		us.tmap_num2 = texture2_value::None;
 	}
 

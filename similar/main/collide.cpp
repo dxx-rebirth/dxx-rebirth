@@ -352,17 +352,17 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 	if (get_player_id(playerobj) != Player_num) // Execute only for local player
 		return;
 
-	const auto tmap_num = hitseg->unique_segment::sides[hitwall].tmap_num;
+	auto &tmi1 = TmapInfo[get_texture_index(hitseg->unique_segment::sides[hitwall].tmap_num)];
 
 	//	If this wall does damage, don't make *BONK* sound, we'll be making another sound.
-	if (TmapInfo[tmap_num].damage > 0)
+	if (tmi1.damage > 0)
 		return;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	const int ForceFieldHit = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 	int ForceFieldHit=0;
-	if (TmapInfo[tmap_num].flags & TMI_FORCE_FIELD) {
+	if (tmi1.flags & TMI_FORCE_FIELD) {
 		vms_vector force;
 
 		PALETTE_FLASH_ADD(0, 0, 60);	//flash blue
@@ -396,7 +396,7 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 
 	//don't do wall damage and sound if hit lava or water
 	constexpr auto tmi_no_damage = (TMI_WATER | TMI_VOLATILE);
-	if ((TmapInfo[tmap_num].flags & tmi_no_damage) || (tmap_num2 != texture2_value::None && (TmapInfo[get_texture_index(tmap_num2)].flags & tmi_no_damage)))
+	if ((tmi1.flags & tmi_no_damage) || (tmap_num2 != texture2_value::None && (TmapInfo[get_texture_index(tmap_num2)].flags & tmi_no_damage)))
 		damage = 0;
 #endif
 
@@ -450,11 +450,11 @@ volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const unique_s
 	Assert(obj->type==OBJ_PLAYER);
 
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	const auto &ti = TmapInfo[side.tmap_num];
-	const fix d = ti.damage;
+	const auto &tmi1 = TmapInfo[get_texture_index(side.tmap_num)];
+	const fix d = tmi1.damage;
 	if (d > 0
 #if defined(DXX_BUILD_DESCENT_II)
-		|| (ti.flags & TMI_WATER)
+		|| (tmi1.flags & TMI_WATER)
 #endif
 		)
 	{
@@ -769,8 +769,9 @@ static window_event_result collide_weapon_and_wall(
 	}
 
 	auto &uhitside = hitseg->unique_segment::sides[hitwall];
+	auto &tmi1 = TmapInfo[get_texture_index(uhitside.tmap_num)];
 	//if an energy weapon hits a forcefield, let it bounce
-	if ((TmapInfo[uhitside.tmap_num].flags & TMI_FORCE_FIELD) &&
+	if ((tmi1.flags & TMI_FORCE_FIELD) &&
 		 !(weapon->type == OBJ_WEAPON && Weapon_info[get_weapon_id(weapon)].energy_usage==0)) {
 
 		//make sound
@@ -839,8 +840,11 @@ static window_event_result collide_weapon_and_wall(
 	const auto wall_type = wall_hit_process(player_info.powerup_flags, hitseg, hitwall, weapon->shields, playernum, weapon);
 
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
+#if defined(DXX_BUILD_DESCENT_I)
+	auto &tmi1 = TmapInfo[get_texture_index(uhitside.tmap_num)];
+#endif
 	// Wall is volatile if either tmap 1 or 2 is volatile
-	if ((TmapInfo[uhitside.tmap_num].flags & TMI_VOLATILE) ||
+	if ((tmi1.flags & TMI_VOLATILE) ||
 		(uhitside.tmap_num2 != texture2_value::None && (TmapInfo[get_texture_index(uhitside.tmap_num2)].flags & TMI_VOLATILE))
 		)
 	{
@@ -870,7 +874,7 @@ static window_event_result collide_weapon_and_wall(
 
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	else if ((TmapInfo[uhitside.tmap_num].flags & TMI_WATER) ||
+	else if ((tmi1.flags & TMI_WATER) ||
 			(uhitside.tmap_num2 != texture2_value::None && (TmapInfo[get_texture_index(uhitside.tmap_num2)].flags & TMI_WATER))
 			)
 	{
@@ -955,7 +959,7 @@ static window_event_result collide_weapon_and_wall(
 				weapon->flags |= OF_SHOULD_BE_DEAD;
 
 			//don't let flares stick in force fields
-			if ((get_weapon_id(weapon) == weapon_id_type::FLARE_ID) && (TmapInfo[uhitside.tmap_num].flags & TMI_FORCE_FIELD))
+			if ((get_weapon_id(weapon) == weapon_id_type::FLARE_ID) && (tmi1.flags & TMI_FORCE_FIELD))
 				weapon->flags |= OF_SHOULD_BE_DEAD;
 #endif
 
@@ -1006,7 +1010,7 @@ static window_event_result collide_weapon_and_wall(
 static void collide_debris_and_wall(const vmobjptridx_t debris, const unique_segment &hitseg, const unsigned hitwall, const vms_vector &)
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	if (!PERSISTENT_DEBRIS || TmapInfo[hitseg.sides[hitwall].tmap_num].damage)
+	if (!PERSISTENT_DEBRIS || TmapInfo[get_texture_index(hitseg.sides[hitwall].tmap_num)].damage)
 		explode_object(debris,0);
 }
 

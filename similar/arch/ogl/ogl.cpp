@@ -455,13 +455,15 @@ void ogl_cache_level_textures(void)
 			{
 				const auto tmap1 = side.tmap_num;
 				const auto tmap2 = side.tmap_num2;
-				if (tmap1<0 || tmap1>=NumTextures){
+				const auto tmap1idx = get_texture_index(tmap1);
+				if (tmap1idx >= NumTextures){
 					glmprintf((CON_DEBUG, "ogl_cache_level_textures %p %p %i %i", seg.get_unchecked_pointer(), &side, tmap1, NumTextures));
 					//				tmap1=0;
 					continue;
 				}
-				PIGGY_PAGE_IN(Textures[tmap1]);
-				grs_bitmap *bm = &GameBitmaps[Textures[tmap1].index];
+				auto &texture1 = Textures[tmap1idx];
+				PIGGY_PAGE_IN(texture1);
+				grs_bitmap *bm = &GameBitmaps[texture1.index];
 				if (tmap2 != texture2_value::None)
 				{
 					const auto texture2 = Textures[get_texture_index(tmap2)];

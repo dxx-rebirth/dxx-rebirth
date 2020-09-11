@@ -210,7 +210,7 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 	static int old_Cursegp_num = -1;
 	static int old_Curside = -1;
 	static int old_Cursegp_num_for_verts = -1;
-	static int old_CurrentTexture = -1;
+	static texture_index old_CurrentTexture = -1;
 	static int old_Num_walls = -1;
 	static int old_Num_triggers = -1;
 
@@ -264,7 +264,7 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 		gr_uprintf(canvas, *canvas.cv_font, 0, 48, "Cursegp/side: %3hu/%1d", static_cast<segnum_t>(Cursegp), Curside);
 		unique_segment &useg = *Cursegp;
 		auto &uside = useg.sides[Curside];
-		gr_uprintf(canvas, *canvas.cv_font, 0, 128, " tmap1,2,o: %3d/%3dx%1u", uside.tmap_num, get_texture_index(uside.tmap_num2), static_cast<unsigned>(get_texture_rotation_low(uside.tmap_num2)));
+		gr_uprintf(canvas, *canvas.cv_font, 0, 128, " tmap1,2,o: %3d/%3dx%1u", get_texture_index(uside.tmap_num), get_texture_index(uside.tmap_num2), static_cast<unsigned>(get_texture_rotation_low(uside.tmap_num2)));
 	}
 
 	//--------------- Current_vertex_numbers -------------
