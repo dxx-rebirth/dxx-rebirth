@@ -155,6 +155,21 @@ static void do_cheat_menu();
 static void play_test_sound();
 #endif
 
+int allowed_to_fire_flare(player_info &player_info)
+{
+	auto &Next_flare_fire_time = player_info.Next_flare_fire_time;
+	if (Next_flare_fire_time > GameTime64)
+		return 0;
+#if defined(DXX_BUILD_DESCENT_II)
+	if (player_info.energy < Weapon_info[weapon_id_type::FLARE_ID].energy_usage)
+#define	FLARE_BIG_DELAY	(F1_0*2)
+		Next_flare_fire_time = GameTime64 + FLARE_BIG_DELAY;
+	else
+#endif
+		Next_flare_fire_time = GameTime64 + F1_0/4;
+	return 1;
+}
+
 }
 
 }
@@ -260,7 +275,7 @@ static void do_weapon_n_item_stuff(object_array &Objects)
 			Flare_create(vmobjptridx(ConsoleObject));
 	}
 
-	if (allowed_to_fire_missile(player_info) && Controls.state.fire_secondary)
+	if (Controls.state.fire_secondary && allowed_to_fire_missile(player_info))
 	{
 		Global_missile_firing_count += Weapon_info[Secondary_weapon_to_weapon_info[player_info.Secondary_weapon]].fire_count;
 	}

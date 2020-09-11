@@ -33,10 +33,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dsx {
 void read_flying_controls(object &obj);
 }
-#endif
 #if defined(DXX_BUILD_DESCENT_II)
 #include "maths.h"
+namespace dsx {
 extern fix Afterburner_charge;
+}
+#endif
 #endif
 #endif
 

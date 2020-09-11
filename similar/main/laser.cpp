@@ -557,7 +557,6 @@ void omega_charge_frame(player_info &player_info)
 			energy = 0;
 	}
 
-
 }
 
 // -- fix	Last_omega_muzzle_flash_time;

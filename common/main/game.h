@@ -28,7 +28,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <physfs.h>
 #include "maths.h"
 
-#ifdef __cplusplus
 #include <chrono>
 #include <cstdint>
 #include "pack.h"
@@ -316,6 +315,11 @@ void reset_palette_add(void);
 #ifdef dsx
 namespace dsx {
 void palette_restore(void);
+void show_help();
+void show_netgame_help();
+
+// put up the help message
+void show_newdemo_help();
 }
 #endif
 #if defined(DXX_BUILD_DESCENT_I)
@@ -324,14 +328,7 @@ static inline void full_palette_save(void)
 {
 	palette_save();
 }
-#elif defined(DXX_BUILD_DESCENT_II)
-void full_palette_save(void);	// all of the above plus gr_palette_load(gr_palette)
 #endif
-
-// put up the help message
-void show_help();
-void show_netgame_help();
-void show_newdemo_help();
 
 // show a message in a nice little box
 void show_boxed_message(const char *msg, int RenderFlag);
@@ -362,6 +359,7 @@ static inline int game_mode_hoard()
 	return 0;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
+void full_palette_save();	// all of the above plus gr_palette_load(gr_palette)
 static inline int game_mode_capture_flag()
 {
 	return (Game_mode & GM_CAPTURE);
@@ -488,6 +486,4 @@ void dump_used_textures_all();
 void move_player_2_segment(vmsegptridx_t seg, unsigned side);
 }
 #endif
-#endif
-
 #endif

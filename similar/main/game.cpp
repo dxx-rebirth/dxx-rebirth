@@ -1206,23 +1206,6 @@ bool allowed_to_fire_laser(const player_info &player_info)
 	return 1;
 }
 
-int allowed_to_fire_flare(player_info &player_info)
-{
-	auto &Next_flare_fire_time = player_info.Next_flare_fire_time;
-	if (Next_flare_fire_time > GameTime64)
-		return 0;
-
-#if defined(DXX_BUILD_DESCENT_II)
-	if (player_info.energy < Weapon_info[weapon_id_type::FLARE_ID].energy_usage)
-#define	FLARE_BIG_DELAY	(F1_0*2)
-		Next_flare_fire_time = GameTime64 + FLARE_BIG_DELAY;
-	else
-#endif
-		Next_flare_fire_time = GameTime64 + F1_0/4;
-
-	return 1;
-}
-
 int allowed_to_fire_missile(const player_info &player_info)
 {
 	auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
@@ -1231,7 +1214,6 @@ int allowed_to_fire_missile(const player_info &player_info)
 		return 0;
 
 	return 1;
-}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1242,6 +1224,8 @@ void full_palette_save(void)
 	gr_palette_load( gr_palette );
 }
 #endif
+
+namespace {
 
 #if DXX_USE_SDLMIXER
 #define EXT_MUSIC_TEXT "Jukebox/Audio CD"
@@ -1312,12 +1296,12 @@ static int free_help(newmenu *, const d_event &event, newmenu_item *items)
 	DXX_MENUITEM(VERB, TEXT, "Alt-Shift-F4\t  Rename GuideBot", HELP_ASF4)	\
 	DXX_MENUITEM(VERB, TEXT, "Shift-F5/F6\t  Drop primary/secondary", HELP_SF5_6)	\
 	DXX_MENUITEM(VERB, TEXT, "Shift-number\t  GuideBot commands", HELP_GUIDEBOT_COMMANDS)
-#define _DXX_NETHELP_DROPFLAG(VERB)	\
+#define DSX_NETHELP_DROPFLAG(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "ALT-0\t  DROP FLAG", NETHELP_DROPFLAG)
 #else
 #define _DXX_HELP_MENU_D2_DXX_F4(VERB)
 #define _DXX_HELP_MENU_D2_DXX_FEATURES(VERB)
-#define _DXX_NETHELP_DROPFLAG(VERB)
+#define DSX_NETHELP_DROPFLAG(VERB)
 #endif
 
 #define DXX_HELP_MENU(VERB)	\
@@ -1342,6 +1326,8 @@ enum {
 	DXX_HELP_MENU(ENUM)
 };
 
+}
+
 void show_help()
 {
 	const unsigned nitems = DXX_HELP_MENU(COUNT);
@@ -1352,9 +1338,9 @@ void show_help()
 
 #undef DXX_HELP_MENU
 
-#define DXX_NETHELP_MENU(VERB)	\
+#define DSX_NETHELP_MENU(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "F1\t  THIS SCREEN", NETHELP_HELP)	\
-	_DXX_NETHELP_DROPFLAG(VERB)	\
+	DSX_NETHELP_DROPFLAG(VERB)	\
 	_DXX_NETHELP_SAVELOAD_GAME(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "ALT-F4\t  SHOW PLAYER NAMES ON HUD", NETHELP_HUDNAMES)	\
 	DXX_MENUITEM(VERB, TEXT, "F7\t  TOGGLE KILL LIST", NETHELP_TOGGLE_KILL_LIST)	\
@@ -1372,18 +1358,18 @@ void show_help()
 	DXX_MENUITEM(VERB, TEXT, "/KillReactor\t  BLOW UP THE MINE (Host-only)", NETHELP_COMMAND_KILL_REACTOR)	\
 
 enum {
-	DXX_NETHELP_MENU(ENUM)
+	DSX_NETHELP_MENU(ENUM)
 };
 
 void show_netgame_help()
 {
-	const unsigned nitems = DXX_NETHELP_MENU(COUNT);
+	const unsigned nitems = DSX_NETHELP_MENU(COUNT);
 	auto m = new newmenu_item[nitems];
-	DXX_NETHELP_MENU(ADD);
+	DSX_NETHELP_MENU(ADD);
 	newmenu_dotiny(NULL, TXT_KEYS, nitems, m, 0, free_help, m);
 }
 
-#undef DXX_NETHELP_MENU
+#undef DSX_NETHELP_MENU
 
 #define DXX_NEWDEMO_HELP_MENU(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "ESC\t  QUIT DEMO PLAYBACK", DEMOHELP_QUIT)	\
@@ -1413,6 +1399,10 @@ void show_newdemo_help()
 	newmenu_dotiny(NULL, "DEMO PLAYBACK CONTROLS", nitems, m, 0, free_help, m);
 }
 
+}
+
+namespace {
+
 #undef DXX_NEWDEMO_HELP_MENU
 
 #define LEAVE_TIME 0x4000		//how long until we decide key is down	(Used to be 0x4000)
@@ -1441,6 +1431,8 @@ static void check_end_rear_view()
 	leave_mode = leave_type::none;
 	if (Rear_view)
 		end_rear_view();
+}
+
 }
 
 //deal with rear view - switch it on, or off, or whatever

@@ -52,8 +52,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //look at keyboard, mouse, joystick, CyberMan, whatever, and set 
 //physics vars rotvel, velocity
 
-fix Afterburner_charge=f1_0;
-
 #define AFTERBURNER_USE_SECS	3				//use up in 3 seconds
 #define DROP_DELTA_TIME			(f1_0/15)	//drop 3 per second
 #endif
@@ -62,6 +60,11 @@ using std::min;
 using std::max;
 
 namespace dsx {
+
+#if defined(DXX_BUILD_DESCENT_II)
+fix Afterburner_charge;
+#endif
+
 void read_flying_controls(object &obj)
 {
 	fix	forward_thrust_time;

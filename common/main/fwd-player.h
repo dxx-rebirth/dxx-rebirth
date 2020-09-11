@@ -84,7 +84,6 @@ namespace dsx {
 struct player_rw;
 struct player_info;
 void player_rw_swap(player_rw *p, int swap);
-int allowed_to_fire_flare(player_info &);
 int allowed_to_fire_missile(const player_info &);
 #if defined(DXX_BUILD_DESCENT_II)
 fix get_omega_energy_consumption(fix delta_charge);
