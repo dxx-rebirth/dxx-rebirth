@@ -159,6 +159,9 @@ using newmenu_subfunction = newmenu_subfunction_t<void>;
 class unused_newmenu_userdata_t;
 constexpr newmenu_subfunction_t<const unused_newmenu_userdata_t> unused_newmenu_subfunction = nullptr;
 constexpr const unused_newmenu_userdata_t *unused_newmenu_userdata = nullptr;
+
+//should be called whenever the palette changes
+void newmenu_free_background();
 }
 
 int newmenu_do2(const char *title, const char *subtitle, uint_fast32_t nitems, newmenu_item *item, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
@@ -284,7 +287,6 @@ int vnm_messagebox_aN(const char *title, const nm_messagebox_tie &tie, const cha
 #define vnm_messagebox_aN(A1,A2,F,...)	dxx_call_printf_checked(vnm_messagebox_aN,nm_messagebox_str,(A1,A2),(F),##__VA_ARGS__)
 
 newmenu_item *newmenu_get_items(newmenu *menu);
-int newmenu_get_nitems(newmenu *menu);
 int newmenu_get_citem(newmenu *menu);
 void nm_draw_background(grs_canvas &, int x1, int y1, int x2, int y2);
 void nm_restore_background(int x, int y, int w, int h);
@@ -347,9 +349,6 @@ listbox *newmenu_listbox(const char *const title, const uint_fast32_t nitems, co
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, reinterpret_cast<listbox_subfunction_t<void>>(listbox_callback), static_cast<void *>(userdata));
 }
-
-//should be called whenever the palette changes
-extern void newmenu_free_background();
 
 static inline void nm_set_item_menu(newmenu_item &ni, const char *text)
 {

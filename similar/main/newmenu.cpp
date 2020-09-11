@@ -117,8 +117,32 @@ constexpr std::integral_constant<unsigned, NM_TYPE_NUMBER> newmenu_item::number_
 constexpr std::integral_constant<unsigned, NM_TYPE_INPUT_MENU> newmenu_item::imenu_specific_type::nm_type;
 constexpr std::integral_constant<unsigned, NM_TYPE_SLIDER> newmenu_item::slider_specific_type::nm_type;
 
+namespace dcx {
+
+namespace {
+
+struct step_down
+{
+	template <typename T>
+		T operator()(T &t) const
+		{
+			return ++t;
+		}
+};
+
+struct step_up
+{
+	template <typename T>
+		T operator()(T &t) const
+		{
+			return --t;
+		}
+};
+
 static grs_main_bitmap nm_background, nm_background1;
 static grs_subbitmap_ptr nm_background_sub;
+
+}
 
 void newmenu_free_background()	{
 	if (nm_background.bm_data)
@@ -129,7 +153,11 @@ void newmenu_free_background()	{
 	nm_background1.reset();
 }
 
+}
+
 namespace dsx {
+
+namespace {
 
 #if defined(DXX_BUILD_DESCENT_I)
 static const char *UP_ARROW_MARKER(const grs_font &, const grs_font &)
@@ -171,6 +199,9 @@ static void nm_draw_background1(grs_canvas &canvas, const char * filename)
 	strcpy(last_palette_loaded,"");		//force palette load next time
 #endif
 }
+
+}
+
 }
 
 #define MENU_BACKGROUND_BITMAP_HIRES (PHYSFSX_exists("scoresb.pcx",1)?"scoresb.pcx":"scores.pcx")
@@ -231,6 +262,8 @@ void nm_draw_background(grs_canvas &canvas, int x1, int y1, int x2, int y2)
 	}
 	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 }
+
+namespace {
 
 // Draw a left justfied string
 static void nm_string(grs_canvas &canvas, const int w1, int x, const int y, const char *const s, const int tabs_flag)
@@ -440,6 +473,8 @@ static void draw_item(grs_canvas &canvas, newmenu_item *item, int is_current, in
 	}
 }
 
+}
+
 const char *Newmenu_allowed_chars=NULL;
 
 //returns true if char is allowed
@@ -497,6 +532,8 @@ int newmenu_do2(const char *const title, const char *const subtitle, const uint_
 	return rval;
 }
 
+namespace {
+
 static void swap_menu_item_entries(newmenu_item &a, newmenu_item &b)
 {
 	using std::swap;
@@ -508,6 +545,9 @@ template <typename T>
 static void move_menu_item_entry(T &&t, newmenu_item *const items, uint_fast32_t citem, uint_fast32_t boundary)
 {
 	if (citem == boundary)
+		/* If citem == boundary, then this function is an elaborate
+		 * no-op.  Return immediately if there is no work to do.
+		 */
 		return;
 	auto a = &items[citem];
 	auto selected = std::make_pair(a->text, a->value);
@@ -566,6 +606,8 @@ static int newmenu_save_selection_handler(newmenu *menu, const d_event &event, c
 	return 0;
 }
 
+}
+
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
 void newmenu_doreorder( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item)
 {
@@ -577,36 +619,9 @@ newmenu_item *newmenu_get_items(newmenu *menu)
 	return menu->items;
 }
 
-int newmenu_get_nitems(newmenu *menu)
-{
-	return menu->nitems;
-}
-
 int newmenu_get_citem(newmenu *menu)
 {
 	return menu->citem;
-}
-
-namespace {
-
-struct step_down
-{
-	template <typename T>
-		T operator()(T &t) const
-		{
-			return ++t;
-		}
-};
-
-struct step_up
-{
-	template <typename T>
-		T operator()(T &t) const
-		{
-			return --t;
-		}
-};
-
 }
 
 template <typename S, typename O>

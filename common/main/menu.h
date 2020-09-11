@@ -54,7 +54,6 @@ extern int DoMenu();
 }
 #endif
 extern void do_options_menu();
-extern int select_demo(void);
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define Menu_pcx_name (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("menuh.pcx",1))?"menuh.pcx":"menu.pcx")

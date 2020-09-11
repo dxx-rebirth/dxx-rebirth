@@ -140,13 +140,9 @@ enum MENUS
 static std::array<window *, 16> menus;
 
 // Function Prototypes added after LINTING
-static int do_option(int select);
 static window_event_result do_new_game_menu(void);
 #if DXX_USE_UDP
 static void do_multi_player_menu();
-#endif
-#ifndef RELEASE
-static void do_sandbox_menu();
 #endif
 
 namespace dcx {
@@ -209,6 +205,26 @@ void parse_human_readable_time(std::chrono::duration<Rep, std::chrono::seconds::
 
 template void format_human_readable_time(human_readable_mmss_time<autosave_interval_type::rep> &buf, autosave_interval_type);
 template void parse_human_readable_time(autosave_interval_type &, const human_readable_mmss_time<autosave_interval_type::rep> &buf);
+
+}
+
+namespace dsx {
+
+namespace {
+
+int do_option(int select);
+#ifndef RELEASE
+void do_sandbox_menu();
+#endif
+int select_demo();
+
+}
+
+}
+
+namespace {
+
+static void delete_player_saved_games(const char * name);
 
 }
 
@@ -335,8 +351,6 @@ try_again:
 
 	return 1;
 }
-
-static void delete_player_saved_games(const char * name);
 
 static window_event_result player_menu_keycommand( listbox *lb,const d_event &event )
 {
@@ -508,6 +522,10 @@ static void RegisterPlayer()
 	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m.release(), allow_abort_flag, citem, player_menu_handler, list.release());
 }
 
+namespace dsx {
+
+namespace {
+
 // Draw Copyright and Version strings
 static void draw_copyright()
 {
@@ -520,8 +538,6 @@ static void draw_copyright()
 	gr_set_fontcolor(canvas, BM_XRGB(25, 0, 0), -1);
 	gr_string(canvas, game_font, 0x8000, SHEIGHT - (line_spacing * 2), DESCENT_VERSION);
 }
-
-namespace dsx {
 
 // ------------------------------------------------------------------------
 static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choice )
@@ -648,6 +664,8 @@ static void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num
 	*callers_num_options = num_options;
 }
 
+}
+
 //returns number of item chosen
 int DoMenu()
 {
@@ -672,7 +690,7 @@ int DoMenu()
 	return 0;
 }
 
-}
+namespace {
 
 //returns flag, true means quit menu
 int do_option ( int select)
@@ -757,6 +775,12 @@ int do_option ( int select)
 	return 1;		// stay in main menu unless quitting
 }
 
+}
+
+}
+
+namespace {
+
 static void delete_player_saved_games(const char * name)
 {
 	char filename[PATH_MAX];
@@ -824,6 +848,12 @@ static window_event_result demo_menu_keycommand( listbox *lb,const d_event &even
 
 	return window_event_result::ignored;
 }
+
+}
+
+namespace dsx {
+
+namespace {
 
 static window_event_result demo_menu_handler(listbox *lb, const d_event &event, char **items)
 {
@@ -897,6 +927,10 @@ static int do_difficulty_menu()
 		return 1;
 	}
 	return 0;
+}
+
+}
+
 }
 
 window_event_result do_new_game_menu()
@@ -2539,6 +2573,9 @@ static void polygon_models_viewer()
 }
 
 namespace dsx {
+
+namespace {
+
 static window_event_result gamebitmaps_viewer_handler(window *, const d_event &event, const unused_window_userdata_t *)
 {
 	static int view_idx = 0;
@@ -2604,7 +2641,6 @@ static window_event_result gamebitmaps_viewer_handler(window *, const d_event &e
 	}
 	return window_event_result::ignored;
 }
-}
 
 static void gamebitmaps_viewer()
 {
@@ -2623,8 +2659,6 @@ static void gamebitmaps_viewer()
 	DXX_MENUITEM(VERB, MENU, "Polygon_models viewer", polygon_models)	\
 	DXX_MENUITEM(VERB, MENU, "GameBitmaps viewer", bitmaps)	\
 
-namespace {
-
 class sandbox_menu_items
 {
 public:
@@ -2638,8 +2672,6 @@ public:
 		DXX_SANDBOX_MENU(ADD);
 	}
 };
-
-}
 
 static int sandbox_menuset(newmenu *, const d_event &event, sandbox_menu_items *items)
 {
@@ -2679,5 +2711,9 @@ void do_sandbox_menu()
 {
 	auto items = new sandbox_menu_items;
 	newmenu_do3(nullptr, "Coder's sandbox", items->m.size(), items->m.data(), sandbox_menuset, items, 0, nullptr);
+}
+
+}
+
 }
 #endif
