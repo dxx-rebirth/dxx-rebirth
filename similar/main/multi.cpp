@@ -6264,9 +6264,9 @@ void show_netgame_info(const netgame_info &netgame)
         newmenu_item *m;
         int loc=0, ngilen = 50;
 #if defined(DXX_BUILD_DESCENT_I)
-	constexpr int nginum = 50;
+	constexpr unsigned nginum = 50;
 #elif defined(DXX_BUILD_DESCENT_II)
-	constexpr int nginum = 78;
+	constexpr unsigned nginum = 78;
 #endif
 
         CALLOC(m, newmenu_item, nginum);
@@ -6374,6 +6374,6 @@ void show_netgame_info(const netgame_info &netgame)
                 m[i].text = ngii+(i*ngilen);
 	}
 
-	newmenu_dotiny(NULL, "Netgame Info & Rules", nginum, m, 0, show_netgame_info_poll, ngii);
+	newmenu_dotiny(nullptr, "Netgame Info & Rules", unchecked_partial_range(m, nginum), 0, show_netgame_info_poll, ngii);
 }
 }

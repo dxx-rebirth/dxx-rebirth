@@ -1333,7 +1333,7 @@ void show_help()
 	const unsigned nitems = DXX_HELP_MENU(COUNT);
 	auto m = new newmenu_item[nitems];
 	DXX_HELP_MENU(ADD);
-	newmenu_dotiny(NULL, TXT_KEYS, nitems, m, 0, free_help, m);
+	newmenu_dotiny(nullptr, TXT_KEYS, unchecked_partial_range(m, nitems), 0, free_help, m);
 }
 
 #undef DXX_HELP_MENU
@@ -1366,7 +1366,7 @@ void show_netgame_help()
 	const unsigned nitems = DSX_NETHELP_MENU(COUNT);
 	auto m = new newmenu_item[nitems];
 	DSX_NETHELP_MENU(ADD);
-	newmenu_dotiny(NULL, TXT_KEYS, nitems, m, 0, free_help, m);
+	newmenu_dotiny(nullptr, TXT_KEYS, unchecked_partial_range(m, nitems), 0, free_help, m);
 }
 
 #undef DSX_NETHELP_MENU
@@ -1396,7 +1396,7 @@ void show_newdemo_help()
 	const unsigned nitems = DXX_NEWDEMO_HELP_MENU(COUNT);
 	auto m = new newmenu_item[nitems];
 	DXX_NEWDEMO_HELP_MENU(ADD);
-	newmenu_dotiny(NULL, "DEMO PLAYBACK CONTROLS", nitems, m, 0, free_help, m);
+	newmenu_dotiny(nullptr, "DEMO PLAYBACK CONTROLS", unchecked_partial_range(m, nitems), 0, free_help, m);
 }
 
 }

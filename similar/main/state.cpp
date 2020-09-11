@@ -938,7 +938,7 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 		? quicksave_selection
 		: (
 			userdata.citem = 0,
-			newmenu_do2(nullptr, caption, max_slots_shown + decorative_item_count, m.data(), state_callback, &userdata, (GameUniqueState.valid_save_slot(quicksave_selection) ? static_cast<unsigned>(quicksave_selection) : 0) + decorative_item_count, nullptr),
+			newmenu_do2(nullptr, caption, partial_range(m, max_slots_shown + decorative_item_count), state_callback, &userdata, (GameUniqueState.valid_save_slot(quicksave_selection) ? static_cast<unsigned>(quicksave_selection) : 0) + decorative_item_count, nullptr),
 			userdata.citem == 0
 			? d_game_unique_state::save_slot::None
 			: static_cast<d_game_unique_state::save_slot>(userdata.citem - decorative_item_count)

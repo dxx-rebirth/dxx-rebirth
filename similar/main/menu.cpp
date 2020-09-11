@@ -626,7 +626,7 @@ static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choic
 
 //	-----------------------------------------------------------------------------
 //	Create the main menu.
-static void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_options)
+static void create_main_menu(newmenu_item *m, int *menu_choice, unsigned *const callers_num_options)
 {
 	int num_options = 0;
 
@@ -671,7 +671,7 @@ int DoMenu()
 {
 	int *menu_choice;
 	newmenu_item *m;
-	int num_options = 0;
+	unsigned num_options = 0;
 
 	CALLOC(menu_choice, int, 25);
 	if (!menu_choice)
@@ -685,7 +685,7 @@ int DoMenu()
 
 	create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
 
-	newmenu_do3( "", NULL, num_options, m, main_menu_handler, menu_choice, 0, Menu_pcx_name);
+	newmenu_do3("", nullptr, unchecked_partial_range(m, num_options), main_menu_handler, menu_choice, 0, Menu_pcx_name);
 
 	return 0;
 }
@@ -913,7 +913,7 @@ static int do_difficulty_menu()
 	}};
 
 	auto &Difficulty_level = GameUniqueState.Difficulty_level;
-	const unsigned s = newmenu_do1(nullptr, TXT_DIFFICULTY_LEVEL, m.size(), &m.front(), unused_newmenu_subfunction, unused_newmenu_userdata, Difficulty_level);
+	const unsigned s = newmenu_do1(nullptr, TXT_DIFFICULTY_LEVEL, m, unused_newmenu_subfunction, unused_newmenu_userdata, Difficulty_level);
 
 	if (s <= Difficulty_4)
 	{
@@ -1081,7 +1081,8 @@ void change_res()
 	newmenu_item m[50+8];
 	std::array<char, 12> crestext, casptext;
 
-	int mc = 0, citem = -1;
+	int citem = -1;
+	unsigned mc = 0;
 
 #if SDL_MAJOR_VERSION == 1
 	std::array<screen_mode, 50> modes;
@@ -1122,7 +1123,7 @@ void change_res()
 #endif
 
 	// create the menu
-	newmenu_do1(NULL, "Screen Resolution", mc, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0);
+	newmenu_do1(nullptr, "Screen Resolution", unchecked_partial_range(m, mc), unused_newmenu_subfunction, unused_newmenu_userdata, 0);
 
 	// menu is done, now do what we need to do
 
@@ -1246,7 +1247,7 @@ static void input_config_keyboard()
 #undef DXX_INPUT_CONFIG_MENU
 #undef DXX_INPUT_SENSITIVITY
 	menu_items items;
-	newmenu_do1(nullptr, "Keyboard Calibration", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
+	newmenu_do1(nullptr, "Keyboard Calibration", items.m, unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
 	constexpr uint_fast32_t keysens = items.opt_label_kb + 1;
 	const auto &m = items.m;
@@ -1295,7 +1296,7 @@ static void input_config_mouse()
 	};
 #undef DXX_INPUT_CONFIG_MENU
 	menu_items items;
-	newmenu_do1(nullptr, "Mouse Calibration", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
+	newmenu_do1(nullptr, "Mouse Calibration", items.m, unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
 	constexpr uint_fast32_t mousesens = items.opt_label_ms + 1;
     constexpr uint_fast32_t mouseoverrun = items.opt_label_mo + 1;
@@ -1342,7 +1343,7 @@ static void input_config_joystick()
 	};
 #undef DXX_INPUT_CONFIG_MENU
 	menu_items items;
-	newmenu_do1(nullptr, "Joystick Calibration", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
+	newmenu_do1(nullptr, "Joystick Calibration", items.m, unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
 	constexpr uint_fast32_t joysens = items.opt_label_js + 1;
 	constexpr uint_fast32_t joylin = items.opt_label_jl + 1;
@@ -1525,7 +1526,7 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 void input_config()
 {
 	input_config_menu_items menu_items;
-	newmenu_do1(nullptr, TXT_CONTROLS, menu_items.m.size(), menu_items.m.data(), &input_config_menu_items::menuset, &menu_items, menu_items.opt_ic_confkey);
+	newmenu_do1(nullptr, TXT_CONTROLS, menu_items.m, &input_config_menu_items::menuset, &menu_items, menu_items.opt_ic_confkey);
 }
 
 static void reticle_config()
@@ -1588,7 +1589,7 @@ static void reticle_config()
 	items.m[items.opt_reticle_classic + i].value = 1;
 	}
 
-	newmenu_do1(nullptr, "Reticle Customization", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
+	newmenu_do1(nullptr, "Reticle Customization", items.m, unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
 	for (uint_fast32_t i = items.opt_reticle_classic; i != items.opt_label_blank_reticle_type; ++i)
 		if (items.m[i].value)
@@ -1658,7 +1659,7 @@ void hud_config()
 	{
 		std::array<newmenu_item, DXX_HUD_MENU_OPTIONS(COUNT)> m;
 		DXX_HUD_MENU_OPTIONS(ADD);
-		const auto i = newmenu_do1( NULL, "Hud Options", m.size(), m.data(), hud_config_menuset, unused_newmenu_userdata, 0 );
+		const auto i = newmenu_do1(nullptr, "Hud Options", m, hud_config_menuset, unused_newmenu_userdata, 0);
 		DXX_HUD_MENU_OPTIONS(READ);
 #if defined(DXX_BUILD_DESCENT_II)
 		PlayerCfg.MissileViewEnabled = m[opt_missileview_selfandallies].value
@@ -1763,7 +1764,7 @@ void graphics_config()
 	m[opt_filter_none+CGameCfg.TexFilt].value=1;
 #endif
 
-	newmenu_do1(nullptr, "Graphics Options", m.size(), m.data(), graphics_config_menuset, m.data(), 0);
+	newmenu_do1(nullptr, "Graphics Options", m, graphics_config_menuset, m.data(), 0);
 
 #if DXX_USE_OGL
 	if (CGameCfg.VSync != m[opt_gr_vsync].value || CGameCfg.Multisample != m[opt_gr_multisample].value)
@@ -2306,7 +2307,7 @@ void do_sound_menu()
 #endif
 
 	sound_menu_items items;
-	newmenu_do1(nullptr, "Sound Effects & Music", items.m.size(), items.m.data(), &sound_menu_items::menuset, &items, 0);
+	newmenu_do1(nullptr, "Sound Effects & Music", items.m, &sound_menu_items::menuset, &items, 0);
 
 #if DXX_USE_SDLMIXER
 	if ((Game_wind && strcmp(old_CMLevelMusicPath.data(), CGameCfg.CMLevelMusicPath.data())) ||
@@ -2393,7 +2394,7 @@ void gameplay_config()
 		human_readable_mmss_time<decltype(d_gameplay_options::AutosaveInterval)::rep> AutosaveInterval;
 		format_human_readable_time(AutosaveInterval, PlayerCfg.SPGameplayOptions.AutosaveInterval);
 		DXX_GAMEPLAY_MENU_OPTIONS(ADD);
-		const auto i = newmenu_do1( NULL, "Gameplay Options", m.size(), m.data(), gameplay_config_menuset, unused_newmenu_userdata, 0 );
+		const auto i = newmenu_do1(nullptr, "Gameplay Options", m, gameplay_config_menuset, unused_newmenu_userdata, 0);
 		DXX_GAMEPLAY_MENU_OPTIONS(READ);
 		PlayerCfg.NoFireAutoselect = m[opt_autoselect_firing_delayed].value
 			? FiringAutoselectMode::Delayed
@@ -2441,7 +2442,7 @@ void do_multi_player_menu()
 {
 	int *menu_choice;
 	newmenu_item *m;
-	int num_options = 0;
+	unsigned num_options = 0;
 
 	MALLOC(menu_choice, int, 3);
 	if (!menu_choice)
@@ -2464,7 +2465,7 @@ void do_multi_player_menu()
 	ADD_ITEM("JOIN GAME MANUALLY", MENU_JOIN_MANUAL_UDP_NETGAME, -1);
 #endif
 
-	newmenu_do3( NULL, TXT_MULTIPLAYER, num_options, m, multi_player_menu_handler, menu_choice, 0, NULL );
+	newmenu_do3(nullptr, TXT_MULTIPLAYER, unchecked_partial_range(m, num_options), multi_player_menu_handler, menu_choice, 0, nullptr);
 }
 #endif
 
@@ -2473,7 +2474,7 @@ void do_options_menu()
 	auto items = new options_menu_items;
 	// Fall back to main event loop
 	// Allows clean closing and re-opening when resolution changes
-	newmenu_do3(nullptr, TXT_OPTIONS, items->m.size(), items->m.data(), options_menuset, items, 0, nullptr);
+	newmenu_do3(nullptr, TXT_OPTIONS, items->m, options_menuset, items, 0, nullptr);
 }
 
 #ifndef RELEASE
@@ -2710,7 +2711,7 @@ static int sandbox_menuset(newmenu *, const d_event &event, sandbox_menu_items *
 void do_sandbox_menu()
 {
 	auto items = new sandbox_menu_items;
-	newmenu_do3(nullptr, "Coder's sandbox", items->m.size(), items->m.data(), sandbox_menuset, items, 0, nullptr);
+	newmenu_do3(nullptr, "Coder's sandbox", items->m, sandbox_menuset, items, 0, nullptr);
 }
 
 }

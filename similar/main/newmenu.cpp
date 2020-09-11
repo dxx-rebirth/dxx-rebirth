@@ -526,13 +526,13 @@ static void strip_end_whitespace( char * text )
 	*ns = 0;
 }
 
-int newmenu_do2(const char *const title, const char *const subtitle, const uint_fast32_t nitems, newmenu_item *const item, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename)
+int newmenu_do2(const char *const title, const char *const subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename)
 {
 	newmenu *menu;
 	bool exists = true;
 	int rval = -1;
 
-	menu = newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, citem, filename );
+	menu = newmenu_do3(title, subtitle, items, subfunction, userdata, citem, filename);
 
 	if (!menu)
 		return -1;
@@ -644,9 +644,9 @@ static int newmenu_save_selection_handler(newmenu *menu, const d_event &event, c
 }
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-void newmenu_doreorder( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item)
+void newmenu_doreorder( const char * title, const char * subtitle, const partial_range_t<newmenu_item *> items)
 {
-	newmenu_do2(title, subtitle, nitems, item, newmenu_save_selection_handler, unused_newmenu_userdata, 0, nullptr);
+	newmenu_do2(title, subtitle, items, newmenu_save_selection_handler, unused_newmenu_userdata, 0, nullptr);
 }
 
 newmenu_item *newmenu_get_items(newmenu *menu)
@@ -1638,9 +1638,11 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 	return window_event_result::ignored;
 }
 
-newmenu *newmenu_do4( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag )
+newmenu *newmenu_do4(const char *const title, const char *const subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename, const int TinyMode, const int TabsFlag)
 {
-	newmenu *menu = new newmenu(unchecked_partial_range(item, nitems));
+	if (items.size() < 1)
+		return nullptr;
+	newmenu *menu = new newmenu(items);
 	menu->citem = citem;
 	menu->scroll_offset = 0;
 	menu->all_text = 0;
@@ -1658,13 +1660,7 @@ newmenu *newmenu_do4( const char * title, const char * subtitle, uint_fast32_t n
 
 	newmenu_free_background();
 
-	if (nitems < 1 )
-	{
-		delete menu;
-		return NULL;
-	}
-
-	menu->max_displayable=nitems;
+	menu->max_displayable = items.size();
 
 	//set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
 
@@ -1698,7 +1694,7 @@ int nm_messagebox_str(const char *title, const nm_messagebox_tie &tie, const cha
 	auto &&item_range = partial_range(items, tie.count());
 	for (auto &&[i, s] : zip(item_range, tie))
 		nm_set_item_menu(i, s);
-	return newmenu_do(title, str, tie.count(), items.data(), unused_newmenu_subfunction, unused_newmenu_userdata);
+	return newmenu_do(title, str, item_range, unused_newmenu_subfunction, unused_newmenu_userdata);
 }
 
 // Example listbox callback function...

@@ -41,6 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include "fmtcheck.h"
 #include "ntstring.h"
+#include "partial_range.h"
 
 struct newmenu;
 struct listbox;
@@ -164,7 +165,7 @@ constexpr const unused_newmenu_userdata_t *unused_newmenu_userdata = nullptr;
 void newmenu_free_background();
 }
 
-int newmenu_do2(const char *title, const char *subtitle, uint_fast32_t nitems, newmenu_item *item, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
+int newmenu_do2(const char *title, const char *subtitle, partial_range_t<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
 
 // Pass an array of newmenu_items and it processes the menu. It will
 // return a -1 if Esc is pressed, otherwise, it returns the index of
@@ -176,74 +177,68 @@ int newmenu_do2(const char *title, const char *subtitle, uint_fast32_t nitems, n
 // either/both of these if you don't want them.
 // Same as above, only you can pass through what background bitmap to use.
 template <typename T>
-int newmenu_do2(const char *const title, const char *const subtitle, const uint_fast32_t nitems, newmenu_item *const item, const newmenu_subfunction_t<T> subfunction, T *const userdata, const int citem, const char *const filename)
+int newmenu_do2(const char *const title, const char *const subtitle, partial_range_t<newmenu_item *> items, const newmenu_subfunction_t<T> subfunction, T *const userdata, const int citem, const char *const filename)
 {
-	return newmenu_do2(title, subtitle, nitems, item, reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(userdata), citem, filename);
+	return newmenu_do2(title, subtitle, std::move(items), reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(userdata), citem, filename);
 }
 
 template <typename T>
-int newmenu_do2(const char *const title, const char *const subtitle, const uint_fast32_t nitems, newmenu_item *const item, const newmenu_subfunction_t<const T> subfunction, const T *const userdata, const int citem, const char *const filename)
+int newmenu_do2(const char *const title, const char *const subtitle, partial_range_t<newmenu_item *> items, const newmenu_subfunction_t<const T> subfunction, const T *const userdata, const int citem, const char *const filename)
 {
-	return newmenu_do2(title, subtitle, nitems, item, reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename);
+	return newmenu_do2(title, subtitle, std::move(items), reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename);
 }
 
 template <typename T>
-static inline int newmenu_do(const char *const title, const char *const subtitle, const uint_fast32_t nitems, newmenu_item *const item, const newmenu_subfunction_t<T> subfunction, T *const userdata)
+static inline int newmenu_do(const char *const title, const char *const subtitle, partial_range_t<newmenu_item *> items, const newmenu_subfunction_t<T> subfunction, T *const userdata)
 {
-	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, 0, NULL );
-}
-
-template <std::size_t N, typename T>
-static inline int newmenu_do(const char *const title, const char *const subtitle, std::array<newmenu_item, N> &items, const newmenu_subfunction_t<T> subfunction, T *const userdata)
-{
-	return newmenu_do(title, subtitle, items.size(), &items.front(), subfunction, userdata);
+	return newmenu_do2(title, subtitle, std::move(items), subfunction, userdata, 0, nullptr);
 }
 
 // Same as above, only you can pass through what item is initially selected.
 template <typename T>
-static inline int newmenu_do1(const char *const title, const char *const subtitle, const uint_fast32_t nitems, newmenu_item *const item, const newmenu_subfunction_t<T> subfunction, T *const userdata, const int citem)
+static inline int newmenu_do1(const char *const title, const char *const subtitle, partial_range_t<newmenu_item *> items, const newmenu_subfunction_t<T> subfunction, T *const userdata, const int citem)
 {
-	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, citem, NULL );
+	return newmenu_do2(title, subtitle, std::move(items), subfunction, userdata, citem, nullptr);
 }
 
 #ifdef dsx
 namespace dsx {
-newmenu *newmenu_do4( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
+newmenu *newmenu_do4( const char * title, const char * subtitle, partial_range_t<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
 
-static inline newmenu *newmenu_do3( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename )
+static inline newmenu *newmenu_do3(const char * title, const char * subtitle, partial_range_t<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename)
 {
-	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0 );
+	return newmenu_do4(title, subtitle, std::move(items), subfunction, userdata, citem, filename, 0, 0);
 }
 
 // Same as above, but returns menu instead of citem
 template <typename T>
-static newmenu *newmenu_do3(const char *const title, const char *const subtitle, const uint_fast32_t nitems, newmenu_item *const item, const newmenu_subfunction_t<T> subfunction, T *const userdata, const int citem, const char *const filename)
+static newmenu *newmenu_do3(const char *const title, const char *const subtitle, partial_range_t<newmenu_item *> items, const newmenu_subfunction_t<T> subfunction, T *const userdata, const int citem, const char *const filename)
 {
-	return newmenu_do3(title, subtitle, nitems, item, reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(userdata), citem, filename);
+	return newmenu_do3(title, subtitle, std::move(items), reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(userdata), citem, filename);
 }
 
 template <typename T>
-static newmenu *newmenu_do3(const char *const title, const char *const subtitle, const uint_fast32_t nitems, newmenu_item *const item, const newmenu_subfunction_t<const T> subfunction, const T *const userdata, const int citem, const char *const filename)
+static newmenu *newmenu_do3(const char *const title, const char *const subtitle, partial_range_t<newmenu_item *> items, const newmenu_subfunction_t<const T> subfunction, const T *const userdata, const int citem, const char *const filename)
 {
-	return newmenu_do3(title, subtitle, nitems, item, reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename);
+	return newmenu_do3(title, subtitle, std::move(items), reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename);
 }
 
-static inline newmenu *newmenu_dotiny( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, int TabsFlag, newmenu_subfunction subfunction, void *userdata )
+static inline newmenu *newmenu_dotiny(const char *const title, const char *const subtitle, partial_range_t<newmenu_item *> items, const int TabsFlag, const newmenu_subfunction subfunction, void *const userdata)
 {
-	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, 1, TabsFlag );
+	return newmenu_do4(title, subtitle, std::move(items), subfunction, userdata, 0, nullptr, 1, TabsFlag);
 }
 
 // Tiny menu with GAME_FONT
 template <typename T>
-static newmenu *newmenu_dotiny(const char *const title, const char *const subtitle, const uint_fast32_t nitems, newmenu_item *const item, const int TabsFlag, const newmenu_subfunction_t<T> subfunction, T *const userdata)
+static newmenu *newmenu_dotiny(const char *const title, const char *const subtitle, partial_range_t<newmenu_item *> items, const int TabsFlag, const newmenu_subfunction_t<T> subfunction, T *const userdata)
 {
-	return newmenu_dotiny(title, subtitle, nitems, item, TabsFlag, reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(userdata));
+	return newmenu_dotiny(title, subtitle, std::move(items), TabsFlag, reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(userdata));
 }
 }
 #endif
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-void newmenu_doreorder(const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item *item);
+void newmenu_doreorder(const char * title, const char * subtitle, partial_range_t<newmenu_item *> items);
 
 // Sample Code:
 /*

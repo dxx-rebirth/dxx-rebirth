@@ -1039,7 +1039,6 @@ static int manual_join_game_handler(newmenu *const menu, const d_event &event, m
 
 void net_udp_manual_join_game()
 {
-	int nitems = 0;
 
 	auto dj = std::make_unique<manual_join>();
 	net_udp_init();
@@ -1059,7 +1058,7 @@ void net_udp_manual_join_game()
 	else
 		snprintf(&dj->myportbuf[0], dj->myportbuf.size(), "%hu", UDP_MyPort);
 
-	nitems = 0;
+	unsigned nitems = 0;
 	auto &m = dj->m;
 	nm_set_item_text(m[nitems++],"GAME ADDRESS OR HOSTNAME:");
 	nm_set_item_input(m[nitems++],dj->addrbuf);
@@ -1069,7 +1068,7 @@ void net_udp_manual_join_game()
 	nm_set_item_input(m[nitems++], dj->myportbuf);
 	nm_set_item_text(m[nitems++],"");
 
-	newmenu_do1(nullptr, "ENTER GAME ADDRESS", nitems, &m[0], manual_join_game_handler, dj.release(), 0);
+	newmenu_do1(nullptr, "ENTER GAME ADDRESS", unchecked_partial_range(&m[0], nitems), manual_join_game_handler, dj.release(), 0);
 }
 
 static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_float strbound, std::array<char, 25> &out, const ntstring<25> &in)
@@ -1375,7 +1374,7 @@ void net_udp_list_join_game()
 	nm_set_item_text(m[UDP_NETGAMES_PPAGE+4], "\t" );
 
 	num_active_udp_changed = 1;
-	newmenu_dotiny("NETGAMES", nullptr, UDP_NETGAMES_PPAGE + 5, &m[0], 1, net_udp_list_join_poll, dj.release());
+	newmenu_dotiny("NETGAMES", nullptr, unchecked_partial_range(&m[0], UDP_NETGAMES_PPAGE + 5), 1, net_udp_list_join_poll, dj.release());
 }
 
 static void net_udp_send_sequence_packet(UDP_sequence_packet seq, const _sockaddr &recv_addr)
@@ -3392,13 +3391,13 @@ constexpr std::integral_constant<unsigned, 5 * reactor_invul_time_mini_scale> re
 
 static void net_udp_set_power (void)
 {
-	newmenu_item m[multi_allow_powerup_text.size()];
+	std::array<newmenu_item, multi_allow_powerup_text.size()> m;
 	for (int i = 0; i < multi_allow_powerup_text.size(); i++)
 	{
 		nm_set_item_checkbox(m[i], multi_allow_powerup_text[i], (Netgame.AllowedItems >> i) & 1);
 	}
 
-	newmenu_do1( NULL, "Objects to allow", MULTI_ALLOW_POWERUP_MAX, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0 );
+	newmenu_do1(nullptr, "Objects to allow", m, unused_newmenu_subfunction, unused_newmenu_userdata, 0);
 
 	Netgame.AllowedItems &= ~NETFLAG_DOPOWERUP;
 	for (int i = 0; i < multi_allow_powerup_text.size(); i++)
@@ -3902,7 +3901,6 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 namespace dsx {
 window_event_result net_udp_setup_game()
 {
-	int optnum;
 	param_opt opt;
 	auto &m = opt.m;
 	char level_text[32];
@@ -3958,7 +3956,7 @@ window_event_result net_udp_setup_game()
 
 	Netgame.levelnum = 1;
 
-	optnum = 0;
+	unsigned optnum = 0;
 	opt.start_game=optnum;
 	nm_set_item_menu(  m[optnum], "Start Game"); optnum++;
 	nm_set_item_text(m[optnum], TXT_DESCRIPTION); optnum++;
@@ -4040,7 +4038,7 @@ window_event_result net_udp_setup_game()
 	}
 #endif
 
-	const int i = newmenu_do1(nullptr, TXT_NETGAME_SETUP, optnum, m.data(), net_udp_game_param_handler, &opt, opt.start_game);
+	const int i = newmenu_do1(nullptr, TXT_NETGAME_SETUP, unchecked_partial_range(m.data(), optnum), net_udp_game_param_handler, &opt, opt.start_game);
 
 	if (i < 0)
 		net_udp_close();
@@ -4263,7 +4261,7 @@ static int net_udp_send_sync(void)
 static int net_udp_select_teams()
 {
 	newmenu_item m[MAX_PLAYERS+4];
-	int choice, opt, opt_team_b;
+	int choice, opt_team_b;
 	ubyte team_vector = 0;
 	int pnums[MAX_PLAYERS+2];
 
@@ -4282,7 +4280,7 @@ static int net_udp_select_teams()
 menu:
 	nm_set_item_input(m[0], team_names[0].buffer());
 
-	opt = 1;
+	unsigned opt = 1;
 	for (int i = 0; i < N_players; i++)
 	{
 		if (!(team_vector & (1 << i)))
@@ -4304,8 +4302,8 @@ menu:
 	nm_set_item_menu( m[opt], TXT_ACCEPT); opt++;
 
 	Assert(opt <= MAX_PLAYERS+4);
-	
-	choice = newmenu_do(NULL, TXT_TEAM_SELECTION, opt, m, unused_newmenu_subfunction, unused_newmenu_userdata);
+
+	choice = newmenu_do(nullptr, TXT_TEAM_SELECTION, unchecked_partial_range(m, opt), unused_newmenu_subfunction, unused_newmenu_userdata);
 
 	if (choice == opt-1)
 	{
@@ -4390,7 +4388,7 @@ static int net_udp_select_players()
 #endif
 
 GetPlayersAgain:
-	j = newmenu_do1(nullptr, title, spd.m.size(), spd.m.data(), net_udp_start_poll, &spd, 1);
+	j = newmenu_do1(nullptr, title, spd.m, net_udp_start_poll, &spd, 1);
 
 	save_nplayers = N_players;
 

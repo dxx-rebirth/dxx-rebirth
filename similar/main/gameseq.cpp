@@ -1140,7 +1140,7 @@ static void DoEndLevelScoreGlitz()
 	#define N_GLITZITEMS 9
 	char				m_str[N_GLITZITEMS][32];
 	newmenu_item	m[N_GLITZITEMS];
-	int				i,c;
+	int				i;
 	char				title[128];
 #if defined(DXX_BUILD_DESCENT_I)
 	gr_palette_load( gr_palette );
@@ -1189,7 +1189,7 @@ static void DoEndLevelScoreGlitz()
 
 	auto &plr = get_local_player();
 
-	c = 0;
+	unsigned c = 0;
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_SHIELD_BONUS, shield_points);		// Return at start to lower menu...
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_ENERGY_BONUS, energy_points);
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_HOSTAGE_BONUS, hostage_points);
@@ -1238,8 +1238,9 @@ static void DoEndLevelScoreGlitz()
 
 	Assert(c <= N_GLITZITEMS);
 
-	newmenu_do2(nullptr, title, c, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0, GLITZ_BACKGROUND);
+	newmenu_do2(nullptr, title, partial_range(m, c), unused_newmenu_subfunction, unused_newmenu_userdata, 0, GLITZ_BACKGROUND);
 }
+
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1580,7 +1581,7 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 		std::array<newmenu_item, 1> m{{
 			nm_item_text(" "),			//TXT_SECRET_EXIT;
 		}};
-		newmenu_do2(NULL, TXT_SECRET_EXIT, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 0, Menu_pcx_name);
+		newmenu_do2(nullptr, TXT_SECRET_EXIT, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0, Menu_pcx_name);
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	Assert(!secret_flag);
