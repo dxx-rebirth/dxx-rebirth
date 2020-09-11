@@ -24,6 +24,10 @@ public:
 	}
 	unsigned count() const { return m_count; }
 	const char *string(std::size_t i) const { return p[i]; }
+	typename array_t::const_iterator begin() const
+	{
+		return p.begin();
+	}
 private:
 	array_t p;
 	unsigned m_count;

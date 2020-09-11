@@ -66,7 +66,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rbaudio.h"
 #include "args.h"
 #if defined(DXX_BUILD_DESCENT_II)
-#include "args.h"
 #include "gamepal.h"
 #endif
 
@@ -75,6 +74,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "d_zip.h"
 #include "partial_range.h"
 
 #define MAXDISPLAYABLEITEMS 14
@@ -1694,12 +1694,11 @@ int (vnm_messagebox_aN)(const char *title, const nm_messagebox_tie &tie, const c
 
 int nm_messagebox_str(const char *title, const nm_messagebox_tie &tie, const char *str)
 {
-	newmenu_item items[nm_messagebox_tie::maximum_arity];
-	for (unsigned i=0; i < tie.count(); ++i) {
-		const char *s = tie.string(i);
-		nm_set_item_menu(items[i], s);
-	}
-	return newmenu_do( title, str, tie.count(), items, unused_newmenu_subfunction, unused_newmenu_userdata );
+	std::array<newmenu_item, nm_messagebox_tie::maximum_arity> items;
+	auto &&item_range = partial_range(items, tie.count());
+	for (auto &&[i, s] : zip(item_range, tie))
+		nm_set_item_menu(i, s);
+	return newmenu_do(title, str, tie.count(), items.data(), unused_newmenu_subfunction, unused_newmenu_userdata);
 }
 
 // Example listbox callback function...
