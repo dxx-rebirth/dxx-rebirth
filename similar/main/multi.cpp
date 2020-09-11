@@ -94,6 +94,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 constexpr std::integral_constant<int8_t, -1> owner_none{};
 
 namespace dsx {
+namespace {
 static void multi_reset_object_texture(object_base &objp);
 static void multi_new_bounty_target(playernum_t pnum);
 static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t type);
@@ -101,13 +102,16 @@ static void multi_update_objects_for_non_cooperative();
 static void multi_restore_game(unsigned slot, unsigned id);
 static void multi_save_game(unsigned slot, unsigned id, const d_game_unique_state::savegame_description &desc);
 }
+}
 static void multi_add_lifetime_killed();
 static void multi_send_heartbeat();
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+namespace {
 static void multi_do_capture_bonus(const playernum_t pnum);
 static void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf);
 static void multi_send_drop_flag(vmobjptridx_t objnum,int seed);
+}
 }
 #endif
 static void multi_send_ranking(uint8_t);
@@ -119,9 +123,8 @@ static int multi_message_index;
 static std::array<std::array<objnum_t, MAX_OBJECTS>, MAX_PLAYERS> remote_to_local;  // Remote object number for each local object
 static std::array<uint16_t, MAX_OBJECTS> local_to_remote;
 static std::array<unsigned, MAX_PLAYERS> sorted_kills;
-
-}
 static void multi_send_quit();
+}
 DEFINE_SERIAL_UDT_TO_MESSAGE(shortpos, s, (s.bytemat, s.xo, s.yo, s.zo, s.segment, s.velx, s.vely, s.velz));
 }
 static playernum_t multi_who_is_master();
@@ -1037,6 +1040,8 @@ void _multi_send_data(const uint8_t *const buf, const unsigned len, const int pr
 	}
 }
 
+namespace {
+
 static void _multi_send_data_direct(const ubyte *buf, unsigned len, const playernum_t pnum, int priority)
 {
 	if (pnum >= MAX_PLAYERS)
@@ -1077,6 +1082,8 @@ static inline void multi_send_data_direct(multi_command<C> &buf, const playernum
 {
 	buf[0] = C;
 	_multi_send_data_direct(buf.data(), buf.size(), pnum, priority);
+}
+
 }
 
 namespace dsx {
@@ -1221,8 +1228,9 @@ void multi_define_macro(const int key)
 		multi_message_index = 0;
 		Network_message = {};
 	}
-
 }
+
+namespace {
 
 static void multi_message_feedback(void)
 {
@@ -1277,6 +1285,8 @@ static void multi_message_feedback(void)
 	}
 }
 
+}
+
 void multi_send_macro(const int fkey)
 {
 	if (! (Game_mode & GM_MULTI) )
@@ -1323,6 +1333,8 @@ void multi_send_message_start()
 }
 
 namespace dsx {
+
+namespace {
 
 static void kick_player(const player &plr, netplayer_info &nplr)
 {
@@ -1537,6 +1549,8 @@ static void multi_send_message_end(fvmobjptr &vmobjptr)
 
 }
 
+}
+
 static void multi_define_macro_end()
 {
 	Assert( multi_defining_message > 0 );
@@ -1630,6 +1644,8 @@ void multi_do_death(int)
 
 namespace dsx {
 
+namespace {
+
 static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, const uint8_t *const buf)
 {
 	ubyte weapon;
@@ -1697,6 +1713,8 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 
 }
 
+}
+
 static void multi_do_message(const uint8_t *const cbuf)
 {
 	const auto buf = reinterpret_cast<const char *>(cbuf);
@@ -1727,6 +1745,8 @@ static void multi_do_message(const uint8_t *const cbuf)
 }
 
 namespace dsx {
+
+namespace {
 
 static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum, const uint8_t *const buf)
 {
@@ -1890,6 +1910,8 @@ static void multi_do_player_deres(object_array &Objects, const playernum_t pnum,
 
 }
 
+}
+
 /*
  * Process can compute a kill. If I am a Client this might be my own one (see multi_send_kill()) but with more specific data so I can compute my kill correctly.
  */
@@ -1940,6 +1962,8 @@ static void multi_do_kill(object_array &Objects, const uint8_t *const buf)
 }
 
 namespace dsx {
+
+namespace {
 
 //      Changed by MK on 10/20/94 to send NULL as object to net_destroy_controlcen if it got -1
 // which means not a controlcen object, but contained in another object
@@ -2024,6 +2048,8 @@ static void multi_do_remobj(fvmobjptr &vmobjptr, const uint8_t *const buf)
 	}
 
 	obj.flags |= OF_SHOULD_BE_DEAD; // quick and painless
+}
+
 }
 
 }
@@ -2117,6 +2143,8 @@ static void multi_do_quit(const uint8_t *const buf)
 
 namespace dsx {
 
+namespace {
+
 static void multi_do_cloak(fvmobjptr &vmobjptr, const playernum_t pnum)
 {
 	Assert(pnum < N_players);
@@ -2135,7 +2163,11 @@ static void multi_do_cloak(fvmobjptr &vmobjptr, const playernum_t pnum)
 
 }
 
+}
+
 namespace dcx {
+
+namespace {
 
 static const char *deny_multi_save_game_duplicate_callsign(const partial_range_t<const player *> range)
 {
@@ -2157,7 +2189,11 @@ static void multi_do_decloak(const playernum_t pnum)
 
 }
 
+}
+
 namespace dsx {
+
+namespace {
 
 static void multi_do_door_open(fvmwallptr &vmwallptr, const uint8_t *const buf)
 {
@@ -2302,6 +2338,8 @@ static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, c
 
 }
 
+}
+
 static void multi_do_score(fvmobjptr &vmobjptr, const playernum_t pnum, const uint8_t *const buf)
 {
 	if (pnum >= N_players)
@@ -2341,6 +2379,8 @@ static void multi_do_trigger(const playernum_t pnum, const ubyte *buf)
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+
+namespace {
 
 static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 {
@@ -2404,6 +2444,8 @@ static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptrid
 
 	const auto &&plr_objp = Objects.vcptr(vcplayerptr(pnum)->objnum);
 	mo = drop_marker_object(position, vmsegptridx(plr_objp->segnum), plr_objp->orient, gmi);
+}
+
 }
 
 }
@@ -2480,6 +2522,8 @@ void multi_reset_player_object(object &objp)
 	multi_reset_object_texture (objp);
 }
 
+namespace {
+
 static void multi_reset_object_texture(object_base &objp)
 {
 	if (objp.type == OBJ_GHOST)
@@ -2540,8 +2584,6 @@ void multi_process_bigdata(const playernum_t pnum, const uint8_t *const buf, con
 		bytes_processed += sub_len;
 	}
 }
-
-namespace dsx {
 
 //
 // Part 2 : Functions that send communication messages to inform the other
@@ -2906,6 +2948,8 @@ void multi_send_remobj(const vmobjidx_t objnum)
 
 namespace dcx {
 
+namespace {
+
 void multi_send_quit()
 {
 	// I am quitting the game, tell the other guy the bad news.
@@ -2913,6 +2957,7 @@ void multi_send_quit()
 	multi_command<MULTI_QUIT> multibuf;
 	multibuf[1] = Player_num;
 	multi_send_data(multibuf, 2);
+}
 
 }
 
@@ -3649,6 +3694,8 @@ void multi_apply_goal_textures()
 }
 #endif
 
+namespace {
+
 static int object_allowed_in_anarchy(const object_base &objp)
 {
 	if (objp.type == OBJ_NONE ||
@@ -3804,6 +3851,8 @@ void multi_update_objects_for_non_cooperative()
 		}
 	}
 	powerup_shuffle.shuffle();
+}
+
 }
 
 }
@@ -4320,6 +4369,8 @@ void multi_send_orb_bonus (const playernum_t pnum, const uint8_t hoard_orbs)
 	multi_do_orb_bonus (pnum, multibuf.data());
 }
 
+namespace {
+
 void multi_do_capture_bonus(const playernum_t pnum)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -4443,6 +4494,8 @@ void multi_do_orb_bonus(const playernum_t pnum, const uint8_t *const buf)
 	}
 	multi_sort_kill_list();
 	multi_show_player_list();
+}
+
 }
 
 void multi_send_got_flag (const playernum_t pnum)
@@ -4572,6 +4625,7 @@ void DropFlag ()
 	player_info.powerup_flags &=~(PLAYER_FLAGS_FLAG);
 }
 
+namespace {
 
 void multi_send_drop_flag(const vmobjptridx_t objp, int seed)
 {
@@ -4605,6 +4659,8 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 	if (!game_mode_hoard())
 		objp->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);
+}
+
 }
 
 }
@@ -4863,6 +4919,10 @@ void multi_send_bounty( void )
 	multi_send_data(multibuf, 2);
 }
 
+namespace dsx {
+
+namespace {
+
 static void multi_do_bounty( const ubyte *buf )
 {
 	if ( multi_i_am_master() )
@@ -4870,8 +4930,6 @@ static void multi_do_bounty( const ubyte *buf )
 	
 	multi_new_bounty_target( buf[1] );
 }
-
-namespace dsx {
 
 void multi_new_bounty_target(const playernum_t pnum )
 {
@@ -4892,6 +4950,8 @@ void multi_new_bounty_target(const playernum_t pnum )
 #elif defined(DXX_BUILD_DESCENT_II)
 	digi_play_sample( SOUND_BUDDY_MET_GOAL, F1_0 * 2 );
 #endif
+}
+
 }
 
 static void multi_do_save_game(const uint8_t *const buf)
@@ -5036,6 +5096,8 @@ void multi_initiate_restore_game()
 	multi_restore_game(slot,state_game_id);
 }
 
+namespace {
+
 void multi_save_game(const unsigned slot, const unsigned id, const d_game_unique_state::savegame_description &desc)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
@@ -5085,6 +5147,8 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 #endif
 		filename.data());
 	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...
+}
+
 }
 
 }
@@ -5478,11 +5542,11 @@ void MultiLevelInv_Repopulate(fix frequency)
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace {
+
 ///
 /// CODE TO LOAD HOARD DATA
 ///
-
-namespace {
 
 class hoard_resources_type
 {
@@ -5501,9 +5565,9 @@ public:
 constexpr std::integral_constant<int, -1> hoard_resources_type::invalid_bm_idx;
 constexpr std::integral_constant<unsigned, ~0u> hoard_resources_type::invalid_snd_idx;
 
-}
-
 static hoard_resources_type hoard_resources;
+
+}
 
 int HoardEquipped()
 {
@@ -5729,6 +5793,8 @@ void save_hoard_data(void)
 #endif
 #endif
 
+namespace {
+
 static void multi_process_data(const playernum_t pnum, const ubyte *buf, const uint_fast32_t type)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -5898,6 +5964,8 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_PLAYER_INV:
 			multi_do_player_inventory( pnum, buf ); break;
 	}
+}
+
 }
 
 // Following functions convert object to object_rw and back.
@@ -6259,9 +6327,6 @@ void multi_object_rw_to_object(object_rw *obj_rw, object &obj)
 	}
 }
 
-}
-
-namespace dsx {
 static int show_netgame_info_poll( newmenu *menu, const d_event &event, char *ngii  )
 {
 	newmenu_item *menus = newmenu_get_items(menu);
