@@ -91,9 +91,8 @@ struct newmenu : embed_window_pointer_t
 	font_y_scale_proportion fntscaley;
 	const char			*title;
 	const char			*subtitle;
-	unsigned		nitems;
 	int				citem;
-	newmenu_item	*items;
+	partial_range_t<newmenu_item *> items;
 	int				(*subfunction)(newmenu *menu,const d_event &event, void *userdata);
 	const char			*filename;
 	int				tiny_mode;
@@ -107,7 +106,11 @@ struct newmenu : embed_window_pointer_t
 	void			*userdata;		// For whatever - like with window system
 	partial_range_t<newmenu_item *> item_range()
 	{
-		return unchecked_partial_range(items, nitems);
+		return items;
+	}
+	newmenu(partial_range_t<newmenu_item *> items) :
+		items(items)
+	{
 	}
 };
 
@@ -593,30 +596,32 @@ static int newmenu_save_selection_key(newmenu *menu, const d_event &event)
 		case KEY_SHIFTED+KEY_UP:
 			if (menu->citem > 0)
 			{
-				auto &a = menu->items[menu->citem];
-				auto &b = menu->items[-- menu->citem];
+				const auto begin = menu->items.begin();
+				auto &a = *std::next(begin, menu->citem);
+				auto &b = *std::next(begin, -- menu->citem);
 				swap_menu_item_entries(a, b);
 			}
 			break;
 		case KEY_SHIFTED+KEY_DOWN:
-			if (menu->citem < (menu->nitems - 1))
+			if (menu->citem < menu->items.size() - 1)
 			{
-				auto &a = menu->items[menu->citem];
-				auto &b = menu->items[++ menu->citem];
+				const auto begin = menu->items.begin();
+				auto &a = *std::next(begin, menu->citem);
+				auto &b = *std::next(begin, ++ menu->citem);
 				swap_menu_item_entries(a, b);
 			}
 			break;
 		case KEY_PAGEUP + KEY_SHIFTED:
 			{
-				const auto begin = menu->items;
+				const auto begin = menu->items.begin();
 				const auto stop = begin;
 				rotate_menu_item_subrange(std::minus<void>(), begin, menu->citem, stop);
 			}
 			break;
 		case KEY_PAGEDOWN + KEY_SHIFTED:
 			{
-				const auto begin = menu->items;
-				const auto stop = std::next(begin, menu->nitems - 1);
+				const auto begin = menu->items.begin();
+				const auto stop = std::prev(menu->items.end());
 				rotate_menu_item_subrange(std::plus<void>(), begin, menu->citem, stop);
 			}
 			break;
@@ -646,7 +651,7 @@ void newmenu_doreorder( const char * title, const char * subtitle, uint_fast32_t
 
 newmenu_item *newmenu_get_items(newmenu *menu)
 {
-	return menu->items;
+	return menu->items.begin();
 }
 
 int newmenu_get_citem(newmenu *menu)
@@ -658,7 +663,7 @@ template <typename S, typename O>
 static void update_menu_position(newmenu &menu, newmenu_item *const stop, int_fast32_t amount, S step, O overflow)
 {
 	auto icitem = menu.citem;
-	auto pcitem = &menu.items[icitem];
+	auto pcitem = std::next(menu.items.begin(), icitem);
 	do // count until we reached a non NM_TYPE_TEXT item and reached our amount
 	{
 		if (pcitem == stop)
@@ -684,8 +689,9 @@ static void newmenu_scroll(newmenu *const menu, const int amount)
 		menu->scroll_offset += amount;
 		if (menu->scroll_offset < 0)
 			menu->scroll_offset = 0;
-		if (menu->max_on_menu+menu->scroll_offset > menu->nitems)
-			menu->scroll_offset = menu->nitems-menu->max_on_menu;
+		const auto nitems = menu->items.size();
+		if (menu->max_on_menu+menu->scroll_offset > nitems)
+			menu->scroll_offset = nitems - menu->max_on_menu;
 		return;
 	}
 	const auto &range = menu->item_range();
@@ -711,22 +717,23 @@ static void newmenu_scroll(newmenu *const menu, const int amount)
 	 */
 	if (first == last)
 		return;
-	auto citem = &menu->items[menu->citem];
+	auto citem = std::next(menu->items.begin(), menu->citem);
 	if (citem == last && amount == 1) // if citem == last item and we want to go down one step, go to first item
 	{
-		newmenu_scroll(menu, -menu->nitems);
+		newmenu_scroll(menu, -menu->items.size());
 		return;
 	}
 	if (citem == first && amount == -1) // if citem == first item and we want to go up one step, go to last item
 	{
-		newmenu_scroll(menu, menu->nitems);
+		newmenu_scroll(menu, menu->items.size());
 		return;
 	}
 
 	if (amount > 0) // down the list
 	{
-		const auto overflow = [menu](int icitem) {
-			return icitem + 4 >= menu->max_on_menu + menu->scroll_offset && menu->scroll_offset < menu->nitems - menu->max_on_menu;
+		const auto nitems = menu->items.size();
+		const auto overflow = [menu, nitems](int icitem) {
+			return icitem + 4 >= menu->max_on_menu + menu->scroll_offset && menu->scroll_offset < nitems - menu->max_on_menu;
 		};
 		update_menu_position(*menu, last, amount, step_down(), overflow);
 	}
@@ -779,13 +786,14 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 				const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT));
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
 				{
-					x1 = canvas.cv_bitmap.bm_x + menu->items[i].x - fspacx(13) /*- menu->items[i].right_offset - 6*/;
-					x2 = x1 + menu->items[i].w + fspacx(13);
-					y1 = canvas.cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
-					y2 = y1 + menu->items[i].h;
+					auto &iitem = *std::next(menu->items.begin(), i);
+					x1 = canvas.cv_bitmap.bm_x + iitem.x - fspacx(13) /*- menu->items[i].right_offset - 6*/;
+					x2 = x1 + iitem.w + fspacx(13);
+					y1 = canvas.cv_bitmap.bm_y + iitem.y - (line_spacing * menu->scroll_offset);
+					y2 = y1 + iitem.h;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
 						menu->citem = i;
-						auto &citem = menu->items[menu->citem];
+						auto &citem = iitem;
 						switch (citem.type)
 						{
 							case NM_TYPE_CHECK:
@@ -829,18 +837,19 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 						int arrow_width, arrow_height;
 						gr_get_string_size(*canvas.cv_font, UP_ARROW_MARKER(*canvas.cv_font, *GAME_FONT), &arrow_width, &arrow_height, nullptr);
 						x1 = canvas.cv_bitmap.bm_x + BORDERX - fspacx(12);
-						y1 = canvas.cv_bitmap.bm_y + menu->items[menu->scroll_offset].y - (line_spacing * menu->scroll_offset);
+						y1 = canvas.cv_bitmap.bm_y + std::next(menu->items.begin(), menu->scroll_offset)->y - (line_spacing * menu->scroll_offset);
 						x2 = x1 + arrow_width;
 						y2 = y1 + arrow_height;
 						if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
 							newmenu_scroll(menu, -1);
 						}
 					}
-					if (menu->scroll_offset+menu->max_displayable<menu->nitems) {
+					if (menu->scroll_offset + menu->max_displayable < menu->items.size())
+					{
 						int arrow_width, arrow_height;
 						gr_get_string_size(*canvas.cv_font, DOWN_ARROW_MARKER(*canvas.cv_font, *GAME_FONT), &arrow_width, &arrow_height, nullptr);
 						x1 = canvas.cv_bitmap.bm_x + BORDERX - fspacx(12);
-						y1 = canvas.cv_bitmap.bm_y + menu->items[menu->scroll_offset + menu->max_displayable - 1].y - (line_spacing * menu->scroll_offset);
+						y1 = canvas.cv_bitmap.bm_y + std::next(menu->items.begin(), menu->scroll_offset + menu->max_displayable - 1)->y - (line_spacing * menu->scroll_offset);
 						x2 = x1 + arrow_width;
 						y2 = y1 + arrow_height;
 						if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
@@ -851,14 +860,15 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
 				{
-					x1 = canvas.cv_bitmap.bm_x + menu->items[i].x - fspacx(13);
-					x2 = x1 + menu->items[i].w + fspacx(13);
-					y1 = canvas.cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
-					y2 = y1 + menu->items[i].h;
+					auto &iitem = *std::next(menu->items.begin(), i);
+					x1 = canvas.cv_bitmap.bm_x + iitem.x - fspacx(13);
+					x2 = x1 + iitem.w + fspacx(13);
+					y1 = canvas.cv_bitmap.bm_y + iitem.y - (line_spacing * menu->scroll_offset);
+					y2 = y1 + iitem.h;
 
-					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && (menu->items[i].type != NM_TYPE_TEXT) ) {
+					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && (iitem.type != NM_TYPE_TEXT) ) {
 						menu->citem = i;
-						auto &citem = menu->items[menu->citem];
+						auto &citem = iitem;
 						if (citem.type == NM_TYPE_SLIDER)
 						{
 							char slider_text[NM_MAX_TEXT_LEN+1], *p, *s1;
@@ -895,28 +905,36 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 						}
 						if (menu->citem == old_choice)
 							break;
-						if (citem.type == NM_TYPE_INPUT && menu->citem != old_choice)
+						if (citem.type == NM_TYPE_INPUT)
 							citem.value = -1;
-						if ((old_choice>-1) && (menu->items[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=menu->citem))	{
-							menu->items[old_choice].imenu().group = 0;
-							strcpy(menu->items[old_choice].text, menu->items[old_choice].saved_text );
-							menu->items[old_choice].value = -1;
+						if (!(old_choice > -1))
+							break;
+						auto &oitem = *std::next(menu->items.begin(), old_choice);
+						if (oitem.type == NM_TYPE_INPUT_MENU)
+						{
+							oitem.imenu().group = 0;
+							strcpy(oitem.text, oitem.saved_text);
+							oitem.value = -1;
 						}
 						break;
 					}
 				}
 			}
 
-			if ((event.type == EVENT_MOUSE_BUTTON_UP) && !menu->all_text && (menu->citem != -1) && (menu->items[menu->citem].type == NM_TYPE_MENU) )
+			if (event.type == EVENT_MOUSE_BUTTON_UP &&
+				!menu->all_text &&
+				menu->citem != -1 &&
+				std::next(menu->items.begin(), menu->citem)->type == NM_TYPE_MENU)
 			{
 				mouse_get_pos(&mx, &my, &mz);
 				const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT));
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
 				{
-					x1 = canvas.cv_bitmap.bm_x + menu->items[i].x - fspacx(13);
-					x2 = x1 + menu->items[i].w + fspacx(13);
-					y1 = canvas.cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
-					y2 = y1 + menu->items[i].h;
+					auto &iitem = *std::next(menu->items.begin(), i);
+					x1 = canvas.cv_bitmap.bm_x + iitem.x - fspacx(13);
+					x2 = x1 + iitem.w + fspacx(13);
+					y1 = canvas.cv_bitmap.bm_y + iitem.y - (line_spacing * menu->scroll_offset);
+					y2 = y1 + iitem.h;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
 							// Tell callback, allow staying in menu
 							const d_select_event selected{menu->citem};
@@ -933,7 +951,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 			if (event.type == EVENT_MOUSE_BUTTON_UP && menu->citem > -1)
 			{
-				auto &citem = menu->items[menu->citem];
+				auto &citem = *std::next(menu->items.begin(), menu->citem);
 				if (citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 0)
 				{
 					citem.imenu().group = 1;
@@ -960,7 +978,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 			{
 				if (!(menu->citem > -1))
 					return window_event_result::close;
-				auto &citem = menu->items[menu->citem];
+				auto &citem = *std::next(menu->items.begin(), menu->citem);
 				if (citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 1)
 				{
 					citem.imenu().group = 0;
@@ -1010,16 +1028,16 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 	}
 
 	old_choice = menu->citem;
-	auto &citem = menu->items[menu->citem];
+	auto &citem = *std::next(menu->items.begin(), menu->citem);
 
 	switch( k )	{
 		case KEY_HOME:
 		case KEY_PAD7:
-			newmenu_scroll(menu, -menu->nitems);
+			newmenu_scroll(menu, -menu->items.size());
 			break;
 		case KEY_END:
 		case KEY_PAD1:
-			newmenu_scroll(menu, menu->nitems);
+			newmenu_scroll(menu, menu->items.size());
 			break;
 		case KEY_TAB + KEY_SHIFTED:
 		case KEY_UP:
@@ -1028,10 +1046,15 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			newmenu_scroll(menu, k == KEY_PAGEUP ? -10 : -1);
 			if (citem.type == NM_TYPE_INPUT && menu->citem != old_choice)
 				citem.value = -1;
-			if ((old_choice>-1) && (menu->items[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=menu->citem))	{
-				menu->items[old_choice].imenu().group=0;
-				strcpy(menu->items[old_choice].text, menu->items[old_choice].saved_text );
-				menu->items[old_choice].value = -1;
+			if (old_choice > -1 && old_choice != menu->citem)
+			{
+				auto &oitem = *std::next(menu->items.begin(), old_choice);
+				if (oitem.type == NM_TYPE_INPUT_MENU)
+				{
+					oitem.imenu().group=0;
+					strcpy(oitem.text, oitem.saved_text);
+					oitem.value = -1;
+				}
 			}
 			break;
 		case KEY_TAB:
@@ -1041,10 +1064,15 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			newmenu_scroll(menu, k == KEY_PAGEDOWN ? 10 : 1);
 			if (citem.type == NM_TYPE_INPUT && menu->citem != old_choice)
 				citem.value = -1;
-			if ( (old_choice>-1) && (menu->items[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=menu->citem))	{
-				menu->items[old_choice].imenu().group=0;
-				strcpy(menu->items[old_choice].text, menu->items[old_choice].saved_text );
-				menu->items[old_choice].value = -1;
+			if (old_choice > -1 && old_choice != menu->citem)
+			{
+				auto &oitem = *std::next(menu->items.begin(), old_choice);
+				if (oitem.type == NM_TYPE_INPUT_MENU)
+				{
+					oitem.imenu().group=0;
+					strcpy(oitem.text, oitem.saved_text);
+					oitem.value = -1;
+				}
 			}
 			break;
 		case KEY_SPACEBAR:
@@ -1151,25 +1179,28 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 				int choice1 = menu->citem;
 				ascii = toupper(ascii);
 				do {
-					int i,ch;
 					choice1++;
-					if (choice1 >= menu->nitems )
+					if (choice1 >= menu->items.size())
 						choice1=0;
 
-					for (i=0;(ch=menu->items[choice1].text[i])!=0 && ch==' ';i++);
+					unsigned ch;
+					auto &choice_item = *std::next(menu->items.begin(), choice1);
+					for (int i = 0; (ch = choice_item.text[i]) != 0 && ch == ' ' ; ++i)
+					{
+					}
 
-					if ( ( (menu->items[choice1].type==NM_TYPE_MENU) ||
-						  (menu->items[choice1].type==NM_TYPE_CHECK) ||
-						  (menu->items[choice1].type==NM_TYPE_RADIO) ||
-						  (menu->items[choice1].type==NM_TYPE_NUMBER) ||
-						  (menu->items[choice1].type==NM_TYPE_SLIDER) )
+					if ((choice_item.type == NM_TYPE_MENU ||
+						  choice_item.type == NM_TYPE_CHECK ||
+						  choice_item.type == NM_TYPE_RADIO ||
+						  choice_item.type == NM_TYPE_NUMBER ||
+						  choice_item.type == NM_TYPE_SLIDER)
 						&& (ascii==toupper(ch)) )
 					{
 						k = 0;
 						menu->citem = choice1;
 					}
 
-					while (menu->citem+4>=menu->max_on_menu+menu->scroll_offset && menu->scroll_offset < menu->nitems-menu->max_on_menu)
+					while (menu->citem + 4 >= menu->max_on_menu + menu->scroll_offset && menu->scroll_offset < menu->items.size() - menu->max_on_menu)
 						menu->scroll_offset++;
 					while (menu->citem-4<menu->scroll_offset && menu->scroll_offset > 0)
 						menu->scroll_offset--;
@@ -1344,7 +1375,7 @@ static void newmenu_create_structure( newmenu *menu )
 		menu->h += string_height + fspacy(1);		// Find the height of all strings
 	}
 
-	if (menu->nitems > menu->max_on_menu)
+	if (menu->items.size() > menu->max_on_menu)
 	{
 		menu->is_scroll_box=1;
 		menu->h = th + (LINE_SPACING(cv_font, *GAME_FONT) * menu->max_on_menu);
@@ -1354,14 +1385,14 @@ static void newmenu_create_structure( newmenu *menu )
 		if (menu->citem > menu->max_on_menu-4)
 		{
 			menu->scroll_offset = menu->citem - (menu->max_on_menu-4);
-			if (menu->scroll_offset + menu->max_on_menu > menu->nitems)
-				menu->scroll_offset = menu->nitems - menu->max_on_menu;
+			if (menu->scroll_offset + menu->max_on_menu > menu->items.size())
+				menu->scroll_offset = menu->items.size() - menu->max_on_menu;
 		}
 	}
 	else
 	{
 		menu->is_scroll_box=0;
-		menu->max_on_menu = menu->nitems;
+		menu->max_on_menu = menu->items.size();
 	}
 
 	right_offset=0;
@@ -1416,17 +1447,23 @@ static void newmenu_create_structure( newmenu *menu )
 	if (menu->citem != -1)
 	{
 		if (menu->citem < 0 ) menu->citem = 0;
-		if (menu->citem > menu->nitems-1 ) menu->citem = menu->nitems-1;
+		const std::size_t nitems = menu->items.size() - 1;
+		if (menu->citem > nitems)
+			menu->citem = nitems;
 
 		menu->dblclick_flag = 1;
 		uint_fast32_t i = 0;
-		while ( menu->items[menu->citem].type==NM_TYPE_TEXT )	{
+		const auto begin = menu->items.begin();
+		while (std::next(begin, menu->citem)->type == NM_TYPE_TEXT)
+		{
 			menu->citem++;
 			i++;
-			if (menu->citem >= menu->nitems ) {
+			if (menu->citem >= nitems)
+			{
 				menu->citem=0;
 			}
-			if (i > menu->nitems ) {
+			if (i > nitems)
+			{
 				menu->citem=0;
 				menu->all_text=1;
 				break;
@@ -1447,7 +1484,6 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	grs_canvas &menu_canvas = wind->w_canv;
 	grs_canvas &save_canvas = *grd_curcanv;
 	int th = 0, ty, sx, sy;
-	int i;
 
 	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscaley != FNTScaleY)
 	{
@@ -1491,9 +1527,20 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	gr_set_curfont(*grd_curcanv, menu->tiny_mode?GAME_FONT:MEDIUM1_FONT);
 
 	// Redraw everything...
-	for (i=menu->scroll_offset; i<menu->max_displayable+menu->scroll_offset; i++ )
 	{
-		draw_item(*grd_curcanv, menu->items[i], (i==menu->citem && !menu->all_text),menu->tiny_mode, menu->tabs_flag, menu->scroll_offset);
+		const auto begin = menu->items.begin();
+		/* If the menu is all text, no item is current.  Set the
+		 * "current" index to an impossible value so that the all_text
+		 * test does not need to be run at every step.
+		 */
+		const auto current_index = menu->all_text ? ~0u : menu->citem;
+		const auto tiny_mode = menu->tiny_mode;
+		const auto tabs_flag = menu->tabs_flag;
+		const auto scroll_offset = menu->scroll_offset;
+		for (auto i = scroll_offset; i < menu->max_displayable + scroll_offset; ++i)
+		{
+			draw_item(*grd_curcanv, *std::next(begin, i), i == current_index, tiny_mode, tabs_flag, scroll_offset);
+		}
 	}
 
 	if (menu->is_scroll_box)
@@ -1501,16 +1548,18 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 		auto &cv_font = *(menu->tiny_mode ? GAME_FONT : MEDIUM2_FONT);
 
 		const int line_spacing = static_cast<int>(LINE_SPACING(cv_font, *GAME_FONT));
-		sy = menu->items[menu->scroll_offset].y - (line_spacing * menu->scroll_offset);
+		const auto scroll_offset = menu->scroll_offset;
+		const auto begin = menu->items.begin();
+		sy = std::next(begin, scroll_offset)->y - (line_spacing * scroll_offset);
 		const auto &&fspacx = FSPACX();
 		sx = BORDERX - fspacx(12);
 
-		gr_string(*grd_curcanv, cv_font, sx, sy, menu->scroll_offset ? UP_ARROW_MARKER(cv_font, *GAME_FONT) : "  ");
+		gr_string(*grd_curcanv, cv_font, sx, sy, scroll_offset ? UP_ARROW_MARKER(cv_font, *GAME_FONT) : "  ");
 
-		sy = menu->items[menu->scroll_offset + menu->max_displayable - 1].y - (line_spacing * menu->scroll_offset);
+		sy = std::next(begin, scroll_offset + menu->max_displayable - 1)->y - (line_spacing * scroll_offset);
 		sx = BORDERX - fspacx(12);
 
-		gr_string(*grd_curcanv, cv_font, sx, sy, (menu->scroll_offset + menu->max_displayable < menu->nitems) ? DOWN_ARROW_MARKER(*grd_curcanv->cv_font, *GAME_FONT) : "  ");
+		gr_string(*grd_curcanv, cv_font, sx, sy, (scroll_offset + menu->max_displayable < menu->items.size()) ? DOWN_ARROW_MARKER(*grd_curcanv->cv_font, *GAME_FONT) : "  ");
 	}
 
 		if (menu->subfunction)
@@ -1591,7 +1640,7 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 
 newmenu *newmenu_do4( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag )
 {
-	newmenu *menu = new newmenu{};
+	newmenu *menu = new newmenu(unchecked_partial_range(item, nitems));
 	menu->citem = citem;
 	menu->scroll_offset = 0;
 	menu->all_text = 0;
@@ -1600,9 +1649,7 @@ newmenu *newmenu_do4( const char * title, const char * subtitle, uint_fast32_t n
 	menu->dblclick_flag = 0;
 	menu->title = title;
 	menu->subtitle = subtitle;
-	menu->nitems = nitems;
 	menu->subfunction = subfunction;
-	menu->items = item;
 	menu->filename = filename;
 	menu->tiny_mode = TinyMode;
 	menu->tabs_flag = TabsFlag;
