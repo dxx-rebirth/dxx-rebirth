@@ -142,6 +142,24 @@ struct step_up
 static grs_main_bitmap nm_background, nm_background1;
 static grs_subbitmap_ptr nm_background_sub;
 
+static void prepare_slider_text(ntstring<NM_MAX_TEXT_LEN> &text, const std::size_t offset, const std::size_t steps)
+{
+	/* 3 = (1 for SLIDER_LEFT) + (1 for SLIDER_RIGHT) + (1 null) */
+	constexpr std::size_t reserved_space = 3;
+	const std::size_t unreserved_space = text.size() - reserved_space;
+	if (offset > unreserved_space ||
+		steps > unreserved_space ||
+		offset + steps > unreserved_space)
+	{
+		text[0] = 0;
+		return;
+	}
+	text[offset] = SLIDER_LEFT[0];
+	text[offset + 1 + steps] = SLIDER_RIGHT[0];
+	text[offset + 2 + steps] = 0;
+	std::fill_n(&text[offset + 1], steps, SLIDER_MIDDLE[0]);
+}
+
 }
 
 void newmenu_free_background()	{
@@ -427,12 +445,8 @@ static void draw_item(grs_canvas &canvas, newmenu_item *item, int is_current, in
 				item->value = slider.min_value;
 			if (item->value > slider.max_value)
 				item->value = slider.max_value;
-			i = snprintf(item->saved_text.data(), item->saved_text.size(), "%s\t%s", item->text, SLIDER_LEFT);
-			for (uint_fast32_t j = (slider.max_value - slider.min_value + 1); j--;)
-			{
-				i += snprintf(item->saved_text.data() + i, item->saved_text.size() - i, "%s", SLIDER_MIDDLE);
-			}
-			i += snprintf(item->saved_text.data() + i, item->saved_text.size() - i, "%s", SLIDER_RIGHT);
+			i = snprintf(item->saved_text.data(), item->saved_text.size(), "%s\t", item->text);
+			prepare_slider_text(item->saved_text, i, slider.max_value - slider.min_value + 1);
 			item->saved_text[item->value+1+strlen(item->text)+1] = SLIDER_MARKER[0];
 			nm_string_slider(canvas, item->w, item->x, item->y - (line_spacing * scroll_offset), item->saved_text.data());
 		}
@@ -1197,7 +1211,7 @@ namespace dsx {
 static void newmenu_create_structure( newmenu *menu )
 {
 	int aw, tw, th, twidth,right_offset;
-	int nmenus, nothers;
+	int nmenus;
 	grs_canvas &save_canvas = *grd_curcanv;
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
@@ -1226,7 +1240,7 @@ static void newmenu_create_structure( newmenu *menu )
 
 	menu->w = aw = 0;
 	menu->h = th;
-	nmenus = nothers = 0;
+	nmenus = 0;
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
@@ -1242,15 +1256,9 @@ static void newmenu_create_structure( newmenu *menu )
 
 		if (i.type == NM_TYPE_SLIDER)
 		{
-			int index,w1;
-			nothers++;
-			index = snprintf (i.saved_text.data(), i.saved_text.size(), "%s", SLIDER_LEFT);
+			int w1;
 			auto &slider = i.slider();
-			for (uint_fast32_t j = (slider.max_value - slider.min_value + 1); j--;)
-			{
-				index += snprintf(i.saved_text.data() + index, i.saved_text.size() - index, "%s", SLIDER_MIDDLE);
-			}
-			index += snprintf(i.saved_text.data() + index, i.saved_text.size() - index, "%s", SLIDER_RIGHT);
+			prepare_slider_text(i.saved_text, 0, slider.max_value - slider.min_value + 1);
 			gr_get_string_size(cv_font, i.saved_text.data(), &w1, nullptr, nullptr);
 			string_width += w1 + aw;
 		}
@@ -1263,7 +1271,6 @@ static void newmenu_create_structure( newmenu *menu )
 		if (i.type == NM_TYPE_CHECK)
 		{
 			int w1;
-			nothers++;
 			gr_get_string_size(cv_font, NORMAL_CHECK_BOX, &w1, nullptr, nullptr);
 			i.right_offset = w1;
 			gr_get_string_size(cv_font, CHECKED_CHECK_BOX, &w1, nullptr, nullptr);
@@ -1274,7 +1281,6 @@ static void newmenu_create_structure( newmenu *menu )
 		if (i.type == NM_TYPE_RADIO)
 		{
 			int w1;
-			nothers++;
 			gr_get_string_size(cv_font, NORMAL_RADIO_BOX, &w1, nullptr, nullptr);
 			i.right_offset = w1;
 			gr_get_string_size(cv_font, CHECKED_RADIO_BOX, &w1, nullptr, nullptr);
@@ -1286,7 +1292,6 @@ static void newmenu_create_structure( newmenu *menu )
 		{
 			int w1;
 			char test_text[20];
-			nothers++;
 			auto &number = i.number();
 			snprintf(test_text, sizeof(test_text), "%d", number.max_value);
 			gr_get_string_size(cv_font, test_text, &w1, nullptr, nullptr);
@@ -1310,10 +1315,6 @@ static void newmenu_create_structure( newmenu *menu )
 			{
 				i.imenu().group = 0;
 				nmenus++;
-			}
-			else
-			{
-				nothers++;
 			}
 		}
 
