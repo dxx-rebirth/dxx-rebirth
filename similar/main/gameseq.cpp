@@ -1769,7 +1769,6 @@ window_event_result DoPlayerDead()
 	auto &plr = get_local_player();
 	if ( Game_mode&GM_MULTI )
 	{
-		multi_do_death(plr.objnum);
 	}
 	else
 	{				//Note link to above else!

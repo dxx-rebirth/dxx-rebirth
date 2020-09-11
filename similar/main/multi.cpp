@@ -1630,18 +1630,6 @@ window_event_result multi_message_input_sub(int key)
 	return window_event_result::ignored;
 }
 
-void multi_do_death(int)
-{
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
-	// Do any miscellaneous stuff for a new network player after death
-	if (!(Game_mode & GM_MULTI_COOP))
-	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
-		player_info.powerup_flags |= (PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY);
-	}
-}
-
 namespace dsx {
 
 namespace {
