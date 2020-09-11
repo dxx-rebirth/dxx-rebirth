@@ -1288,6 +1288,7 @@ struct d_screenshot
 		context.Result(_msg % (self.msgprefix, 'yes, define _WIN32_WINNT=%#x' % _CPPDEFINES_WIN32_WINNT[1]))
 		self.successful_flags['CPPDEFINES'].append(_CPPDEFINES_WIN32_WINNT)
 		self.__defined_macros += '#define %s %s\n' % (_CPPDEFINES_WIN32_WINNT[0], _CPPDEFINES_WIN32_WINNT[1])
+
 	@_implicit_test
 	def check_curl(self,context,
 		_header=('curl/curl.h',),
@@ -1300,6 +1301,7 @@ struct d_screenshot
 		successflags = self.pkgconfig.merge(context, self.msgprefix, self.user_settings, 'libcurl', 'curl', _guess_flags).copy()
 		successflags['CPPDEFINES'] = successflags.get('CPPDEFINES', []) + ['DXX_HAVE_LIBCURL']
 		self._check_system_library(context, header=_header, main=_main, lib='curl', successflags=successflags)
+
 	@_implicit_test
 	def check_jsoncpp(self,context,
 		_header=(
@@ -1387,6 +1389,19 @@ static void terminate_handler()
 			e = self._soft_check_system_library(context, header=_header, main=main, lib='physfs', successflags=successflags)
 		if e:
 			raise SCons.Errors.StopError(e[1])
+
+	@_custom_test
+	def check_glu(self,context):
+		if not self.user_settings.opengl:
+			return
+		if self.user_settings.opengles:
+			# GLES builds do not use the GL utility functions
+			return
+		self._check_system_library(context, header=['GL/glu.h'], main='''
+	gluPerspective(90.0,1.0,0.1,5000.0);
+	gluBuild2DMipmaps (GL_TEXTURE_2D, 0, 1, 1, 1, GL_UNSIGNED_BYTE, nullptr);
+''', lib='GLU', testflags={'LIBS': ['GLU']})
+
 	@_custom_test
 	def _check_SDL(self,context):
 		if self.user_settings.sdl2:

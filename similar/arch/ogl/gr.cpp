@@ -66,8 +66,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <SDL_syswm.h>
-#else
-#include <GL/glu.h>
 #endif
 #endif
 
