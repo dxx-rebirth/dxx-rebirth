@@ -1572,8 +1572,10 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 
 static window_event_result newmenu_handler(window *wind,const d_event &event, newmenu *menu)
 {
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 	if (joy_translate_menu_key(event))
 		return window_event_result::handled;
+#endif
 
 	if (menu->subfunction)
 	{
@@ -2187,8 +2189,10 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 			return rval;		// event handled
 	}
 
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 	if (joy_translate_menu_key(event))
 		return window_event_result::handled;
+#endif
 
 	switch (event.type)
 	{

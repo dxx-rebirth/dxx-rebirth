@@ -145,11 +145,10 @@ static window_event_result title_handler(window *, const d_event &event, title_s
 				}
 			return result;
 
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 		case EVENT_JOYSTICK_BUTTON_DOWN:
-			{
 				return window_event_result::close;
-			}
-			break;
+#endif
 
 		case EVENT_IDLE:
 			timer_delay2(50);
@@ -1555,6 +1554,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			}
 			break;
 
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 		case EVENT_JOYSTICK_BUTTON_DOWN:
 			// using joy_translate_menu_key doesn't work here for unclear
 			// reasons, so we build a reasonable facsimile right here
@@ -1572,6 +1572,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			else
 				br->delay_count = 0;
 			return window_event_result::handled;
+#endif
 
 		case EVENT_KEY_COMMAND:
 		{

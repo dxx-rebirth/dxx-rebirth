@@ -132,8 +132,10 @@ window_event_result credits_window::event_handler(const d_event &event)
 			}
 			break;
 
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 		case EVENT_JOYSTICK_BUTTON_DOWN:
 			return window_event_result::close;
+#endif
 
 		case EVENT_IDLE:
 			if (done > NUM_LINES)

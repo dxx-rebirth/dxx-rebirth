@@ -485,7 +485,11 @@ static int HandleDeathInput(const d_event &event)
 		}
 
 		if (RespawnMode == RespawnPress::Any
-			? (event.type == EVENT_JOYSTICK_BUTTON_UP || event.type == EVENT_MOUSE_BUTTON_UP)
+			? (
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
+				event.type == EVENT_JOYSTICK_BUTTON_UP ||
+#endif
+				event.type == EVENT_MOUSE_BUTTON_UP)
 			: (Controls.state.fire_primary || Controls.state.fire_secondary || Controls.state.fire_flare))
 			return 1;
 		return 0;

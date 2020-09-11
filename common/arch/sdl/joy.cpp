@@ -443,12 +443,14 @@ void joy_close()
 	joybutton_text.clear();
 }
 
+#if DXX_MAX_AXES_PER_JOYSTICK
 const d_event_joystick_axis_value &event_joystick_get_axis(const d_event &event)
 {
 	auto &e = static_cast<const d_event_joystick_moved &>(event);
 	Assert(e.type == EVENT_JOYSTICK_MOVED);
 	return e;
 }
+#endif
 
 void joy_flush()
 {
@@ -465,12 +467,14 @@ void joy_flush()
 #endif
 }
 
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 int event_joystick_get_button(const d_event &event)
 {
 	auto &e = static_cast<const d_event_joystickbutton &>(event);
 	Assert(e.type == EVENT_JOYSTICK_BUTTON_DOWN || e.type == EVENT_JOYSTICK_BUTTON_UP);
 	return e.button;
 }
+#endif
 
 int apply_deadzone(int value, int deadzone)
 {
@@ -482,10 +486,10 @@ int apply_deadzone(int value, int deadzone)
 		return 0;
 }
 
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 bool joy_translate_menu_key(const d_event &event) {
 	if (event.type != EVENT_JOYSTICK_BUTTON_DOWN)
 		return false;
-#if DXX_MAX_JOYSTICKS
 	auto &e = static_cast<const d_event_joystickbutton &>(event);
 	assert(e.button < joy_key_map.size());
 	auto key = joy_key_map[e.button];
@@ -495,8 +499,8 @@ bool joy_translate_menu_key(const d_event &event) {
 		return true;
 	}
 	return false;
-#endif
 }
+#endif
 
 }
 #endif

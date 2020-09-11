@@ -1597,9 +1597,13 @@ window_event_result game_window::event_handler(const d_event &event)
 			key_toggle_repeat(1);
 			break;
 
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 		case EVENT_JOYSTICK_BUTTON_UP:
 		case EVENT_JOYSTICK_BUTTON_DOWN:
+#endif
+#if DXX_MAX_AXES_PER_JOYSTICK
 		case EVENT_JOYSTICK_MOVED:
+#endif
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_MOVED:

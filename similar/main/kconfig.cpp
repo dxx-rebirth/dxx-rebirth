@@ -715,8 +715,10 @@ namespace {
 
 window_event_result kc_menu::event_handler(const d_event &event)
 {
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 	if (!changing && joy_translate_menu_key(event))
 		return window_event_result::handled;
+#endif
 
 	switch (event.type)
 	{
@@ -917,7 +919,7 @@ static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 	kc_set_exclusive_binding(menu, mitem, BT_KEY, keycode);
 }
 
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 static void kc_change_joybutton( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 {
 	int button = 255;
@@ -1152,7 +1154,7 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 				}
 			}
 			break;
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK || DXX_MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 		case EVENT_JOYSTICK_BUTTON_DOWN:
 		case EVENT_JOYSTICK_BUTTON_UP:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))

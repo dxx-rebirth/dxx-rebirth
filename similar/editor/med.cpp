@@ -1116,9 +1116,13 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 				if (!keyd_pressed[ KEY_LCTRL ] && !keyd_pressed[ KEY_RCTRL ])
 					break;
 				DXX_BOOST_FALLTHROUGH;
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 			case EVENT_JOYSTICK_BUTTON_UP:
 			case EVENT_JOYSTICK_BUTTON_DOWN:
+#endif
+#if DXX_MAX_AXES_PER_JOYSTICK
 			case EVENT_JOYSTICK_MOVED:
+#endif
 			case EVENT_KEY_COMMAND:
 			case EVENT_KEY_RELEASE:
 			case EVENT_IDLE:

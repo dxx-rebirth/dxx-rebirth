@@ -404,8 +404,10 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			}
 			break;
 
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 		case EVENT_JOYSTICK_BUTTON_DOWN:
 			return window_event_result::close;
+#endif
 
 		case EVENT_IDLE:
 			timer_delay2(50);

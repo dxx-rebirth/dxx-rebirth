@@ -34,10 +34,7 @@ struct d_event_joystick_axis_value
 
 extern void joy_init();
 extern void joy_close();
-const d_event_joystick_axis_value &event_joystick_get_axis(const d_event &event);
 extern void joy_flush();
-bool joy_translate_menu_key(const d_event &event);
-extern int event_joystick_get_button(const d_event &event);
 extern int apply_deadzone(int value, int deadzone);
 
 }
@@ -50,6 +47,8 @@ extern int apply_deadzone(int value, int deadzone);
 namespace dcx {
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
+bool joy_translate_menu_key(const d_event &event);
+int event_joystick_get_button(const d_event &event);
 window_event_result joy_button_handler(const SDL_JoyButtonEvent *jbe);
 #else
 #define joy_button_handler(jbe) (static_cast<const SDL_JoyButtonEvent *const &>(jbe), window_event_result::ignored)
@@ -62,6 +61,7 @@ window_event_result joy_hat_handler(const SDL_JoyHatEvent *jhe);
 #endif
 
 #if DXX_MAX_AXES_PER_JOYSTICK
+const d_event_joystick_axis_value &event_joystick_get_axis(const d_event &event);
 window_event_result joy_axis_handler(const SDL_JoyAxisEvent *jae);
 #else
 #define joy_axis_handler(jbe) (static_cast<const SDL_JoyAxisEvent *const &>(jbe), window_event_result::ignored)
