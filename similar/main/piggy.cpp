@@ -1189,7 +1189,10 @@ void piggy_read_sounds(int pc_shareware)
 		// hack for Mac Demo
 		if (auto array = PHYSFSX_openReadBuffered(soundfile))
 		{
-			if (PHYSFS_read(array, Sounds, Sounds.size(), 1) != 1)	// make the 'Sounds' index array match with the sounds we're about to read in
+			/* Sounds.size() is the D2-compatible size, but this
+			 * statement must read a D1 length, so use MAX_SOUNDS.
+			 */
+			if (PHYSFS_read(array, Sounds, MAX_SOUNDS, 1) != 1)	// make the 'Sounds' index array match with the sounds we're about to read in
 			{
 				con_printf(CON_URGENT,"Warning: Can't read Sounds/sounds.array: %s", PHYSFS_getLastError());
 				return;
