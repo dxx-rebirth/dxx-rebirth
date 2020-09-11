@@ -555,26 +555,33 @@ static void swap_menu_item_entries(newmenu_item &a, newmenu_item &b)
 	swap(a.value, b.value);
 }
 
-template <typename T>
-static void move_menu_item_entry(T &&t, newmenu_item *const items, uint_fast32_t citem, uint_fast32_t boundary)
+template <typename F>
+static inline void rotate_menu_item_subrange(F &&step_function, newmenu_item *const range_begin, const std::size_t start_index, const newmenu_item *const subrange_stop)
 {
-	if (citem == boundary)
-		/* If citem == boundary, then this function is an elaborate
+	const auto subrange_start = std::next(range_begin, start_index);
+	/* The terminating pointer is named `subrange_stop`, rather than `end`,
+	 * because traditional semantics hold that `end` cannot be
+	 * dereferenced.  In this function, the terminating pointer points
+	 * to the last element that is legal to dereference, rather than the
+	 * first element that is not legal.
+	 */
+	auto iter = subrange_start;
+	if (iter == subrange_stop)
+		/* If iter == subrange_stop, then this function is an elaborate
 		 * no-op.  Return immediately if there is no work to do.
 		 */
 		return;
-	auto a = &items[citem];
-	auto selected = std::make_pair(a->text, a->value);
-	for (; citem != boundary;)
+	auto &&selected = std::pair(iter->text, iter->value);
+	for (; iter != subrange_stop;)
 	{
-		citem = t(citem, 1);
-		auto &b = items[citem];
-		a->text = b.text;
-		a->value = b.value;
-		a = &b;
+		auto &a = *iter;
+		iter = step_function(iter, 1);
+		auto &b = *iter;
+		a.text = b.text;
+		a.value = b.value;
 	}
-	a->text = selected.first;
-	a->value = selected.second;
+	iter->text = selected.first;
+	iter->value = selected.second;
 }
 
 static int newmenu_save_selection_key(newmenu *menu, const d_event &event)
@@ -599,10 +606,18 @@ static int newmenu_save_selection_key(newmenu *menu, const d_event &event)
 			}
 			break;
 		case KEY_PAGEUP + KEY_SHIFTED:
-			move_menu_item_entry(std::minus<uint_fast32_t>(), menu->items, menu->citem, 0);
+			{
+				const auto begin = menu->items;
+				const auto stop = begin;
+				rotate_menu_item_subrange(std::minus<void>(), begin, menu->citem, stop);
+			}
 			break;
 		case KEY_PAGEDOWN + KEY_SHIFTED:
-			move_menu_item_entry(std::plus<uint_fast32_t>(), menu->items, menu->citem, menu->nitems - 1);
+			{
+				const auto begin = menu->items;
+				const auto stop = std::next(begin, menu->nitems - 1);
+				rotate_menu_item_subrange(std::plus<void>(), begin, menu->citem, stop);
+			}
 			break;
 	}
 	return 0;
