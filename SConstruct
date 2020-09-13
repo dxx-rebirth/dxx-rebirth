@@ -1529,13 +1529,11 @@ static void terminate_handler()
 			'LIBS' : [library_name] if sys.platform != 'darwin' else [],
 		}
 		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, library_name, library_name, guess_flags)
-		if user_settings.host_platform == 'darwin':
-			macos_libs_only = ARGUMENTS.get('mac_libs', 0)
-			if macos_libs_only == 0:
-				successflags = successflags.copy()
-				successflags['FRAMEWORKS'] = [library_name]
-				relative_headers = 'Library/Frameworks/%s.framework/Headers' % library_name
-				successflags['CPPPATH'] = [h for h in (os.path.join(os.getenv("HOME"), relative_headers), '/%s' % relative_headers) if os.path.isdir(h)]
+		if user_settings.host_platform == 'darwin' and user_settings.macos_add_frameworks:
+			successflags = successflags.copy()
+			successflags['FRAMEWORKS'] = [library_name]
+			relative_headers = 'Library/Frameworks/%s.framework/Headers' % library_name
+			successflags['CPPPATH'] = [h for h in (os.path.join(os.getenv("HOME"), relative_headers), '/%s' % relative_headers) if os.path.isdir(h)]
 		# SDL2 headers still use SDL_*.h for their filename, not
 		# SDL2_*.h, so expanded library_format_name with an explicitly
 		# blank insert, regardless of whether building for SDL1 or SDL2.
@@ -3781,10 +3779,27 @@ class DXXCommon(LazyObjectConstructor):
 					('use_udp', True, 'enable UDP support'),
 					('use_tracker', True, 'enable Tracker support (requires UDP)'),
 					('verbosebuild', self.default_verbosebuild, 'print out all compiler/linker messages during building'),
+					# This is only examined for Mac OS X targets.
+					#
+					# Some users, particularly those who install
+					# dependencies via Homebrew, may have the required C
+					# headers and libraries available, but not packaged
+					# as a Framework.  Such users should set
+					# macos_add_frameworks=False, and (if the required
+					# headers and libraries are not in a default search
+					# location), use the standard C search path
+					# directives to tell the compiler where to find the
+					# required files.
+					#
+					# For users who have the framework installed in the
+					# standard place, if macos_add_frameworks=True,
+					# SCons should find the headers and libraries
+					# automatically.
+					('macos_add_frameworks', True, 'add required frameworks to CPPPATH, FRAMEWORKS, and FRAMEWORKPATH search variables (MacOS only); Homebrew users may want macos_add_frameworks=False'),
 					# This is only examined for Windows targets, so
 					# there is no need to make the default value depend
 					# on the host_platform.
-					('windows_minidump', True, 'generate a minidump on unhandled C++ exception'),
+					('windows_minidump', True, 'generate a minidump on unhandled C++ exception (Windows only)'),
 					('words_need_alignment', self.default_words_need_alignment, 'align words at load (needed for many non-x86 systems)'),
 					('register_compile_target', True, 'report compile targets to SCons core'),
 					('register_cpp_output_targets', None, None),
@@ -4014,14 +4029,28 @@ class DXXCommon(LazyObjectConstructor):
 		# arguments are included.
 		tools = ('gcc', 'g++', 'applelink')
 		def adjust_environment(self,program,env):
-			macos_libs_only = ARGUMENTS.get('mac_libs', 0)
-			library_frameworks = os.path.join(os.getenv("HOME"), 'Library/Frameworks')
-			if os.path.isdir(library_frameworks):
-				env.Append(FRAMEWORKPATH = [library_frameworks])
-				SDL_private_framework = os.path.join(library_frameworks, 'SDL.framework/Headers')
-				if os.path.isdir(SDL_private_framework):
-					env.Append(CPPPATH = [SDL_private_framework])
-			if macos_libs_only == 0:
+			macos_add_frameworks = self.user_settings.macos_add_frameworks
+			if macos_add_frameworks:
+				# The user may or may not have a private installation of
+				# frameworks.  If there are no private frameworks, then
+				# the path to the private frameworks should not be
+				# added, because some versions of the tools issue a
+				# diagnostic for searching a non-existant path.
+				library_frameworks = os.path.join(os.getenv("HOME"), 'Library/Frameworks')
+				if os.path.isdir(library_frameworks):
+					# The private framework directory exists.  Check
+					# whether the user has a private copy of the SDL
+					# framework.
+					env.Append(FRAMEWORKPATH = [library_frameworks])
+					SDL_private_framework = os.path.join(library_frameworks, 'SDL.framework/Headers')
+					if os.path.isdir(SDL_private_framework):
+						# Yes, so add its headers to the C preprocessor
+						# path.
+						env.Append(CPPPATH = [SDL_private_framework])
+					# else No, so omit the non-existant directory from
+					# the C preprocessor path.
+				# Check whether a system-wide SDL framework is
+				# available.
 				SDL_system_framework = '/Library/Frameworks/SDL.framework/Headers'
 				if os.path.isdir(SDL_system_framework):
 					env.Append(CPPPATH = [SDL_system_framework])
@@ -4030,7 +4059,7 @@ class DXXCommon(LazyObjectConstructor):
 				FRAMEWORKS = ['ApplicationServices', 'Cocoa'],
 				LINKFLAGS = ['-Wl,-rpath,@loader_path/../Frameworks'],	# Allow libraries & frameworks to go in app bundle
 			)
-			if macos_libs_only == 0:
+			if macos_add_frameworks:
 				env.Append(FRAMEWORKS = ['SDL'])
 			if self.user_settings.opengl or self.user_settings.opengles:
 				env.Append(FRAMEWORKS = ['OpenGL'])
@@ -5348,7 +5377,6 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 	d2x=[0/1]        Disable/enable D2X-Rebirth
 	d2x=prefix-list  Enable D2X-Rebirth with prefix-list modifiers
 	dxx=VALUE        Equivalent to d1x=VALUE d2x=VALUE
-	mac_libs=[0/1]   (macOS only) Use libraries instead of frameworks where possible
 """ +	\
 		''.join(['%s:\n%s' % (d.program_message_prefix, d.init(substenv)) for d in dxx])
 	)
@@ -5378,8 +5406,6 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 	unknown.pop('d2x', None)
 	unknown.pop('dxx', None)
 	unknown.pop('site', None)
-	if sys.platform == 'darwin':
-		unknown.pop('mac_libs', None)
 	ignore_unknown_variables = unknown.pop('ignore_unknown_variables', '0')
 	if unknown:
 		# Protect user from misspelled options by reporting an error.
