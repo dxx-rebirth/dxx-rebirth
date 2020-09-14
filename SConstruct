@@ -1544,7 +1544,7 @@ static void terminate_handler()
 			'LIBS' : [library_name] if sys.platform != 'darwin' else [],
 		}
 		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, library_name, library_name, guess_flags)
-		if user_settings.host_platform == 'darwin':
+		if user_settings.host_platform == 'darwin' and user_settings.macos_add_frameworks:
 			successflags = successflags.copy()
 			successflags['FRAMEWORKS'] = [library_name]
 			relative_headers = 'Library/Frameworks/%s.framework/Headers' % library_name
@@ -3794,10 +3794,27 @@ class DXXCommon(LazyObjectConstructor):
 					('use_udp', True, 'enable UDP support'),
 					('use_tracker', True, 'enable Tracker support (requires UDP)'),
 					('verbosebuild', self.default_verbosebuild, 'print out all compiler/linker messages during building'),
+					# This is only examined for Mac OS X targets.
+					#
+					# Some users, particularly those who install
+					# dependencies via Homebrew, may have the required C
+					# headers and libraries available, but not packaged
+					# as a Framework.  Such users should set
+					# macos_add_frameworks=False, and (if the required
+					# headers and libraries are not in a default search
+					# location), use the standard C search path
+					# directives to tell the compiler where to find the
+					# required files.
+					#
+					# For users who have the framework installed in the
+					# standard place, if macos_add_frameworks=True,
+					# SCons should find the headers and libraries
+					# automatically.
+					('macos_add_frameworks', True, 'add required frameworks to CPPPATH, FRAMEWORKS, and FRAMEWORKPATH search variables (MacOS only); Homebrew users may want macos_add_frameworks=False'),
 					# This is only examined for Windows targets, so
 					# there is no need to make the default value depend
 					# on the host_platform.
-					('windows_minidump', True, 'generate a minidump on unhandled C++ exception'),
+					('windows_minidump', True, 'generate a minidump on unhandled C++ exception (Windows only)'),
 					('words_need_alignment', self.default_words_need_alignment, 'align words at load (needed for many non-x86 systems)'),
 					('register_compile_target', True, 'report compile targets to SCons core'),
 					('register_cpp_output_targets', None, None),
@@ -4027,20 +4044,38 @@ class DXXCommon(LazyObjectConstructor):
 		# arguments are included.
 		tools = ('gcc', 'g++', 'applelink')
 		def adjust_environment(self,program,env):
-			library_frameworks = os.path.join(os.getenv("HOME"), 'Library/Frameworks')
-			if os.path.isdir(library_frameworks):
-				env.Append(FRAMEWORKPATH = [library_frameworks])
-				SDL_private_framework = os.path.join(library_frameworks, 'SDL.framework/Headers')
-				if os.path.isdir(SDL_private_framework):
-					env.Append(CPPPATH = [SDL_private_framework])
-			SDL_system_framework = '/Library/Frameworks/SDL.framework/Headers'
-			if os.path.isdir(SDL_system_framework):
-				env.Append(CPPPATH = [SDL_system_framework])
+			macos_add_frameworks = self.user_settings.macos_add_frameworks
+			if macos_add_frameworks:
+				# The user may or may not have a private installation of
+				# frameworks.  If there are no private frameworks, then
+				# the path to the private frameworks should not be
+				# added, because some versions of the tools issue a
+				# diagnostic for searching a non-existant path.
+				library_frameworks = os.path.join(os.getenv("HOME"), 'Library/Frameworks')
+				if os.path.isdir(library_frameworks):
+					# The private framework directory exists.  Check
+					# whether the user has a private copy of the SDL
+					# framework.
+					env.Append(FRAMEWORKPATH = [library_frameworks])
+					SDL_private_framework = os.path.join(library_frameworks, 'SDL.framework/Headers')
+					if os.path.isdir(SDL_private_framework):
+						# Yes, so add its headers to the C preprocessor
+						# path.
+						env.Append(CPPPATH = [SDL_private_framework])
+					# else No, so omit the non-existant directory from
+					# the C preprocessor path.
+				# Check whether a system-wide SDL framework is
+				# available.
+				SDL_system_framework = '/Library/Frameworks/SDL.framework/Headers'
+				if os.path.isdir(SDL_system_framework):
+					env.Append(CPPPATH = [SDL_system_framework])
 			env.Append(
 				CPPDEFINES = ['__unix__'],
-				FRAMEWORKS = ['ApplicationServices', 'Cocoa', 'SDL'],
+				FRAMEWORKS = ['ApplicationServices', 'Cocoa'],
 				LINKFLAGS = ['-Wl,-rpath,@loader_path/../Frameworks'],	# Allow libraries & frameworks to go in app bundle
 			)
+			if macos_add_frameworks:
+				env.Append(FRAMEWORKS = ['SDL'])
 			if self.user_settings.opengl or self.user_settings.opengles:
 				env.Append(FRAMEWORKS = ['OpenGL'])
 	# Settings to apply to Linux builds
