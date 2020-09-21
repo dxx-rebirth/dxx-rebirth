@@ -45,39 +45,18 @@ namespace dcx {
 #define D_Y             (dlg->d_y)
 #define D_WIDTH         (dlg->d_width)
 #define D_HEIGHT        (dlg->d_height)
-#define D_GADGET        (dlg->d_gadget)
-#define D_TEXT_X        (dlg->d_text_x)
-#define D_TEXT_Y        (dlg->d_text_y)
-
-#ifndef __MSDOS__
-#define _disable()
-#define _enable()
-#endif
-
-#define BORDER_WIDTH 8
 
 static void ui_dialog_draw(UI_DIALOG *dlg)
 {
-	int x, y, w, h;
+	int w, h;
 	int req_w, req_h;
 
-	x = D_X;
-	y = D_Y;
 	w = D_WIDTH;
 	h = D_HEIGHT;
 
 	req_w = w;
 	req_h = h;
-	
-	if (dlg->d_flags & DF_BORDER)
-	{
-		req_w -= 2*BORDER_WIDTH;
-		req_h -= 2*BORDER_WIDTH;
-		
-		gr_set_default_canvas();
-		ui_draw_frame(*grd_curcanv, x, y, x + w - 1, y + h - 1);
-	}
-	
+
 	ui_dialog_set_current_canvas(dlg);
 	
 	if (dlg->d_flags & DF_FILLED)
@@ -146,14 +125,6 @@ d_callback(callback), gadget(nullptr), keyboard_focus_gadget(nullptr), d_userdat
 	req_w = w;
 	req_h = h;
 	
-	if (flags & DF_BORDER)
-	{
-		x -= BORDER_WIDTH;
-		y -= BORDER_WIDTH;
-		w += 2*BORDER_WIDTH;
-		h += 2*BORDER_WIDTH;
-	}
-
 	if ( x < 0 ) x = 0;
 	if ( (x+w-1) >= sw ) x = sw - w;
 	if ( y < 0 ) y = 0;
@@ -166,8 +137,8 @@ d_callback(callback), gadget(nullptr), keyboard_focus_gadget(nullptr), d_userdat
 	selected_gadget = NULL;
 
 	dlg->wind = window_create(grd_curscreen->sc_canvas,
-						 x + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
-						 y + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
+						 x,
+						 y,
 						 req_w, req_h, ui_dialog_handler, dlg, createdata);
 	
 	if (!(flags & DF_MODAL))

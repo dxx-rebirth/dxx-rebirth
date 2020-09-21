@@ -205,7 +205,6 @@ struct UI_GADGET_LISTBOX : UI_GADGET
 
 enum dialog_flags
 {
-	DF_BORDER  = 1,
 	DF_FILLED = 2,
 	DF_SAVE_BG = 4,
 	DF_DIALOG = (4+2+1),
