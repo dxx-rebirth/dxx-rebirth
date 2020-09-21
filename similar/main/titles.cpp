@@ -82,6 +82,8 @@ constexpr std::true_type EMULATING_D1{};
 
 namespace dcx {
 
+namespace {
+
 static std::array<color_t, 7> Briefing_text_colors;
 static color_t *Current_color;
 static color_t Erase_color;
@@ -107,23 +109,21 @@ static int get_message_num(const char *&message)
 	return num;
 }
 
-namespace {
-
 enum class title_load_location : uint8_t
 {
 	anywhere,
 	from_hog_only,
 };
 
-struct title_screen : ignore_window_pointer_t
+struct title_screen : window
 {
 	grs_main_bitmap title_bm;
 	fix64 timer;
+	using window::window;
+	virtual window_event_result event_handler(const d_event &) override;
 };
 
-}
-
-static window_event_result title_handler(window *, const d_event &event, title_screen *ts)
+window_event_result title_screen::event_handler(const d_event &event)
 {
 	window_event_result result;
 
@@ -153,7 +153,7 @@ static window_event_result title_handler(window *, const d_event &event, title_s
 		case EVENT_IDLE:
 			timer_delay2(50);
 
-			if (timer_query() > ts->timer)
+			if (timer_query() > timer)
 			{
 				return window_event_result::close;
 			}
@@ -161,7 +161,7 @@ static window_event_result title_handler(window *, const d_event &event, title_s
 
 		case EVENT_WINDOW_DRAW:
 			gr_set_default_canvas();
-			show_fullscr(*grd_curcanv, ts->title_bm);
+			show_fullscr(*grd_curcanv, title_bm);
 			break;
 
 		case EVENT_WINDOW_CLOSE:
@@ -177,7 +177,7 @@ static void show_title_screen(const char *filename)
 {
 	char new_filename[PATH_MAX] = "";
 
-	auto ts = std::make_unique<title_screen>();
+	auto ts = std::make_unique<title_screen>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 
 	strcat(new_filename,filename);
 	filename = new_filename;
@@ -191,14 +191,9 @@ static void show_title_screen(const char *filename)
 	}
 
 	gr_palette_load( gr_palette );
-
-	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, title_handler, ts.get());
-	if (!wind)
-	{
-		return;
-	}
-
+	ts->send_creation_events(nullptr);
 	event_process_all();
+	ts.release();
 }
 
 static void show_title_screen(const char *const filename, title_load_location /* from_hog_only */)
@@ -214,6 +209,8 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 		(filename = macshare, PHYSFSX_exists(filename, 1))
 		)
 		show_title_screen(filename, title_load_location::from_hog_only);
+}
+
 }
 
 }
