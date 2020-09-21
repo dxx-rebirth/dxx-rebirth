@@ -2490,6 +2490,13 @@ struct polygon_models_viewer_window : window
 	virtual window_event_result event_handler(const d_event &) override;
 };
 
+struct gamebitmaps_viewer_window : window
+{
+	unsigned view_idx = 0;
+	using window::window;
+	virtual window_event_result event_handler(const d_event &) override;
+};
+
 window_event_result polygon_models_viewer_window::event_handler(const d_event &event)
 {
 	int key = 0;
@@ -2573,9 +2580,8 @@ static void polygon_models_viewer()
 	viewer_window.release();
 }
 
-static window_event_result gamebitmaps_viewer_handler(window *, const d_event &event, const unused_window_userdata_t *)
+window_event_result gamebitmaps_viewer_window::event_handler(const d_event &event)
 {
-	static int view_idx = 0;
 	int key = 0;
 #if DXX_USE_OGL
 	float scale = 1.0;
@@ -2590,7 +2596,6 @@ static window_event_result gamebitmaps_viewer_handler(window *, const d_event &e
 			gr_use_palette_table("groupa.256");
 #endif
 			key_toggle_repeat(1);
-			view_idx = 0;
 			break;
 		case EVENT_KEY_COMMAND:
 			key = event_key_get(event);
@@ -2603,8 +2608,9 @@ static window_event_result gamebitmaps_viewer_handler(window *, const d_event &e
 					if (view_idx >= Num_bitmap_files) view_idx = 0;
 					break;
 				case KEY_BACKSP:
+					if (!view_idx)
+						view_idx = Num_bitmap_files;
 					view_idx --;
-					if (view_idx < 0 ) view_idx = Num_bitmap_files - 1;
 					break;
 				default:
 					break;
@@ -2641,15 +2647,10 @@ static window_event_result gamebitmaps_viewer_handler(window *, const d_event &e
 
 static void gamebitmaps_viewer()
 {
-	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, gamebitmaps_viewer_handler, unused_window_userdata);
-	if (!wind)
-	{
-		d_event event = { EVENT_WINDOW_CLOSE };
-		gamebitmaps_viewer_handler(NULL, event, NULL);
-		return;
-	}
-
+	auto viewer_window = std::make_unique<gamebitmaps_viewer_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	viewer_window->send_creation_events(nullptr);
 	event_process_all();
+	viewer_window.release();
 }
 
 #define DXX_SANDBOX_MENU(VERB)	\
