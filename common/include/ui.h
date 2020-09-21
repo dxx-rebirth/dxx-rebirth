@@ -214,7 +214,7 @@ enum dialog_flags
 template <typename T>
 using ui_subfunction_t = window_event_result (*)(struct UI_DIALOG *,const d_event &, T *);
 
-struct UI_DIALOG : embed_window_pointer_t
+struct UI_DIALOG : window
 {
 	// TODO: Make these private
 	ui_subfunction_t<void>	d_callback;
@@ -227,9 +227,10 @@ struct UI_DIALOG : embed_window_pointer_t
 public:
 	// For creating the dialog, there are two ways - using the (older) ui_create_dialog function
 	// or using the constructor, passing an event handler that takes a subclass of UI_DIALOG.
-	explicit UI_DIALOG(short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void> callback, void *userdata, const void *createdata);
+	explicit UI_DIALOG(short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void> callback, void *userdata);
 
 	~UI_DIALOG();
+	virtual window_event_result event_handler(const d_event &) override;
 };
 
 #define B1_JUST_PRESSED     (event.type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == 0)
@@ -264,7 +265,9 @@ constexpr unused_ui_userdata_t *unused_ui_userdata = nullptr;
 template <typename T1, typename T2 = const void>
 UI_DIALOG * ui_create_dialog(const short x, const short y, const short w, const short h, const enum dialog_flags flags, const ui_subfunction_t<T1> callback, T1 *const userdata, T2 *const createdata = nullptr)
 {
-	return new UI_DIALOG(x, y, w, h, flags, reinterpret_cast<ui_subfunction_t<void>>(callback), static_cast<void *>(userdata), static_cast<const void *>(createdata));
+	auto r = std::make_unique<UI_DIALOG>(x, y, w, h, flags, reinterpret_cast<ui_subfunction_t<void>>(callback), static_cast<void *>(userdata));
+	r->send_creation_events(createdata);
+	return r.release();
 }
 
 template <typename T1, typename T2 = const void>

@@ -62,7 +62,7 @@ static void ui_dialog_draw(UI_DIALOG *dlg)
 
 
 // The dialog handler borrows heavily from the newmenu_handler
-static window_event_result ui_dialog_handler(window *wind,const d_event &event, UI_DIALOG *dlg)
+window_event_result UI_DIALOG::event_handler(const d_event &event)
 {
 	window_event_result rval{window_event_result::ignored};
 
@@ -70,8 +70,8 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 		event.type == EVENT_WINDOW_DEACTIVATED)
 		return window_event_result::ignored;
 	
-	if (dlg->d_callback)
-		if ((rval = (*dlg->d_callback)(dlg, event, dlg->d_userdata)) != window_event_result::ignored)
+	if (d_callback)
+		if ((rval = (*d_callback)(this, event, d_userdata)) != window_event_result::ignored)
 			return rval;		// event handled
 
 	switch (event.type)
@@ -84,66 +84,55 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 		case EVENT_MOUSE_MOVED:
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
-			return ui_dialog_do_gadgets(dlg, event);
+			return ui_dialog_do_gadgets(this, event);
 		case EVENT_WINDOW_DRAW:
 		{
-			ui_dialog_draw(dlg);
-			rval = ui_dialog_do_gadgets(dlg, event);
+			ui_dialog_draw(this);
+			rval = ui_dialog_do_gadgets(this, event);
 			if (rval != window_event_result::close)
 			{
 				d_event event2 = { EVENT_UI_DIALOG_DRAW };
-				window_send_event(*wind, event2);
+				window_send_event(*this, event2);
 			}
 			return rval;
 		}
 
 		case EVENT_WINDOW_CLOSE:
 			if (rval != window_event_result::deleted)	// check if handler already deleted dialog (e.g. if UI_DIALOG was subclassed)
-				delete dlg;
-			return window_event_result::ignored;	// free the window in any case (until UI_DIALOG is subclass of window)
+				delete this;
+			return window_event_result::deleted;	// free the window in any case (until UI_DIALOG is subclass of window)
 		default:
 			return window_event_result::ignored;
 	}
 }
 
-UI_DIALOG::UI_DIALOG(short x, short y, const short w, const short h, const enum dialog_flags flags, const ui_subfunction_t<void> callback, void *const userdata, const void *const createdata) :
+static short adjust_starting_coordinate(short value, const int limit)
+{
+	if (value < 0)
+		value = 0;
+	if (value - 1 >= limit)
+		value = limit;
+	return value;
+}
+
+UI_DIALOG::UI_DIALOG(short x, short y, const short w, const short h, const enum dialog_flags flags, const ui_subfunction_t<void> callback, void *const userdata) :
+	window(grd_curscreen->sc_canvas, adjust_starting_coordinate(x, grd_curscreen->get_screen_width() - w), adjust_starting_coordinate(y, grd_curscreen->get_screen_height() - h), w, h),
 	d_callback(callback), d_userdata(userdata), d_width(w), d_height(h), d_flags(flags)
 {
-	int sw, sh, req_w, req_h;
-
-	auto dlg = this;
-	sw = grd_curscreen->get_screen_width();
-	sh = grd_curscreen->get_screen_height();
-
-	//mouse_set_limits(0, 0, sw - 1, sh - 1);
-
-	req_w = w;
-	req_h = h;
-	
-	if ( x < 0 ) x = 0;
-	if ( (x+w-1) >= sw ) x = sw - w;
-	if ( y < 0 ) y = 0;
-	if ( (y+h-1) >= sh ) y = sh - h;
-
 	selected_gadget = NULL;
 
-	dlg->wind = window_create(grd_curscreen->sc_canvas,
-						 x,
-						 y,
-						 req_w, req_h, ui_dialog_handler, dlg, createdata);
-	
 	if (!(flags & DF_MODAL))
-		dlg->wind->set_modal(0);	// make this window modeless, allowing events to propogate through the window stack
+		set_modal(0);	// make this window modeless, allowing events to propogate through the window stack
 }
 
 window *ui_dialog_get_window(UI_DIALOG *dlg)
 {
-	return dlg->wind;
+	return dlg;
 }
 
 void ui_dialog_set_current_canvas(UI_DIALOG *dlg)
 {
-	gr_set_current_canvas(dlg->wind->w_canv);
+	gr_set_current_canvas(dlg->w_canv);
 }
 
 UI_DIALOG::~UI_DIALOG()
@@ -153,7 +142,7 @@ UI_DIALOG::~UI_DIALOG()
 
 void ui_close_dialog( UI_DIALOG * dlg )
 {
-	window_close(dlg->wind);
+	window_close(dlg);
 }
 
 #if 0
