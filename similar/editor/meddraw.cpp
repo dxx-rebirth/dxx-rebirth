@@ -871,16 +871,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vmsegptridx_t min
 				case 2: gr_ustring(*grd_curcanv, *grd_curcanv->cv_font, 85, 5, "-- RIGHT");	break;
 			}			
 		} else
-#if ORTHO_VIEWS
-		 else if ( screen_canvas == TopViewBox->canvas )
-			gr_ustring(*grd_curcanv, *grd_curcanv->cv_font, 5, 5, "TOP");
-		else if ( screen_canvas == FrontViewBox->canvas )
-			gr_ustring(*grd_curcanv, *grd_curcanv->cv_font, 5, 5, "FRONT");
-		else if ( screen_canvas == RightViewBox->canvas )
-			gr_ustring(*grd_curcanv, *grd_curcanv->cv_font, 5, 5, "RIGHT");
-#else
 			Error("Ortho views have been removed, what gives?\n");
-#endif
 
 	}
 
@@ -942,10 +933,5 @@ void meddraw_init_views( grs_canvas * canvas)
 #endif
 
 	Views[0]->ev_canv = canvas;
-#if ORTHO_VIEWS
-	Views[1]->ev_canv = TopViewBox->canvas;
-	Views[2]->ev_canv = FrontViewBox->canvas;
-	Views[3]->ev_canv = RightViewBox->canvas;
-#endif
 }
 }

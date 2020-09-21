@@ -41,7 +41,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#define ORTHO_VIEWS 0			// set to 1 to enable 3 orthogonal views
 #define ED_SCREEN_W	800		//width of editor screen
 #define ED_SCREEN_H	600		//height of editor screen
 
@@ -167,7 +166,7 @@ enum class editor_gamestate : uint8_t
  * 
  */
 
-extern std::array<editor_view *, ORTHO_VIEWS ? 4 : 1> Views;
+extern std::array<editor_view *, 1> Views;
 extern int Large_view_index;
 extern std::unique_ptr<UI_GADGET_USERBOX> LargeViewBox, GameViewBox, GroupViewBox;
 extern int Found_seg_index;				// Index in Found_segs corresponding to Cursegp

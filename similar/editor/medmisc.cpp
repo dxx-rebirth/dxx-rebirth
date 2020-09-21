@@ -406,22 +406,6 @@ int AttachSegment()
 	return 1;
 }
 
-
-#if ORTHO_VIEWS
-int SyncLargeView()
-{
-	// Make large view be same as one of the orthogonal views.
-	Large_view_index = (Large_view_index + 1) % 3;  // keep in 0,1,2 for top, front, right
-	switch (Large_view_index) {
-		case 0: LargeView.ev_matrix = TopView.ev_matrix; break;
-		case 1: LargeView.ev_matrix = FrontView.ev_matrix; break;
-		case 2: LargeView.ev_matrix = RightView.ev_matrix; break;
-	}
-	Update_flags |= UF_VIEWPOINT_MOVED;
-	return 1;
-}
-#endif
-
 int CreateDefaultNewSegment()
 {
 	// Create a default segment for New_segment.

@@ -134,12 +134,6 @@ int	Large_view_index = -1;
 
 std::unique_ptr<UI_GADGET_USERBOX> GameViewBox, LargeViewBox, GroupViewBox;
 
-#if ORTHO_VIEWS
-UI_GADGET_USERBOX * TopViewBox;
-UI_GADGET_USERBOX * FrontViewBox;
-UI_GADGET_USERBOX * RightViewBox;
-#endif
-
 static std::unique_ptr<UI_GADGET_ICON>
 	ViewIcon,
 	AllIcon,
@@ -783,11 +777,6 @@ static void init_editor_screen(grs_canvas &canvas)
 	EditorWindow = ui_create_dialog( 0 , 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED, editor_handler, unused_ui_userdata );
 
 	LargeViewBox	= ui_add_gadget_userbox( EditorWindow,LVIEW_X,LVIEW_Y,LVIEW_W,LVIEW_H);
-#if ORTHO_VIEWS
-	TopViewBox		= ui_add_gadget_userbox( EditorWindow,TVIEW_X,TVIEW_Y,TVIEW_W,TVIEW_H);
- 	FrontViewBox	= ui_add_gadget_userbox( EditorWindow,FVIEW_X,FVIEW_Y,FVIEW_W,FVIEW_H);
-	RightViewBox	= ui_add_gadget_userbox( EditorWindow,RVIEW_X,RVIEW_Y,RVIEW_W,RVIEW_H);
-#endif
 	ui_gadget_calc_keys(EditorWindow);	//make tab work for all windows
 
 	GameViewBox	= ui_add_gadget_userbox( EditorWindow, GAMEVIEW_X, GAMEVIEW_Y, GAMEVIEW_W, GAMEVIEW_H );
@@ -1259,12 +1248,6 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 
 	new_cv = current_view;
 
-#if ORTHO_VIEWS
-	if (EditorWindow->keyboard_focus_gadget == LargeViewBox) new_cv=&LargeView;
-	if (EditorWindow->keyboard_focus_gadget == TopViewBox)	new_cv=&TopView;
-	if (EditorWindow->keyboard_focus_gadget == FrontViewBox) new_cv=&FrontView;
-	if (EditorWindow->keyboard_focus_gadget == RightViewBox) new_cv=&RightView;
-#endif
 	if (new_cv != current_view ) {
 		current_view->ev_changed = 1;
 		new_cv->ev_changed = 1;
