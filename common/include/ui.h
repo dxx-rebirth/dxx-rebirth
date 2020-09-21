@@ -233,11 +233,7 @@ public:
 	// For creating the dialog, there are two ways - using the (older) ui_create_dialog function
 	// or using the constructor, passing an event handler that takes a subclass of UI_DIALOG.
 	explicit UI_DIALOG(short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void> callback, void *userdata, const void *createdata);
-	
-	template <typename T>
-	UI_DIALOG(short x, short y, short w, short h, enum dialog_flags flags, ui_subclass_subfunction_t<T> callback) :
-	UI_DIALOG(x, y, w, h, flags, reinterpret_cast<ui_subclass_subfunction_t<UI_DIALOG>>(callback), nullptr, nullptr) {}
-	
+
 	~UI_DIALOG();
 };
 

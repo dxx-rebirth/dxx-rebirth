@@ -41,18 +41,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-#define D_X             (dlg->d_x)
-#define D_Y             (dlg->d_y)
-#define D_WIDTH         (dlg->d_width)
-#define D_HEIGHT        (dlg->d_height)
-
 static void ui_dialog_draw(UI_DIALOG *dlg)
 {
 	int w, h;
 	int req_w, req_h;
 
-	w = D_WIDTH;
-	h = D_HEIGHT;
+	w = dlg->d_width;
+	h = dlg->d_height;
 
 	req_w = w;
 	req_h = h;
@@ -130,10 +125,10 @@ d_callback(callback), gadget(nullptr), keyboard_focus_gadget(nullptr), d_userdat
 	if ( y < 0 ) y = 0;
 	if ( (y+h-1) >= sh ) y = sh - h;
 
-	D_X = x;
-	D_Y = y;
-	D_WIDTH = w;
-	D_HEIGHT = h;
+	d_x = x;
+	d_y = y;
+	d_width = w;
+	d_height = h;
 	selected_gadget = NULL;
 
 	dlg->wind = window_create(grd_curscreen->sc_canvas,

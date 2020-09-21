@@ -64,6 +64,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //-------------------------------------------------------------------------
 static UI_DIALOG 				*MainWindow = NULL;
 
+namespace dsx {
+
 namespace {
 
 struct centers_dialog
@@ -81,7 +83,6 @@ static window_event_result centers_dialog_handler(UI_DIALOG *dlg,const d_event &
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the centers dialog box
 //-------------------------------------------------------------------------
-namespace dsx {
 int do_centers_dialog()
 {
 	// Only open 1 instance of this window...
@@ -105,9 +106,7 @@ int do_centers_dialog()
 	MainWindow = ui_create_dialog(x, TMAPBOX_Y+20, width, 545-TMAPBOX_Y, DF_DIALOG, centers_dialog_handler, std::move(c));
 	return 1;
 }
-}
 
-namespace dsx {
 static window_event_result centers_dialog_created(UI_DIALOG *const w, centers_dialog *const c)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -147,6 +146,8 @@ void close_centers_window()
 		MainWindow = NULL;
 	}
 }
+
+namespace dsx {
 
 window_event_result centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *c)
 {
@@ -254,5 +255,4 @@ window_event_result centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	return rval;
 }
 
-
-
+}
