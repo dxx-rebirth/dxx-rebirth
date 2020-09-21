@@ -49,6 +49,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int init_info;
 
+namespace dcx {
+
+namespace {
+
 typedef const char object_type_name[13];
 typedef const char control_type_name[15];
 typedef const char movement_type_name[15];
@@ -80,7 +84,7 @@ static object_type_name &get_object_type(int num)
 	}
 }
 
-static control_type_name &get_control_type(const typename object::control_type num)
+static control_type_name &get_control_type(const typename object_base::control_type num)
 {
 	switch (num) {
 		case object::control_type::None:
@@ -102,7 +106,7 @@ static control_type_name &get_control_type(const typename object::control_type n
 	}
 }
 
-static movement_type_name &get_movement_type(const typename object::movement_type num)
+static movement_type_name &get_movement_type(const typename object_base::movement_type num)
 {
 	switch (num) {
 		case object::movement_type::None:
@@ -115,6 +119,20 @@ static movement_type_name &get_movement_type(const typename object::movement_typ
 			return " (unknown)    ";
 	}
 }
+
+}
+
+}
+
+namespace dsx {
+
+namespace {
+
+struct info_dialog_window : window
+{
+	using window::window;
+	virtual window_event_result event_handler(const d_event &) override;
+};
 
 static ai_type_name &get_ai_behavior(ai_behavior num)
 {
@@ -174,6 +192,14 @@ static void info_display_object_placement(grs_canvas &canvas, int show_all)
 
 }
 
+}
+
+}
+
+namespace dcx {
+
+namespace {
+
 //	---------------------------------------------------------------------------------------------------
 static void info_display_segsize(grs_canvas &canvas, int show_all)
 {
@@ -198,6 +224,21 @@ static void info_display_segsize(grs_canvas &canvas, int show_all)
 	}
 
 }
+
+//	------------------------------------------------------------------------------------
+static void clear_pad_display(grs_canvas &canvas)
+{
+	gr_clear_canvas(canvas, CWHITE);
+	gr_set_fontcolor(canvas, CBLACK, CWHITE);
+}
+
+}
+
+}
+
+namespace dsx {
+
+namespace {
 
 //	---------------------------------------------------------------------------------------------------
 static void info_display_default(grs_canvas &canvas, int show_all)
@@ -305,14 +346,7 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 }
 
 //	------------------------------------------------------------------------------------
-static void clear_pad_display(grs_canvas &canvas)
-{
-	gr_clear_canvas(canvas, CWHITE);
-	gr_set_fontcolor(canvas, CBLACK, CWHITE);
-}
-
-//	------------------------------------------------------------------------------------
-static window_event_result info_display_all(window *wind,const d_event &event, const unused_window_userdata_t *)
+window_event_result info_dialog_window::event_handler(const d_event &event)
 {
 	static int old_padnum = -1;
 	int        padnum,show_all = 1;		// always redraw
@@ -322,7 +356,7 @@ static window_event_result info_display_all(window *wind,const d_event &event, c
 	{
 		case EVENT_WINDOW_DRAW:
 		{
-			gr_set_current_canvas(wind->w_canv);
+			gr_set_current_canvas(w_canv);
 			auto &canvas = *grd_curcanv;
 
 			padnum = ui_pad_get_current();
@@ -358,13 +392,15 @@ static window_event_result info_display_all(window *wind,const d_event &event, c
 	return window_event_result::ignored;
 }
 
+}
+
 //	------------------------------------------------------------------------------------
 window *info_window_create(void)
 {
-	const auto wind = window_create(*Canv_editor, PAD_X + 250, PAD_Y + 8, 180, 160, info_display_all, unused_window_userdata);
-	if (wind)
-		wind->set_modal(0);
-	return wind;
+	auto wind = std::make_unique<info_dialog_window>(*Canv_editor, PAD_X + 250, PAD_Y + 8, 180, 160);
+	wind->set_modal(0);
+	wind->send_creation_events(nullptr);
+	return wind.release();
 }
 
-
+}

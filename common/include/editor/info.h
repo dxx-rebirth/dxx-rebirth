@@ -25,11 +25,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#ifdef __cplusplus
 #include "fwd-window.h"
+#include "dsx-ns.h"
+
+#ifdef dsx
+namespace dsx {
 
 class window *info_window_create(void);
 
-extern int init_info;
-
+}
 #endif
+
+extern int init_info;
