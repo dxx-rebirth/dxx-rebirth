@@ -67,6 +67,10 @@ namespace dcx {
 constexpr std::integral_constant<unsigned, 10> MAX_HIGH_SCORES{};
 }
 
+namespace dsx {
+
+namespace {
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_SCORE_STRUCT_PACK	__pack__
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -97,6 +101,8 @@ static_assert(sizeof(all_scores) == 294, "high score size wrong");
 #elif defined(DXX_BUILD_DESCENT_II)
 static_assert(sizeof(all_scores) == 336, "high score size wrong");
 #endif
+
+void scores_view(stats_info *const last_game, int citem);
 
 static void scores_read(all_scores *scores)
 {
@@ -155,6 +161,14 @@ static void scores_write(all_scores *scores)
 	PHYSFS_write(fp, scores,sizeof(all_scores), 1);
 }
 
+}
+
+}
+
+namespace dcx {
+
+namespace {
+
 static void int_to_string( int number, char *dest )
 {
 	int c;
@@ -181,6 +195,14 @@ static void int_to_string( int number, char *dest )
 	d_strrev(dest);
 }
 
+}
+
+}
+
+namespace dsx {
+
+namespace {
+
 static void scores_fill_struct(stats_info * stats)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -206,6 +228,14 @@ static void scores_fill_struct(stats_info * stats)
 	stats->starting_level = plr.starting_level;
 }
 
+}
+
+}
+
+namespace dcx {
+
+namespace {
+
 static inline const char *get_placement_slot_string(const unsigned position)
 {
 	switch(position)
@@ -225,6 +255,12 @@ static inline const char *get_placement_slot_string(const unsigned position)
 		case 9: return TXT_10TH;
 	}
 }
+
+}
+
+}
+
+namespace dsx {
 
 void scores_maybe_add_player()
 {
@@ -277,6 +313,12 @@ void scores_maybe_add_player()
 	scores_view(&last_game, position);
 }
 
+}
+
+namespace dcx {
+
+namespace {
+
 __attribute_nonnull()
 static void scores_rputs(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, char *const buffer)
 {
@@ -302,6 +344,14 @@ static void scores_rprintf(grs_canvas &canvas, const grs_font &cv_font, const in
 	va_end(args);
 	scores_rputs(canvas, cv_font, x, y, buffer);
 }
+
+}
+
+}
+
+namespace dsx {
+
+namespace {
 
 static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const unsigned i, stats_info *const stats)
 {
@@ -354,16 +404,18 @@ static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const 
 	}
 }
 
-struct scores_menu : ignore_window_pointer_t
+struct scores_menu : window
 {
 	int			citem;
 	fix64			t1;
-	int			looper;
+	int looper = 0;
 	all_scores	scores;
 	stats_info	last_game;
+	using window::window;
+	virtual window_event_result event_handler(const d_event &) override;
 };
 
-static window_event_result scores_handler(window *wind,const d_event &event, scores_menu *menu)
+window_event_result scores_menu::event_handler(const d_event &event)
 {
 	int k;
 	const auto &&fspacx = FSPACX();
@@ -380,11 +432,12 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			k = event_key_get(event);
 			switch( k )	{
 				case KEY_CTRLED+KEY_R:		
-					if ( menu->citem < 0 )		{
+					if (citem < 0)
+					{
 						// Reset scores...
 						if ( nm_messagebox( NULL, 2,  TXT_NO, TXT_YES, TXT_RESET_HIGH_SCORES )==1 )	{
 							PHYSFS_delete(SCORES_FILENAME);
-							scores_view(&menu->last_game, menu->citem);	// create new scores window
+							scores_view(&last_game, citem);	// create new scores window
 							return window_event_result::close;
 						}
 					}
@@ -419,7 +472,7 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			nm_draw_background(*grd_curcanv, ((SWIDTH - w) / 2) - BORDERX, ((SHEIGHT - h) / 2) - BORDERY, ((SWIDTH - w) / 2) + w + BORDERX, ((SHEIGHT - h) / 2) + h + BORDERY);
 			
 			{
-				auto &canvas = wind->w_canv;
+				auto &canvas = w_canv;
 			auto &medium3_font = *MEDIUM3_FONT;
 			gr_string(canvas, medium3_font, 0x8000, fspacy(15), TXT_HIGH_SCORES);
 			gr_set_fontcolor(canvas, BM_XRGB(31, 26, 5), -1);
@@ -430,55 +483,50 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			gr_string(canvas, game_font, fspacx(210), fspacy(50), TXT_LEVELS);
 			gr_string(canvas, game_font, fspacx(253), fspacy(50), TXT_TIME);
 			
-			if ( menu->citem < 0 )	
+			if (citem < 0)
 				gr_string(canvas, game_font, 0x8000, fspacy(175), TXT_PRESS_CTRL_R);
 			
 			gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 			
-			gr_printf(canvas, game_font, 0x8000, fspacy(31), "%c%s%c  - %s", 34, menu->scores.cool_saying, 34, static_cast<const char *>(menu->scores.stats[0].name));
+			gr_printf(canvas, game_font, 0x8000, fspacy(31), "%c%s%c  - %s", 34, scores.cool_saying, 34, static_cast<const char *>(scores.stats[0].name));
 			
 			for (int i=0; i<MAX_HIGH_SCORES; i++ ) {
 				gr_set_fontcolor(canvas, BM_XRGB(28 - i * 2, 28 - i * 2, 28 - i * 2), -1);
-				scores_draw_item(canvas, game_font, i, &menu->scores.stats[i]);
+				scores_draw_item(canvas, game_font, i, &scores.stats[i]);
 			}
 			
-			if ( menu->citem > -1 )	{
-				
-				gr_set_fontcolor(canvas, BM_XRGB(7 + fades[menu->looper], 7 + fades[menu->looper], 7 + fades[menu->looper]), -1);
-				if (timer_query() >= menu->t1+F1_0/128)
+			if (citem > -1)
+			{
+				gr_set_fontcolor(canvas, BM_XRGB(7 + fades[looper], 7 + fades[looper], 7 + fades[looper]), -1);
+				if (timer_query() >= t1 + F1_0 / 128)
 				{
-					menu->t1 = timer_query();
-					menu->looper++;
-					if (menu->looper>63) menu->looper=0;
+					t1 = timer_query();
+					looper++;
+					if (looper > 63)
+						looper = 0;
 				}
 
-				scores_draw_item(canvas, game_font, menu->citem, menu->citem == MAX_HIGH_SCORES
-					? &menu->last_game
-					: &menu->scores.stats[menu->citem]);
+				scores_draw_item(canvas, game_font, citem, citem == MAX_HIGH_SCORES
+					? &last_game
+					: &scores.stats[citem]);
 			}
 			}
 			break;
 		case EVENT_WINDOW_CLOSE:
-			d_free(menu);
 			break;
-
 		default:
 			break;
 	}
 	return window_event_result::ignored;
 }
 
-void scores_view(stats_info *last_game, int citem)
+void scores_view(stats_info *const last_game, int citem)
 {
-	scores_menu *menu;
-
-	MALLOC(menu, scores_menu, 1);
-	if (!menu)
-		return;
-
+	const auto &&fspacx320 = FSPACX(320);
+	const auto &&fspacy200 = FSPACY(200);
+	auto menu = std::make_unique<scores_menu>(grd_curscreen->sc_canvas, (SWIDTH - fspacx320) / 2, (SHEIGHT - fspacy200) / 2, fspacx320, fspacy200);
 	menu->citem = citem;
 	menu->t1 = timer_query();
-	menu->looper = 0;
 	if (last_game)
 		menu->last_game = *last_game;
 
@@ -489,8 +537,15 @@ void scores_view(stats_info *last_game, int citem)
 	set_screen_mode(SCREEN_MENU);
 	show_menus();
 
-	const auto &&fspacx320 = FSPACX(320);
-	const auto &&fspacy200 = FSPACY(200);
-	window_create(grd_curscreen->sc_canvas, (SWIDTH - fspacx320) / 2, (SHEIGHT - fspacy200) / 2, fspacx320, fspacy200,
-				  scores_handler, menu);
+	menu->send_creation_events(nullptr);
+	menu.release();
+}
+
+}
+
+void scores_view_menu()
+{
+	scores_view(nullptr, -1);
+}
+
 }

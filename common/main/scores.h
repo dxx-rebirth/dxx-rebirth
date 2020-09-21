@@ -27,35 +27,30 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SCORES_H
 #define _SCORES_H
 
-#ifdef __cplusplus
+#include "dsx-ns.h"
 
-#define ROBOT_SCORE             1000
 #define HOSTAGE_SCORE           1000
 #define CONTROL_CEN_SCORE       5000
 #define ENERGY_SCORE            0
 #define SHIELD_SCORE            0
 #define LASER_SCORE             0
-#define DEBRIS_SCORE            0
-#define CLUTTER_SCORE           0
-#define MISSILE1_SCORE          0
-#define MISSILE4_SCORE          0
 #define KEY_SCORE               0
 #define QUAD_FIRE_SCORE         0
 
 #define VULCAN_AMMO_SCORE       0
 #define CLOAK_SCORE             0
-#define TURBO_SCORE             0
 #define INVULNERABILITY_SCORE   0
-#define HEADLIGHT_SCORE         0
 
-struct stats_info;
+#ifdef dsx
+namespace dsx {
 
-extern void scores_view(struct stats_info *last_game, int citem);
+void scores_view_menu();
 
 // If player has a high score, adds you to file and returns.
 // If abort_flag set, only show if player has gotten a high score.
 void scores_maybe_add_player();
 
+}
 #endif
 
 #endif /* _SCORES_H */
