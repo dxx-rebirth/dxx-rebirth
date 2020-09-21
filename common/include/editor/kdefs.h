@@ -143,6 +143,7 @@ int IncreaseSegWidthDefault();
 int DecreaseSegWidthDefault();
 int IncreaseSegHeightDefault();
 int DecreaseSegHeightDefault();
+int do_trigger_dialog();
 }
 #endif
 
@@ -325,7 +326,6 @@ extern int wall_assign_door_6(void);
 extern int wall_assign_door_7(void);
 extern int wall_assign_door_8(void);
 extern int do_wall_dialog(void);
-extern int do_trigger_dialog(void);
 extern int check_walls(void);
 extern int delete_all_walls(void);
 #ifdef DXX_BUILD_DESCENT_II

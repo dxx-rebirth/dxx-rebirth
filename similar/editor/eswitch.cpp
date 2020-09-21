@@ -59,21 +59,26 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //-------------------------------------------------------------------------
 #define NUM_TRIGGER_FLAGS 10
 
-static UI_DIALOG 				*MainWindow = NULL;
+namespace dsx {
 
 namespace {
 
-struct trigger_dialog
+struct trigger_dialog : UI_DIALOG
 {
+	explicit trigger_dialog(short x, short y, short w, short h, enum dialog_flags flags) :
+		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr)
+	{
+	}
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton, remove_trigger, bind_wall, bind_matcen, enable_all_triggers;
 #if defined(DXX_BUILD_DESCENT_I)
 	std::array<std::unique_ptr<UI_GADGET_CHECKBOX>, NUM_TRIGGER_FLAGS> triggerFlag;
 #endif
 	int old_trigger_num;
+	virtual window_event_result callback_handler(const d_event &) override;
 };
 
-}
+static trigger_dialog *MainWindow;
 
 #if defined(DXX_BUILD_DESCENT_I)
 //-----------------------------------------------------------------
@@ -200,14 +205,13 @@ static int bind_matcen_to_trigger() {
 	return 1;
 }
 
+}
 
 int bind_wall_to_trigger() {
-
 	if (!Markedsegp) {
 		editor_status("No marked segment.");
 		return 0;
 	}
-
 	const auto wall_num = Markedsegp->shared_segment::sides[Markedside].wall_num;
 	if (wall_num == wall_none) {
 		editor_status("No wall at Markedside.");
@@ -311,8 +315,6 @@ static int trigger_turn_all_ON()
 }
 #endif
 
-static window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *t);
-
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the trigger dialog box
 //-------------------------------------------------------------------------
@@ -326,7 +328,6 @@ int do_trigger_dialog()
 	// Only open 1 instance of this window...
 	if ( MainWindow != NULL ) return 0;
 	
-	auto t = std::make_unique<trigger_dialog>();
 	// Close other windows.	
 	robot_close_window();
 	close_wall_window();
@@ -336,39 +337,39 @@ int do_trigger_dialog()
 #endif
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog(TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, trigger_dialog_handler, std::move(t));
+	MainWindow = ui_create_dialog<trigger_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG);
 	return 1;
 }
 
-static window_event_result trigger_dialog_created(UI_DIALOG *const w, trigger_dialog *const t)
+static window_event_result trigger_dialog_created(trigger_dialog *const t)
 {
 	// These are the checkboxes for each door flag.
 	int i = 44;
 #if defined(DXX_BUILD_DESCENT_I)
-	t->triggerFlag[0] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Door Control");  	i+=22;
-	t->triggerFlag[1] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Shield damage"); 	i+=22;
-	t->triggerFlag[2] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Energy drain");		i+=22;
-	t->triggerFlag[3] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Exit");					i+=22;
-	t->triggerFlag[4] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "One-shot");			i+=22;
-	t->triggerFlag[5] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Illusion ON");		i+=22;
-	t->triggerFlag[6] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Illusion OFF");		i+=22;
-	t->triggerFlag[7] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Unused");			i+=22;
-	t->triggerFlag[8] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Matcen Trigger"); 	i+=22;
-	t->triggerFlag[9] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Secret Exit"); 		i+=22;
+	t->triggerFlag[0] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Door Control");  	i+=22;
+	t->triggerFlag[1] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Shield damage"); 	i+=22;
+	t->triggerFlag[2] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Energy drain");		i+=22;
+	t->triggerFlag[3] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Exit");					i+=22;
+	t->triggerFlag[4] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "One-shot");			i+=22;
+	t->triggerFlag[5] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Illusion ON");		i+=22;
+	t->triggerFlag[6] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Illusion OFF");		i+=22;
+	t->triggerFlag[7] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Unused");			i+=22;
+	t->triggerFlag[8] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Matcen Trigger"); 	i+=22;
+	t->triggerFlag[9] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Secret Exit"); 		i+=22;
 #endif
 
-	t->quitButton = ui_add_gadget_button( w, 20, i, 48, 40, "Done", NULL );
+	t->quitButton = ui_add_gadget_button(t, 20, i, 48, 40, "Done", NULL );
 																				 
 	// The little box the wall will appear in.
-	t->wallViewBox = ui_add_gadget_userbox( w, 155, 5, 64, 64 );
+	t->wallViewBox = ui_add_gadget_userbox(t, 155, 5, 64, 64 );
 
 	// A bunch of buttons...
 	i = 80;
-	t->remove_trigger = ui_add_gadget_button(w, 155, i, 140, 26, "Remove Trigger", trigger_remove); i += 29;
-	t->bind_wall = ui_add_gadget_button(w, 155, i, 140, 26, "Bind Wall", bind_wall_to_trigger); i += 29;
-	t->bind_matcen = ui_add_gadget_button(w, 155, i, 140, 26, "Bind Matcen", bind_matcen_to_trigger); i += 29;
+	t->remove_trigger = ui_add_gadget_button(t, 155, i, 140, 26, "Remove Trigger", trigger_remove); i += 29;
+	t->bind_wall = ui_add_gadget_button(t, 155, i, 140, 26, "Bind Wall", bind_wall_to_trigger); i += 29;
+	t->bind_matcen = ui_add_gadget_button(t, 155, i, 140, 26, "Bind Matcen", bind_matcen_to_trigger); i += 29;
 #if defined(DXX_BUILD_DESCENT_II)
-	t->enable_all_triggers = ui_add_gadget_button(w, 155, i, 140, 26, "All Triggers ON", trigger_turn_all_ON); i += 29;
+	t->enable_all_triggers = ui_add_gadget_button(t, 155, i, 140, 26, "All Triggers ON", trigger_turn_all_ON); i += 29;
 #endif
 
 	t->old_trigger_num = -2;		// Set to some dummy value so everything works ok on the first frame.
@@ -383,14 +384,13 @@ void close_trigger_window()
 	}
 }
 
-window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *t)
+window_event_result trigger_dialog::callback_handler(const d_event &event)
 {
 	switch(event.type)
 	{
 		case EVENT_WINDOW_CREATED:
-			return trigger_dialog_created(dlg, t);
+			return trigger_dialog_created(this);
 		case EVENT_WINDOW_CLOSE:
-			std::default_delete<trigger_dialog>()(t);
 			MainWindow = NULL;
 			return window_event_result::ignored;
 		default:
@@ -422,7 +422,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	auto &vcwallptr = Walls.vcptr;
 	const auto trigger_num = (Markedwall != wall_none) ? vcwallptr(Markedwall)->trigger : trigger_none;
 
-	if (t->old_trigger_num != trigger_num)
+	if (old_trigger_num != trigger_num)
 	{
 		if (trigger_num != trigger_none)
 		{
@@ -431,16 +431,16 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 			auto &vctrgptr = Triggers.vcptr;
 			const auto &&trig = vctrgptr(trigger_num);
 
-  			ui_checkbox_check(t->triggerFlag[0].get(), trig->flags & TRIGGER_CONTROL_DOORS);
- 			ui_checkbox_check(t->triggerFlag[1].get(), trig->flags & TRIGGER_SHIELD_DAMAGE);
- 			ui_checkbox_check(t->triggerFlag[2].get(), trig->flags & TRIGGER_ENERGY_DRAIN);
- 			ui_checkbox_check(t->triggerFlag[3].get(), trig->flags & TRIGGER_EXIT);
- 			ui_checkbox_check(t->triggerFlag[4].get(), trig->flags & TRIGGER_ONE_SHOT);
- 			ui_checkbox_check(t->triggerFlag[5].get(), trig->flags & TRIGGER_ILLUSION_ON);
- 			ui_checkbox_check(t->triggerFlag[6].get(), trig->flags & TRIGGER_ILLUSION_OFF);
-			ui_checkbox_check(t->triggerFlag[7].get(), 0);
- 			ui_checkbox_check(t->triggerFlag[8].get(), trig->flags & TRIGGER_MATCEN);
- 			ui_checkbox_check(t->triggerFlag[9].get(), trig->flags & TRIGGER_SECRET_EXIT);
+  			ui_checkbox_check(triggerFlag[0].get(), trig->flags & TRIGGER_CONTROL_DOORS);
+ 			ui_checkbox_check(triggerFlag[1].get(), trig->flags & TRIGGER_SHIELD_DAMAGE);
+ 			ui_checkbox_check(triggerFlag[2].get(), trig->flags & TRIGGER_ENERGY_DRAIN);
+ 			ui_checkbox_check(triggerFlag[3].get(), trig->flags & TRIGGER_EXIT);
+ 			ui_checkbox_check(triggerFlag[4].get(), trig->flags & TRIGGER_ONE_SHOT);
+ 			ui_checkbox_check(triggerFlag[5].get(), trig->flags & TRIGGER_ILLUSION_ON);
+ 			ui_checkbox_check(triggerFlag[6].get(), trig->flags & TRIGGER_ILLUSION_OFF);
+			ui_checkbox_check(triggerFlag[7].get(), 0);
+ 			ui_checkbox_check(triggerFlag[8].get(), trig->flags & TRIGGER_MATCEN);
+ 			ui_checkbox_check(triggerFlag[9].get(), trig->flags & TRIGGER_SECRET_EXIT);
 #endif
 		}
 	}
@@ -453,27 +453,27 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	{
 #if defined(DXX_BUILD_DESCENT_I)
 		rval = window_event_result::handled;
-		if (GADGET_PRESSED(t->triggerFlag[0].get())) 
-			trigger_flag_Markedside(TRIGGER_CONTROL_DOORS, t->triggerFlag[0]->flag); 
-		else if (GADGET_PRESSED(t->triggerFlag[1].get()))
-			trigger_flag_Markedside(TRIGGER_SHIELD_DAMAGE, t->triggerFlag[1]->flag); 
-		else if (GADGET_PRESSED(t->triggerFlag[2].get()))
-			trigger_flag_Markedside(TRIGGER_ENERGY_DRAIN, t->triggerFlag[2]->flag); 
-		else if (GADGET_PRESSED(t->triggerFlag[3].get()))
-			trigger_flag_Markedside(TRIGGER_EXIT, t->triggerFlag[3]->flag); 
-		else if (GADGET_PRESSED(t->triggerFlag[4].get()))
-			trigger_flag_Markedside(TRIGGER_ONE_SHOT, t->triggerFlag[4]->flag); 
-		else if (GADGET_PRESSED(t->triggerFlag[5].get()))
-			trigger_flag_Markedside(TRIGGER_ILLUSION_ON, t->triggerFlag[5]->flag); 
-		else if (GADGET_PRESSED(t->triggerFlag[6].get()))
-			trigger_flag_Markedside(TRIGGER_ILLUSION_OFF, t->triggerFlag[6]->flag);
-		else if (GADGET_PRESSED(t->triggerFlag[7].get()))
+		if (GADGET_PRESSED(triggerFlag[0].get())) 
+			trigger_flag_Markedside(TRIGGER_CONTROL_DOORS, triggerFlag[0]->flag); 
+		else if (GADGET_PRESSED(triggerFlag[1].get()))
+			trigger_flag_Markedside(TRIGGER_SHIELD_DAMAGE, triggerFlag[1]->flag); 
+		else if (GADGET_PRESSED(triggerFlag[2].get()))
+			trigger_flag_Markedside(TRIGGER_ENERGY_DRAIN, triggerFlag[2]->flag); 
+		else if (GADGET_PRESSED(triggerFlag[3].get()))
+			trigger_flag_Markedside(TRIGGER_EXIT, triggerFlag[3]->flag); 
+		else if (GADGET_PRESSED(triggerFlag[4].get()))
+			trigger_flag_Markedside(TRIGGER_ONE_SHOT, triggerFlag[4]->flag); 
+		else if (GADGET_PRESSED(triggerFlag[5].get()))
+			trigger_flag_Markedside(TRIGGER_ILLUSION_ON, triggerFlag[5]->flag); 
+		else if (GADGET_PRESSED(triggerFlag[6].get()))
+			trigger_flag_Markedside(TRIGGER_ILLUSION_OFF, triggerFlag[6]->flag);
+		else if (GADGET_PRESSED(triggerFlag[7].get()))
 		{
 		}
-		else if (GADGET_PRESSED(t->triggerFlag[8].get())) 
-			trigger_flag_Markedside(TRIGGER_MATCEN, t->triggerFlag[8]->flag);
-		else if (GADGET_PRESSED(t->triggerFlag[9].get())) 
-			trigger_flag_Markedside(TRIGGER_SECRET_EXIT, t->triggerFlag[9]->flag);
+		else if (GADGET_PRESSED(triggerFlag[8].get())) 
+			trigger_flag_Markedside(TRIGGER_MATCEN, triggerFlag[8]->flag);
+		else if (GADGET_PRESSED(triggerFlag[9].get())) 
+			trigger_flag_Markedside(TRIGGER_SECRET_EXIT, triggerFlag[9]->flag);
 		else
 #endif
 			rval = window_event_result::ignored;
@@ -481,7 +481,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	} else
 	{
 #if defined(DXX_BUILD_DESCENT_I)
-		range_for (auto &i, t->triggerFlag)
+		range_for (auto &i, triggerFlag)
 			ui_checkbox_check(i.get(), 0);
 #endif
 	}
@@ -491,7 +491,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	//------------------------------------------------------------
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
-		gr_set_current_canvas( t->wallViewBox->canvas );
+		gr_set_current_canvas( wallViewBox->canvas );
 		auto &canvas = *grd_curcanv;
 
 		const auto wall_num = markedseg.s.sides[Markedside].wall_num;
@@ -529,19 +529,16 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 		}
 	}
 	
-	if (ui_button_any_drawn || (t->old_trigger_num != trigger_num) )
+	if (ui_button_any_drawn || (old_trigger_num != trigger_num) )
 		Update_flags |= UF_WORLD_CHANGED;
-	if (GADGET_PRESSED(t->quitButton.get()) || keypress == KEY_ESC)
+	if (GADGET_PRESSED(quitButton.get()) || keypress == KEY_ESC)
 	{
 		return window_event_result::close;
 	}		
 
-	t->old_trigger_num = trigger_num;
+	old_trigger_num = trigger_num;
 	
 	return rval;
 }
 
-
-
-
-
+}
