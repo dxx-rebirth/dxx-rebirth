@@ -2479,11 +2479,20 @@ void do_options_menu()
 
 #ifndef RELEASE
 namespace dsx {
-static window_event_result polygon_models_viewer_handler(window *, const d_event &event, const unused_window_userdata_t *)
+
+namespace {
+
+struct polygon_models_viewer_window : window
 {
-	static unsigned view_idx;
+	vms_angvec ang{0, 0, F0_5 - 1};
+	unsigned view_idx = 0;
+	using window::window;
+	virtual window_event_result event_handler(const d_event &) override;
+};
+
+window_event_result polygon_models_viewer_window::event_handler(const d_event &event)
+{
 	int key = 0;
-	static vms_angvec ang;
 
 	switch (event.type)
 	{
@@ -2492,9 +2501,6 @@ static window_event_result polygon_models_viewer_handler(window *, const d_event
 			gr_use_palette_table("groupa.256");
 #endif
 			key_toggle_repeat(1);
-			view_idx = 0;
-			ang.p = ang.b = 0;
-			ang.h = F0_5-1;
 			break;
 		case EVENT_KEY_COMMAND:
 			key = event_key_get(event);
@@ -2558,24 +2564,14 @@ static window_event_result polygon_models_viewer_handler(window *, const d_event
 	}
 	return window_event_result::ignored;
 }
-}
 
 static void polygon_models_viewer()
 {
-	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, polygon_models_viewer_handler, unused_window_userdata);
-	if (!wind)
-	{
-		d_event event = { EVENT_WINDOW_CLOSE };
-		polygon_models_viewer_handler(NULL, event, NULL);
-		return;
-	}
-
+	auto viewer_window = std::make_unique<polygon_models_viewer_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	viewer_window->send_creation_events(nullptr);
 	event_process_all();
+	viewer_window.release();
 }
-
-namespace dsx {
-
-namespace {
 
 static window_event_result gamebitmaps_viewer_handler(window *, const d_event &event, const unused_window_userdata_t *)
 {
