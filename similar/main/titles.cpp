@@ -528,8 +528,10 @@ public:
 };
 #endif
 
-struct briefing : ignore_window_pointer_t
+struct briefing : window
 {
+	using window::window;
+	virtual window_event_result event_handler(const d_event &) override;
 	unsigned streamcount;
 	short	level_num;
 	short	cur_screen;
@@ -1522,7 +1524,7 @@ static int new_briefing_screen(briefing *br, int first)
 
 
 //-----------------------------------------------------------------------------
-static window_event_result briefing_handler(window *, const d_event &event, briefing *br)
+window_event_result briefing::event_handler(const d_event &event)
 {
 	window_event_result result;
 
@@ -1536,17 +1538,17 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 		case EVENT_MOUSE_BUTTON_DOWN:
 			if (event_mouse_get_button(event) == 0)
 			{
-				if (br->new_screen)
+				if (this->new_screen)
 				{
-					if (!new_briefing_screen(br, 0))
+					if (!new_briefing_screen(this, 0))
 					{
 						return window_event_result::close;
 					}
 				}
-				else if (br->new_page)
-					init_new_page(br);
+				else if (this->new_page)
+					init_new_page(this);
 				else
-					br->delay_count = 0;
+					this->delay_count = 0;
 				return window_event_result::handled;
 			}
 			break;
@@ -1557,17 +1559,17 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			// reasons, so we build a reasonable facsimile right here
 			if (event_joystick_get_button(event) == 1)
 				return window_event_result::close;
-			if (br->new_screen)
+			if (this->new_screen)
 			{
-				if (!new_briefing_screen(br, 0))
+				if (!new_briefing_screen(this, 0))
 				{
 					return window_event_result::close;
 				}
 			}
-			else if (br->new_page)
-				init_new_page(br);
+			else if (this->new_page)
+				init_new_page(this);
 			else
-				br->delay_count = 0;
+				this->delay_count = 0;
 			return window_event_result::handled;
 #endif
 
@@ -1586,20 +1588,20 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 					return window_event_result::close;
 				case KEY_SPACEBAR:
 				case KEY_ENTER:
-					br->delay_count = 0;
+					this->delay_count = 0;
 					DXX_BOOST_FALLTHROUGH;
 				default:
 					if ((result = call_default_handler(event)) != window_event_result::ignored)
 						return result;
-					else if (br->new_screen)
+					else if (this->new_screen)
 					{
-						if (!new_briefing_screen(br, 0))
+						if (!new_briefing_screen(this, 0))
 						{
 							return window_event_result::close;
 						}
 					}
-					else if (br->new_page)
-						init_new_page(br);
+					else if (this->new_page)
+						init_new_page(this);
 					break;
 			}
 			break;
@@ -1612,48 +1614,48 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 
 			timer_delay2(50);
 
-			if (!(br->new_screen || br->new_page))
-				while (!briefing_process_char(canvas, br) && !br->delay_count)
+			if (!(this->new_screen || this->new_page))
+				while (!briefing_process_char(canvas, this) && !this->delay_count)
 				{
-					check_text_pos(br);
-					if (br->new_page)
+					check_text_pos(this);
+					if (this->new_page)
 						break;
 				}
-			check_text_pos(br);
+			check_text_pos(this);
 
-			if (br->background.bm_data)
-				show_fullscr(canvas, br->background);
+			if (this->background.bm_data)
+				show_fullscr(canvas, this->background);
 
-			if (br->guy_bitmap.bm_data)
-				show_briefing_bitmap(canvas, &br->guy_bitmap);
-			if (br->bitmap_name[0] != 0)
-				show_animated_bitmap(canvas, br);
+			if (this->guy_bitmap.bm_data)
+				show_briefing_bitmap(canvas, &this->guy_bitmap);
+			if (this->bitmap_name[0] != 0)
+				show_animated_bitmap(canvas, this);
 #if defined(DXX_BUILD_DESCENT_II)
-			if (br->robot_playing)
-				RotateRobot(br->pMovie);
+			if (this->robot_playing)
+				RotateRobot(this->pMovie);
 #endif
-			if (br->robot_num != -1)
-				show_spinning_robot_frame(br, br->robot_num);
+			if (this->robot_num != -1)
+				show_spinning_robot_frame(this, this->robot_num);
 
 			auto &game_font = *GAME_FONT;
 
 			gr_set_fontcolor(canvas, *Current_color, -1);
 			{
 				unsigned lastcolor = ~0u;
-				range_for (const auto b, partial_const_range(br->messagestream, br->streamcount))
+				range_for (const auto b, partial_const_range(this->messagestream, this->streamcount))
 					redraw_messagestream(canvas, game_font, b, lastcolor);
 			}
 
-			if (br->new_page || br->new_screen)
-				flash_cursor(canvas, game_font, br, br->flashing_cursor);
-			else if (br->flashing_cursor)
-				gr_string(canvas, game_font, br->text_x, br->text_y, "_");
+			if (this->new_page || this->new_screen)
+				flash_cursor(canvas, game_font, this, this->flashing_cursor);
+			else if (this->flashing_cursor)
+				gr_string(canvas, game_font, this->text_x, this->text_y, "_");
 			break;
 		}
 		case EVENT_WINDOW_CLOSE:
-			free_briefing_screen(br);
+			free_briefing_screen(this);
 #if defined(DXX_BUILD_DESCENT_II)
-			br->hum_channel.reset();
+			this->hum_channel.reset();
 #endif
 			break;
 
@@ -1668,16 +1670,10 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 	if (!*static_cast<const char *>(filename))
 		return;
 
-	auto br = std::make_unique<briefing>();
+	auto br = std::make_unique<briefing>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	briefing_init(br.get(), level_num);
 
 	if (!load_screen_text(filename, br->text))
-	{
-		return;
-	}
-
-	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, briefing_handler, br.get());
-	if (!wind)
 	{
 		return;
 	}
@@ -1701,15 +1697,16 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 
 	gr_set_default_canvas();
 
+	br->send_creation_events(nullptr);
 	if (!new_briefing_screen(br.get(), 1))
 	{
-		window_close(wind);
-		return;
+		window_close(br.get());
 	}
-
+	else
 	// Stay where we are in the stack frame until briefing done
 	// Too complicated otherwise
-	event_process_all();
+		event_process_all();
+	br.release();
 }
 
 void do_end_briefing_screens(const d_fname &filename)
