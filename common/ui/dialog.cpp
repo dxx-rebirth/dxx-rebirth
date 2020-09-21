@@ -106,8 +106,8 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 	}
 }
 
-UI_DIALOG::UI_DIALOG(short x, short y, short w, short h, const enum dialog_flags flags, const ui_subfunction_t<void> callback, void *const userdata, const void *const createdata) :
-d_callback(callback), gadget(nullptr), keyboard_focus_gadget(nullptr), d_userdata(userdata), d_text_x(0), d_text_y(0), d_flags(flags)
+UI_DIALOG::UI_DIALOG(short x, short y, const short w, const short h, const enum dialog_flags flags, const ui_subfunction_t<void> callback, void *const userdata, const void *const createdata) :
+	d_callback(callback), d_userdata(userdata), d_width(w), d_height(h), d_flags(flags)
 {
 	int sw, sh, req_w, req_h;
 
@@ -125,10 +125,6 @@ d_callback(callback), gadget(nullptr), keyboard_focus_gadget(nullptr), d_userdat
 	if ( y < 0 ) y = 0;
 	if ( (y+h-1) >= sh ) y = sh - h;
 
-	d_x = x;
-	d_y = y;
-	d_width = w;
-	d_height = h;
 	selected_gadget = NULL;
 
 	dlg->wind = window_create(grd_curscreen->sc_canvas,

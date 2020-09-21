@@ -214,19 +214,14 @@ enum dialog_flags
 template <typename T>
 using ui_subfunction_t = window_event_result (*)(struct UI_DIALOG *,const d_event &, T *);
 
-template <typename T>
-using ui_subclass_subfunction_t = window_event_result (*)(T *,const d_event &, void *);
-
 struct UI_DIALOG : embed_window_pointer_t
 {
 	// TODO: Make these private
 	ui_subfunction_t<void>	d_callback;
-	UI_GADGET *     gadget;
-	UI_GADGET *     keyboard_focus_gadget;
+	UI_GADGET *gadget = nullptr;
+	UI_GADGET *keyboard_focus_gadget = nullptr;
 	void			*d_userdata;
-	short           d_x, d_y;
 	short           d_width, d_height;
-	short           d_text_x, d_text_y;
 	enum dialog_flags d_flags;
 
 public:
