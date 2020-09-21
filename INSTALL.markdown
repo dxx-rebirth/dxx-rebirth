@@ -127,7 +127,6 @@ DXX-Rebirth can be built from the Terminal (via SCons) without Xcode; to build u
 
 ##### [Homebrew](https://github.com/Homebrew/homebrew/)
 * **brew install
- gcc5
  scons
  sdl
  sdl\_image
