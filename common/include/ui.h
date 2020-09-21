@@ -231,6 +231,7 @@ public:
 
 	~UI_DIALOG();
 	virtual window_event_result event_handler(const d_event &) override;
+	virtual window_event_result callback_handler(const d_event &);
 };
 
 #define B1_JUST_PRESSED     (event.type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == 0)

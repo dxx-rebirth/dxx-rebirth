@@ -60,19 +60,24 @@ static void ui_dialog_draw(UI_DIALOG *dlg)
 	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
 }
 
+window_event_result UI_DIALOG::callback_handler(const d_event &event)
+{
+	window_event_result rval{window_event_result::ignored};
+	if (d_callback)
+		rval = (*d_callback)(this, event, d_userdata);
+	return rval;
+}
 
 // The dialog handler borrows heavily from the newmenu_handler
 window_event_result UI_DIALOG::event_handler(const d_event &event)
 {
-	window_event_result rval{window_event_result::ignored};
 
 	if (event.type == EVENT_WINDOW_ACTIVATED ||
 		event.type == EVENT_WINDOW_DEACTIVATED)
 		return window_event_result::ignored;
-	
-	if (d_callback)
-		if ((rval = (*d_callback)(this, event, d_userdata)) != window_event_result::ignored)
-			return rval;		// event handled
+	auto rval = callback_handler(event);
+	if (rval != window_event_result::ignored)
+		return rval;		// event handled
 
 	switch (event.type)
 	{
