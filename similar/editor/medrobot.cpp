@@ -498,7 +498,9 @@ void close_all_windows(void)
 	close_trigger_window();
 	close_wall_window();
 	close_centers_window();
+#if defined(DXX_BUILD_DESCENT_I)
 	hostage_close_window();
+#endif
 	robot_close_window();
 }
 

@@ -264,6 +264,14 @@ class unused_ui_userdata_t;
 constexpr unused_ui_userdata_t *unused_ui_userdata = nullptr;
 
 template <typename T1, typename T2 = const void>
+T1 *ui_create_dialog(const short x, const short y, const short w, const short h, const enum dialog_flags flags, T2 *const createdata = nullptr)
+{
+	auto r = std::make_unique<T1>(x, y, w, h, flags);
+	r->send_creation_events(createdata);
+	return r.release();
+}
+
+template <typename T1, typename T2 = const void>
 UI_DIALOG * ui_create_dialog(const short x, const short y, const short w, const short h, const enum dialog_flags flags, const ui_subfunction_t<T1> callback, T1 *const userdata, T2 *const createdata = nullptr)
 {
 	auto r = std::make_unique<UI_DIALOG>(x, y, w, h, flags, reinterpret_cast<ui_subfunction_t<void>>(callback), static_cast<void *>(userdata));

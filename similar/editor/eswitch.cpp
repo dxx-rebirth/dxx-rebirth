@@ -331,7 +331,9 @@ int do_trigger_dialog()
 	robot_close_window();
 	close_wall_window();
 	close_centers_window();
+#if defined(DXX_BUILD_DESCENT_I)
 	hostage_close_window();
+#endif
 
 	// Open a window with a quit button
 	MainWindow = ui_create_dialog(TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, trigger_dialog_handler, std::move(t));

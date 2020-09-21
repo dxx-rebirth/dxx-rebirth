@@ -54,17 +54,24 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "event.h"
 #include <memory>
 
+namespace dsx {
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------
-static UI_DIALOG 				*MainWindow = NULL;
 
 namespace {
 
-struct hostage_dialog
+struct hostage_dialog : UI_DIALOG
 {
+	explicit hostage_dialog(short x, short y, short w, short h, enum dialog_flags flags) :
+		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr)
+	{
+	}
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton, delete_object, new_object;
+	virtual window_event_result callback_handler(const d_event &) override;
 };
+
+static hostage_dialog *MainWindow;
 
 }
 
@@ -95,8 +102,6 @@ static int PlaceHostage()
 	return 0;
 }
 
-static window_event_result hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_dialog *h);
-
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the hostage dialog box
 //-------------------------------------------------------------------------
@@ -108,20 +113,18 @@ int do_hostage_dialog()
 	// Close other windows
 	close_all_windows();
 	
-	auto h = std::make_unique<hostage_dialog>();
-
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog(TMAPBOX_X+10, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, hostage_dialog_handler, std::move(h));
+	MainWindow = ui_create_dialog<hostage_dialog>(TMAPBOX_X + 10, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG);
 	return 1;
 }
 
-static window_event_result hostage_dialog_created(UI_DIALOG *const w, hostage_dialog *const h)
+static window_event_result hostage_dialog_created(hostage_dialog *const h)
 {
-	h->quitButton = ui_add_gadget_button(w, 20, 222, 48, 40, "Done", NULL);
+	h->quitButton = ui_add_gadget_button(h, 20, 222, 48, 40, "Done", NULL);
 	// A bunch of buttons...
 	int i = 90;
-	h->delete_object = ui_add_gadget_button(w, 155, i, 140, 26, "Delete", ObjectDelete);	i += 29;		
-	h->new_object = ui_add_gadget_button(w, 155, i, 140, 26, "Create New", PlaceHostage);	i += 29;		
+	h->delete_object = ui_add_gadget_button(h, 155, i, 140, 26, "Delete", ObjectDelete);	i += 29;
+	h->new_object = ui_add_gadget_button(h, 155, i, 140, 26, "Create New", PlaceHostage);	i += 29;
 	return window_event_result::ignored;
 }
 
@@ -133,14 +136,13 @@ void hostage_close_window()
 	}
 }
 
-static window_event_result hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_dialog *h)
+window_event_result hostage_dialog::callback_handler(const d_event &event)
 {
 	switch(event.type)
 	{
 		case EVENT_WINDOW_CREATED:
-			return hostage_dialog_created(dlg, h);
+			return hostage_dialog_created(this);
 		case EVENT_WINDOW_CLOSE:
-			std::default_delete<hostage_dialog>()(h);
 			MainWindow = nullptr;
 			return window_event_result::ignored;
 		default:
@@ -155,9 +157,11 @@ static window_event_result hostage_dialog_handler(UI_DIALOG *dlg,const d_event &
 	//------------------------------------------------------------
 	// Redraw the object in the little 64x64 box
 	//------------------------------------------------------------
-	if (GADGET_PRESSED(h->quitButton.get()) || keypress==KEY_ESC)
+	if (GADGET_PRESSED(quitButton.get()) || keypress==KEY_ESC)
 	{
 		return window_event_result::close;
 	}		
 	return window_event_result::ignored;
+}
+
 }

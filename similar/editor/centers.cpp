@@ -90,7 +90,9 @@ int do_centers_dialog()
 
 	// Close other windows.	
 	close_trigger_window();
+#if defined(DXX_BUILD_DESCENT_I)
 	hostage_close_window();
+#endif
 	close_wall_window();
 	robot_close_window();
 
