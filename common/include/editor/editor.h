@@ -529,7 +529,20 @@ extern grs_canvas _canv_editor_game;		//the game on the editor screen
 extern grs_canvas *Canv_editor;			//the editor screen
 extern grs_canvas *const Canv_editor_game; //the game on the editor screen
 
-extern UI_DIALOG * EditorWindow;
+struct editor_dialog : UI_DIALOG
+{
+	explicit editor_dialog(short x, short y, short w, short h, enum dialog_flags flags) :
+		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr)
+	{
+	}
+	std::array<std::unique_ptr<UI_GADGET_BUTTON>, 9> pad_goto;
+	std::unique_ptr<UI_GADGET_BUTTON>
+		pad_prev,
+		pad_next;
+	virtual window_event_result callback_handler(const d_event &) override;
+};
+
+extern editor_dialog *EditorWindow;
 
 void med_point_2_vec(grs_canvas *canv,vms_vector &v,short sx,short sy);
 

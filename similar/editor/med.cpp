@@ -128,7 +128,7 @@ vms_vector Ed_view_target;
 
 editor_gamestate gamestate = editor_gamestate::none;
 
-UI_DIALOG * EditorWindow = NULL;
+editor_dialog *EditorWindow;
 
 int	Large_view_index = -1;
 
@@ -147,21 +147,6 @@ static std::unique_ptr<UI_GADGET_ICON>
 //int BigCanvasFirstTime = 1;
 
 int	Found_seg_index=0;				// Index in Found_segs corresponding to Cursegp
-
-namespace {
-	
-class editor_dialog
-{
-public:
-	std::array<std::unique_ptr<UI_GADGET_BUTTON>, 9> pad_goto;
-	std::unique_ptr<UI_GADGET_BUTTON>
-		pad_prev,
-		pad_next;
-};
-
-}
-
-static editor_dialog editor_window;
 
 static void print_status_bar(const std::array<char, DIAGNOSTIC_MESSAGE_MAX> &message)
 {
@@ -349,7 +334,6 @@ static int padnum=0;
 
 static void init_editor_screen(grs_canvas &canvas);
 static void gamestate_restore_check();
-static window_event_result editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *data);
 static void close_editor();
 
 namespace dsx {
@@ -774,66 +758,50 @@ static void init_editor_screen(grs_canvas &canvas)
 	gr_set_curfont(canvas, editor_font);
 	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 
-	EditorWindow = ui_create_dialog( 0 , 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED, editor_handler, unused_ui_userdata );
+	EditorWindow = ui_create_dialog<editor_dialog>(0, 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED);
+	auto e = EditorWindow;
 
-	LargeViewBox	= ui_add_gadget_userbox( EditorWindow,LVIEW_X,LVIEW_Y,LVIEW_W,LVIEW_H);
-	ui_gadget_calc_keys(EditorWindow);	//make tab work for all windows
+	LargeViewBox = ui_add_gadget_userbox(e,LVIEW_X,LVIEW_Y,LVIEW_W,LVIEW_H);
+	ui_gadget_calc_keys(e);	//make tab work for all windows
 
-	GameViewBox	= ui_add_gadget_userbox( EditorWindow, GAMEVIEW_X, GAMEVIEW_Y, GAMEVIEW_W, GAMEVIEW_H );
-//	GroupViewBox	= ui_add_gadget_userbox( EditorWindow,GVIEW_X,GVIEW_Y,GVIEW_W,GVIEW_H);
+	GameViewBox	= ui_add_gadget_userbox(e, GAMEVIEW_X, GAMEVIEW_Y, GAMEVIEW_W, GAMEVIEW_H);
 
 //	GameViewBox->when_tab = GameViewBox->when_btab =  LargeViewBox;
 //	LargeViewBox->when_tab = LargeViewBox->when_btab =  GameViewBox;
 
-//	ui_gadget_calc_keys(EditorWindow);	//make tab work for all windows
-
-	ViewIcon	= ui_add_gadget_icon( EditorWindow, "Lock\nview",	455,25+530, 	40, 22,	KEY_V+KEY_CTRLED, ToggleLockViewToCursegp );
-	AllIcon	= ui_add_gadget_icon( EditorWindow, "Draw\nall",	500,25+530,  	40, 22,	-1, ToggleDrawAllSegments );
-	AxesIcon	= ui_add_gadget_icon( EditorWindow, "Coord\naxes",545,25+530,		40, 22,	KEY_D+KEY_CTRLED, ToggleCoordAxes );
-	ChaseIcon	= ui_add_gadget_icon( EditorWindow, "Chase\nmode",635,25+530,		40, 22,	-1,				ToggleChaseMode );
-	OutlineIcon = ui_add_gadget_icon( EditorWindow, "Out\nline", 	680,25+530,  	40, 22,	KEY_O+KEY_CTRLED,			ToggleOutlineMode );
-	LockIcon	= ui_add_gadget_icon( EditorWindow, "Lock\nstep", 725,25+530, 	40, 22,	KEY_L+KEY_CTRLED,			ToggleLockstep );
+	ViewIcon	= ui_add_gadget_icon(e, "Lock\nview",	455,25+530, 	40, 22,	KEY_V+KEY_CTRLED, ToggleLockViewToCursegp);
+	AllIcon	= ui_add_gadget_icon(e, "Draw\nall",	500,25+530,  	40, 22,	-1, ToggleDrawAllSegments);
+	AxesIcon	= ui_add_gadget_icon(e, "Coord\naxes",545,25+530,		40, 22,	KEY_D+KEY_CTRLED, ToggleCoordAxes);
+	ChaseIcon	= ui_add_gadget_icon(e, "Chase\nmode",635,25+530,		40, 22,	-1,				ToggleChaseMode);
+	OutlineIcon = ui_add_gadget_icon(e, "Out\nline", 	680,25+530,  	40, 22,	KEY_O+KEY_CTRLED,			ToggleOutlineMode);
+	LockIcon	= ui_add_gadget_icon(e, "Lock\nstep", 725,25+530, 	40, 22,	KEY_L+KEY_CTRLED,			ToggleLockstep);
 
 	meddraw_init_views(LargeViewBox->canvas.get());
 
-	//ui_add_gadget_button( EditorWindow, 460, 510, 50, 25, "Quit", ExitEditor );
-	//ui_add_gadget_button( EditorWindow, 520, 510, 50, 25, "Lisp", CallLisp );
-	//ui_add_gadget_button( EditorWindow, 580, 510, 50, 25, "Mine", MineMenu );
-	//ui_add_gadget_button( EditorWindow, 640, 510, 50, 25, "Help", DoHelp );
-	//ui_add_gadget_button( EditorWindow, 460, 540, 50, 25, "Macro", MacroMenu );
-	//ui_add_gadget_button( EditorWindow, 520, 540, 50, 25, "About", ShowAbout );
-	//ui_add_gadget_button( EditorWindow, 640, 540, 50, 25, "Shell", DosShell );
-
-	auto &e = editor_window;
-
-	ui_pad_activate(*EditorWindow, PAD_X, PAD_Y);
+	ui_pad_activate(*e, PAD_X, PAD_Y);
 	Pad_info = info_window_create();
-	e.pad_prev = ui_add_gadget_button( EditorWindow, PAD_X+6, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "<<",  med_keypad_goto_prev );
-	e.pad_next = ui_add_gadget_button( EditorWindow, PAD_X+PAD_WIDTH1+6, PAD_Y+(30*5)+22, PAD_WIDTH, 20, ">>",  med_keypad_goto_next );
+	e->pad_prev = ui_add_gadget_button(e, PAD_X + 6, PAD_Y + (30 * 5) + 22, PAD_WIDTH, 20, "<<", med_keypad_goto_prev);
+	e->pad_next = ui_add_gadget_button(e, PAD_X + PAD_WIDTH1 + 6, PAD_Y + (30 * 5) + 22, PAD_WIDTH, 20, ">>", med_keypad_goto_next);
 
 	{	int	i;
-		i = 0;	e.pad_goto[i] = ui_add_gadget_button( EditorWindow, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "SR",  med_keypad_goto_0 );
-		i++;		e.pad_goto[i] = ui_add_gadget_button( EditorWindow, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "SS",  med_keypad_goto_1 );
-		i++;		e.pad_goto[i] = ui_add_gadget_button( EditorWindow, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "CF",  med_keypad_goto_2 );
-		i++;		e.pad_goto[i] = ui_add_gadget_button( EditorWindow, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "TM",  med_keypad_goto_3 );
-		i++;		e.pad_goto[i] = ui_add_gadget_button( EditorWindow, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "OP",  med_keypad_goto_4 );
-		i++;		e.pad_goto[i] = ui_add_gadget_button( EditorWindow, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "OR",  med_keypad_goto_5 );
-		i++;		e.pad_goto[i] = ui_add_gadget_button( EditorWindow, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "GE",  med_keypad_goto_6 );
-		i++;		e.pad_goto[i] = ui_add_gadget_button( EditorWindow, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "LI",  med_keypad_goto_7 );
-		i++;		e.pad_goto[i] = ui_add_gadget_button( EditorWindow, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "TT",  med_keypad_goto_8 );
+		i = 0;	e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "SR", med_keypad_goto_0);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "SS", med_keypad_goto_1);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "CF", med_keypad_goto_2);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "TM", med_keypad_goto_3);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "OP", med_keypad_goto_4);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "OR", med_keypad_goto_5);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "GE", med_keypad_goto_6);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "LI", med_keypad_goto_7);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "TT", med_keypad_goto_8);
 	}
 
 	menubar_show();
 
 	// INIT TEXTURE STUFF
-	texpage_init( EditorWindow );
-	objpage_init( EditorWindow );
+	texpage_init(e);
+	objpage_init(e);
 
-	EditorWindow->keyboard_focus_gadget = LargeViewBox.get();
-
-//	BigCanvas[0]->cv_font = grd_curscreen->sc_canvas.cv_font; 
-//	BigCanvas[1]->cv_font = grd_curscreen->sc_canvas.cv_font; 
-//	BigCanvasFirstTime = 1;
+	e->keyboard_focus_gadget = LargeViewBox.get();
 
 	Update_flags = UF_ALL;
 	initializing = 0;
@@ -849,9 +817,6 @@ void close_editor_screen()
 	ui_pad_deactivate();
 	if (Pad_info)
 		window_close(Pad_info);
-
-	//ui_close_dialog(EditorWindow);	// moved into handler, so we can handle the quit request
-	//EditorWindow = NULL;
 
 	close_all_windows();
 
@@ -1054,7 +1019,7 @@ int RestoreGameState()
 }
 
 // Handler for the main editor dialog
-window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
+window_event_result editor_dialog::callback_handler(const d_event &event)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -1242,9 +1207,6 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 	{
 		return window_event_result::close;
 	}
-
-//		if (EditorWindow->keyboard_focus_gadget == GameViewBox) current_view=NULL;
-//		if (EditorWindow->keyboard_focus_gadget == GroupViewBox) current_view=NULL;
 
 	new_cv = current_view;
 
