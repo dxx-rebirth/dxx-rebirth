@@ -76,7 +76,7 @@ std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG * dlg, shor
 	int h, aw;
 	gr_get_string_size(*grd_curcanv->cv_font, nullptr, nullptr, &h, &aw);
 	std::unique_ptr<UI_GADGET_INPUTBOX> inputbox{ui_gadget_add<UI_GADGET_INPUTBOX>(dlg, x, y, x+aw*slength-1, y+h-1+4)};
-	MALLOC(inputbox->text, char[], length + 1);
+	inputbox->text = std::make_unique<char[]>(length + 1);
 	auto ltext = strlen(text) + 1;
 	memcpy(inputbox->text.get(), text, ltext);
 	inputbox->position = ltext - 1;

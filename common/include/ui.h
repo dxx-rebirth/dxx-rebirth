@@ -117,7 +117,7 @@ struct UI_GADGET_BUTTON : UI_GADGET
 struct UI_GADGET_INPUTBOX : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 6>{};
-	RAIIdmem<char[]>  text;
+	std::unique_ptr<char[]> text;
 	short           width, height;
 	short           length;
 	short           slength;
