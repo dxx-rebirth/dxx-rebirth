@@ -14,6 +14,9 @@
 #include "dsx-ns.h"
 #include <array>
 #include <vector>
+#if DXX_USE_EDITOR
+#include <limits.h>	/* PATH_MAX */
+#endif
 
 namespace dcx {
 
@@ -35,7 +38,6 @@ __attribute_nonnull()
 int d_strnicmp(const char *s1, const char *s2, uint_fast32_t n);
 #endif
 extern void d_strlwr( char *s1 );
-extern void d_strupr( char *s1 );
 extern void d_strrev( char *s1 );
 #ifdef DEBUG_MEMORY_ALLOCATIONS
 char *d_strdup(const char *str, const char *, const char *, unsigned) __attribute_malloc();
@@ -43,6 +45,10 @@ char *d_strdup(const char *str, const char *, const char *, unsigned) __attribut
 #else
 #include <cstring>
 #define d_strdup strdup
+#endif
+
+#if DXX_USE_EDITOR
+void d_strupr(char (&out)[PATH_MAX], const char (&in)[PATH_MAX]);
 #endif
 
 template <std::size_t N>

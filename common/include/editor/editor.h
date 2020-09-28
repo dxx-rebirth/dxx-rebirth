@@ -494,10 +494,10 @@ extern void close_autosave(void);
 // Increments Autosave_count, wrapping from 9 to 0.
 // (If there is no current mine name, assume "temp.min")
 // Call med_save_mine to save the mine.
-extern void autosave_mine(const char *name);
+void autosave_mine(const char (&name)[PATH_MAX]);
 
 // Timed autosave
-extern void TimedAutosave(const char *name);
+void TimedAutosave(const char (&name)[PATH_MAX]);
 extern void set_editor_time_of_day();
 
 // Undo function

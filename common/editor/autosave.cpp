@@ -72,11 +72,8 @@ void close_autosave(void) {
 	cf_assert(t < 10);
 	for (unsigned i = 0; i < t; ++i)
 	{
-
 		char delname[PATH_MAX];
-
-        strcpy ( delname, mine_filename );
-        d_strupr( delname );
+		d_strupr(delname, mine_filename);
 	if ( !strcmp(delname, "*.MIN") ) strcpy(delname, "TEMP.MIN");
 
         ext = strstr(delname, ".MIN");
@@ -86,16 +83,13 @@ void close_autosave(void) {
     }
 }
 
-void autosave_mine(const char *name) {
+void autosave_mine(const char (&name)[PATH_MAX])
+{
     char *ext;
 
 	if (Autosave_flag) {
-	
 		char savename[PATH_MAX];
-
-	
-	    strcpy ( savename, name );
-	    d_strupr( savename );
+	    d_strupr(savename, name);
 	    if ( !strcmp(savename, "*.MIN") ) strcpy(savename, "TEMP.MIN");
 	
 	    ext = strstr(savename, ".MIN");
@@ -140,7 +134,7 @@ void set_editor_time_of_day()
 	Editor_time_of_day = *localtime( &ltime );
 }
 
-void TimedAutosave(const char *name) 
+void TimedAutosave(const char (&name)[PATH_MAX])
 {
 	{
 		print_clock();

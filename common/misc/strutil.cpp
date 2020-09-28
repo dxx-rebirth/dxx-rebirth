@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 
 #include "compiler-range_for.h"
+#include "d_zip.h"
 
 namespace dcx {
 
@@ -95,13 +96,17 @@ void d_strlwr( char *s1 )
 	}
 }
 
-void d_strupr( char *s1 )
+#if DXX_USE_EDITOR
+void d_strupr(char (&out)[PATH_MAX], const char (&in)[PATH_MAX])
 {
-	while( *s1 )	{
-		*s1 = toupper(*s1);
-		s1++;
+	for (auto &&[i, o] : zip(in, out))
+	{
+		o = std::toupper(static_cast<unsigned char>(i));
+		if (!o)
+			break;
 	}
 }
+#endif
 
 void d_strrev( char *s1 )
 {
