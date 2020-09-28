@@ -351,7 +351,7 @@ void ui_listbox_change(UI_DIALOG *dlg, UI_GADGET_LISTBOX *listbox, uint_fast32_t
 
 extern void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox );
 __attribute_warn_unused_result
-std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG * dlg, short x, short y, short w, short h, const char * text);
+std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG * dlg, short x, short y, uint_fast32_t length_of_initial_text, uint_fast32_t maximum_allowed_text_length, const char * text);
 
 template <std::size_t SL, std::size_t L>
 __attribute_warn_unused_result

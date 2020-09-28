@@ -71,19 +71,20 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 	}
 }
 
-std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG * dlg, short x, short y, short length, short slength, const char * text)
+std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG *const dlg, const short x, const short y, const uint_fast32_t length_of_initial_text, const uint_fast32_t maximum_allowed_text_length, const char *const initial_text)
 {
 	int h, aw;
 	gr_get_string_size(*grd_curcanv->cv_font, nullptr, nullptr, &h, &aw);
-	std::unique_ptr<UI_GADGET_INPUTBOX> inputbox{ui_gadget_add<UI_GADGET_INPUTBOX>(dlg, x, y, x+aw*slength-1, y+h-1+4)};
-	inputbox->text = std::make_unique<char[]>(length + 1);
-	auto ltext = strlen(text) + 1;
-	memcpy(inputbox->text.get(), text, ltext);
-	inputbox->position = ltext - 1;
+	std::unique_ptr<UI_GADGET_INPUTBOX> inputbox{ui_gadget_add<UI_GADGET_INPUTBOX>(dlg, x, y, x + aw * maximum_allowed_text_length - 1, y + h - 1 + 4)};
+	inputbox->text = std::make_unique<char[]>(length_of_initial_text + 1);
+	const auto allocated_text = inputbox->text.get();
+	allocated_text[length_of_initial_text] = 0;
+	memcpy(allocated_text, initial_text, length_of_initial_text);
+	inputbox->position = length_of_initial_text;
 	inputbox->oldposition = inputbox->position;
-	inputbox->width = aw*slength;
+	inputbox->width = aw * maximum_allowed_text_length;
 	inputbox->height = h+4;
-	inputbox->length = length;
+	inputbox->length = length_of_initial_text;
 	inputbox->pressed = 0;
 	inputbox->first_time = 1;
 	return inputbox;
