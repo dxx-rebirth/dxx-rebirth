@@ -120,7 +120,6 @@ struct UI_GADGET_INPUTBOX : UI_GADGET
 	std::unique_ptr<char[]> text;
 	short           width, height;
 	short           length;
-	short           slength;
 	short           position;
 	short           oldposition;
 	short           pressed;

@@ -84,7 +84,6 @@ std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG * dlg, shor
 	inputbox->width = aw*slength;
 	inputbox->height = h+4;
 	inputbox->length = length;
-	inputbox->slength = slength;
 	inputbox->pressed = 0;
 	inputbox->first_time = 1;
 	return inputbox;
