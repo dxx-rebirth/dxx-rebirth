@@ -635,7 +635,6 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 //  ingore_obj			ignore collisions with this object
 //  check_obj_flag	determines whether collisions with objects are checked
 //Returns the hit_data->hit_type
-}
 int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -788,7 +787,6 @@ static bool obj_in_list(const vcobjidx_t objnum, const std::pair<const vcobjidx_
 	return std::find(obj_list.first, obj_list.second, objnum) != obj_list.second;
 }
 
-namespace dsx {
 static int check_trans_wall(const vms_vector &pnt,vcsegptridx_t seg,int sidenum,int facenum);
 }
 

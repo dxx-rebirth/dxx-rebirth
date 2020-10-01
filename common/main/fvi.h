@@ -63,6 +63,20 @@ struct fvi_info : prohibit_void_ptr<fvi_info>
 #define FQ_IGNORE_POWERUPS	16		//ignore powerups
 
 #ifdef dsx
+namespace dcx {
+struct fvi_hitpoint
+{
+	fix u, v;
+};
+
+struct sphere_intersects_wall_result
+{
+	const shared_segment *seg;
+	uint_fast32_t side;
+};
+}
+
+namespace dsx {
 //this data contains the parms to fvi()
 struct fvi_query : prohibit_void_ptr<fvi_query>
 {
@@ -72,11 +86,6 @@ struct fvi_query : prohibit_void_ptr<fvi_query>
 	fix rad;
 	std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list;
 	int flags;
-};
-
-struct fvi_hitpoint
-{
-	fix u, v;
 };
 
 //Find out if a vector intersects with anything.
@@ -93,16 +102,9 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data);
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also
-namespace dsx {
 __attribute_warn_unused_result
 fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const cscusegment seg, uint_fast32_t sidenum, uint_fast32_t facenum);
 }
-
-struct sphere_intersects_wall_result
-{
-	const shared_segment *seg;
-	uint_fast32_t side;
-};
 
 //Returns true if the object is through any walls
 sphere_intersects_wall_result sphere_intersects_wall(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, const vms_vector &pnt, vcsegptridx_t seg, fix rad);
