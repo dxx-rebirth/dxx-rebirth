@@ -49,6 +49,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define GRID_SCALE      i2f(2*20)
 #define HEIGHT_SCALE    f1_0
 
+namespace dcx {
+
+namespace {
+
 static int grid_w,grid_h;
 
 static RAIIdmem<ubyte[]> height_array;
@@ -65,9 +69,11 @@ static std::unique_ptr<uint8_t[]> light_array;
 static grs_bitmap *terrain_bm;
 static int terrain_outline=0;
 static int org_i,org_j;
+static void build_light_table();
 
-// LINT: adding function prototypes
-static void build_light_table(void);
+}
+
+}
 
 // ------------------------------------------------------------------------
 static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const int i, const int j, cg3s_point &p0, cg3s_point &p1, cg3s_point &p2, cg3s_point &p3, int &mine_tiles_drawn)
@@ -342,9 +348,13 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 
 }
 
+namespace dcx {
+
 void free_height_array()
 {
 	height_array.reset();
+}
+
 }
 
 void load_terrain(const char *filename)
@@ -391,6 +401,9 @@ void load_terrain(const char *filename)
 	build_light_table();
 }
 
+namespace dcx {
+
+namespace {
 
 static void get_pnt(vms_vector &p,int i,int j)
 {
@@ -431,11 +444,6 @@ static fix get_avg_light(int i,int j)
 	return sum/6;
 }
 
-void free_light_table()
-{
-	light_array.reset();
-}
-
 static void build_light_table()
 {
 	std::size_t alloc = grid_w*grid_h;
@@ -472,4 +480,13 @@ static void build_light_table()
 			LIGHT(i,j) = l2>>8;
 
 		}
+}
+
+}
+
+void free_light_table()
+{
+	light_array.reset();
+}
+
 }

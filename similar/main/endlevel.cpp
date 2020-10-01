@@ -78,6 +78,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+#include "key.h"
+#include "joy.h"
+
 #if DXX_USE_EDITOR
 #include "editor/editor.h"
 #endif
@@ -91,94 +94,57 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 using std::min;
 using std::max;
 
+#define SHORT_SEQUENCE	1		//if defined, end sequence when panning starts
+
+namespace dcx {
+
+int Endlevel_sequence;
+grs_bitmap *terrain_bitmap;	//!!*exit_bitmap,
+unsigned exit_modelnum, destroyed_exit_modelnum;
+vms_matrix surface_orient;
+
 namespace {
 
-struct flythrough_data
-{
-	object		*obj;
-	vms_angvec	angles;			//orientation in angles
-	vms_vector	step;				//how far in a second
-	vms_vector	angstep;			//rotation per second
-	fix			speed;			//how fast object is moving
-	vms_vector 	headvec;			//where we want to be pointing
-	int			first_time;		//flag for if first time through
-	fix			offset_frac;	//how far off-center as portion of way
-	fix			offset_dist;	//how far currently off-center
-};
-
+#define FLY_ACCEL i2f(5)
 #define MAX_FLY_OBJECTS 2
 
+constexpr vms_vector vmd_zero_vector{};
+
 d_unique_endlevel_state UniqueEndlevelState;
-
-}
-
-static std::array<flythrough_data, MAX_FLY_OBJECTS> fly_objects;
-
-//endlevel sequence states
-
-#define EL_OFF				0		//not in endlevel
-#define EL_FLYTHROUGH	1		//auto-flythrough in tunnel
-#define EL_LOOKBACK		2		//looking back at player
-#define EL_OUTSIDE		3		//flying outside for a while
-#define EL_STOPPED		4		//stopped, watching explosion
-#define EL_PANNING		5		//panning around, watching player
-#define EL_CHASING		6		//chasing player to station
-
-#define SHORT_SEQUENCE	1		//if defined, end sequnce when panning starts
-
-int Endlevel_sequence = 0;
-
-static object *endlevel_camera;
-
-#define FLY_SPEED i2f(50)
-
-static void do_endlevel_flythrough(flythrough_data *flydata);
-static void draw_stars(grs_canvas &, const d_unique_endlevel_state::starfield_type &stars);
-static int find_exit_side(const object_base &obj);
 static void generate_starfield(d_unique_endlevel_state::starfield_type &stars);
-static void start_endlevel_flythrough(flythrough_data *flydata,const vmobjptr_t obj,fix speed);
+static void draw_stars(grs_canvas &, const d_unique_endlevel_state::starfield_type &stars);
+static int find_exit_side(const d_level_shared_segment_state &LevelSharedSegmentState, const d_level_shared_vertex_state &LevelSharedVertexState, const vms_vector &last_console_player_position, const object_base &obj);
 
-#if defined(DXX_BUILD_DESCENT_II)
-constexpr std::array<const char, 24> movie_table{{
-	'A','B','C','A',
-	'D','F','D','F',
-	'G','H','I','G',
-	'J','K','L','J',
-	'M','O','M','O',
-	'P','Q','P','Q'
-}};
-static int endlevel_movie_played = MOVIE_NOT_PLAYED;
-#endif
-
-
-#define FLY_ACCEL i2f(5)
-
-static fix cur_fly_speed,desired_fly_speed;
-
+static fix cur_fly_speed, desired_fly_speed;
 static grs_bitmap *satellite_bitmap;
-grs_bitmap *terrain_bitmap;	//!!*exit_bitmap,
 vms_vector satellite_pos,satellite_upvec;
-//!!grs_bitmap **exit_bitmap_list[1];
-unsigned exit_modelnum,destroyed_exit_modelnum;
-
 static vms_vector station_pos{0xf8c4<<10,0x3c1c<<12,0x372<<10};
 
 static vms_vector mine_exit_point;
 static vms_vector mine_ground_exit_point;
 static vms_vector mine_side_exit_point;
 static vms_matrix mine_exit_orient;
-
 static int outside_mine;
 
 static grs_main_bitmap terrain_bm_instance, satellite_bm_instance;
+
+static int ext_expl_playing,mine_destroyed;
+static vms_angvec exit_angles = {-0xa00, 0, 0};
+static int endlevel_data_loaded;
+
+static vms_angvec player_angles,player_dest_angles;
+#ifndef SHORT_SEQUENCE
+static vms_angvec camera_desired_angles,camera_cur_angles;
+#endif
+
+static int exit_point_bmx,exit_point_bmy;
+static fix satellite_size = i2f(400);
 
 //find delta between two angles
 static fixang delta_ang(fixang a,fixang b)
 {
 	fixang delta0,delta1;
-
 	return (abs(delta0 = a - b) < abs(delta1 = b - a)) ? delta0 : delta1;
-
 }
 
 //return though which side of seg0 is seg1
@@ -187,64 +153,6 @@ static size_t matt_find_connect_side(const shared_segment &seg0, const vcsegidx_
 	auto &children = seg0.children;
 	return std::distance(children.begin(), std::find(children.begin(), children.end(), seg1));
 }
-
-#if defined(DXX_BUILD_DESCENT_II)
-#define MOVIE_REQUIRED 1
-
-//returns movie played status.  see movie.h
-static int start_endlevel_movie()
-{
-	int r;
-	palette_array_t save_pal;
-
-	//Assert(PLAYING_BUILTIN_MISSION); //only play movie for built-in mission
-
-	//Assert(N_MOVIES >= Last_level);
-	//Assert(N_MOVIES_SECRET >= -Last_secret_level);
-
-	const auto current_level_num = Current_level_num;
-	if (is_SHAREWARE)
-		return 0;
-	if (!is_D2_OEM)
-		if (current_level_num == Last_level)
-			return 1;   //don't play movie
-
-	if (!(current_level_num > 0))
-		return 0;       //no escapes for secret level
-	char movie_name[] = "ESA.MVE";
-	movie_name[2] = movie_table[Current_level_num-1];
-
-	save_pal = gr_palette;
-
-	r=PlayMovie(NULL, movie_name,(Game_mode & GM_MULTI)?0:MOVIE_REQUIRED);
-
-	if (Newdemo_state == ND_STATE_PLAYBACK) {
-		set_screen_mode(SCREEN_GAME);
-		gr_palette = save_pal;
-	}
-
-	return (r);
-
-}
-#endif
-
-void free_endlevel_data()
-{
-	terrain_bm_instance.reset();
-	satellite_bm_instance.reset();
-
-	free_light_table();
-	free_height_array();
-}
-
-static object *external_explosion;
-static int ext_expl_playing,mine_destroyed;
-
-static vms_angvec exit_angles={-0xa00,0,0};
-
-vms_matrix surface_orient;
-
-static int endlevel_data_loaded;
 
 static unsigned get_tunnel_length(fvcsegptridx &vcsegptridx, const vcsegptridx_t console_seg, const unsigned exit_console_side)
 {
@@ -300,10 +208,470 @@ static vcsegidx_t get_tunnel_transition_segment(const unsigned tunnel_length, co
 	}
 }
 
+#define CHASE_TURN_RATE (0x4000/4)		//max turn per second
+
+//returns bitmask of which angles are at dest. bits 0,1,2 = p,b,h
+static int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
+{
+	vms_angvec delta_angs,alt_angles,alt_delta_angs;
+	fix total_delta,alt_total_delta;
+	fix frame_turn;
+	int mask=0;
+
+	delta_angs.p = desired_angles->p - cur_angles->p;
+	delta_angs.h = desired_angles->h - cur_angles->h;
+	delta_angs.b = desired_angles->b - cur_angles->b;
+
+	total_delta = abs(delta_angs.p) + abs(delta_angs.b) + abs(delta_angs.h);
+
+	alt_angles.p = f1_0/2 - cur_angles->p;
+	alt_angles.b = cur_angles->b + f1_0/2;
+	alt_angles.h = cur_angles->h + f1_0/2;
+
+	alt_delta_angs.p = desired_angles->p - alt_angles.p;
+	alt_delta_angs.h = desired_angles->h - alt_angles.h;
+	alt_delta_angs.b = desired_angles->b - alt_angles.b;
+
+	alt_total_delta = abs(alt_delta_angs.p) + abs(alt_delta_angs.b) + abs(alt_delta_angs.h);
+
+	if (alt_total_delta < total_delta) {
+		*cur_angles = alt_angles;
+		delta_angs = alt_delta_angs;
+	}
+
+	frame_turn = fixmul(FrameTime,CHASE_TURN_RATE);
+
+	if (abs(delta_angs.p) < frame_turn) {
+		cur_angles->p = desired_angles->p;
+		mask |= 1;
+	}
+	else
+		if (delta_angs.p > 0)
+			cur_angles->p += frame_turn;
+		else
+			cur_angles->p -= frame_turn;
+
+	if (abs(delta_angs.b) < frame_turn) {
+		cur_angles->b = desired_angles->b;
+		mask |= 2;
+	}
+	else
+		if (delta_angs.b > 0)
+			cur_angles->b += frame_turn;
+		else
+			cur_angles->b -= frame_turn;
+//cur_angles->b = 0;
+
+	if (abs(delta_angs.h) < frame_turn) {
+		cur_angles->h = desired_angles->h;
+		mask |= 4;
+	}
+	else
+		if (delta_angs.h > 0)
+			cur_angles->h += frame_turn;
+		else
+			cur_angles->h -= frame_turn;
+
+	return mask;
+}
+
+//find the angle between the player's heading & the station
+static void get_angs_to_object(vms_angvec &av,const vms_vector &targ_pos,const vms_vector &cur_pos)
+{
+	const auto tv = vm_vec_sub(targ_pos,cur_pos);
+	vm_extract_angles_vector(av,tv);
+}
+
+#define MIN_D 0x100
+
+//find which side to fly out of
+static int find_exit_side(const d_level_shared_segment_state &LevelSharedSegmentState, const d_level_shared_vertex_state &LevelSharedVertexState, const vms_vector &last_console_player_position, const object_base &obj)
+{
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	vms_vector prefvec;
+	fix best_val=-f2_0;
+	int best_side;
+
+	//find exit side
+
+	vm_vec_normalized_dir_quick(prefvec, obj.pos, last_console_player_position);
+
+	const shared_segment &pseg = LevelSharedSegmentState.get_segments().vcptr(obj.segnum);
+	auto &vcvertptr = Vertices.vcptr;
+	const auto segcenter = compute_segment_center(vcvertptr, pseg);
+
+	best_side=-1;
+	for (int i=MAX_SIDES_PER_SEGMENT;--i >= 0;) {
+		fix d;
+
+		if (pseg.children[i] != segment_none)
+		{
+			auto sidevec = compute_center_point_on_side(vcvertptr, pseg, i);
+			vm_vec_normalized_dir_quick(sidevec,sidevec,segcenter);
+			d = vm_vec_dot(sidevec,prefvec);
+
+			if (labs(d) < MIN_D) d=0;
+
+			if (d > best_val) {best_val=d; best_side=i;}
+		}
+	}
+
+	Assert(best_side!=-1);
+	return best_side;
+}
+
+static void draw_mine_exit_cover(grs_canvas &canvas)
+{
+	const int of = 10;
+	const fix u = i2f(6), d = i2f(9), ur = i2f(14), dr = i2f(17);
+	const uint8_t color = BM_XRGB(0, 0, 0);
+	vms_vector v;
+	g3s_point p0, p1, p2, p3;
+
+	vm_vec_scale_add(v,mine_exit_point,mine_exit_orient.fvec,i2f(of));
+
+	auto mrd = mine_exit_orient.rvec;
+	{
+		vms_vector vu;
+		vm_vec_scale_add(vu, v, mine_exit_orient.uvec, u);
+		auto mru = mrd;
+		vm_vec_scale(mru, ur);
+		vms_vector p;
+		g3_rotate_point(p0, (vm_vec_add(p, vu, mru), p));
+		g3_rotate_point(p1, (vm_vec_sub(p, vu, mru), p));
+	}
+	{
+		vms_vector vd;
+		vm_vec_scale_add(vd, v, mine_exit_orient.uvec, -d);
+		vm_vec_scale(mrd, dr);
+		vms_vector p;
+		g3_rotate_point(p2, (vm_vec_sub(p, vd, mrd), p));
+		g3_rotate_point(p3, (vm_vec_add(p, vd, mrd), p));
+	}
+	const std::array<cg3s_point *, 4> pointlist{{
+		&p0,
+		&p1,
+		&p2,
+		&p3,
+	}};
+
+	g3_draw_poly(canvas, pointlist.size(), pointlist, color);
+}
+
+static void generate_starfield(d_unique_endlevel_state::starfield_type &stars)
+{
+	range_for (auto &i, stars)
+	{
+		i.x = (d_rand() - D_RAND_MAX / 2) << 14;
+		i.z = (d_rand() - D_RAND_MAX / 2) << 14;
+		i.y = (d_rand() / 2) << 14;
+	}
+}
+
+void draw_stars(grs_canvas &canvas, const d_unique_endlevel_state::starfield_type &stars)
+{
+	int intensity=31;
+	g3s_point p;
+
+	uint8_t color = 0;
+	range_for (auto &&e, enumerate(stars))
+	{
+		const auto i = e.idx;
+		auto &si = e.value;
+
+		if ((i&63) == 0) {
+			color = BM_XRGB(intensity,intensity,intensity);
+			intensity-=3;
+		}
+
+		g3_rotate_delta_vec(p.p3_vec, si);
+		g3_code_point(p);
+
+		if (p.p3_codes == 0) {
+
+			p.p3_flags &= ~PF_PROJECTED;
+
+			g3_project_point(p);
+#if !DXX_USE_OGL
+			gr_pixel(canvas.cv_bitmap, f2i(p.p3_sx), f2i(p.p3_sy), color);
+#else
+			g3_draw_sphere(canvas, p, F1_0 * 3, color);
+#endif
+		}
+	}
+
+//@@	{
+//@@		vms_vector delta;
+//@@		g3s_point top_pnt;
+//@@
+//@@		g3_rotate_point(&p,&satellite_pos);
+//@@		g3_rotate_delta_vec(&delta,&satellite_upvec);
+//@@
+//@@		g3_add_delta_vec(&top_pnt,&p,&delta);
+//@@
+//@@		if (! (p.p3_codes & CC_BEHIND)) {
+//@@			int save_im = Interpolation_method;
+//@@			Interpolation_method = 0;
+//@@			//p.p3_flags &= ~PF_PROJECTED;
+//@@			g3_project_point(&p);
+//@@			if (! (p.p3_flags & PF_OVERFLOW))
+//@@				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
+//@@				g3_draw_rod_tmap(satellite_bitmap,&p,SATELLITE_WIDTH,&top_pnt,SATELLITE_WIDTH,f1_0);
+//@@			Interpolation_method = save_im;
+//@@		}
+//@@	}
+}
+
+static void angvec_add2_scale(vms_angvec &dest,const vms_vector &src,fix s)
+{
+	dest.p += fixmul(src.x,s);
+	dest.b += fixmul(src.z,s);
+	dest.h += fixmul(src.y,s);
+}
+
+static int convert_ext(d_fname &dest, const char (&ext)[4])
+{
+	auto b = std::begin(dest);
+	auto e = std::end(dest);
+	auto t = std::find(b, e, '.');
+	if (t != e && std::distance(b, t) <= 8)
+	{
+		std::copy(std::begin(ext), std::end(ext), std::next(t));
+		return 1;
+	}
+	else
+		return 0;
+}
+
+static std::pair<icsegidx_t, sidenum_fast_t> find_exit_segment_side(fvcsegptridx &vcsegptridx)
+{
+	range_for (const auto &&segp, vcsegptridx)
+	{
+		for (const auto &&[child_segnum, sidenum] : enumerate(segp->shared_segment::children))
+		{
+			if (child_segnum == segment_exit)
+			{
+				return {segp, sidenum};
+			}
+		}
+	}
+	return {segment_none, side_none};
+}
+
+}
+
+void free_endlevel_data()
+{
+	terrain_bm_instance.reset();
+	satellite_bm_instance.reset();
+	free_light_table();
+	free_height_array();
+}
+
+}
+
 namespace dsx {
+
+namespace {
+
+struct flythrough_data
+{
+	object		*obj;
+	vms_angvec	angles;			//orientation in angles
+	vms_vector	step;				//how far in a second
+	vms_vector	angstep;			//rotation per second
+	fix			speed;			//how fast object is moving
+	vms_vector 	headvec;			//where we want to be pointing
+	int			first_time;		//flag for if first time through
+	fix			offset_frac;	//how far off-center as portion of way
+	fix			offset_dist;	//how far currently off-center
+};
+
+static std::array<flythrough_data, MAX_FLY_OBJECTS> fly_objects;
+
+//endlevel sequence states
+
+#define EL_OFF				0		//not in endlevel
+#define EL_FLYTHROUGH	1		//auto-flythrough in tunnel
+#define EL_LOOKBACK		2		//looking back at player
+#define EL_OUTSIDE		3		//flying outside for a while
+#define EL_STOPPED		4		//stopped, watching explosion
+#define EL_PANNING		5		//panning around, watching player
+#define EL_CHASING		6		//chasing player to station
+
+static object *endlevel_camera;
+static object *external_explosion;
+
+#define FLY_SPEED i2f(50)
+
+static void do_endlevel_flythrough(flythrough_data *flydata);
+
+#define DEFAULT_SPEED i2f(16)
+
+#if defined(DXX_BUILD_DESCENT_II)
+constexpr std::array<const char, 24> movie_table{{
+	'A','B','C','A',
+	'D','F','D','F',
+	'G','H','I','G',
+	'J','K','L','J',
+	'M','O','M','O',
+	'P','Q','P','Q'
+}};
+static int endlevel_movie_played = MOVIE_NOT_PLAYED;
+
+#define MOVIE_REQUIRED 1
+
+//returns movie played status.  see movie.h
+static int start_endlevel_movie()
+{
+	int r;
+	palette_array_t save_pal;
+
+	//Assert(PLAYING_BUILTIN_MISSION); //only play movie for built-in mission
+
+	//Assert(N_MOVIES >= Last_level);
+	//Assert(N_MOVIES_SECRET >= -Last_secret_level);
+
+	const auto current_level_num = Current_level_num;
+	if (is_SHAREWARE)
+		return 0;
+	if (!is_D2_OEM)
+		if (current_level_num == Last_level)
+			return 1;   //don't play movie
+
+	if (!(current_level_num > 0))
+		return 0;       //no escapes for secret level
+	char movie_name[] = "ESA.MVE";
+	movie_name[2] = movie_table[Current_level_num-1];
+
+	save_pal = gr_palette;
+
+	r=PlayMovie(NULL, movie_name,(Game_mode & GM_MULTI)?0:MOVIE_REQUIRED);
+
+	if (Newdemo_state == ND_STATE_PLAYBACK) {
+		set_screen_mode(SCREEN_GAME);
+		gr_palette = save_pal;
+	}
+
+	return (r);
+
+}
+#endif
+
+//if speed is zero, use default speed
+void start_endlevel_flythrough(flythrough_data &flydata, object &obj, const fix speed)
+{
+	flydata.obj = &obj;
+	flydata.first_time = 1;
+	flydata.speed = speed?speed:DEFAULT_SPEED;
+	flydata.offset_frac = 0;
+}
+
+void draw_exit_model(grs_canvas &canvas)
+{
+	int f=15,u=0;	//21;
+	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
+
+	if (mine_destroyed)
+	{
+		// draw black shape to mask out terrain in exit hatch
+		draw_mine_exit_cover(canvas);
+	}
+
+	auto model_pos = vm_vec_scale_add(mine_exit_point,mine_exit_orient.fvec,i2f(f));
+	vm_vec_scale_add2(model_pos,mine_exit_orient.uvec,i2f(u));
+	draw_polygon_model(canvas, model_pos, mine_exit_orient, nullptr, mine_destroyed ? destroyed_exit_modelnum : exit_modelnum, 0, lrgb, nullptr, nullptr);
+}
+
+#define SATELLITE_DIST		i2f(1024)
+#define SATELLITE_WIDTH		satellite_size
+#define SATELLITE_HEIGHT	((satellite_size*9)/4)		//((satellite_size*5)/2)
+
+static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const fix eye_offset)
+{
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptridx = Objects.vmptridx;
+#if DXX_USE_OGL
+	int orig_Render_depth = Render_depth;
+#endif
+	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
+
+	auto Viewer_eye = Viewer->pos;
+
+	if (eye_offset)
+		vm_vec_scale_add2(Viewer_eye,Viewer->orient.rvec,eye_offset);
+
+	g3_set_view_matrix(Viewer->pos,Viewer->orient,Render_zoom);
+
+	//g3_draw_horizon(BM_XRGB(0,0,0),BM_XRGB(16,16,16));		//,-1);
+	gr_clear_canvas(canvas, BM_XRGB(0,0,0));
+
+	g3_start_instance_matrix(vmd_zero_vector, surface_orient);
+	draw_stars(canvas, UniqueEndlevelState.stars);
+	g3_done_instance();
+
+	{	//draw satellite
+
+		vms_vector delta;
+		g3s_point top_pnt;
+
+		const auto p = g3_rotate_point(satellite_pos);
+		g3_rotate_delta_vec(delta,satellite_upvec);
+
+		g3_add_delta_vec(top_pnt,p,delta);
+
+		if (! (p.p3_codes & CC_BEHIND)) {
+			//p.p3_flags &= ~PF_PROJECTED;
+			//g3_project_point(&p);
+			if (! (p.p3_flags & PF_OVERFLOW)) {
+				push_interpolation_method save_im(0);
+				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
+				g3_draw_rod_tmap(canvas, *satellite_bitmap, p, SATELLITE_WIDTH, top_pnt, SATELLITE_WIDTH, lrgb);
+			}
+		}
+	}
+
+#if DXX_USE_OGL
+	ogl_toggle_depth_test(0);
+	Render_depth = (200-(vm_vec_dist_quick(mine_ground_exit_point, Viewer_eye)/F1_0))/36;
+#endif
+	render_terrain(canvas, Viewer_eye, mine_ground_exit_point, exit_point_bmx, exit_point_bmy);
+#if DXX_USE_OGL
+	Render_depth = orig_Render_depth;
+	ogl_toggle_depth_test(1);
+#endif
+
+	draw_exit_model(canvas);
+	if (ext_expl_playing)
+	{
+		const auto alpha = PlayerCfg.AlphaBlendMineExplosion;
+		if (alpha) // set nice transparency/blending for the big explosion
+			gr_settransblend(canvas, GR_FADE_OFF, gr_blend::additive_c);
+		draw_fireball(Vclip, canvas, vcobjptridx(external_explosion));
+#if DXX_USE_OGL
+		/* If !OGL, the third argument is discarded, so this call
+		 * becomes the same as the one above.
+		 */
+		if (alpha)
+			gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal); // revert any transparency/blending setting back to normal
+#endif
+	}
+
+#if !DXX_USE_OGL
+	Lighting_on=0;
+#endif
+	render_object(canvas, LevelUniqueLightState, vmobjptridx(ConsoleObject));
+#if !DXX_USE_OGL
+	Lighting_on=1;
+#endif
+}
+
+}
+
 window_event_result start_endlevel_sequence()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &vmobjptr = Objects.vmptr;
 	reset_rear_view(); //turn off rear view if set - NOTE: make sure this happens before we pause demo recording!!
 
@@ -382,7 +750,7 @@ window_event_result start_endlevel_sequence()
 		//count segments in exit tunnel
 
 		const object_base &console = vmobjptr(ConsoleObject);
-		const auto exit_console_side = find_exit_side(console);
+		const auto exit_console_side = find_exit_side(LevelSharedSegmentState, LevelSharedVertexState, LevelUniqueObjectState.last_console_player_position, console);
 		const auto &&console_seg = vcsegptridx(console.segnum);
 		const auto tunnel_length = get_tunnel_length(vcsegptridx, console_seg, exit_console_side);
 		if (!tunnel_length)
@@ -409,7 +777,7 @@ window_event_result start_endlevel_sequence()
 
 	cur_fly_speed = desired_fly_speed = FLY_SPEED;
 
-	start_endlevel_flythrough(&fly_objects[0], vmobjptr(ConsoleObject), cur_fly_speed);		//initialize
+	start_endlevel_flythrough(fly_objects[0], vmobjptr(ConsoleObject), cur_fly_speed);		//initialize
 
 	HUD_init_message_literal(HM_DEFAULT, TXT_EXIT_SEQUENCE );
 
@@ -423,79 +791,6 @@ window_event_result start_endlevel_sequence()
 
 	return window_event_result::handled;
 }
-}
-
-static vms_angvec player_angles,player_dest_angles;
-#ifndef SHORT_SEQUENCE
-static vms_angvec camera_desired_angles,camera_cur_angles;
-#endif
-
-#define CHASE_TURN_RATE (0x4000/4)		//max turn per second
-
-//returns bitmask of which angles are at dest. bits 0,1,2 = p,b,h
-static int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
-{
-	vms_angvec delta_angs,alt_angles,alt_delta_angs;
-	fix total_delta,alt_total_delta;
-	fix frame_turn;
-	int mask=0;
-
-	delta_angs.p = desired_angles->p - cur_angles->p;
-	delta_angs.h = desired_angles->h - cur_angles->h;
-	delta_angs.b = desired_angles->b - cur_angles->b;
-
-	total_delta = abs(delta_angs.p) + abs(delta_angs.b) + abs(delta_angs.h);
-
-	alt_angles.p = f1_0/2 - cur_angles->p;
-	alt_angles.b = cur_angles->b + f1_0/2;
-	alt_angles.h = cur_angles->h + f1_0/2;
-
-	alt_delta_angs.p = desired_angles->p - alt_angles.p;
-	alt_delta_angs.h = desired_angles->h - alt_angles.h;
-	alt_delta_angs.b = desired_angles->b - alt_angles.b;
-
-	alt_total_delta = abs(alt_delta_angs.p) + abs(alt_delta_angs.b) + abs(alt_delta_angs.h);
-
-	if (alt_total_delta < total_delta) {
-		*cur_angles = alt_angles;
-		delta_angs = alt_delta_angs;
-	}
-
-	frame_turn = fixmul(FrameTime,CHASE_TURN_RATE);
-
-	if (abs(delta_angs.p) < frame_turn) {
-		cur_angles->p = desired_angles->p;
-		mask |= 1;
-	}
-	else
-		if (delta_angs.p > 0)
-			cur_angles->p += frame_turn;
-		else
-			cur_angles->p -= frame_turn;
-
-	if (abs(delta_angs.b) < frame_turn) {
-		cur_angles->b = desired_angles->b;
-		mask |= 2;
-	}
-	else
-		if (delta_angs.b > 0)
-			cur_angles->b += frame_turn;
-		else
-			cur_angles->b -= frame_turn;
-//cur_angles->b = 0;
-
-	if (abs(delta_angs.h) < frame_turn) {
-		cur_angles->h = desired_angles->h;
-		mask |= 4;
-	}
-	else
-		if (delta_angs.h > 0)
-			cur_angles->h += frame_turn;
-		else
-			cur_angles->h -= frame_turn;
-
-	return mask;
-}
 
 window_event_result stop_endlevel_sequence()
 {
@@ -506,7 +801,6 @@ window_event_result stop_endlevel_sequence()
 	select_cockpit(PlayerCfg.CockpitMode[0]);
 
 	Endlevel_sequence = EL_OFF;
-
 	return PlayerFinishedLevel(0);
 }
 
@@ -514,14 +808,6 @@ window_event_result stop_endlevel_sequence()
 
 //--unused-- vms_vector upvec = {0,f1_0,0};
 
-//find the angle between the player's heading & the station
-static void get_angs_to_object(vms_angvec &av,const vms_vector &targ_pos,const vms_vector &cur_pos)
-{
-	const auto tv = vm_vec_sub(targ_pos,cur_pos);
-	vm_extract_angles_vector(av,tv);
-}
-
-namespace dsx {
 window_event_result do_endlevel_frame()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -850,263 +1136,8 @@ window_event_result do_endlevel_frame()
 
 	return result;
 }
-}
 
-
-#define MIN_D 0x100
-
-//find which side to fly out of
-static int find_exit_side(const object_base &obj)
-{
-	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	auto &Vertices = LevelSharedVertexState.get_vertices();
-	vms_vector prefvec;
-	fix best_val=-f2_0;
-	int best_side;
-
-	//find exit side
-
-	vm_vec_normalized_dir_quick(prefvec, obj.pos, LevelUniqueObjectState.last_console_player_position);
-
-	const shared_segment &pseg = *vcsegptr(obj.segnum);
-	auto &vcvertptr = Vertices.vcptr;
-	const auto segcenter = compute_segment_center(vcvertptr, pseg);
-
-	best_side=-1;
-	for (int i=MAX_SIDES_PER_SEGMENT;--i >= 0;) {
-		fix d;
-
-		if (pseg.children[i] != segment_none)
-		{
-			auto sidevec = compute_center_point_on_side(vcvertptr, pseg, i);
-			vm_vec_normalized_dir_quick(sidevec,sidevec,segcenter);
-			d = vm_vec_dot(sidevec,prefvec);
-
-			if (labs(d) < MIN_D) d=0;
-
-			if (d > best_val) {best_val=d; best_side=i;}
-
-		}
-	}
-
-	Assert(best_side!=-1);
-
-	return best_side;
-}
-
-static void draw_mine_exit_cover(grs_canvas &canvas)
-{
-	const int of = 10;
-	const fix u = i2f(6), d = i2f(9), ur = i2f(14), dr = i2f(17);
-	const uint8_t color = BM_XRGB(0, 0, 0);
-	vms_vector v;
-	g3s_point p0, p1, p2, p3;
-
-	vm_vec_scale_add(v,mine_exit_point,mine_exit_orient.fvec,i2f(of));
-
-	auto mrd = mine_exit_orient.rvec;
-	{
-		vms_vector vu;
-		vm_vec_scale_add(vu, v, mine_exit_orient.uvec, u);
-		auto mru = mrd;
-		vm_vec_scale(mru, ur);
-		vms_vector p;
-		g3_rotate_point(p0, (vm_vec_add(p, vu, mru), p));
-		g3_rotate_point(p1, (vm_vec_sub(p, vu, mru), p));
-	}
-	{
-		vms_vector vd;
-		vm_vec_scale_add(vd, v, mine_exit_orient.uvec, -d);
-		vm_vec_scale(mrd, dr);
-		vms_vector p;
-		g3_rotate_point(p2, (vm_vec_sub(p, vd, mrd), p));
-		g3_rotate_point(p3, (vm_vec_add(p, vd, mrd), p));
-	}
-	const std::array<cg3s_point *, 4> pointlist{{
-		&p0,
-		&p1,
-		&p2,
-		&p3,
-	}};
-
-	g3_draw_poly(canvas, pointlist.size(), pointlist, color);
-}
-
-void draw_exit_model(grs_canvas &canvas)
-{
-	int f=15,u=0;	//21;
-	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
-
-	if (mine_destroyed)
-	{
-		// draw black shape to mask out terrain in exit hatch
-		draw_mine_exit_cover(canvas);
-	}
-
-	auto model_pos = vm_vec_scale_add(mine_exit_point,mine_exit_orient.fvec,i2f(f));
-	vm_vec_scale_add2(model_pos,mine_exit_orient.uvec,i2f(u));
-	draw_polygon_model(canvas, model_pos, mine_exit_orient, nullptr, mine_destroyed ? destroyed_exit_modelnum : exit_modelnum, 0, lrgb, nullptr, nullptr);
-}
-
-static int exit_point_bmx,exit_point_bmy;
-
-static fix satellite_size = i2f(400);
-
-#define SATELLITE_DIST		i2f(1024)
-#define SATELLITE_WIDTH		satellite_size
-#define SATELLITE_HEIGHT	((satellite_size*9)/4)		//((satellite_size*5)/2)
-
-constexpr vms_vector vmd_zero_vector{};
-
-namespace dsx {
-
-static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const fix eye_offset)
-{
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptridx = Objects.vmptridx;
-#if DXX_USE_OGL
-	int orig_Render_depth = Render_depth;
-#endif
-	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
-
-	auto Viewer_eye = Viewer->pos;
-
-	if (eye_offset)
-		vm_vec_scale_add2(Viewer_eye,Viewer->orient.rvec,eye_offset);
-
-	g3_set_view_matrix(Viewer->pos,Viewer->orient,Render_zoom);
-
-	//g3_draw_horizon(BM_XRGB(0,0,0),BM_XRGB(16,16,16));		//,-1);
-	gr_clear_canvas(canvas, BM_XRGB(0,0,0));
-
-	g3_start_instance_matrix(vmd_zero_vector, surface_orient);
-	draw_stars(canvas, UniqueEndlevelState.stars);
-	g3_done_instance();
-
-	{	//draw satellite
-
-		vms_vector delta;
-		g3s_point top_pnt;
-
-		const auto p = g3_rotate_point(satellite_pos);
-		g3_rotate_delta_vec(delta,satellite_upvec);
-
-		g3_add_delta_vec(top_pnt,p,delta);
-
-		if (! (p.p3_codes & CC_BEHIND)) {
-			//p.p3_flags &= ~PF_PROJECTED;
-			//g3_project_point(&p);
-			if (! (p.p3_flags & PF_OVERFLOW)) {
-				push_interpolation_method save_im(0);
-				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
-				g3_draw_rod_tmap(canvas, *satellite_bitmap, p, SATELLITE_WIDTH, top_pnt, SATELLITE_WIDTH, lrgb);
-			}
-		}
-	}
-
-#if DXX_USE_OGL
-	ogl_toggle_depth_test(0);
-	Render_depth = (200-(vm_vec_dist_quick(mine_ground_exit_point, Viewer_eye)/F1_0))/36;
-#endif
-	render_terrain(canvas, Viewer_eye, mine_ground_exit_point, exit_point_bmx, exit_point_bmy);
-#if DXX_USE_OGL
-	Render_depth = orig_Render_depth;
-	ogl_toggle_depth_test(1);
-#endif
-
-	draw_exit_model(canvas);
-	if (ext_expl_playing)
-	{
-		const auto alpha = PlayerCfg.AlphaBlendMineExplosion;
-		if (alpha) // set nice transparency/blending for the big explosion
-			gr_settransblend(canvas, GR_FADE_OFF, gr_blend::additive_c);
-		draw_fireball(Vclip, canvas, vcobjptridx(external_explosion));
-#if DXX_USE_OGL
-		/* If !OGL, the third argument is discarded, so this call
-		 * becomes the same as the one above.
-		 */
-		if (alpha)
-			gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal); // revert any transparency/blending setting back to normal
-#endif
-	}
-
-#if !DXX_USE_OGL
-	Lighting_on=0;
-#endif
-	render_object(canvas, LevelUniqueLightState, vmobjptridx(ConsoleObject));
-#if !DXX_USE_OGL
-	Lighting_on=1;
-#endif
-}
-
-}
-
-static void generate_starfield(d_unique_endlevel_state::starfield_type &stars)
-{
-	range_for (auto &i, stars)
-	{
-		i.x = (d_rand() - D_RAND_MAX / 2) << 14;
-		i.z = (d_rand() - D_RAND_MAX / 2) << 14;
-		i.y = (d_rand() / 2) << 14;
-	}
-}
-
-void draw_stars(grs_canvas &canvas, const d_unique_endlevel_state::starfield_type &stars)
-{
-	int intensity=31;
-	g3s_point p;
-
-	uint8_t color = 0;
-	range_for (auto &&e, enumerate(stars))
-	{
-		const auto i = e.idx;
-		auto &si = e.value;
-
-		if ((i&63) == 0) {
-			color = BM_XRGB(intensity,intensity,intensity);
-			intensity-=3;
-		}
-
-		g3_rotate_delta_vec(p.p3_vec, si);
-		g3_code_point(p);
-
-		if (p.p3_codes == 0) {
-
-			p.p3_flags &= ~PF_PROJECTED;
-
-			g3_project_point(p);
-#if !DXX_USE_OGL
-			gr_pixel(canvas.cv_bitmap, f2i(p.p3_sx), f2i(p.p3_sy), color);
-#else
-			g3_draw_sphere(canvas, p, F1_0 * 3, color);
-#endif
-		}
-	}
-
-//@@	{
-//@@		vms_vector delta;
-//@@		g3s_point top_pnt;
-//@@
-//@@		g3_rotate_point(&p,&satellite_pos);
-//@@		g3_rotate_delta_vec(&delta,&satellite_upvec);
-//@@
-//@@		g3_add_delta_vec(&top_pnt,&p,&delta);
-//@@
-//@@		if (! (p.p3_codes & CC_BEHIND)) {
-//@@			int save_im = Interpolation_method;
-//@@			Interpolation_method = 0;
-//@@			//p.p3_flags &= ~PF_PROJECTED;
-//@@			g3_project_point(&p);
-//@@			if (! (p.p3_flags & PF_OVERFLOW))
-//@@				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
-//@@				g3_draw_rod_tmap(satellite_bitmap,&p,SATELLITE_WIDTH,&top_pnt,SATELLITE_WIDTH,f1_0);
-//@@			Interpolation_method = save_im;
-//@@		}
-//@@	}
-
-}
-
-namespace dsx {
+namespace {
 
 static void endlevel_render_mine(const d_level_shared_segment_state &LevelSharedSegmentState, grs_canvas &canvas, fix eye_offset)
 {
@@ -1160,33 +1191,11 @@ void render_endlevel_frame(grs_canvas &canvas, fix eye_offset)
 
 ///////////////////////// copy of flythrough code for endlevel
 
-
-#define DEFAULT_SPEED i2f(16)
-
-#define MIN_D 0x100
-
-//if speed is zero, use default speed
-void start_endlevel_flythrough(flythrough_data *flydata,const vmobjptr_t obj,fix speed)
-{
-	flydata->obj = obj;
-
-	flydata->first_time = 1;
-
-	flydata->speed = speed?speed:DEFAULT_SPEED;
-
-	flydata->offset_frac = 0;
-}
-
-static void angvec_add2_scale(vms_angvec &dest,const vms_vector &src,fix s)
-{
-	dest.p += fixmul(src.x,s);
-	dest.b += fixmul(src.z,s);
-	dest.h += fixmul(src.y,s);
-}
-
 #define MAX_ANGSTEP	0x4000		//max turn per second
 
 #define MAX_SLIDE_PER_SEGMENT 0x10000
+
+namespace {
 
 void do_endlevel_flythrough(flythrough_data *flydata)
 {
@@ -1230,7 +1239,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		}
 
 		if (flydata->first_time || entry_side == side_none || pseg.children[exit_side] == segment_none)
-			exit_side = find_exit_side(obj);
+			exit_side = find_exit_side(LevelSharedSegmentState, LevelSharedVertexState, LevelUniqueObjectState.last_console_player_position, obj);
 
 		{										//find closest side to align to
 			fix d,largest_d=-f1_0;
@@ -1310,50 +1319,15 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 	flydata->first_time=0;
 }
 
-#include "key.h"
-#include "joy.h"
-
+}
 
 #define LINE_LEN	80
 #define NUM_VARS	8
 
 #define STATION_DIST	i2f(1024)
 
-namespace dcx {
-
-static int convert_ext(d_fname &dest, const char (&ext)[4])
-{
-	auto b = std::begin(dest);
-	auto e = std::end(dest);
-	auto t = std::find(b, e, '.');
-	if (t != e && std::distance(b, t) <= 8)
-	{
-		std::copy(std::begin(ext), std::end(ext), std::next(t));
-		return 1;
-	}
-	else
-		return 0;
-}
-
-static std::pair<icsegidx_t, sidenum_fast_t> find_exit_segment_side(fvcsegptridx &vcsegptridx)
-{
-	range_for (const auto &&segp, vcsegptridx)
-	{
-		for (const auto &&[child_segnum, sidenum] : enumerate(segp->shared_segment::children))
-		{
-			if (child_segnum == segment_exit)
-			{
-				return {segp, sidenum};
-			}
-		}
-	}
-	return {segment_none, side_none};
-}
-
-}
-
 //called for each level to load & setup the exit sequence
-namespace dsx {
+
 void load_endlevel_data(int level_num)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -1560,4 +1534,5 @@ try_again:
 	}
 	endlevel_data_loaded = 1;
 }
+
 }
