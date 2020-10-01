@@ -49,14 +49,17 @@ constexpr std::integral_constant<std::size_t, 4> MAX_VERTICES_PER_POLY{};
 constexpr std::size_t MAX_SEGMENTS_ORIGINAL = 900;
 constexpr std::integral_constant<std::size_t, 4 * MAX_SEGMENTS_ORIGINAL> MAX_SEGMENT_VERTICES_ORIGINAL{};
 constexpr std::integral_constant<std::size_t, 4 * MAX_SEGMENTS> MAX_SEGMENT_VERTICES{};
-}
+
 #ifdef dsx
-namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(segment, seg);
 
 static constexpr valptridx<segment>::magic_constant<0xfffe> segment_exit{};
 static constexpr valptridx<segment>::magic_constant<0xffff> segment_none{};
 static constexpr valptridx<segment>::magic_constant<0> segment_first{};
+#endif
+}
+#ifdef dsx
+namespace dsx {
 void delete_segment_from_group(vmsegptridx_t segment_num, unsigned group_num);
 }
 #endif
