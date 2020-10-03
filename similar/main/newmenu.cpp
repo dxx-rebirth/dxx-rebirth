@@ -1447,9 +1447,9 @@ static void newmenu_create_structure( newmenu *menu )
 	if (menu->citem != -1)
 	{
 		if (menu->citem < 0 ) menu->citem = 0;
-		const std::size_t nitems = menu->items.size() - 1;
-		if (menu->citem > nitems)
-			menu->citem = nitems;
+		const std::size_t nitems = menu->items.size();
+		if (menu->citem > nitems - 1)
+			menu->citem = nitems - 1;
 
 		menu->dblclick_flag = 1;
 		uint_fast32_t i = 0;
