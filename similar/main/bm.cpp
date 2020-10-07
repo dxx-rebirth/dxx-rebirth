@@ -86,8 +86,10 @@ fix	ObjStrength[MAX_OBJTYPE];
 #elif defined(DXX_BUILD_DESCENT_II)
 //the polygon model number to use for the marker
 unsigned N_ObjBitmaps;
+namespace {
 static int extra_bitmap_num;
 static void bm_free_extra_objbitmaps();
+}
 #endif
 
 Textures_array Textures;		// All textures.
@@ -112,10 +114,11 @@ unsigned Num_cockpits;
 
 int             First_multi_bitmap_num=-1;
 
+namespace dsx {
+
 std::array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
 std::array<ushort, MAX_OBJ_BITMAPS>          ObjBitmapPtrs;     // These point back into ObjBitmaps, since some are used twice.
 
-namespace dsx {
 void gamedata_close()
 {
 	free_polygon_models(LevelSharedPolygonModelState);
@@ -125,7 +128,6 @@ void gamedata_close()
 	free_endlevel_data();
 	rle_cache_close();
 	piggy_close();
-}
 }
 
 /*
@@ -156,8 +158,6 @@ int gamedata_init()
 	
 	return 0;
 }
-
-namespace dsx {
 
 // Read compiled properties data from descent.pig
 // (currently only ever called if D1)
@@ -258,8 +258,6 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 	LevelUniqueTmapInfoState.Num_tmaps = TextureEffects + std::count_if(effect_range.begin(), effect_range.end(), [](const eclip &e) { return e.changing_wall_texture >= 0; });
         #endif
 }
-
-}
 #elif defined(DXX_BUILD_DESCENT_II)
 static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 {
@@ -293,8 +291,6 @@ int gamedata_init()
 
 	return 0;
 }
-
-namespace dsx {
 
 void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 {
@@ -395,6 +391,8 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 		exit_modelnum = destroyed_exit_modelnum = N_polygon_models;
 }
 
+namespace {
+
 // this and below only really used for D2
 bool Exit_bitmaps_loaded;
 unsigned Exit_bitmap_index;
@@ -421,6 +419,8 @@ static void bm_free_extra_models(d_level_shared_polygon_model_state &LevelShared
 	const auto base = std::min(N_D2_POLYGON_MODELS.value, exit_modelnum);
 	for (auto &p : partial_range(LevelSharedPolygonModelState.Polygon_models, base, std::exchange(LevelSharedPolygonModelState.N_polygon_models, base)))
 		free_model(p);
+}
+
 }
 
 //type==1 means 1.1, type==2 means 1.2 (with weapons)
@@ -582,6 +582,7 @@ void load_robot_replacements(const d_fname &level_name)
 	Robot_replacements_loaded = 1;
 }
 
+namespace {
 
 /*
  * Routines for loading exit models
@@ -647,6 +648,8 @@ static void bm_unload_last_objbitmaps(unsigned count)
 	range_for (auto &o, partial_range(ObjBitmaps, new_N_ObjBitmaps, N_ObjBitmaps))
 		d_free(GameBitmaps[o.index].bm_mdata);
 	N_ObjBitmaps = new_N_ObjBitmaps;
+}
+
 }
 
 // only called for D2 registered, but there is a D1 check anyway for
@@ -776,9 +779,9 @@ int load_exit_models()
 	LevelSharedPolygonModelState.Exit_models_loaded = Exit_bitmaps_loaded = !EMULATING_D1;
 	return 1;
 }
+#endif
 
 }
-#endif
 
 void compute_average_rgb(grs_bitmap *bm, std::array<fix, 3> &rgb)
 {

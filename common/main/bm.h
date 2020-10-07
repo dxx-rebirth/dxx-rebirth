@@ -31,7 +31,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct bitmap_index;
 
-#ifdef __cplusplus
 #include <cstdint>
 
 struct grs_bitmap;
@@ -117,7 +116,6 @@ extern d_level_unique_tmap_info_state LevelUniqueTmapInfoState;
 // Initializes the palette, bitmap system...
 void gamedata_close();
 }
-int gamedata_init();
 void bm_close();
 
 // Initializes the Texture[] array of bmd_bitmap structures.
@@ -126,6 +124,8 @@ void init_textures();
 #ifdef dsx
 
 namespace dsx {
+
+int gamedata_init();
 
 #if defined(DXX_BUILD_DESCENT_I)
 
@@ -151,8 +151,10 @@ constexpr std::integral_constant<unsigned, 210> MAX_OBJ_BITMAPS{};
 extern int Robot_replacements_loaded;
 constexpr std::integral_constant<unsigned, 610> MAX_OBJ_BITMAPS{};
 extern unsigned N_ObjBitmaps;
-extern bool Exit_bitmaps_loaded;
 #endif
+
+extern std::array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
+extern std::array<ushort, MAX_OBJ_BITMAPS> ObjBitmapPtrs;
 
 }
 
@@ -160,8 +162,6 @@ extern bool Exit_bitmaps_loaded;
 
 extern int  Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed
 
-extern std::array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
-extern std::array<ushort, MAX_OBJ_BITMAPS> ObjBitmapPtrs;
 extern int First_multi_bitmap_num;
 void compute_average_rgb(grs_bitmap *bm, std::array<fix, 3> &rgb);
 
@@ -174,14 +174,10 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp);
 #if defined(DXX_BUILD_DESCENT_I)
 void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp);
 #endif
-}
-#endif
-
 int ds_load(int skip, const char * filename );
 int compute_average_pixel(grs_bitmap *n);
 
 #if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
 int load_exit_models();
 //these values are the number of each item in the release of d2
 //extra items added after the release get written in an additional hamfile
@@ -190,7 +186,7 @@ constexpr std::integral_constant<unsigned, 1145> N_D2_ROBOT_JOINTS{};
 constexpr std::integral_constant<unsigned, 422> N_D2_OBJBITMAPS{};
 constexpr std::integral_constant<unsigned, 502> N_D2_OBJBITMAPPTRS{};
 constexpr std::integral_constant<unsigned, 62> N_D2_WEAPON_TYPES{};
-}
 #endif
+}
 
 #endif

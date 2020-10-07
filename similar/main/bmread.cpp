@@ -80,22 +80,28 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::min;
 
-#define BM_NONE			-1
-#define BM_COCKPIT		 0
-#define BM_TEXTURES		 2
-#define BM_UNUSED		 	 3
-#define BM_VCLIP		 	 4
-#define BM_EFFECTS	    5
-#define BM_ECLIP 	 		 6
-#define BM_WEAPON			 7
-#define BM_DEMO	 		 8
-#define BM_ROBOTEX	    9
-#define BM_WALL_ANIMS	12
-#define BM_WCLIP 			13
-#define BM_ROBOT			14
-#define BM_GAUGES			20
+namespace dcx {
 
 namespace {
+
+enum class bm_type : uint8_t
+{
+	none = 0xff,
+	cockpit = 0,
+	textures = 2,
+	vclip = 4,
+	effects = 5,
+	eclip = 6,
+	wall_anims = 12,
+	wclip = 13,
+	robot = 14,
+	gauges = 20,
+	/* if DXX_BUILD_DESCENT_II */
+	gauges_hires = 21,
+	/* endif */
+};
+
+static bm_type current_bm_type = bm_type::none;
 
 uint8_t wall_explodes_flag;
 uint8_t wall_blastable_flag;
@@ -104,26 +110,34 @@ uint8_t tmap1_flag;		//flag if this is used as tmap_num (not tmap_num2)
 
 }
 
+}
+
+namespace dsx {
+namespace {
 #if defined(DXX_BUILD_DESCENT_I)
 static short		N_ObjBitmaps=0;
-#elif defined(DXX_BUILD_DESCENT_II)
-#define BM_GAUGES_HIRES	21
 #endif
+}
 
-static short		N_ObjBitmapPtrs=0;
-static int			Num_robot_ais = 0;
-namespace dsx {
 #if DXX_USE_EDITOR
 powerup_names_array Powerup_names;
 robot_names_array Robot_names;
 #endif
 }
 
+namespace dcx {
+namespace {
+static short		N_ObjBitmapPtrs;
+static int			Num_robot_ais;
 //---------------- Internal variables ---------------------------
 static int			SuperX = -1;
 static int			Installed=0;
 static short 		tmap_count = 0;
 static short 		texture_count = 0;
+}
+}
+namespace dsx {
+namespace {
 #if defined(DXX_BUILD_DESCENT_I)
 static unsigned		clip_count;
 static unsigned		clip_num;
@@ -135,10 +149,13 @@ static short 		clip_num;
 static short 		frames;
 static char 		*dest_bm;		//clip number to play when destroyed
 #endif
+}
+}
+namespace dcx {
+namespace {
 static short 		sound_num;
 static float 		play_time;
 static int			hit_sound = -1;
-static sbyte 		bm_flag = BM_NONE;
 static int 			abm_flag = 0;
 static int 			rod_flag = 0;
 static short		wall_open_sound, wall_close_sound;
@@ -152,11 +169,15 @@ static int			crit_flag;		//flag if this is a destroyed eclip
 static int			num_sounds=0;
 
 static int linenum;		//line int table currently being parsed
+}
+}
 
 //------------------- Useful macros and variables ---------------
 
 #define IFTOK(str) if (!strcmp(arg, str))
 
+namespace dsx {
+namespace {
 //	For the sake of LINT, defining prototypes to module's functions
 #if defined(DXX_BUILD_DESCENT_I)
 static void bm_read_sound(char *&arg, int skip, int pc_shareware);
@@ -164,9 +185,7 @@ static void bm_read_robot_ai(char *&arg, int skip);
 static void bm_read_robot(char *&arg, int skip);
 static void bm_read_object(char *&arg, int skip);
 static void bm_read_player_ship(char *&arg, int skip);
-namespace dsx {
 static void bm_read_some_file(d_vclip_array &Vclip, const std::string &dest_bm, char *&arg, int skip);
-}
 static void bm_read_weapon(char *&arg, int skip, int unused_flag);
 static void bm_read_powerup(char *&arg, int unused_flag);
 static void bm_read_hostage(char *&arg);
@@ -182,13 +201,12 @@ static void bm_read_weapon(int skip, int unused_flag);
 static void bm_read_reactor(void);
 static void bm_read_exitmodel(void);
 static void bm_read_player_ship(void);
-namespace dsx {
 static void bm_read_some_file(d_vclip_array &Vclip, int skip);
-}
 static void bm_read_sound(int skip);
 static void clear_to_end_of_line(void);
 static void verify_textures(void);
 #endif
+}
 
 //---------------------------------------------------------------
 int compute_average_pixel(grs_bitmap *n)
@@ -391,6 +409,9 @@ int ds_load(int skip, const char * filename )	{
 	i = piggy_register_sound(&n, fname.data(), 0);
 	return i;
 }
+}
+
+namespace {
 
 //parse a float
 static float get_float()
@@ -409,20 +430,10 @@ static int get_int()
 	xarg = strtok( NULL, space_tab );
 	return atoi( xarg );
 }
+}
 
-// rotates a byte left one bit, preserving the bit falling off the right
-//void
-//rotate_left(char *c)
-//{
-//	int found;
-//
-//	found = 0;
-//	if (*c & 0x80)
-//		found = 1;
-//	*c = *c << 1;
-//	if (found)
-//		*c |= 0x01;
-//}
+namespace dsx {
+namespace {
 
 #if defined(DXX_BUILD_DESCENT_II)
 //loads a texture and returns the texture num
@@ -450,10 +461,9 @@ static int get_texture(char *name)
 
 #define DEFAULT_PIG_PALETTE	"groupa.256"
 #endif
+}
 
 #define LINEBUF_SIZE 600
-
-namespace dsx {
 
 //-----------------------------------------------------------------
 // Initializes all properties and bitmaps from BITMAPS.TBL file.
@@ -613,24 +623,24 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 		while (arg != NULL )
 			{
 			// Check all possible flags and defines.
-			if (*arg == '$') bm_flag = BM_NONE; // reset to no flags as default.
+			if (*arg == '$') current_bm_type = bm_type::none; // reset to no flags as default.
 
-			IFTOK("$COCKPIT") 			bm_flag = BM_COCKPIT;
-			else IFTOK("$GAUGES")		{bm_flag = BM_GAUGES;   clip_count = 0;}
+			IFTOK("$COCKPIT") 			current_bm_type = bm_type::cockpit;
+			else IFTOK("$GAUGES")		{current_bm_type = bm_type::gauges;   clip_count = 0;}
 #if defined(DXX_BUILD_DESCENT_I)
 			else IFTOK("$SOUND") 		bm_read_sound(arg, skip, pc_shareware);
 #elif defined(DXX_BUILD_DESCENT_II)
-			else IFTOK("$GAUGES_HIRES"){bm_flag = BM_GAUGES_HIRES; clip_count = 0;}
+			else IFTOK("$GAUGES_HIRES"){current_bm_type = bm_type::gauges_hires; clip_count = 0;}
 			else IFTOK("$ALIAS")			bm_read_alias();
 			else IFTOK("$SOUND") 		bm_read_sound(skip);
 #endif
-			else IFTOK("$DOOR_ANIMS")	bm_flag = BM_WALL_ANIMS;
-			else IFTOK("$WALL_ANIMS")	bm_flag = BM_WALL_ANIMS;
-			else IFTOK("$TEXTURES") 	bm_flag = BM_TEXTURES;
-			else IFTOK("$VCLIP")			{bm_flag = BM_VCLIP;		vlighting = 0;	clip_count = 0;}
+			else IFTOK("$DOOR_ANIMS")	current_bm_type = bm_type::wall_anims;
+			else IFTOK("$WALL_ANIMS")	current_bm_type = bm_type::wall_anims;
+			else IFTOK("$TEXTURES") 	current_bm_type = bm_type::textures;
+			else IFTOK("$VCLIP")			{current_bm_type = bm_type::vclip;		vlighting = 0;	clip_count = 0;}
 			else IFTOK("$ECLIP")
 			{
-				bm_flag = BM_ECLIP;
+				current_bm_type = bm_type::eclip;
 				vlighting = 0;
 				clip_count = 0;
 				obj_eclip=0;
@@ -648,7 +658,7 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 			}
 			else IFTOK("$WCLIP")
 			{
-				bm_flag = BM_WCLIP;
+				current_bm_type = bm_type::wclip;
 				vlighting = 0;
 				clip_count = 0;
 				wall_open_sound=wall_close_sound=sound_none;
@@ -658,7 +668,7 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 				wall_hidden_flag = 0;
 			}
 
-			else IFTOK("$EFFECTS")		{bm_flag = BM_EFFECTS;	clip_num = 0;}
+			else IFTOK("$EFFECTS")		{current_bm_type = bm_type::effects;	clip_num = 0;}
 
 #if DXX_USE_EDITOR
 			else IFTOK("!METALS_FLAG")		TextureMetals = texture_count;
@@ -813,7 +823,7 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 	return 0;
 }
 
-}
+namespace {
 
 void verify_textures()
 {
@@ -855,6 +865,10 @@ void bm_read_alias()
 	Num_aliases++;
 }
 #endif
+
+}
+
+}
 
 static void set_lighting_flag(grs_bitmap &bmp)
 {
@@ -1248,6 +1262,10 @@ static void adjust_field_of_view(std::array<fix, NDL> &fovp)
 	}
 }
 
+namespace dsx {
+
+namespace {
+
 #if defined(DXX_BUILD_DESCENT_I)
 static void clear_to_end_of_line(char *&arg)
 {
@@ -1460,7 +1478,7 @@ void bm_read_robot(int skip)
 	n_models = 1;
 
 	// Process bitmaps
-	bm_flag=BM_ROBOT;
+	current_bm_type=bm_type::robot;
 	arg = strtok( NULL, space_tab );
 	while (arg!=NULL)	{
 		equal_ptr = strchr( arg, '=' );
@@ -1689,7 +1707,7 @@ void bm_read_robot(int skip)
 #if defined(DXX_BUILD_DESCENT_I)
 	Num_total_object_types++;
 #elif defined(DXX_BUILD_DESCENT_II)
-	bm_flag = BM_NONE;
+	current_bm_type = bm_type::none;
 #endif
 }
 
@@ -1716,7 +1734,7 @@ void bm_read_reactor(void)
 	model_name = strtok( NULL, space_tab );
 
 	// Process bitmaps
-	bm_flag = BM_NONE;
+	current_bm_type = bm_type::none;
 	arg = strtok( NULL, space_tab );
 	first_bitmap_num = N_ObjBitmapPtrs;
 
@@ -1818,7 +1836,7 @@ void bm_read_marker()
 	model_name = strtok( NULL, space_tab );
 
 	// Process bitmaps
-	bm_flag = BM_NONE;
+	current_bm_type = bm_type::none;
 	arg = strtok( NULL, space_tab );
 	first_bitmap_num = N_ObjBitmapPtrs;
 
@@ -1855,7 +1873,7 @@ void bm_read_exitmodel()
 	model_name = strtok( NULL, space_tab );
 
 	// Process bitmaps
-	bm_flag = BM_NONE;
+	current_bm_type = bm_type::none;
 	arg = strtok( NULL, space_tab );
 	first_bitmap_num = N_ObjBitmapPtrs;
 
@@ -1914,7 +1932,7 @@ void bm_read_player_ship(void)
 	int last_multi_bitmap_num=-1;
 
 	// Process bitmaps
-	bm_flag = BM_NONE;
+	current_bm_type = bm_type::none;
 
 	arg = strtok( NULL, space_tab );
 
@@ -2059,8 +2077,6 @@ void bm_read_player_ship(void)
 	}
 }
 
-namespace dsx {
-
 #if defined(DXX_BUILD_DESCENT_I)
 void bm_read_some_file(d_vclip_array &Vclip, const std::string &dest_bm, char *&arg, int skip)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2068,44 +2084,35 @@ void bm_read_some_file(d_vclip_array &Vclip, int skip)
 #endif
 {
 
-	switch (bm_flag) {
+	switch (current_bm_type) {
 #if defined(DXX_BUILD_DESCENT_II)
-	case BM_NONE:
-		Error("Trying to read bitmap <%s> with bm_flag==BM_NONE on line %d of BITMAPS.TBL",arg,linenum);
+		case bm_type::none:
+		Error("Trying to read bitmap <%s> with current_bm_type==BM_NONE on line %d of BITMAPS.TBL",arg,linenum);
 		break;
 #endif
-	case BM_COCKPIT:	{
+	case bm_type::cockpit:	{
 		bitmap_index bitmap;
 		bitmap = bm_load_sub(skip, arg);
 		Assert( Num_cockpits < N_COCKPIT_BITMAPS );
 		cockpit_bitmap[Num_cockpits++] = bitmap;
-		//bm_flag = BM_NONE;
 #if defined(DXX_BUILD_DESCENT_II)
 		return;
 #endif
 		}
 		break;
-	case BM_GAUGES:
+	case bm_type::gauges:
 #if defined(DXX_BUILD_DESCENT_I)
 		bm_read_gauges(arg, skip);
 #elif defined(DXX_BUILD_DESCENT_II)
 		bm_read_gauges(skip);
 		return;
 		break;
-	case BM_GAUGES_HIRES:
+	case bm_type::gauges_hires:
 		bm_read_gauges_hires();
 		return;
 #endif
 		break;
-	case BM_WEAPON:
-#if defined(DXX_BUILD_DESCENT_I)
-		bm_read_weapon(arg, skip, 0);
-#elif defined(DXX_BUILD_DESCENT_II)
-		bm_read_weapon(skip, 0);
-		return;
-#endif
-		break;
-	case BM_VCLIP:
+	case bm_type::vclip:
 #if defined(DXX_BUILD_DESCENT_I)
 		bm_read_vclip(Vclip, arg, skip);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2113,7 +2120,7 @@ void bm_read_some_file(d_vclip_array &Vclip, int skip)
 		return;
 #endif
 		break;
-	case BM_ECLIP:
+	case bm_type::eclip:
 #if defined(DXX_BUILD_DESCENT_I)
 		bm_read_eclip(dest_bm, arg, skip);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2121,7 +2128,7 @@ void bm_read_some_file(d_vclip_array &Vclip, int skip)
 		return;
 #endif
 		break;
-	case BM_TEXTURES:			{
+	case bm_type::textures:			{
 		bitmap_index bitmap;
 		bitmap = bm_load_sub(skip, arg);
 		Assert(tmap_count < MAX_TEXTURES);
@@ -2136,7 +2143,7 @@ void bm_read_some_file(d_vclip_array &Vclip, int skip)
 #endif
 		}
 		break;
-	case BM_WCLIP:
+	case bm_type::wclip:
 #if defined(DXX_BUILD_DESCENT_I)
 		bm_read_wclip(arg, skip);
 		break;
@@ -2145,13 +2152,14 @@ void bm_read_some_file(d_vclip_array &Vclip, int skip)
 		bm_read_wclip(skip);
 		return;
 #endif
+	case bm_type::effects:
+	case bm_type::wall_anims:
+	case bm_type::robot:
 		break;
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	Error("Trying to read bitmap <%s> with unknown bm_flag <%x> on line %d of BITMAPS.TBL",arg,bm_flag,linenum);
+	Error("Trying to read bitmap <%s> with unknown current_bm_type <%x> on line %d of BITMAPS.TBL",arg,static_cast<unsigned>(current_bm_type), linenum);
 #endif
-}
-
 }
 
 // ------------------------------------------------------------------------------
@@ -2574,6 +2582,10 @@ void bm_read_hostage()
 	ObjId[Num_total_object_types] = n;
 	Num_total_object_types++;
 #endif
+}
+
+}
+
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
