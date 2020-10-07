@@ -68,8 +68,8 @@ void reset_special_effects()
 		if (ec.changing_wall_texture != -1)
 			Textures[ec.changing_wall_texture] = ec.vc.frames[ec.frame_count];
 
-		if (ec.changing_object_texture != -1)
-			ObjBitmaps[ec.changing_object_texture] = ec.vc.frames[ec.frame_count];
+		if (const auto changing_object_texture = ec.changing_object_texture; changing_object_texture != object_bitmap_index::None)
+			ObjBitmaps[changing_object_texture] = ec.vc.frames[ec.frame_count];
 
 	}
 }
@@ -83,7 +83,7 @@ void do_special_effects()
 		const auto vc_frame_time = ec.vc.frame_time;
 		if (!vc_frame_time)
 			continue;
-		if ((ec.changing_wall_texture == -1) && (ec.changing_object_texture==-1) )
+		if (ec.changing_wall_texture == -1 && ec.changing_object_texture == object_bitmap_index::None)
 			continue;
 
 		if (ec.flags & EF_STOPPED)
@@ -121,16 +121,16 @@ void do_special_effects()
 			if (ec.changing_wall_texture != -1)
 				Textures[ec.changing_wall_texture] = Effects[n].vc.frames[Effects[n].frame_count];
 
-			if (ec.changing_object_texture != -1)
-				ObjBitmaps[ec.changing_object_texture] = Effects[n].vc.frames[Effects[n].frame_count];
+			if (const auto changing_object_texture = ec.changing_object_texture; changing_object_texture != object_bitmap_index::None)
+				ObjBitmaps[changing_object_texture] = Effects[n].vc.frames[Effects[n].frame_count];
 
 		}
 		else	{
 			if (ec.changing_wall_texture != -1)
 				Textures[ec.changing_wall_texture] = ec.vc.frames[ec.frame_count];
 	
-			if (ec.changing_object_texture != -1)
-				ObjBitmaps[ec.changing_object_texture] = ec.vc.frames[ec.frame_count];
+			if (const auto changing_object_texture = ec.changing_object_texture; changing_object_texture != object_bitmap_index::None)
+				ObjBitmaps[changing_object_texture] = ec.vc.frames[ec.frame_count];
 		}
 
 	}
@@ -145,8 +145,8 @@ void restore_effect_bitmap_icons()
 			if (ec.changing_wall_texture != -1)
 				Textures[ec.changing_wall_texture] = ec.vc.frames[0];
 	
-			if (ec.changing_object_texture != -1)
-				ObjBitmaps[ec.changing_object_texture] = ec.vc.frames[0];
+			if (const auto changing_object_texture = ec.changing_object_texture; changing_object_texture != object_bitmap_index::None)
+				ObjBitmaps[changing_object_texture] = ec.vc.frames[0];
 		}
 	}
 }
@@ -167,9 +167,8 @@ void stop_effect(int effect_num)
 	if (ec->changing_wall_texture != -1)
 		Textures[ec->changing_wall_texture] = ec->vc.frames[0];
 	
-	if (ec->changing_object_texture != -1)
-		ObjBitmaps[ec->changing_object_texture] = ec->vc.frames[0];
-
+	if (const auto changing_object_texture = ec->changing_object_texture; changing_object_texture != object_bitmap_index::None)
+		ObjBitmaps[changing_object_texture] = ec->vc.frames[0];
 }
 
 //restart a stopped effect

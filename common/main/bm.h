@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <physfs.h>
 #include "maths.h"
 #include "fwd-vclip.h"
+#include "d_array.h"
 
 struct bitmap_index;
 
@@ -153,8 +154,12 @@ constexpr std::integral_constant<unsigned, 610> MAX_OBJ_BITMAPS{};
 extern unsigned N_ObjBitmaps;
 #endif
 
-extern std::array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
-extern std::array<ushort, MAX_OBJ_BITMAPS> ObjBitmapPtrs;
+enum class object_bitmap_index : uint16_t
+{
+	None = UINT16_MAX
+};
+extern enumerated_array<bitmap_index, MAX_OBJ_BITMAPS, object_bitmap_index> ObjBitmaps;
+extern std::array<object_bitmap_index, MAX_OBJ_BITMAPS> ObjBitmapPtrs;
 
 }
 

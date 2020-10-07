@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "dxxsconf.h"
 #include "pack.h"
+#include "bm.h"
 #include <array>
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -60,7 +61,7 @@ struct eclip : public prohibit_void_ptr<eclip>
 	fix     time_left;      //for sequencing
 	uint32_t frame_count;    //for sequencing
 	short   changing_wall_texture;      //Which element of Textures array to replace.
-	short   changing_object_texture;    //Which element of ObjBitmapPtrs array to replace.
+	object_bitmap_index changing_object_texture;    //Which element of ObjBitmapPtrs array to replace.
 	int     flags;          //see above
 	int     crit_clip;      //use this clip instead of above one when mine critical
 	unsigned dest_bm_num;    //use this bitmap when monitor destroyed

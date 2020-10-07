@@ -434,7 +434,7 @@ void ogl_cache_level_textures(void)
 	range_for (auto &ec, partial_const_range(Effects, Num_effects))
 	{
 		ogl_cache_vclipn_textures(Vclip, ec.dest_vclip);
-		if ((ec.changing_wall_texture == -1) && (ec.changing_object_texture==-1) )
+		if (ec.changing_wall_texture == -1 && ec.changing_object_texture == object_bitmap_index::None)
 			continue;
 		if (ec.vc.num_frames>max_efx)
 			max_efx=ec.vc.num_frames;
@@ -443,7 +443,7 @@ void ogl_cache_level_textures(void)
 	for (ef=0;ef<max_efx;ef++){
 		range_for (eclip &ec, partial_range(Effects, Num_effects))
 		{
-			if ((ec.changing_wall_texture == -1) && (ec.changing_object_texture==-1) )
+			if (ec.changing_wall_texture == -1 && ec.changing_object_texture == object_bitmap_index::None)
 				continue;
 			ec.time_left=-1;
 		}

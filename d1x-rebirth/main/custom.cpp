@@ -571,10 +571,10 @@ static void load_hxm(const d_fname &hxmname)
 	{
 		for (i = 0; i < n_items; i++)
 		{
-			repl_num = PHYSFSX_readInt(f);
+			const auto oi = static_cast<object_bitmap_index>(PHYSFSX_readInt(f));
 			auto v = PHYSFSX_readShort(f);
-			if (repl_num < ObjBitmaps.size())
-				ObjBitmaps[repl_num].index = v;
+			if (ObjBitmaps.valid_index(oi))
+				ObjBitmaps[oi].index = v;
 		}
 	}
 }

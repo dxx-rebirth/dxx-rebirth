@@ -109,7 +109,7 @@ static void paging_touch_wall_effects(const d_eclip_array &Effects, const Textur
 	}
 }
 
-static void paging_touch_object_effects(const d_eclip_array &Effects, const unsigned tmap_num)
+static void paging_touch_object_effects(const d_eclip_array &Effects, const object_bitmap_index tmap_num)
 {
 	range_for (auto &i, partial_const_range(Effects, Num_effects))
 	{

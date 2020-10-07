@@ -116,8 +116,8 @@ int             First_multi_bitmap_num=-1;
 
 namespace dsx {
 
-std::array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
-std::array<ushort, MAX_OBJ_BITMAPS>          ObjBitmapPtrs;     // These point back into ObjBitmaps, since some are used twice.
+enumerated_array<bitmap_index, MAX_OBJ_BITMAPS, object_bitmap_index> ObjBitmaps;
+std::array<object_bitmap_index, MAX_OBJ_BITMAPS> ObjBitmapPtrs;     // These point back into ObjBitmaps, since some are used twice.
 
 void gamedata_close()
 {
@@ -225,7 +225,13 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 
 	bitmap_index_read_n(fp, ObjBitmaps);
 	range_for (auto &i, ObjBitmapPtrs)
-		i = PHYSFSX_readShort(fp);
+	{
+		const auto oi = static_cast<object_bitmap_index>(PHYSFSX_readShort(fp));
+		if (ObjBitmaps.valid_index(oi))
+			i = oi;
+		else
+			i = {};
+	}
 
 	player_ship_read(&only_player_ship, fp);
 
@@ -360,7 +366,13 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 	N_ObjBitmaps = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(fp, partial_range(ObjBitmaps, N_ObjBitmaps));
 	range_for (auto &i, partial_range(ObjBitmapPtrs, N_ObjBitmaps))
-		i = PHYSFSX_readShort(fp);
+	{
+		const auto oi = static_cast<object_bitmap_index>(PHYSFSX_readShort(fp));
+		if (ObjBitmaps.valid_index(oi))
+			i = oi;
+		else
+			i = {};
+	}
 
 	player_ship_read(&only_player_ship, fp);
 
@@ -503,7 +515,13 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 	if (N_D2_OBJBITMAPPTRS+t >= ObjBitmapPtrs.size())
 		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %" DXX_PRI_size_type ".", t, fname, ObjBitmapPtrs.size() - N_D2_OBJBITMAPPTRS);
 	range_for (auto &i, partial_range(ObjBitmapPtrs, N_D2_OBJBITMAPPTRS.value, N_D2_OBJBITMAPPTRS + t))
-		i = PHYSFSX_readShort(fp);
+	{
+		const auto oi = static_cast<object_bitmap_index>(PHYSFSX_readShort(fp));
+		if (ObjBitmaps.valid_index(oi))
+			i = oi;
+		else
+			i = {};
+	}
 }
 
 int Robot_replacements_loaded = 0;
@@ -566,10 +584,10 @@ void load_robot_replacements(const d_fname &level_name)
 
 	t = PHYSFSX_readInt(fp);			//read number of objbitmaps
 	for (j=0;j<t;j++) {
-		const unsigned i = PHYSFSX_readInt(fp);		//read objbitmap number
-		if (i >= ObjBitmaps.size())
-			Error("Object bitmap number (%u) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", i, static_cast<const char *>(level_name), ObjBitmaps.size() - 1);
-		bitmap_index_read(fp, ObjBitmaps[i]);
+		const auto oi = static_cast<object_bitmap_index>(PHYSFSX_readInt(fp));		//read objbitmap number
+		if (!ObjBitmaps.valid_index(oi))
+			Error("Object bitmap number (%u) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", static_cast<unsigned>(oi), static_cast<const char *>(level_name), ObjBitmaps.size() - 1);
+		bitmap_index_read(fp, ObjBitmaps[oi]);
 	}
 
 	t = PHYSFSX_readInt(fp);			//read number of objbitmapptrs
@@ -577,7 +595,10 @@ void load_robot_replacements(const d_fname &level_name)
 		const unsigned i = PHYSFSX_readInt(fp);		//read objbitmapptr number
 		if (i >= ObjBitmapPtrs.size())
 			Error("Object bitmap pointer (%u) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", i, static_cast<const char *>(level_name), ObjBitmapPtrs.size() - 1);
-		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
+		const auto oi = static_cast<object_bitmap_index>(PHYSFSX_readShort(fp));
+		if (!ObjBitmaps.valid_index(oi))
+			Error("Object bitmap number (%u) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", static_cast<unsigned>(oi), static_cast<const char *>(level_name), ObjBitmaps.size() - 1);
+		ObjBitmapPtrs[i] = oi;
 	}
 	Robot_replacements_loaded = 1;
 }
@@ -616,9 +637,11 @@ static grs_bitmap *read_extra_bitmap_iff(const char * filename, grs_bitmap &n)
 // formerly load_exit_model_bitmap
 static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 {
-	assert(N_ObjBitmaps < ObjBitmaps.size());
+	const auto oi = static_cast<object_bitmap_index>(N_ObjBitmaps);
+	if (!ObjBitmaps.valid_index(oi))
+		return nullptr;
 	{
-		auto &bitmap_idx = ObjBitmaps[N_ObjBitmaps];
+		auto &bitmap_idx = ObjBitmaps[oi];
 		const auto bitmap_store_index = bitmap_index{static_cast<uint16_t>(extra_bitmap_num)};
 		grs_bitmap &n = GameBitmaps[bitmap_store_index.index];
 		if (!read_extra_bitmap_iff(name, n))
@@ -633,7 +656,7 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 
 		if (n.bm_w != 64 || n.bm_h != 64)
 			Error("Bitmap <%s> is not 64x64",name);
-		ObjBitmapPtrs[N_ObjBitmaps] = N_ObjBitmaps;
+		ObjBitmapPtrs[N_ObjBitmaps] = oi;
 		N_ObjBitmaps++;
 		assert(N_ObjBitmaps < ObjBitmaps.size());
 		return &n;

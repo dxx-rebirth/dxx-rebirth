@@ -524,7 +524,7 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 	{
 		//Effects[i].bm_ptr = (grs_bitmap **) -1;
 		ec.changing_wall_texture = -1;
-		ec.changing_object_texture = -1;
+		ec.changing_object_texture = object_bitmap_index::None;
 		ec.segnum = segment_none;
 		ec.vc.num_frames = -1;		//another mark of being unused
 	}
@@ -801,7 +801,7 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 	range_for (auto &&en, enumerate(Effects))
 	{
 		auto &e = en.value;
-		if ((e.changing_wall_texture != -1 || e.changing_object_texture != -1) && e.vc.num_frames == ~0u)
+		if ((e.changing_wall_texture != -1 || e.changing_object_texture != object_bitmap_index::None) && e.vc.num_frames == ~0u)
 			Error("EClip %" PRIuFAST32 " referenced (by polygon object?), but not defined", en.idx);
 	}
 
@@ -846,9 +846,12 @@ void verify_textures()
 
 #if defined(DXX_BUILD_DESCENT_II)
 	for (uint_fast32_t i = 0; i < Num_effects; ++i)
-		if (Effects[i].changing_object_texture != -1)
-			if (GameBitmaps[ObjBitmaps[Effects[i].changing_object_texture].index].bm_w!=64 || GameBitmaps[ObjBitmaps[Effects[i].changing_object_texture].index].bm_h!=64)
+		if (const auto changing_object_texture = Effects[i].changing_object_texture; changing_object_texture != object_bitmap_index::None)
+		{
+			const auto &o = ObjBitmaps[changing_object_texture].index;
+			if (GameBitmaps[o].bm_w != 64 || GameBitmaps[o].bm_h != 64)
 				Error("Effect %" PRIuFAST32 " is used on object, but is not 64x64",i);
+		}
 #endif
 }
 
@@ -981,8 +984,9 @@ static void bm_read_eclip(int skip)
 
 		if (obj_eclip) {
 
-			if (Effects[clip_num].changing_object_texture == -1) {		//first time referenced
-				Effects[clip_num].changing_object_texture = N_ObjBitmaps;		// XChange ObjectBitmaps
+			if (Effects[clip_num].changing_object_texture == object_bitmap_index::None)
+			{		//first time referenced
+				Effects[clip_num].changing_object_texture = static_cast<object_bitmap_index>(N_ObjBitmaps);		// XChange ObjectBitmaps
 				N_ObjBitmaps++;
 			}
 
@@ -1389,13 +1393,12 @@ static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 	if (name[0] == '%') {		//an animating bitmap!
 		const unsigned eclip_num = atoi(name+1);
 
-		if (Effects[eclip_num].changing_object_texture == -1) {		//first time referenced
-			Effects[eclip_num].changing_object_texture = N_ObjBitmaps;
-			ObjBitmapPtrs[N_ObjBitmapPtrs++] = N_ObjBitmaps;
-			N_ObjBitmaps++;
-		} else {
-			ObjBitmapPtrs[N_ObjBitmapPtrs++] = Effects[eclip_num].changing_object_texture;
-		}
+		auto &changing_object_texture = Effects[eclip_num].changing_object_texture;
+		// On first reference, changing_object_texture will be None.
+		// Assign it a value.
+		if (changing_object_texture == object_bitmap_index::None)
+			changing_object_texture = static_cast<object_bitmap_index>(N_ObjBitmaps++);
+		ObjBitmapPtrs[N_ObjBitmapPtrs++] = changing_object_texture;
 #if defined(DXX_BUILD_DESCENT_II)
 		assert(N_ObjBitmaps < ObjBitmaps.size());
 		assert(N_ObjBitmapPtrs < ObjBitmapPtrs.size());
@@ -1403,18 +1406,21 @@ static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 		return NULL;
 	}
 	else 	{
-		ObjBitmaps[N_ObjBitmaps] = bm_load_sub(skip, name);
+		const auto loaded_value = bm_load_sub(skip, name);
+		const auto oi = static_cast<object_bitmap_index>(N_ObjBitmaps);
+		auto &ob = ObjBitmaps[oi];
+		ob = loaded_value;
 #if defined(DXX_BUILD_DESCENT_II)
-		if (GameBitmaps[ObjBitmaps[N_ObjBitmaps].index].bm_w!=64 || GameBitmaps[ObjBitmaps[N_ObjBitmaps].index].bm_h!=64)
+		if (GameBitmaps[ob.index].bm_w != 64 || GameBitmaps[ob.index].bm_h != 64)
 			Error("Bitmap <%s> is not 64x64",name);
 #endif
-		ObjBitmapPtrs[N_ObjBitmapPtrs++] = N_ObjBitmaps;
+		ObjBitmapPtrs[N_ObjBitmapPtrs++] = oi;
 		N_ObjBitmaps++;
 #if defined(DXX_BUILD_DESCENT_II)
 		assert(N_ObjBitmaps < ObjBitmaps.size());
 		assert(N_ObjBitmapPtrs < ObjBitmapPtrs.size());
 #endif
-		return &GameBitmaps[ObjBitmaps[N_ObjBitmaps-1].index];
+		return &GameBitmaps[ob.index];
 	}
 }
 
