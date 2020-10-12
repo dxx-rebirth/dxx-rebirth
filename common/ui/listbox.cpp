@@ -142,70 +142,69 @@ std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG &dlg, short x
 	return listbox;
 }
 
-window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox,const d_event &event )
+window_event_result UI_GADGET_LISTBOX::event_handler(UI_DIALOG &dlg, const d_event &event)
 {
-	int mitem, oldfakepos, kf;
-	int keypress = 0;
+	int kf;
 	if (event.type == EVENT_WINDOW_DRAW)
 	{
-		ui_draw_listbox(*dlg, *listbox);
+		ui_draw_listbox(dlg, *this);
 		return window_event_result::ignored;
 	}
 	
-	if (event.type == EVENT_KEY_COMMAND)
-		keypress = event_key_get(event);
+	const auto keypress = (event.type == EVENT_KEY_COMMAND)
+		? event_key_get(event)
+		: 0u;
 	
-	listbox->selected_item = -1;
+	selected_item = -1;
 
-	listbox->moved = 0;
+	moved = 0;
 
-	if (listbox->num_items < 1 ) {
-		listbox->current_item = -1;
-		listbox->first_item = 0;
-		listbox->old_current_item = listbox->current_item;
-		listbox->old_first_item = listbox->first_item;
-		//ui_draw_listbox( dlg, listbox );
+	if (num_items < 1 ) {
+		current_item = -1;
+		first_item = 0;
+		old_current_item = current_item;
+		old_first_item = first_item;
 
-		if (dlg->keyboard_focus_gadget == listbox)
+		if (dlg.keyboard_focus_gadget == this)
 		{
-			dlg->keyboard_focus_gadget = &ui_gadget_get_next(*listbox);
+			dlg.keyboard_focus_gadget = &ui_gadget_get_next(*this);
 		}
 
 		return window_event_result::ignored;
 	}
 
-	listbox->old_current_item = listbox->current_item;
-	listbox->old_first_item = listbox->first_item;
+	old_current_item = current_item;
+	old_first_item = first_item;
 
 
-	if (GADGET_PRESSED(listbox->scrollbar.get()))
+	if (GADGET_PRESSED(scrollbar.get()))
 	{
-		listbox->moved = 1;
+		moved = 1;
 
-		listbox->first_item = listbox->scrollbar->position;
+		first_item = scrollbar->position;
 
-		if (listbox->current_item<listbox->first_item)
-			listbox->current_item = listbox->first_item;
+		if (current_item<first_item)
+			current_item = first_item;
 
-		if (listbox->current_item>(listbox->first_item+listbox->num_items_displayed-1))
-			listbox->current_item = listbox->first_item + listbox->num_items_displayed-1;
+		if (current_item>(first_item+num_items_displayed-1))
+			current_item = first_item + num_items_displayed-1;
 
 	}
 
 	if (B1_JUST_RELEASED)
-		listbox->dragging = 0;
+		dragging = 0;
 
 	window_event_result rval = window_event_result::ignored;
-	if (B1_JUST_PRESSED && ui_mouse_on_gadget(*listbox))
+	if (B1_JUST_PRESSED && ui_mouse_on_gadget(*this))
 	{
-		listbox->dragging = 1;
+		dragging = 1;
 		rval = window_event_result::handled;
 	}
 
-	if ( dlg->keyboard_focus_gadget==listbox )
+	if (dlg.keyboard_focus_gadget == this)
 	{
 		if (keypress==KEY_ENTER)   {
-			listbox->selected_item = listbox->current_item;
+			selected_item = current_item;
 			rval = window_event_result::handled;
 		}
 
@@ -214,157 +213,156 @@ window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox,c
 		switch(keypress)
 		{
 			case (KEY_UP):
-				listbox->current_item--;
+				current_item--;
 				kf = 1;
 				break;
 			case (KEY_DOWN):
-				listbox->current_item++;
+				current_item++;
 				kf = 1;
 				break;
 			case (KEY_HOME):
-				listbox->current_item=0;
+				current_item=0;
 				kf = 1;
 				break;
 			case (KEY_END):
-				listbox->current_item=listbox->num_items-1;
+				current_item=num_items-1;
 				kf = 1;
 				break;
 			case (KEY_PAGEUP):
-				listbox->current_item -= listbox->num_items_displayed;
+				current_item -= num_items_displayed;
 				kf = 1;
 				break;
 			case (KEY_PAGEDOWN):
-				listbox->current_item += listbox->num_items_displayed;
+				current_item += num_items_displayed;
 				kf = 1;
 				break;
 		}
 
 		if (kf==1)
 		{
-			listbox->moved = 1;
+			moved = 1;
 			rval = window_event_result::handled;
 
-			if (listbox->current_item<0)
-				listbox->current_item=0;
+			if (current_item<0)
+				current_item=0;
 
-			if (listbox->current_item>=listbox->num_items)
-				listbox->current_item = listbox->num_items-1;
+			if (current_item>=num_items)
+				current_item = num_items-1;
 
-			if (listbox->current_item<listbox->first_item)
-				listbox->first_item = listbox->current_item;
+			if (current_item<first_item)
+				first_item = current_item;
 
-			if (listbox->current_item>=(listbox->first_item+listbox->num_items_displayed))
-				listbox->first_item = listbox->current_item-listbox->num_items_displayed+1;
+			if (current_item>=(first_item+num_items_displayed))
+				first_item = current_item-num_items_displayed+1;
 
-			if (listbox->num_items <= listbox->num_items_displayed )
-				listbox->first_item = 0;
+			if (num_items <= num_items_displayed )
+				first_item = 0;
 			else
 			{
-				oldfakepos = listbox->scrollbar->position;
-				listbox->scrollbar->position = listbox->first_item;
+				const auto oldfakepos = scrollbar->position;
+				scrollbar->position = first_item;
 
-				listbox->scrollbar->fake_position = listbox->scrollbar->position-listbox->scrollbar->start;
-				listbox->scrollbar->fake_position *= listbox->scrollbar->height-listbox->scrollbar->fake_size;
-				listbox->scrollbar->fake_position /= (listbox->scrollbar->stop-listbox->scrollbar->start);
+				scrollbar->fake_position = scrollbar->position-scrollbar->start;
+				scrollbar->fake_position *= scrollbar->height-scrollbar->fake_size;
+				scrollbar->fake_position /= (scrollbar->stop-scrollbar->start);
 
-				if (listbox->scrollbar->fake_position<0)
+				if (scrollbar->fake_position<0)
 				{
-					listbox->scrollbar->fake_position = 0;
+					scrollbar->fake_position = 0;
 				}
-				if (listbox->scrollbar->fake_position > (listbox->scrollbar->height-listbox->scrollbar->fake_size))
+				if (scrollbar->fake_position > (scrollbar->height-scrollbar->fake_size))
 				{
-					listbox->scrollbar->fake_position = (listbox->scrollbar->height-listbox->scrollbar->fake_size);
+					scrollbar->fake_position = (scrollbar->height-scrollbar->fake_size);
 				}
 
-				if (oldfakepos != listbox->scrollbar->position )
-					listbox->scrollbar->status = 1;
+				if (oldfakepos != scrollbar->position )
+					scrollbar->status = 1;
 			}
 		}
 	}
 
 
-	if (selected_gadget==listbox)
+	if (selected_gadget == this)
 	{
-		if (listbox->dragging)
+		if (dragging)
 		{
 			int x, y, z;
 			
 			mouse_get_pos(&x, &y, &z);
-			if (y < listbox->y1)
-				mitem = -1;
+			const auto mitem = (y < y1)
+				? -1
+				: (y - y1) / textheight;
+
+			if ((mitem < 0) && (timer_query() > last_scrolled + 1))
+			{
+				current_item--;
+				last_scrolled = timer_query();
+				moved = 1;
+			}
+
+			if ((mitem >= num_items_displayed) &&
+				 (timer_query() > last_scrolled + 1))
+			{
+				current_item++;
+				last_scrolled = timer_query();
+				moved = 1;
+			}
+
+			if ((mitem>=0) && (mitem<num_items_displayed))
+			{
+				current_item = mitem+first_item;
+				moved=1;
+			}
+
+			if (current_item <0 )
+				current_item = 0;
+
+			if (current_item >= num_items )
+				current_item = num_items-1;
+
+			if (current_item<first_item)
+				first_item = current_item;
+
+			if (current_item>=(first_item+num_items_displayed))
+				first_item = current_item-num_items_displayed+1;
+
+			if (num_items <= num_items_displayed )
+				first_item = 0;
 			else
-				mitem = (y - listbox->y1)/listbox->textheight;
-
-			if ((mitem < 0) && (timer_query() > listbox->last_scrolled + 1))
 			{
-				listbox->current_item--;
-				listbox->last_scrolled = timer_query();
-				listbox->moved = 1;
-			}
+				const auto oldfakepos = scrollbar->position;
+				scrollbar->position = first_item;
 
-			if ((mitem >= listbox->num_items_displayed) &&
-				 (timer_query() > listbox->last_scrolled + 1))
-			{
-				listbox->current_item++;
-				listbox->last_scrolled = timer_query();
-				listbox->moved = 1;
-			}
+				scrollbar->fake_position = scrollbar->position-scrollbar->start;
+				scrollbar->fake_position *= scrollbar->height-scrollbar->fake_size;
+				scrollbar->fake_position /= (scrollbar->stop-scrollbar->start);
 
-			if ((mitem>=0) && (mitem<listbox->num_items_displayed))
-			{
-				listbox->current_item = mitem+listbox->first_item;
-				listbox->moved=1;
-			}
-
-			if (listbox->current_item <0 )
-				listbox->current_item = 0;
-
-			if (listbox->current_item >= listbox->num_items )
-				listbox->current_item = listbox->num_items-1;
-
-			if (listbox->current_item<listbox->first_item)
-				listbox->first_item = listbox->current_item;
-
-			if (listbox->current_item>=(listbox->first_item+listbox->num_items_displayed))
-				listbox->first_item = listbox->current_item-listbox->num_items_displayed+1;
-
-			if (listbox->num_items <= listbox->num_items_displayed )
-				listbox->first_item = 0;
-			else
-			{
-				oldfakepos = listbox->scrollbar->position;
-				listbox->scrollbar->position = listbox->first_item;
-
-				listbox->scrollbar->fake_position = listbox->scrollbar->position-listbox->scrollbar->start;
-				listbox->scrollbar->fake_position *= listbox->scrollbar->height-listbox->scrollbar->fake_size;
-				listbox->scrollbar->fake_position /= (listbox->scrollbar->stop-listbox->scrollbar->start);
-
-				if (listbox->scrollbar->fake_position<0)
+				if (scrollbar->fake_position<0)
 				{
-					listbox->scrollbar->fake_position = 0;
+					scrollbar->fake_position = 0;
 				}
-				if (listbox->scrollbar->fake_position > (listbox->scrollbar->height-listbox->scrollbar->fake_size))
+				if (scrollbar->fake_position > (scrollbar->height-scrollbar->fake_size))
 				{
-					listbox->scrollbar->fake_position = (listbox->scrollbar->height-listbox->scrollbar->fake_size);
+					scrollbar->fake_position = (scrollbar->height-scrollbar->fake_size);
 				}
 
-				if (oldfakepos != listbox->scrollbar->position )
-					listbox->scrollbar->status = 1;
+				if (oldfakepos != scrollbar->position )
+					scrollbar->status = 1;
 			}
 
 		}
 
 		if (B1_DOUBLE_CLICKED )
 		{
-			listbox->selected_item = listbox->current_item;
+			selected_item = current_item;
 			rval = window_event_result::handled;
 		}
 
 	}
 	
-	if (listbox->moved || (listbox->selected_item > 0))
+	if (moved || (selected_item > 0))
 	{
-		rval = ui_gadget_send_event(*dlg, (listbox->selected_item > 0) ? EVENT_UI_LISTBOX_SELECTED : EVENT_UI_LISTBOX_MOVED, *listbox);
+		rval = ui_gadget_send_event(dlg, (selected_item > 0) ? EVENT_UI_LISTBOX_SELECTED : EVENT_UI_LISTBOX_MOVED, *this);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 	}

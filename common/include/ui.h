@@ -189,6 +189,7 @@ struct UI_GADGET_SCROLLBAR : UI_GADGET
 struct UI_GADGET_LISTBOX : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 2>{};
+	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
 	const char            *const *list;
 	short           width, height;
 	int             num_items;
@@ -296,7 +297,6 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG &dlg, const d_event &event);
 
 int ui_mouse_on_gadget(UI_GADGET &gadget);
 
-window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, const d_event &event );
 std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG &dlg, short x, short y, short w, short h, short numitems, char **list);
 
 extern void ui_mega_process();
