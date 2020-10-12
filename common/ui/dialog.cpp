@@ -89,11 +89,11 @@ window_event_result UI_DIALOG::event_handler(const d_event &event)
 		case EVENT_MOUSE_MOVED:
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
-			return ui_dialog_do_gadgets(this, event);
+			return ui_dialog_do_gadgets(*this, event);
 		case EVENT_WINDOW_DRAW:
 		{
 			ui_dialog_draw(this);
-			rval = ui_dialog_do_gadgets(this, event);
+			rval = ui_dialog_do_gadgets(*this, event);
 			if (rval != window_event_result::close)
 			{
 				d_event event2 = { EVENT_UI_DIALOG_DRAW };

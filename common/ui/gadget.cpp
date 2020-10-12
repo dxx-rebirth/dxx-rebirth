@@ -188,7 +188,7 @@ UI_GADGET &ui_event_get_gadget(const d_event &event)
 	return e.gadget;
 }
 
-window_event_result ui_dialog_do_gadgets(UI_DIALOG * dlg,const d_event &event)
+window_event_result ui_dialog_do_gadgets(UI_DIALOG &dlg, const d_event &event)
 {
 	int keypress = 0;
 	UI_GADGET * tmp, * tmp1;
@@ -196,14 +196,14 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG * dlg,const d_event &event)
 	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 
-	tmp = dlg->gadget;
+	tmp = dlg.gadget;
 
 	if (tmp == NULL) return window_event_result::ignored;
 
 	if (selected_gadget==NULL)
 		selected_gadget = tmp;
 
-	tmp1 = dlg->keyboard_focus_gadget;
+	tmp1 = dlg.keyboard_focus_gadget;
 
 	do
 	{
@@ -214,26 +214,21 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG * dlg,const d_event &event)
 			{
 				while (tmp->parent != NULL )
 					tmp = tmp->parent;
-				dlg->keyboard_focus_gadget = tmp;
-				break;
 			}
-			else
-			{
-				dlg->keyboard_focus_gadget = tmp;
-				break;
-			}
+			dlg.keyboard_focus_gadget = tmp;
+			break;
 		}
 		if ( tmp->hotkey == keypress )
 		{
-			dlg->keyboard_focus_gadget = tmp;
+			dlg.keyboard_focus_gadget = tmp;
 			break;
 		}
 		tmp = tmp->next;
-	} while( tmp != dlg->gadget );
+	} while(tmp != dlg.gadget);
 
-	if (dlg->keyboard_focus_gadget != NULL)
+	if (dlg.keyboard_focus_gadget)
 	{
-		[=]{
+		[&]{
 		UI_GADGET *UI_GADGET::*when;
 		switch (keypress )
 		{
@@ -258,16 +253,16 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG * dlg,const d_event &event)
 			default:
 				return;
 		}
-		if (const auto p = dlg->keyboard_focus_gadget->*when)
-			dlg->keyboard_focus_gadget = p;
+		if (const auto p = dlg.keyboard_focus_gadget->*when)
+			dlg.keyboard_focus_gadget = p;
 		}();
 	}
 
 	window_event_result rval = window_event_result::ignored;
-	if (dlg->keyboard_focus_gadget != tmp1)
+	if (dlg.keyboard_focus_gadget != tmp1)
 	{
-		if (dlg->keyboard_focus_gadget != NULL )
-			dlg->keyboard_focus_gadget->status = 1;
+		if (dlg.keyboard_focus_gadget)
+			dlg.keyboard_focus_gadget->status = 1;
 		if (tmp1 != NULL )
 			tmp1->status = 1;
 		rval = window_event_result::handled;
@@ -276,19 +271,19 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG * dlg,const d_event &event)
 			return rval;
 	}
 
-	tmp = dlg->gadget;
+	tmp = dlg.gadget;
 	do
 	{
 		// If it is under another dialog, that dialog's handler would have returned 1 for mouse events.
 		// Key events are handled in a priority depending on the window ordering.
 		//if (!is_under_another_window( dlg, tmp ))
-			rval = ui_gadget_do(dlg, tmp, event);
+			rval = ui_gadget_do(&dlg, tmp, event);
 		
 		if (rval == window_event_result::deleted)
 			break;
 
 		tmp = tmp->next;
-	} while(/*!rval &&*/ tmp != dlg->gadget);	// have to look for pesky scrollbars in case an arrow button or arrow key are held down
+	} while(/*!rval &&*/ tmp != dlg.gadget);	// have to look for pesky scrollbars in case an arrow button or arrow key are held down
 	
 	return rval;
 }
