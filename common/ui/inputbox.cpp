@@ -32,22 +32,24 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
+namespace {
+
+void ui_draw_inputbox(UI_DIALOG &dlg, UI_GADGET_INPUTBOX &inputbox)
 {
 #if 0  //ndef OGL
 	if ((inputbox->status==1) || (inputbox->position != inputbox->oldposition))
 #endif
 	{
-		gr_set_current_canvas( inputbox->canvas );
+		gr_set_current_canvas(inputbox.canvas);
 		auto &canvas = *grd_curcanv;
 
-		gr_rect(canvas, 0, 0, inputbox->width-1, inputbox->height-1, CBLACK);
+		gr_rect(canvas, 0, 0, inputbox.width - 1, inputbox.height - 1, CBLACK);
 		
 		int w, h;
-		gr_get_string_size(*canvas.cv_font, inputbox->text.get(), &w, &h, nullptr);
-		if (dlg->keyboard_focus_gadget == inputbox)
+		gr_get_string_size(*canvas.cv_font, inputbox.text.get(), &w, &h, nullptr);
+		if (dlg.keyboard_focus_gadget == &inputbox)
 		{
-			if (inputbox->first_time)
+			if (inputbox.first_time)
 			{
 				gr_set_fontcolor(canvas, CBLACK, -1);
 				gr_rect(canvas, 2, 2, 2 + w, 2 + h, CRED);
@@ -58,17 +60,19 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 		else
 			gr_set_fontcolor(canvas, CWHITE, -1);
 
-		inputbox->status = 0;
+		inputbox.status = 0;
 
-		gr_string(canvas, *canvas.cv_font, 2, 2, inputbox->text.get(), w, h);
+		gr_string(canvas, *canvas.cv_font, 2, 2, inputbox.text.get(), w, h);
 
-		if (dlg->keyboard_focus_gadget == inputbox  && !inputbox->first_time )
+		if (dlg.keyboard_focus_gadget == &inputbox && !inputbox.first_time)
 		{
 			const uint8_t cred = CRED;
-			Vline(canvas, 2, inputbox->height - 3, 3 + w, cred);
-			Vline(canvas, 2, inputbox->height - 3, 4 + w, cred);
+			Vline(canvas, 2, inputbox.height - 3, 3 + w, cred);
+			Vline(canvas, 2, inputbox.height - 3, 4 + w, cred);
 		}
 	}
+}
+
 }
 
 std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG *const dlg, const short x, const short y, const uint_fast32_t length_of_initial_text, const uint_fast32_t maximum_allowed_text_length, const char *const initial_text)
@@ -150,7 +154,7 @@ window_event_result UI_GADGET_INPUTBOX::event_handler(UI_DIALOG &dlg, const d_ev
 	}
 		
 	if (event.type == EVENT_WINDOW_DRAW)
-		ui_draw_inputbox(&dlg, this);
+		ui_draw_inputbox(dlg, *this);
 
 	return rval;
 }
