@@ -1256,7 +1256,7 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 		Update_flags |= UF_ED_STATE_CHANGED | UF_VIEWPOINT_MOVED;
 	}
 
-	if ((event.type == EVENT_UI_USERBOX_DRAGGED) && (ui_event_get_gadget(event) == GameViewBox.get()))
+	if (event.type == EVENT_UI_USERBOX_DRAGGED && &ui_event_get_gadget(event) == GameViewBox.get())
 	{
 		int	x, y;
 		x = GameViewBox->b1_drag_x2;

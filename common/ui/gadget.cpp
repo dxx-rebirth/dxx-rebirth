@@ -50,8 +50,8 @@ namespace {
 
 struct event_gadget : d_event
 {
-	UI_GADGET *const gadget;
-	constexpr event_gadget(const event_type t, UI_GADGET *const g) :
+	UI_GADGET &gadget;
+	constexpr event_gadget(const event_type t, UI_GADGET &g) :
 		d_event(t), gadget(g)
 	{
 	}
@@ -171,17 +171,17 @@ static window_event_result ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g,const d_eve
 	return window_event_result::ignored;
 }
 
-window_event_result ui_gadget_send_event(UI_DIALOG *dlg, event_type type, UI_GADGET *gadget)
+window_event_result ui_gadget_send_event(UI_DIALOG &dlg, const event_type type, UI_GADGET &gadget)
 {
 	const event_gadget event{type, gadget};
 
-	if (gadget->parent)
-		return ui_gadget_do(dlg, gadget->parent, event);
+	if (const auto parent = gadget.parent)
+		return ui_gadget_do(&dlg, parent, event);
 
-	return window_send_event(*dlg, event);
+	return window_send_event(dlg, event);
 }
 
-UI_GADGET *ui_event_get_gadget(const d_event &event)
+UI_GADGET &ui_event_get_gadget(const d_event &event)
 {
 	auto &e = static_cast<const event_gadget &>(event);
 	Assert(e.type >= EVENT_UI_GADGET_PRESSED);	// Any UI event

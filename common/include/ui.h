@@ -273,7 +273,7 @@ T1 *ui_create_dialog(const short x, const short y, const short w, const short h,
 extern void ui_dialog_set_current_canvas(UI_DIALOG *dlg);
 extern void ui_close_dialog( UI_DIALOG * dlg );
 
-#define GADGET_PRESSED(g) (event.type == EVENT_UI_GADGET_PRESSED && ui_event_get_gadget(event) == g)
+#define GADGET_PRESSED(g) (event.type == EVENT_UI_GADGET_PRESSED && &ui_event_get_gadget(event) == g)
 
 void ui_gadget_add(UI_DIALOG &dlg, short x1, short y1, short x2, short y2, UI_GADGET &);
 template <typename T>
@@ -287,8 +287,8 @@ static std::unique_ptr<T> ui_gadget_add(UI_DIALOG &dlg, short x1, short y1, shor
 }
 __attribute_warn_unused_result
 std::unique_ptr<UI_GADGET_BUTTON> ui_add_gadget_button(UI_DIALOG * dlg, short x, short y, short w, short h, const char * text, int (*function_to_call)());
-window_event_result ui_gadget_send_event(UI_DIALOG *dlg, enum event_type type, UI_GADGET *gadget);
-extern UI_GADGET *ui_event_get_gadget(const d_event &event);
+window_event_result ui_gadget_send_event(UI_DIALOG &dlg, enum event_type type, UI_GADGET &gadget);
+UI_GADGET &ui_event_get_gadget(const d_event &event);
 window_event_result ui_dialog_do_gadgets( UI_DIALOG * dlg, const d_event &event );
 extern void ui_draw_button( UI_DIALOG *dlg, UI_GADGET_BUTTON * button );
 

@@ -149,7 +149,7 @@ window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox,c
 	
 	if (userbox->b1_clicked || userbox->b1_dragging)
 	{
-		rval = ui_gadget_send_event(dlg, userbox->b1_clicked ? EVENT_UI_GADGET_PRESSED : EVENT_UI_USERBOX_DRAGGED, userbox);
+		rval = ui_gadget_send_event(*dlg, userbox->b1_clicked ? EVENT_UI_GADGET_PRESSED : EVENT_UI_USERBOX_DRAGGED, *userbox);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 	}

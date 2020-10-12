@@ -364,7 +364,7 @@ window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox,c
 	
 	if (listbox->moved || (listbox->selected_item > 0))
 	{
-		rval = ui_gadget_send_event(dlg, (listbox->selected_item > 0) ? EVENT_UI_LISTBOX_SELECTED : EVENT_UI_LISTBOX_MOVED, listbox);
+		rval = ui_gadget_send_event(*dlg, (listbox->selected_item > 0) ? EVENT_UI_LISTBOX_SELECTED : EVENT_UI_LISTBOX_MOVED, *listbox);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 	}

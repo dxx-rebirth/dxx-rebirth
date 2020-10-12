@@ -200,7 +200,7 @@ window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button,const
 	}
 	else if (button->pressed)
 	{
-		rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, button);
+		rval = ui_gadget_send_event(*dlg, EVENT_UI_GADGET_PRESSED, *button);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 	}

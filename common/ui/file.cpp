@@ -160,10 +160,10 @@ window_event_result ui_file_browser::callback_handler(const d_event &event)
 	
 	if (event.type == EVENT_UI_LISTBOX_MOVED)
 	{
-		if ((ui_event_get_gadget(event) == listbox1.get()) && (listbox1->current_item >= 0) && filename_list[listbox1->current_item])
+		if (&ui_event_get_gadget(event) == listbox1.get() && listbox1->current_item >= 0 && filename_list[listbox1->current_item])
 			ui_inputbox_set_text(user_file.get(), filename_list[listbox1->current_item]);
 
-		if ((ui_event_get_gadget(event) == listbox2.get()) && (listbox2->current_item >= 0) && directory_list[listbox2->current_item])
+		if (&ui_event_get_gadget(event) == listbox2.get() && listbox2->current_item >= 0 && directory_list[listbox2->current_item])
 			ui_inputbox_set_text(user_file.get(), directory_list[listbox2->current_item]);
 
 		rval = window_event_result::handled;
@@ -173,7 +173,7 @@ window_event_result ui_file_browser::callback_handler(const d_event &event)
 	{
 		char *p;
 		
-		if (ui_event_get_gadget(event) == listbox2.get())
+		if (&ui_event_get_gadget(event) == listbox2.get())
 			strcpy(user_file->text.get(), directory_list[listbox2->current_item]);
 		
 		strncpy(filename, view_dir.data(), PATH_MAX);
