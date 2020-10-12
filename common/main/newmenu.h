@@ -163,6 +163,15 @@ constexpr const unused_newmenu_userdata_t *unused_newmenu_userdata = nullptr;
 
 //should be called whenever the palette changes
 void newmenu_free_background();
+
+#ifdef dsx
+enum class tab_processing_flag : uint8_t
+{
+	ignore,
+	process,
+};
+#endif
+
 }
 
 int newmenu_do2(const char *title, const char *subtitle, partial_range_t<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
@@ -203,11 +212,11 @@ static inline int newmenu_do1(const char *const title, const char *const subtitl
 
 #ifdef dsx
 namespace dsx {
-newmenu *newmenu_do4( const char * title, const char * subtitle, partial_range_t<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
+newmenu *newmenu_do4( const char * title, const char * subtitle, partial_range_t<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, tab_processing_flag TabsFlag);
 
 static inline newmenu *newmenu_do3(const char * title, const char * subtitle, partial_range_t<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename)
 {
-	return newmenu_do4(title, subtitle, std::move(items), subfunction, userdata, citem, filename, 0, 0);
+	return newmenu_do4(title, subtitle, std::move(items), subfunction, userdata, citem, filename, 0, tab_processing_flag::ignore);
 }
 
 // Same as above, but returns menu instead of citem
@@ -223,14 +232,14 @@ static newmenu *newmenu_do3(const char *const title, const char *const subtitle,
 	return newmenu_do3(title, subtitle, std::move(items), reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename);
 }
 
-static inline newmenu *newmenu_dotiny(const char *const title, const char *const subtitle, partial_range_t<newmenu_item *> items, const int TabsFlag, const newmenu_subfunction subfunction, void *const userdata)
+static inline newmenu *newmenu_dotiny(const char *const title, const char *const subtitle, partial_range_t<newmenu_item *> items, const tab_processing_flag TabsFlag, const newmenu_subfunction subfunction, void *const userdata)
 {
 	return newmenu_do4(title, subtitle, std::move(items), subfunction, userdata, 0, nullptr, 1, TabsFlag);
 }
 
 // Tiny menu with GAME_FONT
 template <typename T>
-static newmenu *newmenu_dotiny(const char *const title, const char *const subtitle, partial_range_t<newmenu_item *> items, const int TabsFlag, const newmenu_subfunction_t<T> subfunction, T *const userdata)
+static newmenu *newmenu_dotiny(const char *const title, const char *const subtitle, partial_range_t<newmenu_item *> items, const tab_processing_flag TabsFlag, const newmenu_subfunction_t<T> subfunction, T *const userdata)
 {
 	return newmenu_dotiny(title, subtitle, std::move(items), TabsFlag, reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(userdata));
 }

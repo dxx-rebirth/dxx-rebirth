@@ -96,7 +96,7 @@ struct newmenu : embed_window_pointer_t
 	int				(*subfunction)(newmenu *menu,const d_event &event, void *userdata);
 	const char			*filename;
 	int				tiny_mode;
-	int			tabs_flag;
+	tab_processing_flag tabs_flag;
 	int				scroll_offset, max_displayable;
 	int				all_text;		//set true if all text items
 	int				is_scroll_box;   // Is this a scrolling box? Set to false at init
@@ -287,9 +287,9 @@ void nm_draw_background(grs_canvas &canvas, int x1, int y1, int x2, int y2)
 namespace {
 
 // Draw a left justfied string
-static void nm_string(grs_canvas &canvas, const int w1, int x, const int y, const char *const s, const int tabs_flag)
+static void nm_string(grs_canvas &canvas, const int w1, int x, const int y, const char *const s, const tab_processing_flag tabs_flag)
 {
-	if (!tabs_flag)
+	if (tabs_flag == tab_processing_flag::ignore)
 	{
 		const char *s1 = s;
 		const char *p = nullptr;
@@ -420,7 +420,7 @@ static void nm_string_inputbox(grs_canvas &canvas, const int w, const int x, con
 		gr_string(canvas, *canvas.cv_font, x + w1, y, CURSOR_STRING);
 }
 
-static void draw_item(grs_canvas &canvas, newmenu_item &item, int is_current, int tiny, int tabs_flag, int scroll_offset)
+static void draw_item(grs_canvas &canvas, newmenu_item &item, int is_current, int tiny, const tab_processing_flag tabs_flag, int scroll_offset)
 {
 	if (tiny)
 	{
@@ -1639,7 +1639,7 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 	return window_event_result::ignored;
 }
 
-newmenu *newmenu_do4(const char *const title, const char *const subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename, const int TinyMode, const int TabsFlag)
+newmenu *newmenu_do4(const char *const title, const char *const subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename, const int TinyMode, const tab_processing_flag TabsFlag)
 {
 	if (items.size() < 1)
 		return nullptr;

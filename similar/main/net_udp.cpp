@@ -1374,7 +1374,7 @@ void net_udp_list_join_game()
 	nm_set_item_text(m[UDP_NETGAMES_PPAGE+4], "\t" );
 
 	num_active_udp_changed = 1;
-	newmenu_dotiny("NETGAMES", nullptr, unchecked_partial_range(&m[0], UDP_NETGAMES_PPAGE + 5), 1, net_udp_list_join_poll, dj.release());
+	newmenu_dotiny("NETGAMES", nullptr, unchecked_partial_range(&m[0], UDP_NETGAMES_PPAGE + 5), tab_processing_flag::process, net_udp_list_join_poll, dj.release());
 }
 
 static void net_udp_send_sequence_packet(UDP_sequence_packet seq, const _sockaddr &recv_addr)

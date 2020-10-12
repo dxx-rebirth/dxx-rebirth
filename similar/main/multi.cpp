@@ -6448,6 +6448,6 @@ void show_netgame_info(const netgame_info &netgame)
                 m[i].text = ngii+(i*ngilen);
 	}
 
-	newmenu_dotiny(nullptr, "Netgame Info & Rules", unchecked_partial_range(m, nginum), 0, show_netgame_info_poll, ngii);
+	newmenu_dotiny(nullptr, "Netgame Info & Rules", unchecked_partial_range(m, nginum), tab_processing_flag::ignore, show_netgame_info_poll, ngii);
 }
 }
