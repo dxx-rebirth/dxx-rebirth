@@ -65,21 +65,26 @@ static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmse
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------
-static UI_DIALOG 				*MainWindow = NULL;
 
 namespace {
 
-struct wall_dialog
+struct wall_dialog : UI_DIALOG
 {
+	explicit wall_dialog(short x, short y, short w, short h, enum dialog_flags flags) :
+		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr)
+	{
+	}
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton, prev_wall, next_wall, blastable, door, illusory, closed_wall, goto_prev_wall, goto_next_wall, remove, bind_trigger, bind_control;
 	std::array<std::unique_ptr<UI_GADGET_CHECKBOX>, 3> doorFlag;
 	std::array<std::unique_ptr<UI_GADGET_RADIO>, 4> keyFlag;
-	int old_wall_num;
+	int old_wall_num = -2;		// Set to some dummy value so everything works ok on the first frame.
 	fix64 time;
-	int framenum;
+	int framenum = 0;
+	virtual window_event_result callback_handler(const d_event &) override;
 };
 
+static wall_dialog *MainWindow;
 static int Current_door_type=1;
 
 struct count_wall
@@ -104,8 +109,6 @@ static unsigned predicate_find_blastable_wall(const wclip &w)
 }
 
 }
-
-static window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd);
 
 //---------------------------------------------------------------------
 // Add a wall (removable 2 sided)
@@ -427,45 +430,41 @@ int do_wall_dialog()
 	// Only open 1 instance of this window...
 	if ( MainWindow != NULL ) return 0;
 
-	auto wd = std::make_unique<wall_dialog>();
-	wd->framenum = 0;
-
 	// Close other windows.	
 	close_all_windows();
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog(TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, wall_dialog_handler, std::move(wd));
+	MainWindow = ui_create_dialog<wall_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG, nullptr);
 	return 1;
 }
 
-static window_event_result wall_dialog_created(UI_DIALOG *const w, wall_dialog *const wd)
+static window_event_result wall_dialog_created(wall_dialog *const wd)
 {
-	wd->quitButton = ui_add_gadget_button(w, 20, 252, 48, 40, "Done", NULL);
+	wd->quitButton = ui_add_gadget_button(wd, 20, 252, 48, 40, "Done", NULL);
 	// These are the checkboxes for each door flag.
 	int i = 80;
-	wd->doorFlag[0] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Locked"); i += 24;
-	wd->doorFlag[1] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Auto"); i += 24;
-	wd->doorFlag[2] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Illusion OFF"); i += 24;
-	wd->keyFlag[0] = ui_add_gadget_radio(w, 22, i, 16, 16, 0, "NONE"); i += 24;
-	wd->keyFlag[1] = ui_add_gadget_radio(w, 22, i, 16, 16, 0, "Blue"); i += 24;
-	wd->keyFlag[2] = ui_add_gadget_radio(w, 22, i, 16, 16, 0, "Red");  i += 24;
-	wd->keyFlag[3] = ui_add_gadget_radio(w, 22, i, 16, 16, 0, "Yellow"); i += 24;
+	wd->doorFlag[0] = ui_add_gadget_checkbox(wd, 22, i, 16, 16, 0, "Locked"); i += 24;
+	wd->doorFlag[1] = ui_add_gadget_checkbox(wd, 22, i, 16, 16, 0, "Auto"); i += 24;
+	wd->doorFlag[2] = ui_add_gadget_checkbox(wd, 22, i, 16, 16, 0, "Illusion OFF"); i += 24;
+	wd->keyFlag[0] = ui_add_gadget_radio(wd, 22, i, 16, 16, 0, "NONE"); i += 24;
+	wd->keyFlag[1] = ui_add_gadget_radio(wd, 22, i, 16, 16, 0, "Blue"); i += 24;
+	wd->keyFlag[2] = ui_add_gadget_radio(wd, 22, i, 16, 16, 0, "Red");  i += 24;
+	wd->keyFlag[3] = ui_add_gadget_radio(wd, 22, i, 16, 16, 0, "Yellow"); i += 24;
 	// The little box the wall will appear in.
-	wd->wallViewBox = ui_add_gadget_userbox(w, 155, 5, 64, 64);
+	wd->wallViewBox = ui_add_gadget_userbox(wd, 155, 5, 64, 64);
 	// A bunch of buttons...
 	i = 80;
-	wd->prev_wall = ui_add_gadget_button(w, 155, i, 70, 22, "<< Clip", PrevWall);
-	wd->next_wall = ui_add_gadget_button(w, 155+70, i, 70, 22, "Clip >>", NextWall);i += 25;
-	wd->blastable = ui_add_gadget_button(w, 155, i, 140, 22, "Add Blastable", wall_add_blastable); i += 25;
-	wd->door = ui_add_gadget_button(w, 155, i, 140, 22, "Add Door", wall_add_door );	i += 25;
-	wd->illusory = ui_add_gadget_button(w, 155, i, 140, 22, "Add Illusory", wall_add_illusion);	i += 25;
-	wd->closed_wall = ui_add_gadget_button(w, 155, i, 140, 22, "Add Closed Wall", wall_add_closed_wall); i+=25;
-	wd->goto_prev_wall = ui_add_gadget_button(w, 155, i, 70, 22, "<< Prev", GotoPrevWall);
-	wd->goto_next_wall = ui_add_gadget_button(w, 155+70, i, 70, 22, "Next >>", GotoNextWall);i += 25;
-	wd->remove = ui_add_gadget_button(w, 155, i, 140, 22, "Remove Wall", wall_remove); i += 25;
-	wd->bind_trigger = ui_add_gadget_button(w, 155, i, 140, 22, "Bind to Trigger", bind_wall_to_trigger); i += 25;
-	wd->bind_control = ui_add_gadget_button(w, 155, i, 140, 22, "Bind to Control", bind_wall_to_control_center); i+=25;
-	wd->old_wall_num = -2;		// Set to some dummy value so everything works ok on the first frame.
+	wd->prev_wall = ui_add_gadget_button(wd, 155, i, 70, 22, "<< Clip", PrevWall);
+	wd->next_wall = ui_add_gadget_button(wd, 155+70, i, 70, 22, "Clip >>", NextWall);i += 25;
+	wd->blastable = ui_add_gadget_button(wd, 155, i, 140, 22, "Add Blastable", wall_add_blastable); i += 25;
+	wd->door = ui_add_gadget_button(wd, 155, i, 140, 22, "Add Door", wall_add_door );	i += 25;
+	wd->illusory = ui_add_gadget_button(wd, 155, i, 140, 22, "Add Illusory", wall_add_illusion);	i += 25;
+	wd->closed_wall = ui_add_gadget_button(wd, 155, i, 140, 22, "Add Closed Wall", wall_add_closed_wall); i+=25;
+	wd->goto_prev_wall = ui_add_gadget_button(wd, 155, i, 70, 22, "<< Prev", GotoPrevWall);
+	wd->goto_next_wall = ui_add_gadget_button(wd, 155+70, i, 70, 22, "Next >>", GotoNextWall);i += 25;
+	wd->remove = ui_add_gadget_button(wd, 155, i, 140, 22, "Remove Wall", wall_remove); i += 25;
+	wd->bind_trigger = ui_add_gadget_button(wd, 155, i, 140, 22, "Bind to Trigger", bind_wall_to_trigger); i += 25;
+	wd->bind_control = ui_add_gadget_button(wd, 155, i, 140, 22, "Bind to Control", bind_wall_to_control_center); i+=25;
 
 	return window_event_result::handled;
 }
@@ -476,14 +475,13 @@ void close_wall_window()
 		ui_close_dialog(std::exchange(MainWindow, nullptr));
 }
 
-window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
+window_event_result wall_dialog::callback_handler(const d_event &event)
 {
 	switch(event.type)
 	{
 		case EVENT_WINDOW_CREATED:
-			return wall_dialog_created(dlg, wd);
+			return wall_dialog_created(this);
 		case EVENT_WINDOW_CLOSE:
-			std::default_delete<wall_dialog>()(wd);
 			MainWindow = nullptr;
 			return window_event_result::ignored;
 		default:
@@ -513,18 +511,18 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 	// If we change walls, we need to reset the ui code for all
 	// of the checkboxes that control the wall flags.  
 	//------------------------------------------------------------
-	if (wd->old_wall_num != w)
+	if (old_wall_num != w)
 	{
 		if (w)
 		{
-			ui_checkbox_check(wd->doorFlag[0].get(), w->flags & WALL_DOOR_LOCKED);
-			ui_checkbox_check(wd->doorFlag[1].get(), w->flags & WALL_DOOR_AUTO);
-			ui_checkbox_check(wd->doorFlag[2].get(), w->flags & WALL_ILLUSION_OFF);
+			ui_checkbox_check(doorFlag[0].get(), w->flags & WALL_DOOR_LOCKED);
+			ui_checkbox_check(doorFlag[1].get(), w->flags & WALL_DOOR_AUTO);
+			ui_checkbox_check(doorFlag[2].get(), w->flags & WALL_ILLUSION_OFF);
 
-			ui_radio_set_value(wd->keyFlag[0].get(), w->keys & KEY_NONE);
-			ui_radio_set_value(wd->keyFlag[1].get(), w->keys & KEY_BLUE);
-			ui_radio_set_value(wd->keyFlag[2].get(), w->keys & KEY_RED);
-			ui_radio_set_value(wd->keyFlag[3].get(), w->keys & KEY_GOLD);
+			ui_radio_set_value(keyFlag[0].get(), w->keys & KEY_NONE);
+			ui_radio_set_value(keyFlag[1].get(), w->keys & KEY_BLUE);
+			ui_radio_set_value(keyFlag[2].get(), w->keys & KEY_RED);
+			ui_radio_set_value(keyFlag[3].get(), w->keys & KEY_GOLD);
 		}
 	}
 	
@@ -535,17 +533,17 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 
 	if (w && w->type == WALL_DOOR)
 	{
-		if (GADGET_PRESSED(wd->doorFlag[0].get()))
+		if (GADGET_PRESSED(doorFlag[0].get()))
 		{
-			if ( wd->doorFlag[0]->flag == 1 )	
+			if (doorFlag[0]->flag == 1)
 				w->flags |= WALL_DOOR_LOCKED;
 			else
 				w->flags &= ~WALL_DOOR_LOCKED;
 			rval = window_event_result::handled;
 		}
-		else if (GADGET_PRESSED(wd->doorFlag[1].get()))
+		else if (GADGET_PRESSED(doorFlag[1].get()))
 		{
-			if ( wd->doorFlag[1]->flag == 1 )	
+			if (doorFlag[1]->flag == 1)
 				w->flags |= WALL_DOOR_AUTO;
 			else
 				w->flags &= ~WALL_DOOR_AUTO;
@@ -557,23 +555,23 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 		// update the corresponding key.
 		//------------------------------------------------------------
 		range_for (const int i, xrange(4u)) {
-			if (GADGET_PRESSED(wd->keyFlag[i].get()))
+			if (GADGET_PRESSED(keyFlag[i].get()))
 			{
 				w->keys = 1<<i;		// Set the ai_state to the cooresponding radio button
 				rval = window_event_result::handled;
 			}
 		}
 	} else {
-		range_for (auto &i, partial_const_range(wd->doorFlag, 2u))
+		range_for (auto &i, partial_const_range(doorFlag, 2u))
 			ui_checkbox_check(i.get(), 0);
-		range_for (auto &i, wd->keyFlag)
+		range_for (auto &i, keyFlag)
 			ui_radio_set_value(i.get(), 0);
 	}
 
 	if (w && w->type == WALL_ILLUSION) {
-		if (GADGET_PRESSED(wd->doorFlag[2].get()))
+		if (GADGET_PRESSED(doorFlag[2].get()))
 		{
-			if ( wd->doorFlag[2]->flag == 1 )	
+			if (doorFlag[2]->flag == 1)
 				w->flags |= WALL_ILLUSION_OFF;
 			else
 				w->flags &= ~WALL_ILLUSION_OFF;
@@ -581,9 +579,10 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 		}
 	} else 
 		for (	int i=2; i < 3; i++ ) 
-			if (wd->doorFlag[i]->flag == 1) { 
-				wd->doorFlag[i]->flag = 0;		// Tells ui that this button isn't checked
-				wd->doorFlag[i]->status = 1;	// Tells ui to redraw button
+			if (doorFlag[i]->flag == 1)
+			{ 
+				doorFlag[i]->flag = 0;		// Tells ui that this button isn't checked
+				doorFlag[i]->status = 1;	// Tells ui to redraw button
 			}
 
 	//------------------------------------------------------------
@@ -593,20 +592,20 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 	{
 		// A simple frame time counter for animating the walls...
 		Temp = timer_query();
-		DeltaTime = Temp - wd->time;
+		DeltaTime = Temp - time;
 
-		gr_set_current_canvas( wd->wallViewBox->canvas );
+		gr_set_current_canvas(wallViewBox->canvas);
 		if (w) {
 			type = w->type;
 			if ((type == WALL_DOOR) || (type == WALL_BLASTABLE)) {
 				if (DeltaTime > ((F1_0*200)/1000)) {
-					wd->framenum++;
-					wd->time = Temp;
+					framenum++;
+					time = Temp;
 				}
 				auto &wa = WallAnims[w->clip_num];
-				if (wd->framenum >= wa.num_frames)
-					wd->framenum=0;
-				const auto frame = wa.frames[wd->framenum];
+				if (framenum >= wa.num_frames)
+					framenum=0;
+				const auto frame = wa.frames[framenum];
 				auto &texture = Textures[frame];
 				PIGGY_PAGE_IN(texture);
 				gr_ubitmap(*grd_curcanv, GameBitmaps[texture.index]);
@@ -674,15 +673,14 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 		}
 	}
 	
-	if (ui_button_any_drawn || (wd->old_wall_num != w) )
+	if (ui_button_any_drawn || old_wall_num != w)
 		Update_flags |= UF_WORLD_CHANGED;
-	if (GADGET_PRESSED(wd->quitButton.get()) || keypress == KEY_ESC)
+	if (GADGET_PRESSED(quitButton.get()) || keypress == KEY_ESC)
 	{
 		return window_event_result::close;
 	}		
 
-	wd->old_wall_num = w;
-	
+	old_wall_num = w;
 	return rval;
 }
 
