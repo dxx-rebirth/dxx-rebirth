@@ -122,6 +122,8 @@ constexpr std::integral_constant<unsigned, NM_TYPE_SLIDER> newmenu_item::slider_
 
 namespace dcx {
 
+const char *Newmenu_allowed_chars;
+
 namespace {
 
 struct step_down
@@ -491,10 +493,6 @@ static void draw_item(grs_canvas &canvas, newmenu_item &item, int is_current, co
 	}
 }
 
-}
-
-const char *Newmenu_allowed_chars=NULL;
-
 //returns true if char is allowed
 static bool char_disallowed(char c)
 {
@@ -524,6 +522,8 @@ static void strip_end_whitespace( char * text )
 			ns = text;
 	}
 	*ns = 0;
+}
+
 }
 
 int newmenu_do2(const char *const title, const char *const subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename)
@@ -658,6 +658,8 @@ int newmenu_get_citem(newmenu *menu)
 {
 	return menu->citem;
 }
+
+namespace {
 
 template <typename S, typename O>
 static void update_menu_position(newmenu &menu, newmenu_item *const stop, int_fast32_t amount, S step, O overflow)
@@ -1254,8 +1256,12 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 	return rval;
 }
 
+}
+
 namespace dsx {
-static void newmenu_create_structure( newmenu *menu )
+namespace {
+
+static void newmenu_create_structure(newmenu &menu)
 {
 	int aw, tw, th, twidth,right_offset;
 	int nmenus;
@@ -1265,17 +1271,19 @@ static void newmenu_create_structure( newmenu *menu )
 
 	tw = th = 0;
 
-	if ( menu->title )	{
+	if (menu.title)
+	{
 		int string_width, string_height;
 		auto &huge_font = *HUGE_FONT;
-		gr_get_string_size(huge_font, menu->title, &string_width, &string_height, nullptr);
+		gr_get_string_size(huge_font, menu.title, &string_width, &string_height, nullptr);
 		tw = string_width;
 		th = string_height;
 	}
-	if ( menu->subtitle )	{
+	if (menu.subtitle)
+	{
 		int string_width, string_height;
 		auto &medium3_font = *MEDIUM3_FONT;
-		gr_get_string_size(medium3_font, menu->subtitle, &string_width, &string_height, nullptr);
+		gr_get_string_size(medium3_font, menu.subtitle, &string_width, &string_height, nullptr);
 		if (string_width > tw )
 			tw = string_width;
 		th += string_height;
@@ -1283,18 +1291,18 @@ static void newmenu_create_structure( newmenu *menu )
 
 	th += FSPACY(5);		//put some space between titles & body
 
-	auto &cv_font = *(menu->tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT).get();
+	auto &cv_font = *(menu.tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT).get();
 
-	menu->w = aw = 0;
-	menu->h = th;
+	menu.w = aw = 0;
+	menu.h = th;
 	nmenus = 0;
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
 	// Find menu height & width (store in w,h)
-	range_for (auto &i, menu->item_range())
+	range_for (auto &i, menu.item_range())
 	{
-		i.y = menu->h;
+		i.y = menu.h;
 		int string_width, string_height, average_width;
 		gr_get_string_size(cv_font, i.text, &string_width, &string_height, &average_width);
 		i.right_offset = 0;
@@ -1368,71 +1376,74 @@ static void newmenu_create_structure( newmenu *menu )
 		i.w = string_width;
 		i.h = string_height;
 
-		if ( string_width > menu->w )
-			menu->w = string_width;		// Save maximum width
+		if (string_width > menu.w)
+			menu.w = string_width;		// Save maximum width
 		if ( average_width > aw )
 			aw = average_width;
-		menu->h += string_height + fspacy(1);		// Find the height of all strings
+		menu.h += string_height + fspacy(1);		// Find the height of all strings
 	}
 
-	if (menu->items.size() > menu->max_on_menu)
+	if (menu.items.size() > menu.max_on_menu)
 	{
-		menu->is_scroll_box=1;
-		menu->h = th + (LINE_SPACING(cv_font, *GAME_FONT) * menu->max_on_menu);
-		menu->max_displayable=menu->max_on_menu;
+		menu.is_scroll_box=1;
+		menu.h = th + (LINE_SPACING(cv_font, *GAME_FONT) * menu.max_on_menu);
+		menu.max_displayable=menu.max_on_menu;
 
-		// if our last citem was > menu->max_on_menu, make sure we re-scroll when we call this menu again
-		if (menu->citem > menu->max_on_menu-4)
+		// if our last citem was > menu.max_on_menu, make sure we re-scroll when we call this menu again
+		if (menu.citem > menu.max_on_menu - 4)
 		{
-			menu->scroll_offset = menu->citem - (menu->max_on_menu-4);
-			if (menu->scroll_offset + menu->max_on_menu > menu->items.size())
-				menu->scroll_offset = menu->items.size() - menu->max_on_menu;
+			menu.scroll_offset = menu.citem - (menu.max_on_menu - 4);
+			if (menu.scroll_offset + menu.max_on_menu > menu.items.size())
+				menu.scroll_offset = menu.items.size() - menu.max_on_menu;
 		}
 	}
 	else
 	{
-		menu->is_scroll_box=0;
-		menu->max_on_menu = menu->items.size();
+		menu.is_scroll_box = 0;
+		menu.max_on_menu = menu.items.size();
 	}
 
 	right_offset=0;
 
-	range_for (auto &i, menu->item_range())
+	range_for (auto &i, menu.item_range())
 	{
-		i.w = menu->w;
+		i.w = menu.w;
 		if (right_offset < i.right_offset)
 			right_offset = i.right_offset;
 	}
 
-	menu->w += right_offset;
+	menu.w += right_offset;
 
 	twidth = 0;
-	if ( tw > menu->w )	{
-		twidth = ( tw - menu->w )/2;
-		menu->w = tw;
+	if (tw > menu.w)
+	{
+		twidth = (tw - menu.w) / 2;
+		menu.w = tw;
 	}
 
 	// Find min point of menu border
-	menu->w += BORDERX*2;
-	menu->h += BORDERY*2;
+	menu.w += BORDERX*2;
+	menu.h += BORDERY*2;
 
-	menu->x = (canvas.cv_bitmap.bm_w - menu->w) / 2;
-	menu->y = (canvas.cv_bitmap.bm_h - menu->h) / 2;
+	menu.x = (canvas.cv_bitmap.bm_w - menu.w) / 2;
+	menu.y = (canvas.cv_bitmap.bm_h - menu.h) / 2;
 
-	if ( menu->x < 0 ) menu->x = 0;
-	if ( menu->y < 0 ) menu->y = 0;
+	if (menu.x < 0)
+		menu.x = 0;
+	if (menu.y < 0)
+		menu.y = 0;
 
-	nm_draw_background1(canvas, menu->filename);
+	nm_draw_background1(canvas, menu.filename);
 
 	// Update all item's x & y values.
-	range_for (auto &i, menu->item_range())
+	range_for (auto &i, menu.item_range())
 	{
 		i.x = BORDERX + twidth + right_offset;
 		i.y += BORDERY;
 		if (i.type == NM_TYPE_RADIO) {
 			// find first marked one
 			newmenu_item *fm = nullptr;
-			range_for (auto &j, menu->item_range())
+			range_for (auto &j, menu.item_range())
 			{
 				if (j.type == NM_TYPE_RADIO && j.radio().group == i.radio().group) {
 					if (!fm && j.value)
@@ -1444,37 +1455,38 @@ static void newmenu_create_structure( newmenu *menu )
 		}
 	}
 
-	if (menu->citem != -1)
+	if (menu.citem != -1)
 	{
-		if (menu->citem < 0 ) menu->citem = 0;
-		const std::size_t nitems = menu->items.size();
-		if (menu->citem > nitems - 1)
-			menu->citem = nitems - 1;
+		if (menu.citem < 0)
+			menu.citem = 0;
+		const std::size_t nitems = menu.items.size();
+		if (menu.citem > nitems - 1)
+			menu.citem = nitems - 1;
 
 		uint_fast32_t i = 0;
-		const auto begin = menu->items.begin();
-		while (std::next(begin, menu->citem)->type == NM_TYPE_TEXT)
+		const auto begin = menu.items.begin();
+		while (std::next(begin, menu.citem)->type == NM_TYPE_TEXT)
 		{
-			menu->citem++;
+			menu.citem++;
 			i++;
-			if (menu->citem >= nitems)
+			if (menu.citem >= nitems)
 			{
-				menu->citem=0;
+				menu.citem = 0;
 			}
 			if (i > nitems)
 			{
-				menu->citem=0;
-				menu->all_text=1;
+				menu.citem = 0;
+				menu.all_text = 1;
 				break;
 			}
 		}
 	}
 
-	menu->mouse_state = 0;
-	menu->swidth = SWIDTH;
-	menu->sheight = SHEIGHT;
-	menu->fntscalex = FNTScaleX;
-	menu->fntscaley = FNTScaleY;
+	menu.mouse_state = 0;
+	menu.swidth = SWIDTH;
+	menu.sheight = SHEIGHT;
+	menu.fntscalex = FNTScaleX;
+	menu.fntscaley = FNTScaleY;
 	gr_set_current_canvas(save_canvas);
 }
 
@@ -1486,7 +1498,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 
 	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscaley != FNTScaleY)
 	{
-		newmenu_create_structure ( menu );
+		newmenu_create_structure (*menu);
 		{
 			gr_init_sub_canvas(menu_canvas, grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h);
 		}
@@ -1638,6 +1650,7 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 	}
 	return window_event_result::ignored;
 }
+}
 
 newmenu *newmenu_do4(const char *const title, const char *const subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename, const tiny_mode_flag TinyMode, const tab_processing_flag TabsFlag)
 {
@@ -1662,7 +1675,7 @@ newmenu *newmenu_do4(const char *const title, const char *const subtitle, const 
 
 	//set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
 
-	newmenu_create_structure(menu);
+	newmenu_create_structure(*menu);
 
 	// Create the basic window
 	const auto wind = window_create(grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, newmenu_handler, menu);
@@ -1797,6 +1810,8 @@ void listbox_delete_item(listbox *lb, int item)
 	if (lb->citem >= lb->nitems)
 		lb->citem = lb->nitems ? lb->nitems - 1 : 0;
 }
+
+namespace {
 
 static void update_scroll_position(listbox *lb)
 {
@@ -2222,6 +2237,8 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 			break;
 	}
 	return window_event_result::ignored;
+}
+
 }
 
 listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const int allow_abort_flag, const int default_item, const listbox_subfunction_t<void> listbox_callback, void *const userdata)
