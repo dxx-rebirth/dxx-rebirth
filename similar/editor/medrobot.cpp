@@ -784,12 +784,14 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 
 #define	MATT_LEN				20
 
-static UI_DIALOG 				*MattWindow = NULL;
-
 namespace {
 
-struct object_dialog
+struct object_dialog : UI_DIALOG
 {
+	explicit object_dialog(short x, short y, short w, short h, enum dialog_flags flags) :
+		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr)
+	{
+	}
 	struct creation_context
 	{
 		vmobjptr_t obj;
@@ -801,11 +803,12 @@ struct object_dialog
 	std::unique_ptr<UI_GADGET_INPUTBOX> xtext, ytext, ztext;
 	std::array<std::unique_ptr<UI_GADGET_RADIO>, 2> initialMode;
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
+	virtual window_event_result callback_handler(const d_event &) override;
 };
 
-}
+static object_dialog *MattWindow;
 
-static window_event_result object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o);
+}
 
 void object_close_window()
 {
@@ -835,46 +838,44 @@ int do_object_dialog()
 	if ( MattWindow != NULL )
 		return 0;
 	
-	auto o = std::make_unique<object_dialog>();
 	Cur_goody_count = 0;
 
 	// Open a window with a quit button
 	object_dialog::creation_context c(obj);
-	MattWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, object_dialog_handler, std::move(o), &c);
+	MattWindow = ui_create_dialog<object_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG, &c);
 	return 1;
 }
 
-static window_event_result object_dialog_created(UI_DIALOG *const w, object_dialog *const o, const object_dialog::creation_context *const c)
+static window_event_result object_dialog_created(object_dialog *const o, const object_dialog::creation_context *const c)
 {
-	o->quitButton = ui_add_gadget_button(w, 20, 286, 40, 32, "Done", NULL );
+	o->quitButton = ui_add_gadget_button(o, 20, 286, 40, 32, "Done", NULL );
 	o->quitButton->hotkey = KEY_ENTER;
 	// These are the radio buttons for each mode
-	o->initialMode[0] = ui_add_gadget_radio(w, 10, 50, 16, 16, 0, "None" );
-	o->initialMode[1] = ui_add_gadget_radio(w, 80, 50, 16, 16, 0, "Spinning" );
+	o->initialMode[0] = ui_add_gadget_radio(o, 10, 50, 16, 16, 0, "None" );
+	o->initialMode[1] = ui_add_gadget_radio(o, 80, 50, 16, 16, 0, "Spinning" );
 	o->initialMode[c->obj->movement_source == object::movement_type::spinning?1:0]->flag = 1;
 	char message[MATT_LEN];
 	snprintf(message, sizeof(message), "%.2f", f2fl(c->obj->mtype.spin_rate.x));
-	o->xtext = ui_add_gadget_inputbox<MATT_LEN>(w, 30, 132, message);
+	o->xtext = ui_add_gadget_inputbox<MATT_LEN>(o, 30, 132, message);
 	snprintf(message, sizeof(message), "%.2f", f2fl(c->obj->mtype.spin_rate.y));
-	o->ytext = ui_add_gadget_inputbox<MATT_LEN>(w, 30, 162, message);
+	o->ytext = ui_add_gadget_inputbox<MATT_LEN>(o, 30, 162, message);
 	snprintf(message, sizeof(message), "%.2f", f2fl(c->obj->mtype.spin_rate.z));
-	o->ztext = ui_add_gadget_inputbox<MATT_LEN>(w, 30, 192, message);
-	ui_gadget_calc_keys(w);
-	w->keyboard_focus_gadget = o->initialMode[0].get();
+	o->ztext = ui_add_gadget_inputbox<MATT_LEN>(o, 30, 192, message);
+	ui_gadget_calc_keys(o);
+	o->keyboard_focus_gadget = o->initialMode[0].get();
 
 	return window_event_result::handled;
 }
 
-static window_event_result object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o)
+window_event_result object_dialog::callback_handler(const d_event &event)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	switch(event.type)
 	{
 		case EVENT_WINDOW_CREATED:
-			return object_dialog_created(dlg, o, reinterpret_cast<const object_dialog::creation_context *>(static_cast<const d_create_event &>(event).createdata));
+			return object_dialog_created(this, reinterpret_cast<const object_dialog::creation_context *>(static_cast<const d_create_event &>(event).createdata));
 		case EVENT_WINDOW_CLOSE:
-			std::default_delete<object_dialog>()(o);
 			MattWindow = NULL;
 			return window_event_result::ignored;
 		default:
@@ -902,18 +903,17 @@ static window_event_result object_dialog_handler(UI_DIALOG *dlg,const d_event &e
 		ui_dprintf_at( MattWindow, 10, 192,"&Z:" );
 	}
 	
-	if (GADGET_PRESSED(o->quitButton.get()) || keypress == KEY_ESC)
+	if (GADGET_PRESSED(quitButton.get()) || keypress == KEY_ESC)
 	{
+		if (initialMode[0]->flag)
+			obj->movement_source = object::movement_type::None;
+		if (initialMode[1]->flag)
+			obj->movement_source = object::movement_type::spinning;
 
-		if (o->initialMode[0]->flag) obj->movement_source = object::movement_type::None;
-		if (o->initialMode[1]->flag) obj->movement_source = object::movement_type::spinning;
-
-		obj->mtype.spin_rate.x = fl2f(atof(o->xtext->text.get()));
-		obj->mtype.spin_rate.y = fl2f(atof(o->ytext->text.get()));
-		obj->mtype.spin_rate.z = fl2f(atof(o->ztext->text.get()));
-
+		obj->mtype.spin_rate.x = fl2f(atof(xtext->text.get()));
+		obj->mtype.spin_rate.y = fl2f(atof(ytext->text.get()));
+		obj->mtype.spin_rate.z = fl2f(atof(ztext->text.get()));
 		return window_event_result::close;
 	}
-	
 	return rval;
 }
