@@ -319,7 +319,6 @@ void ui_dputs_at( UI_DIALOG * dlg, short x, short y, const char * str );
 extern void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, const char * format, ... ) __attribute_format_printf(4, 5);
 #define ui_dprintf_at(A1,A2,A3,F,...)	dxx_call_printf_checked(ui_dprintf_at,ui_dputs_at,(A1,A2,A3),(F),##__VA_ARGS__)
 
-extern void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio );
 __attribute_warn_unused_result
 std::unique_ptr<UI_GADGET_RADIO> ui_add_gadget_radio(UI_DIALOG &dlg, short x, short y, short w, short h, short group, const char *text);
 void ui_radio_set_value(UI_GADGET_RADIO &radio, int value);

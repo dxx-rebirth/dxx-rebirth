@@ -39,30 +39,34 @@ namespace dcx {
 
 #define Middle(x) ((2*(x)+1)/4)
 
-void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
+namespace {
+
+void ui_draw_radio(UI_DIALOG &dlg, UI_GADGET_RADIO &radio)
 {
 #if 0  //ndef OGL
 	if ((radio->status==1) || (radio->position != radio->oldposition))
 #endif
 	{
-		radio->status = 0;
+		radio.status = 0;
 
-		gr_set_current_canvas( radio->canvas );
+		gr_set_current_canvas(radio.canvas);
 		auto &canvas = *grd_curcanv;
-		gr_set_fontcolor(canvas, dlg->keyboard_focus_gadget == radio ? CRED : CBLACK, -1);
+		gr_set_fontcolor(canvas, dlg.keyboard_focus_gadget == &radio ? CRED : CBLACK, -1);
 
 		unsigned bias;
-		if (radio->position == 0 )
+		if (radio.position == 0)
 		{
-			ui_draw_box_out(canvas, 0, 0, radio->width-1, radio->height-1);
+			ui_draw_box_out(canvas, 0, 0, radio.width - 1, radio.height - 1);
 			bias = 0;
 		} else {
-			ui_draw_box_in(canvas, 0, 0, radio->width-1, radio->height-1);
+			ui_draw_box_in(canvas, 0, 0, radio.width - 1, radio.height - 1);
 			bias = 1;
 		}
-		ui_string_centered(canvas, Middle(radio->width) + bias, Middle(radio->height) + bias, radio->flag ? "O" : " ");
-		gr_ustring(canvas, *canvas.cv_font, radio->width + 4, 2, radio->text.get());
+		ui_string_centered(canvas, Middle(radio.width) + bias, Middle(radio.height) + bias, radio.flag ? "O" : " ");
+		gr_ustring(canvas, *canvas.cv_font, radio.width + 4, 2, radio.text.get());
 	}
+}
+
 }
 
 
@@ -146,7 +150,7 @@ window_event_result UI_GADGET_RADIO::event_handler(UI_DIALOG &dlg, const d_event
 	}
 
 	if (event.type == EVENT_WINDOW_DRAW)
-		ui_draw_radio(&dlg, this);
+		ui_draw_radio(dlg, *this);
 
 	return rval;
 }
