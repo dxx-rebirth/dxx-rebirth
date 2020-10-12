@@ -95,7 +95,7 @@ struct newmenu : embed_window_pointer_t
 	partial_range_t<newmenu_item *> items;
 	int				(*subfunction)(newmenu *menu,const d_event &event, void *userdata);
 	const char			*filename;
-	int				tiny_mode;
+	tiny_mode_flag tiny_mode;
 	tab_processing_flag tabs_flag;
 	int				scroll_offset, max_displayable;
 	int				all_text;		//set true if all text items
@@ -420,9 +420,9 @@ static void nm_string_inputbox(grs_canvas &canvas, const int w, const int x, con
 		gr_string(canvas, *canvas.cv_font, x + w1, y, CURSOR_STRING);
 }
 
-static void draw_item(grs_canvas &canvas, newmenu_item &item, int is_current, int tiny, const tab_processing_flag tabs_flag, int scroll_offset)
+static void draw_item(grs_canvas &canvas, newmenu_item &item, int is_current, const tiny_mode_flag tiny, const tab_processing_flag tabs_flag, int scroll_offset)
 {
-	if (tiny)
+	if (tiny != tiny_mode_flag::normal)
 	{
 		int r, g, b;
 		if (item.text[0] == '\t')
@@ -1283,7 +1283,7 @@ static void newmenu_create_structure( newmenu *menu )
 
 	th += FSPACY(5);		//put some space between titles & body
 
-	auto &cv_font = *(menu->tiny_mode ? GAME_FONT : MEDIUM1_FONT).get();
+	auto &cv_font = *(menu->tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT).get();
 
 	menu->w = aw = 0;
 	menu->h = th;
@@ -1523,7 +1523,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 		gr_string(*grd_curcanv, medium3_font, 0x8000, ty + th, menu->subtitle);
 	}
 
-	gr_set_curfont(*grd_curcanv, menu->tiny_mode?GAME_FONT:MEDIUM1_FONT);
+	gr_set_curfont(*grd_curcanv, menu->tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT);
 
 	// Redraw everything...
 	{
@@ -1544,7 +1544,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 
 	if (menu->is_scroll_box)
 	{
-		auto &cv_font = *(menu->tiny_mode ? GAME_FONT : MEDIUM2_FONT);
+		auto &cv_font = *(menu->tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM2_FONT);
 
 		const int line_spacing = static_cast<int>(LINE_SPACING(cv_font, *GAME_FONT));
 		const auto scroll_offset = menu->scroll_offset;
@@ -1639,7 +1639,7 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 	return window_event_result::ignored;
 }
 
-newmenu *newmenu_do4(const char *const title, const char *const subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename, const int TinyMode, const tab_processing_flag TabsFlag)
+newmenu *newmenu_do4(const char *const title, const char *const subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename, const tiny_mode_flag TinyMode, const tab_processing_flag TabsFlag)
 {
 	if (items.size() < 1)
 		return nullptr;
@@ -1648,7 +1648,7 @@ newmenu *newmenu_do4(const char *const title, const char *const subtitle, const 
 	menu->scroll_offset = 0;
 	menu->all_text = 0;
 	menu->is_scroll_box = 0;
-	menu->max_on_menu = TinyMode?MAXDISPLAYABLEITEMSTINY:MAXDISPLAYABLEITEMS;
+	menu->max_on_menu = TinyMode != tiny_mode_flag::normal ? MAXDISPLAYABLEITEMSTINY : MAXDISPLAYABLEITEMS;
 	menu->title = title;
 	menu->subtitle = subtitle;
 	menu->subfunction = subfunction;
