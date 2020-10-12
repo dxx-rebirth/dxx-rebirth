@@ -322,7 +322,7 @@ std::unique_ptr<UI_GADGET_RADIO> ui_add_gadget_radio(UI_DIALOG &dlg, short x, sh
 void ui_radio_set_value(UI_GADGET_RADIO &radio, int value);
 
 __attribute_warn_unused_result
-std::unique_ptr<UI_GADGET_CHECKBOX> ui_add_gadget_checkbox(UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text);
+std::unique_ptr<UI_GADGET_CHECKBOX> ui_add_gadget_checkbox(UI_DIALOG &dlg, short x, short y, short w, short h, short group, const char *text);
 extern void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check);
 
 UI_GADGET &ui_gadget_get_next(UI_GADGET &gadget);

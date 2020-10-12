@@ -346,16 +346,16 @@ static window_event_result trigger_dialog_created(trigger_dialog *const t)
 	// These are the checkboxes for each door flag.
 	int i = 44;
 #if defined(DXX_BUILD_DESCENT_I)
-	t->triggerFlag[0] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Door Control");  	i+=22;
-	t->triggerFlag[1] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Shield damage"); 	i+=22;
-	t->triggerFlag[2] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Energy drain");		i+=22;
-	t->triggerFlag[3] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Exit");					i+=22;
-	t->triggerFlag[4] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "One-shot");			i+=22;
-	t->triggerFlag[5] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Illusion ON");		i+=22;
-	t->triggerFlag[6] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Illusion OFF");		i+=22;
-	t->triggerFlag[7] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Unused");			i+=22;
-	t->triggerFlag[8] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Matcen Trigger"); 	i+=22;
-	t->triggerFlag[9] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Secret Exit"); 		i+=22;
+	t->triggerFlag[0] = ui_add_gadget_checkbox(*t, 22, i, 16, 16, 0, "Door Control");  	i+=22;
+	t->triggerFlag[1] = ui_add_gadget_checkbox(*t, 22, i, 16, 16, 0, "Shield damage"); 	i+=22;
+	t->triggerFlag[2] = ui_add_gadget_checkbox(*t, 22, i, 16, 16, 0, "Energy drain");		i+=22;
+	t->triggerFlag[3] = ui_add_gadget_checkbox(*t, 22, i, 16, 16, 0, "Exit");					i+=22;
+	t->triggerFlag[4] = ui_add_gadget_checkbox(*t, 22, i, 16, 16, 0, "One-shot");			i+=22;
+	t->triggerFlag[5] = ui_add_gadget_checkbox(*t, 22, i, 16, 16, 0, "Illusion ON");		i+=22;
+	t->triggerFlag[6] = ui_add_gadget_checkbox(*t, 22, i, 16, 16, 0, "Illusion OFF");		i+=22;
+	t->triggerFlag[7] = ui_add_gadget_checkbox(*t, 22, i, 16, 16, 0, "Unused");			i+=22;
+	t->triggerFlag[8] = ui_add_gadget_checkbox(*t, 22, i, 16, 16, 0, "Matcen Trigger"); 	i+=22;
+	t->triggerFlag[9] = ui_add_gadget_checkbox(*t, 22, i, 16, 16, 0, "Secret Exit"); 		i+=22;
 #endif
 
 	t->quitButton = ui_add_gadget_button(*t, 20, i, 48, 40, "Done", nullptr);
