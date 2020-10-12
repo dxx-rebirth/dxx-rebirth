@@ -212,12 +212,6 @@ inline void check_range_bounds(const char *file, unsigned line, const char *estr
 #undef PARTIAL_RANGE_COMPILE_CHECK_BOUND
 }
 
-template <typename I, std::size_t N, typename T>
-inline void check_partial_range(const char *file, unsigned line, const char *estr, const T &t, const std::size_t o, const std::size_t l)
-{
-	check_range_bounds<I, N>(file, line, estr, std::addressof(t), o, l, std::size(t));
-}
-
 #ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
 template <typename I, std::size_t required_buffer_size, typename P>
 inline void check_range_object_size(const char *file, unsigned line, const char *estr, P &ref, const std::size_t o, const std::size_t l)
@@ -303,7 +297,7 @@ template <typename T, typename UO, typename UL, std::size_t NF, std::size_t NE, 
 __attribute_warn_unused_result
 inline partial_range_t<I> (partial_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &t, const UO &o, const UL &l)
 {
-	partial_range_detail::check_partial_range<typename partial_range_t<I>::partial_range_error, partial_range_detail::required_buffer_size<NF, NE>, T>(file, line, estr, t, o, l);
+	partial_range_detail::check_range_bounds<typename partial_range_t<I>::partial_range_error, partial_range_detail::required_buffer_size<NF, NE>>(file, line, estr, std::addressof(t), o, l, std::size(t));
 	return unchecked_partial_range<I, UO, UL>(file, line, estr, std::begin(t), o, l);
 }
 
