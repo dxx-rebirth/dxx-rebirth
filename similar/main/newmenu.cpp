@@ -101,7 +101,7 @@ struct newmenu : embed_window_pointer_t
 	int				all_text;		//set true if all text items
 	int				is_scroll_box;   // Is this a scrolling box? Set to false at init
 	int				max_on_menu;
-	int				mouse_state, dblclick_flag;
+	int				mouse_state;
 	int				*rval;			// Pointer to return value (for polling newmenus)
 	void			*userdata;		// For whatever - like with window system
 	partial_range_t<newmenu_item *> item_range()
@@ -1451,7 +1451,6 @@ static void newmenu_create_structure( newmenu *menu )
 		if (menu->citem > nitems - 1)
 			menu->citem = nitems - 1;
 
-		menu->dblclick_flag = 1;
 		uint_fast32_t i = 0;
 		const auto begin = menu->items.begin();
 		while (std::next(begin, menu->citem)->type == NM_TYPE_TEXT)
@@ -1650,7 +1649,6 @@ newmenu *newmenu_do4(const char *const title, const char *const subtitle, const 
 	menu->all_text = 0;
 	menu->is_scroll_box = 0;
 	menu->max_on_menu = TinyMode?MAXDISPLAYABLEITEMSTINY:MAXDISPLAYABLEITEMS;
-	menu->dblclick_flag = 0;
 	menu->title = title;
 	menu->subtitle = subtitle;
 	menu->subfunction = subfunction;
