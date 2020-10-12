@@ -130,11 +130,6 @@ UI_DIALOG::UI_DIALOG(short x, short y, const short w, const short h, const enum 
 		set_modal(0);	// make this window modeless, allowing events to propogate through the window stack
 }
 
-window *ui_dialog_get_window(UI_DIALOG *dlg)
-{
-	return dlg;
-}
-
 void ui_dialog_set_current_canvas(UI_DIALOG *dlg)
 {
 	gr_set_current_canvas(dlg->w_canv);

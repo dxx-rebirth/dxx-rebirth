@@ -270,7 +270,6 @@ T1 *ui_create_dialog(const short x, const short y, const short w, const short h,
 	return r.release();
 }
 
-extern class window *ui_dialog_get_window(UI_DIALOG *dlg);
 extern void ui_dialog_set_current_canvas(UI_DIALOG *dlg);
 extern void ui_close_dialog( UI_DIALOG * dlg );
 

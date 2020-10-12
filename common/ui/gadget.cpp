@@ -84,7 +84,7 @@ void ui_gadget_add(UI_DIALOG * dlg, short x1, short y1, short x2, short y2, UI_G
 	if ( x1==0 && x2==0 && y1==0 && y2== 0 )
 		gadget->canvas.reset();
 	else
-		gadget->canvas = gr_create_sub_canvas(ui_dialog_get_window(dlg)->w_canv, x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+		gadget->canvas = gr_create_sub_canvas(dlg->w_canv, x1, y1, x2 - x1 + 1, y2 - y1 + 1);
 	gadget->x1 = gadget->canvas->cv_bitmap.bm_x;
 	gadget->y1 = gadget->canvas->cv_bitmap.bm_y;
 	gadget->x2 = gadget->canvas->cv_bitmap.bm_x+x2-x1+1;
@@ -178,7 +178,7 @@ window_event_result ui_gadget_send_event(UI_DIALOG *dlg, event_type type, UI_GAD
 	if (gadget->parent)
 		return ui_gadget_do(dlg, gadget->parent, event);
 
-	return window_send_event(*ui_dialog_get_window(dlg), event);
+	return window_send_event(*dlg, event);
 }
 
 UI_GADGET *ui_event_get_gadget(const d_event &event)
