@@ -147,6 +147,7 @@ struct UI_GADGET_RADIO : UI_GADGET
 struct UI_GADGET_ICON : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 9>{};
+	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
 	RAIIdmem<char[]>  text;
 	short 		    width, height;
 	sbyte           flag;
@@ -372,7 +373,6 @@ void ui_free( void * buffer );
 int ui_get_file( char * filename, const char * Filespec  );
 
 void ui_draw_icon( UI_GADGET_ICON * icon );
-window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon, const d_event &event );
 __attribute_warn_unused_result
 std::unique_ptr<UI_GADGET_ICON> ui_add_gadget_icon(UI_DIALOG * dlg, const char * text, short x, short y, short w, short h, int k,int (*f)());
 

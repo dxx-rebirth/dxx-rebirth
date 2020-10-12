@@ -110,66 +110,59 @@ std::unique_ptr<UI_GADGET_ICON> ui_add_gadget_icon(UI_DIALOG * dlg, const char *
 	return icon;
 }
 
-window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon,const d_event &event )
+window_event_result UI_GADGET_ICON::event_handler(UI_DIALOG &dlg, const d_event &event)
 {
-	icon->oldposition = icon->position;
-	icon->pressed = 0;
+	oldposition = position;
+	pressed = 0;
 
 	window_event_result rval = window_event_result::ignored;
 	if (event.type == EVENT_MOUSE_BUTTON_DOWN || event.type == EVENT_MOUSE_BUTTON_UP)
 	{
-		const auto OnMe = ui_mouse_on_gadget(*icon);
+		const auto OnMe = ui_mouse_on_gadget(*this);
 
 		if (B1_JUST_PRESSED && OnMe)
 		{
-			icon->position = 1;
+			position = 1;
 			rval = window_event_result::handled;
 		}
 		else if (B1_JUST_RELEASED)
 		{
-			if ((icon->position == 1) && OnMe)
-				icon->pressed = 1;
+			if ((position == 1) && OnMe)
+				pressed = 1;
 				
-			icon->position = 0;
+			position = 0;
 		}
 	}
 
 
 	if (event.type == EVENT_KEY_COMMAND)
 	{
-		int key;
-		
-		key = event_key_get(event);
-		
-		if (key == icon->trap_key)
+		const auto key = event_key_get(event);
+		if (key == trap_key)
 		{
-			icon->position = 1;
+			position = 1;
 			rval = window_event_result::handled;
 		}
 	}
 	else if (event.type == EVENT_KEY_RELEASE)
 	{
-		int key;
-		
-		key = event_key_get(event);
-		
-		icon->position = 0;
-		
-		if (key == icon->trap_key)
-			icon->pressed = 1;
+		const auto key = event_key_get(event);
+		position = 0;
+		if (key == trap_key)
+			pressed = 1;
 	}
 		
-	if (icon->pressed == 1)
+	if (pressed == 1)
 	{
-		icon->status = 1;
-		icon->flag = static_cast<int8_t>(icon->user_function());
-		rval = ui_gadget_send_event(*dlg, EVENT_UI_GADGET_PRESSED, *icon);
+		status = 1;
+		flag = static_cast<int8_t>(user_function());
+		rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, *this);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 	}
 
 	if (event.type == EVENT_WINDOW_DRAW)
-		ui_draw_icon( icon );
+		ui_draw_icon(this);
 
 	return rval;
 }
