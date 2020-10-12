@@ -91,17 +91,17 @@ struct newmenu : embed_window_pointer_t
 	font_y_scale_proportion fntscaley;
 	const char			*title;
 	const char			*subtitle;
+	tiny_mode_flag tiny_mode;
+	tab_processing_flag tabs_flag;
+	uint8_t all_text = 0;		//set true if all text items
+	uint8_t is_scroll_box = 0;   // Is this a scrolling box? Set to false at init
+	uint8_t mouse_state;
+	int				scroll_offset, max_displayable;
+	int				max_on_menu;
 	int				citem;
 	partial_range_t<newmenu_item *> items;
 	int				(*subfunction)(newmenu *menu,const d_event &event, void *userdata);
 	const char			*filename;
-	tiny_mode_flag tiny_mode;
-	tab_processing_flag tabs_flag;
-	int				scroll_offset, max_displayable;
-	int				all_text;		//set true if all text items
-	int				is_scroll_box;   // Is this a scrolling box? Set to false at init
-	int				max_on_menu;
-	int				mouse_state;
 	int				*rval;			// Pointer to return value (for polling newmenus)
 	void			*userdata;		// For whatever - like with window system
 	partial_range_t<newmenu_item *> item_range()
@@ -1646,8 +1646,6 @@ newmenu *newmenu_do4(const char *const title, const char *const subtitle, const 
 	newmenu *menu = new newmenu(items);
 	menu->citem = citem;
 	menu->scroll_offset = 0;
-	menu->all_text = 0;
-	menu->is_scroll_box = 0;
 	menu->max_on_menu = TinyMode != tiny_mode_flag::normal ? MAXDISPLAYABLEITEMSTINY : MAXDISPLAYABLEITEMS;
 	menu->title = title;
 	menu->subtitle = subtitle;
