@@ -120,10 +120,11 @@ struct automap : ::dcx::window
 	using ::dcx::window::window;
 	fix64			entry_time;
 	fix64			t1, t2;
-	int			leave_mode;
-	int			pause_game;
+	static_assert(PF_WIGGLE < UINT8_MAX, "storing PF_WIGGLE into old_wiggle would truncate the value");
+	uint8_t			old_wiggle;
+	uint8_t			leave_mode;
+	uint8_t			pause_game;
 	vms_angvec		tangles;
-	ushort			old_wiggle; // keep 4 byte aligned
 	int			max_segments_away;
 	int			segment_limit;
 
