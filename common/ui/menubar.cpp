@@ -144,23 +144,23 @@ static void menu_draw(MENU *menu)
 
 //---------------------------- Show a menu ---------------------
 
-static void menu_show( MENU * menu )
+static void menu_show(MENU &menu)
 {
-	if (!menu->wind)
-	{
-		menu->wind = window_create(grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h,
-								   ((menu == &Menu[0]) ? menubar_handler : menu_handler), menu);
-		if (!menu->wind)
-			return;
-		
-		if (menu == &Menu[0])
-			Menu[0].wind->set_modal(0);	// allow windows behind the menubar to accept events (e.g. the keypad dialogs)
-	}
-
-	window_set_visible(*menu->wind, 1);
-	
+	window_set_visible(menu.wind, 1);
 	// Mark as displayed.
-	menu->Displayed = 1;
+	menu.Displayed = 1;
+}
+
+static void menu_other_show()
+{
+	auto &menu = Menu[CMENU];
+	if (!menu.wind)
+	{
+		menu.wind = window_create(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menu_handler, &menu);
+		if (!menu.wind)
+			return;
+	}
+	menu_show(menu);
 }
 
 //-------------------------- Hide a menu -----------------------
@@ -265,8 +265,7 @@ static void menu_hide_all()
 	Menu[0].Active = 0;
 	if (Menu[0].wind)
 		Menu[0].wind->set_modal(0);
-	menu_show( &Menu[0] );
-
+	menubar_show();
 }
 
 
@@ -298,8 +297,8 @@ static window_event_result do_state_0(const d_event &event)
 			Menu[ CMENU ].Active = 1;
 			Menu[0].ShowBar = 1;
 	
-			menu_show( &Menu[ CMENU ] );
-			menu_show( &Menu[0] );
+			menu_other_show();
+			menubar_show();
 			return window_event_result::handled;
 		}
 	}
@@ -328,7 +327,7 @@ static window_event_result do_state_0(const d_event &event)
 		window_select(*Menu[0].wind);
 
 		Menu[0].wind->set_modal(1);
-		menu_show( &Menu[0] );
+		menubar_show();
 		return window_event_result::handled;
 	}
 
@@ -343,8 +342,8 @@ static window_event_result do_state_0(const d_event &event)
 		Menu[ CMENU ].Active = 1;
 		Menu[0].Active = 0;
 		Menu[0].wind->set_modal(0);
-		menu_show( &Menu[ CMENU ] );
-		menu_show( &Menu[0] );
+		menu_other_show();
+		menubar_show();
 		return window_event_result::handled;
 	}
 	return window_event_result::ignored;
@@ -365,7 +364,7 @@ static window_event_result do_state_1(const d_event &event)
 		state2_alt_down = 0;
 		Menu[0].ShowBar = 1;
 		Menu[0].Active = 1;
-		menu_show( &Menu[0] );
+		menubar_show();
 		rval = window_event_result::handled;
   	}
 
@@ -381,8 +380,8 @@ static window_event_result do_state_1(const d_event &event)
 		Menu[ CMENU ].Active = 1;
 		Menu[0].ShowBar = 1;
 
-		menu_show( &Menu[ CMENU ] );
-		menu_show( &Menu[0] );
+		menu_other_show();
+		menubar_show();
 		rval = window_event_result::handled;
 	}
 
@@ -404,8 +403,8 @@ static window_event_result do_state_1(const d_event &event)
 		Menu[0].ShowBar = 1;
 		Menu[0].Active = 0;
 		Menu[0].wind->set_modal(0);
-		menu_show( &Menu[ CMENU ] );
-		menu_show( &Menu[0] );
+		menu_other_show();
+		menubar_show();
 		return window_event_result::handled;
 	}
 	
@@ -460,8 +459,8 @@ static window_event_result do_state_2(const d_event &event)
 		Menu[ CMENU ].Active = 1;
 		Menu[0].Active = 0;
 		Menu[0].wind->set_modal(0);
-		menu_show( &Menu[ 0 ] );
-		menu_show( &Menu[ CMENU ] );
+		menubar_show();
+		menu_other_show();
 		return window_event_result::handled;
 	
 	default:
@@ -476,8 +475,8 @@ static window_event_result do_state_2(const d_event &event)
 			Menu[ CMENU ].ShowBar = 1;
 			Menu[ CMENU ].Active = 1;
 			Menu[0].ShowBar = 1;
-			menu_show( &Menu[ CMENU ] );
-			menu_show( &Menu[0] );
+			menu_other_show();
+			menubar_show();
 			return window_event_result::handled;
 		}
 
@@ -499,16 +498,14 @@ static window_event_result do_state_2(const d_event &event)
 			Menu[ CMENU ].ShowBar = 1;
 			Menu[ CMENU ].Active = 1;
 			Menu[0].ShowBar = 1;
-			menu_show( &Menu[ CMENU ] );
-			menu_show( &Menu[0] );
+			menu_other_show();
+			menubar_show();
 			return window_event_result::handled;
 		}
 	}
 	
 	return rval;
 }
-
-
 
 static window_event_result menu_handler(window *, const d_event &event, MENU *menu)
 {
@@ -568,7 +565,7 @@ static window_event_result menu_handler(window *, const d_event &event, MENU *me
 			menu_move_bar_to( &Menu[0], i );
 			Menu[CMENU].ShowBar = 1;
 			Menu[CMENU].Active = 1;
-			menu_show( &Menu[CMENU] );
+			menu_other_show();
 			rval = window_event_result::handled;
 			break;
 		case KEY_LEFT:
@@ -579,7 +576,7 @@ static window_event_result menu_handler(window *, const d_event &event, MENU *me
 			menu_move_bar_to( &Menu[0], i );
 			Menu[ CMENU ].ShowBar = 1;
 			Menu[CMENU].Active = 1;
-			menu_show( &Menu[ CMENU ] );
+			menu_other_show();
 			rval = window_event_result::handled;
 			break;
 		case KEY_ENTER:
@@ -640,7 +637,7 @@ static window_event_result menu_handler(window *, const d_event &event, MENU *me
 					menu_move_bar_to( &Menu[0], i );
 					Menu[ CMENU ].ShowBar = 1;
 					Menu[CMENU].Active = 1;
-					menu_show( &Menu[ CMENU ] );
+					menu_other_show();
 				}
 
 				rval = window_event_result::handled;
@@ -886,7 +883,15 @@ void menubar_hide()
 
 void menubar_show()
 {
-	menu_show( &Menu[0] );
+	auto &menu = Menu[0];
+	if (!menu.wind)
+	{
+		menu.wind = window_create(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menubar_handler, &menu);
+		if (!menu.wind)
+			return;
+		menu.wind->set_modal(0);	// allow windows behind the menubar to accept events (e.g. the keypad dialogs)
+	}
+	menu_show(menu);
 }
 
 void menubar_close()
