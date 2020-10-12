@@ -151,18 +151,18 @@ window_event_result UI_GADGET_RADIO::event_handler(UI_DIALOG &dlg, const d_event
 	return rval;
 }
 
-void ui_radio_set_value(UI_GADGET_RADIO *radio, int value)
+void ui_radio_set_value(UI_GADGET_RADIO &radio, int value)
 {
 	value = value != 0;
-	if (radio->flag == value)
+	if (radio.flag == value)
 		return;
 
-	radio->flag = value;
-	radio->status = 1;	// redraw
+	radio.flag = value;
+	radio.status = 1;	// redraw
 
-	for (auto tmp = radio; (tmp = static_cast<UI_GADGET_RADIO *>(tmp->next)) != radio;)
+	for (auto tmp = &radio; (tmp = static_cast<UI_GADGET_RADIO *>(tmp->next)) != &radio;)
 	{
-		if ((tmp->kind == UI_GADGET_RADIO::s_kind) && (tmp->group == radio->group) && tmp->flag)
+		if (tmp->kind == UI_GADGET_RADIO::s_kind && tmp->group == radio.group && tmp->flag)
 		{
 			tmp->flag = 0;
 			tmp->status = 1;

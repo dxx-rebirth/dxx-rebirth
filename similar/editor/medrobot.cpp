@@ -622,7 +622,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 	//------------------------------------------------------------
 	if (old_object != Cur_object_index )	{
 		range_for (auto &i, initialMode)
-			ui_radio_set_value(i.get(), 0);
+			ui_radio_set_value(*i, 0);
 		if ( Cur_object_index != object_none ) {
 			auto &behavior = vmobjptr(Cur_object_index)->ctype.ai_info.behavior;
 			switch (behavior)
@@ -644,7 +644,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 					behavior = ai_behavior::AIB_NORMAL;
 					break;
 			}
-			ui_radio_set_value(initialMode[static_cast<std::size_t>(behavior) - MIN_BEHAVIOR].get(), 1);
+			ui_radio_set_value(*initialMode[static_cast<std::size_t>(behavior) - MIN_BEHAVIOR], 1);
 		}
 	}
 

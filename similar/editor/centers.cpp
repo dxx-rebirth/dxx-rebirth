@@ -186,10 +186,10 @@ window_event_result centers_dialog::callback_handler(const d_event &event)
 	if (old_seg_num != Cursegp)
 	{
 		range_for (auto &i, centerFlag)
-			ui_radio_set_value(i.get(), 0);
+			ui_radio_set_value(*i, 0);
 
 		Assert(Cursegp->special < MAX_CENTER_TYPES);
-		ui_radio_set_value(centerFlag[Cursegp->special].get(), 1);
+		ui_radio_set_value(*centerFlag[Cursegp->special], 1);
 
 		//	Read materialization center robot bit flags
 		for (unsigned i = 0, n = N_robot_types; i < n; ++i)

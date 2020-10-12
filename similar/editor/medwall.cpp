@@ -519,10 +519,10 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 			ui_checkbox_check(doorFlag[1].get(), w->flags & WALL_DOOR_AUTO);
 			ui_checkbox_check(doorFlag[2].get(), w->flags & WALL_ILLUSION_OFF);
 
-			ui_radio_set_value(keyFlag[0].get(), w->keys & KEY_NONE);
-			ui_radio_set_value(keyFlag[1].get(), w->keys & KEY_BLUE);
-			ui_radio_set_value(keyFlag[2].get(), w->keys & KEY_RED);
-			ui_radio_set_value(keyFlag[3].get(), w->keys & KEY_GOLD);
+			ui_radio_set_value(*keyFlag[0], w->keys & KEY_NONE);
+			ui_radio_set_value(*keyFlag[1], w->keys & KEY_BLUE);
+			ui_radio_set_value(*keyFlag[2], w->keys & KEY_RED);
+			ui_radio_set_value(*keyFlag[3], w->keys & KEY_GOLD);
 		}
 	}
 	
@@ -565,7 +565,7 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 		range_for (auto &i, partial_const_range(doorFlag, 2u))
 			ui_checkbox_check(i.get(), 0);
 		range_for (auto &i, keyFlag)
-			ui_radio_set_value(i.get(), 0);
+			ui_radio_set_value(*i, 0);
 	}
 
 	if (w && w->type == WALL_ILLUSION) {

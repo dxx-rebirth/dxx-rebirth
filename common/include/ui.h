@@ -322,7 +322,7 @@ extern void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, const char * forma
 extern void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio );
 __attribute_warn_unused_result
 std::unique_ptr<UI_GADGET_RADIO> ui_add_gadget_radio(UI_DIALOG &dlg, short x, short y, short w, short h, short group, const char *text);
-extern void ui_radio_set_value(UI_GADGET_RADIO *radio, int value);
+void ui_radio_set_value(UI_GADGET_RADIO &radio, int value);
 
 extern void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox );
 __attribute_warn_unused_result
