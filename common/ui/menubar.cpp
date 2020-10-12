@@ -35,110 +35,107 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
+#include "d_range.h"
 #include "partial_range.h"
 #include <utility>
 
 namespace dcx {
 
-#define MAXMENUS 30
-#define MAXITEMS 32
-
 namespace {
 
 struct ITEM {
-	short 			x, y, w, h;
+	short x = 0, y = 0, w = 0, h = 0;
 	RAIIdmem<char[]> Text;
 	RAIIdmem<char[]> InactiveText;
-	short 			Hotkey;
-	int   			(*user_function)(void);
+	short Hotkey = -1;
+	int   			(*user_function)(void) = nullptr;
 };
 
 struct MENU : embed_window_pointer_t {
-	short 			x, y, w, h;
-	short				ShowBar;
-	short				CurrentItem;
-	uint16_t			NumItems;
-	short				Displayed;
-	short				Active;
-	std::array<ITEM, MAXITEMS> Item;
+	short x = 0, y = 0, w = 0, h = 0;
+	short ShowBar = 0;
+	uint8_t CurrentItem = 0;
+	uint16_t NumItems = 0;
+	uint8_t Displayed = 0;
+	uint8_t Active = 0;
+	std::array<ITEM, 32> Item;
 };
 
-}
-
-static std::array<MENU, MAXMENUS> Menu;
+static std::array<MENU *, 30> Menu;
 
 static unsigned num_menus;
 static int state;
 
-#define CMENU (Menu[0].CurrentItem+1)
+#define CMENU (Menu[0]->CurrentItem+1)
 
 static window_event_result menubar_handler(window *wind,const d_event &event, MENU *menu);
 static window_event_result menu_handler(window *wind,const d_event &event, MENU *menu);
 
 //------------------------- Show a menu item -------------------
 
-static void item_show( MENU * menu, int n )
+static void item_show(const MENU &menu, const int n)
 {
-	ITEM * item = &menu->Item[n];
+	const auto &item = menu.Item[n];
+	if (!item.Text)
+		return;
 	
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	// If this is a seperator, then draw it.
-	if ( item->Text[0] == '-'  )
+	if (item.Text[0] == '-')
 	{
 		const auto color = CBLACK;
-		gr_urect(canvas, item->x, item->y+item->h/2, item->x+item->w-1, item->y+item->h/2, color);
+		gr_urect(canvas, item.x, item.y + item.h / 2, item.x + item.w - 1, item.y + item.h / 2, color);
 		return;
 	}	
 
-	if ( menu->CurrentItem==n && menu->ShowBar )
+	if (menu.CurrentItem == n && menu.ShowBar)
 	{
-		if ( menu != &Menu[0] )
+		if (&menu != Menu[0])
 		{
 			const auto color = CBLACK;
-			gr_urect(canvas, item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
+			gr_urect(canvas, item.x + 1, item.y + 1, item.x + menu.w - 2, item.y + item.h - 2, color);
 		}
 		gr_set_fontcolor(canvas, CWHITE, CBLACK);
 	}else {
-		if ( menu != &Menu[0] )
+		if (&menu != Menu[0])
 		{
 			const auto color = CGREY;
-			gr_urect(canvas, item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
+			gr_urect(canvas, item.x + 1, item.y + 1, item.x + menu.w - 2, item.y + item.h - 2, color);
 		}
 		gr_set_fontcolor(canvas, CBLACK, CGREY);
 	}
 
-	if ( menu != &Menu[0] )
+	if (&menu != Menu[0])
 	{
-		if ( menu->Active)
-			gr_ustring(canvas, *canvas.cv_font, item->x + 1, item->y + 1, item->Text.get());
+		if (menu.Active)
+			gr_ustring(canvas, *canvas.cv_font, item.x + 1, item.y + 1, item.Text.get());
 		else
-			gr_ustring(canvas, *canvas.cv_font, item->x + 1, item->y + 1, item->InactiveText.get());
+			gr_ustring(canvas, *canvas.cv_font, item.x + 1, item.y + 1, item.InactiveText.get());
 	} else {
-		if ( menu->Active)
-			gr_ustring(canvas, *canvas.cv_font, item->x, item->y, item->Text.get());
+		if (menu.Active)
+			gr_ustring(canvas, *canvas.cv_font, item.x, item.y, item.Text.get());
 		else
-			gr_ustring(canvas, *canvas.cv_font, item->x, item->y, item->InactiveText.get());
+			gr_ustring(canvas, *canvas.cv_font, item.x, item.y, item.InactiveText.get());
 	}
 }
 
-static void menu_draw(MENU *menu)
+static void menu_draw(const MENU &menu)
 {
-	int i;
-	
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 
 	// Draw the menu background
-	gr_urect(canvas, menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1, CGREY);
-	if ( menu != &Menu[0] )
+	gr_urect(canvas, menu.x, menu.y, menu.x + menu.w - 1, menu.y + menu.h - 1, CGREY);
+	if (&menu != Menu[0])
 	{
-		gr_ubox(canvas, menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1, CBLACK);
+		gr_ubox(canvas, menu.x, menu.y, menu.x + menu.w - 1, menu.y + menu.h - 1, CBLACK);
 	}
 	
 	// Draw the items
-	
-	for (i=0; i< menu->NumItems; i++ )
+
+	for (const auto i : xrange(menu.NumItems))
 		item_show( menu, i );
 }
 
@@ -153,7 +150,7 @@ static void menu_show(MENU &menu)
 
 static void menu_other_show()
 {
-	auto &menu = Menu[CMENU];
+	auto &menu = *Menu[CMENU];
 	if (!menu.wind)
 	{
 		menu.wind = window_create(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menu_handler, &menu);
@@ -165,33 +162,30 @@ static void menu_other_show()
 
 //-------------------------- Hide a menu -----------------------
 
-static void menu_hide( MENU * menu )
+static void menu_hide(MENU &menu)
 {
-
 	// Can't hide if it's not already drawn
-	if (!menu->Displayed) return;
+	if (!menu.Displayed) return;
 	
-	if ((menu != &Menu[0]) && menu->wind)
-		window_set_visible(*menu->wind, 0);	// don't draw or receive events
+	if (&menu != Menu[0] && menu.wind)
+		window_set_visible(*menu.wind, 0);	// don't draw or receive events
 
-	menu->Active = 0;
-	if (Menu[0].wind && menu == &Menu[0])
-		Menu[0].wind->set_modal(0);
+	menu.Active = 0;
+	if (&menu == Menu[0] && menu.wind)
+		menu.wind->set_modal(0);
 	// Mark as hidden.
-	menu->Displayed = 0;
+	menu.Displayed = 0;
 }
 
 
 //------------------------- Move the menu bar ------------------
 
-static void menu_move_bar_to( MENU * menu, int number )
+static void menu_move_bar_to(MENU &menu, const int number)
 {
-	int old_item;
+	const auto old_item = menu.CurrentItem;
+	menu.CurrentItem = number;
 
-	old_item = menu->CurrentItem;
-	menu->CurrentItem = number;
-	
-	if (menu->Displayed && (number != old_item))
+	if (menu.Displayed && number != old_item)
 	{
 		item_show( menu, old_item );
 		item_show( menu, number );
@@ -199,9 +193,8 @@ static void menu_move_bar_to( MENU * menu, int number )
 }
 
 //------------------------ Match keypress to item ------------------
-static int menu_match_keypress( MENU * menu, int keypress )
+static int menu_match_keypress(MENU &menu, int keypress)
 {
-	int i;
 	char c;
 	if ((keypress & KEY_CTRLED) || (keypress & KEY_SHIFTED))
 		return -1;
@@ -209,10 +202,10 @@ static int menu_match_keypress( MENU * menu, int keypress )
 	keypress &= 0xFF;
 
 	c = key_ascii();
-			
-	for (i=0; i< menu->NumItems; i++ )
+
+	for (auto &&[item, i] : enumerate(partial_range(menu.Item, menu.NumItems)))
 	{
-		auto letter = strrchr(menu->Item[i].Text.get(), CC_UNDERLINE);
+		auto letter = strrchr(item.Text.get(), CC_UNDERLINE);
 		if (letter)
 		{
 			letter++;
@@ -224,30 +217,28 @@ static int menu_match_keypress( MENU * menu, int keypress )
 }
 
 
-static int menu_is_mouse_on( ITEM * item )
+static int menu_is_mouse_on(const ITEM &item)
 {
 	int x, y, z;
 	
 	mouse_get_pos(&x, &y, &z);
 
-	if ((x >= item->x) &&
-		(x < item->x + item->w ) &&
-		(y >= item->y) &&
-		(y <= item->y + item->h ) )
+	if (x >= item.x &&
+		x < item.x + item.w &&
+		y >= item.y &&
+		y <= item.y + item.h)
 		return 1;
 	else
 		return 0;
 }
 
-static int menu_check_mouse_item( MENU * menu )
+static int menu_check_mouse_item(const MENU &menu)
 {
-	int i;
-	
-	for (i=0; i<menu->NumItems; i++ )
+	for (auto &&[item, i] : enumerate(partial_range(menu.Item, menu.NumItems)))
 	{
-		if (menu_is_mouse_on( &menu->Item[i] ))
+		if (menu_is_mouse_on(item))
 		{
-			if (menu->Item[i].Text[0] == '-')
+			if (item.Text[0] == '-')
 				return -1;
 			else
 				return i;
@@ -260,11 +251,12 @@ static int menu_check_mouse_item( MENU * menu )
 static void menu_hide_all()
 {
 	range_for (auto &i, partial_range(Menu, 1u, num_menus))
-		menu_hide(&i);
-	Menu[0].ShowBar = 0;
-	Menu[0].Active = 0;
-	if (Menu[0].wind)
-		Menu[0].wind->set_modal(0);
+		menu_hide(*i);
+	auto &menubar = *Menu[0];
+	menubar.ShowBar = 0;
+	menubar.Active = 0;
+	if (menubar.wind)
+		menubar.wind->set_modal(0);
 	menubar_show();
 }
 
@@ -277,25 +269,28 @@ static window_event_result do_state_0(const d_event &event)
 	
 	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
-	
-	Menu[0].Active = 0;
-	if (Menu[0].wind)
-		Menu[0].wind->set_modal(0);
-	Menu[0].ShowBar = 0;
+
+	auto &menubar = *Menu[0];
+	menubar.Active = 0;
+	if (menubar.wind)
+		menubar.wind->set_modal(0);
+	menubar.ShowBar = 0;
 
 	if ( keypress & KEY_ALTED )	{
-		const auto i = menu_match_keypress( &Menu[0], keypress );
+		const auto i = menu_match_keypress(menubar, keypress);
 		if (i > -1 )
 		{
-			Menu[0].CurrentItem = i;
-			Menu[0].Active = 0;
-			if (Menu[0].wind)
-				Menu[0].wind->set_modal(0);
+			auto &menubar = *Menu[0];
+			menubar.CurrentItem = i;
+			menubar.Active = 0;
+			if (menubar.wind)
+				menubar.wind->set_modal(0);
 
 			state = 3;	
-			Menu[ CMENU ].ShowBar = 1;
-			Menu[ CMENU ].Active = 1;
-			Menu[0].ShowBar = 1;
+			auto &other_menu = *Menu[CMENU];
+			other_menu.ShowBar = 1;
+			other_menu.Active = 1;
+			menubar.ShowBar = 1;
 	
 			menu_other_show();
 			menubar_show();
@@ -304,7 +299,7 @@ static window_event_result do_state_0(const d_event &event)
 	}
 	
 	range_for (auto &i, partial_const_range(Menu, num_menus))
-		range_for (auto &j, partial_const_range(i.Item, i.NumItems))
+		for (auto &j : partial_const_range(i->Item, i->NumItems))
 		{
 			if ( j.Hotkey == keypress )
 			{
@@ -313,35 +308,36 @@ static window_event_result do_state_0(const d_event &event)
 				return window_event_result::handled;
 			}
 		}
-		
+
 	if (keypress & KEY_ALTED)
 	//if ( (keypress & 0xFF) == KEY_LALT )
 	{
 		// Make sure the menubar receives events exclusively
 		state = 1;
-		Menu[0].Active = 1;
+		menubar.Active = 1;
 		
 		// Put the menubar in front - hope this doesn't mess anything up by leaving it there
 		// If it does, will need to remember the previous front window and restore it.
 		// (Personally, I just use either the mouse or 'hotkeys' for menus)
-		window_select(*Menu[0].wind);
+		window_select(*menubar.wind);
 
-		Menu[0].wind->set_modal(1);
+		menubar.wind->set_modal(1);
 		menubar_show();
 		return window_event_result::handled;
 	}
 
-	const auto i = menu_check_mouse_item( &Menu[0] );
+	const auto i = menu_check_mouse_item(menubar);
 
 	if ( B1_JUST_PRESSED && (i > -1))
 	{
-		Menu[0].CurrentItem = i;
+		menubar.CurrentItem = i;
 		state = 3;	
-		Menu[ CMENU ].ShowBar = 1;
-		Menu[0].ShowBar = 1;
-		Menu[ CMENU ].Active = 1;
-		Menu[0].Active = 0;
-		Menu[0].wind->set_modal(0);
+		auto &other_menu = *Menu[CMENU];
+		other_menu.ShowBar = 1;
+		menubar.ShowBar = 1;
+		other_menu.Active = 1;
+		menubar.Active = 0;
+		menubar.wind->set_modal(0);
 		menu_other_show();
 		menubar_show();
 		return window_event_result::handled;
@@ -351,41 +347,39 @@ static window_event_result do_state_0(const d_event &event)
 
 static window_event_result do_state_1(const d_event &event)
 {
-	int i;
 	int keypress = 0;
 	window_event_result rval = window_event_result::ignored;
 	
 	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
-	
+	auto &menubar = *Menu[0];
 	if ((event.type == EVENT_KEY_RELEASE) && !(event_key_get(event) & KEY_ALTED))
 	{
 		state = 2;
 		state2_alt_down = 0;
-		Menu[0].ShowBar = 1;
-		Menu[0].Active = 1;
+		menubar.ShowBar = 1;
+		menubar.Active = 1;
 		menubar_show();
 		rval = window_event_result::handled;
   	}
 
-	i = menu_match_keypress( &Menu[0], keypress );
-	
-	if (i > -1 )
+	if (const auto i = menu_match_keypress(menubar, keypress); i > -1)
 	{
-		Menu[0].CurrentItem = i;
-		Menu[0].Active = 0;
-		Menu[0].wind->set_modal(0);
+		menubar.CurrentItem = i;
+		menubar.Active = 0;
+		menubar.wind->set_modal(0);
 		state = 3;	
-		Menu[ CMENU ].ShowBar = 1;
-		Menu[ CMENU ].Active = 1;
-		Menu[0].ShowBar = 1;
+		auto &other_menu = *Menu[CMENU];
+		other_menu.ShowBar = 1;
+		other_menu.Active = 1;
+		menubar.ShowBar = 1;
 
 		menu_other_show();
 		menubar_show();
 		rval = window_event_result::handled;
 	}
 
-	i = menu_check_mouse_item( &Menu[0] );
+	const auto i = menu_check_mouse_item(menubar);
 
 	if ( (i == -1) && B1_JUST_RELEASED )
 	{
@@ -396,13 +390,14 @@ static window_event_result do_state_1(const d_event &event)
 
 	if ( B1_JUST_PRESSED && (i > -1))
 	{
-		Menu[0].CurrentItem = i;
+		menubar.CurrentItem = i;
 		state = 3;	
-		Menu[ CMENU ].ShowBar = 1;
-		Menu[ CMENU ].Active = 1;
-		Menu[0].ShowBar = 1;
-		Menu[0].Active = 0;
-		Menu[0].wind->set_modal(0);
+		auto &other_menu = *Menu[CMENU];
+		other_menu.ShowBar = 1;
+		other_menu.Active = 1;
+		menubar.ShowBar = 1;
+		menubar.Active = 0;
+		menubar.wind->set_modal(0);
 		menu_other_show();
 		menubar_show();
 		return window_event_result::handled;
@@ -440,47 +435,64 @@ static window_event_result do_state_2(const d_event &event)
 		return window_event_result::handled;
 	case KEY_LEFT:
 	case KEY_PAD4:
-		i = Menu[0].CurrentItem-1;
-		if (i < 0 ) i = Menu[0].NumItems-1;
-		menu_move_bar_to( &Menu[0], i );
+		{
+			auto &menubar = *Menu[0];
+			i = menubar.CurrentItem;
+			if (i <= 0)
+				i = menubar.NumItems;
+			menu_move_bar_to(menubar, i - 1);
 		return window_event_result::handled;
+		}
 	case KEY_RIGHT:
 	case KEY_PAD6:
-		i = Menu[0].CurrentItem+1;
-		if (i >= Menu[0].NumItems ) i = 0;
-		menu_move_bar_to( &Menu[0], i );
+		{
+			auto &menubar = *Menu[0];
+			i = menubar.CurrentItem + 1;
+			if (i >= menubar.NumItems)
+				i = 0;
+			menu_move_bar_to(menubar, i);
 		return window_event_result::handled;
+		}
 	case KEY_ENTER:
 	case KEY_PADENTER:
 	case KEY_DOWN:
 	case KEY_PAD2:
 		state = 3;	
-		Menu[ CMENU ].ShowBar = 1;
-		Menu[ CMENU ].Active = 1;
-		Menu[0].Active = 0;
-		Menu[0].wind->set_modal(0);
+		{
+			auto &other_menu = *Menu[CMENU];
+			other_menu.ShowBar = 1;
+			other_menu.Active = 1;
+		}
+		{
+			auto &menubar = *Menu[0];
+			menubar.Active = 0;
+			menubar.wind->set_modal(0);
+		}
 		menubar_show();
 		menu_other_show();
 		return window_event_result::handled;
 	
 	default:
-		i = menu_match_keypress( &Menu[0], keypress );
+		{
+			auto &menubar = *Menu[0];
+			i = menu_match_keypress(menubar, keypress);
 	
 		if (i > -1 )
 		{
-			Menu[0].CurrentItem = i;
-			Menu[0].Active = 0;
-			Menu[0].wind->set_modal(0);
+			menubar.CurrentItem = i;
+			menubar.Active = 0;
+			menubar.wind->set_modal(0);
 			state = 3;	
-			Menu[ CMENU ].ShowBar = 1;
-			Menu[ CMENU ].Active = 1;
-			Menu[0].ShowBar = 1;
+			auto &other_menu = *Menu[CMENU];
+			other_menu.ShowBar = 1;
+			other_menu.Active = 1;
+			menubar.ShowBar = 1;
 			menu_other_show();
 			menubar_show();
 			return window_event_result::handled;
 		}
 
-		i = menu_check_mouse_item( &Menu[0] );
+			i = menu_check_mouse_item(menubar);
 
 		if ( (i == -1) && B1_JUST_RELEASED )
 		{
@@ -491,16 +503,18 @@ static window_event_result do_state_2(const d_event &event)
 
 		if (i > -1)
 		{
-			Menu[0].CurrentItem = i;
-			Menu[0].Active = 0;
-			Menu[0].wind->set_modal(0);
+			menubar.CurrentItem = i;
+			menubar.Active = 0;
+			menubar.wind->set_modal(0);
 			state = 3;	
-			Menu[ CMENU ].ShowBar = 1;
-			Menu[ CMENU ].Active = 1;
-			Menu[0].ShowBar = 1;
+			auto &other_menu = *Menu[CMENU];
+			other_menu.ShowBar = 1;
+			other_menu.Active = 1;
+			menubar.ShowBar = 1;
 			menu_other_show();
 			menubar_show();
 			return window_event_result::handled;
+		}
 		}
 	}
 	
@@ -509,7 +523,6 @@ static window_event_result do_state_2(const d_event &event)
 
 static window_event_result menu_handler(window *, const d_event &event, MENU *menu)
 {
-	int i;
 	int keypress = 0;
 	
 	if (state != 3)
@@ -536,110 +549,135 @@ static window_event_result menu_handler(window *, const d_event &event, MENU *me
 			break;
 		case KEY_DOWN:
 		case KEY_PAD2:
-			i = Menu[ CMENU ].CurrentItem;
+			{
+				auto &other_menu = *Menu[CMENU];
+				auto i = other_menu.CurrentItem;
 			do {
 				i++;		
-				if ( i >= Menu[ CMENU ].NumItems )
+				if (i >= other_menu.NumItems)
 					i = 0;
-			} while( Menu[CMENU].Item[i].Text[0] == '-');
-			menu_move_bar_to( &Menu[ CMENU ], i );
+			} while(other_menu.Item[i].Text[0] == '-');
+			menu_move_bar_to(other_menu, i);
 			rval = window_event_result::handled;
 			break;
+			}
 		case KEY_UP:
 		case KEY_PAD8:
-			i = Menu[ CMENU ].CurrentItem;
+			{
+				auto &other_menu = *Menu[CMENU];
+				auto i = other_menu.CurrentItem;
 			do 
 			{
-				i--;
-				if ( i < 0 )
-					i = Menu[ CMENU ].NumItems-1;
-			} while( Menu[CMENU].Item[i].Text[0] == '-');
-			menu_move_bar_to( &Menu[ CMENU ], i );
+				if (i <= 0)
+					i = other_menu.NumItems;
+				--i;
+			} while(other_menu.Item[i].Text[0] == '-');
+			menu_move_bar_to(other_menu, i);
 			rval = window_event_result::handled;
 			break;
+			}
 		case KEY_RIGHT:
 		case KEY_PAD6:
-			menu_hide( &Menu[ CMENU ] );
-			i = Menu[0].CurrentItem+1;
-			if (i >= Menu[0].NumItems ) i = 0;
-			menu_move_bar_to( &Menu[0], i );
-			Menu[CMENU].ShowBar = 1;
-			Menu[CMENU].Active = 1;
+			{
+				auto &other_menu = *Menu[CMENU];
+				menu_hide(other_menu);
+				auto &menubar = *Menu[0];
+				auto i = menubar.CurrentItem + 1;
+				if (i >= menubar.NumItems)
+					i = 0;
+				menu_move_bar_to(menubar, i);
+				other_menu.ShowBar = 1;
+				other_menu.Active = 1;
 			menu_other_show();
 			rval = window_event_result::handled;
 			break;
+			}
 		case KEY_LEFT:
 		case KEY_PAD4:
-			menu_hide( &Menu[ CMENU ] );
-			i = Menu[0].CurrentItem-1;
-			if (i < 0 ) i = Menu[0].NumItems-1;
-			menu_move_bar_to( &Menu[0], i );
-			Menu[ CMENU ].ShowBar = 1;
-			Menu[CMENU].Active = 1;
+			{
+				auto &other_menu = *Menu[CMENU];
+				menu_hide(other_menu);
+				auto &menubar = *Menu[0];
+				auto i = menubar.CurrentItem;
+				if (i <= 0)
+					i = menubar.NumItems;
+				--i;
+				menu_move_bar_to(menubar, i);
+				other_menu.ShowBar = 1;
+				other_menu.Active = 1;
 			menu_other_show();
 			rval = window_event_result::handled;
 			break;
+			}
 		case KEY_ENTER:
 		case KEY_PADENTER:
+			{
 			state = 0;
 			menu_hide_all();
+				auto &other_menu = *Menu[CMENU];
 
-			if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
-				Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
+				if (const auto f = other_menu.Item[other_menu.CurrentItem].user_function)
+					f();
 			
 			rval = window_event_result::handled;
 			break;
+			}
 			
 		default:
-			i = menu_match_keypress( &Menu[ CMENU ], keypress );
-
+			{
+				auto &other_menu = *Menu[CMENU];
+				const auto i = menu_match_keypress(other_menu, keypress);
 			if (i > -1 )
 			{
-				menu_move_bar_to( &Menu[ CMENU ], i );
+				menu_move_bar_to(other_menu, i);
 				state = 0;
 				menu_hide_all();
 								
-				if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
-					Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
+				if (const auto f = other_menu.Item[other_menu.CurrentItem].user_function)
+					f();
 				rval = window_event_result::handled;
 				break;
+			}
+			break;
 			}
 	}
 	
 	if (event.type == EVENT_MOUSE_MOVED || B1_JUST_RELEASED)
 	{
-		i = menu_check_mouse_item( &Menu[CMENU] );
+		auto &other_menu = *Menu[CMENU];
+		const auto i = menu_check_mouse_item(other_menu);
 			
 		if (i > -1 )
 		{
 			if ( B1_JUST_RELEASED )
 			{
-				menu_move_bar_to( &Menu[ CMENU ], i );
+				menu_move_bar_to(other_menu, i);
 				state = 0;
 				menu_hide_all();
 								
-				if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
-					Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
+				if (const auto f = other_menu.Item[other_menu.CurrentItem].user_function)
+					f();
 				rval = window_event_result::handled;
 			}
 			else
 			{
-				menu_move_bar_to( &Menu[ CMENU ], i );
+				menu_move_bar_to(other_menu, i);
 				rval = window_event_result::handled;
 			}
 		} else {
-			i = menu_check_mouse_item( &Menu[0] );
+			auto &menubar = *Menu[0];
+			const auto i = menu_check_mouse_item(menubar);
 
 			if (i > -1)
 			{
-				if ( Menu[0].CurrentItem != i)	{
-					menu_hide( &Menu[ CMENU ] );
-					menu_move_bar_to( &Menu[0], i );
-					Menu[ CMENU ].ShowBar = 1;
-					Menu[CMENU].Active = 1;
+				if (menubar.CurrentItem != i)
+				{
+					menu_hide(other_menu);
+					menu_move_bar_to(menubar, i);
+					other_menu.ShowBar = 1;
+					other_menu.Active = 1;
 					menu_other_show();
 				}
-
 				rval = window_event_result::handled;
 			}
 
@@ -651,10 +689,11 @@ static window_event_result menu_handler(window *, const d_event &event, MENU *me
 			}
 		}
 	}
-	
+
 	if (event.type == EVENT_WINDOW_DRAW)
 	{
-		menu_draw(&Menu[CMENU]);
+		auto &other_menu = *Menu[CMENU];
+		menu_draw(other_menu);
 		return window_event_result::handled;
 	}
 	
@@ -665,23 +704,22 @@ static window_event_result menubar_handler(window *, const d_event &event, MENU 
 {
 	if (event.type == EVENT_WINDOW_DRAW)
 	{
-		menu_draw(&Menu[0]);
+		auto &menubar = *Menu[0];
+		menu_draw(menubar);
 		return window_event_result::handled;
 	}
 	else if (event.type == EVENT_WINDOW_CLOSE)
 	{
-		//menu_hide_all();
-		//menu_hide( &Menu[0] );
-		
-		range_for (auto &i, partial_range(Menu, 1u, num_menus))
+		range_for (const auto pi, partial_range(Menu, 1u, num_menus))
 		{
+			auto &i = *pi;
 			if (i.wind)
 			{
 				window_close(std::exchange(i.wind, nullptr));
 			}
 		}
-		
-		Menu[0].wind = nullptr;
+		auto &menubar = *Menu[0];
+		menubar.wind = nullptr;
 	}
 
 	switch (state)
@@ -731,6 +769,15 @@ static void ul_xlate(char *s)
 		*s = CC_UNDERLINE;
 }
 
+static MENU &menu_allocate(MENU *& p)
+{
+	if (p)
+		return *p;
+	p = new MENU;
+	return *p;
+}
+
+}
 
 int menubar_init(grs_canvas &canvas, const char *const file)
 {
@@ -743,9 +790,6 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 	// This method should be faster than explicitly setting all the variables (I think)
 	Menu = {};
 
-	range_for (auto &i, Menu)
-		range_for (auto &j, i.Item)
-			j.Hotkey = -1;
 	auto infile = PHYSFSX_openReadBuffered(file);
 
 	if (!infile)
@@ -762,20 +806,20 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 		CommaParse( 0, buf1, buffer );
 		char *p;
 		const auto mi = strtoul(buf1, &p, 10);
-		if (mi >= MAXMENUS)
+		if (mi >= Menu.size())
 		{
-			con_printf(CON_URGENT, "%s:%u: too many menus defined: max=%u, requested=%lu in \"%s\"", __FILE__, __LINE__, MAXMENUS, mi, file);
+			con_printf(CON_URGENT, "%s:%u: too many menus defined: max=%" DXX_PRI_size_type ", requested=%lu in \"%s\"", __FILE__, __LINE__, Menu.size(), mi, file);
 			break;
 		}
 
 		CommaParse( 1, buf1, buffer );
 		const auto ii = strtoul(buf1, &p, 10);
-		if (ii >= MAXITEMS)
+		auto &menu = menu_allocate(Menu[mi]);
+		if (ii >= menu.Item.size())
 		{
-			con_printf(CON_URGENT, "%s:%u: too many items defined: max=%u, requested=%lu in \"%s\"", __FILE__, __LINE__, MAXITEMS, ii, file);
+			con_printf(CON_URGENT, "%s:%u: too many items defined: max=%" DXX_PRI_size_type ", requested=%lu in \"%s\"", __FILE__, __LINE__, menu.Item.size(), ii, file);
 			break;
 		}
-		auto &menu = Menu[mi];
 		auto &item = menu.Item[ii];
 
 		CommaParse( 2, buf1, buffer );
@@ -838,8 +882,9 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 
 			item.y = menu.y;
 			
-			Menu[ii+1].x = menu.x + menu.w;
-			Menu[ii+1].y = menu.h - 2;
+			auto &next_menu = menu_allocate(Menu[ii + 1]);
+			next_menu.x = menu.x + menu.w;
+			next_menu.y = menu.h - 2;
 
 			item.w = w;
 			item.h = h;
@@ -869,8 +914,6 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 			num_menus = mi + 1;
 
 	}
-	Menu[0].w = 700;
-
 	return 1;
 }
 
@@ -878,12 +921,12 @@ void menubar_hide()
 {
 	state = 0;
 	menu_hide_all();
-	menu_hide( &Menu[0] );
+	menu_hide(*Menu[0]);
 }
 
 void menubar_show()
 {
-	auto &menu = Menu[0];
+	auto &menu = *Menu[0];
 	if (!menu.wind)
 	{
 		menu.wind = window_create(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menubar_handler, &menu);
@@ -896,9 +939,10 @@ void menubar_show()
 
 void menubar_close()
 {
-	if (!Menu[0].wind)
+	auto &menubar = *Menu[0];
+	if (!menubar.wind)
 		return;
-	window_close(std::exchange(Menu[0].wind, nullptr));
+	window_close(std::exchange(menubar.wind, nullptr));
 }
 
 }
