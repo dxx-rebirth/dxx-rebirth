@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
+#include "kconfig.h"
 #include "weapon_id.h"
 
 #include "fwd-object.h"
@@ -195,7 +196,7 @@ has_weapon_result player_has_secondary_weapon(const player_info &, secondary_wea
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
 int pick_up_primary(player_info &, int weapon_index);
-int pick_up_secondary(player_info &, int weapon_index,int count);
+int pick_up_secondary(player_info &, int weapon_index, int count, const control_info &Controls);
 
 //called when a primary weapon is picked up
 //returns true if actually picked up

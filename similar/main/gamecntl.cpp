@@ -184,6 +184,9 @@ int allowed_to_fire_flare(player_info &player_info)
 
 #define CONVERTER_SOUND_DELAY (f1_0/2)		//play every half second
 
+namespace dsx {
+namespace {
+
 static void transfer_energy_to_shield(object &plrobj)
 {
 	static fix64 last_play_time=0;
@@ -216,6 +219,9 @@ static void transfer_energy_to_shield(object &plrobj)
 		digi_play_sample_once(SOUND_CONVERT_ENERGY, F1_0);
 		last_play_time = GameTime64;
 	}
+}
+
+}
 }
 #endif
 
@@ -262,7 +268,9 @@ int which_bomb()
 }
 #endif
 
-static void do_weapon_n_item_stuff(object_array &Objects)
+namespace {
+
+static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls)
 {
 	auto &vmobjptridx = Objects.vmptridx;
 	auto &vmobjptr = Objects.vmptr;
@@ -356,6 +364,8 @@ static void do_weapon_n_item_stuff(object_array &Objects)
 		transfer_energy_to_shield(plrobj);
 #endif
 }
+
+}
 }
 
 namespace dcx {
@@ -387,7 +397,7 @@ window_event_result pause_window::event_handler(const d_event &event)
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
-			game_flush_inputs();
+			game_flush_inputs(Controls);
 			break;
 
 		case EVENT_KEY_COMMAND:
@@ -472,7 +482,7 @@ static window_event_result HandleEndlevelKey(int key)
 	return window_event_result::ignored;
 }
 
-static int HandleDeathInput(const d_event &event)
+static int HandleDeathInput(const d_event &event, control_info &Controls)
 {
 	const auto input_aborts_death_sequence = [&]() {
 		const auto RespawnMode = PlayerCfg.RespawnMode;
@@ -501,7 +511,7 @@ static int HandleDeathInput(const d_event &event)
 
 	if (GameViewUniqueState.Death_sequence_aborted)
 	{
-		game_flush_respawn_inputs();
+		game_flush_respawn_inputs(Controls);
 		return 1;
 	}
 
@@ -522,7 +532,7 @@ static void save_pr_screenshot()
 
 static void save_clean_screenshot()
 {
-	game_render_frame_mono(CGameArg.DbgNoDoubleBuffer);
+	game_render_frame_mono(CGameArg.DbgNoDoubleBuffer, Controls);
 	save_screen_shot(0);
 }
 #endif
@@ -954,7 +964,7 @@ static window_event_result HandleSystemKey(int key)
 	return window_event_result::handled;
 }
 
-static window_event_result HandleGameKey(int key)
+static window_event_result HandleGameKey(int key, control_info &Controls)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -979,7 +989,7 @@ static window_event_result HandleGameKey(int key)
 						return window_event_result::handled;
 				}
 				set_escort_special_goal(BuddyState, key);
-				game_flush_inputs();
+				game_flush_inputs(Controls);
 				return window_event_result::handled;
 			}
 			else
@@ -1021,7 +1031,7 @@ static window_event_result HandleGameKey(int key)
 					RefuseThisPlayer=1;
 					HUD_init_message_literal(HM_MULTI, "Player accepted!");
 					RefuseTeam=1;
-					game_flush_inputs();
+					game_flush_inputs(Controls);
 				}
 			return window_event_result::handled;
 		case KEY_ALTED + KEY_2:
@@ -1030,7 +1040,7 @@ static window_event_result HandleGameKey(int key)
 					RefuseThisPlayer=1;
 					HUD_init_message_literal(HM_MULTI, "Player accepted!");
 					RefuseTeam=2;
-					game_flush_inputs();
+					game_flush_inputs(Controls);
 				}
 			return window_event_result::handled;
 
@@ -1055,7 +1065,7 @@ static window_event_result HandleGameKey(int key)
 #if defined(DXX_BUILD_DESCENT_II)
 			case KEY_0 + KEY_ALTED:
 				DropFlag ();
-				game_flush_inputs();
+				game_flush_inputs(Controls);
 				break;
 
 			KEY_MAC(case KEY_COMMAND+KEY_4:)
@@ -1233,7 +1243,7 @@ static void kill_buddy(void)
 }
 #endif
 
-static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
+static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, control_info &Controls)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
@@ -1407,7 +1417,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key)
 
 		case KEY_DEBUGGED+KEY_SPACEBAR:		//KEY_F7:				// Toggle physics flying
 			slew_stop();
-			game_flush_inputs();
+			game_flush_inputs(Controls);
 			if (ConsoleObject->control_source != object::control_type::flying)
 			{
 				fly_init(*ConsoleObject);
@@ -1960,7 +1970,7 @@ static void play_test_sound()
 
 }
 
-window_event_result ReadControls(const d_event &event)
+window_event_result ReadControls(const d_event &event, control_info &Controls)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1973,7 +1983,7 @@ window_event_result ReadControls(const d_event &event)
 	{
 		if (exploding_flag==0)  {
 			exploding_flag = 1;			// When player starts exploding, clear all input devices...
-			game_flush_inputs();
+			game_flush_inputs(Controls);
 		}
 	} else {
 		exploding_flag=0;
@@ -1983,7 +1993,7 @@ window_event_result ReadControls(const d_event &event)
 			(multi_sending_message[Player_num] || multi_defining_message)
 		)
 	)
-	HandleDeathInput(event);
+	HandleDeathInput(event, Controls);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		update_vcr_state();
@@ -1994,12 +2004,12 @@ window_event_result ReadControls(const d_event &event)
 #if defined(DXX_BUILD_DESCENT_II)
 		if (MarkerState.DefiningMarkerMessage())
 		{
-			return MarkerInputMessage(key);
+			return MarkerInputMessage(key, Controls);
 		}
 #endif
 		if ( (Game_mode & GM_MULTI) && (multi_sending_message[Player_num] || multi_defining_message) )
 		{
-			return multi_message_input_sub(key);
+			return multi_message_input_sub(key, Controls);
 		}
 
 #ifndef RELEASE
@@ -2027,14 +2037,14 @@ window_event_result ReadControls(const d_event &event)
 			if (r == window_event_result::ignored)
 				r = HandleSystemKey(key);
 			if (r == window_event_result::ignored)
-				r = HandleGameKey(key);
+				r = HandleGameKey(key, Controls);
 			if (r != window_event_result::ignored)
 				return r;
 		}
 
 #ifndef RELEASE
 		{
-			window_event_result r = HandleTestKey(vmsegptridx, key);
+			window_event_result r = HandleTestKey(vmsegptridx, key, Controls);
 			if (r != window_event_result::ignored)
 				return r;
 		}
@@ -2049,10 +2059,10 @@ window_event_result ReadControls(const d_event &event)
 	{
 		kconfig_read_controls(Controls, event, 0);
 		const auto Player_is_dead = Player_dead_state;
-		if (Player_is_dead != player_dead_state::no && HandleDeathInput(event))
+		if (Player_is_dead != player_dead_state::no && HandleDeathInput(event, Controls))
 			return window_event_result::handled;
 
-		check_rear_view();
+		check_rear_view(Controls);
 
 		// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
 		if ( Controls.state.automap )
@@ -2066,7 +2076,7 @@ window_event_result ReadControls(const d_event &event)
 		}
 		if (Player_is_dead != player_dead_state::no)
 			return window_event_result::ignored;
-		do_weapon_n_item_stuff(Objects);
+		do_weapon_n_item_stuff(Objects, Controls);
 	}
 
 	if (Controls.state.show_menu)

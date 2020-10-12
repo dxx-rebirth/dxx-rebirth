@@ -29,8 +29,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct bitmap_index;
 
-#ifdef __cplusplus
 #include "fwd-object.h"
+#include "kconfig.h"
 
 //from gauges.c
 
@@ -42,6 +42,7 @@ enum class gauge_inset_window_view : unsigned
 	secondary,
 };
 
+void show_mousefs_indicator(grs_canvas &canvas, int mx, int my, int mz, int x, int y, int size);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -65,7 +66,7 @@ void add_points_to_score(player_info &, int points);
 void add_bonus_points_to_score(player_info &, int points);
 void render_gauges(void);
 void init_gauges(void);
-void draw_hud(grs_canvas &, const object &);     // draw all the HUD stuff
+void draw_hud(grs_canvas &, const object &, const control_info &Controls);     // draw all the HUD stuff
 }
 #endif
 void close_gauges(void);
@@ -75,7 +76,6 @@ void show_reticle(grs_canvas &canvas, const player_info &, int reticle_type, int
 void show_HUD_names(grs_canvas &);
 }
 #endif
-void show_mousefs_indicator(grs_canvas &canvas, int mx, int my, int mz, int x, int y, int size);
 
 void player_dead_message(grs_canvas &);
 //extern void say_afterburner_status(void);
@@ -149,5 +149,3 @@ extern int	Color_0_31_0;
 #define RET_COLOR_DEFAULT_G     32
 #define RET_COLOR_DEFAULT_B     0
 #define RET_COLOR_DEFAULT_A     0
-
-#endif

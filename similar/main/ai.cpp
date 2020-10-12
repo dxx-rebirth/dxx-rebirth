@@ -92,8 +92,13 @@ using std::min;
 #define	BABY_SPIDER_ID	14
 
 namespace dsx {
+
+const object *Ai_last_missile_camera;
+
+namespace {
 static void init_boss_segments(const segment_array &segments, const object &boss_objnum, d_level_shared_boss_state::special_segment_array_t &a, int size_check, int one_wall_hack);
 static void ai_multi_send_robot_position(object &objnum, int force);
+}
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define	BOSS_DEATH_SOUND_DURATION	0x2ae14		//	2.68 seconds
@@ -130,6 +135,7 @@ static fix Dist_to_last_fired_upon_player_pos;
 }
 
 namespace dcx {
+namespace {
 constexpr std::integral_constant<int, F1_0 * 8> CHASE_TIME_LENGTH{};
 constexpr std::integral_constant<int, F1_0> Robot_sound_volume{};
 enum {
@@ -154,9 +160,10 @@ constexpr std::array<int8_t, 8> Mike_to_matt_xlate{{
 
 // ---------- John: These variables must be saved as part of gamesave. --------
 static int             Overall_agitation;
+static std::array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
+}
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
-static std::array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
 
@@ -245,6 +252,8 @@ static fvi_info    Hit_data;
 namespace dcx {
 vms_vector      Believed_player_pos;
 
+namespace {
+
 static bool silly_animation_angle(fixang vms_angvec::*const a, const vms_angvec &jp, const vms_angvec &pobjp, const int flinch_attack_scale, vms_angvec &goal_angles, vms_angvec &delta_angles)
 {
 	const fix delta_angle = jp.*a - pobjp.*a;
@@ -293,6 +302,8 @@ static void move_toward_vector_component_assign(fix vms_vector::*const p, const 
 static void move_toward_vector_component_add(fix vms_vector::*const p, const vms_vector &vec_goal, const fix frametime64, const fix difficulty_scale, vms_vector &velocity)
 {
 	velocity.*p += fixmul(vec_goal.*p, frametime64) * difficulty_scale / 4;
+}
+
 }
 
 }
@@ -396,6 +407,8 @@ weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num)
 	return ri.weapon_type;
 }
 
+namespace {
+
 static int ready_to_fire_weapon1(const ai_local &ailp, fix threshold)
 {
 	return ailp.next_fire <= threshold;
@@ -422,6 +435,8 @@ static int ready_to_fire_weapon2(const robot_info &robptr, const ai_local &ailp,
 static int ready_to_fire_any_weapon(const robot_info &robptr, const ai_local &ailp, fix threshold)
 {
 	return ready_to_fire_weapon1(ailp, threshold) || ready_to_fire_weapon2(robptr, ailp, threshold);
+}
+
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -466,6 +481,8 @@ void ai_init_boss_for_ship(void)
 #endif
 }
 
+namespace {
+
 static void boss_init_all_segments(const segment_array &Segments, const object &boss_objnum)
 {
 	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
@@ -480,6 +497,8 @@ static void boss_init_all_segments(const segment_array &Segments, const object &
 	if (Boss_teleport_segs.size() < 2)
 		init_boss_segments(Segments, boss_objnum, Boss_teleport_segs, 1, 1);
 #endif
+}
+
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -665,6 +684,7 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, object_base &objp, fi
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
+namespace {
 static void ai_turn_randomly(const vms_vector &vec_to_player, object_base &obj, const fix rate, const player_visibility_state previous_visibility)
 {
 	vms_vector	curvec;
@@ -692,6 +712,7 @@ static void ai_turn_randomly(const vms_vector &vec_to_player, object_base &obj, 
 
 	obj.mtype.phys_info.rotvel = curvec;
 
+}
 }
 #endif
 
@@ -763,6 +784,7 @@ player_visibility_state player_is_visible_from_object(const vmobjptridx_t objp, 
 	}
 }
 
+namespace {
 // ------------------------------------------------------------------------------------------------------------------
 //	Return 1 if animates, else return 0
 static int do_silly_animation(object &objp)
@@ -907,6 +929,7 @@ static void set_next_fire_time(object &objp, ai_local &ailp, const robot_info &r
 	}
 #endif
 }
+}
 
 // ----------------------------------------------------------------------------------
 //	When some robots collide with the player, they attack.
@@ -948,9 +971,9 @@ void do_ai_robot_hit_attack(const vmobjptridx_t robot, const vmobjptridx_t playe
 			set_next_fire_time(robot, ailp, robptr, 1);	//	1 = gun_num: 0 is special (uses next_fire2)
 		}
 	}
-
 }
 
+namespace {
 #if defined(DXX_BUILD_DESCENT_II)
 // --------------------------------------------------------------------------------------------------------------------
 //	Computes point at which projectile fired by robot can hit player given positions, player vel, elapsed time
@@ -1280,6 +1303,8 @@ static void move_towards_vector(object_base &objp, const vms_vector &vec_goal, i
 	}
 }
 
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 #if defined(DXX_BUILD_DESCENT_I)
 static
@@ -1289,6 +1314,8 @@ void move_towards_player(object &objp, const vms_vector &vec_to_player)
 {
 	move_towards_vector(objp, vec_to_player, 1);
 }
+
+namespace {
 
 // --------------------------------------------------------------------------------------------------------------------
 //	I am ashamed of this: fast_flag == -1 means normal slide about.  fast_flag = 0 means no evasion.
@@ -1515,6 +1542,8 @@ static void ai_move_relative_to_player(const vmobjptridx_t objp, ai_local &ailp,
 
 }
 
+}
+
 namespace dcx {
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -1530,6 +1559,7 @@ void make_random_vector(vms_vector &vec)
 }
 
 namespace dsx {
+namespace {
 
 //	-------------------------------------------------------------------------------------------------------------------
 static void do_firing_stuff(object &obj, const player_flags powerup_flags, const robot_to_player_visibility_state &player_visibility)
@@ -1569,6 +1599,8 @@ static void do_firing_stuff(object &obj, const player_flags powerup_flags, const
 			}
 		}
 	}
+}
+
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -1617,6 +1649,8 @@ void do_ai_robot_hit(const vmobjptridx_t objp, player_awareness_type_t type)
 			}
 	}
 }
+
+namespace {
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Note: This function could be optimized.  Surely player_is_visible_from_object would benefit from the
@@ -1759,6 +1793,8 @@ static void compute_buddy_vis_vec(const vmobjptridx_t buddy_obj, const vms_vecto
 	player_visibility.initialized = 1;
 }
 #endif
+
+}
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Move object one object radii from current position towards segment center.
@@ -1914,6 +1950,8 @@ int ai_door_is_openable(
 	return 0;
 }
 
+namespace {
+
 //	-----------------------------------------------------------------------------------------------------------
 //	Return side of openable door in segment, if any.  If none, return side_none.
 static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_segment &segp)
@@ -2054,6 +2092,8 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 	return objp;
 }
 
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 //	Make object objp gate in a robot.
 //	The process of him bringing in a robot takes one second.
@@ -2077,6 +2117,8 @@ static imobjptridx_t gate_in_robot(fvmsegptridx &vmsegptridx, int type)
 
 namespace dcx {
 
+namespace {
+
 static const shared_segment *boss_intersects_wall(fvcvertptr &vcvertptr, const object_base &boss_objp, const vcsegptridx_t segp)
 {
 	const auto size = boss_objp.size;
@@ -2092,6 +2134,8 @@ static const shared_segment *boss_intersects_wall(fvcvertptr &vcvertptr, const o
 		auto &vertex_pos = *vcvertptr(segp->verts[posnum ++]);
 		vm_vec_avg(pos, vertex_pos, segcenter);
 	}
+}
+
 }
 
 }
@@ -2121,6 +2165,8 @@ void create_buddy_bot(void)
 	create_morph_robot(segp, object_pos, (*it).idx);
 }
 #endif
+
+namespace {
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Create list of segments boss is allowed to teleport to at imsegptr.
@@ -2269,6 +2315,8 @@ static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx,
 
 }
 
+}
+
 //	----------------------------------------------------------------------
 void start_boss_death_sequence(object &objp)
 {
@@ -2285,6 +2333,7 @@ void start_boss_death_sequence(object &objp)
 
 //	----------------------------------------------------------------------------------------------------------
 #if defined(DXX_BUILD_DESCENT_I)
+namespace {
 static void do_boss_dying_frame(const vmobjptridx_t objp)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
@@ -2318,6 +2367,7 @@ static void do_boss_dying_frame(const vmobjptridx_t objp)
 static int do_any_robot_dying_frame(const vmobjptridx_t)
 {
 	return 0;
+}
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 //	objp points at a boss.  He was presumably just hit and he's supposed to create a bot at the hit location *pos.
@@ -2371,6 +2421,8 @@ void start_robot_death_sequence(object &obj)
 	ai_info.dying_sound_playing = 0;
 	ai_info.SKIP_AI_COUNT = 0;
 }
+
+namespace {
 
 //	----------------------------------------------------------------------
 //	General purpose robot-dies-with-death-roll-and-groan code.
@@ -2452,6 +2504,8 @@ static int do_any_robot_dying_frame(const vmobjptridx_t objp)
 
 	return 0;
 }
+
+}
 #endif
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -2486,6 +2540,7 @@ fix	Prev_boss_shields = -1;
 #endif
 
 namespace dsx {
+namespace {
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define do_d1_boss_stuff(FS,FO,PV)	do_d1_boss_stuff(FS,FO)
@@ -2927,8 +2982,10 @@ static void ai_do_actual_firing_stuff(fvmobjptridx &vmobjptridx, const vmobjptri
 	}
 }
 
+}
+
 // ----------------------------------------------------------------------------
-void init_ai_frame(const player_flags powerup_flags)
+void init_ai_frame(const player_flags powerup_flags, const control_info &Controls)
 {
 	Dist_to_last_fired_upon_player_pos = vm_vec_dist_quick(Last_fired_upon_player_pos, Believed_player_pos);
 
@@ -2939,6 +2996,8 @@ void init_ai_frame(const player_flags powerup_flags)
 		ai_do_cloak_stuff();
 	}
 }
+
+namespace {
 
 // ----------------------------------------------------------------------------
 // Make a robot near the player snipe.
@@ -2979,8 +3038,6 @@ static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const vmobjptr_t robot,
 		}
 	}
 }
-
-const object *Ai_last_missile_camera;
 
 static int openable_door_on_near_path(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, const object &obj, const ai_static &aip)
 {
@@ -3096,6 +3153,8 @@ static bool skip_ai_for_time_splice(const vcobjptridx_t robot, const robot_info 
 	}
 #endif
 	return false;
+}
+
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -4368,6 +4427,8 @@ void init_ai_for_ship()
 	ai_do_cloak_stuff();
 }
 
+namespace {
+
 // ----------------------------------------------------------------------------
 // Returns false if awareness is considered too puny to add, else returns true.
 static int add_awareness_event(const object_base &objp, player_awareness_type_t type, d_level_unique_robot_awareness_state &awareness)
@@ -4399,6 +4460,8 @@ static int add_awareness_event(const object_base &objp, player_awareness_type_t 
 
 }
 
+}
+
 // ----------------------------------------------------------------------------------
 // Robots will become aware of the player based on something that occurred.
 // The object (probably player or weapon) which created the awareness is objp.
@@ -4416,6 +4479,8 @@ void create_awareness_event(object &objp, player_awareness_type_t type, d_level_
 		}
 	}
 }
+
+namespace {
 
 // ----------------------------------------------------------------------------------
 static void pae_aux(const vcsegptridx_t segnum, const player_awareness_type_t type, const int level, awareness_t &New_awareness)
@@ -4480,6 +4545,8 @@ static void set_player_awareness_all(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptr
 
 }
 
+}
+
 #ifndef NDEBUG
 #if PARALLAX
 int Ai_dump_enable = 0;
@@ -4490,6 +4557,7 @@ char Ai_error_message[128] = "";
 
 // ----------------------------------------------------------------------------------
 namespace dsx {
+namespace {
 static void dump_ai_objects_all()
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -4529,6 +4597,7 @@ static void dump_ai_objects_all()
 
 	fprintf(Ai_dump_file, "Total path length = %4i\n", total);
 #endif
+}
 }
 }
 
@@ -4613,6 +4682,8 @@ void init_robots_for_level(void)
 #endif
 }
 
+namespace {
+
 // Following functions convert ai_local/ai_cloak_info to ai_local/ai_cloak_info_rw to be written to/read from Savegames. Convertin back is not done here - reading is done specifically together with swapping (if necessary). These structs differ in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 static void state_ai_local_to_ai_local_rw(const ai_local *ail, ai_local_rw *ail_rw)
 {
@@ -4670,6 +4741,8 @@ static void state_ai_cloak_info_to_ai_cloak_info_rw(ai_cloak_info *aic, ai_cloak
 	aic_rw->last_position.x = aic->last_position.x;
 	aic_rw->last_position.y = aic->last_position.y;
 	aic_rw->last_position.z = aic->last_position.z;
+}
+
 }
 
 }
@@ -4843,6 +4916,7 @@ static void PHYSFSX_readAngleVecX(PHYSFS_File *file, vms_angvec &v, int swap)
 }
 
 namespace dsx {
+namespace {
 
 static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_File *fp)
 {
@@ -4895,6 +4969,8 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_File *fp)
 
 }
 
+}
+
 namespace dcx {
 
 static void PHYSFSX_readVectorX(PHYSFS_File *file, vms_vector &v, int swap)
@@ -4907,6 +4983,7 @@ static void PHYSFSX_readVectorX(PHYSFS_File *file, vms_vector &v, int swap)
 }
 
 namespace dsx {
+namespace {
 
 static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS_File *fp)
 {
@@ -4922,6 +4999,8 @@ static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS
 #endif
 		PHYSFSX_readVectorX(fp, ci->last_position, swap);
 	}
+}
+
 }
 
 int ai_restore_state(PHYSFS_File *fp, int version, int swap)

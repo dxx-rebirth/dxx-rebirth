@@ -28,17 +28,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "fwd-object.h"
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #ifdef dsx
+#include "kconfig.h"
 namespace dsx {
-void read_flying_controls(object &obj);
+void read_flying_controls(object &obj, control_info &Controls);
 }
 #if defined(DXX_BUILD_DESCENT_II)
 #include "maths.h"
 namespace dsx {
 extern fix Afterburner_charge;
 }
-#endif
 #endif
 #endif
 

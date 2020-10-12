@@ -580,6 +580,8 @@ void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState
 	::dcx::automap_clear_visited(LevelUniqueAutomapState);
 }
 
+namespace {
+
 static void draw_player(grs_canvas &canvas, const object_base &obj, const uint8_t color)
 {
 	// Draw Console player -- shaped like a ellipse with an arrow.
@@ -1062,7 +1064,6 @@ static window_event_result automap_key_command(const d_event &event, automap &am
 static window_event_result automap_process_input(const d_event &event, automap &am)
 {
 	kconfig_read_controls(am.controls, event, 1);
-	Controls = {};
 
 	if (!am.controls.state.automap && am.leave_mode == 1)
 	{
@@ -1079,6 +1080,8 @@ static window_event_result automap_process_input(const d_event &event, automap &
 	return window_event_result::ignored;
 }
 
+}
+
 window_event_result automap::event_handler(const d_event &event)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1087,7 +1090,7 @@ window_event_result automap::event_handler(const d_event &event)
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
-			game_flush_inputs();
+			game_flush_inputs(controls);
 			event_toggle_focus(1);
 			key_toggle_repeat(0);
 			break;
@@ -1693,7 +1696,7 @@ void InitMarkerInput ()
 	key_toggle_repeat(1);
 }
 
-window_event_result MarkerInputMessage(int key)
+window_event_result MarkerInputMessage(int key, control_info &Controls)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1720,7 +1723,7 @@ window_event_result MarkerInputMessage(int key)
 		case KEY_ESC:
 			MarkerState.MarkerBeingDefined = player_marker_index::None;
 			key_toggle_repeat(0);
-			game_flush_inputs();
+			game_flush_inputs(Controls);
 			break;
 		default:
 		{

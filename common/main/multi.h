@@ -551,7 +551,6 @@ extern int multi_quit_game;
 extern std::array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
 extern int multi_defining_message;
 }
-window_event_result multi_message_input_sub(int key);
 extern void multi_send_message_start();
 void multi_send_msgsend_state(msgsend_state_t state);
 
@@ -583,6 +582,7 @@ extern fix64 RefuseTimeLimit;
 
 #ifdef dsx
 namespace dsx {
+window_event_result multi_message_input_sub(int key, control_info &Controls);
 struct bit_game_flags {
 	unsigned closed : 1;
 	unsigned : 1;

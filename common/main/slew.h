@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "fwd-object.h"
+#include "dsx-ns.h"
 
 //from slew.c
 
@@ -37,7 +38,11 @@ void slew_init(vmobjptr_t obj);                // say this is slew obj
 #endif
 int slew_stop(void);                            // Stops object
 void slew_reset_orient();                   // Resets orientation
+#ifdef dsx
+namespace dsx {
 int slew_frame(int dont_check_keys);        // Does slew frame
+}
+#endif
 
 #else
 

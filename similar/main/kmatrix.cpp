@@ -391,7 +391,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 			}
 			
 		case EVENT_WINDOW_CLOSE:
-			game_flush_inputs();
+			game_flush_inputs(Controls);
 			newmenu_free_background();
 			break;
 			
@@ -401,7 +401,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 	return window_event_result::ignored;
 }
 
-kmatrix_result kmatrix_view(const kmatrix_network network)
+kmatrix_result kmatrix_view(const kmatrix_network network, control_info &Controls)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
@@ -417,7 +417,7 @@ kmatrix_result kmatrix_view(const kmatrix_network network)
 	km.result = kmatrix_result::proceed;
 	
 	set_screen_mode( SCREEN_MENU );
-	game_flush_inputs();
+	game_flush_inputs(Controls);
 
 	range_for (auto &i, Players)
 		if (i.objnum != object_none)

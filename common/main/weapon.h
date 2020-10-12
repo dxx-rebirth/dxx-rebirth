@@ -225,7 +225,7 @@ enum secondary_weapon_index_t : uint8_t
 };
 
 struct player_info;
-void delayed_autoselect(player_info &);
+void delayed_autoselect(player_info &, const control_info &Controls);
 
 }
 

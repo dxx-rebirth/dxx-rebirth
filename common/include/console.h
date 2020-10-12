@@ -17,6 +17,9 @@
 #include "cli.h"
 #include "cmd.h"
 #include "d_srcloc.h"
+#ifdef dsx
+#include "kconfig.h"
+#endif
 
 namespace dcx {
 
@@ -73,6 +76,13 @@ void con_printf(con_priority_wrapper level, const char *fmt, ...) __attribute_fo
 #define con_printf(A1,F,...)	\
 	DXX_CON_PRINTF_CHECK_TRAILING_NEWLINE(F)	\
 	dxx_call_printf_checked(con_printf,con_puts,(A1),(F),##__VA_ARGS__)
-void con_showup(void);
 
 }
+
+#ifdef dsx
+namespace dsx {
+
+void con_showup(control_info &Controls);
+
+}
+#endif

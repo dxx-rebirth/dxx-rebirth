@@ -425,7 +425,7 @@ window_event_result scores_menu::event_handler(const d_event &event)
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
-			game_flush_inputs();
+			game_flush_inputs(Controls);
 			break;
 			
 		case EVENT_KEY_COMMAND:

@@ -73,6 +73,7 @@ int netplayerinfo_on;
 }
 
 namespace dsx {
+namespace {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void game_draw_marker_message(grs_canvas &)
 {
@@ -88,9 +89,14 @@ static void game_draw_marker_message(grs_canvas &canvas)
 	}
 }
 #endif
+
+static void update_cockpits();
+}
 }
 
 namespace dcx {
+
+namespace {
 
 static void game_draw_multi_message(grs_canvas &canvas)
 {
@@ -170,7 +176,12 @@ static void show_framerate(grs_canvas &canvas)
 
 }
 
+}
+
 namespace dsx {
+
+namespace {
+
 static void show_netplayerinfo()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -312,11 +323,16 @@ static void show_netplayerinfo()
 		gr_printf(canvas, game_font, 0x8000, y, "your rank is: %s", RankStrings[GetMyNetRanking()]);
 	}
 }
+
+}
+
 }
 
 #ifndef NDEBUG
 
 fix Show_view_text_timer = -1;
+
+namespace {
 
 static void draw_window_label(object_array &Objects, grs_canvas &canvas)
 {
@@ -365,9 +381,14 @@ static void draw_window_label(object_array &Objects, grs_canvas &canvas)
 
 	}
 }
+
+}
 #endif
 
 namespace dsx {
+
+namespace {
+
 static void render_countdown_gauge(grs_canvas &canvas)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
@@ -392,9 +413,8 @@ static void render_countdown_gauge(grs_canvas &canvas)
 		gr_printf(canvas, game_font, 0x8000, (LINE_SPACING(game_font, game_font) * 6) + FSPACY(1), "T-%d s", Countdown_seconds_left);
 	}
 }
-}
 
-static void game_draw_hud_stuff(grs_canvas &canvas)
+static void game_draw_hud_stuff(grs_canvas &canvas, const control_info &Controls)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -435,7 +455,7 @@ static void game_draw_hud_stuff(grs_canvas &canvas)
 		Game_mode = Newdemo_game_mode;
 
 	auto &plrobj = get_local_plrobj();
-	draw_hud(canvas, plrobj);
+	draw_hud(canvas, plrobj, Controls);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = GM_NORMAL;
@@ -444,12 +464,14 @@ static void game_draw_hud_stuff(grs_canvas &canvas)
 		player_dead_message(canvas);
 }
 
-namespace dsx {
+}
 
 #if defined(DXX_BUILD_DESCENT_II)
 
 ubyte RenderingType=0;
 ubyte DemoDoingRight=0,DemoDoingLeft=0;
+
+namespace {
 
 constexpr char DemoWBUType[]={0,WBU_GUIDED,WBU_MISSILE,WBU_REAR,WBU_ESCORT,WBU_MARKER,0};
 constexpr char DemoRearCheck[]={0,0,0,1,0,0,0};
@@ -751,13 +773,13 @@ static void show_one_extra_view(const gauge_inset_window_view w)
 		}
 }
 
+}
+
 int BigWindowSwitch=0;
 #endif
 
-static void update_cockpits();
-
 //render a frame for the game
-void game_render_frame_mono()
+void game_render_frame_mono(const control_info &Controls)
 {
 	int no_draw_hud=0;
 
@@ -839,7 +861,7 @@ void game_render_frame_mono()
 
 	gr_set_current_canvas(Screen_3d_window);
 	if (!no_draw_hud)
-		game_draw_hud_stuff(*grd_curcanv);
+		game_draw_hud_stuff(*grd_curcanv, Controls);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	gr_set_default_canvas();
@@ -887,6 +909,7 @@ int last_drawn_cockpit = -1;
 }
 
 namespace dsx {
+namespace {
 
 // This actually renders the new cockpit onto the screen.
 static void update_cockpits()
@@ -938,17 +961,18 @@ static void update_cockpits()
 		init_gauges();
 
 }
-
 }
 
-void game_render_frame()
+void game_render_frame(const control_info &Controls)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	set_screen_mode( SCREEN_GAME );
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	play_homing_warning(player_info);
-	game_render_frame_mono();
+	game_render_frame_mono(Controls);
+}
+
 }
 
 //show a message in a nice little box

@@ -55,7 +55,7 @@ void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState
 namespace dsx {
 void DropBuddyMarker(object &objp);
 void InitMarkerInput();
-window_event_result MarkerInputMessage(int key);
+window_event_result MarkerInputMessage(int key, control_info &Controls);
 
 constexpr std::integral_constant<std::size_t, 16> NUM_MARKERS{};
 constexpr std::integral_constant<std::size_t, 40> MARKER_MESSAGE_LEN{};

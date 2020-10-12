@@ -55,8 +55,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_levelstate.h"
 #include "partial_range.h"
 
-static uint_fast32_t POrderList (uint_fast32_t num);
-static uint_fast32_t SOrderList (uint_fast32_t num);
 //	Note, only Vulcan cannon requires ammo.
 // NOTE: Now Vulcan and Gauss require ammo. -5/3/95 Yuan
 //ubyte	Default_primary_ammo_level[MAX_PRIMARY_WEAPONS] = {255, 0, 255, 255, 255};
@@ -260,6 +258,9 @@ void InitWeaponOrdering ()
 
 namespace {
 
+static uint_fast32_t POrderList(uint_fast32_t num);
+static uint_fast32_t SOrderList(uint_fast32_t num);
+
 class cycle_weapon_state
 {
 public:
@@ -430,6 +431,7 @@ void CycleSecondary(player_info &player_info)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace {
 static inline void set_weapon_last_was_super(uint8_t &last, const uint8_t mask, const bool is_super)
 {
 	if (is_super)
@@ -442,6 +444,7 @@ static inline void set_weapon_last_was_super(uint8_t &last, const uint_fast32_t 
 {
 	const bool is_super = weapon_num >= SUPER_WEAPON;
 	set_weapon_last_was_super(last, 1 << (is_super ? weapon_num - SUPER_WEAPON : weapon_num), is_super);
+}
 }
 #endif
 
@@ -566,9 +569,9 @@ void select_secondary_weapon(player_info &player_info, const char *const weapon_
 		HUD_init_message(HM_DEFAULT, "%s %s", weapon_name, TXT_SELECTED);
 	}
 }
-}
 
 #if defined(DXX_BUILD_DESCENT_I)
+namespace {
 static bool reject_shareware_weapon_select(const uint_fast32_t weapon_num, const char *const weapon_name)
 {
 	// do special hud msg. for picking registered weapon in shareware version.
@@ -602,11 +605,11 @@ static bool reject_unusable_secondary_weapon_select(const player_info &player_in
 	HUD_init_message(HM_DEFAULT, "%s %s%s", TXT_HAVE_NO, weapon_name, TXT_SX);
 	return true;
 }
+}
 #endif
 
 //	------------------------------------------------------------------------------------
 //	Select a weapon, primary or secondary.
-namespace dsx {
 void do_primary_weapon_select(player_info &player_info, uint_fast32_t weapon_num)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -730,6 +733,8 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 }
 }
 
+namespace {
+
 template <typename T>
 void auto_select_weapon(T t)
 {
@@ -744,6 +749,8 @@ void auto_select_weapon(T t)
 		if (t.maybe_select_weapon_by_type(weapon_type))
 			return;
 	}
+}
+
 }
 
 namespace dsx {
@@ -763,7 +770,7 @@ void auto_select_secondary_weapon(player_info &player_info)
 		auto_select_weapon(cycle_secondary_state(player_info));
 }
 
-void delayed_autoselect(player_info &player_info)
+void delayed_autoselect(player_info &player_info, const control_info &Controls)
 {
 	if (!Controls.state.fire_primary)
 	{
@@ -793,7 +800,9 @@ void delayed_autoselect(player_info &player_info)
 	}
 }
 
-static void maybe_autoselect_primary_weapon(player_info &player_info, int weapon_index)
+namespace {
+
+static void maybe_autoselect_primary_weapon(player_info &player_info, int weapon_index, const control_info &Controls)
 {
 	const auto want_switch = [weapon_index, &player_info]{
 		const auto cutpoint = POrderList(255);
@@ -812,11 +821,13 @@ static void maybe_autoselect_primary_weapon(player_info &player_info, int weapon
 		select_primary_weapon(player_info, nullptr, weapon_index, 1);
 }
 
+}
+
 //	---------------------------------------------------------------------
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
 //	Returns true if powerup picked up, else returns false.
-int pick_up_secondary(player_info &player_info, int weapon_index,int count)
+int pick_up_secondary(player_info &player_info, int weapon_index, int count, const control_info &Controls)
 {
 	int	num_picked_up;
 	const auto max = PLAYER_MAX_AMMO(player_info.powerup_flags, Secondary_ammo_max[weapon_index]);
@@ -884,6 +895,8 @@ int pick_up_secondary(player_info &player_info, int weapon_index,int count)
 }
 }
 
+namespace {
+
 template <typename T>
 static void ReorderWeapon()
 {
@@ -899,6 +912,8 @@ static void ReorderWeapon()
 		T::get_weapon_by_order_slot(i) = m[i].value;
 }
 
+}
+
 void ReorderPrimary ()
 {
 	ReorderWeapon<cycle_primary_state>();
@@ -909,6 +924,8 @@ void ReorderSecondary ()
 	ReorderWeapon<cycle_secondary_state>();
 }
 
+namespace {
+
 template <typename T>
 static uint_fast32_t search_weapon_order_list(uint8_t goal)
 {
@@ -917,6 +934,12 @@ static uint_fast32_t search_weapon_order_list(uint8_t goal)
 			return i;
 	T::report_runtime_error(T::error_weapon_list_corrupt);
 }
+
+}
+
+namespace dsx {
+
+namespace {
 
 uint_fast32_t POrderList (uint_fast32_t num)
 {
@@ -928,7 +951,8 @@ uint_fast32_t SOrderList (uint_fast32_t num)
 	return search_weapon_order_list<cycle_secondary_state>(num);
 }
 
-namespace dsx {
+}
+
 //called when a primary weapon is picked up
 //returns true if actually picked up
 int pick_up_primary(player_info &player_info, int weapon_index)
@@ -944,7 +968,7 @@ int pick_up_primary(player_info &player_info, int weapon_index)
 
 	player_info.primary_weapon_flags |= flag;
 
-	maybe_autoselect_primary_weapon(player_info, weapon_index);
+	maybe_autoselect_primary_weapon(player_info, weapon_index, Controls);
 
 	PALETTE_FLASH_ADD(7,14,21);
 
@@ -970,6 +994,8 @@ void check_to_use_primary_super_laser(player_info &player_info)
 	PALETTE_FLASH_ADD(7,14,21);
 }
 #endif
+
+namespace {
 
 static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 {
@@ -1010,7 +1036,9 @@ static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 	if (better >= POrderList(get_mapped_weapon_index(player_info, player_info.Primary_weapon)))
 		/* Preferred weapon is not as desirable as the current weapon */
 		return;
-	maybe_autoselect_primary_weapon(player_info, weapon_index);
+	maybe_autoselect_primary_weapon(player_info, weapon_index, Controls);
+}
+
 }
 
 //called when ammo (for the vulcan cannon) is picked up
@@ -1066,6 +1094,8 @@ void init_smega_detonates()
 
 constexpr std::integral_constant<int, SOUND_SEISMIC_DISTURBANCE_START> Seismic_sound{};
 
+namespace {
+
 static void start_seismic_sound()
 {
 	if (LevelUniqueSeismicState.Next_seismic_sound_time)
@@ -1106,6 +1136,8 @@ static void apply_seismic_effect(const int entry_fc)
 	LevelUniqueSeismicState.Seismic_tremor_magnitude += disturb_x;
 }
 
+}
+
 //	If a smega missile been detonated, rock the mine!
 //	This should be called every frame.
 //	Maybe this should affect all robots, being called when they get their physics done.
@@ -1135,6 +1167,8 @@ void init_seismic_disturbances()
 {
 	LevelUniqueSeismicState.Seismic_disturbance_end_time = 0;
 }
+
+namespace {
 
 //	Return true if time to start a seismic disturbance.
 static bool seismic_disturbance_active()
@@ -1169,6 +1203,7 @@ static void seismic_disturbance_frame(void)
 	}
 }
 
+}
 
 //	Call this when a smega detonates to start the process of rocking the mine.
 void smega_rock_stuff(void)
@@ -1185,6 +1220,8 @@ void smega_rock_stuff(void)
 }
 
 static int	Super_mines_yes = 1;
+
+namespace {
 
 static bool immediate_detonate_smart_mine(const vcobjptridx_t smart_mine, const vcobjptridx_t target)
 {
@@ -1203,6 +1240,8 @@ static bool immediate_detonate_smart_mine(const vcobjptridx_t smart_mine, const 
 	fq.thisobjnum			= smart_mine;
 	auto fate = find_vector_intersection(fq, hit_data);
 	return fate != HIT_WALL;
+}
+
 }
 
 //	Call this once/frame to process all super mines in the level.

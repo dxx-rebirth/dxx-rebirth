@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "d_array.h"
 #include "gauges.h"
+#include "kconfig.h"
 #include "wall.h"
 
 #define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30
@@ -245,6 +246,7 @@ extern d_level_unique_seismic_state LevelUniqueSeismicState;
 
 extern d_game_shared_state GameSharedState;
 extern d_game_unique_state GameUniqueState;
+void game_render_frame(const control_info &Controls);
 }
 #endif
 
@@ -252,7 +254,6 @@ extern d_game_unique_state GameUniqueState;
 #define PALETTE_FLASH_SET(_r,_g,_b) PaletteRedAdd=(_r), PaletteGreenAdd=(_g), PaletteBlueAdd=(_b)
 
 namespace dcx {
-void game_flush_respawn_inputs();
 
 extern int last_drawn_cockpit;
 
@@ -296,7 +297,8 @@ extern int Rear_view;           // if true, looking back.
 
 #ifdef dsx
 namespace dsx {
-void game_flush_inputs();    // clear all inputs
+void game_flush_respawn_inputs(control_info &Controls);
+void game_flush_inputs(control_info &Controls);    // clear all inputs
 // initalize flying
 }
 #endif
@@ -403,10 +405,10 @@ void flickering_light_read(flickering_light &fl, PHYSFS_File *fp);
 void flickering_light_write(const flickering_light &fl, PHYSFS_File *fp);
 #endif
 
-void game_render_frame_mono();
-static inline void game_render_frame_mono(int skip_flip)
+void game_render_frame_mono(const control_info &Controls);
+static inline void game_render_frame_mono(int skip_flip, const control_info &Controls)
 {
-	game_render_frame_mono();
+	game_render_frame_mono(Controls);
 	if (!skip_flip)
 		gr_flip();
 }
@@ -454,18 +456,16 @@ extern game_cheats cheats;
 
 game_window *game_setup();
 window_event_result game_handler(window *wind,const d_event &event, const unused_window_userdata_t *);
-window_event_result ReadControls(const d_event &event);
+window_event_result ReadControls(const d_event &event, control_info &Controls);
 bool allowed_to_fire_laser(const player_info &);
 void reset_globals_for_new_game();
+void check_rear_view(control_info &Controls);
+int create_special_path();
 }
 #endif
 int cheats_enabled();
 void game_disable_cheats();
-void	check_rear_view(void);
-int create_special_path(void);
-window_event_result ReadControls(const d_event &event);
 void toggle_cockpit(void);
-void game_render_frame();
 extern fix Show_view_text_timer;
 extern d_time_fix ThisLevelTime;
 extern int	Last_level_path_created;

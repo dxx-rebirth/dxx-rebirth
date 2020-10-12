@@ -65,7 +65,7 @@ namespace dsx {
 fix Afterburner_charge;
 #endif
 
-void read_flying_controls(object &obj)
+void read_flying_controls(object &obj, control_info &Controls)
 {
 	fix	forward_thrust_time;
 

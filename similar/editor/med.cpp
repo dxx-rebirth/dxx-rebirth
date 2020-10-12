@@ -375,7 +375,7 @@ void init_editor()
 
 	medkey_init();
 
-	game_flush_inputs();
+	game_flush_inputs(Controls);
 	
 	editor_font = gr_init_font(*grd_curcanv, "pc8x16.fnt");
 	if (!editor_font)

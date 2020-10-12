@@ -146,14 +146,20 @@ namespace dsx {
 
 game_window *Game_wind;
 
+namespace {
+
 static window_event_result GameProcessFrame(void);
-static bool FireLaser(player_info &);
+static bool FireLaser(player_info &, const control_info &Controls);
 static void powerup_grab_cheat_all();
+
+}
 
 #if defined(DXX_BUILD_DESCENT_II)
 d_flickering_light_state Flickering_light_state;
+namespace {
 static void slide_textures(void);
 static void flicker_lights(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, d_flickering_light_state &fls, fvmsegptridx &vmsegptridx);
+}
 #endif
 
 // Cheats
@@ -375,9 +381,9 @@ public:
 	void decrease_pause_count();
 };
 
-}
-
 static game_world_time_paused time_paused;
+
+}
 
 void game_world_time_paused::increase_pause_count()
 {
@@ -421,6 +427,8 @@ pause_game_world_time::~pause_game_world_time()
 	start_time();
 }
 
+namespace {
+
 static void game_flush_common_inputs()
 {
 	event_flush();
@@ -431,22 +439,24 @@ static void game_flush_common_inputs()
 
 }
 
+}
+
 namespace dsx {
 
-void game_flush_inputs()
+void game_flush_inputs(control_info &Controls)
 {
 	Controls = {};
 	game_flush_common_inputs();
 }
 
-}
-
-namespace dcx {
-
-void game_flush_respawn_inputs()
+void game_flush_respawn_inputs(control_info &Controls)
 {
 	static_cast<control_info::fire_controls_t &>(Controls.state) = {};
 }
+
+}
+
+namespace dcx {
 
 /*
  * timer that every sets d_tick_step true and increments d_tick_count every 1000/DESIGNATED_GAME_FPS ms.
@@ -921,6 +931,8 @@ void fly_init(object_base &obj)
 
 namespace dsx {
 
+namespace {
+
 //	------------------------------------------------------------------------------------
 static void do_cloak_stuff(void)
 {
@@ -971,6 +983,8 @@ static void do_invulnerable_stuff(player_info &player_info)
 	}
 }
 
+}
+
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void do_afterburner_stuff(object_array &)
 {
@@ -982,6 +996,8 @@ fix64	Time_flash_last_played;
 
 #define AFTERBURNER_LOOP_START	((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
 #define AFTERBURNER_LOOP_END		((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
+
+namespace {
 
 static void do_afterburner_stuff(object_array &Objects)
 {
@@ -1029,6 +1045,8 @@ static void do_afterburner_stuff(object_array &Objects)
 
 	Last_afterburner_state = Controls.state.afterburner;
 	Last_afterburner_charge = Afterburner_charge;
+}
+
 }
 #endif
 
@@ -1088,6 +1106,8 @@ static void diminish_palette_color_toward_zero(int& palette_color_add, const int
 }
 
 namespace dsx {
+
+namespace {
 
 //	------------------------------------------------------------------------------------
 //	Diminish palette effects towards normal.
@@ -1157,6 +1177,8 @@ static void diminish_palette_towards_normal(void)
 		newdemo_record_palette_effect(PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd);
 
 	gr_palette_step_up( PaletteRedAdd*brightness_correction, PaletteGreenAdd*brightness_correction, PaletteBlueAdd*brightness_correction );
+}
+
 }
 
 }
@@ -1435,8 +1457,10 @@ static void check_end_rear_view()
 
 }
 
+namespace dsx {
+
 //deal with rear view - switch it on, or off, or whatever
-void check_rear_view()
+void check_rear_view(control_info &Controls)
 {
 	static fix64 entry_time;
 
@@ -1485,6 +1509,8 @@ void check_rear_view()
 		default:
 			break;
 	}
+}
+
 }
 
 void reset_rear_view(void)
@@ -1553,10 +1579,6 @@ game_window *game_setup()
 	return game_wind.release();
 }
 
-}
-
-namespace dsx {
-
 // Event handler for the game
 window_event_result game_window::event_handler(const d_event &event)
 {
@@ -1569,7 +1591,7 @@ window_event_result game_window::event_handler(const d_event &event)
 
 			event_toggle_focus(1);
 			key_toggle_repeat(0);
-			game_flush_inputs();
+			game_flush_inputs(Controls);
 
 			if (time_paused)
 				start_time();
@@ -1610,7 +1632,7 @@ window_event_result game_window::event_handler(const d_event &event)
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
 		case EVENT_IDLE:
-			return ReadControls(event);
+			return ReadControls(event, Controls);
 
 		case EVENT_WINDOW_DRAW:
 			if (!time_paused)
@@ -1625,7 +1647,7 @@ window_event_result game_window::event_handler(const d_event &event)
 					init_cockpit();
 					force_cockpit_redraw=0;
 				}
-				game_render_frame();
+				game_render_frame(Controls);
 			}
 			break;
 
@@ -1709,6 +1731,7 @@ imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_level_shared_robot_
 	return object_none;
 }
 
+namespace {
 //if water or fire level, make occasional sound
 static void do_ambient_sounds()
 {
@@ -1735,6 +1758,7 @@ static void do_ambient_sounds()
 	}
 }
 }
+}
 #endif
 
 void game_leave_menus(void)
@@ -1755,6 +1779,8 @@ void game_leave_menus(void)
 
 namespace dsx {
 
+namespace {
+
 window_event_result GameProcessFrame()
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
@@ -1774,7 +1800,7 @@ window_event_result GameProcessFrame()
 	do_cloak_stuff();
 	do_invulnerable_stuff(player_info);
 #if defined(DXX_BUILD_DESCENT_II)
-	init_ai_frame(player_info.powerup_flags);
+	init_ai_frame(player_info.powerup_flags, Controls);
 	result = do_final_boss_frame();
 
 	auto &pl_flags = player_info.powerup_flags;
@@ -1878,7 +1904,7 @@ window_event_result GameProcessFrame()
 
 		do_ai_frame_all();
 
-		auto laser_firing_count = FireLaser(player_info);
+		auto laser_firing_count = FireLaser(player_info, Controls);
 		if (auto &Auto_fire_fusion_cannon_time = player_info.Auto_fire_fusion_cannon_time)
 		{
 			if (player_info.Primary_weapon != primary_weapon_index_t::FUSION_INDEX)
@@ -1901,7 +1927,7 @@ window_event_result GameProcessFrame()
 
 		if (laser_firing_count)
 			do_laser_firing_player(plrobj);
-		delayed_autoselect(player_info);
+		delayed_autoselect(player_info, Controls);
 	}
 
 	if (Do_appearance_effect) {
@@ -1930,6 +1956,8 @@ window_event_result GameProcessFrame()
 	return result;
 }
 
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
 void compute_slide_segs()
 {
@@ -1954,6 +1982,8 @@ void compute_slide_segs()
 		suseg.u.slide_textures = slide_textures;
 	}
 }
+
+namespace {
 
 template <fix uvl::*p>
 static void update_uv(std::array<uvl, 4> &uvls, uvl &i, fix a)
@@ -2057,6 +2087,8 @@ static void update_flicker(d_flickering_light_state &fls, const vmsegidx_t segnu
 		i.first->timer = timer;
 }
 
+}
+
 //turn flickering off (because light has been turned off)
 void disable_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const unsigned sidenum)
 {
@@ -2070,10 +2102,12 @@ void enable_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, cons
 }
 #endif
 
+namespace {
+
 //	-----------------------------------------------------------------------------
 //	Fire Laser:  Registers a laser fire, and performs special stuff for the fusion
 //				    cannon.
-bool FireLaser(player_info &player_info)
+bool FireLaser(player_info &player_info, const control_info &Controls)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -2187,9 +2221,13 @@ void powerup_grab_cheat_all(void)
 
 }
 
+}
+
 int	Last_level_path_created = -1;
 
 #ifdef SHOW_EXIT_PATH
+namespace dsx {
+namespace {
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Create path for player from current segment to goal segment.
@@ -2238,6 +2276,8 @@ static int mark_player_path_to_segment(const d_vclip_array &Vclip, fvmobjptridx 
 	return 1;
 }
 
+}
+
 //	Return true if it happened, else return false.
 int create_special_path(void)
 {
@@ -2256,6 +2296,7 @@ int create_special_path(void)
 	return 0;
 }
 
+}
 #endif
 
 

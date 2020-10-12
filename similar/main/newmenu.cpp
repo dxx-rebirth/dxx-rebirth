@@ -1632,7 +1632,7 @@ window_event_result newmenu::event_handler(const d_event &event)
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
-			game_flush_inputs();
+			game_flush_inputs(Controls);
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
 			break;
@@ -2216,7 +2216,7 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
-			game_flush_inputs();
+			game_flush_inputs(Controls);
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
 			break;

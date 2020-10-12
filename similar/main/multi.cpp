@@ -456,7 +456,7 @@ kmatrix_result multi_endlevel_score()
 	}
 
 	// Do the actual screen we wish to show
-	const auto rval = kmatrix_view(static_cast<kmatrix_network>(Game_mode & GM_NETWORK));
+	const auto rval = kmatrix_view(static_cast<kmatrix_network>(Game_mode & GM_NETWORK), Controls);
 
 	// Restore connect state
 
@@ -1359,7 +1359,7 @@ static void kick_player(const player &plr, netplayer_info &nplr)
 #endif
 }
 
-static void multi_send_message_end(fvmobjptr &vmobjptr)
+static void multi_send_message_end(fvmobjptr &vmobjptr, control_info &Controls)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1544,14 +1544,10 @@ static void multi_send_message_end(fvmobjptr &vmobjptr)
 	multi_send_msgsend_state(msgsend_none);
 	key_toggle_repeat(0);
 #endif
-	game_flush_inputs();
+	game_flush_inputs(Controls);
 }
 
-}
-
-}
-
-static void multi_define_macro_end()
+static void multi_define_macro_end(control_info &Controls)
 {
 	Assert( multi_defining_message > 0 );
 
@@ -1561,10 +1557,12 @@ static void multi_define_macro_end()
 	multi_message_index = 0;
 	multi_defining_message = 0;
 	key_toggle_repeat(0);
-	game_flush_inputs();
+	game_flush_inputs(Controls);
 }
 
-window_event_result multi_message_input_sub(int key)
+}
+
+window_event_result multi_message_input_sub(int key, control_info &Controls)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1576,7 +1574,7 @@ window_event_result multi_message_input_sub(int key)
 			multi_send_msgsend_state(msgsend_none);
 			multi_defining_message = 0;
 			key_toggle_repeat(0);
-			game_flush_inputs();
+			game_flush_inputs(Controls);
 			return window_event_result::handled;
 		case KEY_LEFT:
 		case KEY_BACKSP:
@@ -1587,10 +1585,10 @@ window_event_result multi_message_input_sub(int key)
 			return window_event_result::handled;
 		case KEY_ENTER:
 			if ( multi_sending_message[Player_num] )
-				multi_send_message_end(vmobjptr);
+				multi_send_message_end(vmobjptr, Controls);
 			else if ( multi_defining_message )
-				multi_define_macro_end();
-			game_flush_inputs();
+				multi_define_macro_end(Controls);
+			game_flush_inputs(Controls);
 			return window_event_result::handled;
 		default:
 		{
@@ -1612,7 +1610,7 @@ window_event_result multi_message_input_sub(int key)
 							break;
 						}
 					}
-					multi_send_message_end(vmobjptr);
+					multi_send_message_end(vmobjptr, Controls);
 					if ( ptext )    {
 						multi_sending_message[Player_num] = msgsend_typing;
 						multi_send_msgsend_state(msgsend_typing);
@@ -1629,8 +1627,6 @@ window_event_result multi_message_input_sub(int key)
 	}
 	return window_event_result::ignored;
 }
-
-namespace dsx {
 
 namespace {
 

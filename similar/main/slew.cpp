@@ -81,7 +81,11 @@ void slew_reset_orient()
 
 }
 
-static int do_slew_movement(const vmobjptridx_t obj, int check_keys )
+namespace dsx {
+
+namespace {
+
+static int do_slew_movement(const vmobjptridx_t obj, int check_keys, const control_info &Controls)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -151,11 +155,14 @@ static int do_slew_movement(const vmobjptridx_t obj, int check_keys )
 	return moved;
 }
 
+}
+
 //do slew for this frame
 int slew_frame(int check_keys)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	return do_slew_movement(vmobjptridx(slew_obj), !check_keys);
+	return do_slew_movement(vmobjptridx(slew_obj), !check_keys, Controls);
 }
 
+}

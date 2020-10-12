@@ -373,7 +373,7 @@ window_event_result standard_handler(const d_event &event)
 					return window_event_result::handled;
 #endif
 				case KEY_SHIFTED + KEY_ESC:
-					con_showup();
+					con_showup(Controls);
 					return window_event_result::handled;
 			}
 			break;

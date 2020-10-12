@@ -249,7 +249,7 @@ imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos);
 // so we don't want to call it again (for this object) unless we have to.
 
 // -- unused, 08/07/95 -- extern void ai_turn_randomly(vms_vector *vec_to_player, object *obj, fix rate, int previous_visibility);
-void init_ai_frame(player_flags);
+void init_ai_frame(player_flags, const control_info &Controls);
 
 __attribute_warn_unused_result
 std::size_t create_bfs_list(vmobjptr_t robot, vcsegidx_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);

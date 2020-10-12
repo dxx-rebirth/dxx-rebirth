@@ -104,6 +104,8 @@ static bool show_cloak_invul_timer()
 	return PlayerCfg.CloakInvulTimer && Newdemo_state != ND_STATE_PLAYBACK;
 }
 
+static void draw_ammo_info(grs_canvas &, unsigned x, unsigned y, unsigned ammo_count);
+
 }
 
 //bitmap numbers for gauges
@@ -504,8 +506,6 @@ static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multi
 }
 }
 
-static void draw_ammo_info(grs_canvas &, unsigned x, unsigned y, unsigned ammo_count);
-
 static int score_display;
 static fix score_time;
 static laser_level old_laser_level;
@@ -872,6 +872,8 @@ protected:
 
 }
 
+namespace {
+
 static void hud_show_score(grs_canvas &canvas, const player_info &player_info)
 {
 	char	score_str[20];
@@ -1047,6 +1049,8 @@ static void sb_show_score_added(const hud_draw_context_hs_mr hudctx)
 	}
 }
 
+}
+
 namespace dsx {
 
 //	-----------------------------------------------------------------------------
@@ -1074,6 +1078,8 @@ void play_homing_warning(const player_info &player_info)
 }
 
 }
+
+namespace {
 
 //	-----------------------------------------------------------------------------
 static void show_homing_warning(const hud_draw_context_hs_mr hudctx, const int homing_object_dist)
@@ -1276,7 +1282,11 @@ static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
 	}
 }
 
+}
+
 namespace dsx {
+
+namespace {
 
 static void show_bomb_count(grs_canvas &canvas, const player_info &player_info, const int x, const int y, const int bg_color, const int always_show, const int right_align)
 {
@@ -1311,6 +1321,7 @@ static void show_bomb_count(grs_canvas &canvas, const player_info &player_info, 
 	gr_string(canvas, *canvas.cv_font, right_align ? x - w : x, y, txt, w, h);
 }
 }
+}
 
 static void draw_primary_ammo_info(const hud_draw_context_hs_mr hudctx, const unsigned ammo_count)
 {
@@ -1337,6 +1348,8 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 constexpr rgb_t hud_rgb_yellow = {30, 30, 0};
 #endif
+
+namespace {
 
 __attribute_warn_unused_result
 static rgb_t hud_get_primary_weapon_fontcolor(const player_info &player_info, const int consider_weapon)
@@ -1771,6 +1784,9 @@ static void hud_show_weapons(grs_canvas &canvas, const object &plrobj, const grs
 	}
 }
 }
+}
+
+namespace {
 
 static void hud_show_cloak_invuln(grs_canvas &canvas, const player_flags player_flags, const fix64 cloak_time, const fix64 invulnerable_time, const unsigned base_y)
 {
@@ -1944,6 +1960,8 @@ static void common_add_points_to_score(const int points, int &score)
 	}
 }
 
+}
+
 namespace dsx {
 
 void add_points_to_score(player_info &player_info, int points)
@@ -1969,6 +1987,8 @@ void add_bonus_points_to_score(player_info &player_info, int points)
 }
 
 }
+
+namespace {
 
 // Decode cockpit bitmap to deccpt and add alpha fields to weapon boxes (as it should have always been) so we later can render sub bitmaps over the window canvases
 static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *const bm)
@@ -2081,8 +2101,10 @@ static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *c
 	cur_w = bm_w;
 	cur_h = bm_h;
 }
+}
 
 namespace dsx {
+namespace {
 static void draw_wbu_overlay(const hud_draw_context_hs_mr hudctx)
 {
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
@@ -2108,6 +2130,7 @@ static void draw_wbu_overlay(const hud_draw_context_hs_mr hudctx)
 		hud_bitblt(hudctx, SECONDARY_W_BOX_LEFT - 2, SECONDARY_W_BOX_TOP - 2, *WinBoxOverlay[1].get());
 }
 }
+}
 
 void close_gauges()
 {
@@ -2124,6 +2147,8 @@ void init_gauges()
 #endif
 }
 }
+
+namespace {
 
 static void draw_energy_bar(const hud_draw_context_hs_mr hudctx, const int energy)
 {
@@ -2186,7 +2211,11 @@ static void draw_energy_bar(const hud_draw_context_hs_mr hudctx, const int energ
 	gr_set_default_canvas();
 }
 
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+namespace {
 static void draw_afterburner_bar(const hud_draw_context_hs_mr hudctx, const int afterburner)
 {
 	struct lr
@@ -2320,7 +2349,12 @@ static void draw_afterburner_bar(const hud_draw_context_hs_mr hudctx, const int 
 		}
 	}
 }
+
+}
+}
 #endif
+
+namespace {
 
 static void draw_shield_bar(const hud_draw_context_hs_mr hudctx, const int shield)
 {
@@ -2343,9 +2377,13 @@ static void show_cockpit_cloak_invul_timer(grs_canvas &canvas, const fix64 effec
 	gr_string(canvas, *canvas.cv_font, x - (ow / 2), y, countdown, ow, oh);
 }
 
+}
+
 #define CLOAK_FADE_WAIT_TIME  0x400
 
 namespace dsx {
+
+namespace {
 
 static void draw_player_ship(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const int cloak_state, const int x, const int y)
 {
@@ -2415,9 +2453,13 @@ static void draw_player_ship(const hud_draw_context_hs_mr hudctx, const player_i
 
 }
 
+}
+
 #define INV_FRAME_TIME	(f1_0/10)		//how long for each frame
 
 namespace dcx {
+
+namespace {
 
 static const char *get_gauge_width_string(const unsigned v)
 {
@@ -2430,6 +2472,10 @@ static const char *get_gauge_width_string(const unsigned v)
 }
 
 }
+
+}
+
+namespace {
 
 static void draw_numerical_display(const draw_numerical_display_draw_context hudctx, const int shield, const int energy)
 {
@@ -2455,6 +2501,8 @@ static void draw_numerical_display(const draw_numerical_display_draw_context hud
 	a(energy, screen_height / 1.5);
 }
 
+}
+
 void draw_keys_state::draw_all_cockpit_keys()
 {
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
@@ -2464,6 +2512,8 @@ void draw_keys_state::draw_all_cockpit_keys()
 }
 
 namespace dsx {
+
+namespace {
 
 static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const int info_index, const gauge_box *const box, const int pic_x, const int pic_y, const char *const name, const int text_x, const int text_y)
 {
@@ -2617,6 +2667,10 @@ static void draw_weapon_info(const hud_draw_context_hs_mr hudctx, const player_i
 
 }
 
+}
+
+namespace {
+
 static void draw_ammo_info(grs_canvas &canvas, const unsigned x, const unsigned y, const unsigned ammo_count)
 {
 	if (PlayerCfg.HudMode == HudType::Standard)
@@ -2702,8 +2756,11 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 	}
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+}
 
+namespace dsx {
+namespace {
+#if defined(DXX_BUILD_DESCENT_II)
 static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr hudctx, const gauge_inset_window_view win)
 {
 	const vclip *const vc = &Vclip[VCLIP_MONITOR_STATIC];
@@ -2746,8 +2803,6 @@ static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr
 #endif
 }
 #endif
-
-namespace dsx {
 
 static void draw_weapon_box0(const hud_draw_context_hs_mr hudctx, const player_info &player_info)
 {
@@ -2848,8 +2903,6 @@ static void sb_draw_energy_bar(const hud_draw_context_hs_mr hudctx, const unsign
 	gr_printf(canvas, *canvas.cv_font, (grd_curscreen->get_screen_width() / 3) - (ew / 2), hudctx.yscale(y), "%d", energy);
 }
 
-}
-
 #if defined(DXX_BUILD_DESCENT_II)
 static void sb_draw_afterburner(const hud_draw_context_hs_mr hudctx, const player_info &player_info)
 {
@@ -2883,6 +2936,11 @@ static void sb_draw_afterburner(const hud_draw_context_hs_mr hudctx, const playe
 }
 #endif
 
+}
+}
+
+namespace {
+
 static void sb_draw_shield_num(const hud_draw_context_hs_mr hudctx, const unsigned shield)
 {
 	//draw numbers
@@ -2903,6 +2961,12 @@ static void sb_draw_shield_bar(const hud_draw_context_hs_mr hudctx, const int sh
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 	hud_gauge_bitblt(hudctx, SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num);
 }
+
+}
+
+namespace dsx {
+
+namespace {
 
 void draw_keys_state::draw_all_statusbar_keys()
 {
@@ -2958,6 +3022,10 @@ static void draw_invulnerable_ship(const hud_draw_context_hs_mr hudctx, const ob
 	}
 }
 
+}
+
+}
+
 const rgb_array_t player_rgb_normal{{
 							{15,15,23},
 							{27,0,0},
@@ -2968,6 +3036,8 @@ const rgb_array_t player_rgb_normal{{
 							{14,21,12},
 							{29,29,0},
 }};
+
+namespace {
 
 struct xy {
 	sbyte x, y;
@@ -2992,6 +3062,8 @@ const std::array<xy, 4> cross_offsets{{
 	{-12,1},
 	{-6,-2}
 }};
+
+}
 
 //draw the reticle
 namespace dsx {
@@ -3164,6 +3236,8 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 }
 }
 
+namespace dcx {
+
 void show_mousefs_indicator(grs_canvas &canvas, int mx, int my, int mz, int x, int y, int size)
 {
 	int axscale = (MOUSEFS_DELTA_RANGE*2)/size, xaxpos = x+(mx/axscale), yaxpos = y+(my/axscale), zaxpos = y+(mz/axscale);
@@ -3181,6 +3255,11 @@ void show_mousefs_indicator(grs_canvas &canvas, int mx, int my, int mz, int x, i
 	gr_uline(canvas, i2f(x + (size / 2) + hud_scale_ar2), i2f(y), i2f(x + (size / 2) + hud_scale_ar2), i2f(zaxpos), color);
 	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 }
+
+}
+
+namespace dsx {
+namespace {
 
 static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
 {
@@ -3360,8 +3439,9 @@ static int see_object(fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
 	return (hit_type == HIT_OBJECT && hit_data.hit_object == objnum);
 }
 
+}
+
 //show names of teammates & players carrying flags
-namespace dsx {
 
 void show_HUD_names(grs_canvas &canvas)
 {
@@ -3492,7 +3572,7 @@ void show_HUD_names(grs_canvas &canvas)
 }
 
 //draw all the things on the HUD
-void draw_hud(grs_canvas &canvas, const object &plrobj)
+void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Controls)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;

@@ -48,7 +48,7 @@ enum class kmatrix_network : uint8_t
 
 #ifdef dsx
 namespace dsx {
-kmatrix_result kmatrix_view(kmatrix_network network); // shows matrix screen. Retruns 0 if aborted (quitting game) and 1 if proceeding to next level if applicable.
+kmatrix_result kmatrix_view(kmatrix_network network, control_info &Controls); // shows matrix screen. Retruns 0 if aborted (quitting game) and 1 if proceeding to next level if applicable.
 kmatrix_result multi_endlevel_score();
 }
 #endif

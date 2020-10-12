@@ -131,6 +131,9 @@ void draw_powerup(const d_vclip_array &Vclip, grs_canvas &canvas, const object_b
 
 }
 
+namespace dsx {
+namespace {
+
 static void _powerup_basic_nonhud(int redadd, int greenadd, int blueadd, int score)
 {
 	PALETTE_FLASH_ADD(redadd,greenadd,blueadd);
@@ -147,6 +150,8 @@ void (powerup_basic)(int redadd, int greenadd, int blueadd, int score, const cha
 	_powerup_basic_nonhud(redadd, greenadd, blueadd, score);
 }
 
+}
+
 void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const char *str)
 {
 	HUD_init_message_literal(HM_DEFAULT, str);
@@ -155,7 +160,6 @@ void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const c
 
 //#ifndef RELEASE
 //	Give the megawow powerup!
-namespace dsx {
 void do_megawow_powerup(int quantity)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -191,10 +195,9 @@ void do_megawow_powerup(int quantity)
 		newdemo_record_laser_level(player_info.laser_level, laser_level);
 	player_info.laser_level = laser_level;
 }
-}
 //#endif
 
-namespace dsx {
+namespace {
 
 static int pick_up_energy(player_info &player_info)
 {
@@ -257,8 +260,6 @@ static int pick_up_key(const int r, const int g, const int b, player_flags &play
 }
 
 //	returns true if powerup consumed
-namespace {
-
 #if defined(DXX_BUILD_DESCENT_II)
 template <int r, int g, int b>
 struct player_hit_basic_silent_powerup
@@ -365,8 +366,6 @@ struct player_hit_quadlaser_powerup
 	}
 };
 
-}
-
 static int player_has_powerup(player_info &player_info, const char *const desc_have)
 {
 	HUD_init_message(HM_DEFAULT | HM_REDUNDANT | HM_MAYDUPL, "%s %s!", TXT_ALREADY_HAVE, desc_have);
@@ -380,6 +379,8 @@ static int player_hit_powerup(player_info &player_info, const char *const desc_h
 	return (powerup_flags & player_flag)
 		? player_has_powerup(player_info, desc_have)
 		: (pickup.template pickup<player_flag>(powerup_flags), 1);
+}
+
 }
 
 int do_powerup(const vmobjptridx_t obj)
@@ -478,10 +479,10 @@ int do_powerup(const vmobjptridx_t obj)
 				used = pick_up_energy(player_info);
 			break;
 		case POW_MISSILE_1:
-			used=pick_up_secondary(player_info, CONCUSSION_INDEX, 1);
+			used = pick_up_secondary(player_info, CONCUSSION_INDEX, 1, Controls);
 			break;
 		case POW_MISSILE_4:
-			used=pick_up_secondary(player_info, CONCUSSION_INDEX, 4);
+			used = pick_up_secondary(player_info, CONCUSSION_INDEX, 4, Controls);
 			break;
 
 		case POW_KEY_BLUE:
@@ -588,38 +589,38 @@ int do_powerup(const vmobjptridx_t obj)
 #endif
 
 		case	POW_PROXIMITY_WEAPON:
-			used=pick_up_secondary(player_info, PROXIMITY_INDEX, 4);
+			used = pick_up_secondary(player_info, PROXIMITY_INDEX, 4, Controls);
 			break;
 		case	POW_SMARTBOMB_WEAPON:
-			used=pick_up_secondary(player_info, SMART_INDEX, 1);
+			used = pick_up_secondary(player_info, SMART_INDEX, 1, Controls);
 			break;
 		case	POW_MEGA_WEAPON:
-			used=pick_up_secondary(player_info, MEGA_INDEX, 1);
+			used = pick_up_secondary(player_info, MEGA_INDEX, 1, Controls);
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case	POW_SMISSILE1_1:
-			used=pick_up_secondary(player_info, SMISSILE1_INDEX, 1);
+			used = pick_up_secondary(player_info, SMISSILE1_INDEX, 1, Controls);
 			break;
 		case	POW_SMISSILE1_4:
-			used=pick_up_secondary(player_info, SMISSILE1_INDEX, 4);
+			used = pick_up_secondary(player_info, SMISSILE1_INDEX, 4, Controls);
 			break;
 		case	POW_GUIDED_MISSILE_1:
-			used=pick_up_secondary(player_info, GUIDED_INDEX, 1);
+			used = pick_up_secondary(player_info, GUIDED_INDEX, 1, Controls);
 			break;
 		case	POW_GUIDED_MISSILE_4:
-			used=pick_up_secondary(player_info, GUIDED_INDEX, 4);
+			used = pick_up_secondary(player_info, GUIDED_INDEX, 4, Controls);
 			break;
 		case	POW_SMART_MINE:
-			used=pick_up_secondary(player_info, SMART_MINE_INDEX, 4);
+			used = pick_up_secondary(player_info, SMART_MINE_INDEX, 4, Controls);
 			break;
 		case	POW_MERCURY_MISSILE_1:
-			used=pick_up_secondary(player_info, SMISSILE4_INDEX, 1);
+			used = pick_up_secondary(player_info, SMISSILE4_INDEX, 1, Controls);
 			break;
 		case	POW_MERCURY_MISSILE_4:
-			used=pick_up_secondary(player_info, SMISSILE4_INDEX, 4);
+			used = pick_up_secondary(player_info, SMISSILE4_INDEX, 4, Controls);
 			break;
 		case	POW_EARTHSHAKER_MISSILE:
-			used=pick_up_secondary(player_info, SMISSILE5_INDEX, 1);
+			used = pick_up_secondary(player_info, SMISSILE5_INDEX, 1, Controls);
 			break;
 #endif
 		case	POW_VULCAN_AMMO:
@@ -630,10 +631,10 @@ int do_powerup(const vmobjptridx_t obj)
 #endif
 			break;
 		case	POW_HOMING_AMMO_1:
-			used=pick_up_secondary(player_info, HOMING_INDEX, 1);
+			used = pick_up_secondary(player_info, HOMING_INDEX, 1, Controls);
 			break;
 		case	POW_HOMING_AMMO_4:
-			used=pick_up_secondary(player_info, HOMING_INDEX, 4);
+			used = pick_up_secondary(player_info, HOMING_INDEX, 4, Controls);
 			break;
 		case	POW_CLOAK:
 			if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) {

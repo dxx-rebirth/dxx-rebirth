@@ -1738,7 +1738,7 @@ int Drop_afterburner_blob_flag;		//ugly hack
 
 //--------------------------------------------------------------------
 //move an object for the current frame
-static window_event_result object_move_one(const vmobjptridx_t obj)
+static window_event_result object_move_one(const vmobjptridx_t obj, control_info &Controls)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -1800,7 +1800,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj)
 			break;
 
 		case object::control_type::flying:
-			read_flying_controls( obj );
+			read_flying_controls(obj, Controls);
 			break;
 
 		case object::control_type::repaircen:
@@ -2052,7 +2052,7 @@ static window_event_result object_move_all()
 	range_for (const auto &&objp, vmobjptridx)
 	{
 		if ( (objp->type != OBJ_NONE) && (!(objp->flags&OF_SHOULD_BE_DEAD)) )	{
-			result = std::max(object_move_one( objp ), result);
+			result = std::max(object_move_one(objp, Controls), result);
 		}
 	}
 
