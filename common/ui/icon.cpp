@@ -32,6 +32,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+namespace {
+
 #define Middle(x) ((2*(x)+1)/4)
 
 static void ui_draw_box_in1(grs_canvas &canvas, const unsigned x1, const unsigned y1, const unsigned x2, const unsigned y2)
@@ -41,8 +43,7 @@ static void ui_draw_box_in1(grs_canvas &canvas, const unsigned x1, const unsigne
 	ui_draw_shad(canvas, x1, y1, x2, y2, CGREY, CBRIGHT);
 }
 
-
-void ui_draw_icon( UI_GADGET_ICON * icon )
+void ui_draw_icon(UI_GADGET_ICON &icon)
 {
 	int height, width;
 	int x, y;
@@ -51,38 +52,39 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 	if ((icon->status==1) || (icon->position != icon->oldposition))
 #endif
 	{
-		icon->status = 0;
+		icon.status = 0;
 
-		gr_set_current_canvas( icon->canvas );
+		gr_set_current_canvas(icon.canvas);
 		auto &canvas = *grd_curcanv;
-		gr_get_string_size(*canvas.cv_font, icon->text.get(), &width, &height, nullptr);
+		gr_get_string_size(*canvas.cv_font, icon.text.get(), &width, &height, nullptr);
 	
-		x = ((icon->width-1)/2)-((width-1)/2);
-		y = ((icon->height-1)/2)-((height-1)/2);
+		x = ((icon.width - 1) / 2) - ((width - 1) / 2);
+		y = ((icon.height - 1) / 2) - ((height - 1) / 2);
 
-		if (icon->position==1 )
+		if (icon.position==1)
 		{
 			// Draw pressed
-			ui_draw_box_in(canvas, 0, 0, icon->width, icon->height);
+			ui_draw_box_in(canvas, 0, 0, icon.width, icon.height);
 			x += 2; y += 2;
 		}
-		else if (icon->flag)
+		else if (icon.flag)
 		{
 			// Draw part out
-			ui_draw_box_in1(canvas, 0, 0, icon->width, icon->height);
+			ui_draw_box_in1(canvas, 0, 0, icon.width, icon.height);
 			x += 1; y += 1;	
 		}
 		else
 		{
 			// Draw released!
-			ui_draw_box_out(canvas, 0, 0, icon->width, icon->height);
+			ui_draw_box_out(canvas, 0, 0, icon.width, icon.height);
 		}
 	
 		gr_set_fontcolor(canvas, CBLACK, -1);
-		gr_ustring(canvas, *canvas.cv_font, x, y, icon->text.get());
+		gr_ustring(canvas, *canvas.cv_font, x, y, icon.text.get());
 	}
 }
 
+}
 
 std::unique_ptr<UI_GADGET_ICON> ui_add_gadget_icon(UI_DIALOG * dlg, const char * text, short x, short y, short w, short h, int k,int (*f)())
 {
@@ -162,7 +164,7 @@ window_event_result UI_GADGET_ICON::event_handler(UI_DIALOG &dlg, const d_event 
 	}
 
 	if (event.type == EVENT_WINDOW_DRAW)
-		ui_draw_icon(this);
+		ui_draw_icon(*this);
 
 	return rval;
 }
