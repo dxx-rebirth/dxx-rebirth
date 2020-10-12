@@ -303,7 +303,7 @@ int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *const file
 	dlg->listbox2->hotkey = KEY_ALTED + KEY_D;
 	dlg->user_file->hotkey = KEY_ALTED + KEY_A;
 
-	ui_gadget_calc_keys(dlg);
+	ui_gadget_calc_keys(*dlg);
 
 	dlg->filename = filename.data();
 	dlg->filespec = filespec;

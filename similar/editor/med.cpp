@@ -762,7 +762,7 @@ static void init_editor_screen(grs_canvas &canvas)
 	auto e = EditorWindow;
 
 	LargeViewBox = ui_add_gadget_userbox(e,LVIEW_X,LVIEW_Y,LVIEW_W,LVIEW_H);
-	ui_gadget_calc_keys(e);	//make tab work for all windows
+	ui_gadget_calc_keys(*e);	//make tab work for all windows
 
 	GameViewBox	= ui_add_gadget_userbox(e, GAMEVIEW_X, GAMEVIEW_Y, GAMEVIEW_W, GAMEVIEW_H);
 

@@ -861,7 +861,7 @@ static window_event_result object_dialog_created(object_dialog *const o, const o
 	o->ytext = ui_add_gadget_inputbox<MATT_LEN>(o, 30, 162, message);
 	snprintf(message, sizeof(message), "%.2f", f2fl(c->obj->mtype.spin_rate.z));
 	o->ztext = ui_add_gadget_inputbox<MATT_LEN>(o, 30, 192, message);
-	ui_gadget_calc_keys(o);
+	ui_gadget_calc_keys(*o);
 	o->keyboard_focus_gadget = o->initialMode[0].get();
 
 	return window_event_result::handled;

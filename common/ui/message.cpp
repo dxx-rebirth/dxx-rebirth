@@ -207,7 +207,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 		dlg->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, Button.string(i), NULL );
 	}
 
-	ui_gadget_calc_keys(dlg);
+	ui_gadget_calc_keys(*dlg);
 
 	//key_flush();
 

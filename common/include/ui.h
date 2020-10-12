@@ -327,7 +327,7 @@ extern void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check);
 
 extern UI_GADGET * ui_gadget_get_prev( UI_GADGET * gadget );
 extern UI_GADGET * ui_gadget_get_next( UI_GADGET * gadget );
-extern void ui_gadget_calc_keys( UI_DIALOG * dlg);
+void ui_gadget_calc_keys(UI_DIALOG &dlg);
 
 void ui_listbox_change(UI_DIALOG *dlg, UI_GADGET_LISTBOX *listbox, uint_fast32_t numitems, const char *const *list);
 

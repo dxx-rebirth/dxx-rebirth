@@ -314,12 +314,9 @@ UI_GADGET * ui_gadget_get_prev( UI_GADGET * gadget )
 	return tmp;
 }
 
-void ui_gadget_calc_keys( UI_DIALOG * dlg)
+void ui_gadget_calc_keys(UI_DIALOG &dlg)
 {
-	UI_GADGET * tmp;
-
-	tmp = dlg->gadget;
-
+	auto tmp = dlg.gadget;
 	if (tmp==NULL) return;
 
 	do
@@ -328,8 +325,7 @@ void ui_gadget_calc_keys( UI_DIALOG * dlg)
 		tmp->when_btab = ui_gadget_get_prev(tmp);
 
 		tmp = tmp->next;
-	} while( tmp != dlg->gadget );
-
+	} while(tmp != dlg.gadget);
 }
 
 }
