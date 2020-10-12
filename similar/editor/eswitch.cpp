@@ -379,8 +379,7 @@ static window_event_result trigger_dialog_created(trigger_dialog *const t)
 void close_trigger_window()
 {
 	if ( MainWindow!=NULL )	{
-		ui_close_dialog( MainWindow );
-		MainWindow = NULL;
+		ui_close_dialog(*std::exchange(MainWindow, nullptr));
 	}
 }
 

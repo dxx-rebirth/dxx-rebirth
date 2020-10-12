@@ -472,7 +472,7 @@ static window_event_result wall_dialog_created(wall_dialog *const wd)
 void close_wall_window()
 {
 	if (MainWindow)
-		ui_close_dialog(std::exchange(MainWindow, nullptr));
+		ui_close_dialog(*std::exchange(MainWindow, nullptr));
 }
 
 window_event_result wall_dialog::callback_handler(const d_event &event)

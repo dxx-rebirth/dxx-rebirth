@@ -131,8 +131,7 @@ static window_event_result hostage_dialog_created(hostage_dialog *const h)
 void hostage_close_window()
 {
 	if ( MainWindow!=NULL )	{
-		ui_close_dialog( MainWindow );
-		MainWindow = NULL;
+		ui_close_dialog(*std::exchange(MainWindow, nullptr));
 	}
 }
 

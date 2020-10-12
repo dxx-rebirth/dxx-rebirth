@@ -146,8 +146,7 @@ static window_event_result centers_dialog_created(centers_dialog *const c)
 void close_centers_window()
 {
 	if ( MainWindow!=NULL )	{
-		ui_close_dialog( MainWindow );
-		MainWindow = NULL;
+		ui_close_dialog(*std::exchange(MainWindow, nullptr));
 	}
 }
 

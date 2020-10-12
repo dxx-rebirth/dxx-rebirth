@@ -566,8 +566,7 @@ static window_event_result robot_dialog_created(robot_dialog *const r)
 void robot_close_window()
 {
 	if ( MainWindow!=NULL )	{
-		ui_close_dialog( MainWindow );
-		MainWindow = NULL;
+		ui_close_dialog(*std::exchange(MainWindow, nullptr));
 	}
 
 }
@@ -813,8 +812,7 @@ static object_dialog *MattWindow;
 void object_close_window()
 {
 	if ( MattWindow!=NULL )	{
-		ui_close_dialog( MattWindow );
-		MattWindow = NULL;
+		ui_close_dialog(*std::exchange(MattWindow, nullptr));
 	}
 
 }

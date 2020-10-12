@@ -140,9 +140,9 @@ UI_DIALOG::~UI_DIALOG()
 	selected_gadget = NULL;
 }
 
-void ui_close_dialog( UI_DIALOG * dlg )
+void ui_close_dialog(UI_DIALOG &dlg)
 {
-	window_close(dlg);
+	window_close(&dlg);
 }
 
 #if 0

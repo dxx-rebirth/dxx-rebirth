@@ -218,8 +218,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 	while(choice==0)
 		event_process();
 
-	ui_close_dialog(dlg);
-
+	ui_close_dialog(*dlg);
 	return choice;
 }
 

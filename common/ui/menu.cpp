@@ -142,7 +142,7 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 	while(choice==0)
 		event_process();
 
-	ui_close_dialog(dlg);
+	ui_close_dialog(*dlg);
 	return choice;
 }
 

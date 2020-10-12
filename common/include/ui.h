@@ -271,7 +271,7 @@ T1 *ui_create_dialog(const short x, const short y, const short w, const short h,
 }
 
 extern void ui_dialog_set_current_canvas(UI_DIALOG *dlg);
-extern void ui_close_dialog( UI_DIALOG * dlg );
+void ui_close_dialog(UI_DIALOG &dlg);
 
 #define GADGET_PRESSED(g) (event.type == EVENT_UI_GADGET_PRESSED && &ui_event_get_gadget(event) == g)
 
