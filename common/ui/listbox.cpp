@@ -196,7 +196,7 @@ window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox,c
 		listbox->dragging = 0;
 
 	window_event_result rval = window_event_result::ignored;
-	if (B1_JUST_PRESSED && ui_mouse_on_gadget( listbox ))
+	if (B1_JUST_PRESSED && ui_mouse_on_gadget(*listbox))
 	{
 		listbox->dragging = 1;
 		rval = window_event_result::handled;

@@ -118,9 +118,7 @@ window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon,const d_ev
 	window_event_result rval = window_event_result::ignored;
 	if (event.type == EVENT_MOUSE_BUTTON_DOWN || event.type == EVENT_MOUSE_BUTTON_UP)
 	{
-		int OnMe;
-		
-		OnMe = ui_mouse_on_gadget( icon );
+		const auto OnMe = ui_mouse_on_gadget(*icon);
 
 		if (B1_JUST_PRESSED && OnMe)
 		{

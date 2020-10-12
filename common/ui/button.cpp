@@ -141,9 +141,7 @@ window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button,const
 
 	if (event.type == EVENT_MOUSE_BUTTON_DOWN || event.type == EVENT_MOUSE_BUTTON_UP)
 	{
-		int OnMe;
-
-		OnMe = ui_mouse_on_gadget( button );
+		const auto OnMe = ui_mouse_on_gadget(*button);
 
 		if (B1_JUST_PRESSED && OnMe)
 		{

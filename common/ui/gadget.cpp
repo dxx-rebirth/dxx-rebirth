@@ -144,13 +144,12 @@ int is_under_another_window( UI_DIALOG * dlg, UI_GADGET * gadget )
 }
 #endif
 
-
-int ui_mouse_on_gadget( UI_GADGET * gadget )
+int ui_mouse_on_gadget(UI_GADGET &gadget)
 {
 	int x, y, z;
 	
 	mouse_get_pos(&x, &y, &z);
-	if ((x >= gadget->x1) && (x <= gadget->x2-1) &&	(y >= gadget->y1) &&	(y <= gadget->y2-1) )
+	if (x >= gadget.x1 && x <= gadget.x2 - 1 && y >= gadget.y1 && y <= gadget.y2 - 1)
 	{
 #if 0	// check is no longer required - if it is under another window, that dialog's handler would have returned 1
 		if (is_under_another_window(dlg, gadget))
@@ -221,7 +220,7 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG &dlg, const d_event &event)
 
 	do
 	{
-		if (ui_mouse_on_gadget(tmp) && B1_JUST_PRESSED )
+		if (B1_JUST_PRESSED && ui_mouse_on_gadget(*tmp))
 		{
 			selected_gadget = tmp;
 			if (tmp->parent!=NULL)

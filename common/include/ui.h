@@ -291,7 +291,7 @@ window_event_result ui_gadget_send_event(UI_DIALOG &dlg, enum event_type type, U
 UI_GADGET &ui_event_get_gadget(const d_event &event);
 window_event_result ui_dialog_do_gadgets(UI_DIALOG &dlg, const d_event &event);
 
-extern int ui_mouse_on_gadget( UI_GADGET * gadget );
+int ui_mouse_on_gadget(UI_GADGET &gadget);
 
 window_event_result ui_button_do( UI_DIALOG *dlg, UI_GADGET_BUTTON * button, const d_event &event );
 

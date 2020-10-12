@@ -96,7 +96,7 @@ std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG * dlg, sh
 
 window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar,const d_event &event )
 {
-	int OnMe, OnSlider, keyfocus;
+	int OnSlider, keyfocus;
 	int oldpos, op;
 	int x, y, z;
 	window_event_result rval = window_event_result::ignored;
@@ -190,7 +190,7 @@ window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrol
 		}
 	}
 
-	OnMe = ui_mouse_on_gadget( scrollbar );
+	const auto OnMe = ui_mouse_on_gadget(*scrollbar);
 
 	//gr_ubox(0, scrollbar->fake_position, scrollbar->width-1, scrollbar->fake_position+scrollbar->fake_size-1 );
 

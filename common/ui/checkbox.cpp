@@ -86,9 +86,7 @@ window_event_result ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbo
 
 	if (event.type == EVENT_MOUSE_BUTTON_DOWN || event.type == EVENT_MOUSE_BUTTON_UP)
 	{
-		int OnMe;
-		
-		OnMe = ui_mouse_on_gadget( checkbox );
+		const auto OnMe = ui_mouse_on_gadget(*checkbox);
 		
 		if (B1_JUST_PRESSED && OnMe)
 		{
