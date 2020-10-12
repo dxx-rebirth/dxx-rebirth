@@ -97,7 +97,7 @@ void d_strlwr( char *s1 )
 }
 
 #if DXX_USE_EDITOR
-void d_strupr(char (&out)[PATH_MAX], const char (&in)[PATH_MAX])
+void d_strupr(std::array<char, PATH_MAX> &out, const std::array<char, PATH_MAX> &in)
 {
 	for (auto &&[i, o] : zip(in, out))
 	{

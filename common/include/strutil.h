@@ -48,7 +48,7 @@ char *d_strdup(const char *str, const char *, const char *, unsigned) __attribut
 #endif
 
 #if DXX_USE_EDITOR
-void d_strupr(char (&out)[PATH_MAX], const char (&in)[PATH_MAX]);
+void d_strupr(std::array<char, PATH_MAX> &out, const std::array<char, PATH_MAX> &in);
 #endif
 
 template <std::size_t N>

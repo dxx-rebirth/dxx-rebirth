@@ -42,13 +42,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "object.h"
 
-char mine_filename[PATH_MAX] = "*.MIN";
-static char sit_filename[PATH_MAX] = "*.SIT";
+namespace dcx {
+
+mine_filename_type mine_filename{{"*.MIN"}};
+
+namespace {
+
+static mine_filename_type sit_filename{{"*.SIT"}};
 
 #define MAX_NAME_LENGTH PATH_MAX
 
 //	See if filename f contains an extent.  If not, add extent ext.
-static void checkforext( char * f, const char *ext )
+static void checkforext(mine_filename_type &f, const char (&ext)[4])
 {
 	int i;
 
@@ -77,7 +82,7 @@ static void checkforext( char * f, const char *ext )
 }
 
 //	See if filename f contains an extent.  If not, add extent ext.
-static void set_extension( char * f, const char *ext )
+static void set_extension(mine_filename_type &f, const char (&ext)[4])
 {
 	int i;
 
@@ -91,6 +96,10 @@ static void set_extension( char * f, const char *ext )
 			return;
 		}
 	}
+}
+
+}
+
 }
 
 int SaveMine()
@@ -167,7 +176,7 @@ int MineMenu()
 
 // -----------------------------------------------------------------------------
 // returns 1 if error, else 0
-static int med_load_situation(char * filename)
+static int med_load_situation(mine_filename_type &filename)
 {
 	if (filename[0] == 97)
 		Int3();
@@ -177,20 +186,20 @@ static int med_load_situation(char * filename)
 }
 
 //	-----------------------------------------------------------------------------
-static int med_save_situation(char * filename)
+static int med_save_situation(const mine_filename_type &filename)
 {
-	auto SaveFile = PHYSFSX_openWriteBuffered(filename);
+	auto SaveFile = PHYSFSX_openWriteBuffered(filename.data());
 	if (!SaveFile)	{
 		char  ErrorMessage[512];
 
-		snprintf(ErrorMessage, sizeof(ErrorMessage), "ERROR: Unable to open %.480s", filename);
+		snprintf(ErrorMessage, sizeof(ErrorMessage), "ERROR: Unable to open %.480s", filename.data());
 		ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
 		return 1;
 	}
 
 	//	Write mine name.
 	struct splitpath_t path;
-	d_splitpath(filename, &path);
+	d_splitpath(filename.data(), &path);
 	PHYSFSX_printf(SaveFile, "%.*s.min\n", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start);
 
 	//	Write player position.

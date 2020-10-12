@@ -46,11 +46,39 @@ namespace dcx {
 #define AUTOSAVE_PERIOD 5			// Number of minutes for timed autosave
 
 int		Autosave_count;
+
+namespace {
+
 static int Autosave_numfiles;
 static int Autosave_total;
 static int undo_count;
 
+const char *set_autosave_name(mine_filename_type &out, const std::array<char, PATH_MAX> &in, const unsigned i)
+{
+	d_strupr(out, in);
+	char *ext;
+#define DXX_AUTOSAVE_MINE_EXTENSION	".MIN"
+	if (!strcmp(out.data(), "*" DXX_AUTOSAVE_MINE_EXTENSION))
+	{
+#define DXX_DEFAULT_AUTOSAVE_MINE_NAME	"TEMP" DXX_AUTOSAVE_MINE_EXTENSION
+		strcpy(out.data(), DXX_DEFAULT_AUTOSAVE_MINE_NAME);
+		ext = &out[sizeof(DXX_DEFAULT_AUTOSAVE_MINE_NAME) - sizeof(DXX_AUTOSAVE_MINE_EXTENSION)];
+	}
+	else
+	{
+		ext = strstr(out.data(), DXX_AUTOSAVE_MINE_EXTENSION);
+		if (!ext)
+			return ext;
+	}
+#undef DXX_AUTOSAVE_MINE_EXTENSION
+	cf_assert(i < 10);
+	snprintf(ext + 2, 3, "%u", i);
+	return ext;
+}
+
 static int Timer_save_flag;
+
+}
 int		Autosave_flag;
 
 std::array<const char *, 10> undo_status;
@@ -66,34 +94,22 @@ void init_autosave(void) {
 }
 
 void close_autosave(void) {
-    char *ext;
-
 	const unsigned t = Autosave_total;
 	cf_assert(t < 10);
 	for (unsigned i = 0; i < t; ++i)
 	{
-		char delname[PATH_MAX];
-		d_strupr(delname, mine_filename);
-	if ( !strcmp(delname, "*.MIN") ) strcpy(delname, "TEMP.MIN");
-
-        ext = strstr(delname, ".MIN");
-        snprintf(ext + 2, 3, "%d", i);
-
-        remove( delname );
+		mine_filename_type delname;
+		if (set_autosave_name(delname, mine_filename, i))
+			PHYSFS_delete(delname.data());
     }
 }
 
-void autosave_mine(const char (&name)[PATH_MAX])
+void autosave_mine(const std::array<char, PATH_MAX> &name)
 {
-    char *ext;
-
 	if (Autosave_flag) {
-		char savename[PATH_MAX];
-	    d_strupr(savename, name);
-	    if ( !strcmp(savename, "*.MIN") ) strcpy(savename, "TEMP.MIN");
-	
-	    ext = strstr(savename, ".MIN");
-	    snprintf(ext + 2, 3, "%d", Autosave_count);
+		mine_filename_type savename;
+		if (!set_autosave_name(savename, name, Autosave_count))
+			return;
 	
 	    med_save_mine( savename );
 	    Autosave_count++;
@@ -103,9 +119,7 @@ void autosave_mine(const char (&name)[PATH_MAX])
 	        Autosave_numfiles++;
 	    if (Autosave_total < 10)
 	        Autosave_total++;
-	
 	}
-
 }
 
 tm Editor_time_of_day;
@@ -134,7 +148,7 @@ void set_editor_time_of_day()
 	Editor_time_of_day = *localtime( &ltime );
 }
 
-void TimedAutosave(const char (&name)[PATH_MAX])
+void TimedAutosave(const std::array<char, PATH_MAX> &name)
 {
 	{
 		print_clock();

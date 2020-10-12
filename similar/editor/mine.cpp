@@ -55,11 +55,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
-static int save_mine_data(PHYSFS_File * SaveFile);
-
 int	New_file_format_save = 1;
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+
+namespace {
+
 // Converts descent 2 texture numbers back to descent 1 texture numbers.
 // Only works properly when the full Descent 1 texture set (descent.pig) is available.
 static texture_index convert_to_d1_tmap_num(const texture_index tmap_num)
@@ -311,7 +313,15 @@ static texture_index convert_to_d1_tmap_num(const texture_index tmap_num)
 			return tmap_num;
 	}
 }
+
+}
+
+}
 #endif
+
+namespace {
+
+static int save_mine_data(PHYSFS_File * SaveFile);
 
 // -----------------------------------------------------------------------------
 // Save mine will:
@@ -320,7 +330,7 @@ static texture_index convert_to_d1_tmap_num(const texture_index tmap_num)
 // 2. Go through all the fields and fill in the offset, size, and sizeof
 //    values in the headers.
 
-int med_save_mine(const char * filename)
+static int med_save_mine(const char * filename)
 {
 	char ErrorMessage[256];
 
@@ -539,6 +549,14 @@ static void write_special(const shared_segment &seg, const unsigned bit_mask, PH
 		PHYSFS_writeULE16(SaveFile, seg.station_idx);
 	}
 }
+
+}
+
+int med_save_mine(const mine_filename_type &filename)
+{
+	return med_save_mine(filename.data());
+}
+
 // -----------------------------------------------------------------------------
 // saves compiled mine data to an already-open file...
 namespace dsx {

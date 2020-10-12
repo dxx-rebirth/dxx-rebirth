@@ -183,6 +183,9 @@ namespace dcx {
 extern   int		Autosave_count;		// Current counter for which autosave mine we are "on"
 extern	int		Autosave_flag;			// Whether or not Autosave is on.
 extern	struct tm Editor_time_of_day;
+
+using mine_filename_type = std::array<char, PATH_MAX>;
+extern mine_filename_type mine_filename;
 }
 
 extern	int		SegSizeMode;			// Mode = 0/1 = not/is legal to move bound vertices, 
@@ -190,15 +193,8 @@ extern	int		SegSizeMode;			// Mode = 0/1 = not/is legal to move bound vertices,
 #ifdef dsx
 namespace dsx {
 void init_editor(void);
-
-}
-#endif
-#ifdef dsx
-namespace dsx {
-
 //	Initialize all vertices to inactive status.
 extern void init_all_vertices(void);
-
 }
 #endif
 
@@ -260,7 +256,7 @@ void create_removable_wall(fvcvertptr &vcvertptr, vmsegptridx_t sp, unsigned sid
 // Returns:
 //  0 = successfully saved.
 //  1 = unable to save.
-extern	int med_save_mine(const char *name);
+int med_save_mine(const mine_filename_type &name);
 
 // Updates the screen... (I put the prototype here for curves.c)
 extern   int medlisp_update_screen();
@@ -494,18 +490,17 @@ extern void close_autosave(void);
 // Increments Autosave_count, wrapping from 9 to 0.
 // (If there is no current mine name, assume "temp.min")
 // Call med_save_mine to save the mine.
-void autosave_mine(const char (&name)[PATH_MAX]);
+void autosave_mine(const std::array<char, PATH_MAX> &name);
 
 // Timed autosave
-void TimedAutosave(const char (&name)[PATH_MAX]);
+void TimedAutosave(const std::array<char, PATH_MAX> &name);
 extern void set_editor_time_of_day();
 
 // Undo function
 extern int undo(void);
 extern std::array<const char *, 10> undo_status;
-}
 
-extern char mine_filename[PATH_MAX];
+}
 
 //	group.c
 int RotateSegmentNew(vms_angvec *pbh);

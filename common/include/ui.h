@@ -373,7 +373,7 @@ extern void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox );
 
 int MenuX( int x, int y, int NumButtons, const char *const text[] );
 
-int ui_get_filename(char (&filename)[PATH_MAX], const char *filespec, const char *message);
+int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *filespec, const char *message);
 
 
 void * ui_malloc( int size );

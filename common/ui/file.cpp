@@ -39,6 +39,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+namespace {
+
 static PHYSFSX_counted_list file_getdirlist(const char *dir)
 {
 	ntstring<PATH_MAX - 1> path;
@@ -99,8 +101,6 @@ static PHYSFSX_counted_list file_getfilelist(const char *filespec, const char *d
 	return list;
 }
 
-namespace {
-
 struct ui_file_browser
 {
 	char		*filename;
@@ -111,10 +111,13 @@ struct ui_file_browser
 	std::unique_ptr<UI_GADGET_LISTBOX> listbox1, listbox2;
 	std::unique_ptr<UI_GADGET_INPUTBOX> user_file;
 	std::array<char, 35> spaces;
-	char		view_dir[PATH_MAX];
+	std::array<char, PATH_MAX> view_dir;
+	ui_file_browser()
+	{
+		std::fill(spaces.begin(), std::prev(spaces.end()), ' ');
+		spaces.back() = 0;
+	}
 };
-
-}
 
 static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_browser *const b)
 {
@@ -129,7 +132,7 @@ static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &
 		ui_dprintf_at( dlg, 210, 86,"&Dirs" );
 		
 		ui_dputs_at(dlg, 20, 60, b->spaces.data());
-		ui_dputs_at( dlg, 20, 60, b->view_dir );
+		ui_dputs_at( dlg, 20, 60, b->view_dir.data());
 		
 		return window_event_result::handled;
 	}
@@ -165,7 +168,7 @@ static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &
 		if (ui_event_get_gadget(event) == b->listbox2.get())
 			strcpy(b->user_file->text.get(), b->directory_list[b->listbox2->current_item]);
 		
-		strncpy(b->filename, b->view_dir, PATH_MAX);
+		strncpy(b->filename, b->view_dir.data(), PATH_MAX);
 		
 		p = b->user_file->text.get();
 		while (!strncmp(p, "..", 2))	// shorten the path manually
@@ -204,11 +207,11 @@ static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &
 		}
 		else
 		{
-			if (b->filename[strlen(b->filename) - 1] == '/')	// user typed a separator on the end
-				b->filename[strlen(b->filename) - 1] = 0;
+			if (auto &last = b->filename[strlen(b->filename) - 1]; last == '/')	// user typed a separator on the end
+				last = 0;
 			
-			strcpy(b->view_dir, b->filename);
-			b->filename_list = file_getfilelist(b->filespec, b->view_dir);
+			strcpy(b->view_dir.data(), b->filename);
+			b->filename_list = file_getfilelist(b->filespec, b->view_dir.data());
 			if (!b->filename_list)
 			{
 				b->directory_list.reset();
@@ -216,7 +219,7 @@ static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &
 			}
 			
 			ui_inputbox_set_text(b->user_file.get(), b->filespec);
-			b->directory_list = file_getdirlist(b->view_dir);
+			b->directory_list = file_getdirlist(b->view_dir.data());
 			if (!b->directory_list)
 			{
 				b->filename_list.reset();
@@ -237,32 +240,39 @@ static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &
 	return rval;
 }
 
-int ui_get_filename(char (&filename)[PATH_MAX], const char *const filespec, const char *const message)
+}
+
+int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *const filespec, const char *const message)
 {
-	char		InputText[PATH_MAX];
-	char		*p;
+	std::array<char, PATH_MAX>::iterator InputText;
+	std::size_t InputLength;
 	UI_DIALOG	*dlg;
 	int			rval = 0;
 	auto b = std::make_unique<ui_file_browser>();
-	if ((p = strrchr(filename, '/')))
+	if (const auto p = strrchr(filename.data(), '/'))
 	{
-		*p++ = 0;
-		strcpy(b->view_dir, filename);
-		strcpy(InputText, p);
+		const auto count = std::distance(filename.begin(), p);
+		if (count >= b->view_dir.size())
+			/* This should never happen. */
+			return 0;
+		std::copy(std::begin(filename), p, std::begin(b->view_dir));
+		InputText = std::next(p);
+		InputLength = std::distance(InputText, filename.end());
 	}
 	else
 	{
-		strcpy(b->view_dir, "");
-		strcpy(InputText, filename);
+		b->view_dir.front() = 0;
+		InputText = filename.begin();
+		InputLength = filename.size();
 	}
 
-	b->filename_list = file_getfilelist(filespec, b->view_dir);
+	b->filename_list = file_getfilelist(filespec, b->view_dir.data());
 	if (!b->filename_list)
 	{
 		return 0;
 	}
 	
-	b->directory_list = file_getdirlist(b->view_dir);
+	b->directory_list = file_getdirlist(b->view_dir.data());
 	if (!b->directory_list)
 	{
 		b->filename_list.reset();
@@ -270,13 +280,10 @@ int ui_get_filename(char (&filename)[PATH_MAX], const char *const filespec, cons
 	}
 
 	//ui_messagebox( -2,-2, 1,"DEBUG:0", "Ok" );
-	range_for (const int i, xrange(35u))
-		b->spaces[i] = ' ';
-	b->spaces[34] = 0;
 
 	dlg = ui_create_dialog( 200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), browser_handler, b.get());
 
-	b->user_file  = ui_add_gadget_inputbox<40>(dlg, 60, 30, InputText);
+	b->user_file  = ui_add_gadget_inputbox(dlg, 60, 30, InputLength, 40, InputText);
 
 	b->listbox1 = ui_add_gadget_listbox(dlg,  20, 110, 125, 200, b->filename_list.get_count(), b->filename_list.get());
 	b->listbox2 = ui_add_gadget_listbox(dlg, 210, 110, 100, 200, b->directory_list.get_count(), b->directory_list.get());
@@ -296,7 +303,7 @@ int ui_get_filename(char (&filename)[PATH_MAX], const char *const filespec, cons
 
 	ui_gadget_calc_keys(dlg);
 
-	b->filename = filename;
+	b->filename = filename.data();
 	b->filespec = filespec;
 	b->message = message;
 	

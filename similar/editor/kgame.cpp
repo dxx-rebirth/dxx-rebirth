@@ -38,9 +38,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kdefs.h"
 #include "d_levelstate.h"
 
-static char game_filename[PATH_MAX] = "*." DXX_LEVEL_FILE_EXTENSION;
+namespace {
 
-static void checkforgamext( char * f )
+static std::array<char, PATH_MAX> game_filename{"*." DXX_LEVEL_FILE_EXTENSION};
+
+static void checkforgamext(std::array<char, PATH_MAX> &f)
 {
 	int i;
 
@@ -75,6 +77,8 @@ static void checkforgamext( char * f )
 segnum_t Perm_player_segnum=segment_none;		//-1 means position not set
 vms_vector Perm_player_position;
 vms_matrix Perm_player_orient;
+
+}
 
 //set the player's "permanant" position from the current position
 int SetPlayerPosition()
@@ -128,7 +132,7 @@ int SaveGameData()
 #if defined(DXX_BUILD_DESCENT_II)
 			LevelSharedSegmentState.DestructibleLights,
 #endif
-			game_filename);
+			game_filename.data());
 		if (Perm_player_segnum!=segment_none) {
 
 			if (save_segnum > Highest_segment_index)
@@ -168,7 +172,7 @@ if (SafetyCheck())  {
 #if defined(DXX_BUILD_DESCENT_II)
 				LevelSharedSegmentState.DestructibleLights,
 #endif
-				game_filename))
+				game_filename.data()))
 			return 0;
 		Current_level_num = 1;			// assume level 1
 		gamestate = editor_gamestate::none;
@@ -185,6 +189,6 @@ if (SafetyCheck())  {
 //of last saved mine as default
 void ResetFilename()
 {
-	strcpy(game_filename,"*.LVL");
+	strcpy(game_filename.data(), "*.LVL");
 }
 
