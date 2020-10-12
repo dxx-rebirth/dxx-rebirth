@@ -132,6 +132,7 @@ struct UI_GADGET_INPUTBOX : UI_GADGET
 struct UI_GADGET_RADIO : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 4>{};
+	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
 	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           position;
@@ -316,7 +317,6 @@ extern void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, const char * forma
 extern void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio );
 __attribute_warn_unused_result
 std::unique_ptr<UI_GADGET_RADIO> ui_add_gadget_radio(UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text);
-window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio, const d_event &event );
 extern void ui_radio_set_value(UI_GADGET_RADIO *radio, int value);
 
 extern void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox );

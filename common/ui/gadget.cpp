@@ -171,7 +171,7 @@ static window_event_result ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g,const d_eve
 		case UI_GADGET_SCROLLBAR::s_kind:
 			return static_cast<UI_GADGET_SCROLLBAR *>(g)->event_handler(*dlg, event);
 		case UI_GADGET_RADIO::s_kind:
-			return ui_radio_do(dlg, static_cast<UI_GADGET_RADIO *>(g), event);
+			return static_cast<UI_GADGET_RADIO *>(g)->event_handler(*dlg, event);
 		case UI_GADGET_CHECKBOX::s_kind:
 			return ui_checkbox_do(dlg, static_cast<UI_GADGET_CHECKBOX *>(g), event);
 		case UI_GADGET_INPUTBOX::s_kind:

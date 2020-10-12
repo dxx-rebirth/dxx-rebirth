@@ -80,66 +80,57 @@ std::unique_ptr<UI_GADGET_RADIO> ui_add_gadget_radio(UI_DIALOG * dlg, short x, s
 	return radio;
 }
 
-window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio,const d_event &event )
+window_event_result UI_GADGET_RADIO::event_handler(UI_DIALOG &dlg, const d_event &event)
 {
-	UI_GADGET * tmp;
-	radio->oldposition = radio->position;
-	radio->pressed = 0;
+	oldposition = position;
+	pressed = 0;
 
 	window_event_result rval = window_event_result::ignored;
 	if (event.type == EVENT_MOUSE_BUTTON_DOWN || event.type == EVENT_MOUSE_BUTTON_UP)
 	{
-		const auto OnMe = ui_mouse_on_gadget(*radio);
+		const auto OnMe = ui_mouse_on_gadget(*this);
 
 		if ( B1_JUST_PRESSED && OnMe)
 		{
-			radio->position = 1;
+			position = 1;
 			rval = window_event_result::handled;
 		} 
 		else if (B1_JUST_RELEASED)
 		{
-			if ((radio->position==1) && OnMe)
-				radio->pressed = 1;
+			if ((position==1) && OnMe)
+				pressed = 1;
 			
-			radio->position = 0;
+			position = 0;
 		}
 	}
 
 	
 	if (event.type == EVENT_KEY_COMMAND)
 	{
-		int key;
-		
-		key = event_key_get(event);
-		
-		if ((dlg->keyboard_focus_gadget==radio) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+		const auto key = event_key_get(event);
+		if (dlg.keyboard_focus_gadget == this && (key == KEY_SPACEBAR || key==KEY_ENTER))
 		{
-			radio->position = 2;
+			position = 2;
 			rval = window_event_result::handled;
 		}
 	}
 	else if (event.type == EVENT_KEY_RELEASE)
 	{
-		int key;
-		
-		key = event_key_get(event);
-		
-		radio->position = 0;
-		
-		if ((dlg->keyboard_focus_gadget==radio) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
-			radio->pressed = 1;
+		const auto key = event_key_get(event);
+		position = 0;
+		if (dlg.keyboard_focus_gadget == this && (key == KEY_SPACEBAR || key == KEY_ENTER))
+			pressed = 1;
 	}
-		
-	if ((radio->pressed == 1) && (radio->flag==0))
+	if (pressed == 1 && flag == 0)
 	{
-		tmp = radio->next;
+		auto tmp = next;
 
-		while (tmp != radio )
+		while (tmp != this)
 		{
 			if (tmp->kind==UI_GADGET_RADIO::s_kind)
 			{
 				auto tmpr = static_cast<UI_GADGET_RADIO *>(tmp);
-				if ((tmpr->group == radio->group ) && (tmpr->flag) )
+				if ((tmpr->group == group ) && (tmpr->flag) )
 				{
 					tmpr->flag = 0;
 					tmpr->status = 1;
@@ -148,14 +139,14 @@ window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio,const d
 			}
 			tmp = tmp->next;
 		}
-		radio->flag = 1;
-		rval = ui_gadget_send_event(*dlg, EVENT_UI_GADGET_PRESSED, *radio);
+		flag = 1;
+		rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, *this);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 	}
 
 	if (event.type == EVENT_WINDOW_DRAW)
-		ui_draw_radio( dlg, radio );
+		ui_draw_radio(&dlg, this);
 
 	return rval;
 }
