@@ -48,20 +48,23 @@ namespace dcx {
 
 namespace {
 
-struct messagebox
+struct messagebox : UI_DIALOG
 {
-	const ui_messagebox_tie	*button;
+	explicit messagebox(short x, short y, short w, short h, enum dialog_flags flags) :
+		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr)
+	{
+	}
+	const ui_messagebox_tie	*button = nullptr;
 	std::array<std::unique_ptr<UI_GADGET_BUTTON>, 10> button_g;
-	const char				*text;
-	int					*choice;
+	const char *text = nullptr;
+	int *choice = nullptr;
 	int					width;
 	int					text_y;
 	int					line_y;
+	virtual window_event_result callback_handler(const d_event &) override;
 };
 
-}
-
-static window_event_result messagebox_handler(UI_DIALOG *dlg,const d_event &event, messagebox *m)
+window_event_result messagebox::callback_handler(const d_event &event)
 {
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
@@ -75,22 +78,22 @@ static window_event_result messagebox_handler(UI_DIALOG *dlg,const d_event &even
 			grd_curscreen->sc_canvas.cv_font = ui_small_font.get();
 		}
 		
-		ui_dialog_set_current_canvas(dlg);
-		ui_string_centered(canvas, m->width / 2, m->text_y, m->text);
+		ui_dialog_set_current_canvas(this);
+		ui_string_centered(canvas, width / 2, text_y, text);
 		
-		Hline(canvas, 1, m->width - 2, m->line_y + 1, CGREY);
-		Hline(canvas, 2, m->width - 2, m->line_y + 2, CBRIGHT);
+		Hline(canvas, 1, width - 2, line_y + 1, CGREY);
+		Hline(canvas, 2, width - 2, line_y + 2, CBRIGHT);
 
 		grd_curscreen->sc_canvas.cv_font = temp_font;
 		
 		return window_event_result::handled;
 	}
 
-	for (uint_fast32_t i=0; i < m->button->count(); i++ )
+	for (uint_fast32_t i=0; i < button->count(); i++ )
 	{
-		if (GADGET_PRESSED(m->button_g[i].get()))
+		if (GADGET_PRESSED(button_g[i].get()))
 		{
-			*(m->choice) = i+1;
+			*(choice) = i+1;
 			return window_event_result::handled;
 		}
 	}
@@ -98,19 +101,15 @@ static window_event_result messagebox_handler(UI_DIALOG *dlg,const d_event &even
 	return window_event_result::ignored;
 }
 
+}
+
 int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_tie &Button )
 {
-	UI_DIALOG * dlg;
 	int avg, x, y;
 	int button_width, button_height, text_height, text_width;
 	int w, h;
 
 	int choice;
-
-	auto m = std::make_unique<messagebox>();
-	m->button = &Button;
-	m->text = text;
-	m->choice = &choice;
 
 	button_width = button_height = 0;
 
@@ -184,16 +183,19 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 		y = h - height;
 	}
 
-	dlg = ui_create_dialog(x, y, width, height, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), messagebox_handler, m.get());
+	const auto dlg = ui_create_dialog<messagebox>(x, y, width, height, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), nullptr);
+	dlg->button = &Button;
+	dlg->text = text;
+	dlg->choice = &choice;
 
 	y = TEXT_EXTRA_HEIGHT + text_height/2 - 1;
 
-	m->width = width;
-	m->text_y = y;
+	dlg->width = width;
+	dlg->text_y = y;
 
 	y = 2*TEXT_EXTRA_HEIGHT + text_height;
 	
-	m->line_y = y;
+	dlg->line_y = y;
 
 	y = height - TEXT_EXTRA_HEIGHT - button_height;
 
@@ -202,14 +204,14 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 
 		x = EVEN_DIVIDE(width,button_width,Button.count(),i);
 
-		m->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, Button.string(i), NULL );
+		dlg->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, Button.string(i), NULL );
 	}
 
 	ui_gadget_calc_keys(dlg);
 
 	//key_flush();
 
-	dlg->keyboard_focus_gadget = m->button_g[0].get();
+	dlg->keyboard_focus_gadget = dlg->button_g[0].get();
 
 	choice = 0;
 
