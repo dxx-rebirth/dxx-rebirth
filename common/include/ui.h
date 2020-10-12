@@ -169,6 +169,7 @@ struct UI_GADGET_CHECKBOX : UI_GADGET
 struct UI_GADGET_SCROLLBAR : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 3>{};
+	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
 	short           horz;
 	short           width, height;
 	int             start;
@@ -305,7 +306,6 @@ void ui_get_button_size(const grs_font &, const char *text, int &width, int &hei
 
 __attribute_warn_unused_result
 std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG * dlg, short x, short y, short w, short h, int start, int stop, int position, int window_size);
-window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, const d_event &event );
 extern void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar );
 
 
