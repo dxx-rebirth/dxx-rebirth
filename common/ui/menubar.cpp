@@ -54,12 +54,34 @@ struct ITEM {
 
 struct MENU : embed_window_pointer_t {
 	short x = 0, y = 0, w = 0, h = 0;
-	short ShowBar = 0;
+	uint8_t ShowBar = 0;
 	uint8_t CurrentItem = 0;
 	uint16_t NumItems = 0;
 	uint8_t Displayed = 0;
 	uint8_t Active = 0;
 	std::array<ITEM, 32> Item;
+};
+
+struct menubar_window : window
+{
+	MENU &menubar;
+	explicit menubar_window(grs_canvas &src, const int x, const int y, const int w, const int h, MENU &menu) :
+		window(src, x, y, w, h),
+		menubar(menu)
+	{
+	}
+	virtual window_event_result event_handler(const d_event &) override;
+};
+
+struct menu_window : window
+{
+	MENU &menu;
+	explicit menu_window(grs_canvas &src, const int x, const int y, const int w, const int h, MENU &menu) :
+		window(src, x, y, w, h),
+		menu(menu)
+	{
+	}
+	virtual window_event_result event_handler(const d_event &) override;
 };
 
 static std::array<MENU *, 30> Menu;
@@ -68,9 +90,6 @@ static unsigned num_menus;
 static int state;
 
 #define CMENU (Menu[0]->CurrentItem+1)
-
-static window_event_result menubar_handler(window *wind,const d_event &event, MENU *menu);
-static window_event_result menu_handler(window *wind,const d_event &event, MENU *menu);
 
 //------------------------- Show a menu item -------------------
 
@@ -153,9 +172,10 @@ static void menu_other_show()
 	auto &menu = *Menu[CMENU];
 	if (!menu.wind)
 	{
-		menu.wind = window_create(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menu_handler, &menu);
+		menu.wind = new menu_window(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menu);
 		if (!menu.wind)
 			return;
+		menu.wind->send_creation_events(nullptr);
 	}
 	menu_show(menu);
 }
@@ -521,7 +541,7 @@ static window_event_result do_state_2(const d_event &event)
 	return rval;
 }
 
-static window_event_result menu_handler(window *, const d_event &event, MENU *menu)
+window_event_result menu_window::event_handler(const d_event &event)
 {
 	int keypress = 0;
 	
@@ -534,7 +554,7 @@ static window_event_result menu_handler(window *, const d_event &event, MENU *me
 	{
 		state = 0;
 		menu_hide_all();
-		menu->wind = nullptr;
+		menu.wind = nullptr;
 		return window_event_result::ignored;
 	}
 	window_event_result rval = window_event_result::ignored;
@@ -700,11 +720,10 @@ static window_event_result menu_handler(window *, const d_event &event, MENU *me
 	return rval;
 }
 
-static window_event_result menubar_handler(window *, const d_event &event, MENU *)
+window_event_result menubar_window::event_handler(const d_event &event)
 {
 	if (event.type == EVENT_WINDOW_DRAW)
 	{
-		auto &menubar = *Menu[0];
 		menu_draw(menubar);
 		return window_event_result::handled;
 	}
@@ -718,7 +737,6 @@ static window_event_result menubar_handler(window *, const d_event &event, MENU 
 				window_close(std::exchange(i.wind, nullptr));
 			}
 		}
-		auto &menubar = *Menu[0];
 		menubar.wind = nullptr;
 	}
 
@@ -929,9 +947,10 @@ void menubar_show()
 	auto &menu = *Menu[0];
 	if (!menu.wind)
 	{
-		menu.wind = window_create(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menubar_handler, &menu);
+		menu.wind = new menubar_window(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menu);
 		if (!menu.wind)
 			return;
+		menu.wind->send_creation_events(nullptr);
 		menu.wind->set_modal(0);	// allow windows behind the menubar to accept events (e.g. the keypad dialogs)
 	}
 	menu_show(menu);
