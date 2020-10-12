@@ -311,7 +311,7 @@ extern void ui_mega_process();
 void ui_get_button_size(const grs_font &, const char *text, int &width, int &height);
 
 __attribute_warn_unused_result
-std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG * dlg, short x, short y, short w, short h, int start, int stop, int position, int window_size);
+std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG &dlg, short x, short y, short w, short h, int start, int stop, int position, int window_size);
 extern void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar );
 
 

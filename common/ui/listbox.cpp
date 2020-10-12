@@ -137,7 +137,7 @@ std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG &dlg, short x
 	listbox->dragging = 0;
 	listbox->selected_item = -1;
 	listbox->moved = 1;
-	listbox->scrollbar = ui_add_gadget_scrollbar(&dlg, x + w + 3, y, 0, h, 0, numitems - i, 0, i);
+	listbox->scrollbar = ui_add_gadget_scrollbar(dlg, x + w + 3, y, 0, h, 0, numitems - i, 0, i);
 	listbox->scrollbar->parent = listbox.get();
 	return listbox;
 }
