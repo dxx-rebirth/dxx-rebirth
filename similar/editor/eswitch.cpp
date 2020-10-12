@@ -361,7 +361,7 @@ static window_event_result trigger_dialog_created(trigger_dialog *const t)
 	t->quitButton = ui_add_gadget_button(*t, 20, i, 48, 40, "Done", nullptr);
 																				 
 	// The little box the wall will appear in.
-	t->wallViewBox = ui_add_gadget_userbox(t, 155, 5, 64, 64 );
+	t->wallViewBox = ui_add_gadget_userbox(*t, 155, 5, 64, 64 );
 
 	// A bunch of buttons...
 	i = 80;

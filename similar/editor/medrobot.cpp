@@ -543,9 +543,9 @@ static window_event_result robot_dialog_created(robot_dialog *const r)
 	r->initialMode[4] = ui_add_gadget_radio(*r,  6, 98, 16, 16, 0, "Follow");
 	r->initialMode[5] = ui_add_gadget_radio(*r, 76, 98, 16, 16, 0, "Station");
 	// The little box the robots will spin in.
-	r->robotViewBox = ui_add_gadget_userbox(r, 155, 5, 150, 125);
+	r->robotViewBox = ui_add_gadget_userbox(*r, 155, 5, 150, 125);
 	// The little box the robots will spin in.
-	r->containsViewBox = ui_add_gadget_userbox(r, 10, 202, 100, 80);
+	r->containsViewBox = ui_add_gadget_userbox(*r, 10, 202, 100, 80);
 	// A bunch of buttons...
 	int i = 135;
 	r->prev_robot_type = ui_add_gadget_button(*r, 190, i, 53, 26, "<<Typ", 			RobotPrevType);

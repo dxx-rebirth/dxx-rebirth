@@ -343,10 +343,8 @@ static inline std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIAL
 
 extern void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, const char *text);
 
-
 __attribute_warn_unused_result
-std::unique_ptr<UI_GADGET_USERBOX> ui_add_gadget_userbox(UI_DIALOG * dlg, short x, short y, short w, short h);
-
+std::unique_ptr<UI_GADGET_USERBOX> ui_add_gadget_userbox(UI_DIALOG &dlg, short x, short y, short w, short h);
 
 int MenuX( int x, int y, int NumButtons, const char *const text[] );
 

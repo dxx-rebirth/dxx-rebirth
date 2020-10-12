@@ -196,9 +196,9 @@ void texpage_init( UI_DIALOG * dlg )
 	t.effects_texture = ui_add_gadget_button(*dlg, TMAPCURBOX_X + 51, TMAPCURBOX_Y - 48, 15, 20, "E", texpage_goto_effects);
 
 	for (int i=0;i<TMAPS_PER_PAGE;i++)
-		TmapBox[i] = ui_add_gadget_userbox( dlg, TMAPBOX_X + (i/3)*(2+TMAPBOX_W), TMAPBOX_Y + (i%3)*(2+TMAPBOX_H), TMAPBOX_W, TMAPBOX_H);
+		TmapBox[i] = ui_add_gadget_userbox(*dlg, TMAPBOX_X + (i / 3) * (2 + TMAPBOX_W), TMAPBOX_Y + (i % 3) * (2 + TMAPBOX_H), TMAPBOX_W, TMAPBOX_H);
 
-	TmapCurrent = ui_add_gadget_userbox( dlg, TMAPCURBOX_X, TMAPCURBOX_Y, 64, 64 );
+	TmapCurrent = ui_add_gadget_userbox(*dlg, TMAPCURBOX_X, TMAPCURBOX_Y, 64, 64);
 
 	TmapnameCanvas = gr_create_sub_canvas(grd_curscreen->sc_canvas, TMAPCURBOX_X , TMAPCURBOX_Y + TMAPBOX_H + 10, 100, 20);
 }

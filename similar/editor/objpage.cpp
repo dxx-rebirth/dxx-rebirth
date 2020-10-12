@@ -346,8 +346,8 @@ void objpage_init( UI_DIALOG *dlg )
 	o.reset_orient = ui_add_gadget_button(*dlg, OBJCURBOX_X + 25, OBJCURBOX_Y + 76, 22, 13, "R", objpage_reset_orient);
 
 	for (int i=0;i<OBJS_PER_PAGE;i++)
-		ObjBox[i] = ui_add_gadget_userbox( dlg, OBJBOX_X + (i/2)*(2+OBJBOX_W), OBJBOX_Y + (i%2)*(2+OBJBOX_H), OBJBOX_W, OBJBOX_H);
-	ObjCurrent = ui_add_gadget_userbox( dlg, OBJCURBOX_X, OBJCURBOX_Y-5, 64, 64 );
+		ObjBox[i] = ui_add_gadget_userbox(*dlg, OBJBOX_X + (i / 2) * (2 + OBJBOX_W), OBJBOX_Y + (i % 2) * (2 + OBJBOX_H), OBJBOX_W, OBJBOX_H);
+	ObjCurrent = ui_add_gadget_userbox(*dlg, OBJCURBOX_X, OBJCURBOX_Y - 5, 64, 64);
 	objpage_reset_orient();
 }
 

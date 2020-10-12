@@ -52,9 +52,9 @@ void ui_draw_userbox(UI_DIALOG &dlg, UI_GADGET_USERBOX &userbox)
 
 }
 
-std::unique_ptr<UI_GADGET_USERBOX> ui_add_gadget_userbox(UI_DIALOG * dlg, short x, short y, short w, short h)
+std::unique_ptr<UI_GADGET_USERBOX> ui_add_gadget_userbox(UI_DIALOG &dlg, short x, short y, short w, short h)
 {
-	auto userbox = ui_gadget_add<UI_GADGET_USERBOX>(*dlg, x, y, x + w - 1, y + h - 1);
+	auto userbox = ui_gadget_add<UI_GADGET_USERBOX>(dlg, x, y, x + w - 1, y + h - 1);
 	userbox->width = w;
 	userbox->height = h;
 	userbox->b1_held_down=0;

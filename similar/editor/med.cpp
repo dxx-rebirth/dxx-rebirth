@@ -761,10 +761,10 @@ static void init_editor_screen(grs_canvas &canvas)
 	EditorWindow = ui_create_dialog<editor_dialog>(0, 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED, nullptr);
 	auto e = EditorWindow;
 
-	LargeViewBox = ui_add_gadget_userbox(e,LVIEW_X,LVIEW_Y,LVIEW_W,LVIEW_H);
+	LargeViewBox = ui_add_gadget_userbox(*e, LVIEW_X, LVIEW_Y, LVIEW_W, LVIEW_H);
 	ui_gadget_calc_keys(*e);	//make tab work for all windows
 
-	GameViewBox	= ui_add_gadget_userbox(e, GAMEVIEW_X, GAMEVIEW_Y, GAMEVIEW_W, GAMEVIEW_H);
+	GameViewBox	= ui_add_gadget_userbox(*e, GAMEVIEW_X, GAMEVIEW_Y, GAMEVIEW_W, GAMEVIEW_H);
 
 //	GameViewBox->when_tab = GameViewBox->when_btab =  LargeViewBox;
 //	LargeViewBox->when_tab = LargeViewBox->when_btab =  GameViewBox;
