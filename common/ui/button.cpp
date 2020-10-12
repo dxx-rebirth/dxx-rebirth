@@ -52,58 +52,61 @@ void ui_get_button_size(const grs_font &cv_font, const char *text, int &width, i
 	height += BUTTON_EXTRA_HEIGHT * 2 + 6;
 }
 
+namespace {
 
-void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
+void ui_draw_button(UI_DIALOG &dlg, UI_GADGET_BUTTON &button)
 {
 #if 0  //ndef OGL
-	if ((button->status==1) || (button->position != button->oldposition))
+	if ((button.status==1) || (button.position != button.oldposition))
 #endif
 	{
 		ui_button_any_drawn = 1;
-		gr_set_current_canvas( button->canvas );
+		gr_set_current_canvas(button.canvas);
 		auto &canvas = *grd_curcanv;
 		color_palette_index color{0};
 
-		gr_set_fontcolor(canvas, dlg->keyboard_focus_gadget == button
+		gr_set_fontcolor(canvas, dlg.keyboard_focus_gadget == &button
 			? CRED
-			: (!button->user_function && button->dim_if_no_function
+			: (!button.user_function && button.dim_if_no_function
 				? CGREY
 				: CBLACK
 			), -1);
 
-		button->status = 0;
-		if (!button->text.empty())
+		button.status = 0;
+		if (!button.text.empty())
 		{
 			unsigned offset;
-			if (button->position == 0)
+			if (button.position == 0)
 			{
-				ui_draw_box_out(canvas, 0, 0, button->width-1, button->height-1);
+				ui_draw_box_out(canvas, 0, 0, button.width-1, button.height-1);
 				offset = 0;
 			}
 			else
 			{
-				ui_draw_box_in(canvas, 0, 0, button->width-1, button->height-1);
+				ui_draw_box_in(canvas, 0, 0, button.width-1, button.height-1);
 				offset = 1;
 			}
-			ui_string_centered(canvas, Middle(button->width) + offset, Middle(button->height) + offset, button->text.c_str());
+			ui_string_centered(canvas, Middle(button.width) + offset, Middle(button.height) + offset, button.text.c_str());
 		} else {
 			unsigned left, top, right, bottom;
-			if (button->position == 0)
+			if (button.position == 0)
 			{
 				left = top = 1;
-				right = button->width - 1;
-				bottom = button->height - 1;
+				right = button.width - 1;
+				bottom = button.height - 1;
 			}
 			else
 			{
 				left = top = 2;
-				right = button->width;
-				bottom = button->height;
+				right = button.width;
+				bottom = button.height;
 			}
-			gr_rect(canvas, 0, 0, button->width, button->height, CBLACK);
+			gr_rect(canvas, 0, 0, button.width, button.height, CBLACK);
 			gr_rect(canvas, left, top, right, bottom, color);
 		}
 	}
+}
+
 }
 
 std::unique_ptr<UI_GADGET_BUTTON> ui_add_gadget_button(UI_DIALOG &dlg, short x, short y, short w, short h, const char *const text, int (*const function_to_call)())
@@ -191,7 +194,7 @@ window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button,const
 	}
 
 	if (event.type == EVENT_WINDOW_DRAW)
-		ui_draw_button( dlg, button );
+		ui_draw_button(*dlg, *button);
 
 	if (button->pressed && button->user_function )
 	{
