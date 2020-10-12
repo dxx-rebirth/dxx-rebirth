@@ -114,15 +114,16 @@ struct newmenu_layout
 	newmenu_layout &operator=(newmenu_layout &&) = default;
 };
 
-struct newmenu : embed_window_pointer_t, newmenu_layout
+struct newmenu : newmenu_layout, window
 {
-	newmenu(newmenu_layout &&l) :
-		newmenu_layout(std::move(l))
+	newmenu(grs_canvas &src, newmenu_layout &&l) :
+		newmenu_layout(std::move(l)), window(src, x, y, w, h)
 	{
 	}
 	int				(*subfunction)(newmenu *menu,const d_event &event, void *userdata);
 	int				*rval = nullptr;			// Pointer to return value (for polling newmenus)
 	void			*userdata;		// For whatever - like with window system
+	virtual window_event_result event_handler(const d_event &) override;
 };
 
 constexpr std::integral_constant<unsigned, NM_TYPE_INPUT> newmenu_item::input_specific_type::nm_type;
@@ -551,7 +552,7 @@ int newmenu_do2(const char *const title, const char *const subtitle, const parti
 
 	// Track to see when the window is freed
 	// Doing this way in case another window is opened on top without its own polling loop
-	menu->wind->track(&exists);
+	menu->track(&exists);
 
 	// newmenu_do2 and simpler get their own event loop
 	// This is so the caller doesn't have to provide a callback that responds to EVENT_NEWMENU_SELECTED
@@ -777,10 +778,10 @@ static int nm_trigger_radio_button(newmenu &menu, newmenu_item &citem)
 	return 0;
 }
 
-static window_event_result newmenu_mouse(window *wind,const d_event &event, newmenu *menu, int button)
+static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, int button)
 {
 	int old_choice, mx=0, my=0, mz=0, x1 = 0, x2, y1, y2, changed = 0;
-	grs_canvas &menu_canvas = wind->w_canv;
+	grs_canvas &menu_canvas = menu->w_canv;
 	grs_canvas &save_canvas = *grd_curcanv;
 
 	switch (button)
@@ -1015,7 +1016,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 	return window_event_result::ignored;
 }
 
-static window_event_result newmenu_key_command(window *, const d_event &event, newmenu *menu)
+static window_event_result newmenu_key_command(const d_event &event, newmenu *const menu)
 {
 	int k = event_key_get(event);
 	int old_choice;
@@ -1504,9 +1505,9 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	gr_set_current_canvas(save_canvas);
 }
 
-static window_event_result newmenu_draw(window *wind, newmenu *menu)
+static window_event_result newmenu_draw(newmenu *menu)
 {
-	grs_canvas &menu_canvas = wind->w_canv;
+	grs_canvas &menu_canvas = menu->w_canv;
 	grs_canvas &save_canvas = *grd_curcanv;
 	int th = 0, ty, sx, sy;
 
@@ -1595,17 +1596,20 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	return window_event_result::handled;
 }
 
-static window_event_result newmenu_handler(window *wind,const d_event &event, newmenu *menu)
+}
+
+}
+
+window_event_result newmenu::event_handler(const d_event &event)
 {
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 	if (joy_translate_menu_key(event))
 		return window_event_result::handled;
 #endif
 
-	if (menu->subfunction)
+	if (subfunction)
 	{
-		int rval = (*menu->subfunction)(menu, event, menu->userdata);
-
+		const auto rval = (*subfunction)(this, event, userdata);
 #if 0	// No current instances of the subfunction closing the window itself (which is preferred)
 		// Enable when all subfunctions return a window_event_result
 		if (rval == window_event_result::deleted)
@@ -1616,8 +1620,8 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 		{
 			if (rval < -1)
 			{
-				if (menu->rval)
-					*menu->rval = rval;
+				if (this->rval)
+					*this->rval = rval;
 				return window_event_result::close;
 			}
 
@@ -1636,35 +1640,34 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 		case EVENT_WINDOW_DEACTIVATED:
 			//event_toggle_focus(1);	// No cursor recentering
 			key_toggle_repeat(1);
-			menu->mouse_state = 0;
+			mouse_state = 0;
 			break;
 
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 		{
 			int button = event_mouse_get_button(event);
-			menu->mouse_state = event.type == EVENT_MOUSE_BUTTON_DOWN;
-			return newmenu_mouse(wind, event, menu, button);
+			mouse_state = event.type == EVENT_MOUSE_BUTTON_DOWN;
+			return newmenu_mouse(event, this, button);
 		}
 
 		case EVENT_KEY_COMMAND:
-			return newmenu_key_command(wind, event, menu);
+			return newmenu_key_command(event, this);
 		case EVENT_IDLE:
 			if (!(Game_mode & GM_MULTI && Game_wind))
 				timer_delay2(CGameArg.SysMaxFPS);
 			break;
 		case EVENT_WINDOW_DRAW:
-			return newmenu_draw(wind, menu);
+			return newmenu_draw(this);
 		case EVENT_WINDOW_CLOSE:
-			delete menu;
 			break;
-
 		default:
 			break;
 	}
 	return window_event_result::ignored;
 }
-}
+
+namespace dsx {
 
 newmenu *newmenu_do4(const char *const title, const char *const subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename, const tiny_mode_flag TinyMode, const tab_processing_flag TabsFlag)
 {
@@ -1680,22 +1683,17 @@ newmenu *newmenu_do4(const char *const title, const char *const subtitle, const 
 	nl.tabs_flag = TabsFlag;
 	nl.max_displayable = items.size();
 	newmenu_create_structure(nl, *(TinyMode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT));
-	newmenu *menu = new newmenu(std::move(nl));
+	auto menu = std::make_unique<newmenu>(grd_curscreen->sc_canvas, std::move(nl));
 	menu->subfunction = subfunction;
 	menu->userdata = userdata;
 
 	newmenu_free_background();
+	menu->send_creation_events(nullptr);
 
 	//set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
 
 	// Create the basic window
-	const auto wind = window_create(grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, newmenu_handler, menu);
-	if (!wind)
-	{
-		delete menu;
-		return NULL;
-	}
-	return menu;
+	return menu.release();
 }
 }
 
