@@ -90,19 +90,17 @@ std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG *const dlg,
 	return inputbox;
 }
 
-window_event_result ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox,const d_event &event )
+window_event_result UI_GADGET_INPUTBOX::event_handler(UI_DIALOG &dlg, const d_event &event)
 {
-	unsigned char ascii;
-	int keypress = 0;
-	
-	if (event.type == EVENT_KEY_COMMAND)
-		keypress = event_key_get(event);
+	const auto keypress = (event.type == EVENT_KEY_COMMAND)
+		? event_key_get(event)
+		: 0u;
 
-	inputbox->oldposition = inputbox->position;
-	inputbox->pressed=0;
+	oldposition = position;
+	pressed=0;
 
 	window_event_result rval = window_event_result::ignored;
-	if (dlg->keyboard_focus_gadget==inputbox)
+	if (dlg.keyboard_focus_gadget == this)
 	{
 		switch( keypress )
 		{
@@ -110,47 +108,49 @@ window_event_result ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbo
 			break;
 		case (KEY_LEFT):
 		case (KEY_BACKSP):
-			if (inputbox->position > 0)
-				inputbox->position--;
-			inputbox->text[inputbox->position] = 0;
-			inputbox->status = 1;
-			if (inputbox->first_time) inputbox->first_time = 0;
+			if (position > 0)
+				position--;
+			text[position] = 0;
+			status = 1;
+			if (first_time) first_time = 0;
 			rval = window_event_result::handled;
 			break;
 		case (KEY_ENTER):
-			inputbox->pressed=1;
-			inputbox->status = 1;
-			if (inputbox->first_time) inputbox->first_time = 0;
+			pressed=1;
+			status = 1;
+			if (first_time) first_time = 0;
 			rval = window_event_result::handled;
 			break;
 		default:
-			ascii = key_ascii();
-			if ((ascii < 255 ) && (inputbox->position < inputbox->length-2))
 			{
-				if (inputbox->first_time) {
-					inputbox->first_time = 0;
-					inputbox->position = 0;
+			const uint8_t ascii = key_ascii();
+			if ((ascii < 255 ) && (position < length-2))
+			{
+				if (first_time) {
+					first_time = 0;
+					position = 0;
 				}
-				inputbox->text[inputbox->position++] = ascii;
-				inputbox->text[inputbox->position] = 0;
+				text[position++] = ascii;
+				text[position] = 0;
 				rval = window_event_result::handled;
 			}
-			inputbox->status = 1;
+			status = 1;
 			break;
+			}
 		}
 	} else {
-		inputbox->first_time = 1;
+		first_time = 1;
 	}
 	
-	if (inputbox->pressed)
+	if (pressed)
 	{
-		rval = ui_gadget_send_event(*dlg, EVENT_UI_GADGET_PRESSED, *inputbox);
+		rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, *this);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 	}
 		
 	if (event.type == EVENT_WINDOW_DRAW)
-		ui_draw_inputbox( dlg, inputbox );
+		ui_draw_inputbox(&dlg, this);
 
 	return rval;
 }

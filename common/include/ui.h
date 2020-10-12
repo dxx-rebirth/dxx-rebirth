@@ -120,6 +120,7 @@ struct UI_GADGET_BUTTON : UI_GADGET
 struct UI_GADGET_INPUTBOX : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 6>{};
+	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
 	std::unique_ptr<char[]> text;
 	short           width, height;
 	short           length;
@@ -342,7 +343,6 @@ static inline std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIAL
 	return ui_add_gadget_inputbox(dlg, x, y, L, SL, text);
 }
 
-window_event_result ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox, const d_event &event );
 extern void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, const char *text);
 
 
