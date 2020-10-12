@@ -270,22 +270,6 @@ T1 *ui_create_dialog(const short x, const short y, const short w, const short h,
 	return r.release();
 }
 
-template <typename T1, typename T2 = const void>
-UI_DIALOG * ui_create_dialog(const short x, const short y, const short w, const short h, const enum dialog_flags flags, const ui_subfunction_t<T1> callback, T1 *const userdata, T2 *const createdata = nullptr)
-{
-	auto r = std::make_unique<UI_DIALOG>(x, y, w, h, flags, reinterpret_cast<ui_subfunction_t<void>>(callback), static_cast<void *>(userdata));
-	r->send_creation_events(createdata);
-	return r.release();
-}
-
-template <typename T1, typename T2 = const void>
-UI_DIALOG *ui_create_dialog(const short x, const short y, const short w, const short h, const enum dialog_flags flags, const ui_subfunction_t<T1> callback, std::unique_ptr<T1> userdata, T2 *const createdata = nullptr)
-{
-	auto r = ui_create_dialog(x, y, w, h, flags, callback, userdata.get(), createdata);
-	userdata.release();
-	return r;
-}
-
 extern class window *ui_dialog_get_window(UI_DIALOG *dlg);
 extern void ui_dialog_set_current_canvas(UI_DIALOG *dlg);
 extern void ui_close_dialog( UI_DIALOG * dlg );
@@ -373,7 +357,9 @@ extern void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox );
 
 int MenuX( int x, int y, int NumButtons, const char *const text[] );
 
+#if DXX_USE_EDITOR
 int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *filespec, const char *message);
+#endif
 
 
 void * ui_malloc( int size );

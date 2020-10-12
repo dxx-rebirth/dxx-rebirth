@@ -41,6 +41,7 @@ namespace dcx {
 
 namespace {
 
+#if DXX_USE_EDITOR
 static PHYSFSX_counted_list file_getdirlist(const char *dir)
 {
 	ntstring<PATH_MAX - 1> path;
@@ -76,6 +77,7 @@ static PHYSFSX_counted_list file_getdirlist(const char *dir)
 	list.set_count(NumDirs);
 	return list;
 }
+#endif
 
 static PHYSFSX_counted_list file_getfilelist(const char *filespec, const char *dir)
 {
@@ -101,50 +103,56 @@ static PHYSFSX_counted_list file_getfilelist(const char *filespec, const char *d
 	return list;
 }
 
-struct ui_file_browser
+#if DXX_USE_EDITOR
+struct ui_file_browser : UI_DIALOG
 {
 	char		*filename;
 	const char		*filespec;
 	const char		*message;
-	PHYSFSX_counted_list filename_list, directory_list;
+	PHYSFSX_counted_list &filename_list;
+	PHYSFSX_counted_list directory_list;
 	std::unique_ptr<UI_GADGET_BUTTON> button1, button2, help_button;
 	std::unique_ptr<UI_GADGET_LISTBOX> listbox1, listbox2;
 	std::unique_ptr<UI_GADGET_INPUTBOX> user_file;
 	std::array<char, 35> spaces;
 	std::array<char, PATH_MAX> view_dir;
-	ui_file_browser()
+	explicit ui_file_browser(short x, short y, short w, short h, enum dialog_flags flags, const std::array<char, PATH_MAX> &view_dir, PHYSFSX_counted_list &filename, PHYSFSX_counted_list &&directory) :
+		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr),
+		filename_list(filename),
+		directory_list(std::move(directory)),
+		view_dir(view_dir)
 	{
 		std::fill(spaces.begin(), std::prev(spaces.end()), ' ');
 		spaces.back() = 0;
 	}
+	virtual window_event_result callback_handler(const d_event &) override;
 };
 
-static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_browser *const b)
+window_event_result ui_file_browser::callback_handler(const d_event &event)
 {
 	window_event_result rval = window_event_result::ignored;
 
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
-		ui_dputs_at( dlg, 10, 5, b->message );
+		ui_dputs_at(this, 10, 5, message);
 
-		ui_dprintf_at( dlg, 20, 32,"N&ame" );
-		ui_dprintf_at( dlg, 20, 86,"&Files" );
-		ui_dprintf_at( dlg, 210, 86,"&Dirs" );
+		ui_dprintf_at(this, 20, 32, "N&ame");
+		ui_dprintf_at(this, 20, 86, "&Files");
+		ui_dprintf_at(this, 210, 86, "&Dirs");
 		
-		ui_dputs_at(dlg, 20, 60, b->spaces.data());
-		ui_dputs_at( dlg, 20, 60, b->view_dir.data());
+		ui_dputs_at(this, 20, 60, spaces.data());
+		ui_dputs_at(this, 20, 60, view_dir.data());
 		
 		return window_event_result::handled;
 	}
 
-	if (GADGET_PRESSED(b->button2.get()))
+	if (GADGET_PRESSED(button2.get()))
 	{
-		b->filename_list.reset();
-		b->directory_list.reset();
+		filename_list.reset();
 		return window_event_result::close;
 	}
 	
-	if (GADGET_PRESSED(b->help_button.get()))
+	if (GADGET_PRESSED(help_button.get()))
 	{
 		ui_messagebox( -1, -1, 1, "Sorry, no help is available!", "Ok" );
 		rval = window_event_result::handled;
@@ -152,170 +160,162 @@ static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &
 	
 	if (event.type == EVENT_UI_LISTBOX_MOVED)
 	{
-		if ((ui_event_get_gadget(event) == b->listbox1.get()) && (b->listbox1->current_item >= 0) && b->filename_list[b->listbox1->current_item])
-			ui_inputbox_set_text(b->user_file.get(), b->filename_list[b->listbox1->current_item]);
+		if ((ui_event_get_gadget(event) == listbox1.get()) && (listbox1->current_item >= 0) && filename_list[listbox1->current_item])
+			ui_inputbox_set_text(user_file.get(), filename_list[listbox1->current_item]);
 
-		if ((ui_event_get_gadget(event) == b->listbox2.get()) && (b->listbox2->current_item >= 0) && b->directory_list[b->listbox2->current_item])
-			ui_inputbox_set_text(b->user_file.get(), b->directory_list[b->listbox2->current_item]);
+		if ((ui_event_get_gadget(event) == listbox2.get()) && (listbox2->current_item >= 0) && directory_list[listbox2->current_item])
+			ui_inputbox_set_text(user_file.get(), directory_list[listbox2->current_item]);
 
 		rval = window_event_result::handled;
 	}
 	
-	if (GADGET_PRESSED(b->button1.get()) || GADGET_PRESSED(b->user_file.get()) || event.type == EVENT_UI_LISTBOX_SELECTED)
+	if (GADGET_PRESSED(button1.get()) || GADGET_PRESSED(user_file.get()) || event.type == EVENT_UI_LISTBOX_SELECTED)
 	{
 		char *p;
 		
-		if (ui_event_get_gadget(event) == b->listbox2.get())
-			strcpy(b->user_file->text.get(), b->directory_list[b->listbox2->current_item]);
+		if (ui_event_get_gadget(event) == listbox2.get())
+			strcpy(user_file->text.get(), directory_list[listbox2->current_item]);
 		
-		strncpy(b->filename, b->view_dir.data(), PATH_MAX);
+		strncpy(filename, view_dir.data(), PATH_MAX);
 		
-		p = b->user_file->text.get();
+		p = user_file->text.get();
 		while (!strncmp(p, "..", 2))	// shorten the path manually
 		{
-			char *sep = strrchr(b->filename, '/');
+			char *sep = strrchr(filename, '/');
 			if (sep)
 				*sep = 0;
 			else
-				*b->filename = 0;	// look directly in search paths
+				*filename = 0;	// look directly in search paths
 			
 			p += 2;
 			if (*p == '/')
 				p++;
 		}
 		
-		if (*b->filename && *p)
-			strncat(b->filename, "/", PATH_MAX - strlen(b->filename));
-		strncat(b->filename, p, PATH_MAX - strlen(b->filename));
+		if (*filename && *p)
+			strncat(filename, "/", PATH_MAX - strlen(filename));
+		strncat(filename, p, PATH_MAX - strlen(filename));
 		
-		if (!PHYSFS_isDirectory(b->filename))
+		if (!PHYSFS_isDirectory(filename))
 		{
-			if (RAIIPHYSFS_File{PHYSFS_openRead(b->filename)})
+			if (RAIIPHYSFS_File{PHYSFS_openRead(filename)})
 			{
 				// Looks like a valid filename that already exists!
 				return window_event_result::close;
 			}
 			
 			// File doesn't exist, but can we create it?
-			if (RAIIPHYSFS_File TempFile{PHYSFS_openWrite(b->filename)})
+			if (RAIIPHYSFS_File TempFile{PHYSFS_openWrite(filename)})
 			{
 				TempFile.reset();
 				// Looks like a valid filename!
-				PHYSFS_delete(b->filename);
+				PHYSFS_delete(filename);
 				return window_event_result::close;
 			}
 		}
 		else
 		{
-			if (auto &last = b->filename[strlen(b->filename) - 1]; last == '/')	// user typed a separator on the end
+			if (auto &last = filename[strlen(filename) - 1]; last == '/')	// user typed a separator on the end
 				last = 0;
 			
-			strcpy(b->view_dir.data(), b->filename);
-			b->filename_list = file_getfilelist(b->filespec, b->view_dir.data());
-			if (!b->filename_list)
+			strcpy(view_dir.data(), filename);
+			filename_list = file_getfilelist(filespec, view_dir.data());
+			if (!filename_list)
 			{
-				b->directory_list.reset();
 				return window_event_result::close;
 			}
 			
-			ui_inputbox_set_text(b->user_file.get(), b->filespec);
-			b->directory_list = file_getdirlist(b->view_dir.data());
-			if (!b->directory_list)
+			ui_inputbox_set_text(user_file.get(), filespec);
+			directory_list = file_getdirlist(view_dir.data());
+			if (!directory_list)
 			{
-				b->filename_list.reset();
+				filename_list.reset();
 				return window_event_result::close;
 			}
 			
-			ui_listbox_change(dlg, b->listbox1.get(), b->filename_list.get_count(), b->filename_list.get());
-			ui_listbox_change(dlg, b->listbox2.get(), b->directory_list.get_count(), b->directory_list.get());
-			
-			//i = TICKER;
-			//while ( TICKER < i+2 );
-			
+			ui_listbox_change(this, listbox1.get(), filename_list.get_count(), filename_list.get());
+			ui_listbox_change(this, listbox2.get(), directory_list.get_count(), directory_list.get());
 		}
 		
 		rval = window_event_result::handled;
 	}
-	
 	return rval;
 }
+#endif
 
 }
 
+#if DXX_USE_EDITOR
 int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *const filespec, const char *const message)
 {
 	std::array<char, PATH_MAX>::iterator InputText;
 	std::size_t InputLength;
-	UI_DIALOG	*dlg;
 	int			rval = 0;
-	auto b = std::make_unique<ui_file_browser>();
+	std::array<char, PATH_MAX> view_dir;
 	if (const auto p = strrchr(filename.data(), '/'))
 	{
 		const auto count = std::distance(filename.begin(), p);
-		if (count >= b->view_dir.size())
+		if (count >= view_dir.size())
 			/* This should never happen. */
 			return 0;
-		std::copy(std::begin(filename), p, std::begin(b->view_dir));
+		std::copy(std::begin(filename), p, std::begin(view_dir));
 		InputText = std::next(p);
 		InputLength = std::distance(InputText, filename.end());
 	}
 	else
 	{
-		b->view_dir.front() = 0;
+		view_dir.front() = 0;
 		InputText = filename.begin();
 		InputLength = filename.size();
 	}
 
-	b->filename_list = file_getfilelist(filespec, b->view_dir.data());
-	if (!b->filename_list)
+	PHYSFSX_counted_list filename_list = file_getfilelist(filespec, view_dir.data());
+	if (!filename_list)
 	{
 		return 0;
 	}
 	
-	b->directory_list = file_getdirlist(b->view_dir.data());
-	if (!b->directory_list)
+	PHYSFSX_counted_list &&directory_list = file_getdirlist(view_dir.data());
+	if (!directory_list)
 	{
-		b->filename_list.reset();
 		return 0;
 	}
 
 	//ui_messagebox( -2,-2, 1,"DEBUG:0", "Ok" );
 
-	dlg = ui_create_dialog( 200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), browser_handler, b.get());
+	auto dlg = ui_create_dialog<ui_file_browser>(200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), nullptr, view_dir, filename_list, std::move(directory_list));
 
-	b->user_file  = ui_add_gadget_inputbox(dlg, 60, 30, InputLength, 40, InputText);
+	dlg->user_file  = ui_add_gadget_inputbox(dlg, 60, 30, InputLength, 40, InputText);
 
-	b->listbox1 = ui_add_gadget_listbox(dlg,  20, 110, 125, 200, b->filename_list.get_count(), b->filename_list.get());
-	b->listbox2 = ui_add_gadget_listbox(dlg, 210, 110, 100, 200, b->directory_list.get_count(), b->directory_list.get());
+	dlg->listbox1 = ui_add_gadget_listbox(dlg,  20, 110, 125, 200, filename_list.get_count(), filename_list.get());
+	dlg->listbox2 = ui_add_gadget_listbox(dlg, 210, 110, 100, 200, dlg->directory_list.get_count(), dlg->directory_list.get());
 
-	b->button1 = ui_add_gadget_button( dlg,     20, 330, 60, 25, "Ok", NULL );
-	b->button2 = ui_add_gadget_button( dlg,    100, 330, 60, 25, "Cancel", NULL );
-	b->help_button = ui_add_gadget_button( dlg, 180, 330, 60, 25, "Help", NULL );
+	dlg->button1 = ui_add_gadget_button( dlg,     20, 330, 60, 25, "Ok", NULL );
+	dlg->button2 = ui_add_gadget_button( dlg,    100, 330, 60, 25, "Cancel", NULL );
+	dlg->help_button = ui_add_gadget_button( dlg, 180, 330, 60, 25, "Help", NULL );
 
-	dlg->keyboard_focus_gadget = b->user_file.get();
+	dlg->keyboard_focus_gadget = dlg->user_file.get();
 
-	b->button1->hotkey = KEY_CTRLED + KEY_ENTER;
-	b->button2->hotkey = KEY_ESC;
-	b->help_button->hotkey = KEY_F1;
-	b->listbox1->hotkey = KEY_ALTED + KEY_F;
-	b->listbox2->hotkey = KEY_ALTED + KEY_D;
-	b->user_file->hotkey = KEY_ALTED + KEY_A;
+	dlg->button1->hotkey = KEY_CTRLED + KEY_ENTER;
+	dlg->button2->hotkey = KEY_ESC;
+	dlg->help_button->hotkey = KEY_F1;
+	dlg->listbox1->hotkey = KEY_ALTED + KEY_F;
+	dlg->listbox2->hotkey = KEY_ALTED + KEY_D;
+	dlg->user_file->hotkey = KEY_ALTED + KEY_A;
 
 	ui_gadget_calc_keys(dlg);
 
-	b->filename = filename.data();
-	b->filespec = filespec;
-	b->message = message;
+	dlg->filename = filename.data();
+	dlg->filespec = filespec;
+	dlg->message = message;
 	
 	event_process_all();
+	rval = static_cast<bool>(filename_list);
 
 	//key_flush();
-
-	rval = static_cast<bool>(b->filename_list);
-	b->filename_list.reset();
-	b->directory_list.reset();
 	return rval;
 }
+#endif
 
 int ui_get_file( char * filename, const char * Filespec  )
 {
