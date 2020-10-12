@@ -481,6 +481,10 @@ void pressed_keys::update(const std::size_t keycode, const uint8_t down)
 
 window_event_result key_handler(const SDL_KeyboardEvent *const kevent)
 {
+#if SDL_MAJOR_VERSION == 2
+	if (!keyd_repeat && kevent->repeat)
+		return window_event_result::ignored;
+#endif
 	// Read SDLK symbol and state
 	const auto event_keysym = kevent->keysym.sym;
 	if (event_keysym == SDLK_UNKNOWN)
