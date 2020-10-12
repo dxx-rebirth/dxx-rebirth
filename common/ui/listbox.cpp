@@ -31,78 +31,77 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+namespace {
+
 static void gr_draw_sunken_border( short x1, short y1, short x2, short y2 );
 
-void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
+void ui_draw_listbox(UI_DIALOG &dlg, UI_GADGET_LISTBOX &listbox)
 {
-	int i, x, y, stop;
+	int x, y, stop;
 	int w, h;
 
-	//if (listbox->current_item<0)
-	//    listbox->current_item=0;
-	//if (listbox->current_item>=listbox->num_items)
-	//    listbox->current_item = listbox->num_items-1;
-	//if (listbox->first_item<0)
-	//   listbox->first_item=0;
-	//if (listbox->first_item>(listbox->num_items-listbox->num_items_displayed))
-	//    listbox->first_item=(listbox->num_items-listbox->num_items_displayed);
+	//if (listbox.current_item<0)
+	//    listbox.current_item=0;
+	//if (listbox.current_item>=listbox.num_items)
+	//    listbox.current_item = listbox.num_items - 1;
+	//if (listbox.first_item<0)
+	//   listbox.first_item=0;
+	//if (listbox.first_item>(listbox.num_items-listbox.num_items_displayed))
+	//    listbox.first_item=(listbox.num_items-listbox.num_items_displayed);
 
 #if 0  //ndef OGL
-	if ((listbox->status!=1) && !listbox->moved )
+	if ((listbox.status!=1) && !listbox.moved)
 		return;
 #endif
 
-	gr_set_current_canvas( listbox->canvas );
+	gr_set_current_canvas(listbox.canvas);
 	auto &canvas = *grd_curcanv;
 	
-	w = listbox->width;
-	h = listbox->height;
+	w = listbox.width;
+	h = listbox.height;
 
 	gr_rect(canvas, 0, 0, w-1, h-1, CBLACK);
 	
-	gr_draw_sunken_border( -2, -2, w+listbox->scrollbar->width+4, h+1);
+	gr_draw_sunken_border(-2, -2, w+listbox.scrollbar->width+4, h+1);
 	
-	stop = listbox->first_item+listbox->num_items_displayed;
-	if (stop>listbox->num_items) stop = listbox->num_items;
+	stop = listbox.first_item+listbox.num_items_displayed;
+	if (stop>listbox.num_items) stop = listbox.num_items;
 
-	listbox->status = 0;
+	listbox.status = 0;
 
 	x = y = 0;
 
-	for (i= listbox->first_item; i< stop; i++ )
+	for (int i = listbox.first_item; i < stop; ++i)
 	{
-		const auto color = (i == listbox->current_item)
+		const auto color = (i == listbox.current_item)
 			? CGREY
 			: CBLACK;
-		gr_rect(canvas, x, y, listbox->width - 1, y + h - 1, color);
+		gr_rect(canvas, x, y, listbox.width - 1, y + h - 1, color);
 
-		if (i !=listbox->current_item)
+		if (i != listbox.current_item)
 		{
-			if ((listbox->current_item == -1) && (dlg->keyboard_focus_gadget == listbox) && (i == listbox->first_item)  )
+			if (listbox.current_item == -1 && dlg.keyboard_focus_gadget == &listbox && i == listbox.first_item)
 				gr_set_fontcolor(canvas, CRED, -1);
 			else
 				gr_set_fontcolor(canvas, CWHITE, -1);
 		}
 		else
 		{
-			if (dlg->keyboard_focus_gadget == listbox)
+			if (dlg.keyboard_focus_gadget == &listbox)
 				gr_set_fontcolor(canvas, CRED, -1);
 			else
 				gr_set_fontcolor(canvas, CBLACK, -1);
 		}
-		gr_get_string_size(*canvas.cv_font, listbox->list[i], &w, &h, nullptr);
-		gr_string(canvas, *canvas.cv_font, x + 2, y, listbox->list[i], w, h);
+		gr_get_string_size(*canvas.cv_font, listbox.list[i], &w, &h, nullptr);
+		gr_string(canvas, *canvas.cv_font, x + 2, y, listbox.list[i], w, h);
 		y += h;
 	}
 
-	if (stop < listbox->num_items_displayed-1 )
+	if (stop < listbox.num_items_displayed - 1)
 	{
-		gr_rect(canvas, x, y, listbox->width-1, listbox->height-1, CBLACK);
+		gr_rect(canvas, x, y, listbox.width - 1, listbox.height-1, CBLACK);
 	}
-
-	//gr_ubox( -1, -1, listbox->width, listbox->height);
 }
-
 
 static void gr_draw_sunken_border( short x1, short y1, short x2, short y2 )
 {
@@ -115,6 +114,7 @@ static void gr_draw_sunken_border( short x1, short y1, short x2, short y2 )
 	Vline(*grd_curcanv, y1, y2 + 1, x2 + 1, cbright);
 }
 
+}
 
 std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, short w, short h, short numitems, char **list)
 {
@@ -148,7 +148,7 @@ window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox,c
 	int keypress = 0;
 	if (event.type == EVENT_WINDOW_DRAW)
 	{
-		ui_draw_listbox( dlg, listbox );
+		ui_draw_listbox(*dlg, *listbox);
 		return window_event_result::ignored;
 	}
 	
