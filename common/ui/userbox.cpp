@@ -31,23 +31,26 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
+namespace {
+
+void ui_draw_userbox(UI_DIALOG &dlg, UI_GADGET_USERBOX &userbox)
 {
 #if 0  //ndef OGL
 	if ( userbox->status==1 )
 #endif
 	{
-		userbox->status = 0;
+		userbox.status = 0;
 
-		gr_set_current_canvas( userbox->canvas );
+		gr_set_current_canvas(userbox.canvas);
 
-		const uint8_t color = (dlg->keyboard_focus_gadget == userbox)
+		const uint8_t color = (dlg.keyboard_focus_gadget == &userbox)
 			? CRED
 			: CBRIGHT;
-		gr_ubox(*grd_curcanv, -1, -1, userbox->width, userbox->height, color);
+		gr_ubox(*grd_curcanv, -1, -1, userbox.width, userbox.height, color);
 	}
 }
 
+}
 
 std::unique_ptr<UI_GADGET_USERBOX> ui_add_gadget_userbox(UI_DIALOG * dlg, short x, short y, short w, short h)
 {
@@ -77,7 +80,7 @@ window_event_result UI_GADGET_USERBOX::event_handler(UI_DIALOG &dlg, const d_eve
 	window_event_result rval = window_event_result::ignored;
 	
 	if (event.type == EVENT_WINDOW_DRAW)
-		ui_draw_userbox(&dlg, this);
+		ui_draw_userbox(dlg, *this);
 
 	const auto keypress = (event.type == EVENT_KEY_COMMAND)
 		? event_key_get(event)
