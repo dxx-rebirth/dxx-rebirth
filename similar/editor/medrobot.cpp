@@ -523,7 +523,7 @@ int do_robot_dialog()
 	Cur_goody_count = 0;
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog<robot_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG);
+	MainWindow = ui_create_dialog<robot_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG, nullptr);
 	return 1;
 }
 

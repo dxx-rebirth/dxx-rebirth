@@ -114,7 +114,7 @@ int do_hostage_dialog()
 	close_all_windows();
 	
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog<hostage_dialog>(TMAPBOX_X + 10, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG);
+	MainWindow = ui_create_dialog<hostage_dialog>(TMAPBOX_X + 10, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG, nullptr);
 	return 1;
 }
 
