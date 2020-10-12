@@ -52,7 +52,7 @@ static void ui_dialog_draw(UI_DIALOG *dlg)
 	req_w = w;
 	req_h = h;
 
-	ui_dialog_set_current_canvas(dlg);
+	ui_dialog_set_current_canvas(*dlg);
 	
 	if (dlg->d_flags & DF_FILLED)
 		ui_draw_box_out(*grd_curcanv, 0, 0, req_w-1, req_h-1);
@@ -130,9 +130,9 @@ UI_DIALOG::UI_DIALOG(short x, short y, const short w, const short h, const enum 
 		set_modal(0);	// make this window modeless, allowing events to propogate through the window stack
 }
 
-void ui_dialog_set_current_canvas(UI_DIALOG *dlg)
+void ui_dialog_set_current_canvas(UI_DIALOG &dlg)
 {
-	gr_set_current_canvas(dlg->w_canv);
+	gr_set_current_canvas(dlg.w_canv);
 }
 
 UI_DIALOG::~UI_DIALOG()
@@ -423,7 +423,7 @@ void (ui_dprintf_at)( UI_DIALOG * dlg, short x, short y, const char * format, ..
 
 void ui_dputs_at( UI_DIALOG * dlg, short x, short y, const char * buffer )
 {
-	ui_dialog_set_current_canvas( dlg );
+	ui_dialog_set_current_canvas(*dlg);
 	gr_string(*grd_curcanv, *grd_curcanv->cv_font, x, y, buffer);
 }
 

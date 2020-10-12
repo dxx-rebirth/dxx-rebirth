@@ -78,7 +78,7 @@ window_event_result messagebox::callback_handler(const d_event &event)
 			grd_curscreen->sc_canvas.cv_font = ui_small_font.get();
 		}
 		
-		ui_dialog_set_current_canvas(this);
+		ui_dialog_set_current_canvas(*this);
 		ui_string_centered(canvas, width / 2, text_y, text);
 		
 		Hline(canvas, 1, width - 2, line_y + 1, CGREY);
