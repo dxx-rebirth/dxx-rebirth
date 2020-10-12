@@ -57,6 +57,20 @@ struct event_gadget : d_event
 	}
 };
 
+template <UI_GADGET *UI_GADGET::*step>
+UI_GADGET &ui_gadget_get_step(UI_GADGET &gadget)
+{
+	auto tmp = gadget.*step;
+	while (tmp != &gadget && tmp->parent)
+		tmp = tmp->*step;
+	return *tmp;
+}
+
+UI_GADGET &ui_gadget_get_prev(UI_GADGET &gadget)
+{
+	return ui_gadget_get_step<&UI_GADGET::prev>(gadget);
+}
+
 }
 
 void ui_gadget_add(UI_DIALOG &dlg, short x1, short y1, short x2, short y2, UI_GADGET &gadget)
@@ -288,30 +302,9 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG &dlg, const d_event &event)
 	return rval;
 }
 
-
-
-UI_GADGET * ui_gadget_get_next( UI_GADGET * gadget )
+UI_GADGET &ui_gadget_get_next(UI_GADGET &gadget)
 {
-	UI_GADGET * tmp;
-
-	tmp = gadget->next;
-
-	while( tmp != gadget && (tmp->parent!=NULL) )
-		tmp = tmp->next;
-
-	return tmp;
-}
-
-UI_GADGET * ui_gadget_get_prev( UI_GADGET * gadget )
-{
-	UI_GADGET * tmp;
-
-	tmp = gadget->prev;
-
-	while( tmp != gadget && (tmp->parent!=NULL) )
-		tmp = tmp->prev;
-
-	return tmp;
+	return ui_gadget_get_step<&UI_GADGET::next>(gadget);
 }
 
 void ui_gadget_calc_keys(UI_DIALOG &dlg)
@@ -321,8 +314,8 @@ void ui_gadget_calc_keys(UI_DIALOG &dlg)
 
 	do
 	{
-		tmp->when_tab = ui_gadget_get_next(tmp);
-		tmp->when_btab = ui_gadget_get_prev(tmp);
+		tmp->when_tab = &ui_gadget_get_next(*tmp);
+		tmp->when_btab = &ui_gadget_get_prev(*tmp);
 
 		tmp = tmp->next;
 	} while(tmp != dlg.gadget);

@@ -325,8 +325,7 @@ std::unique_ptr<UI_GADGET_CHECKBOX> ui_add_gadget_checkbox(UI_DIALOG * dlg, shor
 window_event_result ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox, const d_event &event );
 extern void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check);
 
-extern UI_GADGET * ui_gadget_get_prev( UI_GADGET * gadget );
-extern UI_GADGET * ui_gadget_get_next( UI_GADGET * gadget );
+UI_GADGET &ui_gadget_get_next(UI_GADGET &gadget);
 void ui_gadget_calc_keys(UI_DIALOG &dlg);
 
 void ui_listbox_change(UI_DIALOG *dlg, UI_GADGET_LISTBOX *listbox, uint_fast32_t numitems, const char *const *list);

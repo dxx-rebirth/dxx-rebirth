@@ -168,7 +168,7 @@ window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox,c
 
 		if (dlg->keyboard_focus_gadget == listbox)
 		{
-			dlg->keyboard_focus_gadget = ui_gadget_get_next(listbox);
+			dlg->keyboard_focus_gadget = &ui_gadget_get_next(*listbox);
 		}
 
 		return window_event_result::ignored;
