@@ -39,46 +39,48 @@ namespace dcx {
 
 namespace {
 
-struct menu
+struct menu : UI_DIALOG
 {
-	std::unique_ptr<std::unique_ptr<UI_GADGET_BUTTON>[]> button_g;
-	int *choice;
-	int num_buttons;
+	explicit menu(short x, short y, short w, short h, enum dialog_flags flags, int &choice, int NumButtons) :
+		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr),
+		button_g(std::make_unique<std::unique_ptr<UI_GADGET_BUTTON>[]>(NumButtons)),
+		choice(&choice),
+		num_buttons(NumButtons)
+	{
+	}
+	const std::unique_ptr<std::unique_ptr<UI_GADGET_BUTTON>[]> button_g;
+	int *const choice;
+	const int num_buttons;
+	virtual window_event_result callback_handler(const d_event &) override;
 };
 
-}
-
-static window_event_result menu_handler(UI_DIALOG *,const d_event &event, menu *m)
+window_event_result menu::callback_handler(const d_event &event)
 {
-	for (int i=0; i<m->num_buttons; i++ )
+	for (int i=0; i < num_buttons; i++ )
 	{
-		if (GADGET_PRESSED(m->button_g[i].get()))
+		if (GADGET_PRESSED(button_g[i].get()))
 		{
-			*(m->choice) = i+1;
+			*(choice) = i+1;
 			return window_event_result::handled;
 		}
 	}
 	
-	if ( (*(m->choice)==0) && B1_JUST_RELEASED )
+	if ((*(choice)==0) && B1_JUST_RELEASED)
 	{
-		*(m->choice) = -1;
+		*(choice) = -1;
 		return window_event_result::handled;
 	}
 	
 	return window_event_result::ignored;
 }
 
+}
+
 int MenuX( int x, int y, int NumButtons, const char *const text[] )
 {
-	UI_DIALOG * dlg;
 	int button_width, button_height;
 	int w, h;
 	int choice;
-
-	auto m = std::make_unique<menu>();
-	m->num_buttons = NumButtons;
-	m->button_g = std::make_unique<std::unique_ptr<UI_GADGET_BUTTON>[]>(NumButtons);
-	m->choice = &choice;
 
 	button_width = button_height = 0;
 
@@ -124,14 +126,14 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 		y = h - height;
 	}
 
-	dlg = ui_create_dialog(x, y, width, height, static_cast<dialog_flags>(DF_FILLED | DF_SAVE_BG | DF_MODAL), menu_handler, m.get());
+	auto dlg = ui_create_dialog<menu>(x, y, width, height, static_cast<dialog_flags>(DF_FILLED | DF_SAVE_BG | DF_MODAL), nullptr, choice, NumButtons);
 
 	x = MENU_BORDER+3;
 	y = MENU_BORDER+3;
 
 	for (int i=0; i<NumButtons; i++ )
 	{
-		m->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, text[i], NULL );
+		dlg->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, text[i], NULL );
 		y += button_height+MENU_VERT_SPACING;
 	}
 
