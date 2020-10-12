@@ -160,36 +160,12 @@ int ui_mouse_on_gadget(UI_GADGET &gadget)
 		return 0;
 }
 
-static window_event_result ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g,const d_event &event)
-{
-	switch( g->kind )
-	{
-		case UI_GADGET_BUTTON::s_kind:
-			return static_cast<UI_GADGET_BUTTON *>(g)->event_handler(*dlg, event);
-		case UI_GADGET_LISTBOX::s_kind:
-			return static_cast<UI_GADGET_LISTBOX *>(g)->event_handler(*dlg, event);
-		case UI_GADGET_SCROLLBAR::s_kind:
-			return static_cast<UI_GADGET_SCROLLBAR *>(g)->event_handler(*dlg, event);
-		case UI_GADGET_RADIO::s_kind:
-			return static_cast<UI_GADGET_RADIO *>(g)->event_handler(*dlg, event);
-		case UI_GADGET_CHECKBOX::s_kind:
-			return static_cast<UI_GADGET_CHECKBOX *>(g)->event_handler(*dlg, event);
-		case UI_GADGET_INPUTBOX::s_kind:
-			return static_cast<UI_GADGET_INPUTBOX *>(g)->event_handler(*dlg, event);
-		case UI_GADGET_USERBOX::s_kind:
-			return static_cast<UI_GADGET_USERBOX *>(g)->event_handler(*dlg, event);
-		case UI_GADGET_ICON::s_kind:
-			return static_cast<UI_GADGET_ICON *>(g)->event_handler(*dlg, event);
-	}
-	return window_event_result::ignored;
-}
-
 window_event_result ui_gadget_send_event(UI_DIALOG &dlg, const event_type type, UI_GADGET &gadget)
 {
 	const event_gadget event{type, gadget};
 
 	if (const auto parent = gadget.parent)
-		return ui_gadget_do(&dlg, parent, event);
+		return gadget.parent->event_handler(dlg, event);
 
 	return window_send_event(dlg, event);
 }
@@ -290,7 +266,7 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG &dlg, const d_event &event)
 		// If it is under another dialog, that dialog's handler would have returned 1 for mouse events.
 		// Key events are handled in a priority depending on the window ordering.
 		//if (!is_under_another_window( dlg, tmp ))
-			rval = ui_gadget_do(&dlg, tmp, event);
+			rval = tmp->event_handler(dlg, event);
 		
 		if (rval == window_event_result::deleted)
 			break;

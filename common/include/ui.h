@@ -66,6 +66,7 @@ struct UI_EVENT
 
 struct UI_GADGET
 {
+	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &) = 0;
 	uint8_t           kind;
 	short           x1,y1,x2,y2;
 	int             hotkey;
@@ -88,7 +89,7 @@ protected:
 struct UI_GADGET_USERBOX : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 7>{};
-	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
+	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	short           width, height;
 	short           b1_held_down;
 	short           b1_clicked;
@@ -106,7 +107,7 @@ struct UI_GADGET_USERBOX : UI_GADGET
 struct UI_GADGET_BUTTON : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 1>{};
-	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
+	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	std::string  text;
 	short           width, height;
 	short           position;
@@ -121,7 +122,7 @@ struct UI_GADGET_BUTTON : UI_GADGET
 struct UI_GADGET_INPUTBOX : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 6>{};
-	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
+	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	std::unique_ptr<char[]> text;
 	short           width, height;
 	short           length;
@@ -134,7 +135,7 @@ struct UI_GADGET_INPUTBOX : UI_GADGET
 struct UI_GADGET_RADIO : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 4>{};
-	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
+	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           position;
@@ -147,7 +148,7 @@ struct UI_GADGET_RADIO : UI_GADGET
 struct UI_GADGET_ICON : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 9>{};
-	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
+	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	RAIIdmem<char[]>  text;
 	short 		    width, height;
 	sbyte           flag;
@@ -161,7 +162,7 @@ struct UI_GADGET_ICON : UI_GADGET
 struct UI_GADGET_CHECKBOX : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 5>{};
-	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
+	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           position;
@@ -174,7 +175,7 @@ struct UI_GADGET_CHECKBOX : UI_GADGET
 struct UI_GADGET_SCROLLBAR : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 3>{};
-	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
+	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	short           horz;
 	short           width, height;
 	int             start;
@@ -195,7 +196,7 @@ struct UI_GADGET_SCROLLBAR : UI_GADGET
 struct UI_GADGET_LISTBOX : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 2>{};
-	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
+	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	const char            *const *list;
 	short           width, height;
 	int             num_items;
@@ -333,7 +334,6 @@ void ui_gadget_calc_keys(UI_DIALOG &dlg);
 
 void ui_listbox_change(UI_DIALOG *dlg, UI_GADGET_LISTBOX *listbox, uint_fast32_t numitems, const char *const *list);
 
-extern void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox );
 __attribute_warn_unused_result
 std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG * dlg, short x, short y, uint_fast32_t length_of_initial_text, uint_fast32_t maximum_allowed_text_length, const char * text);
 
