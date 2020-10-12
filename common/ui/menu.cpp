@@ -42,7 +42,6 @@ namespace {
 struct menu
 {
 	std::unique_ptr<std::unique_ptr<UI_GADGET_BUTTON>[]> button_g;
-	std::unique_ptr<const char *[]> button;
 	int *choice;
 	int num_buttons;
 };
@@ -79,17 +78,14 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 	auto m = std::make_unique<menu>();
 	m->num_buttons = NumButtons;
 	m->button_g = std::make_unique<std::unique_ptr<UI_GADGET_BUTTON>[]>(NumButtons);
-	m->button = std::make_unique<const char *[]>(NumButtons);
 	m->choice = &choice;
 
 	button_width = button_height = 0;
 
 	for (int i=0; i<NumButtons; i++ )
 	{
-		m->button[i] = text[i];
-
 		int width, height;
-		ui_get_button_size(*grd_curcanv->cv_font, m->button[i], width, height);
+		ui_get_button_size(*grd_curcanv->cv_font, text[i], width, height);
 
 		if ( width > button_width ) button_width = width;
 		if ( height > button_height ) button_height = height;
@@ -135,7 +131,7 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 
 	for (int i=0; i<NumButtons; i++ )
 	{
-		m->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, m->button[i], NULL );
+		m->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, text[i], NULL );
 		y += button_height+MENU_VERT_SPACING;
 	}
 
