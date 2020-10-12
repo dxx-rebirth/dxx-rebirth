@@ -121,14 +121,14 @@ static window_event_result centers_dialog_created(centers_dialog *const c)
 #endif
 	c->quitButton = ui_add_gadget_button(*c, 20, 252, 48, 40, "Done", nullptr);
 	// These are the checkboxes for each door flag.
-	c->centerFlag[0] = ui_add_gadget_radio(c, 18, i, 16, 16, 0, "NONE"); 			i += 24;
-	c->centerFlag[1] = ui_add_gadget_radio(c, 18, i, 16, 16, 0, "FuelCen");		i += 24;
-	c->centerFlag[2] = ui_add_gadget_radio(c, 18, i, 16, 16, 0, "RepairCen");	i += 24;
-	c->centerFlag[3] = ui_add_gadget_radio(c, 18, i, 16, 16, 0, "ControlCen");	i += 24;
-	c->centerFlag[4] = ui_add_gadget_radio(c, 18, i, 16, 16, 0, "RobotCen");		i += 24;
+	c->centerFlag[0] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "NONE"); 			i += 24;
+	c->centerFlag[1] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "FuelCen");		i += 24;
+	c->centerFlag[2] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "RepairCen");	i += 24;
+	c->centerFlag[3] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "ControlCen");	i += 24;
+	c->centerFlag[4] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "RobotCen");		i += 24;
 #if defined(DXX_BUILD_DESCENT_II)
-	c->centerFlag[5] = ui_add_gadget_radio(c, 18, i, 16, 16, 0, "Blue Goal");		i += 24;
-	c->centerFlag[6] = ui_add_gadget_radio(c, 18, i, 16, 16, 0, "Red Goal");		i += 24;
+	c->centerFlag[5] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "Blue Goal");		i += 24;
+	c->centerFlag[6] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "Red Goal");		i += 24;
 #endif
 	// These are the checkboxes for each robot flag.
 #if defined(DXX_BUILD_DESCENT_I)

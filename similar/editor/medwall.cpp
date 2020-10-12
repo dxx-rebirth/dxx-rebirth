@@ -446,10 +446,10 @@ static window_event_result wall_dialog_created(wall_dialog *const wd)
 	wd->doorFlag[0] = ui_add_gadget_checkbox(wd, 22, i, 16, 16, 0, "Locked"); i += 24;
 	wd->doorFlag[1] = ui_add_gadget_checkbox(wd, 22, i, 16, 16, 0, "Auto"); i += 24;
 	wd->doorFlag[2] = ui_add_gadget_checkbox(wd, 22, i, 16, 16, 0, "Illusion OFF"); i += 24;
-	wd->keyFlag[0] = ui_add_gadget_radio(wd, 22, i, 16, 16, 0, "NONE"); i += 24;
-	wd->keyFlag[1] = ui_add_gadget_radio(wd, 22, i, 16, 16, 0, "Blue"); i += 24;
-	wd->keyFlag[2] = ui_add_gadget_radio(wd, 22, i, 16, 16, 0, "Red");  i += 24;
-	wd->keyFlag[3] = ui_add_gadget_radio(wd, 22, i, 16, 16, 0, "Yellow"); i += 24;
+	wd->keyFlag[0] = ui_add_gadget_radio(*wd, 22, i, 16, 16, 0, "NONE"); i += 24;
+	wd->keyFlag[1] = ui_add_gadget_radio(*wd, 22, i, 16, 16, 0, "Blue"); i += 24;
+	wd->keyFlag[2] = ui_add_gadget_radio(*wd, 22, i, 16, 16, 0, "Red");  i += 24;
+	wd->keyFlag[3] = ui_add_gadget_radio(*wd, 22, i, 16, 16, 0, "Yellow"); i += 24;
 	// The little box the wall will appear in.
 	wd->wallViewBox = ui_add_gadget_userbox(wd, 155, 5, 64, 64);
 	// A bunch of buttons...

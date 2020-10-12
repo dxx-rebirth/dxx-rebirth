@@ -536,12 +536,12 @@ static window_event_result robot_dialog_created(robot_dialog *const r)
 	r->next_powerup_id = ui_add_gadget_button(*r, GOODY_X+80, GOODY_Y+21, 25, 22, ">>", GoodyNextID);
 	r->prev_powerup_count = ui_add_gadget_button(*r, GOODY_X+50, GOODY_Y+45, 25, 22, "<<", GoodyPrevCount);
 	r->next_powerup_count = ui_add_gadget_button(*r, GOODY_X+80, GOODY_Y+45, 25, 22, ">>", GoodyNextCount);
-	r->initialMode[0] = ui_add_gadget_radio(r,  6, 58, 16, 16, 0, "Hover");
-	r->initialMode[1] = ui_add_gadget_radio(r, 76, 58, 16, 16, 0, "Normal");
-	r->initialMode[2] = ui_add_gadget_radio(r,  6, 78, 16, 16, 0, "(hide)");
-	r->initialMode[3] = ui_add_gadget_radio(r, 76, 78, 16, 16, 0, "Avoid");
-	r->initialMode[4] = ui_add_gadget_radio(r,  6, 98, 16, 16, 0, "Follow");
-	r->initialMode[5] = ui_add_gadget_radio(r, 76, 98, 16, 16, 0, "Station");
+	r->initialMode[0] = ui_add_gadget_radio(*r,  6, 58, 16, 16, 0, "Hover");
+	r->initialMode[1] = ui_add_gadget_radio(*r, 76, 58, 16, 16, 0, "Normal");
+	r->initialMode[2] = ui_add_gadget_radio(*r,  6, 78, 16, 16, 0, "(hide)");
+	r->initialMode[3] = ui_add_gadget_radio(*r, 76, 78, 16, 16, 0, "Avoid");
+	r->initialMode[4] = ui_add_gadget_radio(*r,  6, 98, 16, 16, 0, "Follow");
+	r->initialMode[5] = ui_add_gadget_radio(*r, 76, 98, 16, 16, 0, "Station");
 	// The little box the robots will spin in.
 	r->robotViewBox = ui_add_gadget_userbox(r, 155, 5, 150, 125);
 	// The little box the robots will spin in.
@@ -849,8 +849,8 @@ static window_event_result object_dialog_created(object_dialog *const o, const o
 	o->quitButton = ui_add_gadget_button(*o, 20, 286, 40, 32, "Done", NULL );
 	o->quitButton->hotkey = KEY_ENTER;
 	// These are the radio buttons for each mode
-	o->initialMode[0] = ui_add_gadget_radio(o, 10, 50, 16, 16, 0, "None" );
-	o->initialMode[1] = ui_add_gadget_radio(o, 80, 50, 16, 16, 0, "Spinning" );
+	o->initialMode[0] = ui_add_gadget_radio(*o, 10, 50, 16, 16, 0, "None" );
+	o->initialMode[1] = ui_add_gadget_radio(*o, 80, 50, 16, 16, 0, "Spinning" );
 	o->initialMode[c->obj->movement_source == object::movement_type::spinning?1:0]->flag = 1;
 	char message[MATT_LEN];
 	snprintf(message, sizeof(message), "%.2f", f2fl(c->obj->mtype.spin_rate.x));
