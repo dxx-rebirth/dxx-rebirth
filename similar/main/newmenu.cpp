@@ -1263,43 +1263,47 @@ namespace {
 
 static void newmenu_create_structure(newmenu &menu)
 {
-	int aw, tw, th, twidth,right_offset;
+	int aw, twidth,right_offset;
 	int nmenus;
 	grs_canvas &save_canvas = *grd_curcanv;
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 
-	tw = th = 0;
+	auto iterative_layout_max_width = 0u;
+	auto iterative_layout_max_height = 0u;
 
 	if (menu.title)
 	{
 		int string_width, string_height;
 		auto &huge_font = *HUGE_FONT;
 		gr_get_string_size(huge_font, menu.title, &string_width, &string_height, nullptr);
-		tw = string_width;
-		th = string_height;
+		iterative_layout_max_width = string_width;
+		iterative_layout_max_height = string_height;
 	}
 	if (menu.subtitle)
 	{
 		int string_width, string_height;
 		auto &medium3_font = *MEDIUM3_FONT;
 		gr_get_string_size(medium3_font, menu.subtitle, &string_width, &string_height, nullptr);
-		if (string_width > tw )
-			tw = string_width;
-		th += string_height;
+		if (iterative_layout_max_width < string_width)
+			iterative_layout_max_width = string_width;
+		iterative_layout_max_height += string_height;
 	}
 
-	th += FSPACY(5);		//put some space between titles & body
+	iterative_layout_max_height += FSPACY(5);		//put some space between titles & body
 
 	auto &cv_font = *(menu.tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT).get();
 
 	menu.w = aw = 0;
-	menu.h = th;
+	menu.h = iterative_layout_max_height;
 	nmenus = 0;
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
-	// Find menu height & width (store in w,h)
+	const auto &&fspacx8 = fspacx(8);
+	const auto &&fspacy1 = fspacy(1);
+	// Find menu height & width (store in iterative_layout_max_width,
+	// iterative_layout_max_height)
 	range_for (auto &i, menu.item_range())
 	{
 		i.y = menu.h;
@@ -1361,7 +1365,7 @@ static void newmenu_create_structure(newmenu &menu)
 		{
 			i.saved_text.copy_if(i.text);
 			const auto text_len = input_or_menu->text_len;
-			string_width = text_len * fspacx(8) + text_len;
+			string_width = text_len * fspacx8 + text_len;
 			if (i.type == NM_TYPE_INPUT && string_width > MAX_TEXT_WIDTH)
 				string_width = MAX_TEXT_WIDTH;
 
@@ -1380,13 +1384,13 @@ static void newmenu_create_structure(newmenu &menu)
 			menu.w = string_width;		// Save maximum width
 		if ( average_width > aw )
 			aw = average_width;
-		menu.h += string_height + fspacy(1);		// Find the height of all strings
+		menu.h += string_height + fspacy1;		// Find the height of all strings
 	}
 
 	if (menu.items.size() > menu.max_on_menu)
 	{
 		menu.is_scroll_box=1;
-		menu.h = th + (LINE_SPACING(cv_font, *GAME_FONT) * menu.max_on_menu);
+		menu.h = iterative_layout_max_height + (LINE_SPACING(cv_font, *GAME_FONT) * menu.max_on_menu);
 		menu.max_displayable=menu.max_on_menu;
 
 		// if our last citem was > menu.max_on_menu, make sure we re-scroll when we call this menu again
@@ -1415,10 +1419,10 @@ static void newmenu_create_structure(newmenu &menu)
 	menu.w += right_offset;
 
 	twidth = 0;
-	if (tw > menu.w)
+	if (menu.w < iterative_layout_max_width)
 	{
-		twidth = (tw - menu.w) / 2;
-		menu.w = tw;
+		twidth = (iterative_layout_max_width - menu.w) / 2;
+		menu.w = iterative_layout_max_width;
 	}
 
 	// Find min point of menu border
