@@ -34,34 +34,37 @@ namespace dcx {
 
 #define Middle(x) ((2*(x)+1)/4)
 
-void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
+namespace {
+
+void ui_draw_checkbox(UI_DIALOG &dlg, UI_GADGET_CHECKBOX &checkbox)
 {
 #if 0  //ndef OGL
-	if ((checkbox->status==1) || (checkbox->position != checkbox->oldposition))
+	if ((checkbox.status==1) || (checkbox.position != checkbox.oldposition))
 #endif
 	{
-		checkbox->status = 0;
+		checkbox.status = 0;
 
-		gr_set_current_canvas( checkbox->canvas );
+		gr_set_current_canvas(checkbox.canvas);
 		auto &canvas = *grd_curcanv;
-		gr_set_fontcolor(canvas, dlg->keyboard_focus_gadget == checkbox
+		gr_set_fontcolor(canvas, dlg.keyboard_focus_gadget == &checkbox
 			? CRED
 			: CBLACK, -1);
 
 		unsigned offset;
-		if (checkbox->position == 0 )
+		if (checkbox.position == 0)
 		{
-			ui_draw_box_out(canvas, 0, 0, checkbox->width-1, checkbox->height-1);
+			ui_draw_box_out(canvas, 0, 0, checkbox.width - 1, checkbox.height - 1);
 			offset = 0;
 		} else {
-			ui_draw_box_in(canvas, 0, 0, checkbox->width-1, checkbox->height-1);
+			ui_draw_box_in(canvas, 0, 0, checkbox.width - 1, checkbox.height - 1);
 			offset = 1;
 		}
-		ui_string_centered(canvas, Middle(checkbox->width) + offset, Middle(checkbox->height) + offset, checkbox->flag ? "X" : " ");
-		gr_ustring(canvas, *canvas.cv_font, checkbox->width + 4, 2, checkbox->text.get());
+		ui_string_centered(canvas, Middle(checkbox.width) + offset, Middle(checkbox.height) + offset, checkbox.flag ? "X" : " ");
+		gr_ustring(canvas, *canvas.cv_font, checkbox.width + 4, 2, checkbox.text.get());
 	}
 }
 
+}
 
 std::unique_ptr<UI_GADGET_CHECKBOX> ui_add_gadget_checkbox(UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text)
 {
@@ -130,7 +133,7 @@ window_event_result UI_GADGET_CHECKBOX::event_handler(UI_DIALOG &dlg, const d_ev
 	}
 
 	if (event.type == EVENT_WINDOW_DRAW)
-		ui_draw_checkbox(&dlg, this);
+		ui_draw_checkbox(dlg, *this);
 
 	return window_event_result::ignored;
 }
