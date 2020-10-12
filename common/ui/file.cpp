@@ -285,7 +285,7 @@ int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *const file
 
 	auto dlg = ui_create_dialog<ui_file_browser>(200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), nullptr, view_dir, filename_list, std::move(directory_list));
 
-	dlg->user_file  = ui_add_gadget_inputbox(dlg, 60, 30, InputLength, 40, InputText);
+	dlg->user_file = ui_add_gadget_inputbox(*dlg, 60, 30, InputLength, 40, InputText);
 
 	dlg->listbox1 = ui_add_gadget_listbox(*dlg,  20, 110, 125, 200, filename_list.get_count(), filename_list.get());
 	dlg->listbox2 = ui_add_gadget_listbox(*dlg, 210, 110, 100, 200, dlg->directory_list.get_count(), dlg->directory_list.get());

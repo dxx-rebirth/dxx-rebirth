@@ -854,11 +854,11 @@ static window_event_result object_dialog_created(object_dialog *const o, const o
 	o->initialMode[c->obj->movement_source == object::movement_type::spinning?1:0]->flag = 1;
 	char message[MATT_LEN];
 	snprintf(message, sizeof(message), "%.2f", f2fl(c->obj->mtype.spin_rate.x));
-	o->xtext = ui_add_gadget_inputbox<MATT_LEN>(o, 30, 132, message);
+	o->xtext = ui_add_gadget_inputbox<MATT_LEN>(*o, 30, 132, message);
 	snprintf(message, sizeof(message), "%.2f", f2fl(c->obj->mtype.spin_rate.y));
-	o->ytext = ui_add_gadget_inputbox<MATT_LEN>(o, 30, 162, message);
+	o->ytext = ui_add_gadget_inputbox<MATT_LEN>(*o, 30, 162, message);
 	snprintf(message, sizeof(message), "%.2f", f2fl(c->obj->mtype.spin_rate.z));
-	o->ztext = ui_add_gadget_inputbox<MATT_LEN>(o, 30, 192, message);
+	o->ztext = ui_add_gadget_inputbox<MATT_LEN>(*o, 30, 192, message);
 	ui_gadget_calc_keys(*o);
 	o->keyboard_focus_gadget = o->initialMode[0].get();
 
