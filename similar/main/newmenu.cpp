@@ -82,36 +82,47 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MESSAGEBOX_TEXT_SIZE 2176  // How many characters in messagebox
 #define MAX_TEXT_WIDTH FSPACX(120) // How many pixels wide a input box can be
 
-struct newmenu : embed_window_pointer_t
+struct newmenu_layout
 {
-	int				x,y,w,h;
+	int             x,y,w,h;
 	short			swidth, sheight;
 	// with these we check if resolution or fonts have changed so menu structure can be recreated
 	font_x_scale_proportion fntscalex;
 	font_y_scale_proportion fntscaley;
 	const char			*title;
 	const char			*subtitle;
+	const char			*filename;
 	tiny_mode_flag tiny_mode;
 	tab_processing_flag tabs_flag;
 	uint8_t all_text = 0;		//set true if all text items
 	uint8_t is_scroll_box = 0;   // Is this a scrolling box? Set to false at init
 	uint8_t mouse_state;
-	int				scroll_offset, max_displayable;
 	int				max_on_menu;
 	int				citem;
 	partial_range_t<newmenu_item *> items;
-	int				(*subfunction)(newmenu *menu,const d_event &event, void *userdata);
-	const char			*filename;
-	int				*rval;			// Pointer to return value (for polling newmenus)
-	void			*userdata;		// For whatever - like with window system
+	int	scroll_offset = 0;
+	int max_displayable;
 	partial_range_t<newmenu_item *> item_range()
 	{
 		return items;
 	}
-	newmenu(partial_range_t<newmenu_item *> items) :
+	newmenu_layout(partial_range_t<newmenu_item *> items) :
 		items(items)
 	{
 	}
+	newmenu_layout(newmenu_layout &&) = default;
+	newmenu_layout &operator=(newmenu_layout &&) = default;
+};
+
+struct newmenu : embed_window_pointer_t, newmenu_layout
+{
+	newmenu(newmenu_layout &&l) :
+		newmenu_layout(std::move(l))
+	{
+	}
+	int				(*subfunction)(newmenu *menu,const d_event &event, void *userdata);
+	int				*rval = nullptr;			// Pointer to return value (for polling newmenus)
+	void			*userdata;		// For whatever - like with window system
 };
 
 constexpr std::integral_constant<unsigned, NM_TYPE_INPUT> newmenu_item::input_specific_type::nm_type;
@@ -1261,9 +1272,8 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 namespace dsx {
 namespace {
 
-static void newmenu_create_structure(newmenu &menu)
+static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_font)
 {
-	int aw, twidth,right_offset;
 	int nmenus;
 	grs_canvas &save_canvas = *grd_curcanv;
 	gr_set_default_canvas();
@@ -1292,10 +1302,9 @@ static void newmenu_create_structure(newmenu &menu)
 
 	iterative_layout_max_height += FSPACY(5);		//put some space between titles & body
 
-	auto &cv_font = *(menu.tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT).get();
-
-	menu.w = aw = 0;
-	menu.h = iterative_layout_max_height;
+	int aw = 0;
+	auto iterative_layout_body_width = 0u;
+	const auto initial_layout_height = iterative_layout_max_height;
 	nmenus = 0;
 
 	const auto &&fspacx = FSPACX();
@@ -1306,7 +1315,7 @@ static void newmenu_create_structure(newmenu &menu)
 	// iterative_layout_max_height)
 	range_for (auto &i, menu.item_range())
 	{
-		i.y = menu.h;
+		i.y = iterative_layout_max_height;
 		int string_width, string_height, average_width;
 		gr_get_string_size(cv_font, i.text, &string_width, &string_height, &average_width);
 		i.right_offset = 0;
@@ -1380,18 +1389,18 @@ static void newmenu_create_structure(newmenu &menu)
 		i.w = string_width;
 		i.h = string_height;
 
-		if (string_width > menu.w)
-			menu.w = string_width;		// Save maximum width
+		if (iterative_layout_body_width < string_width)
+			iterative_layout_body_width = string_width;		// Save maximum width
 		if ( average_width > aw )
 			aw = average_width;
-		menu.h += string_height + fspacy1;		// Find the height of all strings
+		iterative_layout_max_height += string_height + fspacy1;		// Find the height of all strings
 	}
 
 	if (menu.items.size() > menu.max_on_menu)
 	{
 		menu.is_scroll_box=1;
-		menu.h = iterative_layout_max_height + (LINE_SPACING(cv_font, *GAME_FONT) * menu.max_on_menu);
-		menu.max_displayable=menu.max_on_menu;
+		iterative_layout_max_height = initial_layout_height + (LINE_SPACING(cv_font, *GAME_FONT) * menu.max_on_menu);
+		menu.max_displayable = menu.max_on_menu;
 
 		// if our last citem was > menu.max_on_menu, make sure we re-scroll when we call this menu again
 		if (menu.citem > menu.max_on_menu - 4)
@@ -1406,19 +1415,20 @@ static void newmenu_create_structure(newmenu &menu)
 		menu.is_scroll_box = 0;
 		menu.max_on_menu = menu.items.size();
 	}
+	menu.h = iterative_layout_max_height;
 
-	right_offset=0;
+	int right_offset = 0;
 
 	range_for (auto &i, menu.item_range())
 	{
-		i.w = menu.w;
+		i.w = iterative_layout_body_width;
 		if (right_offset < i.right_offset)
 			right_offset = i.right_offset;
 	}
 
-	menu.w += right_offset;
+	menu.w = iterative_layout_body_width + right_offset;
 
-	twidth = 0;
+	int twidth = 0;
 	if (menu.w < iterative_layout_max_width)
 	{
 		twidth = (iterative_layout_max_width - menu.w) / 2;
@@ -1502,7 +1512,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 
 	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscaley != FNTScaleY)
 	{
-		newmenu_create_structure (*menu);
+		newmenu_create_structure(*menu, *(menu->tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT));
 		{
 			gr_init_sub_canvas(menu_canvas, grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h);
 		}
@@ -1660,30 +1670,26 @@ newmenu *newmenu_do4(const char *const title, const char *const subtitle, const 
 {
 	if (items.size() < 1)
 		return nullptr;
-	newmenu *menu = new newmenu(items);
-	menu->citem = citem;
-	menu->scroll_offset = 0;
-	menu->max_on_menu = TinyMode != tiny_mode_flag::normal ? MAXDISPLAYABLEITEMSTINY : MAXDISPLAYABLEITEMS;
-	menu->title = title;
-	menu->subtitle = subtitle;
+	newmenu_layout nl(items);
+	nl.citem = citem;
+	nl.max_on_menu = TinyMode != tiny_mode_flag::normal ? MAXDISPLAYABLEITEMSTINY : MAXDISPLAYABLEITEMS;
+	nl.title = title;
+	nl.subtitle = subtitle;
+	nl.filename = filename;
+	nl.tiny_mode = TinyMode;
+	nl.tabs_flag = TabsFlag;
+	nl.max_displayable = items.size();
+	newmenu_create_structure(nl, *(TinyMode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT));
+	newmenu *menu = new newmenu(std::move(nl));
 	menu->subfunction = subfunction;
-	menu->filename = filename;
-	menu->tiny_mode = TinyMode;
-	menu->tabs_flag = TabsFlag;
-	menu->rval = NULL;		// Default to not returning a value - respond to EVENT_NEWMENU_SELECTED instead
 	menu->userdata = userdata;
 
 	newmenu_free_background();
 
-	menu->max_displayable = items.size();
-
 	//set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
-
-	newmenu_create_structure(*menu);
 
 	// Create the basic window
 	const auto wind = window_create(grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, newmenu_handler, menu);
-	
 	if (!wind)
 	{
 		delete menu;
