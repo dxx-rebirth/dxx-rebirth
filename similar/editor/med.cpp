@@ -769,12 +769,12 @@ static void init_editor_screen(grs_canvas &canvas)
 //	GameViewBox->when_tab = GameViewBox->when_btab =  LargeViewBox;
 //	LargeViewBox->when_tab = LargeViewBox->when_btab =  GameViewBox;
 
-	ViewIcon	= ui_add_gadget_icon(e, "Lock\nview",	455,25+530, 	40, 22,	KEY_V+KEY_CTRLED, ToggleLockViewToCursegp);
-	AllIcon	= ui_add_gadget_icon(e, "Draw\nall",	500,25+530,  	40, 22,	-1, ToggleDrawAllSegments);
-	AxesIcon	= ui_add_gadget_icon(e, "Coord\naxes",545,25+530,		40, 22,	KEY_D+KEY_CTRLED, ToggleCoordAxes);
-	ChaseIcon	= ui_add_gadget_icon(e, "Chase\nmode",635,25+530,		40, 22,	-1,				ToggleChaseMode);
-	OutlineIcon = ui_add_gadget_icon(e, "Out\nline", 	680,25+530,  	40, 22,	KEY_O+KEY_CTRLED,			ToggleOutlineMode);
-	LockIcon	= ui_add_gadget_icon(e, "Lock\nstep", 725,25+530, 	40, 22,	KEY_L+KEY_CTRLED,			ToggleLockstep);
+	ViewIcon	= ui_add_gadget_icon(*e, "Lock\nview", 455, 25 + 530, 40, 22,	KEY_V+KEY_CTRLED, ToggleLockViewToCursegp);
+	AllIcon	= ui_add_gadget_icon(*e, "Draw\nall", 500, 25 + 530, 40, 22,	-1, ToggleDrawAllSegments);
+	AxesIcon	= ui_add_gadget_icon(*e, "Coord\naxes", 545, 25 + 530, 40, 22,	KEY_D+KEY_CTRLED, ToggleCoordAxes);
+	ChaseIcon	= ui_add_gadget_icon(*e, "Chase\nmode", 635, 25 + 530, 40, 22,	-1,				ToggleChaseMode);
+	OutlineIcon = ui_add_gadget_icon(*e, "Out\nline", 680, 25 + 530, 40, 22,	KEY_O+KEY_CTRLED,			ToggleOutlineMode);
+	LockIcon	= ui_add_gadget_icon(*e, "Lock\nstep", 725, 25 + 530, 40, 22,	KEY_L+KEY_CTRLED,			ToggleLockstep);
 
 	meddraw_init_views(LargeViewBox->canvas.get());
 

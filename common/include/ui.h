@@ -366,7 +366,7 @@ void ui_free( void * buffer );
 int ui_get_file( char * filename, const char * Filespec  );
 
 __attribute_warn_unused_result
-std::unique_ptr<UI_GADGET_ICON> ui_add_gadget_icon(UI_DIALOG * dlg, const char * text, short x, short y, short w, short h, int k,int (*f)());
+std::unique_ptr<UI_GADGET_ICON> ui_add_gadget_icon(UI_DIALOG &dlg, const char *text, short x, short y, short w, short h, int k,int (*f)());
 
 int DecodeKeyText( const char * text );
 void GetKeyDescription(char (&text)[100], uint_fast32_t keypress);
