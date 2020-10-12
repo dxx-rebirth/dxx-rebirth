@@ -31,24 +31,28 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar )
+namespace {
+
+void ui_draw_scrollbar(UI_DIALOG &dlg, UI_GADGET_SCROLLBAR &scrollbar)
 {
 #if 0  //ndef OGL
-	if (scrollbar->status==0)
+	if (scrollbar.status==0)
 		return;
 #endif
 
-	scrollbar->status = 0;
-	gr_set_current_canvas( scrollbar->canvas );
+	scrollbar.status = 0;
+	gr_set_current_canvas(scrollbar.canvas);
 	auto &canvas = *grd_curcanv;
 
-	const auto color = (dlg->keyboard_focus_gadget == scrollbar)
+	const auto color = (dlg.keyboard_focus_gadget == &scrollbar)
 		? CRED
 		: CGREY;
 
-	gr_rect(canvas, 0, 0, scrollbar->width - 1, scrollbar->fake_position - 1, color);
-	gr_rect(canvas, 0, scrollbar->fake_position + scrollbar->fake_size, scrollbar->width - 1, scrollbar->height - 1, color);
-	ui_draw_box_out(canvas, 0, scrollbar->fake_position, scrollbar->width - 1, scrollbar->fake_position + scrollbar->fake_size - 1);
+	gr_rect(canvas, 0, 0, scrollbar.width - 1, scrollbar.fake_position - 1, color);
+	gr_rect(canvas, 0, scrollbar.fake_position + scrollbar.fake_size, scrollbar.width - 1, scrollbar.height - 1, color);
+	ui_draw_box_out(canvas, 0, scrollbar.fake_position, scrollbar.width - 1, scrollbar.fake_position + scrollbar.fake_size - 1);
+}
+
 }
 
 std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG &dlg, short x, short y, short w, short h, int start, int stop, int position, int window_size)
@@ -101,7 +105,7 @@ window_event_result UI_GADGET_SCROLLBAR::event_handler(UI_DIALOG &dlg, const d_e
 		
 	if (event.type == EVENT_WINDOW_DRAW)
 	{
-		ui_draw_scrollbar(&dlg, this);
+		ui_draw_scrollbar(dlg, *this);
 		return window_event_result::ignored;
 	}
 
@@ -111,7 +115,7 @@ window_event_result UI_GADGET_SCROLLBAR::event_handler(UI_DIALOG &dlg, const d_e
 	{
 		position = 0;
 		fake_position = 0;
-		ui_draw_scrollbar(&dlg, this);
+		ui_draw_scrollbar(dlg, *this);
 		return window_event_result::ignored;
 	}
 
