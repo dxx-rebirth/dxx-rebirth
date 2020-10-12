@@ -75,7 +75,7 @@ std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG *const dlg,
 {
 	int h, aw;
 	gr_get_string_size(*grd_curcanv->cv_font, nullptr, nullptr, &h, &aw);
-	std::unique_ptr<UI_GADGET_INPUTBOX> inputbox{ui_gadget_add<UI_GADGET_INPUTBOX>(dlg, x, y, x + aw * maximum_allowed_text_length - 1, y + h - 1 + 4)};
+	auto inputbox = ui_gadget_add<UI_GADGET_INPUTBOX>(*dlg, x, y, x + aw * maximum_allowed_text_length - 1, y + h - 1 + 4);
 	inputbox->text = std::make_unique<char[]>(length_of_initial_text + 1);
 	const auto allocated_text = inputbox->text.get();
 	allocated_text[length_of_initial_text] = 0;

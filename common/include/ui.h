@@ -275,14 +275,14 @@ extern void ui_close_dialog( UI_DIALOG * dlg );
 
 #define GADGET_PRESSED(g) (event.type == EVENT_UI_GADGET_PRESSED && ui_event_get_gadget(event) == g)
 
-void ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, short x2, short y2, UI_GADGET *);
+void ui_gadget_add(UI_DIALOG &dlg, short x1, short y1, short x2, short y2, UI_GADGET &);
 template <typename T>
 __attribute_warn_unused_result
-static std::unique_ptr<T> ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, short x2, short y2)
+static std::unique_ptr<T> ui_gadget_add(UI_DIALOG &dlg, short x1, short y1, short x2, short y2)
 {
 	auto t = std::make_unique<T>();
 	t->kind = T::s_kind;
-	ui_gadget_add(dlg, x1, y1, x2, y2, t.get());
+	ui_gadget_add(dlg, x1, y1, x2, y2, *t);
 	return t;
 }
 __attribute_warn_unused_result

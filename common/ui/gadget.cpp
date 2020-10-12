@@ -59,38 +59,38 @@ struct event_gadget : d_event
 
 }
 
-void ui_gadget_add(UI_DIALOG * dlg, short x1, short y1, short x2, short y2, UI_GADGET *gadget)
+void ui_gadget_add(UI_DIALOG &dlg, short x1, short y1, short x2, short y2, UI_GADGET &gadget)
 {
-	if (dlg->gadget == NULL )
+	if (dlg.gadget == NULL)
 	{
-		dlg->gadget = gadget;
-		gadget->prev = gadget;
-		gadget->next = gadget;
+		dlg.gadget = &gadget;
+		gadget.prev = &gadget;
+		gadget.next = &gadget;
 	} else {
-		dlg->gadget->prev->next = gadget;
-		gadget->next = dlg->gadget;
-		gadget->prev = dlg->gadget->prev;
-		dlg->gadget->prev = gadget;
+		dlg.gadget->prev->next = &gadget;
+		gadget.next = dlg.gadget;
+		gadget.prev = dlg.gadget->prev;
+		dlg.gadget->prev = &gadget;
 	}
 
-	gadget->when_tab = NULL;
-	gadget->when_btab = NULL;
-	gadget->when_up = NULL;
-	gadget->when_down = NULL;
-	gadget->when_left = NULL;
-	gadget->when_right = NULL;
-	gadget->status = 1;
-	gadget->oldstatus = 0;
-	if ( x1==0 && x2==0 && y1==0 && y2== 0 )
-		gadget->canvas.reset();
+	gadget.when_tab = nullptr;
+	gadget.when_btab = nullptr;
+	gadget.when_up = nullptr;
+	gadget.when_down = nullptr;
+	gadget.when_left = nullptr;
+	gadget.when_right = nullptr;
+	gadget.status = 1;
+	gadget.oldstatus = 0;
+	if (x1 == 0 && x2 == 0 && y1 == 0 && y2 == 0)
+		gadget.canvas.reset();
 	else
-		gadget->canvas = gr_create_sub_canvas(dlg->w_canv, x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-	gadget->x1 = gadget->canvas->cv_bitmap.bm_x;
-	gadget->y1 = gadget->canvas->cv_bitmap.bm_y;
-	gadget->x2 = gadget->canvas->cv_bitmap.bm_x+x2-x1+1;
-	gadget->y2 = gadget->canvas->cv_bitmap.bm_y+y2-y1+1;
-	gadget->parent = NULL;
-	gadget->hotkey = -1;
+		gadget.canvas = gr_create_sub_canvas(dlg.w_canv, x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+	gadget.x1 = gadget.canvas->cv_bitmap.bm_x;
+	gadget.y1 = gadget.canvas->cv_bitmap.bm_y;
+	gadget.x2 = gadget.canvas->cv_bitmap.bm_x + x2 - x1 + 1;
+	gadget.y2 = gadget.canvas->cv_bitmap.bm_y + y2 - y1 + 1;
+	gadget.parent = nullptr;
+	gadget.hotkey = -1;
 }
 
 

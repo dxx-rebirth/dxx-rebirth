@@ -124,7 +124,7 @@ std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG *dlg, short x
 	i = h / th;
 	h = i * th;
 
-	std::unique_ptr<UI_GADGET_LISTBOX> listbox{ui_gadget_add<UI_GADGET_LISTBOX>( dlg, x, y, x+w-1, y+h-1 )};
+	auto listbox = ui_gadget_add<UI_GADGET_LISTBOX>(*dlg, x, y, x + w - 1, y + h - 1);
 	listbox->list = list;
 	listbox->width = w;
 	listbox->height = h;
