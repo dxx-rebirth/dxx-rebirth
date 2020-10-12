@@ -165,7 +165,7 @@ static window_event_result ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g,const d_eve
 	switch( g->kind )
 	{
 		case UI_GADGET_BUTTON::s_kind:
-			return ui_button_do(dlg, static_cast<UI_GADGET_BUTTON *>(g), event);
+			return static_cast<UI_GADGET_BUTTON *>(g)->event_handler(*dlg, event);
 		case UI_GADGET_LISTBOX::s_kind:
 			return ui_listbox_do(dlg, static_cast<UI_GADGET_LISTBOX *>(g), event);
 		case UI_GADGET_SCROLLBAR::s_kind:

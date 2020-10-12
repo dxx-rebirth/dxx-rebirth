@@ -44,6 +44,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+struct UI_DIALOG;
+
 struct UI_KEYPAD {
 	using buttontext_element_t = std::array<char, 100>;
 	using buttontext_t = std::array<buttontext_element_t, 17>;
@@ -103,6 +105,7 @@ struct UI_GADGET_USERBOX : UI_GADGET
 struct UI_GADGET_BUTTON : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 1>{};
+	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
 	std::string  text;
 	short           width, height;
 	short           position;
@@ -292,8 +295,6 @@ UI_GADGET &ui_event_get_gadget(const d_event &event);
 window_event_result ui_dialog_do_gadgets(UI_DIALOG &dlg, const d_event &event);
 
 int ui_mouse_on_gadget(UI_GADGET &gadget);
-
-window_event_result ui_button_do( UI_DIALOG *dlg, UI_GADGET_BUTTON * button, const d_event &event );
 
 window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, const d_event &event );
 std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG &dlg, short x, short y, short w, short h, short numitems, char **list);
