@@ -529,13 +529,13 @@ int do_robot_dialog()
 
 static window_event_result robot_dialog_created(robot_dialog *const r)
 {
-	r->quitButton = ui_add_gadget_button(r, 20, 286, 40, 32, "Done", NULL);
-	r->prev_powerup_type = ui_add_gadget_button(r, GOODY_X+50, GOODY_Y-3, 25, 22, "<<", GoodyPrevType);
-	r->next_powerup_type = ui_add_gadget_button(r, GOODY_X+80, GOODY_Y-3, 25, 22, ">>", GoodyNextType);
-	r->prev_powerup_id = ui_add_gadget_button(r, GOODY_X+50, GOODY_Y+21, 25, 22, "<<", GoodyPrevID);
-	r->next_powerup_id = ui_add_gadget_button(r, GOODY_X+80, GOODY_Y+21, 25, 22, ">>", GoodyNextID);
-	r->prev_powerup_count = ui_add_gadget_button(r, GOODY_X+50, GOODY_Y+45, 25, 22, "<<", GoodyPrevCount);
-	r->next_powerup_count = ui_add_gadget_button(r, GOODY_X+80, GOODY_Y+45, 25, 22, ">>", GoodyNextCount);
+	r->quitButton = ui_add_gadget_button(*r, 20, 286, 40, 32, "Done", NULL);
+	r->prev_powerup_type = ui_add_gadget_button(*r, GOODY_X+50, GOODY_Y-3, 25, 22, "<<", GoodyPrevType);
+	r->next_powerup_type = ui_add_gadget_button(*r, GOODY_X+80, GOODY_Y-3, 25, 22, ">>", GoodyNextType);
+	r->prev_powerup_id = ui_add_gadget_button(*r, GOODY_X+50, GOODY_Y+21, 25, 22, "<<", GoodyPrevID);
+	r->next_powerup_id = ui_add_gadget_button(*r, GOODY_X+80, GOODY_Y+21, 25, 22, ">>", GoodyNextID);
+	r->prev_powerup_count = ui_add_gadget_button(*r, GOODY_X+50, GOODY_Y+45, 25, 22, "<<", GoodyPrevCount);
+	r->next_powerup_count = ui_add_gadget_button(*r, GOODY_X+80, GOODY_Y+45, 25, 22, ">>", GoodyNextCount);
 	r->initialMode[0] = ui_add_gadget_radio(r,  6, 58, 16, 16, 0, "Hover");
 	r->initialMode[1] = ui_add_gadget_radio(r, 76, 58, 16, 16, 0, "Normal");
 	r->initialMode[2] = ui_add_gadget_radio(r,  6, 78, 16, 16, 0, "(hide)");
@@ -548,14 +548,14 @@ static window_event_result robot_dialog_created(robot_dialog *const r)
 	r->containsViewBox = ui_add_gadget_userbox(r, 10, 202, 100, 80);
 	// A bunch of buttons...
 	int i = 135;
-	r->prev_robot_type = ui_add_gadget_button(r, 190, i, 53, 26, "<<Typ", 			RobotPrevType);
-	r->next_robot_type = ui_add_gadget_button(r, 247, i, 53, 26, "Typ>>", 			RobotNextType);							i += 29;		
-	r->next_segment = ui_add_gadget_button(r, 190, i, 110, 26, "Next in Seg", LocalObjectSelectNextinSegment);	i += 29;		
-	r->prev_object = ui_add_gadget_button(r, 190, i, 53, 26, "<<Obj",		 	LocalObjectSelectPrevinMine);
-	r->next_object = ui_add_gadget_button(r, 247, i, 53, 26, ">>Obj",			LocalObjectSelectNextinMine); 		i += 29;		
-	r->delete_object = ui_add_gadget_button(r, 190, i, 110, 26, "Delete", 		LocalObjectDelete);						i += 29;		
-	r->new_object = ui_add_gadget_button(r, 190, i, 110, 26, "Create New", 	LocalObjectPlaceObject);				i += 29;		
-	r->set_path = ui_add_gadget_button(r, 190, i, 110, 26, "Set Path", 	med_set_ai_path);
+	r->prev_robot_type = ui_add_gadget_button(*r, 190, i, 53, 26, "<<Typ", 			RobotPrevType);
+	r->next_robot_type = ui_add_gadget_button(*r, 247, i, 53, 26, "Typ>>", 			RobotNextType);							i += 29;		
+	r->next_segment = ui_add_gadget_button(*r, 190, i, 110, 26, "Next in Seg", LocalObjectSelectNextinSegment);	i += 29;		
+	r->prev_object = ui_add_gadget_button(*r, 190, i, 53, 26, "<<Obj",		 	LocalObjectSelectPrevinMine);
+	r->next_object = ui_add_gadget_button(*r, 247, i, 53, 26, ">>Obj",			LocalObjectSelectNextinMine); 		i += 29;		
+	r->delete_object = ui_add_gadget_button(*r, 190, i, 110, 26, "Delete", 		LocalObjectDelete);						i += 29;		
+	r->new_object = ui_add_gadget_button(*r, 190, i, 110, 26, "Create New", 	LocalObjectPlaceObject);				i += 29;		
+	r->set_path = ui_add_gadget_button(*r, 190, i, 110, 26, "Set Path", 	med_set_ai_path);
 	r->time = timer_query();
 	r->old_object = -2;		// Set to some dummy value so everything works ok on the first frame.
 	if ( Cur_object_index == object_none)
@@ -846,7 +846,7 @@ int do_object_dialog()
 
 static window_event_result object_dialog_created(object_dialog *const o, const object_dialog::creation_context *const c)
 {
-	o->quitButton = ui_add_gadget_button(o, 20, 286, 40, 32, "Done", NULL );
+	o->quitButton = ui_add_gadget_button(*o, 20, 286, 40, 32, "Done", NULL );
 	o->quitButton->hotkey = KEY_ENTER;
 	// These are the radio buttons for each mode
 	o->initialMode[0] = ui_add_gadget_radio(o, 10, 50, 16, 16, 0, "None" );

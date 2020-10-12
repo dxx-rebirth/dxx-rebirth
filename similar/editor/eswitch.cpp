@@ -358,18 +358,18 @@ static window_event_result trigger_dialog_created(trigger_dialog *const t)
 	t->triggerFlag[9] = ui_add_gadget_checkbox(t, 22, i, 16, 16, 0, "Secret Exit"); 		i+=22;
 #endif
 
-	t->quitButton = ui_add_gadget_button(t, 20, i, 48, 40, "Done", NULL );
+	t->quitButton = ui_add_gadget_button(*t, 20, i, 48, 40, "Done", nullptr);
 																				 
 	// The little box the wall will appear in.
 	t->wallViewBox = ui_add_gadget_userbox(t, 155, 5, 64, 64 );
 
 	// A bunch of buttons...
 	i = 80;
-	t->remove_trigger = ui_add_gadget_button(t, 155, i, 140, 26, "Remove Trigger", trigger_remove); i += 29;
-	t->bind_wall = ui_add_gadget_button(t, 155, i, 140, 26, "Bind Wall", bind_wall_to_trigger); i += 29;
-	t->bind_matcen = ui_add_gadget_button(t, 155, i, 140, 26, "Bind Matcen", bind_matcen_to_trigger); i += 29;
+	t->remove_trigger = ui_add_gadget_button(*t, 155, i, 140, 26, "Remove Trigger", trigger_remove); i += 29;
+	t->bind_wall = ui_add_gadget_button(*t, 155, i, 140, 26, "Bind Wall", bind_wall_to_trigger); i += 29;
+	t->bind_matcen = ui_add_gadget_button(*t, 155, i, 140, 26, "Bind Matcen", bind_matcen_to_trigger); i += 29;
 #if defined(DXX_BUILD_DESCENT_II)
-	t->enable_all_triggers = ui_add_gadget_button(t, 155, i, 140, 26, "All Triggers ON", trigger_turn_all_ON); i += 29;
+	t->enable_all_triggers = ui_add_gadget_button(*t, 155, i, 140, 26, "All Triggers ON", trigger_turn_all_ON); i += 29;
 #endif
 
 	t->old_trigger_num = -2;		// Set to some dummy value so everything works ok on the first frame.

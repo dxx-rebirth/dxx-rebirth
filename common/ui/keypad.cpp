@@ -147,7 +147,7 @@ static void set_short_row(keypad_input_line_t::const_iterator i, const keypad_in
 
 static std::unique_ptr<UI_GADGET_BUTTON> ui_create_pad_gadget(UI_DIALOG &dlg, uint_fast32_t x, uint_fast32_t y, uint_fast32_t w, uint_fast32_t h, const grs_font &font)
 {
-	auto r = ui_add_gadget_button(&dlg, x, y, w, h, nullptr, nullptr);
+	auto r = ui_add_gadget_button(dlg, x, y, w, h, nullptr, nullptr);
 	r->canvas->cv_font = &font;
 	return r;
 }

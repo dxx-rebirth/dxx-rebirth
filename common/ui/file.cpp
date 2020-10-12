@@ -290,9 +290,9 @@ int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *const file
 	dlg->listbox1 = ui_add_gadget_listbox(*dlg,  20, 110, 125, 200, filename_list.get_count(), filename_list.get());
 	dlg->listbox2 = ui_add_gadget_listbox(*dlg, 210, 110, 100, 200, dlg->directory_list.get_count(), dlg->directory_list.get());
 
-	dlg->button1 = ui_add_gadget_button( dlg,     20, 330, 60, 25, "Ok", NULL );
-	dlg->button2 = ui_add_gadget_button( dlg,    100, 330, 60, 25, "Cancel", NULL );
-	dlg->help_button = ui_add_gadget_button( dlg, 180, 330, 60, 25, "Help", NULL );
+	dlg->button1 = ui_add_gadget_button(*dlg,     20, 330, 60, 25, "Ok", nullptr);
+	dlg->button2 = ui_add_gadget_button(*dlg,    100, 330, 60, 25, "Cancel", nullptr);
+	dlg->help_button = ui_add_gadget_button(*dlg, 180, 330, 60, 25, "Help", nullptr);
 
 	dlg->keyboard_focus_gadget = dlg->user_file.get();
 

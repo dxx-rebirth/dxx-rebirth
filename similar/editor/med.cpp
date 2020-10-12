@@ -780,19 +780,19 @@ static void init_editor_screen(grs_canvas &canvas)
 
 	ui_pad_activate(*e, PAD_X, PAD_Y);
 	Pad_info = info_window_create();
-	e->pad_prev = ui_add_gadget_button(e, PAD_X + 6, PAD_Y + (30 * 5) + 22, PAD_WIDTH, 20, "<<", med_keypad_goto_prev);
-	e->pad_next = ui_add_gadget_button(e, PAD_X + PAD_WIDTH1 + 6, PAD_Y + (30 * 5) + 22, PAD_WIDTH, 20, ">>", med_keypad_goto_next);
+	e->pad_prev = ui_add_gadget_button(*e, PAD_X + 6, PAD_Y + (30 * 5) + 22, PAD_WIDTH, 20, "<<", med_keypad_goto_prev);
+	e->pad_next = ui_add_gadget_button(*e, PAD_X + PAD_WIDTH1 + 6, PAD_Y + (30 * 5) + 22, PAD_WIDTH, 20, ">>", med_keypad_goto_next);
 
 	{	int	i;
-		i = 0;	e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "SR", med_keypad_goto_0);
-		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "SS", med_keypad_goto_1);
-		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "CF", med_keypad_goto_2);
-		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "TM", med_keypad_goto_3);
-		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "OP", med_keypad_goto_4);
-		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "OR", med_keypad_goto_5);
-		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "GE", med_keypad_goto_6);
-		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "LI", med_keypad_goto_7);
-		i++;		e->pad_goto[i] = ui_add_gadget_button(e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "TT", med_keypad_goto_8);
+		i = 0;	e->pad_goto[i] = ui_add_gadget_button(*e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "SR", med_keypad_goto_0);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(*e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "SS", med_keypad_goto_1);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(*e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "CF", med_keypad_goto_2);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(*e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "TM", med_keypad_goto_3);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(*e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "OP", med_keypad_goto_4);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(*e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "OR", med_keypad_goto_5);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(*e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "GE", med_keypad_goto_6);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(*e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "LI", med_keypad_goto_7);
+		i++;		e->pad_goto[i] = ui_add_gadget_button(*e, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "TT", med_keypad_goto_8);
 	}
 
 	menubar_show();

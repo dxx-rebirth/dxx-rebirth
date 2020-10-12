@@ -204,7 +204,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 
 		x = EVEN_DIVIDE(width,button_width,Button.count(),i);
 
-		dlg->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, Button.string(i), NULL );
+		dlg->button_g[i] = ui_add_gadget_button(*dlg, x, y, button_width, button_height, Button.string(i), nullptr);
 	}
 
 	ui_gadget_calc_keys(*dlg);

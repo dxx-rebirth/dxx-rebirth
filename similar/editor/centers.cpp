@@ -119,7 +119,7 @@ static window_event_result centers_dialog_created(centers_dialog *const c)
 #elif defined(DXX_BUILD_DESCENT_II)
 	int i = 40;
 #endif
-	c->quitButton = ui_add_gadget_button(c, 20, 252, 48, 40, "Done", NULL);
+	c->quitButton = ui_add_gadget_button(*c, 20, 252, 48, 40, "Done", nullptr);
 	// These are the checkboxes for each door flag.
 	c->centerFlag[0] = ui_add_gadget_radio(c, 18, i, 16, 16, 0, "NONE"); 			i += 24;
 	c->centerFlag[1] = ui_add_gadget_radio(c, 18, i, 16, 16, 0, "FuelCen");		i += 24;

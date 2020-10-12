@@ -133,7 +133,7 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 
 	for (int i=0; i<NumButtons; i++ )
 	{
-		dlg->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, text[i], NULL );
+		dlg->button_g[i] = ui_add_gadget_button(*dlg, x, y, button_width, button_height, text[i], nullptr);
 		y += button_height+MENU_VERT_SPACING;
 	}
 

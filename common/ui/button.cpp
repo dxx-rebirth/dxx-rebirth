@@ -106,9 +106,9 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 	}
 }
 
-std::unique_ptr<UI_GADGET_BUTTON> ui_add_gadget_button(UI_DIALOG * dlg, short x, short y, short w, short h, const char * text, int (*function_to_call)())
+std::unique_ptr<UI_GADGET_BUTTON> ui_add_gadget_button(UI_DIALOG &dlg, short x, short y, short w, short h, const char *const text, int (*const function_to_call)())
 {
-	auto button = ui_gadget_add<UI_GADGET_BUTTON>(*dlg, x, y, x + w - 1, y + h - 1);
+	auto button = ui_gadget_add<UI_GADGET_BUTTON>(dlg, x, y, x + w - 1, y + h - 1);
 
 	if ( text )
 	{

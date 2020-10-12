@@ -66,10 +66,10 @@ std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG * dlg, sh
 
 	auto scrollbar = ui_gadget_add<UI_GADGET_SCROLLBAR>(*dlg, x, y + w, x + w - 1, y + h - w - 1);
 
-	scrollbar->up_button = ui_add_gadget_button( dlg, x, y, w, w, up, NULL );
+	scrollbar->up_button = ui_add_gadget_button(*dlg, x, y, w, w, up, nullptr);
 	scrollbar->up_button->parent = scrollbar.get();
 
-	scrollbar->down_button =ui_add_gadget_button( dlg, x, y+h-w, w, w, down, NULL );
+	scrollbar->down_button = ui_add_gadget_button(*dlg, x, y+h-w, w, w, down, nullptr);
 	scrollbar->down_button->parent = scrollbar.get();
 
 	scrollbar->horz = 0;
