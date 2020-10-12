@@ -30,7 +30,7 @@ constexpr const unused_window_userdata_t *unused_window_userdata = nullptr;
 
 struct embed_window_pointer_t
 {
-	window *wind;
+	window *wind = nullptr;
 };
 
 struct ignore_window_pointer_t
