@@ -428,7 +428,7 @@ int hmp_play(hmp_file *hmp, int bLoop)
 
 	if ((rc = setup_buffers(hmp)))
 		return rc;
-	if ((midiStreamOpen(&hmp->hmidi, &hmp->devid,1, static_cast<DWORD>(reinterpret_cast<uintptr_t>(&midi_callback)), 0, CALLBACK_FUNCTION)) != MMSYSERR_NOERROR)
+	if ((midiStreamOpen(&hmp->hmidi, &hmp->devid, 1, reinterpret_cast<DWORD_PTR>(&midi_callback), 0, CALLBACK_FUNCTION)) != MMSYSERR_NOERROR)
 	{
 		hmp->hmidi = NULL;
 		return HMP_MM_ERR;
