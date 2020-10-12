@@ -116,7 +116,7 @@ static void gr_draw_sunken_border( short x1, short y1, short x2, short y2 )
 
 }
 
-std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, short w, short h, short numitems, char **list)
+std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG &dlg, short x, short y, short w, short h, short numitems, char **list)
 {
 	int th, i;
 	gr_get_string_size(*grd_curcanv->cv_font, "*", nullptr, &th, nullptr);
@@ -124,7 +124,7 @@ std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG *dlg, short x
 	i = h / th;
 	h = i * th;
 
-	auto listbox = ui_gadget_add<UI_GADGET_LISTBOX>(*dlg, x, y, x + w - 1, y + h - 1);
+	auto listbox = ui_gadget_add<UI_GADGET_LISTBOX>(dlg, x, y, x + w - 1, y + h - 1);
 	listbox->list = list;
 	listbox->width = w;
 	listbox->height = h;
@@ -137,7 +137,7 @@ std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG *dlg, short x
 	listbox->dragging = 0;
 	listbox->selected_item = -1;
 	listbox->moved = 1;
-	listbox->scrollbar = ui_add_gadget_scrollbar( dlg, x+w+3, y, 0, h, 0, numitems-i, 0, i );
+	listbox->scrollbar = ui_add_gadget_scrollbar(&dlg, x + w + 3, y, 0, h, 0, numitems - i, 0, i);
 	listbox->scrollbar->parent = listbox.get();
 	return listbox;
 }

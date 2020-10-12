@@ -297,7 +297,7 @@ extern int ui_mouse_on_gadget( UI_GADGET * gadget );
 window_event_result ui_button_do( UI_DIALOG *dlg, UI_GADGET_BUTTON * button, const d_event &event );
 
 window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, const d_event &event );
-std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, short w, short h, short numitems, char **list);
+std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG &dlg, short x, short y, short w, short h, short numitems, char **list);
 
 extern void ui_mega_process();
 

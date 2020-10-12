@@ -287,8 +287,8 @@ int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *const file
 
 	dlg->user_file  = ui_add_gadget_inputbox(dlg, 60, 30, InputLength, 40, InputText);
 
-	dlg->listbox1 = ui_add_gadget_listbox(dlg,  20, 110, 125, 200, filename_list.get_count(), filename_list.get());
-	dlg->listbox2 = ui_add_gadget_listbox(dlg, 210, 110, 100, 200, dlg->directory_list.get_count(), dlg->directory_list.get());
+	dlg->listbox1 = ui_add_gadget_listbox(*dlg,  20, 110, 125, 200, filename_list.get_count(), filename_list.get());
+	dlg->listbox2 = ui_add_gadget_listbox(*dlg, 210, 110, 100, 200, dlg->directory_list.get_count(), dlg->directory_list.get());
 
 	dlg->button1 = ui_add_gadget_button( dlg,     20, 330, 60, 25, "Ok", NULL );
 	dlg->button2 = ui_add_gadget_button( dlg,    100, 330, 60, 25, "Cancel", NULL );
