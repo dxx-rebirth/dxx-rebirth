@@ -158,6 +158,7 @@ struct UI_GADGET_ICON : UI_GADGET
 struct UI_GADGET_CHECKBOX : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 5>{};
+	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
 	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           position;
@@ -322,7 +323,6 @@ extern void ui_radio_set_value(UI_GADGET_RADIO *radio, int value);
 extern void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox );
 __attribute_warn_unused_result
 std::unique_ptr<UI_GADGET_CHECKBOX> ui_add_gadget_checkbox(UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text);
-window_event_result ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox, const d_event &event );
 extern void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check);
 
 UI_GADGET &ui_gadget_get_next(UI_GADGET &gadget);

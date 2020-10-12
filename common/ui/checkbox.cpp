@@ -79,65 +79,58 @@ std::unique_ptr<UI_GADGET_CHECKBOX> ui_add_gadget_checkbox(UI_DIALOG * dlg, shor
 	return checkbox;
 }
 
-window_event_result ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox,const d_event &event )
+window_event_result UI_GADGET_CHECKBOX::event_handler(UI_DIALOG &dlg, const d_event &event)
 {
-	checkbox->oldposition = checkbox->position;
-	checkbox->pressed = 0;
+	oldposition = position;
+	pressed = 0;
 
 	if (event.type == EVENT_MOUSE_BUTTON_DOWN || event.type == EVENT_MOUSE_BUTTON_UP)
 	{
-		const auto OnMe = ui_mouse_on_gadget(*checkbox);
+		const auto OnMe = ui_mouse_on_gadget(*this);
 		
 		if (B1_JUST_PRESSED && OnMe)
 		{
-			checkbox->position = 1;
+			position = 1;
 			return window_event_result::handled;
 		}
 		else if (B1_JUST_RELEASED)
 		{
-			if ((checkbox->position==1) && OnMe)
-				checkbox->pressed = 1;
+			if ((position==1) && OnMe)
+				pressed = 1;
 
-			checkbox->position = 0;
+			position = 0;
 		}
 	}
 
 
 	if (event.type == EVENT_KEY_COMMAND)
 	{
-		int key;
-		
-		key = event_key_get(event);
-		
-		if ((dlg->keyboard_focus_gadget==checkbox) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+		const auto key = event_key_get(event);
+		if (dlg.keyboard_focus_gadget == this && (key == KEY_SPACEBAR || key == KEY_ENTER))
 		{
-			checkbox->position = 2;
+			position = 2;
 			return window_event_result::handled;
 		}
 	}
 	else if (event.type == EVENT_KEY_RELEASE)
 	{
-		int key;
+		const auto key = event_key_get(event);
+		position = 0;
 		
-		key = event_key_get(event);
-		
-		checkbox->position = 0;
-		
-		if ((dlg->keyboard_focus_gadget==checkbox) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
-			checkbox->pressed = 1;
+		if (dlg.keyboard_focus_gadget == this && (key == KEY_SPACEBAR || key == KEY_ENTER))
+			pressed = 1;
 	}
-		
-	if (checkbox->pressed == 1)
+	if (pressed == 1)
 	{
-		checkbox->flag ^= 1;
-		auto rval = ui_gadget_send_event(*dlg, EVENT_UI_GADGET_PRESSED, *checkbox);
+		flag ^= 1;
+		auto rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, *this);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 		return rval;
 	}
 
 	if (event.type == EVENT_WINDOW_DRAW)
-		ui_draw_checkbox( dlg, checkbox );
+		ui_draw_checkbox(&dlg, this);
 
 	return window_event_result::ignored;
 }
