@@ -177,7 +177,7 @@ static window_event_result ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g,const d_eve
 		case UI_GADGET_INPUTBOX::s_kind:
 			return static_cast<UI_GADGET_INPUTBOX *>(g)->event_handler(*dlg, event);
 		case UI_GADGET_USERBOX::s_kind:
-			return ui_userbox_do(dlg, static_cast<UI_GADGET_USERBOX *>(g), event);
+			return static_cast<UI_GADGET_USERBOX *>(g)->event_handler(*dlg, event);
 		case UI_GADGET_ICON::s_kind:
 			return ui_icon_do(dlg, static_cast<UI_GADGET_ICON *>(g), event);
 	}

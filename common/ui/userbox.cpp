@@ -71,85 +71,84 @@ std::unique_ptr<UI_GADGET_USERBOX> ui_add_gadget_userbox(UI_DIALOG * dlg, short 
 	return userbox;
 }
 
-window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox,const d_event &event )
+window_event_result UI_GADGET_USERBOX::event_handler(UI_DIALOG &dlg, const d_event &event)
 {
-	int olddrag;
 	int x, y, z;
-	int keypress = 0;
 	window_event_result rval = window_event_result::ignored;
 	
 	if (event.type == EVENT_WINDOW_DRAW)
-		ui_draw_userbox( dlg, userbox );
-	
-	if (event.type == EVENT_KEY_COMMAND)
-		keypress = event_key_get(event);
+		ui_draw_userbox(&dlg, this);
+
+	const auto keypress = (event.type == EVENT_KEY_COMMAND)
+		? event_key_get(event)
+		: 0u;
 		
 	mouse_get_pos(&x, &y, &z);
-	const auto OnMe = ui_mouse_on_gadget(*userbox);
+	const auto OnMe = ui_mouse_on_gadget(*this);
 
-	olddrag  = userbox->b1_held_down;
+	const auto olddrag  = b1_held_down;
 
-	userbox->mouse_onme = OnMe;
-	userbox->mouse_x = x - userbox->x1;
-	userbox->mouse_y = y - userbox->y1;
+	mouse_onme = OnMe;
+	mouse_x = x - x1;
+	mouse_y = y - y1;
 
-	userbox->b1_dragging = 0;
-	userbox->b1_clicked = 0;
+	b1_dragging = 0;
+	b1_clicked = 0;
 
 	if (OnMe)
 	{
 		if ( B1_JUST_PRESSED )
 		{
-			userbox->b1_held_down = 1;
-			userbox->b1_drag_x1 = x - userbox->x1;
-			userbox->b1_drag_y1 = y - userbox->y1;
+			b1_held_down = 1;
+			b1_drag_x1 = x - x1;
+			b1_drag_y1 = y - y1;
 			rval = window_event_result::handled;
 		}
 		else if (B1_JUST_RELEASED)
 		{
-			if (userbox->b1_held_down)
-				userbox->b1_clicked = 1;
-			userbox->b1_held_down = 0;
+			if (b1_held_down)
+				b1_clicked = 1;
+			b1_held_down = 0;
 			rval = window_event_result::handled;
 		}
 
-		if ( (event.type == EVENT_MOUSE_MOVED) && userbox->b1_held_down )
+		if ( (event.type == EVENT_MOUSE_MOVED) && b1_held_down )
 		{
-			userbox->b1_dragging = 1;
-			userbox->b1_drag_x2 = x - userbox->x1;
-			userbox->b1_drag_y2 = y - userbox->y1;
+			b1_dragging = 1;
+			b1_drag_x2 = x - x1;
+			b1_drag_y2 = y - y1;
 		}
 
 		if ( B1_DOUBLE_CLICKED )
 		{
-			userbox->b1_double_clicked = 1;
+			b1_double_clicked = 1;
 			rval = window_event_result::handled;
 		}
 		else
-			userbox->b1_double_clicked = 0;
+			b1_double_clicked = 0;
 
 	}
 
 	if (B1_JUST_RELEASED)
-		userbox->b1_held_down = 0;
+		b1_held_down = 0;
 
-	userbox->b1_done_dragging = 0;
+	b1_done_dragging = 0;
 
-	if (olddrag==1 && userbox->b1_held_down==0 )
+	if (olddrag==1 && b1_held_down==0 )
 	{
-		if ((userbox->b1_drag_x1 !=  userbox->b1_drag_x2) || (userbox->b1_drag_y1 !=  userbox->b1_drag_y2) )
-			userbox->b1_done_dragging = 1;
+		if ((b1_drag_x1 !=  b1_drag_x2) || (b1_drag_y1 !=  b1_drag_y2) )
+			b1_done_dragging = 1;
 	}
 
-	if (dlg->keyboard_focus_gadget==userbox)
+	if (dlg.keyboard_focus_gadget == this)
 	{
-		userbox->keypress = keypress;
+		this->keypress = keypress;
 		rval = window_event_result::handled;
 	}
 	
-	if (userbox->b1_clicked || userbox->b1_dragging)
+	if (b1_clicked || b1_dragging)
 	{
-		rval = ui_gadget_send_event(*dlg, userbox->b1_clicked ? EVENT_UI_GADGET_PRESSED : EVENT_UI_USERBOX_DRAGGED, *userbox);
+		rval = ui_gadget_send_event(dlg, b1_clicked ? EVENT_UI_GADGET_PRESSED : EVENT_UI_USERBOX_DRAGGED, *this);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 	}

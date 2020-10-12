@@ -88,6 +88,7 @@ protected:
 struct UI_GADGET_USERBOX : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 7>{};
+	window_event_result event_handler(UI_DIALOG &dlg, const d_event &event);
 	short           width, height;
 	short           b1_held_down;
 	short           b1_clicked;
@@ -346,7 +347,6 @@ static inline std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIAL
 extern void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, const char *text);
 
 
-window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, const d_event &event );
 __attribute_warn_unused_result
 std::unique_ptr<UI_GADGET_USERBOX> ui_add_gadget_userbox(UI_DIALOG * dlg, short x, short y, short w, short h);
 extern void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox );
