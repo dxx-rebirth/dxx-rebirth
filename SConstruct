@@ -1392,6 +1392,10 @@ static void terminate_handler()
 
 	@_custom_test
 	def check_glu(self,context):
+		glulib = (
+			'GLU32' if self.user_settings.host_platform == 'win32' else
+				'GLU'
+			)
 		if not self.user_settings.opengl:
 			return
 		if self.user_settings.opengles:
@@ -1403,7 +1407,7 @@ static void terminate_handler()
 		self._check_system_library(context, header=['GL/glu.h'], main='''
 	gluPerspective(90.0,1.0,0.1,5000.0);
 	gluBuild2DMipmaps (GL_TEXTURE_2D, 0, 1, 1, 1, GL_UNSIGNED_BYTE, nullptr);
-''', lib='GLU', testflags={'LIBS': ['GLU']})
+''', lib=glulib, testflags={'LIBS': [glulib]})
 
 	@_custom_test
 	def _check_SDL(self,context):
