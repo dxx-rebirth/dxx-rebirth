@@ -176,7 +176,7 @@ static void menu_other_show()
 		menu.wind = new menu_window(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menu);
 		if (!menu.wind)
 			return;
-		menu.wind->send_creation_events(nullptr);
+		menu.wind->send_creation_events();
 	}
 	menu_show(menu);
 }
@@ -951,7 +951,7 @@ void menubar_show()
 		menu.wind = new menubar_window(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menu);
 		if (!menu.wind)
 			return;
-		menu.wind->send_creation_events(nullptr);
+		menu.wind->send_creation_events();
 		menu.wind->set_modal(0);	// allow windows behind the menubar to accept events (e.g. the keypad dialogs)
 	}
 	menu_show(menu);

@@ -1553,7 +1553,7 @@ game_window *game_setup()
 	Endlevel_sequence = 0;
 
 	auto game_wind = std::make_unique<game_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
-	game_wind->send_creation_events(nullptr);
+	game_wind->send_creation_events();
 	reset_palette_add();
 	init_cockpit();
 	init_gauges();

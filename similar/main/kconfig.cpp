@@ -843,7 +843,7 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 		step_citem_past_empty_cell(menu->citem, items, &kc_item::r);
 	menu->changing = 0;
 	menu->mouse_state = 0;
-	menu->send_creation_events(nullptr);
+	menu->send_creation_events();
 	menu.release();
 }
 

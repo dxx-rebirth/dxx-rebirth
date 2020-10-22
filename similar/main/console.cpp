@@ -466,7 +466,7 @@ void con_showup(control_info &Controls)
 	game_flush_inputs(Controls);
 	con_state = CON_STATE_OPENING;
 	auto wind = std::make_unique<console_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
-	wind->send_creation_events(nullptr);
+	wind->send_creation_events();
 	wind.release();
 }
 

@@ -1737,7 +1737,7 @@ newmenu *newmenu_do4(const char *const title, const char *const subtitle, const 
 	menu->userdata = userdata;
 
 	newmenu_free_background();
-	menu->send_creation_events(nullptr);
+	menu->send_creation_events();
 
 	//set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
 
@@ -2283,6 +2283,6 @@ listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, c
 	lb->allow_abort_flag = allow_abort_flag;
 	lb->listbox_callback = listbox_callback;
 	lb->userdata = userdata;
-	lb->send_creation_events(nullptr);
+	lb->send_creation_events();
 	return lb.release();
 }

@@ -191,7 +191,7 @@ static void show_title_screen(const char *filename)
 	}
 
 	gr_palette_load( gr_palette );
-	ts->send_creation_events(nullptr);
+	ts->send_creation_events();
 	event_process_all();
 	ts.release();
 }
@@ -1697,7 +1697,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 
 	gr_set_default_canvas();
 
-	br->send_creation_events(nullptr);
+	br->send_creation_events();
 	if (!new_briefing_screen(br.get(), 1))
 	{
 		window_close(br.get());

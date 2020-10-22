@@ -2034,7 +2034,7 @@ void do_escort_menu(void)
 						"T.  %s Messages"
 						// -- "9.	Find the exit" CC_LSPACING_S "3\n"
 				, goal_txt, tstr);
-	wind->send_creation_events(nullptr);
+	wind->send_creation_events();
 	wind.release();
 }
 

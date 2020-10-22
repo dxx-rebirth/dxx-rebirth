@@ -537,7 +537,7 @@ void scores_view(stats_info *const last_game, int citem)
 	set_screen_mode(SCREEN_MENU);
 	show_menus();
 
-	menu->send_creation_events(nullptr);
+	menu->send_creation_events();
 	menu.release();
 }
 

@@ -279,7 +279,7 @@ static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 	gr_palette_load( gr_palette );
 
 	key_flush();
-	cr->send_creation_events(nullptr);
+	cr->send_creation_events();
 	event_process_all();
 	cr.release();
 }

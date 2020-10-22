@@ -35,7 +35,7 @@ window::window(grs_canvas &src, const int x, const int y, const int w, const int
 		FirstWindow = this;
 }
 
-void window::send_creation_events(const void *const createdata)
+void window::send_creation_events()
 {
 	const auto prev_front = window_get_front();
 	if (FrontWindow)
@@ -47,7 +47,7 @@ void window::send_creation_events(const void *const createdata)
 		WINDOW_SEND_EVENT(prev_front);
 	}
 	{
-		const d_create_event event{EVENT_WINDOW_CREATED, createdata};
+		const d_create_event event{};
 		WINDOW_SEND_EVENT(this);
 	}
 	{

@@ -13,7 +13,6 @@
 namespace dcx {
 
 struct d_event;
-struct d_create_event;
 struct d_change_event;
 struct d_select_event;
 

@@ -276,7 +276,7 @@ template <typename T1, typename... ConstructionArgs>
 T1 *ui_create_dialog(const short x, const short y, const short w, const short h, const enum dialog_flags flags, ConstructionArgs &&... args)
 {
 	auto r = std::make_unique<T1>(x, y, w, h, flags, std::forward<ConstructionArgs>(args)...);
-	r->send_creation_events(nullptr);
+	r->send_creation_events();
 	return r.release();
 }
 

@@ -423,7 +423,7 @@ kmatrix_result kmatrix_view(const kmatrix_network network, control_info &Control
 		if (i.objnum != object_none)
 			digi_kill_sound_linked_to_object(vcobjptridx(i.objnum));
 
-	km.send_creation_events(nullptr);
+	km.send_creation_events();
 	event_process_all();
 	return km.result;
 }

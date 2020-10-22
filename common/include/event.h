@@ -85,9 +85,8 @@ struct d_event
 
 struct d_create_event : d_event
 {
-	const void *const createdata;
-	constexpr d_create_event(const event_type t, const void *const c) :
-		d_event(t), createdata(c)
+	constexpr d_create_event() :
+		d_event{EVENT_WINDOW_CREATED}
 	{
 	}
 };

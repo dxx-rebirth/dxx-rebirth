@@ -46,7 +46,7 @@ public:
 
 	virtual window_event_result event_handler(const d_event &) = 0;
 
-	void send_creation_events(const void *createdata);
+	void send_creation_events();
 	friend int window_close(window *wind);
 	friend window *window_get_front();
 	friend window *window_get_first();

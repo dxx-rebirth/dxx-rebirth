@@ -1234,7 +1234,7 @@ void do_automap()
 	gr_palette_load( gr_palette );
 	Automap_active = 1;
 	multi_send_msgsend_state(msgsend_automap);
-	am->send_creation_events(nullptr);
+	am->send_creation_events();
 	am.release();
 }
 

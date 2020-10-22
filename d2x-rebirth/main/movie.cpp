@@ -330,7 +330,7 @@ window_event_result movie::event_handler(const d_event &event)
 				if (auto pause_window = std::make_unique<movie_pause_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT))
 				{
 					MVE_rmHoldMovie();
-					pause_window->send_creation_events(nullptr);
+					pause_window->send_creation_events();
 					pause_window.release();
 				}
 				return window_event_result::handled;
@@ -394,7 +394,7 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 			show_menus();
 		return MOVIE_NOT_PLAYED;
 	}
-	wind->send_creation_events(nullptr);
+	wind->send_creation_events();
 	init_subtitles(wind->SubtitleState, subtitles);
 
 
