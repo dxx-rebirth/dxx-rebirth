@@ -354,8 +354,8 @@ try_again:
 
 static window_event_result player_menu_keycommand( listbox *lb,const d_event &event )
 {
-	const char **items = listbox_get_items(lb);
-	int citem = listbox_get_citem(lb);
+	const char **items = listbox_get_items(*lb);
+	int citem = listbox_get_citem(*lb);
 
 	switch (event_key_get(event))
 	{
@@ -393,7 +393,7 @@ static window_event_result player_menu_keycommand( listbox *lb,const d_event &ev
 					if (ret)
 						nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0) );
 					else
-						listbox_delete_item(lb, citem);
+						listbox_delete_item(*lb, citem);
 				}
 
 				return window_event_result::handled;
@@ -406,7 +406,7 @@ static window_event_result player_menu_keycommand( listbox *lb,const d_event &ev
 
 static window_event_result player_menu_handler( listbox *lb,const d_event &event, char **list )
 {
-	const char **items = listbox_get_items(lb);
+	const char **items = listbox_get_items(*lb);
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
@@ -795,8 +795,8 @@ static void delete_player_saved_games(const char * name)
 
 static window_event_result demo_menu_keycommand( listbox *lb,const d_event &event )
 {
-	const char **items = listbox_get_items(lb);
-	int citem = listbox_get_citem(lb);
+	const char **items = listbox_get_items(*lb);
+	int citem = listbox_get_citem(*lb);
 
 	switch (event_key_get(event))
 	{
@@ -818,7 +818,7 @@ static window_event_result demo_menu_keycommand( listbox *lb,const d_event &even
 					if (ret)
 						nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, items[citem]+((items[citem][0]=='$')?1:0) );
 					else
-						listbox_delete_item(lb, citem);
+						listbox_delete_item(*lb, citem);
 				}
 
 				return window_event_result::handled;
@@ -1854,7 +1854,7 @@ static int list_directory(browser *b)
 static window_event_result select_file_handler(listbox *menu,const d_event &event, browser *b)
 {
 	std::array<char, PATH_MAX> newpath{};
-	const char **list = listbox_get_items(menu);
+	const char **list = listbox_get_items(*menu);
 	const char *sep = PHYSFS_getDirSeparator();
 	switch (event.type)
 	{

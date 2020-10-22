@@ -1360,10 +1360,10 @@ static window_event_result mission_menu_handler(listbox *const lb, const d_event
 			/* If the user dismisses the listbox by pressing ESCAPE,
 			 * do not close the parent listbox.
 			 */
-			if (listbox_get_citem(lb) != -1)
+			if (listbox_get_citem(*lb) != -1)
 				if (const auto parent = mm->parent)
 				{
-					window_close(listbox_get_window(parent->containing_listbox));
+					window_close(listbox_get_window(*parent->containing_listbox));
 				}
 			std::default_delete<mission_menu>()(mm);
 			break;

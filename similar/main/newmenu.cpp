@@ -82,6 +82,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MESSAGEBOX_TEXT_SIZE 2176  // How many characters in messagebox
 #define MAX_TEXT_WIDTH FSPACX(120) // How many pixels wide a input box can be
 
+namespace {
+
 struct newmenu_layout
 {
 	int             x,y,w,h;
@@ -113,6 +115,53 @@ struct newmenu_layout
 	newmenu_layout(newmenu_layout &&) = default;
 	newmenu_layout &operator=(newmenu_layout &&) = default;
 };
+
+struct listbox_layout
+{
+	struct marquee
+	{
+		class deleter : std::default_delete<fix64[]>
+		{
+		public:
+			void operator()(marquee *const m) const
+			{
+				static_assert(std::is_trivially_destructible<marquee>::value, "marquee destructor not called");
+				std::default_delete<fix64[]>::operator()(reinterpret_cast<fix64 *>(m));
+			}
+		};
+		using ptr = std::unique_ptr<marquee, deleter>;
+		static ptr allocate(const unsigned maxchars)
+		{
+			const unsigned max_bytes = maxchars + 1 + sizeof(marquee);
+			auto pf = std::make_unique<fix64[]>(1 + (max_bytes / sizeof(fix64)));
+			auto pm = ptr(new(pf.get()) marquee(maxchars));
+			pf.release();
+			return pm;
+		}
+		marquee(const unsigned mc) :
+			maxchars(mc)
+		{
+		}
+		fix64 lasttime; // to scroll text if string does not fit in box
+		const unsigned maxchars;
+		int pos = 0, scrollback = 0;
+		char text[0];	/* must be last */
+	};
+	unsigned items_on_screen;
+	int box_x, box_y;
+	int box_w, height, title_height;
+	int citem, first_item;
+	unsigned nitems;
+	const char **item = nullptr;
+	const char *title = nullptr;
+	marquee::ptr marquee;
+	short swidth, sheight;
+	// with these we check if resolution or fonts have changed so listbox structure can be recreated
+	font_x_scale_proportion fntscalex;
+	font_y_scale_proportion fntscaley;
+};
+
+}
 
 struct newmenu : newmenu_layout, window
 {
@@ -1739,117 +1788,85 @@ int nm_messagebox_str(const char *title, const nm_messagebox_tie &tie, const cha
 
 #define LB_ITEMS_ON_SCREEN 8
 
-struct listbox : embed_window_pointer_t
+struct listbox : listbox_layout, window
 {
-	struct marquee
+	listbox(grs_canvas &canvas, listbox_layout &&ll) :
+		listbox_layout(std::move(ll)), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY)
 	{
-		class deleter : std::default_delete<fix64[]>
-		{
-		public:
-			void operator()(marquee *const m) const
-			{
-				static_assert(std::is_trivially_destructible<marquee>::value, "marquee destructor not called");
-				std::default_delete<fix64[]>::operator()(reinterpret_cast<fix64 *>(m));
-			}
-		};
-		using ptr = std::unique_ptr<marquee, deleter>;
-		static ptr allocate(const unsigned maxchars)
-		{
-			const unsigned max_bytes = maxchars + 1 + sizeof(marquee);
-			auto pf = std::make_unique<fix64[]>(1 + (max_bytes / sizeof(fix64)));
-			auto pm = ptr(new(pf.get()) marquee(maxchars));
-			pf.release();
-			return pm;
-		}
-		marquee(const unsigned mc) :
-			maxchars(mc)
-		{
-		}
-		fix64 lasttime; // to scroll text if string does not fit in box
-		const unsigned maxchars;
-		int pos = 0, scrollback = 0;
-		char text[0];	/* must be last */
-	};
-	const char *title;
-	const char **item;
+	}
 	uint8_t allow_abort_flag;
-	listbox_subfunction_t<void> listbox_callback;
+	uint8_t mouse_state = 0;
 	unsigned nitems;
-	unsigned items_on_screen;
-	int citem, first_item;
-	int box_w, height, box_x, box_y, title_height;
-	short swidth, sheight;
-	// with these we check if resolution or fonts have changed so listbox structure can be recreated
-	font_x_scale_proportion fntscalex;
-	font_y_scale_proportion fntscaley;
-	int mouse_state;
+	listbox_subfunction_t<void> listbox_callback = nullptr;
 	marquee::ptr marquee;
-	void *userdata;
+	void *userdata = nullptr;
+	virtual window_event_result event_handler(const d_event &) override;
 };
 
-window *listbox_get_window(listbox *const lb)
+window *listbox_get_window(listbox &lb)
 {
-	return lb->wind;
+	return &lb;
 }
 
-const char **listbox_get_items(listbox *lb)
+const char **listbox_get_items(listbox &lb)
 {
-	return lb->item;
+	return lb.item;
 }
 
-int listbox_get_citem(listbox *lb)
+int listbox_get_citem(listbox &lb)
 {
-	return lb->citem;
+	return lb.citem;
 }
 
-void listbox_delete_item(listbox *lb, int item)
+void listbox_delete_item(listbox &lb, int item)
 {
 	Assert(item >= 0);
 
-	const auto nitems = lb->nitems;
+	const auto nitems = lb.nitems;
 	if (nitems <= 0)
 		return;
 	if (item < nitems - 1)
 	{
-		auto &items = lb->item;
+		auto &items = lb.item;
 		std::rotate(&items[item], &items[item + 1], &items[nitems]);
 	}
-	-- lb->nitems;
-	if (lb->citem >= lb->nitems)
-		lb->citem = lb->nitems ? lb->nitems - 1 : 0;
+	-- lb.nitems;
+	if (lb.citem >= lb.nitems)
+		lb.citem = lb.nitems ? lb.nitems - 1 : 0;
 }
 
 namespace {
 
-static void update_scroll_position(listbox *lb)
+static void update_scroll_position(listbox_layout &lb)
 {
-	if (lb->citem<0)
-		lb->citem = 0;
+	if (lb.citem < 0)
+		lb.citem = 0;
 
-	if (lb->citem>=lb->nitems)
-		lb->citem = lb->nitems-1;
+	if (lb.citem >= lb.nitems)
+		lb.citem = lb.nitems-1;
 
-	if (lb->citem< lb->first_item)
-		lb->first_item = lb->citem;
+	if (lb.citem < lb.first_item)
+		lb.first_item = lb.citem;
 
-	if (lb->citem >= lb->items_on_screen)
+	if (lb.citem >= lb.items_on_screen)
 	{
-		if (lb->first_item <= lb->citem - lb->items_on_screen)
-			lb->first_item = lb->citem - lb->items_on_screen + 1;
+		if (lb.first_item < lb.citem - lb.items_on_screen + 1)
+			lb.first_item = lb.citem - lb.items_on_screen + 1;
 	}
 
-	if (lb->nitems <= lb->items_on_screen)
-		lb->first_item = 0;
+	if (lb.nitems <= lb.items_on_screen)
+		lb.first_item = 0;
 
-	if (lb->nitems >= lb->items_on_screen)
+	if (lb.nitems >= lb.items_on_screen)
 	{
-		if (lb->first_item > lb->nitems - lb->items_on_screen)
-			lb->first_item = lb->nitems - lb->items_on_screen;
+		if (lb.first_item > lb.nitems - lb.items_on_screen)
+			lb.first_item = lb.nitems - lb.items_on_screen;
 	}
-	if (lb->first_item < 0 ) lb->first_item = 0;
+	if (lb.first_item < 0)
+		lb.first_item = 0;
 }
 
-static window_event_result listbox_mouse(window *, const d_event &event, listbox *lb, int button)
+static window_event_result listbox_mouse(const d_event &event, listbox *lb, int button)
 {
 	switch (button)
 	{
@@ -1925,7 +1942,7 @@ static window_event_result listbox_mouse(window *, const d_event &event, listbox
 			if (lb->mouse_state)
 			{
 				lb->citem--;
-				update_scroll_position(lb);
+				update_scroll_position(*lb);
 			}
 			break;
 		}
@@ -1934,7 +1951,7 @@ static window_event_result listbox_mouse(window *, const d_event &event, listbox
 			if (lb->mouse_state)
 			{
 				lb->citem++;
-				update_scroll_position(lb);
+				update_scroll_position(*lb);
 			}
 			break;
 		}
@@ -1945,7 +1962,7 @@ static window_event_result listbox_mouse(window *, const d_event &event, listbox
 	return window_event_result::ignored;
 }
 
-static window_event_result listbox_key_command(window *, const d_event &event, listbox *lb)
+static window_event_result listbox_key_command(const d_event &event, listbox *lb)
 {
 	int key = event_key_get(event);
 	window_event_result rval = window_event_result::handled;
@@ -2010,23 +2027,23 @@ static window_event_result listbox_key_command(window *, const d_event &event, l
 			rval = window_event_result::ignored;
 		}
 	}
-	update_scroll_position(lb);
+	update_scroll_position(*lb);
 	return rval;
 }
 
-static void listbox_create_structure( listbox *lb)
+static void listbox_create_structure(listbox_layout &lb)
 {
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 
 	auto &medium3_font = *MEDIUM3_FONT;
 
-	lb->box_w = 0;
+	lb.box_w = 0;
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx10 = fspacx(10);
 	const unsigned max_box_width = SWIDTH - (BORDERX * 2);
 	unsigned marquee_maxchars = UINT_MAX;
-	range_for (const auto i, unchecked_partial_range(lb->item, lb->nitems))
+	for (const auto i : unchecked_partial_range(lb.item, lb.nitems))
 	{
 		int w;
 		gr_get_string_size(medium3_font, i, &w, nullptr, nullptr);
@@ -2074,55 +2091,56 @@ static void listbox_create_structure( listbox *lb)
 			if (marquee_maxchars > mmc)
 				marquee_maxchars = mmc;
 		}
-		if (lb->box_w < w)
-			lb->box_w = w;
+		if (lb.box_w < w)
+			lb.box_w = w;
 	}
 
 	{
 		int w, h;
-		gr_get_string_size(medium3_font, lb->title, &w, &h, nullptr);
-		if ( w > lb->box_w )
-			lb->box_w = w;
-		lb->title_height = h+FSPACY(5);
+		gr_get_string_size(medium3_font, lb.title, &w, &h, nullptr);
+		if (lb.box_w < w)
+			lb.box_w = w;
+		lb.title_height = h+FSPACY(5);
 	}
 
 	// The box is bigger than we can fit on the screen since at least one string is too long. Check how many chars we can fit on the screen (at least only - MEDIUM*_FONT is variable font!) so we can make a marquee-like effect.
 	if (marquee_maxchars != UINT_MAX)
 	{
-		lb->box_w = max_box_width;
-		lb->marquee = listbox::marquee::allocate(marquee_maxchars);
-		lb->marquee->lasttime = timer_query();
+		lb.box_w = max_box_width;
+		lb.marquee = listbox::marquee::allocate(marquee_maxchars);
+		lb.marquee->lasttime = timer_query();
 	}
 
 	const auto &&line_spacing = LINE_SPACING(medium3_font, *GAME_FONT);
 	const unsigned bordery2 = BORDERY * 2;
 	const auto items_on_screen = std::max<unsigned>(
-		std::min<unsigned>(((canvas.cv_bitmap.bm_h - bordery2 - lb->title_height) / line_spacing) - 2, lb->nitems),
+		std::min<unsigned>(((canvas.cv_bitmap.bm_h - bordery2 - lb.title_height) / line_spacing) - 2, lb.nitems),
 		LB_ITEMS_ON_SCREEN);
-	lb->items_on_screen = items_on_screen;
-	lb->height = line_spacing * items_on_screen;
-	lb->box_x = (canvas.cv_bitmap.bm_w - lb->box_w) / 2;
-	lb->box_y = (canvas.cv_bitmap.bm_h - (lb->height + lb->title_height)) / 2 + lb->title_height;
-	if (lb->box_y < bordery2)
-		lb->box_y = bordery2;
+	lb.items_on_screen = items_on_screen;
+	lb.height = line_spacing * items_on_screen;
+	lb.box_x = (canvas.cv_bitmap.bm_w - lb.box_w) / 2;
+	lb.box_y = (canvas.cv_bitmap.bm_h - (lb.height + lb.title_height)) / 2 + lb.title_height;
+	if (lb.box_y < bordery2)
+		lb.box_y = bordery2;
 
-	if ( lb->citem < 0 ) lb->citem = 0;
-	if ( lb->citem >= lb->nitems ) lb->citem = 0;
+	if (lb.citem < 0)
+		lb.citem = 0;
+	else if (lb.citem >= lb.nitems)
+		lb.citem = 0;
 
-	lb->first_item = 0;
+	lb.first_item = 0;
 	update_scroll_position(lb);
 
-	lb->mouse_state = 0;	//dblclick_flag = 0;
-	lb->swidth = SWIDTH;
-	lb->sheight = SHEIGHT;
-	lb->fntscalex = FNTScaleX;
-	lb->fntscaley = FNTScaleY;
+	lb.swidth = SWIDTH;
+	lb.sheight = SHEIGHT;
+	lb.fntscalex = FNTScaleX;
+	lb.fntscaley = FNTScaleY;
 }
 
-static window_event_result listbox_draw(window *, listbox *lb)
+static window_event_result listbox_draw(listbox *lb)
 {
 	if (lb->swidth != SWIDTH || lb->sheight != SHEIGHT || lb->fntscalex != FNTScaleX || lb->fntscaley != FNTScaleY)
-		listbox_create_structure ( lb );
+		listbox_create_structure (*lb);
 
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
@@ -2199,11 +2217,13 @@ static window_event_result listbox_draw(window *, listbox *lb)
 	return window_event_result::handled;
 }
 
-static window_event_result listbox_handler(window *wind,const d_event &event, listbox *lb)
+}
+
+window_event_result listbox::event_handler(const d_event &event)
 {
-	if (lb->listbox_callback)
+	if (listbox_callback)
 	{
-		auto rval = (*lb->listbox_callback)(lb, event, lb->userdata);
+		auto rval = (*listbox_callback)(this, event, userdata);
 		if (rval != window_event_result::ignored)
 			return rval;		// event handled
 	}
@@ -2228,18 +2248,17 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
-			lb->mouse_state = event.type == EVENT_MOUSE_BUTTON_DOWN;
-			return listbox_mouse(wind, event, lb, event_mouse_get_button(event));
+			mouse_state = event.type == EVENT_MOUSE_BUTTON_DOWN;
+			return listbox_mouse(event, this, event_mouse_get_button(event));
 		case EVENT_KEY_COMMAND:
-			return listbox_key_command(wind, event, lb);
+			return listbox_key_command(event, this);
 		case EVENT_IDLE:
 			if (!(Game_mode & GM_MULTI && Game_wind))
 				timer_delay2(CGameArg.SysMaxFPS);
-			return listbox_mouse(wind, event, lb, -1);
+			return listbox_mouse(event, this, -1);
 		case EVENT_WINDOW_DRAW:
-			return listbox_draw(wind, lb);
+			return listbox_draw(this);
 		case EVENT_WINDOW_CLOSE:
-			std::default_delete<listbox>()(lb);
 			break;
 		default:
 			break;
@@ -2247,31 +2266,23 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 	return window_event_result::ignored;
 }
 
-}
-
 listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const uint8_t allow_abort_flag, const int default_item, const listbox_subfunction_t<void> listbox_callback, void *const userdata)
 {
-	window *wind;
 	newmenu_free_background();
 
-	auto lb = std::make_unique<listbox>();
-	*lb = {};
-	lb->title = title;
-	lb->nitems = nitems;
-	lb->item = items;
-	lb->citem = default_item;
+	listbox_layout lbl{};
+	lbl.title = title;
+	lbl.nitems = nitems;
+	lbl.item = items;
+	lbl.citem = default_item;
+
+	set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
+
+	listbox_create_structure(lbl);
+	auto lb = std::make_unique<listbox>(grd_curscreen->sc_canvas, std::move(lbl));
 	lb->allow_abort_flag = allow_abort_flag;
 	lb->listbox_callback = listbox_callback;
 	lb->userdata = userdata;
-
-	set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
-	
-	listbox_create_structure(lb.get());
-
-	wind = window_create(grd_curscreen->sc_canvas, lb->box_x-BORDERX, lb->box_y-lb->title_height-BORDERY, lb->box_w+2*BORDERX, lb->height+2*BORDERY, listbox_handler, lb.get());
-	if (!wind)
-	{
-		lb.reset();
-	}
+	lb->send_creation_events(nullptr);
 	return lb.release();
 }
