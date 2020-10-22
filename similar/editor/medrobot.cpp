@@ -787,10 +787,7 @@ namespace {
 
 struct object_dialog : UI_DIALOG
 {
-	explicit object_dialog(short x, short y, short w, short h, enum dialog_flags flags) :
-		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr)
-	{
-	}
+	explicit object_dialog(short x, short y, short w, short h, enum dialog_flags flags, object &obj);
 	struct creation_context
 	{
 		vmobjptr_t obj;
@@ -839,30 +836,28 @@ int do_object_dialog()
 	Cur_goody_count = 0;
 
 	// Open a window with a quit button
-	object_dialog::creation_context c(obj);
-	MattWindow = ui_create_dialog<object_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG, &c);
+	MattWindow = ui_create_dialog<object_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG, nullptr, *obj);
 	return 1;
 }
 
-static window_event_result object_dialog_created(object_dialog *const o, const object_dialog::creation_context *const c)
+object_dialog::object_dialog(short x, short y, short w, short h, enum dialog_flags flags, object &obj) :
+	UI_DIALOG(x, y, w, h, flags, nullptr, nullptr)
 {
-	o->quitButton = ui_add_gadget_button(*o, 20, 286, 40, 32, "Done", NULL );
-	o->quitButton->hotkey = KEY_ENTER;
+	quitButton = ui_add_gadget_button(*this, 20, 286, 40, 32, "Done", NULL );
+	quitButton->hotkey = KEY_ENTER;
 	// These are the radio buttons for each mode
-	o->initialMode[0] = ui_add_gadget_radio(*o, 10, 50, 16, 16, 0, "None" );
-	o->initialMode[1] = ui_add_gadget_radio(*o, 80, 50, 16, 16, 0, "Spinning" );
-	o->initialMode[c->obj->movement_source == object::movement_type::spinning?1:0]->flag = 1;
+	initialMode[0] = ui_add_gadget_radio(*this, 10, 50, 16, 16, 0, "None" );
+	initialMode[1] = ui_add_gadget_radio(*this, 80, 50, 16, 16, 0, "Spinning" );
+	initialMode[obj.movement_source == object::movement_type::spinning ? 1 : 0]->flag = 1;
 	char message[MATT_LEN];
-	snprintf(message, sizeof(message), "%.2f", f2fl(c->obj->mtype.spin_rate.x));
-	o->xtext = ui_add_gadget_inputbox<MATT_LEN>(*o, 30, 132, message);
-	snprintf(message, sizeof(message), "%.2f", f2fl(c->obj->mtype.spin_rate.y));
-	o->ytext = ui_add_gadget_inputbox<MATT_LEN>(*o, 30, 162, message);
-	snprintf(message, sizeof(message), "%.2f", f2fl(c->obj->mtype.spin_rate.z));
-	o->ztext = ui_add_gadget_inputbox<MATT_LEN>(*o, 30, 192, message);
-	ui_gadget_calc_keys(*o);
-	o->keyboard_focus_gadget = o->initialMode[0].get();
-
-	return window_event_result::handled;
+	snprintf(message, sizeof(message), "%.2f", f2fl(obj.mtype.spin_rate.x));
+	xtext = ui_add_gadget_inputbox<MATT_LEN>(*this, 30, 132, message);
+	snprintf(message, sizeof(message), "%.2f", f2fl(obj.mtype.spin_rate.y));
+	ytext = ui_add_gadget_inputbox<MATT_LEN>(*this, 30, 162, message);
+	snprintf(message, sizeof(message), "%.2f", f2fl(obj.mtype.spin_rate.z));
+	ztext = ui_add_gadget_inputbox<MATT_LEN>(*this, 30, 192, message);
+	ui_gadget_calc_keys(*this);
+	keyboard_focus_gadget = initialMode[0].get();
 }
 
 window_event_result object_dialog::callback_handler(const d_event &event)
@@ -871,8 +866,6 @@ window_event_result object_dialog::callback_handler(const d_event &event)
 	auto &vmobjptr = Objects.vmptr;
 	switch(event.type)
 	{
-		case EVENT_WINDOW_CREATED:
-			return object_dialog_created(this, reinterpret_cast<const object_dialog::creation_context *>(static_cast<const d_create_event &>(event).createdata));
 		case EVENT_WINDOW_CLOSE:
 			MattWindow = NULL;
 			return window_event_result::ignored;
