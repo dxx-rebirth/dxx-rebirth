@@ -195,10 +195,10 @@ struct kc_menu : window
 	kc_mitem	*mitems;
 	const char	*title;
 	unsigned	nitems;
-	unsigned	citem;
-	ubyte	changing;
+	unsigned	citem = 0;
+	uint8_t changing = 0;
 	ubyte	q_fade_i;	// for flashing the question mark
-	ubyte	mouse_state;
+	uint8_t mouse_state = 0;
 	std::array<int, 3>	old_maxis;
 #if DXX_MAX_AXES_PER_JOYSTICK
 	std::array<int, JOY_MAX_AXES>	old_jaxis;
@@ -838,11 +838,8 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 	menu->mitems = mitems;
 	menu->nitems = nitems;
 	menu->title = title;
-	menu->citem = 0;
 	if (!items[0].w2)
 		step_citem_past_empty_cell(menu->citem, items, &kc_item::r);
-	menu->changing = 0;
-	menu->mouse_state = 0;
 	menu->send_creation_events();
 	menu.release();
 }
