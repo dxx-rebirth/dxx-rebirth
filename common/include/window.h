@@ -28,22 +28,6 @@ namespace dcx {
 
 constexpr const unused_window_userdata_t *unused_window_userdata = nullptr;
 
-struct embed_window_pointer_t
-{
-	window *wind = nullptr;
-};
-
-struct ignore_window_pointer_t
-{
-};
-
-static inline void set_embedded_window_pointer(embed_window_pointer_t *wp, window *w)
-{
-	wp->wind = w;
-}
-
-static inline void set_embedded_window_pointer(ignore_window_pointer_t *, window *) {}
-
 class window
 {
 public:

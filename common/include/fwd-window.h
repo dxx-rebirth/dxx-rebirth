@@ -34,10 +34,6 @@ using window_subclass_subfunction = window_event_result (*)(T *menu,const d_even
 	
 class unused_window_userdata_t;
 
-/* No declaration for embed_window_pointer_t or ignore_window_pointer_t
- * since every user needs the full definition.
- */
-
 int window_close(window *wind);
 window *window_get_front();
 window *window_get_first();

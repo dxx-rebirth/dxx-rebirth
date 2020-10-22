@@ -758,7 +758,7 @@ namespace dsx {
  * Contains protocol-specific data with designated prefixes and general game-related data.
  * Note that not all of these infos will be sent to clients - some are used and/or set locally, only.
  */
-struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
+struct netgame_info : prohibit_void_ptr<netgame_info>
 {
 	using play_time_allowed_abi_ratio = std::ratio<5 * 60>;
 #if DXX_USE_UDP

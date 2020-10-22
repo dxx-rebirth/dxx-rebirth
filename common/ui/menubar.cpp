@@ -52,7 +52,8 @@ struct ITEM {
 	int   			(*user_function)(void) = nullptr;
 };
 
-struct MENU : embed_window_pointer_t {
+struct MENU {
+	window *wind = nullptr;
 	short x = 0, y = 0, w = 0, h = 0;
 	uint8_t ShowBar = 0;
 	uint8_t CurrentItem = 0;
