@@ -452,7 +452,7 @@ static void RegisterPlayer()
 	static const std::array<file_extension_t, 1> types{{"plr"}};
 	int i = 0, NumItems;
 	int citem = 0;
-	int allow_abort_flag = 1;
+	uint8_t allow_abort_flag = 1;
 
 	auto &callsign = InterfaceUniqueState.PilotName;
 	if (!callsign[0u])

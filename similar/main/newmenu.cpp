@@ -1772,7 +1772,7 @@ struct listbox : embed_window_pointer_t
 	};
 	const char *title;
 	const char **item;
-	int allow_abort_flag;
+	uint8_t allow_abort_flag;
 	listbox_subfunction_t<void> listbox_callback;
 	unsigned nitems;
 	unsigned items_on_screen;
@@ -2249,7 +2249,7 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 
 }
 
-listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const int allow_abort_flag, const int default_item, const listbox_subfunction_t<void> listbox_callback, void *const userdata)
+listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const uint8_t allow_abort_flag, const int default_item, const listbox_subfunction_t<void> listbox_callback, void *const userdata)
 {
 	window *wind;
 	newmenu_free_background();

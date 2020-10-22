@@ -339,16 +339,16 @@ constexpr listbox_subfunction_t<const unused_listbox_userdata_t> *unused_listbox
 constexpr const unused_listbox_userdata_t *unused_listbox_userdata = nullptr;
 }
 
-listbox *newmenu_listbox1(const char * title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void> listbox_callback, void *userdata);
+listbox *newmenu_listbox1(const char * title, uint_fast32_t nitems, const char *items[], uint8_t allow_abort_flag, int default_item, listbox_subfunction_t<void> listbox_callback, void *userdata);
 
 template <typename T>
-listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const int allow_abort_flag, const int default_item, const listbox_subfunction_t<T> listbox_callback, T *const userdata)
+listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const uint8_t allow_abort_flag, const int default_item, const listbox_subfunction_t<T> listbox_callback, T *const userdata)
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>>(listbox_callback), static_cast<void *>(userdata));
 }
 
 template <typename T>
-listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const int allow_abort_flag, const int default_item, const listbox_subfunction_t<T> listbox_callback, std::unique_ptr<T> userdata)
+listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const uint8_t allow_abort_flag, const int default_item, const listbox_subfunction_t<T> listbox_callback, std::unique_ptr<T> userdata)
 {
 	auto r = newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>>(listbox_callback), static_cast<void *>(userdata.get()));
 	userdata.release();
@@ -356,7 +356,7 @@ listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, c
 }
 
 template <typename T>
-listbox *newmenu_listbox(const char *const title, const uint_fast32_t nitems, const char *items[], const int allow_abort_flag, const listbox_subfunction_t<T> listbox_callback, T *const userdata)
+listbox *newmenu_listbox(const char *const title, const uint_fast32_t nitems, const char *items[], const uint8_t allow_abort_flag, const listbox_subfunction_t<T> listbox_callback, T *const userdata)
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, reinterpret_cast<listbox_subfunction_t<void>>(listbox_callback), static_cast<void *>(userdata));
 }
