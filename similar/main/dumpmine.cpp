@@ -53,7 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "newmenu.h"
 #include "textures.h"
-
+#include "text.h"
 #include "bm.h"
 #include "menu.h"
 #include "switch.h"
@@ -668,7 +668,7 @@ void write_game_text_file(const char *filename)
 	auto my_file = PHYSFSX_openWriteBuffered(my_filename);
 	if (!my_file)	{
 		gr_palette_load(gr_palette);
-		nm_messagebox( NULL, 1, "Ok", "ERROR: Unable to open %s\nErrno = %i", my_filename, errno);
+		nm_messagebox(nullptr, 1, TXT_OK, "ERROR: Unable to open %s\nErrno = %i", my_filename, errno);
 
 		return;
 	}
@@ -1104,7 +1104,7 @@ static void say_totals_all(void)
 	auto my_file = PHYSFSX_openWriteBuffered("levels.all");
 	if (!my_file)	{
 		gr_palette_load(gr_palette);
-		nm_messagebox( NULL, 1, "Ok", "ERROR: Unable to open levels.all\nErrno=%i", errno );
+		nm_messagebox(nullptr, 1, TXT_OK, "ERROR: Unable to open levels.all\nErrno=%i", errno );
 
 		return;
 	}
@@ -1153,7 +1153,7 @@ say_totals_all();
 
 	if (!my_file)	{
 		gr_palette_load(gr_palette);
-		nm_messagebox( NULL, 1, "Ok", "ERROR: Can't open textures.dmp\nErrno=%i", errno);
+		nm_messagebox(nullptr, 1, TXT_OK, "ERROR: Can't open textures.dmp\nErrno=%i", errno);
 
 		return;
 	}

@@ -435,7 +435,8 @@ window_event_result scores_menu::event_handler(const d_event &event)
 					if (citem < 0)
 					{
 						// Reset scores...
-						if ( nm_messagebox( NULL, 2,  TXT_NO, TXT_YES, TXT_RESET_HIGH_SCORES )==1 )	{
+						if (nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_NO, TXT_YES), TXT_RESET_HIGH_SCORES) == 1)
+						{
 							PHYSFS_delete(SCORES_FILENAME);
 							scores_view(&last_game, citem);	// create new scores window
 							return window_event_result::close;

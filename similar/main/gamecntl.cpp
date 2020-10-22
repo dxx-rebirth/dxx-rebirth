@@ -559,7 +559,7 @@ static window_event_result HandleDemoKey(int key)
 			if (CGameArg.SysAutoDemo)
 			{
 				int choice;
-				choice = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
+				choice = nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_YES, TXT_NO), TXT_ABORT_AUTODEMO);
 				if (choice == 0)
 					CGameArg.SysAutoDemo = false;
 				else

@@ -284,9 +284,8 @@ window_event_result standard_handler(const d_event &event)
 	
 		if (wind == Game_wind)
 		{
-			int choice;
 			Quitting = 0;
-			choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+			const auto choice = nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_YES, TXT_NO), TXT_ABORT_GAME);
 			if (choice != 0)
 				return window_event_result::handled;	// aborted quitting
 			else

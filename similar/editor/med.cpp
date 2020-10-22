@@ -69,6 +69,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kdefs.h"
 #include "func.h"
 #include "textures.h"
+#include "text.h"
 #include "screens.h"
 #include "texmap.h"
 #include "object.h"
@@ -845,7 +846,7 @@ int SafetyCheck()
 	int x;
 			
 	if (mine_changed) {
-		x = nm_messagebox( "Warning!", 2, "Cancel", "OK", "You are about to lose work." );
+		x = nm_messagebox_str("Warning!", nm_messagebox_tie("Cancel", TXT_OK), "You are about to lose work.");
 		if (x<1) {
 			return 0;
 		}

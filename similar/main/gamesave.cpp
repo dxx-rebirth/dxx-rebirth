@@ -1516,7 +1516,7 @@ int load_level(
 	//If an old version, ask the use if he wants to save as new version
 	if (((LEVEL_FILE_VERSION>1) && Gamesave_current_version < LEVEL_FILE_VERSION) || mine_err==1 || game_err==1) {
 		gr_palette_load(gr_palette);
-		if (nm_messagebox( NULL, 2, "Don't Save", "Save", "You just loaded a old version level.  Would\n"
+		if (nm_messagebox_str(nullptr, nm_messagebox_tie("Don't Save", "Save"), "You just loaded a old version level.  Would\n"
 						"you like to save it as a current version level?")==1)
 			save_level(filename);
 	}
@@ -1546,7 +1546,7 @@ int load_level(
 	if (check_segment_connections())
 	{
 #ifndef NDEBUG
-		nm_messagebox( "ERROR", 1, "Ok", 
+		nm_messagebox_str(TXT_ERROR, nm_messagebox_tie(TXT_OK), 
 				"Connectivity errors detected in\n"
 				"mine.  See monochrome screen for\n"
 				"details, and contact Matt or Mike." );
@@ -1870,7 +1870,7 @@ static int save_level_sub(
 	if (!SaveFile)
 	{
 		gr_palette_load(gr_palette);
-		nm_messagebox( NULL, 1, "Ok", "ERROR: Cannot write to '%s'.", temp_filename);
+		nm_messagebox(nullptr, 1, TXT_OK, "ERROR: Cannot write to '%s'.", temp_filename);
 		return 1;
 	}
 

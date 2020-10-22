@@ -918,7 +918,7 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 
 	if (!dsc && nsaves < 1)
 	{
-		nm_messagebox( NULL, 1, "Ok", "No saved games were found!" );
+		nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "No saved games were found!");
 		return d_game_unique_state::save_slot::None;
 	}
 
@@ -1140,7 +1140,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	auto fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) {
 		con_printf(CON_URGENT, "Failed to open %s: %s", filename, PHYSFS_getLastError());
-		nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
+		nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "Error writing savegame.\nPossibly out of disk\nspace.");
 		return 0;
 	}
 
@@ -1635,8 +1635,7 @@ int state_restore_all(const int in_game, const secret_restore secret, const char
 #endif
 	if (secret == secret_restore::none && in_game && blind == blind_save::no)
 	{
-		int choice;
-		choice =  nm_messagebox( NULL, 2, "Yes", "No", "Restore Game?" );
+		const auto choice = nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_YES, TXT_NO), "Restore Game?");
 		if ( choice != 0 )	{
 			return 0;
 		}
@@ -1748,7 +1747,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 				PHYSFS_read(fp, mission_pathname.full.data(), mission_pathname.full.size(), 1);
 				if (mission_pathname.full.back())
 				{
-					nm_messagebox("ERROR", 1, TXT_OK, "Unable to load game\nUnrecognized mission name format");
+					nm_messagebox_str(TXT_ERROR, nm_messagebox_tie(TXT_OK), "Unable to load game\nUnrecognized mission name format");
 					return 0;
 				}
 			}
@@ -1760,13 +1759,13 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 #endif
 			break;
 		default:	/* Save game written by a future version of Rebirth.  ABI unknown. */
-			nm_messagebox("ERROR", 1, TXT_OK, "Unable to load game\nUnrecognized save game format");
+			nm_messagebox_str(TXT_ERROR, nm_messagebox_tie(TXT_OK), "Unable to load game\nUnrecognized save game format");
 			return 0;
 	}
 
 	if (const auto errstr = load_mission_by_name(mission_predicate, name_match_mode))
 	{
-		nm_messagebox("ERROR", 1, TXT_OK, "Unable to load mission\n'%s'\n\n%s", mission_pathname.full.data(), errstr);
+		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Unable to load mission\n'%s'\n\n%s", mission_pathname.full.data(), errstr);
 		return 0;
 	}
 

@@ -1236,7 +1236,7 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 			}
 			else
 			{
-				nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_INVALID_CHOICE);
+				nm_messagebox_str(TXT_SORRY, nm_messagebox_tie(TXT_OK), TXT_INVALID_CHOICE);
 				return -1; // invalid game selected - stay in the menu
 			}
 			break;
@@ -1334,7 +1334,7 @@ void net_udp_list_join_game()
 
 	if (gamemyport >= 1024 && gamemyport != UDP_PORT_DEFAULT)
 		if (udp_open_socket(UDP_Socket[1], UDP_PORT_DEFAULT) < 0)
-			nm_messagebox(TXT_WARNING, 1, TXT_OK, "Cannot open default port!\nYou can only scan for games\nmanually.");
+			nm_messagebox_str(TXT_WARNING, nm_messagebox_tie(TXT_OK), "Cannot open default port!\nYou can only scan for games\nmanually.");
 
 	// prepare broadcast address to discover games
 	udp_init_broadcast_addresses();
@@ -1412,7 +1412,7 @@ void net_udp_init()
 	wVersionRequested = MAKEWORD(2, 2);
 	WSACleanup();
 	if (WSAStartup( wVersionRequested, &wsaData))
-		nm_messagebox( TXT_ERROR, 1, TXT_OK, "Cannot init Winsock!"); // no break here... game will fail at socket creation anyways...
+		nm_messagebox_str(TXT_ERROR, nm_messagebox_tie(TXT_OK), "Cannot init Winsock!"); // no break here... game will fail at socket creation anyways...
 }
 #endif
 
@@ -2157,7 +2157,7 @@ static void net_udp_read_object_packet( ubyte *data )
 			if (net_udp_verify_objects(remote_objnum, object_count))
 			{
 				// Failed to sync up 
-				nm_messagebox(NULL, 1, TXT_OK, TXT_NET_SYNC_FAILED);
+				nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), TXT_NET_SYNC_FAILED);
 				Network_status = NETSTAT_MENU;                          
 				return;
 			}
@@ -2933,9 +2933,9 @@ static void net_udp_process_dump(ubyte *data, int, const _sockaddr &sender_addr)
 			if (Game_wind)
 				window_set_visible(*Game_wind, 0);
 			if (data[1] == DUMP_PKTTIMEOUT)
-				nm_messagebox(NULL, 1, TXT_OK, "You were removed from the game.\nYou failed receiving important\npackets. Sorry.");
+				nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "You were removed from the game.\nYou failed receiving important\npackets. Sorry.");
 			else if (data[1] == DUMP_KICKED)
-				nm_messagebox(NULL, 1, TXT_OK, "You were kicked by Host!");
+				nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "You were kicked by Host!");
 			if (Game_wind)
 				window_set_visible(*Game_wind, 1);
 			multi_quit_game = 1;
@@ -3680,7 +3680,7 @@ int more_game_options_menu_items::handler(newmenu *, const d_event &event, more_
 			{
 				if (Game_mode & GM_MULTI_COOP)
 				{
-					nm_messagebox ("Sorry",1,TXT_OK,"You can't change those for coop!");
+					nm_messagebox_str("Sorry", nm_messagebox_tie(TXT_OK), "You can't change those for coop!");
 					menus[opt_playtime].value=0;
 					return 0;
 				}
@@ -3692,7 +3692,7 @@ int more_game_options_menu_items::handler(newmenu *, const d_event &event, more_
 			{
 				if (Game_mode & GM_MULTI_COOP)
 				{
-					nm_messagebox ("Sorry",1,TXT_OK,"You can't change those for coop!");
+					nm_messagebox_str("Sorry", nm_messagebox_tie(TXT_OK), "You can't change those for coop!");
 					menus[opt_killgoal].value=0;
 					return 0;
 				}
@@ -3846,7 +3846,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 					Netgame.gamemode = NETGAME_BOUNTY;
 		 		else if (ANARCHY_ONLY_MISSION) {
 					int i = 0;
-		 			nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
+		 			nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), TXT_ANARCHY_ONLY_MISSION);
 					for (i = opt->mode; i <= opt->mode_end; i++)
 						menus[i].value = 0;
 					menus[opt->anarchy].value = 1;
@@ -3873,7 +3873,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 #endif
 			{
 				auto &slevel = opt->slevel;
-				nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_LEVEL_OUT_RANGE );
+				nm_messagebox_str(TXT_ERROR, nm_messagebox_tie(TXT_OK), TXT_LEVEL_OUT_RANGE);
 				strcpy(slevel, "1");
 				return 1;
 			}
@@ -4113,7 +4113,7 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 	{
 		Network_status = NETSTAT_MENU;
 		net_udp_close();
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_NETLEVEL_NMATCH);
+		nm_messagebox_str(TXT_ERROR, nm_messagebox_tie(TXT_OK), TXT_NETLEVEL_NMATCH);
 		throw multi::level_checksum_mismatch();
 	}
 
@@ -4611,7 +4611,7 @@ menu:
 	if (choice == -1)
 	{
 		// User aborted
-		choice = nm_messagebox(NULL, 3, TXT_YES, TXT_NO, TXT_START_NOWAIT, TXT_QUITTING_NOW);
+		choice = nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_YES, TXT_NO, TXT_START_NOWAIT), TXT_QUITTING_NOW);
 		if (choice == 2) {
 			N_players = 1;
 			return 0;
@@ -4674,7 +4674,7 @@ int net_udp_do_join_game()
 
 	if (Netgame.game_status == NETSTAT_ENDLEVEL)
 	{
-		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
+		nm_messagebox_str(TXT_SORRY, nm_messagebox_tie(TXT_OK), TXT_NET_GAME_BETWEEN2);
 		return 0;
 	}
 
@@ -4701,7 +4701,7 @@ int net_udp_do_join_game()
 	{
 		if (Netgame.levelnum>8)
 		{
-			nm_messagebox(NULL, 1, TXT_OK, "This OEM version only supports\nthe first 8 levels!");
+			nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "This OEM version only supports\nthe first 8 levels!");
 			return 0;
 		}
 	}
@@ -4710,14 +4710,14 @@ int net_udp_do_join_game()
 	{
 		if (Netgame.levelnum > 4)
 		{
-			nm_messagebox(NULL, 1, TXT_OK, "This SHAREWARE version only supports\nthe first 4 levels!");
+			nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "This SHAREWARE version only supports\nthe first 4 levels!");
 			return 0;
 		}
 	}
 
 	if ( !HoardEquipped() && (Netgame.gamemode == NETGAME_HOARD || Netgame.gamemode == NETGAME_TEAM_HOARD) )
 	{
-		nm_messagebox(TXT_SORRY, 1, TXT_OK, "HOARD(.ham) not installed. You can't join.");
+		nm_messagebox_str(TXT_SORRY, nm_messagebox_tie(TXT_OK), "HOARD(.ham) not installed. You can't join.");
 		return 0;
 	}
 
@@ -4726,7 +4726,7 @@ int net_udp_do_join_game()
 
 	if (net_udp_can_join_netgame(&Netgame) == join_netgame_status_code::game_in_disallowed_state)
 	{
-		nm_messagebox(TXT_SORRY, 1, TXT_OK, Netgame.numplayers == Netgame.max_numplayers ? TXT_GAME_FULL : TXT_IN_PROGRESS);
+		nm_messagebox_str(TXT_SORRY, nm_messagebox_tie(TXT_OK), Netgame.numplayers == Netgame.max_numplayers ? TXT_GAME_FULL : TXT_IN_PROGRESS);
 		return 0;
 	}
 
@@ -4980,7 +4980,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const ubyte *data, ushort d
 			Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
 			if (Game_wind)
 				window_set_visible(*Game_wind, 0);
-			nm_messagebox(NULL, 1, TXT_OK, "You left the game. You failed\nsending important packets.\nSorry.");
+			nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "You left the game. You failed\nsending important packets.\nSorry.");
 			if (Game_wind)
 				window_set_visible(*Game_wind, 1);
 			multi_quit_game = 1;
@@ -5181,7 +5181,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
 					if (Game_wind)
 						window_set_visible(*Game_wind, 0);
-					nm_messagebox(NULL, 1, TXT_OK, "You left the game. You failed\nsending important packets.\nSorry.");
+					nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "You left the game. You failed\nsending important packets.\nSorry.");
 					if (Game_wind)
 						window_set_visible(*Game_wind, 1);
 					multi_quit_game = 1;
@@ -6095,7 +6095,7 @@ static void udp_tracker_verify_ack_timeout()
 		if (Network_status == NETSTAT_PLAYING)
 			HUD_init_message(HM_MULTI, "No ACK from tracker. Please check game log.");
 		else
-			nm_messagebox(TXT_WARNING, 1, TXT_OK, "No ACK from tracker.\nPlease check game log.");
+			nm_messagebox_str(TXT_WARNING, nm_messagebox_tie(TXT_OK), "No ACK from tracker.\nPlease check game log.");
 		con_puts(CON_URGENT, "[Tracker] No response from game tracker. Tracker address may be invalid or Tracker may be offline or otherwise unreachable.");
 	}
 	else if (TrackerAckStatus == TrackerAckState::TACK_INTERNAL)

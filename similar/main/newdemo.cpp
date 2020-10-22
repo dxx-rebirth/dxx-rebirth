@@ -3914,7 +3914,7 @@ void newdemo_start_recording()
 	if (!outfile)
 	{
 		Newdemo_state = ND_STATE_NORMAL;
-		nm_messagebox(NULL, 1, TXT_OK, "Cannot open demo temp file");
+		nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "Cannot open demo temp file");
 	}
 	else
 		newdemo_record_start_demo();
@@ -4142,7 +4142,7 @@ try_again:
 			break;
 		if (!isalnum(c) && c != '_' && c != '-' && c != '.')
 		{
-			nm_messagebox(NULL, 1,TXT_CONTINUE, TXT_DEMO_USE_LETTERS);
+			nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_CONTINUE), TXT_DEMO_USE_LETTERS);
 			goto try_again;
 		}
 	}
@@ -4357,13 +4357,13 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 
 	const auto &&outfp = PHYSFSX_openWriteBuffered(outname);
 	if (!outfp) {
-		nm_messagebox( NULL, 1, TXT_OK, "Can't open output file" );
+		nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "Can't open output file");
 		newdemo_stop_playback();
 		return;
 	}
 	MALLOC(buf, char, BUF_SIZE);
 	if (buf == NULL) {
-		nm_messagebox( NULL, 1, TXT_OK, "Can't malloc output buffer" );
+		nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "Can't malloc output buffer");
 		newdemo_stop_playback();
 		return;
 	}

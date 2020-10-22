@@ -1731,7 +1731,7 @@ static int graphics_config_menuset(newmenu *, const d_event &event, newmenu_item
 			else
 			if (citem == opt_filter_anisotropy && ogl_maxanisotropy <= 1.0)
 			{
-				nm_messagebox( TXT_ERROR, 1, TXT_OK, "Anisotropic Filtering not\nsupported by your hardware/driver.");
+				nm_messagebox_str(TXT_ERROR, nm_messagebox_tie(TXT_OK), "Anisotropic Filtering not\nsupported by your hardware/driver.");
 				items[opt_filter_anisotropy].value = 0;
 			}
 #endif
@@ -1768,7 +1768,7 @@ void graphics_config()
 
 #if DXX_USE_OGL
 	if (CGameCfg.VSync != m[opt_gr_vsync].value || CGameCfg.Multisample != m[opt_gr_multisample].value)
-		nm_messagebox( NULL, 1, TXT_OK, "Setting VSync or 4x Multisample\nrequires restart on some systems.");
+		nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "Setting VSync or 4x Multisample\nrequires restart on some systems.");
 
 	range_for (const uint_fast32_t i, xrange(3u))
 		if (m[i+opt_filter_none].value)
