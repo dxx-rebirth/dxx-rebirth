@@ -70,17 +70,6 @@ window::~window()
 		this->prev->next = this->next;
 }
 
-callback_window::callback_window(grs_canvas &src, const int x, const int y, const int w, const int h, const window_subfunction<void> event_callback, void *const data) :
-	window(src, x, y, w, h),
-	w_callback((assert(event_callback != nullptr), event_callback)), w_data(data)
-{
-}
-
-window_event_result callback_window::event_handler(const d_event &event)
-{
-	return w_callback(this, event, w_data);
-}
-
 int window_close(window *wind)
 {
 	window *prev;

@@ -56,8 +56,6 @@ private:
 	bool *w_exists;					// optional pointer to a tracking variable
 	
 public:
-	// For creating the window, there are two ways - using the (older) window_create function
-	// or using the constructor, passing an event handler that takes a subclass of window.
 	explicit window(grs_canvas &src, int x, int y, int w, int h);
 
 	virtual ~window();
@@ -65,10 +63,6 @@ public:
 	virtual window_event_result event_handler(const d_event &) = 0;
 
 	void send_creation_events(const void *createdata);
-	// Declaring as friends to keep function syntax, for historical reasons (for now at least)
-	// Intended to transition to the class method form
-	friend window *window_create(grs_canvas &src, int x, int y, int w, int h, window_subfunction<void> event_callback, void *userdata, const void *createdata);
-	
 	friend int window_close(window *wind);
 	friend window *window_get_front();
 	friend window *window_get_first();
@@ -128,32 +122,6 @@ public:
 		w_exists = exists;
 	}
 };
-
-class callback_window : public window
-{
-	window_subfunction<void> w_callback;	// the event handler
-	void *w_data;						// whatever the user wants (eg menu data for 'newmenu' menus)
-public:
-	callback_window(grs_canvas &src, int x, int y, int w, int h, window_subfunction<void> event_callback, void *data);
-	virtual window_event_result event_handler(const d_event &) override;
-};
-
-template <typename T1, typename T2 = const void>
-static inline callback_window *window_create(grs_canvas &src, int x, int y, int w, int h, window_subfunction<T1> event_callback, T1 *data, T2 *createdata = nullptr)
-{
-	const auto win = new callback_window(src, x, y, w, h, reinterpret_cast<window_subfunction<void>>(event_callback), static_cast<void *>(data));
-	set_embedded_window_pointer(data, win);
-	win->send_creation_events(createdata);
-	return win;
-}
-
-template <typename T1, typename T2 = const void>
-static inline callback_window *window_create(grs_canvas &src, int x, int y, int w, int h, window_subfunction<const T1> event_callback, const T1 *userdata, T2 *createdata = nullptr)
-{
-	const auto win = new callback_window(src, x, y, w, h, reinterpret_cast<window_subfunction<void>>(event_callback), static_cast<void *>(const_cast<T1 *>(userdata)));
-	win->send_creation_events(createdata);
-	return win;
-}
 
 static inline window_event_result (WINDOW_SEND_EVENT)(window &w, const d_event &event, const char *const file, const unsigned line)
 {
