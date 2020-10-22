@@ -758,7 +758,7 @@ static void init_editor_screen(grs_canvas &canvas)
 	gr_set_curfont(canvas, editor_font);
 	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 
-	EditorWindow = ui_create_dialog<editor_dialog>(0, 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED, nullptr);
+	EditorWindow = ui_create_dialog<editor_dialog>(0, 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED);
 	auto e = EditorWindow;
 
 	LargeViewBox = ui_add_gadget_userbox(*e, LVIEW_X, LVIEW_Y, LVIEW_W, LVIEW_H);

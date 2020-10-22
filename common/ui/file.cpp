@@ -283,7 +283,7 @@ int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *const file
 
 	//ui_messagebox( -2,-2, 1,"DEBUG:0", "Ok" );
 
-	auto dlg = ui_create_dialog<ui_file_browser>(200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), nullptr, view_dir, filename_list, std::move(directory_list));
+	auto dlg = ui_create_dialog<ui_file_browser>(200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), view_dir, filename_list, std::move(directory_list));
 
 	dlg->user_file = ui_add_gadget_inputbox(*dlg, 60, 30, InputLength, 40, InputText);
 

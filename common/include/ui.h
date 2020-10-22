@@ -272,11 +272,11 @@ int ui_messagebox( short xc, short yc, const char * text, const ui_messagebox_ti
 class unused_ui_userdata_t;
 constexpr unused_ui_userdata_t *unused_ui_userdata = nullptr;
 
-template <typename T1, typename T2, typename... ConstructionArgs>
-T1 *ui_create_dialog(const short x, const short y, const short w, const short h, const enum dialog_flags flags, const T2 createdata, ConstructionArgs &&... args)
+template <typename T1, typename... ConstructionArgs>
+T1 *ui_create_dialog(const short x, const short y, const short w, const short h, const enum dialog_flags flags, ConstructionArgs &&... args)
 {
 	auto r = std::make_unique<T1>(x, y, w, h, flags, std::forward<ConstructionArgs>(args)...);
-	r->send_creation_events(createdata);
+	r->send_creation_events(nullptr);
 	return r.release();
 }
 

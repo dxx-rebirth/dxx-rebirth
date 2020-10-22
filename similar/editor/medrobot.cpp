@@ -523,7 +523,7 @@ int do_robot_dialog()
 	Cur_goody_count = 0;
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog<robot_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG, nullptr);
+	MainWindow = ui_create_dialog<robot_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG);
 	return 1;
 }
 
@@ -836,7 +836,7 @@ int do_object_dialog()
 	Cur_goody_count = 0;
 
 	// Open a window with a quit button
-	MattWindow = ui_create_dialog<object_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG, nullptr, *obj);
+	MattWindow = ui_create_dialog<object_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG, *obj);
 	return 1;
 }
 

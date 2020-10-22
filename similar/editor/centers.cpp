@@ -108,7 +108,7 @@ int do_centers_dialog()
 	const unsigned x = 20;
 	const unsigned width = 740;
 #endif
-	MainWindow = ui_create_dialog<centers_dialog>(x, TMAPBOX_Y + 20, width, 545 - TMAPBOX_Y, DF_DIALOG, nullptr);
+	MainWindow = ui_create_dialog<centers_dialog>(x, TMAPBOX_Y + 20, width, 545 - TMAPBOX_Y, DF_DIALOG);
 	return 1;
 }
 

@@ -183,7 +183,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 		y = h - height;
 	}
 
-	const auto dlg = ui_create_dialog<messagebox>(x, y, width, height, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), nullptr);
+	const auto dlg = ui_create_dialog<messagebox>(x, y, width, height, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL));
 	dlg->button = &Button;
 	dlg->text = text;
 	dlg->choice = &choice;
