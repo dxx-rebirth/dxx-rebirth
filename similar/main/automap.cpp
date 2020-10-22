@@ -122,16 +122,16 @@ struct automap : ::dcx::window
 	fix64			t1, t2;
 	static_assert(PF_WIGGLE < UINT8_MAX, "storing PF_WIGGLE into old_wiggle would truncate the value");
 	uint8_t			old_wiggle;
-	uint8_t			leave_mode;
+	uint8_t			leave_mode = 0;
 	uint8_t			pause_game;
 	vms_angvec		tangles;
-	int			max_segments_away;
-	int			segment_limit;
+	int max_segments_away = 0;
+	int segment_limit = 1;
 
 	// Edge list variables
-	int			num_edges;
+	int num_edges = 0;
 	unsigned max_edges; //set each frame
-	unsigned end_valid_edges;
+	unsigned end_valid_edges = 0;
 	std::unique_ptr<Edge_info[]>		edges;
 	std::unique_ptr<Edge_info *[]>			drawingListBright;
 
@@ -141,12 +141,12 @@ struct automap : ::dcx::window
 	grs_main_bitmap		automap_background;
 
 	// Rendering variables
-	fix			zoom;
+	fix			zoom = 0x9000;
 	vms_vector		view_target;
 	vms_vector		view_position;
-	fix			farthest_dist;
+	fix			farthest_dist = (F1_0 * 20 * 50); // 50 segments away
 	vms_matrix		viewMatrix;
-	fix			viewDist;
+	fix			viewDist = 0;
 
 	segment_depth_array_t depth_array;
 	color_t			wall_normal_color;
@@ -1172,18 +1172,10 @@ void do_automap()
 	auto &vmobjptr = Objects.vmptr;
 	palette_array_t pal;
 	auto am = std::make_unique<automap>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
-	am->leave_mode = 0;
-	am->max_segments_away = 0;
-	am->segment_limit = 1;
-	am->num_edges = 0;
-	am->end_valid_edges = 0;
 	const auto max_edges = LevelSharedSegmentState.Num_segments * 12;
 	am->max_edges = max_edges;
 	am->edges = std::make_unique<Edge_info[]>(max_edges);
 	am->drawingListBright = std::make_unique<Edge_info *[]>(max_edges);
-	am->zoom = 0x9000;
-	am->farthest_dist = (F1_0 * 20 * 50); // 50 segments away
-	am->viewDist = 0;
 
 	init_automap_colors(*am);
 	am->pause_game = !((Game_mode & GM_MULTI) && (!Endlevel_sequence)); // Set to 1 if everything is paused during automap...No pause during net.
