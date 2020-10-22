@@ -879,8 +879,6 @@ window_event_result object_dialog::callback_handler(const d_event &event)
 	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 	
-	Assert(MattWindow != NULL);
-
 	//------------------------------------------------------------
 	// Call the ui code..
 	//------------------------------------------------------------
@@ -889,9 +887,9 @@ window_event_result object_dialog::callback_handler(const d_event &event)
 
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
-		ui_dprintf_at( MattWindow, 10, 132,"&X:" );
-		ui_dprintf_at( MattWindow, 10, 162,"&Y:" );
-		ui_dprintf_at( MattWindow, 10, 192,"&Z:" );
+		ui_dprintf_at(this, 10, 132,"&X:" );
+		ui_dprintf_at(this, 10, 162,"&Y:" );
+		ui_dprintf_at(this, 10, 192,"&Z:" );
 	}
 	
 	if (GADGET_PRESSED(quitButton.get()) || keypress == KEY_ESC)
