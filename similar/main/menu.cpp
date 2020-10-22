@@ -120,7 +120,6 @@ enum MENUS
     #endif
 
     MENU_SHOW_CREDITS,
-    MENU_ORDER_INFO,
 
 #if DXX_USE_UDP
     MENU_START_UDP_NETGAME,
@@ -642,12 +641,6 @@ static void create_main_menu(newmenu_item *m, int *menu_choice, unsigned *const 
 	ADD_ITEM(TXT_CHANGE_PILOTS,MENU_NEW_PLAYER,unused);
 	ADD_ITEM(TXT_VIEW_DEMO,MENU_DEMO_PLAY,0);
 	ADD_ITEM(TXT_VIEW_SCORES,MENU_VIEW_SCORES,KEY_V);
-#if defined(DXX_BUILD_DESCENT_I)
-	if (!PHYSFSX_exists("warning.pcx",1)) /* SHAREWARE */
-#elif defined(DXX_BUILD_DESCENT_II)
-	if (PHYSFSX_exists("orderd2.pcx",1)) /* SHAREWARE */
-#endif
-		ADD_ITEM(TXT_ORDERING_INFO,MENU_ORDER_INFO,-1);
 	ADD_ITEM(TXT_CREDITS,MENU_SHOW_CREDITS,-1);
 	#endif
 	ADD_ITEM(TXT_QUIT,MENU_QUIT,KEY_Q);
@@ -722,11 +715,6 @@ int do_option ( int select)
 		case MENU_VIEW_SCORES:
 			scores_view_menu();
 			break;
-#if 1 //def SHAREWARE
-		case MENU_ORDER_INFO:
-			show_order_form();
-			break;
-#endif
 		case MENU_QUIT:
 #if DXX_USE_EDITOR
 			if (! SafetyCheck()) break;

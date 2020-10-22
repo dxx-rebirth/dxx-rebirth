@@ -55,10 +55,4 @@ namespace dsx {
 extern int intro_played;
 }
 #endif
-#ifdef dsx
-namespace dsx {
-extern void show_order_form(void);
-
-}
-#endif
 #endif

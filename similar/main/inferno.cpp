@@ -731,7 +731,6 @@ static int main(int argc, char *argv[])
 	}
 
 	WriteConfigFile();
-	show_order_form();
 
 	con_puts(CON_DEBUG, "Cleanup...");
 	close_game();

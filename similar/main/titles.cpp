@@ -327,37 +327,6 @@ void show_titles(void)
 #endif
 }
 
-void show_order_form()
-{
-	if (CGameArg.SysNoTitles)
-		return;
-
-#if defined(DXX_BUILD_DESCENT_I)
-	show_first_found_title_screen(
-		"warning.pcx",	// D1 Registered
-		"apple.pcx",	// D1 Mac OEM Demo
-		"order01.pcx"	// D1 Demo
-	);
-#elif defined(DXX_BUILD_DESCENT_II)
-#if !DXX_USE_EDITOR
-	key_flush();
-	const auto hiresmode = HIRESMODE;
-	/*
-	 * If D2 registered, all checks fail and nothing is shown.
-	 */
-	const char *exit_screen = hiresmode ? "ordrd2ob.pcx" : "ordrd2o.pcx"; // OEM
-	if ((PHYSFSX_exists(exit_screen, 1)) ||
-		// SHAREWARE, prefer mac if hires
-		(exit_screen = hiresmode ? "orderd2b.pcx" : "orderd2.pcx", PHYSFSX_exists(exit_screen, 1)) ||
-		// SHAREWARE, have to rescale
-		(exit_screen = hiresmode ? "orderd2.pcx" : "orderd2b.pcx", PHYSFSX_exists(exit_screen, 1)) ||
-		// D1
-		(exit_screen = hiresmode ? "warningb.pcx" : "warning.pcx", PHYSFSX_exists(exit_screen, 1))
-		)
-		show_title_screen(exit_screen, title_load_location::anywhere);
-#endif
-#endif
-}
 }
 
 namespace dcx {
@@ -1711,7 +1680,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 
 void do_end_briefing_screens(const d_fname &filename)
 {
-	int level_num_screen = Current_level_num, showorder = 0;
+	int level_num_screen = Current_level_num;
 
 	if (!*static_cast<const char *>(filename))
 		return; // no filename, no ending
@@ -1723,17 +1692,11 @@ void do_end_briefing_screens(const d_fname &filename)
 		{
 			song = SONG_ENDGAME;
 			level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
-#if defined(DXX_BUILD_DESCENT_I)
-			showorder = 1;
-#endif
 		}
 		else if (d_stricmp(filename, BIMD1_ENDING_FILE_SHARE) == 0)
 		{
 			song = SONG_BRIEFING;
 			level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
-#if defined(DXX_BUILD_DESCENT_I)
-			showorder = 1;
-#endif
 		}
 		else
 		{
@@ -1751,7 +1714,6 @@ void do_end_briefing_screens(const d_fname &filename)
 		{
 			songs_play_song(song, 1);
 			level_num_screen = 1;
-			showorder = 1;
 		}
 	}
 	else
@@ -1762,8 +1724,6 @@ void do_end_briefing_screens(const d_fname &filename)
 #endif
 
 	do_briefing_screens(filename, level_num_screen);
-	if (showorder)
-		show_order_form();
 }
 
 }
