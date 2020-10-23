@@ -1796,7 +1796,6 @@ struct listbox : listbox_layout, window
 	}
 	uint8_t allow_abort_flag;
 	uint8_t mouse_state = 0;
-	unsigned nitems;
 	listbox_subfunction_t<void> listbox_callback = nullptr;
 	marquee::ptr marquee;
 	void *userdata = nullptr;
