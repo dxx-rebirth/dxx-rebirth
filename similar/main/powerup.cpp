@@ -140,6 +140,7 @@ static void _powerup_basic_nonhud(int redadd, int greenadd, int blueadd, int sco
 	add_points_to_score(ConsoleObject->ctype.player_info, score);
 }
 
+__attribute__((__format__ (__printf__, 5, 0)))
 void (powerup_basic)(int redadd, int greenadd, int blueadd, int score, const char *format, ...)
 {
 	va_list	args;
