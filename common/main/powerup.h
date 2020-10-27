@@ -162,6 +162,5 @@ extern void do_megawow_powerup(int quantity);
 void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const char *str) __attribute_nonnull();
 }
 #endif
-#define powerup_basic(A1,A2,A3,A4,F,...)	dxx_call_printf_checked(powerup_basic,powerup_basic_str,(A1,A2,A3,A4),(F),##__VA_ARGS__)
 
 #endif
