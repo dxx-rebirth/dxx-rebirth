@@ -1400,10 +1400,11 @@ static void terminate_handler()
 		if sys.platform == 'darwin':
 			# macOS provides these in a system framework, so this test always fails
 			return
+		ogllibs = self.platform_settings.ogllibs
 		self._check_system_library(context, header=['GL/glu.h'], main='''
 	gluPerspective(90.0,1.0,0.1,5000.0);
 	gluBuild2DMipmaps (GL_TEXTURE_2D, 0, 1, 1, 1, GL_UNSIGNED_BYTE, nullptr);
-''', lib='GLU', testflags={'LIBS': ['GLU']})
+''', lib=ogllibs, testflags={'LIBS': ogllibs})
 
 	@_custom_test
 	def _check_SDL(self,context):
@@ -4027,7 +4028,7 @@ class DXXCommon(LazyObjectConstructor):
 
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
-		ogllibs = ['opengl32']
+		ogllibs = ['opengl32', 'glu32']
 		tools = ('mingw',)
 		def adjust_environment(self,program,env):
 			env.Append(
@@ -4963,7 +4964,7 @@ class DXXProgram(DXXCommon):
 				RCFLAGS = ['-D%s' % d for d in program.env_CPPDEFINES],
 			)
 			env.Append(
-				LIBS = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32'],
+				LIBS = ['wsock32', 'ws2_32', 'winmm', 'mingw32'],
 			)
 	# Settings to apply to Apple builds
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
