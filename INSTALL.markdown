@@ -131,7 +131,9 @@ DXX-Rebirth can be built from the Terminal (via SCons) without Xcode; to build u
  sdl
  sdl\_image
  sdl\_mixer
- physfs**
+ physfs
+ libpng
+ pkg-config**
 
 ### Building
 Once prerequisites are installed, run **scons** *options* to build.  By default, both D1X-Rebirth and D2X-Rebirth are built.  To build only D1X-Rebirth, run **scons d1x=1**.  To build only D2X-Rebirth, run **scons d2x=1**.
