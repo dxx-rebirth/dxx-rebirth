@@ -694,6 +694,10 @@ int load_exit_models()
 		bm_free_extra_models(LevelSharedPolygonModelState);
 		bm_free_extra_objbitmaps();
 	}
+	else if (!Exit_bitmaps_loaded)
+	{
+		extra_bitmap_num = Num_bitmap_files;
+	}
 
 	// make sure there is enough space to load textures and models
 	if (!Exit_bitmaps_loaded && N_ObjBitmaps > ObjBitmaps.size() - 6)
