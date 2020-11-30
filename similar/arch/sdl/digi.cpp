@@ -94,7 +94,7 @@ void report_invalid_table()
 
 }
 
-#if DXX_SOUND_TABLE_STYLE == DXX_STS_MIXER_WITH_POINTER
+#if DXX_SOUND_TABLE_STYLE != DXX_STS_MIXER_WITH_COPY
 namespace dsx
 #else
 namespace dcx
@@ -127,7 +127,6 @@ sound_function_pointers_t &sound_function_pointers_t::operator=(const sound_func
 	return *this;
 }
 #elif DXX_SOUND_TABLE_STYLE == DXX_STS_MIXER_WITH_POINTER
-
 sound_function_pointers_t &sound_function_pointers_t::operator=(const sound_function_table_t &t)
 {
 	table = &t;
@@ -136,11 +135,6 @@ sound_function_pointers_t &sound_function_pointers_t::operator=(const sound_func
 	return *this;
 }
 #elif DXX_SOUND_TABLE_STYLE == DXX_STS_NO_MIXER
-const sound_function_table_t *sound_function_pointers_t::operator->()
-{
-	return &digi_audio_table;
-}
-
 sound_function_pointers_t &sound_function_pointers_t::operator=(const sound_function_table_t &)
 {
 	return *this;
@@ -200,6 +194,11 @@ const sound_function_table_t *sound_function_pointers_t::operator->()
 	if (table != &digi_audio_table && table != &digi_mixer_table)
 		report_invalid_table();
 	return table;
+}
+#elif DXX_SOUND_TABLE_STYLE == DXX_STS_NO_MIXER
+const sound_function_table_t *sound_function_pointers_t::operator->()
+{
+	return &digi_audio_table;
 }
 #endif
 
