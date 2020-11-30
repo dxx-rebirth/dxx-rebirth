@@ -391,10 +391,10 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsign
 		(void)tmap2;
 #else
 		grs_bitmap *bm;
-		if (tmap2 > 0 )
+		if (tmap2 != texture2_value::None)
 			bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
 		else
-			bm = &GameBitmaps[Textures[tmap1].index];
+			bm = &GameBitmaps[Textures[get_texture_index(tmap1)].index];
 #endif
 		range_for (const uint_fast32_t i, xrange(nv))
 		{
