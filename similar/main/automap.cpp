@@ -539,7 +539,10 @@ static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap &am)
 		auto &&[gmi, pmi, objidx] = *iter;
 		if (objidx != object_none)
 		{
-			const auto &&sphere_point = g3_rotate_point(vcobjptr(objidx)->pos);
+			/* Use cg3s_point so that the type is const for OpenGL and
+			 * mutable for SDL-only.
+			 */
+			cg3s_point &&sphere_point = g3_rotate_point(vcobjptr(objidx)->pos);
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE, colors[0]);
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE / 2, colors[1]);
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE / 4, colors[2]);
