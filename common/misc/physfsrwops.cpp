@@ -28,6 +28,7 @@
 
 #include <stdio.h>  /* used for SEEK_SET, SEEK_CUR, SEEK_END ... */
 #include "physfsrwops.h"
+#include "physfsx.h"
 
 #if SDL_MAJOR_VERSION == 1
 #define SDL_RWops_callback_seek_position	int
@@ -154,9 +155,9 @@ static int physfsrwops_close(SDL_RWops *rw)
 } /* physfsrwops_close */
 
 
-static RWops_ptr create_rwops(PHYSFS_File *handle)
+static RWops_ptr create_rwops(RAIIPHYSFS_File handle)
 {
-    if (handle == NULL)
+    if (!handle)
 	{
         SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
 		return nullptr;
@@ -170,16 +171,15 @@ static RWops_ptr create_rwops(PHYSFS_File *handle)
             retval->read  = physfsrwops_read;
             retval->write = physfsrwops_write;
             retval->close = physfsrwops_close;
-            retval->hidden.unknown.data1 = handle;
+            retval->hidden.unknown.data1 = handle.release();
         } /* if */
 		return retval;
     } /* else */
 } /* create_rwops */
 
-
 RWops_ptr PHYSFSRWOPS_openRead(const char *fname)
 {
-    return(create_rwops(PHYSFS_openRead(fname)));
+    return(create_rwops(RAIIPHYSFS_File{PHYSFS_openRead(fname)}));
 } /* PHYSFSRWOPS_openRead */
 
 /* end of physfsrwops.c ... */
