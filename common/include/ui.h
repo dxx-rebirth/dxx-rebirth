@@ -86,7 +86,7 @@ protected:
 	~UI_GADGET() = default;
 };
 
-struct UI_GADGET_USERBOX : UI_GADGET
+struct UI_GADGET_USERBOX final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 7>{};
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
@@ -104,7 +104,7 @@ struct UI_GADGET_USERBOX : UI_GADGET
 	grs_bitmap *    bitmap;
 };
 
-struct UI_GADGET_BUTTON : UI_GADGET
+struct UI_GADGET_BUTTON final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 1>{};
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
@@ -119,7 +119,7 @@ struct UI_GADGET_BUTTON : UI_GADGET
 	int          	 (*user_function1)(void);
 };
 
-struct UI_GADGET_INPUTBOX : UI_GADGET
+struct UI_GADGET_INPUTBOX final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 6>{};
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
@@ -132,7 +132,7 @@ struct UI_GADGET_INPUTBOX : UI_GADGET
 	short           first_time;
 };
 
-struct UI_GADGET_RADIO : UI_GADGET
+struct UI_GADGET_RADIO final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 4>{};
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
@@ -145,7 +145,7 @@ struct UI_GADGET_RADIO : UI_GADGET
 	short           flag;
 };
 
-struct UI_GADGET_ICON : UI_GADGET
+struct UI_GADGET_ICON final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 9>{};
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
@@ -159,7 +159,7 @@ struct UI_GADGET_ICON : UI_GADGET
 	int          	(*user_function)(void);
 };
 
-struct UI_GADGET_CHECKBOX : UI_GADGET
+struct UI_GADGET_CHECKBOX final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 5>{};
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
@@ -172,7 +172,7 @@ struct UI_GADGET_CHECKBOX : UI_GADGET
 	short           flag;
 };
 
-struct UI_GADGET_SCROLLBAR : UI_GADGET
+struct UI_GADGET_SCROLLBAR final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 3>{};
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
@@ -193,7 +193,7 @@ struct UI_GADGET_SCROLLBAR : UI_GADGET
 	int             moved;
 };
 
-struct UI_GADGET_LISTBOX : UI_GADGET
+struct UI_GADGET_LISTBOX final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 2>{};
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
