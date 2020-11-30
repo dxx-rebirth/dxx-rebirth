@@ -963,8 +963,8 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
 					const auto tmap_num2 = static_cast<texture2_value>(PHYSFSX_readShort(LoadFile));
-					uside.tmap_num2 = (Gamesave_current_version <= 1 && uside.tmap_num2 != texture2_value::None)
-						? build_texture2_value(convert_d1_tmap_num(get_texture_index(uside.tmap_num2)), get_texture_rotation_high(tmap_num2))
+					uside.tmap_num2 = (Gamesave_current_version <= 1 && tmap_num2 != texture2_value::None)
+						? build_texture2_value(convert_d1_tmap_num(get_texture_index(tmap_num2)), get_texture_rotation_high(tmap_num2))
 						: tmap_num2;
 				}
 #endif
