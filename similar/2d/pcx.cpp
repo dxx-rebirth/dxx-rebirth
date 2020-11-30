@@ -228,7 +228,12 @@ namespace dcx {
 pcx_result pcx_read_bitmap(const char *const filename, grs_main_bitmap &bmp, palette_array_t &palette)
 {
 #if DXX_USE_SDLIMAGE
-	auto rw = PHYSFSRWOPS_openRead(filename);
+	/* Try to enable buffering on the PHYSFS file.  On Windows,
+	 * unbuffered access to the file causes SDL_image to be slow enough
+	 * for users to detect the latency and report it as an issue.  On
+	 * Linux, unbuffered access is still fast.
+	 */
+	auto rw = PHYSFSRWOPS_openReadBuffered(filename, 1024 * 1024);
 	if (!rw)
 	{
 		con_printf(CON_NORMAL, "%s:%u: failed to open \"%s\"", __FILE__, __LINE__, filename);
