@@ -434,17 +434,8 @@ kmatrix_result multi_endlevel_score()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	int old_connect=0, game_wind_visible = 0;
+	int old_connect = 0;
 
-	// If there still is a Game_wind and it's suspended (usually both should be the case), bring it up again so host can still take actions of the game
-	if (Game_wind)
-	{
-		if (!window_is_visible(*Game_wind))
-		{
-			game_wind_visible = 1;
-			window_set_visible(*Game_wind, 1);
-		}
-	}
 	// Save connect state and change to new connect state
 	if (Game_mode & GM_NETWORK)
 	{
@@ -505,11 +496,6 @@ kmatrix_result multi_endlevel_score()
 		player_info.powerup_flags &= clear_flags;
 		player_info.KillGoalCount = 0;
 	}
-
-	// hide Game_wind again if we brought it up
-	if (Game_wind && game_wind_visible)
-		window_set_visible(*Game_wind, 0);
-
 	return rval;
 }
 
