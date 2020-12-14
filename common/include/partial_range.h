@@ -58,9 +58,9 @@ constexpr std::size_t required_buffer_size = ((sizeof(REPORT_FORMAT_STRING) + si
 
 template <std::size_t N>
 __attribute_cold
-void prepare_error_string(std::array<char, N> &buf, unsigned long d, const char *estr, const char *file, unsigned line, const char *desc, unsigned long expr, const void *t)
+void prepare_error_string(std::array<char, N> &buf, unsigned long d, const char *estr, const char *file, unsigned line, const char *desc, unsigned long expr, const uintptr_t t)
 {
-	std::snprintf(buf.data(), buf.size(), REPORT_FORMAT_STRING, file, line, desc, expr, t, d, estr);
+	std::snprintf(buf.data(), buf.size(), REPORT_FORMAT_STRING, file, line, desc, expr, reinterpret_cast<const void *>(t), d, estr);
 }
 #undef REPORT_FORMAT_STRING
 
@@ -158,7 +158,7 @@ struct partial_range_t<I>::partial_range_error
 	template <std::size_t N>
 		__attribute_cold
 		__attribute_noreturn
-	static void report(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const void *t, unsigned long d)
+	static void report(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const uintptr_t t, unsigned long d)
 	{
 		std::array<char, N> buf;
 		partial_range_detail::prepare_error_string(buf, d, estr, file, line, desc, expr, t);
@@ -172,7 +172,7 @@ namespace partial_range_detail
 namespace {
 
 template <typename I, std::size_t required_buffer_size>
-inline void check_range_bounds(const char *file, unsigned line, const char *estr, const void *t, const std::size_t o, const std::size_t l, const std::size_t d)
+inline void check_range_bounds(const char *file, unsigned line, const char *estr, const uintptr_t t, const std::size_t o, const std::size_t l, const std::size_t d)
 {
 #ifdef DXX_CONSTANT_TRUE
 	/*
@@ -219,7 +219,7 @@ inline void check_range_object_size(const char *file, unsigned line, const char 
 	const auto ptr = std::addressof(ref);
 	const std::size_t bos = __builtin_object_size(ptr, 1);
 	if (bos != static_cast<std::size_t>(-1))
-		check_range_bounds<I, required_buffer_size>(file, line, estr, ptr, o, l, bos / sizeof(P));
+		check_range_bounds<I, required_buffer_size>(file, line, estr, reinterpret_cast<uintptr_t>(ptr), o, l, bos / sizeof(P));
 }
 
 /* When P refers to a temporary, this overload is picked.  Temporaries
@@ -297,7 +297,7 @@ template <typename T, typename UO, typename UL, std::size_t NF, std::size_t NE, 
 __attribute_warn_unused_result
 inline partial_range_t<I> (partial_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &t, const UO &o, const UL &l)
 {
-	partial_range_detail::check_range_bounds<typename partial_range_t<I>::partial_range_error, partial_range_detail::required_buffer_size<NF, NE>>(file, line, estr, std::addressof(t), o, l, std::size(t));
+	partial_range_detail::check_range_bounds<typename partial_range_t<I>::partial_range_error, partial_range_detail::required_buffer_size<NF, NE>>(file, line, estr, reinterpret_cast<uintptr_t>(std::addressof(t)), o, l, std::size(t));
 	return unchecked_partial_range<I, UO, UL>(file, line, estr, std::begin(t), o, l);
 }
 
