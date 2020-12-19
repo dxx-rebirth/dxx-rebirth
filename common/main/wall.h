@@ -48,9 +48,8 @@ struct WALL_IS_DOORWAY_mask_t
 struct WALL_IS_DOORWAY_result_t
 {
 	unsigned value;
-	template <unsigned F>
-		constexpr WALL_IS_DOORWAY_result_t(WALL_IS_DOORWAY_sresult_t<F>) :
-			value(F)
+	constexpr WALL_IS_DOORWAY_result_t(const WALL_IS_DOORWAY_sresult_t f) :
+		value(static_cast<unsigned>(f))
 	{
 	}
 	template <unsigned F>
@@ -64,10 +63,9 @@ struct WALL_IS_DOORWAY_result_t
 			value |= F;
 			return *this;
 		}
-	template <unsigned F>
-	bool operator==(WALL_IS_DOORWAY_sresult_t<F>) const
+	bool operator==(WALL_IS_DOORWAY_sresult_t F) const
 	{
-		return value == F;
+		return value == static_cast<unsigned>(F);
 	}
 	bool operator&(WALL_IS_DOORWAY_mask_t m) const
 	{

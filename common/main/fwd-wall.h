@@ -118,15 +118,12 @@ struct WALL_IS_DOORWAY_FLAG
 	void *operator &() const = delete;
 };
 
-template <unsigned F>
-struct WALL_IS_DOORWAY_sresult_t
-{
-};
+enum class WALL_IS_DOORWAY_sresult_t : unsigned;
 
 template <unsigned F>
-static inline constexpr WALL_IS_DOORWAY_sresult_t<F> WALL_IS_DOORWAY_sresult(WALL_IS_DOORWAY_FLAG<F>)
+static constexpr WALL_IS_DOORWAY_sresult_t WALL_IS_DOORWAY_sresult(WALL_IS_DOORWAY_FLAG<F>)
 {
-	return {};
+	return WALL_IS_DOORWAY_sresult_t{F};
 }
 
 struct WALL_IS_DOORWAY_result_t;
