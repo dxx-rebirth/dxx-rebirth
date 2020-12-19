@@ -34,6 +34,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+enum class wall_key : uint8_t
+{
+	none = 1,
+	blue = 2,
+	red = 4,
+	gold = 8,
+};
+
+constexpr uint8_t operator&(const wall_key a, const wall_key b)
+{
+	return static_cast<uint8_t>(a) & static_cast<uint8_t>(b);
+}
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct WALL_IS_DOORWAY_mask_t
 {
@@ -151,7 +164,7 @@ struct wall : public prohibit_void_ptr<wall>
 	ubyte   state;              // Opening, closing, etc.
 	uint8_t   trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.
-	ubyte   keys;               // which keys are required
+	wall_key keys;               // which keys are required
 #if defined(DXX_BUILD_DESCENT_II)
 	sbyte   controlling_trigger;// which trigger causes something to happen here.  Not like "trigger" above, which is the trigger on this wall.
                                 //  Note: This gets stuffed at load time in gamemine.c.  Don't try to use it in the editor.  You will be sorry!

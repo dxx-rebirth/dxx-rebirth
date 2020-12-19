@@ -141,7 +141,7 @@ static void do_unlock_doors(fvcsegptr &vcsegptr, fvmwallptr &vmwallptr, const tr
 		const auto wall_num = segp.sides[sidenum].wall_num;
 		auto &w = *vmwallptr(wall_num);
 		w.flags &= ~WALL_DOOR_LOCKED;
-		w.keys = KEY_NONE;
+		w.keys = wall_key::none;
 	};
 	trigger_wall_op(t, vcsegptr, op);
 }

@@ -81,13 +81,7 @@ constexpr std::integral_constant<wall_state_t, 6> WALL_DOOR_DECLOAKING{};       
 #endif
 
 namespace dcx {
-enum wall_key_t : uint8_t
-{
-	KEY_NONE = 1,
-	KEY_BLUE = 2,
-	KEY_RED = 4,
-	KEY_GOLD = 8,
-};
+enum class wall_key : uint8_t;
 
 constexpr std::integral_constant<fix, 100 * F1_0> WALL_HPS{};    // Normal wall's hp
 constexpr std::integral_constant<fix, 5 * F1_0> WALL_DOOR_INTERVAL{};      // How many seconds a door is open

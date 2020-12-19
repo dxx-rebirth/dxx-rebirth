@@ -1464,9 +1464,9 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			switch(w.type)
 			{
 			case WALL_DOOR:
-				if ((w.keys == KEY_BLUE && (color = am.wall_door_blue, true)) ||
-					(w.keys == KEY_GOLD && (color = am.wall_door_gold, true)) ||
-					(w.keys == KEY_RED && (color = am.wall_door_red, true)))
+				if ((w.keys == wall_key::blue && (color = am.wall_door_blue, true)) ||
+					(w.keys == wall_key::gold && (color = am.wall_door_gold, true)) ||
+					(w.keys == wall_key::red && (color = am.wall_door_red, true)))
 				{
 					no_fade = EF_NO_FADE;
 				} else if (!(WallAnims[w.clip_num].flags & WCF_HIDDEN)) {
@@ -1477,15 +1477,15 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 						auto &wall = *vcwallptr(vcseg.sides[connected_side].wall_num);
 						switch (wall.keys)
 						{
-							case KEY_BLUE:
+							case wall_key::blue:
 								color = am.wall_door_blue;
 								no_fade = EF_NO_FADE;
 								break;
-							case KEY_GOLD:
+							case wall_key::gold:
 								color = am.wall_door_gold;
 								no_fade = EF_NO_FADE;
 								break;
-							case KEY_RED:
+							case wall_key::red:
 								color = am.wall_door_red;
 								no_fade = EF_NO_FADE;
 								break;

@@ -140,7 +140,7 @@ static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const v
 		const auto wall_num = hitseg->shared_segment::sides[hitwall].wall_num;
 		if (wall_num != wall_none) {
 			auto &w = *vcwallptr(wall_num);
-			if (w.type == WALL_DOOR && w.keys == KEY_NONE && w.state == WALL_DOOR_CLOSED && !(w.flags & WALL_DOOR_LOCKED))
+			if (w.type == WALL_DOOR && w.keys == wall_key::none && w.state == WALL_DOOR_CLOSED && !(w.flags & WALL_DOOR_LOCKED))
 			{
 				wall_open_door(hitseg, hitwall);
 			// -- Changed from this, 10/19/95, MK: Don't want buddy getting stranded from player
@@ -151,7 +151,7 @@ static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const v
 			{
 				ai_local *const ailp = &robot.ctype.ai_info.ail;
 				if (ailp->mode == ai_mode::AIM_GOTO_PLAYER || BuddyState.Escort_special_goal == ESCORT_GOAL_SCRAM) {
-					if (w.keys != KEY_NONE)
+					if (w.keys != wall_key::none)
 					{
 						auto &player_info = get_local_plrobj().ctype.player_info;
 						if (player_info.powerup_flags & static_cast<PLAYER_FLAG>(w.keys))
@@ -161,7 +161,7 @@ static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const v
 						wall_open_door(hitseg, hitwall);
 				}
 			} else if (Robot_info[get_robot_id(robot)].thief) {		//	Thief allowed to go through doors to which player has key.
-				if (w.keys != KEY_NONE)
+				if (w.keys != wall_key::none)
 				{
 					auto &player_info = get_local_plrobj().ctype.player_info;
 					if (player_info.powerup_flags & static_cast<PLAYER_FLAG>(w.keys))

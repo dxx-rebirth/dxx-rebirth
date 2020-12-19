@@ -1030,7 +1030,7 @@ static int load_game_data(
 #elif defined(DXX_BUILD_DESCENT_II)
 			nw.clip_num	= w.clip_num;
 #endif
-			nw.keys		= w.keys;
+			nw.keys		= static_cast<wall_key>(w.keys);
 			nw.state		= WALL_DOOR_CLOSED;
 		} else {
 			v16_wall w;
@@ -1046,7 +1046,7 @@ static int load_game_data(
 #elif defined(DXX_BUILD_DESCENT_II)
 			nw.clip_num	= w.clip_num;
 #endif
-			nw.keys		= w.keys;
+			nw.keys		= static_cast<wall_key>(w.keys);
 		}
 	}
 

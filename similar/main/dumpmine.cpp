@@ -295,7 +295,7 @@ public:
 		label(p)
 	{
 	}
-	void check_wall(const segment_array &segments, PHYSFS_File *const fp, const vcwallptridx_t wpi, const wall_key_t key)
+	void check_wall(const segment_array &segments, PHYSFS_File *const fp, const vcwallptridx_t wpi, const wall_key key)
 	{
 		auto &w = *wpi;
 		if (!(w.keys & key))
@@ -348,9 +348,9 @@ static void write_key_text(fvcobjptridx &vcobjptridx, segment_array &segments, f
 
 	range_for (const auto &&w, vcwallptridx)
 	{
-		blue.check_wall(segments, my_file, w, KEY_BLUE);
-		gold.check_wall(segments, my_file, w, KEY_GOLD);
-		red.check_wall(segments, my_file, w, KEY_RED);
+		blue.check_wall(segments, my_file, w, wall_key::blue);
+		gold.check_wall(segments, my_file, w, wall_key::gold);
+		red.check_wall(segments, my_file, w, wall_key::red);
 	}
 
 	blue.report_walls(my_file);
@@ -550,7 +550,7 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 
 		const auto i = static_cast<wallnum_t>(wp);
 		PHYSFSX_printf(my_file, "Wall %03i: seg=%3i, side=%2i, linked_wall=%3i, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i,
-			w.segnum, w.sidenum, w.linked_wall, Wall_names[w.type], w.flags, w.hps >> 16, w.trigger, w.clip_num, w.keys, w.state);
+			w.segnum, w.sidenum, w.linked_wall, Wall_names[w.type], w.flags, w.hps >> 16, w.trigger, w.clip_num, static_cast<unsigned>(w.keys), w.state);
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (w.trigger >= Triggers.get_count())

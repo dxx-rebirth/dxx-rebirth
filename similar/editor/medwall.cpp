@@ -516,10 +516,10 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 			ui_checkbox_check(doorFlag[1].get(), w->flags & WALL_DOOR_AUTO);
 			ui_checkbox_check(doorFlag[2].get(), w->flags & WALL_ILLUSION_OFF);
 
-			ui_radio_set_value(*keyFlag[0], w->keys & KEY_NONE);
-			ui_radio_set_value(*keyFlag[1], w->keys & KEY_BLUE);
-			ui_radio_set_value(*keyFlag[2], w->keys & KEY_RED);
-			ui_radio_set_value(*keyFlag[3], w->keys & KEY_GOLD);
+			ui_radio_set_value(*keyFlag[0], w->keys & wall_key::none);
+			ui_radio_set_value(*keyFlag[1], w->keys & wall_key::blue);
+			ui_radio_set_value(*keyFlag[2], w->keys & wall_key::red);
+			ui_radio_set_value(*keyFlag[3], w->keys & wall_key::gold);
 		}
 	}
 	
@@ -554,7 +554,7 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 		range_for (const int i, xrange(4u)) {
 			if (GADGET_PRESSED(keyFlag[i].get()))
 			{
-				w->keys = 1<<i;		// Set the ai_state to the cooresponding radio button
+				w->keys = static_cast<wall_key>(1 << i);
 				rval = window_event_result::handled;
 			}
 		}
@@ -847,8 +847,8 @@ static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmse
 		w0.clip_num = -1;
 		w1.clip_num = -1;
 
-		w0.keys = KEY_NONE;
-		w1.keys = KEY_NONE;
+		w0.keys = wall_key::none;
+		w1.keys = wall_key::none;
 
 		if (type == WALL_BLASTABLE) {
 	  		w0.hps = WALL_HPS;
@@ -913,8 +913,8 @@ int wall_add_to_markedside(fvcvertptr &vcvertptr, wall_array &Walls, const int8_
 		w0.clip_num = -1;
 		w1.clip_num = -1;
 
-		w0.keys = KEY_NONE;
-		w1.keys = KEY_NONE;
+		w0.keys = wall_key::none;
+		w1.keys = wall_key::none;
 
 		if (type == WALL_BLASTABLE) {
 	  		w0.hps = WALL_HPS;

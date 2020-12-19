@@ -1855,7 +1855,7 @@ int ai_door_is_openable(
 		if (wall_num != wall_none)
 		{
 			const auto wt = wall.type;
-			if (wt == WALL_DOOR && wall.keys == KEY_NONE && !(wall.flags & WALL_DOOR_LOCKED))
+			if (wt == WALL_DOOR && wall.keys == wall_key::none && !(wall.flags & WALL_DOOR_LOCKED))
 			{
 				static_assert(WALL_DOOR != 0, "WALL_DOOR must be nonzero for this shortcut to work properly.");
 				return wt;
@@ -1878,9 +1878,9 @@ int ai_door_is_openable(
 		}
 		switch (const auto wall_keys = wall.keys)
 		{
-				case KEY_BLUE:
-				case KEY_GOLD:
-				case KEY_RED:
+			case wall_key::blue:
+			case wall_key::gold:
+			case wall_key::red:
 				{
 					return powerup_flags & static_cast<PLAYER_FLAG>(wall_keys);
 				}
@@ -1936,12 +1936,12 @@ int ai_door_is_openable(
 		if (wall_num != wall_none)
 		{
 			const auto wt = wall.type;
-			if (wt == WALL_DOOR && (wall.keys == KEY_NONE) && !(wall.flags & WALL_DOOR_LOCKED))
+			if (wt == WALL_DOOR && (wall.keys == wall_key::none) && !(wall.flags & WALL_DOOR_LOCKED))
 			{
 				static_assert(WALL_DOOR != 0, "WALL_DOOR must be nonzero for this shortcut to work properly.");
 				return wt;
 			}
-			else if (wall.keys != KEY_NONE) {	//	Allow bots to open doors to which player has keys.
+			else if (wall.keys != wall_key::none) {	//	Allow bots to open doors to which player has keys.
 				return powerup_flags & static_cast<PLAYER_FLAG>(wall.keys);
 			}
 		}
@@ -1967,7 +1967,7 @@ static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_se
 			auto &w = *vcwallptr(wall_num);
 			if (w.type != WALL_DOOR)
 				continue;
-			if (w.keys != KEY_NONE)
+			if (w.keys != wall_key::none)
 				continue;
 			if (w.state != WALL_DOOR_CLOSED)
 				continue;

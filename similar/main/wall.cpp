@@ -1136,16 +1136,16 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 	 */
 	const char *key_color;
 	if (
-		(w->keys == KEY_BLUE && (key_color = TXT_BLUE, true)) ||
-		(w->keys == KEY_GOLD && (key_color = TXT_YELLOW, true)) ||
-		(w->keys == KEY_RED && (key_color = TXT_RED, true))
+		(w->keys == wall_key::blue && (key_color = TXT_BLUE, true)) ||
+		(w->keys == wall_key::gold && (key_color = TXT_YELLOW, true)) ||
+		(w->keys == wall_key::red && (key_color = TXT_RED, true))
 	)
 	{
 		if (!(powerup_flags & static_cast<PLAYER_FLAG>(w->keys)))
 		{
-			static_assert(KEY_BLUE == static_cast<unsigned>(PLAYER_FLAGS_BLUE_KEY), "BLUE key flag mismatch");
-			static_assert(KEY_GOLD == static_cast<unsigned>(PLAYER_FLAGS_GOLD_KEY), "GOLD key flag mismatch");
-			static_assert(KEY_RED == static_cast<unsigned>(PLAYER_FLAGS_RED_KEY), "RED key flag mismatch");
+			static_assert(static_cast<unsigned>(wall_key::blue) == static_cast<unsigned>(PLAYER_FLAGS_BLUE_KEY), "BLUE key flag mismatch");
+			static_assert(static_cast<unsigned>(wall_key::gold) == static_cast<unsigned>(PLAYER_FLAGS_GOLD_KEY), "GOLD key flag mismatch");
+			static_assert(static_cast<unsigned>(wall_key::red) == static_cast<unsigned>(PLAYER_FLAGS_RED_KEY), "RED key flag mismatch");
 				if (show_message)
 					HUD_init_message(HM_DEFAULT, "%s %s",key_color,TXT_ACCESS_DENIED);
 			return wall_hit_process_t::WHP_NO_KEY;
