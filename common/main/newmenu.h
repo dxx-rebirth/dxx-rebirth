@@ -225,6 +225,7 @@ struct newmenu_layout
 		max_displayable(std::min<uint8_t>(max_on_menu, citem_init.items.size())),
 		items(citem_init.items)
 	{
+		create_structure();
 	}
 	newmenu_layout(newmenu_layout &&) = default;
 	/* gcc can implement this as requested.  clang implicitly deletes
@@ -232,13 +233,14 @@ struct newmenu_layout
 	 * const-qualified member variables.
 	 */
 	newmenu_layout &operator=(newmenu_layout &&) = delete;
+	void create_structure();
 };
 
 struct newmenu : newmenu_layout, window
 {
 	using subfunction_type = int(*)(newmenu *menu, const d_event &event, void *userdata);
-	newmenu(grs_canvas &src, newmenu_layout &&l) :
-		newmenu_layout(std::move(l)), window(src, x, y, w, h)
+	newmenu(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, grs_canvas &src) :
+		newmenu_layout(title, subtitle, filename, tiny_mode, tabs_flag, citem_init), window(src, x, y, w, h)
 	{
 	}
 	int *rval = nullptr;			// Pointer to return value (for polling newmenus)

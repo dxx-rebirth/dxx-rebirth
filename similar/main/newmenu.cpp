@@ -142,8 +142,8 @@ namespace {
 
 struct callback_newmenu : newmenu
 {
-	callback_newmenu(grs_canvas &src, newmenu_layout &&l, subfunction_type subfunction, void *userdata) :
-		newmenu(src, std::move(l)),
+	callback_newmenu(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, grs_canvas &src, subfunction_type subfunction, void *userdata) :
+		newmenu(title, subtitle, filename, tiny_mode, tabs_flag, citem_init, src),
 		subfunction(subfunction), userdata(userdata)
 	{
 	}
@@ -1320,6 +1320,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 }
 
 namespace dsx {
+
 namespace {
 
 static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_font)
@@ -1528,7 +1529,7 @@ static window_event_result newmenu_draw(newmenu *menu)
 
 	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscaley != FNTScaleY)
 	{
-		newmenu_create_structure(*menu, *(menu->tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT));
+		menu->create_structure();
 		{
 			gr_init_sub_canvas(menu_canvas, grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h);
 		}
@@ -1611,6 +1612,15 @@ static window_event_result newmenu_draw(newmenu *menu)
 
 }
 
+namespace dcx {
+
+void newmenu_layout::create_structure()
+{
+	newmenu_create_structure(*this, *(tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT));
+}
+
+}
+
 window_event_result newmenu::event_handler(const d_event &event)
 {
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
@@ -1683,9 +1693,7 @@ newmenu *newmenu_do4(const menu_title title, const menu_subtitle subtitle, const
 {
 	if (items.size() < 1)
 		return nullptr;
-	newmenu_layout nl(title, subtitle, filename, TinyMode, TabsFlag, newmenu_layout::adjusted_citem::create(items, citem));
-	newmenu_create_structure(nl, *(TinyMode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT));
-	auto menu = std::make_unique<callback_newmenu>(grd_curscreen->sc_canvas, std::move(nl), subfunction, userdata);
+	auto menu = std::make_unique<callback_newmenu>(title, subtitle, filename, TinyMode, TabsFlag, newmenu_layout::adjusted_citem::create(items, citem), grd_curscreen->sc_canvas, subfunction, userdata);
 
 	newmenu_free_background();
 	menu->send_creation_events();
