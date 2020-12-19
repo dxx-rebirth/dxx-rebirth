@@ -138,6 +138,11 @@ namespace dcx {
 
 const char *Newmenu_allowed_chars;
 
+int passive_newmenu::subfunction_handler(const d_event &)
+{
+	return 0;
+}
+
 namespace {
 
 struct callback_newmenu : newmenu

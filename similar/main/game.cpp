@@ -1344,18 +1344,30 @@ static int free_help(newmenu *, const d_event &event, newmenu_item *items)
 	_DXX_HELP_MENU_AUDIO(VERB)	\
 	_DXX_HELP_MENU_HINT_CMD_KEY(VERB, HELP)	\
 
-enum {
-	DXX_HELP_MENU(ENUM)
-};
-
 }
 
 void show_help()
 {
-	const unsigned nitems = DXX_HELP_MENU(COUNT);
-	auto m = new newmenu_item[nitems];
-	DXX_HELP_MENU(ADD);
-	newmenu_dotiny(menu_title{nullptr}, menu_subtitle{TXT_KEYS}, unchecked_partial_range(m, nitems), tab_processing_flag::ignore, free_help, m);
+	struct help_menu_items
+	{
+		enum {
+			DXX_HELP_MENU(ENUM)
+		};
+		std::array<newmenu_item, DXX_HELP_MENU(COUNT)> m;
+		help_menu_items()
+		{
+			DXX_HELP_MENU(ADD);
+		}
+	};
+	struct help_menu : help_menu_items, passive_newmenu
+	{
+		help_menu(grs_canvas &src) :
+			passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_KEYS}, menu_filename{nullptr}, tiny_mode_flag::tiny, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+		{
+		}
+	};
+	auto menu = window_create<help_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 #undef DXX_HELP_MENU

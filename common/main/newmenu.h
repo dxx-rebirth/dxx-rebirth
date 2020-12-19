@@ -245,6 +245,13 @@ struct newmenu : newmenu_layout, window
 	virtual int subfunction_handler(const d_event &event) = 0;
 };
 
+struct passive_newmenu : newmenu
+{
+	using newmenu::newmenu;
+	/* Ignores all calls. */
+	virtual int subfunction_handler(const d_event &event) final override;
+};
+
 template <typename T>
 using newmenu_subfunction_t = int(*)(newmenu *menu,const d_event &event, T *userdata);
 using newmenu_subfunction = newmenu_subfunction_t<void>;
