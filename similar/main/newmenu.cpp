@@ -76,8 +76,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_zip.h"
 #include "partial_range.h"
 
-#define MAXDISPLAYABLEITEMS 14
-#define MAXDISPLAYABLEITEMSTINY 21
 #define MESSAGEBOX_TEXT_SIZE 2176  // How many characters in messagebox
 #define MAX_TEXT_WIDTH FSPACX(120) // How many pixels wide a input box can be
 
@@ -1422,7 +1420,6 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	else
 	{
 		menu.is_scroll_box = 0;
-		menu.max_on_menu = menu.items.size();
 	}
 	menu.h = iterative_layout_max_height;
 
@@ -1681,11 +1678,8 @@ newmenu *newmenu_do4(const menu_title title, const menu_subtitle subtitle, const
 {
 	if (items.size() < 1)
 		return nullptr;
-	newmenu_layout nl(title, subtitle, filename, items);
+	newmenu_layout nl(title, subtitle, filename, TinyMode, TabsFlag, items);
 	nl.citem = citem;
-	nl.max_on_menu = TinyMode != tiny_mode_flag::normal ? MAXDISPLAYABLEITEMSTINY : MAXDISPLAYABLEITEMS;
-	nl.tiny_mode = TinyMode;
-	nl.tabs_flag = TabsFlag;
 	nl.max_displayable = items.size();
 	newmenu_create_structure(nl, *(TinyMode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT));
 	auto menu = std::make_unique<newmenu>(grd_curscreen->sc_canvas, std::move(nl));

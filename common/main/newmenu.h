@@ -199,17 +199,19 @@ struct newmenu_layout
 	const menu_title title;
 	const menu_subtitle subtitle;
 	const menu_filename filename;
-	tiny_mode_flag tiny_mode;
-	tab_processing_flag tabs_flag;
+	const tiny_mode_flag tiny_mode;
+	const tab_processing_flag tabs_flag;
+	const uint8_t max_on_menu;
 	uint8_t all_text = 0;		//set true if all text items
 	uint8_t is_scroll_box = 0;   // Is this a scrolling box? Set to false at init
 	uint8_t mouse_state;
-	int				max_on_menu;
 	const partial_range_t<newmenu_item *> items;
 	int	scroll_offset = 0;
 	int max_displayable;
-	newmenu_layout(menu_title title, menu_subtitle subtitle, menu_filename filename, partial_range_t<newmenu_item *> items) :
+	newmenu_layout(menu_title title, menu_subtitle subtitle, menu_filename filename, tiny_mode_flag tiny_mode, tab_processing_flag tabs_flag, partial_range_t<newmenu_item *> items) :
 		title(title), subtitle(subtitle), filename(filename),
+		tiny_mode(tiny_mode), tabs_flag(tabs_flag),
+		max_on_menu(std::min<uint8_t>(items.size(), tiny_mode != tiny_mode_flag::normal ? 21u : 14u)),
 		items(items)
 	{
 	}
