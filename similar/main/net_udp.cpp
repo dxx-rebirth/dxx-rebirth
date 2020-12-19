@@ -428,7 +428,7 @@ static bool convert_text_portstring(const std::array<char, 6> &portstring, uint1
 	if (*porterror || static_cast<uint16_t>(myport) != myport || (!allow_privileged && myport < 1024))
 	{
 		if (!silent)
-			nm_messagebox(TXT_ERROR, 1, TXT_OK, "Illegal port \"%s\"", portstring.data());
+			nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Illegal port \"%s\"", portstring.data());
 		return false;
 	}
 	else
@@ -654,7 +654,7 @@ int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, 
 	{
 		con_printf( CON_URGENT, "udp_dns_filladdr (getaddrinfo) failed for host %s", host );
 		if (!silent)
-			nm_messagebox( TXT_ERROR, 1, TXT_OK, "Could not resolve address\n%s", host );
+			nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Could not resolve address\n%s", host);
 		addr.sa_family = AF_UNSPEC;
 		return -1;
 	}
@@ -663,7 +663,7 @@ int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, 
 	{
 		con_printf(CON_URGENT, "Address too big for host %s", host);
 		if (!silent)
-			nm_messagebox(TXT_ERROR, 1, TXT_OK, "Address too big for host\n%s", host);
+			nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Address too big for host\n%s", host);
 		addr.sa_family = AF_UNSPEC;
 		return -1;
 	}
@@ -693,7 +693,7 @@ int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, 
 	{
 		con_printf(CON_URGENT, "udp_dns_filladdr (gethostbyname) failed for host %s", host);
 		if (!silent)
-			nm_messagebox(TXT_ERROR, 1, TXT_OK, "Could not resolve IPv4 address\n%s", host);
+			nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Could not resolve IPv4 address\n%s", host);
 		addr.sa_family = AF_UNSPEC;
 		return -1;
 	}
@@ -756,7 +756,7 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 	if (!sock)
 	{
 		con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
-		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
+		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Port: %i\nCould not create socket.", port);
 		return -1;
 	}
 	sAddr = {};
@@ -772,7 +772,7 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 	if (bind(sock, &sAddr.sa, sizeof(sAddr)) < 0)
 	{      
 		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)", port);
-		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
+		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Port: %i\nCould not bind name to socket.", port);
 		sock.reset();
 		return -1;
 	}
@@ -903,7 +903,7 @@ static int net_udp_game_connect(direct_join *const dj)
 			:
 #endif
 			dj->host_addr.sin.sin_port;
-		nm_messagebox(TXT_ERROR, 1, TXT_OK,
+		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK,
 "No response by host.\n\n\
 Possible reasons:\n\
 * No game on %s (anymore)\n\
@@ -916,7 +916,7 @@ Possible reasons:\n\
 	
 	if (Netgame.protocol.udp.valid == -1)
 	{
-		nm_messagebox(TXT_ERROR,1,TXT_OK,"Version mismatch! Cannot join Game.\n\nHost game version: %i.%i.%i\nHost game protocol: %i\n(%s)\n\nYour game version: " DXX_VERSION_STR "\nYour game protocol: %i\n(%s)",Netgame.protocol.udp.program_iver[0],Netgame.protocol.udp.program_iver[1],Netgame.protocol.udp.program_iver[2],Netgame.protocol.udp.program_iver[3],(Netgame.protocol.udp.program_iver[3]==0?"RELEASE VERSION":"DEVELOPMENT BUILD, BETA, etc."), MULTI_PROTO_VERSION, (MULTI_PROTO_VERSION==0?"RELEASE VERSION":"DEVELOPMENT BUILD, BETA, etc."));
+		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Version mismatch! Cannot join Game.\n\nHost game version: %i.%i.%i\nHost game protocol: %i\n(%s)\n\nYour game version: " DXX_VERSION_STR "\nYour game protocol: %i\n(%s)", Netgame.protocol.udp.program_iver[0], Netgame.protocol.udp.program_iver[1], Netgame.protocol.udp.program_iver[2], Netgame.protocol.udp.program_iver[3], (Netgame.protocol.udp.program_iver[3]==0?"RELEASE VERSION":"DEVELOPMENT BUILD, BETA, etc."), MULTI_PROTO_VERSION, (MULTI_PROTO_VERSION==0?"RELEASE VERSION":"DEVELOPMENT BUILD, BETA, etc."));
 		dj->connecting = 0;
 		return 0;
 	}
@@ -1068,7 +1068,7 @@ void net_udp_manual_join_game()
 	nm_set_item_input(m[nitems++], dj->myportbuf);
 	nm_set_item_text(m[nitems++],"");
 
-	newmenu_do1(nullptr, "ENTER GAME ADDRESS", unchecked_partial_range(&m[0], nitems), manual_join_game_handler, dj.release(), 0);
+	newmenu_do2(menu_title{nullptr}, menu_subtitle{"ENTER GAME ADDRESS"}, unchecked_partial_range(&m[0], nitems), manual_join_game_handler, dj.release());
 }
 
 static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_float strbound, std::array<char, 25> &out, const ntstring<25> &in)
@@ -1236,7 +1236,7 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 			}
 			else
 			{
-				nm_messagebox_str(TXT_SORRY, nm_messagebox_tie(TXT_OK), TXT_INVALID_CHOICE);
+				nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_INVALID_CHOICE});
 				return -1; // invalid game selected - stay in the menu
 			}
 			break;
@@ -1334,7 +1334,7 @@ void net_udp_list_join_game()
 
 	if (gamemyport >= 1024 && gamemyport != UDP_PORT_DEFAULT)
 		if (udp_open_socket(UDP_Socket[1], UDP_PORT_DEFAULT) < 0)
-			nm_messagebox_str(TXT_WARNING, nm_messagebox_tie(TXT_OK), "Cannot open default port!\nYou can only scan for games\nmanually.");
+			nm_messagebox_str(menu_title{TXT_WARNING}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Cannot open default port!\nYou can only scan for games\nmanually."});
 
 	// prepare broadcast address to discover games
 	udp_init_broadcast_addresses();
@@ -1374,7 +1374,7 @@ void net_udp_list_join_game()
 	nm_set_item_text(m[UDP_NETGAMES_PPAGE+4], "\t" );
 
 	num_active_udp_changed = 1;
-	newmenu_dotiny("NETGAMES", nullptr, unchecked_partial_range(&m[0], UDP_NETGAMES_PPAGE + 5), tab_processing_flag::process, net_udp_list_join_poll, dj.release());
+	newmenu_dotiny(menu_title{"NETGAMES"}, menu_subtitle{nullptr}, unchecked_partial_range(&m[0], UDP_NETGAMES_PPAGE + 5), tab_processing_flag::process, net_udp_list_join_poll, dj.release());
 }
 
 static void net_udp_send_sequence_packet(UDP_sequence_packet seq, const _sockaddr &recv_addr)
@@ -1412,7 +1412,7 @@ void net_udp_init()
 	wVersionRequested = MAKEWORD(2, 2);
 	WSACleanup();
 	if (WSAStartup( wVersionRequested, &wsaData))
-		nm_messagebox_str(TXT_ERROR, nm_messagebox_tie(TXT_OK), "Cannot init Winsock!"); // no break here... game will fail at socket creation anyways...
+		nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Cannot init Winsock!"}); // no break here... game will fail at socket creation anyways...
 }
 #endif
 
@@ -2157,7 +2157,7 @@ static void net_udp_read_object_packet( ubyte *data )
 			if (net_udp_verify_objects(remote_objnum, object_count))
 			{
 				// Failed to sync up 
-				nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), TXT_NET_SYNC_FAILED);
+				nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_NET_SYNC_FAILED});
 				Network_status = NETSTAT_MENU;                          
 				return;
 			}
@@ -2933,9 +2933,9 @@ static void net_udp_process_dump(ubyte *data, int, const _sockaddr &sender_addr)
 			if (Game_wind)
 				window_set_visible(*Game_wind, 0);
 			if (data[1] == DUMP_PKTTIMEOUT)
-				nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "You were removed from the game.\nYou failed receiving important\npackets. Sorry.");
+				nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You were removed from the game.\nYou failed receiving important\npackets. Sorry."});
 			else if (data[1] == DUMP_KICKED)
-				nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "You were kicked by Host!");
+				nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You were kicked by Host!"});
 			if (Game_wind)
 				window_set_visible(*Game_wind, 1);
 			multi_quit_game = 1;
@@ -2945,7 +2945,7 @@ static void net_udp_process_dump(ubyte *data, int, const _sockaddr &sender_addr)
 			if (data[1] > DUMP_LEVEL) // invalid dump... heh
 				break;
 			Network_status = NETSTAT_MENU; // stop us from sending before message
-			nm_messagebox_str(NULL, TXT_OK, NET_DUMP_STRINGS(data[1]));
+			nm_messagebox_str(menu_title{nullptr}, TXT_OK, menu_subtitle{NET_DUMP_STRINGS(data[1])});
 			Network_status = NETSTAT_MENU;
 			multi_reset_stuff();
 			break;
@@ -3251,7 +3251,7 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 	};
 	const auto nm = std::count_if(menus.begin(), std::next(menus.begin(), nitems), predicate);
 	if ( nm > Netgame.max_numplayers ) {
-		nm_messagebox( TXT_ERROR, 1, TXT_OK, "%s %d %s", TXT_SORRY_ONLY, Netgame.max_numplayers, TXT_NETPLAYERS_IN );
+		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "%s %d %s", TXT_SORRY_ONLY, Netgame.max_numplayers, TXT_NETPLAYERS_IN);
 		// Turn off the last player highlighted
 		for (int i = N_players; i > 0; i--)
 			if (menus[i].value == 1) 
@@ -3397,7 +3397,7 @@ static void net_udp_set_power (void)
 		nm_set_item_checkbox(m[i], multi_allow_powerup_text[i], (Netgame.AllowedItems >> i) & 1);
 	}
 
-	newmenu_do1(nullptr, "Objects to allow", m, unused_newmenu_subfunction, unused_newmenu_userdata, 0);
+	newmenu_do2(menu_title{nullptr}, menu_subtitle{"Objects to allow"}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 
 	Netgame.AllowedItems &= ~NETFLAG_DOPOWERUP;
 	for (int i = 0; i < multi_allow_powerup_text.size(); i++)
@@ -3639,24 +3639,24 @@ static void net_udp_set_grant_power()
 {
 	const auto SpawnGrantedItems = Netgame.SpawnGrantedItems;
 	grant_powerup_menu_items menu{map_granted_flags_to_laser_level(SpawnGrantedItems), SpawnGrantedItems};
-	newmenu_do(nullptr, "Powerups granted at player spawn", menu.m, unused_newmenu_subfunction, unused_newmenu_userdata);
+	newmenu_do2(menu_title{nullptr}, menu_subtitle{"Powerups granted at player spawn"}, menu.m, unused_newmenu_subfunction, unused_newmenu_userdata);
 	menu.read(Netgame.SpawnGrantedItems);
 }
 
 void more_game_options_menu_items::net_udp_more_game_options()
 {
 	more_game_options_menu_items menu;
-	newmenu_do(nullptr, "Advanced netgame options", menu.get_menu_items(), handler, &menu);
+	newmenu_do2(menu_title{nullptr}, menu_subtitle{"Advanced netgame options"}, menu.get_menu_items(), handler, &menu);
 	menu.read();
 	if (Netgame.PacketsPerSec>MAX_PPS)
 	{
 		Netgame.PacketsPerSec=MAX_PPS;
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to %i",MAX_PPS);
+		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Packet value out of range\nSetting value to %i",MAX_PPS);
 	}
 	else if (Netgame.PacketsPerSec < MIN_PPS)
 	{
 		Netgame.PacketsPerSec=MIN_PPS;
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to %i", MIN_PPS);
+		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Packet value out of range\nSetting value to %i", MIN_PPS);
 	}
 	GameUniqueState.Difficulty_level = Netgame.difficulty;
 }
@@ -3680,7 +3680,7 @@ int more_game_options_menu_items::handler(newmenu *, const d_event &event, more_
 			{
 				if (Game_mode & GM_MULTI_COOP)
 				{
-					nm_messagebox_str("Sorry", nm_messagebox_tie(TXT_OK), "You can't change those for coop!");
+					nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You can't change those for coop!"});
 					menus[opt_playtime].value=0;
 					return 0;
 				}
@@ -3692,7 +3692,7 @@ int more_game_options_menu_items::handler(newmenu *, const d_event &event, more_
 			{
 				if (Game_mode & GM_MULTI_COOP)
 				{
-					nm_messagebox_str("Sorry", nm_messagebox_tie(TXT_OK), "You can't change those for coop!");
+					nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You can't change those for coop!"});
 					menus[opt_killgoal].value=0;
 					return 0;
 				}
@@ -3846,7 +3846,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 					Netgame.gamemode = NETGAME_BOUNTY;
 		 		else if (ANARCHY_ONLY_MISSION) {
 					int i = 0;
-		 			nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), TXT_ANARCHY_ONLY_MISSION);
+		 			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_ANARCHY_ONLY_MISSION});
 					for (i = opt->mode; i <= opt->mode_end; i++)
 						menus[i].value = 0;
 					menus[opt->anarchy].value = 1;
@@ -3873,7 +3873,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 #endif
 			{
 				auto &slevel = opt->slevel;
-				nm_messagebox_str(TXT_ERROR, nm_messagebox_tie(TXT_OK), TXT_LEVEL_OUT_RANGE);
+				nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_LEVEL_OUT_RANGE});
 				strcpy(slevel, "1");
 				return 1;
 			}
@@ -4024,21 +4024,21 @@ window_event_result net_udp_setup_game()
 #if DXX_USE_TRACKER
 	if (Netgame.TrackerNATWarned == TrackerNATHolePunchWarn::Unset)
 	{
-		const unsigned choice = nm_messagebox_str("NAT Hole Punch", nm_messagebox_tie("Yes, let Internet users join", "No, I will configure my router"),
-"Rebirth now supports automatic\n"
+		const unsigned choice = nm_messagebox_str(menu_title{"NAT Hole Punch"}, nm_messagebox_tie("Yes, let Internet users join", "No, I will configure my router"),
+menu_subtitle{"Rebirth now supports automatic\n"
 "NAT hole punch through the\n"
 "tracker.\n\n"
 "This allows Internet users to\n"
 "join your game, even if you do\n"
 "not configure your router for\n"
 "hosting.\n\n"
-"Do you want to use this feature?");
+"Do you want to use this feature?"});
 		if (choice <= 1)
 			Netgame.TrackerNATWarned = static_cast<TrackerNATHolePunchWarn>(choice + 1);
 	}
 #endif
 
-	const int i = newmenu_do1(nullptr, TXT_NETGAME_SETUP, unchecked_partial_range(m.data(), optnum), net_udp_game_param_handler, &opt, opt.start_game);
+	const int i = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_NETGAME_SETUP}, unchecked_partial_range(m.data(), optnum), net_udp_game_param_handler, &opt, opt.start_game);
 
 	if (i < 0)
 		net_udp_close();
@@ -4113,7 +4113,7 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 	{
 		Network_status = NETSTAT_MENU;
 		net_udp_close();
-		nm_messagebox_str(TXT_ERROR, nm_messagebox_tie(TXT_OK), TXT_NETLEVEL_NMATCH);
+		nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_NETLEVEL_NMATCH});
 		throw multi::level_checksum_mismatch();
 	}
 
@@ -4198,7 +4198,7 @@ static int net_udp_send_sync(void)
 	// Check if there are enough starting positions
 	if (NumNetPlayerPositions < Netgame.max_numplayers)
 	{
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Not enough start positions\n(set %d got %d)\nNetgame aborted", Netgame.max_numplayers, NumNetPlayerPositions);
+		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Not enough start positions\n(set %d got %d)\nNetgame aborted", Netgame.max_numplayers, NumNetPlayerPositions);
 		// Tell everyone we're bailing
 		Netgame.numplayers = 0;
 		for (unsigned i = 1; i < N_players; ++i)
@@ -4303,7 +4303,7 @@ menu:
 
 	Assert(opt <= MAX_PLAYERS+4);
 
-	choice = newmenu_do(nullptr, TXT_TEAM_SELECTION, unchecked_partial_range(m, opt), unused_newmenu_subfunction, unused_newmenu_userdata);
+	choice = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_TEAM_SELECTION}, unchecked_partial_range(m, opt), unused_newmenu_subfunction, unused_newmenu_userdata);
 
 	if (choice == opt-1)
 	{
@@ -4337,7 +4337,7 @@ static int net_udp_select_players()
 {
 	int j;
 	char text[MAX_PLAYERS+4][45];
-	char title[50];
+	char subtitle[50];
 	unsigned save_nplayers;              //how may people would like to join
 
 	if (Netgame.ShufflePowerupSeed)
@@ -4376,7 +4376,7 @@ static int net_udp_select_players()
 	const auto &&rankstr = GetRankStringWithSpace(Netgame.players[Player_num].rank);
 	snprintf( text[0], sizeof(text[0]), "%d. %s%s%-20s", 1, rankstr.first, rankstr.second, static_cast<const char *>(get_local_player().callsign));
 
-	snprintf(title, sizeof(title), "%s %d %s", TXT_TEAM_SELECT, Netgame.max_numplayers, TXT_TEAM_PRESS_ENTER);
+	snprintf(subtitle, sizeof(subtitle), "%s %d %s", TXT_TEAM_SELECT, Netgame.max_numplayers, TXT_TEAM_PRESS_ENTER);
 
 #if DXX_USE_TRACKER
 	if( Netgame.Tracker )
@@ -4388,7 +4388,7 @@ static int net_udp_select_players()
 #endif
 
 GetPlayersAgain:
-	j = newmenu_do1(nullptr, title, spd.m, net_udp_start_poll, &spd, 1);
+	j = newmenu_do2(menu_title{nullptr}, menu_subtitle{subtitle}, spd.m, net_udp_start_poll, &spd, 1);
 
 	save_nplayers = N_players;
 
@@ -4427,29 +4427,12 @@ abort:
 	}
 	
 	if ( N_players > Netgame.max_numplayers) {
-		nm_messagebox( TXT_ERROR, 1, TXT_OK, "%s %d %s", TXT_SORRY_ONLY, Netgame.max_numplayers, TXT_NETPLAYERS_IN );
+		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "%s %d %s", TXT_SORRY_ONLY, Netgame.max_numplayers, TXT_NETPLAYERS_IN);
 		N_players = save_nplayers;
 		goto GetPlayersAgain;
 	}
 
 // Let host join without Client available. Let's see if our players like that
-#if 0 //def RELEASE
-	if ( N_players < 2 )    {
-		nm_messagebox( TXT_ERROR, 1, TXT_OK, TXT_TEAM_ATLEAST_TWO );
-		N_players = save_nplayers;
-		goto GetPlayersAgain;
-	}
-#endif
-
-#if 0 //def RELEASE
-	if ( (Netgame.gamemode == NETGAME_TEAM_ANARCHY || Netgame.gamemode == NETGAME_CAPTURE_FLAG || Netgame.gamemode == NETGAME_TEAM_HOARD) && (N_players < 2) )
-	{
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, "You must select at least two\nplayers to start a team game" );
-		N_players = save_nplayers;
-		goto GetPlayersAgain;
-	}
-#endif
-
 	// Remove players that aren't marked.
 	N_players = 0;
 	for (int i=0; i<save_nplayers; i++ )
@@ -4553,7 +4536,7 @@ static int net_udp_wait_for_sync(void)
 	while (choice > -1)
 	{
 		timer_update();
-		choice=newmenu_do( NULL, TXT_WAIT, m, net_udp_sync_poll, unused_newmenu_userdata );
+		choice = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_WAIT}, m, net_udp_sync_poll, unused_newmenu_userdata);
 	}
 
 	if (Network_status != NETSTAT_PLAYING)
@@ -4606,12 +4589,12 @@ static int net_udp_wait_for_requests(void)
 	get_local_player().connected = CONNECT_PLAYING;
 
 menu:
-	choice = newmenu_do(NULL, TXT_WAIT, m, net_udp_request_poll, unused_newmenu_userdata);
+	choice = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_WAIT}, m, net_udp_request_poll, unused_newmenu_userdata);
 
 	if (choice == -1)
 	{
 		// User aborted
-		choice = nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_YES, TXT_NO, TXT_START_NOWAIT), TXT_QUITTING_NOW);
+		choice = nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_YES, TXT_NO, TXT_START_NOWAIT), menu_subtitle{TXT_QUITTING_NOW});
 		if (choice == 2) {
 			N_players = 1;
 			return 0;
@@ -4674,7 +4657,7 @@ int net_udp_do_join_game()
 
 	if (Netgame.game_status == NETSTAT_ENDLEVEL)
 	{
-		nm_messagebox_str(TXT_SORRY, nm_messagebox_tie(TXT_OK), TXT_NET_GAME_BETWEEN2);
+		nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_NET_GAME_BETWEEN2});
 		return 0;
 	}
 
@@ -4691,7 +4674,7 @@ int net_udp_do_join_game()
 #endif
 	if (const auto errstr = load_mission_by_name(mission_predicate, mission_name_type::guess))
 	{
-		nm_messagebox(nullptr, 1, TXT_OK, "%s\n\n%s", TXT_MISSION_NOT_FOUND, errstr);
+		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s\n\n%s", TXT_MISSION_NOT_FOUND, errstr);
 		return 0;
 	}
 	}
@@ -4701,7 +4684,7 @@ int net_udp_do_join_game()
 	{
 		if (Netgame.levelnum>8)
 		{
-			nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "This OEM version only supports\nthe first 8 levels!");
+			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"This OEM version only supports\nthe first 8 levels!"});
 			return 0;
 		}
 	}
@@ -4710,14 +4693,14 @@ int net_udp_do_join_game()
 	{
 		if (Netgame.levelnum > 4)
 		{
-			nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "This SHAREWARE version only supports\nthe first 4 levels!");
+			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"This SHAREWARE version only supports\nthe first 4 levels!"});
 			return 0;
 		}
 	}
 
 	if ( !HoardEquipped() && (Netgame.gamemode == NETGAME_HOARD || Netgame.gamemode == NETGAME_TEAM_HOARD) )
 	{
-		nm_messagebox_str(TXT_SORRY, nm_messagebox_tie(TXT_OK), "HOARD(.ham) not installed. You can't join.");
+		nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{"HOARD(.ham) not installed. You can't join."});
 		return 0;
 	}
 
@@ -4726,7 +4709,7 @@ int net_udp_do_join_game()
 
 	if (net_udp_can_join_netgame(&Netgame) == join_netgame_status_code::game_in_disallowed_state)
 	{
-		nm_messagebox_str(TXT_SORRY, nm_messagebox_tie(TXT_OK), Netgame.numplayers == Netgame.max_numplayers ? TXT_GAME_FULL : TXT_IN_PROGRESS);
+		nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{Netgame.numplayers == Netgame.max_numplayers ? TXT_GAME_FULL : TXT_IN_PROGRESS});
 		return 0;
 	}
 
@@ -4980,7 +4963,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const ubyte *data, ushort d
 			Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
 			if (Game_wind)
 				window_set_visible(*Game_wind, 0);
-			nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "You left the game. You failed\nsending important packets.\nSorry.");
+			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You left the game. You failed\nsending important packets.\nSorry."});
 			if (Game_wind)
 				window_set_visible(*Game_wind, 1);
 			multi_quit_game = 1;
@@ -5181,7 +5164,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
 					if (Game_wind)
 						window_set_visible(*Game_wind, 0);
-					nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "You left the game. You failed\nsending important packets.\nSorry.");
+					nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You left the game. You failed\nsending important packets.\nSorry."});
 					if (Game_wind)
 						window_set_visible(*Game_wind, 1);
 					multi_quit_game = 1;
@@ -5883,7 +5866,7 @@ int net_udp_show_game_info()
 		nm_item_menu("JOIN GAME"),
 		nm_item_menu("GAME INFO"),
 	}};
-	c = newmenu_do("WELCOME", rinfo, nm_message_items, show_game_info_handler, netgame);
+	c = newmenu_do2(menu_title{"WELCOME"}, menu_subtitle{rinfo}, nm_message_items, show_game_info_handler, netgame);
 	if (c==0)
 		return 1;
 	//else if (c==1)
@@ -6095,7 +6078,7 @@ static void udp_tracker_verify_ack_timeout()
 		if (Network_status == NETSTAT_PLAYING)
 			HUD_init_message(HM_MULTI, "No ACK from tracker. Please check game log.");
 		else
-			nm_messagebox_str(TXT_WARNING, nm_messagebox_tie(TXT_OK), "No ACK from tracker.\nPlease check game log.");
+			nm_messagebox_str(menu_title{TXT_WARNING}, nm_messagebox_tie(TXT_OK), menu_subtitle{"No ACK from tracker.\nPlease check game log."});
 		con_puts(CON_URGENT, "[Tracker] No response from game tracker. Tracker address may be invalid or Tracker may be offline or otherwise unreachable.");
 	}
 	else if (TrackerAckStatus == TrackerAckState::TACK_INTERNAL)

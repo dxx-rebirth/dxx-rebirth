@@ -404,7 +404,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 				return std::max(result, window_event_result::handled);
 			} else {
 #if DXX_USE_EDITOR
-					nm_messagebox_str( "Yo!", "You have hit the exit trigger!", "" );
+					nm_messagebox_str(menu_title{"Yo!"}, "You have hit the exit trigger!", menu_subtitle{""});
 				#else
 					Int3();		//level num == 0, but no editor!
 				#endif

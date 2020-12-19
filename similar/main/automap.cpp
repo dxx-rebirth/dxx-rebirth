@@ -1039,7 +1039,7 @@ static window_event_result automap_key_command(const d_event &event, automap &am
 				if (mo == object_none)
 					return window_event_result::handled;
 				gr_set_default_canvas();
-				if (nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_YES, TXT_NO), "Delete Marker?") == 0)
+				if (nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_YES, TXT_NO), menu_subtitle{"Delete Marker?"}) == 0)
 				{
 					/* FIXME: this event should be sent to other players
 					 * so that they remove the marker.

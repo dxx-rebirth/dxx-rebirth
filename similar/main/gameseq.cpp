@@ -1142,7 +1142,6 @@ static void DoEndLevelScoreGlitz()
 	char				m_str[N_GLITZITEMS][32];
 	newmenu_item	m[N_GLITZITEMS];
 	int				i;
-	char				title[128];
 #if defined(DXX_BUILD_DESCENT_I)
 	gr_palette_load( gr_palette );
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1235,11 +1234,12 @@ static void DoEndLevelScoreGlitz()
 
 	auto current_level_num = Current_level_num;
 	const auto txt_level = (current_level_num < 0) ? (current_level_num = -current_level_num, TXT_SECRET_LEVEL) : TXT_LEVEL;
-	snprintf(title, sizeof(title), "%s%s %d %s\n%s %s", is_last_level?"\n\n\n":"\n", txt_level, current_level_num, TXT_COMPLETE, static_cast<const char *>(Current_level_name), TXT_DESTROYED);
+	char subtitle[128];
+	snprintf(subtitle, sizeof(subtitle), "%s%s %d %s\n%s %s", is_last_level?"\n\n\n":"\n", txt_level, current_level_num, TXT_COMPLETE, static_cast<const char *>(Current_level_name), TXT_DESTROYED);
 
 	Assert(c <= N_GLITZITEMS);
 
-	newmenu_do2(nullptr, title, partial_range(m, c), unused_newmenu_subfunction, unused_newmenu_userdata, 0, GLITZ_BACKGROUND);
+	newmenu_do2(menu_title{nullptr}, menu_subtitle{subtitle}, partial_range(m, c), unused_newmenu_subfunction, unused_newmenu_userdata, 0, menu_filename{GLITZ_BACKGROUND});
 }
 
 }
@@ -1325,7 +1325,7 @@ static void do_screen_message(const char *msg)
 	std::array<newmenu_item, 1> nm_message_items{{
 		nm_item_menu(TXT_OK),
 	}};
-	newmenu_do( NULL, msg, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
+	newmenu_do2(menu_title{nullptr}, menu_subtitle{msg}, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
 }
 
 namespace dsx {
@@ -1582,7 +1582,7 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 		std::array<newmenu_item, 1> m{{
 			nm_item_text(" "),			//TXT_SECRET_EXIT;
 		}};
-		newmenu_do2(nullptr, TXT_SECRET_EXIT, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0, Menu_pcx_name);
+		newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_SECRET_EXIT}, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0, menu_filename{Menu_pcx_name});
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	Assert(!secret_flag);

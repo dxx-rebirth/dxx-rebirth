@@ -843,10 +843,8 @@ static void med_show_warning(const char *s)
 // Returns 1 if OK to trash current mine.
 int SafetyCheck()
 {
-	int x;
-			
 	if (mine_changed) {
-		x = nm_messagebox_str("Warning!", nm_messagebox_tie("Cancel", TXT_OK), "You are about to lose work.");
+		const auto x = nm_messagebox_str(menu_title{"Warning!"}, nm_messagebox_tie("Cancel", TXT_OK), menu_subtitle{"You are about to lose work."});
 		if (x<1) {
 			return 0;
 		}

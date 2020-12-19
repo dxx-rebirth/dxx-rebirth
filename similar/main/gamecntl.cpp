@@ -559,7 +559,7 @@ static window_event_result HandleDemoKey(int key)
 			if (CGameArg.SysAutoDemo)
 			{
 				int choice;
-				choice = nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_YES, TXT_NO), TXT_ABORT_AUTODEMO);
+				choice = nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_YES, TXT_NO), menu_subtitle{TXT_ABORT_AUTODEMO});
 				if (choice == 0)
 					CGameArg.SysAutoDemo = false;
 				else
@@ -628,7 +628,7 @@ static window_event_result HandleDemoKey(int key)
 				nm_item_input(filename),
 			}};
 			filename[0] = '\0';
-			c = newmenu_do( NULL, NULL, m, unused_newmenu_subfunction, unused_newmenu_userdata);
+			c = newmenu_do2(menu_title{nullptr}, menu_subtitle{nullptr}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (c == -2)
 				break;
 			strcat(filename, DEMO_EXT);
@@ -637,7 +637,7 @@ static window_event_result HandleDemoKey(int key)
 				nm_item_text("strip how many bytes"),
 				nm_item_input(num),
 			}};
-			c = newmenu_do( NULL, NULL, m, unused_newmenu_subfunction, unused_newmenu_userdata);
+			c = newmenu_do2(menu_title{nullptr}, menu_subtitle{nullptr}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (c == -2)
 				break;
 			how_many = atoi(num);
@@ -740,7 +740,7 @@ static window_event_result HandleSystemKey(int key)
 			case KEY_ESC:
 			{
 				const bool allow_saveload = !(Game_mode & GM_MULTI) || ((Game_mode & GM_MULTI_COOP) && Player_num == 0);
-				const auto choice = nm_messagebox_str(nullptr, allow_saveload ? nm_messagebox_tie("Abort Game", TXT_OPTIONS_, "Save Game...", TXT_LOAD_GAME) : nm_messagebox_tie("Abort Game", TXT_OPTIONS_), "Game Menu");
+				const auto choice = nm_messagebox_str(menu_title{nullptr}, allow_saveload ? nm_messagebox_tie("Abort Game", TXT_OPTIONS_, "Save Game...", TXT_LOAD_GAME) : nm_messagebox_tie("Abort Game", TXT_OPTIONS_), menu_subtitle{"Game Menu"});
 				switch(choice)
 				{
 					case 0:
@@ -1453,7 +1453,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 			std::array<newmenu_item, 1> m{{
 				nm_item_input(text),
 			}};
-			item = newmenu_do( NULL, "Briefing to play?", m, unused_newmenu_subfunction, unused_newmenu_userdata);
+			item = newmenu_do2(menu_title{nullptr}, menu_subtitle{"Briefing to play?"}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (item != -1) {
 				do_briefing_screens(text,1);
 			}
@@ -1732,7 +1732,7 @@ static window_event_result FinalCheats()
 		std::array<newmenu_item, 1> m{{
 			nm_item_input(text),
 		}};
-		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, m, unused_newmenu_subfunction, unused_newmenu_userdata);
+		item = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_WARP_TO_LEVEL}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 		if (item != -1) {
 			new_level_num = atoi(m[0].text);
 			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level) {
@@ -1940,7 +1940,7 @@ static void do_cheat_menu()
 	snprintf(score_text, sizeof(score_text), "%d", player_info.mission.score);
 	uint8_t plr_laser_level = static_cast<uint8_t>(player_info.laser_level);
 	DXX_WIMP_MENU(ADD);
-	mmn = newmenu_do("Wimp Menu",NULL,m, unused_newmenu_subfunction, unused_newmenu_userdata);
+	mmn = newmenu_do2(menu_title{"Wimp Menu"}, menu_subtitle{nullptr}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 	if (mmn > -1 )  {
 		DXX_WIMP_MENU(READ);
 		player_info.laser_level = laser_level{plr_laser_level};

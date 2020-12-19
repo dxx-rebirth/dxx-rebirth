@@ -363,7 +363,7 @@ void change_guidebot_name()
 		DXX_GUIDEBOT_RENAME_MENU(ENUM)
 	};
 	DXX_GUIDEBOT_RENAME_MENU(ADD);
-	const auto item = newmenu_do(nullptr, "Enter Guide-bot name:", m, unused_newmenu_subfunction, unused_newmenu_userdata);
+	const auto item = newmenu_do2(menu_title{nullptr}, menu_subtitle{"Enter Guide-bot name:"}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 
 	if (item != -1) {
 		PlayerCfg.GuidebotName = PlayerCfg.GuidebotNameReal = text;

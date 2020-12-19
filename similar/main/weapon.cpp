@@ -907,7 +907,7 @@ static void ReorderWeapon()
 		m[i].value = o;
 		nm_set_item_menu(m[i], T::get_weapon_name(o));
 	}
-	newmenu_doreorder(T::reorder_title, "Shift+Up/Down arrow to move item", m);
+	newmenu_doreorder(menu_title{T::reorder_title}, menu_subtitle{"Shift+Up/Down arrow to move item"}, m);
 	for (unsigned i = 0; i != m.size(); ++i)
 		T::get_weapon_by_order_slot(i) = m[i].value;
 }

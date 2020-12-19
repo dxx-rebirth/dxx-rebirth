@@ -150,7 +150,7 @@ static void scores_write(all_scores *scores)
 	RAIIPHYSFS_File fp{PHYSFS_openWrite(SCORES_FILENAME)};
 	if (!fp)
 	{
-		nm_messagebox( TXT_WARNING, 1, TXT_OK, "%s\n'%s'", TXT_UNABLE_TO_OPEN, SCORES_FILENAME  );
+		nm_messagebox(menu_title{TXT_WARNING}, 1, TXT_OK, "%s\n'%s'", TXT_UNABLE_TO_OPEN, SCORES_FILENAME);
 		return;
 	}
 
@@ -294,10 +294,10 @@ void scores_maybe_add_player()
 				nm_item_text(TXT_COOL_SAYING),
 				nm_item_input(text1),
 			}};
-			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, m, unused_newmenu_subfunction, unused_newmenu_userdata );
+			newmenu_do2(menu_title{TXT_HIGH_SCORE}, menu_subtitle{TXT_YOU_PLACED_1ST}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			strcpy(scores.cool_saying, text1[0] ? text1.data() : "No comment");
 		} else {
-			nm_messagebox( TXT_HIGH_SCORE, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
+			nm_messagebox(menu_title{TXT_HIGH_SCORE}, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
 		}
 	
 		// move everyone down...
@@ -435,7 +435,7 @@ window_event_result scores_menu::event_handler(const d_event &event)
 					if (citem < 0)
 					{
 						// Reset scores...
-						if (nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_NO, TXT_YES), TXT_RESET_HIGH_SCORES) == 1)
+						if (nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_NO, TXT_YES), menu_subtitle{TXT_RESET_HIGH_SCORES}) == 1)
 						{
 							PHYSFS_delete(SCORES_FILENAME);
 							scores_view(&last_game, citem);	// create new scores window

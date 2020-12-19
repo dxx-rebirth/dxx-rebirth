@@ -1735,7 +1735,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	if (purpose == PURPOSE_REWRITE)
 		nd_write_byte(c);
 	if ((c != ND_EVENT_START_DEMO) || nd_playback_v_bad_read) {
-		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_CORRUPT );
+		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_CORRUPT);
 		return 1;
 	}
 	nd_read_byte(&version);
@@ -1746,7 +1746,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		shareware = 1;
 	else if (version < DEMO_VERSION) {
 		if (purpose == PURPOSE_CHOSE_PLAY) {
-			nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_OLD );
+			nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_OLD);
 		}
 		return 1;
 	}
@@ -1758,22 +1758,22 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	if ((game_type == DEMO_GAME_TYPE_SHAREWARE) && shareware)
 		;	// all good
 	else if (game_type != DEMO_GAME_TYPE) {
-		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_OLD );
+		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_OLD);
 
 		return 1;
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (game_type < DEMO_GAME_TYPE) {
-		nm_messagebox( NULL, 1, TXT_OK, "%s %s\n%s", TXT_CANT_PLAYBACK, TXT_RECORDED, "    In Descent: First Strike" );
+		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s %s\n%s", TXT_CANT_PLAYBACK, TXT_RECORDED, "    In Descent: First Strike");
 		return 1;
 	}
 	if (game_type != DEMO_GAME_TYPE) {
-		nm_messagebox( NULL, 1, TXT_OK, "%s %s\n%s", TXT_CANT_PLAYBACK, TXT_RECORDED, "   In Unknown Descent version" );
+		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s %s\n%s", TXT_CANT_PLAYBACK, TXT_RECORDED, "   In Unknown Descent version");
 		return 1;
 	}
 	if (version < DEMO_VERSION) {
 		if (purpose == PURPOSE_CHOSE_PLAY) {
-			nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_OLD );
+			nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_OLD);
 		}
 		return 1;
 	}
@@ -1926,7 +1926,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		if ((purpose != PURPOSE_REWRITE) && load_mission_by_name(mission_entry_predicate{current_mission}, mission_name_type::guess))
 		{
 			if (purpose == PURPOSE_CHOSE_PLAY) {
-				nm_messagebox( NULL, 1, TXT_OK, TXT_NOMISSION4DEMO, current_mission );
+				nm_messagebox(menu_title{nullptr}, 1, TXT_OK, TXT_NOMISSION4DEMO, current_mission);
 			}
 			return 1;
 		}
@@ -1939,7 +1939,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		if (load_mission_by_name(mission_predicate, mission_name_type::guess))
 		{
 		if (purpose != PURPOSE_RANDOM_PLAY) {
-			nm_messagebox( NULL, 1, TXT_OK, TXT_NOMISSION4DEMO, current_mission );
+			nm_messagebox(menu_title{nullptr}, 1, TXT_OK, TXT_NOMISSION4DEMO, current_mission);
 		}
 		return 1;
 		}
@@ -3270,7 +3270,7 @@ static int newdemo_read_frame_information(int rewrite)
 					}
 				}
 				if ((loaded_level < Last_secret_level) || (loaded_level > Last_level)) {
-					nm_messagebox( NULL, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT );
+					nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT);
 					Current_mission.reset();
 					return -1;
 				}
@@ -3384,7 +3384,7 @@ static int newdemo_read_frame_information(int rewrite)
 	}
 
 	if (nd_playback_v_bad_read) {
-		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_DEMO_ERR_READING, TXT_DEMO_OLD_CORRUPT );
+		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s %s", TXT_DEMO_ERR_READING, TXT_DEMO_OLD_CORRUPT);
 		Current_mission.reset();
 	}
 
@@ -3427,7 +3427,7 @@ window_event_result newdemo_goto_end(int to_rewrite)
 	if (!to_rewrite)
 	{
 		if ((level < Last_secret_level) || (level > Last_level)) {
-			nm_messagebox( NULL, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT );
+			nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT);
 			Current_mission.reset();
 			newdemo_stop_playback();
 			return window_event_result::close;
@@ -3914,7 +3914,7 @@ void newdemo_start_recording()
 	if (!outfile)
 	{
 		Newdemo_state = ND_STATE_NORMAL;
-		nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "Cannot open demo temp file");
+		nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Cannot open demo temp file"});
 	}
 	else
 		newdemo_record_start_demo();
@@ -4106,13 +4106,13 @@ try_again:
 		std::array<newmenu_item, 1> m{{
 			nm_item_input(filename),
 		}};
-		exit = newmenu_do( NULL, TXT_SAVE_DEMO_AS, m, unused_newmenu_subfunction, unused_newmenu_userdata );
+		exit = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_SAVE_DEMO_AS}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 	} else if (nd_record_v_no_space == 2) {
 		std::array<newmenu_item, 2> m{{
 			nm_item_text(TXT_DEMO_SAVE_NOSPACE),
 			nm_item_input(filename),
 		}};
-		exit = newmenu_do( NULL, NULL, m, unused_newmenu_subfunction, unused_newmenu_userdata );
+		exit = newmenu_do2(menu_title{nullptr}, menu_subtitle{nullptr}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 	}
 	Newmenu_allowed_chars = NULL;
 
@@ -4142,7 +4142,7 @@ try_again:
 			break;
 		if (!isalnum(c) && c != '_' && c != '-' && c != '.')
 		{
-			nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_CONTINUE), TXT_DEMO_USE_LETTERS);
+			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_CONTINUE), menu_subtitle{TXT_DEMO_USE_LETTERS});
 			goto try_again;
 		}
 	}
@@ -4337,7 +4337,7 @@ int newdemo_swap_endian(const char *filename)
 
 read_error:
 	{
-		nm_messagebox( NULL, 1, TXT_OK, complete ? "Demo %s converted%s" : "Error converting demo\n%s\n%s", filename,
+		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, complete ? "Demo %s converted%s" : "Error converting demo\n%s\n%s", filename,
 					  complete ? "" : (nd_playback_v_at_eof ? TXT_DEMO_CORRUPT : PHYSFS_getLastError()));
 	}
 
@@ -4357,13 +4357,13 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 
 	const auto &&outfp = PHYSFSX_openWriteBuffered(outname);
 	if (!outfp) {
-		nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "Can't open output file");
+		nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Can't open output file"});
 		newdemo_stop_playback();
 		return;
 	}
 	MALLOC(buf, char, BUF_SIZE);
 	if (buf == NULL) {
-		nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "Can't malloc output buffer");
+		nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Can't malloc output buffer"});
 		newdemo_stop_playback();
 		return;
 	}

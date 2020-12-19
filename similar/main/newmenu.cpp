@@ -544,7 +544,7 @@ static void strip_end_whitespace( char * text )
 
 }
 
-int newmenu_do2(const char *const title, const char *const subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename)
+int newmenu_do2(const menu_title title, const menu_subtitle subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const menu_filename filename)
 {
 	newmenu *menu;
 	bool exists = true;
@@ -664,9 +664,9 @@ static int newmenu_save_selection_handler(newmenu *menu, const d_event &event, c
 }
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-void newmenu_doreorder( const char * title, const char * subtitle, const partial_range_t<newmenu_item *> items)
+void newmenu_doreorder(const menu_title title, const menu_subtitle subtitle, const partial_range_t<newmenu_item *> items)
 {
-	newmenu_do2(title, subtitle, items, newmenu_save_selection_handler, unused_newmenu_userdata, 0, nullptr);
+	newmenu_do2(title, subtitle, items, newmenu_save_selection_handler, unused_newmenu_userdata);
 }
 
 newmenu_item *newmenu_get_items(newmenu *menu)
@@ -1677,16 +1677,13 @@ window_event_result newmenu::event_handler(const d_event &event)
 
 namespace dsx {
 
-newmenu *newmenu_do4(const char *const title, const char *const subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename, const tiny_mode_flag TinyMode, const tab_processing_flag TabsFlag)
+newmenu *newmenu_do4(const menu_title title, const menu_subtitle subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const menu_filename filename, const tiny_mode_flag TinyMode, const tab_processing_flag TabsFlag)
 {
 	if (items.size() < 1)
 		return nullptr;
-	newmenu_layout nl(items);
+	newmenu_layout nl(title, subtitle, filename, items);
 	nl.citem = citem;
 	nl.max_on_menu = TinyMode != tiny_mode_flag::normal ? MAXDISPLAYABLEITEMSTINY : MAXDISPLAYABLEITEMS;
-	nl.title = title;
-	nl.subtitle = subtitle;
-	nl.filename = filename;
 	nl.tiny_mode = TinyMode;
 	nl.tabs_flag = TabsFlag;
 	nl.max_displayable = items.size();
@@ -1705,23 +1702,23 @@ newmenu *newmenu_do4(const char *const title, const char *const subtitle, const 
 }
 }
 
-int (vnm_messagebox_aN)(const char *title, const nm_messagebox_tie &tie, const char *format, ...)
+int (vnm_messagebox_aN)(const menu_title title, const nm_messagebox_tie &tie, const char *format, ...)
 {
 	va_list args;
 	char nm_text[MESSAGEBOX_TEXT_SIZE];
 	va_start(args, format);
 	vsnprintf(nm_text,sizeof(nm_text),format,args);
 	va_end(args);
-	return nm_messagebox_str(title, tie, nm_text);
+	return nm_messagebox_str(title, tie, menu_subtitle{nm_text});
 }
 
-int nm_messagebox_str(const char *title, const nm_messagebox_tie &tie, const char *str)
+int nm_messagebox_str(const menu_title title, const nm_messagebox_tie &tie, const menu_subtitle subtitle)
 {
 	std::array<newmenu_item, nm_messagebox_tie::maximum_arity> items;
 	auto &&item_range = partial_range(items, tie.count());
 	for (auto &&[i, s] : zip(item_range, tie))
 		nm_set_item_menu(i, s);
-	return newmenu_do(title, str, item_range, unused_newmenu_subfunction, unused_newmenu_userdata);
+	return newmenu_do2(title, subtitle, item_range, unused_newmenu_subfunction, unused_newmenu_userdata);
 }
 
 // Example listbox callback function...

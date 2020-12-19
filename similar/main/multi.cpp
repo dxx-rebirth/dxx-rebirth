@@ -2085,7 +2085,7 @@ void multi_disconnect_player(const playernum_t pnum)
 	{
 		if (Game_wind)
 			window_set_visible(*Game_wind, 0);
-		nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "Host left the game!");
+		nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Host left the game!"});
 		if (Game_wind)
 			window_set_visible(*Game_wind, 1);
 		multi_quit_game = 1;
@@ -3220,7 +3220,7 @@ void multi_consistency_error(int reset)
 
 	if (Game_wind)
 		window_set_visible(*Game_wind, 0);
-	nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), TXT_CONSISTENCY_ERROR);
+	nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_CONSISTENCY_ERROR});
 	if (Game_wind)
 		window_set_visible(*Game_wind, 1);
 	count = 0;
@@ -5104,7 +5104,7 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 	const auto thisid = state_get_game_id(filename);
 	if (thisid!=id)
 	{
-		nm_messagebox_str(nullptr, nm_messagebox_tie(TXT_OK), "A multi-save game was restored\nthat you are missing or does not\nmatch that of the others.\nYou must rejoin if you wish to\ncontinue.");
+		nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"A multi-save game was restored\nthat you are missing or does not\nmatch that of the others.\nYou must rejoin if you wish to\ncontinue."});
 		return;
 	}
 
@@ -6430,6 +6430,6 @@ void show_netgame_info(const netgame_info &netgame)
                 m[i].text = ngii+(i*ngilen);
 	}
 
-	newmenu_dotiny(nullptr, "Netgame Info & Rules", unchecked_partial_range(m, nginum), tab_processing_flag::ignore, show_netgame_info_poll, ngii);
+	newmenu_dotiny(menu_title{nullptr}, menu_subtitle{"Netgame Info & Rules"}, unchecked_partial_range(m, nginum), tab_processing_flag::ignore, show_netgame_info_poll, ngii);
 }
 }
