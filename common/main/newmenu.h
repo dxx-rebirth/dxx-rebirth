@@ -236,13 +236,15 @@ struct newmenu_layout
 
 struct newmenu : newmenu_layout, window
 {
-	newmenu(grs_canvas &src, newmenu_layout &&l) :
-		newmenu_layout(std::move(l)), window(src, x, y, w, h)
+	using subfunction_type = int(*)(newmenu *menu, const d_event &event, void *userdata);
+	newmenu(grs_canvas &src, newmenu_layout &&l, subfunction_type subfunction, void *userdata) :
+		newmenu_layout(std::move(l)), window(src, x, y, w, h),
+		subfunction(subfunction), userdata(userdata)
 	{
 	}
-	int				(*subfunction)(newmenu *menu,const d_event &event, void *userdata);
+	const subfunction_type subfunction;
 	int				*rval = nullptr;			// Pointer to return value (for polling newmenus)
-	void			*userdata;		// For whatever - like with window system
+	void *const userdata;		// For whatever - like with window system
 	virtual window_event_result event_handler(const d_event &) override;
 };
 

@@ -1671,9 +1671,7 @@ newmenu *newmenu_do4(const menu_title title, const menu_subtitle subtitle, const
 		return nullptr;
 	newmenu_layout nl(title, subtitle, filename, TinyMode, TabsFlag, newmenu_layout::adjusted_citem::create(items, citem));
 	newmenu_create_structure(nl, *(TinyMode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT));
-	auto menu = std::make_unique<newmenu>(grd_curscreen->sc_canvas, std::move(nl));
-	menu->subfunction = subfunction;
-	menu->userdata = userdata;
+	auto menu = std::make_unique<newmenu>(grd_curscreen->sc_canvas, std::move(nl), subfunction, userdata);
 
 	newmenu_free_background();
 	menu->send_creation_events();
