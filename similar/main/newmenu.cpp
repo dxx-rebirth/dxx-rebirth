@@ -1430,7 +1430,6 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	if (menu.items.size() > menu.max_on_menu)
 	{
 		iterative_layout_max_height = initial_layout_height + (LINE_SPACING(cv_font, *GAME_FONT) * menu.max_on_menu);
-		menu.max_displayable = menu.max_on_menu;
 
 		// if our last citem was > menu.max_on_menu, make sure we re-scroll when we call this menu again
 		if (menu.citem > menu.max_on_menu - 4)
