@@ -473,9 +473,9 @@ void multi_send_bounty( void );
 void multi_consistency_error(int reset);
 window_event_result multi_level_sync();
 int multi_endlevel(int *secret);
-using multi_endlevel_poll = int(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 void multi_send_endlevel_packet();
 #ifdef dsx
+using multi_endlevel_poll = int(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 namespace dsx {
 multi_endlevel_poll *get_multi_endlevel_poll2();
 void multi_send_hostage_door_status(vcwallptridx_t wallnum);

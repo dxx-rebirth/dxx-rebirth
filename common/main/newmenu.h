@@ -35,15 +35,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <tuple>
 #include <type_traits>
 #include <utility>
-#include "fwd-window.h"
 #include "varutil.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "fmtcheck.h"
 #include "ntstring.h"
 #include "partial_range.h"
+#ifdef dsx
+#include "gamefont.h"
+#include "window.h"
+#endif
 
-struct newmenu;
 struct listbox;
 
 enum nm_type : uint8_t
@@ -156,17 +158,6 @@ namespace dcx {
 
 extern const char *Newmenu_allowed_chars;
 
-template <typename T>
-using newmenu_subfunction_t = int(*)(newmenu *menu,const d_event &event, T *userdata);
-using newmenu_subfunction = newmenu_subfunction_t<void>;
-
-class unused_newmenu_userdata_t;
-constexpr newmenu_subfunction_t<const unused_newmenu_userdata_t> unused_newmenu_subfunction = nullptr;
-constexpr const unused_newmenu_userdata_t *unused_newmenu_userdata = nullptr;
-
-//should be called whenever the palette changes
-void newmenu_free_background();
-
 #ifdef dsx
 enum class tab_processing_flag : uint8_t
 {
@@ -179,9 +170,57 @@ enum class tiny_mode_flag : uint8_t
 	normal,
 	tiny,
 };
-#endif
 
-}
+struct newmenu_layout
+{
+	int             x,y,w,h;
+	short			swidth, sheight;
+	// with these we check if resolution or fonts have changed so menu structure can be recreated
+	font_x_scale_proportion fntscalex;
+	font_y_scale_proportion fntscaley;
+	int				citem;
+	const char			*title;
+	const char			*subtitle;
+	const char			*filename;
+	tiny_mode_flag tiny_mode;
+	tab_processing_flag tabs_flag;
+	uint8_t all_text = 0;		//set true if all text items
+	uint8_t is_scroll_box = 0;   // Is this a scrolling box? Set to false at init
+	uint8_t mouse_state;
+	int				max_on_menu;
+	const partial_range_t<newmenu_item *> items;
+	int	scroll_offset = 0;
+	int max_displayable;
+	newmenu_layout(partial_range_t<newmenu_item *> items) :
+		items(items)
+	{
+	}
+	newmenu_layout(newmenu_layout &&) = default;
+	newmenu_layout &operator=(newmenu_layout &&) = default;
+};
+
+struct newmenu : newmenu_layout, window
+{
+	newmenu(grs_canvas &src, newmenu_layout &&l) :
+		newmenu_layout(std::move(l)), window(src, x, y, w, h)
+	{
+	}
+	int				(*subfunction)(newmenu *menu,const d_event &event, void *userdata);
+	int				*rval = nullptr;			// Pointer to return value (for polling newmenus)
+	void			*userdata;		// For whatever - like with window system
+	virtual window_event_result event_handler(const d_event &) override;
+};
+
+template <typename T>
+using newmenu_subfunction_t = int(*)(newmenu *menu,const d_event &event, T *userdata);
+using newmenu_subfunction = newmenu_subfunction_t<void>;
+
+class unused_newmenu_userdata_t;
+constexpr newmenu_subfunction_t<const unused_newmenu_userdata_t> unused_newmenu_subfunction = nullptr;
+constexpr const unused_newmenu_userdata_t *unused_newmenu_userdata = nullptr;
+
+//should be called whenever the palette changes
+void newmenu_free_background();
 
 int newmenu_do2(const char *title, const char *subtitle, partial_range_t<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
 
@@ -218,6 +257,9 @@ static inline int newmenu_do1(const char *const title, const char *const subtitl
 {
 	return newmenu_do2(title, subtitle, std::move(items), subfunction, userdata, citem, nullptr);
 }
+#endif
+
+}
 
 #ifdef dsx
 namespace dsx {
@@ -253,6 +295,9 @@ static newmenu *newmenu_dotiny(const char *const title, const char *const subtit
 	return newmenu_dotiny(title, subtitle, std::move(items), TabsFlag, reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(userdata));
 }
 }
+
+newmenu_item *newmenu_get_items(newmenu *menu);
+int newmenu_get_citem(newmenu *menu);
 #endif
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
@@ -298,8 +343,6 @@ typedef cstring_tie<5> nm_messagebox_tie;
 int nm_messagebox_str(const char *title, const nm_messagebox_tie &tie, const char *str) __attribute_nonnull((3));
 int vnm_messagebox_aN(const char *title, const nm_messagebox_tie &tie, const char *format, ...) __attribute_format_printf(3, 4);
 
-newmenu_item *newmenu_get_items(newmenu *menu);
-int newmenu_get_citem(newmenu *menu);
 void nm_draw_background(grs_canvas &, int x1, int y1, int x2, int y2);
 void nm_restore_background(int x, int y, int w, int h);
 

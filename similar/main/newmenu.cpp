@@ -43,7 +43,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "menu.h"
 #include "newmenu.h"
-#include "gamefont.h"
 #include "iff.h"
 #include "pcx.h"
 #include "u_mem.h"
@@ -83,38 +82,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_TEXT_WIDTH FSPACX(120) // How many pixels wide a input box can be
 
 namespace {
-
-struct newmenu_layout
-{
-	int             x,y,w,h;
-	short			swidth, sheight;
-	// with these we check if resolution or fonts have changed so menu structure can be recreated
-	font_x_scale_proportion fntscalex;
-	font_y_scale_proportion fntscaley;
-	const char			*title;
-	const char			*subtitle;
-	const char			*filename;
-	tiny_mode_flag tiny_mode;
-	tab_processing_flag tabs_flag;
-	uint8_t all_text = 0;		//set true if all text items
-	uint8_t is_scroll_box = 0;   // Is this a scrolling box? Set to false at init
-	uint8_t mouse_state;
-	int				max_on_menu;
-	int				citem;
-	partial_range_t<newmenu_item *> items;
-	int	scroll_offset = 0;
-	int max_displayable;
-	partial_range_t<newmenu_item *> item_range()
-	{
-		return items;
-	}
-	newmenu_layout(partial_range_t<newmenu_item *> items) :
-		items(items)
-	{
-	}
-	newmenu_layout(newmenu_layout &&) = default;
-	newmenu_layout &operator=(newmenu_layout &&) = default;
-};
 
 struct listbox_layout
 {
@@ -162,18 +129,6 @@ struct listbox_layout
 };
 
 }
-
-struct newmenu : newmenu_layout, window
-{
-	newmenu(grs_canvas &src, newmenu_layout &&l) :
-		newmenu_layout(std::move(l)), window(src, x, y, w, h)
-	{
-	}
-	int				(*subfunction)(newmenu *menu,const d_event &event, void *userdata);
-	int				*rval = nullptr;			// Pointer to return value (for polling newmenus)
-	void			*userdata;		// For whatever - like with window system
-	virtual window_event_result event_handler(const d_event &) override;
-};
 
 constexpr std::integral_constant<unsigned, NM_TYPE_INPUT> newmenu_item::input_specific_type::nm_type;
 constexpr std::integral_constant<unsigned, NM_TYPE_RADIO> newmenu_item::radio_specific_type::nm_type;
@@ -346,6 +301,8 @@ void nm_draw_background(grs_canvas &canvas, int x1, int y1, int x2, int y2)
 	}
 	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 }
+
+namespace dcx {
 
 namespace {
 
@@ -704,6 +661,8 @@ static int newmenu_save_selection_handler(newmenu *menu, const d_event &event, c
 
 }
 
+}
+
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
 void newmenu_doreorder( const char * title, const char * subtitle, const partial_range_t<newmenu_item *> items)
 {
@@ -757,7 +716,7 @@ static void newmenu_scroll(newmenu *const menu, const int amount)
 			menu->scroll_offset = nitems - menu->max_on_menu;
 		return;
 	}
-	const auto &range = menu->item_range();
+	const auto &range = menu->items;
 	const auto predicate = [](const newmenu_item &n) {
 		return n.type != NM_TYPE_TEXT;
 	};
@@ -813,7 +772,7 @@ static int nm_trigger_radio_button(newmenu &menu, newmenu_item &citem)
 {
 	citem.value = 1;
 	const auto cg = citem.radio().group;
-	range_for (auto &r, menu.item_range())
+	range_for (auto &r, menu.items)
 	{
 		if (&r != &citem && r.type == NM_TYPE_RADIO && r.radio().group == cg)
 		{
@@ -1363,7 +1322,7 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	const auto &&fspacy1 = fspacy(1);
 	// Find menu height & width (store in iterative_layout_max_width,
 	// iterative_layout_max_height)
-	range_for (auto &i, menu.item_range())
+	range_for (auto &i, menu.items)
 	{
 		i.y = iterative_layout_max_height;
 		int string_width, string_height, average_width;
@@ -1469,7 +1428,7 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 
 	int right_offset = 0;
 
-	range_for (auto &i, menu.item_range())
+	range_for (auto &i, menu.items)
 	{
 		i.w = iterative_layout_body_width;
 		if (right_offset < i.right_offset)
@@ -1500,14 +1459,14 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	nm_draw_background1(canvas, menu.filename);
 
 	// Update all item's x & y values.
-	range_for (auto &i, menu.item_range())
+	range_for (auto &i, menu.items)
 	{
 		i.x = BORDERX + twidth + right_offset;
 		i.y += BORDERY;
 		if (i.type == NM_TYPE_RADIO) {
 			// find first marked one
 			newmenu_item *fm = nullptr;
-			range_for (auto &j, menu.item_range())
+			range_for (auto &j, menu.items)
 			{
 				if (j.type == NM_TYPE_RADIO && j.radio().group == i.radio().group) {
 					if (!fm && j.value)
