@@ -190,6 +190,30 @@ void newmenu_free_background()	{
 	nm_background1.reset();
 }
 
+newmenu_layout::adjusted_citem newmenu_layout::adjusted_citem::create(const partial_range_t<newmenu_item *> items, int citem)
+{
+	if (citem < 0)
+		citem = 0;
+	const std::size_t nitems = items.size();
+	if (citem > nitems - 1)
+		citem = nitems - 1;
+	uint_fast32_t i = 0;
+	const auto begin = items.begin();
+	uint8_t all_text = 0;
+	while (std::next(begin, citem)->type == NM_TYPE_TEXT)
+	{
+		if (++ citem >= nitems)
+			citem = 0;
+		if (++ i > nitems)
+		{
+			citem = 0;
+			all_text = 1;
+			break;
+		}
+	}
+	return adjusted_citem{items, citem, all_text};
+}
+
 }
 
 namespace dsx {
@@ -1405,7 +1429,6 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 
 	if (menu.items.size() > menu.max_on_menu)
 	{
-		menu.is_scroll_box=1;
 		iterative_layout_max_height = initial_layout_height + (LINE_SPACING(cv_font, *GAME_FONT) * menu.max_on_menu);
 		menu.max_displayable = menu.max_on_menu;
 
@@ -1416,10 +1439,6 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 			if (menu.scroll_offset + menu.max_on_menu > menu.items.size())
 				menu.scroll_offset = menu.items.size() - menu.max_on_menu;
 		}
-	}
-	else
-	{
-		menu.is_scroll_box = 0;
 	}
 	menu.h = iterative_layout_max_height;
 
@@ -1472,33 +1491,6 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 				}
 			}
 			(fm ? *fm : i).value = 1;
-		}
-	}
-
-	if (menu.citem != -1)
-	{
-		if (menu.citem < 0)
-			menu.citem = 0;
-		const std::size_t nitems = menu.items.size();
-		if (menu.citem > nitems - 1)
-			menu.citem = nitems - 1;
-
-		uint_fast32_t i = 0;
-		const auto begin = menu.items.begin();
-		while (std::next(begin, menu.citem)->type == NM_TYPE_TEXT)
-		{
-			menu.citem++;
-			i++;
-			if (menu.citem >= nitems)
-			{
-				menu.citem = 0;
-			}
-			if (i > nitems)
-			{
-				menu.citem = 0;
-				menu.all_text = 1;
-				break;
-			}
 		}
 	}
 
@@ -1678,9 +1670,7 @@ newmenu *newmenu_do4(const menu_title title, const menu_subtitle subtitle, const
 {
 	if (items.size() < 1)
 		return nullptr;
-	newmenu_layout nl(title, subtitle, filename, TinyMode, TabsFlag, items);
-	nl.citem = citem;
-	nl.max_displayable = items.size();
+	newmenu_layout nl(title, subtitle, filename, TinyMode, TabsFlag, newmenu_layout::adjusted_citem::create(items, citem));
 	newmenu_create_structure(nl, *(TinyMode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT));
 	auto menu = std::make_unique<newmenu>(grd_curscreen->sc_canvas, std::move(nl));
 	menu->subfunction = subfunction;

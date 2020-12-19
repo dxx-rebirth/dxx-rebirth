@@ -190,6 +190,13 @@ using menu_filename = menu_tagged_string<menu_filename_tag>;
 
 struct newmenu_layout
 {
+	struct adjusted_citem
+	{
+		const partial_range_t<newmenu_item *> items;
+		const int citem;
+		const uint8_t all_text;
+		static adjusted_citem create(partial_range_t<newmenu_item *> items, int citem);
+	};
 	int             x,y,w,h;
 	short			swidth, sheight;
 	// with these we check if resolution or fonts have changed so menu structure can be recreated
@@ -202,17 +209,21 @@ struct newmenu_layout
 	const tiny_mode_flag tiny_mode;
 	const tab_processing_flag tabs_flag;
 	const uint8_t max_on_menu;
-	uint8_t all_text = 0;		//set true if all text items
-	uint8_t is_scroll_box = 0;   // Is this a scrolling box? Set to false at init
+	const uint8_t all_text;		//set true if all text items
+	const uint8_t is_scroll_box;   // Is this a scrolling box? Set to false at init
 	uint8_t mouse_state;
 	const partial_range_t<newmenu_item *> items;
 	int	scroll_offset = 0;
 	int max_displayable;
-	newmenu_layout(menu_title title, menu_subtitle subtitle, menu_filename filename, tiny_mode_flag tiny_mode, tab_processing_flag tabs_flag, partial_range_t<newmenu_item *> items) :
+	newmenu_layout(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init) :
+		citem(citem_init.citem),
 		title(title), subtitle(subtitle), filename(filename),
 		tiny_mode(tiny_mode), tabs_flag(tabs_flag),
-		max_on_menu(std::min<uint8_t>(items.size(), tiny_mode != tiny_mode_flag::normal ? 21u : 14u)),
-		items(items)
+		max_on_menu(std::min<uint8_t>(citem_init.items.size(), tiny_mode != tiny_mode_flag::normal ? 21u : 14u)),
+		all_text(citem_init.all_text),
+		is_scroll_box(max_on_menu < citem_init.items.size()),
+		items(citem_init.items),
+		max_displayable(citem_init.items.size())
 	{
 	}
 	newmenu_layout(newmenu_layout &&) = default;
