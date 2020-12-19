@@ -100,53 +100,118 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <utility>
 
 // Menu IDs...
-enum MENUS
-{
-    MENU_NEW_GAME = 0,
-    MENU_GAME,
-    MENU_EDITOR,
-    MENU_VIEW_SCORES,
-    MENU_QUIT,
-    MENU_LOAD_GAME,
-    MENU_SAVE_GAME,
-    MENU_DEMO_PLAY,
-    MENU_CONFIG,
-    MENU_REJOIN_NETGAME,
-    MENU_DIFFICULTY,
-    MENU_HELP,
-    MENU_NEW_PLAYER,
-#if DXX_USE_UDP
-        MENU_MULTIPLAYER,
-    #endif
-
-    MENU_SHOW_CREDITS,
-
-#if DXX_USE_UDP
-    MENU_START_UDP_NETGAME,
-    MENU_JOIN_MANUAL_UDP_NETGAME,
-    MENU_JOIN_LIST_UDP_NETGAME,
-    #endif
-    #ifndef RELEASE
-    MENU_SANDBOX
-    #endif
-};
-
-//ADD_ITEM("Start netgame...", MENU_START_NETGAME, -1 );
-//ADD_ITEM("Send net message...", MENU_SEND_NET_MESSAGE, -1 );
-
-#define ADD_ITEM(t,value,key)  do { nm_set_item_menu(m[num_options], t); menu_choice[num_options]=value;num_options++; } while (0)
-
-static std::array<window *, 16> menus;
-
-// Function Prototypes added after LINTING
-static window_event_result do_new_game_menu(void);
-#if DXX_USE_UDP
-static void do_multi_player_menu();
-#endif
 
 namespace dcx {
 
 namespace {
+
+enum {
+	optgrp_autoselect_firing,
+};
+
+enum class main_menu_item_index
+{
+	start_new_singleplayer_game = 0,
+	load_existing_singleplayer_game,
+#if DXX_USE_UDP
+	open_multiplayer_submenu,
+#endif
+	open_options_submenu,
+	create_new_pilot_profile,
+	open_pick_recorded_demo_submenu,
+	open_high_scores_dialog,
+	open_credits_scroll_window,
+    quit_program,
+#ifndef RELEASE
+#if DXX_USE_EDITOR
+    open_mine_editor_window,
+#endif
+	open_coder_sandbox_submenu,
+#endif
+	end,
+};
+
+struct main_menu
+{
+	enumerated_array<newmenu_item, static_cast<std::size_t>(main_menu_item_index::end), main_menu_item_index> m;
+	main_menu();
+};
+
+#if DXX_USE_UDP
+enum class netgame_menu_item_index
+{
+	start_new_multiplayer_game,
+	list_multiplayer_games,
+	join_multiplayer_game,
+};
+
+struct netgame_menu
+{
+	enumerated_array<newmenu_item, 3, netgame_menu_item_index> m;
+	netgame_menu();
+};
+
+netgame_menu::netgame_menu()
+{
+	nm_set_item_menu(m[netgame_menu_item_index::start_new_multiplayer_game], "HOST GAME");
+#if DXX_USE_TRACKER
+#define DXX_MULTIPLAYER_MENU_FIND_GAME_TYPE_STRING	"/ONLINE"
+#else
+#define DXX_MULTIPLAYER_MENU_FIND_GAME_TYPE_STRING	""
+#endif
+	nm_set_item_menu(m[netgame_menu_item_index::list_multiplayer_games], "FIND LAN" DXX_MULTIPLAYER_MENU_FIND_GAME_TYPE_STRING " GAMES");
+#undef DXX_MULTIPLAYER_MENU_FIND_GAME_TYPE_STRING
+	nm_set_item_menu(m[netgame_menu_item_index::join_multiplayer_game], "JOIN GAME MANUALLY");
+}
+#endif
+
+static std::array<window *, 16> menus;
+
+main_menu::main_menu()
+{
+	nm_set_item_menu(m[main_menu_item_index::start_new_singleplayer_game], TXT_NEW_GAME);
+	nm_set_item_menu(m[main_menu_item_index::load_existing_singleplayer_game], TXT_LOAD_GAME);
+#if DXX_USE_UDP
+	nm_set_item_menu(m[main_menu_item_index::open_multiplayer_submenu], TXT_MULTIPLAYER_);
+#endif
+
+	nm_set_item_menu(m[main_menu_item_index::open_options_submenu], TXT_OPTIONS_);
+	nm_set_item_menu(m[main_menu_item_index::create_new_pilot_profile], TXT_CHANGE_PILOTS);
+	nm_set_item_menu(m[main_menu_item_index::open_pick_recorded_demo_submenu], TXT_VIEW_DEMO);
+	nm_set_item_menu(m[main_menu_item_index::open_high_scores_dialog], TXT_VIEW_SCORES);
+	nm_set_item_menu(m[main_menu_item_index::open_credits_scroll_window], TXT_CREDITS);
+	nm_set_item_menu(m[main_menu_item_index::quit_program], TXT_QUIT);
+
+#ifndef RELEASE
+#if DXX_USE_EDITOR
+	nm_set_item_menu(m[main_menu_item_index::open_mine_editor_window], "  Editor");
+#endif
+	nm_set_item_menu(m[main_menu_item_index::open_coder_sandbox_submenu], "  SANDBOX");
+#endif
+}
+
+static void delete_player_single_player_saved_game(const char *const name, const unsigned i)
+{
+	char filename[PATH_MAX];
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.sg%x"), name, i);
+	PHYSFS_delete(filename);
+}
+
+static void delete_player_multi_player_saved_game(const char *const name, const unsigned i)
+{
+	char filename[PATH_MAX];
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%x"), name, i);
+	PHYSFS_delete(filename);
+}
+
+static void delete_player_saved_games(const char *const name)
+{
+	for (const auto i : xrange(11u))
+	{
+		delete_player_single_player_saved_game(name, i);
+		delete_player_multi_player_saved_game(name, i);
+	}
+}
 
 template <typename T>
 using select_file_subfunction = window_event_result (*)(T *, const char *);
@@ -211,19 +276,16 @@ namespace dsx {
 
 namespace {
 
-int do_option(int select);
+static window_event_result do_new_game_menu();
 #ifndef RELEASE
 void do_sandbox_menu();
 #endif
 int select_demo();
+#if DXX_USE_UDP
+static void do_multi_player_menu();
+#endif
 
 }
-
-}
-
-namespace {
-
-static void delete_player_saved_games(const char * name);
 
 }
 
@@ -538,11 +600,95 @@ static void draw_copyright()
 	gr_string(canvas, game_font, 0x8000, SHEIGHT - (line_spacing * 2), DESCENT_VERSION);
 }
 
-// ------------------------------------------------------------------------
-static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choice )
+//returns flag, true means quit menu
+int dispatch_menu_option(const main_menu_item_index select)
 {
-	newmenu_item *items = newmenu_get_items(menu);
+	switch (select)
+	{
+		case main_menu_item_index::start_new_singleplayer_game:
+			select_mission(mission_filter_mode::exclude_anarchy, "New Game\n\nSelect mission", do_new_game_menu);
+			break;
+		case main_menu_item_index::open_pick_recorded_demo_submenu:
+			select_demo();
+			break;
+		case main_menu_item_index::load_existing_singleplayer_game:
+			state_restore_all(0, secret_restore::none, nullptr, blind_save::no);
+			break;
+#if DXX_USE_EDITOR
+		case main_menu_item_index::open_mine_editor_window:
+			if (!Current_mission)
+			{
+				create_new_mine();
+				SetPlayerFromCurseg();
+			}
 
+			hide_menus();
+			init_editor();
+			break;
+#endif
+		case main_menu_item_index::open_high_scores_dialog:
+			scores_view_menu();
+			break;
+		case main_menu_item_index::quit_program:
+#if DXX_USE_EDITOR
+			if (!SafetyCheck())
+				break;
+#endif
+			return 0;
+
+		case main_menu_item_index::create_new_pilot_profile:
+			RegisterPlayer();
+			break;
+
+#if DXX_USE_UDP
+		case main_menu_item_index::open_multiplayer_submenu:
+			do_multi_player_menu();
+			break;
+#endif
+		case main_menu_item_index::open_options_submenu:
+			do_options_menu();
+			break;
+		case main_menu_item_index::open_credits_scroll_window:
+			credits_show();
+			break;
+#ifndef RELEASE
+		case main_menu_item_index::open_coder_sandbox_submenu:
+			do_sandbox_menu();
+			break;
+#endif
+		default:
+			break;
+	}
+	return 1;		// stay in main menu unless quitting
+}
+
+#if DXX_USE_UDP
+int dispatch_menu_option(const netgame_menu_item_index select)
+{
+	switch (select)
+	{
+		case netgame_menu_item_index::start_new_multiplayer_game:
+			multi_protocol = MULTI_PROTO_UDP;
+			select_mission(mission_filter_mode::include_anarchy, TXT_MULTI_MISSION, net_udp_setup_game);
+			break;
+		case netgame_menu_item_index::join_multiplayer_game:
+			multi_protocol = MULTI_PROTO_UDP;
+			net_udp_manual_join_game();
+			break;
+		case netgame_menu_item_index::list_multiplayer_games:
+			multi_protocol = MULTI_PROTO_UDP;
+			net_udp_list_join_game();
+			break;
+		default:
+			break;
+	}
+	return 1;
+}
+#endif
+
+// ------------------------------------------------------------------------
+static int main_menu_handler(newmenu *, const d_event &event, main_menu *mm)
+{
 	switch (event.type)
 	{
 		case EVENT_WINDOW_CREATED:
@@ -608,12 +754,11 @@ static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choic
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
-			return do_option(menu_choice[citem]);
+			return dispatch_menu_option(static_cast<main_menu_item_index>(citem));
 		}
 
 		case EVENT_WINDOW_CLOSE:
-			d_free(menu_choice);
-			d_free(items);
+			std::default_delete<main_menu>()(mm);
 			break;
 
 		default:
@@ -621,165 +766,22 @@ static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choic
 	}
 
 	return 0;
+}
+
 }
 
 //	-----------------------------------------------------------------------------
 //	Create the main menu.
-static void create_main_menu(newmenu_item *m, int *menu_choice, unsigned *const callers_num_options)
-{
-	int num_options = 0;
-
-	#ifndef DEMO_ONLY
-	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
-
-	ADD_ITEM(TXT_LOAD_GAME,MENU_LOAD_GAME,KEY_L);
-#if DXX_USE_UDP
-	ADD_ITEM(TXT_MULTIPLAYER_,MENU_MULTIPLAYER,-1);
-#endif
-
-	ADD_ITEM(TXT_OPTIONS_, MENU_CONFIG, -1 );
-	ADD_ITEM(TXT_CHANGE_PILOTS,MENU_NEW_PLAYER,unused);
-	ADD_ITEM(TXT_VIEW_DEMO,MENU_DEMO_PLAY,0);
-	ADD_ITEM(TXT_VIEW_SCORES,MENU_VIEW_SCORES,KEY_V);
-	ADD_ITEM(TXT_CREDITS,MENU_SHOW_CREDITS,-1);
-	#endif
-	ADD_ITEM(TXT_QUIT,MENU_QUIT,KEY_Q);
-
-	#ifndef RELEASE
-	if (!(Game_mode & GM_MULTI ))	{
-#if DXX_USE_EDITOR
-		ADD_ITEM("  Editor", MENU_EDITOR, KEY_E);
-		#endif
-	}
-	ADD_ITEM("  SANDBOX", MENU_SANDBOX, -1);
-	#endif
-
-	*callers_num_options = num_options;
-}
-
-}
-
 //returns number of item chosen
 int DoMenu()
 {
-	int *menu_choice;
-	newmenu_item *m;
-	unsigned num_options = 0;
-
-	CALLOC(menu_choice, int, 25);
-	if (!menu_choice)
-		return -1;
-	CALLOC(m, newmenu_item, 25);
-	if (!m)
-	{
-		d_free(menu_choice);
-		return -1;
-	}
-
-	create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
-
-	newmenu_do3(menu_title{""}, menu_subtitle{nullptr}, unchecked_partial_range(m, num_options), main_menu_handler, menu_choice, 0, menu_filename{Menu_pcx_name});
+	main_menu *mm = new main_menu;
+	newmenu_do3(menu_title{""}, menu_subtitle{nullptr}, mm->m, main_menu_handler, mm, 0, menu_filename{Menu_pcx_name});
 
 	return 0;
 }
 
 namespace {
-
-//returns flag, true means quit menu
-int do_option ( int select)
-{
-	switch (select) {
-		case MENU_NEW_GAME:
-			select_mission(mission_filter_mode::exclude_anarchy, "New Game\n\nSelect mission", do_new_game_menu);
-			break;
-		case MENU_GAME:
-			break;
-		case MENU_DEMO_PLAY:
-			select_demo();
-			break;
-		case MENU_LOAD_GAME:
-			state_restore_all(0, secret_restore::none, nullptr, blind_save::no);
-			break;
-#if DXX_USE_EDITOR
-		case MENU_EDITOR:
-			if (!Current_mission)
-			{
-				create_new_mine();
-				SetPlayerFromCurseg();
-			}
-
-			hide_menus();
-			init_editor();
-			break;
-		#endif
-		case MENU_VIEW_SCORES:
-			scores_view_menu();
-			break;
-		case MENU_QUIT:
-#if DXX_USE_EDITOR
-			if (! SafetyCheck()) break;
-			#endif
-			return 0;
-
-		case MENU_NEW_PLAYER:
-			RegisterPlayer();
-			break;
-
-#if DXX_USE_UDP
-		case MENU_START_UDP_NETGAME:
-			multi_protocol = MULTI_PROTO_UDP;
-			select_mission(mission_filter_mode::include_anarchy, TXT_MULTI_MISSION, net_udp_setup_game);
-			break;
-		case MENU_JOIN_MANUAL_UDP_NETGAME:
-			multi_protocol = MULTI_PROTO_UDP;
-			net_udp_manual_join_game();
-			break;
-		case MENU_JOIN_LIST_UDP_NETGAME:
-			multi_protocol = MULTI_PROTO_UDP;
-			net_udp_list_join_game();
-			break;
-#endif
-#if DXX_USE_UDP
-		case MENU_MULTIPLAYER:
-			do_multi_player_menu();
-			break;
-#endif
-		case MENU_CONFIG:
-			do_options_menu();
-			break;
-		case MENU_SHOW_CREDITS:
-			credits_show();
-			break;
-#ifndef RELEASE
-		case MENU_SANDBOX:
-			do_sandbox_menu();
-			break;
-#endif
-		default:
-			Error("Unknown option %d in do_option",select);
-			break;
-	}
-
-	return 1;		// stay in main menu unless quitting
-}
-
-}
-
-}
-
-namespace {
-
-static void delete_player_saved_games(const char * name)
-{
-	char filename[PATH_MAX];
-	for (unsigned i = 0; i < 11; ++i)
-	{
-		snprintf( filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.sg%x"), name, i );
-		PHYSFS_delete(filename);
-		snprintf( filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%x"), name, i );
-		PHYSFS_delete(filename);
-	}
-}
 
 static window_event_result demo_menu_keycommand( listbox *lb,const d_event &event )
 {
@@ -837,12 +839,6 @@ static window_event_result demo_menu_keycommand( listbox *lb,const d_event &even
 	return window_event_result::ignored;
 }
 
-}
-
-namespace dsx {
-
-namespace {
-
 static window_event_result demo_menu_handler(listbox *lb, const d_event &event, char **items)
 {
 	switch (event.type)
@@ -866,7 +862,7 @@ static window_event_result demo_menu_handler(listbox *lb, const d_event &event, 
 	return window_event_result::ignored;
 }
 
-int select_demo(void)
+int select_demo()
 {
 	int NumItems;
 
@@ -915,10 +911,6 @@ static int do_difficulty_menu()
 		return 1;
 	}
 	return 0;
-}
-
-}
-
 }
 
 window_event_result do_new_game_menu()
@@ -982,6 +974,10 @@ window_event_result do_new_game_menu()
 	return window_event_result::close;	// exit mission listbox
 }
 
+}
+
+}
+
 static void do_sound_menu();
 static void input_config();
 static void change_res();
@@ -989,9 +985,9 @@ namespace dsx {
 namespace {
 static void hud_config();
 static void graphics_config();
-}
-}
 static void gameplay_config();
+}
+}
 
 #define DXX_OPTIONS_MENU(VERB)	\
 	DXX_MENUITEM(VERB, MENU, "Sound & music...", sfx)	\
@@ -2317,6 +2313,10 @@ void do_sound_menu()
 #endif
 }
 
+namespace dsx {
+
+namespace {
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_GAME_SPECIFIC_OPTIONS(VERB)	\
 
@@ -2329,10 +2329,6 @@ void do_sound_menu()
 	DXX_MENUITEM(VERB, CHECK, "Prevent Thief Stealing Energy Weapons", opt_thief_steal_energy, thief_cannot_steal_energy_weapons)	\
 
 #endif
-
-enum {
-	optgrp_autoselect_firing,
-};
 
 #define DXX_GAMEPLAY_MENU_OPTIONS(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "Ship auto-leveling",opt_autolevel, PlayerCfg.AutoLeveling)	\
@@ -2407,22 +2403,19 @@ void gameplay_config()
 }
 
 #if DXX_USE_UDP
-static int multi_player_menu_handler(newmenu *menu,const d_event &event, int *menu_choice)
+static int multi_player_menu_handler(newmenu *, const d_event &event, netgame_menu *nm)
 {
-	newmenu_item *items = newmenu_get_items(menu);
-
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			// stay in multiplayer menu, even after having played a game
-			return do_option(menu_choice[citem]);
+			return dispatch_menu_option(static_cast<netgame_menu_item_index>(citem));
 		}
 
 		case EVENT_WINDOW_CLOSE:
-			d_free(menu_choice);
-			d_free(items);
+			std::default_delete<netgame_menu>()(nm);
 			break;
 
 		default:
@@ -2434,34 +2427,14 @@ static int multi_player_menu_handler(newmenu *menu,const d_event &event, int *me
 
 void do_multi_player_menu()
 {
-	int *menu_choice;
-	newmenu_item *m;
-	unsigned num_options = 0;
-
-	MALLOC(menu_choice, int, 3);
-	if (!menu_choice)
-		return;
-
-	MALLOC(m, newmenu_item, 3);
-	if (!m)
-	{
-		d_free(menu_choice);
-		return;
-	}
-
-#if DXX_USE_UDP
-	ADD_ITEM("HOST GAME", MENU_START_UDP_NETGAME, -1);
-#if DXX_USE_TRACKER
-	ADD_ITEM("FIND LAN/ONLINE GAMES", MENU_JOIN_LIST_UDP_NETGAME, -1);
-#else
-	ADD_ITEM("FIND LAN GAMES", MENU_JOIN_LIST_UDP_NETGAME, -1);
-#endif
-	ADD_ITEM("JOIN GAME MANUALLY", MENU_JOIN_MANUAL_UDP_NETGAME, -1);
-#endif
-
-	newmenu_do3(menu_title{nullptr}, menu_subtitle{TXT_MULTIPLAYER}, unchecked_partial_range(m, num_options), multi_player_menu_handler, menu_choice, 0, menu_filename{nullptr});
+	netgame_menu *nm = new netgame_menu;
+	newmenu_do3(menu_title{nullptr}, menu_subtitle{TXT_MULTIPLAYER}, nm->m, multi_player_menu_handler, nm, 0, menu_filename{nullptr});
 }
 #endif
+
+}
+
+}
 
 void do_options_menu()
 {
