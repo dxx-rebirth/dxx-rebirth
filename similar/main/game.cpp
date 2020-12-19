@@ -1255,15 +1255,6 @@ namespace {
 #define EXT_MUSIC_TEXT "Audio CD"
 #endif
 
-static int free_help(newmenu *, const d_event &event, newmenu_item *items)
-{
-	if (event.type == EVENT_WINDOW_CLOSE)
-	{
-		std::default_delete<newmenu_item[]>()(items);
-	}
-	return 0;
-}
-
 #if (defined(__APPLE__) || defined(macintosh))
 #define _DXX_HELP_MENU_SAVE_LOAD(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "Alt-F2/F3 (\x85-SHIFT-s/o)\t  SAVE/LOAD GAME", HELP_AF2_3)	\
@@ -1443,10 +1434,26 @@ enum {
 
 void show_newdemo_help()
 {
-	const unsigned nitems = DXX_NEWDEMO_HELP_MENU(COUNT);
-	auto m = new newmenu_item[nitems];
-	DXX_NEWDEMO_HELP_MENU(ADD);
-	newmenu_dotiny(menu_title{nullptr}, menu_subtitle{"DEMO PLAYBACK CONTROLS"}, unchecked_partial_range(m, nitems), tab_processing_flag::ignore, free_help, m);
+	struct help_menu_items
+	{
+		enum {
+			DXX_NEWDEMO_HELP_MENU(ENUM)
+		};
+		std::array<newmenu_item, DXX_NEWDEMO_HELP_MENU(COUNT)> m;
+		help_menu_items()
+		{
+			DXX_NEWDEMO_HELP_MENU(ADD);
+		}
+	};
+	struct help_menu : help_menu_items, passive_newmenu
+	{
+		help_menu(grs_canvas &src) :
+			passive_newmenu(menu_title{nullptr}, menu_subtitle{"DEMO PLAYBACK CONTROLS"}, menu_filename{nullptr}, tiny_mode_flag::tiny, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+		{
+		}
+	};
+	auto menu = window_create<help_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 }
