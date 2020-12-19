@@ -434,7 +434,7 @@ int do_wall_dialog()
 	close_all_windows();
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog<wall_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG);
+	MainWindow = window_create<wall_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG);
 	return 1;
 }
 

@@ -235,7 +235,7 @@ struct UI_DIALOG : window
 	enum dialog_flags d_flags;
 
 public:
-	// For creating the dialog, there are two ways - using the (older) ui_create_dialog function
+	// For creating the dialog, there are two ways - using the (older) window_create function
 	// or using the constructor, passing an event handler that takes a subclass of UI_DIALOG.
 	explicit UI_DIALOG(short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void> callback, void *userdata);
 
@@ -271,14 +271,6 @@ int ui_messagebox( short xc, short yc, const char * text, const ui_messagebox_ti
 
 class unused_ui_userdata_t;
 constexpr unused_ui_userdata_t *unused_ui_userdata = nullptr;
-
-template <typename T1, typename... ConstructionArgs>
-T1 *ui_create_dialog(const short x, const short y, const short w, const short h, const enum dialog_flags flags, ConstructionArgs &&... args)
-{
-	auto r = std::make_unique<T1>(x, y, w, h, flags, std::forward<ConstructionArgs>(args)...);
-	r->send_creation_events();
-	return r.release();
-}
 
 void ui_dialog_set_current_canvas(UI_DIALOG &dlg);
 void ui_close_dialog(UI_DIALOG &dlg);

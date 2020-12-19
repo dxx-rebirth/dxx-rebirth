@@ -337,7 +337,7 @@ int do_trigger_dialog()
 #endif
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog<trigger_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG);
+	MainWindow = window_create<trigger_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG);
 	return 1;
 }
 
