@@ -135,13 +135,13 @@ void powerup_type_info_read(PHYSFS_File *fp, powerup_type_info &pti);
 void powerup_type_info_write(PHYSFS_File *fp, const powerup_type_info &pti);
 
 extern unsigned N_powerup_types;
-void draw_powerup(const d_vclip_array &Vclip, grs_canvas &, const object_base &obj);
 
 }
 
 //returns true if powerup consumed
 #ifdef dsx
 namespace dsx {
+void draw_powerup(const d_vclip_array &Vclip, grs_canvas &, const object_base &obj);
 using d_powerup_info_array = std::array<powerup_type_info, MAX_POWERUP_TYPES>;
 extern d_powerup_info_array Powerup_info;
 int do_powerup(vmobjptridx_t obj);

@@ -742,7 +742,6 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 54);
 DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (t.type, t.flags, t.num_links, serial::pad<1>(), t.value, serial::pad<4>(), t.seg, t.side));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 52);
 #endif
-}
 
 /*
  * reads n trigger structs from a PHYSFS_File and swaps if specified
@@ -757,7 +756,6 @@ void trigger_write(PHYSFS_File *fp, const trigger &t)
 	PHYSFSX_serialize_write(fp, t);
 }
 
-namespace dsx {
 void v29_trigger_write(PHYSFS_File *fp, const trigger &rt)
 {
 	const trigger *t = &rt;

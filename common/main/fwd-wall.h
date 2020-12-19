@@ -243,19 +243,20 @@ namespace dsx {
 wall_hit_process_t wall_hit_process(player_flags, vmsegptridx_t seg, unsigned side, fix damage, unsigned playernum, const object &obj);
 
 // Opens/destroys specified door.
-}
-#endif
 void wall_toggle(fvmwallptr &vmwallptr, vmsegptridx_t segnum, unsigned side);
 
 // Called once per frame..
-#ifdef dsx
-namespace dsx {
 void wall_frame_process();
-}
-#endif
 
 //set the tmap_num or tmap_num2 field for a wall/door
 void wall_set_tmap_num(const wclip &, vmsegptridx_t seg, unsigned side, vmsegptridx_t csegp, unsigned cside, unsigned frame_num);
+void wclip_read(PHYSFS_File *, wclip &wc);
+void wall_read(PHYSFS_File *fp, wall &w);
+void wall_write(PHYSFS_File *fp, const wall &w, short version);
+
+void wall_close_door_ref(fvmsegptridx &vmsegptridx, wall_array &Walls, const wall_animations_array &WallAnims, active_door &);
+}
+#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 //start wall open <-> closed transitions
@@ -270,18 +271,9 @@ void blast_nearby_glass(const object &objp, fix damage);
 #endif
 #endif
 
-void wclip_read(PHYSFS_File *, wclip &wc);
-#if 0
-void wclip_write(PHYSFS_File *, const wclip &);
-#endif
-
 void v16_wall_read(PHYSFS_File *fp, v16_wall &w);
 void v19_wall_read(PHYSFS_File *fp, v19_wall &w);
-void wall_read(PHYSFS_File *fp, wall &w);
 
 void active_door_read(PHYSFS_File *fp, active_door &ad);
 void active_door_write(PHYSFS_File *fp, const active_door &ad);
-
-void wall_write(PHYSFS_File *fp, const wall &w, short version);
-void wall_close_door_ref(fvmsegptridx &vmsegptridx, wall_array &Walls, const wall_animations_array &WallAnims, active_door &);
 #endif

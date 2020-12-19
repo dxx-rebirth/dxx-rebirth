@@ -74,18 +74,10 @@ extern struct object DemoRightExtra,DemoLeftExtra;
 namespace dsx {
 extern void newdemo_record_start_demo();
 extern void newdemo_record_start_frame(fix frame_time );
-}
-#endif
-#ifdef dsx
-#ifdef dsx
-namespace dsx {
 void newdemo_record_render_object(vmobjptridx_t  obj);
 void newdemo_record_viewer_object(vcobjptridx_t obj);
-}
-#endif
 icobjptridx_t newdemo_find_object(object_signature_t signature);
 void newdemo_record_kill_sound_linked_to_object(vcobjptridx_t);
-namespace dsx {
 void newdemo_start_playback(const char *filename);
 void newdemo_record_morph_frame(vcobjptridx_t);
 }

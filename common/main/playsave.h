@@ -81,6 +81,8 @@ struct hli
 #include "fwd-weapon.h"
 #include "d_array.h"
 
+namespace dcx {
+
 enum class FiringAutoselectMode : uint8_t
 {
 	Immediate,
@@ -108,6 +110,10 @@ enum MouselookMode : uint8_t
 	MPCoop = 2,
 	MPAnarchy = 4,
 };
+
+}
+
+namespace dsx {
 
 struct player_config : prohibit_void_ptr<player_config>
 {
@@ -188,6 +194,8 @@ struct player_config : prohibit_void_ptr<player_config>
 	int DynLightColor;
 	d_sp_gameplay_options SPGameplayOptions;
 };
+
+}
 #endif
 
 extern struct player_config PlayerCfg;

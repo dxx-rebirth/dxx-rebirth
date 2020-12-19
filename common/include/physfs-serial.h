@@ -10,6 +10,8 @@
 #include "physfsx.h"
 #include "serial.h"
 
+namespace dcx {
+
 class PHYSFSX_short_read : public std::runtime_error
 {
 public:
@@ -48,4 +50,6 @@ void PHYSFSX_serialize_write(PHYSFS_File *fp, const T &t)
 	serial::process_buffer(b, t);
 	if (PHYSFS_write(fp, buf, sizeof(buf[0]), maximum_size) != maximum_size)
 		throw E(fp);
+}
+
 }

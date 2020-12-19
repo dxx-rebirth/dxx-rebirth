@@ -43,6 +43,12 @@ namespace dcx {
 struct sound_object;
 extern int digi_volume;
 
+enum class sound_stack : uint8_t
+{
+	allow_stacking,
+	cancel_previous,
+};
+
 }
 namespace dsx {
 struct digi_sound
@@ -64,11 +70,6 @@ extern void digi_close();
 extern void digi_play_sample( int sndnum, fix max_volume );
 extern void digi_play_sample_once( int sndnum, fix max_volume );
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-enum class sound_stack : uint8_t
-{
-	allow_stacking,
-	cancel_previous,
-};
 void digi_link_sound_to_object(unsigned soundnum, vcobjptridx_t objnum, uint8_t forever, fix max_volume, sound_stack once);
 void digi_kill_sound_linked_to_segment(vmsegidx_t segnum, unsigned sidenum, int soundnum);
 void digi_link_sound_to_pos(unsigned soundnum, vcsegptridx_t segnum, unsigned sidenum, const vms_vector &pos, int forever, fix max_volume);
@@ -154,7 +155,7 @@ int verify_sound_channel_free( int channel );
 
 }
 
-namespace dcx {
+namespace dsx {
 
 class RAIIdigi_sound
 {

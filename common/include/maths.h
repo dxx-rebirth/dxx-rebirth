@@ -16,9 +16,7 @@
 
 #define D_RAND_MAX 32767
 
-#ifdef __cplusplus
 #include <cstddef>
-#include "dxxsconf.h"
 #include "dsx-ns.h"
 #include <array>
 
@@ -207,4 +205,3 @@ static inline void clamp_fix_symmetric(fix& f, const fix& bound)
 }
 
 }
-#endif

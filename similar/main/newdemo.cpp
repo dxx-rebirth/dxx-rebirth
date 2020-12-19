@@ -306,6 +306,8 @@ static typename std::enable_if<std::is_integral<T>::value, int>::type newdemo_re
 	return _newdemo_read(buffer, elsize, nelem);
 }
 
+namespace dsx {
+
 icobjptridx_t newdemo_find_object(object_signature_t signature)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -317,6 +319,10 @@ icobjptridx_t newdemo_find_object(object_signature_t signature)
 	}
 	return object_none;
 }
+
+}
+
+namespace {
 
 static int _newdemo_write(const void *buffer, int elsize, int nelem )
 {
@@ -566,12 +572,15 @@ static void nd_read_shortpos(object_base &obj)
 		auto &vcvertptr = Vertices.vcptr;
 		extract_orient_from_segment(vcvertptr, obj.orient, vcsegptr(obj.segnum));
 	}
-
 }
 
 object *prev_obj=NULL;      //ptr to last object read in
 
+}
+
 namespace dsx {
+
+namespace {
 
 static uint16_t nd_get_object_signature(const vcobjptridx_t objp)
 {
@@ -1008,7 +1017,12 @@ static void nd_write_object(const vcobjptridx_t objp)
 	}
 
 }
+
 }
+
+}
+
+namespace {
 
 static void nd_record_meta(char (&buf)[7], const char *s)
 {
@@ -1037,6 +1051,8 @@ static void nd_rdt(char (&buf)[7])
 	if (const auto g = gmtime(&t))
 		if (const auto st = asctime(g))
 			nd_record_meta(buf, st);
+}
+
 }
 
 static void nd_rbe()
@@ -1144,9 +1160,7 @@ void newdemo_record_start_demo()
 	newdemo_record_oneframeevent_update(0);
 #endif
 }
-}
 
-namespace dsx {
 void newdemo_record_start_frame(fix frame_time )
 {
 	if (nd_record_v_no_space)
@@ -1198,9 +1212,7 @@ void newdemo_record_start_frame(fix frame_time )
 	}
 
 }
-}
 
-namespace dsx {
 void newdemo_record_render_object(const vmobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
@@ -1217,9 +1229,7 @@ void newdemo_record_render_object(const vmobjptridx_t obj)
 	nd_write_byte(ND_EVENT_RENDER_OBJECT);
 	nd_write_object(obj);
 }
-}
 
-namespace dsx {
 void newdemo_record_viewer_object(const vcobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
@@ -1272,13 +1282,14 @@ void newdemo_record_link_sound_to_object3( int soundno, objnum_t objnum, fix max
 	nd_write_int( loop_end );
 }
 
+namespace dsx {
 void newdemo_record_kill_sound_linked_to_object(const vcobjptridx_t objp)
 {
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_KILL_SOUND_TO_OBJ );
 	nd_write_int(nd_get_object_signature(objp));
 }
-
+}
 
 void newdemo_record_wall_hit_process( segnum_t segnum, int side, int damage, int playernum )
 {

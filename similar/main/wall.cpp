@@ -140,6 +140,8 @@ struct find_cloaked_wall_predicate
 }
 #endif
 
+namespace {
+
 static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(const unique_side &side)
 {
 	if (const auto masked_tmap_num2 = static_cast<uint_fast32_t>(get_texture_index(side.tmap_num2)))
@@ -156,6 +158,8 @@ static uint_fast32_t check_transparency(const GameBitmaps_array &GameBitmaps, co
 	return GameBitmaps[Textures[v.first].index].get_flag_mask(v.second);
 }
 
+}
+
 //-----------------------------------------------------------------
 // This function checks whether we can fly through the given side.
 //	In other words, whether or not we have a 'doorway'
@@ -170,6 +174,8 @@ static uint_fast32_t check_transparency(const GameBitmaps_array &GameBitmaps, co
 //		WID_TRANSILLUSORY_WALL	7	//	1/1/1		transparent illusory wall
 //		WID_NO_WALL					5	//	1/0/1		no wall, can fly through
 namespace dsx {
+
+namespace {
 
 static WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const shared_side &sside, const unique_side &uside)
 {
@@ -213,6 +219,8 @@ static WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBit
 		return WID_WALL; // There are children behind the door.
 }
 
+}
+
 WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const cscusegment seg, const uint_fast32_t side)
 {
 	const auto child = seg.s.children[side];
@@ -227,12 +235,9 @@ WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, c
 	return wall_is_doorway(GameBitmaps, Textures, vcwallptr, sside, uside);
 }
 
-}
-
 #if DXX_USE_EDITOR
 //-----------------------------------------------------------------
 // Initializes all the walls (in other words, no special walls)
-namespace dsx {
 void wall_init()
 {
 	init_exploding_walls();
@@ -256,7 +261,6 @@ void wall_init()
 	CloakingWalls.set_count(0);
 #endif
 
-}
 }
 #endif
 
@@ -289,6 +293,9 @@ void wall_set_tmap_num(const wclip &anim, const vmsegptridx_t seg, const unsigne
 	}
 }
 
+}
+
+namespace {
 
 // -------------------------------------------------------------------------------
 //when the wall has used all its hitpoints, this will destroy it
@@ -334,6 +341,7 @@ static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side, w
 
 }
 
+}
 
 //-----------------------------------------------------------------
 // Destroys a blastable wall.
@@ -515,11 +523,8 @@ void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 
 	}
 }
-}
 
 #if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
-
 //-----------------------------------------------------------------
 // start the transition from closed -> open wall
 void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
@@ -681,8 +686,6 @@ void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 		back_ls = s1_uvls.l;
 	}
 }
-
-}
 #endif
 
 //-----------------------------------------------------------------
@@ -711,6 +714,12 @@ void wall_close_door_ref(fvmsegptridx &vmsegptridx, wall_array &Walls, const wal
 	}
 }
 
+}
+
+namespace dcx {
+
+namespace {
+
 static unsigned check_poke(fvcvertptr &vcvertptr, const object_base &obj, const shared_segment &seg, const unsigned side)
 {
 	//note: don't let objects with zero size block door
@@ -719,7 +728,14 @@ static unsigned check_poke(fvcvertptr &vcvertptr, const object_base &obj, const 
 	return get_seg_masks(vcvertptr, obj.pos, seg, obj.size).sidemask & (1 << side);		//pokes through side!
 }
 
+}
+
+}
+
 namespace dsx {
+
+namespace {
+
 static unsigned is_door_side_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const cscusegment seg, const unsigned side)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -750,6 +766,8 @@ static unsigned is_door_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegpt
 	//go through each object in each of two segments, and see if
 	//it pokes into the connecting seg
 	return is_door_side_obstructed(vcobjptridx, vcsegptr, csegp, Connectside);
+}
+
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -835,6 +853,8 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned 
 	}
 }
 #endif
+
+namespace {
 
 //-----------------------------------------------------------------
 // Animates opening of a door.
@@ -1048,6 +1068,8 @@ static void wall_illusion_op(fvmwallptr &vmwallptr, const vcsegptridx_t seg, con
 	}
 }
 
+}
+
 //-----------------------------------------------------------------
 // Turns off an illusionary wall (This will be used primarily for
 //  wall switches or triggers that can turn on/off illusionary walls.)
@@ -1072,6 +1094,8 @@ void wall_illusion_on(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const unsi
 
 }
 
+namespace {
+
 //	-----------------------------------------------------------------------------
 //	Allowed to open the normally locked special boss door if in multiplayer mode.
 static int special_boss_opening_allowed(segnum_t segnum, int sidenum)
@@ -1080,6 +1104,8 @@ static int special_boss_opening_allowed(segnum_t segnum, int sidenum)
 		return (Current_level_num == BOSS_LOCKED_DOOR_LEVEL) && (segnum == BOSS_LOCKED_DOOR_SEG) && (sidenum == BOSS_LOCKED_DOOR_SIDE);
 	else
 		return 0;
+}
+
 }
 
 //-----------------------------------------------------------------
@@ -1180,7 +1206,6 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 	}
 	return wall_hit_process_t::WHP_NOT_SPECIAL;		//default is treat like normal wall
 }
-}
 
 //-----------------------------------------------------------------
 // Opens doors/destroys wall/shuts off triggers.
@@ -1242,6 +1267,8 @@ bool ad_removal_predicate::operator()(active_door &d) const
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace {
+
 static void copy_cloaking_wall_light_to_wall(std::array<uvl, 4> &back_uvls, std::array<uvl, 4> &front_uvls, const cloaking_wall &d)
 {
 	range_for (const uint_fast32_t i, xrange(4u))
@@ -1348,9 +1375,12 @@ bool cw_removal_predicate::operator()(cloaking_wall &d)
 		++ num_cloaking_walls;
 	return r.remove;
 }
+
+}
 #endif
 
-namespace dsx {
+namespace {
+
 static void process_exploding_walls()
 {
 	if (Newdemo_state == ND_STATE_PLAYBACK)
@@ -1371,6 +1401,8 @@ static void process_exploding_walls()
 			}
 		}
 	}
+}
+
 }
 
 void wall_frame_process()
@@ -1625,6 +1657,7 @@ void blast_nearby_glass(const object &objp, const fix damage)
 DEFINE_SERIAL_UDT_TO_MESSAGE(wclip, wc, (wc.play_time, wc.num_frames, wc.frames, wc.open_sound, wc.close_sound, wc.flags, wc.filename, serial::pad<1>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wclip, 26 + (sizeof(int16_t) * MAX_CLIP_FRAMES));
 
+namespace dsx {
 /*
  * reads a wclip structure from a PHYSFS_File
  */
@@ -1639,6 +1672,7 @@ void wclip_write(PHYSFS_File *fp, const wclip &wc)
 	PHYSFSX_serialize_write(fp, wc);
 }
 #endif
+}
 
 struct wrap_v16_wall
 {
@@ -1687,6 +1721,7 @@ void v19_wall_read(PHYSFS_File *fp, v19_wall &w)
 DEFINE_SERIAL_UDT_TO_MESSAGE(wall, w, (serial::sign_extend<int>(w.segnum), w.sidenum, serial::pad<3, 0>(), w.hps, serial::sign_extend<int>(w.linked_wall), w.type, w.flags, w.state, w.trigger, w.clip_num, w.keys, _SERIAL_UDT_WALL_D2X_MEMBERS));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wall, 24);
 
+namespace dsx {
 /*
  * reads a wall structure from a PHYSFS_File
  */
@@ -1694,6 +1729,8 @@ void wall_read(PHYSFS_File *fp, wall &w)
 {
 	PHYSFSX_serialize_read(fp, w);
 	w.flags &= ~WALL_EXPLODING;
+}
+
 }
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(active_door, d, (d.n_parts, d.front_wallnum, d.back_wallnum, d.time));
@@ -1712,6 +1749,8 @@ void active_door_write(PHYSFS_File *fp, const active_door &ad)
 	PHYSFSX_serialize_write(fp, ad);
 }
 
+namespace dsx {
+
 void wall_write(PHYSFS_File *fp, const wall &w, short version)
 {
 	if (version <= 16)
@@ -1722,9 +1761,11 @@ void wall_write(PHYSFS_File *fp, const wall &w, short version)
 		PHYSFSX_serialize_write(fp, w);
 }
 
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
-DEFINE_SERIAL_UDT_TO_MESSAGE(cloaking_wall, cw, (cw.front_wallnum, cw.back_wallnum, cw.front_ls, cw.back_ls, cw.time));
-ASSERT_SERIAL_UDT_MESSAGE_SIZE(cloaking_wall, 40);
+DEFINE_SERIAL_UDT_TO_MESSAGE(dsx::cloaking_wall, cw, (cw.front_wallnum, cw.back_wallnum, cw.front_ls, cw.back_ls, cw.time));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(dsx::cloaking_wall, 40);
 
 namespace dsx {
 void cloaking_wall_read(cloaking_wall &cw, PHYSFS_File *fp)

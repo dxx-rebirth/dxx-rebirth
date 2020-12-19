@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#ifdef __cplusplus
+#include "dsx-ns.h"
 #include "fwd-segment.h"
 #include "fwd-wall.h"
 #include "fwd-object.h"
@@ -242,5 +242,4 @@ struct wclip : public prohibit_void_ptr<wclip>
 constexpr std::integral_constant<uint16_t, 0xffff> wclip_frames_none{};
 
 }
-#endif
 #endif

@@ -178,7 +178,7 @@ void dl_index_write(const dl_index *di, PHYSFS_File *fp);
 using dlindexnum_t = uint16_t;
 }
 #define DXX_VALPTRIDX_REPORT_ERROR_STYLE_default_dl_index trap_terse
-DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, dl_index, dlindexnum_t, 500);
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, dl_index, ::dsx::dlindexnum_t, 500);
 namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(dl_index, dlindex);
 int subtract_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, vmsegptridx_t segnum, sidenum_fast_t sidenum);

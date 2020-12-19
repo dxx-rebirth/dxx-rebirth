@@ -60,7 +60,6 @@ constexpr std::integral_constant<unsigned, 8> SOF_LINK_TO_POS{};		// Sound is li
 constexpr std::integral_constant<unsigned, 16> SOF_PLAY_FOREVER{};		// Play forever (or until level is stopped), otherwise plays once
 constexpr std::integral_constant<unsigned, 32> SOF_PERMANENT{};		// Part of the level, like a waterfall or fan
 
-constexpr std::integral_constant<int, -1> RAIIdigi_sound::invalid_channel;
 constexpr std::integral_constant<unsigned, 150> MAX_SOUND_OBJECTS{};
 
 struct sound_object
@@ -148,6 +147,8 @@ static std::pair<sound_objects_t::iterator, sound_objects_t::iterator> find_soun
 }
 
 namespace dsx {
+
+constexpr std::integral_constant<int, -1> RAIIdigi_sound::invalid_channel;
 
 /* Find the sound which actually equates to a sound number */
 int digi_xlat_sound(int soundno)

@@ -29,7 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <physfs.h>
 #include "maths.h"
 
-#ifdef __cplusplus
 #include "pack.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
@@ -80,9 +79,7 @@ enum class trigger_behavior_flags : uint8_t
 	disabled = 4,	// Set after one-shot fires
 };
 
-enum class trigger_behavior_flag_mask : uint8_t
-{
-};
+enum class trigger_behavior_flag_mask : uint8_t;
 
 static constexpr trigger_behavior_flag_mask operator~(const trigger_behavior_flags value)
 {
@@ -249,7 +246,6 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp);
 extern void trigger_read(trigger *t, PHYSFS_File *fp);
 void v29_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
 void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
-}
 
 /*
  * reads n trigger structs from a PHYSFS_File and swaps if specified
@@ -257,13 +253,8 @@ void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
 void trigger_read(PHYSFS_File *fp, trigger &t);
 void trigger_write(PHYSFS_File *fp, const trigger &t);
 
-#ifdef dsx
-namespace dsx {
 void v29_trigger_write(PHYSFS_File *fp, const trigger &t);
 void v30_trigger_write(PHYSFS_File *fp, const trigger &t);
 void v31_trigger_write(PHYSFS_File *fp, const trigger &t);
 }
-#endif
-#endif
-
 #endif

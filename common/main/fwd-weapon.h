@@ -230,12 +230,8 @@ namespace dsx {
 void InitWeaponOrdering();
 void CyclePrimary(player_info &);
 void CycleSecondary(player_info &);
-}
-#endif
 void ReorderPrimary();
 void ReorderSecondary();
-#ifdef dsx
-namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 void check_to_use_primary_super_laser(player_info &player_info);
 void init_seismic_disturbances(void);

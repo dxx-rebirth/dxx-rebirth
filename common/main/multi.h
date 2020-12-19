@@ -55,7 +55,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <sys/time.h>
 #endif
 
-#ifdef __cplusplus
 #include <stdexcept>
 #include "digi.h"
 #include "pack.h"
@@ -884,5 +883,3 @@ static inline unsigned get_player_or_team_color(unsigned pnum)
 		? get_team_color(get_team(pnum))
 		: get_player_color(pnum);
 }
-
-#endif

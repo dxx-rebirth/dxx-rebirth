@@ -35,7 +35,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "laser.h"
 
-#ifdef __cplusplus
 #include <cassert>
 #include <cstdint>
 #include "dxxsconf.h"
@@ -259,6 +258,10 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 		hitobj_values[0] = o;
 	}
 };
+
+}
+
+namespace dcx {
 
 // Same as above but structure Savegames/Multiplayer objects expect
 struct laser_info_rw
@@ -523,6 +526,8 @@ struct obj_position
 	segnum_t       segnum;     // segment number containing object
 };
 
+}
+
 #define set_object_type(O,T)	\
 	( DXX_BEGIN_COMPOUND_STATEMENT {	\
 		object_base &dxx_object_type_ref = (O);	\
@@ -547,6 +552,8 @@ struct obj_position
 		dxx_object_type_ref.type = static_cast<object_type_t>(dxx_object_type_value);	\
 	} DXX_END_COMPOUND_STATEMENT )
 
+namespace dsx {
+
 template <typename T, std::size_t... N>
 constexpr std::array<T, sizeof...(N)> init_object_number_array(std::index_sequence<N...>)
 {
@@ -561,6 +568,10 @@ struct object_number_array : std::array<T, N>
 	{
 	}
 };
+
+}
+
+namespace dcx {
 
 unsigned laser_parent_is_matching_signature(const laser_parent &l, const object_base &o);
 
@@ -807,6 +818,5 @@ void check_warn_object_type(const object_base &, object_type_t, const char *file
 #endif
 
 }
-#endif
 
 #endif
