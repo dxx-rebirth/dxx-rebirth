@@ -27,7 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "fwd-event.h"
 
-#ifdef __cplusplus
 #include <cstdint>
 #include <algorithm>
 #include <memory>
@@ -44,7 +43,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef dsx
 #include "gamefont.h"
 #include "window.h"
-#endif
+
+namespace dcx {
 
 struct listbox;
 
@@ -154,11 +154,8 @@ public:
 	ntstring<NM_MAX_TEXT_LEN> saved_text;
 };
 
-namespace dcx {
-
 extern const char *Newmenu_allowed_chars;
 
-#ifdef dsx
 enum class tab_processing_flag : uint8_t
 {
 	ignore,
@@ -281,11 +278,9 @@ int newmenu_do2(const menu_title title, const menu_subtitle subtitle, partial_ra
 {
 	return newmenu_do2(title, subtitle, std::move(items), reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename);
 }
-#endif
 
 }
 
-#ifdef dsx
 namespace dsx {
 newmenu *newmenu_do4(menu_title title, menu_subtitle subtitle, partial_range_t<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, menu_filename filename, tiny_mode_flag TinyMode = tiny_mode_flag::normal, tab_processing_flag TabsFlag = tab_processing_flag::ignore);
 
@@ -360,7 +355,6 @@ typedef cstring_tie<5> nm_messagebox_tie;
 
 int nm_messagebox_str(menu_title title, const nm_messagebox_tie &tie, menu_subtitle str);
 int vnm_messagebox_aN(menu_title title, const nm_messagebox_tie &tie, const char *format, ...) __attribute_format_printf(3, 4);
-#endif
 
 void nm_draw_background(grs_canvas &, int x1, int y1, int x2, int y2);
 void nm_restore_background(int x, int y, int w, int h);
@@ -386,12 +380,12 @@ void nm_restore_background(int x, int y, int w, int h);
 // 	return 0;
 // }
 
+namespace dcx {
 window *listbox_get_window(listbox &lb);
 const char **listbox_get_items(listbox &lb);
 int listbox_get_citem(listbox &lb);
 void listbox_delete_item(listbox &lb, int item);
 
-namespace dcx {
 template <typename T>
 using listbox_subfunction_t = window_event_result (*)(listbox *menu,const d_event &event, T *userdata);
 
@@ -656,5 +650,4 @@ static constexpr menu_number_bias_wrapper_t<B, T> menu_number_bias_wrapper(T &t)
 {
 	return t;
 }
-
 #endif

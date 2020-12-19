@@ -117,9 +117,9 @@ static inline window_event_result (WINDOW_SEND_EVENT)(window &w, const d_event &
 void menu_destroy_hook(window *w);
 
 template <typename T1, typename... ConstructionArgs>
-T1 *window_create(const short x, const short y, const short w, const short h, ConstructionArgs &&... args)
+T1 *window_create(ConstructionArgs &&... args)
 {
-	auto r = std::make_unique<T1>(x, y, w, h, std::forward<ConstructionArgs>(args)...);
+	auto r = std::make_unique<T1>(std::forward<ConstructionArgs>(args)...);
 	r->send_creation_events();
 	return r.release();
 }

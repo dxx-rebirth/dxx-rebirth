@@ -1747,6 +1747,8 @@ int nm_messagebox_str(const menu_title title, const nm_messagebox_tie &tie, cons
 
 #define LB_ITEMS_ON_SCREEN 8
 
+namespace dcx {
+
 struct listbox : listbox_layout, window
 {
 	listbox(grs_canvas &canvas, listbox_layout &&ll) :
@@ -1791,6 +1793,8 @@ void listbox_delete_item(listbox &lb, int item)
 	-- lb.nitems;
 	if (lb.citem >= lb.nitems)
 		lb.citem = lb.nitems ? lb.nitems - 1 : 0;
+}
+
 }
 
 namespace {

@@ -131,10 +131,10 @@ enum class main_menu_item_index
 	end,
 };
 
-struct main_menu
+struct main_menu_items
 {
 	enumerated_array<newmenu_item, static_cast<std::size_t>(main_menu_item_index::end), main_menu_item_index> m;
-	main_menu();
+	main_menu_items();
 };
 
 #if DXX_USE_UDP
@@ -167,7 +167,7 @@ netgame_menu::netgame_menu()
 
 static std::array<window *, 16> menus;
 
-main_menu::main_menu()
+main_menu_items::main_menu_items()
 {
 	nm_set_item_menu(m[main_menu_item_index::start_new_singleplayer_game], TXT_NEW_GAME);
 	nm_set_item_menu(m[main_menu_item_index::load_existing_singleplayer_game], TXT_LOAD_GAME);
@@ -275,6 +275,15 @@ template void parse_human_readable_time(autosave_interval_type &, const human_re
 namespace dsx {
 
 namespace {
+
+struct main_menu : main_menu_items, newmenu
+{
+	main_menu(grs_canvas &src) :
+		newmenu(menu_title{""}, menu_subtitle{nullptr}, menu_filename{Menu_pcx_name}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
 
 static window_event_result do_new_game_menu();
 #ifndef RELEASE
@@ -687,7 +696,7 @@ int dispatch_menu_option(const netgame_menu_item_index select)
 #endif
 
 // ------------------------------------------------------------------------
-static int main_menu_handler(newmenu *, const d_event &event, main_menu *mm)
+int main_menu::subfunction_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -758,7 +767,6 @@ static int main_menu_handler(newmenu *, const d_event &event, main_menu *mm)
 		}
 
 		case EVENT_WINDOW_CLOSE:
-			std::default_delete<main_menu>()(mm);
 			break;
 
 		default:
@@ -775,9 +783,8 @@ static int main_menu_handler(newmenu *, const d_event &event, main_menu *mm)
 //returns number of item chosen
 int DoMenu()
 {
-	main_menu *mm = new main_menu;
-	newmenu_do3(menu_title{""}, menu_subtitle{nullptr}, mm->m, main_menu_handler, mm, 0, menu_filename{Menu_pcx_name});
-
+	auto menu = window_create<main_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 	return 0;
 }
 
