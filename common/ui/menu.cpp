@@ -42,7 +42,7 @@ namespace {
 struct menu : UI_DIALOG
 {
 	explicit menu(short x, short y, short w, short h, enum dialog_flags flags, int &choice, int NumButtons) :
-		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr),
+		UI_DIALOG(x, y, w, h, flags),
 		button_g(std::make_unique<std::unique_ptr<UI_GADGET_BUTTON>[]>(NumButtons)),
 		choice(&choice),
 		num_buttons(NumButtons)

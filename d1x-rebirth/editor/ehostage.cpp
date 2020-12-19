@@ -63,10 +63,7 @@ namespace {
 
 struct hostage_dialog : UI_DIALOG
 {
-	explicit hostage_dialog(short x, short y, short w, short h, enum dialog_flags flags) :
-		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr)
-	{
-	}
+	using UI_DIALOG::UI_DIALOG;
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton, delete_object, new_object;
 	virtual window_event_result callback_handler(const d_event &) override;
 };

@@ -70,10 +70,7 @@ namespace {
 
 struct wall_dialog : UI_DIALOG
 {
-	explicit wall_dialog(short x, short y, short w, short h, enum dialog_flags flags) :
-		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr)
-	{
-	}
+	using UI_DIALOG::UI_DIALOG;
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton, prev_wall, next_wall, blastable, door, illusory, closed_wall, goto_prev_wall, goto_next_wall, remove, bind_trigger, bind_control;
 	std::array<std::unique_ptr<UI_GADGET_CHECKBOX>, 3> doorFlag;

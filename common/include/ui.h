@@ -227,21 +227,17 @@ using ui_subfunction_t = window_event_result (*)(struct UI_DIALOG *,const d_even
 struct UI_DIALOG : window
 {
 	// TODO: Make these private
-	ui_subfunction_t<void>	d_callback;
 	UI_GADGET *gadget = nullptr;
 	UI_GADGET *keyboard_focus_gadget = nullptr;
-	void			*d_userdata;
 	short           d_width, d_height;
 	enum dialog_flags d_flags;
 
 public:
-	// For creating the dialog, there are two ways - using the (older) window_create function
-	// or using the constructor, passing an event handler that takes a subclass of UI_DIALOG.
-	explicit UI_DIALOG(short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void> callback, void *userdata);
+	explicit UI_DIALOG(short x, short y, short w, short h, enum dialog_flags flags);
 
 	~UI_DIALOG();
 	virtual window_event_result event_handler(const d_event &) override;
-	virtual window_event_result callback_handler(const d_event &);
+	virtual window_event_result callback_handler(const d_event &) = 0;
 };
 
 #define B1_JUST_PRESSED     (event.type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == 0)

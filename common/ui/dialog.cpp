@@ -60,18 +60,9 @@ static void ui_dialog_draw(UI_DIALOG *dlg)
 	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
 }
 
-window_event_result UI_DIALOG::callback_handler(const d_event &event)
-{
-	window_event_result rval{window_event_result::ignored};
-	if (d_callback)
-		rval = (*d_callback)(this, event, d_userdata);
-	return rval;
-}
-
 // The dialog handler borrows heavily from the newmenu_handler
 window_event_result UI_DIALOG::event_handler(const d_event &event)
 {
-
 	if (event.type == EVENT_WINDOW_ACTIVATED ||
 		event.type == EVENT_WINDOW_DEACTIVATED)
 		return window_event_result::ignored;
@@ -120,9 +111,9 @@ static short adjust_starting_coordinate(short value, const int limit)
 	return value;
 }
 
-UI_DIALOG::UI_DIALOG(short x, short y, const short w, const short h, const enum dialog_flags flags, const ui_subfunction_t<void> callback, void *const userdata) :
+UI_DIALOG::UI_DIALOG(short x, short y, const short w, const short h, const enum dialog_flags flags) :
 	window(grd_curscreen->sc_canvas, adjust_starting_coordinate(x, grd_curscreen->get_screen_width() - w), adjust_starting_coordinate(y, grd_curscreen->get_screen_height() - h), w, h),
-	d_callback(callback), d_userdata(userdata), d_width(w), d_height(h), d_flags(flags)
+	d_width(w), d_height(h), d_flags(flags)
 {
 	selected_gadget = NULL;
 

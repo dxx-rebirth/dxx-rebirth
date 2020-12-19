@@ -65,10 +65,7 @@ namespace {
 
 struct trigger_dialog : UI_DIALOG
 {
-	explicit trigger_dialog(short x, short y, short w, short h, enum dialog_flags flags) :
-		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr)
-	{
-	}
+	using UI_DIALOG::UI_DIALOG;
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton, remove_trigger, bind_wall, bind_matcen, enable_all_triggers;
 #if defined(DXX_BUILD_DESCENT_I)

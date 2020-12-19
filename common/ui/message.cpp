@@ -50,10 +50,7 @@ namespace {
 
 struct messagebox : UI_DIALOG
 {
-	explicit messagebox(short x, short y, short w, short h, enum dialog_flags flags) :
-		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr)
-	{
-	}
+	using UI_DIALOG::UI_DIALOG;
 	const ui_messagebox_tie	*button = nullptr;
 	std::array<std::unique_ptr<UI_GADGET_BUTTON>, 10> button_g;
 	const char *text = nullptr;

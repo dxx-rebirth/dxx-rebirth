@@ -526,10 +526,7 @@ extern grs_canvas *const Canv_editor_game; //the game on the editor screen
 
 struct editor_dialog : UI_DIALOG
 {
-	explicit editor_dialog(short x, short y, short w, short h, enum dialog_flags flags) :
-		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr)
-	{
-	}
+	using UI_DIALOG::UI_DIALOG;
 	std::array<std::unique_ptr<UI_GADGET_BUTTON>, 9> pad_goto;
 	std::unique_ptr<UI_GADGET_BUTTON>
 		pad_prev,

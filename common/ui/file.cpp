@@ -117,7 +117,7 @@ struct ui_file_browser : UI_DIALOG
 	std::array<char, 35> spaces;
 	std::array<char, PATH_MAX> view_dir;
 	explicit ui_file_browser(short x, short y, short w, short h, enum dialog_flags flags, const std::array<char, PATH_MAX> &view_dir, PHYSFSX_counted_list &filename, PHYSFSX_counted_list &&directory) :
-		UI_DIALOG(x, y, w, h, flags, nullptr, nullptr),
+		UI_DIALOG(x, y, w, h, flags),
 		filename_list(filename),
 		directory_list(std::move(directory)),
 		view_dir(view_dir)
