@@ -140,6 +140,18 @@ const char *Newmenu_allowed_chars;
 
 namespace {
 
+struct callback_newmenu : newmenu
+{
+	callback_newmenu(grs_canvas &src, newmenu_layout &&l, subfunction_type subfunction, void *userdata) :
+		newmenu(src, std::move(l)),
+		subfunction(subfunction), userdata(userdata)
+	{
+	}
+	const subfunction_type subfunction;
+	void *const userdata;		// For whatever - like with window system
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
 struct step_down
 {
 	template <typename T>
@@ -212,6 +224,13 @@ newmenu_layout::adjusted_citem newmenu_layout::adjusted_citem::create(const part
 		}
 	}
 	return adjusted_citem{items, citem, all_text};
+}
+
+int callback_newmenu::subfunction_handler(const d_event &event)
+{
+	if (!subfunction)
+		return 0;
+	return (*subfunction)(this, event, userdata);
 }
 
 }
@@ -982,7 +1001,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
 							// Tell callback, allow staying in menu
 							const d_select_event selected{menu->citem};
-							if (menu->subfunction && (*menu->subfunction)(menu, selected, menu->userdata))
+							if (menu->subfunction_handler(selected))
 								return window_event_result::handled;
 
 							if (menu->rval)
@@ -1011,9 +1030,9 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 
 			gr_set_current_canvas(save_canvas);
 
-			if (changed && menu->subfunction)
+			if (changed)
 			{
-				(*menu->subfunction)(menu, d_change_event{menu->citem}, menu->userdata);
+				menu->subfunction_handler(d_change_event{menu->citem});
 			}
 			break;
 		}
@@ -1160,7 +1179,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 
 				// Tell callback, allow staying in menu
 				const d_select_event selected{menu->citem};
-				if (menu->subfunction && (*menu->subfunction)(menu, selected, menu->userdata))
+				if (menu->subfunction_handler(selected))
 					return window_event_result::handled;
 
 				if (menu->rval)
@@ -1290,9 +1309,9 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 
 	}
 
-	if (changed && menu->subfunction)
+	if (changed)
 	{
-		(*menu->subfunction)(menu, d_change_event{menu->citem}, menu->userdata);
+		menu->subfunction_handler(d_change_event{menu->citem});
 	}
 
 	return rval;
@@ -1583,12 +1602,8 @@ static window_event_result newmenu_draw(newmenu *menu)
 
 		gr_string(*grd_curcanv, cv_font, sx, sy, (scroll_offset + menu->max_displayable < menu->items.size()) ? DOWN_ARROW_MARKER(*grd_curcanv->cv_font, *GAME_FONT) : "  ");
 	}
-
-		if (menu->subfunction)
-			(*menu->subfunction)(menu, d_event{EVENT_NEWMENU_DRAW}, menu->userdata);
-
+	menu->subfunction_handler(d_event{EVENT_NEWMENU_DRAW});
 	gr_set_current_canvas(save_canvas);
-
 	return window_event_result::handled;
 }
 
@@ -1603,9 +1618,8 @@ window_event_result newmenu::event_handler(const d_event &event)
 		return window_event_result::handled;
 #endif
 
-	if (subfunction)
 	{
-		const auto rval = (*subfunction)(this, event, userdata);
+		const auto rval = subfunction_handler(event);
 #if 0	// No current instances of the subfunction closing the window itself (which is preferred)
 		// Enable when all subfunctions return a window_event_result
 		if (rval == window_event_result::deleted)
@@ -1671,7 +1685,7 @@ newmenu *newmenu_do4(const menu_title title, const menu_subtitle subtitle, const
 		return nullptr;
 	newmenu_layout nl(title, subtitle, filename, TinyMode, TabsFlag, newmenu_layout::adjusted_citem::create(items, citem));
 	newmenu_create_structure(nl, *(TinyMode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT));
-	auto menu = std::make_unique<newmenu>(grd_curscreen->sc_canvas, std::move(nl), subfunction, userdata);
+	auto menu = std::make_unique<callback_newmenu>(grd_curscreen->sc_canvas, std::move(nl), subfunction, userdata);
 
 	newmenu_free_background();
 	menu->send_creation_events();
