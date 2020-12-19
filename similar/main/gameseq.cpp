@@ -803,7 +803,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 
 #if defined(DXX_BUILD_DESCENT_II)
 			const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sidenum);
-			if (!(wid & WID_RENDER_FLAG))
+			if (!(wid & WALL_IS_DOORWAY_FLAG::render))
 				continue;
 #endif
 			const auto ec = get_eclip_for_tmap(TmapInfo, seg->unique_segment::sides[sidenum]);
@@ -819,7 +819,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 						//segment.
 
 						if (IS_CHILD(csegnum) && csegnum < seg) {
-							if (wid & (WID_FLY_FLAG|WID_RENDPAST_FLAG)) {
+							if (wid & (WALL_IS_DOORWAY_FLAG::fly | WALL_IS_DOORWAY_FLAG::rendpast)) {
 								const auto &&csegp = vcsegptr(seg->children[sidenum]);
 								auto csidenum = find_connect_side(seg, csegp);
 
@@ -2156,7 +2156,7 @@ public:
 				const auto &&objp = vmobjptr(vcplayerptr(i)->objnum);
 				if (objp->type != OBJ_PLAYER)
 					continue;
-				const auto dist = find_connected_distance(objp->pos, candidate_segp.absolute_sibling(objp->segnum), candidate.pos, candidate_segp, -1, WALL_IS_DOORWAY_FLAG<0>());
+				const auto dist = find_connected_distance(objp->pos, candidate_segp.absolute_sibling(objp->segnum), candidate.pos, candidate_segp, -1, WALL_IS_DOORWAY_FLAG::None);
 				if (dist >= 0 && closest_dist > dist)
 					closest_dist = dist;
 			}

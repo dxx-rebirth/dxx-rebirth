@@ -763,7 +763,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 		if (sidenum != side_none)
 		{
 
-			if (! (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, orig_segp, sidenum) & WID_FLY_FLAG))
+			if (! (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, orig_segp, sidenum) & WALL_IS_DOORWAY_FLAG::fly))
 			{
 				fix dist;
 

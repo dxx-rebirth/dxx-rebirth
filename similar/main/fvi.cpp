@@ -945,15 +945,15 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 						if (thisobjnum == get_local_player().objnum && cheats.ghostphysics)
 						{
 							if (IS_CHILD(child_segnum))
- 								wid_flag |= WID_FLY_FLAG;
+ 								wid_flag |= WALL_IS_DOORWAY_FLAG::fly;
 						}
 
-						if ((wid_flag & WID_FLY_FLAG) ||
+						if ((wid_flag & WALL_IS_DOORWAY_FLAG::fly) ||
 							(
 #if defined(DXX_BUILD_DESCENT_I)
 								(wid_flag == WID_TRANSPARENT_WALL) && 
 #elif defined(DXX_BUILD_DESCENT_II)
-								((wid_flag & WID_RENDER_FLAG) && (wid_flag & WID_RENDPAST_FLAG)) &&
+								((wid_flag & WALL_IS_DOORWAY_FLAG::render) && (wid_flag & WALL_IS_DOORWAY_FLAG::rendpast)) &&
 #endif
 								((flags & FQ_TRANSWALL) || (flags & FQ_TRANSPOINT && check_trans_wall(hit_point,startseg,side,face))))) {
 

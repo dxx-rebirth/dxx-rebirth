@@ -199,7 +199,7 @@ static void digi_get_sound_loc(const vms_matrix &listener, const vms_vector &lis
 		int num_search_segs = f2i(max_distance/20);
 		if ( num_search_segs < 1 ) num_search_segs = 1;
 
-		auto path_distance = find_connected_distance(listener_pos, listener_seg, sound_pos, sound_seg, num_search_segs, WID_RENDPAST_FLAG|WID_FLY_FLAG);
+		auto path_distance = find_connected_distance(listener_pos, listener_seg, sound_pos, sound_seg, num_search_segs, WALL_IS_DOORWAY_FLAG::rendpast | WALL_IS_DOORWAY_FLAG::fly);
 		if ( path_distance > -1 )	{
 			*volume = max_volume - fixdiv(path_distance,max_distance);
 			if (*volume > 0 )	{

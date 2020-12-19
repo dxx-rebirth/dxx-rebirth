@@ -244,7 +244,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 #endif
 #elif defined(DXX_BUILD_DESCENT_II)
 	//handle cloaked walls
-	if (wid_flags & WID_CLOAKED_FLAG) {
+	if (wid_flags & WALL_IS_DOORWAY_FLAG::cloaked) {
 		const auto wall_num = segp.shared_segment::sides[sidenum].wall_num;
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 		auto &vcwallptr = Walls.vcptr;
@@ -482,7 +482,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 {
 	fix		min_dot, max_dot;
 
-	if (!(wid_flags & WID_RENDER_FLAG))		//if (WALL_IS_DOORWAY(segp, sidenum) == WID_NO_WALL)
+	if (!(wid_flags & WALL_IS_DOORWAY_FLAG::render))		//if (WALL_IS_DOORWAY(segp, sidenum) == WID_NO_WALL)
 		return;
 
 	const auto vertnum_list = get_side_verts(segp,sidenum);
@@ -1146,7 +1146,7 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 								const cscusegment &&seg = vcsegptr(new_segnum);
 #endif
 		
-								if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn) & WID_FLY_FLAG)
+								if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn) & WALL_IS_DOORWAY_FLAG::fly)
 								{		//can explosion migrate through
 									const auto child = seg.s.children[sn];
 									int checknp;
@@ -1317,7 +1317,7 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 			uint_fast32_t n_children = 0;							//how many sides in child_list
 			for (uint_fast32_t c = 0;c < MAX_SIDES_PER_SEGMENT;c++) {		//build list of sides
 				const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, c);
-				if (wid & WID_RENDPAST_FLAG)
+				if (wid & WALL_IS_DOORWAY_FLAG::rendpast)
 				{
 					if (auto codes_and = uor)
 					{
@@ -1587,7 +1587,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn);
 						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
 #if defined(DXX_BUILD_DESCENT_II)
-							|| (wid & WID_CLOAKED_FLAG)
+							|| (wid & WALL_IS_DOORWAY_FLAG::cloaked)
 #endif
 							)
 						{
@@ -1636,7 +1636,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn);
 						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
 #if defined(DXX_BUILD_DESCENT_II)
-							|| (wid & WID_CLOAKED_FLAG)
+							|| (wid & WALL_IS_DOORWAY_FLAG::cloaked)
 #endif
 							)
 						{

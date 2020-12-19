@@ -193,7 +193,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 
 				if (use_fcd_lighting && abs(obji_64) > F1_0*32)
 				{
-					dist = find_connected_distance(obj_pos, obj_seg, vertpos, vmsegptridx(vsegnum), n_render_vertices, WID_RENDPAST_FLAG|WID_FLY_FLAG);
+					dist = find_connected_distance(obj_pos, obj_seg, vertpos, vmsegptridx(vsegnum), n_render_vertices, WALL_IS_DOORWAY_FLAG::rendpast | WALL_IS_DOORWAY_FLAG::fly);
 					if (dist >= 0)
 						apply_light = 1;
 				}

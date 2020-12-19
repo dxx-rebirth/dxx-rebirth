@@ -1693,7 +1693,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 		auto &vcwallptr = Walls.vcptr;
 		range_for (const int sidenum, xrange(6u)) {
-			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum) & WID_RENDPAST_FLAG)
+			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum) & WALL_IS_DOORWAY_FLAG::rendpast)
 				apply_light_to_segment(visited, segp.absolute_sibling(segp->children[sidenum]), segment_center, light_intensity, recursion_depth+1);
 		}
 	}
@@ -1709,7 +1709,7 @@ static void change_segment_light(const vmsegptridx_t segp, const unsigned sidenu
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum) & WID_RENDER_FLAG)
+	if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum) & WALL_IS_DOORWAY_FLAG::render)
 	{
 		auto &sidep = segp->unique_segment::sides[sidenum];
 		const auto light_intensity = TmapInfo[get_texture_index(sidep.tmap_num)].lighting + TmapInfo[get_texture_index(sidep.tmap_num2)].lighting;
@@ -1848,7 +1848,7 @@ static void ambient_mark_bfs(const vmsegptridx_t segp, segment_lava_depth_array 
 		 * No explicit check for IS_CHILD.  If !IS_CHILD, then
 		 * WALL_IS_DOORWAY never sets WID_RENDPAST_FLAG.
 		 */
-		if (!(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, i) & WID_RENDPAST_FLAG))
+		if (!(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, i) & WALL_IS_DOORWAY_FLAG::rendpast))
 			continue;
 		ambient_mark_bfs(segp.absolute_sibling(child), segdepth_lava, segdepth_water, depth - 1, s2f_bit);
 	}

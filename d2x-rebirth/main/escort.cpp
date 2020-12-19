@@ -792,7 +792,7 @@ static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *const aip, co
 			return;
 		buddy_message_ignore_time("Cannot reach %s.", goal_text_index < Escort_goal_text.size() ? Escort_goal_text[goal_text_index] : "<unknown>");
 		const auto goal_segment = plrobj.segnum;
-		const fix dist_to_player = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), plrobj.pos, vmsegptridx(goal_segment), 100, WID_FLY_FLAG);
+		const fix dist_to_player = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), plrobj.pos, vmsegptridx(goal_segment), 100, WALL_IS_DOORWAY_FLAG::fly);
 		if (dist_to_player > MIN_ESCORT_DISTANCE)
 			create_path_to_segment(objp, Max_escort_length, create_path_safety_flag::safe, goal_segment);
 		else {
@@ -1296,7 +1296,7 @@ void do_snipe_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 
 			ailp->next_action_time = SNIPE_WAIT_TIME;
 
-			connected_distance = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 30, WID_FLY_FLAG);
+			connected_distance = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 30, WALL_IS_DOORWAY_FLAG::fly);
 			if (connected_distance < F1_0*500) {
 				create_path_to_believed_player_segment(objp, 30, create_path_safety_flag::safe);
 				ailp->mode = ai_mode::AIM_SNIPE_ATTACK;
@@ -1449,7 +1449,7 @@ void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 
 			ailp->next_action_time = Thief_wait_times[Difficulty_level]/2;
 
-			connected_distance = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 30, WID_FLY_FLAG);
+			connected_distance = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 30, WALL_IS_DOORWAY_FLAG::fly);
 			if (connected_distance < F1_0*500) {
 				create_path_to_believed_player_segment(objp, 30, create_path_safety_flag::safe);
 				ailp->mode = ai_mode::AIM_THIEF_ATTACK;

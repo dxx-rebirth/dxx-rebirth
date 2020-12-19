@@ -2052,7 +2052,7 @@ static void flicker_lights(const d_level_shared_destructible_light_state &LevelS
 		}
 
 		//make sure this is actually a light
-		if (! (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum) & WID_RENDER_FLAG))
+		if (! (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum) & WALL_IS_DOORWAY_FLAG::render))
 			continue;
 
 		if ((f.timer -= FrameTime) < 0)

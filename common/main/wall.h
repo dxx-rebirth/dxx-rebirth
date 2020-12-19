@@ -37,32 +37,29 @@ namespace dcx {
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct WALL_IS_DOORWAY_mask_t
 {
-	unsigned value;
-	template <unsigned F>
-		constexpr WALL_IS_DOORWAY_mask_t(WALL_IS_DOORWAY_FLAG<F>) :
-			value(F)
+	uint8_t value;
+	constexpr WALL_IS_DOORWAY_mask_t(WALL_IS_DOORWAY_FLAG F) :
+		value(static_cast<uint8_t>(F))
 	{
 	}
 };
 
 struct WALL_IS_DOORWAY_result_t
 {
-	unsigned value;
+	uint8_t value;
 	constexpr WALL_IS_DOORWAY_result_t(const WALL_IS_DOORWAY_sresult_t f) :
 		value(static_cast<unsigned>(f))
 	{
 	}
-	template <unsigned F>
-		unsigned operator&(WALL_IS_DOORWAY_FLAG<F>) const
-		{
-			return value & F;
-		}
-	template <unsigned F>
-		WALL_IS_DOORWAY_result_t operator|=(WALL_IS_DOORWAY_FLAG<F>)
-		{
-			value |= F;
-			return *this;
-		}
+	unsigned operator&(WALL_IS_DOORWAY_FLAG f) const
+	{
+		return value & static_cast<uint8_t>(f);
+	}
+	WALL_IS_DOORWAY_result_t &operator|=(WALL_IS_DOORWAY_FLAG f)
+	{
+		value |= static_cast<uint8_t>(f);
+		return *this;
+	}
 	bool operator==(WALL_IS_DOORWAY_sresult_t F) const
 	{
 		return value == static_cast<unsigned>(F);

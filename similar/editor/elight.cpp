@@ -109,7 +109,7 @@ static void apply_light_intensity(const csmusegment segp, const unsigned sidenum
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 	const auto wid_result = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum);
-	if (!(wid_result & WID_RENDPAST_FLAG)) {
+	if (!(wid_result & WALL_IS_DOORWAY_FLAG::rendpast)) {
 		add_light_intensity_all_verts(segp.u.sides[sidenum], intensity);
 		return;										// we return because there is a wall here, and light does not shine through walls
 	}

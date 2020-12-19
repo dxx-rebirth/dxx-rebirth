@@ -1563,7 +1563,7 @@ void blast_nearby_glass_context::process_segment(const vmsegptridx_t segp, const
 				const auto &&pnt = compute_center_point_on_side(vcvertptr, segp, sidenum);
 				dist = vm_vec_dist_quick(pnt, objp.pos);
 				if (dist < damage/2) {
-					dist = find_connected_distance(pnt, segp, objp.pos, segp.absolute_sibling(objp.segnum), MAX_BLAST_GLASS_DEPTH, WID_RENDPAST_FLAG);
+					dist = find_connected_distance(pnt, segp, objp.pos, segp.absolute_sibling(objp.segnum), MAX_BLAST_GLASS_DEPTH, WALL_IS_DOORWAY_FLAG::rendpast);
 					if ((dist > 0) && (dist < damage/2))
 					{
 						assert(objp.type == OBJ_WEAPON);
@@ -1583,7 +1583,7 @@ void blast_nearby_glass_context::process_segment(const vmsegptridx_t segp, const
 		if (segnum != segment_none) {
 			if (!visited[segnum]) {
 				auto &&i = e.idx;
-				if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, i) & WID_FLY_FLAG)
+				if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, i) & WALL_IS_DOORWAY_FLAG::fly)
 				{
 					process_segment(segp.absolute_sibling(segnum), next_steps_remaining);
 				}
