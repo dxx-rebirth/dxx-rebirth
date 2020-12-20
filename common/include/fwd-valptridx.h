@@ -7,9 +7,11 @@
 #pragma once
 
 #include <functional>
+#include <type_traits>
 #include <cstddef>
 #include "dxxsconf.h"
 #include "cpp-valptridx.h"
+#include "d_array.h"
 
 #if defined(DXX_HAVE_CXX_BUILTIN_FILE_LINE)
 #define DXX_VALPTRIDX_ENABLE_REPORT_FILENAME
@@ -58,7 +60,11 @@ class valptridx :
 	template <typename>
 		class guarded;
 	class array_base_count_type;
-	using array_base_storage_type = std::array<managed_type, array_size>;
+	using array_base_storage_type = typename std::conditional<
+		std::is_enum<typename specialized_types::integral_type>::value,
+		enumerated_array<managed_type, array_size, typename specialized_types::integral_type>,
+		std::array<managed_type, array_size>
+		>::type;
 protected:
 	using const_pointer_type = const managed_type *;
 	using const_reference_type = const managed_type &;

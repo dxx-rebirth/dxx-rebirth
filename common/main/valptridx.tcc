@@ -88,7 +88,12 @@ void valptridx<managed_type>::index_mismatch_exception::report(DXX_VALPTRIDX_REP
 {
 	using namespace untyped_index_mismatch_exception;
 	char buf[report_buffer_size];
-	prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS array, supplied_index, expected_pointer, actual_pointer, buf, array_size);
+	std::size_t si;
+	if constexpr (std::is_enum<index_type>::value)
+		si = static_cast<std::size_t>(supplied_index);
+	else
+		si = supplied_index;
+	prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS array, si, expected_pointer, actual_pointer, buf, array_size);
 	throw index_mismatch_exception(buf);
 }
 

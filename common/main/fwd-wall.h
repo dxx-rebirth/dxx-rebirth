@@ -18,7 +18,7 @@
 #include "cpp-valptridx.h"
 
 namespace dcx {
-using actdoornum_t = uint8_t;
+enum class actdoornum_t : uint8_t;
 constexpr std::integral_constant<std::size_t, 255> MAX_WALLS{}; // Maximum number of walls
 constexpr std::integral_constant<std::size_t, 90> MAX_DOORS{};  // Maximum number of open doors
 struct active_door;

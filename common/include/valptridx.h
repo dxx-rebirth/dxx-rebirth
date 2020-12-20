@@ -13,7 +13,6 @@
 #include "pack.h"
 #include "compiler-poison.h"
 #include "selfiter.h"
-#include <array>
 
 #ifdef DXX_CONSTANT_TRUE
 #define DXX_VALPTRIDX_STATIC_CHECK(SUCCESS_CONDITION,FAILURE_FUNCTION,FAILURE_STRING)	\
@@ -206,7 +205,12 @@ template <typename managed_type>
 template <typename handle_index_range_error, template <typename> class Compare>
 typename valptridx<managed_type>::index_type valptridx<managed_type>::check_index_range(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const index_type i, const array_managed_type *const a)
 {
-	const std::size_t ss = i;
+	std::size_t si;
+	if constexpr (std::is_enum<index_type>::value)
+		si = static_cast<std::size_t>(i);
+	else
+		si = i;
+	const std::size_t ss = si;
 	DXX_VALPTRIDX_CHECK(Compare<std::size_t>()(ss, array_size), handle_index_range_error, "invalid index used in array subscript", a, ss);
 	return i;
 }
@@ -421,7 +425,10 @@ protected:
 	index_type m_idx;
 	idx &operator++()
 	{
-		++ m_idx;
+		if constexpr (std::is_enum<index_type>::value)
+			m_idx = static_cast<index_type>(1u + static_cast<typename std::underlying_type<index_type>::type>(m_idx));
+		else
+			++ m_idx;
 		return *this;
 	}
 };
@@ -1092,12 +1099,12 @@ public:
 	__attribute_warn_unused_result
 	iterator<Pc> begin() const
 	{
-		return Pc(valptridx<managed_type>::magic_constant<0>(), get_array());
+		return Pc(valptridx<managed_type>::magic_constant<index_type{}>(), get_array());
 	}
 	__attribute_warn_unused_result
 	iterator<Pm> begin()
 	{
-		return Pm(valptridx<managed_type>::magic_constant<0>(), get_array());
+		return Pm(valptridx<managed_type>::magic_constant<index_type{}>(), get_array());
 	}
 	__attribute_warn_unused_result
 	iterator<Pc> end(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS) const
