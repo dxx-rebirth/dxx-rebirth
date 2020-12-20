@@ -652,67 +652,49 @@ static inline void rotate_menu_item_subrange(F &&step_function, newmenu_item *co
 	iter->value = selected.second;
 }
 
-static int newmenu_save_selection_key(newmenu *menu, const d_event &event)
+}
+
+void reorder_newmenu::event_key_command(const d_event &event)
 {
-	auto k = event_key_get(event);
-	switch(k)
+	switch(event_key_get(event))
 	{
 		case KEY_SHIFTED+KEY_UP:
-			if (menu->citem > 0)
+			if (const auto ci = citem; ci > 0)
 			{
-				const auto begin = menu->items.begin();
-				auto &a = *std::next(begin, menu->citem);
-				auto &b = *std::next(begin, -- menu->citem);
+				const auto ni = -- citem;
+				const auto begin = items.begin();
+				auto &a = *std::next(begin, ci);
+				auto &b = *std::next(begin, ni);
 				swap_menu_item_entries(a, b);
 			}
 			break;
 		case KEY_SHIFTED+KEY_DOWN:
-			if (menu->citem < menu->items.size() - 1)
+			if (const auto ci = citem; ci < items.size() - 1)
 			{
-				const auto begin = menu->items.begin();
-				auto &a = *std::next(begin, menu->citem);
-				auto &b = *std::next(begin, ++ menu->citem);
+				const auto ni = ++ citem;
+				const auto begin = items.begin();
+				auto &a = *std::next(begin, ci);
+				auto &b = *std::next(begin, ni);
 				swap_menu_item_entries(a, b);
 			}
 			break;
 		case KEY_PAGEUP + KEY_SHIFTED:
 			{
-				const auto begin = menu->items.begin();
+				const auto begin = items.begin();
 				const auto stop = begin;
-				rotate_menu_item_subrange(std::minus<void>(), begin, menu->citem, stop);
+				rotate_menu_item_subrange(std::minus<void>(), begin, citem, stop);
 			}
 			break;
 		case KEY_PAGEDOWN + KEY_SHIFTED:
 			{
-				const auto begin = menu->items.begin();
-				const auto stop = std::prev(menu->items.end());
-				rotate_menu_item_subrange(std::plus<void>(), begin, menu->citem, stop);
+				const auto begin = items.begin();
+				const auto stop = std::prev(items.end());
+				rotate_menu_item_subrange(std::plus<void>(), begin, citem, stop);
 			}
 			break;
 	}
-	return 0;
 }
 
-static int newmenu_save_selection_handler(newmenu *menu, const d_event &event, const unused_newmenu_userdata_t *)
-{
-	switch(event.type)
-	{
-		case EVENT_KEY_COMMAND:
-			return newmenu_save_selection_key(menu, event);
-		default:
-			break;
-	}
-	return 0;
-}
-
-}
-
-}
-
-// Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-void newmenu_doreorder(const menu_title title, const menu_subtitle subtitle, const partial_range_t<newmenu_item *> items)
-{
-	newmenu_do2(title, subtitle, items, newmenu_save_selection_handler, unused_newmenu_userdata);
 }
 
 newmenu_item *newmenu_get_items(newmenu *menu)

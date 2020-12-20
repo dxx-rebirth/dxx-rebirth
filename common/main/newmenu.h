@@ -252,6 +252,18 @@ struct passive_newmenu : newmenu
 	virtual int subfunction_handler(const d_event &event) final override;
 };
 
+struct reorder_newmenu : newmenu
+{
+	using newmenu::newmenu;
+	void event_key_command(const d_event &event);
+	/* subfunction_handler is not overridden here, because users of
+	 * reorder_newmenu will need to handle more than just the key event,
+	 * so requiring them to have a handler for the key event produces
+	 * better code than having them call back to
+	 * reorder_newmenu::subfunction_handler just for that event.
+	 */
+};
+
 template <typename T>
 using newmenu_subfunction_t = int(*)(newmenu *menu,const d_event &event, T *userdata);
 using newmenu_subfunction = newmenu_subfunction_t<void>;
@@ -308,9 +320,6 @@ static newmenu *newmenu_do3(const menu_title title, const menu_subtitle subtitle
 
 newmenu_item *newmenu_get_items(newmenu *menu);
 int newmenu_get_citem(newmenu *menu);
-
-// Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-void newmenu_doreorder(menu_title title, menu_subtitle subtitle, partial_range_t<newmenu_item *> items);
 
 // Sample Code:
 /*

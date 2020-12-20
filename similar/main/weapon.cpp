@@ -52,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfs-serial.h"
 
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "partial_range.h"
 
@@ -117,6 +118,58 @@ weapon_info_array Weapon_info;
 }
 namespace dcx {
 unsigned N_weapon_types;
+
+namespace {
+
+template <typename cycle_weapon_state>
+struct weapon_reorder_menu_items
+{
+	std::array<newmenu_item, cycle_weapon_state::max_weapons + 1> menu_items;
+	weapon_reorder_menu_items();
+};
+
+template <typename cycle_weapon_state>
+struct weapon_reorder_menu : weapon_reorder_menu_items<cycle_weapon_state>, reorder_newmenu
+{
+	using weapon_reorder_menu_items<cycle_weapon_state>::menu_items;
+	weapon_reorder_menu(grs_canvas &src) :
+		reorder_newmenu(menu_title{cycle_weapon_state::reorder_title}, menu_subtitle{"Shift+Up/Down arrow to move item"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(menu_items, 0), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+template <typename cycle_weapon_state>
+weapon_reorder_menu_items<cycle_weapon_state>::weapon_reorder_menu_items()
+{
+	for (auto &&[mi, i] : enumerate(menu_items))
+	{
+		const auto o = cycle_weapon_state::get_weapon_by_order_slot(i);
+		mi.value = o;
+		nm_set_item_menu(mi, cycle_weapon_state::get_weapon_name(o));
+	}
+}
+
+template <typename cycle_weapon_state>
+int weapon_reorder_menu<cycle_weapon_state>::subfunction_handler(const d_event &event)
+{
+	switch(event.type)
+	{
+		case EVENT_KEY_COMMAND:
+			event_key_command(event);
+			break;
+		case EVENT_WINDOW_CLOSE:
+			for (auto &&[mi, i] : enumerate(menu_items))
+				cycle_weapon_state::get_weapon_by_order_slot(i) = mi.value;
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+
+}
+
 }
 
 // autoselect ordering
@@ -897,19 +950,11 @@ int pick_up_secondary(player_info &player_info, int weapon_index, int count, con
 
 namespace {
 
-template <typename T>
+template <typename cycle_weapon_state>
 static void ReorderWeapon()
 {
-	std::array<newmenu_item, T::max_weapons + 1> m;
-	for (unsigned i = 0; i != m.size(); ++i)
-	{
-		const auto o = T::get_weapon_by_order_slot(i);
-		m[i].value = o;
-		nm_set_item_menu(m[i], T::get_weapon_name(o));
-	}
-	newmenu_doreorder(menu_title{T::reorder_title}, menu_subtitle{"Shift+Up/Down arrow to move item"}, m);
-	for (unsigned i = 0; i != m.size(); ++i)
-		T::get_weapon_by_order_slot(i) = m[i].value;
+	auto menu = window_create<weapon_reorder_menu<cycle_weapon_state>>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 }
