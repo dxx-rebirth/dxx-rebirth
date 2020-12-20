@@ -1396,8 +1396,8 @@ static void input_config_mouse()
 }
 
 #if DXX_MAX_AXES_PER_JOYSTICK
-static void input_config_joystick()
-{
+namespace joystick_sensitivity {
+
 #define DXX_INPUT_CONFIG_MENU(VERB)	                                   \
 	DXX_MENUITEM(VERB, TEXT, "Joystick Sensitivity:", opt_label_js)	          \
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,js,PlayerCfg.JoystickSens)	\
@@ -1425,22 +1425,40 @@ static void input_config_joystick()
 		}
 	};
 #undef DXX_INPUT_CONFIG_MENU
-	menu_items items;
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{"Joystick Calibration"}, items.m, unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
-	constexpr uint_fast32_t joysens = items.opt_label_js + 1;
-	constexpr uint_fast32_t joylin = items.opt_label_jl + 1;
-	constexpr uint_fast32_t joyspd = items.opt_label_jp + 1;
-	constexpr uint_fast32_t joydead = items.opt_label_jd + 1;
-	const auto &m = items.m;
-
-	for (unsigned i = 0; i <= 5; i++)
+struct menu : menu_items, newmenu
+{
+	menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{"Joystick Calibration"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 1), src)
 	{
-		PlayerCfg.JoystickLinear[i] = m[joylin+i].value;
-		PlayerCfg.JoystickSpeed[i] = m[joyspd+i].value;
-		PlayerCfg.JoystickSens[i] = m[joysens+i].value;
-		PlayerCfg.JoystickDead[i] = m[joydead+i].value;
 	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int menu::subfunction_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_WINDOW_CLOSE:
+			copy_sensitivity_from_menu_to_cfg(m,
+				copy_sensitivity(opt_label_js, &player_config::JoystickSens),
+				copy_sensitivity(opt_label_jl, &player_config::JoystickLinear),
+				copy_sensitivity(opt_label_jp, &player_config::JoystickSpeed),
+				copy_sensitivity(opt_label_jd, &player_config::JoystickDead)
+			);
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+
+}
+
+static void input_config_joystick()
+{
+	auto menu = window_create<joystick_sensitivity::menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 #endif
 
