@@ -106,9 +106,14 @@ static void multi_update_objects_for_non_cooperative();
 static void multi_restore_game(unsigned slot, unsigned id);
 static void multi_save_game(unsigned slot, unsigned id, const d_game_unique_state::savegame_description &desc);
 }
-}
 static void multi_add_lifetime_killed();
+#if !(!defined(RELEASE) && defined(DXX_BUILD_DESCENT_II))
+static void multi_add_lifetime_kills(int count);
+#endif
+}
+namespace {
 static void multi_send_heartbeat();
+}
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 namespace {
@@ -118,8 +123,10 @@ static void multi_send_drop_flag(vmobjptridx_t objnum,int seed);
 }
 }
 #endif
+namespace {
 static void multi_send_ranking(uint8_t);
 static void multi_send_gmode_update();
+}
 namespace dcx {
 namespace {
 static int imulti_new_game; // to prep stuff for level only when starting new game
@@ -131,13 +138,11 @@ static void multi_send_quit();
 }
 DEFINE_SERIAL_UDT_TO_MESSAGE(shortpos, s, (s.bytemat, s.xo, s.yo, s.zo, s.segment, s.velx, s.vely, s.velz));
 }
+namespace {
 static playernum_t multi_who_is_master();
 static void multi_show_player_list();
 static void multi_send_message();
-
-#if !(!defined(RELEASE) && defined(DXX_BUILD_DESCENT_II))
-static void multi_add_lifetime_kills(int count);
-#endif
+}
 
 //
 // Global variables
@@ -656,6 +661,8 @@ static void net_destroy_controlcen(object_array &Objects)
 
 }
 
+namespace {
+
 static const char *prepare_kill_name(const playernum_t pnum, char (&buf)[(CALLSIGN_LEN*2)+4])
 {
 	if (Game_mode & GM_TEAM)
@@ -665,6 +672,8 @@ static const char *prepare_kill_name(const playernum_t pnum, char (&buf)[(CALLSI
 	}
 	else
 		return static_cast<const char *>(vcplayerptr(pnum)->callsign);
+}
+
 }
 
 namespace dsx {
@@ -1094,6 +1103,8 @@ void multi_leave_game()
 
 }
 
+namespace {
+
 void multi_show_player_list()
 {
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_COOP))
@@ -1104,6 +1115,8 @@ void multi_show_player_list()
 
 	Show_kill_list_timer = F1_0*5; // 5 second timer
 	Show_kill_list = 1;
+}
+
 }
 
 int multi_endlevel(int *const secret)
@@ -1614,6 +1627,8 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 
 }
 
+namespace {
+
 static void multi_do_message(const uint8_t *const cbuf)
 {
 	const auto buf = reinterpret_cast<const char *>(cbuf);
@@ -1641,6 +1656,8 @@ static void multi_do_message(const uint8_t *const cbuf)
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 	HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, static_cast<const char *>(vcplayerptr(pnum)->callsign), CC_COLOR, BM_XRGB(0, 31, 0), msgstart);
 	multi_sending_message[pnum] = msgsend_none;
+}
+
 }
 
 namespace dsx {
@@ -1811,6 +1828,8 @@ static void multi_do_player_deres(object_array &Objects, const playernum_t pnum,
 
 }
 
+namespace {
+
 /*
  * Process can compute a kill. If I am a Client this might be my own one (see multi_send_kill()) but with more specific data so I can compute my kill correctly.
  */
@@ -1858,6 +1877,8 @@ static void multi_do_kill(object_array &Objects, const uint8_t *const buf)
 
 	if (Game_mode & GM_BOUNTY && multi_i_am_master()) // update in case if needed... we could attach this to this packet but... meh...
 		multi_send_bounty();
+}
+
 }
 
 namespace dsx {
@@ -2023,11 +2044,15 @@ void multi_disconnect_player(const playernum_t pnum)
 	}
 }
 
+namespace {
+
 static void multi_do_quit(const uint8_t *const buf)
 {
 	if (!(Game_mode & GM_NETWORK))
 		return;
 	multi_disconnect_player(static_cast<int>(buf[1]));
+}
+
 }
 
 namespace dsx {
@@ -2229,6 +2254,8 @@ static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, c
 
 }
 
+namespace {
+
 static void multi_do_score(fvmobjptr &vmobjptr, const playernum_t pnum, const uint8_t *const buf)
 {
 	if (pnum >= N_players)
@@ -2264,6 +2291,8 @@ static void multi_do_trigger(const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 	check_trigger_sub(get_local_plrobj(), trigger, pnum,0);
+}
+
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2340,6 +2369,8 @@ static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptrid
 }
 #endif
 
+namespace {
+
 static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, wall_array &Walls, const uint8_t *const buf)
 {
 	// Update hit point status of a door
@@ -2360,6 +2391,8 @@ static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, wall_array &
 
 	if (hps < w.hps)
 		wall_damage(vmsegptridx(w.segnum), w.sidenum, w.hps - hps);
+}
+
 }
 
 void multi_reset_stuff()
@@ -2693,6 +2726,8 @@ void multi_send_player_deres(deres_type_t type)
 
 }
 
+namespace {
+
 void multi_send_message()
 {
 	int loc = 0;
@@ -2708,6 +2743,8 @@ void multi_send_message()
 		multi_send_data<MULTI_MESSAGE>(multibuf, loc, 0);
 		Network_message_reciever = -1;
 	}
+}
+
 }
 
 void multi_send_reappear()
@@ -2994,6 +3031,8 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 
 }
 
+namespace {
+
 static void multi_digi_play_sample(const int soundnum, const fix max_volume, const sound_stack once)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -3001,6 +3040,8 @@ static void multi_digi_play_sample(const int soundnum, const fix max_volume, con
 	if (Game_mode & GM_MULTI)
 		multi_send_play_sound(soundnum, max_volume, once);
 	digi_link_sound_to_object(soundnum, vcobjptridx(Viewer), 0, max_volume, once);
+}
+
 }
 
 void multi_digi_play_sample_once(int soundnum, fix max_volume)
@@ -3715,10 +3756,14 @@ void multi_update_objects_for_non_cooperative()
 
 }
 
+namespace {
+
 // Returns the Player_num of Master/Host of this game
 playernum_t multi_who_is_master()
 {
 	return 0;
+}
+
 }
 
 void change_playernum_to(const playernum_t new_Player_num)
@@ -3797,6 +3842,8 @@ void multi_send_drop_weapon(const vmobjptridx_t objp, int seed)
 	multi_send_data(multibuf, 2);
 }
 
+namespace {
+
 static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, const uint8_t *const buf)
 {
 	int ammo,remote_objnum,seed;
@@ -3810,6 +3857,8 @@ static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, co
 
 	if (objnum!=object_none)
 		objnum->ctype.powerup_info.count = ammo;
+}
+
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -3834,6 +3883,8 @@ void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum)
 		Network_send_objnum = -1;
 	}
 }
+
+namespace {
 
 static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const uint8_t *const buf)
 {
@@ -3868,8 +3919,6 @@ static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const uint8_
 	const auto ammo = GET_INTEL_SHORT(buf + 4);
 		obj->ctype.powerup_info.count = ammo;
 }
-
-namespace {
 
 struct multi_guided_info
 {
@@ -3987,6 +4036,8 @@ void multi_send_kill_goal_counts()
 	multi_send_data(multibuf, 2);
 }
 
+namespace {
+
 static void multi_do_kill_goal_counts(fvmobjptr &vmobjptr, const uint8_t *const buf)
 {
 	int count=1;
@@ -4017,6 +4068,8 @@ static void multi_do_heartbeat (const ubyte *buf)
 	num = GET_INTEL_INT(buf + 1);
 
 	ThisLevelTime = d_time_fix(num);
+}
+
 }
 
 void multi_check_for_killgoal_winner ()
@@ -4076,11 +4129,15 @@ void multi_send_seismic(fix duration)
 	multi_send_data(multibuf, 2);
 }
 
+namespace {
+
 static void multi_do_seismic (const ubyte *buf)
 {
 	const fix duration = GET_INTEL_INT(&buf[1]);
 	LevelUniqueSeismicState.Seismic_disturbance_end_time = GameTime64 + duration;
 	digi_play_sample (SOUND_SEISMIC_DISTURBANCE_START, F1_0);
+}
+
 }
 
 void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segnum, const uint8_t val)
@@ -4102,6 +4159,8 @@ void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segn
 	}
 	multi_send_data_direct(multibuf, pnum, 2);
 }
+
+namespace {
 
 static void multi_do_light (const ubyte *buf)
 {
@@ -4137,6 +4196,8 @@ static void multi_do_flags(fvmobjptr &vmobjptr, const playernum_t pnum, const ui
 		vmobjptr(vcplayerptr(pnum)->objnum)->ctype.player_info.powerup_flags = player_flags(flags);
 }
 
+}
+
 void multi_send_flags (const playernum_t pnum)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -4156,9 +4217,13 @@ void multi_send_drop_blobs (const playernum_t pnum)
 	multi_send_data(multibuf, 0);
 }
 
+namespace {
+
 static void multi_do_drop_blob(fvmobjptr &vmobjptr, const playernum_t pnum)
 {
 	drop_afterburner_blobs (vmobjptr(vcplayerptr(pnum)->objnum), 2, i2f(5) / 2, -1);
+}
+
 }
 
 }
@@ -4182,6 +4247,8 @@ void multi_send_sound_function (char whichfunc, char sound)
 #define AFTERBURNER_LOOP_START  20098
 #define AFTERBURNER_LOOP_END    25776
 
+namespace {
+
 static void multi_do_sound_function (const playernum_t pnum, const ubyte *buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -4202,6 +4269,8 @@ static void multi_do_sound_function (const playernum_t pnum, const ubyte *buf)
 		digi_kill_sound_linked_to_object(plobj);
 	else if (whichfunc==3)
 		digi_link_sound_to_object3(sound, plobj, 1, F1_0, sound_stack::allow_stacking, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
+}
+
 }
 
 void multi_send_capture_bonus (const playernum_t pnum)
@@ -4378,6 +4447,8 @@ void multi_send_got_orb (const playernum_t pnum)
 	multi_send_flags (Player_num);
 }
 
+namespace {
+
 static void multi_do_got_flag (const playernum_t pnum)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -4406,7 +4477,6 @@ static void multi_do_got_orb (const playernum_t pnum)
 	objp->ctype.player_info.powerup_flags |= PLAYER_FLAGS_FLAG;
 	HUD_init_message(HM_MULTI, "%s picked up an orb!",static_cast<const char *>(vcplayerptr(pnum)->callsign));
 }
-
 
 static void DropOrb ()
 {
@@ -4444,6 +4514,8 @@ static void DropOrb ()
 		player_info.powerup_flags &=~(PLAYER_FLAGS_FLAG);
 		multi_send_flags (Player_num);
 	}
+}
+
 }
 
 void DropFlag ()
@@ -4625,6 +4697,8 @@ void multi_send_finish_game ()
 	multi_send_data(multibuf, 2);
 }
 
+namespace {
+
 static void multi_do_finish_game(const uint8_t *const buf)
 {
 	if (buf[0]!=MULTI_FINISH_GAME)
@@ -4636,6 +4710,8 @@ static void multi_do_finish_game(const uint8_t *const buf)
 	do_final_boss_hacks();
 }
 
+}
+
 void multi_send_trigger_specific(const playernum_t pnum, const uint8_t trig)
 {
 	multi_command<MULTI_START_TRIGGER> multibuf;
@@ -4644,17 +4720,19 @@ void multi_send_trigger_specific(const playernum_t pnum, const uint8_t trig)
 	multi_send_data_direct(multibuf, pnum, 2);
 }
 
+namespace {
+
 static void multi_do_start_trigger(const uint8_t *const buf)
 {
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vmtrgptr = Triggers.vmptr;
 	vmtrgptr(static_cast<trgnum_t>(buf[1]))->flags |= trigger_behavior_flags::disabled;
 }
-#endif
 
 }
+#endif
 
-namespace dsx {
+namespace {
 static void multi_adjust_lifetime_ranking(int &k, const int count)
 {
 	if (!(Game_mode & GM_NETWORK))
@@ -4698,6 +4776,9 @@ void multi_add_lifetime_killed ()
 
 	multi_adjust_lifetime_ranking(PlayerCfg.NetlifeKilled, 1);
 }
+}
+
+namespace {
 
 void multi_send_ranking (uint8_t newrank)
 {
@@ -4722,6 +4803,8 @@ static void multi_do_ranking (const playernum_t pnum, const ubyte *buf)
 
 	if (!PlayerCfg.NoRankings)
 		HUD_init_message(HM_MULTI, "%s has been %smoted to %s!",static_cast<const char *>(vcplayerptr(pnum)->callsign), rankstr, RankStrings[rank]);
+}
+
 }
 
 namespace dcx {
@@ -4810,8 +4893,6 @@ void multi_new_bounty_target(const playernum_t pnum )
 #endif
 }
 
-}
-
 static void multi_do_save_game(const uint8_t *const buf)
 {
 	int count = 1;
@@ -4829,6 +4910,10 @@ static void multi_do_save_game(const uint8_t *const buf)
 
 }
 
+}
+
+namespace {
+
 static void multi_do_restore_game(const ubyte *buf)
 {
 	int count = 1;
@@ -4841,7 +4926,10 @@ static void multi_do_restore_game(const ubyte *buf)
 	multi_restore_game( slot, id );
 }
 
+}
+
 namespace dcx {
+namespace {
 
 static void multi_send_save_game(const d_game_unique_state::save_slot slot, const unsigned id, const d_game_unique_state::savegame_description &desc)
 {
@@ -4868,6 +4956,7 @@ static void multi_send_restore_game(ubyte slot, uint id)
 	multi_send_data(multibuf, 2);
 }
 
+}
 }
 
 namespace dsx {
@@ -5011,9 +5100,13 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 
 }
 
+namespace {
+
 static void multi_do_msgsend_state(const uint8_t *buf)
 {
 	multi_sending_message[static_cast<int>(buf[1])] = static_cast<msgsend_state_t>(buf[2]);
+}
+
 }
 
 void multi_send_msgsend_state(msgsend_state_t state)
@@ -5024,6 +5117,8 @@ void multi_send_msgsend_state(msgsend_state_t state)
 	
 	multi_send_data(multibuf, 2);
 }
+
+namespace {
 
 // Specific variables related to our game mode we want the clients to know about
 void multi_send_gmode_update()
@@ -5060,6 +5155,8 @@ static void multi_do_gmode_update(const ubyte *buf)
 	{
 		Bounty_target = buf[2]; // accept silently - message about change we SHOULD have gotten due to kill computation
 	}
+}
+
 }
 
 /*
@@ -5106,6 +5203,7 @@ void multi_send_player_inventory(int priority)
 }
 
 namespace dsx {
+namespace {
 static void multi_do_player_inventory(const playernum_t pnum, const ubyte *buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -5150,14 +5248,12 @@ static void multi_do_player_inventory(const playernum_t pnum, const ubyte *buf)
 	player_info.vulcan_ammo = GET_INTEL_SHORT(buf + count); count += 2;
 	player_info.powerup_flags = player_flags(GET_INTEL_INT(buf + count));    count += 4;
 }
-}
 
 /*
  * Count the inventory of the level. Initial (start) or current (now).
  * In 'current', also consider player inventories (and the thief bot).
  * NOTE: We add actual ammo amount - we do not want to count in 'amount of powerups'. Makes it easier to keep track of overhead (proximities, vulcan ammo)
  */
-namespace dsx {
 static void MultiLevelInv_CountLevelPowerups()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -5243,9 +5339,7 @@ static void MultiLevelInv_CountLevelPowerups()
                 }
         }
 }
-}
 
-namespace dsx {
 static void MultiLevelInv_CountPlayerInventory()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -5330,6 +5424,7 @@ static void MultiLevelInv_CountPlayerInventory()
                         }
                 }
 #endif
+}
 }
 }
 
