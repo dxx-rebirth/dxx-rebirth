@@ -1018,9 +1018,18 @@ public:
 	}
 };
 
+struct options_menu : options_menu_items, newmenu
+{
+	options_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{TXT_OPTIONS}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
 }
 
-static int options_menuset(newmenu *, const d_event &event, options_menu_items *items)
+int options_menu::subfunction_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -1049,11 +1058,8 @@ static int options_menuset(newmenu *, const d_event &event, options_menu_items *
 		}
 
 		case EVENT_WINDOW_CLOSE:
-		{
-			std::default_delete<options_menu_items>()(items);
 			write_player_file();
 			break;
-		}
 
 		default:
 			break;
@@ -2445,10 +2451,10 @@ void do_multi_player_menu()
 
 void do_options_menu()
 {
-	auto items = new options_menu_items;
 	// Fall back to main event loop
 	// Allows clean closing and re-opening when resolution changes
-	newmenu_do3(menu_title{nullptr}, menu_subtitle{TXT_OPTIONS}, items->m, options_menuset, items, 0, menu_filename{nullptr});
+	auto menu = window_create<options_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 #ifndef RELEASE
