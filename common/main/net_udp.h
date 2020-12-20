@@ -34,6 +34,7 @@ struct dispatch_table final : multi::dispatch_table
 	virtual void kick_player(const _sockaddr &dump_addr, int why) const override;
 	virtual void disconnect_player(int playernum) const override;
 	virtual int end_current_level(int *secret) const override;
+	virtual void leave_game() const override;
 };
 
 extern const dispatch_table dispatch;

@@ -4824,7 +4824,7 @@ int net_udp_do_join_game()
 
 namespace multi {
 namespace udp {
-void leave_game()
+void dispatch_table::leave_game() const
 {
 	int nsave;
 

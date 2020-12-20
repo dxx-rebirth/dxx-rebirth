@@ -1079,21 +1079,8 @@ void multi_leave_game()
 	}
 
 	multi_send_quit();
+	multi::dispatch->leave_game();
 
-	if (Game_mode & GM_NETWORK)
-	{
-		switch (multi_protocol)
-		{
-#if DXX_USE_UDP
-			case MULTI_PROTO_UDP:
-				multi::udp::leave_game();
-				break;
-#endif
-			default:
-				Error("Protocol handling missing in multi_leave_game\n");
-				break;
-		}
-	}
 #if defined(DXX_BUILD_DESCENT_I)
 	plyr_save_stats();
 #endif
