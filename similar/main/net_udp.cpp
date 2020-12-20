@@ -3216,6 +3216,8 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 	}
 }
 
+namespace {
+
 /*
  * Polling loop waiting for sync packet to start game after having sent request
  */
@@ -3404,20 +3406,48 @@ constexpr std::integral_constant<unsigned, 5 * reactor_invul_time_mini_scale> re
 #define DXX_STRINGIZE_PPS2(X)	#X
 #define DXX_STRINGIZE_PPS(X)	DXX_STRINGIZE_PPS2(X)
 
-static void net_udp_set_power (void)
+struct netgame_powerups_allowed_menu_items
 {
 	std::array<newmenu_item, multi_allow_powerup_text.size()> m;
-	for (int i = 0; i < multi_allow_powerup_text.size(); i++)
+	netgame_powerups_allowed_menu_items()
 	{
-		nm_set_item_checkbox(m[i], multi_allow_powerup_text[i], (Netgame.AllowedItems >> i) & 1);
+		for (auto &&[i, t, mi] : enumerate(zip(multi_allow_powerup_text, m)))
+			nm_set_item_checkbox(mi, t, (Netgame.AllowedItems >> i) & 1);
 	}
+};
 
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{"Objects to allow"}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
+struct netgame_powerups_allowed_menu : netgame_powerups_allowed_menu_items, newmenu
+{
+	netgame_powerups_allowed_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{"Objects to allow"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
 
-	Netgame.AllowedItems &= ~NETFLAG_DOPOWERUP;
-	for (int i = 0; i < multi_allow_powerup_text.size(); i++)
-		if (m[i].value)
-			Netgame.AllowedItems |= (1 << i);
+int netgame_powerups_allowed_menu::subfunction_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_WINDOW_CLOSE:
+			{
+				unsigned AllowedItems = 0;
+				for (auto &&[mi, i] : enumerate(m))
+					if (mi.value)
+						AllowedItems |= (1 << i);
+				Netgame.AllowedItems = (Netgame.AllowedItems & ~NETFLAG_DOPOWERUP) | AllowedItems;
+				break;
+			}
+		default:
+			break;
+	}
+	return 0;
+}
+
+static void net_udp_set_power (void)
+{
+	auto menu = window_create<netgame_powerups_allowed_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -3443,8 +3473,6 @@ static void net_udp_set_power (void)
 	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_PLASMA, opt_plasma, menu_bit_wrapper(flags, NETGRANT_PLASMA))	\
 	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_FUSION, opt_fusion, menu_bit_wrapper(flags, NETGRANT_FUSION))	\
 	D2X_GRANT_POWERUP_MENU(VERB)
-
-namespace {
 
 class more_game_options_menu_items
 {
