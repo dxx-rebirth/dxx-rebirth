@@ -4355,66 +4355,6 @@ read_error:
 	return nd_playback_v_at_eof;
 }
 
-#ifndef NDEBUG
-
-#define BUF_SIZE 16384
-
-void newdemo_strip_frames(char *outname, int bytes_to_strip)
-{
-	char *buf;
-	int read_elems, bytes_back;
-	int trailer_start, loc1, loc2, stop_loc, bytes_to_read;
-	short last_frame_length;
-
-	const auto &&outfp = PHYSFSX_openWriteBuffered(outname);
-	if (!outfp) {
-		nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Can't open output file"});
-		newdemo_stop_playback();
-		return;
-	}
-	MALLOC(buf, char, BUF_SIZE);
-	if (buf == NULL) {
-		nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Can't malloc output buffer"});
-		newdemo_stop_playback();
-		return;
-	}
-	newdemo_goto_end(0);
-	trailer_start = PHYSFS_tell(infile);
-	PHYSFS_seek(infile, PHYSFS_tell(infile) + 11);
-	bytes_back = 0;
-	while (bytes_back < bytes_to_strip) {
-		loc1 = PHYSFS_tell(infile);
-		newdemo_back_frames(1);
-		loc2 = PHYSFS_tell(infile);
-		bytes_back += (loc1 - loc2);
-	}
-	PHYSFS_seek(infile, PHYSFS_tell(infile) - 10);
-	nd_read_short(&last_frame_length);
-	PHYSFS_seek(infile, PHYSFS_tell(infile) - 3);
-	stop_loc = PHYSFS_tell(infile);
-	PHYSFS_seek(infile, 0);
-	while (stop_loc > 0) {
-		if (stop_loc < BUF_SIZE)
-			bytes_to_read = stop_loc;
-		else
-			bytes_to_read = BUF_SIZE;
-		read_elems = PHYSFS_read(infile, buf, 1, bytes_to_read);
-		PHYSFS_write(outfp, buf, 1, read_elems);
-		stop_loc -= read_elems;
-	}
-	stop_loc = PHYSFS_tell(outfp);
-	PHYSFS_seek(infile, trailer_start);
-	while ((read_elems = PHYSFS_read(infile, buf, 1, BUF_SIZE)) != 0)
-		PHYSFS_write(outfp, buf, 1, read_elems);
-	PHYSFS_seek(outfp, stop_loc);
-	PHYSFS_seek(outfp, PHYSFS_tell(infile) + 1);
-	PHYSFS_write(outfp, &last_frame_length, 2, 1);
-	newdemo_stop_playback();
-
-}
-
-#endif
-
 #if defined(DXX_BUILD_DESCENT_II)
 static void nd_render_extras (ubyte which,const object &obj)
 {

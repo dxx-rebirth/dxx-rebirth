@@ -620,33 +620,6 @@ static window_event_result HandleDemoKey(int key)
 			Newdemo_do_interpolate = !Newdemo_do_interpolate;
 			HUD_init_message(HM_DEFAULT, "Demo playback interpolation %s", Newdemo_do_interpolate?"ON":"OFF");
 			break;
-		case KEY_DEBUGGED + KEY_K: {
-			int how_many, c;
-			char filename[FILENAME_LEN], num[16];
-			std::array<newmenu_item, 2> m{{
-				nm_item_text("output file name"),
-				nm_item_input(filename),
-			}};
-			filename[0] = '\0';
-			c = newmenu_do2(menu_title{nullptr}, menu_subtitle{nullptr}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
-			if (c == -2)
-				break;
-			strcat(filename, DEMO_EXT);
-			num[0] = '\0';
-			m = {{
-				nm_item_text("strip how many bytes"),
-				nm_item_input(num),
-			}};
-			c = newmenu_do2(menu_title{nullptr}, menu_subtitle{nullptr}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
-			if (c == -2)
-				break;
-			how_many = atoi(num);
-			if (how_many <= 0)
-				break;
-			newdemo_strip_frames(filename, how_many);
-
-			break;
-		}
 #endif
 
 		default:

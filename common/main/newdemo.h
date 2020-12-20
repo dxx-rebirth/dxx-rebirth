@@ -163,6 +163,5 @@ extern int newdemo_get_percent_done();
 
 extern void newdemo_record_link_sound_to_object3( int soundno, objnum_t objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end );
 int newdemo_count_demos();
-void newdemo_strip_frames(char *, int);
 
 #endif
