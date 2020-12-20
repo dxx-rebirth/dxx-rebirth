@@ -284,9 +284,12 @@ void scores_maybe_add_player()
 			break;
 		}
 	}
-	
-	if ( position == MAX_HIGH_SCORES ) {
-		scores_fill_struct( &last_game );
+	stats_info *const ptr_last_game = (position == MAX_HIGH_SCORES)
+		? &last_game
+		: nullptr;
+	if (ptr_last_game)
+	{
+		scores_fill_struct(ptr_last_game);
 	} else {
 		if ( position==0 )	{
 			std::array<char, sizeof(scores.cool_saying)> text1{};
@@ -308,9 +311,8 @@ void scores_maybe_add_player()
 		scores_fill_struct( &scores.stats[position] );
 	
 		scores_write(&scores);
-
 	}
-	scores_view(&last_game, position);
+	scores_view(ptr_last_game, position);
 }
 
 }
