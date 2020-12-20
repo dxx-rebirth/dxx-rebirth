@@ -88,7 +88,14 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 		vclip,
 		None = 0xff,
 	};
+	// Flag: set if this object is matter (as opposed to energy)
+	enum class matter_flag : uint8_t
+	{
+		energy,
+		matter,
+	};
 	render_type render;        // How to draw 0=laser, 1=blob, 2=object
+	matter_flag matter;
 #if defined(DXX_BUILD_DESCENT_I)
 	sbyte	model_num;					// Model num if rendertype==2.
 	sbyte	model_num_inner;			// Model num of inner part if rendertype==2.
@@ -106,7 +113,6 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 
 	sbyte   weapon_vclip;       // Vclip to render for the weapon, itself.
 	sbyte   destroyable;        // If !0, this weapon can be destroyed by another weapon.
-	sbyte   matter;             // Flag: set if this object is matter (as opposed to energy)
 	sbyte	bounce;						//	Flag: set if this object bounces off walls
 
 	sbyte   homing_flag;        // Set if this weapon can home in on a target.
@@ -150,7 +156,6 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 	short   wall_hit_sound;     // What sound for impact with wall
 
 	sbyte   destroyable;        // If !0, this weapon can be destroyed by another weapon.
-	sbyte   matter;             // Flag: set if this object is matter (as opposed to energy)
 	sbyte   bounce;             // 1==always bounces, 2=bounces twice
 	sbyte   homing_flag;        // Set if this weapon can home in on a target.
 

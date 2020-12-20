@@ -1031,7 +1031,7 @@ static int lead_player(const object_base &objp, const vms_vector &fire_point, co
 	//	Matter weapons:
 	//	At Rookie or Trainee, don't lead at all.
 	//	At higher skill levels, don't lead as well.  Accomplish this by screwing up max_weapon_speed.
-	if (wptr->matter)
+	if (wptr->matter != weapon_info::matter_flag::energy)
 	{
 		if (Difficulty_level <= 1)
 			return 0;

@@ -883,7 +883,8 @@ static window_event_result collide_weapon_and_wall(
 		//we've hit water
 
 		//	MK: 09/13/95: Badass in water is 1/2 normal intensity.
-		if ( Weapon_info[get_weapon_id(weapon)].matter ) {
+		if (Weapon_info[get_weapon_id(weapon)].matter != weapon_info::matter_flag::energy)
+		{
 
 			digi_link_sound_to_pos( SOUND_MISSILE_HIT_WATER,hitseg, 0, hitpt, 0, F1_0 );
 
@@ -1553,7 +1554,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_level_share
 
 	//	See if should spew a bot.
 	if (weapon.ctype.laser_info.parent_type == OBJ_PLAYER && weapon.ctype.laser_info.parent_num == get_local_player().objnum)
-		if ((Weapon_info[get_weapon_id(weapon)].matter
+		if ((Weapon_info[get_weapon_id(weapon)].matter != weapon_info::matter_flag::energy
 			? Boss_spews_bots_matter
 			: Boss_spews_bots_energy)[d2_boss_index])
 		{
@@ -1611,7 +1612,8 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_level_share
 			}
 
 			//	Cause weapon to bounce.
-			if (!Weapon_info[get_weapon_id(weapon)].matter) {
+			if (Weapon_info[get_weapon_id(weapon)].matter == weapon_info::matter_flag::energy)
+			{
 					fix			speed;
 
 					auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(collision_point, robot.pos));
@@ -1625,7 +1627,9 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_level_share
 			return boss_weapon_collision_result::invulnerable;
 		}
 	}
-	else if ((Weapon_info[get_weapon_id(weapon)].matter ? Boss_invulnerable_matter : Boss_invulnerable_energy)[d2_boss_index])
+	else if ((Weapon_info[get_weapon_id(weapon)].matter != weapon_info::matter_flag::energy
+			? Boss_invulnerable_matter
+			: Boss_invulnerable_energy)[d2_boss_index])
 	{
 		if (const auto &&segp = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, Segments.vmptridx(robot.segnum)))
 			digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, segp, 0, collision_point, 0, F1_0);

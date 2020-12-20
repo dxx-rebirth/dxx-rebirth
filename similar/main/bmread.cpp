@@ -2240,7 +2240,7 @@ void bm_read_weapon(int skip, int unused_flag)
 	Weapon_info[n].damage_radius = 0;				//	Radius of damage for missiles, not lasers.  Does damage to objects within this radius of hit point.
 //--01/19/95, mk--	Weapon_info[n].damage_force = 0;					//	Force (movement) due to explosion
 	Weapon_info[n].destroyable = 1;					//	Weapons default to destroyable
-	Weapon_info[n].matter = 0;							//	Weapons default to not being constructed of matter (they are energy!)
+	Weapon_info[n].matter = weapon_info::matter_flag::energy;							//	Weapons default to not being constructed of matter (they are energy!)
 	Weapon_info[n].bounce = 0;							//	Weapons default to not bouncing off walls
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2334,7 +2334,7 @@ void bm_read_weapon(int skip, int unused_flag)
 			} else if (!d_stricmp( arg, "thrust" )) {
 				Weapon_info[n].thrust = fl2f(atof(equal_ptr));
 			} else if (!d_stricmp( arg, "matter" )) {
-				Weapon_info[n].matter = atoi(equal_ptr);
+				Weapon_info[n].matter = static_cast<weapon_info::matter_flag>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "bounce" )) {
 				Weapon_info[n].bounce = atoi(equal_ptr);
 			} else if (!d_stricmp( arg, "speed" )) {
