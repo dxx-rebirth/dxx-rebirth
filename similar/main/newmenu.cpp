@@ -1738,15 +1738,16 @@ namespace dcx {
 
 struct listbox : listbox_layout, window
 {
-	listbox(grs_canvas &canvas, listbox_layout &&ll) :
-		listbox_layout(std::move(ll)), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY)
+	listbox(grs_canvas &canvas, listbox_layout &&ll, listbox_subfunction_t<void> callback, void *userdata, uint8_t allow_abort_flag) :
+		listbox_layout(std::move(ll)), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY),
+		allow_abort_flag(allow_abort_flag), listbox_callback(callback), userdata(userdata)
 	{
 	}
-	uint8_t allow_abort_flag;
+	const uint8_t allow_abort_flag;
 	uint8_t mouse_state = 0;
-	listbox_subfunction_t<void> listbox_callback = nullptr;
+	const listbox_subfunction_t<void> listbox_callback;
 	marquee::ptr marquee;
-	void *userdata = nullptr;
+	void *const userdata;
 	virtual window_event_result event_handler(const d_event &) override;
 };
 
@@ -2228,10 +2229,7 @@ listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, c
 	set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
 
 	listbox_create_structure(lbl);
-	auto lb = std::make_unique<listbox>(grd_curscreen->sc_canvas, std::move(lbl));
-	lb->allow_abort_flag = allow_abort_flag;
-	lb->listbox_callback = listbox_callback;
-	lb->userdata = userdata;
+	auto lb = std::make_unique<listbox>(grd_curscreen->sc_canvas, std::move(lbl), listbox_callback, userdata, allow_abort_flag);
 	lb->send_creation_events();
 	return lb.release();
 }
