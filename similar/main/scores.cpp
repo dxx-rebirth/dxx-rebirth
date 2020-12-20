@@ -266,32 +266,29 @@ void scores_maybe_add_player()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	int position;
 	all_scores scores;
 	stats_info last_game;
 
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		return;
-  
 	scores_read(&scores);
-	
-	position = MAX_HIGH_SCORES;
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	for (int i=0; i<MAX_HIGH_SCORES; i++ ) {
-		if (player_info.mission.score > scores.stats[i].score)
-		{
-			position = i;
-			break;
-		}
-	}
-	stats_info *const ptr_last_game = (position == MAX_HIGH_SCORES)
+	const auto predicate = [player_mission_score = player_info.mission.score](const stats_info &stats) {
+		return player_mission_score > stats.score;
+	};
+	const auto begin_score_stats = std::begin(scores.stats);
+	const auto end_score_stats = std::end(scores.stats);
+	const auto iter_position = std::find_if(begin_score_stats, end_score_stats, predicate);
+	const auto position = std::distance(begin_score_stats, iter_position);
+	stats_info *const ptr_last_game = (iter_position == end_score_stats)
 		? &last_game
 		: nullptr;
 	if (ptr_last_game)
 	{
 		scores_fill_struct(ptr_last_game);
 	} else {
-		if ( position==0 )	{
+		if (iter_position == begin_score_stats)
+		{
 			std::array<char, sizeof(scores.cool_saying)> text1{};
 			std::array<newmenu_item, 2> m{{
 				nm_item_text(TXT_COOL_SAYING),
@@ -302,14 +299,10 @@ void scores_maybe_add_player()
 		} else {
 			nm_messagebox(menu_title{TXT_HIGH_SCORE}, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
 		}
-	
-		// move everyone down...
-		for ( int i=MAX_HIGH_SCORES-1; i>position; i-- ) {
-			scores.stats[i] = scores.stats[i-1];
-		}
 
-		scores_fill_struct( &scores.stats[position] );
-	
+		// move everyone down...
+		std::move_backward(iter_position, std::prev(end_score_stats), end_score_stats);
+		scores_fill_struct(iter_position);
 		scores_write(&scores);
 	}
 	scores_view(ptr_last_game, position);
