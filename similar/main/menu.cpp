@@ -1323,8 +1323,6 @@ static void input_config_keyboard()
 	(void)menu;
 }
 
-static void input_config_mouse()
-{
 #define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	                           \
 	DXX_MENUITEM(VERB, SLIDER, TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
 	DXX_MENUITEM(VERB, SLIDER, TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
@@ -1346,7 +1344,9 @@ static void input_config_mouse()
 	DXX_MENUITEM(VERB, TEXT, "Mouse FlightSim Deadzone:", opt_label_mfsd)	\
 	DXX_MENUITEM(VERB, SLIDER, "X/Y", opt_mfsd_deadzone, PlayerCfg.MouseFSDead, 0, 16)	\
 
-	class menu_items
+namespace mouse_sensitivity {
+
+	struct menu_items
 	{
 	public:
 		enum
@@ -1359,22 +1359,40 @@ static void input_config_mouse()
 			DXX_INPUT_CONFIG_MENU(ADD);
 		}
 	};
-#undef DXX_INPUT_CONFIG_MENU
-	menu_items items;
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{"Mouse Calibration"}, items.m, unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
-	constexpr uint_fast32_t mousesens = items.opt_label_ms + 1;
-    constexpr uint_fast32_t mouseoverrun = items.opt_label_mo + 1;
-	const auto &m = items.m;
-
-	for (unsigned i = 0; i <= 5; i++)
+struct menu : menu_items, newmenu
+{
+	menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{"Mouse Calibration"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 1), src)
 	{
-
-		PlayerCfg.MouseSens[i] = m[mousesens+i].value;
-        PlayerCfg.MouseOverrun[i] = m[mouseoverrun+i].value;
 	}
-	constexpr uint_fast32_t mousefsdead = items.opt_mfsd_deadzone;
-	PlayerCfg.MouseFSDead = m[mousefsdead].value;
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int menu::subfunction_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_WINDOW_CLOSE:
+			PlayerCfg.MouseFSDead = m[opt_mfsd_deadzone].value;
+			copy_sensitivity_from_menu_to_cfg(m,
+				copy_sensitivity(opt_label_ms, &player_config::MouseSens),
+				copy_sensitivity(opt_label_mo, &player_config::MouseOverrun)
+			);
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+
+}
+#undef DXX_INPUT_CONFIG_MENU
+
+static void input_config_mouse()
+{
+	auto menu = window_create<mouse_sensitivity::menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 #if DXX_MAX_AXES_PER_JOYSTICK
