@@ -237,6 +237,7 @@ constexpr std::integral_constant<unsigned, 21> MULTI_ALLOW_POWERUP_TEXT_LENGTH{}
 #endif
 
 namespace multi {
+using endlevel_poll_function_type = int(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 struct dispatch_table
 {
 	constexpr const dispatch_table *operator->() const
@@ -247,6 +248,7 @@ struct dispatch_table
 	virtual void do_protocol_frame(int force, int listen) const = 0;
 	virtual window_event_result level_sync() const = 0;
 	virtual void send_endlevel_packet() const = 0;
+	virtual endlevel_poll_function_type *get_endlevel_poll2() const = 0;
 };
 }
 }
@@ -485,9 +487,7 @@ void multi_consistency_error(int reset);
 window_event_result multi_level_sync();
 int multi_endlevel(int *secret);
 #ifdef dsx
-using multi_endlevel_poll = int(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 namespace dsx {
-multi_endlevel_poll *get_multi_endlevel_poll2();
 void multi_send_hostage_door_status(vcwallptridx_t wallnum);
 void multi_prep_level_objects(const d_vclip_array &Vclip);
 void multi_prep_level_player();

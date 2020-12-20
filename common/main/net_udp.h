@@ -30,6 +30,7 @@ struct dispatch_table final : multi::dispatch_table
 	virtual void do_protocol_frame(int force, int listen) const override;
 	virtual window_event_result level_sync() const override;
 	virtual void send_endlevel_packet() const override;
+	virtual endlevel_poll_function_type *get_endlevel_poll2() const override;
 };
 
 extern const dispatch_table dispatch;

@@ -2521,6 +2521,11 @@ void dispatch_table::send_endlevel_packet() const
 		dxx_sendto(Netgame.players[0].protocol.udp.addr, UDP_Socket[0], buf, 0);
 	}
 }
+
+endlevel_poll_function_type *dispatch_table::get_endlevel_poll2() const
+{
+	return kmatrix_poll2;
+}
 }
 }
 }

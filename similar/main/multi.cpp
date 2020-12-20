@@ -1126,23 +1126,6 @@ int multi_endlevel(int *const secret)
 	return(result);
 }
 
-namespace dsx {
-
-multi_endlevel_poll *get_multi_endlevel_poll2()
-{
-	switch (multi_protocol)
-	{
-#if DXX_USE_UDP
-		case MULTI_PROTO_UDP:
-			return multi::udp::kmatrix_poll2;
-#endif
-		default:
-			throw std::logic_error("Protocol handling missing in multi_endlevel_poll2");
-	}
-}
-
-}
-
 //
 // Part 2 : functions that act on network messages and change the
 //          the state of the game in some way.
