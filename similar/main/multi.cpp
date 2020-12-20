@@ -1265,19 +1265,7 @@ namespace {
 
 static void kick_player(const player &plr, netplayer_info &nplr)
 {
-	switch (multi_protocol)
-	{
-#if DXX_USE_UDP
-		case MULTI_PROTO_UDP:
-			net_udp_dump_player(nplr.protocol.udp.addr, DUMP_KICKED);
-			break;
-#endif
-		default:
-			(void)nplr;
-			Error("Protocol handling missing in multi_send_message_end\n");
-			break;
-	}
-
+	multi::dispatch->kick_player(nplr.protocol.udp.addr, DUMP_KICKED);
 	HUD_init_message(HM_MULTI, "Dumping %s...", static_cast<const char *>(plr.callsign));
 	multi_message_index = 0;
 	multi_sending_message[Player_num] = msgsend_none;

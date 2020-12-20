@@ -1663,7 +1663,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 
 	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 	{
-		net_udp_dump_player(their->player.protocol.udp.addr, DUMP_ENDLEVEL);
+		multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_ENDLEVEL);
 		return; 
 	}
 
@@ -1682,7 +1682,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 
 	if (their->player.connected != Current_level_num)
 	{
-		net_udp_dump_player(their->player.protocol.udp.addr, DUMP_LEVEL);
+		multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_LEVEL);
 		return;
 	}
 
@@ -1714,7 +1714,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 		else if (Netgame.game_flag.closed)
 		{
 			// Slots are open but game is closed
-			net_udp_dump_player(their->player.protocol.udp.addr, DUMP_CLOSED);
+			multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_CLOSED);
 			return;
 		}
 		else
@@ -1735,7 +1735,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 			if (activeplayers == Netgame.max_numplayers)
 			{
 				// Game is full.
-				net_udp_dump_player(their->player.protocol.udp.addr, DUMP_FULL);
+				multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_FULL);
 				return;
 			}
 
@@ -1751,7 +1751,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 			if (oldest_player == -1)
 			{
 				// Everyone is still connected 
-				net_udp_dump_player(their->player.protocol.udp.addr, DUMP_FULL);
+				multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_FULL);
 				return;
 			}
 			else
@@ -2015,7 +2015,7 @@ void net_udp_send_objects(void)
 	{
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
-		net_udp_dump_player(UDP_sync_player.player.protocol.udp.addr, DUMP_ENDLEVEL);
+		multi::udp::dispatch->kick_player(UDP_sync_player.player.protocol.udp.addr, DUMP_ENDLEVEL);
 		Network_send_objects = 0; 
 		return;
 	}
@@ -2251,7 +2251,7 @@ void net_udp_send_rejoin_sync(const unsigned player_num)
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
 
-		net_udp_dump_player(UDP_sync_player.player.protocol.udp.addr, DUMP_ENDLEVEL);
+		multi::udp::dispatch->kick_player(UDP_sync_player.player.protocol.udp.addr, DUMP_ENDLEVEL);
 
 		Network_send_objects = 0; 
 		Network_sending_extras=0;
@@ -2391,7 +2391,10 @@ static void net_udp_remove_player(UDP_sequence_packet *p)
 	net_udp_send_netgame_update();
 }
 
-void net_udp_dump_player(const _sockaddr &dump_addr, int why)
+namespace dsx {
+namespace multi {
+namespace udp {
+void dispatch_table::kick_player(const _sockaddr &dump_addr, int why) const
 {
 	// Inform player that he was not chosen for the netgame
 	std::array<uint8_t, UPID_DUMP_SIZE> buf;
@@ -2403,8 +2406,9 @@ void net_udp_dump_player(const _sockaddr &dump_addr, int why)
 			if (dump_addr == Netgame.players[i].protocol.udp.addr)
 				multi_disconnect_player(i);
 }
+}
+}
 
-namespace dsx {
 void net_udp_update_netgame(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -4292,7 +4296,7 @@ static int net_udp_send_sync(void)
 			if (vcplayerptr(i)->connected == CONNECT_DISCONNECTED)
 				continue;
 			const auto &addr = Netgame.players[i].protocol.udp.addr;
-			net_udp_dump_player(addr, DUMP_ABORTED);
+			multi::udp::dispatch->kick_player(addr, DUMP_ABORTED);
 			net_udp_send_game_info(addr, &addr, UPID_GAME_INFO);
 		}
 		net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
@@ -4490,7 +4494,7 @@ abort:
 			if (vcplayerptr(i)->connected == CONNECT_DISCONNECTED)
 				continue;
 			const auto &addr = Netgame.players[i].protocol.udp.addr;
-			net_udp_dump_player(addr, DUMP_ABORTED);
+			multi::udp::dispatch->kick_player(addr, DUMP_ABORTED);
 			net_udp_send_game_info(addr, &addr, UPID_GAME_INFO);
 		}
 		net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
@@ -4536,7 +4540,7 @@ abort:
 		}
 		else
 		{
-			net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_DORK);
+			multi::udp::dispatch->kick_player(Netgame.players[i].protocol.udp.addr, DUMP_DORK);
 		}
 	}
 
@@ -4694,7 +4698,7 @@ menu:
 		{
 			if (vcplayerptr(i)->connected != CONNECT_DISCONNECTED && i != Player_num)
 			{
-				net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_ABORTED);
+				multi::udp::dispatch->kick_player(Netgame.players[i].protocol.udp.addr, DUMP_ABORTED);
 			}
 		}
 		return -1;
@@ -5049,7 +5053,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const ubyte *data, ushort d
 		{
 			for ( int i=1; i<N_players; i++ )
 				if (UDP_mdata_queue[0].player_ack[i] == 0)
-					net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_PKTTIMEOUT);
+					multi::udp::dispatch->kick_player(Netgame.players[i].protocol.udp.addr, DUMP_PKTTIMEOUT);
 			std::move(std::next(UDP_mdata_queue.begin()), UDP_mdata_queue.end(), UDP_mdata_queue.begin());
 			UDP_mdata_queue[UDP_MDATA_STOR_QUEUE_SIZE - 1] = {};
 			UDP_mdata_queue_highest--;
@@ -5253,7 +5257,7 @@ void net_udp_noloss_process_queue(fix64 time)
 				{
 					for ( int plc=1; plc<N_players; plc++ )
 						if (UDP_mdata_queue[queuec].player_ack[plc] == 0)
-							net_udp_dump_player(Netgame.players[plc].protocol.udp.addr, DUMP_PKTTIMEOUT);
+							multi::udp::dispatch->kick_player(Netgame.players[plc].protocol.udp.addr, DUMP_PKTTIMEOUT);
 				}
 				else // We are client, so we gotta go.
 				{
@@ -5830,7 +5834,7 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 			WaitForRefuseAnswer=0;
 			if (!strcmp (their->player.callsign,RefusePlayerName))
 			{
-				net_udp_dump_player(their->player.protocol.udp.addr, DUMP_DORK);
+				multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_DORK);
 			}
 			return;
 		}
