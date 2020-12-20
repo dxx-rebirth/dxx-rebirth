@@ -145,13 +145,13 @@ enum class netgame_menu_item_index
 	join_multiplayer_game,
 };
 
-struct netgame_menu
+struct netgame_menu_items
 {
 	enumerated_array<newmenu_item, 3, netgame_menu_item_index> m;
-	netgame_menu();
+	netgame_menu_items();
 };
 
-netgame_menu::netgame_menu()
+netgame_menu_items::netgame_menu_items()
 {
 	nm_set_item_menu(m[netgame_menu_item_index::start_new_multiplayer_game], "HOST GAME");
 #if DXX_USE_TRACKER
@@ -292,6 +292,17 @@ void do_sandbox_menu();
 int select_demo();
 #if DXX_USE_UDP
 static void do_multi_player_menu();
+#endif
+
+#if DXX_USE_UDP
+struct netgame_menu : netgame_menu_items, newmenu
+{
+	netgame_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{TXT_MULTIPLAYER}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
 #endif
 
 }
@@ -2416,7 +2427,7 @@ void gameplay_config()
 }
 
 #if DXX_USE_UDP
-static int multi_player_menu_handler(newmenu *, const d_event &event, netgame_menu *nm)
+int netgame_menu::subfunction_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -2426,22 +2437,16 @@ static int multi_player_menu_handler(newmenu *, const d_event &event, netgame_me
 			// stay in multiplayer menu, even after having played a game
 			return dispatch_menu_option(static_cast<netgame_menu_item_index>(citem));
 		}
-
-		case EVENT_WINDOW_CLOSE:
-			std::default_delete<netgame_menu>()(nm);
-			break;
-
 		default:
 			break;
 	}
-
 	return 0;
 }
 
 void do_multi_player_menu()
 {
-	netgame_menu *nm = new netgame_menu;
-	newmenu_do3(menu_title{nullptr}, menu_subtitle{TXT_MULTIPLAYER}, nm->m, multi_player_menu_handler, nm, 0, menu_filename{nullptr});
+	auto menu = window_create<netgame_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 #endif
 
