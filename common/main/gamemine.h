@@ -136,9 +136,7 @@ extern struct me mine_editor;
 // returns 0=everything ok, 1=old version, -1=error
 #ifdef dsx
 namespace dsx {
-int load_mine_data(PHYSFS_File *LoadFile);
 int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *Gamesave_current_filename);
-
 }
 #endif
 #define TMAP_NUM_MASK 0x3FFF

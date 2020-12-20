@@ -1311,9 +1311,6 @@ int load_level(
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptridx = Objects.vmptridx;
-#if DXX_USE_EDITOR
-	int use_compiled_level=1;
-#endif
 	char filename[PATH_MAX];
 	int sig, minedata_offset, gamedata_offset;
 	int mine_err, game_err;
@@ -1323,26 +1320,6 @@ int load_level(
 	#endif
 
 	strcpy(filename,filename_passed);
-
-#if DXX_USE_EDITOR
-	//if we have the editor, try the LVL first, no matter what was passed.
-	//if we don't have an LVL, try what was passed or RL2  
-	//if we don't have the editor, we just use what was passed
-
-	change_filename_extension(filename,filename_passed,".lvl");
-	use_compiled_level = 0;
-
-	if (!PHYSFSX_exists(filename,1))
-	{
-		const char *p = strrchr(filename_passed, '.');
-
-		if (d_stricmp(p, ".lvl"))
-			strcpy(filename, filename_passed);	// set to what was passed
-		else
-			change_filename_extension(filename, filename, "." DXX_LEVEL_FILE_EXTENSION);
-		use_compiled_level = 1;
-	}		
-#endif
 
 	auto LoadFile = PHYSFSX_openReadBuffered(filename);
 	if (!LoadFile)
@@ -1429,15 +1406,6 @@ int load_level(
 #endif
 
 	PHYSFSX_fseek(LoadFile,minedata_offset,SEEK_SET);
-#if DXX_USE_EDITOR
-	if (!use_compiled_level) {
-		mine_err = load_mine_data(LoadFile);
-#if 0 // get from d1src if needed
-		// Compress all uv coordinates in mine, improves texmap precision. --MK, 02/19/96
-		compress_uv_coordinates_all();
-#endif
-	} else
-	#endif
 		//NOTE LINK TO ABOVE!!
 		mine_err = load_mine_data_compiled(LoadFile, filename);
 
