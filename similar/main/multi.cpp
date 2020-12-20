@@ -1119,26 +1119,6 @@ void multi_show_player_list()
 
 }
 
-int multi_endlevel(int *const secret)
-{
-	int result = 0;
-
-	switch (multi_protocol)
-	{
-#if DXX_USE_UDP
-		case MULTI_PROTO_UDP:
-			result = multi::udp::endlevel(secret);
-			break;
-#endif
-		default:
-			(void)secret;
-			Error("Protocol handling missing in multi_endlevel\n");
-			break;
-	}
-
-	return(result);
-}
-
 //
 // Part 2 : functions that act on network messages and change the
 //          the state of the game in some way.

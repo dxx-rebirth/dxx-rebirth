@@ -251,6 +251,7 @@ struct dispatch_table
 	virtual endlevel_poll_function_type *get_endlevel_poll2() const = 0;
 	virtual void kick_player(const _sockaddr &dump_addr, int why) const = 0;
 	virtual void disconnect_player(int playernum) const = 0;
+	virtual int end_current_level(int *secret) const = 0;
 };
 }
 }
@@ -487,7 +488,6 @@ void multi_send_bounty( void );
 
 void multi_consistency_error(int reset);
 window_event_result multi_level_sync();
-int multi_endlevel(int *secret);
 #ifdef dsx
 namespace dsx {
 void multi_send_hostage_door_status(vcwallptridx_t wallnum);

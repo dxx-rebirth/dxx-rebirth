@@ -1489,7 +1489,7 @@ int kmatrix_poll2( newmenu *,const d_event &event, const unused_newmenu_userdata
 	return rval;
 }
 
-int endlevel(int *secret)
+int dispatch_table::end_current_level(int *secret) const
 {
 	// Do whatever needs to be done between levels
 #if defined(DXX_BUILD_DESCENT_II)

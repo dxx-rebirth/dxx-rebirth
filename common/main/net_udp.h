@@ -33,12 +33,12 @@ struct dispatch_table final : multi::dispatch_table
 	virtual endlevel_poll_function_type *get_endlevel_poll2() const override;
 	virtual void kick_player(const _sockaddr &dump_addr, int why) const override;
 	virtual void disconnect_player(int playernum) const override;
+	virtual int end_current_level(int *secret) const override;
 };
 
 extern const dispatch_table dispatch;
 int kmatrix_poll2(newmenu *menu, const d_event &event, const unused_newmenu_userdata_t *);
 void leave_game();
-int endlevel(int *secret);
 }
 using udp::dispatch;
 }

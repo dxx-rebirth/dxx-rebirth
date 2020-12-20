@@ -1688,7 +1688,7 @@ static window_event_result AdvanceLevel(int secret_flag)
 	if (Game_mode & GM_MULTI)
 	{
 		int result;
-		result = multi_endlevel(&secret_flag); // Wait for other players to reach this point
+		result = multi::dispatch->end_current_level(&secret_flag); // Wait for other players to reach this point
 		if (result) // failed to sync
 		{
 			// check if player has finished the game
