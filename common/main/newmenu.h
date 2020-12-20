@@ -304,17 +304,6 @@ static newmenu *newmenu_do3(const menu_title title, const menu_subtitle subtitle
 	return newmenu_do4(title, subtitle, std::move(items), reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename);
 }
 
-static inline newmenu *newmenu_dotiny(const menu_title title, const menu_subtitle subtitle, partial_range_t<newmenu_item *> items, const tab_processing_flag TabsFlag, const newmenu_subfunction subfunction, void *const userdata)
-{
-	return newmenu_do4(title, subtitle, std::move(items), subfunction, userdata, 0, menu_filename{nullptr}, tiny_mode_flag::tiny, TabsFlag);
-}
-
-// Tiny menu with GAME_FONT
-template <typename T>
-static newmenu *newmenu_dotiny(const menu_title title, const menu_subtitle subtitle, partial_range_t<newmenu_item *> items, const tab_processing_flag TabsFlag, const newmenu_subfunction_t<T> subfunction, T *const userdata)
-{
-	return newmenu_dotiny(title, subtitle, std::move(items), TabsFlag, reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(userdata));
-}
 }
 
 newmenu_item *newmenu_get_items(newmenu *menu);

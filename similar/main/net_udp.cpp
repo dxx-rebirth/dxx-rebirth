@@ -856,8 +856,8 @@ constexpr csockaddr_dispatch_t<passthrough_static_apply<net_udp_send_game_info_t
 struct direct_join
 {
 	struct _sockaddr host_addr;
-	int connecting;
 	fix64 start_time, last_time;
+	uint8_t connecting = 0;
 #if DXX_USE_TRACKER
 	uint16_t gameid;
 #endif
@@ -907,8 +907,13 @@ struct netgame_list_game_menu_items
 	}
 };
 
-struct netgame_list_game_menu : netgame_list_game_menu_items, direct_join
+struct netgame_list_game_menu : netgame_list_game_menu_items, direct_join, newmenu
 {
+	netgame_list_game_menu(grs_canvas &src) :
+		newmenu(menu_title{"NETGAMES"}, menu_subtitle{nullptr}, menu_filename{nullptr}, tiny_mode_flag::tiny, tab_processing_flag::process, adjusted_citem::create(menus, 0), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
 };
 
 manual_join_user_inputs manual_join::s_last_inputs;
@@ -1131,12 +1136,11 @@ static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_fl
 	out[k] = 0;
 }
 
-static int net_udp_list_join_poll(newmenu *menu, const d_event &event, netgame_list_game_menu *const dj)
+int netgame_list_game_menu::subfunction_handler(const d_event &event)
 {
 	// Polling loop for Join Game menu
 	int newpage = 0;
 	static int NLPage = 0;
-	newmenu_item *menus = newmenu_get_items(menu);
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
@@ -1152,16 +1156,16 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, netgame_l
 #if DXX_USE_TRACKER
 			udp_tracker_reqgames();
 #endif
-			if (!dj->connecting) // fallback/failsafe!
+			if (!connecting) // fallback/failsafe!
 				nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\t");
 			break;
 		}
 		case EVENT_IDLE:
-			if (dj->connecting)
+			if (connecting)
 			{
-				if (net_udp_game_connect(dj))
+				if (net_udp_game_connect(this))
 					return -2;	// Success!
-				if (!dj->connecting) // connect wasn't successful - get rid of the message.
+				if (!connecting) // connect wasn't successful - get rid of the message.
 					nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\t");
 			}
 			break;
@@ -1234,9 +1238,9 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, netgame_l
 #endif
 			if (key == KEY_ESC)
 			{
-				if (dj->connecting)
+				if (connecting)
 				{
-					dj->connecting = 0;
+					connecting = 0;
 					nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\t");
 					return 1;
 				}
@@ -1252,13 +1256,13 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, netgame_l
 				multi_new_game();
 				N_players = 0;
 				change_playernum_to(1);
-				dj->start_time = timer_query();
-				dj->last_time = 0;
-				dj->host_addr = Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-4].game_addr;
-				Netgame.players[0].protocol.udp.addr = dj->host_addr;
-				dj->connecting = 1;
+				start_time = timer_query();
+				last_time = 0;
+				host_addr = Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-4].game_addr;
+				Netgame.players[0].protocol.udp.addr = host_addr;
+				connecting = 1;
 #if DXX_USE_TRACKER
-				dj->gameid = Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-4].TrackerGameID;
+				gameid = Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-4].TrackerGameID;
 #endif
 				nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\tConnecting. Please wait...");
 				return 1;
@@ -1272,7 +1276,6 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, netgame_l
 		}
 		case EVENT_WINDOW_CLOSE:
 		{
-			std::default_delete<netgame_list_game_menu>()(dj);
 			if (!Game_wind)
 			{
 				net_udp_close();
@@ -1301,7 +1304,7 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, netgame_l
 
 		if ((i+(NLPage*UDP_NETGAMES_PPAGE)) >= num_active_udp_games)
 		{
-			auto &p = dj->ljtext[i];
+			auto &p = ljtext[i];
 			snprintf(&p[0], p.size(), "%d.                                                                      ", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1);
 			continue;
 		}
@@ -1346,7 +1349,7 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, netgame_l
 			status = "BETWEEN ";
 		
 		unsigned gamemode = augi.gamemode;
-		auto &p = dj->ljtext[i];
+		auto &p = ljtext[i];
 		snprintf(&p[0], p.size(), "%d.\t%.24s \t%.7s \t%3u/%u \t%.24s \t %s \t%s", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1, GameName.data(), (gamemode < std::size(GMNamesShrt)) ? GMNamesShrt[gamemode] : "INVALID", nplayers, augi.max_numplayers, MissName.data(), levelname, status);
 	}
 	return 0;
@@ -1384,10 +1387,9 @@ void net_udp_list_join_game()
 
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(15, 15, 23),-1);
 
-	auto dj = std::make_unique<netgame_list_game_menu>();
 	num_active_udp_changed = 1;
-	auto &m = dj->menus;
-	newmenu_dotiny(menu_title{"NETGAMES"}, menu_subtitle{nullptr}, m, tab_processing_flag::process, net_udp_list_join_poll, dj.release());
+	auto menu = window_create<netgame_list_game_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 static void net_udp_send_sequence_packet(UDP_sequence_packet seq, const _sockaddr &recv_addr)
