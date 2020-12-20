@@ -64,8 +64,10 @@
 
 #include "compiler-cf_assert.h"
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "d_range.h"
+#include "d_zip.h"
 #include "partial_range.h"
 #include <array>
 #include <utility>
@@ -873,13 +875,40 @@ struct manual_join : direct_join, manual_join_user_inputs
 	std::array<newmenu_item, 7> m;
 };
 
-struct list_join : direct_join
+struct netgame_list_game_menu_items
 {
-	enum {
-		entries = ((UDP_NETGAMES_PPAGE + 5) * 2) + 1,
+	enum
+	{
+		header_rows = 4,
+		non_game_rows = header_rows + 1,
+		menuitem_count = UDP_NETGAMES_PPAGE + non_game_rows,
 	};
-	std::array<newmenu_item, entries> m;
-	std::array<std::array<char, 92>, entries> ljtext;
+	std::array<newmenu_item, menuitem_count> menus;
+	std::array<std::array<char, 92>, menuitem_count - non_game_rows> ljtext;
+	netgame_list_game_menu_items()
+	{
+#if DXX_USE_TRACKER
+#define DXX_NETGAME_LIST_SCAN_STRING	"\tF4/F5/F6: (Re)Scan for all/LAN/Tracker Games."
+#else
+#define DXX_NETGAME_LIST_SCAN_STRING	"\tF4: (Re)Scan for LAN Games."
+#endif
+		nm_set_item_text(menus[0], DXX_NETGAME_LIST_SCAN_STRING);
+#undef DXX_NETGAME_LIST_SCAN_STRING
+		nm_set_item_text(menus[1], "\tPgUp/PgDn: Flip Pages.");
+		nm_set_item_text(menus[2], "");
+		nm_set_item_text(menus[3], "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
+
+		for (auto &&[i, lj, mi] : enumerate(zip(ljtext, unchecked_partial_range(std::next(menus.begin(), header_rows), ljtext.size())), 1u))
+		{
+			snprintf(&lj[0], lj.size(), "%u.                                                                      ", i);
+			nm_set_item_menu(mi, &lj[0]);
+		}
+		nm_set_item_text(menus.back(), "\t");
+	}
+};
+
+struct netgame_list_game_menu : netgame_list_game_menu_items, direct_join
+{
 };
 
 manual_join_user_inputs manual_join::s_last_inputs;
@@ -1102,7 +1131,7 @@ static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_fl
 	out[k] = 0;
 }
 
-static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join *const dj)
+static int net_udp_list_join_poll(newmenu *menu, const d_event &event, netgame_list_game_menu *const dj)
 {
 	// Polling loop for Join Game menu
 	int newpage = 0;
@@ -1243,7 +1272,7 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 		}
 		case EVENT_WINDOW_CLOSE:
 		{
-			std::default_delete<list_join>()(dj);
+			std::default_delete<netgame_list_game_menu>()(dj);
 			if (!Game_wind)
 			{
 				net_udp_close();
@@ -1325,7 +1354,6 @@ static int net_udp_list_join_poll(newmenu *menu, const d_event &event, list_join
 
 void net_udp_list_join_game()
 {
-	auto dj = std::make_unique<list_join>();
 
 	net_udp_init();
 	const auto gamemyport = CGameArg.MplUdpMyPort;
@@ -1356,25 +1384,10 @@ void net_udp_list_join_game()
 
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(15, 15, 23),-1);
 
-	auto &m = dj->m;
-#if DXX_USE_TRACKER
-	nm_set_item_text(m[0], "\tF4/F5/F6: (Re)Scan for all/LAN/Tracker Games." );
-#else
-	nm_set_item_text(m[0], "\tF4: (Re)Scan for LAN Games." );
-#endif
-	nm_set_item_text(m[1], "\tPgUp/PgDn: Flip Pages." );
-	nm_set_item_text(m[2], " " );
-	nm_set_item_text(m[3],  "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
-
-	for (int i = 0; i < UDP_NETGAMES_PPAGE; i++) {
-		auto &p = dj->ljtext[i];
-		nm_set_item_menu(m[i + 4], &p[0]);
-		snprintf(&p[0], p.size(), "%d.                                                                      ", i + 1);
-	}
-	nm_set_item_text(m[UDP_NETGAMES_PPAGE+4], "\t" );
-
+	auto dj = std::make_unique<netgame_list_game_menu>();
 	num_active_udp_changed = 1;
-	newmenu_dotiny(menu_title{"NETGAMES"}, menu_subtitle{nullptr}, unchecked_partial_range(&m[0], UDP_NETGAMES_PPAGE + 5), tab_processing_flag::process, net_udp_list_join_poll, dj.release());
+	auto &m = dj->menus;
+	newmenu_dotiny(menu_title{"NETGAMES"}, menu_subtitle{nullptr}, m, tab_processing_flag::process, net_udp_list_join_poll, dj.release());
 }
 
 static void net_udp_send_sequence_packet(UDP_sequence_packet seq, const _sockaddr &recv_addr)
