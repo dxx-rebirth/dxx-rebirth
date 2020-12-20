@@ -738,14 +738,6 @@ void init_player_stats_ship(object &plrobj, const fix GameTime64)
 
 }
 
-//do whatever needs to be done when a player dies in multiplayer
-
-static void DoGameOver()
-{
-	if (PLAYING_BUILTIN_MISSION)
-		scores_maybe_add_player();
-}
-
 //update various information about the player
 void update_player_stats()
 {
@@ -1775,7 +1767,8 @@ window_event_result DoPlayerDead()
 		-- plr.lives;
 		if (plr.lives == 0)
 		{
-			DoGameOver();
+			if (PLAYING_BUILTIN_MISSION)
+				scores_maybe_add_player();
 			if (pause)
 				start_time();
 			return window_event_result::close;
