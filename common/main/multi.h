@@ -246,6 +246,7 @@ struct dispatch_table
 	virtual int objnum_is_past(objnum_t objnum) const = 0;
 	virtual void do_protocol_frame(int force, int listen) const = 0;
 	virtual window_event_result level_sync() const = 0;
+	virtual void send_endlevel_packet() const = 0;
 };
 }
 }
@@ -483,7 +484,6 @@ void multi_send_bounty( void );
 void multi_consistency_error(int reset);
 window_event_result multi_level_sync();
 int multi_endlevel(int *secret);
-void multi_send_endlevel_packet();
 #ifdef dsx
 using multi_endlevel_poll = int(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 namespace dsx {

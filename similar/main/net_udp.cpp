@@ -1488,10 +1488,8 @@ int kmatrix_poll2( newmenu *,const d_event &event, const unused_newmenu_userdata
 	
 	return rval;
 }
-}
-}
 
-int net_udp_endlevel(int *secret)
+int endlevel(int *secret)
 {
 	// Do whatever needs to be done between levels
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1515,19 +1513,21 @@ int net_udp_endlevel(int *secret)
 
 	Network_status = NETSTAT_ENDLEVEL; // We are between levels
 	net_udp_listen();
-	net_udp_send_endlevel_packet();
+	dispatch->send_endlevel_packet();
 
 	range_for (auto &i, partial_range(Netgame.players, N_players)) 
 	{
 		i.LastPacketTime = timer_query();
 	}
    
-	net_udp_send_endlevel_packet();
-	net_udp_send_endlevel_packet();
+	dispatch->send_endlevel_packet();
+	dispatch->send_endlevel_packet();
 
 	net_udp_update_netgame();
 
 	return(0);
+}
+}
 }
 }
 
@@ -2458,10 +2458,11 @@ void net_udp_update_netgame(void)
 	Netgame.team_kills = team_kills;
 	Netgame.levelnum = Current_level_num;
 }
-}
 
+namespace multi {
+namespace udp {
 /* Send an updated endlevel status to everyone (if we are host) or host (if we are client)  */
-void net_udp_send_endlevel_packet(void)
+void dispatch_table::send_endlevel_packet() const
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -2520,7 +2521,11 @@ void net_udp_send_endlevel_packet(void)
 		dxx_sendto(Netgame.players[0].protocol.udp.addr, UDP_Socket[0], buf, 0);
 	}
 }
+}
+}
+}
 
+namespace {
 static void net_udp_send_version_deny(const _sockaddr &sender_addr)
 {
 	std::array<uint8_t, UPID_VERSION_DENY_SIZE> buf;
@@ -2562,8 +2567,6 @@ static int net_udp_check_game_info_request(ubyte *data, int lite)
 		
 	return 1;
 }
-
-namespace {
 
 struct game_info_light
 {
@@ -4724,7 +4727,7 @@ window_event_result dispatch_table::level_sync() const
 	if (result)
 	{
 		get_local_player().connected = CONNECT_DISCONNECTED;
-		net_udp_send_endlevel_packet();
+		dispatch->send_endlevel_packet();
 		show_menus();
 		net_udp_close();
 		return window_event_result::close;
@@ -4985,7 +4988,7 @@ void dispatch_table::do_protocol_frame(int force, int listen) const
 	if (time >= last_endlevel_time + F1_0 && LevelUniqueControlCenterState.Control_center_destroyed)
 	{
 		last_endlevel_time = time;
-		net_udp_send_endlevel_packet();
+		dispatch->send_endlevel_packet();
 	}
 
 	// broadcast lite_info every 10 seconds

@@ -1114,7 +1114,7 @@ int multi_endlevel(int *const secret)
 	{
 #if DXX_USE_UDP
 		case MULTI_PROTO_UDP:
-			result = net_udp_endlevel(secret);
+			result = multi::udp::endlevel(secret);
 			break;
 #endif
 		default:
@@ -1141,21 +1141,6 @@ multi_endlevel_poll *get_multi_endlevel_poll2()
 	}
 }
 
-}
-
-void multi_send_endlevel_packet()
-{
-	switch (multi_protocol)
-	{
-#if DXX_USE_UDP
-		case MULTI_PROTO_UDP:
-			net_udp_send_endlevel_packet();
-			break;
-#endif
-		default:
-			Error("Protocol handling missing in multi_send_endlevel_packet\n");
-			break;
-	}
 }
 
 //
@@ -2660,17 +2645,7 @@ void multi_send_endlevel_start()
 	if (Game_mode & GM_NETWORK)
 	{
 		get_local_player().connected = CONNECT_ESCAPE_TUNNEL;
-		switch (multi_protocol)
-		{
-#if DXX_USE_UDP
-			case MULTI_PROTO_UDP:
-				net_udp_send_endlevel_packet();
-				break;
-#endif
-			default:
-				Error("Protocol handling missing in multi_send_endlevel_start\n");
-				break;
-		}
+		multi::dispatch->send_endlevel_packet();
 	}
 }
 

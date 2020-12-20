@@ -320,7 +320,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 						get_local_player().connected=CONNECT_DISCONNECTED;
 						
 						if (network != kmatrix_network::offline)
-							multi_send_endlevel_packet();
+							multi::dispatch->send_endlevel_packet();
 						
 						multi_leave_game();
 						this->result = kmatrix_result::abort;
@@ -365,7 +365,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 			if (timer_query() >= end_time && end_time != -1)
 			{
 				if (network != kmatrix_network::offline)
-					multi_send_endlevel_packet();  // make sure
+					multi::dispatch->send_endlevel_packet();  // make sure
 				
 #if defined(DXX_BUILD_DESCENT_II)
 				if (is_D2_OEM)
@@ -375,7 +375,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 						get_local_player().connected=CONNECT_DISCONNECTED;
 						
 						if (network != kmatrix_network::offline)
-							multi_send_endlevel_packet();
+							multi::dispatch->send_endlevel_packet();
 						
 						multi_leave_game();
 						this->result = kmatrix_result::abort;

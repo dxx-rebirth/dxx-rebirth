@@ -29,11 +29,13 @@ struct dispatch_table final : multi::dispatch_table
 	virtual int objnum_is_past(objnum_t objnum) const override;
 	virtual void do_protocol_frame(int force, int listen) const override;
 	virtual window_event_result level_sync() const override;
+	virtual void send_endlevel_packet() const override;
 };
 
 extern const dispatch_table dispatch;
 int kmatrix_poll2(newmenu *menu, const d_event &event, const unused_newmenu_userdata_t *);
 void leave_game();
+int endlevel(int *secret);
 }
 using udp::dispatch;
 }
@@ -50,10 +52,8 @@ namespace dsx {
 void net_udp_send_data(const uint8_t *ptr, unsigned len, int priority);
 #ifdef dsx
 namespace dsx {
-int net_udp_endlevel(int *secret);
 }
 #endif
-void net_udp_send_endlevel_packet();
 void net_udp_dump_player(const _sockaddr &dump_addr, int why);
 void net_udp_disconnect_player(int playernum);
 window_event_result net_udp_level_sync();
