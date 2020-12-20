@@ -245,6 +245,7 @@ struct dispatch_table
 	}
 	virtual int objnum_is_past(objnum_t objnum) const = 0;
 	virtual void do_protocol_frame(int force, int listen) const = 0;
+	virtual window_event_result level_sync() const = 0;
 };
 }
 }

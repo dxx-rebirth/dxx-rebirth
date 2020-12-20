@@ -4697,8 +4697,11 @@ menu:
 	return 0;
 }
 
+namespace dsx {
+namespace multi {
+namespace udp {
 /* Do required syncing after each level, before starting new one */
-window_event_result net_udp_level_sync()
+window_event_result dispatch_table::level_sync() const
 {
 	int result = 0;
 
@@ -4728,8 +4731,9 @@ window_event_result net_udp_level_sync()
 	}
 	return window_event_result::handled;
 }
+}
+}
 
-namespace dsx {
 int net_udp_do_join_game()
 {
 
@@ -4799,14 +4803,14 @@ int net_udp_do_join_game()
 
 	return StartNewLevel(Netgame.levelnum) == window_event_result::handled;     // look ma, we're in a game!!! (If level syncing didn't fail -kreatordxx)
 }
-}
 
-namespace dsx {
-void net_udp_leave_game()
+namespace multi {
+namespace udp {
+void leave_game()
 {
 	int nsave;
 
-	multi::udp::dispatch->do_protocol_frame(1, 1);
+	dispatch->do_protocol_frame(1, 1);
 
 	if (multi_i_am_master())
 	{
@@ -4842,6 +4846,8 @@ void net_udp_leave_game()
 
 	net_udp_flush();
 	net_udp_close();
+}
+}
 }
 }
 

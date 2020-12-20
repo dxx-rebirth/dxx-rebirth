@@ -1077,7 +1077,7 @@ void multi_leave_game()
 		{
 #if DXX_USE_UDP
 			case MULTI_PROTO_UDP:
-				net_udp_leave_game();
+				multi::udp::leave_game();
 				break;
 #endif
 			default:
@@ -3542,27 +3542,6 @@ void multi_prep_level_player(void)
 
 	imulti_new_game=0;
 }
-
-}
-
-window_event_result multi_level_sync(void)
-{
-	switch (multi_protocol)
-	{
-#if DXX_USE_UDP
-		case MULTI_PROTO_UDP:
-			return net_udp_level_sync();
-			break;
-#endif
-		default:
-			Error("Protocol handling missing in multi_level_sync\n");
-			break;
-	}
-
-	return window_event_result::ignored;
-}
-
-namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace {
