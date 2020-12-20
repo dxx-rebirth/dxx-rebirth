@@ -3648,14 +3648,36 @@ public:
 	}
 };
 
+struct grant_powerup_menu : grant_powerup_menu_items, newmenu
+{
+	grant_powerup_menu(const laser_level level, const packed_spawn_granted_items p, grs_canvas &src) :
+		grant_powerup_menu_items(level, p),
+		newmenu(menu_title{nullptr}, menu_subtitle{"Powerups granted at player spawn"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int grant_powerup_menu::subfunction_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_WINDOW_CLOSE:
+			read(Netgame.SpawnGrantedItems);
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+
 }
 
 static void net_udp_set_grant_power()
 {
 	const auto SpawnGrantedItems = Netgame.SpawnGrantedItems;
-	grant_powerup_menu_items menu{map_granted_flags_to_laser_level(SpawnGrantedItems), SpawnGrantedItems};
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{"Powerups granted at player spawn"}, menu.m, unused_newmenu_subfunction, unused_newmenu_userdata);
-	menu.read(Netgame.SpawnGrantedItems);
+	auto menu = window_create<grant_powerup_menu>(map_granted_flags_to_laser_level(SpawnGrantedItems), SpawnGrantedItems, grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 void more_game_options_menu_items::net_udp_more_game_options()
