@@ -2645,13 +2645,19 @@ public:
 	}
 };
 
-static int sandbox_menuset(newmenu *, const d_event &event, sandbox_menu_items *items)
+struct sandbox_menu : sandbox_menu_items, newmenu
+{
+	sandbox_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{"Coder's sandbox"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int sandbox_menu::subfunction_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_CHANGED:
-			break;
-
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
@@ -2666,13 +2672,6 @@ static int sandbox_menuset(newmenu *, const d_event &event, sandbox_menu_items *
 			}
 			return 1; // stay in menu until escape
 		}
-
-		case EVENT_WINDOW_CLOSE:
-		{
-			std::default_delete<sandbox_menu_items>()(items);
-			break;
-		}
-
 		default:
 			break;
 	}
@@ -2681,8 +2680,8 @@ static int sandbox_menuset(newmenu *, const d_event &event, sandbox_menu_items *
 
 void do_sandbox_menu()
 {
-	auto items = new sandbox_menu_items;
-	newmenu_do3(menu_title{nullptr}, menu_subtitle{"Coder's sandbox"}, items->m, sandbox_menuset, items, 0, menu_filename{nullptr});
+	auto menu = window_create<sandbox_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 }
