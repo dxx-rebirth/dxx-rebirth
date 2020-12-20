@@ -78,6 +78,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dsx {
 
+namespace {
+
 static void show_escort_menu(const std::array<char, 300> &);
 static void say_escort_goal(escort_goal_t goal_num);
 
@@ -110,6 +112,65 @@ constexpr std::array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
 }};
 
 constexpr std::integral_constant<unsigned, 200> Max_escort_length{};
+
+#define DXX_GUIDEBOT_RENAME_MENU(VERB)	\
+	DXX_MENUITEM(VERB, INPUT, guidebot_name_buffer, opt_name)	\
+
+struct rename_guidebot_menu_items
+{
+	std::array<newmenu_item, DXX_GUIDEBOT_RENAME_MENU(COUNT)> m;
+	decltype(PlayerCfg.GuidebotName) guidebot_name_buffer;
+	enum
+	{
+		DXX_GUIDEBOT_RENAME_MENU(ENUM)
+	};
+	rename_guidebot_menu_items()
+	{
+		guidebot_name_buffer = PlayerCfg.GuidebotName;
+		DXX_GUIDEBOT_RENAME_MENU(ADD);
+	}
+};
+
+#undef DXX_GUIDEBOT_RENAME_MENU
+
+struct rename_guidebot_menu : rename_guidebot_menu_items, newmenu
+{
+	rename_guidebot_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{"Enter Guide-bot name:"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int rename_guidebot_menu::subfunction_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_WINDOW_CLOSE:
+			{
+				uint8_t changed = 0;
+				if (PlayerCfg.GuidebotName != guidebot_name_buffer)
+				{
+					PlayerCfg.GuidebotName = guidebot_name_buffer;
+					changed = 1;
+				}
+				if (PlayerCfg.GuidebotNameReal != guidebot_name_buffer)
+				{
+					PlayerCfg.GuidebotNameReal = guidebot_name_buffer;
+					changed = 1;
+				}
+				if (!changed)
+					break;
+				write_player_file();
+			}
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+
+}
 
 void init_buddy_for_level(void)
 {
@@ -351,27 +412,11 @@ void detect_escort_goal_accomplished(const vmobjptridx_t index)
 	}
 }
 
-#define DXX_GUIDEBOT_RENAME_MENU(VERB)	\
-	DXX_MENUITEM(VERB, INPUT, text, opt_name)	\
-
 void change_guidebot_name()
 {
-	auto text = PlayerCfg.GuidebotName;
-	std::array<newmenu_item, DXX_GUIDEBOT_RENAME_MENU(COUNT)> m;
-	enum
-	{
-		DXX_GUIDEBOT_RENAME_MENU(ENUM)
-	};
-	DXX_GUIDEBOT_RENAME_MENU(ADD);
-	const auto item = newmenu_do2(menu_title{nullptr}, menu_subtitle{"Enter Guide-bot name:"}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
-
-	if (item != -1) {
-		PlayerCfg.GuidebotName = PlayerCfg.GuidebotNameReal = text;
-		write_player_file();
-	}
+	auto menu = window_create<rename_guidebot_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
-
-#undef DXX_GUIDEBOT_RENAME_MENU
 
 //	-----------------------------------------------------------------------------
 static uint8_t show_buddy_message()
@@ -552,6 +597,8 @@ void set_escort_special_goal(d_unique_buddy_state &BuddyState, const int raw_spe
 	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	multi_send_escort_goal(BuddyState);
 }
+
+namespace {
 
 //	-----------------------------------------------------------------------------
 //	Return id of boss.
@@ -1148,6 +1195,8 @@ static void escort_set_goal_toward_controlling_player(d_unique_buddy_state &Budd
 		}
 	}
 	aip.ail.mode = ai_mode::AIM_GOTO_OBJECT;
+}
+
 }
 
 //	-----------------------------------------------------------------------------
@@ -2038,6 +2087,8 @@ void do_escort_menu(void)
 	wind.release();
 }
 
+namespace {
+
 //	-------------------------------------------------------------------------------
 //	Show the Buddy menu!
 void show_escort_menu(const std::array<char, 300> &amsg)
@@ -2063,6 +2114,8 @@ void show_escort_menu(const std::array<char, 300> &amsg)
 	gr_ustring(canvas, game_font, x, y, msg);
 
 	reset_cockpit();
+}
+
 }
 
 }
