@@ -1531,6 +1531,7 @@ int endlevel(int *secret)
 }
 }
 
+namespace {
 static join_netgame_status_code net_udp_can_join_netgame(const netgame_info *const game)
 {
 	// Can this player rejoin a netgame in progress?
@@ -1570,9 +1571,13 @@ static join_netgame_status_code net_udp_can_join_netgame(const netgame_info *con
 	}
 	return join_netgame_status_code::game_in_disallowed_state;
 }
+}
 
+namespace dsx {
+namespace multi {
+namespace udp {
 // do UDP stuff to disconnect a player. Should ONLY be called from multi_disconnect_player()
-void net_udp_disconnect_player(int playernum)
+void dispatch_table::disconnect_player(int playernum) const
 {
 	// A player has disconnected from the net game, take whatever steps are
 	// necessary 
@@ -1588,8 +1593,9 @@ void net_udp_disconnect_player(int playernum)
 
 	net_udp_noloss_clear_mdata_trace(playernum);
 }
+}
+}
 
-namespace dsx {
 static void net_udp_new_player(UDP_sequence_packet *const their)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;

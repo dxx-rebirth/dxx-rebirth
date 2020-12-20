@@ -1998,17 +1998,7 @@ void multi_disconnect_player(const playernum_t pnum)
 	vmplayerptr(pnum)->connected = CONNECT_DISCONNECTED;
 	Netgame.players[pnum].connected = CONNECT_DISCONNECTED;
 
-	switch (multi_protocol)
-	{
-#if DXX_USE_UDP
-		case MULTI_PROTO_UDP:
-			net_udp_disconnect_player(pnum);
-			break;
-#endif
-		default:
-			Error("Protocol handling missing in multi_disconnect_player\n");
-			break;
-	}
+	multi::dispatch->disconnect_player(pnum);
 
 	if (pnum == multi_who_is_master()) // Host has left - Quit game!
 	{

@@ -250,6 +250,7 @@ struct dispatch_table
 	virtual void send_endlevel_packet() const = 0;
 	virtual endlevel_poll_function_type *get_endlevel_poll2() const = 0;
 	virtual void kick_player(const _sockaddr &dump_addr, int why) const = 0;
+	virtual void disconnect_player(int playernum) const = 0;
 };
 }
 }

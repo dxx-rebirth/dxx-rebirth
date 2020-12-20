@@ -32,6 +32,7 @@ struct dispatch_table final : multi::dispatch_table
 	virtual void send_endlevel_packet() const override;
 	virtual endlevel_poll_function_type *get_endlevel_poll2() const override;
 	virtual void kick_player(const _sockaddr &dump_addr, int why) const override;
+	virtual void disconnect_player(int playernum) const override;
 };
 
 extern const dispatch_table dispatch;
@@ -56,7 +57,6 @@ void net_udp_send_data(const uint8_t *ptr, unsigned len, int priority);
 namespace dsx {
 }
 #endif
-void net_udp_disconnect_player(int playernum);
 window_event_result net_udp_level_sync();
 void net_udp_send_mdata_direct(const ubyte *data, int data_len, int pnum, int priority);
 void net_udp_send_netgame_update();
