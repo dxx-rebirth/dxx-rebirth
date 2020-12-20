@@ -430,7 +430,7 @@ namespace dsx {
 /*
  * The thief bot moves around even when not controlled by a player. Due to its erratic and random behaviour, it's movement will diverge heavily between players and cause it to teleport when a player takes over.
  * To counter this, let host update positions when no one controls it OR the client which does.
- * Seperated this function to allow the positions being updated more frequently then multi_send_robot_frame (see net_udp_do_frame()).
+ * Seperated this function to allow the positions being updated more frequently then multi_send_robot_frame (see dispatch_table::do_protocol_frame()).
  */
 void multi_send_thief_frame()
 {

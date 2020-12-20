@@ -62,7 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "newdemo.h"
 #include "gamepal.h"
-#include "multi.h"
+#include "net_udp.h"
 #include "vclip.h"
 #include "fireball.h"
 #include "text.h"
@@ -713,7 +713,7 @@ window_event_result start_endlevel_sequence()
 
 	if (Game_mode & GM_MULTI) {
 		multi_send_endlevel_start(multi_endlevel_type::normal);
-		multi_do_protocol_frame(1, 1);
+		multi::dispatch->do_protocol_frame(1, 1);
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -764,7 +764,7 @@ window_event_result start_endlevel_sequence()
 
 	if (Game_mode & GM_MULTI) {
 		multi_send_endlevel_start(multi_endlevel_type::normal);
-		multi_do_protocol_frame(1, 1);
+		multi::dispatch->do_protocol_frame(1, 1);
 	}
 	songs_play_song( SONG_ENDLEVEL, 0 );
 

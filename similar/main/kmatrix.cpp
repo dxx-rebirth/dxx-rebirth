@@ -51,7 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "text.h"
 #include "rbaudio.h"
-#include "multi.h"
+#include "net_udp.h"
 #include "kmatrix.h"
 #include "gauges.h"
 #include "pcx.h"
@@ -339,7 +339,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 			timer_delay2(50);
 
 			if (network != kmatrix_network::offline)
-				multi_do_protocol_frame(0, 1);
+				multi::dispatch->do_protocol_frame(0, 1);
 			
 			uint8_t playing = 0;
 

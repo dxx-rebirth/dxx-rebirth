@@ -1465,9 +1465,11 @@ void net_udp_close()
 }
 
 namespace dsx {
+namespace multi {
+namespace udp {
 
 // Same as above but used when player pressed ESC during kmatrix (host also does the packets for playing clients)
-int net_udp_kmatrix_poll2( newmenu *,const d_event &event, const unused_newmenu_userdata_t *)
+int kmatrix_poll2( newmenu *,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	int rval = 0;
 
@@ -1482,9 +1484,11 @@ int net_udp_kmatrix_poll2( newmenu *,const d_event &event, const unused_newmenu_
 	if (timer_query() > (StartAbortMenuTime+(F1_0*3)))
 		rval = -2;
 
-	net_udp_do_frame(0, 1);
+	dispatch->do_protocol_frame(0, 1);
 	
 	return rval;
+}
+}
 }
 
 int net_udp_endlevel(int *secret)
@@ -4802,7 +4806,7 @@ void net_udp_leave_game()
 {
 	int nsave;
 
-	net_udp_do_frame(1, 1);
+	multi::udp::dispatch->do_protocol_frame(1, 1);
 
 	if (multi_i_am_master())
 	{
@@ -4932,7 +4936,9 @@ void net_udp_timeout_check(fix64 time)
 }
 
 namespace dsx {
-void net_udp_do_frame(int force, int listen)
+namespace multi {
+namespace udp {
+void dispatch_table::do_protocol_frame(int force, int listen) const
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	static fix64 last_pdata_time = 0, last_mdata_time = 16, last_endlevel_time = 32, last_bcast_time = 48, last_resync_time = 64;
@@ -5003,6 +5009,8 @@ void net_udp_do_frame(int force, int listen)
 	}
 
 	udp_traffic_stat();
+}
+}
 }
 }
 

@@ -920,22 +920,6 @@ static void multi_compute_kill(const imobjptridx_t killer, object &killed)
 
 }
 
-void multi_do_protocol_frame(int force, int listen)
-{
-	switch (multi_protocol)
-	{
-#if DXX_USE_UDP
-		case MULTI_PROTO_UDP:
-			net_udp_do_frame(force, listen);
-			break;
-#endif
-		default:
-			(void)force; (void)listen;
-			Error("Protocol handling missing in multi_do_protocol_frame\n");
-			break;
-	}
-}
-
 window_event_result multi_do_frame()
 {
 	static d_time_fix lasttime;
@@ -991,7 +975,7 @@ window_event_result multi_do_frame()
 		multi_check_robot_timeout();
 	}
 
-	multi_do_protocol_frame(0, 1);
+	multi::dispatch->do_protocol_frame(0, 1);
 
 	return multi_quit_game ? window_event_result::close : window_event_result::handled;
 }
@@ -1150,7 +1134,7 @@ multi_endlevel_poll *get_multi_endlevel_poll2()
 	{
 #if DXX_USE_UDP
 		case MULTI_PROTO_UDP:
-			return net_udp_kmatrix_poll2;
+			return multi::udp::kmatrix_poll2;
 #endif
 		default:
 			throw std::logic_error("Protocol handling missing in multi_endlevel_poll2");
@@ -2349,7 +2333,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	if (pnum >= N_players || pnum == Player_num)
 		return;
 
-	multi_do_protocol_frame(1, 0); // force packets to be sent, ensuring this packet will be attached to following MULTI_TRIGGER
+	multi::dispatch->do_protocol_frame(1, 0); // force packets to be sent, ensuring this packet will be attached to following MULTI_TRIGGER
 
 	const auto &&useg = vmsegptridx.check_untrusted(GET_INTEL_SHORT(&buf[2]));
 	if (!useg)
@@ -2558,7 +2542,7 @@ void multi_send_fire(int laser_gun, const laser_level level, int laser_flags, in
 	// provoke positional update if possible (20 times per second max. matches vulcan, the fastest firing weapon)
 	if (timer_query() >= (last_fireup_time+(F1_0/20)))
 	{
-		multi_do_protocol_frame(1, 0);
+		multi::dispatch->do_protocol_frame(1, 0);
 		last_fireup_time = timer_query();
 	}
 
@@ -3162,7 +3146,7 @@ void multi_send_effect_blowup(const vcsegidx_t segnum, const unsigned side, cons
 	//       not sending MULTI_TRIGGER and making puzzles or progress impossible.
 	int count = 0;
 
-	multi_do_protocol_frame(1, 0); // force packets to be sent, ensuring this packet will be attached to following MULTI_TRIGGER
+	multi::dispatch->do_protocol_frame(1, 0); // force packets to be sent, ensuring this packet will be attached to following MULTI_TRIGGER
 	
 	count += 1;
 	multi_command<MULTI_EFFECT_BLOWUP> multibuf;

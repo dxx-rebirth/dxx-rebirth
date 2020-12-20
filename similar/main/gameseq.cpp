@@ -84,7 +84,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hudmsg.h"
 #include "endlevel.h"
 #include "kmatrix.h"
-#  include "multi.h"
+#include "net_udp.h"
 #include "playsave.h"
 #include "fireball.h"
 #include "kconfig.h"
@@ -2304,7 +2304,7 @@ static void StartLevel(int random_flag)
 		if (Game_mode & GM_MULTI_COOP)
 			multi_send_score();
 	 	multi_send_reappear();
-		multi_do_protocol_frame(1, 1);
+		multi::dispatch->do_protocol_frame(1, 1);
 	}
 	else // in Singleplayer, after we died ...
 	{

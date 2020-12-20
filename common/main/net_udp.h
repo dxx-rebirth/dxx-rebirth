@@ -27,9 +27,11 @@ namespace udp {
 struct dispatch_table final : multi::dispatch_table
 {
 	virtual int objnum_is_past(objnum_t objnum) const override;
+	virtual void do_protocol_frame(int force, int listen) const override;
 };
 
 extern const dispatch_table dispatch;
+int kmatrix_poll2(newmenu *menu, const d_event &event, const unused_newmenu_userdata_t *);
 }
 using udp::dispatch;
 }
@@ -41,7 +43,6 @@ void net_udp_manual_join_game();
 void net_udp_list_join_game();
 #ifdef dsx
 namespace dsx {
-void net_udp_do_frame(int force, int listen);
 }
 #endif
 void net_udp_send_data(const uint8_t *ptr, unsigned len, int priority);
@@ -49,7 +50,6 @@ void net_udp_send_data(const uint8_t *ptr, unsigned len, int priority);
 namespace dsx {
 void net_udp_leave_game();
 int net_udp_endlevel(int *secret);
-int net_udp_kmatrix_poll2( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 }
 #endif
 void net_udp_send_endlevel_packet();

@@ -46,7 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "endlevel.h"
 #include "gameseq.h"
-#include "multi.h"
+#include "net_udp.h"
 #include "palette.h"
 #include "hudmsg.h"
 #include "robot.h"
@@ -341,7 +341,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 			if (Game_mode & GM_MULTI)
 				multi_send_endlevel_start(multi_endlevel_type::secret);
 			if (Game_mode & GM_NETWORK)
-				multi_do_protocol_frame(1, 1);
+				multi::dispatch->do_protocol_frame(1, 1);
 			result = std::max(PlayerFinishedLevel(1), result);		//1 means go to secret level
 			LevelUniqueControlCenterState.Control_center_destroyed = 0;
 			return std::max(result, window_event_result::handled);

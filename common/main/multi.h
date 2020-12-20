@@ -244,6 +244,7 @@ struct dispatch_table
 		return this;
 	}
 	virtual int objnum_is_past(objnum_t objnum) const = 0;
+	virtual void do_protocol_frame(int force, int listen) const = 0;
 };
 }
 }
@@ -422,7 +423,6 @@ void reset_network_objects();
 void multi_do_ping_frame();
 
 void multi_init_objects(void);
-void multi_do_protocol_frame(int force, int listen);
 window_event_result multi_do_frame();
 
 #ifdef dsx
