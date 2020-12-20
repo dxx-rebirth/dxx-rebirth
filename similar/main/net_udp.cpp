@@ -104,6 +104,11 @@ static void net_udp_init();
 static void net_udp_close();
 static void net_udp_listen();
 namespace dsx {
+namespace multi {
+namespace udp {
+const dispatch_table dispatch{};
+}
+}
 static int net_udp_show_game_info();
 static int net_udp_do_join_game();
 }
@@ -1795,7 +1800,10 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 	net_udp_send_objects();
 }
 
-int net_udp_objnum_is_past(objnum_t objnum)
+namespace dsx {
+namespace multi {
+namespace udp {
+int dispatch_table::objnum_is_past(const objnum_t objnum) const
 {
 	// determine whether or not a given object number has already been sent
 	// to a re-joining player.
@@ -1816,7 +1824,8 @@ int net_udp_objnum_is_past(objnum_t objnum)
 		return 0;
 }
 
-namespace dsx {
+}
+}
 
 #if defined(DXX_BUILD_DESCENT_I)
 static void net_udp_send_door_updates(void)

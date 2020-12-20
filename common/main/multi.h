@@ -235,6 +235,17 @@ constexpr std::integral_constant<unsigned, 21> MULTI_ALLOW_POWERUP_TEXT_LENGTH{}
 	VALUE(NETGRANT_HEADLIGHT, NETFLAG_LABEL_HEADLIGHT)
 
 #endif
+
+namespace multi {
+struct dispatch_table
+{
+	constexpr const dispatch_table *operator->() const
+	{
+		return this;
+	}
+	virtual int objnum_is_past(objnum_t objnum) const = 0;
+};
+}
 }
 
 #define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
@@ -408,7 +419,6 @@ owned_remote_objnum objnum_local_to_remote(objnum_t local);
 void map_objnum_local_to_remote(int local, int remote, int owner);
 void map_objnum_local_to_local(objnum_t objnum);
 void reset_network_objects();
-int multi_objnum_is_past(objnum_t objnum);
 void multi_do_ping_frame();
 
 void multi_init_objects(void);
@@ -845,8 +855,6 @@ struct multi_level_inv
         std::array<uint32_t, MAX_POWERUP_TYPES> Current; // current count of this powerup type
         std::array<fix, MAX_POWERUP_TYPES> RespawnTimer; // incremented by FrameTime if initial-current > 0 and triggers respawn after 2 seconds. Since we deal with a certain delay from clients, their inventory updates may happen a while after they remove the powerup object and we do not want to respawn it on accident during that time window!
 };
-}
-#endif
 
 namespace multi
 {
@@ -865,6 +873,8 @@ namespace multi
 		}
 	};
 }
+}
+#endif
 
 /* Stub for mods that remap player colors */
 static inline unsigned get_player_color(unsigned pnum)

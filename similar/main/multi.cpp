@@ -410,22 +410,6 @@ void reset_network_objects()
 	object_owner.fill(-1);
 }
 
-int multi_objnum_is_past(objnum_t objnum)
-{
-	switch (multi_protocol)
-	{
-		case MULTI_PROTO_UDP:
-#if DXX_USE_UDP
-			return net_udp_objnum_is_past(objnum);
-			break;
-#endif
-		default:
-			(void)objnum;
-			Error("Protocol handling missing in multi_objnum_is_past\n");
-			break;
-	}
-}
-
 namespace dsx {
 
 //
@@ -2017,7 +2001,7 @@ static void multi_do_remobj(fvmobjptr &vmobjptr, const uint8_t *const buf)
 		return;
 	}
 
-	if (Network_send_objects && multi_objnum_is_past(local_objnum))
+	if (Network_send_objects && multi::dispatch->objnum_is_past(local_objnum))
 	{
 		Network_send_objnum = -1;
 	}
@@ -2279,7 +2263,7 @@ static void multi_do_create_powerup(fvmobjptr &vmobjptr, fvmsegptridx &vmsegptri
 		return;
 	}
 
-	if (Network_send_objects && multi_objnum_is_past(my_objnum))
+	if (Network_send_objects && multi::dispatch->objnum_is_past(my_objnum))
 	{
 		Network_send_objnum = -1;
 	}
@@ -2913,7 +2897,7 @@ void multi_send_remobj(const vmobjidx_t objnum)
 
 	multi_send_data(multibuf, 2);
 
-	if (Network_send_objects && multi_objnum_is_past(objnum))
+	if (Network_send_objects && multi::dispatch->objnum_is_past(objnum))
 	{
 		Network_send_objnum = -1;
 	}
@@ -3080,7 +3064,7 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 	//                                                                                                            Total =  19
 	multi_send_data(multibuf, 2);
 
-	if (Network_send_objects && multi_objnum_is_past(objnum))
+	if (Network_send_objects && multi::dispatch->objnum_is_past(objnum))
 	{
 		Network_send_objnum = -1;
 	}
@@ -3946,7 +3930,7 @@ void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum)
 
 	multi_send_data(multibuf, 2);
 
-	if (Network_send_objects && multi_objnum_is_past(objnum))
+	if (Network_send_objects && multi::dispatch->objnum_is_past(objnum))
 	{
 		Network_send_objnum = -1;
 	}
@@ -3977,7 +3961,7 @@ static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const uint8_
 		return;
 	}
 
-	if (Network_send_objects && multi_objnum_is_past(local_objnum))
+	if (Network_send_objects && multi::dispatch->objnum_is_past(local_objnum))
 	{
 		Network_send_objnum = -1;
 	}

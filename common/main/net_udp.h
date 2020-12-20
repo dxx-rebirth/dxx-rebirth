@@ -22,12 +22,23 @@
 // Exported functions
 #ifdef dsx
 namespace dsx {
+namespace multi {
+namespace udp {
+struct dispatch_table final : multi::dispatch_table
+{
+	virtual int objnum_is_past(objnum_t objnum) const override;
+};
+
+extern const dispatch_table dispatch;
+}
+using udp::dispatch;
+}
+
 window_event_result net_udp_setup_game(void);
 }
 #endif
 void net_udp_manual_join_game();
 void net_udp_list_join_game();
-int net_udp_objnum_is_past(objnum_t objnum);
 #ifdef dsx
 namespace dsx {
 void net_udp_do_frame(int force, int listen);

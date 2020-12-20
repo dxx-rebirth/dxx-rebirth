@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "multibot.h"
 #include "game.h"
-#include "multi.h"
+#include "net_udp.h"
 #include "laser.h"
 #include "dxxerror.h"
 #include "timer.h"
@@ -942,7 +942,7 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 
 	// Data seems valid, explode the sucker
 
-	if (Network_send_objects && multi_objnum_is_past(robot))
+	if (Network_send_objects && multi::dispatch->objnum_is_past(robot))
 	{
 		Network_send_objnum = -1;
 	}
