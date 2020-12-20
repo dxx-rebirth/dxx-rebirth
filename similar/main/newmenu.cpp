@@ -1680,15 +1680,14 @@ newmenu *newmenu_do4(const menu_title title, const menu_subtitle subtitle, const
 {
 	if (items.size() < 1)
 		return nullptr;
-	auto menu = std::make_unique<callback_newmenu>(title, subtitle, filename, TinyMode, TabsFlag, newmenu_layout::adjusted_citem::create(items, citem), grd_curscreen->sc_canvas, subfunction, userdata);
+	auto menu = window_create<callback_newmenu>(title, subtitle, filename, TinyMode, TabsFlag, newmenu_layout::adjusted_citem::create(items, citem), grd_curscreen->sc_canvas, subfunction, userdata);
 
 	newmenu_free_background();
-	menu->send_creation_events();
 
 	//set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
 
 	// Create the basic window
-	return menu.release();
+	return menu;
 }
 }
 
@@ -2229,7 +2228,6 @@ listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, c
 	set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
 
 	listbox_create_structure(lbl);
-	auto lb = std::make_unique<listbox>(grd_curscreen->sc_canvas, std::move(lbl), listbox_callback, userdata, allow_abort_flag);
-	lb->send_creation_events();
-	return lb.release();
+	auto lb = window_create<listbox>(grd_curscreen->sc_canvas, std::move(lbl), listbox_callback, userdata, allow_abort_flag);
+	return lb;
 }

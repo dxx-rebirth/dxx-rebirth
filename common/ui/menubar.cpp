@@ -173,10 +173,7 @@ static void menu_other_show()
 	auto &menu = *Menu[CMENU];
 	if (!menu.wind)
 	{
-		menu.wind = new menu_window(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menu);
-		if (!menu.wind)
-			return;
-		menu.wind->send_creation_events();
+		menu.wind = window_create<menu_window>(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menu);
 	}
 	menu_show(menu);
 }
@@ -948,10 +945,7 @@ void menubar_show()
 	auto &menu = *Menu[0];
 	if (!menu.wind)
 	{
-		menu.wind = new menubar_window(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menu);
-		if (!menu.wind)
-			return;
-		menu.wind->send_creation_events();
+		menu.wind = window_create<menubar_window>(grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, menu);
 		menu.wind->set_modal(0);	// allow windows behind the menubar to accept events (e.g. the keypad dialogs)
 	}
 	menu_show(menu);

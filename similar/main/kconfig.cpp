@@ -832,7 +832,7 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 	const auto &&fspacy = FSPACY();
 	const auto &&window_width = fspacx(320);
 	const auto &&window_height = fspacy(220);
-	auto menu = std::make_unique<kc_menu>(grd_curscreen->sc_canvas, (SWIDTH - window_width) / 2, (SHEIGHT - window_height) / 2, window_width, window_height);
+	auto menu = window_create<kc_menu>(grd_curscreen->sc_canvas, (SWIDTH - window_width) / 2, (SHEIGHT - window_height) / 2, window_width, window_height);
 	menu->items = items;
 	menu->litems = litems;
 	menu->mitems = mitems;
@@ -840,8 +840,6 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 	menu->title = title;
 	if (!items[0].w2)
 		step_citem_past_empty_cell(menu->citem, items, &kc_item::r);
-	menu->send_creation_events();
-	menu.release();
 }
 
 template <std::size_t N>

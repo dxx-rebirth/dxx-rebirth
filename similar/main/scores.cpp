@@ -523,7 +523,7 @@ void scores_view(const stats_info *const last_game, int citem)
 {
 	const auto &&fspacx320 = FSPACX(320);
 	const auto &&fspacy200 = FSPACY(200);
-	auto menu = std::make_unique<scores_menu>(grd_curscreen->sc_canvas, (SWIDTH - fspacx320) / 2, (SHEIGHT - fspacy200) / 2, fspacx320, fspacy200, citem, last_game);
+	auto menu = window_create<scores_menu>(grd_curscreen->sc_canvas, (SWIDTH - fspacx320) / 2, (SHEIGHT - fspacy200) / 2, fspacx320, fspacy200, citem, last_game);
 
 	newmenu_free_background();
 
@@ -531,9 +531,6 @@ void scores_view(const stats_info *const last_game, int citem)
 
 	set_screen_mode(SCREEN_MENU);
 	show_menus();
-
-	menu->send_creation_events();
-	menu.release();
 }
 
 }

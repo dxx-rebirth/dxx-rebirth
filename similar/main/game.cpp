@@ -1587,8 +1587,7 @@ game_window *game_setup()
 	last_drawn_cockpit = -1;	// Force cockpit to redraw next time a frame renders.
 	Endlevel_sequence = 0;
 
-	auto game_wind = std::make_unique<game_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
-	game_wind->send_creation_events();
+	auto game_wind = window_create<game_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	reset_palette_add();
 	init_cockpit();
 	init_gauges();
@@ -1611,7 +1610,7 @@ game_window *game_setup()
 	fix_object_segs();
 	if (CGameArg.SysAutoRecordDemo && Newdemo_state == ND_STATE_NORMAL)
 		newdemo_start_recording();
-	return game_wind.release();
+	return game_wind;
 }
 
 // Event handler for the game

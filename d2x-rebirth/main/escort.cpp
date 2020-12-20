@@ -2010,7 +2010,7 @@ void do_escort_menu(void)
 	}
 
 	// Just make it the full screen size and let show_escort_menu figure it out
-	auto wind = std::make_unique<escort_menu>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	auto wind = window_create<escort_menu>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 
 	auto &plrobj = get_local_plrobj();
 	//	This prevents the buddy from coming back if you've told him to scram.
@@ -2083,8 +2083,6 @@ void do_escort_menu(void)
 						"T.  %s Messages"
 						// -- "9.	Find the exit" CC_LSPACING_S "3\n"
 				, goal_txt, tstr);
-	wind->send_creation_events();
-	wind.release();
 }
 
 namespace {

@@ -397,10 +397,9 @@ window_event_result info_dialog_window::event_handler(const d_event &event)
 //	------------------------------------------------------------------------------------
 window *info_window_create(void)
 {
-	auto wind = std::make_unique<info_dialog_window>(*Canv_editor, PAD_X + 250, PAD_Y + 8, 180, 160);
+	auto wind = window_create<info_dialog_window>(*Canv_editor, PAD_X + 250, PAD_Y + 8, 180, 160);
 	wind->set_modal(0);
-	wind->send_creation_events();
-	return wind.release();
+	return wind;
 }
 
 }

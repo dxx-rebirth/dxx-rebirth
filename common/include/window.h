@@ -38,10 +38,8 @@ private:
 	class window *prev;				// the previous window in the doubly linked list
 	class window *next;				// the next window in the doubly linked list
 	bool *w_exists;					// optional pointer to a tracking variable
-	
 public:
 	explicit window(grs_canvas &src, int x, int y, int w, int h);
-
 	virtual ~window();
 
 	virtual window_event_result event_handler(const d_event &) = 0;

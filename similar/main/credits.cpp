@@ -257,7 +257,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 {
 	palette_array_t backdrop_palette;
-	auto cr = std::make_unique<credits_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, std::move(file), have_bin_file);
+	auto cr = window_create<credits_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, std::move(file), have_bin_file);
 
 	set_screen_mode(SCREEN_MENU);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -279,9 +279,7 @@ static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 	gr_palette_load( gr_palette );
 
 	key_flush();
-	cr->send_creation_events();
 	event_process_all();
-	cr.release();
 }
 
 }

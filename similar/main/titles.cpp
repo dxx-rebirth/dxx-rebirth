@@ -177,7 +177,7 @@ static void show_title_screen(const char *filename)
 {
 	char new_filename[PATH_MAX] = "";
 
-	auto ts = std::make_unique<title_screen>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	auto ts = window_create<title_screen>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 
 	strcat(new_filename,filename);
 	filename = new_filename;
@@ -191,9 +191,7 @@ static void show_title_screen(const char *filename)
 	}
 
 	gr_palette_load( gr_palette );
-	ts->send_creation_events();
 	event_process_all();
-	ts.release();
 }
 
 static void show_title_screen(const char *const filename, title_load_location /* from_hog_only */)
@@ -218,7 +216,9 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 int intro_played;
+namespace {
 static int DefineBriefingBox(const grs_bitmap &, const char *&buf);
+}
 #endif
 
 void show_titles(void)
@@ -536,8 +536,6 @@ struct briefing : window
 	sbyte	prev_ch;
 	std::array<char, 16> background_name;
 };
-
-}
 
 static void briefing_init(briefing *br, short level_num)
 {
@@ -1027,6 +1025,8 @@ static void set_briefing_fontcolor(briefing &br)
 }
 }
 
+}
+
 static void redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, const msgstream &stream, unsigned &lastcolor)
 {
 	char msgbuf[2] = {stream.ch, 0};
@@ -1039,6 +1039,7 @@ static void redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, co
 }
 
 namespace dsx {
+namespace {
 static void flash_cursor(grs_canvas &canvas, const grs_font &cv_font, briefing *const br, const int cursor_flag)
 {
 	if (cursor_flag == 0)
@@ -1166,6 +1167,8 @@ static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 
 }
 
+}
+
 //-----------------------------------------------------------------------------
 static void show_briefing_bitmap(grs_canvas &canvas, grs_bitmap *bmp)
 {
@@ -1180,6 +1183,7 @@ static void show_briefing_bitmap(grs_canvas &canvas, grs_bitmap *bmp)
 
 //-----------------------------------------------------------------------------
 namespace dsx {
+namespace {
 static void init_spinning_robot(grs_canvas &canvas, briefing &br) //(int x,int y,int w,int h)
 {
 	br.robot_canv = create_spinning_robot_sub_canvas(canvas);
@@ -1491,6 +1495,7 @@ static int new_briefing_screen(briefing *br, int first)
 	return 1;
 }
 
+}
 
 //-----------------------------------------------------------------------------
 window_event_result briefing::event_handler(const d_event &event)
@@ -1639,8 +1644,8 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 	if (!*static_cast<const char *>(filename))
 		return;
 
-	auto br = std::make_unique<briefing>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
-	briefing_init(br.get(), level_num);
+	auto br = window_create<briefing>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	briefing_init(br, level_num);
 
 	if (!load_screen_text(filename, br->text))
 	{
@@ -1666,16 +1671,14 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 
 	gr_set_default_canvas();
 
-	br->send_creation_events();
-	if (!new_briefing_screen(br.get(), 1))
+	if (!new_briefing_screen(br, 1))
 	{
-		window_close(br.get());
+		window_close(br);
 	}
 	else
 	// Stay where we are in the stack frame until briefing done
 	// Too complicated otherwise
 		event_process_all();
-	br.release();
 }
 
 void do_end_briefing_screens(const d_fname &filename)

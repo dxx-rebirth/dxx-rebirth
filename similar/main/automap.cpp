@@ -1175,7 +1175,7 @@ void do_automap()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	palette_array_t pal;
-	auto am = std::make_unique<automap>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	auto am = window_create<automap>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	const auto max_edges = LevelSharedSegmentState.Num_segments * 12;
 	am->max_edges = max_edges;
 	am->edges = std::make_unique<Edge_info[]>(max_edges);
@@ -1230,8 +1230,6 @@ void do_automap()
 	gr_palette_load( gr_palette );
 	Automap_active = 1;
 	multi_send_msgsend_state(msgsend_automap);
-	am->send_creation_events();
-	am.release();
 }
 
 namespace {

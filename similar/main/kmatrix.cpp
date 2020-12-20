@@ -405,7 +405,7 @@ kmatrix_result kmatrix_view(const kmatrix_network network, control_info &Control
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
-	const auto pkm = std::make_unique<kmatrix_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	const auto pkm = window_create<kmatrix_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	auto &km = *pkm;
 	if (pcx_read_bitmap(STARS_BACKGROUND, km.background, gr_palette) != pcx_result::SUCCESS)
 	{
@@ -423,7 +423,6 @@ kmatrix_result kmatrix_view(const kmatrix_network network, control_info &Control
 		if (i.objnum != object_none)
 			digi_kill_sound_linked_to_object(vcobjptridx(i.objnum));
 
-	km.send_creation_events();
 	event_process_all();
 	return km.result;
 }

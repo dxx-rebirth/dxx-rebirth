@@ -447,7 +447,7 @@ static void do_game_pause()
 		return;
 	}
 
-	auto p = std::make_unique<pause_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	auto p = window_create<pause_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	songs_pause();
 
 	auto &plr = get_local_player();
@@ -460,8 +460,6 @@ static void do_game_pause()
 		snprintf(&p->msg[0], p->msg.size(), "PAUSE\n\n\n\n");
 	set_screen_mode(SCREEN_MENU);
 
-	p->send_creation_events();
-	p.release();
 	// Keycode returning ripped out (kreatordxx)
 }
 
