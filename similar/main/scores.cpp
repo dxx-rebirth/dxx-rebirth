@@ -102,7 +102,7 @@ static_assert(sizeof(all_scores) == 294, "high score size wrong");
 static_assert(sizeof(all_scores) == 336, "high score size wrong");
 #endif
 
-void scores_view(stats_info *const last_game, int citem);
+void scores_view(const stats_info *last_game, int citem);
 
 static void scores_read(all_scores *scores)
 {
@@ -355,7 +355,7 @@ namespace dsx {
 
 namespace {
 
-static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const unsigned i, stats_info *const stats)
+static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const unsigned i, const stats_info *const stats)
 {
 	char buffer[20];
 
@@ -408,12 +408,15 @@ static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const 
 
 struct scores_menu : window
 {
-	int			citem;
+	const int citem;
 	fix64			t1;
 	int looper = 0;
 	all_scores	scores;
-	stats_info	last_game;
-	using window::window;
+	const stats_info last_game;
+	scores_menu(grs_canvas &src, int x, int y, int w, int h, int citem, const stats_info *last_game) :
+		window(src, x, y, w, h), citem(citem), t1(timer_query()), last_game(last_game ? *last_game : stats_info{})
+	{
+	}
 	virtual window_event_result event_handler(const d_event &) override;
 };
 
@@ -523,15 +526,11 @@ window_event_result scores_menu::event_handler(const d_event &event)
 	return window_event_result::ignored;
 }
 
-void scores_view(stats_info *const last_game, int citem)
+void scores_view(const stats_info *const last_game, int citem)
 {
 	const auto &&fspacx320 = FSPACX(320);
 	const auto &&fspacy200 = FSPACY(200);
-	auto menu = std::make_unique<scores_menu>(grd_curscreen->sc_canvas, (SWIDTH - fspacx320) / 2, (SHEIGHT - fspacy200) / 2, fspacx320, fspacy200);
-	menu->citem = citem;
-	menu->t1 = timer_query();
-	if (last_game)
-		menu->last_game = *last_game;
+	auto menu = std::make_unique<scores_menu>(grd_curscreen->sc_canvas, (SWIDTH - fspacx320) / 2, (SHEIGHT - fspacy200) / 2, fspacx320, fspacy200, citem, last_game);
 
 	newmenu_free_background();
 
