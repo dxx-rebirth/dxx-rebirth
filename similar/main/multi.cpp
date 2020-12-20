@@ -6302,6 +6302,8 @@ void multi_object_rw_to_object(object_rw *obj_rw, object &obj)
 	}
 }
 
+void show_netgame_info(const netgame_info &netgame)
+{
 	struct netgame_info_menu_items
 	{
 		enum netgame_menu_info_index
@@ -6501,26 +6503,15 @@ void multi_object_rw_to_object(object_rw *obj_rw, object &obj)
 			array_snprintf(lines[packets_per_second], "Packets Per Second\t  %i", netgame.PacketsPerSec);
 		}
 	};
-
-
-static int show_netgame_info_poll(newmenu *, const d_event &event, netgame_info_menu_items *ngii)
-{
-	switch (event.type)
+	struct netgame_info_menu : netgame_info_menu_items, passive_newmenu
 	{
-		case EVENT_WINDOW_CLOSE:
-		{
-			std::default_delete<netgame_info_menu_items>()(ngii);
-			return 0;
-		}
-		default:
-			break;
-	}
-	return 0;
-}
-
-void show_netgame_info(const netgame_info &netgame)
-{
-	auto ngii = new netgame_info_menu_items(netgame);
-	newmenu_dotiny(menu_title{nullptr}, menu_subtitle{"Netgame Info & Rules"}, ngii->menu_items, tab_processing_flag::ignore, show_netgame_info_poll, ngii);
+		netgame_info_menu(const netgame_info &netgame, grs_canvas &src) :
+			netgame_info_menu_items(netgame),
+			passive_newmenu(menu_title{nullptr}, menu_subtitle{"Netgame Info & Rules"}, menu_filename{nullptr}, tiny_mode_flag::tiny, tab_processing_flag::ignore, adjusted_citem::create(menu_items, 0), src)
+			{
+			}
+	};
+	auto menu = window_create<netgame_info_menu>(netgame, grd_curscreen->sc_canvas);
+	(void)menu;
 }
 }
