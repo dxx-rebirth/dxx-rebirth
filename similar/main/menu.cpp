@@ -95,6 +95,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
+#include "d_zip.h"
 #include "partial_range.h"
 #include <memory>
 #include <utility>
@@ -309,6 +310,9 @@ struct netgame_menu : netgame_menu_items, newmenu
 
 }
 
+namespace dcx {
+namespace {
+
 __attribute_nonnull()
 static int select_file_recursive2(const char *title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<void> when_selected, void *userdata);
 
@@ -317,6 +321,9 @@ __attribute_nonnull()
 static int select_file_recursive(const char *title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<T> when_selected, T *userdata)
 {
 	return select_file_recursive2(title, orig_path, ext_list, select_dir, reinterpret_cast<select_file_subfunction<void>>(when_selected), reinterpret_cast<void *>(userdata));
+}
+
+}
 }
 
 // Hide all menus
@@ -388,6 +395,8 @@ void menu_destroy_hook(window *w)
 constexpr char playername_allowed_chars[] = "azAZ09__--";
 
 }
+
+namespace {
 
 static int MakeNewPlayerFile(int allow_abort)
 {
@@ -601,6 +610,8 @@ static void RegisterPlayer()
 			citem = i;
 
 	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m.release(), allow_abort_flag, citem, player_menu_handler, list.release());
+}
+
 }
 
 namespace dsx {
@@ -1227,8 +1238,32 @@ void change_res()
 	game_init_render_buffers(SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 }
 
-static void input_config_keyboard()
+namespace {
+
+template <typename PMF>
+struct copy_sensitivity
 {
+	const std::size_t offset;
+	const PMF pmf;
+	copy_sensitivity(std::size_t offset, const PMF pmf) :
+		offset(offset), pmf(pmf)
+	{
+	}
+};
+
+template <typename XRange, typename MenuItems, typename... CopyParameters>
+void copy_sensitivity_from_menu_to_cfg2(XRange &&r, const MenuItems &menuitems, const CopyParameters ... cn)
+{
+	for (const auto i : r)
+		(((PlayerCfg.*(cn.pmf))[i] = menuitems[1 + i + cn.offset].value), ...);
+}
+
+template <typename MenuItems, typename CopyParameter0, typename... CopyParameterN>
+void copy_sensitivity_from_menu_to_cfg(const MenuItems &menuitems, const CopyParameter0 c0, const CopyParameterN ... cn)
+{
+	copy_sensitivity_from_menu_to_cfg2(xrange(std::size(PlayerCfg.*(c0.pmf))), menuitems, c0, cn...);
+}
+
 #define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
 	DXX_MENUITEM(VERB, SLIDER, TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
 	DXX_MENUITEM(VERB, SLIDER, TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
@@ -1240,10 +1275,10 @@ static void input_config_keyboard()
 	DXX_MENUITEM(VERB, TEXT, "Keyboard Sensitivity:", opt_label_kb)	\
 	DXX_INPUT_SENSITIVITY(VERB,kb,PlayerCfg.KeyboardSens)	             \
 
+namespace keyboard_sensitivity {
 
-	class menu_items
-	{
-	public:
+struct menu_items
+{
 		enum
 		{
 			DXX_INPUT_CONFIG_MENU(ENUM)
@@ -1253,19 +1288,39 @@ static void input_config_keyboard()
 		{
 			DXX_INPUT_CONFIG_MENU(ADD);
 		}
-	};
+};
+
+struct menu : menu_items, newmenu
+{
+	menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{"Keyboard Calibration"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 1), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int menu::subfunction_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_WINDOW_CLOSE:
+			copy_sensitivity_from_menu_to_cfg(m, copy_sensitivity(opt_label_kb, &player_config::KeyboardSens));
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+
+}
+
 #undef DXX_INPUT_CONFIG_MENU
 #undef DXX_INPUT_SENSITIVITY
-	menu_items items;
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{"Keyboard Calibration"}, items.m, unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
-	constexpr uint_fast32_t keysens = items.opt_label_kb + 1;
-	const auto &m = items.m;
-
-	range_for (const unsigned i, xrange(5u))
-	{
-		PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
-	}
+static void input_config_keyboard()
+{
+	auto menu = window_create<keyboard_sensitivity::menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 static void input_config_mouse()
@@ -1373,8 +1428,6 @@ static void input_config_joystick()
 
 #undef DXX_INPUT_THROTTLE_SENSITIVITY
 #undef DXX_INPUT_SENSITIVITY
-
-namespace {
 
 class input_config_menu_items
 {
@@ -1539,6 +1592,8 @@ void input_config()
 	newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_CONTROLS}, menu_items.m, &input_config_menu_items::menuset, &menu_items, menu_items.opt_ic_confkey);
 }
 
+namespace {
+
 static void reticle_config()
 {
 #if DXX_USE_OGL
@@ -1614,6 +1669,11 @@ static void reticle_config()
 	items.read();
 }
 
+}
+
+namespace dsx {
+namespace {
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "Always-on Bomb Counter",opt_d2bomb,PlayerCfg.BombGauge)	\
@@ -1662,8 +1722,6 @@ static int hud_config_menuset(newmenu *, const d_event &event, const unused_newm
 	return 0;
 }
 
-namespace dsx {
-namespace {
 void hud_config()
 {
 	for (;;)
@@ -1685,6 +1743,8 @@ void hud_config()
 }
 }
 }
+
+namespace {
 
 #define DXX_GRAPHICS_MENU(VERB)	\
 	DXX_MENUITEM(VERB, MENU, "Screen resolution...", opt_gr_screenres)	\
@@ -1766,6 +1826,8 @@ static int graphics_config_menuset(newmenu *, const d_event &event, newmenu_item
 	return 0;
 }
 
+}
+
 namespace dsx {
 namespace {
 void graphics_config()
@@ -1808,9 +1870,10 @@ void graphics_config()
 }
 }
 
-#if PHYSFS_VER_MAJOR >= 2
+namespace dcx {
 namespace {
 
+#if PHYSFS_VER_MAJOR >= 2
 struct browser
 {
 	browser(const partial_range_t<const file_extension_t *> &r) :
@@ -1827,8 +1890,6 @@ struct browser
 	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
 	std::array<char, PATH_MAX> view_path;	// The absolute path we're currently looking at
 };
-
-}
 
 static void list_dir_el(void *vb, const char *, const char *fname)
 {
@@ -2069,12 +2130,16 @@ static window_event_result get_absolute_path(char *full_path, const char *rel_pa
 #define SELECT_SONG(t, s)	select_file_recursive(t, CGameCfg.CMMiscMusic[s], jukebox_exts, 0, get_absolute_path, CGameCfg.CMMiscMusic[s].data())
 #endif
 
+}
+}
+
+namespace dsx {
 namespace {
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define REDBOOK_PLAYORDER_TEXT	"force mac cd track order"
+#define DSX_REDBOOK_PLAYORDER_TEXT	"force mac cd track order"
 #elif defined(DXX_BUILD_DESCENT_II)
-#define REDBOOK_PLAYORDER_TEXT	"force descent ][ cd track order"
+#define DSX_REDBOOK_PLAYORDER_TEXT	"force descent ][ cd track order"
 #endif
 
 #if DXX_USE_SDLMIXER || defined(_WIN32)
@@ -2135,7 +2200,7 @@ namespace {
 #define DXX_MUSIC_OPTIONS_SEPARATOR_TEXT ""
 #endif
 
-#define DXX_SOUND_MENU(VERB)	\
+#define DSX_SOUND_MENU(VERB)	\
 	DXX_MENUITEM(VERB, SLIDER, TXT_FX_VOLUME, opt_sm_digivol, GameCfg.DigiVolume, 0, 8)	\
 	DXX_MENUITEM(VERB, SLIDER, "Music volume", opt_sm_musicvol, GameCfg.MusicVolume, 0, 8)	\
 	DXX_MENUITEM(VERB, CHECK, TXT_REVERSE_STEREO, opt_sm_revstereo, GameCfg.ReverseStereo)	\
@@ -2147,7 +2212,7 @@ namespace {
 	DXX_SOUND_JUKEBOX_MENU_ITEM(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank1)	\
 	DXX_MENUITEM(VERB, TEXT, DXX_MUSIC_OPTIONS_CD_LABEL DXX_MUSIC_OPTIONS_SEPARATOR_TEXT DXX_MUSIC_OPTIONS_JUKEBOX_LABEL " options:", opt_label_music_options)	\
-	DXX_MENUITEM(VERB, CHECK, REDBOOK_PLAYORDER_TEXT, opt_sm_redbook_playorder, GameCfg.OrigTrackOrder)	\
+	DXX_MENUITEM(VERB, CHECK, DSX_REDBOOK_PLAYORDER_TEXT, opt_sm_redbook_playorder, GameCfg.OrigTrackOrder)	\
 	DXX_SOUND_SDLMIXER_MENU_ITEMS(VERB)	\
 
 class sound_menu_items
@@ -2162,23 +2227,21 @@ public:
 	};
 	enum
 	{
-		DXX_SOUND_MENU(ENUM)
+		DSX_SOUND_MENU(ENUM)
 	};
-	std::array<newmenu_item, DXX_SOUND_MENU(COUNT)> m;
+	std::array<newmenu_item, DSX_SOUND_MENU(COUNT)> m;
 	sound_menu_items()
 	{
-		DXX_SOUND_MENU(ADD);
+		DSX_SOUND_MENU(ADD);
 	}
 	void read()
 	{
-		DXX_SOUND_MENU(READ);
+		DSX_SOUND_MENU(READ);
 	}
 	static int menuset(newmenu *, const d_event &event, sound_menu_items *pitems);
 };
 
-#undef DXX_SOUND_MENU
-
-}
+#undef DSX_SOUND_MENU
 
 int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items *pitems)
 {
@@ -2312,9 +2375,11 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 	return rval;
 }
 
+}
+}
+
 void do_sound_menu()
 {
-
 #if DXX_USE_SDLMIXER
 	const auto old_CMLevelMusicPath = CGameCfg.CMLevelMusicPath;
 	const auto old_CMMiscMusic0 = CGameCfg.CMMiscMusic[SONG_TITLE];
