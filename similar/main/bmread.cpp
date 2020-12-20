@@ -2241,7 +2241,7 @@ void bm_read_weapon(int skip, int unused_flag)
 //--01/19/95, mk--	Weapon_info[n].damage_force = 0;					//	Force (movement) due to explosion
 	Weapon_info[n].destroyable = 1;					//	Weapons default to destroyable
 	Weapon_info[n].matter = weapon_info::matter_flag::energy;							//	Weapons default to not being constructed of matter (they are energy!)
-	Weapon_info[n].bounce = 0;							//	Weapons default to not bouncing off walls
+	Weapon_info[n].bounce = weapon_info::bounce_type::never;							//	Weapons default to not bouncing off walls
 
 #if defined(DXX_BUILD_DESCENT_II)
 	Weapon_info[n].flags = 0;
@@ -2336,7 +2336,7 @@ void bm_read_weapon(int skip, int unused_flag)
 			} else if (!d_stricmp( arg, "matter" )) {
 				Weapon_info[n].matter = static_cast<weapon_info::matter_flag>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "bounce" )) {
-				Weapon_info[n].bounce = atoi(equal_ptr);
+				Weapon_info[n].bounce = static_cast<weapon_info::bounce_type>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "speed" )) {
 				for (i=0; i<NDL-1; i++) {
 					Weapon_info[n].speed[i] = i2f(atoi(equal_ptr));

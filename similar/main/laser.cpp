@@ -324,11 +324,12 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 	obj->mtype.phys_info.drag = Weapon_info[weapon_type].drag;
 	vm_vec_zero(obj->mtype.phys_info.thrust);
 
-	if (Weapon_info[weapon_type].bounce==1)
+	const auto bounce = Weapon_info[weapon_type].bounce;
+	if (bounce == weapon_info::bounce_type::always)
 		obj->mtype.phys_info.flags |= PF_BOUNCE;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Weapon_info[weapon_type].bounce==2 || cheats.bouncyfire)
+	if (bounce == weapon_info::bounce_type::twice || cheats.bouncyfire)
 		obj->mtype.phys_info.flags |= PF_BOUNCE+PF_BOUNCES_TWICE;
 #endif
 
