@@ -1918,11 +1918,6 @@ static int save_level_sub(
 #endif
 
 	minedata_offset = PHYSFS_tell(SaveFile);
-#if 0	// only save compiled mine data
-	if ( !compiled_version )	
-		save_mine_data(SaveFile);
-	else
-#endif
 		save_mine_data_compiled(SaveFile);
 	gamedata_offset = PHYSFS_tell(SaveFile);
 	save_game_data(
