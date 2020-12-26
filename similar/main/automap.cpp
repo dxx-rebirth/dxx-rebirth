@@ -1324,27 +1324,25 @@ void draw_all_edges(grs_canvas &canvas, automap &am)
 //==================================================================
 
 //finds edge, filling in edge_ptr. if found old edge, returns index, else return -1
-static std::pair<Edge_info &, unsigned> automap_find_edge(automap &am, const unsigned v0, const unsigned v1)
+static std::pair<Edge_info &, std::size_t> automap_find_edge(automap &am, const vertnum_t v0, const vertnum_t v1)
 {
-	long vv, evv;
-	int hash, oldhash;
+	const auto &&hash_object = std::hash<vertnum_t>{};
+	const auto initial_hash_slot = (hash_object(v0) ^ (hash_object(v1) << 10)) % am.max_edges;
 
-	vv = (v1<<16) + v0;
-
-	oldhash = hash = ((v0*5+v1) % am.max_edges);
-	for (;;)
+	for (auto current_hash_slot = initial_hash_slot;;)
 	{
-		auto &e = am.edges[hash];
+		auto &e = am.edges[current_hash_slot];
 		const auto ev0 = e.verts[0];
 		const auto ev1 = e.verts[1];
-		evv = (ev1<<16)+ev0;
 		if (e.num_faces == 0)
-			return {e, hash};
-		else if (evv == vv)
+			return {e, current_hash_slot};
+		if (v1 == ev1 && v0 == ev0)
 			return {e, UINT32_MAX};
 		else {
-			if (++hash==am.max_edges) hash = 0;
-			if (hash==oldhash) Error("Edge list full!");
+			if (++ current_hash_slot == am.max_edges)
+				current_hash_slot = 0;
+			if (current_hash_slot == initial_hash_slot)
+				throw std::runtime_error("edge list full: search wrapped without finding a free slot");
 		}
 	}
 }
