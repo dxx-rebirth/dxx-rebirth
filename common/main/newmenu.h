@@ -264,6 +264,57 @@ struct reorder_newmenu : newmenu
 	 */
 };
 
+struct listbox_layout
+{
+	struct marquee
+	{
+		class deleter : std::default_delete<fix64[]>
+		{
+		public:
+			void operator()(marquee *const m) const
+			{
+				static_assert(std::is_trivially_destructible<marquee>::value, "marquee destructor not called");
+				std::default_delete<fix64[]>::operator()(reinterpret_cast<fix64 *>(m));
+			}
+		};
+		using ptr = std::unique_ptr<marquee, deleter>;
+		static ptr allocate(const unsigned maxchars)
+		{
+			const unsigned max_bytes = maxchars + 1 + sizeof(marquee);
+			auto pf = std::make_unique<fix64[]>(1 + (max_bytes / sizeof(fix64)));
+			auto pm = ptr(new(pf.get()) marquee(maxchars));
+			pf.release();
+			return pm;
+		}
+		marquee(const unsigned mc) :
+			maxchars(mc)
+		{
+		}
+		fix64 lasttime; // to scroll text if string does not fit in box
+		const unsigned maxchars;
+		int pos = 0, scrollback = 0;
+		char text[0];	/* must be last */
+	};
+	listbox_layout(int citem, unsigned nitems, const char **item, menu_title title) :
+		citem(citem), nitems(nitems), item(item), title(title)
+	{
+		create_structure();
+	}
+	void create_structure();
+	unsigned items_on_screen;
+	int box_x, box_y;
+	int box_w, height, title_height;
+	int citem, first_item;
+	unsigned nitems;
+	const char **const item;
+	const menu_title title;
+	marquee::ptr marquee;
+	short swidth, sheight;
+	// with these we check if resolution or fonts have changed so listbox structure can be recreated
+	font_x_scale_proportion fntscalex;
+	font_y_scale_proportion fntscaley;
+};
+
 template <typename T>
 using newmenu_subfunction_t = int(*)(newmenu *menu,const d_event &event, T *userdata);
 using newmenu_subfunction = newmenu_subfunction_t<void>;

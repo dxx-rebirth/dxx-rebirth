@@ -79,64 +79,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MESSAGEBOX_TEXT_SIZE 2176  // How many characters in messagebox
 #define MAX_TEXT_WIDTH FSPACX(120) // How many pixels wide a input box can be
 
-struct listbox_layout;
-
-namespace {
-
-static void listbox_create_structure(listbox_layout &lb);
-
-}
-
-struct listbox_layout
-{
-	struct marquee
-	{
-		class deleter : std::default_delete<fix64[]>
-		{
-		public:
-			void operator()(marquee *const m) const
-			{
-				static_assert(std::is_trivially_destructible<marquee>::value, "marquee destructor not called");
-				std::default_delete<fix64[]>::operator()(reinterpret_cast<fix64 *>(m));
-			}
-		};
-		using ptr = std::unique_ptr<marquee, deleter>;
-		static ptr allocate(const unsigned maxchars)
-		{
-			const unsigned max_bytes = maxchars + 1 + sizeof(marquee);
-			auto pf = std::make_unique<fix64[]>(1 + (max_bytes / sizeof(fix64)));
-			auto pm = ptr(new(pf.get()) marquee(maxchars));
-			pf.release();
-			return pm;
-		}
-		marquee(const unsigned mc) :
-			maxchars(mc)
-		{
-		}
-		fix64 lasttime; // to scroll text if string does not fit in box
-		const unsigned maxchars;
-		int pos = 0, scrollback = 0;
-		char text[0];	/* must be last */
-	};
-	listbox_layout(int citem, unsigned nitems, const char **item, menu_title title) :
-		citem(citem), nitems(nitems), item(item), title(title)
-	{
-		listbox_create_structure(*this);
-	}
-	unsigned items_on_screen;
-	int box_x, box_y;
-	int box_w, height, title_height;
-	int citem, first_item;
-	unsigned nitems;
-	const char **const item;
-	const menu_title title;
-	marquee::ptr marquee;
-	short swidth, sheight;
-	// with these we check if resolution or fonts have changed so listbox structure can be recreated
-	font_x_scale_proportion fntscalex;
-	font_y_scale_proportion fntscaley;
-};
-
 constexpr std::integral_constant<unsigned, NM_TYPE_INPUT> newmenu_item::input_specific_type::nm_type;
 constexpr std::integral_constant<unsigned, NM_TYPE_RADIO> newmenu_item::radio_specific_type::nm_type;
 constexpr std::integral_constant<unsigned, NM_TYPE_NUMBER> newmenu_item::number_specific_type::nm_type;
@@ -1985,19 +1927,23 @@ static window_event_result listbox_key_command(const d_event &event, listbox *lb
 	return rval;
 }
 
-static void listbox_create_structure(listbox_layout &lb)
+}
+
+namespace dcx {
+
+void listbox_layout::create_structure()
 {
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 
 	auto &medium3_font = *MEDIUM3_FONT;
 
-	lb.box_w = 0;
+	box_w = 0;
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx10 = fspacx(10);
 	const unsigned max_box_width = SWIDTH - (BORDERX * 2);
 	unsigned marquee_maxchars = UINT_MAX;
-	for (const auto i : unchecked_partial_range(lb.item, lb.nitems))
+	for (const auto i : unchecked_partial_range(item, nitems))
 	{
 		int w;
 		gr_get_string_size(medium3_font, i, &w, nullptr, nullptr);
@@ -2045,56 +1991,60 @@ static void listbox_create_structure(listbox_layout &lb)
 			if (marquee_maxchars > mmc)
 				marquee_maxchars = mmc;
 		}
-		if (lb.box_w < w)
-			lb.box_w = w;
+		if (box_w < w)
+			box_w = w;
 	}
 
 	{
 		int w, h;
-		gr_get_string_size(medium3_font, lb.title, &w, &h, nullptr);
-		if (lb.box_w < w)
-			lb.box_w = w;
-		lb.title_height = h+FSPACY(5);
+		gr_get_string_size(medium3_font, title, &w, &h, nullptr);
+		if (box_w < w)
+			box_w = w;
+		title_height = h+FSPACY(5);
 	}
 
 	// The box is bigger than we can fit on the screen since at least one string is too long. Check how many chars we can fit on the screen (at least only - MEDIUM*_FONT is variable font!) so we can make a marquee-like effect.
 	if (marquee_maxchars != UINT_MAX)
 	{
-		lb.box_w = max_box_width;
-		lb.marquee = listbox::marquee::allocate(marquee_maxchars);
-		lb.marquee->lasttime = timer_query();
+		box_w = max_box_width;
+		marquee = listbox::marquee::allocate(marquee_maxchars);
+		marquee->lasttime = timer_query();
 	}
 
 	const auto &&line_spacing = LINE_SPACING(medium3_font, *GAME_FONT);
 	const unsigned bordery2 = BORDERY * 2;
 	const auto items_on_screen = std::max<unsigned>(
-		std::min<unsigned>(((canvas.cv_bitmap.bm_h - bordery2 - lb.title_height) / line_spacing) - 2, lb.nitems),
+		std::min<unsigned>(((canvas.cv_bitmap.bm_h - bordery2 - title_height) / line_spacing) - 2, nitems),
 		LB_ITEMS_ON_SCREEN);
-	lb.items_on_screen = items_on_screen;
-	lb.height = line_spacing * items_on_screen;
-	lb.box_x = (canvas.cv_bitmap.bm_w - lb.box_w) / 2;
-	lb.box_y = (canvas.cv_bitmap.bm_h - (lb.height + lb.title_height)) / 2 + lb.title_height;
-	if (lb.box_y < bordery2)
-		lb.box_y = bordery2;
+	this->items_on_screen = items_on_screen;
+	height = line_spacing * items_on_screen;
+	box_x = (canvas.cv_bitmap.bm_w - box_w) / 2;
+	box_y = (canvas.cv_bitmap.bm_h - (height + title_height)) / 2 + title_height;
+	if (box_y < bordery2)
+		box_y = bordery2;
 
-	if (lb.citem < 0)
-		lb.citem = 0;
-	else if (lb.citem >= lb.nitems)
-		lb.citem = 0;
+	if (citem < 0)
+		citem = 0;
+	else if (citem >= nitems)
+		citem = 0;
 
-	lb.first_item = 0;
-	update_scroll_position(lb);
+	first_item = 0;
+	update_scroll_position(*this);
 
-	lb.swidth = SWIDTH;
-	lb.sheight = SHEIGHT;
-	lb.fntscalex = FNTScaleX;
-	lb.fntscaley = FNTScaleY;
+	swidth = SWIDTH;
+	sheight = SHEIGHT;
+	fntscalex = FNTScaleX;
+	fntscaley = FNTScaleY;
 }
+
+}
+
+namespace {
 
 static window_event_result listbox_draw(listbox *lb)
 {
 	if (lb->swidth != SWIDTH || lb->sheight != SHEIGHT || lb->fntscalex != FNTScaleX || lb->fntscaley != FNTScaleY)
-		listbox_create_structure (*lb);
+		lb->create_structure();
 
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
