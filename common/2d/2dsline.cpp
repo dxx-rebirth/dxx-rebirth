@@ -30,6 +30,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+namespace {
+
 static void gr_linear_darken(uint8_t *const dest, unsigned darkening_level, unsigned count, const gft_array1 &fade_table)
 {
 	auto &t = fade_table[darkening_level];
@@ -37,10 +39,12 @@ static void gr_linear_darken(uint8_t *const dest, unsigned darkening_level, unsi
 	std::transform(dest, dest + count, dest, predicate);
 }
 
+}
+
 #define gr_linear_stosd(D,C,N)	memset(D,C,N)
 
 #if DXX_USE_OGL
-static
+namespace {
 #endif
 void gr_uscanline(grs_canvas &canvas, const unsigned x1, const unsigned x2, const unsigned y, const uint8_t color)
 {
@@ -62,6 +66,9 @@ void gr_uscanline(grs_canvas &canvas, const unsigned x1, const unsigned x2, cons
 			break;
 		}
 }
+#if DXX_USE_OGL
+}
+#endif
 
 void gr_scanline(grs_canvas &canvas, int x1, int x2, const unsigned y, const uint8_t color)
 {

@@ -147,6 +147,7 @@ int toggle_outline_mode(void)
 #if DXX_USE_OGL
 #define draw_outline(C,a,b)	draw_outline(a,b)
 #endif
+namespace {
 static void draw_outline(grs_canvas &canvas, const unsigned nverts, cg3s_point *const *const pointlist)
 {
 	const uint8_t color = BM_XRGB(63, 63, 63);
@@ -155,6 +156,7 @@ static void draw_outline(grs_canvas &canvas, const unsigned nverts, cg3s_point *
 	range_for (const unsigned i, xrange(e))
 		g3_draw_line(canvas, *pointlist[i], *pointlist[i + 1], color);
 	g3_draw_line(canvas, *pointlist[e], *pointlist[0], color);
+}
 }
 #endif
 
@@ -206,6 +208,7 @@ void flash_frame()
 
 }
 
+namespace {
 static inline int is_alphablend_eclip(int eclip_num)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -376,7 +379,9 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 #endif
 }
 }
+}
 
+namespace {
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
@@ -473,11 +478,13 @@ static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0,
 constexpr std::integral_constant<fix, (F1_0/4)> Tulate_min_dot{};
 //--unused-- fix	Tulate_min_ratio = (2*F1_0);
 constexpr std::integral_constant<fix, (F1_0*15/16)> Min_n0_n1_dot{};
+}
 
 // -----------------------------------------------------------------------------------
 //	Render a side.
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
 namespace dsx {
+namespace {
 static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegptridx_t segp, const unsigned sidenum, const WALL_IS_DOORWAY_result_t wid_flags, const vms_vector &Viewer_eye)
 {
 	fix		min_dot, max_dot;
@@ -700,6 +707,7 @@ static void do_render_object(grs_canvas &canvas, const d_level_unique_light_stat
 
 }
 }
+}
 
 //increment counter for checking if points rotated
 //This must be called at the start of the frame if rotate_list() will be used
@@ -747,6 +755,7 @@ g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::size_t nv, const vertnum
 
 }
 
+namespace {
 //Given a lit of point numbers, project any that haven't been projected
 static void project_list(const std::array<vertnum_t, 8> &pointnumlist)
 {
@@ -757,11 +766,13 @@ static void project_list(const std::array<vertnum_t, 8> &pointnumlist)
 			g3_project_point(p);
 	}
 }
+}
 
 
 // -----------------------------------------------------------------------------------
 #if !DXX_USE_OGL
 namespace dsx {
+namespace {
 static void render_segment(fvcvertptr &vcvertptr, fvcwallptr &vcwallptr, const vms_vector &Viewer_eye, grs_canvas &canvas, const vcsegptridx_t seg)
 {
 	if (!rotate_list(vcvertptr, seg->verts).uand)
@@ -784,11 +795,13 @@ static void render_segment(fvcvertptr &vcvertptr, fvcwallptr &vcwallptr, const v
 	//object_sort_segment_objects( seg );
 }
 }
+}
 #endif
 
 #if DXX_USE_EDITOR
 #ifndef NDEBUG
 
+namespace {
 constexpr fix CROSS_WIDTH = i2f(8);
 constexpr fix CROSS_HEIGHT = i2f(8);
 
@@ -824,9 +837,12 @@ static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, cons
 		gr_line(canvas, pnt->p3_sx, pnt->p3_sy + CROSS_HEIGHT, pnt->p3_sx - CROSS_WIDTH, pnt->p3_sy, color);
 	}
 }
+}
 
 #endif
 #endif
+
+namespace {
 
 static ubyte code_window_point(fix x,fix y,const rect &w)
 {
@@ -1004,8 +1020,6 @@ static void add_obj_to_seglist(render_state_t &rstate, objnum_t objnum, segnum_t
 	o.emplace_back(render_state_t::per_segment_state_t::distant_object{objnum});
 }
 
-namespace {
-
 using visited_twobit_array_t = visited_segment_mask_t<2>;
 
 class render_compare_context_t
@@ -1079,8 +1093,6 @@ bool render_compare_context_t::operator()(const distant_object &a, const distant
 	return delta_dist_squared > 0;	//return distance
 }
 
-}
-
 static void sort_segment_object_list(fvcobjptr &vcobjptr, const vms_vector &Viewer_eye, render_state_t::per_segment_state_t &segstate)
 {
 	render_compare_context_t context(vcobjptr, Viewer_eye, segstate);
@@ -1088,7 +1100,10 @@ static void sort_segment_object_list(fvcobjptr &vcobjptr, const vms_vector &View
 	std::sort(v.begin(), v.end(), std::cref(context));
 }
 
+}
+
 namespace dsx {
+namespace {
 
 static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const vms_vector &Viewer_eye, render_state_t &rstate)
 {
@@ -1178,6 +1193,7 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 	}
 }
 }
+}
 
 int Rear_view=0;
 
@@ -1255,6 +1271,7 @@ void update_rendered_data(window_rendered_data &window, const object &viewer, in
 }
 #endif
 
+namespace {
 //build a list of segments to be rendered
 //fills in Render_list & N_render_segs
 static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_eye, visited_twobit_array_t &visited, unsigned &first_terminal_seg, const vcsegidx_t start_seg_num)
@@ -1423,6 +1440,7 @@ done_list:
 	first_terminal_seg = scnt;
 	rstate.N_render_segs = lcnt;
 
+}
 }
 
 //renders onto current canvas

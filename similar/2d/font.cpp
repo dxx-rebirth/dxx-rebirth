@@ -54,6 +54,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <array>
 #include <memory>
 
+namespace dcx {
+
+namespace {
+
 static font_x_scale_float FONTSCALE_X()
 {
 	return FNTScaleX.operator float();
@@ -66,13 +70,7 @@ static auto FONTSCALE_Y(const int &y)
 
 #define MAX_OPEN_FONTS	50
 
-namespace {
-
 constexpr std::integral_constant<uint8_t, 255> kerndata_terminator{};
-
-}
-
-namespace dcx {
 
 //list of open fonts, for use (for now) for palette remapping
 static std::array<grs_font *, MAX_OPEN_FONTS> open_font;
@@ -94,8 +92,6 @@ static const uint8_t *find_kern_entry(const grs_font &font, const uint8_t first,
 }
 
 //takes the character AFTER being offset into font
-
-namespace {
 
 class font_character_extent
 {
@@ -130,8 +126,6 @@ struct get_char_width_result<float>
 	{
 	}
 };
-
-}
 
 //takes the character BEFORE being offset into current font
 template <typename T>
@@ -691,12 +685,16 @@ static int ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, cons
 #define gr_internal_color_string ogl_internal_string
 #endif //OGL
 
+}
+
 void gr_string(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s)
 {
 	int w, h;
 	gr_get_string_size(cv_font, s, &w, &h, nullptr);
 	gr_string(canvas, cv_font, x, y, s, w, h);
 }
+
+namespace {
 
 static void gr_ustring_mono(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s)
 {
@@ -708,6 +706,8 @@ static void gr_ustring_mono(grs_canvas &canvas, const grs_font &cv_font, const i
 			else
 				gr_internal_string0(canvas, cv_font, x, y, s);
 	}
+}
+
 }
 
 void gr_string(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s, const int w, const int h)
@@ -885,6 +885,8 @@ void gr_remap_color_fonts()
 	}
 }
 
+namespace {
+
 /*
  * reads a grs_font structure from a PHYSFS_File
  */
@@ -1038,6 +1040,8 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 	return font;
 }
 
+}
+
 grs_font_ptr gr_init_font(grs_canvas &canvas, const char *fontname)
 {
 	auto font = gr_internal_init_font(fontname);
@@ -1079,6 +1083,8 @@ void gr_set_curfont(grs_canvas &canvas, const grs_font *n)
 {
 	canvas.cv_font = n;
 }
+
+namespace {
 
 template <bool masked_draws_background>
 static int gr_internal_string_clipped_template(grs_canvas &canvas, const grs_font &cv_font, int x, int y, const char *const s)
@@ -1197,6 +1203,8 @@ static int gr_internal_string_clipped_m(grs_canvas &canvas, const grs_font &cv_f
 static int gr_internal_string_clipped(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s)
 {
 	return gr_internal_string_clipped_template<false>(canvas, cv_font, x, y, s);
+}
+
 }
 
 }

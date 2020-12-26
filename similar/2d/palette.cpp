@@ -48,6 +48,8 @@ namespace dcx {
 
 #define	MAX_COMPUTED_COLORS	32
 
+namespace {
+
 static unsigned Num_computed_colors;
 
 struct color_record {
@@ -56,6 +58,8 @@ struct color_record {
 };
 
 static std::array<color_record, MAX_COMPUTED_COLORS> Computed_colors;
+
+}
 
 palette_array_t gr_palette;
 palette_array_t gr_current_pal;
@@ -80,11 +84,15 @@ void copy_bound_palette(palette_array_t &d, const palette_array_t &s)
 
 namespace dcx {
 
+namespace {
+
 static void diminish_entry(rgb_t &c)
 {
 	c.r >>= 2;
 	c.g >>= 2;
 	c.b >>= 2; 
+}
+
 }
 
 void diminish_palette(palette_array_t &palette)
@@ -191,6 +199,8 @@ void gr_use_palette_table(const char * filename )
 
 namespace dcx {
 
+namespace {
+
 //	Add a computed color (by gr_find_closest_color) to list of computed colors in Computed_colors.
 //	If list wasn't full already, increment Num_computed_colors.
 //	If was full, replace a random one.
@@ -208,6 +218,8 @@ static void add_computed_color(int r, int g, int b, color_t color_num)
 	Computed_colors[add_index].g = g;
 	Computed_colors[add_index].b = b;
 	Computed_colors[add_index].color_num = color_num;
+}
+
 }
 
 void init_computed_colors(void)

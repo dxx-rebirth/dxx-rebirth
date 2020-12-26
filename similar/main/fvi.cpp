@@ -49,6 +49,8 @@ using std::min;
 
 #define face_type_num(nfaces,face_num,tri_edge) ((nfaces==1)?0:(tri_edge*2 + face_num))
 
+namespace {
+
 //find the point on the specified plane where the line intersects
 //returns true if point found, false if line parallel to plane
 //new_pnt is the found point on the plane
@@ -82,8 +84,6 @@ static int find_plane_line_intersection(vms_vector &new_pnt,const vms_vector &pl
 
 }
 
-namespace {
-
 struct vec2d {
 	fix i,j;
 };
@@ -100,8 +100,6 @@ struct ij_pair
 	fix vms_vector::*i;
 	fix vms_vector::*j;
 };
-
-}
 
 __attribute_warn_unused_result
 static ij_pair find_largest_normal(vms_vector t)
@@ -603,9 +601,6 @@ static vm_distance_squared check_vector_to_object(vms_vector &intp, const vms_ve
 	return check_vector_to_sphere_1(intp, p0, p1, obj.pos, size+rad);
 }
 
-
-namespace {
-
 #define MAX_SEGS_VISITED 100
 struct fvi_segment_visit_count_t
 {
@@ -621,7 +616,9 @@ struct fvi_segments_visited_t : public fvi_segment_visit_count_t, public visited
 }
 
 namespace dsx {
+namespace {
 static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, const icobjptridx_t thisobjnum, const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited, unsigned &fvi_hit_side, icsegidx_t &fvi_hit_side_seg, unsigned &fvi_nest_count, icsegidx_t &fvi_hit_pt_seg, const vms_vector *&wall_norm, icobjidx_t &fvi_hit_object);
+}
 
 //What the hell is fvi_hit_seg for???
 
@@ -779,6 +776,8 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 
 }
 
+namespace {
+
 __attribute_warn_unused_result
 static bool obj_in_list(const vcobjidx_t objnum, const std::pair<const vcobjidx_t *, const vcobjidx_t *> obj_list)
 {
@@ -789,7 +788,9 @@ static bool obj_in_list(const vcobjidx_t objnum, const std::pair<const vcobjidx_
 
 static int check_trans_wall(const vms_vector &pnt,vcsegptridx_t seg,int sidenum,int facenum);
 }
+}
 
+namespace {
 static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segment_array_t &src)
 {
 	/* Avoid overflow.  Original code had n_segs < MAX_SEGS_VISITED-1,
@@ -798,8 +799,10 @@ static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segm
 	const size_t scount = src.size(), dcount = dst.size(), count = std::min(scount, dst.max_size() - dcount - 1);
 	std::copy(src.begin(), src.begin() + count, std::back_inserter(dst));
 }
+}
 
 namespace dsx {
+namespace {
 static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, icobjptridx_t thisobjnum, const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited, unsigned &fvi_hit_side, icsegidx_t &fvi_hit_side_seg, unsigned &fvi_nest_count, icsegidx_t &fvi_hit_pt_seg, const vms_vector *&wall_norm, icobjidx_t &fvi_hit_object)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -1076,6 +1079,7 @@ quit_looking:
 
 }
 }
+}
 
 /*
 //--unused-- //compute the magnitude of a 2d vector
@@ -1182,6 +1186,7 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const cscusegment seg, cons
 	};
 }
 
+namespace {
 //check if a particular point on a wall is a transparent pixel
 //returns 1 if can pass though the wall, else 0
 int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,int facenum)
@@ -1225,7 +1230,9 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 #endif
 }
 }
+}
 
+namespace {
 //new function for Mike
 //note: n_segs_visited must be set to zero before this is called
 static sphere_intersects_wall_result sphere_intersects_wall(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, const vms_vector &pnt, const vcsegptridx_t seg, const fix rad, fvi_segments_visited_t &visited)
@@ -1280,6 +1287,7 @@ static sphere_intersects_wall_result sphere_intersects_wall(fvcsegptridx &vcsegp
 		}
 	}
 	return {};
+}
 }
 
 sphere_intersects_wall_result sphere_intersects_wall(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, const vms_vector &pnt, const vcsegptridx_t seg, const fix rad)

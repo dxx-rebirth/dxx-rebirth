@@ -66,13 +66,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::min;
 
-static int Do_dynamic_light=1;
-static int use_fcd_lighting;
-
 #define	HEADLIGHT_CONE_DOT	(F1_0*9/10)
 #define	HEADLIGHT_SCALE		(F1_0*10)
 
 namespace dcx {
+namespace {
+
+static int Do_dynamic_light=1;
+static int use_fcd_lighting;
 
 static void add_light_div(g3s_lrgb &d, const g3s_lrgb &light, const fix &scale)
 {
@@ -112,9 +113,11 @@ static fix compute_fireball_light_emission_intensity(const d_vclip_array &Vclip,
 }
 
 }
+}
 
 // ----------------------------------------------------------------------------------------------
 namespace dsx {
+namespace {
 
 static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg, const vms_vector &obj_pos, const unsigned n_render_vertices, std::array<vertnum_t, MAX_VERTICES> &render_vertices, const std::array<segnum_t, MAX_VERTICES> &vert_segnum_list, const icobjptridx_t objnum)
 {
@@ -238,9 +241,11 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 	}
 }
 }
+}
 
 #define FLASH_LEN_FIXED_SECONDS (F1_0/3)
 #define FLASH_SCALE             (3*F1_0/FLASH_LEN_FIXED_SECONDS)
+namespace {
 
 // ----------------------------------------------------------------------------------------------
 static void cast_muzzle_flash_light(fvmsegptridx &vmsegptridx, int n_render_vertices, std::array<vertnum_t, MAX_VERTICES> &render_vertices, const std::array<segnum_t, MAX_VERTICES> &vert_segnum_list)
@@ -282,9 +287,11 @@ const std::array<fix, 16> Obj_light_xlate{{0x1234, 0x3321, 0x2468, 0x1735,
 #undef compute_player_light_emission_intensity
 #undef compute_light_emission
 #endif
+}
 
 // ---------------------------------------------------------
 namespace dsx {
+namespace {
 
 #if defined(DXX_BUILD_DESCENT_II)
 static fix compute_player_light_emission_intensity(d_level_unique_headlight_state &LevelUniqueHeadlightState, const object &objp)
@@ -305,7 +312,7 @@ static fix compute_player_light_emission_intensity(d_level_unique_headlight_stat
 		const auto s = fix_sin(static_cast<fix>(GameTime64 >> 1) & 0xFFFF); // probably a bad way to do it
 		return fixmul((s + F1_0) >> 1, hoardlight);
 	}
-	return compute_player_light_emission_intensity(objp);
+	return ::dcx::compute_player_light_emission_intensity(objp);
 }
 #endif
 
@@ -505,6 +512,8 @@ static g3s_lrgb compute_light_emission(const d_level_shared_robot_info_state &Le
 	return white_light();
 }
 
+}
+
 // ----------------------------------------------------------------------------------------------
 void set_dynamic_light(render_state_t &rstate)
 {
@@ -578,6 +587,8 @@ void toggle_headlight_active(object &player)
 	}
 }
 
+namespace {
+
 static fix compute_headlight_light_on_object(const d_level_unique_headlight_state &LevelUniqueHeadlightState, const object_base &objp)
 {
 	fix	light;
@@ -603,9 +614,13 @@ static fix compute_headlight_light_on_object(const d_level_unique_headlight_stat
 	}
 	return light;
 }
+
+}
 #endif
 
 }
+
+namespace {
 
 //compute the average dynamic light in a segment.  Takes the segment number
 static g3s_lrgb compute_seg_dynamic_light(const enumerated_array<g3s_lrgb, MAX_VERTICES, vertnum_t> &Dynamic_light, const shared_segment &seg)
@@ -625,6 +640,7 @@ static g3s_lrgb compute_seg_dynamic_light(const enumerated_array<g3s_lrgb, MAX_V
 
 static std::array<g3s_lrgb, MAX_OBJECTS> object_light;
 static std::array<object_signature_t, MAX_OBJECTS> object_sig;
+}
 const object *old_viewer;
 static int reset_lighting_hack;
 #define LIGHT_RATE i2f(4) //how fast the light ramps up

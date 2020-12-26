@@ -48,11 +48,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_zip.h"
 
 namespace dcx {
+namespace {
 static void cast_all_light_in_mine(int quick_flag);
+}
 }
 //--rotate_uvs-- vms_vector Rightvec;
 
 #define	MAX_LIGHT_SEGS 16
+
+namespace {
 
 //	---------------------------------------------------------------------------------------------
 //	Scan all polys in all segments, return average light value for vnum.
@@ -162,6 +166,7 @@ static void set_average_light_on_side(const shared_segment &segp, const unsigned
 		{
 			set_average_light_at_vertex(segp.verts[v]);
 		}
+}
 
 }
 
@@ -194,6 +199,8 @@ int set_average_light_on_all_quick(void)
 
 	return 0;
 }
+
+namespace {
 
 //	---------------------------------------------------------------------------------------------
 //	Given a polygon, compress the uv coordinates so that they are as close to 0 as possible.
@@ -235,6 +242,8 @@ static void assign_default_lighting(unique_segment &segp)
 		assign_default_lighting_on_side(side.uvls);
 }
 
+}
+
 void assign_default_lighting_all(void)
 {
 	range_for (const auto &&segp, vmsegptr)
@@ -243,6 +252,8 @@ void assign_default_lighting_all(void)
 			assign_default_lighting(segp);
 	}
 }
+
+namespace {
 
 //	---------------------------------------------------------------------------------------------
 static void validate_uv_coordinates(unique_segment &segp)
@@ -272,6 +283,8 @@ static fix zhypot(fix a,fix b) {
 }
 #endif
 
+}
+
 //	---------------------------------------------------------------------------------------------
 //	Assign lighting value to side, a function of the normal vector.
 void assign_light_to_side(unique_side &s)
@@ -282,6 +295,8 @@ void assign_light_to_side(unique_side &s)
 
 fix	Stretch_scale_x = F1_0;
 fix	Stretch_scale_y = F1_0;
+
+namespace {
 
 //	---------------------------------------------------------------------------------------------
 //	Given u,v coordinates at two vertices, assign u,v coordinates to other two vertices on a side.
@@ -390,6 +405,8 @@ static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, 
 		//	For all faces in side, copy uv coordinates from uvs array to face.
 		segp->unique_segment::sides[sidenum].uvls = uvls;
 	}
+}
+
 }
 
 
@@ -544,6 +561,8 @@ void assign_default_uvs_to_segment(const vmsegptridx_t segp)
 //--rotate_uvs-- 	uvb->u = uvb1.u + uvc.u;
 //--rotate_uvs-- 	uvb->v = uvb1.v + uvc.v;
 //--rotate_uvs-- }
+
+namespace {
 
 // --------------------------------------------------------------------------------------------------------------
 //	Assign u,v coordinates to con_seg, con_common_side from base_seg, base_common_side
@@ -705,6 +724,8 @@ static void propagate_tmaps_to_segment_side(const vcsegptridx_t base_seg, const 
 
 }
 
+}
+
 namespace dcx {
 
 constexpr int8_t Edge_between_sides[MAX_SIDES_PER_SEGMENT][MAX_SIDES_PER_SEGMENT][2] = {
@@ -781,6 +802,8 @@ int fix_bogus_uvs_on_side(void)
 	return 0;
 }
 
+namespace {
+
 static void fix_bogus_uvs_on_side1(const vmsegptridx_t sp, const unsigned sidenum, const int uvonly_flag)
 {
 	auto &uvls = sp->unique_segment::sides[sidenum].uvls;
@@ -799,6 +822,8 @@ static void fix_bogus_uvs_seg(const vmsegptridx_t segp)
 	}
 }
 
+}
+
 int fix_bogus_uvs_all(void)
 {
 	range_for (const auto &&segp, vmsegptridx)
@@ -808,6 +833,8 @@ int fix_bogus_uvs_all(void)
 	}
 	return 0;
 }
+
+namespace {
 
 // -----------------------------------------------------------------------------
 //	Segment base_seg is connected through side base_side to segment con_seg on con_side.
@@ -827,6 +854,8 @@ static void propagate_tmaps_to_segment_sides(const vcsegptridx_t base_seg, const
 		const auto abs_id2 = base_seg->verts[static_cast<int>(base_vp[(v+1) % 4])];
 		propagate_tmaps_to_segment_side(base_seg, base_side, con_seg, con_side, abs_id1, abs_id2, uv_only_flag);
 	}
+
+}
 
 }
 
@@ -879,6 +908,8 @@ fix	Magical_light_constant = (F1_0*16);
 // int	Seg0, Seg1;
 
 //int	Bugseg = 27;
+
+namespace {
 
 struct hash_info {
 	sbyte			flag, hit_type;
@@ -1198,6 +1229,8 @@ static void cast_all_light_in_mine(int quick_flag)
 	calim_zero_light_values();
 
 	calim_process_all_lights(quick_flag);
+}
+
 }
 
 }

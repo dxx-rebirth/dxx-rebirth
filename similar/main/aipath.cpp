@@ -61,6 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 namespace dsx {
+namespace {
 static void ai_path_set_orient_and_vel(object &objp, const vms_vector &goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 								, player_visibility_state player_visibility, const vms_vector *vec_to_player
@@ -73,6 +74,9 @@ static void validate_all_paths();
 static int validate_path(int, point_seg* psegs, uint_fast32_t num_points);
 #endif
 }
+}
+
+namespace {
 
 //	------------------------------------------------------------------------
 static void create_random_xlate(std::array<uint8_t, MAX_SIDES_PER_SEGMENT> &xt)
@@ -89,7 +93,10 @@ static void create_random_xlate(std::array<uint8_t, MAX_SIDES_PER_SEGMENT> &xt)
 	}
 }
 
+}
+
 namespace dsx {
+namespace {
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Insert the point at the center of the side connecting two segments between the two points.
@@ -273,6 +280,7 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 }
 #endif
 
+}
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Create a path from objp->pos to the center of end_seg.
@@ -568,6 +576,7 @@ int polish_path(const vmobjptridx_t objp, point_seg *psegs, int num_points)
 #endif
 
 #ifndef NDEBUG
+namespace {
 //	-------------------------------------------------------------------------------------------------------
 //	Make sure that there are connections between all segments on path.
 //	Note that if path has been optimized, connections may not be direct, so this function is useless, or worse.
@@ -628,6 +637,7 @@ void validate_all_paths(void)
 		}
 	}
 #endif
+}
 
 }
 #endif
@@ -897,6 +907,7 @@ void create_n_segment_path_to_door(const vmobjptridx_t objp, const unsigned path
 //			objp->ctype.ai_info.path_length,		length of path
 //			Point_segs_free_ptr				global pointer into Point_segs array
 #if defined(DXX_BUILD_DESCENT_I)
+namespace {
 static void create_path(const vmobjptridx_t objp)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
@@ -929,7 +940,7 @@ static void create_path(const vmobjptridx_t objp)
 	}
 
 	maybe_ai_path_garbage_collect();
-
+}
 }
 #endif
 
@@ -1232,7 +1243,6 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 							   , player_visibility, vec_to_player
 #endif
 							   );
-
 }
 
 }
@@ -1261,6 +1271,7 @@ static int path_index_compare(const void *const v1, const void *const v2)
 }
 
 namespace dsx {
+namespace {
 
 //	----------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
@@ -1420,7 +1431,6 @@ void ai_path_garbage_collect()
 	validate_all_paths();
 	}
 #endif
-
 }
 
 //	-----------------------------------------------------------------------------
@@ -1446,6 +1456,7 @@ void maybe_ai_path_garbage_collect(void)
 		}
 	}
 }
+}
 
 //	-----------------------------------------------------------------------------
 //	Reset all paths.  Do garbage collection.
@@ -1465,7 +1476,6 @@ void ai_reset_all_paths(void)
 	}
 
 	ai_path_garbage_collect();
-
 }
 
 //	---------------------------------------------------------------------------------------------------------
@@ -1558,6 +1568,8 @@ int	Player_hide_index=-1;
 int	Player_cur_path_index=0;
 int	Player_following_path_flag=0;
 
+namespace {
+
 //	------------------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
 static void player_path_set_orient_and_vel(object &objp, const vms_vector &goal_point)
@@ -1598,6 +1610,8 @@ static void player_path_set_orient_and_vel(object &objp, const vms_vector &goal_
 	vm_vec_scale(norm_cur_vel, speed_scale);
 	objp.mtype.phys_info.velocity = norm_cur_vel;
 	physics_turn_towards_vector(norm_vec_to_goal, objp, F1_0);
+}
+
 }
 
 //	----------------------------------------------------------------------------------------------------------
@@ -1669,6 +1683,7 @@ void player_follow_path(object &objp)
 	player_path_set_orient_and_vel(objp, goal_point);
 }
 
+namespace {
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Create path for player from current segment to goal segment.
@@ -1693,6 +1708,8 @@ static void create_player_path_to_segment(fvmobjptridx &vmobjptridx, segnum_t se
 		//Int3();	//	Contact Mike: This is curious, though not deadly. /eip++;g
 		ai_reset_all_paths();
 	}
+
+}
 
 }
 segnum_t	Player_goal_segment = segment_none;

@@ -30,8 +30,6 @@ struct rod_4point
 	std::array<g3s_point, 4> points;
 };
 
-}
-
 //compute the corners of a rod.  fills in vertbuf.
 static int calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_point,fix bot_width,const g3s_point &top_point,fix top_width)
 {
@@ -95,6 +93,8 @@ static int calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_po
 		i.p3_flags = 0;
 	}
 	return codes_and;
+}
+
 }
 
 //draw a bitmap object that is always facing you
@@ -161,7 +161,5 @@ void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, fix width, fix he
 	scale_bitmap(bm, blob_vertices, 0, canvas.cv_bitmap);
 }
 #endif
-
-
 
 }

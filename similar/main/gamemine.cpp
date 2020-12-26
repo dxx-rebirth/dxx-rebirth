@@ -62,6 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 int New_file_format_load = 1; // "new file format" is everything newer than d1 shareware
 
 namespace dsx {
+namespace {
 
 /*
  * reads a segment2 structure from a PHYSFS_File
@@ -82,6 +83,7 @@ static void segment2_read(const msmusegment s2, PHYSFS_File *fp)
 	s2.s.s2_flags = s2_flags;
 #endif
 	s2.u.static_light = PHYSFSX_readFix(fp);
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -371,6 +373,8 @@ struct me mine_editor;
 
 #define COMPILED_MINE_VERSION 0
 
+namespace {
+
 static void read_children(shared_segment &segp, const unsigned bit_mask, PHYSFS_File *const LoadFile)
 {
 	for (int bit=0; bit<MAX_SIDES_PER_SEGMENT; bit++) {
@@ -407,6 +411,8 @@ static void read_special(shared_segment &segp, const unsigned bit_mask, PHYSFS_F
 		segp.matcen_num = -1;
 		segp.station_idx = station_none;
 	}
+}
+
 }
 
 namespace dsx {

@@ -32,6 +32,12 @@
 
 namespace dcx {
 
+#if DXX_USE_EDITOR
+int g3d_interp_outline;
+#endif
+
+namespace {
+
 constexpr std::integral_constant<unsigned, 0> OP_EOF{};   //eof
 constexpr std::integral_constant<unsigned, 1> OP_DEFPOINTS{};   //defpoints
 constexpr std::integral_constant<unsigned, 2> OP_FLATPOLY{};   //flat-shaded polygon
@@ -41,19 +47,6 @@ constexpr std::integral_constant<unsigned, 5> OP_RODBM{};   //rod bitmap
 constexpr std::integral_constant<unsigned, 6> OP_SUBCALL{};   //call a subobject
 constexpr std::integral_constant<unsigned, 7> OP_DEFP_START{};   //defpoints with start
 constexpr std::integral_constant<unsigned, 8> OP_GLOW{};   //glow value for next poly
-
-#if DXX_USE_EDITOR
-int g3d_interp_outline;
-#endif
-
-}
-
-namespace dsx {
-
-static int16_t init_model_sub(uint8_t *model_sub_ptr, const uint8_t *model_base_ptr, std::size_t model_size);
-#if defined(DXX_BUILD_DESCENT_I)
-static void validate_model_sub(uint8_t *model_sub_ptr, const uint8_t *model_base_ptr, std::size_t model_size);
-#endif
 
 static inline int16_t *wp(uint8_t *p)
 {
@@ -86,8 +79,6 @@ static void rotate_point_list(const zip<g3s_point * /* dest */, const vms_vector
 }
 
 constexpr vms_angvec zero_angles = {0,0,0};
-
-namespace {
 
 class interpreter_ignore_op_defpoints
 {
@@ -136,6 +127,10 @@ public:
 	{
 	}
 };
+
+}
+
+}
 
 class interpreter_track_model_extent
 {
@@ -189,6 +184,15 @@ public:
 		throw std::runtime_error(buf);
 	}
 };
+
+namespace dsx {
+
+namespace {
+
+static int16_t init_model_sub(uint8_t *model_sub_ptr, const uint8_t *model_base_ptr, std::size_t model_size);
+#if defined(DXX_BUILD_DESCENT_I)
+static void validate_model_sub(uint8_t *model_sub_ptr, const uint8_t *model_base_ptr, std::size_t model_size);
+#endif
 
 class g3_poly_get_color_state :
 	public interpreter_ignore_op_defpoints,
@@ -551,8 +555,6 @@ public:
 
 constexpr const glow_values_t *g3_draw_morphing_model_state::glow_values;
 
-}
-
 template <typename P, typename State>
 static std::size_t dispatch_polymodel_op(const P p, State &state, const uint_fast32_t op)
 {
@@ -618,8 +620,12 @@ static P iterate_polymodel(P p, State &state)
 
 }
 
+}
+
 #if DXX_WORDS_BIGENDIAN
 namespace dcx {
+
+namespace {
 
 static inline fix *fp(uint8_t *p)
 {
@@ -652,8 +658,6 @@ static void vms_vector_swap(vms_vector &v)
 	fix_swap(v.y);
 	fix_swap(v.z);
 }
-
-namespace {
 
 class swap_polygon_model_data_state : public interpreter_base
 {
@@ -745,9 +749,7 @@ void swap_polygon_model_data(ubyte *data)
 
 #if DXX_WORDS_NEED_ALIGNMENT
 
-#if DXX_WORDS_NEED_ALIGNMENT
 #define MAX_CHUNKS 100 // increase if insufficent
-#endif //def WORDS_NEED_ALIGNMENT
 namespace dcx {
 
 namespace {
@@ -940,12 +942,16 @@ void g3_draw_morphing_model(grs_canvas &canvas, const uint8_t *const p, grs_bitm
 	iterate_polymodel(p, state);
 }
 
+namespace {
+
 static int16_t init_model_sub(uint8_t *const model_sub_ptr, const uint8_t *const model_base_ptr, const std::size_t model_size)
 {
 	init_model_sub_state state(model_base_ptr, model_size);
 	Assert(++nest_count < 1000);
 	iterate_polymodel(model_sub_ptr, state);
 	return state.highest_texture_num;
+}
+
 }
 
 //init code for bitmap models
@@ -958,11 +964,15 @@ int16_t g3_init_polygon_model(uint8_t *const model_ptr, const std::size_t model_
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
+namespace {
+
 static void validate_model_sub(uint8_t *const model_sub_ptr, const uint8_t *const model_base_ptr, const std::size_t model_size)
 {
 	validate_model_sub_state state(model_base_ptr, model_size);
 	assert(++nest_count < 1000);
 	iterate_polymodel(model_sub_ptr, state);
+}
+
 }
 
 void g3_validate_polygon_model(uint8_t *const model_ptr, const std::size_t model_size)

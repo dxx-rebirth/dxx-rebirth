@@ -90,6 +90,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 using std::min;
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+namespace {
 constexpr std::array<uint8_t, MAX_WEAPON_TYPES> Weapon_is_energy{{
 	1, 1, 1, 1, 1,
 	1, 1, 1, 0, 1,
@@ -100,6 +102,8 @@ constexpr std::array<uint8_t, MAX_WEAPON_TYPES> Weapon_is_energy{{
 	1, 1, 0, 1, 1,
 	1
 }};
+}
+}
 #endif
 
 #define WALL_DAMAGE_SCALE (128) // Was 32 before 8:55 am on Thursday, September 15, changed by MK, walls were hurting me more than robots!
@@ -107,6 +111,16 @@ constexpr std::array<uint8_t, MAX_WEAPON_TYPES> Weapon_is_energy{{
 #define WALL_LOUDNESS_SCALE (20)
 #define FORCE_DAMAGE_THRESHOLD (F1_0/3)
 #define STANDARD_EXPL_DELAY (F1_0/4)
+
+namespace dcx {
+void bump_one_object(object_base &obj0, const vms_vector &hit_dir, const fix damage)
+{
+	const auto hit_vec = vm_vec_copy_scale(hit_dir, damage);
+	phys_apply_force(obj0,hit_vec);
+}
+}
+
+namespace {
 
 static int check_collision_delayfunc_exec()
 {
@@ -120,9 +134,12 @@ static int check_collision_delayfunc_exec()
 	return 0;
 }
 
+}
+
 //	-------------------------------------------------------------------------------------------------------------
 //	The only reason this routine is called (as of 10/12/94) is so Brain guys can open doors.
 namespace dsx {
+namespace {
 static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const vmsegptridx_t hitseg, const unsigned hitwall, const vms_vector &)
 {
 	const ubyte robot_id = get_robot_id(robot);
@@ -174,7 +191,6 @@ static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const v
 
 	return;
 }
-}
 
 //	-------------------------------------------------------------------------------------------------------------
 
@@ -194,7 +210,6 @@ static int apply_damage_to_clutter(const vmobjptridx_t clutter, fix damage)
 }
 
 //given the specified force, apply damage from that force to an object
-namespace dsx {
 static void apply_force_damage(const vmobjptridx_t obj,fix force,const vmobjptridx_t other_obj)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -273,7 +288,6 @@ static void apply_force_damage(const vmobjptridx_t obj,fix force,const vmobjptri
 
 	}
 }
-}
 
 //	-----------------------------------------------------------------------------
 static void bump_this_object(const vmobjptridx_t objp, const vmobjptridx_t other_objp, const vms_vector &force, int damage_flag)
@@ -335,13 +349,6 @@ static void bump_two_objects(const vmobjptridx_t obj0,const vmobjptridx_t obj1,i
 	bump_this_object(obj0, obj1, vm_vec_negated(force), damage_flag);
 }
 
-void bump_one_object(object_base &obj0, const vms_vector &hit_dir, fix damage)
-{
-	const auto hit_vec = vm_vec_copy_scale(hit_dir, damage);
-	phys_apply_force(obj0,hit_vec);
-}
-
-namespace dsx {
 static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hitspeed, const vmsegptridx_t hitseg, const unsigned hitwall, const vms_vector &hitpt)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -431,6 +438,7 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 	}
 
 	return;
+}
 }
 }
 
@@ -534,6 +542,7 @@ bool scrape_player_on_wall(const vmobjptridx_t obj, const vmsegptridx_t hitseg, 
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace {
 static int effect_parent_is_guidebot(fvcobjptr &vcobjptr, const laser_parent &laser)
 {
 	if (laser.parent_type != OBJ_ROBOT)
@@ -548,6 +557,7 @@ static int effect_parent_is_guidebot(fvcobjptr &vcobjptr, const laser_parent &la
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[robot_id];
 	return robot_is_companion(robptr);
+}
 }
 #endif
 
@@ -1098,14 +1108,13 @@ static void collide_robot_and_player(const vmobjptridx_t robot, const vmobjptrid
 	bump_two_objects(robot, playerobj, 1);
 	return;
 }
-}
 
 // Provide a way for network message to instantly destroy the control center
 // without awarding points or anything.
 
 //	if controlcen == NULL, that means don't do the explosion because the control center
 //	was actually in another object.
-void net_destroy_controlcen(const imobjptridx_t controlcen)
+void net_destroy_controlcen_object(const imobjptridx_t controlcen)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	if (LevelUniqueControlCenterState.Control_center_destroyed != 1)
@@ -1117,7 +1126,6 @@ void net_destroy_controlcen(const imobjptridx_t controlcen)
 			explode_object(controlcen,0);
 		}
 	}
-
 }
 
 //	-----------------------------------------------------------------------------
@@ -1220,7 +1228,6 @@ static void collide_player_and_marker(const object_base &playerobj, const vmobjp
 
 //	If a persistent weapon and other object is not a weapon, weaken it, else kill it.
 //	If both objects are weapons, weaken the weapon.
-namespace dsx {
 static void maybe_kill_weapon(object_base &weapon, const object_base &other_obj)
 {
 	if (is_proximity_bomb_or_player_smart_mine_or_placed_mine(get_weapon_id(weapon))) {
@@ -1267,9 +1274,7 @@ static void maybe_kill_weapon(object_base &weapon, const object_base &other_obj)
 // -- 	} else
 // -- 		weapon->flags |= OF_SHOULD_BE_DEAD;
 }
-}
 
-namespace dsx {
 static void collide_weapon_and_controlcen(const vmobjptridx_t weapon, const vmobjptridx_t controlcen, vms_vector &collision_point)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
@@ -1331,8 +1336,6 @@ static void collide_weapon_and_controlcen(const vmobjptridx_t weapon, const vmob
 		object_create_explosion(vmsegptridx(controlcen->segnum), collision_point, explosion_size, VCLIP_SMALL_EXPLOSION);
 		maybe_kill_weapon(weapon,controlcen);
 	}
-
-}
 }
 
 static void collide_weapon_and_clutter(object_base &weapon, const vmobjptridx_t clutter, const vms_vector &collision_point)
@@ -1355,8 +1358,6 @@ static void collide_weapon_and_clutter(object_base &weapon, const vmobjptridx_t 
 //--mk, 121094 -- extern void spin_robot(object *robot, vms_vector *collision_point);
 
 #if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
-
 //	------------------------------------------------------------------------------------------------------
 window_event_result do_final_boss_frame(void)
 {
@@ -1425,13 +1426,10 @@ void do_final_boss_hacks(void)
 
 	GameUniqueState.Final_boss_countdown_time = F1_0*4; // was F1_0*2 originally. extended to F1_0*4 to play fade to black which happened after countdown ended in the original game.
 }
-
-}
 #endif
 
 //	------------------------------------------------------------------------------------------------------
 //	Return 1 if robot died, else return 0
-namespace dsx {
 int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer_objnum)
 {
 	if ( robot->flags&OF_EXPLODING) return 0;
@@ -1530,8 +1528,6 @@ enum class boss_weapon_collision_result : uint8_t
 	invulnerable,
 	reflect,	// implies invulnerable
 };
-
-}
 
 static inline int Boss_invulnerable_dot()
 {
@@ -1637,8 +1633,11 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_level_share
 	}
 	return boss_weapon_collision_result::normal;
 }
+
+}
 #endif
 
+namespace {
 //	------------------------------------------------------------------------------------------------------
 static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptridx_t  weapon, vms_vector &collision_point)
 {
@@ -1822,7 +1821,6 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 
 	return;
 }
-}
 
 static void collide_hostage_and_player(const vmobjptridx_t hostage, object &player, const vms_vector &)
 {
@@ -1880,6 +1878,8 @@ static imobjptridx_t maybe_drop_primary_weapon_egg(const object &playerobj, int 
 		return call_object_create_egg(playerobj, 1, powerup_num);
 	else
 		return object_none;
+}
+}
 }
 
 static void maybe_drop_secondary_weapon_egg(const object_base &playerobj, int weapon_index, int count)
@@ -2124,7 +2124,7 @@ void apply_damage_to_player(object &playerobj, const icobjptridx_t killer, fix d
 	if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
 		return;
 
-	if (possibly_friendly && multi_maybe_disable_friendly_fire(killer))
+	if (possibly_friendly && multi_maybe_disable_friendly_fire(static_cast<const object *>(killer)))
 		return;
 
 	if (Endlevel_sequence)

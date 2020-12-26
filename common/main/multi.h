@@ -385,6 +385,7 @@ extern const std::array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt;
 namespace dcx {
 extern std::array<objnum_t, MAX_NET_CREATE_OBJECTS> Net_create_objnums;
 extern unsigned Net_create_loc;
+int multi_maybe_disable_friendly_fire(const object_base *attacker);
 }
 
 namespace dsx {
@@ -397,7 +398,6 @@ void multi_send_remobj(vmobjidx_t objnum);
 void multi_send_door_open(vcsegidx_t segnum, unsigned side, uint8_t flag);
 void multi_send_drop_weapon(vmobjptridx_t objnum,int seed);
 void multi_reset_player_object(object &objp);
-int multi_maybe_disable_friendly_fire(const object *killer);
 }
 #endif
 

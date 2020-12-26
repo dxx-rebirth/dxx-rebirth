@@ -202,6 +202,8 @@ void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, int x1, int x2)
 	}
 }
 
+namespace {
+
 static std::ptrdiff_t gr_rle_encode( int org_size, const uint8_t *src, ubyte *dest )
 {
 	ubyte c, oc;
@@ -298,6 +300,8 @@ static unsigned gr_rle_getsize(int org_size, const uint8_t *src)
 	return dest_size;
 }
 
+}
+
 int gr_bitmap_rle_compress(grs_bitmap &bmp)
 {
 	int doffset;
@@ -353,12 +357,18 @@ struct rle_cache_element
 	int last_used;
 };
 
-}
-
 static int rle_cache_initialized;
 static int rle_counter;
 static int rle_next;
 static std::array<rle_cache_element, 32> rle_cache;
+
+static void rle_cache_init()
+{
+	rle_cache = {};
+	rle_cache_initialized = 1;
+}
+
+}
 
 void rle_cache_close(void)
 {
@@ -369,12 +379,6 @@ void rle_cache_close(void)
 	}
 }
 
-static void rle_cache_init()
-{
-	rle_cache = {};
-	rle_cache_initialized = 1;
-}
-
 void rle_cache_flush()
 {
 	range_for (auto &i, rle_cache)
@@ -383,6 +387,8 @@ void rle_cache_flush()
 		i.last_used = 0;
 	}
 }
+
+namespace {
 
 static void rle_expand_texture_sub(const grs_bitmap &bmp, grs_bitmap &rle_temp_bitmap_1)
 {
@@ -398,6 +404,7 @@ static void rle_expand_texture_sub(const grs_bitmap &bmp, grs_bitmap &rle_temp_b
 	}
 }
 
+}
 
 grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 {

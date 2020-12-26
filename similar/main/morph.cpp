@@ -245,7 +245,7 @@ morph_data::ptr *find_morph_data(d_level_unique_morph_object_state &LevelUniqueM
 	return nullptr;
 }
 
-}
+namespace {
 
 static void assign_max(fix &a, const fix &b)
 {
@@ -313,6 +313,12 @@ static fix compute_bounding_box_extents(const vms_vector &vp, const vms_vector &
 
 	return k;
 }
+
+}
+
+}
+
+namespace {
 
 static void init_points(const polymodel &pm, const vms_vector *const box_size, const unsigned submodel_num, morph_data *const md)
 {
@@ -388,6 +394,8 @@ static void update_points(const polymodel &pm, const unsigned submodel_num, morp
 				vm_vec_scale_add2(morph_vec, morph_delta, FrameTime);
 		}
 	}
+}
+
 }
 
 namespace dsx {
@@ -513,6 +521,8 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 }
 }
 
+namespace {
+
 static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, polymodel *const pm, const unsigned submodel_num, const submodel_angles anim_angles, g3s_lrgb light, morph_data *const md)
 {
 	std::array<unsigned, MAX_SUBMODELS> sort_list;
@@ -571,6 +581,8 @@ static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, p
 			g3_done_instance();
 		}
 	}
+
+}
 
 }
 

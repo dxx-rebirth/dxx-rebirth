@@ -39,6 +39,7 @@
 #include "countarray.h"
 #include "d_levelstate.h"
 
+int HUD_toolong;
 namespace {
 constexpr std::integral_constant<unsigned, 150> HUD_MESSAGE_LENGTH{};
 
@@ -55,14 +56,12 @@ struct hudmsg
 };
 
 struct hudmsg_array_t : public count_array_t<hudmsg, HUD_MAX_NUM_STOR> {};
-}
 
 static hudmsg_array_t HUD_messages;
 
-
-int HUD_toolong = 0;
 static int HUD_color = -1;
 static int HUD_init_message_literal_worth_showing(int class_flag, const char *message);
+}
 
 void HUD_clear_messages()
 {
@@ -122,6 +121,8 @@ void HUD_render_message_frame(grs_canvas &canvas)
 }
 }
 
+namespace {
+
 static int is_worth_showing(int class_flag)
 {
 	if (PlayerCfg.NoRedundancy && (class_flag & HM_REDUNDANT))
@@ -130,6 +131,8 @@ static int is_worth_showing(int class_flag)
 	if (PlayerCfg.MultiMessages && (Game_mode & GM_MULTI) && !(class_flag & HM_MULTI))
 		return 0;
 	return 1;
+}
+
 }
 
 // Call to flash a message on the HUD.  Returns true if message drawn.
@@ -156,6 +159,7 @@ int HUD_init_message_va(int class_flag, const char * format, va_list args)
 	return r;
 }
 
+namespace {
 
 static int HUD_init_message_literal_worth_showing(int class_flag, const char *message)
 {
@@ -211,6 +215,8 @@ static int HUD_init_message_literal_worth_showing(int class_flag, const char *me
 		newdemo_record_hud_message( message );
 
 	return 1;
+}
+
 }
 
 int (HUD_init_message)(int class_flag, const char * format, ... )

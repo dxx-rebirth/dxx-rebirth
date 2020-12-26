@@ -101,6 +101,7 @@ constexpr vm_distance fcd_abort_return_value{-1};
 }
 
 namespace dcx {
+namespace {
 
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
@@ -127,6 +128,7 @@ static void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &r, const s
 	range_for (auto &v, verts)
 		vm_vec_add2(vp, vcvertptr(v));
 	vm_vec_copy_scale(r, vp, F1_0 / 8);
+}
 }
 
 // ------------------------------------------------------------------------------------------
@@ -169,12 +171,16 @@ bool get_side_is_quad(const shared_side &sidep)
 	}
 }
 
+namespace {
+
 // Fill in array with four absolute point numbers for a given side
 static void get_side_verts(side_vertnum_list_t &vertlist, const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &vp, const unsigned sidenum)
 {
 	auto &sv = Side_to_verts[sidenum];
 	for (unsigned i = 4; i--;)
 		vertlist[i] = vp[sv[i]];
+}
+
 }
 
 void get_side_verts(side_vertnum_list_t &vertlist, const shared_segment &segp, const unsigned sidenum)
@@ -185,6 +191,7 @@ void get_side_verts(side_vertnum_list_t &vertlist, const shared_segment &segp, c
 }
 
 namespace dsx {
+namespace {
 
 __attribute_cold
 __noreturn
@@ -235,6 +242,7 @@ template <typename T, typename F>
 static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const shared_segment &segp, const shared_side &sidep, const F &&f)
 {
 	return create_vertex_lists_from_values(va, segp, sidep, f(0), f(1), f(2), f(3));
+}
 }
 
 #if DXX_USE_EDITOR
@@ -370,6 +378,7 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const sh
 	return masks;
 }
 
+namespace {
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
@@ -496,6 +505,7 @@ static void invert_shared_side_triangle_type(shared_side &s)
 	s.set_type(nt);
 }
 #endif
+}
 
 //heavy-duty error checking
 int check_segment_connections(void)
@@ -603,6 +613,7 @@ int	Doing_lighting_hack_flag=0;
 #define Doing_lighting_hack_flag 0
 #endif
 
+namespace {
 // figure out what seg the given point is in, tracing through segments
 // returns segment number, or -1 if can't find segment
 static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedSegmentState, const vms_vector &p0, const vcsegptridx_t oldsegnum, const unsigned recursion_count, visited_segment_bitarray_t &visited)
@@ -649,6 +660,7 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 			return check;
 	}
 	return segment_none;		//we haven't found a segment
+}
 }
 
 imsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &, const vms_vector &p, const imsegptridx_t segnum)
@@ -797,6 +809,7 @@ void flush_fcd_cache(void)
 		i.seg0 = segment_none;
 }
 
+namespace {
 //	----------------------------------------------------------------------------------------------------------
 static void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance dist)
 {
@@ -820,6 +833,7 @@ static void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance dist)
 				}
 	}
 
+}
 }
 #endif
 
@@ -981,6 +995,7 @@ fcd_done1: ;
 }
 
 namespace dcx {
+namespace {
 
 static sbyte convert_to_byte(fix f)
 {
@@ -993,6 +1008,7 @@ static sbyte convert_to_byte(fix f)
 		return f >> MATRIX_PRECISION;
 }
 
+}
 }
 
 #define VEL_PRECISION 12
@@ -1116,6 +1132,7 @@ void extract_quaternionpos(const vmobjptridx_t objp, quaternionpos &qpp)
 //	Moved from editor to game so we can compute surface normals at load time.
 // -------------------------------------------------------------------------------
 
+namespace {
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
@@ -1131,6 +1148,7 @@ static void extract_vector_from_segment(fvcvertptr &vcvertptr, const shared_segm
 		vm_vec_add2(vp, vcvertptr(verts[end[i]]));
 	}
 	vm_vec_scale(vp,F1_0/4);
+}
 }
 
 //create a matrix that describes the orientation of the given segment
@@ -1179,6 +1197,8 @@ void extract_up_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment 
 #if !DXX_USE_EDITOR
 }
 #endif
+
+namespace {
 
 //	----
 //	A side is determined to be degenerate if the cross products of 3 consecutive points does not point outward.
@@ -1278,7 +1298,10 @@ static void add_side_as_quad(shared_side &sidep, const vms_vector &normal)
 
 }
 
+}
+
 namespace dcx {
+namespace {
 
 // -------------------------------------------------------------------------------
 //	Return v0, v1, v2 = 3 vertices with smallest numbers.  If *negate_flag set, then negate normal after computation.
@@ -1325,8 +1348,10 @@ static void assign_side_normal(fvcvertptr &vcvertptr, vms_vector &n, const vertn
 }
 
 }
+}
 
 namespace dsx {
+namespace {
 
 // -------------------------------------------------------------------------------
 static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, const unsigned sidenum)
@@ -1387,8 +1412,10 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 }
 
 }
+}
 
 namespace dcx {
+namespace {
 
 static int sign(fix v)
 {
@@ -1401,6 +1428,7 @@ static int sign(fix v)
 		return 0;
 }
 
+}
 }
 
 namespace dsx {
@@ -1647,6 +1675,8 @@ unsigned set_segment_depths(vcsegidx_t start_seg, const std::array<uint8_t, MAX_
 #define	LIGHT_DISTANCE_THRESHOLD	(F1_0*80)
 #define	Magical_light_constant  (F1_0*16)
 
+namespace {
+
 //	------------------------------------------------------------------------------------------
 //cast static light from a segment to nearby segments
 static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vmsegptridx_t segp, const vms_vector &segment_center, const fix light_intensity, const unsigned recursion_depth)
@@ -1760,6 +1790,8 @@ static void change_light(const d_level_shared_destructible_light_state &LevelSha
 	change_segment_light(segnum,sidenum,dir);
 }
 
+}
+
 //	Subtract light cast by a light source from all surfaces to which it applies light.
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 // returns 1 if lights actually subtracted, else 0
@@ -1816,6 +1848,8 @@ void clear_light_subtracted(void)
 
 #define	AMBIENT_SEGMENT_DEPTH		5
 
+namespace {
+
 static void ambient_mark_bfs(const vmsegptridx_t segp, segment_lava_depth_array *segdepth_lava, segment_water_depth_array *segdepth_water, const unsigned depth, const uint_fast8_t s2f_bit)
 {
 	segp->s2_flags |= s2f_bit;
@@ -1852,6 +1886,8 @@ static void ambient_mark_bfs(const vmsegptridx_t segp, segment_lava_depth_array 
 			continue;
 		ambient_mark_bfs(segp.absolute_sibling(child), segdepth_lava, segdepth_water, depth - 1, s2f_bit);
 	}
+}
+
 }
 
 //	-----------------------------------------------------------------------------

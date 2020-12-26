@@ -24,6 +24,8 @@ temporary_points_t::temporary_points_t() :
 		f = p++;
 }
 
+namespace {
+
 static g3s_point &get_temp_point(temporary_points_t &t)
 {
 	if (t.free_point_num >= t.free_points.size())
@@ -31,6 +33,8 @@ static g3s_point &get_temp_point(temporary_points_t &t)
 	auto &p = *t.free_points[t.free_point_num++];
 	p.p3_flags = PF_TEMP_POINT;
 	return p;
+}
+
 }
 
 void temporary_points_t::free_temp_point(g3s_point *p)
@@ -42,6 +46,8 @@ void temporary_points_t::free_temp_point(g3s_point *p)
 	free_points[free_point_num] = p;
 	p->p3_flags &= ~PF_TEMP_POINT;
 }
+
+namespace {
 
 //clips an edge against one plane. 
 static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt, temporary_points_t &tp)
@@ -105,6 +111,8 @@ static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt,
 	return tmp;
 }
 
+}
+
 //clips a line to the viewing pyramid.
 void clip_line(g3s_point *&p0,g3s_point *&p1,const uint_fast8_t codes_or, temporary_points_t &tp)
 {
@@ -122,6 +130,8 @@ void clip_line(g3s_point *&p0,g3s_point *&p1,const uint_fast8_t codes_or, tempor
 				tp.free_temp_point(old_p1);
 		}
 }
+
+namespace {
 
 static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_points &dest,int *nv,g3s_codes *cc, temporary_points_t &tp)
 {
@@ -166,6 +176,8 @@ static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_point
 		}
 	}
 	return j;
+}
+
 }
 
 const polygon_clip_points &clip_polygon(polygon_clip_points &rsrc,polygon_clip_points &rdest,int *nv,g3s_codes *cc, temporary_points_t &tp)

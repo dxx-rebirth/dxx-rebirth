@@ -46,6 +46,8 @@ int		Modified_vertex_index = 0;
 
 namespace dsx {
 
+namespace {
+
 // ------------------------------------------------------------------------------------------
 static void validate_modified_segments(void)
 {
@@ -195,6 +197,8 @@ static void extract_vector_from_segment_side(const shared_segment &sp, const uns
 	vm_vec_scale(vp, F1_0/2);
 }
 
+}
+
 // ------------------------------------------------------------------------------------------
 //	Extract the right vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the left face of the segment
@@ -213,6 +217,7 @@ void med_extract_up_vector_from_segment_side(const shared_segment &sp, int siden
 	extract_vector_from_segment_side(sp, sidenum, vp, 1, 2, 0, 3);
 }
 
+namespace {
 
 // -----------------------------------------------------------------------------
 //	Increase the size of Cursegp in dimension dimension by amount
@@ -272,6 +277,8 @@ static int segsize_common(int dimension, fix amount)
 	Update_flags |= UF_WORLD_CHANGED;
 	mine_changed = 1;
 	return 1;
+}
+
 }
 
 // -----------------------------------------------------------------------------
@@ -380,6 +387,8 @@ int ToggleSegSizeMode(void)
 	return 1;
 }
 
+namespace {
+
 //	---------------------------------------------------------------------------
 static int	PerturbCursideCommon(fix amount)
 {
@@ -424,6 +433,8 @@ static int	PerturbCursideCommon(fix amount)
 	mine_changed = 1;
 
 	return 1;
+}
+
 }
 
 //	---------------------------------------------------------------------------

@@ -105,11 +105,11 @@ static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t
 static void multi_update_objects_for_non_cooperative();
 static void multi_restore_game(unsigned slot, unsigned id);
 static void multi_save_game(unsigned slot, unsigned id, const d_game_unique_state::savegame_description &desc);
-}
 static void multi_add_lifetime_killed();
 #if !(!defined(RELEASE) && defined(DXX_BUILD_DESCENT_II))
 static void multi_add_lifetime_kills(int count);
 #endif
+}
 }
 namespace {
 static void multi_send_heartbeat();
@@ -654,7 +654,7 @@ static void net_destroy_controlcen(object_array &Objects)
 {
 	print_kill_goal_tables(Objects.vcptr);
 	HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
-	net_destroy_controlcen(obj_find_first_of_type(Objects.vmptridx, OBJ_CNTRLCEN));
+	net_destroy_controlcen_object(obj_find_first_of_type(Objects.vmptridx, OBJ_CNTRLCEN));
 }
 
 }
@@ -1412,7 +1412,7 @@ static void multi_send_message_end(fvmobjptr &vmobjptr, control_info &Controls)
 			HUD_init_message(HM_MULTI, "Only %s can kill the reactor this way!", static_cast<const char *>(Players[multi_who_is_master()].callsign));
 		else
 		{
-			net_destroy_controlcen(object_none);
+			net_destroy_controlcen_object(object_none);
 			multi_send_destroy_controlcen(object_none,Player_num);
 		}
 		multi_message_index = 0;
@@ -1868,7 +1868,7 @@ static void multi_do_controlcen_destroy(fimobjptridx &imobjptridx, const uint8_t
 		else
 			HUD_init_message_literal(HM_MULTI, who == Player_num ? TXT_YOU_DEST_CONTROL : TXT_CONTROL_DESTROYED);
 
-		net_destroy_controlcen(objnum == object_none ? object_none : imobjptridx(objnum));
+		net_destroy_controlcen_object(objnum == object_none ? object_none : imobjptridx(objnum));
 	}
 }
 
@@ -3195,6 +3195,8 @@ uint16_t map_granted_flags_to_vulcan_ammo(const packed_spawn_granted_items p)
 		(grant & NETGRANT_VULCAN ? amount : 0);
 }
 
+namespace {
+
 static constexpr unsigned map_granted_flags_to_netflag(const packed_spawn_granted_items grant)
 {
 	return (grant_shift_helper(grant, BIT_NETGRANT_QUAD - BIT_NETFLAG_DOQUAD) & (NETFLAG_DOQUAD | NETFLAG_DOVULCAN | NETFLAG_DOSPREAD | NETFLAG_DOPLASMA | NETFLAG_DOFUSION))
@@ -3217,8 +3219,6 @@ assert_equal(map_granted_flags_to_netflag(NETGRANT_PLASMA | NETGRANT_AFTERBURNER
 assert_equal(map_granted_flags_to_netflag(NETGRANT_AFTERBURNER), NETFLAG_DOAFTERBURNER, "AFTERBURNER");
 assert_equal(map_granted_flags_to_netflag(NETGRANT_HEADLIGHT), NETFLAG_DOHEADLIGHT, "HEADLIGHT");
 #endif
-
-namespace {
 
 class update_item_state
 {
@@ -3907,6 +3907,8 @@ void multi_send_guided_info(const object_base &miss, const char done)
 	multi_serialize_write(0, gi);
 }
 
+namespace {
+
 static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t pnum, const uint8_t *const buf)
 {
 	multi_guided_info b;
@@ -3928,6 +3930,8 @@ static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState,
 	update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, guided_missile);
 }
 
+}
+
 void multi_send_stolen_items ()
 {
 	multi_command<MULTI_STOLEN_ITEMS> multibuf;
@@ -3936,10 +3940,14 @@ void multi_send_stolen_items ()
 	multi_send_data(multibuf, 2);
 }
 
+namespace {
+
 static void multi_do_stolen_items(const uint8_t *const buf)
 {
 	auto &Stolen_items = LevelUniqueObjectState.ThiefState.Stolen_items;
 	std::copy_n(buf + 1, Stolen_items.size(), Stolen_items.begin());
+}
+
 }
 
 void multi_send_wall_status_specific(const playernum_t pnum,uint16_t wallnum,ubyte type,ubyte flags,ubyte state)
@@ -3961,6 +3969,8 @@ void multi_send_wall_status_specific(const playernum_t pnum,uint16_t wallnum,uby
 	multi_send_data_direct(multibuf, pnum, 2);
 }
 
+namespace {
+
 static void multi_do_wall_status(fvmwallptr &vmwallptr, const uint8_t *const buf)
 {
 	ubyte flag,type,state;
@@ -3981,6 +3991,8 @@ static void multi_do_wall_status(fvmwallptr &vmwallptr, const uint8_t *const buf
 		digi_kill_sound_linked_to_segment(w.segnum, w.sidenum, SOUND_FORCEFIELD_HUM);
 		//digi_kill_sound_linked_to_segment(csegp-Segments,cside,SOUND_FORCEFIELD_HUM);
 	}
+}
+
 }
 #endif
 
@@ -4084,9 +4096,9 @@ void multi_check_for_killgoal_winner ()
 	net_destroy_controlcen(Objects);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 
+#if defined(DXX_BUILD_DESCENT_II)
 // Sync our seismic time with other players
 void multi_send_seismic(fix duration)
 {
@@ -4192,12 +4204,6 @@ static void multi_do_drop_blob(fvmobjptr &vmobjptr, const playernum_t pnum)
 }
 
 }
-
-}
-#endif
-
-#if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
 
 void multi_send_sound_function (char whichfunc, char sound)
 {
@@ -4559,11 +4565,7 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 }
 
 }
-
-}
 #endif
-
-namespace dsx {
 
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems)
 {
@@ -4725,6 +4727,9 @@ static void multi_adjust_lifetime_ranking(int &k, const int count)
 }
 }
 
+#if !(!defined(RELEASE) && defined(DXX_BUILD_DESCENT_II))
+namespace {
+#endif
 void multi_add_lifetime_kills(const int count)
 {
 	// This function adds a kill to lifetime stats of this player, and possibly
@@ -4732,7 +4737,11 @@ void multi_add_lifetime_kills(const int count)
 
 	multi_adjust_lifetime_ranking(PlayerCfg.NetlifeKills, count);
 }
+#if !(!defined(RELEASE) && defined(DXX_BUILD_DESCENT_II))
+}
+#endif
 
+namespace {
 void multi_add_lifetime_killed ()
 {
 	// This function adds a "killed" to lifetime stats of this player, and possibly
@@ -4742,6 +4751,7 @@ void multi_add_lifetime_killed ()
 		return;
 
 	multi_adjust_lifetime_ranking(PlayerCfg.NetlifeKilled, 1);
+}
 }
 }
 
@@ -4777,7 +4787,7 @@ static void multi_do_ranking (const playernum_t pnum, const ubyte *buf)
 namespace dcx {
 
 // Decide if fire from "killer" is friendly. If yes return 1 (no harm to me) otherwise 0 (damage me)
-static int multi_maybe_disable_friendly_fire(const object_base *const killer)
+int multi_maybe_disable_friendly_fire(const object_base *const killer)
 {
 	if (!(Game_mode & GM_NETWORK)) // no Multiplayer game -> always harm me!
 		return 0;
@@ -4797,15 +4807,6 @@ static int multi_maybe_disable_friendly_fire(const object_base *const killer)
 			return 0;
 	}
 	return 0; // all other cases -> harm me!
-}
-
-}
-
-namespace dsx {
-
-int multi_maybe_disable_friendly_fire(const object *const killer)
-{
-	return multi_maybe_disable_friendly_fire(static_cast<const object_base *>(killer));
 }
 
 }

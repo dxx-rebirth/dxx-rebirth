@@ -35,6 +35,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+namespace {
+
 /*
 Symmetric Double Step Line Algorithm
 by Brian Wyvill
@@ -264,6 +266,7 @@ static void gr_universal_uline(grs_canvas &canvas, int a1, int b1, int a2, int b
 	}
 }
 
+}
 
 //unclipped version just calls clipping version for now
 void gr_uline(grs_canvas &canvas, const fix _a1, const fix _b1, const fix _a2, const fix _b2, const color_palette_index color)

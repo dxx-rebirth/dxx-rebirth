@@ -71,20 +71,18 @@ int maybe_detonate_weapon(vmobjptridx_t obj0p, object &obj, const vms_vector &po
 #endif
 void collide_player_and_nasty_robot(vmobjptridx_t player, vmobjptridx_t robot, const vms_vector &collision_point);
 
-void net_destroy_controlcen(imobjptridx_t controlcen);
+namespace dcx {
+void bump_one_object(object_base &obj0, const vms_vector &hit_dir, fix damage);
+}
 void collide_live_local_player_and_powerup(vmobjptridx_t powerup);
 #if defined(DXX_BUILD_DESCENT_I)
 #define check_effect_blowup(DestructibleLightsState,Vclip,seg,side,pnt,blower,force_blowup_flag,remote) check_effect_blowup(Vclip,seg,side,pnt)
 #endif
 #ifdef dsx
 namespace dsx {
+void net_destroy_controlcen_object(imobjptridx_t controlcen);
 int check_effect_blowup(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, vmsegptridx_t seg, unsigned side, const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
-}
-#endif
 void apply_damage_to_controlcen(vmobjptridx_t controlcen, fix damage, const object &who);
-void bump_one_object(object_base &obj0, const vms_vector &hit_dir, fix damage);
-#ifdef dsx
-namespace dsx {
 void drop_player_eggs(vmobjptridx_t playerobj);
 enum class volatile_wall_result : int8_t
 {

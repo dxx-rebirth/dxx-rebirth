@@ -1448,12 +1448,6 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 }
 #endif		//#ifndef RELEASE
 
-}
-
-}
-
-namespace {
-
 #define CHEAT_MAX_LEN 15
 struct cheat_code
 {
@@ -1508,12 +1502,6 @@ constexpr cheat_code cheat_codes[] = {
 	{ "buggin", &game_cheats::turbo },
 	{ "bittersweet", &game_cheats::acid },
 };
-
-}
-
-namespace dsx {
-
-namespace {
 
 static window_event_result FinalCheats()
 {

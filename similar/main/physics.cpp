@@ -69,6 +69,7 @@ void check_and_fix_matrix(vms_matrix &m)
 	m = vm_vector_2_matrix(m.fvec,&m.uvec,nullptr);
 }
 
+namespace {
 
 static void do_physics_align_object(object_base &obj)
 {
@@ -151,6 +152,7 @@ static void set_object_turnroll(object_base &obj)
 
 }
 
+}
 
 #define MAX_IGNORE_OBJS 100
 
@@ -164,6 +166,7 @@ int	Dont_move_ai_objects=0;
 //	-----------------------------------------------------------------------------------------------------------
 // add rotational velocity & acceleration
 namespace dsx {
+namespace {
 static void do_physics_sim_rot(object_base &obj)
 {
 	vms_angvec	tangles;
@@ -251,7 +254,6 @@ static void do_physics_sim_rot(object_base &obj)
 
 	check_and_fix_matrix(obj.orient);
 }
-}
 
 // On joining edges fvi tends to get inaccurate as hell. Approach is to check if the object interects with the wall and if so, move away from it.
 static void fix_illegal_wall_intersection(const vmobjptridx_t obj)
@@ -271,8 +273,6 @@ static void fix_illegal_wall_intersection(const vmobjptridx_t obj)
 		update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, obj);
 	}
 }
-
-namespace {
 
 class ignore_objects_array_t
 {
@@ -315,7 +315,6 @@ public:
 
 //	-----------------------------------------------------------------------------------------------------------
 //Simulate a physics object for this frame
-namespace dsx {
 window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &obj_previous_position, phys_visited_seglist *const phys_segs)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -833,6 +832,8 @@ void phys_apply_force(object_base &obj, const vms_vector &force_vec)
 	vm_vec_scale_add2(obj.mtype.phys_info.velocity, force_vec, fixdiv(f1_0, obj.mtype.phys_info.mass));
 }
 
+namespace {
+
 //	----------------------------------------------------------------
 //	Do *dest = *delta unless:
 //				*delta is pretty small
@@ -853,6 +854,8 @@ static inline vms_angvec vm_extract_angles_vector(const vms_vector &v)
 {
 	vms_angvec a;
 	return vm_extract_angles_vector(a, v), a;
+}
+
 }
 
 //	------------------------------------------------------------------------------------------------------

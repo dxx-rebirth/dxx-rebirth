@@ -34,10 +34,11 @@
 
 namespace dcx {
 CArg CGameArg;
-constexpr std::integral_constant<std::size_t, 1000> MAX_ARGS{};
-typedef std::vector<std::string> Arglist;
 
 namespace {
+
+constexpr std::integral_constant<std::size_t, 1000> MAX_ARGS{};
+typedef std::vector<std::string> Arglist;
 
 class ini_entry
 {
@@ -86,8 +87,6 @@ public:
 class nesting_depth_exceeded
 {
 };
-
-}
 
 static void AppendIniArgs(const char *filename, Arglist &Args)
 {
@@ -143,9 +142,6 @@ static void arg_port_number(Arglist::iterator &pp, Arglist::const_iterator end, 
 static void InitGameArg()
 {
 	CGameArg.SysMaxFPS = MAXIMUM_FPS;
-#if defined(DXX_BUILD_DESCENT_II)
-	GameArg.SndDigiSampleRate = SAMPLE_RATE_22K;
-#endif
 #if DXX_USE_UDP
 	CGameArg.MplUdpHostAddr = UDP_MANUAL_ADDR_DEFAULT;
 #if DXX_USE_TRACKER
@@ -168,9 +164,21 @@ static void InitGameArg()
 
 }
 
+}
+
 namespace dsx {
 
 Arg GameArg;
+
+namespace {
+
+static void InitGameArg()
+{
+#if defined(DXX_BUILD_DESCENT_II)
+	GameArg.SndDigiSampleRate = SAMPLE_RATE_22K;
+#endif
+	::dcx::InitGameArg();
+}
 
 static void ReadCmdArgs(Inilist &ini, Arglist &Args);
 
@@ -403,7 +411,11 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 
 }
 
+}
+
 namespace dcx {
+
+namespace {
 
 static void PostProcessGameArg()
 {
@@ -439,6 +451,8 @@ static std::string ConstructIniStackExplanation(const Inilist &ini)
 			return result += "\"";
 		result += "\"\n    included from \"";
 	}
+}
+
 }
 
 }

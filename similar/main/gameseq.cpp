@@ -129,10 +129,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define GLITZ_BACKGROUND	STARS_BACKGROUND
 
 namespace dsx {
+namespace {
 static void StartNewLevelSecret(int level_num, int page_in_textures);
 static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, int random_flag);
 static void DoEndGame();
 static void filter_objects_from_level(fvmobjptr &vmobjptr);
+}
 PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
 int	First_secret_visit = 1;
 }
@@ -167,13 +169,6 @@ public:
 
 }
 
-namespace dsx {
-static void init_player_stats_ship(object &, fix GameTime64);
-static window_event_result AdvanceLevel(int secret_flag);
-static void StartLevel(int random_flag);
-static void copy_defaults_to_robot_all(void);
-}
-
 namespace dcx {
 //Current_level_num starts at 1 for the first level
 //-1,-2,-3 are secret levels
@@ -191,6 +186,8 @@ std::array<obj_position, MAX_PLAYERS> Player_init;
 unsigned NumNetPlayerPositions;
 int	Do_appearance_effect=0;
 
+namespace {
+
 template <object_type_t type>
 static bool is_object_of_type(const object_base &o)
 {
@@ -204,7 +201,14 @@ static unsigned get_starting_concussion_missile_count()
 
 }
 
+}
+
 namespace dsx {
+namespace {
+static void init_player_stats_ship(object &, fix GameTime64);
+static window_event_result AdvanceLevel(int secret_flag);
+static void StartLevel(int random_flag);
+static void copy_defaults_to_robot_all(void);
 
 //--------------------------------------------------------------------
 static void verify_console_object()
@@ -454,6 +458,8 @@ static void gameseq_init_network_players(object_array &Objects)
 	NumNetPlayerPositions = k;
 }
 
+}
+
 void gameseq_remove_unused_players()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -529,6 +535,8 @@ void init_player_stats_game(const playernum_t pnum)
 #endif
 }
 
+namespace {
+
 static void init_ammo_and_energy(object &plrobj)
 {
 	auto &player_info = plrobj.ctype.player_info;
@@ -559,9 +567,13 @@ static void init_ammo_and_energy(object &plrobj)
 		concussion = minimum_missiles;
 }
 
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
 extern	ubyte	Last_afterburner_state;
 #endif
+
+namespace {
 
 // Setup player for new level (After completion of previous level)
 static void init_player_stats_level(player &plr, object &plrobj, const secret_restore secret_flag)
@@ -616,6 +628,8 @@ static void init_player_stats_level(player &plr, object &plrobj, const secret_re
 	Missile_viewer = NULL;
 #endif
 	init_player_stats_ship(plrobj, GameTime64);
+}
+
 }
 
 // Setup player for a brand-new ship
@@ -720,6 +734,7 @@ void init_player_stats_new_ship(const playernum_t pnum)
 	init_player_stats_ship(plrobj, GameTime64);
 }
 
+namespace {
 void init_player_stats_ship(object &plrobj, const fix GameTime64)
 {
 	auto &player_info = plrobj.ctype.player_info;
@@ -734,6 +749,7 @@ void init_player_stats_ship(object &plrobj, const fix GameTime64)
 	player_info.mission.hostages_on_board = 0;
 	player_info.homing_object_dist = -F1_0; // Added by RH
 	player_info.Next_flare_fire_time = player_info.Next_laser_fire_time = player_info.Next_missile_fire_time = GameTime64;
+}
 }
 
 }
@@ -759,6 +775,7 @@ void update_player_stats()
 
 //go through this level and start any eclip sounds
 namespace dsx {
+namespace {
 
 static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 {
@@ -831,6 +848,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 }
 
 constexpr fix flash_dist=fl2f(.9);
+}
 
 //create flash for player appearance
 void create_player_appearance_effect(const d_vclip_array &Vclip, const object_base &player_obj)
@@ -856,6 +874,8 @@ void create_player_appearance_effect(const d_vclip_array &Vclip, const object_ba
 // New Game sequencing functions
 //
 
+namespace {
+
 //get level filename. level numbers start at 1.  Secret levels are -1,-2,-3
 static const d_fname &get_level_file(int level_num)
 {
@@ -876,7 +896,10 @@ static void do_checksum_calc(const uint8_t *b, int len, unsigned int *s1, unsign
 	}
 }
 
+}
+
 namespace dsx {
+namespace {
 static ushort netmisc_calc_checksum()
 {
 	unsigned int sum1,sum2;
@@ -941,6 +964,7 @@ static ushort netmisc_calc_checksum()
 	}
 	sum2 %= 255;
 	return ((sum1<<8)+ sum2);
+}
 }
 }
 
@@ -1124,6 +1148,8 @@ void StartNewGame(const int start_level)
 #endif
 }
 
+namespace {
+
 //	-----------------------------------------------------------------------------
 //	Does the bonus scoring.
 //	Call with dead_flag = 1 if player died, but deserves some portion of bonus (only skill points), anyway.
@@ -1239,6 +1265,7 @@ static void DoEndLevelScoreGlitz()
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace {
 //	-----------------------------------------------------------------------------------------------------
 //called when the player is starting a level (new game or new ship)
 static void StartSecretLevel()
@@ -1268,6 +1295,7 @@ static void StartSecretLevel()
 	player_info.Auto_fire_fusion_cannon_time = 0;
 	player_info.Fusion_charge = 0;
 }
+}
 
 //	Returns true if secret level has been destroyed.
 int p_secret_level_destroyed(void)
@@ -1288,6 +1316,10 @@ int p_secret_level_destroyed(void)
 #define TXT_SECRET_RETURN  "Returning to level %i", Entered_from_level
 #define TXT_SECRET_ADVANCE "Base level destroyed.\nAdvancing to level %i", Entered_from_level+1
 #endif
+
+}
+
+namespace {
 
 static int draw_endlevel_background(newmenu *,const d_event &event, grs_bitmap *background)
 {
@@ -1322,8 +1354,11 @@ static void do_screen_message(const char *msg)
 	newmenu_do2(menu_title{nullptr}, menu_subtitle{msg}, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
 }
 
+}
+
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
+namespace {
 static void do_screen_message_fmt(const char *fmt, ...) __attribute_format_printf(1, 2);
 static void do_screen_message_fmt(const char *fmt, ...)
 {
@@ -1429,6 +1464,8 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 }
 
 static int Entered_from_level;
+
+}
 
 // ---------------------------------------------------------------------------------------------------------------
 //	Called from switch.c when player is on a secret level and hits exit to return to base level.
@@ -1600,6 +1637,8 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 #define ENDMOVIE "end"
 #endif
 
+namespace {
+
 //called when the player has finished the last level
 static void DoEndGame()
 {
@@ -1741,6 +1780,8 @@ static window_event_result AdvanceLevel(int secret_flag)
 	}
 
 	return rval;
+}
+
 }
 
 window_event_result DoPlayerDead()
@@ -2005,6 +2046,7 @@ void bash_to_shield(const d_powerup_info_array &Powerup_info, const d_vclip_arra
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace {
 
 static void filter_objects_from_level(fvmobjptr &vmobjptr)
  {
@@ -2020,8 +2062,6 @@ static void filter_objects_from_level(fvmobjptr &vmobjptr)
 
  }
 
-namespace {
-
 struct intro_movie_t {
 	int	level_num;
 	char	movie_name[4];
@@ -2036,8 +2076,6 @@ const std::array<intro_movie_t, 7> intro_movie{{
 	{21, "PLF"},
 	{24, "PLG"}
 }};
-
-}
 
 static void ShowLevelIntro(int level_num)
 {
@@ -2100,6 +2138,8 @@ static void maybe_set_first_secret_visit(int level_num)
 		}
 	}
 }
+
+}
 #endif
 
 //called when the player is starting a new level for normal game model
@@ -2129,8 +2169,7 @@ window_event_result StartNewLevel(int level_num)
 
 }
 
-namespace
-{
+namespace {
 
 class respawn_locations
 {
@@ -2189,8 +2228,6 @@ public:
 	}
 };
 
-}
-
 //initialize the player object position & orientation (at start of game, or new ship)
 static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, int random_flag)
 {
@@ -2230,6 +2267,8 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 	reset_player_object();
 }
 
+}
+
 //	-----------------------------------------------------------------------------------------------------
 //	Initialize default parameters for one robot, copying from Robot_info to *objp.
 //	What about setting size!?  Where does that come from?
@@ -2267,6 +2306,8 @@ void copy_defaults_to_robot(object_base &objp)
 #endif
 	objp.shields = shields;
 }
+
+namespace {
 
 //	-----------------------------------------------------------------------------------------------------
 //	Copy all values from the robot info structure to all instances of robots.
@@ -2321,5 +2362,7 @@ static void StartLevel(int random_flag)
 	auto &player_info = ConsoleObject->ctype.player_info;
 	player_info.Auto_fire_fusion_cannon_time = 0;
 	player_info.Fusion_charge = 0;
+}
+
 }
 }

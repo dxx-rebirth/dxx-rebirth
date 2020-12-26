@@ -134,6 +134,7 @@ void gamedata_close()
  * reads n tmap_info structs from a PHYSFS_File
  */
 #if defined(DXX_BUILD_DESCENT_I)
+namespace {
 static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 {
 	PHYSFS_read(fp, ti.filename, 13, 1);
@@ -141,6 +142,7 @@ static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 	ti.lighting = PHYSFSX_readFix(fp);
 	ti.damage = PHYSFSX_readFix(fp);
 	ti.eclip_num = PHYSFSX_readInt(fp);
+}
 }
 
 //-----------------------------------------------------------------
@@ -265,6 +267,7 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
         #endif
 }
 #elif defined(DXX_BUILD_DESCENT_II)
+namespace {
 static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 {
 	ti.flags = PHYSFSX_readByte(fp);
@@ -277,6 +280,7 @@ static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 	ti.destroyed = PHYSFSX_readShort(fp);
 	ti.slide_u = PHYSFSX_readShort(fp);
 	ti.slide_v = PHYSFSX_readShort(fp);
+}
 }
 
 //-----------------------------------------------------------------

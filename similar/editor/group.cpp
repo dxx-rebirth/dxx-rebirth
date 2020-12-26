@@ -52,6 +52,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "segiter.h"
 
+namespace {
+
 static void validate_selected_segments(void);
 
 #if 0
@@ -91,6 +93,8 @@ struct group_editor {
 	int     Groupside;
 } group_editor;
 #endif
+
+}
 
 std::array<group, MAX_GROUPS+1> GroupList;
 std::array<segment *, MAX_GROUPS+1> Groupsegp;
@@ -305,6 +309,7 @@ unsigned num_groups;
 // -- 
 // -- }
 
+namespace {
 
 // ------------------------------------------------------------------------------------------------
 //	Rotate a group about a point.
@@ -858,6 +863,8 @@ static int AttachSegmentNewAng(const vms_angvec &pbh)
 	return 1;
 }
 
+}
+
 int AttachSegmentNew(void)
 {
 	vms_angvec	pbh;
@@ -871,6 +878,7 @@ int AttachSegmentNew(void)
 
 }
 
+namespace {
 //	-----------------------------------------------------------------------------
 void validate_selected_segments(void)
 {
@@ -879,6 +887,7 @@ void validate_selected_segments(void)
 	auto &vcvertptr = Vertices.vcptr;
 	range_for (const auto &gs, GroupList[current_group].segments)
 		validate_segment(vcvertptr, vmsegptridx(gs));
+}
 }
 
 // =====================================================================================

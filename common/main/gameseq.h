@@ -134,9 +134,9 @@ extern int	Do_appearance_effect;
 }
 
 
-int p_secret_level_destroyed(void);
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
+int p_secret_level_destroyed();
 void do_cloak_invul_secret_stuff(fix64 old_gametime, player_info &player_info);
 #endif
 void EnterSecretLevel(void);

@@ -25,6 +25,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+namespace {
+
 // John's new stuff below here....
 
 static int scale_error_term;
@@ -335,6 +337,8 @@ static void scale_bitmap_c_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_bm
 		scale_row_transparent( scale_rle_data, &dest_bmp.get_bitmap_data()[dest_bmp.bm_rowsize*y+x0], x1-x0+1, u0, du );
 		v += dv;
 	}
+}
+
 }
 
 #define FIND_SCALED_NUM(x,x0,x1,y0,y1) (fixmuldiv((x)-(x0),(y1)-(y0),(x1)-(x0))+(y0))

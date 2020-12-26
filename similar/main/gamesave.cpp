@@ -187,9 +187,11 @@ int convert_tmap(int tmap)
     return (tmap >= NumTextures) ? tmap % NumTextures : tmap;
 }
 
+namespace {
 static unsigned convert_polymod(const unsigned N_polygon_models, const unsigned polymod)
 {
     return (polymod >= N_polygon_models) ? polymod % N_polygon_models : polymod;
+}
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 namespace {
@@ -197,6 +199,7 @@ using savegame_pof_names_type = std::array<char[FILENAME_LEN], MAX_POLYGON_MODEL
 }
 #endif
 
+namespace {
 static void verify_object(const d_vclip_array &Vclip, object &obj, const savegame_pof_names_type &Save_pof_names)
 {
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -647,8 +650,10 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 
 }
 }
+}
 
 #if DXX_USE_EDITOR
+namespace {
 static int PHYSFSX_writeMatrix(PHYSFS_File *file, const vms_matrix &m)
 {
 	if (PHYSFSX_writeVector(file, m.rvec) < 1 ||
@@ -666,9 +671,11 @@ static int PHYSFSX_writeAngleVec(PHYSFS_File *file, const vms_angvec &v)
 		return 0;
 	return 1;
 }
+}
 
 //writes one object to the given file
 namespace dsx {
+namespace {
 static void write_object(const object &obj, short version, PHYSFS_File *f)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -846,6 +853,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 
 }
 }
+}
 #endif
 
 // --------------------------------------------------------------------
@@ -855,6 +863,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 // Otherwise it loads the appropriate level mine.
 // returns 0=everything ok, 1=old version, -1=error
 namespace dsx {
+namespace {
 
 static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, const unsigned sidenum)
 {
@@ -1274,6 +1283,7 @@ static int load_game_data(
 		return 0;
 }
 }
+}
 
 // ----------------------------------------------------------------------------
 
@@ -1620,6 +1630,7 @@ int create_new_mine(void)
 int	Errors_in_mine;
 
 namespace dsx {
+namespace {
 // -----------------------------------------------------------------------------
 #if defined(DXX_BUILD_DESCENT_II)
 static unsigned compute_num_delta_light_records(fvcdlindexptr &vcdlindexptr)
@@ -1949,6 +1960,7 @@ static int save_level_sub(
 
 	return 0;
 
+}
 }
 
 int save_level(

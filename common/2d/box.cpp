@@ -26,6 +26,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+namespace {
+
 static void gr_ubox0(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const color_palette_index color)
 {
 	int d;
@@ -83,6 +85,8 @@ static void gr_box12(grs_canvas &canvas, const uint_fast32_t left, const uint_fa
 	gr_ubox12(canvas, left, top, right, bot, color);
 }
 #endif
+
+}
 
 void gr_ubox(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const color_palette_index color)
 {
