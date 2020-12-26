@@ -1088,23 +1088,6 @@ static int get_index_of_best_fit(const shared_segment &seg1, const unsigned side
 #define MAX_VALIDATIONS 50
 
 // ----------------------------------------------------------------------------
-//	Remap uv coordinates in all sides in segment *sp which have a vertex in vp[4].
-//	vp contains absolute vertex indices.
-static void remap_side_uvs(const vmsegptridx_t sp, const std::array<int, 4> &vp)
-{
-	range_for (const auto &&es, enumerate(Side_to_verts))
-	{
-		range_for (const auto v, es.value)
-			range_for (auto &i, vp) // scan each vertex in vp[4]
-				if (v == i) {
-					assign_default_uvs_to_side(sp, es.idx);					// Side s needs to be remapped
-					goto next_side;
-				}
-next_side: ;
-	}
-}
-
-// ----------------------------------------------------------------------------
 //	Modify seg2 to share side2 with seg1:side1.  This forms a connection between
 //	two segments without creating a new segment.  It modifies seg2 by sharing
 //	vertices from seg1.  seg1 is not modified.  Four vertices from seg2 are
@@ -1180,7 +1163,6 @@ int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2
 	{
 		const auto &&segp = seg1.absolute_sibling(s);
 		validate_segment(vcvertptr, segp);
-		remap_side_uvs(segp, remap_vertices);	// remap uv coordinates on sides which were reshaped (ie, have a vertex in lost_vertices)
 		warn_if_concave_segment(segp);
 	}
 
