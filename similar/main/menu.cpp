@@ -1729,14 +1729,14 @@ static void reticle_config()
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
+#define DSX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "Always-on Bomb Counter",opt_d2bomb,PlayerCfg.BombGauge)	\
 
 #elif defined(DXX_BUILD_DESCENT_II)
 enum {
 	optgrp_missileview,
 };
-#define DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
+#define DSX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "Missile view:", opt_missileview_label)	\
 	DXX_MENUITEM(VERB, RADIO, "Disabled", opt_missileview_none, PlayerCfg.MissileViewEnabled == MissileViewMode::None, optgrp_missileview)	\
 	DXX_MENUITEM(VERB, RADIO, "Only own missiles", opt_missileview_selfonly, PlayerCfg.MissileViewEnabled == MissileViewMode::EnabledSelfOnly, optgrp_missileview)	\
@@ -1744,20 +1744,37 @@ enum {
 	DXX_MENUITEM(VERB, CHECK, "Show guided missile in main display", opt_guidedbigview,PlayerCfg.GuidedInBigWindow )	\
 
 #endif
-#define DXX_HUD_MENU_OPTIONS(VERB)	\
+#define DSX_HUD_MENU_OPTIONS(VERB)	\
         DXX_MENUITEM(VERB, MENU, "Reticle Customization...", opt_hud_reticlemenu)	\
 	DXX_MENUITEM(VERB, CHECK, "Screenshots without HUD",opt_screenshot,PlayerCfg.PRShot)	\
 	DXX_MENUITEM(VERB, CHECK, "No redundant pickup messages",opt_redundant,PlayerCfg.NoRedundancy)	\
 	DXX_MENUITEM(VERB, CHECK, "Show Player chat only (Multi)",opt_playerchat,PlayerCfg.MultiMessages)	\
 	DXX_MENUITEM(VERB, CHECK, "Show Player ping (Multi)",opt_playerping,PlayerCfg.MultiPingHud)	\
 	DXX_MENUITEM(VERB, CHECK, "Cloak/Invulnerability Timers",opt_cloakinvultimer,PlayerCfg.CloakInvulTimer)	\
-	DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
+	DSX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
 
-enum {
-	DXX_HUD_MENU_OPTIONS(ENUM)
+struct hud_config_menu_items
+{
+	enum {
+		DSX_HUD_MENU_OPTIONS(ENUM)
+	};
+	std::array<newmenu_item, DSX_HUD_MENU_OPTIONS(COUNT)> m;
+	hud_config_menu_items()
+	{
+		DSX_HUD_MENU_OPTIONS(ADD);
+	}
 };
 
-static int hud_config_menuset(newmenu *, const d_event &event, const unused_newmenu_userdata_t *)
+struct hud_config_menu : hud_config_menu_items, newmenu
+{
+	hud_config_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{"HUD Options"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int hud_config_menu::subfunction_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -1768,32 +1785,27 @@ static int hud_config_menuset(newmenu *, const d_event &event, const unused_newm
                                 reticle_config();
 			return 1;		// stay in menu
 		}
+		case EVENT_WINDOW_CLOSE:
+			DSX_HUD_MENU_OPTIONS(READ);
+#if defined(DXX_BUILD_DESCENT_II)
+			PlayerCfg.MissileViewEnabled = m[opt_missileview_selfandallies].value
+				? MissileViewMode::EnabledSelfAndAllies
+				: (m[opt_missileview_selfonly].value
+					? MissileViewMode::EnabledSelfOnly
+					: MissileViewMode::None);
+#endif
+			break;
 
 		default:
 			break;
 	}
-
 	return 0;
 }
 
 void hud_config()
 {
-	for (;;)
-	{
-		std::array<newmenu_item, DXX_HUD_MENU_OPTIONS(COUNT)> m;
-		DXX_HUD_MENU_OPTIONS(ADD);
-		const auto i = newmenu_do2(menu_title{nullptr}, menu_subtitle{"Hud Options"}, m, hud_config_menuset, unused_newmenu_userdata);
-		DXX_HUD_MENU_OPTIONS(READ);
-#if defined(DXX_BUILD_DESCENT_II)
-		PlayerCfg.MissileViewEnabled = m[opt_missileview_selfandallies].value
-			? MissileViewMode::EnabledSelfAndAllies
-			: (m[opt_missileview_selfonly].value
-				? MissileViewMode::EnabledSelfOnly
-				: MissileViewMode::None);
-#endif
-		if (i == -1)
-			break;
-	}
+	auto menu = window_create<hud_config_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 #define DXX_GRAPHICS_MENU(VERB)	\
@@ -1883,7 +1895,7 @@ int graphics_config_menu::subfunction_handler(const d_event &event)
 			auto &citem = static_cast<const d_select_event &>(event).citem;
                         if (citem == opt_gr_screenres)
                                 change_res();
-			if (citem == opt_gr_hudmenu)
+			else if (citem == opt_gr_hudmenu)
 				hud_config();
 			return 1;		// stay in menu
 		}
