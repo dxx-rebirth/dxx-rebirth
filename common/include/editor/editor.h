@@ -408,7 +408,7 @@ void warn_if_concave_segment(vmsegptridx_t s);
 }
 
 //	Add a vertex to the vertex list.
-int med_add_vertex(const vertex &vp);
+vertnum_t med_add_vertex(const vertex &vp);
 
 //	Add a vertex to the vertex list which may be identical to another vertex (in terms of coordinates).
 //	Don't scan list, looking for presence of a vertex with same coords, add this one.

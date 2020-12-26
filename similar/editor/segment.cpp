@@ -112,7 +112,7 @@ static int vnear(const vms_vector &vp1, const vms_vector &vp2)
 //	Add the vertex *vp to the global list of vertices, return its index.
 //	Search until a matching vertex is found (has nearly the same coordinates) or until Num_vertices
 // vertices have been looked at without a match.  If no match, add a new vertex.
-int med_add_vertex(const vertex &vp)
+vertnum_t med_add_vertex(const vertex &vp)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	int	count;					// number of used vertices found, for loops exits when count == Num_vertices
@@ -123,25 +123,33 @@ int med_add_vertex(const vertex &vp)
 	Assert(Num_vertices < MAX_SEGMENT_VERTICES);
 
 	count = 0;
-	unsigned free_index = UINT32_MAX;
+	constexpr vertnum_t free_index_sentinel{UINT32_MAX};
+	vertnum_t free_index = free_index_sentinel;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
-	for (unsigned v = 0; v < MAX_SEGMENT_VERTICES && count < Num_vertices; ++v)
+	for (const unsigned vi : xrange(MAX_SEGMENT_VERTICES))
+	{
+		const vertnum_t v{vi};
 		if (Vertex_active[v]) {
-			count++;
 			if (vnear(vp, Vertices.vcptr(v))) {
 				return v;
 			}
-		} else if (free_index == UINT32_MAX)
+			if (++ count >= Num_vertices)
+				break;
+		} else if (free_index == free_index_sentinel)
+			/* No break here.  There might be a later vertex which
+			 * matches the vnear test, and if there is, it should be
+			 * used instead of adding a new vertex at the first free
+			 * slot.
+			 */
 			free_index = v;					// we want free_index to be the first free slot to add a vertex
+	}
 
-	if (free_index == UINT32_MAX)
+	if (free_index == free_index_sentinel)
 		free_index = Num_vertices;
 
 	while (Vertex_active[free_index] && (free_index < MAX_VERTICES))
 		free_index++;
-
-	Assert(free_index < MAX_VERTICES);
 
 	*Vertices.vmptr(free_index) = vp;
 	Vertex_active[free_index] = 1;
