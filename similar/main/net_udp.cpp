@@ -860,9 +860,15 @@ constexpr csockaddr_dispatch_t<passthrough_static_apply<net_udp_send_game_info_t
 
 struct direct_join
 {
+	enum class connect_type : uint8_t
+	{
+		idle,
+		connecting,
+		request_join,
+	};
 	struct _sockaddr host_addr;
 	fix64 start_time, last_time;
-	uint8_t connecting = 0;
+	connect_type connecting = connect_type::idle;
 #if DXX_USE_TRACKER
 	uint16_t gameid;
 #endif
@@ -933,7 +939,7 @@ static int net_udp_game_connect(direct_join *const dj)
 	// Timeout after 10 seconds
 	if (timer_query() >= dj->start_time + (F1_0*10))
 	{
-		dj->connecting = 0;
+		dj->connecting = direct_join::connect_type::idle;
 		std::array<char, _sockaddr::presentation_buffer_size> dbuf;
 		const auto port =
 #if DXX_USE_IPv6
@@ -956,7 +962,7 @@ Possible reasons:\n\
 	if (Netgame.protocol.udp.valid == -1)
 	{
 		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Version mismatch! Cannot join Game.\n\nHost game version: %i.%i.%i\nHost game protocol: %i\n(%s)\n\nYour game version: " DXX_VERSION_STR "\nYour game protocol: %i\n(%s)", Netgame.protocol.udp.program_iver[0], Netgame.protocol.udp.program_iver[1], Netgame.protocol.udp.program_iver[2], Netgame.protocol.udp.program_iver[3], (Netgame.protocol.udp.program_iver[3]==0?"RELEASE VERSION":"DEVELOPMENT BUILD, BETA, etc."), MULTI_PROTO_VERSION, (MULTI_PROTO_VERSION==0?"RELEASE VERSION":"DEVELOPMENT BUILD, BETA, etc."));
-		dj->connecting = 0;
+		dj->connecting = direct_join::connect_type::idle;
 		return 0;
 	}
 	
@@ -976,17 +982,17 @@ Possible reasons:\n\
 	if (Netgame.protocol.udp.valid != 1)
 		return 0;		// still trying to connect
 
-	if (dj->connecting == 1)
+	if (dj->connecting == direct_join::connect_type::connecting)
 	{
 		if (!net_udp_show_game_info()) // show info menu and check if we join
 		{
-			dj->connecting = 0;
+			dj->connecting = direct_join::connect_type::idle;
 			return 0;
 		}
 		else
 		{
 			// Get full game info again as it could have changed since we entered the info menu.
-			dj->connecting = 2;
+			dj->connecting = direct_join::connect_type::request_join;
 			Netgame.protocol.udp.valid = 0;
 			dj->start_time = timer_query();
 
@@ -994,7 +1000,7 @@ Possible reasons:\n\
 		}
 	}
 		
-	dj->connecting = 0;
+	dj->connecting = direct_join::connect_type::idle;
 
 	return net_udp_do_join_game();
 }
@@ -1006,20 +1012,20 @@ static int manual_join_game_handler(newmenu *const menu, const d_event &event, m
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
-			if (dj->connecting && event_key_get(event) == KEY_ESC)
+			if (dj->connecting != direct_join::connect_type::idle && event_key_get(event) == KEY_ESC)
 			{
-				dj->connecting = 0;
+				dj->connecting = direct_join::connect_type::idle;
 				nm_set_item_text(items[6], "");
 				return 1;
 			}
 			break;
 			
 		case EVENT_IDLE:
-			if (dj->connecting)
+			if (dj->connecting != direct_join::connect_type::idle)
 			{
 				if (net_udp_game_connect(dj))
 					return -2;	// Success!
-				else if (!dj->connecting)
+				else if (dj->connecting == direct_join::connect_type::idle)
 					nm_set_item_text(items[6], "");
 			}
 			break;
@@ -1054,8 +1060,7 @@ static int manual_join_game_handler(newmenu *const menu, const d_event &event, m
 				dj->last_time = 0;
 				
 				Netgame.players[0].protocol.udp.addr = dj->host_addr;
-				
-				dj->connecting = 1;
+				dj->connecting = direct_join::connect_type::connecting;
 				nm_set_item_text(items[6], "Connecting...");
 				return 1;
 			}
@@ -1161,16 +1166,16 @@ int netgame_list_game_menu::subfunction_handler(const d_event &event)
 #if DXX_USE_TRACKER
 			udp_tracker_reqgames();
 #endif
-			if (!connecting) // fallback/failsafe!
+			if (connecting == direct_join::connect_type::idle) // fallback/failsafe!
 				nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\t");
 			break;
 		}
 		case EVENT_IDLE:
-			if (connecting)
+			if (connecting != direct_join::connect_type::idle)
 			{
 				if (net_udp_game_connect(this))
 					return -2;	// Success!
-				if (!connecting) // connect wasn't successful - get rid of the message.
+				if (connecting == direct_join::connect_type::idle) // connect wasn't successful - get rid of the message.
 					nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\t");
 			}
 			break;
@@ -1243,9 +1248,9 @@ int netgame_list_game_menu::subfunction_handler(const d_event &event)
 #endif
 			if (key == KEY_ESC)
 			{
-				if (connecting)
+				if (connecting != direct_join::connect_type::idle)
 				{
-					connecting = 0;
+					connecting = direct_join::connect_type::idle;
 					nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\t");
 					return 1;
 				}
@@ -1265,7 +1270,7 @@ int netgame_list_game_menu::subfunction_handler(const d_event &event)
 				last_time = 0;
 				host_addr = Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-4].game_addr;
 				Netgame.players[0].protocol.udp.addr = host_addr;
-				connecting = 1;
+				connecting = direct_join::connect_type::connecting;
 #if DXX_USE_TRACKER
 				gameid = Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-4].TrackerGameID;
 #endif
