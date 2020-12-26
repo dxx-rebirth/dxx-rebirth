@@ -54,6 +54,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static void validate_selected_segments(void);
 
+#if 0
 struct group_top_fileinfo {
 	int     fileinfo_version;
 	int     fileinfo_sizeof;
@@ -89,6 +90,7 @@ struct group_editor {
 	int     Groupsegp;
 	int     Groupside;
 } group_editor;
+#endif
 
 std::array<group, MAX_GROUPS+1> GroupList;
 std::array<segment *, MAX_GROUPS+1> Groupsegp;
