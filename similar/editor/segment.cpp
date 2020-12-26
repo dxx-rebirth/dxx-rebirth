@@ -93,6 +93,8 @@ int is_free_vertex(const fvcsegptr &vcsegptr, const vertnum_t vi)
 
 }
 
+namespace {
+
 // -------------------------------------------------------------------------------
 //	Return true if one fixed point number is very close to another, else return false.
 static int fnear(fix f1, fix f2)
@@ -104,6 +106,15 @@ static int fnear(fix f1, fix f2)
 static int vnear(const vms_vector &vp1, const vms_vector &vp2)
 {
 	return fnear(vp1.x, vp2.x) && fnear(vp1.y, vp2.y) && fnear(vp1.z, vp2.z);
+}
+
+static void maintain_vertex_count(valptridx<vertex>::array_managed_type &Vertices, const vertnum_t v)
+{
+	const unsigned u = static_cast<unsigned>(v) + 1;
+	if (Vertices.get_count() < u)
+		Vertices.set_count(u);
+}
+
 }
 
 // -------------------------------------------------------------------------------
@@ -144,18 +155,17 @@ vertnum_t med_add_vertex(const vertex &vp)
 	}
 
 	if (free_index == free_index_sentinel)
-		free_index = Num_vertices;
+		free_index = vertnum_t{Num_vertices};
 
-	while (Vertex_active[free_index] && (free_index < MAX_VERTICES))
-		free_index++;
+	while (Vertex_active.valid_index(free_index) && Vertex_active[free_index])
+		free_index = static_cast<vertnum_t>(static_cast<unsigned>(free_index) + 1u);
 
 	*Vertices.vmptr(free_index) = vp;
 	Vertex_active[free_index] = 1;
 
 	++LevelSharedVertexState.Num_vertices;
 
-	if (Vertices.get_count() - 1 < free_index)
-		Vertices.set_count(free_index + 1);
+	maintain_vertex_count(Vertices, free_index);
 
 	return free_index;
 }
@@ -199,7 +209,7 @@ segnum_t med_create_duplicate_segment(segment_array &Segments, const segment &sp
 // -------------------------------------------------------------------------------
 //	Add the vertex *vp to the global list of vertices, return its index.
 //	This is the same as med_add_vertex, except that it does not search for the presence of the vertex.
-int med_create_duplicate_vertex(const vertex &vp)
+vertnum_t med_create_duplicate_vertex(const vertex &vp)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	const auto Num_vertices = LevelSharedVertexState.Num_vertices;
@@ -207,13 +217,11 @@ int med_create_duplicate_vertex(const vertex &vp)
 
 	Do_duplicate_vertex_check = 1;
 
-	unsigned free_index = Num_vertices;
+	vertnum_t free_index = vertnum_t{Num_vertices};
 
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
-	while (Vertex_active[free_index] && (free_index < MAX_VERTICES))
-		free_index++;
-
-	Assert(free_index < MAX_VERTICES);
+	while (Vertex_active.valid_index(free_index) && Vertex_active[free_index])
+		free_index = static_cast<vertnum_t>(static_cast<unsigned>(free_index) + 1u);
 
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	*Vertices.vmptr(free_index) = vp;
@@ -221,10 +229,9 @@ int med_create_duplicate_vertex(const vertex &vp)
 
 	++LevelSharedVertexState.Num_vertices;
 
-	if (Vertices.get_count() - 1 < free_index)
-		Vertices.set_count(free_index + 1);
+	maintain_vertex_count(Vertices, free_index);
 
-	return free_index;
+	return vertnum_t{free_index};
 }
 
 namespace {
@@ -416,6 +423,8 @@ void update_matrix_based_on_side(vms_matrix &rotmat,int destside)
 	}
 }
 
+namespace {
+
 //	-------------------------------------------------------------------------------------
 static void change_vertex_occurrences(fvmsegptr &vmsegptr, const vertnum_t dest, const vertnum_t src)
 {
@@ -453,17 +462,18 @@ static void compress_vertices(void)
 			// found an unused vertex which is a hole if a used vertex follows (not necessarily immediately) it.
 			for (; hole < vert; --vert)
 			{
-				auto &active_vert = Vertex_active[vert];
+				const vertnum_t vvert{vert};
+				auto &active_vert = Vertex_active[vvert];
 				if (!active_vert)
 					continue;
 				active_hole = std::exchange(active_vert, 0);
 				// Ok, hole is the index of a hole, vert is the index of a vertex which follows it.
 				// Copy vert into hole, update pointers to it.
-				auto &vp_vert = *vmvertptr(vert);
+				auto &vp_vert = *vmvertptr(vvert);
 				*vmvertptr(vhole) = vp_vert;
 				vp_vert = {};
 				DXX_MAKE_VAR_UNDEFINED(vp_vert);
-				change_vertex_occurrences(vmsegptr, vhole, vert);
+				change_vertex_occurrences(vmsegptr, vhole, vvert);
 				vert--;
 				break;
 			}
@@ -564,12 +574,13 @@ static void compress_segments(void)
 
 }
 
+}
 
 // -------------------------------------------------------------------------------
 //	Combine duplicate vertices.
 //	If two vertices have the same coordinates, within some small tolerance, then assign
 //	the same vertex number to the two vertices, freeing up one of the vertices.
-void med_combine_duplicate_vertices(std::array<uint8_t, MAX_VERTICES> &vlp)
+void med_combine_duplicate_vertices(enumerated_array<uint8_t, MAX_VERTICES, vertnum_t> &vlp)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -623,6 +634,8 @@ void med_compress_mine(void)
 }
 
 namespace dsx {
+
+namespace {
 
 // ------------------------------------------------------------------------------------------
 //	Copy texture map ids for each face in sseg to dseg.
@@ -746,6 +759,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmuseg
 	return	0;
 }
 
+}
 
 // ------------------------------------------------------------------------------------------
 // Attach side newside of newseg to side destside of destseg.
@@ -776,17 +790,18 @@ int med_attach_segment(const vmsegptridx_t destseg, const csmusegment newseg, co
 
 }
 
+namespace {
+
 // -------------------------------------------------------------------------------
 //	Delete a vertex, sort of.
 //	Decrement the vertex count.  If the count goes to 0, then the vertex is free (has been deleted).
-static void delete_vertex(const unsigned v)
+static void delete_vertex(const vertnum_t v)
 {
-	Assert(v < MAX_VERTICES);			// abort if vertex is not in array Vertices
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
-	Assert(Vertex_active[v] >= 1);	// abort if trying to delete a non-existent vertex
-
-	Vertex_active[v]--;
+	auto &va = Vertex_active[v];
+	assert(va >= 1);	// abort if trying to delete a non-existent vertex
+	--va;
 }
 
 // -------------------------------------------------------------------------------
@@ -804,6 +819,8 @@ static void update_num_vertices(void)
 		if (v)
 			++n;
 	LevelSharedVertexState.Num_vertices = n;
+}
+
 }
 
 namespace dsx {
@@ -833,6 +850,8 @@ void set_vertex_counts(void)
 	LevelSharedVertexState.Num_vertices = Num_vertices;
 }
 
+namespace {
+
 // -------------------------------------------------------------------------------
 //	Delete all vertices in segment *sp from the vertex list if they are not contained in another segment.
 //	This is kind of a dangerous routine.  It modifies the global array Vertex_active, using the field as
@@ -846,6 +865,8 @@ static void delete_vertices_in_segment(const shared_segment &sp)
 		delete_vertex(v);
 
 	update_num_vertices();
+}
+
 }
 
 // -------------------------------------------------------------------------------
@@ -941,6 +962,8 @@ int med_delete_segment(const vmsegptridx_t sp)
 	return 0;
 }
 
+namespace {
+
 // ------------------------------------------------------------------------------------------
 //	Copy texture maps from sseg to dseg
 static void copy_tmaps_to_segment(segment &dstseg, const segment &srcseg)
@@ -959,6 +982,8 @@ static void copy_tmaps_to_segment(segment &dstseg, const segment &srcseg)
 		unique_dst_side.tmap_num = unique_src_side.tmap_num;
 		unique_dst_side.tmap_num2 = unique_src_side.tmap_num2;
 	}
+
+}
 
 }
 
@@ -1028,6 +1053,8 @@ int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 	return	0;
 }
 
+namespace {
+
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 // ----------------------------------------------------------------------------
@@ -1084,6 +1111,7 @@ static int get_index_of_best_fit(const shared_segment &seg1, const unsigned side
 
 }
 
+}
 
 #define MAX_VALIDATIONS 50
 
@@ -1100,8 +1128,7 @@ int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	int		bfi,v,s1;
-	std::array<int, 4> lost_vertices, remap_vertices;
+	int		bfi,s1;
 	std::array<segnum_t, MAX_VALIDATIONS> validation_list;
 	uint_fast32_t nv;
 
@@ -1121,12 +1148,13 @@ int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2
 
 	//	Make a copy of the list of vertices in seg2 which will be deleted and set the
 	//	associated vertex number, so that all occurrences of the vertices can be replaced.
-	for (v=0; v<4; v++)
-                lost_vertices[v] = seg2->verts[static_cast<int>(vp2[v])];
+	std::array<vertnum_t, 4> lost_vertices, remap_vertices;
+	for (auto &&[lv, vi] : zip(lost_vertices, vp2))
+		lv = seg2->verts[vi];
 
 	//	Now, for each vertex in lost_vertices, determine which vertex it maps to.
-	for (v=0; v<4; v++)
-                remap_vertices[3 - ((v + bfi) % 4)] = seg1->verts[static_cast<int>(vp1[v])];
+	for (const unsigned v : xrange(4u))
+		remap_vertices[3 - ((v + bfi) % 4)] = seg1->verts[vp1[v]];
 
 	// Now, in all segments, replace all occurrences of vertices in lost_vertices with remap_vertices
 
@@ -1135,13 +1163,13 @@ int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2
 	nv = 1;
 	validation_list[0] = seg2;
 
-	for (v=0; v<4; v++)
+	for (auto &&[lv, rv] : zip(lost_vertices, remap_vertices))
 		range_for (const auto &&segp, vmsegptridx)
 		{
 			if (segp->segnum != segment_none)
 				range_for (auto &sv, segp->verts)
-					if (sv == lost_vertices[v]) {
-						sv = remap_vertices[v];
+					if (sv == lv) {
+						sv = rv;
 						// Add segment to list of segments to be validated.
 						for (s1=0; s1<nv; s1++)
 							if (validation_list[s1] == segp)
@@ -1403,7 +1431,7 @@ void init_all_vertices(void)
 
 // -----------------------------------------------------------------------------
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
-void create_coordinate_axes_from_segment(const shared_segment &sp, std::array<unsigned, 16> &vertnums)
+void create_coordinate_axes_from_segment(const shared_segment &sp, std::array<vertnum_t, 16> &vertnums)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -1429,6 +1457,8 @@ void create_coordinate_axes_from_segment(const shared_segment &sp, std::array<un
 	vm_vec_scale(t,i2f(32));
 	vm_vec_add(vmvertptr(vertnums[3]), v0, t);
 }
+
+namespace {
 
 // -----------------------------------------------------------------------------
 //	Determine if a segment is concave. Returns true if concave
@@ -1456,6 +1486,7 @@ static int check_seg_concavity(const shared_segment &s)
 	return 0;
 }
 
+}
 
 // -----------------------------------------------------------------------------
 //	Find all concave segments and add to list
@@ -1505,7 +1536,7 @@ void warn_if_concave_segment(const vmsegptridx_t s)
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
 int med_find_adjacent_segment_side(const vmsegptridx_t sp, int side, imsegptridx_t &adj_sp, int *adj_side)
 {
-	std::array<int, 4> abs_verts;
+	std::array<vertnum_t, 4> abs_verts;
 
 	//	Stuff abs_verts[4] array with absolute vertex indices
 	range_for (const unsigned v, xrange(4u))

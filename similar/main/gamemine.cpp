@@ -384,8 +384,13 @@ static void read_children(shared_segment &segp, const unsigned bit_mask, PHYSFS_
 static void read_verts(shared_segment &segp, PHYSFS_File *const LoadFile)
 {
 	// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
-	range_for (auto &i, segp.verts)
-		i = PHYSFSX_readShort(LoadFile);
+	range_for (auto &v, segp.verts)
+	{
+		const std::size_t i = PHYSFSX_readShort(LoadFile);
+		if (i >= MAX_VERTICES)
+			throw std::invalid_argument("vertex number too large");
+		v = static_cast<vertnum_t>(i);
+	}
 }
 
 static void read_special(shared_segment &segp, const unsigned bit_mask, PHYSFS_File *const LoadFile)

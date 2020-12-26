@@ -63,7 +63,7 @@ d_level_unique_segment_state LevelUniqueSegmentState;
 valptridx<player>::array_managed_type Players;
 valptridx<segment>::array_managed_type Segments;
 }
-std::array<g3s_point, MAX_VERTICES> Segment_points;
+enumerated_array<g3s_point, MAX_VERTICES, vertnum_t> Segment_points;
 
 namespace dcx {
 fix FrameTime = 0x1000;	// Time since last frame, in seconds

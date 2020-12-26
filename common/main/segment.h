@@ -243,7 +243,7 @@ struct shared_segment
 	short   group;      // group number to which the segment belongs.
 #endif
 	std::array<segnum_t, MAX_SIDES_PER_SEGMENT>   children;    // indices of 6 children segments, front, left, top, right, bottom, back
-	std::array<unsigned, MAX_VERTICES_PER_SEGMENT> verts;    // vertex ids of 4 front and 4 back vertices
+	std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> verts;    // vertex ids of 4 front and 4 back vertices
 	uint8_t special;    // what type of center this is
 	int8_t matcen_num; // which center segment is associated with.
 	uint8_t station_idx;
@@ -307,7 +307,7 @@ struct count_segment_array_t : public count_array_t<segnum_t, MAX_SEGMENTS> {};
 struct group
 {
 	struct segment_array_type_t : public count_segment_array_t {};
-	struct vertex_array_type_t : public count_array_t<unsigned, MAX_VERTICES> {};
+	struct vertex_array_type_t : public count_array_t<vertnum_t, MAX_VERTICES> {};
 	segment_array_type_t segments;
 	vertex_array_type_t vertices;
 	void clear()
@@ -335,6 +335,11 @@ struct vertex : vms_vector
 	{
 	}
 };
+
+static constexpr vertnum_t operator++(vertnum_t &v)
+{
+	return (v = static_cast<vertnum_t>(static_cast<unsigned>(v) + 1));
+}
 }
 
 #ifdef dsx
@@ -407,7 +412,7 @@ struct d_level_shared_vertex_state
 private:
 	vertex_array Vertices;
 #if DXX_USE_EDITOR
-	std::array<uint8_t, MAX_VERTICES> Vertex_active; // !0 means vertex is in use, 0 means not in use.
+	enumerated_array<uint8_t, MAX_VERTICES, vertnum_t> Vertex_active; // !0 means vertex is in use, 0 means not in use.
 #endif
 public:
 	auto &get_vertices()

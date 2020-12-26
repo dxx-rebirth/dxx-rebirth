@@ -113,7 +113,7 @@ static void draw_seg_objects(grs_canvas &canvas, const unique_segment &seg)
 #define draw_segment(C,S,c)	draw_segment(S,c)
 #define draw_listed_segments(C,S,c)	draw_listed_segments(S,c)
 #endif
-static void draw_line(grs_canvas &canvas, const unsigned pnum0, const unsigned pnum1, const color_palette_index color)
+static void draw_line(grs_canvas &canvas, const vertnum_t pnum0, const vertnum_t pnum1, const color_palette_index color)
 {
 	g3_draw_line(canvas, Segment_points[pnum0], Segment_points[pnum1], color);
 }
@@ -670,13 +670,15 @@ static void draw_special_segments(void)
 static vertnum_t alloc_vert()
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	int vn;
 
 	const auto Num_vertices = LevelSharedVertexState.Num_vertices;
 	assert(Num_vertices < MAX_SEGMENT_VERTICES);
 
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
-	for (vn=0; (vn < Num_vertices) && Vertex_active[vn]; vn++) ;
+	vertnum_t vn{};
+	for (; static_cast<unsigned>(vn) < Num_vertices && Vertex_active[vn]; ++vn)
+	{
+	}
 
 	Vertex_active[vn] = 1;
 
@@ -699,7 +701,7 @@ static void draw_coordinate_axes(void)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	std::array<unsigned, 16> Axes_verts;
+	std::array<vertnum_t, 16> Axes_verts;
 	vms_vector	tvec;
 
 	range_for (auto &i, Axes_verts)

@@ -104,7 +104,7 @@ struct shared_side;
 struct unique_side;
 
 struct vertex;
-using vertnum_t = uint32_t;
+enum class vertnum_t : uint32_t;
 }
 
 /* `vertex` has only integer members, so wild reads are unlikely to

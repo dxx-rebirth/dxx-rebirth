@@ -45,6 +45,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-wall.h"
 #include "medwall.h"
 #include "compiler-range_for.h"
+#include "d_bitset.h"
 #include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "d_range.h"
@@ -371,20 +372,19 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptridx = Objects.vmptridx;
-	std::array<int8_t, MAX_VERTICES> vertex_list;
 	auto &vcvertptr = Vertices.vcptr;
 	auto &vmvertptridx = Vertices.vmptridx;
 	const auto &&rotate_center = compute_center_point_on_side(vcvertptr, first_seg, first_side);
 
 	//	Create list of points to rotate.
-	vertex_list = {};
+	enumerated_bitset<MAX_VERTICES, vertnum_t> vertex_list{};
 
 	range_for (const auto &gs, group_seglist)
 	{
 		auto &sp = *vmsegptr(gs);
 
 		range_for (const auto v, sp.verts)
-			vertex_list[v] = 1;
+			vertex_list[v] = true;
 
 		//	Rotate center of all objects in group.
 		range_for (const auto objp, objects_in(sp, vmobjptridx, vcsegptr))
@@ -434,26 +434,25 @@ static void create_group_list(const vmsegptridx_t segp, group::segment_array_typ
 #define MXV MAX_VERTICES
 
 // ------------------------------------------------------------------------------------------------
-static void duplicate_group(std::array<uint8_t, MAX_VERTICES> &vertex_ids, group::segment_array_type_t &segments)
+static void duplicate_group(enumerated_array<uint8_t, MAX_VERTICES, vertnum_t> &vertex_ids, group::segment_array_type_t &segments)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptridx = Objects.vmptridx;
 	group::segment_array_type_t new_segments;
-	std::array<int, MAX_VERTICES> new_vertex_ids;		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
+	enumerated_array<vertnum_t, MAX_VERTICES, vertnum_t> new_vertex_ids;		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
+	constexpr vertnum_t undefined_vertex_id{UINT32_MAX};
 
 	//	duplicate vertices
-	new_vertex_ids.fill(-1);
+	new_vertex_ids.fill(undefined_vertex_id);
 
 	//	duplicate vertices
 	auto &vcvertptridx = Vertices.vcptridx;
 	range_for (auto &&v, vcvertptridx)
 	{
-		if (vertex_ids[v])
-		{
-			new_vertex_ids[v] = med_create_duplicate_vertex(*v);
-		}
+		if (const vertnum_t vn{v}; vertex_ids[vn])
+			new_vertex_ids[vn] = med_create_duplicate_vertex(*v);
 	}
 
 	//	duplicate segments
@@ -495,9 +494,8 @@ static void duplicate_group(std::array<uint8_t, MAX_VERTICES> &vertex_ids, group
 		//	Now fixup vertex ids
 		range_for (auto &v, sp.verts)
 		{
-			if (vertex_ids[v]) {
-				v = new_vertex_ids[v];
-			}
+			if (const vertnum_t vn{v}; vertex_ids[vn])
+				v = new_vertex_ids[vn];
 		}
 	}	// end for (s=0...
 
@@ -508,7 +506,7 @@ static void duplicate_group(std::array<uint8_t, MAX_VERTICES> &vertex_ids, group
 	vertex_ids = {};
 
 	range_for (auto &v, new_vertex_ids)
-		if (v != -1)
+		if (v != undefined_vertex_id)
 			vertex_ids[v] = 1;
 }
 
@@ -567,7 +565,7 @@ static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_se
 	GroupList[new_current_group] = GroupList[current_group];
 
 	//	Make a list of all vertices in group.
-	std::array<uint8_t, MAX_VERTICES> in_vertex_list{};
+	enumerated_array<uint8_t, MAX_VERTICES, vertnum_t> in_vertex_list{};
 	if (group_seg == &New_segment)
 		range_for (auto &v, group_seg->verts)
 			in_vertex_list[v] = 1;
@@ -691,8 +689,8 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 //					return 1;
 //				}
 
-	std::array<uint8_t, MAX_VERTICES> in_vertex_list{};
-	std::array<int8_t, MAX_VERTICES> out_vertex_list{};
+	enumerated_array<uint8_t, MAX_VERTICES, vertnum_t> in_vertex_list{};
+	enumerated_array<int8_t, MAX_VERTICES, vertnum_t> out_vertex_list{};
 
 	//	Make a list of all vertices in group.
 	range_for(const auto &gs, GroupList[current_group].segments)

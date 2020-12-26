@@ -221,7 +221,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
-static void render_face(grs_canvas &canvas, const shared_segment &segp, const unsigned sidenum, const unsigned nv, const std::array<unsigned, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, std::array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
+static void render_face(grs_canvas &canvas, const shared_segment &segp, const unsigned sidenum, const unsigned nv, const std::array<vertnum_t, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, std::array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
@@ -380,7 +380,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
-static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const std::array<unsigned, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<g3s_uvl, 4> &uvl_copy)
+static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const std::array<vertnum_t, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<g3s_uvl, 4> &uvl_copy)
 {
 #if DXX_USE_EDITOR
 	if (_search_mode) {
@@ -445,9 +445,9 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsign
 }
 
 template <std::size_t... N>
-static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N...>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<unsigned, 4> &ovp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N...>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<vertnum_t, 4> &ovp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
 {
-	const std::array<unsigned, 4> vp{{ovp[N]...}};
+	const std::array<vertnum_t, 4> vp{{ovp[N]...}};
 	const std::array<g3s_uvl, 4> uvl_copy{{
 		{uvlp[N].u, uvlp[N].v, uvlp[N].l}...
 	}};
@@ -456,7 +456,7 @@ static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N..
 }
 
 template <std::size_t N0, std::size_t N1, std::size_t N2, std::size_t N3>
-static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<unsigned, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<vertnum_t, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(canvas, is, segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 4);
 }
@@ -465,7 +465,7 @@ static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0,
  * are default constructed, gcc zero initializes all members.
  */
 template <std::size_t N0, std::size_t N1, std::size_t N2>
-static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<unsigned, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<vertnum_t, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(canvas, std::index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
 }
@@ -714,7 +714,7 @@ void render_start_frame()
 }
 
 //Given a lit of point numbers, rotate any that haven't been rotated this frame
-g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::size_t nv, const unsigned *const pointnumlist)
+g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::size_t nv, const vertnum_t *const pointnumlist)
 {
 	g3s_codes cc;
 	const auto current_generation = s_current_generation;
@@ -748,7 +748,7 @@ g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::size_t nv, const unsigne
 }
 
 //Given a lit of point numbers, project any that haven't been projected
-static void project_list(const std::array<unsigned, 8> &pointnumlist)
+static void project_list(const std::array<vertnum_t, 8> &pointnumlist)
 {
 	range_for (const auto pnum, pointnumlist)
 	{
@@ -893,7 +893,7 @@ constexpr std::array<
 
 //given an edge, tell what side is on that edge
 __attribute_warn_unused_result
-static int find_seg_side(const shared_segment &seg, const std::array<unsigned, 2> &verts, const unsigned notside)
+static int find_seg_side(const shared_segment &seg, const std::array<vertnum_t, 2> &verts, const unsigned notside)
 {
 	if (notside >= MAX_SIDES_PER_SEGMENT)
 		throw std::logic_error("invalid notside");
@@ -964,11 +964,9 @@ static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye
 		return false;
 	//find normals of adjoining sides
 	const shared_segment &sseg = seg;
-	const std::array<unsigned, 2> edge_verts = {
+	const std::array<vertnum_t, 2> edge_verts = {
 		{sseg.verts[Two_sides_to_edge[s0][s1][0]], sseg.verts[Two_sides_to_edge[s0][s1][1]]}
 	};
-	if (edge_verts[0] == -1 || edge_verts[1] == -1)
-		throw std::logic_error("invalid edge vert");
 	const auto &&seg0 = seg.absolute_sibling(sseg.children[s0]);
 	const auto edgeside0 = find_seg_side(seg0, edge_verts, find_connect_side(seg, seg0));
 	if (edgeside0 == side_none)

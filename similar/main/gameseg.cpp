@@ -66,14 +66,14 @@ struct segment_water_depth_array : std::array<uint8_t, MAX_SEGMENTS> {};
 
 class abs_vertex_lists_predicate
 {
-	const std::array<unsigned, MAX_VERTICES_PER_SEGMENT> &m_vp;
+	const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &m_vp;
 	const std::array<unsigned, 4> &m_sv;
 public:
 	abs_vertex_lists_predicate(const shared_segment &seg, const uint_fast32_t sidenum) :
 		m_vp(seg.verts), m_sv(Side_to_verts_int[sidenum])
 	{
 	}
-	unsigned operator()(const uint_fast32_t vv) const
+	vertnum_t operator()(const uint_fast32_t vv) const
 	{
 		return m_vp[m_sv[vv]];
 	}
@@ -91,7 +91,7 @@ public:
 
 struct verts_for_normal
 {
-	std::array<unsigned, 4> vsorted;
+	std::array<vertnum_t, 4> vsorted;
 	bool negate_flag;
 };
 
@@ -111,7 +111,7 @@ static uint_fast32_t find_connect_child(const vcsegidx_t base_seg, const std::ar
 	return std::distance(b, std::find(b, end(children), base_seg));
 }
 
-static void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &r, const std::array<unsigned, MAX_VERTICES_PER_SEGMENT> &verts, const unsigned side)
+static void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &r, const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &verts, const unsigned side)
 {
 	vms_vector vp;
 	vm_vec_zero(vp);
@@ -120,7 +120,7 @@ static void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &r, c
 	vm_vec_copy_scale(r, vp, F1_0 / 4);
 }
 
-static void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &r, const std::array<unsigned, MAX_VERTICES_PER_SEGMENT> &verts)
+static void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &r, const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &verts)
 {
 	vms_vector vp;
 	vm_vec_zero(vp);
@@ -170,7 +170,7 @@ bool get_side_is_quad(const shared_side &sidep)
 }
 
 // Fill in array with four absolute point numbers for a given side
-static void get_side_verts(side_vertnum_list_t &vertlist, const std::array<unsigned, MAX_VERTICES_PER_SEGMENT> &vp, const unsigned sidenum)
+static void get_side_verts(side_vertnum_list_t &vertlist, const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &vp, const unsigned sidenum)
 {
 	auto &sv = Side_to_verts[sidenum];
 	for (unsigned i = 4; i--;)
@@ -272,7 +272,7 @@ void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_
 
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
-uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const uint_fast32_t sidenum)
+uint_fast32_t create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const uint_fast32_t sidenum)
 {
 	return create_vertex_lists_by_predicate(vertices, segp, sidep, abs_vertex_lists_predicate(segp, sidenum));
 }
@@ -1284,7 +1284,7 @@ namespace dcx {
 //	Return v0, v1, v2 = 3 vertices with smallest numbers.  If *negate_flag set, then negate normal after computation.
 //	Note, you cannot just compute the normal by treating the points in the opposite direction as this introduces
 //	small differences between normals which should merely be opposites of each other.
-static void get_verts_for_normal(verts_for_normal &r, const unsigned va, const unsigned vb, const unsigned vc, const unsigned vd)
+static void get_verts_for_normal(verts_for_normal &r, const vertnum_t va, const vertnum_t vb, const vertnum_t vc, const vertnum_t vd)
 {
 	auto &v = r.vsorted;
 	std::array<unsigned, 4> w;
@@ -1313,10 +1313,10 @@ static void get_verts_for_normal(verts_for_normal &r, const unsigned va, const u
 	r.negate_flag = ((w[0] + 3) % 4) == w[1] || ((w[1] + 3) % 4) == w[2];
 }
 
-static void assign_side_normal(fvcvertptr &vcvertptr, vms_vector &n, const unsigned v0, const unsigned v1, const unsigned v2)
+static void assign_side_normal(fvcvertptr &vcvertptr, vms_vector &n, const vertnum_t v0, const vertnum_t v1, const vertnum_t v2)
 {
 	verts_for_normal vfn;
-	get_verts_for_normal(vfn, v0, v1, v2, UINT32_MAX);
+	get_verts_for_normal(vfn, v0, v1, v2, vertnum_t{UINT32_MAX});
 	const auto &vsorted = vfn.vsorted;
 	const auto &negate_flag = vfn.negate_flag;
 	vm_vec_normal(n, vcvertptr(vsorted[0]), vcvertptr(vsorted[1]), vcvertptr(vsorted[2]));
@@ -1360,7 +1360,7 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		vm_vec_normal(sidep->normals[0], vvs0, vvs1, *n0v3);
 		vm_vec_normal(sidep->normals[1], *n1v1, vvs2, vvs3);
 	} else {
-		std::array<unsigned, 4> v;
+		std::array<vertnum_t, 4> v;
 
 		range_for (const unsigned i, xrange(4u))
 			v[i] = sp.verts[vs[i]];
@@ -1369,7 +1369,7 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		get_verts_for_normal(vfn, v[0], v[1], v[2], v[3]);
 		auto &vsorted = vfn.vsorted;
 
-		unsigned s0v2, s1v0;
+		vertnum_t s0v2, s1v0;
 		if ((vsorted[0] == v[0]) || (vsorted[0] == v[2])) {
 			sidep->set_type(side_type::tri_02);
 			//	Now, get vertices for normal for each triangle based on triangulation type.

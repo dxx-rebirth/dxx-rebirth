@@ -1415,7 +1415,7 @@ int load_level(
 	 */
 	auto &vmvertptr = Vertices.vmptr;
 	if (Current_mission && !d_stricmp("Descent: First Strike",Current_mission_longname) && !d_stricmp("level19.rdl",filename) && PHYSFS_fileLength(LoadFile) == 136706)
-		vmvertptr(1905u)->z = -385 * F1_0;
+		vmvertptr(vertnum_t{1905u})->z = -385 * F1_0;
 #if defined(DXX_BUILD_DESCENT_II)
 	/* !!!HACK!!!
 	 * Descent 2 - Level 12: MAGNACORE STATION has a segment (104) with illegal dimensions.

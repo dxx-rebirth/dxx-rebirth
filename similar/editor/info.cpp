@@ -313,10 +313,9 @@ static void info_display_default(grs_canvas &canvas, int show_all)
 	if (old_Cursegp_num_for_verts != Cursegp)
 	{
 		old_Cursegp_num_for_verts = Cursegp;
-		gr_uprintf(canvas, *canvas.cv_font, 0, 64, "{%3d,%3d,%3d,%3d,", Cursegp->verts[0],Cursegp->verts[1],
-																							 Cursegp->verts[2],Cursegp->verts[3] );
-		gr_uprintf(canvas, *canvas.cv_font, 0, 80," %3d,%3d,%3d,%3d}", Cursegp->verts[4],Cursegp->verts[5],
-																							 Cursegp->verts[6],Cursegp->verts[7] );
+		using U = std::underlying_type<vertnum_t>::type;
+		gr_uprintf(canvas, *canvas.cv_font, 0, 64, "{%3u,%3u,%3u,%3u,", static_cast<U>(Cursegp->verts[0]), static_cast<U>(Cursegp->verts[1]), static_cast<U>(Cursegp->verts[2]), static_cast<U>(Cursegp->verts[3]));
+		gr_uprintf(canvas, *canvas.cv_font, 0, 80, " %3u,%3u,%3u,%3u}", static_cast<U>(Cursegp->verts[4]), static_cast<U>(Cursegp->verts[5]), static_cast<U>(Cursegp->verts[6]), static_cast<U>(Cursegp->verts[7]));
 	}
 
 	//--------------- Num walls/links/triggers -------------------------

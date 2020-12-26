@@ -27,5 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "fwd-segment.h"
 #include "3d.h"
+#include "d_array.h"
 
-extern	std::array<g3s_point, MAX_VERTICES>	Segment_points;
+extern enumerated_array<g3s_point, MAX_VERTICES, vertnum_t> Segment_points;

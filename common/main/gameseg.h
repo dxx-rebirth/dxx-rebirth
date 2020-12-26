@@ -46,12 +46,14 @@ struct segmasks
 
 struct segment_depth_array_t : public std::array<ubyte, MAX_SEGMENTS> {};
 
-struct side_vertnum_list_t : std::array<unsigned, 4> {};
+struct side_vertnum_list_t : std::array<vertnum_t, 4> {};
 
+struct vertnum_array_list_t : std::array<vertnum_t, 6> {};
 struct vertex_array_list_t : std::array<unsigned, 6> {};
 struct vertex_vertnum_pair
 {
-	unsigned vertex, vertnum;
+	vertnum_t vertex;
+	unsigned vertnum;
 };
 using vertex_vertnum_array_list = std::array<vertex_vertnum_pair, 6>;
 
@@ -111,18 +113,18 @@ static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertex_li
 #endif
 
 //like create_all_vertex_lists(), but generate absolute point numbers
-uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segnum, const shared_side &sidep, uint_fast32_t sidenum);
+uint_fast32_t create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segnum, const shared_side &sidep, uint_fast32_t sidenum);
 
 __attribute_warn_unused_result
-static inline std::pair<uint_fast32_t, vertex_array_list_t> create_abs_vertex_lists(const shared_segment &segnum, const shared_side &sidep, const uint_fast32_t sidenum)
+static inline std::pair<uint_fast32_t, vertnum_array_list_t> create_abs_vertex_lists(const shared_segment &segnum, const shared_side &sidep, const uint_fast32_t sidenum)
 {
-	vertex_array_list_t r;
+	vertnum_array_list_t r;
 	const auto &&n = create_abs_vertex_lists(r, segnum, sidep, sidenum);
 	return {n, r};
 }
 
 __attribute_warn_unused_result
-static inline std::pair<uint_fast32_t, vertex_array_list_t> create_abs_vertex_lists(const shared_segment &segp, const uint_fast32_t sidenum)
+static inline std::pair<uint_fast32_t, vertnum_array_list_t> create_abs_vertex_lists(const shared_segment &segp, const uint_fast32_t sidenum)
 {
 	return create_abs_vertex_lists(segp, segp.sides[sidenum], sidenum);
 }

@@ -39,8 +39,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ZDIM	2
 
 #define	MAX_MODIFIED_VERTICES	32
-static std::array<int, MAX_MODIFIED_VERTICES>		Modified_vertices;
+namespace {
+static std::array<vertnum_t, MAX_MODIFIED_VERTICES>		Modified_vertices;
 int		Modified_vertex_index = 0;
+}
 
 namespace dsx {
 
@@ -49,11 +51,10 @@ static void validate_modified_segments(void)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	int	v0;
 	visited_segment_bitarray_t modified_segments;
 	auto &vcvertptr = Vertices.vcptr;
 	for (int v=0; v<Modified_vertex_index; v++) {
-		v0 = Modified_vertices[v];
+		const auto v0 = Modified_vertices[v];
 
 		range_for (const auto &&segp, vmsegptridx)
 		{
@@ -79,7 +80,7 @@ static void validate_modified_segments(void)
 
 // ------------------------------------------------------------------------------------------
 //	Scale vertex *vertp by vector *vp, scaled by scale factor scale_factor
-static void scale_vert_aux(const unsigned vertex_ind, const vms_vector &vp, const fix scale_factor)
+static void scale_vert_aux(const vertnum_t vertex_ind, const vms_vector &vp, const fix scale_factor)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -95,7 +96,7 @@ static void scale_vert_aux(const unsigned vertex_ind, const vms_vector &vp, cons
 }
 
 // ------------------------------------------------------------------------------------------
-static void scale_vert(const shared_segment &sp, const unsigned vertex_ind, const vms_vector &vp, const fix scale_factor)
+static void scale_vert(const shared_segment &sp, const vertnum_t vertex_ind, const vms_vector &vp, const fix scale_factor)
 {
 	auto &verts = sp.verts;
 	switch (SegSizeMode) {

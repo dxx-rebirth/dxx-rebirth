@@ -922,9 +922,11 @@ static ushort netmisc_calc_checksum()
 			s = INTEL_SHORT(j);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 		}
-		range_for (const uint16_t j, i.s.verts)
+		range_for (const auto vn, i.s.verts)
 		{
-			s = INTEL_SHORT(j);
+			const auto j{static_cast<std::underlying_type<vertnum_t>::type>(vn)};
+			static_assert(MAX_VERTICES <= UINT16_MAX);
+			s = INTEL_SHORT(static_cast<uint16_t>(j));
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 		}
 		s = INTEL_SHORT(i.u.objects);

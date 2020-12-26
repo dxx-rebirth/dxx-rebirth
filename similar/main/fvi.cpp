@@ -121,7 +121,7 @@ static ij_pair find_largest_normal(vms_vector t)
 
 //see if a point in inside a face by projecting into 2d
 __attribute_warn_unused_result
-static unsigned check_point_to_face(const vms_vector &checkp, const vms_vector &norm, const unsigned facenum, const unsigned nv, const vertex_array_list_t &vertex_list)
+static unsigned check_point_to_face(const vms_vector &checkp, const vms_vector &norm, const unsigned facenum, const unsigned nv, const vertnum_array_list_t &vertex_list)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -170,7 +170,7 @@ static unsigned check_point_to_face(const vms_vector &checkp, const vms_vector &
 
 //check if a sphere intersects a face
 __attribute_warn_unused_result
-static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal, const unsigned facenum, const unsigned nv, const fix rad, const vertex_array_list_t &vertex_list)
+static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal, const unsigned facenum, const unsigned nv, const fix rad, const vertnum_array_list_t &vertex_list)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -254,7 +254,7 @@ static int check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_
 	const auto &vertex_list = v.second;
 
 	//use lowest point number
-	unsigned vertnum;
+	vertnum_t vertnum;
 	if (num_faces==2) {
 		vertnum = min(vertex_list[0],vertex_list[2]);
 	}

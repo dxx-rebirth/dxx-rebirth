@@ -537,7 +537,7 @@ static void write_children(const shared_segment &seg, const unsigned bit_mask, P
 static void write_verts(const shared_segment &seg, PHYSFS_File *const SaveFile)
 {
 	range_for (auto &i, seg.verts)
-		PHYSFS_writeSLE16(SaveFile, i);
+		PHYSFS_writeSLE16(SaveFile, static_cast<uint16_t>(i));
 }
 
 static void write_special(const shared_segment &seg, const unsigned bit_mask, PHYSFS_File *const SaveFile)

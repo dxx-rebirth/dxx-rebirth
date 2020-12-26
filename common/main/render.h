@@ -114,10 +114,10 @@ void render_start_frame(void);
 
 // Given a list of point numbers, rotate any that haven't been rotated
 // this frame
-g3s_codes rotate_list(fvcvertptr &vcvertptr, std::size_t nv, const unsigned *pointnumlist);
+g3s_codes rotate_list(fvcvertptr &vcvertptr, std::size_t nv, const vertnum_t *pointnumlist);
 
 template <std::size_t N>
-static inline g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::array<unsigned, N> &a)
+static inline g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::array<vertnum_t, N> &a)
 {
 	return rotate_list(vcvertptr, a.size(), &a[0]);
 }
