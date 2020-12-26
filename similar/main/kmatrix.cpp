@@ -199,11 +199,14 @@ namespace {
 
 struct kmatrix_window : window
 {
-	using window::window;
+	kmatrix_window(grs_canvas &src, int x, int y, int w, int h, kmatrix_result &result) :
+		window(src, x, y, w, h), result(result)
+	{
+	}
 	grs_main_bitmap background;
 	fix64 end_time = -1;
 	kmatrix_network network;
-	kmatrix_result result;
+	kmatrix_result &result;
 };
 
 }
@@ -433,7 +436,9 @@ kmatrix_result kmatrix_view(const kmatrix_network network, control_info &Control
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
-	const auto pkm = window_create<kmatrix_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	kmatrix_result result = kmatrix_result::proceed;
+	{
+	const auto pkm = window_create<kmatrix_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, result);
 	auto &km = *pkm;
 	if (pcx_read_bitmap(STARS_BACKGROUND, km.background, gr_palette) != pcx_result::SUCCESS)
 	{
@@ -442,7 +447,6 @@ kmatrix_result kmatrix_view(const kmatrix_network network, control_info &Control
 	gr_palette_load(gr_palette);
 
 	km.network = network;
-	km.result = kmatrix_result::proceed;
 	
 	set_screen_mode( SCREEN_MENU );
 	game_flush_inputs(Controls);
@@ -452,7 +456,12 @@ kmatrix_result kmatrix_view(const kmatrix_network network, control_info &Control
 			digi_kill_sound_linked_to_object(vcobjptridx(i.objnum));
 
 	event_process_all();
-	return km.result;
+	}
+	/* After event_process_all returns, kmatrix_window has been freed
+	 * and cannot be accessed.  The result is therefore stored in a
+	 * stack local, which will persist.
+	 */
+	return result;
 }
 
 }
