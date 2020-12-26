@@ -1852,9 +1852,9 @@ class cheat_menu_bit_invulnerability :
 	public menu_bit_wrapper_t<player_flags, std::integral_constant<PLAYER_FLAG, PLAYER_FLAGS_INVULNERABLE>>
 {
 public:
-	cheat_menu_bit_invulnerability(object &player) :
-		reference_wrapper(player.ctype.player_info),
-		menu_bit_wrapper_t(get().powerup_flags, {})
+	cheat_menu_bit_invulnerability(player_info &pl_info) :
+		reference_wrapper(pl_info),
+		menu_bit_wrapper_t(pl_info.powerup_flags, {})
 	{
 	}
 	cheat_menu_bit_invulnerability &operator=(const uint32_t n)
@@ -1875,9 +1875,9 @@ class cheat_menu_bit_cloak :
 	public menu_bit_wrapper_t<player_flags, std::integral_constant<PLAYER_FLAG, PLAYER_FLAGS_CLOAKED>>
 {
 public:
-	cheat_menu_bit_cloak(object &player) :
-		reference_wrapper(player.ctype.player_info),
-		menu_bit_wrapper_t(get().powerup_flags, {})
+	cheat_menu_bit_cloak(player_info &pl_info) :
+		reference_wrapper(pl_info),
+		menu_bit_wrapper_t(pl_info.powerup_flags, {})
 	{
 	}
 	cheat_menu_bit_cloak &operator=(const uint32_t n)
@@ -1901,49 +1901,82 @@ public:
  * a cheat.  The player can change his energy up if he needs more.
  */
 #define WIMP_MENU_DXX(VERB)	\
-	DXX_MENUITEM(VERB, CHECK, TXT_AFTERBURNER, opt_afterburner, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_AFTERBURNER))	\
+	DXX_MENUITEM(VERB, CHECK, TXT_AFTERBURNER, opt_afterburner, menu_bit_wrapper(pl_info.powerup_flags, PLAYER_FLAGS_AFTERBURNER))	\
 
 #endif
 
 #define DXX_WIMP_MENU(VERB)	\
-	DXX_MENUITEM(VERB, CHECK, TXT_INVULNERABILITY, opt_invul, cheat_menu_bit_invulnerability(plrobj))	\
-	DXX_MENUITEM(VERB, CHECK, TXT_CLOAKED, opt_cloak, cheat_menu_bit_cloak(plrobj))	\
-	DXX_MENUITEM(VERB, CHECK, "BLUE KEY", opt_key_blue, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_BLUE_KEY))	\
-	DXX_MENUITEM(VERB, CHECK, "GOLD KEY", opt_key_gold, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_GOLD_KEY))	\
-	DXX_MENUITEM(VERB, CHECK, "RED KEY", opt_key_red, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_RED_KEY))	\
+	DXX_MENUITEM(VERB, CHECK, TXT_INVULNERABILITY, opt_invul, cheat_menu_bit_invulnerability(pl_info))	\
+	DXX_MENUITEM(VERB, CHECK, TXT_CLOAKED, opt_cloak, cheat_menu_bit_cloak(pl_info))	\
+	DXX_MENUITEM(VERB, CHECK, "BLUE KEY", opt_key_blue, menu_bit_wrapper(pl_info.powerup_flags, PLAYER_FLAGS_BLUE_KEY))	\
+	DXX_MENUITEM(VERB, CHECK, "GOLD KEY", opt_key_gold, menu_bit_wrapper(pl_info.powerup_flags, PLAYER_FLAGS_GOLD_KEY))	\
+	DXX_MENUITEM(VERB, CHECK, "RED KEY", opt_key_red, menu_bit_wrapper(pl_info.powerup_flags, PLAYER_FLAGS_RED_KEY))	\
 	WIMP_MENU_DXX(VERB)	\
-	DXX_MENUITEM(VERB, NUMBER, TXT_ENERGY, opt_energy, menu_fix_wrapper(plrobj.ctype.player_info.energy), 0, 200)	\
+	DXX_MENUITEM(VERB, NUMBER, TXT_ENERGY, opt_energy, menu_fix_wrapper(pl_info.energy), 0, 200)	\
 	DXX_MENUITEM(VERB, NUMBER, "Shields", opt_shields, menu_fix_wrapper(plrobj.shields), 0, 200)	\
 	DXX_MENUITEM(VERB, TEXT, TXT_SCORE, opt_txt_score)	\
 	DXX_MENUITEM(VERB, INPUT, score_text, opt_score)	\
 	DXX_MENUITEM(VERB, NUMBER, "Laser Level", opt_laser_level, menu_number_bias_wrapper<1>(plr_laser_level), static_cast<uint8_t>(laser_level::_1) + 1, static_cast<uint8_t>(DXX_MAXIMUM_LASER_LEVEL) + 1)	\
-	DXX_MENUITEM(VERB, NUMBER, "Concussion", opt_concussion, plrobj.ctype.player_info.secondary_ammo[CONCUSSION_INDEX], 0, 200)	\
+	DXX_MENUITEM(VERB, NUMBER, "Concussion", opt_concussion, pl_info.secondary_ammo[CONCUSSION_INDEX], 0, 200)	\
+
+struct wimp_menu_items
+{
+	object &plrobj;
+	char score_text[sizeof("2147483647")];
+	enum {
+		DXX_WIMP_MENU(ENUM)
+	};
+	std::array<newmenu_item, DXX_WIMP_MENU(COUNT)> m;
+	wimp_menu_items(object &plr) :
+		plrobj(plr)
+	{
+		auto &pl_info = plrobj.ctype.player_info;
+		snprintf(score_text, sizeof(score_text), "%d", pl_info.mission.score);
+		const uint8_t plr_laser_level = static_cast<uint8_t>(pl_info.laser_level);
+		DXX_WIMP_MENU(ADD);
+	}
+};
+
+struct wimp_menu : wimp_menu_items, newmenu
+{
+	wimp_menu(object &plr, grs_canvas &src) :
+		wimp_menu_items(plr),
+		newmenu(menu_title{"Wimp Menu"}, menu_subtitle{nullptr}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+		{
+		}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int wimp_menu::subfunction_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_WINDOW_CLOSE:
+			{
+				auto &pl_info = plrobj.ctype.player_info;
+				uint8_t plr_laser_level;
+				DXX_WIMP_MENU(READ);
+				pl_info.laser_level = laser_level{plr_laser_level};
+				char *p;
+				auto ul = strtoul(score_text, &p, 10);
+				if (!*p)
+					pl_info.mission.score = static_cast<int>(ul);
+				init_gauges();
+				break;
+			}
+		default:
+			break;
+	}
+	return 0;
+}
 
 static void do_cheat_menu()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	enum {
-		DXX_WIMP_MENU(ENUM)
-	};
-	int mmn;
-	std::array<newmenu_item, DXX_WIMP_MENU(COUNT)> m;
-	char score_text[sizeof("2147483647")];
 	auto &plrobj = get_local_plrobj();
-	auto &player_info = plrobj.ctype.player_info;
-	snprintf(score_text, sizeof(score_text), "%d", player_info.mission.score);
-	uint8_t plr_laser_level = static_cast<uint8_t>(player_info.laser_level);
-	DXX_WIMP_MENU(ADD);
-	mmn = newmenu_do2(menu_title{"Wimp Menu"}, menu_subtitle{nullptr}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
-	if (mmn > -1 )  {
-		DXX_WIMP_MENU(READ);
-		player_info.laser_level = laser_level{plr_laser_level};
-		char *p;
-		auto ul = strtoul(score_text, &p, 10);
-		if (!*p)
-			player_info.mission.score = static_cast<int>(ul);
-		init_gauges();
-	}
+	auto menu = window_create<wimp_menu>(plrobj, grd_curscreen->sc_canvas);
+	(void)menu;
 }
 #endif
 
