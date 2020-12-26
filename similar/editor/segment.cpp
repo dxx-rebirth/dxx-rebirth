@@ -49,6 +49,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medwall.h"
 #include "hostage.h"
 
+#include "compiler-poison.h"
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
 #include "d_range.h"
@@ -421,20 +422,19 @@ void update_matrix_based_on_side(vms_matrix &rotmat,int destside)
 }
 
 //	-------------------------------------------------------------------------------------
-static void change_vertex_occurrences(int dest, int src)
+static void change_vertex_occurrences(fvmsegptr &vmsegptr, const vertnum_t dest, const vertnum_t src)
 {
 	// Fix vertices in groups
 	range_for (auto &g, partial_range(GroupList, num_groups))
 		g.vertices.replace(src, dest);
 
 	// now scan all segments, changing occurrences of src to dest
-	range_for (const auto &&segp, vmsegptr)
-	{
-		if (segp->segnum != segment_none)
-			range_for (auto &v, segp->verts)
-				if (v == src)
-					v = dest;
-	}
+	for (shared_segment &segp : vmsegptr)
+		if (segp.segnum != segment_none)
+		{
+			auto &verts = segp.verts;
+			std::replace(verts.begin(), verts.end(), src, dest);
+		}
 }
 
 // --------------------------------------------------------------------------------------------------
@@ -448,25 +448,32 @@ static void compress_vertices(void)
 
 	unsigned vert = Vertices.get_count() - 1;	//MAX_SEGMENT_VERTICES-1;
 
-	auto &vcvertptr = Vertices.vcptr;
 	auto &vmvertptr = Vertices.vmptr;
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	for (unsigned hole = 0; hole < vert; ++hole)
-		if (!Vertex_active[hole]) {
+	{
+		const vertnum_t vhole{hole};
+		if (auto &active_hole = Vertex_active[vhole]; !active_hole)
+		{
 			// found an unused vertex which is a hole if a used vertex follows (not necessarily immediately) it.
-			for ( ; (vert>hole) && (!Vertex_active[vert]); vert--)
-				;
-
-			if (vert > hole) {
-
+			for (; hole < vert; --vert)
+			{
+				auto &active_vert = Vertex_active[vert];
+				if (!active_vert)
+					continue;
+				active_hole = std::exchange(active_vert, 0);
 				// Ok, hole is the index of a hole, vert is the index of a vertex which follows it.
 				// Copy vert into hole, update pointers to it.
-				*vmvertptr(hole) = *vcvertptr(vert);
-				change_vertex_occurrences(hole, vert);
-
+				auto &vp_vert = *vmvertptr(vert);
+				*vmvertptr(vhole) = vp_vert;
+				vp_vert = {};
+				DXX_MAKE_VAR_UNDEFINED(vp_vert);
+				change_vertex_occurrences(vmsegptr, vhole, vert);
 				vert--;
+				break;
 			}
 		}
+	}
 
 	Vertices.set_count(Num_vertices);
 }
@@ -588,7 +595,7 @@ void med_combine_duplicate_vertices(std::array<uint8_t, MAX_VERTICES> &vlp)
 			range_for (auto &&w, subrange)
 				if (vlp[w]) {	//	used to be Vertex_active[w]
 					if (vnear(vvp, *w)) {
-						change_vertex_occurrences(v, w);
+						change_vertex_occurrences(vmsegptr, v, w);
 					}
 				}
 		}
