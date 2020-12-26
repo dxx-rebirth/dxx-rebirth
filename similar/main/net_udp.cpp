@@ -1291,7 +1291,7 @@ int netgame_list_game_menu::subfunction_handler(const d_event &event)
 			}
 			else
 			{
-				nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_INVALID_CHOICE});
+				window_create<passive_messagebox>(menu_title{TXT_SORRY}, menu_subtitle{TXT_INVALID_CHOICE}, TXT_OK, grd_curscreen->sc_canvas);
 				return -1; // invalid game selected - stay in the menu
 			}
 			break;
@@ -3986,8 +3986,8 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 #endif
 			{
 				auto &slevel = opt->slevel;
-				nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_LEVEL_OUT_RANGE});
 				strcpy(slevel, "1");
+				window_create<passive_messagebox>(menu_title{TXT_ERROR}, menu_subtitle{TXT_LEVEL_OUT_RANGE}, TXT_OK, grd_curscreen->sc_canvas);
 				return 1;
 			}
 

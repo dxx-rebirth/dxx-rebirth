@@ -1881,11 +1881,10 @@ int graphics_config_menu::subfunction_handler(const d_event &event)
 			if (citem == opt_gr_brightness)
 				gr_palette_set_gamma(m[citem].value);
 #if DXX_USE_OGL
-			else
-			if (citem == opt_filter_anisotropy && ogl_maxanisotropy <= 1.0)
+			else if (citem == opt_filter_anisotropy && ogl_maxanisotropy <= 1.0 && m[opt_filter_anisotropy].value)
 			{
-				nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Anisotropic Filtering not\nsupported by your hardware/driver."});
 				m[opt_filter_anisotropy].value = 0;
+				window_create<passive_messagebox>(menu_title{TXT_ERROR}, menu_subtitle{"Anisotropic Filtering not\nsupported by your hardware/driver."}, TXT_OK, grd_curscreen->sc_canvas);
 			}
 #endif
 			break;
