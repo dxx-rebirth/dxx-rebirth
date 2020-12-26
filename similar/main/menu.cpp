@@ -1791,10 +1791,6 @@ void hud_config()
 			break;
 	}
 }
-}
-}
-
-namespace {
 
 #define DXX_GRAPHICS_MENU(VERB)	\
 	DXX_MENUITEM(VERB, MENU, "Screen resolution...", opt_gr_screenres)	\
@@ -1805,10 +1801,12 @@ namespace {
 	DXX_OGL1_GRAPHICS_MENU(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "FPS Counter", opt_gr_fpsindi, CGameCfg.FPSIndicator)	\
 
+struct graphics_config_menu_items
+{
 #if DXX_USE_OGL
-enum {
-	optgrp_texfilt,
-};
+	enum {
+		optgrp_texfilt,
+	};
 #define DXX_OGL0_GRAPHICS_MENU(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "Texture Filtering:", opt_gr_texfilt)	\
 	DXX_MENUITEM(VERB, RADIO, "Classic", opt_filter_none, 0, optgrp_texfilt)	\
@@ -1835,12 +1833,29 @@ enum {
 #define DXX_OGL0_GRAPHICS_MENU(VERB)
 #define DXX_OGL1_GRAPHICS_MENU(VERB)
 #endif
-
-enum {
-	DXX_GRAPHICS_MENU(ENUM)
+	enum {
+		DXX_GRAPHICS_MENU(ENUM)
+	};
+	std::array<newmenu_item, DXX_GRAPHICS_MENU(COUNT)> m;
+	graphics_config_menu_items()
+	{
+		DXX_GRAPHICS_MENU(ADD);
+#if DXX_USE_OGL
+		m[opt_filter_none + CGameCfg.TexFilt].value = 1;
+#endif
+	}
 };
 
-static int graphics_config_menuset(newmenu *, const d_event &event, newmenu_item *const items)
+struct graphics_config_menu : graphics_config_menu_items, newmenu
+{
+	graphics_config_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{"Graphics Options"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int graphics_config_menu::subfunction_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -1848,13 +1863,13 @@ static int graphics_config_menuset(newmenu *, const d_event &event, newmenu_item
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_gr_brightness)
-				gr_palette_set_gamma(items[citem].value);
+				gr_palette_set_gamma(m[citem].value);
 #if DXX_USE_OGL
 			else
 			if (citem == opt_filter_anisotropy && ogl_maxanisotropy <= 1.0)
 			{
 				nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Anisotropic Filtering not\nsupported by your hardware/driver."});
-				items[opt_filter_anisotropy].value = 0;
+				m[opt_filter_anisotropy].value = 0;
 			}
 #endif
 			break;
@@ -1868,6 +1883,33 @@ static int graphics_config_menuset(newmenu *, const d_event &event, newmenu_item
 				hud_config();
 			return 1;		// stay in menu
 		}
+		case EVENT_WINDOW_CLOSE:
+#if DXX_USE_OGL
+			if (CGameCfg.VSync != m[opt_gr_vsync].value || CGameCfg.Multisample != m[opt_gr_multisample].value)
+				nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Setting VSync or 4x Multisample\nrequires restart on some systems."});
+
+			for (const uint_fast32_t i : xrange(3u))
+				if (m[i + opt_filter_none].value)
+				{
+					CGameCfg.TexFilt = i;
+					break;
+				}
+			CGameCfg.TexAnisotropy = m[opt_filter_anisotropy].value;
+#if defined(DXX_BUILD_DESCENT_II)
+			GameCfg.MovieTexFilt = m[opt_gr_movietexfilt].value;
+#endif
+			PlayerCfg.AlphaEffects = m[opt_gr_alphafx].value;
+			PlayerCfg.DynLightColor = m[opt_gr_dynlightcolor].value;
+			CGameCfg.VSync = m[opt_gr_vsync].value;
+			CGameCfg.Multisample = m[opt_gr_multisample].value;
+#endif
+			GameCfg.GammaLevel = m[opt_gr_brightness].value;
+			CGameCfg.FPSIndicator = m[opt_gr_fpsindi].value;
+#if DXX_USE_OGL
+			gr_set_attributes();
+			gr_set_mode(Game_screen_mode);
+#endif
+			break;
 
 		default:
 			break;
@@ -1876,47 +1918,12 @@ static int graphics_config_menuset(newmenu *, const d_event &event, newmenu_item
 	return 0;
 }
 
-}
-
-namespace dsx {
-namespace {
 void graphics_config()
 {
-	std::array<newmenu_item, DXX_GRAPHICS_MENU(COUNT)> m;
-	DXX_GRAPHICS_MENU(ADD);
-
-#if DXX_USE_OGL
-	m[opt_filter_none+CGameCfg.TexFilt].value=1;
-#endif
-
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{"Graphics Options"}, m, graphics_config_menuset, m.data());
-
-#if DXX_USE_OGL
-	if (CGameCfg.VSync != m[opt_gr_vsync].value || CGameCfg.Multisample != m[opt_gr_multisample].value)
-		nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Setting VSync or 4x Multisample\nrequires restart on some systems."});
-
-	range_for (const uint_fast32_t i, xrange(3u))
-		if (m[i+opt_filter_none].value)
-		{
-			CGameCfg.TexFilt = i;
-			break;
-		}
-	CGameCfg.TexAnisotropy = m[opt_filter_anisotropy].value;
-#if defined(DXX_BUILD_DESCENT_II)
-	GameCfg.MovieTexFilt = m[opt_gr_movietexfilt].value;
-#endif
-	PlayerCfg.AlphaEffects = m[opt_gr_alphafx].value;
-	PlayerCfg.DynLightColor = m[opt_gr_dynlightcolor].value;
-	CGameCfg.VSync = m[opt_gr_vsync].value;
-	CGameCfg.Multisample = m[opt_gr_multisample].value;
-#endif
-	GameCfg.GammaLevel = m[opt_gr_brightness].value;
-	CGameCfg.FPSIndicator = m[opt_gr_fpsindi].value;
-#if DXX_USE_OGL
-	gr_set_attributes();
-	gr_set_mode(Game_screen_mode);
-#endif
+	auto menu = window_create<graphics_config_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
+
 }
 }
 
