@@ -79,7 +79,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MESSAGEBOX_TEXT_SIZE 2176  // How many characters in messagebox
 #define MAX_TEXT_WIDTH FSPACX(120) // How many pixels wide a input box can be
 
+struct listbox_layout;
+
 namespace {
+
+static void listbox_create_structure(listbox_layout &lb);
+
+}
 
 struct listbox_layout
 {
@@ -115,6 +121,7 @@ struct listbox_layout
 	listbox_layout(int citem, unsigned nitems, const char **item, menu_title title) :
 		citem(citem), nitems(nitems), item(item), title(title)
 	{
+		listbox_create_structure(*this);
 	}
 	unsigned items_on_screen;
 	int box_x, box_y;
@@ -129,8 +136,6 @@ struct listbox_layout
 	font_x_scale_proportion fntscalex;
 	font_y_scale_proportion fntscaley;
 };
-
-}
 
 constexpr std::integral_constant<unsigned, NM_TYPE_INPUT> newmenu_item::input_specific_type::nm_type;
 constexpr std::integral_constant<unsigned, NM_TYPE_RADIO> newmenu_item::radio_specific_type::nm_type;
@@ -1741,8 +1746,8 @@ namespace dcx {
 
 struct listbox : listbox_layout, window
 {
-	listbox(grs_canvas &canvas, listbox_layout &&ll, listbox_subfunction_t<void> callback, void *userdata, uint8_t allow_abort_flag) :
-		listbox_layout(std::move(ll)), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY),
+	listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, listbox_subfunction_t<void> callback, void *userdata, uint8_t allow_abort_flag) :
+		listbox_layout(citem, nitems, item, title), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY),
 		allow_abort_flag(allow_abort_flag), listbox_callback(callback), userdata(userdata)
 	{
 	}
@@ -2223,11 +2228,7 @@ listbox *newmenu_listbox1(const menu_title title, const unsigned nitems, const c
 {
 	newmenu_free_background();
 
-	listbox_layout lbl{default_item, nitems, items, title};
-
 	set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
-
-	listbox_create_structure(lbl);
-	auto lb = window_create<listbox>(grd_curscreen->sc_canvas, std::move(lbl), listbox_callback, userdata, allow_abort_flag);
+	auto lb = window_create<listbox>(default_item, nitems, items, title, grd_curscreen->sc_canvas, listbox_callback, userdata, allow_abort_flag);
 	return lb;
 }
