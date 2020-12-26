@@ -2345,12 +2345,13 @@ static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, wall_array &
 	int count = 1;
 	fix hps;
 
-	wallnum_t wallnum = GET_INTEL_SHORT(buf + count);     count += 2;
+	const wallnum_t wallnum{GET_INTEL_SHORT(buf + count)};
+	count += 2;
 	hps = GET_INTEL_INT(buf + count);           count += 4;
 
 	auto &vmwallptr = Walls.vmptr;
 	auto &w = *vmwallptr(wallnum);
-	if (wallnum >= Walls.get_count() || hps < 0 || w.type != WALL_BLASTABLE)
+	if (hps < 0 || w.type != WALL_BLASTABLE)
 	{
 		Int3(); // Non-terminal, see Rob
 		return;
@@ -3116,7 +3117,7 @@ void multi_send_hostage_door_status(const vcwallptridx_t w)
 
 	count += 1;
 	multi_command<MULTI_HOSTAGE_DOOR> multibuf;
-	PUT_INTEL_SHORT(&multibuf[count], static_cast<wallnum_t>(w));
+	PUT_INTEL_SHORT(&multibuf[count], static_cast<typename std::underlying_type<wallnum_t>::type>(wallnum_t{w}));
 	count += 2;
 	PUT_INTEL_INT(&multibuf[count], w->hps);  count += 4;
 
@@ -3950,7 +3951,7 @@ static void multi_do_stolen_items(const uint8_t *const buf)
 
 }
 
-void multi_send_wall_status_specific(const playernum_t pnum,uint16_t wallnum,ubyte type,ubyte flags,ubyte state)
+void multi_send_wall_status_specific(const playernum_t pnum, wallnum_t wallnum, uint8_t type, uint8_t flags, uint8_t state)
 {
 	// Send wall states a specific rejoining player
 
@@ -3961,7 +3962,8 @@ void multi_send_wall_status_specific(const playernum_t pnum,uint16_t wallnum,uby
 
 	count++;
 	multi_command<MULTI_WALL_STATUS> multibuf;
-	PUT_INTEL_SHORT(&multibuf[count], wallnum);  count+=2;
+	PUT_INTEL_SHORT(&multibuf[count], static_cast<uint16_t>(wallnum));
+	count+=2;
 	multibuf[count]=type;                 count++;
 	multibuf[count]=flags;                count++;
 	multibuf[count]=state;                count++;
@@ -3975,7 +3977,7 @@ static void multi_do_wall_status(fvmwallptr &vmwallptr, const uint8_t *const buf
 {
 	ubyte flag,type,state;
 
-	wallnum_t wallnum = GET_INTEL_SHORT(buf + 1);
+	const wallnum_t wallnum{GET_INTEL_SHORT(buf + 1)};
 	type=buf[3];
 	flag=buf[4];
 	state=buf[5];

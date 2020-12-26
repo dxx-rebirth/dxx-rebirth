@@ -129,7 +129,7 @@ void newdemo_record_laser_level(laser_level old_level, laser_level new_level);
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 void newdemo_record_player_afterburner(fix afterburner);
-void newdemo_record_cloaking_wall(int front_wall_num, int back_wall_num, ubyte type, ubyte state, fix cloak_value, fix l0, fix l1, fix l2, fix l3);
+void newdemo_record_cloaking_wall(wallnum_t front_wall_num, wallnum_t back_wall_num, ubyte type, ubyte state, fix cloak_value, fix l0, fix l1, fix l2, fix l3);
 void newdemo_record_guided_start();
 void newdemo_record_guided_end();
 void newdemo_record_secret_exit_blown(int truth);

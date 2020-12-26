@@ -638,14 +638,9 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 		bit_mask = 0;
 		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
-			uint wallnum;
-
 			if (seg.s.sides[sidenum].wall_num != wall_none)
 			{
 				bit_mask |= (1 << sidenum);
-				wallnum = seg.s.sides[sidenum].wall_num;
-				Assert( wallnum < 255 );		// Get John or Mike.. can only store up to 255 walls!!! 
-				(void)wallnum;
 			}
 		}
 		if (New_file_format_save)
@@ -656,7 +651,7 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
 			if (bit_mask & (1 << sidenum))
-				PHYSFSX_writeU8(SaveFile, seg.s.sides[sidenum].wall_num);
+				PHYSFSX_writeU8(SaveFile, static_cast<typename std::underlying_type<wallnum_t>::type>(seg.s.sides[sidenum].wall_num));
 		}
 
 		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)

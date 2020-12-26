@@ -511,15 +511,14 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 		else
 			bit_mask = 0x3f; // read all six sides
 		for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-			ubyte byte_wallnum;
 
 			auto &sside = segp.s.sides[sidenum];
 			if (bit_mask & (1 << sidenum)) {
-				byte_wallnum = PHYSFSX_readByte(LoadFile);
+				const uint8_t byte_wallnum = PHYSFSX_readByte(LoadFile);
 				if ( byte_wallnum == 255 )
 					sside.wall_num = wall_none;
 				else
-					sside.wall_num = byte_wallnum;
+					sside.wall_num = wallnum_t{byte_wallnum};
 			} else
 					sside.wall_num = wall_none;
 		}

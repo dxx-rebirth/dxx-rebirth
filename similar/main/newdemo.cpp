@@ -1622,14 +1622,12 @@ void newdemo_record_laser_level(const laser_level old_level, const laser_level n
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
-void newdemo_record_cloaking_wall(int front_wall_num, int back_wall_num, ubyte type, ubyte state, fix cloak_value, fix l0, fix l1, fix l2, fix l3)
+void newdemo_record_cloaking_wall(wallnum_t front_wall_num, wallnum_t back_wall_num, ubyte type, ubyte state, fix cloak_value, fix l0, fix l1, fix l2, fix l3)
 {
-	Assert(front_wall_num <= 255 && back_wall_num <= 255);
-
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_CLOAKING_WALL);
-	nd_write_byte(front_wall_num);
-	nd_write_byte(back_wall_num);
+	nd_write_byte(static_cast<uint8_t>(front_wall_num));
+	nd_write_byte(static_cast<uint8_t>(back_wall_num));
 	nd_write_byte(type);
 	nd_write_byte(state);
 	nd_write_byte(cloak_value);
@@ -3197,9 +3195,9 @@ static int newdemo_read_frame_information(int rewrite)
 			short l0,l1,l2,l3;
 
 			nd_read_byte(&type);
-			front_wall_num = type;
+			front_wall_num = wallnum_t{type};
 			nd_read_byte(&type);
-			back_wall_num = type;
+			back_wall_num = wallnum_t{type};
 			nd_read_byte(&type);
 			nd_read_byte(&state);
 			nd_read_byte(&cloak_value);
@@ -3209,8 +3207,8 @@ static int newdemo_read_frame_information(int rewrite)
 			nd_read_short(&l3);
 			if (rewrite)
 			{
-				nd_write_byte(front_wall_num);
-				nd_write_byte(back_wall_num);
+				nd_write_byte(static_cast<uint8_t>(front_wall_num));
+				nd_write_byte(static_cast<uint8_t>(back_wall_num));
 				nd_write_byte(type);
 				nd_write_byte(state);
 				nd_write_byte(cloak_value);

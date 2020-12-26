@@ -118,7 +118,7 @@ struct v19_wall : public prohibit_void_ptr<v19_wall>
 	uint8_t   trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.
 	sbyte   keys;
-	int linked_wall;            // number of linked wall
+	wallnum_t linked_wall;            // number of linked wall
 };
 
 #ifdef dsx

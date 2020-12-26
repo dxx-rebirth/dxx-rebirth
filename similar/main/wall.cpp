@@ -252,7 +252,7 @@ void wall_init()
 		w.hps = 0;
 		w.trigger = -1;
 		w.clip_num = -1;
-		w.linked_wall = -1;
+		w.linked_wall = wall_none;
 	}
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	ActiveDoors.set_count(0);
@@ -1700,7 +1700,7 @@ struct wrap_v19_wall
 	wrap_v19_wall(const wall &t) : w(&t) {}
 };
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(v19_wall, w, (w.segnum, serial::pad<2>(), w.sidenum, w.type, w.flags, w.hps, w.trigger, w.clip_num, w.keys, w.linked_wall));
+DEFINE_SERIAL_UDT_TO_MESSAGE(v19_wall, w, (w.segnum, serial::pad<2>(), w.sidenum, w.type, w.flags, w.hps, w.trigger, w.clip_num, w.keys, w.linked_wall, serial::pad<2>()));
 DEFINE_SERIAL_UDT_TO_MESSAGE(wrap_v19_wall, w, (w.w->segnum, serial::pad<2>(), w.w->sidenum, serial::pad<3>(), w.w->type, w.w->flags, w.w->hps, w.w->trigger, w.w->clip_num, w.w->keys, w.w->linked_wall, serial::pad<2>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(v19_wall, 21);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wrap_v19_wall, 21);
@@ -1718,7 +1718,7 @@ void v19_wall_read(PHYSFS_File *fp, v19_wall &w)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define _SERIAL_UDT_WALL_D2X_MEMBERS	w.controlling_trigger, w.cloak_value
 #endif
-DEFINE_SERIAL_UDT_TO_MESSAGE(wall, w, (serial::sign_extend<int>(w.segnum), w.sidenum, serial::pad<3, 0>(), w.hps, serial::sign_extend<int>(w.linked_wall), w.type, w.flags, w.state, w.trigger, w.clip_num, w.keys, _SERIAL_UDT_WALL_D2X_MEMBERS));
+DEFINE_SERIAL_UDT_TO_MESSAGE(wall, w, (serial::sign_extend<int>(w.segnum), w.sidenum, serial::pad<3, 0>(), w.hps, w.linked_wall, serial::pad<2, 0>(), w.type, w.flags, w.state, w.trigger, w.clip_num, w.keys, _SERIAL_UDT_WALL_D2X_MEMBERS));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wall, 24);
 
 namespace dsx {

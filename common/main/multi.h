@@ -704,7 +704,7 @@ namespace dsx {
 extern void multi_send_stolen_items();
 void multi_send_trigger_specific(playernum_t pnum, uint8_t trig);
 void multi_send_door_open_specific(playernum_t pnum, vcsegidx_t segnum, unsigned side, uint8_t flag);
-void multi_send_wall_status_specific(playernum_t pnum,uint16_t wallnum,ubyte type,ubyte flags,ubyte state);
+void multi_send_wall_status_specific(playernum_t pnum, wallnum_t wallnum, uint8_t type, uint8_t flags, uint8_t state);
 void multi_send_light_specific (playernum_t pnum, vcsegptridx_t segnum, uint8_t val);
 void multi_send_capture_bonus (playernum_t pnum);
 int multi_all_players_alive(const fvcobjptr &, partial_range_t<const player *>);

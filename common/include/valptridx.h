@@ -252,7 +252,7 @@ public:
 	static constexpr std::false_type check_allowed_invalid_index(index_type) { return {}; }
 	static constexpr bool check_nothrow_index(index_type i)
 	{
-		return std::less<std::size_t>()(i, array_size);
+		return std::less<std::size_t>()(static_cast<std::size_t>(i), array_size);
 	}
 };
 

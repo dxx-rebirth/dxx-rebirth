@@ -880,7 +880,7 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 				if (connected_seg == segment_none)
 				{
 					rwn0 = wall_none;
-					LevelError("segment %u side %u wall %u has no child segment; removing orphan wall.", seg.get_unchecked_index(), sidenum, wn0);
+					LevelError("segment %u side %u wall %u has no child segment; removing orphan wall.", seg.get_unchecked_index(), sidenum, static_cast<unsigned>(wn0));
 					return;
 				}
 				const shared_segment &vcseg = *vcsegptr(connected_seg);
@@ -889,7 +889,7 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 				if (wn1 == wall_none)
 				{
 					rwn0 = wall_none;
-					LevelError("segment %u side %u wall %u has child segment %u side %u, but no wall; removing orphan wall.", seg.get_unchecked_index(), sidenum, wn0, connected_seg, connected_side);
+					LevelError("segment %u side %u wall %u has child segment %u side %u, but no wall; removing orphan wall.", seg.get_unchecked_index(), sidenum, static_cast<unsigned>(wn0), connected_seg, connected_side);
 					return;
 				}
 			}
@@ -1045,7 +1045,8 @@ static int load_game_data(
 			v16_wall w;
 			v16_wall_read(LoadFile, w);
 			nw.segnum = segment_none;
-			nw.sidenum = nw.linked_wall = -1;
+			nw.sidenum = -1;
+			nw.linked_wall = wall_none;
 			nw.type		= w.type;
 			nw.flags		= w.flags & ~WALL_EXPLODING;
 			nw.hps		= w.hps;

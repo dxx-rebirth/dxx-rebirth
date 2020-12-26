@@ -238,7 +238,7 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 				if (w->trigger == i)
 				{
 					count2++;
-					PHYSFSX_printf(my_file, "Exit trigger %i is in segment %i, on side %i, bound to wall %i\n", i, w->segnum, w->sidenum, static_cast<wallnum_t>(w));
+					PHYSFSX_printf(my_file, "Exit trigger %i is in segment %i, on side %i, bound to wall %hu\n", i, w->segnum, w->sidenum, static_cast<typename std::underlying_type<wallnum_t>::type>(wallnum_t{w}));
 				}
 			}
 			if (count2 == 0)
@@ -300,7 +300,7 @@ public:
 		auto &w = *wpi;
 		if (!(w.keys & key))
 			return;
-		PHYSFSX_printf(fp, "Wall %i (seg=%i, side=%i) is keyed to the %s key.\n", static_cast<wallnum_t>(wpi), w.segnum, w.sidenum, label);
+		PHYSFSX_printf(fp, "Wall %hu (seg=%i, side=%i) is keyed to the %s key.\n", static_cast<typename std::underlying_type<wallnum_t>::type>(wallnum_t{wpi}), w.segnum, w.sidenum, label);
 		if (seg == segment_none)
 		{
 			seg = w.segnum;
@@ -536,7 +536,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 namespace dsx {
 static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptridx, PHYSFS_File *my_file)
 {
-	std::array<int8_t, MAX_WALLS> wall_flags;
+	enumerated_array<int8_t, MAX_WALLS, wallnum_t> wall_flags;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Walls:\n");
@@ -548,20 +548,19 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 		auto &w = *wp;
 		int	sidenum;
 
-		const auto i = static_cast<wallnum_t>(wp);
-		PHYSFSX_printf(my_file, "Wall %03i: seg=%3i, side=%2i, linked_wall=%3i, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i,
-			w.segnum, w.sidenum, w.linked_wall, Wall_names[w.type], w.flags, w.hps >> 16, w.trigger, w.clip_num, static_cast<unsigned>(w.keys), w.state);
+		const auto i = static_cast<typename std::underlying_type<wallnum_t>::type>(wallnum_t{wp});
+		PHYSFSX_printf(my_file, "Wall %03hu: seg=%3i, side=%2i, linked_wall=%3hu, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i, w.segnum, w.sidenum, static_cast<typename std::underlying_type<wallnum_t>::type>(wallnum_t{w.linked_wall}), Wall_names[w.type], w.flags, w.hps >> 16, w.trigger, w.clip_num, static_cast<unsigned>(w.keys), w.state);
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (w.trigger >= Triggers.get_count())
-			PHYSFSX_printf(my_file, "Wall %03d points to invalid trigger %d\n",i,w.trigger);
+			PHYSFSX_printf(my_file, "Wall %03hu points to invalid trigger %d\n", i, w.trigger);
 #endif
 
 		auto segnum = w.segnum;
 		sidenum = w.sidenum;
 
 		if (Segments[segnum].shared_segment::sides[sidenum].wall_num != wp)
-			err_printf(my_file, "Error: Wall %u points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %hi)", i, segnum, sidenum, static_cast<int16_t>(Segments[segnum].shared_segment::sides[sidenum].wall_num));
+			err_printf(my_file, "Error: Wall %hu points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %hi)", i, segnum, sidenum, static_cast<int16_t>(Segments[segnum].shared_segment::sides[sidenum].wall_num));
 	}
 
 	wall_flags = {};
@@ -573,10 +572,10 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 			const auto sidep = &es.value;
 			if (sidep->wall_num != wall_none)
 			{
-				if (wall_flags[sidep->wall_num])
+				if (auto &wf = wall_flags[sidep->wall_num])
 					err_printf(my_file, "Error: Wall %hu appears in two or more segments, including segment %hu, side %" PRIuFAST32 ".", static_cast<int16_t>(sidep->wall_num), static_cast<segnum_t>(segp), es.idx);
 				else
-					wall_flags[sidep->wall_num] = 1;
+					wf = 1;
 			}
 		}
 	}
