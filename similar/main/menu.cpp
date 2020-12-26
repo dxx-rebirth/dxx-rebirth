@@ -451,6 +451,18 @@ try_again:
 
 namespace {
 
+struct pilot_selection_listbox : listbox
+{
+	pilot_selection_listbox(int citem, unsigned nitems, std::unique_ptr<const char *[]> name_pointer_strings, PHYSFSX_uncounted_list &&physfs_list_strings, grs_canvas &canvas, uint8_t allow_abort_flag) :
+		listbox(citem, nitems, name_pointer_strings.get(), menu_title{TXT_SELECT_PILOT}, canvas, allow_abort_flag),
+		name_pointer_storage(std::move(name_pointer_strings)), physfs_list_storage(std::move(physfs_list_strings))
+	{
+	}
+	std::unique_ptr<const char *[]> name_pointer_storage;
+	PHYSFSX_uncounted_list physfs_list_storage;
+	virtual window_event_result callback_handler(const d_event &, window_event_result default_return_value) override;
+};
+
 static window_event_result player_menu_keycommand( listbox *lb,const d_event &event )
 {
 	const char **items = listbox_get_items(*lb);
@@ -503,13 +515,12 @@ static window_event_result player_menu_keycommand( listbox *lb,const d_event &ev
 	return window_event_result::ignored;
 }
 
-static window_event_result player_menu_handler( listbox *lb,const d_event &event, char **list )
+window_event_result pilot_selection_listbox::callback_handler(const d_event &event, window_event_result)
 {
-	const char **items = listbox_get_items(*lb);
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
-			return player_menu_keycommand(lb, event);
+			return player_menu_keycommand(this, event);
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
@@ -522,7 +533,8 @@ static window_event_result player_menu_handler( listbox *lb,const d_event &event
 			}
 			else
 			{
-				InterfaceUniqueState.PilotName.copy_lower(items[citem], strlen(items[citem]));
+				const auto p = item[citem];
+				InterfaceUniqueState.PilotName.copy_lower(p, strlen(p));
 				InterfaceUniqueState.update_window_title();
 			}
 			return window_event_result::close;
@@ -533,9 +545,6 @@ static window_event_result player_menu_handler( listbox *lb,const d_event &event
 				return window_event_result::handled;		// abort close!
 
 			WriteConfigFile();		// Update lastplr
-
-			PHYSFS_freeList(list);
-			d_free(items);
 			break;
 
 		default:
@@ -588,10 +597,7 @@ static void RegisterPlayer()
 	for (NumItems = 0; list[NumItems] != NULL; NumItems++) {}
 	NumItems++;		// for TXT_CREATE_NEW
 
-	RAIIdmem<const char *[]> m;
-	MALLOC(m, const char *[], NumItems);
-	if (m == NULL)
-		return;
+	auto m = std::make_unique<const char *[]>(NumItems);
 
 	/* Index of the first undefined element */
 	auto idx_next_string = 0u;
@@ -628,7 +634,8 @@ static void RegisterPlayer()
 			break;
 		}
 
-	newmenu_listbox1(menu_title{TXT_SELECT_PILOT}, idx_next_string, m.release(), allow_abort_flag, citem, player_menu_handler, list.release());
+	auto lb = window_create<pilot_selection_listbox>(citem, idx_next_string, std::move(m), std::move(list), grd_curscreen->sc_canvas, allow_abort_flag);
+	(void)lb;
 }
 
 static void input_config();
