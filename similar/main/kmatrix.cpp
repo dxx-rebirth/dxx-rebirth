@@ -68,6 +68,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CENTERING_OFFSET(x) ((300 - (70 + (x)*25 ))/2)
 #define CENTERSCREEN (SWIDTH/2)
 #define KMATRIX_VIEW_SEC 7 // Time after reactor explosion until new level - in seconds
+
+namespace {
+
+enum class kmatrix_status_mode
+{
+	reactor_countdown_running,
+	level_finished,
+};
+
 static void kmatrix_redraw_coop(fvcobjptr &vcobjptr);
 
 static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const grs_font &cv_font, const int i, const playernum_array_t &sorted)
@@ -159,14 +168,17 @@ static void kmatrix_draw_coop_names(grs_canvas &canvas, const grs_font &cv_font)
 	gr_string(canvas, cv_font, centerscreen + FSPACX(50), fspacy40, "DEATHS");
 }
 
-static void kmatrix_status_msg(grs_canvas &canvas, const fix time, const int reactor)
+static void kmatrix_status_msg(grs_canvas &canvas, const fix time, const kmatrix_status_mode message_mode)
 {
 	gr_set_fontcolor(canvas, gr_find_closest_color(255, 255, 255),-1);
 	auto &game_font = *GAME_FONT;
-	gr_printf(canvas, game_font, 0x8000, SHEIGHT - LINE_SPACING(game_font, game_font), reactor
+	gr_printf(canvas, game_font, 0x8000, SHEIGHT - LINE_SPACING(game_font, game_font),
+		message_mode == kmatrix_status_mode::reactor_countdown_running
 		? "Waiting for players to finish level. Reactor time: T-%d"
 		: "Level finished. Wait (%d) to proceed or ESC to Quit."
 	, time);
+}
+
 }
 
 namespace dcx {
@@ -249,6 +261,8 @@ static void kmatrix_redraw(kmatrix_window *const km)
 
 }
 
+namespace {
+
 static void kmatrix_redraw_coop(fvcobjptr &vcobjptr)
 {
 	playernum_array_t sorted;
@@ -291,6 +305,8 @@ static void kmatrix_redraw_coop(fvcobjptr &vcobjptr)
 	}
 
 	gr_palette_load(gr_palette);
+}
+
 }
 
 namespace dsx {
@@ -341,28 +357,29 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 			if (network != kmatrix_network::offline)
 				multi::dispatch->do_protocol_frame(0, 1);
 			
-			uint8_t playing = 0;
+			kmatrix_status_mode playing = kmatrix_status_mode::level_finished;
 
 			// Check if all connected players are also looking at this screen ...
 			range_for (auto &i, Players)
 				if (i.connected)
 					if (i.connected != CONNECT_END_MENU && i.connected != CONNECT_DIED_IN_MINE)
 					{
-						playing = 1;
+						playing = kmatrix_status_mode::reactor_countdown_running;
 						break;
 					}
 			
 			// ... and let the reactor blow sky high!
-			if (!playing)
+			if (playing != kmatrix_status_mode::reactor_countdown_running)
+			{
 				LevelUniqueControlCenterState.Countdown_seconds_left = -1;
 			
 			// If Reactor is finished and end_time not inited, set the time when we will exit this loop
-			const auto Countdown_seconds_left = LevelUniqueControlCenterState.Countdown_seconds_left;
-			if (end_time == -1 && Countdown_seconds_left < 0 && !playing)
-				end_time = timer_query() + (KMATRIX_VIEW_SEC * F1_0);
-			
+				if (end_time == -1)
+					end_time = timer_query() + (KMATRIX_VIEW_SEC * F1_0);
+			}
+
 			// Check if end_time has been reached and exit loop
-			if (timer_query() >= end_time && end_time != -1)
+			if (end_time != -1 && timer_query() >= end_time)
 			{
 				if (network != kmatrix_network::offline)
 					multi::dispatch->send_endlevel_packet();  // make sure
@@ -386,7 +403,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 			}
 
 			kmatrix_redraw(this);
-			kmatrix_status_msg(*grd_curcanv, playing ? Countdown_seconds_left : f2i(timer_query() - end_time), playing);
+			kmatrix_status_msg(*grd_curcanv, playing == kmatrix_status_mode::reactor_countdown_running ? LevelUniqueControlCenterState.Countdown_seconds_left : f2i(timer_query() - end_time), playing);
 			break;
 			}
 			
