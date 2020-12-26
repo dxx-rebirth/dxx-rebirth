@@ -1688,20 +1688,11 @@ int nm_messagebox_str(const menu_title title, const nm_messagebox_tie &tie, cons
 
 namespace dcx {
 
-struct listbox : listbox_layout, window
+listbox::listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, listbox_subfunction_t<void> callback, void *userdata, uint8_t allow_abort_flag) :
+	listbox_layout(citem, nitems, item, title), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY),
+	allow_abort_flag(allow_abort_flag), listbox_callback(callback), userdata(userdata)
 {
-	listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, listbox_subfunction_t<void> callback, void *userdata, uint8_t allow_abort_flag) :
-		listbox_layout(citem, nitems, item, title), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY),
-		allow_abort_flag(allow_abort_flag), listbox_callback(callback), userdata(userdata)
-	{
-	}
-	const uint8_t allow_abort_flag;
-	uint8_t mouse_state = 0;
-	const listbox_subfunction_t<void> listbox_callback;
-	marquee::ptr marquee;
-	void *const userdata;
-	virtual window_event_result event_handler(const d_event &) override;
-};
+}
 
 window *listbox_get_window(listbox &lb)
 {

@@ -433,13 +433,25 @@ void nm_restore_background(int x, int y, int w, int h);
 // }
 
 namespace dcx {
+
+template <typename T>
+using listbox_subfunction_t = window_event_result (*)(listbox *menu, const d_event &event, T *userdata);
+
+struct listbox : listbox_layout, window
+{
+	listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, listbox_subfunction_t<void> callback, void *userdata, uint8_t allow_abort_flag);
+	const uint8_t allow_abort_flag;
+	uint8_t mouse_state = 0;
+	const listbox_subfunction_t<void> listbox_callback;
+	marquee::ptr marquee;
+	void *const userdata;
+	virtual window_event_result event_handler(const d_event &) override;
+};
+
 window *listbox_get_window(listbox &lb);
 const char **listbox_get_items(listbox &lb);
 int listbox_get_citem(listbox &lb);
 void listbox_delete_item(listbox &lb, int item);
-
-template <typename T>
-using listbox_subfunction_t = window_event_result (*)(listbox *menu,const d_event &event, T *userdata);
 
 class unused_listbox_userdata_t;
 constexpr listbox_subfunction_t<const unused_listbox_userdata_t> *unused_listbox_subfunction = nullptr;
