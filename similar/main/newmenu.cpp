@@ -1713,11 +1713,6 @@ listbox::listbox(int citem, unsigned nitems, const char **item, menu_title title
 {
 }
 
-window *listbox_get_window(listbox &lb)
-{
-	return &lb;
-}
-
 const char **listbox_get_items(listbox &lb)
 {
 	return lb.item;

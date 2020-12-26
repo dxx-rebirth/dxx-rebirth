@@ -447,7 +447,6 @@ struct listbox : listbox_layout, window
 	virtual window_event_result callback_handler(const d_event &, window_event_result default_return_value) = 0;
 };
 
-window *listbox_get_window(listbox &lb);
 const char **listbox_get_items(listbox &lb);
 int listbox_get_citem(listbox &lb);
 void listbox_delete_item(listbox &lb, int item);
