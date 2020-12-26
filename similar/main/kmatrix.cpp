@@ -78,13 +78,11 @@ enum class kmatrix_status_mode
 	mission_finished,
 };
 
-static void kmatrix_redraw_coop(fvcobjptr &vcobjptr);
+static void kmatrix_redraw_coop(fvcobjptr &vcobjptr, font_y_scale_float);
 
-static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const grs_font &cv_font, const int i, const playernum_array_t &sorted)
+static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const grs_font &cv_font, const int i, const playernum_array_t &sorted, const font_y_scale_float fspacy)
 {
-	int x, y;
-
-	y = FSPACY(50+i*9);
+	const auto y = fspacy(80 + i * 9);
 	const auto &&fspacx = FSPACX();
 	auto &p = *vcplayerptr(sorted[i]);
 	gr_string(canvas, cv_font, fspacx(CENTERING_OFFSET(N_players)), y, static_cast<const char *>(p.callsign));
@@ -93,7 +91,7 @@ static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const grs
 	const auto &&rgb25 = BM_XRGB(25, 25, 25);
 	for (int j=0; j<N_players; j++)
 	{
-		x = fspacx(70 + CENTERING_OFFSET(N_players) + j * 25);
+		const auto x = fspacx(70 + CENTERING_OFFSET(N_players) + j * 25);
 
 		const auto kmij = kill_matrix[sorted[i]][sorted[j]];
 		if (sorted[i]==sorted[j])
@@ -125,21 +123,19 @@ static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const grs
 				) * 100.0
 			);
 
-	x = fspacx(60 + CENTERING_OFFSET(N_players) + N_players * 25);
+	const auto x = fspacx(60 + CENTERING_OFFSET(N_players) + N_players * 25);
 	gr_set_fontcolor(canvas, rgb25, -1);
 	gr_printf(canvas, cv_font, x, y, "%4d/%i%%", player_info.net_kills_total, eff <= 0 ? 0 : eff);
 }
 
-static void kmatrix_draw_names(grs_canvas &canvas, const grs_font &cv_font, const playernum_array_t &sorted)
+static void kmatrix_draw_names(grs_canvas &canvas, const grs_font &cv_font, const playernum_array_t &sorted, const font_y_scale_float fspacy)
 {
-	int x;
-
 	const auto &&fspacx = FSPACX();
-	const auto &&fspacy = FSPACY();
+	const auto &&fspacy_header = fspacy(65);
 	const auto &&rgb31 = BM_XRGB(31, 31, 31);
 	for (int j=0; j<N_players; j++)
 	{
-		x = fspacx(70 + CENTERING_OFFSET(N_players) + j * 25);
+		const auto x = fspacx(70 + CENTERING_OFFSET(N_players) + j * 25);
 
 		color_t c;
 		auto &p = *vcplayerptr(sorted[j]);
@@ -152,21 +148,32 @@ static void kmatrix_draw_names(grs_canvas &canvas, const grs_font &cv_font, cons
 			c = BM_XRGB(rgb.r, rgb.g, rgb.b);
 		}
 		gr_set_fontcolor(canvas, c, -1);
-		gr_printf(canvas, cv_font, x, fspacy(40), "%c", p.callsign[0u]);
+		gr_printf(canvas, cv_font, x, fspacy_header, "%c", p.callsign[0u]);
 	}
-
-	x = fspacx(72 + CENTERING_OFFSET(N_players) + N_players * 25);
+	const auto x = fspacx(72 + CENTERING_OFFSET(N_players) + N_players * 25);
 	gr_set_fontcolor(canvas, rgb31, -1);
-	gr_string(canvas, cv_font, x, fspacy(40), "K/E");
+	gr_string(canvas, cv_font, x, fspacy_header, "K/E");
+	if (const auto m = Current_mission.get())
+	{
+		gr_string(canvas, cv_font, 0x8000, fspacy(30), m->mission_name.data());
+		if (const auto level_num = Current_level_num; level_num > 0 && level_num <= m->last_level)
+			gr_printf(canvas, cv_font, 0x8000, fspacy(42), "%s [%u/%u]", Current_level_name.line().data(), level_num, m->last_level);
+	}
 }
 
-static void kmatrix_draw_coop_names(grs_canvas &canvas, const grs_font &cv_font)
+static void kmatrix_draw_coop_names(grs_canvas &canvas, const grs_font &cv_font, const font_y_scale_float fspacy)
 {
 	gr_set_fontcolor(canvas, BM_XRGB(63, 31, 31),-1);
-	const auto &&fspacy40 = FSPACY(40);
 	const auto centerscreen = CENTERSCREEN;
-	gr_string(canvas, cv_font, centerscreen, fspacy40, "SCORE");
-	gr_string(canvas, cv_font, centerscreen + FSPACX(50), fspacy40, "DEATHS");
+	if (const auto m = Current_mission.get())
+	{
+		gr_string(canvas, cv_font, 0x8000, fspacy(30), m->mission_name.data());
+		if (const auto level_num = Current_level_num; level_num > 0 && level_num <= m->last_level)
+			gr_printf(canvas, cv_font, 0x8000, fspacy(42), "%s [%u/%u]", Current_level_name.line().data(), level_num, m->last_level);
+	}
+	const auto &&fspacy_header = fspacy(58);
+	gr_string(canvas, cv_font, centerscreen, fspacy_header, "SCORE");
+	gr_string(canvas, cv_font, centerscreen + FSPACX(50), fspacy_header, "DEATHS");
 }
 
 static void kmatrix_status_msg(grs_canvas &canvas, const fix time, const kmatrix_status_mode message_mode)
@@ -222,10 +229,11 @@ static void kmatrix_redraw(kmatrix_window *const km)
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	show_fullscr(canvas, km->background);
+	const auto &&fspacy = FSPACY();
 	
 	if (Game_mode & GM_MULTI_COOP)
 	{
-		kmatrix_redraw_coop(vcobjptr);
+		kmatrix_redraw_coop(vcobjptr, fspacy);
 	}
 	else
 	{
@@ -244,7 +252,7 @@ static void kmatrix_redraw(kmatrix_window *const km)
 
 		auto &game_font = *GAME_FONT;
 		multi_get_kill_list(sorted);
-		kmatrix_draw_names(canvas, game_font, sorted);
+		kmatrix_draw_names(canvas, game_font, sorted, fspacy);
 
 		for (int i=0; i<N_players; i++ )
 		{
@@ -255,7 +263,7 @@ static void kmatrix_redraw(kmatrix_window *const km)
 				const auto color = get_player_or_team_color(sorted[i]);
 				gr_set_fontcolor(canvas, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b),-1);
 			}
-			kmatrix_draw_item(vcobjptr, canvas, game_font, i, sorted);
+			kmatrix_draw_item(vcobjptr, canvas, game_font, i, sorted, fspacy);
 		}
 	}
 
@@ -268,7 +276,7 @@ static void kmatrix_redraw(kmatrix_window *const km)
 
 namespace {
 
-static void kmatrix_redraw_coop(fvcobjptr &vcobjptr)
+static void kmatrix_redraw_coop(fvcobjptr &vcobjptr, const font_y_scale_float fspacy)
 {
 	playernum_array_t sorted;
 
@@ -278,9 +286,8 @@ static void kmatrix_redraw_coop(fvcobjptr &vcobjptr)
 	gr_string(canvas, medium3_font,  0x8000, FSPACY(10), "COOPERATIVE SUMMARY");
 	multi_get_kill_list(sorted);
 	auto &game_font = *GAME_FONT;
-	kmatrix_draw_coop_names(canvas, game_font);
 	const auto &&fspacx = FSPACX();
-	const auto &&fspacy = FSPACY();
+	kmatrix_draw_coop_names(canvas, game_font, fspacy);
 	const auto x_callsign = fspacx(CENTERING_OFFSET(N_players));
 	const auto x_centerscreen = CENTERSCREEN;
 	const auto &&fspacx50 = fspacx(50);
@@ -301,7 +308,7 @@ static void kmatrix_redraw_coop(fvcobjptr &vcobjptr)
 		}
 		gr_set_fontcolor(canvas, gr_find_closest_color(r, g, b), -1);
 
-		const auto &&y = fspacy(50 + i * 9);
+		const auto &&y = fspacy(80 + i * 9);
 		gr_string(canvas, game_font, x_callsign, y, static_cast<const char *>(plr.callsign));
 		gr_set_fontcolor(canvas, rgb60_40_10, -1);
 		auto &player_info = vcobjptr(plr.objnum)->ctype.player_info;
