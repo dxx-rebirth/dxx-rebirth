@@ -2474,10 +2474,10 @@ namespace dsx {
 namespace {
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define DXX_GAME_SPECIFIC_OPTIONS(VERB)	\
+#define DSX_GAME_SPECIFIC_OPTIONS(VERB)	\
 
 #elif defined(DXX_BUILD_DESCENT_II)
-#define DXX_GAME_SPECIFIC_OPTIONS(VERB)	\
+#define DSX_GAME_SPECIFIC_OPTIONS(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "Headlight on when picked up", opt_headlighton,PlayerCfg.HeadlightActiveDefault )	\
 	DXX_MENUITEM(VERB, CHECK, "Escort robot hot keys",opt_escorthotkey,PlayerCfg.EscortHotKeys)	\
 	DXX_MENUITEM(VERB, CHECK, "Movie Subtitles",opt_moviesubtitle,GameCfg.MovieSubtitles)	\
@@ -2486,12 +2486,12 @@ namespace {
 
 #endif
 
-#define DXX_GAMEPLAY_MENU_OPTIONS(VERB)	\
+#define DSX_GAMEPLAY_MENU_OPTIONS(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "Ship auto-leveling",opt_autolevel, PlayerCfg.AutoLeveling)	\
 	DXX_MENUITEM(VERB, CHECK, "Persistent Debris",opt_persist_debris,PlayerCfg.PersistentDebris)	\
 	DXX_MENUITEM(VERB, CHECK, "No Rankings (Multi)",opt_noranking,PlayerCfg.NoRankings)	\
 	DXX_MENUITEM(VERB, CHECK, "Free Flight in Automap",opt_freeflight, PlayerCfg.AutomapFreeFlight)	\
-	DXX_GAME_SPECIFIC_OPTIONS(VERB)	\
+	DSX_GAME_SPECIFIC_OPTIONS(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank)	\
         DXX_MENUITEM(VERB, TEXT, "Weapon Autoselect options:", opt_label_autoselect)	\
 	DXX_MENUITEM(VERB, MENU, "Primary ordering...", opt_gameplay_reorderprimary_menu)	\
@@ -2503,11 +2503,34 @@ namespace {
 	DXX_MENUITEM(VERB, CHECK, "Only Cycle Autoselect Weapons",opt_only_autoselect,PlayerCfg.CycleAutoselectOnly)	\
 	DXX_MENUITEM_AUTOSAVE_LABEL_INPUT(VERB)	\
 
-enum {
-        DXX_GAMEPLAY_MENU_OPTIONS(ENUM)
+struct gameplay_config_menu_items
+{
+	enum {
+		DSX_GAMEPLAY_MENU_OPTIONS(ENUM)
+	};
+	std::array<newmenu_item, DSX_GAMEPLAY_MENU_OPTIONS(COUNT)> m;
+	human_readable_mmss_time<decltype(d_gameplay_options::AutosaveInterval)::rep> AutosaveInterval;
+	gameplay_config_menu_items()
+	{
+#if defined(DXX_BUILD_DESCENT_II)
+		auto thief_absent = PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent;
+		auto thief_cannot_steal_energy_weapons = PlayerCfg.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons;
+#endif
+		format_human_readable_time(AutosaveInterval, PlayerCfg.SPGameplayOptions.AutosaveInterval);
+		DSX_GAMEPLAY_MENU_OPTIONS(ADD);
+	}
 };
 
-static int gameplay_config_menuset(newmenu *, const d_event &event, const unused_newmenu_userdata_t *)
+struct gameplay_config_menu : gameplay_config_menu_items, newmenu
+{
+	gameplay_config_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{"Gameplay Options"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int gameplay_config_menu::subfunction_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -2520,6 +2543,26 @@ static int gameplay_config_menuset(newmenu *, const d_event &event, const unused
                                 ReorderSecondary();
 			return 1;		// stay in menu
 		}
+		case EVENT_WINDOW_CLOSE:
+			{
+#if defined(DXX_BUILD_DESCENT_II)
+				uint8_t thief_absent;
+				uint8_t thief_cannot_steal_energy_weapons;
+#endif
+				DSX_GAMEPLAY_MENU_OPTIONS(READ);
+				PlayerCfg.NoFireAutoselect = m[opt_autoselect_firing_delayed].value
+					? FiringAutoselectMode::Delayed
+					: (m[opt_autoselect_firing_immediate].value
+					   ? FiringAutoselectMode::Immediate
+					   : FiringAutoselectMode::Never);
+#if defined(DXX_BUILD_DESCENT_II)
+				PlayerCfg.ThiefModifierFlags =
+					(thief_absent ? ThiefModifier::Absent : 0) |
+					(thief_cannot_steal_energy_weapons ? ThiefModifier::NoEnergyWeapons : 0);
+#endif
+				parse_human_readable_time(PlayerCfg.SPGameplayOptions.AutosaveInterval, AutosaveInterval);
+			}
+			break;
 
 		default:
 			break;
@@ -2530,32 +2573,8 @@ static int gameplay_config_menuset(newmenu *, const d_event &event, const unused
 
 void gameplay_config()
 {
-	for (;;)
-	{
-		std::array<newmenu_item, DXX_GAMEPLAY_MENU_OPTIONS(COUNT)> m;
-#if defined(DXX_BUILD_DESCENT_II)
-		auto thief_absent = PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent;
-		auto thief_cannot_steal_energy_weapons = PlayerCfg.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons;
-#endif
-		human_readable_mmss_time<decltype(d_gameplay_options::AutosaveInterval)::rep> AutosaveInterval;
-		format_human_readable_time(AutosaveInterval, PlayerCfg.SPGameplayOptions.AutosaveInterval);
-		DXX_GAMEPLAY_MENU_OPTIONS(ADD);
-		const auto i = newmenu_do2(menu_title{nullptr}, menu_subtitle{"Gameplay Options"}, m, gameplay_config_menuset, unused_newmenu_userdata);
-		DXX_GAMEPLAY_MENU_OPTIONS(READ);
-		PlayerCfg.NoFireAutoselect = m[opt_autoselect_firing_delayed].value
-			? FiringAutoselectMode::Delayed
-			: (m[opt_autoselect_firing_immediate].value
-				? FiringAutoselectMode::Immediate
-				: FiringAutoselectMode::Never);
-#if defined(DXX_BUILD_DESCENT_II)
-		PlayerCfg.ThiefModifierFlags =
-			(thief_absent ? ThiefModifier::Absent : 0) |
-			(thief_cannot_steal_energy_weapons ? ThiefModifier::NoEnergyWeapons : 0);
-#endif
-		parse_human_readable_time(PlayerCfg.SPGameplayOptions.AutosaveInterval, AutosaveInterval);
-		if (i == -1)
-			break;
-	}
+	auto menu = window_create<gameplay_config_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 #if DXX_USE_UDP
