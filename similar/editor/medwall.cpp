@@ -60,8 +60,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <memory>
 #include <utility>
 
-static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t segp, unsigned side, unsigned type);
-
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------
@@ -103,8 +101,6 @@ static unsigned predicate_find_blastable_wall(const wclip &w)
 	if (w.num_frames == wclip_frames_none)
 		return 0;
 	return w.flags & WCF_BLASTABLE;
-}
-
 }
 
 //---------------------------------------------------------------------
@@ -186,6 +182,10 @@ static int wall_assign_door(int door_type)
 	return 1;
 }
 
+static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t segp, unsigned side, unsigned type);
+
+}
+
 int wall_add_blastable()
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -240,22 +240,23 @@ int wall_add_illusion()
 	return wall_add_to_side(vcvertptr, Walls, Cursegp, Curside, WALL_ILLUSION);
 }
 
-static int GotoPrevWall() {
-	wallnum_t current_wall;
+namespace {
 
+static int GotoPrevWall()
+{
 	shared_segment &sseg = Cursegp;
 	auto &side = sseg.sides[Curside];
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	if (side.wall_num == wall_none)
-		current_wall = Walls.get_count();
-	else
-		current_wall = side.wall_num;
-
-	current_wall--;
-	if (current_wall >= Walls.get_count()) current_wall = Walls.get_count()-1;
-
-	auto &w = *vcwallptr(current_wall);
+	const auto wall_count = Walls.get_count();
+	if (!wall_count)
+		/* No walls exist; nothing to do. */
+		return 0;
+	const auto current_wall = side.wall_num == wall_none
+		? wall_count
+		: side.wall_num;
+	const wallnum_t previous_wall = (current_wall ? current_wall : wall_count) - 1u;
+	auto &w = *vcwallptr(previous_wall);
 	if (w.segnum == segment_none)
 	{
 		return 0;
@@ -272,19 +273,21 @@ static int GotoPrevWall() {
 	return 1;
 }
 
-
 static int GotoNextWall() {
 	shared_segment &sseg = Cursegp;
 	auto &side = sseg.sides[Curside];
-	auto current_wall = side.wall_num; // It's ok to be -1 because it will immediately become 0
-
-	current_wall++;
-
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	if (current_wall >= Walls.get_count()) current_wall = 0;
 
-	auto &w = *vcwallptr(current_wall);
+	const auto wall_count = Walls.get_count();
+	if (!wall_count)
+		/* No walls exist; nothing to do. */
+		return 0;
+	const auto current_wall = side.wall_num; // It's ok to be -1 because it will immediately become 0
+	const wallnum_t next_wall = (current_wall == wall_none || current_wall >= wall_count)
+		? wallnum_t{0}
+		: current_wall + 1u;
+	auto &w = *vcwallptr(next_wall);
 	if (w.segnum == segment_none)
 	{
 		return 0;
@@ -416,6 +419,7 @@ static int NextWall() {
 
 	Update_flags |= UF_WORLD_CHANGED;
 	return 1;
+}
 
 }
 
@@ -821,6 +825,8 @@ int wall_remove()
 	return wall_remove_side(Cursegp, Curside);
 }
 
+namespace {
+
 //---------------------------------------------------------------------
 // Add a wall to curside
 static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t segp, const unsigned side, const unsigned type)
@@ -880,6 +886,7 @@ static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmse
 	}
 }
 
+}
 
 //---------------------------------------------------------------------
 // Add a wall to markedside
@@ -1127,6 +1134,8 @@ int delete_all_walls()
 	return 0;
 }
 
+namespace {
+
 // ------------------------------------------------------------------------------------------------
 static void copy_old_wall_data_to_new(wallnum_t owall, wallnum_t nwall)
 {
@@ -1146,6 +1155,8 @@ static void copy_old_wall_data_to_new(wallnum_t owall, wallnum_t nwall)
 	{
 		editor_status("Warning: Trigger not copied in group copy.");
 	}
+}
+
 }
 
 // ------------------------------------------------------------------------------------------------
