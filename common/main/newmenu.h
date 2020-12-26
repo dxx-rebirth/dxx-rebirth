@@ -439,13 +439,12 @@ using listbox_subfunction_t = window_event_result (*)(listbox *menu, const d_eve
 
 struct listbox : listbox_layout, window
 {
-	listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, listbox_subfunction_t<void> callback, void *userdata, uint8_t allow_abort_flag);
+	listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, uint8_t allow_abort_flag);
 	const uint8_t allow_abort_flag;
 	uint8_t mouse_state = 0;
-	const listbox_subfunction_t<void> listbox_callback;
 	marquee::ptr marquee;
-	void *const userdata;
 	virtual window_event_result event_handler(const d_event &) override;
+	virtual window_event_result callback_handler(const d_event &, window_event_result default_return_value) = 0;
 };
 
 window *listbox_get_window(listbox &lb);

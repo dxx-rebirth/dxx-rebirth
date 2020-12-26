@@ -108,6 +108,18 @@ struct callback_newmenu : newmenu
 	virtual int subfunction_handler(const d_event &event) override;
 };
 
+struct callback_listbox : listbox
+{
+	callback_listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, uint8_t allow_abort_flag, listbox_subfunction_t<void> callback, void *userdata) :
+		listbox(citem, nitems, item, title, canvas, allow_abort_flag),
+		listbox_callback(callback), userdata(userdata)
+	{
+	}
+	const listbox_subfunction_t<void> listbox_callback;
+	void *const userdata;
+	virtual window_event_result callback_handler(const d_event &, window_event_result default_return_value) override;
+};
+
 struct step_down
 {
 	template <typename T>
@@ -187,6 +199,13 @@ int callback_newmenu::subfunction_handler(const d_event &event)
 	if (!subfunction)
 		return 0;
 	return (*subfunction)(this, event, userdata);
+}
+
+window_event_result callback_listbox::callback_handler(const d_event &event, window_event_result default_return_value)
+{
+	if (!listbox_callback)
+		return default_return_value;
+	return (*listbox_callback)(this, event, userdata);
 }
 
 }
@@ -1688,9 +1707,9 @@ int nm_messagebox_str(const menu_title title, const nm_messagebox_tie &tie, cons
 
 namespace dcx {
 
-listbox::listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, listbox_subfunction_t<void> callback, void *userdata, uint8_t allow_abort_flag) :
+listbox::listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, uint8_t allow_abort_flag) :
 	listbox_layout(citem, nitems, item, title), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY),
-	allow_abort_flag(allow_abort_flag), listbox_callback(callback), userdata(userdata)
+	allow_abort_flag(allow_abort_flag)
 {
 }
 
@@ -1815,9 +1834,7 @@ static window_event_result listbox_mouse(const d_event &event, listbox *lb, int 
 				{
 					// Tell callback, if it wants to close it will return window_event_result::close
 					const d_select_event selected{lb->citem};
-					if (lb->listbox_callback)
-						return (*lb->listbox_callback)(lb, selected, lb->userdata);
-					return window_event_result::close;
+					return lb->callback_handler(selected, window_event_result::close);
 				}
 			}
 			break;
@@ -1896,10 +1913,8 @@ static window_event_result listbox_key_command(const d_event &event, listbox *lb
 			// Tell callback, if it wants to close it will return window_event_result::close
 			{
 				const d_select_event selected{lb->citem};
-				if (lb->listbox_callback)
-					return (*lb->listbox_callback)(lb, selected, lb->userdata);
+				return lb->callback_handler(selected, window_event_result::close);
 			}
-			return window_event_result::close;
 		default:
 		{
 			const unsigned ascii = key_ascii();
@@ -2113,21 +2128,15 @@ static window_event_result listbox_draw(listbox *lb)
 		}
 	}
 
-		if ( lb->listbox_callback )
-			return (*lb->listbox_callback)(lb, d_event{EVENT_NEWMENU_DRAW}, lb->userdata);
-	return window_event_result::handled;
+	return lb->callback_handler(d_event{EVENT_NEWMENU_DRAW}, window_event_result::handled);
 }
 
 }
 
 window_event_result listbox::event_handler(const d_event &event)
 {
-	if (listbox_callback)
-	{
-		auto rval = (*listbox_callback)(this, event, userdata);
-		if (rval != window_event_result::ignored)
-			return rval;		// event handled
-	}
+	if (const auto rval = callback_handler(event, window_event_result::ignored); rval != window_event_result::ignored)
+		return rval;		// event handled
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 	if (joy_translate_menu_key(event))
@@ -2172,6 +2181,6 @@ listbox *newmenu_listbox1(const menu_title title, const unsigned nitems, const c
 	newmenu_free_background();
 
 	set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
-	auto lb = window_create<listbox>(default_item, nitems, items, title, grd_curscreen->sc_canvas, listbox_callback, userdata, allow_abort_flag);
+	auto lb = window_create<callback_listbox>(default_item, nitems, items, title, grd_curscreen->sc_canvas, allow_abort_flag, listbox_callback, userdata);
 	return lb;
 }
