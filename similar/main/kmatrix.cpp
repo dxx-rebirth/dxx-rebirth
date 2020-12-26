@@ -75,6 +75,7 @@ enum class kmatrix_status_mode
 {
 	reactor_countdown_running,
 	level_finished,
+	mission_finished,
 };
 
 static void kmatrix_redraw_coop(fvcobjptr &vcobjptr);
@@ -175,7 +176,11 @@ static void kmatrix_status_msg(grs_canvas &canvas, const fix time, const kmatrix
 	gr_printf(canvas, game_font, 0x8000, SHEIGHT - LINE_SPACING(game_font, game_font),
 		message_mode == kmatrix_status_mode::reactor_countdown_running
 		? "Waiting for players to finish level. Reactor time: T-%d"
-		: "Level finished. Wait (%d) to proceed or ESC to Quit."
+		: (
+			message_mode == kmatrix_status_mode::level_finished
+			? "Level finished. Wait (%d) to proceed or ESC to Quit."
+			: "Mission finished.  Press ESC to Quit."
+		)
 	, time);
 }
 
@@ -357,7 +362,9 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 			if (network != kmatrix_network::offline)
 				multi::dispatch->do_protocol_frame(0, 1);
 			
-			kmatrix_status_mode playing = kmatrix_status_mode::level_finished;
+			kmatrix_status_mode playing = (Current_level_num == Current_mission->last_level)
+				? kmatrix_status_mode::mission_finished
+				: kmatrix_status_mode::level_finished;
 
 			// Check if all connected players are also looking at this screen ...
 			range_for (auto &i, Players)
@@ -383,23 +390,20 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 			{
 				if (network != kmatrix_network::offline)
 					multi::dispatch->send_endlevel_packet();  // make sure
-				
+
 #if defined(DXX_BUILD_DESCENT_II)
 				if (is_D2_OEM)
 				{
 					if (Current_level_num==8)
 					{
 						get_local_player().connected=CONNECT_DISCONNECTED;
-						
-						if (network != kmatrix_network::offline)
-							multi::dispatch->send_endlevel_packet();
-						
 						multi_leave_game();
 						this->result = kmatrix_result::abort;
 					}
 				}
 #endif
-				return window_event_result::close;
+				if (playing != kmatrix_status_mode::mission_finished)
+					return window_event_result::close;
 			}
 
 			kmatrix_redraw(this);
