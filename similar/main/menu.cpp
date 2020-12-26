@@ -2274,14 +2274,28 @@ public:
 	{
 		DSX_SOUND_MENU(READ);
 	}
-	static int menuset(newmenu *, const d_event &event, sound_menu_items *pitems);
+};
+
+struct sound_menu : sound_menu_items, newmenu
+{
+#if DXX_USE_SDLMIXER
+	ntstring<PATH_MAX - 1> &current_music = Game_wind
+		? CGameCfg.CMLevelMusicPath
+		: CGameCfg.CMMiscMusic[SONG_TITLE];
+	ntstring<PATH_MAX - 1> old_music = current_music;
+#endif
+	sound_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{"Sound Effects & Music"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
 };
 
 #undef DSX_SOUND_MENU
 
-int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items *pitems)
+int sound_menu::subfunction_handler(const d_event &event)
 {
-	const auto &items = pitems->m;
+	const auto &items = m;
 	int replay = 0;
 	int rval = 0;
 	switch (event.type)
@@ -2392,6 +2406,16 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 			break;
 		}
 		case EVENT_WINDOW_CLOSE:
+#if DXX_USE_SDLMIXER
+			if (strcmp(old_music.data(), current_music.data()))
+			{
+				songs_uninit();
+				if (Game_wind)
+					songs_play_level_song(Current_level_num, 0);
+				else
+					songs_play_song(SONG_TITLE, 1);
+			}
+#endif
 			break;
 
 		default:
@@ -2416,26 +2440,8 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 
 void do_sound_menu()
 {
-#if DXX_USE_SDLMIXER
-	const auto old_CMLevelMusicPath = CGameCfg.CMLevelMusicPath;
-	const auto old_CMMiscMusic0 = CGameCfg.CMMiscMusic[SONG_TITLE];
-#endif
-
-	sound_menu_items items;
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{"Sound Effects & Music"}, items.m, &sound_menu_items::menuset, &items);
-
-#if DXX_USE_SDLMIXER
-	if ((Game_wind && strcmp(old_CMLevelMusicPath.data(), CGameCfg.CMLevelMusicPath.data())) ||
-		(!Game_wind && strcmp(old_CMMiscMusic0.data(), CGameCfg.CMMiscMusic[SONG_TITLE].data())))
-	{
-		songs_uninit();
-
-		if (Game_wind)
-			songs_play_level_song( Current_level_num, 0 );
-		else
-			songs_play_song(SONG_TITLE, 1);
-	}
-#endif
+	auto menu = window_create<sound_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 namespace dsx {
