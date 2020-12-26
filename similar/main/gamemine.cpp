@@ -442,11 +442,13 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 	(void)compiled_version;
 
 	DXX_POISON_VAR(Vertices, 0xfc);
-	if (New_file_format_load)
-		LevelSharedVertexState.Num_vertices = PHYSFSX_readShort(LoadFile);
-	else
-		LevelSharedVertexState.Num_vertices = PHYSFSX_readInt(LoadFile);
-	assert(LevelSharedVertexState.Num_vertices <= MAX_VERTICES);
+	const unsigned Num_vertices = New_file_format_load
+		? PHYSFSX_readShort(LoadFile)
+		: PHYSFSX_readInt(LoadFile);
+	assert(Num_vertices <= MAX_VERTICES);
+#if DXX_USE_EDITOR
+	LevelSharedVertexState.Num_vertices = Num_vertices;
+#endif
 
 	DXX_POISON_VAR(Segments, 0xfc);
 	if (New_file_format_load)
@@ -455,7 +457,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 		LevelSharedSegmentState.Num_segments = PHYSFSX_readInt(LoadFile);
 	assert(LevelSharedSegmentState.Num_segments <= MAX_SEGMENTS);
 
-	range_for (auto &i, partial_range(Vertices, LevelSharedVertexState.Num_vertices))
+	range_for (auto &i, partial_range(Vertices, Num_vertices))
 		PHYSFSX_readVector(LoadFile, i);
 
 	const auto Num_segments = LevelSharedSegmentState.Num_segments;
@@ -561,7 +563,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 		}
 	}
 
-	Vertices.set_count(LevelSharedVertexState.Num_vertices);
+	Vertices.set_count(Num_vertices);
 	Segments.set_count(Num_segments);
 
 	validate_segment_all(LevelSharedSegmentState);			// Fill in side type and normals.

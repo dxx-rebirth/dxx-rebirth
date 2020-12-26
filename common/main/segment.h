@@ -397,7 +397,13 @@ namespace dcx {
 #ifdef dsx
 struct d_level_shared_vertex_state
 {
+#if DXX_USE_EDITOR
+	/* Number of elements in Vertex_active which have a nonzero value.
+	 * This can be less than the index of the highest defined vertex if
+	 * there are unused vertices.
+	 */
 	unsigned Num_vertices;
+#endif
 private:
 	vertex_array Vertices;
 #if DXX_USE_EDITOR
