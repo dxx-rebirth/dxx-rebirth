@@ -201,9 +201,6 @@ extern void init_all_vertices(void);
 //	Returns true if vertex vi is contained in exactly one segment, else returns false.
 extern int is_free_vertex(int vi);
 
-//	Set existing vertex vnum to value *vp.
-int med_set_vertex(unsigned vnum, const vertex &vp);
-
 void med_combine_duplicate_vertices(std::array<uint8_t, MAX_VERTICES> &);
 
 #ifdef dsx

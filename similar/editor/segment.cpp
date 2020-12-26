@@ -230,26 +230,24 @@ int med_create_duplicate_vertex(const vertex &vp)
 	return free_index;
 }
 
+namespace {
 
 // -------------------------------------------------------------------------------
 //	Set the vertex *vp at index vnum in the global list of vertices, return its index (just for compatibility).
-int med_set_vertex(const unsigned vnum, const vertex &vp)
+vertnum_t med_set_vertex(d_level_shared_vertex_state &LevelSharedVertexState, const vertnum_t vnum, const vertex &vp)
 {
-	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	*Vertices.vmptr(vnum) = vp;
 
 	// Just in case this vertex wasn't active, mark it as active.
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
-	if (!Vertex_active[vnum]) {
-		Vertex_active[vnum] = 1;
-		++LevelSharedVertexState.Num_vertices;
-		if ((vnum > Vertices.get_count() - 1) && (vnum < NEW_SEGMENT_VERTICES)) {
-			Vertices.set_count(vnum + 1);
-		}
+	if (auto &va = Vertex_active[vnum]; !va) {
+		va = 1;
 	}
 
 	return vnum;
+}
+
 }
 
 namespace dsx {
@@ -1346,7 +1344,6 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 void med_create_new_segment(const vms_vector &scale)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	int			t;
 	const auto &&sp = vmsegptridx(&New_segment);
 	unique_segment &usp = sp;
 	fix			length,width,height;
@@ -1358,16 +1355,15 @@ void med_create_new_segment(const vms_vector &scale)
 	sp->segnum = 1;						// What to put here?  I don't know.
 
 	//	Create relative-to-center vertices, which are the points on the box defined by length, width, height
-	t = LevelSharedVertexState.Num_vertices;
-	sp->verts[0] = med_set_vertex(NEW_SEGMENT_VERTICES+0,{+width/2,+height/2,-length/2});
-	sp->verts[1] = med_set_vertex(NEW_SEGMENT_VERTICES+1,{+width/2,-height/2,-length/2});
-	sp->verts[2] = med_set_vertex(NEW_SEGMENT_VERTICES+2,{-width/2,-height/2,-length/2});
-	sp->verts[3] = med_set_vertex(NEW_SEGMENT_VERTICES+3,{-width/2,+height/2,-length/2});
-	sp->verts[4] = med_set_vertex(NEW_SEGMENT_VERTICES+4,{+width/2,+height/2,+length/2});
-	sp->verts[5] = med_set_vertex(NEW_SEGMENT_VERTICES+5,{+width/2,-height/2,+length/2});
-	sp->verts[6] = med_set_vertex(NEW_SEGMENT_VERTICES+6,{-width/2,-height/2,+length/2});
-	sp->verts[7] = med_set_vertex(NEW_SEGMENT_VERTICES+7,{-width/2,+height/2,+length/2});
-	LevelSharedVertexState.Num_vertices = t;
+	auto &verts = sp->verts;
+	verts[0] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 0}, {+width / 2, +height / 2, -length / 2});
+	verts[1] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 1}, {+width / 2, -height / 2, -length / 2});
+	verts[2] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 2}, {-width / 2, -height / 2, -length / 2});
+	verts[3] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 3}, {-width / 2, +height / 2, -length / 2});
+	verts[4] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 4}, {+width / 2, +height / 2, +length / 2});
+	verts[5] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 5}, {+width / 2, -height / 2, +length / 2});
+	verts[6] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 6}, {-width / 2, -height / 2, +length / 2});
+	verts[7] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 7}, {-width / 2, +height / 2, +length / 2});
 
 //	sp->scale = *scale;
 
