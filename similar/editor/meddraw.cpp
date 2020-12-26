@@ -85,6 +85,8 @@ using std::min;
 
 constexpr std::integral_constant<unsigned, MAX_VERTICES * 4> MAX_EDGES{};
 
+namespace {
+
 static int     Search_mode=0;                      //if true, searching for segments at given x,y
 static int Search_x,Search_y;
 static int	Automap_test=0;		//	Set to 1 to show wireframe in automap mode.
@@ -218,6 +220,7 @@ static void draw_side_edge(const shared_segment &seg, const unsigned side, const
 	}
 }
 
+__attribute__((used))
 int Show_triangulations=0;
 
 //edge types - lower number types have precedence
@@ -239,27 +242,18 @@ const
 #endif
 std::array<color_palette_index, 3> edge_colors{{54, 59, 64}};
 
-namespace {
-
 struct seg_edge
 {
-	union {
-		struct {int v0,v1;} __pack__ n;
-		long vv;
-	}v;
+	vertnum_t v0, v1;
 	ushort	type;
 	ubyte		face_count, backface_count;
 };
-
-}
 
 static std::array<seg_edge, MAX_EDGES> edge_list;
 static std::array<int, MAX_EDGES> used_list;	//which entries in edge_list have been used
 static int n_used;
 
 static unsigned edge_list_size;		//set each frame
-
-#define HASH(a,b)  ((a*5+b) % edge_list_size)
 
 //define edge numberings
 constexpr int edges[] = {
@@ -297,16 +291,14 @@ constexpr int edges[] = {
 #define N_EXTRA_EDGES			12		//ones created by triangulation
 #define N_EDGES_PER_SEGMENT (N_NORMAL_EDGES+N_EXTRA_EDGES)
 
-using std::swap;
-
 //given two vertex numbers on a segment (range 0..7), tell what edge number it is
-static int find_edge_num(int v0,int v1)
+static int find_edge_num(const int ev0, const int ev1)
 {
 	int		i;
 	int		vv;
 	const int		*edgep = edges;
 
-	if (v0 > v1) swap(v0,v1);
+	const auto &&[v0, v1] = std::minmax(ev0, ev1);
 
 	vv = v0*8+v1;
 
@@ -324,65 +316,51 @@ static int find_edge_num(int v0,int v1)
 
 
 //finds edge, filling in edge_ptr. if found old edge, returns index, else return -1
-static int find_edge(int v0,int v1,seg_edge **edge_ptr)
+static std::pair<seg_edge &, std::size_t> find_edge(const vertnum_t v0, const vertnum_t v1)
 {
-	long vv;
-	int hash,oldhash;
-	int ret;
+	const auto &&hash_object = std::hash<vertnum_t>{};
+	const auto initial_hash_slot = (hash_object(v0) ^ (hash_object(v1) << 10)) % edge_list_size;
 
-	vv = (v1<<16) + v0;
-
-	oldhash = hash = HASH(v0,v1);
-
-	ret = -1;
-
-	while (ret==-1) {
-
-		if (edge_list[hash].type == ET_EMPTY) ret=0;
-		else if (edge_list[hash].v.vv == vv) ret=1;
+	for (auto current_hash_slot = initial_hash_slot;;)
+	{
+		auto &e = edge_list[current_hash_slot];
+		if (e.type == ET_EMPTY)
+			return {e, UINT32_MAX};
+		else if (e.v0 == v0 && e.v1 == v1)
+			return {e, current_hash_slot};
 		else {
-			if (++hash==edge_list_size) hash=0;
-			if (hash==oldhash) Error("Edge list full!");
+			if (++ current_hash_slot == edge_list_size)
+				current_hash_slot = 0;
+			if (current_hash_slot == initial_hash_slot)
+				throw std::runtime_error("edge list full: search wrapped without finding a free slot");
 		}
 	}
-
-	*edge_ptr = &edge_list[hash];
-
-	if (ret == 0)
-		return -1;
-	else
-		return hash;
-
 }
 
 //adds an edge to the edge list
-static void add_edge(int v0,int v1,ubyte type)
+static void add_edge(const vertnum_t ev0, const vertnum_t ev1, const uint8_t type)
 {
-	int found;
+	const auto &&[v0, v1] = std::minmax(ev0, ev1);
+	auto &&[e, current_hash_slot] = find_edge(v0, v1);
 
-	seg_edge *e;
-
-	if (v0 > v1) swap(v0,v1);
-
-	found = find_edge(v0,v1,&e);
-
-	if (found == -1) {
-		e->v.n.v0 = v0;
-		e->v.n.v1 = v1;
-		e->type = type;
-		used_list[n_used] = e - edge_list.begin();
+	if (current_hash_slot == UINT32_MAX)
+	{
+		e.v0 = v0;
+		e.v1 = v1;
+		e.type = type;
+		used_list[n_used] = &e - edge_list.begin();
 		if (type == ET_FACING)
-			edge_list[used_list[n_used]].face_count++;
+			e.face_count++;
 		else if (type == ET_NOTFACING)
-			edge_list[used_list[n_used]].backface_count++;
+			e.backface_count++;
 		n_used++;
 	} else {
-		if (type < e->type)
-			e->type = type;
+		if (e.type > type)
+			e.type = type;
 		if (type == ET_FACING)
-			edge_list[found].face_count++;
+			e.face_count++;
 		else if (type == ET_NOTFACING)
-			edge_list[found].backface_count++;
+			e.backface_count++;
 	}
 }
 
@@ -561,7 +539,7 @@ static void draw_mine_edges(int automap_flag)
 			e = &edge_list[used_list[i]];
 			if (e->type == type)
 				if ((!automap_flag) || (e->face_count == 1))
-					draw_line(*grd_curcanv, e->v.n.v0, e->v.n.v1, color);
+					draw_line(*grd_curcanv, e->v0, e->v1, color);
 		}
 	}
 }
@@ -689,7 +667,7 @@ static void draw_special_segments(void)
 		
 
 //find a free vertex. returns the vertex number
-static int alloc_vert()
+static vertnum_t alloc_vert()
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	int vn;
@@ -708,7 +686,7 @@ static int alloc_vert()
 }
 
 //frees a vertex
-static void free_vert(int vert_num)
+static void free_vert(vertnum_t vert_num)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
@@ -803,6 +781,8 @@ static void draw_coordinate_axes(void)
 
 	range_for (auto &i, Axes_verts)
 		free_vert(i);
+}
+
 }
 
 void draw_world(grs_canvas *screen_canvas,editor_view *v,const vmsegptridx_t mine_ptr,int depth)
