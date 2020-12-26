@@ -225,6 +225,7 @@ static void transfer_energy_to_shield(object &plrobj)
 }
 #endif
 
+namespace {
 
 // Control Functions
 
@@ -242,6 +243,8 @@ static void update_vcr_state(void)
 		Newdemo_vcr_state = ND_STATE_ONEFRAMEBACKWARD;
 	else if ((Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_REWINDING))
 		Newdemo_vcr_state = ND_STATE_PLAYBACK;
+}
+
 }
 
 namespace dsx {
@@ -1503,6 +1506,51 @@ constexpr cheat_code cheat_codes[] = {
 	{ "bittersweet", &game_cheats::acid },
 };
 
+struct levelwarp_menu_items
+{
+	char text[8] = "";
+	std::array<newmenu_item, 1> menu_items{{
+		nm_item_input(text),
+	}};
+};
+
+struct levelwarp_menu : levelwarp_menu_items, newmenu
+{
+	levelwarp_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{TXT_WARP_TO_LEVEL}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(menu_items, 0), src)
+		{
+		}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int levelwarp_menu::subfunction_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_WINDOW_CLOSE:
+			{
+				if (!text[0])
+					break;
+				char *p;
+				const auto l = strtoul(text, &p, 0);
+				if (*p)
+					break;
+				/* No handling for secret levels.  Warping to secret
+				 * levels is not supported.
+				 */
+				if (l > Last_level)
+					break;
+				window_set_visible(*Game_wind, 0);
+				StartNewLevel(l);
+				window_set_visible(*Game_wind, 1);
+			}
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+
 static window_event_result FinalCheats()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1685,21 +1733,8 @@ static window_event_result FinalCheats()
 
 	if (gotcha == &game_cheats::levelwarp)
 	{
-		char text[10]="";
-		int new_level_num;
-		int item;
-		std::array<newmenu_item, 1> m{{
-			nm_item_input(text),
-		}};
-		item = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_WARP_TO_LEVEL}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
-		if (item != -1) {
-			new_level_num = atoi(m[0].text);
-			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level) {
-				window_set_visible(*Game_wind, 0);
-				StartNewLevel(new_level_num);
-				window_set_visible(*Game_wind, 1);
-			}
-		}
+		auto menu = window_create<levelwarp_menu>(grd_curscreen->sc_canvas);
+		(void)menu;
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
