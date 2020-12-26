@@ -876,14 +876,54 @@ struct direct_join
 
 struct manual_join_user_inputs
 {
-	std::array<char, 6> hostportbuf, myportbuf;
-	std::array<char, 128> addrbuf;
+	std::array<char, 6> hostportbuf, guestportbuf;
+	std::array<char, 128> hostaddrbuf;
 };
 
-struct manual_join : direct_join, manual_join_user_inputs
+struct manual_join_menu_items : direct_join, manual_join_user_inputs
 {
+	enum {
+		label_host_address,
+		input_host_address,
+		label_host_port,
+		input_host_port,
+		label_guest_port,
+		input_guest_port,
+		label_status_text,
+	};
 	static manual_join_user_inputs s_last_inputs;
 	std::array<newmenu_item, 7> m;
+	manual_join_menu_items()
+	{
+		if (s_last_inputs.hostaddrbuf[0])
+			hostaddrbuf = s_last_inputs.hostaddrbuf;
+		else
+			snprintf(&hostaddrbuf[0], hostaddrbuf.size(), "%s", CGameArg.MplUdpHostAddr.c_str());
+		if (s_last_inputs.hostportbuf[0])
+			hostportbuf = s_last_inputs.hostportbuf;
+		else
+			snprintf(&hostportbuf[0], hostportbuf.size(), "%hu", CGameArg.MplUdpHostPort ? CGameArg.MplUdpHostPort : UDP_PORT_DEFAULT);
+		if (s_last_inputs.guestportbuf[0])
+			guestportbuf = s_last_inputs.guestportbuf;
+		else
+			snprintf(&guestportbuf[0], guestportbuf.size(), "%hu", UDP_MyPort);
+		nm_set_item_text(m[label_host_address], "GAME ADDRESS OR HOSTNAME:");
+		nm_set_item_text(m[label_host_port], "GAME PORT:");
+		nm_set_item_text(m[label_guest_port], "MY PORT:");
+		nm_set_item_text(m[label_status_text], "");
+		nm_set_item_input(m[input_host_address], hostaddrbuf);
+		nm_set_item_input(m[input_host_port], hostportbuf);
+		nm_set_item_input(m[input_guest_port], guestportbuf);
+	}
+};
+
+struct manual_join_menu : manual_join_menu_items, newmenu
+{
+	manual_join_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{"ENTER GAME ADDRESS"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, input_host_address), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
 };
 
 struct netgame_list_game_menu_items
@@ -927,7 +967,7 @@ struct netgame_list_game_menu : netgame_list_game_menu_items, direct_join, newme
 	virtual int subfunction_handler(const d_event &event) override;
 };
 
-manual_join_user_inputs manual_join::s_last_inputs;
+manual_join_user_inputs manual_join_menu_items::s_last_inputs;
 
 }
 
@@ -1005,28 +1045,26 @@ Possible reasons:\n\
 	return net_udp_do_join_game();
 }
 
-static int manual_join_game_handler(newmenu *const menu, const d_event &event, manual_join *const dj)
+int manual_join_menu::subfunction_handler(const d_event &event)
 {
-	newmenu_item *items = newmenu_get_items(menu);
-
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
-			if (dj->connecting != direct_join::connect_type::idle && event_key_get(event) == KEY_ESC)
+			if (connecting != direct_join::connect_type::idle && event_key_get(event) == KEY_ESC)
 			{
-				dj->connecting = direct_join::connect_type::idle;
-				nm_set_item_text(items[6], "");
+				connecting = direct_join::connect_type::idle;
+				nm_set_item_text(m[label_status_text], "");
 				return 1;
 			}
 			break;
 			
 		case EVENT_IDLE:
-			if (dj->connecting != direct_join::connect_type::idle)
+			if (connecting != direct_join::connect_type::idle)
 			{
-				if (net_udp_game_connect(dj))
+				if (net_udp_game_connect(this))
 					return -2;	// Success!
-				else if (dj->connecting == direct_join::connect_type::idle)
-					nm_set_item_text(items[6], "");
+				else if (connecting == direct_join::connect_type::idle)
+					nm_set_item_text(m[label_status_text], "");
 			}
 			break;
 
@@ -1035,7 +1073,7 @@ static int manual_join_game_handler(newmenu *const menu, const d_event &event, m
 			int sockres = -1;
 
 			net_udp_init(); // yes, redundant call but since the menu does not know any better it would allow any IP entry as long as Netgame-entry looks okay... my head hurts...
-			if (!convert_text_portstring(dj->myportbuf, UDP_MyPort, false, false))
+			if (!convert_text_portstring(guestportbuf, UDP_MyPort, false, false))
 				return 1;
 			sockres = udp_open_socket(UDP_Socket[0], UDP_MyPort);
 			if (sockres != 0)
@@ -1043,25 +1081,25 @@ static int manual_join_game_handler(newmenu *const menu, const d_event &event, m
 				return 1;
 			}
 			uint16_t hostport;
-			if (!convert_text_portstring(dj->hostportbuf, hostport, true, false))
+			if (!convert_text_portstring(hostportbuf, hostport, true, false))
 				return 1;
 			// Resolve address
-			if (udp_dns_filladdr(dj->host_addr, &dj->addrbuf[0], hostport, false, false) < 0)
+			if (udp_dns_filladdr(host_addr, &hostaddrbuf[0], hostport, false, false) < 0)
 			{
 				return 1;
 			}
 			else
 			{
-				dj->s_last_inputs = *dj;
+				s_last_inputs = *this;
 				multi_new_game();
 				N_players = 0;
 				change_playernum_to(1);
-				dj->start_time = timer_query();
-				dj->last_time = 0;
+				start_time = timer_query();
+				last_time = 0;
 				
-				Netgame.players[0].protocol.udp.addr = dj->host_addr;
-				dj->connecting = direct_join::connect_type::connecting;
-				nm_set_item_text(items[6], "Connecting...");
+				Netgame.players[0].protocol.udp.addr = host_addr;
+				connecting = direct_join::connect_type::connecting;
+				nm_set_item_text(m[label_status_text], "Connecting...");
 				return 1;
 			}
 
@@ -1071,48 +1109,22 @@ static int manual_join_game_handler(newmenu *const menu, const d_event &event, m
 		case EVENT_WINDOW_CLOSE:
 			if (!Game_wind) // they cancelled
 				net_udp_close();
-			std::default_delete<manual_join>()(dj);
 			break;
 			
 		default:
 			break;
 	}
-	
 	return 0;
 }
 
 void net_udp_manual_join_game()
 {
-
-	auto dj = std::make_unique<manual_join>();
 	net_udp_init();
 
 	reset_UDP_MyPort();
 
-	if (dj->s_last_inputs.addrbuf[0])
-		dj->addrbuf = dj->s_last_inputs.addrbuf;
-	else
-		snprintf(&dj->addrbuf[0], dj->addrbuf.size(), "%s", CGameArg.MplUdpHostAddr.c_str());
-	if (dj->s_last_inputs.hostportbuf[0])
-		dj->hostportbuf = dj->s_last_inputs.hostportbuf;
-	else
-		snprintf(&dj->hostportbuf[0], dj->hostportbuf.size(), "%hu", CGameArg.MplUdpHostPort ? CGameArg.MplUdpHostPort : UDP_PORT_DEFAULT);
-	if (dj->s_last_inputs.myportbuf[0])
-		dj->myportbuf = dj->s_last_inputs.myportbuf;
-	else
-		snprintf(&dj->myportbuf[0], dj->myportbuf.size(), "%hu", UDP_MyPort);
-
-	unsigned nitems = 0;
-	auto &m = dj->m;
-	nm_set_item_text(m[nitems++],"GAME ADDRESS OR HOSTNAME:");
-	nm_set_item_input(m[nitems++],dj->addrbuf);
-	nm_set_item_text(m[nitems++],"GAME PORT:");
-	nm_set_item_input(m[nitems++], dj->hostportbuf);
-	nm_set_item_text(m[nitems++],"MY PORT:");
-	nm_set_item_input(m[nitems++], dj->myportbuf);
-	nm_set_item_text(m[nitems++],"");
-
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{"ENTER GAME ADDRESS"}, unchecked_partial_range(&m[0], nitems), manual_join_game_handler, dj.release());
+	auto menu = window_create<manual_join_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
 static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_float strbound, std::array<char, 25> &out, const ntstring<25> &in)
