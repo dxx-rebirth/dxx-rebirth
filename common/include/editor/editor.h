@@ -198,9 +198,6 @@ extern void init_all_vertices(void);
 }
 #endif
 
-//	Returns true if vertex vi is contained in exactly one segment, else returns false.
-extern int is_free_vertex(int vi);
-
 void med_combine_duplicate_vertices(std::array<uint8_t, MAX_VERTICES> &);
 
 #ifdef dsx
@@ -473,6 +470,11 @@ extern	int	Num_tilings;						// number of tilings/wall
 extern	int	Degenerate_segment_found;
 
 namespace dcx {
+
+#ifdef dsx
+//	Returns true if vertex vi is contained in exactly one segment, else returns false.
+int is_free_vertex(const fvcsegptr &vcsegptr, vertnum_t vi);
+#endif
 
 // Initializes autosave system.
 // Sets global Autosave_count to 0.

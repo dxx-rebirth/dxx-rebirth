@@ -100,7 +100,7 @@ static void scale_vert(const shared_segment &sp, const unsigned vertex_ind, cons
 	auto &verts = sp.verts;
 	switch (SegSizeMode) {
 		case SEGSIZEMODE_FREE:
-			if (is_free_vertex(vertex_ind))
+			if (is_free_vertex(vcsegptr, vertex_ind))
 				scale_vert_aux(vertex_ind, vp, scale_factor);
 			break;
 		case SEGSIZEMODE_ALL:
@@ -134,7 +134,7 @@ static void scale_free_verts(const shared_segment &sp, const vms_vector &vp, con
 	range_for (auto &v, Side_to_verts[side])
 	{
 		const auto vertex_ind = sp.verts[v];
-		if (SegSizeMode || is_free_vertex(vertex_ind))
+		if (SegSizeMode || is_free_vertex(vcsegptr, vertex_ind))
 			scale_vert(sp, vertex_ind, vp, scale_factor);
 	}
 

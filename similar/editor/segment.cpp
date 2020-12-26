@@ -67,33 +67,30 @@ int ToggleBottom(void)
 	return 0;
 }
 
+namespace dcx {
+
 // -------------------------------------------------------------------------------
-//	Return number of times vertex vi appears in all segments.
 //	This function can be used to determine whether a vertex is used exactly once in
 //	all segments, in which case it can be freely moved because it is not connected
 //	to any other segment.
-static int med_vertex_count(int vi)
+// -------------------------------------------------------------------------------
+int is_free_vertex(const fvcsegptr &vcsegptr, const vertnum_t vi)
 {
-	int		count;
-
-	count = 0;
-
-	range_for (auto &s, Segments)
+	unsigned count = 0;
+	for (const shared_segment &s : vcsegptr)
 	{
 		auto sp = &s;
 		if (sp->segnum != segment_none)
 			range_for (auto &v, s.verts)
 				if (v == vi)
-					count++;
+				{
+					if (++ count > 1)
+						return 0;
+				}
 	}
-
 	return count;
 }
 
-// -------------------------------------------------------------------------------
-int is_free_vertex(int vi)
-{
-	return med_vertex_count(vi) == 1;
 }
 
 // -------------------------------------------------------------------------------
