@@ -1639,12 +1639,7 @@ void input_config()
 	(void)menu;
 }
 
-}
-}
-
-namespace {
-
-static void reticle_config()
+struct reticle_config_menu_items
 {
 #if DXX_USE_OGL
 #define DXX_RETICLE_TYPE_OGL(VERB)	\
@@ -1672,9 +1667,6 @@ static void reticle_config()
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_reticle_color)	\
 	DXX_MENUITEM(VERB, SLIDER, "Reticle Size:", opt_label_reticle_size, PlayerCfg.ReticleSize, 0, 4)	\
 
-	class menu_items
-	{
-	public:
 		enum
 		{
 			optgrp_reticle,
@@ -1684,45 +1676,57 @@ static void reticle_config()
 			DXX_RETICLE_CONFIG_MENU(ENUM)
 		};
 		std::array<newmenu_item, DXX_RETICLE_CONFIG_MENU(COUNT)> m;
-		menu_items()
+		reticle_config_menu_items()
 		{
 			DXX_RETICLE_CONFIG_MENU(ADD);
-		}
-		void read()
-		{
-			DXX_RETICLE_CONFIG_MENU(READ);
+			auto i = PlayerCfg.ReticleType;
+#if !DXX_USE_OGL
+			if (i > 1)
+				--i;
+#endif
+			m[opt_reticle_classic + i].value = 1;
 		}
 	};
+
+struct reticle_config_menu : reticle_config_menu_items, newmenu
+{
+	reticle_config_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{"Reticle Customization"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 1), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int reticle_config_menu::subfunction_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_WINDOW_CLOSE:
+			for (uint_fast32_t i = opt_reticle_classic; i != opt_label_blank_reticle_type; ++i)
+				if (m[i].value)
+				{
+#if !DXX_USE_OGL
+					if (i != opt_reticle_classic)
+						++i;
+#endif
+					PlayerCfg.ReticleType = i - opt_reticle_classic;
+					break;
+				}
+			DXX_RETICLE_CONFIG_MENU(READ);
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
 #undef DXX_RETICLE_CONFIG_MENU
 #undef DXX_RETICLE_TYPE_OGL
-	menu_items items;
-	{
-	auto i = PlayerCfg.ReticleType;
-#if !DXX_USE_OGL
-	if (i > 1) i--;
-#endif
-	items.m[items.opt_reticle_classic + i].value = 1;
-	}
 
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{"Reticle Customization"}, items.m, unused_newmenu_subfunction, unused_newmenu_userdata, 1);
-
-	for (uint_fast32_t i = items.opt_reticle_classic; i != items.opt_label_blank_reticle_type; ++i)
-		if (items.m[i].value)
-		{
-#if !DXX_USE_OGL
-			if (i != items.opt_reticle_classic)
-				++i;
-#endif
-			PlayerCfg.ReticleType = i - items.opt_reticle_classic;
-			break;
-		}
-	items.read();
+static void reticle_config()
+{
+	auto menu = window_create<reticle_config_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
 }
-
-}
-
-namespace dsx {
-namespace {
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
