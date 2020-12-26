@@ -2662,7 +2662,6 @@ static void polygon_models_viewer()
 {
 	auto viewer_window = window_create<polygon_models_viewer_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	(void)viewer_window;
-	event_process_all();
 }
 
 window_event_result gamebitmaps_viewer_window::event_handler(const d_event &event)
@@ -2734,7 +2733,6 @@ static void gamebitmaps_viewer()
 {
 	auto viewer_window = window_create<gamebitmaps_viewer_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	(void)viewer_window;
-	event_process_all();
 }
 
 #define DXX_SANDBOX_MENU(VERB)	\
