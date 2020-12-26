@@ -615,8 +615,9 @@ static void RegisterPlayer()
 }
 
 namespace dsx {
-
 namespace {
+
+static void input_config();
 
 // Draw Copyright and Version strings
 static void draw_copyright()
@@ -1008,7 +1009,6 @@ window_event_result do_new_game_menu()
 }
 
 static void do_sound_menu();
-static void input_config();
 static void change_res();
 namespace dsx {
 namespace {
@@ -1048,8 +1048,6 @@ struct options_menu : options_menu_items, newmenu
 	}
 	virtual int subfunction_handler(const d_event &event) override;
 };
-
-}
 
 int options_menu::subfunction_handler(const d_event &event)
 {
@@ -1095,6 +1093,8 @@ static int gcd(int a, int b)
 		return a;
 
 	return gcd(b, a%b);
+}
+
 }
 
 void change_res()
@@ -1527,7 +1527,6 @@ public:
 	{
 		DXX_INPUT_CONFIG_MENU(ADD);
 	}
-	static int menuset(newmenu *, const d_event &event, input_config_menu_items *pitems);
 #undef DXX_INPUT_CONFIG_MENU
 #undef DXX_INPUT_CONFIG_JOYSTICK_AXIS_ITEM
 #undef DXX_INPUT_CONFIG_JOYSTICK_ITEM
@@ -1535,9 +1534,21 @@ public:
 
 }
 
-int input_config_menu_items::menuset(newmenu *, const d_event &event, input_config_menu_items *pitems)
+namespace dsx {
+namespace {
+
+struct input_config_menu : input_config_menu_items, newmenu
 {
-	const auto &items = pitems->m;
+	input_config_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{TXT_CONTROLS}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, opt_ic_confkey), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int input_config_menu::subfunction_handler(const d_event &event)
+{
+	const auto &items = m;
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
@@ -1624,8 +1635,11 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 
 void input_config()
 {
-	input_config_menu_items menu_items;
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_CONTROLS}, menu_items.m, &input_config_menu_items::menuset, &menu_items, menu_items.opt_ic_confkey);
+	auto menu = window_create<input_config_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
+}
+
+}
 }
 
 namespace {
