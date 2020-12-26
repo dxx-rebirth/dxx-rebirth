@@ -314,11 +314,11 @@ namespace dcx {
 namespace {
 
 __attribute_nonnull()
-static int select_file_recursive2(const char *title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<void> when_selected, void *userdata);
+static int select_file_recursive2(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<void> when_selected, void *userdata);
 
 template <typename T>
 __attribute_nonnull()
-static int select_file_recursive(const char *title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<T> when_selected, T *userdata)
+static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<T> when_selected, T *userdata)
 {
 	return select_file_recursive2(title, orig_path, ext_list, select_dir, reinterpret_cast<select_file_subfunction<void>>(when_selected), reinterpret_cast<void *>(userdata));
 }
@@ -609,7 +609,7 @@ static void RegisterPlayer()
 		if (!d_stricmp(static_cast<const char *>(callsign), m[i]))
 			citem = i;
 
-	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m.release(), allow_abort_flag, citem, player_menu_handler, list.release());
+	newmenu_listbox1(menu_title{TXT_SELECT_PILOT}, NumItems, m.release(), allow_abort_flag, citem, player_menu_handler, list.release());
 }
 
 }
@@ -638,7 +638,7 @@ int dispatch_menu_option(const main_menu_item_index select)
 	switch (select)
 	{
 		case main_menu_item_index::start_new_singleplayer_game:
-			select_mission(mission_filter_mode::exclude_anarchy, "New Game\n\nSelect mission", do_new_game_menu);
+			select_mission(mission_filter_mode::exclude_anarchy, menu_title{"New Game\n\nSelect mission"}, do_new_game_menu);
 			break;
 		case main_menu_item_index::open_pick_recorded_demo_submenu:
 			select_demo();
@@ -701,7 +701,7 @@ int dispatch_menu_option(const netgame_menu_item_index select)
 	{
 		case netgame_menu_item_index::start_new_multiplayer_game:
 			multi_protocol = MULTI_PROTO_UDP;
-			select_mission(mission_filter_mode::include_anarchy, TXT_MULTI_MISSION, net_udp_setup_game);
+			select_mission(mission_filter_mode::include_anarchy, menu_title{TXT_MULTI_MISSION}, net_udp_setup_game);
 			break;
 		case netgame_menu_item_index::join_multiplayer_game:
 			multi_protocol = MULTI_PROTO_UDP;
@@ -911,7 +911,7 @@ int select_demo()
 	qsort(list.get(), NumItems, sizeof(char *), string_array_sort_func);
 
 	auto clist = const_cast<const char **>(list.get());
-	newmenu_listbox1(TXT_SELECT_DEMO, NumItems, clist, 1, 0, demo_menu_handler, list.release());
+	newmenu_listbox1(menu_title{TXT_SELECT_DEMO}, NumItems, clist, 1, 0, demo_menu_handler, list.release());
 
 	return 1;
 }
@@ -1948,11 +1948,11 @@ namespace {
 #if PHYSFS_VER_MAJOR >= 2
 struct browser
 {
-	browser(const partial_range_t<const file_extension_t *> &r) :
-		ext_range(r)
+	browser(menu_title title, const partial_range_t<const file_extension_t *> &r) :
+		title(title), ext_range(r)
 	{
 	}
-	const char	*title;			// The title - needed for making another listbox when changing directory
+	const menu_title title;			// The title - needed for making another listbox when changing directory
 	window_event_result (*when_selected)(void *userdata, const char *filename);	// What to do when something chosen
 	void	*userdata;		// Whatever you want passed to when_selected
 	string_array_t list;
@@ -2100,14 +2100,13 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 	return window_event_result::ignored;
 }
 
-static int select_file_recursive2(const char *title, const std::array<char, PATH_MAX> &orig_path_storage, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, select_file_subfunction<void> when_selected, void *userdata)
+static int select_file_recursive2(const menu_title title, const std::array<char, PATH_MAX> &orig_path_storage, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, select_file_subfunction<void> when_selected, void *userdata)
 {
 	auto orig_path = orig_path_storage.data();
 	const char *sep = PHYSFS_getDirSeparator();
 	std::array<char, PATH_MAX> new_path;
 
-	auto b = std::make_unique<browser>(ext_range);
-	b->title = title;
+	auto b = std::make_unique<browser>(title, ext_range);
 	b->when_selected = when_selected;
 	b->userdata = userdata;
 	b->select_dir = select_dir;
@@ -2180,7 +2179,7 @@ static int select_file_recursive2(const char *title, const std::array<char, PATH
 	DXX_MENUITEM(VERB, MENU, TXT " (browse...)", OPT)
 #else
 
-int select_file_recursive2(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
+int select_file_recursive2(const menu_title title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
 {
 	return 0;
 }
@@ -2423,20 +2422,20 @@ int sound_menu::subfunction_handler(const d_event &event)
 				static const std::array<file_extension_t, 1> ext_list{{"m3u"}};		// select a directory or M3U playlist
 				const auto cfgpath = CGameCfg.CMLevelMusicPath.data();
 				select_file_recursive(
-					"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT,
+					menu_title{"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT},
 									  CGameCfg.CMLevelMusicPath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
 									  get_absolute_path, cfgpath);	// just copy the absolute path
 			}
 			else if (citem == opt_sm_cm_mtype3_file1_b)
-				SELECT_SONG("Select main menu music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_TITLE);
+				SELECT_SONG(menu_title{"Select main menu music" WINDOWS_DRIVE_CHANGE_TEXT}, SONG_TITLE);
 			else if (citem == opt_sm_cm_mtype3_file2_b)
-				SELECT_SONG("Select briefing music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_BRIEFING);
+				SELECT_SONG(menu_title{"Select briefing music" WINDOWS_DRIVE_CHANGE_TEXT}, SONG_BRIEFING);
 			else if (citem == opt_sm_cm_mtype3_file3_b)
-				SELECT_SONG("Select credits music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_CREDITS);
+				SELECT_SONG(menu_title{"Select credits music" WINDOWS_DRIVE_CHANGE_TEXT}, SONG_CREDITS);
 			else if (citem == opt_sm_cm_mtype3_file4_b)
-				SELECT_SONG("Select escape sequence music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_ENDLEVEL);
+				SELECT_SONG(menu_title{"Select escape sequence music" WINDOWS_DRIVE_CHANGE_TEXT}, SONG_ENDLEVEL);
 			else if (citem == opt_sm_cm_mtype3_file5_b)
-				SELECT_SONG("Select game ending music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_ENDGAME);
+				SELECT_SONG(menu_title{"Select game ending music" WINDOWS_DRIVE_CHANGE_TEXT}, SONG_ENDGAME);
 #endif
 			rval = 1;	// stay in menu
 			break;

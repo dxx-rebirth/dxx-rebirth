@@ -298,6 +298,12 @@ int newmenu_do2(const menu_title title, const menu_subtitle subtitle, partial_ra
 	return newmenu_do2(title, subtitle, std::move(items), reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename);
 }
 
+enum class mission_filter_mode
+{
+	exclude_anarchy,
+	include_anarchy,
+};
+
 }
 
 namespace dsx {
@@ -315,6 +321,10 @@ static newmenu *newmenu_do3(const menu_title title, const menu_subtitle subtitle
 {
 	return newmenu_do4(title, subtitle, std::move(items), reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename);
 }
+
+//Handles creating and selecting from the mission list.
+//Returns 1 if a mission was loaded.
+int select_mission (mission_filter_mode anarchy_mode, menu_title message, window_event_result (*when_selected)(void));
 
 }
 
@@ -399,16 +409,16 @@ constexpr listbox_subfunction_t<const unused_listbox_userdata_t> *unused_listbox
 constexpr const unused_listbox_userdata_t *unused_listbox_userdata = nullptr;
 }
 
-listbox *newmenu_listbox1(const char * title, uint_fast32_t nitems, const char *items[], uint8_t allow_abort_flag, int default_item, listbox_subfunction_t<void> listbox_callback, void *userdata);
+listbox *newmenu_listbox1(menu_title title, unsigned nitems, const char *items[], uint8_t allow_abort_flag, int default_item, listbox_subfunction_t<void> listbox_callback, void *userdata);
 
 template <typename T>
-listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const uint8_t allow_abort_flag, const int default_item, const listbox_subfunction_t<T> listbox_callback, T *const userdata)
+listbox *newmenu_listbox1(const menu_title title, const unsigned nitems, const char *items[], const uint8_t allow_abort_flag, const int default_item, const listbox_subfunction_t<T> listbox_callback, T *const userdata)
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>>(listbox_callback), static_cast<void *>(userdata));
 }
 
 template <typename T>
-listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const uint8_t allow_abort_flag, const int default_item, const listbox_subfunction_t<T> listbox_callback, std::unique_ptr<T> userdata)
+listbox *newmenu_listbox1(const menu_title title, const unsigned nitems, const char *items[], const uint8_t allow_abort_flag, const int default_item, const listbox_subfunction_t<T> listbox_callback, std::unique_ptr<T> userdata)
 {
 	auto r = newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>>(listbox_callback), static_cast<void *>(userdata.get()));
 	userdata.release();
@@ -416,7 +426,7 @@ listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, c
 }
 
 template <typename T>
-listbox *newmenu_listbox(const char *const title, const uint_fast32_t nitems, const char *items[], const uint8_t allow_abort_flag, const listbox_subfunction_t<T> listbox_callback, T *const userdata)
+listbox *newmenu_listbox(const menu_title title, const unsigned nitems, const char *items[], const uint8_t allow_abort_flag, const listbox_subfunction_t<T> listbox_callback, T *const userdata)
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, reinterpret_cast<listbox_subfunction_t<void>>(listbox_callback), static_cast<void *>(userdata));
 }

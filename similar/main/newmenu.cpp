@@ -112,13 +112,17 @@ struct listbox_layout
 		int pos = 0, scrollback = 0;
 		char text[0];	/* must be last */
 	};
+	listbox_layout(int citem, unsigned nitems, const char **item, menu_title title) :
+		citem(citem), nitems(nitems), item(item), title(title)
+	{
+	}
 	unsigned items_on_screen;
 	int box_x, box_y;
 	int box_w, height, title_height;
 	int citem, first_item;
 	unsigned nitems;
-	const char **item = nullptr;
-	const char *title = nullptr;
+	const char **const item;
+	const menu_title title;
 	marquee::ptr marquee;
 	short swidth, sheight;
 	// with these we check if resolution or fonts have changed so listbox structure can be recreated
@@ -2215,15 +2219,11 @@ window_event_result listbox::event_handler(const d_event &event)
 	return window_event_result::ignored;
 }
 
-listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const uint8_t allow_abort_flag, const int default_item, const listbox_subfunction_t<void> listbox_callback, void *const userdata)
+listbox *newmenu_listbox1(const menu_title title, const unsigned nitems, const char *items[], const uint8_t allow_abort_flag, const int default_item, const listbox_subfunction_t<void> listbox_callback, void *const userdata)
 {
 	newmenu_free_background();
 
-	listbox_layout lbl{};
-	lbl.title = title;
-	lbl.nitems = nitems;
-	lbl.item = items;
-	lbl.citem = default_item;
+	listbox_layout lbl{default_item, nitems, items, title};
 
 	set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
 

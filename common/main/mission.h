@@ -204,16 +204,6 @@ extern Mission_ptr Current_mission; // current mission
 #endif
 #define PLAYING_BUILTIN_MISSION	(Current_mission->builtin_hogsize != 0)
 #define ANARCHY_ONLY_MISSION	(1 == Current_mission->anarchy_only_flag)
-
-namespace dcx {
-
-enum class mission_filter_mode
-{
-	exclude_anarchy,
-	include_anarchy,
-};
-
-}
 #endif
 
 //values for d1 built-in mission
@@ -269,10 +259,6 @@ struct mission_entry_predicate
 //loads the named mission if it exists.
 //Returns nullptr if mission loaded ok, else error string.
 const char *load_mission_by_name (mission_entry_predicate mission_name, mission_name_type);
-
-//Handles creating and selecting from the mission list.
-//Returns 1 if a mission was loaded.
-int select_mission (mission_filter_mode anarchy_mode, const char *message, window_event_result (*when_selected)(void));
 
 #if DXX_USE_EDITOR
 void create_new_mission(void);

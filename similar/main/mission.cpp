@@ -1250,6 +1250,22 @@ const char *load_mission_by_name (const mission_entry_predicate mission_name, co
 
 namespace {
 
+template <typename tag>
+class unique_menu_tagged_string : std::unique_ptr<char[]>
+{
+public:
+	unique_menu_tagged_string(std::unique_ptr<char[]> p) :
+		std::unique_ptr<char[]>(std::move(p))
+	{
+	}
+	using std::unique_ptr<char[]>::get;
+	operator menu_tagged_string<tag>() const &
+	{
+		return {get()};
+	}
+	operator menu_tagged_string<tag>() const && = delete;
+};
+
 class mission_menu
 {
 	mission_list_type mls;
@@ -1258,7 +1274,7 @@ public:
 	using callback_type = window_event_result (*)(void);
 	const mission_list_type &ml;
 	const std::unique_ptr<const char *[]> listbox_strings;
-	const RAIIdmem<char[]> title;
+	const unique_menu_tagged_string<menu_title_tag> title;
 	const callback_type when_selected;
 	listbox *containing_listbox = nullptr;
 	mission_menu *parent = nullptr;
@@ -1277,14 +1293,16 @@ public:
 	{
 		return parent != nullptr;
 	}
-	static RAIIdmem<char[]> prepare_title(const char *const message, const mission_list_type &ml)
+	static unique_menu_tagged_string<menu_title_tag> prepare_title(const char *const message, const mission_list_type &ml)
 	{
 		mission_subdir_stats ss;
 		ss.count(ml);
 		std::array<char, 12> dirbuf;
 		char buf[128];
-		snprintf(buf, sizeof(buf), "%s\n[%sMSN:LOCAL %zu; TOTAL %zu]", message, prepare_mission_list_count_dirbuf(dirbuf, ss.immediate_directories), ss.immediate_missions, ss.total_missions);
-		return RAIIdmem<char[]>(d_strdup(buf));
+		const auto r = 1u + std::snprintf(buf, sizeof(buf), "%s\n[%sMSN:LOCAL %zu; TOTAL %zu]", message, prepare_mission_list_count_dirbuf(dirbuf, ss.immediate_directories), ss.immediate_missions, ss.total_missions);
+		unique_menu_tagged_string<menu_title_tag> p = std::make_unique<char[]>(r);
+		std::memcpy(p.get(), buf, r);
+		return p;
 	}
 };
 
@@ -1343,7 +1361,7 @@ static window_event_result mission_menu_handler(listbox *const lb, const d_event
 					const auto pls = listbox_strings.get();
 					auto submm = std::make_unique<mission_menu>(&mli.directory, std::move(listbox_strings), mli.path.c_str(), mm->when_selected, mm);
 					const auto pmm = submm.get();
-					newmenu_listbox1(pmm->title.get(), pmm->ml.size() + 1, pls, 1, 0, mission_menu_handler, std::move(submm));
+					newmenu_listbox1(pmm->title, pmm->ml.size() + 1, pls, 1, 0, mission_menu_handler, std::move(submm));
 					return window_event_result::handled;
 				}
 				// Chose a mission
@@ -1409,7 +1427,7 @@ static mission_menu_create_state_ptr prepare_mission_menu_state(const mission_li
 
 namespace dsx {
 
-int select_mission(const mission_filter_mode mission_filter, const char *message, window_event_result (*when_selected)(void))
+int select_mission(const mission_filter_mode mission_filter, const menu_title message, window_event_result (*when_selected)(void))
 {
 	auto &&mission_list = build_mission_list(mission_filter);
 	int new_mission_num;
@@ -1442,7 +1460,7 @@ int select_mission(const mission_filter_mode mission_filter, const char *message
 			auto mm = std::make_unique<mission_menu>(&substate_mission_list.directory, std::move(substate->listbox_strings), substate_mission_list.path.c_str(), when_selected, parent_mission_menu);
 			const auto pmm = mm.get();
 			parent_mission_menu = pmm;
-			newmenu_listbox1(pmm->title.get(), pmm->ml.size() + 1, pmm->listbox_strings.get(), 1, substate->initial_selection + 1, mission_menu_handler, std::move(mm));
+			newmenu_listbox1(pmm->title, pmm->ml.size() + 1, pmm->listbox_strings.get(), 1, substate->initial_selection + 1, mission_menu_handler, std::move(mm));
 		}
     }
 
