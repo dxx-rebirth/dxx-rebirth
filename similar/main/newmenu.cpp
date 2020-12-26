@@ -195,6 +195,8 @@ namespace dsx {
 
 namespace {
 
+newmenu *newmenu_do4(menu_title title, menu_subtitle subtitle, partial_range_t<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, menu_filename filename, tiny_mode_flag TinyMode = tiny_mode_flag::normal, tab_processing_flag TabsFlag = tab_processing_flag::ignore);
+
 #if defined(DXX_BUILD_DESCENT_I)
 static const char *UP_ARROW_MARKER(const grs_font &, const grs_font &)
 {
@@ -543,7 +545,7 @@ int newmenu_do2(const menu_title title, const menu_subtitle subtitle, const part
 	bool exists = true;
 	int rval = -1;
 
-	menu = newmenu_do3(title, subtitle, items, subfunction, userdata, citem, filename);
+	menu = newmenu_do4(title, subtitle, items, subfunction, userdata, citem, filename);
 
 	if (!menu)
 		return -1;
@@ -1623,6 +1625,8 @@ window_event_result newmenu::event_handler(const d_event &event)
 
 namespace dsx {
 
+namespace {
+
 newmenu *newmenu_do4(const menu_title title, const menu_subtitle subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const menu_filename filename, const tiny_mode_flag TinyMode, const tab_processing_flag TabsFlag)
 {
 	if (items.size() < 1)
@@ -1635,6 +1639,8 @@ newmenu *newmenu_do4(const menu_title title, const menu_subtitle subtitle, const
 
 	// Create the basic window
 	return menu;
+}
+
 }
 }
 

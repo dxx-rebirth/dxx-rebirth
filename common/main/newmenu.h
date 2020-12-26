@@ -358,20 +358,6 @@ enum class mission_filter_mode
 }
 
 namespace dsx {
-newmenu *newmenu_do4(menu_title title, menu_subtitle subtitle, partial_range_t<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, menu_filename filename, tiny_mode_flag TinyMode = tiny_mode_flag::normal, tab_processing_flag TabsFlag = tab_processing_flag::ignore);
-
-// Same as above, but returns menu instead of citem
-template <typename T>
-static newmenu *newmenu_do3(const menu_title title, const menu_subtitle subtitle, partial_range_t<newmenu_item *> items, const newmenu_subfunction_t<T> subfunction, T *const userdata, const int citem, const menu_filename filename)
-{
-	return newmenu_do4(title, subtitle, std::move(items), reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(userdata), citem, filename);
-}
-
-template <typename T>
-static newmenu *newmenu_do3(const menu_title title, const menu_subtitle subtitle, partial_range_t<newmenu_item *> items, const newmenu_subfunction_t<const T> subfunction, const T *const userdata, const int citem, const menu_filename filename)
-{
-	return newmenu_do4(title, subtitle, std::move(items), reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename);
-}
 
 //Handles creating and selecting from the mission list.
 //Returns 1 if a mission was loaded.
