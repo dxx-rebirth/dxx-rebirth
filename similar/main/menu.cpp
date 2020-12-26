@@ -94,6 +94,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 #include "d_range.h"
 #include "d_zip.h"
 #include "partial_range.h"
@@ -396,6 +397,8 @@ constexpr char playername_allowed_chars[] = "azAZ09__--";
 
 }
 
+namespace dsx {
+
 namespace {
 
 static int MakeNewPlayerFile(int allow_abort)
@@ -441,6 +444,12 @@ try_again:
 
 	return 1;
 }
+
+}
+
+}
+
+namespace {
 
 static window_event_result player_menu_keycommand( listbox *lb,const d_event &event )
 {
@@ -536,11 +545,17 @@ static window_event_result player_menu_handler( listbox *lb,const d_event &event
 	return window_event_result::ignored;
 }
 
+}
+
+namespace dsx {
+
+namespace {
+
 //Inputs the player's name, without putting up the background screen
 static void RegisterPlayer()
 {
 	static const std::array<file_extension_t, 1> types{{"plr"}};
-	int i = 0, NumItems;
+	int NumItems;
 	int citem = 0;
 	uint8_t allow_abort_flag = 1;
 
@@ -578,44 +593,43 @@ static void RegisterPlayer()
 	if (m == NULL)
 		return;
 
-	m[i++] = TXT_CREATE_NEW;
+	/* Index of the first undefined element */
+	auto idx_next_string = 0u;
+	m[idx_next_string++] = TXT_CREATE_NEW;
+	const auto idx_first_player_string = idx_next_string;
 
 	range_for (const auto f, list)
 	{
-		char *p;
-
-		size_t lenf = strlen(f);
-		if (lenf > FILENAME_LEN-1 || lenf < 5) // sorry guys, can only have up to eight chars for the player name
-		{
-			NumItems--;
+		const auto p = strchr(f, '.');
+		if (!p)
+			/* This should not happen. */
 			continue;
-		}
-		m[i++] = f;
-		p = strchr(f, '.');
-		if (p)
-			*p = '\0';		// chop the .plr
+		if (f == p)
+			/* First character is '.', so there is no name. */
+			continue;
+		if (std::distance(f, p) > CALLSIGN_LEN)
+			/* Filename is too long to be a valid callsign. */
+			continue;
+		*p = 0;
+		m[idx_next_string++] = f;
 	}
 
-	if (NumItems <= 1) // so it seems all plr files we found were too long. funny. let's make a real player
+	if (idx_first_player_string == idx_next_string)
 	{
+		/* Every returned file was unacceptable. */
 		MakeNewPlayerFile(0);	// make a new player without showing listbox
 		return;
 	}
 
-	// Sort by name, except the <Create New Player> string
-	qsort(&m[1], NumItems - 1, sizeof(char *), string_array_sort_func);
-
-	for ( i=0; i<NumItems; i++ )
-		if (!d_stricmp(static_cast<const char *>(callsign), m[i]))
+	for (auto &&[mi, i] : enumerate(unchecked_partial_range(m.get(), idx_next_string)))
+		if (!d_stricmp(static_cast<const char *>(callsign), mi))
+		{
 			citem = i;
+			break;
+		}
 
-	newmenu_listbox1(menu_title{TXT_SELECT_PILOT}, NumItems, m.release(), allow_abort_flag, citem, player_menu_handler, list.release());
+	newmenu_listbox1(menu_title{TXT_SELECT_PILOT}, idx_next_string, m.release(), allow_abort_flag, citem, player_menu_handler, list.release());
 }
-
-}
-
-namespace dsx {
-namespace {
 
 static void input_config();
 
