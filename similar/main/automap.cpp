@@ -758,8 +758,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	gr_set_default_canvas();
 	{
 		auto &canvas = *grd_curcanv;
-		if (am.automap_background.get_bitmap_data())
-			show_fullscr(canvas, am.automap_background);
+		show_fullscr(canvas, am.automap_background);
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
 	{
 		int x, y;
@@ -1219,11 +1218,10 @@ void do_automap()
 	// ZICO - code from above to show frame in OGL correctly. Redundant, but better readable.
 	// KREATOR - Now applies to all platforms so double buffering is supported
 	{
-		const auto pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, am->automap_background, pal);
+		const auto pcx_error = pcx_read_bitmap_or_default(MAP_BACKGROUND_FILENAME, am->automap_background, pal);
 		if (pcx_error != pcx_result::SUCCESS)
 			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "automap: File %s - PCX error: %s"), MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
-		else
-			gr_remap_bitmap_good(am->automap_background, pal, -1, -1);
+		gr_remap_bitmap_good(am->automap_background, pal, -1, -1);
 	}
 	init_automap_subcanvas(am->automap_view, grd_curscreen->sc_canvas);
 

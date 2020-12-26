@@ -1344,8 +1344,7 @@ static void do_screen_message(const char *msg)
 	if (Game_mode & GM_MULTI)
 		return;
 	grs_main_bitmap background;
-	if (pcx_read_bitmap(GLITZ_BACKGROUND, background, gr_palette) != pcx_result::SUCCESS)
-		return;
+	pcx_read_bitmap_or_default(GLITZ_BACKGROUND, background, gr_palette);
 
 	gr_palette_load(gr_palette);
 	std::array<newmenu_item, 1> nm_message_items{{

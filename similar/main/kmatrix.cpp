@@ -440,10 +440,7 @@ kmatrix_result kmatrix_view(const kmatrix_network network, control_info &Control
 	{
 	const auto pkm = window_create<kmatrix_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, result);
 	auto &km = *pkm;
-	if (pcx_read_bitmap(STARS_BACKGROUND, km.background, gr_palette) != pcx_result::SUCCESS)
-	{
-		return kmatrix_result::abort;
-	}
+	pcx_read_bitmap_or_default(STARS_BACKGROUND, km.background, gr_palette);
 	gr_palette_load(gr_palette);
 
 	km.network = network;

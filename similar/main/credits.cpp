@@ -264,12 +264,7 @@ static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 	gr_use_palette_table( "credits.256" );
 #endif
 
-	const auto pcx_error = pcx_read_bitmap(STARS_BACKGROUND, cr->backdrop,backdrop_palette);
-	if (pcx_error != pcx_result::SUCCESS)
-	{
-		return;
-	}
-
+	pcx_read_bitmap_or_default(STARS_BACKGROUND, cr->backdrop, backdrop_palette);
 	songs_play_song( SONG_CREDITS, 1 );
 
 	gr_remap_bitmap_good(cr->backdrop,backdrop_palette, -1, -1);

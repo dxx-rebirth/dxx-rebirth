@@ -183,11 +183,10 @@ static void show_title_screen(const char *filename)
 	filename = new_filename;
 
 	ts->timer = timer_query() + i2f(3);
-	const auto pcx_error = pcx_read_bitmap(filename, ts->title_bm, gr_palette);
+	const auto pcx_error = pcx_read_bitmap_or_default(filename, ts->title_bm, gr_palette);
 	if (pcx_error != pcx_result::SUCCESS)
 	{
 		con_printf(CON_URGENT, "%s:%u: error: loading briefing screen <%s> failed: PCX load error: %s (%u)", __FILE__, __LINE__, filename, pcx_errormsg(pcx_error), static_cast<unsigned>(pcx_error));
-		return;
 	}
 
 	gr_palette_load( gr_palette );
@@ -685,6 +684,7 @@ static void put_char_delay(const grs_font &cv_font, briefing *const br, const ch
 }
 
 static void init_spinning_robot(grs_canvas &canvas, briefing &br);
+__attribute_warn_unused_result
 static int load_briefing_screen(grs_canvas &, briefing *br, const char *fname);
 
 // Process a character for the briefing,
@@ -805,7 +805,8 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 
 				if ((HIRESMODE && PHYSFSX_exists(fname2,1)) || !PHYSFSX_exists(fname,1))
 					strcpy(fname,fname2);
-				load_briefing_screen(*grd_curcanv, br, fname);
+				if (!load_briefing_screen(*grd_curcanv, br, fname))
+					return 1;
 			}
 
 #endif
@@ -837,7 +838,8 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			if (!br->got_z) {
 				Int3(); // Hey ryan!!!! You gotta load a screen before you start
 				// printing to it! You know, $Z !!!
-				load_briefing_screen(*grd_curcanv, br, HIRESMODE ? "end01b.pcx" : "end01.pcx");
+				if (!load_briefing_screen(*grd_curcanv, br, HIRESMODE ? "end01b.pcx" : "end01.pcx"))
+					return 1;
 			}
 
 			br->chattering = 0;
@@ -947,10 +949,12 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			if (br->text_y > br->screen->text_uly + br->screen->text_height) {
 #if defined(DXX_BUILD_DESCENT_I)
 				const auto descent_hog_size = PHYSFSX_fsize("descent.hog");
-				load_briefing_screen(*grd_curcanv, br, get_d1_briefing_screens(descent_hog_size)[br->cur_screen].bs_name);
+				auto &bs = get_d1_briefing_screens(descent_hog_size)[br->cur_screen];
 #elif defined(DXX_BUILD_DESCENT_II)
-				load_briefing_screen(*grd_curcanv, br, Briefing_screens[br->cur_screen].bs_name);
+				auto &bs = Briefing_screens[br->cur_screen];
 #endif
+				if (!load_briefing_screen(*grd_curcanv, br, bs.bs_name))
+					return 1;
 				br->text_x = br->screen->text_ulx;
 				br->text_y = br->screen->text_uly;
 			}
@@ -965,7 +969,8 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			LevelError("briefing wrote to screen without using $Z to load a screen; loading default.");
 			//Int3(); // Hey ryan!!!! You gotta load a screen before you start
 			// printing to it! You know, $Z !!!
-			load_briefing_screen(*grd_curcanv, br, HIRESMODE ? "end01b.pcx" : "end01.pcx");
+			if (!load_briefing_screen(*grd_curcanv, br, HIRESMODE ? "end01b.pcx" : "end01.pcx"))
+				return 1;
 		}
 #endif
 		put_char_delay(game_font, br, ch);
@@ -1204,12 +1209,15 @@ static void show_spinning_robot_frame(briefing *br, int robot_num)
 //-----------------------------------------------------------------------------
 #define KEY_DELAY_DEFAULT       ((F1_0*20)/1000)
 
-static void init_new_page(briefing *br)
+__attribute_warn_unused_result
+static int init_new_page(briefing *br)
 {
 	br->new_page = 0;
 	br->robot_num = -1;
 
-	load_briefing_screen(*grd_curcanv, br, br->background_name.data());
+	const auto r = load_briefing_screen(*grd_curcanv, br, br->background_name.data());
+	if (!r)
+		return r;
 	br->text_x = br->screen->text_ulx;
 	br->text_y = br->screen->text_uly;
 
@@ -1226,6 +1234,7 @@ static void init_new_page(briefing *br)
 
 	br->start_time = 0;
 	br->delay_count = KEY_DELAY_DEFAULT;
+	return r;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1311,7 +1320,7 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 		bald_guy_load("btexture.xxx", br->background, gr_palette) == pcx_result::SUCCESS)
 	{
 	}
-	else if ((pcx_error = pcx_read_bitmap(fname2, br->background, gr_palette)) != pcx_result::SUCCESS)
+	else if ((pcx_error = pcx_read_bitmap_or_default(fname2, br->background, gr_palette)) != pcx_result::SUCCESS)
 	{
 		con_printf(CON_URGENT, "%s:%u: error: loading briefing screen <%s> failed: PCX load error: %s (%u)", __FILE__, __LINE__, fname2, pcx_errormsg(pcx_error), static_cast<unsigned>(pcx_error));
 	}
@@ -1347,7 +1356,7 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 	}
 
 	pcx_result pcx_error;
-	if ((pcx_error = pcx_read_bitmap(fname, br->background, gr_palette)) != pcx_result::SUCCESS)
+	if ((pcx_error = pcx_read_bitmap_or_default(fname, br->background, gr_palette)) != pcx_result::SUCCESS)
 	{
 		con_printf(CON_URGENT, "%s:%u: error: loading briefing screen <%s> failed: PCX load error: %s (%u)", __FILE__, __LINE__, fname, pcx_errormsg(pcx_error), static_cast<unsigned>(pcx_error));
 		return 0;
@@ -1393,6 +1402,7 @@ static void free_briefing_screen(briefing *br)
 		br->screen.reset();
 }
 
+__attribute_warn_unused_result
 static int new_briefing_screen(briefing *br, int first)
 {
 	br->new_screen = 0;
@@ -1520,7 +1530,10 @@ window_event_result briefing::event_handler(const d_event &event)
 					}
 				}
 				else if (this->new_page)
-					init_new_page(this);
+				{
+					if (!init_new_page(this))
+						return window_event_result::close;
+				}
 				else
 					this->delay_count = 0;
 				return window_event_result::handled;
@@ -1541,7 +1554,10 @@ window_event_result briefing::event_handler(const d_event &event)
 				}
 			}
 			else if (this->new_page)
-				init_new_page(this);
+			{
+				if (!init_new_page(this))
+					return window_event_result::close;
+			}
 			else
 				this->delay_count = 0;
 			return window_event_result::handled;
@@ -1575,7 +1591,10 @@ window_event_result briefing::event_handler(const d_event &event)
 						}
 					}
 					else if (this->new_page)
-						init_new_page(this);
+					{
+						if (!init_new_page(this))
+							return window_event_result::close;
+					}
 					break;
 			}
 			break;
