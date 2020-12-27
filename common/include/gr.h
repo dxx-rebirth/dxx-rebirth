@@ -153,11 +153,11 @@ public:
 	struct {
 		uint16_t width, height;
 	};
-	bool operator==(const screen_mode &rhs)
+	bool operator==(const screen_mode &rhs) const
 	{
 		return wh == rhs.wh;
 	}
-	bool operator!=(const screen_mode &rhs)
+	bool operator!=(const screen_mode &rhs) const
 	{
 		return !(*this == rhs);
 	}
