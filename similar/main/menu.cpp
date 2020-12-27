@@ -251,6 +251,19 @@ std::pair<std::chrono::seconds, bool> parse_human_readable_time(const char *cons
 	return {{}, false};
 }
 
+#if DXX_USE_SDLMIXER
+__attribute_nonnull()
+static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, ntstring<PATH_MAX - 1> &userdata);
+
+static window_event_result get_absolute_path(ntstring<PATH_MAX - 1> &full_path, const char *rel_path)
+{
+	PHYSFSX_getRealPath(rel_path, full_path);
+	return window_event_result::close;
+}
+
+#define SELECT_SONG(t, s)	select_file_recursive(t, CGameCfg.CMMiscMusic[s], jukebox_exts, 0, CGameCfg.CMMiscMusic[s])
+#endif
+
 }
 
 template <typename Rep, std::size_t S>
@@ -309,25 +322,6 @@ struct netgame_menu : netgame_menu_items, newmenu
 
 }
 
-}
-
-namespace dcx {
-
-namespace {
-
-#if DXX_USE_SDLMIXER
-__attribute_nonnull()
-static int select_file_recursive2(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<void> when_selected, void *userdata);
-
-template <typename T>
-__attribute_nonnull()
-static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<T> when_selected, T *userdata)
-{
-	return select_file_recursive2(title, orig_path, ext_list, select_dir, reinterpret_cast<select_file_subfunction<void>>(when_selected), reinterpret_cast<void *>(userdata));
-}
-#endif
-
-}
 }
 
 // Hide all menus
@@ -1976,13 +1970,12 @@ namespace {
 
 struct browser
 {
-	browser(menu_title title, const partial_range_t<const file_extension_t *> &r) :
-		title(title), ext_range(r)
+	browser(menu_title title, ntstring<PATH_MAX - 1> &userdata, const partial_range_t<const file_extension_t *> &r) :
+		title(title), userdata(userdata), ext_range(r)
 	{
 	}
 	const menu_title title;			// The title - needed for making another listbox when changing directory
-	window_event_result (*when_selected)(void *userdata, const char *filename);	// What to do when something chosen
-	void	*userdata;		// Whatever you want passed to when_selected
+	ntstring<PATH_MAX - 1> &userdata;		// Whatever you want passed to get_absolute_path
 	string_array_t list;
 	// List of file extensions we're looking for (if looking for a music file many types are possible)
 	const partial_range_t<const file_extension_t *> ext_range;
@@ -2044,7 +2037,7 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 				snprintf(newpath.data(), newpath.size(), "%s:%s", text, sep);
 				if (!rval && text[0])
 				{
-					select_file_recursive(b->title, newpath, b->ext_range, b->select_dir, b->when_selected, b->userdata);
+					select_file_recursive(b->title, newpath, b->ext_range, b->select_dir, b->userdata);
 					// close old box.
 					return window_event_result::close;
 				}
@@ -2091,7 +2084,7 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 					*p = '\0';
 			}
 			else if (citem == 1 && b->select_dir)
-				return (*b->when_selected)(b->userdata, "");
+				return get_absolute_path(b->userdata, "");
 			else
 			{
 				const size_t len_newpath = strlen(newpath.data());
@@ -2105,9 +2098,9 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 			if ((citem == 0) || PHYSFS_isDirectory(list[citem]))
 			{
 				// If it fails, stay in this one
-				return select_file_recursive(b->title, newpath, b->ext_range, b->select_dir, b->when_selected, b->userdata) ? window_event_result::close : window_event_result::handled;
+				return select_file_recursive(b->title, newpath, b->ext_range, b->select_dir, b->userdata) ? window_event_result::close : window_event_result::handled;
 			}
-			return (*b->when_selected)(b->userdata, list[citem]);
+			return get_absolute_path(b->userdata, list[citem]);
 		}
 		case EVENT_WINDOW_CLOSE:
 			if (b->new_path)
@@ -2123,15 +2116,13 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 	return window_event_result::ignored;
 }
 
-static int select_file_recursive2(const menu_title title, const std::array<char, PATH_MAX> &orig_path_storage, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, select_file_subfunction<void> when_selected, void *userdata)
+static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path_storage, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, ntstring<PATH_MAX - 1> &userdata)
 {
 	auto orig_path = orig_path_storage.data();
 	const char *sep = PHYSFS_getDirSeparator();
 	std::array<char, PATH_MAX> new_path;
 
-	auto b = std::make_unique<browser>(title, ext_range);
-	b->when_selected = when_selected;
-	b->userdata = userdata;
+	auto b = std::make_unique<browser>(title, userdata, ext_range);
 	b->select_dir = select_dir;
 	b->view_path[0] = '\0';
 	b->new_path = 1;
@@ -2201,16 +2192,6 @@ static int select_file_recursive2(const menu_title title, const std::array<char,
 
 #define DXX_MENU_ITEM_BROWSE(VERB, TXT, OPT)	\
 	DXX_MENUITEM(VERB, MENU, TXT " (browse...)", OPT)
-
-#if DXX_USE_SDLMIXER
-static window_event_result get_absolute_path(char *full_path, const char *rel_path)
-{
-	PHYSFSX_getRealPath(rel_path, full_path, PATH_MAX);
-	return window_event_result::close;
-}
-
-#define SELECT_SONG(t, s)	select_file_recursive(t, CGameCfg.CMMiscMusic[s], jukebox_exts, 0, get_absolute_path, CGameCfg.CMMiscMusic[s].data())
-#endif
 
 }
 }
@@ -2431,11 +2412,10 @@ int sound_menu::subfunction_handler(const d_event &event)
 			if (citem == opt_sm_mtype3_lmpath)
 			{
 				static const std::array<file_extension_t, 1> ext_list{{"m3u"}};		// select a directory or M3U playlist
-				const auto cfgpath = CGameCfg.CMLevelMusicPath.data();
 				select_file_recursive(
 					menu_title{"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT},
 									  CGameCfg.CMLevelMusicPath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
-									  get_absolute_path, cfgpath);	// just copy the absolute path
+									  CGameCfg.CMLevelMusicPath);	// just copy the absolute path
 			}
 			else if (citem == opt_sm_cm_mtype3_file1_b)
 				SELECT_SONG(menu_title{"Select main menu music" WINDOWS_DRIVE_CHANGE_TEXT}, SONG_TITLE);
