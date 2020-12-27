@@ -1062,7 +1062,6 @@ window_event_result do_new_game_menu()
 }
 
 static void do_sound_menu();
-static void change_res();
 namespace dsx {
 namespace {
 static void hud_config();
@@ -1148,127 +1147,209 @@ static int gcd(int a, int b)
 	return gcd(b, a%b);
 }
 
+struct screen_resolution_menu_items
+{
+	enum
+	{
+		grp_resolution = 0,
+	};
+	enum class ni_index : unsigned;
+	enum class fixed_field_index : unsigned
+	{
+#if SDL_MAJOR_VERSION == 1
+		/* SDL1 has a variable number of records before this line, so
+		 * this line exists to separate them from the next lines.
+		 *
+		 * SDL2 has no records before the custom values line, so no
+		 * separator is needed.
+		 */
+		opt_blank_custom_values,
+#endif
+		opt_radio_custom_values,
+		opt_label_resolution,
+		opt_input_resolution,
+		opt_label_aspect,
+		opt_input_aspect,
+		opt_blank_fullscreen,
+		opt_checkbox_fullscreen,
+		/* Must be last.  This is not a real element, and access to
+		 * array[end] is undefined.
+		 */
+		end,
+	};
+#if SDL_MAJOR_VERSION == 1
+	static constexpr std::size_t maximum_preset_modes = 50;
+	std::array<screen_mode, maximum_preset_modes> modes;
+	std::array<std::array<char, 12>, maximum_preset_modes> restext;
+	const unsigned num_presets;
+	ni_index convert_fixed_field_to_ni(fixed_field_index i) const
+	{
+		return static_cast<ni_index>(static_cast<unsigned>(i) + num_presets);
+	}
+#elif SDL_MAJOR_VERSION == 2
+	static constexpr std::size_t maximum_preset_modes = 0;
+	static constexpr ni_index convert_fixed_field_to_ni(fixed_field_index i)
+	{
+		return static_cast<ni_index>(i);
+	}
+#endif
+	std::array<char, 12> crestext, casptext;
+	enumerated_array<newmenu_item, maximum_preset_modes + static_cast<unsigned>(fixed_field_index::end), ni_index> m;
+	screen_resolution_menu_items();
+};
+
+screen_resolution_menu_items::screen_resolution_menu_items()
+#if SDL_MAJOR_VERSION == 1
+	: num_presets(gr_list_modes(modes))
+#endif
+{
+	int citem = -1;
+#if SDL_MAJOR_VERSION == 1
+	for (auto &&[idx, mode, resolution_text, menuitem] : enumerate(zip(partial_const_range(modes, num_presets), restext, m)))
+	{
+		const auto &&sm_w = SM_W(mode);
+		const auto &&sm_h = SM_H(mode);
+		snprintf(resolution_text.data(), resolution_text.size(), "%ix%i", sm_w, sm_h);
+		/* At most one entry can be checked.  When the correct entry is
+		 * found, update citem so that no later entries can be checked.
+		 */
+		const auto checked = (citem == -1 && Game_screen_mode == mode && GameCfg.AspectY == sm_w / gcd(sm_w, sm_h) && GameCfg.AspectX == sm_h / gcd(sm_w, sm_h));
+		if (checked)
+			citem = idx;
+		nm_set_item_radio(menuitem, resolution_text.data(), checked, grp_resolution);
+	}
+	/* Leave a blank line for visual separation */
+	nm_set_item_text(m[convert_fixed_field_to_ni(fixed_field_index::opt_blank_custom_values)], "");
+#endif
+	nm_set_item_radio(m[convert_fixed_field_to_ni(fixed_field_index::opt_radio_custom_values)], "Use custom values", (citem == -1), grp_resolution);
+	nm_set_item_text(m[convert_fixed_field_to_ni(fixed_field_index::opt_label_resolution)], "resolution:");
+	snprintf(crestext.data(), crestext.size(), "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
+	nm_set_item_input(m[convert_fixed_field_to_ni(fixed_field_index::opt_input_resolution)], crestext);
+	nm_set_item_text(m[convert_fixed_field_to_ni(fixed_field_index::opt_label_aspect)], "aspect:");
+	snprintf(casptext.data(), casptext.size(), "%ix%i", GameCfg.AspectY, GameCfg.AspectX);
+	nm_set_item_input(m[convert_fixed_field_to_ni(fixed_field_index::opt_input_aspect)], casptext);
+	nm_set_item_text(m[convert_fixed_field_to_ni(fixed_field_index::opt_blank_fullscreen)], "");
+	nm_set_item_checkbox(m[convert_fixed_field_to_ni(fixed_field_index::opt_checkbox_fullscreen)], "Fullscreen", gr_check_fullscreen());
 }
 
-void change_res()
+struct screen_resolution_menu : screen_resolution_menu_items, passive_newmenu
 {
-	newmenu_item m[50+8];
-	std::array<char, 12> crestext, casptext;
-
-	int citem = -1;
-	unsigned mc = 0;
-
-#if SDL_MAJOR_VERSION == 1
-	std::array<screen_mode, 50> modes;
-	const auto num_presets = gr_list_modes(modes);
-	std::array<std::array<char, 12>, 50> restext;
-
-	range_for (auto &i, partial_const_range(modes, num_presets))
+	screen_resolution_menu() :
+		passive_newmenu(menu_title{nullptr}, menu_subtitle{"Screen Resolution"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(partial_range(m, static_cast<std::size_t>(convert_fixed_field_to_ni(fixed_field_index::end))), 0), *grd_curcanv)
 	{
-		const auto &&sm_w = SM_W(i);
-		const auto &&sm_h = SM_H(i);
-		snprintf(restext[mc].data(), restext[mc].size(), "%ix%i", sm_w, sm_h);
-		const auto checked = (citem == -1 && Game_screen_mode == i && GameCfg.AspectY == sm_w / gcd(sm_w, sm_h) && GameCfg.AspectX == sm_h / gcd(sm_w, sm_h));
-		if (checked)
-			citem = mc;
-		nm_set_item_radio(m[mc], restext[mc].data(), checked, 0);
-		mc++;
 	}
-
-	nm_set_item_text(m[mc], ""); mc++; // little space for overview
-	// the fields for custom resolution and aspect
-	const auto opt_cval = mc;
-#endif
-	nm_set_item_radio(m[mc], "use custom values", (citem == -1), 0); mc++;
-	nm_set_item_text(m[mc], "resolution:"); mc++;
-	snprintf(crestext.data(), crestext.size(), "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
-	nm_set_item_input(m[mc], crestext);
-	mc++;
-	nm_set_item_text(m[mc], "aspect:"); mc++;
-	snprintf(casptext.data(), casptext.size(), "%ix%i", GameCfg.AspectY, GameCfg.AspectX);
-	nm_set_item_input(m[mc], casptext);
-	mc++;
-	nm_set_item_text(m[mc], ""); mc++; // little space for overview
-	// fullscreen
+	virtual window_event_result event_handler(const d_event &event) override;
+	void handle_close_event() const;
 #if SDL_MAJOR_VERSION == 1
-	const auto opt_fullscr = mc;
-	nm_set_item_checkbox(m[mc], "Fullscreen", gr_check_fullscreen());
-	mc++;
+	void check_apply_preset_resolution() const;
 #endif
+	void apply_custom_resolution() const;
+	void apply_resolution(screen_mode) const;
+};
 
-	// create the menu
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{"Screen Resolution"}, unchecked_partial_range(m, mc), unused_newmenu_subfunction, unused_newmenu_userdata);
+window_event_result screen_resolution_menu::event_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_WINDOW_CLOSE:
+			handle_close_event();
+			return window_event_result::ignored;
+		default:
+			return newmenu::event_handler(event);
+	}
+}
 
-	// menu is done, now do what we need to do
-
+void screen_resolution_menu::handle_close_event() const
+{
 	// check which resolution field was selected
 #if SDL_MAJOR_VERSION == 1
-	unsigned i;
-	for (i = 0; i <= mc; i++)
-		if (m[i].type == nm_type::radio && m[i].radio().group == 0 && m[i].value == 1)
-			break;
-
-	// now check for fullscreen toggle and apply if necessary
-	if (m[opt_fullscr].value != gr_check_fullscreen())
+	if (m[convert_fixed_field_to_ni(fixed_field_index::opt_checkbox_fullscreen)].value != gr_check_fullscreen())
 		gr_toggle_fullscreen();
-#endif
-
-	screen_mode new_mode;
-#if SDL_MAJOR_VERSION == 1
-	if (i == opt_cval) // set custom resolution and aspect
+	if (!m[convert_fixed_field_to_ni(fixed_field_index::opt_radio_custom_values)].value)
+	{
+		/* If the radio item for "Use custom resolution" is not set,
+		 * then one of the items for a preset resolution must be set.
+		 * Find the chosen item and apply it.
+		 */
+		check_apply_preset_resolution();
+	}
+	else
 #endif
 	{
-		char revert[32];
-		char *x;
-		const char *errstr;
-		unsigned long w = strtoul(crestext.data(), &x, 10), h;
-		screen_mode cmode;
-		if (
-			((x == crestext.data() || *x != 'x' || !x[1] || ((h = strtoul(x + 1, &x, 10)), *x)) && (errstr = "Entered resolution must\nbe formatted as\n<number>x<number>", true)) ||
-			((w < 320 || h < 200) && (errstr = "Entered resolution must\nbe at least 320x200", true))
-			)
-		{
-			cmode = Game_screen_mode;
-			w = SM_W(cmode);
-			h = SM_H(cmode);
-			snprintf(revert, sizeof(revert), "Revert to %lux%lu", w, h);
-			nm_messagebox_str(menu_title{TXT_WARNING}, revert, menu_subtitle{errstr});
-		}
-		else
-		{
-			cmode.width = w;
-			cmode.height = h;
-		}
-		auto casp = cmode;
-		w = strtoul(casptext.data(), &x, 10);
-		if (
-			((x == casptext.data() || *x != 'x' || !x[1] || ((h = strtoul(x + 1, &x, 10)), *x)) && (errstr = "Entered aspect ratio must\nbe formatted as\n<number>x<number>", true)) ||
-			((!w || !h) && (errstr = "Entered aspect ratio must\nnot use 0 term", true))
-			)
-		{
-			nm_messagebox_str(menu_title{TXT_WARNING}, "IGNORE ASPECT RATIO", menu_subtitle{errstr});
-		}
-		else
-		{
-			// we even have a custom aspect set up
-			casp.width = w;
-			casp.height = h;
-		}
-		const auto g = gcd(SM_W(casp), SM_H(casp));
-		GameCfg.AspectY = SM_W(casp) / g;
-		GameCfg.AspectX = SM_H(casp) / g;
-		new_mode = cmode;
+		apply_custom_resolution();
 	}
+}
+
 #if SDL_MAJOR_VERSION == 1
-	else if (i < num_presets) // set preset resolution
-	{
-		new_mode = modes[i];
-		const auto g = gcd(SM_W(new_mode), SM_H(new_mode));
-		GameCfg.AspectY = SM_W(new_mode) / g;
-		GameCfg.AspectX = SM_H(new_mode) / g;
-	}
+void screen_resolution_menu::check_apply_preset_resolution() const
+{
+	const auto r = zip(partial_range(modes, num_presets), m);
+	const auto predicate = [](const auto &v) {
+		auto &ni = std::get<1>(v);
+		if (ni.type != nm_type::radio)
+			return 0;
+		auto &radio = ni.radio();
+		if (radio.group != grp_resolution)
+			return 0;
+		return ni.value;
+	};
+	const auto i = std::find_if(r.begin(), r.end(), predicate);
+	if (i == r.end())
+		return;
+	const auto requested_mode = std::get<0>(*i);
+	const auto g = gcd(SM_W(requested_mode), SM_H(requested_mode));
+	GameCfg.AspectY = SM_W(requested_mode) / g;
+	GameCfg.AspectX = SM_H(requested_mode) / g;
+	apply_resolution(requested_mode);
+}
 #endif
 
+void screen_resolution_menu::apply_custom_resolution() const
+{
+	char revert[32];
+	char *x;
+	const char *errstr;
+	const auto resolution_width = strtoul(crestext.data(), &x, 10);
+	unsigned long resolution_height;
+	screen_mode cmode;
+	if (
+		((x == crestext.data() || *x != 'x' || !x[1] || ((resolution_height = strtoul(x + 1, &x, 10)), *x)) && (errstr = "Entered resolution must\nbe formatted as\n<number>x<number>", true)) ||
+		((resolution_width < 320 || resolution_height < 200) && (errstr = "Entered resolution must\nbe at least 320x200", true))
+	)
+	{
+		cmode = Game_screen_mode;
+		snprintf(revert, sizeof(revert), "Revert to %ix%i", SM_W(cmode), SM_H(cmode));
+		nm_messagebox_str(menu_title{TXT_WARNING}, revert, menu_subtitle{errstr});
+	}
+	else
+	{
+		cmode.width = resolution_width;
+		cmode.height = resolution_height;
+	}
+	screen_mode casp;
+	const auto aspect_width = strtoul(casptext.data(), &x, 10);
+	unsigned long aspect_height;
+	if (
+		((x == casptext.data() || *x != 'x' || !x[1] || ((aspect_height = strtoul(x + 1, &x, 10)), *x)) && (errstr = "Entered aspect ratio must\nbe formatted as\n<number>x<number>", true)) ||
+		((!aspect_width || !aspect_height) && (errstr = "Entered aspect ratio must\nnot use 0 term", true))
+	)
+	{
+		casp = cmode;
+		nm_messagebox_str(menu_title{TXT_WARNING}, "IGNORE ASPECT RATIO", menu_subtitle{errstr});
+	}
+	else
+	{
+		casp.width = aspect_width;
+		casp.height = aspect_height;
+	}
+	const auto g = gcd(SM_W(casp), SM_H(casp));
+	GameCfg.AspectY = SM_W(casp) / g;
+	GameCfg.AspectX = SM_H(casp) / g;
+	apply_resolution(cmode);
+}
+
+void screen_resolution_menu::apply_resolution(const screen_mode new_mode) const
+{
 	// clean up and apply everything
 	newmenu_free_background();
 	set_screen_mode(SCREEN_MENU);
@@ -1290,8 +1371,6 @@ void change_res()
 	}
 	game_init_render_buffers(SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 }
-
-namespace {
 
 template <typename PMF>
 struct copy_sensitivity
@@ -1945,8 +2024,8 @@ int graphics_config_menu::subfunction_handler(const d_event &event)
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
-                        if (citem == opt_gr_screenres)
-                                change_res();
+			if (citem == opt_gr_screenres)
+				window_create<screen_resolution_menu>();
 			else if (citem == opt_gr_hudmenu)
 				hud_config();
 			return 1;		// stay in menu

@@ -123,6 +123,10 @@ public:
 	input_specific_type &input() {
 		return get_union_member(nm_private_input);
 	}
+	const radio_specific_type &radio() const
+	{
+		return get_union_member(nm_private_radio);
+	}
 	radio_specific_type &radio() {
 		return get_union_member(nm_private_radio);
 	}
