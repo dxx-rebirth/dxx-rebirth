@@ -949,16 +949,23 @@ int select_demo()
 
 static int do_difficulty_menu()
 {
-	std::array<newmenu_item, NDL> m{{
-		nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_0)),
-		nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_1)),
-		nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_2)),
-		nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_3)),
-		nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_4)),
-	}};
-
+	using items_type = std::array<newmenu_item, NDL>;
+	struct difficulty_prompt_menu : items_type, passive_newmenu
+	{
+		difficulty_prompt_menu(const unsigned Difficulty_level) :
+			items_type{{
+				nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_0)),
+				nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_1)),
+				nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_2)),
+				nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_3)),
+				nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_4)),
+			}},
+			passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_DIFFICULTY_LEVEL}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), Difficulty_level), *grd_curcanv)
+		{
+		}
+	};
 	auto &Difficulty_level = GameUniqueState.Difficulty_level;
-	const unsigned s = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_DIFFICULTY_LEVEL}, m, unused_newmenu_subfunction, unused_newmenu_userdata, Difficulty_level);
+	const unsigned s = run_blocking_newmenu<difficulty_prompt_menu>(Difficulty_level);
 
 	if (s <= Difficulty_4)
 	{
