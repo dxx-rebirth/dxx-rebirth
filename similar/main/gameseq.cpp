@@ -1328,36 +1328,24 @@ int p_secret_level_destroyed(void)
 
 namespace {
 
-static int draw_endlevel_background(newmenu *,const d_event &event, grs_bitmap *background)
-{
-	switch (event.type)
-	{
-		case EVENT_WINDOW_DRAW:
-			gr_set_default_canvas();
-			show_fullscr(*grd_curcanv, *background);
-			break;
-			
-		default:
-			break;
-	}
-	
-	return 0;
-}
-
 static void do_screen_message(const char *msg) __attribute_nonnull();
 static void do_screen_message(const char *msg)
 {
 	
 	if (Game_mode & GM_MULTI)
 		return;
-	grs_main_bitmap background;
-	pcx_read_bitmap_or_default(GLITZ_BACKGROUND, background, gr_palette);
-
-	gr_palette_load(gr_palette);
-	std::array<newmenu_item, 1> nm_message_items{{
-		nm_item_menu(TXT_OK),
-	}};
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{msg}, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
+	using items_type = std::array<newmenu_item, 1>;
+	struct glitz_menu : items_type, passive_newmenu
+	{
+		glitz_menu(menu_subtitle subtitle) :
+			items_type{{
+				nm_item_menu(TXT_OK),
+			}},
+			passive_newmenu(menu_title{nullptr}, subtitle, menu_filename{GLITZ_BACKGROUND}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), *grd_curcanv, draw_box_flag::menu_background)
+		{
+		}
+	};
+	run_blocking_newmenu<glitz_menu>(menu_subtitle{msg});
 }
 
 }
