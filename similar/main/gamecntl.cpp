@@ -1521,41 +1521,44 @@ struct levelwarp_menu_items
 	}};
 };
 
-struct levelwarp_menu : levelwarp_menu_items, newmenu
+struct levelwarp_menu : levelwarp_menu_items, passive_newmenu
 {
 	levelwarp_menu(grs_canvas &src) :
-		newmenu(menu_title{nullptr}, menu_subtitle{TXT_WARP_TO_LEVEL}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(menu_items, 0), src)
+		passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_WARP_TO_LEVEL}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(menu_items, 0), src)
 		{
 		}
-	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
+	void handle_close_event();
 };
 
-int levelwarp_menu::subfunction_handler(const d_event &event)
+void levelwarp_menu::handle_close_event()
+{
+	if (!text[0])
+		return;
+	char *p;
+	const auto l = strtoul(text, &p, 0);
+	if (*p)
+		return;
+	/* No handling for secret levels.  Warping to secret
+	 * levels is not supported.
+	 */
+	if (l > Last_level)
+		return;
+	window_set_visible(*Game_wind, 0);
+	StartNewLevel(l);
+	window_set_visible(*Game_wind, 1);
+}
+
+window_event_result levelwarp_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
 		case EVENT_WINDOW_CLOSE:
-			{
-				if (!text[0])
-					break;
-				char *p;
-				const auto l = strtoul(text, &p, 0);
-				if (*p)
-					break;
-				/* No handling for secret levels.  Warping to secret
-				 * levels is not supported.
-				 */
-				if (l > Last_level)
-					break;
-				window_set_visible(*Game_wind, 0);
-				StartNewLevel(l);
-				window_set_visible(*Game_wind, 1);
-			}
-			break;
+			handle_close_event();
+			return window_event_result::ignored;
 		default:
-			break;
+			return newmenu::event_handler(event);
 	}
-	return 0;
 }
 
 static window_event_result FinalCheats()
