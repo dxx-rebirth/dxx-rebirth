@@ -329,7 +329,7 @@ namespace dsx {
 window_event_result kmatrix_window::event_handler(const d_event &event)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	int k = 0, choice = 0;
+	int k = 0;
 	
 	switch (event.type)
 	{
@@ -339,14 +339,21 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 			{
 				case KEY_ESC:
 					{
-						std::array<newmenu_item, 2> nm_message_items{{
-							nm_item_menu(TXT_YES),
-							nm_item_menu(TXT_NO),
-						}};
-						choice = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_ABORT_GAME}, nm_message_items, unused_newmenu_subfunction, unused_newmenu_userdata);
+						using items_type = std::array<newmenu_item, 2>;
+						struct abort_game_menu : items_type, passive_newmenu
+						{
+							abort_game_menu() :
+								items_type{{
+									nm_item_menu(TXT_YES),
+									nm_item_menu(TXT_NO),
+								}},
+								passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_ABORT_GAME}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), *grd_curcanv)
+							{
+							}
+						};
+						if (run_blocking_newmenu<abort_game_menu>() != 0)
+							return window_event_result::handled;
 					}
-					
-					if (choice==0)
 					{
 						get_local_player().connected=CONNECT_DISCONNECTED;
 						
@@ -358,8 +365,6 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 
 						return window_event_result::close;
 					}
-					return window_event_result::handled;
-					
 				default:
 					break;
 			}
