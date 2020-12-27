@@ -1949,6 +1949,7 @@ int graphics_config_menu::subfunction_handler(const d_event &event)
 #endif
 			GameCfg.GammaLevel = m[opt_gr_brightness].value;
 			CGameCfg.FPSIndicator = m[opt_gr_fpsindi].value;
+			reset_cockpit();
 #if DXX_USE_OGL
 			gr_set_attributes();
 			gr_set_mode(Game_screen_mode);
