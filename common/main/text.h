@@ -1285,17 +1285,26 @@ void load_text(void);
 extern std::array<const char *, N_TEXT_STRINGS> Text_string;
 #endif
 
-static inline const char *dxx_gettext(unsigned expr, const char *fmt) __attribute_format_arg(2);
-static inline const char *dxx_gettext(unsigned expr, const char *fmt)
-{
 #ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
-	(void)expr;
-	return fmt;
+/* Verify that A is convertible to the right type, then discard it.
+ *
+ * This path requires compiler support for statement expressions, since
+ * the expression must evaluate to the target string.  For optimal
+ * format string checking, the target string must not be behind a
+ * function call, since that will convert the expression from
+ * `const char[]` to `const char *` and, for some versions of gcc,
+ * cause the string to be considered a non-literal, even if the input B
+ * is a literal.
+ */
+#define dxx_gettext(A,B)	({ unsigned dxx_gettext = A;(void)dxx_gettext; B; })
 #else
-	(void)fmt;
+__attribute_format_arg(2)
+static constexpr const char *dxx_gettext(unsigned expr, const char *)
+{
 	return Text_string[expr];
-#endif
 }
+#endif
+
 }
 #endif
 
