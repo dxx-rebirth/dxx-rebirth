@@ -1001,25 +1001,40 @@ window_event_result do_new_game_menu()
 		;
 	if (allowed_highest_level > 1)
 	{
-		char info_text[128];
+		struct items_type
+		{
+			std::array<char, 8> num_text{"1"};
+			std::array<char, 128> info_text;
+			std::array<newmenu_item, 2> m;
+			items_type() :
+				m{{
+					nm_item_text(info_text.data()),
+					nm_item_input(num_text),
+				}}
+			{
+			}
+		};
+		items_type menu_items;
 
-		snprintf(info_text, sizeof(info_text), "This mission has\n%u levels.\n\n%s %d." DXX_START_ANY_LEVEL_FORMAT, static_cast<unsigned>(Last_level), TXT_START_ANY_LEVEL, allowed_highest_level DXX_START_ANY_LEVEL_ARGS);
+		snprintf(menu_items.info_text.data(), menu_items.info_text.size(), "This mission has\n%u levels.\n\n%s %d." DXX_START_ANY_LEVEL_FORMAT, static_cast<unsigned>(Last_level), TXT_START_ANY_LEVEL, allowed_highest_level DXX_START_ANY_LEVEL_ARGS);
 #undef DXX_START_ANY_LEVEL_ARGS
 #undef DXX_START_ANY_LEVEL_FORMAT
 		for (;;)
 		{
-			std::array<char, 10> num_text{"1"};
-			std::array<newmenu_item, 2> m{{
-				nm_item_text(info_text),
-				nm_item_input(num_text),
-			}};
-			const int choice = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_SELECT_START_LEV}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
+			struct select_start_level_menu : passive_newmenu
+			{
+				select_start_level_menu(items_type &i) :
+					passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_SELECT_START_LEV}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(i.m, 1), *grd_curcanv)
+				{
+				}
+			};
+			const int choice = run_blocking_newmenu<select_start_level_menu>(menu_items);
 
-			if (choice == -1 || !num_text[0])
+			if (choice == -1 || !menu_items.num_text[0])
 				return window_event_result::handled;
 
 			char *p = nullptr;
-			new_level_num = strtol(num_text.data(), &p, 10);
+			new_level_num = strtol(menu_items.num_text.data(), &p, 10);
 
 			if (*p || new_level_num <= 0 || new_level_num > Last_level)
 			{
