@@ -1975,56 +1975,99 @@ namespace dcx {
 namespace {
 
 #if DXX_USE_SDLMIXER
-struct browser
+struct physfsx_mounted_path
 {
-	browser(menu_title title, ntstring<PATH_MAX - 1> &userdata, const partial_range_t<const file_extension_t *> &r, const select_dir_flag select_dir, const uint8_t new_path) :
-		title(title), userdata(userdata), ext_range(r), select_dir(select_dir), new_path(new_path)
+	/* PhysFS does not count how many times a path is mounted, and all
+	 * mount requests after the first succeed without changing state.
+	 * This flag tracks whether the path in `path` was mounted by this
+	 * instance of `physfsx_mounted_path` (=1) or if the path was
+	 * already mounted by an earlier call to PhysFS (=0).
+	 *
+	 * If the path was already mounted, destruction of this instance
+	 * must not unmount it.
+	 */
+	uint8_t must_unmount = 0;
+	std::array<char, PATH_MAX> path;
+	uint8_t mount();
+	~physfsx_mounted_path()
 	{
+		if (must_unmount)
+			PHYSFS_unmount(path.data());
 	}
-	const menu_title title;			// The title - needed for making another listbox when changing directory
-	ntstring<PATH_MAX - 1> &userdata;		// Whatever you want passed to get_absolute_path
-	string_array_t list;
+};
+
+uint8_t physfsx_mounted_path::mount()
+{
+	assert(!must_unmount);
+	const auto current_mount_point = PHYSFS_getMountPoint(path.data());
+	if (current_mount_point == nullptr)
+	{
+		/* Not currently mounted; try to mount it */
+		must_unmount = PHYSFS_mount(path.data(), nullptr, 0);
+		return must_unmount;
+	}
+	else
+	{
+		/* Already mounted */
+		must_unmount = 0;
+		return 1;
+	}
+}
+
+struct browser_storage
+{
+	struct target_path_not_mounted {};
 	// List of file extensions we're looking for (if looking for a music file many types are possible)
 	const partial_range_t<const file_extension_t *> ext_range;
 	const select_dir_flag select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
-	uint8_t new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
-	std::array<char, PATH_MAX> view_path;	// The absolute path we're currently looking at
+	physfsx_mounted_path view_path;	// The absolute path we're currently looking at
+	string_array_t list;
+	browser_storage(const char *orig_path, const partial_range_t<const file_extension_t *> &ext_range, const select_dir_flag select_dir, const char *const sep) :
+		ext_range(ext_range), select_dir(select_dir),
+		/* view_path is trivially constructed, then properly initialized as
+		 * a side effect of preparing the string list */
+		list(construct_string_list(orig_path, view_path, ext_range, select_dir, sep))
+	{
+	}
+	static string_array_t construct_string_list(const char *orig_path, physfsx_mounted_path &view_path, const partial_range_t<const file_extension_t *> &r, const select_dir_flag select_dir, const char *const sep);
 };
 
-static void list_dir_el(void *vb, const char *, const char *fname)
+struct browser : browser_storage, listbox
 {
-	browser *b = reinterpret_cast<browser *>(vb);
+	browser(const char *orig_path, menu_title title, const partial_range_t<const file_extension_t *> &r, const select_dir_flag select_dir, const char *const sep, ntstring<PATH_MAX - 1> &userdata) :
+		browser_storage(orig_path, r, select_dir, sep),
+		listbox(0, list.pointer().size(), &list.pointer().front(), title, grd_curscreen->sc_canvas, 1),
+		userdata(userdata)
+	{
+	}
+	ntstring<PATH_MAX - 1> &userdata;		// Whatever you want passed to get_absolute_path
+	virtual window_event_result callback_handler(const d_event &, window_event_result) override;
+};
+
+struct list_directory_context
+{
+	string_array_t &string_list;
+	const partial_range_t<const file_extension_t *> ext_range;
+	const std::array<char, PATH_MAX> &path;
+};
+
+static void list_dir_el(void *context, const char *, const char *fname)
+{
+	const auto c = reinterpret_cast<list_directory_context *>(context);
 	const char *r = PHYSFS_getRealDir(fname);
 	if (!r)
 		r = "";
-	if (!strcmp(r, b->view_path.data()) && (PHYSFS_isDirectory(fname) || PHYSFSX_checkMatchingExtension(fname, b->ext_range))
+	if (!strcmp(r, c->path.data()) && (PHYSFS_isDirectory(fname) || PHYSFSX_checkMatchingExtension(fname, c->ext_range))
 #if defined(__APPLE__) && defined(__MACH__)
 		&& d_stricmp(fname, "Volumes")	// this messes things up, use '..' instead
 #endif
 		)
-		b->list.add(fname);
+		c->string_list.add(fname);
 }
 
-static int list_directory(browser *b)
+window_event_result browser::callback_handler(const d_event &event, window_event_result)
 {
-	b->list.clear();
-	b->list.add("..");		// go to parent directory
-	std::size_t tidy_offset = 1;
-	if (b->select_dir != select_dir_flag::files_only)
-	{
-		++tidy_offset;
-		b->list.add("<this directory>");	// choose the directory being viewed
-	}
-
-	PHYSFS_enumerateFilesCallback("", list_dir_el, b);
-	b->list.tidy(tidy_offset);
-	return 1;
-}
-
-static window_event_result select_file_handler(listbox *menu,const d_event &event, browser *b)
-{
-	std::array<char, PATH_MAX> newpath{};
-	const char **list = listbox_get_items(*menu);
+	const char **list = listbox_get_items(*this);
 	const char *sep = PHYSFS_getDirSeparator();
 	switch (event.type)
 	{
@@ -2041,10 +2084,11 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 				}};
 				rval = newmenu_do2(menu_title{nullptr}, menu_subtitle{"Enter drive letter"}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 				text[1] = '\0';
+				std::array<char, PATH_MAX> newpath;
 				snprintf(newpath.data(), newpath.size(), "%s:%s", text, sep);
 				if (!rval && text[0])
 				{
-					select_file_recursive(b->title, newpath, b->ext_range, b->select_dir, b->userdata);
+					select_file_recursive(title, newpath, ext_range, select_dir, userdata);
 					// close old box.
 					return window_event_result::close;
 				}
@@ -2056,7 +2100,7 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
-			newpath = b->view_path;
+			auto newpath = view_path.path;
 			if (citem == 0)		// go to parent dir
 			{
 				const size_t len_newpath = strlen(newpath.data());
@@ -2090,8 +2134,8 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 				else
 					*p = '\0';
 			}
-			else if (citem == 1 && b->select_dir != select_dir_flag::files_only)
-				return get_absolute_path(b->userdata, "");
+			else if (citem == 1 && select_dir != select_dir_flag::files_only)
+				return get_absolute_path(userdata, "");
 			else
 			{
 				const size_t len_newpath = strlen(newpath.data());
@@ -2105,32 +2149,23 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 			if ((citem == 0) || PHYSFS_isDirectory(list[citem]))
 			{
 				// If it fails, stay in this one
-				return select_file_recursive(b->title, newpath, b->ext_range, b->select_dir, b->userdata) ? window_event_result::close : window_event_result::handled;
+				return select_file_recursive(title, newpath, ext_range, select_dir, userdata) ? window_event_result::close : window_event_result::handled;
 			}
-			return get_absolute_path(b->userdata, list[citem]);
+			return get_absolute_path(userdata, list[citem]);
 		}
 		case EVENT_WINDOW_CLOSE:
-			if (b->new_path)
-				PHYSFS_unmount(b->view_path.data());
-
-			std::default_delete<browser>()(b);
 			break;
-
 		default:
 			break;
 	}
-
 	return window_event_result::ignored;
 }
 
 static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path_storage, const partial_range_t<const file_extension_t *> &ext_range, const select_dir_flag select_dir, ntstring<PATH_MAX - 1> &userdata)
 {
+	const auto sep = PHYSFS_getDirSeparator();
 	auto orig_path = orig_path_storage.data();
-	const char *sep = PHYSFS_getDirSeparator();
 	std::array<char, PATH_MAX> new_path;
-
-	auto b = std::make_unique<browser>(title, userdata, ext_range, select_dir, 1);
-	b->view_path[0] = '\0';
 
 	// Check for a PhysicsFS path first, saves complication!
 	if (strncmp(orig_path, sep, strlen(sep)) && PHYSFSX_exists(orig_path,0))
@@ -2139,59 +2174,70 @@ static int select_file_recursive(const menu_title title, const std::array<char, 
 		orig_path = new_path.data();
 	}
 
+	try {
+		auto b = window_create<browser>(orig_path, title, ext_range, select_dir, sep, userdata);
+		(void)b;
+		return 1;
+	} catch (browser::target_path_not_mounted) {
+		return 0;
+	}
+}
+
+string_array_t browser_storage::construct_string_list(const char *orig_path, physfsx_mounted_path &view_path, const partial_range_t<const file_extension_t *> &ext_range, const select_dir_flag select_dir, const char *const sep)
+{
+	view_path.path.front() = 0;
 	// Set the viewing directory to orig_path, or some parent of it
 	if (orig_path)
 	{
-		const char *base;
+		const auto base =
 		// Must make this an absolute path for directory browsing to work properly
 #ifdef _WIN32
-		if (!(isalpha(orig_path[0]) && (orig_path[1] == ':')))	// drive letter prompt (e.g. "C:"
-#elif defined(macintosh)
-		if (orig_path[0] == ':')
+		(!(isalpha(orig_path[0]) && (orig_path[1] == ':')))	// drive letter prompt (e.g. "C:"
 #else
-		if (orig_path[0] != '/')
+		(orig_path[0] != '/')
 #endif
-		{
-#ifdef macintosh
-			orig_path++;	// go past ':'
-#endif
-			base = PHYSFS_getBaseDir();
-		}
-		else
-		{
-			base = "";
-		}
-		auto p = std::next(b->view_path.begin(), snprintf(b->view_path.data(), b->view_path.size(), "%s%s", base, orig_path) - 1);
+		? PHYSFS_getBaseDir()
+		: "";
+		const auto vp_begin = view_path.path.begin();
+		auto p = std::next(vp_begin, snprintf(view_path.path.data(), view_path.path.size(), "%s%s", base, orig_path) - 1);
 		const size_t len_sep = strlen(sep);
-		while (b->new_path = !PHYSFS_getMountPoint(b->view_path.data()), !PHYSFS_mount(b->view_path.data(), nullptr, 0))
+		while (!view_path.mount())
 		{
-			while (p != b->view_path.begin() && strncmp(p, sep, len_sep))
+			/* Search from the end of the string back to the beginning,
+			 * for the first occurrence of a separator.
+			 */
+			while (p != vp_begin && strncmp(p, sep, len_sep))
 				p--;
 			*p = '\0';
 
-			if (p == b->view_path.begin())
+			if (p == vp_begin)
 				break;
 		}
 	}
-
 	// Set to user directory if we couldn't find a searchpath
-	if (!b->view_path[0])
+	if (!view_path.path[0])
 	{
-		snprintf(b->view_path.data(), b->view_path.size(), "%s", PHYSFS_getUserDir());
-		b->new_path = !PHYSFS_getMountPoint(b->view_path.data());
-		if (!PHYSFS_mount(b->view_path.data(), nullptr, 0))
+		snprintf(view_path.path.data(), view_path.path.size(), "%s", PHYSFS_getUserDir());
+		if (!view_path.mount())
 		{
-			return 0;
+			/* If the directory was not mounted, and cannot be mounted,
+			 * prevent showing the dialog.
+			 */
+			throw target_path_not_mounted();
 		}
 	}
-
-	if (!list_directory(b.get()))
+	string_array_t list;
+	list.add("..");		// go to parent directory
+	std::size_t tidy_offset = 1;
+	if (select_dir != select_dir_flag::files_only)
 	{
-		return 0;
+		++tidy_offset;
+		list.add("<this directory>");	// choose the directory being viewed
 	}
-
-	auto pb = b.get();
-	return newmenu_listbox1(title, pb->list.pointer().size(), &pb->list.pointer().front(), 1, 0, select_file_handler, std::move(b)) != NULL;
+	list_directory_context context{list, ext_range, view_path.path};
+	PHYSFS_enumerateFilesCallback("", list_dir_el, &context);
+	list.tidy(tidy_offset);
+	return list;
 }
 #endif
 
