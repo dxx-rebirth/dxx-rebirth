@@ -219,7 +219,7 @@ static void check_weapon_reorder(std::array<ubyte, N> &w)
 }
 
 namespace dsx {
-int new_player_config()
+void new_player_config()
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	range_for (auto &i, saved_games)
@@ -293,8 +293,6 @@ int new_player_config()
 	PlayerCfg.NetworkMessageMacro[3] = "This one's headed for Uranus";
 #endif
 	PlayerCfg.NetlifeKills=0; PlayerCfg.NetlifeKilled=0;
-	
-	return 1;
 }
 }
 

@@ -436,9 +436,7 @@ try_again:
 		goto try_again;
 	}
 
-	if ( !new_player_config() )
-		goto try_again;			// They hit Esc during New player config
-
+	new_player_config();
 	InterfaceUniqueState.PilotName = text;
 	InterfaceUniqueState.update_window_title();
 	write_player_file();

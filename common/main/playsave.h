@@ -212,7 +212,7 @@ extern const struct player_config::KeySettings DefaultKeySettings;
 
 void write_player_file();
 
-int new_player_config();
+void new_player_config();
 
 int read_player_file();
 
