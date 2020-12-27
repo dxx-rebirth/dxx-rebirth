@@ -1079,9 +1079,9 @@ void gr_remap_font(grs_font *font, const char *fontname)
 #endif
 }
 
-void gr_set_curfont(grs_canvas &canvas, const grs_font *n)
+void gr_set_curfont(grs_canvas &canvas, const grs_font &n)
 {
-	canvas.cv_font = n;
+	canvas.cv_font = &n;
 }
 
 namespace {

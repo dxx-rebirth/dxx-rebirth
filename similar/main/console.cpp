@@ -300,7 +300,7 @@ static void con_draw(void)
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	auto &game_font = *GAME_FONT;
-	gr_set_curfont(canvas, GAME_FONT);
+	gr_set_curfont(canvas, game_font);
 	const uint8_t color = BM_XRGB(0, 0, 0);
 	gr_settransblend(canvas, 7, gr_blend::normal);
 	const auto &&fspacy1 = FSPACY(1);

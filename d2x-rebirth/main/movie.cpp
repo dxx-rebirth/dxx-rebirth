@@ -618,7 +618,7 @@ static void draw_subtitles(const d_subtitle_state &SubtitleState, const int fram
 	if (frame_num == 0) {
 		num_active_subtitles = 0;
 		next_subtitle = 0;
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
+		gr_set_curfont(*grd_curcanv, *GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, 255, -1);
 	}
 

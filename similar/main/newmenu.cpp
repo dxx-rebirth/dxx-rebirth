@@ -450,7 +450,7 @@ static void draw_item(grs_canvas &canvas, newmenu_item &item, int is_current, co
 	}
 	else
 	{
-		gr_set_curfont(canvas, is_current?MEDIUM2_FONT:MEDIUM1_FONT);
+		gr_set_curfont(canvas, *(is_current ? MEDIUM2_FONT : MEDIUM1_FONT));
         }
 
 	const int line_spacing = static_cast<int>(LINE_SPACING(*canvas.cv_font, *GAME_FONT));
@@ -1502,7 +1502,7 @@ static window_event_result newmenu_draw(newmenu *menu)
 		gr_string(*grd_curcanv, medium3_font, 0x8000, ty + th, menu->subtitle);
 	}
 
-	gr_set_curfont(*grd_curcanv, menu->tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT);
+	gr_set_curfont(*grd_curcanv, *(menu->tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT));
 
 	// Redraw everything...
 	{

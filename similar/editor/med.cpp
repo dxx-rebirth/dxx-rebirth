@@ -442,7 +442,7 @@ void init_editor()
 	current_view = &LargeView;
 	
 	gr_set_current_canvas( GameViewBox->canvas );
-	gr_set_curfont(*grd_curcanv, editor_font);
+	gr_set_curfont(*grd_curcanv, *editor_font);
 	// No font scaling!
 	FNTScaleX.reset(1);
 	FNTScaleY.reset(1);
@@ -756,7 +756,7 @@ static void init_editor_screen(grs_canvas &canvas)
 	CBRIGHT = gr_find_closest_color( 60, 60, 60 );
 	CRED = gr_find_closest_color( 63, 0, 0 );
 
-	gr_set_curfont(canvas, editor_font);
+	gr_set_curfont(canvas, *editor_font);
 	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 
 	EditorWindow = window_create<editor_dialog>(0, 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED);

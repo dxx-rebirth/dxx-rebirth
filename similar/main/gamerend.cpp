@@ -430,7 +430,7 @@ static void game_draw_hud_stuff(grs_canvas &canvas, const control_info &Controls
 		int y;
 
 		auto &game_font = *GAME_FONT;
-		gr_set_curfont(canvas, GAME_FONT);
+		gr_set_curfont(canvas, game_font);
 		gr_set_fontcolor(canvas, BM_XRGB(27, 0, 0), -1);
 
 		y = canvas.cv_bitmap.bm_h - (LINE_SPACING(*canvas.cv_font, *GAME_FONT) * 2);
