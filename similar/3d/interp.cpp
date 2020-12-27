@@ -553,8 +553,6 @@ public:
 };
 #endif
 
-constexpr const glow_values_t *g3_draw_morphing_model_state::glow_values;
-
 template <typename P, typename State>
 static std::size_t dispatch_polymodel_op(const P p, State &state, const uint_fast32_t op)
 {

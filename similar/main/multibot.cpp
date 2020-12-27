@@ -68,11 +68,6 @@ static void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now);
 static void multi_send_release_robot(vmobjptridx_t objnum);
 static void multi_delete_controlled_robot(const vmobjptridx_t objnum);
 
-constexpr serial::endian_access::foreign_endian_type serial::endian_access::foreign_endian;
-constexpr serial::endian_access::little_endian_type serial::endian_access::little_endian;
-constexpr serial::endian_access::big_endian_type serial::endian_access::big_endian;
-constexpr serial::endian_access::native_endian_type serial::endian_access::native_endian;
-
 //
 // Code for controlling robots in multiplayer games
 //

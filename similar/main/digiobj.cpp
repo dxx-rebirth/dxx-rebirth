@@ -148,8 +148,6 @@ static std::pair<sound_objects_t::iterator, sound_objects_t::iterator> find_soun
 
 namespace dsx {
 
-constexpr std::integral_constant<int, -1> RAIIdigi_sound::invalid_channel;
-
 /* Find the sound which actually equates to a sound number */
 int digi_xlat_sound(int soundno)
 {

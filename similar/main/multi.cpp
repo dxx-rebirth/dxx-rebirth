@@ -5485,9 +5485,6 @@ public:
 	}
 };
 
-constexpr std::integral_constant<int, -1> hoard_resources_type::invalid_bm_idx;
-constexpr std::integral_constant<unsigned, ~0u> hoard_resources_type::invalid_snd_idx;
-
 static hoard_resources_type hoard_resources;
 
 }

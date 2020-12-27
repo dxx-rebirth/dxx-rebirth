@@ -61,10 +61,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //ubyte	Default_primary_ammo_level[MAX_PRIMARY_WEAPONS] = {255, 0, 255, 255, 255};
 //ubyte	Default_secondary_ammo_level[MAX_SECONDARY_WEAPONS] = {3, 0, 0, 0, 0};
 
-constexpr std::integral_constant<uint8_t, 1> has_weapon_result::has_weapon_flag;
-constexpr std::integral_constant<uint8_t, 2> has_weapon_result::has_energy_flag;
-constexpr std::integral_constant<uint8_t, 4> has_weapon_result::has_ammo_flag;
-
 //	Convert primary weapons to indices in Weapon_info array.
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
@@ -425,15 +421,6 @@ public:
 		return i == cycle_never_autoselect_below ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : SECONDARY_WEAPON_NAMES(i);
 	}
 };
-
-constexpr std::integral_constant<uint8_t, 255> cycle_weapon_state::cycle_never_autoselect_below;
-constexpr char cycle_weapon_state::DXX_WEAPON_TEXT_NEVER_AUTOSELECT[];
-constexpr std::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> cycle_primary_state::max_weapons;
-constexpr char cycle_primary_state::reorder_title[];
-constexpr char cycle_primary_state::error_weapon_list_corrupt[];
-constexpr std::integral_constant<uint_fast32_t, MAX_SECONDARY_WEAPONS> cycle_secondary_state::max_weapons;
-constexpr char cycle_secondary_state::reorder_title[];
-constexpr char cycle_secondary_state::error_weapon_list_corrupt[];
 
 void cycle_weapon_state::report_runtime_error(const char *const p)
 {
