@@ -1262,7 +1262,7 @@ static void DoEndLevelScoreGlitz()
 	struct glitz_menu : passive_newmenu
 	{
 		glitz_menu(menu_subtitle subtitle, partial_range_t<newmenu_item *> items) :
-			passive_newmenu(menu_title{nullptr}, subtitle, menu_filename{GLITZ_BACKGROUND}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), *grd_curcanv)
+			passive_newmenu(menu_title{nullptr}, subtitle, menu_filename{GLITZ_BACKGROUND}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), *grd_curcanv, draw_box_flag::none)
 		{
 		}
 	};

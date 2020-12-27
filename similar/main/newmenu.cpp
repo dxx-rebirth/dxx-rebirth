@@ -99,7 +99,7 @@ namespace {
 struct callback_newmenu : newmenu
 {
 	callback_newmenu(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, grs_canvas &src, subfunction_type subfunction, void *userdata) :
-		newmenu(title, subtitle, filename, tiny_mode, tabs_flag, citem_init, src),
+		newmenu(title, subtitle, filename, tiny_mode, tabs_flag, citem_init, src, filename ? draw_box_flag::none : draw_box_flag::menu_background),
 		subfunction(subfunction), userdata(userdata)
 	{
 	}
@@ -1475,7 +1475,7 @@ static window_event_result newmenu_draw(newmenu *menu)
 
 	gr_set_default_canvas();
 	nm_draw_background1(*grd_curcanv, menu->filename);
-	if (menu->filename == NULL)
+	if (menu->draw_box != draw_box_flag::none)
 	{
 		const auto mx = menu->x;
 		const auto my = menu->y;

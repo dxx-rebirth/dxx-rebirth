@@ -168,6 +168,12 @@ enum class tiny_mode_flag : uint8_t
 	tiny,
 };
 
+enum class draw_box_flag : uint8_t
+{
+	none,
+	menu_background,
+};
+
 template <typename>
 struct menu_tagged_string
 {
@@ -209,10 +215,11 @@ struct newmenu_layout
 	const uint8_t all_text;		//set true if all text items
 	const uint8_t is_scroll_box;   // Is this a scrolling box? Set to false at init
 	const uint8_t max_displayable;
+	const draw_box_flag draw_box;
 	uint8_t mouse_state;
 	const partial_range_t<newmenu_item *> items;
 	int	scroll_offset = 0;
-	newmenu_layout(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init) :
+	newmenu_layout(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, const draw_box_flag draw_box) :
 		citem(citem_init.citem),
 		title(title), subtitle(subtitle), filename(filename),
 		tiny_mode(tiny_mode), tabs_flag(tabs_flag),
@@ -220,6 +227,7 @@ struct newmenu_layout
 		all_text(citem_init.all_text),
 		is_scroll_box(max_on_menu < citem_init.items.size()),
 		max_displayable(std::min<uint8_t>(max_on_menu, citem_init.items.size())),
+		draw_box(draw_box),
 		items(citem_init.items)
 	{
 		create_structure();
@@ -236,8 +244,8 @@ struct newmenu_layout
 struct newmenu : newmenu_layout, window
 {
 	using subfunction_type = int(*)(newmenu *menu, const d_event &event, void *userdata);
-	newmenu(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, grs_canvas &src) :
-		newmenu_layout(title, subtitle, filename, tiny_mode, tabs_flag, citem_init), window(src, x, y, w, h)
+	newmenu(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, grs_canvas &src, const draw_box_flag draw_box = draw_box_flag::menu_background) :
+		newmenu_layout(title, subtitle, filename, tiny_mode, tabs_flag, citem_init, draw_box), window(src, x, y, w, h)
 	{
 	}
 	int *rval = nullptr;			// Pointer to return value (for polling newmenus)

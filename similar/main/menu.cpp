@@ -300,7 +300,7 @@ namespace {
 struct main_menu : main_menu_items, newmenu
 {
 	main_menu(grs_canvas &src) :
-		newmenu(menu_title{""}, menu_subtitle{nullptr}, menu_filename{Menu_pcx_name}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+		newmenu(menu_title{""}, menu_subtitle{nullptr}, menu_filename{Menu_pcx_name}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src, draw_box_flag::none)
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
