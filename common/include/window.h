@@ -40,6 +40,8 @@ private:
 	bool *w_exists;					// optional pointer to a tracking variable
 public:
 	explicit window(grs_canvas &src, int x, int y, int w, int h);
+	window(const window &) = delete;
+	window &operator=(const window &) = delete;
 	virtual ~window();
 
 	virtual window_event_result event_handler(const d_event &) = 0;
