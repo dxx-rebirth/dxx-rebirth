@@ -48,16 +48,16 @@ namespace dcx {
 
 struct listbox;
 
-enum nm_type : uint8_t
+enum class nm_type : uint8_t
 {
-	NM_TYPE_MENU = 0,   // A menu item... when enter is hit on this, newmenu_do returns this item number
-	NM_TYPE_INPUT = 1,   // An input box... fills the text field in, and you need to fill in text_len field.
-	NM_TYPE_CHECK = 2,   // A check box. Set and get its status by looking at flags field (1=on, 0=off)
-	NM_TYPE_RADIO = 3,   // Same as check box, but only 1 in a group can be set at a time. Set group fields.
-	NM_TYPE_TEXT = 4,   // A line of text that does nothing.
-	NM_TYPE_NUMBER = 5,   // A numeric entry counter.  Changes value from min_value to max_value;
-	NM_TYPE_INPUT_MENU = 6,   // A inputbox that you hit Enter to edit, when done, hit enter and menu leaves.
-	NM_TYPE_SLIDER = 7,   // A slider from min_value to max_value. Draws with text_len chars.
+	menu = 0,   // A menu item... when enter is hit on this, newmenu_do returns this item number
+	input = 1,   // An input box... fills the text field in, and you need to fill in text_len field.
+	check = 2,   // A check box. Set and get its status by looking at flags field (1=on, 0=off)
+	radio = 3,   // Same as check box, but only 1 in a group can be set at a time. Set group fields.
+	text = 4,   // A line of text that does nothing.
+	number = 5,   // A numeric entry counter.  Changes value from min_value to max_value;
+	input_menu = 6,   // A inputbox that you hit Enter to edit, when done, hit enter and menu leaves.
+	slider = 7,   // A slider from min_value to max_value. Draws with text_len chars.
 };
 
 #define NM_MAX_TEXT_LEN     255
@@ -77,11 +77,11 @@ class newmenu_item
 	};
 	struct input_specific_type : input_common_type
 	{
-		static constexpr std::integral_constant<unsigned, NM_TYPE_INPUT> nm_type{};
+		static constexpr std::integral_constant<nm_type, nm_type::input> static_type{};
 	};
 	struct radio_specific_type
 	{
-		static constexpr std::integral_constant<unsigned, NM_TYPE_RADIO> nm_type{};
+		static constexpr std::integral_constant<nm_type, nm_type::radio> static_type{};
 		int group;          // What group this belongs to for radio buttons.
 	};
 	struct number_slider_common_type
@@ -91,38 +91,35 @@ class newmenu_item
 	};
 	struct number_specific_type : number_slider_common_type
 	{
-		static constexpr std::integral_constant<unsigned, NM_TYPE_NUMBER> nm_type{};
+		static constexpr std::integral_constant<nm_type, nm_type::number> static_type{};
 	};
 	struct imenu_specific_type : input_common_type
 	{
-		static constexpr std::integral_constant<unsigned, NM_TYPE_INPUT_MENU> nm_type{};
+		static constexpr std::integral_constant<nm_type, nm_type::input_menu> static_type{};
 		ntstring<NM_MAX_TEXT_LEN> saved_text;
 	};
 	struct slider_specific_type : number_slider_common_type
 	{
-		static constexpr std::integral_constant<unsigned, NM_TYPE_SLIDER> nm_type{};
+		static constexpr std::integral_constant<nm_type, nm_type::slider> static_type{};
 		ntstring<NM_MAX_TEXT_LEN> saved_text;
 	};
-	template <typename T, unsigned expected_type = T::nm_type>
-		T &get_union_member(T &v)
-		{
+	static void check_union_type(const nm_type current_type, const nm_type static_type)
+	{
 #ifdef DXX_CONSTANT_TRUE
-			if (DXX_CONSTANT_TRUE(type != expected_type))
-				DXX_ALWAYS_ERROR_FUNCTION(dxx_newmenu_trap_invalid_type, "invalid type access");
+		if (DXX_CONSTANT_TRUE(current_type != static_type))
+			DXX_ALWAYS_ERROR_FUNCTION(dxx_newmenu_trap_invalid_type, "invalid type access");
 #endif
-			if (type != expected_type)
-				throw std::runtime_error("invalid type access");
+		if (current_type != static_type)
+			throw std::runtime_error("invalid type access");
+	}
+	template <typename T, nm_type static_type = T::static_type>
+		T &get_union_member(T &v) const
+		{
+			check_union_type(type, static_type);
 			return v;
 		}
 public:
 	int     value;          // For checkboxes and radio buttons, this is 1 if marked initially, else 0
-	union {
-		input_specific_type nm_private_input;
-		radio_specific_type nm_private_radio;
-		number_specific_type nm_private_number;
-		imenu_specific_type nm_private_imenu;
-		slider_specific_type nm_private_slider;
-	};
 	input_specific_type &input() {
 		return get_union_member(nm_private_input);
 	}
@@ -139,12 +136,12 @@ public:
 		return get_union_member(nm_private_slider);
 	}
 	number_slider_common_type *number_or_slider() {
-		return (type == nm_private_number.nm_type || type == nm_private_slider.nm_type)
+		return (type == nm_private_number.static_type || type == nm_private_slider.static_type)
 			? &nm_private_number
 			: nullptr;
 	}
 	input_common_type *input_or_menu() {
-		return (type == nm_private_input.nm_type || type == nm_private_imenu.nm_type)
+		return (type == nm_private_input.static_type || type == nm_private_imenu.static_type)
 			? &nm_private_input
 			: nullptr;
 	}
@@ -154,6 +151,13 @@ public:
 	short   w, h;
 	short   right_offset;
 	nm_type type;           // What kind of item this is, see NM_TYPE_????? defines
+	union {
+		input_specific_type nm_private_input;
+		radio_specific_type nm_private_radio;
+		number_specific_type nm_private_number;
+		imenu_specific_type nm_private_imenu;
+		slider_specific_type nm_private_slider;
+	};
 };
 
 enum class tab_processing_flag : uint8_t
@@ -465,7 +469,7 @@ void listbox_delete_item(listbox &lb, int item);
 
 static inline void nm_set_item_menu(newmenu_item &ni, const char *text)
 {
-	ni.type = NM_TYPE_MENU;
+	ni.type = nm_type::menu;
 	ni.text = const_cast<char *>(text);
 }
 
@@ -480,7 +484,7 @@ static inline newmenu_item nm_item_menu(const char *text)
 __attribute_nonnull()
 static inline void nm_set_item_input(newmenu_item &ni, unsigned len, char *text, const char *const allowed_chars)
 {
-	ni.type = NM_TYPE_INPUT;
+	ni.type = nm_type::input;
 	ni.text = text;
 	auto &i = ni.input();
 	i.text_len = len - 1;
@@ -510,7 +514,7 @@ static inline newmenu_item nm_item_input(T &&... t)
 __attribute_nonnull()
 static inline void nm_set_item_checkbox(newmenu_item &ni, const char *text, unsigned checked)
 {
-	ni.type = NM_TYPE_CHECK;
+	ni.type = nm_type::check;
 	ni.text = const_cast<char *>(text);
 	ni.value = checked;
 }
@@ -518,7 +522,7 @@ static inline void nm_set_item_checkbox(newmenu_item &ni, const char *text, unsi
 __attribute_nonnull()
 static inline void nm_set_item_text(newmenu_item &ni, const char *text)
 {
-	ni.type = NM_TYPE_TEXT;
+	ni.type = nm_type::text;
 	ni.text = const_cast<char *>(text);
 }
 
@@ -533,7 +537,7 @@ static inline newmenu_item nm_item_text(const char *text)
 __attribute_nonnull()
 static inline void nm_set_item_radio(newmenu_item &ni, const char *text, unsigned checked, unsigned grp)
 {
-	ni.type = NM_TYPE_RADIO;
+	ni.type = nm_type::radio;
 	ni.text = const_cast<char *>(text);
 	ni.value = checked;
 	auto &radio = ni.radio();
@@ -543,7 +547,7 @@ static inline void nm_set_item_radio(newmenu_item &ni, const char *text, unsigne
 __attribute_nonnull()
 static inline void nm_set_item_number(newmenu_item &ni, const char *text, unsigned now, unsigned low, unsigned high)
 {
-	ni.type = NM_TYPE_NUMBER;
+	ni.type = nm_type::number;
 	ni.text = const_cast<char *>(text);
 	ni.value = now;
 	auto &number = ni.number();
@@ -554,7 +558,7 @@ static inline void nm_set_item_number(newmenu_item &ni, const char *text, unsign
 __attribute_nonnull()
 static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsigned now, unsigned low, unsigned high)
 {
-	ni.type = NM_TYPE_SLIDER;
+	ni.type = nm_type::slider;
 	ni.text = const_cast<char *>(text);
 	ni.value = now;
 	auto &slider = ni.slider();

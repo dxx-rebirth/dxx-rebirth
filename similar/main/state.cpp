@@ -887,7 +887,7 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 					PHYSFS_read(fp, desc[i].data(), desc[i].size(), 1);
 					desc[i].back() = 0;
 					if (!dsc)
-						mi.type = NM_TYPE_MENU;
+						mi.type = nm_type::menu;
 					// Read thumbnail
 					sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
 					PHYSFS_read(fp, sc_bmp[i]->get_bitmap_data(), THUMBNAIL_W * THUMBNAIL_H, 1);
@@ -907,11 +907,11 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 		if (!valid) {
 			strcpy(desc[i].data(), TXT_EMPTY);
 			if (!dsc)
-				mi.type = NM_TYPE_TEXT;
+				mi.type = nm_type::text;
 		}
 		if (dsc)
 		{
-			mi.type = NM_TYPE_INPUT_MENU;
+			mi.type = nm_type::input_menu;
 			auto &im = mi.imenu();
 			im.text_len = desc[i].size() - 1;
 		}

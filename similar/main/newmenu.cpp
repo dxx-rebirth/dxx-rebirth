@@ -160,7 +160,7 @@ newmenu_layout::adjusted_citem newmenu_layout::adjusted_citem::create(const part
 	uint_fast32_t i = 0;
 	const auto begin = items.begin();
 	uint8_t all_text = 0;
-	while (std::next(begin, citem)->type == NM_TYPE_TEXT)
+	while (std::next(begin, citem)->type == nm_type::text)
 	{
 		if (++ citem >= nitems)
 			citem = 0;
@@ -444,7 +444,7 @@ static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item 
 	const int line_spacing = static_cast<int>(LINE_SPACING(cv_font, *GAME_FONT));
 	switch(item.type)
 	{
-		case NM_TYPE_SLIDER:
+		case nm_type::slider:
 		{
 			int i;
 			auto &slider = item.slider();
@@ -459,27 +459,27 @@ static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item 
 			nm_string_slider(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), saved_text.data());
 		}
 			break;
-		case NM_TYPE_INPUT_MENU:
+		case nm_type::input_menu:
 			if (item.imenu().group == 0)
 			{
-			case NM_TYPE_TEXT:
-			case NM_TYPE_MENU:
+				case nm_type::text:
+				case nm_type::menu:
 				nm_string(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
 				break;
 			}
 			DXX_BOOST_FALLTHROUGH;
-		case NM_TYPE_INPUT:
+		case nm_type::input:
 			nm_string_inputbox(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, is_current);
 			break;
-		case NM_TYPE_CHECK:
+		case nm_type::check:
 			nm_string(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
 			nm_rstring(canvas, cv_font, item.right_offset, item.x, item.y - (line_spacing * scroll_offset), item.value ? CHECKED_CHECK_BOX : NORMAL_CHECK_BOX);
 			break;
-		case NM_TYPE_RADIO:
+		case nm_type::radio:
 			nm_string(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
 			nm_rstring(canvas, cv_font, item.right_offset, item.x, item.y - (line_spacing * scroll_offset), item.value ? CHECKED_RADIO_BOX : NORMAL_RADIO_BOX);
 			break;
-		case NM_TYPE_NUMBER:
+		case nm_type::number:
 		{
 			char text[sizeof("-2147483647")];
 			auto &number = item.number();
@@ -669,7 +669,7 @@ static void update_menu_position(newmenu &menu, newmenu_item *const stop, int_fa
 			if (overflow(icitem))
 				step(menu.scroll_offset);
 		}
-	} while (-- amount > 0 || pcitem->type == NM_TYPE_TEXT);
+	} while (-- amount > 0 || pcitem->type == nm_type::text);
 	menu.citem = icitem;
 }
 
@@ -690,7 +690,7 @@ static void newmenu_scroll(newmenu *const menu, const int amount)
 	}
 	const auto &range = menu->items;
 	const auto predicate = [](const newmenu_item &n) {
-		return n.type != NM_TYPE_TEXT;
+		return n.type != nm_type::text;
 	};
 	const auto first = std::find_if(range.begin(), range.end(), predicate);
 	if (first == range.end())
@@ -746,7 +746,7 @@ static int nm_trigger_radio_button(newmenu &menu, newmenu_item &citem)
 	const auto cg = citem.radio().group;
 	range_for (auto &r, menu.items)
 	{
-		if (&r != &citem && r.type == NM_TYPE_RADIO && r.radio().group == cg)
+		if (&r != &citem && r.type == nm_type::radio && r.radio().group == cg)
 		{
 			if (r.value)
 			{
@@ -790,22 +790,22 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 						auto &citem = iitem;
 						switch (citem.type)
 						{
-							case NM_TYPE_CHECK:
+							case nm_type::check:
 								citem.value = !citem.value;
 								changed = 1;
 								break;
-							case NM_TYPE_RADIO:
+							case nm_type::radio:
 								changed = nm_trigger_radio_button(*menu, citem);
 								break;
-							case NM_TYPE_TEXT:
+							case nm_type::text:
 								menu->citem=old_choice;
 								menu->mouse_state=0;
 								break;
-							case NM_TYPE_MENU:
-							case NM_TYPE_INPUT:
-							case NM_TYPE_NUMBER:
-							case NM_TYPE_INPUT_MENU:
-							case NM_TYPE_SLIDER:
+							case nm_type::menu:
+							case nm_type::input:
+							case nm_type::number:
+							case nm_type::input_menu:
+							case nm_type::slider:
 								break;
 						}
 						break;
@@ -860,10 +860,11 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 					y1 = canvas.cv_bitmap.bm_y + iitem.y - (line_spacing * menu->scroll_offset);
 					y2 = y1 + iitem.h;
 
-					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && (iitem.type != NM_TYPE_TEXT) ) {
+					if (mx > x1 && mx < x2 && my > y1 && my < y2 && iitem.type != nm_type::text)
+					{
 						menu->citem = i;
 						auto &citem = iitem;
-						if (citem.type == NM_TYPE_SLIDER)
+						if (citem.type == nm_type::slider)
 						{
 							auto &slider = citem.slider();
 							auto &saved_text = slider.saved_text;
@@ -901,12 +902,12 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 						}
 						if (menu->citem == old_choice)
 							break;
-						if (citem.type == NM_TYPE_INPUT)
+						if (citem.type == nm_type::input)
 							citem.value = -1;
 						if (!(old_choice > -1))
 							break;
 						auto &oitem = *std::next(menu->items.begin(), old_choice);
-						if (oitem.type == NM_TYPE_INPUT_MENU)
+						if (oitem.type == nm_type::input_menu)
 						{
 							auto &im = oitem.imenu();
 							im.group = 0;
@@ -921,7 +922,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 			if (event.type == EVENT_MOUSE_BUTTON_UP &&
 				!menu->all_text &&
 				menu->citem != -1 &&
-				std::next(menu->items.begin(), menu->citem)->type == NM_TYPE_MENU)
+				std::next(menu->items.begin(), menu->citem)->type == nm_type::menu)
 			{
 				mouse_get_pos(&mx, &my, &mz);
 				const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT));
@@ -949,7 +950,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 			if (event.type == EVENT_MOUSE_BUTTON_UP && menu->citem > -1)
 			{
 				auto &citem = *std::next(menu->items.begin(), menu->citem);
-				if (citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 0)
+				if (citem.type == nm_type::input_menu && citem.imenu().group == 0)
 				{
 					auto &im = citem.imenu();
 					im.group = 1;
@@ -977,7 +978,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 				if (!(menu->citem > -1))
 					return window_event_result::close;
 				auto &citem = *std::next(menu->items.begin(), menu->citem);
-				if (citem.type != NM_TYPE_INPUT_MENU)
+				if (citem.type != nm_type::input_menu)
 					return window_event_result::close;
 				if (auto &im = citem.imenu(); im.group == 1)
 				{
@@ -1044,12 +1045,12 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 		case KEY_PAGEUP:
 		case KEY_PAD8:
 			newmenu_scroll(menu, k == KEY_PAGEUP ? -10 : -1);
-			if (citem.type == NM_TYPE_INPUT && menu->citem != old_choice)
+			if (citem.type == nm_type::input && menu->citem != old_choice)
 				citem.value = -1;
 			if (old_choice > -1 && old_choice != menu->citem)
 			{
 				auto &oitem = *std::next(menu->items.begin(), old_choice);
-				if (oitem.type == NM_TYPE_INPUT_MENU)
+				if (oitem.type == nm_type::input_menu)
 				{
 					auto &im = oitem.imenu();
 					im.group = 0;
@@ -1063,12 +1064,12 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 		case KEY_PAGEDOWN:
 		case KEY_PAD2:
 			newmenu_scroll(menu, k == KEY_PAGEDOWN ? 10 : 1);
-			if (citem.type == NM_TYPE_INPUT && menu->citem != old_choice)
+			if (citem.type == nm_type::input && menu->citem != old_choice)
 				citem.value = -1;
 			if (old_choice > -1 && old_choice != menu->citem)
 			{
 				auto &oitem = *std::next(menu->items.begin(), old_choice);
-				if (oitem.type == NM_TYPE_INPUT_MENU)
+				if (oitem.type == nm_type::input_menu)
 				{
 					auto &im = oitem.imenu();
 					im.group = 0;
@@ -1081,18 +1082,18 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 			if ( menu->citem > -1 )	{
 				switch (citem.type)
 				{
-					case NM_TYPE_TEXT:
-					case NM_TYPE_NUMBER:
-					case NM_TYPE_SLIDER:
-					case NM_TYPE_MENU:
-					case NM_TYPE_INPUT:
-					case NM_TYPE_INPUT_MENU:
+					case nm_type::text:
+					case nm_type::number:
+					case nm_type::slider:
+					case nm_type::menu:
+					case nm_type::input:
+					case nm_type::input_menu:
 						break;
-					case NM_TYPE_CHECK:
+					case nm_type::check:
 						citem.value = !citem.value;
 						changed = 1;
 						break;
-					case NM_TYPE_RADIO:
+					case nm_type::radio:
 						changed = nm_trigger_radio_button(*menu, citem);
 						break;
 				}
@@ -1101,7 +1102,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 
 		case KEY_ENTER:
 		case KEY_PADENTER:
-			if (menu->citem > -1 && citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 0)
+			if (menu->citem > -1 && citem.type == nm_type::input_menu && citem.imenu().group == 0)
 			{
 				auto &im = citem.imenu();
 				im.group = 1;
@@ -1114,7 +1115,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 				}
 			} else
 			{
-				if (citem.type == NM_TYPE_INPUT_MENU)
+				if (citem.type == nm_type::input_menu)
 					citem.imenu().group = 0;	// go out of editing mode
 
 				// Tell callback, allow staying in menu
@@ -1129,7 +1130,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 			break;
 
 		case KEY_ESC:
-			if (menu->citem > -1 && citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 1)
+			if (menu->citem > -1 && citem.type == nm_type::input_menu && citem.imenu().group == 1)
 			{
 				auto &im = citem.imenu();
 				im.group = 0;
@@ -1146,14 +1147,15 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 
 	if ( menu->citem > -1 )	{
 		// Alerting callback of every keypress for NM_TYPE_INPUT. Alternatively, just respond to EVENT_NEWMENU_SELECTED
-		if ((citem.type == NM_TYPE_INPUT || (citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 1)) && (old_choice == menu->citem) )	{
+		if ((citem.type == nm_type::input || (citem.type == nm_type::input_menu && citem.imenu().group == 1)) && old_choice == menu->citem)
+		{
 			if ( k==KEY_LEFT || k==KEY_BACKSP || k==KEY_PAD4 )	{
 				if (citem.value == -1) citem.value = strlen(citem.text);
 				if (citem.value > 0)
 					citem.value--;
 				citem.text[citem.value] = 0;
 
-				if (citem.type == NM_TYPE_INPUT)
+				if (citem.type == nm_type::input)
 					changed = 1;
 				rval = window_event_result::handled;
 			}
@@ -1171,13 +1173,13 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 						citem.text[citem.value++] = ascii;
 						citem.text[citem.value] = 0;
 
-						if (citem.type == NM_TYPE_INPUT)
+						if (citem.type == nm_type::input)
 							changed = 1;
 					}
 				}
 			}
 		}
-		else if ((citem.type != NM_TYPE_INPUT) && (citem.type != NM_TYPE_INPUT_MENU) )
+		else if (citem.type != nm_type::input && citem.type != nm_type::input_menu)
 		{
 			auto ascii = key_ascii();
 			if (ascii < 255 ) {
@@ -1194,11 +1196,11 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 					{
 					}
 
-					if ((choice_item.type == NM_TYPE_MENU ||
-						  choice_item.type == NM_TYPE_CHECK ||
-						  choice_item.type == NM_TYPE_RADIO ||
-						  choice_item.type == NM_TYPE_NUMBER ||
-						  choice_item.type == NM_TYPE_SLIDER)
+					if ((choice_item.type == nm_type::menu ||
+						  choice_item.type == nm_type::check ||
+						  choice_item.type == nm_type::radio ||
+						  choice_item.type == nm_type::number ||
+						  choice_item.type == nm_type::slider)
 						&& (ascii==toupper(ch)) )
 					{
 						k = 0;
@@ -1313,7 +1315,10 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 		gr_get_string_size(cv_font, i.text, &string_width, &string_height, &average_width);
 		i.right_offset = 0;
 
-		if (i.type == NM_TYPE_SLIDER)
+		if (i.type == nm_type::menu)
+			nmenus++;
+
+		if (i.type == nm_type::slider)
 		{
 			int w1;
 			auto &slider = i.slider();
@@ -1323,12 +1328,7 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 			string_width += w1 + aw;
 		}
 
-		if (i.type == NM_TYPE_MENU)
-		{
-			nmenus++;
-		}
-
-		if (i.type == NM_TYPE_CHECK)
+		else if (i.type == nm_type::check)
 		{
 			int w1;
 			gr_get_string_size(cv_font, NORMAL_CHECK_BOX, &w1, nullptr, nullptr);
@@ -1338,7 +1338,7 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 				i.right_offset = w1;
 		}
 
-		if (i.type == NM_TYPE_RADIO)
+		else if (i.type == nm_type::radio)
 		{
 			int w1;
 			gr_get_string_size(cv_font, NORMAL_RADIO_BOX, &w1, nullptr, nullptr);
@@ -1348,7 +1348,7 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 				i.right_offset = w1;
 		}
 
-		if (i.type == NM_TYPE_NUMBER)
+		else if (i.type == nm_type::number)
 		{
 			int w1;
 			char test_text[20];
@@ -1366,11 +1366,11 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 		{
 			const auto text_len = input_or_menu->text_len;
 			string_width = text_len * fspacx8 + text_len;
-			if (i.type == NM_TYPE_INPUT && string_width > MAX_TEXT_WIDTH)
+			if (i.type == nm_type::input && string_width > MAX_TEXT_WIDTH)
 				string_width = MAX_TEXT_WIDTH;
 
 			i.value = -1;
-			if (i.type == NM_TYPE_INPUT_MENU)
+			if (i.type == nm_type::input_menu)
 			{
 				auto &im = i.imenu();
 				im.group = 0;
@@ -1440,12 +1440,14 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	{
 		i.x = BORDERX + twidth + right_offset;
 		i.y += BORDERY;
-		if (i.type == NM_TYPE_RADIO) {
+		if (i.type == nm_type::radio)
+		{
 			// find first marked one
 			newmenu_item *fm = nullptr;
 			range_for (auto &j, menu.items)
 			{
-				if (j.type == NM_TYPE_RADIO && j.radio().group == i.radio().group) {
+				if (j.type == nm_type::radio && j.radio().group == i.radio().group)
+				{
 					if (!fm && j.value)
 						fm = &j;
 					j.value = 0;

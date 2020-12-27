@@ -1205,7 +1205,7 @@ void change_res()
 #if SDL_MAJOR_VERSION == 1
 	unsigned i;
 	for (i = 0; i <= mc; i++)
-		if (m[i].type == NM_TYPE_RADIO && m[i].radio().group == 0 && m[i].value == 1)
+		if (m[i].type == nm_type::radio && m[i].radio().group == 0 && m[i].value == 1)
 			break;
 
 	// now check for fullscreen toggle and apply if necessary
