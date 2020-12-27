@@ -19,7 +19,7 @@ The DXX-Rebirth maintainers have no control over the sites linked below.  The ma
 * [SDL 1.2](https://www.libsdl.org/).
 SDL 2 is also supported, and will become the default soon.
 * [PhysicsFS](https://icculus.org/physfs/).
-PhysFS 3.x is recommended.
+PhysFS 3.x or later is required.
 
 Optional, but recommended:
 

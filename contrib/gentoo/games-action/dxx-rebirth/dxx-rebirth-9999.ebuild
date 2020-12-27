@@ -53,7 +53,7 @@ IUSE="+d1x +d2x +data debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +musi
 #
 # PNG support enables writing screenshots as PNG instead of TGA (for
 # USE=opengl) or PCX (for USE=-opengl).
-DEPEND="dev-games/physfs[hog,mvl,zip]
+DEPEND=">=dev-games/physfs-3[hog,mvl,zip]
 	opengl? (
 		virtual/opengl
 		virtual/glu )

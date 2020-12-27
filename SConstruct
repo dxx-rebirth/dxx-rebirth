@@ -1369,6 +1369,23 @@ static void terminate_handler()
 	char b[1] = {0};
 	if (!PHYSFS_init(""))
 		return 1;
+	{
+		const char *r = PHYSFS_getRealDir("");
+		(void)r;
+	}
+	PHYSFS_isDirectory("");
+	{
+		const char *sep = PHYSFS_getDirSeparator();
+		(void)sep;
+	}
+	{
+		const char *dir = PHYSFS_getBaseDir();
+		(void)dir;
+	}
+	{
+		const char *dir = PHYSFS_getUserDir();
+		(void)dir;
+	}
 	f = PHYSFS_openWrite("a");
 	PHYSFS_sint64 w = PHYSFS_write(f, b, 1, 1);
 	(void)w;
@@ -1377,6 +1394,9 @@ static void terminate_handler()
 	PHYSFS_sint64 r = PHYSFS_read(f, b, 1, 1);
 	(void)r;
 	PHYSFS_close(f);
+	PHYSFS_mount("", nullptr, 0);
+	PHYSFS_unmount("");
+	PHYSFS_delete("");
 '''
 		l = ['physfs']
 		successflags = {'LIBS' : l}

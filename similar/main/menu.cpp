@@ -1971,7 +1971,6 @@ void graphics_config()
 namespace dcx {
 namespace {
 
-#if PHYSFS_VER_MAJOR >= 2
 struct browser
 {
 	browser(menu_title title, const partial_range_t<const file_extension_t *> &r) :
@@ -2203,19 +2202,6 @@ static int select_file_recursive2(const menu_title title, const std::array<char,
 
 #define DXX_MENU_ITEM_BROWSE(VERB, TXT, OPT)	\
 	DXX_MENUITEM(VERB, MENU, TXT " (browse...)", OPT)
-#else
-
-int select_file_recursive2(const menu_title title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
-{
-	return 0;
-}
-
-	/* Include blank string to force a compile error if TXT cannot be
-	 * string-pasted
-	 */
-#define DXX_MENU_ITEM_BROWSE(VERB, TXT, OPT)	\
-	DXX_MENUITEM(VERB, TEXT, TXT "", OPT)
-#endif
 
 #if DXX_USE_SDLMIXER
 static window_event_result get_absolute_path(char *full_path, const char *rel_path)
