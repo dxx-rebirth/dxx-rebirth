@@ -189,8 +189,6 @@ static void udp_tracker_request_holepunch( uint16_t TrackerGameID );
 static void udp_tracker_process_holepunch(uint8_t *data, unsigned data_len, const _sockaddr &sender_addr );
 #endif
 
-static fix64 StartAbortMenuTime;
-
 #ifndef _WIN32
 constexpr std::integral_constant<int, -1> INVALID_SOCKET{};
 #endif
@@ -1485,25 +1483,6 @@ namespace dsx {
 namespace multi {
 namespace udp {
 
-// Same as above but used when player pressed ESC during kmatrix (host also does the packets for playing clients)
-int kmatrix_poll2( newmenu *,const d_event &event, const unused_newmenu_userdata_t *)
-{
-	int rval = 0;
-
-	// Polling loop for End-of-level menu
-	if (event.type == EVENT_WINDOW_CREATED)
-	{
-		StartAbortMenuTime=timer_query();
-		return 0;
-	}
-	if (event.type != EVENT_WINDOW_DRAW)
-		return 0;
-	if (timer_query() > (StartAbortMenuTime+(F1_0*3)))
-		rval = -2;
-
-	return rval;
-}
-
 int dispatch_table::end_current_level(int *secret) const
 {
 	// Do whatever needs to be done between levels
@@ -2545,11 +2524,6 @@ void dispatch_table::send_endlevel_packet() const
 
 		dxx_sendto(Netgame.players[0].protocol.udp.addr, UDP_Socket[0], buf, 0);
 	}
-}
-
-endlevel_poll_function_type *dispatch_table::get_endlevel_poll2() const
-{
-	return kmatrix_poll2;
 }
 }
 }

@@ -343,7 +343,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 							nm_item_menu(TXT_YES),
 							nm_item_menu(TXT_NO),
 						}};
-						choice = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_ABORT_GAME}, nm_message_items, network != kmatrix_network::offline ? multi::dispatch->get_endlevel_poll2() : unused_newmenu_subfunction, unused_newmenu_userdata);
+						choice = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_ABORT_GAME}, nm_message_items, unused_newmenu_subfunction, unused_newmenu_userdata);
 					}
 					
 					if (choice==0)
