@@ -234,15 +234,22 @@ void string_array_t::add(const char *s)
 	}
 }
 
-void string_array_t::tidy(std::size_t offset, int (*comp)( const char *, const char * ))
+void string_array_t::tidy(std::size_t offset)
 {
 	// Sort by name, starting at offset
 	auto b = std::next(ptr.begin(), offset);
 	auto e = ptr.end();
+#ifdef __linux__
+#define comp strcmp
+#else
+#define comp d_stricmp
+#endif
 	std::sort(b, e, [](const char *sa, const char *sb) { return d_stricmp(sa, sb) < 0; });
+					  
 	// Remove duplicates
 	// Can't do this before reallocating, otherwise it makes a mess of things (the strings in the buffer aren't ordered)
-	ptr.erase(std::unique(b, e, [=](const char *sa, const char *sb) { return (*comp)(sa, sb) == 0; }), e);
+	ptr.erase(std::unique(b, e, [=](const char *sa, const char *sb) { return comp(sa, sb) == 0; }), e);
+#undef comp
 }
 
 }

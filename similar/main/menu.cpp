@@ -2012,13 +2012,7 @@ static int list_directory(browser *b)
 	}
 
 	PHYSFS_enumerateFilesCallback("", list_dir_el, b);
-	b->list.tidy(1 + (b->select_dir ? 1 : 0),
-#ifdef __linux__
-					  strcmp
-#else
-					  d_stricmp
-#endif
-					  );
+	b->list.tidy(1 + (b->select_dir ? 1 : 0));
 
 	return 1;
 }

@@ -85,7 +85,7 @@ public:
 		buffer.clear();
 	}
 	void add(const char *);
-	void tidy(std::size_t offset, int (*comp)( const char *, const char * ));
+	void tidy(std::size_t offset);
 };
 
 int string_array_sort_func(const void *v0, const void *v1);
