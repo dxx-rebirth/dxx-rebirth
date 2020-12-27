@@ -133,16 +133,16 @@ struct rename_guidebot_menu_items
 
 #undef DXX_GUIDEBOT_RENAME_MENU
 
-struct rename_guidebot_menu : rename_guidebot_menu_items, newmenu
+struct rename_guidebot_menu : rename_guidebot_menu_items, passive_newmenu
 {
 	rename_guidebot_menu(grs_canvas &src) :
-		newmenu(menu_title{nullptr}, menu_subtitle{"Enter Guide-bot name:"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+		passive_newmenu(menu_title{nullptr}, menu_subtitle{"Enter Guide-bot name:"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
-int rename_guidebot_menu::subfunction_handler(const d_event &event)
+window_event_result rename_guidebot_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -159,15 +159,13 @@ int rename_guidebot_menu::subfunction_handler(const d_event &event)
 					PlayerCfg.GuidebotNameReal = guidebot_name_buffer;
 					changed = 1;
 				}
-				if (!changed)
-					break;
-				write_player_file();
+				if (changed)
+					write_player_file();
 			}
-			break;
+			return window_event_result::ignored;
 		default:
-			break;
+			return newmenu::event_handler(event);
 	}
-	return 0;
 }
 
 }
