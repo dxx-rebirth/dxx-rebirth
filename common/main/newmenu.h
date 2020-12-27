@@ -243,7 +243,14 @@ struct newmenu : newmenu_layout, window
 	int *rval = nullptr;			// Pointer to return value (for polling newmenus)
 	virtual window_event_result event_handler(const d_event &) override;
 	virtual int subfunction_handler(const d_event &event) = 0;
+	static int process_until_closed(newmenu *);
 };
+
+template <typename T1, typename... ConstructionArgs>
+int run_blocking_newmenu(ConstructionArgs &&... args)
+{
+	return T1::process_until_closed(window_create<T1>(std::forward<ConstructionArgs>(args)...));
+}
 
 struct passive_newmenu : newmenu
 {

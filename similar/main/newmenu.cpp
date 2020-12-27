@@ -538,15 +538,18 @@ static void strip_end_whitespace( char * text )
 int newmenu_do2(const menu_title title, const menu_subtitle subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const menu_filename filename)
 {
 	newmenu *menu;
-	bool exists = true;
-	int rval = -1;
-
 	menu = newmenu_do4(title, subtitle, items, subfunction, userdata, citem, filename);
 
 	if (!menu)
 		return -1;
-	menu->rval = &rval;
+	return newmenu::process_until_closed(menu);
+}
 
+int newmenu::process_until_closed(newmenu *const menu)
+{
+	bool exists = true;
+	int rval = -1;
+	menu->rval = &rval;
 	// Track to see when the window is freed
 	// Doing this way in case another window is opened on top without its own polling loop
 	menu->track(&exists);
@@ -556,6 +559,9 @@ int newmenu_do2(const menu_title title, const menu_subtitle subtitle, const part
 	while (exists)
 		event_process();
 
+	/* menu is now a pointer to freed memory, and cannot be accessed
+	 * further
+	 */
 	return rval;
 }
 

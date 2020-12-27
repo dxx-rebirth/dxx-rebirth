@@ -1259,7 +1259,14 @@ static void DoEndLevelScoreGlitz()
 
 	Assert(c <= N_GLITZITEMS);
 
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{subtitle}, partial_range(m, c), unused_newmenu_subfunction, unused_newmenu_userdata, 0, menu_filename{GLITZ_BACKGROUND});
+	struct glitz_menu : passive_newmenu
+	{
+		glitz_menu(menu_subtitle subtitle, partial_range_t<newmenu_item *> items) :
+			passive_newmenu(menu_title{nullptr}, subtitle, menu_filename{GLITZ_BACKGROUND}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), *grd_curcanv)
+		{
+		}
+	};
+	run_blocking_newmenu<glitz_menu>(menu_subtitle{subtitle}, partial_range(m, c));
 }
 
 }
