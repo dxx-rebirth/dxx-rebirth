@@ -193,14 +193,8 @@ namespace dcx {
 namespace {
 
 //	---------------------------------------------------------------------------------------------------
-static void info_display_segsize(grs_canvas &canvas, int show_all)
+static void info_display_segsize(grs_canvas &canvas, const grs_font &cv_font)
 {
-	static	int	old_SegSizeMode;
-	if (init_info | show_all) {
-		old_SegSizeMode = -2;
-	}
-
-	if (old_SegSizeMode != SegSizeMode  ) {
 		const char *name;
 		switch (SegSizeMode) {
 			case SEGSIZEMODE_FREE:		name = "free   ";	break;
@@ -209,12 +203,9 @@ static void info_display_segsize(grs_canvas &canvas, int show_all)
 			case SEGSIZEMODE_EDGE:		name = "edge   ";	break;
 			case SEGSIZEMODE_VERTEX:	name = "vertex ";	break;
 			default:
-				Error("Illegal value for SegSizeMode in info.c/info_display_segsize\n");
+				throw std::runtime_error("illegal value for SegSizeMode in " __FILE__ "/info_display_segsize");
 		}
-		old_SegSizeMode = SegSizeMode;
-		gr_uprintf(canvas, *canvas.cv_font, 0, 0, "Mode: %s\n", name);
-	}
-
+	gr_uprintf(canvas, cv_font, 0, 0, "Mode: %s\n", name);
 }
 
 //	------------------------------------------------------------------------------------
@@ -364,7 +355,7 @@ window_event_result info_dialog_window::event_handler(const d_event &event)
 					info_display_object_placement(canvas, *canvas.cv_font);
 					break;
 				case SEGSIZE_PAD_ID:			// Segment sizing
-					info_display_segsize(canvas, show_all);
+					info_display_segsize(canvas, *canvas.cv_font);
 					break;
 				default:
 					info_display_default(canvas, show_all);
