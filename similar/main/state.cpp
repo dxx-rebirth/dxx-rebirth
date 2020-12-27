@@ -912,7 +912,8 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 		if (dsc)
 		{
 			mi.type = NM_TYPE_INPUT_MENU;
-			mi.imenu().text_len = desc[i].size() - 1;
+			auto &im = mi.imenu();
+			im.text_len = desc[i].size() - 1;
 		}
 	}
 

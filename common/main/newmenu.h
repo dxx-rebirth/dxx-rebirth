@@ -96,10 +96,12 @@ class newmenu_item
 	struct imenu_specific_type : input_common_type
 	{
 		static constexpr std::integral_constant<unsigned, NM_TYPE_INPUT_MENU> nm_type{};
+		ntstring<NM_MAX_TEXT_LEN> saved_text;
 	};
 	struct slider_specific_type : number_slider_common_type
 	{
 		static constexpr std::integral_constant<unsigned, NM_TYPE_SLIDER> nm_type{};
+		ntstring<NM_MAX_TEXT_LEN> saved_text;
 	};
 	template <typename T, unsigned expected_type = T::nm_type>
 		T &get_union_member(T &v)
@@ -152,7 +154,6 @@ public:
 	short   w, h;
 	short   right_offset;
 	nm_type type;           // What kind of item this is, see NM_TYPE_????? defines
-	ntstring<NM_MAX_TEXT_LEN> saved_text;
 };
 
 enum class tab_processing_flag : uint8_t

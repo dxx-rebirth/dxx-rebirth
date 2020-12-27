@@ -127,7 +127,7 @@ struct step_up
 static grs_main_bitmap nm_background, nm_background1;
 static grs_subbitmap_ptr nm_background_sub;
 
-static void prepare_slider_text(ntstring<NM_MAX_TEXT_LEN> &text, const std::size_t offset, const std::size_t steps)
+static void prepare_slider_text(std::array<char, NM_MAX_TEXT_LEN + 1> &text, const std::size_t offset, const std::size_t steps)
 {
 	/* 3 = (1 for SLIDER_LEFT) + (1 for SLIDER_RIGHT) + (1 null) */
 	constexpr std::size_t reserved_space = 3;
@@ -458,10 +458,11 @@ static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item 
 				item.value = slider.min_value;
 			if (item.value > slider.max_value)
 				item.value = slider.max_value;
-			i = snprintf(item.saved_text.data(), item.saved_text.size(), "%s\t", item.text);
-			prepare_slider_text(item.saved_text, i, slider.max_value - slider.min_value + 1);
-			item.saved_text[item.value + 1 + strlen(item.text) + 1] = SLIDER_MARKER[0];
-			nm_string_slider(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.saved_text.data());
+			auto &saved_text = slider.saved_text;
+			i = snprintf(saved_text.data(), saved_text.size(), "%s\t", item.text);
+			prepare_slider_text(saved_text, i, slider.max_value - slider.min_value + 1);
+			saved_text[item.value + 1 + strlen(item.text) + 1] = SLIDER_MARKER[0];
+			nm_string_slider(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), saved_text.data());
 		}
 			break;
 		case NM_TYPE_INPUT_MENU:
@@ -870,9 +871,11 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 						auto &citem = iitem;
 						if (citem.type == NM_TYPE_SLIDER)
 						{
+							auto &slider = citem.slider();
+							auto &saved_text = slider.saved_text;
 							char slider_text[NM_MAX_TEXT_LEN+1], *p, *s1;
 
-							strcpy(slider_text, citem.saved_text);
+							strcpy(slider_text, saved_text);
 							p = strchr(slider_text, '\t');
 							if (p) {
 								*p = '\0';
@@ -911,9 +914,10 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 						auto &oitem = *std::next(menu->items.begin(), old_choice);
 						if (oitem.type == NM_TYPE_INPUT_MENU)
 						{
-							oitem.imenu().group = 0;
-							strcpy(oitem.text, oitem.saved_text);
+							auto &im = oitem.imenu();
+							im.group = 0;
 							oitem.value = -1;
+							strcpy(oitem.text, im.saved_text);
 						}
 						break;
 					}
@@ -953,8 +957,9 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 				auto &citem = *std::next(menu->items.begin(), menu->citem);
 				if (citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 0)
 				{
-					citem.imenu().group = 1;
-					if (!d_stricmp(citem.saved_text, TXT_EMPTY))
+					auto &im = citem.imenu();
+					im.group = 1;
+					if (!d_stricmp(im.saved_text, TXT_EMPTY))
 					{
 						citem.text[0] = 0;
 						citem.value = -1;
@@ -978,11 +983,13 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 				if (!(menu->citem > -1))
 					return window_event_result::close;
 				auto &citem = *std::next(menu->items.begin(), menu->citem);
-				if (citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 1)
+				if (citem.type != NM_TYPE_INPUT_MENU)
+					return window_event_result::close;
+				if (auto &im = citem.imenu(); im.group == 1)
 				{
-					citem.imenu().group = 0;
-					strcpy(citem.text, citem.saved_text);
+					im.group = 0;
 					citem.value = -1;
+					strcpy(citem.text, im.saved_text);
 				} else {
 					return window_event_result::close;
 				}
@@ -1050,9 +1057,10 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 				auto &oitem = *std::next(menu->items.begin(), old_choice);
 				if (oitem.type == NM_TYPE_INPUT_MENU)
 				{
-					oitem.imenu().group=0;
-					strcpy(oitem.text, oitem.saved_text);
+					auto &im = oitem.imenu();
+					im.group = 0;
 					oitem.value = -1;
+					strcpy(oitem.text, im.saved_text);
 				}
 			}
 			break;
@@ -1068,9 +1076,10 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 				auto &oitem = *std::next(menu->items.begin(), old_choice);
 				if (oitem.type == NM_TYPE_INPUT_MENU)
 				{
-					oitem.imenu().group=0;
-					strcpy(oitem.text, oitem.saved_text);
+					auto &im = oitem.imenu();
+					im.group = 0;
 					oitem.value = -1;
+					strcpy(oitem.text, im.saved_text);
 				}
 			}
 			break;
@@ -1100,8 +1109,9 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 		case KEY_PADENTER:
 			if (menu->citem > -1 && citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 0)
 			{
-				citem.imenu().group = 1;
-				if (!d_stricmp(citem.saved_text, TXT_EMPTY))
+				auto &im = citem.imenu();
+				im.group = 1;
+				if (!d_stricmp(im.saved_text, TXT_EMPTY))
 				{
 					citem.text[0] = 0;
 					citem.value = -1;
@@ -1127,9 +1137,10 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 		case KEY_ESC:
 			if (menu->citem > -1 && citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 1)
 			{
-				citem.imenu().group = 0;
-				strcpy(citem.text, citem.saved_text);
+				auto &im = citem.imenu();
+				im.group = 0;
 				citem.value = -1;
+				strcpy(citem.text, im.saved_text);
 			} else {
 				return window_event_result::close;
 			}
@@ -1308,14 +1319,13 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 		gr_get_string_size(cv_font, i.text, &string_width, &string_height, &average_width);
 		i.right_offset = 0;
 
-		i.saved_text[0] = '\0';
-
 		if (i.type == NM_TYPE_SLIDER)
 		{
 			int w1;
 			auto &slider = i.slider();
-			prepare_slider_text(i.saved_text, 0, slider.max_value - slider.min_value + 1);
-			gr_get_string_size(cv_font, i.saved_text.data(), &w1, nullptr, nullptr);
+			auto &saved_text = slider.saved_text;
+			prepare_slider_text(saved_text, 0, slider.max_value - slider.min_value + 1);
+			gr_get_string_size(cv_font, saved_text.data(), &w1, nullptr, nullptr);
 			string_width += w1 + aw;
 		}
 
@@ -1360,7 +1370,6 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 
 		if (const auto input_or_menu = i.input_or_menu())
 		{
-			i.saved_text.copy_if(i.text);
 			const auto text_len = input_or_menu->text_len;
 			string_width = text_len * fspacx8 + text_len;
 			if (i.type == NM_TYPE_INPUT && string_width > MAX_TEXT_WIDTH)
@@ -1369,7 +1378,9 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 			i.value = -1;
 			if (i.type == NM_TYPE_INPUT_MENU)
 			{
-				i.imenu().group = 0;
+				auto &im = i.imenu();
+				im.group = 0;
+				im.saved_text.copy_if(i.text);
 				nmenus++;
 			}
 		}
