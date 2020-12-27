@@ -124,19 +124,17 @@ void autosave_mine(const std::array<char, PATH_MAX> &name)
 
 tm Editor_time_of_day;
 
-static void print_clock()
+static void print_clock(grs_canvas &canvas, const grs_font &cv_font)
 {
 	int w, h;
-	gr_set_default_canvas();
-	auto &canvas = *grd_curcanv;
 	gr_set_fontcolor(canvas, CBLACK, CGREY);
 	std::array<char, 20> message;
 	if (!strftime(message.data(), message.size(), "%m-%d %H:%M:%S", &Editor_time_of_day))
 		message[0] = 0;
-	gr_get_string_size(*canvas.cv_font, message.data(), &w, &h, nullptr);
+	gr_get_string_size(cv_font, message.data(), &w, &h, nullptr);
 	const auto color = CGREY;
 	gr_rect(canvas, 700, 0, 799, h + 1, color);
-	gr_string(canvas, *canvas.cv_font, 700, 0, message.data(), w, h);
+	gr_string(canvas, cv_font, 700, 0, message.data(), w, h);
 	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 }
 
@@ -150,8 +148,10 @@ void set_editor_time_of_day()
 
 void TimedAutosave(const std::array<char, PATH_MAX> &name)
 {
+	auto &canvas = grd_curscreen->sc_canvas;
+	gr_set_current_canvas(canvas);
 	{
-		print_clock();
+		print_clock(canvas, *canvas.cv_font);
 	}
 	
 
