@@ -1266,32 +1266,50 @@ public:
 	operator menu_tagged_string<tag>() const && = delete;
 };
 
-class mission_menu
+struct mission_menu : listbox
 {
-	mission_list_type mls;
-public:
 	static constexpr char listbox_go_up[] = "<..>";
 	using callback_type = window_event_result (*)(void);
+	/* The top level menu stores the mission data in a member variable.
+	 * When this class is the base of toplevel_mission_menu, this
+	 * reference points to that member variable in
+	 * toplevel_mission_menu.
+	 *
+	 * Subdirectory menus do not store a copy of the mission data, and
+	 * instead store a reference to the mission data in the top level
+	 * menu.  When this class is the base of subdirectory_mission_menu,
+	 * this reference points to the member variable in the
+	 * toplevel_mission_menu that created this subdirectory_mission_menu.
+	 *
+	 * The data is not reference counted, because the top level menu
+	 * always outlives the subdirectory menus.
+	 */
 	const mission_list_type &ml;
+	/* listbox stores an unowned pointer to the string pointers that it
+	 * uses.  This member variable stores an owned pointer to the same
+	 * string pointers, so that the string pointers persist for the life
+	 * of the listbox.  The strings are stored elsewhere.
+	 */
 	const std::unique_ptr<const char *[]> listbox_strings;
+	/* listbox stores an unowned pointer to the title string, since some
+	 * listboxes use statically allocated strings.  This member variable
+	 * owns the storage for this listbox's title.
+	 */
 	const unique_menu_tagged_string<menu_title_tag> title;
 	const callback_type when_selected;
-	listbox *containing_listbox = nullptr;
+	virtual window_event_result callback_handler(const d_event &, window_event_result) override;
+	mission_menu(const mission_list_type &rml, std::unique_ptr<const char *[]> &&name_pointer_strings, const char *const message, callback_type when_selected, mission_menu *const parent, const int default_item, grs_canvas &canvas) :
+		mission_menu(rml, std::move(name_pointer_strings), prepare_title(message, rml), when_selected, parent, default_item, canvas)
+	{
+	}
+protected:
 	mission_menu *parent = nullptr;
-	mission_menu(mission_list_type &&rml, std::unique_ptr<const char *[]> &&mn, const char *const message, const callback_type ws) :
-		mls(std::move(rml)), ml(mls), listbox_strings(std::move(mn)),
-		title(prepare_title(message, ml)), when_selected(ws)
+	mission_menu(const mission_list_type &rml, std::unique_ptr<const char *[]> &&name_pointer_strings, unique_menu_tagged_string<menu_title_tag> title_parameter, callback_type when_selected, mission_menu *const parent, const int default_item, grs_canvas &canvas) :
+		listbox(default_item, rml.size(), name_pointer_strings.get(), title_parameter, canvas, 1),
+		ml(rml), listbox_strings(std::move(name_pointer_strings)),
+		title(std::move(title_parameter)),
+		when_selected(when_selected), parent(parent)
 	{
-	}
-	mission_menu(const mission_list_type *const p, std::unique_ptr<const char *[]> &&mn, const char *const message, const callback_type ws, mission_menu *const parent_menu) :
-		ml(*p), listbox_strings(std::move(mn)),
-		title(prepare_title(message, ml)), when_selected(ws),
-		parent(parent_menu)
-	{
-	}
-	bool is_submenu() const
-	{
-		return parent != nullptr;
 	}
 	static unique_menu_tagged_string<menu_title_tag> prepare_title(const char *const message, const mission_list_type &ml)
 	{
@@ -1304,6 +1322,31 @@ public:
 		std::memcpy(p.get(), buf, r);
 		return p;
 	}
+};
+
+struct toplevel_mission_menu_storage
+{
+protected:
+	const mission_list_type mission_list_storage;
+	toplevel_mission_menu_storage(mission_list_type &&rml) :
+		mission_list_storage(std::move(rml))
+	{
+	}
+};
+
+struct toplevel_mission_menu : toplevel_mission_menu_storage, mission_menu
+{
+public:
+	toplevel_mission_menu(mission_list_type &&rml, std::unique_ptr<const char *[]> &&name_pointer_strings, const char *const message, callback_type when_selected, const int default_item, grs_canvas &canvas) :
+		toplevel_mission_menu_storage(std::move(rml)),
+		mission_menu(mission_list_storage, std::move(name_pointer_strings), message, when_selected, nullptr /* no parent for toplevel menu */, default_item, canvas)
+	{
+	}
+};
+
+struct subdirectory_mission_menu : mission_menu
+{
+	using mission_menu::mission_menu;
 };
 
 constexpr char mission_menu::listbox_go_up[];
@@ -1322,18 +1365,17 @@ struct mission_menu_create_state
 
 }
 
-static window_event_result mission_menu_handler(listbox *const lb, const d_event &event, mission_menu *const mm)
+window_event_result mission_menu::callback_handler(const d_event &event, window_event_result)
 {
 	switch (event.type)
 	{
 		case EVENT_WINDOW_CREATED:
-			mm->containing_listbox = lb;
 			break;
 		case EVENT_NEWMENU_SELECTED:
 		{
 			const auto raw_citem = static_cast<const d_select_event &>(event).citem;
 			auto citem = raw_citem;
-			if (mm->is_submenu())
+			if (parent)
 			{
 				if (citem == 0)
 				{
@@ -1341,7 +1383,7 @@ static window_event_result mission_menu_handler(listbox *const lb, const d_event
 					 * not implicitly closed during handling of
 					 * EVENT_WINDOW_CLOSE.
 					 */
-					mm->parent = nullptr;
+					parent = nullptr;
 					return window_event_result::close;
 				}
 				/* Adjust for the "Go up" placeholder item */
@@ -1349,19 +1391,17 @@ static window_event_result mission_menu_handler(listbox *const lb, const d_event
 			}
 			if (citem >= 0)
 			{
-				auto &mli = mm->ml[citem];
+				auto &mli = ml[citem];
 				if (!mli.directory.empty())
 				{
 					auto listbox_strings = std::make_unique<const char *[]>(mli.directory.size() + 1);
-					listbox_strings[0] = mm->listbox_go_up;
+					listbox_strings[0] = listbox_go_up;
 					const auto a = [](const mle &m) -> const char * {
 						return m.mission_name;
 					};
 					std::transform(mli.directory.begin(), mli.directory.end(), &listbox_strings[1], a);
-					const auto pls = listbox_strings.get();
-					auto submm = std::make_unique<mission_menu>(&mli.directory, std::move(listbox_strings), mli.path.c_str(), mm->when_selected, mm);
-					const auto pmm = submm.get();
-					newmenu_listbox1(pmm->title, pmm->ml.size() + 1, pls, 1, 0, mission_menu_handler, std::move(submm));
+					auto submm = window_create<subdirectory_mission_menu>(ml, std::move(listbox_strings), mli.path.c_str(), when_selected, this, 0, grd_curscreen->sc_canvas);
+					(void)submm;
 					return window_event_result::handled;
 				}
 				// Chose a mission
@@ -1370,20 +1410,19 @@ static window_event_result mission_menu_handler(listbox *const lb, const d_event
 					nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s\n\n%s\n\n%s", TXT_MISSION_ERROR, errstr, mli.path.c_str());
 					return window_event_result::handled;	// stay in listbox so user can select another one
 				}
-				CGameCfg.LastMission.copy_if(mm->listbox_strings[raw_citem]);
+				CGameCfg.LastMission.copy_if(listbox_strings[raw_citem]);
 			}
-			return (*mm->when_selected)();
+			return (*when_selected)();
 		}
 		case EVENT_WINDOW_CLOSE:
 			/* If the user dismisses the listbox by pressing ESCAPE,
 			 * do not close the parent listbox.
 			 */
-			if (listbox_get_citem(*lb) != -1)
-				if (const auto parent = mm->parent)
+			if (listbox_get_citem(*this) != -1)
+				if (parent)
 				{
-					window_close(parent->containing_listbox);
+					window_close(parent);
 				}
-			std::default_delete<mission_menu>()(mm);
 			break;
 		default:
 			break;
@@ -1445,9 +1484,8 @@ int select_mission(const mission_filter_mode mission_filter, const menu_title me
 		auto &create_state = *create_state_ptr.get();
 		mission_menu *parent_mission_menu;
 		{
-			auto mm = std::make_unique<mission_menu>(std::move(mission_list), std::move(create_state.listbox_strings), message, when_selected);
-			parent_mission_menu = mm.get();
-			newmenu_listbox1(message, parent_mission_menu->ml.size(), parent_mission_menu->listbox_strings.get(), 1, create_state.initial_selection == UINT_MAX ? 0 : create_state.initial_selection, mission_menu_handler, std::move(mm));
+			auto mm = window_create<toplevel_mission_menu>(std::move(mission_list), std::move(create_state.listbox_strings), message, when_selected, create_state.initial_selection == UINT_MAX ? 0 : create_state.initial_selection, grd_curscreen->sc_canvas);
+			parent_mission_menu = mm;
 		}
 		for (auto parent_state = &create_state; const auto substate = parent_state->submenu.get(); parent_state = substate)
 		{
@@ -1457,10 +1495,8 @@ int select_mission(const mission_filter_mode mission_filter, const menu_title me
 			if (parent_initial_selection >= parent_mission_list_size)
 				break;
 			const auto &substate_mission_list = parent_mission_menu->ml[parent_initial_selection];
-			auto mm = std::make_unique<mission_menu>(&substate_mission_list.directory, std::move(substate->listbox_strings), substate_mission_list.path.c_str(), when_selected, parent_mission_menu);
-			const auto pmm = mm.get();
-			parent_mission_menu = pmm;
-			newmenu_listbox1(pmm->title, pmm->ml.size() + 1, pmm->listbox_strings.get(), 1, substate->initial_selection + 1, mission_menu_handler, std::move(mm));
+			auto submm = window_create<subdirectory_mission_menu>(substate_mission_list.directory, std::move(substate->listbox_strings), substate_mission_list.path.c_str(), when_selected, parent_mission_menu, 0, grd_curscreen->sc_canvas);
+			parent_mission_menu = submm;
 		}
     }
 
