@@ -253,7 +253,7 @@ std::pair<std::chrono::seconds, bool> parse_human_readable_time(const char *cons
 
 #if DXX_USE_SDLMIXER
 __attribute_nonnull()
-static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, ntstring<PATH_MAX - 1> &userdata);
+static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, uint8_t select_dir, ntstring<PATH_MAX - 1> &userdata);
 
 static window_event_result get_absolute_path(ntstring<PATH_MAX - 1> &full_path, const char *rel_path)
 {
@@ -1970,8 +1970,8 @@ namespace {
 
 struct browser
 {
-	browser(menu_title title, ntstring<PATH_MAX - 1> &userdata, const partial_range_t<const file_extension_t *> &r) :
-		title(title), userdata(userdata), ext_range(r)
+	browser(menu_title title, ntstring<PATH_MAX - 1> &userdata, const partial_range_t<const file_extension_t *> &r, const uint8_t select_dir, const uint8_t new_path) :
+		title(title), userdata(userdata), ext_range(r), select_dir(select_dir), new_path(new_path)
 	{
 	}
 	const menu_title title;			// The title - needed for making another listbox when changing directory
@@ -1979,8 +1979,8 @@ struct browser
 	string_array_t list;
 	// List of file extensions we're looking for (if looking for a music file many types are possible)
 	const partial_range_t<const file_extension_t *> ext_range;
-	int		select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
-	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
+	const uint8_t select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
+	uint8_t new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
 	std::array<char, PATH_MAX> view_path;	// The absolute path we're currently looking at
 };
 
@@ -2003,14 +2003,15 @@ static int list_directory(browser *b)
 {
 	b->list.clear();
 	b->list.add("..");		// go to parent directory
+	std::size_t tidy_offset = 1;
 	if (b->select_dir)
 	{
+		++tidy_offset;
 		b->list.add("<this directory>");	// choose the directory being viewed
 	}
 
 	PHYSFS_enumerateFilesCallback("", list_dir_el, b);
-	b->list.tidy(1 + (b->select_dir ? 1 : 0));
-
+	b->list.tidy(tidy_offset);
 	return 1;
 }
 
@@ -2116,16 +2117,14 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 	return window_event_result::ignored;
 }
 
-static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path_storage, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, ntstring<PATH_MAX - 1> &userdata)
+static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path_storage, const partial_range_t<const file_extension_t *> &ext_range, const uint8_t select_dir, ntstring<PATH_MAX - 1> &userdata)
 {
 	auto orig_path = orig_path_storage.data();
 	const char *sep = PHYSFS_getDirSeparator();
 	std::array<char, PATH_MAX> new_path;
 
-	auto b = std::make_unique<browser>(title, userdata, ext_range);
-	b->select_dir = select_dir;
+	auto b = std::make_unique<browser>(title, userdata, ext_range, select_dir, 1);
 	b->view_path[0] = '\0';
-	b->new_path = 1;
 
 	// Check for a PhysicsFS path first, saves complication!
 	if (strncmp(orig_path, sep, strlen(sep)) && PHYSFSX_exists(orig_path,0))
