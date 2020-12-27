@@ -265,7 +265,7 @@ void jukebox_load()
 			JukeboxSongs.list.reset(PHYSFSX_findFiles(p, jukebox_exts));
 		else
 		{
-			if (PHYSFSX_isNewPath(p))
+			if (!PHYSFS_getMountPoint(p))
 				new_path.reset(p);
 			PHYSFS_addToSearchPath(p, 0);
 

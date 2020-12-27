@@ -2158,7 +2158,7 @@ static int select_file_recursive(const menu_title title, const std::array<char, 
 		}
 		auto p = std::next(b->view_path.begin(), snprintf(b->view_path.data(), b->view_path.size(), "%s%s", base, orig_path) - 1);
 		const size_t len_sep = strlen(sep);
-		while (b->new_path = PHYSFSX_isNewPath(b->view_path.data()), !PHYSFS_addToSearchPath(b->view_path.data(), 0))
+		while (b->new_path = !PHYSFS_getMountPoint(b->view_path.data()), !PHYSFS_addToSearchPath(b->view_path.data(), 0))
 		{
 			while (p != b->view_path.begin() && strncmp(p, sep, len_sep))
 				p--;
@@ -2173,7 +2173,7 @@ static int select_file_recursive(const menu_title title, const std::array<char, 
 	if (!b->view_path[0])
 	{
 		snprintf(b->view_path.data(), b->view_path.size(), "%s", PHYSFS_getUserDir());
-		b->new_path = PHYSFSX_isNewPath(b->view_path.data());
+		b->new_path = !PHYSFS_getMountPoint(b->view_path.data());
 		if (!PHYSFS_addToSearchPath(b->view_path.data(), 0))
 		{
 			return 0;

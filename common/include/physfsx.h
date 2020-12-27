@@ -449,7 +449,6 @@ static inline int PHYSFSX_getRealPath(const char *stdPath, std::array<char, N> &
 	return PHYSFSX_getRealPath(stdPath, realPath.data(), N);
 }
 
-extern int PHYSFSX_isNewPath(const char *path);
 extern int PHYSFSX_rename(const char *oldpath, const char *newpath);
 
 #define PHYSFSX_exists(F,I)	((I) ? PHYSFSX_exists_ignorecase(F) : PHYSFS_exists(F))
