@@ -66,6 +66,7 @@ class newmenu_item
 {
 	struct input_common_type
 	{
+		const char *allowed_chars;
 		int text_len;
 		/* Only used by imenu, but placing it in imenu_specific_type
 		 * makes newmenu_item non-POD.  Some users expect newmenu_item
@@ -153,8 +154,6 @@ public:
 	nm_type type;           // What kind of item this is, see NM_TYPE_????? defines
 	ntstring<NM_MAX_TEXT_LEN> saved_text;
 };
-
-extern const char *Newmenu_allowed_chars;
 
 enum class tab_processing_flag : uint8_t
 {
@@ -478,23 +477,25 @@ static inline newmenu_item nm_item_menu(const char *text)
 }
 
 __attribute_nonnull()
-static inline void nm_set_item_input(newmenu_item &ni, unsigned len, char *text)
+static inline void nm_set_item_input(newmenu_item &ni, unsigned len, char *text, const char *const allowed_chars)
 {
 	ni.type = NM_TYPE_INPUT;
 	ni.text = text;
-	ni.input().text_len = len - 1;
+	auto &i = ni.input();
+	i.text_len = len - 1;
+	i.allowed_chars = allowed_chars;
 }
 
 template <std::size_t len>
-static inline void nm_set_item_input(newmenu_item &ni, char (&text)[len])
+static inline void nm_set_item_input(newmenu_item &ni, char (&text)[len], const char *const allowed_chars = nullptr)
 {
-	nm_set_item_input(ni, len, text);
+	nm_set_item_input(ni, len, text, allowed_chars);
 }
 
 template <std::size_t len>
-static inline void nm_set_item_input(newmenu_item &ni, std::array<char, len> &text)
+static inline void nm_set_item_input(newmenu_item &ni, std::array<char, len> &text, const char *const allowed_chars = nullptr)
 {
-	nm_set_item_input(ni, len, text.data());
+	nm_set_item_input(ni, len, text.data(), allowed_chars);
 }
 
 template <typename... T>

@@ -413,12 +413,10 @@ static int MakeNewPlayerFile(int allow_abort)
 try_again:
 	{
 		std::array<newmenu_item, 1> m{{
-			nm_item_input(text.buffer()),
+			nm_item_input(text.buffer(), playername_allowed_chars),
 		}};
-	Newmenu_allowed_chars = playername_allowed_chars;
 		x = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_ENTER_PILOT_NAME}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 	}
-	Newmenu_allowed_chars = NULL;
 
 	if ( x < 0 ) {
 		if ( allow_abort ) return 0;

@@ -4107,23 +4107,21 @@ void newdemo_stop_recording()
 try_again:
 	;
 
-	Newmenu_allowed_chars = demoname_allowed_chars;
 	if (guess_demo_name(filename))
 	{
 	}
 	else if (!nd_record_v_no_space) {
 		std::array<newmenu_item, 1> m{{
-			nm_item_input(filename),
+			nm_item_input(filename, demoname_allowed_chars),
 		}};
 		exit = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_SAVE_DEMO_AS}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 	} else if (nd_record_v_no_space == 2) {
 		std::array<newmenu_item, 2> m{{
 			nm_item_text(TXT_DEMO_SAVE_NOSPACE),
-			nm_item_input(filename),
+			nm_item_input(filename, demoname_allowed_chars),
 		}};
 		exit = newmenu_do2(menu_title{nullptr}, menu_subtitle{nullptr}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 	}
-	Newmenu_allowed_chars = NULL;
 
 	if (exit == -2) {                   // got bumped out from network menu
 		char save_file[PATH_MAX];

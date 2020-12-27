@@ -87,8 +87,6 @@ constexpr std::integral_constant<unsigned, NM_TYPE_SLIDER> newmenu_item::slider_
 
 namespace dcx {
 
-const char *Newmenu_allowed_chars;
-
 int passive_newmenu::subfunction_handler(const d_event &)
 {
 	return 0;
@@ -503,9 +501,9 @@ static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item 
 }
 
 //returns true if char is allowed
-static bool char_disallowed(char c)
+static bool char_disallowed(char c, const char *const allowed_chars)
 {
-	const char *p = Newmenu_allowed_chars;
+	const char *p = allowed_chars;
 	if (!p)
 		return false;
 	for (uint8_t a, b; (a = p[0]) && (b = p[1]); p += 2)
@@ -516,9 +514,9 @@ static bool char_disallowed(char c)
 	return true;
 }
 
-static bool char_allowed(char c)
+static bool char_allowed(char c, const char *const allowed_chars)
 {
-	return !char_disallowed(c);
+	return !char_disallowed(c, allowed_chars);
 }
 
 static void strip_end_whitespace( char * text )
@@ -1154,7 +1152,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 					changed = 1;
 				rval = window_event_result::handled;
 			}
-			else if (citem.value < citem.input_or_menu()->text_len)
+			else if (const auto im = citem.input_or_menu(); citem.value < im->text_len)
 			{
 				auto ascii = key_ascii();
 				if (ascii < 255)
@@ -1162,7 +1160,8 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 					if (citem.value == -1) {
 						citem.value = 0;
 					}
-					if (char_allowed(ascii) || (ascii == ' ' && char_allowed(ascii = '_')))
+					const auto allowed_chars = im->allowed_chars;
+					if (char_allowed(ascii, allowed_chars) || (ascii == ' ' && char_allowed(ascii = '_', allowed_chars)))
 					{
 						citem.text[citem.value++] = ascii;
 						citem.text[citem.value] = 0;
