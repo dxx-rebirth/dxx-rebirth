@@ -108,18 +108,6 @@ struct callback_newmenu : newmenu
 	virtual int subfunction_handler(const d_event &event) override;
 };
 
-struct callback_listbox : listbox
-{
-	callback_listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, uint8_t allow_abort_flag, listbox_subfunction_t<void> callback, void *userdata) :
-		listbox(citem, nitems, item, title, canvas, allow_abort_flag),
-		listbox_callback(callback), userdata(userdata)
-	{
-	}
-	const listbox_subfunction_t<void> listbox_callback;
-	void *const userdata;
-	virtual window_event_result callback_handler(const d_event &, window_event_result default_return_value) override;
-};
-
 struct step_down
 {
 	template <typename T>
@@ -199,13 +187,6 @@ int callback_newmenu::subfunction_handler(const d_event &event)
 	if (!subfunction)
 		return 0;
 	return (*subfunction)(this, event, userdata);
-}
-
-window_event_result callback_listbox::callback_handler(const d_event &event, window_event_result default_return_value)
-{
-	if (!listbox_callback)
-		return default_return_value;
-	return (*listbox_callback)(this, event, userdata);
 }
 
 }
@@ -2169,13 +2150,4 @@ window_event_result listbox::event_handler(const d_event &event)
 			break;
 	}
 	return window_event_result::ignored;
-}
-
-listbox *newmenu_listbox1(const menu_title title, const unsigned nitems, const char *items[], const uint8_t allow_abort_flag, const int default_item, const listbox_subfunction_t<void> listbox_callback, void *const userdata)
-{
-	newmenu_free_background();
-
-	set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
-	auto lb = window_create<callback_listbox>(default_item, nitems, items, title, grd_curscreen->sc_canvas, allow_abort_flag, listbox_callback, userdata);
-	return lb;
 }

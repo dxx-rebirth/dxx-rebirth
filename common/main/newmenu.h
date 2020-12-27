@@ -409,7 +409,6 @@ int nm_messagebox_str(menu_title title, const nm_messagebox_tie &tie, menu_subti
 int vnm_messagebox_aN(menu_title title, const nm_messagebox_tie &tie, const char *format, ...) __attribute_format_printf(3, 4);
 
 void nm_draw_background(grs_canvas &, int x1, int y1, int x2, int y2);
-void nm_restore_background(int x, int y, int w, int h);
 
 // Example listbox callback function...
 // int lb_callback( int * citem, int *nitems, char * items[], int *keypress )
@@ -434,9 +433,6 @@ void nm_restore_background(int x, int y, int w, int h);
 
 namespace dcx {
 
-template <typename T>
-using listbox_subfunction_t = window_event_result (*)(listbox *menu, const d_event &event, T *userdata);
-
 struct listbox : listbox_layout, window
 {
 	listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, uint8_t allow_abort_flag);
@@ -450,32 +446,6 @@ struct listbox : listbox_layout, window
 const char **listbox_get_items(listbox &lb);
 int listbox_get_citem(listbox &lb);
 void listbox_delete_item(listbox &lb, int item);
-
-class unused_listbox_userdata_t;
-constexpr listbox_subfunction_t<const unused_listbox_userdata_t> *unused_listbox_subfunction = nullptr;
-constexpr const unused_listbox_userdata_t *unused_listbox_userdata = nullptr;
-}
-
-listbox *newmenu_listbox1(menu_title title, unsigned nitems, const char *items[], uint8_t allow_abort_flag, int default_item, listbox_subfunction_t<void> listbox_callback, void *userdata);
-
-template <typename T>
-listbox *newmenu_listbox1(const menu_title title, const unsigned nitems, const char *items[], const uint8_t allow_abort_flag, const int default_item, const listbox_subfunction_t<T> listbox_callback, T *const userdata)
-{
-	return newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>>(listbox_callback), static_cast<void *>(userdata));
-}
-
-template <typename T>
-listbox *newmenu_listbox1(const menu_title title, const unsigned nitems, const char *items[], const uint8_t allow_abort_flag, const int default_item, const listbox_subfunction_t<T> listbox_callback, std::unique_ptr<T> userdata)
-{
-	auto r = newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>>(listbox_callback), static_cast<void *>(userdata.get()));
-	userdata.release();
-	return r;
-}
-
-template <typename T>
-listbox *newmenu_listbox(const menu_title title, const unsigned nitems, const char *items[], const uint8_t allow_abort_flag, const listbox_subfunction_t<T> listbox_callback, T *const userdata)
-{
-	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, reinterpret_cast<listbox_subfunction_t<void>>(listbox_callback), static_cast<void *>(userdata));
 }
 
 static inline void nm_set_item_menu(newmenu_item &ni, const char *text)
