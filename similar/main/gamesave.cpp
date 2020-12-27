@@ -1543,11 +1543,19 @@ int load_level(
 #if DXX_USE_EDITOR
 int get_level_name()
 {
-	std::array<newmenu_item, 2> m{{
-		nm_item_text("Please enter a name for this mine:"),
-		nm_item_input(Current_level_name.next()),
-	}};
-	return newmenu_do2(menu_title{nullptr}, menu_subtitle{"Enter mine name"}, m, unused_newmenu_subfunction, unused_newmenu_userdata) >= 0;
+	using items_type = std::array<newmenu_item, 2>;
+	struct request_menu : items_type, passive_newmenu
+	{
+		request_menu() :
+			items_type{{
+				nm_item_text("Please enter a name for this mine:"),
+				nm_item_input(Current_level_name.next()),
+			}},
+			passive_newmenu(menu_title{nullptr}, menu_subtitle{"Enter mine name"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 1), *grd_curcanv, draw_box_flag::none)
+		{
+		}
+	};
+	return run_blocking_newmenu<request_menu>();
 }
 #endif
 
