@@ -435,7 +435,7 @@ static void nm_string_inputbox(grs_canvas &canvas, const int w, const int x, con
 		gr_string(canvas, *canvas.cv_font, x + w1, y, CURSOR_STRING);
 }
 
-static void draw_item(grs_canvas &canvas, newmenu_item &item, int is_current, const tiny_mode_flag tiny, const tab_processing_flag tabs_flag, int scroll_offset)
+static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item &item, int is_current, const tiny_mode_flag tiny, const tab_processing_flag tabs_flag, int scroll_offset)
 {
 	if (tiny != tiny_mode_flag::normal)
 	{
@@ -448,12 +448,8 @@ static void draw_item(grs_canvas &canvas, newmenu_item &item, int is_current, co
 			r = g = 29, b = 47;
 		gr_set_fontcolor(canvas, gr_find_closest_color_current(r, g, b), -1);
 	}
-	else
-	{
-		gr_set_curfont(canvas, *(is_current ? MEDIUM2_FONT : MEDIUM1_FONT));
-        }
 
-	const int line_spacing = static_cast<int>(LINE_SPACING(*canvas.cv_font, *GAME_FONT));
+	const int line_spacing = static_cast<int>(LINE_SPACING(cv_font, *GAME_FONT));
 	switch(item.type)
 	{
 		case NM_TYPE_SLIDER:
@@ -1502,8 +1498,11 @@ static window_event_result newmenu_draw(newmenu *menu)
 		gr_string(*grd_curcanv, medium3_font, 0x8000, ty + th, menu->subtitle);
 	}
 
-	gr_set_curfont(*grd_curcanv, *(menu->tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM1_FONT));
-
+	const auto tiny_mode = menu->tiny_mode;
+	const auto &game_font = *GAME_FONT.get();
+	const grs_font &noncurrent_item_cv_font = tiny_mode != tiny_mode_flag::normal
+		? game_font
+		: *MEDIUM1_FONT.get();
 	// Redraw everything...
 	{
 		const auto begin = menu->items.begin();
@@ -1512,32 +1511,36 @@ static window_event_result newmenu_draw(newmenu *menu)
 		 * test does not need to be run at every step.
 		 */
 		const auto current_index = menu->all_text ? ~0u : menu->citem;
-		const auto tiny_mode = menu->tiny_mode;
 		const auto tabs_flag = menu->tabs_flag;
 		const auto scroll_offset = menu->scroll_offset;
 		for (auto i = scroll_offset; i < menu->max_displayable + scroll_offset; ++i)
 		{
-			draw_item(*grd_curcanv, *std::next(begin, i), i == current_index, tiny_mode, tabs_flag, scroll_offset);
+			const auto is_current = (i == current_index);
+			const grs_font &cv_font = (tiny_mode == tiny_mode_flag::normal && is_current)
+				? *MEDIUM2_FONT.get()
+				: noncurrent_item_cv_font;
+			gr_set_curfont(*grd_curcanv, cv_font);
+			draw_item(*grd_curcanv, cv_font, *std::next(begin, i), is_current, tiny_mode, tabs_flag, scroll_offset);
 		}
 	}
 
 	if (menu->is_scroll_box)
 	{
-		auto &cv_font = *(menu->tiny_mode != tiny_mode_flag::normal ? GAME_FONT : MEDIUM2_FONT);
+		auto &cv_font = (menu->tiny_mode != tiny_mode_flag::normal ? noncurrent_item_cv_font : *MEDIUM2_FONT);
 
-		const int line_spacing = static_cast<int>(LINE_SPACING(cv_font, *GAME_FONT));
+		const int line_spacing = static_cast<int>(LINE_SPACING(cv_font, game_font));
 		const auto scroll_offset = menu->scroll_offset;
 		const auto begin = menu->items.begin();
 		sy = std::next(begin, scroll_offset)->y - (line_spacing * scroll_offset);
 		const auto &&fspacx = FSPACX();
 		sx = BORDERX - fspacx(12);
 
-		gr_string(*grd_curcanv, cv_font, sx, sy, scroll_offset ? UP_ARROW_MARKER(cv_font, *GAME_FONT) : "  ");
+		gr_string(*grd_curcanv, cv_font, sx, sy, scroll_offset ? UP_ARROW_MARKER(cv_font, game_font) : "  ");
 
 		sy = std::next(begin, scroll_offset + menu->max_displayable - 1)->y - (line_spacing * scroll_offset);
 		sx = BORDERX - fspacx(12);
 
-		gr_string(*grd_curcanv, cv_font, sx, sy, (scroll_offset + menu->max_displayable < menu->items.size()) ? DOWN_ARROW_MARKER(*grd_curcanv->cv_font, *GAME_FONT) : "  ");
+		gr_string(*grd_curcanv, cv_font, sx, sy, (scroll_offset + menu->max_displayable < menu->items.size()) ? DOWN_ARROW_MARKER(*grd_curcanv->cv_font, game_font) : "  ");
 	}
 	menu->subfunction_handler(d_event{EVENT_NEWMENU_DRAW});
 	gr_set_current_canvas(save_canvas);
