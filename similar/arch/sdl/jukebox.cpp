@@ -267,7 +267,7 @@ void jukebox_load()
 		{
 			if (!PHYSFS_getMountPoint(p))
 				new_path.reset(p);
-			PHYSFS_addToSearchPath(p, 0);
+			PHYSFS_mount(p, nullptr, 0);
 
 			// as mountpoints are no option (yet), make sure only files originating from GameCfg.CMLevelMusicPath are aded to the list.
 			JukeboxSongs.list.reset(PHYSFSX_findabsoluteFiles("", p, jukebox_exts));

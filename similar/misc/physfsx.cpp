@@ -194,10 +194,10 @@ bool PHYSFSX_init(int argc, char *argv[])
 		writedir = PHYSFS_getWriteDir();
 	}
 	con_printf(CON_DEBUG, "PHYSFS: append write directory \"%s\" to search path", writedir);
-	PHYSFS_addToSearchPath(writedir, 1);
+	PHYSFS_mount(writedir, nullptr, 1);
 #endif
 	con_printf(CON_DEBUG, "PHYSFS: temporarily append base directory \"%s\" to search path", base_dir);
-	PHYSFS_addToSearchPath(base_dir, 1);
+	PHYSFS_mount(base_dir, nullptr, 1);
 	if (!InitArgs( argc,argv ))
 		return false;
 	PHYSFS_removeFromSearchPath(base_dir);
@@ -207,7 +207,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 		PHYSFS_setWriteDir(base_dir);
 		if (!(writedir = PHYSFS_getWriteDir()))
 			Error("can't set write dir: %s\n", PHYSFS_getLastError());
-		PHYSFS_addToSearchPath(writedir, 0);
+		PHYSFS_mount(writedir, nullptr, 0);
 	}
 	
 	//tell PHYSFS where hogdir is
@@ -215,13 +215,13 @@ bool PHYSFSX_init(int argc, char *argv[])
 	{
 		const auto p = CGameArg.SysHogDir.c_str();
 		con_printf(CON_DEBUG, "PHYSFS: append argument hog directory \"%s\" to search path", p);
-		PHYSFS_addToSearchPath(p, 1);
+		PHYSFS_mount(p, nullptr, 1);
 	}
 #if DXX_USE_SHAREPATH
 	else if (!GameArg.SysNoHogDir)
 	{
 		con_puts(CON_DEBUG, "PHYSFS: append sharepath directory \"" DXX_SHAREPATH "\" to search path");
-		PHYSFS_addToSearchPath(DXX_SHAREPATH, 1);
+		PHYSFS_mount(DXX_SHAREPATH, nullptr, 1);
 	}
 	else
 	{
@@ -248,7 +248,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 				if (CFURLGetFileSystemRepresentation(resourcesURL, TRUE, reinterpret_cast<uint8_t *>(fullPath), sizeof(fullPath)))
 				{
 					con_printf(CON_DEBUG, "PHYSFS: append resources directory \"%s\" to search path", fullPath);
-					PHYSFS_addToSearchPath(fullPath, 1);
+					PHYSFS_mount(fullPath, nullptr, 1);
 				}
 			
 				CFRelease(resourcesURL);
@@ -263,7 +263,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 		strncat(base_dir, ":Resources:", PATH_MAX - 1 - strlen(base_dir));
 		base_dir[PATH_MAX - 1] = '\0';
 		con_printf(CON_DEBUG, "PHYSFS: append bundle directory \"%s\" to search path", base_dir);
-		PHYSFS_addToSearchPath(base_dir, 1);
+		PHYSFS_mount(base_dir, nullptr, 1);
 	}
 #endif
 	return true;
@@ -289,7 +289,7 @@ int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end)
 		return 0;
 	}
 
-	auto r = PHYSFS_addToSearchPath(pathname.data(), add_to_end);
+	auto r = PHYSFS_mount(pathname.data(), nullptr, add_to_end);
 	const auto action = add_to_end ? "append" : "insert";
 	if (r)
 		con_printf(CON_DEBUG, "PHYSFS: %s canonical directory \"%s\" to search path from relative name \"%s\"", action, pathname.data(), relname);
@@ -565,7 +565,7 @@ void PHYSFSX_addArchiveContent()
 	{
 		std::array<char, PATH_MAX> realfile;
 		PHYSFSX_getRealPath(i,realfile);
-		if (PHYSFS_addToSearchPath(realfile.data(), 0))
+		if (PHYSFS_mount(realfile.data(), nullptr, 0))
 		{
 			con_printf(CON_DEBUG, "PHYSFS: Added %s to Search Path",realfile.data());
 			content_updated = 1;
