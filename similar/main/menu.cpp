@@ -950,11 +950,11 @@ int select_demo()
 static int do_difficulty_menu()
 {
 	std::array<newmenu_item, NDL> m{{
-		nm_item_menu(MENU_DIFFICULTY_TEXT(0)),
-		nm_item_menu(MENU_DIFFICULTY_TEXT(1)),
-		nm_item_menu(MENU_DIFFICULTY_TEXT(2)),
-		nm_item_menu(MENU_DIFFICULTY_TEXT(3)),
-		nm_item_menu(MENU_DIFFICULTY_TEXT(4)),
+		nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_0)),
+		nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_1)),
+		nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_2)),
+		nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_3)),
+		nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_4)),
 	}};
 
 	auto &Difficulty_level = GameUniqueState.Difficulty_level;
