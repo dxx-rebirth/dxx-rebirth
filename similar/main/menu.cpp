@@ -834,6 +834,17 @@ int DoMenu()
 
 namespace {
 
+struct demo_selection_listbox : listbox
+{
+	demo_selection_listbox(unsigned nitems, PHYSFSX_uncounted_list &&physfs_list_strings, grs_canvas &canvas) :
+		listbox(0, nitems, const_cast<const char **>(physfs_list_strings.get()), menu_title{TXT_SELECT_DEMO}, canvas, 1),
+		physfs_list_storage(std::move(physfs_list_strings))
+	{
+	}
+	PHYSFSX_uncounted_list physfs_list_storage;
+	virtual window_event_result callback_handler(const d_event &, window_event_result default_return_value) override;
+};
+
 static window_event_result demo_menu_keycommand( listbox *lb,const d_event &event )
 {
 	const char **items = listbox_get_items(*lb);
@@ -886,26 +897,24 @@ static window_event_result demo_menu_keycommand( listbox *lb,const d_event &even
 			}
 			break;
 	}
-
 	return window_event_result::ignored;
 }
 
-static window_event_result demo_menu_handler(listbox *lb, const d_event &event, char **items)
+window_event_result demo_selection_listbox::callback_handler(const d_event &event, window_event_result)
 {
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
-			return demo_menu_keycommand(lb, event);
+			return demo_menu_keycommand(this, event);
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem < 0)
 				return window_event_result::ignored;		// shouldn't happen
-			newdemo_start_playback(items[citem]);
+			newdemo_start_playback(item[citem]);
 			return window_event_result::handled;		// stay in demo selector
 		}
 		case EVENT_WINDOW_CLOSE:
-			PHYSFS_freeList(items);
 			break;
 		default:
 			break;
@@ -928,12 +937,8 @@ int select_demo()
 
 	for (NumItems = 0; list[NumItems] != NULL; NumItems++) {}
 
-	// Sort by name
-	qsort(list.get(), NumItems, sizeof(char *), string_array_sort_func);
-
-	auto clist = const_cast<const char **>(list.get());
-	newmenu_listbox1(menu_title{TXT_SELECT_DEMO}, NumItems, clist, 1, 0, demo_menu_handler, list.release());
-
+	auto lb = window_create<demo_selection_listbox>(NumItems, std::move(list), grd_curscreen->sc_canvas);
+	(void)lb;
 	return 1;
 }
 
