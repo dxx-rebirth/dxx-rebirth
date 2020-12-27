@@ -368,10 +368,10 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 		case EVENT_WINDOW_DRAW:
 			{
 			timer_delay2(50);
+			kmatrix_redraw(this);
 
 			if (network != kmatrix_network::offline)
 				multi::dispatch->do_protocol_frame(0, 1);
-			
 			kmatrix_status_mode playing = (Current_level_num == Current_mission->last_level)
 				? kmatrix_status_mode::mission_finished
 				: kmatrix_status_mode::level_finished;
@@ -396,7 +396,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 			}
 
 			// Check if end_time has been reached and exit loop
-			if (end_time != -1 && timer_query() >= end_time)
+			if (end_time != -1 && timer_query() >= end_time && this == window_get_front())
 			{
 				if (network != kmatrix_network::offline)
 					multi::dispatch->send_endlevel_packet();  // make sure
@@ -416,7 +416,6 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 					return window_event_result::close;
 			}
 
-			kmatrix_redraw(this);
 			kmatrix_status_msg(*grd_curcanv, playing == kmatrix_status_mode::reactor_countdown_running ? LevelUniqueControlCenterState.Countdown_seconds_left : f2i(timer_query() - end_time), playing);
 			break;
 			}
