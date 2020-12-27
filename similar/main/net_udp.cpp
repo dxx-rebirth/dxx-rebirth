@@ -3524,6 +3524,8 @@ static void net_udp_set_power (void)
 
 class more_game_options_menu_items
 {
+protected:
+	const unsigned game_is_cooperative;
 	char packstring[sizeof("99")];
 	std::array<char, sizeof("65535")> portstring;
 	char srinvul[sizeof("Reactor life: 50 min")];
@@ -3624,7 +3626,8 @@ public:
 	{
 		DXX_UDP_MENU_OPTIONS(ENUM)
 	};
-	more_game_options_menu_items()
+	more_game_options_menu_items(const unsigned game_is_cooperative) :
+		game_is_cooperative(game_is_cooperative)
 	{
 		const auto difficulty = Netgame.difficulty;
 		update_difficulty_string(difficulty);
@@ -3699,8 +3702,20 @@ public:
 		convert_text_portstring(portstring, UDP_MyPort, false, false);
 		parse_human_readable_time(Netgame.MPGameplayOptions.AutosaveInterval, AutosaveInterval);
 	}
-	static void net_udp_more_game_options();
 };
+
+struct more_game_options_menu : more_game_options_menu_items, newmenu
+{
+	more_game_options_menu(unsigned game_is_cooperative, grs_canvas &);
+	static void net_udp_more_game_options(unsigned game_is_cooperative);
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+more_game_options_menu::more_game_options_menu(const unsigned game_is_cooperative, grs_canvas &canvas) :
+	more_game_options_menu_items(game_is_cooperative),
+	newmenu(menu_title{nullptr}, menu_subtitle{"Advanced netgame options"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), canvas)
+{
+}
 
 class grant_powerup_menu_items
 {
@@ -3747,8 +3762,6 @@ int grant_powerup_menu::subfunction_handler(const d_event &event)
 	return 0;
 }
 
-}
-
 static void net_udp_set_grant_power()
 {
 	const auto SpawnGrantedItems = Netgame.SpawnGrantedItems;
@@ -3756,42 +3769,30 @@ static void net_udp_set_grant_power()
 	(void)menu;
 }
 
-void more_game_options_menu_items::net_udp_more_game_options()
+void more_game_options_menu::net_udp_more_game_options(const unsigned game_is_cooperative)
 {
-	more_game_options_menu_items menu;
-	newmenu_do2(menu_title{nullptr}, menu_subtitle{"Advanced netgame options"}, menu.get_menu_items(), handler, &menu);
-	menu.read();
-	if (Netgame.PacketsPerSec>MAX_PPS)
-	{
-		Netgame.PacketsPerSec=MAX_PPS;
-		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Packet value out of range\nSetting value to %i",MAX_PPS);
-	}
-	else if (Netgame.PacketsPerSec < MIN_PPS)
-	{
-		Netgame.PacketsPerSec=MIN_PPS;
-		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Packet value out of range\nSetting value to %i", MIN_PPS);
-	}
-	GameUniqueState.Difficulty_level = Netgame.difficulty;
+	auto menu = window_create<more_game_options_menu>(game_is_cooperative, grd_curscreen->sc_canvas);
+	(void)menu;
 }
 
-int more_game_options_menu_items::handler(newmenu *, const d_event &event, more_game_options_menu_items *items)
+int more_game_options_menu::subfunction_handler(const d_event &event)
 {
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
-			auto &menus = items->get_menu_items();
+			auto &menus = m;
 			if (citem == opt_difficulty)
 			{
 				Netgame.difficulty = cast_clamp_difficulty(menus[opt_difficulty].value);
-				items->update_difficulty_string(Netgame.difficulty);
+				update_difficulty_string(Netgame.difficulty);
 			}
 			else if (citem == opt_cinvul)
-				items->update_reactor_life_string(menus[opt_cinvul].value * (reactor_invul_time_scale / reactor_invul_time_mini_scale));
+				update_reactor_life_string(menus[opt_cinvul].value * (reactor_invul_time_scale / reactor_invul_time_mini_scale));
 			else if (citem == opt_playtime)
 			{
-				if (Game_mode & GM_MULTI_COOP)
+				if (game_is_cooperative)
 				{
 					nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You can't change those for coop!"});
 					menus[opt_playtime].value=0;
@@ -3799,11 +3800,11 @@ int more_game_options_menu_items::handler(newmenu *, const d_event &event, more_
 				}
 				
 				Netgame.PlayTimeAllowed = std::chrono::duration<int, netgame_info::play_time_allowed_abi_ratio>(menus[opt_playtime].value);
-				items->update_max_play_time_string();
+				update_max_play_time_string();
 			}
 			else if (citem == opt_killgoal)
 			{
-				if (Game_mode & GM_MULTI_COOP)
+				if (game_is_cooperative)
 				{
 					nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You can't change those for coop!"});
 					menus[opt_killgoal].value=0;
@@ -3811,34 +3812,34 @@ int more_game_options_menu_items::handler(newmenu *, const d_event &event, more_
 				}
 				
 				Netgame.KillGoal=menus[opt_killgoal].value;
-				items->update_kill_goal_string();
+				update_kill_goal_string();
 			}
 			else if(citem == opt_extra_primary)
 			{
 				auto primary = menus[opt_extra_primary].value;
-				items->update_extra_primary_string(primary);
+				update_extra_primary_string(primary);
 			}
 			else if(citem == opt_extra_secondary)
 			{
 				auto secondary = menus[opt_extra_secondary].value;
-				items->update_extra_secondary_string(secondary);
+				update_extra_secondary_string(secondary);
 			}
 #if defined(DXX_BUILD_DESCENT_II)
 			else if(citem == opt_extra_accessory)
 			{
 				auto accessory = menus[opt_extra_accessory].value;
-				items->update_extra_accessory_string(accessory);
+				update_extra_accessory_string(accessory);
 			}
 #endif
 			else if (citem == opt_start_invul)
 			{
 				Netgame.InvulAppear = menus[opt_start_invul].value;
-				items->update_spawn_invuln_string();
+				update_spawn_invuln_string();
 			}
 			else if (citem == opt_secluded_spawns)
 			{
 				Netgame.SecludedSpawns = menus[opt_secluded_spawns].value;
-				items->update_secluded_spawn_string();
+				update_secluded_spawn_string();
 			}
 			break;
 		}
@@ -3853,13 +3854,25 @@ int more_game_options_menu_items::handler(newmenu *, const d_event &event, more_
 				break;
 			return 1;
 		}
+		case EVENT_WINDOW_CLOSE:
+			read();
+			if (Netgame.PacketsPerSec > MAX_PPS)
+			{
+				Netgame.PacketsPerSec = MAX_PPS;
+				nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Packet value out of range\nSetting value to %i", MAX_PPS);
+			}
+			else if (Netgame.PacketsPerSec < MIN_PPS)
+			{
+				Netgame.PacketsPerSec = MIN_PPS;
+				nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Packet value out of range\nSetting value to %i", MIN_PPS);
+			}
+			GameUniqueState.Difficulty_level = Netgame.difficulty;
+			break;
 		default:
 			break;
 	}
 	return 0;
 }
-
-namespace {
 
 struct param_opt
 {
@@ -3993,10 +4006,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 
 			if (citem==opt->moreopts)
 			{
-				if ( menus[opt->coop].value )
-					Game_mode=GM_MULTI_COOP;
-				more_game_options_menu_items::net_udp_more_game_options();
-				Game_mode=0;
+				more_game_options_menu::net_udp_more_game_options(menus[opt->coop].value);
 				return 1;
 			}
 			if (citem==opt->start_game)
