@@ -766,9 +766,8 @@ void gr_ustring(grs_canvas &canvas, const grs_font &cv_font, const int x, const 
 	}
 #endif
 	
-	if (canvas.cv_font->ft_flags & FT_COLOR) {
+	if (cv_font.ft_flags & FT_COLOR)
 		gr_internal_color_string(canvas, cv_font, x, y, s);
-	}
 	else
 		gr_ustring_mono(canvas, cv_font, x, y, s);
 }
