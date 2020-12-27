@@ -3500,8 +3500,18 @@ protected:
 	const unsigned game_is_cooperative;
 	char packstring[sizeof("99")];
 	std::array<char, sizeof("65535")> portstring;
-	char srinvul[sizeof("Reactor life: 50 min")];
-	char PlayText[sizeof("Max time: 50 min")];
+	/* Reactor life and Maximum time are stored in a uint32_t, and have
+	 * a theoretical maximum of 1092 after converting from internal game
+	 * time (seconds in fixed point) to minutes.  User input limitations
+	 * prevent setting a value higher than 50 minutes.  Even if the code
+	 * is modified to verify a maximum value of 50 immediately before
+	 * formatting it, the gcc value range propagation pass fails to
+	 * detect the reduced range and issues a warning as if the value
+	 * could be 1092.  Eliminate the bogus warning by using a buffer
+	 * large enough for the theoretical maximum.
+	 */
+	char srinvul[sizeof("Reactor life: 1092 min")];
+	char PlayText[sizeof("Max time: 1092 min")];
 	char SpawnInvulnerableText[sizeof("Invul. Time: 0.0 sec")];
 	char SecludedSpawnText[sizeof("Use 0 Furthest Sites")];
 	char KillText[sizeof("Kill goal: 000 kills")];
