@@ -120,6 +120,15 @@ static movement_type_name &get_movement_type(const typename object_base::movemen
 	}
 }
 
+static void info_display_object_placement(grs_canvas &canvas, const grs_font &cv_font, const vcobjptridx_t &obj)
+{
+	gr_uprintf(canvas, cv_font, 0, 0, "Object id: %4d\n", obj.get_unchecked_index());
+	auto &o = *obj;
+	gr_uprintf(canvas, cv_font, 0, 16, "Type: %s\n", get_object_type(o.type));
+	gr_uprintf(canvas, cv_font, 0, 32, "Movmnt: %s\n", get_movement_type(o.movement_source));
+	gr_uprintf(canvas, cv_font, 0, 48, "Cntrl: %s\n", get_control_type(o.control_source));
+}
+
 }
 
 }
@@ -162,34 +171,17 @@ static ai_type_name &get_ai_behavior(ai_behavior num)
 }
 
 //	---------------------------------------------------------------------------------------------------
-static void info_display_object_placement(grs_canvas &canvas, int show_all)
+static void info_display_object_placement(grs_canvas &canvas, const grs_font &cv_font)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	static	int	old_Cur_object_index;
-	static	int	old_type;
-	static typename object::movement_type old_movement_type;
-	static typename object::control_type old_control_type;
-	static ai_behavior old_mode;
-	if (init_info || show_all ||
-		( Cur_object_index != old_Cur_object_index) || 
-			( Objects[Cur_object_index].type != old_type) || 
-			( Objects[Cur_object_index].movement_source != old_movement_type) || 
-			( Objects[Cur_object_index].control_source != old_control_type) || 
-			( Objects[Cur_object_index].ctype.ai_info.behavior != old_mode) ) {
-
-		gr_uprintf(canvas, *canvas.cv_font, 0, 0, "Object id: %4d\n", Cur_object_index);
-		gr_uprintf(canvas, *canvas.cv_font, 0, 16, "Type: %s\n", get_object_type(Objects[Cur_object_index].type));
-		gr_uprintf(canvas, *canvas.cv_font, 0, 32, "Movmnt: %s\n", get_movement_type(Objects[Cur_object_index].movement_source));
-		gr_uprintf(canvas, *canvas.cv_font, 0, 48, "Cntrl: %s\n", get_control_type(Objects[Cur_object_index].control_source));
-		gr_uprintf(canvas, *canvas.cv_font, 0, 64, "Mode: %s\n", get_ai_behavior(Objects[Cur_object_index].ctype.ai_info.behavior));
-
-		old_Cur_object_index = Cur_object_index;
-		old_type = Objects[Cur_object_index].type;
-		old_movement_type = Objects[Cur_object_index].movement_source;
-		old_control_type = Objects[Cur_object_index].control_source;
-		old_mode = Objects[Cur_object_index].ctype.ai_info.behavior;
+	if (Cur_object_index == object_none)
+	{
+		gr_ustring(canvas, cv_font, 0, 0, "Object id: None\n");
+		return;
 	}
-
+	auto &Objects = LevelUniqueObjectState.Objects;
+	const auto &obj = Objects.vcptridx(Cur_object_index);
+	gr_uprintf(canvas, cv_font, 0, 64, "Mode: %s\n", get_ai_behavior(obj->ctype.ai_info.behavior));
+	::dcx::info_display_object_placement(canvas, cv_font, obj);
 }
 
 }
@@ -369,7 +361,7 @@ window_event_result info_dialog_window::event_handler(const d_event &event)
 
 			switch (padnum) {
 				case OBJECT_PAD_ID:			// Object placement
-					info_display_object_placement(canvas, show_all);
+					info_display_object_placement(canvas, *canvas.cv_font);
 					break;
 				case SEGSIZE_PAD_ID:			// Segment sizing
 					info_display_segsize(canvas, show_all);
