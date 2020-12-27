@@ -351,7 +351,7 @@ static void nm_string(grs_canvas &canvas, const int w1, int x, const int y, cons
 }
 
 // Draw a slider and it's string
-static void nm_string_slider(grs_canvas &canvas, const int w1, const int x, const int y, char *const s)
+static void nm_string_slider(grs_canvas &canvas, const grs_font &cv_font, const int w1, const int x, const int y, char *const s)
 {
 	char *p,*s1;
 
@@ -363,12 +363,12 @@ static void nm_string_slider(grs_canvas &canvas, const int w1, const int x, cons
 		s1 = p+1;
 	}
 
-	gr_string(canvas, *canvas.cv_font, x, y, s);
+	gr_string(canvas, cv_font, x, y, s);
 
 	if (p)	{
 		int w, h;
-		gr_get_string_size(*canvas.cv_font, s1, &w, &h, nullptr);
-		gr_string(canvas, *canvas.cv_font, x + w1 - w, y, s1, w, h);
+		gr_get_string_size(cv_font, s1, &w, &h, nullptr);
+		gr_string(canvas, cv_font, x + w1 - w, y, s1, w, h);
 
 		*p = '\t';
 	}
@@ -463,7 +463,7 @@ static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item 
 			i = snprintf(item.saved_text.data(), item.saved_text.size(), "%s\t", item.text);
 			prepare_slider_text(item.saved_text, i, slider.max_value - slider.min_value + 1);
 			item.saved_text[item.value + 1 + strlen(item.text) + 1] = SLIDER_MARKER[0];
-			nm_string_slider(canvas, item.w, item.x, item.y - (line_spacing * scroll_offset), item.saved_text.data());
+			nm_string_slider(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.saved_text.data());
 		}
 			break;
 		case NM_TYPE_INPUT_MENU:
