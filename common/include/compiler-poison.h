@@ -53,6 +53,29 @@ static inline void DXX_CHECK_VAR_IS_DEFINED(const T &b)
 {
 	const unsigned char *const bc = reinterpret_cast<const unsigned char *>(std::addressof(b));
 	DXX_CHECK_MEM_IS_DEFINED(bc, sizeof(T));
+#if DXX_HAVE_POISON
+#ifdef __SANITIZE_ADDRESS__
+#define DXX_READ_BUILTIN_TYPE_IF_SIZE(TYPE)	\
+	if constexpr (sizeof(T) == sizeof(TYPE))	\
+	{	\
+		asm("" :: "rm" (*reinterpret_cast<const TYPE *>(bc)));	\
+	}	\
+	else	\
+
+	DXX_READ_BUILTIN_TYPE_IF_SIZE(uintptr_t)
+	DXX_READ_BUILTIN_TYPE_IF_SIZE(uint64_t)
+	DXX_READ_BUILTIN_TYPE_IF_SIZE(uint32_t)
+	DXX_READ_BUILTIN_TYPE_IF_SIZE(uint16_t)
+	DXX_READ_BUILTIN_TYPE_IF_SIZE(uint8_t)
+#undef DXX_READ_BUILTIN_TYPE_IF_SIZE
+	{
+		auto i = bc;
+		auto e = reinterpret_cast<const unsigned char *>(bc + sizeof(T));
+		for (; i != e; ++i)
+			asm("" :: "rm" (*(i)));
+	}
+#endif
+#endif
 }
 
 /* Convenience function to invoke
