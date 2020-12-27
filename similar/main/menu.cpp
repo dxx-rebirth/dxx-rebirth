@@ -406,34 +406,40 @@ namespace {
 
 static int MakeNewPlayerFile(int allow_abort)
 {
-	int x;
 	char filename[PATH_MAX];
 	auto text = InterfaceUniqueState.PilotName;
 
-try_again:
+	for (;;)
 	{
-		std::array<newmenu_item, 1> m{{
-			nm_item_input(text.buffer(), playername_allowed_chars),
-		}};
-		x = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_ENTER_PILOT_NAME}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
-	}
-
-	if ( x < 0 ) {
-		if ( allow_abort ) return 0;
-		goto try_again;
-	}
-
-	if (!*static_cast<const char *>(text))	//null string
-		goto try_again;
-
-	text.lower();
-
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.plr"), static_cast<const char *>(text) );
-
-	if (PHYSFSX_exists(filename,0))
-	{
-		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, static_cast<const char *>(text), TXT_ALREADY_EXISTS);
-		goto try_again;
+		using items_type = std::array<newmenu_item, 1>;
+		struct pilot_name_menu : items_type, passive_newmenu
+		{
+			pilot_name_menu(callsign_t &text) :
+				items_type{{
+					nm_item_input(text.buffer(), playername_allowed_chars),
+				}},
+				passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_ENTER_PILOT_NAME}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), *grd_curcanv)
+			{
+			}
+		};
+		const auto x = run_blocking_newmenu<pilot_name_menu>(text);
+		const char *const name = text;
+		if (x < 0 || !*name)
+		{
+			if (allow_abort)
+				return 0;
+			/* If the entered name is empty, reject it and prompt again.
+			 */
+			continue;
+		}
+		text.lower();
+		snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.plr"), name);
+		if (PHYSFSX_exists(filename, 0))
+		{
+			nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, name, TXT_ALREADY_EXISTS);
+			continue;
+		}
+		break;
 	}
 
 	new_player_config();
