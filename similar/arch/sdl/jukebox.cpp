@@ -244,7 +244,7 @@ void jukebox_load()
 		public:
 			void operator()(const char *const p) const noexcept
 			{
-				PHYSFS_removeFromSearchPath(p);
+				PHYSFS_unmount(p);
 			}
 		};
 		std::unique_ptr<const char, PHYSFS_path_deleter> new_path;

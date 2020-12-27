@@ -200,7 +200,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 	PHYSFS_mount(base_dir, nullptr, 1);
 	if (!InitArgs( argc,argv ))
 		return false;
-	PHYSFS_removeFromSearchPath(base_dir);
+	PHYSFS_unmount(base_dir);
 	
 	if (!PHYSFS_getWriteDir())
 	{
@@ -311,7 +311,7 @@ int PHYSFSX_removeRelFromSearchPath(const char *relname)
 		con_printf(CON_DEBUG, "PHYSFS: ignoring unmap request: no canonical path for relative name \"%s\"", relname2);
 		return 0;
 	}
-	auto r = PHYSFS_removeFromSearchPath(pathname.data());
+	auto r = PHYSFS_unmount(pathname.data());
 	if (r)
 		con_printf(CON_DEBUG, "PHYSFS: unmap canonical directory \"%s\" (relative name \"%s\")", pathname.data(), relname);
 	else
@@ -608,7 +608,7 @@ void PHYSFSX_removeArchiveContent()
 	{
 		std::array<char, PATH_MAX> realfile;
 		PHYSFSX_getRealPath(i, realfile);
-		PHYSFS_removeFromSearchPath(realfile.data());
+		PHYSFS_unmount(realfile.data());
 	}
 	list.reset();
 	// find files in DEMO_DIR ...
@@ -620,7 +620,7 @@ void PHYSFSX_removeArchiveContent()
 		snprintf(demofile, sizeof(demofile), DEMO_DIR "%s", i);
 		std::array<char, PATH_MAX> realfile;
 		PHYSFSX_getRealPath(demofile,realfile);
-		PHYSFS_removeFromSearchPath(realfile.data());
+		PHYSFS_unmount(realfile.data());
 	}
 }
 

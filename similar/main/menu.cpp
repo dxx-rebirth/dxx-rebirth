@@ -2104,7 +2104,7 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 		}
 		case EVENT_WINDOW_CLOSE:
 			if (b->new_path)
-				PHYSFS_removeFromSearchPath(b->view_path.data());
+				PHYSFS_unmount(b->view_path.data());
 
 			std::default_delete<browser>()(b);
 			break;
