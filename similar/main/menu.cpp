@@ -312,8 +312,10 @@ struct netgame_menu : netgame_menu_items, newmenu
 }
 
 namespace dcx {
+
 namespace {
 
+#if DXX_USE_SDLMIXER
 __attribute_nonnull()
 static int select_file_recursive2(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<void> when_selected, void *userdata);
 
@@ -323,6 +325,7 @@ static int select_file_recursive(const menu_title title, const std::array<char, 
 {
 	return select_file_recursive2(title, orig_path, ext_list, select_dir, reinterpret_cast<select_file_subfunction<void>>(when_selected), reinterpret_cast<void *>(userdata));
 }
+#endif
 
 }
 }
@@ -1988,6 +1991,7 @@ struct browser
 	std::array<char, PATH_MAX> view_path;	// The absolute path we're currently looking at
 };
 
+#if DXX_USE_SDLMIXER
 static void list_dir_el(void *vb, const char *, const char *fname)
 {
 	browser *b = reinterpret_cast<browser *>(vb);
@@ -2193,6 +2197,7 @@ static int select_file_recursive2(const menu_title title, const std::array<char,
 	auto pb = b.get();
 	return newmenu_listbox1(title, pb->list.pointer().size(), &pb->list.pointer().front(), 1, 0, select_file_handler, std::move(b)) != NULL;
 }
+#endif
 
 #define DXX_MENU_ITEM_BROWSE(VERB, TXT, OPT)	\
 	DXX_MENUITEM(VERB, MENU, TXT " (browse...)", OPT)
