@@ -278,6 +278,71 @@ static void recompute_automap_segment_visibility(const d_level_unique_automap_st
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+struct marker_delete_are_you_sure_menu : std::array<newmenu_item, 2>, newmenu
+{
+	using array_type = std::array<newmenu_item, 2>;
+	d_level_unique_object_state &LevelUniqueObjectState;
+	segment_array &Segments;
+	d_marker_state &MarkerState;
+	marker_delete_are_you_sure_menu(grs_canvas &canvas, d_level_unique_object_state &LevelUniqueObjectState, segment_array &Segments, d_marker_state &MarkerState) :
+		array_type{{
+			nm_item_menu(TXT_YES),
+			nm_item_menu(TXT_NO),
+		}},
+		newmenu(menu_title{nullptr}, menu_subtitle{"Delete Marker?"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<array_type *>(this), 0), canvas),
+		LevelUniqueObjectState(LevelUniqueObjectState),
+		Segments(Segments),
+		MarkerState(MarkerState)
+	{
+	}
+	virtual int subfunction_handler(const d_event &) override;
+	static std::pair<imobjidx_t *, game_marker_index> get_marker_object(d_marker_state &MarkerState);
+	void handle_selected_yes() const;
+};
+
+int marker_delete_are_you_sure_menu::subfunction_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_NEWMENU_SELECTED:
+		{
+			const auto citem = static_cast<const d_select_event &>(event).citem;
+			if (citem == 0)
+				/* User chose Yes */
+				handle_selected_yes();
+			/* The dialog should close after the user picks Yes or No.
+			 */
+			return 0;
+		}
+		default:
+			break;
+	}
+	return 0;
+}
+
+std::pair<imobjidx_t *, game_marker_index> marker_delete_are_you_sure_menu::get_marker_object(d_marker_state &MarkerState)
+{
+	const auto HighlightMarker = MarkerState.HighlightMarker;
+	if (!MarkerState.imobjidx.valid_index(HighlightMarker))
+		return {nullptr, HighlightMarker};
+	auto &mo = MarkerState.imobjidx[HighlightMarker];
+	return {mo == object_none ? nullptr : &mo, HighlightMarker};
+}
+
+void marker_delete_are_you_sure_menu::handle_selected_yes() const
+{
+	const auto [mo, HighlightMarker] = get_marker_object(MarkerState);
+	if (!mo)
+		/* Check that the selected marker is still a valid object. */
+		return;
+	/* FIXME: this event should be sent to other players
+	 * so that they remove the marker.
+	 */
+	obj_delete(LevelUniqueObjectState, Segments, LevelUniqueObjectState.Objects.vmptridx(std::exchange(*mo, object_none)));
+	MarkerState.message[HighlightMarker] = {};
+	MarkerState.HighlightMarker = game_marker_index::None;
+}
+
 void init_automap_colors(automap &am)
 {
 	::dcx::init_automap_colors(am);
@@ -947,12 +1012,9 @@ static void recompute_automap_segment_visibility(const d_level_unique_automap_st
 
 static window_event_result automap_key_command(const d_event &event, automap &am)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
 #if defined(DXX_BUILD_DESCENT_I) || !defined(NDEBUG)
+	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-#endif
-#if defined(DXX_BUILD_DESCENT_II)
-	auto &vmobjptridx = Objects.vmptridx;
 #endif
 	int c = event_key_get(event);
 
@@ -1031,23 +1093,16 @@ static window_event_result automap_key_command(const d_event &event, automap &am
 			return window_event_result::handled;
 		case KEY_D+KEY_CTRLED:
 			{
-				const auto HighlightMarker = MarkerState.HighlightMarker;
-				if (!MarkerState.imobjidx.valid_index(HighlightMarker))
-					return window_event_result::handled;
-				auto &mo = MarkerState.imobjidx[HighlightMarker];
-				if (mo == object_none)
-					return window_event_result::handled;
-				gr_set_default_canvas();
-				if (nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_YES, TXT_NO), menu_subtitle{"Delete Marker?"}) == 0)
+				if (const auto [mo, HighlightMarker] = marker_delete_are_you_sure_menu::get_marker_object(MarkerState); mo == nullptr)
 				{
-					/* FIXME: this event should be sent to other players
-					 * so that they remove the marker.
+					(void)HighlightMarker;
+					/* If the selected index is not a valid marker, do
+					 * not offer to delete anything.
 					 */
-					obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(std::exchange(mo, object_none)));
-					MarkerState.message[HighlightMarker] = {};
-					MarkerState.HighlightMarker = game_marker_index::None;
+					return window_event_result::handled;
 				}
-				set_screen_mode(SCREEN_GAME);
+				auto menu = window_create<marker_delete_are_you_sure_menu>(grd_curscreen->sc_canvas, LevelUniqueObjectState, Segments, MarkerState);
+				(void)menu;
 			}
 			return window_event_result::handled;
 #ifndef RELEASE
