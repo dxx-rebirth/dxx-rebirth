@@ -402,14 +402,14 @@ static void nm_string_black(grs_canvas &canvas, int w1, const int x, const int y
 
 
 // Draw a right justfied string
-static void nm_rstring(grs_canvas &canvas, int w1, int x, const int y, const char *const s)
+static void nm_rstring(grs_canvas &canvas, const grs_font &cv_font, int w1, int x, const int y, const char *const s)
 {
 	int w, h;
-	gr_get_string_size(*canvas.cv_font, s, &w, &h, nullptr);
+	gr_get_string_size(cv_font, s, &w, &h, nullptr);
 	x -= FSPACX(3);
 
 	if (w1 == 0) w1 = w;
-	gr_string(canvas, *canvas.cv_font, x - w, y, s, w, h);
+	gr_string(canvas, cv_font, x - w, y, s, w, h);
 }
 
 static void nm_string_inputbox(grs_canvas &canvas, const grs_font &cv_font, const int w, const int x, const int y, const char *text, const int current)
@@ -480,11 +480,11 @@ static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item 
 			break;
 		case NM_TYPE_CHECK:
 			nm_string(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
-			nm_rstring(canvas, item.right_offset, item.x, item.y - (line_spacing * scroll_offset), item.value ? CHECKED_CHECK_BOX : NORMAL_CHECK_BOX);
+			nm_rstring(canvas, cv_font, item.right_offset, item.x, item.y - (line_spacing * scroll_offset), item.value ? CHECKED_CHECK_BOX : NORMAL_CHECK_BOX);
 			break;
 		case NM_TYPE_RADIO:
 			nm_string(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
-			nm_rstring(canvas, item.right_offset, item.x, item.y - (line_spacing * scroll_offset), item.value ? CHECKED_RADIO_BOX : NORMAL_RADIO_BOX);
+			nm_rstring(canvas, cv_font, item.right_offset, item.x, item.y - (line_spacing * scroll_offset), item.value ? CHECKED_RADIO_BOX : NORMAL_RADIO_BOX);
 			break;
 		case NM_TYPE_NUMBER:
 		{
@@ -496,7 +496,7 @@ static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item 
 				item.value = number.max_value;
 			nm_string(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
 			snprintf(text, sizeof(text), "%d", item.value );
-			nm_rstring(canvas, item.right_offset, item.x, item.y - (line_spacing * scroll_offset), text);
+			nm_rstring(canvas, cv_font, item.right_offset, item.x, item.y - (line_spacing * scroll_offset), text);
 		}
 			break;
 	}
