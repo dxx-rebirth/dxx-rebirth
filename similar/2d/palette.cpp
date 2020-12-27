@@ -58,6 +58,7 @@ struct color_record {
 };
 
 static std::array<color_record, MAX_COMPUTED_COLORS> Computed_colors;
+uint8_t gr_palette_gamma_param;
 
 }
 
@@ -66,7 +67,6 @@ palette_array_t gr_current_pal;
 gft_array1 gr_fade_table;
 
 ubyte gr_palette_gamma = 0;
-int gr_palette_gamma_param = 0;
 
 void copy_bound_palette(palette_array_t &d, const palette_array_t &s)
 {

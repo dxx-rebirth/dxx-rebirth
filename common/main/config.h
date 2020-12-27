@@ -65,6 +65,7 @@ struct CCfg : prohibit_void_ptr<CCfg>
 	bool TexAnisotropy;
 	bool Multisample;
 	bool FPSIndicator;
+	uint8_t GammaLevel;
 	LevelMusicPlayOrder CMLevelMusicPlayOrder;
 	std::array<int, 2> CMLevelMusicTrack;
 	ntstring<MISSION_NAME_LEN> LastMission;
@@ -80,7 +81,6 @@ namespace dsx {
 struct Cfg : prohibit_void_ptr<Cfg>
 {
 	int MusicType;
-	int GammaLevel;
 	int ResolutionX;
 	int ResolutionY;
 	int AspectX;
