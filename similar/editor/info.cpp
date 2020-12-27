@@ -224,114 +224,69 @@ namespace dsx {
 namespace {
 
 //	---------------------------------------------------------------------------------------------------
-static void info_display_default(grs_canvas &canvas, int show_all)
+static void info_display_default(grs_canvas &canvas, const grs_font &cv_font)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	static int old_Num_segments = -1;
-	static int old_Num_vertices = -1;
-	static int old_Num_objects = -1;
-	static int old_Cursegp_num = -1;
-	static int old_Curside = -1;
-	static int old_Cursegp_num_for_verts = -1;
-	static texture_index old_CurrentTexture = -1;
-	static int old_Num_walls = -1;
-	static int old_Num_triggers = -1;
 
-	if (init_info | show_all) {
+	{
 		init_info = 0;
-		old_Num_segments = -1;
-		old_Num_vertices = -1;
-		old_Num_objects = -1;
-		old_Cursegp_num = -1;
-		old_Cursegp_num_for_verts = -1;
-		old_Curside = -1;
-		old_CurrentTexture = -1;
-		old_Num_walls = -1;
-		old_Num_triggers = -1;
 	}
 
 	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 
 	//--------------- Number of segments ----------------
 
-	if (old_Num_segments != LevelSharedSegmentState.Num_segments)
-	{
-		old_Num_segments = LevelSharedSegmentState.Num_segments;
-		gr_uprintf(canvas, *canvas.cv_font, 0, 0, "Segments: %4d/%4" PRIuFAST32, LevelSharedSegmentState.Num_segments, static_cast<uint_fast32_t>(MAX_SEGMENTS));
-	}
+	gr_uprintf(canvas, cv_font, 0, 0, "Segments: %4d/%4" PRIuFAST32, LevelSharedSegmentState.Num_segments, static_cast<uint_fast32_t>(MAX_SEGMENTS));
 
 	//---------------- Number of vertics -----------------
 	
-	if (old_Num_vertices != LevelSharedVertexState.Num_vertices)
-	{
-		old_Num_vertices = LevelSharedVertexState.Num_vertices;
-		gr_uprintf(canvas, *canvas.cv_font, 0, 16, "Vertices: %4d/%4" PRIuFAST32, LevelSharedVertexState.Num_vertices, static_cast<uint_fast32_t>(MAX_VERTICES));
-	}
+	gr_uprintf(canvas, cv_font, 0, 16, "Vertices: %4d/%4" PRIuFAST32, LevelSharedVertexState.Num_vertices, static_cast<uint_fast32_t>(MAX_VERTICES));
 
 	//---------------- Number of objects -----------------
 	
-	if (old_Num_objects != LevelUniqueObjectState.num_objects)
 	{
 		const auto num_objects = LevelUniqueObjectState.num_objects;
-		old_Num_objects = num_objects;
-		gr_uprintf(canvas, *canvas.cv_font, 0, 32, "Objs: %3d/%3" DXX_PRI_size_type, num_objects, MAX_OBJECTS.value);
+		gr_uprintf(canvas, cv_font, 0, 32, "Objs: %3d/%3" DXX_PRI_size_type, num_objects, MAX_OBJECTS.value);
 	}
 
   	//--------------- Current_segment_number -------------
 	//--------------- Current_side_number -------------
 
-	if (old_Cursegp_num != Cursegp || old_Curside != Curside)
 	{
-		old_Cursegp_num = Cursegp;
-		old_Curside = Curside;
-		gr_uprintf(canvas, *canvas.cv_font, 0, 48, "Cursegp/side: %3hu/%1d", static_cast<segnum_t>(Cursegp), Curside);
+		gr_uprintf(canvas, cv_font, 0, 48, "Cursegp/side: %3hu/%1d", static_cast<segnum_t>(Cursegp), Curside);
 		unique_segment &useg = *Cursegp;
 		auto &uside = useg.sides[Curside];
-		gr_uprintf(canvas, *canvas.cv_font, 0, 128, " tmap1,2,o: %3d/%3dx%1u", get_texture_index(uside.tmap_num), get_texture_index(uside.tmap_num2), static_cast<unsigned>(get_texture_rotation_low(uside.tmap_num2)));
+		gr_uprintf(canvas, cv_font, 0, 128, " tmap1,2,o: %3d/%3dx%1u", get_texture_index(uside.tmap_num), get_texture_index(uside.tmap_num2), static_cast<unsigned>(get_texture_rotation_low(uside.tmap_num2)));
 	}
 
 	//--------------- Current_vertex_numbers -------------
 
-	if (old_Cursegp_num_for_verts != Cursegp)
 	{
-		old_Cursegp_num_for_verts = Cursegp;
 		using U = std::underlying_type<vertnum_t>::type;
-		gr_uprintf(canvas, *canvas.cv_font, 0, 64, "{%3u,%3u,%3u,%3u,", static_cast<U>(Cursegp->verts[0]), static_cast<U>(Cursegp->verts[1]), static_cast<U>(Cursegp->verts[2]), static_cast<U>(Cursegp->verts[3]));
-		gr_uprintf(canvas, *canvas.cv_font, 0, 80, " %3u,%3u,%3u,%3u}", static_cast<U>(Cursegp->verts[4]), static_cast<U>(Cursegp->verts[5]), static_cast<U>(Cursegp->verts[6]), static_cast<U>(Cursegp->verts[7]));
+		gr_uprintf(canvas, cv_font, 0, 64, "{%3u,%3u,%3u,%3u,", static_cast<U>(Cursegp->verts[0]), static_cast<U>(Cursegp->verts[1]), static_cast<U>(Cursegp->verts[2]), static_cast<U>(Cursegp->verts[3]));
+		gr_uprintf(canvas, cv_font, 0, 80, " %3u,%3u,%3u,%3u}", static_cast<U>(Cursegp->verts[4]), static_cast<U>(Cursegp->verts[5]), static_cast<U>(Cursegp->verts[6]), static_cast<U>(Cursegp->verts[7]));
 	}
 
 	//--------------- Num walls/links/triggers -------------------------
 
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
-	if ( old_Num_walls != Walls.get_count() ) {
-		old_Num_walls = Walls.get_count();
-		gr_uprintf(canvas, *canvas.cv_font, 0, 96, "Walls %3d", Walls.get_count());
-	}
+	gr_uprintf(canvas, cv_font, 0, 96, "Walls %3d", Walls.get_count());
 
 	//--------------- Num triggers ----------------------
 
-	{
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
-	if ( old_Num_triggers != Triggers.get_count() ) {
-		old_Num_triggers = Triggers.get_count();
-		gr_uprintf(canvas, *canvas.cv_font, 0, 112, "Num_triggers %2d", Triggers.get_count());
-	}
-	}
+	gr_uprintf(canvas, cv_font, 0, 112, "Num_triggers %2d", Triggers.get_count());
 
 	//--------------- Current texture number -------------
-
-	if ( old_CurrentTexture != CurrentTexture )	{
-		old_CurrentTexture = CurrentTexture;
-		gr_uprintf(canvas, *canvas.cv_font, 0, 144, "Tex/Light: %3d %5.2f", CurrentTexture, f2fl(TmapInfo[CurrentTexture].lighting));
-	}
+	gr_uprintf(canvas, cv_font, 0, 144, "Tex/Light: %3d %5.2f", CurrentTexture, f2fl(TmapInfo[CurrentTexture].lighting));
 }
 
 //	------------------------------------------------------------------------------------
 window_event_result info_dialog_window::event_handler(const d_event &event)
 {
 	static int old_padnum = -1;
-	int        padnum,show_all = 1;		// always redraw
+	int        padnum;		// always redraw
 	grs_canvas *save_canvas = grd_curcanv;
 
 	switch (event.type)
@@ -347,7 +302,6 @@ window_event_result info_dialog_window::event_handler(const d_event &event)
 			if (padnum != old_padnum) {
 				old_padnum = padnum;
 				clear_pad_display(canvas);
-				//show_all = 1;
 			}
 
 			switch (padnum) {
@@ -358,7 +312,7 @@ window_event_result info_dialog_window::event_handler(const d_event &event)
 					info_display_segsize(canvas, *canvas.cv_font);
 					break;
 				default:
-					info_display_default(canvas, show_all);
+					info_display_default(canvas, *canvas.cv_font);
 					break;
 			}
 			grd_curcanv = save_canvas;
