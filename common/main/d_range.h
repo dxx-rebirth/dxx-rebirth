@@ -7,6 +7,7 @@
 #pragma once
 
 #include <type_traits>
+#include <iterator>
 #include <utility>
 
 namespace detail {
@@ -84,6 +85,11 @@ class xrange_iterator
 {
 	index_type m_idx;
 public:
+	using difference_type = std::ptrdiff_t;
+	using iterator_category = std::forward_iterator_tag;
+	using value_type = index_type;
+	using pointer = value_type *;
+	using reference = value_type &;
 	constexpr xrange_iterator(const index_type i) :
 		m_idx(i)
 	{

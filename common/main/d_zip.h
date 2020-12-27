@@ -107,11 +107,10 @@ struct check_static_size_pair<range0, rangeN, range0_extent, std::nullptr_t> : s
 	}
 
  */
-template <typename... range_iterator_type>
-class zip_iterator : std::tuple<range_iterator_type...>
+template <typename range0_iterator_type, typename... rangeN_iterator_type>
+class zip_iterator : std::tuple<range0_iterator_type, rangeN_iterator_type...>
 {
-	using base_type = std::tuple<range_iterator_type...>;
-protected:
+	using base_type = std::tuple<range0_iterator_type, rangeN_iterator_type...>;
 	/* Prior to C++17, range-based for insisted on the same type for
 	 * `begin` and `end`, so method `end_internal` must return a full iterator,
 	 * even though most of it is a waste.  To save some work, values that are
@@ -128,13 +127,19 @@ protected:
 		{
 			return std::get<I>(*this);
 		}
+protected:
 	template <typename E0, std::size_t... N>
 		zip_iterator end_internal(const E0 &e0, std::index_sequence<0, N...>) const
 		{
 			return zip_iterator(e0, this->template end_construct_ignored_element<N, typename std::tuple_element<N, base_type>::type>()...);
 		}
-	using index_type = std::make_index_sequence<sizeof...(range_iterator_type)>;
+	using index_type = std::make_index_sequence<1 + sizeof...(rangeN_iterator_type)>;
 public:
+	using difference_type = typename std::iterator_traits<range0_iterator_type>::difference_type;
+	using value_type = decltype(d_zip::detail::dereference_iterator(std::declval<base_type>(), index_type()));
+	using pointer = value_type *;
+	using reference = value_type &;
+	using iterator_category = std::forward_iterator_tag;
 	using base_type::base_type;
 	auto operator*() const
 	{
@@ -144,6 +149,10 @@ public:
 	{
 		d_zip::detail::increment_iterator(*this, index_type());
 		return *this;
+	}
+	difference_type operator-(const zip_iterator &i) const
+	{
+		return std::get<0>(*this) - std::get<0>(i);
 	}
 	bool operator!=(const zip_iterator &i) const
 	{
