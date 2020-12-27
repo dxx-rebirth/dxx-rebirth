@@ -302,7 +302,7 @@ namespace dcx {
 namespace {
 
 // Draw a left justfied string
-static void nm_string(grs_canvas &canvas, const int w1, int x, const int y, const char *const s, const tab_processing_flag tabs_flag)
+static void nm_string(grs_canvas &canvas, const grs_font &cv_font, const int w1, int x, const int y, const char *const s, const tab_processing_flag tabs_flag)
 {
 	if (tabs_flag == tab_processing_flag::ignore)
 	{
@@ -315,13 +315,13 @@ static void nm_string(grs_canvas &canvas, const int w1, int x, const int y, cons
 			s1 = s2.get();
 			*std::next(s2.get(), std::distance(s, p)) = '\0';
 		}
-		gr_string(canvas, *canvas.cv_font, x, y, s1);
+		gr_string(canvas, cv_font, x, y, s1);
 		if (p)
 		{
 			int w, h;
 			++ p;
-			gr_get_string_size(*canvas.cv_font, p, &w, &h, nullptr);
-			gr_string(canvas, *canvas.cv_font, x + w1 - w, y, p, w, h);
+			gr_get_string_size(cv_font, p, &w, &h, nullptr);
+			gr_string(canvas, cv_font, x + w1 - w, y, p, w, h);
 		}
 		return;
 	}
@@ -344,8 +344,8 @@ static void nm_string(grs_canvas &canvas, const int w1, int x, const int y, cons
 		}
 		measure[0] = c;
 		int tx, th;
-		gr_get_string_size(*canvas.cv_font, measure, &tx, &th, nullptr);
-		gr_string(canvas, *canvas.cv_font, x, y, measure, tx, th);
+		gr_get_string_size(cv_font, measure, &tx, &th, nullptr);
+		gr_string(canvas, cv_font, x, y, measure, tx, th);
 		x+=tx;
 	}
 }
@@ -471,7 +471,7 @@ static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item 
 			{
 			case NM_TYPE_TEXT:
 			case NM_TYPE_MENU:
-				nm_string(canvas, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
+				nm_string(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
 				break;
 			}
 			DXX_BOOST_FALLTHROUGH;
@@ -479,11 +479,11 @@ static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item 
 			nm_string_inputbox(canvas, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, is_current);
 			break;
 		case NM_TYPE_CHECK:
-			nm_string(canvas, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
+			nm_string(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
 			nm_rstring(canvas, item.right_offset, item.x, item.y - (line_spacing * scroll_offset), item.value ? CHECKED_CHECK_BOX : NORMAL_CHECK_BOX);
 			break;
 		case NM_TYPE_RADIO:
-			nm_string(canvas, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
+			nm_string(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
 			nm_rstring(canvas, item.right_offset, item.x, item.y - (line_spacing * scroll_offset), item.value ? CHECKED_RADIO_BOX : NORMAL_RADIO_BOX);
 			break;
 		case NM_TYPE_NUMBER:
@@ -494,7 +494,7 @@ static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item 
 				item.value = number.min_value;
 			if (item.value > number.max_value)
 				item.value = number.max_value;
-			nm_string(canvas, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
+			nm_string(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
 			snprintf(text, sizeof(text), "%d", item.value );
 			nm_rstring(canvas, item.right_offset, item.x, item.y - (line_spacing * scroll_offset), text);
 		}
