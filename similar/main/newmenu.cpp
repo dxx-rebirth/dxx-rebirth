@@ -412,7 +412,7 @@ static void nm_rstring(grs_canvas &canvas, int w1, int x, const int y, const cha
 	gr_string(canvas, *canvas.cv_font, x - w, y, s, w, h);
 }
 
-static void nm_string_inputbox(grs_canvas &canvas, const int w, const int x, const int y, const char *text, const int current)
+static void nm_string_inputbox(grs_canvas &canvas, const grs_font &cv_font, const int w, const int x, const int y, const char *text, const int current)
 {
 	int w1;
 
@@ -420,7 +420,7 @@ static void nm_string_inputbox(grs_canvas &canvas, const int w, const int x, con
 	if (strlen(text)>75)
 		text+=strlen(text)-75;
 	while( *text )	{
-		gr_get_string_size(*canvas.cv_font, text, &w1, nullptr, nullptr);
+		gr_get_string_size(cv_font, text, &w1, nullptr, nullptr);
 		if ( w1 > w-FSPACX(10) )
 			text++;
 		else
@@ -432,7 +432,7 @@ static void nm_string_inputbox(grs_canvas &canvas, const int w, const int x, con
 	nm_string_black(canvas, w, x, y, text);
 
 	if ( current && timer_query() & 0x8000 )
-		gr_string(canvas, *canvas.cv_font, x + w1, y, CURSOR_STRING);
+		gr_string(canvas, cv_font, x + w1, y, CURSOR_STRING);
 }
 
 static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item &item, int is_current, const tiny_mode_flag tiny, const tab_processing_flag tabs_flag, int scroll_offset)
@@ -476,7 +476,7 @@ static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item 
 			}
 			DXX_BOOST_FALLTHROUGH;
 		case NM_TYPE_INPUT:
-			nm_string_inputbox(canvas, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, is_current);
+			nm_string_inputbox(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, is_current);
 			break;
 		case NM_TYPE_CHECK:
 			nm_string(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
