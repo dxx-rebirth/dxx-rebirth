@@ -252,8 +252,14 @@ std::pair<std::chrono::seconds, bool> parse_human_readable_time(const char *cons
 }
 
 #if DXX_USE_SDLMIXER
+enum class select_dir_flag : uint8_t
+{
+	files_only,
+	directories_or_files,
+};
+
 __attribute_nonnull()
-static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, uint8_t select_dir, ntstring<PATH_MAX - 1> &userdata);
+static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, select_dir_flag select_dir, ntstring<PATH_MAX - 1> &userdata);
 
 static window_event_result get_absolute_path(ntstring<PATH_MAX - 1> &full_path, const char *rel_path)
 {
@@ -261,7 +267,7 @@ static window_event_result get_absolute_path(ntstring<PATH_MAX - 1> &full_path, 
 	return window_event_result::close;
 }
 
-#define SELECT_SONG(t, s)	select_file_recursive(t, CGameCfg.CMMiscMusic[s], jukebox_exts, 0, CGameCfg.CMMiscMusic[s])
+#define SELECT_SONG(t, s)	select_file_recursive(t, CGameCfg.CMMiscMusic[s], jukebox_exts, select_dir_flag::files_only, CGameCfg.CMMiscMusic[s])
 #endif
 
 }
@@ -1968,9 +1974,10 @@ void graphics_config()
 namespace dcx {
 namespace {
 
+#if DXX_USE_SDLMIXER
 struct browser
 {
-	browser(menu_title title, ntstring<PATH_MAX - 1> &userdata, const partial_range_t<const file_extension_t *> &r, const uint8_t select_dir, const uint8_t new_path) :
+	browser(menu_title title, ntstring<PATH_MAX - 1> &userdata, const partial_range_t<const file_extension_t *> &r, const select_dir_flag select_dir, const uint8_t new_path) :
 		title(title), userdata(userdata), ext_range(r), select_dir(select_dir), new_path(new_path)
 	{
 	}
@@ -1979,12 +1986,11 @@ struct browser
 	string_array_t list;
 	// List of file extensions we're looking for (if looking for a music file many types are possible)
 	const partial_range_t<const file_extension_t *> ext_range;
-	const uint8_t select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
+	const select_dir_flag select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
 	uint8_t new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
 	std::array<char, PATH_MAX> view_path;	// The absolute path we're currently looking at
 };
 
-#if DXX_USE_SDLMIXER
 static void list_dir_el(void *vb, const char *, const char *fname)
 {
 	browser *b = reinterpret_cast<browser *>(vb);
@@ -2004,7 +2010,7 @@ static int list_directory(browser *b)
 	b->list.clear();
 	b->list.add("..");		// go to parent directory
 	std::size_t tidy_offset = 1;
-	if (b->select_dir)
+	if (b->select_dir != select_dir_flag::files_only)
 	{
 		++tidy_offset;
 		b->list.add("<this directory>");	// choose the directory being viewed
@@ -2084,7 +2090,7 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 				else
 					*p = '\0';
 			}
-			else if (citem == 1 && b->select_dir)
+			else if (citem == 1 && b->select_dir != select_dir_flag::files_only)
 				return get_absolute_path(b->userdata, "");
 			else
 			{
@@ -2117,7 +2123,7 @@ static window_event_result select_file_handler(listbox *menu,const d_event &even
 	return window_event_result::ignored;
 }
 
-static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path_storage, const partial_range_t<const file_extension_t *> &ext_range, const uint8_t select_dir, ntstring<PATH_MAX - 1> &userdata)
+static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path_storage, const partial_range_t<const file_extension_t *> &ext_range, const select_dir_flag select_dir, ntstring<PATH_MAX - 1> &userdata)
 {
 	auto orig_path = orig_path_storage.data();
 	const char *sep = PHYSFS_getDirSeparator();
@@ -2413,7 +2419,7 @@ int sound_menu::subfunction_handler(const d_event &event)
 				static const std::array<file_extension_t, 1> ext_list{{"m3u"}};		// select a directory or M3U playlist
 				select_file_recursive(
 					menu_title{"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT},
-									  CGameCfg.CMLevelMusicPath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
+									  CGameCfg.CMLevelMusicPath, ext_list, select_dir_flag::directories_or_files,	// look in current music path for ext_list files and allow directory selection
 									  CGameCfg.CMLevelMusicPath);	// just copy the absolute path
 			}
 			else if (citem == opt_sm_cm_mtype3_file1_b)
