@@ -1604,10 +1604,18 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 	player_info.mission.hostages_rescued_total += player_info.mission.hostages_on_board;
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
-		std::array<newmenu_item, 1> m{{
-			nm_item_text(" "),			//TXT_SECRET_EXIT;
-		}};
-		newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_SECRET_EXIT}, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0, menu_filename{Menu_pcx_name});
+		using items_type = std::array<newmenu_item, 1>;
+		struct message_menu : items_type, passive_newmenu
+		{
+			message_menu() :
+				items_type{{
+					nm_item_text(" "),			//TXT_SECRET_EXIT;
+				}},
+				passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_SECRET_EXIT}, menu_filename{Menu_pcx_name}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), *grd_curcanv, draw_box_flag::none)
+			{
+			}
+		};
+		run_blocking_newmenu<message_menu>();
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	Assert(!secret_flag);
