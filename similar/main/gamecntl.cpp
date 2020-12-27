@@ -1427,7 +1427,14 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 			std::array<newmenu_item, 1> m{{
 				nm_item_input(text),
 			}};
-			item = newmenu_do2(menu_title{nullptr}, menu_subtitle{"Briefing to play?"}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
+			struct briefing_menu : passive_newmenu
+			{
+				briefing_menu(partial_range_t<newmenu_item *> items) :
+					passive_newmenu(menu_title{nullptr}, menu_subtitle{"Briefing to play?"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), *grd_curcanv)
+				{
+				}
+			};
+			item = run_blocking_newmenu<briefing_menu>(m);
 			if (item != -1) {
 				do_briefing_screens(text,1);
 			}
