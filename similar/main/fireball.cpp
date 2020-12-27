@@ -964,6 +964,8 @@ imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const unsigned nu
 
 static imobjptridx_t drop_robot_egg(const int type, const int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
 {
+	if (!num)
+		return object_none;
 	switch (type)
 	{
 		case OBJ_POWERUP:
