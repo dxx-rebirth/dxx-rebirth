@@ -1501,8 +1501,6 @@ int kmatrix_poll2( newmenu *,const d_event &event, const unused_newmenu_userdata
 	if (timer_query() > (StartAbortMenuTime+(F1_0*3)))
 		rval = -2;
 
-	dispatch->do_protocol_frame(0, 1);
-	
 	return rval;
 }
 
