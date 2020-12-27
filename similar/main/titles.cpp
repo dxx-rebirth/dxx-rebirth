@@ -773,42 +773,46 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 #endif
 		} else if (ch=='Z') {
 #if defined(DXX_BUILD_DESCENT_II)
-			char fname[15];
-			int i;
-
+			std::array<char, 15> fname, fnameb;
 			br->got_z=1;
 			br->dumb_adjust=1;
-			i=0;
-			while ((fname[i]=*br->message) != '\n') {
-				i++;
-				br->message++;
-			}
-			fname[i]=0;
-			if (*br->message != 10)
-				while (*br->message++ != 10)    //  Get and drop eoln
-					;
-
+			auto p = br->message;
+			const auto begin_filename = p;
+			const char *separator = nullptr;
+			for (char c; (c = *p) != 0 && c != '\n'; ++p)
 			{
-				char fname2[15];
-
-				i=0;
-				while (fname[i]!='.') {
-					fname2[i] = fname[i];
-					i++;
-				}
-				fname2[i++]='b';
-				fname2[i++]='.';
-				fname2[i++]='p';
-				fname2[i++]='c';
-				fname2[i++]='x';
-				fname2[i++]=0;
-
-				if ((HIRESMODE && PHYSFSX_exists(fname2,1)) || !PHYSFSX_exists(fname,1))
-					strcpy(fname,fname2);
-				if (!load_briefing_screen(*grd_curcanv, br, fname))
-					return 1;
+				if (c == '.' && !separator)
+					separator = p;
 			}
-
+			const auto end_filename = p;
+			/* This is inconsistent, but preserves the original game
+			 * logic.
+			 */
+			if (*p != 10)
+				while (*p++ != 10)    //  Get and drop eoln
+					;
+			br->message = p;
+			/* In the original game, if a separator was not found, the
+			 * game would have undefined behavior.  Define that case to
+			 * mean an early return.
+			 */
+			if (!separator)
+				return 1;
+			const std::size_t idx_end_filename = std::distance(begin_filename, end_filename);
+			if (idx_end_filename >= fname.size() - 1)
+				return 1;
+			const std::size_t idx_separator = std::distance(begin_filename, separator);
+			if (idx_separator >= fnameb.size() - 6)
+				return 1;
+			fname[idx_end_filename] = 0;
+			std::copy(begin_filename, end_filename, std::begin(fname));
+			std::copy_n(begin_filename, idx_separator, std::begin(fnameb));
+			std::copy_n("b.pcx", 6, std::next(std::begin(fnameb), idx_separator));
+			auto &use_fname = ((HIRESMODE && PHYSFSX_exists(fnameb.data(), 1)) || !PHYSFSX_exists(fname.data(), 1))
+				? fnameb
+				: fname;
+			if (!load_briefing_screen(*grd_curcanv, br, use_fname.data()))
+				return 1;
 #endif
 		} else if (ch == 'B') {
 			std::array<char, 32> bitmap_name;
