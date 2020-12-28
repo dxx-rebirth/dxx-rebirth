@@ -1860,6 +1860,77 @@ static void reticle_config()
 	(void)menu;
 }
 
+struct hud_style_config_menu_items
+{
+#define DXX_HUD_STYLE_MENU(VERB)	\
+	DXX_MENUITEM(VERB, TEXT, "View style:", opt_viewstyle_label)	\
+	DXX_MENUITEM(VERB, RADIO, "Cockpit", opt_viewstyle_cockpit, PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT, optgrp_viewstyle)	\
+	DXX_MENUITEM(VERB, RADIO, "Status bar", opt_viewstyle_bar, PlayerCfg.CockpitMode[1] == CM_STATUS_BAR, optgrp_viewstyle)	\
+	DXX_MENUITEM(VERB, RADIO, "Full screen", opt_viewstyle_fullscreen, PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN, optgrp_viewstyle)	\
+	DXX_MENUITEM(VERB, TEXT, "HUD style:", opt_hudstyle_label)	\
+	DXX_MENUITEM(VERB, RADIO, "Standard", opt_hudstyle_standard, PlayerCfg.HudMode == HudType::Standard, optgrp_hudstyle)	\
+	DXX_MENUITEM(VERB, RADIO, "Alternate #1", opt_hudstyle_alt1, PlayerCfg.HudMode == HudType::Alternate1, optgrp_hudstyle)	\
+	DXX_MENUITEM(VERB, RADIO, "Alternate #2", opt_hudstyle_alt2, PlayerCfg.HudMode == HudType::Alternate2, optgrp_hudstyle)	\
+	DXX_MENUITEM(VERB, RADIO, "Hidden", opt_hudstyle_hidden, PlayerCfg.HudMode == HudType::Hidden, optgrp_hudstyle)	\
+
+		enum {
+			optgrp_viewstyle,
+			optgrp_hudstyle,
+		};
+		enum {
+			DXX_HUD_STYLE_MENU(ENUM)
+		};
+		std::array<newmenu_item, DXX_HUD_STYLE_MENU(COUNT)> m;
+		hud_style_config_menu_items()
+		{
+			DXX_HUD_STYLE_MENU(ADD);
+		}
+	};
+
+struct hud_style_config_menu : hud_style_config_menu_items, newmenu
+{
+	hud_style_config_menu(grs_canvas &src) :
+		newmenu(menu_title{nullptr}, menu_subtitle{"View / HUD Style..."}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 1), src)
+	{
+	}
+	virtual int subfunction_handler(const d_event &event) override;
+};
+
+int hud_style_config_menu::subfunction_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_WINDOW_CLOSE:
+		{
+			enum cockpit_mode_t new_mode = m[opt_viewstyle_cockpit].value
+				? CM_FULL_COCKPIT
+				: m[opt_viewstyle_bar].value
+					? CM_STATUS_BAR
+					: CM_FULL_SCREEN;
+			select_cockpit(new_mode);
+			PlayerCfg.CockpitMode[0] = new_mode;
+			PlayerCfg.HudMode = m[opt_hudstyle_standard].value
+				? HudType::Standard
+				: m[opt_hudstyle_alt1].value
+					? HudType::Alternate1
+					: m[opt_hudstyle_alt2].value
+						? HudType::Alternate2
+						: HudType::Hidden;
+			break;
+		}
+		default:
+			break;
+	}
+	return 0;
+}
+#undef DXX_HUD_STYLE_MENU
+
+static void hud_style_config()
+{
+	auto menu = window_create<hud_style_config_menu>(grd_curscreen->sc_canvas);
+	(void)menu;
+}
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define DSX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "Always-on Bomb Counter",opt_d2bomb,PlayerCfg.BombGauge)	\
@@ -1878,6 +1949,7 @@ enum {
 #endif
 #define DSX_HUD_MENU_OPTIONS(VERB)	\
         DXX_MENUITEM(VERB, MENU, "Reticle Customization...", opt_hud_reticlemenu)	\
+        DXX_MENUITEM(VERB, MENU, "View / HUD Style...", opt_hud_stylemenu)	\
 	DXX_MENUITEM(VERB, CHECK, "Screenshots without HUD",opt_screenshot,PlayerCfg.PRShot)	\
 	DXX_MENUITEM(VERB, CHECK, "No redundant pickup messages",opt_redundant,PlayerCfg.NoRedundancy)	\
 	DXX_MENUITEM(VERB, CHECK, "Show Player chat only (Multi)",opt_playerchat,PlayerCfg.MultiMessages)	\
@@ -1915,6 +1987,8 @@ int hud_config_menu::subfunction_handler(const d_event &event)
 			auto &citem = static_cast<const d_select_event &>(event).citem;
                         if (citem == opt_hud_reticlemenu)
                                 reticle_config();
+                        if (citem == opt_hud_stylemenu)
+                                hud_style_config();
 			return 1;		// stay in menu
 		}
 		case EVENT_WINDOW_CLOSE:
