@@ -230,7 +230,7 @@ struct robot_to_player_visibility_state
 	uint8_t initialized = 0;
 };
 
-struct awareness_t : std::array<player_awareness_type_t, MAX_SEGMENTS>
+struct awareness_t : enumerated_array<player_awareness_type_t, MAX_SEGMENTS, segnum_t>
 {
 };
 
@@ -4496,13 +4496,16 @@ void create_awareness_event(object &objp, player_awareness_type_t type, d_level_
 
 namespace {
 
-
 // ----------------------------------------------------------------------------------
-static void process_awareness_events(fvcsegptridx &vcsegptridx, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState, awareness_t &New_awareness)
+static unsigned process_awareness_events(fvcsegptridx &vcsegptridx, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState, awareness_t &New_awareness)
 {
-	const auto Num_awareness_events = std::exchange(LevelUniqueRobotAwarenessState.Num_awareness_events, 0);
+	unsigned result = 0;
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
 	{
+		const auto Num_awareness_events = std::exchange(LevelUniqueRobotAwarenessState.Num_awareness_events, 0);
+		if (!Num_awareness_events)
+			return Num_awareness_events;
+		result = Num_awareness_events;
 		New_awareness.fill(player_awareness_type_t::PA_NONE);
 		const unsigned allowed_recursions_remaining =
 #if defined(DXX_BUILD_DESCENT_II)
@@ -4512,6 +4515,7 @@ static void process_awareness_events(fvcsegptridx &vcsegptridx, d_level_unique_r
 		range_for (auto &i, partial_const_range(LevelUniqueRobotAwarenessState.Awareness_events, Num_awareness_events))
 			pae_aux(vcsegptridx(i.segnum), i.type, New_awareness, allowed_recursions_remaining);
 	}
+	return result;
 }
 
 // ----------------------------------------------------------------------------------
@@ -4519,20 +4523,24 @@ static void set_player_awareness_all(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptr
 {
 	awareness_t New_awareness;
 
-	process_awareness_events(vcsegptridx, LevelUniqueRobotAwarenessState, New_awareness);
+	if (!process_awareness_events(vcsegptridx, LevelUniqueRobotAwarenessState, New_awareness))
+		return;
 
 	range_for (const auto &&objp, vmobjptr)
 	{
-		if (objp->type == OBJ_ROBOT && objp->control_source == object::control_type::ai)
+		object &obj = objp;
+		if (obj.type == OBJ_ROBOT && obj.control_source == object::control_type::ai)
 		{
-			auto &ailp = objp->ctype.ai_info.ail;
-			if (New_awareness[objp->segnum] > ailp.player_awareness_type) {
-				ailp.player_awareness_type = New_awareness[objp->segnum];
+			auto &ailp = obj.ctype.ai_info.ail;
+			auto &na = New_awareness[obj.segnum];
+			if (ailp.player_awareness_type < na)
+			{
+				ailp.player_awareness_type = na;
 				ailp.player_awareness_time = PLAYER_AWARENESS_INITIAL_TIME;
 
 #if defined(DXX_BUILD_DESCENT_II)
 			// Clear the bit that says this robot is only awake because a camera woke it up.
-				objp->ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
+				obj.ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
 #endif
 			}
 		}
