@@ -276,8 +276,7 @@ public:
 namespace dsx {
 //return which bomb will be dropped next time the bomb key is pressed
 #if defined(DXX_BUILD_DESCENT_I)
-
-static constexpr int which_bomb()
+static constexpr secondary_weapon_index_t which_bomb(const player_info &)
 {
 	return PROXIMITY_INDEX;
 }
@@ -298,7 +297,8 @@ static constexpr unsigned vulcan_ammo_scale(const unsigned v)
 	return (v * 0xcc180u) >> 16;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-int which_bomb(void);
+secondary_weapon_index_t which_bomb(player_info &player_info);
+secondary_weapon_index_t which_bomb(const player_info &player_info);
 
 static constexpr int weapon_index_uses_vulcan_ammo(const unsigned id)
 {

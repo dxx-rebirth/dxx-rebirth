@@ -1295,7 +1295,7 @@ static void show_bomb_count(grs_canvas &canvas, const player_info &player_info, 
 		return;
 #endif
 
-	const auto bomb = which_bomb();
+	const auto bomb = which_bomb(player_info);
 	int count = player_info.secondary_ammo[bomb];
 
 	count = min(count,99);	//only have room for 2 digits - cheating give 200

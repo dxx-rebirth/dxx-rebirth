@@ -249,33 +249,46 @@ static void update_vcr_state(void)
 
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
+
+namespace {
+
 //returns which bomb will be dropped next time the bomb key is pressed
-int which_bomb()
+template <typename T>
+secondary_weapon_index_t read_update_which_proximity_mine_to_use(T &player_info)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
 	//use the last one selected, unless there aren't any, in which case use
 	//the other if there are any
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 	const auto mask = 1 << PROXIMITY_INDEX;
 	const auto bomb = (Secondary_last_was_super & mask) ? SMART_MINE_INDEX : PROXIMITY_INDEX;
-
 	auto &secondary_ammo = player_info.secondary_ammo;
 	if (secondary_ammo[bomb])
 		/* Player has the requested bomb type available.  Use it. */
 		return bomb;
-	const auto alt_bomb = SMART_MINE_INDEX + PROXIMITY_INDEX - bomb;
+	const auto alt_bomb = static_cast<secondary_weapon_index_t>(SMART_MINE_INDEX + PROXIMITY_INDEX - bomb);
 	if (secondary_ammo[alt_bomb])
 	{
 		/* Player has the alternate bomb type, but not the requested
 		 * bomb type.  Switch.
 		 */
-		Secondary_last_was_super ^= mask;
+		if constexpr (!std::is_const<T>::value)
+			Secondary_last_was_super ^= mask;
 		return alt_bomb;
 	}
 	/* Player has no bombs of either type. */
 	return bomb;
+}
+
+}
+
+secondary_weapon_index_t which_bomb(const player_info &player_info)
+{
+	return read_update_which_proximity_mine_to_use(player_info);
+}
+
+secondary_weapon_index_t which_bomb(player_info &player_info)
+{
+	return read_update_which_proximity_mine_to_use(player_info);
 }
 #endif
 
