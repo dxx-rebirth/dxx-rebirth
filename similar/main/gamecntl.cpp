@@ -262,11 +262,19 @@ int which_bomb()
 	const auto bomb = (Secondary_last_was_super & mask) ? SMART_MINE_INDEX : PROXIMITY_INDEX;
 
 	auto &secondary_ammo = player_info.secondary_ammo;
-	if (secondary_ammo[bomb] == 0 &&
-		secondary_ammo[SMART_MINE_INDEX + PROXIMITY_INDEX - bomb] != 0)
+	if (secondary_ammo[bomb])
+		/* Player has the requested bomb type available.  Use it. */
+		return bomb;
+	const auto alt_bomb = SMART_MINE_INDEX + PROXIMITY_INDEX - bomb;
+	if (secondary_ammo[alt_bomb])
 	{
+		/* Player has the alternate bomb type, but not the requested
+		 * bomb type.  Switch.
+		 */
 		Secondary_last_was_super ^= mask;
+		return alt_bomb;
 	}
+	/* Player has no bombs of either type. */
 	return bomb;
 }
 #endif
