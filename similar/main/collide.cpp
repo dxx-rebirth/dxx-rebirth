@@ -1879,10 +1879,8 @@ static imobjptridx_t maybe_drop_primary_weapon_egg(const object &playerobj, cons
 	else
 		return object_none;
 }
-}
-}
 
-static void maybe_drop_secondary_weapon_egg(const object_base &playerobj, int weapon_index, int count)
+static void maybe_drop_secondary_weapon_egg(const object_base &playerobj, const secondary_weapon_index_t weapon_index, const int count)
 {
 	const auto powerup_num = Secondary_weapon_to_powerup[weapon_index];
 		int max_count = min(count, 3);
@@ -1890,7 +1888,7 @@ static void maybe_drop_secondary_weapon_egg(const object_base &playerobj, int we
 			call_object_create_egg(playerobj, 1, powerup_num);
 }
 
-static void drop_missile_1_or_4(const object &playerobj,int missile_index)
+static void drop_missile_1_or_4(const object &playerobj, const secondary_weapon_index_t missile_index)
 {
 	unsigned num_missiles = playerobj.ctype.player_info.secondary_ammo[missile_index];
 	const auto powerup_id = Secondary_weapon_to_powerup[missile_index];
@@ -1902,7 +1900,8 @@ static void drop_missile_1_or_4(const object &playerobj,int missile_index)
 	call_object_create_egg(playerobj, num_missiles % 4, powerup_id);
 }
 
-namespace dsx {
+}
+
 void drop_player_eggs(const vmobjptridx_t playerobj)
 {
 	if ((playerobj->type == OBJ_PLAYER) || (playerobj->type == OBJ_GHOST)) {

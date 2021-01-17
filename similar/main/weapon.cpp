@@ -115,10 +115,21 @@ const enumerated_array<powerup_type_t, MAX_PRIMARY_WEAPONS, primary_weapon_index
 }};
 
 //for each Secondary weapon, what kind of powerup gives weapon
-const std::array<powerup_type_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup{{POW_MISSILE_1,POW_HOMING_AMMO_1,POW_PROXIMITY_WEAPON,POW_SMARTBOMB_WEAPON,POW_MEGA_WEAPON,
+const enumerated_array<powerup_type_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_powerup{{
+	{
+		powerup_type_t::POW_MISSILE_1,
+		powerup_type_t::POW_HOMING_AMMO_1,
+		powerup_type_t::POW_PROXIMITY_WEAPON,
+		powerup_type_t::POW_SMARTBOMB_WEAPON,
+		powerup_type_t::POW_MEGA_WEAPON,
 #if defined(DXX_BUILD_DESCENT_II)
-	POW_SMISSILE1_1,POW_GUIDED_MISSILE_1,POW_SMART_MINE,POW_MERCURY_MISSILE_1,POW_EARTHSHAKER_MISSILE
+		powerup_type_t::POW_SMISSILE1_1,
+		powerup_type_t::POW_GUIDED_MISSILE_1,
+		powerup_type_t::POW_SMART_MINE,
+		powerup_type_t::POW_MERCURY_MISSILE_1,
+		powerup_type_t::POW_EARTHSHAKER_MISSILE,
 #endif
+	}
 }};
 
 weapon_info_array Weapon_info;
