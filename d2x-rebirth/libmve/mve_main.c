@@ -144,6 +144,16 @@ static int pollEvents()
 	return 0;
 }
 
+void *MovieMemoryAllocate(std::size_t size)
+{
+	return malloc(size);
+}
+
+void MovieMemoryFree(void *p)
+{
+	free(p);
+}
+
 static int doPlay(const char *filename)
 {
 	int result;
@@ -161,7 +171,6 @@ static int doPlay(const char *filename)
 	memset(g_palette, 0, 768);
 
 	MVE_sndInit(1);
-	MVE_memCallbacks(malloc, free);
 
 	MVE_rmPrepMovie(mve, -1, -1, 1);
 

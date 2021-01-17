@@ -20,9 +20,6 @@ constexpr short MVE_HDRCONST1 = 0x001A;
 constexpr short MVE_HDRCONST2 = 0x0100;
 constexpr short MVE_HDRCONST3 = 0x1133;
 
-mve_cb_Alloc mve_alloc;
-mve_cb_Free mve_free;
-
 /*
  * private utility functions
  */

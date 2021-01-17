@@ -102,17 +102,6 @@ static int RunMovie(const char *filename, const char *subtitles, int highres_fla
 
 static void draw_subtitles(const d_subtitle_state &, int frame_num);
 
-// ----------------------------------------------------------------------
-static void* MPlayAlloc(size_t size)
-{
-    return d_malloc(size);
-}
-
-static void MPlayFree(void *p)
-{
-    d_free(p);
-}
-
 //-----------------------------------------------------------------------
 
 struct movie_pause_window : window
@@ -121,6 +110,16 @@ struct movie_pause_window : window
 	virtual window_event_result event_handler(const d_event &) override;
 };
 
+}
+
+void *MovieMemoryAllocate(std::size_t size)
+{
+	return d_malloc(size);
+}
+
+void MovieMemoryFree(void *p)
+{
+	d_free(p);
 }
 
 unsigned int MovieFileRead(void *handle, void *buf, unsigned int count)
@@ -388,9 +387,6 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 	auto wind = window_create<movie>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	init_subtitles(wind->SubtitleState, subtitles);
 
-
-	MVE_memCallbacks(MPlayAlloc, MPlayFree);
-
 #if DXX_USE_OGL
 	set_screen_mode(SCREEN_MOVIE);
 	gr_copy_palette(pal_save, gr_palette);
@@ -472,7 +468,6 @@ int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 
 	con_printf(CON_DEBUG, "RoboFile=%s", filename);
 
-	MVE_memCallbacks(MPlayAlloc, MPlayFree);
 	MVE_sndInit(-1);        //tell movies to play no sound for robots
 
 	RoboFile = PHYSFSRWOPS_openRead(filename);
