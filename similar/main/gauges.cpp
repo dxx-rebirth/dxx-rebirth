@@ -804,14 +804,14 @@ struct gauge_inset_window
 	fix fade_value = 0;
 	int old_weapon = -1;
 	weapon_box_state box_state = weapon_box_state::set;
+#if defined(DXX_BUILD_DESCENT_II)
+	int user = WBU_WEAPON;		//see WBU_ constants in gauges.h
+#endif
 };
 
 enumerated_array<gauge_inset_window, 2, gauge_inset_window_view> inset_window;
 
 #if defined(DXX_BUILD_DESCENT_II)
-enumerated_array<int, 2, gauge_inset_window_view> weapon_box_user{
-	{{WBU_WEAPON, WBU_WEAPON}}
-};		//see WBU_ constants in gauges.h
 enumerated_array<fix, 2, gauge_inset_window_view> static_time;
 enumerated_array<uint8_t, 2, gauge_inset_window_view> overlap_dirty;
 #endif
@@ -2150,9 +2150,6 @@ void init_gauges()
 	inset_window[gauge_inset_window_view::primary] = {};
 	inset_window[gauge_inset_window_view::secondary] = {};
 	old_laser_level	= {};
-#if defined(DXX_BUILD_DESCENT_II)
-	weapon_box_user[gauge_inset_window_view::primary] = weapon_box_user[gauge_inset_window_view::secondary] = WBU_WEAPON;
-#endif
 }
 }
 
@@ -2615,7 +2612,7 @@ static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const 
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
-			if (weapon_box_user[gauge_inset_window_view::primary] == WBU_WEAPON)
+			if (inset_window[gauge_inset_window_view::primary].user == WBU_WEAPON)
 #endif
 				hud_show_primary_weapons_mode(hudctx.canvas, player_info, 1, hudctx.xscale(x), hudctx.yscale(y));
 		}
@@ -2658,7 +2655,7 @@ static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, cons
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
-			if (weapon_box_user[gauge_inset_window_view::secondary] == WBU_WEAPON)
+			if (inset_window[gauge_inset_window_view::secondary].user == WBU_WEAPON)
 #endif
 				hud_show_secondary_weapons_mode(hudctx.canvas, player_info, 1, hudctx.xscale(x), hudctx.yscale(y));
 		}
@@ -2785,7 +2782,7 @@ static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr
 
 	static_time[win] += FrameTime;
 	if (static_time[win] >= vc->play_time) {
-		weapon_box_user[win] = WBU_WEAPON;
+		inset_window[win].user = WBU_WEAPON;
 		return;
 	}
 
@@ -2820,7 +2817,8 @@ static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr
 static void draw_weapon_box0(const hud_draw_context_hs_mr hudctx, const player_info &player_info)
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	if (weapon_box_user[gauge_inset_window_view::primary] == WBU_WEAPON)
+	const auto user = inset_window[gauge_inset_window_view::primary].user;
+	if (user == WBU_WEAPON)
 #endif
 	{
 		const auto Primary_weapon = player_info.Primary_weapon;
@@ -2851,7 +2849,7 @@ static void draw_weapon_box0(const hud_draw_context_hs_mr hudctx, const player_i
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	else if (weapon_box_user[gauge_inset_window_view::primary] == WBU_STATIC)
+	else if (user == WBU_STATIC)
 		draw_static(Vclip, hudctx, gauge_inset_window_view::primary);
 #endif
 }
@@ -2859,7 +2857,7 @@ static void draw_weapon_box0(const hud_draw_context_hs_mr hudctx, const player_i
 static void draw_weapon_box1(const hud_draw_context_hs_mr hudctx, const player_info &player_info)
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	if (weapon_box_user[gauge_inset_window_view::secondary] == WBU_WEAPON)
+	if (inset_window[gauge_inset_window_view::secondary].user == WBU_WEAPON)
 #endif
 	{
 		auto &Secondary_weapon = player_info.Secondary_weapon;
@@ -2873,7 +2871,7 @@ static void draw_weapon_box1(const hud_draw_context_hs_mr hudctx, const player_i
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	else if (weapon_box_user[gauge_inset_window_view::secondary] == WBU_STATIC)
+	else if (inset_window[gauge_inset_window_view::secondary].user == WBU_STATIC)
 		draw_static(Vclip, hudctx, gauge_inset_window_view::secondary);
 #endif
 }
@@ -3789,7 +3787,7 @@ void render_gauges()
 		if (Newdemo_state==ND_STATE_RECORDING )
 			newdemo_record_player_afterburner(Afterburner_charge);
 		sb_draw_afterburner(hudctx, player_info);
-		if (PlayerCfg.HudMode == HudType::Standard && weapon_box_user[gauge_inset_window_view::secondary] == WBU_WEAPON)
+		if (PlayerCfg.HudMode == HudType::Standard && inset_window[gauge_inset_window_view::secondary].user == WBU_WEAPON)
 #endif
 			show_bomb_count(hudctx.canvas, player_info, hudctx.xscale(SB_BOMB_COUNT_X), hudctx.yscale(SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 
@@ -3845,11 +3843,13 @@ void update_laser_weapon_info(void)
 void do_cockpit_window_view(const gauge_inset_window_view win, const int user)
 {
 	Assert(user == WBU_WEAPON || user == WBU_STATIC);
-	if (user == WBU_STATIC && weapon_box_user[win] != WBU_STATIC)
+	auto &inset = inset_window[win];
+	auto &inset_user = inset.user;
+	if (user == WBU_STATIC && inset_user != WBU_STATIC)
 		static_time[win] = 0;
-	if (weapon_box_user[win] == WBU_WEAPON || weapon_box_user[win] == WBU_STATIC)
+	if (inset_user == WBU_WEAPON || inset_user == WBU_STATIC)
 		return;		//already set
-	weapon_box_user[win] = user;
+	inset_user = user;
 	if (overlap_dirty[win]) {
 		overlap_dirty[win] = 0;
 		gr_set_default_canvas();
@@ -3867,7 +3867,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 	window_rendered_data window;
 	update_rendered_data(window, viewer, rear_view_flag);
 
-	weapon_box_user[win] = user;						//say who's using window
+	inset_window[win].user = user;						//say who's using window
 
 	Viewer = &viewer;
 	Rear_view = rear_view_flag;
