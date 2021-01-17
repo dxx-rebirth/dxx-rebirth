@@ -473,7 +473,7 @@ ubyte DemoDoingRight=0,DemoDoingLeft=0;
 
 namespace {
 
-constexpr char DemoWBUType[]={0,WBU_GUIDED,WBU_MISSILE,WBU_REAR,WBU_ESCORT,WBU_MARKER,0};
+constexpr weapon_box_user DemoWBUType[]={weapon_box_user::weapon, weapon_box_user::guided, weapon_box_user::missile, weapon_box_user::rear, weapon_box_user::escort, weapon_box_user::marker, weapon_box_user::weapon};
 constexpr char DemoRearCheck[]={0,0,0,1,0,0,0};
 constexpr char DemoExtraMessage[][10] = {
 	"PLAYER",
@@ -626,26 +626,26 @@ static void show_extra_views()
 			DemoDoingLeft=DemoDoLeft;
 
 			if (DemoDoLeft==3)
-				do_cockpit_window_view(gauge_inset_window_view::primary, *ConsoleObject, 1, WBU_REAR, "REAR");
+				do_cockpit_window_view(gauge_inset_window_view::primary, *ConsoleObject, 1, weapon_box_user::rear, "REAR");
 			else
 				do_cockpit_window_view(gauge_inset_window_view::primary, DemoLeftExtra, DemoRearCheck[DemoDoLeft], DemoWBUType[DemoDoLeft], DemoExtraMessage[DemoDoLeft], DemoDoLeft == 1 ? &get_local_plrobj().ctype.player_info : nullptr);
 		}
 		else
-			do_cockpit_window_view(gauge_inset_window_view::primary,WBU_WEAPON);
+			do_cockpit_window_view(gauge_inset_window_view::primary, weapon_box_user::weapon);
 	
 		if (DemoDoRight)
 		{
 			DemoDoingRight=DemoDoRight;
 			
 			if (DemoDoRight==3)
-				do_cockpit_window_view(gauge_inset_window_view::secondary, *ConsoleObject, 1, WBU_REAR, "REAR");
+				do_cockpit_window_view(gauge_inset_window_view::secondary, *ConsoleObject, 1, weapon_box_user::rear, "REAR");
 			else
 			{
 				do_cockpit_window_view(gauge_inset_window_view::secondary, DemoRightExtra, DemoRearCheck[DemoDoRight], DemoWBUType[DemoDoRight], DemoExtraMessage[DemoDoRight], DemoDoLeft == 1 ? &get_local_plrobj().ctype.player_info : nullptr);
 			}
 		}
 		else
-			do_cockpit_window_view(gauge_inset_window_view::secondary,WBU_WEAPON);
+			do_cockpit_window_view(gauge_inset_window_view::secondary, weapon_box_user::weapon);
 		
 		DemoDoLeft=DemoDoRight=0;
 		DemoDoingLeft=DemoDoingRight=0;
@@ -658,13 +658,13 @@ static void show_extra_views()
 		if (PlayerCfg.GuidedInBigWindow)
 		{
 			RenderingType=6+(1<<4);
-			do_cockpit_window_view(gauge_inset_window_view::secondary, *Viewer, 0, WBU_MISSILE, "SHIP");
+			do_cockpit_window_view(gauge_inset_window_view::secondary, *Viewer, 0, weapon_box_user::missile, "SHIP");
 		}
 		else
 		{
 			RenderingType=1+(1<<4);
 			auto &player_info = get_local_plrobj().ctype.player_info;
-			do_cockpit_window_view(gauge_inset_window_view::secondary, *gimobj, 0, WBU_GUIDED, "GUIDED", &player_info);
+			do_cockpit_window_view(gauge_inset_window_view::secondary, *gimobj, 0, weapon_box_user::guided, "GUIDED", &player_info);
 		}
 			
 		did_missile_view=1;
@@ -674,12 +674,12 @@ static void show_extra_views()
 		//do missile view
 			{
   				RenderingType=2+(1<<4);
-				do_cockpit_window_view(gauge_inset_window_view::secondary, *Missile_viewer, 0, WBU_MISSILE, get_missile_name(get_weapon_id(*Missile_viewer)));
+				do_cockpit_window_view(gauge_inset_window_view::secondary, *Missile_viewer, 0, weapon_box_user::missile, get_missile_name(get_weapon_id(*Missile_viewer)));
 				did_missile_view=1;
 			}
 			else {
 				if (clear_missile_viewer())
-					do_cockpit_window_view(gauge_inset_window_view::secondary, WBU_STATIC);
+					do_cockpit_window_view(gauge_inset_window_view::secondary, weapon_box_user::post_missile_static);
                                 RenderingType=255;
 			}
 	}
@@ -700,7 +700,7 @@ static void show_one_extra_view(const gauge_inset_window_view w)
 		switch (PlayerCfg.Cockpit3DView[w]) {
 			case CV_NONE:
 				RenderingType=255;
-				do_cockpit_window_view(w,WBU_WEAPON);
+				do_cockpit_window_view(w, weapon_box_user::weapon);
 				break;
 			case CV_REAR:
 				RenderingType = 3 + (static_cast<unsigned>(w) << 4);
@@ -717,18 +717,18 @@ static void show_one_extra_view(const gauge_inset_window_view w)
 						rear_view_flag = 1;
 						label = "REAR";
 					}
-					do_cockpit_window_view(w, *ConsoleObject, rear_view_flag, WBU_REAR, label);
+					do_cockpit_window_view(w, *ConsoleObject, rear_view_flag, weapon_box_user::rear, label);
 				}
 			 	break;
 			case CV_ESCORT: {
 				const auto &&buddy = find_escort(vmobjptridx, Robot_info);
 				if (buddy == object_none) {
-					do_cockpit_window_view(w,WBU_WEAPON);
+					do_cockpit_window_view(w, weapon_box_user::weapon);
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 				}
 				else {
 					RenderingType = 4 + (static_cast<unsigned>(w) << 4);
-					do_cockpit_window_view(w, *buddy, 0, WBU_ESCORT, PlayerCfg.GuidebotName);
+					do_cockpit_window_view(w, *buddy, 0, weapon_box_user::escort, PlayerCfg.GuidebotName);
 				}
 				break;
 			}
@@ -740,10 +740,10 @@ static void show_one_extra_view(const gauge_inset_window_view w)
 				if (player < Players.size() && vcplayerptr(player)->connected && ((Game_mode & GM_MULTI_COOP) || ((Game_mode & GM_TEAM) && (get_team(player) == get_team(Player_num)))))
 				{
 					auto &p = *vcplayerptr(player);
-					do_cockpit_window_view(w, *vcobjptr(p.objnum), 0, WBU_COOP, p.callsign);
+					do_cockpit_window_view(w, *vcobjptr(p.objnum), 0, weapon_box_user::coop, p.callsign);
 				}
 				else {
-					do_cockpit_window_view(w,WBU_WEAPON);
+					do_cockpit_window_view(w, weapon_box_user::weapon);
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 				}
 				break;
@@ -765,7 +765,7 @@ static void show_one_extra_view(const gauge_inset_window_view w)
 				}
 				const auto displayed_marker_id = static_cast<unsigned>(mvn) + 1;
 				snprintf(label, sizeof(label), "Marker %u", displayed_marker_id);
-				do_cockpit_window_view(w, *vcobjptr(mo), 0, WBU_MARKER, label);
+				do_cockpit_window_view(w, *vcobjptr(mo), 0, weapon_box_user::marker, label);
 				break;
 			}
 			default:

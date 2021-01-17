@@ -109,24 +109,27 @@ public:
 constexpr rgb_array_wrapper player_rgb{};
 
 #if defined(DXX_BUILD_DESCENT_II)
-#define WBU_WEAPON      0       // the weapons display
-#define WBU_MISSILE     1       // the missile view
-#define WBU_ESCORT      2       // the "buddy bot"
-#define WBU_REAR        3       // the rear view
-#define WBU_COOP        4       // coop or team member view
-#define WBU_GUIDED      5       // the guided missile
-#define WBU_MARKER      6       // a dropped marker
-#define WBU_STATIC      7       // playing static after missile hits
-
 namespace dsx {
+
+enum class weapon_box_user : uint8_t
+{
+	weapon,
+	missile,
+	escort,
+	rear,
+	coop,
+	guided,
+	marker,
+	post_missile_static,
+};
 
 // draws a 3d view into one of the cockpit windows.  win is 0 for
 // left, 1 for right.  viewer is object.  NULL object means give up
 // window user is one of the WBU_ constants.  If rear_view_flag is
 // set, show a rear view.  If label is non-NULL, print the label at
 // the top of the window.
-void do_cockpit_window_view(gauge_inset_window_view win, const object &viewer, int rear_view_flag, int user, const char *label, const player_info * = nullptr);
-void do_cockpit_window_view(gauge_inset_window_view win, int user);
+void do_cockpit_window_view(gauge_inset_window_view win, const object &viewer, int rear_view_flag, weapon_box_user user, const char *label, const player_info * = nullptr);
+void do_cockpit_window_view(gauge_inset_window_view win, weapon_box_user user);
 }
 #endif
 
