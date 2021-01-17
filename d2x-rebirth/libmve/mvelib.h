@@ -18,7 +18,6 @@
 #include "dxxsconf.h"
 #include <array>
 
-extern mve_cb_Read mve_read;
 extern mve_cb_Alloc mve_alloc;
 extern mve_cb_Free mve_free;
 

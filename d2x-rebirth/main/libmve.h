@@ -36,14 +36,10 @@ void MVE_getVideoSpec(MVE_videoSpec *vSpec);
 
 void MVE_sndInit(int x);
 
-typedef unsigned int (*mve_cb_Read)(void *stream,
-                                    void *buffer,
-                                    unsigned int count);
-
 typedef void *(*mve_cb_Alloc)(size_t size);
 typedef void (*mve_cb_Free)(void *ptr);
 
-void MVE_ioCallbacks(mve_cb_Read io_read);
+unsigned int MovieFileRead(void *handle, void *buf, unsigned int count);
 void MVE_memCallbacks(mve_cb_Alloc mem_alloc, mve_cb_Free mem_free);
 void MovieShowFrame(const uint8_t *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh);
 void MovieSetPalette(const unsigned char *p, unsigned start, unsigned count);

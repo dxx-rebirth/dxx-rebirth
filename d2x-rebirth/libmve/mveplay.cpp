@@ -658,11 +658,6 @@ static int end_chunk_handler(unsigned char, unsigned char, const unsigned char *
 	return 1;
 }
 
-void MVE_ioCallbacks(mve_cb_Read io_read)
-{
-	mve_read = io_read;
-}
-
 void MVE_memCallbacks(mve_cb_Alloc mem_alloc, mve_cb_Free mem_free)
 {
 	mve_alloc = mem_alloc;

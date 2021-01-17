@@ -45,10 +45,9 @@ int main(int c, char **v)
 	return doPlay(v[1]);
 }
 
-static unsigned int fileRead(void *handle, void *buf, unsigned int count)
+unsigned int MovieFileRead(void *handle, void *buf, unsigned int count)
 {
 	unsigned numread;
-
 	numread = fread(buf, 1, count, (FILE *)handle);
 	return (numread == count);
 }
@@ -163,7 +162,6 @@ static int doPlay(const char *filename)
 
 	MVE_sndInit(1);
 	MVE_memCallbacks(malloc, free);
-	MVE_ioCallbacks(fileRead);
 
 	MVE_rmPrepMovie(mve, -1, -1, 1);
 

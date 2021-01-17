@@ -115,19 +115,18 @@ static void MPlayFree(void *p)
 
 //-----------------------------------------------------------------------
 
-static unsigned int FileRead(void *handle, void *buf, unsigned int count)
-{
-    unsigned numread;
-    numread = SDL_RWread(reinterpret_cast<SDL_RWops *>(handle), buf, 1, count);
-    return (numread == count);
-}
-
 struct movie_pause_window : window
 {
 	using window::window;
 	virtual window_event_result event_handler(const d_event &) override;
 };
 
+}
+
+unsigned int MovieFileRead(void *handle, void *buf, unsigned int count)
+{
+	const unsigned numread = SDL_RWread(reinterpret_cast<SDL_RWops *>(handle), buf, 1, count);
+	return (numread == count);
 }
 
 //-----------------------------------------------------------------------
@@ -391,7 +390,6 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 
 
 	MVE_memCallbacks(MPlayAlloc, MPlayFree);
-	MVE_ioCallbacks(FileRead);
 
 #if DXX_USE_OGL
 	set_screen_mode(SCREEN_MOVIE);
@@ -475,7 +473,6 @@ int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 	con_printf(CON_DEBUG, "RoboFile=%s", filename);
 
 	MVE_memCallbacks(MPlayAlloc, MPlayFree);
-	MVE_ioCallbacks(FileRead);
 	MVE_sndInit(-1);        //tell movies to play no sound for robots
 
 	RoboFile = PHYSFSRWOPS_openRead(filename);
