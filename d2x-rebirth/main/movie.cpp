@@ -249,13 +249,17 @@ namespace {
 
 struct movie : window
 {
-	using window::window;
 	MVE_StepStatus result = MVE_StepStatus::EndOfFile;
 	int aborted = 0;
 	int frame_num = 0;
 	int paused = 0;
 	MVESTREAM_ptr_t pMovie;
 	d_subtitle_state SubtitleState;
+	movie(grs_canvas &src, int x, int y, int w, int h, MVESTREAM_ptr_t mvestream) :
+		window(src, x, y, w, h),
+		pMovie(std::move(mvestream))
+	{
+	}
 	virtual window_event_result event_handler(const d_event &) override;
 };
 
@@ -383,8 +387,13 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 		con_printf(must_have ? CON_URGENT : CON_VERBOSE, "Failed to open movie <%s>: %s", filename, PHYSFS_getLastError());
 		return MOVIE_NOT_PLAYED;
 	}
+	MVESTREAM_ptr_t mvestream;
+	if (MVE_rmPrepMovie(mvestream, filehndl.get(), dx, dy, track))
+	{
+		return MOVIE_NOT_PLAYED;
+	}
 	const auto reshow = hide_menus();
-	auto wind = window_create<movie>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	auto wind = window_create<movie>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, std::move(mvestream));
 	init_subtitles(wind->SubtitleState, subtitles);
 
 #if DXX_USE_OGL
@@ -395,14 +404,6 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 #else
 	gr_set_mode(hires_flag ? screen_mode{640, 480} : screen_mode{320, 200});
 #endif
-
-	if (MVE_rmPrepMovie(wind->pMovie, filehndl.get(), dx, dy, track)) {
-		Int3();
-		window_close(wind);
-		if (reshow)
-			show_menus();
-		return MOVIE_NOT_PLAYED;
-	}
 
 	do {
 		event_process();
