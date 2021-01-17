@@ -250,7 +250,7 @@ struct movie : window
 	MVE_StepStatus result = MVE_StepStatus::EndOfFile;
 	int frame_num = 0;
 	int paused = 0;
-	MVESTREAM_ptr_t pMovie;
+	const MVESTREAM_ptr_t pMovie;
 	d_subtitle_state SubtitleState;
 	movie(grs_canvas &src, int x, int y, int w, int h, MVESTREAM_ptr_t mvestream) :
 		window(src, x, y, w, h),
@@ -318,8 +318,7 @@ window_event_result movie::event_handler(const d_event &event)
 
 			// If ESCAPE pressed, then quit movie.
 			if (key == KEY_ESC) {
-				result = MVE_StepStatus::EndOfFile;
-				return window_event_result::handled;
+				return window_event_result::close;
 			}
 
 			// If PAUSE pressed, then pause movie
@@ -338,6 +337,8 @@ window_event_result movie::event_handler(const d_event &event)
 			if (!paused)
 			{
 				result = MVE_rmStepMovie(*pMovie.get());
+				if (result == MVE_StepStatus::EndOfFile)
+					return window_event_result::close;
 				if (result != MVE_StepStatus::Continue)
 				{
 					return window_event_result::handled;
@@ -353,12 +354,7 @@ window_event_result movie::event_handler(const d_event &event)
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			if (Quitting)
-			{
-				result = MVE_StepStatus::EndOfFile;
-			}
-			return window_event_result::handled;
-			
+			break;
 		default:
 			break;
 	}
@@ -388,6 +384,8 @@ movie_play_status RunMovie(const char *const filename, const char *const subtitl
 	}
 	const auto reshow = hide_menus();
 	auto wind = window_create<movie>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, std::move(mvestream));
+	bool exists = true;
+	wind->track(&exists);
 	init_subtitles(wind->SubtitleState, subtitles);
 
 #if DXX_USE_OGL
@@ -399,11 +397,9 @@ movie_play_status RunMovie(const char *const filename, const char *const subtitl
 	gr_set_mode(hires_flag ? screen_mode{640, 480} : screen_mode{320, 200});
 #endif
 
-	do {
+	while (exists)
 		event_process();
-	} while(!(wind->result == MVE_StepStatus::EndOfFile));
-
-	wind->pMovie.reset();
+	wind = nullptr;
 
 	filehndl.reset();                           // Close Movie File
 	if (reshow)
