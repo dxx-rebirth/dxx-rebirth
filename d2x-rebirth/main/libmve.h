@@ -45,13 +45,10 @@ typedef void (*mve_cb_Free)(void *ptr);
 
 typedef void (*mve_cb_ShowFrame)(unsigned char *buffer, int dstx, int dsty, int bufw, int bufh, int sw, int sh);
 
-typedef void (*mve_cb_SetPalette)(const unsigned char *p,
-                                  unsigned int start, unsigned int count);
-
 void MVE_ioCallbacks(mve_cb_Read io_read);
 void MVE_memCallbacks(mve_cb_Alloc mem_alloc, mve_cb_Free mem_free);
 void MVE_sfCallbacks(mve_cb_ShowFrame showframe);
-void MVE_palCallbacks(mve_cb_SetPalette setpalette);
+void MovieSetPalette(const unsigned char *p, unsigned start, unsigned count);
 
 #endif
 

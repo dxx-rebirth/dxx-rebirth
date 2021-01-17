@@ -613,7 +613,7 @@ static int video_palette_handler(unsigned char, unsigned char, const unsigned ch
 	count = get_short(data+2);
 
 	auto p = data + 4;
-	mve_setpalette(p - 3*start, start, count);
+	MovieSetPalette(p - 3*start, start, count);
 	return 1;
 }
 
@@ -672,11 +672,6 @@ void MVE_memCallbacks(mve_cb_Alloc mem_alloc, mve_cb_Free mem_free)
 void MVE_sfCallbacks(mve_cb_ShowFrame showframe)
 {
 	mve_showframe = showframe;
-}
-
-void MVE_palCallbacks(mve_cb_SetPalette setpalette)
-{
-	mve_setpalette = setpalette;
 }
 
 int MVE_rmPrepMovie(MVESTREAM_ptr_t &pMovie, void *src, int x, int y, int)

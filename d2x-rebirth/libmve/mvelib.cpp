@@ -24,7 +24,6 @@ mve_cb_Read mve_read;
 mve_cb_Alloc mve_alloc;
 mve_cb_Free mve_free;
 mve_cb_ShowFrame mve_showframe;
-mve_cb_SetPalette mve_setpalette;
 
 /*
  * private utility functions

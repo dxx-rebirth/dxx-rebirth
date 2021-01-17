@@ -174,8 +174,6 @@ int PlayMovie(const char *subtitles, const char *filename, int must_have)
 	return ret;
 }
 
-namespace {
-
 static void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh)
 {
 	grs_bitmap source_bm;
@@ -231,7 +229,7 @@ static void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, i
 }
 
 //our routine to set the pallete, called from the movie code
-static void MovieSetPalette(const unsigned char *p, unsigned start, unsigned count)
+void MovieSetPalette(const unsigned char *p, unsigned start, unsigned count)
 {
 	if (count == 0)
 		return;
@@ -248,6 +246,8 @@ static void MovieSetPalette(const unsigned char *p, unsigned start, unsigned cou
 	//movie libs palette into our array
 	memcpy(&gr_palette[start],p+start*3,count*3);
 }
+
+namespace {
 
 struct movie : window
 {
@@ -402,7 +402,6 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 	gr_set_mode(hires_flag ? screen_mode{640, 480} : screen_mode{320, 200});
 #endif
 	MVE_sfCallbacks(MovieShowFrame);
-	MVE_palCallbacks(MovieSetPalette);
 
 	if (MVE_rmPrepMovie(wind->pMovie, filehndl.get(), dx, dy, track)) {
 		Int3();
@@ -413,7 +412,6 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 	}
 
 	MVE_sfCallbacks(MovieShowFrame);
-	MVE_palCallbacks(MovieSetPalette);
 
 	do {
 		event_process();
@@ -482,7 +480,6 @@ int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 	MVE_memCallbacks(MPlayAlloc, MPlayFree);
 	MVE_ioCallbacks(FileRead);
 	MVE_sfCallbacks(MovieShowFrame);
-	MVE_palCallbacks(MovieSetPalette);
 	MVE_sndInit(-1);        //tell movies to play no sound for robots
 
 	RoboFile = PHYSFSRWOPS_openRead(filename);

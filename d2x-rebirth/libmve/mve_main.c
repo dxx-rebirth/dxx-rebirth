@@ -100,7 +100,7 @@ static void showFrame(unsigned char *buf, int dstx, int dsty, int bufw, int bufh
 	SDL_FreeSurface(sprite);
 }
 
-static void setPalette(unsigned char *p, unsigned start, unsigned count)
+void MovieSetPalette(const unsigned char *p, unsigned start, unsigned count)
 {
 	//Set color 0 to be black
 	g_palette[0] = g_palette[1] = g_palette[2] = 0;
@@ -165,7 +165,6 @@ static int doPlay(const char *filename)
 	MVE_memCallbacks(malloc, free);
 	MVE_ioCallbacks(fileRead);
 	MVE_sfCallbacks(showFrame);
-	MVE_palCallbacks(setPalette);
 
 	MVE_rmPrepMovie(mve, -1, -1, 1);
 

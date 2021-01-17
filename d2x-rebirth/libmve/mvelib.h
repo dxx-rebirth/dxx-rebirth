@@ -22,7 +22,6 @@ extern mve_cb_Read mve_read;
 extern mve_cb_Alloc mve_alloc;
 extern mve_cb_Free mve_free;
 extern mve_cb_ShowFrame mve_showframe;
-extern mve_cb_SetPalette mve_setpalette;
 
 /*
  * structure for maintaining info on a MVEFILE stream
