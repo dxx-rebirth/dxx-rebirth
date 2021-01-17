@@ -536,7 +536,7 @@ static movie_play_status start_endlevel_movie()
 		return movie_play_status::skipped;
 	if (!is_D2_OEM)
 		if (current_level_num == Last_level)
-			return movie_play_status::completed;   //don't play movie
+			return movie_play_status::started;   //don't play movie
 
 	if (!(current_level_num > 0))
 		return movie_play_status::skipped;       //no escapes for secret level

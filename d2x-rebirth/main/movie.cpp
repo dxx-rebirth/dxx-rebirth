@@ -248,7 +248,6 @@ namespace {
 struct movie : window
 {
 	MVE_StepStatus result = MVE_StepStatus::EndOfFile;
-	int aborted = 0;
 	int frame_num = 0;
 	int paused = 0;
 	MVESTREAM_ptr_t pMovie;
@@ -320,7 +319,6 @@ window_event_result movie::event_handler(const d_event &event)
 			// If ESCAPE pressed, then quit movie.
 			if (key == KEY_ESC) {
 				result = MVE_StepStatus::EndOfFile;
-				aborted = 1;
 				return window_event_result::handled;
 			}
 
@@ -358,7 +356,6 @@ window_event_result movie::event_handler(const d_event &event)
 			if (Quitting)
 			{
 				result = MVE_StepStatus::EndOfFile;
-				aborted = 1;
 			}
 			return window_event_result::handled;
 			
@@ -372,7 +369,6 @@ window_event_result movie::event_handler(const d_event &event)
 movie_play_status RunMovie(const char *const filename, const char *const subtitles, const int hires_flag, const int must_have, const int dx, const int dy)
 {
 	int track = 0;
-	int aborted = 0;
 #if DXX_USE_OGL
 	palette_array_t pal_save;
 #endif
@@ -405,14 +401,13 @@ movie_play_status RunMovie(const char *const filename, const char *const subtitl
 
 	do {
 		event_process();
-	} while(!(wind->aborted || wind->result == MVE_StepStatus::EndOfFile));
+	} while(!(wind->result == MVE_StepStatus::EndOfFile));
 
 	wind->pMovie.reset();
 
 	filehndl.reset();                           // Close Movie File
 	if (reshow)
 		show_menus();
-	aborted = wind->aborted;
 
 	// Restore old graphic state
 
@@ -422,7 +417,7 @@ movie_play_status RunMovie(const char *const filename, const char *const subtitl
 	gr_palette_load(pal_save);
 #endif
 
-	return aborted ? movie_play_status::aborted : movie_play_status::completed;
+	return movie_play_status::started;
 }
 
 }

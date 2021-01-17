@@ -34,8 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 enum class movie_play_status : uint8_t
 {
 	skipped,   // movie wasn't present
-	completed, // movie was played all the way through
-	aborted,   // movie started by was aborted
+	started,	// movie was present and started; it may or may not have completed
 };
 
 #if DXX_USE_OGL
