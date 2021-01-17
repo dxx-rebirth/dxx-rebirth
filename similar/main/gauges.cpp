@@ -806,15 +806,12 @@ struct gauge_inset_window
 	weapon_box_state box_state = weapon_box_state::set;
 #if defined(DXX_BUILD_DESCENT_II)
 	int user = WBU_WEAPON;		//see WBU_ constants in gauges.h
+	uint8_t overlap_dirty = 0;
 	fix time_static_played = 0;
 #endif
 };
 
 enumerated_array<gauge_inset_window, 2, gauge_inset_window_view> inset_window;
-
-#if defined(DXX_BUILD_DESCENT_II)
-enumerated_array<uint8_t, 2, gauge_inset_window_view> overlap_dirty;
-#endif
 
 static inline void hud_bitblt_free(grs_canvas &canvas, const unsigned x, const unsigned y, const unsigned w, const unsigned h, grs_bitmap &bm)
 {
@@ -3851,8 +3848,8 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const int user)
 	if (inset_user == WBU_WEAPON || inset_user == WBU_STATIC)
 		return;		//already set
 	inset_user = user;
-	if (overlap_dirty[win]) {
-		overlap_dirty[win] = 0;
+	if (inset.overlap_dirty) {
+		inset.overlap_dirty = 0;
 		gr_set_default_canvas();
 	}
 }
@@ -3939,7 +3936,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 
 			gr_bitmap(*grd_curcanv, window_x, window_y, window_canv.cv_bitmap);
 
-			overlap_dirty[win] = 1;
+			inset_window[win].overlap_dirty = 1;
 		}
 		else {
 
@@ -3951,7 +3948,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 				gr_init_sub_canvas(overlap_canv, window_canv, 0, window_canv.cv_bitmap.bm_h-extra_part_h, window_canv.cv_bitmap.bm_w, extra_part_h);
 				gr_set_default_canvas();
 				gr_bitmap(*grd_curcanv, window_x, big_window_bottom + 1, overlap_canv.cv_bitmap);
-				overlap_dirty[win] = 1;
+				inset_window[win].overlap_dirty = 1;
 			}
 		}
 	}
