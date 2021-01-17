@@ -806,13 +806,13 @@ struct gauge_inset_window
 	weapon_box_state box_state = weapon_box_state::set;
 #if defined(DXX_BUILD_DESCENT_II)
 	int user = WBU_WEAPON;		//see WBU_ constants in gauges.h
+	fix time_static_played = 0;
 #endif
 };
 
 enumerated_array<gauge_inset_window, 2, gauge_inset_window_view> inset_window;
 
 #if defined(DXX_BUILD_DESCENT_II)
-enumerated_array<fix, 2, gauge_inset_window_view> static_time;
 enumerated_array<uint8_t, 2, gauge_inset_window_view> overlap_dirty;
 #endif
 
@@ -2780,13 +2780,14 @@ static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr
 	int x,y;
 #endif
 
-	static_time[win] += FrameTime;
-	if (static_time[win] >= vc->play_time) {
+	auto &time_static_played = inset_window[win].time_static_played;
+	time_static_played += FrameTime;
+	if (time_static_played >= vc->play_time) {
 		inset_window[win].user = WBU_WEAPON;
 		return;
 	}
 
-	framenum = static_time[win] * vc->num_frames / vc->play_time;
+	framenum = time_static_played * vc->num_frames / vc->play_time;
 
 	PIGGY_PAGE_IN(vc->frames[framenum]);
 
@@ -3846,7 +3847,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const int user)
 	auto &inset = inset_window[win];
 	auto &inset_user = inset.user;
 	if (user == WBU_STATIC && inset_user != WBU_STATIC)
-		static_time[win] = 0;
+		inset_window[win].time_static_played = 0;
 	if (inset_user == WBU_WEAPON || inset_user == WBU_STATIC)
 		return;		//already set
 	inset_user = user;
