@@ -1869,7 +1869,7 @@ static void collide_player_and_player(const vmobjptridx_t player1, const vmobjpt
 	return;
 }
 
-static imobjptridx_t maybe_drop_primary_weapon_egg(const object &playerobj, int weapon_index)
+static imobjptridx_t maybe_drop_primary_weapon_egg(const object &playerobj, const primary_weapon_index_t weapon_index)
 {
 	int weapon_flag = HAS_PRIMARY_FLAG(weapon_index);
 	const auto powerup_num = Primary_weapon_to_powerup[weapon_index];

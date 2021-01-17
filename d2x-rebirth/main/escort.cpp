@@ -1670,7 +1670,7 @@ static int maybe_steal_secondary_weapon(const vmobjptr_t playerobjp, int weapon_
 }
 
 //	----------------------------------------------------------------------------
-static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, int weapon_num)
+static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, const primary_weapon_index_t weapon_num)
 {
 	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
 	auto &player_info = playerobjp->ctype.player_info;
@@ -1789,7 +1789,7 @@ static int attempt_to_steal_item_3(const vmobjptr_t objp, const vmobjptr_t playe
 		return r;
 
 	for (int i=MAX_SECONDARY_WEAPONS-1; i>=0; i--) {
-		if (auto r = maybe_steal_primary_weapon(player_num, i))
+		if (auto r = maybe_steal_primary_weapon(player_num, static_cast<primary_weapon_index_t>(i)))
 			return r;
 		if (auto r = maybe_steal_secondary_weapon(player_num, i))
 			return r;

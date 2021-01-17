@@ -97,10 +97,21 @@ const std::array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_ammo_max{{20, 10, 10,
 }};
 
 //for each primary weapon, what kind of powerup gives weapon
-const std::array<powerup_type_t, MAX_PRIMARY_WEAPONS> Primary_weapon_to_powerup{{POW_LASER,POW_VULCAN_WEAPON,POW_SPREADFIRE_WEAPON,POW_PLASMA_WEAPON,POW_FUSION_WEAPON,
+const enumerated_array<powerup_type_t, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_powerup{{
+	{
+		powerup_type_t::POW_LASER,
+		powerup_type_t::POW_VULCAN_WEAPON,
+		powerup_type_t::POW_SPREADFIRE_WEAPON,
+		powerup_type_t::POW_PLASMA_WEAPON,
+		powerup_type_t::POW_FUSION_WEAPON,
 #if defined(DXX_BUILD_DESCENT_II)
-	POW_LASER,POW_GAUSS_WEAPON,POW_HELIX_WEAPON,POW_PHOENIX_WEAPON,POW_OMEGA_WEAPON
+		powerup_type_t::POW_LASER,
+		powerup_type_t::POW_GAUSS_WEAPON,
+		powerup_type_t::POW_HELIX_WEAPON,
+		powerup_type_t::POW_PHOENIX_WEAPON,
+		powerup_type_t::POW_OMEGA_WEAPON,
 #endif
+	}
 }};
 
 //for each Secondary weapon, what kind of powerup gives weapon

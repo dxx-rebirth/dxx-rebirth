@@ -89,9 +89,11 @@ constexpr std::integral_constant<unsigned, 10> MAX_PRIMARY_WEAPONS{};
 constexpr std::integral_constant<unsigned, 10> MAX_SECONDARY_WEAPONS{};
 #endif
 
+enum primary_weapon_index_t : uint8_t;
+
 extern const std::array<weapon_id_type, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info;
 //for each primary weapon, what kind of powerup gives weapon
-extern const std::array<powerup_type_t, MAX_PRIMARY_WEAPONS> Primary_weapon_to_powerup;
+extern const enumerated_array<powerup_type_t, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_powerup;
 extern const std::array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info;
 //for each Secondary weapon, what kind of powerup gives weapon
 extern const std::array<powerup_type_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup;
@@ -114,7 +116,6 @@ void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *f
 #define HAS_PLASMA_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::PLASMA_INDEX)
 #define HAS_FUSION_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::FUSION_INDEX)
 
-enum primary_weapon_index_t : uint8_t;
 enum secondary_weapon_index_t : uint8_t;
 
 #define NUM_SMART_CHILDREN  6   // Number of smart children created by default.
