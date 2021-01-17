@@ -801,13 +801,13 @@ const std::array<dspan, 107> weapon_windows_hires = {{
 
 struct gauge_inset_window
 {
+	fix fade_value = 0;
 	int old_weapon = -1;
 	weapon_box_state box_state = weapon_box_state::set;
 };
 
 enumerated_array<gauge_inset_window, 2, gauge_inset_window_view> inset_window;
 
-enumerated_array<fix, 2, gauge_inset_window_view> weapon_box_fade_values;
 #if defined(DXX_BUILD_DESCENT_II)
 enumerated_array<int, 2, gauge_inset_window_view> weapon_box_user{
 	{{WBU_WEAPON, WBU_WEAPON}}
@@ -2710,7 +2710,7 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 	if ((weapon_num != inset.old_weapon || laser_level_changed) && inset.box_state == weapon_box_state::set && inset.old_weapon != -1 && PlayerCfg.HudMode == HudType::Standard)
 	{
 		inset.box_state = weapon_box_state::fading_out;
-		weapon_box_fade_values[wt]=i2f(GR_FADE_LEVELS-1);
+		inset.fade_value = i2f(GR_FADE_LEVELS - 1);
 	}
 
 	const local_multires_gauge_graphic multires_gauge_graphic{};
@@ -2724,12 +2724,13 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 	if (inset.box_state == weapon_box_state::fading_out)
 	{
 		draw_weapon_info(hudctx, player_info, inset.old_weapon, old_laser_level, wt);
-		weapon_box_fade_values[wt] -= FrameTime * FADE_SCALE;
-		if (weapon_box_fade_values[wt] <= 0) {
+		inset.fade_value -= FrameTime * FADE_SCALE;
+		if (inset.fade_value <= 0)
+		{
+			inset.fade_value = 0;
 			inset.box_state = weapon_box_state::fading_in;
 			inset.old_weapon = weapon_num;
 			old_laser_level = player_info.laser_level;
-			weapon_box_fade_values[wt] = 0;
 		}
 	}
 	else if (inset.box_state == weapon_box_state::fading_in)
@@ -2739,8 +2740,9 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 		}
 		else {
 			draw_weapon_info(hudctx, player_info, weapon_num, player_info.laser_level, wt);
-			weapon_box_fade_values[wt] += FrameTime * FADE_SCALE;
-			if (weapon_box_fade_values[wt] >= i2f(GR_FADE_LEVELS-1)) {
+			inset.fade_value += FrameTime * FADE_SCALE;
+			if (inset.fade_value >= i2f(GR_FADE_LEVELS - 1))
+			{
 				inset.old_weapon = -1;
 				inset.box_state = weapon_box_state::set;
 			}
@@ -2754,7 +2756,7 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 
 	if (inset.box_state != weapon_box_state::set)		//fade gauge
 	{
-		int fade_value = f2i(weapon_box_fade_values[wt]);
+		int fade_value = f2i(inset_window[wt].fade_value);
 
 		gr_settransblend(canvas, fade_value, gr_blend::normal);
 		auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
