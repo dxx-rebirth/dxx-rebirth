@@ -80,7 +80,7 @@ static void gr_for_each_bitmap_line(grs_canvas &canvas, const unsigned x, const 
 
 static void gr_ubitmap00(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm)
 {
-#if defined(WIN32) && defined(__GNUC__) && (__GNUC__ >= 6 && __GNUC__ <= 9)
+#if defined(WIN32) && defined(__GNUC__) && (__GNUC__ >= 6 && __GNUC__ <= 10)
 /*
  * When using memcpy directly, i686-w64-mingw32-g++-6.3.0 fails to
  * deduce the template instantiation correctly, leading to a compiler
@@ -94,6 +94,7 @@ static void gr_ubitmap00(grs_canvas &canvas, const unsigned x, const unsigned y,
  * Known affected:
  * - i686-w64-mingw32-g++-6.3.0
  * - i686-w64-mingw32-g++-7.3.0
+ * - i686-w64-mingw32-g++-10.2.0
  *
  * Restrict this workaround to known broken versions.
  */
