@@ -357,9 +357,6 @@ static void draw_ammo_info(grs_canvas &, unsigned x, unsigned y, unsigned ammo_c
 #define SB_SECONDARY_W_TEXT_Y		multires_gauge_graphic.get(390, 157)
 #define SB_SECONDARY_AMMO_Y		multires_gauge_graphic.get(414, 171)
 
-#define WS_SET				0		//in correct state
-#define WS_FADING_OUT			1
-#define WS_FADING_IN			2
 #define FADE_SCALE			(2*i2f(GR_FADE_LEVELS)/REARM_TIME)		// fade out and back in REARM_TIME, in fade levels per seconds (int)
 
 #define COCKPIT_PRIMARY_BOX		((multires_gauge_graphic.get(4, 0)))
@@ -371,6 +368,14 @@ static void draw_ammo_info(grs_canvas &, unsigned x, unsigned y, unsigned ammo_c
 #define BASE_WIDTH(G) ((G).get(640, 320))
 #define BASE_HEIGHT(G)	((G).get(480, 200))
 namespace {
+
+enum class weapon_box_state : uint8_t
+{
+	set,		//in correct state
+	fading_out,
+	fading_in,
+};
+static_assert(static_cast<unsigned>(weapon_box_state::set) == 0, "weapon_box_states must start at zero");
 
 #if DXX_USE_OGL
 template <char tag>
@@ -510,7 +515,6 @@ static int score_display;
 static fix score_time;
 static laser_level old_laser_level;
 static int invulnerable_frame;
-static_assert(WS_SET == 0, "weapon_box_states must start at zero");
 int	Color_0_31_0 = -1;
 
 namespace dcx {
@@ -799,7 +803,7 @@ enumerated_array<int, 2, gauge_inset_window_view> old_weapon{
 	{{-1, -1}}
 };
 
-enumerated_array<int, 2, gauge_inset_window_view> weapon_box_states;
+enumerated_array<weapon_box_state, 2, gauge_inset_window_view> weapon_box_states;
 enumerated_array<fix, 2, gauge_inset_window_view> weapon_box_fade_values;
 #if defined(DXX_BUILD_DESCENT_II)
 enumerated_array<int, 2, gauge_inset_window_view> weapon_box_user{
@@ -2698,9 +2702,9 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 
 	const auto laser_level_changed = (wt == gauge_inset_window_view::primary && weapon_num == primary_weapon_index_t::LASER_INDEX && (player_info.laser_level != old_laser_level));
 
-	if ((weapon_num != old_weapon[wt] || laser_level_changed) && weapon_box_states[wt] == WS_SET && (old_weapon[wt] != -1) && PlayerCfg.HudMode == HudType::Standard)
+	if ((weapon_num != old_weapon[wt] || laser_level_changed) && weapon_box_states[wt] == weapon_box_state::set && (old_weapon[wt] != -1) && PlayerCfg.HudMode == HudType::Standard)
 	{
-		weapon_box_states[wt] = WS_FADING_OUT;
+		weapon_box_states[wt] = weapon_box_state::fading_out;
 		weapon_box_fade_values[wt]=i2f(GR_FADE_LEVELS-1);
 	}
 
@@ -2709,28 +2713,30 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 	{
 		draw_weapon_info(hudctx, player_info, weapon_num, player_info.laser_level, wt);
 		old_weapon[wt] = weapon_num;
-		weapon_box_states[wt] = WS_SET;
+		weapon_box_states[wt] = weapon_box_state::set;
 	}
 
-	if (weapon_box_states[wt] == WS_FADING_OUT) {
+	if (weapon_box_states[wt] == weapon_box_state::fading_out)
+	{
 		draw_weapon_info(hudctx, player_info, old_weapon[wt], old_laser_level, wt);
 		weapon_box_fade_values[wt] -= FrameTime * FADE_SCALE;
 		if (weapon_box_fade_values[wt] <= 0) {
-			weapon_box_states[wt] = WS_FADING_IN;
+			weapon_box_states[wt] = weapon_box_state::fading_in;
 			old_weapon[wt] = weapon_num;
 			old_laser_level = player_info.laser_level;
 			weapon_box_fade_values[wt] = 0;
 		}
 	}
-	else if (weapon_box_states[wt] == WS_FADING_IN) {
+	else if (weapon_box_states[wt] == weapon_box_state::fading_in)
+	{
 		if (weapon_num != old_weapon[wt]) {
-			weapon_box_states[wt] = WS_FADING_OUT;
+			weapon_box_states[wt] = weapon_box_state::fading_out;
 		}
 		else {
 			draw_weapon_info(hudctx, player_info, weapon_num, player_info.laser_level, wt);
 			weapon_box_fade_values[wt] += FrameTime * FADE_SCALE;
 			if (weapon_box_fade_values[wt] >= i2f(GR_FADE_LEVELS-1)) {
-				weapon_box_states[wt] = WS_SET;
+				weapon_box_states[wt] = weapon_box_state::set;
 				old_weapon[wt] = -1;
 			}
 		}
@@ -2741,7 +2747,7 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 		old_laser_level = player_info.laser_level;
 	}
 
-	if (weapon_box_states[wt] != WS_SET)		//fade gauge
+	if (weapon_box_states[wt] != weapon_box_state::set)		//fade gauge
 	{
 		int fade_value = f2i(weapon_box_fade_values[wt]);
 
@@ -2813,7 +2819,7 @@ static void draw_weapon_box0(const hud_draw_context_hs_mr hudctx, const player_i
 		const auto Primary_weapon = player_info.Primary_weapon;
 		draw_weapon_box(hudctx, player_info, Primary_weapon, gauge_inset_window_view::primary);
 
-		if (weapon_box_states[gauge_inset_window_view::primary] == WS_SET)
+		if (weapon_box_states[gauge_inset_window_view::primary] == weapon_box_state::set)
 		{
 			unsigned nd_ammo;
 			unsigned ammo_count;
@@ -2851,7 +2857,7 @@ static void draw_weapon_box1(const hud_draw_context_hs_mr hudctx, const player_i
 	{
 		auto &Secondary_weapon = player_info.Secondary_weapon;
 		draw_weapon_box(hudctx, player_info, Secondary_weapon, gauge_inset_window_view::secondary);
-		if (weapon_box_states[gauge_inset_window_view::secondary] == WS_SET)
+		if (weapon_box_states[gauge_inset_window_view::secondary] == weapon_box_state::set)
 		{
 			const auto ammo = player_info.secondary_ammo[Secondary_weapon];
 			if (Newdemo_state == ND_STATE_RECORDING)
