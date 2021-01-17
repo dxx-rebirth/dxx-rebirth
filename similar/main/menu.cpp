@@ -2063,7 +2063,7 @@ struct graphics_config_menu_items
 	{
 		DXX_GRAPHICS_MENU(ADD);
 #if DXX_USE_OGL
-		m[opt_filter_none + CGameCfg.TexFilt].value = 1;
+		m[opt_filter_none + static_cast<unsigned>(CGameCfg.TexFilt)].value = 1;
 #endif
 	}
 };
@@ -2109,10 +2109,10 @@ int graphics_config_menu::subfunction_handler(const d_event &event)
 			if (CGameCfg.VSync != m[opt_gr_vsync].value || CGameCfg.Multisample != m[opt_gr_multisample].value)
 				nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Setting VSync or 4x Multisample\nrequires restart on some systems."});
 
-			for (const uint_fast32_t i : xrange(3u))
+			for (const uint8_t i : xrange(3u))
 				if (m[i + opt_filter_none].value)
 				{
-					CGameCfg.TexFilt = i;
+					CGameCfg.TexFilt = opengl_texture_filter{i};
 					break;
 				}
 			CGameCfg.TexAnisotropy = m[opt_filter_anisotropy].value;

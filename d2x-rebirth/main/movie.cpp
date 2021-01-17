@@ -216,7 +216,7 @@ void MovieShowFrame(const uint8_t *buf, int dstx, int dsty, int bufw, int bufh, 
 	ogl_ubitblt_i(
 		bufw*scale, bufh*scale,
 		dstx, dsty,
-		bufw, bufh, 0, 0, source_bm, grd_curcanv->cv_bitmap, (GameCfg.MovieTexFilt)?OGL_TEXFILT_TRLINEAR:OGL_TEXFILT_CLASSIC);
+		bufw, bufh, 0, 0, source_bm, grd_curcanv->cv_bitmap, (GameCfg.MovieTexFilt) ? opengl_texture_filter::trilinear : opengl_texture_filter::classic);
 
 	glEnable (GL_BLEND);
 #else

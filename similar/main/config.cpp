@@ -43,6 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "physfsx.h"
 #include "nvparse.h"
+#include "ogl_init.h"
 #include <memory>
 
 namespace dcx {
@@ -132,7 +133,7 @@ int ReadConfigFile()
 	GameCfg.AspectX = 3;
 	GameCfg.AspectY = 4;
 	CGameCfg.WindowMode = false;
-	CGameCfg.TexFilt = 0;
+	CGameCfg.TexFilt = opengl_texture_filter::classic;
 	CGameCfg.TexAnisotropy = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	GameCfg.MovieTexFilt = 0;
@@ -212,7 +213,20 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, WindowModeStr))
 			convert_integer(CGameCfg.WindowMode, value);
 		else if (cmp(lb, eq, TexFiltStr))
-			convert_integer(CGameCfg.TexFilt, value);
+		{
+			uint8_t TexFilt;
+			if (convert_integer(TexFilt, value))
+			{
+				switch (TexFilt)
+				{
+					case static_cast<unsigned>(opengl_texture_filter::classic):
+					case static_cast<unsigned>(opengl_texture_filter::upscale):
+					case static_cast<unsigned>(opengl_texture_filter::trilinear):
+						CGameCfg.TexFilt = opengl_texture_filter{TexFilt};
+						break;
+				}
+			}
+		}
 		else if (cmp(lb, eq, TexAnisStr))
 			convert_integer(CGameCfg.TexAnisotropy, value);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -281,7 +295,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, GameCfg.AspectX);
 	PHYSFSX_printf(infile, "%s=%i\n", AspectYStr, GameCfg.AspectY);
 	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, CGameCfg.WindowMode);
-	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, CGameCfg.TexFilt);
+	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, static_cast<unsigned>(CGameCfg.TexFilt));
 	PHYSFSX_printf(infile, "%s=%i\n", TexAnisStr, CGameCfg.TexAnisotropy);
 #if defined(DXX_BUILD_DESCENT_II)
 	PHYSFSX_printf(infile, "%s=%i\n", MovieTexFiltStr, GameCfg.MovieTexFilt);

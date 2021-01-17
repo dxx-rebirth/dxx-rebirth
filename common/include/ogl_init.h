@@ -28,10 +28,6 @@
 #include "ogl_extensions.h"
 #include <array>
 
-#define OGL_TEXFILT_CLASSIC  0
-#define OGL_TEXFILT_UPSCALE  1
-#define OGL_TEXFILT_TRLINEAR 2
-
 #ifdef __cplusplus
 
 /* we need to export ogl_texture for 2d/font.c */
@@ -56,10 +52,20 @@ void ogl_init_shared_palette(void);
 
 namespace dcx {
 
+/* These values are written to a file as integers, so they must not be
+ * renumbered.
+ */
+enum class opengl_texture_filter : uint8_t
+{
+	classic,
+	upscale,
+	trilinear,
+};
+
 #define OGL_FLAG_MIPMAP (1 << 0)
 #define OGL_FLAG_NOCOLOR (1 << 1)
 #define OGL_FLAG_ALPHA (1 << 31) // not required for ogl_loadbmtexture, since it uses the BM_FLAG_TRANSPARENT, but is needed for ogl_init_texture.
-void ogl_loadbmtexture_f(grs_bitmap &bm, int texfilt, bool texanis, bool edgepad);
+void ogl_loadbmtexture_f(grs_bitmap &bm, opengl_texture_filter texfilt, bool texanis, bool edgepad);
 void ogl_freebmtexture(grs_bitmap &bm);
 
 void ogl_start_frame(grs_canvas &);
@@ -91,7 +97,7 @@ private:
 void ogl_urect(grs_canvas &, int left, int top, int right, int bot, color_palette_index color);
 bool ogl_ubitmapm_cs(grs_canvas &, int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scale);
 bool ogl_ubitmapm_cs(grs_canvas &, int x, int y,int dw, int dh, grs_bitmap &bm, const ogl_colors::array_type &c, int scale);
-bool ogl_ubitblt_i(unsigned dw, unsigned dh, unsigned dx, unsigned dy, unsigned sw, unsigned sh, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest, unsigned texfilt);
+bool ogl_ubitblt_i(unsigned dw, unsigned dh, unsigned dx, unsigned dy, unsigned sw, unsigned sh, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest, opengl_texture_filter texfilt);
 bool ogl_ubitblt(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest);
 void ogl_upixelc(const grs_bitmap &, unsigned x, unsigned y, color_palette_index c);
 color_palette_index ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y);

@@ -144,7 +144,7 @@ static int ogl_texture_list_cur;
 /* some function prototypes */
 
 #define GL_TEXTURE0_ARB 0x84C0
-static int ogl_loadtexture(const palette_array_t &, const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, int texfilt, bool texanis, bool edgepad) __attribute_nonnull();
+static int ogl_loadtexture(const palette_array_t &, const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, opengl_texture_filter texfilt, bool texanis, bool edgepad) __attribute_nonnull();
 static void ogl_freetexture(ogl_texture &gltexture);
 
 static void ogl_loadbmtexture(grs_bitmap &bm, bool edgepad)
@@ -1152,7 +1152,7 @@ void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, const fix iwidth,
  * Movies
  * Since this function will create a new texture each call, mipmapping can be very GPU intensive - so it has an optional setting for texture filtering.
  */
-bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw, unsigned sh, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest, unsigned texfilt)
+bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw, unsigned sh, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest, const opengl_texture_filter texfilt)
 {
 	GLfloat xo,yo,xs,ys,u1,v1;
 	GLfloat color_array[] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
@@ -1216,7 +1216,7 @@ bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw,
 }
 
 bool ogl_ubitblt(unsigned w,unsigned h,unsigned dx,unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest){
-	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest,0);
+	return ogl_ubitblt_i(w, h, dx, dy, w, h, sx, sy, src, dest, opengl_texture_filter::classic);
 }
 
 /*
@@ -1530,7 +1530,7 @@ static void tex_set_size(ogl_texture &tex)
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, const int dxo, int dyo, ogl_texture &tex, const int bm_flags, const int data_format, int texfilt, const bool texanis, const bool edgepad)
+static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, const int dxo, int dyo, ogl_texture &tex, const int bm_flags, const int data_format, opengl_texture_filter texfilt, const bool texanis, const bool edgepad)
 {
 	tex.tw = pow2ize (tex.w);
 	tex.th = pow2ize (tex.h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
@@ -1569,7 +1569,7 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 	}
 
 	//bleed color (rgb) into the alpha area, to deal with "dark edges problem"
-	if ((tex.format == GL_RGBA) && texfilt && edgepad && !CGameArg.OglDarkEdges)
+	if (tex.format == GL_RGBA && texfilt != opengl_texture_filter::classic && edgepad && !CGameArg.OglDarkEdges)
 	{
 		GLubyte *p = bufP;
 		GLubyte *pdone = p + (4 * tex.tw * tex.th);
@@ -1654,7 +1654,7 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 	}
 
 	int rescale = 1;
-	if (texfilt == 1)
+	if (texfilt == opengl_texture_filter::upscale)
 	{
 		rescale = 4;
 		if ((tex.tw > 256) || (tex.th > 256))
@@ -1662,7 +1662,7 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 			//don't scale big textures, instead "cheat" and render them as normal (nearest)
 			//these are normally 320x200 and 640x480 images.
 			//this deals with texture size limits, as well as large textures causing noticeable performance issues/hiccups.
-			texfilt = 0;
+			texfilt = opengl_texture_filter::classic;
 			rescale = 1;
 		}
 	}
@@ -1716,7 +1716,7 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 	switch (texfilt)
 	{
 		default:
-		case OGL_TEXFILT_CLASSIC: // Classic - Nearest
+		case opengl_texture_filter::classic: // Classic - Nearest
 			gl_mag_filter_int = GL_NEAREST;
 			if (texanis && ogl_maxanisotropy > 1.0f)
 			{
@@ -1730,8 +1730,8 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 				buildmipmap = false;
 			}
 			break;
-		case OGL_TEXFILT_UPSCALE: // Upscaled - i.e. Blocky Filtered (Bilinear)
-		case OGL_TEXFILT_TRLINEAR: // Smooth - Trilinear
+		case opengl_texture_filter::upscale: // Upscaled - i.e. Blocky Filtered (Bilinear)
+		case opengl_texture_filter::trilinear: // Smooth - Trilinear
 			gl_mag_filter_int = GL_LINEAR;
 			gl_min_filter_int = GL_LINEAR_MIPMAP_LINEAR;
 			buildmipmap = true;
@@ -1770,7 +1770,7 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 	return 0;
 }
 
-void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepad)
+void ogl_loadbmtexture_f(grs_bitmap &rbm, const opengl_texture_filter texfilt, bool texanis, bool edgepad)
 {
 	assert(!rbm.get_flag_mask(BM_FLAG_PAGED_OUT));
 	assert(rbm.bm_data);

@@ -37,6 +37,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+enum class opengl_texture_filter : uint8_t;
+
 // play-order definitions for custom music
 /* These values are written to a file as integers, so they must not be
  * renumbered.
@@ -61,7 +63,7 @@ struct CCfg : prohibit_void_ptr<CCfg>
 	bool VSync;
 	bool Grabinput;
 	bool WindowMode;
-	int TexFilt;
+	opengl_texture_filter TexFilt;
 	bool TexAnisotropy;
 	bool Multisample;
 	bool FPSIndicator;
