@@ -174,7 +174,7 @@ int PlayMovie(const char *subtitles, const char *filename, int must_have)
 	return ret;
 }
 
-static void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh)
+void MovieShowFrame(const uint8_t *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh)
 {
 	grs_bitmap source_bm;
 	static palette_array_t old_pal;
@@ -401,7 +401,6 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 #else
 	gr_set_mode(hires_flag ? screen_mode{640, 480} : screen_mode{320, 200});
 #endif
-	MVE_sfCallbacks(MovieShowFrame);
 
 	if (MVE_rmPrepMovie(wind->pMovie, filehndl.get(), dx, dy, track)) {
 		Int3();
@@ -410,8 +409,6 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 			show_menus();
 		return MOVIE_NOT_PLAYED;
 	}
-
-	MVE_sfCallbacks(MovieShowFrame);
 
 	do {
 		event_process();
@@ -479,7 +476,6 @@ int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 
 	MVE_memCallbacks(MPlayAlloc, MPlayFree);
 	MVE_ioCallbacks(FileRead);
-	MVE_sfCallbacks(MovieShowFrame);
 	MVE_sndInit(-1);        //tell movies to play no sound for robots
 
 	RoboFile = PHYSFSRWOPS_openRead(filename);

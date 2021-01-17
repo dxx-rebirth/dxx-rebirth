@@ -43,11 +43,9 @@ typedef unsigned int (*mve_cb_Read)(void *stream,
 typedef void *(*mve_cb_Alloc)(size_t size);
 typedef void (*mve_cb_Free)(void *ptr);
 
-typedef void (*mve_cb_ShowFrame)(unsigned char *buffer, int dstx, int dsty, int bufw, int bufh, int sw, int sh);
-
 void MVE_ioCallbacks(mve_cb_Read io_read);
 void MVE_memCallbacks(mve_cb_Alloc mem_alloc, mve_cb_Free mem_free);
-void MVE_sfCallbacks(mve_cb_ShowFrame showframe);
+void MovieShowFrame(const uint8_t *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh);
 void MovieSetPalette(const unsigned char *p, unsigned start, unsigned count);
 
 #endif

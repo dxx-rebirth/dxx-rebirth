@@ -53,7 +53,7 @@ static unsigned int fileRead(void *handle, void *buf, unsigned int count)
 	return (numread == count);
 }
 
-static void showFrame(unsigned char *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh)
+void MovieShowFrame(unsigned char *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh)
 {
 	int i;
 	unsigned char *pal;
@@ -164,7 +164,6 @@ static int doPlay(const char *filename)
 	MVE_sndInit(1);
 	MVE_memCallbacks(malloc, free);
 	MVE_ioCallbacks(fileRead);
-	MVE_sfCallbacks(showFrame);
 
 	MVE_rmPrepMovie(mve, -1, -1, 1);
 
