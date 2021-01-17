@@ -185,7 +185,11 @@ static void kmatrix_status_msg(grs_canvas &canvas, const fix time, const kmatrix
 		? "Waiting for players to finish level. Reactor time: T-%d"
 		: (
 			message_mode == kmatrix_status_mode::level_finished
-			? "Level finished. Wait (%d) to proceed or ESC to Quit."
+			? (
+				time > 0
+				? "Level finished.  Wait %d seconds to proceed or press ESC to Quit."
+				: "Level finished.  Focus score screen to proceed."
+			)
 			: "Mission finished.  Press ESC to Quit."
 		)
 	, time);
@@ -421,7 +425,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 					return window_event_result::close;
 			}
 
-			kmatrix_status_msg(*grd_curcanv, playing == kmatrix_status_mode::reactor_countdown_running ? LevelUniqueControlCenterState.Countdown_seconds_left : f2i(timer_query() - end_time), playing);
+			kmatrix_status_msg(*grd_curcanv, playing == kmatrix_status_mode::reactor_countdown_running ? LevelUniqueControlCenterState.Countdown_seconds_left : f2i(end_time - timer_query()), playing);
 			break;
 			}
 			
