@@ -98,7 +98,7 @@ static loaded_movie_t extra_robot_movie_mission;
 static RWops_ptr RoboFile;
 
 // Function Prototypes
-static int RunMovie(const char *filename, const char *subtitles, int highres_flag, int allow_abort,int dx,int dy);
+static movie_play_status RunMovie(const char *filename, const char *subtitles, int highres_flag, int allow_abort,int dx,int dy);
 
 static void draw_subtitles(const d_subtitle_state &, int frame_num);
 
@@ -133,13 +133,12 @@ unsigned int MovieFileRead(void *handle, void *buf, unsigned int count)
 
 //filename will actually get modified to be either low-res or high-res
 //returns status.  see values in movie.h
-int PlayMovie(const char *subtitles, const char *filename, int must_have)
+movie_play_status PlayMovie(const char *subtitles, const char *filename, int must_have)
 {
 	char name[FILENAME_LEN],*p;
-	int ret;
 
 	if (GameArg.SysNoMovies)
-		return MOVIE_NOT_PLAYED;
+		return movie_play_status::skipped;
 
 	strcpy(name,filename);
 
@@ -159,7 +158,7 @@ int PlayMovie(const char *subtitles, const char *filename, int must_have)
 	// Start sound
 	MVE_sndInit(!CGameArg.SndNoSound ? 1 : -1);
 
-	ret = RunMovie(name, subtitles, !GameArg.GfxSkipHiresMovie, must_have, -1, -1);
+	const auto ret = RunMovie(name, subtitles, !GameArg.GfxSkipHiresMovie, must_have, -1, -1);
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
 	if (!CGameArg.SndNoSound
@@ -168,7 +167,6 @@ int PlayMovie(const char *subtitles, const char *filename, int must_have)
 		digi_init();
 
 	Screen_mode = -1;		//force screen reset
-
 	return ret;
 }
 
@@ -371,7 +369,7 @@ window_event_result movie::event_handler(const d_event &event)
 }
 
 //returns status.  see movie.h
-int RunMovie(const char *const filename, const char *const subtitles, const int hires_flag, const int must_have, const int dx, const int dy)
+movie_play_status RunMovie(const char *const filename, const char *const subtitles, const int hires_flag, const int must_have, const int dx, const int dy)
 {
 	int track = 0;
 	int aborted = 0;
@@ -385,12 +383,12 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 	if (!filehndl)
 	{
 		con_printf(must_have ? CON_URGENT : CON_VERBOSE, "Failed to open movie <%s>: %s", filename, PHYSFS_getLastError());
-		return MOVIE_NOT_PLAYED;
+		return movie_play_status::skipped;
 	}
 	MVESTREAM_ptr_t mvestream;
 	if (MVE_rmPrepMovie(mvestream, filehndl.get(), dx, dy, track))
 	{
-		return MOVIE_NOT_PLAYED;
+		return movie_play_status::skipped;
 	}
 	const auto reshow = hide_menus();
 	auto wind = window_create<movie>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, std::move(mvestream));
@@ -424,7 +422,7 @@ int RunMovie(const char *const filename, const char *const subtitles, const int 
 	gr_palette_load(pal_save);
 #endif
 
-	return (aborted?MOVIE_ABORTED:MOVIE_PLAYED_FULL);
+	return aborted ? movie_play_status::aborted : movie_play_status::completed;
 }
 
 }
@@ -476,7 +474,7 @@ int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 	if (!RoboFile)
 	{
 		con_printf(CON_URGENT, "Can't open movie <%s>: %s", filename, PHYSFS_getLastError());
-		return MOVIE_NOT_PLAYED;
+		return 0;
 	}
 	if (MVE_rmPrepMovie(pMovie, RoboFile.get(), SWIDTH/2.3, SHEIGHT/2.3, 0)) {
 		Int3();

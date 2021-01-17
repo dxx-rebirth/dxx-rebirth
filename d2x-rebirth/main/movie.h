@@ -31,9 +31,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MOVIE_ABORT_ON  1
 #define MOVIE_ABORT_OFF 0
 
-#define MOVIE_NOT_PLAYED    0   // movie wasn't present
-#define MOVIE_PLAYED_FULL   1   // movie was played all the way through
-#define MOVIE_ABORTED       2   // movie started by was aborted
+enum class movie_play_status : uint8_t
+{
+	skipped,   // movie wasn't present
+	completed, // movie was played all the way through
+	aborted,   // movie started by was aborted
+};
 
 #if DXX_USE_OGL
 #define MOVIE_WIDTH  (!GameArg.GfxSkipHiresMovie && grd_curscreen->get_screen_width() < 640 ? static_cast<uint16_t>(640) : grd_curscreen->get_screen_width())
@@ -43,8 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MOVIE_HEIGHT static_cast<uint16_t>(!GameArg.GfxSkipHiresMovie? 480 : 200)
 #endif
 
-extern int PlayMovie(const char *subtitles, const char *filename, int allow_abort);
-extern int PlayMovies(int num_files, const char *filename[], int graphmode, int allow_abort);
+movie_play_status PlayMovie(const char *subtitles, const char *filename, int allow_abort);
 int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie);
 int RotateRobot(MVESTREAM_ptr_t &pMovie);
 void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie);

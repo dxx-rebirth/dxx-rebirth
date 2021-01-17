@@ -1656,10 +1656,8 @@ static void DoEndGame()
 	if (PLAYING_BUILTIN_MISSION && !(Game_mode & GM_MULTI))
 	{ //only built-in mission, & not multi
 #if defined(DXX_BUILD_DESCENT_II)
-		int played=MOVIE_NOT_PLAYED;	//default is not played
-
-		played = PlayMovie(ENDMOVIE ".tex", ENDMOVIE ".mve",MOVIE_REQUIRED);
-		if (!played)
+		auto played = PlayMovie(ENDMOVIE ".tex", ENDMOVIE ".mve",MOVIE_REQUIRED);
+		if (played == movie_play_status::skipped)
 #endif
 		{
 			do_end_briefing_screens(Ending_text_filename);

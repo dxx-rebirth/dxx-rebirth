@@ -240,18 +240,15 @@ void show_titles(void)
 	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists(logo_hires_pcx, 1)) ? logo_hires_pcx : "logo.pcx", title_load_location::from_hog_only);
 	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists(descent_hires_pcx, 1)) ? descent_hires_pcx : "descent.pcx", title_load_location::from_hog_only);
 #elif defined(DXX_BUILD_DESCENT_II)
-	int played=MOVIE_NOT_PLAYED;    //default is not played
 	int song_playing = 0;
 
 #define MOVIE_REQUIRED 1	//(!is_D2_OEM && !is_SHAREWARE && !is_MAC_SHARE)	// causes segfault
 
 	const auto hiresmode = HIRESMODE;
 	{       //show bundler screens
-		played=MOVIE_NOT_PLAYED;        //default is not played
-
-		played = PlayMovie(NULL, "pre_i.mve",0);
-
-		if (!played) {
+		const auto played = PlayMovie(NULL, "pre_i.mve",0);
+		if (played == movie_play_status::skipped)
+		{
 			char filename[12];
 			strcpy(filename, hiresmode ? "pre_i1b.pcx" : "pre_i1.pcx");
 
@@ -263,16 +260,16 @@ void show_titles(void)
 		}
 	}
 
-	played = PlayMovie("intro.tex", "intro.mve",MOVIE_REQUIRED);
+	auto played = PlayMovie("intro.tex", "intro.mve",MOVIE_REQUIRED);
 
-	if (played != MOVIE_NOT_PLAYED)
+	if (played != movie_play_status::skipped)
 		intro_played = 1;
 	else
 	{                                               //didn't get intro movie, try titles
 
 		played = PlayMovie(NULL, "titles.mve",MOVIE_REQUIRED);
 
-		if (played == MOVIE_NOT_PLAYED)
+		if (played == movie_play_status::skipped)
 		{
 			con_puts(CON_DEBUG, "Playing title song...");
 			songs_play_song( SONG_TITLE, 1);
@@ -293,7 +290,7 @@ void show_titles(void)
 	}
 
 	{       //show bundler movie or screens
-		played=MOVIE_NOT_PLAYED;        //default is not played
+		auto played = movie_play_status::skipped;        //default is not played
 
 		//check if OEM movie exists, so we don't stop the music if it doesn't
 		if (RAIIPHYSFS_File{PHYSFS_openRead("oem.mve")})
@@ -302,7 +299,7 @@ void show_titles(void)
 			song_playing = 0;               //movie will kill sound
 		}
 
-		if (!played)
+		if (played == movie_play_status::skipped)
 		{
 			char filename[12];
 			strcpy(filename, hiresmode ? "oem1b.pcx" : "oem1.pcx");
