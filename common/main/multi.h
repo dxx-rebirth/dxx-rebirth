@@ -237,7 +237,6 @@ constexpr std::integral_constant<unsigned, 21> MULTI_ALLOW_POWERUP_TEXT_LENGTH{}
 #endif
 
 namespace multi {
-using endlevel_poll_function_type = int(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 struct dispatch_table
 {
 	constexpr const dispatch_table *operator->() const
@@ -270,7 +269,6 @@ enum netflag_flag :
 {
 	for_each_netflag_value(define_netflag_bit_mask)
 };
-enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask) };
 enum {
 	BIT_NETGRANT_LASER = DXX_GRANT_LASER_LEVEL_BITS - 1,
 	for_each_netgrant_value(define_netflag_bit_enum)
@@ -287,7 +285,6 @@ enum netgrant_flag :
 };
 #undef define_netflag_bit_enum
 #undef define_netflag_bit_mask
-#undef define_netflag_powerup_mask
 
 namespace dsx {
 
@@ -788,6 +785,8 @@ namespace dsx {
  */
 struct netgame_info : prohibit_void_ptr<netgame_info>
 {
+	static constexpr std::integral_constant<unsigned, (0 for_each_netflag_value(define_netflag_powerup_mask))> MaskAllKnownAllowedItems{};
+#undef define_netflag_powerup_mask
 	using play_time_allowed_abi_ratio = std::ratio<5 * 60>;
 #if DXX_USE_UDP
 	union

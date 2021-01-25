@@ -3455,7 +3455,7 @@ int netgame_powerups_allowed_menu::subfunction_handler(const d_event &event)
 				for (auto &&[mi, i] : enumerate(m))
 					if (mi.value)
 						AllowedItems |= (1 << i);
-				Netgame.AllowedItems = (Netgame.AllowedItems & ~NETFLAG_DOPOWERUP) | AllowedItems;
+				Netgame.AllowedItems = AllowedItems;
 				break;
 			}
 		default:
@@ -4040,7 +4040,7 @@ window_event_result net_udp_setup_game()
 	Netgame.BrightPlayers = 1;
 	Netgame.InvulAppear = 4;
 	Netgame.SecludedSpawns = MAX_PLAYERS - 1;
-	Netgame.AllowedItems = NETFLAG_DOPOWERUP;
+	Netgame.AllowedItems = Netgame.MaskAllKnownAllowedItems;
 	Netgame.PacketLossPrevention = 1;
 	Netgame.NoFriendlyFire = 0;
 	Netgame.MouselookFlags = 0;
