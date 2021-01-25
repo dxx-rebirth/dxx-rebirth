@@ -65,12 +65,6 @@ namespace dsx {
 extern struct object *Missile_viewer;
 extern object_signature_t Missile_viewer_sig;
 
-#define CV_NONE     0
-#define CV_ESCORT   1
-#define CV_REAR     2
-#define CV_COOP     3
-#define CV_MARKER   4
-
 extern enumerated_array<unsigned, 2, gauge_inset_window_view> Coop_view_player;     // left & right
 extern enumerated_array<game_marker_index, 2, gauge_inset_window_view> Marker_viewer_num;    // left & right
 }

@@ -4245,9 +4245,7 @@ void newdemo_start_playback(const char * filename)
 #if defined(DXX_BUILD_DESCENT_II)
 	init_seismic_disturbances();
 	//turn off 3d views on cockpit
-	PlayerCfg.Cockpit3DView = {{{
-		CV_NONE, CV_NONE
-	}}};
+	PlayerCfg.Cockpit3DView = {};
 	DemoDoLeft = DemoDoRight = 0;
 	nd_playback_v_guided = 0;
 #endif

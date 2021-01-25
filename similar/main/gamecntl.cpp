@@ -660,30 +660,30 @@ static int select_next_window_function(const gauge_inset_window_view w)
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	switch (PlayerCfg.Cockpit3DView[w]) {
-		case CV_NONE:
-			PlayerCfg.Cockpit3DView[w] = CV_REAR;
+		case cockpit_3d_view::None:
+			PlayerCfg.Cockpit3DView[w] = cockpit_3d_view::Rear;
 			break;
-		case CV_REAR:
+		case cockpit_3d_view::Rear:
 			if (find_escort(vmobjptridx, Robot_info) != object_none)
 			{
-				PlayerCfg.Cockpit3DView[w] = CV_ESCORT;
+				PlayerCfg.Cockpit3DView[w] = cockpit_3d_view::Escort;
 				break;
 			}
 			//if no ecort, fall through
 			DXX_BOOST_FALLTHROUGH;
-		case CV_ESCORT:
+		case cockpit_3d_view::Escort:
 			Coop_view_player[w] = UINT_MAX;		//force first player
 			DXX_BOOST_FALLTHROUGH;
-		case CV_COOP:
+		case cockpit_3d_view::Coop:
 			Marker_viewer_num[w] = game_marker_index::None;
 			if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) {
-				PlayerCfg.Cockpit3DView[w] = CV_COOP;
+				PlayerCfg.Cockpit3DView[w] = cockpit_3d_view::Coop;
 				for (;;)
 				{
 					const auto cvp = ++ Coop_view_player[w];
 					if (cvp == MAX_PLAYERS - 1)
 					{
-						PlayerCfg.Cockpit3DView[w] = CV_MARKER;
+						PlayerCfg.Cockpit3DView[w] = cockpit_3d_view::Marker;
 						goto case_marker;
 					}
 					if (cvp == Player_num)
@@ -700,10 +700,10 @@ static int select_next_window_function(const gauge_inset_window_view w)
 			}
 			//if not multi,
 			DXX_BOOST_FALLTHROUGH;
-		case CV_MARKER:
+		case cockpit_3d_view::Marker:
 		case_marker:;
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view) {	//anarchy only
-				PlayerCfg.Cockpit3DView[w] = CV_MARKER;
+				PlayerCfg.Cockpit3DView[w] = cockpit_3d_view::Marker;
 				auto &mvn = Marker_viewer_num[w];
 				const auto gmi0 = convert_player_marker_index_to_game_marker_index(Game_mode, Netgame.max_numplayers, Player_num, player_marker_index::_0);
 				if (!MarkerState.imobjidx.valid_index(mvn))
@@ -712,11 +712,11 @@ static int select_next_window_function(const gauge_inset_window_view w)
 				{
 					++ mvn;
 					if (!MarkerState.imobjidx.valid_index(mvn))
-						PlayerCfg.Cockpit3DView[w] = CV_NONE;
+						PlayerCfg.Cockpit3DView[w] = cockpit_3d_view::None;
 				}
 			}
 			else
-				PlayerCfg.Cockpit3DView[w] = CV_NONE;
+				PlayerCfg.Cockpit3DView[w] = cockpit_3d_view::None;
 			break;
 	}
 	write_player_file();

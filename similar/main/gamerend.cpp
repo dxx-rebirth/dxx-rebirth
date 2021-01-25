@@ -698,11 +698,11 @@ static void show_one_extra_view(const gauge_inset_window_view w)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 		//show special views if selected
 		switch (PlayerCfg.Cockpit3DView[w]) {
-			case CV_NONE:
+			case cockpit_3d_view::None:
 				RenderingType=255;
 				do_cockpit_window_view(w, weapon_box_user::weapon);
 				break;
-			case CV_REAR:
+			case cockpit_3d_view::Rear:
 				RenderingType = 3 + (static_cast<unsigned>(w) << 4);
 				{
 					int rear_view_flag;
@@ -720,11 +720,11 @@ static void show_one_extra_view(const gauge_inset_window_view w)
 					do_cockpit_window_view(w, *ConsoleObject, rear_view_flag, weapon_box_user::rear, label);
 				}
 			 	break;
-			case CV_ESCORT: {
+			case cockpit_3d_view::Escort: {
 				const auto &&buddy = find_escort(vmobjptridx, Robot_info);
 				if (buddy == object_none) {
 					do_cockpit_window_view(w, weapon_box_user::weapon);
-					PlayerCfg.Cockpit3DView[w] = CV_NONE;
+					PlayerCfg.Cockpit3DView[w] = cockpit_3d_view::None;
 				}
 				else {
 					RenderingType = 4 + (static_cast<unsigned>(w) << 4);
@@ -732,7 +732,7 @@ static void show_one_extra_view(const gauge_inset_window_view w)
 				}
 				break;
 			}
-			case CV_COOP: {
+			case cockpit_3d_view::Coop: {
 				const auto player = Coop_view_player[w];
 
 	         RenderingType=255; // don't handle coop stuff			
@@ -744,23 +744,23 @@ static void show_one_extra_view(const gauge_inset_window_view w)
 				}
 				else {
 					do_cockpit_window_view(w, weapon_box_user::weapon);
-					PlayerCfg.Cockpit3DView[w] = CV_NONE;
+					PlayerCfg.Cockpit3DView[w] = cockpit_3d_view::None;
 				}
 				break;
 			}
-			case CV_MARKER: {
+			case cockpit_3d_view::Marker: {
 				char label[10];
 				RenderingType = 5 + (static_cast<unsigned>(w) << 4);
 				const auto mvn = Marker_viewer_num[w];
 				if (!MarkerState.imobjidx.valid_index(mvn))
 				{
-					PlayerCfg.Cockpit3DView[w] = CV_NONE;
+					PlayerCfg.Cockpit3DView[w] = cockpit_3d_view::None;
 					break;
 				}
 				const auto mo = MarkerState.imobjidx[mvn];
 				if (mo == object_none)
 				{
-					PlayerCfg.Cockpit3DView[w] = CV_NONE;
+					PlayerCfg.Cockpit3DView[w] = cockpit_3d_view::None;
 					break;
 				}
 				const auto displayed_marker_id = static_cast<unsigned>(mvn) + 1;
