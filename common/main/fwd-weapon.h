@@ -169,7 +169,7 @@ public:
 namespace dsx {
 
 struct player_info;
-void do_primary_weapon_select(player_info &, uint_fast32_t weapon_num);
+void do_primary_weapon_select(player_info &, primary_weapon_index_t weapon_num);
 void do_secondary_weapon_select(player_info &, secondary_weapon_index_t weapon_num);
 void auto_select_primary_weapon(player_info &);
 void auto_select_secondary_weapon(player_info &);

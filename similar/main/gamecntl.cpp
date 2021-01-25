@@ -334,7 +334,7 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 		if (select_weapon > 4)
 			do_secondary_weapon_select(player_info, static_cast<secondary_weapon_index_t>(select_weapon - 5));
 		else
-			do_primary_weapon_select(player_info, weapon_num);
+			do_primary_weapon_select(player_info, static_cast<primary_weapon_index_t>(weapon_num));
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	if (auto &headlight = Controls.state.headlight)

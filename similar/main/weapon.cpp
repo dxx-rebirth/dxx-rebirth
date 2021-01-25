@@ -86,6 +86,47 @@ const std::array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weap
 
 //for each Secondary weapon, which gun it fires out of
 const std::array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{4,4,7,7,7,4,4,7,4,7}};
+
+namespace {
+
+/*
+ * On entry:
+ * - base_weapon must be the non-super version of a weapon.
+ */
+template <typename T>
+static T get_super_weapon_from_base_weapon(const T base_weapon)
+{
+	return static_cast<T>(static_cast<unsigned>(base_weapon) + SUPER_WEAPON);
+}
+
+/*
+ * On entry:
+ * - current_weapon may be any valid weapon index, whether regular or
+ *   super.
+ * - base_weapon must be the non-super version of current_weapon.  If
+ *   current_weapon is the regular version, then base_weapon ==
+ *   current_weapon.  If current_weapon is the super version, then
+ *   base_weapon + SUPER_WEAPON == current_weapon.
+ */
+template <typename T>
+static T get_alternate_weapon(const T current_weapon, const T base_weapon)
+{
+	const auto b = static_cast<unsigned>(base_weapon);
+	const auto c = static_cast<unsigned>(current_weapon);
+	const auto s = static_cast<unsigned>(get_super_weapon_from_base_weapon(base_weapon));
+	/* If current_weapon == base_weapon, then this expression simplifies
+	 * to (base_weapon + SUPER_WEAPON) and produces the super form of
+	 * base_weapon.
+	 *
+	 * If current_weapon == base_weapon+SUPER_WEAPON, then this
+	 * expression simplifies to (base_weapon), and produces the
+	 * non-super form of base_weapon.
+	 */
+	return static_cast<T>(b + s - c);
+}
+
+}
+
 }
 #endif
 
@@ -672,7 +713,7 @@ static bool reject_unusable_secondary_weapon_select(const player_info &player_in
 
 //	------------------------------------------------------------------------------------
 //	Select a weapon, primary or secondary.
-void do_primary_weapon_select(player_info &player_info, uint_fast32_t weapon_num)
+void do_primary_weapon_select(player_info &player_info, primary_weapon_index_t weapon_num)
 {
 #if defined(DXX_BUILD_DESCENT_I)
         //added on 10/9/98 by Victor Rachels to add laser cycle
@@ -692,10 +733,8 @@ void do_primary_weapon_select(player_info &player_info, uint_fast32_t weapon_num
 	const auto has_flag = weapon_status.has_weapon_flag;
 
 	if (current == weapon_num || current == weapon_num+SUPER_WEAPON) {
-
 		//already have this selected, so toggle to other of normal/super version
-
-		weapon_num += weapon_num+SUPER_WEAPON - current;
+		weapon_num = get_alternate_weapon(current, weapon_num);
 		weapon_status = player_has_primary_weapon(player_info, weapon_num);
 	}
 	else {
@@ -704,17 +743,17 @@ void do_primary_weapon_select(player_info &player_info, uint_fast32_t weapon_num
 		//go to last-select version of requested missile
 
 		if (last_was_super)
-			weapon_num += SUPER_WEAPON;
+			weapon_num = get_super_weapon_from_base_weapon(weapon_num);
 
 		weapon_status = player_has_primary_weapon(player_info, weapon_num);
 
 		//if don't have last-selected, try other version
 
 		if ((weapon_status.flags() & has_flag) != has_flag) {
-			weapon_num = 2*weapon_num_save+SUPER_WEAPON - weapon_num;
+			weapon_num = get_alternate_weapon(weapon_num, weapon_num_save);
 			weapon_status = player_has_primary_weapon(player_info, weapon_num);
 			if ((weapon_status.flags() & has_flag) != has_flag)
-				weapon_num = 2*weapon_num_save+SUPER_WEAPON - weapon_num;
+				weapon_num = get_alternate_weapon(weapon_num, weapon_num_save);
 		}
 	}
 
@@ -755,10 +794,8 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 	const auto has_flag = weapon_status.has_weapon_flag | weapon_status.has_ammo_flag;
 
 	if (current == weapon_num || current == weapon_num+SUPER_WEAPON) {
-
 		//already have this selected, so toggle to other of normal/super version
-
-		weapon_num = static_cast<secondary_weapon_index_t>((static_cast<unsigned>(weapon_num) * 2) + SUPER_WEAPON - current);
+		weapon_num = get_alternate_weapon(current, weapon_num);
 		weapon_status = player_has_secondary_weapon(player_info, weapon_num);
 	}
 	else {
@@ -767,17 +804,17 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 		//go to last-select version of requested missile
 
 		if (last_was_super)
-			weapon_num = static_cast<secondary_weapon_index_t>(static_cast<unsigned>(weapon_num) + SUPER_WEAPON);
+			weapon_num = get_super_weapon_from_base_weapon(weapon_num);
 
 		weapon_status = player_has_secondary_weapon(player_info, weapon_num);
 
 		//if don't have last-selected, try other version
 
 		if ((weapon_status.flags() & has_flag) != has_flag) {
-			weapon_num = static_cast<secondary_weapon_index_t>((static_cast<unsigned>(weapon_num_save) * 2) + SUPER_WEAPON - static_cast<unsigned>(weapon_num));
+			weapon_num = get_alternate_weapon(weapon_num, weapon_num_save);
 			weapon_status = player_has_secondary_weapon(player_info, weapon_num);
 			if ((weapon_status.flags() & has_flag) != has_flag)
-				weapon_num = static_cast<secondary_weapon_index_t>((static_cast<unsigned>(weapon_num_save) * 2) + SUPER_WEAPON - static_cast<unsigned>(weapon_num));
+				weapon_num = get_alternate_weapon(weapon_num, weapon_num_save);
 		}
 	}
 
