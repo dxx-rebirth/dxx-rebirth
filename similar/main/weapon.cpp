@@ -64,8 +64,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //	Convert primary weapons to indices in Weapon_info array.
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
-const std::array<weapon_id_type, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{
-	weapon_id_type::LASER_ID, weapon_id_type::VULCAN_ID, weapon_id_type::CHEAP_SPREADFIRE_ID, weapon_id_type::PLASMA_ID, weapon_id_type::FUSION_ID
+const enumerated_array<weapon_id_type, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_weapon_info{{
+	{
+		weapon_id_type::LASER_ID,
+		weapon_id_type::VULCAN_ID,
+		weapon_id_type::CHEAP_SPREADFIRE_ID,
+		weapon_id_type::PLASMA_ID,
+		weapon_id_type::FUSION_ID
+	}
 }};
 const std::array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info{{weapon_id_type::CONCUSSION_ID, weapon_id_type::HOMING_ID, weapon_id_type::PROXIMITY_ID, weapon_id_type::SMART_ID, weapon_id_type::MEGA_ID}};
 
@@ -74,10 +80,21 @@ const std::array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{4,4,
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 #include "fvi.h"
+
 namespace dsx {
-const std::array<weapon_id_type, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{
-	weapon_id_type::LASER_ID, weapon_id_type::VULCAN_ID, weapon_id_type::SPREADFIRE_ID, weapon_id_type::PLASMA_ID, weapon_id_type::FUSION_ID,
-	weapon_id_type::SUPER_LASER_ID, weapon_id_type::GAUSS_ID, weapon_id_type::HELIX_ID, weapon_id_type::PHOENIX_ID, weapon_id_type::OMEGA_ID
+const enumerated_array<weapon_id_type, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_weapon_info{{
+	{
+		weapon_id_type::LASER_ID,
+		weapon_id_type::VULCAN_ID,
+		weapon_id_type::SPREADFIRE_ID,
+		weapon_id_type::PLASMA_ID,
+		weapon_id_type::FUSION_ID,
+		weapon_id_type::SUPER_LASER_ID,
+		weapon_id_type::GAUSS_ID,
+		weapon_id_type::HELIX_ID,
+		weapon_id_type::PHOENIX_ID,
+		weapon_id_type::OMEGA_ID
+	}
 }};
 const std::array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info{{
 	weapon_id_type::CONCUSSION_ID, weapon_id_type::HOMING_ID, weapon_id_type::PROXIMITY_ID, weapon_id_type::SMART_ID, weapon_id_type::MEGA_ID,
@@ -301,7 +318,7 @@ static unsigned get_mapped_weapon_index(const player_info &player_info, const pr
 //		HAS_AMMO_FLAG
 // See weapon.h for bit values
 namespace dsx {
-has_weapon_result player_has_primary_weapon(const player_info &player_info, int weapon_num)
+has_weapon_result player_has_primary_weapon(const player_info &player_info, primary_weapon_index_t weapon_num)
 {
 	int	return_value = 0;
 
@@ -686,7 +703,7 @@ static bool reject_shareware_weapon_select(const uint_fast32_t weapon_num, const
 	return false;
 }
 
-static bool reject_unusable_primary_weapon_select(const player_info &player_info, const uint_fast32_t weapon_num, const char *const weapon_name)
+static bool reject_unusable_primary_weapon_select(const player_info &player_info, const primary_weapon_index_t weapon_num, const char *const weapon_name)
 {
 	const auto weapon_status = player_has_primary_weapon(player_info, weapon_num);
 	const char *prefix;

@@ -92,7 +92,7 @@ constexpr std::integral_constant<unsigned, 10> MAX_SECONDARY_WEAPONS{};
 enum primary_weapon_index_t : uint8_t;
 enum secondary_weapon_index_t : uint8_t;
 
-extern const std::array<weapon_id_type, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info;
+extern const enumerated_array<weapon_id_type, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_weapon_info;
 //for each primary weapon, what kind of powerup gives weapon
 extern const enumerated_array<powerup_type_t, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_powerup;
 extern const std::array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info;
@@ -190,7 +190,7 @@ class has_weapon_result;
 //      HAS_AMMO_FLAG
 #ifdef dsx
 namespace dsx {
-has_weapon_result player_has_primary_weapon(const player_info &, int weapon_num);
+has_weapon_result player_has_primary_weapon(const player_info &, primary_weapon_index_t weapon_num);
 has_weapon_result player_has_secondary_weapon(const player_info &, secondary_weapon_index_t weapon_num);
 
 //called when one of these weapons is picked up

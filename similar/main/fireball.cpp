@@ -755,7 +755,12 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
 	auto &vmobjptr = Objects.vmptr;
-	int	weapon_index=-1;
+	/* This function has no special handling to remap laser weapons, so
+	 * borrow LASER_INDEX as a flag value to indicate that the powerup
+	 * ID was not recognized.
+	 */
+	constexpr primary_weapon_index_t unset_weapon_index = primary_weapon_index_t::LASER_INDEX;
+	primary_weapon_index_t weapon_index = unset_weapon_index;
 
 	if (del_obj.contains_type != OBJ_POWERUP)
 		return;
@@ -800,7 +805,8 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 	if ((weapon_index_uses_vulcan_ammo(weapon_index) || del_obj.contains_id == POW_VULCAN_AMMO) &&
 		player_info.vulcan_ammo >= VULCAN_AMMO_MAX)
 		del_obj.contains_count = 0;
-	else if (weapon_index != -1) {
+	else if (weapon_index != unset_weapon_index)
+	{
 		if (player_has_primary_weapon(player_info, weapon_index).has_weapon() || weapon_nearby(vcobjptridx, vcsegptr, del_obj, static_cast<powerup_type_t>(del_obj.contains_id)) != nullptr)
 		{
 			if (d_rand() > 16384) {
