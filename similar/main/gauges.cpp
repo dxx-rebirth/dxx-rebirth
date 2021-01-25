@@ -2642,7 +2642,7 @@ static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const 
 	}
 }
 
-static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const unsigned weapon_num)
+static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const secondary_weapon_index_t weapon_num)
 {
 	int x,y;
 	int info_index;

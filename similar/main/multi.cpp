@@ -1527,12 +1527,11 @@ namespace {
 
 static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, const uint8_t *const buf)
 {
-	ubyte weapon;
 	sbyte flags;
 	vms_vector shot_orientation;
 
 	// Act out the actual shooting
-	weapon = static_cast<int>(buf[2]);
+	const uint8_t untrusted_raw_weapon = buf[2];
 
 	flags = buf[4];
 	icobjidx_t Network_laser_track = object_none;
@@ -1552,16 +1551,16 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 	if (obj->type == OBJ_GHOST)
 		multi_make_ghost_player(pnum);
 
-	if (weapon == FLARE_ADJUST)
+	if (untrusted_raw_weapon == FLARE_ADJUST)
 		Laser_player_fire(obj, weapon_id_type::FLARE_ID, 6, 1, shot_orientation, object_none);
-	else
-	if (weapon >= MISSILE_ADJUST) {
-		int weapon_gun,remote_objnum;
-		const auto weapon_id = Secondary_weapon_to_weapon_info[weapon-MISSILE_ADJUST];
-		weapon_gun = Secondary_weapon_to_gun_num[weapon-MISSILE_ADJUST] + (flags & 1);
+	else if (const uint8_t untrusted_missile_adjusted_weapon = untrusted_raw_weapon - MISSILE_ADJUST; untrusted_missile_adjusted_weapon < MAX_SECONDARY_WEAPONS)
+	{
+		const auto weapon = secondary_weapon_index_t{untrusted_missile_adjusted_weapon};
+		const auto weapon_id = Secondary_weapon_to_weapon_info[weapon];
+		const auto weapon_gun = Secondary_weapon_to_gun_num[weapon] + (flags & 1);
 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (weapon-MISSILE_ADJUST==GUIDED_INDEX)
+		if (weapon == secondary_weapon_index_t::GUIDED_INDEX)
 		{
 			Multi_is_guided=1;
 		}
@@ -1570,15 +1569,18 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 		const auto &&objnum = Laser_player_fire(obj, weapon_id, weapon_gun, 1, shot_orientation, Network_laser_track);
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
-			remote_objnum = GET_INTEL_SHORT(buf + 18);
+			const auto remote_objnum = GET_INTEL_SHORT(buf + 18);
 			map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 		}
 	}
-	else {
+	else if (const uint8_t untrusted_weapon = untrusted_raw_weapon; untrusted_weapon < MAX_PRIMARY_WEAPONS)
+	{
+		const auto weapon = primary_weapon_index_t{untrusted_weapon};
 		if (weapon == primary_weapon_index_t::FUSION_INDEX) {
 			obj->ctype.player_info.Fusion_charge = flags << 12;
 		}
-		if (weapon == weapon_id_type::LASER_ID) {
+		if (weapon == primary_weapon_index_t::LASER_INDEX)
+		{
 			auto &powerup_flags = obj->ctype.player_info.powerup_flags;
 			if (flags & LASER_QUAD)
 				powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;

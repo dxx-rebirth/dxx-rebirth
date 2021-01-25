@@ -73,7 +73,15 @@ const enumerated_array<weapon_id_type, MAX_PRIMARY_WEAPONS, primary_weapon_index
 		weapon_id_type::FUSION_ID
 	}
 }};
-const std::array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info{{weapon_id_type::CONCUSSION_ID, weapon_id_type::HOMING_ID, weapon_id_type::PROXIMITY_ID, weapon_id_type::SMART_ID, weapon_id_type::MEGA_ID}};
+const enumerated_array<weapon_id_type, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_weapon_info{{
+	{
+		weapon_id_type::CONCUSSION_ID,
+		weapon_id_type::HOMING_ID,
+		weapon_id_type::PROXIMITY_ID,
+		weapon_id_type::SMART_ID,
+		weapon_id_type::MEGA_ID
+	}
+}};
 
 //for each Secondary weapon, which gun it fires out of
 const std::array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{4,4,7,7,7}};
@@ -96,9 +104,19 @@ const enumerated_array<weapon_id_type, MAX_PRIMARY_WEAPONS, primary_weapon_index
 		weapon_id_type::OMEGA_ID
 	}
 }};
-const std::array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info{{
-	weapon_id_type::CONCUSSION_ID, weapon_id_type::HOMING_ID, weapon_id_type::PROXIMITY_ID, weapon_id_type::SMART_ID, weapon_id_type::MEGA_ID,
-	weapon_id_type::FLASH_ID, weapon_id_type::GUIDEDMISS_ID, weapon_id_type::SUPERPROX_ID, weapon_id_type::MERCURY_ID, weapon_id_type::EARTHSHAKER_ID
+const enumerated_array<weapon_id_type, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_weapon_info{{
+	{
+		weapon_id_type::CONCUSSION_ID,
+		weapon_id_type::HOMING_ID,
+		weapon_id_type::PROXIMITY_ID,
+		weapon_id_type::SMART_ID,
+		weapon_id_type::MEGA_ID,
+		weapon_id_type::FLASH_ID,
+		weapon_id_type::GUIDEDMISS_ID,
+		weapon_id_type::SUPERPROX_ID,
+		weapon_id_type::MERCURY_ID,
+		weapon_id_type::EARTHSHAKER_ID
+	}
 }};
 
 //for each Secondary weapon, which gun it fires out of
