@@ -128,8 +128,8 @@ int ReadConfigFile()
 	CGameCfg.GammaLevel = 0;
 	GameCfg.LastPlayer = {};
 	CGameCfg.LastMission = "";
-	GameCfg.ResolutionX = 1024;
-	GameCfg.ResolutionY = 768;
+	CGameCfg.ResolutionX = 1024;
+	CGameCfg.ResolutionY = 768;
 	GameCfg.AspectX = 3;
 	GameCfg.AspectY = 4;
 	CGameCfg.WindowMode = false;
@@ -203,9 +203,9 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, LastMissionStr))
 			convert_string(CGameCfg.LastMission, value, eol);
 		else if (cmp(lb, eq, ResolutionXStr))
-			convert_integer(GameCfg.ResolutionX, value);
+			convert_integer(CGameCfg.ResolutionX, value);
 		else if (cmp(lb, eq, ResolutionYStr))
-			convert_integer(GameCfg.ResolutionY, value);
+			convert_integer(CGameCfg.ResolutionY, value);
 		else if (cmp(lb, eq, AspectXStr))
 			convert_integer(GameCfg.AspectX, value);
 		else if (cmp(lb, eq, AspectYStr))
@@ -255,10 +255,10 @@ int ReadConfigFile()
 	if ( GameCfg.DigiVolume > 8 ) GameCfg.DigiVolume = 8;
 	if ( GameCfg.MusicVolume > 8 ) GameCfg.MusicVolume = 8;
 
-	if (GameCfg.ResolutionX >= 320 && GameCfg.ResolutionY >= 200)
+	if (CGameCfg.ResolutionX >= 320 && CGameCfg.ResolutionY >= 200)
 	{
-		Game_screen_mode.width = GameCfg.ResolutionX;
-		Game_screen_mode.height = GameCfg.ResolutionY;
+		Game_screen_mode.width = CGameCfg.ResolutionX;
+		Game_screen_mode.height = CGameCfg.ResolutionY;
 	}
 
 	return 0;

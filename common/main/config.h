@@ -52,6 +52,8 @@ enum class LevelMusicPlayOrder : uint8_t
 
 struct CCfg : prohibit_void_ptr<CCfg>
 {
+	uint16_t ResolutionX;
+	uint16_t ResolutionY;
 #if DXX_USE_ADLMIDI
 	int ADLMIDI_num_chips = 6;
 	/* See common/include/adlmidi_dynamic.h for the symbolic name and for other
@@ -83,8 +85,6 @@ namespace dsx {
 struct Cfg : prohibit_void_ptr<Cfg>
 {
 	int MusicType;
-	int ResolutionX;
-	int ResolutionY;
 	int AspectX;
 	int AspectY;
 	uint8_t DigiVolume;
