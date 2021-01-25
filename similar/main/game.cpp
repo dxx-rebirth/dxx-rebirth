@@ -187,7 +187,9 @@ void reset_palette_add()
 	PaletteBlueAdd		= 0;
 }
 
-screen_mode Game_screen_mode{640, 480};
+constexpr screen_mode initial_small_game_screen_mode{320, 200};
+constexpr screen_mode initial_large_game_screen_mode{1024, 768};
+screen_mode Game_screen_mode = initial_large_game_screen_mode;
 
 }
 
@@ -211,7 +213,7 @@ void init_cockpit()
 #if defined(DXX_BUILD_DESCENT_II)
 		int HiresGFXAvailable = !GameArg.GfxSkipHiresGFX;
 #endif
-		auto full_screen_mode = HiresGFXAvailable ? screen_mode{640, 480} : screen_mode{320, 200};
+		auto full_screen_mode = HiresGFXAvailable ? initial_large_game_screen_mode : initial_small_game_screen_mode;
 		if (Game_screen_mode != full_screen_mode) {
 			PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
 		}

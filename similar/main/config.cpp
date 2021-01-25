@@ -128,8 +128,8 @@ int ReadConfigFile()
 	CGameCfg.GammaLevel = 0;
 	GameCfg.LastPlayer = {};
 	CGameCfg.LastMission = "";
-	GameCfg.ResolutionX = 640;
-	GameCfg.ResolutionY = 480;
+	GameCfg.ResolutionX = 1024;
+	GameCfg.ResolutionY = 768;
 	GameCfg.AspectX = 3;
 	GameCfg.AspectY = 4;
 	CGameCfg.WindowMode = false;
