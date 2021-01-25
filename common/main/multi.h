@@ -257,18 +257,34 @@ struct dispatch_table
 }
 
 #define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
-#define define_netflag_bit_mask(NAME,STR)	static constexpr auto NAME = std::integral_constant<unsigned, (1 << BIT_##NAME)>{};
+#define define_netflag_bit_mask(NAME,STR)	NAME = (1 << BIT_##NAME),
 #define define_netflag_powerup_mask(NAME,STR)	| (NAME)
 enum { for_each_netflag_value(define_netflag_bit_enum) };
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
-for_each_netflag_value(define_netflag_bit_mask);
+enum netflag_flag :
+#if defined(DXX_BUILD_DESCENT_I)
+	uint16_t
+#elif defined(DXX_BUILD_DESCENT_II)
+	uint32_t
+#endif
+{
+	for_each_netflag_value(define_netflag_bit_mask)
+};
 enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask) };
 enum {
 	BIT_NETGRANT_LASER = DXX_GRANT_LASER_LEVEL_BITS - 1,
 	for_each_netgrant_value(define_netflag_bit_enum)
 	BIT_NETGRANT_MAXIMUM
 };
-for_each_netgrant_value(define_netflag_bit_mask);
+enum netgrant_flag :
+#if defined(DXX_BUILD_DESCENT_I)
+	uint8_t
+#elif defined(DXX_BUILD_DESCENT_II)
+	uint16_t
+#endif
+{
+	for_each_netgrant_value(define_netflag_bit_mask)
+};
 #undef define_netflag_bit_enum
 #undef define_netflag_bit_mask
 #undef define_netflag_powerup_mask
