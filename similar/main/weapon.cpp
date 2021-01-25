@@ -166,10 +166,13 @@ static T get_alternate_weapon(const T current_weapon, const T base_weapon)
 #endif
 
 namespace dsx {
-const std::array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_ammo_max{{20, 10, 10, 5, 5,
+const enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_ammo_max{{
+	{
+		20, 10, 10, 5, 5,
 #if defined(DXX_BUILD_DESCENT_II)
-	20, 20, 15, 10, 10
+		20, 20, 15, 10, 10
 #endif
+	}
 }};
 
 //for each primary weapon, what kind of powerup gives weapon
@@ -961,7 +964,7 @@ static void maybe_autoselect_primary_weapon(player_info &player_info, int weapon
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
 //	Returns true if powerup picked up, else returns false.
-int pick_up_secondary(player_info &player_info, int weapon_index, int count, const control_info &Controls)
+int pick_up_secondary(player_info &player_info, secondary_weapon_index_t weapon_index, int count, const control_info &Controls)
 {
 	int	num_picked_up;
 	const auto max = PLAYER_MAX_AMMO(player_info.powerup_flags, Secondary_ammo_max[weapon_index]);
@@ -996,7 +999,7 @@ int pick_up_secondary(player_info &player_info, int weapon_index, int count, con
 			if (PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Delayed)
 			{
 				if (want_switch())
-					Secondary_weapon.set_delayed(static_cast<secondary_weapon_index_t>(weapon_index));
+					Secondary_weapon.set_delayed(weapon_index);
 			}
 		}
 		else if (want_switch())

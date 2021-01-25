@@ -1629,7 +1629,7 @@ static window_event_result FinalCheats()
 
 		player_info.vulcan_ammo = VULCAN_AMMO_MAX;
 		auto &secondary_ammo = player_info.secondary_ammo;
-		range_for (const unsigned i, xrange(3u))
+		for (const auto i : {secondary_weapon_index_t::CONCUSSION_INDEX, secondary_weapon_index_t::HOMING_INDEX, secondary_weapon_index_t::PROXIMITY_INDEX})
 			secondary_ammo[i] = Secondary_ammo_max[i];
 
 		if (Newdemo_state == ND_STATE_RECORDING)

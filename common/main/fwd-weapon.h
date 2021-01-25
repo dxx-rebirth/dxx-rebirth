@@ -98,7 +98,7 @@ extern const enumerated_array<powerup_type_t, MAX_PRIMARY_WEAPONS, primary_weapo
 extern const enumerated_array<weapon_id_type, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_weapon_info;
 //for each Secondary weapon, what kind of powerup gives weapon
 extern const enumerated_array<powerup_type_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_powerup;
-extern const std::array<uint8_t, MAX_SECONDARY_WEAPONS>    Secondary_ammo_max;
+extern const enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t>    Secondary_ammo_max;
 /*
  * reads n weapon_info structs from a PHYSFS_File
  */
@@ -196,7 +196,7 @@ has_weapon_result player_has_secondary_weapon(const player_info &, secondary_wea
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
 int pick_up_primary(player_info &, int weapon_index);
-int pick_up_secondary(player_info &, int weapon_index, int count, const control_info &Controls);
+int pick_up_secondary(player_info &, secondary_weapon_index_t weapon_index, int count, const control_info &Controls);
 
 //called when a primary weapon is picked up
 //returns true if actually picked up
