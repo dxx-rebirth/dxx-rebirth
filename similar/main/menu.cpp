@@ -1024,7 +1024,7 @@ window_event_result do_new_game_menu()
 			struct select_start_level_menu : passive_newmenu
 			{
 				select_start_level_menu(items_type &i) :
-					passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_SELECT_START_LEV}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(i.m, 1), *grd_curcanv)
+					passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_SELECT_START_LEV}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(i.m, 1), grd_curscreen->sc_canvas)
 				{
 				}
 			};
