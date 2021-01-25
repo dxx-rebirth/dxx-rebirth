@@ -282,7 +282,7 @@ constexpr std::array<uint8_t, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder={
 //flags whether the last time we use this weapon, it was the 'super' version
 #endif
 
-static unsigned get_mapped_weapon_index(const player_info &player_info, const primary_weapon_index_t weapon_index)
+static primary_weapon_index_t get_mapped_weapon_index(const player_info &player_info, const primary_weapon_index_t weapon_index)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)player_info;
@@ -408,13 +408,12 @@ void InitWeaponOrdering ()
 
 namespace {
 
-static uint_fast32_t POrderList(uint_fast32_t num);
-static uint_fast32_t SOrderList(uint_fast32_t num);
+static uint_fast32_t POrderList(primary_weapon_index_t num);
+static uint_fast32_t SOrderList(secondary_weapon_index_t num);
 
 class cycle_weapon_state
 {
 public:
-	static constexpr std::integral_constant<uint8_t, 255> cycle_never_autoselect_below{};
 	static constexpr char DXX_WEAPON_TEXT_NEVER_AUTOSELECT[] = "--- Never autoselect below ---";
 	__attribute_cold
 	__attribute_noreturn
@@ -423,9 +422,10 @@ public:
 
 class cycle_primary_state : public cycle_weapon_state
 {
-	using weapon_index_type = primary_weapon_index_t;
 	player_info &pl_info;
 public:
+	using weapon_index_type = primary_weapon_index_t;
+	static constexpr std::integral_constant<weapon_index_type, weapon_index_type{255}> cycle_never_autoselect_below{};
 	cycle_primary_state(player_info &p) :
 		pl_info(p)
 	{
@@ -433,7 +433,7 @@ public:
 	static constexpr std::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> max_weapons{};
 	static constexpr char reorder_title[] = "Reorder Primary";
 	static constexpr char error_weapon_list_corrupt[] = "primary weapon list corrupt";
-	static uint_fast32_t get_cycle_position(uint_fast32_t i)
+	static uint_fast32_t get_cycle_position(primary_weapon_index_t i)
 	{
 		return POrderList(i);
 	}
@@ -483,9 +483,10 @@ public:
 
 class cycle_secondary_state : public cycle_weapon_state
 {
-	using weapon_index_type = secondary_weapon_index_t;
 	player_info &pl_info;
 public:
+	using weapon_index_type = secondary_weapon_index_t;
+	static constexpr std::integral_constant<weapon_index_type, weapon_index_type{255}> cycle_never_autoselect_below{};
 	cycle_secondary_state(player_info &p) :
 		pl_info(p)
 	{
@@ -493,7 +494,7 @@ public:
 	static constexpr std::integral_constant<uint_fast32_t, MAX_SECONDARY_WEAPONS> max_weapons{};
 	static constexpr char reorder_title[] = "Reorder Secondary";
 	static constexpr char error_weapon_list_corrupt[] = "secondary weapon list corrupt";
-	static uint_fast32_t get_cycle_position(uint_fast32_t i)
+	static uint_fast32_t get_cycle_position(secondary_weapon_index_t i)
 	{
 		return SOrderList(i);
 	}
@@ -529,7 +530,7 @@ void cycle_weapon_state::report_runtime_error(const char *const p)
 }
 
 template <typename T>
-void CycleWeapon(T t, const uint_fast32_t effective_weapon)
+void CycleWeapon(T t, const typename T::weapon_index_type effective_weapon)
 {
 	auto cur_order_slot = t.get_cycle_position(effective_weapon);
 	const auto autoselect_order_slot = t.get_cycle_position(t.cycle_never_autoselect_below);
@@ -939,10 +940,10 @@ void delayed_autoselect(player_info &player_info, const control_info &Controls)
 
 namespace {
 
-static void maybe_autoselect_primary_weapon(player_info &player_info, int weapon_index, const control_info &Controls)
+static void maybe_autoselect_primary_weapon(player_info &player_info, primary_weapon_index_t weapon_index, const control_info &Controls)
 {
 	const auto want_switch = [weapon_index, &player_info]{
-		const auto cutpoint = POrderList(255);
+		const auto cutpoint = POrderList(cycle_primary_state::cycle_never_autoselect_below);
 		const auto weapon_order = POrderList(weapon_index);
 		return weapon_order < cutpoint && weapon_order < POrderList(get_mapped_weapon_index(player_info, player_info.Primary_weapon.get_delayed()));
 	};
@@ -951,7 +952,7 @@ static void maybe_autoselect_primary_weapon(player_info &player_info, int weapon
 		if (PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Delayed)
 		{
 			if (want_switch())
-				player_info.Primary_weapon.set_delayed(static_cast<primary_weapon_index_t>(weapon_index));
+				player_info.Primary_weapon.set_delayed(weapon_index);
 		}
 	}
 	else if (want_switch())
@@ -989,7 +990,7 @@ int pick_up_secondary(player_info &player_info, secondary_weapon_index_t weapon_
 		const auto weapon_order = SOrderList(weapon_index);
 		auto &Secondary_weapon = player_info.Secondary_weapon;
 		const auto want_switch = [weapon_order, &secondary_ammo, &Secondary_weapon]{
-			return weapon_order < SOrderList(255) && (
+			return weapon_order < SOrderList(cycle_secondary_state::cycle_never_autoselect_below) && (
 				secondary_ammo[Secondary_weapon.get_delayed()] == 0 ||
 				weapon_order < SOrderList(Secondary_weapon.get_delayed())
 				);
@@ -1074,12 +1075,12 @@ namespace dsx {
 
 namespace {
 
-uint_fast32_t POrderList (uint_fast32_t num)
+uint_fast32_t POrderList (primary_weapon_index_t num)
 {
 	return search_weapon_order_list<cycle_primary_state>(num);
 }
 
-uint_fast32_t SOrderList (uint_fast32_t num)
+uint_fast32_t SOrderList (secondary_weapon_index_t num)
 {
 	return search_weapon_order_list<cycle_secondary_state>(num);
 }
@@ -1088,7 +1089,7 @@ uint_fast32_t SOrderList (uint_fast32_t num)
 
 //called when a primary weapon is picked up
 //returns true if actually picked up
-int pick_up_primary(player_info &player_info, int weapon_index)
+int pick_up_primary(player_info &player_info, const primary_weapon_index_t weapon_index)
 {
 	ushort flag = HAS_PRIMARY_FLAG(weapon_index);
 
@@ -1118,7 +1119,7 @@ void check_to_use_primary_super_laser(player_info &player_info)
 	{
 		const auto weapon_index = primary_weapon_index_t::SUPER_LASER_INDEX;
 		const auto pwi = POrderList(weapon_index);
-		if (pwi < POrderList(255) &&
+		if (pwi < POrderList(cycle_primary_state::cycle_never_autoselect_below) &&
 			pwi < POrderList(player_info.Primary_weapon))
 		{
 			select_primary_weapon(player_info, nullptr, primary_weapon_index_t::LASER_INDEX, 1);
@@ -1140,7 +1141,7 @@ static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 	const auto primary_weapon_flags = player_info.primary_weapon_flags;
 	if (!(primary_weapon_flags & weapon_flag_mask))
 		return;
-	const auto cutpoint = POrderList(255);
+	const auto cutpoint = POrderList(cycle_primary_state::cycle_never_autoselect_below);
 	auto weapon_index = primary_weapon_index_t::VULCAN_INDEX;
 #if defined(DXX_BUILD_DESCENT_I)
 	const auto weapon_order_vulcan = POrderList(primary_weapon_index_t::VULCAN_INDEX);

@@ -218,7 +218,7 @@ static int pick_up_energy(player_info &player_info)
 	return used;
 }
 
-static int pick_up_primary_or_energy(player_info &player_info, int weapon_index)
+static int pick_up_primary_or_energy(player_info &player_info, const primary_weapon_index_t weapon_index)
 {
 	const auto used = pick_up_primary(player_info, weapon_index);
 	if (used || (Game_mode & GM_MULTI))

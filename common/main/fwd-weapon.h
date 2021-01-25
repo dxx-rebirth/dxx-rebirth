@@ -195,7 +195,7 @@ has_weapon_result player_has_secondary_weapon(const player_info &, secondary_wea
 
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
-int pick_up_primary(player_info &, int weapon_index);
+int pick_up_primary(player_info &, primary_weapon_index_t weapon_index);
 int pick_up_secondary(player_info &, secondary_weapon_index_t weapon_index, int count, const control_info &Controls);
 
 //called when a primary weapon is picked up
