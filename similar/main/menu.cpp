@@ -960,7 +960,7 @@ static int do_difficulty_menu()
 				nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_3)),
 				nm_item_menu(MENU_DIFFICULTY_TEXT(Difficulty_4)),
 			}},
-			passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_DIFFICULTY_LEVEL}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), Difficulty_level), *grd_curcanv)
+			passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_DIFFICULTY_LEVEL}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), Difficulty_level), grd_curscreen->sc_canvas)
 		{
 		}
 	};
