@@ -18,7 +18,6 @@
 #include "event.h"
 #include "window.h"
 #include "mouse.h"
-#include "playsave.h"
 #include "dxxerror.h"
 #include "args.h"
 #include "gr.h"

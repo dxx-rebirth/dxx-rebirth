@@ -50,15 +50,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "text.h"
 #include "strutil.h"
-#include "rbaudio.h"
 #include "physfsx.h"
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
 #include "d_range.h"
-
-#if DXX_USE_OGL
-#include "ogl_init.h"
-#endif
 
 #define VERSION_NUMBER 		1
 #define SCORES_FILENAME 	"descent.hi"

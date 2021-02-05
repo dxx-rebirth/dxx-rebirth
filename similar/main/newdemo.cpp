@@ -41,20 +41,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "weapon.h"
 #include "segment.h"
 #include "strutil.h"
-#include "texmap.h"
-#include "laser.h"
-#include "key.h"
 #include "gameseg.h"
 
 #include "object.h"
-#include "physics.h"
-#include "slew.h"
 #include "render.h"
 #include "wall.h"
 #include "vclip.h"
 #include "robot.h"
-#include "fireball.h"
-#include "laser.h"
 #include "dxxerror.h"
 #include "ai.h"
 #include "hostage.h"
@@ -62,17 +55,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfs_list.h"
 
 #include "powerup.h"
-#include "fuelcen.h"
 
 #include "sounds.h"
 #include "collide.h"
 
 #include "lighting.h"
 #include "newdemo.h"
+#include "newmenu.h"
 #include "gameseq.h"
 #include "hudmsg.h"
-#include "gamesave.h"
-#include "gamemine.h"
 #include "switch.h"
 #include "gauges.h"
 #include "player.h"
@@ -89,10 +80,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "controls.h"
 #include "playsave.h"
-
-#if DXX_USE_EDITOR
-#include "editor/editor.h"
-#endif
 
 #include "compiler-range_for.h"
 #include "d_levelstate.h"

@@ -12,6 +12,7 @@
 
 #pragma once
 #include "multi.h"
+#include "newmenu.h"
 
 #ifdef __cplusplus
 #include "pack.h"

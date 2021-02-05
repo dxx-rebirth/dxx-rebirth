@@ -36,26 +36,19 @@
 #include <algorithm>
 #include <errno.h>
 #include <SDL.h>
-#include "hudmsg.h"
 #include "game.h"
-#include "text.h"
 #include "gr.h"
 #include "gamefont.h"
-#include "grdef.h"
 #include "palette.h"
 #include "u_mem.h"
 #include "dxxerror.h"
 #include "inferno.h"
-#include "screens.h"
 #include "strutil.h"
 #include "args.h"
-#include "key.h"
 #include "physfsx.h"
 #include "internal.h"
-#include "render.h"
 #include "console.h"
 #include "config.h"
-#include "playsave.h"
 #include "vers_id.h"
 
 #if defined(__APPLE__) && defined(__MACH__)

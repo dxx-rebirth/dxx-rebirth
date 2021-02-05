@@ -33,12 +33,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hudmsg.h"
 #include "inferno.h"
 #include "game.h"
-#include "screens.h"
 #include "gauges.h"
 #include "physics.h"
 #include "dxxerror.h"
-#include "menu.h"			// For the font.
-#include "collide.h"
 #include "object.h"
 #include "newdemo.h"
 #include "player.h"
@@ -49,7 +46,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "multi.h"
 #include "endlevel.h"
-#include "cntrlcen.h"
 #include "controls.h"
 #include "text.h"
 #include "render.h"
@@ -63,7 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 #include "args.h"
-
+#include "vclip.h"
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
 #include "partial_range.h"

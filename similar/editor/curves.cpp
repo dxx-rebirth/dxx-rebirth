@@ -29,10 +29,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include "inferno.h"
 #include "vecmat.h"
 #include "gr.h"
-#include "key.h"
 #include "editor.h"
 #include "editor/esegment.h"
 #include "gameseg.h"

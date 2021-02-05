@@ -32,7 +32,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "fwd-window.h"
 
 #include "ntstring.h"
 

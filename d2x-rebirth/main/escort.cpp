@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "timer.h"
 #include "u_mem.h"
+#include "weapon.h"
 
 #include "object.h"
 #include "dxxerror.h"
@@ -64,7 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "laser.h"
 #include "escort.h"
-
+#include "vclip.h"
 #include "segiter.h"
 #include "compiler-range_for.h"
 #include "d_levelstate.h"

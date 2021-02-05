@@ -25,7 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "u_mem.h"
 #include "gr.h"
-#include "grdef.h"
 #if DXX_USE_OGL
 #include "ogl_init.h"
 #endif

@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "bm.h"
 #include "robot.h"
+#include "ai.h"
 #include "3d.h"
 #include "game.h"
 #include "textures.h"

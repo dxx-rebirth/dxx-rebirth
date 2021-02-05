@@ -58,7 +58,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "console.h"
 #include "gr.h"
 #include "key.h"
-#include "3d.h"
 #include "bm.h"
 #include "inferno.h"
 #include "dxxerror.h"
@@ -66,7 +65,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "game.h"
 #include "u_mem.h"
 #include "screens.h"
-#include "texmap.h"
 #include "texmerge.h"
 #include "menu.h"
 #include "digi.h"
@@ -74,24 +72,22 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "args.h"
 #include "titles.h"
 #include "text.h"
-#include "gauges.h"
 #include "gamefont.h"
 #include "kconfig.h"
 #include "newmenu.h"
 #include "config.h"
 #include "multi.h"
-#include "songs.h"
 #include "gameseq.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "gamepal.h"
 #include "movie.h"
 #endif
 #include "playsave.h"
-#include "collide.h"
 #include "newdemo.h"
 #include "joy.h"
 #if !DXX_USE_OGL
 #include "../texmap/scanline.h" //for select_tmap -MM
+#include "texmap.h"
 #endif
 #include "event.h"
 #include "rbaudio.h"
@@ -101,7 +97,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #if DXX_USE_EDITOR
 #include "messagebox.h"
 #include "editor/editor.h"
-#include "editor/kdefs.h"
 #include "ui.h"
 #endif
 #include "vers_id.h"

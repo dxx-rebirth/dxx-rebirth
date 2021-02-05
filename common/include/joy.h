@@ -14,7 +14,7 @@
 
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "event.h"
+#include "fwd-event.h"
 
 #if DXX_MAX_JOYSTICKS
 #include "pstypes.h"

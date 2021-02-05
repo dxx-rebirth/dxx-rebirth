@@ -27,15 +27,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include "dxxerror.h"
 #include "inferno.h"
+#include "laser.h"
 #include "vclip.h"
 #include "physfs-serial.h"
 #include "render.h"
 #include "weapon.h"
 #include "object.h"
-#if defined(DXX_BUILD_DESCENT_II)
-#include "laser.h"
-#endif
-
 #include "compiler-range_for.h"
 
 //----------------- Variables for video clips -------------------

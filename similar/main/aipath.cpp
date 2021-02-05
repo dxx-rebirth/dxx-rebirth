@@ -44,7 +44,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #endif
 #include "player.h"
-#include "fireball.h"
 #include "game.h"
 
 #include "compiler-range_for.h"

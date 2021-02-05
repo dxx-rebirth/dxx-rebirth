@@ -28,7 +28,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
-#include "screens.h"
 #include "inferno.h"
 #include "segment.h"
 #include "event.h"
@@ -40,12 +39,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "dxxerror.h"
 #include "kdefs.h"
-#include	"object.h"
+#include "object.h"
 #include "robot.h"
 #include "game.h"
 #include "powerup.h"
 #include "ai.h"
-#include "hostage.h"
 #include "eobject.h"
 #include "medwall.h"
 #include "medrobot.h"

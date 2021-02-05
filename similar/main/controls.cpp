@@ -26,9 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <algorithm>
 #include <stdlib.h>
-#include "key.h"
 #include "joy.h"
-#include "timer.h"
 #include "dxxerror.h"
 #include "inferno.h"
 #include "game.h"
@@ -37,10 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "weapon.h"
 #include "bm.h"
 #include "controls.h"
-#include "render.h"
-#include "args.h"
 #include "palette.h"
-#include "mouse.h"
 #include "kconfig.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "laser.h"

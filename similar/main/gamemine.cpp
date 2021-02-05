@@ -41,15 +41,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "switch.h"
 #include "game.h"
-#include "newmenu.h"
-#if DXX_USE_EDITOR
-#include "editor/editor.h"
-#include "editor/esegment.h"
-#include "d_range.h"
-#endif
 #include "fuelcen.h"
 #include "hash.h"
-#include "key.h"
 #include "piggy.h"
 #include "gamesave.h"
 #include "compiler-poison.h"

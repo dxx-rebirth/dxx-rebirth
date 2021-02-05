@@ -27,19 +27,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 #include "inferno.h"
-#include "screens.h"			// For GAME_SCREEN?????
 #include "editor.h"			// For TMAP_CURBOX??????
 #include "gr.h"				// For canves, font stuff
 #include "ui.h"				// For UI_GADGET stuff
 #include "object.h"			// For robot_bms
 #include "event.h"
-#include "dxxerror.h"
 #include "objpage.h"
 #include "bm.h"
 #include "player.h"
 #include "piggy.h"
 #include "cntrlcen.h"
 #include "kdefs.h"
+#include "vclip.h"
 
 constexpr std::integral_constant<unsigned, 8> OBJS_PER_PAGE{};
 
@@ -51,7 +50,6 @@ static int ObjectPage = 0;
 #include "vecmat.h"
 #include "3d.h"
 #include "robot.h"
-#include "texmap.h"
 
 #include "hostage.h"
 #include "powerup.h"

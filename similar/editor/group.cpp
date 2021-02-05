@@ -34,13 +34,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #include "editor/medmisc.h"
 #include "dxxerror.h"
-#include "gamemine.h"
 #include "physfsx.h"
 #include "gameseg.h"
 #include "bm.h"				// For MAX_TEXTURES.
 #include "textures.h"
 #include "hash.h"
-#include "fuelcen.h"
 #include "kdefs.h"
 #include "fwd-wall.h"
 #include "medwall.h"

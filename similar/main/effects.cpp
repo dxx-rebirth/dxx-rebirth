@@ -38,7 +38,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "textures.h"
 #include "physfs-serial.h"
-#include "cntrlcen.h"
 #include "segment.h"
 #include "dxxerror.h"
 #include "object.h"

@@ -50,18 +50,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "screens.h"
 #include "multi.h"
-#include "player.h"
 #include "digi.h"
 #include "text.h"
-#include "kmatrix.h"
 #include "piggy.h"
 #include "songs.h"
-#include "newmenu.h"
-#include "state.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "movie.h"
 #endif
-#include "menu.h"
 #include "mouse.h"
 #include "console.h"
 #include "args.h"

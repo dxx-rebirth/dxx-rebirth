@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <physfs.h>
 
+#include "cmd.h"
 #include "console.h"
 #include "cvar.h"
 #include "dxxerror.h"

@@ -39,9 +39,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "textures.h"
 #include "object.h"
-#include "ai.h"
-#include "texpage.h"		// Textue selection paging stuff
-#include "objpage.h"		// Object selection paging stuff
 #include "wall.h"
 #include "switch.h"
 #include "info.h"

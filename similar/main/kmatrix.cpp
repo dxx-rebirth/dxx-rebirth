@@ -45,12 +45,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "menu.h"
 #include "player.h"
 #include "screens.h"
-#include "cntrlcen.h"
-#include "mouse.h"
 #include "joy.h"
 #include "timer.h"
 #include "text.h"
-#include "rbaudio.h"
 #include "net_udp.h"
 #include "kmatrix.h"
 #include "gauges.h"
@@ -60,10 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
-
-#if DXX_USE_OGL
-#include "ogl_init.h"
-#endif
 
 #define CENTERING_OFFSET(x) ((300 - (70 + (x)*25 ))/2)
 #define CENTERSCREEN (SWIDTH/2)

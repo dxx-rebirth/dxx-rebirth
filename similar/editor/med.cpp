@@ -55,7 +55,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "dxxerror.h"
 #include "kfuncs.h"
-#include "macro.h"
 #ifdef INCLUDE_XLISP
 #include "medlisp.h"
 #endif
@@ -75,7 +74,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "effects.h"
 #include "info.h"
-#include "ai.h"
 #include "console.h"
 #include "texpage.h"		// Textue selection paging stuff
 #include "objpage.h"		// Object selection paging stuff
@@ -84,11 +82,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medmisc.h"
 #include "meddraw.h"
 #include "medsel.h"
-#include "medrobot.h"
 #include "medwall.h"
-#include "eswitch.h"
-#include "ehostage.h"
-#include "centers.h"
 
 #include "fuelcen.h"
 #include "gameseq.h"

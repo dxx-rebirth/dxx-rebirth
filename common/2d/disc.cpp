@@ -12,7 +12,6 @@
 
 #include "u_mem.h"
 #include "gr.h"
-#include "grdef.h"
 
 namespace dcx {
 

@@ -50,7 +50,6 @@ enum class cockpit_3d_view : uint8_t
 #endif
 
 #include "gameplayopt.h"
-#include "gauges.h"
 #include <cstdint>
 
 #define N_SAVE_SLOTS    10

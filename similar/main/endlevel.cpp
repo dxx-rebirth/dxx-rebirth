@@ -52,7 +52,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "gamepal.h"
 #include "screens.h"
-#include "gauges.h"
 #include "terrain.h"
 #include "robot.h"
 #include "player.h"
@@ -72,13 +71,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "movie.h"
 #endif
 #include "render.h"
-#include "titles.h"
 #include "hudmsg.h"
 #if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 
-#include "key.h"
 #include "joy.h"
 
 #if DXX_USE_EDITOR

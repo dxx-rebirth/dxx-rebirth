@@ -34,7 +34,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "3d.h"
 
 #include "object.h"
-#include "render.h"
 #include "dxxerror.h"
 #include "ai.h"
 #include "escort.h"
@@ -53,17 +52,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "morph.h"
 #include "effects.h"
-#include "timer.h"
 #include "sounds.h"
 #include "gameseg.h"
 #include "cntrlcen.h"
 #include "multibot.h"
 #include "multi.h"
 #include "gameseq.h"
-#include "key.h"
 #include "powerup.h"
-#include "gauges.h"
-#include "text.h"
 #include "args.h"
 #include "fuelcen.h"
 #include "controls.h"
@@ -72,7 +67,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if DXX_USE_EDITOR
 #include "editor/editor.h"
 #include "editor/esegment.h"
-#include "editor/kdefs.h"
 #endif
 
 //added 05/17/99 Matt Mueller
@@ -83,7 +77,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segiter.h"
 #include "d_enumerate.h"
 #include "d_levelstate.h"
-#include "d_range.h"
 #include <utility>
 
 using std::min;

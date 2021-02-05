@@ -25,7 +25,6 @@
 #include "palette.h"
 #include "pstypes.h"
 #include "3d.h"
-#include "ogl_extensions.h"
 #include <array>
 
 #ifdef __cplusplus

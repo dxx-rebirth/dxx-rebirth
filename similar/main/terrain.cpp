@@ -38,7 +38,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "object.h"
 #include "endlevel.h"
-#include "fireball.h"
 #include "render.h"
 #include "player.h"
 #include "segment.h"

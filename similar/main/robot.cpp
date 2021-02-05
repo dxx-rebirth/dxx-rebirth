@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "inferno.h"
 #include "robot.h"
+#include "ai.h"
 #include "object.h"
 #include "polyobj.h"
 #include "physfsx.h"

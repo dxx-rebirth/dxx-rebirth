@@ -29,6 +29,7 @@
 #include "vers_id.h"
 #include "timer.h"
 #include "cli.h"
+#include "cmd.h"
 #include "cvar.h"
 
 #include "dxxsconf.h"

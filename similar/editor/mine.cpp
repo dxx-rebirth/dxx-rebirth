@@ -28,7 +28,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "key.h"
 #include "gr.h"
 #include "bm.h"			// for MAX_TEXTURES
 #include "inferno.h"
@@ -38,14 +37,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "dxxerror.h"
 #include "textures.h"
-#include "object.h"
 #include "physfsx.h"
 #include "gamemine.h"
 #include "gamesave.h"
-#include "gameseg.h"
 #include "ui.h"			// Because texpage.h need UI_DIALOG type
-#include "texpage.h"		// For texpage_goto_first
-#include "medwall.h"
 #include "switch.h"
 #include "fuelcen.h"
 

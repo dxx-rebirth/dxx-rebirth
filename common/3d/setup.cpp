@@ -17,7 +17,6 @@
 
 #include "3d.h"
 #include "globvars.h"
-#include "clipper.h"
 
 #if DXX_USE_OGL
 #include "ogl_init.h"
