@@ -900,7 +900,7 @@ void save_screen_shot(int automap_flag)
 #if DXX_USE_SCREENSHOT_FORMAT_PNG
 	write_error = write_screenshot_png(file, tm, grd_curscreen->sc_canvas.cv_bitmap, pal);
 #elif DXX_USE_SCREENSHOT_FORMAT_LEGACY
-	write_error = pcx_write_bitmap(file, &temp_canv->cv_bitmap, pal);
+	write_error = static_cast<unsigned>(pcx_write_bitmap(file, &temp_canv->cv_bitmap, pal));
 #endif
 #endif
 	}

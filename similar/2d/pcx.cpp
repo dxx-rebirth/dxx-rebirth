@@ -48,8 +48,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-namespace {
-
 #if DXX_USE_SDLIMAGE
 struct RAII_SDL_Surface
 {
@@ -167,12 +165,9 @@ static pcx_result pcx_support_not_compiled(const char *const filename, grs_main_
 
 }
 
-}
 
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
-
-namespace {
 
 #if DXX_USE_SDLIMAGE
 static std::pair<std::unique_ptr<uint8_t[]>, std::size_t> load_physfs_blob(const char *const filename)
@@ -214,8 +209,6 @@ static std::pair<std::unique_ptr<uint8_t[]>, std::size_t> load_decoded_physfs_bl
 	return {std::move(decoded_buffer), data_size};
 }
 #endif
-
-}
 
 pcx_result bald_guy_load(const char *const filename, grs_main_bitmap &bmp, palette_array_t &palette)
 {
