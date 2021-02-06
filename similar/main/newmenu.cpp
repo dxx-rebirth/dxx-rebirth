@@ -758,6 +758,82 @@ static int nm_trigger_radio_button(newmenu &menu, newmenu_item &citem)
 	return 0;
 }
 
+static unsigned check_mouse_scroll_allowed_by_timer()
+{
+	static fix64 ScrollTime;
+	const auto now = timer_query();
+	if (ScrollTime + F1_0/5 < now)
+	{
+		ScrollTime = now;
+		return 1;
+	}
+	return 0;
+}
+
+static void check_apply_mouse_scroll(newmenu *const menu, const grs_canvas &canvas, const font_x_scale_float fspacx, const int line_spacing, const int mx, const int my)
+{
+	const auto scroll_offset = menu->scroll_offset;
+	if (!scroll_offset && menu->max_displayable >= menu->items.size())
+		return;
+
+	const auto x1 = canvas.cv_bitmap.bm_x + BORDERX - fspacx(12);
+	if (mx <= x1)
+		/* If the mouse is left of the arrows, return. */
+		return;
+	int arrow_width, arrow_height;
+	/* In practice, both arrows are the same width and same height.  In
+	 * D1, they are the same character.  In D2, they are visually
+	 * distinct, but have the same dimensions.
+	 *
+	 * For both games, measure one and use its dimensions for both.
+	 */
+	gr_get_string_size(*canvas.cv_font, UP_ARROW_MARKER(*canvas.cv_font, *GAME_FONT), &arrow_width, &arrow_height, nullptr);
+	const auto x2 = x1 + arrow_width;
+	if (mx >= x2)
+		/* If the mouse is to the right of the upper arrow, it will
+		 * also be right of the lower arrow.
+		 */
+		return;
+	if (scroll_offset)
+	{
+		const auto y1 = canvas.cv_bitmap.bm_y + std::next(menu->items.begin(), scroll_offset)->y - (line_spacing * scroll_offset);
+		if (my <= y1)
+			/* If the mouse is above the upper arrow, it must also be
+			 * above the lower arrow, so return instead of jumping
+			 * forward to the down arrow check.
+			 */
+			return;
+		const auto y2 = y1 + arrow_height;
+		if (my < y2)
+		{
+			if (check_mouse_scroll_allowed_by_timer())
+				newmenu_scroll(menu, -1);
+			/* If the mouse is on the upper arrow, it cannot be on the
+			 * lower arrow.
+			 */
+			return;
+		}
+	}
+	if (scroll_offset + menu->max_displayable < menu->items.size())
+	{
+		const auto y1 = canvas.cv_bitmap.bm_y + std::next(menu->items.begin(), scroll_offset + menu->max_displayable - 1)->y - (line_spacing * scroll_offset);
+		if (my <= y1)
+			return;
+		const auto y2 = y1 + arrow_height;
+		if (my < y2)
+		{
+			if (check_mouse_scroll_allowed_by_timer())
+				newmenu_scroll(menu, 1);
+			/* Explicitly returning is redundant here since there are no
+			 * more statements, but it is present for consistency with
+			 * the up arrow.  Also, this serves as future proofing in
+			 * case someone adds another clickable area.
+			 */
+			return;
+		}
+	}
+}
+
 static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, int button)
 {
 	int old_choice, mx=0, my=0, mz=0, x1 = 0, x2, y1, y2, changed = 0;
@@ -777,7 +853,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 			if ((event.type == EVENT_MOUSE_BUTTON_DOWN) && !menu->all_text)
 			{
 				mouse_get_pos(&mx, &my, &mz);
-				const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT));
+				const int line_spacing = static_cast<int>(LINE_SPACING(*canvas.cv_font, *GAME_FONT));
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
 				{
 					auto &iitem = *std::next(menu->items.begin(), i);
@@ -817,39 +893,9 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 				mouse_get_pos(&mx, &my, &mz);
 
 				// check possible scrollbar stuff first
-				const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT));
+				const int line_spacing = static_cast<int>(LINE_SPACING(*canvas.cv_font, *GAME_FONT));
 				if (menu->is_scroll_box) {
-					int ScrollAllow=0;
-					static fix64 ScrollTime=0;
-					if (ScrollTime + F1_0/5 < timer_query())
-					{
-						ScrollTime = timer_query();
-						ScrollAllow = 1;
-					}
-
-					if (menu->scroll_offset != 0) {
-						int arrow_width, arrow_height;
-						gr_get_string_size(*canvas.cv_font, UP_ARROW_MARKER(*canvas.cv_font, *GAME_FONT), &arrow_width, &arrow_height, nullptr);
-						x1 = canvas.cv_bitmap.bm_x + BORDERX - fspacx(12);
-						y1 = canvas.cv_bitmap.bm_y + std::next(menu->items.begin(), menu->scroll_offset)->y - (line_spacing * menu->scroll_offset);
-						x2 = x1 + arrow_width;
-						y2 = y1 + arrow_height;
-						if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
-							newmenu_scroll(menu, -1);
-						}
-					}
-					if (menu->scroll_offset + menu->max_displayable < menu->items.size())
-					{
-						int arrow_width, arrow_height;
-						gr_get_string_size(*canvas.cv_font, DOWN_ARROW_MARKER(*canvas.cv_font, *GAME_FONT), &arrow_width, &arrow_height, nullptr);
-						x1 = canvas.cv_bitmap.bm_x + BORDERX - fspacx(12);
-						y1 = canvas.cv_bitmap.bm_y + std::next(menu->items.begin(), menu->scroll_offset + menu->max_displayable - 1)->y - (line_spacing * menu->scroll_offset);
-						x2 = x1 + arrow_width;
-						y2 = y1 + arrow_height;
-						if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
-							newmenu_scroll(menu, 1);
-						}
-					}
+					check_apply_mouse_scroll(menu, canvas, fspacx, line_spacing, mx, my);
 				}
 
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
@@ -925,7 +971,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 				std::next(menu->items.begin(), menu->citem)->type == nm_type::menu)
 			{
 				mouse_get_pos(&mx, &my, &mz);
-				const int line_spacing = static_cast<int>(LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT));
+				const int line_spacing = static_cast<int>(LINE_SPACING(*canvas.cv_font, *GAME_FONT));
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
 				{
 					auto &iitem = *std::next(menu->items.begin(), i);
