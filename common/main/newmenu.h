@@ -153,7 +153,7 @@ public:
 	// The rest of these are used internally by by the menu system, so don't set 'em!!
 	short   x, y;
 	short   w, h;
-	short   right_offset;
+	uint8_t right_offset;
 	nm_type type;           // What kind of item this is, see NM_TYPE_????? defines
 	union {
 		input_specific_type nm_private_input;
