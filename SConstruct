@@ -4686,7 +4686,6 @@ class DXXArchive(DXXCommon):
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
 		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter((
 			'common/arch/cocoa/messagebox.mm',
-			'common/arch/cocoa/SDLMain.m',
 		))
 
 	def __init__(self,user_settings):
