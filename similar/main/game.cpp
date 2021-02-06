@@ -865,7 +865,6 @@ void save_screen_shot(int automap_flag)
 #undef DXX_SCREENSHOT_TIME_FORMAT_STRING
 #undef DXX_SCREENSHOT_FILE_EXTENSION
 	}
-	unsigned write_error;
 	if (const auto file = PHYSFSX_openWriteBuffered(savename))
 	{
 	if (!automap_flag)
@@ -876,11 +875,11 @@ void save_screen_shot(int automap_flag)
 	glReadBuffer(GL_FRONT);
 #endif
 #if DXX_USE_SCREENSHOT_FORMAT_PNG
-	write_error = write_screenshot_png(file, tm, grd_curscreen->sc_canvas.cv_bitmap, void /* unused */);
+	auto write_error = write_screenshot_png(file, tm, grd_curscreen->sc_canvas.cv_bitmap, void /* unused */);
 #elif DXX_USE_SCREENSHOT_FORMAT_LEGACY
 	write_bmp(file, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
 	/* write_bmp never fails */
-	write_error = 0;
+	std::false_type write_error;
 #endif
 #else
 	grs_canvas &screen_canv = grd_curscreen->sc_canvas;
@@ -898,11 +897,13 @@ void save_screen_shot(int automap_flag)
 		i.b <<= 2;
 	}
 #if DXX_USE_SCREENSHOT_FORMAT_PNG
-	write_error = write_screenshot_png(file, tm, grd_curscreen->sc_canvas.cv_bitmap, pal);
+	auto write_error = write_screenshot_png(file, tm, grd_curscreen->sc_canvas.cv_bitmap, pal);
 #elif DXX_USE_SCREENSHOT_FORMAT_LEGACY
-	write_error = pcx_write_bitmap(file, &temp_canv->cv_bitmap, pal);
+	auto write_error = pcx_write_bitmap(file, &temp_canv->cv_bitmap, pal);
 #endif
 #endif
+	if (write_error)
+		PHYSFS_delete(savename);
 	}
 	else
 	{
@@ -912,8 +913,6 @@ void save_screen_shot(int automap_flag)
 			con_printf(CON_URGENT, "Failed to open screenshot file for writing: %s", savename);
 		return;
 	}
-	if (write_error)
-		PHYSFS_delete(savename);
 }
 #endif
 
