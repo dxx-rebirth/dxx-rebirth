@@ -119,7 +119,6 @@ class newmenu_item
 			return v;
 		}
 public:
-	int     value;          // For checkboxes and radio buttons, this is 1 if marked initially, else 0
 	input_specific_type &input() {
 		return get_union_member(nm_private_input);
 	}
@@ -150,6 +149,7 @@ public:
 			: nullptr;
 	}
 	char    *text;          // The text associated with this item.
+	int     value;          // For checkboxes and radio buttons, this is 1 if marked initially, else 0
 	// The rest of these are used internally by by the menu system, so don't set 'em!!
 	short   x, y;
 	short   w, h;
