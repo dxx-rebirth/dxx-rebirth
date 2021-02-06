@@ -187,7 +187,9 @@ void reset_palette_add()
 	PaletteBlueAdd		= 0;
 }
 
+#if !DXX_USE_OGL
 constexpr screen_mode initial_small_game_screen_mode{320, 200};
+#endif
 constexpr screen_mode initial_large_game_screen_mode{1024, 768};
 screen_mode Game_screen_mode = initial_large_game_screen_mode;
 
