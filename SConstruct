@@ -1399,7 +1399,7 @@ static void terminate_handler()
 	PHYSFS_delete("");
 '''
 		l = ['physfs']
-		successflags = {'LIBS' : l}
+		successflags = self.pkgconfig.merge(context, self.msgprefix, self.user_settings, 'physfs', 'physfs', {'LIBS' : l})
 		e = self._soft_check_system_library(context, header=_header, main=main, lib='physfs', successflags=successflags)
 		if not e:
 			return
