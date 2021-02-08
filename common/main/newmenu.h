@@ -159,7 +159,7 @@ public:
 		input_specific_type nm_private_input;
 		radio_specific_type nm_private_radio;
 		number_specific_type nm_private_number;
-		imenu_specific_type nm_private_imenu;
+		imenu_specific_type nm_private_imenu = {};
 		slider_specific_type nm_private_slider;
 	};
 };
