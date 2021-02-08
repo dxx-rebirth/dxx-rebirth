@@ -8,6 +8,8 @@
 	<string>d1xgl</string>
 	<key>CFBundleIconFile</key>
 	<string>d1x-rebirth</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.dxx-rebirth.d1xgl</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>

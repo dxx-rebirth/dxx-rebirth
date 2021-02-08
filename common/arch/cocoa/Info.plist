@@ -8,6 +8,8 @@
 	<string>%BUNDLE_EXECUTABLE%</string>
 	<key>CFBundleIconFile</key>
 	<string>%ICONFILE%</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.dxx-rebirth.%BUNDLE_EXECUTABLE%</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
