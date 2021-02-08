@@ -2732,9 +2732,9 @@ void net_udp_send_game_info_t::apply(const sockaddr &sender_addr, socklen_t send
 
 }
 
-static unsigned MouselookMPFlag(const unsigned game_mode)
+static unsigned MouselookMPFlag(const unsigned game_is_cooperative)
 {
-	return (game_mode & GM_MULTI_COOP) ? MouselookMode::MPCoop : MouselookMode::MPAnarchy;
+	return game_is_cooperative ? MouselookMode::MPCoop : MouselookMode::MPAnarchy;
 }
 
 static void net_udp_broadcast_game_info(ubyte info_upid)
@@ -3412,7 +3412,7 @@ constexpr std::integral_constant<unsigned, 5 * reactor_invul_time_mini_scale> re
 	DXX_MENUITEM(VERB, CHECK, "Bright player ships", opt_bright, Netgame.BrightPlayers)	\
 	DXX_MENUITEM(VERB, CHECK, "Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
 	DXX_MENUITEM(VERB, CHECK, "No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
-	DXX_MENUITEM(VERB, FCHECK, (Game_mode & GM_MULTI_COOP) ? "Allow coop mouselook" : "Allow anarchy mouselook", opt_mouselook, Netgame.MouselookFlags, MouselookMPFlag(Game_mode))	\
+	DXX_MENUITEM(VERB, FCHECK, game_is_cooperative ? "Allow coop mouselook" : "Allow anarchy mouselook", opt_mouselook, Netgame.MouselookFlags, MouselookMPFlag(game_is_cooperative))	\
 	DXX_MENUITEM(VERB, TEXT, "", blank_4)                                     \
 	DXX_MENUITEM_AUTOSAVE_LABEL_INPUT(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "", blank_6)                                     \
