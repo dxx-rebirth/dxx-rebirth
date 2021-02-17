@@ -32,21 +32,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "3d.h"
 #include "u_mem.h"
 #include "dxxerror.h"
-#include "key.h"
-#include "mouse.h"
 #include "func.h"
 #include "inferno.h"
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #include "editor/medmisc.h"
-#include "gameseg.h"
 #include "segment.h"
 #include "render.h"
-#include "screens.h"
 #include "object.h"
-#include "texpage.h"		// For texpage_goto_first
 #include "meddraw.h"		// For draw_World
-#include "game.h"
 #include "kdefs.h"
 
 #if DXX_USE_OGL

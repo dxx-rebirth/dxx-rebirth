@@ -35,29 +35,25 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #include "editor/eobject.h"
 
-#include "objpage.h"
 #include "maths.h"
 #include "dxxerror.h"
 #include "kdefs.h"
-#include	"object.h"
+#include "object.h"
 #include "robot.h"
 #include "game.h"
-#include "ai.h"
 #include "bm.h"
 #include "3d.h"		//	For g3_point_to_vec
-#include	"fvi.h"
+#include "fvi.h"
+#include "vclip.h"
 
 #include "powerup.h"
-#include "fuelcen.h"
 #include "hostage.h"
-#include "medrobot.h"
 #include "player.h"
 #include "gameseg.h"
 #include "cntrlcen.h"
 
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
-#include "segiter.h"
 
 #define	OBJ_SCALE		(F1_0/2)
 #define	OBJ_DEL_SIZE	(F1_0/2)

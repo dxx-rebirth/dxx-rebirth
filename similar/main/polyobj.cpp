@@ -35,11 +35,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "interp.h"
 #include "dxxerror.h"
 #include "u_mem.h"
-#include "args.h"
 #include "physfs-serial.h"
 #include "physfsx.h"
 #ifndef DRIVE
-#include "texmap.h"
 #include "bm.h"
 #include "textures.h"
 #include "object.h"

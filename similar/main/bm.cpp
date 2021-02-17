@@ -58,7 +58,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "rle.h"
 #include "physfsx.h"
-#include "internal.h"
 #include "strutil.h"
 
 #if DXX_USE_EDITOR

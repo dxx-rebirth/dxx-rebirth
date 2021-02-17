@@ -49,7 +49,7 @@ void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState
 #include "ntstring.h"
 #include "d_array.h"
 #include "d_range.h"
-#include "fwd-window.h"
+#include "fwd-event.h"
 #include "segment.h"
 
 namespace dsx {

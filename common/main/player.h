@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <physfs.h>
 #include "vecmat.h"
-#include "weapon.h"
+#include "fwd-weapon.h"
 
 #ifdef __cplusplus
 #include <algorithm>

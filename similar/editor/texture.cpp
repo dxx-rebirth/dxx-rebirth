@@ -28,13 +28,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>
-#include "inferno.h"
 #include "segment.h"
 #include "seguvs.h"
 #include "editor.h"
 #include "editor/esegment.h"
 #include "maths.h"
-#include "dxxerror.h"
 #include "kdefs.h"
 
 #include "compiler-range_for.h"

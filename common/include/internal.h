@@ -11,6 +11,7 @@
 #include "dxxsconf.h"
 #if DXX_USE_OGL
 #include "ogl_init.h" // interface to OpenGL module
+#include "ogl_extensions.h"
 #include "gr.h"
 
 #ifdef __cplusplus

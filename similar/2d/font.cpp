@@ -36,10 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "u_mem.h"
 #include "gr.h"
-#include "grdef.h"
 #include "dxxerror.h"
 #include "common/2d/bitmap.h"
-#include "makesig.h"
 #include "physfsx.h"
 #include "gamefont.h"
 #include "byteutil.h"

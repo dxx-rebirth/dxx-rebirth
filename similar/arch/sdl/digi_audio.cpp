@@ -17,6 +17,7 @@
 #include <SDL.h>
 #include <digi_audio.h>
 #include "dxxerror.h"
+#include "fmtcheck.h"
 #include "vecmat.h"
 #include "digi.h"
 #include "sounds.h"

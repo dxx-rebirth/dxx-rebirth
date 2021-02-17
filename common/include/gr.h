@@ -32,7 +32,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "fmtcheck.h"
 #include "pack.h"
 #include <array>
 

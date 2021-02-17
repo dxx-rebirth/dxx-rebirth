@@ -24,10 +24,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <string.h>
-#include "inferno.h"
 #include "editor/editor.h"
 #include "editor/esegment.h"
-#include "gameseg.h"
 #include "gamesave.h"
 #include "kdefs.h"
 #include "compiler-range_for.h"

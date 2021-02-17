@@ -36,7 +36,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "segment.h"
 #include "dxxerror.h"
-#include "render.h"
 #include "game.h"
 #include "vclip.h"
 #include "lighting.h"
@@ -55,7 +54,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "palette.h"
 #include "bm.h"
-#include "rle.h"
 #include "wall.h"
 
 #include "compiler-range_for.h"

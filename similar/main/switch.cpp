@@ -29,7 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
-#include "gauges.h"
 #include "newmenu.h"
 #include "game.h"
 #include "switch.h"
@@ -38,10 +37,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "gameseg.h"
 #include "wall.h"
-#include "texmap.h"
 #include "object.h"
 #include "fuelcen.h"
-#include "cntrlcen.h"
 #include "newdemo.h"
 #include "player.h"
 #include "endlevel.h"
@@ -51,10 +48,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hudmsg.h"
 #include "robot.h"
 #include "bm.h"
-
-#if DXX_USE_EDITOR
-#include "editor/editor.h"
-#endif
 
 #include "physfs-serial.h"
 #include "d_levelstate.h"

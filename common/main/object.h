@@ -33,7 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "aistruct.h"
 #include "polyobj.h"
-#include "laser.h"
 
 #include <cassert>
 #include <cstdint>
@@ -44,7 +43,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <vector>
 #include <stdexcept>
 #include "fwd-object.h"
-#include "weapon.h"
+#include "fwd-weapon.h"
+#include "fwd-player.h"
 #include "powerup.h"
 #include "compiler-poison.h"
 #include "physics_info.h"

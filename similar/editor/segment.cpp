@@ -27,7 +27,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "key.h"
 #include "gr.h"
 #include "inferno.h"
 #include "segment.h"
@@ -37,17 +36,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "gameseg.h"
 #include "render.h"
-#include "game.h"
 #include "wall.h"
 #include "switch.h"
 #include "fuelcen.h"
-#include "cntrlcen.h"
 #include "seguvs.h"
-#include "gameseq.h"
 #include "kdefs.h"
 
 #include "medwall.h"
-#include "hostage.h"
 
 #include "compiler-poison.h"
 #include "compiler-range_for.h"

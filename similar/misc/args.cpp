@@ -22,7 +22,6 @@
 #include "strutil.h"
 #include "digi.h"
 #include "game.h"
-#include "gauges.h"
 #include "console.h"
 #include "mission.h"
 #if DXX_USE_UDP

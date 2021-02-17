@@ -30,7 +30,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "inferno.h"
 #include "gameseg.h"
-#include "screens.h"			// For GAME_SCREEN?????
 #include "editor.h"			// For TMAP_CURBOX??????
 #include "gr.h"				// For canves, font stuff
 #include "ui.h"				// For UI_GADGET stuff

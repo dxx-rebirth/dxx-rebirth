@@ -29,8 +29,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include "gr.h"
 #include "ui.h"
-#include "key.h"
-#include "dxxerror.h"
 #include "u_mem.h"
 #include "inferno.h"
 #include "gameseg.h"

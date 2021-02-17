@@ -23,6 +23,7 @@
 #include "u_mem.h"
 #include "strutil.h"
 #include "inferno.h"
+#include "cmd.h"
 #include "console.h"
 #include "cvar.h"
 #include "physfsx.h"

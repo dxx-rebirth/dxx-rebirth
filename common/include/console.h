@@ -14,8 +14,6 @@
 #include "pstypes.h"
 #include "dxxsconf.h"
 #include "fmtcheck.h"
-#include "cli.h"
-#include "cmd.h"
 #include "d_srcloc.h"
 #ifdef dsx
 #include "kconfig.h"

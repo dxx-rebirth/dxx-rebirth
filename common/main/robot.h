@@ -30,12 +30,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "pack.h"
-#include "ai.h"
 #include "aistruct.h"
 #include "polyobj.h"
 #include "weapon_id.h"
 #include "object.h"
 #include "fwd-partial_range.h"
+#include "digi.h"
 
 #define MAX_GUNS 8      //should be multiple of 4 for ubyte array
 

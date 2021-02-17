@@ -38,7 +38,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "editor/kdefs.h"
 #include "bm.h"		//	Needed for TmapInfo
-#include	"effects.h"     //      Needed for effects_bm_num
 #include "fvi.h"
 #include "seguvs.h"
 

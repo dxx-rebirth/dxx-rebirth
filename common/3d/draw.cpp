@@ -16,8 +16,8 @@
 #include "3d.h"
 #include "globvars.h"
 #include "texmap.h"
-#include "clipper.h"
 #if !DXX_USE_OGL
+#include "clipper.h"
 #include "gr.h"
 #endif
 

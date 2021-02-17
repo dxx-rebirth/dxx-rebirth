@@ -34,6 +34,7 @@
 #include "gamefont.h"
 #include "console.h"
 #include "cli.h"
+#include "cmd.h"
 #include "compiler-poison.h"
 
 // Cursor shown if we are in insert mode

@@ -27,7 +27,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "func.h"
 #include "editor/kdefs.h"
-#include "segment.h"
 #include "editor/editor.h"
 #include "dxxerror.h"
 #include "slew.h"

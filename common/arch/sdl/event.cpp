@@ -19,6 +19,7 @@
 #include "mouse.h"
 #include "window.h"
 #include "timer.h"
+#include "cmd.h"
 #include "config.h"
 #include "inferno.h"
 

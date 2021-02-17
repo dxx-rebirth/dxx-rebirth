@@ -30,7 +30,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "editor.h"
 #include "ui.h"
-#include "game.h"
 #include "gamesave.h"
 #include "object.h"
 #include "gameseq.h"

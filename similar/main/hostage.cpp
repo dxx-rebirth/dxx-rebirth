@@ -26,18 +26,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "dxxerror.h"
 #include "inferno.h"
 #include "object.h"
 #include "hudmsg.h"
 #include "game.h"
 #include "player.h"
-#include "gauges.h"
 #include "hostage.h"
-#include "vclip.h"
 #include "newdemo.h"
 #include "text.h"
 #include "d_levelstate.h"
+#include "digi.h"
 
 //------------- Globaly used hostage variables --------------------------------
 

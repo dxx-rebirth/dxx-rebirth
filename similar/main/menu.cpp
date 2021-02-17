@@ -33,7 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "key.h"
 #include "mouse.h"
-#include "iff.h"
 #include "u_mem.h"
 #include "dxxerror.h"
 #include "bm.h"
@@ -41,16 +40,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "joy.h"
 #include "player.h"
 #include "vecmat.h"
-#include "effects.h"
 #include "game.h"
-#include "slew.h"
-#include "gamemine.h"
-#include "gamesave.h"
 #include "palette.h"
 #include "args.h"
 #include "newdemo.h"
 #include "timer.h"
-#include "object.h"
 #include "sounds.h"
 #include "gameseq.h"
 #include "text.h"
@@ -59,9 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "scores.h"
 #include "playsave.h"
 #include "kconfig.h"
-#include "titles.h"
 #include "credits.h"
-#include "texmap.h"
 #include "polyobj.h"
 #include "state.h"
 #include "mission.h"
@@ -74,7 +66,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "movie.h"
 #endif
 #include "gamepal.h"
-#include "gauges.h"
 #include "powerup.h"
 #include "strutil.h"
 #include "multi.h"
@@ -88,6 +79,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #if DXX_USE_OGL
 #include "ogl_init.h"
+#include "ogl_extensions.h"
 #endif
 #include "physfs_list.h"
 
@@ -672,6 +664,7 @@ int dispatch_menu_option(const main_menu_item_index select)
 		case main_menu_item_index::load_existing_singleplayer_game:
 			state_restore_all(0, secret_restore::none, nullptr, blind_save::no);
 			break;
+#ifndef RELEASE
 #if DXX_USE_EDITOR
 		case main_menu_item_index::open_mine_editor_window:
 			if (!Current_mission)
@@ -683,6 +676,7 @@ int dispatch_menu_option(const main_menu_item_index select)
 			hide_menus();
 			init_editor();
 			break;
+#endif
 #endif
 		case main_menu_item_index::open_high_scores_dialog:
 			scores_view_menu();

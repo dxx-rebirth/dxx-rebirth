@@ -8,7 +8,6 @@
 #pragma once
 #include "dxxsconf.h"
 #include <array>
-#include "fwd-d_array.h"
 
 namespace dcx {
 

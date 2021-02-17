@@ -48,7 +48,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "iff.h"
 #include "hostage.h"
 #include "powerup.h"
-#include "laser.h"
 #include "sounds.h"
 #include "piggy.h"
 #include "aistruct.h"

@@ -27,7 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SOUNDS_H
 #define _SOUNDS_H
 
-#include "digi.h"
 #include <array>
 
 #ifdef dsx

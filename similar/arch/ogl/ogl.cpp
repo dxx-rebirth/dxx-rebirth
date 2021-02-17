@@ -56,13 +56,11 @@
 #include "byteutil.h"
 #include "internal.h"
 #include "gauges.h"
-#include "playsave.h"
 #include "object.h"
 #include "args.h"
 
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
-#include "d_range.h"
 #include "d_zip.h"
 #include "partial_range.h"
 

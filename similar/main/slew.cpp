@@ -28,19 +28,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "game.h"
 #include "vecmat.h"
-#include "key.h"
 #include "joy.h"
 #include "object.h"
-#include "dxxerror.h"
-#include "physics.h"
 #include "kconfig.h"
 #include "slew.h"
 #include "segment.h"
 #include "d_levelstate.h"
-
-#if DXX_USE_EDITOR
-#include "editor/editor.h"
-#endif
 
 
 //variables for slew system

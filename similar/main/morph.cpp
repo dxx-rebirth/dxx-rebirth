@@ -28,7 +28,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
-#include "texmap.h"
 #include "dxxerror.h"
 #include "inferno.h"
 #include "polyobj.h"

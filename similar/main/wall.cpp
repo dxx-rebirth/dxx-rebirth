@@ -18,7 +18,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #include "wall.h"
-#include "player.h"
 #include "text.h"
 #include "fireball.h"
 #include "textures.h"
@@ -28,7 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfs-serial.h"
 #include "gameseg.h"
 #include "hudmsg.h"
-#include "laser.h"		//	For seeing if a flare is stuck in a wall.
 #include "effects.h"
 
 #include "d_enumerate.h"

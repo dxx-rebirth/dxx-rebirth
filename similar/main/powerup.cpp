@@ -36,7 +36,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "object.h"
 #include "game.h"
-#include "key.h"
 #include "fireball.h"
 #include "powerup.h"
 #include "gauges.h"
@@ -49,19 +48,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "scores.h"
 #include "multi.h"
 #include "segment.h"
-#include "lighting.h"
 #include "controls.h"
 #include "kconfig.h"
 #include "newdemo.h"
 #include "escort.h"
 #if DXX_USE_EDITOR
 #include "gr.h"	//	for powerup outline drawing
-#include "editor/editor.h"
 #endif
 #include "hudmsg.h"
 #include "playsave.h"
 #include "d_levelstate.h"
 #include "partial_range.h"
+#include "vclip.h"
 
 namespace dcx {
 unsigned N_powerup_types;

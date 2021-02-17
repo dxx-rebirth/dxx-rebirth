@@ -27,7 +27,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 
 #include "gr.h"
-#include "grdef.h"
 #include "u_mem.h"
 #include "pcx.h"
 #include "physfsx.h"

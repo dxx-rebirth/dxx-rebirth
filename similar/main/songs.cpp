@@ -39,7 +39,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "jukebox.h"
 #include "config.h"
-#include "timer.h"
 #include "u_mem.h"
 #include "args.h"
 #include "physfsx.h"

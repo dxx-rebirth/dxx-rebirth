@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gr.h"
 #include "dxxerror.h"
-#include "game.h"
+#include "fmtcheck.h"
 #include "textures.h"
 #include "rle.h"
 #include "timer.h"

@@ -36,8 +36,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "kconfig.h"
 #include "palette.h"
-#include "args.h"
-#include "player.h"
 #include "digi.h"
 #include "mission.h"
 #include "u_mem.h"
