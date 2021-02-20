@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <string>
 #include <type_traits>
+#include "fwd-partial_range.h"
 #include <memory>
 #include "dxxsconf.h"
 
