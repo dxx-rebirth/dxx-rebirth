@@ -40,7 +40,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "gamemine.h"
 #include "gamesave.h"
-#include "ui.h"			// Because texpage.h need UI_DIALOG type
 #include "switch.h"
 #include "fuelcen.h"
 

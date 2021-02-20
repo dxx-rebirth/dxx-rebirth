@@ -28,7 +28,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <SDL_version.h>
 #include <type_traits>
 #include "pstypes.h"
-//#include "vecmat.h"
 
 #ifdef __cplusplus
 #include "dxxsconf.h"
