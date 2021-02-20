@@ -9,6 +9,7 @@
  * Library-independent stub for dynamic selection of sound system
  */
 
+#include <stdexcept>
 #include "dxxerror.h"
 #include "vecmat.h"
 #include "config.h"
