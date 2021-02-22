@@ -69,6 +69,9 @@ previous Rebirth release and installing current PhysFS headers.
 However, building from source is recommended to ensure a consistent
 environment.
 
+#### MSYS2/mingw-w64 (Windows alternate method)
+* `pacman -S git ${MINGW_PACKAGE_PREFIX}-{gcc,pkgconf,scons,SDL,SDL_image,SDL_mixer,libpng,physfs}`
+
 #### Linux
 Install the listed prerequisites through your system package manager.
 * Arch PKGBUILD files are in `contrib/arch/`
@@ -207,6 +210,24 @@ Linux output with **program\_name** unset:
 
 * *build-directory*/d1x-rebirth/d1x-rebirth*[-editor]*
 * *build-directory*/d2x-rebirth/d2x-rebirth*[-editor]*
+
+##### Compiling with MSYS2
+MSYS2 offers its users three terminal environments: msys2, for building with POSIX compatibility (linking to runtime `/usr/bin/msys-2.0.dll`); and mingw32 and mingw64, for building portable native Windows apps (linking to `C:\WINDOWS\System32\msvcrt.dll`), on i686 and x86_64 respectively.
+* Install [MSYS2](https://www.msys2.org), following the directions on the main page.
+* In either a mingw32 or mingw64 (not msys2) terminal:
+
+      pacman -Syuu  # update MSYS2, as needed
+      pacman -S --needed git ${MINGW_PACKAGE_PREFIX}-{gcc,pkgconf,scons,SDL,SDL_image,SDL_mixer,libpng,physfs}
+        #  ^ substitute SDL2 for SDL if desired
+      git clone https://github.com/dxx-rebirth/dxx-rebirth.git
+      cd dxx-rebirth
+      scons
+        # Or (for example) to build d1x only, with SDL 2, with lower process priority, on all cores:
+      time nice scons -j$(nproc) sdl2=1 d1x=1
+
+* A locally built executable will run anywhere if it's invoked from inside the appropriate mingw32 or mingw64 terminal. To run it instead directly in Windows, either:
+    1. The linked mingw-w64 libraries will need to be added to PATH (See [contrib/msys2](contrib/msys2) for working example batch files); or
+    2. Dependency DLLs from MSYS2 will need to be copied to the same directory as the executable.
 
 #### Installing
 For Windows and Linux, DXX-Rebirth installs only the main game binary.  The binary can be run from anywhere and can be installed by copying the game binary.  The game does not inspect the name of its binary.  You may rename the output after compilation without affecting the game.
