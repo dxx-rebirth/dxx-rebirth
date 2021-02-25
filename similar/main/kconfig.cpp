@@ -814,9 +814,13 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
-	const auto &&window_width = fspacx(320);
-	const auto &&window_height = fspacy(220);
-	auto menu = window_create<kc_menu>(grd_curscreen->sc_canvas, (SWIDTH - window_width) / 2, (SHEIGHT - window_height) / 2, window_width, window_height);
+	const uint16_t target_window_width = fspacx(320);
+	const uint16_t target_window_height = fspacy(220);
+	const auto swidth = SWIDTH;
+	const auto sheight = SHEIGHT;
+	const auto window_width = std::min(swidth, target_window_width);
+	const auto window_height = std::min(sheight, target_window_height);
+	auto menu = window_create<kc_menu>(grd_curscreen->sc_canvas, (swidth - window_width) / 2, (sheight - window_height) / 2, window_width, window_height);
 	menu->items = items;
 	menu->litems = litems;
 	menu->mitems = mitems;
