@@ -1229,7 +1229,7 @@ screen_resolution_menu_items::screen_resolution_menu_items()
 struct screen_resolution_menu : screen_resolution_menu_items, passive_newmenu
 {
 	screen_resolution_menu() :
-		passive_newmenu(menu_title{nullptr}, menu_subtitle{"Screen Resolution"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(partial_range(m, static_cast<std::size_t>(convert_fixed_field_to_ni(fixed_field_index::end))), 0), *grd_curcanv)
+		passive_newmenu(menu_title{nullptr}, menu_subtitle{"Screen Resolution"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(partial_range(m, static_cast<std::size_t>(convert_fixed_field_to_ni(fixed_field_index::end))), 0), grd_curscreen->sc_canvas)
 	{
 	}
 	virtual window_event_result event_handler(const d_event &event) override;
