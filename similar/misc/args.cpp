@@ -293,6 +293,8 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			CGameArg.OglSyncWait = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-gl_darkedges"))
 			CGameArg.OglDarkEdges = true;
+		else if (!d_stricmp(p, "-gl_stereo"))
+			CGameArg.OglStereo = true;
 #endif
 
 	// Multiplayer Options

@@ -70,6 +70,7 @@ void ogl_freebmtexture(grs_bitmap &bm);
 void ogl_start_frame(grs_canvas &);
 void ogl_end_frame(void);
 void ogl_set_screen_mode(void);
+void ogl_set_frame(int xeye, int xoff);
 
 struct ogl_colors
 {

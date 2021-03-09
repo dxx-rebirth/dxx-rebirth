@@ -101,6 +101,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgGlLuminance4Alpha4Ok;
 	bool DbgGlRGBA2Ok;
 	unsigned OglSyncWait;
+	bool OglStereo;
 #else
 	bool DbgSdlHWSurface;
 	bool DbgSdlASyncBlit;

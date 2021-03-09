@@ -1214,6 +1214,7 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 	start_lighting_frame(*Viewer);		//this is for ugly light-smoothing hack
   
 	g3_start_frame(canvas);
+	ogl_set_frame(eye_offset, 0);
 
 	auto Viewer_eye = Viewer->pos;
 

@@ -139,6 +139,10 @@ static int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc;
 static std::array<ogl_texture, 20000> ogl_texture_list;
 static int ogl_texture_list_cur;
 
+static GLboolean 	ogl_stereo_enabled = false;
+static GLint 		ogl_stereo_viewport[2][4];
+static GLfloat  	ogl_stereo_transform[2][16];
+
 /* some function prototypes */
 
 #define GL_TEXTURE0_ARB 0x84C0
@@ -1257,7 +1261,7 @@ void ogl_start_frame(grs_canvas &canvas)
 {
 	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitbltc=0;
 
-	OGL_VIEWPORT(canvas.cv_bitmap.bm_x, canvas.cv_bitmap.bm_y, canvas.cv_bitmap.bm_w, canvas.cv_bitmap.bm_h);
+	OGL_VIEWPORT(canvas.cv_bitmap.bm_x, canvas.cv_bitmap.bm_y, canvas.cv_bitmap.bm_w/2, canvas.cv_bitmap.bm_h);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	glLineWidth(linedotscale);
@@ -1283,6 +1287,57 @@ void ogl_start_frame(grs_canvas &canvas)
 #endif
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
+
+	glGetFloatv(GL_PROJECTION_MATRIX, &ogl_stereo_transform[0][0]);
+	glGetFloatv(GL_PROJECTION_MATRIX, &ogl_stereo_transform[1][0]);
+
+	glGetIntegerv(GL_VIEWPORT, &ogl_stereo_viewport[0][0]);
+	glGetIntegerv(GL_VIEWPORT, &ogl_stereo_viewport[1][0]);
+
+	// query if stereo quad buffering available?
+	glGetBooleanv(GL_STEREO, &ogl_stereo_enabled);
+
+	// half-height viewports for above/below format
+//	ogl_stereo_viewport[0][1] =		// y/2
+//	ogl_stereo_viewport[0][3] =		// h/2
+//	ogl_stereo_viewport[1][3];// /= 2;	// h/2
+
+	// half-width viewports for side-by-side format
+	ogl_stereo_viewport[1][0] =		// x/2
+	ogl_stereo_viewport[0][2] =		// w/2
+	ogl_stereo_viewport[1][2];// /= 2;	// w/2
+}
+
+void ogl_set_frame(int xeye, int xoff)
+{
+	(void)xoff;
+
+	if (xeye < 0) {
+		// left eye view
+		if (ogl_stereo_enabled)
+			glDrawBuffer(GL_BACK_LEFT);
+		else
+			glViewport(ogl_stereo_viewport[0][0], ogl_stereo_viewport[0][1], ogl_stereo_viewport[0][2], ogl_stereo_viewport[0][3]);
+
+		glMatrixMode(GL_PROJECTION);
+//		ogl_stereo_transform[0][2] += xeye;		// xeye < 0
+//		ogl_stereo_transform[0][3] -= xoff;		// xoff < 0
+		glLoadMatrixf(&ogl_stereo_transform[0][0]);
+		glMatrixMode(GL_MODELVIEW);
+	}
+	else if (xeye > 0) {
+		// right eye view
+		if (ogl_stereo_enabled)
+			glDrawBuffer(GL_BACK_RIGHT);
+		else
+			glViewport(ogl_stereo_viewport[1][0], ogl_stereo_viewport[1][1], ogl_stereo_viewport[1][2], ogl_stereo_viewport[1][3]);
+
+		glMatrixMode(GL_PROJECTION);
+//		ogl_stereo_transform[1][2] += xeye;		// xeye > 0
+//		ogl_stereo_transform[1][3] += xoff;		// xoff < 0
+		glLoadMatrixf(&ogl_stereo_transform[1][0]);
+		glMatrixMode(GL_MODELVIEW);
+	}
 }
 
 void ogl_end_frame(void){

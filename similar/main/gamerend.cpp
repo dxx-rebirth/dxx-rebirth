@@ -803,7 +803,8 @@ void game_render_frame_mono(const control_info &Controls)
 
 		window_rendered_data window;
 		update_rendered_data(window, *Viewer, 0);
-		render_frame(*grd_curcanv, 0, window);
+		render_frame(*grd_curcanv, -F1_0, window);
+		render_frame(*grd_curcanv, +F1_0, window);
 
 		wake_up_rendered_objects(*Viewer, window);
 		show_HUD_names(*grd_curcanv);
@@ -838,7 +839,8 @@ void game_render_frame_mono(const control_info &Controls)
 #if defined(DXX_BUILD_DESCENT_II)
 		update_rendered_data(window, *Viewer, Rear_view);
 #endif
-		render_frame(*grd_curcanv, 0, window);
+		render_frame(*grd_curcanv, -F1_0, window);
+		render_frame(*grd_curcanv, +F1_0, window);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
