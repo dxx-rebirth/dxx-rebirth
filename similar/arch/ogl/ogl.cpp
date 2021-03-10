@@ -1291,6 +1291,10 @@ void ogl_start_frame(grs_canvas &canvas)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
 
+	if (!VR_stereo)
+		return;
+
+	// cache viewport + projection transform for left/right stereo views
 	glGetFloatv(GL_PROJECTION_MATRIX, &ogl_stereo_transform[0][0]);
 	glGetFloatv(GL_PROJECTION_MATRIX, &ogl_stereo_transform[1][0]);
 
@@ -1306,12 +1310,21 @@ void ogl_start_frame(grs_canvas &canvas)
 	// half-height viewports for above/below format
 	else if (VR_half_height)
 		ogl_stereo_viewport[0][1] -= ogl_stereo_viewport[0][3];		// y = h/2
+
+	// center unsqueezed side-by-side format
+	if (VR_half_width && VR_half_height) {
+		ogl_stereo_viewport[0][1] -= ogl_stereo_viewport[0][3]/2;	// y = h/4
+		ogl_stereo_viewport[1][1] -= ogl_stereo_viewport[1][3]/2;	// y = h/4
+	}
 }
 
-void ogl_set_frame(int xeye, int xoff)
+void ogl_stereo_frame(int xeye, int xoff)
 {
 	float dxeye = 0.0f; // f2fl(xeye);
-	float dxoff = xoff * 1.0f / grd_curscreen->sc_canvas.cv_bitmap.bm_w;
+	float dxoff = xoff * 2.0f / grd_curscreen->sc_canvas.cv_bitmap.bm_w;
+
+	if (!VR_stereo)
+		return;
 
 	if (xeye < 0) {
 		// left eye view

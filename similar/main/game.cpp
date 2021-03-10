@@ -190,6 +190,16 @@ screen_mode Game_screen_mode = initial_large_game_screen_mode;
 
 namespace dsx {
 
+void init_stereo()
+{
+	// init stereo options
+	if (CGameArg.OglStereo) {
+		VR_stereo = true;
+		VR_half_height = true;
+		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
+	}
+}
+
 //initialize the various canvases on the game screen
 //called every time the screen mode or cockpit changes
 void init_cockpit()
@@ -198,13 +208,6 @@ void init_cockpit()
 
 	if (Screen_mode != SCREEN_GAME)
 		return;
-
-	// init stereo options
-	if (CGameArg.OglStereo) {
-		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
-		VR_stereo = true;
-		VR_half_height = true;
-	}
 
 	if ( Screen_mode == SCREEN_EDITOR )
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
@@ -1592,6 +1595,7 @@ game_window *game_setup()
 
 	auto game_wind = window_create<game_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	reset_palette_add();
+	init_stereo();
 	init_cockpit();
 	init_gauges();
 	netplayerinfo_on = 0;

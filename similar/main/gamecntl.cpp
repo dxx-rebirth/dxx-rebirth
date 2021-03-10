@@ -912,6 +912,35 @@ static window_event_result HandleSystemKey(int key)
 			break;
 #endif
 
+		case KEY_SHIFTED + KEY_F5:
+			VR_eye_offset -= 1;
+			break;
+		case KEY_SHIFTED + KEY_F6:
+			VR_eye_offset += 1;
+			break;
+		case KEY_SHIFTED + KEY_ALTED + KEY_F5:
+			VR_eye_width -= (F1_0/10); //*= 10/11;
+			break;
+		case KEY_SHIFTED + KEY_ALTED + KEY_F6:
+			VR_eye_width += (F1_0/10); //*= 11/10;
+			break;
+		case KEY_SHIFTED + KEY_F7:
+		case KEY_SHIFTED + KEY_ALTED + KEY_F7:
+			VR_eye_width = F1_0;
+			VR_eye_offset = 0;
+			break;
+		case KEY_SHIFTED + KEY_F8:
+		case KEY_SHIFTED + KEY_ALTED + KEY_F8:
+			if (CGameArg.OglStereo)
+				++VR_stereo %= 4;
+			switch (VR_stereo) {
+				case 0: VR_half_width = VR_half_height = false; break;
+				case 1: VR_half_width = false; VR_half_height = true; break;
+				case 2: VR_half_width = true; VR_half_height = false; break;
+				case 3: VR_half_width = VR_half_height = true; break;
+			}
+			break;
+
 			/*
 			 * Jukebox hotkeys -- MD2211, 2007
 			 * Now for all music
