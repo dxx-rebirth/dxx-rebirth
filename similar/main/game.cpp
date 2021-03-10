@@ -199,6 +199,13 @@ void init_cockpit()
 	if (Screen_mode != SCREEN_GAME)
 		return;
 
+	// init stereo options
+	if (CGameArg.OglStereo) {
+		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
+		VR_stereo = true;
+		VR_half_height = true;
+	}
+
 	if ( Screen_mode == SCREEN_EDITOR )
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
 

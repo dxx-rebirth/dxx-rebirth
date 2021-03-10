@@ -399,6 +399,12 @@ void flickering_light_read(flickering_light &fl, PHYSFS_File *fp);
 void flickering_light_write(const flickering_light &fl, PHYSFS_File *fp);
 #endif
 
+extern	bool VR_stereo;
+extern	bool VR_half_width;
+extern	bool VR_half_height;
+extern	int  VR_eye_width;
+extern	int  VR_eye_offset;
+
 void game_render_frame_mono(const control_info &Controls);
 static inline void game_render_frame_mono(int skip_flip, const control_info &Controls)
 {

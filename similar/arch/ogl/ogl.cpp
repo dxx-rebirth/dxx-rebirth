@@ -1259,9 +1259,12 @@ void ogl_set_blending(const gr_blend cv_blend_func)
 
 void ogl_start_frame(grs_canvas &canvas)
 {
+	int KW = (VR_half_width) ? 2 : 1;
+	int KH = (VR_half_height) ? 2 : 1;
+
 	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitbltc=0;
 
-	OGL_VIEWPORT(canvas.cv_bitmap.bm_x, canvas.cv_bitmap.bm_y, canvas.cv_bitmap.bm_w/2, canvas.cv_bitmap.bm_h);
+	OGL_VIEWPORT(canvas.cv_bitmap.bm_x, canvas.cv_bitmap.bm_y, canvas.cv_bitmap.bm_w/KW, canvas.cv_bitmap.bm_h/KH);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	glLineWidth(linedotscale);
@@ -1297,20 +1300,18 @@ void ogl_start_frame(grs_canvas &canvas)
 	// query if stereo quad buffering available?
 	glGetBooleanv(GL_STEREO, &ogl_stereo_enabled);
 
-	// half-height viewports for above/below format
-//	ogl_stereo_viewport[0][1] =		// y/2
-//	ogl_stereo_viewport[0][3] =		// h/2
-//	ogl_stereo_viewport[1][3];// /= 2;	// h/2
-
 	// half-width viewports for side-by-side format
-	ogl_stereo_viewport[1][0] =		// x/2
-	ogl_stereo_viewport[0][2] =		// w/2
-	ogl_stereo_viewport[1][2];// /= 2;	// w/2
+	if (VR_half_width)
+		ogl_stereo_viewport[1][0] += ogl_stereo_viewport[0][2];		// x = w/2
+	// half-height viewports for above/below format
+	else if (VR_half_height)
+		ogl_stereo_viewport[0][1] -= ogl_stereo_viewport[0][3];		// y = h/2
 }
 
 void ogl_set_frame(int xeye, int xoff)
 {
-	(void)xoff;
+	float dxeye = 0.0f; // f2fl(xeye);
+	float dxoff = xoff * 1.0f / grd_curscreen->sc_canvas.cv_bitmap.bm_w;
 
 	if (xeye < 0) {
 		// left eye view
@@ -1320,8 +1321,8 @@ void ogl_set_frame(int xeye, int xoff)
 			glViewport(ogl_stereo_viewport[0][0], ogl_stereo_viewport[0][1], ogl_stereo_viewport[0][2], ogl_stereo_viewport[0][3]);
 
 		glMatrixMode(GL_PROJECTION);
-//		ogl_stereo_transform[0][2] += xeye;		// xeye < 0
-//		ogl_stereo_transform[0][3] -= xoff;		// xoff < 0
+		ogl_stereo_transform[0][2] += dxeye;		// xeye < 0
+		ogl_stereo_transform[0][3] -= dxoff;		// xoff < 0
 		glLoadMatrixf(&ogl_stereo_transform[0][0]);
 		glMatrixMode(GL_MODELVIEW);
 	}
@@ -1333,8 +1334,8 @@ void ogl_set_frame(int xeye, int xoff)
 			glViewport(ogl_stereo_viewport[1][0], ogl_stereo_viewport[1][1], ogl_stereo_viewport[1][2], ogl_stereo_viewport[1][3]);
 
 		glMatrixMode(GL_PROJECTION);
-//		ogl_stereo_transform[1][2] += xeye;		// xeye > 0
-//		ogl_stereo_transform[1][3] += xoff;		// xoff < 0
+		ogl_stereo_transform[1][2] += dxeye;		// xeye > 0
+		ogl_stereo_transform[1][3] += dxoff;		// xoff < 0
 		glLoadMatrixf(&ogl_stereo_transform[1][0]);
 		glMatrixMode(GL_MODELVIEW);
 	}

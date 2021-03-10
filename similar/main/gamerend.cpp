@@ -384,6 +384,12 @@ static void draw_window_label(object_array &Objects, grs_canvas &canvas)
 
 namespace dsx {
 
+	bool VR_stereo = false;
+	bool VR_half_width = false;
+	bool VR_half_height = false;
+	int  VR_eye_width = F1_0;
+	int  VR_eye_offset = 0;
+
 namespace {
 
 static void render_countdown_gauge(grs_canvas &canvas)
@@ -778,7 +784,7 @@ int BigWindowSwitch=0;
 //render a frame for the game
 void game_render_frame_mono(const control_info &Controls)
 {
-	int no_draw_hud=0;
+	int no_draw_hud = (VR_stereo) ? 1 : 0;
 
 	gr_set_current_canvas(Screen_3d_window);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -803,8 +809,12 @@ void game_render_frame_mono(const control_info &Controls)
 
 		window_rendered_data window;
 		update_rendered_data(window, *Viewer, 0);
-		render_frame(*grd_curcanv, -F1_0, window);
-		render_frame(*grd_curcanv, +F1_0, window);
+		if (VR_stereo) {
+			render_frame(*grd_curcanv, -VR_eye_width, window);
+			render_frame(*grd_curcanv, +VR_eye_width, window);
+		}
+		else
+			render_frame(*grd_curcanv, 0, window);
 
 		wake_up_rendered_objects(*Viewer, window);
 		show_HUD_names(*grd_curcanv);
@@ -839,8 +849,12 @@ void game_render_frame_mono(const control_info &Controls)
 #if defined(DXX_BUILD_DESCENT_II)
 		update_rendered_data(window, *Viewer, Rear_view);
 #endif
-		render_frame(*grd_curcanv, -F1_0, window);
-		render_frame(*grd_curcanv, +F1_0, window);
+		if (VR_stereo) {
+			render_frame(*grd_curcanv, -VR_eye_width, window);
+			render_frame(*grd_curcanv, +VR_eye_width, window);
+		}
+		else
+			render_frame(*grd_curcanv, 0, window);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -878,7 +892,7 @@ void toggle_cockpit()
 {
 	enum cockpit_mode_t new_mode=CM_FULL_SCREEN;
 
-	if (Rear_view || Player_dead_state != player_dead_state::no)
+	if (Rear_view || Player_dead_state != player_dead_state::no || VR_stereo)
 		return;
 
 	switch (PlayerCfg.CockpitMode[1])
