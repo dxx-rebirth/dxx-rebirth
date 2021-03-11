@@ -1309,7 +1309,7 @@ void ogl_start_frame(grs_canvas &canvas)
 		ogl_stereo_viewport[1][0] += ogl_stereo_viewport[0][2];		// x = w/2
 	// half-height viewports for above/below format
 	else if (VR_half_height)
-		ogl_stereo_viewport[0][1] -= ogl_stereo_viewport[0][3];		// y = h/2
+		ogl_stereo_viewport[1][1] -= ogl_stereo_viewport[0][3];		// y = h/2
 
 	// center unsqueezed side-by-side format
 	if (VR_half_width && VR_half_height) {
@@ -1320,8 +1320,9 @@ void ogl_start_frame(grs_canvas &canvas)
 
 void ogl_stereo_frame(int xeye, int xoff)
 {
-	float dxeye = 0.0f; // f2fl(xeye);
-	float dxoff = xoff * 2.0f / grd_curscreen->sc_canvas.cv_bitmap.bm_w;
+//	float dxeye = 0.0f; // f2fl(xeye);
+//	float dxoff = xoff * 2.0f / grd_curscreen->sc_canvas.cv_bitmap.bm_w;
+	int dx = (xoff < 0) ? -xoff : 0;
 
 	if (!VR_stereo)
 		return;
@@ -1331,11 +1332,11 @@ void ogl_stereo_frame(int xeye, int xoff)
 		if (ogl_stereo_enabled)
 			glDrawBuffer(GL_BACK_LEFT);
 		else
-			glViewport(ogl_stereo_viewport[0][0], ogl_stereo_viewport[0][1], ogl_stereo_viewport[0][2], ogl_stereo_viewport[0][3]);
+			glViewport(ogl_stereo_viewport[0][0]-dx, ogl_stereo_viewport[0][1], ogl_stereo_viewport[0][2]-dx, ogl_stereo_viewport[0][3]);
 
 		glMatrixMode(GL_PROJECTION);
-		ogl_stereo_transform[0][2] += dxeye;		// xeye < 0
-		ogl_stereo_transform[0][3] -= dxoff;		// xoff < 0
+//		ogl_stereo_transform[0][2] += dxeye;		// xeye < 0
+//		ogl_stereo_transform[0][3] -= dxoff;		// xoff < 0
 		glLoadMatrixf(&ogl_stereo_transform[0][0]);
 		glMatrixMode(GL_MODELVIEW);
 	}
@@ -1344,11 +1345,11 @@ void ogl_stereo_frame(int xeye, int xoff)
 		if (ogl_stereo_enabled)
 			glDrawBuffer(GL_BACK_RIGHT);
 		else
-			glViewport(ogl_stereo_viewport[1][0], ogl_stereo_viewport[1][1], ogl_stereo_viewport[1][2], ogl_stereo_viewport[1][3]);
+			glViewport(ogl_stereo_viewport[1][0]+dx, ogl_stereo_viewport[1][1], ogl_stereo_viewport[1][2]-dx, ogl_stereo_viewport[1][3]);
 
 		glMatrixMode(GL_PROJECTION);
-		ogl_stereo_transform[1][2] += dxeye;		// xeye > 0
-		ogl_stereo_transform[1][3] += dxoff;		// xoff < 0
+//		ogl_stereo_transform[1][2] += dxeye;		// xeye > 0
+//		ogl_stereo_transform[1][3] += dxoff;		// xoff < 0
 		glLoadMatrixf(&ogl_stereo_transform[1][0]);
 		glMatrixMode(GL_MODELVIEW);
 	}
