@@ -195,7 +195,10 @@ void init_stereo()
 	// init stereo options
 	if (CGameArg.OglStereo) {
 		VR_stereo = true;
+//		VR_half_width = true;
 		VR_half_height = true;
+		VR_eye_width = (F1_0 * 7) / 10;	// Descent 1.5 defaults
+		VR_eye_offset = (VR_half_width) ? -6 : -12;
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
 	}
 }
