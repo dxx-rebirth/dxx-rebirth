@@ -205,6 +205,7 @@ extern game_window *Game_wind;
 
 void game();
 void init_game();
+void init_stereo();
 void init_cockpit();
 extern void PALETTE_FLASH_ADD(int dr, int dg, int db);
 

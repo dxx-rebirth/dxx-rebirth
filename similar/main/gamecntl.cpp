@@ -931,13 +931,9 @@ static window_event_result HandleSystemKey(int key)
 			break;
 		case KEY_SHIFTED + KEY_F8:
 		case KEY_SHIFTED + KEY_ALTED + KEY_F8:
-			if (CGameArg.OglStereo)
+			if (CGameArg.OglStereo || CGameArg.OglStereoView) {
 				++VR_stereo %= 4;
-			switch (VR_stereo) {
-				case 0: VR_half_width = VR_half_height = false; break;
-				case 1: VR_half_width = false; VR_half_height = true; break;
-				case 2: VR_half_width = true; VR_half_height = false; break;
-				case 3: VR_half_width = VR_half_height = true; break;
+				init_stereo();
 			}
 			break;
 

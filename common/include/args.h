@@ -102,6 +102,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgGlRGBA2Ok;
 	unsigned OglSyncWait;
 	bool OglStereo;
+	int  OglStereoView;
 #else
 	bool DbgSdlHWSurface;
 	bool DbgSdlASyncBlit;
