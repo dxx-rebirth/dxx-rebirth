@@ -43,6 +43,14 @@ enum SyncGLMethod : uint8_t {
 #define OGL_SYNC_METHOD_DEFAULT		SYNC_GL_AUTO
 #define OGL_SYNC_WAIT_DEFAULT		2		/* milliseconds */
 
+// Stereo viewport formats
+enum StereoFormat : int {
+	STEREO_NONE=0,
+	STEREO_ABOVE_BELOW,
+	STEREO_SIDE_BY_SIDE,
+	STEREO_SIDE_BY_SIDE2,
+	STEREO_MAX_FORMAT
+};
 #endif
 
 // Struct that keeps all variables used by FindArg

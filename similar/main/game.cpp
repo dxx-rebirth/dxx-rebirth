@@ -195,7 +195,7 @@ void init_stereo()
 	// init stereo options
 	if (CGameArg.OglStereo || CGameArg.OglStereoView) {
 		if (!VR_stereo && !VR_eye_offset)
-			VR_stereo = (CGameArg.OglStereoView) ? CGameArg.OglStereoView % 4 : true;
+			VR_stereo = (CGameArg.OglStereoView) ? CGameArg.OglStereoView % STEREO_MAX_FORMAT : STEREO_ABOVE_BELOW;
 		switch (VR_stereo) {
 			case 0: VR_half_width = VR_half_height = false; break;
 			case 1: VR_half_width = false; VR_half_height = true; break;
@@ -205,6 +205,9 @@ void init_stereo()
 		VR_eye_width = (F1_0 * 7) / 10;	// Descent 1.5 defaults
 		VR_eye_offset = (VR_half_width) ? -6 : -12;
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
+	}
+	else {
+		VR_stereo = VR_half_width = VR_half_height = false;
 	}
 }
 

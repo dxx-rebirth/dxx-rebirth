@@ -931,10 +931,8 @@ static window_event_result HandleSystemKey(int key)
 			break;
 		case KEY_SHIFTED + KEY_F8:
 		case KEY_SHIFTED + KEY_ALTED + KEY_F8:
-			if (CGameArg.OglStereo || CGameArg.OglStereoView) {
-				++VR_stereo %= 4;
+				++VR_stereo %= STEREO_MAX_FORMAT;
 				init_stereo();
-			}
 			break;
 
 			/*
