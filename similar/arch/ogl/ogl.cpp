@@ -140,8 +140,8 @@ static std::array<ogl_texture, 20000> ogl_texture_list;
 static int ogl_texture_list_cur;
 
 static GLboolean 	ogl_stereo_enabled = false;
-static GLint 		ogl_stereo_viewport[4];
-static GLfloat  	ogl_stereo_transform[16];
+static std::array<GLint, 4> 		ogl_stereo_viewport;
+static std::array<GLfloat, 16>  	ogl_stereo_transform;
 
 /* some function prototypes */
 
@@ -1304,7 +1304,7 @@ void ogl_stereo_frame(int xeye, int xoff)
 		if (ogl_stereo_enabled)
 			glDrawBuffer(GL_BACK_LEFT);
 		else {
-			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport);
+			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport.data());
 			// center unsqueezed side-by-side format
 			if (VR_half_width && VR_half_height)
 				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
@@ -1312,9 +1312,9 @@ void ogl_stereo_frame(int xeye, int xoff)
 		}
 
 		glMatrixMode(GL_PROJECTION);
-		glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform);
+		glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform.data());
 		ogl_stereo_transform[8] -= dxoff;		// xoff < 0
-		glLoadMatrixf(ogl_stereo_transform);
+		glLoadMatrixf(ogl_stereo_transform.data());
 		glMatrixMode(GL_MODELVIEW);
 	}
 	else if (xeye > 0) {
@@ -1322,7 +1322,7 @@ void ogl_stereo_frame(int xeye, int xoff)
 		if (ogl_stereo_enabled)
 			glDrawBuffer(GL_BACK_RIGHT);
 		else {
-			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport);
+			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport.data());
 			// half-width viewports for side-by-side format
 			if (VR_half_width)
 				ogl_stereo_viewport[0] += ogl_stereo_viewport[2];		// x = w/2
@@ -1336,9 +1336,9 @@ void ogl_stereo_frame(int xeye, int xoff)
 		}
 
 		glMatrixMode(GL_PROJECTION);
-		glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform);
+		glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform.data());
 		ogl_stereo_transform[8] += dxoff;		// xoff < 0
-		glLoadMatrixf(ogl_stereo_transform);
+		glLoadMatrixf(ogl_stereo_transform.data());
 		glMatrixMode(GL_MODELVIEW);
 	}
 }
