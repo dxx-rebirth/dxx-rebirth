@@ -140,8 +140,8 @@ static std::array<ogl_texture, 20000> ogl_texture_list;
 static int ogl_texture_list_cur;
 
 static GLboolean 	ogl_stereo_enabled = false;
-static GLint 		ogl_stereo_viewport[2][4];
-static GLfloat  	ogl_stereo_transform[2][16];
+static GLint 		ogl_stereo_viewport[4];
+static GLfloat  	ogl_stereo_transform[16];
 
 /* some function prototypes */
 
@@ -1304,17 +1304,17 @@ void ogl_stereo_frame(int xeye, int xoff)
 		if (ogl_stereo_enabled)
 			glDrawBuffer(GL_BACK_LEFT);
 		else {
-			glGetIntegerv(GL_VIEWPORT, &ogl_stereo_viewport[0][0]);
+			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport);
 			// center unsqueezed side-by-side format
 			if (VR_half_width && VR_half_height)
-				ogl_stereo_viewport[0][1] -= ogl_stereo_viewport[0][3]/2;	// y = h/4
-			glViewport(ogl_stereo_viewport[0][0], ogl_stereo_viewport[0][1], ogl_stereo_viewport[0][2], ogl_stereo_viewport[0][3]);
+				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
+			glViewport(ogl_stereo_viewport[0], ogl_stereo_viewport[1], ogl_stereo_viewport[2], ogl_stereo_viewport[3]);
 		}
 
 		glMatrixMode(GL_PROJECTION);
-		glGetFloatv(GL_PROJECTION_MATRIX, &ogl_stereo_transform[0][0]);
-		ogl_stereo_transform[0][8] -= dxoff;		// xoff < 0
-		glLoadMatrixf(&ogl_stereo_transform[0][0]);
+		glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform);
+		ogl_stereo_transform[8] -= dxoff;		// xoff < 0
+		glLoadMatrixf(ogl_stereo_transform);
 		glMatrixMode(GL_MODELVIEW);
 	}
 	else if (xeye > 0) {
@@ -1322,23 +1322,23 @@ void ogl_stereo_frame(int xeye, int xoff)
 		if (ogl_stereo_enabled)
 			glDrawBuffer(GL_BACK_RIGHT);
 		else {
-			glGetIntegerv(GL_VIEWPORT, &ogl_stereo_viewport[1][0]);
+			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport);
 			// half-width viewports for side-by-side format
 			if (VR_half_width)
-				ogl_stereo_viewport[1][0] += ogl_stereo_viewport[1][2];		// x = w/2
+				ogl_stereo_viewport[0] += ogl_stereo_viewport[2];		// x = w/2
 			// half-height viewports for above/below format
 			else if (VR_half_height)
-				ogl_stereo_viewport[1][1] -= ogl_stereo_viewport[1][3];		// y = h/2
+				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3];		// y = h/2
 			// center unsqueezed side-by-side format
 			if (VR_half_width && VR_half_height)
-				ogl_stereo_viewport[1][1] -= ogl_stereo_viewport[1][3]/2;	// y = h/4
-			glViewport(ogl_stereo_viewport[1][0], ogl_stereo_viewport[1][1], ogl_stereo_viewport[1][2], ogl_stereo_viewport[1][3]);
+				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
+			glViewport(ogl_stereo_viewport[0], ogl_stereo_viewport[1], ogl_stereo_viewport[2], ogl_stereo_viewport[3]);
 		}
 
 		glMatrixMode(GL_PROJECTION);
-		glGetFloatv(GL_PROJECTION_MATRIX, &ogl_stereo_transform[1][0]);
-		ogl_stereo_transform[1][8] += dxoff;		// xoff < 0
-		glLoadMatrixf(&ogl_stereo_transform[1][0]);
+		glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform);
+		ogl_stereo_transform[8] += dxoff;		// xoff < 0
+		glLoadMatrixf(ogl_stereo_transform);
 		glMatrixMode(GL_MODELVIEW);
 	}
 }
