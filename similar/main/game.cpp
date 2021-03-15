@@ -186,21 +186,31 @@ constexpr screen_mode initial_small_game_screen_mode{320, 200};
 constexpr screen_mode initial_large_game_screen_mode{1024, 768};
 screen_mode Game_screen_mode = initial_large_game_screen_mode;
 
+int  VR_stereo = false;
+bool VR_half_width = false;
+bool VR_half_height = false;
+fix  VR_eye_width = F1_0;
+int  VR_eye_offset = 0;
 }
 
 namespace dsx {
 
 void init_stereo()
 {
+#ifdef DXX_USE_OGL
 	// init stereo options
 	if (CGameArg.OglStereo || CGameArg.OglStereoView) {
 		if (!VR_stereo && !VR_eye_offset)
 			VR_stereo = (CGameArg.OglStereoView) ? CGameArg.OglStereoView % STEREO_MAX_FORMAT : STEREO_ABOVE_BELOW;
 		switch (VR_stereo) {
-			case 0: VR_half_width = VR_half_height = false; break;
-			case 1: VR_half_width = false; VR_half_height = true; break;
-			case 2: VR_half_width = true; VR_half_height = false; break;
-			case 3: VR_half_width = VR_half_height = true; break;
+			case STEREO_NONE: 
+				VR_half_width = VR_half_height = false; break;
+			case STEREO_ABOVE_BELOW: 
+				VR_half_width = false; VR_half_height = true; break;
+			case STEREO_SIDE_BY_SIDE: 
+				VR_half_width = true; VR_half_height = false; break;
+			case STEREO_SIDE_BY_SIDE2: 
+				VR_half_width = VR_half_height = true; break;
 		}
 		VR_eye_width = (F1_0 * 7) / 10;	// Descent 1.5 defaults
 		VR_eye_offset = (VR_half_width) ? -6 : -12;
@@ -209,6 +219,7 @@ void init_stereo()
 	else {
 		VR_stereo = VR_half_width = VR_half_height = false;
 	}
+#endif
 }
 
 //initialize the various canvases on the game screen

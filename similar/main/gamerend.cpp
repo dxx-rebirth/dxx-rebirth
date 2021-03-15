@@ -384,12 +384,6 @@ static void draw_window_label(object_array &Objects, grs_canvas &canvas)
 
 namespace dsx {
 
-	int  VR_stereo = false;
-	bool VR_half_width = false;
-	bool VR_half_height = false;
-	fix  VR_eye_width = F1_0;
-	int  VR_eye_offset = 0;
-
 namespace {
 
 static void render_countdown_gauge(grs_canvas &canvas)

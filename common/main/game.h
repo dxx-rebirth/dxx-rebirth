@@ -189,6 +189,21 @@ struct d_game_unique_state
 extern int Global_missile_firing_count;
 
 extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
+
+// Stereo viewport formats
+enum StereoFormat : uint8_t {
+	STEREO_NONE=0,
+	STEREO_ABOVE_BELOW,
+	STEREO_SIDE_BY_SIDE,
+	STEREO_SIDE_BY_SIDE2,
+	STEREO_MAX_FORMAT
+};
+
+extern int  VR_stereo;
+extern bool VR_half_width;
+extern bool VR_half_height;
+extern fix  VR_eye_width;
+extern int  VR_eye_offset;
 }
 
 #define MAX_PALETTE_ADD 30
@@ -399,12 +414,6 @@ void enable_flicker(d_flickering_light_state &fls, vmsegidx_t segnum, unsigned s
 void flickering_light_read(flickering_light &fl, PHYSFS_File *fp);
 void flickering_light_write(const flickering_light &fl, PHYSFS_File *fp);
 #endif
-
-extern	int  VR_stereo;
-extern	bool VR_half_width;
-extern	bool VR_half_height;
-extern	fix  VR_eye_width;
-extern	int  VR_eye_offset;
 
 void game_render_frame_mono(const control_info &Controls);
 static inline void game_render_frame_mono(int skip_flip, const control_info &Controls)

@@ -912,6 +912,7 @@ static window_event_result HandleSystemKey(int key)
 			break;
 #endif
 
+#ifdef DXX_USE_OGL
 		case KEY_SHIFTED + KEY_F5:
 			VR_eye_offset -= 1;
 			break;
@@ -934,6 +935,7 @@ static window_event_result HandleSystemKey(int key)
 				++VR_stereo %= STEREO_MAX_FORMAT;
 				init_stereo();
 			break;
+#endif
 
 			/*
 			 * Jukebox hotkeys -- MD2211, 2007
