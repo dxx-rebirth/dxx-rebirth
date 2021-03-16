@@ -1259,12 +1259,9 @@ void ogl_set_blending(const gr_blend cv_blend_func)
 
 void ogl_start_frame(grs_canvas &canvas)
 {
-	int KW = (VR_half_width) ? 2 : 1;
-	int KH = (VR_half_height) ? 2 : 1;
-
 	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitbltc=0;
 
-	OGL_VIEWPORT(canvas.cv_bitmap.bm_x, canvas.cv_bitmap.bm_y, canvas.cv_bitmap.bm_w/KW, canvas.cv_bitmap.bm_h/KH);
+	OGL_VIEWPORT(canvas.cv_bitmap.bm_x, canvas.cv_bitmap.bm_y, canvas.cv_bitmap.bm_w, canvas.cv_bitmap.bm_h);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	glLineWidth(linedotscale);

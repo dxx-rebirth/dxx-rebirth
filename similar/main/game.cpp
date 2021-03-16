@@ -215,6 +215,7 @@ void init_stereo()
 		VR_eye_width = (F1_0 * 7) / 10;	// Descent 1.5 defaults
 		VR_eye_offset = (VR_half_width) ? -6 : -12;
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
+		reset_cockpit();
 	}
 	else {
 		VR_stereo = VR_half_width = VR_half_height = false;
@@ -270,6 +271,12 @@ void init_cockpit()
 		}
 
 		case CM_FULL_SCREEN:
+			if (VR_stereo) {
+				unsigned w = (VR_half_width) ? SWIDTH/2 : SWIDTH;
+				unsigned h = (VR_half_height) ? SHEIGHT/2 : SHEIGHT;
+				game_init_render_sub_buffers(0, 0, w, h);
+				break;
+			}
 			game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
 			break;
 
