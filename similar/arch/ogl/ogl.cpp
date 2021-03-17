@@ -1303,11 +1303,11 @@ void ogl_stereo_frame(int xeye, int xoff)
 		else {
 			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport.data());
 			// center unsqueezed side-by-side format
-			if (VR_half_width && VR_half_height)
+			if (VR_stereo == STEREO_SIDE_BY_SIDE2)
 				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
 			glViewport(ogl_stereo_viewport[0], ogl_stereo_viewport[1], ogl_stereo_viewport[2], ogl_stereo_viewport[3]);
 		}
-
+		// rightward image shift adjustment for left eye offset
 		glMatrixMode(GL_PROJECTION);
 		glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform.data());
 		ogl_stereo_transform[8] -= dxoff;		// xoff < 0
@@ -1320,18 +1320,22 @@ void ogl_stereo_frame(int xeye, int xoff)
 			glDrawBuffer(GL_BACK_RIGHT);
 		else {
 			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport.data());
-			// half-width viewports for side-by-side format
-			if (VR_half_width)
-				ogl_stereo_viewport[0] += ogl_stereo_viewport[2];		// x = w/2
-			// half-height viewports for above/below format
-			else if (VR_half_height)
-				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3];		// y = h/2
+			switch (VR_stereo) {
 			// center unsqueezed side-by-side format
-			if (VR_half_width && VR_half_height)
+			case STEREO_SIDE_BY_SIDE2:
 				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
+			// half-width viewports for side-by-side format
+			case STEREO_SIDE_BY_SIDE:
+				ogl_stereo_viewport[0] += ogl_stereo_viewport[2];		// x = w/2
+				break;
+			// half-height viewports for above/below format
+			case STEREO_ABOVE_BELOW:
+				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3];		// y = h/2
+				break;
+			}
 			glViewport(ogl_stereo_viewport[0], ogl_stereo_viewport[1], ogl_stereo_viewport[2], ogl_stereo_viewport[3]);
 		}
-
+		// leftward image shift adjustment for right eye offset
 		glMatrixMode(GL_PROJECTION);
 		glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform.data());
 		ogl_stereo_transform[8] += dxoff;		// xoff < 0

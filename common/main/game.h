@@ -204,6 +204,8 @@ extern bool VR_half_width;
 extern bool VR_half_height;
 extern fix  VR_eye_width;
 extern int  VR_eye_offset;
+extern grs_canvas VR_hud_left;
+extern grs_canvas VR_hud_right;
 }
 
 #define MAX_PALETTE_ADD 30
