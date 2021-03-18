@@ -217,7 +217,6 @@ void init_stereo()
 		VR_eye_width = (F1_0 * 7) / 10;	// Descent 1.5 defaults
 		VR_eye_offset = (VR_half_width) ? -6 : -12;
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
-		reset_cockpit();
 	}
 	else {
 		VR_stereo = VR_half_width = VR_half_height = false;
@@ -331,23 +330,27 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 	gr_clear_canvas(*grd_curcanv, 0);
 	gr_init_sub_canvas(Screen_3d_window, grd_curscreen->sc_canvas, x, y, w, h);
 
-	switch (VR_stereo) {
+	if (VR_stereo) {
+		// offset HUD screen rects to force out-of-screen parallax on HUD overlays
+		int dx = (VR_eye_offset < 0) ? -VR_eye_offset : 0;
+		switch (VR_stereo) {
 		case STEREO_NONE:
-			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x, y, w, h);
-			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x, y, w, h);
+			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y, w-dx, h);
+			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x, y, w-dx, h);
 			break;
 		case STEREO_ABOVE_BELOW:
-			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x, y, w, h);
-			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x, y+h, w, h);
+			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y, w-dx, h);
+			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x, y+h, w-dx, h);
 			break;
 		case STEREO_SIDE_BY_SIDE:
-			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x, y, w, h);
-			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x+w, y, w, h);
+			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y, w-dx, h);
+			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x+w, y, w-dx, h);
 			break;
 		case STEREO_SIDE_BY_SIDE2:
-			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x, y+h/2, w, h);
-			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x+w, y+h/2, w, h);
+			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y+h/2, w-dx, h);
+			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x+w, y+h/2, w-dx, h);
 			break;
+		}
 	}
 }
 

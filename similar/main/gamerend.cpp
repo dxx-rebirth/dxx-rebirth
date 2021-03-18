@@ -778,7 +778,7 @@ int BigWindowSwitch=0;
 //render a frame for the game
 void game_render_frame_mono(const control_info &Controls)
 {
-	int no_draw_hud = 0; //VR_stereo;
+	int no_draw_hud = 0;
 
 	gr_set_current_canvas(Screen_3d_window);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -869,14 +869,11 @@ void game_render_frame_mono(const control_info &Controls)
 	gr_set_current_canvas(Screen_3d_window);
 	if (!no_draw_hud) {
 		if (VR_stereo) {
-//			gr_set_current_canvas(VR_hud_left);
 			game_draw_hud_stuff(VR_hud_left, Controls);
-//			gr_set_current_canvas(VR_hud_right);
 			game_draw_hud_stuff(VR_hud_right, Controls);
-//			gr_set_default_canvas();
 		}
 		else
-		game_draw_hud_stuff(*grd_curcanv, Controls);
+			game_draw_hud_stuff(*grd_curcanv, Controls);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
