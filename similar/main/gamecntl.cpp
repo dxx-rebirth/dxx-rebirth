@@ -912,6 +912,37 @@ static window_event_result HandleSystemKey(int key)
 			break;
 #endif
 
+#if DXX_USE_OGL
+		case KEY_SHIFTED + KEY_F5:
+			VR_eye_offset -= 1;
+			reset_cockpit();
+			break;
+		case KEY_SHIFTED + KEY_F6:
+			VR_eye_offset += 1;
+			reset_cockpit();
+			break;
+		case KEY_SHIFTED + KEY_ALTED + KEY_F5:
+			VR_eye_width -= (F1_0/10); //*= 10/11;
+			reset_cockpit();
+			break;
+		case KEY_SHIFTED + KEY_ALTED + KEY_F6:
+			VR_eye_width += (F1_0/10); //*= 11/10;
+			reset_cockpit();
+			break;
+		case KEY_SHIFTED + KEY_F7:
+		case KEY_SHIFTED + KEY_ALTED + KEY_F7:
+			VR_eye_width = F1_0;
+			VR_eye_offset = 0;
+			reset_cockpit();
+			break;
+		case KEY_SHIFTED + KEY_F8:
+		case KEY_SHIFTED + KEY_ALTED + KEY_F8:
+			++VR_stereo %= STEREO_MAX_FORMAT;
+			init_stereo();
+			reset_cockpit();
+			break;
+#endif
+
 			/*
 			 * Jukebox hotkeys -- MD2211, 2007
 			 * Now for all music

@@ -139,6 +139,10 @@ static int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc;
 static std::array<ogl_texture, 20000> ogl_texture_list;
 static int ogl_texture_list_cur;
 
+static GLboolean 	ogl_stereo_enabled = false;
+static std::array<GLint, 4> 		ogl_stereo_viewport;
+static std::array<GLfloat, 16>  	ogl_stereo_transform;
+
 /* some function prototypes */
 
 #define GL_TEXTURE0_ARB 0x84C0
@@ -1283,6 +1287,61 @@ void ogl_start_frame(grs_canvas &canvas)
 #endif
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
+}
+
+void ogl_stereo_frame(int xeye, int xoff)
+{
+	float dxoff = xoff * 2.0f / grd_curscreen->sc_canvas.cv_bitmap.bm_w;
+
+	// query if stereo quad buffering available?
+	glGetBooleanv(GL_STEREO, &ogl_stereo_enabled);
+
+	if (xeye < 0) {
+		// left eye view
+		if (ogl_stereo_enabled)
+			glDrawBuffer(GL_BACK_LEFT);
+		else {
+			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport.data());
+			// center unsqueezed side-by-side format
+			if (VR_stereo == STEREO_SIDE_BY_SIDE2)
+				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
+			glViewport(ogl_stereo_viewport[0], ogl_stereo_viewport[1], ogl_stereo_viewport[2], ogl_stereo_viewport[3]);
+		}
+		// rightward image shift adjustment for left eye offset
+		glMatrixMode(GL_PROJECTION);
+		glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform.data());
+		ogl_stereo_transform[8] -= dxoff;		// xoff < 0
+		glLoadMatrixf(ogl_stereo_transform.data());
+		glMatrixMode(GL_MODELVIEW);
+	}
+	else if (xeye > 0) {
+		// right eye view
+		if (ogl_stereo_enabled)
+			glDrawBuffer(GL_BACK_RIGHT);
+		else {
+			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport.data());
+			switch (VR_stereo) {
+			// center unsqueezed side-by-side format
+			case STEREO_SIDE_BY_SIDE2:
+				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
+			// half-width viewports for side-by-side format
+			case STEREO_SIDE_BY_SIDE:
+				ogl_stereo_viewport[0] += ogl_stereo_viewport[2];		// x = w/2
+				break;
+			// half-height viewports for above/below format
+			case STEREO_ABOVE_BELOW:
+				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3];		// y = h/2
+				break;
+			}
+			glViewport(ogl_stereo_viewport[0], ogl_stereo_viewport[1], ogl_stereo_viewport[2], ogl_stereo_viewport[3]);
+		}
+		// leftward image shift adjustment for right eye offset
+		glMatrixMode(GL_PROJECTION);
+		glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform.data());
+		ogl_stereo_transform[8] += dxoff;		// xoff < 0
+		glLoadMatrixf(ogl_stereo_transform.data());
+		glMatrixMode(GL_MODELVIEW);
+	}
 }
 
 void ogl_end_frame(void){

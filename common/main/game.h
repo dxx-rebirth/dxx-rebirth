@@ -189,6 +189,23 @@ struct d_game_unique_state
 extern int Global_missile_firing_count;
 
 extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
+
+// Stereo viewport formats
+enum StereoFormat : uint8_t {
+	STEREO_NONE=0,
+	STEREO_ABOVE_BELOW,
+	STEREO_SIDE_BY_SIDE,
+	STEREO_SIDE_BY_SIDE2,
+	STEREO_MAX_FORMAT
+};
+
+extern int  VR_stereo;
+extern bool VR_half_width;
+extern bool VR_half_height;
+extern fix  VR_eye_width;
+extern int  VR_eye_offset;
+extern grs_canvas VR_hud_left;
+extern grs_canvas VR_hud_right;
 }
 
 #define MAX_PALETTE_ADD 30
@@ -205,6 +222,7 @@ extern game_window *Game_wind;
 
 void game();
 void init_game();
+void init_stereo();
 void init_cockpit();
 extern void PALETTE_FLASH_ADD(int dr, int dg, int db);
 

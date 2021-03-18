@@ -778,7 +778,7 @@ int BigWindowSwitch=0;
 //render a frame for the game
 void game_render_frame_mono(const control_info &Controls)
 {
-	int no_draw_hud=0;
+	int no_draw_hud = 0;
 
 	gr_set_current_canvas(Screen_3d_window);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -803,7 +803,12 @@ void game_render_frame_mono(const control_info &Controls)
 
 		window_rendered_data window;
 		update_rendered_data(window, *Viewer, 0);
-		render_frame(*grd_curcanv, 0, window);
+		if (VR_stereo) {
+			render_frame(*grd_curcanv, -VR_eye_width, window);
+			render_frame(*grd_curcanv, +VR_eye_width, window);
+		}
+		else
+			render_frame(*grd_curcanv, 0, window);
 
 		wake_up_rendered_objects(*Viewer, window);
 		show_HUD_names(*grd_curcanv);
@@ -838,7 +843,12 @@ void game_render_frame_mono(const control_info &Controls)
 #if defined(DXX_BUILD_DESCENT_II)
 		update_rendered_data(window, *Viewer, Rear_view);
 #endif
-		render_frame(*grd_curcanv, 0, window);
+		if (VR_stereo) {
+			render_frame(*grd_curcanv, -VR_eye_width, window);
+			render_frame(*grd_curcanv, +VR_eye_width, window);
+		}
+		else
+			render_frame(*grd_curcanv, 0, window);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -857,8 +867,14 @@ void game_render_frame_mono(const control_info &Controls)
 		Game_mode = GM_NORMAL;
 
 	gr_set_current_canvas(Screen_3d_window);
-	if (!no_draw_hud)
-		game_draw_hud_stuff(*grd_curcanv, Controls);
+	if (!no_draw_hud) {
+		if (VR_stereo) {
+			game_draw_hud_stuff(VR_hud_left, Controls);
+			game_draw_hud_stuff(VR_hud_right, Controls);
+		}
+		else
+			game_draw_hud_stuff(*grd_curcanv, Controls);
+	}
 
 #if defined(DXX_BUILD_DESCENT_II)
 	gr_set_default_canvas();
@@ -876,7 +892,7 @@ void toggle_cockpit()
 {
 	enum cockpit_mode_t new_mode=CM_FULL_SCREEN;
 
-	if (Rear_view || Player_dead_state != player_dead_state::no)
+	if (Rear_view || Player_dead_state != player_dead_state::no || VR_stereo)
 		return;
 
 	switch (PlayerCfg.CockpitMode[1])
