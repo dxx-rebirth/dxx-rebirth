@@ -196,6 +196,7 @@ enum StereoFormat : uint8_t {
 	STEREO_ABOVE_BELOW,
 	STEREO_SIDE_BY_SIDE,
 	STEREO_SIDE_BY_SIDE2,
+	STEREO_ABOVE_BELOW_SYNC,
 	STEREO_MAX_FORMAT
 };
 
@@ -204,6 +205,7 @@ extern bool VR_half_width;
 extern bool VR_half_height;
 extern fix  VR_eye_width;
 extern int  VR_eye_offset;
+extern int  VR_sync_width;
 extern grs_canvas VR_hud_left;
 extern grs_canvas VR_hud_right;
 }
