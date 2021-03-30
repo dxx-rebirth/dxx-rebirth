@@ -252,6 +252,10 @@ void init_cockpit()
 	}
 #endif
 
+	// Hack to keep stereo formats remaining fullscreen
+	if (VR_stereo && PlayerCfg.CockpitMode[1] != CM_FULL_SCREEN)
+		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
+
 	gr_set_default_canvas();
 
 	switch( PlayerCfg.CockpitMode[1] ) {
