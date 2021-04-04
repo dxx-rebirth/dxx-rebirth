@@ -292,6 +292,7 @@ uint16_t convert_d1_tmap_num(const uint16_t d1_tmap_num)
 	case 368: return 395;
 	case 369: return 396;
 	case 370:  return  d1_pig_present ? 195 : 392; // mntr04d (devil: -1)
+	case 570: return 635;
 	// range 371..584 handled by default case (wall01 and door frames)
 	default:
 		// ranges:
