@@ -399,6 +399,51 @@ static void format_time(char (&str)[9], unsigned secs_int, unsigned hours_extra)
 	snprintf(str, sizeof(str), "%1u:%02u:%02u", h, m, s);
 }
 
+struct choose_curseg_menu_items
+{
+	std::array<char, 40> caption;
+	std::array<char, sizeof("65535")> text;
+	std::array<newmenu_item, 2> m;
+	choose_curseg_menu_items(const d_level_shared_segment_state &LevelSharedSegmentState) :
+		m{{
+			nm_item_text((snprintf(caption.data(), caption.size(), "Enter target segment number (max=%hu)", LevelSharedSegmentState.get_segments().get_count()), caption.data())),
+			nm_item_input((text.front() = 0, text)),
+		}}
+	{
+	}
+};
+
+struct choose_curseg_menu : choose_curseg_menu_items, passive_newmenu
+{
+	choose_curseg_menu(const d_level_shared_segment_state &LevelSharedSegmentState, grs_canvas &src) :
+		choose_curseg_menu_items(LevelSharedSegmentState),
+		passive_newmenu(menu_title{nullptr}, menu_subtitle{nullptr}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+		{
+		}
+	virtual window_event_result event_handler(const d_event &) override;
+};
+
+window_event_result choose_curseg_menu::event_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_WINDOW_CLOSE:
+			{
+				char *p;
+				const auto s = strtoul(text.data(), &p, 0);
+				if (*p)
+					break;
+				if (s >= Segments.get_count())
+					break;
+				Cursegp = Segments.vmptridx(static_cast<segnum_t>(s));
+				break;
+			}
+		default:
+			break;
+	}
+	return newmenu::event_handler(event);
+}
+
 }
 
 }
@@ -1384,6 +1429,9 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 			break;
 		}
 #endif
+		case KEY_C + KEY_CTRLED + KEY_DEBUGGED:
+			window_create<choose_curseg_menu>(LevelSharedSegmentState, *grd_curcanv);
+			break;
 		case KEY_C + KEY_SHIFTED + KEY_DEBUGGED:
 			if (Player_dead_state == player_dead_state::no &&
 				!(Game_mode & GM_MULTI))
