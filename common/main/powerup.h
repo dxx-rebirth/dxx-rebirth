@@ -28,8 +28,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "fwd-vclip.h"
 #include "fmtcheck.h"
-
-#ifdef __cplusplus
 #include "fwd-object.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -148,19 +146,10 @@ int do_powerup(vmobjptridx_t obj);
 
 //process (animate) a powerup for one frame
 void do_powerup_frame(const d_vclip_array &Vclip, vmobjptridx_t obj);
-}
-#endif
-#endif
 
-// Diminish shields and energy towards max in case they exceeded it.
-extern void diminish_towards_max(void);
-
-#ifdef dsx
-namespace dsx {
-extern void do_megawow_powerup(int quantity);
+void do_megawow_powerup(object &plrobj, int quantity);
 
 void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const char *str) __attribute_nonnull();
 }
 #endif
-
 #endif

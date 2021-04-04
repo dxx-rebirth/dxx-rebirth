@@ -153,12 +153,10 @@ void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const c
 
 //#ifndef RELEASE
 //	Give the megawow powerup!
-void do_megawow_powerup(int quantity)
+void do_megawow_powerup(object &plrobj, const int quantity)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
 	powerup_basic(30, 0, 30, 1, "MEGA-WOWIE-ZOWIE!");
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &player_info = plrobj.ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_I)
 	player_info.primary_weapon_flags = (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -174,7 +172,7 @@ void do_megawow_powerup(int quantity)
 		i = quantity/5;
 
 	player_info.energy = F1_0*200;
-	get_local_plrobj().shields = F1_0*200;
+	plrobj.shields = F1_0*200;
 	player_info.powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
 #if defined(DXX_BUILD_DESCENT_I)
 	const auto laser_level = MAX_LASER_LEVEL;
@@ -662,7 +660,7 @@ int do_powerup(const vmobjptridx_t obj)
 			}
 	#ifndef RELEASE
 		case	POW_MEGAWOW:
-			do_megawow_powerup(50);
+			do_megawow_powerup(plrobj, 50);
 			used = 1;
 			break;
 	#endif

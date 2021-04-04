@@ -143,7 +143,7 @@ struct pause_window : ::dcx::pause_window
 };
 
 #ifndef RELEASE
-static void do_cheat_menu();
+static void do_cheat_menu(object &plrobj, grs_canvas &cv_canvas);
 static void play_test_sound();
 #endif
 
@@ -1423,13 +1423,20 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 #endif
 
 		case KEY_DEBUGGED + KEY_C:
-			do_cheat_menu();
+		{
+			auto &plrobj = get_local_plrobj();
+			do_cheat_menu(plrobj, grd_curscreen->sc_canvas);
 			break;
+		}
 		case KEY_DEBUGGED + KEY_SHIFTED + KEY_A:
-			do_megawow_powerup(10);
+		{
+			auto &plrobj = get_local_plrobj();
+			do_megawow_powerup(plrobj, 10);
 			break;
+		}
 		case KEY_DEBUGGED + KEY_A:	{
-			do_megawow_powerup(200);
+			auto &plrobj = get_local_plrobj();
+			do_megawow_powerup(plrobj, 200);
 				break;
 		}
 
@@ -1806,7 +1813,7 @@ static window_event_result FinalCheats()
 		HUD_init_message(HM_DEFAULT, "Rapid fire %s!", cheats.rapidfire?TXT_ON:TXT_OFF);
 #if defined(DXX_BUILD_DESCENT_I)
                 if (cheats.rapidfire)
-                        do_megawow_powerup(200);
+					do_megawow_powerup(plrobj, 200);
 #endif
 	}
 
@@ -2024,12 +2031,9 @@ int wimp_menu::subfunction_handler(const d_event &event)
 	return 0;
 }
 
-static void do_cheat_menu()
+static void do_cheat_menu(object &plrobj, grs_canvas &cv_canvas)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
-	auto &plrobj = get_local_plrobj();
-	auto menu = window_create<wimp_menu>(plrobj, grd_curscreen->sc_canvas);
+	auto menu = window_create<wimp_menu>(plrobj, cv_canvas);
 	(void)menu;
 }
 #endif
