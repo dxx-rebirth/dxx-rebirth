@@ -187,8 +187,6 @@ constexpr screen_mode initial_large_game_screen_mode{1024, 768};
 screen_mode Game_screen_mode = initial_large_game_screen_mode;
 
 int  VR_stereo = false;
-bool VR_half_width = false;
-bool VR_half_height = false;
 fix  VR_eye_width = F1_0;
 int  VR_eye_offset = 0;
 grs_canvas VR_hud_left;
@@ -204,22 +202,24 @@ void init_stereo()
 	if (CGameArg.OglStereo || CGameArg.OglStereoView) {
 		if (!VR_stereo && !VR_eye_offset)
 			VR_stereo = (CGameArg.OglStereoView) ? CGameArg.OglStereoView % STEREO_MAX_FORMAT : STEREO_ABOVE_BELOW;
-		switch (VR_stereo) {
-			case STEREO_NONE: 
-				VR_half_width = VR_half_height = false; break;
-			case STEREO_ABOVE_BELOW: 
-				VR_half_width = false; VR_half_height = true; break;
-			case STEREO_SIDE_BY_SIDE: 
-				VR_half_width = true; VR_half_height = false; break;
-			case STEREO_SIDE_BY_SIDE2: 
-				VR_half_width = VR_half_height = true; break;
+		constexpr int half_width_eye_offset = -6;
+		constexpr int full_width_eye_offset = -12;
+		switch (VR_stereo)
+		{
+			case STEREO_NONE:
+			case STEREO_ABOVE_BELOW:
+				VR_eye_offset = full_width_eye_offset;
+				break;
+			case STEREO_SIDE_BY_SIDE:
+			case STEREO_SIDE_BY_SIDE2:
+				VR_eye_offset = half_width_eye_offset;
+				break;
 		}
 		VR_eye_width = (F1_0 * 7) / 10;	// Descent 1.5 defaults
-		VR_eye_offset = (VR_half_width) ? -6 : -12;
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
 	}
 	else {
-		VR_stereo = VR_half_width = VR_half_height = false;
+		VR_stereo = false;
 	}
 #endif
 }
@@ -272,13 +272,33 @@ void init_cockpit()
 		}
 
 		case CM_FULL_SCREEN:
-			if (VR_stereo) {
-				unsigned w = (VR_half_width) ? SWIDTH/2 : SWIDTH;
-				unsigned h = (VR_half_height) ? SHEIGHT/2 : SHEIGHT;
+			{
+				unsigned w = SWIDTH;
+				unsigned h = SHEIGHT;
+				switch (VR_stereo)
+				{
+					case STEREO_NONE:
+						/* Preserve width */
+						/* Preserve height */
+						break;
+					case STEREO_ABOVE_BELOW:
+						/* Preserve width */
+						/* Change height */
+						h /= 2;
+						break;
+					case STEREO_SIDE_BY_SIDE2:
+						/* Change width */
+						/* Change height */
+						h /= 2;
+						DXX_BOOST_FALLTHROUGH;
+					case STEREO_SIDE_BY_SIDE:
+						/* Change width */
+						/* Preserve height */
+						w /= 2;
+						break;
+				}
 				game_init_render_sub_buffers(0, 0, w, h);
-				break;
 			}
-			game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
 			break;
 
 		case CM_STATUS_BAR:

@@ -200,8 +200,6 @@ enum StereoFormat : uint8_t {
 };
 
 extern int  VR_stereo;
-extern bool VR_half_width;
-extern bool VR_half_height;
 extern fix  VR_eye_width;
 extern int  VR_eye_offset;
 extern grs_canvas VR_hud_left;
