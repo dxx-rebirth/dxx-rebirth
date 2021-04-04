@@ -1324,6 +1324,7 @@ void ogl_stereo_frame(int xeye, int xoff)
 			// center unsqueezed side-by-side format
 			case STEREO_SIDE_BY_SIDE2:
 				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
+				DXX_BOOST_FALLTHROUGH;
 			// half-width viewports for side-by-side format
 			case STEREO_SIDE_BY_SIDE:
 				ogl_stereo_viewport[0] += ogl_stereo_viewport[2];		// x = w/2
