@@ -2248,17 +2248,17 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 		{
 			if (event_key_get(event) == KEY_CTRLED + KEY_D)
 			{
-				char text[4] = "c";
+				std::array<char, 4> text{{"c"}};
 				int rval = 0;
 
 				std::array<newmenu_item, 1> m{{
 					nm_item_input(text),
 				}};
 				rval = newmenu_do2(menu_title{nullptr}, menu_subtitle{"Enter drive letter"}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
-				text[1] = '\0';
+				const auto t0 = text[0];
 				std::array<char, PATH_MAX> newpath;
-				snprintf(newpath.data(), newpath.size(), "%s:%s", text, sep);
-				if (!rval && text[0])
+				snprintf(newpath.data(), newpath.size(), "%c:%s", t0, sep);
+				if (!rval && t0)
 				{
 					select_file_recursive(title, newpath, ext_range, select_dir, userdata);
 					// close old box.
