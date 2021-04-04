@@ -140,7 +140,6 @@ static std::array<ogl_texture, 20000> ogl_texture_list;
 static int ogl_texture_list_cur;
 
 static GLboolean 	ogl_stereo_enabled = false;
-static std::array<GLint, 4> 		ogl_stereo_viewport;
 static std::array<GLfloat, 16>  	ogl_stereo_transform;
 
 /* some function prototypes */
@@ -1289,7 +1288,7 @@ void ogl_start_frame(grs_canvas &canvas)
 	glLoadIdentity();//clear matrix
 }
 
-void ogl_stereo_frame(int xeye, int xoff)
+void ogl_stereo_frame(const int xeye, const int xoff)
 {
 	float dxoff = xoff * 2.0f / grd_curscreen->sc_canvas.cv_bitmap.bm_w;
 
@@ -1300,11 +1299,12 @@ void ogl_stereo_frame(int xeye, int xoff)
 		// left eye view
 		if (ogl_stereo_enabled)
 			glDrawBuffer(GL_BACK_LEFT);
-		else {
+		else if (VR_stereo == STEREO_SIDE_BY_SIDE2)
+		{
+			std::array<GLint, 4> ogl_stereo_viewport;
 			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport.data());
 			// center unsqueezed side-by-side format
-			if (VR_stereo == STEREO_SIDE_BY_SIDE2)
-				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
+			ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
 			glViewport(ogl_stereo_viewport[0], ogl_stereo_viewport[1], ogl_stereo_viewport[2], ogl_stereo_viewport[3]);
 		}
 		// rightward image shift adjustment for left eye offset
@@ -1319,6 +1319,7 @@ void ogl_stereo_frame(int xeye, int xoff)
 		if (ogl_stereo_enabled)
 			glDrawBuffer(GL_BACK_RIGHT);
 		else {
+			std::array<GLint, 4> ogl_stereo_viewport;
 			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport.data());
 			switch (VR_stereo) {
 			// center unsqueezed side-by-side format
