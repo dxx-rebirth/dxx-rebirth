@@ -1290,16 +1290,18 @@ void ogl_start_frame(grs_canvas &canvas)
 
 void ogl_stereo_frame(const int xeye, const int xoff)
 {
-	float dxoff = xoff * 2.0f / grd_curscreen->sc_canvas.cv_bitmap.bm_w;
+	if (!xeye)
+		return;
+	const float dxoff = xoff * 2.0f / grd_curscreen->sc_canvas.cv_bitmap.bm_w;
+	float stereo_transform_dxoff;
 
 	// query if stereo quad buffering available?
 	glGetBooleanv(GL_STEREO, &ogl_stereo_enabled);
 
-	if (xeye < 0) {
+	const auto left_eye = xeye < 0;
+	if (left_eye) {
 		// left eye view
-		if (ogl_stereo_enabled)
-			glDrawBuffer(GL_BACK_LEFT);
-		else if (VR_stereo == STEREO_SIDE_BY_SIDE2)
+		if (!ogl_stereo_enabled && VR_stereo == STEREO_SIDE_BY_SIDE2)
 		{
 			std::array<GLint, 4> ogl_stereo_viewport;
 			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport.data());
@@ -1308,17 +1310,13 @@ void ogl_stereo_frame(const int xeye, const int xoff)
 			glViewport(ogl_stereo_viewport[0], ogl_stereo_viewport[1], ogl_stereo_viewport[2], ogl_stereo_viewport[3]);
 		}
 		// rightward image shift adjustment for left eye offset
-		glMatrixMode(GL_PROJECTION);
-		glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform.data());
-		ogl_stereo_transform[8] -= dxoff;		// xoff < 0
-		glLoadMatrixf(ogl_stereo_transform.data());
-		glMatrixMode(GL_MODELVIEW);
+		stereo_transform_dxoff = -dxoff;		// xoff < 0
 	}
-	else if (xeye > 0) {
+	else
+	{
 		// right eye view
-		if (ogl_stereo_enabled)
-			glDrawBuffer(GL_BACK_RIGHT);
-		else {
+		if (!ogl_stereo_enabled)
+		{
 			std::array<GLint, 4> ogl_stereo_viewport;
 			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport.data());
 			switch (VR_stereo) {
@@ -1338,12 +1336,15 @@ void ogl_stereo_frame(const int xeye, const int xoff)
 			glViewport(ogl_stereo_viewport[0], ogl_stereo_viewport[1], ogl_stereo_viewport[2], ogl_stereo_viewport[3]);
 		}
 		// leftward image shift adjustment for right eye offset
-		glMatrixMode(GL_PROJECTION);
-		glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform.data());
-		ogl_stereo_transform[8] += dxoff;		// xoff < 0
-		glLoadMatrixf(ogl_stereo_transform.data());
-		glMatrixMode(GL_MODELVIEW);
+		stereo_transform_dxoff = dxoff;		// xoff < 0
 	}
+	if (ogl_stereo_enabled)
+		glDrawBuffer(left_eye ? GL_BACK_LEFT : GL_BACK_RIGHT);
+	glMatrixMode(GL_PROJECTION);
+	glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform.data());
+	ogl_stereo_transform[8] += stereo_transform_dxoff;
+	glLoadMatrixf(ogl_stereo_transform.data());
+	glMatrixMode(GL_MODELVIEW);
 }
 
 void ogl_end_frame(void){
