@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "joy.h"
 #include "dxxsconf.h"
 
-#ifdef __cplusplus
+#include "maths.h"
 #include <vector>
 #include "fwd-event.h"
 #include "strutil.h"
@@ -208,5 +208,4 @@ using joybutton_text_t = joystick_text_t<number_to_text_length<DXX_MAX_JOYSTICKS
 extern joybutton_text_t joybutton_text;
 
 }
-#endif
 #endif
