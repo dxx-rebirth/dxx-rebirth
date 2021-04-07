@@ -399,6 +399,8 @@ static void format_time(char (&str)[9], unsigned secs_int, unsigned hours_extra)
 	snprintf(str, sizeof(str), "%1u:%02u:%02u", h, m, s);
 }
 
+#ifndef RELEASE
+#if DXX_USE_EDITOR
 struct choose_curseg_menu_items
 {
 	std::array<char, 40> caption;
@@ -443,6 +445,8 @@ window_event_result choose_curseg_menu::event_handler(const d_event &event)
 	}
 	return newmenu::event_handler(event);
 }
+#endif
+#endif
 
 }
 
