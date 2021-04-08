@@ -5254,6 +5254,10 @@ class DXXProgram(DXXCommon):
 					typecode='APPL', creator='DCNT',
 					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
 					resources=[[os.path.join(self.srcdir, s), s] for s in ['English.lproj/InfoPlist.strings']])
+			if not self.user_settings.macos_add_frameworks:
+				Command('%s.app/Contents/libs' % self.PROGRAM_NAME,
+						'%s.app/Contents/MacOS/%s-rebirth' % (self.PROGRAM_NAME, dxxstr),
+						"dylibbundler -od -b -x $SOURCE -d $TARGET")
 
 class D1XProgram(DXXProgram):
 	LazyObjectState = DXXProgram.LazyObjectState
