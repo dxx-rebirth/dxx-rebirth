@@ -1189,6 +1189,13 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const cscusegment seg, cons
 namespace {
 //check if a particular point on a wall is a transparent pixel
 //returns 1 if can pass though the wall, else 0
+const grs_bitmap &get_tex1_bm(texture1_value tmap_num)
+{
+	auto &texture1 = Textures[get_texture_index(tmap_num)];
+	PIGGY_PAGE_IN(texture1);
+	return GameBitmaps[texture1.index];
+}
+
 int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,int facenum)
 {
 	auto &side = seg->unique_segment::sides[sidenum];
@@ -1209,11 +1216,7 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 	const auto tmap_num = side.tmap_num;
 	const grs_bitmap &rbm = (side.tmap_num2 != texture2_value::None)
 		? texmerge_get_cached_bitmap(tmap_num, side.tmap_num2)
-		: ( [tmap_num] {
-			auto &texture1 = Textures[get_texture_index(tmap_num)];
-			PIGGY_PAGE_IN(texture1);
-			return GameBitmaps[texture1.index];
-		} () );
+		: get_tex1_bm(tmap_num);
 	const auto bm = rle_expand_texture(rbm);
 
 	bmx = static_cast<unsigned>(f2i(u*bm->bm_w)) % bm->bm_w;
