@@ -20,6 +20,8 @@
 	<string>0.58.1</string>
 	<key>CSResourcesFileMapped</key>
 	<false/>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.action-games</string>
 	<key>LSPrefersCarbon</key>
 	<true/>
 	<key>NSMainNibFile</key>
