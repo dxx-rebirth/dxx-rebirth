@@ -1340,10 +1340,10 @@ void ogl_stereo_frame(const int xeye, const int xoff)
 			// half-height viewports for above/below format
 			case STEREO_ABOVE_BELOW_SYNC: {
 				int dy = VR_sync_width/2;
+				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3];		// y = h/2
 				ogl_stereo_viewport[3] -= dy;
-				ogl_stereo_viewport[1] -= dy;
 				}
-				DXX_BOOST_FALLTHROUGH;
+				break;
 			case STEREO_ABOVE_BELOW:
 				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3];		// y = h/2
 				break;
