@@ -221,7 +221,8 @@ static void print_commandline_help()
 		VERB("                                    1: above/below half-height format\n")	\
 		VERB("                                    2: side/by/side half-width format\n")	\
 		VERB("                                    3: side/by/side half-size format, normal aspect ratio\n") \
-	))	\
+		VERB("                                    4: above/below format with external sync blank interval\n")	\
+		))	\
 	)	\
 	DXX_if_defined_01(DXX_USE_UDP, (	\
 		VERB("\n Multiplayer:\n\n")	\
