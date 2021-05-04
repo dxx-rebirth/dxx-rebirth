@@ -252,10 +252,6 @@ void init_cockpit()
 	}
 #endif
 
-	// Hack to keep stereo formats remaining fullscreen
-	if (VR_stereo && PlayerCfg.CockpitMode[1] != CM_FULL_SCREEN)
-		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
-
 	gr_set_default_canvas();
 
 	switch( PlayerCfg.CockpitMode[1] ) {
@@ -338,6 +334,10 @@ void init_cockpit()
 //selects a given cockpit (or lack of one).  See types in game.h
 void select_cockpit(cockpit_mode_t mode)
 {
+	// skip switching cockpit views while stereo viewport active
+	if (VR_stereo && mode != CM_FULL_SCREEN)
+		return;
+
 	if (mode != PlayerCfg.CockpitMode[1]) {		//new mode
 		PlayerCfg.CockpitMode[1]=mode;
 		init_cockpit();
