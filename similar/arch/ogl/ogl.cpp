@@ -1338,14 +1338,11 @@ void ogl_stereo_frame(const int xeye, const int xoff)
 				ogl_stereo_viewport[0] += ogl_stereo_viewport[2];		// x = w/2
 				break;
 			// half-height viewports for above/below format
-			case STEREO_ABOVE_BELOW_SYNC: {
-				int dy = VR_sync_width/2;
-				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3];		// y = h/2
-				ogl_stereo_viewport[3] -= dy;
-				}
-				break;
+			case STEREO_ABOVE_BELOW_SYNC:
 			case STEREO_ABOVE_BELOW:
 				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3];		// y = h/2
+				if (VR_stereo == STEREO_ABOVE_BELOW_SYNC)
+					ogl_stereo_viewport[3] -= VR_sync_width/2;
 				break;
 			}
 			glViewport(ogl_stereo_viewport[0], ogl_stereo_viewport[1], ogl_stereo_viewport[2], ogl_stereo_viewport[3]);
