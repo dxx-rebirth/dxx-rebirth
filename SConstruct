@@ -2888,6 +2888,23 @@ BOOST_AUTO_TEST_CASE(f)
 		if register_runtime_test_link_targets:
 			self.check_boost_test(context)
 
+	# dylibbundler is used to embed libraries into macOS app bundles,
+	# however it's only available on macOS.  While required for macOS
+	# builds, builds should not fail on other operating systems if
+	# it's absent.
+	@_custom_test
+	def _check_dylibbundler(self,context):
+		context.Display('%s: checking whether dylibbundler is installed...' % self.msgprefix)
+		if sys.platform != 'darwin':
+			context.Result('n/a')
+			return True
+		dylibbundler_output = os.popen('dylibbundler -h').read()
+		if 'dylibbundler is a utility' not in dylibbundler_output:
+			context.Result('no')
+			raise SCons.Errors.StopError('dylibbundler is required for compilation on macOS\n')
+		context.Result('yes')
+		return True
+
 	# This must be the last custom test.  It does not test the environment,
 	# but is responsible for reversing test-environment-specific changes made
 	# by check_cxx_works.
