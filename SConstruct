@@ -2889,9 +2889,9 @@ BOOST_AUTO_TEST_CASE(f)
 			self.check_boost_test(context)
 
 	# dylibbundler is used to embed libraries into macOS app bundles,
-	# however it's only available on macOS.  While required for macOS
-	# builds, builds should not fail on other operating systems if
-	# it's absent.
+	# however it's only meaningful for macOS builds, and, for those,
+	# only required when frameworks are not used for the build.  Builds
+	# should not fail on other operating system targets if it's absent.
 	@_custom_test
 	def _check_dylibbundler(self,context):
 		context.Display('%s: checking whether dylibbundler is installed...' % self.msgprefix)
