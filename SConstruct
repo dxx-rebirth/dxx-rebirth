@@ -2895,15 +2895,15 @@ BOOST_AUTO_TEST_CASE(f)
 	@_custom_test
 	def _check_dylibbundler(self,context):
 		context.Display('%s: checking whether dylibbundler is installed...' % self.msgprefix)
-		if sys.platform != 'darwin':
+		if self.user_settings.host_platform != 'darwin':
 			context.Result('n/a')
-			return True
+			return
 		dylibbundler_output = os.popen('dylibbundler -h').read()
-		if 'dylibbundler is a utility' not in dylibbundler_output:
+		if 'dylibbundler is a utility' not in dylibbundler_output and not self.user_settings.macos_add_frameworks:
 			context.Result('no')
-			raise SCons.Errors.StopError('dylibbundler is required for compilation on macOS\n')
+			raise SCons.Errors.StopError('dylibbundler is required for compilation on macOS')
 		context.Result('yes')
-		return True
+		return
 
 	# This must be the last custom test.  It does not test the environment,
 	# but is responsible for reversing test-environment-specific changes made
