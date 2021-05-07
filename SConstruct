@@ -2895,7 +2895,7 @@ BOOST_AUTO_TEST_CASE(f)
 	@_custom_test
 	def _check_dylibbundler(self,context):
 		context.Display('%s: checking whether dylibbundler is installed...' % self.msgprefix)
-		if self.user_settings.host_platform != 'darwin':
+		if self.user_settings.host_platform != 'darwin' or self.user_settings.macos_add_frameworks:
 			context.Result('n/a')
 			return
 		dylibbundler_output = os.popen('dylibbundler -h').read()
