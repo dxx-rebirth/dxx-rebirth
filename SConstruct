@@ -2901,7 +2901,7 @@ BOOST_AUTO_TEST_CASE(f)
 		dylibbundler_output = os.popen('dylibbundler -h').read()
 		if 'dylibbundler is a utility' not in dylibbundler_output and not self.user_settings.macos_add_frameworks:
 			context.Result('no')
-			raise SCons.Errors.StopError('dylibbundler is required for compilation on macOS')
+			raise SCons.Errors.StopError('dylibbundler is required for compilation on macOS when not using frameworks')
 		context.Result('yes')
 		return
 
