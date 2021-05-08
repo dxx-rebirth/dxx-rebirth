@@ -414,6 +414,7 @@ class ConfigureTests(_ConfigureTests):
 	_implicit_test = Collector()
 	_custom_test = Collector()
 	_guarded_test_windows = GuardedCollector(_custom_test, lambda user_settings: user_settings.host_platform == 'win32')
+	_guarded_test_darwin = GuardedCollector(_custom_test, lambda user_settings: user_settings.host_platform == 'darwin')
 	implicit_tests = _implicit_test.tests
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
@@ -2892,10 +2893,10 @@ BOOST_AUTO_TEST_CASE(f)
 	# however it's only meaningful for macOS builds, and, for those,
 	# only required when frameworks are not used for the build.  Builds
 	# should not fail on other operating system targets if it's absent.
-	@_custom_test
+	@_guarded_test_darwin
 	def _check_dylibbundler(self,context):
 		context.Display('%s: checking whether dylibbundler is installed...' % self.msgprefix)
-		if self.user_settings.host_platform != 'darwin' or self.user_settings.macos_add_frameworks:
+		if self.user_settings.macos_add_frameworks:
 			context.Result('n/a')
 			return
 		dylibbundler_output = os.popen('dylibbundler -h').read()
