@@ -147,7 +147,7 @@ class Git(StaticSubprocess):
 	else:
 		# Otherwise, assume that this is a checked-in copy.
 		__git_archive_export_commit = None
-	class ComputedExtraVersion(object):
+	class ComputedExtraVersion:
 		__slots__ = ('describe', 'status', 'diffstat_HEAD', 'revparse_HEAD')
 		def __init__(self,describe,status,diffstat_HEAD,revparse_HEAD):
 			self.describe = describe
@@ -219,8 +219,8 @@ class Git(StaticSubprocess):
 		).decode()
 
 class _ConfigureTests:
-	class Collector(object):
-		class RecordedTest(object):
+	class Collector:
+		class RecordedTest:
 			__slots__ = ('desc', 'name', 'predicate')
 			def __init__(self,name,desc,predicate=None):
 				self.name = name
@@ -255,7 +255,7 @@ class ConfigureTests(_ConfigureTests):
 		def RecordedTest(self,name,desc):
 			return self.__RecordedTest(name, desc, self.__guard)
 
-	class CxxRequiredFeature(object):
+	class CxxRequiredFeature:
 		__slots__ = ('main', 'name', 'text')
 		def __init__(self,name,text,main=''):
 			self.name = name
@@ -268,7 +268,7 @@ class ConfigureTests(_ConfigureTests):
 		std = 14
 	class Cxx17RequiredFeature(CxxRequiredFeature):
 		std = 17
-	class CxxRequiredFeatures(object):
+	class CxxRequiredFeatures:
 		__slots__ = ('features', 'main', 'text')
 		def __init__(self,features):
 			self.features = features
@@ -2918,7 +2918,7 @@ BOOST_AUTO_TEST_CASE(f)
 
 ConfigureTests.register_preferred_compiler_options()
 
-class cached_property(object):
+class cached_property:
 	__slots__ = 'method',
 	def __init__(self,f):
 		self.method = f
@@ -2942,7 +2942,7 @@ class cached_property(object):
 		d[name] = r = method(instance)
 		return r
 
-class LazyObjectConstructor(object):
+class LazyObjectConstructor:
 	class LazyObjectState:
 		def __init__(self,sources,transform_env=None,StaticObject_hook=None,transform_target=None):
 			# `sources` must be non-empty, since it would have no use if
@@ -3031,7 +3031,7 @@ class FilterHelpText:
 			l.append("current: {current}".format(current=actual))
 		return (" {opt:%u}  {help}{l}\n" % (self._sconf_align if opt[:6] == 'sconf_' else 15)).format(opt=opt, help=help, l=(" [" + "; ".join(l) + "]" if l else ''))
 
-class PCHManager(object):
+class PCHManager:
 	class ScannedFile:
 		def __init__(self,candidates):
 			self.candidates = candidates
@@ -3590,7 +3590,7 @@ class DXXCommon(LazyObjectConstructor):
 
 	# Settings which affect how the files are compiled
 	class UserBuildSettings:
-		class IntVariable(object):
+		class IntVariable:
 			def __new__(cls,key,help,default):
 				return (key, help, default, cls._validator, int)
 			@staticmethod
