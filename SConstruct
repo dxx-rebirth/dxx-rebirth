@@ -222,9 +222,18 @@ class _ConfigureTests:
 	class Collector:
 		class RecordedTest:
 			__slots__ = ('desc', 'name', 'predicate')
-			def __init__(self,name,desc,predicate=None):
+			def __init__(self,name,desc,predicate=()):
 				self.name = name
 				self.desc = desc
+				# predicate is a sequence of zero-or-more functions that
+				# take a UserSettings object as the only argument.
+				# A recorded test is only passed to the SConf logic if
+				# at most zero predicates return a false-like value.
+				#
+				# Callers use this to exclude from execution tests which
+				# make no sense in the current environment, such as a
+				# Windows-specific test when building for a
+				# Linux target.
 				self.predicate = predicate
 			def __repr__(self):
 				return '_ConfigureTests.Collector.RecordedTest(%r, %r, %r)' % (self.name, self.desc, self.predicate)
@@ -244,16 +253,28 @@ class _ConfigureTests:
 class ConfigureTests(_ConfigureTests):
 	class Collector(_ConfigureTests.Collector):
 		def __init__(self):
+			# An unguarded collector maintains a list of tests, and adds
+			# to the list as the decorator is called on individual
+			# functions.
 			self.tests = tests = []
 			super().__init__(tests.append)
 
 	class GuardedCollector(_ConfigureTests.Collector):
-		__RecordedTest = _ConfigureTests.Collector.RecordedTest
 		def __init__(self,collector,guard):
+			# A guarded collector delegates to the list maintained by
+			# the input collector, instead of keeping a list of its own.
 			super().__init__(collector.record)
-			self.__guard = guard
-		def RecordedTest(self,name,desc):
-			return self.__RecordedTest(name, desc, self.__guard)
+			# `guard` is a single function, but the predicate handling
+			# expects a sequence of functions, so store a single-element
+			# tuple.
+			self.__guard = guard,
+			self.__RecordedTest = collector.RecordedTest
+		def RecordedTest(self, name, desc, predicate=()):
+			# Record a test with both the guard of this GuardedCollector
+			# and any guards from the input collector objects, which may
+			# in turn be instances of GuardedCollector with predicates
+			# of their own.
+			return self.__RecordedTest(name, desc, self.__guard + predicate)
 
 	class CxxRequiredFeature:
 		__slots__ = ('main', 'name', 'text')
@@ -604,7 +625,7 @@ struct %(N)s {
 		# When LTO is used, the optimizer is deferred to link time.
 		# Force all tests to be Link tests when LTO is enabled.
 		self.Compile = self.Link if user_settings.lto else self._Compile
-		self.custom_tests = [t for t in self.custom_tests if t.predicate is None or t.predicate(user_settings)]
+		self.custom_tests = [t for t in self.custom_tests if all(predicate(user_settings) for predicate in t.predicate)]
 	def _quote_macro_value(v):
 		return v.strip().replace('\n', ' \\\n')
 	def _check_sconf_forced(self,calling_function):
@@ -2900,18 +2921,34 @@ BOOST_AUTO_TEST_CASE(f)
 	# however it's only meaningful for macOS builds, and, for those,
 	# only required when frameworks are not used for the build.  Builds
 	# should not fail on other operating system targets if it's absent.
-	@_guarded_test_darwin
-	def _check_dylibbundler(self,context):
-		context.Display('%s: checking whether dylibbundler is installed...' % self.msgprefix)
-		if self.user_settings.macos_add_frameworks:
-			context.Result('n/a')
+	@GuardedCollector(_guarded_test_darwin, lambda user_settings: not user_settings.macos_add_frameworks)
+	def _check_dylibbundler(self, context, _common_error_text='; dylibbundler is required for compilation for a macOS target when not using frameworks.  Set macos_add_frameworks=False (and handle the libraries manually) or install dylibbundler.'):
+		context.Display('%s: checking whether dylibbundler is installed and accepts -h...' % self.msgprefix)
+		try:
+			p = StaticSubprocess.pcall(('dylibbundler', '-h'), stderr=subprocess.PIPE)
+		except FileNotFoundError as e:
+			context.Result('no; %s' % (e,))
+			raise SCons.Errors.StopError('dylibbundler not found%s' % (_common_error_text,))
+		expected = b'dylibbundler is a utility'
+		first_output_line = p.out.splitlines()
+		if first_output_line:
+			first_output_line = first_output_line[0]
+		# This test allows the expected text to appear anywhere in the
+		# output.  Only the first line of output will be shown to SCons'
+		# stdout.  The full output will be written to the SConf log.
+		if p.returncode:
+			reason = 'successful exit, but return code was %d' % p.returncode
+		elif expected not in p.out:
+			reason = 'output to contain %r, but first line of output was: %r' % (expected.decode(), first_output_line)
+		else:
+			context.Result('yes; %s' % (first_output_line,))
 			return
-		dylibbundler_output = os.popen('dylibbundler -h').read()
-		if 'dylibbundler is a utility' not in dylibbundler_output:
-			context.Result('no')
-			raise SCons.Errors.StopError('dylibbundler is required for compilation for a macOS target when not using frameworks')
-		context.Result('yes')
-		return
+		context.Result('no; expected %s' % reason)
+		context.Log('''scons: dylibbundler return code: %r
+scons: dylibbundler stdout: %r
+scons: dylibbundler stderr: %r
+'''  % (p.returncode, p.out, p.err))
+		raise SCons.Errors.StopError('`dylibbundler -h` failed to return expected output; dylibbundler is required for compilation for a macOS target when not using frameworks.  Set macos_add_frameworks=False (and handle the libraries manually) or install dylibbundler.')
 
 	# This must be the last custom test.  It does not test the environment,
 	# but is responsible for reversing test-environment-specific changes made
