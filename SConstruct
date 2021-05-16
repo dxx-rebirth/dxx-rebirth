@@ -245,12 +245,12 @@ class ConfigureTests(_ConfigureTests):
 	class Collector(_ConfigureTests.Collector):
 		def __init__(self):
 			self.tests = tests = []
-			_ConfigureTests.Collector.__init__(self, tests.append)
+			super().__init__(tests.append)
 
 	class GuardedCollector(_ConfigureTests.Collector):
 		__RecordedTest = _ConfigureTests.Collector.RecordedTest
 		def __init__(self,collector,guard):
-			_ConfigureTests.Collector.__init__(self, collector.record)
+			super().__init__(collector.record)
 			self.__guard = guard
 		def RecordedTest(self,name,desc):
 			return self.__RecordedTest(name, desc, self.__guard)
@@ -1324,6 +1324,7 @@ struct d_screenshot
 '''):
 		successflags = self.pkgconfig.merge(context, self.msgprefix, self.user_settings, 'jsoncpp', 'jsoncpp', _guess_flags)
 		self._check_system_library(context, header=_header, main=_main, lib='jsoncpp', successflags=successflags)
+
 	@_guarded_test_windows
 	def check_dbghelp_header(self,context,_CPPDEFINES='DXX_ENABLE_WINDOWS_MINIDUMP'):
 		windows_minidump = self.user_settings.windows_minidump
@@ -2307,6 +2308,7 @@ I a()
 		return _macro_value \
 			if self.Compile(context, text=text.format(leading_text=blacklist_clang_libcxx, macro_value=_macro_value), msg='for C++11 inherited constructors with good unique_ptr<T[]> support', **kwargs) \
 			else None
+
 	@_implicit_test
 	def check_cxx11_variadic_forward_constructor(self,context,text,_macro_value=_quote_macro_value('''
     template <typename... Args>
@@ -2319,6 +2321,7 @@ help:assume compiler supports variadic template-based constructor forwarding
 		return _macro_value \
 			if self.Compile(context, text=text.format(leading_text='#include <algorithm>\n', macro_value=_macro_value), msg='for C++11 variadic templates on constructors', **kwargs) \
 			else None
+
 	@_custom_test
 	def _check_forward_constructor(self,context,_text='''
 {leading_text}
@@ -2366,6 +2369,7 @@ static void a(){{
 			if Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), main='a()', msg='whether compiler handles 2-element tuples') \
 			else "Compiler cannot handle tuples of 2 elements."
 		)
+
 	@_implicit_test
 	def check_poison_valgrind(self,context):
 		'''
@@ -2413,6 +2417,7 @@ help:always wipe certain freed memory
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_long', "assume size_t is formatted as `unsigned long`"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_int', "assume size_t is formatted as `unsigned int`"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_I64', "assume size_t is formatted as `unsigned I64`"))
+
 	@_custom_test
 	def _check_size_type_format_modifier(self,context,_text='''
 #include <cstddef>
@@ -2624,6 +2629,7 @@ where the cast is useless.
 	freeaddrinfo(res);
 	return 0;
 ''', msg='for getaddrinfo', successflags=_successflags)
+
 	@_guarded_test_windows
 	def check_inet_ntop_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_INET_NTOP']}):
 		# Linux and OS X have working inet_ntop on all supported
@@ -2640,6 +2646,7 @@ where the cast is useless.
 			return
 		if self.user_settings.ipv6:
 			raise SCons.Errors.StopError("IPv6 enabled and inet_ntop not available: disable IPv6 or upgrade headers to support inet_ntop.")
+
 	@_custom_test
 	def check_timespec_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_STRUCT_TIMESPEC']}):
 		self.Compile(context, text='''
@@ -4708,7 +4715,7 @@ class DXXArchive(DXXCommon):
 
 	def __init__(self,user_settings):
 		user_settings = user_settings.clone()
-		DXXCommon.__init__(self, user_settings)
+		super().__init__(user_settings)
 		if not user_settings.register_compile_target:
 			return
 		self.prepare_environment()
@@ -4984,10 +4991,8 @@ class DXXProgram(DXXCommon):
 			return '%s/bin' % self.prefix
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
-		def __init__(self,program,user_settings):
-			DXXCommon.Win32PlatformSettings.__init__(self,program,user_settings)
 		def adjust_environment(self,program,env):
-			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
+			super().adjust_environment(program, env)
 			rcdir = 'similar/arch/win32'
 			j = os.path.join
 			resfile = env.RES(target=j(program.user_settings.builddir, rcdir, '%s.res%s' % (program.target, env["OBJSUFFIX"])), source=j(rcdir, 'dxx-rebirth.rc'))
@@ -5005,10 +5010,8 @@ class DXXProgram(DXXCommon):
 			)
 	# Settings to apply to Apple builds
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
-		def __init__(self,program,user_settings):
-			DXXCommon.DarwinPlatformSettings.__init__(self,program,user_settings)
 		def adjust_environment(self,program,env):
-			DXXCommon.DarwinPlatformSettings.adjust_environment(self, program, env)
+			super().adjust_environment(program, env)
 			VERSION = '%s.%s' % (program.VERSION_MAJOR, program.VERSION_MINOR)
 			if (program.VERSION_MICRO):
 				VERSION += '.%s' % program.VERSION_MICRO
@@ -5019,11 +5022,11 @@ class DXXProgram(DXXCommon):
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
 		def __init__(self,program,user_settings):
-			DXXCommon.LinuxPlatformSettings.__init__(self,program,user_settings)
+			super().__init__(program, user_settings)
 			if user_settings.sharepath and user_settings.sharepath[-1] != '/':
 				user_settings.sharepath += '/'
 		def adjust_environment(self,program,env):
-			DXXCommon.LinuxPlatformSettings.adjust_environment(self,program,env)
+			super().adjust_environment(program, env)
 			user_settings = self.user_settings
 			if user_settings.need_dynamic_library_load():
 				env.Append(LIBS = ['dl'])
@@ -5049,7 +5052,7 @@ class DXXProgram(DXXCommon):
 		self.variables = variables
 		self._argument_prefix_list = prefix
 		user_settings = self.UserSettings(program=self)
-		DXXCommon.__init__(self, user_settings)
+		super().__init__(user_settings)
 		compute_extra_version = Git.compute_extra_version()
 		git_describe_version = compute_extra_version.describe
 		extra_version = 'v%s.%s.%s' % (self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO)
@@ -5073,7 +5076,7 @@ class DXXProgram(DXXCommon):
 		return self.variables.GenerateHelpText(self.env)
 
 	def prepare_environment(self,archive):
-		DXXCommon.prepare_environment(self)
+		super().prepare_environment()
 		env = self.env
 		env.MergeFlags(archive.configure_added_environment_flags)
 		self.create_special_target_nodes(archive)
