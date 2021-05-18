@@ -2922,7 +2922,7 @@ BOOST_AUTO_TEST_CASE(f)
 	# only required when frameworks are not used for the build.  Builds
 	# should not fail on other operating system targets if it's absent.
 	@GuardedCollector(_guarded_test_darwin, lambda user_settings: not user_settings.macos_add_frameworks)
-	def _check_dylibbundler(self, context, _common_error_text='; dylibbundler is required for compilation for a macOS target when not using frameworks.  Set macos_add_frameworks=False (and handle the libraries manually) or install dylibbundler.'):
+	def _check_dylibbundler(self, context, _common_error_text='; dylibbundler is required for compilation for a macOS target when not using frameworks.  Set macos_add_frameworks=True or install dylibbundler.'):
 		context.Display('%s: checking whether dylibbundler is installed and accepts -h...' % self.msgprefix)
 		try:
 			p = StaticSubprocess.pcall(('dylibbundler', '-h'), stderr=subprocess.PIPE)
