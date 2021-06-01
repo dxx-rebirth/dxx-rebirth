@@ -3821,7 +3821,7 @@ class DXXCommon(LazyObjectConstructor):
 						'cross-compile to specified platform',
 						{
 							'map': {'msys':'win32'},
-							'allowed_values' : ('darwin', 'linux', 'freebsd', 'openbsd', 'win32'),
+							'allowed_values' : ('darwin', 'linux', 'freebsd', 'openbsd', 'win32', 'haiku1'),
 							}
 						),
 					('raspberrypi', None, 'build for Raspberry Pi (automatically selects opengles)', {'ignorecase': 2, 'map': {'1':'yes', 'true':'yes', '0':'no', 'false':'no'}, 'allowed_values': ('yes', 'no', 'mesa')}),
