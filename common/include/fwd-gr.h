@@ -154,7 +154,7 @@ void gr_clear_canvas(grs_canvas &, color_t color);
 // Bitmap functions:
 
 // these are the two workhorses, the others just use these
-void gr_init_bitmap(grs_bitmap &bm, bm_mode mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, const uint8_t *data) noexcept;
+void gr_init_bitmap(grs_bitmap &bm, bm_mode mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, color_palette_index *data) noexcept;
 void gr_init_main_bitmap(grs_main_bitmap &bm, bm_mode mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, RAIIdmem<uint8_t[]> data);
 void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 

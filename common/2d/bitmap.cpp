@@ -64,7 +64,7 @@ grs_bitmap_ptr gr_create_bitmap_raw(const uint16_t w, const uint16_t h, RAIIdmem
 }
 
 // TODO: virtualize
-void gr_init_bitmap(grs_bitmap &bm, const bm_mode mode, const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h, const uint16_t bytesperline, const uint8_t *const data) noexcept
+void gr_init_bitmap(grs_bitmap &bm, const bm_mode mode, const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h, const uint16_t bytesperline, color_palette_index *const mdata) noexcept
 {
 	bm.bm_x = x;
 	bm.bm_y = y;
@@ -74,7 +74,7 @@ void gr_init_bitmap(grs_bitmap &bm, const bm_mode mode, const uint16_t x, const 
 	bm.set_type(mode);
 	bm.bm_rowsize = bytesperline;
 
-	bm.bm_data = data;
+	bm.bm_mdata = mdata;
 #if DXX_USE_OGL
 	bm.bm_parent = nullptr;
 	bm.gltexture = nullptr;
