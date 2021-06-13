@@ -1396,7 +1396,7 @@ window_event_result mission_menu::callback_handler(const d_event &event, window_
 						return m.mission_name;
 					};
 					std::transform(mli.directory.begin(), mli.directory.end(), &listbox_strings[1], a);
-					auto submm = window_create<subdirectory_mission_menu>(ml, std::move(listbox_strings), mli.path.c_str(), when_selected, this, 0, grd_curscreen->sc_canvas);
+					auto submm = window_create<subdirectory_mission_menu>(mli.directory, std::move(listbox_strings), mli.path.c_str(), when_selected, this, 0, grd_curscreen->sc_canvas);
 					(void)submm;
 					return window_event_result::handled;
 				}
