@@ -132,6 +132,8 @@ static void do_unlock_doors(fvcsegptr &vcsegptr, fvmwallptr &vmwallptr, const tr
 {
 	const auto op = [&vmwallptr](const shared_segment &segp, const unsigned sidenum) {
 		const auto wall_num = segp.sides[sidenum].wall_num;
+		if (wall_num == wall_none)
+			return;
 		auto &w = *vmwallptr(wall_num);
 		w.flags &= ~WALL_DOOR_LOCKED;
 		w.keys = wall_key::none;
@@ -144,6 +146,8 @@ static void do_lock_doors(fvcsegptr &vcsegptr, fvmwallptr &vmwallptr, const trig
 {
 	const auto op = [&vmwallptr](const shared_segment &segp, const unsigned sidenum) {
 		const auto wall_num = segp.sides[sidenum].wall_num;
+		if (wall_num == wall_none)
+			return;
 		auto &w = *vmwallptr(wall_num);
 		w.flags |= WALL_DOOR_LOCKED;
 	};
