@@ -78,6 +78,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
 #include "d_range.h"
+#include "d_enumerate.h"
 #include "partial_range.h"
 #include "d_zip.h"
 #include <utility>
@@ -119,7 +120,9 @@ constexpr char dgss_id[4] = {'D', 'G', 'S', 'S'};
 unsigned state_game_id;
 
 namespace dcx {
+
 namespace {
+
 constexpr unsigned NUM_SAVES = d_game_unique_state::MAXIMUM_SAVE_SLOTS.value;
 
 struct relocated_player_data
@@ -145,11 +148,161 @@ enum class savegame_mission_name_abi : uint8_t
 static_assert(sizeof(savegame_mission_path) == sizeof(savegame_mission_path::original) + sizeof(savegame_mission_path::full), "padding error");
 
 }
+
+}
+
+namespace dsx {
+
+namespace {
+
+struct savegame_newmenu_items
+{
+	struct error_no_saves_found
+	{
+	};
+	static constexpr unsigned decorative_item_count = 1;
+	using imenu_description_buffers_array = std::array<ntstring<NM_MAX_TEXT_LEN>, NUM_SAVES>;
+	imenu_description_buffers_array *const user_entered_savegame_descriptions;
+	d_game_unique_state::savegame_description *const caller_savegame_description;
+	d_game_unique_state::savegame_file_path &savegame_file_path;
+	enumerated_array<d_game_unique_state::savegame_file_path, NUM_SAVES, d_game_unique_state::save_slot> savegame_file_paths;
+	enumerated_array<d_game_unique_state::savegame_description, NUM_SAVES, d_game_unique_state::save_slot> savegame_descriptions;
+	enumerated_array<grs_bitmap_ptr, NUM_SAVES, d_game_unique_state::save_slot> sc_bmp;
+	std::array<newmenu_item, NUM_SAVES + decorative_item_count> m;
+	/* For saving a game, savegame_description is a
+	 * caller-supplied buffer into which the user's text is placed, so
+	 * that the caller can write that text into the file.
+	 *
+	 * For loading a game, savegame_description is nullptr.
+	 */
+	savegame_newmenu_items(d_game_unique_state::savegame_description *savegame_description, d_game_unique_state::savegame_file_path &savegame_file_path, imenu_description_buffers_array *);
+	/* Test whether `selection` is an index that could be a valid
+	 * choice.  If `selection` can never be a valid choice, return
+	 * false.  If `selection` would be valid for a user who has every
+	 * savegame slot in use, return true.  This does not test whether
+	 * there currently exists a savegame in the specified slot.
+	 */
+	static unsigned valid_savegame_index(void *const user_entered_savegame_descriptions, const d_game_unique_state::save_slot selection)
+	{
+		return user_entered_savegame_descriptions
+			? GameUniqueState.valid_save_slot(selection)
+			: GameUniqueState.valid_load_slot(selection);
+	}
+	unsigned valid_savegame_index(const d_game_unique_state::save_slot selection) const
+	{
+		return valid_savegame_index(user_entered_savegame_descriptions, selection);
+	}
+	std::size_t get_count_valid_menuitem_entries(d_game_unique_state::savegame_description *const savegame_description) const
+	{
+		return savegame_description ? m.size() - 1 : m.size();
+	}
+};
+
+struct savegame_chooser_newmenu : savegame_newmenu_items, newmenu
+{
+	virtual window_event_result event_handler(const d_event &) override;
+	static std::unique_ptr<savegame_chooser_newmenu> create(menu_subtitle caption, grs_canvas &src, d_game_unique_state::savegame_description *const savegame_description, d_game_unique_state::savegame_file_path &savegame_file_path);
+private:
+	void draw_handler(grs_canvas &canvas, const grs_bitmap &bmp);
+	void draw_handler();
+	savegame_chooser_newmenu(menu_subtitle caption, grs_canvas &src, d_game_unique_state::savegame_description *, d_game_unique_state::savegame_file_path &, imenu_description_buffers_array *);
+	d_game_unique_state::save_slot build_save_slot_from_citem() const
+	{
+		if (citem < decorative_item_count)
+			return d_game_unique_state::save_slot::None;
+		return static_cast<d_game_unique_state::save_slot>(citem - decorative_item_count);
+	}
+};
+
+std::unique_ptr<savegame_chooser_newmenu> savegame_chooser_newmenu::create(menu_subtitle caption, grs_canvas &src, d_game_unique_state::savegame_description *const savegame_description, d_game_unique_state::savegame_file_path &savegame_file_path)
+{
+	std::unique_ptr<uint8_t[]> p(savegame_description
+		/* request to create a "Save game" menu */
+		? reinterpret_cast<uint8_t *>(new typename std::aligned_union<sizeof(savegame_chooser_newmenu) + sizeof(savegame_chooser_newmenu::imenu_description_buffers_array), savegame_chooser_newmenu>::type)
+		/* request to create a "Load game" menu */
+		: reinterpret_cast<uint8_t *>(new typename std::aligned_union<0 /* no extra storage needed, and aligned_union will ensure the value is sufficient for the aligned type */, savegame_chooser_newmenu>::type)
+	);
+	new (p.get()) savegame_chooser_newmenu(caption, src, savegame_description, savegame_file_path, savegame_description ? reinterpret_cast<imenu_description_buffers_array *>(p.get() + sizeof(savegame_chooser_newmenu)) : nullptr);
+	return std::unique_ptr<savegame_chooser_newmenu>(reinterpret_cast<savegame_chooser_newmenu *>(p.release()));
+}
+
+savegame_chooser_newmenu::savegame_chooser_newmenu(menu_subtitle subtitle, grs_canvas &src, d_game_unique_state::savegame_description *const savegame_description, d_game_unique_state::savegame_file_path &savegame_file_path, imenu_description_buffers_array *const user_entered_savegame_descriptions) :
+	savegame_newmenu_items(savegame_description, savegame_file_path, user_entered_savegame_descriptions),
+	newmenu(menu_title{nullptr}, subtitle, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(unchecked_partial_range(m.data(), get_count_valid_menuitem_entries(savegame_description)), decorative_item_count), src)
+{
+}
+
+void savegame_chooser_newmenu::draw_handler(grs_canvas &canvas, const grs_bitmap &bmp)
+{
+	const auto &&fspacx = FSPACX();
+	const auto &&fspacy = FSPACY();
+#if DXX_USE_OGL
+	auto temp_canv = gr_create_canvas(THUMBNAIL_W * 2, THUMBNAIL_H * 24 / 10);
+#else
+	auto temp_canv = gr_create_canvas(fspacx(THUMBNAIL_W), fspacy(THUMBNAIL_H));
+#endif
+	const std::array<grs_point, 3> vertbuf{{
+		{0, 0},
+		{0, 0},
+		{i2f(THUMBNAIL_W * 2), i2f(THUMBNAIL_H * 24 / 10)}
+	}};
+	scale_bitmap(bmp, vertbuf, 0, temp_canv->cv_bitmap);
+	const auto bx = (canvas.cv_bitmap.bm_w / 2) - fspacx(THUMBNAIL_W / 2);
+#if DXX_USE_OGL
+	ogl_ubitmapm_cs(canvas, bx, m[0].y - fspacy(3), fspacx(THUMBNAIL_W), fspacy(THUMBNAIL_H), temp_canv->cv_bitmap, ogl_colors::white, F1_0);
+#else
+	gr_bitmap(canvas, bx, m[0].y - 3, temp_canv->cv_bitmap);
+#endif
+}
+
+void savegame_chooser_newmenu::draw_handler()
+{
+	const auto choice = build_save_slot_from_citem();
+	if (!sc_bmp.valid_index(choice))
+		return;
+	if (auto &bmp = sc_bmp[choice])
+		draw_handler(*grd_curcanv, *bmp);
+}
+
+window_event_result savegame_chooser_newmenu::event_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_NEWMENU_DRAW:
+			draw_handler();
+			return window_event_result::handled;
+		case EVENT_NEWMENU_SELECTED:
+			{
+				const auto citem = static_cast<const d_select_event &>(event).citem;
+				const auto choice = static_cast<d_game_unique_state::save_slot>(citem - decorative_item_count);
+				if (!valid_savegame_index(choice))
+					return window_event_result::close;
+				GameUniqueState.quicksave_selection = choice;
+				savegame_file_path = savegame_file_paths[choice];
+				if (const auto desc = caller_savegame_description)
+				{
+					auto &d = savegame_descriptions[choice];
+					if (d.front())
+						*desc = d;
+					else
+					{
+						const time_t t = time(nullptr);
+						if (const struct tm *ptm = (t == -1) ? nullptr : localtime(&t))
+							strftime(desc->data(), desc->size(), "%m-%d %H:%M:%S", ptm);
+						else
+							strcpy(desc->data(), "-no title-");
+					}
+				}
+			}
+			return window_event_result::close;
+		default:
+			break;
+	}
+	return newmenu::event_handler(event);
 }
 
 // Following functions convert object to object_rw and back to be written to/read from Savegames. Mostly object differs to object_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 // turn object to object_rw to be saved to Savegame.
-namespace dsx {
 
 static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw)
 {
@@ -544,6 +697,8 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	}
 }
 
+}
+
 deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_control_center_state &LevelUniqueControlCenterState, const d_game_unique_state &GameUniqueState)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -692,6 +847,14 @@ static void state_read_player(PHYSFS_File *fp, player &pl, int swap, player_info
 	state_player_rw_to_player(&pl_rw, &pl, pl_info, rpd);
 }
 
+}
+
+}
+
+namespace dcx {
+
+namespace {
+
 void state_format_savegame_filename(d_game_unique_state::savegame_file_path &filename, const unsigned i)
 {
 	snprintf(filename.data(), filename.size(), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), static_cast<const char *>(InterfaceUniqueState.PilotName), (Game_mode & GM_MULTI_COOP) ? 'm' : 's', i);
@@ -721,6 +884,107 @@ void state_autosave_game(const int multiplayer)
 		if (state_save_all_sub(filename.data(), p))
 			con_printf(CON_NORMAL, "Autosave written to \"%s\"", filename.data());
 	}
+}
+
+}
+
+}
+
+namespace dsx {
+
+namespace {
+
+uint8_t read_savegame_properties(const std::size_t savegame_index, d_game_unique_state::savegame_file_path &filename, d_game_unique_state::savegame_description *const dsc, grs_bitmap_ptr *const sc_bmp)
+{
+	state_format_savegame_filename(filename, savegame_index);
+	const auto fp = PHYSFSX_openReadBuffered(filename.data());
+	if (!fp)
+		return 0;
+	//Read id
+	char id[4]{};
+	if (PHYSFS_read(fp, id, sizeof(id), 1) != 1)
+		return 0;
+	if (memcmp(id, dgss_id, 4))
+		return 0;
+	//Read version
+	unsigned version;
+	if (PHYSFS_read(fp, &version, sizeof(version), 1) != 1)
+		return 0;
+	if (!(version >= STATE_COMPATIBLE_VERSION || SWAPINT(version) >= STATE_COMPATIBLE_VERSION))
+		return 0;
+	// In case it's Coop, handle state_game_id & callsign as well
+	if (Game_mode & GM_MULTI_COOP)
+	{
+		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32) + sizeof(char)*CALLSIGN_LEN+1); // skip state_game_id, callsign
+	}
+	d_game_unique_state::savegame_description desc_storage;
+	d_game_unique_state::savegame_description &desc = dsc ? *dsc : desc_storage;
+	// Read description
+	if (PHYSFS_read(fp, desc.data(), desc.size(), 1) != 1)
+		return 0;
+	desc.back() = 0;
+	if (sc_bmp)
+	{
+		// Read thumbnail
+		grs_bitmap_ptr bmp = gr_create_bitmap(THUMBNAIL_W, THUMBNAIL_H);
+		if (PHYSFS_read(fp, bmp->get_bitmap_data(), THUMBNAIL_W * THUMBNAIL_H, 1) != 1)
+			return 0;
+#if defined(DXX_BUILD_DESCENT_II)
+		if (version >= 9)
+		{
+			palette_array_t pal;
+			if (PHYSFS_read(fp, &pal[0], pal.size(), sizeof(pal[0])) != sizeof(pal[0]))
+				return 0;
+			gr_remap_bitmap_good(*bmp.get(), pal, -1, -1);
+		}
+#endif
+		*sc_bmp = std::move(bmp);
+	}
+	return 1;
+}
+
+savegame_newmenu_items::savegame_newmenu_items(d_game_unique_state::savegame_description *const savegame_description, d_game_unique_state::savegame_file_path &savegame_file_path, imenu_description_buffers_array *const user_entered_savegame_descriptions) :
+	user_entered_savegame_descriptions(user_entered_savegame_descriptions),
+	caller_savegame_description(savegame_description),
+	savegame_file_path(savegame_file_path)
+{
+	unsigned nsaves = 0;
+	/* Always start at offset `decorative_item_count` to skip the fixed
+	 * text leader.  Conditionally subtract 1 if the call is for saving,
+	 * since interactive saves should not access the last slot.  The
+	 * last slot is reserved for autosaves.
+	 */
+	const unsigned max_slots_shown = get_count_valid_menuitem_entries(savegame_description);
+	for (const auto &&[savegame_index, mi, filename, desc, sc_bmp] : enumerate(zip(partial_range(m, decorative_item_count, max_slots_shown), savegame_file_paths, savegame_descriptions, sc_bmp)))
+	{
+		const auto existing_savegame_found = read_savegame_properties(savegame_index, filename, &desc, &sc_bmp);
+		if (existing_savegame_found)
+			++nsaves;
+		else
+			/* Defer setting a default value to here.  This allows the
+			 * value to be written only if a better one was not
+			 * retrieved from a save game file.
+			 */
+			strcpy(desc.data(), TXT_EMPTY);
+		mi.text = desc.data();
+		mi.type = savegame_description
+			/* If saving, use input_menu so that the user can pick an
+			 * element and convert it into a text entry field to receive
+			 * the save game title.
+			 */
+			? nm_type::input_menu
+			/* If restoring, use text.  Valid save games will switch the
+			 * type.  Invalid save slots will remain set as text.
+			 */
+			: (existing_savegame_found
+				? nm_type::menu
+				: nm_type::text);
+		if (user_entered_savegame_descriptions)
+			mi.initialize_imenu(desc, (*user_entered_savegame_descriptions)[savegame_index], nullptr);
+	}
+	if (!savegame_description && nsaves < 1)
+		throw error_no_saves_found();
+	nm_set_item_text(m[0], "\n\n\n\n");
 }
 
 }
@@ -761,163 +1025,37 @@ void state_poll_autosave_game(d_game_unique_state &GameUniqueState, const d_leve
 	state_autosave_game(multiplayer);
 }
 
-}
-
-namespace {
-
-//-------------------------------------------------------------------
-struct state_userdata
-{
-	static constexpr std::integral_constant<unsigned, 1> decorative_item_count = {};
-	unsigned citem;
-	std::array<grs_bitmap_ptr, NUM_SAVES> sc_bmp;
-};
-
-}
-
-static int state_callback(newmenu *menu,const d_event &event, state_userdata *const userdata)
-{
-	std::array<grs_bitmap_ptr, NUM_SAVES> &sc_bmp = userdata->sc_bmp;
-	newmenu_item *items = newmenu_get_items(menu);
-	unsigned citem;
-	if (event.type == EVENT_NEWMENU_SELECTED)
-		userdata->citem = static_cast<const d_select_event &>(event).citem;
-	else if (event.type == EVENT_NEWMENU_DRAW && (citem = newmenu_get_citem(menu)) > 0)
-	{
-		if (sc_bmp[citem - userdata->decorative_item_count])
-		{
-			const auto &&fspacx = FSPACX();
-			const auto &&fspacy = FSPACY();
-#if !DXX_USE_OGL
-			auto temp_canv = gr_create_canvas(fspacx(THUMBNAIL_W), fspacy(THUMBNAIL_H));
-#else
-			auto temp_canv = gr_create_canvas(THUMBNAIL_W*2,(THUMBNAIL_H*24/10));
-#endif
-			const std::array<grs_point, 3> vertbuf{{
-				{0,0},
-				{0,0},
-				{i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)}
-			}};
-			scale_bitmap(*sc_bmp[citem-1].get(), vertbuf, 0, temp_canv->cv_bitmap);
-#if !DXX_USE_OGL
-			gr_bitmap(*grd_curcanv, (grd_curcanv->cv_bitmap.bm_w / 2) - fspacx(THUMBNAIL_W / 2), items[0].y - 3, temp_canv->cv_bitmap);
-#else
-			ogl_ubitmapm_cs(*grd_curcanv, (grd_curcanv->cv_bitmap.bm_w / 2) - fspacx(THUMBNAIL_W / 2), items[0].y - fspacy(3), fspacx(THUMBNAIL_W), fspacy(THUMBNAIL_H), temp_canv->cv_bitmap, ogl_colors::white, F1_0);
-#endif
-		}
-		return 1;
-	}
-	return 0;
-}
-
-#if 0
-void rpad_string( char * string, int max_chars )
-{
-	int i, end_found;
-
-	end_found = 0;
-	for( i=0; i<max_chars; i++ )	{
-		if ( *string == 0 )
-			end_found = 1;
-		if ( end_found )
-			*string = ' ';
-		string++;
-	}
-	*string = 0;		// NULL terminate
-}
-#endif
-
-namespace dsx {
-
 /* Present a menu for selection of a savegame filename.
  * For saving, dsc should be a pre-allocated buffer into which the new
  * savegame description will be stored.
  * For restoring, dsc should be NULL, in which case empty slots will not be
  * selectable and savagames descriptions will not be editable.
  */
-static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const char *const caption, const blind_save entry_blind)
+static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const menu_subtitle caption, const blind_save entry_blind)
 {
-	int version, nsaves;
-	std::array<d_game_unique_state::savegame_file_path, NUM_SAVES> filename;
-	std::array<d_game_unique_state::savegame_description, NUM_SAVES> desc;
-	state_userdata userdata;
-	constexpr auto decorative_item_count = userdata.decorative_item_count;
-	std::array<ntstring<NM_MAX_TEXT_LEN>, NUM_SAVES> saved_text;
-	std::array<newmenu_item, NUM_SAVES + decorative_item_count> m;
-	auto &sc_bmp = userdata.sc_bmp;
-	char id[4];
-
-	nsaves=0;
-	nm_set_item_text(m[0], "\n\n\n\n");
-	/* Always subtract 1 for the fixed text leader.  Conditionally
-	 * subtract another 1 if the call is for saving, since interactive
-	 * saves should not access the last slot.  The last slot is reserved
-	 * for autosaves.
-	 */
-	const unsigned max_slots_shown = (dsc ? m.size() - 1 : m.size()) - decorative_item_count;
-	range_for (const unsigned i, xrange(max_slots_shown))
+	const auto quicksave_selection = GameUniqueState.quicksave_selection;
+	if (entry_blind != blind_save::no &&
+		/* The user requested a non-blind save.  This block only handles
+		 * blind saves, so skip down to the general handler.
+		 */
+		savegame_chooser_newmenu::valid_savegame_index(dsc, quicksave_selection))
 	{
-		state_format_savegame_filename(filename[i], i);
-		nm_type item_type = dsc
-			/* If saving, use input_menu so that the user can pick an
-			 * element and convert it into a text entry field to receive
-			 * the save game title.
+		/* The cached slot is valid, so a save/load might work.
+		 */
+		if (read_savegame_properties(static_cast<std::size_t>(quicksave_selection), fname, dsc, nullptr))
+			/* The data was read from the savegame.  Return early and
+			 * skip the dialog.
 			 */
-			? nm_type::input_menu
-			/* If restoring, use text.  Valid save games will switch the
-			 * type.  Invalid save slots will remain set as text.
-			 */
-			: nm_type::text;
-		uint8_t valid = 0;
-		auto &mi = m[i + decorative_item_count];
-		if (const auto fp = PHYSFSX_openReadBuffered(filename[i].data()))
-		{
-			//Read id
-			PHYSFS_read(fp, id, sizeof(char) * 4, 1);
-			if ( !memcmp( id, dgss_id, 4 )) {
-				//Read version
-				PHYSFS_read(fp, &version, sizeof(int), 1);
-				// In case it's Coop, read state_game_id & callsign as well
-				if (Game_mode & GM_MULTI_COOP)
-				{
-					PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32) + sizeof(char)*CALLSIGN_LEN+1); // skip state_game_id, callsign
-				}
-				if ((version >= STATE_COMPATIBLE_VERSION) || (SWAPINT(version) >= STATE_COMPATIBLE_VERSION)) {
-					// Read description
-					PHYSFS_read(fp, desc[i].data(), desc[i].size(), 1);
-					desc[i].back() = 0;
-					if (!dsc)
-						item_type = nm_type::menu;
-					// Read thumbnail
-					sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
-					PHYSFS_read(fp, sc_bmp[i]->get_bitmap_data(), THUMBNAIL_W * THUMBNAIL_H, 1);
-#if defined(DXX_BUILD_DESCENT_II)
-					if (version >= 9) {
-						palette_array_t pal;
-						PHYSFS_read(fp, &pal[0], sizeof(pal[0]), pal.size());
-						gr_remap_bitmap_good(*sc_bmp[i].get(), pal, -1, -1);
-					}
-#endif
-					nsaves++;
-					valid = 1;
-				}
-			}
-		}
-		mi.text = desc[i].data();
-		if (!valid)
-			/* Defer setting a default value to here.  This allows the
-			 * value to be written only if a better one was not
-			 * retrieved from a save game file.
-			 */
-			strcpy(desc[i].data(), TXT_EMPTY);
-		mi.type = item_type;
-		if (item_type == nm_type::input_menu)
-		{
-			mi.initialize_imenu(desc[i], saved_text[i], nullptr);
-		}
+			return quicksave_selection;
+		/* Fall through and run the interactive dialog, whether the user
+		 * requested one or not.
+		 */
 	}
-
-	if (!dsc && nsaves < 1)
+	std::unique_ptr<savegame_chooser_newmenu> win;
+	try {
+		win = savegame_chooser_newmenu::create(caption, *grd_curcanv, dsc, fname);
+	}
+	catch (const savegame_chooser_newmenu::error_no_saves_found &)
 	{
 		struct error_no_saves_found : passive_messagebox
 		{
@@ -929,60 +1067,24 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 		run_blocking_newmenu<error_no_saves_found>();
 		return d_game_unique_state::save_slot::None;
 	}
-
-	const auto quicksave_selection = GameUniqueState.quicksave_selection;
-	const auto valid_selection = [dsc](d_game_unique_state::save_slot selection) {
-		return dsc
-			? GameUniqueState.valid_save_slot(selection)
-			: GameUniqueState.valid_load_slot(selection);
-	};
-	const auto blind = (entry_blind == blind_save::no || !valid_selection(quicksave_selection))
-		/* If not a blind save, or if is a blind save and no slot picked, force to ::no */
-		? blind_save::no
-		/* otherwise, user's choice */
-		: entry_blind;
-
-	const auto choice = (blind != blind_save::no)
-		? quicksave_selection
-		: (
-			userdata.citem = 0,
-			newmenu_do2(menu_title{nullptr}, menu_subtitle{caption}, partial_range(m, max_slots_shown + decorative_item_count), state_callback, &userdata, (GameUniqueState.valid_save_slot(quicksave_selection) ? static_cast<unsigned>(quicksave_selection) : 0) + decorative_item_count, menu_filename{nullptr}),
-			userdata.citem == 0
-			? d_game_unique_state::save_slot::None
-			: static_cast<d_game_unique_state::save_slot>(userdata.citem - decorative_item_count)
-		);
-
-	if (valid_selection(choice))
-	{
-		GameUniqueState.quicksave_selection = choice;
-		const auto uchoice = static_cast<std::size_t>(choice);
-		fname = filename[uchoice];
-		if (dsc)
-		{
-			auto &d = desc[uchoice];
-			if (d.front())
-				*dsc = d;
-			else
-			{
-				time_t t = time(nullptr);
-				if (struct tm *ptm = (t == -1) ? nullptr : localtime(&t))
-					strftime(dsc->data(), dsc->size(), "%m-%d %H:%M:%S", ptm);
-				else
-					strcpy(dsc->data(), "-no title-");
-			}
-		}
-	}
+	win->send_creation_events();
+	const auto citem = savegame_chooser_newmenu::process_until_closed(win.release());
+	/* win is now invalid */
+	if (citem <= 0)
+		return d_game_unique_state::save_slot::None;
+	const auto choice = static_cast<d_game_unique_state::save_slot>(citem - savegame_chooser_newmenu::decorative_item_count);
+	assert(savegame_chooser_newmenu::valid_savegame_index(dsc, choice));
 	return choice;
 }
 
 d_game_unique_state::save_slot state_get_save_file(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const blind_save blind_save)
 {
-	return state_get_savegame_filename(fname, dsc, "Save Game", blind_save);
+	return state_get_savegame_filename(fname, dsc, menu_subtitle{"Save Game"}, blind_save);
 }
 
 d_game_unique_state::save_slot state_get_restore_file(d_game_unique_state::savegame_file_path &fname, blind_save blind_save)
 {
-	return state_get_savegame_filename(fname, NULL, "Select Game to Restore", blind_save);
+	return state_get_savegame_filename(fname, NULL, menu_subtitle{"Select Game to Restore"}, blind_save);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
