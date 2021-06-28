@@ -2634,15 +2634,21 @@ struct sound_menu : sound_menu_items, newmenu
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 #undef DSX_SOUND_MENU
 
 int sound_menu::subfunction_handler(const d_event &event)
 {
+	(void)event;
+	return 0;
+}
+
+window_event_result sound_menu::event_handler(const d_event &event)
+{
 	const auto &items = m;
 	int replay = 0;
-	int rval = 0;
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
@@ -2746,8 +2752,7 @@ int sound_menu::subfunction_handler(const d_event &event)
 			else if (citem == opt_sm_cm_mtype3_file5_b)
 				SELECT_SONG(menu_title{"Select game ending music" WINDOWS_DRIVE_CHANGE_TEXT}, SONG_ENDGAME);
 #endif
-			rval = 1;	// stay in menu
-			break;
+			return window_event_result::handled;	// stay in menu
 		}
 		case EVENT_WINDOW_CLOSE:
 #if DXX_USE_SDLMIXER
@@ -2775,8 +2780,7 @@ int sound_menu::subfunction_handler(const d_event &event)
 		else
 			songs_play_song(SONG_TITLE, 1);
 	}
-
-	return rval;
+	return newmenu::event_handler(event);
 }
 
 }
