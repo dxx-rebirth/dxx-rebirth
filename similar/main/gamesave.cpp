@@ -1543,7 +1543,7 @@ int get_level_name()
 	{
 		request_menu() :
 			items_type{{
-				nm_item_text("Please enter a name for this mine:"),
+				newmenu_item::nm_item_text{"Please enter a name for this mine:"},
 				nm_item_input(Current_level_name.next()),
 			}},
 			passive_newmenu(menu_title{nullptr}, menu_subtitle{"Enter mine name"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 1), *grd_curcanv, draw_box_flag::none)

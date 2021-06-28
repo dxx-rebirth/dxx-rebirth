@@ -4619,8 +4619,8 @@ static int net_udp_wait_for_sync(void)
 	Network_status = NETSTAT_WAITING;
 
 	std::array<newmenu_item, 2> m{{
-		nm_item_text(text),
-		nm_item_text(TXT_NET_LEAVE),
+		newmenu_item::nm_item_text{text},
+		newmenu_item::nm_item_text{TXT_NET_LEAVE},
 	}};
 	auto i = net_udp_send_request();
 
@@ -4677,7 +4677,7 @@ static int net_udp_wait_for_requests(void)
 	// Wait for other players to load the level before we send the sync
 	int choice;
 	std::array<newmenu_item, 1> m{{
-		nm_item_text(TXT_NET_LEAVE),
+		newmenu_item::nm_item_text{TXT_NET_LEAVE},
 	}};
 	Network_status = NETSTAT_WAITING;
 	net_udp_flush();

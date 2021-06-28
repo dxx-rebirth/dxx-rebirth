@@ -1002,7 +1002,7 @@ window_event_result do_new_game_menu()
 			std::array<newmenu_item, 2> m;
 			items_type() :
 				m{{
-					nm_item_text(info_text.data()),
+					newmenu_item::nm_item_text{info_text.data()},
 					nm_item_input(num_text),
 				}}
 			{

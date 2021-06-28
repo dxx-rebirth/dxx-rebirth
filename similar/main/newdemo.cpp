@@ -4104,7 +4104,7 @@ try_again:
 		exit = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_SAVE_DEMO_AS}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 	} else if (nd_record_v_no_space == 2) {
 		std::array<newmenu_item, 2> m{{
-			nm_item_text(TXT_DEMO_SAVE_NOSPACE),
+			newmenu_item::nm_item_text{TXT_DEMO_SAVE_NOSPACE},
 			nm_item_input(filename, demoname_allowed_chars),
 		}};
 		exit = newmenu_do2(menu_title{nullptr}, menu_subtitle{nullptr}, m, unused_newmenu_subfunction, unused_newmenu_userdata);

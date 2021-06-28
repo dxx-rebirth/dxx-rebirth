@@ -286,7 +286,7 @@ void scores_maybe_add_player()
 		{
 			std::array<char, sizeof(scores.cool_saying)> text1{};
 			std::array<newmenu_item, 2> m{{
-				nm_item_text(TXT_COOL_SAYING),
+				newmenu_item::nm_item_text{TXT_COOL_SAYING},
 				nm_item_input(text1),
 			}};
 			newmenu_do2(menu_title{TXT_HIGH_SCORE}, menu_subtitle{TXT_YOU_PLACED_1ST}, m, unused_newmenu_subfunction, unused_newmenu_userdata);

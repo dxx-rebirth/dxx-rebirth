@@ -119,6 +119,16 @@ class newmenu_item
 			return v;
 		}
 public:
+	struct nm_item_text
+	{
+		const char *text;
+	};
+	newmenu_item() = default;
+	newmenu_item(nm_item_text text) :
+		text(const_cast<char *>(text.text)),
+		type(nm_type::text)
+	{
+	}
 	input_specific_type &input() {
 		return get_union_member(nm_private_input);
 	}
@@ -528,14 +538,6 @@ static inline void nm_set_item_text(newmenu_item &ni, const char *text)
 {
 	ni.type = nm_type::text;
 	ni.text = const_cast<char *>(text);
-}
-
-__attribute_nonnull()
-__attribute_warn_unused_result
-static inline newmenu_item nm_item_text(const char *text)
-{
-	newmenu_item i;
-	return nm_set_item_text(i, text), i;
 }
 
 __attribute_nonnull()

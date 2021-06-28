@@ -1595,7 +1595,7 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 		{
 			message_menu() :
 				items_type{{
-					nm_item_text(" "),			//TXT_SECRET_EXIT;
+					newmenu_item::nm_item_text{" "},			//TXT_SECRET_EXIT;
 				}},
 				passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_SECRET_EXIT}, menu_filename{Menu_pcx_name}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), *grd_curcanv, draw_box_flag::none)
 			{
