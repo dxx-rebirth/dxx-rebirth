@@ -612,20 +612,11 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 	new(&ni.nm_private.slider) newmenu_item::slider_specific_type({low, high}, saved_text);
 }
 
-struct passive_messagebox_item
-{
-	std::array<newmenu_item, 1> m;
-	passive_messagebox_item(const char *const item) :
-		m{{newmenu_item::nm_item_menu{item}}}
-	{
-	}
-};
-
-struct passive_messagebox : passive_messagebox_item, passive_newmenu
+struct passive_messagebox : std::array<newmenu_item, 1>, newmenu
 {
 	passive_messagebox(const menu_title title, const menu_subtitle subtitle, const char *const item, grs_canvas &src) :
-		passive_messagebox_item(item),
-		passive_newmenu(title, subtitle, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
+		std::array<newmenu_item, 1>{{newmenu_item::nm_item_menu{item}}},
+		newmenu(title, subtitle, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*this, 0), src)
 	{
 	}
 };
