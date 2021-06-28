@@ -20,9 +20,13 @@
 
 using namespace dcx;
 
+namespace {
+
 static unsigned short *backBuf1, *backBuf2;
 
 static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb);
+
+}
 
 void decodeFrame16(unsigned char *pFrame, const unsigned char *pMap, int mapRemain, const unsigned char *pData, int dataRemain)
 {
@@ -86,6 +90,8 @@ void decodeFrame16(unsigned char *pFrame, const unsigned char *pMap, int mapRema
     }
 }
 
+namespace {
+
 static uint16_t GETPIXEL(const unsigned char **buf, int off)
 {
 	unsigned short val = (*buf)[0+off] | ((*buf)[1+off] << 8);
@@ -104,12 +110,12 @@ struct position_t
 	int x, y;
 };
 
-static inline constexpr position_t relClose(int i)
+static constexpr position_t relClose(int i)
 {
 	return {(i & 0xf) - 8, (i >> 4) - 8};
 }
 
-static inline constexpr position_t relFar0(int i, int sign)
+static constexpr position_t relFar0(int i, int sign)
 {
 	return {
 		sign * (8 + (i % 7)),
@@ -117,7 +123,7 @@ static inline constexpr position_t relFar0(int i, int sign)
 	};
 }
 
-static inline constexpr position_t relFar56(int i, int sign)
+static constexpr position_t relFar56(int i, int sign)
 {
 	return {
 		sign * (-14 + (i - 56) % 29),
@@ -125,7 +131,7 @@ static inline constexpr position_t relFar56(int i, int sign)
 	};
 }
 
-static inline constexpr position_t relFar(int i, int sign)
+static constexpr position_t relFar(int i, int sign)
 {
 	return (i < 56) ? relFar0(i, sign) : relFar56(i, sign);
 }
@@ -136,7 +142,7 @@ struct lookup_table_t
 };
 
 template <std::size_t... N>
-static inline constexpr lookup_table_t genLoopkupTable(std::index_sequence<N...>)
+static constexpr lookup_table_t genLoopkupTable(std::index_sequence<N...>)
 {
 	return lookup_table_t{
 		{{relClose(N)...}},
@@ -715,4 +721,6 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
     }
 
     *pFrame = pDstBak+8;
+}
+
 }

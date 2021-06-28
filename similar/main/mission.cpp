@@ -239,9 +239,11 @@ static const mle *compare_mission_by_pathname(const mission_entry_predicate miss
 
 }
 
+Mission_ptr Current_mission; // currently loaded mission
+
 }
 
-Mission_ptr Current_mission; // currently loaded mission
+namespace {
 
 static bool null_or_space(char c)
 {
@@ -552,8 +554,13 @@ static bool ml_sort_func(const mle &e0,const mle &e1)
 	return d_stricmp(e0.mission_name,e1.mission_name) < 0;
 }
 
+}
+
 //returns 1 if file read ok, else 0
 namespace dsx {
+
+namespace {
+
 static int read_mission_file(mission_list_type &mission_list, mission_candidate_search_path &pathname)
 {
 	if (const auto mfile = PHYSFSX_openReadBuffered(pathname.data()))
@@ -621,9 +628,7 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 
 	return 0;
 }
-}
 
-namespace dsx {
 static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 {
     int size;
@@ -666,7 +671,6 @@ static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 	mission->descent_version = Mission::descent_version_type::descent1;
 	mission->builtin_hogsize = 0;
 #endif
-}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -715,8 +719,6 @@ static void add_builtin_mission_to_list(mission_list_type &mission_list, d_fname
 	mission->anarchy_only_flag = 0;
 }
 #endif
-
-namespace dsx {
 
 static void add_missions_to_list(mission_list_type &mission_list, mission_candidate_search_path &path, const mission_candidate_search_path::iterator rel_path, const mission_filter_mode mission_filter)
 {
@@ -798,7 +800,12 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 		DXX_POISON_MEMORY(std::next(rel_path), path.end(), 0xcc);
 	}
 }
+
 }
+
+}
+
+namespace {
 
 /* move <mission_name> to <place> on mission list, increment <place> */
 static void promote (mission_list_type &mission_list, const char *const name, std::size_t &top_place)
@@ -813,6 +820,8 @@ static void promote (mission_list_type &mission_list, const char *const name, st
 		}
 }
 
+}
+
 Mission::~Mission()
 {
     // May become more complex with the editor
@@ -824,12 +833,12 @@ Mission::~Mission()
 		}
 }
 
-
-
 //fills in the global list of missions.  Returns the number of missions
 //in the list.  If anarchy_mode is set, then also add anarchy-only missions.
 
 namespace dsx {
+
+namespace {
 
 static mission_list_type build_mission_list(const mission_filter_mode mission_filter)
 {
@@ -870,6 +879,8 @@ static mission_list_type build_mission_list(const mission_filter_mode mission_fi
 	if (mission_list.size() > top_place)
 		std::sort(next(begin(mission_list), top_place), end(mission_list), ml_sort_func);
 	return mission_list;
+}
+
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -921,6 +932,8 @@ int load_mission_ham()
 #endif
 }
 
+namespace {
+
 #define tex ".tex"
 static void set_briefing_filename(d_fname &f, const char *const v, std::size_t d)
 {
@@ -955,18 +968,19 @@ static void record_briefing(d_fname &f, std::array<char, PATH_MAX> &buf)
 }
 #undef tex
 
+}
+
 //loads the specfied mission from the mission list.
 //build_mission_list() must have been called.
 //Returns true if mission loaded ok, else false.
 namespace dsx {
 
+namespace {
+
 static const char *load_mission(const mle *const mission)
 {
 	char *v;
 
-#if defined(DXX_BUILD_DESCENT_II)
-	close_extra_robot_movie();
-#endif
 	Current_mission = std::make_unique<Mission>(static_cast<const Mission_path &>(*mission));
 	Current_mission->builtin_hogsize = mission->builtin_hogsize;
 	Current_mission->mission_name.copy_if(mission->mission_name);
@@ -1192,9 +1206,11 @@ static const char *load_mission(const mle *const mission)
 	free_polygon_models(LevelSharedPolygonModelState);
 
 	if (load_mission_ham())
-		init_extra_robot_movie(&*Current_mission->filename);
+		Current_mission->extra_robot_movie = init_extra_robot_movie(&*Current_mission->filename);
 #endif
 	return nullptr;
+}
+
 }
 
 //loads the named mission if exists.
@@ -1424,6 +1440,8 @@ window_event_result mission_menu::callback_handler(const d_event &event, window_
 	return window_event_result::ignored;
 }
 
+namespace {
+
 using mission_menu_create_state_ptr = std::unique_ptr<mission_menu_create_state>;
 
 static mission_menu_create_state_ptr prepare_mission_menu_state(const mission_list_type &mission_list, const char *const LastMission, const std::size_t extra_strings)
@@ -1455,6 +1473,8 @@ static mission_menu_create_state_ptr prepare_mission_menu_state(const mission_li
 		mission_name_to_select = nullptr;
 	}
 	return p;
+}
+
 }
 
 namespace dsx {

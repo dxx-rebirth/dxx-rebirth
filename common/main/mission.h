@@ -73,6 +73,7 @@ constexpr std::integral_constant<uint8_t, 127> MAX_SECRET_LEVELS_PER_MISSION{};	
 #define FULL_MISSION_HOGSIZE        7595079 // v1.1 - 1.2
 #define FULL_10_MISSION_HOGSIZE     7107354 // v1.0
 #define MAC_FULL_MISSION_HOGSIZE    7110007 // v1.1 - 1.2
+#include "movie.h"
 #endif
 
 //where the missions go
@@ -132,6 +133,8 @@ public:
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+
 struct Mission : Mission_path
 {
 	std::unique_ptr<ubyte[]>	secret_level_table; // originating level no for each secret level 
@@ -149,6 +152,7 @@ struct Mission : Mission_path
 #if defined(DXX_BUILD_DESCENT_II)
 	descent_version_type descent_version;	// descent 1 or descent 2?
 	std::unique_ptr<d_fname> alternate_ham_file;
+	std::unique_ptr<LoadedMovie> extra_robot_movie;
 #endif
 	/* Explicitly default move constructor and move operator=
 	 *
@@ -203,6 +207,8 @@ extern Mission_ptr Current_mission; // current mission
 #endif
 #define PLAYING_BUILTIN_MISSION	(Current_mission->builtin_hogsize != 0)
 #define ANARCHY_ONLY_MISSION	(1 == Current_mission->anarchy_only_flag)
+
+}
 #endif
 
 //values for d1 built-in mission

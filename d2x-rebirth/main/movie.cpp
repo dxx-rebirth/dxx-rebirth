@@ -62,6 +62,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include "d_zip.h"
+
+namespace dsx {
 
 namespace {
 
@@ -88,13 +91,6 @@ constexpr std::array<std::array<char, 8>, 3> movielib_files{{
 	{"intro"}, {"other"}, {"robots"}
 }};
 
-struct loaded_movie_t
-{
-	std::array<char, FILENAME_LEN + 2> filename;
-};
-
-static loaded_movie_t extra_robot_movie_mission;
-
 static RWops_ptr RoboFile;
 
 // Function Prototypes
@@ -109,6 +105,8 @@ struct movie_pause_window : window
 	using window::window;
 	virtual window_event_result event_handler(const d_event &) override;
 };
+
+}
 
 }
 
@@ -130,6 +128,7 @@ unsigned int MovieFileRead(void *handle, void *buf, unsigned int count)
 
 //-----------------------------------------------------------------------
 
+namespace dsx {
 
 //filename will actually get modified to be either low-res or high-res
 //returns status.  see values in movie.h
@@ -168,6 +167,8 @@ movie_play_status PlayMovie(const char *subtitles, const char *filename, int mus
 
 	Screen_mode = -1;		//force screen reset
 	return ret;
+}
+
 }
 
 void MovieShowFrame(const uint8_t *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh)
@@ -242,6 +243,8 @@ void MovieSetPalette(const unsigned char *p, unsigned start, unsigned count)
 	//movie libs palette into our array
 	memcpy(&gr_palette[start],p+start*3,count*3);
 }
+
+namespace dsx {
 
 namespace {
 
@@ -443,13 +446,11 @@ int RotateRobot(MVESTREAM_ptr_t &pMovie)
 	return 1;
 }
 
-
 void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie)
 {
 	pMovie.reset();
 	RoboFile.reset();                           // Close Movie File
 }
-
 
 int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 {
@@ -636,60 +637,60 @@ static void draw_subtitles(const d_subtitle_state &SubtitleState, const int fram
 		}
 }
 
-static int init_movie(const char *movielib, char resolution, int required, loaded_movie_t &movie)
+static int init_movie(const char *movielib, char resolution, int required, LoadedMovie &movie)
 {
-	snprintf(&movie.filename[0], movie.filename.size(), "%s-%c.mvl", movielib, resolution);
-	std::array<char, PATH_MAX> pathname;
-	auto r = PHYSFSX_addRelToSearchPath(&movie.filename[0], pathname, physfs_search_path::prepend);
+	std::array<char, FILENAME_LEN + 2> filename;
+	snprintf(&filename[0], filename.size(), "%s-%c.mvl", movielib, resolution);
+	auto r = PHYSFSX_addRelToSearchPath(&filename[0], movie.pathname, physfs_search_path::prepend);
 	if (!r)
 	{
-		if (required || CGameArg.DbgVerbose)
-			con_printf(CON_URGENT, "Can't open movielib <%s>: %s", &movie.filename[0], PHYSFS_getLastError());
-		movie.filename[0] = 0;
+		con_printf(required ? CON_URGENT : CON_VERBOSE, "Can't open movielib <%s>: %s", &filename[0], PHYSFS_getLastError());
+		movie.pathname[0] = 0;
 	}
 	return r;
 }
 
-static void init_movie(const char *movielib, int required, loaded_movie_t &movie)
+static int init_movie(const char *movielib, int required, LoadedMovie &movie)
 {
 	if (!GameArg.GfxSkipHiresMovie)
 	{
-		if (init_movie(movielib, 'h', required, movie))
-			return;
+		if (auto r = init_movie(movielib, 'h', required, movie))
+			return r;
 	}
-	init_movie(movielib, 'l', required, movie);
+	return init_movie(movielib, 'l', required, movie);
 }
 
 }
 
 //find and initialize the movie libraries
-void init_movies()
+std::unique_ptr<BuiltinMovies> init_movies()
 {
 	if (GameArg.SysNoMovies)
-		return;
+		return nullptr;
 
-	range_for (auto &i, movielib_files)
-	{
-		loaded_movie_t m;
-		init_movie(&i[0], 1, m);
-	}
+	auto r = std::make_unique<BuiltinMovies>();
+	for (auto &&[f, m] : zip(movielib_files, r->movies))
+		init_movie(&f[0], 1, m);
+	return r;
 }
 
-void close_extra_robot_movie()
+LoadedMovie::~LoadedMovie()
 {
-	const auto movielib = &extra_robot_movie_mission.filename[0];
+	const auto movielib = pathname.data();
 	if (!*movielib)
 		return;
-	if (!PHYSFSX_contfile_close(movielib))
-	{
-		con_printf(CON_URGENT, "Can't close movielib <%s>: %s", movielib, PHYSFS_getLastError());
-	}
-	*movielib = 0;
+	if (!PHYSFS_unmount(movielib))
+		con_printf(CON_URGENT, "Cannot close movielib <%s>: %s", movielib, PHYSFS_getLastError());
 }
 
-void init_extra_robot_movie(const char *movielib)
+std::unique_ptr<LoadedMovie> init_extra_robot_movie(const char *movielib)
 {
 	if (GameArg.SysNoMovies)
-		return;
-	init_movie(movielib, 0, extra_robot_movie_mission);
+		return nullptr;
+	auto r = std::make_unique<LoadedMovie>();
+	if (!init_movie(movielib, 0, *r))
+		return nullptr;
+	return r;
+}
+
 }

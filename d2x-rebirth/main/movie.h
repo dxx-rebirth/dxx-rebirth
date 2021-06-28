@@ -25,8 +25,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#ifdef __cplusplus
+#include <limits.h>
 #include "d2x-rebirth/libmve/mvelib.h"
+#include "dsx-ns.h"
+
+namespace dsx {
 
 #define MOVIE_ABORT_ON  1
 #define MOVIE_ABORT_OFF 0
@@ -50,12 +53,25 @@ int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie);
 int RotateRobot(MVESTREAM_ptr_t &pMovie);
 void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie);
 
-// find and initialize the movie libraries
-void init_movies();
+struct LoadedMovie
+{
+	std::array<char, PATH_MAX> pathname;
+	LoadedMovie()
+	{
+		pathname[0] = 0;
+	}
+	~LoadedMovie();
+};
 
-void init_extra_robot_movie(const char *filename);
-void close_extra_robot_movie();
+struct BuiltinMovies
+{
+	std::array<LoadedMovie, 3> movies;
+};
+
+// find and initialize the movie libraries
+std::unique_ptr<BuiltinMovies> init_movies();
+std::unique_ptr<LoadedMovie> init_extra_robot_movie(const char *filename);
 
 extern int MovieHires;      // specifies whether movies use low or high res
 
-#endif
+}

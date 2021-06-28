@@ -15,6 +15,8 @@
 #include "mvelib.h"
 #include <memory>
 
+namespace {
+
 static const char  MVE_HEADER[]  = "Interplay MVE File\x1A";
 constexpr short MVE_HDRCONST1 = 0x001A;
 constexpr short MVE_HDRCONST2 = 0x0100;
@@ -39,6 +41,8 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie);
  */
 static int _mvestream_open(MVESTREAM *movie, void *stream);
 static void _mvestream_reset(MVESTREAM *movie);
+
+}
 
 /************************************************************
  * public MVEFILE functions
@@ -70,6 +74,8 @@ std::unique_ptr<MVEFILE> mvefile_open(void *stream)
     return file;
 }
 
+namespace {
+
 /*
  * reset a MVE file
  */
@@ -97,6 +103,8 @@ static bool have_segment_header(const MVEFILE *movie)
 	if (movie->cur_chunk.size() - movie->next_segment <= 4)
 		return false;
 	return true;
+}
+
 }
 
 /*
@@ -262,6 +270,8 @@ MVEFILE::~MVEFILE()
 {
 }
 
+namespace {
+
 /*
  * open the file stream in thie object
  */
@@ -359,6 +369,8 @@ static uint16_t _mve_get_ushort(const unsigned char *data)
     return value;
 }
 
+}
+
 /*
  * allocate an MVESTREAM
  */
@@ -370,6 +382,8 @@ MVESTREAM::MVESTREAM()
 MVESTREAM::~MVESTREAM()
 {
 }
+
+namespace {
 
 /*
  * open an MVESTREAM object
@@ -387,4 +401,6 @@ static int _mvestream_open(MVESTREAM *movie, void *stream)
 static void _mvestream_reset(MVESTREAM *movie)
 {
 	mvefile_reset(movie->movie.get());
+}
+
 }
