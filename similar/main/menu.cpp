@@ -1093,15 +1093,19 @@ struct options_menu : options_menu_items, newmenu
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 int options_menu::subfunction_handler(const d_event &event)
 {
+	(void)event;
+	return 0;
+}
+
+window_event_result options_menu::event_handler(const d_event &event)
+{
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_CHANGED:
-			break;
-
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
@@ -1120,7 +1124,7 @@ int options_menu::subfunction_handler(const d_event &event)
 					gameplay_config();
 					break;
 			}
-			return 1;	// stay in menu until escape
+			return window_event_result::handled;	// stay in menu until escape
 		}
 
 		case EVENT_WINDOW_CLOSE:
@@ -1130,7 +1134,7 @@ int options_menu::subfunction_handler(const d_event &event)
 		default:
 			break;
 	}
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 static int gcd(int a, int b)
