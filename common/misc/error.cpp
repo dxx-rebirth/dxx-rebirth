@@ -59,13 +59,15 @@ void clear_warn_func()
 constexpr auto warn_func = &warn_printf;
 #endif
 
+namespace {
+
 static void print_exit_message(const char *exit_message, size_t len)
 {
 	con_puts(CON_CRITICAL, exit_message, len);
 	msgbox_error(exit_message);
 }
 
-__noreturn
+[[noreturn]]
 static void abort_print_exit_message(const char *exit_message, size_t len)
 {
 	print_exit_message(exit_message, len);
@@ -73,11 +75,13 @@ static void abort_print_exit_message(const char *exit_message, size_t len)
 	std::abort();
 }
 
-__noreturn
+[[noreturn]]
 static void graceful_print_exit_message(const char *exit_message, size_t len)
 {
 	print_exit_message(exit_message, len);
 	exit(1);
+}
+
 }
 
 void (Error_puts)(const char *filename, const unsigned line, const char *func, const char *str)
