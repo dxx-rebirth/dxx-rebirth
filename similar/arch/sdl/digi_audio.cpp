@@ -209,9 +209,6 @@ int digi_audio_init()
 	return 0;
 }
 
-/* Toggle audio */
-void digi_audio_reset() { }
-
 /* Shut down audio */
 void digi_audio_close()
 {

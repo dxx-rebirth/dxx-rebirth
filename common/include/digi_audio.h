@@ -18,7 +18,6 @@ constexpr std::integral_constant<int, 16> digi_max_channels{};
 }
 namespace dsx {
 int digi_audio_init();
-void digi_audio_reset();
 void digi_audio_close();
 void digi_audio_stop_all_channels();
 int digi_audio_start_sound(short, fix, int, int, int, int, sound_object *);

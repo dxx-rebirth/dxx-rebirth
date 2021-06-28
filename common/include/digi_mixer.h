@@ -20,7 +20,6 @@ void digi_mixer_stop_sound(int);
 void digi_mixer_end_sound(int);
 void digi_mixer_set_digi_volume(int);
 int digi_mixer_is_channel_playing(int);
-void digi_mixer_reset();
 void digi_mixer_stop_all_channels();
 }
 namespace dsx {

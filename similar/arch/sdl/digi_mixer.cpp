@@ -279,7 +279,6 @@ int digi_mixer_is_channel_playing(const int c)
 	return channels[c];
 }
 
-void digi_mixer_reset() {}
 void digi_mixer_stop_all_channels()
 {
 	channels = {};

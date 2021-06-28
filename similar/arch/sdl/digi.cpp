@@ -66,9 +66,6 @@ struct sound_function_table_t
 {
 	int  (*init)();
 	void (*close)();
-#ifndef RELEASE
-	void (*reset)();
-#endif
 	void (*set_channel_volume)(int, int);
 	void (*set_channel_pan)(int, int);
 	int  (*start_sound)(short, fix, int, int, int, int, sound_object *);
@@ -157,9 +154,6 @@ namespace {
 constexpr sound_function_table_t digi_mixer_table{
 	&digi_mixer_init,
 	&digi_mixer_close,
-#ifndef RELEASE
-	&digi_mixer_reset,
-#endif
 	&digi_mixer_set_channel_volume,
 	&digi_mixer_set_channel_pan,
 	&digi_mixer_start_sound,
@@ -174,9 +168,6 @@ constexpr sound_function_table_t digi_mixer_table{
 constexpr sound_function_table_t digi_audio_table{
 	&digi_audio_init,
 	&digi_audio_close,
-#ifndef RELEASE
-	&digi_audio_reset,
-#endif
 	&digi_audio_set_channel_volume,
 	&digi_audio_set_channel_pan,
 	&digi_audio_start_sound,
@@ -232,9 +223,6 @@ int  digi_init()
 }
 
 void digi_close() { fptr->close(); }
-#ifndef RELEASE
-void digi_reset() { fptr->reset(); }
-#endif
 
 void digi_set_channel_volume(int channel, int volume) { fptr->set_channel_volume(channel, volume); }
 void digi_set_channel_pan(int channel, int pan) { fptr->set_channel_pan(channel, pan); }

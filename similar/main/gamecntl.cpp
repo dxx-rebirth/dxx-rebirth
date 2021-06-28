@@ -1351,8 +1351,6 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 
 			Int3(); break;
 
-		case KEY_DEBUGGED+KEY_S:				digi_reset(); break;
-
 		case KEY_DEBUGGED+KEY_P:
 			if (Game_suspended & SUSP_ROBOTS)
 				Game_suspended &= ~SUSP_ROBOTS;		//robots move

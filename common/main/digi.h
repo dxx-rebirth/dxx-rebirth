@@ -58,9 +58,6 @@ struct digi_sound
 };
 
 extern int digi_init();
-#ifndef RELEASE
-extern void digi_reset();
-#endif
 extern void digi_close();
 
 // Volume is max at F1_0.
