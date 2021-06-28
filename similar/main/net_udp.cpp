@@ -5993,71 +5993,85 @@ void net_udp_send_extras ()
 	if (!Network_sending_extras)
 		Player_joining_extras=-1;
 }
-}
 
-static int show_game_info_handler(newmenu *, const d_event &event, netgame_info *netgame)
+namespace {
+
+struct show_game_info_menu : std::array<newmenu_item, 2>, std::array<char, 512>, passive_newmenu
+{
+	const netgame_info &netgame;
+	show_game_info_menu(const netgame_info &netgame) :
+		std::array<newmenu_item, 2>{{
+			newmenu_item::nm_item_menu{"JOIN GAME"},
+			newmenu_item::nm_item_menu{"GAME INFO"},
+		}},
+		passive_newmenu(menu_title{"WELCOME"}, menu_subtitle{(setup_subtitle_text(*this, netgame).data())}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(static_cast<std::array<newmenu_item, 2> &>(*this), 0), *grd_curcanv),
+		netgame(netgame)
+	{
+	}
+	virtual window_event_result event_handler(const d_event &event) override;
+	static const std::array<char, 512> &setup_subtitle_text(std::array<char, 512> &, const netgame_info &);
+};
+
+window_event_result show_game_info_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
-			if (citem != 1)
-				return 0;
-			show_netgame_info(*netgame);
-			return 1;
+			switch (citem)
+			{
+				case 0:
+				default:
+					return window_event_result::close;
+				case 1:
+					show_netgame_info(netgame);
+					return window_event_result::handled;
+			}
 		}
 		default:
-			return 0;
+			return newmenu::event_handler(event);
 	}
 }
 
-namespace dsx {
-int net_udp_show_game_info()
+const std::array<char, 512> &show_game_info_menu::setup_subtitle_text(std::array<char, 512> &rinfo, const netgame_info &netgame)
 {
-	char rinfo[512];
-	int c;
-	netgame_info *netgame = &Netgame;
-
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_SECRET_LEVEL_FORMAT	"%s"
-#define DXX_SECRET_LEVEL_PARAMETER	(netgame->levelnum >= 0 ? "" : "S"), \
-	netgame->levelnum < 0 ? -netgame->levelnum :	/* else portion provided by invoker */
+#define DXX_SECRET_LEVEL_PARAMETER	(netgame.levelnum >= 0 ? "" : "S"), \
+	netgame.levelnum < 0 ? -netgame.levelnum :	/* else portion provided by invoker */
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_SECRET_LEVEL_FORMAT
 #define DXX_SECRET_LEVEL_PARAMETER
 #endif
-	unsigned gamemode = netgame->gamemode;
-	unsigned players;
+	unsigned gamemode = netgame.gamemode;
+	const unsigned
 #if defined(DXX_BUILD_DESCENT_I)
-	players = netgame->numplayers;
+	players = netgame.numplayers;
 #elif defined(DXX_BUILD_DESCENT_II)
-	players = netgame->numconnected;
+	players = netgame.numconnected;
 #endif
 #define GAME_INFO_FORMAT_TEXT(F)	\
-	F("\nConnected to\n\"%." DXX_STRINGIZE(NETGAME_NAME_LEN) "s\"\n", netgame->game_name.data())	\
-	F("%." DXX_STRINGIZE(MISSION_NAME_LEN) "s", netgame->mission_title.data())	\
-	F(" - Lvl " DXX_SECRET_LEVEL_FORMAT "%i", DXX_SECRET_LEVEL_PARAMETER netgame->levelnum)	\
-	F("\n\nDifficulty: %s", MENU_DIFFICULTY_TEXT(netgame->difficulty))	\
+	F("\nConnected to\n\"%." DXX_STRINGIZE(NETGAME_NAME_LEN) "s\"\n", netgame.game_name.data())	\
+	F("%." DXX_STRINGIZE(MISSION_NAME_LEN) "s", netgame.mission_title.data())	\
+	F(" - Lvl " DXX_SECRET_LEVEL_FORMAT "%i", DXX_SECRET_LEVEL_PARAMETER netgame.levelnum)	\
+	F("\n\nDifficulty: %s", MENU_DIFFICULTY_TEXT(netgame.difficulty))	\
 	F("\nGame Mode: %s", gamemode < GMNames.size() ? GMNames[gamemode] : "INVALID")	\
-	F("\nPlayers: %u/%i", players, netgame->max_numplayers)
+	F("\nPlayers: %u/%i", players, netgame.max_numplayers)
 #define EXPAND_FORMAT(A,B,...)	A
 #define EXPAND_ARGUMENT(A,B,...)	, B, ## __VA_ARGS__
-	snprintf(rinfo, std::size(rinfo), GAME_INFO_FORMAT_TEXT(EXPAND_FORMAT) GAME_INFO_FORMAT_TEXT(EXPAND_ARGUMENT));
+	std::snprintf(rinfo.data(), rinfo.size(), GAME_INFO_FORMAT_TEXT(EXPAND_FORMAT) GAME_INFO_FORMAT_TEXT(EXPAND_ARGUMENT));
 #undef GAME_INFO_FORMAT_TEXT
-
-	std::array<newmenu_item, 2> nm_message_items{{
-		newmenu_item::nm_item_menu{"JOIN GAME"},
-		newmenu_item::nm_item_menu{"GAME INFO"},
-	}};
-	c = newmenu_do2(menu_title{"WELCOME"}, menu_subtitle{rinfo}, nm_message_items, show_game_info_handler, netgame);
-	if (c==0)
-		return 1;
-	//else if (c==1)
-	// handled in above callback
-	else
-		return 0;
+	return rinfo;
 }
+
+}
+
+int net_udp_show_game_info()
+{
+	return run_blocking_newmenu<show_game_info_menu>(Netgame);
+}
+
 }
 
 /* Tracker stuff, begin! */
