@@ -94,8 +94,8 @@ constexpr std::integral_constant<int8_t, -1> owner_none{};
 
 namespace dsx {
 namespace {
+void multi_new_bounty_target_with_sound(playernum_t, const char *callsign);
 static void multi_reset_object_texture(object_base &objp);
-static void multi_new_bounty_target(playernum_t pnum);
 static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t type);
 static void multi_update_objects_for_non_cooperative();
 static void multi_restore_game(unsigned slot, unsigned id);
@@ -130,6 +130,7 @@ static std::array<std::array<objnum_t, MAX_OBJECTS>, MAX_PLAYERS> remote_to_loca
 static std::array<uint16_t, MAX_OBJECTS> local_to_remote;
 static std::array<unsigned, MAX_PLAYERS> sorted_kills;
 static void multi_send_quit();
+void multi_new_bounty_target(playernum_t, const char *callsign);
 }
 DEFINE_SERIAL_UDT_TO_MESSAGE(shortpos, s, (s.bytemat, s.xo, s.yo, s.zo, s.segment, s.velx, s.vely, s.velz));
 }
@@ -411,6 +412,25 @@ void reset_network_objects()
 }
 
 namespace dsx {
+
+namespace {
+
+void update_bounty_target()
+{
+	std::array<std::pair<playernum_t, const char *>, std::size(Players)> candidates{};
+	const auto b = candidates.begin();
+	auto iter = b;
+	for (auto &&[plr, idx] : enumerate(Players))
+		if (plr.connected)
+			*iter++ = {idx, plr.callsign};
+	const auto n = std::distance(b, iter);
+	if (!n)
+		return;
+	auto &choice = candidates[d_rand() % n];
+	multi_new_bounty_target_with_sound(choice.first, choice.second);
+}
+
+}
 
 //
 // Part 1 : functions whose main purpose in life is to divert the flow
@@ -802,16 +822,7 @@ static void multi_compute_kill(const imobjptridx_t killer, object &killed)
 		/* Bounty mode needs some lovin' */
 		if( Game_mode & GM_BOUNTY && killed_pnum == Bounty_target && multi_i_am_master() )
 		{
-			/* Select a random number */
-			unsigned n = d_rand() % MAX_PLAYERS;
-			
-			/* Make sure they're valid: Don't check against kill flags,
-			* just in case everyone's dead! */
-			while(!vcplayerptr(n)->connected)
-				n = d_rand() % MAX_PLAYERS;
-			
-			/* Select new target  - it will be sent later when we're done with this function */
-			multi_new_bounty_target( n );
+			update_bounty_target();
 		}
 	}
 
@@ -853,7 +864,7 @@ static void multi_compute_kill(const imobjptridx_t killer, object &killed)
 					
 					/* If the target died, the new one is set! */
 					if( killed_pnum == Bounty_target )
-						multi_new_bounty_target( killer_pnum );
+						multi_new_bounty_target_with_sound(killer_pnum, vcplayerptr(get_player_id(killer))->callsign);
 				}
 			}
 			else
@@ -1964,17 +1975,7 @@ void multi_disconnect_player(const playernum_t pnum)
 		// Bounty target left - select a new one
 		if( Game_mode & GM_BOUNTY && pnum == Bounty_target && multi_i_am_master() )
 		{
-			/* Select a random number */
-			vmplayeridx_t n = d_rand() % MAX_PLAYERS;
-			
-			/* Make sure they're valid: Don't check against kill flags,
-				* just in case everyone's dead! */
-			while(!vcplayerptr(n)->connected)
-				n = d_rand() % MAX_PLAYERS;
-			
-			/* Select new target */
-			multi_new_bounty_target( n );
-			
+			update_bounty_target();
 			/* Send this new data */
 			multi_send_bounty();
 		}
@@ -4815,6 +4816,21 @@ int multi_maybe_disable_friendly_fire(const object_base *const killer)
 	return 0; // all other cases -> harm me!
 }
 
+namespace {
+
+void multi_new_bounty_target(playernum_t pnum, const char *const callsign)
+{
+	/* If it's already the same, don't do it */
+	if (Bounty_target == pnum)
+		return;
+	/* Set the target */
+	Bounty_target = pnum;
+	/* Send a message */
+	HUD_init_message(HM_MULTI, "%c%c%s is the new target!", CC_COLOR, BM_XRGB(player_rgb[pnum].r, player_rgb[pnum].g, player_rgb[pnum].b), callsign);
+}
+
+}
+
 }
 
 /* Bounty packer sender and handler */
@@ -4842,29 +4858,18 @@ static void multi_do_bounty( const ubyte *buf )
 {
 	if ( multi_i_am_master() )
 		return;
-	
-	multi_new_bounty_target( buf[1] );
+	const unsigned pnum = buf[1];
+	multi_new_bounty_target_with_sound(pnum, vcplayerptr(pnum)->callsign);
 }
 
-void multi_new_bounty_target(const playernum_t pnum )
+void multi_new_bounty_target_with_sound(const playernum_t pnum, const char *const callsign)
 {
-	/* If it's already the same, don't do it */
-	if( Bounty_target == pnum )
-		return;
-	
-	/* Set the target */
-	Bounty_target = pnum;
-	
-	/* Send a message */
-	HUD_init_message( HM_MULTI, "%c%c%s is the new target!", CC_COLOR,
-		BM_XRGB(player_rgb[pnum].r, player_rgb[pnum].g, player_rgb[pnum].b),
-		static_cast<const char *>(vcplayerptr(pnum)->callsign));
-
 #if defined(DXX_BUILD_DESCENT_I)
 	digi_play_sample( SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0 * 3 );
 #elif defined(DXX_BUILD_DESCENT_II)
 	digi_play_sample( SOUND_BUDDY_MET_GOAL, F1_0 * 2 );
 #endif
+	multi_new_bounty_target(pnum, callsign);
 }
 
 static void multi_do_save_game(const uint8_t *const buf)

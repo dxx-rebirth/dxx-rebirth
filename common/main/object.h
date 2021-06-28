@@ -749,7 +749,7 @@ static inline void set_weapon_id(object_base &o, weapon_id_type id)
 
 namespace dcx {
 
-static inline uint8_t get_player_id(const object_base &o)
+static inline unsigned get_player_id(const object_base &o)
 {
 	return o.id;
 }
