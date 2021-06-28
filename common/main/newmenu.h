@@ -75,6 +75,12 @@ class newmenu_item
 		 */
 		int group;
 	};
+	struct number_slider_common_type
+	{
+		int min_value;
+		int max_value;
+	};
+public:
 	struct input_specific_type : input_common_type
 	{
 		static constexpr std::integral_constant<nm_type, nm_type::input> static_type{};
@@ -83,11 +89,6 @@ class newmenu_item
 	{
 		static constexpr std::integral_constant<nm_type, nm_type::radio> static_type{};
 		int group;          // What group this belongs to for radio buttons.
-	};
-	struct number_slider_common_type
-	{
-		int min_value;
-		int max_value;
 	};
 	struct number_specific_type : number_slider_common_type
 	{
@@ -101,8 +102,14 @@ class newmenu_item
 	struct slider_specific_type : number_slider_common_type
 	{
 		static constexpr std::integral_constant<nm_type, nm_type::slider> static_type{};
-		ntstring<NM_MAX_TEXT_LEN> saved_text;
+		slider_specific_type(number_slider_common_type n, ntstring<NM_MAX_TEXT_LEN> &t) :
+			number_slider_common_type(n),
+			saved_text(t)
+		{
+		}
+		ntstring<NM_MAX_TEXT_LEN> &saved_text;
 	};
+private:
 	static void check_union_type(const nm_type current_type, const nm_type static_type)
 	{
 #ifdef DXX_CONSTANT_TRUE
@@ -138,6 +145,12 @@ public:
 			{
 				static_assert(static_cast<int>(len) == len);
 			}
+	};
+	struct nm_item_slider
+	{
+		int min_value;
+		int max_value;
+		ntstring<NM_MAX_TEXT_LEN> &saved_text;
 	};
 	newmenu_item() = default;
 	newmenu_item(nm_item_text text) :
@@ -193,9 +206,16 @@ public:
 	uint8_t right_offset;
 	nm_type type;           // What kind of item this is, see NM_TYPE_????? defines
 	union nm_type_specific_data {
-		nm_type_specific_data() = default;
+		nm_type_specific_data() :
+			input{{nullptr, 0, 0}}
+		{
+		}
 		nm_type_specific_data(const nm_item_input &input) :
 			input{{input.allowed_chars, input.textlen, 0}}
+		{
+		}
+		nm_type_specific_data(const nm_item_slider &slider) :
+			slider{{slider.min_value, slider.max_value}, slider.saved_text}
 		{
 		}
 		input_specific_type input;
@@ -573,14 +593,12 @@ static inline void nm_set_item_number(newmenu_item &ni, const char *text, unsign
 }
 
 __attribute_nonnull()
-static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsigned now, unsigned low, unsigned high)
+static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsigned now, const int low, const int high, ntstring<NM_MAX_TEXT_LEN> &saved_text)
 {
 	ni.type = nm_type::slider;
 	ni.text = const_cast<char *>(text);
 	ni.value = now;
-	auto &slider = ni.slider();
-	slider.min_value = low;
-	slider.max_value = high;
+	new(&ni.nm_private.slider) newmenu_item::slider_specific_type({low, high}, saved_text);
 }
 
 struct passive_messagebox_item
@@ -619,8 +637,24 @@ struct passive_messagebox : passive_messagebox_item, passive_newmenu
 #define DXX_MENUITEM(VERB, TYPE, ...)	DXX_MENUITEM_V_##VERB(TYPE, ## __VA_ARGS__)
 #define DXX_MENUITEM_V_ENUM(TYPE,S,OPT,...)	OPT,
 #define DXX_MENUITEM_V_COUNT(TYPE,...)	+1
+#define DXX_MENUITEM_V_DECL(TYPE,S,OPT,...)	DXX_MENUITEM_V_DECL_T_##TYPE(S, OPT, ## __VA_ARGS__)
 #define DXX_MENUITEM_V_ADD(TYPE,S,OPT,...)	DXX_MENUITEM_V_ADD_T_##TYPE(S, OPT, ## __VA_ARGS__)
 #define DXX_MENUITEM_V_READ(TYPE,S,OPT,...)	DXX_MENUITEM_V_READ_T_##TYPE(S, OPT, ## __VA_ARGS__)
+#define DXX_MENUITEM_V_DECL_T_CHECK(S,OPT,V)
+
+#define DXX_MENUITEM_V_DECL_T_FCHECK(S,OPT,V,F)
+#define DXX_MENUITEM_V_DECL_T_RADIO(S,OPT,C,G)
+#define DXX_MENUITEM_V_DECL_T_NUMBER(S,OPT,V,MIN,MAX)
+#define DXX_MENUITEM_V_DECL_T_SLIDER(S,OPT,V,MIN,MAX)	\
+	ntstring<NM_MAX_TEXT_LEN> DXX_NEWMENU_VARIABLE ## _ ## OPT ## _saved_text;
+
+#define DXX_MENUITEM_V_DECL_T_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\
+	DXX_MENUITEM_V_DECL_T_SLIDER(,OPT,,,)
+#define DXX_MENUITEM_V_DECL_T_MENU(S,OPT)	\
+
+#define DXX_MENUITEM_V_DECL_T_TEXT(S,OPT)
+#define DXX_MENUITEM_V_DECL_T_INPUT(S,OPT)	\
+
 #define DXX_MENUITEM_V_ADD_T_CHECK(S,OPT,V)	\
 	nm_set_item_checkbox(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V));
 #define DXX_MENUITEM_V_ADD_T_FCHECK(S,OPT,V,F)	DXX_MENUITEM_V_ADD_T_CHECK(S,OPT,(V) & (F))
@@ -629,9 +663,9 @@ struct passive_messagebox : passive_messagebox_item, passive_newmenu
 #define DXX_MENUITEM_V_ADD_T_NUMBER(S,OPT,V,MIN,MAX)	\
 	nm_set_item_number(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V), (MIN), (MAX));
 #define DXX_MENUITEM_V_ADD_T_SLIDER(S,OPT,V,MIN,MAX)	\
-	nm_set_item_slider(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V), (MIN), (MAX));
+	nm_set_item_slider(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V), (MIN), (MAX), DXX_NEWMENU_VARIABLE ## _ ## OPT ## _saved_text);
 #define DXX_MENUITEM_V_ADD_T_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\
-	DXX_MENUITEM_V_ADD_T_SLIDER((S),(OPT),(V) / (SCALE),(MIN),(MAX))
+	DXX_MENUITEM_V_ADD_T_SLIDER((S),OPT,(V) / (SCALE),(MIN),(MAX))
 #define DXX_MENUITEM_V_ADD_T_MENU(S,OPT)	\
 	nm_set_item_menu(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
 #define DXX_MENUITEM_V_ADD_T_TEXT(S,OPT)	\

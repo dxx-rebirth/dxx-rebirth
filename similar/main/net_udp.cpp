@@ -3516,6 +3516,7 @@ protected:
 #endif
 	human_readable_mmss_time<decltype(d_gameplay_options::AutosaveInterval)::rep> AutosaveInterval;
 	using menu_array = std::array<newmenu_item, DXX_UDP_MENU_OPTIONS(COUNT)>;
+	DXX_UDP_MENU_OPTIONS(DECL);
 	menu_array m;
 	static const char *get_annotated_difficulty_string(const Difficulty_level_type d)
 	{
@@ -3861,6 +3862,7 @@ struct param_opt
 #endif
 	std::array<char, sizeof("S100")> slevel{{"1"}};
 	char srmaxnet[sizeof("Maximum players: 99")];
+	ntstring<NM_MAX_TEXT_LEN> max_numplayers_saved_text;
 	std::array<newmenu_item, 22> m;
 	void update_netgame_max_players()
 	{
@@ -4110,7 +4112,7 @@ window_event_result net_udp_setup_game()
 
 	opt.maxnet = optnum;
 	opt.update_max_players_string();
-	nm_set_item_slider(m[optnum], opt.srmaxnet, Netgame.max_numplayers - 2, 0, Netgame.max_numplayers - 2); optnum++;
+	nm_set_item_slider(m[optnum], opt.srmaxnet, Netgame.max_numplayers - 2, 0, Netgame.max_numplayers - 2, opt.max_numplayers_saved_text); optnum++;
 	
 	opt.moreopts=optnum;
 	nm_set_item_menu(  m[optnum], "Advanced Options"); optnum++;

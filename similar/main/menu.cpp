@@ -1079,6 +1079,7 @@ public:
 	{
 		DXX_OPTIONS_MENU(ENUM)
 	};
+	DXX_OPTIONS_MENU(DECL);
 	std::array<newmenu_item, DXX_OPTIONS_MENU(COUNT)> m;
 	options_menu_items()
 	{
@@ -1409,6 +1410,7 @@ struct menu_items
 		{
 			DXX_INPUT_CONFIG_MENU(ENUM)
 		};
+		DXX_INPUT_CONFIG_MENU(DECL);
 		std::array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
 		menu_items()
 		{
@@ -1479,6 +1481,7 @@ namespace mouse_sensitivity {
 		{
 			DXX_INPUT_CONFIG_MENU(ENUM)
 		};
+		DXX_INPUT_CONFIG_MENU(DECL);
 		std::array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
 		menu_items()
 		{
@@ -1544,6 +1547,7 @@ namespace joystick_sensitivity {
 		{
 			DXX_INPUT_CONFIG_MENU(ENUM)
 		};
+		DXX_INPUT_CONFIG_MENU(DECL);
 		std::array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
 		menu_items()
 		{
@@ -1801,6 +1805,7 @@ struct reticle_config_menu_items
 		{
 			DXX_RETICLE_CONFIG_MENU(ENUM)
 		};
+		DXX_RETICLE_CONFIG_MENU(DECL);
 		std::array<newmenu_item, DXX_RETICLE_CONFIG_MENU(COUNT)> m;
 		reticle_config_menu_items()
 		{
@@ -1874,6 +1879,7 @@ struct hud_style_config_menu_items
 		enum {
 			DXX_HUD_STYLE_MENU(ENUM)
 		};
+		DXX_HUD_STYLE_MENU(DECL);
 		std::array<newmenu_item, DXX_HUD_STYLE_MENU(COUNT)> m;
 		hud_style_config_menu_items()
 		{
@@ -1956,6 +1962,7 @@ struct hud_config_menu_items
 	enum {
 		DSX_HUD_MENU_OPTIONS(ENUM)
 	};
+	DSX_HUD_MENU_OPTIONS(DECL);
 	std::array<newmenu_item, DSX_HUD_MENU_OPTIONS(COUNT)> m;
 	hud_config_menu_items()
 	{
@@ -2052,6 +2059,7 @@ struct graphics_config_menu_items
 	enum {
 		DXX_GRAPHICS_MENU(ENUM)
 	};
+	DXX_GRAPHICS_MENU(DECL);
 	std::array<newmenu_item, DXX_GRAPHICS_MENU(COUNT)> m;
 	graphics_config_menu_items()
 	{
@@ -2515,6 +2523,7 @@ public:
 	{
 		DSX_SOUND_MENU(ENUM)
 	};
+	DSX_SOUND_MENU(DECL);
 	std::array<newmenu_item, DSX_SOUND_MENU(COUNT)> m;
 	sound_menu_items()
 	{
@@ -2732,6 +2741,7 @@ struct gameplay_config_menu_items
 	enum {
 		DSX_GAMEPLAY_MENU_OPTIONS(ENUM)
 	};
+	DSX_GAMEPLAY_MENU_OPTIONS(DECL);
 	std::array<newmenu_item, DSX_GAMEPLAY_MENU_OPTIONS(COUNT)> m;
 	human_readable_mmss_time<decltype(d_gameplay_options::AutosaveInterval)::rep> AutosaveInterval;
 	gameplay_config_menu_items()
@@ -3020,6 +3030,7 @@ public:
 	{
 		DXX_SANDBOX_MENU(ENUM)
 	};
+	DXX_SANDBOX_MENU(DECL);
 	std::array<newmenu_item, DXX_SANDBOX_MENU(COUNT)> m;
 	sandbox_menu_items()
 	{
