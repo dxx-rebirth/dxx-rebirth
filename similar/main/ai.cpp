@@ -1654,7 +1654,7 @@ namespace {
 //	Updates ailp->previous_visibility if player is not cloaked, in which case the previous visibility is left unchanged
 //	and is copied to player_visibility
 
-static void compute_vis_and_vec(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const player_info &player_info, vms_vector &pos, ai_local &ailp, robot_to_player_visibility_state &player_visibility, const robot_info &robptr)
+static void compute_vis_and_vec(const vmobjptridx_t objp, const player_info &player_info, vms_vector &pos, ai_local &ailp, robot_to_player_visibility_state &player_visibility, const robot_info &robptr)
 {
 	if (player_visibility.initialized)
 		return;
@@ -1674,7 +1674,7 @@ static void compute_vis_and_vec(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
 			if (ailp.next_misc_sound_time < GameTime64 && ready_to_fire_any_weapon(robptr, ailp, F1_0) && dist < F1_0 * 20)
 			{
 				ailp.next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 1;
-				digi_link_sound_to_pos(robptr.see_sound, vmsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
+				digi_link_sound_to_object(robptr.see_sound, objp, 0, Robot_sound_volume, sound_stack::allow_stacking);
 			}
 		} else {
 			//	Compute expensive stuff -- vec_to_player and player_visibility
@@ -1705,14 +1705,14 @@ static void compute_vis_and_vec(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
 				{
 					if (ailp.time_player_seen + F1_0/2 < GameTime64)
 					{
-						digi_link_sound_to_pos(robptr.see_sound, vmsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
+						digi_link_sound_to_object(robptr.see_sound, objp, 0, Robot_sound_volume, sound_stack::allow_stacking);
 						ailp.time_player_sound_attacked = GameTime64;
 						ailp.next_misc_sound_time = GameTime64 + F1_0 + d_rand()*4;
 					}
 				}
 				else if (ailp.time_player_sound_attacked + F1_0/4 < GameTime64)
 				{
-					digi_link_sound_to_pos(robptr.attack_sound, vmsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
+					digi_link_sound_to_object(robptr.attack_sound, objp, 0, Robot_sound_volume, sound_stack::allow_stacking);
 					ailp.time_player_sound_attacked = GameTime64;
 				}
 			} 
@@ -1720,7 +1720,7 @@ static void compute_vis_and_vec(fvmsegptridx &vmsegptridx, const vmobjptridx_t o
 			if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view && ailp.next_misc_sound_time < GameTime64)
 			{
 				ailp.next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 2;
-				digi_link_sound_to_pos(robptr.attack_sound, vmsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
+				digi_link_sound_to_object(robptr.attack_sound, objp, 0, Robot_sound_volume, sound_stack::allow_stacking);
 			}
 			ailp.previous_visibility = player_visibility.visibility;
 		}
@@ -3281,7 +3281,7 @@ void do_ai_frame(const vmobjptridx_t obj)
 	else {
 		if (cheats.robotskillrobots) {
 			vis_vec_pos = obj->pos;
-			compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 			if (player_is_visible(player_visibility.visibility))
 			{
 				icobjptr_t min_obj = nullptr;
@@ -3356,7 +3356,7 @@ _exit_cheat:
 				aip->GOAL_STATE = AIS_FIRE;
 			if (aip->CURRENT_STATE == AIS_FLIN)
 				aip->CURRENT_STATE = AIS_FIRE;
-			compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 			
 			{
 				auto pv = player_visibility.visibility;
@@ -3385,7 +3385,7 @@ _exit_cheat:
 			if (aip->CURRENT_STATE == AIS_FLIN)
 				aip->CURRENT_STATE = AIS_FIRE;
 			
-			compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 			
 #if defined(DXX_BUILD_DESCENT_II)
 			auto pv = player_visibility.visibility;
@@ -3575,7 +3575,7 @@ _exit_cheat:
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	{
-		compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+		compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 		if (player_visibility.visibility == player_visibility_state::visible_not_in_field_of_view) // Only increase visibility if unobstructed, else claw guys attack through doors.
 			player_visibility.visibility = player_visibility_state::visible_and_in_field_of_view;
 	} else if (((obj_ref&3) == 0) && !player_is_visible(previous_visibility) && (dist_to_player < F1_0*100)) {
@@ -3587,7 +3587,7 @@ _exit_cheat:
 		if ((fixmul(rval, sval) < FrameTime) || (player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)) {
 			ailp.player_awareness_type = player_awareness_type_t::PA_PLAYER_COLLISION;
 			ailp.player_awareness_time = F1_0*3;
-			compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 			if (player_visibility.visibility == player_visibility_state::visible_not_in_field_of_view)
 				player_visibility.visibility = player_visibility_state::visible_and_in_field_of_view;
 		}
@@ -3633,7 +3633,7 @@ _exit_cheat:
 			if (ConsoleObject->segnum == obj->segnum) {
 				if (!ai_multiplayer_awareness(obj, 97))
 					return;
-				compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+				compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 				move_away_from_player(obj, vec_to_player, 0);
 				ai_multi_send_robot_position(obj, -1);
 			}
@@ -3658,7 +3658,7 @@ _exit_cheat:
 #if defined(DXX_BUILD_DESCENT_II)
 				if (ailp.next_action_time < 0)
 				{
-					compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+					compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 					if (player_is_visible(player_visibility.visibility))
 					{
 						const auto powerup_flags = player_info.powerup_flags;
@@ -3668,7 +3668,7 @@ _exit_cheat:
 				}
 #endif
 			} else {
-				compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+				compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 				if (player_is_visible(player_visibility.visibility))
 				{
 					if (!ai_multiplayer_awareness(obj, 50))
@@ -3692,7 +3692,7 @@ _exit_cheat:
 
 		if (!(obj_ref & 3) || player_is_visible(previous_visibility))
 		{
-			compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 			// If this sniper is in still mode, if he was hit or can see player, switch to snipe mode.
 			if (ailp.mode == ai_mode::AIM_STILL)
@@ -3738,7 +3738,7 @@ _exit_cheat:
 
 	if (robot_is_thief(robptr)) {
 
-		compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+		compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 		do_thief_frame(obj, dist_to_player, player_visibility.visibility, vec_to_player);
 
 		if (ready_to_fire_any_weapon(robptr, ailp, 0)) {
@@ -3764,7 +3764,7 @@ _exit_cheat:
 			if (robptr.attack_type != 1)
 				circle_distance += (objnum&0xf) * F1_0/2;
 
-			compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 			// @mk, 12/27/94, structure here was strange.  Would do both clauses of what are now this if/then/else.  Used to be if/then, if/then.
 			if (player_visibility.visibility != player_visibility_state::visible_and_in_field_of_view && previous_visibility == player_visibility_state::visible_and_in_field_of_view)
@@ -3852,7 +3852,7 @@ _exit_cheat:
 		}
 
 		case ai_mode::AIM_RUN_FROM_OBJECT:
-			compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 			{
 				const auto pv = player_visibility.visibility;
@@ -3940,7 +3940,7 @@ _exit_cheat:
 				}
 			}
 
-			compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 			if (!ai_multiplayer_awareness(obj, anger_level)) {
 				if (maybe_ai_do_actual_firing_stuff(obj)) {
@@ -4014,13 +4014,13 @@ _exit_cheat:
 #endif
 			if (!ai_multiplayer_awareness(obj, 71)) {
 				if (maybe_ai_do_actual_firing_stuff(obj)) {
-					compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+					compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 					ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 				}
 				return;
 			}
 
-			compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 #if defined(DXX_BUILD_DESCENT_I)
 			ai_follow_path(obj, player_visibility.visibility, nullptr);
@@ -4076,7 +4076,7 @@ _exit_cheat:
 		case ai_mode::AIM_STILL:
 			if ((dist_to_player < F1_0 * 120 + static_cast<int>(Difficulty_level) * F1_0 * 20) || (static_cast<unsigned>(ailp.player_awareness_type) >= static_cast<unsigned>(player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION) - 1))
 			{
-				compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+				compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 				// turn towards vector if visible this time or last time, or rand
 				// new!
@@ -4190,7 +4190,7 @@ _exit_cheat:
 	// If the robot can see you, increase his awareness of you.
 	// This prevents the problem of a robot looking right at you but doing nothing.
 	// Assert(player_visibility != -1); // Means it didn't get initialized!
-	compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+	compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 	if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view)
 	{
 #if defined(DXX_BUILD_DESCENT_I)
@@ -4253,7 +4253,7 @@ _exit_cheat:
 	if ((aip->GOAL_STATE != AIS_FLIN)  && (get_robot_id(obj) != ROBOT_BRAIN)) {
 		switch (aip->CURRENT_STATE) {
 			case AIS_NONE:
-				compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+				compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 				{
 				const fix dot = vm_vec_dot(obj->orient.fvec, vec_to_player);
@@ -4264,7 +4264,7 @@ _exit_cheat:
 				break;
 			case AIS_REST:
 				if (aip->GOAL_STATE == AIS_REST) {
-					compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+					compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 					if (ready_to_fire_any_weapon(robptr, ailp, 0) && player_is_visible(player_visibility.visibility))
 					{
 						aip->GOAL_STATE = AIS_FIRE;
@@ -4275,7 +4275,7 @@ _exit_cheat:
 				if (!ai_multiplayer_awareness(obj, 60))
 					return;
 
-				compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+				compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 #if defined(DXX_BUILD_DESCENT_I)
 				if (player_is_visible(player_visibility.visibility))
@@ -4293,7 +4293,7 @@ _exit_cheat:
 #endif
 				break;
 			case AIS_LOCK:
-				compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+				compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 				if (!(Game_mode & GM_MULTI) || player_is_visible(player_visibility.visibility))
 				{
@@ -4318,7 +4318,7 @@ _exit_cheat:
 				}
 				break;
 			case AIS_FIRE:
-				compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+				compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 #if defined(DXX_BUILD_DESCENT_I)
 				if (player_is_visible(player_visibility.visibility))
@@ -4355,7 +4355,7 @@ _exit_cheat:
 				break;
 			case AIS_RECO:
 				if (!(obj_ref & 3)) {
-					compute_vis_and_vec(vmsegptridx, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
+					compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 #if defined(DXX_BUILD_DESCENT_I)
 					if (player_is_visible(player_visibility.visibility))
 					{
