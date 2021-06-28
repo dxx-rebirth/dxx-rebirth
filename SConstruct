@@ -2088,17 +2088,7 @@ help:assume compiler supports __attribute__((unused))
 __attribute_unused
 static void a(){}
 """, msg='for function __attribute__((unused))', successflags={'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'unused']})
-	@_custom_test
-	def check_attribute_warn_unused_result(self,context):
-		"""
-help:assume compiler supports __attribute__((warn_unused_result))
-"""
-		macro_name = '__attribute_warn_unused_result'
-		macro_value = '__attribute__((warn_unused_result))'
-		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
-int a()__attribute_warn_unused_result;
-int a(){return 0;}
-""", msg='for function __attribute__((warn_unused_result))')
+
 	@_custom_test
 	def check_attribute_warning(self,context,_check_function_dce_attribute=_check_function_dce_attribute):
 		_check_function_dce_attribute(self, context, 'warning')

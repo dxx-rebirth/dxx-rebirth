@@ -23,7 +23,8 @@
 namespace dcx {
 
 void d_srand (unsigned int seed);
-__attribute_warn_unused_result
+
+[[nodiscard]]
 int d_rand ();			// Random number function which returns in the range 0-0x7FFF
 
 
@@ -99,22 +100,22 @@ static constexpr int f2ir(const fix &f)
 #define F0_1 	f0_1
 
 //multiply two fixes, return a fix(64)
-__attribute_warn_unused_result
+[[nodiscard]]
 fix64 fixmul64 (fix a, fix b);
 
 /* On x86/amd64 for Windows/Linux, truncating fix64->fix is free. */
-__attribute_warn_unused_result
+[[nodiscard]]
 static inline fix fixmul(fix a, fix b)
 {
 	return static_cast<fix>(fixmul64(a, b));
 }
 
 //divide two fixes, return a fix
-__attribute_warn_unused_result
+[[nodiscard]]
 fix fixdiv (fix a, fix b);
 
 //multiply two fixes, then divide by a third, return a fix
-__attribute_warn_unused_result
+[[nodiscard]]
 fix fixmuldiv (fix a, fix b, fix c);
 
 //multiply two fixes, and add 64-bit product to a quadint
@@ -124,7 +125,7 @@ static inline void fixmulaccum (quadint * q, const fix &a, const fix &b)
 }
 
 //extract a fix from a quadint product
-__attribute_warn_unused_result
+[[nodiscard]]
 static inline fix fixquadadjust (const quadint *q)
 {
 	return static_cast<fix>(q->q >> 16);
@@ -137,15 +138,15 @@ static inline void fixquadnegate (quadint * q)
 }
 
 //computes the square root of a long, returning a short
-__attribute_warn_unused_result
+[[nodiscard]]
 ushort long_sqrt (int32_t a);
 
 //computes the square root of a quadint, returning a long
-__attribute_warn_unused_result
+[[nodiscard]]
 uint32_t quad_sqrt (quadint);
 
 //computes the square root of a fix, returning a fix
-__attribute_warn_unused_result
+[[nodiscard]]
 fix fix_sqrt (fix a);
 
 struct fix_sincos_result
@@ -153,26 +154,26 @@ struct fix_sincos_result
 	fix sin, cos;
 };
 
-__attribute_warn_unused_result
+[[nodiscard]]
 fix_sincos_result fix_sincos(fix);
 
 //compute sine and cosine of an angle, filling in the variables
 //either of the pointers can be NULL
 
-__attribute_warn_unused_result
+[[nodiscard]]
 fix fix_sin(fix a);
 
-__attribute_warn_unused_result
+[[nodiscard]]
 fix fix_cos(fix a);
 
-__attribute_warn_unused_result
+[[nodiscard]]
 fix fix_fastsin(fix a);	//no interpolation
 
 //compute inverse sine & cosine
-__attribute_warn_unused_result
+[[nodiscard]]
 fixang fix_asin (fix v);
 
-__attribute_warn_unused_result
+[[nodiscard]]
 fixang fix_acos (fix v);
 
 //given cos & sin of an angle, return that angle.
@@ -180,10 +181,10 @@ fixang fix_acos (fix v);
 //equal the ratio of the actual cos & sin for the result angle, but the parms 
 //need not be the actual cos & sin.  
 //NOTE: this is different from the standard C atan2, since it is left-handed.
-__attribute_warn_unused_result
+[[nodiscard]]
 fixang fix_atan2 (fix cos, fix sin);
 
-__attribute_warn_unused_result
+[[nodiscard]]
 int checkmuldiv(fix *r,fix a,fix b,fix c);
 
 extern const std::array<ubyte, 256> guess_table;

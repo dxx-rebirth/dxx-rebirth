@@ -47,7 +47,8 @@ struct callsign_t
 		std::transform(ba, std::prev(end(a)), ba, lower_predicate);
 		a.back() = 0;
 	}
-	elements_t &buffer() __attribute_warn_unused_result
+	[[nodiscard]]
+	elements_t &buffer()
 	{
 		return *reinterpret_cast<elements_t *>(a.data());
 	}

@@ -949,7 +949,7 @@ static std::optional<sidenum_t> find_seg_side(const shared_segment &seg, const s
 	}
 }
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static bool compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const shared_segment &seg, const shared_segment &cseg, const sidenum_fast_t edgeside)
 {
 	const auto &cside = cseg.sides[edgeside];
@@ -961,7 +961,7 @@ static bool compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, c
 
 //see if the order matters for these two children.
 //returns 0 if order doesn't matter, 1 if c0 before c1, -1 if c1 before c0
-__attribute_warn_unused_result
+[[nodiscard]]
 static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const vcsegptridx_t seg, const sidenum_fast_t s0, const sidenum_fast_t s1)
 {
 	Assert(s0 != side_none && s1 != side_none);

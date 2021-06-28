@@ -40,13 +40,13 @@ void Warning(const char *fmt,...) __attribute_format_printf(1, 2);				//print ou
 void set_warn_func(void (*f)(const char *s));//specifies the function to call with warning messages
 void clear_warn_func();//say this function no longer valid
 #endif
-__attribute_nonnull()
 [[noreturn]]
+__attribute_nonnull()
 void Error_puts(const char *file, unsigned line, const char *func, const char *str);
 #define Error_puts(F)	Error_puts(__FILE__, __LINE__, __func__, F)
+[[noreturn]]
 __attribute_format_printf(4, 5)
 __attribute_nonnull()
-[[noreturn]]
 void Error(const char *file, unsigned line, const char *func, const char *fmt,...);				//exit with error code=1, print message
 #define Error(F,...)	dxx_call_printf_checked(Error,(Error_puts),(__FILE__, __LINE__, __func__),(F),##__VA_ARGS__)
 

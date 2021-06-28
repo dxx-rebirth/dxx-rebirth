@@ -239,7 +239,7 @@ static inline void vm_vec_negate(vms_vector &v)
 	v.z = -v.z;
 }
 
-static inline vms_vector vm_vec_negated(vms_vector v) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_vector vm_vec_negated(vms_vector v)
 {
 	return vm_vec_negate(v), v;
@@ -249,7 +249,7 @@ static inline vms_vector vm_vec_negated(vms_vector v)
 
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
-static inline vms_vector vm_vec_add (const vms_vector &src0, const vms_vector &src1) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_vector vm_vec_add (const vms_vector &src0, const vms_vector &src1)
 {
 	vms_vector dest;
@@ -270,7 +270,7 @@ static inline vms_vector &vm_vec_sub(vms_vector &dest, const vms_vector &src0, c
 	return _vm_vec_sub(dest, src0, src1);
 }
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static inline vms_vector vm_vec_sub (const vms_vector &src0, const vms_vector &src1)
 {
 	vms_vector dest;
@@ -279,7 +279,7 @@ static inline vms_vector vm_vec_sub (const vms_vector &src0, const vms_vector &s
 
 //averages two vectors. returns ptr to dest
 //dest can equal either source
-static inline vms_vector vm_vec_avg (const vms_vector &src0, const vms_vector &src1) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_vector vm_vec_avg (const vms_vector &src0, const vms_vector &src1)
 {
 	vms_vector dest;
@@ -288,7 +288,7 @@ static inline vms_vector vm_vec_avg (const vms_vector &src0, const vms_vector &s
 
 //scales and copies a vector.  returns ptr to dest
 #define vm_vec_copy_scale(A,B,...)	vm_vec_copy_scale(A, ## __VA_ARGS__, B)
-static inline vms_vector vm_vec_copy_scale(vms_vector src, fix s) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_vector vm_vec_copy_scale(vms_vector src, fix s)
 {
 	return vm_vec_scale(src, s), src;
@@ -296,61 +296,61 @@ static inline vms_vector vm_vec_copy_scale(vms_vector src, fix s)
 
 //scales a vector, adds it to another, and stores in a 3rd vector
 //dest = src1 + k * src2
-static inline vms_vector vm_vec_scale_add(const vms_vector &src1, const vms_vector &src2, fix k) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_vector vm_vec_scale_add(const vms_vector &src1, const vms_vector &src2, fix k)
 {
 	vms_vector dest;
 	return vm_vec_scale_add(dest, src1, src2, k), dest;
 }
 
-static inline vms_vector vm_vec_normalized(vms_vector v) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_vector vm_vec_normalized(vms_vector v)
 {
 	return vm_vec_normalize(v), v;
 }
 
-static inline vms_vector vm_vec_normalized_quick(vms_vector v) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_vector vm_vec_normalized_quick(vms_vector v)
 {
 	return vm_vec_normalize_quick(v), v;
 }
 
-static inline vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1)
 {
 	vms_vector dest;
 	return vm_vec_cross(dest, src0, src1), dest;
 }
 
-static inline vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
 {
 	vms_vector dest;
 	return vm_vec_normal(dest, p0, p1, p2), dest;
 }
 
-static inline vms_vector vm_vec_perp (const vms_vector &p0, const vms_vector &p1, const vms_vector &p2) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_vector vm_vec_perp (const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
 {
 	vms_vector dest;
 	return vm_vec_perp(dest, p0, p1, p2), dest;
 }
 
-static inline vms_matrix vm_angles_2_matrix (const vms_angvec &a) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_matrix vm_angles_2_matrix (const vms_angvec &a)
 {
 	vms_matrix m;
 	return vm_angles_2_matrix(m, a), m;
 }
 
-static inline vms_matrix vm_vector_2_matrix (const vms_vector &fvec, const vms_vector *uvec, const vms_vector *rvec) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_matrix vm_vector_2_matrix (const vms_vector &fvec, const vms_vector *uvec, const vms_vector *rvec)
 {
 	vms_matrix m;
 	return vm_vector_2_matrix(m, fvec, uvec, rvec), m;
 }
 
-static inline vms_vector vm_vec_rotate (const vms_vector &src, const vms_matrix &m) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_vector vm_vec_rotate (const vms_vector &src, const vms_matrix &m)
 {
 	vms_vector dest;
@@ -366,7 +366,7 @@ static inline void vm_transpose_matrix(vms_matrix &m)
 	swap(m.fvec.y, m.uvec.z);
 }
 
-static inline vms_matrix vm_transposed_matrix(vms_matrix m) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_matrix vm_transposed_matrix(vms_matrix m)
 {
 	vm_transpose_matrix(m);
@@ -387,7 +387,7 @@ static inline void vm_matrix_x_matrix(vms_matrix &dest, const vms_matrix &src0, 
 	return _vm_matrix_x_matrix(dest, src0, src1);
 }
 
-static inline vms_matrix vm_matrix_x_matrix(const vms_matrix &src0, const vms_matrix &src1) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_matrix vm_matrix_x_matrix(const vms_matrix &src0, const vms_matrix &src1)
 {
 	vms_matrix dest;
@@ -395,7 +395,7 @@ static inline vms_matrix vm_matrix_x_matrix(const vms_matrix &src0, const vms_ma
 	return dest;
 }
 
-static inline vms_angvec vm_extract_angles_matrix (const vms_matrix &m) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_angvec vm_extract_angles_matrix (const vms_matrix &m)
 {
 	vms_angvec a;

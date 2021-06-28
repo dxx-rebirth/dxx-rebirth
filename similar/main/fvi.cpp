@@ -56,7 +56,7 @@ namespace {
 //new_pnt is the found point on the plane
 //plane_pnt & plane_norm describe the plane
 //p0 & p1 are the ends of the line
-__attribute_warn_unused_result
+[[nodiscard]]
 static int find_plane_line_intersection(vms_vector &new_pnt,const vms_vector &plane_pnt,const vms_vector &plane_norm,const vms_vector &p0,const vms_vector &p1,fix rad)
 {
 	auto d = vm_vec_sub(p1,p0);
@@ -101,7 +101,7 @@ struct ij_pair
 	fix vms_vector::*j;
 };
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static ij_pair find_largest_normal(vms_vector t)
 {
 	t.x = labs(t.x);
@@ -118,7 +118,7 @@ static ij_pair find_largest_normal(vms_vector t)
 }
 
 //see if a point in inside a face by projecting into 2d
-__attribute_warn_unused_result
+[[nodiscard]]
 static unsigned check_point_to_face(const vms_vector &checkp, const vms_vector &norm, const unsigned facenum, const unsigned nv, const vertnum_array_list_t &vertex_list)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -167,7 +167,7 @@ static unsigned check_point_to_face(const vms_vector &checkp, const vms_vector &
 }
 
 //check if a sphere intersects a face
-__attribute_warn_unused_result
+[[nodiscard]]
 static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal, const unsigned facenum, const unsigned nv, const fix rad, const vertnum_array_list_t &vertex_list)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -239,7 +239,7 @@ static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal,
 //point on plane, whether or not line intersects side
 //facenum determines which of four possible faces we have
 //note: the seg parm is temporary, until the face itself has a point field
-__attribute_warn_unused_result
+[[nodiscard]]
 static int check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const unsigned side, const unsigned facenum, const unsigned nv, const fix rad)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -277,7 +277,7 @@ static int check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_
 }
 
 //returns the value of a determinant
-__attribute_warn_unused_result
+[[nodiscard]]
 static fix calc_det_value(const vms_matrix *det)
 {
 	return 	fixmul(det->rvec.x,fixmul(det->uvec.y,det->fvec.z)) -
@@ -316,7 +316,7 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector &p1,const vms_vec
 //this version is for when the start and end positions both poke through
 //the plane of a side.  In this case, we must do checks against the edge
 //of faces
-__attribute_warn_unused_result
+[[nodiscard]]
 static int special_check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const unsigned side, const unsigned facenum, const unsigned nv, const fix rad)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -408,7 +408,7 @@ static int special_check_line_to_face(vms_vector &newp, const vms_vector &p0, co
 //vector defined by p0,p1
 //returns dist if intersects, and fills in intp
 //else returns 0
-__attribute_warn_unused_result
+[[nodiscard]]
 static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,const vms_vector &sphere_pos,fix sphere_rad)
 {
 	vms_vector dn;
@@ -583,7 +583,7 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 
 //determine if a vector intersects with an object
 //if no intersects, returns 0, else fills in intp and returns dist
-__attribute_warn_unused_result
+[[nodiscard]]
 static vm_distance_squared check_vector_to_object(vms_vector &intp, const vms_vector &p0, const vms_vector &p1, const fix rad, const object_base &obj, const object &otherobj)
 {
 	fix size = obj.size;
@@ -778,7 +778,7 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 
 namespace {
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static bool obj_in_list(const vcobjidx_t objnum, const std::pair<const vcobjidx_t *, const vcobjidx_t *> obj_list)
 {
 	if (unlikely(!obj_list.first))

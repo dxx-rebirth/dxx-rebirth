@@ -342,8 +342,8 @@ static inline int PHYSFSX_writeVector(PHYSFS_File *file, const vms_vector &v)
 	return 1;
 }
 
-__attribute_cold
 [[noreturn]]
+__attribute_cold
 void PHYSFSX_read_helper_report_error(const char *const filename, const unsigned line, const char *const func, PHYSFS_File *const file);
 
 template <typename T, int (*F)(PHYSFS_File *, T *)>
@@ -424,13 +424,14 @@ public:
 };
 
 typedef char file_extension_t[5];
+
+[[nodiscard]]
 __attribute_nonnull()
-__attribute_warn_unused_result
 int PHYSFSX_checkMatchingExtension(const char *filename, const partial_range_t<const file_extension_t *>);
 
 template <std::size_t count>
+[[nodiscard]]
 __attribute_nonnull()
-__attribute_warn_unused_result
 static inline int PHYSFSX_checkMatchingExtension(const std::array<file_extension_t, count> &exts, const char *filename)
 {
 	return PHYSFSX_checkMatchingExtension(filename, exts);

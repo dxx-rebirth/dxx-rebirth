@@ -284,7 +284,7 @@ int generate_curve(const fix r1scale, const fix r4scale)
         else return 0;
 }
 
-static inline vms_matrix vm_vec_ang_2_matrix (const vms_vector &v, fixang a) __attribute_warn_unused_result;
+[[nodiscard]]
 static inline vms_matrix vm_vec_ang_2_matrix (const vms_vector &v, fixang a)
 {
 	vms_matrix m;

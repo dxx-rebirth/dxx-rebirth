@@ -191,9 +191,9 @@ public:
 		}
 		static_assert((!any_ephemeral_range<range0 &&, rangeN &&...>::value), "cannot zip storage of ephemeral ranges");
 	}
-	__attribute_warn_unused_result
+	[[nodiscard]]
 	iterator begin() const { return *this; }
-	__attribute_warn_unused_result
+	[[nodiscard]]
 	iterator end() const
 	{
 		return this->end_internal(m_end, typename iterator::index_type());

@@ -19,8 +19,10 @@
 namespace dcx {
 
 fix64 timer_update();
-__attribute_warn_unused_result
+
+[[nodiscard]]
 fix64 timer_query();
+
 void timer_delay_ms(unsigned milliseconds);
 static inline void timer_delay(fix seconds)
 {

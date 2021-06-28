@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_range.h"
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static vmsegptridx_t get_any_attached_segment(const vmsegptridx_t curseg_num, const uint_fast32_t skipside)
 {
 	range_for (const uint_fast32_t s, xrange(MAX_SIDES_PER_SEGMENT))
@@ -48,7 +48,7 @@ static vmsegptridx_t get_any_attached_segment(const vmsegptridx_t curseg_num, co
 	return curseg_num;
 }
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static vmsegptridx_t get_previous_segment(const vmsegptridx_t curseg_num, const uint_fast32_t curside)
 {
 	const auto side_child = curseg_num->children[Side_opposite[curside]];
@@ -62,7 +62,7 @@ static vmsegptridx_t get_previous_segment(const vmsegptridx_t curseg_num, const 
 // Select previous segment.
 //	If there is a connection on the side opposite to the current side, then choose that segment.
 // If there is no connecting segment on the opposite face, try any segment.
-__attribute_warn_unused_result
+[[nodiscard]]
 static std::pair<vmsegptridx_t, uint_fast32_t> get_previous_segment_side(const vmsegptridx_t curseg_num, const uint_fast32_t curside)
 {
 	const auto &newseg_num = get_previous_segment(curseg_num, curside);
@@ -74,7 +74,7 @@ static std::pair<vmsegptridx_t, uint_fast32_t> get_previous_segment_side(const v
 // Select next segment.
 //	If there is a connection on the current side, then choose that segment.
 // If there is no connecting segment on the current side, try any segment.
-__attribute_warn_unused_result
+[[nodiscard]]
 static std::pair<vmsegptridx_t, uint_fast32_t> get_next_segment_side(const vmsegptridx_t curseg_num, uint_fast32_t curside)
 {
 	const auto side_child = curseg_num->children[curside];

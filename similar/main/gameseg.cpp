@@ -127,8 +127,8 @@ static void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &r, const s
 	vm_vec_copy_scale(r, vp, F1_0 / 8);
 }
 
-__attribute_cold
 [[noreturn]]
+__attribute_cold
 static void create_vertex_list_from_invalid_side(const shared_segment &segp, const shared_side &sidep)
 {
 	throw shared_side::illegal_type(segp, sidep);
@@ -1200,7 +1200,7 @@ namespace {
 
 //	----
 //	A side is determined to be degenerate if the cross products of 3 consecutive points does not point outward.
-__attribute_warn_unused_result
+[[nodiscard]]
 static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_segment &sp, const unsigned sidenum)
 {
 	auto &vp = Side_to_verts[sidenum];

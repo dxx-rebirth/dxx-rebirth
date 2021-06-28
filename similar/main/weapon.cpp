@@ -410,8 +410,8 @@ class cycle_weapon_state
 {
 public:
 	static constexpr char DXX_WEAPON_TEXT_NEVER_AUTOSELECT[] = "--- Never autoselect below ---";
-	__attribute_cold
 	[[noreturn]]
+	__attribute_cold
 	static void report_runtime_error(const char *);
 };
 

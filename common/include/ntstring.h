@@ -135,11 +135,13 @@ public:
 	{
 		return *reinterpret_cast<const elements_t *>(this->data());
 	}
-	bool operator==(const ntstring &r) const __attribute_warn_unused_result
+	[[nodiscard]]
+	bool operator==(const ntstring &r) const
 	{
 		return static_cast<const array_t &>(*this) == static_cast<const array_t &>(r);
 	}
-	bool operator!=(const ntstring &r) const __attribute_warn_unused_result
+	[[nodiscard]]
+	bool operator!=(const ntstring &r) const
 	{
 		return !(*this == r);
 	}

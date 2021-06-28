@@ -97,7 +97,8 @@ fixang fix_atan2(fix cos,fix sin)
 	}
 }
 
-static unsigned int fixdivquadlongu(quadint n, uint64_t d)
+[[nodiscard]]
+static unsigned fixdivquadlongu(quadint n, uint64_t d)
 {
 	return n.q / d;
 }
@@ -217,6 +218,7 @@ fix fix_sqrt(fix a)
 	return static_cast<fix>(long_sqrt(a)) << 8;
 }
 
+[[nodiscard]]
 static fix fix_sincos(const uint8_t idx0, const signed mul)
 {
 	const fix t0 = sincos_table[idx0];
@@ -225,12 +227,13 @@ static fix fix_sincos(const uint8_t idx0, const signed mul)
 	return (t0 + (((t1 - t0) * mul) >> 8)) << 2;
 }
 
+[[nodiscard]]
 static fix fix_sin(const fix_sincos_input sci)
 {
 	return fix_sincos(sci.m_idx, sci.m_mul);
 }
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static fix fix_cos(const fix_sincos_input sci)
 {
 	return fix_sincos(static_cast<uint8_t>(sci.m_idx + 64), sci.m_mul);

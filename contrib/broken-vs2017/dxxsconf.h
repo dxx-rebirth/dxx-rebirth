@@ -9,7 +9,6 @@
 #define __attribute_nonnull(...)
 #define __attribute_unused
 #define __attribute_used
-#define __attribute_warn_unused_result
 #define likely(X)	(X)
 #define unlikely(X)	(X)
 #define DXX_HAVE_CXX_ARRAY

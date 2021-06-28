@@ -58,7 +58,7 @@ struct vertex_vertnum_pair
 using vertex_vertnum_array_list = std::array<vertex_vertnum_pair, 6>;
 
 #ifdef dsx
-__attribute_warn_unused_result
+[[nodiscard]]
 uint_fast32_t find_connect_side(vcsegidx_t base_seg, const shared_segment &con_seg);
 
 void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp, unsigned side);
@@ -103,7 +103,7 @@ extern int	Doing_lighting_hack_flag;
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
 uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &seg, const shared_side &sidep, uint_fast32_t sidenum);
-__attribute_warn_unused_result
+[[nodiscard]]
 static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertex_lists(const shared_segment &segnum, const shared_side &sidep, const uint_fast32_t sidenum)
 {
 	vertex_array_list_t r;
@@ -115,7 +115,7 @@ static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertex_li
 //like create_all_vertex_lists(), but generate absolute point numbers
 uint_fast32_t create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segnum, const shared_side &sidep, uint_fast32_t sidenum);
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static inline std::pair<uint_fast32_t, vertnum_array_list_t> create_abs_vertex_lists(const shared_segment &segnum, const shared_side &sidep, const uint_fast32_t sidenum)
 {
 	vertnum_array_list_t r;
@@ -123,7 +123,7 @@ static inline std::pair<uint_fast32_t, vertnum_array_list_t> create_abs_vertex_l
 	return {n, r};
 }
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static inline std::pair<uint_fast32_t, vertnum_array_list_t> create_abs_vertex_lists(const shared_segment &segp, const uint_fast32_t sidenum)
 {
 	return create_abs_vertex_lists(segp, segp.sides[sidenum], sidenum);
@@ -136,7 +136,7 @@ static inline std::pair<uint_fast32_t, vertnum_array_list_t> create_abs_vertex_l
 //      If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //      face #1 is stored in vertices 3,4,5.
 void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_segment &seg, const shared_side &sidep, uint_fast32_t sidenum);
-__attribute_warn_unused_result
+[[nodiscard]]
 static inline vertex_vertnum_array_list create_all_vertnum_lists(const shared_segment &segnum, const shared_side &sidep, const uint_fast32_t sidenum)
 {
 	vertex_vertnum_array_list r;

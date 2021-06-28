@@ -676,7 +676,7 @@ static void put_char_delay(const grs_font &cv_font, briefing *const br, const ch
 }
 
 static void init_spinning_robot(grs_canvas &canvas, briefing &br);
-__attribute_warn_unused_result
+[[nodiscard]]
 static int load_briefing_screen(grs_canvas &, briefing *br, const char *fname);
 
 // Process a character for the briefing,
@@ -1205,7 +1205,7 @@ static void show_spinning_robot_frame(briefing *br, int robot_num)
 //-----------------------------------------------------------------------------
 #define KEY_DELAY_DEFAULT       ((F1_0*20)/1000)
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static int init_new_page(briefing *br)
 {
 	br->new_page = 0;
@@ -1398,7 +1398,7 @@ static void free_briefing_screen(briefing *br)
 		br->screen.reset();
 }
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static int new_briefing_screen(briefing *br, int first)
 {
 	br->new_screen = 0;

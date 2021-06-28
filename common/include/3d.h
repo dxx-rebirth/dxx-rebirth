@@ -152,7 +152,8 @@ namespace dcx {
 
 //rotates a point. returns codes.  does not check if already rotated
 ubyte g3_rotate_point(g3s_point &dest,const vms_vector &src);
-static inline g3s_point g3_rotate_point(const vms_vector &src) __attribute_warn_unused_result;
+
+[[nodiscard]]
 static inline g3s_point g3_rotate_point(const vms_vector &src)
 {
 	g3s_point dest;

@@ -519,7 +519,7 @@ static int clear_missile_viewer()
         return 1;
 }
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static bool is_viewable_missile(weapon_id_type laser_type)
 {
 	return laser_type == weapon_id_type::CONCUSSION_ID ||

@@ -1377,7 +1377,7 @@ constexpr rgb_t hud_rgb_yellow = {30, 30, 0};
 
 namespace {
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static rgb_t hud_get_primary_weapon_fontcolor(const player_info &player_info, const primary_weapon_index_t consider_weapon)
 {
 	if (player_info.Primary_weapon == consider_weapon)
@@ -1412,7 +1412,7 @@ static void hud_set_primary_weapon_fontcolor(const player_info &player_info, con
 	gr_set_fontcolor(canvas, gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
 }
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static rgb_t hud_get_secondary_weapon_fontcolor(const player_info &player_info, const int consider_weapon)
 {
 	if (player_info.Secondary_weapon == consider_weapon)
@@ -1447,7 +1447,7 @@ static void hud_set_secondary_weapon_fontcolor(const player_info &player_info, c
 	gr_set_fontcolor(canvas, gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
 }
 
-__attribute_warn_unused_result
+[[nodiscard]]
 static rgb_t hud_get_vulcan_ammo_fontcolor(const player_info &player_info, const unsigned has_weapon_uses_vulcan_ammo)
 {
 	if (weapon_index_uses_vulcan_ammo(player_info.Primary_weapon))

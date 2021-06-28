@@ -41,23 +41,25 @@ void vm_vec_scale_add (vms_vector &dest, const vms_vector &src1, const vms_vecto
 void vm_vec_scale_add2 (vms_vector &dest, const vms_vector &src, fix k);
 void vm_vec_scale2 (vms_vector &dest, fix n, fix d);
 
-__attribute_warn_unused_result
+[[nodiscard]]
 vm_magnitude_squared vm_vec_mag2(const vms_vector &v);
-__attribute_warn_unused_result
+
+[[nodiscard]]
 vm_magnitude vm_vec_mag(const vms_vector &v);
 
-__attribute_warn_unused_result
+[[nodiscard]]
 vm_distance vm_vec_dist(const vms_vector &v0, const vms_vector &v1);
-__attribute_warn_unused_result
+
+[[nodiscard]]
 vm_distance_squared vm_vec_dist2(const vms_vector &v0, const vms_vector &v1);
 
-__attribute_warn_unused_result
+[[nodiscard]]
 vm_magnitude vm_vec_mag_quick(const vms_vector &v);
 
-__attribute_warn_unused_result
+[[nodiscard]]
 vm_distance vm_vec_dist_quick(const vms_vector &v0, const vms_vector &v1);
 
-__attribute_warn_unused_result
+[[nodiscard]]
 vm_magnitude vm_vec_copy_normalize(vms_vector &dest, const vms_vector &src);
 
 vm_magnitude vm_vec_normalize(vms_vector &v);
@@ -68,7 +70,7 @@ vm_magnitude vm_vec_normalize_quick(vms_vector &v);
 vm_magnitude vm_vec_normalized_dir (vms_vector &dest, const vms_vector &end, const vms_vector &start);
 vm_magnitude vm_vec_normalized_dir_quick (vms_vector &dest, const vms_vector &end, const vms_vector &start);
 
-__attribute_warn_unused_result
+[[nodiscard]]
 fix vm_vec_dot (const vms_vector &v0, const vms_vector &v1);
 
 void vm_vec_cross (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
@@ -76,8 +78,12 @@ void vm_vec_cross (vms_vector &dest, const vms_vector &src0, const vms_vector &s
 void vm_vec_normal (vms_vector &dest, const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
 
 void vm_vec_perp (vms_vector &dest, const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
-fixang vm_vec_delta_ang (const vms_vector &v0, const vms_vector &v1, const vms_vector &fvec) __attribute_warn_unused_result;
-fixang vm_vec_delta_ang_norm (const vms_vector &v0, const vms_vector &v1, const vms_vector &fvec) __attribute_warn_unused_result;
+
+[[nodiscard]]
+fixang vm_vec_delta_ang (const vms_vector &v0, const vms_vector &v1, const vms_vector &fvec);
+
+[[nodiscard]]
+fixang vm_vec_delta_ang_norm (const vms_vector &v0, const vms_vector &v1, const vms_vector &fvec);
 
 void vm_angles_2_matrix (vms_matrix &m, const vms_angvec &a);
 
@@ -90,7 +96,10 @@ void vm_vec_rotate (vms_vector &dest, const vms_vector &src, const vms_matrix &m
 void _vm_matrix_x_matrix (vms_matrix &dest, const vms_matrix &src0, const vms_matrix &src1);
 void vm_extract_angles_matrix (vms_angvec &a, const vms_matrix &m);
 void vm_extract_angles_vector (vms_angvec &a, const vms_vector &v);
-fix vm_dist_to_plane (const vms_vector &checkp, const vms_vector &norm, const vms_vector &planep) __attribute_warn_unused_result;
+
+[[nodiscard]]
+fix vm_dist_to_plane (const vms_vector &checkp, const vms_vector &norm, const vms_vector &planep);
+
 void vms_quaternion_from_matrix(vms_quaternion &q, const vms_matrix &m);
 void vms_matrix_from_quaternion(vms_matrix &m, const vms_quaternion &q);
 

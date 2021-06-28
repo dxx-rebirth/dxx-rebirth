@@ -77,12 +77,12 @@ public:
 typedef PHYSFSX_uncounted_list_template<PHYSFS_list_deleter> PHYSFSX_uncounted_list;
 typedef PHYSFSX_counted_list_template<PHYSFS_list_deleter> PHYSFSX_counted_list;
 
+[[nodiscard]]
 __attribute_nonnull()
-__attribute_warn_unused_result
 PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, partial_range_t<const file_extension_t *> exts);
 
+[[nodiscard]]
 __attribute_nonnull()
-__attribute_warn_unused_result
 PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const partial_range_t<const file_extension_t *> exts);
 
 }

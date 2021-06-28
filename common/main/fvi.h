@@ -102,7 +102,7 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data);
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also
-__attribute_warn_unused_result
+[[nodiscard]]
 fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const cscusegment seg, uint_fast32_t sidenum, uint_fast32_t facenum);
 }
 

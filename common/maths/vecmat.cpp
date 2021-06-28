@@ -128,7 +128,7 @@ void vm_vec_scale2(vms_vector &dest,fix n,fix d)
 #endif
 }
 
-static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v) __attribute_warn_unused_result;
+[[nodiscard]]
 static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v)
 {
 #if 0

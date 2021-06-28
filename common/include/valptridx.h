@@ -97,9 +97,9 @@ public:
 class valptridx_detail::untyped_utilities::report_error_trap_terse
 {
 public:
+	[[noreturn]]
 	__attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	[[noreturn]]
 	static void report(...)
 	{
 		__builtin_trap();
@@ -109,9 +109,9 @@ public:
 class valptridx_detail::untyped_utilities::index_mismatch_trap_verbose
 {
 public:
+	[[noreturn]]
 	__attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array, const unsigned long supplied_index, const void *const expected_pointer, const void *const actual_pointer)
 	{
 		__asm__ __volatile__("" :: DXX_VALPTRIDX_REPORT_STANDARD_ASM_LOAD_COMMA_R_VARS "rm" (array), "rm" (supplied_index), "rm" (expected_pointer), "rm" (actual_pointer));
@@ -122,9 +122,9 @@ public:
 class valptridx_detail::untyped_utilities::index_range_trap_verbose
 {
 public:
+	[[noreturn]]
 	__attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array, const unsigned long supplied_index)
 	{
 		__asm__ __volatile__("" :: DXX_VALPTRIDX_REPORT_STANDARD_ASM_LOAD_COMMA_R_VARS "rm" (array), "rm" (supplied_index));
@@ -135,17 +135,17 @@ public:
 class valptridx_detail::untyped_utilities::null_pointer_trap_verbose
 {
 public:
+	[[noreturn]]
 	__attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DEFN_VARS)
 	{
 		__asm__ __volatile__("" :: DXX_VALPTRIDX_REPORT_STANDARD_ASM_LOAD_COMMA_N_VARS);
 		__builtin_trap();
 	}
+	[[noreturn]]
 	__attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array)
 	{
 		__asm__ __volatile__("" :: DXX_VALPTRIDX_REPORT_STANDARD_ASM_LOAD_COMMA_R_VARS "rm" (array));
@@ -159,9 +159,9 @@ class valptridx<P>::index_mismatch_exception :
 {
 	DXX_INHERIT_CONSTRUCTORS(index_mismatch_exception, logic_error);
 public:
+	[[noreturn]]
 	__attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *, index_type, const_pointer_type, const_pointer_type);
 };
 
@@ -171,9 +171,9 @@ class valptridx<P>::index_range_exception :
 {
 	DXX_INHERIT_CONSTRUCTORS(index_range_exception, out_of_range);
 public:
+	[[noreturn]]
 	__attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *, long);
 };
 
@@ -183,13 +183,13 @@ class valptridx<P>::null_pointer_exception :
 {
 	DXX_INHERIT_CONSTRUCTORS(null_pointer_exception, logic_error);
 public:
+	[[noreturn]]
 	__attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DEFN_VARS);
+	[[noreturn]]
 	__attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *);
 };
 
@@ -832,7 +832,7 @@ public:
 		m_value(std::move(v)), m_state(initialized)
 	{
 	}
-	__attribute_warn_unused_result
+	[[nodiscard]]
 	explicit operator bool() const
 	{
 		/*
@@ -846,7 +846,7 @@ public:
 		m_state = checked;
 		return true;
 	}
-	__attribute_warn_unused_result
+	[[nodiscard]]
 	guarded_type operator*() const &
 	{
 		/*
@@ -977,7 +977,7 @@ protected:
 	template <typename P, typename T, typename A>
 		static guarded<P> check_untrusted_internal(T &&, A &) = delete;
 	template <typename P, typename A>
-		__attribute_warn_unused_result
+		[[nodiscard]]
 		/* C++ does not allow `static operator()()`, so name it
 		 * `call_operator` instead.
 		 */
@@ -986,7 +986,7 @@ protected:
 			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, a);
 		}
 	template <typename P, containing_type::integral_type v, typename A>
-		__attribute_warn_unused_result
+		[[nodiscard]]
 		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const containing_type::magic_constant<v> &m, A &a)
 		{
 			/*
@@ -1008,25 +1008,25 @@ public:
 	basic_ival_member_factory &operator=(const basic_ival_member_factory &) = delete;
 	void *operator &() const = delete;
 	template <typename T>
-		__attribute_warn_unused_result
+		[[nodiscard]]
 		guarded<Pc> check_untrusted(T &&t) const
 		{
 			return this->template check_untrusted_internal<Pc>(static_cast<T &&>(t), get_array());
 		}
 	template <typename T>
-		__attribute_warn_unused_result
+		[[nodiscard]]
 		guarded<Pm> check_untrusted(T &&t)
 		{
 			return this->template check_untrusted_internal<Pm>(static_cast<T &&>(t), get_array());
 		}
 	template <typename T>
-		__attribute_warn_unused_result
+		[[nodiscard]]
 		Pc operator()(T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
 		{
 			return this->template call_operator<Pc>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), get_array());
 		}
 	template <typename T>
-		__attribute_warn_unused_result
+		[[nodiscard]]
 		Pm operator()(T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
 		{
 			return this->template call_operator<Pm>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), get_array());
@@ -1049,7 +1049,7 @@ protected:
 			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, a);
 		}
 	template <typename P>
-		__attribute_warn_unused_result
+		[[nodiscard]]
 		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const typename P::mutable_pointer_type p, typename P::array_managed_type &a)
 		{
 			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, a);
@@ -1061,7 +1061,7 @@ protected:
 	 * pass a const pointer to a mutable factory.
 	 */
 	template <typename P>
-		__attribute_warn_unused_result
+		[[nodiscard]]
 		static typename std::enable_if<std::is_same<const array_managed_type, typename P::array_managed_type>::value, P>::type call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const typename P::const_pointer_type p, const array_managed_type &a)
 		{
 			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, a);
@@ -1074,44 +1074,44 @@ protected:
 			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<index_type>(a.get_count()), a, static_cast<const allow_end_construction *>(nullptr));
 		}
 public:
-	__attribute_warn_unused_result
+	[[nodiscard]]
 	typename array_base_storage_type::size_type count() const
 	{
 		return get_array().get_count();
 	}
-	__attribute_warn_unused_result
+	[[nodiscard]]
 	typename array_base_storage_type::size_type size() const
 	{
 		return get_array().size();
 	}
 	template <typename T>
-		__attribute_warn_unused_result
+		[[nodiscard]]
 		Pc operator()(T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
 		{
 			return this->template call_operator<Pc>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), get_array());
 		}
 	template <typename T>
-		__attribute_warn_unused_result
+		[[nodiscard]]
 		Pm operator()(T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
 		{
 			return this->template call_operator<Pm>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), get_array());
 		}
-	__attribute_warn_unused_result
+	[[nodiscard]]
 	iterator<Pc> begin() const
 	{
 		return Pc(valptridx<managed_type>::magic_constant<index_type{}>(), get_array());
 	}
-	__attribute_warn_unused_result
+	[[nodiscard]]
 	iterator<Pm> begin()
 	{
 		return Pm(valptridx<managed_type>::magic_constant<index_type{}>(), get_array());
 	}
-	__attribute_warn_unused_result
+	[[nodiscard]]
 	iterator<Pc> end(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS) const
 	{
 		return this->template end_internal<Pc>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS get_array());
 	}
-	__attribute_warn_unused_result
+	[[nodiscard]]
 	iterator<Pm> end(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS)
 	{
 		return this->template end_internal<Pm>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS get_array());

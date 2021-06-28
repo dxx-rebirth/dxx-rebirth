@@ -143,19 +143,29 @@ public:
 		if constexpr (!std::is_lvalue_reference<T &&>::value)
 			static_assert(!T::range_owns_iterated_storage::value, "rvalue reference to range requires that the range is a view, not an owner");
 	}
-	__attribute_warn_unused_result
+	[[nodiscard]]
 	iterator begin() const { return m_begin; }
-	__attribute_warn_unused_result
+	[[nodiscard]]
 	iterator end() const { return m_end; }
-	bool empty() const __attribute_warn_unused_result
+	[[nodiscard]]
+	bool empty() const
 	{
 		return m_begin == m_end;
 	}
-	__attribute_warn_unused_result
+	[[nodiscard]]
 	std::size_t size() const { return std::distance(m_begin, m_end); }
-	std::reverse_iterator<iterator> rbegin() const __attribute_warn_unused_result { return std::reverse_iterator<iterator>{m_end}; }
-	std::reverse_iterator<iterator> rend() const __attribute_warn_unused_result { return std::reverse_iterator<iterator>{m_begin}; }
-	partial_range_t<std::reverse_iterator<iterator>> reversed() const __attribute_warn_unused_result
+	[[nodiscard]]
+	std::reverse_iterator<iterator> rbegin() const
+	{
+		return std::reverse_iterator<iterator>{m_end};
+	}
+	[[nodiscard]]
+	std::reverse_iterator<iterator> rend() const
+	{
+		return std::reverse_iterator<iterator>{m_begin};
+	}
+	[[nodiscard]]
+	partial_range_t<std::reverse_iterator<iterator>> reversed() const
 	{
 		return {rbegin(), rend()};
 	}
@@ -171,8 +181,8 @@ struct partial_range_t<I>::partial_range_error
 {
 	DXX_INHERIT_CONSTRUCTORS(partial_range_error, out_of_range);
 	template <std::size_t N>
-		__attribute_cold
 		[[noreturn]]
+		__attribute_cold
 	static void report(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const uintptr_t t, unsigned long d)
 	{
 		std::array<char, N> buf;
@@ -253,7 +263,7 @@ void check_range_object_size(const char *, unsigned, const char *, const P &&, s
 namespace {
 
 template <typename I, std::size_t required_buffer_size>
-__attribute_warn_unused_result
+[[nodiscard]]
 inline partial_range_t<I> (unchecked_partial_range)(const char *const file, const unsigned line, const char *const estr, I range_begin, const std::size_t o, const std::size_t l)
 {
 #ifdef DXX_CONSTANT_TRUE
@@ -290,7 +300,7 @@ inline partial_range_t<I> (unchecked_partial_range)(const char *const file, cons
 }
 
 template <typename I, typename UO, typename UL, std::size_t NF, std::size_t NE>
-__attribute_warn_unused_result
+[[nodiscard]]
 inline partial_range_t<I> (unchecked_partial_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], I range_begin, const UO &o, const UL &l)
 {
 	/* Require unsigned length */
@@ -302,14 +312,14 @@ inline partial_range_t<I> (unchecked_partial_range)(const char (&file)[NF], unsi
 }
 
 template <typename I, typename UL, std::size_t NF, std::size_t NE>
-__attribute_warn_unused_result
+[[nodiscard]]
 inline partial_range_t<I> (unchecked_partial_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], I range_begin, const UL &l)
 {
 	return unchecked_partial_range<I, UL, UL>(file, line, estr, range_begin, 0, l);
 }
 
 template <typename T, typename UO, typename UL, std::size_t NF, std::size_t NE, typename I = decltype(std::begin(std::declval<T &>()))>
-__attribute_warn_unused_result
+[[nodiscard]]
 inline partial_range_t<I> (partial_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &t, const UO &o, const UL &l)
 {
 	partial_range_detail::check_range_bounds<typename partial_range_t<I>::partial_range_error, partial_range_detail::required_buffer_size<NF, NE>>(file, line, estr, reinterpret_cast<uintptr_t>(std::addressof(t)), o, l, std::size(t));
@@ -317,28 +327,28 @@ inline partial_range_t<I> (partial_range)(const char (&file)[NF], unsigned line,
 }
 
 template <typename T, typename UL, std::size_t NF, std::size_t NE>
-__attribute_warn_unused_result
+[[nodiscard]]
 inline auto (partial_range)(const char (&file)[NF], const unsigned line, const char (&estr)[NE], T &t, const UL &l)
 {
 	return partial_range<T, UL, UL>(file, line, estr, t, 0, l);
 }
 
 template <typename T, typename UO, typename UL, std::size_t NF, std::size_t NE>
-__attribute_warn_unused_result
+[[nodiscard]]
 inline auto (partial_const_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], const T &t, const UO &o, const UL &l)
 {
 	return partial_range<const T, UO, UL>(file, line, estr, t, o, l);
 }
 
 template <typename T, typename UL, std::size_t NF, std::size_t NE>
-__attribute_warn_unused_result
+[[nodiscard]]
 inline auto (partial_const_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], const T &t, const UL &l)
 {
 	return partial_range<const T, UL>(file, line, estr, t, l);
 }
 
 template <typename T, typename I = decltype(std::begin(std::declval<T &>()))>
-__attribute_warn_unused_result
+[[nodiscard]]
 inline partial_range_t<I> (make_range)(T &t)
 {
 	return t;

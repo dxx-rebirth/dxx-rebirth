@@ -168,7 +168,7 @@ void create_n_segment_path_to_door(vmobjptridx_t objp, unsigned path_length);
 #endif
 namespace dcx {
 void make_random_vector(vms_vector &vec);
-__attribute_warn_unused_result
+[[nodiscard]]
 static inline vms_vector make_random_vector()
 {
 	vms_vector v;
@@ -251,11 +251,11 @@ imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos);
 // -- unused, 08/07/95 -- extern void ai_turn_randomly(vms_vector *vec_to_player, object *obj, fix rate, int previous_visibility);
 void init_ai_frame(player_flags, const control_info &Controls);
 
-__attribute_warn_unused_result
+[[nodiscard]]
 std::size_t create_bfs_list(vmobjptr_t robot, vcsegidx_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);
 
 template <std::size_t N>
-__attribute_warn_unused_result
+	[[nodiscard]]
 std::size_t create_bfs_list(const vmobjptr_t &robot, const vcsegidx_t &start_seg, const player_flags powerup_flags, std::array<segnum_t, N> &bfs_list)
 {
 	return create_bfs_list(robot, start_seg, powerup_flags, bfs_list.data(), N);

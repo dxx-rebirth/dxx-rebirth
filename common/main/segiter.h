@@ -130,7 +130,7 @@ public:
 };
 
 template <typename OF, typename SF, typename R = segment_object_range_t<decltype(std::declval<OF &>()(object_first))>>
-__attribute_warn_unused_result
+[[nodiscard]]
 static inline R objects_in(const unique_segment &s, OF &of, SF &sf)
 {
 	return R::construct(s, of, sf);
