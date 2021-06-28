@@ -172,7 +172,7 @@ struct partial_range_t<I>::partial_range_error
 	DXX_INHERIT_CONSTRUCTORS(partial_range_error, out_of_range);
 	template <std::size_t N>
 		__attribute_cold
-		__attribute_noreturn
+		[[noreturn]]
 	static void report(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const uintptr_t t, unsigned long d)
 	{
 		std::array<char, N> buf;

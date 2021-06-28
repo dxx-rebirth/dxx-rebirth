@@ -7,7 +7,6 @@
 #define __attribute_format_arg(A)
 #define __attribute_malloc()
 #define __attribute_nonnull(...)
-#define __attribute_noreturn
 #define __attribute_unused
 #define __attribute_used
 #define __attribute_warn_unused_result

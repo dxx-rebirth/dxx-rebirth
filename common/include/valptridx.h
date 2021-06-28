@@ -98,8 +98,8 @@ class valptridx_detail::untyped_utilities::report_error_trap_terse
 {
 public:
 	__attribute_cold
-	__attribute_noreturn
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
+	[[noreturn]]
 	static void report(...)
 	{
 		__builtin_trap();
@@ -110,8 +110,8 @@ class valptridx_detail::untyped_utilities::index_mismatch_trap_verbose
 {
 public:
 	__attribute_cold
-	__attribute_noreturn
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
+	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array, const unsigned long supplied_index, const void *const expected_pointer, const void *const actual_pointer)
 	{
 		__asm__ __volatile__("" :: DXX_VALPTRIDX_REPORT_STANDARD_ASM_LOAD_COMMA_R_VARS "rm" (array), "rm" (supplied_index), "rm" (expected_pointer), "rm" (actual_pointer));
@@ -123,8 +123,8 @@ class valptridx_detail::untyped_utilities::index_range_trap_verbose
 {
 public:
 	__attribute_cold
-	__attribute_noreturn
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
+	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array, const unsigned long supplied_index)
 	{
 		__asm__ __volatile__("" :: DXX_VALPTRIDX_REPORT_STANDARD_ASM_LOAD_COMMA_R_VARS "rm" (array), "rm" (supplied_index));
@@ -136,16 +136,16 @@ class valptridx_detail::untyped_utilities::null_pointer_trap_verbose
 {
 public:
 	__attribute_cold
-	__attribute_noreturn
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
+	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DEFN_VARS)
 	{
 		__asm__ __volatile__("" :: DXX_VALPTRIDX_REPORT_STANDARD_ASM_LOAD_COMMA_N_VARS);
 		__builtin_trap();
 	}
 	__attribute_cold
-	__attribute_noreturn
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
+	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array)
 	{
 		__asm__ __volatile__("" :: DXX_VALPTRIDX_REPORT_STANDARD_ASM_LOAD_COMMA_R_VARS "rm" (array));
@@ -160,8 +160,8 @@ class valptridx<P>::index_mismatch_exception :
 	DXX_INHERIT_CONSTRUCTORS(index_mismatch_exception, logic_error);
 public:
 	__attribute_cold
-	__attribute_noreturn
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
+	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *, index_type, const_pointer_type, const_pointer_type);
 };
 
@@ -172,8 +172,8 @@ class valptridx<P>::index_range_exception :
 	DXX_INHERIT_CONSTRUCTORS(index_range_exception, out_of_range);
 public:
 	__attribute_cold
-	__attribute_noreturn
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
+	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *, long);
 };
 
@@ -184,12 +184,12 @@ class valptridx<P>::null_pointer_exception :
 	DXX_INHERIT_CONSTRUCTORS(null_pointer_exception, logic_error);
 public:
 	__attribute_cold
-	__attribute_noreturn
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
+	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DEFN_VARS);
 	__attribute_cold
-	__attribute_noreturn
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
+	[[noreturn]]
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *);
 };
 

@@ -343,7 +343,7 @@ static inline int PHYSFSX_writeVector(PHYSFS_File *file, const vms_vector &v)
 }
 
 __attribute_cold
-__attribute_noreturn
+[[noreturn]]
 void PHYSFSX_read_helper_report_error(const char *const filename, const unsigned line, const char *const func, PHYSFS_File *const file);
 
 template <typename T, int (*F)(PHYSFS_File *, T *)>
