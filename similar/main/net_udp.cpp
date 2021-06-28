@@ -29,6 +29,7 @@
 #include "gameseq.h"
 #include "net_udp.h"
 #include "game.h"
+#include "gauges.h"
 #include "multi.h"
 #include "palette.h"
 #include "powerup.h"
@@ -87,6 +88,176 @@ enum class join_netgame_status_code : unsigned
 	game_is_full,
 	game_refuses_players,
 };
+
+struct net_udp_select_teams_menu_items
+{
+	static constexpr std::integral_constant<std::size_t, 0> idx_label_blue_team{};
+	unsigned team_vector;
+	unsigned idx_label_red_team;
+	unsigned idx_item_accept;
+	const color_palette_index blue_team_color;
+	const color_palette_index red_team_color;
+	std::array<callsign_t, 2> team_names;
+	/* Labels plus slots for every player */
+	std::array<newmenu_item, std::size(Netgame.players) + 4> m;
+	net_udp_select_teams_menu_items(unsigned num_players);
+	unsigned setup_team_sensitive_entries(unsigned num_players);
+};
+
+struct net_udp_select_teams_menu : net_udp_select_teams_menu_items, newmenu
+{
+	net_udp_select_teams_menu(const unsigned num_players, grs_canvas &src) :
+		net_udp_select_teams_menu_items(num_players),
+		newmenu(menu_title{nullptr}, menu_subtitle{TXT_TEAM_SELECTION}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(partial_range(m, idx_item_accept + 1), 0), src)
+	{
+	}
+	virtual window_event_result event_handler(const d_event &event) override;
+};
+
+net_udp_select_teams_menu_items::net_udp_select_teams_menu_items(const unsigned num_players) :
+	blue_team_color(BM_XRGB(player_rgb[0].r, player_rgb[0].g, player_rgb[0].b)),
+	red_team_color(BM_XRGB(player_rgb[1].r, player_rgb[1].g, player_rgb[1].b))
+{
+	team_names[0].copy(TXT_BLUE, ~0ul);
+	team_names[1].copy(TXT_RED, ~0ul);
+	/* Round blue team up.  Round red team down. */
+	const unsigned num_blue_players = (num_players + 1) >> 1;
+	// Put first half of players on team A
+	team_vector = ((1 << num_players) - 1) & ~((1 << num_blue_players) - 1);
+	/* Blue team label is always in the same position.  Red team label
+	 * varies based on how many players are on the blue team, so the red
+	 * team label is set by setup_team_sensitive_entries.
+	 */
+	nm_set_item_input(m[idx_label_blue_team], team_names[0].a);
+	const unsigned idx_label_blank0 = setup_team_sensitive_entries(num_players);
+	idx_item_accept = idx_label_blank0 + 1;
+	nm_set_item_text(m[idx_label_blank0], "");
+	nm_set_item_menu(m[idx_item_accept], TXT_ACCEPT);
+}
+
+unsigned net_udp_select_teams_menu_items::setup_team_sensitive_entries(const unsigned num_players)
+{
+	const unsigned blue_team_first_player = idx_label_blue_team + 1;
+	const auto tv = team_vector;
+	auto mi = std::next(m.begin(), blue_team_first_player);
+	unsigned ir = blue_team_first_player;
+	for (auto &&[ngp, i] : enumerate(partial_range(Netgame.players, num_players)))
+	{
+		if (tv & (1 << i))
+			continue;
+		nm_set_item_menu(*mi, ngp.callsign);
+		mi->value = i;
+		++ mi;
+		++ ir;
+	}
+	idx_label_red_team = ir;
+	nm_set_item_input(*mi, team_names[1].a);
+	++ mi;
+	++ ir;
+	for (auto &&[ngp, i] : enumerate(partial_range(Netgame.players, num_players)))
+	{
+		if (!(tv & (1 << i)))
+			continue;
+		nm_set_item_menu(*mi, ngp.callsign);
+		mi->value = i;
+		++ mi;
+		++ ir;
+	}
+	return ir;
+}
+
+window_event_result net_udp_select_teams_menu::event_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_NEWMENU_SELECTED:
+			{
+				const auto citem = static_cast<const d_select_event &>(event).citem;
+				if (citem == idx_item_accept)
+				{
+					Netgame.team_vector = team_vector;
+					Netgame.team_name = team_names;
+					return window_event_result::close;
+				}
+				else if (citem == idx_label_blue_team || citem == idx_label_red_team)
+					/* No handling required, but use this return code to
+					 * reuse the `handled` exit path.
+					 */
+					return window_event_result::handled;
+				const auto player_team_mask = 1 << m[citem].value;
+				enum class prior_team_color : unsigned
+				{
+					blue,
+				} prior_team = static_cast<prior_team_color>(team_vector & player_team_mask);
+				team_vector ^= player_team_mask;
+				/* Rebuild the menu entries to reflect that a player has
+				 * changed teams.
+				 */
+				setup_team_sensitive_entries(N_players);
+				/* idx_label_red_team is changed by the call to
+				 * setup_team_sensitive_entries, so this test is not
+				 * redundant relative to the label handling above.
+				 */
+				if (citem != idx_label_red_team)
+					/* If the selection after the change is not pointing
+					 * at the label for "Red", then no special handling
+					 * is needed.  The selection will now point at a
+					 * player who was a teammate of the player who was
+					 * moved by this handler.
+					 */
+					return window_event_result::handled;
+				/* If the selection is now on the label "Red" ... */
+				if (citem < idx_item_accept - 1 && (citem == idx_label_blue_team + 1 || prior_team != prior_team_color::blue))
+					/* If the red team is not empty, and either the blue
+					 * team is now empty or the previous team was not
+					 * blue, increment the position to point to
+					 * red-player-1.
+					 *
+					 * Otherwise (red is empty) or (blue is not empty
+					 * and previous team was blue), decrement the
+					 * position, so that the selection points to the
+					 * now-last blue player.
+					 *
+					 * This logic allows the host to quickly transfer
+					 * multiple adjacent players to the other team.
+					 */
+					++ this->citem;
+				else
+					-- this->citem;
+			}
+			return window_event_result::handled;
+		case EVENT_NEWMENU_DRAW:
+			{
+				const auto draw_team_color_box = [&canv = this->w_canv](const newmenu_item &mi, const color_palette_index cpi) {
+					const unsigned height = mi.h - 8;
+					/* Yes, height is used in an X term.  The box should
+					 * be square.
+					 */
+					gr_urect(canv, mi.x - 12 - height, mi.y, mi.x - 12, mi.y + height, cpi);
+				};
+				draw_team_color_box(m[idx_label_blue_team], blue_team_color);
+				draw_team_color_box(m[idx_label_red_team], red_team_color);
+#ifndef NDEBUG
+				/* Non-developers probably do not care about the player
+				 * index, so hide this from them.
+				 */
+				const auto draw_player_number = [&canv = this->w_canv, &game_font = *GAME_FONT, team_vector = this->team_vector, blue_team_color = this->blue_team_color, red_team_color = this->red_team_color](const newmenu_item &mi) {
+					const unsigned height = mi.h - 8;
+					gr_set_fontcolor(canv, (1 << mi.value) & team_vector ? red_team_color : blue_team_color, -1);
+					gr_uprintf(canv, game_font, mi.x - 12 - height, mi.y, "%d", 1 + mi.value);
+				};
+				for (auto &mi : partial_range(m, idx_label_blue_team + 1, idx_label_red_team))
+					draw_player_number(mi);
+				for (auto &mi : partial_range(m, idx_label_red_team + 1, idx_item_accept - 1))
+					draw_player_number(mi);
+#endif
+			}
+			break;
+		default:
+			break;
+	}
+	return newmenu::event_handler(event);
+}
 
 }
 
@@ -3986,9 +4157,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 	
 	return 0;
 }
-}
 
-namespace dsx {
 window_event_result net_udp_setup_game()
 {
 	param_opt opt;
@@ -4339,68 +4508,6 @@ static int net_udp_send_sync(void)
 	return 0;
 }
 
-static int net_udp_select_teams()
-{
-	newmenu_item m[MAX_PLAYERS+4];
-	int choice, opt_team_b;
-	int pnums[MAX_PLAYERS+2];
-
-	// One-time initialization
-	const unsigned num_players = N_players;
-	// Put first half of players on team A
-	uint8_t team_vector = ((1 << num_players) - 1) & ~((1 << (num_players >> 1)) - 1);
-
-	std::array<callsign_t, 2> team_names;
-	team_names[0].copy(TXT_BLUE, ~0ul);
-	team_names[1].copy(TXT_RED, ~0ul);
-
-	// Here comes da menu
-menu:
-	nm_set_item_input(m[0], team_names[0].a);
-
-	unsigned opt = 1;
-	for (int i = 0; i < N_players; i++)
-	{
-		if (!(team_vector & (1 << i)))
-		{
-			nm_set_item_menu( m[opt], Netgame.players[i].callsign); pnums[opt] = i; opt++;
-		}
-	}
-	opt_team_b = opt;
-	nm_set_item_input(m[opt], team_names[1].a);
-	opt++;
-	for (int i = 0; i < N_players; i++)
-	{
-		if (team_vector & (1 << i))
-		{
-			nm_set_item_menu( m[opt], Netgame.players[i].callsign); pnums[opt] = i; opt++;
-		}
-	}
-	nm_set_item_text(m[opt], ""); opt++;
-	nm_set_item_menu( m[opt], TXT_ACCEPT); opt++;
-
-	Assert(opt <= MAX_PLAYERS+4);
-
-	choice = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_TEAM_SELECTION}, unchecked_partial_range(m, opt), unused_newmenu_subfunction, unused_newmenu_userdata);
-
-	if (choice == opt-1)
-	{
-		Netgame.team_vector = team_vector;
-		Netgame.team_name = team_names;
-		return 1;
-	}
-
-	else if ((choice > 0) && (choice < opt_team_b)) {
-		team_vector |= (1 << pnums[choice]);
-	}
-	else if ((choice > opt_team_b) && (choice < opt-2)) {
-		team_vector &= ~(1 << pnums[choice]);
-	}
-	else if (choice == -1)
-		return 0;
-	goto menu;
-}
-
 namespace dsx {
 static int net_udp_select_players()
 {
@@ -4536,7 +4643,7 @@ abort:
 	    Netgame.gamemode == NETGAME_CAPTURE_FLAG ||
 		 Netgame.gamemode == NETGAME_TEAM_HOARD)
 #endif
-		 if (!net_udp_select_teams())
+		 if (run_blocking_newmenu<net_udp_select_teams_menu>(N_players, *grd_curcanv) == -1)
 			goto abort;
 	return(1);
 }
