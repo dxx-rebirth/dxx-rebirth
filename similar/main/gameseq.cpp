@@ -851,7 +851,7 @@ void create_player_appearance_effect(const d_vclip_array &Vclip, const object_ba
 
 		const auto sound_num = Vclip[VCLIP_PLAYER_APPEARANCE].sound_num;
 		if (sound_num > -1)
-			digi_link_sound_to_pos(sound_num, seg, 0, effect_obj->pos, 0, F1_0);
+			digi_link_sound_to_pos(sound_num, seg, 0, effect_obj->pos, 0, F0_5);
 	}
 }
 }
