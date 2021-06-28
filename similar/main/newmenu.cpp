@@ -963,9 +963,8 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 					y2 = y1 + iitem.h;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
 							// Tell callback, allow staying in menu
-							const d_select_event selected{menu->citem};
-							if (menu->subfunction_handler(selected))
-								return window_event_result::handled;
+							if (const auto r = menu->event_handler(d_select_event{menu->citem}); r == window_event_result::handled)
+								return r;
 
 							if (menu->rval)
 								*menu->rval = menu->citem;
@@ -996,7 +995,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 
 			if (changed)
 			{
-				menu->subfunction_handler(d_change_event{menu->citem});
+				menu->event_handler(d_change_event{menu->citem});
 			}
 			break;
 		}
@@ -1147,9 +1146,8 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 					citem.imenu().group = 0;	// go out of editing mode
 
 				// Tell callback, allow staying in menu
-				const d_select_event selected{menu->citem};
-				if (menu->subfunction_handler(selected))
-					return window_event_result::handled;
+				if (const auto r = menu->event_handler(d_select_event{menu->citem}); r == window_event_result::handled)
+					return r;
 
 				if (menu->rval)
 					*menu->rval = menu->citem;
@@ -1283,7 +1281,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 
 	if (changed)
 	{
-		menu->subfunction_handler(d_change_event{menu->citem});
+		menu->event_handler(d_change_event{menu->citem});
 	}
 
 	return rval;
@@ -1582,7 +1580,7 @@ static window_event_result newmenu_draw(newmenu *menu)
 
 		gr_string(*grd_curcanv, cv_font, sx, sy, (scroll_offset + menu->max_displayable < menu->items.size()) ? DOWN_ARROW_MARKER(*grd_curcanv->cv_font, game_font) : "  ");
 	}
-	menu->subfunction_handler(d_event{EVENT_NEWMENU_DRAW});
+	menu->event_handler(d_event{EVENT_NEWMENU_DRAW});
 	gr_set_current_canvas(save_canvas);
 	return window_event_result::handled;
 }
