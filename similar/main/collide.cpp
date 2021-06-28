@@ -110,7 +110,6 @@ void bump_one_object(object_base &obj0, const vms_vector &hit_dir, const fix dam
 	const auto hit_vec = vm_vec_copy_scale(hit_dir, damage);
 	phys_apply_force(obj0,hit_vec);
 }
-}
 
 namespace {
 
@@ -124,6 +123,11 @@ static int check_collision_delayfunc_exec()
 		return 1;
 	}
 	return 0;
+}
+
+static fix64 Last_volatile_scrape_time;
+static fix64 Last_volatile_scrape_sound_time;
+
 }
 
 }
@@ -432,12 +436,6 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 	return;
 }
 }
-}
-
-static fix64	Last_volatile_scrape_time = 0;
-static fix64	Last_volatile_scrape_sound_time = 0;
-
-namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_I)
 static
@@ -725,7 +723,6 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 
 	return 0;		//didn't blow up
 }
-}
 
 //these gets added to the weapon's values when the weapon hits a volitle wall
 #define VOLATILE_WALL_EXPL_STRENGTH i2f(10)
@@ -735,7 +732,8 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 
 // int Show_seg_and_side = 0;
 
-namespace dsx {
+namespace {
+
 static window_event_result collide_weapon_and_wall(
 #if defined(DXX_BUILD_DESCENT_II)
 	const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
@@ -1006,6 +1004,9 @@ static window_event_result collide_weapon_and_wall(
 	return result;
 }
 }
+}
+
+namespace {
 
 static void collide_debris_and_wall(const vmobjptridx_t debris, const unique_segment &hitseg, const unsigned hitwall, const vms_vector &)
 {
@@ -1029,7 +1030,12 @@ static void collide_robot_and_controlcen(object_base &obj_robot, const object_ba
 	bump_one_object(obj_robot, hitvec, 0);
 }
 
+}
+
 namespace dsx {
+
+namespace {
+
 static void collide_robot_and_player(const vmobjptridx_t robot, const vmobjptridx_t playerobj, const vms_vector &collision_point)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1096,6 +1102,8 @@ static void collide_robot_and_player(const vmobjptridx_t robot, const vmobjptrid
 
 	bump_two_objects(robot, playerobj, 1);
 	return;
+}
+
 }
 
 // Provide a way for network message to instantly destroy the control center
@@ -1168,6 +1176,8 @@ void apply_damage_to_controlcen(const vmobjptridx_t controlcen, fix damage, cons
 		explode_object(controlcen,0);
 	}
 }
+
+namespace {
 
 static void collide_player_and_controlcen(const vmobjptridx_t playerobj, const vmobjptridx_t controlcen, const vms_vector &collision_point)
 {
@@ -1344,6 +1354,8 @@ static void collide_weapon_and_clutter(object_base &weapon, const vmobjptridx_t 
 	maybe_kill_weapon(weapon,clutter);
 }
 
+}
+
 //--mk, 121094 -- extern void spin_robot(object *robot, vms_vector *collision_point);
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1508,9 +1520,9 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 		return 0;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
 namespace {
 
+#if defined(DXX_BUILD_DESCENT_II)
 enum class boss_weapon_collision_result : uint8_t
 {
 	normal,
@@ -1622,11 +1634,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_level_share
 	}
 	return boss_weapon_collision_result::normal;
 }
-
-}
 #endif
-
-namespace {
 //	------------------------------------------------------------------------------------------------------
 static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptridx_t  weapon, vms_vector &collision_point)
 {
@@ -2096,9 +2104,6 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 		}
 	}
 }
-}
-
-namespace dsx {
 
 void apply_damage_to_player(object &playerobj, const icobjptridx_t killer, fix damage, ubyte possibly_friendly)
 {
@@ -2150,9 +2155,8 @@ void apply_damage_to_player(object &playerobj, const icobjptridx_t killer, fix d
 	}
 }
 
-}
+namespace {
 
-namespace dsx {
 static void collide_player_and_weapon(const vmobjptridx_t playerobj, const vmobjptridx_t weapon, vms_vector &collision_point)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -2236,6 +2240,7 @@ static void collide_player_and_weapon(const vmobjptridx_t playerobj, const vmobj
 
 	return;
 }
+
 }
 
 //	Nasty robots are the ones that attack you by running into you and doing lots of damage.
@@ -2250,6 +2255,8 @@ void collide_player_and_nasty_robot(const vmobjptridx_t playerobj, const vmobjpt
 
 	apply_damage_to_player(playerobj, robot, F1_0 * (GameUniqueState.Difficulty_level + 1), 0);
 }
+
+namespace {
 
 static vms_vector find_exit_direction(vms_vector result, const object &objp, const cscusegment segp)
 {
@@ -2268,7 +2275,8 @@ static vms_vector find_exit_direction(vms_vector result, const object &objp, con
 	return result;
 }
 
-namespace dsx {
+}
+
 void collide_player_and_materialization_center(const vmobjptridx_t objp)
 {
 	const auto &&segp = vmsegptridx(objp->segnum);
@@ -2291,10 +2299,6 @@ void collide_player_and_materialization_center(const vmobjptridx_t objp)
 #elif defined(DXX_BUILD_DESCENT_II)
 	apply_damage_to_player( objp, objp, 4*F1_0, 0);	//	Changed, MK, 2/19/96, make killer the player, so if you die in matcen, will say you killed yourself
 #endif
-
-	return;
-
-}
 }
 
 void collide_robot_and_materialization_center(const vmobjptridx_t objp)
@@ -2314,6 +2318,8 @@ void collide_robot_and_materialization_center(const vmobjptridx_t objp)
 	return;
 }
 
+}
+
 void collide_live_local_player_and_powerup(const vmobjptridx_t powerup)
 {
 	if (do_powerup(powerup))
@@ -2323,6 +2329,8 @@ void collide_live_local_player_and_powerup(const vmobjptridx_t powerup)
 			multi_send_remobj(powerup);
 	}
 }
+
+namespace {
 
 static void collide_player_and_powerup(object &playerobj, const vmobjptridx_t powerup, const vms_vector &)
 {
@@ -2359,9 +2367,12 @@ static void collide_player_and_clutter(const vmobjptridx_t  playerobj, const vmo
 	return;
 }
 
+}
+
 //	See if weapon1 creates a badass explosion.  If so, create the explosion
 //	Return true if weapon does proximity (as opposed to only contact) damage when it explodes.
 namespace dsx {
+
 int maybe_detonate_weapon(const vmobjptridx_t weapon1, object &weapon2, const vms_vector &collision_point)
 {
 	if ( Weapon_info[get_weapon_id(weapon1)].damage_radius ) {
@@ -2384,9 +2395,9 @@ int maybe_detonate_weapon(const vmobjptridx_t weapon1, object &weapon2, const vm
 	} else
 		return 0;
 }
-}
 
-namespace dsx {
+namespace {
+
 static void collide_weapon_and_weapon(const vmobjptridx_t weapon1, const vmobjptridx_t weapon2, const vms_vector &collision_point)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2429,11 +2440,8 @@ static void collide_weapon_and_weapon(const vmobjptridx_t weapon1, const vmobjpt
 				maybe_detonate_weapon(weapon1,weapon2, collision_point);
 #endif
 	}
-
-}
 }
 
-namespace dsx {
 static void collide_weapon_and_debris(const vmobjptridx_t weapon, const vmobjptridx_t debris, const vms_vector &collision_point)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2454,7 +2462,6 @@ static void collide_weapon_and_debris(const vmobjptridx_t weapon, const vmobjptr
 			weapon->flags |= OF_SHOULD_BE_DEAD;
 	}
 	return;
-}
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2554,6 +2561,8 @@ struct assert_no_truncation
 	static_assert(static_cast<T>(V) == V, "truncation error");
 };
 
+}
+
 void collide_two_objects(vmobjptridx_t A, vmobjptridx_t B, vms_vector &collision_point)
 {
 	if (B->type < A->type)
@@ -2574,6 +2583,8 @@ void collide_two_objects(vmobjptridx_t A, vmobjptridx_t B, vms_vector &collision
 	default:
 		Int3();	//Error( "Unhandled collision_type in collide.c!\n" );
 	}
+}
+
 }
 
 #define ENABLE_COLLISION(type1,type2,f)	\

@@ -36,8 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-window.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-void collide_two_objects(vmobjptridx_t A, vmobjptridx_t B, vms_vector &collision_point);
 namespace dsx {
+void collide_two_objects(vmobjptridx_t A, vmobjptridx_t B, vms_vector &collision_point);
 window_event_result collide_object_with_wall(
 #if defined(DXX_BUILD_DESCENT_II)
 	const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
@@ -58,18 +58,12 @@ int apply_damage_to_robot(vmobjptridx_t robot, fix damage, objnum_t killer_objnu
 #ifdef dsx
 namespace dsx {
 void collide_player_and_materialization_center(vmobjptridx_t objp);
-}
-#endif
 void collide_robot_and_materialization_center(vmobjptridx_t objp);
-
-#ifdef dsx
-namespace dsx {
 bool scrape_player_on_wall(vmobjptridx_t obj, vmsegptridx_t hitseg, unsigned hitwall, const vms_vector &hitpt);
 int maybe_detonate_weapon(vmobjptridx_t obj0p, object &obj, const vms_vector &pos);
-
+void collide_player_and_nasty_robot(vmobjptridx_t player, vmobjptridx_t robot, const vms_vector &collision_point);
 }
 #endif
-void collide_player_and_nasty_robot(vmobjptridx_t player, vmobjptridx_t robot, const vms_vector &collision_point);
 
 namespace dcx {
 void bump_one_object(object_base &obj0, const vms_vector &hit_dir, fix damage);
