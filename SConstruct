@@ -16,22 +16,6 @@ import SCons.Util
 # Disable injecting tools into default namespace
 SCons.Defaults.DefaultEnvironment(tools = [])
 
-try:
-	# Test whether the old Python 2 names exist.
-	# If the names are found, use the old Python 2 names, which return
-	# views on the data.  If the names are not found, an exception is
-	# raised.
-	get_dictionary_key_view = dict.iterkeys
-	get_dictionary_item_view = dict.iteritems
-	get_dictionary_value_view = dict.itervalues
-except AttributeError:
-	# Name not found.  Use the new Python 3 names, which return views
-	# (at least until the Python maintainers decide to redefine the
-	# interface again).
-	get_dictionary_key_view = dict.keys
-	get_dictionary_item_view = dict.items
-	get_dictionary_value_view = dict.values
-
 def message(program,msg):
 	print("%s: %s" % (program.program_message_prefix, msg))
 
@@ -413,7 +397,7 @@ class ConfigureTests(_ConfigureTests):
 				Display("%s: reading %s settings from %s\n" % (message, display_name, cmd))
 				try:
 					flags = {
-						k:v for k,v in get_dictionary_item_view(context.env.ParseFlags(' ' + StaticSubprocess.pcall(cmd).out.decode()))
+						k:v for k,v in context.env.ParseFlags(' ' + StaticSubprocess.pcall(cmd).out.decode()).items()
 							if v and (k[0] in 'CL')
 					}
 					Display("%s: %s settings: %r\n" % (message, display_name, flags))
@@ -919,10 +903,10 @@ help:assume C++ compiler works
 			if self.user_settings.record_sconf_results:
 				self._sconf_results.append((calling_function, 'skipped'))
 			return
-		env_flags = self.PreservedEnvironment(context.env, (get_dictionary_key_view(successflags), get_dictionary_key_view(testflags), get_dictionary_key_view(__flags_Werror), ('CPPDEFINES',)))
+		env_flags = self.PreservedEnvironment(context.env, (successflags.keys(), testflags.keys(), __flags_Werror.keys(), ('CPPDEFINES',)))
 		context.env.MergeFlags(successflags)
 		forced, expected = self._check_sconf_forced(calling_function)
-		caller_modified_env_flags = self.PreservedEnvironment(context.env, (get_dictionary_key_view(testflags), get_dictionary_key_view(__flags_Werror)))
+		caller_modified_env_flags = self.PreservedEnvironment(context.env, (testflags.keys(), __flags_Werror.keys()))
 		# Always pass -Werror to configure tests.
 		context.env.Append(**__flags_Werror)
 		context.env.Append(**testflags)
@@ -1001,7 +985,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			f = self.successful_flags
 			# Move most CPPDEFINES to the generated header, so that
 			# command lines are shorter.
-			for k, v in get_dictionary_item_view(successflags):
+			for k, v in successflags.items():
 				if k == 'CPPDEFINES':
 					continue
 				f[k].extend(v)
@@ -3332,7 +3316,7 @@ class PCHManager:
 		# included with this set of guards defined).
 		syscpp_includes = defaultdict(list)
 		owncpp_includes = defaultdict(list) if own_header_inclusion_threshold else None
-		for included_file, usage_dict in get_dictionary_item_view(self.__files_included):
+		for included_file, usage_dict in self.__files_included.items():
 			if isinstance(included_file, (bytes, str)):
 				# System header
 				cpp_includes = syscpp_includes
@@ -3352,7 +3336,7 @@ class PCHManager:
 			# conditional includes.
 			guards = \
 				[((), g)] if (g >= threshold) else \
-				sorted(get_dictionary_item_view(usage_dict), reverse=True)
+				sorted(usage_dict.items(), reverse=True)
 			while guards:
 				preprocessor_guard_directives, local_count_seen = guards.pop()
 				total_count_seen = local_count_seen
@@ -3389,7 +3373,7 @@ class PCHManager:
 		# if the result eventually shows that pch.cpp has not changed.
 		# The C preprocessor will only run over the file when it is
 		# actually changed and is processed to build a new .gch file.
-		for preprocessor_guard_directives, included_file_tuples in sorted(get_dictionary_item_view(cpp_includes)):
+		for preprocessor_guard_directives, included_file_tuples in sorted(cpp_includes.items()):
 			generated_pch_lines.append(b'')
 			generated_pch_lines.extend(preprocessor_guard_directives)
 			# local_count_seen is the direct usage count for this
@@ -3437,8 +3421,8 @@ class PCHManager:
 		#	}
 		# }
 		files_included = self.__files_included
-		for scanned_file in get_dictionary_value_view(self._instance_scanned_files):
-			for included_file, guards in get_dictionary_item_view(scanned_file.candidates):
+		for scanned_file in self._instance_scanned_files.values():
+			for included_file, guards in scanned_file.candidates.items():
 				i = files_included[included_file]
 				for g in guards:
 					i[g] += 1
@@ -3463,7 +3447,7 @@ class PCHManager:
 				# Header will be unconditionally included in the PCH.
 				continue
 			f = self.record_file(self.env, File(included_file))
-			for nested_included_file, nested_guards in sorted(get_dictionary_item_view(f.candidates), key=str):
+			for nested_included_file, nested_guards in sorted(f.candidates.items(), key=str):
 				if not isinstance(included_file, (bytes, str)) and not nested_included_file in files_included:
 					# If the header is a system header, it will be
 					# str.  Skip system headers.
@@ -5461,7 +5445,7 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 	compilation_database_dict_fn_to_entries = DXXCommon.compilation_database_dict_fn_to_entries
 	if compilation_database_dict_fn_to_entries:
 		import json
-		for fn, entry_tuple in get_dictionary_item_view(compilation_database_dict_fn_to_entries):
+		for fn, entry_tuple in compilation_database_dict_fn_to_entries.items():
 			env, entries = entry_tuple
 			e = env.Entry(fn)
 			# clang tools search for this specific filename.  As a
