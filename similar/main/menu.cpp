@@ -2344,12 +2344,17 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 			if (event_key_get(event) == KEY_CTRLED + KEY_D)
 			{
 				std::array<char, 4> text{{"c"}};
-				int rval = 0;
-
 				std::array<newmenu_item, 1> m{{
 					newmenu_item::nm_item_input(text),
 				}};
-				rval = newmenu_do2(menu_title{nullptr}, menu_subtitle{"Enter drive letter"}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
+				struct drive_letter_menu : passive_newmenu
+				{
+					drive_letter_menu(partial_range_t<newmenu_item *> items) :
+						passive_newmenu(menu_title{nullptr}, menu_subtitle{"Enter drive letter"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), *grd_curcanv)
+						{
+						}
+				};
+				const auto rval = run_blocking_newmenu<drive_letter_menu>(m);
 				const auto t0 = text[0];
 				std::array<char, PATH_MAX> newpath;
 				snprintf(newpath.data(), newpath.size(), "%c:%s", t0, sep);
