@@ -2228,7 +2228,7 @@ static void collide_player_and_weapon(const vmobjptridx_t playerobj, const vmobj
 //		if (weapon->id == SMART_HOMING_ID)
 //			damage /= 4;
 
-			apply_damage_to_player( playerobj, killer, damage, 1);
+		apply_damage_to_player(playerobj, killer, damage, 1);
 	}
 
 	//	Robots become aware of you if you get hit.
