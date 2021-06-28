@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-segment.h"
 #include "fwd-weapon.h"
 #include "fwd-window.h"
+#include "dsx-ns.h"
 
 #define ND_STATE_NORMAL			0
 #define ND_STATE_RECORDING		1
@@ -64,6 +65,10 @@ extern int Newdemo_show_percentage;
 extern int Auto_demo;
 extern int Newdemo_num_written;
 
+namespace dcx {
+enum class sound_pan : int;
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
 extern ubyte DemoDoRight,DemoDoLeft;
 extern struct object DemoRightExtra,DemoLeftExtra;
@@ -82,7 +87,7 @@ void newdemo_start_playback(const char *filename);
 void newdemo_record_morph_frame(vcobjptridx_t);
 }
 #endif
-extern void newdemo_record_sound_3d_once( int soundno, int angle, int volume );
+void newdemo_record_sound_3d_once( int soundno, sound_pan angle, int volume );
 extern void newdemo_record_sound_once( int soundno );
 extern void newdemo_record_sound( int soundno );
 void newdemo_record_wall_hit_process( segnum_t segnum, int side, int damage, int playernum );

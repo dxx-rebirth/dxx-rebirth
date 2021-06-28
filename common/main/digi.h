@@ -39,6 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef dsx
 namespace dcx {
 
+enum class sound_pan : int;
 struct sound_object;
 extern int digi_volume;
 
@@ -73,7 +74,7 @@ void digi_link_sound_to_object3(unsigned soundnum, vcobjptridx_t objnum, uint8_t
 void digi_kill_sound_linked_to_object(vcobjptridx_t);
 #endif
 
-void digi_play_sample_3d(int soundno, int angle, int volume); // Volume from 0-0x7fff
+void digi_play_sample_3d(int soundno, sound_pan angle, int volume); // Volume from 0-0x7fff
 
 extern void digi_init_sounds();
 extern void digi_sync_sounds();
@@ -89,7 +90,7 @@ extern void digi_stop_sound( int channel );
 
 // Volume 0-F1_0
 constexpr sound_object *sound_object_none = nullptr;
-int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, sound_object *);
+int digi_start_sound(short soundnum, fix volume, sound_pan pan, int looping, int loop_start, int loop_end, sound_object *);
 
 // Stops all sounds that are playing
 void digi_stop_all_channels();
@@ -97,7 +98,7 @@ void digi_stop_all_channels();
 void digi_stop_digi_sounds();
 
 extern void digi_end_sound( int channel );
-extern void digi_set_channel_pan( int channel, int pan );
+void digi_set_channel_pan(int channel, sound_pan pan);
 extern void digi_set_channel_volume( int channel, int volume );
 extern int digi_is_channel_playing(int channel);
 

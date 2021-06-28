@@ -198,7 +198,7 @@ static void mixdigi_convert_sound(const unsigned i)
 }
 
 // Volume 0-F1_0
-int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, sound_object *)
+int digi_mixer_start_sound(short soundnum, const fix volume, const sound_pan pan, const int looping, const int loop_start, const int loop_end, sound_object *)
 {
 	if (!digi_initialised) return -1;
 
@@ -218,7 +218,7 @@ int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int
 
 	const int mix_vol = fix2byte(fixmul(digi_volume, volume));
 	const uint8_t mix_distance = (volume > F1_0) ? 0 : UINT8_MAX - mix_vol;
-	const int mix_pan = fix2byte(pan);
+	const int mix_pan = fix2byte(static_cast<fix>(pan));
 #if MIX_DIGI_DEBUG
 	con_printf(CON_DEBUG, "digi_start_sound %d, volume %d, pan %d (start=%d, end=%d)", soundnum, mix_vol, mix_pan, loop_start, loop_end);
 #else
@@ -246,9 +246,9 @@ void digi_mixer_set_channel_volume(int channel, int volume)
 	Mix_SetDistance(channel, 255-mix_vol);
 }
 
-void digi_mixer_set_channel_pan(int channel, int pan)
+void digi_mixer_set_channel_pan(int channel, const sound_pan pan)
 {
-	int mix_pan = fix2byte(pan);
+	int mix_pan = fix2byte(static_cast<fix>(pan));
 	Mix_SetPanning(channel, 255-mix_pan, mix_pan);
 }
 

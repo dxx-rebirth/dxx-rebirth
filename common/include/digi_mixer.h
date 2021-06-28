@@ -12,10 +12,11 @@
 
 #ifdef dsx
 namespace dcx {
+enum class sound_pan : int;
 struct sound_object;
 void digi_mixer_close();
 void digi_mixer_set_channel_volume(int, int);
-void digi_mixer_set_channel_pan(int, int);
+void digi_mixer_set_channel_pan(int, sound_pan);
 void digi_mixer_stop_sound(int);
 void digi_mixer_end_sound(int);
 void digi_mixer_set_digi_volume(int);
@@ -24,7 +25,7 @@ void digi_mixer_stop_all_channels();
 }
 namespace dsx {
 int digi_mixer_init();
-int digi_mixer_start_sound(short, fix, int, int, int, int, sound_object *);
+int digi_mixer_start_sound(short, fix, sound_pan, int, int, int, sound_object *);
 }
 #endif
 

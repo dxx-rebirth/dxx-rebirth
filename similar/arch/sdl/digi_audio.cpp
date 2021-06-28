@@ -97,7 +97,7 @@ struct sound_slot {
 	bool playing;   // Is there a sample playing on this channel?
 	bool looped;    // Play this sample looped?
 	bool persistent; // This can't be pre-empted
-	fix pan;       // 0 = far left, 1 = far right
+	sound_pan pan;       // 0 = far left, 1 = far right
 	fix volume;    // 0 = nothing, 1 = fully on
 	//changed on 980905 by adb from char * to unsigned char *
 	unsigned char *samples;
@@ -142,17 +142,17 @@ static void audio_mixcallback(void *, Uint8 *stream, int len)
 			Uint8 *sp = stream, s;
 			signed char v;
 			fix vl, vr;
-			int x;
 
-			if ((x = sl.pan) & 0x8000) {
+			if (const auto x = static_cast<fix>(sl.pan); x & 0x8000) {
 				vl = 0x20000 - x * 2;
 				vr = 0x10000;
 			} else {
 				vl = 0x10000;
 				vr = x * 2;
 			}
-			vl = fixmul(vl, (x = sl.volume));
-			vr = fixmul(vr, x);
+			const auto sl_volume = sl.volume;
+			vl = fixmul(vl, sl_volume);
+			vr = fixmul(vr, sl_volume);
 			while (sp < streamend) {
 				if (sldata == slend) {
 					if (!sl.looped) {
@@ -228,7 +228,7 @@ void digi_audio_stop_all_channels()
 
 
 // Volume 0-F1_0
-int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int, int, sound_object *const soundobj)
+int digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, int looping, int, int, sound_object *const soundobj)
 {
 	int i, starting_channel;
 
@@ -333,7 +333,7 @@ void digi_audio_set_channel_volume(int channel, int volume)
 	SoundSlots[channel].volume = fixmuldiv(volume, digi_volume, F1_0);
 }
 
-void digi_audio_set_channel_pan(int channel, int pan)
+void digi_audio_set_channel_pan(int channel, const sound_pan pan)
 {
 	if (!digi_initialised)
 		return;

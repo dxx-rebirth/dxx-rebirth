@@ -1246,12 +1246,12 @@ void newdemo_record_sound( int soundno )
 	nd_write_int( soundno );
 }
 
-void newdemo_record_sound_3d_once( int soundno, int angle, int volume )
+void newdemo_record_sound_3d_once(const int soundno, const sound_pan angle, const int volume)
 {
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_SOUND_3D_ONCE );
 	nd_write_int( soundno );
-	nd_write_int( angle );
+	nd_write_int(static_cast<int>(angle));
 	nd_write_int( volume );
 }
 
@@ -2240,7 +2240,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
-				digi_play_sample_3d(soundno, angle, volume);
+				digi_play_sample_3d(soundno, sound_pan{angle}, volume);
 			}
 			break;
 
@@ -2259,7 +2259,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
-				digi_play_sample_3d(soundno, angle, volume);
+				digi_play_sample_3d(soundno, sound_pan{angle}, volume);
 			}
 			break;
 
