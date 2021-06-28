@@ -446,13 +446,7 @@ int PHYSFSX_addRelToSearchPath(const char *relname, physfs_search_path);
 extern int PHYSFSX_removeRelFromSearchPath(const char *relname);
 extern int PHYSFSX_fsize(const char *hogname);
 extern void PHYSFSX_listSearchPathContent();
-int PHYSFSX_getRealPath(const char *stdPath, char *realPath, std::size_t);
-
-template <std::size_t N>
-static inline int PHYSFSX_getRealPath(const char *stdPath, std::array<char, N> &realPath)
-{
-	return PHYSFSX_getRealPath(stdPath, realPath.data(), N);
-}
+int PHYSFSX_getRealPath(const char *stdPath, std::array<char, PATH_MAX> &realPath);
 
 extern int PHYSFSX_rename(const char *oldpath, const char *newpath);
 

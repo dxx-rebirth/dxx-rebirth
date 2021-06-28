@@ -382,9 +382,9 @@ int PHYSFSX_checkSupportedArchiveTypes()
 
 namespace dcx {
 
-int PHYSFSX_getRealPath(const char *stdPath, char *realPath, const std::size_t outSize)
+int PHYSFSX_getRealPath(const char *stdPath, std::array<char, PATH_MAX> &realPath)
 {
-	DXX_POISON_MEMORY(realPath, outSize, 0xdd);
+	DXX_POISON_MEMORY(realPath.data(), realPath.size(), 0xdd);
 	const char *realDir = PHYSFS_getRealDir(stdPath);
 	if (!realDir)
 	{
@@ -393,12 +393,12 @@ int PHYSFSX_getRealPath(const char *stdPath, char *realPath, const std::size_t o
 			return 0;
 	}
 	const auto realDirSize = strlen(realDir);
-	if (realDirSize >= outSize)
+	if (realDirSize >= realPath.size())
 		return 0;
 	auto mountpoint = PHYSFS_getMountPoint(realDir);
 	if (!mountpoint)
 		return 0;
-	std::copy_n(realDir, realDirSize + 1, realPath);
+	std::copy_n(realDir, realDirSize + 1, realPath.begin());
 #ifdef _unix__
 	auto &sep = "/";
 	assert(!strcmp(PHYSFS_getDirSeparator(), sep));
@@ -409,7 +409,7 @@ int PHYSFSX_getRealPath(const char *stdPath, char *realPath, const std::size_t o
 	auto realPathUsed = realDirSize;
 	if (realDirSize >= sepSize)
 	{
-		const auto p = realPath + realDirSize - sepSize;
+		const auto p = std::next(realPath.begin(), realDirSize - sepSize);
 		if (strcmp(p, sep)) // no sep at end of realPath
 		{
 			realPathUsed += sepSize;
@@ -431,7 +431,7 @@ int PHYSFSX_getRealPath(const char *stdPath, char *realPath, const std::size_t o
 		assert(false);
 	}
 	const auto stdPathLen = strlen(stdPath) + 1;
-	if (realPathUsed + stdPathLen >= outSize)
+	if (realPathUsed + stdPathLen >= realPath.size())
 		return 0;
 #ifdef __unix__
 	/* Separator is "/" and physfs internal separator is "/".  Copy
