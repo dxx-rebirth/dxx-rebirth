@@ -229,6 +229,7 @@ struct weapon_reorder_menu : weapon_reorder_menu_items<cycle_weapon_state>, reor
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 template <typename cycle_weapon_state>
@@ -245,6 +246,13 @@ weapon_reorder_menu_items<cycle_weapon_state>::weapon_reorder_menu_items()
 template <typename cycle_weapon_state>
 int weapon_reorder_menu<cycle_weapon_state>::subfunction_handler(const d_event &event)
 {
+	(void)event;
+	return 0;
+}
+
+template <typename cycle_weapon_state>
+window_event_result weapon_reorder_menu<cycle_weapon_state>::event_handler(const d_event &event)
+{
 	switch(event.type)
 	{
 		case EVENT_KEY_COMMAND:
@@ -257,7 +265,7 @@ int weapon_reorder_menu<cycle_weapon_state>::subfunction_handler(const d_event &
 		default:
 			break;
 	}
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 }
