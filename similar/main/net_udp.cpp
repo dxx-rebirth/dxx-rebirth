@@ -3736,9 +3736,16 @@ struct grant_powerup_menu : grant_powerup_menu_items, newmenu
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 int grant_powerup_menu::subfunction_handler(const d_event &event)
+{
+	(void)event;
+	return 0;
+}
+
+window_event_result grant_powerup_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -3748,7 +3755,7 @@ int grant_powerup_menu::subfunction_handler(const d_event &event)
 		default:
 			break;
 	}
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 static void net_udp_set_grant_power()
