@@ -127,7 +127,7 @@ static fix Dist_to_last_fired_upon_player_pos;
 namespace dcx {
 namespace {
 constexpr std::integral_constant<int, F1_0 * 8> CHASE_TIME_LENGTH{};
-constexpr std::integral_constant<int, F1_0> Robot_sound_volume{};
+constexpr std::integral_constant<int, F0_5> Robot_sound_volume{};
 enum {
 	Flinch_scale = 4,
 	Attack_scale = 24,
