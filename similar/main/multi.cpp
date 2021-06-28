@@ -5617,7 +5617,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 			return;
 		const unsigned extent = icon_w * icon_h;
 		RAIIdmem<uint8_t[]> bitmap_data2;
-		MALLOC(bitmap_data2, uint8_t, extent);
+		MALLOC(bitmap_data2, uint8_t[], extent);
 		PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 		PHYSFS_read(ifile, bitmap_data2.get(), 1, extent);
 		gr_init_main_bitmap(i, bm_mode::linear, 0, 0, icon_w, icon_h, icon_w, std::move(bitmap_data2));

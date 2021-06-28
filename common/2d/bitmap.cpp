@@ -52,7 +52,7 @@ void gr_set_bitmap_data(grs_bitmap &bm, const uint8_t *data)
 grs_bitmap_ptr gr_create_bitmap(uint16_t w, uint16_t h )
 {
 	RAIIdmem<uint8_t[]> d;
-	MALLOC(d, unsigned char, MAX_BMP_SIZE(w, h));
+	MALLOC(d, uint8_t[], MAX_BMP_SIZE(w, h));
 	return gr_create_bitmap_raw(w, h, std::move(d));
 }
 
@@ -91,7 +91,7 @@ void gr_init_main_bitmap(grs_main_bitmap &bm, const bm_mode mode, const uint16_t
 void gr_init_bitmap_alloc(grs_main_bitmap &bm, const bm_mode mode, const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h, const uint16_t bytesperline)
 {
 	RAIIdmem<uint8_t[]> d;
-	MALLOC(d, unsigned char, MAX_BMP_SIZE(w, h));
+	MALLOC(d, uint8_t[], MAX_BMP_SIZE(w, h));
 	gr_init_main_bitmap(bm, mode, x, y, w, h, bytesperline, std::move(d));
 }
 
