@@ -100,7 +100,6 @@ namespace udp {
 const dispatch_table dispatch{};
 }
 }
-static int net_udp_show_game_info();
 static int net_udp_do_join_game();
 }
 static void net_udp_flush();
@@ -822,7 +821,6 @@ static int udp_receive_packet(RAIIsocket &sock, ubyte *text, int len, struct _so
 }
 /* General UDP functions - END */
 
-
 namespace {
 
 class net_udp_request_game_info_t
@@ -962,6 +960,11 @@ manual_join_user_inputs manual_join_menu_items::s_last_inputs;
 
 }
 
+namespace dsx {
+namespace {
+
+direct_join::connect_type net_udp_show_game_info(const netgame_info &Netgame);
+
 // Connect to a game host and get full info. Eventually we join!
 static int net_udp_game_connect(direct_join *const dj)
 {
@@ -1015,25 +1018,23 @@ Possible reasons:\n\
 
 	if (dj->connecting == direct_join::connect_type::connecting)
 	{
-		if (!net_udp_show_game_info()) // show info menu and check if we join
-		{
-			dj->connecting = direct_join::connect_type::idle;
-			return 0;
-		}
-		else
+		// show info menu and check if we join
+		const auto connecting = net_udp_show_game_info(Netgame);
+		dj->connecting = connecting;
+		if (connecting == direct_join::connect_type::request_join)
 		{
 			// Get full game info again as it could have changed since we entered the info menu.
-			dj->connecting = direct_join::connect_type::request_join;
 			Netgame.protocol.udp.valid = 0;
 			dj->start_time = timer_query();
-
-			return 0;
 		}
+		return 0;
 	}
-		
 	dj->connecting = direct_join::connect_type::idle;
 
 	return net_udp_do_join_game();
+}
+
+}
 }
 
 int manual_join_menu::subfunction_handler(const d_event &event)
@@ -6065,11 +6066,18 @@ const std::array<char, 512> &show_game_info_menu::setup_subtitle_text(std::array
 	return rinfo;
 }
 
+direct_join::connect_type net_udp_show_game_info(const netgame_info &Netgame)
+{
+	switch (run_blocking_newmenu<show_game_info_menu>(Netgame))
+	{
+		case 0:
+		default:
+			return direct_join::connect_type::request_join;
+		case 1:
+			return direct_join::connect_type::idle;
+	}
 }
 
-int net_udp_show_game_info()
-{
-	return run_blocking_newmenu<show_game_info_menu>(Netgame);
 }
 
 }
