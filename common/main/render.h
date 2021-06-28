@@ -26,8 +26,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include "3d.h"
-
-#ifdef __cplusplus
 #include <vector>
 #include "objnum.h"
 #include "fwd-object.h"
@@ -43,7 +41,6 @@ struct window_rendered_data
 #if defined(DXX_BUILD_DESCENT_II)
 	fix64   time;
 	const object *viewer;
-	int     rear_view;
 #endif
 	std::vector<objnum_t> rendered_robots;
 };
@@ -128,7 +125,7 @@ void render_frame(grs_canvas &, fix eye_offset, window_rendered_data &);  //draw
 void render_mine(grs_canvas &, const vms_vector &, vcsegidx_t start_seg_num, fix eye_offset, window_rendered_data &);
 
 #if defined(DXX_BUILD_DESCENT_II)
-void update_rendered_data(window_rendered_data &window, const object &viewer, int rear_view_flag);
+void update_rendered_data(window_rendered_data &window, const object &viewer);
 #endif
 
 static inline void render_frame(grs_canvas &canvas, fix eye_offset)
@@ -146,6 +143,4 @@ void draw_object_tmap_rod(grs_canvas &, const d_level_unique_light_state *const 
 void draw_hostage(const d_vclip_array &Vclip, grs_canvas &, const d_level_unique_light_state &, vmobjptridx_t obj);
 void draw_morph_object(grs_canvas &, const d_level_unique_light_state &LevelUniqueLightState, vmobjptridx_t obj);
 }
-#endif
-
 #endif
