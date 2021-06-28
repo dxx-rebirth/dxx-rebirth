@@ -4343,15 +4343,12 @@ static int net_udp_select_teams()
 {
 	newmenu_item m[MAX_PLAYERS+4];
 	int choice, opt_team_b;
-	ubyte team_vector = 0;
 	int pnums[MAX_PLAYERS+2];
 
 	// One-time initialization
-
-	for (int i = N_players/2; i < N_players; i++) // Put first half of players on team A
-	{
-		team_vector |= (1 << i);
-	}
+	const unsigned num_players = N_players;
+	// Put first half of players on team A
+	uint8_t team_vector = ((1 << num_players) - 1) & ~((1 << (num_players >> 1)) - 1);
 
 	std::array<callsign_t, 2> team_names;
 	team_names[0].copy(TXT_BLUE, ~0ul);
@@ -4388,15 +4385,6 @@ menu:
 
 	if (choice == opt-1)
 	{
-#if 0 // no need to wait for other players
-		if ((opt-2-opt_team_b < 2) || (opt_team_b == 1)) 
-		{
-			nm_messagebox(NULL, 1, TXT_OK, TXT_TEAM_MUST_ONE);
-			#ifdef RELEASE
-			goto menu;
-			#endif
-		}
-#endif
 		Netgame.team_vector = team_vector;
 		Netgame.team_name = team_names;
 		return 1;
