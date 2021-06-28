@@ -2158,18 +2158,15 @@ void create_buddy_bot(void)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	const auto &&range = enumerate(partial_const_range(LevelSharedRobotInfoState.Robot_info, LevelSharedRobotInfoState.N_robot_types));
-	const auto &&predicate = [](const auto &ev) {
-		const robot_info &robptr = ev.value;
-		return robptr.companion;
-	};
-	const auto &&it = std::find_if(range.begin(), range.end(), predicate);
-	if (!(it != range.end()))
-		return;
-	const auto &&segp = vmsegptridx(ConsoleObject->segnum);
-	auto &vcvertptr = Vertices.vcptr;
-	const auto &&object_pos = compute_segment_center(vcvertptr, segp);
-	create_morph_robot(segp, object_pos, (*it).idx);
+	for (auto &&[idx, ri] : enumerate(partial_const_range(LevelSharedRobotInfoState.Robot_info, LevelSharedRobotInfoState.N_robot_types)))
+	{
+		if (!ri.companion)
+			continue;
+		const auto &&segp = vmsegptridx(ConsoleObject->segnum);
+		const auto &&object_pos = compute_segment_center(Vertices.vcptr, segp);
+		create_morph_robot(segp, object_pos, idx);
+		break;
+	}
 }
 #endif
 
