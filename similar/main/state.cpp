@@ -987,7 +987,6 @@ d_game_unique_state::save_slot state_get_restore_file(d_game_unique_state::saveg
 //	Imagine if C had a function to copy a file...
 static int copy_file(const char *old_file, const char *new_file)
 {
-	int		buf_size;
 	RAIIPHYSFS_File in_file{PHYSFS_openRead(old_file)};
 	if (!in_file)
 		return -2;
@@ -995,27 +994,16 @@ static int copy_file(const char *old_file, const char *new_file)
 	if (!out_file)
 		return -1;
 
-	buf_size = PHYSFS_fileLength(in_file);
-	RAIIdmem<sbyte[]> buf;
-	for (;;) {
-		if (buf_size == 0)
-			return -5;	// likely to be an empty file
-		if (MALLOC(buf, sbyte[], buf_size))
-			break;
-		buf_size /= 2;
-	}
-
+	constexpr std::size_t buf_size = 512 * 1024;
+	const auto buf = std::make_unique<uint8_t[]>(buf_size);
+	const auto pbuf = buf.get();
 	while (!PHYSFS_eof(in_file))
 	{
-		int bytes_read;
-
-		bytes_read = PHYSFS_read(in_file, buf, 1, buf_size);
+		const auto bytes_read = PHYSFS_read(in_file, pbuf, 1, buf_size);
 		if (bytes_read < 0)
 			Error("Cannot read from file <%s>: %s", old_file, PHYSFS_getLastError());
 
-		Assert(bytes_read == buf_size || PHYSFS_eof(in_file));
-
-		if (PHYSFS_write(out_file, buf, 1, bytes_read) < bytes_read)
+		if (PHYSFS_write(out_file, pbuf, 1, bytes_read) < bytes_read)
 			Error("Cannot write to file <%s>: %s", new_file, PHYSFS_getLastError());
 	}
 	if (!out_file.close())
@@ -1176,8 +1164,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 		{
 #if DXX_USE_OGL
-		RAIIdmem<uint8_t[]> buf;
-		MALLOC(buf, uint8_t[], THUMBNAIL_W * THUMBNAIL_H * 4);
+			const auto buf = std::make_unique<uint8_t[]>(THUMBNAIL_W * THUMBNAIL_H * 4);
 #if !DXX_USE_OGLES
 		GLint gl_draw_buffer;
  		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);

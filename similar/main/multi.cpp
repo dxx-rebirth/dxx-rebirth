@@ -5700,8 +5700,7 @@ void save_hoard_data(void)
 	{
 		int size;
 		size = PHYSFS_fileLength(ifile);
-		RAIIdmem<uint8_t[]> buf;
-		MALLOC(buf, uint8_t[], size);
+		const auto buf = std::make_unique<uint8_t[]>(size);
 		PHYSFS_read(ifile, buf, size, 1);
 		PHYSFS_writeULE32(ofile, size);
 		PHYSFS_write(ofile, buf, size, 1);

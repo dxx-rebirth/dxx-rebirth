@@ -1738,15 +1738,15 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 			rescale = 1;
 		}
 	}
-	GLubyte	*buftemp = NULL;
+	std::unique_ptr<GLubyte[]> buftemp;
 	if (rescale > 1)
 	{
 		int rebpp = 3;
 		if (tex.format == GL_RGBA) rebpp = 4;
 		if (tex.format == GL_LUMINANCE) rebpp = 1;
-		MALLOC(buftemp,GLubyte,rescale*tex.tw*rescale*tex.th*rebpp);
+		buftemp = std::make_unique<GLubyte[]>(rescale * tex.tw * rescale * tex.th * rebpp);
 		int x,y;
-		GLubyte *p = buftemp;
+		GLubyte *p = buftemp.get();
 		int len = tex.tw*rebpp*rescale;
 		int bppscale = (rebpp*rescale);
 
@@ -1768,7 +1768,7 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 			}
 			outP += tex.tw*rebpp;
 		}
-		outP = buftemp;
+		outP = buftemp.get();
 	}
 
 	// Generate OpenGL texture IDs.
@@ -1836,8 +1836,6 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 	}
 
 	tex_set_size(tex);
-	if (buftemp)
-		d_free(buftemp);
 	r_texcount++;
 	return 0;
 }

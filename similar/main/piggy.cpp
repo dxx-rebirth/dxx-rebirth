@@ -1768,9 +1768,7 @@ void load_bitmap_replacements(const char *level_name)
 
 		n_bitmaps = PHYSFSX_readInt(ifile);
 
-		RAIIdmem<uint16_t[]> indices;
-		MALLOC( indices, uint16_t[], n_bitmaps );
-
+		const auto indices = std::make_unique<uint16_t[]>(n_bitmaps);
 		range_for (auto &i, unchecked_partial_range(indices.get(), n_bitmaps))
 			i = PHYSFSX_readShort(ifile);
 

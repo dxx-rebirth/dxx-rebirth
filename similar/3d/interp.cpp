@@ -859,10 +859,9 @@ void align_polygon_model_data(polymodel *pm)
 	int no_chunks = 0;
 	constexpr unsigned SHIFT_SPACE = 500;	// increase if insufficient
 	int tmp_size = pm->model_data_size + SHIFT_SPACE;
-	RAIIdmem<uint8_t[]> tmp;
-	MALLOC(tmp, uint8_t[], tmp_size); // where we build the aligned version of pm->model_data
+	// where we build the aligned version of pm->model_data
+	const auto tmp = std::make_unique<uint8_t[]>(tmp_size);
 
-	Assert(tmp != NULL);
 	//start with first chunk (is always aligned!)
 	const uint8_t *cur_old = pm->model_data.get();
 	auto cur_new = tmp.get();

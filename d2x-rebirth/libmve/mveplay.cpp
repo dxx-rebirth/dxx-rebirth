@@ -475,8 +475,7 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 				SDL_BuildAudioCVT(&cvt, mve_audio_spec->format, mve_audio_spec->channels, mve_audio_spec->freq,
 					out_format, out_channels, out_freq);
 
-				RAIIdmem<uint8_t[]> cvtbuf;
-				MALLOC(cvtbuf, uint8_t[], nsamp * cvt.len_mult);
+				const auto cvtbuf = std::make_unique<uint8_t[]>(nsamp * cvt.len_mult);
 				cvt.buf = cvtbuf.get();
 				cvt.len = nsamp;
 
