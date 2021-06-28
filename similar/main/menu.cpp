@@ -2041,9 +2041,16 @@ struct hud_config_menu : hud_config_menu_items, newmenu
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 int hud_config_menu::subfunction_handler(const d_event &event)
+{
+	(void)event;
+	return 0;
+}
+
+window_event_result hud_config_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -2054,7 +2061,7 @@ int hud_config_menu::subfunction_handler(const d_event &event)
                                 reticle_config();
                         if (citem == opt_hud_stylemenu)
                                 hud_style_config();
-			return 1;		// stay in menu
+			return window_event_result::handled;		// stay in menu
 		}
 		case EVENT_WINDOW_CLOSE:
 			DSX_HUD_MENU_OPTIONS(READ);
@@ -2070,7 +2077,7 @@ int hud_config_menu::subfunction_handler(const d_event &event)
 		default:
 			break;
 	}
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 void hud_config()
