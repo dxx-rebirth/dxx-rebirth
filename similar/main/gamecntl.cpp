@@ -2055,15 +2055,8 @@ struct wimp_menu : wimp_menu_items, newmenu
 		newmenu(menu_title{"Wimp Menu"}, menu_subtitle{nullptr}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
 		{
 		}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int wimp_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result wimp_menu::event_handler(const d_event &event)
 {

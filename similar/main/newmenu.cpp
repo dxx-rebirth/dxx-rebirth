@@ -63,11 +63,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-int passive_newmenu::subfunction_handler(const d_event &)
-{
-	return 0;
-}
-
 namespace {
 
 struct callback_newmenu : newmenu
@@ -79,7 +74,6 @@ struct callback_newmenu : newmenu
 	}
 	const subfunction_type subfunction;
 	void *const userdata;		// For whatever - like with window system
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &) override;
 };
 
@@ -155,12 +149,6 @@ newmenu_layout::adjusted_citem newmenu_layout::adjusted_citem::create(const part
 		}
 	}
 	return adjusted_citem{items, citem, all_text};
-}
-
-int callback_newmenu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
 }
 
 window_event_result callback_newmenu::event_handler(const d_event &event)

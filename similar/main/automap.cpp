@@ -286,7 +286,6 @@ struct marker_delete_are_you_sure_menu : std::array<newmenu_item, 2>, newmenu
 		MarkerState(MarkerState)
 	{
 	}
-	virtual int subfunction_handler(const d_event &) override;
 	virtual window_event_result event_handler(const d_event &) override;
 	static std::pair<imobjidx_t *, game_marker_index> get_marker_object(d_marker_state &MarkerState);
 	void handle_selected_yes() const;
@@ -309,12 +308,6 @@ window_event_result marker_delete_are_you_sure_menu::event_handler(const d_event
 		default:
 			return newmenu::event_handler(event);
 	}
-}
-
-int marker_delete_are_you_sure_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
 }
 
 std::pair<imobjidx_t *, game_marker_index> marker_delete_are_you_sure_menu::get_marker_object(d_marker_state &MarkerState)

@@ -910,7 +910,6 @@ struct manual_join_menu : manual_join_menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{"ENTER GAME ADDRESS"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, input_host_address), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
 
@@ -952,7 +951,6 @@ struct netgame_list_game_menu : netgame_list_game_menu_items, direct_join, newme
 		newmenu(menu_title{"NETGAMES"}, menu_subtitle{nullptr}, menu_filename{nullptr}, tiny_mode_flag::tiny, tab_processing_flag::process, adjusted_citem::create(menus, 0), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
 
@@ -1035,12 +1033,6 @@ Possible reasons:\n\
 }
 
 }
-}
-
-int manual_join_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
 }
 
 window_event_result manual_join_menu::event_handler(const d_event &event)
@@ -1148,12 +1140,6 @@ static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_fl
 			break;
 	}
 	out[k] = 0;
-}
-
-int netgame_list_game_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
 }
 
 window_event_result netgame_list_game_menu::event_handler(const d_event &event)
@@ -3441,15 +3427,8 @@ struct netgame_powerups_allowed_menu : netgame_powerups_allowed_menu_items, newm
 		newmenu(menu_title{nullptr}, menu_subtitle{"Objects to allow"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int netgame_powerups_allowed_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result netgame_powerups_allowed_menu::event_handler(const d_event &event)
 {
@@ -3697,7 +3676,6 @@ struct more_game_options_menu : more_game_options_menu_items, newmenu
 {
 	more_game_options_menu(unsigned game_is_cooperative, grs_canvas &);
 	static void net_udp_more_game_options(unsigned game_is_cooperative);
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
 
@@ -3736,15 +3714,8 @@ struct grant_powerup_menu : grant_powerup_menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{"Powerups granted at player spawn"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int grant_powerup_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result grant_powerup_menu::event_handler(const d_event &event)
 {
@@ -3770,12 +3741,6 @@ void more_game_options_menu::net_udp_more_game_options(const unsigned game_is_co
 {
 	auto menu = window_create<more_game_options_menu>(game_is_cooperative, grd_curscreen->sc_canvas);
 	(void)menu;
-}
-
-int more_game_options_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
 }
 
 window_event_result more_game_options_menu::event_handler(const d_event &event)

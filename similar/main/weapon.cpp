@@ -228,7 +228,6 @@ struct weapon_reorder_menu : weapon_reorder_menu_items<cycle_weapon_state>, reor
 		reorder_newmenu(menu_title{cycle_weapon_state::reorder_title}, menu_subtitle{"Shift+Up/Down arrow to move item"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(menu_items, 0), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
 
@@ -241,13 +240,6 @@ weapon_reorder_menu_items<cycle_weapon_state>::weapon_reorder_menu_items()
 		mi.value = o;
 		nm_set_item_menu(mi, cycle_weapon_state::get_weapon_name(o));
 	}
-}
-
-template <typename cycle_weapon_state>
-int weapon_reorder_menu<cycle_weapon_state>::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
 }
 
 template <typename cycle_weapon_state>

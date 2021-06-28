@@ -337,7 +337,6 @@ struct newmenu : newmenu_layout, window
 	}
 	int *rval = nullptr;			// Pointer to return value (for polling newmenus)
 	virtual window_event_result event_handler(const d_event &) override;
-	virtual int subfunction_handler(const d_event &event) = 0;
 	static int process_until_closed(newmenu *);
 };
 
@@ -350,19 +349,15 @@ int run_blocking_newmenu(ConstructionArgs &&... args)
 struct passive_newmenu : newmenu
 {
 	using newmenu::newmenu;
-	/* Ignores all calls. */
-	virtual int subfunction_handler(const d_event &event) final override;
 };
 
 struct reorder_newmenu : newmenu
 {
 	using newmenu::newmenu;
 	void event_key_command(const d_event &event);
-	/* subfunction_handler is not overridden here, because users of
+	/* event_handler is not overridden here, because users of
 	 * reorder_newmenu will need to handle more than just the key event,
-	 * so requiring them to have a handler for the key event produces
-	 * better code than having them call back to
-	 * reorder_newmenu::subfunction_handler just for that event.
+	 * so requiring them to have a general handler produces better code.
 	 */
 };
 

@@ -295,7 +295,6 @@ struct main_menu : main_menu_items, newmenu
 		newmenu(menu_title{""}, menu_subtitle{nullptr}, menu_filename{Menu_pcx_name}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src, draw_box_flag::none)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
 
@@ -315,7 +314,6 @@ struct netgame_menu : netgame_menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{TXT_MULTIPLAYER}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
 #endif
@@ -741,12 +739,6 @@ window_event_result dispatch_menu_option(const netgame_menu_item_index select)
 #endif
 
 // ------------------------------------------------------------------------
-int main_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
-
 window_event_result main_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
@@ -1093,15 +1085,8 @@ struct options_menu : options_menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{TXT_OPTIONS}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int options_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result options_menu::event_handler(const d_event &event)
 {
@@ -1448,15 +1433,8 @@ struct menu : menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{"Keyboard Calibration"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 1), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result menu::event_handler(const d_event &event)
 {
@@ -1526,15 +1504,8 @@ struct menu : menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{"Mouse Calibration"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 1), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result menu::event_handler(const d_event &event)
 {
@@ -1600,15 +1571,8 @@ struct menu : menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{"Joystick Calibration"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 1), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result menu::event_handler(const d_event &event)
 {
@@ -1718,15 +1682,8 @@ struct input_config_menu : input_config_menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{TXT_CONTROLS}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, opt_ic_confkey), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int input_config_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result input_config_menu::event_handler(const d_event &event)
 {
@@ -1876,15 +1833,8 @@ struct reticle_config_menu : reticle_config_menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{"Reticle Customization"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 1), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int reticle_config_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result reticle_config_menu::event_handler(const d_event &event)
 {
@@ -1951,15 +1901,8 @@ struct hud_style_config_menu : hud_style_config_menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{"View / HUD Style..."}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 1), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int hud_style_config_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result hud_style_config_menu::event_handler(const d_event &event)
 {
@@ -2041,15 +1984,8 @@ struct hud_config_menu : hud_config_menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{"HUD Options"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int hud_config_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result hud_config_menu::event_handler(const d_event &event)
 {
@@ -2148,15 +2084,8 @@ struct graphics_config_menu : graphics_config_menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{"Graphics Options"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int graphics_config_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result graphics_config_menu::event_handler(const d_event &event)
 {
@@ -2639,17 +2568,10 @@ struct sound_menu : sound_menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{"Sound Effects & Music"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 #undef DSX_SOUND_MENU
-
-int sound_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result sound_menu::event_handler(const d_event &event)
 {
@@ -2857,15 +2779,8 @@ struct gameplay_config_menu : gameplay_config_menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{"Gameplay Options"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int gameplay_config_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result gameplay_config_menu::event_handler(const d_event &event)
 {
@@ -2914,12 +2829,6 @@ void gameplay_config()
 }
 
 #if DXX_USE_UDP
-int netgame_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
-
 window_event_result netgame_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
@@ -3152,15 +3061,8 @@ struct sandbox_menu : sandbox_menu_items, newmenu
 		newmenu(menu_title{nullptr}, menu_subtitle{"Coder's sandbox"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(m, 0), src)
 	{
 	}
-	virtual int subfunction_handler(const d_event &event) override;
 	virtual window_event_result event_handler(const d_event &event) override;
 };
-
-int sandbox_menu::subfunction_handler(const d_event &event)
-{
-	(void)event;
-	return 0;
-}
 
 window_event_result sandbox_menu::event_handler(const d_event &event)
 {
