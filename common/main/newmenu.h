@@ -127,6 +127,18 @@ public:
 	{
 		const char *text;
 	};
+	struct nm_item_input
+	{
+		char *text;
+		const char *allowed_chars;
+		int textlen;
+		template <std::size_t len>
+			nm_item_input(std::array<char, len> &text, const char *const allowed_chars = nullptr) :
+				text(text.data()), allowed_chars(allowed_chars), textlen(static_cast<int>(len))
+			{
+				static_assert(static_cast<int>(len) == len);
+			}
+	};
 	newmenu_item() = default;
 	newmenu_item(nm_item_text text) :
 		text(const_cast<char *>(text.text)),
@@ -136,6 +148,12 @@ public:
 	newmenu_item(nm_item_menu menu) :
 		text(const_cast<char *>(menu.text)),
 		type(nm_type::menu)
+	{
+	}
+	newmenu_item(nm_item_input input) :
+		text(input.text),
+		type(nm_type::input),
+		nm_private(input)
 	{
 	}
 	input_specific_type &input() {
@@ -176,6 +194,10 @@ public:
 	nm_type type;           // What kind of item this is, see NM_TYPE_????? defines
 	union nm_type_specific_data {
 		nm_type_specific_data() = default;
+		nm_type_specific_data(const nm_item_input &input) :
+			input{{input.allowed_chars, input.textlen, 0}}
+		{
+		}
 		input_specific_type input;
 		radio_specific_type radio;
 		number_specific_type number;
@@ -512,14 +534,6 @@ template <std::size_t len>
 static inline void nm_set_item_input(newmenu_item &ni, std::array<char, len> &text, const char *const allowed_chars = nullptr)
 {
 	nm_set_item_input(ni, len, text.data(), allowed_chars);
-}
-
-template <typename... T>
-__attribute_warn_unused_result
-static inline newmenu_item nm_item_input(T &&... t)
-{
-	newmenu_item i;
-	return nm_set_item_input(i, std::forward<T>(t)...), i;
 }
 
 __attribute_nonnull()

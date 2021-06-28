@@ -408,7 +408,7 @@ static int MakeNewPlayerFile(int allow_abort)
 		{
 			pilot_name_menu(callsign_t &text) :
 				items_type{{
-					nm_item_input(text.a, playername_allowed_chars),
+					newmenu_item::nm_item_input(text.a, playername_allowed_chars),
 				}},
 				passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_ENTER_PILOT_NAME}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), *grd_curcanv)
 			{
@@ -1003,7 +1003,7 @@ window_event_result do_new_game_menu()
 			items_type() :
 				m{{
 					newmenu_item::nm_item_text{info_text.data()},
-					nm_item_input(num_text),
+					newmenu_item::nm_item_input(num_text),
 				}}
 			{
 			}
@@ -2252,7 +2252,7 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 				int rval = 0;
 
 				std::array<newmenu_item, 1> m{{
-					nm_item_input(text),
+					newmenu_item::nm_item_input(text),
 				}};
 				rval = newmenu_do2(menu_title{nullptr}, menu_subtitle{"Enter drive letter"}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 				const auto t0 = text[0];

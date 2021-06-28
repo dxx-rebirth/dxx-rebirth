@@ -409,7 +409,7 @@ struct choose_curseg_menu_items
 	choose_curseg_menu_items(const d_level_shared_segment_state &LevelSharedSegmentState) :
 		m{{
 			newmenu_item::nm_item_text{(snprintf(caption.data(), caption.size(), "Enter target segment number (max=%hu)", LevelSharedSegmentState.get_segments().get_count()), caption.data())},
-			nm_item_input((text.front() = 0, text)),
+			newmenu_item::nm_item_input{(text.front() = 0, text)},
 		}}
 	{
 	}
@@ -1526,7 +1526,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 			d_fname text{};
 			int item;
 			std::array<newmenu_item, 1> m{{
-				nm_item_input(text),
+				newmenu_item::nm_item_input(text),
 			}};
 			struct briefing_menu : passive_newmenu
 			{
@@ -1618,7 +1618,7 @@ struct levelwarp_menu_items
 {
 	std::array<char, 8> text{};
 	std::array<newmenu_item, 1> menu_items{{
-		nm_item_input(text),
+		newmenu_item::nm_item_input(text),
 	}};
 };
 
