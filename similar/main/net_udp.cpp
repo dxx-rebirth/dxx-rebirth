@@ -913,6 +913,7 @@ struct manual_join_menu : manual_join_menu_items, newmenu
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 struct netgame_list_game_menu_items
@@ -1036,6 +1037,12 @@ Possible reasons:\n\
 
 int manual_join_menu::subfunction_handler(const d_event &event)
 {
+	(void)event;
+	return 0;
+}
+
+window_event_result manual_join_menu::event_handler(const d_event &event)
+{
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
@@ -1043,7 +1050,7 @@ int manual_join_menu::subfunction_handler(const d_event &event)
 			{
 				connecting = direct_join::connect_type::idle;
 				nm_set_item_text(m[label_status_text], "");
-				return 1;
+				return window_event_result::handled;
 			}
 			break;
 			
@@ -1051,7 +1058,7 @@ int manual_join_menu::subfunction_handler(const d_event &event)
 			if (connecting != direct_join::connect_type::idle)
 			{
 				if (net_udp_game_connect(this))
-					return -2;	// Success!
+					return window_event_result::close;	// Success!
 				else if (connecting == direct_join::connect_type::idle)
 					nm_set_item_text(m[label_status_text], "");
 			}
@@ -1063,20 +1070,16 @@ int manual_join_menu::subfunction_handler(const d_event &event)
 
 			net_udp_init(); // yes, redundant call but since the menu does not know any better it would allow any IP entry as long as Netgame-entry looks okay... my head hurts...
 			if (!convert_text_portstring(guestportbuf, UDP_MyPort, false, false))
-				return 1;
+				return window_event_result::handled;
 			sockres = udp_open_socket(UDP_Socket[0], UDP_MyPort);
 			if (sockres != 0)
-			{
-				return 1;
-			}
+				return window_event_result::handled;
 			uint16_t hostport;
 			if (!convert_text_portstring(hostportbuf, hostport, true, false))
-				return 1;
+				return window_event_result::handled;
 			// Resolve address
 			if (udp_dns_filladdr(host_addr, &hostaddrbuf[0], hostport, false, false) < 0)
-			{
-				return 1;
-			}
+				return window_event_result::handled;
 			else
 			{
 				s_last_inputs = *this;
@@ -1089,10 +1092,8 @@ int manual_join_menu::subfunction_handler(const d_event &event)
 				Netgame.players[0].protocol.udp.addr = host_addr;
 				connecting = direct_join::connect_type::connecting;
 				nm_set_item_text(m[label_status_text], "Connecting...");
-				return 1;
+				return window_event_result::handled;
 			}
-
-			break;
 		}
 			
 		case EVENT_WINDOW_CLOSE:
@@ -1103,7 +1104,7 @@ int manual_join_menu::subfunction_handler(const d_event &event)
 		default:
 			break;
 	}
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 void net_udp_manual_join_game()
