@@ -73,9 +73,15 @@ struct RAIIMix_Chunk : public Mix_Chunk
 	RAIIMix_Chunk &operator=(const RAIIMix_Chunk &) = delete;
 };
 
-static int fix2byte(const fix f)
+static uint8_t fix2byte(const fix f)
 {
-	return (f / 256) % 256;
+	if (f >= UINT8_MAX << 8)
+		/* Values greater than this would produce incorrect results if
+		 * shifted and truncated.  As a special case, coerce such values
+		 * to the largest representable return value.
+		 */
+		return UINT8_MAX;
+	return f >> 8;
 }
 
 uint8_t digi_initialised;
