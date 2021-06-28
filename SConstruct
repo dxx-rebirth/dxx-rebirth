@@ -1669,13 +1669,9 @@ void a()__attribute__((%s("a called")));
 		_main='''
 	(void)__builtin_bswap64(static_cast<uint64_t>(argc));
 	(void)__builtin_bswap32(static_cast<uint32_t>(argc));
-#ifdef DXX_HAVE_BUILTIN_BSWAP16
-/* Added in gcc-4.8 */
 	(void)__builtin_bswap16(static_cast<uint16_t>(argc));
-#endif
 ''',
 		_successflags_bswap16={'CPPDEFINES' : ['DXX_HAVE_BUILTIN_BSWAP', 'DXX_HAVE_BUILTIN_BSWAP16']},
-		_successflags_bswap={'CPPDEFINES' : ['DXX_HAVE_BUILTIN_BSWAP']},
 	):
 		"""
 Test whether the compiler accepts the gcc byte swapping intrinsic
@@ -1684,10 +1680,9 @@ swap instructions when the idiomatic swap is not.
 
 	u16 = (u16 << 8) | (u16 >> 8);
 
-The 32-bit version ([__builtin_bswap32][1]) and 64-bit version
-([__builtin_bswap64][2]) are present in all supported versions of
-gcc.  The 16-bit version ([__builtin_bswap16][3]) was added in
-gcc-4.8.
+The 16-bit ([__builtin_bswap16][3]), 32-bit ([__builtin_bswap32][1]),
+and 64-bit ([__builtin_bswap64][2]) versions are present in all
+supported versions of gcc.
 
 [1]: https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-g_t_005f_005fbuiltin_005fbswap32-4135
 [2]: https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-g_t_005f_005fbuiltin_005fbswap64-4136
@@ -1696,10 +1691,8 @@ gcc-4.8.
 		include = '''
 #include <cstdint>
 '''
-		Compile = self.Compile
-		if Compile(context, text=include, main=_main, msg='whether compiler implements __builtin_bswap{16,32,64} functions', successflags=_successflags_bswap16) or \
-			Compile(context, text=include, main=_main, msg='whether compiler implements __builtin_bswap{32,64} functions', successflags=_successflags_bswap):
-			return
+		self.Compile(context, text=include, main=_main, msg='whether compiler implements __builtin_bswap{16,32,64} functions', successflags=_successflags_bswap16)
+
 	implicit_tests.append(_implicit_test.RecordedTest('check_optimize_builtin_constant_p', "assume compiler optimizes __builtin_constant_p"))
 
 	@_custom_test
