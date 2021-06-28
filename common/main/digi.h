@@ -52,13 +52,11 @@ enum class sound_stack : uint8_t
 namespace dsx {
 struct digi_sound
 {
-        int bits;
         int freq;
 	int length;
 	uint8_t * data;
 };
 
-extern int digi_get_settings();
 extern int digi_init();
 #ifndef RELEASE
 extern void digi_reset();

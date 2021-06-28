@@ -400,7 +400,6 @@ int ds_load(int skip, const char * filename )	{
 		n.length	= PHYSFS_fileLength( cfp );
 		MALLOC( n.data, ubyte, n.length );
 		PHYSFS_read( cfp, n.data, 1, n.length );
-		n.bits = 8;
 		n.freq = 11025;
 	} else {
 		return 255;

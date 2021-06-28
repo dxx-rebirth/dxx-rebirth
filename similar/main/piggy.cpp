@@ -362,7 +362,6 @@ int piggy_register_sound( digi_sound * snd, const char * name, int in_file )
 #if defined(DXX_BUILD_DESCENT_I)
 //added/moved on 11/13/99 by Victor Rachels to ready for changing freq
 //#ifdef ALLEGRO
-        GameSounds[Num_sound_files].bits = snd->bits;
         GameSounds[Num_sound_files].freq = snd->freq;
 
 #ifdef ALLEGRO
@@ -495,7 +494,6 @@ int properties_init()
 		bogus_sound.data = bogus_data.data();
 //added on 11/13/99 by Victor Rachels to ready for changing freq
                 bogus_sound.freq = 11025;
-                bogus_sound.bits = 8;
 //end this section addition - VR
 		GameBitmapOffset[0] = pig_bitmap_offset::None;
 	}
@@ -614,7 +612,6 @@ int properties_init()
 #endif
 
 //added on 11/13/99 by Victor Rachels to ready for changing freq
-                temp_sound.bits = 8;
                 temp_sound.freq = 11025;
 //end this section addition - VR
 		temp_sound.data = reinterpret_cast<uint8_t *>(sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start);
