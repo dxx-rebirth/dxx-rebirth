@@ -476,11 +476,11 @@ static int main(int argc, char *argv[])
 		return(0);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if (! PHYSFSX_contfile_init("descent.hog", 1))
+	if (! PHYSFSX_addRelToSearchPath("descent.hog", physfs_search_path::append))
 #define DXX_NAME_NUMBER	"1"
 #define DXX_HOGFILE_NAMES	"descent.hog"
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (! PHYSFSX_contfile_init("descent2.hog", 1) && ! PHYSFSX_contfile_init("d2demo.hog", 1))
+	if (! PHYSFSX_addRelToSearchPath("descent2.hog", physfs_search_path::append) && ! PHYSFSX_addRelToSearchPath("d2demo.hog", physfs_search_path::append))
 #define DXX_NAME_NUMBER	"2"
 #define DXX_HOGFILE_NAMES	"descent2.hog or d2demo.hog"
 #endif

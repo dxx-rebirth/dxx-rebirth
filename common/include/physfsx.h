@@ -387,7 +387,6 @@ static inline void PHYSFSX_readMatrix(const char *const filename, const unsigned
 
 #define PHYSFSX_readMatrix(M,F)	((PHYSFSX_readMatrix)(__FILE__, __LINE__, __func__, (M), (F)))
 
-#define PHYSFSX_contfile_init PHYSFSX_addRelToSearchPath
 #define PHYSFSX_contfile_close PHYSFSX_removeRelFromSearchPath
 
 class PHYSFS_File_deleter
@@ -437,7 +436,13 @@ static inline int PHYSFSX_checkMatchingExtension(const std::array<file_extension
 	return PHYSFSX_checkMatchingExtension(filename, exts);
 }
 
-extern int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end);
+enum class physfs_search_path : int
+{
+	prepend,
+	append,
+};
+
+int PHYSFSX_addRelToSearchPath(const char *relname, physfs_search_path);
 extern int PHYSFSX_removeRelFromSearchPath(const char *relname);
 extern int PHYSFSX_fsize(const char *hogname);
 extern void PHYSFSX_listSearchPathContent();

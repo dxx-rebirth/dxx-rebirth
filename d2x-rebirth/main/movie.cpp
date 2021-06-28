@@ -639,7 +639,7 @@ static void draw_subtitles(const d_subtitle_state &SubtitleState, const int fram
 static int init_movie(const char *movielib, char resolution, int required, loaded_movie_t &movie)
 {
 	snprintf(&movie.filename[0], movie.filename.size(), "%s-%c.mvl", movielib, resolution);
-	auto r = PHYSFSX_contfile_init(&movie.filename[0], 0);
+	auto r = PHYSFSX_addRelToSearchPath(&movie.filename[0], physfs_search_path::prepend);
 	if (!r)
 	{
 		if (required || CGameArg.DbgVerbose)

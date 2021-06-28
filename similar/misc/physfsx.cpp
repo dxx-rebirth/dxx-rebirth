@@ -234,7 +234,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 	}
 #endif
 	
-	PHYSFSX_addRelToSearchPath("data", 1);	// 'Data' subdirectory
+	PHYSFSX_addRelToSearchPath("data", physfs_search_path::append);	// 'Data' subdirectory
 	
 	// For Macintosh, add the 'Resources' directory in the .app bundle to the searchpaths
 #if defined(__APPLE__) && defined(__MACH__)
@@ -275,7 +275,7 @@ namespace dcx {
 
 // Add a searchpath, but that searchpath is relative to an existing searchpath
 // It will add the first one it finds and return 1, if it doesn't find any it returns 0
-int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end)
+int PHYSFSX_addRelToSearchPath(const char *relname, physfs_search_path add_to_end)
 {
 	char relname2[PATH_MAX];
 
@@ -289,8 +289,8 @@ int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end)
 		return 0;
 	}
 
-	auto r = PHYSFS_mount(pathname.data(), nullptr, add_to_end);
-	const auto action = add_to_end ? "append" : "insert";
+	auto r = PHYSFS_mount(pathname.data(), nullptr, static_cast<int>(add_to_end));
+	const auto action = add_to_end != physfs_search_path::prepend ? "append" : "insert";
 	if (r)
 		con_printf(CON_DEBUG, "PHYSFS: %s canonical directory \"%s\" to search path from relative name \"%s\"", action, pathname.data(), relname);
 	else

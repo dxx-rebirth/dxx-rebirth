@@ -903,9 +903,9 @@ int load_mission_ham()
 		char althog[PATH_MAX];
 		snprintf(althog, sizeof(althog), MISSION_DIR "%.*s.hog", l - 4, static_cast<const char *>(*altham));
 		char *p = althog + sizeof(MISSION_DIR) - 1;
-		int exists = PHYSFSX_contfile_init(p, 0);
+		int exists = PHYSFSX_addRelToSearchPath(p, physfs_search_path::prepend);
 		if (!exists) {
-			exists = PHYSFSX_contfile_init(p = althog, 0);
+			exists = PHYSFSX_addRelToSearchPath(p = althog, physfs_search_path::prepend);
 		}
 		bm_read_extra_robots(*altham, Mission::descent_version_type::descent2z);
 		if (exists)
@@ -998,7 +998,7 @@ static const char *load_mission(const mle *const mission)
 	if (EMULATING_D1)
 #endif
 	{
-		if (!PHYSFSX_contfile_init("descent.hog", 0))
+		if (!PHYSFSX_addRelToSearchPath("descent.hog", physfs_search_path::prepend))
 #if defined(DXX_BUILD_DESCENT_I)
 			Error("descent.hog not available!\n");
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1063,7 +1063,7 @@ static const char *load_mission(const mle *const mission)
 #endif
 	{
 		strcpy(&mission_filename[mission->path.size() + 1], "hog");		//change extension
-			PHYSFSX_contfile_init(mission_filename.data(), 0);
+		PHYSFSX_addRelToSearchPath(mission_filename.data(), physfs_search_path::prepend);
 		set_briefing_filename(Briefing_text_filename, &*Current_mission->filename);
 		Ending_text_filename = Briefing_text_filename;
 	}
