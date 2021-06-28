@@ -316,6 +316,7 @@ struct netgame_menu : netgame_menu_items, newmenu
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 #endif
 
@@ -716,7 +717,7 @@ window_event_result dispatch_menu_option(const main_menu_item_index select)
 }
 
 #if DXX_USE_UDP
-int dispatch_menu_option(const netgame_menu_item_index select)
+window_event_result dispatch_menu_option(const netgame_menu_item_index select)
 {
 	switch (select)
 	{
@@ -735,7 +736,7 @@ int dispatch_menu_option(const netgame_menu_item_index select)
 		default:
 			break;
 	}
-	return 1;
+	return window_event_result::handled;
 }
 #endif
 
@@ -2910,6 +2911,12 @@ void gameplay_config()
 #if DXX_USE_UDP
 int netgame_menu::subfunction_handler(const d_event &event)
 {
+	(void)event;
+	return 0;
+}
+
+window_event_result netgame_menu::event_handler(const d_event &event)
+{
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_SELECTED:
@@ -2921,7 +2928,7 @@ int netgame_menu::subfunction_handler(const d_event &event)
 		default:
 			break;
 	}
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 void do_multi_player_menu()
