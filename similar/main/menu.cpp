@@ -2148,9 +2148,16 @@ struct graphics_config_menu : graphics_config_menu_items, newmenu
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 int graphics_config_menu::subfunction_handler(const d_event &event)
+{
+	(void)event;
+	return 0;
+}
+
+window_event_result graphics_config_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -2175,7 +2182,7 @@ int graphics_config_menu::subfunction_handler(const d_event &event)
 				window_create<screen_resolution_menu>();
 			else if (citem == opt_gr_hudmenu)
 				hud_config();
-			return 1;		// stay in menu
+			return window_event_result::handled;		// stay in menu
 		}
 		case EVENT_WINDOW_CLOSE:
 #if DXX_USE_OGL
@@ -2218,8 +2225,7 @@ int graphics_config_menu::subfunction_handler(const d_event &event)
 		default:
 			break;
 	}
-
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 void graphics_config()
