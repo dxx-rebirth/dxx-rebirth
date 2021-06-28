@@ -80,6 +80,7 @@ struct callback_newmenu : newmenu
 	const subfunction_type subfunction;
 	void *const userdata;		// For whatever - like with window system
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &) override;
 };
 
 struct step_down
@@ -158,9 +159,27 @@ newmenu_layout::adjusted_citem newmenu_layout::adjusted_citem::create(const part
 
 int callback_newmenu::subfunction_handler(const d_event &event)
 {
-	if (!subfunction)
-		return 0;
-	return (*subfunction)(this, event, userdata);
+	(void)event;
+	return 0;
+}
+
+window_event_result callback_newmenu::event_handler(const d_event &event)
+{
+	if (subfunction)
+	{
+		const auto rval = (*subfunction)(this, event, userdata);
+		if (rval)
+		{
+			if (rval < -1)
+			{
+				if (this->rval)
+					*this->rval = rval;
+				return window_event_result::close;
+			}
+			return window_event_result::handled;		// event handled
+		}
+	}
+	return newmenu::event_handler(event);
 }
 
 }
@@ -1601,27 +1620,6 @@ window_event_result newmenu::event_handler(const d_event &event)
 	if (joy_translate_menu_key(event))
 		return window_event_result::handled;
 #endif
-
-	{
-		const auto rval = subfunction_handler(event);
-#if 0	// No current instances of the subfunction closing the window itself (which is preferred)
-		// Enable when all subfunctions return a window_event_result
-		if (rval == window_event_result::deleted)
-			return rval;	// some subfunction closed the window: bail!
-#endif
-
-		if (rval)
-		{
-			if (rval < -1)
-			{
-				if (this->rval)
-					*this->rval = rval;
-				return window_event_result::close;
-			}
-
-			return window_event_result::handled;		// event handled
-		}
-	}
 
 	switch (event.type)
 	{
