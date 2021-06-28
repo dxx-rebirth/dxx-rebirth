@@ -139,32 +139,32 @@ public:
 	{
 	}
 	input_specific_type &input() {
-		return get_union_member(nm_private_input);
+		return get_union_member(nm_private.input);
 	}
 	const radio_specific_type &radio() const
 	{
-		return get_union_member(nm_private_radio);
+		return get_union_member(nm_private.radio);
 	}
 	radio_specific_type &radio() {
-		return get_union_member(nm_private_radio);
+		return get_union_member(nm_private.radio);
 	}
 	number_specific_type &number() {
-		return get_union_member(nm_private_number);
+		return get_union_member(nm_private.number);
 	}
 	imenu_specific_type &imenu() {
-		return get_union_member(nm_private_imenu);
+		return get_union_member(nm_private.imenu);
 	}
 	slider_specific_type &slider() {
-		return get_union_member(nm_private_slider);
+		return get_union_member(nm_private.slider);
 	}
 	number_slider_common_type *number_or_slider() {
-		return (type == nm_private_number.static_type || type == nm_private_slider.static_type)
-			? &nm_private_number
+		return (type == nm_private.number.static_type || type == nm_private.slider.static_type)
+			? &nm_private.number
 			: nullptr;
 	}
 	input_common_type *input_or_menu() {
-		return (type == nm_private_input.static_type || type == nm_private_imenu.static_type)
-			? &nm_private_input
+		return (type == nm_private.input.static_type || type == nm_private.imenu.static_type)
+			? &nm_private.input
 			: nullptr;
 	}
 	char    *text;          // The text associated with this item.
@@ -174,13 +174,15 @@ public:
 	short   w, h;
 	uint8_t right_offset;
 	nm_type type;           // What kind of item this is, see NM_TYPE_????? defines
-	union {
-		input_specific_type nm_private_input;
-		radio_specific_type nm_private_radio;
-		number_specific_type nm_private_number;
-		imenu_specific_type nm_private_imenu = {};
-		slider_specific_type nm_private_slider;
+	union nm_type_specific_data {
+		nm_type_specific_data() = default;
+		input_specific_type input;
+		radio_specific_type radio;
+		number_specific_type number;
+		imenu_specific_type imenu = {};
+		slider_specific_type slider;
 	};
+	nm_type_specific_data nm_private;
 };
 
 enum class tab_processing_flag : uint8_t
