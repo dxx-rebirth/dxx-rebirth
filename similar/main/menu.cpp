@@ -2852,9 +2852,16 @@ struct gameplay_config_menu : gameplay_config_menu_items, newmenu
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 int gameplay_config_menu::subfunction_handler(const d_event &event)
+{
+	(void)event;
+	return 0;
+}
+
+window_event_result gameplay_config_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -2865,7 +2872,7 @@ int gameplay_config_menu::subfunction_handler(const d_event &event)
                                 ReorderPrimary();
 			else if (citem == opt_gameplay_reordersecondary_menu)
                                 ReorderSecondary();
-			return 1;		// stay in menu
+			return window_event_result::handled;		// stay in menu
 		}
 		case EVENT_WINDOW_CLOSE:
 			{
@@ -2891,8 +2898,7 @@ int gameplay_config_menu::subfunction_handler(const d_event &event)
 		default:
 			break;
 	}
-
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 void gameplay_config()
