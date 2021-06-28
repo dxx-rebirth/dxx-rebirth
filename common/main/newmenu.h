@@ -123,10 +123,19 @@ public:
 	{
 		const char *text;
 	};
+	struct nm_item_menu
+	{
+		const char *text;
+	};
 	newmenu_item() = default;
 	newmenu_item(nm_item_text text) :
 		text(const_cast<char *>(text.text)),
 		type(nm_type::text)
+	{
+	}
+	newmenu_item(nm_item_menu menu) :
+		text(const_cast<char *>(menu.text)),
+		type(nm_type::menu)
 	{
 	}
 	input_specific_type &input() {
@@ -488,14 +497,6 @@ static inline void nm_set_item_menu(newmenu_item &ni, const char *text)
 }
 
 __attribute_nonnull()
-__attribute_warn_unused_result
-static inline newmenu_item nm_item_menu(const char *text)
-{
-	newmenu_item i;
-	return nm_set_item_menu(i, text), i;
-}
-
-__attribute_nonnull()
 static inline void nm_set_item_input(newmenu_item &ni, unsigned len, char *text, const char *const allowed_chars)
 {
 	ni.type = nm_type::input;
@@ -576,7 +577,7 @@ struct passive_messagebox_item
 {
 	std::array<newmenu_item, 1> m;
 	passive_messagebox_item(const char *const item) :
-		m{{nm_item_menu(item)}}
+		m{{newmenu_item::nm_item_menu{item}}}
 	{
 	}
 };

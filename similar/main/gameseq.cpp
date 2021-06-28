@@ -1325,7 +1325,7 @@ static void do_screen_message(const char *msg)
 	{
 		glitz_menu(menu_subtitle subtitle) :
 			items_type{{
-				nm_item_menu(TXT_OK),
+				newmenu_item::nm_item_menu{TXT_OK},
 			}},
 			passive_newmenu(menu_title{nullptr}, subtitle, menu_filename{GLITZ_BACKGROUND}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), *grd_curcanv, draw_box_flag::menu_background)
 		{

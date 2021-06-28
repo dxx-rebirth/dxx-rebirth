@@ -5969,8 +5969,8 @@ int net_udp_show_game_info()
 #undef GAME_INFO_FORMAT_TEXT
 
 	std::array<newmenu_item, 2> nm_message_items{{
-		nm_item_menu("JOIN GAME"),
-		nm_item_menu("GAME INFO"),
+		newmenu_item::nm_item_menu{"JOIN GAME"},
+		newmenu_item::nm_item_menu{"GAME INFO"},
 	}};
 	c = newmenu_do2(menu_title{"WELCOME"}, menu_subtitle{rinfo}, nm_message_items, show_game_info_handler, netgame);
 	if (c==0)

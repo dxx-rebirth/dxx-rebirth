@@ -277,8 +277,8 @@ struct marker_delete_are_you_sure_menu : std::array<newmenu_item, 2>, newmenu
 	d_marker_state &MarkerState;
 	marker_delete_are_you_sure_menu(grs_canvas &canvas, d_level_unique_object_state &LevelUniqueObjectState, segment_array &Segments, d_marker_state &MarkerState) :
 		array_type{{
-			nm_item_menu(TXT_YES),
-			nm_item_menu(TXT_NO),
+			newmenu_item::nm_item_menu{TXT_YES},
+			newmenu_item::nm_item_menu{TXT_NO},
 		}},
 		newmenu(menu_title{nullptr}, menu_subtitle{"Delete Marker?"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<array_type *>(this), 0), canvas),
 		LevelUniqueObjectState(LevelUniqueObjectState),
