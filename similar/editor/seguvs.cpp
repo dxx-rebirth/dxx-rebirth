@@ -84,11 +84,10 @@ static fix get_average_light_at_vertex(const vertnum_t vnum, segnum_t *segs)
 			Assert(segs - original_segs < MAX_LIGHT_SEGS);
 			(void)original_segs;
 
-			range_for (const auto &&z, zip(segp->children, segp->unique_segment::sides, Side_to_verts))
+			for (const auto &&[child_segnum, uside, vp] : zip(segp->children, segp->unique_segment::sides, Side_to_verts))
 			{
-				if (!IS_CHILD(std::get<0>(z))) {
-					auto &uside = std::get<1>(z);
-					auto &vp = std::get<2>(z);
+				if (!IS_CHILD(child_segnum))
+				{
 					const auto vb = begin(vp);
 					const auto ve = end(vp);
 					const auto vi = std::find(vb, ve, relvnum);
@@ -137,11 +136,10 @@ static void set_average_light_at_vertex(vertnum_t vnum)
 				break;
 
 		if (relvnum < MAX_VERTICES_PER_SEGMENT) {
-			range_for (const auto &&z, zip(ssegp.children, usegp.sides, Side_to_verts))
+			for (const auto &&[child_segnum, sidep, vp] : zip(ssegp.children, usegp.sides, Side_to_verts))
 			{
-				if (!IS_CHILD(std::get<0>(z))) {
-					unique_side &sidep = std::get<1>(z);
-					auto &vp = std::get<2>(z);
+				if (!IS_CHILD(child_segnum))
+				{
 					const auto vb = begin(vp);
 					const auto ve = end(vp);
 					const auto vi = std::find(vb, ve, relvnum);
@@ -571,13 +569,14 @@ static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned c
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	uvl		uv1,uv2;
-        int             v,bv1,bv2, vv1, vv2;
+        int             bv1,bv2, vv1, vv2;
         int             cv1=0, cv2=0;
 
 	bv1 = -1;	bv2 = -1;
 
 	// Find which vertices in segment match abs_id1, abs_id2
-	for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
+	for (const unsigned v : xrange(MAX_VERTICES_PER_SEGMENT))
+	{
 		if (base_seg.s.verts[v] == abs_id1)
 			bv1 = v;
 		if (base_seg.s.verts[v] == abs_id2)
@@ -598,7 +597,8 @@ static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned c
 	//	Set vv1, vv2 to relative vertex ids (in 0..3) in connecting side which correspond to cv1, cv2
 	vv1 = -1;	vv2 = -1;
 	auto &base_uvls = base_seg.u.sides[base_common_side].uvls;
-	for (v=0; v<4; v++) {
+	for (const auto v : xrange(4u))
+	{
 		if (bv1 == Side_to_verts[base_common_side][v])
 			uv1 = base_uvls[v];
 
@@ -628,15 +628,13 @@ static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned c
 //	great confusion.
 static void get_side_ids(const shared_segment &base_seg, const shared_segment &con_seg, int base_side, int con_side, const vertnum_t abs_id1, const vertnum_t abs_id2, int *base_common_side, int *con_common_side)
 {
-	int		v0;
-
 	*base_common_side = -1;
 
 	//	Find side in base segment which contains the two global vertex ids.
 	for (const auto &&[idx, base_vp] : enumerate(Side_to_verts))
 	{
 		if (idx != base_side) {
-			for (v0=0; v0<4; v0++)
+			for (const auto v0 : xrange(4u))
 			{
 				auto &verts = base_seg.verts;
 				if ((verts[static_cast<int>(base_vp[v0])] == abs_id1 && verts[static_cast<int>(base_vp[(v0+1) % 4])] == abs_id2) ||
@@ -656,7 +654,7 @@ static void get_side_ids(const shared_segment &base_seg, const shared_segment &c
 	for (const auto &&[idx, con_vp] : enumerate(Side_to_verts))
 	{
 		if (idx != con_side) {
-			for (v0=0; v0<4; v0++)
+			for (const auto v0 : xrange(4u))
 			{
 				auto &verts = con_seg.verts;
 				if ((verts[static_cast<int>(con_vp[(v0 + 1) % 4])] == abs_id1 && verts[static_cast<int>(con_vp[v0])] == abs_id2) ||
@@ -937,7 +935,6 @@ static int Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 //	If quick_light set, then don't use find_vector_intersection
 static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
-	int			vertnum;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
@@ -980,23 +977,22 @@ static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix l
 					{
 						auto &side_normalp = srside.normals[0];	//	kinda stupid? always use vector 0.
 
-						for (vertnum=0; vertnum<4; vertnum++) {
-							fix			distance_to_point, light_at_point, light_dot;
-
+						for (const auto vertnum : xrange(4u))
+						{
 							const auto abs_vertnum = rsegp->verts[Side_to_verts[sidenum][vertnum]];
 							vms_vector vert_location = *vcvertptr(abs_vertnum);
-							distance_to_point = vm_vec_dist_quick(vert_location, light_location);
+							const fix distance_to_point = vm_vec_dist_quick(vert_location, light_location);
 							const auto vector_to_light = vm_vec_normalized(vm_vec_sub(light_location, vert_location));
 
 							//	Hack: In oblong segments, it's possible to get a very small dot product
 							//	but the light source is very nearby (eg, illuminating light itself!).
-							light_dot = vm_vec_dot(vector_to_light, side_normalp);
+							fix light_dot = vm_vec_dot(vector_to_light, side_normalp);
 							if (distance_to_point < F1_0)
 								if (light_dot > 0)
 									light_dot = (light_dot + F1_0)/2;
 
 							if (light_dot > 0) {
-								light_at_point = fixdiv(fixmul(light_dot, light_dot), distance_to_point);
+								fix light_at_point = fixdiv(fixmul(light_dot, light_dot), distance_to_point);
 								light_at_point = fixmul(light_at_point, Magical_light_constant);
 								if (light_at_point >= 0) {
 									fvi_info	hit_data;

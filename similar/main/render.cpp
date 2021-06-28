@@ -62,6 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
+#include "d_enumerate.h"
 #include "d_range.h"
 #include "partial_range.h"
 #include "segiter.h"
@@ -808,8 +809,6 @@ static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, cons
 	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, verts).uand)
 	{		//all off screen?
-		g3s_point *pnt;
-
 		//render curedge of curside of curseg in green
 
 		const uint8_t color = BM_XRGB(0, 63, 0);
@@ -818,7 +817,7 @@ static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, cons
 
 		//draw a little cross at the current vert
 
-		pnt = &Segment_points[verts[Side_to_verts[_side][vert]]];
+		const auto pnt = &Segment_points[verts[sv[vert]]];
 
 		g3_project_point(*pnt);		//make sure projected
 
@@ -1327,13 +1326,14 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 
 			sort_child_array_t child_list;		//list of ordered sides to process
 			uint_fast32_t n_children = 0;							//how many sides in child_list
-			for (uint_fast32_t c = 0;c < MAX_SIDES_PER_SEGMENT;c++) {		//build list of sides
+			for (const auto &&[c, sv] : enumerate(Side_to_verts))
+			{		//build list of sides
 				const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, c);
 				if (wid & WALL_IS_DOORWAY_FLAG::rendpast)
 				{
 					if (auto codes_and = uor)
 					{
-						range_for (const auto i, Side_to_verts[c])
+						range_for (const auto i, sv)
 							codes_and &= Segment_points[seg->verts[i]].p3_codes;
 						if (codes_and)
 							continue;

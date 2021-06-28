@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
 #include "d_range.h"
+#include "d_zip.h"
 #include "cast_range_result.h"
 
 using std::min;
@@ -134,6 +135,14 @@ static void create_vertex_list_from_invalid_side(const shared_segment &segp, con
 	throw shared_side::illegal_type(segp, sidep);
 }
 
+// Fill in array with four absolute point numbers for a given side
+static void get_side_verts(side_vertnum_list_t &vertlist, const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &vp, const unsigned sidenum)
+{
+	auto &sv = Side_to_verts[sidenum];
+	for (auto &&[ovl, isv] : zip(vertlist, sv))
+		ovl = vp[isv];
+}
+
 }
 
 // ------------------------------------------------------------------------------------------
@@ -176,26 +185,11 @@ bool get_side_is_quad(const shared_side &sidep)
 	}
 }
 
-namespace {
-
-// Fill in array with four absolute point numbers for a given side
-static void get_side_verts(side_vertnum_list_t &vertlist, const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &vp, const unsigned sidenum)
-{
-	auto &sv = Side_to_verts[sidenum];
-	for (unsigned i = 4; i--;)
-		vertlist[i] = vp[sv[i]];
-}
-
-}
-
 void get_side_verts(side_vertnum_list_t &vertlist, const shared_segment &segp, const unsigned sidenum)
 {
 	get_side_verts(vertlist, segp.verts, sidenum);
 }
 
-}
-
-namespace dsx {
 namespace {
 
 template <typename T, typename V>
@@ -241,7 +235,12 @@ static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const shared
 {
 	return create_vertex_lists_from_values(va, segp, sidep, f(0), f(1), f(2), f(3));
 }
+
 }
+
+}
+
+namespace dsx {
 
 #if DXX_USE_EDITOR
 // -----------------------------------------------------------------------------------
@@ -1140,10 +1139,10 @@ static void extract_vector_from_segment(fvcvertptr &vcvertptr, const shared_segm
 	auto &start = Side_to_verts[istart];
 	auto &end = Side_to_verts[iend];
 	auto &verts = sp.verts;
-	range_for (const uint_fast32_t i, xrange(4u))
+	for (const auto &&[vs, ve] : zip(start, end))
 	{
-		vm_vec_sub2(vp, vcvertptr(verts[start[i]]));
-		vm_vec_add2(vp, vcvertptr(verts[end[i]]));
+		vm_vec_sub2(vp, vcvertptr(verts[vs]));
+		vm_vec_add2(vp, vcvertptr(verts[ve]));
 	}
 	vm_vec_scale(vp,F1_0/4);
 }
