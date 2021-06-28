@@ -3697,6 +3697,7 @@ struct more_game_options_menu : more_game_options_menu_items, newmenu
 	more_game_options_menu(unsigned game_is_cooperative, grs_canvas &);
 	static void net_udp_more_game_options(unsigned game_is_cooperative);
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 more_game_options_menu::more_game_options_menu(const unsigned game_is_cooperative, grs_canvas &canvas) :
@@ -3765,6 +3766,12 @@ void more_game_options_menu::net_udp_more_game_options(const unsigned game_is_co
 
 int more_game_options_menu::subfunction_handler(const d_event &event)
 {
+	(void)event;
+	return 0;
+}
+
+window_event_result more_game_options_menu::event_handler(const d_event &event)
+{
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
@@ -3784,9 +3791,8 @@ int more_game_options_menu::subfunction_handler(const d_event &event)
 				{
 					nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You can't change those for coop!"});
 					menus[opt_playtime].value=0;
-					return 0;
+					return window_event_result::ignored;
 				}
-				
 				Netgame.PlayTimeAllowed = std::chrono::duration<int, netgame_info::play_time_allowed_abi_ratio>(menus[opt_playtime].value);
 				update_max_play_time_string();
 			}
@@ -3796,9 +3802,8 @@ int more_game_options_menu::subfunction_handler(const d_event &event)
 				{
 					nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You can't change those for coop!"});
 					menus[opt_killgoal].value=0;
-					return 0;
+					return window_event_result::ignored;
 				}
-				
 				Netgame.KillGoal=menus[opt_killgoal].value;
 				update_kill_goal_string();
 			}
@@ -3840,7 +3845,7 @@ int more_game_options_menu::subfunction_handler(const d_event &event)
 				net_udp_set_grant_power();
 			else
 				break;
-			return 1;
+			return window_event_result::handled;
 		}
 		case EVENT_WINDOW_CLOSE:
 			read();
@@ -3859,7 +3864,7 @@ int more_game_options_menu::subfunction_handler(const d_event &event)
 		default:
 			break;
 	}
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 struct param_opt
