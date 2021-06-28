@@ -955,6 +955,7 @@ struct netgame_list_game_menu : netgame_list_game_menu_items, direct_join, newme
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 manual_join_user_inputs manual_join_menu_items::s_last_inputs;
@@ -1150,6 +1151,12 @@ static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_fl
 
 int netgame_list_game_menu::subfunction_handler(const d_event &event)
 {
+	(void)event;
+	return 0;
+}
+
+window_event_result netgame_list_game_menu::event_handler(const d_event &event)
+{
 	// Polling loop for Join Game menu
 	int newpage = 0;
 	static int NLPage = 0;
@@ -1176,7 +1183,7 @@ int netgame_list_game_menu::subfunction_handler(const d_event &event)
 			if (connecting != direct_join::connect_type::idle)
 			{
 				if (net_udp_game_connect(this))
-					return -2;	// Success!
+					return window_event_result::close;	// Success!
 				if (connecting == direct_join::connect_type::idle) // connect wasn't successful - get rid of the message.
 					nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\t");
 			}
@@ -1254,7 +1261,7 @@ int netgame_list_game_menu::subfunction_handler(const d_event &event)
 				{
 					connecting = direct_join::connect_type::idle;
 					nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\t");
-					return 1;
+					return window_event_result::handled;
 				}
 				break;
 			}
@@ -1277,14 +1284,13 @@ int netgame_list_game_menu::subfunction_handler(const d_event &event)
 				gameid = Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-4].TrackerGameID;
 #endif
 				nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\tConnecting. Please wait...");
-				return 1;
 			}
 			else
 			{
 				window_create<passive_messagebox>(menu_title{TXT_SORRY}, menu_subtitle{TXT_INVALID_CHOICE}, TXT_OK, grd_curscreen->sc_canvas);
-				return -1; // invalid game selected - stay in the menu
+				// invalid game selected - stay in the menu
 			}
-			break;
+			return window_event_result::handled;
 		}
 		case EVENT_WINDOW_CLOSE:
 		{
@@ -1293,7 +1299,7 @@ int netgame_list_game_menu::subfunction_handler(const d_event &event)
 				net_udp_close();
 				Network_status = NETSTAT_MENU;	// they cancelled
 			}
-			return 0;
+			return window_event_result::ignored;
 		}
 		default:
 			break;
@@ -1302,7 +1308,7 @@ int netgame_list_game_menu::subfunction_handler(const d_event &event)
 	net_udp_listen();
 
 	if (!num_active_udp_changed && !newpage)
-		return 0;
+		return newmenu::event_handler(event);
 
 	num_active_udp_changed = 0;
 
@@ -1364,7 +1370,7 @@ int netgame_list_game_menu::subfunction_handler(const d_event &event)
 		auto &p = ljtext[i];
 		snprintf(&p[0], p.size(), "%d.\t%.24s \t%.7s \t%3u/%u \t%.24s \t %s \t%s", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1, GameName.data(), (gamemode < std::size(GMNamesShrt)) ? GMNamesShrt[gamemode] : "INVALID", nplayers, augi.max_numplayers, MissName.data(), levelname, status);
 	}
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 void net_udp_list_join_game()
