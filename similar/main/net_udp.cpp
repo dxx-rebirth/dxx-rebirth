@@ -3489,7 +3489,7 @@ class more_game_options_menu_items
 {
 protected:
 	const unsigned game_is_cooperative;
-	char packstring[sizeof("99")];
+	std::array<char, sizeof("99")> packstring;
 	std::array<char, sizeof("65535")> portstring;
 	/* Reactor life and Maximum time are stored in a uint32_t, and have
 	 * a theoretical maximum of 1092 after converting from internal game
@@ -3567,7 +3567,7 @@ public:
 #endif
 	void update_packstring()
 	{
-		snprintf(packstring, sizeof(packstring), "%u", Netgame.PacketsPerSec);
+		snprintf(packstring.data(), packstring.size(), "%u", Netgame.PacketsPerSec);
 	}
 	void update_portstring()
 	{
@@ -3666,7 +3666,7 @@ public:
 			(thief_cannot_steal_energy_weapons ? ThiefModifier::NoEnergyWeapons : 0);
 #endif
 		char *p;
-		auto pps = strtol(packstring, &p, 10);
+		auto pps = strtol(packstring.data(), &p, 10);
 		if (!*p)
 			Netgame.PacketsPerSec = pps;
 #if DXX_USE_TRACKER
@@ -3859,7 +3859,7 @@ struct param_opt
 #if defined(DXX_BUILD_DESCENT_II)
 	int capture, hoard, team_hoard;
 #endif
-	char slevel[sizeof("S100")] = "1";
+	std::array<char, sizeof("S100")> slevel{{"1"}};
 	char srmaxnet[sizeof("Maximum players: 99")];
 	std::array<newmenu_item, 22> m;
 	void update_netgame_max_players()
@@ -3913,11 +3913,11 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			{
 				auto &slevel = opt->slevel;
 #if defined(DXX_BUILD_DESCENT_I)
-				if (tolower(static_cast<unsigned>(*slevel)) == 's')
-					Netgame.levelnum = -atoi(slevel+1);
+				if (tolower(static_cast<unsigned>(slevel[0])) == 's')
+					Netgame.levelnum = -strtol(&slevel[1], 0, 0);
 				else
 #endif
-					Netgame.levelnum = atoi(slevel);
+					Netgame.levelnum = strtol(slevel.data(), 0, 0);
 			}
 			
 			if (citem == opt->maxnet)
@@ -3972,7 +3972,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 #endif
 			{
 				auto &slevel = opt->slevel;
-				strcpy(slevel, "1");
+				strcpy(slevel.data(), "1");
 				window_create<passive_messagebox>(menu_title{TXT_ERROR}, menu_subtitle{TXT_LEVEL_OUT_RANGE}, TXT_OK, grd_curscreen->sc_canvas);
 				return 1;
 			}
@@ -4374,7 +4374,7 @@ static int net_udp_select_teams()
 
 	// Here comes da menu
 menu:
-	nm_set_item_input(m[0], team_names[0].buffer());
+	nm_set_item_input(m[0], team_names[0].a);
 
 	unsigned opt = 1;
 	for (int i = 0; i < N_players; i++)
@@ -4385,7 +4385,7 @@ menu:
 		}
 	}
 	opt_team_b = opt;
-	nm_set_item_input(m[opt], team_names[1].buffer());
+	nm_set_item_input(m[opt], team_names[1].a);
 	opt++;
 	for (int i = 0; i < N_players; i++)
 	{

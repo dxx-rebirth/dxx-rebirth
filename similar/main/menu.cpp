@@ -408,7 +408,7 @@ static int MakeNewPlayerFile(int allow_abort)
 		{
 			pilot_name_menu(callsign_t &text) :
 				items_type{{
-					nm_item_input(text.buffer(), playername_allowed_chars),
+					nm_item_input(text.a, playername_allowed_chars),
 				}},
 				passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_ENTER_PILOT_NAME}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), *grd_curcanv)
 			{

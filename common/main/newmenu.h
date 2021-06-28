@@ -507,12 +507,6 @@ static inline void nm_set_item_input(newmenu_item &ni, unsigned len, char *text,
 }
 
 template <std::size_t len>
-static inline void nm_set_item_input(newmenu_item &ni, char (&text)[len], const char *const allowed_chars = nullptr)
-{
-	nm_set_item_input(ni, len, text, allowed_chars);
-}
-
-template <std::size_t len>
 static inline void nm_set_item_input(newmenu_item &ni, std::array<char, len> &text, const char *const allowed_chars = nullptr)
 {
 	nm_set_item_input(ni, len, text.data(), allowed_chars);

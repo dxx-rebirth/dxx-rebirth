@@ -1616,7 +1616,7 @@ constexpr cheat_code cheat_codes[] = {
 
 struct levelwarp_menu_items
 {
-	char text[8] = "";
+	std::array<char, 8> text{};
 	std::array<newmenu_item, 1> menu_items{{
 		nm_item_input(text),
 	}};
@@ -1637,7 +1637,7 @@ void levelwarp_menu::handle_close_event()
 	if (!text[0])
 		return;
 	char *p;
-	const auto l = strtoul(text, &p, 0);
+	const auto l = strtoul(text.data(), &p, 0);
 	if (*p)
 		return;
 	/* No handling for secret levels.  Warping to secret
@@ -2033,7 +2033,7 @@ public:
 struct wimp_menu_items
 {
 	object &plrobj;
-	char score_text[sizeof("2147483647")];
+	std::array<char, sizeof("2147483647")> score_text;
 	enum {
 		DXX_WIMP_MENU(ENUM)
 	};
@@ -2042,7 +2042,7 @@ struct wimp_menu_items
 		plrobj(plr)
 	{
 		auto &pl_info = plrobj.ctype.player_info;
-		snprintf(score_text, sizeof(score_text), "%d", pl_info.mission.score);
+		snprintf(score_text.data(), score_text.size(), "%d", pl_info.mission.score);
 		const uint8_t plr_laser_level = static_cast<uint8_t>(pl_info.laser_level);
 		DXX_WIMP_MENU(ADD);
 	}
@@ -2069,7 +2069,7 @@ int wimp_menu::subfunction_handler(const d_event &event)
 				DXX_WIMP_MENU(READ);
 				pl_info.laser_level = laser_level{plr_laser_level};
 				char *p;
-				auto ul = strtoul(score_text, &p, 10);
+				auto ul = strtoul(score_text.data(), &p, 10);
 				if (!*p)
 					pl_info.mission.score = static_cast<int>(ul);
 				init_gauges();
