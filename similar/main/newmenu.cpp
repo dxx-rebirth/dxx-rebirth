@@ -1657,13 +1657,25 @@ int (vnm_messagebox_aN)(const menu_title title, const nm_messagebox_tie &tie, co
 	return nm_messagebox_str(title, tie, menu_subtitle{nm_text});
 }
 
+namespace dcx {
+
 int nm_messagebox_str(const menu_title title, const nm_messagebox_tie &tie, const menu_subtitle subtitle)
 {
-	std::array<newmenu_item, nm_messagebox_tie::maximum_arity> items;
+	auto wind = window_create<messagebox_newmenu>(title, subtitle, tie, grd_curscreen->sc_canvas);
+	return newmenu::process_until_closed(wind);
+}
+
+messagebox_newmenu::messagebox_newmenu(const menu_title title, const menu_subtitle subtitle, const nm_messagebox_tie &tie, grs_canvas &canvas) :
+	newmenu(title, subtitle, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, create_adjusted_citem(*this, tie), canvas)
+{
+}
+
+messagebox_newmenu::adjusted_citem messagebox_newmenu::create_adjusted_citem(std::array<newmenu_item, nm_messagebox_tie::maximum_arity> &items, const nm_messagebox_tie &tie)
+{
 	auto &&item_range = partial_range(items, tie.count());
 	for (auto &&[i, s] : zip(item_range, tie))
 		nm_set_item_menu(i, s);
-	return newmenu_do2(title, subtitle, item_range, unused_newmenu_subfunction, unused_newmenu_userdata);
+	return adjusted_citem::create(item_range, 0);
 }
 
 // Example listbox callback function...
@@ -1688,8 +1700,6 @@ int nm_messagebox_str(const menu_title title, const nm_messagebox_tie &tie, cons
 // }
 
 #define LB_ITEMS_ON_SCREEN 8
-
-namespace dcx {
 
 listbox::listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, uint8_t allow_abort_flag) :
 	listbox_layout(citem, nitems, item, title), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY),

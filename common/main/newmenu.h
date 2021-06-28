@@ -502,7 +502,6 @@ int newmenu_get_citem(newmenu *menu);
 
 typedef cstring_tie<5> nm_messagebox_tie;
 
-int nm_messagebox_str(menu_title title, const nm_messagebox_tie &tie, menu_subtitle str);
 int vnm_messagebox_aN(menu_title title, const nm_messagebox_tie &tie, const char *format, ...) __attribute_format_printf(3, 4);
 
 void nm_draw_background(grs_canvas &, int x1, int y1, int x2, int y2);
@@ -529,6 +528,16 @@ void nm_draw_background(grs_canvas &, int x1, int y1, int x2, int y2);
 // }
 
 namespace dcx {
+
+int nm_messagebox_str(menu_title title, const nm_messagebox_tie &tie, menu_subtitle str);
+
+struct messagebox_newmenu :
+	std::array<newmenu_item, nm_messagebox_tie::maximum_arity>,
+	newmenu
+{
+	messagebox_newmenu(const menu_title title, const menu_subtitle subtitle, const nm_messagebox_tie &tie, grs_canvas &canvas);
+	static adjusted_citem create_adjusted_citem(std::array<newmenu_item, nm_messagebox_tie::maximum_arity> &items, const nm_messagebox_tie &tie);
+};
 
 struct listbox : listbox_layout, window
 {
