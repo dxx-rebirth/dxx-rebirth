@@ -251,6 +251,45 @@ static inline const char *get_placement_slot_string(const unsigned position)
 	}
 }
 
+struct request_user_high_score_comment :
+	std::array<char, sizeof(all_scores::cool_saying)>,
+	std::array<newmenu_item, 2>,
+	newmenu
+{
+	all_scores &scores;
+	request_user_high_score_comment(all_scores &scores, grs_canvas &canvas) :
+		std::array<newmenu_item, 2>{{
+			newmenu_item::nm_item_text{TXT_COOL_SAYING},
+			newmenu_item::nm_item_input(prepare_input_saying(*this)),
+		}},
+		newmenu(menu_title{TXT_HIGH_SCORE}, menu_subtitle{TXT_YOU_PLACED_1ST}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<std::array<newmenu_item, 2> *>(this), 0), canvas),
+		scores(scores)
+	{
+	}
+	virtual window_event_result event_handler(const d_event &) override;
+	static std::array<char, sizeof(all_scores::cool_saying)> &prepare_input_saying(std::array<char, sizeof(all_scores::cool_saying)> &buf)
+	{
+		buf.front() = 0;
+		return buf;
+	}
+};
+
+window_event_result request_user_high_score_comment::event_handler(const d_event &event)
+{
+	switch (event.type)
+	{
+		case EVENT_WINDOW_CLOSE:
+			{
+				std::array<char, sizeof(all_scores::cool_saying)> &text1 = *this;
+				strcpy(scores.cool_saying, text1[0] ? text1.data() : "No comment");
+			}
+			break;
+		default:
+			break;
+	}
+	return newmenu::event_handler(event);
+}
+
 }
 
 }
@@ -284,13 +323,7 @@ void scores_maybe_add_player()
 	} else {
 		if (iter_position == begin_score_stats)
 		{
-			std::array<char, sizeof(scores.cool_saying)> text1{};
-			std::array<newmenu_item, 2> m{{
-				newmenu_item::nm_item_text{TXT_COOL_SAYING},
-				newmenu_item::nm_item_input(text1),
-			}};
-			newmenu_do2(menu_title{TXT_HIGH_SCORE}, menu_subtitle{TXT_YOU_PLACED_1ST}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
-			strcpy(scores.cool_saying, text1[0] ? text1.data() : "No comment");
+			run_blocking_newmenu<request_user_high_score_comment>(scores, grd_curscreen->sc_canvas);
 		} else {
 			nm_messagebox(menu_title{TXT_HIGH_SCORE}, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
 		}
