@@ -296,6 +296,7 @@ struct main_menu : main_menu_items, newmenu
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 static window_event_result do_new_game_menu();
@@ -651,7 +652,7 @@ static void draw_copyright()
 }
 
 //returns flag, true means quit menu
-int dispatch_menu_option(const main_menu_item_index select)
+window_event_result dispatch_menu_option(const main_menu_item_index select)
 {
 	switch (select)
 	{
@@ -686,7 +687,7 @@ int dispatch_menu_option(const main_menu_item_index select)
 			if (!SafetyCheck())
 				break;
 #endif
-			return 0;
+			return window_event_result::close;
 
 		case main_menu_item_index::create_new_pilot_profile:
 			RegisterPlayer();
@@ -711,7 +712,7 @@ int dispatch_menu_option(const main_menu_item_index select)
 		default:
 			break;
 	}
-	return 1;		// stay in main menu unless quitting
+	return window_event_result::handled;		// stay in main menu unless quitting
 }
 
 #if DXX_USE_UDP
@@ -741,6 +742,12 @@ int dispatch_menu_option(const netgame_menu_item_index select)
 // ------------------------------------------------------------------------
 int main_menu::subfunction_handler(const d_event &event)
 {
+	(void)event;
+	return 0;
+}
+
+window_event_result main_menu::event_handler(const d_event &event)
+{
 	switch (event.type)
 	{
 		case EVENT_WINDOW_CREATED:
@@ -756,14 +763,14 @@ int main_menu::subfunction_handler(const d_event &event)
 		case EVENT_KEY_COMMAND:
 			// Don't allow them to hit ESC in the main menu.
 			if (event_key_get(event)==KEY_ESC)
-				return 1;
+				return window_event_result::ignored;
 			break;
 
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 			// Don't allow mousebutton-closing in main menu.
 			if (event_mouse_get_button(event) == MBTN_RIGHT)
-				return 1;
+				return window_event_result::ignored;
 			break;
 
 		case EVENT_IDLE:
@@ -791,10 +798,6 @@ int main_menu::subfunction_handler(const d_event &event)
 #endif
 				{
 					newdemo_start_playback(NULL);		// Randomly pick a file, assume native endian (crashes if not)
-#if defined(DXX_BUILD_DESCENT_II)
-					if (Newdemo_state == ND_STATE_PLAYBACK)
-						return 0;
-#endif
 				}
 			}
 			break;
@@ -809,14 +812,10 @@ int main_menu::subfunction_handler(const d_event &event)
 			return dispatch_menu_option(static_cast<main_menu_item_index>(citem));
 		}
 
-		case EVENT_WINDOW_CLOSE:
-			break;
-
 		default:
 			break;
 	}
-
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 }
