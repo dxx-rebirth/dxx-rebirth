@@ -1876,9 +1876,16 @@ struct reticle_config_menu : reticle_config_menu_items, newmenu
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 int reticle_config_menu::subfunction_handler(const d_event &event)
+{
+	(void)event;
+	return 0;
+}
+
+window_event_result reticle_config_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -1898,7 +1905,7 @@ int reticle_config_menu::subfunction_handler(const d_event &event)
 		default:
 			break;
 	}
-	return 0;
+	return newmenu::event_handler(event);
 }
 #undef DXX_RETICLE_CONFIG_MENU
 #undef DXX_RETICLE_TYPE_OGL
