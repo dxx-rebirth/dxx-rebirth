@@ -348,10 +348,11 @@ void init_editor()
 	ModeFlag = Game_wind ? 3 : 2;	// go back to where we were unless we loaded everything properly
 
 	// first, make sure we can find the files we need
-	PHYSFSX_addRelToSearchPath("editor/data", physfs_search_path::append);	// look in source directory first (for work in progress)
-	PHYSFSX_addRelToSearchPath("editor", physfs_search_path::append);		// then in editor directory
-	PHYSFSX_addRelToSearchPath("editor.zip", physfs_search_path::append);	// then in a zip file
-	PHYSFSX_addRelToSearchPath("editor.dxa", physfs_search_path::append);	// or addon pack
+	std::array<char, PATH_MAX> pathname;
+	PHYSFSX_addRelToSearchPath("editor/data", pathname, physfs_search_path::append);	// look in source directory first (for work in progress)
+	PHYSFSX_addRelToSearchPath("editor", pathname, physfs_search_path::append);		// then in editor directory
+	PHYSFSX_addRelToSearchPath("editor.zip", pathname, physfs_search_path::append);	// then in a zip file
+	PHYSFSX_addRelToSearchPath("editor.dxa", pathname, physfs_search_path::append);	// or addon pack
 
 	if (!ui_init())
 	{

@@ -234,7 +234,8 @@ bool PHYSFSX_init(int argc, char *argv[])
 	}
 #endif
 	
-	PHYSFSX_addRelToSearchPath("data", physfs_search_path::append);	// 'Data' subdirectory
+	std::array<char, PATH_MAX> pathname;
+	PHYSFSX_addRelToSearchPath("data", pathname, physfs_search_path::append);	// 'Data' subdirectory
 	
 	// For Macintosh, add the 'Resources' directory in the .app bundle to the searchpaths
 #if defined(__APPLE__) && defined(__MACH__)
@@ -275,14 +276,13 @@ namespace dcx {
 
 // Add a searchpath, but that searchpath is relative to an existing searchpath
 // It will add the first one it finds and return 1, if it doesn't find any it returns 0
-int PHYSFSX_addRelToSearchPath(const char *relname, physfs_search_path add_to_end)
+int PHYSFSX_addRelToSearchPath(const char *relname, std::array<char, PATH_MAX> &pathname, physfs_search_path add_to_end)
 {
 	char relname2[PATH_MAX];
 
 	snprintf(relname2, sizeof(relname2), "%s", relname);
 	PHYSFSEXT_locateCorrectCase(relname2);
 
-	std::array<char, PATH_MAX> pathname;
 	if (!PHYSFSX_getRealPath(relname2, pathname))
 	{
 		con_printf(CON_DEBUG, "PHYSFS: ignoring map request: no canonical path for relative name \"%s\"", relname2);

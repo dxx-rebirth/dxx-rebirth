@@ -475,12 +475,13 @@ static int main(int argc, char *argv[])
 	if (!PHYSFSX_checkSupportedArchiveTypes())
 		return(0);
 
+	std::array<char, PATH_MAX> pathname;
 #if defined(DXX_BUILD_DESCENT_I)
-	if (! PHYSFSX_addRelToSearchPath("descent.hog", physfs_search_path::append))
+	if (! PHYSFSX_addRelToSearchPath("descent.hog", pathname, physfs_search_path::append))
 #define DXX_NAME_NUMBER	"1"
 #define DXX_HOGFILE_NAMES	"descent.hog"
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (! PHYSFSX_addRelToSearchPath("descent2.hog", physfs_search_path::append) && ! PHYSFSX_addRelToSearchPath("d2demo.hog", physfs_search_path::append))
+	if (! PHYSFSX_addRelToSearchPath("descent2.hog", pathname, physfs_search_path::append) && ! PHYSFSX_addRelToSearchPath("d2demo.hog", pathname, physfs_search_path::append))
 #define DXX_NAME_NUMBER	"2"
 #define DXX_HOGFILE_NAMES	"descent2.hog or d2demo.hog"
 #endif

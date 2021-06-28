@@ -442,7 +442,7 @@ enum class physfs_search_path : int
 	append,
 };
 
-int PHYSFSX_addRelToSearchPath(const char *relname, physfs_search_path);
+int PHYSFSX_addRelToSearchPath(const char *relname, std::array<char, PATH_MAX> &realPath, physfs_search_path);
 extern int PHYSFSX_removeRelFromSearchPath(const char *relname);
 extern int PHYSFSX_fsize(const char *hogname);
 extern void PHYSFSX_listSearchPathContent();
