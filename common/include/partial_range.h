@@ -119,14 +119,29 @@ public:
 	partial_range_t(partial_range_t &&) = default;
 	partial_range_t &operator=(const partial_range_t &) = default;
 	template <typename T>
-		partial_range_t(T &t) :
+		partial_range_t(T &&t) :
 			m_begin(partial_range_detail::adl_begin(t)), m_end(partial_range_detail::adl_end(t))
 	{
-	}
-	template <typename T>
-		partial_range_t(partial_range_t<T> &&t) :
-			m_begin(t.begin()), m_end(t.end())
-	{
+		/* If `T &&`, after reference collapsing, is an lvalue
+		 * reference, then the object referenced by `t` will remain in
+		 * scope after the statement that called this constructor, and
+		 * there is no need to check whether the object `t` owns the
+		 * iterated range.
+		 *
+		 * Otherwise, if `t` is an rvalue reference, assert that `t` is
+		 * a view onto a range, rather than owning the range.  A `t`
+		 * that owns the storage would leave the iterators dangling.
+		 *
+		 * These checks are not precise.  It is possible to have a type
+		 * T that remains in scope, but frees its storage early, and
+		 * leaves the range dangling.  It is possible to have a type T
+		 * that owns the storage, and is not destroyed after the
+		 * containing statement terminates.  Neither are good designs,
+		 * and neither can be handled here.  These checks attempt to
+		 * catch obvious mistakes.
+		 */
+		if constexpr (!std::is_lvalue_reference<T &&>::value)
+			static_assert(!T::range_owns_iterated_storage::value, "rvalue reference to range requires that the range is a view, not an owner");
 	}
 	__attribute_warn_unused_result
 	iterator begin() const { return m_begin; }
