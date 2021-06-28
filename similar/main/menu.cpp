@@ -1718,9 +1718,16 @@ struct input_config_menu : input_config_menu_items, newmenu
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 int input_config_menu::subfunction_handler(const d_event &event)
+{
+	(void)event;
+	return 0;
+}
+
+window_event_result input_config_menu::event_handler(const d_event &event)
 {
 	const auto &items = m;
 	switch (event.type)
@@ -1797,14 +1804,13 @@ int input_config_menu::subfunction_handler(const d_event &event)
 				show_netgame_help();
 			if (citem == opt_ic_help2)
 				show_newdemo_help();
-			return 1;		// stay in menu
+			return window_event_result::handled;		// stay in menu
 		}
 
 		default:
 			break;
 	}
-
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 void input_config()
