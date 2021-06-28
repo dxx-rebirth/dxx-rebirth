@@ -1301,7 +1301,6 @@ void screen_resolution_menu::check_apply_preset_resolution() const
 
 void screen_resolution_menu::apply_custom_resolution() const
 {
-	char revert[32];
 	char *x;
 	const char *errstr;
 	const auto resolution_width = strtoul(crestext.data(), &x, 10);
@@ -1313,8 +1312,22 @@ void screen_resolution_menu::apply_custom_resolution() const
 	)
 	{
 		cmode = Game_screen_mode;
-		snprintf(revert, sizeof(revert), "Revert to %ix%i", SM_W(cmode), SM_H(cmode));
-		nm_messagebox_str(menu_title{TXT_WARNING}, revert, menu_subtitle{errstr});
+		struct error_change_resolution :
+			std::array<char, 32>,
+			passive_messagebox
+		{
+			error_change_resolution(const char *errstr, screen_mode cmode) :
+				passive_messagebox(menu_title{TXT_WARNING}, menu_subtitle{errstr}, prepare_choice_text(*this, cmode), grd_curscreen->sc_canvas)
+			{
+			}
+			static const char *prepare_choice_text(std::array<char, 32> &b, screen_mode cmode)
+			{
+				auto r = b.data();
+				std::snprintf(r, b.size(), "Revert to %ix%i", SM_W(cmode), SM_H(cmode));
+				return r;
+			}
+		};
+		run_blocking_newmenu<error_change_resolution>(errstr, cmode);
 	}
 	else
 	{
@@ -1330,7 +1343,14 @@ void screen_resolution_menu::apply_custom_resolution() const
 	)
 	{
 		casp = cmode;
-		nm_messagebox_str(menu_title{TXT_WARNING}, "IGNORE ASPECT RATIO", menu_subtitle{errstr});
+		struct error_invalid_aspect_ratio : passive_messagebox
+		{
+			error_invalid_aspect_ratio(const char *errstr) :
+				passive_messagebox(menu_title{TXT_WARNING}, menu_subtitle{errstr}, "IGNORE ASPECT RATIO", grd_curscreen->sc_canvas)
+				{
+				}
+		};
+		run_blocking_newmenu<error_invalid_aspect_ratio>(errstr);
 	}
 	else
 	{
@@ -2109,7 +2129,16 @@ int graphics_config_menu::subfunction_handler(const d_event &event)
 		case EVENT_WINDOW_CLOSE:
 #if DXX_USE_OGL
 			if (CGameCfg.VSync != m[opt_gr_vsync].value || CGameCfg.Multisample != m[opt_gr_multisample].value)
-				nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Setting VSync or 4x Multisample\nrequires restart on some systems."});
+			{
+				struct warn_might_need_restart : passive_messagebox
+				{
+					warn_might_need_restart() :
+						passive_messagebox(menu_title{nullptr}, menu_subtitle{"On some systems, changing VSync or 4x Multisample\nrequires a restart."}, TXT_OK, grd_curscreen->sc_canvas)
+						{
+						}
+				};
+				run_blocking_newmenu<warn_might_need_restart>();
+			}
 
 			for (const uint8_t i : xrange(3u))
 				if (m[i + opt_filter_none].value)

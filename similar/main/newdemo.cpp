@@ -3910,7 +3910,23 @@ void newdemo_start_recording()
 	if (!outfile)
 	{
 		Newdemo_state = ND_STATE_NORMAL;
-		nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Cannot open demo temp file"});
+		struct error_writing_demo :
+			std::array<char, 96>,
+			passive_messagebox
+		{
+			error_writing_demo(const char *errstr) :
+				passive_messagebox(menu_title{nullptr}, menu_subtitle{prepare_subtitle(*this, errstr)}, "Cancel recording", grd_curscreen->sc_canvas)
+			{
+			}
+			static const char *prepare_subtitle(std::array<char, 96> &b, const char *errstr)
+			{
+				auto r = b.data();
+				std::snprintf(r, b.size(), "Failed to open demo temporary file\n" DEMO_FILENAME "\n\n%s", errstr);
+				return r;
+			}
+		};
+		const auto errstr = PHYSFS_getLastError();
+		run_blocking_newmenu<error_writing_demo>(errstr);
 	}
 	else
 		newdemo_record_start_demo();
@@ -4136,7 +4152,14 @@ try_again:
 			break;
 		if (!isalnum(c) && c != '_' && c != '-' && c != '.')
 		{
-			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_CONTINUE), menu_subtitle{TXT_DEMO_USE_LETTERS});
+			struct error_invalid_demo_filename : passive_messagebox
+			{
+				error_invalid_demo_filename() :
+					passive_messagebox(menu_title{nullptr}, menu_subtitle{TXT_DEMO_USE_LETTERS}, TXT_CONTINUE, grd_curscreen->sc_canvas)
+					{
+					}
+			};
+			run_blocking_newmenu<error_invalid_demo_filename>();
 			goto try_again;
 		}
 	}

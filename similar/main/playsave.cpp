@@ -873,13 +873,27 @@ int read_player_file()
 #endif
 
 	if (id!=SAVE_FILE_ID) {
-		nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Invalid player file"});
+		struct error_invalid_player_file_magic : passive_messagebox
+		{
+			error_invalid_player_file_magic() :
+				passive_messagebox(menu_title{TXT_ERROR}, menu_subtitle{"Invalid player file"}, TXT_OK, grd_curscreen->sc_canvas)
+			{
+			}
+		};
+		run_blocking_newmenu<error_invalid_player_file_magic>();
 		return -1;
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (saved_game_version < COMPATIBLE_SAVED_GAME_VERSION || player_struct_version < COMPATIBLE_PLAYER_STRUCT_VERSION) {
-		nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_ERROR_PLR_VERSION});
+		struct error_invalid_player_file_version : passive_messagebox
+		{
+			error_invalid_player_file_version() :
+				passive_messagebox(menu_title{TXT_ERROR}, menu_subtitle{TXT_ERROR_PLR_VERSION}, TXT_OK, grd_curscreen->sc_canvas)
+			{
+			}
+		};
+		run_blocking_newmenu<error_invalid_player_file_version>();
 		return -1;
 	}
 
@@ -923,7 +937,14 @@ int read_player_file()
 	}
 
 	if (shareware_file == -1) {
-		nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Error invalid or unknown\nplayerfile-size"});
+		struct error_invalid_player_file_size : passive_messagebox
+		{
+			error_invalid_player_file_size() :
+				passive_messagebox(menu_title{TXT_ERROR}, menu_subtitle{"Error invalid or unknown\nplayerfile-size"}, TXT_OK, grd_curscreen->sc_canvas)
+			{
+			}
+		};
+		run_blocking_newmenu<error_invalid_player_file_size>();
 		return -1;
 	}
 
@@ -960,7 +981,14 @@ int read_player_file()
 		player_file_version = SWAPSHORT(player_file_version);
 
 	if (player_file_version < COMPATIBLE_PLAYER_FILE_VERSION) {
-		nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_ERROR_PLR_VERSION});
+		struct error_invalid_player_file_version : passive_messagebox
+		{
+			error_invalid_player_file_version() :
+				passive_messagebox(menu_title{TXT_ERROR}, menu_subtitle{TXT_ERROR_PLR_VERSION}, TXT_OK, grd_curscreen->sc_canvas)
+			{
+			}
+		};
+		run_blocking_newmenu<error_invalid_player_file_version>();
 		return -1;
 	}
 
@@ -1117,7 +1145,14 @@ int read_player_file()
 		if (i!=get_lifetime_checksum (PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled))
 		{
 			PlayerCfg.NetlifeKills=0; PlayerCfg.NetlifeKilled=0;
-			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie("Shame on me"), menu_subtitle{"Trying to cheat eh?"});
+			struct error_invalid_player_file_checksum : passive_messagebox
+			{
+				error_invalid_player_file_checksum() :
+					passive_messagebox(menu_title{nullptr}, menu_subtitle{"Lifetime kill error"}, TXT_OK, grd_curscreen->sc_canvas)
+				{
+				}
+			};
+			run_blocking_newmenu<error_invalid_player_file_checksum>();
 			rewrite_it=1;
 		}
 	}

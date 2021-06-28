@@ -1989,7 +1989,14 @@ void multi_disconnect_player(const playernum_t pnum)
 	{
 		if (Game_wind)
 			window_set_visible(*Game_wind, 0);
-		nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Host left the game!"});
+		struct host_left_game : passive_messagebox
+		{
+			host_left_game() :
+				passive_messagebox(menu_title{nullptr}, menu_subtitle{"Host left the game!"}, TXT_OK, grd_curscreen->sc_canvas)
+				{
+				}
+		};
+		run_blocking_newmenu<host_left_game>();
 		if (Game_wind)
 			window_set_visible(*Game_wind, 1);
 		multi_quit_game = 1;

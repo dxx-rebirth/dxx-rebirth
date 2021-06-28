@@ -4759,7 +4759,14 @@ int net_udp_do_join_game()
 
 	if (Netgame.game_status == NETSTAT_ENDLEVEL)
 	{
-		nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_NET_GAME_BETWEEN2});
+		struct error_game_between_levels : passive_messagebox
+		{
+			error_game_between_levels() :
+				passive_messagebox(menu_title{TXT_SORRY}, menu_subtitle{TXT_NET_GAME_BETWEEN2}, TXT_OK, grd_curscreen->sc_canvas)
+				{
+				}
+		};
+		run_blocking_newmenu<error_game_between_levels>();
 		return 0;
 	}
 
@@ -4776,7 +4783,22 @@ int net_udp_do_join_game()
 #endif
 	if (const auto errstr = load_mission_by_name(mission_predicate, mission_name_type::guess))
 	{
-		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s\n\n%s", TXT_MISSION_NOT_FOUND, errstr);
+		struct error_mission_not_found :
+			std::array<char, 96>,
+			passive_messagebox
+		{
+			error_mission_not_found(const char *errstr) :
+				passive_messagebox(menu_title{nullptr}, menu_subtitle{prepare_subtitle(*this, errstr)}, TXT_OK, grd_curscreen->sc_canvas)
+				{
+				}
+			static const char *prepare_subtitle(std::array<char, 96> &b, const char *errstr)
+			{
+				auto r = b.data();
+				std::snprintf(r, b.size(), "%s\n\n%s", TXT_MISSION_NOT_FOUND, errstr);
+				return r;
+			}
+		};
+		run_blocking_newmenu<error_mission_not_found>(errstr);
 		return 0;
 	}
 	}
@@ -4786,7 +4808,14 @@ int net_udp_do_join_game()
 	{
 		if (Netgame.levelnum>8)
 		{
-			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"This OEM version only supports\nthe first 8 levels!"});
+			struct error_using_oem_data : passive_messagebox
+			{
+				error_using_oem_data() :
+					passive_messagebox(menu_title{nullptr}, menu_subtitle{"You are using OEM game data.  You can only play the first 8 levels."}, TXT_OK, grd_curscreen->sc_canvas)
+					{
+					}
+			};
+			run_blocking_newmenu<error_using_oem_data>();
 			return 0;
 		}
 	}
@@ -4795,14 +4824,28 @@ int net_udp_do_join_game()
 	{
 		if (Netgame.levelnum > 4)
 		{
-			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"This SHAREWARE version only supports\nthe first 4 levels!"});
+			struct error_using_mac_shareware : passive_messagebox
+			{
+				error_using_mac_shareware() :
+					passive_messagebox(menu_title{nullptr}, menu_subtitle{"You are using Mac shareware data.  You can only play the first 4 levels."}, TXT_OK, grd_curscreen->sc_canvas)
+					{
+					}
+			};
+			run_blocking_newmenu<error_using_mac_shareware>();
 			return 0;
 		}
 	}
 
 	if ( !HoardEquipped() && (Netgame.gamemode == NETGAME_HOARD || Netgame.gamemode == NETGAME_TEAM_HOARD) )
 	{
-		nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{"HOARD(.ham) not installed. You can't join."});
+		struct error_hoard_not_available : passive_messagebox
+		{
+			error_hoard_not_available() :
+				passive_messagebox(menu_title{TXT_SORRY}, menu_subtitle{"That is a hoard game.\nYou do not have HOARD.HAM installed.\nYou cannot join."}, TXT_OK, grd_curscreen->sc_canvas)
+				{
+				}
+		};
+		run_blocking_newmenu<error_hoard_not_available>();
 		return 0;
 	}
 
@@ -4811,7 +4854,14 @@ int net_udp_do_join_game()
 
 	if (net_udp_can_join_netgame(&Netgame) == join_netgame_status_code::game_in_disallowed_state)
 	{
-		nm_messagebox_str(menu_title{TXT_SORRY}, nm_messagebox_tie(TXT_OK), menu_subtitle{Netgame.numplayers == Netgame.max_numplayers ? TXT_GAME_FULL : TXT_IN_PROGRESS});
+		struct error_cannot_join_game : passive_messagebox
+		{
+			error_cannot_join_game() :
+				passive_messagebox(menu_title{TXT_SORRY}, menu_subtitle{Netgame.numplayers == Netgame.max_numplayers ? TXT_GAME_FULL : TXT_IN_PROGRESS}, TXT_OK, grd_curscreen->sc_canvas)
+				{
+				}
+		};
+		run_blocking_newmenu<error_cannot_join_game>();
 		return 0;
 	}
 

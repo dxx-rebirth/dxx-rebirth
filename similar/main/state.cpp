@@ -919,7 +919,14 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 
 	if (!dsc && nsaves < 1)
 	{
-		nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"No saved games were found!"});
+		struct error_no_saves_found : passive_messagebox
+		{
+			error_no_saves_found() :
+				passive_messagebox(menu_title{nullptr}, menu_subtitle{"No saved games were found!"}, TXT_OK, grd_curscreen->sc_canvas)
+			{
+			}
+		};
+		run_blocking_newmenu<error_no_saves_found>();
 		return d_game_unique_state::save_slot::None;
 	}
 
@@ -1127,9 +1134,26 @@ int state_save_all_sub(const char *filename, const char *desc)
 	#endif
 
 	auto fp = PHYSFSX_openWriteBuffered(filename);
-	if ( !fp ) {
-		con_printf(CON_URGENT, "Failed to open %s: %s", filename, PHYSFS_getLastError());
-		nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Error writing savegame.\nPossibly out of disk\nspace."});
+	if (!fp)
+	{
+		const auto errstr = PHYSFS_getLastError();
+		con_printf(CON_URGENT, "Failed to open %s: %s", filename, errstr);
+		struct error_writing_savegame :
+			std::array<char, 96>,
+			passive_messagebox
+		{
+			error_writing_savegame(const char *filename, const char *errstr) :
+				passive_messagebox(menu_title{TXT_ERROR}, menu_subtitle{prepare_subtitle(*this, filename, errstr)}, "Return to unsaved game", grd_curscreen->sc_canvas)
+			{
+			}
+			static const char *prepare_subtitle(std::array<char, 96> &b, const char *filename, const char *errstr)
+			{
+				auto r = b.data();
+				std::snprintf(r, b.size(), "Failed to write savegame\n%s\n\n%s", filename, errstr);
+				return r;
+			}
+		};
+		run_blocking_newmenu<error_writing_savegame>(filename, errstr);
 		return 0;
 	}
 
@@ -1735,7 +1759,14 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 				PHYSFS_read(fp, mission_pathname.full.data(), mission_pathname.full.size(), 1);
 				if (mission_pathname.full.back())
 				{
-					nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Unable to load game\nUnrecognized mission name format"});
+					struct error_unknown_mission_format : passive_messagebox
+					{
+						error_unknown_mission_format() :
+							passive_messagebox(menu_title{TXT_ERROR}, menu_subtitle{"Unable to load game\nUnrecognized mission name format"}, TXT_OK, grd_curscreen->sc_canvas)
+						{
+						}
+					};
+					run_blocking_newmenu<error_unknown_mission_format>();
 					return 0;
 				}
 			}
@@ -1747,7 +1778,16 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 #endif
 			break;
 		default:	/* Save game written by a future version of Rebirth.  ABI unknown. */
-			nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Unable to load game\nUnrecognized save game format"});
+			{
+				struct error_unknown_save_format : passive_messagebox
+				{
+					error_unknown_save_format() :
+						passive_messagebox(menu_title{TXT_ERROR}, menu_subtitle{"Unable to load game\nUnrecognized save game format"}, TXT_OK, grd_curscreen->sc_canvas)
+						{
+						}
+				};
+				run_blocking_newmenu<error_unknown_save_format>();
+			}
 			return 0;
 	}
 
