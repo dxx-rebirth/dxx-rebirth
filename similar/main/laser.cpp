@@ -654,7 +654,6 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	fix parent_speed, weapon_speed;
-	fix volume;
 	fix laser_length=0;
 
 	if (weapon_type >= N_weapon_types)
@@ -797,17 +796,15 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 			object_create_muzzle_flash(segnum.absolute_sibling(obj->segnum), obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
 	}
 
-	volume = F1_0;
 	if (weapon_info.flash_sound > -1)
 	{
 		if (make_sound)	{
 			if (parent == Viewer)
 			{
-				if (weapon_type == weapon_id_type::VULCAN_ID)	// Make your own vulcan gun  1/2 as loud.
-					volume = F1_0 / 2;
-				digi_play_sample(weapon_info.flash_sound, volume);
+				// Make your own vulcan gun  1/2 as loud.
+				digi_play_sample(weapon_info.flash_sound, weapon_type == weapon_id_type::VULCAN_ID ? (F0_5 / 2) : F0_5);
 			} else {
-				digi_link_sound_to_pos(weapon_info.flash_sound, segnum.absolute_sibling(obj->segnum), 0, obj->pos, 0, volume);
+				digi_link_sound_to_pos(weapon_info.flash_sound, segnum.absolute_sibling(obj->segnum), 0, obj->pos, 0, F0_5);
 			}
 		}
 	}
