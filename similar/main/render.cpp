@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <optional>
 #include "render_state.h"
 #include "inferno.h"
 #include "segment.h"
@@ -901,8 +902,7 @@ constexpr std::array<
 
 
 //given an edge, tell what side is on that edge
-__attribute_warn_unused_result
-static int find_seg_side(const shared_segment &seg, const std::array<vertnum_t, 2> &verts, const unsigned notside)
+static std::optional<sidenum_t> find_seg_side(const shared_segment &seg, const std::array<vertnum_t, 2> &verts, const unsigned notside)
 {
 	if (notside >= MAX_SIDES_PER_SEGMENT)
 		throw std::logic_error("invalid notside");
@@ -929,7 +929,7 @@ static int find_seg_side(const shared_segment &seg, const std::array<vertnum_t, 
 				break;
 		}
 		if (++i == e)
-			return side_none;
+			return {};
 	}
 
 	const auto &eptr = Edge_to_sides[std::distance(b, iv0)][std::distance(b, iv1)];
@@ -941,13 +941,12 @@ static int find_seg_side(const shared_segment &seg, const std::array<vertnum_t, 
 
 	if (side0 != notside) {
 		Assert(side1==notside);
-		return side0;
+		return static_cast<sidenum_t>(side0);
 	}
 	else {
 		Assert(side0==notside);
-		return side1;
+		return static_cast<sidenum_t>(side1);
 	}
-
 }
 
 __attribute_warn_unused_result
@@ -978,16 +977,16 @@ static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye
 	};
 	const auto &&seg0 = seg.absolute_sibling(sseg.children[s0]);
 	const auto edgeside0 = find_seg_side(seg0, edge_verts, find_connect_side(seg, seg0));
-	if (edgeside0 == side_none)
+	if (!edgeside0)
 		return false;
-	const auto r0 = compare_child(vcvertptr, Viewer_eye, seg, seg0, edgeside0);
+	const auto r0 = compare_child(vcvertptr, Viewer_eye, seg, seg0, *edgeside0);
 	if (!r0)
 		return r0;
 	const auto &&seg1 = seg.absolute_sibling(sseg.children[s1]);
 	const auto edgeside1 = find_seg_side(seg1, edge_verts, find_connect_side(seg, seg1));
-	if (edgeside1 == side_none)
+	if (!edgeside1)
 		return false;
-	return !compare_child(vcvertptr, Viewer_eye, seg, seg1, edgeside1);
+	return !compare_child(vcvertptr, Viewer_eye, seg, seg1, *edgeside1);
 }
 
 //short the children of segment to render in the correct order
