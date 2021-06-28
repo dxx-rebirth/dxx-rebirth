@@ -126,6 +126,14 @@ static void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &r, const s
 		vm_vec_add2(vp, vcvertptr(v));
 	vm_vec_copy_scale(r, vp, F1_0 / 8);
 }
+
+__attribute_cold
+[[noreturn]]
+static void create_vertex_list_from_invalid_side(const shared_segment &segp, const shared_side &sidep)
+{
+	throw shared_side::illegal_type(segp, sidep);
+}
+
 }
 
 // ------------------------------------------------------------------------------------------
@@ -189,13 +197,6 @@ void get_side_verts(side_vertnum_list_t &vertlist, const shared_segment &segp, c
 
 namespace dsx {
 namespace {
-
-__attribute_cold
-__noreturn
-static void create_vertex_list_from_invalid_side(const shared_segment &segp, const shared_side &sidep)
-{
-	throw shared_side::illegal_type(segp, sidep);
-}
 
 template <typename T, typename V>
 static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment &segp, const shared_side &sidep, const V &&f0, const V &&f1, const V &&f2, const V &&f3)
