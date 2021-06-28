@@ -97,7 +97,12 @@ public:
 	struct imenu_specific_type : input_common_type
 	{
 		static constexpr std::integral_constant<nm_type, nm_type::input_menu> static_type{};
-		ntstring<NM_MAX_TEXT_LEN> saved_text;
+		imenu_specific_type(input_common_type n, ntstring<NM_MAX_TEXT_LEN> &t) :
+			input_common_type(n),
+			saved_text(t)
+		{
+		}
+		ntstring<NM_MAX_TEXT_LEN> &saved_text;
 	};
 	struct slider_specific_type : number_slider_common_type
 	{
@@ -125,6 +130,12 @@ private:
 			check_union_type(type, static_type);
 			return v;
 		}
+	void initialize_imenu(char *const text, int textlen, ntstring<NM_MAX_TEXT_LEN> &saved_text, const char *allowed_chars)
+	{
+		auto &im = imenu();
+		this->text = text;
+		new(&im) newmenu_item::imenu_specific_type({allowed_chars, textlen, 0}, saved_text);
+	}
 public:
 	struct nm_item_text
 	{
@@ -221,10 +232,15 @@ public:
 		input_specific_type input;
 		radio_specific_type radio;
 		number_specific_type number;
-		imenu_specific_type imenu = {};
+		imenu_specific_type imenu;
 		slider_specific_type slider;
 	};
 	nm_type_specific_data nm_private;
+	template <std::size_t len>
+		void initialize_imenu(std::array<char, len> &text, ntstring<NM_MAX_TEXT_LEN> &saved_text, const char *allowed_chars = nullptr)
+		{
+			initialize_imenu(text.data(), text.size() - 1, saved_text, allowed_chars);
+		}
 };
 
 enum class tab_processing_flag : uint8_t

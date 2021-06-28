@@ -842,6 +842,7 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 	std::array<d_game_unique_state::savegame_description, NUM_SAVES> desc;
 	state_userdata userdata;
 	constexpr auto decorative_item_count = userdata.decorative_item_count;
+	std::array<ntstring<NM_MAX_TEXT_LEN>, NUM_SAVES> saved_text;
 	std::array<newmenu_item, NUM_SAVES + decorative_item_count> m;
 	auto &sc_bmp = userdata.sc_bmp;
 	char id[4];
@@ -912,10 +913,7 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 		mi.type = item_type;
 		if (item_type == nm_type::input_menu)
 		{
-			auto &im = mi.imenu();
-			im.allowed_chars = nullptr;
-			im.text_len = desc[i].size() - 1;
-			im.group = 0;
+			mi.initialize_imenu(desc[i], saved_text[i], nullptr);
 		}
 	}
 
