@@ -903,14 +903,8 @@ int load_mission_ham()
 		char althog[PATH_MAX];
 		snprintf(althog, sizeof(althog), MISSION_DIR "%.*s.hog", l - 4, static_cast<const char *>(*altham));
 		char *p = althog + sizeof(MISSION_DIR) - 1;
-		std::array<char, PATH_MAX> pathname;
-		int exists = PHYSFSX_addRelToSearchPath(p, pathname, physfs_search_path::prepend);
-		if (!exists) {
-			exists = PHYSFSX_addRelToSearchPath(p = althog, pathname, physfs_search_path::prepend);
-		}
+		const auto mount_hog = make_PHYSFSX_ComputedPathMount(p, althog, physfs_search_path::prepend);
 		bm_read_extra_robots(*altham, Mission::descent_version_type::descent2z);
-		if (exists)
-			PHYSFSX_contfile_close(p);
 		return 1;
 	}
 	else if (Current_mission->descent_version == Mission::descent_version_type::descent2a ||

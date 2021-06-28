@@ -448,6 +448,48 @@ extern int PHYSFSX_fsize(const char *hogname);
 extern void PHYSFSX_listSearchPathContent();
 int PHYSFSX_getRealPath(const char *stdPath, std::array<char, PATH_MAX> &realPath);
 
+class PHYSFS_unowned_storage_mount_deleter
+{
+public:
+	void operator()(const char *const p) const noexcept
+	{
+		PHYSFS_unmount(p);
+	}
+};
+
+class PHYSFS_computed_path_mount_deleter : PHYSFS_unowned_storage_mount_deleter, std::default_delete<std::array<char, PATH_MAX>>
+{
+public:
+	using element_type = std::array<char, PATH_MAX>;
+	PHYSFS_computed_path_mount_deleter() = default;
+	PHYSFS_computed_path_mount_deleter(const PHYSFS_computed_path_mount_deleter &) = default;
+	PHYSFS_computed_path_mount_deleter(PHYSFS_computed_path_mount_deleter &&) = default;
+	PHYSFS_computed_path_mount_deleter(std::default_delete<element_type> &&d) :
+		std::default_delete<element_type>(std::move(d))
+	{
+	}
+	void operator()(element_type *const p) const noexcept
+	{
+		PHYSFS_unowned_storage_mount_deleter::operator()(p->data());
+		std::default_delete<element_type>::operator()(p);
+	}
+};
+
+/* RAIIPHYSFS_LiteralMount takes a pointer to storage, but does not take
+ * ownership of the underlying storage.  On destruction, it will pass
+ * that pointer to PHYSFS_unmount.  The pointer must remain valid until
+ * RAIIPHYSFS_LiteralMount is destroyed.
+ */
+using RAIIPHYSFS_LiteralMount = std::unique_ptr<const char, PHYSFS_unowned_storage_mount_deleter>;
+/* RAIIPHYSFS_ComputedPathMount owns a pointer to allocated storage.  On
+ * destruction, it will pass that pointer to PHYSFS_unmount, then free
+ * the pointer.
+ */
+using RAIIPHYSFS_ComputedPathMount = std::unique_ptr<typename PHYSFS_computed_path_mount_deleter::element_type, PHYSFS_computed_path_mount_deleter>;
+
+RAIIPHYSFS_LiteralMount make_PHYSFSX_LiteralMount(const char *const name, physfs_search_path);
+RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(const char *const name, physfs_search_path position);
+
 extern int PHYSFSX_rename(const char *oldpath, const char *newpath);
 
 #define PHYSFSX_exists(F,I)	((I) ? PHYSFSX_exists_ignorecase(F) : PHYSFS_exists(F))
@@ -463,6 +505,9 @@ namespace dsx {
 
 bool PHYSFSX_init(int argc, char *argv[]);
 int PHYSFSX_checkSupportedArchiveTypes();
+#if defined(DXX_BUILD_DESCENT_II)
+RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(const char *const name1, const char *const name2, physfs_search_path);
+#endif
 
 }
 #endif

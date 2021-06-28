@@ -238,15 +238,6 @@ void jukebox_load()
 		read_m3u();
 	else	// a directory
 	{
-		class PHYSFS_path_deleter
-		{
-		public:
-			void operator()(const char *const p) const noexcept
-			{
-				PHYSFS_unmount(p);
-			}
-		};
-		std::unique_ptr<const char, PHYSFS_path_deleter> new_path;
 		const char *sep = PHYSFS_getDirSeparator();
 		size_t seplen = strlen(sep);
 
@@ -259,6 +250,7 @@ void jukebox_load()
 		}
 
 		const auto p = cfgpath.data();
+		RAIIPHYSFS_LiteralMount new_path;
 		// Read directory using PhysicsFS
 		if (PHYSFS_isDirectory(p))	// find files in relative directory
 			JukeboxSongs.list.reset(PHYSFSX_findFiles(p, jukebox_exts));

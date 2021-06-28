@@ -270,6 +270,17 @@ bool PHYSFSX_init(int argc, char *argv[])
 	return true;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
+RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(const char *const name1, const char *const name2, physfs_search_path position)
+{
+	auto pathname = std::make_unique<std::array<char, PATH_MAX>>();
+	if (PHYSFSX_addRelToSearchPath(name1, *pathname.get(), position) ||
+		PHYSFSX_addRelToSearchPath(name2, *pathname.get(), position))
+		return RAIIPHYSFS_ComputedPathMount(std::move(pathname));
+	return nullptr;
+}
+#endif
+
 }
 
 namespace dcx {
@@ -627,6 +638,14 @@ void PHYSFSX_removeArchiveContent()
 void PHYSFSX_read_helper_report_error(const char *const filename, const unsigned line, const char *const func, PHYSFS_File *const file)
 {
 	(Error)(filename, line, func, "reading at %lu", static_cast<unsigned long>((PHYSFS_tell)(file)));
+}
+
+RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(const char *const name, physfs_search_path position)
+{
+	auto pathname = std::make_unique<std::array<char, PATH_MAX>>();
+	if (PHYSFSX_addRelToSearchPath(name, *pathname.get(), position))
+		return RAIIPHYSFS_ComputedPathMount(std::move(pathname));
+	return nullptr;
 }
 
 }
