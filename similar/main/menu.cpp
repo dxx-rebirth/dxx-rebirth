@@ -1600,9 +1600,16 @@ struct menu : menu_items, newmenu
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 int menu::subfunction_handler(const d_event &event)
+{
+	(void)event;
+	return 0;
+}
+
+window_event_result menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -1617,7 +1624,7 @@ int menu::subfunction_handler(const d_event &event)
 		default:
 			break;
 	}
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 }
