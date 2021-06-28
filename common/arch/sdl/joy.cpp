@@ -360,12 +360,12 @@ void joy_init()
 			const auto n_axes = check_warn_joy_support_limit(SDL_JoystickNumAxes(handle), "axe", DXX_MAX_AXES_PER_JOYSTICK);
 
 			joyaxis_text.resize(joyaxis_text.size() + n_axes);
-			range_for (auto &&e, enumerate(partial_range(joystick.axis_map(), n_axes), 1))
+			for (auto &&[idx, value] : enumerate(partial_range(joystick.axis_map(), n_axes), 1))
 			{
-				cf_assert(e.idx <= DXX_MAX_AXES_PER_JOYSTICK);
+				cf_assert(idx <= DXX_MAX_AXES_PER_JOYSTICK);
 				auto &text = joyaxis_text[joystick_n_axes];
-				e.value = joystick_n_axes++;
-				snprintf(&text[0], sizeof(text), "J%d A%u", i + 1, e.idx);
+				value = joystick_n_axes++;
+				snprintf(&text[0], sizeof(text), "J%d A%u", i + 1, idx);
 			}
 #else
             const auto n_axes = 0;
@@ -378,9 +378,11 @@ void joy_init()
 			joybutton_text.resize(joybutton_text.size() + n_virtual_buttons);
 			joy_key_map.resize(joy_key_map.size() + n_virtual_buttons, 0);
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-			range_for (auto &&e, enumerate(partial_range(joystick.button_map(), n_buttons), 1))
+			for (auto &&[idx, value] : enumerate(partial_range(joystick.button_map(), n_buttons), 1))
 			{
-				switch (e.idx) {
+				cf_assert(idx <= DXX_MAX_BUTTONS_PER_JOYSTICK);
+				switch (idx)
+				{
 					case 1: joy_key_map[joystick_n_buttons] = KEY_ENTER; break;
 					case 2: joy_key_map[joystick_n_buttons] = KEY_ESC; break;
 					case 3: joy_key_map[joystick_n_buttons] = KEY_SPACEBAR; break;
@@ -388,37 +390,36 @@ void joy_init()
 					default: break;
 				}
 				auto &text = joybutton_text[joystick_n_buttons];
-				e.value = joystick_n_buttons++;
-				cf_assert(e.idx <= DXX_MAX_BUTTONS_PER_JOYSTICK);
-				snprintf(&text[0], sizeof(text), "J%u B%u", i + 1, e.idx);
+				value = joystick_n_buttons++;
+				snprintf(&text[0], sizeof(text), "J%u B%u", i + 1, idx);
 			}
 #endif
 #if DXX_MAX_HATS_PER_JOYSTICK
-			range_for (auto &&e, enumerate(partial_range(joystick.hat_map(), n_hats), 1))
+			for (auto &&[idx, value] : enumerate(partial_range(joystick.hat_map(), n_hats), 1))
 			{
-				e.value = joystick_n_buttons;
-				cf_assert(e.idx <= DXX_MAX_HATS_PER_JOYSTICK);
+				cf_assert(idx <= DXX_MAX_HATS_PER_JOYSTICK);
+				value = joystick_n_buttons;
 				//a hat counts as four buttons
 				joy_key_map[joystick_n_buttons] = KEY_UP;
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, e.idx, 0202);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, idx, 0202);
 				joy_key_map[joystick_n_buttons] = KEY_RIGHT;
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, e.idx, 0177);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, idx, 0177);
 				joy_key_map[joystick_n_buttons] = KEY_DOWN;
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, e.idx, 0200);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, idx, 0200);
 				joy_key_map[joystick_n_buttons] = KEY_LEFT;
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, e.idx, 0201);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u H%u%c", i + 1, idx, 0201);
 			}
 #endif
 #if DXX_MAX_AXES_PER_JOYSTICK
-			range_for (auto &&e, enumerate(partial_range(joystick.axis_button_map(), n_axes), 1))
+			for (auto &&[idx, value] : enumerate(partial_range(joystick.axis_button_map(), n_axes), 1))
 			{
-				e.value = joystick_n_buttons;
-				cf_assert(e.idx <= DXX_MAX_AXES_PER_JOYSTICK);
+				cf_assert(idx <= DXX_MAX_AXES_PER_JOYSTICK);
+				value = joystick_n_buttons;
 				//an axis count as 2 buttons. negative - and positive +
-				joy_key_map[joystick_n_buttons] = (e.idx == 1) ? KEY_RIGHT : (e.idx == 2) ? KEY_DOWN : 0;
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u -A%u", i + 1, e.idx);
-				joy_key_map[joystick_n_buttons] = (e.idx == 1) ? KEY_LEFT : (e.idx == 2) ? KEY_UP : 0;
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u +A%u", i + 1, e.idx);
+				joy_key_map[joystick_n_buttons] = (idx == 1) ? KEY_RIGHT : (idx == 2) ? KEY_DOWN : 0;
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u -A%u", i + 1, idx);
+				joy_key_map[joystick_n_buttons] = (idx == 1) ? KEY_LEFT : (idx == 2) ? KEY_UP : 0;
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%u +A%u", i + 1, idx);
 			}
 #endif
 

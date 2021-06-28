@@ -107,10 +107,8 @@ void gamefont_choose_game_font(int scrx,int scry){
 	int close=-1,m=-1;
 	if (!Gamefont_installed) return;
 
-	range_for (const auto &&efc, enumerate(font_conf))
+	for (const auto &&[gf, fc] : enumerate(font_conf))
 	{
-		const auto gf = efc.idx;
-		auto &fc = efc.value;
 		for (int i = 0; i < fc.num; ++i)
 			if ((scrx >= fc.font[i].x && close < fc.font[i].x) && (scry >= fc.font[i].y && close < fc.font[i].y))
 			{
@@ -181,10 +179,8 @@ void gamefont_init()
 
 	Gamefont_installed = 1;
 
-	range_for (auto &&egf, enumerate(Gamefonts))
+	for (auto &&[i, gf] : enumerate(Gamefonts))
 	{
-		const auto i = egf.idx;
-		auto &gf = egf.value;
 		gf = nullptr;
 
 		if (!CGameArg.GfxSkipHiresFNT)
@@ -201,15 +197,14 @@ void gamefont_init()
 }
 }
 
-
 void gamefont_close()
 {
 	if (!Gamefont_installed) return;
 	Gamefont_installed = 0;
 
-	range_for (auto &&egf, enumerate(Gamefonts))
+	for (auto &&[idx, gf] : enumerate(Gamefonts))
 	{
-		gamefont_unloadfont(egf.idx);
+		(void)gf;
+		gamefont_unloadfont(idx);
 	}
-
 }

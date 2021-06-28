@@ -1949,9 +1949,9 @@ static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_se
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &WallAnims = GameSharedState.WallAnims;
 #endif
-	range_for (const auto &&es, enumerate(segp.sides))
+	for (const auto &&[idx, value] : enumerate(segp.sides))
 	{
-		const auto wall_num = es.value.wall_num;
+		const auto wall_num = value.wall_num;
 		if (wall_num != wall_none)
 		{
 			auto &w = *vcwallptr(wall_num);
@@ -1967,7 +1967,7 @@ static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_se
 			if (WallAnims[w.clip_num].flags & WCF_HIDDEN)
 				continue;
 #endif
-			return es.idx;
+			return idx;
 		}
 	}
 	return side_none;
@@ -2222,13 +2222,11 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 
 			tail &= QUEUE_SIZE-1;
 
-			range_for (const auto &&es, enumerate(segp.s.children))
+			for (const auto &&[sidenum, csegnum] : enumerate(segp.s.children))
 			{
-				const uint_fast32_t sidenum = es.idx;
 				const auto w = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum);
 				if ((w & WALL_IS_DOORWAY_FLAG::fly) || one_wall_hack)
 				{
-					const auto csegnum = es.value;
 #if defined(DXX_BUILD_DESCENT_II)
 					//	If we get here and w == WID_WALL, then we want to process through this wall, else not.
 					if (IS_CHILD(csegnum)) {

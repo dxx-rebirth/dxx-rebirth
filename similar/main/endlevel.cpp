@@ -371,11 +371,8 @@ void draw_stars(grs_canvas &canvas, const d_unique_endlevel_state::starfield_typ
 	g3s_point p;
 
 	uint8_t color = 0;
-	range_for (auto &&e, enumerate(stars))
+	for (const auto &&[i, si] : enumerate(stars))
 	{
-		const auto i = e.idx;
-		auto &si = e.value;
-
 		if ((i&63) == 0) {
 			color = BM_XRGB(intensity,intensity,intensity);
 			intensity-=3;

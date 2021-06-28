@@ -1063,13 +1063,12 @@ int check_walls()
 			if (matcen_num > -1)
 					RobotCenters[matcen_num].segnum = segp;
 	
-			range_for (auto &&e, enumerate(segp->shared_segment::sides))
+			for (auto &&[idx, s] : enumerate(segp->shared_segment::sides))
 			{
-				auto &s = e.value;
 				if (s.wall_num != wall_none) {
 					CountedWalls[wall_count].wallnum = s.wall_num;
 					CountedWalls[wall_count].segnum = segp;
-					CountedWalls[wall_count].sidenum = e.idx;
+					CountedWalls[wall_count].sidenum = idx;
 					wall_count++;
 				}
 			}

@@ -546,13 +546,12 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 void fuelcen_update_all()
 {
 	auto &Station = LevelUniqueFuelcenterState.Station;
-	range_for (auto &&e, enumerate(partial_range(Station, LevelUniqueFuelcenterState.Num_fuelcenters)))
+	for (auto &&[idx, i] : enumerate(partial_range(Station, LevelUniqueFuelcenterState.Num_fuelcenters)))
 	{
-		auto &i = e.value;
 		if (i.Type == SEGMENT_IS_ROBOTMAKER)
 		{
 			if (! (Game_suspended & SUSP_ROBOTS))
-				robotmaker_proc(Vclip, vmsegptridx, &i, e.idx);
+				robotmaker_proc(Vclip, vmsegptridx, &i, idx);
 		}
 	}
 }

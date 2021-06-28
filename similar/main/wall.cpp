@@ -1579,17 +1579,15 @@ void blast_nearby_glass_context::process_segment(const vmsegptridx_t segp, const
 	visited[segp] = true;
 
 	const auto &objp = obj;
-	range_for (const auto &&e, enumerate(segp->unique_segment::sides))
+	for (const auto &&[sidenum, uside] : enumerate(segp->unique_segment::sides))
 	{
 		fix			dist;
 
 		//	Process only walls which have glass.
-		auto &&uside = e.value;
 		if (const auto tmap_num2 = uside.tmap_num2; tmap_num2 != texture2_value::None)
 		{
 			if (can_blast(tmap_num2))
 			{
-				auto &&sidenum = e.idx;
 				const auto &&pnt = compute_center_point_on_side(vcvertptr, segp, sidenum);
 				dist = vm_vec_dist_quick(pnt, objp.pos);
 				if (dist < damage/2) {
@@ -1607,12 +1605,10 @@ void blast_nearby_glass_context::process_segment(const vmsegptridx_t segp, const
 	const unsigned next_steps_remaining = steps_remaining - 1;
 	if (!next_steps_remaining)
 		return;
-	range_for (const auto &&e, enumerate(segp->children))
+	for (const auto &&[i, segnum] : enumerate(segp->children))
 	{
-		auto &&segnum = e.value;
 		if (segnum != segment_none) {
 			if (!visited[segnum]) {
-				auto &&i = e.idx;
 				if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, i) & WALL_IS_DOORWAY_FLAG::fly)
 				{
 					process_segment(segp.absolute_sibling(segnum), next_steps_remaining);

@@ -1000,11 +1000,11 @@ int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 
 	// Find side of attachment
 	count = 0;
-	range_for (const auto &&es, enumerate(seg->children))
-		if (IS_CHILD(es.value))
+	for (const auto &&[idx, value] : enumerate(seg->children))
+		if (IS_CHILD(value))
 		{
 			count++;
-			newside = es.idx;
+			newside = idx;
 		}
 
 	// Return if passed in segment is connected to other than 1 segment.
@@ -1553,9 +1553,9 @@ int med_find_adjacent_segment_side(const vmsegptridx_t sp, int side, imsegptridx
 
 			//	All four vertices in sp:side are present in segment seg.
 			//	Determine side and return
-			range_for (const auto &&es, enumerate(Side_to_verts))
+			for (const auto &&[idx, value] : enumerate(Side_to_verts))
 			{
-				range_for (const auto v, es.value)
+				for (const auto v : value)
 				{
 					range_for (auto &vv, abs_verts)
 					{
@@ -1567,7 +1567,7 @@ int med_find_adjacent_segment_side(const vmsegptridx_t sp, int side, imsegptridx
 				}
 				// Found all four vertices in current side.  We are done!
 				adj_sp = segp;
-				*adj_side = es.idx;
+				*adj_side = idx;
 				return 1;
 			fass_next_side: ;
 			}
@@ -1605,15 +1605,15 @@ int med_find_closest_threshold_segment_side(const vmsegptridx_t sp, int side, im
 	range_for (const auto &&segp, vmsegptridx)
 	{
 		if (segp != sp) 
-			range_for (const auto &&es, enumerate(segp->children))
+			for (const auto &&[idx, value] : enumerate(segp->children))
 			{
-				if (!IS_CHILD(es.value))
+				if (!IS_CHILD(value))
 				{
-					const auto &&vtc = compute_center_point_on_side(vcvertptr, segp, es.idx);
+					const auto &&vtc = compute_center_point_on_side(vcvertptr, segp, idx);
 					current_dist = vm_vec_dist( vsc, vtc );
 					if (current_dist < closest_seg_dist) {
 						adj_sp = segp;
-						*adj_side = es.idx;
+						*adj_side = idx;
 						closest_seg_dist = current_dist;
 					}
 				}

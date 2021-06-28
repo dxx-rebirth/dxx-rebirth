@@ -633,10 +633,9 @@ static void get_side_ids(const shared_segment &base_seg, const shared_segment &c
 	*base_common_side = -1;
 
 	//	Find side in base segment which contains the two global vertex ids.
-	range_for (const auto &&es, enumerate(Side_to_verts))
+	for (const auto &&[idx, base_vp] : enumerate(Side_to_verts))
 	{
-		if (es.idx != base_side) {
-			auto &base_vp = es.value;
+		if (idx != base_side) {
 			for (v0=0; v0<4; v0++)
 			{
 				auto &verts = base_seg.verts;
@@ -644,7 +643,7 @@ static void get_side_ids(const shared_segment &base_seg, const shared_segment &c
 					(verts[static_cast<int>(base_vp[v0])] == abs_id2 && verts[static_cast<int>(base_vp[ (v0+1) % 4])] == abs_id1))
 				{
 					Assert(*base_common_side == -1);		// This means two different sides shared the same edge with base_side == impossible!
-					*base_common_side = es.idx;
+					*base_common_side = idx;
 				}
 			}
 		}
@@ -654,10 +653,9 @@ static void get_side_ids(const shared_segment &base_seg, const shared_segment &c
 	*con_common_side = -1;
 
 	//	Find side in connecting segment which contains the two global vertex ids.
-	range_for (const auto &&es, enumerate(Side_to_verts))
+	for (const auto &&[idx, con_vp] : enumerate(Side_to_verts))
 	{
-		if (es.idx != con_side) {
-			auto &con_vp = es.value;
+		if (idx != con_side) {
 			for (v0=0; v0<4; v0++)
 			{
 				auto &verts = con_seg.verts;
@@ -665,7 +663,7 @@ static void get_side_ids(const shared_segment &base_seg, const shared_segment &c
 					(verts[static_cast<int>(con_vp[(v0 + 1) % 4])] == abs_id2 && verts[static_cast<int>(con_vp[v0])] == abs_id1))
 				{
 					Assert(*con_common_side == -1);		// This means two different sides shared the same edge with con_side == impossible!
-					*con_common_side = es.idx;
+					*con_common_side = idx;
 				}
 			}
 		}
@@ -751,11 +749,9 @@ void med_propagate_tmaps_to_back_side(const vmsegptridx_t base_seg, int back_sid
 		return;		// connection, so no sides here.
 
 	//	Scan all sides, look for an occupied side which is not back_side or Side_opposite[back_side]
-	range_for (const auto &&es, enumerate(Edge_between_sides))
+	for (const auto &&[s, ebs] : enumerate(Edge_between_sides))
 	{
-		const auto s = es.idx;
 		if ((s != back_side) && (s != Side_opposite[back_side])) {
-			auto &ebs = es.value;
 			v1 = ebs[back_side][0];
 			v2 = ebs[back_side][1];
 			propagate_tmaps_to_segment_side(base_seg, s, base_seg, back_side, base_seg->verts[v1], base_seg->verts[v2], uv_only_flag);
@@ -772,10 +768,10 @@ found1: ;
 	//	First see if tmap on back side is anywhere else.
 	if (!uv_only_flag) {
 		const auto back_side_tmap = base_seg->unique_segment::sides[back_side].tmap_num;
-		range_for (const auto &&es, enumerate(base_seg->unique_segment::sides))
+		for (const auto &&[idx, value] : enumerate(base_seg->unique_segment::sides))
 		{
-			if (es.idx != back_side)
-				if (es.value.tmap_num == back_side_tmap)
+			if (idx != back_side)
+				if (value.tmap_num == back_side_tmap)
 				{
 					range_for (const uint_fast32_t tmap_num, xrange(MAX_SIDES_PER_SEGMENT))
 					{
@@ -814,10 +810,10 @@ static void fix_bogus_uvs_on_side1(const vmsegptridx_t sp, const unsigned sidenu
 
 static void fix_bogus_uvs_seg(const vmsegptridx_t segp)
 {
-	range_for (const auto &&es, enumerate(segp->children))
+	for (const auto &&[idx, value] : enumerate(segp->children))
 	{
-		if (!IS_CHILD(es.value))
-			fix_bogus_uvs_on_side1(segp, es.idx, 1);
+		if (!IS_CHILD(value))
+			fix_bogus_uvs_on_side1(segp, idx, 1);
 	}
 }
 
@@ -866,9 +862,9 @@ static void propagate_tmaps_to_segment_sides(const vcsegptridx_t base_seg, const
 //	of interest.  Continue searching in this way until a wall of interest is present.
 void med_propagate_tmaps_to_segments(const vcsegptridx_t base_seg, const vmsegptridx_t con_seg, const int uv_only_flag)
 {
-	range_for (const auto &&es, enumerate(base_seg->children))
-		if (es.value == con_seg)
-			propagate_tmaps_to_segment_sides(base_seg, es.idx, con_seg, find_connect_side(base_seg, con_seg), uv_only_flag);
+	for (const auto &&[idx, value] : enumerate(base_seg->children))
+		if (value == con_seg)
+			propagate_tmaps_to_segment_sides(base_seg, idx, con_seg, find_connect_side(base_seg, con_seg), uv_only_flag);
 
 	const unique_segment &ubase = base_seg;
 	unique_segment &ucon = con_seg;
@@ -1189,12 +1185,11 @@ static void calim_process_all_lights(int quick_light)
 	auto &vcwallptr = Walls.vcptr;
 	range_for (const auto &&segp, vmsegptridx)
 	{
-		range_for (const auto &&es, enumerate(segp->unique_segment::sides))
+		for (const auto &&[sidenum, value] : enumerate(segp->unique_segment::sides))
 		{
-			const uint_fast32_t sidenum = es.idx;
 			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum) != WID_NO_WALL)
 			{
-				const auto sidep = &es.value;
+				const auto sidep = &value;
 				fix	light_intensity;
 
 				light_intensity = TmapInfo[get_texture_index(sidep->tmap_num)].lighting + TmapInfo[get_texture_index(sidep->tmap_num2)].lighting;

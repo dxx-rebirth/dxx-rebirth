@@ -1452,9 +1452,8 @@ static mission_menu_create_state_ptr prepare_mission_menu_state(const mission_li
 	auto listbox_strings = create_state.listbox_strings.get();
 	std::fill_n(listbox_strings, extra_strings, nullptr);
 	listbox_strings += extra_strings;
-	range_for (auto &&e, enumerate(mission_list))
+	for (auto &&[idx, mli] : enumerate(mission_list))
 	{
-		auto &mli = e.value;
 		const char *const mission_name = mli.mission_name;
 		*listbox_strings++ = mission_name;
 		if (!mission_name_to_select)
@@ -1469,7 +1468,7 @@ static mission_menu_create_state_ptr prepare_mission_menu_state(const mission_li
 		}
 		else if (strcmp(mission_name, mission_name_to_select))
 			continue;
-		create_state.initial_selection = e.idx;
+		create_state.initial_selection = idx;
 		mission_name_to_select = nullptr;
 	}
 	return p;

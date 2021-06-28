@@ -654,14 +654,13 @@ static void print_kill_goal_tables(fvcobjptr &vcobjptr)
 	const auto &local_player = get_local_player();
 	const auto pnum = Player_num;
 	con_printf(CON_NORMAL, "Kill goal statistics: player #%u \"%s\"", pnum, static_cast<const char *>(local_player.callsign));
-	range_for (auto &&e, enumerate(Players))
+	for (auto &&[idx, i] : enumerate(Players))
 	{
-		const auto &i = e.value;
 		if (!i.connected)
 			continue;
 		auto &plrobj = *vcobjptr(i.objnum);
 		auto &player_info = plrobj.ctype.player_info;
-		con_printf(CON_NORMAL, "\t#%" PRIuFAST32 " \"%s\"\tdeaths=%i\tkills=%i\tmatrix=%hu/%hu", e.idx, static_cast<const char *>(i.callsign), player_info.net_killed_total, player_info.net_kills_total, kill_matrix[pnum][e.idx], kill_matrix[e.idx][pnum]);
+		con_printf(CON_NORMAL, "\t#%" PRIuFAST32 " \"%s\"\tdeaths=%i\tkills=%i\tmatrix=%hu/%hu", idx, static_cast<const char *>(i.callsign), player_info.net_killed_total, player_info.net_kills_total, kill_matrix[pnum][idx], kill_matrix[idx][pnum]);
 	}
 }
 

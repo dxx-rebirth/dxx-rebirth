@@ -796,11 +796,10 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 	verify_textures();
 
 	//check for refereced but unused clip count
-	range_for (auto &&en, enumerate(Effects))
+	for (auto &&[idx, e] : enumerate(Effects))
 	{
-		auto &e = en.value;
 		if ((e.changing_wall_texture != -1 || e.changing_object_texture != object_bitmap_index::None) && e.vc.num_frames == ~0u)
-			Error("EClip %" PRIuFAST32 " referenced (by polygon object?), but not defined", en.idx);
+			Error("EClip %" PRIuFAST32 " referenced (by polygon object?), but not defined", idx);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)

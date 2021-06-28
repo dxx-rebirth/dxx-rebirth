@@ -647,12 +647,10 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 	// If any of the radio buttons that control the mode are set, then
 	// update the cooresponding AI state.
 	//------------------------------------------------------------
-	range_for (auto &&eim, enumerate(initialMode))
+	for (auto &&[i, im] : enumerate(initialMode))
 	{
-		auto &im = eim.value;
 		if (GADGET_PRESSED(im.get()))
 		{
-			const auto i = eim.idx;
 			const auto b = static_cast<ai_behavior>(MIN_BEHAVIOR + i);
 			const auto &&objp = vmobjptridx(Cur_object_index);
 			auto &behavior = objp->ctype.ai_info.behavior;

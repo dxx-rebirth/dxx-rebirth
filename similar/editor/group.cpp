@@ -742,24 +742,24 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 	range_for(const auto &gs, GroupList[current_group].segments)
 		{
 		const auto &&segp = base_seg.absolute_sibling(gs);
-		range_for (const auto &&es0, enumerate(segp->children))
-			if (IS_CHILD(es0.value))
+		for (const auto &&[idx0, value0] : enumerate(segp->children))
+			if (IS_CHILD(value0))
 				{
-				const auto &&csegp = base_seg.absolute_sibling(es0.value);
+				const auto &&csegp = base_seg.absolute_sibling(value0);
 				if (csegp->group != current_group)
 					{
-					range_for (const auto &&es1, enumerate(csegp->children))
-						if (IS_CHILD(es1.value))
+					for (const auto &&[idx1, value1] : enumerate(csegp->children))
+						if (IS_CHILD(value1))
 							{
-							auto &dsegp = *vmsegptr(es1.value);
+							auto &dsegp = *vmsegptr(value1);
 							if (dsegp.group == current_group)
 								{
-								es1.value = segment_none;
-								validate_segment_side(vcvertptr, csegp, es1.idx);					// we have converted a connection to a side so validate the segment
+								value1 = segment_none;
+								validate_segment_side(vcvertptr, csegp, idx1);					// we have converted a connection to a side so validate the segment
 								}
 							}
-					es0.value = segment_none;
-					validate_segment_side(vcvertptr, segp, es0.idx);					// we have converted a connection to a side so validate the segment
+					value0 = segment_none;
+					validate_segment_side(vcvertptr, segp, idx0);					// we have converted a connection to a side so validate the segment
 					}
 				}
 		}

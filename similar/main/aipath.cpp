@@ -350,9 +350,9 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 				create_random_xlate(random_xlate);
 #endif
 
-		range_for (const auto &&es, enumerate(random_xlate))
+		for (const auto &&[idx, value] : enumerate(random_xlate))
 		{
-			const unsigned snum = (random_flag != create_path_random_flag::nonrandom) ? es.value : es.idx;
+			const unsigned snum = (random_flag != create_path_random_flag::nonrandom) ? value : idx;
 
 			if (!IS_CHILD(segp.s.children[snum]))
 				continue;

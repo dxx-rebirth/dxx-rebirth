@@ -1087,10 +1087,8 @@ static int load_game_data(
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============
 
-	range_for (auto &&e, enumerate(partial_range(RobotCenters, Num_robot_centers)))
+	for (auto &&[i, r] : enumerate(partial_range(RobotCenters, Num_robot_centers)))
 	{
-		const uint_fast32_t i = e.idx;
-		auto &r = e.value;
 #if defined(DXX_BUILD_DESCENT_I)
 		matcen_info_read(LoadFile, r, game_top_fileinfo_version);
 #elif defined(DXX_BUILD_DESCENT_II)

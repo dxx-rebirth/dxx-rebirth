@@ -14,29 +14,18 @@
 #include <tuple>
 #include <type_traits>
 
-/*
- * This could have been done using a std::pair, but using a custom type
- * allows for more descriptive member names.
- */
-template <typename range_value_type, typename index_type>
-struct enumerated_value
-{
-	const index_type idx;
-	range_value_type value;
-};
-
 namespace d_enumerate {
 
 namespace detail {
 
-template <typename result_type, typename index_type>
+template <typename index_type, typename result_type>
 struct adjust_iterator_dereference_type : std::false_type
 {
-	using value_type = enumerated_value<result_type, index_type>;
+	using value_type = std::tuple<index_type, result_type>;
 };
 
-template <typename... T, typename index_type>
-struct adjust_iterator_dereference_type<std::tuple<T...>, index_type> : std::true_type
+template <typename index_type, typename... T>
+struct adjust_iterator_dereference_type<index_type, std::tuple<T...>> : std::true_type
 {
 	using value_type = std::tuple<index_type, T...>;
 };
@@ -50,7 +39,7 @@ class enumerated_iterator
 {
 	range_iterator_type m_iter;
 	index_type m_idx;
-	using adjust_iterator_dereference_type = d_enumerate::detail::adjust_iterator_dereference_type<typename std::remove_cv<iterator_dereference_type>::type, index_type>;
+	using adjust_iterator_dereference_type = d_enumerate::detail::adjust_iterator_dereference_type<index_type, typename std::remove_cv<iterator_dereference_type>::type>;
 public:
 	using iterator_category = std::forward_iterator_tag;
 	using value_type = typename adjust_iterator_dereference_type::value_type;

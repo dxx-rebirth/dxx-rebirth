@@ -372,13 +372,10 @@ static void add_edges(const shared_segment &seg)
 		for (i=0;i<N_NORMAL_EDGES;i++) edge_flags[i]=ET_NOTUSED;
 		for (;i<N_EDGES_PER_SEGMENT;i++) edge_flags[i]=ET_NOTEXTANT;
 
-		range_for (auto &&e, enumerate(seg.sides))
+		for (auto &&[idx, sidep] : enumerate(seg.sides))
 		{
-			auto &sidep = e.value;
 			int	num_vertices;
-			const auto v = create_all_vertex_lists(seg, sidep, e.idx);
-			const auto &num_faces = v.first;
-			const auto &vertex_list = v.second;
+			const auto &&[num_faces, vertex_list] = create_all_vertex_lists(seg, sidep, idx);
 			if (num_faces == 1)
 				num_vertices = 4;
 			else
@@ -580,9 +577,9 @@ static void draw_mine_all(int automap_flag)
 	{
 		if (segp->segnum != segment_none)
 		{
-			range_for (auto &&e, enumerate(segp->shared_segment::sides))
-				if (e.value.wall_num != wall_none)
-					draw_special_wall(segp, e.idx);
+			for (auto &&[idx, value] : enumerate(segp->shared_segment::sides))
+				if (value.wall_num != wall_none)
+					draw_special_wall(segp, idx);
 			if (Search_mode)
 				check_segment(segp);
 			else {

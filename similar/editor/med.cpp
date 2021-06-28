@@ -362,8 +362,8 @@ void init_editor()
 
 	init_med_functions();	// Must be called before medlisp_init
 
-	range_for (auto &&e, enumerate(pads))
-		if (!ui_pad_read(e.idx, e.value))
+	for (auto &&[idx, value] : enumerate(pads))
+		if (!ui_pad_read(idx, value))
 		{
 			close_editor();
 			return;

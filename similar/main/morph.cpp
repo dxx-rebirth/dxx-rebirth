@@ -150,24 +150,24 @@ std::size_t count_model_points(const polymodel &pm, const morph_data::polymodel_
 			 */
 			break;
 		const auto previous_visited_submodels = visited_submodels;
-		range_for (auto &&e, submodel_parents)
+		for (const auto &&[idx, value] : submodel_parents)
 		{
-			const unsigned mask_this_submodel = 1 << e.idx;
+			const unsigned mask_this_submodel = 1 << idx;
 			if (mask_this_submodel & visited_submodels)
 				/* Already tested on a prior iteration */
 				continue;
-			if (e.value >= pm.submodel_parents.size())
+			if (value >= pm.submodel_parents.size())
 				/* Ignore submodels with out-of-range parents.  This
 				 * avoids undefined behavior in the shift, since some
 				 * submodels have a parent of 0xff.
 				 */
 				continue;
-			const unsigned mask_parent_submodel = 1 << e.value;
+			const unsigned mask_parent_submodel = 1 << value;
 			if (mask_parent_submodel & visited_submodels)
 			{
 				visited_submodels |= mask_this_submodel;
 				/* Parent is in use, so this submodel is also in use. */
-				const auto subcount = count_submodel_points(pm, model_idx, e.idx);
+				const auto subcount = count_submodel_points(pm, model_idx, idx);
 				count = std::max(count, subcount);
 			}
 		}

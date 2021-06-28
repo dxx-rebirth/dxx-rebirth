@@ -558,13 +558,13 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 
 	range_for (const auto &&segp, vcsegptridx)
 	{
-		range_for (const auto &&es, enumerate(segp->shared_segment::sides))
+		for (const auto &&[idx, value] : enumerate(segp->shared_segment::sides))
 		{
-			const auto sidep = &es.value;
+			const auto sidep = &value;
 			if (sidep->wall_num != wall_none)
 			{
 				if (auto &wf = wall_flags[sidep->wall_num])
-					err_printf(my_file, "Error: Wall %hu appears in two or more segments, including segment %hu, side %" PRIuFAST32 ".", static_cast<int16_t>(sidep->wall_num), static_cast<segnum_t>(segp), es.idx);
+					err_printf(my_file, "Error: Wall %hu appears in two or more segments, including segment %hu, side %" PRIuFAST32 ".", static_cast<int16_t>(sidep->wall_num), static_cast<segnum_t>(segp), idx);
 				else
 					wf = 1;
 			}
