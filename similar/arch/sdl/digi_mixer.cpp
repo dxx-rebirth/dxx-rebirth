@@ -222,11 +222,9 @@ int digi_mixer_start_sound(short soundnum, const fix volume, const sound_pan pan
 
 	mixdigi_convert_sound(soundnum);
 
-	const int mix_vol = fix2byte(fixmul(digi_volume, volume));
-	const uint8_t mix_distance = (volume > F1_0) ? 0 : UINT8_MAX - mix_vol;
 	const int mix_pan = fix2byte(static_cast<fix>(pan));
 #if MIX_DIGI_DEBUG
-	con_printf(CON_DEBUG, "digi_start_sound %d, volume %d, pan %d (start=%d, end=%d)", soundnum, mix_vol, mix_pan, loop_start, loop_end);
+	con_printf(CON_DEBUG, "digi_start_sound %d, volume=%d, pan %d (start=%d, end=%d)", soundnum, volume, mix_pan, loop_start, loop_end);
 #else
 	(void)loop_start;
 	(void)loop_end;
@@ -235,7 +233,7 @@ int digi_mixer_start_sound(short soundnum, const fix volume, const sound_pan pan
 	const int mix_loop = looping * -1;
 	Mix_PlayChannel(channel, &(SoundChunks[soundnum]), mix_loop);
 	Mix_SetPanning(channel, 255-mix_pan, mix_pan);
-	Mix_SetDistance(channel, mix_distance);
+	Mix_SetDistance(channel, UINT8_MAX - fix2byte(volume));
 	channels.set(channel);
 
 	return channel;
@@ -247,9 +245,8 @@ namespace dcx {
 
 void digi_mixer_set_channel_volume(int channel, int volume)
 {
-	int mix_vol = fix2byte(volume);
 	if (!digi_initialised) return;
-	Mix_SetDistance(channel, 255-mix_vol);
+	Mix_SetDistance(channel, UINT8_MAX - fix2byte(volume));
 }
 
 void digi_mixer_set_channel_pan(int channel, const sound_pan pan)
