@@ -3148,9 +3148,16 @@ struct sandbox_menu : sandbox_menu_items, newmenu
 	{
 	}
 	virtual int subfunction_handler(const d_event &event) override;
+	virtual window_event_result event_handler(const d_event &event) override;
 };
 
 int sandbox_menu::subfunction_handler(const d_event &event)
+{
+	(void)event;
+	return 0;
+}
+
+window_event_result sandbox_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
@@ -3166,12 +3173,12 @@ int sandbox_menu::subfunction_handler(const d_event &event)
 					gamebitmaps_viewer();
 					break;
 			}
-			return 1; // stay in menu until escape
+			return window_event_result::handled; // stay in menu until escape
 		}
 		default:
 			break;
 	}
-	return 0;
+	return newmenu::event_handler(event);
 }
 
 void do_sandbox_menu()
