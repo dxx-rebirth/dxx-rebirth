@@ -21,8 +21,8 @@
 template <typename range_value_type, typename index_type>
 struct enumerated_value
 {
-	range_value_type value;
 	const index_type idx;
+	range_value_type value;
 };
 
 namespace d_enumerate {
@@ -66,7 +66,7 @@ public:
 		if constexpr (adjust_iterator_dereference_type::value)
 			return std::tuple_cat(std::tuple<index_type>(m_idx), *m_iter);
 		else
-			return {*m_iter, m_idx};
+			return {m_idx, *m_iter};
 	}
 	enumerated_iterator &operator++()
 	{

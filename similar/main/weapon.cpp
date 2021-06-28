@@ -234,7 +234,7 @@ struct weapon_reorder_menu : weapon_reorder_menu_items<cycle_weapon_state>, reor
 template <typename cycle_weapon_state>
 weapon_reorder_menu_items<cycle_weapon_state>::weapon_reorder_menu_items()
 {
-	for (auto &&[mi, i] : enumerate(menu_items))
+	for (auto &&[i, mi] : enumerate(menu_items))
 	{
 		const auto o = cycle_weapon_state::get_weapon_by_order_slot(i);
 		mi.value = o;
@@ -251,7 +251,7 @@ window_event_result weapon_reorder_menu<cycle_weapon_state>::event_handler(const
 			event_key_command(event);
 			break;
 		case EVENT_WINDOW_CLOSE:
-			for (auto &&[mi, i] : enumerate(menu_items))
+			for (auto &&[i, mi] : enumerate(menu_items))
 				cycle_weapon_state::get_weapon_by_order_slot(i) = mi.value;
 			break;
 		default:

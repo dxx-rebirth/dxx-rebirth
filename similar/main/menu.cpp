@@ -624,7 +624,7 @@ static void RegisterPlayer()
 		return;
 	}
 
-	for (auto &&[mi, i] : enumerate(unchecked_partial_range(m.get(), idx_next_string)))
+	for (auto &&[i, mi] : enumerate(unchecked_partial_range(m.get(), idx_next_string)))
 		if (!d_stricmp(static_cast<const char *>(callsign), mi))
 		{
 			citem = i;

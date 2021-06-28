@@ -221,7 +221,7 @@ static int menu_match_keypress(MENU &menu, int keypress)
 
 	c = key_ascii();
 
-	for (auto &&[item, i] : enumerate(partial_range(menu.Item, menu.NumItems)))
+	for (auto &&[i, item] : enumerate(partial_range(menu.Item, menu.NumItems)))
 	{
 		auto letter = strrchr(item.Text.get(), CC_UNDERLINE);
 		if (letter)
@@ -252,7 +252,7 @@ static int menu_is_mouse_on(const ITEM &item)
 
 static int menu_check_mouse_item(const MENU &menu)
 {
-	for (auto &&[item, i] : enumerate(partial_range(menu.Item, menu.NumItems)))
+	for (auto &&[i, item] : enumerate(partial_range(menu.Item, menu.NumItems)))
 	{
 		if (menu_is_mouse_on(item))
 		{

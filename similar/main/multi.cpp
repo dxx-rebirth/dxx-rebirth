@@ -420,7 +420,7 @@ void update_bounty_target()
 	std::array<std::pair<playernum_t, const char *>, std::size(Players)> candidates{};
 	const auto b = candidates.begin();
 	auto iter = b;
-	for (auto &&[plr, idx] : enumerate(Players))
+	for (auto &&[idx, plr] : enumerate(Players))
 		if (plr.connected)
 			*iter++ = {idx, plr.callsign};
 	const auto n = std::distance(b, iter);

@@ -607,7 +607,7 @@ static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_se
 	range_for(const auto &gs, GroupList[new_current_group].segments)
 	{
 		const auto &&segp = base_seg.absolute_sibling(gs);
-		for (auto &&[child_segnum, sidenum] : enumerate(segp->shared_segment::children))
+		for (auto &&[sidenum, child_segnum] : enumerate(segp->shared_segment::children))
 			if (IS_CHILD(child_segnum))
 			{
 				if (!in_group(child_segnum, new_current_group))

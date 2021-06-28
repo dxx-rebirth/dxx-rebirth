@@ -444,7 +444,7 @@ static std::pair<icsegidx_t, sidenum_fast_t> find_exit_segment_side(fvcsegptridx
 {
 	range_for (const auto &&segp, vcsegptridx)
 	{
-		for (const auto &&[child_segnum, sidenum] : enumerate(segp->shared_segment::children))
+		for (const auto &&[sidenum, child_segnum] : enumerate(segp->shared_segment::children))
 		{
 			if (child_segnum == segment_exit)
 			{

@@ -141,7 +141,7 @@ unsigned net_udp_select_teams_menu_items::setup_team_sensitive_entries(const uns
 	const auto tv = team_vector;
 	auto mi = std::next(m.begin(), blue_team_first_player);
 	unsigned ir = blue_team_first_player;
-	for (auto &&[ngp, i] : enumerate(partial_range(Netgame.players, num_players)))
+	for (auto &&[i, ngp] : enumerate(partial_range(Netgame.players, num_players)))
 	{
 		if (tv & (1 << i))
 			continue;
@@ -154,7 +154,7 @@ unsigned net_udp_select_teams_menu_items::setup_team_sensitive_entries(const uns
 	nm_set_item_input(*mi, team_names[1].a);
 	++ mi;
 	++ ir;
-	for (auto &&[ngp, i] : enumerate(partial_range(Netgame.players, num_players)))
+	for (auto &&[i, ngp] : enumerate(partial_range(Netgame.players, num_players)))
 	{
 		if (!(tv & (1 << i)))
 			continue;
@@ -3608,7 +3608,7 @@ window_event_result netgame_powerups_allowed_menu::event_handler(const d_event &
 		case EVENT_WINDOW_CLOSE:
 			{
 				unsigned AllowedItems = 0;
-				for (auto &&[mi, i] : enumerate(m))
+				for (auto &&[i, mi] : enumerate(m))
 					if (mi.value)
 						AllowedItems |= (1 << i);
 				Netgame.AllowedItems = AllowedItems;
