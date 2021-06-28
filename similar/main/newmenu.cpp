@@ -169,8 +169,6 @@ namespace dsx {
 
 namespace {
 
-newmenu *newmenu_do4(menu_title title, menu_subtitle subtitle, partial_range_t<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, menu_filename filename, tiny_mode_flag TinyMode = tiny_mode_flag::normal, tab_processing_flag TabsFlag = tab_processing_flag::ignore);
-
 #if defined(DXX_BUILD_DESCENT_I)
 static const char *UP_ARROW_MARKER(const grs_font &, const grs_font &)
 {
@@ -512,11 +510,10 @@ static void strip_end_whitespace( char * text )
 
 int newmenu_do2(const menu_title title, const menu_subtitle subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const menu_filename filename)
 {
-	newmenu *menu;
-	menu = newmenu_do4(title, subtitle, items, subfunction, userdata, citem, filename);
-
-	if (!menu)
+	if (items.size() < 1)
 		return -1;
+	auto menu = window_create<callback_newmenu>(title, subtitle, filename, tiny_mode_flag::normal, tab_processing_flag::ignore, newmenu_layout::adjusted_citem::create(items, citem), grd_curscreen->sc_canvas, subfunction, userdata);
+	newmenu_free_background();
 	return newmenu::process_until_closed(menu);
 }
 
@@ -1662,27 +1659,6 @@ window_event_result newmenu::event_handler(const d_event &event)
 			break;
 	}
 	return window_event_result::ignored;
-}
-
-namespace dsx {
-
-namespace {
-
-newmenu *newmenu_do4(const menu_title title, const menu_subtitle subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const menu_filename filename, const tiny_mode_flag TinyMode, const tab_processing_flag TabsFlag)
-{
-	if (items.size() < 1)
-		return nullptr;
-	auto menu = window_create<callback_newmenu>(title, subtitle, filename, TinyMode, TabsFlag, newmenu_layout::adjusted_citem::create(items, citem), grd_curscreen->sc_canvas, subfunction, userdata);
-
-	newmenu_free_background();
-
-	//set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
-
-	// Create the basic window
-	return menu;
-}
-
-}
 }
 
 int (vnm_messagebox_aN)(const menu_title title, const nm_messagebox_tie &tie, const char *format, ...)
