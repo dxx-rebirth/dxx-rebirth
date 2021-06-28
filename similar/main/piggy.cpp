@@ -1176,7 +1176,6 @@ void piggy_read_sounds(int pc_shareware)
 {
 	uint8_t * ptr;
 	int i, sbytes;
-	int lastsize = 0;
 
 	if (MacPig)
 	{
@@ -1213,7 +1212,7 @@ void piggy_read_sounds(int pc_shareware)
 	ptr = SoundBits.get();
 	sbytes = 0;
 
-	RAIIdmem<uint8_t[]> lastbuf;
+	std::vector<uint8_t> lastbuf;
 	for (i=0; i<Num_sound_files; i++ )
 	{
 		digi_sound *snd = &GameSounds[i];
@@ -1236,11 +1235,10 @@ void piggy_read_sounds(int pc_shareware)
 		//Arne's decompress for shareware on all soundcards - Tim@Rikers.org
 				if (pc_shareware)
 				{
-					if (lastsize < SoundCompressed[i]) {
-						MALLOC(lastbuf, uint8_t[], SoundCompressed[i]);
-					}
-					PHYSFS_read( Piggy_fp, lastbuf, SoundCompressed[i], 1 );
-					sound_decompress(lastbuf.get(), SoundCompressed[i], snd->data);
+					const auto compressed_length = SoundCompressed[i];
+					lastbuf.resize(compressed_length);
+					PHYSFS_read(Piggy_fp, lastbuf.data(), compressed_length, 1);
+					sound_decompress(lastbuf.data(), compressed_length, snd->data);
 				}
 				else
 #ifdef ALLEGRO
