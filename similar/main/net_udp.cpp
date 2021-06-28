@@ -4318,12 +4318,11 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 
 static int net_udp_send_sync(void)
 {
-	int np;
-
+	const auto supported_start_positions_on_level = NumNetPlayerPositions;
 	// Check if there are enough starting positions
-	if (NumNetPlayerPositions < Netgame.max_numplayers)
+	if (supported_start_positions_on_level < Netgame.max_numplayers)
 	{
-		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Not enough start positions\n(set %d got %d)\nNetgame aborted", Netgame.max_numplayers, NumNetPlayerPositions);
+		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Not enough start positions\n(set %d got %d)\nNetgame aborted", Netgame.max_numplayers, supported_start_positions_on_level);
 		// Tell everyone we're bailing
 		Netgame.numplayers = 0;
 		for (unsigned i = 1; i < N_players; ++i)
@@ -4340,29 +4339,21 @@ static int net_udp_send_sync(void)
 
 	// Randomize their starting locations...
 	d_srand(static_cast<fix>(timer_query()));
-	for (unsigned i=0; i<NumNetPlayerPositions; i++ ) 
+	for (auto &plr : partial_range(Players, supported_start_positions_on_level))
+		if (auto &connected = plr.connected)
+			connected = CONNECT_PLAYING; // Get rid of endlevel connect statuses
+	auto &&locations = partial_range(Netgame.locations, supported_start_positions_on_level);
+	std::iota(locations.begin(), locations.end(), 0);
+	if (!(Game_mode & GM_MULTI_COOP))
 	{
-		if (vcplayerptr(i)->connected)
-			vmplayerptr(i)->connected = CONNECT_PLAYING; // Get rid of endlevel connect statuses
-
-		if (Game_mode & GM_MULTI_COOP)
-			Netgame.locations[i] = i;
-		else {
-			do 
-			{
-				np = d_rand() % NumNetPlayerPositions;
-				range_for (auto &j, partial_const_range(Netgame.locations, i)) 
-				{
-					if (j==np)   
-					{
-						np =-1;
-						break;
-					}
-				}
-			} while (np<0);
-			// np is a location that is not used anywhere else..
-			Netgame.locations[i]=np;
-		}
+		/* In cooperative games, use the locations in sequential order.
+		 * In non-cooperative games, shuffle.
+		 *
+		 * High quality randomness is not required here.  Anything that
+		 * seems random to users replaying a level should suffice.
+		 */
+		std::minstd_rand mrd(timer_query());
+		std::shuffle(locations.begin(), locations.end(), mrd);
 	}
 
 	// Push current data into the sync packet
