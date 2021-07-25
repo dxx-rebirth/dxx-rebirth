@@ -1018,6 +1018,8 @@ void state_poll_autosave_game(d_game_unique_state &GameUniqueState, const d_leve
 	auto &Objects = LevelUniqueObjectState.Objects;
 	if (deny_save_game(Objects.vcptr, LevelUniqueControlCenterState, GameUniqueState) != deny_save_result::allowed)
 		return;
+	if (Newdemo_state != ND_STATE_NORMAL && Newdemo_state != ND_STATE_RECORDING)
+		return;
 	const auto now = std::chrono::steady_clock::now();
 	if (now < GameUniqueState.Next_autosave)
 		return;
