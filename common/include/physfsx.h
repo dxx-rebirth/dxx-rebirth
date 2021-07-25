@@ -387,8 +387,6 @@ static inline void PHYSFSX_readMatrix(const char *const filename, const unsigned
 
 #define PHYSFSX_readMatrix(M,F)	((PHYSFSX_readMatrix)(__FILE__, __LINE__, __func__, (M), (F)))
 
-#define PHYSFSX_contfile_close PHYSFSX_removeRelFromSearchPath
-
 class PHYSFS_File_deleter
 {
 public:
@@ -444,7 +442,7 @@ enum class physfs_search_path : int
 };
 
 int PHYSFSX_addRelToSearchPath(const char *relname, std::array<char, PATH_MAX> &realPath, physfs_search_path);
-extern int PHYSFSX_removeRelFromSearchPath(const char *relname);
+void PHYSFSX_removeRelFromSearchPath(const char *relname);
 extern int PHYSFSX_fsize(const char *hogname);
 extern void PHYSFSX_listSearchPathContent();
 int PHYSFSX_getRealPath(const char *stdPath, std::array<char, PATH_MAX> &realPath);

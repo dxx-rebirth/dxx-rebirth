@@ -309,7 +309,7 @@ int PHYSFSX_addRelToSearchPath(const char *relname, std::array<char, PATH_MAX> &
 	return r;
 }
 
-int PHYSFSX_removeRelFromSearchPath(const char *relname)
+void PHYSFSX_removeRelFromSearchPath(const char *relname)
 {
 	char relname2[PATH_MAX];
 
@@ -320,14 +320,13 @@ int PHYSFSX_removeRelFromSearchPath(const char *relname)
 	if (!PHYSFSX_getRealPath(relname2, pathname))
 	{
 		con_printf(CON_DEBUG, "PHYSFS: ignoring unmap request: no canonical path for relative name \"%s\"", relname2);
-		return 0;
+		return;
 	}
 	auto r = PHYSFS_unmount(pathname.data());
 	if (r)
 		con_printf(CON_DEBUG, "PHYSFS: unmap canonical directory \"%s\" (relative name \"%s\")", pathname.data(), relname);
 	else
 		con_printf(CON_VERBOSE, "PHYSFS: failed to unmap canonical directory \"%s\" (relative name \"%s\"): \"%s\"", pathname.data(), relname, PHYSFS_getLastError());
-	return r;
 }
 
 int PHYSFSX_fsize(const char *hogname)
