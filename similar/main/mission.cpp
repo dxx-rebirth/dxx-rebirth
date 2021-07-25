@@ -1008,11 +1008,11 @@ static const char *load_mission(const mle *const mission)
 #endif
 	{
 		std::array<char, PATH_MAX> pathname;
-		if (!PHYSFSX_addRelToSearchPath("descent.hog", pathname, physfs_search_path::prepend))
+		if (const auto r = PHYSFSX_addRelToSearchPath("descent.hog", pathname, physfs_search_path::prepend); r != PHYSFS_ERR_OK)
 #if defined(DXX_BUILD_DESCENT_I)
-			Error("descent.hog not available!\n");
+			Error("descent.hog not available!\n%s", PHYSFS_getErrorByCode(r));
 #elif defined(DXX_BUILD_DESCENT_II)
-			Warning("descent.hog not available, this mission may be missing some files required for briefings and exit sequence\n");
+			Warning("descent.hog not available!\n%s\nThis mission may be missing some files required for briefings and exit sequence\n", PHYSFS_getErrorByCode(r));
 #endif
 		if (!d_stricmp(Current_mission->path.c_str(), D1_MISSION_FILENAME))
 			return load_mission_d1();

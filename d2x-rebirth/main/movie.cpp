@@ -637,24 +637,24 @@ static void draw_subtitles(const d_subtitle_state &SubtitleState, const int fram
 		}
 }
 
-static int init_movie(const char *movielib, char resolution, int required, LoadedMovie &movie)
+static PHYSFS_ErrorCode init_movie(const char *movielib, char resolution, int required, LoadedMovie &movie)
 {
 	std::array<char, FILENAME_LEN + 2> filename;
 	snprintf(&filename[0], filename.size(), "%s-%c.mvl", movielib, resolution);
 	auto r = PHYSFSX_addRelToSearchPath(&filename[0], movie.pathname, physfs_search_path::prepend);
-	if (!r)
+	if (r != PHYSFS_ERR_OK)
 	{
-		con_printf(required ? CON_URGENT : CON_VERBOSE, "Can't open movielib <%s>: %s", &filename[0], PHYSFS_getLastError());
 		movie.pathname[0] = 0;
+		con_printf(required ? CON_URGENT : CON_VERBOSE, "Failed to open movielib <%s>: %s", &filename[0], PHYSFS_getErrorByCode(r));
 	}
 	return r;
 }
 
-static int init_movie(const char *movielib, int required, LoadedMovie &movie)
+static PHYSFS_ErrorCode init_movie(const char *movielib, int required, LoadedMovie &movie)
 {
 	if (!GameArg.GfxSkipHiresMovie)
 	{
-		if (auto r = init_movie(movielib, 'h', required, movie))
+		if (auto r = init_movie(movielib, 'h', required, movie); r == PHYSFS_ERR_OK)
 			return r;
 	}
 	return init_movie(movielib, 'l', required, movie);
@@ -690,7 +690,7 @@ std::unique_ptr<LoadedMovie> init_extra_robot_movie(const char *movielib)
 	if (GameArg.SysNoMovies)
 		return nullptr;
 	auto r = std::make_unique<LoadedMovie>();
-	if (!init_movie(movielib, 0, *r))
+	if (init_movie(movielib, 0, *r) != PHYSFS_ERR_OK)
 		return nullptr;
 	return r;
 }
