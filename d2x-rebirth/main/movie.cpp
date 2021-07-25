@@ -681,6 +681,8 @@ LoadedMovie::~LoadedMovie()
 		return;
 	if (!PHYSFS_unmount(movielib))
 		con_printf(CON_URGENT, "Cannot close movielib <%s>: %s", movielib, PHYSFS_getLastError());
+	else
+		con_printf(CON_VERBOSE, "Unloaded movielib <%s>", movielib);
 }
 
 std::unique_ptr<LoadedMovie> init_extra_robot_movie(const char *movielib)

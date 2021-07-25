@@ -69,7 +69,9 @@ struct BuiltinMovies
 };
 
 // find and initialize the movie libraries
+[[nodiscard]]
 std::unique_ptr<BuiltinMovies> init_movies();
+[[nodiscard]]
 std::unique_ptr<LoadedMovie> init_extra_robot_movie(const char *filename);
 
 extern int MovieHires;      // specifies whether movies use low or high res
