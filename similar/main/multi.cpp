@@ -5675,7 +5675,9 @@ void save_hoard_data(void)
 				"enemyorb.raw","enemyorb.r22",  //SOUND_OPPONENT_GOT_ORB
 				"OPSCORE1.raw","OPSCORE1.r22"}; //SOUND_OPPONENT_HAS_SCORED
 		
-	auto ofile = PHYSFSX_openWriteBuffered("hoard.ham");
+	auto ofile = PHYSFSX_openWriteBuffered("hoard.ham").first;
+	if (!ofile)
+		return;
 
 	std::array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 	iff_error = iff_read_animbrush("orb.abm",bm,&nframes,palette);

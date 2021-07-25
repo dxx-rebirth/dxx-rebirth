@@ -555,16 +555,16 @@ std::pair<RAIIPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered(const char
 }
 
 //Open a file for writing, set up a buffer
-RAIIPHYSFS_File PHYSFSX_openWriteBuffered(const char *filename)
+std::pair<RAIIPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openWriteBuffered(const char *filename)
 {
 	PHYSFS_uint64 bufSize = 1024*1024;	// hmm, seems like an OK size.
 	
 	RAIIPHYSFS_File fp{PHYSFS_openWrite(filename)};
 	if (!fp)
-		return nullptr;
+		return {nullptr, PHYSFS_getLastErrorCode()};
 	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
 		bufSize /= 2;
-	return fp;
+	return {std::move(fp), PHYSFS_ERR_OK};
 }
 
 /* 

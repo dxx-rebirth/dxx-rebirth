@@ -328,10 +328,10 @@ static int med_save_mine(const char * filename)
 {
 	char ErrorMessage[256];
 
-	auto SaveFile = PHYSFSX_openWriteBuffered(filename);
+	auto &&[SaveFile, physfserr] = PHYSFSX_openWriteBuffered(filename);
 	if (!SaveFile)
 	{
-		snprintf(ErrorMessage, sizeof(ErrorMessage), "ERROR: Unable to open %s\n", filename);
+		snprintf(ErrorMessage, sizeof(ErrorMessage), "ERROR: Unable to open %.200s: %s\n", filename, PHYSFS_getErrorByCode(physfserr));
 		ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
 		return 1;
 	}

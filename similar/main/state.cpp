@@ -1235,10 +1235,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 		Int3();
 	#endif
 
-	auto fp = PHYSFSX_openWriteBuffered(filename);
+	auto &&[fp, physfserr] = PHYSFSX_openWriteBuffered(filename);
 	if (!fp)
 	{
-		const auto errstr = PHYSFS_getLastError();
+		const auto errstr = PHYSFS_getErrorByCode(physfserr);
 		con_printf(CON_URGENT, "Failed to open %s: %s", filename, errstr);
 		struct error_writing_savegame :
 			std::array<char, 96>,

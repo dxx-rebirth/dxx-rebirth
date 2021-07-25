@@ -1520,8 +1520,9 @@ static void piggy_write_pigfile(const char *filename)
 
 	piggy_close_file();
 
-	auto pig_fp = PHYSFSX_openWriteBuffered(filename);       //open PIG file
-	Assert(pig_fp);
+	auto pig_fp = PHYSFSX_openWriteBuffered(filename).first;       //open PIG file
+	if (!pig_fp)
+		return;
 
 	write_int(PIGFILE_ID,pig_fp);
 	write_int(PIGFILE_VERSION,pig_fp);
@@ -1535,9 +1536,9 @@ static void piggy_write_pigfile(const char *filename)
 	data_offset = bitmap_data_start;
 
 	change_filename_extension(tname,filename,"lst");
-	auto fp1 = PHYSFSX_openWriteBuffered(tname);
+	auto fp1 = PHYSFSX_openWriteBuffered(tname).first;
 	change_filename_extension(tname,filename,"all");
-	auto fp2 = PHYSFSX_openWriteBuffered(tname);
+	auto fp2 = PHYSFSX_openWriteBuffered(tname).first;
 
 	for (i=1; i < Num_bitmap_files; i++ ) {
 		grs_bitmap *bmp;

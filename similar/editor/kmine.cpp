@@ -188,11 +188,11 @@ static int med_load_situation(mine_filename_type &filename)
 //	-----------------------------------------------------------------------------
 static int med_save_situation(const mine_filename_type &filename)
 {
-	auto SaveFile = PHYSFSX_openWriteBuffered(filename.data());
+	auto &&[SaveFile, physfserr] = PHYSFSX_openWriteBuffered(filename.data());
 	if (!SaveFile)	{
 		char  ErrorMessage[512];
 
-		snprintf(ErrorMessage, sizeof(ErrorMessage), "ERROR: Unable to open %.480s", filename.data());
+		snprintf(ErrorMessage, sizeof(ErrorMessage), "ERROR: Unable to open %.440s: %s", filename.data(), PHYSFS_getErrorByCode(physfserr));
 		ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
 		return 1;
 	}

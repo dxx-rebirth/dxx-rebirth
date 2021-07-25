@@ -1848,11 +1848,11 @@ static int save_level_sub(
 			change_filename_extension(temp_filename, filename, "." D1X_LEVEL_FILE_EXTENSION);
 	}
 
-	auto SaveFile = PHYSFSX_openWriteBuffered(temp_filename);
+	auto &&[SaveFile, physfserr] = PHYSFSX_openWriteBuffered(temp_filename);
 	if (!SaveFile)
 	{
 		gr_palette_load(gr_palette);
-		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "ERROR: Cannot write to '%s'.", temp_filename);
+		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "ERROR: Cannot write to '%s'.\n%s", temp_filename, PHYSFS_getErrorByCode(physfserr));
 		return 1;
 	}
 

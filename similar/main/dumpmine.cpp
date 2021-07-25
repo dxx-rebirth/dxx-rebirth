@@ -655,10 +655,10 @@ void write_game_text_file(const char *filename)
 	strcpy(my_filename, filename);
 	strcpy( &my_filename[namelen-4], ".txm");
 
-	auto my_file = PHYSFSX_openWriteBuffered(my_filename);
+	auto &&[my_file, physfserr] = PHYSFSX_openWriteBuffered(my_filename);
 	if (!my_file)	{
 		gr_palette_load(gr_palette);
-		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "ERROR: Unable to open %s\nErrno = %i", my_filename, errno);
+		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "ERROR: Unable to open %s\n%s", my_filename, PHYSFS_getErrorByCode(physfserr));
 		return;
 	}
 
@@ -1041,10 +1041,10 @@ int	First_dump_level = 0;
 namespace dsx {
 static void say_totals_all(void)
 {
-	auto my_file = PHYSFSX_openWriteBuffered("levels.all");
+	auto &&[my_file, physfserr] = PHYSFSX_openWriteBuffered("levels.all");
 	if (!my_file)	{
 		gr_palette_load(gr_palette);
-		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "ERROR: Unable to open levels.all\nErrno=%i", errno );
+		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "ERROR: Unable to open levels.all\n%s", PHYSFS_getErrorByCode(physfserr));
 		return;
 	}
 
@@ -1085,11 +1085,10 @@ void dump_used_textures_all(void)
 {
 say_totals_all();
 
-	auto my_file = PHYSFSX_openWriteBuffered("textures.dmp");
-
+	auto &&[my_file, physfserr] = PHYSFSX_openWriteBuffered("textures.dmp");
 	if (!my_file)	{
 		gr_palette_load(gr_palette);
-		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "ERROR: Can't open textures.dmp\nErrno=%i", errno);
+		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "ERROR: Can't open textures.dmp\n%s", PHYSFS_getErrorByCode(physfserr));
 		return;
 	}
 

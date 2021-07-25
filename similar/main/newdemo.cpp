@@ -3905,8 +3905,8 @@ void newdemo_start_recording()
 
 	PHYSFS_mkdir(DEMO_DIR); //always try making directory - could only exist in read-only path
 
-	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
-
+	auto &&[o, physfserr] = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
+	outfile = std::move(o);
 	if (!outfile)
 	{
 		Newdemo_state = ND_STATE_NORMAL;
@@ -3925,7 +3925,7 @@ void newdemo_start_recording()
 				return r;
 			}
 		};
-		const auto errstr = PHYSFS_getLastError();
+		const auto errstr = PHYSFS_getErrorByCode(physfserr);
 		run_blocking_newmenu<error_writing_demo>(errstr);
 	}
 	else
@@ -4309,7 +4309,7 @@ int newdemo_swap_endian(const char *filename)
 		goto read_error;
 
 	nd_playback_v_demosize = PHYSFS_fileLength(infile);	// should be exactly the same size
-	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
+	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME).first;
 	if (!outfile)
 	{
 		infile.reset();

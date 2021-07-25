@@ -494,7 +494,7 @@ extern int PHYSFSX_rename(const char *oldpath, const char *newpath);
 #define PHYSFSX_exists(F,I)	((I) ? PHYSFSX_exists_ignorecase(F) : PHYSFS_exists(F))
 int PHYSFSX_exists_ignorecase(const char *filename);
 std::pair<RAIIPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered(const char *filename);
-RAIIPHYSFS_File PHYSFSX_openWriteBuffered(const char *filename);
+std::pair<RAIIPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openWriteBuffered(const char *filename);
 extern void PHYSFSX_addArchiveContent();
 extern void PHYSFSX_removeArchiveContent();
 }

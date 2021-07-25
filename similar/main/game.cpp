@@ -956,7 +956,7 @@ void save_screen_shot(int automap_flag)
 #undef DXX_SCREENSHOT_TIME_FORMAT_STRING
 #undef DXX_SCREENSHOT_FILE_EXTENSION
 	}
-	if (const auto file = PHYSFSX_openWriteBuffered(savename))
+	if (const auto &&[file, physfserr] = PHYSFSX_openWriteBuffered(savename); file)
 	{
 	if (!automap_flag)
 		HUD_init_message(HM_DEFAULT, "%s '%s'", TXT_DUMPING_SCREEN, &savename[sizeof(SCRNS_DIR) - 1]);
@@ -998,10 +998,11 @@ void save_screen_shot(int automap_flag)
 	}
 	else
 	{
+		const auto e = PHYSFS_getErrorByCode(physfserr);
 		if (!automap_flag)
-			HUD_init_message(HM_DEFAULT, "Failed to open screenshot file for writing: %s", &savename[sizeof(SCRNS_DIR) - 1]);
+			HUD_init_message(HM_DEFAULT, "Failed to open screenshot file for writing: %s: %s", &savename[sizeof(SCRNS_DIR) - 1], e);
 		else
-			con_printf(CON_URGENT, "Failed to open screenshot file for writing: %s", savename);
+			con_printf(CON_URGENT, "Failed to open screenshot file for writing: %s: %s", savename, e);
 		return;
 	}
 }

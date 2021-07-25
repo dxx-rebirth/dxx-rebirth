@@ -1526,11 +1526,11 @@ static int write_mission(void)
 	std::array<char, PATH_MAX> mission_filename;
 	snprintf(mission_filename.data(), mission_filename.size(), "%s%s", Current_mission->path.c_str(), msn_extension);
 	
-	auto &&mfile = PHYSFSX_openWriteBuffered(mission_filename.data());
+	auto &&mfile = PHYSFSX_openWriteBuffered(mission_filename.data()).first;
 	if (!mfile)
 	{
 		PHYSFS_mkdir(MISSION_DIR);	//try making directory - in *write* path
-		mfile = PHYSFSX_openWriteBuffered(mission_filename.data());
+		mfile = PHYSFSX_openWriteBuffered(mission_filename.data()).first;
 		if (!mfile)
 			return 0;
 	}

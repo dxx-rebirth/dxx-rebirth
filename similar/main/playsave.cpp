@@ -647,7 +647,7 @@ void plyr_save_stats()
 	uint8_t a;
 	memset(filename, '\0', PATH_MAX);
 	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(get_local_player().callsign));
-	auto f = PHYSFSX_openWriteBuffered(filename);
+	auto f = PHYSFSX_openWriteBuffered(filename).first;
 	if(!f)
 		return; //broken!
 
@@ -722,11 +722,11 @@ static int write_player_dxx(const char *filename)
 	strcpy(tempfile,filename);
 	tempfile[strlen(tempfile)-4]=0;
 	strcat(tempfile,".pl$");
-	auto fout = PHYSFSX_openWriteBuffered(tempfile);
+	auto fout = PHYSFSX_openWriteBuffered(tempfile).first;
 	if (!fout && CGameArg.SysUsePlayersDir)
 	{
 		PHYSFS_mkdir(PLAYER_DIRECTORY_STRING(""));	//try making directory
-		fout=PHYSFSX_openWriteBuffered(tempfile);
+		fout = PHYSFSX_openWriteBuffered(tempfile).first;
 	}
 	
 	if(fout)
@@ -1369,7 +1369,7 @@ void write_player_file()
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plx"), static_cast<const char *>(InterfaceUniqueState.PilotName));
 	write_player_dxx(filename);
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(InterfaceUniqueState.PilotName));
-	auto file = PHYSFSX_openWriteBuffered(filename);
+	auto file = PHYSFSX_openWriteBuffered(filename).first;
 	if (!file)
 		return;
 
@@ -1672,7 +1672,7 @@ void write_netgame_profile(netgame_info *ng)
 {
 	char filename[PATH_MAX];
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(InterfaceUniqueState.PilotName));
-	auto file = PHYSFSX_openWriteBuffered(filename);
+	auto file = PHYSFSX_openWriteBuffered(filename).first;
 	if (!file)
 		return;
 

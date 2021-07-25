@@ -451,7 +451,7 @@ void con_init(void)
 	if (CGameArg.DbgSafelog)
 		gamelog_fp.reset(PHYSFS_openWrite("gamelog.txt"));
 	else
-		gamelog_fp = PHYSFSX_openWriteBuffered("gamelog.txt");
+		gamelog_fp = PHYSFSX_openWriteBuffered("gamelog.txt").first;
 
 	cli_init();
 	cmd_init();
