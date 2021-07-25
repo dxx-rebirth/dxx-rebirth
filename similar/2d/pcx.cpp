@@ -243,10 +243,10 @@ pcx_result pcx_read_bitmap(const char *const filename, grs_main_bitmap &bmp, pal
 	 * for users to detect the latency and report it as an issue.  On
 	 * Linux, unbuffered access is still fast.
 	 */
-	auto rw = PHYSFSRWOPS_openReadBuffered(filename, 1024 * 1024);
+	auto &&[rw, physfserr] = PHYSFSRWOPS_openReadBuffered(filename, 1024 * 1024);
 	if (!rw)
 	{
-		con_printf(CON_NORMAL, "%s:%u: failed to open \"%s\"", __FILE__, __LINE__, filename);
+		con_printf(CON_NORMAL, "%s:%u: failed to open \"%s\": %s", __FILE__, __LINE__, filename, PHYSFS_getErrorByCode(physfserr));
 		return pcx_result::ERROR_OPENING;
 	}
 	return pcx_read_bitmap(filename, bmp, palette, std::move(rw));

@@ -155,12 +155,13 @@ static int physfsrwops_close(SDL_RWops *rw)
 } /* physfsrwops_close */
 
 
-static RWops_ptr create_rwops(RAIIPHYSFS_File handle)
+static std::pair<RWops_ptr, PHYSFS_ErrorCode> create_rwops(RAIIPHYSFS_File handle)
 {
     if (!handle)
 	{
-        SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
-		return nullptr;
+		const auto err = PHYSFS_getLastErrorCode();
+        SDL_SetError("PhysicsFS error: %s", PHYSFS_getErrorByCode(err));
+		return {nullptr, err};
 	}
     else
     {
@@ -173,16 +174,18 @@ static RWops_ptr create_rwops(RAIIPHYSFS_File handle)
             retval->close = physfsrwops_close;
             retval->hidden.unknown.data1 = handle.release();
         } /* if */
-		return retval;
+		else
+			return {nullptr, PHYSFS_ERR_OTHER_ERROR};
+		return {std::move(retval), PHYSFS_ERR_OK};
     } /* else */
 } /* create_rwops */
 
-RWops_ptr PHYSFSRWOPS_openRead(const char *fname)
+std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openRead(const char *fname)
 {
     return(create_rwops(RAIIPHYSFS_File{PHYSFS_openRead(fname)}));
 } /* PHYSFSRWOPS_openRead */
 
-RWops_ptr PHYSFSRWOPS_openReadBuffered(const char *fname, const PHYSFS_uint64 bufferSize)
+std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openReadBuffered(const char *fname, const PHYSFS_uint64 bufferSize)
 {
 	RAIIPHYSFS_File fp{PHYSFS_openRead(fname)};
 	PHYSFS_setBuffer(fp, bufferSize);

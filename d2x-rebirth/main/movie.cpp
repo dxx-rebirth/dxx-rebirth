@@ -374,10 +374,10 @@ movie_play_status RunMovie(const char *const filename, const char *const subtitl
 
 	// Open Movie file.  If it doesn't exist, no movie, just return.
 
-	auto filehndl = PHYSFSRWOPS_openRead(filename);
+	auto &&[filehndl, physfserr] = PHYSFSRWOPS_openRead(filename);
 	if (!filehndl)
 	{
-		con_printf(must_have ? CON_URGENT : CON_VERBOSE, "Failed to open movie <%s>: %s", filename, PHYSFS_getLastError());
+		con_printf(must_have ? CON_URGENT : CON_VERBOSE, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 		return movie_play_status::skipped;
 	}
 	MVESTREAM_ptr_t mvestream;
@@ -461,11 +461,11 @@ int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 
 	MVE_sndInit(-1);        //tell movies to play no sound for robots
 
-	RoboFile = PHYSFSRWOPS_openRead(filename);
-
+	auto &&[filehndl, physfserr] = PHYSFSRWOPS_openRead(filename);
+	RoboFile = std::move(filehndl);
 	if (!RoboFile)
 	{
-		con_printf(CON_URGENT, "Can't open movie <%s>: %s", filename, PHYSFS_getLastError());
+		con_printf(CON_URGENT, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 		return 0;
 	}
 	if (MVE_rmPrepMovie(pMovie, RoboFile.get(), SWIDTH/2.3, SHEIGHT/2.3, 0)) {

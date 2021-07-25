@@ -37,6 +37,7 @@
 
 #ifdef __cplusplus
 #include <memory>
+#include <utility>
 
 struct RWops_delete
 {
@@ -58,8 +59,8 @@ typedef std::unique_ptr<SDL_RWops, RWops_delete> RWops_ptr;
  *  @return A valid SDL_RWops structure on success, NULL on error. Specifics
  *           of the error can be gleaned from PHYSFS_getLastError().
  */
-RWops_ptr PHYSFSRWOPS_openRead(const char *fname);
-RWops_ptr PHYSFSRWOPS_openReadBuffered(const char *fname, PHYSFS_uint64);
+std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openRead(const char *fname);
+std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openReadBuffered(const char *fname, PHYSFS_uint64);
 
 #endif
 
