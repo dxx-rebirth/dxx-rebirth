@@ -336,7 +336,7 @@ static void read_player_dxx(const char *filename)
 {
 	plyr_read_stats();
 
-	auto f = PHYSFSX_openReadBuffered(filename);
+	auto f = PHYSFSX_openReadBuffered(filename).first;
 	if (!f)
 		return;
 
@@ -595,7 +595,7 @@ static void plyr_read_stats_v(int *k, int *d)
 	*k=0;*d=0;//in case the file doesn't exist.
 	memset(filename, '\0', PATH_MAX);
 	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(get_local_player().callsign));
-	if (auto f = PHYSFSX_openReadBuffered(filename))
+	if (auto f = PHYSFSX_openReadBuffered(filename).first)
 	{
 		PHYSFSX_gets_line_t<256> line;
 		if(!PHYSFS_eof(f))
@@ -836,9 +836,12 @@ int read_player_file()
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(InterfaceUniqueState.PilotName));
 	if (!PHYSFSX_exists(filename,0))
 		return ENOENT;
-	auto file = PHYSFSX_openReadBuffered(filename);
+	auto &&[file, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!file)
-		goto read_player_file_failed;
+	{
+		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Failed to open PLR file\n%s\n\n%s", filename, PHYSFS_getErrorByCode(physfserr));
+		return -1;
+	}
 
 	new_player_config(); // Set defaults!
 
@@ -1564,7 +1567,7 @@ void read_netgame_profile(netgame_info *ng)
 #endif
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(InterfaceUniqueState.PilotName));
-	auto file = PHYSFSX_openReadBuffered(filename);
+	auto file = PHYSFSX_openReadBuffered(filename).first;
 	if (!file)
 		return;
 

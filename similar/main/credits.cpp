@@ -278,7 +278,7 @@ static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 
 void credits_show(const char *const filename)
 {
-	if (auto &&file = PHYSFSX_openReadBuffered(filename))
+	if (auto &&file = PHYSFSX_openReadBuffered(filename).first)
 		credits_show_common(std::move(file), 1);
 }
 
@@ -286,14 +286,15 @@ void credits_show()
 {
 	const auto &&credits_file = CREDITS_FILE;
 	int have_bin_file = 0;
-	auto file = PHYSFSX_openReadBuffered(credits_file.first);
+	auto &&[file, physfserr] = PHYSFSX_openReadBuffered(credits_file.first);
 	if (!file)
 	{
 		char nfile[32];
 		snprintf(nfile, sizeof(nfile), "%.*sxb", credits_file.second, credits_file.first);
-		file = PHYSFSX_openReadBuffered(nfile);
-		if (!file)
-			Error("Missing CREDITS.TEX and CREDITS.TXB file\n");
+		auto &&[file2, physfserr2] = PHYSFSX_openReadBuffered(nfile);
+		if (!file2)
+			Error("Failed to open CREDITS.TEX and CREDITS.TXB file: \"%s\", \"%s\"\n", PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
+		file = std::move(file2);
 		have_bin_file = 1;
 	}
 	credits_show_common(std::move(file), have_bin_file);

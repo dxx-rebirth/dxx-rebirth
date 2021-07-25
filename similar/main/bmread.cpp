@@ -395,7 +395,7 @@ int ds_load(int skip, const char * filename )	{
 	if (i!=255)	{
 		return i;
 	}
-	if (auto cfp = PHYSFSX_openReadBuffered(rawname))
+	if (auto cfp = PHYSFSX_openReadBuffered(rawname).first)
 	{
 		n.length	= PHYSFS_fileLength( cfp );
 		MALLOC( n.data, ubyte, n.length );
@@ -482,10 +482,10 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 #elif defined(DXX_BUILD_DESCENT_II)
 	// Open BITMAPS.TBL for reading.
 	have_bin_tbl = 0;
-	auto InfoFile = PHYSFSX_openReadBuffered("BITMAPS.TBL");
+	auto InfoFile = PHYSFSX_openReadBuffered("BITMAPS.TBL").first;
 	if (!InfoFile)
 	{
-		InfoFile = PHYSFSX_openReadBuffered("BITMAPS.BIN");
+		InfoFile = PHYSFSX_openReadBuffered("BITMAPS.BIN").first;
 		if (!InfoFile)
 			return 0;	//missing BITMAPS.TBL and BITMAPS.BIN file
 		have_bin_tbl = 1;
@@ -551,12 +551,13 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 #if defined(DXX_BUILD_DESCENT_I)
 	// Open BITMAPS.TBL for reading.
 	have_bin_tbl = 0;
-	auto InfoFile = PHYSFSX_openReadBuffered("BITMAPS.TBL");
+	auto &&[InfoFile, physfserr] = PHYSFSX_openReadBuffered("BITMAPS.TBL");
 	if (!InfoFile)
 	{
-		InfoFile = PHYSFSX_openReadBuffered("BITMAPS.BIN");
-		if (!InfoFile)
-			Error("Missing BITMAPS.TBL and BITMAPS.BIN file\n");
+		auto &&[InfoFileBin, physfserr2] = PHYSFSX_openReadBuffered("BITMAPS.BIN");
+		if (!InfoFileBin)
+			Error("Failed to open BITMAPS.TBL and BITMAPS.BIN: \"%s\", \"%s\"\n", PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
+		InfoFile = std::move(InfoFileBin);
 		have_bin_tbl = 1;
 	}
 #endif

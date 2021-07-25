@@ -806,11 +806,10 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 	// This method should be faster than explicitly setting all the variables (I think)
 	Menu = {};
 
-	auto infile = PHYSFSX_openReadBuffered(file);
-
+	auto &&[infile, physfserr] = PHYSFSX_openReadBuffered(file);
 	if (!infile)
 	{
-		Warning("Could not find %s\n", file);
+		Warning("Menubar: failed to open \"%s\": %s\n", file, PHYSFS_getErrorByCode(physfserr));
 		return 0;
 	}
 

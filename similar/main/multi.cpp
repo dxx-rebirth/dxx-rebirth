@@ -5537,9 +5537,9 @@ void init_hoard_data(d_vclip_array &Vclip)
 	int bitmap_num = hoard_resources.bm_idx = Num_bitmap_files;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 
-	auto ifile = PHYSFSX_openReadBuffered("hoard.ham");
+	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered("hoard.ham");
 	if (!ifile)
-		Error("can't open <hoard.ham>");
+		Error("Failed to open <hoard.ham>: %s", PHYSFS_getErrorByCode(physfserr));
 
 	n_orb_frames = PHYSFSX_readShort(ifile);
 	orb_w = PHYSFSX_readShort(ifile);

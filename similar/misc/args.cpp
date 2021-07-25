@@ -89,7 +89,7 @@ class nesting_depth_exceeded
 
 static void AppendIniArgs(const char *filename, Arglist &Args)
 {
-	if (auto f = PHYSFSX_openReadBuffered(filename))
+	if (auto f = PHYSFSX_openReadBuffered(filename).first)
 	{
 		PHYSFSX_gets_line_t<1024> line;
 		while (Args.size() < MAX_ARGS && PHYSFSX_fgets(line, f))

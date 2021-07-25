@@ -253,7 +253,7 @@ static int load_pigpog(const d_fname &pogname)
 	grs_bitmap *bmp;
 	digi_sound *snd;
 	uint8_t *p;
-	auto f = PHYSFSX_openReadBuffered(pogname);
+	auto f = PHYSFSX_openReadBuffered(pogname).first;
 	int i, j, rc = -1;
 	unsigned int x = 0;
 
@@ -478,7 +478,7 @@ static void load_hxm(const d_fname &hxmname)
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	unsigned int repl_num;
 	int i;
-	auto f = PHYSFSX_openReadBuffered(hxmname);
+	auto f = PHYSFSX_openReadBuffered(hxmname).first;
 	int n_items;
 
 	if (!f)

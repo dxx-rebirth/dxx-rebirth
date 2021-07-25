@@ -1325,19 +1325,20 @@ int load_level(
 
 	strcpy(filename,filename_passed);
 
-	auto LoadFile = PHYSFSX_openReadBuffered(filename);
+	auto LoadFile = PHYSFSX_openReadBuffered(filename).first;
 	if (!LoadFile)
 	{
 		snprintf(filename, sizeof(filename), "%.*s%s", DXX_ptrdiff_cast_int(std::distance(Current_mission->path.cbegin(), Current_mission->filename)), Current_mission->path.c_str(), filename_passed);
-		LoadFile = PHYSFSX_openReadBuffered(filename);
-	}
-
-	if (!LoadFile)	{
+		auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(filename);
+		if (!fp)
+		{
 #if DXX_USE_EDITOR
 			return 1;
 		#else
-			Error("Can't open file <%s>\n",filename);
+			Error("Failed to open file <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 		#endif
+		}
+		LoadFile = std::move(fp);
 	}
 
 	sig                      = PHYSFSX_readInt(LoadFile);

@@ -143,7 +143,7 @@ int ReadConfigFile()
 	CGameCfg.Grabinput = true;
 
 
-	auto infile = PHYSFSX_openReadBuffered("descent.cfg");
+	auto infile = PHYSFSX_openReadBuffered("descent.cfg").first;
 	if (!infile)
 	{
 		return 1;

@@ -146,21 +146,22 @@ void gr_use_palette_table(const char * filename )
 {
 	int fsize;
 
-	auto fp = PHYSFSX_openReadBuffered(filename);
+	auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(filename);
+	if (!fp)
+	{
 #if defined(DXX_BUILD_DESCENT_I)
-#define FAILURE_FORMAT	"Can't open palette file <%s>"
+		Error("Failed to open palette file <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 #elif defined(DXX_BUILD_DESCENT_II)
-#define FAILURE_FORMAT	"Can open neither palette file <%s> nor default palette file <" DEFAULT_LEVEL_PALETTE ">"
 	// the following is a hack to enable the loading of d2 levels
 	// even if only the d2 mac shareware datafiles are present.
 	// However, if the pig file is present but the palette file isn't,
 	// the textures in the level will look wierd...
-	if (!fp)
-		fp = PHYSFSX_openReadBuffered( DEFAULT_LEVEL_PALETTE );
+		auto &&[fp2, physfserr2] = PHYSFSX_openReadBuffered(DEFAULT_LEVEL_PALETTE);
+		if (!fp)
+			Error("Failed to open both palette file <%s> and default palette file <" DEFAULT_LEVEL_PALETTE ">: (\"%s\", \"%s\")", filename, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
+		fp = std::move(fp2);
 #endif
-	if (!fp)
-		Error(FAILURE_FORMAT,
-		      filename);
+	}
 
 	fsize	= PHYSFS_fileLength( fp );
 	Assert( fsize == 9472 );

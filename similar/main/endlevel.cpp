@@ -1345,7 +1345,7 @@ try_again:
 		Error("Error converting filename <%s> for endlevel data\n",static_cast<const char *>(filename));
 #endif
 
-	auto ifile = PHYSFSX_openReadBuffered(filename);
+	auto ifile = PHYSFSX_openReadBuffered(filename).first;
 
 	if (!ifile) {
 
@@ -1354,7 +1354,7 @@ try_again:
                 !strcmp(filename, Ending_text_filename))
                     return;	// Don't want to interpret the briefing as an end level sequence!
 
-		ifile = PHYSFSX_openReadBuffered(filename);
+		ifile = PHYSFSX_openReadBuffered(filename).first;
 
 		if (!ifile) {
 			if (level_num==1) {

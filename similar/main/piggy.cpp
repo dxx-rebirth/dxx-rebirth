@@ -498,7 +498,7 @@ int properties_init()
 		GameBitmapOffset[0] = pig_bitmap_offset::None;
 	}
 	
-	Piggy_fp = PHYSFSX_openReadBuffered(DEFAULT_PIGFILE_REGISTERED);
+	Piggy_fp = PHYSFSX_openReadBuffered(DEFAULT_PIGFILE_REGISTERED).first;
 	if (!Piggy_fp)
 	{
 		if (!PHYSFSX_exists("BITMAPS.TBL",1) && !PHYSFSX_exists("BITMAPS.BIN",1))
@@ -658,12 +658,28 @@ void piggy_init_pigfile(const char *filename)
 
 	piggy_close_file();             //close old pig if still open
 
-	Piggy_fp = PHYSFSX_openReadBuffered(filename);
-	
+	auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(filename);
+#if !DXX_USE_EDITOR
+	auto effective_filename = filename;
+#endif
 	//try pigfile for shareware
-	if (!Piggy_fp)
-		Piggy_fp = PHYSFSX_openReadBuffered(DEFAULT_PIGFILE_SHAREWARE);
-
+	if (!fp)
+	{
+		auto &&[fp2, physfserr2] = PHYSFSX_openReadBuffered(DEFAULT_PIGFILE_SHAREWARE);
+		if (!fp2)
+		{
+#if DXX_USE_EDITOR
+			return;         //if editor, ok to not have pig, because we'll build one
+#else
+			Error("Failed to open required files <%s>, <" DEFAULT_PIGFILE_SHAREWARE ">: \"%s\", \"%s\"", filename, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
+#endif
+		}
+		fp = std::move(fp2);
+#if !DXX_USE_EDITOR
+		effective_filename = DEFAULT_PIGFILE_SHAREWARE;
+#endif
+	}
+	Piggy_fp = std::move(fp);
 	if (Piggy_fp) {                         //make sure pig is valid type file & is up-to-date
 		int pig_id,pig_version;
 
@@ -672,16 +688,12 @@ void piggy_init_pigfile(const char *filename)
 		if (pig_id != PIGFILE_ID || pig_version != PIGFILE_VERSION) {
 			Piggy_fp.reset(); //out of date pig
 			                        //..so pretend it's not here
-		}
-	}
-
-	if (!Piggy_fp) {
-
 #if DXX_USE_EDITOR
 			return;         //if editor, ok to not have pig, because we'll build one
 		#else
-			Error("Cannot load required file <%s>",filename);
+			Error("Cannot load PIG file: expected (id=%.8lx version=%.8x), found (id=%.8x version=%.8x) in \"%s\"", PIGFILE_ID, PIGFILE_VERSION, pig_id, pig_version, effective_filename);
 		#endif
+		}
 	}
 
 	strncpy(Current_pigfile, filename, sizeof(Current_pigfile) - 1);
@@ -761,12 +773,28 @@ void piggy_new_pigfile(char *pigname)
 
 	strncpy(Current_pigfile, pigname, sizeof(Current_pigfile) - 1);
 
-	Piggy_fp = PHYSFSX_openReadBuffered(pigname);
-
+	auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(pigname);
+#if !DXX_USE_EDITOR
+	const char *effective_filename = pigname;
+#endif
 	//try pigfile for shareware
-	if (!Piggy_fp)
-		Piggy_fp = PHYSFSX_openReadBuffered(DEFAULT_PIGFILE_SHAREWARE);
-	
+	if (!fp)
+	{
+		auto &&[fp2, physfserr2] = PHYSFSX_openReadBuffered(DEFAULT_PIGFILE_SHAREWARE);
+		if (!fp2)
+		{
+#if DXX_USE_EDITOR
+			return;         //if editor, ok to not have pig, because we'll build one
+#else
+			Error("Failed to open required files <%s>, <" DEFAULT_PIGFILE_SHAREWARE ">: \"%s\", \"%s\"", pigname, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
+#endif
+		}
+		fp = std::move(fp2);
+#if !DXX_USE_EDITOR
+		effective_filename = DEFAULT_PIGFILE_SHAREWARE;
+#endif
+	}
+	Piggy_fp = std::move(fp);
 	if (Piggy_fp) {  //make sure pig is valid type file & is up-to-date
 		int pig_id,pig_version;
 
@@ -775,16 +803,12 @@ void piggy_new_pigfile(char *pigname)
 		if (pig_id != PIGFILE_ID || pig_version != PIGFILE_VERSION) {
 			Piggy_fp.reset();              //out of date pig
 			                        //..so pretend it's not here
+#if DXX_USE_EDITOR
+			return;         //if editor, ok to not have pig, because we'll build one
+		#else
+			Error("Cannot load PIG file: expected (id=%.8lx version=%.8x), found (id=%.8x version=%.8x) in \"%s\"", PIGFILE_ID, PIGFILE_VERSION, pig_id, pig_version, effective_filename);
+		#endif
 		}
-	}
-
-#if !DXX_USE_EDITOR
-	if (!Piggy_fp)
-		Error("Cannot open correct version of <%s>", pigname);
-#endif
-
-	if (Piggy_fp) {
-
 		N_bitmaps = PHYSFSX_readInt(Piggy_fp);
 
 		header_size = N_bitmaps * sizeof(DiskBitmapHeader);
@@ -975,11 +999,11 @@ int read_hamfile()
 	int sound_offset = 0;
 	int shareware = 0;
 
-	auto ham_fp = PHYSFSX_openReadBuffered(DEFAULT_HAMFILE_REGISTERED);
+	auto ham_fp = PHYSFSX_openReadBuffered(DEFAULT_HAMFILE_REGISTERED).first;
 	
 	if (!ham_fp)
 	{
-		ham_fp = PHYSFSX_openReadBuffered(DEFAULT_HAMFILE_SHAREWARE);
+		ham_fp = PHYSFSX_openReadBuffered(DEFAULT_HAMFILE_SHAREWARE).first;
 		if (ham_fp)
 		{
 			shareware = 1;
@@ -1000,7 +1024,7 @@ int read_hamfile()
 	ham_id = PHYSFSX_readInt(ham_fp);
 	Piggy_hamfile_version = PHYSFSX_readInt(ham_fp);
 	if (ham_id != HAMFILE_ID)
-		Error("Cannot open ham file %s or %s\n", DEFAULT_HAMFILE_REGISTERED, DEFAULT_HAMFILE_SHAREWARE);
+		Error("Failed to load ham file " DEFAULT_HAMFILE_REGISTERED ": expected ham_id=%.8lx, found ham_id=%.8x version=%.8x\n", HAMFILE_ID, ham_id, Piggy_hamfile_version);
 #if 0
 	if (ham_id != HAMFILE_ID || Piggy_hamfile_version != HAMFILE_VERSION) {
 		Must_write_hamfile = 1;
@@ -1088,11 +1112,11 @@ void read_sndfile(const int required)
 	int sbytes = 0;
 
 	const auto filename = DEFAULT_SNDFILE;
-	auto snd_fp = PHYSFSX_openReadBuffered(filename);
+	auto &&[snd_fp, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!snd_fp)
 	{
 		if (required)
-			Error("Cannot open sound file: %s\n", filename);
+			Error("Cannot open sound file: %s: %s", filename, PHYSFS_getErrorByCode(physfserr));
 		return;
 	}
 
@@ -1183,7 +1207,7 @@ void piggy_read_sounds(int pc_shareware)
 		// Read Mac sounds converted to RAW format (too messy to read them directly from the resource fork code-wise)
 		char soundfile[32] = "Sounds/sounds.array";
 		// hack for Mac Demo
-		if (auto array = PHYSFSX_openReadBuffered(soundfile))
+		if (auto array = PHYSFSX_openReadBuffered(soundfile).first)
 		{
 			/* Sounds.size() is the D2-compatible size, but this
 			 * statement must read a D1 length, so use MAX_SOUNDS.
@@ -1259,7 +1283,7 @@ void piggy_read_sounds(void)
 
 	ptr = SoundBits.get();
 	sbytes = 0;
-	auto fp = PHYSFSX_openReadBuffered(DEFAULT_SNDFILE);
+	auto fp = PHYSFSX_openReadBuffered(DEFAULT_SNDFILE).first;
 	if (!fp)
 		return;
 
@@ -1754,7 +1778,7 @@ void load_bitmap_replacements(const char *level_name)
 	free_bitmap_replacements();
 
 	change_filename_extension(ifile_name, level_name, ".POG" );
-	if (auto ifile = PHYSFSX_openReadBuffered(ifile_name))
+	if (auto ifile = PHYSFSX_openReadBuffered(ifile_name).first)
 	{
 		int id,version;
 		unsigned n_bitmaps;
@@ -1816,7 +1840,7 @@ namespace {
  */
 static int get_d1_colormap(palette_array_t &d1_palette, std::array<color_palette_index, 256> &colormap)
 {
-	auto palette_file = PHYSFSX_openReadBuffered(D1_PALETTE);
+	auto palette_file = PHYSFSX_openReadBuffered(D1_PALETTE).first;
 	if (!palette_file || PHYSFS_fileLength(palette_file) != 9472)
 		return -1;
 	PHYSFS_read( palette_file, &d1_palette[0], sizeof(d1_palette[0]), d1_palette.size() );
@@ -1935,15 +1959,16 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_File *d1_pig)
 	int bitmaps_tbl_is_binary = 0;
 	int i;
 
-	auto bitmaps = PHYSFSX_openReadBuffered("bitmaps.tbl");
+	auto &&[bitmaps, physfserr] = PHYSFSX_openReadBuffered("bitmaps.tbl");
 	if (!bitmaps) {
-		bitmaps = PHYSFSX_openReadBuffered ("bitmaps.bin");
+		auto &&[bitmapbin, physfserr2] = PHYSFSX_openReadBuffered ("bitmaps.bin");
+		if (!bitmapbin)
+		{
+			Warning("Failed to open \"bitmaps.tbl\", \"bitmaps.bin\": \"%s\", \"%s\".  Descent 1 textures will not be read.", PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
+			return;
+		}
+		bitmaps = std::move(bitmapbin);
 		bitmaps_tbl_is_binary = 1;
-	}
-
-	if (!bitmaps) {
-		Warning ("Could not find bitmaps.* for reading d1 textures");
-		return;
 	}
 
 	d1_tmap_nums = std::make_unique<d1_tmap_nums_t>();
@@ -2029,11 +2054,10 @@ void load_d1_bitmap_replacements()
 	char *p;
 	int pigsize;
 
-	auto d1_Piggy_fp = PHYSFSX_openReadBuffered(D1_PIGFILE);
-
+	auto &&[d1_Piggy_fp, physfserr] = PHYSFSX_openReadBuffered(D1_PIGFILE);
 #define D1_PIG_LOAD_FAILED "Failed loading " D1_PIGFILE
 	if (!d1_Piggy_fp) {
-		Warning(D1_PIG_LOAD_FAILED);
+		Warning("Failed to open " D1_PIGFILE ": %s", PHYSFS_getErrorByCode(physfserr));
 		return;
 	}
 
@@ -2130,10 +2154,10 @@ grs_bitmap *read_extra_bitmap_d1_pig(const char *name, grs_bitmap &n)
 		int N_bitmaps;
 		palette_array_t d1_palette;
 		int pigsize;
-		auto d1_Piggy_fp = PHYSFSX_openReadBuffered(D1_PIGFILE);
+		auto &&[d1_Piggy_fp, physfserr] = PHYSFSX_openReadBuffered(D1_PIGFILE);
 		if (!d1_Piggy_fp)
 		{
-			Warning(D1_PIG_LOAD_FAILED);
+			Warning("Failed to open " D1_PIGFILE ": %s", PHYSFS_getErrorByCode(physfserr));
 			return nullptr;
 		}
 

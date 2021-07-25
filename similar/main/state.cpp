@@ -897,7 +897,7 @@ namespace {
 uint8_t read_savegame_properties(const std::size_t savegame_index, d_game_unique_state::savegame_file_path &filename, d_game_unique_state::savegame_description *const dsc, grs_bitmap_ptr *const sc_bmp)
 {
 	state_format_savegame_filename(filename, savegame_index);
-	const auto fp = PHYSFSX_openReadBuffered(filename.data());
+	const auto fp = PHYSFSX_openReadBuffered(filename.data()).first;
 	if (!fp)
 		return 0;
 	//Read id
@@ -1794,7 +1794,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		Int3();
 	#endif
 
-	auto fp = PHYSFSX_openReadBuffered(filename);
+	auto fp = PHYSFSX_openReadBuffered(filename).first;
 	if ( !fp ) return 0;
 
 //Read id
@@ -2535,7 +2535,7 @@ int state_get_game_id(const d_game_unique_state::savegame_file_path &filename)
 	if (!(Game_mode & GM_MULTI_COOP))
 		return 0;
 
-	auto fp = PHYSFSX_openReadBuffered(filename.data());
+	auto fp = PHYSFSX_openReadBuffered(filename.data()).first;
 	if ( !fp ) return 0;
 
 //Read id

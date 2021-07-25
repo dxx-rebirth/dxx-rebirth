@@ -563,7 +563,7 @@ namespace {
 
 static int read_mission_file(mission_list_type &mission_list, mission_candidate_search_path &pathname)
 {
-	if (const auto mfile = PHYSFSX_openReadBuffered(pathname.data()))
+	if (const auto mfile = PHYSFSX_openReadBuffered(pathname.data()).first)
 	{
 		std::string str_pathname = pathname.data();
 		const auto idx_last_slash = str_pathname.find_last_of('/');
@@ -1059,10 +1059,10 @@ static const char *load_mission(const mle *const mission)
 
 	PHYSFSEXT_locateCorrectCase(mission_filename.data());
 
-	auto &&mfile = PHYSFSX_openReadBuffered(mission_filename.data());
+	auto &&[mfile, physfserr] = PHYSFSX_openReadBuffered(mission_filename.data());
 	if (!mfile) {
 		Current_mission.reset();
-		con_printf(CON_NORMAL, DXX_STRINGIZE_FL(__FILE__, __LINE__, "error: failed to open mission \"%s\""), mission_filename.data());
+		con_printf(CON_NORMAL, DXX_STRINGIZE_FL(__FILE__, __LINE__, "error: failed to open mission \"%s\": %s"), mission_filename.data(), PHYSFS_getErrorByCode(physfserr));
 		return "Failed to open mission file";		//error!
 	}
 

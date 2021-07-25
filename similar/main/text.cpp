@@ -210,14 +210,14 @@ void load_text()
 	if (!CGameArg.DbgAltTex.empty())
 		filename = CGameArg.DbgAltTex.c_str();
 
-	auto tfile = PHYSFSX_openReadBuffered(filename);
-	if (!tfile)
+	if (auto &&[tfile, physfserr] = PHYSFSX_openReadBuffered(filename); !tfile)
 	{
+		const auto texfilename = filename;
 		filename="descent.txb";
-		auto ifile = PHYSFSX_openReadBuffered(filename);
+		auto &&[ifile, physfserr2] = PHYSFSX_openReadBuffered(filename);
 		if (!ifile)
 		{
-			Error("Cannot open file DESCENT.TEX or DESCENT.TXB");
+			Error("Failed to open file %s, DESCENT.TXB: \"%s\", \"%s\"", texfilename, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
 			return;
 		}
 		have_binary = 1;

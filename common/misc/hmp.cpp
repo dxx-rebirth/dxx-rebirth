@@ -51,7 +51,7 @@ hmp_file::~hmp_file()
 
 std::unique_ptr<hmp_file> hmp_open(const char *filename) {
 	int data, tempo;
-	auto fp = PHYSFSX_openReadBuffered(filename);
+	auto fp = PHYSFSX_openReadBuffered(filename).first;
 
 	if (!fp)
 		return NULL;

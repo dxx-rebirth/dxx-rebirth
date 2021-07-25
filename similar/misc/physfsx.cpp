@@ -530,7 +530,7 @@ int PHYSFSX_exists_ignorecase(const char *filename)
 }
 
 //Open a file for reading, set up a buffer
-RAIIPHYSFS_File PHYSFSX_openReadBuffered(const char *filename)
+std::pair<RAIIPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered(const char *filename)
 {
 	PHYSFS_uint64 bufSize;
 	char filename2[PATH_MAX];
@@ -546,12 +546,12 @@ RAIIPHYSFS_File PHYSFSX_openReadBuffered(const char *filename)
 	
 	RAIIPHYSFS_File fp{PHYSFS_openRead(filename2)};
 	if (!fp)
-		return nullptr;
+		return {nullptr, PHYSFS_getLastErrorCode()};
 	
 	bufSize = PHYSFS_fileLength(fp);
 	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
 		bufSize /= 2;	// even if the error isn't memory full, for a 20MB file it'll only do this 8 times
-	return fp;
+	return {std::move(fp), PHYSFS_ERR_OK};
 }
 
 //Open a file for writing, set up a buffer

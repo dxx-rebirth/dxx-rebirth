@@ -393,9 +393,9 @@ static void cmd_exec(unsigned long argc, const char *const *const argv)
 		cmd_insertf("help %s", argv[0]);
 		return;
 	}
-	auto f = PHYSFSX_openReadBuffered(argv[1]);
+	auto &&[f, physfserr] = PHYSFSX_openReadBuffered(argv[1]);
 	if (!f) {
-		con_printf(CON_CRITICAL, "exec: %s not found", argv[1]);
+		con_printf(CON_CRITICAL, "exec: failed to open \"%s\": %s", argv[1], PHYSFS_getErrorByCode(physfserr));
 		return;
 	}
 	std::forward_list<cmd_queue_t> l;

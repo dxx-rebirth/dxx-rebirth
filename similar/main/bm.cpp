@@ -444,10 +444,10 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	int t,version;
 
-	auto fp = PHYSFSX_openReadBuffered(fname);
+	auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(fname);
 	if (!fp)
 	{
-		Error("Failed to open HAM file \"%s\"", fname);
+		Error("Failed to open HAM file \"%s\": %s", fname, PHYSFS_getErrorByCode(physfserr));
 		return;
 	}
 
@@ -537,7 +537,7 @@ void load_robot_replacements(const d_fname &level_name)
 
 	change_filename_extension(ifile_name, level_name, ".HXM" );
 
-	auto fp = PHYSFSX_openReadBuffered(ifile_name);
+	auto fp = PHYSFSX_openReadBuffered(ifile_name).first;
 	if (!fp)		//no robot replacement file
 		return;
 
@@ -739,7 +739,7 @@ int load_exit_models()
 		return 1;
 	}
 
-	if (auto exit_hamfile = PHYSFSX_openReadBuffered("exit.ham"))
+	if (auto exit_hamfile = PHYSFSX_openReadBuffered("exit.ham").first)
 	{
 		exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
 		destroyed_exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
@@ -761,7 +761,7 @@ int load_exit_models()
 		ogl_cache_polymodel_textures(destroyed_exit_modelnum);
 #endif
 	}
-	else if ((exit_hamfile = PHYSFSX_openReadBuffered(D1_PIGFILE)))
+	else if ((exit_hamfile = PHYSFSX_openReadBuffered(D1_PIGFILE).first))
 	{
 		int offset, offset2;
 		int hamsize;

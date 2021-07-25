@@ -1142,10 +1142,10 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
         int     translate=0;
 	char 	*temptr;
 	segment tseg;
-	auto LoadFile = PHYSFSX_openReadBuffered(filename);
+	auto &&[LoadFile, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!LoadFile)
 	{
-		snprintf(ErrorMessage, sizeof(ErrorMessage), "ERROR: Unable to open %s\n", filename);
+		snprintf(ErrorMessage, sizeof(ErrorMessage), "ERROR: Failed to open %s\n%s\n", filename, PHYSFS_getErrorByCode(physfserr));
 		ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
 		return 1;
 	}

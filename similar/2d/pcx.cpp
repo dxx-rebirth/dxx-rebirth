@@ -176,10 +176,10 @@ namespace {
 #if DXX_USE_SDLIMAGE
 static std::pair<std::unique_ptr<uint8_t[]>, std::size_t> load_physfs_blob(const char *const filename)
 {
-	RAIIPHYSFS_File file(PHYSFSX_openReadBuffered(filename));
+	auto &&[file, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!file)
 	{
-		con_printf(CON_VERBOSE, "%s:%u: failed to open \"%s\"", __FILE__, __LINE__, filename);
+		con_printf(CON_VERBOSE, "%s:%u: failed to open \"%s\": %s", __FILE__, __LINE__, filename, PHYSFS_getErrorByCode(physfserr));
 		return {};
 	}
 	const std::size_t fsize = PHYSFS_fileLength(file);

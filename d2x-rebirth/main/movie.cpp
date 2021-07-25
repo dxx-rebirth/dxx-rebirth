@@ -516,17 +516,18 @@ static int init_subtitles(d_subtitle_state &SubtitleState, const char *const fil
 		return 0;
 	}
 
-	auto ifile = PHYSFSX_openReadBuffered(filename);		//try text version
+	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered(filename);		//try text version
 
 	if (!ifile) {								//no text version, try binary version
 		char filename2[FILENAME_LEN];
 		change_filename_extension(filename2, filename, ".txb");
-		ifile = PHYSFSX_openReadBuffered(filename2);
-		if (!ifile)
+		auto &&[ifile2, physfserr2] = PHYSFSX_openReadBuffered(filename2);
+		if (!ifile2)
 		{
-			con_printf(CON_VERBOSE, "Rebirth: skipping subtitles because cannot open \"%s\" or \"%s\"", filename, filename2);
+			con_printf(CON_VERBOSE, "Rebirth: skipping subtitles because cannot open \"%s\" or \"%s\" (\"%s\", \"%s\")", filename, filename2, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
 			return 0;
 		}
+		ifile = std::move(ifile2);
 		have_binary = 1;
 		con_printf(CON_VERBOSE, "Rebirth: found encoded subtitles in \"%s\"", filename2);
 	}

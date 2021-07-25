@@ -371,9 +371,9 @@ int ui_pad_read( int n, const char * filename )
 	int linenumber = 0;
 	int keycode, functionnumber;
 
-	auto infile = PHYSFSX_openReadBuffered(filename);
+	auto &&[infile, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!infile) {
-		Warning( "Could not find %s\n", filename );
+		Warning("UI pad: failed to open \"%s\": %s\n", filename, PHYSFS_getErrorByCode(physfserr));
 		return 0;
 	}
 	auto &kpn = *(KeyPad[n] = std::make_unique<UI_KEYPAD>());

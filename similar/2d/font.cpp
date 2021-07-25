@@ -911,10 +911,10 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 		unsigned datasize;	//size up to (but not including) palette
 	} file_header;
 
-	auto fontfile = PHYSFSX_openReadBuffered(fontname);
+	auto &&[fontfile, physfserr] = PHYSFSX_openReadBuffered(fontname);
 
 	if (!fontfile) {
-		con_printf(CON_VERBOSE, "Can't open font file %s", fontname);
+		con_printf(CON_VERBOSE, "Failed to open font file \"%s\": %s", fontname, PHYSFS_getErrorByCode(physfserr));
 		return {};
 	}
 

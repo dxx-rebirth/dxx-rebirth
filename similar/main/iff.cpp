@@ -600,7 +600,7 @@ static int iff_parse_bitmap(PHYSFS_File *ifile, grs_bitmap &bm, int bitmap_type,
 int iff_read_bitmap(const char *const ifilename, grs_bitmap &bm, palette_array_t *const palette)
 {
 	int ret;			//return code
-	auto ifile = PHYSFSX_openReadBuffered(ifilename);
+	auto ifile = PHYSFSX_openReadBuffered(ifilename).first;
 	if (!ifile)
 		return IFF_NO_FILE;
 
@@ -915,7 +915,7 @@ int iff_read_animbrush(const char *ifilename,std::array<std::unique_ptr<grs_main
 
 	*n_bitmaps=0;
 
-	auto ifile = PHYSFSX_openReadBuffered(ifilename);
+	auto ifile = PHYSFSX_openReadBuffered(ifilename).first;
 	if (!ifile)
 		return IFF_NO_FILE;
 
