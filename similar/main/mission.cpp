@@ -894,7 +894,7 @@ int load_mission_ham()
 	{
 		// re-read sounds in case mission has custom .sXX
 		Num_sound_files = 0;
-		read_sndfile();
+		read_sndfile(0);
 		piggy_read_sounds();
 	}
 

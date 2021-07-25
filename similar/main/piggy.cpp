@@ -1075,7 +1075,7 @@ int read_hamfile()
 	return 1;
 }
 
-int read_sndfile()
+void read_sndfile(const int required)
 {
 	int snd_id,snd_version;
 	int N_sounds;
@@ -1087,15 +1087,22 @@ int read_sndfile()
 	char temp_name_read[16];
 	int sbytes = 0;
 
-	auto snd_fp = PHYSFSX_openReadBuffered(DEFAULT_SNDFILE);
+	const auto filename = DEFAULT_SNDFILE;
+	auto snd_fp = PHYSFSX_openReadBuffered(filename);
 	if (!snd_fp)
-		return 0;
+	{
+		if (required)
+			Error("Cannot open sound file: %s\n", filename);
+		return;
+	}
 
 	//make sure soundfile is valid type file & is up-to-date
 	snd_id = PHYSFSX_readInt(snd_fp);
 	snd_version = PHYSFSX_readInt(snd_fp);
 	if (snd_id != SNDFILE_ID || snd_version != SNDFILE_VERSION) {
-		return 0;
+		if (required)
+			Error("Cannot load sound file: expected (id=%.8lx version=%.8x), found (id=%.8x version=%.8x) in \"%s\"", SNDFILE_ID, SNDFILE_VERSION, snd_id, snd_version, filename);
+		return;
 	}
 
 	N_sounds = PHYSFSX_readInt(snd_fp);
@@ -1117,7 +1124,6 @@ int read_sndfile()
 			sbytes += sndh.length;
 	}
 	SoundBits = std::make_unique<ubyte[]>(sbytes + 16);
-	return 1;
 }
 
 int properties_init(void)
@@ -1159,9 +1165,7 @@ int properties_init(void)
 
 	if (Piggy_hamfile_version >= 3)
 	{
-		snd_ok = read_sndfile();
-		if (!snd_ok)
-			Error("Cannot open sound file: %s\n", DEFAULT_SNDFILE);
+		read_sndfile(1);
 	}
 
 	return (ham_ok && snd_ok);               //read ok
