@@ -8,7 +8,7 @@
 # terms and a link to the Git history.
 
 EAPI=7
-PYTHON_COMPAT=( python3_7 )
+PYTHON_COMPAT=( python3_9 )
 
 inherit desktop eutils python-any-r1 scons-utils toolchain-funcs xdg
 if [[ "$PV" = 9999 ]]; then
