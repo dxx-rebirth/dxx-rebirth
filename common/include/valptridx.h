@@ -463,9 +463,10 @@ public:
 	pointer_type get_nonnull_pointer(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS) const
 	{
 		/* If !allow_nullptr, assume nullptr was caught at construction.  */
-		if (allow_nullptr)
-			check_null_pointer_conversion<null_pointer_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS m_ptr);
-		return m_ptr;
+		const auto p = m_ptr;
+		if constexpr (allow_nullptr)
+			check_null_pointer_conversion<null_pointer_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p);
+		return p;
 	}
 	reference_type get_checked_reference(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS) const
 	{
@@ -482,7 +483,8 @@ public:
 			m_ptr(nullptr)
 	{
 		static_assert(static_cast<std::size_t>(v) >= array_size, "valid magic index requires an array");
-		static_assert(allow_nullptr || static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");
+		if constexpr (!allow_nullptr)
+			static_assert(static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");
 	}
 	template <integral_type v>
 		ptr(const magic_constant<v> &, array_managed_type &a) :
@@ -532,7 +534,7 @@ public:
 		 */
 		m_ptr(p)
 	{
-		if (!allow_nullptr)
+		if constexpr (!allow_nullptr)
 			check_null_pointer<null_pointer_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, a);
 	}
 	ptr(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS reference_type r, array_managed_type &a) :
