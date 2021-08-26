@@ -329,23 +329,29 @@ public:
 	{
 		if (nv > MAX_POINTS_PER_POLY)
 			return;
+#if defined(DXX_BUILD_DESCENT_II)
+		fix effective_glow_value;
+		if (glow_values && glow_num < glow_values->size())
+		{
+			effective_glow_value = (*glow_values)[glow_num];
+			if (effective_glow_value == -3)
+				return;
+		}
+		else
+			effective_glow_value = 0;
+#endif
 		if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0)
 		{
-#if defined(DXX_BUILD_DESCENT_II)
-			if (!glow_values || !(glow_num < glow_values->size()) || (*glow_values)[glow_num] != -3)
-#endif
-			{
-				//					DPH: Now we treat this color as 15bpp
 #if defined(DXX_BUILD_DESCENT_I)
 				const uint8_t color = w(p + 28);
 #elif defined(DXX_BUILD_DESCENT_II)
-				const uint8_t color = (glow_values && glow_num < glow_values->size() && (*glow_values)[glow_num] == -2)
+				//					DPH: Now we treat this color as 15bpp
+				const uint8_t color = effective_glow_value == -2
 					? 255
 					: gr_find_closest_color_15bpp(w(p + 28));
 #endif
 				const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
 				g3_draw_poly(*grd_curcanv, nv, point_list, color);
-			}
 		}
 	}
 	static g3s_lrgb get_glow_light(const fix c)
