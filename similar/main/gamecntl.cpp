@@ -586,7 +586,10 @@ static void save_pr_screenshot()
 {
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
-	render_frame(canvas, 0);
+	{
+		window_rendered_data window;
+		render_frame(canvas, 0, window);
+	}
 	auto &medium2_font = *MEDIUM2_FONT;
 	gr_string(canvas, medium2_font, SWIDTH - FSPACX(92), SHEIGHT - LINE_SPACING(medium2_font, *GAME_FONT), "DXX-Rebirth\n");
 	gr_flip();

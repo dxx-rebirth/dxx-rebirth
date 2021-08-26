@@ -128,12 +128,6 @@ void render_mine(grs_canvas &, const vms_vector &, vcsegidx_t start_seg_num, fix
 void update_rendered_data(window_rendered_data &window, const object &viewer);
 #endif
 
-static inline void render_frame(grs_canvas &canvas, fix eye_offset)
-{
-	window_rendered_data window;
-	render_frame(canvas, eye_offset, window);
-}
-
 // Render an object.  Calls one of several routines based on type
 void render_object(grs_canvas &, const d_level_unique_light_state &LevelUniqueLightState, vmobjptridx_t obj);
 

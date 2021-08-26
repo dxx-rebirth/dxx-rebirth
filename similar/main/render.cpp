@@ -1709,7 +1709,10 @@ int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int
 	found_seg = segment_none;
 	found_obj = object_none;
 
-	render_frame(*(render_3d_in_big_window ? LargeView.ev_canv : Canv_editor_game), 0);
+	{
+		window_rendered_data window;
+		render_frame(*(render_3d_in_big_window ? LargeView.ev_canv : Canv_editor_game), 0, window);
+	}
 
 	_search_mode = 0;
 

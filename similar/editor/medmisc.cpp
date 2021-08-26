@@ -310,7 +310,8 @@ int medlisp_update_screen()
 		}
 
 		gr_set_current_canvas(render_canv);
-		render_frame(*grd_curcanv, 0);
+		window_rendered_data window;
+		render_frame(*grd_curcanv, 0, window);
 
 		Assert(render_canv->cv_bitmap.bm_w == show_canv->cv_bitmap.bm_w &&
 				 render_canv->cv_bitmap.bm_h == show_canv->cv_bitmap.bm_h);

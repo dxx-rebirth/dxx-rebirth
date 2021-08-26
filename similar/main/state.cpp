@@ -1286,7 +1286,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 	auto cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
 	{
-		render_frame(*cnv, 0);
+		{
+			window_rendered_data window;
+			render_frame(*cnv, 0, window);
+		}
 
 		{
 #if DXX_USE_OGL
