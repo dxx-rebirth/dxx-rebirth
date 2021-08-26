@@ -8,7 +8,7 @@
 # terms and a link to the Git history.
 
 EAPI=7
-PYTHON_COMPAT=( python3_7 )
+PYTHON_COMPAT=( python3_9 )
 
 inherit desktop eutils python-any-r1 scons-utils toolchain-funcs xdg
 if [[ "$PV" = 9999 ]]; then
@@ -18,7 +18,7 @@ if [[ "$PV" = 9999 ]]; then
 	KEYWORDS=
 	PROPERTIES="live"
 else
-	MY_COMMIT='aba40babb47d36a88011af01e4bc0fc00dca74ef'
+	MY_COMMIT='027704e85e81a4a759f8a9ea596f42d00cf22179'
 	S="$WORKDIR/$PN-$MY_COMMIT"
 	SRC_URI="https://codeload.github.com/dxx-rebirth/dxx-rebirth/tar.gz/$MY_COMMIT -> $PN-$PVR.tar.gz"
 	unset MY_COMMIT
@@ -53,7 +53,7 @@ IUSE="+d1x +d2x +data debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +musi
 #
 # PNG support enables writing screenshots as PNG instead of TGA (for
 # USE=opengl) or PCX (for USE=-opengl).
-DEPEND="dev-games/physfs[hog,mvl,zip]
+DEPEND=">=dev-games/physfs-3[hog,mvl,zip]
 	opengl? (
 		virtual/opengl
 		virtual/glu )
