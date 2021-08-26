@@ -301,7 +301,7 @@ static unsigned gr_rle_getsize(int org_size, const uint8_t *src)
 
 }
 
-int gr_bitmap_rle_compress(grs_bitmap &bmp)
+void gr_bitmap_rle_compress(grs_bitmap &bmp)
 {
 	int doffset;
 	int large_rle = 0;
@@ -329,7 +329,7 @@ int gr_bitmap_rle_compress(grs_bitmap &bmp)
 	{
 		auto d1 = gr_rle_getsize(bm_w, &bmp.get_bitmap_data()[bm_w * y]);
 		if ( ((doffset+d1) > bmp.bm_w*bmp.bm_h) || (d1 > (large_rle?32767:255) ) ) {
-			return 0;
+			return;
 		}
 		const auto d = gr_rle_encode( bmp.bm_w, &bmp.get_bitmap_data()[bmp.bm_w*y], &rle_data[doffset] );
 		Assert( d==d1 );
@@ -342,7 +342,6 @@ int gr_bitmap_rle_compress(grs_bitmap &bmp)
 	memcpy(bmp.get_bitmap_data(), &doffset, 4);
 	memcpy(&bmp.get_bitmap_data()[4], &rle_data.get()[4], doffset - 4);
 	bmp.add_flags(BM_FLAG_RLE | large_rle);
-	return 1;
 }
 
 namespace {
