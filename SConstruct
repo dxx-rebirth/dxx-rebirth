@@ -12,6 +12,7 @@ import subprocess
 import sys
 import os
 import SCons.Util
+import SCons.Script
 
 # Disable injecting tools into default namespace
 SCons.Defaults.DefaultEnvironment(tools = [])
@@ -92,8 +93,8 @@ class ToolchainInformation(StaticSubprocess):
 		tool = env.subst('$CXX $CXXFLAGS $LINKFLAGS -print-prog-name=%s' % tool)
 		return tool, _qcall(tool).out.strip()
 	@staticmethod
-	def show_partial_environ(env, user_settings, f):
-		f("CHOST: %r" % (user_settings.CHOST,))
+	def show_partial_environ(env, user_settings, f, msgprefix, append_newline='\n'):
+		f("{}: CHOST: {!r}{}".format(msgprefix, user_settings.CHOST, append_newline))
 		for v in (
 			'CXX',
 			'CPPDEFINES',
@@ -112,13 +113,13 @@ class ToolchainInformation(StaticSubprocess):
 			) if user_settings.host_platform == 'darwin' else (
 			)
 		):
-			f("%s: %r" % (v, env.get(v, None)))
+			f("{}: {}: {!r}{}".format(msgprefix, v, env.get(v, None), append_newline))
 		penv = env['ENV']
 		for v in (
 			'CCACHE_PREFIX',
 			'DISTCC_HOSTS',
 		):
-			f("$%s: %r" % (v, penv.get(v, None)))
+			f("{}: ${}: {!r}{}".format(msgprefix, v, penv.get(v, None), append_newline))
 
 class Git(StaticSubprocess):
 	__git_archive_export_commit = '$Format:%H$'
@@ -791,7 +792,7 @@ help:assume C++ compiler works
 %s
 #endif
 ''' % (_crc32(s.encode()), s)
-		ToolchainInformation.show_partial_environ(cenv, user_settings, lambda s, _Display=context.Display, _msgprefix=self.msgprefix: _Display("%s:\t%s\n" % (_msgprefix, s)))
+		ToolchainInformation.show_partial_environ(cenv, user_settings, context.Display, self.msgprefix)
 		if use_ccache:
 			if use_distcc:
 				if Link(context, text='', msg='whether ccache, distcc, C++ compiler, and linker work', calling_function='ccache_distcc_ld_works'):
@@ -2768,7 +2769,7 @@ constexpr literal_as_type<T, v...> operator""_literal_as_type();
 		return 'check_linker_option%s' % opt.replace('-', '_').replace(',', '_')
 	@_custom_test
 	def check_preferred_compiler_options(self,context,
-		ccopts=__preferred_compiler_options,
+		ccopts=list(__preferred_compiler_options),
 		ldopts=(),
 		_text='''
 /* clang on OS X incorrectly diagnoses mistakes in Apple system headers
@@ -2837,7 +2838,7 @@ unsigned u2(bool b)
 			Link(context, text=_text, main='', msg='whether linker accepts option %s' % opt, successflags={'LINKFLAGS' : (opt,)}, calling_function=_mangle_linker_option_name(opt)[6:])
 	@classmethod
 	def register_preferred_compiler_options(cls,
-		ccopts = __preferred_compiler_options,
+		ccopts = ('-Wextra',) + __preferred_compiler_options,
 		# Always register target-specific tests on the class.  Individual
 		# targets will decide whether to run the tests.
 		ldopts = __preferred_win32_linker_options,
@@ -2855,7 +2856,7 @@ unsigned u2(bool b)
 		for opt in ldopts:
 			record(RecordedTest(mangle(opt), 'assume linker accepts %s' % opt))
 		assert cls.custom_tests[0].name == cls.check_cxx_works.__name__, cls.custom_tests[0].name
-		assert cls.custom_tests[-1].name == cls._restore_cxx_prefix.__name__, cls.custom_tests[-1].name
+		assert cls.custom_tests[-1].name == cls._cleanup_configure_test_state.__name__, cls.custom_tests[-1].name
 
 	@_implicit_test
 	def check_boost_test(self,context):
@@ -2914,11 +2915,12 @@ scons: dylibbundler stderr: %r
 	# but is responsible for reversing test-environment-specific changes made
 	# by check_cxx_works.
 	@_custom_test
-	def _restore_cxx_prefix(self,context):
+	def _cleanup_configure_test_state(self,context):
 		sconf = context.sconf
 		sconf.config_h_text = self.__commented_tool_versions + sconf.config_h_text
 		context.env['CXXCOM'] = self.__cxx_com_prefix
 		context.did_show_result = True
+		ToolchainInformation.show_partial_environ(context.env, self.user_settings, context.Display, self.msgprefix)
 
 ConfigureTests.register_preferred_compiler_options()
 
@@ -4719,7 +4721,6 @@ class DXXArchive(DXXCommon):
 		self.process_user_settings()
 		self.configure_environment()
 		self.create_special_target_nodes(self)
-		ToolchainInformation.show_partial_environ(self.env, user_settings, lambda s, _message=message, _self=self: _message(self, s))
 
 	def configure_environment(self):
 		fs = SCons.Node.FS.get_default_fs()
@@ -5081,7 +5082,7 @@ class DXXProgram(DXXCommon):
 		# Must use [] here, not (), since it is concatenated with other
 		# lists.
 		env.__dxx_CPPDEFINE_SHAREPATH = [('DXX_SHAREPATH', self._quote_cppdefine(sharepath, f=str))] if sharepath else []
-		message(self, "default sharepath is %r" % (sharepath or None))
+		SCons.Script.Main.progress_display("{}: default sharepath is {!r}".format(self.program_message_prefix, sharepath or None))
 		env.Append(
 			CPPDEFINES = [
 				self.env_CPPDEFINES,
@@ -5112,7 +5113,7 @@ class DXXProgram(DXXCommon):
 		exe_target = self.builddir.File(exe_target)
 		if user_settings.register_compile_target:
 			exe_target = self._register_program(exe_target)
-			ToolchainInformation.show_partial_environ(env, user_settings, lambda s, _message=message, _self=self: _message(self, s))
+			ToolchainInformation.show_partial_environ(env, user_settings, SCons.Script.Main.progress_display, self.program_message_prefix, append_newline='')
 		if user_settings.register_install_target:
 			self._register_install(self.shortname, exe_target)
 
