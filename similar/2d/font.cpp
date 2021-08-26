@@ -211,11 +211,9 @@ static int gr_internal_string0_template(grs_canvas &canvas, const grs_font &cv_f
 	//to allow easy reseting to default string color with colored strings -MPM
 	const auto orig_color = canvas.cv_font_fg_color;
 	VideoOffset1 = y * canvas.cv_bitmap.bm_rowsize + x;
-	auto next_row = s;
-	while (next_row != NULL )
+	for (auto next_row = s; next_row;)
 	{
-		const auto text_ptr1 = next_row;
-		next_row = NULL;
+		const auto text_ptr1 = std::exchange(next_row, nullptr);
 
 		if (x==0x8000) {			//centered
 			int xx = get_centered_x(canvas, cv_font, text_ptr1);
@@ -602,17 +600,9 @@ static void ogl_init_font(grs_font * font)
 	ogl_loadbmtexture_f(font->ft_parent_bitmap, CGameCfg.TexFilt, 0, 0);
 }
 
-static void ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s)
+static void ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, const int entry_x, int yy, const char *const s)
 {
-	const char * text_ptr, * next_row, * text_ptr1;
-	int letter;
-	int xx,yy;
-	int orig_color = canvas.cv_font_fg_color;//to allow easy reseting to default string color with colored strings -MPM
-	int underline;
-
-	next_row = s;
-
-	yy = y;
+	auto orig_color = canvas.cv_font_fg_color;//to allow easy reseting to default string color with colored strings -MPM
 
 	if (grd_curscreen->sc_canvas.cv_bitmap.get_type() != bm_mode::ogl)
 		Error("carp.\n");
@@ -621,58 +611,49 @@ static void ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, con
 	const auto &&fontscale_x = FONTSCALE_X();
 	const auto &&FONTSCALE_Y_ft_h = FONTSCALE_Y(cv_font.ft_h);
 	ogl_colors colors;
-	while (next_row != NULL)
+	for (auto next_row = s; next_row;)
 	{
-		text_ptr1 = next_row;
-		next_row = NULL;
+		auto text_ptr = std::exchange(next_row, nullptr);
+		auto line_x = entry_x == 0x8000
+			? get_centered_x(canvas, cv_font, text_ptr)
+			: entry_x;
 
-		text_ptr = text_ptr1;
-
-		xx = x;
-
-		if (xx==0x8000)			//centered
-			xx = get_centered_x(canvas, cv_font, text_ptr);
-
-		while (*text_ptr)
+		for (; const auto c0 = *text_ptr;)
 		{
-
-			if (*text_ptr == '\n' )
+			if (c0 == '\n')
 			{
 				next_row = &text_ptr[1];
 				yy += FONTSCALE_Y_ft_h + fspacy1;
 				break;
 			}
 
-			letter = static_cast<uint8_t>(*text_ptr) - cv_font.ft_minchar;
+			const auto letter = c0 - cv_font.ft_minchar;
 
-			const auto &result = get_char_width<int>(cv_font, text_ptr[0], text_ptr[1]);
+			const auto &result = get_char_width<int>(cv_font, c0, text_ptr[1]);
 			const auto &spacing = result.spacing;
 
-			underline = 0;
-			if (!INFONT(letter) || static_cast<uint8_t>(*text_ptr) <= 0x06) //not in font, draw as space
+			uint8_t underline = 0;
+			if (!INFONT(letter) || c0 <= 0x06) //not in font, draw as space
 			{
 				CHECK_EMBEDDED_COLORS() else{
-					xx += spacing;
+					line_x += spacing;
 					text_ptr++;
 				}
-				
 				if (underline)
 				{
 					const auto color = canvas.cv_font_fg_color;
-					gr_rect(canvas, xx, yy + cv_font.ft_baseline + 2, xx + cv_font.ft_w, yy + cv_font.ft_baseline + 3, color);
+					gr_rect(canvas, line_x, yy + cv_font.ft_baseline + 2, line_x + cv_font.ft_w, yy + cv_font.ft_baseline + 3, color);
 				}
 
 				continue;
 			}
-			
 			const auto ft_w = (cv_font.ft_flags & FT_PROPORTIONAL)
 				? cv_font.ft_widths[letter]
 				: cv_font.ft_w;
 
-			ogl_ubitmapm_cs(canvas, xx, yy, fontscale_x(ft_w), FONTSCALE_Y_ft_h, cv_font.ft_bitmaps[letter], (cv_font.ft_flags & FT_COLOR) ? colors.white : (canvas.cv_bitmap.get_type() == bm_mode::ogl) ? colors.init(canvas.cv_font_fg_color) : throw std::runtime_error("non-color string to non-ogl dest"), F1_0);
+			ogl_ubitmapm_cs(canvas, line_x, yy, fontscale_x(ft_w), FONTSCALE_Y_ft_h, cv_font.ft_bitmaps[letter], (cv_font.ft_flags & FT_COLOR) ? colors.white : (canvas.cv_bitmap.get_type() == bm_mode::ogl) ? colors.init(canvas.cv_font_fg_color) : throw std::runtime_error("non-color string to non-ogl dest"), F1_0);
 
-			xx += spacing;
-
+			line_x += spacing;
 			text_ptr++;
 		}
 	}
