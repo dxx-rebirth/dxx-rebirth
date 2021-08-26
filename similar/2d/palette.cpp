@@ -43,11 +43,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-#define SQUARE(x) ((x)*(x))
-
 #define	MAX_COMPUTED_COLORS	32
 
 namespace {
+
+unsigned get_squared_color_delta(const int r, const int g, const int b, const rgb_t &rgb)
+{
+	const auto dr = r - rgb.r;
+	const auto dg = g - rgb.g;
+	const auto db = b - rgb.b;
+	return (dr * dr) + (dg * dg) + (db * db);
+}
 
 static unsigned Num_computed_colors;
 
@@ -231,7 +237,6 @@ void init_computed_colors(void)
 color_palette_index gr_find_closest_color(const int r, const int g, const int b)
 {
 	int j;
-	int best_value, value;
 
 	if (Num_computed_colors == 0)
 		init_computed_colors();
@@ -254,7 +259,7 @@ color_palette_index gr_find_closest_color(const int r, const int g, const int b)
 //	g &= 63;
 //	b &= 63;
 
-	best_value = SQUARE(r-gr_palette[0].r)+SQUARE(g-gr_palette[0].g)+SQUARE(b-gr_palette[0].b);
+	auto best_value = get_squared_color_delta(r, g, b, gr_palette[0]);
 	color_palette_index best_index = 0;
 	if (best_value==0) {
 		add_computed_color(r, g, b, best_index);
@@ -265,7 +270,7 @@ color_palette_index gr_find_closest_color(const int r, const int g, const int b)
 	for (color_palette_index i{1}; i < 254; ++i)
 	{
 		++j;
-		value = SQUARE(r-gr_palette[j].r)+SQUARE(g-gr_palette[j].g)+SQUARE(b-gr_palette[j].b);
+		const auto value = get_squared_color_delta(r, g, b, gr_palette[j]);
 		if ( value < best_value )	{
 			if (value==0) {
 				add_computed_color(r, g, b, i);
@@ -288,13 +293,12 @@ color_palette_index gr_find_closest_color_15bpp( int rgb )
 color_palette_index gr_find_closest_color_current( int r, int g, int b )
 {
 	int j;
-	int best_value, value;
 
 //	r &= 63;
 //	g &= 63;
 //	b &= 63;
 
-	best_value = SQUARE(r-gr_current_pal[0].r)+SQUARE(g-gr_current_pal[0].g)+SQUARE(b-gr_current_pal[0].b);
+	auto best_value = get_squared_color_delta(r, g, b, gr_current_pal[0]);
 	color_t best_index = 0;
 	if (best_value==0)
  		return best_index;
@@ -303,7 +307,7 @@ color_palette_index gr_find_closest_color_current( int r, int g, int b )
 	// only go to 255, 'cause we dont want to check the transparent color.
 	for (color_t i=1; i < 254; i++ )	{
 		++j;
-		value = SQUARE(r-gr_current_pal[j].r)+SQUARE(g-gr_current_pal[j].g)+SQUARE(b-gr_current_pal[j].b);
+		const auto value = get_squared_color_delta(r, g, b, gr_current_pal[j]);
 		if ( value < best_value )	{
 			if (value==0)
 				return i;
