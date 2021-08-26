@@ -625,6 +625,12 @@ static int main(int argc, char *argv[])
 #if defined(DXX_BUILD_DESCENT_II)
 	con_puts(CON_DEBUG, "Initializing movie libraries...");
 	auto &&loaded_builtin_movies = init_movies();		//init movie libraries
+	/* clang does not recognize that creating the variable for the
+	 * purpose of extending the returned value's lifetime is a use.  Add
+	 * an explicit dummy use to silence its bogus -Wunused-variable
+	 * warning.
+	 */
+	(void)loaded_builtin_movies;
 #endif
 
 	show_titles();
