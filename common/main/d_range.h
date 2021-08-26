@@ -10,6 +10,14 @@
 #include <iterator>
 #include <utility>
 
+/* These could be empty tag types, but defining them from
+ * std::integral_constant<bool, V> allows the deduction guide for
+ * std::integral_constant<$integer_type, V> to handle them.  If these
+ * were done as tag types, a separate deduction guide would be required.
+ */
+using xrange_ascending = std::true_type;
+using xrange_descending = std::false_type;
+
 namespace detail {
 
 template <typename T>
@@ -32,19 +40,45 @@ struct xrange_is_unsigned<std::integral_constant<T, v>> : std::is_unsigned<T>
 	 */
 };
 
-template <typename B, typename E>
+template <typename B, typename E, typename step_type>
 struct xrange_check_constant_endpoints : std::true_type
 {
 	/* By default, endpoints are not constant and are not checked. */
 };
 
 template <typename Tb, Tb b, typename Te, Te e>
-struct xrange_check_constant_endpoints<std::integral_constant<Tb, b>, std::integral_constant<Te, e>> : std::true_type
+struct xrange_check_constant_endpoints<std::integral_constant<Tb, b>, std::integral_constant<Te, e>, xrange_ascending> : std::true_type
 {
 	/* If both endpoints are constant, a static_assert can validate that
 	 * the range is not empty.
 	 */
 	static_assert(b < e, "range is always empty due to value of `b` versus value of `e`");
+};
+
+template <typename Tb, Tb b, typename Te, Te e>
+struct xrange_check_constant_endpoints<std::integral_constant<Tb, b>, std::integral_constant<Te, e>, xrange_descending> : std::true_type
+{
+	static_assert(e < b, "range is always empty due to value of `b` versus value of `e`");
+};
+
+template <typename Tb, Tb b, typename Te, Te e, typename Tstep, Tstep step>
+struct xrange_check_constant_endpoints<std::integral_constant<Tb, b>, std::integral_constant<Te, e>, std::integral_constant<Tstep, step>> :
+	xrange_check_constant_endpoints<
+		std::integral_constant<Tb, b>,
+		std::integral_constant<Te, e>,
+		typename std::conditional<(step > 0), xrange_ascending, xrange_descending>::type
+		>
+{
+	/* The implementation of xrange_iterator::operator++ moves the
+	 * current position by exactly the step value, every time.  If
+	 * std::abs(step) is greater than 1, then some values will be
+	 * stepped over.  Assert that skipping values will not cause
+	 * operator++ to skip over the end value.  If it did, the range
+	 * would continue until wraparound terminated it, the program
+	 * abandoned reading the range, or the program crashed due to out of
+	 * range values.
+	 */
+	static_assert((step > 0 ? ((e - b) % step) : ((b - e) % -step)) == 0, "step size will overstep end value");
 };
 
 }
@@ -80,7 +114,7 @@ public:
 	}
 };
 
-template <typename index_type>
+template <typename index_type, typename step_type>
 class xrange_iterator
 {
 	index_type m_idx;
@@ -100,7 +134,12 @@ public:
 	}
 	xrange_iterator &operator++()
 	{
-		++ m_idx;
+		if constexpr (std::is_same<step_type, xrange_ascending>::value)
+			++ m_idx;
+		else if constexpr (std::is_same<step_type, xrange_descending>::value)
+			-- m_idx;
+		else
+			m_idx += step_type::value;
 		return *this;
 	}
 	constexpr bool operator!=(const xrange_iterator &i) const
@@ -113,29 +152,36 @@ public:
  * xrange object.  Python3 renamed it to `range`.  The older name is
  * kept because it is easier to find with grep.
  */
-template <typename index_type, typename B = index_type, typename E = index_type>
+template <typename index_type, typename B = index_type, typename E = index_type, typename step_type = xrange_ascending>
 class xrange :
 	public xrange_endpoint<B, true>,
 	public xrange_endpoint<E, false>
 {
 	using begin_type = xrange_endpoint<B, true>;
 	using end_type = xrange_endpoint<E, false>;
-	using iterator = xrange_iterator<index_type>;
+	using iterator = xrange_iterator<index_type, step_type>;
 	/* This static_assert has no message, since the value is always
 	 * true.  Use of static_assert forces instantiation of the type,
 	 * which has a static_assert that checks the values and displays a
 	 * message on failure.
 	 */
-	static_assert(detail::xrange_check_constant_endpoints<B, E>::value);
+	static_assert(detail::xrange_check_constant_endpoints<B, E, step_type>::value);
 	static_assert(!std::is_reference<E>::value, "xrange<E> must be a value, not a reference");
-	static begin_type init_begin(B b, E e)
+	static B init_begin(B b, E e)
 	{
 		if constexpr (std::is_convertible<E, B>::value)
 		{
+			bool ascending;
+			if constexpr (std::is_same<step_type, xrange_ascending>::value)
+				ascending = true;
+			else if constexpr (std::is_same<step_type, xrange_descending>::value)
+				ascending = false;
+			else
+				ascending = step_type::value > 0;
 #ifdef DXX_CONSTANT_TRUE
-			(DXX_CONSTANT_TRUE(!(b < e)) && (DXX_ALWAYS_ERROR_FUNCTION(xrange_is_always_empty, "begin never less than end"), 0));
+			(DXX_CONSTANT_TRUE(!(ascending ? b < e : e < b)) && (DXX_ALWAYS_ERROR_FUNCTION(xrange_is_always_empty, "begin never less than end"), 0));
 #endif
-			if (!(b < e))
+			if (!(ascending ? b < e : e < b))
 				return e;
 		}
 		else
@@ -146,6 +192,16 @@ public:
 	using range_owns_iterated_storage = std::false_type;
 	xrange(B b, E e) :
 		begin_type(init_begin(std::move(b), e)), end_type(std::move(e))
+	{
+	}
+	/* Allow, but ignore, a third argument with the step size.  The
+	 * argument must be here for class template argument deduction to
+	 * work.  step_type is included in the class template argument list,
+	 * and so does not need to be recorded in the object.
+	 */
+	template <typename T, T step>
+		xrange(B b, E e, std::integral_constant<T, step>) :
+			xrange(b, e)
 	{
 	}
 	xrange(E e) :
@@ -177,6 +233,14 @@ xrange(Tb &&b, Te &&e) -> xrange<
 	typename std::common_type<Tb, Te>::type,
 	typename std::remove_const<typename std::remove_reference<Tb>::type>::type,
 	typename std::remove_const<typename std::remove_reference<Te>::type>::type
+	>;
+
+template <typename Tb, typename Te, typename Tstep, Tstep step>
+xrange(Tb &&b, Te &&e, std::integral_constant<Tstep, step>) -> xrange<
+	typename std::common_type<Tb, Te>::type,
+	typename std::remove_const<typename std::remove_reference<Tb>::type>::type,
+	typename std::remove_const<typename std::remove_reference<Te>::type>::type,
+	std::integral_constant<Tstep, step>
 	>;
 
 template <typename Te>

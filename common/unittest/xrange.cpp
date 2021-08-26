@@ -68,3 +68,45 @@ BOOST_AUTO_TEST_CASE(xrange_contents_start)
 	std::vector<unsigned> expected{2, 3};
 	BOOST_TEST(out == expected);
 }
+
+/* Test that an xrange produces the correct values when stepping up
+ * with skipped values.
+ */
+BOOST_AUTO_TEST_CASE(xrange_contents_start_up_2)
+{
+	std::vector<unsigned> out;
+	for (auto &&v : xrange(std::integral_constant<unsigned, 2u>(), std::integral_constant<unsigned, 6u>(), std::integral_constant<int, 2>()))
+		out.emplace_back(v);
+	std::vector<unsigned> expected{2, 4};
+	BOOST_TEST(out == expected);
+}
+
+BOOST_AUTO_TEST_CASE(xrange_contents_descending)
+{
+	std::vector<unsigned> out;
+	for (auto &&v : xrange(std::integral_constant<unsigned, 4u>(), std::integral_constant<unsigned, 2u>(), xrange_descending()))
+		out.emplace_back(v);
+	std::vector<unsigned> expected{4, 3};
+	BOOST_TEST(out == expected);
+}
+
+/* Test that an xrange produces the correct values when stepping down
+ * with skipped values.
+ */
+BOOST_AUTO_TEST_CASE(xrange_contents_start_down_2_constant)
+{
+	std::vector<unsigned> out;
+	for (auto &&v : xrange(std::integral_constant<unsigned, 5u>(), std::integral_constant<unsigned, 1u>(), std::integral_constant<int, -2>()))
+		out.emplace_back(v);
+	std::vector<unsigned> expected{5, 3};
+	BOOST_TEST(out == expected);
+}
+
+BOOST_AUTO_TEST_CASE(xrange_contents_start_down_variable)
+{
+	std::vector<unsigned> out;
+	for (auto &&v : xrange(5u, std::integral_constant<unsigned, 2u>(), xrange_descending()))
+		out.emplace_back(v);
+	std::vector<unsigned> expected{5, 4, 3};
+	BOOST_TEST(out == expected);
+}

@@ -62,7 +62,7 @@ class valptridx :
 	class array_base_count_type;
 	using array_base_storage_type = typename std::conditional<
 		std::is_enum<typename specialized_types::integral_type>::value,
-		enumerated_array<managed_type, array_size, typename specialized_types::integral_type>,
+		dcx::enumerated_array<managed_type, array_size, typename specialized_types::integral_type>,
 		std::array<managed_type, array_size>
 		>::type;
 protected:
