@@ -654,7 +654,7 @@ static void do_render_object(grs_canvas &canvas, const d_level_unique_light_stat
 	//	Added by MK on 09/07/94 (at about 5:28 pm, CDT, on a beautiful, sunny late summer day!) so
 	//	that the guided missile system will know what objects to look at.
 	//	I didn't know we had guided missiles before the release of D1. --MK
-	if (obj->type == OBJ_ROBOT)
+	if (obj->type == OBJ_ROBOT && obj->ctype.ai_info.ail.player_awareness_type == player_awareness_type_t::PA_NONE && (obj.get_unchecked_index() & 3) == (d_tick_count & 3))
 		window.rendered_robots.emplace_back(obj);
 
 	if ((count++ > MAX_OBJECTS) || (obj->next == obj)) {
