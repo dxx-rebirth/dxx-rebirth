@@ -39,8 +39,6 @@ void ui_draw_userbox(UI_DIALOG &dlg, UI_GADGET_USERBOX &userbox)
 	if ( userbox->status==1 )
 #endif
 	{
-		userbox.status = 0;
-
 		gr_set_current_canvas(userbox.canvas);
 
 		const uint8_t color = (dlg.keyboard_focus_gadget == &userbox)

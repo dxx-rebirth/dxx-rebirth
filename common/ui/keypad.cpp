@@ -290,7 +290,6 @@ static void ui_pad_set_active( int n )
 	range_for (const int i, xrange(17u))
 	{
 		Pad[i]->text = KeyPad[n]->buttontext[i].data();
-		Pad[i]->status = 1;
 		Pad[i]->user_function = NULL;
 		Pad[i]->dim_if_no_function = 1;
 		Pad[i]->hotkey = -1;

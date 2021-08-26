@@ -40,7 +40,6 @@ void ui_draw_scrollbar(UI_DIALOG &dlg, UI_GADGET_SCROLLBAR &scrollbar)
 		return;
 #endif
 
-	scrollbar.status = 0;
 	gr_set_current_canvas(scrollbar.canvas);
 	auto &canvas = *grd_curcanv;
 
@@ -120,7 +119,6 @@ window_event_result UI_GADGET_SCROLLBAR::event_handler(UI_DIALOG &dlg, const d_e
 	}
 
 	const auto op = position;
-	const auto oldpos = fake_position;
 
 	moved = 0;
 
@@ -283,10 +281,6 @@ window_event_result UI_GADGET_SCROLLBAR::event_handler(UI_DIALOG &dlg, const d_e
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 	}
-
-	if (oldpos != fake_position)
-		status = 1;
-
 	return rval;
 }
 

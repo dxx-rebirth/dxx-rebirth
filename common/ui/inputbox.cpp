@@ -60,8 +60,6 @@ void ui_draw_inputbox(UI_DIALOG &dlg, UI_GADGET_INPUTBOX &inputbox)
 		else
 			gr_set_fontcolor(canvas, CWHITE, -1);
 
-		inputbox.status = 0;
-
 		gr_string(canvas, *canvas.cv_font, 2, 2, inputbox.text.get(), w, h);
 
 		if (dlg.keyboard_focus_gadget == &inputbox && !inputbox.first_time)
@@ -115,13 +113,11 @@ window_event_result UI_GADGET_INPUTBOX::event_handler(UI_DIALOG &dlg, const d_ev
 			if (position > 0)
 				position--;
 			text[position] = 0;
-			status = 1;
 			if (first_time) first_time = 0;
 			rval = window_event_result::handled;
 			break;
 		case (KEY_ENTER):
 			pressed=1;
-			status = 1;
 			if (first_time) first_time = 0;
 			rval = window_event_result::handled;
 			break;
@@ -138,7 +134,6 @@ window_event_result UI_GADGET_INPUTBOX::event_handler(UI_DIALOG &dlg, const d_ev
 				text[position] = 0;
 				rval = window_event_result::handled;
 			}
-			status = 1;
 			break;
 			}
 		}
@@ -166,7 +161,6 @@ void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, const char *text)
 	inputbox->text[ltext] = 0;
 	inputbox->position = ltext;
 	inputbox->oldposition = inputbox->position;
-	inputbox->status = 1;		// redraw
 	inputbox->first_time = 1;	// select all
 }
 

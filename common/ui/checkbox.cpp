@@ -42,8 +42,6 @@ void ui_draw_checkbox(UI_DIALOG &dlg, UI_GADGET_CHECKBOX &checkbox)
 	if ((checkbox.status==1) || (checkbox.position != checkbox.oldposition))
 #endif
 	{
-		checkbox.status = 0;
-
 		gr_set_current_canvas(checkbox.canvas);
 		auto &canvas = *grd_curcanv;
 		gr_set_fontcolor(canvas, dlg.keyboard_focus_gadget == &checkbox
@@ -145,7 +143,6 @@ void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check)
 		return;
 	
 	checkbox->flag = check;
-	checkbox->status = 1;	// redraw
 }
 
 }

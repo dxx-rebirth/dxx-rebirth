@@ -52,8 +52,6 @@ void ui_draw_icon(UI_GADGET_ICON &icon)
 	if ((icon->status==1) || (icon->position != icon->oldposition))
 #endif
 	{
-		icon.status = 0;
-
 		gr_set_current_canvas(icon.canvas);
 		auto &canvas = *grd_curcanv;
 		gr_get_string_size(*canvas.cv_font, icon.text.get(), &width, &height, nullptr);
@@ -156,7 +154,6 @@ window_event_result UI_GADGET_ICON::event_handler(UI_DIALOG &dlg, const d_event 
 		
 	if (pressed == 1)
 	{
-		status = 1;
 		flag = static_cast<int8_t>(user_function());
 		rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, *this);
 		if (rval == window_event_result::ignored)

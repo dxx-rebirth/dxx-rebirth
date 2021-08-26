@@ -72,7 +72,6 @@ void ui_draw_button(UI_DIALOG &dlg, UI_GADGET_BUTTON &button)
 				: CBLACK
 			), -1);
 
-		button.status = 0;
 		if (!button.text.empty())
 		{
 			unsigned offset;

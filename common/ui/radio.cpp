@@ -47,8 +47,6 @@ void ui_draw_radio(UI_DIALOG &dlg, UI_GADGET_RADIO &radio)
 	if ((radio->status==1) || (radio->position != radio->oldposition))
 #endif
 	{
-		radio.status = 0;
-
 		gr_set_current_canvas(radio.canvas);
 		auto &canvas = *grd_curcanv;
 		gr_set_fontcolor(canvas, dlg.keyboard_focus_gadget == &radio ? CRED : CBLACK, -1);
@@ -137,7 +135,6 @@ window_event_result UI_GADGET_RADIO::event_handler(UI_DIALOG &dlg, const d_event
 				if ((tmpr->group == group ) && (tmpr->flag) )
 				{
 					tmpr->flag = 0;
-					tmpr->status = 1;
 					tmpr->pressed = 0;
 				}
 			}
@@ -162,14 +159,11 @@ void ui_radio_set_value(UI_GADGET_RADIO &radio, int value)
 		return;
 
 	radio.flag = value;
-	radio.status = 1;	// redraw
-
 	for (auto tmp = &radio; (tmp = static_cast<UI_GADGET_RADIO *>(tmp->next)) != &radio;)
 	{
 		if (tmp->kind == UI_GADGET_RADIO::s_kind && tmp->group == radio.group && tmp->flag)
 		{
 			tmp->flag = 0;
-			tmp->status = 1;
 		}
 	}
 }

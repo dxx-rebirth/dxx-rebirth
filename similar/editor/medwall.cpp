@@ -589,7 +589,6 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 			if (doorFlag[i]->flag == 1)
 			{ 
 				doorFlag[i]->flag = 0;		// Tells ui that this button isn't checked
-				doorFlag[i]->status = 1;	// Tells ui to redraw button
 			}
 
 	//------------------------------------------------------------

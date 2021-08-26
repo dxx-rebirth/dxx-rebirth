@@ -67,8 +67,6 @@ void ui_draw_listbox(UI_DIALOG &dlg, UI_GADGET_LISTBOX &listbox)
 	stop = listbox.first_item+listbox.num_items_displayed;
 	if (stop>listbox.num_items) stop = listbox.num_items;
 
-	listbox.status = 0;
-
 	x = y = 0;
 
 	for (int i = listbox.first_item; i < stop; ++i)
@@ -259,7 +257,6 @@ window_event_result UI_GADGET_LISTBOX::event_handler(UI_DIALOG &dlg, const d_eve
 				first_item = 0;
 			else
 			{
-				const auto oldfakepos = scrollbar->position;
 				scrollbar->position = first_item;
 
 				scrollbar->fake_position = scrollbar->position-scrollbar->start;
@@ -274,9 +271,6 @@ window_event_result UI_GADGET_LISTBOX::event_handler(UI_DIALOG &dlg, const d_eve
 				{
 					scrollbar->fake_position = (scrollbar->height-scrollbar->fake_size);
 				}
-
-				if (oldfakepos != scrollbar->position )
-					scrollbar->status = 1;
 			}
 		}
 	}
@@ -330,7 +324,6 @@ window_event_result UI_GADGET_LISTBOX::event_handler(UI_DIALOG &dlg, const d_eve
 				first_item = 0;
 			else
 			{
-				const auto oldfakepos = scrollbar->position;
 				scrollbar->position = first_item;
 
 				scrollbar->fake_position = scrollbar->position-scrollbar->start;
@@ -345,9 +338,6 @@ window_event_result UI_GADGET_LISTBOX::event_handler(UI_DIALOG &dlg, const d_eve
 				{
 					scrollbar->fake_position = (scrollbar->height-scrollbar->fake_size);
 				}
-
-				if (oldfakepos != scrollbar->position )
-					scrollbar->status = 1;
 			}
 
 		}
@@ -382,7 +372,6 @@ void ui_listbox_change(UI_DIALOG *, UI_GADGET_LISTBOX *listbox, uint_fast32_t nu
 	listbox->last_scrolled = timer_query();
 	listbox->dragging = 0;
 	listbox->selected_item = -1;
-	listbox->status = 1;
 	listbox->first_item = 0;
 	listbox->current_item = listbox->old_current_item = 0;
 	listbox->moved = 0;
@@ -407,7 +396,6 @@ void ui_listbox_change(UI_DIALOG *, UI_GADGET_LISTBOX *listbox, uint_fast32_t nu
 	if (scrollbar->fake_size < 7) scrollbar->fake_size = 7;
 	scrollbar->dragging = 0;
 	scrollbar->moved=0;
-	scrollbar->status=1;
 
 
 }

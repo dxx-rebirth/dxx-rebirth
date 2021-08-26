@@ -84,7 +84,6 @@ void ui_gadget_add(UI_DIALOG &dlg, short x1, short y1, short x2, short y2, UI_GA
 	gadget.when_down = nullptr;
 	gadget.when_left = nullptr;
 	gadget.when_right = nullptr;
-	gadget.status = 1;
 	if (x1 == 0 && x2 == 0 && y1 == 0 && y2 == 0)
 		gadget.canvas.reset();
 	else
@@ -240,12 +239,7 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG &dlg, const d_event &event)
 	window_event_result rval = window_event_result::ignored;
 	if (dlg.keyboard_focus_gadget != tmp1)
 	{
-		if (dlg.keyboard_focus_gadget)
-			dlg.keyboard_focus_gadget->status = 1;
-		if (tmp1 != NULL )
-			tmp1->status = 1;
 		rval = window_event_result::handled;
-		
 		if (keypress)
 			return rval;
 	}
