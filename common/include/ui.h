@@ -80,7 +80,6 @@ struct UI_GADGET
 	struct UI_GADGET  * when_right;  \
 	struct UI_GADGET  * parent;    \
 	int             status;     \
-	int             oldstatus;  \
 	grs_subcanvas_ptr canvas;     \
 protected:
 	~UI_GADGET() = default;

@@ -85,7 +85,6 @@ void ui_gadget_add(UI_DIALOG &dlg, short x1, short y1, short x2, short y2, UI_GA
 	gadget.when_left = nullptr;
 	gadget.when_right = nullptr;
 	gadget.status = 1;
-	gadget.oldstatus = 0;
 	if (x1 == 0 && x2 == 0 && y1 == 0 && y2 == 0)
 		gadget.canvas.reset();
 	else
