@@ -408,7 +408,7 @@ struct choose_curseg_menu_items
 	std::array<newmenu_item, 2> m;
 	choose_curseg_menu_items(const d_level_shared_segment_state &LevelSharedSegmentState) :
 		m{{
-			newmenu_item::nm_item_text{(snprintf(caption.data(), caption.size(), "Enter target segment number (max=%hu)", LevelSharedSegmentState.get_segments().get_count()), caption.data())},
+			newmenu_item::nm_item_text{(snprintf(caption.data(), caption.size(), "Enter target segment number (max=%u)", LevelSharedSegmentState.get_segments().get_count()), caption.data())},
 			newmenu_item::nm_item_input{(text.front() = 0, text)},
 		}}
 	{
