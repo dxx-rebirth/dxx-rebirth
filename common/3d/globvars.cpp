@@ -17,7 +17,6 @@
 namespace dcx {
 
 vms_vector	View_position;
-fix			View_zoom;
 
 vms_matrix	Unscaled_matrix;	//before scaling
 vms_matrix	View_matrix;
