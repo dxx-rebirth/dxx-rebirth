@@ -245,7 +245,7 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 	else if (count != 1)
 		err_printf(my_file, "Error: More than one exit trigger in this mine.");
 	else
-		PHYSFSX_printf(my_file, "\n");
+		PHYSFSX_puts_literal(my_file, "\n");
 
 	//	---------- Find exit doors ----------
 	count = 0;
@@ -269,7 +269,7 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 		warning_printf(my_file, "(If %i are secret exits, then no problem.)", count-1); 
 #endif
 	} else
-		PHYSFSX_printf(my_file, "\n");
+		PHYSFSX_puts_literal(my_file, "\n");
 }
 }
 
@@ -453,7 +453,7 @@ static void write_segment_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 			PHYSFSX_printf(my_file, " special = %3i (%s), station_idx=%3i", segp->special, Special_names[segp->special], segp->station_idx);
 		if (segp->matcen_num != -1)
 			PHYSFSX_printf(my_file, " matcen = %3i", segp->matcen_num);
-		PHYSFSX_printf(my_file, "\n");
+		PHYSFSX_puts_literal(my_file, "\n");
 	}
 
 	range_for (const auto &&segp, vcsegptridx)
@@ -472,7 +472,7 @@ static void write_segment_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 					break;
 				}
 			}
-		PHYSFSX_printf(my_file, "\n");
+		PHYSFSX_puts_literal(my_file, "\n");
 	}
 }
 
@@ -515,7 +515,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 					}
 			}
 		}
-		PHYSFSX_printf(my_file, "\n");
+		PHYSFSX_puts_literal(my_file, "\n");
 
 		if (trigger_count == 0)
 			err_printf(my_file, "Error: Matcen %i in segment %i has no trigger!", i, segnum);
@@ -676,8 +676,7 @@ void write_game_text_file(const char *filename)
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	PHYSFSX_printf(my_file, "Number of triggers:   %4i\n", Triggers.get_count());
 	}
-	PHYSFSX_printf(my_file, "Number of matcens:    %4i\n", LevelSharedRobotcenterState.Num_robot_centers);
-	PHYSFSX_printf(my_file, "\n");
+	PHYSFSX_printf(my_file, "Number of matcens:    %4i\n\n", LevelSharedRobotcenterState.Num_robot_centers);
 
 	write_segment_text(vcsegptridx, my_file);
 
@@ -887,11 +886,7 @@ static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_ty
 	const auto Num_tmaps = LevelUniqueTmapInfoState.Num_tmaps;
 	for (i=0; i<Num_tmaps; i++)
 		if (tb[i]) {
-			PHYSFSX_printf(my_file, "[%3i %8s (%4i)] ", i, static_cast<const char *>(TmapInfo[i].filename), tb[i]);
-			if (count++ >= 4) {
-				PHYSFSX_printf(my_file, "\n");
-				count = 0;
-			}
+			PHYSFSX_printf(my_file, "[%3i %8s (%4i)]%s", i, static_cast<const char *>(TmapInfo[i].filename), tb[i], count++ >= 4 ? (count = 0, "\n") : " ");
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 	for (i = 0; i < tb.size(); ++i)

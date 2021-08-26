@@ -731,30 +731,43 @@ static int write_player_dxx(const char *filename)
 	
 	if(fout)
 	{
-		PHYSFSX_printf(fout,PLX_OPTION_HEADER_TEXT "\n");
+		PHYSFSX_puts_literal(fout,
+							PLX_OPTION_HEADER_TEXT "\n"
 #if defined(DXX_BUILD_DESCENT_I)
-		PHYSFSX_printf(fout,WEAPON_REORDER_HEADER_TEXT "\n");
+							WEAPON_REORDER_HEADER_TEXT "\n"
+#endif
+			);
+#if defined(DXX_BUILD_DESCENT_I)
 		PHYSFSX_printf(fout,WEAPON_REORDER_PRIMARY_NAME_TEXT "=" WEAPON_REORDER_PRIMARY_VALUE_TEXT "\n",PlayerCfg.PrimaryOrder[0], PlayerCfg.PrimaryOrder[1], PlayerCfg.PrimaryOrder[2],PlayerCfg.PrimaryOrder[3], PlayerCfg.PrimaryOrder[4], PlayerCfg.PrimaryOrder[5]);
 		PHYSFSX_printf(fout,WEAPON_REORDER_SECONDARY_NAME_TEXT "=" WEAPON_REORDER_SECONDARY_VALUE_TEXT "\n",PlayerCfg.SecondaryOrder[0], PlayerCfg.SecondaryOrder[1], PlayerCfg.SecondaryOrder[2],PlayerCfg.SecondaryOrder[3], PlayerCfg.SecondaryOrder[4], PlayerCfg.SecondaryOrder[5]);
-		PHYSFSX_printf(fout,END_TEXT "\n");
 #endif
-		PHYSFSX_printf(fout,KEYBOARD_HEADER_TEXT "\n");
+		PHYSFSX_puts_literal(fout,
+#if defined(DXX_BUILD_DESCENT_I)
+							END_TEXT "\n"
+#endif
+							KEYBOARD_HEADER_TEXT "\n");
 		print_pattern_array(fout, SENSITIVITY_NAME_TEXT, PlayerCfg.KeyboardSens);
-		PHYSFSX_printf(fout,END_TEXT "\n");
-		PHYSFSX_printf(fout,JOYSTICK_HEADER_TEXT "\n");
+		PHYSFSX_puts_literal(fout,
+							END_TEXT "\n"
+							JOYSTICK_HEADER_TEXT "\n"
+							);
 		print_pattern_array(fout, SENSITIVITY_NAME_TEXT, PlayerCfg.JoystickSens);
 		print_pattern_array(fout, LINEAR_NAME_TEXT, PlayerCfg.JoystickLinear);
 		print_pattern_array(fout, SPEED_NAME_TEXT, PlayerCfg.JoystickSpeed);
 		print_pattern_array(fout, DEADZONE_NAME_TEXT, PlayerCfg.JoystickDead);
-		PHYSFSX_printf(fout,END_TEXT "\n");
-		PHYSFSX_printf(fout,MOUSE_HEADER_TEXT "\n");
+		PHYSFSX_puts_literal(fout,
+							END_TEXT "\n"
+							MOUSE_HEADER_TEXT "\n"
+							);
 		PHYSFSX_printf(fout,MOUSE_FLIGHTSIM_NAME_TEXT "=" MOUSE_FLIGHTSIM_VALUE_TEXT "\n",PlayerCfg.MouseFlightSim);
 		print_pattern_array(fout, SENSITIVITY_NAME_TEXT, PlayerCfg.MouseSens);
                 print_pattern_array(fout, MOUSE_OVERRUN_NAME_TEXT, PlayerCfg.MouseOverrun);
 		PHYSFSX_printf(fout,MOUSE_FSDEAD_NAME_TEXT "=" MOUSE_FSDEAD_VALUE_TEXT "\n",PlayerCfg.MouseFSDead);
 		PHYSFSX_printf(fout,MOUSE_FSINDICATOR_NAME_TEXT "=" MOUSE_FSINDICATOR_VALUE_TEXT "\n",PlayerCfg.MouseFSIndicator);
-		PHYSFSX_printf(fout,END_TEXT "\n");
-		PHYSFSX_printf(fout,WEAPON_KEYv2_HEADER_TEXT "\n");
+		PHYSFSX_puts_literal(fout,
+							END_TEXT "\n"
+							WEAPON_KEYv2_HEADER_TEXT "\n"
+							);
 		PHYSFSX_printf(fout,"1=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[0],PlayerCfg.KeySettingsRebirth[1],PlayerCfg.KeySettingsRebirth[2]);
 		PHYSFSX_printf(fout,"2=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[3],PlayerCfg.KeySettingsRebirth[4],PlayerCfg.KeySettingsRebirth[5]);
 		PHYSFSX_printf(fout,"3=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[6],PlayerCfg.KeySettingsRebirth[7],PlayerCfg.KeySettingsRebirth[8]);
@@ -765,8 +778,10 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,"8=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[21],PlayerCfg.KeySettingsRebirth[22],PlayerCfg.KeySettingsRebirth[23]);
 		PHYSFSX_printf(fout,"9=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[24],PlayerCfg.KeySettingsRebirth[25],PlayerCfg.KeySettingsRebirth[26]);
 		PHYSFSX_printf(fout,"0=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[27],PlayerCfg.KeySettingsRebirth[28],PlayerCfg.KeySettingsRebirth[29]);
-		PHYSFSX_printf(fout,END_TEXT "\n");
-		PHYSFSX_printf(fout,COCKPIT_HEADER_TEXT "\n");
+		PHYSFSX_puts_literal(fout,
+							END_TEXT "\n"
+							COCKPIT_HEADER_TEXT "\n"
+							);
 #if defined(DXX_BUILD_DESCENT_I)
 		PHYSFSX_printf(fout,COCKPIT_MODE_NAME_TEXT "=%i\n",PlayerCfg.CockpitMode[0]);
 #endif
@@ -774,8 +789,10 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,COCKPIT_RETICLE_TYPE_NAME_TEXT "=%i\n",PlayerCfg.ReticleType);
 		PHYSFSX_printf(fout,COCKPIT_RETICLE_COLOR_NAME_TEXT "=%i,%i,%i,%i\n",PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2],PlayerCfg.ReticleRGBA[3]);
 		PHYSFSX_printf(fout,COCKPIT_RETICLE_SIZE_NAME_TEXT "=%i\n",PlayerCfg.ReticleSize);
-		PHYSFSX_printf(fout,END_TEXT "\n");
-		PHYSFSX_printf(fout,TOGGLES_HEADER_TEXT "\n");
+		PHYSFSX_puts_literal(fout,
+							END_TEXT "\n"
+							TOGGLES_HEADER_TEXT "\n"
+							);
 #if defined(DXX_BUILD_DESCENT_I)
 		PHYSFSX_printf(fout,TOGGLES_BOMBGAUGE_NAME_TEXT "=%i\n",PlayerCfg.BombGauge);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -796,15 +813,18 @@ static int write_player_dxx(const char *filename)
                 PHYSFSX_printf(fout,TOGGLES_CLOAKINVULTIMER_NAME_TEXT "=%i\n",PlayerCfg.CloakInvulTimer);
 		PHYSFSX_printf(fout,TOGGLES_RESPAWN_ANY_KEY "=%i\n",static_cast<unsigned>(PlayerCfg.RespawnMode));
 		PHYSFSX_printf(fout, TOGGLES_MOUSELOOK "=%i\n", PlayerCfg.MouselookFlags);
-		PHYSFSX_printf(fout,END_TEXT "\n");
-		PHYSFSX_printf(fout,GRAPHICS_HEADER_TEXT "\n");
+		PHYSFSX_puts_literal(fout,
+							END_TEXT "\n"
+							GRAPHICS_HEADER_TEXT "\n"
+							);
 		PHYSFSX_printf(fout,GRAPHICS_ALPHAEFFECTS_NAME_TEXT "=%i\n",PlayerCfg.AlphaEffects);
 		PHYSFSX_printf(fout,GRAPHICS_DYNLIGHTCOLOR_NAME_TEXT "=%i\n",PlayerCfg.DynLightColor);
-		PHYSFSX_printf(fout,END_TEXT "\n");
-		PHYSFSX_printf(fout,PLX_VERSION_HEADER_TEXT "\n");
-		PHYSFSX_printf(fout,"plx version=" DXX_VERSION_STR "\n");
-		PHYSFSX_printf(fout,END_TEXT "\n");
-		PHYSFSX_printf(fout,END_TEXT "\n");
+		PHYSFSX_puts_literal(fout, END_TEXT "\n"
+							PLX_VERSION_HEADER_TEXT "\n"
+							"plx version=" DXX_VERSION_STR "\n"
+							END_TEXT "\n"
+							END_TEXT "\n"
+							);
 		fout.reset();
 		if(rc==0)
 		{
@@ -1710,7 +1730,7 @@ void write_netgame_profile(netgame_info *ng)
 #else
 	PHYSFSX_puts_literal(file, TrackerStr "=0\n" TrackerNATHPStr "=0\n");
 #endif
-	PHYSFSX_printf(file, NGPVersionStr "=" DXX_VERSION_STR "\n");
+	PHYSFSX_puts_literal(file, NGPVersionStr "=" DXX_VERSION_STR "\n");
 }
 
 }
