@@ -342,7 +342,7 @@ static int gr_internal_string0m(grs_canvas &canvas, const grs_font &cv_font, con
 }
 
 #if !DXX_USE_OGL
-static int gr_internal_color_string(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s)
+static void gr_internal_color_string(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s)
 {
 //a bitmap for the character
 	grs_bitmap char_bm = {};
@@ -406,7 +406,6 @@ static int gr_internal_color_string(grs_canvas &canvas, const grs_font &cv_font,
 		}
 
 	}
-	return 0;
 }
 
 #else //OGL
@@ -603,7 +602,7 @@ static void ogl_init_font(grs_font * font)
 	ogl_loadbmtexture_f(font->ft_parent_bitmap, CGameCfg.TexFilt, 0, 0);
 }
 
-static int ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s)
+static void ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s)
 {
 	const char * text_ptr, * next_row, * text_ptr1;
 	int letter;
@@ -677,7 +676,6 @@ static int ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, cons
 			text_ptr++;
 		}
 	}
-	return 0;
 }
 
 #define gr_internal_color_string ogl_internal_string
