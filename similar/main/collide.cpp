@@ -586,12 +586,17 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 		auto &tmi2 = TmapInfo[tm];
 		const auto ec = tmi2.eclip_num;
 		unsigned db = 0;
+		if (
 #if defined(DXX_BUILD_DESCENT_I)
-		if (ec != eclip_none && (db = Effects[ec].dest_bm_num) != ~0u && !(Effects[ec].flags & EF_ONE_SHOT))
+			ec != eclip_none &&
 #elif defined(DXX_BUILD_DESCENT_II)
 		//check if it's an animation (monitor) or casts light
-		if ((ec != eclip_none && ((db = Effects[ec].dest_bm_num) != ~0u && !(Effects[ec].flags & EF_ONE_SHOT))) || (ec == eclip_none && (tmi2.destroyed != -1)))
+			ec == eclip_none
+			? tmi2.destroyed != -1
+			:
 #endif
+			(db = Effects[ec].dest_bm_num) != ~0u && !(Effects[ec].flags & EF_ONE_SHOT)
+		)
 		{
 			const auto tmf = get_texture_rotation_high(tmap2);		//tm flags
 			auto &texture2 = Textures[tm];
