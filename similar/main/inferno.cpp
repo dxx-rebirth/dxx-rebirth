@@ -44,6 +44,9 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include <string.h>
 #include <limits.h>
 #include <SDL.h>
+#if DXX_USE_SCREENSHOT_FORMAT_PNG
+#include <png.h>
+#endif
 
 #ifdef __unix__
 #include <unistd.h>
@@ -580,6 +583,9 @@ static int main(int argc, char *argv[])
 			const auto vl = Mix_Linked_Version();
 			con_printf(CON_VERBOSE, "D" DXX_NAME_NUMBER "X-Rebirth built with SDL_mixer %u.%u.%u; loaded with SDL_mixer %u.%u.%u", vc.major, vc.minor, vc.patch, vl->major, vl->minor, vl->patch);
 		}
+#endif
+#if DXX_USE_SCREENSHOT_FORMAT_PNG
+		con_printf(CON_VERBOSE, "D" DXX_NAME_NUMBER "X-Rebirth built with libpng version " PNG_LIBPNG_VER_STRING "; loaded with libpng version %s", png_get_libpng_ver(nullptr));
 #endif
 		con_puts(CON_VERBOSE, TXT_VERBOSE_1);
 	}
