@@ -178,21 +178,21 @@ static int get_centered_x(const grs_canvas &canvas, const grs_font &cv_font, con
 //function must already have orig_color var set (or they could be passed as args...)
 //perhaps some sort of recursive orig_color type thing would be better, but that would be way too much trouble for little gain
 constexpr std::integral_constant<int, 1> gr_message_color_level{};
-#define CHECK_EMBEDDED_COLORS() if ((*text_ptr >= 0x01) && (*text_ptr <= 0x02)) { \
+#define CHECK_EMBEDDED_COLORS() if (const char control_code = *text_ptr; control_code >= 0x01 && control_code <= 0x02) { \
 		text_ptr++; \
 		if (*text_ptr){ \
-			if (gr_message_color_level >= *(text_ptr-1)) \
+			if (gr_message_color_level >= control_code) \
 				canvas.cv_font_fg_color = static_cast<uint8_t>(*text_ptr); \
 			text_ptr++; \
 		} \
 	} \
-	else if (*text_ptr == 0x03) \
+	else if (control_code == 0x03) \
 	{ \
 		underline = 1; \
 		text_ptr++; \
 	} \
-	else if ((*text_ptr >= 0x04) && (*text_ptr <= 0x06)){ \
-		if (gr_message_color_level >= *text_ptr - 3) \
+	else if (control_code >= 0x04 && control_code <= 0x06) { \
+		if (gr_message_color_level >= control_code - 3) \
 			canvas.cv_font_fg_color= static_cast<uint8_t>(orig_color); \
 		text_ptr++; \
 	}
