@@ -203,55 +203,55 @@ void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, int x1, int x2)
 
 namespace {
 
-static std::ptrdiff_t gr_rle_encode( int org_size, const uint8_t *src, ubyte *dest )
+static std::ptrdiff_t gr_rle_encode(const uint_fast32_t org_size, const uint8_t *src, uint8_t *dest)
 {
-	ubyte c, oc;
-	ubyte count;
-	uint8_t *dest_start;
+	if (!org_size)
+		return 0;
+	const auto dest_start = dest;
+	/* The value of count ranges from [1, (NOT_RLE_CODE - 1)], so uint8_t
+	 * is sufficient to hold all values.
+	 */
+	uint8_t count = 1;
+	const auto flush_pending_rle_record = [&](uint8_t previous_data_byte) {
+		if (!count)
+			return;
+		/* If the count is not 1, then the count must be recorded in the
+		 * stream.
+		 * If the count is 1, and the data byte will be mistaken for a
+		 * count, then the count of 1 must be recorded to escape the
+		 * value of the data byte.
+		 * Otherwise, write only the data byte.
+		 */
+		if (count != 1 || IS_RLE_CODE(previous_data_byte))
+			*dest++ = count | RLE_CODE;
+		*dest++ = previous_data_byte;
+	};
 
-	dest_start = dest;
-	oc = *src++;
-	count = 1;
-
-	if (org_size > 0)
-	for (uint_fast32_t i = org_size; --i;)
+	auto oc = *src++;
+	for (const auto i : xrange(org_size - 1, std::integral_constant<uint_fast32_t, 0u>(), xrange_descending()))
 	{
-		c = *src++;
-		if ( c!=oc )	{
-			if ( count )	{
-				if ( (count==1) && (! IS_RLE_CODE(oc)) )	{
-					*dest++ = oc;
-					Assert( oc != RLE_CODE );
-				} else {
-					count |= RLE_CODE;
-					*dest++ = count;
-					*dest++ = oc;
-				}
-			}
-			oc = c;
+		(void)i;
+		if (const auto c = *src++; c != oc)
+		{
+			flush_pending_rle_record(std::exchange(oc, c));
 			count = 0;
 		}
 		count++;
 		if ( count == NOT_RLE_CODE )	{
+			/* If count goes any higher, it cannot be recorded properly,
+			 * so record it now and reset the count.  This code path
+			 * would be hit for a long run of the same data value.
+			 */
 			count |= RLE_CODE;
 			*dest++=count;
 			*dest++=oc;
 			count = 0;
 		}
 	}
-	if (count)	{
-		if ( (count==1) && (! IS_RLE_CODE(oc)) )	{
-			*dest++ = oc;
-			Assert( oc != RLE_CODE );
-		} else {
-			count |= RLE_CODE;
-			*dest++ = count;
-			*dest++ = oc;
-		}
-	}
+	flush_pending_rle_record(oc);
 	*dest++ = RLE_CODE;
 
-	return dest-dest_start;
+	return std::distance(dest_start, dest);
 }
 
 static unsigned gr_rle_getsize(int org_size, const uint8_t *src)
