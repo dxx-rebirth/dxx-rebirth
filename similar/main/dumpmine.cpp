@@ -925,35 +925,34 @@ static void say_used_once_tmaps(PHYSFS_File *const my_file, const perm_tmap_buff
 
 // ----------------------------------------------------------------------------
 namespace dsx {
-static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &tb)
+static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &perm_tmap_buf)
 {
-	int	i;
-	int	count = 0;
-
 #if defined(DXX_BUILD_DESCENT_I)
 	const unsigned bound = LevelUniqueTmapInfoState.Num_tmaps;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
+	auto &tmap_name_source = TmapInfo;
 #elif defined(DXX_BUILD_DESCENT_II)
 	const unsigned bound = MAX_BITMAP_FILES;
+	auto &tmap_name_source = AllBitmaps;
 #endif
-	for (i=0; i < bound; i++)
-		if (!tb[i]) {
-			if (GameBitmaps[Textures[i].index].bm_data == bogus_data.data())
-				PHYSFSX_printf(my_file, "U");
-			else
-				PHYSFSX_printf(my_file, " ");
+	unsigned count = 0;
+	for (auto &&[i, tb, texture, tmap_name] : enumerate(zip(partial_range(perm_tmap_buf, bound), Textures, tmap_name_source)))
+		if (!tb)
+		{
+			const char usage_indicator = (GameBitmaps[texture.index].bm_data == bogus_data.data())
+				? 'U'
+				: ' ';
 
 #if defined(DXX_BUILD_DESCENT_I)
-			PHYSFSX_printf(my_file, "[%3i %8s] ", i, static_cast<const char *>(TmapInfo[i].filename));
+			const auto filename = static_cast<const char *>(tmap_name.filename);
 #elif defined(DXX_BUILD_DESCENT_II)
-			PHYSFSX_printf(my_file, "[%3i %8s] ", i, AllBitmaps[i].name.data());
+			const auto filename = tmap_name.name.data();
 #endif
-			if (count++ >= 4) {
-				PHYSFSX_printf(my_file, "\n");
-				count = 0;
-			}
+			const char sep = (count++ >= 4)
+				? (count = 0, '\n')
+				: ' ';
+			PHYSFSX_printf(my_file, "%c[%3lu %8s]%c", usage_indicator, i, filename, sep);
 		}
-}
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -966,6 +965,7 @@ static void say_unused_walls(PHYSFS_File *my_file, const wall_buffer_type &tb)
 			PHYSFSX_printf(my_file, "Wall %3i is unused.\n", i);
 }
 #endif
+}
 
 static void say_totals(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file, const char *level_name)
 {
