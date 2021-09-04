@@ -40,6 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_range.h"
 
 namespace dcx {
+namespace {
 
 constexpr uint8_t RLE_CODE = 0xe0;
 constexpr uint8_t NOT_RLE_CODE = 0x1f;
@@ -47,6 +48,13 @@ static_assert((RLE_CODE | NOT_RLE_CODE) == 0xff, "RLE mask error");
 static inline int IS_RLE_CODE(const uint8_t &x)
 {
 	return (x & RLE_CODE) == RLE_CODE;
+}
+
+union rle_size_pun {
+	uint8_t *rle_little;
+	uint16_t *rle_big;
+};
+
 }
 #define rle_stosb(_dest, _len, _color)	memset(_dest,_color,_len)
 
@@ -336,6 +344,7 @@ void gr_bitmap_rle_compress(grs_bitmap &bmp)
 		doffset = 4 + (2 * bm_h);		// each row of rle'd bitmap has short instead of byte offset now
 
 	const unsigned rle_size_limit = (large_rle ? 32767 : 255);
+	const rle_size_pun dst_line_size_ptr{&rle_data[4]};
 	range_for (const uint_fast32_t y, xrange(bm_h))
 	{
 		const auto d1 = gr_rle_getsize(bm_w, &bmp.get_bitmap_data()[bm_w * y], rle_size_limit);
@@ -353,9 +362,9 @@ void gr_bitmap_rle_compress(grs_bitmap &bmp)
 		Assert( d==d1 );
 		doffset	+= d;
 		if (large_rle)
-			PUT_INTEL_SHORT(&rle_data[(y*2)+4], static_cast<short>(d));
+			PUT_INTEL_SHORT(&dst_line_size_ptr.rle_big[y], static_cast<uint16_t>(d));
 		else
-			rle_data[y+4] = d;
+			dst_line_size_ptr.rle_little[y] = static_cast<uint8_t>(d);
 	}
 	memcpy(bmp.get_bitmap_data(), &doffset, 4);
 	memcpy(&bmp.get_bitmap_data()[4], &rle_data.get()[4], doffset - 4);
@@ -539,12 +548,14 @@ void rle_swap_0_255(grs_bitmap &bmp)
 	const std::size_t pointer_offset = rle_big ? 4 + 2 * bmp.bm_h : 4 + bmp.bm_h;
 	auto ptr = &bmp.bm_data[pointer_offset];
 	auto ptr2 = &temp[pointer_offset];
+	const rle_size_pun src_line_size_ptr{&bmp.get_bitmap_data()[4]},
+				dst_line_size_ptr{&temp[4]};
 	for (int i = 0; i < bmp.bm_h; i++) {
 		start = ptr2;
 		if (rle_big)
-			line_size = GET_INTEL_SHORT(&bmp.bm_data[4 + 2 * i]);
+			line_size = GET_INTEL_SHORT(&src_line_size_ptr.rle_big[i]);
 		else
-			line_size = bmp.bm_data[4 + i];
+			line_size = src_line_size_ptr.rle_little[i];
 		for (int j = 0; j < line_size; j++) {
 			if ( ! IS_RLE_CODE(ptr[j]) ) {
 				if (ptr[j] == 0) {
@@ -565,10 +576,11 @@ void rle_swap_0_255(grs_bitmap &bmp)
 					*ptr2++ = ptr[j];
 			}
 		}
+		const auto dst_line_size = std::distance(start, ptr2);
 		if (rle_big)                // set line size
-			PUT_INTEL_SHORT(&temp[4 + 2 * i], static_cast<uint16_t>(ptr2 - start));
+			PUT_INTEL_SHORT(&dst_line_size_ptr.rle_big[i], static_cast<uint16_t>(dst_line_size));
 		else
-			temp[4 + i] = ptr2 - start;
+			dst_line_size_ptr.rle_little[i] = static_cast<uint8_t>(dst_line_size);
 		ptr += line_size;           // go to next line
 	}
 	len = ptr2 - temp.get();
@@ -591,12 +603,14 @@ void rle_remap(grs_bitmap &bmp, std::array<color_palette_index, 256> &colormap)
 	const std::size_t pointer_offset = rle_big ? 4 + 2 * bmp.bm_h : 4 + bmp.bm_h;
 	auto ptr = &bmp.get_bitmap_data()[pointer_offset];
 	auto ptr2 = &temp[pointer_offset];
+	const rle_size_pun src_line_size_ptr{&bmp.get_bitmap_data()[4]},
+				dst_line_size_ptr{&temp[4]};
 	for (int i = 0; i < bmp.bm_h; i++) {
 		auto start = ptr2;
 		if (rle_big)
-			line_size = GET_INTEL_SHORT(&bmp.get_bitmap_data()[4 + 2 * i]);
+			line_size = GET_INTEL_SHORT(&src_line_size_ptr.rle_big[i]);
 		else
-			line_size = bmp.get_bitmap_data()[4 + i];
+			line_size = src_line_size_ptr.rle_little[i];
 		for (int j = 0; j < line_size; j++) {
 			const uint8_t v = ptr[j];
 			if (!IS_RLE_CODE(v))
@@ -612,10 +626,11 @@ void rle_remap(grs_bitmap &bmp, std::array<color_palette_index, 256> &colormap)
 				*ptr2++ = colormap[ptr[j]]; // translate
 			}
 		}
+		const auto dst_line_size = std::distance(start, ptr2);
 		if (rle_big)                // set line size
-			PUT_INTEL_SHORT(&temp[4 + 2 * i], static_cast<uint16_t>(ptr2 - start));
+			PUT_INTEL_SHORT(&dst_line_size_ptr.rle_big[i], static_cast<uint16_t>(dst_line_size));
 		else
-			temp[4 + i] = ptr2 - start;
+			dst_line_size_ptr.rle_little[i] = static_cast<uint8_t>(dst_line_size);
 		ptr += line_size;           // go to next line
 	}
 	len = ptr2 - temp.get();
