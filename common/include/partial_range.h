@@ -47,8 +47,6 @@
 namespace partial_range_detail
 {
 
-namespace {
-
 #define REPORT_FORMAT_STRING	 "%s:%u: %s %lu past %p end %lu \"%s\""
 /* Round reporting into large buckets.  Code size is more
  * important than stack space on a cold path.
@@ -81,8 +79,6 @@ inline auto adl_end(T &t)
 {
 	using std::end;
 	return end(t);
-}
-
 }
 
 }
@@ -194,8 +190,6 @@ struct partial_range_t<I>::partial_range_error
 namespace partial_range_detail
 {
 
-namespace {
-
 template <typename range_exception, std::size_t required_buffer_size>
 inline void check_range_bounds(const char *file, unsigned line, const char *estr, const uintptr_t t, const std::size_t index_begin, const std::size_t index_end, const std::size_t d)
 {
@@ -269,10 +263,6 @@ void check_range_object_size(const char *, unsigned, const char *, const P &&, s
 #endif
 
 }
-
-}
-
-namespace {
 
 template <
 #ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
@@ -434,8 +424,6 @@ template <typename T, typename I = decltype(std::begin(std::declval<T &>()))>
 inline partial_range_t<I> (make_range)(T &t)
 {
 	return t;
-}
-
 }
 
 /* Explicitly block use on rvalue t because returned partial_range_t<I>
