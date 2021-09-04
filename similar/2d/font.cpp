@@ -545,14 +545,13 @@ static void ogl_init_font(grs_font * font)
 			for (const auto y : xrange(h))
 			{
 				for (const auto x : xrange(w))
-				{
 					font->ft_parent_bitmap.get_bitmap_data()[curx+x+(cury+y)*tw] = fp[x+y*w];
 					// Let's call this a HACK:
 					// If we filter the fonts, the sliders will be messed up as the border pixels will have an
 					// alpha value while filtering. So the slider bitmaps will not look "connected".
 					// To prevent this, duplicate the first/last pixel-row with a 1-pixel offset.
-					if (gap && i >= 99 && i <= 102)
-					{
+				if (gap && i >= 99 && i <= 102)
+				{
 						// See which bitmaps need left/right shifts:
 						// 99  = SLIDER_LEFT - shift RIGHT
 						// 100 = SLIDER_RIGHT - shift LEFT
@@ -560,13 +559,21 @@ static void ogl_init_font(grs_font * font)
 						// 102 = SLIDER_MARKER - shift RIGHT
 
 						// shift left border
-						if (x==0 && i != 99 && i != 102)
-							font->ft_parent_bitmap.get_bitmap_data()[(curx+x+(cury+y)*tw)-1] = fp[x+y*w];
-
-						// shift right border
-						if (x==w-1 && i != 100)
-							font->ft_parent_bitmap.get_bitmap_data()[(curx+x+(cury+y)*tw)+1] = fp[x+y*w];
+					std::size_t oi, ii;
+					if (i != 99 && i != 102)
+					{
+						oi = (curx + (cury + y) * tw) - 1;
+						ii = y * w;
 					}
+						// shift right border
+					else if (i != 100)
+					{
+						oi = (curx + (w - 1) + (cury + y) * tw) + 1;
+						ii = (w - 1) + y * w;
+					}
+					else
+						continue;
+					font->ft_parent_bitmap.get_bitmap_data()[oi] = fp[ii];
 				}
 			}
 		}
