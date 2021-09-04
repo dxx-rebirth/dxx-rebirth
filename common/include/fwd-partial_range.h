@@ -6,5 +6,5 @@
  */
 #pragma once
 
-template <typename I>
+template <typename range_iterator, typename range_index_type = void>
 class partial_range_t;
