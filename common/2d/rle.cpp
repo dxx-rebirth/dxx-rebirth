@@ -303,6 +303,8 @@ static unsigned gr_rle_getsize(int org_size, const uint8_t *src)
 
 void gr_bitmap_rle_compress(grs_bitmap &bmp)
 {
+	if (bmp.get_flag_mask(BM_FLAG_PAGED_OUT))
+		return;
 	int doffset;
 	int large_rle = 0;
 
