@@ -495,7 +495,6 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 		default:
 			break;
 	}
-	sbyte type;
 	fix DeltaTime;
 	fix64 Temp;
 	int keypress = 0;
@@ -519,42 +518,45 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 	// If we change walls, we need to reset the ui code for all
 	// of the checkboxes that control the wall flags.  
 	//------------------------------------------------------------
-	if (old_wall_num != w)
+	if (w)
 	{
-		if (w)
+		if (old_wall_num != w)
 		{
-			ui_checkbox_check(doorFlag[0].get(), w->flags & WALL_DOOR_LOCKED);
-			ui_checkbox_check(doorFlag[1].get(), w->flags & WALL_DOOR_AUTO);
-			ui_checkbox_check(doorFlag[2].get(), w->flags & WALL_ILLUSION_OFF);
+			auto &current_wall = w.get_checked_reference();
+			const auto wall_flags = current_wall.flags;
+			const auto wall_keys = current_wall.keys;
+			ui_checkbox_check(doorFlag[0].get(), wall_flags & WALL_DOOR_LOCKED);
+			ui_checkbox_check(doorFlag[1].get(), wall_flags & WALL_DOOR_AUTO);
+			ui_checkbox_check(doorFlag[2].get(), wall_flags & WALL_ILLUSION_OFF);
 
-			ui_radio_set_value(*keyFlag[0], w->keys & wall_key::none);
-			ui_radio_set_value(*keyFlag[1], w->keys & wall_key::blue);
-			ui_radio_set_value(*keyFlag[2], w->keys & wall_key::red);
-			ui_radio_set_value(*keyFlag[3], w->keys & wall_key::gold);
+			ui_radio_set_value(*keyFlag[0], wall_keys & wall_key::none);
+			ui_radio_set_value(*keyFlag[1], wall_keys & wall_key::blue);
+			ui_radio_set_value(*keyFlag[2], wall_keys & wall_key::red);
+			ui_radio_set_value(*keyFlag[3], wall_keys & wall_key::gold);
 		}
 	}
-	
+
 	//------------------------------------------------------------
 	// If any of the checkboxes that control the wallflags are set, then
 	// update the corresponding wall flag.
 	//------------------------------------------------------------
 
-	if (w && w->type == WALL_DOOR)
+	if (const auto wp = w.get_unchecked_pointer(); wp && wp->type == WALL_DOOR)
 	{
 		if (GADGET_PRESSED(doorFlag[0].get()))
 		{
 			if (doorFlag[0]->flag == 1)
-				w->flags |= WALL_DOOR_LOCKED;
+				wp->flags |= WALL_DOOR_LOCKED;
 			else
-				w->flags &= ~WALL_DOOR_LOCKED;
+				wp->flags &= ~WALL_DOOR_LOCKED;
 			rval = window_event_result::handled;
 		}
 		else if (GADGET_PRESSED(doorFlag[1].get()))
 		{
 			if (doorFlag[1]->flag == 1)
-				w->flags |= WALL_DOOR_AUTO;
+				wp->flags |= WALL_DOOR_AUTO;
 			else
-				w->flags &= ~WALL_DOOR_AUTO;
+				wp->flags &= ~WALL_DOOR_AUTO;
 			rval = window_event_result::handled;
 		}
 
@@ -565,7 +567,7 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 		range_for (const int i, xrange(4u)) {
 			if (GADGET_PRESSED(keyFlag[i].get()))
 			{
-				w->keys = static_cast<wall_key>(1 << i);
+				wp->keys = static_cast<wall_key>(1 << i);
 				rval = window_event_result::handled;
 			}
 		}
@@ -576,21 +578,19 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 			ui_radio_set_value(*i, 0);
 	}
 
-	if (w && w->type == WALL_ILLUSION) {
+	if (const auto wp = w.get_unchecked_pointer(); wp && wp->type == WALL_ILLUSION)
+	{
 		if (GADGET_PRESSED(doorFlag[2].get()))
 		{
+			auto &wf = wp->flags;
 			if (doorFlag[2]->flag == 1)
-				w->flags |= WALL_ILLUSION_OFF;
+				wf |= WALL_ILLUSION_OFF;
 			else
-				w->flags &= ~WALL_ILLUSION_OFF;
+				wf &= ~WALL_ILLUSION_OFF;
 			rval = window_event_result::handled;
 		}
 	} else 
-		for (	int i=2; i < 3; i++ ) 
-			if (doorFlag[i]->flag == 1)
-			{ 
-				doorFlag[i]->flag = 0;		// Tells ui that this button isn't checked
-			}
+		doorFlag[2]->flag = 0;		// Tells ui that this button isn't checked
 
 	//------------------------------------------------------------
 	// Draw the wall in the little 64x64 box
@@ -602,14 +602,15 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 		DeltaTime = Temp - time;
 
 		gr_set_current_canvas(wallViewBox->canvas);
-		if (w) {
-			type = w->type;
+		if (const auto wp = w.get_unchecked_pointer())
+		{
+			const auto type = wp->type;
 			if ((type == WALL_DOOR) || (type == WALL_BLASTABLE)) {
 				if (DeltaTime > ((F1_0*200)/1000)) {
 					framenum++;
 					time = Temp;
 				}
-				auto &wa = WallAnims[w->clip_num];
+				auto &wa = WallAnims[wp->clip_num];
 				if (framenum >= wa.num_frames)
 					framenum=0;
 				const auto frame = wa.frames[framenum];
@@ -641,9 +642,11 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 	//------------------------------------------------------------
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
-		if (w)	{
+		if (const auto wp = w.get_unchecked_pointer())
+		{
 			ui_dprintf_at( MainWindow, 12, 6, "Wall: %hu    ", underlying_value(wallnum_t{w}));
-			switch (w->type) {
+			switch (wp->type)
+			{
 				case WALL_NORMAL:
 					ui_dprintf_at( MainWindow, 12, 23, " Type: Normal   " );
 					break;
@@ -652,7 +655,7 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 					break;
 				case WALL_DOOR:
 					ui_dprintf_at( MainWindow, 12, 23, " Type: Door     " );
-					ui_dputs_at( MainWindow, 223, 6, &WallAnims[w->clip_num].filename[0]);
+					ui_dputs_at( MainWindow, 223, 6, &WallAnims[wp->clip_num].filename[0]);
 					break;
 				case WALL_ILLUSION:
 					ui_dprintf_at( MainWindow, 12, 23, " Type: Illusion " );
@@ -667,11 +670,11 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 					ui_dprintf_at( MainWindow, 12, 23, " Type: Unknown  " );
 					break;
 			}			
-			if (w->type != WALL_DOOR)
+			if (wp->type != WALL_DOOR)
 					ui_dprintf_at( MainWindow, 223, 6, "            " );
 
-			ui_dprintf_at( MainWindow, 12, 40, " Clip: %d   ", w->clip_num );
-			ui_dprintf_at(MainWindow, 12, 57, " Trigger: %d  ", underlying_value(w->trigger));
+			ui_dprintf_at( MainWindow, 12, 40, " Clip: %d   ", wp->clip_num );
+			ui_dprintf_at(MainWindow, 12, 57, " Trigger: %d  ", underlying_value(wp->trigger));
 		}	else {
 			ui_dprintf_at( MainWindow, 12, 6, "Wall: none ");
 			ui_dprintf_at( MainWindow, 12, 23, " Type: none ");
