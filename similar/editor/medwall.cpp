@@ -53,6 +53,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "partial_range.h"
+#include "d_underlying_value.h"
 #include "d_zip.h"
 #include <memory>
 #include <utility>
@@ -259,7 +260,7 @@ static int GotoPrevWall()
 		return 0;
 	const auto current_wall = side.wall_num == wall_none
 		? wall_count
-		: static_cast<typename std::underlying_type<wallnum_t>::type>(side.wall_num);
+		: underlying_value(side.wall_num);
 	const auto previous_wall = static_cast<wallnum_t>((current_wall ? current_wall : wall_count) - 1u);
 	auto &w = *vcwallptr(previous_wall);
 	if (w.segnum == segment_none)
@@ -641,7 +642,7 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		if (w)	{
-			ui_dprintf_at( MainWindow, 12, 6, "Wall: %hu    ", static_cast<typename std::underlying_type<wallnum_t>::type>(wallnum_t{w}));
+			ui_dprintf_at( MainWindow, 12, 6, "Wall: %hu    ", underlying_value(wallnum_t{w}));
 			switch (w->type) {
 				case WALL_NORMAL:
 					ui_dprintf_at( MainWindow, 12, 23, " Type: Normal   " );

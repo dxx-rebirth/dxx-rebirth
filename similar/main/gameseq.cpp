@@ -104,6 +104,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_levelstate.h"
 #include "partial_range.h"
 #include "d_range.h"
+#include "d_underlying_value.h"
 #include "d_zip.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -899,12 +900,12 @@ static ushort netmisc_calc_checksum()
 		for (auto &&[sside, uside] : zip(i.s.sides, i.u.sides))
 		{
 			do_checksum_calc(reinterpret_cast<const uint8_t *>(&(sside.get_type())), 1, &sum1, &sum2);
-			s = INTEL_SHORT(static_cast<typename std::underlying_type<wallnum_t>::type>(sside.wall_num));
+			s = INTEL_SHORT(underlying_value(sside.wall_num));
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
-			s = static_cast<uint16_t>(uside.tmap_num);
+			s = underlying_value(uside.tmap_num);
 			s = INTEL_SHORT(s);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
-			s = static_cast<uint16_t>(uside.tmap_num2);
+			s = underlying_value(uside.tmap_num2);
 			s = INTEL_SHORT(s);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 			range_for (auto &k, uside.uvls)
@@ -933,7 +934,7 @@ static ushort netmisc_calc_checksum()
 		}
 		range_for (const auto vn, i.s.verts)
 		{
-			const auto j{static_cast<std::underlying_type<vertnum_t>::type>(vn)};
+			const auto j{underlying_value(vn)};
 			static_assert(MAX_VERTICES <= UINT16_MAX);
 			s = INTEL_SHORT(static_cast<uint16_t>(j));
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);

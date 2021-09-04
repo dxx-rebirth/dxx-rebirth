@@ -83,6 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "d_range.h"
+#include "d_underlying_value.h"
 #include "d_zip.h"
 
 #include "partial_range.h"
@@ -3121,7 +3122,7 @@ void multi_send_hostage_door_status(const vcwallptridx_t w)
 
 	count += 1;
 	multi_command<MULTI_HOSTAGE_DOOR> multibuf;
-	PUT_INTEL_SHORT(&multibuf[count], static_cast<typename std::underlying_type<wallnum_t>::type>(wallnum_t{w}));
+	PUT_INTEL_SHORT(&multibuf[count], underlying_value(wallnum_t{w}));
 	count += 2;
 	PUT_INTEL_INT(&multibuf[count], w->hps);  count += 4;
 

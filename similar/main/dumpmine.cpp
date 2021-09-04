@@ -59,6 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
 #include "d_levelstate.h"
+#include "d_underlying_value.h"
 #include "d_zip.h"
 #include "segiter.h"
 
@@ -229,7 +230,7 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 				if (w->trigger == i)
 				{
 					count2++;
-					PHYSFSX_printf(my_file, "Exit trigger %i is in segment %i, on side %i, bound to wall %hu\n", i, w->segnum, w->sidenum, static_cast<typename std::underlying_type<wallnum_t>::type>(wallnum_t{w}));
+					PHYSFSX_printf(my_file, "Exit trigger %i is in segment %i, on side %i, bound to wall %hu\n", i, w->segnum, w->sidenum, underlying_value(wallnum_t{w}));
 				}
 			}
 			if (count2 == 0)
@@ -291,7 +292,7 @@ public:
 		auto &w = *wpi;
 		if (!(w.keys & key))
 			return;
-		PHYSFSX_printf(fp, "Wall %hu (seg=%i, side=%i) is keyed to the %s key.\n", static_cast<typename std::underlying_type<wallnum_t>::type>(wallnum_t{wpi}), w.segnum, w.sidenum, label);
+		PHYSFSX_printf(fp, "Wall %hu (seg=%i, side=%i) is keyed to the %s key.\n", underlying_value(wallnum_t{wpi}), w.segnum, w.sidenum, label);
 		if (seg == segment_none)
 		{
 			seg = w.segnum;
@@ -539,8 +540,8 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 		auto &w = *wp;
 		int	sidenum;
 
-		const auto i = static_cast<typename std::underlying_type<wallnum_t>::type>(wallnum_t{wp});
-		PHYSFSX_printf(my_file, "Wall %03hu: seg=%3i, side=%2i, linked_wall=%3hu, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i, w.segnum, w.sidenum, static_cast<typename std::underlying_type<wallnum_t>::type>(wallnum_t{w.linked_wall}), Wall_names[w.type], w.flags, w.hps >> 16, w.trigger, w.clip_num, static_cast<unsigned>(w.keys), w.state);
+		const auto i = underlying_value(wallnum_t{wp});
+		PHYSFSX_printf(my_file, "Wall %03hu: seg=%3i, side=%2i, linked_wall=%3hu, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i, w.segnum, w.sidenum, underlying_value(wallnum_t{w.linked_wall}), Wall_names[w.type], w.flags, w.hps >> 16, w.trigger, w.clip_num, static_cast<unsigned>(w.keys), w.state);
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (w.trigger >= Triggers.get_count())

@@ -46,6 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "partial_range.h"
+#include "d_underlying_value.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
@@ -645,7 +646,7 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
 			if (bit_mask & (1 << sidenum))
-				PHYSFSX_writeU8(SaveFile, static_cast<typename std::underlying_type<wallnum_t>::type>(seg.s.sides[sidenum].wall_num));
+				PHYSFSX_writeU8(SaveFile, underlying_value(seg.s.sides[sidenum].wall_num));
 		}
 
 		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
