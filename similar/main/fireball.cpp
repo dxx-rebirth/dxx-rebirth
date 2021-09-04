@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <algorithm>
 #include <numeric>
+#include <random>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -60,7 +61,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteutil.h"
 
 #include "compiler-range_for.h"
+#include "d_array.h"
+#include "d_enumerate.h"
 #include "d_levelstate.h"
+#include "d_range.h"
+#include "d_zip.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -68,15 +73,242 @@ using std::min;
 
 #define EXPLOSION_SCALE (F1_0*5/2)		//explosion is the obj size times this 
 
-//--unused-- ubyte	Frame_processed[MAX_OBJECTS];
-
 namespace dcx {
+
+namespace {
+
+/* C arrays are normally indexed starting from 0.  For some use cases,
+ * values in [0, Bias) for some Bias are not useful.  Callers must
+ * either waste Bias unused elements at the head of the array, or
+ * subtract Bias from all indexes when accessing the array.  This class
+ * automates the latter approach.  Its actual size is N, and all index
+ * operations are offset by subtracting Bias.  As with std::array,
+ * callers are responsible for passing only valid index values.
+ */
+template <std::size_t Bias, typename T, std::size_t N>
+struct biased_index_array : std::array<T, N>
+{
+	using base_type = std::array<T, N>;
+	using typename base_type::reference;
+	using typename base_type::const_reference;
+	using typename base_type::size_type;
+	/* Not implemented, so delete it to avoid using the base class
+	 * implementation, which would not adjust by Bias.  This could be
+	 * implemented if needed.
+	 */
+	constexpr reference at(size_type position) = delete;
+	constexpr reference at(size_type position) const = delete;
+	constexpr reference operator[](size_type pos)
+	{
+		return this->base_type::operator[](pos - Bias);
+	}
+	constexpr const_reference operator[](size_type pos) const
+	{
+		return this->base_type::operator[](pos - Bias);
+	}
+	[[nodiscard]]
+	static constexpr bool valid_index(size_type pos)
+	{
+		return pos >= Bias && pos - Bias < N;
+	}
+};
+
+struct connected_segment_raw_distances
+{
+	using segment_distance_count_type = uint8_t;
+	/* Minimum depth must be at least 2, since very low values are used
+	 * for special purposes.
+	 */
+	static constexpr std::integral_constant<segment_distance_count_type, 4> minimum_supported_max_depth{};
+	static constexpr std::integral_constant<segment_distance_count_type, 30> maximum_supported_max_depth{};
+	static constexpr std::integral_constant<segment_distance_count_type, 1 + maximum_supported_max_depth - minimum_supported_max_depth> supported_max_depth_range{};
+	/* The value_type must be sufficient to hold the largest number of
+	 * segments that could be at a distance of
+	 * `maximum_supported_max_depth`.
+	 */
+	using depth_count_array = biased_index_array<minimum_supported_max_depth, uint16_t, supported_max_depth_range>;
+	enum class biased_distance : uint8_t
+	{
+		indeterminate,
+		depth_0,
+	};
+	static segment_distance_count_type get_distance_from_biased_distance(const biased_distance d)
+	{
+		return static_cast<segment_distance_count_type>(d) - static_cast<unsigned>(biased_distance::depth_0);
+	}
+	static biased_distance get_biased_distance_from_distance(const segment_distance_count_type d)
+	{
+		return static_cast<biased_distance>(d + static_cast<unsigned>(biased_distance::depth_0));
+	}
+	/* To reduce the stack footprint when recursively visiting segments,
+	 * all the arguments that remain constant during the search are
+	 * stored in an instance of `builder`, and `visit_segment` is a
+	 * member method on `builder`.
+	 */
+	struct builder
+	{
+		fvcsegptr &vcsegptr;
+		fvcwallptr &vcwallptr;
+		const segment_distance_count_type max_depth;
+		depth_count_array &count_segments_at_depth;
+		enumerated_array<biased_distance, MAX_SEGMENTS, segnum_t> &depth_by_segment;
+		/* Segments that are farther away than max_depth do not have a
+		 * specific distance computed, and are only known to be too far
+		 * away.
+		 */
+		void visit_segment(vcsegidx_t current_segment_idx, segment_distance_count_type current_depth) const;
+	};
+	/* Initialize all depths to 0.  These will be updated as the
+	 * constructor traverses the level.  Counts are only maintained for
+	 * supported depths.  If a segment is closer than
+	 * `minimum_supported_max_depth` or farther than
+	 * `maximum_supported_max_depth`, then it is not counted.
+	 */
+	depth_count_array count_segments_at_depth{};
+	/* Initialize all segments to be at the indeterminate distance.
+	 *
+	 * Traversal of the level data will replace the placeholder distance
+	 * with a real value.  Traversal requires that every element either
+	 * be the value `indeterminate` or have a valid depth from earlier
+	 * in the traversal.
+	 */
+	static_assert(static_cast<unsigned>(biased_distance::indeterminate) == 0, "`indeterminate` must be 0 so that zero-initialization assigns the value `indeterminate` to every element in the array");
+	enumerated_array<biased_distance, MAX_SEGMENTS, segnum_t> depth_by_segment{};
+	/* Prefer that the maximum depth be passed as a
+	 * std::integral_constant so that it can be checked at compile time.
+	 * Allow use of non-integral_constant expressions if the caller uses
+	 * the explicit constructor.
+	 */
+	explicit connected_segment_raw_distances(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, segment_distance_count_type max_depth, vcsegidx_t current_segment_idx);
+	template <segment_distance_count_type max_depth>
+		connected_segment_raw_distances(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, std::integral_constant<segment_distance_count_type, max_depth>, vcsegidx_t current_segment_idx) : connected_segment_raw_distances(vcsegptr, vcwallptr, max_depth, current_segment_idx)
+		{
+			static_assert(max_depth <= maximum_supported_max_depth);
+		}
+	/* Scan depth_by_segment to find the Nth segment of the desired
+	 * depth, where N is drawn from `uniform_int_distribution(0,
+	 * count_of_segments_at_depth - 1)(mrd)`.  If there are no segments
+	 * at this depth, return an empty std::optional.
+	 */
+	std::optional<segnum_t> scan_segment_depths(unsigned desired_depth, std::minstd_rand &mrd) const;
+};
+
+}
 
 unsigned Num_exploding_walls;
 
 void init_exploding_walls()
 {
 	Num_exploding_walls = 0;
+}
+
+connected_segment_raw_distances::connected_segment_raw_distances(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, segment_distance_count_type max_depth, vcsegidx_t current_segment_idx)
+{
+	builder{vcsegptr, vcwallptr, max_depth, count_segments_at_depth, depth_by_segment}.visit_segment(current_segment_idx, 0u);
+}
+
+std::optional<segnum_t> connected_segment_raw_distances::scan_segment_depths(const unsigned desired_depth, std::minstd_rand &mrd) const
+{
+	const auto count_segments_at_desired_depth = count_segments_at_depth[desired_depth];
+	if (!count_segments_at_desired_depth)
+		/* No segments exist at this depth.  Move to next depth.
+		*/
+		return std::nullopt;
+	/* Pick a random segment within the segments at the selected
+	 * depth.
+	 */
+	std::uniform_int_distribution uid(0u, count_segments_at_desired_depth - 1u);
+	/* Walk over all segments.  Ignore any segment at the wrong depth.
+	 * Ignore the first `skip_count` segments at the right depth.
+	 */
+	const auto initial_skip_count = uid(mrd);
+	unsigned skip_count = initial_skip_count;
+	const auto desired_biased_depth = get_biased_distance_from_distance(desired_depth);
+	for (const auto &&[sn, biased_depth] : enumerate(depth_by_segment))
+	{
+		if (biased_depth != desired_biased_depth)
+			continue;
+		if (!skip_count)
+			/* Found a segment at the correct depth and the required
+			 * number of segments have been skipped.  Pick this segment.
+			 */
+			return sn;
+		-- skip_count;
+	}
+	/* This should not happen.  `skip_count` is computed such that it is
+	 * below the number of segments at a depth of `desired_depth`, so
+	 * control should always `return` from the loop.
+	 */
+	con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "error: count=%u, skip_count=%u, and no segment found at depth %u"), count_segments_at_desired_depth, initial_skip_count, desired_depth);
+	return std::nullopt;
+}
+
+void connected_segment_raw_distances::builder::visit_segment(const vcsegidx_t current_segment_idx, const segment_distance_count_type current_depth) const
+{
+	auto &biased_depth = depth_by_segment[current_segment_idx];
+	if (biased_depth != biased_distance::indeterminate)
+	{
+		const auto d = get_distance_from_biased_distance(biased_depth);
+		if (d <= current_depth)
+			/* This segment was already found through some other
+			 * route.  Leave that result in place.
+			 */
+			return;
+		/* If this segment was previously found at a greater depth, and
+		 * the current step found a shorter path to that segment, then
+		 * reduce the count of segments at the greater depth, since the
+		 * recorded depth of this segment will be changed.
+		 */
+		if (count_segments_at_depth.valid_index(d))
+			-- count_segments_at_depth[d];
+	}
+	biased_depth = get_biased_distance_from_distance(current_depth);
+	if (current_depth >= max_depth)
+		return;
+	const shared_segment &seg = vcsegptr(current_segment_idx);
+	if (seg.special == SEGMENT_IS_CONTROLCEN)
+	{
+		/* Every caller wants to exclude the control-center segment from
+		 * the set of choices.  If the segment is encountered here,
+		 * assign it a depth value that prevents it being selected, and
+		 * stop.  Stopping here prevents exploring segments beyond the
+		 * control-center.  If there is a path around the
+		 * control-center, that path can be used to reach those segments
+		 * instead.  This will lead to a slightly higher than accurate
+		 * distance value for those segments, but the original Descent
+		 * implementation had a random walk that could wander about and
+		 * assign high values to any segment it reached.  By refusing to
+		 * traverse through the control center, this implementation
+		 * avoids selecting areas that are only reachable by flying
+		 * through the control center.
+		 */
+		biased_depth = get_biased_distance_from_distance(0);
+		return;
+	}
+	/* Segments closer than minimum_supported_max_depth or farther than
+	 * maximum_supported_max_depth will not be analyzed later, so no
+	 * count is maintained for them.
+	 *
+	 * This increment is deferred until after the control-center check,
+	 * so that it does not need to be undone when the control-center is
+	 * found.
+	 */
+	if (count_segments_at_depth.valid_index(current_depth))
+		++ count_segments_at_depth[current_depth];
+	for (const auto &&[child_segnum, side] : zip(seg.children, seg.sides))
+	{
+		if (!IS_CHILD(child_segnum))
+			continue;
+		if (const auto wall_num = side.wall_num; wall_num != wall_none)
+		{
+			auto &w = *vcwallptr(wall_num);
+			if (w.type == WALL_CLOSED)
+				continue;
+			if (w.type == WALL_DOOR && (w.flags & WALL_DOOR_LOCKED))
+				continue;
+		}
+		visit_segment(child_segnum, current_depth + 1);
+	}
 }
 
 }
@@ -443,144 +675,23 @@ void draw_fireball(const d_vclip_array &Vclip, grs_canvas &canvas, const vcobjpt
 		draw_vclip_object(canvas, obj, lifeleft, Vclip[get_fireball_id(obj)]);
 }
 
-// --------------------------------------------------------------------------------------------------------------------
-//	Return true if there is a door here and it is openable
-//	It is assumed that the player has all keys.
-static int door_is_openable_by_player(fvcwallptr &vcwallptr, const shared_segment &segp, const unsigned sidenum)
+static unsigned disallowed_cc_dist(fvcsegptr &vcsegptr, fvcvertptr &vcvertptr, const vcsegptridx_t &segp, const vms_vector &player_pos, const vcsegptridx_t player_seg, const unsigned cur_drop_depth)
 {
-	const auto wall_num = segp.sides[sidenum].wall_num;
-
-	if (wall_num == wall_none)
-		return 0;						//	no wall here.
-
-	auto &w = *vcwallptr(wall_num);
-	const auto wall_type = w.type;
-	//	Can't open locked doors.
-	if ((wall_type == WALL_DOOR && (w.flags & WALL_DOOR_LOCKED)) || wall_type == WALL_CLOSED)
-		return 0;
-
-	return 1;
-}
-
-// --------------------------------------------------------------------------------------------------------------------
-//	Return a segment %i segments away from initial segment.
-//	Returns -1 if can't find a segment that distance away.
-imsegidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
-{
-	using std::swap;
-	int		i;
-	int		cur_depth;
-	int		head, tail;
-	constexpr unsigned QUEUE_SIZE = 64;
-	std::array<segnum_t, QUEUE_SIZE * 2> seg_queue{};
-	std::array<uint8_t, MAX_SEGMENTS> depth{};
-	std::array<uint8_t, MAX_SIDES_PER_SEGMENT> side_rand;
-
-	visited_segment_bitarray_t visited;
-
-	head = 0;
-	tail = 0;
-	seg_queue[head++] = start_seg;
-
-	cur_depth = 0;
-
-	std::iota(side_rand.begin(), side_rand.end(), 0);
-
-	//	Now, randomize a bit to start, so we don't always get started in the same direction.
-	for (i=0; i<4; i++) {
-		int	ind1;
-
-		ind1 = (d_rand() * MAX_SIDES_PER_SEGMENT) >> 15;
-		swap(side_rand[ind1], side_rand[i]);
-	}
-
-	auto &Walls = LevelUniqueWallSubsystemState.Walls;
-	auto &vcwallptr = Walls.vcptr;
-	while (tail != head) {
-		int		sidenum, count;
-		int		ind1, ind2;
-
-		if (cur_depth >= max_depth) {
-			return seg_queue[tail];
-		}
-
-		const shared_segment &segp = vcsegptr(seg_queue[tail++]);
-		tail &= QUEUE_SIZE-1;
-
-		//	to make random, switch a pair of entries in side_rand.
-		ind1 = (d_rand() * MAX_SIDES_PER_SEGMENT) >> 15;
-		ind2 = (d_rand() * MAX_SIDES_PER_SEGMENT) >> 15;
-		swap(side_rand[ind1], side_rand[ind2]);
-		count = 0;
-		for (sidenum=ind1; count<MAX_SIDES_PER_SEGMENT; count++) {
-			int	snrand;
-
-			if (sidenum == MAX_SIDES_PER_SEGMENT)
-				sidenum = 0;
-
-			snrand = side_rand[sidenum];
-			auto wall_num = segp.sides[snrand].wall_num;
-			sidenum++;
-
-			const auto child_segnum = segp.children[snrand];
-			if (!IS_CHILD(child_segnum))
-				continue;
-			if (wall_num == wall_none || door_is_openable_by_player(vcwallptr, segp, snrand))
-			{
-				if (!visited[child_segnum]) {
-					seg_queue[head++] = child_segnum;
-					visited[child_segnum] = true;
-					depth[child_segnum] = cur_depth+1;
-					head &= QUEUE_SIZE-1;
-					if (head > tail) {
-						if (head == tail + QUEUE_SIZE-1)
-							Int3();	//	queue overflow.  Make it bigger!
-					} else
-						if (head+QUEUE_SIZE == tail + QUEUE_SIZE-1)
-							Int3();	//	queue overflow.  Make it bigger!
-				}
-			}
-		}
-
-		if (seg_queue[tail] > Highest_segment_index)
-		{
-			// -- Int3();	//	Something bad has happened.  Queue is trashed.  --MK, 12/13/94
-			return segment_none;
-		}
-		cur_depth = depth[seg_queue[tail]];
-	}
-	return segment_none;
-}
-
-#if defined(DXX_BUILD_DESCENT_I)
-#define BASE_NET_DROP_DEPTH 10
-#elif defined(DXX_BUILD_DESCENT_II)
-#define BASE_NET_DROP_DEPTH 8
-#endif
-
-static imsegidx_t pick_connected_drop_segment(const segment_array &Segments, fvcvertptr &vcvertptr, const vcsegidx_t start_seg, const unsigned cur_drop_depth, const vms_vector &player_pos, const vcsegptridx_t &player_seg)
-{
-	const auto segnum = pick_connected_segment(start_seg, cur_drop_depth);
-	if (segnum == segment_none)
-		return segnum;
-	const auto &&segp = Segments.vcptridx(segnum);
 	const shared_segment &sseg = segp;
-	if (sseg.special == SEGMENT_IS_CONTROLCEN)
-		return segment_none;
 	//don't drop in any children of control centers
 	for (const auto ch : sseg.children)
 	{
 		if (!IS_CHILD(ch))
 			continue;
-		const shared_segment &childsegp = *Segments.vcptr(ch);
+		const shared_segment &childsegp = *vcsegptr(ch);
 		if (childsegp.special == SEGMENT_IS_CONTROLCEN)
-			return segment_none;
+			return 1;
 	}
 	//bail if not far enough from original position
 	const auto &&tempv = compute_segment_center(vcvertptr, sseg);
 	if (find_connected_distance(player_pos, player_seg, tempv, segp, -1, WALL_IS_DOORWAY_FLAG::fly) < static_cast<fix>(i2f(20) * cur_drop_depth))
-		return segment_none;
-	return segnum;
+		return 1;
+	return 0;
 }
 
 //	------------------------------------------------------------------------------------------------------
@@ -588,62 +699,133 @@ static imsegidx_t pick_connected_drop_segment(const segment_array &Segments, fvc
 //	For all active net players, try to create a N segment path from the player.  If possible, return that
 //	segment.  If not possible, try another player.  After a few tries, use a random segment.
 //	Don't drop if control center in segment.
-static vmsegptridx_t choose_drop_segment(fvcsegptridx &vcsegptridx, fvmsegptridx &vmsegptridx, const playernum_t drop_pnum)
+static vmsegptridx_t choose_drop_segment(fvmsegptridx &vmsegptridx, fvcvertptr &vcvertptr, fvcwallptr &vcwallptr, const playernum_t drop_pnum)
 {
-	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	playernum_t	pnum = 0;
-	int	cur_drop_depth;
-	int	count;
 	auto &drop_player = *vcplayerptr(drop_pnum);
 	auto &drop_playerobj = *vmobjptr(drop_player.objnum);
 
-	d_srand(static_cast<fix>(timer_query()));
-
-	cur_drop_depth = BASE_NET_DROP_DEPTH + ((d_rand() * BASE_NET_DROP_DEPTH*2) >> 15);
-
-	auto &player_pos = drop_playerobj.pos;
-	const auto &&player_seg = vcsegptridx(drop_playerobj.segnum);
-
-	segnum_t	segnum = segment_none;
-	auto &vcvertptr = Vertices.vcptr;
-	for (; (segnum == segment_none) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2); --cur_drop_depth)
-	{
-		pnum = (d_rand() * N_players) >> 15;
-		count = 0;
-#if defined(DXX_BUILD_DESCENT_I)
-		while (count < N_players && (vcplayerptr(pnum)->connected == CONNECT_DISCONNECTED || pnum == drop_pnum))
-#elif defined(DXX_BUILD_DESCENT_II)
-		while (count < N_players && (vcplayerptr(pnum)->connected == CONNECT_DISCONNECTED || pnum == drop_pnum || ((Game_mode & (GM_TEAM|GM_CAPTURE)) && (get_team(pnum)==get_team(drop_pnum)))))
+	auto mrd = std::minstd_rand(timer_query());
+	std::array<playernum_t, MAX_PLAYERS> candidate_drop_players;
+	const auto end_drop_players = [&candidate_drop_players, drop_pnum]() {
+		const auto b = candidate_drop_players.begin();
+		auto r = b;
+#if defined(DXX_BUILD_DESCENT_II)
+		/* Build a list of active players, excluding the initiator and
+		 * anyone from the same team as the initiator.
+		 */
+		const auto team_of_drop_player = get_team(drop_pnum);
+		for (auto &&[pnum, plr] : enumerate(Players))
+		{
+			/* Skip the initiator, so that items will try to jump from
+			 * player to player as the item is spent and respawned.
+			 */
+			if (pnum == drop_pnum)
+				continue;
+			if (plr.connected == CONNECT_DISCONNECTED)
+				continue;
+			if ((Game_mode & (GM_TEAM|GM_CAPTURE)) && get_team(pnum) == team_of_drop_player)
+				continue;
+			*r++ = pnum;
+		}
+		if (b != r)
+			/* If at least one such player found, stop and use that
+			 * list.
+			 */
+			return r;
 #endif
+		/* Otherwise, try again, but allow teammates of the initiator.
+		 * Exclude the drop initiator.
+		 */
+		for (auto &&[pnum, plr] : enumerate(Players))
 		{
-			pnum = (pnum+1)%N_players;
-			count++;
+			if (pnum == drop_pnum)
+				continue;
+			if (plr.connected == CONNECT_DISCONNECTED)
+				continue;
+			*r++ = pnum;
 		}
+		if (b != r)
+			/* If a teammate was found, use that.  This encourages the
+			 * game to move the items among players.
+			 */
+			return r;
+		/* If no player found through other rules, use the player
+		 * who triggered the drop event.
+		 */
+		*r++ = drop_pnum;
+		return r;
+	}();
+	/* candidate_drop_players now contains the player IDs of all players
+	 * that can be used for a drop.  Shuffle them for randomness to vary
+	 * who will be checked first for each new item.
+	 */
+	std::shuffle(candidate_drop_players.begin(), end_drop_players, mrd);
+	static constexpr std::integral_constant<connected_segment_raw_distances::segment_distance_count_type, 8> net_drop_max_depth_lower{};
+	static constexpr std::integral_constant<connected_segment_raw_distances::segment_distance_count_type, 24> net_drop_max_depth_upper{};
+	static constexpr std::integral_constant<connected_segment_raw_distances::segment_distance_count_type, 4> net_drop_min_depth{};
+	static_assert(connected_segment_raw_distances::depth_count_array::valid_index(net_drop_max_depth_lower));
+	static_assert(connected_segment_raw_distances::depth_count_array::valid_index(net_drop_max_depth_upper));
+	static_assert(connected_segment_raw_distances::depth_count_array::valid_index(net_drop_min_depth + 1u));
 
-		if (count == N_players) {
-			//if can't valid non-player person, use the player
-			pnum = drop_pnum;
-		}
+	const auto &&drop_player_seg = vmsegptridx(drop_playerobj.segnum);
 
-		segnum = pick_connected_drop_segment(Segments, vcvertptr, vcobjptr(vcplayerptr(pnum)->objnum)->segnum, cur_drop_depth, player_pos, player_seg);
-	}
-
-	if (segnum == segment_none) {
-		cur_drop_depth = BASE_NET_DROP_DEPTH;
-		while (cur_drop_depth > 0 && segnum == segment_none) // before dropping in random segment, try to find ANY segment which is connected to the player responsible for the drop so object will not spawn in inaccessible areas
+	/* Defer constructing instances until needed.  In most games, a
+	 * segment should be found before all MAX_PLAYERS instances are
+	 * constructed.
+	 */
+	std::array<std::unique_ptr<connected_segment_raw_distances>, MAX_PLAYERS> distance_by_player;
+	std::optional<vmsegptridx_t> fallback_drop;
+	for (const unsigned candidate_depth : xrange(std::uniform_int_distribution(net_drop_max_depth_lower + 0u, net_drop_max_depth_upper + 0u)(mrd), net_drop_min_depth, xrange_descending()))
+	{
+		for (const auto pnum : partial_range_t(candidate_drop_players.begin(), end_drop_players))
 		{
-			segnum = pick_connected_segment(vcobjptr(vcplayerptr(drop_pnum)->objnum)->segnum, --cur_drop_depth);
-			if (segnum != segment_none && vcsegptr(segnum)->special == SEGMENT_IS_CONTROLCEN)
-				segnum = segment_none;
+			auto &plr = *vcplayerptr(pnum);
+			auto &plrobj = *vcobjptr(plr.objnum);
+			auto &rdp = distance_by_player[pnum];
+			if (!rdp)
+				/* connected_segment_raw_distances computes data for all
+				 * distances below candidate_depth too.  Since the
+				 * xrange counts down, this initialization is
+				 * sufficient to cover all data required by all passes
+				 * of the loop.
+				 */
+				rdp = std::make_unique<connected_segment_raw_distances>(vcsegptr, vcwallptr, candidate_depth, plrobj.segnum);
+			auto &rd = *rdp;
+			const auto sn = rd.scan_segment_depths(candidate_depth, mrd);
+			if (!sn)
+				continue;
+			const auto segnum = *sn;
+			const auto &&segp = vmsegptridx(segnum);
+			if (disallowed_cc_dist(vcsegptr, vcvertptr, segp, drop_playerobj.pos, drop_player_seg, candidate_depth))
+			{
+				if (!fallback_drop.has_value())
+					fallback_drop = segp;
+				continue;
+			}
+			return segp;
 		}
-		if (segnum == segment_none) // basically it should be impossible segnum == -1 now... but oh well...
-			return vmsegptridx(static_cast<segnum_t>((d_rand() * Highest_segment_index) >> 15));
 	}
-	return vmsegptridx(segnum);
+	if (fallback_drop.has_value())
+		/* If no player found a segment acceptable to the first pass
+		 * rules, but a player found a reachable segment, use that
+		 * segment.  This differs slightly from retail, which would
+		 * compute the fallback from the initiator, rather than a random
+		 * successful player.  However, since saving the fallback is
+		 * cheap, this is done instead of performing yet another search.
+		 */
+		return *fallback_drop;
+	/* This can be reached if there are no segments found at any of the
+	 * acceptable depths.  If the origin segment is in a small room with
+	 * no passable exits, this can happen.
+	 *
+	 * Give up and pick a completely random segment.  This is compatible
+	 * with retail.
+	 */
+	std::uniform_int_distribution uid(0u, Highest_segment_index);
+	return vmsegptridx(vmsegidx_t(uid(mrd)));
 }
 
 //	------------------------------------------------------------------------------------------------------
@@ -694,8 +876,8 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 		if (objnum == object_none)
 			return;
 
-		const auto &&segnum = choose_drop_segment(LevelSharedSegmentState.get_segments().vcptridx, LevelUniqueSegmentState.get_segments().vmptridx, pnum);
 		auto &vcvertptr = Vertices.vcptr;
+		const auto &&segnum = choose_drop_segment(LevelUniqueSegmentState.get_segments().vmptridx, vcvertptr, LevelUniqueWallSubsystemState.Walls.vcptr, pnum);
 		const auto &&new_pos = pick_random_point_in_seg(vcvertptr, segnum);
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
 		objnum->pos = new_pos;
@@ -1549,6 +1731,38 @@ void expl_wall_write(fvcwallptr &vcwallptr, PHYSFS_File *const fp)
 		d.time = e.explode_time_elapsed;
 		PHYSFS_write(fp, &d, sizeof(d), 1);
 	}
+}
+
+//	------------------------------------------------------------------------------------------------------
+//	Choose segment to recreate thief in.
+vmsegidx_t choose_thief_recreation_segment(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, const vcsegidx_t plrseg)
+{
+	static constexpr std::integral_constant<connected_segment_raw_distances::segment_distance_count_type, 20> thief_max_depth{};
+	static constexpr std::integral_constant<connected_segment_raw_distances::segment_distance_count_type, thief_max_depth / 2> thief_min_depth{};
+	static_assert(thief_min_depth >= connected_segment_raw_distances::minimum_supported_max_depth);
+	const connected_segment_raw_distances rd(vcsegptr, vcwallptr, thief_max_depth, plrseg);
+	auto mrd = std::minstd_rand(d_rand());
+	/* connected_segment_raw_distances explicitly avoids reporting any
+	 * segment with a ->special of SEGMENT_IS_CONTROLCEN, even if that
+	 * segment is in range.  Therefore, any returned segment of the
+	 * appropriate distance is usable.
+	 */
+	static_assert(rd.count_segments_at_depth.valid_index(thief_max_depth));
+	static_assert(rd.count_segments_at_depth.valid_index(thief_min_depth + 1u));
+	for (const unsigned candidate_depth : xrange(thief_max_depth, thief_min_depth, xrange_descending()))
+	{
+		if (const auto sn = rd.scan_segment_depths(candidate_depth, mrd))
+			return *sn;
+	}
+	/* This can be reached if there are no segments found at any of the
+	 * acceptable depths.  If the origin segment is in a small room with
+	 * no passable exits, this can happen.
+	 *
+	 * Give up and pick a completely random segment.  This is compatible
+	 * with retail Descent 2.
+	 */
+	std::uniform_int_distribution uid(0u, Highest_segment_index);
+	return uid(mrd);
 }
 #endif
 }

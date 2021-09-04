@@ -1406,31 +1406,6 @@ void do_snipe_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 
 }
 
-#define	THIEF_DEPTH	20
-
-//	------------------------------------------------------------------------------------------------------
-//	Choose segment to recreate thief in.
-static vmsegidx_t choose_thief_recreation_segment(const vcsegidx_t plrseg)
-{
-	segnum_t	segnum = segment_none;
-	int	cur_drop_depth;
-
-	cur_drop_depth = THIEF_DEPTH;
-
-	while ((segnum == segment_none) && (cur_drop_depth > THIEF_DEPTH/2)) {
-		segnum = pick_connected_segment(plrseg, cur_drop_depth);
-		if (segnum != segment_none && vcsegptr(segnum)->special == SEGMENT_IS_CONTROLCEN)
-			segnum = segment_none;
-		cur_drop_depth--;
-	}
-
-	if (segnum == segment_none) {
-		return (d_rand() * Highest_segment_index) >> 15;
-	} else
-		return segnum;
-
-}
-
 static fix64	Re_init_thief_time = 0x3f000000;
 
 //	----------------------------------------------------------------------
@@ -1438,7 +1413,7 @@ void recreate_thief(const uint8_t thief_id)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	const auto segnum = choose_thief_recreation_segment(ConsoleObject->segnum);
+	const auto segnum = choose_thief_recreation_segment(vcsegptr, LevelUniqueWallSubsystemState.Walls.vcptr, ConsoleObject->segnum);
 	const auto &&segp = vmsegptridx(segnum);
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&center_point = compute_segment_center(vcvertptr, segp);

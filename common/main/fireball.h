@@ -104,7 +104,7 @@ void expl_wall_write(fvcwallptr &, PHYSFS_File *);
 extern fix	Flash_effect;
 #endif
 
-imsegidx_t pick_connected_segment(vcsegidx_t objp, int max_depth);
+vmsegidx_t choose_thief_recreation_segment(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, const vcsegidx_t plrseg);
 }
 #endif
 
