@@ -36,6 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "palette.h"
 
+#include "d_enumerate.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-range_for.h"
@@ -53,6 +54,27 @@ unsigned get_squared_color_delta(const int r, const int g, const int b, const rg
 	const auto dg = g - rgb.g;
 	const auto db = b - rgb.b;
 	return (dr * dr) + (dg * dg) + (db * db);
+}
+
+color_palette_index gr_find_closest_color_palette(const int r, const int g, const int b, const palette_array_t &palette)
+{
+	// Anything is better than this.
+	unsigned best_value = UINT_MAX;
+	color_palette_index best_index{};
+	// only go to 255, 'cause we dont want to check the transparent color.
+	for (auto &&[candidate_idx, candidate_rgb] : enumerate(unchecked_partial_range(palette.data(), palette.size() - 1)))
+	{
+		const auto candidate_value = get_squared_color_delta(r, g, b, candidate_rgb);
+		if (best_value > candidate_value)
+		{
+			best_index = candidate_idx;
+			if (candidate_value == 0)
+				/* Perfect match */
+				break;
+			best_value = candidate_value;
+		}
+	}
+	return best_index;
 }
 
 static unsigned Num_computed_colors;
@@ -236,8 +258,6 @@ void init_computed_colors(void)
 
 color_palette_index gr_find_closest_color(const int r, const int g, const int b)
 {
-	int j;
-
 	if (Num_computed_colors == 0)
 		init_computed_colors();
 
@@ -254,32 +274,7 @@ color_palette_index gr_find_closest_color(const int r, const int g, const int b)
 					return color_num;
 				}
 	}
-
-//	r &= 63;
-//	g &= 63;
-//	b &= 63;
-
-	auto best_value = get_squared_color_delta(r, g, b, gr_palette[0]);
-	color_palette_index best_index = 0;
-	if (best_value==0) {
-		add_computed_color(r, g, b, best_index);
- 		return best_index;
-	}
-	j=0;
-	// only go to 255, 'cause we dont want to check the transparent color.
-	for (color_palette_index i{1}; i < 254; ++i)
-	{
-		++j;
-		const auto value = get_squared_color_delta(r, g, b, gr_palette[j]);
-		if ( value < best_value )	{
-			if (value==0) {
-				add_computed_color(r, g, b, i);
-				return i;
-			}
-			best_value = value;
-			best_index = i;
-		}
-	}
+	const auto best_index = gr_find_closest_color_palette(r, g, b, gr_palette);
 	add_computed_color(r, g, b, best_index);
 	return best_index;
 }
@@ -289,33 +284,9 @@ color_palette_index gr_find_closest_color_15bpp( int rgb )
 	return gr_find_closest_color( ((rgb>>10)&31)*2, ((rgb>>5)&31)*2, (rgb&31)*2 );
 }
 
-
-color_palette_index gr_find_closest_color_current( int r, int g, int b )
+color_palette_index gr_find_closest_color_current(const int r, const int g, const int b)
 {
-	int j;
-
-//	r &= 63;
-//	g &= 63;
-//	b &= 63;
-
-	auto best_value = get_squared_color_delta(r, g, b, gr_current_pal[0]);
-	color_t best_index = 0;
-	if (best_value==0)
- 		return best_index;
-
-	j=0;
-	// only go to 255, 'cause we dont want to check the transparent color.
-	for (color_t i=1; i < 254; i++ )	{
-		++j;
-		const auto value = get_squared_color_delta(r, g, b, gr_current_pal[j]);
-		if ( value < best_value )	{
-			if (value==0)
-				return i;
-			best_value = value;
-			best_index = i;
-		}
-	}
-	return best_index;
+	return gr_find_closest_color_palette(r, g, b, gr_current_pal);
 }
 
 }
