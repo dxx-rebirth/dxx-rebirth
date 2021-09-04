@@ -30,14 +30,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 
 #ifdef dsx
+#include "fwd-wall.h"
 namespace dsx {
 int bind_wall_to_trigger();
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 unsigned remove_trigger(shared_segment &seg, unsigned side);
-#endif
-
-int remove_trigger_num(int trigger_num);
+int remove_trigger_num(trigger_array &Triggers, fvmwallptr &vmwallptr, trgnum_t trigger_num);
 void close_trigger_window();
 }
 #endif

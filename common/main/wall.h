@@ -162,7 +162,7 @@ struct wall : public prohibit_void_ptr<wall>
 	wallnum_t linked_wall;        // number of linked wall
 	ubyte   flags;              // Flags for the wall.
 	ubyte   state;              // Opening, closing, etc.
-	uint8_t   trigger;            // Which trigger is associated with the wall.
+	trgnum_t trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.
 	wall_key keys;               // which keys are required
 #if defined(DXX_BUILD_DESCENT_II)

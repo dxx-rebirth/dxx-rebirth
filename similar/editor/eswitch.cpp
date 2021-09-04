@@ -80,10 +80,10 @@ static trigger_dialog *MainWindow;
 // If there is a trigger already present, it returns the trigger number. (To be replaced)
 static trgnum_t add_trigger(trigger_array &Triggers, fvcvertptr &vcvertptr, wall_array &Walls, const shared_segment &seg, const unsigned side)
 {
-	trgnum_t trigger_num = Triggers.get_count();
+	const uint8_t trigger_num = Triggers.get_count();
 
-	Assert(trigger_num < MAX_TRIGGERS);
-	if (trigger_num>=MAX_TRIGGERS) return trigger_none;
+	if (trigger_num >= Triggers.size())
+		return trigger_none;
 
 	auto wall_num = seg.sides[side].wall_num;
 	wall *wp;
@@ -101,13 +101,13 @@ static trgnum_t add_trigger(trigger_array &Triggers, fvcvertptr &vcvertptr, wall
 		wp = &w;
 		// Create new trigger.
 	}
-	wp->trigger = trigger_num;
-	auto &t = *Triggers.vmptr(trigger_num);
+	const auto r = wp->trigger = trgnum_t{trigger_num};
+	auto &t = *Triggers.vmptr(r);
 	t.flags = {};
 	t.value = F1_0*5;
 	t.num_links = 0;
 	Triggers.set_count(trigger_num + 1);
-	return trigger_num;
+	return r;
 }		
 
 //-----------------------------------------------------------------
@@ -251,31 +251,22 @@ int bind_wall_to_trigger() {
 	return 1;
 }
 
-int remove_trigger_num(int trigger_num)
+int remove_trigger_num(trigger_array &Triggers, fvmwallptr &vmwallptr, const trgnum_t trigger_num)
 {
-	if (trigger_num != trigger_none)
-	{
-		auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 		auto r = partial_range(Triggers, static_cast<unsigned>(trigger_num), Triggers.get_count());
 		Triggers.set_count(Triggers.get_count() - 1);
 		std::move(std::next(r.begin()), r.end(), r.begin());
 	
-		auto &Walls = LevelUniqueWallSubsystemState.Walls;
-		auto &vmwallptr = Walls.vmptr;
 		range_for (const auto &&w, vmwallptr)
 		{
 			auto &trigger = w->trigger;
 			if (trigger == trigger_num)
 				trigger = trigger_none;	// a trigger can be shared by multiple walls
 			else if (trigger > trigger_num && trigger != trigger_none)
-				--trigger;
+				trigger = static_cast<trgnum_t>(static_cast<unsigned>(trigger) - 1);
 		}
 
 		return 1;
-	}
-
-	editor_status("No trigger to remove");
-	return 0;
 }
 
 unsigned remove_trigger(shared_segment &seg, const unsigned side)
@@ -288,7 +279,13 @@ unsigned remove_trigger(shared_segment &seg, const unsigned side)
 
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	return remove_trigger_num(vcwallptr(wall_num)->trigger);
+	const auto trigger = vcwallptr(wall_num)->trigger;
+	if (trigger == trigger_none)
+	{
+		editor_status("No trigger to remove");
+		return 0;
+	}
+	return remove_trigger_num(LevelUniqueWallSubsystemState.Triggers, Walls.vmptr, trigger);
 }
 
 static int trigger_remove()

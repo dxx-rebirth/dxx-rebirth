@@ -2249,19 +2249,19 @@ static void multi_do_trigger(const playernum_t pnum, const ubyte *buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	int trigger = buf[2];
+	const auto trigger = buf[2];
 	if (pnum >= N_players || pnum == Player_num)
 	{
 		Int3(); // Got trigger from illegal playernum
 		return;
 	}
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
-	if ((trigger < 0) || (trigger >= Triggers.get_count()))
+	if (trigger >= Triggers.get_count())
 	{
 		Int3(); // Illegal trigger number in multiplayer
 		return;
 	}
-	check_trigger_sub(get_local_plrobj(), trigger, pnum,0);
+	check_trigger_sub(get_local_plrobj(), trigger, pnum, 0);
 }
 
 }

@@ -1229,18 +1229,16 @@ static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptri
 	do_controlcen_destroyed_stuff(object_none);
 
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
-	auto &vctrgptr = Triggers.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	for (trgnum_t i = 0; i < Triggers.get_count(); i++)
+	for (const auto &&t : Triggers.vcptridx)
 	{
-		const auto &&t = vctrgptr(i);
 		if (trigger_is_exit(t))
 		{
 			range_for (const auto &&wp, vcwallptr)
 			{
 				auto &w = *wp;
-				if (w.trigger == i)
+				if (w.trigger == t)
 				{
 					const auto &&segp = vmsegptridx(w.segnum);
 					auto &vcvertptr = Vertices.vcptr;

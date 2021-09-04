@@ -248,7 +248,7 @@ void wall_init()
 		w.type = WALL_NORMAL;
 		w.flags = 0;
 		w.hps = 0;
-		w.trigger = -1;
+		w.trigger = trigger_none;
 		w.clip_num = -1;
 		w.linked_wall = wall_none;
 	}
