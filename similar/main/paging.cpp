@@ -66,7 +66,7 @@ static void paging_touch_vclip(const vclip &vc, const unsigned line)
 	} u{};
 	try
 	{
-		new(&u.r) range_type((partial_const_range)(__FILE__, line, "vc.frames", vc.frames, vc.num_frames));
+		new(&u.r) range_type(partial_const_range<partial_range_detail::required_buffer_size<sizeof(__FILE__), sizeof("vc.frames")>>(__FILE__, line, "vc.frames", vc.frames, vc.num_frames));
 		static_assert(std::is_trivially_destructible<range_type>::value, "partial_range destructor not called");
 	}
 	catch (const range_type::partial_range_error &e)
