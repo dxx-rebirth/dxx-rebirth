@@ -426,11 +426,13 @@ static int get_font_total_width(const grs_font &font)
 	}
 }
 
-static void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
+static std::pair<int, int> ogl_font_choose_size(grs_font * font, const int gap)
+{
 	int	nchars = font->ft_maxchar-font->ft_minchar+1;
 	int r,x,y,nc=0,smallest=999999,smallr=-1,tries;
 	int smallprop=10000;
 	int w;
+	int rw = INT_MIN, rh = INT_MIN;
 	for (int h=32;h<=256;h*=2){
 //		h=pow2ize(font->ft_h*rows+gap*(rows-1));
 		if (font->ft_h>h)continue;
@@ -485,24 +487,23 @@ static void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 		if (w*h<smallest){
 			smallr=1;
 			smallest=w*h;
-			*rw=w;
-			*rh=h;
+			rw = w;
+			rh = h;
 		}
 	}
 	if (smallr<=0)
 		Error("Could not fit font?\n");
+	return {rw, rh};
 }
 
 static void ogl_init_font(grs_font * font)
 {
 	int oglflags = OGL_FLAG_ALPHA;
 	const unsigned nchars = font->ft_maxchar - font->ft_minchar + 1;
-	int tw,th,curx=0,cury=0;
+	int curx=0,cury=0;
 	int gap=1; // x/y offset between the chars so we can filter
 
-	th = tw = 0xffff;
-
-	ogl_font_choose_size(font,gap,&tw,&th);
+	const auto &&[tw, th] = ogl_font_choose_size(font, gap);
 	{
 		RAIIdmem<uint8_t[]> data;
 		const unsigned length = tw * th;
