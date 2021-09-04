@@ -671,7 +671,7 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 					ui_dprintf_at( MainWindow, 223, 6, "            " );
 
 			ui_dprintf_at( MainWindow, 12, 40, " Clip: %d   ", w->clip_num );
-			ui_dprintf_at( MainWindow, 12, 57, " Trigger: %d  ", w->trigger );
+			ui_dprintf_at(MainWindow, 12, 57, " Trigger: %d  ", underlying_value(w->trigger));
 		}	else {
 			ui_dprintf_at( MainWindow, 12, 6, "Wall: none ");
 			ui_dprintf_at( MainWindow, 12, 23, " Type: none ");

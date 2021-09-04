@@ -166,7 +166,7 @@ struct wall : public prohibit_void_ptr<wall>
 	sbyte   clip_num;           // Which animation associated with the wall.
 	wall_key keys;               // which keys are required
 #if defined(DXX_BUILD_DESCENT_II)
-	sbyte   controlling_trigger;// which trigger causes something to happen here.  Not like "trigger" above, which is the trigger on this wall.
+	trgnum_t controlling_trigger;// which trigger causes something to happen here.  Not like "trigger" above, which is the trigger on this wall.
                                 //  Note: This gets stuffed at load time in gamemine.c.  Don't try to use it in the editor.  You will be sorry!
 	sbyte   cloak_value;        // if this wall is cloaked, the fade value
 #endif

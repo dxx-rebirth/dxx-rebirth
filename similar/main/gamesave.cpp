@@ -70,6 +70,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
+#include "d_underlying_value.h"
 #include "d_zip.h"
 #include "partial_range.h"
 
@@ -1028,7 +1029,7 @@ static int load_game_data(
 			nw.type		= w.type;
 			nw.flags		= w.flags & ~WALL_EXPLODING;
 			nw.hps		= w.hps;
-			nw.trigger	= w.trigger;
+			nw.trigger	= static_cast<trgnum_t>(w.trigger);
 #if defined(DXX_BUILD_DESCENT_I)
 			nw.clip_num	= convert_wclip(w.clip_num);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1045,7 +1046,7 @@ static int load_game_data(
 			nw.type		= w.type;
 			nw.flags		= w.flags & ~WALL_EXPLODING;
 			nw.hps		= w.hps;
-			nw.trigger	= w.trigger;
+			nw.trigger	= static_cast<trgnum_t>(w.trigger);
 #if defined(DXX_BUILD_DESCENT_I)
 			nw.clip_num	= convert_wclip(w.clip_num);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1187,7 +1188,8 @@ static int load_game_data(
 	range_for (const auto &&p, vmwallptr)
 	{
 		auto &w = *p;
-		if (w.trigger >= Triggers.get_count()) {
+		if (underlying_value(w.trigger) >= Triggers.get_count())
+		{
 			w.trigger = trigger_none;	//kill trigger
 		}
 	}
@@ -1217,7 +1219,7 @@ static int load_game_data(
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		range_for (const auto &&w, vmwallptr)
-			w->controlling_trigger = -1;
+			w->controlling_trigger = trigger_none;
 #endif
 
 		auto &vctrgptridx = Triggers.vcptridx;
@@ -1232,7 +1234,7 @@ static int load_game_data(
 				if (trigger_is_matcen(tr))
 				{
 					if (Segments[seg_num].special != SEGMENT_IS_ROBOTMAKER)
-						con_printf(CON_URGENT, "matcen %u triggers non-matcen segment %hu", t.get_unchecked_index(), seg_num);
+						con_printf(CON_URGENT, "matcen %u triggers non-matcen segment %hu", underlying_value(t.get_unchecked_index()), seg_num);
 				}
 #if defined(DXX_BUILD_DESCENT_II)
 				else if (tr.type != trigger_action::light_off && tr.type != trigger_action::light_on)
@@ -1243,7 +1245,7 @@ static int load_game_data(
 						(*uwall)->controlling_trigger = t;
 					else
 					{
-						LevelError("trigger %u link %u type %u references segment %hu, side %u which is an invalid wall; ignoring.", static_cast<trgnum_t>(t), l, static_cast<unsigned>(tr.type), seg_num, side_num);
+						LevelError("trigger %u link %u type %u references segment %hu, side %u which is an invalid wall; ignoring.", underlying_value(t.get_unchecked_index()), l, static_cast<unsigned>(tr.type), seg_num, side_num);
 					}
 				}
 #endif

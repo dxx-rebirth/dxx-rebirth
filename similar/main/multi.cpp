@@ -2250,7 +2250,7 @@ static void multi_do_trigger(const playernum_t pnum, const ubyte *buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	const auto trigger = buf[2];
+	const std::underlying_type<trgnum_t>::type trigger = buf[2];
 	if (pnum >= N_players || pnum == Player_num)
 	{
 		Int3(); // Got trigger from illegal playernum
@@ -2262,7 +2262,7 @@ static void multi_do_trigger(const playernum_t pnum, const ubyte *buf)
 		Int3(); // Illegal trigger number in multiplayer
 		return;
 	}
-	check_trigger_sub(get_local_plrobj(), trigger, pnum, 0);
+	check_trigger_sub(get_local_plrobj(), static_cast<trgnum_t>(trigger), pnum, 0);
 }
 
 }
@@ -3071,7 +3071,7 @@ void multi_send_score()
 	}
 }
 
-void multi_send_trigger(const int triggernum)
+void multi_send_trigger(const trgnum_t triggernum)
 {
 	// Send an event to trigger something in the mine
 
@@ -3080,7 +3080,8 @@ void multi_send_trigger(const int triggernum)
 	count += 1;
 	multi_command<MULTI_TRIGGER> multibuf;
 	multibuf[count] = Player_num;                                   count += 1;
-	multibuf[count] = triggernum;            count += 1;
+	static_assert(sizeof(trgnum_t) == sizeof(uint8_t), "trigger number could be truncated");
+	multibuf[count] = static_cast<uint8_t>(triggernum);            count += 1;
 
 	multi_send_data(multibuf, 2);
 }
@@ -4688,10 +4689,11 @@ static void multi_do_finish_game(const uint8_t *const buf)
 
 }
 
-void multi_send_trigger_specific(const playernum_t pnum, const uint8_t trig)
+void multi_send_trigger_specific(const playernum_t pnum, const trgnum_t trig)
 {
 	multi_command<MULTI_START_TRIGGER> multibuf;
-	multibuf[1] = trig;
+	static_assert(sizeof(trgnum_t) == sizeof(uint8_t), "trigger number could be truncated");
+	multibuf[1] = static_cast<uint8_t>(trig);
 
 	multi_send_data_direct(multibuf, pnum, 2);
 }

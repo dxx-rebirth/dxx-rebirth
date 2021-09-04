@@ -48,6 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 
 #include "compiler-range_for.h"
+#include "d_underlying_value.h"
 #include "partial_range.h"
 #include <memory>
 
@@ -68,7 +69,7 @@ struct trigger_dialog : UI_DIALOG
 #if defined(DXX_BUILD_DESCENT_I)
 	std::array<std::unique_ptr<UI_GADGET_CHECKBOX>, NUM_TRIGGER_FLAGS> triggerFlag;
 #endif
-	int old_trigger_num;
+	trgnum_t old_trigger_num = trigger_none;
 	virtual window_event_result callback_handler(const d_event &) override;
 };
 
@@ -80,7 +81,7 @@ static trigger_dialog *MainWindow;
 // If there is a trigger already present, it returns the trigger number. (To be replaced)
 static trgnum_t add_trigger(trigger_array &Triggers, fvcvertptr &vcvertptr, wall_array &Walls, const shared_segment &seg, const unsigned side)
 {
-	const uint8_t trigger_num = Triggers.get_count();
+	const std::underlying_type<trgnum_t>::type trigger_num = Triggers.get_count();
 
 	if (trigger_num >= Triggers.size())
 		return trigger_none;
@@ -362,8 +363,6 @@ static window_event_result trigger_dialog_created(trigger_dialog *const t)
 #if defined(DXX_BUILD_DESCENT_II)
 	t->enable_all_triggers = ui_add_gadget_button(*t, 155, i, 140, 26, "All Triggers ON", trigger_turn_all_ON); i += 29;
 #endif
-
-	t->old_trigger_num = -2;		// Set to some dummy value so everything works ok on the first frame.
 	return window_event_result::handled;
 }
 
@@ -513,7 +512,7 @@ window_event_result trigger_dialog::callback_handler(const d_event &event)
 	{
 		if (markedseg.s.sides[Markedside].wall_num != wall_none)
 		{
-			ui_dprintf_at( MainWindow, 12, 6, "Trigger: %d    ", trigger_num);
+			ui_dprintf_at(MainWindow, 12, 6, "Trigger: %-4d ", underlying_value(trigger_num));
 		}	else {
 			ui_dprintf_at( MainWindow, 12, 6, "Trigger: none ");
 		}

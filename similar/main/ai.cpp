@@ -1899,7 +1899,8 @@ int ai_door_is_openable(
 		}
 		// -- }
 
-		if ((ailp_mode != ai_mode::AIM_GOTO_PLAYER) && (wall.controlling_trigger != -1)) {
+		if (ailp_mode != ai_mode::AIM_GOTO_PLAYER && wall.controlling_trigger != trigger_none)
+		{
 			const auto clip_num = wall.clip_num;
 			if (clip_num == -1)
 				return clip_num;

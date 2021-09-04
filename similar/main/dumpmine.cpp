@@ -218,7 +218,7 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 			int	count2;
 
 			const auto i = t.get_unchecked_index();
-			PHYSFSX_printf(my_file, "Trigger %2i, is an exit trigger with %i links.\n", i, t->num_links);
+			PHYSFSX_printf(my_file, "Trigger %2i, is an exit trigger with %i links.\n", underlying_value(i), t->num_links);
 			count++;
 			if (t->num_links != 0)
 				err_printf(my_file, "Error: Exit triggers must have 0 links, this one has %i links.", t->num_links);
@@ -230,13 +230,13 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 				if (w->trigger == i)
 				{
 					count2++;
-					PHYSFSX_printf(my_file, "Exit trigger %i is in segment %i, on side %i, bound to wall %hu\n", i, w->segnum, w->sidenum, underlying_value(wallnum_t{w}));
+					PHYSFSX_printf(my_file, "Exit trigger %i is in segment %i, on side %i, bound to wall %hu\n", underlying_value(i), w->segnum, w->sidenum, underlying_value(wallnum_t{w}));
 				}
 			}
 			if (count2 == 0)
-				err_printf(my_file, "Error: Trigger %i is not bound to any wall.", i);
+				err_printf(my_file, "Error: Trigger %i is not bound to any wall.", underlying_value(i));
 			else if (count2 > 1)
-				err_printf(my_file, "Error: Trigger %i is bound to %i walls.", i, count2);
+				err_printf(my_file, "Error: Trigger %i is bound to %i walls.", underlying_value(i), count2);
 
 		}
 	}
@@ -511,7 +511,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 				range_for (auto &k, partial_const_range(t->seg, t->num_links))
 					if (k == segnum)
 					{
-						PHYSFSX_printf(my_file, "Trigger = %2i  ", t.get_unchecked_index());
+						PHYSFSX_printf(my_file, "Trigger = %2i  ", underlying_value(t.get_unchecked_index()));
 						trigger_count++;
 					}
 			}
@@ -541,11 +541,11 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 		int	sidenum;
 
 		const auto i = underlying_value(wallnum_t{wp});
-		PHYSFSX_printf(my_file, "Wall %03hu: seg=%3i, side=%2i, linked_wall=%3hu, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i, w.segnum, w.sidenum, underlying_value(wallnum_t{w.linked_wall}), Wall_names[w.type], w.flags, w.hps >> 16, w.trigger, w.clip_num, static_cast<unsigned>(w.keys), w.state);
+		PHYSFSX_printf(my_file, "Wall %03hu: seg=%3i, side=%2i, linked_wall=%3hu, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i, w.segnum, w.sidenum, underlying_value(wallnum_t{w.linked_wall}), Wall_names[w.type], w.flags, w.hps >> 16, underlying_value(w.trigger), w.clip_num, static_cast<unsigned>(w.keys), w.state);
 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (w.trigger >= Triggers.get_count())
-			PHYSFSX_printf(my_file, "Wall %03hu points to invalid trigger %d\n", i, w.trigger);
+		if (const auto utw = underlying_value(w.trigger); utw >= Triggers.get_count())
+			PHYSFSX_printf(my_file, "Wall %03hu points to invalid trigger %u\n", i, utw);
 #endif
 
 		auto segnum = w.segnum;
@@ -615,9 +615,9 @@ static void write_trigger_text(PHYSFS_File *my_file)
 	{
 		const auto i = static_cast<trgnum_t>(t);
 #if defined(DXX_BUILD_DESCENT_I)
-		PHYSFSX_printf(my_file, "Trigger %03i: flags=%04x, value=%08x, time=%8x, num_links=%i ", i, t->flags, static_cast<unsigned>(t->value), 0, t->num_links);
+		PHYSFSX_printf(my_file, "Trigger %03i: flags=%04x, value=%08x, time=%8x, num_links=%i ", underlying_value(i), t->flags, static_cast<unsigned>(t->value), 0, t->num_links);
 #elif defined(DXX_BUILD_DESCENT_II)
-		PHYSFSX_printf(my_file, "Trigger %03i: type=%02x flags=%04x, value=%08x, time=%8x, num_links=%i ", i,
+		PHYSFSX_printf(my_file, "Trigger %03i: type=%02x flags=%04x, value=%08x, time=%8x, num_links=%i ", underlying_value(i),
 			static_cast<uint8_t>(t->type), static_cast<uint8_t>(t->flags), t->value, 0, t->num_links);
 #endif
 
@@ -628,7 +628,7 @@ static void write_trigger_text(PHYSFS_File *my_file)
 		const auto &&we = vcwallptr.end();
 		const auto &&wi = std::find_if(vcwallptr.begin(), we, [i](const wall *const p) { return p->trigger == i; });
 		if (wi == we)
-			err_printf(my_file, "Error: Trigger %i is not connected to any wall, so it can never be triggered.", i);
+			err_printf(my_file, "Error: Trigger %i is not connected to any wall, so it can never be triggered.", underlying_value(i));
 		else
 		{
 			const auto &&w = *wi;

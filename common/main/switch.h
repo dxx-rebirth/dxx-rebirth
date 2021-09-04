@@ -168,7 +168,10 @@ enum TRIGGER_FLAG : uint16_t
 //the trigger really should have both a type & a flags, since most of the
 //flags bits are exclusive of the others.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-typedef uint8_t trgnum_t;
+enum class trgnum_t : uint8_t
+{
+	None = UINT8_MAX
+};
 
 namespace dsx {
 
@@ -198,7 +201,7 @@ struct d_level_unique_trigger_state
 };
 }
 
-constexpr std::integral_constant<uint8_t, 0xff> trigger_none{};
+constexpr std::integral_constant<trgnum_t, trgnum_t::None> trigger_none{};
 
 extern void trigger_init();
 namespace dsx {

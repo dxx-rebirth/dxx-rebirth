@@ -430,6 +430,7 @@ struct owned_remote_objnum
 	int8_t owner;
 	uint16_t objnum;
 };
+enum class trgnum_t : uint8_t;
 
 extern int GetMyNetRanking();
 extern void ClipRank (ubyte *rank);
@@ -478,7 +479,7 @@ void multi_send_decloak(void);
 void multi_digi_play_sample(int sndnum, fix max_volume);
 void multi_digi_play_sample_once(int soundnum, fix max_volume);
 void multi_send_score(void);
-void multi_send_trigger(int trigger);
+void multi_send_trigger(trgnum_t trigger);
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 extern char Multi_is_guided;
@@ -713,7 +714,7 @@ void multi_check_for_killgoal_winner();
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 extern void multi_send_stolen_items();
-void multi_send_trigger_specific(playernum_t pnum, uint8_t trig);
+void multi_send_trigger_specific(playernum_t pnum, trgnum_t trig);
 void multi_send_door_open_specific(playernum_t pnum, vcsegidx_t segnum, unsigned side, uint8_t flag);
 void multi_send_wall_status_specific(playernum_t pnum, wallnum_t wallnum, uint8_t type, uint8_t flags, uint8_t state);
 void multi_send_light_specific (playernum_t pnum, vcsegptridx_t segnum, uint8_t val);
