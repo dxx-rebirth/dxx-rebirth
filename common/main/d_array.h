@@ -27,6 +27,7 @@ template <typename T, std::size_t N, typename E>
 struct enumerated_array : std::array<T, N>
 {
 	using base_type = std::array<T, N>;
+	using index_type = E;
 	using typename base_type::reference;
 	using typename base_type::const_reference;
 	constexpr reference at(E position)

@@ -18,6 +18,13 @@ namespace d_enumerate {
 
 namespace detail {
 
+/* In the general case, `value_type` is a tuple of the index and the
+ * result of the underlying sequence.
+ *
+ * In the special case that `result_type` is a tuple, construct a
+ * modified tuple instead of using a tuple of (index, inner tuple).
+ * This allows simpler structured bindings.
+ */
 template <typename index_type, typename result_type>
 struct adjust_iterator_dereference_type : std::false_type
 {
@@ -29,6 +36,24 @@ struct adjust_iterator_dereference_type<index_type, std::tuple<T...>> : std::tru
 {
 	using value_type = std::tuple<index_type, T...>;
 };
+
+/* Retrieve the member typedef `index_type` if one exists.  Otherwise,
+ * use `uint_fast32_t` as a fallback.
+ */
+template <typename>
+uint_fast32_t array_index_type(...);
+
+/* Add, then remove, a reference to the `index_type`.  If `index_type`
+ * is an integer or enum type, this produces `index_type` again.  If
+ * `index_type` is `void`, then this overload refers to
+ * `std::remove_reference<void &>::type`, which is ill-formed, and the
+ * overload is removed by SFINAE.  This allows target types to use
+ * `using index_type = void` to decline to specify an `index_type`,
+ * which may be convenient in templates that conditionally define an
+ * `index_type` based on their template parameters.
+ */
+template <typename T>
+typename std::remove_reference<typename std::remove_reference<T>::type::index_type &>::type array_index_type(std::nullptr_t);
 
 }
 
@@ -60,7 +85,17 @@ public:
 	enumerated_iterator &operator++()
 	{
 		++ m_iter;
-		++ m_idx;
+		if constexpr (std::is_enum<index_type>::value)
+			/* An enum type is not required to have operator++()
+			 * defined, and may deliberately omit it to avoid allowing
+			 * the value to be incremented in the typical use case.  For
+			 * this situation, an increment is desired, so emulate
+			 * operator++() by casting to the underlying integer
+			 * type, adding 1, and casting back.
+			 */
+			m_idx = static_cast<index_type>(1u + static_cast<typename std::underlying_type<index_type>::type>(m_idx));
+		else
+			++ m_idx;
 		return *this;
 	}
 	bool operator!=(const enumerated_iterator &i) const
@@ -106,5 +141,5 @@ public:
 	}
 };
 
-template <typename range_type, typename index_type = uint_fast32_t, typename range_iterator_type = decltype(std::begin(std::declval<range_type &>()))>
+template <typename range_type, typename index_type = decltype(d_enumerate::detail::array_index_type<range_type>(nullptr)), typename range_iterator_type = decltype(std::begin(std::declval<range_type &>()))>
 enumerate(range_type &&r, const index_type start = index_type(/* value ignored */)) -> enumerate<range_iterator_type, index_type>;
