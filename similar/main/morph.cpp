@@ -575,9 +575,9 @@ static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, p
 		}
 		else {
 			const auto &&orient = vm_angles_2_matrix(anim_angles[mn]);
-			g3_start_instance_matrix(pm->submodel_offsets[mn], orient);
+			auto &&ctx = g3_start_instance_matrix(pm->submodel_offsets[mn], orient);
 			draw_model(canvas, robot_points,pm,mn,anim_angles,light,md);
-			g3_done_instance();
+			g3_done_instance(ctx);
 		}
 	}
 
@@ -604,11 +604,12 @@ void draw_morph_object(grs_canvas &canvas, const d_level_unique_light_state &Lev
 
 	const auto light = compute_object_light(LevelUniqueLightState, obj);
 
-	g3_start_instance_matrix(obj->pos, obj->orient);
+	{
+	auto &&ctx = g3_start_instance_matrix(obj->pos, obj->orient);
 	polygon_model_points robot_points;
 	draw_model(canvas, robot_points, po, 0, obj->rtype.pobj_info.anim_angles, light, md);
-
-	g3_done_instance();
+	g3_done_instance(ctx);
+	}
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_morph_frame(obj);

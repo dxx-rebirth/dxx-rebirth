@@ -18,31 +18,16 @@
 
 namespace dcx {
 
-namespace {
-
-struct instance_context {
-	vms_matrix m;
-	vms_vector p;
-};
-
-}
-
-static std::array<instance_context, 5> instance_stack;
-
-int instance_depth = 0;
-
 //instance at specified point with specified orientation
 //if matrix==NULL, don't modify matrix.  This will be like doing an offset   
-void g3_start_instance_matrix()
+g3_instance_context g3_start_instance_matrix()
 {
-	auto &s = instance_stack.at(instance_depth++);
-	s.m = View_matrix;
-	s.p = View_position;
+	return {View_matrix, View_position};
 }
 
-void g3_start_instance_matrix(const vms_vector &pos, const vms_matrix &orient)
+g3_instance_context g3_start_instance_matrix(const vms_vector &pos, const vms_matrix &orient)
 {
-	g3_start_instance_matrix();
+	auto r = g3_start_instance_matrix();
 	//step 1: subtract object position from view position
 
 		const auto tempv = vm_vec_sub(View_position, pos);
@@ -52,28 +37,24 @@ void g3_start_instance_matrix(const vms_vector &pos, const vms_matrix &orient)
 
 		//step 3: rotate object matrix through view_matrix (vm = ob * vm)
 	View_matrix = vm_matrix_x_matrix(vm_transposed_matrix(orient), View_matrix);
+	return r;
 }
 
 
 //instance at specified point with specified orientation
 //if angles==NULL, don't modify matrix.  This will be like doing an offset
-void g3_start_instance_angles(const vms_vector &pos, const vms_angvec &angles)
+g3_instance_context g3_start_instance_angles(const vms_vector &pos, const vms_angvec &angles)
 {
 	const auto &&tm = vm_angles_2_matrix(angles);
-	g3_start_instance_matrix(pos, tm);
+	return g3_start_instance_matrix(pos, tm);
 }
 
 
 //pops the old context
-void g3_done_instance()
+void g3_done_instance(const g3_instance_context &ctx)
 {
-	instance_depth--;
-
-	Assert(instance_depth >= 0);
-
-	View_position = instance_stack[instance_depth].p;
-	View_matrix = instance_stack[instance_depth].m;
+	View_position = ctx.position;
+	View_matrix = ctx.matrix;
 }
-
 
 }

@@ -596,9 +596,11 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 	//g3_draw_horizon(BM_XRGB(0,0,0),BM_XRGB(16,16,16));		//,-1);
 	gr_clear_canvas(canvas, BM_XRGB(0,0,0));
 
-	g3_start_instance_matrix(vmd_zero_vector, surface_orient);
-	draw_stars(canvas, UniqueEndlevelState.stars);
-	g3_done_instance();
+	{
+		auto &&ctx = g3_start_instance_matrix(vmd_zero_vector, surface_orient);
+		draw_stars(canvas, UniqueEndlevelState.stars);
+		g3_done_instance(ctx);
+	}
 
 	{	//draw satellite
 

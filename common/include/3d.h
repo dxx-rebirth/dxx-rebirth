@@ -99,6 +99,12 @@ struct g3s_point {
 
 namespace dcx {
 
+struct g3_instance_context
+{
+	const vms_matrix matrix;
+	const vms_vector position;
+};
+
 #if DXX_USE_OGL
 typedef const g3s_point cg3s_point;
 #else
@@ -121,14 +127,17 @@ void g3_set_view_matrix(const vms_vector &view_pos,const vms_matrix &view_matrix
 //Instancing
 
 //instance at specified point with specified orientation
-void g3_start_instance_matrix();
-void g3_start_instance_matrix(const vms_vector &pos, const vms_matrix &orient);
+[[nodiscard]]
+g3_instance_context g3_start_instance_matrix();
+[[nodiscard]]
+g3_instance_context g3_start_instance_matrix(const vms_vector &pos, const vms_matrix &orient);
 
 //instance at specified point with specified orientation
-void g3_start_instance_angles(const vms_vector &pos, const vms_angvec &angles);
+[[nodiscard]]
+g3_instance_context g3_start_instance_angles(const vms_vector &pos, const vms_angvec &angles);
 
 //pops the old context
-void g3_done_instance();
+void g3_done_instance(const g3_instance_context &);
 
 //Misc utility functions:
 

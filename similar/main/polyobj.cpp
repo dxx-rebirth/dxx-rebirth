@@ -462,7 +462,7 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_mat
 	// so we need to reread them all in.
 	// Make sure that they can all fit in memory.
 
-	g3_start_instance_matrix(pos, orient);
+	auto &&ctx = g3_start_instance_matrix(pos, orient);
 
 	polygon_model_points robot_points;
 
@@ -476,16 +476,12 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_mat
 				Assert(i < po->n_models);
 
 				//if submodel, rotate around its center point, not pivot point
-	
-				g3_start_instance_matrix();
-	
+				auto &&subctx = g3_start_instance_matrix();
 				g3_draw_polygon_model(&texture_list[0], robot_points, canvas, anim_angles, light, glow_values, &po->model_data[po->submodel_ptrs[i]]);
-	
-				g3_done_instance();
+				g3_done_instance(subctx);
 			}	
 	}
-
-	g3_done_instance();
+	g3_done_instance(ctx);
 }
 
 void free_polygon_models(d_level_shared_polygon_model_state &LevelSharedPolygonModelState)
