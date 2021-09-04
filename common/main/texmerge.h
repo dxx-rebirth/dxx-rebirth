@@ -29,7 +29,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "fwd-segment.h"
 
+namespace dcx {
 struct grs_bitmap;
+}
 
 int texmerge_init();
 grs_bitmap &texmerge_get_cached_bitmap(texture1_value tmap_bottom, texture2_value tmap_top);

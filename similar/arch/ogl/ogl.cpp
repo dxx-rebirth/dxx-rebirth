@@ -176,6 +176,8 @@ static void perspective(double fovy, double aspect, double zNear, double zFar)
 }
 #endif
 
+namespace dcx {
+
 static void ogl_init_texture_stats(ogl_texture &t)
 {
 	t.prio=0.3;//default prio
@@ -347,6 +349,8 @@ static void ogl_texture_stats(void)
 	gr_printf(canvas, game_font, fspacx2, fspacy1 + line_spacing, "%i(%i,%i,%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedrgb, usedidx, usedother, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
 	gr_printf(canvas, game_font, fspacx2, fspacy1 + (line_spacing * 2), "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
 	gr_printf(canvas, game_font, fspacx2, fspacy1 + (line_spacing * 3), "total=%iK", (colorsize + depthsize + truebytes) / 1024);
+}
+
 }
 
 static void ogl_bindbmtex(grs_bitmap &bm, bool edgepad){

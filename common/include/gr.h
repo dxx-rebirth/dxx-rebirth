@@ -35,6 +35,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pack.h"
 #include <array>
 
+namespace dcx {
+
 struct grs_point
 {
 	fix x,y;
@@ -102,6 +104,43 @@ public:
 #endif /* def OGL */
 };
 
+// Free the bitmap and its pixel data
+class grs_main_bitmap : public grs_bitmap
+{
+public:
+	grs_main_bitmap();
+	grs_main_bitmap(const grs_main_bitmap &) = delete;
+	grs_main_bitmap &operator=(const grs_main_bitmap &) = delete;
+	grs_main_bitmap(grs_main_bitmap &&r) :
+		grs_bitmap(std::move(static_cast<grs_bitmap &>(r)))
+	{
+		r.bm_data = nullptr;
+#if DXX_USE_OGL
+		r.gltexture = nullptr;
+#endif
+	}
+	grs_main_bitmap &operator=(grs_main_bitmap &&r)
+	{
+		if (this == &r)
+			return *this;
+		reset();
+		grs_bitmap::operator=(std::move(static_cast<grs_bitmap &>(r)));
+		r.bm_data = nullptr;
+#if DXX_USE_OGL
+		r.gltexture = nullptr;
+#endif
+		return *this;
+	}
+	~grs_main_bitmap()
+	{
+		reset();
+	}
+	void reset()
+	{
+		gr_free_bitmap_data(*this);
+	}
+};
+
 struct grs_canvas : prohibit_void_ptr<grs_canvas>
 {
 	~grs_canvas()
@@ -136,14 +175,12 @@ struct grs_canvas : prohibit_void_ptr<grs_canvas>
 	unsigned cv_fade_level;  // transparency level
 };
 
-
 //=========================================================================
 // System functions:
 // setup and set mode. this creates a grs_screen structure and sets
 // grd_curscreen to point to it.  grs_curcanv points to this screen's
 // canvas.  Saves the current VGA state and screen mode.
 
-#ifdef __cplusplus
 union screen_mode
 {
 private:
@@ -208,8 +245,6 @@ public:
 // Makes a new canvas. allocates memory for the canvas and its bitmap,
 // including the raw pixel buffer.
 
-namespace dcx {
-
 struct grs_main_canvas : grs_canvas
 {
 	~grs_main_canvas();
@@ -220,43 +255,6 @@ struct grs_main_canvas : grs_canvas
 // the raw pixel data is inherited from the parent canvas.
 
 struct grs_subcanvas : grs_canvas {};
-
-// Free the bitmap and its pixel data
-class grs_main_bitmap : public grs_bitmap
-{
-public:
-	grs_main_bitmap();
-	grs_main_bitmap(const grs_main_bitmap &) = delete;
-	grs_main_bitmap &operator=(const grs_main_bitmap &) = delete;
-	grs_main_bitmap(grs_main_bitmap &&r) :
-		grs_bitmap(std::move(static_cast<grs_bitmap &>(r)))
-	{
-		r.bm_data = nullptr;
-#if DXX_USE_OGL
-		r.gltexture = nullptr;
-#endif
-	}
-	grs_main_bitmap &operator=(grs_main_bitmap &&r)
-	{
-		if (this == &r)
-			return *this;
-		reset();
-		grs_bitmap::operator=(std::move(static_cast<grs_bitmap &>(r)));
-		r.bm_data = nullptr;
-#if DXX_USE_OGL
-		r.gltexture = nullptr;
-#endif
-		return *this;
-	}
-	~grs_main_bitmap()
-	{
-		reset();
-	}
-	void reset()
-	{
-		gr_free_bitmap_data(*this);
-	}
-};
 
 // Free the bitmap, but not the pixel data buffer
 class grs_subbitmap : public grs_bitmap
@@ -344,5 +342,3 @@ static inline void (gr_set_current_canvas)(grs_subcanvas_ptr &canv DXX_DEBUG_CUR
 {
 	(gr_set_current_canvas)(canv.get() DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS);
 }
-
-#endif

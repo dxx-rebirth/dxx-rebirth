@@ -27,7 +27,7 @@
 #include "3d.h"
 #include <array>
 
-#ifdef __cplusplus
+namespace dcx {
 
 /* we need to export ogl_texture for 2d/font.c */
 struct ogl_texture
@@ -48,8 +48,6 @@ extern ogl_texture* ogl_get_free_texture();
 void ogl_init_texture(ogl_texture &t, int w, int h, int flags);
 
 void ogl_init_shared_palette(void);
-
-namespace dcx {
 
 /* These values are written to a file as integers, so they must not be
  * renumbered.
@@ -130,7 +128,5 @@ void ogl_toggle_depth_test(int enable);
 void ogl_set_blending(gr_blend);
 unsigned pow2ize(unsigned x);//from ogl.c
 }
-
-#endif
 
 #endif /* _OGL_INIT_H_ */

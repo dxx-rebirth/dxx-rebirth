@@ -30,6 +30,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "u_mem.h"
 
+namespace dcx {
+
 // some defines for transparency and blending
 constexpr auto TRANSPARENCY_COLOR = color_palette_index{255};            // palette entry of transparency color -- 255 on the PC
 #define GR_FADE_LEVELS       34u
@@ -39,6 +41,8 @@ enum class gr_blend {
 	additive_a,	// additive alpha blending
 	additive_c,	// additive color blending
 };
+
+}
 
 #define SWIDTH  (grd_curscreen->get_screen_width())
 #define SHEIGHT (grd_curscreen->get_screen_height())
@@ -67,6 +71,8 @@ extern uint8_t HiresGFXAvailable;
 #define CC_LSPACING_S   "\x2"   //next char specifies line spacing
 #define CC_UNDERLINE_S  "\x3"   //next char is underlined
 
+namespace dcx {
+
 enum bm_mode : uint8_t
 {
 	linear,
@@ -76,6 +82,8 @@ enum bm_mode : uint8_t
 #endif /* def OGL */
 };
 
+}
+
 #define BM_FLAG_TRANSPARENT         1
 #define BM_FLAG_SUPER_TRANSPARENT   2
 #define BM_FLAG_NO_LIGHTING         4
@@ -83,10 +91,11 @@ enum bm_mode : uint8_t
 #define BM_FLAG_PAGED_OUT           16  // This bitmap's data is paged out.
 #define BM_FLAG_RLE_BIG             32  // for bitmaps that RLE to > 255 per row (i.e. cockpits)
 
-#ifdef __cplusplus
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include <array>
+
+namespace dcx {
 
 struct grs_bitmap;
 struct grs_canvas;
@@ -96,8 +105,6 @@ struct grs_point;
 union screen_mode;
 
 class grs_screen;
-
-namespace dcx {
 
 struct grs_main_canvas;
 typedef std::unique_ptr<grs_main_canvas> grs_canvas_ptr;
@@ -407,5 +414,3 @@ void ogl_init_pixel_buffers(unsigned w, unsigned h);
 void ogl_close_pixel_buffers();
 }
 void ogl_cache_polymodel_textures(unsigned model_num);
-
-#endif

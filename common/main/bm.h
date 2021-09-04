@@ -34,7 +34,11 @@ struct bitmap_index;
 
 #include <cstdint>
 
+namespace dcx {
+
 struct grs_bitmap;
+
+}
 
 #ifdef dsx
 namespace dsx {

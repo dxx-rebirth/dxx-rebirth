@@ -14,12 +14,10 @@
 #include "ogl_extensions.h"
 #include "gr.h"
 
-#ifdef __cplusplus
-
+namespace dcx {
 void ogl_init_texture_list_internal(void);
 void ogl_smash_texture_list_internal(void);
 
-namespace dcx {
 extern int linedotscale;
 
 extern int GL_TEXTURE_2D_enabled;
@@ -53,5 +51,4 @@ void ogl_swap_buffers_internal();
 #endif
 }
 
-#endif
 #endif
