@@ -60,7 +60,7 @@ color_palette_index gr_find_closest_color_palette(const int r, const int g, cons
 	unsigned best_value = UINT_MAX;
 	color_palette_index best_index{};
 	// only go to 255, 'cause we dont want to check the transparent color.
-	for (auto &&[candidate_idx, candidate_rgb] : enumerate(unchecked_partial_range(palette.data(), palette.size() - 1)))
+	for (auto &&[candidate_idx, candidate_rgb] : enumerate(unchecked_partial_range(palette, palette.size() - 1)))
 	{
 		const auto candidate_value = get_squared_color_delta(r, g, b, candidate_rgb);
 		if (best_value > candidate_value)

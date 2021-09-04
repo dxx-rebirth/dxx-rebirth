@@ -1107,7 +1107,7 @@ struct netgame_list_game_menu_items
 		nm_set_item_text(menus[2], "");
 		nm_set_item_text(menus[3], "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
 
-		for (auto &&[i, lj, mi] : enumerate(zip(ljtext, unchecked_partial_range(std::next(menus.begin(), header_rows), ljtext.size())), 1u))
+		for (auto &&[i, lj, mi] : enumerate(zip(ljtext, unchecked_partial_range(menus, header_rows + 0u, menus.size() - 1)), 1u))
 		{
 			snprintf(&lj[0], lj.size(), "%u.                                                                      ", i);
 			nm_set_item_menu(mi, &lj[0]);
@@ -4297,7 +4297,7 @@ menu_subtitle{"Rebirth now supports automatic\n"
 	}
 #endif
 
-	const int i = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_NETGAME_SETUP}, unchecked_partial_range(m.data(), optnum), net_udp_game_param_handler, &opt, opt.start_game);
+	const int i = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_NETGAME_SETUP}, unchecked_partial_range(m, optnum), net_udp_game_param_handler, &opt, opt.start_game);
 
 	if (i < 0)
 		net_udp_close();

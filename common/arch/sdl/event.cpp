@@ -85,7 +85,7 @@ window_event_result event_poll()
 #endif
 		if (peep <= 0)
 			break;
-		state.process_event_batch(unchecked_partial_range(events.data(), static_cast<unsigned>(peep)));
+		state.process_event_batch(unchecked_partial_range(events, static_cast<unsigned>(peep)));
 		if (state.highest_result == window_event_result::deleted)
 			break;
 	}

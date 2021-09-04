@@ -228,7 +228,7 @@ std::unique_ptr<savegame_chooser_newmenu> savegame_chooser_newmenu::create(menu_
 
 savegame_chooser_newmenu::savegame_chooser_newmenu(menu_subtitle subtitle, grs_canvas &src, d_game_unique_state::savegame_description *const savegame_description, d_game_unique_state::savegame_file_path &savegame_file_path, imenu_description_buffers_array *const user_entered_savegame_descriptions) :
 	savegame_newmenu_items(savegame_description, savegame_file_path, user_entered_savegame_descriptions),
-	newmenu(menu_title{nullptr}, subtitle, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(unchecked_partial_range(m.data(), get_count_valid_menuitem_entries(savegame_description)), decorative_item_count), src)
+	newmenu(menu_title{nullptr}, subtitle, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(unchecked_partial_range(m, get_count_valid_menuitem_entries(savegame_description)), decorative_item_count), src)
 {
 }
 

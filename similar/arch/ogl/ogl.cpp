@@ -890,8 +890,8 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
 
 	for (auto &&[p, v, c] : zip(
 			unchecked_partial_range(pointlist, nv),
-			unchecked_partial_range(vertices.nested.data(), nv),
-			unchecked_partial_range(color_array.nested.data(), nv)
+			unchecked_partial_range(vertices.nested, nv),
+			unchecked_partial_range(color_array.nested, nv)
 		)
 	)
 	{
@@ -942,8 +942,8 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 			unchecked_partial_range(pointlist, nv),
 			unchecked_partial_range(light_rgb, nv),
 			unchecked_partial_range(uvl_list, nv),
-			unchecked_partial_range(vertices.nested.data(), nv),
-			unchecked_partial_range(color_array.nested.data(), nv),
+			unchecked_partial_range(vertices.nested, nv),
+			unchecked_partial_range(color_array.nested, nv),
 			partial_range(texcoord_array.nested, nv)
 		)
 	)
@@ -1005,7 +1005,7 @@ void _g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const g3s_point *con
 		const GLfloat alpha = (canvas.cv_fade_level >= GR_FADE_OFF)
 			? 1.0
 			: (1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
-		auto &&color_range = unchecked_partial_range(color_array.nested.data(), nv);
+		auto &&color_range = unchecked_partial_range(color_array.nested, nv);
 		if (bm.get_flag_mask(BM_FLAG_NO_LIGHTING))
 		{
 			for (auto &e : color_range)
@@ -1036,7 +1036,7 @@ void _g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const g3s_point *con
 	for (auto &&[point, uvl, vert, texcoord] : zip(
 			unchecked_partial_range(pointlist, nv),
 			unchecked_partial_range(uvl_list, nv),
-			unchecked_partial_range(vertices.nested.data(), nv),
+			unchecked_partial_range(vertices.nested, nv),
 			partial_range(texcoord_array.nested, nv)
 		)
 	)

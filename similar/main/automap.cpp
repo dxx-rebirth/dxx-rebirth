@@ -238,7 +238,7 @@ void adjust_segment_limit(automap &am, const unsigned SegmentLimit)
 	for (auto &i : unchecked_partial_range(am.edges.get(), am.end_valid_edges))
 	{
 		// Unchecked for speed
-		const auto &&range = unchecked_partial_range(i.segnum.begin(), i.num_faces);
+		const auto &&range = unchecked_partial_range(i.segnum, i.num_faces);
 		if (std::any_of(range.begin(), range.end(), predicate))
 			i.flags &= ~EF_TOO_FAR;
 		else
@@ -497,7 +497,7 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap &am, const game_m
 	const auto color = (gmi == MarkerState.HighlightMarker ? am.white_63 : am.blue_48);
 	const auto scale_x = Matrix_scale.x;
 	const auto scale_y = Matrix_scale.y;
-	range_for (const auto &i, unchecked_partial_range(sArray[pmi].data(), NumOfPoints[pmi]))
+	range_for (const auto &i, unchecked_partial_range(sArray[pmi], NumOfPoints[pmi]))
 	{
 		const auto ax0 = i.x0 * MarkerScale;
 		const auto ay0 = i.y0 * MarkerScale;
