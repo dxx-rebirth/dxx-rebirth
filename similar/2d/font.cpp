@@ -182,7 +182,7 @@ constexpr std::integral_constant<int, 1> gr_message_color_level{};
 		text_ptr++; \
 		if (*text_ptr){ \
 			if (gr_message_color_level >= control_code) \
-				canvas.cv_font_fg_color = static_cast<uint8_t>(*text_ptr); \
+				canvas.cv_font_fg_color = *text_ptr; \
 			text_ptr++; \
 		} \
 	} \
@@ -193,7 +193,7 @@ constexpr std::integral_constant<int, 1> gr_message_color_level{};
 	} \
 	else if (control_code >= 0x04 && control_code <= 0x06) { \
 		if (gr_message_color_level >= control_code - 3) \
-			canvas.cv_font_fg_color= static_cast<uint8_t>(orig_color); \
+			canvas.cv_font_fg_color= orig_color; \
 		text_ptr++; \
 	}
 
@@ -678,7 +678,7 @@ static void gr_ustring_mono(grs_canvas &canvas, const grs_font &cv_font, const i
 	switch (canvas.cv_bitmap.get_type())
 	{
 		case bm_mode::linear:
-			if (canvas.cv_font_bg_color == -1)
+			if (canvas.cv_font_bg_color == TRANSPARENCY_COLOR)
 				gr_internal_string0m(canvas, cv_font, x, y, s);
 			else
 				gr_internal_string0(canvas, cv_font, x, y, s);
@@ -725,7 +725,7 @@ void gr_string(grs_canvas &canvas, const grs_font &cv_font, const int x, const i
 		return;
 	}
 
-	if (canvas.cv_font_bg_color == -1)
+	if (canvas.cv_font_bg_color == TRANSPARENCY_COLOR)
 	{
 		gr_internal_string_clipped_m(canvas, cv_font, x, y, s);
 		return;
