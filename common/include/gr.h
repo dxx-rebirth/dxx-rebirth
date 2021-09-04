@@ -223,8 +223,9 @@ static inline uint16_t SM_H(const screen_mode &s)
 // Makes a new canvas. allocates memory for the canvas and its bitmap,
 // including the raw pixel buffer.
 
-struct grs_main_canvas : grs_canvas
+struct grs_main_canvas : grs_canvas, prohibit_void_ptr<grs_main_canvas>
 {
+	using prohibit_void_ptr<grs_main_canvas>::operator &;
 	grs_main_canvas &operator=(grs_main_canvas &) = delete;
 	grs_main_canvas &operator=(grs_main_canvas &&) = default;
 	~grs_main_canvas();
@@ -264,7 +265,10 @@ public:
 // a window on the screen.  the canvas structure is malloc'd; the address of
 // the raw pixel data is inherited from the parent canvas.
 
-struct grs_subcanvas : grs_canvas {};
+struct grs_subcanvas : grs_canvas, prohibit_void_ptr<grs_subcanvas>
+{
+	using prohibit_void_ptr<grs_subcanvas>::operator &;
+};
 
 // Free the bitmap, but not the pixel data buffer
 class grs_subbitmap : public grs_bitmap

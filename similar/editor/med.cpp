@@ -113,7 +113,7 @@ static grs_subcanvas _canv_editor; // the canvas that the editor writes to
 
 //these are pointers to our canvases
 grs_canvas *Canv_editor;			//the editor screen
-grs_canvas *const Canv_editor_game = &_canv_editor_game; //the game on the editor screen
+grs_subcanvas *const Canv_editor_game = &_canv_editor_game; //the game on the editor screen
 
 window *Pad_info;		// Keypad text
 

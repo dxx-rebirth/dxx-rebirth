@@ -1497,7 +1497,7 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 
 static window_event_result newmenu_draw(newmenu *menu)
 {
-	grs_canvas &menu_canvas = menu->w_canv;
+	auto &menu_canvas = menu->w_canv;
 	grs_canvas &save_canvas = *grd_curcanv;
 	int th = 0, ty, sx, sy;
 
