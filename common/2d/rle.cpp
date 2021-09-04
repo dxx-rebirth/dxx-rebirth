@@ -89,7 +89,7 @@ uint8_t *gr_rle_decode(const color_palette_index *sb, color_palette_index *db, c
 #if !DXX_USE_OGL
 // Given pointer to start of one scanline of rle data, uncompress it to
 // dest, from source pixels x1 to x2.
-void gr_rle_expand_scanline_masked(uint8_t *dest, const uint8_t *src, int x1, int x2)
+void gr_rle_expand_scanline_masked(uint8_t *dest, const uint8_t *src, const uint_fast32_t x1, const uint_fast32_t x2)
 {
 	int i = 0;
 	ubyte count;
@@ -137,20 +137,17 @@ void gr_rle_expand_scanline_masked(uint8_t *dest, const uint8_t *src, int x1, in
 		}
 		// we know have '*count' pixels of 'color'.
 		if ( i+count <= x2 )	{
-			if ( color != 255 )rle_stosb( dest, count, color );
-			i += count;
-			dest += count;
 		} else {
 			count = x2-i+1;
-			if ( color != 255 )rle_stosb( dest, count, color );
-			i += count;
-			dest += count;
 		}
+		if ( color != 255 )rle_stosb( dest, count, color );
+		i += count;
+		dest += count;
 	}
 }
 #endif
 
-void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, int x1, int x2)
+void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, const uint_fast32_t x1, const uint_fast32_t x2)
 {
 	int i = 0;
 	ubyte count;
@@ -186,7 +183,7 @@ void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, int x1, int x2)
 	i += count;
 
 	while( i <= x2 )		{
-		color = *src++;
+		auto color = *src++;
 		if ( color == RLE_CODE ) return;
 		if ( IS_RLE_CODE(color) )	{
 			count = color & (~RLE_CODE);
@@ -197,15 +194,12 @@ void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, int x1, int x2)
 		}
 		// we know have '*count' pixels of 'color'.
 		if ( i+count <= x2 )	{
-			rle_stosb( dest, count, color );
-			i += count;
-			dest += count;
 		} else {
 			count = x2-i+1;
-			rle_stosb( dest, count, color );
-			i += count;
-			dest += count;
 		}
+		rle_stosb(dest, count, color);
+		i += count;
+		dest += count;
 	}
 }
 

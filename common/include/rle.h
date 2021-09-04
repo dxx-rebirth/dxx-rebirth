@@ -59,9 +59,9 @@ namespace dcx {
 uint8_t *gr_rle_decode(const uint8_t *sb, uint8_t *db, rle_position_t e);
 void gr_bitmap_rle_compress(grs_bitmap &bmp);
 #if !DXX_USE_OGL
-void gr_rle_expand_scanline_masked(uint8_t *dest, const uint8_t *src, int x1, int x2);
+void gr_rle_expand_scanline_masked(uint8_t *dest, const uint8_t *src, uint_fast32_t x1, uint_fast32_t x2);
 #endif
-void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, int x1, int x2);
+void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, uint_fast32_t x1, uint_fast32_t x2);
 grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp);
 
 [[nodiscard]]
