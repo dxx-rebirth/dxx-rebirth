@@ -278,8 +278,8 @@ class grs_subbitmap : public grs_bitmap
 //font structure
 struct grs_font : public prohibit_void_ptr<grs_font>
 {
-	int16_t     ft_w;           // Width in pixels
-	int16_t     ft_h;           // Height in pixels
+	uint16_t    ft_w;           // Width in pixels
+	uint16_t    ft_h;           // Height in pixels
 	int16_t     ft_flags;       // Proportional?
 	int16_t     ft_baseline;    //
 	uint8_t     ft_minchar;     // First char defined by this font

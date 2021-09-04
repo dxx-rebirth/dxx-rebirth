@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include "d_range.h"
 #include <array>
 #include <memory>
 
@@ -495,8 +496,8 @@ static void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 static void ogl_init_font(grs_font * font)
 {
 	int oglflags = OGL_FLAG_ALPHA;
-	int	nchars = font->ft_maxchar-font->ft_minchar+1;
-	int w,h,tw,th,curx=0,cury=0;
+	const unsigned nchars = font->ft_maxchar - font->ft_minchar + 1;
+	int tw,th,curx=0,cury=0;
 	int gap=1; // x/y offset between the chars so we can filter
 
 	th = tw = 0xffff;
@@ -516,14 +517,13 @@ static void ogl_init_font(grs_font * font)
 	ogl_init_texture(*(font->ft_parent_bitmap.gltexture = ogl_get_free_texture()), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
 
 	font->ft_bitmaps = std::make_unique<grs_bitmap[]>(nchars);
-	h=font->ft_h;
+	const unsigned h = font->ft_h;
 
-	for(int i=0;i<nchars;i++)
+	for (const auto i : xrange(nchars))
 	{
-		if (font->ft_flags & FT_PROPORTIONAL)
-			w=font->ft_widths[i];
-		else
-			w=font->ft_w;
+		const unsigned w = (font->ft_flags & FT_PROPORTIONAL)
+			? font->ft_widths[i]
+			: font->ft_w;
 
 		if (w<1 || w>256)
 			continue;
@@ -542,9 +542,9 @@ static void ogl_init_font(grs_font * font)
 			const auto fp = (font->ft_flags & FT_PROPORTIONAL)
 				? font->ft_chars[i]
 				: font->ft_data + i * w*h;
-			for (int y=0;y<h;y++)
+			for (const auto y : xrange(h))
 			{
-				for (int x=0;x<w;x++)
+				for (const auto x : xrange(w))
 				{
 					font->ft_parent_bitmap.get_bitmap_data()[curx+x+(cury+y)*tw] = fp[x+y*w];
 					// Let's call this a HACK:
@@ -572,24 +572,24 @@ static void ogl_init_font(grs_font * font)
 		}
 		else
 		{
-			int BitMask, bits = 0;
 			auto white = gr_find_closest_color(63, 63, 63);
 			auto fp = (font->ft_flags & FT_PROPORTIONAL)
 				? font->ft_chars[i]
 				: font->ft_data + i * BITS_TO_BYTES(w)*h;
-			for (int y=0;y<h;y++){
-				BitMask=0;
-				for (int x=0; x< w; x++ )
+			for (const auto y : xrange(h))
+			{
+				uint8_t BitMask = 0;
+				uint8_t bits = 0;
+				for (const auto x : xrange(w))
 				{
 					if (BitMask==0) {
 						bits = *fp++;
 						BitMask = 0x80;
 					}
 
-					if (bits & BitMask)
-						font->ft_parent_bitmap.get_bitmap_data()[curx+x+(cury+y)*tw] = white;
-					else
-						font->ft_parent_bitmap.get_bitmap_data()[curx+x+(cury+y)*tw] = 255;
+					font->ft_parent_bitmap.get_bitmap_data()[curx+x+(cury+y)*tw] = (bits & BitMask)
+						? white
+						: 255;
 					BitMask >>= 1;
 				}
 			}
@@ -1084,7 +1084,8 @@ static int gr_internal_string_clipped_template(grs_canvas &canvas, const grs_fon
 
 		last_x = x;
 
-		for (int r=0; r < cv_font.ft_h; r++) {
+		for (const auto r : xrange(cv_font.ft_h))
+		{
 			auto text_ptr = text_ptr1;
 			x = last_x;
 
