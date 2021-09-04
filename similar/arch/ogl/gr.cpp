@@ -1129,7 +1129,7 @@ void gr_palette_load( palette_array_t &pal )
 	copy_bound_palette(gr_current_pal, pal);
 
 	gr_palette_step_up(0, 0, 0); // make ogl_setbrightness_internal get run so that menus get brightened too.
-	init_computed_colors();
+	reset_computed_colors();
 }
 
 #define GL_BGR_EXT 0x80E0

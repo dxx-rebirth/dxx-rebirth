@@ -284,7 +284,7 @@ void gr_palette_load( palette_array_t &pal )
 	}
 
 	SDL_SetColors(canvas, colors.data(), 0, colors.size());
-	init_computed_colors();
+	reset_computed_colors();
 	gr_remap_color_fonts();
 }
 

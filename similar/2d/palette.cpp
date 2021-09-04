@@ -250,17 +250,13 @@ static void add_computed_color(int r, int g, int b, color_t color_num)
 
 }
 
-void init_computed_colors(void)
+void reset_computed_colors()
 {
-	range_for (auto &i, Computed_colors)
-		i.r = 255;		//	Make impossible to match.
+	Num_computed_colors = 0;
 }
 
 color_palette_index gr_find_closest_color(const int r, const int g, const int b)
 {
-	if (Num_computed_colors == 0)
-		init_computed_colors();
-
 	//	If we've already computed this color, return it!
 	for (unsigned i=0; i<Num_computed_colors; i++)
 	{
