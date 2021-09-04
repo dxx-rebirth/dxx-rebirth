@@ -4582,6 +4582,9 @@ class DXXArchive(DXXCommon):
 		RuntimeTest('test-serial', (
 			'common/unittest/serial.cpp',
 			)),
+		RuntimeTest('test-partial-range', (
+			'common/unittest/partial_range.cpp',
+			)),
 		RuntimeTest('test-valptridx-range', (
 			'common/unittest/valptridx-range.cpp',
 			)),
