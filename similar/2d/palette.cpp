@@ -44,8 +44,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-#define	MAX_COMPUTED_COLORS	32
-
 namespace {
 
 unsigned get_squared_color_delta(const int r, const int g, const int b, const rgb_t &rgb)
@@ -80,11 +78,10 @@ color_palette_index gr_find_closest_color_palette(const int r, const int g, cons
 static unsigned Num_computed_colors;
 
 struct color_record {
-	ubyte	r,g,b;
+	uint8_t r, g, b;
 	color_palette_index color_num;
 };
 
-static std::array<color_record, MAX_COMPUTED_COLORS> Computed_colors;
 uint8_t gr_palette_gamma_param;
 
 }
@@ -98,7 +95,7 @@ ubyte gr_palette_gamma = 0;
 void copy_bound_palette(palette_array_t &d, const palette_array_t &s)
 {
 	auto a = [](rgb_t c) {
-		const ubyte bound = 63;
+		constexpr uint8_t bound{63};
 		c.r = std::min(c.r, bound);
 		c.g = std::min(c.g, bound);
 		c.b = std::min(c.b, bound);
@@ -227,29 +224,6 @@ void gr_use_palette_table(const char * filename )
 
 namespace dcx {
 
-namespace {
-
-//	Add a computed color (by gr_find_closest_color) to list of computed colors in Computed_colors.
-//	If list wasn't full already, increment Num_computed_colors.
-//	If was full, replace a random one.
-static void add_computed_color(int r, int g, int b, color_t color_num)
-{
-	int	add_index;
-
-	if (Num_computed_colors < MAX_COMPUTED_COLORS) {
-		add_index = Num_computed_colors;
-		Num_computed_colors++;
-	} else
-		add_index = (d_rand() * MAX_COMPUTED_COLORS) >> 15;
-
-	Computed_colors[add_index].r = r;
-	Computed_colors[add_index].g = g;
-	Computed_colors[add_index].b = b;
-	Computed_colors[add_index].color_num = color_num;
-}
-
-}
-
 void reset_computed_colors()
 {
 	Num_computed_colors = 0;
@@ -257,22 +231,33 @@ void reset_computed_colors()
 
 color_palette_index gr_find_closest_color(const int r, const int g, const int b)
 {
+	static std::array<color_record, 32> Computed_colors;
+	const auto num_computed_colors = Num_computed_colors;
 	//	If we've already computed this color, return it!
-	for (unsigned i=0; i<Num_computed_colors; i++)
+	for (unsigned i = 0; i < num_computed_colors; ++i)
 	{
 		auto &c = Computed_colors[i];
 		if (r == c.r && g == c.g && b == c.b)
 		{
 			const auto color_num = c.color_num;
-					if (i > 4) {
+			if (i)
+			{
 						std::swap(Computed_colors[i-1], c);
 					}
 					return color_num;
 				}
 	}
-	const auto best_index = gr_find_closest_color_palette(r, g, b, gr_palette);
-	add_computed_color(r, g, b, best_index);
-	return best_index;
+//	Add a computed color to list of computed colors in Computed_colors.
+//	If list wasn't full already, increment Num_computed_colors.
+//	If was full, replace the last one.  Rely on the bubble-up logic
+//	above to move popular entries away from the end.
+	auto &cc = (num_computed_colors < Computed_colors.size())
+		? Computed_colors[Num_computed_colors++]
+		: Computed_colors.back();
+	cc.r = r;
+	cc.g = g;
+	cc.b = b;
+	return cc.color_num = gr_find_closest_color_palette(r, g, b, gr_palette);
 }
 
 color_palette_index gr_find_closest_color_15bpp( int rgb )
