@@ -143,6 +143,10 @@ public:
 
 struct grs_canvas : prohibit_void_ptr<grs_canvas>
 {
+	grs_canvas(const grs_canvas &) = delete;
+	grs_canvas &operator=(const grs_canvas &) = delete;
+	grs_canvas(grs_canvas &&) = default;
+	grs_canvas &operator=(grs_canvas &&) = default;
 	~grs_canvas()
 	{
 		/* `grd_curcanv` points to the currently active canvas.  If it
@@ -173,6 +177,8 @@ struct grs_canvas : prohibit_void_ptr<grs_canvas>
 	short       cv_font_fg_color;   // current font foreground color (-1==Invisible)
 	short       cv_font_bg_color;   // current font background color (-1==Invisible)
 	unsigned cv_fade_level;  // transparency level
+protected:
+	grs_canvas() = default;
 };
 
 //=========================================================================
@@ -214,11 +220,23 @@ static inline uint16_t SM_H(const screen_mode &s)
 	return s.height;
 }
 
+// Makes a new canvas. allocates memory for the canvas and its bitmap,
+// including the raw pixel buffer.
+
+struct grs_main_canvas : grs_canvas
+{
+	grs_main_canvas &operator=(grs_main_canvas &) = delete;
+	grs_main_canvas &operator=(grs_main_canvas &&) = default;
+	~grs_main_canvas();
+};
+
 class grs_screen : prohibit_void_ptr<grs_screen>
 {    // This is a video screen
 	screen_mode sc_mode;
 public:
-	grs_canvas  sc_canvas;  // Represents the entire screen
+	grs_screen &operator=(grs_screen &) = delete;
+	grs_screen &operator=(grs_screen &&) = default;
+	grs_main_canvas  sc_canvas;  // Represents the entire screen
 	fix     sc_aspect;      //aspect ratio (w/h) for this screen
 	uint16_t get_screen_width() const
 	{
@@ -241,14 +259,6 @@ public:
 
 //=========================================================================
 // Canvas functions:
-
-// Makes a new canvas. allocates memory for the canvas and its bitmap,
-// including the raw pixel buffer.
-
-struct grs_main_canvas : grs_canvas
-{
-	~grs_main_canvas();
-};
 
 // Creates a canvas that is part of another canvas.  this can be used to make
 // a window on the screen.  the canvas structure is malloc'd; the address of

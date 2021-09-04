@@ -108,7 +108,8 @@ static void med_show_warning(const char *s);
 int initializing;
 
 //these are instances of canvases, pointed to by variables below
-grs_canvas _canv_editor_game, _canv_editor; //the game on the editor screen, the canvas that the editor writes to
+grs_subcanvas _canv_editor_game; // the game on the editor screen
+static grs_subcanvas _canv_editor; // the canvas that the editor writes to
 
 //these are pointers to our canvases
 grs_canvas *Canv_editor;			//the editor screen

@@ -3878,8 +3878,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const weapon_box_
 
 void do_cockpit_window_view(const gauge_inset_window_view win, const object &viewer, const int rear_view_flag, const weapon_box_user user, const char *const label, const player_info *const player_info)
 {
-	grs_canvas window_canv;
-	static grs_canvas overlap_canv;
+	grs_subcanvas window_canv;
 	const auto viewer_save = Viewer;
 	static int window_x,window_y;
 	int rear_view_save = Rear_view;
@@ -3967,6 +3966,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 			extra_part_h = small_window_bottom - big_window_bottom;
 
 			if (extra_part_h > 0) {
+				grs_subcanvas overlap_canv;
 				gr_init_sub_canvas(overlap_canv, window_canv, 0, window_canv.cv_bitmap.bm_h-extra_part_h, window_canv.cv_bitmap.bm_w, extra_part_h);
 				gr_set_default_canvas();
 				gr_bitmap(*grd_curcanv, window_x, big_window_bottom + 1, overlap_canv.cv_bitmap);

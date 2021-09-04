@@ -122,9 +122,8 @@ static fix64 last_timer_value=0;
 static fix64 sync_timer_value=0;
 d_time_fix ThisLevelTime;
 
-grs_canvas	Screen_3d_window;							// The rectangle for rendering the mine to
-
 namespace dcx {
+grs_subcanvas Screen_3d_window;							// The rectangle for rendering the mine to
 int	force_cockpit_redraw=0;
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
@@ -190,8 +189,8 @@ int  VR_stereo = false;
 fix  VR_eye_width = F1_0;
 int  VR_eye_offset = 0;
 int  VR_sync_width = 20;
-grs_canvas VR_hud_left;
-grs_canvas VR_hud_right;
+grs_subcanvas VR_hud_left;
+grs_subcanvas VR_hud_right;
 }
 
 namespace dsx {

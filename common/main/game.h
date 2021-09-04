@@ -204,8 +204,8 @@ extern int  VR_stereo;
 extern fix  VR_eye_width;
 extern int  VR_eye_offset;
 extern int  VR_sync_width;
-extern grs_canvas VR_hud_left;
-extern grs_canvas VR_hud_right;
+extern grs_subcanvas VR_hud_left;
+extern grs_subcanvas VR_hud_right;
 }
 
 #define MAX_PALETTE_ADD 30

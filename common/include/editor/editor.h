@@ -513,7 +513,7 @@ extern int render_3d_in_big_window;
 extern void move_object_to_mouse_click(void);
 
 //these are instances of canvases, pointed to by variables below
-extern grs_canvas _canv_editor_game;		//the game on the editor screen
+extern grs_subcanvas _canv_editor_game;		//the game on the editor screen
 
 //these are pointers to our canvases
 extern grs_canvas *Canv_editor;			//the editor screen

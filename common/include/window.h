@@ -31,7 +31,7 @@ constexpr const unused_window_userdata_t *unused_window_userdata = nullptr;
 class window
 {
 public:
-	grs_canvas w_canv;					// the window's canvas to draw to
+	grs_subcanvas w_canv;					// the window's canvas to draw to
 private:
 	int w_visible;						// whether it's visible
 	int w_modal;						// modal = accept all user input exclusively
