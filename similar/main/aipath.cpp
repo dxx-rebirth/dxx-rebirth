@@ -23,6 +23,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <numeric>
+#include <random>
 #include <stdio.h>		//	for printf()
 #include <stdlib.h>		// for d_rand() and qsort()
 #include <string.h>		// for memset()
@@ -47,7 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 
 #include "compiler-range_for.h"
-#include "d_enumerate.h"
+#include "partial_range.h"
 #include "d_levelstate.h"
 
 //	Length in segments of avoidance path
@@ -72,30 +74,6 @@ static void ai_path_garbage_collect(void);
 static void validate_all_paths();
 static int validate_path(int, point_seg* psegs, uint_fast32_t num_points);
 #endif
-}
-}
-
-namespace {
-
-//	------------------------------------------------------------------------
-static void create_random_xlate(std::array<uint8_t, MAX_SIDES_PER_SEGMENT> &xt)
-{
-	for (int i = 0; i<MAX_SIDES_PER_SEGMENT; i++)
-		xt[i] = i;
-
-	range_for (auto &i, xt)
-	{
-		uint_fast32_t j = (d_rand()*MAX_SIDES_PER_SEGMENT)/(D_RAND_MAX+1);
-		Assert(j < xt.size());
-		using std::swap;
-		swap(i, xt[j]);
-	}
-}
-
-}
-
-namespace dsx {
-namespace {
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Insert the point at the center of the side connecting two segments between the two points.
@@ -304,8 +282,6 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 	int		i;
 	std::array<seg_seg, MAX_SEGMENTS> seg_queue;
 	int		cur_depth;
-	std::array<uint8_t, MAX_SIDES_PER_SEGMENT> random_xlate;
-	DXX_POISON_VAR(random_xlate, 0xcc);
 	point_seg_array_t::iterator	original_psegs = psegs;
 	unsigned l_num_points = 0;
 
@@ -330,9 +306,6 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 		}
 	}
 
-	if (random_flag != create_path_random_flag::nonrandom)
-		create_random_xlate(random_xlate);
-
 	cur_seg = start_seg;
 	visited[cur_seg] = true;
 	cur_depth = 0;
@@ -342,18 +315,53 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
+
+	std::array<uint8_t, MAX_SIDES_PER_SEGMENT> side_traversal_translation;
+	std::iota(side_traversal_translation.begin(), side_traversal_translation.end(), 0);
+#if defined(DXX_BUILD_DESCENT_I)
+	/* Descent 1 can only shuffle once, before the loop begins.
+	 * Descent 2 can shuffle on every pass of the loop.
+	 */
+	if (random_flag != create_path_random_flag::nonrandom)
+		std::shuffle(side_traversal_translation.begin(), side_traversal_translation.end(), std::minstd_rand(d_rand()));
+#elif defined(DXX_BUILD_DESCENT_II)
+	/* If shuffling is enabled, always shuffle on the first pass of the
+	 * loop.
+	 */
+	unsigned shuffle_random_flag = 0;
+	std::minstd_rand mrd((random_flag != create_path_random_flag::nonrandom)
+		? d_rand()
+		: std::minstd_rand::default_seed
+	);
+	std::uniform_int_distribution uid03(0, 3);
+#endif
 	while (cur_seg != end_seg) {
 		const cscusegment &&segp = vcsegptr(cur_seg);
 #if defined(DXX_BUILD_DESCENT_II)
-		if (random_flag != create_path_random_flag::nonrandom)
-			if (d_rand() < 8192)
-				create_random_xlate(random_xlate);
+		/* If path randomness is enabled, conditionally shuffle based on
+		 * the value of shuffle_random_flag.  Since shuffle_random_flag
+		 * is initialized to 0 above, it is guaranteed to shuffle on the
+		 * first iteration of the while loop.  This is done since
+		 * side_traversal_translation was initialized via std::iota, and
+		 * is therefore predictable.  However, if path randomness is
+		 * enabled by the caller, side_traversal_translation should be
+		 * unpredictable, and therefore a shuffle is needed.
+		 *
+		 * Each subsequent iteration may or may not shuffle, depending
+		 * on the value from d_rand in the most recent loop.  Regardless
+		 * of whether a pass shuffles, it will reload the value so that
+		 * the next pass may shuffle.  This is necessary to avoid
+		 * pinning the value in no-shuffle mode after the first time
+		 * d_rand returns a no-shuffle value.
+		 */
+		if (random_flag != create_path_random_flag::nonrandom && std::exchange(shuffle_random_flag, uid03(mrd)) == 0)
+		{
+			std::shuffle(side_traversal_translation.begin(), side_traversal_translation.end(), mrd);
+		}
 #endif
 
-		for (const auto &&[idx, value] : enumerate(random_xlate))
+		for (const auto snum : side_traversal_translation)
 		{
-			const unsigned snum = (random_flag != create_path_random_flag::nonrandom) ? value : idx;
-
 			if (!IS_CHILD(segp.s.children[snum]))
 				continue;
 #if defined(DXX_BUILD_DESCENT_I)
