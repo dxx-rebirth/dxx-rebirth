@@ -951,7 +951,7 @@ static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &perm_t
 			const char sep = (count++ >= 4)
 				? (count = 0, '\n')
 				: ' ';
-			PHYSFSX_printf(my_file, "%c[%3lu %8s]%c", usage_indicator, i, filename, sep);
+			PHYSFSX_printf(my_file, "%c[%3" PRIuFAST32 " %8s]%c", usage_indicator, i, filename, sep);
 		}
 }
 
