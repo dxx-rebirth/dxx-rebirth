@@ -76,14 +76,18 @@ struct subtitle {
 
 #define MAX_ACTIVE_SUBTITLES 3
 
-struct d_subtitle_state
+struct d_loaded_subtitle_state
 {
 	unsigned Num_subtitles = 0;
 	std::unique_ptr<char[]> subtitle_raw_data;
-	std::array<subtitle, 500> Subtitles;
+	std::array<subtitle, 500> Subtitles
+#ifndef NDEBUG
+		= {}
+#endif
+		;
 };
 
-static int init_subtitles(d_subtitle_state &SubtitleState, const char *filename);
+static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const char *filename);
 
 // Movielib data
 
@@ -96,7 +100,7 @@ static RWops_ptr RoboFile;
 // Function Prototypes
 static movie_play_status RunMovie(const char *filename, const char *subtitles, int highres_flag, int allow_abort,int dx,int dy);
 
-static void draw_subtitles(const d_subtitle_state &, int frame_num);
+static void draw_subtitles(const d_loaded_subtitle_state &, int frame_num);
 
 //-----------------------------------------------------------------------
 
@@ -254,7 +258,7 @@ struct movie : window
 	int frame_num = 0;
 	int paused = 0;
 	const MVESTREAM_ptr_t pMovie;
-	d_subtitle_state SubtitleState;
+	d_loaded_subtitle_state SubtitleState;
 	movie(grs_canvas &src, int x, int y, int w, int h, MVESTREAM_ptr_t mvestream) :
 		window(src, x, y, w, h),
 		pMovie(std::move(mvestream))
@@ -499,7 +503,7 @@ static char *next_field (char *p)
 	return p;
 }
 
-static int init_subtitles(d_subtitle_state &SubtitleState, const char *const filename)
+static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const char *const filename)
 {
 	if (!filename)
 		return 0;
@@ -583,9 +587,9 @@ static int init_subtitles(d_subtitle_state &SubtitleState, const char *const fil
 }
 
 //draw the subtitles for this frame
-static void draw_subtitles(const d_subtitle_state &SubtitleState, const int frame_num)
+static void draw_subtitles(const d_loaded_subtitle_state &SubtitleState, const int frame_num)
 {
-	static int active_subtitles[MAX_ACTIVE_SUBTITLES];
+	static std::array<uint16_t, MAX_ACTIVE_SUBTITLES> active_subtitles;
 	static int next_subtitle;
 	static unsigned num_active_subtitles;
 	int y;
@@ -630,7 +634,6 @@ static void draw_subtitles(const d_subtitle_state &SubtitleState, const int fram
 
 	//now draw the current subtitles
 	range_for (const auto &t, partial_range(active_subtitles, num_active_subtitles))
-		if (t != -1)
 		{
 			gr_string(*grd_curcanv, *grd_curcanv->cv_font, 0x8000, y, Subtitles[t].msg);
 			y += line_spacing;
