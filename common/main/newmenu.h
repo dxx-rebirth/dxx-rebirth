@@ -402,8 +402,9 @@ struct listbox_layout
 		int pos = 0, scrollback = 0;
 		char text[0];	/* must be last */
 	};
-	listbox_layout(int citem, unsigned nitems, const char **item, menu_title title) :
-		citem(citem), nitems(nitems), item(item), title(title)
+	listbox_layout(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &parent_canvas) :
+		citem(citem), nitems(nitems), item(item), title(title),
+		parent_canvas(parent_canvas)
 	{
 		create_structure();
 	}
@@ -416,6 +417,7 @@ struct listbox_layout
 	const char **const item;
 	const menu_title title;
 	marquee::ptr marquee;
+	grs_canvas &parent_canvas;
 	short swidth, sheight;
 	// with these we check if resolution or fonts have changed so listbox structure can be recreated
 	font_x_scale_proportion fntscalex;

@@ -1690,7 +1690,7 @@ messagebox_newmenu::adjusted_citem messagebox_newmenu::create_adjusted_citem(std
 #define LB_ITEMS_ON_SCREEN 8
 
 listbox::listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, uint8_t allow_abort_flag) :
-	listbox_layout(citem, nitems, item, title), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY),
+	listbox_layout(citem, nitems, item, title, canvas), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY),
 	allow_abort_flag(allow_abort_flag)
 {
 }
@@ -1920,8 +1920,7 @@ namespace dcx {
 
 void listbox_layout::create_structure()
 {
-	gr_set_default_canvas();
-	auto &canvas = *grd_curcanv;
+	auto &canvas = parent_canvas;
 
 	auto &medium3_font = *MEDIUM3_FONT;
 
@@ -2029,8 +2028,7 @@ static window_event_result listbox_draw(listbox *lb)
 	if (lb->swidth != SWIDTH || lb->sheight != SHEIGHT || lb->fntscalex != FNTScaleX || lb->fntscaley != FNTScaleY)
 		lb->create_structure();
 
-	gr_set_default_canvas();
-	auto &canvas = *grd_curcanv;
+	auto &canvas = lb->parent_canvas;
 	nm_draw_background(canvas, lb->box_x - BORDERX, lb->box_y - lb->title_height - BORDERY,lb->box_x + lb->box_w + BORDERX, lb->box_y + lb->height + BORDERY);
 	auto &medium3_font = *MEDIUM3_FONT;
 	gr_string(canvas, medium3_font, 0x8000, lb->box_y - lb->title_height, lb->title);
