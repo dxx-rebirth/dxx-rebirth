@@ -999,7 +999,7 @@ static window_event_result HandleSystemKey(int key)
 			break;
 		case KEY_SHIFTED + KEY_F8:
 		case KEY_SHIFTED + KEY_ALTED + KEY_F8:
-			++VR_stereo %= STEREO_MAX_FORMAT;
+			VR_stereo = static_cast<StereoFormat>((static_cast<unsigned>(VR_stereo) + 1) % (static_cast<unsigned>(StereoFormat::HighestFormat) + 1));
 			init_stereo();
 			reset_cockpit();
 			break;

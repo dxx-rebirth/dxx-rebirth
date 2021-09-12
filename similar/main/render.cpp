@@ -1215,7 +1215,7 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 
 #if DXX_USE_OGL
 	// select stereo viewport/transform/buffer per left/right eye
-	if (VR_stereo)
+	if (VR_stereo != StereoFormat::None)
 		ogl_stereo_frame(eye_offset, VR_eye_offset);
 #endif
 

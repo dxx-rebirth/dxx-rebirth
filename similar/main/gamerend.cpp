@@ -802,7 +802,8 @@ void game_render_frame_mono(const control_info &Controls)
 		Viewer = gimobj;
 
 		window_rendered_data window;
-		if (VR_stereo) {
+		if (VR_stereo != StereoFormat::None)
+		{
 			render_frame(*grd_curcanv, -VR_eye_width, window);
 			render_frame(*grd_curcanv, +VR_eye_width, window);
 		}
@@ -839,7 +840,8 @@ void game_render_frame_mono(const control_info &Controls)
 		}
 #endif
 		window_rendered_data window;
-		if (VR_stereo) {
+		if (VR_stereo != StereoFormat::None)
+		{
 			render_frame(*grd_curcanv, -VR_eye_width, window);
 			render_frame(*grd_curcanv, +VR_eye_width, window);
 		}
@@ -864,7 +866,8 @@ void game_render_frame_mono(const control_info &Controls)
 
 	gr_set_current_canvas(Screen_3d_window);
 	if (!no_draw_hud) {
-		if (VR_stereo) {
+		if (VR_stereo != StereoFormat::None)
+		{
 			game_draw_hud_stuff(VR_hud_left, Controls);
 			game_draw_hud_stuff(VR_hud_right, Controls);
 		}
@@ -888,7 +891,7 @@ void toggle_cockpit()
 {
 	enum cockpit_mode_t new_mode=CM_FULL_SCREEN;
 
-	if (Rear_view || Player_dead_state != player_dead_state::no || VR_stereo)
+	if (Rear_view || Player_dead_state != player_dead_state::no || VR_stereo != StereoFormat::None)
 		return;
 
 	switch (PlayerCfg.CockpitMode[1])

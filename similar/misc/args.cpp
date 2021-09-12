@@ -154,7 +154,6 @@ static void InitGameArg()
 	CGameArg.OglSyncMethod = OGL_SYNC_METHOD_DEFAULT;
 	CGameArg.OglSyncWait = OGL_SYNC_WAIT_DEFAULT;
 	CGameArg.OglStereo = false;
-	CGameArg.OglStereoView = STEREO_NONE;
 	CGameArg.DbgGlIntensity4Ok 	= true;
 	CGameArg.DbgGlLuminance4Alpha4Ok = true;
 	CGameArg.DbgGlRGBA2Ok = true;

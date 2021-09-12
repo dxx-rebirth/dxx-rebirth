@@ -185,7 +185,7 @@ constexpr screen_mode initial_small_game_screen_mode{320, 200};
 constexpr screen_mode initial_large_game_screen_mode{1024, 768};
 screen_mode Game_screen_mode = initial_large_game_screen_mode;
 
-int  VR_stereo = false;
+StereoFormat VR_stereo;
 fix  VR_eye_width = F1_0;
 int  VR_eye_offset = 0;
 int  VR_sync_width = 20;
@@ -200,19 +200,19 @@ void init_stereo()
 #if DXX_USE_OGL
 	// init stereo options
 	if (CGameArg.OglStereo || CGameArg.OglStereoView) {
-		if (!VR_stereo && !VR_eye_offset)
-			VR_stereo = (CGameArg.OglStereoView) ? CGameArg.OglStereoView % STEREO_MAX_FORMAT : STEREO_ABOVE_BELOW;
+		if (VR_stereo == StereoFormat::None && !VR_eye_offset)
+			VR_stereo = (CGameArg.OglStereoView) ? static_cast<StereoFormat>(CGameArg.OglStereoView % (static_cast<unsigned>(StereoFormat::HighestFormat) + 1)) : StereoFormat::AboveBelow;
 		constexpr int half_width_eye_offset = -6;
 		constexpr int full_width_eye_offset = -12;
 		switch (VR_stereo)
 		{
-			case STEREO_NONE:
-			case STEREO_ABOVE_BELOW:
-			case STEREO_ABOVE_BELOW_SYNC:
+			case StereoFormat::None:
+			case StereoFormat::AboveBelow:
+			case StereoFormat::AboveBelowSync:
 				VR_eye_offset = full_width_eye_offset;
 				break;
-			case STEREO_SIDE_BY_SIDE:
-			case STEREO_SIDE_BY_SIDE2:
+			case StereoFormat::SideBySideFullHeight:
+			case StereoFormat::SideBySideHalfHeight:
 				VR_eye_offset = half_width_eye_offset;
 				break;
 		}
@@ -221,7 +221,7 @@ void init_stereo()
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
 	}
 	else {
-		VR_stereo = false;
+		VR_stereo = StereoFormat::None;
 	}
 #endif
 }
@@ -279,22 +279,22 @@ void init_cockpit()
 				unsigned h = SHEIGHT;
 				switch (VR_stereo)
 				{
-					case STEREO_NONE:
+					case StereoFormat::None:
 						/* Preserve width */
 						/* Preserve height */
 						break;
-					case STEREO_ABOVE_BELOW:
-					case STEREO_ABOVE_BELOW_SYNC:
+					case StereoFormat::AboveBelow:
+					case StereoFormat::AboveBelowSync:
 						/* Preserve width */
 						/* Change height */
 						h /= 2;
 						break;
-					case STEREO_SIDE_BY_SIDE2:
+					case StereoFormat::SideBySideHalfHeight:
 						/* Change width */
 						/* Change height */
 						h /= 2;
 						DXX_BOOST_FALLTHROUGH;
-					case STEREO_SIDE_BY_SIDE:
+					case StereoFormat::SideBySideFullHeight:
 						/* Change width */
 						/* Preserve height */
 						w /= 2;
@@ -334,7 +334,7 @@ void init_cockpit()
 void select_cockpit(cockpit_mode_t mode)
 {
 	// skip switching cockpit views while stereo viewport active
-	if (VR_stereo && mode != CM_FULL_SCREEN)
+	if (VR_stereo != StereoFormat::None && mode != CM_FULL_SCREEN)
 		return;
 
 	if (mode != PlayerCfg.CockpitMode[1]) {		//new mode
@@ -357,28 +357,27 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 	gr_clear_canvas(*grd_curcanv, 0);
 	gr_init_sub_canvas(Screen_3d_window, grd_curscreen->sc_canvas, x, y, w, h);
 
-	if (VR_stereo) {
+	if (VR_stereo != StereoFormat::None)
+	{
 		// offset HUD screen rects to force out-of-screen parallax on HUD overlays
 		int dx = (VR_eye_offset < 0) ? -VR_eye_offset : 0;
 		int dy = VR_sync_width / 2;
 		switch (VR_stereo) {
-		case STEREO_NONE:
-			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y, w-dx, h);
-			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x, y, w-dx, h);
-			break;
-		case STEREO_ABOVE_BELOW:
+			case StereoFormat::None:
+				break;
+			case StereoFormat::AboveBelow:
 			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y, w-dx, h);
 			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x, y+h, w-dx, h);
 			break;
-		case STEREO_ABOVE_BELOW_SYNC:
+			case StereoFormat::AboveBelowSync:
 			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y, w-dx, h-dy);
 			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x, y+h+dy, w-dx, h-dy);
 			break;
-		case STEREO_SIDE_BY_SIDE:
+			case StereoFormat::SideBySideFullHeight:
 			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y, w-dx, h);
 			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x+w, y, w-dx, h);
 			break;
-		case STEREO_SIDE_BY_SIDE2:
+			case StereoFormat::SideBySideHalfHeight:
 			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y+h/2, w-dx, h);
 			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x+w, y+h/2, w-dx, h);
 			break;

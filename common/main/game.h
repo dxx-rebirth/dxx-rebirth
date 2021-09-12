@@ -191,16 +191,16 @@ extern int Global_missile_firing_count;
 extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
 // Stereo viewport formats
-enum StereoFormat : uint8_t {
-	STEREO_NONE=0,
-	STEREO_ABOVE_BELOW,
-	STEREO_SIDE_BY_SIDE,
-	STEREO_SIDE_BY_SIDE2,
-	STEREO_ABOVE_BELOW_SYNC,
-	STEREO_MAX_FORMAT
+enum class StereoFormat : uint8_t {
+	None = 0,
+	AboveBelow,
+	SideBySideFullHeight,
+	SideBySideHalfHeight,
+	AboveBelowSync,
+	HighestFormat = AboveBelowSync
 };
 
-extern int  VR_stereo;
+extern StereoFormat VR_stereo;
 extern fix  VR_eye_width;
 extern int  VR_eye_offset;
 extern int  VR_sync_width;

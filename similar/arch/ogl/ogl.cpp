@@ -1311,10 +1311,14 @@ void ogl_stereo_frame(const int xeye, const int xoff)
 			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport.data());
 			// center unsqueezed side-by-side format
 			switch (VR_stereo) {
-			case STEREO_SIDE_BY_SIDE2:
+				case StereoFormat::None:
+				case StereoFormat::AboveBelow:
+				case StereoFormat::SideBySideFullHeight:
+					break;
+				case StereoFormat::SideBySideHalfHeight:
 				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
 				break;
-			case STEREO_ABOVE_BELOW_SYNC:
+				case StereoFormat::AboveBelowSync:
 				int dy = VR_sync_width/2;
 				ogl_stereo_viewport[3] -= dy;
 				ogl_stereo_viewport[1] += dy;
@@ -1333,19 +1337,21 @@ void ogl_stereo_frame(const int xeye, const int xoff)
 			std::array<GLint, 4> ogl_stereo_viewport;
 			glGetIntegerv(GL_VIEWPORT, ogl_stereo_viewport.data());
 			switch (VR_stereo) {
+				case StereoFormat::None:
+					break;
 			// center unsqueezed side-by-side format
-			case STEREO_SIDE_BY_SIDE2:
+				case StereoFormat::SideBySideHalfHeight:
 				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
 				DXX_BOOST_FALLTHROUGH;
 			// half-width viewports for side-by-side format
-			case STEREO_SIDE_BY_SIDE:
+				case StereoFormat::SideBySideFullHeight:
 				ogl_stereo_viewport[0] += ogl_stereo_viewport[2];		// x = w/2
 				break;
 			// half-height viewports for above/below format
-			case STEREO_ABOVE_BELOW_SYNC:
-			case STEREO_ABOVE_BELOW:
+				case StereoFormat::AboveBelowSync:
+				case StereoFormat::AboveBelow:
 				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3];		// y = h/2
-				if (VR_stereo == STEREO_ABOVE_BELOW_SYNC)
+				if (VR_stereo == StereoFormat::AboveBelowSync)
 					ogl_stereo_viewport[3] -= VR_sync_width/2;
 				break;
 			}
