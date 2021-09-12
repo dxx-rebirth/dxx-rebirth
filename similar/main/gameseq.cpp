@@ -1019,7 +1019,10 @@ void LoadLevel(int level_num,int page_in_textures)
 #if DXX_USE_EDITOR
 	if (!EditorWindow)
 #endif
-		show_boxed_message(TXT_LOADING, 0);
+	{
+		show_boxed_message(TXT_LOADING);
+		gr_flip();
+	}
 #ifdef RELEASE
 	timer_delay(F1_0);
 #endif

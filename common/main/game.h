@@ -376,7 +376,7 @@ static inline void full_palette_save(void)
 #endif
 
 // show a message in a nice little box
-void show_boxed_message(const char *msg, int RenderFlag);
+void show_boxed_message(const char *msg);
 
 // turns off rear view & rear view cockpit
 void reset_rear_view(void);

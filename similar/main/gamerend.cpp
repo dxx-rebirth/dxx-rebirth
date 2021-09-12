@@ -983,7 +983,7 @@ void game_render_frame(const control_info &Controls)
 }
 
 //show a message in a nice little box
-void show_boxed_message(const char *msg, int RenderFlag)
+void show_boxed_message(const char *msg)
 {
 	int w,h;
 	int x,y;
@@ -1000,8 +1000,4 @@ void show_boxed_message(const char *msg, int RenderFlag)
 	nm_draw_background(canvas, x - BORDERX, y - BORDERY, x + w + BORDERX, y + h + BORDERY);
 	
 	gr_string(canvas, medium1_font, 0x8000, y, msg, w, h);
-	
-	// If we haven't drawn behind it, need to flip
-	if (!RenderFlag)
-		gr_flip();
 }

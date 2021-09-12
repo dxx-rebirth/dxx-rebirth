@@ -476,7 +476,7 @@ window_event_result pause_window::event_handler(const d_event &event)
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			show_boxed_message(msg.data(), 1);
+			show_boxed_message(msg.data());
 			break;
 
 		case EVENT_WINDOW_CLOSE:
