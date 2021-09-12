@@ -610,9 +610,7 @@ static std::unique_ptr<GLfloat[]> circle_array_init_2(const unsigned nsides, con
 	return vertices;
 }
 
-}
-
-void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int alpha,int size_offs)
+void ogl_draw_vertex_reticle(grs_canvas &canvas, int cross, int primary, int secondary, int color, int alpha, int size_offs)
 {
 	int size=270+(size_offs*20);
 	float scale = (static_cast<float>(SWIDTH)/SHEIGHT);
@@ -641,7 +639,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	}
 
 	glPushMatrix();
-	glTranslatef((grd_curcanv->cv_bitmap.bm_w/2+grd_curcanv->cv_bitmap.bm_x)/static_cast<float>(last_width),1.0-(grd_curcanv->cv_bitmap.bm_h/2+grd_curcanv->cv_bitmap.bm_y)/static_cast<float>(last_height),0);
+	glTranslatef((canvas.cv_bitmap.bm_w / 2 + canvas.cv_bitmap.bm_x) / static_cast<float>(last_width), 1.0 - (canvas.cv_bitmap.bm_h / 2 + canvas.cv_bitmap.bm_y) / static_cast<float>(last_height), 0);
 
 	{
 		float gl1, gl2, gl3;
@@ -785,8 +783,6 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	glPopMatrix();
 	glLineWidth(linedotscale);
 }
-
-namespace dcx {
 
 /*
  * Stars on heaven in exit sequence, automap objects
