@@ -763,17 +763,15 @@ int gr_get_string_height(const grs_font &cv_font, const unsigned lines)
 	return static_cast<int>(fontscale_y + (lines * (fontscale_y + FSPACY(1))));
 }
 
-void gr_get_string_size(const grs_font &cv_font, const char *s, int *const string_width, int *const string_height, int *const average_width)
+void gr_get_string_size(const grs_font &cv_font, const char *s, int *const string_width, int *const string_height, std::nullptr_t average_width)
 {
 	gr_get_string_size(cv_font, s, string_width, string_height, average_width, UINT_MAX);
 }
 
-void gr_get_string_size(const grs_font &cv_font, const char *s, int *const string_width, int *const string_height, int *const average_width, const unsigned max_chars_per_line)
+void gr_get_string_size(const grs_font &cv_font, const char *s, int *const string_width, int *const string_height, std::nullptr_t, const unsigned max_chars_per_line)
 {
 	float longest_width=0.0,string_width_f=0.0;
 	unsigned lines = 0;
-	if (average_width)
-		*average_width = cv_font.ft_w;
 	if (!string_width && !string_height)
 		return;
 	if (s)

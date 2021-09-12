@@ -102,7 +102,7 @@ window_event_result messagebox::callback_handler(const d_event &event)
 
 int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_tie &Button )
 {
-	int avg, x, y;
+	int x, y;
 	int button_width, button_height, text_height, text_width;
 	int w, h;
 
@@ -125,7 +125,8 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 		if ( height > button_height ) button_height = height;
 	}
 
-	gr_get_string_size(cv_font, text, &text_width, &text_height, &avg);
+	const auto avg = cv_font.ft_w;
+	gr_get_string_size(cv_font, text, &text_width, &text_height, nullptr);
 
 	unsigned width, height;
 	width = button_width*Button.count();

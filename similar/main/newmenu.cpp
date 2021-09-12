@@ -1341,8 +1341,9 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	range_for (auto &i, menu.items)
 	{
 		i.y = iterative_layout_max_height;
-		int string_width, string_height, average_width;
-		gr_get_string_size(cv_font, i.text, &string_width, &string_height, &average_width);
+		int string_width, string_height;
+		const auto average_width = cv_font.ft_w;
+		gr_get_string_size(cv_font, i.text, &string_width, &string_height, nullptr);
 		i.right_offset = 0;
 
 		if (i.type == nm_type::menu)
