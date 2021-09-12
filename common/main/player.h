@@ -77,8 +77,8 @@ struct player : public prohibit_void_ptr<player>
 
 	short   num_kills_level;        // Number of kills this level
 	short   num_kills_total;        // Number of kills total
-	sbyte   hours_level;            // Hours played (since time_total can only go up to 9 hours)
-	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
+	uint8_t hours_level;            // Hours played (since time_total can only go up to 9 hours)
+	uint8_t hours_total;            // Hours played (since time_total can only go up to 9 hours)
 };
 
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(player, player);

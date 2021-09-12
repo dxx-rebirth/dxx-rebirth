@@ -388,17 +388,6 @@ namespace dcx {
 
 namespace {
 
-static void format_time(char (&str)[9], unsigned secs_int, unsigned hours_extra)
-{
-	auto d1 = std::div(secs_int, 60);
-	const unsigned s = d1.rem;
-	const unsigned m1 = d1.quot;
-	auto d2 = std::div(m1, 60);
-	const unsigned m = d2.rem;
-	const unsigned h = d2.quot + hours_extra;
-	snprintf(str, sizeof(str), "%1u:%02u:%02u", h, m, s);
-}
-
 #ifndef RELEASE
 #if DXX_USE_EDITOR
 struct choose_curseg_menu_items
@@ -504,7 +493,6 @@ static void do_game_pause()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	char total_time[9],level_time[9];
 
 	if (Game_mode & GM_MULTI)
 	{
@@ -516,11 +504,33 @@ static void do_game_pause()
 	songs_pause();
 
 	auto &plr = get_local_player();
-	format_time(total_time, f2i(plr.time_total), plr.hours_total);
-	format_time(level_time, f2i(plr.time_level), plr.hours_level);
+	struct hms_time
+	{
+		unsigned h, m, s;
+		hms_time(const unsigned hours_extra, const int d1_rem, const std::div_t d2) :
+			h(d2.quot + hours_extra), m(d2.rem), s(d1_rem)
+		{
+		}
+		hms_time(const unsigned hours_extra, const std::div_t d1) :
+			hms_time(hours_extra, d1.rem, std::div(d1.quot, 60))
+		{
+		}
+		hms_time(const unsigned hours_extra, const fix seconds) :
+			hms_time(hours_extra, std::div(f2i(seconds), 60))
+		{
+		}
+	};
 	auto &player_info = vcobjptr(plr.objnum)->ctype.player_info;
 	if (Newdemo_state!=ND_STATE_PLAYBACK)
-		snprintf(&p->msg[0], p->msg.size(), "PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s", MENU_DIFFICULTY_TEXT(GameUniqueState.Difficulty_level), player_info.mission.hostages_on_board, level_time, total_time);
+	{
+		const hms_time human_time_total{plr.hours_total, plr.time_total}, human_time_level{plr.hours_level, plr.time_level};
+		snprintf(&p->msg[0], p->msg.size(), "PAUSE\n\n"
+				 "Skill level:  %s\n"
+				 "Hostages on board:  %d\n"
+				 "Time on level: %1u:%02u:%02u\n"
+				 "Total time in game: %1u:%02u:%02u",
+				 MENU_DIFFICULTY_TEXT(GameUniqueState.Difficulty_level), player_info.mission.hostages_on_board, human_time_level.h, human_time_level.m, human_time_level.s, human_time_total.h, human_time_total.m, human_time_total.s);
+	}
 	else
 		snprintf(&p->msg[0], p->msg.size(), "PAUSE\n\n\n\n");
 	set_screen_mode(SCREEN_MENU);
