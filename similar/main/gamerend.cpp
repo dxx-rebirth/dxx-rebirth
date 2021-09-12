@@ -448,6 +448,7 @@ static void game_draw_hud_stuff(grs_canvas &canvas, const control_info &Controls
 	if (CGameCfg.FPSIndicator && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 		show_framerate(canvas);
 
+	auto previous_game_mode = Game_mode;
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = Newdemo_game_mode;
 
@@ -455,7 +456,7 @@ static void game_draw_hud_stuff(grs_canvas &canvas, const control_info &Controls
 	draw_hud(canvas, plrobj, Controls);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
-		Game_mode = GM_NORMAL;
+		Game_mode = previous_game_mode;
 
 	if (Player_dead_state != player_dead_state::no)
 		player_dead_message(canvas);
@@ -855,6 +856,7 @@ void game_render_frame_mono(const control_info &Controls)
 
 	update_cockpits();
 
+	auto previous_game_mode = Game_mode;
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = Newdemo_game_mode;
 
@@ -862,7 +864,7 @@ void game_render_frame_mono(const control_info &Controls)
 		render_gauges();
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
-		Game_mode = GM_NORMAL;
+		Game_mode = previous_game_mode;
 
 	gr_set_current_canvas(Screen_3d_window);
 	if (!no_draw_hud) {

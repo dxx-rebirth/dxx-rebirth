@@ -726,7 +726,7 @@ static vmsegptridx_t choose_drop_segment(fvmsegptridx &vmsegptridx, fvcvertptr &
 				continue;
 			if (plr.connected == CONNECT_DISCONNECTED)
 				continue;
-			if ((Game_mode & (GM_TEAM|GM_CAPTURE)) && get_team(pnum) == team_of_drop_player)
+			if ((Game_mode & GM_TEAM) && get_team(pnum) == team_of_drop_player)
 				continue;
 			*r++ = pnum;
 		}

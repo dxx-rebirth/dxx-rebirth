@@ -4321,31 +4321,30 @@ static void net_udp_set_game_mode(const int gamemode)
 	Show_kill_list = 1;
 
 	if ( gamemode == NETGAME_ANARCHY )
-		Game_mode = GM_NETWORK;
+		Game_mode = game_mode_flags::anarchy_no_robots;
 	else if ( gamemode == NETGAME_ROBOT_ANARCHY )
-		Game_mode = GM_NETWORK | GM_MULTI_ROBOTS;
+		Game_mode = game_mode_flags::anarchy_with_robots;
 	else if ( gamemode == NETGAME_COOPERATIVE ) 
-		Game_mode = GM_NETWORK | GM_MULTI_COOP | GM_MULTI_ROBOTS;
+		Game_mode = game_mode_flags::cooperative;
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (gamemode == NETGAME_CAPTURE_FLAG)
 		{
-		 Game_mode = GM_NETWORK | GM_TEAM | GM_CAPTURE;
+		 Game_mode = game_mode_flags::capture_flag;
 		 Show_kill_list=3;
 		}
-
 	else if (HoardEquipped() && gamemode == NETGAME_HOARD)
-		 Game_mode = GM_NETWORK | GM_HOARD;
+		Game_mode = game_mode_flags::hoard;
 	else if (HoardEquipped() && gamemode == NETGAME_TEAM_HOARD)
 		 {
-		  Game_mode = GM_NETWORK | GM_HOARD | GM_TEAM;
+		Game_mode = game_mode_flags::team_hoard;
  		  Show_kill_list=3;
 		 }
 #endif
 	else if( gamemode == NETGAME_BOUNTY )
-		Game_mode = GM_NETWORK | GM_BOUNTY;
+		Game_mode = game_mode_flags::bounty;
 	else if ( gamemode == NETGAME_TEAM_ANARCHY )
 	{
-		Game_mode = GM_NETWORK | GM_TEAM;
+		Game_mode = game_mode_flags::team_anarchy_no_robots;
 		Show_kill_list = 3;
 	}
 	else

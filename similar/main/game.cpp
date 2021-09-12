@@ -128,7 +128,7 @@ int	force_cockpit_redraw=0;
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
 int	Game_suspended=0; //if non-zero, nothing moves but player
-int Game_mode;
+game_mode_flags Game_mode;
 int	Global_missile_firing_count = 0;
 }
 

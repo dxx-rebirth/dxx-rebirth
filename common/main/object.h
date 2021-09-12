@@ -659,8 +659,6 @@ static inline player_marker_index &operator++(player_marker_index &i)
 	return i;
 }
 
-playernum_t get_marker_owner(unsigned, game_marker_index, unsigned max_numplayers);
-
 struct d_unique_buddy_state
 {
 	enum class Escort_goal_reachability : uint8_t

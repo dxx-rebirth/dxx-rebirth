@@ -57,7 +57,6 @@ extern int Newdemo_state;
 extern int NewdemoFrameCount;
 
 extern int Newdemo_vcr_state;
-extern int Newdemo_game_mode;
 extern sbyte Newdemo_do_interpolate;
 extern int Newdemo_show_percentage;
 

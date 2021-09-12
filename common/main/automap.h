@@ -82,10 +82,10 @@ struct d_marker_state : d_marker_object_numbers
 	{
 		return MarkerBeingDefined != player_marker_index::None;
 	}
-	static unsigned get_markers_per_player(unsigned game_mode, unsigned netgame_max_players);
+	static unsigned get_markers_per_player(game_mode_flags game_mode, unsigned netgame_max_players);
 };
 
-game_marker_index convert_player_marker_index_to_game_marker_index(unsigned game_mode, unsigned max_numplayers, unsigned player_num, player_marker_index base_marker_num);
+game_marker_index convert_player_marker_index_to_game_marker_index(game_mode_flags game_mode, unsigned max_numplayers, unsigned player_num, player_marker_index base_marker_num);
 xrange<player_marker_index> get_player_marker_range(unsigned maxdrop);
 extern marker_message_text_t Marker_input;
 extern d_marker_state MarkerState;

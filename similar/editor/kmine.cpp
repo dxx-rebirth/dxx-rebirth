@@ -137,7 +137,7 @@ int CreateNewMine()
 		gamestate = editor_gamestate::none;
 		init_info = 1;
 		ResetFilename();
-		Game_mode = GM_UNKNOWN;
+		Game_mode = game_mode_flags::normal;
 		Current_level_num = 1;		// make level 1
 	}
 	return 1;

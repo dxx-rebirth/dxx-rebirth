@@ -169,9 +169,11 @@ const std::array<file_extension_t, 1> demo_file_extensions{{DEMO_EXT}};
 static RAIIPHYSFS_File infile;
 static RAIIPHYSFS_File outfile;
 
+namespace dcx {
+game_mode_flags Newdemo_game_mode;
+}
 // Some globals
 int Newdemo_state = 0;
-int Newdemo_game_mode = 0;
 int Newdemo_vcr_state = 0;
 int Newdemo_show_percentage=1;
 sbyte Newdemo_do_interpolate = 1;
@@ -1081,11 +1083,7 @@ void newdemo_record_start_demo()
 	nd_write_byte(DEMO_GAME_TYPE);
 	nd_write_fix(0); // NOTE: This is supposed to write GameTime (in fix). Since our GameTime64 is fix64 and the demos do not NEED this time actually, just write 0.
 
-	if (Game_mode & GM_MULTI)
-		nd_write_int(Game_mode | (Player_num << 16));
-	else
-		// NOTE LINK TO ABOVE!!!
-		nd_write_int(Game_mode);
+	nd_write_int((Game_mode & GM_MULTI) ? (underlying_value(Game_mode) | (Player_num << 16)) : underlying_value(Game_mode));
 
 	if (Game_mode & GM_TEAM) {
 		nd_write_byte(Netgame.team_vector);
@@ -1776,18 +1774,20 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 #endif
 	nd_read_fix(&nd_GameTime32); // NOTE: Demos write GameTime in fix.
 	GameTime64 = nd_GameTime32;
-	nd_read_int(&Newdemo_game_mode);
+	int recorded_demo_game_mode;
+	nd_read_int(&recorded_demo_game_mode);
+	Newdemo_game_mode = static_cast<game_mode_flags>(recorded_demo_game_mode);
 #if defined(DXX_BUILD_DESCENT_II)
 	if (purpose == PURPOSE_REWRITE)
 	{
 		nd_write_fix(nd_GameTime32);
-		nd_write_int(Newdemo_game_mode);
+		nd_write_int(underlying_value(Newdemo_game_mode));
 	}
 
 	BossUniqueState.Boss_cloak_start_time = GameTime64;
 #endif
 
-	change_playernum_to((Newdemo_game_mode >> 16) & 0x7);
+	change_playernum_to((recorded_demo_game_mode >> 16) & 0x7);
 	if (shareware)
 	{
 		if (Newdemo_game_mode & GM_TEAM)

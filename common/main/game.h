@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_array.h"
 #include "kconfig.h"
 #include "wall.h"
+#include "d_underlying_value.h"
 
 #define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30
 #define DESIGNATED_GAME_FRAMETIME (F1_0/DESIGNATED_GAME_FPS) 
@@ -58,6 +59,7 @@ extern fix64 GameTime64;            // time in game (sum of FrameTime)
 extern int d_tick_count; // increments according to DESIGNATED_GAME_FRAMETIME
 extern int d_tick_step;  // true once in interval of DESIGNATED_GAME_FRAMETIME
 enum class gauge_inset_window_view : unsigned;
+
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -70,31 +72,60 @@ extern enumerated_array<game_marker_index, 2, gauge_inset_window_view> Marker_vi
 }
 #endif
 
-// The following bits define the game modes.
-//#define GM_EDITOR       1       // You came into the game from the editor. Now obsolete - FYI only
-// #define GM_SERIAL       2       // You are in serial mode // OBSOLETE
-#define GM_NETWORK      4       // You are in network mode
-#define GM_MULTI_ROBOTS 8       // You are in a multiplayer mode with robots.
-#define GM_MULTI_COOP   16      // You are in a multiplayer mode and can't hurt other players.
-// #define GM_MODEM        32      // You are in a modem (serial) game // OBSOLETE
-#define GM_UNKNOWN      64      // You are not in any mode, kind of dangerous...
-#define GM_TEAM         256     // Team mode for network play
-#if defined(DXX_BUILD_DESCENT_I)
-#define GM_BOUNTY       512     // New bounty mode by Matt1360
-#elif defined(DXX_BUILD_DESCENT_II)
-#define GM_CAPTURE      512     // Capture the flag mode for D2
-#define GM_HOARD        1024    // New hoard mode for D2 Christmas
-#define GM_BOUNTY	2048	/* New bounty mode by Matt1360 */
-#endif
-#define GM_NORMAL       0       // You are in normal play mode, no multiplayer stuff
-#define GM_MULTI        GM_NETWORK     // You are in some type of multiplayer game	(GM_NETWORK /* | GM_SERIAL | GM_MODEM */)
-
-
 #define NDL 5       // Number of difficulty levels.
 
 namespace dcx {
-extern int Game_mode;
+
+enum class game_mode_flag : uint16_t
+{
+	normal = 0,
+	network			= 1u << 2,
+	multi_robots	= 1u << 3,
+	multi_coop		= 1u << 4,
+	unknown			= 1u << 6,
+	team			= 1u << 8,
+	bounty			= 1u << 9,
+#if defined(DXX_BUILD_DESCENT_II)
+	capture			= 1u << 10,
+	hoard			= 1u << 11,
+#endif
+};
+
+enum class game_mode_flags : uint16_t
+{
+	normal = 0,
+	anarchy_no_robots = static_cast<uint16_t>(game_mode_flag::network),
+	team_anarchy_no_robots = static_cast<uint16_t>(game_mode_flag::network) | static_cast<uint16_t>(game_mode_flag::team),
+	anarchy_with_robots = static_cast<uint16_t>(game_mode_flag::network) | static_cast<uint16_t>(game_mode_flag::multi_robots),
+	cooperative = static_cast<uint16_t>(game_mode_flag::network) | static_cast<uint16_t>(game_mode_flag::multi_robots) | static_cast<uint16_t>(game_mode_flag::multi_coop),
+	bounty = static_cast<uint16_t>(game_mode_flag::network) | static_cast<uint16_t>(game_mode_flag::bounty),
+#if defined(DXX_BUILD_DESCENT_II)
+	capture_flag = static_cast<uint16_t>(game_mode_flag::network) | static_cast<uint16_t>(game_mode_flag::team) | static_cast<uint16_t>(game_mode_flag::capture),
+	hoard = static_cast<uint16_t>(game_mode_flag::network) | static_cast<uint16_t>(game_mode_flag::hoard),
+	team_hoard = static_cast<uint16_t>(game_mode_flag::network) | static_cast<uint16_t>(game_mode_flag::team) | static_cast<uint16_t>(game_mode_flag::hoard),
+#endif
+};
+
+// The following bits define the game modes.
+#define GM_NETWORK		game_mode_flag::network       // You are in network mode
+#define GM_MULTI_ROBOTS	game_mode_flag::multi_robots       // You are in a multiplayer mode with robots.
+#define GM_MULTI_COOP	game_mode_flag::multi_coop      // You are in a multiplayer mode and can't hurt other players.
+#define GM_UNKNOWN		game_mode_flag::unknown      // You are not in any mode, kind of dangerous...
+#define GM_TEAM			game_mode_flag::team     // Team mode for network play
+#define GM_BOUNTY		game_mode_flag::bounty     // New bounty mode by Matt1360
+#define GM_CAPTURE		game_mode_flag::capture     // Capture the flag mode for D2
+#define GM_HOARD		game_mode_flag::hoard    // New hoard mode for D2 Christmas
+#define GM_NORMAL		game_mode_flags::normal       // You are in normal play mode, no multiplayer stuff
+#define GM_MULTI        GM_NETWORK     // You are in some type of multiplayer game	(GM_NETWORK /* | GM_SERIAL | GM_MODEM */)
+extern game_mode_flags Game_mode;
+extern game_mode_flags Newdemo_game_mode;
 extern screen_mode Game_screen_mode;
+
+static constexpr auto operator&(const game_mode_flags game_mode, const game_mode_flag f)
+{
+	return underlying_value(game_mode) & underlying_value(f);
+}
+
 }
 
 #ifndef NDEBUG      // if debugging, these are variables
@@ -488,6 +519,8 @@ extern int force_cockpit_redraw;
 namespace dsx {
 extern ubyte DemoDoingRight,DemoDoingLeft;
 extern fix64	Time_flash_last_played;
+
+playernum_t get_marker_owner(game_mode_flags, game_marker_index, unsigned max_numplayers);
 }
 #endif
 

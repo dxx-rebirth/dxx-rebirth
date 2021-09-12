@@ -364,7 +364,7 @@ static float MarkerScale=2.0;
 
 d_marker_state MarkerState;
 
-game_marker_index convert_player_marker_index_to_game_marker_index(const unsigned game_mode, const unsigned max_numplayers, const unsigned player_num, const player_marker_index player_marker_num)
+game_marker_index convert_player_marker_index_to_game_marker_index(const game_mode_flags game_mode, const unsigned max_numplayers, const unsigned player_num, const player_marker_index player_marker_num)
 {
 	if (game_mode & GM_MULTI_COOP)
 		return static_cast<game_marker_index>((player_num * MAX_DROP_MULTI_COOP) + static_cast<unsigned>(player_marker_num));
@@ -373,7 +373,7 @@ game_marker_index convert_player_marker_index_to_game_marker_index(const unsigne
 	return game_marker_index{player_marker_num};
 }
 
-unsigned d_marker_state::get_markers_per_player(const unsigned game_mode, const unsigned max_numplayers)
+unsigned d_marker_state::get_markers_per_player(const game_mode_flags game_mode, const unsigned max_numplayers)
 {
 	if (game_mode & GM_MULTI_COOP)
 		return MAX_DROP_MULTI_COOP;
@@ -388,7 +388,7 @@ xrange<player_marker_index> get_player_marker_range(const unsigned maxdrop)
 	return {base, static_cast<player_marker_index>(static_cast<unsigned>(base) + maxdrop)};
 }
 
-playernum_t get_marker_owner(const unsigned game_mode, const game_marker_index gmi, const unsigned max_numplayers)
+playernum_t get_marker_owner(const game_mode_flags game_mode, const game_marker_index gmi, const unsigned max_numplayers)
 {
 	const auto ugmi = static_cast<unsigned>(gmi);
 	if (game_mode & GM_MULTI_COOP)
@@ -409,7 +409,7 @@ playernum_t get_marker_owner(const unsigned game_mode, const game_marker_index g
 
 namespace {
 
-xrange<game_marker_index> get_game_marker_range(const unsigned game_mode, const unsigned max_numplayers, const unsigned player_num, const unsigned maxdrop)
+xrange<game_marker_index> get_game_marker_range(const game_mode_flags game_mode, const unsigned max_numplayers, const unsigned player_num, const unsigned maxdrop)
 {
 	const auto base = convert_player_marker_index_to_game_marker_index(game_mode, max_numplayers, player_num, player_marker_index::_0);
 	return {base, static_cast<game_marker_index>(static_cast<unsigned>(base) + maxdrop)};
