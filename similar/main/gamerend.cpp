@@ -87,7 +87,7 @@ static void game_draw_marker_message(grs_canvas &canvas)
 }
 #endif
 
-static void update_cockpits();
+static void update_cockpits(grs_canvas &);
 }
 }
 
@@ -849,15 +849,11 @@ void game_render_frame_mono(const control_info &Controls)
 		else
 			render_frame(*grd_curcanv, 0, window);
 	}
-
-#if defined(DXX_BUILD_DESCENT_II)
-	gr_set_current_canvas(Screen_3d_window);
-#endif
-
-	update_cockpits();
+	gr_set_default_canvas();
+	update_cockpits(*grd_curcanv);
 
 	if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)
-		render_gauges(Newdemo_state == ND_STATE_PLAYBACK ? Newdemo_game_mode : Game_mode);
+		render_gauges(*grd_curcanv, Newdemo_state == ND_STATE_PLAYBACK ? Newdemo_game_mode : Game_mode);
 
 	gr_set_current_canvas(Screen_3d_window);
 	if (!no_draw_hud) {
@@ -919,7 +915,7 @@ namespace dsx {
 namespace {
 
 // This actually renders the new cockpit onto the screen.
-static void update_cockpits()
+static void update_cockpits(grs_canvas &canvas)
 {
 	grs_bitmap *bm;
 	int mode = PlayerCfg.CockpitMode[1];
@@ -932,11 +928,10 @@ static void update_cockpits()
 		case CM_REAR_VIEW:
 			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
-			gr_set_default_canvas();
 #if DXX_USE_OGL
-			ogl_ubitmapm_cs(*grd_curcanv, 0, 0, -1, -1, *bm, 255, F1_0);
+			ogl_ubitmapm_cs(canvas, 0, 0, -1, -1, *bm, 255, F1_0);
 #else
-			gr_ubitmapm(*grd_curcanv, 0, 0, *bm);
+			gr_ubitmapm(canvas, 0, 0, *bm);
 #endif
 			break;
 	
@@ -946,19 +941,16 @@ static void update_cockpits()
 		case CM_STATUS_BAR:
 			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
-			gr_set_default_canvas();
 #if DXX_USE_OGL
-			ogl_ubitmapm_cs(*grd_curcanv, 0, (HIRESMODE ? (SHEIGHT * 2) / 2.6 : (SHEIGHT * 2) / 2.72), -1, (static_cast<int>(static_cast<double>(bm->bm_h) * (HIRESMODE ? static_cast<double>(SHEIGHT) / 480 : static_cast<double>(SHEIGHT) / 200) + 0.5)), *bm, 255, F1_0);
+			ogl_ubitmapm_cs(canvas, 0, (HIRESMODE ? (SHEIGHT * 2) / 2.6 : (SHEIGHT * 2) / 2.72), -1, (static_cast<int>(static_cast<double>(bm->bm_h) * (HIRESMODE ? static_cast<double>(SHEIGHT) / 480 : static_cast<double>(SHEIGHT) / 200) + 0.5)), *bm, 255, F1_0);
 #else
-			gr_ubitmapm(*grd_curcanv, 0, SHEIGHT - bm->bm_h, *bm);
+			gr_ubitmapm(canvas, 0, SHEIGHT - bm->bm_h, *bm);
 #endif
 			break;
 	
 		case CM_LETTERBOX:
 			break;
 	}
-	gr_set_default_canvas();
-
 	if (PlayerCfg.CockpitMode[1] != last_drawn_cockpit)
 		last_drawn_cockpit = PlayerCfg.CockpitMode[1];
 	else

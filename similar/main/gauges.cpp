@@ -3736,7 +3736,7 @@ void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Cont
 }
 
 //print out some player statistics
-void render_gauges(const game_mode_flags Game_mode)
+void render_gauges(grs_canvas &canvas, const game_mode_flags Game_mode)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -3751,8 +3751,7 @@ void render_gauges(const game_mode_flags Game_mode)
 	auto shields = f2ir(plrobj.shields);
 	if (shields < 0 ) shields = 0;
 
-	gr_set_default_canvas();
-	gr_set_curfont(*grd_curcanv, *GAME_FONT);
+	gr_set_curfont(canvas, *GAME_FONT);
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 	{
@@ -3762,7 +3761,7 @@ void render_gauges(const game_mode_flags Game_mode)
 	}
 
 	const local_multires_gauge_graphic multires_gauge_graphic{};
-	const hud_draw_context_hs_mr hudctx(*grd_curcanv, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
+	const hud_draw_context_hs_mr hudctx(canvas, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
 	draw_weapon_boxes(hudctx, player_info);
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 		if (Newdemo_state == ND_STATE_RECORDING)

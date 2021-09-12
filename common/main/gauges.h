@@ -64,7 +64,7 @@ extern std::array<bitmap_index, MAX_GAUGE_BMS> Gauges_hires;    // hires gauges
 namespace dsx {
 void add_points_to_score(player_info &, unsigned points, game_mode_flags);
 void add_bonus_points_to_score(player_info &, unsigned points, game_mode_flags);
-void render_gauges(game_mode_flags game_mode);
+void render_gauges(grs_canvas &, game_mode_flags game_mode);
 void init_gauges(void);
 void draw_hud(grs_canvas &, const object &, const control_info &Controls, game_mode_flags);     // draw all the HUD stuff
 }
