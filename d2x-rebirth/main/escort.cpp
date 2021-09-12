@@ -81,7 +81,6 @@ namespace dsx {
 
 namespace {
 
-static void show_escort_menu(const std::array<char, 300> &);
 static void say_escort_goal(escort_goal_t goal_num);
 
 constexpr std::array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
@@ -1862,14 +1861,26 @@ void drop_stolen_items(const vcobjptr_t objp)
 // --------------------------------------------------------------------------------------------------------------
 namespace {
 
-struct escort_menu : window
+struct escort_menu_items
 {
-	using window::window;
 	std::array<char, 300> msg;
-	virtual window_event_result event_handler(const d_event &) override;
-	static window_event_result event_key_command(const d_event &event);
+	const unsigned border_x, border_y;
+	escort_menu_items(int next_goal, const char *Buddy_messages_suppressed, grs_canvas &src, gr_string_size &);
 };
 
+struct escort_menu : escort_menu_items, window
+{
+	escort_menu(int next_goal, const char *Buddy_messages_suppressed, grs_canvas &src, gr_string_size = {});
+	virtual window_event_result event_handler(const d_event &) override;
+	static window_event_result event_key_command(const d_event &event);
+	void show_escort_menu();
+};
+
+escort_menu::escort_menu(int next_goal, const char *Buddy_messages_suppressed, grs_canvas &src, gr_string_size text_size) :
+	escort_menu_items(next_goal, Buddy_messages_suppressed, src, text_size),
+	window(src, ((src.cv_bitmap.bm_w - text_size.width) / 2) - border_x, ((src.cv_bitmap.bm_h - text_size.height) / 2) - border_y, text_size.width + (border_x * 2), text_size.height + (border_y * 2))
+{
+	gr_set_fontcolor(w_canv, BM_XRGB(0, 28, 0), -1);
 }
 
 window_event_result escort_menu::event_key_command(const d_event &event)
@@ -1923,7 +1934,7 @@ window_event_result escort_menu::event_handler(const d_event &event)
 			break;
 			
 		case EVENT_WINDOW_DRAW:
-			show_escort_menu(msg);
+			show_escort_menu();
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
@@ -1932,6 +1943,16 @@ window_event_result escort_menu::event_handler(const d_event &event)
 			return window_event_result::ignored;
 	}
 	return window_event_result::handled;
+}
+
+//	-------------------------------------------------------------------------------
+//	Show the Buddy menu!
+void escort_menu::show_escort_menu()
+{
+	nm_draw_background(w_canv, 0, 0, w_canv.cv_bitmap.bm_w, w_canv.cv_bitmap.bm_h);
+	gr_ustring(w_canv, *GAME_FONT, border_x, border_y, msg.data());
+}
+
 }
 
 unsigned check_warn_local_player_can_control_guidebot(fvcobjptr &vcobjptr, const d_unique_buddy_state &BuddyState, const netgame_info &Netgame)
@@ -1961,9 +1982,6 @@ void do_escort_menu(void)
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	int	next_goal;
-	char	goal_str[12];
-	const char *goal_txt;
-	const char *tstr;
 
 	if (Game_mode & GM_MULTI) {
 		if (!check_warn_local_player_can_control_guidebot(vcobjptr, BuddyState, Netgame))
@@ -1983,9 +2001,6 @@ void do_escort_menu(void)
 		return;
 	}
 
-	// Just make it the full screen size and let show_escort_menu figure it out
-	auto wind = window_create<escort_menu>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
-
 	auto &plrobj = get_local_plrobj();
 	//	This prevents the buddy from coming back if you've told him to scram.
 	//	If we don't set next_goal, we get garbage there.
@@ -1998,6 +2013,20 @@ void do_escort_menu(void)
 		next_goal = escort_set_goal_object(plrobj.ctype.player_info.powerup_flags);
 	}
 
+	const auto Buddy_messages_suppressed = BuddyState.Buddy_messages_suppressed
+		? "Enable"
+		: "Suppress";
+	auto wind = window_create<escort_menu>(next_goal, Buddy_messages_suppressed, grd_curscreen->sc_canvas);
+	(void)wind;
+}
+
+namespace {
+
+escort_menu_items::escort_menu_items(const int next_goal, const char *Buddy_messages_suppressed, grs_canvas &src, gr_string_size &text_size) :
+	border_x(get_border_x(src)), border_y(get_border_y(src))
+{
+	std::array<char, 12> goal_str;
+	const char *goal_txt;
 	switch (next_goal) {
 		default:
 		case ESCORT_GOAL_UNSPECIFIED:
@@ -2031,18 +2060,11 @@ void do_escort_menu(void)
 		case ESCORT_GOAL_MARKER7:
 		case ESCORT_GOAL_MARKER8:
 		case ESCORT_GOAL_MARKER9:
-			goal_txt = goal_str;
-			snprintf(goal_str, sizeof(goal_str), "marker %i", next_goal-ESCORT_GOAL_MARKER1+1);
+			goal_txt = goal_str.data();
+			std::snprintf(goal_str.data(), goal_str.size(), "marker %i", next_goal - ESCORT_GOAL_MARKER1 + 1);
 			break;
-
 	}
-			
-	if (!BuddyState.Buddy_messages_suppressed)
-		tstr =  "Suppress";
-	else
-		tstr =  "Enable";
 
-	auto &msg = wind->msg;
 	snprintf(msg.data(), msg.size(), "Select Guide-Bot Command:\n\n\n"
 						"0.  Next Goal: %s" CC_LSPACING_S "3\n\n"
 						"\x84.  Find Energy Powerup" CC_LSPACING_S "3\n\n"
@@ -2056,35 +2078,8 @@ void do_escort_menu(void)
 						"9.  Find the exit\n\n"
 						"T.  %s Messages"
 						// -- "9.	Find the exit" CC_LSPACING_S "3\n"
-				, goal_txt, tstr);
-}
-
-namespace {
-
-//	-------------------------------------------------------------------------------
-//	Show the Buddy menu!
-void show_escort_menu(const std::array<char, 300> &amsg)
-{	
-	const auto msg = amsg.data();
-	int	x,y;
-
-
-	gr_set_default_canvas();
-
-	auto &canvas = *grd_curcanv;
-	const auto &game_font = *GAME_FONT;
-	const auto &&[w, h] = gr_get_string_size(game_font, msg);
-
-	x = (SWIDTH-w)/2;
-	y = (SHEIGHT-h)/2;
-
-	gr_set_fontcolor(canvas, BM_XRGB(0, 28, 0), -1);
-
-	nm_draw_background(canvas, x - BORDERX, y - BORDERY, x + w + BORDERX, y + h + BORDERY);
-
-	gr_ustring(canvas, game_font, x, y, msg);
-
-	reset_cockpit();
+				, goal_txt, Buddy_messages_suppressed);
+	text_size = gr_get_string_size(*GAME_FONT, msg.data());
 }
 
 }
