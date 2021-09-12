@@ -275,6 +275,9 @@ void gr_uline(grs_canvas &canvas, const fix _a1, const fix _b1, const fix _a2, c
 	a1 = f2i(_a1); b1 = f2i(_b1); a2 = f2i(_a2); b2 = f2i(_b2);
 	switch(canvas.cv_bitmap.get_type())
 	{
+		case bm_mode::ilbm:
+		case bm_mode::rgb15:
+			break;
 #if DXX_USE_OGL
 	case bm_mode::ogl:
 		ogl_ulinec(canvas, a1, b1, a2, b2, color);

@@ -689,6 +689,13 @@ static void gr_ustring_mono(grs_canvas &canvas, const grs_font &cv_font, const i
 				gr_internal_string0m(canvas, cv_font, x, y, s);
 			else
 				gr_internal_string0(canvas, cv_font, x, y, s);
+			break;
+		case bm_mode::ilbm:
+		case bm_mode::rgb15:
+#if DXX_USE_OGL
+		case bm_mode::ogl:
+#endif
+			break;
 	}
 }
 

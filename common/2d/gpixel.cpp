@@ -31,6 +31,9 @@ color_palette_index gr_ugpixel(const grs_bitmap &bitmap, int x, int y)
 	{
 		case bm_mode::linear:
 			return bitmap.bm_data[ bitmap.bm_rowsize*y + x ];
+		case bm_mode::ilbm:
+		case bm_mode::rgb15:
+			break;
 #if DXX_USE_OGL
 		case bm_mode::ogl:
 			return ogl_ugpixel(bitmap, x, y);

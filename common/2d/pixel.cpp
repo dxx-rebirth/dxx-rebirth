@@ -43,6 +43,9 @@ void gr_upixel(grs_bitmap &cv_bitmap, const unsigned x, const unsigned y, const 
 	case bm_mode::linear:
 		cv_bitmap.get_bitmap_data()[cv_bitmap.bm_rowsize * y + x] = color;
 		return;
+		case bm_mode::ilbm:
+		case bm_mode::rgb15:
+			break;
 	}
 }
 
@@ -68,6 +71,9 @@ static inline void gr_bm_upixel(grs_canvas &canvas, grs_bitmap &bm, const uint_f
 	case bm_mode::linear:
 		bm.get_bitmap_data()[bm.bm_rowsize*y+x] = color;
 		return;
+		case bm_mode::rgb15:
+		case bm_mode::ilbm:
+			break;
 	}
 }
 

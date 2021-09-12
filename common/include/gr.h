@@ -47,14 +47,14 @@ struct grs_bitmap : prohibit_void_ptr<grs_bitmap>
 	uint16_t bm_x,bm_y; // Offset from parent's origin
 	uint16_t bm_w,bm_h; // width,height
 private:
-	uint8_t bm_type;
+	bm_mode bm_type;
 	uint8_t bm_flags;
 public:
-	uint8_t get_type() const
+	bm_mode get_type() const
 	{
 		return bm_type;
 	}
-	void set_type(uint8_t t)
+	void set_type(bm_mode t)
 	{
 		bm_type = t;
 	}

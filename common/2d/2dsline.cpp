@@ -64,6 +64,9 @@ void gr_uscanline(grs_canvas &canvas, const unsigned x1, const unsigned x2, cons
 					gr_linear_darken(data, cv_fade_level, count, gr_fade_table);
 			}
 			break;
+		case bm_mode::ilbm:
+		case bm_mode::rgb15:
+			break;
 		}
 }
 #if DXX_USE_OGL

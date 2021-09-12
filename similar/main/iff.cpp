@@ -47,8 +47,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //Internal constants and structures for this library
 
 //Type values for bitmaps
-#define TYPE_PBM		0
-#define TYPE_ILBM		1
+#define TYPE_PBM		bm_mode::linear
+#define TYPE_ILBM		bm_mode::ilbm
 
 //Compression types
 #define cmpNone	0
@@ -64,9 +64,9 @@ struct iff_bitmap_header : prohibit_void_ptr<iff_bitmap_header>
 {
 	short w,h;						//width and height of this bitmap
 	short x,y;						//generally unused
-	short type;						//see types above
 	short transparentcolor;		//which color is transparent (if any)
 	short pagewidth,pageheight; //width & height of source screen
+	bm_mode type;						//see types above
 	sbyte nplanes;              //number of planes (8 for 256 color image)
 	sbyte masking,compression;  //see constants above
 	sbyte xaspect,yaspect;      //aspect ratio (usually 5/6)
@@ -525,12 +525,12 @@ static int convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 //copy an iff header structure to a grs_bitmap structure
 static void copy_iff_to_grs(grs_bitmap &bm,iff_bitmap_header &bmheader)
 {
-	gr_init_bitmap(bm, static_cast<bm_mode>(bmheader.type), 0, 0, bmheader.w, bmheader.h, bmheader.w, bmheader.raw_data.release());
+	gr_init_bitmap(bm, bmheader.type, 0, 0, bmheader.w, bmheader.h, bmheader.w, bmheader.raw_data.release());
 }
 
 //if bm->bm_data is set, use it (making sure w & h are correct), else
 //allocate the memory
-static int iff_parse_bitmap(PHYSFS_File *ifile, grs_bitmap &bm, int bitmap_type, palette_array_t *palette, grs_bitmap *prev_bm)
+static int iff_parse_bitmap(PHYSFS_File *ifile, grs_bitmap &bm, const bm_mode bitmap_type, palette_array_t *const palette, grs_bitmap *const prev_bm)
 {
 	int ret;			//return code
 	iff_bitmap_header bmheader;
@@ -943,7 +943,12 @@ int iff_read_animbrush(const char *ifilename,std::array<std::unique_ptr<grs_main
 			auto &n = bm_list[*n_bitmaps];
 			n = std::make_unique<grs_main_bitmap>();
 
-			ret = iff_parse_bitmap(ifile, *n.get(), form_type, *n_bitmaps > 0 ? nullptr : &palette, prev_bm);
+			/* iff_parse_bitmap needs a bm_mode, but only to test
+			 * whether to do RGB conversion.  Historically, anim files
+			 * do not require RGB conversion, so pass a mode that skips
+			 * the conversion.
+			 */
+			ret = iff_parse_bitmap(ifile, *n.get(), bm_mode::linear, *n_bitmaps > 0 ? nullptr : &palette, prev_bm);
 
 			if (ret != IFF_NO_ERROR)
 				goto done;
