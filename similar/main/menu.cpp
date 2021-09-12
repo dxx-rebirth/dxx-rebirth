@@ -1373,7 +1373,7 @@ void screen_resolution_menu::apply_resolution(const screen_mode new_mode) const
 			}
 		}
 	}
-	game_init_render_buffers(SM_W(Game_screen_mode), SM_H(Game_screen_mode));
+	game_init_render_sub_buffers(0, 0, SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 }
 
 template <typename PMF>

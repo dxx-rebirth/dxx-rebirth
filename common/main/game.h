@@ -384,10 +384,6 @@ void reset_rear_view(void);
 namespace dcx {
 void game_init_render_sub_buffers(int x, int y, int w, int h);
 // Sets up the canvases we will be rendering to
-static inline void game_init_render_buffers (int render_max_w, int render_max_h)
-{
-	game_init_render_sub_buffers( 0, 0, render_max_w, render_max_h );
-}
 
 extern int netplayerinfo_on;
 }
