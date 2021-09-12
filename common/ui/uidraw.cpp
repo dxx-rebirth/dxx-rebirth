@@ -37,12 +37,7 @@ void Vline(grs_canvas &canvas, const fix y1, const fix y2, const fix x, const co
 
 void ui_string_centered(grs_canvas &canvas, const unsigned x, const unsigned y, const char *const s)
 {
-	int height, width;
-
-	gr_get_string_size(*canvas.cv_font, s, &width, &height, nullptr);
-
-	//baseline = height-grd_curcanv->cv_font->ft_baseline;
-
+	const auto &&[width, height] = gr_get_string_size(*canvas.cv_font, s);
 	gr_ustring(canvas, *canvas.cv_font, x - ((width - 1) / 2), y - ((height - 1) / 2), s);
 }
 

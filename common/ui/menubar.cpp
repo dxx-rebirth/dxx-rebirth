@@ -884,9 +884,9 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 		{
 			w = 1; h = 3;
 		} else {
-			gr_get_string_size(*canvas.cv_font, item.Text.get(), &w, &h, nullptr);
-			w += 2;
-			h += 2;
+			const auto r = gr_get_string_size(*canvas.cv_font, item.Text.get());
+			w = r.width + 2;
+			h = r.height + 2;
 		}
 								
 		if (mi == 0)

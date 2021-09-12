@@ -186,8 +186,7 @@ unsigned CLIState::draw(unsigned y, unsigned line_spacing)
 	DXX_MAKE_VAR_UNDEFINED(wraps);
 	const auto margin_width = FSPACX(1);
 	const char prompt_string[2] = {g_prompt_strings[0], 0};
-	int prompt_width, h;
-	gr_get_string_size(*grd_curcanv->cv_font, prompt_string, &prompt_width, &h, nullptr);
+	const auto &&[prompt_width, h] = gr_get_string_size(*grd_curcanv->cv_font, prompt_string);
 	y -= line_spacing;
 	const auto canvas_width = grd_curcanv->cv_bitmap.bm_w;
 	const unsigned max_pixels_per_line = canvas_width - (margin_width * 2) - prompt_width;
@@ -225,8 +224,7 @@ unsigned CLIState::draw(unsigned y, unsigned line_spacing)
 	}
 	const auto line_left = margin_width + prompt_width + 1;
 	const auto cursor_string = (m_insert_type == CLI_insert_type::insert ? CLI_INS_CURSOR : CLI_OVR_CURSOR);
-	int cursor_width, cursor_height;
-	gr_get_string_size(*grd_curcanv->cv_font, cursor_string, &cursor_width, &cursor_height, nullptr);
+	const auto &&[cursor_width, cursor_height] = gr_get_string_size(*grd_curcanv->cv_font, cursor_string);
 	if (line_position == m_line.size())
 	{
 		const auto &w = wraps[last_wrap_line % wraps.size()];
@@ -299,8 +297,7 @@ unsigned CLIState::draw(unsigned y, unsigned line_spacing)
 				cy += m_cursor_underline_y_shift;
 			if (line_position != p - line_begin)
 			{
-				int cw;
-				gr_get_string_size(*grd_curcanv->cv_font, &line_begin[line_position], &cw, nullptr, nullptr);
+				const auto cw = gr_get_string_size(*grd_curcanv->cv_font, &line_begin[line_position]).width;
 				cx -= cw;
 			}
 			gr_string(*grd_curcanv, *grd_curcanv->cv_font, cx, cy, cursor_string, cursor_width, cursor_height);

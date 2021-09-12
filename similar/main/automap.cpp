@@ -719,8 +719,7 @@ static void name_frame(grs_canvas &canvas, automap &am)
 		snprintf(name_level_right, sizeof(name_level_right), " %s", current_level_name);
 
 	gr_string(canvas, game_font, (SWIDTH / 64), (SHEIGHT / 48), name_level_left);
-	int wr,h;
-	gr_get_string_size(game_font, name_level_right, &wr, &h, nullptr);
+	const auto &&[wr, h] = gr_get_string_size(game_font, name_level_right);
 	gr_string(canvas, game_font, canvas.cv_bitmap.bm_w - wr - (SWIDTH / 64), (SHEIGHT / 48), name_level_right, wr, h);
 #endif
 }

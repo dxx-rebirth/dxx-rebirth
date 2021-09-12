@@ -45,7 +45,6 @@ static void ui_draw_box_in1(grs_canvas &canvas, const unsigned x1, const unsigne
 
 void ui_draw_icon(UI_GADGET_ICON &icon)
 {
-	int height, width;
 	int x, y;
 	
 #if 0  //ndef OGL
@@ -54,7 +53,7 @@ void ui_draw_icon(UI_GADGET_ICON &icon)
 	{
 		gr_set_current_canvas(icon.canvas);
 		auto &canvas = *grd_curcanv;
-		gr_get_string_size(*canvas.cv_font, icon.text.get(), &width, &height, nullptr);
+		const auto &&[width, height] = gr_get_string_size(*canvas.cv_font, icon.text.get());
 	
 		x = ((icon.width - 1) / 2) - ((width - 1) / 2);
 		y = ((icon.height - 1) / 2) - ((height - 1) / 2);

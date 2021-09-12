@@ -2066,7 +2066,6 @@ namespace {
 void show_escort_menu(const std::array<char, 300> &amsg)
 {	
 	const auto msg = amsg.data();
-	int	w,h;
 	int	x,y;
 
 
@@ -2074,7 +2073,7 @@ void show_escort_menu(const std::array<char, 300> &amsg)
 
 	auto &canvas = *grd_curcanv;
 	const auto &game_font = *GAME_FONT;
-	gr_get_string_size(game_font, msg, &w, &h, nullptr);
+	const auto &&[w, h] = gr_get_string_size(game_font, msg);
 
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;

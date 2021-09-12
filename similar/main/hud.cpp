@@ -239,13 +239,11 @@ void player_dead_message(grs_canvas &canvas)
 	{
 		if (get_local_player().lives == 1)
 		{
-			int x, y, w, h;
+			int x, y;
 			auto &huge_font = *HUGE_FONT;
-			gr_get_string_size(huge_font, TXT_GAME_OVER, &w, &h, nullptr);
-			const int gw = w;
-			const int gh = h;
-			w += 20;
-			h += 8;
+			const auto &&[gw, gh] = gr_get_string_size(huge_font, TXT_GAME_OVER);
+			const auto w = gw + 20;
+			const auto h = gh + 8;
 			x = (canvas.cv_bitmap.bm_w - w ) / 2;
 			y = (canvas.cv_bitmap.bm_h - h ) / 2;
 		

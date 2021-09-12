@@ -56,12 +56,10 @@ void ui_draw_scrollbar(UI_DIALOG &dlg, UI_GADGET_SCROLLBAR &scrollbar)
 
 std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG &dlg, short x, short y, short w, short h, int start, int stop, int position, int window_size)
 {
-	int tw;
-
 	auto &up = "\x1e";
 	auto &down = "\x1f";
 
-	gr_get_string_size(*grd_curcanv->cv_font, up, &tw, nullptr, nullptr);
+	const auto tw = gr_get_string_size(*grd_curcanv->cv_font, up).width;
 
 	w = tw + 10;
 

@@ -150,8 +150,7 @@ static void print_status_bar(const std::array<char, DIAGNOSTIC_MESSAGE_MAX> &mes
 	auto &canvas = *grd_curcanv;
 	const auto &editor_font = *::editor_font;
 	gr_set_fontcolor(canvas, CBLACK, CGREY);
-	int w,h;
-	gr_get_string_size(editor_font, message.data(), &w, &h, nullptr);
+	const auto &&[w, h] = gr_get_string_size(editor_font, message.data());
 	gr_string(canvas, editor_font, 4, 583, message.data(), w, h);
 	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 	gr_rect(canvas, 4+w, 583, 799, 599, CGREY);

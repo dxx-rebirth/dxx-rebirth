@@ -644,8 +644,6 @@ static int check_text_pos(briefing *br)
 static void put_char_delay(const grs_font &cv_font, briefing *const br, const char ch)
 {
 	char str[2];
-	int	w;
-
 	str[0] = ch; str[1] = '\0';
 	if (br->delay_count && (timer_query() < br->start_time + br->delay_count))
 	{
@@ -662,7 +660,7 @@ static void put_char_delay(const grs_font &cv_font, briefing *const br, const ch
 	br->streamcount++;
 
 	br->prev_ch = ch;
-	gr_get_string_size(cv_font, str, &w, nullptr, nullptr);
+	const auto w = gr_get_string_size(cv_font, str).width;
 	br->text_x += w;
 
 #if defined(DXX_BUILD_DESCENT_II)

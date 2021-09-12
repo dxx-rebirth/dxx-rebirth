@@ -1295,8 +1295,7 @@ static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_fl
 		if (unlikely(!c))
 			break;
 		thold[0] = c;
-		int tx;
-		gr_get_string_size(cv_font, thold, &tx, nullptr, nullptr);
+		const auto tx = gr_get_string_size(cv_font, thold).width;
 		if ((x += tx) >= strbound)
 		{
 			const std::size_t outbound = outsize - 4;

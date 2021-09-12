@@ -103,7 +103,7 @@ window_event_result messagebox::callback_handler(const d_event &event)
 int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_tie &Button )
 {
 	int x, y;
-	int button_width, button_height, text_height, text_width;
+	int button_width, button_height;
 	int w, h;
 
 	int choice;
@@ -118,15 +118,14 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 
 	for (uint_fast32_t i=0; i < Button.count(); i++ )
 	{
-		int width, height;
-		ui_get_button_size(cv_font, Button.string(i), width, height);
+		const auto &&[width, height] = ui_get_button_size(cv_font, Button.string(i));
 
 		if ( width > button_width ) button_width = width;
 		if ( height > button_height ) button_height = height;
 	}
 
 	const auto avg = cv_font.ft_w;
-	gr_get_string_size(cv_font, text, &text_width, &text_height, nullptr);
+	auto [text_width, text_height] = gr_get_string_size(cv_font, text);
 
 	unsigned width, height;
 	width = button_width*Button.count();

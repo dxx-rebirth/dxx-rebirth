@@ -45,11 +45,10 @@ namespace dcx {
 
 int ui_button_any_drawn = 0;
 
-void ui_get_button_size(const grs_font &cv_font, const char *text, int &width, int &height)
+gr_string_size ui_get_button_size(const grs_font &cv_font, const char *text)
 {
-	gr_get_string_size(cv_font, text, &width, &height, nullptr);
-	width += BUTTON_EXTRA_WIDTH * 2 + 6;
-	height += BUTTON_EXTRA_HEIGHT * 2 + 6;
+	const auto r = gr_get_string_size(cv_font, text);
+	return {r.width + BUTTON_EXTRA_WIDTH * 2 + 6, r.height + BUTTON_EXTRA_HEIGHT * 2 + 6};
 }
 
 namespace {

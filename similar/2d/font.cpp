@@ -674,8 +674,7 @@ static void ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, con
 
 void gr_string(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s)
 {
-	int w, h;
-	gr_get_string_size(cv_font, s, &w, &h, nullptr);
+	const auto &&[w, h] = gr_get_string_size(cv_font, s);
 	gr_string(canvas, cv_font, x, y, s, w, h);
 }
 
@@ -757,23 +756,21 @@ void gr_ustring(grs_canvas &canvas, const grs_font &cv_font, const int x, const 
 		gr_ustring_mono(canvas, cv_font, x, y, s);
 }
 
-int gr_get_string_height(const grs_font &cv_font, const unsigned lines)
+unsigned gr_get_string_height(const grs_font &cv_font, const unsigned lines)
 {
 	const auto fontscale_y = FONTSCALE_Y(cv_font.ft_h);
-	return static_cast<int>(fontscale_y + (lines * (fontscale_y + FSPACY(1))));
+	return static_cast<unsigned>(fontscale_y + (lines * (fontscale_y + FSPACY(1))));
 }
 
-void gr_get_string_size(const grs_font &cv_font, const char *s, int *const string_width, int *const string_height, std::nullptr_t average_width)
+gr_string_size gr_get_string_size(const grs_font &cv_font, const char *s)
 {
-	gr_get_string_size(cv_font, s, string_width, string_height, average_width, UINT_MAX);
+	return gr_get_string_size(cv_font, s, UINT_MAX);
 }
 
-void gr_get_string_size(const grs_font &cv_font, const char *s, int *const string_width, int *const string_height, std::nullptr_t, const unsigned max_chars_per_line)
+gr_string_size gr_get_string_size(const grs_font &cv_font, const char *s, const unsigned max_chars_per_line)
 {
 	float longest_width=0.0,string_width_f=0.0;
 	unsigned lines = 0;
-	if (!string_width && !string_height)
-		return;
 	if (s)
 	{
 		unsigned remaining_chars_this_line = max_chars_per_line;
@@ -802,10 +799,7 @@ void gr_get_string_size(const grs_font &cv_font, const char *s, int *const strin
 				break;
 		}
 	}
-	if (string_width)
-		*string_width = std::max(longest_width, string_width_f);
-	if (string_height)
-		*string_height = gr_get_string_height(cv_font, lines);
+	return {static_cast<unsigned long>(std::max(longest_width, string_width_f)), gr_get_string_height(cv_font, lines)};
 }
 
 std::pair<const char *, unsigned> gr_get_string_wrap(const grs_font &cv_font, const char *s, unsigned limit)

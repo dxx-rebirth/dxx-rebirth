@@ -280,13 +280,12 @@ window_event_result movie_pause_window::event_handler(const d_event &event)
 		case EVENT_WINDOW_DRAW:
 		{
 			const char *msg = TXT_PAUSE;
-			int h;
 			int y;
 
 			gr_set_default_canvas();
 			auto &canvas = *grd_curcanv;
 			const auto &game_font = *GAME_FONT;
-			gr_get_string_size(game_font, msg, nullptr, &h, nullptr);
+			const auto h = gr_get_string_size(game_font, msg).height;
 
 			y = (grd_curscreen->get_screen_height() - h) / 2;
 

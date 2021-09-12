@@ -296,7 +296,7 @@ std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG &dlg, short x
 
 extern void ui_mega_process();
 
-void ui_get_button_size(const grs_font &, const char *text, int &width, int &height);
+gr_string_size ui_get_button_size(const grs_font &, const char *text);
 
 [[nodiscard]]
 std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG &dlg, short x, short y, short w, short h, int start, int stop, int position, int window_size);

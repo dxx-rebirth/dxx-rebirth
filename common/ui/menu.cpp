@@ -86,8 +86,7 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 
 	for (int i=0; i<NumButtons; i++ )
 	{
-		int width, height;
-		ui_get_button_size(*grd_curcanv->cv_font, text[i], width, height);
+		const auto &&[width, height] = ui_get_button_size(*grd_curcanv->cv_font, text[i]);
 
 		if ( width > button_width ) button_width = width;
 		if ( height > button_height ) button_height = height;

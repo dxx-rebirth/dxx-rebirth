@@ -134,8 +134,7 @@ static void kc_drawquestion(grs_canvas &canvas, const grs_font &cv_font, uint8_t
 {
 	if (++ menu_fade_index > 63)
 		menu_fade_index = 0;
-	int w, h;
-	gr_get_string_size(cv_font, "?", &w, &h, nullptr);
+	const auto &&[w, h] = gr_get_string_size(cv_font, "?");
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
 	const auto &&fspacx_item_xinput = fspacx(item_xinput);
@@ -346,21 +345,19 @@ static const char *get_item_text(const kc_item &item, const kc_mitem &mitem, cha
 
 static int get_item_height(const grs_font &cv_font, const kc_item &item, const kc_mitem &mitem)
 {
-	int h;
 	char buf[10];
 	const char *btext;
 
 	btext = get_item_text(item, mitem, buf);
 	if (!btext)
 		return 0;
-	gr_get_string_size(cv_font, btext, nullptr, &h, nullptr);
+	const auto h = gr_get_string_size(cv_font, btext).height;
 	return h;
 }
 
 static void kc_gr_2y_string(grs_canvas &canvas, const grs_font &cv_font, const char *const s, const font_y_scaled_float y, const font_x_scaled_float x0, const font_x_scaled_float x1)
 {
-	int w, h;
-	gr_get_string_size(cv_font, s, &w, &h, nullptr);
+	const auto &&[w, h] = gr_get_string_size(cv_font, s);
 	gr_string(canvas, cv_font, x0, y, s, w, h);
 	gr_string(canvas, cv_font, x1, y, s, w, h);
 }
@@ -866,9 +863,9 @@ static void kc_drawinput(grs_canvas &canvas, const grs_font &cv_font, const kc_i
 		else
 			r = 16 * 2, g = 0, b = 19 * 2;
 
-		int x, w, h;
+		int x;
 		const auto color = gr_find_closest_color(r, g, b);
-		gr_get_string_size(cv_font, btext, &w, &h, nullptr);
+		const auto &&[w, h] = gr_get_string_size(cv_font, btext);
 		const auto &&fspacx_item_xinput = fspacx(item.xinput);
 		const auto &&fspacy_item_y = fspacy(item.y);
 		gr_urect(canvas, fspacx_item_xinput, fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy_item_y + h, color);

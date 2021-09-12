@@ -165,8 +165,7 @@ static void show_framerate(grs_canvas &canvas)
 		snprintf(buf, sizeof(buf), "%iFPS (%.2fms)", fps_rate, (FrameTime * 1000.) / F1_0);
 	else
 		snprintf(buf, sizeof(buf), "%iFPS", fps_rate);
-	int w, h;
-	gr_get_string_size(game_font, buf, &w, &h, nullptr);
+	const auto &&[w, h] = gr_get_string_size(game_font, buf);
 	const auto bm_h = canvas.cv_bitmap.bm_h;
 	gr_string(canvas, game_font, FSPACX(318) - w, bm_h - line_displacement, buf, w, h);
 }
@@ -974,14 +973,13 @@ void game_render_frame(const control_info &Controls)
 //show a message in a nice little box
 void show_boxed_message(const char *msg)
 {
-	int w,h;
 	int x,y;
 	
 	gr_set_default_canvas();
 	auto &canvas = *grd_curcanv;
 	gr_set_fontcolor(canvas, BM_XRGB(31, 31, 31), -1);
 	auto &medium1_font = *MEDIUM1_FONT;
-	gr_get_string_size(medium1_font, msg, &w, &h, nullptr);
+	const auto &&[w, h] = gr_get_string_size(medium1_font, msg);
 	
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;

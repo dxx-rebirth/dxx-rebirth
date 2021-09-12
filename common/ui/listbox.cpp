@@ -90,7 +90,7 @@ void ui_draw_listbox(UI_DIALOG &dlg, UI_GADGET_LISTBOX &listbox)
 			else
 				gr_set_fontcolor(canvas, CBLACK, -1);
 		}
-		gr_get_string_size(*canvas.cv_font, listbox.list[i], &w, &h, nullptr);
+		const auto &&[w, h] = gr_get_string_size(*canvas.cv_font, listbox.list[i]);
 		gr_string(canvas, *canvas.cv_font, x + 2, y, listbox.list[i], w, h);
 		y += h;
 	}
@@ -116,8 +116,8 @@ static void gr_draw_sunken_border( short x1, short y1, short x2, short y2 )
 
 std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG &dlg, short x, short y, short w, short h, short numitems, char **list)
 {
-	int th, i;
-	gr_get_string_size(*grd_curcanv->cv_font, "*", nullptr, &th, nullptr);
+	int i;
+	const auto th = gr_get_string_size(*grd_curcanv->cv_font, "*").height;
 
 	i = h / th;
 	h = i * th;

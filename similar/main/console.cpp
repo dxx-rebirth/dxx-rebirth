@@ -320,8 +320,7 @@ static void con_draw(void)
 	{
 		auto &b = con_buffer[CON_LINES_MAX - 1 - i];
 		gr_set_fontcolor(canvas, get_console_color_by_priority(b.priority), -1);
-		int w,h;
-		gr_get_string_size(game_font, b.line, &w, &h, nullptr);
+		const auto &&[w, h] = gr_get_string_size(game_font, b.line);
 		y -= h + fspacy1;
 		gr_string(canvas, game_font, fspacx1, y, b.line, w, h);
 		i++;

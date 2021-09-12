@@ -351,8 +351,7 @@ static void scores_rputs(grs_canvas &canvas, const grs_font &cv_font, const int 
 	for (p=buffer;*p;p++)
 		if (*p=='1') *p=132;
 
-	int w, h;
-	gr_get_string_size(cv_font, buffer, &w, &h, nullptr);
+	const auto &&[w, h] = gr_get_string_size(cv_font, buffer);
 	gr_string(canvas, cv_font, FSPACX(x) - w, FSPACY(y), buffer, w, h);
 }
 

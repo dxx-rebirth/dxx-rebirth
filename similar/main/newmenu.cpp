@@ -297,9 +297,8 @@ static void nm_string(grs_canvas &canvas, const grs_font &cv_font, const int w1,
 		gr_string(canvas, cv_font, x, y, s1);
 		if (p)
 		{
-			int w, h;
 			++ p;
-			gr_get_string_size(cv_font, p, &w, &h, nullptr);
+			const auto &&[w, h] = gr_get_string_size(cv_font, p);
 			gr_string(canvas, cv_font, x + w1 - w, y, p, w, h);
 		}
 		return;
@@ -322,8 +321,7 @@ static void nm_string(grs_canvas &canvas, const grs_font &cv_font, const int w1,
 			continue;
 		}
 		measure[0] = c;
-		int tx, th;
-		gr_get_string_size(cv_font, measure, &tx, &th, nullptr);
+		const auto &&[tx, th] = gr_get_string_size(cv_font, measure);
 		gr_string(canvas, cv_font, x, y, measure, tx, th);
 		x+=tx;
 	}
@@ -345,8 +343,7 @@ static void nm_string_slider(grs_canvas &canvas, const grs_font &cv_font, const 
 	gr_string(canvas, cv_font, x, y, s);
 
 	if (p)	{
-		int w, h;
-		gr_get_string_size(cv_font, s1, &w, &h, nullptr);
+		const auto &&[w, h] = gr_get_string_size(cv_font, s1);
 		gr_string(canvas, cv_font, x + w1 - w, y, s1, w, h);
 
 		*p = '\t';
@@ -357,8 +354,7 @@ static void nm_string_slider(grs_canvas &canvas, const grs_font &cv_font, const 
 // Draw a left justfied string with black background.
 static void nm_string_black(grs_canvas &canvas, int w1, const int x, const int y, const char *const s)
 {
-	int w,h;
-	gr_get_string_size(*canvas.cv_font, s, &w, &h, nullptr);
+	const auto &&[w, h] = gr_get_string_size(*canvas.cv_font, s);
 
 	if (w1 == 0) w1 = w;
 
@@ -383,8 +379,7 @@ static void nm_string_black(grs_canvas &canvas, int w1, const int x, const int y
 // Draw a right justfied string
 static void nm_rstring(grs_canvas &canvas, const grs_font &cv_font, int w1, int x, const int y, const char *const s)
 {
-	int w, h;
-	gr_get_string_size(cv_font, s, &w, &h, nullptr);
+	const auto &&[w, h] = gr_get_string_size(cv_font, s);
 	x -= FSPACX(3);
 
 	if (w1 == 0) w1 = w;
@@ -399,7 +394,7 @@ static void nm_string_inputbox(grs_canvas &canvas, const grs_font &cv_font, cons
 	if (strlen(text)>75)
 		text+=strlen(text)-75;
 	while( *text )	{
-		gr_get_string_size(cv_font, text, &w1, nullptr, nullptr);
+		w1 = gr_get_string_size(cv_font, text).width;
 		if ( w1 > w-FSPACX(10) )
 			text++;
 		else
@@ -766,14 +761,13 @@ static void check_apply_mouse_scroll(newmenu *const menu, const grs_canvas &canv
 	if (mx <= x1)
 		/* If the mouse is left of the arrows, return. */
 		return;
-	int arrow_width, arrow_height;
 	/* In practice, both arrows are the same width and same height.  In
 	 * D1, they are the same character.  In D2, they are visually
 	 * distinct, but have the same dimensions.
 	 *
 	 * For both games, measure one and use its dimensions for both.
 	 */
-	gr_get_string_size(*canvas.cv_font, UP_ARROW_MARKER(*canvas.cv_font, *GAME_FONT), &arrow_width, &arrow_height, nullptr);
+	const auto &&[arrow_width, arrow_height] = gr_get_string_size(*canvas.cv_font, UP_ARROW_MARKER(*canvas.cv_font, *GAME_FONT));
 	const auto x2 = x1 + arrow_width;
 	if (mx >= x2)
 		/* If the mouse is to the right of the upper arrow, it will
@@ -909,11 +903,9 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 								s1 = p+1;
 							}
 							if (p) {
-								int slider_width, sleft_width, sright_width, smiddle_width;
-								gr_get_string_size(*canvas.cv_font, s1, &slider_width, nullptr, nullptr);
-								gr_get_string_size(*canvas.cv_font, SLIDER_LEFT, &sleft_width, nullptr, nullptr);
-								gr_get_string_size(*canvas.cv_font, SLIDER_RIGHT, &sright_width, nullptr, nullptr);
-								gr_get_string_size(*canvas.cv_font, SLIDER_MIDDLE, &smiddle_width, nullptr, nullptr);
+								const auto slider_width = gr_get_string_size(*canvas.cv_font, s1).width;
+								const auto sleft_width = gr_get_string_size(*canvas.cv_font, SLIDER_LEFT).width;
+								const auto sright_width = gr_get_string_size(*canvas.cv_font, SLIDER_RIGHT).width;
 
 								x1 = canvas.cv_bitmap.bm_x + citem.x + citem.w - slider_width;
 								x2 = x1 + slider_width + sright_width;
@@ -1309,17 +1301,15 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 
 	if (menu.title)
 	{
-		int string_width, string_height;
 		auto &huge_font = *HUGE_FONT;
-		gr_get_string_size(huge_font, menu.title, &string_width, &string_height, nullptr);
+		const auto &&[string_width, string_height] = gr_get_string_size(huge_font, menu.title);
 		iterative_layout_max_width = string_width;
 		iterative_layout_max_height = string_height;
 	}
 	if (menu.subtitle)
 	{
-		int string_width, string_height;
 		auto &medium3_font = *MEDIUM3_FONT;
-		gr_get_string_size(medium3_font, menu.subtitle, &string_width, &string_height, nullptr);
+		const auto &&[string_width, string_height] = gr_get_string_size(medium3_font, menu.subtitle);
 		if (iterative_layout_max_width < string_width)
 			iterative_layout_max_width = string_width;
 		iterative_layout_max_height += string_height;
@@ -1341,9 +1331,8 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	range_for (auto &i, menu.items)
 	{
 		i.y = iterative_layout_max_height;
-		int string_width, string_height;
 		const auto average_width = cv_font.ft_w;
-		gr_get_string_size(cv_font, i.text, &string_width, &string_height, nullptr);
+		auto [string_width, string_height] = gr_get_string_size(cv_font, i.text);
 		i.right_offset = 0;
 
 		if (i.type == nm_type::menu)
@@ -1351,46 +1340,36 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 
 		if (i.type == nm_type::slider)
 		{
-			int w1;
 			auto &slider = i.slider();
 			auto &saved_text = slider.saved_text;
 			prepare_slider_text(saved_text, 0, slider.max_value - slider.min_value + 1);
-			gr_get_string_size(cv_font, saved_text.data(), &w1, nullptr, nullptr);
+			const auto w1 = gr_get_string_size(cv_font, saved_text.data()).width;
 			string_width += w1 + aw;
 		}
 
 		else if (i.type == nm_type::check)
 		{
-			int w1;
-			gr_get_string_size(cv_font, NORMAL_CHECK_BOX, &w1, nullptr, nullptr);
-			i.right_offset = w1;
-			gr_get_string_size(cv_font, CHECKED_CHECK_BOX, &w1, nullptr, nullptr);
-			if (w1 > i.right_offset)
-				i.right_offset = w1;
+			const auto wnormal = gr_get_string_size(cv_font, NORMAL_CHECK_BOX).width;
+			const auto wchecked = gr_get_string_size(cv_font, CHECKED_CHECK_BOX).width;
+			i.right_offset = std::max(wnormal, wchecked);
 		}
 
 		else if (i.type == nm_type::radio)
 		{
-			int w1;
-			gr_get_string_size(cv_font, NORMAL_RADIO_BOX, &w1, nullptr, nullptr);
-			i.right_offset = w1;
-			gr_get_string_size(cv_font, CHECKED_RADIO_BOX, &w1, nullptr, nullptr);
-			if (w1 > i.right_offset)
-				i.right_offset = w1;
+			const auto wnormal = gr_get_string_size(cv_font, NORMAL_RADIO_BOX).width;
+			const auto wchecked = gr_get_string_size(cv_font, CHECKED_RADIO_BOX).width;
+			i.right_offset = std::max(wnormal, wchecked);
 		}
 
 		else if (i.type == nm_type::number)
 		{
-			int w1;
 			char test_text[20];
 			auto &number = i.number();
 			snprintf(test_text, sizeof(test_text), "%d", number.max_value);
-			gr_get_string_size(cv_font, test_text, &w1, nullptr, nullptr);
-			i.right_offset = w1;
+			const auto wmax = gr_get_string_size(cv_font, test_text).width;
 			snprintf(test_text, sizeof(test_text), "%d", number.min_value);
-			gr_get_string_size(cv_font, test_text, &w1, nullptr, nullptr);
-			if (w1 > i.right_offset)
-				i.right_offset = w1;
+			const auto wmin = gr_get_string_size(cv_font, test_text).width;
+			i.right_offset = std::max(wmax, wmin);
 		}
 
 		if (const auto input_or_menu = i.input_or_menu())
@@ -1528,9 +1507,8 @@ static window_event_result newmenu_draw(newmenu *menu)
 
 	if ( menu->title )	{
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 31, 31), -1);
-		int string_width, string_height;
 		auto &huge_font = *HUGE_FONT;
-		gr_get_string_size(huge_font, menu->title, &string_width, &string_height, nullptr);
+		auto &&[string_width, string_height] = gr_get_string_size(huge_font, menu->title);
 		th = string_height;
 		gr_string(*grd_curcanv, huge_font, 0x8000, ty, menu->title, string_width, string_height);
 	}
@@ -1798,7 +1776,7 @@ static window_event_result listbox_mouse(const d_event &event, listbox *lb, int 
 				if (idx_relative_first_visible_item >= last_visible_item)
 					break;
 				const int px_within_item = my_relative_by % static_cast<int>(line_spacing);
-				const int h = gr_get_string_height(*MEDIUM3_FONT, 1);
+				const auto h = gr_get_string_height(*MEDIUM3_FONT, 1);
 				if (px_within_item >= h)
 					break;
 				const int idx_absolute_item = idx_relative_first_visible_item + first_visible_item;
@@ -1808,14 +1786,12 @@ static window_event_result listbox_mouse(const d_event &event, listbox *lb, int 
 			}
 			else if (event.type == EVENT_MOUSE_BUTTON_UP)
 			{
-				int h;
-
 				if (lb->citem < 0)
 					return window_event_result::ignored;
 
 				int mx, my, mz;
 				mouse_get_pos(&mx, &my, &mz);
-				gr_get_string_size(*MEDIUM3_FONT, lb->item[lb->citem], nullptr, &h, nullptr);
+				const auto h = gr_get_string_size(*MEDIUM3_FONT, lb->item[lb->citem]).height;
 				const int x1 = lb->box_x;
 				const int x2 = lb->box_x + lb->box_w;
 				const int y1 = (lb->citem - lb->first_item) * LINE_SPACING(*MEDIUM3_FONT, *GAME_FONT) + lb->box_y;
@@ -1947,16 +1923,14 @@ void listbox_layout::create_structure()
 	unsigned marquee_maxchars = UINT_MAX;
 	for (const auto i : unchecked_partial_range(item, nitems))
 	{
-		int w;
-		gr_get_string_size(medium3_font, i, &w, nullptr, nullptr);
+		auto w = gr_get_string_size(medium3_font, i).width;
 		w += fspacx10;
 		if (w > max_box_width)
 		{
 			unsigned mmc = 1;
 			for (;; ++mmc)
 			{
-				int w2;
-				gr_get_string_size(medium3_font, i, &w2, nullptr, nullptr, mmc);
+				const auto w2 = gr_get_string_size(medium3_font, i, mmc).width;
 				if (w2 > max_box_width - fspacx10 || mmc > 128)
 					break;
 			}
@@ -1970,8 +1944,7 @@ void listbox_layout::create_structure()
 			 */
 			for (auto j = i;;)
 			{
-				int w2;
-				gr_get_string_size(medium3_font, j, &w2, nullptr, nullptr, mmc);
+				const auto w2 = gr_get_string_size(medium3_font, j, mmc).width;
 				if (w2 > max_box_width - fspacx10)
 				{
 					/* This subsequence is too long.  Reduce the length
@@ -1998,8 +1971,7 @@ void listbox_layout::create_structure()
 	}
 
 	{
-		int w, h;
-		gr_get_string_size(medium3_font, title, &w, &h, nullptr);
+		const auto &&[w, h] = gr_get_string_size(medium3_font, title);
 		if (box_w < w)
 			box_w = w;
 		title_height = h+FSPACY(5);
