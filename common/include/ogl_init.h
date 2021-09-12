@@ -66,7 +66,7 @@ void ogl_loadbmtexture_f(grs_bitmap &bm, opengl_texture_filter texfilt, bool tex
 void ogl_freebmtexture(grs_bitmap &bm);
 
 void ogl_start_frame(grs_canvas &);
-void ogl_stereo_frame(int xeye, int xoff);
+void ogl_stereo_frame(bool left_eye, int xoff);
 void ogl_end_frame(void);
 void ogl_set_screen_mode(void);
 

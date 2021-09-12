@@ -1289,10 +1289,8 @@ void ogl_start_frame(grs_canvas &canvas)
 	glLoadIdentity();//clear matrix
 }
 
-void ogl_stereo_frame(const int xeye, const int xoff)
+void ogl_stereo_frame(const bool left_eye, const int xoff)
 {
-	if (!xeye)
-		return;
 	const float dxoff = xoff * 2.0f / grd_curscreen->sc_canvas.cv_bitmap.bm_w;
 	float stereo_transform_dxoff;
 
@@ -1300,7 +1298,6 @@ void ogl_stereo_frame(const int xeye, const int xoff)
 	GLboolean ogl_stereo_enabled = false;
 	glGetBooleanv(GL_STEREO, &ogl_stereo_enabled);
 
-	const auto left_eye = xeye < 0;
 	int gl_buffer;
 	if (left_eye) {
 		// left eye view
