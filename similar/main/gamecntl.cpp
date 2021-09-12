@@ -125,7 +125,7 @@ namespace {
 struct pause_window : window
 {
 	using window::window;
-	std::array<char, 1024> msg;
+	std::array<char, 128> msg;
 };
 
 }
