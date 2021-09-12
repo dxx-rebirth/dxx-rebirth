@@ -362,26 +362,49 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 		// offset HUD screen rects to force out-of-screen parallax on HUD overlays
 		int dx = (VR_eye_offset < 0) ? -VR_eye_offset : 0;
 		int dy = VR_sync_width / 2;
+		struct {
+			uint16_t x;
+			uint16_t y;
+			uint16_t w;
+			uint16_t h;
+		} l, r;
 		switch (VR_stereo) {
 			case StereoFormat::None:
-				break;
+			default:
+				return;
 			case StereoFormat::AboveBelow:
-			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y, w-dx, h);
-			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x, y+h, w-dx, h);
-			break;
+				l.x = x + dx;
+				l.y = y;
+				l.w = r.w = w - dx;
+				l.h = r.h = h;
+				r.x = x;
+				r.y = y + h;
+				break;
 			case StereoFormat::AboveBelowSync:
-			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y, w-dx, h-dy);
-			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x, y+h+dy, w-dx, h-dy);
-			break;
+				l.x = x + dx;
+				l.y = y;
+				l.w = r.w = w - dx;
+				l.h = r.h = h - dy;
+				r.x = x;
+				r.y = y + h + dy;
+				break;
 			case StereoFormat::SideBySideFullHeight:
-			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y, w-dx, h);
-			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x+w, y, w-dx, h);
-			break;
+				l.x = x + dx;
+				l.y = r.y = y;
+				l.w = r.w = w - dx;
+				l.h = r.h = h;
+				r.x = x + w;
+				break;
 			case StereoFormat::SideBySideHalfHeight:
-			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y+h/2, w-dx, h);
-			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x+w, y+h/2, w-dx, h);
-			break;
+				l.x = x + dx;
+				l.y = r.y = y + (h / 2);
+				l.w = r.w = w - dx;
+				l.h = r.h = h;
+				r.x = x + w;
+				break;
 		}
+		gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, l.x, l.y, l.w, l.h);
+		gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, r.x, r.y, r.w, r.h);
 	}
 }
 
