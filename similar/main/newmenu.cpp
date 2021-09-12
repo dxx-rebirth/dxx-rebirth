@@ -170,6 +170,16 @@ window_event_result callback_newmenu::event_handler(const d_event &event)
 	return newmenu::event_handler(event);
 }
 
+unsigned get_border_x(const grs_canvas &canvas)
+{
+	return (15 * canvas.cv_bitmap.bm_w) / 320;
+}
+
+unsigned get_border_y(const grs_canvas &canvas)
+{
+	return (15 * canvas.cv_bitmap.bm_h) / 200;
+}
+
 }
 
 namespace dsx {

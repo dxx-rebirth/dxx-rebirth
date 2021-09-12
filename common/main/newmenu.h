@@ -460,6 +460,9 @@ enum class mission_filter_mode
 	include_anarchy,
 };
 
+unsigned get_border_x(const grs_canvas &canvas);
+unsigned get_border_y(const grs_canvas &canvas);
+
 }
 
 namespace dsx {
@@ -649,8 +652,8 @@ struct passive_messagebox : std::array<newmenu_item, 1>, newmenu
 #define SLIDER_MIDDLE       "\205"  // 133
 #define SLIDER_MARKER       "\206"  // 134
 
-#define BORDERX (15*(SWIDTH/320))
-#define BORDERY (15*(SHEIGHT/200))
+#define BORDERX	get_border_x(grd_curscreen->sc_canvas)
+#define BORDERY	get_border_y(grd_curscreen->sc_canvas)
 
 #define DXX_NEWMENU_VARIABLE	m
 #define DXX_MENUITEM(VERB, TYPE, ...)	DXX_MENUITEM_V_##VERB(TYPE, ## __VA_ARGS__)
