@@ -84,12 +84,12 @@ static unsigned g_cc_line[DXX_DEBUG_CURRENT_CANVAS_ORIGIN];
 static unsigned g_cc_which;
 #endif
 
-void (gr_set_default_canvas)(DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DECL_VARS)
+void gr_set_default_canvas(DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DEFN_VARS)
 {
 	(gr_set_current_canvas)(grd_curscreen->sc_canvas DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS);
 }
 
-void (gr_set_current_canvas)(grs_canvas &canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS)
+void gr_set_current_canvas(grs_canvas &canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DEFN_VARS)
 {
 #if DXX_DEBUG_CURRENT_CANVAS_ORIGIN > 0
 	const auto which = g_cc_which;
@@ -100,7 +100,7 @@ void (gr_set_current_canvas)(grs_canvas &canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE
 	grd_curcanv = &canv;
 }
 
-void gr_set_current_canvas2(grs_canvas *canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS)
+void gr_set_current_canvas2(grs_canvas *canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DEFN_VARS)
 {
 	(gr_set_current_canvas_inline)(canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS);
 }

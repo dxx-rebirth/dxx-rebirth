@@ -319,18 +319,22 @@ extern std::unique_ptr<grs_screen> grd_curscreen;           //active screen
  * Use this to trace which functions update the global canvas pointer
  * without requiring a debugger trap on every update.
  */
+#ifndef DXX_DEBUG_CURRENT_CANVAS_ORIGIN
 #define DXX_DEBUG_CURRENT_CANVAS_ORIGIN	0
+#endif
 
 #if DXX_DEBUG_CURRENT_CANVAS_ORIGIN > 0
-#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DECL_VARS	const char *const file, const unsigned line
+#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DECL_VARS	const char *file = __builtin_FILE(), unsigned line = __builtin_LINE()
+#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DEFN_VARS	const char *const file, const unsigned line
 #define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS	, DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DECL_VARS
+#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DEFN_VARS	, DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DEFN_VARS
 #define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_PASS_VARS	file, line
 #define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS	, DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_PASS_VARS
-#define gr_set_default_canvas()	gr_set_default_canvas(__FILE__, __LINE__)
-#define gr_set_current_canvas(C)	gr_set_current_canvas(C, __FILE__, __LINE__)
 #else
 #define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DECL_VARS
+#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DEFN_VARS
 #define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS
+#define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DEFN_VARS
 #define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_PASS_VARS
 #define DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_PASS_VARS
 #endif
