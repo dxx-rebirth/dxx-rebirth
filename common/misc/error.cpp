@@ -36,13 +36,21 @@ namespace dcx {
 
 #define MAX_MSG_LEN 2048
 
+#if !DXX_USE_EDITOR || (!(defined(WIN32) || defined(__APPLE__) || defined(__MACH__)))
 static void warn_printf(const char *s)
 {
 	con_puts(CON_URGENT,s);
 }
+#endif
 
 #if DXX_USE_EDITOR
-static void (*warn_func)(const char *s)=warn_printf;
+static void (*warn_func)(const char *s) =
+#if defined(WIN32) || defined(__APPLE__) || defined(__MACH__)
+	msgbox_warning
+#else
+	warn_printf
+#endif
+	;
 
 //provides a function to call with warning messages
 void set_warn_func(void (*f)(const char *s))
@@ -50,11 +58,13 @@ void set_warn_func(void (*f)(const char *s))
 	warn_func = f;
 }
 
+#if !(defined(WIN32) || defined(__APPLE__) || defined(__MACH__))
 //uninstall warning function - install default printf
 void clear_warn_func()
 {
 	warn_func = warn_printf;
 }
+#endif
 #else
 constexpr auto warn_func = &warn_printf;
 #endif

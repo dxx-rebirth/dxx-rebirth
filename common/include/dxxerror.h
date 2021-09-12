@@ -38,7 +38,9 @@ void Warning(const char *fmt,...) __attribute_format_printf(1, 2);				//print ou
 #define Warning(F,...)	dxx_call_printf_checked(Warning,Warning_puts,(),(F),##__VA_ARGS__)
 #if DXX_USE_EDITOR
 void set_warn_func(void (*f)(const char *s));//specifies the function to call with warning messages
+#if !(defined(WIN32) || defined(__APPLE__) || defined(__MACH__))
 void clear_warn_func();//say this function no longer valid
+#endif
 #endif
 [[noreturn]]
 __attribute_nonnull()

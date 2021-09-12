@@ -777,14 +777,9 @@ int main(int argc, char *argv[])
 #if DXX_WORDS_NEED_ALIGNMENT
 	prctl(PR_SET_UNALIGN, PR_UNALIGN_NOPRINT, 0, 0, 0);
 #endif
-#if defined(WIN32) || defined(__APPLE__) || defined(__MACH__)
-#if DXX_USE_EDITOR
-	set_warn_func(msgbox_warning);
-#endif
 #ifdef WIN32
 	void d_set_exception_handler();
 	d_set_exception_handler();
-#endif
 #endif
 	return dsx::main(argc, argv);
 }
