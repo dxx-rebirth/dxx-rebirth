@@ -1337,6 +1337,7 @@ int load_level(
 		if (!fp)
 		{
 #if DXX_USE_EDITOR
+			con_printf(CON_VERBOSE, "Failed to open file <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 			return 1;
 		#else
 			Error("Failed to open file <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));

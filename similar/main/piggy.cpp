@@ -669,6 +669,8 @@ void piggy_init_pigfile(const char *filename)
 		if (!fp2)
 		{
 #if DXX_USE_EDITOR
+			static_cast<void>(physfserr);
+			static_cast<void>(physfserr2);
 			return;         //if editor, ok to not have pig, because we'll build one
 #else
 			Error("Failed to open required files <%s>, <" DEFAULT_PIGFILE_SHAREWARE ">: \"%s\", \"%s\"", filename, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
@@ -784,6 +786,8 @@ void piggy_new_pigfile(char *pigname)
 		if (!fp2)
 		{
 #if DXX_USE_EDITOR
+			static_cast<void>(physfserr);
+			static_cast<void>(physfserr2);
 			return;         //if editor, ok to not have pig, because we'll build one
 #else
 			Error("Failed to open required files <%s>, <" DEFAULT_PIGFILE_SHAREWARE ">: \"%s\", \"%s\"", pigname, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
