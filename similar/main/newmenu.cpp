@@ -1487,7 +1487,6 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 static window_event_result newmenu_draw(newmenu *menu)
 {
 	auto &menu_canvas = menu->w_canv;
-	grs_canvas &save_canvas = *grd_curcanv;
 	int th = 0, ty, sx, sy;
 
 	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscaley != FNTScaleY)
@@ -1498,8 +1497,9 @@ static window_event_result newmenu_draw(newmenu *menu)
 		}
 	}
 
-	gr_set_default_canvas();
-	nm_draw_background1(*grd_curcanv, menu->filename);
+	{
+		auto &parent_canvas = menu->parent_canvas;
+		nm_draw_background1(parent_canvas, menu->filename);
 	if (menu->draw_box != draw_box_flag::none)
 	{
 		const auto mx = menu->x;
@@ -1507,25 +1507,26 @@ static window_event_result newmenu_draw(newmenu *menu)
 		auto ex = mx;
 		if (menu->is_scroll_box)
 			ex -= FSPACX(5);
-		nm_draw_background(*grd_curcanv, ex, my, mx + menu->w, my + menu->h);
+		nm_draw_background(parent_canvas, ex, my, mx + menu->w, my + menu->h);
 	}
-
-	gr_set_current_canvas( menu_canvas );
+	}
 
 	ty = BORDERY;
 
-	if ( menu->title )	{
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 31, 31), -1);
+	if (const auto title = menu->title)
+	{
+		gr_set_fontcolor(menu_canvas, BM_XRGB(31, 31, 31), -1);
 		auto &huge_font = *HUGE_FONT;
-		auto &&[string_width, string_height] = gr_get_string_size(huge_font, menu->title);
+		auto &&[string_width, string_height] = gr_get_string_size(huge_font, title);
 		th = string_height;
-		gr_string(*grd_curcanv, huge_font, 0x8000, ty, menu->title, string_width, string_height);
+		gr_string(menu_canvas, huge_font, 0x8000, ty, title, string_width, string_height);
 	}
 
-	if ( menu->subtitle )	{
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(21, 21, 21), -1);
+	if (const auto subtitle = menu->subtitle)
+	{
+		gr_set_fontcolor(menu_canvas, BM_XRGB(21, 21, 21), -1);
 		auto &medium3_font = *MEDIUM3_FONT;
-		gr_string(*grd_curcanv, medium3_font, 0x8000, ty + th, menu->subtitle);
+		gr_string(menu_canvas, medium3_font, 0x8000, ty + th, subtitle);
 	}
 
 	const auto tiny_mode = menu->tiny_mode;
@@ -1549,8 +1550,8 @@ static window_event_result newmenu_draw(newmenu *menu)
 			const grs_font &cv_font = (tiny_mode == tiny_mode_flag::normal && is_current)
 				? *MEDIUM2_FONT.get()
 				: noncurrent_item_cv_font;
-			gr_set_curfont(*grd_curcanv, cv_font);
-			draw_item(*grd_curcanv, cv_font, *std::next(begin, i), is_current, tiny_mode, tabs_flag, scroll_offset);
+			gr_set_curfont(menu_canvas, cv_font);
+			draw_item(menu_canvas, cv_font, *std::next(begin, i), is_current, tiny_mode, tabs_flag, scroll_offset);
 		}
 	}
 
@@ -1565,15 +1566,14 @@ static window_event_result newmenu_draw(newmenu *menu)
 		const auto &&fspacx = FSPACX();
 		sx = BORDERX - fspacx(12);
 
-		gr_string(*grd_curcanv, cv_font, sx, sy, scroll_offset ? UP_ARROW_MARKER(cv_font, game_font) : "  ");
+		gr_string(menu_canvas, cv_font, sx, sy, scroll_offset ? UP_ARROW_MARKER(cv_font, game_font) : "  ");
 
 		sy = std::next(begin, scroll_offset + menu->max_displayable - 1)->y - (line_spacing * scroll_offset);
 		sx = BORDERX - fspacx(12);
 
-		gr_string(*grd_curcanv, cv_font, sx, sy, (scroll_offset + menu->max_displayable < menu->items.size()) ? DOWN_ARROW_MARKER(*grd_curcanv->cv_font, game_font) : "  ");
+		gr_string(menu_canvas, cv_font, sx, sy, (scroll_offset + menu->max_displayable < menu->items.size()) ? DOWN_ARROW_MARKER(cv_font, game_font) : "  ");
 	}
 	menu->event_handler(d_event{EVENT_NEWMENU_DRAW});
-	gr_set_current_canvas(save_canvas);
 	return window_event_result::handled;
 }
 
