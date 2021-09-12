@@ -1230,7 +1230,7 @@ static void DoEndLevelScoreGlitz()
 		is_last_level=1;
 	}
 
-	add_bonus_points_to_score(player_info, skill_points + energy_points + shield_points + hostage_points + all_hostage_points + endgame_points);
+	add_bonus_points_to_score(player_info, skill_points + energy_points + shield_points + hostage_points + all_hostage_points + endgame_points, Game_mode);
 
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i\n", TXT_TOTAL_BONUS, shield_points + energy_points + hostage_points + skill_points + all_hostage_points + endgame_points);
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_TOTAL_SCORE, player_info.mission.score);

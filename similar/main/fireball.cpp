@@ -463,7 +463,7 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 #endif
 									if (apply_damage_to_robot(obj_iter, damage, parent))
 										if (obj_explosion_origin != object_none && parent == get_local_player().objnum)
-											add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(obj_iter)].score_value);
+											add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(obj_iter)].score_value, Game_mode);
 								}
 #if defined(DXX_BUILD_DESCENT_II)
 								if (obj_explosion_origin != object_none && Robot_info[get_robot_id(obj_iter)].companion && !(obj_explosion_origin->type == OBJ_WEAPON && Weapon_info[get_weapon_id(obj_explosion_origin)].flash))

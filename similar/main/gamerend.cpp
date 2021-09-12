@@ -453,7 +453,7 @@ static void game_draw_hud_stuff(grs_canvas &canvas, const control_info &Controls
 		Game_mode = Newdemo_game_mode;
 
 	auto &plrobj = get_local_plrobj();
-	draw_hud(canvas, plrobj, Controls);
+	draw_hud(canvas, plrobj, Controls, Game_mode);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = previous_game_mode;
@@ -812,7 +812,7 @@ void game_render_frame_mono(const control_info &Controls)
 			render_frame(*grd_curcanv, 0, window);
 
 		wake_up_rendered_objects(*Viewer, window);
-		show_HUD_names(*grd_curcanv);
+		show_HUD_names(*grd_curcanv, Game_mode);
 
 		Viewer = viewer_save;
 
@@ -856,15 +856,8 @@ void game_render_frame_mono(const control_info &Controls)
 
 	update_cockpits();
 
-	auto previous_game_mode = Game_mode;
-	if (Newdemo_state == ND_STATE_PLAYBACK)
-		Game_mode = Newdemo_game_mode;
-
 	if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)
-		render_gauges();
-
-	if (Newdemo_state == ND_STATE_PLAYBACK)
-		Game_mode = previous_game_mode;
+		render_gauges(Newdemo_state == ND_STATE_PLAYBACK ? Newdemo_game_mode : Game_mode);
 
 	gr_set_current_canvas(Screen_3d_window);
 	if (!no_draw_hud) {

@@ -244,7 +244,7 @@ static void apply_force_damage(const vmobjptridx_t obj,fix force,const vmobjptri
 			const auto console = ConsoleObject;
 			if ((other_type == OBJ_PLAYER && other_obj == console) ||
 				(other_type == OBJ_WEAPON && laser_parent_is_player(vcobjptr, other_obj->ctype.laser_info, *console)))
-				add_points_to_score(console->ctype.player_info, robptr.score_value);
+				add_points_to_score(console->ctype.player_info, robptr.score_value, Game_mode);
 			break;
 		}
 
@@ -1059,7 +1059,7 @@ static void collide_robot_and_player(const vmobjptridx_t robot, const vmobjptrid
 		if (robptr.kamikaze) {
 			apply_damage_to_robot(robot, robot->shields+1, playerobj);
 			if (playerobj == ConsoleObject)
-				add_points_to_score(playerobj->ctype.player_info, robptr.score_value);
+				add_points_to_score(playerobj->ctype.player_info, robptr.score_value, Game_mode);
 		}
 
 		if (robot_is_thief(robptr)) {
@@ -1170,11 +1170,11 @@ void apply_damage_to_controlcen(const vmobjptridx_t controlcen, fix damage, cons
 
 		if (Game_mode & GM_MULTI) {
 			if (get_player_id(who) == Player_num)
-				add_points_to_score(ConsoleObject->ctype.player_info, CONTROL_CEN_SCORE);
+				add_points_to_score(ConsoleObject->ctype.player_info, CONTROL_CEN_SCORE, Game_mode);
 			multi_send_destroy_controlcen(controlcen, get_player_id(who) );
 		}
 		else
-			add_points_to_score(ConsoleObject->ctype.player_info, CONTROL_CEN_SCORE);
+			add_points_to_score(ConsoleObject->ctype.player_info, CONTROL_CEN_SCORE, Game_mode);
 
 		digi_link_sound_to_pos(SOUND_CONTROL_CENTER_DESTROYED, vmsegptridx(controlcen->segnum), 0, controlcen->pos, 0, F1_0);
 
@@ -1792,7 +1792,7 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 				bump_two_objects(robot, weapon, 0);		//only bump if not dead. no damage from bump
 			else if (laser_parent_is_player(vcobjptr, weapon->ctype.laser_info, *ConsoleObject))
 			{
-				add_points_to_score(ConsoleObject->ctype.player_info, robptr.score_value);
+				add_points_to_score(ConsoleObject->ctype.player_info, robptr.score_value, Game_mode);
 				detect_escort_goal_accomplished(robot);
 			}
 		}
@@ -1830,7 +1830,7 @@ static void collide_hostage_and_player(const vmobjptridx_t hostage, object &play
 	if (&player == ConsoleObject)
 	{
 		detect_escort_goal_accomplished(hostage);
-		add_points_to_score(player.ctype.player_info, HOSTAGE_SCORE);
+		add_points_to_score(player.ctype.player_info, HOSTAGE_SCORE, Game_mode);
 
 		// Do effect
 		hostage_rescue();

@@ -884,7 +884,7 @@ static void multi_compute_kill(const imobjptridx_t killer, object &killed)
 			{
 				auto &player_info = get_local_plrobj().ctype.player_info;
 				const auto local_player_score = player_info.mission.score;
-				add_points_to_score(player_info, local_player_score >= 1000 ? -1000 : -local_player_score);
+				add_points_to_score(player_info, local_player_score >= 1000 ? -1000 : -local_player_score, Game_mode);
 			}
 			else
 				multi_add_lifetime_kills(adjust);

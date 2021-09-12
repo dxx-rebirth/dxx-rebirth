@@ -128,7 +128,7 @@ namespace {
 static void _powerup_basic_nonhud(int redadd, int greenadd, int blueadd, int score)
 {
 	PALETTE_FLASH_ADD(redadd,greenadd,blueadd);
-	add_points_to_score(ConsoleObject->ctype.player_info, score);
+	add_points_to_score(ConsoleObject->ctype.player_info, score, Game_mode);
 }
 
 #define powerup_basic(A1,A2,A3,A4,F,...)	dxx_call_printf_checked(powerup_basic,powerup_basic_str,(A1,A2,A3,A4),(F),##__VA_ARGS__)

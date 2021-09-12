@@ -900,7 +900,7 @@ protected:
 
 namespace {
 
-static void hud_show_score(grs_canvas &canvas, const player_info &player_info)
+static void hud_show_score(grs_canvas &canvas, const player_info &player_info, const game_mode_flags Game_mode)
 {
 	char	score_str[20];
 
@@ -909,7 +909,8 @@ static void hud_show_score(grs_canvas &canvas, const player_info &player_info)
 
 	const char *label;
 	int value;
-	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) ) {
+	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
+	{
 		label = TXT_KILLS;
 		value = player_info.net_kills_total;
 	} else {
@@ -928,7 +929,7 @@ static void hud_show_score(grs_canvas &canvas, const player_info &player_info)
 	gr_string(canvas, game_font, canvas.cv_bitmap.bm_w - w - FSPACX(1), FSPACY(1), score_str, w, h);
 }
 
-static void hud_show_timer_count(grs_canvas &canvas)
+static void hud_show_timer_count(grs_canvas &canvas, const game_mode_flags Game_mode)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 
@@ -964,11 +965,11 @@ static void hud_show_timer_count(grs_canvas &canvas)
 	}
 }
 
-static void hud_show_score_added(grs_canvas &canvas)
+static void hud_show_score_added(grs_canvas &canvas, const game_mode_flags Game_mode)
 {
 	int	color;
 
-	if ( (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) )
+	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		return;
 
 	if (score_display == 0)
@@ -999,7 +1000,7 @@ static void hud_show_score_added(grs_canvas &canvas)
 	}
 }
 
-static void sb_show_score(const hud_draw_context_hs_mr hudctx, const player_info &player_info)
+static void sb_show_score(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const bool is_multiplayer_non_cooperative)
 {
 	char	score_str[20];
 
@@ -1009,7 +1010,6 @@ static void sb_show_score(const hud_draw_context_hs_mr hudctx, const player_info
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 	const auto y = hudctx.yscale(SB_SCORE_Y);
 	auto &game_font = *GAME_FONT;
-	const auto is_multiplayer_non_cooperative = (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP);
 	gr_printf(canvas, game_font, hudctx.xscale(SB_SCORE_LABEL_X), y, "%s:", is_multiplayer_non_cooperative ? TXT_KILLS : TXT_SCORE);
 
 	snprintf(score_str, sizeof(score_str), "%5d",
@@ -1033,9 +1033,6 @@ static void sb_show_score_added(const hud_draw_context_hs_mr hudctx)
 {
 	static int x;
 	static	int last_score_display = -1;
-
-	if ( (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) )
-		return;
 
 	if (score_display == 0)
 		return;
@@ -1139,12 +1136,6 @@ static void hud_show_homing_warning(grs_canvas &canvas, const int homing_object_
 
 static void hud_show_keys(const hud_draw_context_mr hudctx, const hud_ar_scale_float hud_scale_ar, const player_info &player_info)
 {
-	const auto game_mode = Game_mode;
-	if ((game_mode & GM_MULTI) && !(game_mode & GM_MULTI_COOP))
-		/* In non-cooperative multiplayer games, everyone always has all
-		 * keys.  Hide them to reduce visual clutter.
-		 */
-		return;
 	const auto player_key_flags = player_info.powerup_flags;
 	if (!(player_key_flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)))
 		return;
@@ -1699,7 +1690,7 @@ static void hud_show_secondary_weapons_mode(grs_canvas &canvas, const player_inf
 	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 }
 
-static void hud_show_weapons(grs_canvas &canvas, const object &plrobj, const grs_font &game_font)
+static void hud_show_weapons(grs_canvas &canvas, const object &plrobj, const grs_font &game_font, const bool is_multiplayer)
 {
 	auto &player_info = plrobj.ctype.player_info;
 	int	y;
@@ -1711,7 +1702,7 @@ static void hud_show_weapons(grs_canvas &canvas, const object &plrobj, const grs
 	y = canvas.cv_bitmap.bm_h;
 
 	const auto &&line_spacing = LINE_SPACING(game_font, game_font);
-	if (Game_mode & GM_MULTI)
+	if (is_multiplayer)
 		y -= line_spacing * 4;
 
 	if (PlayerCfg.HudMode == HudType::Alternate1)
@@ -1865,7 +1856,7 @@ static void hud_show_shield(grs_canvas &canvas, const object &plrobj, const grs_
 }
 
 //draw the icons for number of lives
-static void hud_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_scale_float hud_scale_ar, const player_info &player_info)
+static void hud_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_scale_float hud_scale_ar, const player_info &player_info, const bool is_multiplayer)
 {
 	if (HUD_toolong)
 		return;
@@ -1878,7 +1869,8 @@ static void hud_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_sca
 
 	auto &canvas = hudctx.canvas;
 	auto &game_font = *GAME_FONT;
-	if (Game_mode & GM_MULTI) {
+	if (is_multiplayer)
+	{
 		gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 		gr_printf(canvas, game_font, x, FSPACY(1), "%s: %d", TXT_DEATHS, player_info.net_killed_total);
 	}
@@ -1898,7 +1890,7 @@ static void hud_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_sca
 	}
 }
 
-static void sb_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_scale_float hud_scale_ar, const player_info &player_info)
+static void sb_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_scale_float hud_scale_ar, const player_info &player_info, const bool is_multiplayer)
 {
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		return;
@@ -1909,7 +1901,6 @@ static void sb_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_scal
 	gr_set_fontcolor(canvas, BM_XRGB(0, 20, 0), -1);
 	const auto scaled_y = hudctx.yscale(y);
 	auto &game_font = *GAME_FONT;
-	const auto is_multiplayer = (Game_mode & GM_MULTI);
 	gr_printf(canvas, game_font, hudctx.xscale(SB_LIVES_LABEL_X), scaled_y, "%s:", is_multiplayer ? TXT_DEATHS : TXT_LIVES);
 
 	const uint8_t color = BM_XRGB(0,0,0);
@@ -1960,7 +1951,7 @@ static void show_time(grs_canvas &canvas, const grs_font &cv_font)
 
 #define EXTRA_SHIP_SCORE	50000		//get new ship every this many points
 
-static void common_add_points_to_score(const int points, int &score)
+static void common_add_points_to_score(const int points, int &score, const game_mode_flags Game_mode)
 {
 	if (points == 0 || cheats.enabled)
 		return;
@@ -1972,6 +1963,10 @@ static void common_add_points_to_score(const int points, int &score)
 	score += points;
 
 	if (Game_mode & GM_MULTI)
+		/* In single player, fall through and check whether an extra
+		 * life has been earned.  In multiplayer, extra lives cannot be
+		 * earned, so return.
+		 */
 		return;
 
 	const auto current_ship_score = score / EXTRA_SHIP_SCORE;
@@ -1990,7 +1985,7 @@ static void common_add_points_to_score(const int points, int &score)
 
 namespace dsx {
 
-void add_points_to_score(player_info &player_info, int points)
+void add_points_to_score(player_info &player_info, const unsigned points, const game_mode_flags Game_mode)
 {
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		return;
@@ -1998,7 +1993,7 @@ void add_points_to_score(player_info &player_info, int points)
 	score_display += points;
 	if (score_time > f1_0*4) score_time = f1_0*4;
 
-	common_add_points_to_score(points, player_info.mission.score);
+	common_add_points_to_score(points, player_info.mission.score, Game_mode);
 	if (Game_mode & GM_MULTI_COOP)
 		multi_send_score();
 }
@@ -2006,10 +2001,10 @@ void add_points_to_score(player_info &player_info, int points)
 /* This is only called in single player when the player is between
  * levels.
  */
-void add_bonus_points_to_score(player_info &player_info, int points)
+void add_bonus_points_to_score(player_info &player_info, unsigned points, const game_mode_flags Game_mode)
 {
 	assert(!(Game_mode & GM_MULTI));
-	common_add_points_to_score(points, player_info.mission.score);
+	common_add_points_to_score(points, player_info.mission.score, Game_mode);
 }
 
 }
@@ -3292,7 +3287,7 @@ void show_mousefs_indicator(grs_canvas &canvas, int mx, int my, int mz, int x, i
 namespace dsx {
 namespace {
 
-static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
+static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const game_mode_flags Game_mode)
 {
 	playernum_t n_players;
 	playernum_array_t player_list;
@@ -3393,7 +3388,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas)
 
 		if (Show_kill_list == 3)
 			name = Netgame.team_name[i];
-		else if (Game_mode & GM_BOUNTY && player_num == Bounty_target && GameTime64&0x10000)
+		else if ((Game_mode & GM_BOUNTY) && player_num == Bounty_target && (GameTime64 & 0x10000))
 		{
 			name = "[TARGET]";
 		}
@@ -3474,7 +3469,7 @@ static int see_object(fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
 
 //show names of teammates & players carrying flags
 
-void show_HUD_names(grs_canvas &canvas)
+void show_HUD_names(grs_canvas &canvas, const game_mode_flags Game_mode)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -3603,7 +3598,7 @@ void show_HUD_names(grs_canvas &canvas)
 }
 
 //draw all the things on the HUD
-void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Controls)
+void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Controls, const game_mode_flags Game_mode)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -3635,20 +3630,17 @@ void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Cont
 			auto &game_font = *GAME_FONT;
 			const auto &&line_spacing = LINE_SPACING(game_font, game_font);
 			if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
-				if (Game_mode & GM_MULTI)
-					y -= line_spacing * 10;
-				else
-					y -= line_spacing * 6;
+				y -= (Game_mode & GM_MULTI)
+					? line_spacing * 10
+					: line_spacing * 6;
 			} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
-				if (Game_mode & GM_MULTI)
-					y -= line_spacing * 6;
-				else
-					y -= line_spacing * 1;
+				y -= (Game_mode & GM_MULTI)
+					? line_spacing * 6
+					: line_spacing * 1;
 			} else {
-				if (Game_mode & GM_MULTI)
-					y -= line_spacing * 7;
-				else
-					y -= line_spacing * 2;
+				y -= (Game_mode & GM_MULTI)
+					? line_spacing * 7
+					: line_spacing * 2;
 			}
 
 			gr_printf(canvas, game_font, x, y, "%s %2d%%", TXT_CRUISE, f2i(Cruise_speed) );
@@ -3657,18 +3649,18 @@ void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Cont
 
 	//	Show score so long as not in rearview
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW && PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR) {
-		hud_show_score(canvas, player_info);
+		hud_show_score(canvas, player_info, Game_mode);
 		if (score_time)
-			hud_show_score_added(canvas);
+			hud_show_score_added(canvas, Game_mode);
 	}
 
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
-		hud_show_timer_count(canvas);
+		hud_show_timer_count(canvas, Game_mode);
 
 	//	Show other stuff if not in rearview or letterbox.
 	if (!Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
 	{
-		show_HUD_names(canvas);
+		show_HUD_names(canvas, Game_mode);
 
 		if (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR || PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
 			hud_show_homing_warning(canvas, player_info.homing_object_dist);
@@ -3689,11 +3681,17 @@ void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Cont
 			hud_show_afterburner(canvas, player_info, game_font, current_y);
 			current_y -= line_spacing;
 #endif
-			hud_show_weapons(canvas, plrobj, game_font);
+			hud_show_weapons(canvas, plrobj, game_font, Game_mode & GM_MULTI);
 #if defined(DXX_BUILD_DESCENT_I)
 			if (!PCSharePig)
 #endif
-			hud_show_keys(hudctx, HUD_SCALE_AR(hudctx.xscale, hudctx.yscale), player_info);
+			{
+				if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
+					/* In non-cooperative multiplayer games, everyone always has all
+					 * keys.  Hide them to reduce visual clutter.
+					 */
+					hud_show_keys(hudctx, HUD_SCALE_AR(hudctx.xscale, hudctx.yscale), player_info);
+			}
 			hud_show_cloak_invuln(canvas, player_info.powerup_flags, player_info.cloak_time, player_info.invulnerable_time, current_y);
 
 			if (Newdemo_state==ND_STATE_RECORDING)
@@ -3715,9 +3713,9 @@ void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Cont
 		HUD_render_message_frame(canvas);
 
 		if (PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR)
-			hud_show_lives(hudctx, HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic), player_info);
+			hud_show_lives(hudctx, HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic), player_info, Game_mode & GM_MULTI);
 		if (Game_mode&GM_MULTI && Show_kill_list)
-			hud_show_kill_list(vcobjptr, canvas);
+			hud_show_kill_list(vcobjptr, canvas, Game_mode);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
 			show_reticle(canvas, player_info, PlayerCfg.ReticleType, 1);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
@@ -3738,7 +3736,7 @@ void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Cont
 }
 
 //print out some player statistics
-void render_gauges()
+void render_gauges(const game_mode_flags Game_mode)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -3826,13 +3824,11 @@ void render_gauges()
 		}
 		draw_keys_state(hudctx, player_info.powerup_flags).draw_all_statusbar_keys();
 
-		sb_show_lives(hudctx, HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), hudctx.multires_gauge_graphic), player_info);
-		sb_show_score(hudctx, player_info);
+		sb_show_lives(hudctx, HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), hudctx.multires_gauge_graphic), player_info, Game_mode & GM_MULTI);
+		const auto is_multiplayer_non_cooperative = (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP);
+		sb_show_score(hudctx, player_info, is_multiplayer_non_cooperative);
 
-		if ((Game_mode&GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
-		{
-		}
-		else
+		if (!is_multiplayer_non_cooperative)
 		{
 			sb_show_score_added(hudctx);
 		}

@@ -1008,7 +1008,7 @@ void multi_do_robot_explode(const uint8_t *const buf)
 	++ Players[0u].num_kills_level;
 	++ Players[0u].num_kills_total;
 	if (killer == get_local_player().objnum)
-		add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(robot)].score_value);
+		add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(robot)].score_value, Game_mode);
 }
 
 namespace dsx {
