@@ -40,7 +40,6 @@ struct window_rendered_data
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	fix64   time;
-	const object *viewer;
 #endif
 	std::vector<objnum_t> rendered_robots;
 };
@@ -125,7 +124,7 @@ void render_frame(grs_canvas &, fix eye_offset, window_rendered_data &);  //draw
 void render_mine(grs_canvas &, const vms_vector &, vcsegidx_t start_seg_num, fix eye_offset, window_rendered_data &);
 
 #if defined(DXX_BUILD_DESCENT_II)
-void update_rendered_data(window_rendered_data &window, const object &viewer);
+void update_rendered_data(window_rendered_data &window);
 #endif
 
 // Render an object.  Calls one of several routines based on type

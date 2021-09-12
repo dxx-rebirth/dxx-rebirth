@@ -1260,10 +1260,9 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void update_rendered_data(window_rendered_data &window, const object &viewer)
+void update_rendered_data(window_rendered_data &window)
 {
 	window.time = timer_query();
-	window.viewer = &viewer;
 }
 #endif
 

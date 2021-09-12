@@ -802,7 +802,7 @@ void game_render_frame_mono(const control_info &Controls)
 		Viewer = gimobj;
 
 		window_rendered_data window;
-		update_rendered_data(window, *Viewer);
+		update_rendered_data(window);
 		if (VR_stereo) {
 			render_frame(*grd_curcanv, -VR_eye_width, window);
 			render_frame(*grd_curcanv, +VR_eye_width, window);
@@ -841,7 +841,7 @@ void game_render_frame_mono(const control_info &Controls)
 #endif
 		window_rendered_data window;
 #if defined(DXX_BUILD_DESCENT_II)
-		update_rendered_data(window, *Viewer);
+		update_rendered_data(window);
 #endif
 		if (VR_stereo) {
 			render_frame(*grd_curcanv, -VR_eye_width, window);

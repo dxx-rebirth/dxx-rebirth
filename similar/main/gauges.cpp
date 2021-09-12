@@ -3884,7 +3884,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 	int rear_view_save = Rear_view;
 
 	window_rendered_data window;
-	update_rendered_data(window, viewer);
+	update_rendered_data(window);
 
 	inset_window[win].user = user;						//say who's using window
 
