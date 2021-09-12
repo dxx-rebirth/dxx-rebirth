@@ -1259,12 +1259,12 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 	// -- Moved from here by MK, 05/17/95, wrong if multiple renders/frame! FrameCount++;		//we have rendered a frame
 }
 
+window_rendered_data::window_rendered_data()
 #if defined(DXX_BUILD_DESCENT_II)
-void update_rendered_data(window_rendered_data &window)
-{
-	window.time = timer_query();
-}
+	: time(timer_query())
 #endif
+{
+}
 
 namespace {
 //build a list of segments to be rendered

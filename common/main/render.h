@@ -38,8 +38,9 @@ namespace dsx {
 
 struct window_rendered_data
 {
+	window_rendered_data();
 #if defined(DXX_BUILD_DESCENT_II)
-	fix64   time;
+	const fix64 time;
 #endif
 	std::vector<objnum_t> rendered_robots;
 };
@@ -122,10 +123,6 @@ static inline g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::array<vert
 namespace dsx {
 void render_frame(grs_canvas &, fix eye_offset, window_rendered_data &);  //draws the world into the current canvas
 void render_mine(grs_canvas &, const vms_vector &, vcsegidx_t start_seg_num, fix eye_offset, window_rendered_data &);
-
-#if defined(DXX_BUILD_DESCENT_II)
-void update_rendered_data(window_rendered_data &window);
-#endif
 
 // Render an object.  Calls one of several routines based on type
 void render_object(grs_canvas &, const d_level_unique_light_state &LevelUniqueLightState, vmobjptridx_t obj);
