@@ -128,7 +128,7 @@ enum class weapon_box_user : uint8_t
 // window user is one of the WBU_ constants.  If rear_view_flag is
 // set, show a rear view.  If label is non-NULL, print the label at
 // the top of the window.
-void do_cockpit_window_view(gauge_inset_window_view win, const object &viewer, int rear_view_flag, weapon_box_user user, const char *label, const player_info * = nullptr);
+void do_cockpit_window_view(grs_canvas &, gauge_inset_window_view win, const object &viewer, int rear_view_flag, weapon_box_user user, const char *label, const player_info * = nullptr);
 void do_cockpit_window_view(gauge_inset_window_view win, weapon_box_user user);
 }
 #endif

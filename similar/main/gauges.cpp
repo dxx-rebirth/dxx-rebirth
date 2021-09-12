@@ -3871,7 +3871,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const weapon_box_
 	}
 }
 
-void do_cockpit_window_view(const gauge_inset_window_view win, const object &viewer, const int rear_view_flag, const weapon_box_user user, const char *const label, const player_info *const player_info)
+void do_cockpit_window_view(grs_canvas &canvas, const gauge_inset_window_view win, const object &viewer, const int rear_view_flag, const weapon_box_user user, const char *const label, const player_info *const player_info)
 {
 	grs_subcanvas window_canv;
 	const auto viewer_save = Viewer;
@@ -3897,7 +3897,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 		window_x = grd_curscreen->get_screen_width() / 2 + dx;
 		window_y = grd_curscreen->get_screen_height() - h - (SHEIGHT / 15);
 
-		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, window_x, window_y, w, h);
+		gr_init_sub_canvas(window_canv, canvas, window_x, window_y, w, h);
 	}
 	else {
 		if (PlayerCfg.CockpitMode[1] != CM_FULL_COCKPIT && PlayerCfg.CockpitMode[1] != CM_STATUS_BAR)
@@ -3906,12 +3906,12 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 		auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
 		auto &weaponbox = resbox[win];
 		const auto box = &weaponbox[(PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) ? gauge_hud_type::statusbar : gauge_hud_type::cockpit];
-		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, hudctx.xscale(box->left), hudctx.yscale(box->top), hudctx.xscale(box->right - box->left + 1), hudctx.yscale(box->bot - box->top + 1));
+		gr_init_sub_canvas(window_canv, canvas, hudctx.xscale(box->left), hudctx.yscale(box->top), hudctx.xscale(box->right - box->left + 1), hudctx.yscale(box->bot - box->top + 1));
 	}
 
 	gr_set_current_canvas(window_canv);
 
-	render_frame(*grd_curcanv, 0, window);
+	render_frame(window_canv, 0, window);
 
 	//	HACK! If guided missile, wake up robots as necessary.
 	if (viewer.type == OBJ_WEAPON) {
@@ -3922,20 +3922,18 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 	if (label) {
 		if (Color_0_31_0 == -1)
 			Color_0_31_0 = BM_XRGB(0,31,0);
-		gr_set_fontcolor(*grd_curcanv, Color_0_31_0, -1);
+		gr_set_fontcolor(window_canv, Color_0_31_0, -1);
 		auto &game_font = *GAME_FONT;
-		gr_string(*grd_curcanv, game_font, 0x8000, FSPACY(1), label);
+		gr_string(window_canv, game_font, 0x8000, FSPACY(1), label);
 	}
 
 	if (player_info)	// only non-nullptr for weapon_box_user::guided
-	{
-		show_reticle(*grd_curcanv, *player_info, RET_TYPE_CROSS_V1, 0);
-	}
+		show_reticle(window_canv, *player_info, RET_TYPE_CROSS_V1, 0);
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN) {
 		int small_window_bottom,big_window_bottom,extra_part_h;
 
-		gr_ubox(*grd_curcanv, 0, 0, grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, BM_XRGB(0,0,32));
+		gr_ubox(window_canv, 0, 0, window_canv.cv_bitmap.bm_w, window_canv.cv_bitmap.bm_h, BM_XRGB(0,0,32));
 
 		//if the window only partially overlaps the big 3d window, copy
 		//the extra part to the visible screen
@@ -3946,11 +3944,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 
 			//the small window is completely outside the big 3d window, so
 			//copy it to the visible screen
-
-			gr_set_default_canvas();
-
-			gr_bitmap(*grd_curcanv, window_x, window_y, window_canv.cv_bitmap);
-
+			gr_bitmap(canvas, window_x, window_y, window_canv.cv_bitmap);
 			inset_window[win].overlap_dirty = 1;
 		}
 		else {
@@ -3962,22 +3956,18 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 			if (extra_part_h > 0) {
 				grs_subcanvas overlap_canv;
 				gr_init_sub_canvas(overlap_canv, window_canv, 0, window_canv.cv_bitmap.bm_h-extra_part_h, window_canv.cv_bitmap.bm_w, extra_part_h);
-				gr_set_default_canvas();
-				gr_bitmap(*grd_curcanv, window_x, big_window_bottom + 1, overlap_canv.cv_bitmap);
+				gr_bitmap(canvas, window_x, big_window_bottom + 1, overlap_canv.cv_bitmap);
 				inset_window[win].overlap_dirty = 1;
 			}
 		}
 	}
 	else if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
-	{
 		/* `draw_wbu_overlay` has hard-coded x/y coordinates with their
 		 * origin at the root of the screen canvas, not the window
-		 * canvas.  Reset to screen canvas so that the coordinates are
+		 * canvas.  Pass the screen canvas so that the coordinates are
 		 * interpreted properly.
 		 */
-		gr_set_default_canvas();
-		draw_wbu_overlay(hud_draw_context_hs_mr(*grd_curcanv, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic));
-	}
+		draw_wbu_overlay(hud_draw_context_hs_mr(canvas, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic));
 
 	//force redraw when done
 	inset_window[win].old_weapon = {};
@@ -3995,7 +3985,7 @@ abort:;
 	 * is never nullptr, so instead set it to the default canvas.
 	 * Eventually, grd_curcanv will be removed entirely.
 	 */
-	gr_set_default_canvas();
+	gr_set_current_canvas(canvas);
 }
 #endif
 }
