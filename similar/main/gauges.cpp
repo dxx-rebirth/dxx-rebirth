@@ -2160,7 +2160,7 @@ void init_gauges()
 
 namespace {
 
-static void draw_energy_bar(const hud_draw_context_hs_mr hudctx, const int energy)
+static void draw_energy_bar(grs_canvas &canvas, const hud_draw_context_hs_mr hudctx, const int energy)
 {
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 	const int not_energy = hudctx.xscale(multires_gauge_graphic.is_hires() ? (125 - (energy * 125) / 100) : (63 - (energy * 63) / 100));
@@ -2187,7 +2187,7 @@ static void draw_energy_bar(const hud_draw_context_hs_mr hudctx, const int energ
 			if (x2 > x1)
 			{
 				const auto ly = i2f(y + yscale_energy_gauge_y);
-				gr_uline(*grd_curcanv, i2f(x1 + xscale_energy_gauge_x), ly, i2f(x2 + xscale_energy_gauge_x), ly, color);
+				gr_uline(canvas, i2f(x1 + xscale_energy_gauge_x), ly, i2f(x2 + xscale_energy_gauge_x), ly, color);
 			}
 		}
 	}
@@ -2213,12 +2213,10 @@ static void draw_energy_bar(const hud_draw_context_hs_mr hudctx, const int energ
 			if (x2 > x1)
 			{
 				const auto ly = i2f(y + yscale_energy_gauge_y);
-				gr_uline(*grd_curcanv, i2f(x1 + xscale_energy_gauge_x), ly, i2f(x2 + xscale_energy_gauge_x), ly, color);
+				gr_uline(canvas, i2f(x1 + xscale_energy_gauge_x), ly, i2f(x2 + xscale_energy_gauge_x), ly, color);
 			}
 		}
 	}
-
-	gr_set_default_canvas();
 }
 
 }
@@ -3749,7 +3747,8 @@ void render_gauges(grs_canvas &canvas, const game_mode_flags Game_mode)
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_player_energy(energy);
-		draw_energy_bar(hudctx, energy);
+		draw_energy_bar(*grd_curcanv, hudctx, energy);
+		gr_set_default_canvas();
 #if defined(DXX_BUILD_DESCENT_I)
 		if (PlayerCfg.HudMode == HudType::Standard)
 #elif defined(DXX_BUILD_DESCENT_II)

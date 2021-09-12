@@ -48,7 +48,7 @@ window_event_result net_udp_setup_game(void);
 }
 #endif
 void net_udp_manual_join_game();
-void net_udp_list_join_game();
+void net_udp_list_join_game(grs_canvas &canvas);
 #ifdef dsx
 namespace dsx {
 }

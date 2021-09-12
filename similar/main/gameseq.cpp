@@ -1020,7 +1020,8 @@ void LoadLevel(int level_num,int page_in_textures)
 	if (!EditorWindow)
 #endif
 	{
-		show_boxed_message(TXT_LOADING);
+		gr_set_default_canvas();
+		show_boxed_message(*grd_curcanv, TXT_LOADING);
 		gr_flip();
 	}
 #ifdef RELEASE
@@ -1251,12 +1252,12 @@ static void DoEndLevelScoreGlitz()
 
 	struct glitz_menu : passive_newmenu
 	{
-		glitz_menu(menu_subtitle subtitle, partial_range_t<newmenu_item *> items) :
-			passive_newmenu(menu_title{nullptr}, subtitle, menu_filename{GLITZ_BACKGROUND}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), *grd_curcanv, draw_box_flag::none)
+		glitz_menu(grs_canvas &canvas, menu_subtitle subtitle, partial_range_t<newmenu_item *> items) :
+			passive_newmenu(menu_title{nullptr}, subtitle, menu_filename{GLITZ_BACKGROUND}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), canvas, draw_box_flag::none)
 		{
 		}
 	};
-	run_blocking_newmenu<glitz_menu>(menu_subtitle{subtitle}, partial_range(m, c));
+	run_blocking_newmenu<glitz_menu>(*grd_curcanv, menu_subtitle{subtitle}, partial_range(m, c));
 }
 
 }
@@ -1327,15 +1328,15 @@ static void do_screen_message(const char *msg)
 	using items_type = std::array<newmenu_item, 1>;
 	struct glitz_menu : items_type, passive_newmenu
 	{
-		glitz_menu(menu_subtitle subtitle) :
+		glitz_menu(grs_canvas &canvas, menu_subtitle subtitle) :
 			items_type{{
 				newmenu_item::nm_item_menu{TXT_OK},
 			}},
-			passive_newmenu(menu_title{nullptr}, subtitle, menu_filename{GLITZ_BACKGROUND}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), *grd_curcanv, draw_box_flag::menu_background)
+			passive_newmenu(menu_title{nullptr}, subtitle, menu_filename{GLITZ_BACKGROUND}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), canvas, draw_box_flag::menu_background)
 		{
 		}
 	};
-	run_blocking_newmenu<glitz_menu>(menu_subtitle{msg});
+	run_blocking_newmenu<glitz_menu>(*grd_curcanv, menu_subtitle{msg});
 }
 
 }
@@ -1597,15 +1598,15 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 		using items_type = std::array<newmenu_item, 1>;
 		struct message_menu : items_type, passive_newmenu
 		{
-			message_menu() :
+			message_menu(grs_canvas &canvas) :
 				items_type{{
 					newmenu_item::nm_item_text{" "},			//TXT_SECRET_EXIT;
 				}},
-				passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_SECRET_EXIT}, menu_filename{Menu_pcx_name}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), *grd_curcanv, draw_box_flag::none)
+				passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_SECRET_EXIT}, menu_filename{Menu_pcx_name}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), canvas, draw_box_flag::none)
 			{
 			}
 		};
-		run_blocking_newmenu<message_menu>();
+		run_blocking_newmenu<message_menu>(*grd_curcanv);
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	Assert(!secret_flag);

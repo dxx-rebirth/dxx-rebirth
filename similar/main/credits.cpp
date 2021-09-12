@@ -204,7 +204,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 			}
 			
 			y = first_line_offset - row;
-			auto &canvas = *grd_curcanv;
+			auto &canvas = w_canv;
 			show_fullscr(canvas, backdrop);
 			for (uint_fast32_t j=0; j != NUM_LINES; ++j, y += ROW_SPACING)
 			{
@@ -266,8 +266,7 @@ static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 
 	gr_remap_bitmap_good(cr->backdrop,backdrop_palette, -1, -1);
 
-	gr_set_default_canvas();
-	show_fullscr(*grd_curcanv, cr->backdrop);
+	show_fullscr(cr->w_canv, cr->backdrop);
 	gr_palette_load( gr_palette );
 
 	key_flush();

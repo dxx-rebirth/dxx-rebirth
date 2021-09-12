@@ -252,10 +252,11 @@ void init_cockpit()
 #endif
 
 	gr_set_default_canvas();
+	auto &canvas = *grd_curcanv;
 
 	switch( PlayerCfg.CockpitMode[1] ) {
 		case CM_FULL_COCKPIT:
-			game_init_render_sub_buffers(0, 0, SWIDTH, (SHEIGHT*2)/3);
+			game_init_render_sub_buffers(canvas, 0, 0, SWIDTH, (SHEIGHT*2)/3);
 			break;
 
 		case CM_REAR_VIEW:
@@ -269,7 +270,7 @@ void init_cockpit()
 			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
 			auto &bm = GameBitmaps[cockpit_bitmap[mode].index];
 			gr_bitblt_find_transparent_area(bm, x1, y1, x2, y2);
-			game_init_render_sub_buffers(x1*(static_cast<float>(SWIDTH)/bm.bm_w), y1*(static_cast<float>(SHEIGHT)/bm.bm_h), (x2-x1+1)*(static_cast<float>(SWIDTH)/bm.bm_w), (y2-y1+2)*(static_cast<float>(SHEIGHT)/bm.bm_h));
+			game_init_render_sub_buffers(canvas, x1 * (static_cast<float>(SWIDTH) / bm.bm_w), y1 * (static_cast<float>(SHEIGHT) / bm.bm_h), (x2 - x1 + 1) * (static_cast<float>(SWIDTH) / bm.bm_w), (y2 - y1 + 2) * (static_cast<float>(SHEIGHT) / bm.bm_h));
 			break;
 		}
 
@@ -300,12 +301,12 @@ void init_cockpit()
 						w /= 2;
 						break;
 				}
-				game_init_render_sub_buffers(0, 0, w, h);
+				game_init_render_sub_buffers(canvas, 0, 0, w, h);
 			}
 			break;
 
 		case CM_STATUS_BAR:
-			game_init_render_sub_buffers( 0, 0, SWIDTH, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72) );
+			game_init_render_sub_buffers(canvas, 0, 0, SWIDTH, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72));
 			break;
 
 		case CM_LETTERBOX:	{
@@ -320,7 +321,7 @@ void init_cockpit()
 			gr_rect(canvas, x, 0, w, gsm_height - h, color);
 			gr_rect(canvas, x, gsm_height - h, w, gsm_height, color);
 
-			game_init_render_sub_buffers( x, y, w, h );
+			game_init_render_sub_buffers(canvas, x, y, w, h);
 			break;
 		}
 	}
@@ -352,16 +353,16 @@ void reset_cockpit()
 	last_drawn_cockpit = -1;
 }
 
-void game_init_render_sub_buffers( int x, int y, int w, int h )
+void game_init_render_sub_buffers(grs_canvas &canvas, const int x, const int y, const int w, const int h)
 {
-	gr_clear_canvas(*grd_curcanv, 0);
-	gr_init_sub_canvas(Screen_3d_window, grd_curscreen->sc_canvas, x, y, w, h);
+	gr_clear_canvas(canvas, 0);
+	gr_init_sub_canvas(Screen_3d_window, canvas, x, y, w, h);
 
 	if (VR_stereo != StereoFormat::None)
 	{
 		// offset HUD screen rects to force out-of-screen parallax on HUD overlays
-		int dx = (VR_eye_offset < 0) ? -VR_eye_offset : 0;
-		int dy = VR_sync_width / 2;
+		const int dx = (VR_eye_offset < 0) ? -VR_eye_offset : 0;
+		const int dy = VR_sync_width / 2;
 		struct {
 			uint16_t x;
 			uint16_t y;

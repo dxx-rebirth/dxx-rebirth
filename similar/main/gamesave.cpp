@@ -1545,16 +1545,16 @@ int get_level_name()
 	using items_type = std::array<newmenu_item, 2>;
 	struct request_menu : items_type, passive_newmenu
 	{
-		request_menu() :
+		request_menu(grs_canvas &canvas) :
 			items_type{{
 				newmenu_item::nm_item_text{"Please enter a name for this mine:"},
 				newmenu_item::nm_item_input(Current_level_name.next()),
 			}},
-			passive_newmenu(menu_title{nullptr}, menu_subtitle{"Enter mine name"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 1), *grd_curcanv, draw_box_flag::none)
+			passive_newmenu(menu_title{nullptr}, menu_subtitle{"Enter mine name"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 1), canvas, draw_box_flag::none)
 		{
 		}
 	};
-	return run_blocking_newmenu<request_menu>();
+	return run_blocking_newmenu<request_menu>(*grd_curcanv);
 }
 #endif
 

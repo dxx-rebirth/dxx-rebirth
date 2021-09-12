@@ -88,15 +88,15 @@ static void gamefont_unloadfont(int gf)
 	}
 }
 
-static void gamefont_loadfont(int gf,int fi)
+static void gamefont_loadfont(grs_canvas &canvas, int gf, int fi)
 {
 	if (PHYSFSX_exists(font_conf[gf].font[fi].f.name,1)){
 		gamefont_unloadfont(gf);
-		Gamefonts[gf] = gr_init_font(*grd_curcanv, font_conf[gf].font[fi].f.name);
+		Gamefonts[gf] = gr_init_font(canvas, font_conf[gf].font[fi].f.name);
 	}else {
 		if (!Gamefonts[gf]){
 			font_conf[gf].cur=-1;
-			Gamefonts[gf] = gr_init_font(*grd_curcanv, Gamefont_filenames_l[gf]);
+			Gamefonts[gf] = gr_init_font(canvas, Gamefont_filenames_l[gf]);
 		}
 		return;
 	}
@@ -146,7 +146,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 			FNTScaleY.reset(FNTScaleX.operator float());
 	}
 #endif
-		gamefont_loadfont(gf,m);
+		gamefont_loadfont(*grd_curcanv, gf, m);
 	}
 }
 
@@ -161,7 +161,7 @@ static void addfontconf(int gf, int x, int y, const char *const fn)
 				gamefont_unloadfont(gf);
 			strcpy(font_conf[gf].font[i].f.name,fn);
 			if (i==font_conf[gf].cur)
-				gamefont_loadfont(gf,i);
+				gamefont_loadfont(*grd_curcanv, gf, i);
 			return;
 		}
 	}

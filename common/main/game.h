@@ -376,13 +376,13 @@ static inline void full_palette_save(void)
 #endif
 
 // show a message in a nice little box
-void show_boxed_message(const char *msg);
+void show_boxed_message(grs_canvas &, const char *msg);
 
 // turns off rear view & rear view cockpit
 void reset_rear_view(void);
 
 namespace dcx {
-void game_init_render_sub_buffers(int x, int y, int w, int h);
+void game_init_render_sub_buffers(grs_canvas &, int x, int y, int w, int h);
 // Sets up the canvases we will be rendering to
 
 extern int netplayerinfo_on;

@@ -835,7 +835,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 		case MBTN_LEFT:
 		{
 			gr_set_current_canvas(menu_canvas);
-			auto &canvas = *grd_curcanv;
+			auto &canvas = menu_canvas;
 
 			old_choice = menu->citem;
 

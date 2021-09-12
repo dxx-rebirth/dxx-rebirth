@@ -414,7 +414,7 @@ void init_editor()
 	
 	//Editor renders into full (320x200) game screen 
 	
-	game_init_render_sub_buffers(0, 0, 320, 200);
+	game_init_render_sub_buffers(*grd_curcanv, 0, 0, 320, 200);
 	gr_init_sub_canvas(_canv_editor, grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	Canv_editor = &_canv_editor;
 	gr_set_current_canvas(*Canv_editor);

@@ -1530,9 +1530,8 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 	return newmenu::event_handler(event);
 }
 
-void net_udp_list_join_game()
+void net_udp_list_join_game(grs_canvas &canvas)
 {
-
 	net_udp_init();
 	const auto gamemyport = CGameArg.MplUdpMyPort;
 	if (udp_open_socket(UDP_Socket[0], gamemyport >= 1024 ? gamemyport : UDP_PORT_DEFAULT) < 0)
@@ -1560,10 +1559,10 @@ void net_udp_list_join_game()
 
 	Active_udp_games = {};
 
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(15, 15, 23),-1);
+	gr_set_fontcolor(canvas, BM_XRGB(15, 15, 23),-1);
 
 	num_active_udp_changed = 1;
-	auto menu = window_create<netgame_list_game_menu>(grd_curscreen->sc_canvas);
+	auto menu = window_create<netgame_list_game_menu>(canvas);
 	(void)menu;
 }
 
@@ -6049,12 +6048,12 @@ namespace {
 struct show_game_info_menu : std::array<newmenu_item, 2>, std::array<char, 512>, passive_newmenu
 {
 	const netgame_info &netgame;
-	show_game_info_menu(const netgame_info &netgame) :
+	show_game_info_menu(grs_canvas &canvas, const netgame_info &netgame) :
 		std::array<newmenu_item, 2>{{
 			newmenu_item::nm_item_menu{"JOIN GAME"},
 			newmenu_item::nm_item_menu{"GAME INFO"},
 		}},
-		passive_newmenu(menu_title{"WELCOME"}, menu_subtitle{(setup_subtitle_text(*this, netgame).data())}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(static_cast<std::array<newmenu_item, 2> &>(*this), 0), *grd_curcanv),
+		passive_newmenu(menu_title{"WELCOME"}, menu_subtitle{(setup_subtitle_text(*this, netgame).data())}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(static_cast<std::array<newmenu_item, 2> &>(*this), 0), canvas),
 		netgame(netgame)
 	{
 	}
@@ -6117,7 +6116,7 @@ const std::array<char, 512> &show_game_info_menu::setup_subtitle_text(std::array
 
 direct_join::connect_type net_udp_show_game_info(const netgame_info &Netgame)
 {
-	switch (run_blocking_newmenu<show_game_info_menu>(Netgame))
+	switch (run_blocking_newmenu<show_game_info_menu>(*grd_curcanv, Netgame))
 	{
 		case 0:
 		default:

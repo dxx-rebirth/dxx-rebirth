@@ -406,15 +406,15 @@ static int MakeNewPlayerFile(int allow_abort)
 		using items_type = std::array<newmenu_item, 1>;
 		struct pilot_name_menu : items_type, passive_newmenu
 		{
-			pilot_name_menu(callsign_t &text) :
+			pilot_name_menu(grs_canvas &canvas, callsign_t &text) :
 				items_type{{
 					newmenu_item::nm_item_input(text.a, playername_allowed_chars),
 				}},
-				passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_ENTER_PILOT_NAME}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), *grd_curcanv)
+				passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_ENTER_PILOT_NAME}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), canvas)
 			{
 			}
 		};
-		const auto x = run_blocking_newmenu<pilot_name_menu>(text);
+		const auto x = run_blocking_newmenu<pilot_name_menu>(*grd_curcanv, text);
 		const char *const name = text;
 		if (x < 0 || !*name)
 		{
@@ -638,11 +638,8 @@ static void RegisterPlayer()
 static void input_config();
 
 // Draw Copyright and Version strings
-static void draw_copyright()
+static void draw_copyright(grs_canvas &canvas, grs_font &game_font)
 {
-	gr_set_default_canvas();
-	auto &canvas = *grd_curcanv;
-	auto &game_font = *GAME_FONT;
 	gr_set_fontcolor(canvas, BM_XRGB(6, 6, 6), -1);
 	const auto &&line_spacing = LINE_SPACING(game_font, game_font);
 	gr_string(canvas, game_font, 0x8000, SHEIGHT - line_spacing, TXT_COPYRIGHT);
@@ -729,7 +726,7 @@ window_event_result dispatch_menu_option(const netgame_menu_item_index select)
 			break;
 		case netgame_menu_item_index::list_multiplayer_games:
 			multi_protocol = MULTI_PROTO_UDP;
-			net_udp_list_join_game();
+			net_udp_list_join_game(*grd_curcanv);
 			break;
 		default:
 			break;
@@ -796,7 +793,8 @@ window_event_result main_menu::event_handler(const d_event &event)
 			break;
 
 		case EVENT_NEWMENU_DRAW:
-			draw_copyright();
+			gr_set_default_canvas();
+			draw_copyright(*grd_curcanv, *GAME_FONT);
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
@@ -1373,7 +1371,7 @@ void screen_resolution_menu::apply_resolution(const screen_mode new_mode) const
 			}
 		}
 	}
-	game_init_render_sub_buffers(0, 0, SM_W(Game_screen_mode), SM_H(Game_screen_mode));
+	game_init_render_sub_buffers(*grd_curcanv, 0, 0, SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 }
 
 template <typename PMF>
@@ -2278,12 +2276,12 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 				}};
 				struct drive_letter_menu : passive_newmenu
 				{
-					drive_letter_menu(partial_range_t<newmenu_item *> items) :
-						passive_newmenu(menu_title{nullptr}, menu_subtitle{"Enter drive letter"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), *grd_curcanv)
+					drive_letter_menu(grs_canvas &canvas, partial_range_t<newmenu_item *> items) :
+						passive_newmenu(menu_title{nullptr}, menu_subtitle{"Enter drive letter"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), canvas)
 						{
 						}
 				};
-				const auto rval = run_blocking_newmenu<drive_letter_menu>(m);
+				const auto rval = run_blocking_newmenu<drive_letter_menu>(*grd_curcanv, m);
 				const auto t0 = text[0];
 				std::array<char, PATH_MAX> newpath;
 				snprintf(newpath.data(), newpath.size(), "%c:%s", t0, sep);

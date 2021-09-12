@@ -71,7 +71,7 @@ enum class kmatrix_status_mode
 	mission_finished,
 };
 
-static void kmatrix_redraw_coop(fvcobjptr &vcobjptr, font_y_scale_float);
+static void kmatrix_redraw_coop(grs_canvas &canvas, fvcobjptr &vcobjptr, font_y_scale_float);
 
 static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const grs_font &cv_font, const int i, const playernum_array_t &sorted, const font_y_scale_float fspacy)
 {
@@ -220,20 +220,18 @@ struct kmatrix_window : ::dcx::kmatrix_window
 	virtual window_event_result event_handler(const d_event &) override;
 };
 
-static void kmatrix_redraw(kmatrix_window *const km)
+static void kmatrix_redraw(grs_canvas &canvas, kmatrix_window *const km)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	playernum_array_t sorted;
 
-	gr_set_default_canvas();
-	auto &canvas = *grd_curcanv;
 	show_fullscr(canvas, km->background);
 	const auto &&fspacy = FSPACY();
 	
 	if (Game_mode & GM_MULTI_COOP)
 	{
-		kmatrix_redraw_coop(vcobjptr, fspacy);
+		kmatrix_redraw_coop(canvas, vcobjptr, fspacy);
 	}
 	else
 	{
@@ -276,12 +274,11 @@ static void kmatrix_redraw(kmatrix_window *const km)
 
 namespace {
 
-static void kmatrix_redraw_coop(fvcobjptr &vcobjptr, const font_y_scale_float fspacy)
+static void kmatrix_redraw_coop(grs_canvas &canvas, fvcobjptr &vcobjptr, const font_y_scale_float fspacy)
 {
 	playernum_array_t sorted;
 
 	multi_sort_kill_list();
-	auto &canvas = *grd_curcanv;
 	auto &medium3_font = *MEDIUM3_FONT;
 	gr_string(canvas, medium3_font,  0x8000, FSPACY(10), "COOPERATIVE SUMMARY");
 	multi_get_kill_list(sorted);
@@ -339,16 +336,16 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 						using items_type = std::array<newmenu_item, 2>;
 						struct abort_game_menu : items_type, passive_newmenu
 						{
-							abort_game_menu() :
+							abort_game_menu(grs_canvas &canvas) :
 								items_type{{
 									newmenu_item::nm_item_menu{TXT_YES},
 									newmenu_item::nm_item_menu{TXT_NO},
 								}},
-								passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_ABORT_GAME}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), *grd_curcanv)
+								passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_ABORT_GAME}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), 0), canvas)
 							{
 							}
 						};
-						if (run_blocking_newmenu<abort_game_menu>() != 0)
+						if (run_blocking_newmenu<abort_game_menu>(*grd_curcanv) != 0)
 							return window_event_result::handled;
 					}
 					{
@@ -370,7 +367,8 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 		case EVENT_WINDOW_DRAW:
 			{
 			timer_delay2(50);
-			kmatrix_redraw(this);
+			gr_set_default_canvas();
+			kmatrix_redraw(*grd_curcanv, this);
 
 			if (network != kmatrix_network::offline)
 				multi::dispatch->do_protocol_frame(0, 1);

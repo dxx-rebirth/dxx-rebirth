@@ -476,7 +476,8 @@ window_event_result pause_window::event_handler(const d_event &event)
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			show_boxed_message(msg.data());
+			gr_set_default_canvas();
+			show_boxed_message(*grd_curcanv, msg.data());
 			break;
 
 		case EVENT_WINDOW_CLOSE:
@@ -1541,12 +1542,12 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 			}};
 			struct briefing_menu : passive_newmenu
 			{
-				briefing_menu(partial_range_t<newmenu_item *> items) :
-					passive_newmenu(menu_title{nullptr}, menu_subtitle{"Briefing to play?"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), *grd_curcanv)
+				briefing_menu(grs_canvas &canvas, partial_range_t<newmenu_item *> items) :
+					passive_newmenu(menu_title{nullptr}, menu_subtitle{"Briefing to play?"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), canvas)
 				{
 				}
 			};
-			item = run_blocking_newmenu<briefing_menu>(m);
+			item = run_blocking_newmenu<briefing_menu>(*grd_curcanv, m);
 			if (item != -1) {
 				do_briefing_screens(text,1);
 			}

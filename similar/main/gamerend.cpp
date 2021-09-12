@@ -178,15 +178,13 @@ namespace dsx {
 
 namespace {
 
-static void show_netplayerinfo()
+static void show_netplayerinfo(grs_canvas &canvas)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	int x=0, y=0;
 	static const char *const eff_strings[]={"trashing","really hurting","seriously affecting","hurting","affecting","tarnishing"};
 
-	gr_set_default_canvas();
-	auto &canvas = *grd_curcanv;
 	gr_set_fontcolor(canvas, 255, -1);
 
 	const auto &&fspacx = FSPACX();
@@ -779,6 +777,8 @@ void game_render_frame_mono(const control_info &Controls)
 	int no_draw_hud = 0;
 
 	gr_set_current_canvas(Screen_3d_window);
+	{
+	auto &canvas = *grd_curcanv;
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -802,26 +802,26 @@ void game_render_frame_mono(const control_info &Controls)
 		window_rendered_data window;
 		if (VR_stereo != StereoFormat::None)
 		{
-			render_frame(*grd_curcanv, -VR_eye_width, window);
-			render_frame(*grd_curcanv, +VR_eye_width, window);
+			render_frame(canvas, -VR_eye_width, window);
+			render_frame(canvas, +VR_eye_width, window);
 		}
 		else
-			render_frame(*grd_curcanv, 0, window);
+			render_frame(canvas, 0, window);
 
 		wake_up_rendered_objects(*Viewer, window);
-		show_HUD_names(*grd_curcanv, Game_mode);
+		show_HUD_names(canvas, Game_mode);
 
 		Viewer = viewer_save;
 
 		auto &game_font = *GAME_FONT;
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(27, 0, 0), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(27, 0, 0), -1);
 
-		gr_string(*grd_curcanv, game_font, 0x8000, FSPACY(1), "Guided Missile View");
+		gr_string(canvas, game_font, 0x8000, FSPACY(1), "Guided Missile View");
 
 		auto &player_info = get_local_plrobj().ctype.player_info;
-		show_reticle(*grd_curcanv, player_info, RET_TYPE_CROSS_V1, 0);
+		show_reticle(canvas, player_info, RET_TYPE_CROSS_V1, 0);
 
-		HUD_render_message_frame(*grd_curcanv);
+		HUD_render_message_frame(canvas);
 
 		no_draw_hud=1;
 	}
@@ -840,19 +840,22 @@ void game_render_frame_mono(const control_info &Controls)
 		window_rendered_data window;
 		if (VR_stereo != StereoFormat::None)
 		{
-			render_frame(*grd_curcanv, -VR_eye_width, window);
-			render_frame(*grd_curcanv, +VR_eye_width, window);
+			render_frame(canvas, -VR_eye_width, window);
+			render_frame(canvas, +VR_eye_width, window);
 		}
 		else
-			render_frame(*grd_curcanv, 0, window);
+			render_frame(canvas, 0, window);
+	}
 	}
 	gr_set_default_canvas();
-	update_cockpits(*grd_curcanv);
+	{
+	auto &canvas = *grd_curcanv;
+	update_cockpits(canvas);
 
 	if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)
-		render_gauges(*grd_curcanv, Newdemo_state == ND_STATE_PLAYBACK ? Newdemo_game_mode : Game_mode);
+		render_gauges(canvas, Newdemo_state == ND_STATE_PLAYBACK ? Newdemo_game_mode : Game_mode);
+	}
 
-	gr_set_current_canvas(Screen_3d_window);
 	if (!no_draw_hud) {
 		if (VR_stereo != StereoFormat::None)
 		{
@@ -860,7 +863,7 @@ void game_render_frame_mono(const control_info &Controls)
 			game_draw_hud_stuff(VR_hud_right, Controls);
 		}
 		else
-			game_draw_hud_stuff(*grd_curcanv, Controls);
+			game_draw_hud_stuff(Screen_3d_window, Controls);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -869,7 +872,10 @@ void game_render_frame_mono(const control_info &Controls)
 #endif
 
 	if (netplayerinfo_on && Game_mode & GM_MULTI)
-		show_netplayerinfo();
+	{
+		gr_set_default_canvas();
+		show_netplayerinfo(*grd_curcanv);
+	}
 }
 
 }
@@ -965,18 +971,17 @@ void game_render_frame(const control_info &Controls)
 	set_screen_mode( SCREEN_GAME );
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	play_homing_warning(player_info);
+	gr_set_default_canvas();
 	game_render_frame_mono(Controls);
 }
 
 }
 
 //show a message in a nice little box
-void show_boxed_message(const char *msg)
+void show_boxed_message(grs_canvas &canvas, const char *msg)
 {
 	int x,y;
 	
-	gr_set_default_canvas();
-	auto &canvas = *grd_curcanv;
 	gr_set_fontcolor(canvas, BM_XRGB(31, 31, 31), -1);
 	auto &medium1_font = *MEDIUM1_FONT;
 	const auto &&[w, h] = gr_get_string_size(medium1_font, msg);

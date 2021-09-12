@@ -421,14 +421,13 @@ xrange<game_marker_index> get_game_marker_range(const game_mode_flags game_mode,
 # define automap_draw_line g3_draw_line
 #if DXX_USE_OGL
 #define DrawMarkerNumber(C,a,b,c,d)	DrawMarkerNumber(a,b,c,d)
-#define draw_all_edges(C,a)	draw_all_edges(a)
 #endif
 
 // -------------------------------------------------------------
 
 namespace {
 
-static void draw_all_edges(grs_canvas &, automap &am);
+static void draw_all_edges(automap &am);
 #if defined(DXX_BUILD_DESCENT_II)
 static void DrawMarkerNumber(grs_canvas &canvas, const automap &am, const game_marker_index gmi, const player_marker_index pmi, const g3s_point &BasePoint)
 {
@@ -809,9 +808,8 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	if ( am.leave_mode==0 && am.controls.state.automap && (timer_query()-am.entry_time)>LEAVE_TIME)
 		am.leave_mode = 1;
 
-	gr_set_default_canvas();
 	{
-		auto &canvas = *grd_curcanv;
+		auto &canvas = am.w_canv;
 		show_fullscr(canvas, am.automap_background);
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
 	{
@@ -824,7 +822,6 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 			x = SWIDTH / 8, y = SHEIGHT / 16;
 		gr_string(canvas, *HUGE_FONT, x, y, TXT_AUTOMAP);
 	}
-		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
 	{
 		int x;
 		int y0, y1, y2;
@@ -861,8 +858,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	}
 
 	}
-	gr_set_current_canvas(am.automap_view);
-	auto &canvas = *grd_curcanv;
+	auto &canvas = am.automap_view;
 
 	gr_clear_canvas(canvas, BM_XRGB(0,0,0));
 
@@ -874,7 +870,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 
 	g3_set_view_matrix(am.view_position,am.viewMatrix,am.zoom);
 
-	draw_all_edges(*grd_curcanv, am);
+	draw_all_edges(am);
 
 	// Draw player...
 	const auto &self_ship_rgb = player_rgb[get_player_or_team_color(Player_num)];
@@ -1276,8 +1272,11 @@ void do_automap()
 
 namespace {
 
-void draw_all_edges(grs_canvas &canvas, automap &am)
+void draw_all_edges(automap &am)
 {
+#if !DXX_USE_OGL
+	grs_canvas &canvas = am.automap_view;
+#endif
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int j;
