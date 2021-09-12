@@ -642,9 +642,10 @@ static void draw_copyright(grs_canvas &canvas, grs_font &game_font)
 {
 	gr_set_fontcolor(canvas, BM_XRGB(6, 6, 6), -1);
 	const auto &&line_spacing = LINE_SPACING(game_font, game_font);
-	gr_string(canvas, game_font, 0x8000, SHEIGHT - line_spacing, TXT_COPYRIGHT);
+	const auto bm_h = canvas.cv_bitmap.bm_h;
+	gr_string(canvas, game_font, 0x8000, bm_h - line_spacing, TXT_COPYRIGHT);
 	gr_set_fontcolor(canvas, BM_XRGB(25, 0, 0), -1);
-	gr_string(canvas, game_font, 0x8000, SHEIGHT - (line_spacing * 2), DESCENT_VERSION);
+	gr_string(canvas, game_font, 0x8000, bm_h - (line_spacing * 2), DESCENT_VERSION);
 }
 
 //returns flag, true means quit menu
@@ -793,8 +794,7 @@ window_event_result main_menu::event_handler(const d_event &event)
 			break;
 
 		case EVENT_NEWMENU_DRAW:
-			gr_set_default_canvas();
-			draw_copyright(*grd_curcanv, *GAME_FONT);
+			draw_copyright(parent_canvas, *GAME_FONT);
 			break;
 
 		case EVENT_NEWMENU_SELECTED:

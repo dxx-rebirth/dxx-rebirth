@@ -304,6 +304,7 @@ struct newmenu_layout
 	const menu_title title;
 	const menu_subtitle subtitle;
 	const menu_filename filename;
+	grs_canvas &parent_canvas;
 	const tiny_mode_flag tiny_mode;
 	const tab_processing_flag tabs_flag;
 	const uint8_t max_on_menu;
@@ -314,9 +315,10 @@ struct newmenu_layout
 	uint8_t mouse_state;
 	const partial_range_t<newmenu_item *> items;
 	int	scroll_offset = 0;
-	newmenu_layout(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, const draw_box_flag draw_box) :
+	newmenu_layout(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, grs_canvas &parent_canvas, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, const draw_box_flag draw_box) :
 		citem(citem_init.citem),
 		title(title), subtitle(subtitle), filename(filename),
+		parent_canvas(parent_canvas),
 		tiny_mode(tiny_mode), tabs_flag(tabs_flag),
 		max_on_menu(std::min<uint8_t>(citem_init.items.size(), tiny_mode != tiny_mode_flag::normal ? 21u : 14u)),
 		all_text(citem_init.all_text),
@@ -340,7 +342,7 @@ struct newmenu : newmenu_layout, window
 {
 	using subfunction_type = int(*)(newmenu *menu, const d_event &event, void *userdata);
 	newmenu(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, grs_canvas &src, const draw_box_flag draw_box = draw_box_flag::menu_background) :
-		newmenu_layout(title, subtitle, filename, tiny_mode, tabs_flag, citem_init, draw_box), window(src, x, y, w, h)
+		newmenu_layout(title, subtitle, filename, src, tiny_mode, tabs_flag, citem_init, draw_box), window(src, x, y, w, h)
 	{
 	}
 	int *rval = nullptr;			// Pointer to return value (for polling newmenus)

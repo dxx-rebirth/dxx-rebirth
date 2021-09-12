@@ -1303,8 +1303,7 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 {
 	int nmenus;
 	grs_canvas &save_canvas = *grd_curcanv;
-	gr_set_default_canvas();
-	auto &canvas = *grd_curcanv;
+	auto &canvas = menu.parent_canvas;
 
 	auto iterative_layout_max_width = 0u;
 	auto iterative_layout_max_height = 0u;
