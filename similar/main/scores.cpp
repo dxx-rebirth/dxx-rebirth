@@ -619,7 +619,10 @@ void scores_view(const stats_info *const last_game, int citem)
 	const auto &&fspacy170 = FSPACY(170);
 	all_scores scores;
 	scores_read(&scores);
-	auto menu = window_create<scores_menu>(grd_curscreen->sc_canvas, ((SWIDTH - fspacx290) / 2) - BORDERX, ((SHEIGHT - fspacy170) / 2) - BORDERY, fspacx290 + (BORDERX * 2), fspacy170 + (BORDERY * 2), citem, scores, last_game);
+	auto &canvas = grd_curscreen->sc_canvas;
+	const auto border_x = get_border_x(canvas);
+	const auto border_y = get_border_y(canvas);
+	auto menu = window_create<scores_menu>(canvas, ((canvas.cv_bitmap.bm_w - fspacx290) / 2) - border_x, ((canvas.cv_bitmap.bm_h - fspacy170) / 2) - border_y, fspacx290 + (border_x * 2), fspacy170 + (border_y * 2), citem, scores, last_game);
 	(void)menu;
 
 	newmenu_free_background();
