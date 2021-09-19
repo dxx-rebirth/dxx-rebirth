@@ -140,17 +140,10 @@ namespace dsx {
 
 //filename will actually get modified to be either low-res or high-res
 //returns status.  see values in movie.h
-movie_play_status PlayMovie(const char *subtitles, const char *filename, int must_have)
+movie_play_status PlayMovie(const char *subtitles, const char *const name, int must_have)
 {
-	char name[FILENAME_LEN],*p;
-
 	if (GameArg.SysNoMovies)
 		return movie_play_status::skipped;
-
-	strcpy(name,filename);
-
-	if ((p=strchr(name,'.')) == NULL)		//add extension, if missing
-		strcat(name,".MVE");
 
 	// Stop all digital sounds currently playing.
 	digi_stop_digi_sounds();

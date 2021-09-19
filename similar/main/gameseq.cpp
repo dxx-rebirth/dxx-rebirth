@@ -2055,17 +2055,17 @@ static void filter_objects_from_level(fvmobjptr &vmobjptr)
 
 struct intro_movie_t {
 	int	level_num;
-	char	movie_name[4];
+	char movie_name[8];
 };
 
-const std::array<intro_movie_t, 7> intro_movie{{
-	{ 1, "PLA"},
-	{ 5, "PLB"},
-	{ 9, "PLC"},
-	{13, "PLD"},
-	{17, "PLE"},
-	{21, "PLF"},
-	{24, "PLG"}
+constexpr std::array<intro_movie_t, 7> intro_movie{{
+	{ 1, "PLA.MVE"},
+	{ 5, "PLB.MVE"},
+	{ 9, "PLC.MVE"},
+	{13, "PLD.MVE"},
+	{17, "PLE.MVE"},
+	{21, "PLF.MVE"},
+	{24, "PLG.MVE"}
 }};
 
 static void ShowLevelIntro(int level_num)
