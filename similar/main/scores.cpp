@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "d_range.h"
+#include "d_zip.h"
 
 #define VERSION_NUMBER 		1
 #define SCORES_FILENAME 	"descent.hi"
@@ -101,6 +102,24 @@ static_assert(sizeof(all_scores) == 336, "high score size wrong");
 
 void scores_view(const stats_info *last_game, int citem);
 
+static void assign_builtin_placeholder_scores(all_scores &scores)
+{
+	strcpy(scores.cool_saying, TXT_REGISTER_DESCENT);
+	scores.stats[0].name = "Parallax";
+	scores.stats[1].name = "Matt";
+	scores.stats[2].name = "Mike";
+	scores.stats[3].name = "Adam";
+	scores.stats[4].name = "Mark";
+	scores.stats[5].name = "Jasen";
+	scores.stats[6].name = "Samir";
+	scores.stats[7].name = "Doug";
+	scores.stats[8].name = "Dan";
+	scores.stats[9].name = "Jason";
+
+	for (auto &&[idx, stat] : enumerate(scores.stats))
+		stat.score = (10 - idx) * 1000;
+}
+
 static void scores_read(all_scores *scores)
 {
 	int fsize;
@@ -112,20 +131,7 @@ static void scores_read(all_scores *scores)
 	if (!fp)
 	{
 	 	// No error message needed, code will work without a scores file
-		strcpy(scores->cool_saying, TXT_REGISTER_DESCENT);
-		scores->stats[0].name = "Parallax";
-		scores->stats[1].name = "Matt";
-		scores->stats[2].name = "Mike";
-		scores->stats[3].name = "Adam";
-		scores->stats[4].name = "Mark";
-		scores->stats[5].name = "Jasen";
-		scores->stats[6].name = "Samir";
-		scores->stats[7].name = "Doug";
-		scores->stats[8].name = "Dan";
-		scores->stats[9].name = "Jason";
-
-		range_for (const int i, xrange(10u))
-			scores->stats[i].score = (10-i)*1000;
+		assign_builtin_placeholder_scores(*scores);
 		return;
 	}
 
@@ -272,19 +278,33 @@ void scores_maybe_add_player()
 	};
 	const auto begin_score_stats = std::begin(scores.stats);
 	const auto end_score_stats = std::end(scores.stats);
+	/* Find the position at which the player's score should be placed.
+	 */
 	const auto iter_position = std::find_if(begin_score_stats, end_score_stats, predicate);
 	const auto position = std::distance(begin_score_stats, iter_position);
+	/* If iter_position == end_score_stats, then the player's score does
+	 * not beat any of the existing high scores.  Include a special case
+	 * so that the player's statistics can be shown for the duration of
+	 * this menu, despite not being a new record.
+	 */
 	stats_info *const ptr_last_game = (iter_position == end_score_stats)
 		? &last_game
 		: nullptr;
 	if (ptr_last_game)
 	{
+		/* Not a new record */
 		scores_fill_struct(ptr_last_game);
 	} else {
+		/* New record - check whether it is the best score.  If so,
+		 * allow the player to leave a comment.
+		 */
 		if (iter_position == begin_score_stats)
 		{
 			run_blocking_newmenu<request_user_high_score_comment>(scores, grd_curscreen->sc_canvas);
 		} else {
+			/* New record, but not a new best score.  Tell the player
+			 * what slot the new record earned.
+			 */
 			nm_messagebox(menu_title{TXT_HIGH_SCORE}, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
 		}
 
@@ -309,20 +329,6 @@ static void scores_rputs(grs_canvas &canvas, const grs_font &cv_font, const int 
 	gr_string(canvas, cv_font, FSPACX(x) - w, FSPACY(y), buffer, w, h);
 }
 
-__attribute_format_printf(5, 6)
-static void scores_rprintf(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const  format, ...)
-{
-	va_list args;
-	char buffer[128];
-
-	va_start(args, format );
-	const auto l = vsnprintf(buffer, sizeof(buffer), format, args);
-	va_end(args);
-	//replace the digit '1' with special wider 1
-	std::replace(buffer, buffer + l, '1', '\x84');
-	scores_rputs(canvas, cv_font, x, y, buffer);
-}
-
 static unsigned compute_score_y_coordinate(const unsigned i)
 {
 	const unsigned y = 74 + i * 9;
@@ -337,15 +343,134 @@ namespace dsx {
 
 namespace {
 
-static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const unsigned shade, const unsigned y, const unsigned i, const stats_info &stats)
+struct scores_menu_items
 {
-	gr_set_fontcolor(canvas, BM_XRGB(shade, shade, shade), -1);
-	if ( i==MAX_HIGH_SCORES )
+	struct row
+	{
+		callsign_t name;
+		uint8_t diff_level;
+		std::array<char, 16> score;
+		std::array<char, 10> levels;
+		std::array<char, 14> time_played;
+	};
+	struct numbered_row : row
+	{
+		std::array<char, sizeof("10.")> line_number;
+	};
+	const int citem;
+	fix64 time_last_color_change = timer_query();
+	uint8_t looper = 0;
+	std::array<numbered_row, MAX_HIGH_SCORES> scores;
+	row last_game;
+	std::array<char, COOL_MESSAGE_LEN> cool_saying;
+	static void prepare_row(row &r, const stats_info &stats, std::ostringstream &oss);
+	static void prepare_row(numbered_row &r, const stats_info &stats, std::ostringstream &oss, unsigned idx);
+	static std::ostringstream build_locale_stringstream();
+	void prepare_scores(const all_scores &all_scores, std::ostringstream &oss);
+	scores_menu_items(const int citem, const all_scores &all_scores, const stats_info *last_game_stats);
+};
+
+void scores_menu_items::prepare_row(row &r, const stats_info &stats, std::ostringstream &oss)
+{
+	r.name = stats.name;
+	r.diff_level = stats.diff_level;
+	{
+		/* This std::ostringstream is shared among multiple rows, to
+		 * avoid reinitializing the std::locale each time.  Clear the
+		 * text before inserting the score for this row.
+		 */
+		oss.str("");
+		oss << stats.score;
+		auto &&buffer = oss.str();
+		//replace the digit '1' with special wider 1
+		const auto bb = buffer.begin();
+		const auto be = buffer.end();
+		auto ri = r.score.begin();
+		if (std::distance(bb, be) < r.score.size() - 1)
+			ri = std::replace_copy(bb, be, ri, '1', '\x84');
+		*ri = 0;
+	}
+	{
+		r.levels.front() = 0;
+		auto starting_level = stats.starting_level;
+		auto ending_level = stats.ending_level;
+		if (starting_level || ending_level)
+		{
+			const auto secret_start = (starting_level < 0) ? (starting_level = -starting_level, "S") : "";
+			const auto secret_end = (ending_level < 0) ? (ending_level = -ending_level, "S") : "";
+			auto levels_length = std::snprintf(r.levels.data(), r.levels.size(), "%s%d-%s%d", secret_start, starting_level, secret_end, ending_level);
+			auto lb = r.levels.begin();
+			std::replace(lb, std::next(lb, levels_length), '1', '\x84');
+		}
+	}
+	{
+		const auto &&d1 = std::div(stats.seconds, 60);
+		const auto &&d2 = std::div(d1.rem, 60);
+		auto time_length = std::snprintf(r.time_played.data(), r.time_played.size(), "%d:%02d:%02d", d1.quot, d2.quot, d2.rem);
+		auto tb = r.time_played.begin();
+		std::replace(tb, std::next(tb, time_length), '1', '\x84');
+	}
+}
+
+void scores_menu_items::prepare_row(numbered_row &r, const stats_info &stats, std::ostringstream &oss, const unsigned idx)
+{
+	std::snprintf(r.line_number.data(), r.line_number.size(), "%u.", idx);
+	auto b = r.line_number.begin();
+	std::replace(b, std::next(b, 2), '1', '\x84');
+	prepare_row(r, stats, oss);
+}
+
+std::ostringstream scores_menu_items::build_locale_stringstream()
+{
+	const auto user_preferred_locale = []() {
+		try {
+			/* Use the user's locale if possible. */
+			return std::locale("");
+		} catch (std::runtime_error &) {
+			/* Fall back to the default locale if the user's locale
+			 * fails to parse.
+			 */
+			return std::locale();
+		}
+	}();
+	std::ostringstream oss;
+	oss.imbue(user_preferred_locale);
+	return oss;
+}
+
+void scores_menu_items::prepare_scores(const all_scores &all_scores, std::ostringstream &oss)
+{
+	for (auto &&[idx, sr, si] : enumerate(zip(scores, all_scores.stats), 1u))
+		prepare_row(sr, si, oss, idx);
+	std::copy(std::begin(all_scores.cool_saying), std::prev(std::end(all_scores.cool_saying)), cool_saying.begin());
+	cool_saying.back() = 0;
+}
+
+scores_menu_items::scores_menu_items(const int citem, const all_scores &all_scores, const stats_info *const last_game_stats) :
+	citem(citem)
+{
+	auto oss = build_locale_stringstream();
+	prepare_scores(all_scores, oss);
+	if (last_game_stats)
+		prepare_row(last_game, *last_game_stats, oss);
+	else
+		last_game = {};
+}
+
+struct scores_menu : scores_menu_items, window
+{
+	scores_menu(grs_canvas &src, int x, int y, int w, int h, int citem, const all_scores &scores, const stats_info *last_game) :
+		scores_menu_items(citem, scores, last_game),
+		window(src, x, y, w, h)
 	{
 	}
-	else
-		scores_rprintf(canvas, cv_font, 57, y, "%d.", i + 1);
+	virtual window_event_result event_handler(const d_event &) override;
+	int get_update_looper();
+};
 
+static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const unsigned shade, const unsigned y, const scores_menu_items::row &stats)
+{
+	gr_set_fontcolor(canvas, BM_XRGB(shade, shade, shade), -1);
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx66 = fspacx(66);
 	const auto &&fspacy_y = FSPACY(y);
@@ -355,63 +480,13 @@ static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const 
 		return;
 	}
 	gr_string(canvas, cv_font, fspacx66, fspacy_y, stats.name);
-	{
-		std::ostringstream oss;
-		const auto user_preferred_locale = []() {
-			try {
-				/* Use the user's locale if possible. */
-				return std::locale("");
-			} catch (std::runtime_error &) {
-				/* Fall back to the default locale if the user's locale
-				 * fails to parse.
-				 */
-				return std::locale();
-			}
-		}();
-		oss.imbue(user_preferred_locale);
-		oss << stats.score;
-		auto buffer = oss.str();
-		//replace the digit '1' with special wider 1
-		std::replace(buffer.begin(), buffer.end(), '1', '\x84');
-		scores_rputs(canvas, cv_font, 149, y, buffer.data());
-	}
+	scores_rputs(canvas, cv_font, 149, y, stats.score.data());
 
 	gr_string(canvas, cv_font, fspacx(166), fspacy_y, MENU_DIFFICULTY_TEXT(stats.diff_level));
 
-	{
-		const auto starting_level = stats.starting_level;
-		const auto ending_level = stats.ending_level;
-		if (starting_level > 0 && ending_level > 0)
-			scores_rprintf(canvas, cv_font, 232, y, "%d-%d", starting_level, ending_level);
-		else if (starting_level < 0 && ending_level > 0)
-			scores_rprintf(canvas, cv_font, 232, y, "S%d-%d", -starting_level, ending_level);
-		else if (starting_level < 0 && ending_level < 0)
-			scores_rprintf(canvas, cv_font, 232, y, "S%d-S%d", -starting_level, -ending_level);
-		else if (starting_level > 0 && ending_level < 0)
-			scores_rprintf(canvas, cv_font, 232, y, "%d-S%d", starting_level, -ending_level);
-	}
-
-	{
-		const auto &&d1 = std::div(stats.seconds, 60);
-		const auto &&d2 = std::div(d1.rem, 60);
-		scores_rprintf(canvas, cv_font, 276, y, "%d:%02d:%02d", d1.quot, d2.quot, d2.rem);
-	}
+	scores_rputs(canvas, cv_font, 232, y, stats.levels.data());
+	scores_rputs(canvas, cv_font, 276, y, stats.time_played.data());
 }
-
-struct scores_menu : window
-{
-	const int citem;
-	fix64			t1;
-	all_scores	scores;
-	const stats_info last_game;
-	uint8_t looper = 0;
-	scores_menu(grs_canvas &src, int x, int y, int w, int h, int citem, const stats_info *last_game) :
-		window(src, x, y, w, h), citem(citem), t1(timer_query()), last_game(last_game ? *last_game : stats_info{})
-	{
-	}
-	virtual window_event_result event_handler(const d_event &) override;
-	int get_update_looper();
-};
 
 window_event_result scores_menu::event_handler(const d_event &event)
 {
@@ -436,8 +511,11 @@ window_event_result scores_menu::event_handler(const d_event &event)
 						if (nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_NO, TXT_YES), menu_subtitle{TXT_RESET_HIGH_SCORES}) == 1)
 						{
 							PHYSFS_delete(SCORES_FILENAME);
-							scores_view(&last_game, citem);	// create new scores window
-							return window_event_result::close;
+							all_scores scores{};
+							assign_builtin_placeholder_scores(scores);
+							auto oss = build_locale_stringstream();
+							prepare_scores(scores, oss);
+							return window_event_result::handled;
 						}
 					}
 					return window_event_result::handled;
@@ -488,21 +566,22 @@ window_event_result scores_menu::event_handler(const d_event &event)
 			
 			gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 			
-			gr_printf(canvas, game_font, 0x8000, fspacy(31), "\"%s\"  - %s", scores.cool_saying, static_cast<const char *>(scores.stats[0].name));
+			gr_printf(canvas, game_font, 0x8000, fspacy(31), "\"%s\"  - %s", cool_saying.data(), static_cast<const char *>(scores[0].name));
 			
-			for (const auto &&[idx, stat] : enumerate(scores.stats))
+			for (const auto &&[idx, stat] : enumerate(scores))
 			{
 				const auto shade = (idx == citem)
 					? get_update_looper()
 					: 28 - idx * 2;
-				const auto y = compute_score_y_coordinate(idx);
-				scores_draw_item(canvas, game_font, shade, y, idx, stat);
+				const unsigned y = compute_score_y_coordinate(idx);
+				scores_rputs(canvas, game_font, 57, y, stat.line_number.data());
+				scores_draw_item(canvas, game_font, shade, y, stat);
 			}
 			
 			if (citem == MAX_HIGH_SCORES)
 			{
 				const auto shade = get_update_looper();
-				scores_draw_item(canvas, game_font, shade, compute_score_y_coordinate(citem) + 8, citem, last_game);
+				scores_draw_item(canvas, game_font, shade, compute_score_y_coordinate(citem) + 8, last_game);
 			}
 			}
 			break;
@@ -516,9 +595,9 @@ window_event_result scores_menu::event_handler(const d_event &event)
 
 int scores_menu::get_update_looper()
 {
-	if (const auto t2 = timer_query(); t2 >= t1 + F1_0 / 128)
+	if (const auto t2 = timer_query(); t2 >= time_last_color_change + F1_0 / 128)
 	{
-		t1 = t2;
+		time_last_color_change = t2;
 		if (++ looper >= fades.size())
 			looper = 0;
 	}
@@ -530,11 +609,12 @@ void scores_view(const stats_info *const last_game, int citem)
 {
 	const auto &&fspacx320 = FSPACX(320);
 	const auto &&fspacy200 = FSPACY(200);
-	auto menu = window_create<scores_menu>(grd_curscreen->sc_canvas, (SWIDTH - fspacx320) / 2, (SHEIGHT - fspacy200) / 2, fspacx320, fspacy200, citem, last_game);
+	all_scores scores;
+	scores_read(&scores);
+	auto menu = window_create<scores_menu>(grd_curscreen->sc_canvas, (SWIDTH - fspacx320) / 2, (SHEIGHT - fspacy200) / 2, fspacx320, fspacy200, citem, scores, last_game);
+	(void)menu;
 
 	newmenu_free_background();
-
-	scores_read(&menu->scores);
 
 	set_screen_mode(SCREEN_MENU);
 	show_menus();
