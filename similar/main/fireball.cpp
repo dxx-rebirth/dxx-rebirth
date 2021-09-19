@@ -1049,7 +1049,6 @@ imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const unsigned nu
 
 			for (count=0; count<num; count++) {
 				int	rand_scale;
-				auto new_velocity = init_vel;
 				const auto old_mag = vm_vec_mag_quick(init_vel);
 
 				//	We want powerups to move more in network mode.
@@ -1060,20 +1059,6 @@ imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const unsigned nu
 						id = POW_INVULNERABILITY;
 				} else
 					rand_scale = 2;
-
-				new_velocity.x += fixmul(old_mag+F1_0*32, d_rand()*rand_scale - 16384*rand_scale);
-				new_velocity.y += fixmul(old_mag+F1_0*32, d_rand()*rand_scale - 16384*rand_scale);
-				new_velocity.z += fixmul(old_mag+F1_0*32, d_rand()*rand_scale - 16384*rand_scale);
-
-				// Give keys zero velocity so they can be tracked better in multi
-
-				if ((Game_mode & GM_MULTI) && (id >= POW_KEY_BLUE) && (id <= POW_KEY_GOLD))
-					vm_vec_zero(new_velocity);
-
-				auto new_pos = pos;
-//				new_pos.x += (d_rand()-16384)*8;
-//				new_pos.y += (d_rand()-16384)*8;
-//				new_pos.z += (d_rand()-16384)*8;
 
 				if (Game_mode & GM_MULTI)
 				{	
@@ -1087,7 +1072,7 @@ imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const unsigned nu
 					 return object_none;
 #endif
 				}
-				const auto &&obj = obj_create(OBJ_POWERUP, id, segnum, new_pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
+				const auto &&obj = obj_create(OBJ_POWERUP, id, segnum, pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
 				objnum = obj;
 
 				if (objnum == object_none)
@@ -1104,7 +1089,22 @@ imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const unsigned nu
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
 				}
-				obj->mtype.phys_info.velocity = new_velocity;
+
+				// Give keys zero velocity so they can be tracked better in multi
+
+				auto &object_velocity = obj->mtype.phys_info.velocity;
+				if ((Game_mode & GM_MULTI) && (id >= POW_KEY_BLUE) && (id <= POW_KEY_GOLD))
+					object_velocity = {};
+				else
+				{
+					object_velocity = init_vel;
+					const auto random_velocity_adjustment = [old_mag, rand_scale]() {
+						return fixmul(old_mag + F1_0 * 32, d_rand() * rand_scale - 16384 * rand_scale);
+					};
+					object_velocity.x += random_velocity_adjustment();
+					object_velocity.y += random_velocity_adjustment();
+					object_velocity.z += random_velocity_adjustment();
+				}
 
 				obj->mtype.phys_info.drag = 512;	//1024;
 				obj->mtype.phys_info.mass = F1_0;
