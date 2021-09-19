@@ -2229,7 +2229,7 @@ void bm_read_weapon(int skip, int unused_flag)
 	Weapon_info[n].mass = F1_0;
 	Weapon_info[n].thrust = 0;
 	Weapon_info[n].drag = 0;
-	Weapon_info[n].persistent = 0;
+	Weapon_info[n].persistent = weapon_info::persistence_flag::terminate_on_impact;
 
 	Weapon_info[n].energy_usage = 0;					//	How much fuel is consumed to fire this weapon.
 	Weapon_info[n].ammo_usage = 0;					//	How many units of ammunition it uses.
@@ -2374,7 +2374,7 @@ void bm_read_weapon(int skip, int unused_flag)
 			} else if (!d_stricmp( arg, "lightcast" ))	{
 				Weapon_info[n].light = fl2f(atof(equal_ptr));
 			} else if (!d_stricmp( arg, "persistent" ))	{
-				Weapon_info[n].persistent = atoi(equal_ptr);
+				Weapon_info[n].persistent = atoi(equal_ptr) ? weapon_info::persistence_flag::persistent : weapon_info::persistence_flag::terminate_on_impact;
 			} else if (!d_stricmp(arg, "energy_usage" )) {
 				Weapon_info[n].energy_usage = fl2f(atof(equal_ptr));
 			} else if (!d_stricmp(arg, "ammo_usage" )) {

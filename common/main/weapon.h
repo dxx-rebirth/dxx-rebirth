@@ -101,13 +101,18 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 		always,
 		twice,
 	};
+	enum class persistence_flag : uint8_t
+	{
+		terminate_on_impact,
+		persistent,
+	};
 	render_type render;        // How to draw 0=laser, 1=blob, 2=object
 	matter_flag matter;
 	bounce_type bounce;
+	persistence_flag persistent;         // 0 = dies when it hits something, 1 = continues (eg, fusion cannon)
 #if defined(DXX_BUILD_DESCENT_I)
 	sbyte	model_num;					// Model num if rendertype==2.
 	sbyte	model_num_inner;			// Model num of inner part if rendertype==2.
-	sbyte   persistent;         // 0 = dies when it hits something, 1 = continues (eg, fusion cannon)
 
 	sbyte   flash_vclip;        // What vclip to use for muzzle flash
 	short   flash_sound;        // What sound to play when fired
@@ -146,7 +151,6 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 // damage_force was a real mess.  Wasn't Difficulty_level based, and was being applied instead of weapon's actual strength.  Now use 2*strength instead. --MK, 01/19/95
 	bitmap_index    picture;    // a picture of the weapon for the cockpit
 #elif defined(DXX_BUILD_DESCENT_II)
-	sbyte   persistent;         // 0 = dies when it hits something, 1 = continues (eg, fusion cannon)
 	short   model_num;          // Model num if rendertype==2.
 	short   model_num_inner;    // Model num of inner part if rendertype==2.
 
