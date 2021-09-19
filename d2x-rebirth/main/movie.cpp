@@ -54,6 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "libmve.h"
 #include "text.h"
 #include "screens.h"
+#include "timer.h"
 #include "physfsrwops.h"
 #if DXX_USE_OGL
 #include "ogl_init.h"
@@ -280,6 +281,9 @@ window_event_result movie_pause_window::event_handler(const d_event &event)
 				return window_event_result::close;
 			else
 				return result;
+		case EVENT_IDLE:
+			timer_delay(F1_0 / 4);
+			break;
 
 		case EVENT_WINDOW_DRAW:
 		{
