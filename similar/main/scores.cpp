@@ -323,6 +323,12 @@ static void scores_rprintf(grs_canvas &canvas, const grs_font &cv_font, const in
 	scores_rputs(canvas, cv_font, x, y, buffer);
 }
 
+static unsigned compute_score_y_coordinate(const unsigned i)
+{
+	const unsigned y = 74 + i * 9;
+	return i ? y : y - 8;
+}
+
 }
 
 }
@@ -331,22 +337,14 @@ namespace dsx {
 
 namespace {
 
-static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const unsigned shade, const unsigned i, const stats_info &stats)
+static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const unsigned shade, const unsigned y, const unsigned i, const stats_info &stats)
 {
 	gr_set_fontcolor(canvas, BM_XRGB(shade, shade, shade), -1);
-	int y;
-
-	y = 77+i*9;
-
-	if (i==0)
-		y -= 8;
-
 	if ( i==MAX_HIGH_SCORES )
-		y += 8;
+	{
+	}
 	else
-		scores_rprintf(canvas, cv_font, 57, y - 3, "%d.", i + 1);
-
-	y -= 3;
+		scores_rprintf(canvas, cv_font, 57, y, "%d.", i + 1);
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx66 = fspacx(66);
@@ -497,13 +495,14 @@ window_event_result scores_menu::event_handler(const d_event &event)
 				const auto shade = (idx == citem)
 					? get_update_looper()
 					: 28 - idx * 2;
-				scores_draw_item(canvas, game_font, shade, idx, stat);
+				const auto y = compute_score_y_coordinate(idx);
+				scores_draw_item(canvas, game_font, shade, y, idx, stat);
 			}
 			
 			if (citem == MAX_HIGH_SCORES)
 			{
 				const auto shade = get_update_looper();
-				scores_draw_item(canvas, game_font, shade, citem, last_game);
+				scores_draw_item(canvas, game_font, shade, compute_score_y_coordinate(citem) + 8, citem, last_game);
 			}
 			}
 			break;
