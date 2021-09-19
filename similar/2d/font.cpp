@@ -59,12 +59,12 @@ namespace {
 
 static font_x_scale_float FONTSCALE_X()
 {
-	return FNTScaleX.operator float();
+	return font_x_scale_float(FNTScaleX.operator float());
 }
 
 static auto FONTSCALE_Y(const int &y)
 {
-	return font_scaled_float<'y'>(FNTScaleY * y);
+	return font_y_scaled_float(FNTScaleY * y);
 }
 
 #define MAX_OPEN_FONTS	50

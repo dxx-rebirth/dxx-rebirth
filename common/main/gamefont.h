@@ -84,7 +84,7 @@ template <char tag>
 class font_scale_proportion : public base_font_scale_proportion
 {
 public:
-	DXX_INHERIT_CONSTRUCTORS(font_scale_proportion, base_font_scale_proportion);
+	using base_font_scale_proportion::base_font_scale_proportion;
 	bool operator!=(const font_scale_proportion &rhs) const
 	{
 		return f != rhs.f;
@@ -111,6 +111,7 @@ public:
 		f(v)
 	{
 	}
+	base_font_scaled_float(int) = delete;
 	operator float() const
 	{
 		return f;
@@ -124,7 +125,7 @@ template <char tag>
 class font_scaled_float : public base_font_scaled_float
 {
 public:
-	DXX_INHERIT_CONSTRUCTORS(font_scaled_float, base_font_scaled_float);
+	using base_font_scaled_float::base_font_scaled_float;
 };
 
 template <char tag>
@@ -133,10 +134,11 @@ class font_scale_float
 	const float scale;
 public:
 	using scaled = font_scaled_float<tag>;
-	constexpr font_scale_float(const float s) :
+	explicit constexpr font_scale_float(const float s) :
 		scale(s)
 	{
 	}
+	font_scale_float(int) = delete;
 	auto operator()(const int &i) const
 	{
 		return scaled(scale * i);
@@ -150,7 +152,7 @@ using font_y_scaled_float = font_y_scale_float::scaled;
 
 static inline font_x_scale_float FSPACX()
 {
-	return FNTScaleX * (GAME_FONT->ft_w / 7);
+	return font_x_scale_float(FNTScaleX * (GAME_FONT->ft_w / 7));
 }
 
 static inline auto FSPACX(const int &x)
@@ -160,7 +162,7 @@ static inline auto FSPACX(const int &x)
 
 static inline font_y_scale_float FSPACY()
 {
-	return FNTScaleY * (GAME_FONT->ft_h / 5);
+	return font_y_scale_float(FNTScaleY * (GAME_FONT->ft_h / 5));
 }
 
 static inline auto FSPACY(const int &y)
