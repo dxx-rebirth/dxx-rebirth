@@ -828,13 +828,11 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 {
 	int old_choice, mx=0, my=0, mz=0, x1 = 0, x2, y1, y2, changed = 0;
 	grs_canvas &menu_canvas = menu->w_canv;
-	grs_canvas &save_canvas = *grd_curcanv;
 
 	switch (button)
 	{
 		case MBTN_LEFT:
 		{
-			gr_set_current_canvas(menu_canvas);
 			auto &canvas = menu_canvas;
 
 			old_choice = menu->citem;
@@ -974,7 +972,6 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 
 							if (menu->rval)
 								*menu->rval = menu->citem;
-							gr_set_current_canvas(save_canvas);
 							return window_event_result::close;
 					}
 				}
@@ -996,9 +993,6 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 					}
 				}
 			}
-
-			gr_set_current_canvas(save_canvas);
-
 			if (changed)
 			{
 				menu->event_handler(d_change_event{menu->citem});
@@ -1302,7 +1296,6 @@ namespace {
 static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_font)
 {
 	int nmenus;
-	grs_canvas &save_canvas = *grd_curcanv;
 	auto &canvas = menu.parent_canvas;
 
 	auto iterative_layout_max_width = 0u;
@@ -1481,7 +1474,6 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	menu.sheight = SHEIGHT;
 	menu.fntscalex = FNTScaleX;
 	menu.fntscaley = FNTScaleY;
-	gr_set_current_canvas(save_canvas);
 }
 
 static window_event_result newmenu_draw(newmenu *menu)
