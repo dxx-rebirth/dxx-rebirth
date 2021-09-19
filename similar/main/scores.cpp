@@ -303,14 +303,8 @@ namespace dcx {
 namespace {
 
 __attribute_nonnull()
-static void scores_rputs(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, char *const buffer)
+static void scores_rputs(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const buffer)
 {
-	char *p;
-
-	//replace the digit '1' with special wider 1
-	for (p=buffer;*p;p++)
-		if (*p=='1') *p=132;
-
 	const auto &&[w, h] = gr_get_string_size(cv_font, buffer);
 	gr_string(canvas, cv_font, FSPACX(x) - w, FSPACY(y), buffer, w, h);
 }
@@ -322,8 +316,10 @@ static void scores_rprintf(grs_canvas &canvas, const grs_font &cv_font, const in
 	char buffer[128];
 
 	va_start(args, format );
-	vsnprintf(buffer,sizeof(buffer),format,args);
+	const auto l = vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
+	//replace the digit '1' with special wider 1
+	std::replace(buffer, buffer + l, '1', '\x84');
 	scores_rputs(canvas, cv_font, x, y, buffer);
 }
 
@@ -377,6 +373,8 @@ static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const 
 		oss.imbue(user_preferred_locale);
 		oss << stats.score;
 		auto buffer = oss.str();
+		//replace the digit '1' with special wider 1
+		std::replace(buffer.begin(), buffer.end(), '1', '\x84');
 		scores_rputs(canvas, cv_font, 149, y, buffer.data());
 	}
 
