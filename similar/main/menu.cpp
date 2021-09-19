@@ -677,7 +677,7 @@ window_event_result dispatch_menu_option(const main_menu_item_index select)
 #endif
 #endif
 		case main_menu_item_index::open_high_scores_dialog:
-			scores_view_menu();
+			scores_view_menu(grd_curscreen->sc_canvas);
 			break;
 		case main_menu_item_index::quit_program:
 #if DXX_USE_EDITOR

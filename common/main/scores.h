@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _SCORES_H
 
 #include "dsx-ns.h"
+#include "fwd-gr.h"
 
 #define HOSTAGE_SCORE           1000
 #define CONTROL_CEN_SCORE       5000
@@ -44,7 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef dsx
 namespace dsx {
 
-void scores_view_menu();
+void scores_view_menu(grs_canvas &);
 
 // If player has a high score, adds you to file and returns.
 // If abort_flag set, only show if player has gotten a high score.

@@ -110,7 +110,7 @@ static_assert(sizeof(all_scores) == 294, "high score size wrong");
 static_assert(sizeof(all_scores) == 336, "high score size wrong");
 #endif
 
-void scores_view(const stats_info *last_game, int citem);
+void scores_view(grs_canvas &canvas, const stats_info *last_game, int citem);
 
 static void assign_builtin_placeholder_scores(all_scores &scores)
 {
@@ -323,7 +323,7 @@ void scores_maybe_add_player()
 		scores_fill_struct(iter_position);
 		scores_write(&scores);
 	}
-	scores_view(ptr_last_game, position);
+	scores_view(grd_curscreen->sc_canvas, ptr_last_game, position);
 }
 
 }
@@ -613,13 +613,12 @@ int scores_menu::get_update_looper()
 	return shade;
 }
 
-void scores_view(const stats_info *const last_game, int citem)
+void scores_view(grs_canvas &canvas, const stats_info *const last_game, int citem)
 {
 	const auto &&fspacx290 = FSPACX(290);
 	const auto &&fspacy170 = FSPACY(170);
 	all_scores scores;
 	scores_read(&scores);
-	auto &canvas = grd_curscreen->sc_canvas;
 	const auto border_x = get_border_x(canvas);
 	const auto border_y = get_border_y(canvas);
 	auto menu = window_create<scores_menu>(canvas, ((canvas.cv_bitmap.bm_w - fspacx290) / 2) - border_x, ((canvas.cv_bitmap.bm_h - fspacy170) / 2) - border_y, fspacx290 + (border_x * 2), fspacy170 + (border_y * 2), citem, scores, last_game);
@@ -633,9 +632,9 @@ void scores_view(const stats_info *const last_game, int citem)
 
 }
 
-void scores_view_menu()
+void scores_view_menu(grs_canvas &canvas)
 {
-	scores_view(nullptr, -1);
+	scores_view(canvas, nullptr, -1);
 }
 
 }
