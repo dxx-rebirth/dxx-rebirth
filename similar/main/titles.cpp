@@ -463,7 +463,7 @@ struct msgstream
 	int x;
 	int y;
 	color_t color;
-	char ch;
+	std::array<char, 2> ch;
 };
 
 constexpr const briefing_screen *get_d1_briefing_screens(const unsigned descent_hog_size)
@@ -532,7 +532,6 @@ struct briefing : window
 	std::unique_ptr<char[]>	text;
 	const char	*message;
 	int		text_x, text_y;
-	std::array<msgstream, 2048> messagestream;
 	short	tab_stop;
 	fix64		start_time;
 	fix64		delay_count;
@@ -542,6 +541,7 @@ struct briefing : window
 	std::array<char, 32> bitmap_name;
 	grs_main_bitmap  guy_bitmap;
 	std::array<char, 16> background_name;
+	std::array<msgstream, 2048> messagestream;
 };
 
 static void briefing_init(briefing *br, short level_num)
@@ -659,8 +659,6 @@ static int check_text_pos(briefing *br)
 
 static void put_char_delay(const grs_font &cv_font, briefing *const br, const char ch)
 {
-	char str[2];
-	str[0] = ch; str[1] = '\0';
 	if (br->delay_count && (timer_query() < br->start_time + br->delay_count))
 	{
 		br->message--;		// Go back to same character
@@ -669,14 +667,15 @@ static void put_char_delay(const grs_font &cv_font, briefing *const br, const ch
 
 	if (br->streamcount >= br->messagestream.size())
 		return;
-	br->messagestream[br->streamcount].x = br->text_x;
-	br->messagestream[br->streamcount].y = br->text_y;
-	br->messagestream[br->streamcount].color = *Current_color;
-	br->messagestream[br->streamcount].ch = ch;
-	br->streamcount++;
+	auto &m = br->messagestream[br->streamcount++];
+	m.x = br->text_x;
+	m.y = br->text_y;
+	m.color = *Current_color;
+	m.ch[0] = ch;
+	m.ch[1] = 0;
 
 	br->prev_ch = ch;
-	const auto w = gr_get_string_size(cv_font, str).width;
+	const auto w = gr_get_string_size(cv_font, m.ch.data()).width;
 	br->text_x += w;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1044,13 +1043,12 @@ static void set_briefing_fontcolor(briefing &br)
 
 static void redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, const msgstream &stream, unsigned &lastcolor)
 {
-	char msgbuf[2] = {stream.ch, 0};
 	if (lastcolor != stream.color)
 	{
 		lastcolor = stream.color;
 		gr_set_fontcolor(canvas, stream.color, -1);
 	}
-	gr_string(canvas, cv_font, stream.x + 1, stream.y, msgbuf);
+	gr_string(canvas, cv_font, stream.x + 1, stream.y, stream.ch.data());
 }
 
 namespace dsx {
