@@ -261,7 +261,7 @@ void savegame_chooser_newmenu::draw_handler()
 	if (!sc_bmp.valid_index(choice))
 		return;
 	if (auto &bmp = sc_bmp[choice])
-		draw_handler(*grd_curcanv, *bmp);
+		draw_handler(w_canv, *bmp);
 }
 
 window_event_result savegame_chooser_newmenu::event_handler(const d_event &event)
@@ -1033,7 +1033,7 @@ void state_poll_autosave_game(d_game_unique_state &GameUniqueState, const d_leve
  * For restoring, dsc should be NULL, in which case empty slots will not be
  * selectable and savagames descriptions will not be editable.
  */
-static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const menu_subtitle caption, const blind_save entry_blind)
+static d_game_unique_state::save_slot state_get_savegame_filename(grs_canvas &canvas, d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const menu_subtitle caption, const blind_save entry_blind)
 {
 	const auto quicksave_selection = GameUniqueState.quicksave_selection;
 	if (entry_blind != blind_save::no &&
@@ -1055,18 +1055,18 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 	}
 	std::unique_ptr<savegame_chooser_newmenu> win;
 	try {
-		win = savegame_chooser_newmenu::create(caption, *grd_curcanv, dsc, fname);
+		win = savegame_chooser_newmenu::create(caption, canvas, dsc, fname);
 	}
 	catch (const savegame_chooser_newmenu::error_no_saves_found &)
 	{
 		struct error_no_saves_found : passive_messagebox
 		{
-			error_no_saves_found() :
-				passive_messagebox(menu_title{nullptr}, menu_subtitle{"No saved games were found!"}, TXT_OK, grd_curscreen->sc_canvas)
+			error_no_saves_found(grs_canvas &canvas) :
+				passive_messagebox(menu_title{nullptr}, menu_subtitle{"No saved games were found!"}, TXT_OK, canvas)
 			{
 			}
 		};
-		run_blocking_newmenu<error_no_saves_found>();
+		run_blocking_newmenu<error_no_saves_found>(canvas);
 		return d_game_unique_state::save_slot::None;
 	}
 	win->send_creation_events();
@@ -1079,14 +1079,14 @@ static d_game_unique_state::save_slot state_get_savegame_filename(d_game_unique_
 	return choice;
 }
 
-d_game_unique_state::save_slot state_get_save_file(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const blind_save blind_save)
+d_game_unique_state::save_slot state_get_save_file(grs_canvas &canvas, d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const blind_save blind_save)
 {
-	return state_get_savegame_filename(fname, dsc, menu_subtitle{"Save Game"}, blind_save);
+	return state_get_savegame_filename(canvas, fname, dsc, menu_subtitle{"Save Game"}, blind_save);
 }
 
-d_game_unique_state::save_slot state_get_restore_file(d_game_unique_state::savegame_file_path &fname, blind_save blind_save)
+d_game_unique_state::save_slot state_get_restore_file(grs_canvas &canvas, d_game_unique_state::savegame_file_path &fname, blind_save blind_save)
 {
-	return state_get_savegame_filename(fname, NULL, menu_subtitle{"Select Game to Restore"}, blind_save);
+	return state_get_savegame_filename(canvas, fname, nullptr, menu_subtitle{"Select Game to Restore"}, blind_save);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1180,7 +1180,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 	} else
 #endif
 	{
-		filenum = state_get_save_file(filename_storage, &desc, blind_save);
+		filenum = state_get_save_file(*grd_curcanv, filename_storage, &desc, blind_save);
 		if (!GameUniqueState.valid_save_slot(filenum))
 			return 0;
 		filename = filename_storage.data();
@@ -1721,7 +1721,7 @@ int state_restore_all(const int in_game, const secret_restore secret, const char
 	} else
 #endif
 	{
-		filenum = state_get_restore_file(filename_storage, blind);
+		filenum = state_get_restore_file(*grd_curcanv, filename_storage, blind);
 		if (!GameUniqueState.valid_load_slot(filenum))
 		{
 			return 0;

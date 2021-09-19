@@ -4956,7 +4956,7 @@ void multi_initiate_save_game()
 
 	d_game_unique_state::savegame_file_path filename{};
 	d_game_unique_state::savegame_description desc{};
-	const auto slot = state_get_save_file(filename, &desc, blind_save::no);
+	const auto slot = state_get_save_file(*grd_curcanv, filename, &desc, blind_save::no);
 	if (!GameUniqueState.valid_save_slot(slot))
 		return;
 	const auto &&player_range = partial_const_range(Players, N_players);
@@ -5004,7 +5004,7 @@ void multi_initiate_restore_game()
 		return;
 	}
 	d_game_unique_state::savegame_file_path filename;
-	const auto eslot = state_get_restore_file(filename, blind_save::no);
+	const auto eslot = state_get_restore_file(*grd_curcanv, filename, blind_save::no);
 	if (!GameUniqueState.valid_load_slot(eslot))
 		return;
 	/* Recheck the interactive conditions, but not the host status.  If

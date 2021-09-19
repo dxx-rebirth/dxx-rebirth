@@ -93,8 +93,8 @@ void state_set_next_autosave(d_game_unique_state &GameUniqueState, std::chrono::
 void state_set_next_autosave(d_game_unique_state &GameUniqueState, autosave_interval_type interval);
 int state_save_all_sub(const char *filename, const char *desc);
 
-d_game_unique_state::save_slot state_get_save_file(d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *dsc, blind_save);
-d_game_unique_state::save_slot state_get_restore_file(d_game_unique_state::savegame_file_path &fname, blind_save);
+d_game_unique_state::save_slot state_get_save_file(grs_canvas &canvas, d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *dsc, blind_save);
+d_game_unique_state::save_slot state_get_restore_file(grs_canvas &canvas, d_game_unique_state::savegame_file_path &fname, blind_save);
 
 #if defined(DXX_BUILD_DESCENT_I)
 int state_restore_all_sub(const char *filename);
