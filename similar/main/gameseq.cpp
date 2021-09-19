@@ -2073,21 +2073,21 @@ static void ShowLevelIntro(int level_num)
 	//if shareware, show a briefing?
 
 	if (!(Game_mode & GM_MULTI)) {
-		palette_array_t save_pal;
-
-		save_pal = gr_palette;
+		palette_array_t save_pal = gr_palette;
 
 		if (PLAYING_BUILTIN_MISSION) {
 
 			if (is_SHAREWARE || is_MAC_SHARE)
 			{
-				if (level_num==1)
-					do_briefing_screens (Briefing_text_filename, 1);
+				if (level_num != 1)
+					return;
 			}
 			else if (is_D2_OEM)
 			{
-				if (level_num == 1 && !intro_played)
-					do_briefing_screens(Briefing_text_filename, 1);
+				if (level_num != 1)
+					return;
+				if (intro_played)
+					return;
 			}
 			else // full version
 			{
@@ -2100,14 +2100,13 @@ static void ShowLevelIntro(int level_num)
 						break;
 					}
 				}
-
-				do_briefing_screens (Briefing_text_filename,level_num);
 			}
 		}
-		else	//not the built-in mission (maybe d1, too).  check for add-on briefing
-		{
-			do_briefing_screens(Briefing_text_filename, level_num);
-		}
+		//else not the built-in mission (maybe d1, too).
+		/* Play a level-appropriate briefing, whether built-in, add-on,
+		 * or Descent 1.
+		 */
+		do_briefing_screens(Briefing_text_filename, level_num);
 
 		gr_palette = save_pal;
 	}
