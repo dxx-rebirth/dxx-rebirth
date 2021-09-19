@@ -108,19 +108,6 @@ void d_strupr(std::array<char, PATH_MAX> &out, const std::array<char, PATH_MAX> 
 }
 #endif
 
-void d_strrev( char *s1 )
-{
-	char *h, *t;
-	h = s1;
-	t = s1 + strlen(s1) - 1;
-	while (h < t) {
-		char c;
-		c = *h;
-		*h++ = *t;
-		*t-- = c;
-	}
-}
-
 #ifdef DEBUG_MEMORY_ALLOCATIONS
 char *(d_strdup)(const char *str, const char *var, const char *file, unsigned line)
 {

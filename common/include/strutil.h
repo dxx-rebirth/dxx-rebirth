@@ -38,7 +38,6 @@ __attribute_nonnull()
 int d_strnicmp(const char *s1, const char *s2, uint_fast32_t n);
 #endif
 extern void d_strlwr( char *s1 );
-extern void d_strrev( char *s1 );
 #ifdef DEBUG_MEMORY_ALLOCATIONS
 char *d_strdup(const char *str, const char *, const char *, unsigned) __attribute_malloc();
 #define d_strdup(str)	(d_strdup(str, #str, __FILE__,__LINE__))

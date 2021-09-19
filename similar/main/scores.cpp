@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sstream>
 #include <ctype.h>
 
 #include "scores.h"
@@ -156,48 +157,6 @@ static void scores_write(all_scores *scores)
 	scores->version = VERSION_NUMBER;
 	PHYSFS_write(fp, scores,sizeof(all_scores), 1);
 }
-
-}
-
-}
-
-namespace dcx {
-
-namespace {
-
-static void int_to_string( int number, char *dest )
-{
-	int c;
-	char buffer[20],*p;
-
-	const auto l = snprintf(buffer, sizeof(buffer), "%d", number);
-	if (l<=3) {
-		// Don't bother with less than 3 digits
-		memcpy(dest, buffer, 4);
-		return;
-	}
-
-	c = 0;
-	p=dest;
-	for (int i=l-1; i>=0; i-- ) {
-		if (c==3) {
-			*p++=',';
-			c = 0;
-		}
-		c++;
-		*p++ = buffer[i];
-	}
-	*p++ = '\0';
-	d_strrev(dest);
-}
-
-}
-
-}
-
-namespace dsx {
-
-namespace {
 
 static void scores_fill_struct(stats_info * stats)
 {
@@ -376,11 +335,9 @@ namespace dsx {
 
 namespace {
 
-static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const unsigned shade, const unsigned i, const stats_info *const stats)
+static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const unsigned shade, const unsigned i, const stats_info &stats)
 {
 	gr_set_fontcolor(canvas, BM_XRGB(shade, shade, shade), -1);
-	char buffer[20];
-
 	int y;
 
 	y = 77+i*9;
@@ -398,33 +355,50 @@ static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx66 = fspacx(66);
 	const auto &&fspacy_y = FSPACY(y);
-	if (!stats->name[0u])
+	if (!stats.name[0u])
 	{
 		gr_string(canvas, cv_font, fspacx66, fspacy_y, TXT_EMPTY);
 		return;
 	}
-	gr_string(canvas, cv_font, fspacx66, fspacy_y, stats->name);
-	int_to_string(stats->score, buffer);
-	scores_rputs(canvas, cv_font, 149, y, buffer);
+	gr_string(canvas, cv_font, fspacx66, fspacy_y, stats.name);
+	{
+		std::ostringstream oss;
+		const auto user_preferred_locale = []() {
+			try {
+				/* Use the user's locale if possible. */
+				return std::locale("");
+			} catch (std::runtime_error &) {
+				/* Fall back to the default locale if the user's locale
+				 * fails to parse.
+				 */
+				return std::locale();
+			}
+		}();
+		oss.imbue(user_preferred_locale);
+		oss << stats.score;
+		auto buffer = oss.str();
+		scores_rputs(canvas, cv_font, 149, y, buffer.data());
+	}
 
-	gr_string(canvas, cv_font, fspacx(166), fspacy_y, MENU_DIFFICULTY_TEXT(stats->diff_level));
-
-	if ( (stats->starting_level > 0 ) && (stats->ending_level > 0 ))
-		scores_rprintf(canvas, cv_font, 232, y, "%d-%d", stats->starting_level, stats->ending_level);
-	else if ( (stats->starting_level < 0 ) && (stats->ending_level > 0 ))
-		scores_rprintf(canvas, cv_font, 232, y, "S%d-%d", -stats->starting_level, stats->ending_level);
-	else if ( (stats->starting_level < 0 ) && (stats->ending_level < 0 ))
-		scores_rprintf(canvas, cv_font, 232, y, "S%d-S%d", -stats->starting_level, -stats->ending_level);
-	else if ( (stats->starting_level > 0 ) && (stats->ending_level < 0 ))
-		scores_rprintf(canvas, cv_font, 232, y, "%d-S%d", stats->starting_level, -stats->ending_level);
+	gr_string(canvas, cv_font, fspacx(166), fspacy_y, MENU_DIFFICULTY_TEXT(stats.diff_level));
 
 	{
-		int h, m, s;
-		h = stats->seconds/3600;
-		s = stats->seconds%3600;
-		m = s / 60;
-		s = s % 60;
-		scores_rprintf(canvas, cv_font, 276, y, "%d:%02d:%02d", h, m, s);
+		const auto starting_level = stats.starting_level;
+		const auto ending_level = stats.ending_level;
+		if (starting_level > 0 && ending_level > 0)
+			scores_rprintf(canvas, cv_font, 232, y, "%d-%d", starting_level, ending_level);
+		else if (starting_level < 0 && ending_level > 0)
+			scores_rprintf(canvas, cv_font, 232, y, "S%d-%d", -starting_level, ending_level);
+		else if (starting_level < 0 && ending_level < 0)
+			scores_rprintf(canvas, cv_font, 232, y, "S%d-S%d", -starting_level, -ending_level);
+		else if (starting_level > 0 && ending_level < 0)
+			scores_rprintf(canvas, cv_font, 232, y, "%d-S%d", starting_level, -ending_level);
+	}
+
+	{
+		const auto &&d1 = std::div(stats.seconds, 60);
+		const auto &&d2 = std::div(d1.rem, 60);
+		scores_rprintf(canvas, cv_font, 276, y, "%d:%02d:%02d", d1.quot, d2.quot, d2.rem);
 	}
 }
 
@@ -525,13 +499,13 @@ window_event_result scores_menu::event_handler(const d_event &event)
 				const auto shade = (idx == citem)
 					? get_update_looper()
 					: 28 - idx * 2;
-				scores_draw_item(canvas, game_font, shade, idx, &stat);
+				scores_draw_item(canvas, game_font, shade, idx, stat);
 			}
 			
 			if (citem == MAX_HIGH_SCORES)
 			{
 				const auto shade = get_update_looper();
-				scores_draw_item(canvas, game_font, shade, citem, &last_game);
+				scores_draw_item(canvas, game_font, shade, citem, last_game);
 			}
 			}
 			break;
