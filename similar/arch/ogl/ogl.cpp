@@ -283,7 +283,7 @@ ogl_texture* ogl_get_free_texture(void){
 	Error("OGL: texture list full!\n");
 }
 
-static void ogl_texture_stats(void)
+static void ogl_texture_stats(grs_canvas &canvas)
 {
 	int used = 0, usedother = 0, usedidx = 0, usedrgb = 0, usedrgba = 0;
 	int databytes = 0, truebytes = 0, datatexel = 0, truetexel = 0;
@@ -333,8 +333,6 @@ static void ogl_texture_stats(void)
 #endif
 	dbl += 1;
 	glGetIntegerv(GL_DEPTH_BITS, &depth);
-	gr_set_default_canvas();
-	auto &canvas = *grd_curcanv;
 	const auto &game_font = *GAME_FONT;
 	gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
 	colorsize = (idx * res * dbl) / 8;
@@ -1389,7 +1387,10 @@ void ogl_end_frame(void){
 void gr_flip(void)
 {
 	if (CGameArg.DbgRenderStats)
-		ogl_texture_stats();
+	{
+		gr_set_default_canvas();
+		ogl_texture_stats(*grd_curcanv);
+	}
 
 	ogl_do_palfx();
 	ogl_swap_buffers_internal();
