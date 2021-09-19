@@ -26,16 +26,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include <memory>
 #include <utility>
+#include "d_array.h"
 #include "palette.h"
 #include "maths.h"
 #include "u_mem.h"
 
 namespace dcx {
 
+enum class gr_fade_level : uint8_t;
+
 // some defines for transparency and blending
 constexpr auto TRANSPARENCY_COLOR = color_palette_index{255};            // palette entry of transparency color -- 255 on the PC
 #define GR_FADE_LEVELS       34u
-#define GR_FADE_OFF          GR_FADE_LEVELS // yes, max means OFF - don't screw that up
+#define GR_FADE_OFF          gr_fade_level::off
 enum class gr_blend : uint8_t {
 	normal,		// normal blending
 	additive_a,	// additive alpha blending
@@ -211,7 +214,7 @@ void gr_use_palette_table(const char * filename);
 namespace dcx {
 
 // Sets transparency and blending function
-void gr_settransblend(grs_canvas &, int fade_level, gr_blend blend_func);
+void gr_settransblend(grs_canvas &, gr_fade_level fade_level, gr_blend blend_func);
 
 // Draws a point into the current canvas in the current color and drawmode.
 void gr_pixel(grs_bitmap &, unsigned x, unsigned y, color_palette_index color);
@@ -374,7 +377,7 @@ static inline void (gr_set_current_canvas)(grs_canvas *const canv DXX_DEBUG_CURR
 #define FT_KERNED       4
 
 extern palette_array_t gr_palette;
-using gft_array1 = std::array<std::array<color_t, 256>, GR_FADE_LEVELS>;
+using gft_array1 = enumerated_array<std::array<color_t, 256>, GR_FADE_LEVELS, gr_fade_level>;
 extern gft_array1 gr_fade_table;
 }
 

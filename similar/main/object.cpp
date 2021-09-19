@@ -340,7 +340,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 				   alt_textures );
 	}
 	else {
-		gr_settransblend(canvas, cloak_value, gr_blend::normal);
+		gr_settransblend(canvas, static_cast<gr_fade_level>(cloak_value), gr_blend::normal);
 		g3_set_special_render(draw_tmap_flat);		//use special flat drawer
 		draw_polygon_model(canvas, obj.pos,
 				   obj.orient,
@@ -705,7 +705,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 			if ( PlayerCfg.AlphaBlendMarkers && obj->type == OBJ_MARKER ) // set nice transparency/blending for certrain objects
 			{
 				alpha = true;
-				gr_settransblend(canvas, 10, gr_blend::additive_a);
+				gr_settransblend(canvas, gr_fade_level{10}, gr_blend::additive_a);
 			}
 #endif
 			draw_polygon_object(canvas, LevelUniqueLightState, obj);
@@ -733,7 +733,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
                 )) // set nice transparency/blending for certain objects
 			{
 				alpha = true;
-				gr_settransblend(canvas, 7, gr_blend::additive_a);
+				gr_settransblend(canvas, gr_fade_level{7}, gr_blend::additive_a);
 			}
 
 			draw_weapon_vclip(Vclip, Weapon_info, canvas, obj);
@@ -756,7 +756,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 					case POW_HOARD_ORB:
 #endif
 						alpha = true;
-						gr_settransblend(canvas, 7, gr_blend::additive_a);
+						gr_settransblend(canvas, gr_fade_level{7}, gr_blend::additive_a);
 						break;
 					case POW_LASER:
 					case POW_KEY_BLUE:
@@ -809,7 +809,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 			if (PlayerCfg.AlphaBlendLasers) // set nice transparency/blending for certrain objects
 			{
 				alpha = true;
-				gr_settransblend(canvas, 7, gr_blend::additive_a);
+				gr_settransblend(canvas, gr_fade_level{7}, gr_blend::additive_a);
 			}
 
 			Laser_render(canvas, obj);

@@ -1322,7 +1322,7 @@ void draw_all_edges(automap &am)
 				if ( nfacing == 0 )	{
 					const uint8_t color = (e->flags & EF_NO_FADE)
 						? e->color
-						: gr_fade_table[8][e->color];
+						: gr_fade_table[(gr_fade_level{8})][e->color];
 					g3_draw_line(canvas, Segment_points[e->verts[0]], Segment_points[e->verts[1]], color);
 				} 	else {
 					am.drawingListBright[nbright++] = e;
@@ -1353,7 +1353,7 @@ void draw_all_edges(automap &am)
 
 		const auto color = (e->flags & EF_NO_FADE)
 			? e->color
-			: gr_fade_table[f2i((F1_0 - fixdiv(dist, am.farthest_dist)) * 31)][e->color];	
+			: gr_fade_table[static_cast<gr_fade_level>(f2i((F1_0 - fixdiv(dist, am.farthest_dist)) * 31))][e->color];	
 		g3_draw_line(canvas, *p1, *p2, color);
 	}
 }

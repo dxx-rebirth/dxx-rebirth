@@ -246,7 +246,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const un
 		const auto wall_num = segp.shared_segment::sides[sidenum].wall_num;
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 		auto &vcwallptr = Walls.vcptr;
-		gr_settransblend(canvas, vcwallptr(wall_num)->cloak_value, gr_blend::normal);
+		gr_settransblend(canvas, static_cast<gr_fade_level>(vcwallptr(wall_num)->cloak_value), gr_blend::normal);
 		const uint8_t color = BM_XRGB(0, 0, 0);
 		// set to black (matters for s3)
 

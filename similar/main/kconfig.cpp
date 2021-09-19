@@ -518,7 +518,7 @@ static void kconfig_draw(kc_menu &menu)
 		auto &menu_fade_index = menu.q_fade_i;
 		const auto fade_element = fades[menu_fade_index];
 #if defined(DXX_BUILD_DESCENT_I)
-		const auto color = gr_fade_table[fade_element][BM_XRGB(21, 0, 24)];
+		const auto color = gr_fade_table[static_cast<gr_fade_level>(fade_element)][BM_XRGB(21, 0, 24)];
 #elif defined(DXX_BUILD_DESCENT_II)
 		const auto color = BM_XRGB(21 * fade_element / 31, 0, 24 * fade_element / 31);
 #endif

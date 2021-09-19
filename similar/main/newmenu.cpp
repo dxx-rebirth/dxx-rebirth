@@ -272,7 +272,7 @@ void nm_draw_background(grs_canvas &canvas, int x1, int y1, int x2, int y2)
 	show_fullscr(*tmp, *nm_background_sub.get());
 	}
 
-	gr_settransblend(canvas, 14, gr_blend::normal);
+	gr_settransblend(canvas, gr_fade_level{14}, gr_blend::normal);
 	{
 		const auto color = BM_XRGB(1, 1, 1);
 	for (w=5*BGScaleX;w>0;w--)

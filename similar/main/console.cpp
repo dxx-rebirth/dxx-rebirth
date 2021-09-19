@@ -303,7 +303,7 @@ static void con_draw(void)
 	auto &game_font = *GAME_FONT;
 	gr_set_curfont(canvas, game_font);
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	gr_settransblend(canvas, 7, gr_blend::normal);
+	gr_settransblend(canvas, gr_fade_level{7}, gr_blend::normal);
 	const auto &&fspacy1 = FSPACY(1);
 	const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
 	y = fspacy1 + (line_spacing * con_size);

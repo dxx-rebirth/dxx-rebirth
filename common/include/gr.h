@@ -37,6 +37,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+enum class gr_fade_level : uint8_t
+{
+	off = GR_FADE_LEVELS // yes, max means OFF - don't screw that up
+};
+
 struct grs_point
 {
 	fix x,y;
@@ -176,7 +181,7 @@ struct grs_canvas : prohibit_void_ptr<grs_canvas>
 	const grs_font *  cv_font;        // the currently selected font
 	color_palette_index cv_font_fg_color;   // current font foreground color (255==Invisible)
 	color_palette_index cv_font_bg_color;   // current font background color (255==Invisible)
-	unsigned cv_fade_level;  // transparency level
+	gr_fade_level cv_fade_level;  // transparency level
 protected:
 	grs_canvas() = default;
 };

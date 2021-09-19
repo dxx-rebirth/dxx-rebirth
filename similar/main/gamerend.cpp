@@ -193,7 +193,7 @@ static void show_netplayerinfo(grs_canvas &canvas)
 	x = (SWIDTH / 2) - fspacx120;
 	y = (SHEIGHT / 2) - fspacy84;
 
-	gr_settransblend(canvas, 14, gr_blend::normal);
+	gr_settransblend(canvas, gr_fade_level{14}, gr_blend::normal);
 	const uint8_t color000 = BM_XRGB(0, 0, 0);
 	gr_rect(canvas, (SWIDTH / 2) - fspacx120, (SHEIGHT / 2) - fspacy84, (SWIDTH / 2) + fspacx120, (SHEIGHT / 2) + fspacy84, color000);
 	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);

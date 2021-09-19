@@ -2395,7 +2395,7 @@ namespace {
 static void draw_player_ship(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const int cloak_state, const int x, const int y)
 {
 	static fix cloak_fade_timer=0;
-	static int cloak_fade_value=GR_FADE_LEVELS-1;
+	static int8_t cloak_fade_value = GR_FADE_LEVELS - 1;
 
 	if (cloak_state)
 	{
@@ -2450,7 +2450,7 @@ static void draw_player_ship(const hud_draw_context_hs_mr hudctx, const player_i
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
 	hud_bitblt(hudctx, x, y, bm);
 	auto &canvas = hudctx.canvas;
-	gr_settransblend(canvas, cloak_fade_value, gr_blend::normal);
+	gr_settransblend(canvas, gr_fade_level{static_cast<uint8_t>(cloak_fade_value)}, gr_blend::normal);
 	gr_rect(canvas, hudctx.xscale(x - 3), hudctx.yscale(y - 3), hudctx.xscale(x + bm.bm_w + 3), hudctx.yscale(y + bm.bm_h + 3), 0);
 	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
         // Show Cloak Timer if enabled
@@ -2756,7 +2756,7 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 	{
 		int fade_value = f2i(inset_window[wt].fade_value);
 
-		gr_settransblend(canvas, fade_value, gr_blend::normal);
+		gr_settransblend(canvas, static_cast<gr_fade_level>(fade_value), gr_blend::normal);
 		auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
 		auto &weaponbox = resbox[wt];
 		auto &g = weaponbox[(PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) ? gauge_hud_type::statusbar : gauge_hud_type::cockpit];
@@ -3115,7 +3115,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 	Assert(cross_bm_num <= 1);
 
 	const auto color = BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]);
-	gr_settransblend(canvas, PlayerCfg.ReticleRGBA[3], gr_blend::normal);
+	gr_settransblend(canvas, static_cast<gr_fade_level>(PlayerCfg.ReticleRGBA[3]), gr_blend::normal);
 
 	[&]{
 		int x0, x1, y0, y1;
@@ -3251,7 +3251,7 @@ void show_mousefs_indicator(grs_canvas &canvas, int mx, int my, int mz, int x, i
 {
 	int axscale = (MOUSEFS_DELTA_RANGE*2)/size, xaxpos = x+(mx/axscale), yaxpos = y+(my/axscale), zaxpos = y+(mz/axscale);
 
-	gr_settransblend(canvas, PlayerCfg.ReticleRGBA[3], gr_blend::normal);
+	gr_settransblend(canvas, static_cast<gr_fade_level>(PlayerCfg.ReticleRGBA[3]), gr_blend::normal);
 	auto &rgba = PlayerCfg.ReticleRGBA;
 	const auto color = BM_XRGB(rgba[0], rgba[1], rgba[2]);
 	gr_uline(canvas, i2f(xaxpos), i2f(y-(size/2)), i2f(xaxpos), i2f(y-(size/4)), color);
