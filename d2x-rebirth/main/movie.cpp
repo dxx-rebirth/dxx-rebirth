@@ -107,7 +107,10 @@ static void draw_subtitles(const d_loaded_subtitle_state &, int frame_num);
 
 struct movie_pause_window : window
 {
-	using window::window;
+	movie_pause_window(grs_canvas &src) :
+		window(src, 0, 0, src.cv_bitmap.bm_w, src.cv_bitmap.bm_h)
+	{
+	}
 	virtual window_event_result event_handler(const d_event &) override;
 };
 
@@ -311,7 +314,6 @@ window_event_result movie_pause_window::event_handler(const d_event &event)
 
 window_event_result movie::event_handler(const d_event &event)
 {
-	int key;
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
@@ -324,7 +326,8 @@ window_event_result movie::event_handler(const d_event &event)
 			break;
 
 		case EVENT_KEY_COMMAND:
-			key = event_key_get(event);
+			{
+				const auto key = event_key_get(event);
 
 			// If ESCAPE pressed, then quit movie.
 			if (key == KEY_ESC) {
@@ -334,7 +337,7 @@ window_event_result movie::event_handler(const d_event &event)
 			// If PAUSE pressed, then pause movie
 			if ((key == KEY_PAUSE) || (key == KEY_COMMAND + KEY_P))
 			{
-				if (auto pause_window = window_create<movie_pause_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT))
+				if (auto pause_window = window_create<movie_pause_window>(w_canv))
 				{
 					(void)pause_window;
 					MVE_rmHoldMovie();
@@ -342,6 +345,7 @@ window_event_result movie::event_handler(const d_event &event)
 				return window_event_result::handled;
 			}
 			break;
+			}
 
 		case EVENT_WINDOW_DRAW:
 			if (!paused)
