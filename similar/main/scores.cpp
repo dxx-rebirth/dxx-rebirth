@@ -52,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "physfsx.h"
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "d_range.h"
 
@@ -375,8 +376,9 @@ namespace dsx {
 
 namespace {
 
-static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const unsigned i, const stats_info *const stats)
+static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const unsigned shade, const unsigned i, const stats_info *const stats)
 {
+	gr_set_fontcolor(canvas, BM_XRGB(shade, shade, shade), -1);
 	char buffer[20];
 
 	int y;
@@ -430,14 +432,15 @@ struct scores_menu : window
 {
 	const int citem;
 	fix64			t1;
-	int looper = 0;
 	all_scores	scores;
 	const stats_info last_game;
+	uint8_t looper = 0;
 	scores_menu(grs_canvas &src, int x, int y, int w, int h, int citem, const stats_info *last_game) :
 		window(src, x, y, w, h), citem(citem), t1(timer_query()), last_game(last_game ? *last_game : stats_info{})
 	{
 	}
 	virtual window_event_result event_handler(const d_event &) override;
+	int get_update_looper();
 };
 
 window_event_result scores_menu::event_handler(const d_event &event)
@@ -503,38 +506,32 @@ window_event_result scores_menu::event_handler(const d_event &event)
 			gr_string(canvas, medium3_font, 0x8000, fspacy(15), TXT_HIGH_SCORES);
 			gr_set_fontcolor(canvas, BM_XRGB(31, 26, 5), -1);
 			auto &game_font = *GAME_FONT;
-			gr_string(canvas, game_font, fspacx( 71), fspacy(50), TXT_NAME);
-			gr_string(canvas, game_font, fspacx(122), fspacy(50), TXT_SCORE);
-			gr_string(canvas, game_font, fspacx(167), fspacy(50), TXT_SKILL);
-			gr_string(canvas, game_font, fspacx(210), fspacy(50), TXT_LEVELS);
-			gr_string(canvas, game_font, fspacx(253), fspacy(50), TXT_TIME);
+			const auto fspacy_column_labels = fspacy(50);
+			gr_string(canvas, game_font, fspacx( 71), fspacy_column_labels, TXT_NAME);
+			gr_string(canvas, game_font, fspacx(122), fspacy_column_labels, TXT_SCORE);
+			gr_string(canvas, game_font, fspacx(167), fspacy_column_labels, TXT_SKILL);
+			gr_string(canvas, game_font, fspacx(210), fspacy_column_labels, TXT_LEVELS);
+			gr_string(canvas, game_font, fspacx(253), fspacy_column_labels, TXT_TIME);
 			
 			if (citem < 0)
 				gr_string(canvas, game_font, 0x8000, fspacy(175), TXT_PRESS_CTRL_R);
 			
 			gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 			
-			gr_printf(canvas, game_font, 0x8000, fspacy(31), "%c%s%c  - %s", 34, scores.cool_saying, 34, static_cast<const char *>(scores.stats[0].name));
+			gr_printf(canvas, game_font, 0x8000, fspacy(31), "\"%s\"  - %s", scores.cool_saying, static_cast<const char *>(scores.stats[0].name));
 			
-			for (int i=0; i<MAX_HIGH_SCORES; i++ ) {
-				gr_set_fontcolor(canvas, BM_XRGB(28 - i * 2, 28 - i * 2, 28 - i * 2), -1);
-				scores_draw_item(canvas, game_font, i, &scores.stats[i]);
+			for (const auto &&[idx, stat] : enumerate(scores.stats))
+			{
+				const auto shade = (idx == citem)
+					? get_update_looper()
+					: 28 - idx * 2;
+				scores_draw_item(canvas, game_font, shade, idx, &stat);
 			}
 			
-			if (citem > -1)
+			if (citem == MAX_HIGH_SCORES)
 			{
-				gr_set_fontcolor(canvas, BM_XRGB(7 + fades[looper], 7 + fades[looper], 7 + fades[looper]), -1);
-				if (timer_query() >= t1 + F1_0 / 128)
-				{
-					t1 = timer_query();
-					looper++;
-					if (looper > 63)
-						looper = 0;
-				}
-
-				scores_draw_item(canvas, game_font, citem, citem == MAX_HIGH_SCORES
-					? &last_game
-					: &scores.stats[citem]);
+				const auto shade = get_update_looper();
+				scores_draw_item(canvas, game_font, shade, citem, &last_game);
 			}
 			}
 			break;
@@ -544,6 +541,18 @@ window_event_result scores_menu::event_handler(const d_event &event)
 			break;
 	}
 	return window_event_result::ignored;
+}
+
+int scores_menu::get_update_looper()
+{
+	if (const auto t2 = timer_query(); t2 >= t1 + F1_0 / 128)
+	{
+		t1 = t2;
+		if (++ looper >= fades.size())
+			looper = 0;
+	}
+	const auto shade = 7 + fades[looper];
+	return shade;
 }
 
 void scores_view(const stats_info *const last_game, int citem)
