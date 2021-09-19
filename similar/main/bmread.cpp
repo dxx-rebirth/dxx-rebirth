@@ -1225,7 +1225,7 @@ static void bm_read_vclip(d_vclip_array &Vclip, int skip)
 }
 
 // ------------------------------------------------------------------------------
-static void get4fix(std::array<fix, NDL> &fixp)
+static void get4fix(enumerated_array<fix, NDL, Difficulty_level_type> &fixp)
 {
 	char	*curtext;
 	range_for (auto &i, fixp)
@@ -1236,7 +1236,7 @@ static void get4fix(std::array<fix, NDL> &fixp)
 }
 
 // ------------------------------------------------------------------------------
-static void get4byte(std::array<int8_t, NDL> &bytep)
+static void get4byte(enumerated_array<int8_t, NDL, Difficulty_level_type> &bytep)
 {
 	char	*curtext;
 	range_for (auto &i, bytep)
@@ -1248,7 +1248,7 @@ static void get4byte(std::array<int8_t, NDL> &bytep)
 
 // ------------------------------------------------------------------------------
 //	Convert field of view from an angle in 0..360 to cosine.
-static void adjust_field_of_view(std::array<fix, NDL> &fovp)
+static void adjust_field_of_view(enumerated_array<fix, NDL, Difficulty_level_type> &fovp)
 {
 	fixang	tt;
 	float		ff;
@@ -1361,7 +1361,7 @@ void bm_read_robot_ai(const int skip)
 	get4byte(robptr.rapidfire_count);
 	get4fix(robptr.turn_time);
 #if defined(DXX_BUILD_DESCENT_I)
-	std::array<fix, NDL>		fire_power,						//	damage done by a hit from this robot
+	enumerated_array<fix, NDL, Difficulty_level_type>		fire_power,						//	damage done by a hit from this robot
 		shield;							//	shield strength of this robot
 	get4fix(fire_power);
 	get4fix(shield);
@@ -2222,10 +2222,10 @@ void bm_read_weapon(int skip, int unused_flag)
 	Weapon_info[n].wall_hit_vclip = vclip_none;
 	Weapon_info[n].wall_hit_sound = sound_none;
 	Weapon_info[n].impact_size = 0;
-	for (i=0; i<NDL; i++) {
-		Weapon_info[n].strength[i] = F1_0;
-		Weapon_info[n].speed[i] = F1_0*10;
-	}
+	for (auto &i : Weapon_info[n].strength)
+		i = F1_0;
+	for (auto &i : Weapon_info[n].speed)
+		i = F1_0*10;
 	Weapon_info[n].mass = F1_0;
 	Weapon_info[n].thrust = 0;
 	Weapon_info[n].drag = 0;
@@ -2316,15 +2316,16 @@ void bm_read_weapon(int skip, int unused_flag)
 				// Load pof file
 				pof_file_inner = equal_ptr;
 			} else if (!d_stricmp( arg, "strength" )) {
-				for (i=0; i<NDL-1; i++) {
+				for (auto &i : unchecked_partial_range(Weapon_info[n].strength, Weapon_info[n].strength.size() - 1))
+				{
 #if defined(DXX_BUILD_DESCENT_I)
-					Weapon_info[n].strength[i] = i2f(atoi(equal_ptr));
+					i = i2f(atoi(equal_ptr));
 #elif defined(DXX_BUILD_DESCENT_II)
-					Weapon_info[n].strength[i] = fl2f(atof(equal_ptr));
+					i = fl2f(atof(equal_ptr));
 #endif
 					equal_ptr = strtok(NULL, space_tab);
 				}
-				Weapon_info[n].strength[i] = i2f(atoi(equal_ptr));
+				Weapon_info[n].strength.back() = i2f(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "mass" )) {
 				Weapon_info[n].mass = fl2f(atof(equal_ptr));
 			} else if (!d_stricmp( arg, "drag" )) {
@@ -2336,11 +2337,12 @@ void bm_read_weapon(int skip, int unused_flag)
 			} else if (!d_stricmp( arg, "bounce" )) {
 				Weapon_info[n].bounce = static_cast<weapon_info::bounce_type>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "speed" )) {
-				for (i=0; i<NDL-1; i++) {
-					Weapon_info[n].speed[i] = i2f(atoi(equal_ptr));
+				for (auto &i : unchecked_partial_range(Weapon_info[n].speed, Weapon_info[n].speed.size() - 1))
+				{
+					i = i2f(atoi(equal_ptr));
 					equal_ptr = strtok(NULL, space_tab);
 				}
-				Weapon_info[n].speed[i] = i2f(atoi(equal_ptr));
+				Weapon_info[n].speed.back() = i2f(atoi(equal_ptr));
 			}
 #if defined(DXX_BUILD_DESCENT_II)
 			else if (!d_stricmp( arg, "speedvar" ))	{

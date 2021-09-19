@@ -933,17 +933,17 @@ int select_demo()
 
 static int do_difficulty_menu()
 {
-	using items_type = std::array<newmenu_item, NDL>;
+	using items_type = enumerated_array<newmenu_item, NDL, Difficulty_level_type>;
 	struct difficulty_prompt_menu : items_type, passive_newmenu
 	{
 		difficulty_prompt_menu(const unsigned Difficulty_level) :
-			items_type{{
+			items_type{{{
 				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_0)},
 				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_1)},
 				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_2)},
 				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_3)},
 				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_4)},
-			}},
+			}}},
 			passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_DIFFICULTY_LEVEL}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), Difficulty_level), grd_curscreen->sc_canvas)
 		{
 		}

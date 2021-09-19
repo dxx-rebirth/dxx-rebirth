@@ -1426,9 +1426,9 @@ void recreate_thief(const uint8_t thief_id)
 //	----------------------------------------------------------------------------
 #define	THIEF_ATTACK_TIME		(F1_0*10)
 
-constexpr std::array<fix, NDL> Thief_wait_times = {{
+constexpr enumerated_array<fix, NDL, Difficulty_level_type> Thief_wait_times = {{{
 	F1_0*30, F1_0*25, F1_0*20, F1_0*15, F1_0*10
-}};
+}}};
 
 //	-------------------------------------------------------------------------------------------------
 void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const player_visibility_state player_visibility, const vms_vector &vec_to_player)

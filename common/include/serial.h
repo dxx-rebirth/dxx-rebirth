@@ -65,6 +65,8 @@ class is_cxx_array : public std::false_type
 template <typename T, std::size_t N>
 class is_cxx_array<std::array<T, N>> : public std::true_type
 {
+public:
+	using array_type = std::array<T, N>;
 };
 
 template <typename T>
@@ -419,8 +421,8 @@ template <typename T>
 class message_dispatch_type<T, typename std::enable_if<is_cxx_array<T>::value, void>::type> :
 	public detail::message_dispatch_base<
 		detail::size_base<
-			message_type<typename T::value_type>::maximum_size * std::tuple_size<T>::value,
-			message_type<typename T::value_type>::minimum_size * std::tuple_size<T>::value
+			message_type<typename T::value_type>::maximum_size * std::tuple_size<typename is_cxx_array<T>::array_type>::value,
+			message_type<typename T::value_type>::minimum_size * std::tuple_size<typename is_cxx_array<T>::array_type>::value
 		>
 	>
 {

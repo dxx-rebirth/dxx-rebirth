@@ -413,28 +413,28 @@ static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 	ri.strength = PHYSFSX_readFix(fp);
 	ri.mass = PHYSFSX_readFix(fp);
 	ri.drag = PHYSFSX_readFix(fp);
-	for (j = 0; j < NDL; j++)
-		ri.field_of_view[j] = PHYSFSX_readFix(fp);
-	for (j = 0; j < NDL; j++)
-		ri.firing_wait[j] = PHYSFSX_readFix(fp);
+	for (auto &j : ri.field_of_view)
+		j = PHYSFSX_readFix(fp);
+	for (auto &j : ri.firing_wait)
+		j = PHYSFSX_readFix(fp);
 	for (j = 0; j < NDL; j++)
 		/*ri.firing_wait2[j] =*/ PHYSFSX_readFix(fp);
-	for (j = 0; j < NDL; j++)
-		ri.turn_time[j] = PHYSFSX_readFix(fp);
+	for (auto &j : ri.turn_time)
+		j = PHYSFSX_readFix(fp);
 #if 0 // not used in d1, removed in d2
 	for (j = 0; j < NDL; j++)
 		ri.fire_power[j] = PHYSFSX_readFix(fp);
 	for (j = 0; j < NDL; j++)
 		ri.shield[j] = PHYSFSX_readFix(fp);
 #endif
-	for (j = 0; j < NDL; j++)
-		ri.max_speed[j] = PHYSFSX_readFix(fp);
-	for (j = 0; j < NDL; j++)
-		ri.circle_distance[j] = PHYSFSX_readFix(fp);
-	for (j = 0; j < NDL; j++)
-		ri.rapidfire_count[j] = PHYSFSX_readByte(fp);
-	for (j = 0; j < NDL; j++)
-		ri.evade_speed[j] = PHYSFSX_readByte(fp);
+	for (auto &j : ri.max_speed)
+		j = PHYSFSX_readFix(fp);
+	for (auto &j : ri.circle_distance)
+		j = PHYSFSX_readFix(fp);
+	for (auto &j : ri.rapidfire_count)
+		j = PHYSFSX_readByte(fp);
+	for (auto &j : ri.evade_speed)
+		j = PHYSFSX_readByte(fp);
 	ri.cloak_type = PHYSFSX_readByte(fp);
 	ri.attack_type = PHYSFSX_readByte(fp);
 	ri.see_sound = PHYSFSX_readByte(fp);

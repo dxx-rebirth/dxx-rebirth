@@ -1764,6 +1764,15 @@ void do_seismic_stuff(void)
 
 DEFINE_BITMAP_SERIAL_UDT();
 
+namespace serial {
+
+template <typename T>
+class is_cxx_array<enumerated_array<T, NDL, Difficulty_level_type>> : public is_cxx_array<std::array<T, NDL>>
+{
+};
+
+}
+
 #if defined(DXX_BUILD_DESCENT_I)
 DEFINE_SERIAL_UDT_TO_MESSAGE(dsx::weapon_info, w, (w.render, w.model_num, w.model_num_inner, w.persistent, w.flash_vclip, w.flash_sound, w.robot_hit_vclip, w.robot_hit_sound, w.wall_hit_vclip, w.wall_hit_sound, w.fire_count, w.ammo_usage, w.weapon_vclip, w.destroyable, w.matter, w.bounce, w.homing_flag, w.dum1, w.dum2, w.dum3, w.energy_usage, w.fire_wait, w.bitmap, w.blob_size, w.flash_size, w.impact_size, w.strength, w.speed, w.mass, w.drag, w.thrust, w.po_len_to_width_ratio, w.light, w.lifetime, w.damage_radius, w.picture));
 #elif defined(DXX_BUILD_DESCENT_II)
