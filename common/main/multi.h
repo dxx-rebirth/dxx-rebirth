@@ -504,7 +504,7 @@ window_event_result multi_level_sync();
 #ifdef dsx
 namespace dsx {
 void multi_send_hostage_door_status(vcwallptridx_t wallnum);
-void multi_prep_level_objects(const d_vclip_array &Vclip);
+void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip);
 void multi_prep_level_player();
 void multi_leave_game(void);
 void multi_process_bigdata(playernum_t pnum, const uint8_t *buf, uint_fast32_t len);

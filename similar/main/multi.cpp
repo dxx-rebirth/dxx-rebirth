@@ -3362,7 +3362,7 @@ public:
  * Robot deletion for non-robot games, Powerup duplication, AllowedItems, Initial powerup counting.
  * MUST be done before multi_level_sync() in case we join a running game and get updated objects there. We want the initial powerup setup for a level here!
  */
-void multi_prep_level_objects(const d_vclip_array &Vclip)
+void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;

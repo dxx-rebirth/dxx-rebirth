@@ -120,7 +120,6 @@ namespace {
 static void StartNewLevelSecret(int level_num, int page_in_textures);
 static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, int random_flag);
 static void DoEndGame();
-static void filter_objects_from_level(fvmobjptr &vmobjptr);
 }
 PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
 int	First_secret_visit = 1;
@@ -1450,6 +1449,20 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 
 static int Entered_from_level;
 
+static void filter_objects_from_level(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip, fvmobjptr &vmobjptr)
+{
+	for (const auto &&objp : vmobjptr)
+	{
+		object_base &obj = *objp;
+		if (obj.type == OBJ_POWERUP)
+		{
+			const auto powerup_id = get_powerup_id(obj);
+			if (powerup_id == POW_FLAG_RED || powerup_id == POW_FLAG_BLUE)
+				bash_to_shield(Powerup_info, Vclip, obj);
+		}
+	}
+}
+
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -1931,7 +1944,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 
 	if (Game_mode & GM_NETWORK)
 	{
-		multi_prep_level_objects(Vclip);
+		multi_prep_level_objects(Powerup_info, Vclip);
 		if (multi::dispatch->level_sync() == window_event_result::close) // After calling this, Player_num is set
 		{
 			songs_play_song( SONG_TITLE, 1 ); // level song already plays but we fail to start level...
@@ -1991,7 +2004,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 	init_smega_detonates();
 	init_thief_for_level();
 	if (!(Game_mode & GM_MULTI))
-		filter_objects_from_level(vmobjptr);
+		filter_objects_from_level(Powerup_info, Vclip, vmobjptr);
 #endif
 
 	if (!(Game_mode & GM_MULTI) && !cheats.enabled)
@@ -2038,20 +2051,6 @@ void bash_to_shield(const d_powerup_info_array &Powerup_info, const d_vclip_arra
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace {
-
-static void filter_objects_from_level(fvmobjptr &vmobjptr)
- {
-	range_for (const auto &&objp, vmobjptr)
-	{
-		if (objp->type==OBJ_POWERUP)
-		{
-			const auto powerup_id = get_powerup_id(objp);
-			if (powerup_id == POW_FLAG_RED || powerup_id == POW_FLAG_BLUE)
-				bash_to_shield(Powerup_info, Vclip, objp);
-		}
-   }
-
- }
 
 struct intro_movie_t {
 	int	level_num;
