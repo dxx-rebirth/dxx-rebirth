@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "hudmsg.h"
 #include "playsave.h"
+#include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "partial_range.h"
 #include "vclip.h"
@@ -403,11 +404,10 @@ int do_powerup(const vmobjptridx_t obj)
 		vms_vector tvec;
 		fix mydist = vm_vec_normalized_dir(tvec, obj->pos, ConsoleObject->pos);
 
-		for (unsigned i = 0; i < MAX_PLAYERS; ++i)
+		for (auto &&[i, plr] : enumerate(Players))
 		{
 			if (i == Player_num)
 				continue;
-			auto &plr = *vcplayerptr(i);
 			if (plr.connected != CONNECT_PLAYING)
 				continue;
 			auto &o = *vcobjptr(plr.objnum);
