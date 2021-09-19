@@ -492,7 +492,10 @@ public:
 
 struct briefing : window
 {
-	using window::window;
+	briefing(grs_canvas &src) :
+		window(src, 0, 0, src.cv_bitmap.bm_w, src.cv_bitmap.bm_h)
+	{
+	}
 	virtual window_event_result event_handler(const d_event &) override;
 	unsigned streamcount;
 	short	level_num;
@@ -1598,8 +1601,7 @@ window_event_result briefing::event_handler(const d_event &event)
 
 		case EVENT_WINDOW_DRAW:
 		{
-			gr_set_default_canvas();
-			auto &canvas = *grd_curcanv;
+			auto &canvas = w_canv;
 
 			timer_delay2(50);
 
@@ -1659,7 +1661,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 	if (!*static_cast<const char *>(filename))
 		return;
 
-	auto br = window_create<briefing>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	auto br = window_create<briefing>(grd_curscreen->sc_canvas);
 	briefing_init(br, level_num);
 
 	if (!load_screen_text(filename, br->text))
