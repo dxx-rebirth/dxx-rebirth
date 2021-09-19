@@ -755,9 +755,6 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 				spinRobotName[2]=kludge; // ugly but proud
 
 				br->robot_playing=InitRobotMovie(spinRobotName, br->pMovie);
-
-				// gr_remap_bitmap_good( &grd_curcanv->cv_bitmap, pal, -1, -1 );
-
 				if (br->robot_playing) {
 					RotateRobot(br->pMovie);
 					set_briefing_fontcolor(*br);
@@ -816,7 +813,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			auto &use_fname = ((HIRESMODE && PHYSFSX_exists(fnameb.data(), 1)) || !PHYSFSX_exists(fname.data(), 1))
 				? fnameb
 				: fname;
-			if (!load_briefing_screen(*grd_curcanv, br, use_fname.data()))
+			if (!load_briefing_screen(canvas, br, use_fname.data()))
 				return 1;
 #endif
 		} else if (ch == 'B') {
@@ -847,7 +844,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			if (!br->got_z) {
 				Int3(); // Hey ryan!!!! You gotta load a screen before you start
 				// printing to it! You know, $Z !!!
-				if (!load_briefing_screen(*grd_curcanv, br, HIRESMODE ? "end01b.pcx" : "end01.pcx"))
+				if (!load_briefing_screen(canvas, br, HIRESMODE ? "end01b.pcx" : "end01.pcx"))
 					return 1;
 			}
 
@@ -962,7 +959,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 #elif defined(DXX_BUILD_DESCENT_II)
 				auto &bs = Briefing_screens[br->cur_screen];
 #endif
-				if (!load_briefing_screen(*grd_curcanv, br, bs.bs_name))
+				if (!load_briefing_screen(canvas, br, bs.bs_name))
 					return 1;
 				br->text_x = br->screen->text_ulx;
 				br->text_y = br->screen->text_uly;
@@ -978,7 +975,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			LevelError("briefing wrote to screen without using $Z to load a screen; loading default.");
 			//Int3(); // Hey ryan!!!! You gotta load a screen before you start
 			// printing to it! You know, $Z !!!
-			if (!load_briefing_screen(*grd_curcanv, br, HIRESMODE ? "end01b.pcx" : "end01.pcx"))
+			if (!load_briefing_screen(canvas, br, HIRESMODE ? "end01b.pcx" : "end01.pcx"))
 				return 1;
 		}
 #endif
@@ -1219,12 +1216,12 @@ static void show_spinning_robot_frame(briefing *br, int robot_num)
 #define KEY_DELAY_DEFAULT       ((F1_0*20)/1000)
 
 [[nodiscard]]
-static int init_new_page(briefing *br)
+static int init_new_page(grs_canvas &canvas, briefing *br)
 {
 	br->new_page = 0;
 	br->robot_num = -1;
 
-	const auto r = load_briefing_screen(*grd_curcanv, br, br->background_name.data());
+	const auto r = load_briefing_screen(canvas, br, br->background_name.data());
 	if (!r)
 		return r;
 	br->text_x = br->screen->text_ulx;
@@ -1412,7 +1409,7 @@ static void free_briefing_screen(briefing *br)
 }
 
 [[nodiscard]]
-static int new_briefing_screen(briefing *br, int first)
+static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 {
 	br->new_screen = 0;
 	const auto descent_hog_size = PHYSFSX_fsize("descent.hog");
@@ -1441,7 +1438,7 @@ static int new_briefing_screen(briefing *br, int first)
 	if (br->cur_screen == num_d1_briefing_screens)
 		return 0;		// finished
 
-	if (!load_briefing_screen(*grd_curcanv, br, d1_briefing_screens[br->cur_screen].bs_name))
+	if (!load_briefing_screen(canvas, br, d1_briefing_screens[br->cur_screen].bs_name))
 		return 0;
 
 	br->message = get_briefing_message(br, d1_briefing_screens[br->cur_screen].message_num);
@@ -1471,7 +1468,7 @@ static int new_briefing_screen(briefing *br, int first)
 		if (br->cur_screen == num_d1_briefing_screens)
 			return 0;		// finished
 
-		if (!load_briefing_screen(*grd_curcanv, br, Briefing_screens[br->cur_screen].bs_name))
+		if (!load_briefing_screen(canvas, br, Briefing_screens[br->cur_screen].bs_name))
 			return 0;
 	}
 	else if (first)
@@ -1533,14 +1530,14 @@ window_event_result briefing::event_handler(const d_event &event)
 			{
 				if (this->new_screen)
 				{
-					if (!new_briefing_screen(this, 0))
+					if (!new_briefing_screen(*grd_curcanv, this, 0))
 					{
 						return window_event_result::close;
 					}
 				}
 				else if (this->new_page)
 				{
-					if (!init_new_page(this))
+					if (!init_new_page(*grd_curcanv, this))
 						return window_event_result::close;
 				}
 				else
@@ -1557,14 +1554,14 @@ window_event_result briefing::event_handler(const d_event &event)
 				return window_event_result::close;
 			if (this->new_screen)
 			{
-				if (!new_briefing_screen(this, 0))
+				if (!new_briefing_screen(*grd_curcanv, this, 0))
 				{
 					return window_event_result::close;
 				}
 			}
 			else if (this->new_page)
 			{
-				if (!init_new_page(this))
+				if (!init_new_page(*grd_curcanv, this))
 					return window_event_result::close;
 			}
 			else
@@ -1594,14 +1591,14 @@ window_event_result briefing::event_handler(const d_event &event)
 						return result;
 					else if (this->new_screen)
 					{
-						if (!new_briefing_screen(this, 0))
+						if (!new_briefing_screen(*grd_curcanv, this, 0))
 						{
 							return window_event_result::close;
 						}
 					}
 					else if (this->new_page)
 					{
-						if (!init_new_page(this))
+						if (!init_new_page(*grd_curcanv, this))
 							return window_event_result::close;
 					}
 					break;
@@ -1698,7 +1695,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 
 	gr_set_default_canvas();
 
-	if (!new_briefing_screen(br, 1))
+	if (!new_briefing_screen(*grd_curcanv, br, 1))
 	{
 		window_close(br);
 	}
