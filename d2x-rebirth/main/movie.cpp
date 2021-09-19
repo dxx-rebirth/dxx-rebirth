@@ -463,7 +463,7 @@ void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie)
 	RoboFile.reset();                           // Close Movie File
 }
 
-int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
+uint8_t InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 {
 	if (GameArg.SysNoMovies)
 		return 0;

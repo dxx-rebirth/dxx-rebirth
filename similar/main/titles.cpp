@@ -79,6 +79,7 @@ namespace dcx {
 
 namespace {
 
+constexpr uint8_t DOOR_DIV_INIT = 6;
 static std::array<color_t, 7> Briefing_text_colors;
 static color_t *Current_color;
 static color_t Erase_color;
@@ -492,6 +493,16 @@ public:
 
 struct briefing : window
 {
+	enum class animating_bitmap_type : uint8_t
+	{
+		loop,
+		reset,
+	};
+	enum class door_direction : int8_t
+	{
+		backward = -1,
+		forward = 1,
+	};
 	briefing(grs_canvas &src) :
 		window(src, 0, 0, src.cv_bitmap.bm_w, src.cv_bitmap.bm_h)
 	{
@@ -502,8 +513,19 @@ struct briefing : window
 	short	cur_screen;
 	std::unique_ptr<briefing_screen, briefing_screen_deleter> screen;
 	grs_main_bitmap background;
+	animating_bitmap_type animating_bitmap;
+	uint8_t flashing_cursor;
+	uint8_t new_screen;
+	uint8_t new_page;
+	door_direction door_dir;
+	uint8_t door_div_count;
+	int8_t prev_ch;
 #if defined(DXX_BUILD_DESCENT_II)
-	int		got_z;
+	uint8_t got_z;
+	uint8_t dumb_adjust;
+	uint8_t robot_playing;
+	uint8_t chattering;
+	uint8_t line_adjustment;
 	RAIIdigi_sound		hum_channel, printing_channel;
 	MVESTREAM_ptr_t pMovie;
 #endif
@@ -512,15 +534,6 @@ struct briefing : window
 	int		text_x, text_y;
 	std::array<msgstream, 2048> messagestream;
 	short	tab_stop;
-	ubyte	flashing_cursor;
-	ubyte	new_page;
-	int		new_screen;
-#if defined(DXX_BUILD_DESCENT_II)
-	ubyte	dumb_adjust;
-	ubyte	line_adjustment;
-	char	robot_playing;
-	short	chattering;
-#endif
 	fix64		start_time;
 	fix64		delay_count;
 	int		robot_num;
@@ -528,8 +541,6 @@ struct briefing : window
 	vms_angvec	robot_angles;
 	std::array<char, 32> bitmap_name;
 	grs_main_bitmap  guy_bitmap;
-	sbyte   door_dir, door_div_count, animating_bitmap_type;
-	sbyte	prev_ch;
 	std::array<char, 16> background_name;
 };
 
@@ -548,9 +559,9 @@ static void briefing_init(briefing *br, short level_num)
 	br->robot_num = 0;
 	br->robot_angles = {};
 	br->bitmap_name[0] = '\0';
-	br->door_dir = 1;
+	br->door_dir = briefing::door_direction::forward;
 	br->door_div_count = 0;
-	br->animating_bitmap_type = 0;
+	br->animating_bitmap = briefing::animating_bitmap_type::loop;
 }
 
 //-----------------------------------------------------------------------------
@@ -756,8 +767,8 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			}
 			br->prev_ch = 10;                           // read to eoln
 		}
-		else if ((ch == 'N' && (br->animating_bitmap_type = 0, true)) ||
-				(ch == 'O' && (br->animating_bitmap_type = 1, true)))
+		else if ((ch == 'N' && (br->animating_bitmap = briefing::animating_bitmap_type::loop, true)) ||
+				(ch == 'O' && (br->animating_bitmap = briefing::animating_bitmap_type::reset, true)))
 		{
 			br->robot_canv.reset();
 			br->prev_ch = 10;
@@ -1054,7 +1065,6 @@ static void flash_cursor(grs_canvas &canvas, const grs_font &cv_font, briefing *
 
 #define EXIT_DOOR_MAX   14
 #define OTHER_THING_MAX 10      // Adam: This is the number of frames in your new animating thing.
-#define DOOR_DIV_INIT   6
 
 //-----------------------------------------------------------------------------
 static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
@@ -1094,11 +1104,12 @@ static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 		bitmap_index bi;
 		grs_subcanvas_ptr bitmap_canv;
 
-		switch (br->animating_bitmap_type) {
-			case 0:
+		switch (br->animating_bitmap)
+		{
+			case briefing::animating_bitmap_type::loop:
 				bitmap_canv = gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 220), rescale_y(canvas.cv_bitmap, 45), 64, 64);
 				break;
-			case 1:
+			case briefing::animating_bitmap_type::reset:
 				bitmap_canv = gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 220), rescale_y(canvas.cv_bitmap, 45), 94, 94);
 				break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
 			default:	Int3(); // Impossible, illegal value for br->animating_bitmap_type
@@ -1116,18 +1127,19 @@ static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 		else
 			num = (dig1-'0')*10 + (dig2-'0');
 
-		switch (br->animating_bitmap_type) {
-			case 0:
-				num += br->door_dir;
+		switch (br->animating_bitmap)
+		{
+			case briefing::animating_bitmap_type::loop:
+				num += static_cast<int8_t>(br->door_dir);
 				if (num > EXIT_DOOR_MAX) {
 					num = EXIT_DOOR_MAX;
-					br->door_dir = -1;
+					br->door_dir = briefing::door_direction::backward;
 				} else if (num < 0) {
 					num = 0;
-					br->door_dir = 1;
+					br->door_dir = briefing::door_direction::forward;
 				}
 				break;
-			case 1:
+			case briefing::animating_bitmap_type::reset:
 				num++;
 				if (num > OTHER_THING_MAX)
 					num = 0;
@@ -1153,17 +1165,17 @@ static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 		gr_bitmapm(subcanvas, 0, 0, *bitmap_ptr);
 #endif
 
-		switch (br->animating_bitmap_type) {
-			case 0:
+		switch (br->animating_bitmap)
+		{
+			case briefing::animating_bitmap_type::loop:
 				if (num == EXIT_DOOR_MAX) {
-					br->door_dir = -1;
-					br->door_div_count = 64;
+					br->door_dir = briefing::door_direction::backward;
 				} else if (num == 0) {
-					br->door_dir = 1;
-					br->door_div_count = 64;
+					br->door_dir = briefing::door_direction::forward;
 				}
+				br->door_div_count = 64;
 				break;
-			case 1:
+			case briefing::animating_bitmap_type::reset:
 				break;
 		}
 	}

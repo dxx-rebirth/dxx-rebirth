@@ -49,7 +49,7 @@ enum class movie_play_status : uint8_t
 #endif
 
 movie_play_status PlayMovie(const char *subtitles, const char *filename, int allow_abort);
-int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie);
+uint8_t InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie);
 int RotateRobot(MVESTREAM_ptr_t &pMovie);
 void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie);
 
