@@ -67,8 +67,8 @@ constexpr std::integral_constant<unsigned, 10> MAX_HIGH_SCORES{};
 struct score_items_context
 {
 	const font_x_scaled_float name, score, difficulty, levels, time_played;
-	score_items_context(const font_x_scale_float fspacx) :
-		name(fspacx(66)), score(fspacx(149)), difficulty(fspacx(166)), levels(fspacx(232)), time_played(fspacx(276))
+	score_items_context(const font_x_scale_float fspacx, const unsigned border_x) :
+		name(fspacx(51) + border_x), score(fspacx(134) + border_x), difficulty(fspacx(151) + border_x), levels(fspacx(217) + border_x), time_played(fspacx(261) + border_x)
 	{
 	}
 };
@@ -341,7 +341,7 @@ static void scores_rputs(grs_canvas &canvas, const grs_font &cv_font, const font
 
 static unsigned compute_score_y_coordinate(const unsigned i)
 {
-	const unsigned y = 74 + i * 9;
+	const unsigned y = 59 + i * 9;
 	return i ? y : y - 8;
 }
 
@@ -500,7 +500,6 @@ window_event_result scores_menu::event_handler(const d_event &event)
 	int k;
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
-	int w = fspacx(290), h = fspacy(170);
 
 	switch (event.type)
 	{
@@ -551,39 +550,38 @@ window_event_result scores_menu::event_handler(const d_event &event)
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			gr_set_default_canvas();
-			
-			nm_draw_background(*grd_curcanv, ((SWIDTH - w) / 2) - BORDERX, ((SHEIGHT - h) / 2) - BORDERY, ((SWIDTH - w) / 2) + w + BORDERX, ((SHEIGHT - h) / 2) + h + BORDERY);
 			
 			{
 				auto &canvas = w_canv;
+			nm_draw_background(w_canv, 0, 0, w_canv.cv_bitmap.bm_w, w_canv.cv_bitmap.bm_h);
 			auto &medium3_font = *MEDIUM3_FONT;
-			gr_string(canvas, medium3_font, 0x8000, fspacy(15), TXT_HIGH_SCORES);
-			gr_set_fontcolor(canvas, BM_XRGB(31, 26, 5), -1);
+			const auto border_x = BORDERX;
+			const auto border_y = BORDERY;
+			gr_string(canvas, medium3_font, 0x8000, border_y, TXT_HIGH_SCORES);
 			auto &game_font = *GAME_FONT;
-			const auto fspacy_column_labels = fspacy(50);
-			gr_string(canvas, game_font, fspacx( 71), fspacy_column_labels, TXT_NAME);
-			gr_string(canvas, game_font, fspacx(122), fspacy_column_labels, TXT_SCORE);
-			gr_string(canvas, game_font, fspacx(167), fspacy_column_labels, TXT_SKILL);
-			gr_string(canvas, game_font, fspacx(210), fspacy_column_labels, TXT_LEVELS);
-			gr_string(canvas, game_font, fspacx(253), fspacy_column_labels, TXT_TIME);
-			
-			if (citem < 0)
-				gr_string(canvas, game_font, 0x8000, fspacy(175), TXT_PRESS_CTRL_R);
-			
 			gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
-			
-			gr_printf(canvas, game_font, 0x8000, fspacy(31), "\"%s\"  - %s", cool_saying.data(), static_cast<const char *>(scores[0].name));
+			gr_printf(canvas, game_font, 0x8000, fspacy(16) + border_y, "\"%s\"  - %s", cool_saying.data(), static_cast<const char *>(scores[0].name));
+			const font_x_scaled_float fspacx_line_number(fspacx(42) + border_x);
+			const score_items_context shared_item_context(fspacx, border_x);
+			gr_set_fontcolor(canvas, BM_XRGB(31, 26, 5), -1);
+			const auto x_header = fspacx(56) + border_x;
+			const auto fspacy_column_labels = fspacy(35) + border_y;
+			gr_string(canvas, game_font, x_header, fspacy_column_labels, TXT_NAME);
+			gr_string(canvas, game_font, x_header + fspacx(51), fspacy_column_labels, TXT_SCORE);
+			gr_string(canvas, game_font, x_header + fspacx(96), fspacy_column_labels, TXT_SKILL);
+			gr_string(canvas, game_font, x_header + fspacx(139), fspacy_column_labels, TXT_LEVELS);
+			gr_string(canvas, game_font, x_header + fspacx(182), fspacy_column_labels, TXT_TIME);
 
-			const auto &&fspacx_line_number = fspacx(57);
-			const score_items_context shared_item_context(fspacx);
+			if (citem < 0)
+				gr_string(canvas, game_font, 0x8000, fspacy(125) + fspacy_column_labels, TXT_PRESS_CTRL_R);
+
 			for (const auto &&[idx, stat] : enumerate(scores))
 			{
 				const auto shade = (idx == citem)
 					? get_update_looper()
 					: 28 - idx * 2;
 				const unsigned y = compute_score_y_coordinate(idx);
-				const auto &&fspacy_y = fspacy(y);
+				const font_y_scaled_float fspacy_y(fspacy(y) + border_y);
 				scores_draw_item(canvas, game_font, shared_item_context, shade, fspacy_y, stat);
 				scores_rputs(canvas, game_font, fspacx_line_number, fspacy_y, stat.line_number.data());
 			}
@@ -617,11 +615,11 @@ int scores_menu::get_update_looper()
 
 void scores_view(const stats_info *const last_game, int citem)
 {
-	const auto &&fspacx320 = FSPACX(320);
-	const auto &&fspacy200 = FSPACY(200);
+	const auto &&fspacx290 = FSPACX(290);
+	const auto &&fspacy170 = FSPACY(170);
 	all_scores scores;
 	scores_read(&scores);
-	auto menu = window_create<scores_menu>(grd_curscreen->sc_canvas, (SWIDTH - fspacx320) / 2, (SHEIGHT - fspacy200) / 2, fspacx320, fspacy200, citem, scores, last_game);
+	auto menu = window_create<scores_menu>(grd_curscreen->sc_canvas, ((SWIDTH - fspacx290) / 2) - BORDERX, ((SHEIGHT - fspacy170) / 2) - BORDERY, fspacx290 + (BORDERX * 2), fspacy170 + (BORDERY * 2), citem, scores, last_game);
 	(void)menu;
 
 	newmenu_free_background();
