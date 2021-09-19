@@ -114,7 +114,10 @@ struct title_screen : window
 {
 	grs_main_bitmap title_bm;
 	fix64 timer;
-	using window::window;
+	title_screen(grs_canvas &canvas) :
+		window(canvas, 0, 0, canvas.cv_bitmap.bm_w, canvas.cv_bitmap.bm_h)
+	{
+	}
 	virtual window_event_result event_handler(const d_event &) override;
 };
 
@@ -155,8 +158,7 @@ window_event_result title_screen::event_handler(const d_event &event)
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			gr_set_default_canvas();
-			show_fullscr(*grd_curcanv, title_bm);
+			show_fullscr(w_canv, title_bm);
 			break;
 
 		case EVENT_WINDOW_CLOSE:
@@ -172,7 +174,7 @@ static void show_title_screen(const char *filename)
 {
 	char new_filename[PATH_MAX] = "";
 
-	auto ts = window_create<title_screen>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
+	auto ts = window_create<title_screen>(grd_curscreen->sc_canvas);
 
 	strcat(new_filename,filename);
 	filename = new_filename;
