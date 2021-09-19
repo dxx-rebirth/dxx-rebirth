@@ -260,8 +260,8 @@ struct movie : window
 	int paused = 0;
 	const MVESTREAM_ptr_t pMovie;
 	d_loaded_subtitle_state SubtitleState;
-	movie(grs_canvas &src, int x, int y, int w, int h, MVESTREAM_ptr_t mvestream) :
-		window(src, x, y, w, h),
+	movie(grs_canvas &src, MVESTREAM_ptr_t mvestream) :
+		window(src, 0, 0, src.cv_bitmap.bm_w, src.cv_bitmap.bm_h),
 		pMovie(std::move(mvestream))
 	{
 	}
@@ -393,7 +393,7 @@ movie_play_status RunMovie(const char *const filename, const char *const subtitl
 		return movie_play_status::skipped;
 	}
 	const auto reshow = hide_menus();
-	auto wind = window_create<movie>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, std::move(mvestream));
+	auto wind = window_create<movie>(grd_curscreen->sc_canvas, std::move(mvestream));
 	bool exists = true;
 	wind->track(&exists);
 	init_subtitles(wind->SubtitleState, subtitles);
