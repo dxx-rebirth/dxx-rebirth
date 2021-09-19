@@ -63,6 +63,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define COOL_MESSAGE_LEN 	50
 namespace dcx {
 constexpr std::integral_constant<unsigned, 10> MAX_HIGH_SCORES{};
+
+struct score_items_context
+{
+	const font_x_scaled_float name, score, difficulty, levels, time_played;
+	score_items_context(const font_x_scale_float fspacx) :
+		name(fspacx(66)), score(fspacx(149)), difficulty(fspacx(166)), levels(fspacx(232)), time_played(fspacx(276))
+	{
+	}
+};
+
 }
 
 namespace dsx {
@@ -323,10 +333,10 @@ namespace dcx {
 namespace {
 
 __attribute_nonnull()
-static void scores_rputs(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const buffer)
+static void scores_rputs(grs_canvas &canvas, const grs_font &cv_font, const font_x_scaled_float x, const font_y_scaled_float y, const char *const buffer)
 {
 	const auto &&[w, h] = gr_get_string_size(cv_font, buffer);
-	gr_string(canvas, cv_font, FSPACX(x) - w, FSPACY(y), buffer, w, h);
+	gr_string(canvas, cv_font, x - w, y, buffer, w, h);
 }
 
 static unsigned compute_score_y_coordinate(const unsigned i)
@@ -468,24 +478,21 @@ struct scores_menu : scores_menu_items, window
 	int get_update_looper();
 };
 
-static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const unsigned shade, const unsigned y, const scores_menu_items::row &stats)
+static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const score_items_context &shared_item_context, const unsigned shade, const font_y_scaled_float fspacy_y, const scores_menu_items::row &stats)
 {
 	gr_set_fontcolor(canvas, BM_XRGB(shade, shade, shade), -1);
-	const auto &&fspacx = FSPACX();
-	const auto &&fspacx66 = fspacx(66);
-	const auto &&fspacy_y = FSPACY(y);
 	if (!stats.name[0u])
 	{
-		gr_string(canvas, cv_font, fspacx66, fspacy_y, TXT_EMPTY);
+		gr_string(canvas, cv_font, shared_item_context.name, fspacy_y, TXT_EMPTY);
 		return;
 	}
-	gr_string(canvas, cv_font, fspacx66, fspacy_y, stats.name);
-	scores_rputs(canvas, cv_font, 149, y, stats.score.data());
+	gr_string(canvas, cv_font, shared_item_context.name, fspacy_y, stats.name);
+	scores_rputs(canvas, cv_font, shared_item_context.score, fspacy_y, stats.score.data());
 
-	gr_string(canvas, cv_font, fspacx(166), fspacy_y, MENU_DIFFICULTY_TEXT(stats.diff_level));
+	gr_string(canvas, cv_font, shared_item_context.difficulty, fspacy_y, MENU_DIFFICULTY_TEXT(stats.diff_level));
 
-	scores_rputs(canvas, cv_font, 232, y, stats.levels.data());
-	scores_rputs(canvas, cv_font, 276, y, stats.time_played.data());
+	scores_rputs(canvas, cv_font, shared_item_context.levels, fspacy_y, stats.levels.data());
+	scores_rputs(canvas, cv_font, shared_item_context.time_played, fspacy_y, stats.time_played.data());
 }
 
 window_event_result scores_menu::event_handler(const d_event &event)
@@ -567,21 +574,24 @@ window_event_result scores_menu::event_handler(const d_event &event)
 			gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 			
 			gr_printf(canvas, game_font, 0x8000, fspacy(31), "\"%s\"  - %s", cool_saying.data(), static_cast<const char *>(scores[0].name));
-			
+
+			const auto &&fspacx_line_number = fspacx(57);
+			const score_items_context shared_item_context(fspacx);
 			for (const auto &&[idx, stat] : enumerate(scores))
 			{
 				const auto shade = (idx == citem)
 					? get_update_looper()
 					: 28 - idx * 2;
 				const unsigned y = compute_score_y_coordinate(idx);
-				scores_rputs(canvas, game_font, 57, y, stat.line_number.data());
-				scores_draw_item(canvas, game_font, shade, y, stat);
+				const auto &&fspacy_y = fspacy(y);
+				scores_draw_item(canvas, game_font, shared_item_context, shade, fspacy_y, stat);
+				scores_rputs(canvas, game_font, fspacx_line_number, fspacy_y, stat.line_number.data());
 			}
 			
 			if (citem == MAX_HIGH_SCORES)
 			{
 				const auto shade = get_update_looper();
-				scores_draw_item(canvas, game_font, shade, compute_score_y_coordinate(citem) + 8, last_game);
+				scores_draw_item(canvas, game_font, shared_item_context, shade, fspacy(compute_score_y_coordinate(citem) + 8), last_game);
 			}
 			}
 			break;
