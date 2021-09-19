@@ -518,9 +518,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 		{
 			//vms_vector moved_vec;
 			vms_vector moved_vec_n;
-			fix attempted_dist,actual_dist;
-
-			actual_dist = vm_vec_normalized_dir(moved_vec_n,obj->pos,save_pos);
+			const auto actual_dist = vm_vec_normalized_dir(moved_vec_n,obj->pos,save_pos);
 
 			if (fate==HIT_WALL && vm_vec_dot(moved_vec_n,frame_vec) < 0) {		//moved backwards
 
@@ -535,12 +533,8 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 				moved_time = 0;
 			}
 			else {
-				fix old_sim_time;
-
-				attempted_dist = vm_vec_mag(frame_vec);
-
-				old_sim_time = sim_time;
-
+				const auto attempted_dist = vm_vec_mag(frame_vec);
+				const auto old_sim_time = sim_time;
 				sim_time = fixmuldiv(sim_time,attempted_dist-actual_dist,attempted_dist);
 
 				moved_time = old_sim_time - sim_time;

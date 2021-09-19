@@ -993,13 +993,13 @@ static int lead_player(const object_base &objp, const vms_vector &fire_point, co
 
 	const auto &velocity = plrobj.mtype.phys_info.velocity;
 	auto player_movement_dir = velocity;
-	const fix player_speed = vm_vec_normalize_quick(player_movement_dir);
+	const auto player_speed = vm_vec_normalize_quick(player_movement_dir);
 
 	if (player_speed < MIN_LEAD_SPEED)
 		return 0;
 
 	auto vec_to_player = vm_vec_sub(believed_player_pos, fire_point);
-	const fix dist_to_player = vm_vec_normalize_quick(vec_to_player);
+	const auto dist_to_player = vm_vec_normalize_quick(vec_to_player);
 	if (dist_to_player > MAX_LEAD_DISTANCE)
 		return 0;
 

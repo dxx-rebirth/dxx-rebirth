@@ -397,7 +397,6 @@ static int	PerturbCursideCommon(fix amount)
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int			saveSegSizeMode = SegSizeMode;
 	vms_vector	fvec, rvec, uvec;
-	fix			fmag, rmag, umag;
 	SegSizeMode = SEGSIZEMODE_CURSIDE;
 
 	Modified_vertex_index = 0;
@@ -407,9 +406,9 @@ static int	PerturbCursideCommon(fix amount)
 	extract_right_vector_from_segment(vcvertptr, Cursegp, rvec);
 	extract_up_vector_from_segment(vcvertptr, Cursegp, uvec);
 
-	fmag = vm_vec_mag(fvec);
-	rmag = vm_vec_mag(rvec);
-	umag = vm_vec_mag(uvec);
+	const auto fmag = vm_vec_mag(fvec);
+	const auto rmag = vm_vec_mag(rvec);
+	const auto umag = vm_vec_mag(uvec);
 
 	range_for (const auto v, Side_to_verts[Curside])
 	{

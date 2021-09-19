@@ -400,11 +400,11 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 	if (obj->movement_source == object::movement_type::physics) {
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST && obj->type==OBJ_PLAYER && get_player_id(obj)==Player_num) {
-			fix thrust_mag = vm_vec_mag_quick(obj->mtype.phys_info.thrust);
+			const auto thrust_mag = vm_vec_mag_quick(obj->mtype.phys_info.thrust);
 			engine_glow_value[0] += (fixdiv(thrust_mag,Player_ship->max_thrust)*4)/5;
 		}
 		else {
-			fix speed = vm_vec_mag_quick(obj->mtype.phys_info.velocity);
+			const auto speed = vm_vec_mag_quick(obj->mtype.phys_info.velocity);
 #if defined(DXX_BUILD_DESCENT_I)
 			engine_glow_value[0] += (fixdiv(speed,MAX_VELOCITY)*4)/5;
 #elif defined(DXX_BUILD_DESCENT_II)

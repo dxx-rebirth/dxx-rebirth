@@ -351,7 +351,7 @@ static void init_points(const polymodel &pm, const vms_vector *const box_size, c
 		else
 			morph_vec = {};
 
-		const fix dist = vm_vec_normalized_dir_quick(morph_delta, *vp, morph_vec);
+		const auto dist = vm_vec_normalized_dir_quick(morph_delta, *vp, morph_vec);
 		morph_time = fixdiv(dist, morph_rate);
 
 		if (morph_time != 0)

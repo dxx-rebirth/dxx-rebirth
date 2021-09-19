@@ -206,7 +206,7 @@ static int apply_damage_to_clutter(const vmobjptridx_t clutter, fix damage)
 }
 
 //given the specified force, apply damage from that force to an object
-static void apply_force_damage(const vmobjptridx_t obj,fix force,const vmobjptridx_t other_obj)
+static void apply_force_damage(const vmobjptridx_t obj, const vm_magnitude force, const vmobjptridx_t other_obj)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;

@@ -123,13 +123,9 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 	for (uint_fast32_t i = 1; i < count - 1; i += 2)
 	{
 		vms_vector	temp1, temp2;
-		fix			dot;
-
-		dot = vm_vec_dot(vm_vec_sub(temp1, psegs[i].point, psegs[i-1].point), vm_vec_sub(temp2, psegs[i+1].point, psegs[i].point));
-
+		const auto dot = vm_vec_dot(vm_vec_sub(temp1, psegs[i].point, psegs[i-1].point), vm_vec_sub(temp2, psegs[i+1].point, psegs[i].point));
 		if (dot * 9/8 > fixmul(vm_vec_mag(temp1), vm_vec_mag(temp2)))
 			psegs[i].segnum = segment_none;
-
 	}
 
 	//	Now, scan for points with segnum == -1

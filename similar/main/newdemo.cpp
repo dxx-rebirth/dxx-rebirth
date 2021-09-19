@@ -3645,14 +3645,13 @@ static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 
 					if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP))) {
 						vms_vector  fvec1, fvec2, rvec1, rvec2;
-						fix         mag1;
 
 						fvec1 = i.orient.fvec;
 						vm_vec_scale(fvec1, F1_0-factor);
 						fvec2 = objp->orient.fvec;
 						vm_vec_scale(fvec2, factor);
 						vm_vec_add2(fvec1, fvec2);
-						mag1 = vm_vec_normalize_quick(fvec1);
+						const auto mag1 = vm_vec_normalize_quick(fvec1);
 						if (mag1 > F1_0/256) {
 							rvec1 = i.orient.rvec;
 							vm_vec_scale(rvec1, F1_0-factor);

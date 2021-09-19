@@ -997,10 +997,9 @@ static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix l
 								if (light_at_point >= 0) {
 									fvi_info	hit_data;
 									int		hit_type;
-									fix		inverse_segment_magnitude;
 
 									const auto r_vector_to_center = vm_vec_sub(r_segment_center, vert_location);
-									inverse_segment_magnitude = fixdiv(F1_0/3, vm_vec_mag(r_vector_to_center));
+									const auto inverse_segment_magnitude = fixdiv(F1_0/3, vm_vec_mag(r_vector_to_center));
 									const auto vert_location_1 = vm_vec_scale_add(vert_location, r_vector_to_center, inverse_segment_magnitude);
 									vert_location = vert_location_1;
 

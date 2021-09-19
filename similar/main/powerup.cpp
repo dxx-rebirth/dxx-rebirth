@@ -402,7 +402,7 @@ int do_powerup(const vmobjptridx_t obj)
 		 * NOTE: Player positions computed by 'shortpos' and PING can still cause a small margin of error.
 		 */
 		vms_vector tvec;
-		fix mydist = vm_vec_normalized_dir(tvec, obj->pos, ConsoleObject->pos);
+		const fix mydist = vm_vec_normalized_dir(tvec, obj->pos, ConsoleObject->pos);
 
 		for (auto &&[i, plr] : enumerate(Players))
 		{
