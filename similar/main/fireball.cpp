@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <algorithm>
 #include <numeric>
 #include <random>
+#include <optional>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
