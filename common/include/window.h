@@ -26,8 +26,6 @@
 
 namespace dcx {
 
-constexpr const unused_window_userdata_t *unused_window_userdata = nullptr;
-
 class window
 {
 public:

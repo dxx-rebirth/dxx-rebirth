@@ -494,7 +494,6 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 extern game_cheats cheats;
 
 game_window *game_setup();
-window_event_result game_handler(window *wind,const d_event &event, const unused_window_userdata_t *);
 window_event_result ReadControls(const d_event &event, control_info &Controls);
 bool allowed_to_fire_laser(const player_info &);
 void reset_globals_for_new_game();

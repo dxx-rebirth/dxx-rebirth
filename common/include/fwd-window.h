@@ -27,14 +27,6 @@ namespace dcx {
 
 class window;
 
-template <typename T>
-using window_subfunction = window_event_result (*)(window *menu,const d_event &event, T *userdata);
-
-template <typename T>
-using window_subclass_subfunction = window_event_result (*)(T *menu,const d_event &event, void*);
-	
-class unused_window_userdata_t;
-
 int window_close(window *wind);
 window *window_get_front();
 window *window_get_first();
