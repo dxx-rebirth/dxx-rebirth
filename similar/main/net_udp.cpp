@@ -1557,7 +1557,7 @@ static void net_udp_send_sequence_packet(UDP_sequence_packet seq, const _sockadd
 	buf[0] = seq.type;						len++;
 	memcpy(&buf[len], seq.player.callsign.buffer(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
 	buf[len] = seq.player.connected;				len++;
-	buf[len] = seq.player.rank;					len++;
+	buf[len] = underlying_value(seq.player.rank);					len++;
 	dxx_sendto(recv_addr, UDP_Socket[0], buf, 0);
 }
 
@@ -1749,7 +1749,6 @@ static void net_udp_new_player(UDP_sequence_packet *const their)
 	Netgame.players[pnum].callsign = their->player.callsign;
 	Netgame.players[pnum].protocol.udp.addr = their->player.protocol.udp.addr;
 
-	ClipRank (&their->player.rank);
 	Netgame.players[pnum].rank=their->player.rank;
 
 	plr.connected = CONNECT_PLAYING;
@@ -1769,8 +1768,6 @@ static void net_udp_new_player(UDP_sequence_packet *const their)
 	}
 
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-
-	ClipRank (&their->player.rank);
 
 	const auto &&rankstr = GetRankStringWithSpace(their->player.rank);
 	HUD_init_message(HM_MULTI, "%s%s'%s' %s", rankstr.first, rankstr.second, static_cast<const char *>(their->player.callsign), TXT_JOINING);
@@ -2478,7 +2475,6 @@ static void net_udp_add_player(UDP_sequence_packet *p)
 		return;		// too many of em
 	}
 
-	ClipRank (&p->player.rank);
 	Netgame.players[N_players].callsign = p->player.callsign;
 	Netgame.players[N_players].protocol.udp.addr = p->player.protocol.udp.addr;
 	Netgame.players[N_players].rank=p->player.rank;
@@ -2518,7 +2514,6 @@ static void net_udp_remove_player(UDP_sequence_packet *p)
 		Netgame.players[i].callsign = Netgame.players[i+1].callsign;
 		Netgame.players[i].protocol.udp.addr = Netgame.players[i+1].protocol.udp.addr;
 		Netgame.players[i].rank=Netgame.players[i+1].rank;
-		ClipRank (&Netgame.players[i].rank);
 	}
 		
 	N_players--;
@@ -2759,7 +2754,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		{
 			memcpy(&buf[len], Netgame.players[i].callsign.buffer(), CALLSIGN_LEN+1); 	len += CALLSIGN_LEN+1;
 			buf[len] = Netgame.players[i].connected;				len++;
-			buf[len] = Netgame.players[i].rank;					len++;
+			buf[len] = underlying_value(Netgame.players[i].rank);					len++;
 			if (addr && *addr == Netgame.players[i].protocol.udp.addr)
 				your_index = i;
 		}
@@ -3001,7 +2996,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 			i.callsign.copy_lower(reinterpret_cast<const char *>(&data[len]), CALLSIGN_LEN);
 			len += CALLSIGN_LEN+1;
 			i.connected = data[len];				len++;
-			i.rank = data[len];					len++;
+			i.rank = build_rank_from_untrusted(data[len]);					len++;
 		}
 		Netgame.levelnum = GET_INTEL_INT(&(data[len]));					len += 4;
 		Netgame.gamemode = network_game_type{data[len]};							len++;
@@ -4599,7 +4594,6 @@ abort:
 			{
 				Netgame.players[N_players].callsign = Netgame.players[i].callsign;
 				Netgame.players[N_players].rank=Netgame.players[i].rank;
-				ClipRank (&Netgame.players[N_players].rank);
 			}
 			vmplayerptr(N_players)->connected = CONNECT_PLAYING;
 			N_players++;
@@ -4613,7 +4607,7 @@ abort:
 	range_for (auto &i, partial_range(Netgame.players, N_players, Netgame.players.size()))
 	{
 		i.callsign = {};
-		i.rank=0;
+		i.rank = netplayer_info::player_rank::None;
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -5708,8 +5702,6 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 				newdemo_record_multi_reconnect(TheirPlayernum);
 
 			digi_play_sample( SOUND_HUD_MESSAGE, F1_0);
-			ClipRank (&Netgame.players[TheirPlayernum].rank);
-			
 			const auto &&rankstr = GetRankStringWithSpace(Netgame.players[TheirPlayernum].rank);
 			HUD_init_message(HM_MULTI, "%s%s'%s' %s", rankstr.first, rankstr.second, static_cast<const char *>(vcplayerptr(TheirPlayernum)->callsign), TXT_REJOIN);
 
@@ -5862,8 +5854,6 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 {
 	int new_player_num;
 	
-	ClipRank (&their->player.rank);
-		
 	for (unsigned i = 0; i < MAX_PLAYERS; ++i)
 	{
 		if (!d_stricmp(vcplayerptr(i)->callsign, their->player.callsign) && their->player.protocol.udp.addr == Netgame.players[i].protocol.udp.addr)

@@ -109,6 +109,7 @@ static void multi_add_lifetime_kills(int count);
 }
 namespace {
 static void multi_send_heartbeat();
+static void multi_send_ranking(netplayer_info::player_rank);
 }
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
@@ -120,7 +121,6 @@ static void multi_send_drop_flag(vmobjptridx_t objnum,int seed);
 }
 #endif
 namespace {
-static void multi_send_ranking(uint8_t);
 static void multi_send_gmode_update();
 }
 namespace dcx {
@@ -262,7 +262,7 @@ multi_level_inv MultiLevelInv;
 }
 
 namespace dcx {
-const std::array<char[16], 10> RankStrings{{
+const enumerated_array<char[16], 10, netplayer_info::player_rank> RankStrings{{{
 	"(unpatched)",
 	"Cadet",
 	"Ensign",
@@ -273,7 +273,27 @@ const std::array<char[16], 10> RankStrings{{
 	"Vice Admiral",
 	"Admiral",
 	"Demigod"
-}};
+}}};
+
+netplayer_info::player_rank build_rank_from_untrusted(const uint8_t untrusted)
+{
+	switch (untrusted)
+	{
+		case static_cast<uint8_t>(netplayer_info::player_rank::None):
+		case static_cast<uint8_t>(netplayer_info::player_rank::Cadet):
+		case static_cast<uint8_t>(netplayer_info::player_rank::Ensign):
+		case static_cast<uint8_t>(netplayer_info::player_rank::Lieutenant):
+		case static_cast<uint8_t>(netplayer_info::player_rank::LtCommander):
+		case static_cast<uint8_t>(netplayer_info::player_rank::Commander):
+		case static_cast<uint8_t>(netplayer_info::player_rank::Captain):
+		case static_cast<uint8_t>(netplayer_info::player_rank::ViceAdmiral):
+		case static_cast<uint8_t>(netplayer_info::player_rank::Admiral):
+		case static_cast<uint8_t>(netplayer_info::player_rank::Demigod):
+			return netplayer_info::player_rank{untrusted};
+		default:
+			return netplayer_info::player_rank::None;
+	}
+}
 }
 
 namespace dsx {
@@ -283,12 +303,12 @@ const multi_allow_powerup_text_array multi_allow_powerup_text = {{
 }};
 }
 
-int GetMyNetRanking()
+netplayer_info::player_rank GetMyNetRanking()
 {
 	int rank, eff;
 
 	if (PlayerCfg.NetlifeKills + PlayerCfg.NetlifeKilled <= 0)
-		return (1);
+		return netplayer_info::player_rank::Cadet;
 
 	rank=static_cast<int>((static_cast<float>(PlayerCfg.NetlifeKills)/3000.0)*8.0);
 
@@ -314,14 +334,7 @@ int GetMyNetRanking()
 	if (rank>8)
 		rank=8;
 
-	return (rank+1);
-}
-
-void ClipRank (ubyte *rank)
-{
-	// This function insures no crashes when dealing with D2 1.0
-	if (*rank > 9)
-		*rank = 0;
+	return static_cast<netplayer_info::player_rank>(rank + 1);
 }
 
 //
@@ -4755,19 +4768,21 @@ void multi_add_lifetime_killed ()
 
 namespace {
 
-void multi_send_ranking (uint8_t newrank)
+void multi_send_ranking (const netplayer_info::player_rank newrank)
 {
 	multi_command<MULTI_RANK> multibuf;
 	multibuf[1]=static_cast<char>(Player_num);
-	multibuf[2] = newrank;
+	multibuf[2] = underlying_value(newrank);
 
 	multi_send_data(multibuf, 2);
 }
 
 static void multi_do_ranking (const playernum_t pnum, const ubyte *buf)
 {
-	const uint8_t rank = buf[2];
-	if (!(rank && rank < RankStrings.size()))
+	const auto rank = build_rank_from_untrusted(buf[2]);
+	if (rank == netplayer_info::player_rank::None)
+		return;
+	if (!RankStrings.valid_index(rank))
 		return;
 
 	auto &netrank = Netgame.players[pnum].rank;

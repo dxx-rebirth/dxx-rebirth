@@ -432,8 +432,6 @@ struct owned_remote_objnum
 };
 enum class trgnum_t : uint8_t;
 
-extern int GetMyNetRanking();
-extern void ClipRank (ubyte *rank);
 objnum_t objnum_remote_to_local(uint16_t remote_obj, int8_t owner);
 owned_remote_objnum objnum_local_to_remote(objnum_t local);
 void map_objnum_local_to_remote(int local, int remote, int owner);
@@ -602,7 +600,6 @@ extern playernum_t Bounty_target;
 
 extern std::array<std::array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
 
-extern const std::array<char[16], 10> RankStrings;
 #define GetRankStringWithSpace(I)	(PlayerCfg.NoRankings ? std::pair<const char *, const char *>("", "") : std::pair<const char *, const char *>(RankStrings[I], " "))
 
 // Globals for protocol-bound Refuse-functions
@@ -754,6 +751,19 @@ void save_hoard_data(void);
  */
 struct netplayer_info : prohibit_void_ptr<netplayer_info>
 {
+	enum class player_rank : uint8_t
+	{
+		None,
+		Cadet,
+		Ensign,
+		Lieutenant,
+		LtCommander,
+		Commander,
+		Captain,
+		ViceAdmiral,
+		Admiral,
+		Demigod
+	};
 #if DXX_USE_UDP
 	union
 	{
@@ -767,7 +777,7 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
 #endif
 	callsign_t					callsign;
 	sbyte						connected;
-	ubyte						rank;
+	player_rank					rank;
 	fix							ping;
 	fix64							LastPacketTime;
 };
@@ -899,6 +909,13 @@ namespace multi
 }
 }
 #endif
+
+netplayer_info::player_rank GetMyNetRanking();
+
+namespace dcx {
+extern const enumerated_array<char[16], 10, netplayer_info::player_rank> RankStrings;
+netplayer_info::player_rank build_rank_from_untrusted(uint8_t untrusted);
+}
 
 /* Stub for mods that remap player colors */
 static inline unsigned get_player_color(unsigned pnum)
