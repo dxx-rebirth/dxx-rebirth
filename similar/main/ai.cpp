@@ -1888,7 +1888,7 @@ int ai_door_is_openable(
 
 		// -- if (Buddy_got_stuck) {
 		if (ailp_mode == ai_mode::AIM_GOTO_PLAYER) {
-			if (wt == WALL_BLASTABLE && wall.state != WALL_BLASTED)
+			if (wt == WALL_BLASTABLE && !(wall.flags & WALL_BLASTED))
 				return 0;
 			if (wt == WALL_CLOSED)
 				return 0;
