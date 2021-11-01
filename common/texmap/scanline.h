@@ -34,7 +34,7 @@ namespace dcx {
 extern void c_tmap_scanline_lin();
 extern void c_tmap_scanline_lin_nolight();
 extern void c_tmap_scanline_flat();
-void c_tmap_scanline_shaded(const uint_fast32_t fade);
+void c_tmap_scanline_shaded(const gr_fade_level fade);
 
 struct tmap_scanline_function_table
 {

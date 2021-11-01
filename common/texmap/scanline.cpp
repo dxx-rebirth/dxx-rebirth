@@ -56,7 +56,7 @@ void c_tmap_scanline_flat()
 //         memset(dest,tmap_flat_color,fx_xright-fx_xleft+1);
 }
 
-void c_tmap_scanline_shaded(const uint_fast32_t fade)
+void c_tmap_scanline_shaded(const gr_fade_level fade)
 {
 	uint8_t tmp;
 	int x, index = fx_xleft + (bytes_per_row * fx_y );
@@ -119,7 +119,7 @@ void c_tmap_scanline_lin()
 
 	if (!Transparency_on)	{
 		const auto pixPtrLocalCopy = pixptr;
-		auto &fadeTableLocalCopy = gr_fade_table;
+		const auto &fadeTableLocalCopy = gr_fade_table;
 
 		x = fx_xright-fx_xleft+1;
 
