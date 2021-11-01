@@ -37,7 +37,6 @@ window *window_set_visible(window &wind, int visible);
 #if !DXX_USE_OGL
 void window_update_canvases();
 #endif
-int window_is_modal(window &wind);
 
 #define WINDOW_SEND_EVENT(w)	((WINDOW_SEND_EVENT)(*w, event, __FILE__, __LINE__))
 

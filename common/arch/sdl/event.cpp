@@ -208,7 +208,7 @@ window_event_result event_send(const d_event &event)
 
 			if (handled == window_event_result::deleted) // break away if necessary: window_send_event() could have closed wind by now
 				break;
-			if (window_is_modal(*wind))
+			if (wind->is_modal())
 				break;
 		}
 	

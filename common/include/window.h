@@ -32,10 +32,10 @@ public:
 	grs_subcanvas w_canv;					// the window's canvas to draw to
 private:
 	int w_visible;						// whether it's visible
-	int w_modal;						// modal = accept all user input exclusively
 	class window *prev;				// the previous window in the doubly linked list
-	class window *next;				// the next window in the doubly linked list
-	bool *w_exists;					// optional pointer to a tracking variable
+	class window *next = nullptr;				// the next window in the doubly linked list
+	uint8_t w_modal = 1;						// modal = accept all user input exclusively
+	bool *w_exists = nullptr;					// optional pointer to a tracking variable
 public:
 	explicit window(grs_canvas &src, int x, int y, int w, int h);
 	window(const window &) = delete;
@@ -68,14 +68,14 @@ public:
 		return wind.is_visible();
 	}
 
-	void set_modal(int modal)
+	void set_modal(uint8_t modal)
 	{
 		w_modal = modal;
 	}
 
-	friend int window_is_modal(window &wind)
+	uint8_t is_modal() const
 	{
-		return wind.w_modal;
+		return w_modal;
 	}
 
 	friend window_event_result window_send_event(window &wind, const d_event &event)
