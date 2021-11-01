@@ -971,44 +971,37 @@ window_event_result do_new_game_menu()
 
 	new_level_num = 1;
 	const auto recorded_player_highest_level = get_highest_level();
-	const auto clamped_player_highest_level = std::min<decltype(recorded_player_highest_level)>(recorded_player_highest_level, Current_mission->last_level);
-	const auto allowed_highest_level =
-#ifdef NDEBUG
-#define DXX_START_ANY_LEVEL_FORMAT	""
-#define DXX_START_ANY_LEVEL_ARGS
-		clamped_player_highest_level
-#else
-#define DXX_START_ANY_LEVEL_FORMAT	"\n\nYou have beaten level %d."
-#define DXX_START_ANY_LEVEL_ARGS	, clamped_player_highest_level
-		Current_mission->last_level
-#endif
-		;
-	if (allowed_highest_level > 1)
+	const auto last_level = Current_mission->last_level;
+	const auto clamped_player_highest_level = std::min<decltype(recorded_player_highest_level)>(recorded_player_highest_level, last_level);
+	if (last_level > 1)
 	{
 		struct items_type
 		{
 			std::array<char, 8> num_text{"1"};
-			std::array<char, 128> info_text;
+			std::array<char, 64> subtitle_text;
+			std::array<char, 68> info_text;
 			std::array<newmenu_item, 2> m;
-			items_type() :
+			items_type(const char *const mission_name, const unsigned last_level, const int clamped_player_highest_level) :
 				m{{
 					newmenu_item::nm_item_text{info_text.data()},
 					newmenu_item::nm_item_input(num_text),
 				}}
 			{
+				char buf[28];
+				std::snprintf(std::data(subtitle_text), std::size(subtitle_text), "%s\n\n%s", TXT_SELECT_START_LEV, mission_name);
+				const auto trailer = clamped_player_highest_level
+					? (std::snprintf(buf, std::size(buf), "finished level %d", clamped_player_highest_level), buf)
+					: "not finished any level";
+				std::snprintf(std::data(info_text), std::size(info_text), "This mission has %u levels.\n\nYou have %s.", last_level, trailer);
 			}
 		};
-		items_type menu_items;
-
-		snprintf(menu_items.info_text.data(), menu_items.info_text.size(), "This mission has\n%u levels.\n\n%s %d." DXX_START_ANY_LEVEL_FORMAT, static_cast<unsigned>(Current_mission->last_level), TXT_START_ANY_LEVEL, allowed_highest_level DXX_START_ANY_LEVEL_ARGS);
-#undef DXX_START_ANY_LEVEL_ARGS
-#undef DXX_START_ANY_LEVEL_FORMAT
+		items_type menu_items{Current_mission->mission_name, last_level, clamped_player_highest_level};
 		for (;;)
 		{
 			struct select_start_level_menu : passive_newmenu
 			{
 				select_start_level_menu(items_type &i) :
-					passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_SELECT_START_LEV}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(i.m, 1), grd_curscreen->sc_canvas)
+					passive_newmenu(menu_title{nullptr}, menu_subtitle{i.subtitle_text.data()}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(i.m, 1), grd_curscreen->sc_canvas)
 				{
 				}
 			};
@@ -1020,12 +1013,10 @@ window_event_result do_new_game_menu()
 			char *p = nullptr;
 			new_level_num = strtol(menu_items.num_text.data(), &p, 10);
 
-			if (*p || new_level_num <= 0 || new_level_num > Current_mission->last_level)
+			if (*p || new_level_num <= 0 || new_level_num > last_level)
 			{
 				nm_messagebox(menu_title{TXT_INVALID_LEVEL}, 1, TXT_OK, "You must enter a\npositive level number\nless than or\nequal to %u.\n", static_cast<unsigned>(Current_mission->last_level));
 			}
-			else if (new_level_num > allowed_highest_level)
-				nm_messagebox(menu_title{TXT_INVALID_LEVEL}, 1, TXT_OK, "You have beaten level %d.\n\nYou cannot start on level %d.", allowed_highest_level, new_level_num);
 			else
 				break;
 		}
