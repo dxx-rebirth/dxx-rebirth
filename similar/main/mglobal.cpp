@@ -80,8 +80,13 @@ int d_tick_step = 0;  // true once every 33.33ms
 
 //	Translate table to get opposite side of a face on a segment.
 
-const std::array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite{{
-	WRIGHT, WBOTTOM, WLEFT, WTOP, WFRONT, WBACK
+const std::array<sidenum_t, MAX_SIDES_PER_SEGMENT> Side_opposite{{
+	sidenum_t::WRIGHT,
+	sidenum_t::WBOTTOM,
+	sidenum_t::WLEFT,
+	sidenum_t::WTOP,
+	sidenum_t::WFRONT,
+	sidenum_t::WBACK
 }};
 
 #define TOLOWER(c) ((((c)>='A') && ((c)<='Z'))?((c)+('a'-'A')):(c))
