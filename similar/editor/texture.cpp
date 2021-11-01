@@ -239,7 +239,7 @@ static void rotate_uv_points_on_side(unique_segment &segp, const sidenum_fast_t 
 //	-----------------------------------------------------------
 //	ang is in 0..ffff = 0..359.999 degrees
 //	rotmat is filled in with 4 fixes
-static std::array<fix, 4> create_2d_rotation_matrix(fix ang)
+static std::array<fix, 4> create_2d_rotation_matrix(const fixang ang)
 {
 	const auto &&a = fix_sincos(ang);
 	const auto &sinang = a.sin;

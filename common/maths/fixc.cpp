@@ -29,7 +29,7 @@ class fix_sincos_input
 public:
 	const uint8_t m_idx;
 	const signed m_mul;
-	fix_sincos_input(fix a) :
+	fix_sincos_input(const fixang a) :
 		m_idx(static_cast<uint8_t>(a >> 8)),
 		m_mul(static_cast<uint8_t>(a))
 	{
@@ -222,6 +222,9 @@ fix fix_sqrt(fix a)
 static fix fix_sincos(const uint8_t idx0, const signed mul)
 {
 	const fix t0 = sincos_table[idx0];
+	/* `idx1` is `uint8_t` to truncate the value, since sincos_table is
+	 * only 256 elements long.
+	 */
 	const uint8_t idx1 = idx0 + 1;
 	const fix t1 = sincos_table[idx1];
 	return (t0 + (((t1 - t0) * mul) >> 8)) << 2;
@@ -242,26 +245,25 @@ static fix fix_cos(const fix_sincos_input sci)
 //compute sine and cosine of an angle, filling in the variables
 //either of the pointers can be NULL
 //with interpolation
-fix_sincos_result fix_sincos(fix a)
+fix_sincos_result fix_sincos(const fixang a)
 {
 	fix_sincos_input i(a);
 	return {fix_sin(i), fix_cos(i)};
 }
 
-fix fix_sin(fix a)
+fix fix_sin(const fixang a)
 {
 	return fix_sin(fix_sincos_input{a});
 }
 
-fix fix_cos(fix a)
+fix fix_cos(const fixang a)
 {
 	return fix_cos(fix_sincos_input{a});
 }
 
 //compute sine and cosine of an angle, filling in the variables
-//either of the pointers can be NULL
 //no interpolation
-fix fix_fastsin(fix a)
+fix fix_fastsin(const fixang a)
 {
 	const uint8_t i = static_cast<uint8_t>(a >> 8);
 	return sincos_table[i] << 2;

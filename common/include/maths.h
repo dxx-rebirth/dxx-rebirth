@@ -155,19 +155,19 @@ struct fix_sincos_result
 };
 
 [[nodiscard]]
-fix_sincos_result fix_sincos(fix);
+fix_sincos_result fix_sincos(fixang);
 
 //compute sine and cosine of an angle, filling in the variables
 //either of the pointers can be NULL
 
 [[nodiscard]]
-fix fix_sin(fix a);
+fix fix_sin(fixang a);
 
 [[nodiscard]]
-fix fix_cos(fix a);
+fix fix_cos(fixang a);
 
 [[nodiscard]]
-fix fix_fastsin(fix a);	//no interpolation
+fix fix_fastsin(fixang a);	//no interpolation
 
 //compute inverse sine & cosine
 [[nodiscard]]
