@@ -151,6 +151,15 @@ constexpr std::array<int8_t, 8> Mike_to_matt_xlate{{
 // ---------- John: These variables must be saved as part of gamesave. --------
 static int             Overall_agitation;
 static std::array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
+
+fix build_savegametime_from_gametime(const fix64 gametime, const fix64 t)
+{
+	const auto delta_time = t - gametime;
+	if (delta_time < F1_0 * (-18000))
+		return fix{F1_0 * (-18000)};
+	return static_cast<fix>(delta_time);
+}
+
 }
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
@@ -4698,16 +4707,10 @@ static void state_ai_local_to_ai_local_rw(const ai_local *ail, ai_local_rw *ail_
 	ail_rw->next_action_time           = ail->next_action_time;
 	ail_rw->next_fire                  = ail->next_fire;
 	ail_rw->player_awareness_time      = ail->player_awareness_time;
-	if (ail->time_player_seen - GameTime64 < F1_0*(-18000))
-		ail_rw->time_player_seen = F1_0*(-18000);
-	else
-		ail_rw->time_player_seen = ail->time_player_seen - GameTime64;
-	if (ail->time_player_sound_attacked - GameTime64 < F1_0*(-18000))
-		ail_rw->time_player_sound_attacked = F1_0*(-18000);
-	else
-		ail_rw->time_player_sound_attacked = ail->time_player_sound_attacked - GameTime64;
-	ail_rw->time_player_sound_attacked = ail->time_player_sound_attacked;
-	ail_rw->next_misc_sound_time       = ail->next_misc_sound_time - GameTime64;
+	const auto gametime = GameTime64;
+	ail_rw->time_player_seen = build_savegametime_from_gametime(gametime, ail->time_player_seen);
+	ail_rw->time_player_sound_attacked = build_savegametime_from_gametime(gametime, ail->time_player_sound_attacked);
+	ail_rw->next_misc_sound_time = build_savegametime_from_gametime(gametime, ail->next_misc_sound_time);
 	ail_rw->time_since_processed       = ail->time_since_processed;
 	for (i = 0; i < MAX_SUBMODELS; i++)
 	{
@@ -4722,12 +4725,9 @@ static void state_ai_local_to_ai_local_rw(const ai_local *ail, ai_local_rw *ail_
 	}
 }
 
-static void state_ai_cloak_info_to_ai_cloak_info_rw(ai_cloak_info *aic, ai_cloak_info_rw *aic_rw)
+static void state_ai_cloak_info_to_ai_cloak_info_rw(const ai_cloak_info *const aic, ai_cloak_info_rw *const aic_rw)
 {
-	if (aic->last_time - GameTime64 < F1_0*(-18000))
-		aic_rw->last_time = F1_0*(-18000);
-	else
-		aic_rw->last_time = aic->last_time - GameTime64;
+	aic_rw->last_time = build_savegametime_from_gametime(GameTime64, aic->last_time);
 #if defined(DXX_BUILD_DESCENT_II)
 	aic_rw->last_segment    = aic->last_segment;
 #endif
@@ -4783,25 +4783,17 @@ int ai_save_state(PHYSFS_File *fp)
 		state_ai_cloak_info_to_ai_cloak_info_rw(&i, &aic_rw);
 		PHYSFS_write(fp, &aic_rw, sizeof(aic_rw), 1);
 	}
+	const auto gametime = GameTime64;
 	{
 		const auto Boss_cloak_start_time = BossUniqueState.Boss_cloak_start_time;
-	if (Boss_cloak_start_time - GameTime64 < F1_0*(-18000))
-		tmptime32 = F1_0*(-18000);
-	else
-		tmptime32 = Boss_cloak_start_time - GameTime64;
+		tmptime32 = build_savegametime_from_gametime(gametime, Boss_cloak_start_time);
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
-	if ((Boss_cloak_start_time + Boss_cloak_duration) - GameTime64 < F1_0*(-18000))
-		tmptime32 = F1_0*(-18000);
-	else
-		tmptime32 = (Boss_cloak_start_time + Boss_cloak_duration) - GameTime64;
+		tmptime32 = build_savegametime_from_gametime(gametime, Boss_cloak_start_time + Boss_cloak_duration);
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	}
 	{
 		const auto Last_teleport_time = BossUniqueState.Last_teleport_time;
-	if (Last_teleport_time - GameTime64 < F1_0*(-18000))
-		tmptime32 = F1_0*(-18000);
-	else
-		tmptime32 = Last_teleport_time - GameTime64;
+		tmptime32 = build_savegametime_from_gametime(gametime, Last_teleport_time);
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	}
 	{
@@ -4811,10 +4803,7 @@ int ai_save_state(PHYSFS_File *fp)
 		PHYSFS_write(fp, &Boss_cloak_interval, sizeof(fix), 1);
 	}
 	PHYSFS_write(fp, &Boss_cloak_duration, sizeof(fix), 1);
-	if (BossUniqueState.Last_gate_time - GameTime64 < F1_0*(-18000))
-		tmptime32 = F1_0*(-18000);
-	else
-		tmptime32 = BossUniqueState.Last_gate_time - GameTime64;
+	tmptime32 = build_savegametime_from_gametime(gametime, BossUniqueState.Last_gate_time);
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &GameUniqueState.Boss_gate_interval, sizeof(fix), 1);
 	{
@@ -4825,10 +4814,7 @@ int ai_save_state(PHYSFS_File *fp)
 	}
 	else
 	{
-		if (Boss_dying_start_time - GameTime64 < F1_0*(-18000))
-			tmptime32 = F1_0*(-18000);
-		else
-			tmptime32 = Boss_dying_start_time - GameTime64;
+		tmptime32 = build_savegametime_from_gametime(gametime, Boss_dying_start_time);
 		if (tmptime32 == 0) // now if our converted value went 0 we should do something against it
 			tmptime32 = -1;
 	}
@@ -4846,16 +4832,10 @@ int ai_save_state(PHYSFS_File *fp)
 	const int Boss_been_hit = 0;
 	PHYSFS_write(fp, &Boss_been_hit, sizeof(int), 1);
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (BossUniqueState.Boss_hit_time - GameTime64 < F1_0*(-18000))
-		tmptime32 = F1_0*(-18000);
-	else
-		tmptime32 = BossUniqueState.Boss_hit_time - GameTime64;
+	tmptime32 = build_savegametime_from_gametime(gametime, BossUniqueState.Boss_hit_time);
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_writeSLE32(fp, -1);
-	if (BuddyState.Escort_last_path_created - GameTime64 < F1_0*(-18000))
-		tmptime32 = F1_0*(-18000);
-	else
-		tmptime32 = BuddyState.Escort_last_path_created - GameTime64;
+	tmptime32 = build_savegametime_from_gametime(gametime, BuddyState.Escort_last_path_created);
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	{
 		const uint32_t Escort_goal_object = BuddyState.Escort_goal_object;
