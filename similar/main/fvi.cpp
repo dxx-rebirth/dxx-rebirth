@@ -247,9 +247,7 @@ static int check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_
 	auto &s = seg.sides[side];
 	const vms_vector &norm = s.normals[facenum];
 
-	const auto v = create_abs_vertex_lists(seg, s, side);
-	const auto &num_faces = v.first;
-	const auto &vertex_list = v.second;
+	const auto &&[num_faces, vertex_list] = create_abs_vertex_lists(seg, s, side);
 
 	//use lowest point number
 	vertnum_t vertnum;
@@ -327,8 +325,7 @@ static int special_check_line_to_face(vms_vector &newp, const vms_vector &p0, co
 
 	//calc some basic stuff
 
-	const auto v = create_abs_vertex_lists(seg, s, side);
-	const auto &vertex_list = v.second;
+	const auto &&vertex_list = create_abs_vertex_lists(seg, s, side).second;
 	auto move_vec = vm_vec_sub(p1,p0);
 
 	//figure out which edge(s) to check against
@@ -1260,9 +1257,7 @@ static sphere_intersects_wall_result sphere_intersects_wall(fvcsegptridx &vcsegp
 
 					//did we go through this wall/door?
 					auto &sidep = sseg.sides[side];
-					const auto v = create_abs_vertex_lists(sseg, sidep, side);
-					const auto &num_faces = v.first;
-					const auto &vertex_list = v.second;
+					const auto &&[num_faces, vertex_list] = create_abs_vertex_lists(sseg, sidep, side);
 
 					face_hit_type = check_sphere_to_face(pnt, sidep.normals[face],
 										face,((num_faces==1)?4:3),rad,vertex_list);

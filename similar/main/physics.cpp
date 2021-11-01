@@ -760,8 +760,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 
 				auto &s = orig_segp.s.sides[sidenum];
 
-				const auto v = create_abs_vertex_lists(orig_segp, s, sidenum);
-				const auto &vertex_list = v.second;
+				const auto &&vertex_list = create_abs_vertex_lists(orig_segp, s, sidenum).second;
 
 				//let's pretend this wall is not triangulated
 				const auto b = begin(vertex_list);

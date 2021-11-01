@@ -301,9 +301,7 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const sh
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-		const auto v = create_abs_vertex_lists(seg, s, sn);
-		const auto &num_faces = v.first;
-		const auto &vertex_list = v.second;
+		const auto &&[num_faces, vertex_list] = create_abs_vertex_lists(seg, s, sn);
 
 		//ok...this is important.  If a side has 2 faces, we need to know if
 		//those faces form a concave or convex side.  If the side pokes out,
@@ -400,9 +398,7 @@ static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, c
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-		const auto v = create_abs_vertex_lists(segnum, s, sn);
-		const auto &num_faces = v.first;
-		const auto &vertex_list = v.second;
+		const auto &&[num_faces, vertex_list] = create_abs_vertex_lists(segnum, s, sn);
 
 		//ok...this is important.  If a side has 2 faces, we need to know if
 		//those faces form a concave or convex side.  If the side pokes out,
@@ -517,9 +513,7 @@ int check_segment_connections(void)
 	{
 		range_for (const int sidenum, xrange(6u)) {
 #ifndef NDEBUG
-			const auto v = create_abs_vertex_lists(seg, sidenum);
-			const auto &num_faces = v.first;
-			const auto &vertex_list = v.second;
+			const auto &&[num_faces, vertex_list] = create_abs_vertex_lists(seg, sidenum);
 #endif
 			const auto csegnum = seg->shared_segment::children[sidenum];
 			if (!IS_CHILD(csegnum))
@@ -540,9 +534,7 @@ int check_segment_connections(void)
 				}
 
 #ifndef NDEBUG
-				const auto cv = create_abs_vertex_lists(cseg, csidenum);
-				const auto &con_num_faces = cv.first;
-				const auto &con_vertex_list = cv.second;
+				const auto &&[con_num_faces, con_vertex_list] = create_abs_vertex_lists(cseg, csidenum);
 
 				if (con_num_faces != num_faces) {
 					LevelError("Segment #%u side %u: wrong faces: con_num_faces=%" PRIuFAST32 " num_faces=%" PRIuFAST32 ".", seg.get_unchecked_index(), sidenum, con_num_faces, num_faces);
@@ -1456,10 +1448,9 @@ void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const unsig
 
 			int			s0,s1;
 
-			const auto v = create_abs_vertex_lists(sp, s, sidenum);
-			const auto &vertex_list = v.second;
-
-			Assert(v.first == 2);
+			const auto &&[num_faces, vertex_list] = create_abs_vertex_lists(sp, s, sidenum);
+			assert(num_faces == 2);
+			(void)num_faces;
 
 			auto &vvn = *vcvertptr(min(vertex_list[0],vertex_list[2]));
 
