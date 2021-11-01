@@ -732,7 +732,7 @@ static int main(int argc, char *argv[])
 #if DXX_USE_EDITOR
 	if (!GameArg.EdiAutoLoad.empty()) {
 		/* Any number >= FILENAME_LEN works */
-		Level_names[0].copy_if(GameArg.EdiAutoLoad.c_str(), GameArg.EdiAutoLoad.size());
+		Current_mission->level_names[0].copy_if(GameArg.EdiAutoLoad.c_str(), GameArg.EdiAutoLoad.size());
 		LoadLevel(1, 1);
 	}
 	else

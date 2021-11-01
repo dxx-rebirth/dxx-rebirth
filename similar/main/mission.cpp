@@ -251,10 +251,10 @@ static bool null_or_space(char c)
 	return !c || isspace(static_cast<unsigned>(c));
 }
 
-// Allocate the Level_names, Current_mission->secret_level_names and Secret_level_table arrays
+// Allocate the Current_mission->level_names, Current_mission->secret_level_names and Secret_level_table arrays
 static void allocate_levels(const unsigned count_regular_level, const unsigned count_secret_level)
 {
-	Level_names = std::make_unique<d_fname[]>(count_regular_level);
+	Current_mission->level_names = std::make_unique<d_fname[]>(count_regular_level);
 	Last_level = count_regular_level;
 	N_secret_levels = count_secret_level;
 	Last_secret_level = -static_cast<signed>(count_secret_level);
@@ -273,7 +273,7 @@ static void allocate_shareware_levels(const unsigned count_regular_level, const 
 	Ending_text_filename = BIMD1_ENDING_FILE_SHARE;
 	allocate_levels(count_regular_level, count_secret_level);
 	//build level names
-	for (const auto &&[idx, name] : enumerate(unchecked_partial_range(Level_names.get(), count_regular_level), 1u))
+	for (const auto &&[idx, name] : enumerate(unchecked_partial_range(Current_mission->level_names.get(), count_regular_level), 1u))
 		snprintf(&name[0u], name.size(), "level%02u.sdl", idx);
 }
 
@@ -311,9 +311,9 @@ static void load_mission_d1()
 			constexpr unsigned last_secret_level = 1;
 			allocate_levels(last_level, last_secret_level);
 			//build level names
-			build_rdl_regular_level_names(last_level - 1, Level_names);
+			build_rdl_regular_level_names(last_level - 1, Current_mission->level_names);
 			{
-				auto &ln = Level_names[last_level - 1];
+				auto &ln = Current_mission->level_names[last_level - 1];
 				snprintf(&ln[0u], ln.size(), "saturn%02d.rdl", last_level);
 			}
 			build_rdl_secret_level_names(last_secret_level, Current_mission->secret_level_names);
@@ -335,7 +335,7 @@ static void load_mission_d1()
 			allocate_levels(last_level, last_secret_level);
 
 			//build level names
-			build_rdl_regular_level_names(last_level, Level_names);
+			build_rdl_regular_level_names(last_level, Current_mission->level_names);
 			build_rdl_secret_level_names(last_secret_level, Current_mission->secret_level_names);
 			Secret_level_table[0] = 10;
 			Secret_level_table[1] = 21;
@@ -363,10 +363,10 @@ static void load_mission_shareware()
 		case MAC_SHARE_MISSION_HOGSIZE:
 			allocate_levels(4, 1);
 			// mac demo is using the regular hog and rl2 files
-			Level_names[0] = "d2leva-1.rl2";
-			Level_names[1] = "d2leva-2.rl2";
-			Level_names[2] = "d2leva-3.rl2";
-			Level_names[3] = "d2leva-4.rl2";
+			Current_mission->level_names[0] = "d2leva-1.rl2";
+			Current_mission->level_names[1] = "d2leva-2.rl2";
+			Current_mission->level_names[2] = "d2leva-3.rl2";
+			Current_mission->level_names[3] = "d2leva-4.rl2";
 			Current_mission->secret_level_names[0] = "d2leva-s.rl2";
 			break;
 		default:
@@ -374,9 +374,9 @@ static void load_mission_shareware()
 			DXX_BOOST_FALLTHROUGH;
 		case SHAREWARE_MISSION_HOGSIZE:
 			allocate_levels(3, 0);
-			Level_names[0] = "d2leva-1.sl2";
-			Level_names[1] = "d2leva-2.sl2";
-			Level_names[2] = "d2leva-3.sl2";
+			Current_mission->level_names[0] = "d2leva-1.sl2";
+			Current_mission->level_names[1] = "d2leva-2.sl2";
+			Current_mission->level_names[2] = "d2leva-3.sl2";
 			break;
 	}
 }
@@ -393,15 +393,15 @@ static void load_mission_oem()
     Current_mission->anarchy_only_flag = 0;
     
 	allocate_levels(8, 2);
-	Level_names[0] = "d2leva-1.rl2";
-	Level_names[1] = "d2leva-2.rl2";
-	Level_names[2] = "d2leva-3.rl2";
-	Level_names[3] = "d2leva-4.rl2";
+	Current_mission->level_names[0] = "d2leva-1.rl2";
+	Current_mission->level_names[1] = "d2leva-2.rl2";
+	Current_mission->level_names[2] = "d2leva-3.rl2";
+	Current_mission->level_names[3] = "d2leva-4.rl2";
 	Current_mission->secret_level_names[0] = "d2leva-s.rl2";
-	Level_names[4] = "d2levb-1.rl2";
-	Level_names[5] = "d2levb-2.rl2";
-	Level_names[6] = "d2levb-3.rl2";
-	Level_names[7] = "d2levb-4.rl2";
+	Current_mission->level_names[4] = "d2levb-1.rl2";
+	Current_mission->level_names[5] = "d2levb-2.rl2";
+	Current_mission->level_names[6] = "d2levb-3.rl2";
+	Current_mission->level_names[7] = "d2levb-4.rl2";
 	Current_mission->secret_level_names[1] = "d2levb-s.rl2";
 	Secret_level_table[0] = 1;
 	Secret_level_table[1] = 5;
@@ -929,7 +929,7 @@ static const char *load_mission(const mle *const mission)
 	Briefing_text_filename = {};
 	Ending_text_filename = {};
 	Secret_level_table.reset();
-	Level_names.reset();
+	Current_mission->level_names.reset();
 	Current_mission->secret_level_names.reset();
 
 	// for Descent 1 missions, load descent.hog
@@ -1055,7 +1055,7 @@ static const char *load_mission(const mle *const mission)
 						break;
 				}
 				Last_level = level_names_loaded;
-				Level_names = std::move(names);
+				Current_mission->level_names = std::move(names);
 			}
 		}
 		else if (istok(buf,"num_secrets")) {
@@ -1509,7 +1509,7 @@ static int write_mission(void)
 
 	PHYSFSX_printf(mfile, "num_levels = %i\n", Last_level);
 
-	range_for (auto &i, unchecked_partial_range(Level_names.get(), Last_level))
+	range_for (auto &i, unchecked_partial_range(Current_mission->level_names.get(), Last_level))
 		PHYSFSX_printf(mfile, "%s\n", static_cast<const char *>(i));
 
 	if (N_secret_levels)
@@ -1535,14 +1535,14 @@ void create_new_mission(void)
 	Current_mission->builtin_hogsize = 0;
 	Current_mission->anarchy_only_flag = 0;
 	
-	Level_names = std::make_unique<d_fname[]>(1);
-	if (!Level_names)
+	Current_mission->level_names = std::make_unique<d_fname[]>(1);
+	if (!Current_mission->level_names)
 	{
 		Current_mission.reset();
 		return;
 	}
 
-	Level_names[0] = "GAMESAVE.LVL";
+	Current_mission->level_names[0] = "GAMESAVE.LVL";
 	Last_level = 1;
 	N_secret_levels = 0;
 	Last_secret_level = 0;

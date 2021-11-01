@@ -307,13 +307,13 @@ void do_replacements_all(void)
 #if defined(DXX_BUILD_DESCENT_II)
 			LevelSharedSegmentState.DestructibleLights,
 #endif
-			Level_names[i]);
+			Current_mission->level_names[i]);
 		do_replacements();
 		save_level(
 #if defined(DXX_BUILD_DESCENT_II)
 			LevelSharedSegmentState.DestructibleLights,
 #endif
-			Level_names[i]);
+			Current_mission->level_names[i]);
 	}
 
 	for (int i = 0; i < -Last_secret_level; i++)

@@ -1339,7 +1339,7 @@ try_again:
 	if (level_num<0)		//secret level
 		filename = Current_mission->secret_level_names[-level_num - 1];
 	else					//normal level
-		filename = Level_names[level_num-1];
+		filename = Current_mission->level_names[level_num - 1];
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!convert_ext(filename,"end"))

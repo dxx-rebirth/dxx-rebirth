@@ -192,7 +192,6 @@ extern Mission_ptr Current_mission; // current mission
 #define Last_secret_level		Current_mission->last_secret_level
 #define N_secret_levels			Current_mission->n_secret_levels
 #define Secret_level_table		Current_mission->secret_level_table
-#define Level_names			Current_mission->level_names
 
 #if defined(DXX_BUILD_DESCENT_II)
 /* Wrap in parentheses to avoid precedence problems.  Put constant on

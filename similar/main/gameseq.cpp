@@ -868,7 +868,7 @@ static const d_fname &get_level_file(int level_num)
 	if (level_num<0)                //secret level
 		return Current_mission->secret_level_names[-level_num - 1];
 	else                                    //normal level
-		return Level_names[level_num-1];
+		return Current_mission->level_names[level_num - 1];
 }
 
 // routine to calculate the checksum of the segments.
