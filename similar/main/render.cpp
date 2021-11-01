@@ -852,18 +852,60 @@ static ubyte code_window_point(fix x,fix y,const rect &w)
 
 //Given two sides of segment, tell the two verts which form the 
 //edge between them
-constexpr std::array<
-	std::array<
+constexpr enumerated_array<
+	enumerated_array<
 		std::array<int_fast8_t, 2>,
-		6>,
-	6> Two_sides_to_edge = {{
-	{{  {{edge_none,edge_none}},	 {{3,7}},	 {{edge_none,edge_none}},	 {{2,6}},	 {{6,7}},	 {{2,3}}	}},
-	{{  {{3,7}},	 {{edge_none,edge_none}},	 {{0,4}},	 {{edge_none,edge_none}},	 {{4,7}},	 {{0,3}}	}},
-	{{  {{edge_none,edge_none}},	 {{0,4}},	 {{edge_none,edge_none}},	 {{1,5}},	 {{4,5}},	 {{0,1}}	}},
-	{{  {{2,6}},	 {{edge_none,edge_none}},	 {{1,5}},	 {{edge_none,edge_none}},	 {{5,6}},	 {{1,2}}	}},
-	{{  {{6,7}},	 {{4,7}},	 {{4,5}},	 {{5,6}},	 {{edge_none,edge_none}},	 {{edge_none,edge_none}}	}},
-	{{  {{2,3}},	 {{0,3}},	 {{0,1}},	 {{1,2}},	 {{edge_none,edge_none}},	 {{edge_none,edge_none}}	}}
-}};
+		6, sidenum_t>,
+	6, sidenum_t> Two_sides_to_edge = {{{
+	{{{
+		{{edge_none, edge_none}},
+		{{3, 7}},
+		{{edge_none, edge_none}},
+		{{2, 6}},
+		{{6, 7}},
+		{{2, 3}},
+	}}},
+	{{{
+		{{3, 7}},
+		{{edge_none, edge_none}},
+		{{0, 4}},
+		{{edge_none, edge_none}},
+		{{4, 7}},
+		{{0, 3}},
+	}}},
+	{{{
+		{{edge_none, edge_none}},
+		{{0, 4}},
+		{{edge_none, edge_none}},
+		{{1, 5}},
+		{{4, 5}},
+		{{0, 1}},
+	}}},
+	{{{
+		{{2, 6}},
+		{{edge_none, edge_none}},
+		{{1, 5}},
+		{{edge_none, edge_none}},
+		{{5, 6}},
+		{{1, 2}},
+	}}},
+	{{{
+		{{6, 7}},
+		{{4, 7}},
+		{{4, 5}},
+		{{5, 6}},
+		{{edge_none, edge_none}},
+		{{edge_none, edge_none}},
+	}}},
+	{{{
+		{{2, 3}},
+		{{0, 3}},
+		{{0, 1}},
+		{{1, 2}},
+		{{edge_none, edge_none}},
+		{{edge_none, edge_none}},
+	}}},
+}}};
 
 //given an edge specified by two verts, give the two sides on that edge
 constexpr std::array<
@@ -961,7 +1003,7 @@ static bool compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, c
 //see if the order matters for these two children.
 //returns 0 if order doesn't matter, 1 if c0 before c1, -1 if c1 before c0
 [[nodiscard]]
-static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const vcsegptridx_t seg, const sidenum_fast_t s0, const sidenum_fast_t s1)
+static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const vcsegptridx_t seg, const sidenum_t s0, const sidenum_t s1)
 {
 	Assert(s0 != side_none && s1 != side_none);
 
@@ -971,8 +1013,9 @@ static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye
 		return false;
 	//find normals of adjoining sides
 	const shared_segment &sseg = seg;
+	auto &edge = Two_sides_to_edge[s0][s1];
 	const std::array<vertnum_t, 2> edge_verts = {
-		{sseg.verts[Two_sides_to_edge[s0][s1][0]], sseg.verts[Two_sides_to_edge[s0][s1][1]]}
+		{sseg.verts[edge[0]], sseg.verts[edge[1]]}
 	};
 	const auto &&seg0 = seg.absolute_sibling(sseg.children[s0]);
 	const auto edgeside0 = find_seg_side(seg0, edge_verts, find_connect_side(seg, seg0));
@@ -990,12 +1033,12 @@ static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye
 
 //short the children of segment to render in the correct order
 //returns non-zero if swaps were made
-using sort_child_array_t = std::array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT>;
+using sort_child_array_t = std::array<sidenum_t, MAX_SIDES_PER_SEGMENT>;
 static void sort_seg_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const vcsegptridx_t seg, const partial_range_t<sort_child_array_t::iterator> &r)
 {
 	//for each child,  compare with other children and see if order matters
 	//if order matters, fix if wrong
-	auto predicate = [&vcvertptr, &Viewer_eye, seg](const sidenum_fast_t a, const sidenum_fast_t b)
+	auto predicate = [&vcvertptr, &Viewer_eye, seg](const sidenum_t a, const sidenum_t b)
 	{
 		return compare_children(vcvertptr, Viewer_eye, seg, a, b);
 	};
@@ -1337,7 +1380,7 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 						if (codes_and)
 							continue;
 					}
-					child_list[n_children++] = c;
+					child_list[n_children++] = static_cast<sidenum_t>(c);
 				}
 			}
 			if (!n_children)
