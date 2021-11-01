@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <algorithm>
 #include <cassert>
+#include <numeric>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>	//	for memset()
@@ -90,7 +91,10 @@ public:
 struct verts_for_normal
 {
 	std::array<vertnum_t, 4> vsorted;
-	bool negate_flag;
+	verts_for_normal(vertnum_t v0, vertnum_t v1, vertnum_t v2, vertnum_t v3) :
+		vsorted{{v0, v1, v2, v3}}
+	{
+	}
 };
 
 constexpr vm_distance fcd_abort_cache_value{F1_0 * 1000};
@@ -1304,19 +1308,12 @@ namespace {
 //	Return v0, v1, v2 = 3 vertices with smallest numbers.  If *negate_flag set, then negate normal after computation.
 //	Note, you cannot just compute the normal by treating the points in the opposite direction as this introduces
 //	small differences between normals which should merely be opposites of each other.
-static void get_verts_for_normal(verts_for_normal &r, const vertnum_t va, const vertnum_t vb, const vertnum_t vc, const vertnum_t vd)
+static bool get_verts_for_normal(verts_for_normal &r)
 {
 	auto &v = r.vsorted;
-	std::array<unsigned, 4> w;
-
+	std::array<uint8_t, 4> w;
 	//	w is a list that shows how things got scrambled so we know if our normal is pointing backwards
-	range_for (const unsigned i, xrange(4u))
-		w[i] = i;
-
-	v[0] = va;
-	v[1] = vb;
-	v[2] = vc;
-	v[3] = vd;
+	std::iota(w.begin(), w.end(), 0);
 
 	range_for (const unsigned i, xrange(1u, 4u))
 		range_for (const unsigned j, xrange(i))
@@ -1330,16 +1327,14 @@ static void get_verts_for_normal(verts_for_normal &r, const vertnum_t va, const 
 		LevelError("Level contains malformed geometry.");
 
 	//	Now, if for any w[i] & w[i+1]: w[i+1] = (w[i]+3)%4, then must swap
-	r.negate_flag = ((w[0] + 3) % 4) == w[1] || ((w[1] + 3) % 4) == w[2];
+	return ((w[0] + 3) % 4) == w[1] || ((w[1] + 3) % 4) == w[2];
 }
 
 static void assign_side_normal(fvcvertptr &vcvertptr, vms_vector &n, const vertnum_t v0, const vertnum_t v1, const vertnum_t v2)
 {
-	verts_for_normal vfn;
-	get_verts_for_normal(vfn, v0, v1, v2, vertnum_t{UINT32_MAX});
-	const auto &vsorted = vfn.vsorted;
-	const auto &negate_flag = vfn.negate_flag;
-	vm_vec_normal(n, vcvertptr(vsorted[0]), vcvertptr(vsorted[1]), vcvertptr(vsorted[2]));
+	verts_for_normal vfn{v0, v1, v2, vertnum_t{UINT32_MAX}};
+	const auto negate_flag = get_verts_for_normal(vfn);
+	vm_vec_normal(n, vcvertptr(vfn.vsorted[0]), vcvertptr(vfn.vsorted[1]), vcvertptr(vfn.vsorted[2]));
 	if (negate_flag)
 		vm_vec_negate(n);
 }
@@ -1387,12 +1382,11 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		range_for (const unsigned i, xrange(4u))
 			v[i] = sp.verts[vs[i]];
 
-		verts_for_normal vfn;
-		get_verts_for_normal(vfn, v[0], v[1], v[2], v[3]);
-		auto &vsorted = vfn.vsorted;
+		verts_for_normal vfn{v[0], v[1], v[2], v[3]};
+		get_verts_for_normal(vfn);
 
 		vertnum_t s0v2, s1v0;
-		if ((vsorted[0] == v[0]) || (vsorted[0] == v[2])) {
+		if ((vfn.vsorted[0] == v[0]) || (vfn.vsorted[0] == v[2])) {
 			sidep->set_type(side_type::tri_02);
 			//	Now, get vertices for normal for each triangle based on triangulation type.
 			s0v2 = v[2];
@@ -1443,16 +1437,11 @@ void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const unsig
 	const auto v2 = sp.verts[vs[2]];
 	const auto v3 = sp.verts[vs[3]];
 
-	verts_for_normal vfn;
-	get_verts_for_normal(vfn, v0, v1, v2, v3);
-	auto &vm1 = vfn.vsorted[1];
-	auto &vm2 = vfn.vsorted[2];
-	auto &vm3 = vfn.vsorted[3];
-	auto &negate_flag = vfn.negate_flag;
-
+	verts_for_normal vfn{v0, v1, v2, v3};
+	const auto negate_flag = get_verts_for_normal(vfn);
 	auto &vvm0 = *vcvertptr(vfn.vsorted[0]);
-	auto &&vn = vm_vec_normal(vvm0, vcvertptr(vm1), vcvertptr(vm2));
-	const fix dist_to_plane = abs(vm_dist_to_plane(vcvertptr(vm3), vn, vvm0));
+	auto &&vn = vm_vec_normal(vvm0, vcvertptr(vfn.vsorted[1]), vcvertptr(vfn.vsorted[2]));
+	const fix dist_to_plane = abs(vm_dist_to_plane(vcvertptr(vfn.vsorted[3]), vn, vvm0));
 
 	if (negate_flag)
 		vm_vec_negate(vn);
