@@ -1988,8 +1988,9 @@ void multi_disconnect_player(const playernum_t pnum)
 
 	if (pnum == multi_who_is_master()) // Host has left - Quit game!
 	{
-		if (Game_wind)
-			window_set_visible(*Game_wind, 0);
+		const auto g = Game_wind;
+		if (g)
+			g->set_visible(0);
 		struct host_left_game : passive_messagebox
 		{
 			host_left_game() :
@@ -1998,8 +1999,8 @@ void multi_disconnect_player(const playernum_t pnum)
 				}
 		};
 		run_blocking_newmenu<host_left_game>();
-		if (Game_wind)
-			window_set_visible(*Game_wind, 1);
+		if (g)
+			g->set_visible(1);
 		multi_quit_game = 1;
 		game_leave_menus();
 		return;
@@ -3142,11 +3143,12 @@ void multi_consistency_error(int reset)
 	if (++count < 10)
 		return;
 
-	if (Game_wind)
-		window_set_visible(*Game_wind, 0);
+	const auto g = Game_wind;
+	if (g)
+		g->set_visible(0);
 	nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_CONSISTENCY_ERROR});
-	if (Game_wind)
-		window_set_visible(*Game_wind, 1);
+	if (g)
+		g->set_visible(1);
 	count = 0;
 	multi_quit_game = 1;
 	game_leave_menus();

@@ -163,7 +163,7 @@ static void menu_draw(const MENU &menu)
 
 static void menu_show(MENU &menu)
 {
-	window_set_visible(menu.wind, 1);
+	menu.wind->set_visible(1);
 	// Mark as displayed.
 	menu.Displayed = 1;
 }
@@ -186,7 +186,7 @@ static void menu_hide(MENU &menu)
 	if (!menu.Displayed) return;
 	
 	if (&menu != Menu[0] && menu.wind)
-		window_set_visible(*menu.wind, 0);	// don't draw or receive events
+		menu.wind->set_visible(0);	// don't draw or receive events
 
 	menu.Active = 0;
 	if (&menu == Menu[0] && menu.wind)

@@ -33,7 +33,6 @@ window *window_get_first();
 window *window_get_next(window &wind);
 window *window_get_prev(window &wind);
 void window_select(window &wind);
-window *window_set_visible(window &wind, int visible);
 #if !DXX_USE_OGL
 void window_update_canvases();
 #endif

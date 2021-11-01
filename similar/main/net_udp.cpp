@@ -3119,17 +3119,20 @@ static void net_udp_process_dump(ubyte *data, int, const _sockaddr &sender_addr)
 	{
 		case DUMP_PKTTIMEOUT:
 		case DUMP_KICKED:
-			if (Game_wind)
-				window_set_visible(*Game_wind, 0);
+			{
+				const auto g = Game_wind;
+			if (g)
+				g->set_visible(0);
 			if (data[1] == DUMP_PKTTIMEOUT)
 				nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You were removed from the game.\nYou failed receiving important\npackets. Sorry."});
 			else if (data[1] == DUMP_KICKED)
 				nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You were kicked by Host!"});
-			if (Game_wind)
-				window_set_visible(*Game_wind, 1);
+			if (g)
+				g->set_visible(1);
 			multi_quit_game = 1;
 			game_leave_menus();
 			break;
+			}
 		default:
 			if (data[1] > DUMP_LEVEL) // invalid dump... heh
 				break;
@@ -5194,11 +5197,12 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const ubyte *data, ushort d
 		else // I am just a client. I gotta go.
 		{
 			Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
-			if (Game_wind)
-				window_set_visible(*Game_wind, 0);
+			const auto g = Game_wind;
+			if (g)
+				g->set_visible(0);
 			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You left the game. You failed\nsending important packets.\nSorry."});
-			if (Game_wind)
-				window_set_visible(*Game_wind, 1);
+			if (g)
+				g->set_visible(1);
 			multi_quit_game = 1;
 			game_leave_menus();
 		}
@@ -5395,11 +5399,12 @@ void net_udp_noloss_process_queue(fix64 time)
 				else // We are client, so we gotta go.
 				{
 					Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
-					if (Game_wind)
-						window_set_visible(*Game_wind, 0);
+					const auto g = Game_wind;
+					if (g)
+						g->set_visible(0);
 					nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You left the game. You failed\nsending important packets.\nSorry."});
-					if (Game_wind)
-						window_set_visible(*Game_wind, 1);
+					if (g)
+						g->set_visible(1);
 					multi_quit_game = 1;
 					game_leave_menus();
 				}

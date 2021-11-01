@@ -27,7 +27,7 @@ static window *FirstWindow = nullptr;
 
 window::window(grs_canvas &src, const int x, const int y, const int w, const int h) :
 	// Default to visible and modal
-	w_visible(1), prev(FrontWindow)
+	prev(FrontWindow)
 {
 	gr_init_sub_canvas(w_canv, src, x, y, w, h);
 
@@ -155,10 +155,10 @@ void window_select(window &wind)
 	}
 }
 
-window *window_set_visible(window &w, int visible)
+window *window::set_visible(uint8_t visible)
 {
 	window *prev = window_get_front();
-	w.w_visible = visible;
+	w_visible = visible;
 	auto wind = window_get_front();	// get the new front window
 	if (wind == prev)
 		return wind;

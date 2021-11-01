@@ -1193,7 +1193,7 @@ window_event_result automap::event_handler(const d_event &event)
 			 * Eventually, grd_curcanv will be removed entirely.
 			 */
 			gr_set_default_canvas();
-			window_set_visible(*Game_wind, 1);
+			Game_wind->set_visible(1);
 			Automap_active = 0;
 			multi_send_msgsend_state(msgsend_none);
 			return window_event_result::ignored;	// continue closing
@@ -1224,7 +1224,7 @@ void do_automap()
 	am->pause_game = !((Game_mode & GM_MULTI) && (!Endlevel_sequence)); // Set to 1 if everything is paused during automap...No pause during net.
 
 	if (am->pause_game) {
-		window_set_visible(*Game_wind, 0);
+		Game_wind->set_visible(0);
 	}
 	else
 	{

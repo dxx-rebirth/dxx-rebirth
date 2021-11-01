@@ -1939,8 +1939,8 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			init_player_stats_game(Player_num);
 	}
 
-	if (Game_wind)
-		window_set_visible(*Game_wind, 0);
+	if (const auto g = Game_wind)
+		g->set_visible(0);
 
 //Read player info
 
@@ -2498,9 +2498,9 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	}
 	else
 		state_set_next_autosave(GameUniqueState, PlayerCfg.SPGameplayOptions.AutosaveInterval);
-	if (Game_wind)
-		if (!window_is_visible(*Game_wind))
-			window_set_visible(*Game_wind, 1);
+	if (const auto g = Game_wind)
+		if (!g->is_visible())
+			g->set_visible(1);
 	reset_time();
 
 	return 1;

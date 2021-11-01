@@ -335,7 +335,7 @@ int hide_menus(void)
 		i = wind;
 		if (!wind)
 			break;
-		wind = window_set_visible(*wind, 0);
+		wind = wind->set_visible(0);
 	}
 	Assert(window_get_front() == NULL);
 	return 1;
@@ -355,7 +355,7 @@ void show_menus(void)
 		// window_exists could return a false positive if a new window was created
 		// with the same pointer value as the deleted one, so killing window_exists (call and function)
 		// if (window_exists(i))
-		window_set_visible(std::exchange(i, nullptr), 1);
+		std::exchange(i, nullptr)->set_visible(1);
 	}
 }
 

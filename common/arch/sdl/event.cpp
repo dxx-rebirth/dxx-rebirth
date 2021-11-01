@@ -202,7 +202,7 @@ window_event_result event_send(const d_event &event)
 	window_event_result handled = window_event_result::ignored;
 
 	for (wind = window_get_front(); wind && handled == window_event_result::ignored; wind = window_get_prev(*wind))
-		if (window_is_visible(*wind))
+		if (wind->is_visible())
 		{
 			handled = window_send_event(*wind, event);
 
@@ -242,7 +242,7 @@ window_event_result event_process(void)
 	const d_event event{EVENT_WINDOW_DRAW};	// then draw all visible windows
 	for (wind = window_get_first(); wind != nullptr;)
 	{
-		if (window_is_visible(*wind))
+		if (wind->is_visible())
 		{
 			auto prev = window_get_prev(*wind);
 			auto result = window_send_event(*wind, event);

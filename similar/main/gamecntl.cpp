@@ -1414,7 +1414,8 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 
 		case KEY_E + KEY_DEBUGGED:
 		{
-			window_set_visible(*Game_wind, 0);	// don't let the game do anything while we set the editor up
+			const auto g = Game_wind;
+			g->set_visible(0);	// don't let the game do anything while we set the editor up
 			auto old_gamestate = gamestate;
 			gamestate = editor_gamestate::unsaved;	// saved game editing mode
 
@@ -1422,7 +1423,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 			// If editor failed to load, carry on playing
 			if (!EditorWindow)
 			{
-				window_set_visible(*Game_wind, 1);
+				g->set_visible(1);
 				gamestate = old_gamestate;
 				return window_event_result::handled;
 			}
@@ -1657,9 +1658,10 @@ void levelwarp_menu::handle_close_event()
 	 */
 	if (l > Last_level)
 		return;
-	window_set_visible(*Game_wind, 0);
+	const auto g = Game_wind;
+	g->set_visible(0);
 	StartNewLevel(l);
-	window_set_visible(*Game_wind, 1);
+	g->set_visible(1);
 }
 
 window_event_result levelwarp_menu::event_handler(const d_event &event)

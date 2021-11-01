@@ -31,9 +31,9 @@ class window
 public:
 	grs_subcanvas w_canv;					// the window's canvas to draw to
 private:
-	int w_visible;						// whether it's visible
 	class window *prev;				// the previous window in the doubly linked list
 	class window *next = nullptr;				// the next window in the doubly linked list
+	uint8_t w_visible = 1;						// whether it's visible
 	uint8_t w_modal = 1;						// modal = accept all user input exclusively
 	bool *w_exists = nullptr;					// optional pointer to a tracking variable
 public:
@@ -49,24 +49,15 @@ public:
 	friend window *window_get_front();
 	friend window *window_get_first();
 	friend void window_select(window &wind);
-	friend window *window_set_visible(window &wind, int visible);
 #if !DXX_USE_OGL
 	friend void window_update_canvases();
 #endif
-	friend window *window_set_visible(window *wind, int visible)
-	{
-		return window_set_visible(*wind, visible);
-	}
 
-	int is_visible()
+	uint8_t is_visible() const
 	{
 		return w_visible;
 	}
-
-	friend int window_is_visible(window &wind)
-	{
-		return wind.is_visible();
-	}
+	window *set_visible(uint8_t visible);
 
 	void set_modal(uint8_t modal)
 	{

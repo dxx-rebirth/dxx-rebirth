@@ -674,9 +674,10 @@ window_event_result start_endlevel_sequence()
 #if defined(DXX_BUILD_DESCENT_II)
 		if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		{
-			window_set_visible(*Game_wind, 0);	// suspend the game, including drawing
+			const auto g = Game_wind;
+			g->set_visible(0);	// suspend the game, including drawing
 			start_endlevel_movie();
-			window_set_visible(*Game_wind, 1);
+			g->set_visible(1);
 		}
 		strcpy(last_palette_loaded,"");		//force palette load next time
 #endif
@@ -715,9 +716,10 @@ window_event_result start_endlevel_sequence()
 	if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		if (!(Game_mode & GM_MULTI))
 		{
-			window_set_visible(*Game_wind, 0);	// suspend the game, including drawing
+			const auto g = Game_wind;
+			g->set_visible(0);	// suspend the game, including drawing
 			endlevel_movie_played = start_endlevel_movie();
-			window_set_visible(*Game_wind, 1);
+			g->set_visible(1);
 		}
 
 	if (!(!(Game_mode & GM_MULTI) && (endlevel_movie_played == movie_play_status::skipped) && endlevel_data_loaded))
