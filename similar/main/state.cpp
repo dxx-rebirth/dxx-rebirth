@@ -1338,7 +1338,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 //Save level info
 	PHYSFS_write(fp, &Current_level_num, sizeof(int), 1);
-	PHYSFS_write(fp, &Next_level_num, sizeof(int), 1);
+	PHYSFS_writeULE32(fp, 0);
 
 //Save GameTime
 // NOTE: GameTime now is GameTime64 with fix64 since GameTime could only last 9 hrs. To even help old Savegames, we do not increment Savegame version but rather RESET GameTime64 to 0 on every save! ALL variables based on GameTime64 now will get the current GameTime64 value substracted and saved to fix size as well.

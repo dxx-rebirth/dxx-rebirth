@@ -43,7 +43,7 @@ constexpr std::integral_constant<unsigned, 36> LEVEL_NAME_LEN{};       //make su
 // Current_level_num starts at 1 for the first level
 // -1,-2,-3 are secret levels
 // 0 used to mean not a real level loaded (i.e. editor generated level), but this hack has been removed
-extern int Current_level_num, Next_level_num;
+extern int Current_level_num;
 extern PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
 extern std::array<obj_position, MAX_PLAYERS> Player_init;
 

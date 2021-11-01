@@ -159,7 +159,7 @@ namespace dcx {
 //Current_level_num starts at 1 for the first level
 //-1,-2,-3 are secret levels
 //0 used to mean not a real level loaded (i.e. editor generated level), but this hack has been removed
-int	Current_level_num=1,Next_level_num;
+int	Current_level_num=1;
 PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
 
 // Global variables describing the player
@@ -1097,8 +1097,6 @@ void StartNewGame(const int start_level)
 
 	Game_mode = GM_NORMAL;
 
-	Next_level_num = 0;
-
 	InitPlayerObject();				//make sure player's object set up
 
 	LevelUniqueObjectState.accumulated_robots = 0;
@@ -1566,6 +1564,7 @@ void EnterSecretLevel(void)
 		state_save_all(secret_save::b, blind_save::no);	//	Not between levels (ie, save all), IS a secret level, NO filename override
 
 	//	Find secret level number to go to, stuff in Next_level_num.
+	int8_t Next_level_num{};
 	for (i=0; i<-Last_secret_level; i++)
 		if (Secret_level_table[i]==Current_level_num) {
 			Next_level_num = -(i+1);
@@ -1751,7 +1750,7 @@ static window_event_result AdvanceLevel(int secret_flag)
 
 	} else {
 #if defined(DXX_BUILD_DESCENT_I)
-		Next_level_num = Current_level_num+1;		//assume go to next normal level
+		int8_t Next_level_num = Current_level_num+1;		//assume go to next normal level
 
 		if (secret_flag) {			//go to secret level instead
 			int i;
@@ -1772,6 +1771,7 @@ static window_event_result AdvanceLevel(int secret_flag)
 			Next_level_num = Secret_level_table[(-Current_level_num)-1]+1;
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
+		int8_t Next_level_num;
 
 		//NMN 04/08/07 If we are in a secret level and playing a D1
 		// 	       level, then use Entered_from_level # instead
