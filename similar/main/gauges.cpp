@@ -509,6 +509,30 @@ static hud_ar_scale_float HUD_SCALE_AR(unsigned, unsigned, local_multires_gauge_
 }
 #endif
 
+struct CockpitWeaponBoxFrameBitmaps : std::array<grs_subbitmap_ptr, 2> // Overlay subbitmaps for both weapon boxes
+{
+	/* `decoded_full_cockpit_image` is a member instead of a local in
+	 * the initializer function because it must remain allocated.  It
+	 * must remain allocated because the subbitmaps refer to the data
+	 * managed by `decoded_full_cockpit_image`, so destroying it would
+	 * leave the subbitmaps dangling.  For OpenGL, the texture would be
+	 * dangling.  For SDL-only, the bm_data pointers would be dangling.
+	 */
+#if DXX_USE_OGL
+	/* Use bare grs_bitmap because the caller has special rules for
+	 * managing the memory pointed at by `bm_data`.
+	 */
+	grs_bitmap decoded_full_cockpit_image;
+#else
+	/* Use grs_main_bitmap because the bitmap follows the standard
+	 * rules.
+	 */
+	grs_main_bitmap decoded_full_cockpit_image;
+#endif
+};
+
+static CockpitWeaponBoxFrameBitmaps WinBoxOverlay;
+
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -519,7 +543,6 @@ std::array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges; // Array of all gauge bitmap
 std::array<bitmap_index, MAX_GAUGE_BMS> Gauges,   // Array of all gauge bitmaps.
 	Gauges_hires;   // hires gauges
 #endif
-static std::array<grs_subbitmap_ptr, 2> WinBoxOverlay; // Overlay subbitmaps for both weapon boxes
 
 namespace dsx {
 static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multires_gauge_graphic)
@@ -2026,10 +2049,11 @@ static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *c
 	{
 #if DXX_USE_OGL
 		// check if textures are still valid
-		if (WinBoxOverlay[0].get()->gltexture &&
-			WinBoxOverlay[0].get()->gltexture->handle &&
-			WinBoxOverlay[1].get()->gltexture &&
-			WinBoxOverlay[1].get()->gltexture->handle)
+		const ogl_texture *gltexture;
+		if ((gltexture = WinBoxOverlay[0].get()->gltexture) &&
+			gltexture->handle &&
+			(gltexture = WinBoxOverlay[1].get()->gltexture) &&
+			gltexture->handle)
 			return;
 #else
 		return;
@@ -2079,32 +2103,31 @@ static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *c
 		fill_alpha_one_line(i, s.r);
 		i += bm_w;
 	}
-	/* deccpt is static because it must remain allocated.  It must
-	 * remain allocated because WinBoxOverlay[*] refer to the data
-	 * managed by deccpt, so destroying deccpt would leave WinBoxOverlay
-	 * dangling.  For OpenGL, the texture would be dangling.  For
-	 * SDL-only, the bm_data pointers would be dangling.
-	 */
 #if DXX_USE_OGL
 	ogl_freebmtexture(*bm);
-	static grs_bitmap deccpt;
-	gr_init_bitmap(deccpt, bm_mode::linear, 0, 0, bm_w, bm_h, bm_w, cockpitbuf.get());
+	/* In the OpenGL build, copy the data pointer into the bitmap for
+	 * use until the OpenGL texture is created.
+	 */
+	gr_init_bitmap(WinBoxOverlay.decoded_full_cockpit_image, bm_mode::linear, 0, 0, bm_w, bm_h, bm_w, cockpitbuf.get());
 #else
-	static grs_main_bitmap deccpt;
-	gr_init_main_bitmap(deccpt, bm_mode::linear, 0, 0, bm_w, bm_h, bm_w, std::move(cockpitbuf));
+	/* In the SDL-only build, move the data pointer into the bitmap so
+	 * that the underlying data buffer remains allocated.
+	 */
+	gr_init_main_bitmap(WinBoxOverlay.decoded_full_cockpit_image, bm_mode::linear, 0, 0, bm_w, bm_h, bm_w, std::move(cockpitbuf));
 #endif
-	gr_set_transparent(deccpt,1);
+	gr_set_transparent(WinBoxOverlay.decoded_full_cockpit_image, 1);
 #if DXX_USE_OGL
-	ogl_ubitmapm_cs(hudctx.canvas, 0, 0, -1, -1, deccpt, 255, F1_0); // render one time to init the texture
+	ogl_ubitmapm_cs(hudctx.canvas, 0, 0, -1, -1, WinBoxOverlay.decoded_full_cockpit_image, 255, F1_0); // render one time to init the texture
 #endif
-	WinBoxOverlay[0] = gr_create_sub_bitmap(deccpt,(PRIMARY_W_BOX_LEFT)-2,(PRIMARY_W_BOX_TOP)-2,(PRIMARY_W_BOX_RIGHT-PRIMARY_W_BOX_LEFT+4),(PRIMARY_W_BOX_BOT-PRIMARY_W_BOX_TOP+4));
-	WinBoxOverlay[1] = gr_create_sub_bitmap(deccpt,(SECONDARY_W_BOX_LEFT)-2,(SECONDARY_W_BOX_TOP)-2,(SECONDARY_W_BOX_RIGHT-SECONDARY_W_BOX_LEFT)+4,(SECONDARY_W_BOX_BOT-SECONDARY_W_BOX_TOP)+4);
+	WinBoxOverlay[0] = gr_create_sub_bitmap(WinBoxOverlay.decoded_full_cockpit_image, (PRIMARY_W_BOX_LEFT) - 2, (PRIMARY_W_BOX_TOP) - 2, (PRIMARY_W_BOX_RIGHT - PRIMARY_W_BOX_LEFT + 4), (PRIMARY_W_BOX_BOT - PRIMARY_W_BOX_TOP + 4));
+	WinBoxOverlay[1] = gr_create_sub_bitmap(WinBoxOverlay.decoded_full_cockpit_image, (SECONDARY_W_BOX_LEFT) - 2, (SECONDARY_W_BOX_TOP) - 2, (SECONDARY_W_BOX_RIGHT - SECONDARY_W_BOX_LEFT) + 4, (SECONDARY_W_BOX_BOT - SECONDARY_W_BOX_TOP) + 4);
 #if DXX_USE_OGL
 	/* The image has been copied to OpenGL as a texture.  The underlying
-	 * main application memory will be freed at the end of the function.
+	 * main application memory will be freed when `cockpitbuf` goes out
+	 * of scope.
 	 * Clear bm_data to avoid leaving a dangling pointer.
 	 */
-	deccpt.bm_data = nullptr;
+	WinBoxOverlay.decoded_full_cockpit_image.bm_data = nullptr;
 	WinBoxOverlay[0]->bm_data = nullptr;
 	WinBoxOverlay[1]->bm_data = nullptr;
 #endif
