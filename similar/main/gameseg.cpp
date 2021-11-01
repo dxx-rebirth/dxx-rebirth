@@ -1895,15 +1895,19 @@ void set_ambient_sound_flags()
 				 * added.  Skip this side.
 				 */
 				continue;
-			const auto texture_flags = TmapInfo[get_texture_index(uside.tmap_num)].flags | TmapInfo[get_texture_index(uside.tmap_num2)].flags;
+			/* No other call site needs to combine two sets of
+			 * tmapinfo_flags, so there is no overloaded operator to
+			 * handle this.  Use the casts to allow it here.
+			 */
+			const auto texture_flags = static_cast<tmapinfo_flags>(underlying_value(TmapInfo[get_texture_index(uside.tmap_num)].flags) | underlying_value(TmapInfo[get_texture_index(uside.tmap_num2)].flags));
 			/* These variables do not need to be named, but naming them
 			 * is the easiest way to establish sequence points, so that
 			 * `sound_flag` is passed to `ambient_mark_bfs` only after
 			 * both ternary expressions have finished.
 			 */
 			uint8_t sound_flag = 0;
-			const auto pl = (texture_flags & TMI_VOLATILE) ? (sound_flag |= S2F_AMBIENT_LAVA, &segdepth_lava) : nullptr;
-			const auto pw = (texture_flags & TMI_WATER) ? (sound_flag |= S2F_AMBIENT_WATER, &segdepth_water) : nullptr;
+			const auto pl = (texture_flags & tmapinfo_flag::lava) ? (sound_flag |= S2F_AMBIENT_LAVA, &segdepth_lava) : nullptr;
+			const auto pw = (texture_flags & tmapinfo_flag::water) ? (sound_flag |= S2F_AMBIENT_WATER, &segdepth_water) : nullptr;
 			if (sound_flag)
 				ambient_mark_bfs(segp, pl, pw, AMBIENT_SEGMENT_DEPTH, sound_flag);
 		}

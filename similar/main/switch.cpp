@@ -207,7 +207,8 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 			switch (t.type)
 			{
 				case trigger_action::open_wall:
-					if ((TmapInfo[get_texture_index(segp->unique_segment::sides[side].tmap_num)].flags & TMI_FORCE_FIELD)) {
+					if ((TmapInfo[get_texture_index(segp->unique_segment::sides[side].tmap_num)].flags & tmapinfo_flag::force_field))
+					{
 						ret |= 2;
 						const auto &&pos = compute_center_point_on_side(vcvertptr, segp, side);
 						digi_link_sound_to_pos( SOUND_FORCEFIELD_OFF, segp, side, pos, 0, F1_0 );
@@ -224,7 +225,8 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 					break;
 
 				case trigger_action::close_wall:
-					if ((TmapInfo[get_texture_index(segp->unique_segment::sides[side].tmap_num)].flags & TMI_FORCE_FIELD)) {
+					if ((TmapInfo[get_texture_index(segp->unique_segment::sides[side].tmap_num)].flags & tmapinfo_flag::force_field))
+					{
 						ret |= 2;
 						{
 						const auto &&pos = compute_center_point_on_side(vcvertptr, segp, side);

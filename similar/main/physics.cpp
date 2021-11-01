@@ -579,8 +579,6 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 				Assert( WallHitSide > -1 );
 
 				if ( !(obj->flags&OF_SHOULD_BE_DEAD) )	{
-					int forcefield_bounce;		//bounce off a forcefield
-
 #if defined(DXX_BUILD_DESCENT_II)
 					if (!cheats.bouncyfire)
 #endif
@@ -592,11 +590,11 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 					 * this as a placeholder to make the code match the
 					 * force field handling in Descent 2.
 					 */
-					forcefield_bounce = 0;
+					const auto forcefield_bounce = false;
 #elif defined(DXX_BUILD_DESCENT_II)
 					const unique_segment &useg = vcsegptr(WallHitSeg);
 					auto &uside = useg.sides[WallHitSide];
-					forcefield_bounce = (TmapInfo[get_texture_index(uside.tmap_num)].flags & TMI_FORCE_FIELD);
+					const auto forcefield_bounce = (TmapInfo[get_texture_index(uside.tmap_num)].flags & tmapinfo_flag::force_field);		//bounce off a forcefield
 					int check_vel=0;
 #endif
 

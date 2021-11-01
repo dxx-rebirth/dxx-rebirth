@@ -137,7 +137,9 @@ namespace {
 static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 {
 	PHYSFS_read(fp, ti.filename, 13, 1);
-	ti.flags = PHYSFSX_readByte(fp);
+	uint8_t flags;
+	PHYSFS_read(fp, &flags, 1, 1);
+	ti.flags = tmapinfo_flags{flags};
 	ti.lighting = PHYSFSX_readFix(fp);
 	ti.damage = PHYSFSX_readFix(fp);
 	ti.eclip_num = PHYSFSX_readInt(fp);
@@ -269,7 +271,9 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 namespace {
 static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 {
-	ti.flags = PHYSFSX_readByte(fp);
+	uint8_t flags;
+	PHYSFS_read(fp, &flags, 1, 1);
+	ti.flags = tmapinfo_flags{flags};
 	PHYSFSX_readByte(fp);
 	PHYSFSX_readByte(fp);
 	PHYSFSX_readByte(fp);

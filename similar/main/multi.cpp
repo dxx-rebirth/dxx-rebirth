@@ -3515,7 +3515,7 @@ void apply_segment_goal_texture(const d_level_unique_tmap_info_state &LevelUniqu
 		}
 }
 
-texture_index find_goal_texture(const d_level_unique_tmap_info_state &LevelUniqueTmapInfoState, const uint8_t tmi_flag)
+texture_index find_goal_texture(const d_level_unique_tmap_info_state &LevelUniqueTmapInfoState, const tmapinfo_flag tmi_flag)
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	const auto &&r = partial_const_range(TmapInfo, NumTextures);
@@ -3527,7 +3527,7 @@ texture_index find_goal_texture(const d_level_unique_tmap_info_state &LevelUniqu
 	return idx;
 }
 
-const tmap_info &find_required_goal_texture(const d_level_unique_tmap_info_state &LevelUniqueTmapInfoState, const uint8_t tmi_flag)
+const tmap_info &find_required_goal_texture(const d_level_unique_tmap_info_state &LevelUniqueTmapInfoState, const tmapinfo_flag tmi_flag)
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	const auto found_index = find_goal_texture(LevelUniqueTmapInfoState, tmi_flag);
@@ -3546,11 +3546,11 @@ void multi_apply_goal_textures()
 {
 	texture1_value tex_blue, tex_red;
 	if (game_mode_hoard())
-		tex_blue = tex_red = build_texture1_value(find_goal_texture(LevelUniqueTmapInfoState, TMI_GOAL_HOARD));
+		tex_blue = tex_red = build_texture1_value(find_goal_texture(LevelUniqueTmapInfoState, tmapinfo_flag::goal_hoard));
 	else
 	{
-		tex_blue = build_texture1_value(find_goal_texture(LevelUniqueTmapInfoState, TMI_GOAL_BLUE));
-		tex_red = build_texture1_value(find_goal_texture(LevelUniqueTmapInfoState, TMI_GOAL_RED));
+		tex_blue = build_texture1_value(find_goal_texture(LevelUniqueTmapInfoState, tmapinfo_flag::goal_blue));
+		tex_red = build_texture1_value(find_goal_texture(LevelUniqueTmapInfoState, tmapinfo_flag::goal_red));
 	}
 	range_for (const auto &&seg, vmsegptr)
 	{
@@ -5590,9 +5590,9 @@ void init_hoard_data(d_vclip_array &Vclip)
 	Effects[goal_eclip].changing_wall_texture = NumTextures;
 	Effects[goal_eclip].vc.num_frames=n_goal_frames;
 
-	TmapInfo[NumTextures] = find_required_goal_texture(LevelUniqueTmapInfoState, TMI_GOAL_BLUE);
+	TmapInfo[NumTextures] = find_required_goal_texture(LevelUniqueTmapInfoState, tmapinfo_flag::goal_blue);
 	TmapInfo[NumTextures].eclip_num = goal_eclip;
-	TmapInfo[NumTextures].flags = TMI_GOAL_HOARD;
+	TmapInfo[NumTextures].flags = static_cast<tmapinfo_flags>(tmapinfo_flag::goal_hoard);
 	NumTextures++;
 	Assert(NumTextures < MAX_TEXTURES);
 	range_for (auto &i, partial_range(Effects[goal_eclip].vc.frames, n_goal_frames))

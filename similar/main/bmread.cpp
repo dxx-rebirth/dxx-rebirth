@@ -503,7 +503,7 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 	range_for (auto &ti, TmapInfo)
 	{
 		ti.eclip_num = eclip_none;
-		ti.flags = 0;
+		ti.flags = {};
 #if defined(DXX_BUILD_DESCENT_II)
 		ti.slide_u = ti.slide_v = 0;
 		ti.destroyed = -1;
@@ -683,12 +683,12 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 
 			else IFTOK("lighting") 			TmapInfo[texture_count-1].lighting = fl2f(get_float());
 			else IFTOK("damage") 			TmapInfo[texture_count-1].damage = fl2f(get_float());
-			else IFTOK("volatile") 			TmapInfo[texture_count-1].flags |= TMI_VOLATILE;
+			else IFTOK("volatile") 			TmapInfo[texture_count-1].flags |= tmapinfo_flag::lava;
 #if defined(DXX_BUILD_DESCENT_II)
-			else IFTOK("goal_blue")			TmapInfo[texture_count-1].flags |= TMI_GOAL_BLUE;
-			else IFTOK("goal_red")			TmapInfo[texture_count-1].flags |= TMI_GOAL_RED;
-			else IFTOK("water")	 			TmapInfo[texture_count-1].flags |= TMI_WATER;
-			else IFTOK("force_field")		TmapInfo[texture_count-1].flags |= TMI_FORCE_FIELD;
+			else IFTOK("goal_blue")			TmapInfo[texture_count-1].flags |= tmapinfo_flag::goal_blue;
+			else IFTOK("goal_red")			TmapInfo[texture_count-1].flags |= tmapinfo_flag::goal_red;
+			else IFTOK("water")	 			TmapInfo[texture_count-1].flags |= tmapinfo_flag::water;
+			else IFTOK("force_field")		TmapInfo[texture_count-1].flags |= tmapinfo_flag::force_field;
 			else IFTOK("slide")	 			{TmapInfo[texture_count-1].slide_u = fl2f(get_float())>>8; TmapInfo[texture_count-1].slide_v = fl2f(get_float())>>8;}
 			else IFTOK("destroyed")	 		{int t=texture_count-1; TmapInfo[t].destroyed = get_texture(strtok( NULL, space_tab ));}
 #endif

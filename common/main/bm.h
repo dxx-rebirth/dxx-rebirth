@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "fwd-vclip.h"
 #include "d_array.h"
+#include "inferno.h"
 
 struct bitmap_index;
 
@@ -37,6 +38,35 @@ struct bitmap_index;
 namespace dcx {
 
 struct grs_bitmap;
+
+enum class tmapinfo_flag : uint8_t
+{
+	lava = 1 << 0,		//this material blows up when hit
+	/* if DXX_BUILD_DESCENT_II */
+	water = 1 << 1,		//this material is water
+	force_field = 1 << 2,	//this is force field - flares don't stick
+	goal_blue = 1 << 3,	//this is used to remap the blue goal
+	goal_red = 1 << 4,	//this is used to remap the red goal
+	goal_hoard = 1 << 5,//this is used to remap the goals
+	/* endif */
+};
+
+enum class tmapinfo_flags : uint8_t;
+
+static constexpr uint8_t operator&(tmapinfo_flags flags, tmapinfo_flag mask)
+{
+	return static_cast<uint8_t>(flags) & static_cast<uint8_t>(mask);
+}
+
+static constexpr tmapinfo_flags &operator|=(tmapinfo_flags &flags, tmapinfo_flag mask)
+{
+	return flags = static_cast<tmapinfo_flags>(static_cast<uint8_t>(flags) | static_cast<uint8_t>(mask));
+}
+
+static constexpr tmapinfo_flag operator|(tmapinfo_flag a, tmapinfo_flag b)
+{
+	return static_cast<tmapinfo_flag>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+}
 
 }
 
@@ -47,27 +77,12 @@ constexpr std::integral_constant<unsigned, 800> MAX_TEXTURES{};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<unsigned, 1200> MAX_TEXTURES{};
 #endif
-}
-#endif
 
-//tmapinfo flags
-#define TMI_VOLATILE    1   //this material blows up when hit
-#if defined(DXX_BUILD_DESCENT_II)
-#define TMI_WATER       2   //this material is water
-#define TMI_FORCE_FIELD 4   //this is force field - flares don't stick
-#define TMI_GOAL_BLUE   8   //this is used to remap the blue goal
-#define TMI_GOAL_RED    16  //this is used to remap the red goal
-#define TMI_GOAL_HOARD  32  //this is used to remap the goals
-#endif
-
-#ifdef dsx
-#include "inferno.h"
-namespace dsx {
 struct tmap_info : prohibit_void_ptr<tmap_info>
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	d_fname filename;
-	uint8_t			flags;
+	tmapinfo_flags flags;
 	fix			lighting;		// 0 to 1
 	fix			damage;			//how much damage being against this does
 	unsigned eclip_num;		//if not -1, the eclip that changes this   
@@ -78,7 +93,7 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 	uint16_t eclip_num; //the eclip that changes this, or -1
 	short   destroyed; //bitmap to show when destroyed, or -1
 	short   slide_u,slide_v;    //slide rates of texture, stored in 8:8 fix
-	uint8_t   flags;     //values defined above
+	tmapinfo_flags flags;
 #if DXX_USE_EDITOR
 	d_fname filename;       //used by editor to remap textures
 	#endif
