@@ -456,10 +456,10 @@ static mission_name_and_version get_any_mission_type_name_value(PHYSFSX_gets_lin
 		{"zname", Mission::descent_version_type::descent2z},	// super-enhanced mission
 		{"!name", Mission::descent_version_type::descent2a},	// extensible-enhanced mission
 	};
-	range_for (const auto &parm, mission_name_type_values)
+	for (auto &&[name, descent_version] : mission_name_type_values)
 	{
-		if (istok(buf, parm.name))
-			return {parm.descent_version, get_value(buf)};
+		if (istok(buf, name))
+			return {descent_version, get_value(buf)};
 	}
 #endif
 	return {};
@@ -1510,15 +1510,14 @@ static int write_mission(void)
 
 	PHYSFSX_printf(mfile, "num_levels = %i\n", Current_mission->last_level);
 
-	range_for (auto &i, unchecked_partial_range(Current_mission->level_names.get(), Current_mission->last_level))
-		PHYSFSX_printf(mfile, "%s\n", static_cast<const char *>(i));
+	for (const char *const i : unchecked_partial_range(Current_mission->level_names.get(), Current_mission->last_level))
+		PHYSFSX_printf(mfile, "%s\n", i);
 
-	if (Current_mission->n_secret_levels)
+	if (const auto n_secret_levels = Current_mission->n_secret_levels)
 	{
-		PHYSFSX_printf(mfile, "num_secrets = %i\n", Current_mission->n_secret_levels);
-
-		for (int i = 0; i < Current_mission->n_secret_levels; i++)
-			PHYSFSX_printf(mfile, "%s,%i\n", static_cast<const char *>(Current_mission->secret_level_names[i]), Current_mission->secret_level_table[i]);
+		PHYSFSX_printf(mfile, "num_secrets = %i\n", n_secret_levels);
+		for (const auto &&[name, table_cell] : zip(unchecked_partial_range(Current_mission->secret_level_names.get(), n_secret_levels), unchecked_partial_range(Current_mission->secret_level_table.get(), n_secret_levels)))
+			PHYSFSX_printf(mfile, "%s,%i\n", static_cast<const char *>(name), table_cell);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
