@@ -113,7 +113,6 @@ static fix get_average_light_at_vertex(const vertnum_t vnum, segnum_t *segs)
 
 static void set_average_light_at_vertex(vertnum_t vnum)
 {
-	int	relvnum;
 	segnum_t	Segment_indices[MAX_LIGHT_SEGS];
 	int	segind;
 
@@ -131,11 +130,9 @@ static void set_average_light_at_vertex(vertnum_t vnum)
 		auto &ssegp = *vcsegptr(segnum);
 		unique_segment &usegp = *vmsegptr(segnum);
 
-		for (relvnum=0; relvnum<MAX_VERTICES_PER_SEGMENT; relvnum++)
-			if (ssegp.verts[relvnum] == vnum)
-				break;
-
-		if (relvnum < MAX_VERTICES_PER_SEGMENT) {
+		for (const auto &&[relvnum, vert] : enumerate(ssegp.verts))
+			if (vert == vnum)
+			{
 			for (const auto &&[child_segnum, sidep, vp] : zip(ssegp.children, usegp.sides, Side_to_verts))
 			{
 				if (!IS_CHILD(child_segnum))
@@ -150,7 +147,8 @@ static void set_average_light_at_vertex(vertnum_t vnum)
 					}
 				}	// end if
 			}	// end sidenum
-		}	// end if
+				break;
+			}	// end if
 	}	// end while
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -575,15 +573,15 @@ static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned c
 	bv1 = -1;	bv2 = -1;
 
 	// Find which vertices in segment match abs_id1, abs_id2
-	for (const unsigned v : xrange(MAX_VERTICES_PER_SEGMENT))
+	for (const auto &&[v, b, c] : enumerate(zip(base_seg.s.verts, con_seg->verts)))
 	{
-		if (base_seg.s.verts[v] == abs_id1)
+		if (b == abs_id1)
 			bv1 = v;
-		if (base_seg.s.verts[v] == abs_id2)
+		if (b == abs_id2)
 			bv2 = v;
-		if (con_seg->verts[v] == abs_id1)
+		if (c == abs_id1)
 			cv1 = v;
-		if (con_seg->verts[v] == abs_id2)
+		if (c == abs_id2)
 			cv2 = v;
 	}
 
