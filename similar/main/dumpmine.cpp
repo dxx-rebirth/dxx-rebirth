@@ -457,8 +457,8 @@ static void write_segment_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 		PHYSFSX_printf(my_file, "Segment %4hu:", static_cast<uint16_t>(segp));
 		if (segp->special != segment_special::nothing)
 			PHYSFSX_printf(my_file, " special = %3i (%s), station_idx=%3i", underlying_value(segp->special), Special_names[segp->special], segp->station_idx);
-		if (segp->matcen_num != -1)
-			PHYSFSX_printf(my_file, " matcen = %3i", segp->matcen_num);
+		if (segp->matcen_num != materialization_center_number::None)
+			PHYSFSX_printf(my_file, " matcen = %3i", underlying_value(segp->matcen_num));
 		PHYSFSX_puts_literal(my_file, "\n");
 	}
 
@@ -498,14 +498,14 @@ static void write_matcen_text(PHYSFS_File *my_file)
 		auto &station = Station[fuelcen_num];
 		if (station.Type != segment_special::robotmaker)
 		{
-			err_printf(my_file, "Error: Matcen %" PRIuFAST32 " corresponds to Station %i, which has type %i (%s).", i, fuelcen_num, underlying_value(station.Type), Special_names[station.Type]);
+			err_printf(my_file, "Error: Matcen %i corresponds to Station %i, which has type %i (%s).", underlying_value(i), fuelcen_num, underlying_value(station.Type), Special_names[station.Type]);
 			continue;
 		}
 		int	trigger_count=0;
 
 		const auto segnum = station.segnum;
-		PHYSFSX_printf(my_file, "FuelCenter[%02" PRIuFAST32 "].Segment = %04i  ", i, segnum);
-		PHYSFSX_printf(my_file, "Segment[%04i].matcen_num = %02i  ", segnum, Segments[segnum].matcen_num);
+		PHYSFSX_printf(my_file, "FuelCenter[%02i].Segment = %04i  ", underlying_value(i), segnum);
+		PHYSFSX_printf(my_file, "Segment[%04i].matcen_num = %02i  ", segnum, underlying_value(Segments[segnum].matcen_num));
 
 		//	Find trigger for this materialization center.
 		range_for (auto &&t, vctrgptridx)
@@ -523,7 +523,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 		PHYSFSX_puts_literal(my_file, "\n");
 
 		if (trigger_count == 0)
-			err_printf(my_file, "Error: Matcen %" PRIuFAST32 " in segment %i has no trigger!", i, segnum);
+			err_printf(my_file, "Error: Matcen %i in segment %i has no trigger!", underlying_value(i), segnum);
 	}
 }
 

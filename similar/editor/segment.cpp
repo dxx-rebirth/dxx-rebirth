@@ -672,7 +672,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmuseg
 
 	nsp->segnum = segnum;
 	static_cast<unique_segment &>(nsp).objects = object_none;
-	nsp->matcen_num = -1;
+	nsp->matcen_num = materialization_center_number::None;
 
 	// Copy group value.
 	nsp->group = destseg->group;
@@ -1298,7 +1298,7 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 	}
 
 	sp->group = -1;
-	sp->matcen_num = -1;
+	sp->matcen_num = materialization_center_number::None;
 
 	//	Create relative-to-center vertices, which are the rotated points on the box defined by length, width, height
 	sp->verts[0] = med_add_vertex(vertex{vm_vec_rotate({+width/2, +height/2, -length/2}, mp)});
@@ -1334,7 +1334,7 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 	sp->special = segment_special::nothing;
 	sp->station_idx = station_none;
 	usp.static_light = 0;
-	sp->matcen_num = -1;
+	sp->matcen_num = materialization_center_number::None;
 
 	copy_tmaps_to_segment(sp, vcsegptr(&New_segment));
 
@@ -1391,7 +1391,7 @@ void med_create_new_segment(const vms_vector &scale)
 	sp->special = segment_special::nothing;
 	sp->station_idx = station_none;
 	usp.static_light = 0;
-	sp->matcen_num = -1;
+	sp->matcen_num = materialization_center_number::None;
 }
 
 // -------------------------------------------------------------------------------

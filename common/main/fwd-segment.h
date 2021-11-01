@@ -66,6 +66,8 @@ void delete_segment_from_group(vmsegptridx_t segment_num, unsigned group_num);
 
 namespace dcx {
 
+enum class materialization_center_number : uint8_t;
+
 typedef uint_fast32_t sidenum_fast_t;
 
 enum sidenum_t : uint8_t

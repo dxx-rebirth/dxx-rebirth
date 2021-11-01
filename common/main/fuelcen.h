@@ -155,7 +155,7 @@ struct d_level_shared_robotcenter_state
 {
 	unsigned Num_robot_centers;
 	// Original D1/D2 size: 20
-	std::array<matcen_info, 128> RobotCenters;
+	enumerated_array<matcen_info, 128, materialization_center_number> RobotCenters;
 };
 
 extern d_level_shared_robotcenter_state LevelSharedRobotcenterState;

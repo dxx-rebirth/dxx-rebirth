@@ -107,7 +107,7 @@ static void reset_all_robot_centers()
 		if (i.special == segment_special::robotmaker)
 		{
 			i.special = segment_special::nothing;
-			i.matcen_num = -1;
+			i.matcen_num = materialization_center_number::None;
 		}
 }
 #endif
@@ -166,7 +166,7 @@ static void matcen_create(const vmsegptridx_t segp)
 	station.Timer = -1;
 	station.Flag = 0;
 
-	const auto next_robot_center_idx = LevelSharedRobotcenterState.Num_robot_centers++;
+	const auto next_robot_center_idx = static_cast<materialization_center_number>(LevelSharedRobotcenterState.Num_robot_centers++);
 	segp->matcen_num = next_robot_center_idx;
 	auto &robotcenter = RobotCenters[next_robot_center_idx];
 	robotcenter.fuelcen_num = next_fuelcenter_idx;
@@ -200,8 +200,7 @@ void trigger_matcen(const vmsegptridx_t segp)
 	FuelCenter	*robotcen;
 
 	assert(segp->special == segment_special::robotmaker);
-	assert(segp->matcen_num < LevelUniqueFuelcenterState.Num_fuelcenters);
-	Assert((segp->matcen_num >= 0) && (segp->matcen_num <= Highest_segment_index));
+	assert(underlying_value(segp->matcen_num) < LevelUniqueFuelcenterState.Num_fuelcenters);
 
 	robotcen = &Station[RobotCenters[segp->matcen_num].fuelcen_num];
 
@@ -272,7 +271,7 @@ Restart: ;
 					{
 						shared_segment &sfj = vmsegptr(fj.segnum);
 						if (sfj.matcen_num > segp.matcen_num)
-							--sfj.matcen_num;
+							sfj.matcen_num = static_cast<materialization_center_number>(underlying_value(sfj.matcen_num) - 1);
 					}
 				}
 			}
@@ -359,7 +358,6 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
-	int		matcen_num;
 	fix		top_time;
 
 	if (robotcen->Enabled == 0)
@@ -382,11 +380,10 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 	}
 
 	const auto &&segp = vmsegptr(robotcen->segnum);
-	matcen_num = segp->matcen_num;
+	const auto matcen_num = segp->matcen_num;
 
-	if ( matcen_num == -1 ) {
+	if (!RobotCenters.valid_index(matcen_num))
 		return;
-	}
 
 	matcen_info *mi = &RobotCenters[matcen_num];
 	for (unsigned i = 0;; ++i)

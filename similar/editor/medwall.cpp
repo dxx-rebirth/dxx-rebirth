@@ -1051,20 +1051,19 @@ int check_walls()
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	std::array<count_wall, MAX_WALLS> CountedWalls;
-	int matcen_num;
 
 	unsigned wall_count = 0;
 	range_for (const auto &&segp, vmsegptridx)
 	{
 		if (segp->segnum != segment_none) {
 			// Check fuelcenters
-			matcen_num = segp->matcen_num;
-			if (matcen_num == 0)
-				if (RobotCenters[0].segnum != segp) {
-				 	segp->matcen_num = -1;
+			const auto matcen_num = segp->matcen_num;
+			if (matcen_num == materialization_center_number{0u})
+				if (RobotCenters[matcen_num].segnum != segp) {
+					segp->matcen_num = materialization_center_number::None;
 				}
 	
-			if (matcen_num > -1)
+			if (matcen_num != materialization_center_number::None)
 					RobotCenters[matcen_num].segnum = segp;
 	
 			for (auto &&[idx, s] : enumerate(segp->shared_segment::sides))

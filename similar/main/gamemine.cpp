@@ -76,13 +76,21 @@ static segment_special build_segment_special_from_untrusted(uint8_t untrusted)
 	}
 }
 
+static materialization_center_number build_materialization_center_number_from_untrusted(uint8_t untrusted)
+{
+	if (decltype(d_level_shared_robotcenter_state::RobotCenters)::valid_index(untrusted))
+		return materialization_center_number{untrusted};
+	else
+		return materialization_center_number::None;
+}
+
 /*
  * reads a segment2 structure from a PHYSFS_File
  */
 static void segment2_read(const msmusegment s2, PHYSFS_File *fp)
 {
 	s2.s.special = build_segment_special_from_untrusted(PHYSFSX_readByte(fp));
-	s2.s.matcen_num = PHYSFSX_readByte(fp);
+	s2.s.matcen_num = build_materialization_center_number_from_untrusted(PHYSFSX_readByte(fp));
 	/* station_idx is overwritten by the caller in some cases, but set
 	 * it here for compatibility with how the game previously worked */
 	s2.s.station_idx = PHYSFSX_readByte(fp);
@@ -414,12 +422,12 @@ static void read_special(shared_segment &segp, const unsigned bit_mask, PHYSFS_F
 		// Read ubyte	Segments[segnum].special
 		segp.special = build_segment_special_from_untrusted(PHYSFSX_readByte(LoadFile));
 		// Read byte	Segments[segnum].matcen_num
-		segp.matcen_num = PHYSFSX_readByte(LoadFile);
+		segp.matcen_num = build_materialization_center_number_from_untrusted(PHYSFSX_readByte(LoadFile));
 		// Read short	Segments[segnum].value
 		segp.station_idx = PHYSFSX_readShort(LoadFile);
 	} else {
 		segp.special = segment_special::nothing;
-		segp.matcen_num = -1;
+		segp.matcen_num = materialization_center_number::None;
 		segp.station_idx = station_none;
 	}
 }
