@@ -377,24 +377,18 @@ public:
 	}
 	RAIIsocket(const RAIIsocket &) = delete;
 	RAIIsocket &operator=(const RAIIsocket &) = delete;
-	RAIIsocket &operator=(RAIIsocket &&) = delete;
+	RAIIsocket(RAIIsocket &&r) :
+		s(std::exchange(r.s, INVALID_SOCKET))
+	{
+	}
 	~RAIIsocket()
 	{
 		reset();
 	}
-	/* This should be a move-assignment operator=, but early versions of
-	 * gcc-4.9 mishandle synthesizing std::array<T, N>::operator=(array &&)
-	 * when the contained type is movable but not copyable.  Debian
-	 * Jessie's newest gcc is still affected (18 months after the fix
-	 * was published upstream), so use awkward syntax here to avoid the
-	 * problem.
-	 *
-	 * https://github.com/dxx-rebirth/dxx-rebirth/issues/289
-	 * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66501
-	 */
-	void move(RAIIsocket &&r)
+	RAIIsocket &operator=(RAIIsocket &&r)
 	{
 		std::swap(s, r.s);
+		return *this;
 	}
 	void reset()
 	{
@@ -536,16 +530,6 @@ uint8_t get_effective_netgame_status(const d_level_unique_control_center_state &
 }
 
 static std::array<RAIIsocket, 2> UDP_Socket;
-
-static void clear_UDP_Socket()
-{
-	/* This would be simply `UDP_Socket = {}`, but the contained type
-	 * has a deleted move-assignment operator= to compensate for a
-	 * gcc-4.9 bug.  See the comment in RAIIsocket for details.
-	 */
-	range_for (auto &i, UDP_Socket)
-		i.reset();
-}
 
 static bool operator==(const _sockaddr &l, const _sockaddr &r)
 {
@@ -918,7 +902,7 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 	// close stale socket
 	struct _sockaddr sAddr;   // my address information
 
-	sock.move(RAIIsocket(sAddr.address_family(), SOCK_DGRAM, 0));
+	sock = RAIIsocket(sAddr.address_family(), SOCK_DGRAM, 0);
 	if (!sock)
 	{
 		con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
@@ -1605,8 +1589,6 @@ void net_udp_init()
 }
 #endif
 
-	clear_UDP_Socket();
-
 	Netgame = {};
 	UDP_Seq = {};
 	UDP_MData = {};
@@ -1627,7 +1609,7 @@ void net_udp_init()
 
 void net_udp_close()
 {
-	clear_UDP_Socket();
+	UDP_Socket = {};
 #ifdef _WIN32
 	WSACleanup();
 #endif
