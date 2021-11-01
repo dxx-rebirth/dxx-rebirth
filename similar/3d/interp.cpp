@@ -67,16 +67,6 @@ static inline int16_t w(const uint8_t *p)
 	return *wp(p);
 }
 
-static void rotate_point_list(const zip<g3s_point * /* dest */, const vms_vector * /* src */> zr)
-{
-	range_for (auto &&z, zr)
-	{
-		auto &dest = std::get<0>(z);
-		auto &src = std::get<1>(z);
-		g3_rotate_point(dest, src);
-	}
-}
-
 constexpr vms_angvec zero_angles = {0,0,0};
 
 class interpreter_ignore_op_defpoints
@@ -241,7 +231,8 @@ protected:
 private:
 	void rotate(uint_fast32_t i, const vms_vector *const src, const uint_fast32_t n)
 	{
-		rotate_point_list(zip(partial_range(Interp_point_list, i, i + n), unchecked_partial_range(src, n)));
+		for (auto &&[dest, src] : zip(partial_range(Interp_point_list, i, i + n), unchecked_partial_range(src, n)))
+			g3_rotate_point(dest, src);
 	}
 	void set_color_by_model_light(fix g3s_lrgb::*const c, g3s_lrgb &o, const fix color) const
 	{
