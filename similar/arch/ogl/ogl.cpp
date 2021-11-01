@@ -1963,17 +1963,13 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, int x, int y,int dw, int dh, grs_bitmap
 /*
  * Menu / gauges 
  */
-bool ogl_ubitmapm_cs(grs_canvas &canvas, int x, int y, int dw, int dh, grs_bitmap &bm, const ogl_colors::array_type &color_array)
+bool ogl_ubitmapm_cs(grs_canvas &canvas, const int entry_x, const int entry_y, int dw, int dh, grs_bitmap &bm, const ogl_colors::array_type &color_array)
 {
-	GLfloat yo,xf,yf,u1,u2,v1,v2;
+	GLfloat u1,u2,v1,v2;
 	ogl_client_states<GLfloat, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
 	auto &xo = std::get<0>(cs);
-	x += canvas.cv_bitmap.bm_x;
-	y += canvas.cv_bitmap.bm_y;
-	xo=x/static_cast<float>(last_width);
-	xf=(bm.bm_w+x)/static_cast<float>(last_width);
-	yo=1.0-y/static_cast<float>(last_height);
-	yf=1.0-(bm.bm_h+y)/static_cast<float>(last_height);
+	const int adjusted_canvas_x = entry_x + canvas.cv_bitmap.bm_x;
+	const int adjusted_canvas_y = entry_y + canvas.cv_bitmap.bm_y;
 
 	if (dw < 0)
 		dw = canvas.cv_bitmap.bm_w;
@@ -1984,10 +1980,10 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, int x, int y, int dw, int dh, grs_bitma
 	else if (dh == 0)
 		dh = bm.bm_h;
 
-	xo = x / (static_cast<double>(last_width));
-	xf = (dw + x) / (static_cast<double>(last_width));
-	yo = 1.0 - y / (static_cast<double>(last_height));
-	yf = 1.0 - (dh + y) / (static_cast<double>(last_height));
+	xo = adjusted_canvas_x / (static_cast<double>(last_width));
+	const GLfloat xf = (dw + adjusted_canvas_x) / (static_cast<double>(last_width));
+	const GLfloat yo = 1.0 - adjusted_canvas_y / (static_cast<double>(last_height));
+	const GLfloat yf = 1.0 - (dh + adjusted_canvas_y) / (static_cast<double>(last_height));
 
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm, 0);
