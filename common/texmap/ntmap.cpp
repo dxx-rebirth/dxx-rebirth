@@ -355,7 +355,7 @@ static void ntmap_scanline_lighted(const grs_bitmap &srcb, int y, fix xleft, fix
 			fx_xleft = f2i(xleft);
 
 			tmap_flat_color = 1;
-			cur_tmap_scanline_flat();
+			c_tmap_scanline_flat();
 #else
 			Int3();	//	Illegal, called an editor only routine!
 #endif
@@ -573,7 +573,7 @@ static void ntmap_scanline_lighted_linear(const grs_bitmap &srcb, int y, fix xle
 					fx_xleft = 0;
 				//end addition -adb
 				
-				cur_tmap_scanline_lin_nolight();
+				c_tmap_scanline_lin_nolight();
 				break;
 			case 1:
 				if (lleft < F1_0/2)
@@ -608,14 +608,14 @@ static void ntmap_scanline_lighted_linear(const grs_bitmap &srcb, int y, fix xle
 				fx_l = lleft;
 				dl_dx = fixmul(lright - lleft,recip_dx);
 				fx_dl_dx = dl_dx;
-				cur_tmap_scanline_lin();
+				c_tmap_scanline_lin();
 				break;
 			case 2:
 #ifdef EDITOR_TMAP
 				fx_xright = f2i(xright);
 				fx_xleft = f2i(xleft);
 				tmap_flat_color = 1;
-				cur_tmap_scanline_flat();
+				c_tmap_scanline_flat();
 #else
 				Int3();	//	Illegal, called an editor only routine!
 #endif

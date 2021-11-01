@@ -43,10 +43,6 @@ struct tmap_scanline_function_table
 };
 
 #define cur_tmap_scanline_per (tmap_scanline_functions.sl_per)
-#define cur_tmap_scanline_lin (c_tmap_scanline_lin)
-#define cur_tmap_scanline_lin_nolight (c_tmap_scanline_lin_nolight)
-#define cur_tmap_scanline_shaded (c_tmap_scanline_shaded)
-#define cur_tmap_scanline_flat (c_tmap_scanline_flat)
 
 extern tmap_scanline_function_table tmap_scanline_functions;
 void select_tmap(const std::string &type);
