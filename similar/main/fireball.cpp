@@ -879,7 +879,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 
 		auto &vcvertptr = Vertices.vcptr;
 		const auto &&segnum = choose_drop_segment(LevelUniqueSegmentState.get_segments().vmptridx, vcvertptr, LevelUniqueWallSubsystemState.Walls.vcptr, pnum);
-		const auto &&new_pos = pick_random_point_in_seg(vcvertptr, segnum);
+		const auto &&new_pos = pick_random_point_in_seg(vcvertptr, segnum, std::minstd_rand(d_rand()));
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
 		objnum->pos = new_pos;
 		vm_vec_zero(objnum->mtype.phys_info.velocity);

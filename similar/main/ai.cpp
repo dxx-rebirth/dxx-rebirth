@@ -2027,7 +2027,7 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 	}
 
 	auto &vcvertptr = Vertices.vcptr;
-	const auto object_pos = pos ? *pos : pick_random_point_in_seg(vcvertptr, segp);
+	const auto object_pos = pos ? *pos : pick_random_point_in_seg(vcvertptr, segp, std::minstd_rand(d_rand()));
 
 	//	See if legal to place object here.  If not, move about in segment and try again.
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;

@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <random>
 #include "pstypes.h"
 #include "maths.h"
 #include "vecmat.h"
@@ -206,11 +207,11 @@ void create_walls_on_side(fvcvertptr &, shared_segment &sp, unsigned sidenum);
 void validate_segment_side(fvcvertptr &, vmsegptridx_t sp, unsigned sidenum);
 #endif
 
-void pick_random_point_in_seg(fvcvertptr &vcvertptr, vms_vector &new_pos, const shared_segment &sp);
-static inline vms_vector pick_random_point_in_seg(fvcvertptr &vcvertptr, const shared_segment &sp)
+void pick_random_point_in_seg(fvcvertptr &vcvertptr, vms_vector &new_pos, const shared_segment &sp, std::minstd_rand);
+static inline vms_vector pick_random_point_in_seg(fvcvertptr &vcvertptr, const shared_segment &sp, std::minstd_rand r)
 {
 	vms_vector v;
-	return pick_random_point_in_seg(vcvertptr, v, sp), v;
+	return pick_random_point_in_seg(vcvertptr, v, sp, r), v;
 }
 
 int check_segment_connections(void);
