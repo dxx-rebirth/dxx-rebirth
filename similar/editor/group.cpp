@@ -46,7 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_bitset.h"
 #include "d_enumerate.h"
 #include "d_levelstate.h"
-#include "d_range.h"
+#include "d_zip.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -817,8 +817,8 @@ static segnum_t place_new_segment_in_world(void)
 	seg = New_segment;
 
 	auto &vcvertptr = Vertices.vcptr;
-	range_for (const unsigned v, xrange(MAX_VERTICES_PER_SEGMENT))
-		seg.verts[v] = med_create_duplicate_vertex(vcvertptr(New_segment.verts[v]));
+	for (auto &&[w, r] : zip(seg.verts, New_segment.verts))
+		w = med_create_duplicate_vertex(vcvertptr(r));
 
 	return segnum;
 
