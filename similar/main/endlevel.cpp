@@ -1351,7 +1351,7 @@ try_again:
 	if (!ifile) {
 
 		convert_ext(filename,"txb");
-                if (!strcmp(filename, Briefing_text_filename) || 
+		if (!strcmp(filename, Current_mission->briefing_text_filename) || 
 			!strcmp(filename, Current_mission->ending_text_filename))
                     return;	// Don't want to interpret the briefing as an end level sequence!
 

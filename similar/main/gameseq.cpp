@@ -2114,7 +2114,7 @@ static void ShowLevelIntro(int level_num)
 		/* Play a level-appropriate briefing, whether built-in, add-on,
 		 * or Descent 1.
 		 */
-		do_briefing_screens(Briefing_text_filename, level_num);
+		do_briefing_screens(Current_mission->briefing_text_filename, level_num);
 
 		gr_palette = save_pal;
 	}
@@ -2153,7 +2153,7 @@ window_event_result StartNewLevel(int level_num)
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!(Game_mode & GM_MULTI)) {
-		do_briefing_screens(Briefing_text_filename, level_num);
+		do_briefing_screens(Current_mission->briefing_text_filename, level_num);
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (level_num > 0) {

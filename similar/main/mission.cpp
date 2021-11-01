@@ -269,7 +269,7 @@ static void allocate_levels(const unsigned count_regular_level, const unsigned c
 
 static void allocate_shareware_levels(const unsigned count_regular_level, const unsigned count_secret_level)
 {
-	Briefing_text_filename = BIMD1_BRIEFING_FILE;
+	Current_mission->briefing_text_filename = BIMD1_BRIEFING_FILE;
 	Current_mission->ending_text_filename = BIMD1_ENDING_FILE_SHARE;
 	allocate_levels(count_regular_level, count_secret_level);
 	//build level names
@@ -318,7 +318,7 @@ static void load_mission_d1()
 			}
 			build_rdl_secret_level_names(last_secret_level, Current_mission->secret_level_names);
 			Current_mission->secret_level_table[0] = 10;
-			Briefing_text_filename = "briefsat.txb";
+			Current_mission->briefing_text_filename = "briefsat.txb";
 			Current_mission->ending_text_filename = BIMD1_ENDING_FILE_OEM;
 			}
 			break;
@@ -340,7 +340,7 @@ static void load_mission_d1()
 			Current_mission->secret_level_table[0] = 10;
 			Current_mission->secret_level_table[1] = 21;
 			Current_mission->secret_level_table[2] = 24;
-			Briefing_text_filename = BIMD1_BRIEFING_FILE;
+			Current_mission->briefing_text_filename = BIMD1_BRIEFING_FILE;
 			Current_mission->ending_text_filename = "endreg.txb";
 			break;
 			}
@@ -926,7 +926,7 @@ static const char *load_mission(const mle *const mission)
 	//init vars
 	Current_mission->last_level = 0;
 	Current_mission->last_secret_level = 0;
-	Briefing_text_filename = {};
+	Current_mission->briefing_text_filename = {};
 	Current_mission->ending_text_filename = {};
 	Current_mission->secret_level_table.reset();
 	Current_mission->level_names.reset();
@@ -960,12 +960,12 @@ static const char *load_mission(const mle *const mission)
 		switch (Current_mission->builtin_hogsize) {
 		case SHAREWARE_MISSION_HOGSIZE:
 		case MAC_SHARE_MISSION_HOGSIZE:
-			Briefing_text_filename = "brief2.txb";
+			Current_mission->briefing_text_filename = "brief2.txb";
 			Current_mission->ending_text_filename = BIMD2_ENDING_FILE_SHARE;
 			load_mission_shareware();
 			return nullptr;
 		case OEM_MISSION_HOGSIZE:
-			Briefing_text_filename = "brief2o.txb";
+			Current_mission->briefing_text_filename = "brief2o.txb";
 			Current_mission->ending_text_filename = BIMD2_ENDING_FILE_OEM;
 			load_mission_oem();
 			return nullptr;
@@ -975,7 +975,7 @@ static const char *load_mission(const mle *const mission)
 		case FULL_MISSION_HOGSIZE:
 		case FULL_10_MISSION_HOGSIZE:
 		case MAC_FULL_MISSION_HOGSIZE:
-			Briefing_text_filename = "robot.txb";
+			Current_mission->briefing_text_filename = "robot.txb";
 			// continue on... (use d2.mn2 from hogfile)
 			break;
 		}
@@ -1010,8 +1010,8 @@ static const char *load_mission(const mle *const mission)
 		strcpy(&mission_filename[mission->path.size() + 1], "hog");		//change extension
 		std::array<char, PATH_MAX> pathname;
 		PHYSFSX_addRelToSearchPath(mission_filename.data(), pathname, physfs_search_path::prepend);
-		set_briefing_filename(Briefing_text_filename, &*Current_mission->filename);
-		Current_mission->ending_text_filename = Briefing_text_filename;
+		set_briefing_filename(Current_mission->briefing_text_filename, &*Current_mission->filename);
+		Current_mission->ending_text_filename = Current_mission->briefing_text_filename;
 	}
 
 	for (PHYSFSX_gets_line_t<PATH_MAX> buf; PHYSFSX_fgets(buf,mfile);)
@@ -1019,7 +1019,7 @@ static const char *load_mission(const mle *const mission)
 		if (istok(buf,"type"))
 			continue;						//already have name, go to next line
 		else if (istok(buf,"briefing")) {
-			record_briefing(Briefing_text_filename, buf);
+			record_briefing(Current_mission->briefing_text_filename, buf);
 		}
 		else if (istok(buf,"ending")) {
 			record_briefing(Current_mission->ending_text_filename, buf);
@@ -1502,8 +1502,8 @@ static int write_mission(void)
 
 	PHYSFSX_printf(mfile, "type = %s\n", Current_mission->anarchy_only_flag ? "anarchy" : "normal");
 
-	if (Briefing_text_filename[0])
-		PHYSFSX_printf(mfile, "briefing = %s\n", static_cast<const char *>(Briefing_text_filename));
+	if (Current_mission->briefing_text_filename[0])
+		PHYSFSX_printf(mfile, "briefing = %s\n", static_cast<const char *>(Current_mission->briefing_text_filename));
 
 	if (Current_mission->ending_text_filename[0])
 		PHYSFSX_printf(mfile, "ending = %s\n", static_cast<const char *>(Current_mission->ending_text_filename));
@@ -1547,7 +1547,7 @@ void create_new_mission(void)
 	Current_mission->last_level = 1;
 	Current_mission->n_secret_levels = 0;
 	Current_mission->last_secret_level = 0;
-	Briefing_text_filename = {};
+	Current_mission->briefing_text_filename = {};
 	Current_mission->ending_text_filename = {};
 	Current_mission->secret_level_table.reset();
 	Current_mission->secret_level_names.reset();

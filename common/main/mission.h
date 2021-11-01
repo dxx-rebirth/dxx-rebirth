@@ -186,7 +186,6 @@ typedef std::unique_ptr<Mission> Mission_ptr;
 extern Mission_ptr Current_mission; // current mission
 
 #define Current_mission_longname	Current_mission->mission_name
-#define Briefing_text_filename		Current_mission->briefing_text_filename
 
 #if defined(DXX_BUILD_DESCENT_II)
 /* Wrap in parentheses to avoid precedence problems.  Put constant on
