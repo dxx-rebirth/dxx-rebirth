@@ -251,7 +251,7 @@ static bool null_or_space(char c)
 	return !c || isspace(static_cast<unsigned>(c));
 }
 
-// Allocate the Current_mission->level_names, Current_mission->secret_level_names and Secret_level_table arrays
+// Allocate the Current_mission->level_names, Current_mission->secret_level_names and Current_mission->secret_level_table arrays
 static void allocate_levels(const unsigned count_regular_level, const unsigned count_secret_level)
 {
 	Current_mission->level_names = std::make_unique<d_fname[]>(count_regular_level);
@@ -263,7 +263,7 @@ static void allocate_levels(const unsigned count_regular_level, const unsigned c
 		auto secret_level_names = std::make_unique<d_fname[]>(count_secret_level);
 		auto secret_level_table = std::make_unique<uint8_t[]>(count_secret_level);
 		Current_mission->secret_level_names = std::move(secret_level_names);
-		Secret_level_table = std::move(secret_level_table);
+		Current_mission->secret_level_table = std::move(secret_level_table);
 	}
 }
 
@@ -317,7 +317,7 @@ static void load_mission_d1()
 				snprintf(&ln[0u], ln.size(), "saturn%02d.rdl", last_level);
 			}
 			build_rdl_secret_level_names(last_secret_level, Current_mission->secret_level_names);
-			Secret_level_table[0] = 10;
+			Current_mission->secret_level_table[0] = 10;
 			Briefing_text_filename = "briefsat.txb";
 			Ending_text_filename = BIMD1_ENDING_FILE_OEM;
 			}
@@ -337,9 +337,9 @@ static void load_mission_d1()
 			//build level names
 			build_rdl_regular_level_names(last_level, Current_mission->level_names);
 			build_rdl_secret_level_names(last_secret_level, Current_mission->secret_level_names);
-			Secret_level_table[0] = 10;
-			Secret_level_table[1] = 21;
-			Secret_level_table[2] = 24;
+			Current_mission->secret_level_table[0] = 10;
+			Current_mission->secret_level_table[1] = 21;
+			Current_mission->secret_level_table[2] = 24;
 			Briefing_text_filename = BIMD1_BRIEFING_FILE;
 			Ending_text_filename = "endreg.txb";
 			break;
@@ -403,8 +403,8 @@ static void load_mission_oem()
 	Current_mission->level_names[6] = "d2levb-3.rl2";
 	Current_mission->level_names[7] = "d2levb-4.rl2";
 	Current_mission->secret_level_names[1] = "d2levb-s.rl2";
-	Secret_level_table[0] = 1;
-	Secret_level_table[1] = 5;
+	Current_mission->secret_level_table[0] = 1;
+	Current_mission->secret_level_table[1] = 5;
 }
 #endif
 
@@ -928,7 +928,7 @@ static const char *load_mission(const mle *const mission)
 	Last_secret_level = 0;
 	Briefing_text_filename = {};
 	Ending_text_filename = {};
-	Secret_level_table.reset();
+	Current_mission->secret_level_table.reset();
 	Current_mission->level_names.reset();
 	Current_mission->secret_level_names.reset();
 
@@ -1106,7 +1106,7 @@ static const char *load_mission(const mle *const mission)
 				}
 				Last_secret_level = -static_cast<signed>(level_names_loaded);
 				Current_mission->secret_level_names = std::move(names);
-				Secret_level_table = std::move(table);
+				Current_mission->secret_level_table = std::move(table);
 			}
 		}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1517,7 +1517,7 @@ static int write_mission(void)
 		PHYSFSX_printf(mfile, "num_secrets = %i\n", N_secret_levels);
 
 		for (int i = 0; i < N_secret_levels; i++)
-			PHYSFSX_printf(mfile, "%s,%i\n", static_cast<const char *>(Current_mission->secret_level_names[i]), Secret_level_table[i]);
+			PHYSFSX_printf(mfile, "%s,%i\n", static_cast<const char *>(Current_mission->secret_level_names[i]), Current_mission->secret_level_table[i]);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1548,7 +1548,7 @@ void create_new_mission(void)
 	Last_secret_level = 0;
 	Briefing_text_filename = {};
 	Ending_text_filename = {};
-	Secret_level_table.reset();
+	Current_mission->secret_level_table.reset();
 	Current_mission->secret_level_names.reset();
 
 #if defined(DXX_BUILD_DESCENT_II)

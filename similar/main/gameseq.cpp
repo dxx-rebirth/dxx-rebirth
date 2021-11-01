@@ -1566,10 +1566,13 @@ void EnterSecretLevel(void)
 	//	Find secret level number to go to, stuff in Next_level_num.
 	int8_t Next_level_num{};
 	for (i=0; i<-Last_secret_level; i++)
-		if (Secret_level_table[i]==Current_level_num) {
+		if (Current_mission->secret_level_table[i] == Current_level_num)
+		{
 			Next_level_num = -(i+1);
 			break;
-		} else if (Secret_level_table[i] > Current_level_num) {	//	Allows multiple exits in same group.
+		}
+		else if (Current_mission->secret_level_table[i] > Current_level_num)
+		{	//	Allows multiple exits in same group.
 			Next_level_num = -i;
 			break;
 		}
@@ -1756,7 +1759,8 @@ static window_event_result AdvanceLevel(int secret_flag)
 			int i;
 
 			for (i=0;i<-Last_secret_level;i++)
-				if (Secret_level_table[i]==Current_level_num) {
+				if (Current_mission->secret_level_table[i] == Current_level_num)
+				{
 					Next_level_num = -(i+1);
 					break;
 				}
@@ -1768,7 +1772,7 @@ static window_event_result AdvanceLevel(int secret_flag)
 			Assert(!secret_flag);				//shouldn't be going to secret level
 			Assert(Current_level_num<=-1 && Current_level_num>=Last_secret_level);
 
-			Next_level_num = Secret_level_table[(-Current_level_num)-1]+1;
+			Next_level_num = Current_mission->secret_level_table[(-Current_level_num) - 1] + 1;
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 		int8_t Next_level_num;
@@ -2116,13 +2120,13 @@ static void ShowLevelIntro(int level_num)
 }
 
 //	---------------------------------------------------------------------------
-//	If starting a level which appears in the Secret_level_table, then set First_secret_visit.
+//	If starting a level which appears in the Current_mission->secret_level_table, then set First_secret_visit.
 //	Reason: On this level, if player goes to a secret level, he will be going to a different
 //	secret level than he's ever been to before.
 //	Sets the global First_secret_visit if necessary.  Otherwise leaves it unchanged.
 static void maybe_set_first_secret_visit(int level_num)
 {
-	range_for (auto &i, unchecked_partial_range(Secret_level_table.get(), N_secret_levels))
+	range_for (auto &i, unchecked_partial_range(Current_mission->secret_level_table.get(), N_secret_levels))
 	{
 		if (i == level_num)
 		{
