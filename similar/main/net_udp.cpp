@@ -1974,7 +1974,7 @@ static void net_udp_send_door_updates(void)
 	{
 		auto &w = *p;
 		if ((w.type == WALL_DOOR && (w.state == WALL_DOOR_OPENING || w.state == WALL_DOOR_WAITING)) || (w.type == WALL_BLASTABLE && (w.flags & wall_flag::blasted)))
-			multi_send_door_open(w.segnum, w.sidenum,0);
+			multi_send_door_open(w.segnum, w.sidenum, {});
 		else if (w.type == WALL_BLASTABLE && w.hps != WALL_HPS)
 			multi_send_hostage_door_status(p);
 	}

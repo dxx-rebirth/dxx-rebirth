@@ -246,7 +246,7 @@ void wall_init()
 		w.segnum = segment_none;
 		w.sidenum = -1;
 		w.type = WALL_NORMAL;
-		w.flags = 0;
+		w.flags = {};
 		w.hps = 0;
 		w.trigger = trigger_none;
 		w.clip_num = -1;
@@ -1191,11 +1191,10 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 				wall_open_door(seg, side);
 				if (Game_mode & GM_MULTI)
 				{
-					int flags;
 #if defined(DXX_BUILD_DESCENT_I)
-					flags = 0;
+					const wall_flags flags{};
 #elif defined(DXX_BUILD_DESCENT_II)
-					flags = w->flags;
+					const auto flags = w->flags;
 #endif
 					multi_send_door_open(seg, side,flags);
 				}

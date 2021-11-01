@@ -146,16 +146,16 @@ enum class wall_flag : uint8_t
 #endif
 };
 
-using wall_flags = uint8_t;
+enum class wall_flags : uint8_t;
 
 static constexpr auto &operator|=(wall_flags &wall, const wall_flag f)
 {
-	return wall |= underlying_value(f);
+	return wall = static_cast<wall_flags>(underlying_value(wall) | underlying_value(f));
 }
 
 static constexpr auto &operator&=(wall_flags &wall, const wall_flag f)
 {
-	return wall &= underlying_value(f);
+	return wall = static_cast<wall_flags>(underlying_value(wall) & underlying_value(f));
 }
 
 static constexpr auto operator~(const wall_flag f)
@@ -165,7 +165,7 @@ static constexpr auto operator~(const wall_flag f)
 
 static constexpr auto operator&(const wall_flags wall, const wall_flag f)
 {
-	return wall & underlying_value(f);
+	return underlying_value(wall) & underlying_value(f);
 }
 
 static constexpr auto operator|(const wall_flag f1, const wall_flag f2)

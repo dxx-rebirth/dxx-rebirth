@@ -2131,7 +2131,7 @@ static void multi_do_door_open(fvmwallptr &vmwallptr, const uint8_t *const buf)
 		wall_open_door(seg, side);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	w.flags = flag;
+	w.flags = wall_flags{flag};
 #endif
 
 }
@@ -2880,7 +2880,7 @@ void multi_send_decloak()
 
 namespace dsx {
 
-void multi_send_door_open(const vcsegidx_t segnum, const unsigned side, const uint8_t flag)
+void multi_send_door_open(const vcsegidx_t segnum, const unsigned side, const wall_flags flag)
 {
 	multi_command<MULTI_DOOR_OPEN> multibuf;
 	// When we open a door make sure everyone else opens that door
@@ -2889,13 +2889,13 @@ void multi_send_door_open(const vcsegidx_t segnum, const unsigned side, const ui
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)flag;
 #elif defined(DXX_BUILD_DESCENT_II)
-	multibuf[4] = flag;
+	multibuf[4] = underlying_value(flag);
 #endif
 	multi_send_data(multibuf, 2);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void multi_send_door_open_specific(const playernum_t pnum, const vcsegidx_t segnum, const unsigned side, const uint8_t flag)
+void multi_send_door_open_specific(const playernum_t pnum, const vcsegidx_t segnum, const unsigned side, const wall_flags flag)
 {
 	// For sending doors only to a specific person (usually when they're joining)
 
@@ -2905,7 +2905,7 @@ void multi_send_door_open_specific(const playernum_t pnum, const vcsegidx_t segn
 	multi_command<MULTI_DOOR_OPEN> multibuf;
 	PUT_INTEL_SHORT(&multibuf[1], segnum);
 	multibuf[3] = static_cast<int8_t>(side);
-	multibuf[4] = flag;
+	multibuf[4] = underlying_value(flag);
 
 	multi_send_data_direct(multibuf, pnum, 2);
 }
@@ -3959,7 +3959,7 @@ static void multi_do_stolen_items(const uint8_t *const buf)
 
 }
 
-void multi_send_wall_status_specific(const playernum_t pnum, wallnum_t wallnum, uint8_t type, uint8_t flags, uint8_t state)
+void multi_send_wall_status_specific(const playernum_t pnum, wallnum_t wallnum, uint8_t type, const wall_flags flags, uint8_t state)
 {
 	// Send wall states a specific rejoining player
 
@@ -3973,7 +3973,7 @@ void multi_send_wall_status_specific(const playernum_t pnum, wallnum_t wallnum, 
 	PUT_INTEL_SHORT(&multibuf[count], static_cast<uint16_t>(wallnum));
 	count+=2;
 	multibuf[count]=type;                 count++;
-	multibuf[count]=flags;                count++;
+	multibuf[count] = underlying_value(flags); count++;
 	multibuf[count]=state;                count++;
 
 	multi_send_data_direct(multibuf, pnum, 2);
@@ -3992,8 +3992,7 @@ static void multi_do_wall_status(fvmwallptr &vmwallptr, const uint8_t *const buf
 
 	auto &w = *vmwallptr(wallnum);
 	w.type = type;
-	w.flags = flag;
-	//Assert(state <= 4);
+	w.flags = wall_flags{flag};
 	w.state = state;
 
 	if (w.type == WALL_OPEN)

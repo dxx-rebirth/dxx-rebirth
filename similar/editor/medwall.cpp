@@ -854,8 +854,8 @@ static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmse
 		w0.sidenum = side;
 		w1.sidenum = connectside;
 
-  		w0.flags = 0;
-		w1.flags = 0;
+  		w0.flags = {};
+		w1.flags = {};
 
   		w0.type = type;
 		w1.type = type;
@@ -918,8 +918,8 @@ int wall_add_to_markedside(fvcvertptr &vcvertptr, wall_array &Walls, const int8_
 		w0.sidenum = Markedside;
 		w1.sidenum = Connectside;
 
-  		w0.flags = 0;
-		w1.flags = 0;
+  		w0.flags = {};
+		w1.flags = {};
 
   		w0.type = type;
 		w1.type = type;

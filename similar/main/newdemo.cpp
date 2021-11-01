@@ -1639,7 +1639,7 @@ void newdemo_set_new_level(int level_num)
 		{
 			auto &w = *wp;
 			nd_write_byte (w.type);
-			nd_write_byte (w.flags);
+			nd_write_byte (underlying_value(w.flags));
 			nd_write_byte (w.state);
 
 			const auto &side = vcsegptr(w.segnum)->unique_segment::sides[w.sidenum];
@@ -3291,7 +3291,9 @@ static int newdemo_read_frame_information(int rewrite)
 				{
 					auto &w = *wp;
 					nd_read_byte(&w.type);
-					nd_read_byte(&w.flags);
+					uint8_t wf;
+					nd_read_byte(&wf);
+					w.flags = wall_flags{wf};
 					nd_read_byte(&w.state);
 
 					auto &side = vmsegptr(w.segnum)->unique_segment::sides[w.sidenum];
@@ -3305,10 +3307,10 @@ static int newdemo_read_frame_information(int rewrite)
 					if (rewrite)
 					{
 						nd_write_byte (w.type);
-						nd_write_byte (w.flags);
+						nd_write_byte (underlying_value(w.flags));
 						nd_write_byte (w.state);
-						nd_write_short(static_cast<uint16_t>(side.tmap_num));
-						nd_write_short(static_cast<uint16_t>(side.tmap_num2));
+						nd_write_short(underlying_value(side.tmap_num));
+						nd_write_short(underlying_value(side.tmap_num2));
 					}
 				}
 

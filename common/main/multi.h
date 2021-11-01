@@ -406,7 +406,7 @@ void multi_send_destroy_controlcen(objnum_t objnum, playernum_t player);
 void multi_send_position(object &objnum);
 void multi_send_kill(vmobjptridx_t objnum);
 void multi_send_remobj(vmobjidx_t objnum);
-void multi_send_door_open(vcsegidx_t segnum, unsigned side, uint8_t flag);
+void multi_send_door_open(vcsegidx_t segnum, unsigned side, wall_flags flag);
 void multi_send_drop_weapon(vmobjptridx_t objnum,int seed);
 void multi_reset_player_object(object &objp);
 }
@@ -718,8 +718,8 @@ void multi_check_for_killgoal_winner();
 namespace dsx {
 extern void multi_send_stolen_items();
 void multi_send_trigger_specific(playernum_t pnum, trgnum_t trig);
-void multi_send_door_open_specific(playernum_t pnum, vcsegidx_t segnum, unsigned side, uint8_t flag);
-void multi_send_wall_status_specific(playernum_t pnum, wallnum_t wallnum, uint8_t type, uint8_t flags, uint8_t state);
+void multi_send_door_open_specific(playernum_t pnum, vcsegidx_t segnum, unsigned side, wall_flags flag);
+void multi_send_wall_status_specific(playernum_t pnum, wallnum_t wallnum, uint8_t type, wall_flags flags, uint8_t state);
 void multi_send_light_specific (playernum_t pnum, vcsegptridx_t segnum, uint8_t val);
 void multi_send_capture_bonus (playernum_t pnum);
 int multi_all_players_alive(const fvcobjptr &, partial_range_t<const player *>);

@@ -1027,7 +1027,9 @@ static int load_game_data(
 			nw.sidenum	= w.sidenum;
 			nw.linked_wall	= w.linked_wall;
 			nw.type		= w.type;
-			nw.flags		= w.flags & ~wall_flag::exploding;
+			auto wf = static_cast<wall_flags>(w.flags);
+			wf &= ~wall_flag::exploding;
+			nw.flags = wf;
 			nw.hps		= w.hps;
 			nw.trigger	= static_cast<trgnum_t>(w.trigger);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1044,7 +1046,9 @@ static int load_game_data(
 			nw.sidenum = -1;
 			nw.linked_wall = wall_none;
 			nw.type		= w.type;
-			nw.flags		= w.flags & ~wall_flag::exploding;
+			auto wf = static_cast<wall_flags>(w.flags);
+			wf &= ~wall_flag::exploding;
+			nw.flags = wf;
 			nw.hps		= w.hps;
 			nw.trigger	= static_cast<trgnum_t>(w.trigger);
 #if defined(DXX_BUILD_DESCENT_I)
