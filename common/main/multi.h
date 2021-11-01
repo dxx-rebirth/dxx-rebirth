@@ -412,10 +412,10 @@ void multi_reset_player_object(object &objp);
 }
 #endif
 
-enum msgsend_state_t {
-	msgsend_none,
-	msgsend_typing,
-	msgsend_automap,
+enum class msgsend_state : uint8_t {
+	none,
+	typing,
+	automap,
 };
 
 enum deres_type_t {
@@ -572,11 +572,11 @@ extern std::array<sbyte, MAX_OBJECTS> object_owner;
 
 extern int multi_quit_game;
 
-extern std::array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
+extern std::array<msgsend_state, MAX_PLAYERS> multi_sending_message;
 extern int multi_defining_message;
 }
 extern void multi_send_message_start();
-void multi_send_msgsend_state(msgsend_state_t state);
+void multi_send_msgsend_state(msgsend_state state);
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {

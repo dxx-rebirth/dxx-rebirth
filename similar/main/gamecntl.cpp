@@ -2139,7 +2139,7 @@ window_event_result ReadControls(const d_event &event, control_info &Controls)
 	}
 	if (Player_dead_state != player_dead_state::no &&
 		!((Game_mode & GM_MULTI) &&
-			(multi_sending_message[Player_num] || multi_defining_message)
+			(multi_sending_message[Player_num] != msgsend_state::none || multi_defining_message)
 		)
 	)
 	HandleDeathInput(event, Controls);
@@ -2156,7 +2156,7 @@ window_event_result ReadControls(const d_event &event, control_info &Controls)
 			return MarkerInputMessage(key, Controls);
 		}
 #endif
-		if ( (Game_mode & GM_MULTI) && (multi_sending_message[Player_num] || multi_defining_message) )
+		if ( (Game_mode & GM_MULTI) && (multi_sending_message[Player_num] != msgsend_state::none || multi_defining_message) )
 		{
 			return multi_message_input_sub(key, Controls);
 		}

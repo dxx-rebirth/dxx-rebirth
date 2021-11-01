@@ -101,12 +101,12 @@ static void game_draw_multi_message(grs_canvas &canvas)
 		return;
 	const auto sending = multi_sending_message[Player_num];
 	int defining;
-	if (!sending && !(defining = multi_defining_message))
+	if (sending == msgsend_state::none && !(defining = multi_defining_message))
 		return;
 	gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
 	auto &game_font = *GAME_FONT;
 	const auto &&y = (LINE_SPACING(game_font, game_font) * 5) + FSPACY(1);
-	if (sending)
+	if (sending != msgsend_state::none)
 		gr_printf(canvas, game_font, 0x8000, y, "%s: %s_", TXT_MESSAGE, Network_message.data());
 	else
 		gr_printf(canvas, game_font, 0x8000, y, "%s #%d: %s_", TXT_MACRO, defining, Network_message.data());

@@ -3541,9 +3541,9 @@ void show_HUD_names(grs_canvas &canvas, const game_mode_flags Game_mode)
 					const char *trailer = NULL;
 					if (show_typing)
 					{
-						if (multi_sending_message[pnum] == msgsend_typing)
+						if (multi_sending_message[pnum] == msgsend_state::typing)
 							trailer = "Typing";
-						else if (multi_sending_message[pnum] == msgsend_automap)
+						else if (multi_sending_message[pnum] == msgsend_state::automap)
 							trailer = "Map";
 					}
 					int written = snprintf(s, sizeof(s), "%s%s%s", name ? name : "", name && trailer ? ", " : "", trailer ? trailer : "");

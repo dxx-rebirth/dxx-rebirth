@@ -169,7 +169,7 @@ namespace dcx {
 playernum_t Bounty_target;
 
 
-std::array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
+std::array<msgsend_state, MAX_PLAYERS> multi_sending_message;
 int multi_defining_message = 0;
 
 std::array<sbyte, MAX_OBJECTS> object_owner;   // Who created each object in my universe, -1 = loaded at start
@@ -531,7 +531,7 @@ void multi_new_game()
 		sorted_kills[i] = i;
 		vmplayerptr(i)->connected = CONNECT_DISCONNECTED;
 	}
-	multi_sending_message.fill(msgsend_none);
+	multi_sending_message.fill(msgsend_state::none);
 
 	robot_controlled.fill(-1);
 	robot_agitation = {};
@@ -1230,8 +1230,8 @@ void multi_send_macro(const int fkey)
 void multi_send_message_start()
 {
 	if (Game_mode&GM_MULTI) {
-		multi_sending_message[Player_num] = msgsend_typing;
-		multi_send_msgsend_state(msgsend_typing);
+		multi_sending_message[Player_num] = msgsend_state::typing;
+		multi_send_msgsend_state(msgsend_state::typing);
 		multi_message_index = 0;
 		Network_message = {};
 		key_toggle_repeat(1);
@@ -1247,9 +1247,9 @@ static void kick_player(const player &plr, netplayer_info &nplr)
 	multi::dispatch->kick_player(nplr.protocol.udp.addr, DUMP_KICKED);
 	HUD_init_message(HM_MULTI, "Dumping %s...", static_cast<const char *>(plr.callsign));
 	multi_message_index = 0;
-	multi_sending_message[Player_num] = msgsend_none;
+	multi_sending_message[Player_num] = msgsend_state::none;
 #if defined(DXX_BUILD_DESCENT_II)
-	multi_send_msgsend_state(msgsend_none);
+	multi_send_msgsend_state(msgsend_state::none);
 #endif
 }
 
@@ -1258,8 +1258,8 @@ static void multi_send_message_end(fvmobjptr &vmobjptr, control_info &Controls)
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 #if defined(DXX_BUILD_DESCENT_I)
 	multi_message_index = 0;
-	multi_sending_message[Player_num] = msgsend_none;
-	multi_send_msgsend_state(msgsend_none);
+	multi_sending_message[Player_num] = msgsend_state::none;
+	multi_send_msgsend_state(msgsend_state::none);
 	key_toggle_repeat(0);
 #elif defined(DXX_BUILD_DESCENT_II)
 	Network_message_reciever = 100;
@@ -1348,9 +1348,9 @@ static void multi_send_message_end(fvmobjptr &vmobjptr, control_info &Controls)
 		{
 			HUD_init_message(HM_MULTI, "Only %s can kick others out!", static_cast<const char *>(Players[multi_who_is_master()].callsign));
 			multi_message_index = 0;
-			multi_sending_message[Player_num] = msgsend_none;
+			multi_sending_message[Player_num] = msgsend_state::none;
 #if defined(DXX_BUILD_DESCENT_II)
-			multi_send_msgsend_state(msgsend_none);
+			multi_send_msgsend_state(msgsend_state::none);
 #endif
 			return;
 		}
@@ -1358,9 +1358,9 @@ static void multi_send_message_end(fvmobjptr &vmobjptr, control_info &Controls)
 		{
 			HUD_init_message_literal(HM_MULTI, "You must specify a name to kick");
 			multi_message_index = 0;
-			multi_sending_message[Player_num] = msgsend_none;
+			multi_sending_message[Player_num] = msgsend_state::none;
 #if defined(DXX_BUILD_DESCENT_II)
-			multi_send_msgsend_state(msgsend_none);
+			multi_send_msgsend_state(msgsend_state::none);
 #endif
 			return;
 		}
@@ -1373,9 +1373,9 @@ static void multi_send_message_end(fvmobjptr &vmobjptr, control_info &Controls)
 				if (listpos == 0 || listpos >= N_players) {
 					HUD_init_message_literal(HM_MULTI, "Invalid player number for kick.");
 					multi_message_index = 0;
-					multi_sending_message[Player_num] = msgsend_none;
+					multi_sending_message[Player_num] = msgsend_state::none;
 #if defined(DXX_BUILD_DESCENT_II)
-					multi_send_msgsend_state(msgsend_none);
+					multi_send_msgsend_state(msgsend_state::none);
 #endif
 					return;
 				}
@@ -1391,9 +1391,9 @@ static void multi_send_message_end(fvmobjptr &vmobjptr, control_info &Controls)
 
 
 		    multi_message_index = 0;
-		    multi_sending_message[Player_num] = msgsend_none;
+		    multi_sending_message[Player_num] = msgsend_state::none;
 #if defined(DXX_BUILD_DESCENT_II)
-		    multi_send_msgsend_state(msgsend_none);
+		    multi_send_msgsend_state(msgsend_state::none);
 #endif
 			return;
 		}
@@ -1415,9 +1415,9 @@ static void multi_send_message_end(fvmobjptr &vmobjptr, control_info &Controls)
 			multi_send_destroy_controlcen(object_none,Player_num);
 		}
 		multi_message_index = 0;
-		multi_sending_message[Player_num] = msgsend_none;
+		multi_sending_message[Player_num] = msgsend_state::none;
 #if defined(DXX_BUILD_DESCENT_II)
-		multi_send_msgsend_state(msgsend_none);
+		multi_send_msgsend_state(msgsend_state::none);
 #endif
 		return;
 	}
@@ -1434,8 +1434,8 @@ static void multi_send_message_end(fvmobjptr &vmobjptr, control_info &Controls)
 	Network_message_reciever = 100;
 #elif defined(DXX_BUILD_DESCENT_II)
 	multi_message_index = 0;
-	multi_sending_message[Player_num] = msgsend_none;
-	multi_send_msgsend_state(msgsend_none);
+	multi_sending_message[Player_num] = msgsend_state::none;
+	multi_send_msgsend_state(msgsend_state::none);
 	key_toggle_repeat(0);
 #endif
 	game_flush_inputs(Controls);
@@ -1464,8 +1464,8 @@ window_event_result multi_message_input_sub(int key, control_info &Controls)
 	{
 		case KEY_F8:
 		case KEY_ESC:
-			multi_sending_message[Player_num] = msgsend_none;
-			multi_send_msgsend_state(msgsend_none);
+			multi_sending_message[Player_num] = msgsend_state::none;
+			multi_send_msgsend_state(msgsend_state::none);
 			multi_defining_message = 0;
 			key_toggle_repeat(0);
 			game_flush_inputs(Controls);
@@ -1478,7 +1478,7 @@ window_event_result multi_message_input_sub(int key, control_info &Controls)
 			Network_message[multi_message_index] = 0;
 			return window_event_result::handled;
 		case KEY_ENTER:
-			if ( multi_sending_message[Player_num] )
+			if (multi_sending_message[Player_num] != msgsend_state::none)
 				multi_send_message_end(vmobjptr, Controls);
 			else if ( multi_defining_message )
 				multi_define_macro_end(Controls);
@@ -1491,7 +1491,9 @@ window_event_result multi_message_input_sub(int key, control_info &Controls)
 				if (multi_message_index < MAX_MESSAGE_LEN-2 )   {
 					Network_message[multi_message_index++] = ascii;
 					Network_message[multi_message_index] = 0;
-				} else if ( multi_sending_message[Player_num] )     {
+				}
+				else if (multi_sending_message[Player_num] != msgsend_state::none)
+				{
 					int i;
 					char * ptext;
 					ptext = NULL;
@@ -1506,8 +1508,8 @@ window_event_result multi_message_input_sub(int key, control_info &Controls)
 					}
 					multi_send_message_end(vmobjptr, Controls);
 					if ( ptext )    {
-						multi_sending_message[Player_num] = msgsend_typing;
-						multi_send_msgsend_state(msgsend_typing);
+						multi_sending_message[Player_num] = msgsend_state::typing;
+						multi_send_msgsend_state(msgsend_state::typing);
 						auto pcolon = strstr(Network_message.data(), ": " );
 						if ( pcolon )
 							strcpy( pcolon+1, ptext );
@@ -1623,7 +1625,7 @@ static void multi_do_message(const uint8_t *const cbuf)
 	char xrgb = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 	HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, static_cast<const char *>(vcplayerptr(pnum)->callsign), CC_COLOR, BM_XRGB(0, 31, 0), msgstart);
-	multi_sending_message[pnum] = msgsend_none;
+	multi_sending_message[pnum] = msgsend_state::none;
 }
 
 }
@@ -1954,7 +1956,7 @@ void multi_disconnect_player(const playernum_t pnum)
 		digi_play_sample( SOUND_HUD_MESSAGE, F1_0 );
 		HUD_init_message(HM_MULTI,  "%s %s", static_cast<const char *>(vcplayerptr(pnum)->callsign), TXT_HAS_LEFT_THE_GAME);
 
-		multi_sending_message[pnum] = msgsend_none;
+		multi_sending_message[pnum] = msgsend_state::none;
 
 		if (Network_status == NETSTAT_PLAYING)
 		{
@@ -3442,7 +3444,7 @@ void multi_prep_level_player(void)
 
 	multi_consistency_error(1);
 
-	multi_sending_message.fill(msgsend_none);
+	multi_sending_message.fill(msgsend_state::none);
 	if (imulti_new_game)
 		for (uint_fast32_t i = 0; i != Players.size(); i++)
 			init_player_stats_new_ship(i);
@@ -5071,12 +5073,12 @@ namespace {
 
 static void multi_do_msgsend_state(const uint8_t *buf)
 {
-	multi_sending_message[static_cast<int>(buf[1])] = static_cast<msgsend_state_t>(buf[2]);
+	multi_sending_message[static_cast<int>(buf[1])] = msgsend_state{buf[2]};
 }
 
 }
 
-void multi_send_msgsend_state(msgsend_state_t state)
+void multi_send_msgsend_state(const msgsend_state state)
 {
 	multi_command<MULTI_TYPING_STATE> multibuf;
 	multibuf[1] = Player_num;
