@@ -1669,14 +1669,14 @@ static void DoEndGame()
 		if (played == movie_play_status::skipped)
 #endif
 		{
-			do_end_briefing_screens(Ending_text_filename);
+			do_end_briefing_screens(Current_mission->ending_text_filename);
 		}
         }
         else if (!(Game_mode & GM_MULTI))    //not multi
         {
 		char tname[FILENAME_LEN];
 
-		do_end_briefing_screens (Ending_text_filename);
+		do_end_briefing_screens (Current_mission->ending_text_filename);
 
 		//try doing special credits
 		snprintf(tname, sizeof(tname), "%s.ctb", &*Current_mission->filename);
