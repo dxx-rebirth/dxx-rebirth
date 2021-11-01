@@ -2372,8 +2372,6 @@ void powerup_grab_cheat_all(void)
 
 }
 
-int	Last_level_path_created = -1;
-
 #ifdef SHOW_EXIT_PATH
 namespace dsx {
 namespace {
@@ -2385,11 +2383,9 @@ static int mark_player_path_to_segment(const d_vclip_array &Vclip, fvmobjptridx 
 {
 	int		player_hide_index=-1;
 
-	if (Last_level_path_created == Current_level_num) {
+	if (LevelUniqueObjectState.Level_path_created)
 		return 0;
-	}
-
-	Last_level_path_created = Current_level_num;
+	LevelUniqueObjectState.Level_path_created = 1;
 
 	auto objp = vmobjptridx(ConsoleObject);
 	const auto &&cr = create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, 100, create_path_random_flag::nonrandom, create_path_safety_flag::unsafe, segment_none);

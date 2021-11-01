@@ -506,7 +506,6 @@ void game_disable_cheats();
 void toggle_cockpit(void);
 extern fix Show_view_text_timer;
 extern d_time_fix ThisLevelTime;
-extern int	Last_level_path_created;
 namespace dcx {
 extern int force_cockpit_redraw;
 }

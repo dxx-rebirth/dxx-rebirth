@@ -1440,7 +1440,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 	init_controlcen_for_level();
 
 	// Say player can use FLASH cheat to mark path to exit.
-	Last_level_path_created = -1;
+	LevelUniqueObjectState.Level_path_created = 0;
 
 	First_secret_visit = 0;
 }
@@ -2035,7 +2035,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 	init_controlcen_for_level();
 
 	//	Say player can use FLASH cheat to mark path to exit.
-	Last_level_path_created = -1;
+	LevelUniqueObjectState.Level_path_created = 0;
 
 	// Initialise for palette_restore()
 	// Also takes care of nm_draw_background() possibly being called

@@ -44,6 +44,7 @@ struct d_level_unique_object_state
 	d_level_unique_control_center_state ControlCenterState;
 	vms_vector last_console_player_position;
 	d_level_unique_morph_object_state MorphObjectState;
+	uint8_t Level_path_created = 0;
 	auto &get_objects()
 	{
 		return Objects;
