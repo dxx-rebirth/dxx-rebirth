@@ -212,8 +212,6 @@ extern Mission_ptr Current_mission; // current mission
 #endif
 
 //values for d1 built-in mission
-#define BIMD1_LAST_LEVEL		27
-#define BIMD1_LAST_SECRET_LEVEL		-3
 #define BIMD1_ENDING_FILE_OEM		"endsat.txb"
 #define BIMD1_ENDING_FILE_SHARE		"ending.txb"
 

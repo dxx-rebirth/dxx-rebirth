@@ -251,17 +251,19 @@ static bool null_or_space(char c)
 }
 
 // Allocate the Level_names, Secret_level_names and Secret_level_table arrays
-static int allocate_levels(void)
+static void allocate_levels(const unsigned count_regular_level, const unsigned count_secret_level)
 {
-	Level_names = std::make_unique<d_fname[]>(Last_level);
-	if (Last_secret_level)
+	Level_names = std::make_unique<d_fname[]>(count_regular_level);
+	Last_level = count_regular_level;
+	N_secret_levels = count_secret_level;
+	Last_secret_level = -static_cast<signed>(count_secret_level);
+	if (count_secret_level)
 	{
-		N_secret_levels = -Last_secret_level;
-		Secret_level_names = std::make_unique<d_fname[]>(N_secret_levels);
-		Secret_level_table = std::make_unique<ubyte[]>(N_secret_levels);
+		auto secret_level_names = std::make_unique<d_fname[]>(count_secret_level);
+		auto secret_level_table = std::make_unique<uint8_t[]>(count_secret_level);
+		Secret_level_names = std::move(secret_level_names);
+		Secret_level_table = std::move(secret_level_table);
 	}
-	
-	return 1;
 }
 
 //
@@ -274,17 +276,7 @@ static const char *load_mission_d1()
 	{
 		case D1_SHAREWARE_MISSION_HOGSIZE:
 		case D1_SHAREWARE_10_MISSION_HOGSIZE:
-			N_secret_levels = 0;
-	
-			Last_level = 7;
-			Last_secret_level = 0;
-			
-			if (!allocate_levels())
-			{
-				Current_mission.reset();
-				return "Failed to allocate level memory for Descent 1 shareware";
-			}
-	
+			allocate_levels(7, 0);
 			//build level names
 			for (int i=0;i<Last_level;i++)
 				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.sdl", i+1);
@@ -292,17 +284,7 @@ static const char *load_mission_d1()
 			Ending_text_filename = BIMD1_ENDING_FILE_SHARE;
 			break;
 		case D1_MAC_SHARE_MISSION_HOGSIZE:
-			N_secret_levels = 0;
-	
-			Last_level = 3;
-			Last_secret_level = 0;
-	
-			if (!allocate_levels())
-			{
-				Current_mission.reset();
-				return "Failed to allocate level memory for Descent 1 Mac shareware";
-			}
-			
+			allocate_levels(3, 0);
 			//build level names
 			for (int i=0;i<Last_level;i++)
 				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.sdl", i+1);
@@ -312,19 +294,9 @@ static const char *load_mission_d1()
 		case D1_OEM_MISSION_HOGSIZE:
 		case D1_OEM_10_MISSION_HOGSIZE:
 			{
-			N_secret_levels = 1;
-	
 			constexpr unsigned last_level = 15;
-			constexpr int last_secret_level = -1;
-			Last_level = last_level;
-			Last_secret_level = last_secret_level;
-	
-			if (!allocate_levels())
-			{
-				Current_mission.reset();
-				return "Failed to allocate level memory for Descent 1 OEM";
-			}
-			
+			constexpr unsigned last_secret_level = 1;
+			allocate_levels(last_level, last_secret_level);
 			//build level names
 			for (unsigned i = 0; i < last_level - 1; ++i)
 			{
@@ -335,7 +307,7 @@ static const char *load_mission_d1()
 				auto &ln = Level_names[last_level - 1];
 				snprintf(&ln[0u], ln.size(), "saturn%02d.rdl", last_level);
 			}
-			for (int i = 0; i < -last_secret_level; ++i)
+			for (int i = 0; i < last_secret_level; ++i)
 			{
 				auto &sn = Secret_level_names[i];
 				snprintf(&sn[0u], sn.size(), "levels%1d.rdl", i + 1);
@@ -353,18 +325,9 @@ static const char *load_mission_d1()
 		case D1_10_MISSION_HOGSIZE:
 		case D1_MAC_MISSION_HOGSIZE:
 			{
-			N_secret_levels = 3;
-	
-			constexpr unsigned last_level = BIMD1_LAST_LEVEL;
-			constexpr int last_secret_level = BIMD1_LAST_SECRET_LEVEL;
-			Last_level = last_level;
-			Last_secret_level = last_secret_level;
-	
-			if (!allocate_levels())
-			{
-				Current_mission.reset();
-				return "Failed to allocate level memory for Descent 1";
-			}
+			constexpr unsigned last_level = 27;
+			constexpr unsigned last_secret_level = 3;
+			allocate_levels(last_level, last_secret_level);
 
 			//build level names
 			for (unsigned i = 0; i < last_level; ++i)
@@ -372,7 +335,7 @@ static const char *load_mission_d1()
 				auto &ln = Level_names[i];
 				snprintf(&ln[0u], ln.size(), "level%02u.rdl", i + 1);
 			}
-			for (int i = 0; i < -last_secret_level; ++i)
+			for (int i = 0; i < last_secret_level; ++i)
 			{
 				auto &sn = Secret_level_names[i];
 				snprintf(&sn[0u], sn.size(), "levels%1d.rdl", i + 1);
@@ -402,17 +365,7 @@ static const char *load_mission_shareware()
     switch (Current_mission->builtin_hogsize)
 	{
 		case MAC_SHARE_MISSION_HOGSIZE:
-			N_secret_levels = 1;
-
-			Last_level = 4;
-			Last_secret_level = -1;
-
-			if (!allocate_levels())
-			{
-				Current_mission.reset();
-				return "Failed to allocate level memory for Descent 2 Mac shareware";
-			}
-			
+			allocate_levels(4, 1);
 			// mac demo is using the regular hog and rl2 files
 			Level_names[0] = "d2leva-1.rl2";
 			Level_names[1] = "d2leva-2.rl2";
@@ -424,19 +377,11 @@ static const char *load_mission_shareware()
 			Int3();
 			DXX_BOOST_FALLTHROUGH;
 		case SHAREWARE_MISSION_HOGSIZE:
-			N_secret_levels = 0;
-
-			Last_level = 3;
-			Last_secret_level = 0;
-
-			if (!allocate_levels())
-			{
-				Current_mission.reset();
-				return "Failed to allocate level memory for Descent 2 shareware";
-			}
+			allocate_levels(3, 0);
 			Level_names[0] = "d2leva-1.sl2";
 			Level_names[1] = "d2leva-2.sl2";
 			Level_names[2] = "d2leva-3.sl2";
+			break;
 	}
 	return nullptr;
 }
@@ -452,16 +397,7 @@ static const char *load_mission_oem()
     Current_mission->descent_version = Mission::descent_version_type::descent2;
     Current_mission->anarchy_only_flag = 0;
     
-	N_secret_levels = 2;
-
-	Last_level = 8;
-	Last_secret_level = -2;
-
-	if (!allocate_levels())
-	{
-		Current_mission.reset();
-		return "Failed to allocate level memory for Descent 2 OEM";
-	}
+	allocate_levels(8, 2);
 	Level_names[0] = "d2leva-1.rl2";
 	Level_names[1] = "d2leva-2.rl2";
 	Level_names[2] = "d2leva-3.rl2";
