@@ -1963,7 +1963,7 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, int x, int y,int dw, int dh, grs_bitmap
 /*
  * Menu / gauges 
  */
-bool ogl_ubitmapm_cs(grs_canvas &canvas, const int entry_x, const int entry_y, int dw, int dh, grs_bitmap &bm, const ogl_colors::array_type &color_array)
+bool ogl_ubitmapm_cs(grs_canvas &canvas, const int entry_x, const int entry_y, const int entry_dw, const int entry_dh, grs_bitmap &bm, const ogl_colors::array_type &color_array)
 {
 	GLfloat u1,u2,v1,v2;
 	ogl_client_states<GLfloat, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
@@ -1971,19 +1971,21 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, const int entry_x, const int entry_y, i
 	const int adjusted_canvas_x = entry_x + canvas.cv_bitmap.bm_x;
 	const int adjusted_canvas_y = entry_y + canvas.cv_bitmap.bm_y;
 
-	if (dw < 0)
-		dw = canvas.cv_bitmap.bm_w;
-	else if (dw == 0)
-		dw = bm.bm_w;
-	if (dh < 0)
-		dh = canvas.cv_bitmap.bm_h;
-	else if (dh == 0)
-		dh = bm.bm_h;
+	const int effective_dw = (entry_dw == opengl_bitmap_use_dst_canvas)
+		? canvas.cv_bitmap.bm_w
+		: ((entry_dw == opengl_bitmap_use_src_bitmap)
+			? bm.bm_w
+			: entry_dw);
+	const int effective_dh = (entry_dh == opengl_bitmap_use_dst_canvas)
+		? canvas.cv_bitmap.bm_h
+		: ((entry_dh == opengl_bitmap_use_src_bitmap)
+			? bm.bm_h
+			: entry_dh);
 
 	xo = adjusted_canvas_x / (static_cast<double>(last_width));
-	const GLfloat xf = (dw + adjusted_canvas_x) / (static_cast<double>(last_width));
+	const GLfloat xf = (effective_dw + adjusted_canvas_x) / (static_cast<double>(last_width));
 	const GLfloat yo = 1.0 - adjusted_canvas_y / (static_cast<double>(last_height));
-	const GLfloat yf = 1.0 - (dh + adjusted_canvas_y) / (static_cast<double>(last_height));
+	const GLfloat yf = 1.0 - (effective_dh + adjusted_canvas_y) / (static_cast<double>(last_height));
 
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm, 0);
