@@ -78,6 +78,22 @@ struct check_static_size_pair<range0, rangeN, range0_extent, std::nullptr_t> : s
 {
 };
 
+void range_index_type(...);
+
+template <
+	typename... range_type,
+	/* If any `range_type::index_type` is not defined, fail.
+	 * If there is no common_type among all the
+	 * `range_type::index_type`, fail.
+	 */
+	typename index_type = typename std::common_type<typename std::remove_reference<typename std::remove_reference<range_type>::type::index_type &>::type...>::type,
+	/* If the common_type `index_type` is not a suitable argument to all
+	 * `range_type::operator[]()`, fail.
+	 */
+	typename = std::void_t<decltype(std::declval<range_type &>().operator[](std::declval<index_type>()))...>
+	>
+index_type range_index_type(std::tuple<range_type...> *);
+
 }
 
 }
@@ -164,13 +180,14 @@ public:
 	}
 };
 
-template <typename range0_iterator_type, typename... rangeN_iterator_type>
+template <typename range_index_type, typename range0_iterator_type, typename... rangeN_iterator_type>
 class zip : zip_iterator<range0_iterator_type, rangeN_iterator_type...>
 {
 	range0_iterator_type m_end;
 public:
 	using range_owns_iterated_storage = std::false_type;
 	using iterator = zip_iterator<range0_iterator_type, rangeN_iterator_type...>;
+	using index_type = range_index_type;
 	template <typename range0, typename... rangeN>
 		constexpr zip(range0 &&r0, rangeN &&... rN) :
 			iterator(std::begin(r0), std::begin(rN)...), m_end(std::end(r0))
@@ -201,4 +218,4 @@ public:
 };
 
 template <typename range0, typename... rangeN>
-zip(range0 &&r0, rangeN &&... rN) -> zip<decltype(std::begin(r0)), decltype(std::begin(rN))...>;
+zip(range0 &&r0, rangeN &&... rN) -> zip<decltype(d_zip::detail::range_index_type(static_cast<std::tuple<range0, rangeN...> *>(nullptr))), decltype(std::begin(r0)), decltype(std::begin(rN))...>;

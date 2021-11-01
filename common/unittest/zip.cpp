@@ -65,3 +65,27 @@ BOOST_AUTO_TEST_CASE(zip_xrange)
 		BOOST_TEST(std::get<0>(v) == 0);
 	}
 }
+
+/* Type system tests can be done at compile-time.  Applying them as
+ * static_assert can produce a better error message than letting it fail
+ * at runtime.
+ */
+template <typename Expected, typename zip_type, typename index_type = typename zip_type::index_type>
+struct assert_index_type : std::true_type
+{
+	static_assert(std::is_same<Expected, index_type>::value);
+};
+
+static_assert(assert_index_type<void, decltype(zip(std::declval<std::array<int, 1>>(), std::declval<std::array<float, 1>>()))>::value);
+
+template <typename T>
+struct custom_index_type : std::array<int, 1>
+{
+	using index_type = T;
+	void operator[](typename std::remove_reference<T>::type);
+};
+enum class e1 : unsigned char;
+enum class e2 : unsigned char;
+
+static_assert(assert_index_type<e1, decltype(zip(std::declval<custom_index_type<e1>&>(), std::declval<custom_index_type<e1>&>()))>::value);
+static_assert(assert_index_type<void, decltype(zip(std::declval<custom_index_type<e1>&>(), std::declval<custom_index_type<e2>&>()))>::value);
