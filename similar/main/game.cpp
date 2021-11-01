@@ -1882,16 +1882,12 @@ imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_level_shared_robot_
 
 namespace {
 //if water or fire level, make occasional sound
-static void do_ambient_sounds()
+static void do_ambient_sounds(const uint8_t s2_flags)
 {
-	int has_water,has_lava;
-	int sound;
-
-	const auto s2_flags = vcsegptr(ConsoleObject->segnum)->s2_flags;
-	has_lava = (s2_flags & S2F_AMBIENT_LAVA);
-	has_water = (s2_flags & S2F_AMBIENT_WATER);
-
-	if (has_lava) {							//has lava
+	const auto has_water = (s2_flags & S2F_AMBIENT_WATER);
+	sound_effect sound;
+	if (s2_flags & S2F_AMBIENT_LAVA)
+	{							//has lava
 		sound = SOUND_AMBIENT_LAVA;
 		if (has_water && (d_rand() & 1))	//both, pick one
 			sound = SOUND_AMBIENT_WATER;
@@ -2004,7 +2000,7 @@ window_event_result GameProcessFrame()
 #if defined(DXX_BUILD_DESCENT_II)
 	process_super_mines_frame();
 	do_seismic_stuff();
-	do_ambient_sounds();
+	do_ambient_sounds(vcsegptr(ConsoleObject->segnum)->s2_flags);
 #endif
 
 	digi_sync_sounds();
