@@ -118,9 +118,11 @@ void c_tmap_scanline_lin()
 	auto dest = &write_buffer[fx_xleft + (bytes_per_row * fx_y)];
 
 	if (!Transparency_on)	{
-		const auto pixPtrLocalCopy = pixptr;
-		const auto &fadeTableLocalCopy = gr_fade_table;
-
+		const auto read_fade_table_entry = [&fadeTableLocalCopy = gr_fade_table, pixPtrLocalCopy = pixptr](const fix l, const fix v, const fix u) {
+			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
+			return fadeTableLocalCopy.base_type::operator[]((l >> 8) & 0x7f)[pixPtrLocalCopy[(f2i(v) & (64 * 63)) + (f2i(u) & 63)]];
+			//end edit -MM
+		};
 		x = fx_xright-fx_xleft+1;
 
 		if ((j = reinterpret_cast<uintptr_t>(dest) & 3) != 0)
@@ -133,9 +135,7 @@ void c_tmap_scanline_lin()
 			while (j > 0)
 				{	
 				if (++index >= SWIDTH*SHEIGHT) return;
-				//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-				*dest++ = fadeTableLocalCopy[(l>>8)&0x7f][pixPtrLocalCopy[ (f2i(v)&(64*63)) + (f2i(u)&63) ] ];
-				//end edit -MM
+				*dest++ = read_fade_table_entry(l, v, u);
 				l += dldx;
 				u += dudx;
 				v += dvdx;
@@ -148,27 +148,19 @@ void c_tmap_scanline_lin()
 		while (j > 0)
 			{
 				uint32_t destlong;
-			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-			destlong = fadeTableLocalCopy[(l>>8)&0x7f][pixPtrLocalCopy[ (f2i(v)&(64*63)) + (f2i(u)&63) ] ] << 24;
-			//end edit -MM
+			destlong = read_fade_table_entry(l, v, u) << 24;
 			l += dldx;
 			u += dudx;
 			v += dvdx;
-			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-			destlong |= fadeTableLocalCopy[(l>>8)&0x7f][pixPtrLocalCopy[ (f2i(v)&(64*63)) + (f2i(u)&63) ] ] << 16;
-			//end edit -MM
+			destlong |= read_fade_table_entry(l, v, u) << 16;
 			l += dldx;
 			u += dudx;
 			v += dvdx;
-			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-			destlong |= fadeTableLocalCopy[(l>>8)&0x7f][pixPtrLocalCopy[ (f2i(v)&(64*63)) + (f2i(u)&63) ] ] << 8;
-			//end edit -MM
+			destlong |= read_fade_table_entry(l, v, u) << 8;
 			l += dldx;
 			u += dudx;
 			v += dvdx;
-			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-			destlong |= fadeTableLocalCopy[(l>>8)&0x7f][pixPtrLocalCopy[ (f2i(v)&(64*63)) + (f2i(u)&63) ] ];
-			//end edit -MM
+			destlong |= read_fade_table_entry(l, v, u);
 			l += dldx;
 			u += dudx;
 			v += dvdx;
@@ -183,9 +175,7 @@ void c_tmap_scanline_lin()
 		while (x-- > 0)
 			{
 			if (++index >= SWIDTH*SHEIGHT) return;
-			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-			*dest++ = fadeTableLocalCopy[(l>>8)&0x7f][pixPtrLocalCopy[ (f2i(v)&(64*63)) + (f2i(u)&63) ] ];
-			//end edit -MM
+			*dest++ = read_fade_table_entry(l, v, u);
 			l += dldx;
 			u += dudx;
 			v += dvdx;
@@ -197,7 +187,7 @@ void c_tmap_scanline_lin()
 			c = static_cast<uint32_t>(pixptr[ (f2i(v)&(64*63)) + (f2i(u)&63) ]);
 			if ( c!=TRANSPARENCY_COLOR)
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-				*dest = gr_fade_table[(l >> 8)&0x7f][c];
+				*dest = gr_fade_table.base_type::operator[]((l >> 8) & 0x7f)[c];
 			//end edit -MM
 			dest++;
 			l += dldx;
@@ -218,6 +208,15 @@ void c_tmap_scanline_lin()
 // Please send comments/suggestions to falk.hueffner@student.uni-tuebingen.de.
 static void c_fp_tmap_scanline_per()
 {
+	const auto read_pixptr_entry = [pixPtrLocalCopy = pixptr](const double rec_z, const fix v, const fix u) {
+		return pixPtrLocalCopy[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)];
+	};
+	const auto read_fade_table_entry = [&fadeTableLocalCopy = gr_fade_table, &read_pixptr_entry](const double rec_z, const fix v, const fix u, const double l) {
+		return fadeTableLocalCopy.base_type::operator[](static_cast<int>(fabs(l)))[read_pixptr_entry(rec_z, v, u)];
+	};
+	const auto read_opaque_fade_table_entry = [&fadeTableLocalCopy = gr_fade_table](const double l, const unsigned c) {
+		return fadeTableLocalCopy.base_type::operator[](static_cast<int>(fabs(l)))[c];
+	};
 	uint            c;
 	int             x, j, index = fx_xleft + (bytes_per_row * fx_y);
 	double          u, v, z, l, dudx, dvdx, dzdx, dldx, rec_z;
@@ -244,9 +243,7 @@ static void c_fp_tmap_scanline_per()
 				while (j > 0) {
 					if (++index >= SWIDTH*SHEIGHT) return;
 					*dest++ =
-					    gr_fade_table[static_cast<int>(fabs(l))][
-							  pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									((static_cast<int>(u * rec_z)) & 63)]];
+					    read_fade_table_entry(rec_z, v, u, l);
 					l += dldx;
 					u += dudx;
 					v += dvdx;
@@ -260,72 +257,56 @@ static void c_fp_tmap_scanline_per()
 			j = x;
 			while (j >= 8) {
 				uint64_t destlong =
-				    gr_fade_table[static_cast<int>(fabs(l))][
-							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]];
+					    read_fade_table_entry(rec_z, v, u, l);
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
-							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]]) << 8;
+				    static_cast<uint64_t>(read_fade_table_entry(rec_z, v, u, l)) << 8;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
-							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]]) << 16;
+				    static_cast<uint64_t>(read_fade_table_entry(rec_z, v, u, l)) << 16;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
-							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]]) << 24;
+				    static_cast<uint64_t>(read_fade_table_entry(rec_z, v, u, l)) << 24;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
-							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]]) << 32;
+				    static_cast<uint64_t>(read_fade_table_entry(rec_z, v, u, l)) << 32;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
-							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]]) << 40;
+				    static_cast<uint64_t>(read_fade_table_entry(rec_z, v, u, l)) << 40;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
-							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]]) << 48;
+				    static_cast<uint64_t>(read_fade_table_entry(rec_z, v, u, l)) << 48;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
-							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]]) << 56;
+				    static_cast<uint64_t>(read_fade_table_entry(rec_z, v, u, l)) << 56;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
@@ -343,8 +324,7 @@ static void c_fp_tmap_scanline_per()
 		while (x-- > 0) {
 			if (++index >= SWIDTH*SHEIGHT) return;
 			*dest++ =
-			    gr_fade_table[static_cast<int>(fabs(l))][
-					  static_cast<uint32_t>(pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)])];
+			    read_fade_table_entry(rec_z, v, u, l);
 			l += dldx;
 			u += dudx;
 			v += dvdx;
@@ -358,9 +338,9 @@ static void c_fp_tmap_scanline_per()
 
 				while (j > 0) {
 					if (++index >= SWIDTH*SHEIGHT) return;
-					c = static_cast<uint32_t>(pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)]);
+					const auto c = static_cast<uint32_t>(read_pixptr_entry(rec_z, v, u));
 					if (c != 255)
-						*dest = gr_fade_table[static_cast<int>(fabs(l))][c];
+						*dest = read_opaque_fade_table_entry(l, c);
 					dest++;
 					l += dldx;
 					u += dudx;
@@ -376,80 +356,80 @@ static void c_fp_tmap_scanline_per()
 			while (j >= 8) {
 				uint64_t destlong;
 				destlong = *(reinterpret_cast<uint64_t *>(dest));
-				c = static_cast<uint32_t>(pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)]);
+				c = static_cast<uint32_t>(read_pixptr_entry(rec_z, v, u));
 				if (c != 255) {
 					destlong &= ~static_cast<uint64_t>(0xFF);
-					destlong |= static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][c]);
+					destlong |= static_cast<uint64_t>(read_opaque_fade_table_entry(l, c));
 				}
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
-				c = static_cast<uint32_t>(pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)]);
+				c = static_cast<uint32_t>(read_pixptr_entry(rec_z, v, u));
 				if (c != 255) {
 					destlong &= ~(static_cast<uint64_t>(0xFF) << 8);
-					destlong |= static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][c]) << 8;
+					destlong |= static_cast<uint64_t>(read_opaque_fade_table_entry(l, c)) << 8;
 				}
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
-				c = static_cast<uint32_t>(pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)]);
+				c = static_cast<uint32_t>(read_pixptr_entry(rec_z, v, u));
 				if (c != 255) {
 					destlong &= ~(static_cast<uint64_t>(0xFF) << 16);
-					destlong |= static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][c]) << 16;
+					destlong |= static_cast<uint64_t>(read_opaque_fade_table_entry(l, c)) << 16;
 				}
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
-				c = static_cast<uint32_t>(pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)]);
+				c = static_cast<uint32_t>(read_pixptr_entry(rec_z, v, u));
 				if (c != 255) {
 					destlong &= ~(static_cast<uint64_t>(0xFF) << 24);
-					destlong |= static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][c]) << 24;
+					destlong |= static_cast<uint64_t>(read_opaque_fade_table_entry(l, c)) << 24;
 				}
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
-				c = static_cast<uint32_t>(pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)]);
+				c = static_cast<uint32_t>(read_pixptr_entry(rec_z, v, u));
 				if (c != 255) {
 					destlong &= ~(static_cast<uint64_t>(0xFF) << 32);
-					destlong |= static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][c]) << 32;
+					destlong |= static_cast<uint64_t>(read_opaque_fade_table_entry(l, c)) << 32;
 				}
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
-				c = static_cast<uint32_t>(pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)]);
+				c = static_cast<uint32_t>(read_pixptr_entry(rec_z, v, u));
 				if (c != 255) {
 					destlong &= ~(static_cast<uint64_t>(0xFF) << 40);
-					destlong |= static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][c]) << 40;
+					destlong |= static_cast<uint64_t>(read_opaque_fade_table_entry(l, c)) << 40;
 				}
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
-				c = static_cast<uint32_t>(pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)]);
+				c = static_cast<uint32_t>(read_pixptr_entry(rec_z, v, u));
 				if (c != 255) {
 					destlong &= ~(static_cast<uint64_t>(0xFF) << 48);
-					destlong |= static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][c]) << 48;
+					destlong |= static_cast<uint64_t>(read_opaque_fade_table_entry(l, c)) << 48;
 				}
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
-				c = static_cast<uint32_t>(pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)]);
+				c = static_cast<uint32_t>(read_pixptr_entry(rec_z, v, u));
 				if (c != 255) {
 					destlong &= ~(static_cast<uint64_t>(0xFF) << 56);
-					destlong |= static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][c]) << 56;
+					destlong |= static_cast<uint64_t>(read_opaque_fade_table_entry(l, c)) << 56;
 				}
 				l += dldx;
 				u += dudx;
@@ -467,9 +447,9 @@ static void c_fp_tmap_scanline_per()
 		}
 		while (x-- > 0) {
 			if (++index >= SWIDTH*SHEIGHT) return;
-			c = static_cast<uint32_t>(pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)]);
+			c = static_cast<uint32_t>(read_pixptr_entry(rec_z, v, u));
 			if (c != 255)
-				*dest = gr_fade_table[static_cast<int>(fabs(l))][c];
+				*dest = read_opaque_fade_table_entry(l, c);
 			dest++;
 			l += dldx;
 			u += dudx;
@@ -516,7 +496,7 @@ static void c_tmap_scanline_per()
 				{	
 				if (++index >= SWIDTH*SHEIGHT) return;
 				//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-				*dest++ = fadeTableLocalCopy[(l>>8)&0x7f][static_cast<uint32_t>(pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ]) ];
+				*dest++ = fadeTableLocalCopy.base_type::operator[]((l >> 8) & 0x7f)[static_cast<uint32_t>(pixPtrLocalCopy[((v / z) & (64 * 63)) + ((u / z) & 63)])];
 				//end edit -MM
 				l += dldx;
 				u += dudx;
@@ -532,28 +512,28 @@ static void c_tmap_scanline_per()
 			{
 				uint32_t destlong;
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-			destlong = fadeTableLocalCopy[(l>>8)&0x7f][pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ] << 24;
+			destlong = fadeTableLocalCopy.base_type::operator[]((l >> 8) & 0x7f)[pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ] << 24;
 			//end edit -MM
 			l += dldx;
 			u += dudx;
 			v += dvdx;
 			z += dzdx;
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-			destlong |= fadeTableLocalCopy[(l>>8)&0x7f][pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ] << 16;
+			destlong |= fadeTableLocalCopy.base_type::operator[]((l >> 8) & 0x7f)[pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ] << 16;
 			//end edit -MM
 			l += dldx;
 			u += dudx;
 			v += dvdx;
 			z += dzdx;
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-			destlong |= fadeTableLocalCopy[(l>>8)&0x7f][pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ] << 8;
+			destlong |= fadeTableLocalCopy.base_type::operator[]((l >> 8) & 0x7f)[pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ] << 8;
 			//end edit -MM
 			l += dldx;
 			u += dudx;
 			v += dvdx;
 			z += dzdx;
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-			destlong |= fadeTableLocalCopy[(l>>8)&0x7f][pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ];
+			destlong |= fadeTableLocalCopy.base_type::operator[]((l >> 8) & 0x7f)[pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ];
 			//end edit -MM
 			l += dldx;
 			u += dudx;
@@ -571,7 +551,7 @@ static void c_tmap_scanline_per()
 			{
 			if (++index >= SWIDTH*SHEIGHT) return;
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-			*dest++ = fadeTableLocalCopy[(l>>8)&0x7f][pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ];
+			*dest++ = fadeTableLocalCopy.base_type::operator[]((l >> 8) & 0x7f)[pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ];
 			//end edit -MM
 			l += dldx;
 			u += dudx;
@@ -584,7 +564,7 @@ static void c_tmap_scanline_per()
 			if (++index >= SWIDTH*SHEIGHT) return;
 			c = static_cast<uint32_t>(pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ]);
 			if ( c!=TRANSPARENCY_COLOR)
-				*dest = gr_fade_table[(l >> 8) &0x7f][c ];
+				*dest = gr_fade_table.base_type::operator[]((l >> 8) & 0x7f)[c];
 			dest++;
 			l += dldx;
 			u += dudx;
@@ -636,7 +616,7 @@ static void c_tmap_scanline_quad()
 	if (!Transparency_on)	{
 		for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
 			if (++index >= SWIDTH*SHEIGHT) return;
-			*dest++ = gr_fade_table[(l>>8)&0xff][pixptr[  (f2i(v)&63)*64 + (f2i(u)&63) ] ];
+			*dest++ = gr_fade_table.base_type::operator[]((l >> 8) & 0x7f)[pixptr[  (f2i(v)&63)*64 + (f2i(u)&63) ] ];
 			l += dldx;
 			u += dudx;
 			v += dvdx;
@@ -648,7 +628,7 @@ static void c_tmap_scanline_quad()
 			if (++index >= SWIDTH*SHEIGHT) return;
 			c = static_cast<uint32_t>(pixptr[  (f2i(v)&63)*64 + (f2i(u)&63) ]);
 			if ( c!=255)
-				*dest = gr_fade_table[(l>>8)&0xff][c];
+				*dest = gr_fade_table.base_type::operator[]((l >> 8) & 0x7f)[c];
 			dest++;
 			l += dldx;
 			u += dudx;

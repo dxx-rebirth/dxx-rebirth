@@ -208,7 +208,7 @@ void draw_tmap_flat(grs_canvas &canvas, const grs_bitmap &bp, uint_fast32_t nver
 	else if (average_light > NUM_LIGHTING_LEVELS-1)
 		average_light = NUM_LIGHTING_LEVELS-1;
 
-	color_t color = gr_fade_table[average_light][bp.avg_color];
+	const auto color = gr_fade_table[static_cast<gr_fade_level>(average_light)][bp.avg_color];
 
 	for (int i=0;i<nverts;i++) {
 		points[i].x = vertbuf[i]->p3_sx;

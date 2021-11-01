@@ -396,7 +396,11 @@ static void gr_internal_color_string(grs_canvas &canvas, const grs_font &cv_font
 				? cv_font.ft_chars[letter]
 				: &cv_font.ft_data[letter * BITS_TO_BYTES(width) * cv_font.ft_h];
 
-			gr_init_bitmap(char_bm, bm_mode::linear, 0, 0, width, cv_font.ft_h, width, fp);
+			/* Cast away const-ness on the font pointer.  The function
+			 * must take the parameter as non-const because some callers
+			 * provide an uninitialized pointer and fill it later.
+			 */
+			gr_init_bitmap(char_bm, bm_mode::linear, 0, 0, width, cv_font.ft_h, width, const_cast<color_palette_index *>(fp));
 			gr_bitmapm(canvas, xx, yy, char_bm);
 
 			xx += spacing;
