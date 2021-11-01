@@ -971,7 +971,7 @@ window_event_result do_new_game_menu()
 
 	new_level_num = 1;
 	const auto recorded_player_highest_level = get_highest_level();
-	const auto clamped_player_highest_level = std::min<decltype(recorded_player_highest_level)>(recorded_player_highest_level, Last_level);
+	const auto clamped_player_highest_level = std::min<decltype(recorded_player_highest_level)>(recorded_player_highest_level, Current_mission->last_level);
 	const auto allowed_highest_level =
 #ifdef NDEBUG
 #define DXX_START_ANY_LEVEL_FORMAT	""
@@ -980,7 +980,7 @@ window_event_result do_new_game_menu()
 #else
 #define DXX_START_ANY_LEVEL_FORMAT	"\n\nYou have beaten level %d."
 #define DXX_START_ANY_LEVEL_ARGS	, clamped_player_highest_level
-		Last_level
+		Current_mission->last_level
 #endif
 		;
 	if (allowed_highest_level > 1)
@@ -1000,7 +1000,7 @@ window_event_result do_new_game_menu()
 		};
 		items_type menu_items;
 
-		snprintf(menu_items.info_text.data(), menu_items.info_text.size(), "This mission has\n%u levels.\n\n%s %d." DXX_START_ANY_LEVEL_FORMAT, static_cast<unsigned>(Last_level), TXT_START_ANY_LEVEL, allowed_highest_level DXX_START_ANY_LEVEL_ARGS);
+		snprintf(menu_items.info_text.data(), menu_items.info_text.size(), "This mission has\n%u levels.\n\n%s %d." DXX_START_ANY_LEVEL_FORMAT, static_cast<unsigned>(Current_mission->last_level), TXT_START_ANY_LEVEL, allowed_highest_level DXX_START_ANY_LEVEL_ARGS);
 #undef DXX_START_ANY_LEVEL_ARGS
 #undef DXX_START_ANY_LEVEL_FORMAT
 		for (;;)
@@ -1020,9 +1020,9 @@ window_event_result do_new_game_menu()
 			char *p = nullptr;
 			new_level_num = strtol(menu_items.num_text.data(), &p, 10);
 
-			if (*p || new_level_num <= 0 || new_level_num > Last_level)
+			if (*p || new_level_num <= 0 || new_level_num > Current_mission->last_level)
 			{
-				nm_messagebox(menu_title{TXT_INVALID_LEVEL}, 1, TXT_OK, "You must enter a\npositive level number\nless than or\nequal to %u.\n", static_cast<unsigned>(Last_level));
+				nm_messagebox(menu_title{TXT_INVALID_LEVEL}, 1, TXT_OK, "You must enter a\npositive level number\nless than or\nequal to %u.\n", static_cast<unsigned>(Current_mission->last_level));
 			}
 			else if (new_level_num > allowed_highest_level)
 				nm_messagebox(menu_title{TXT_INVALID_LEVEL}, 1, TXT_OK, "You have beaten level %d.\n\nYou cannot start on level %d.", allowed_highest_level, new_level_num);

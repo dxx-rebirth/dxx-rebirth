@@ -173,7 +173,7 @@ window_event_result do_countdown_frame()
 	if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)   // get countdown in OEM and SHAREWARE only
 	{
 		// On last level, we don't want a countdown.
-		if (PLAYING_BUILTIN_MISSION && Current_level_num == Last_level)
+		if (PLAYING_BUILTIN_MISSION && Current_level_num == Current_mission->last_level)
 		{
 			if (!(Game_mode & GM_MULTI))
 				return window_event_result::ignored;

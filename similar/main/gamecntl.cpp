@@ -1656,7 +1656,7 @@ void levelwarp_menu::handle_close_event()
 	/* No handling for secret levels.  Warping to secret
 	 * levels is not supported.
 	 */
-	if (l > Last_level)
+	if (l > Current_mission->last_level)
 		return;
 	const auto g = Game_wind;
 	g->set_visible(0);

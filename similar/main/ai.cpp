@@ -620,7 +620,7 @@ void init_ai_objects(void)
 	else
 	{
 		GameUniqueState.Boss_gate_interval = F1_0*4 - Difficulty_level*i2f(2)/3;
-		if (Current_level_num == Last_level)
+		if (Current_level_num == Current_mission->last_level)
 		{
 		LevelSharedBossState.Boss_teleport_interval = F1_0*10;
 		LevelSharedBossState.Boss_cloak_interval = F1_0*15;					//	Time between cloaks

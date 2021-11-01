@@ -188,7 +188,6 @@ extern Mission_ptr Current_mission; // current mission
 #define Current_mission_longname	Current_mission->mission_name
 #define Briefing_text_filename		Current_mission->briefing_text_filename
 #define Ending_text_filename		Current_mission->ending_text_filename
-#define Last_level			Current_mission->last_level
 
 #if defined(DXX_BUILD_DESCENT_II)
 /* Wrap in parentheses to avoid precedence problems.  Put constant on

@@ -393,7 +393,7 @@ static void render_countdown_gauge(grs_canvas &canvas)
 		if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)    // no countdown on registered only
 		{
 			//	On last level, we don't want a countdown.
-			if (PLAYING_BUILTIN_MISSION && Current_level_num == Last_level)
+			if (PLAYING_BUILTIN_MISSION && Current_level_num == Current_mission->last_level)
 			{
 				if (!(Game_mode & GM_MULTI))
 					return;

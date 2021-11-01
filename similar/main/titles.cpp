@@ -1746,7 +1746,7 @@ void do_end_briefing_screens(const d_fname &filename)
 	else
 	{
 		songs_play_song( SONG_ENDGAME, 1 );
-		level_num_screen = Last_level + 1;
+		level_num_screen = Current_mission->last_level + 1;
 	}
 #endif
 

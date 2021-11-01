@@ -1454,7 +1454,7 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.
 	//	Also invulnerable if his cheat for firing weapons is in effect.
 	if (robot_is_companion(robptr)) {
-		if (PLAYING_BUILTIN_MISSION && Current_level_num == Last_level)
+		if (PLAYING_BUILTIN_MISSION && Current_level_num == Current_mission->last_level)
 			return 0;
 	}
 #endif
@@ -1464,7 +1464,7 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Do unspeakable hacks to make sure player doesn't die after killing boss.  Or before, sort of.
 	if (robptr.boss_flag)
-		if (PLAYING_BUILTIN_MISSION && Current_level_num == Last_level)
+		if (PLAYING_BUILTIN_MISSION && Current_level_num == Current_mission->last_level)
 			if (robot->shields < 0)
 			 {
 				if (Game_mode & GM_MULTI)

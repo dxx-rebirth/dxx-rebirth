@@ -301,7 +301,7 @@ void do_replacements(void)
 
 void do_replacements_all(void)
 {
-	for (int i = 0; i < Last_level; i++)
+	for (int i = 0; i < Current_mission->last_level; ++i)
 	{
 		load_level(
 #if defined(DXX_BUILD_DESCENT_II)

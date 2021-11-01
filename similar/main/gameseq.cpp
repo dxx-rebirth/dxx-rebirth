@@ -991,7 +991,7 @@ void LoadLevel(int level_num,int page_in_textures)
 	auto &plr = get_local_player();
 	auto save_player = plr;
 
-	Assert(level_num <= Last_level && level_num >= Current_mission->last_secret_level && level_num != 0);
+	assert(level_num <= Current_mission->last_level && level_num >= Current_mission->last_secret_level && level_num != 0);
 	const d_fname &level_name = get_level_file(level_num);
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!load_level(level_name))
@@ -1158,7 +1158,7 @@ static void DoEndLevelScoreGlitz()
 	//	Compute level player is on, deal with secret levels (negative numbers)
 	mine_level = get_local_player().level;
 	if (mine_level < 0)
-		mine_level *= -(Last_level / Current_mission->n_secret_levels);
+		mine_level *= -(Current_mission->last_level / Current_mission->n_secret_levels);
 #endif
 
 	auto &plrobj = get_local_plrobj();
@@ -1224,7 +1224,7 @@ static void DoEndLevelScoreGlitz()
 	{
 		/* Nothing */
 	}
-	else if (!(Game_mode & GM_MULTI) && plr.lives && Current_level_num == Last_level)
+	else if (!(Game_mode & GM_MULTI) && plr.lives && Current_level_num == Current_mission->last_level)
 	{		//player has finished the game!
 		endgame_points = plr.lives * 10000;
 		snprintf(endgame_text, sizeof(endgame_text), "%s%i\n", TXT_SHIP_BONUS, endgame_points);
@@ -1495,7 +1495,7 @@ window_event_result ExitSecretLevel()
 		player_info.Secondary_weapon = sw_save;
 	} else {
 		// File doesn't exist, so can't return to base level.  Advance to next one.
-		if (Entered_from_level == Last_level)
+		if (Entered_from_level == Current_mission->last_level)
 		{
 			DoEndGame();
 			result = window_event_result::close;
@@ -1720,7 +1720,7 @@ static window_event_result AdvanceLevel(int secret_flag)
 		weapons_homing_all_reset();
 	}
 #endif
-	if (Current_level_num != Last_level)
+	if (Current_level_num != Current_mission->last_level)
 	{
 		if (Game_mode & GM_MULTI)
 		{
@@ -1742,11 +1742,12 @@ static window_event_result AdvanceLevel(int secret_flag)
 		if (result) // failed to sync
 		{
 			// check if player has finished the game
-			return Current_level_num == Last_level ? window_event_result::close : rval;
+			return Current_level_num == Current_mission->last_level ? window_event_result::close : rval;
 		}
 	}
 
-	if (Current_level_num == Last_level) {		//player has finished the game!
+	if (Current_level_num == Current_mission->last_level)
+	{		//player has finished the game!
 
 		DoEndGame();
 		rval = window_event_result::close;
@@ -1849,7 +1850,7 @@ window_event_result DoPlayerDead()
 				set_pos_from_return_segment();
 				plr.lives--;						//	re-lose the life, get_local_player().lives got written over in restore.
 			} else {
-				if (Entered_from_level == Last_level)
+				if (Entered_from_level == Current_mission->last_level)
 				{
 					DoEndGame();
 					result = window_event_result::close;
@@ -1886,7 +1887,7 @@ window_event_result DoPlayerDead()
 			plr.lives--;						//	re-lose the life, get_local_player().lives got written over in restore.
 		} else {
 			do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
-			if (Entered_from_level == Last_level)
+			if (Entered_from_level == Current_mission->last_level)
 			{
 				DoEndGame();
 				result = window_event_result::close;

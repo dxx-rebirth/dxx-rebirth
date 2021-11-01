@@ -4667,7 +4667,7 @@ static void multi_do_finish_game(const uint8_t *const buf)
 	if (buf[0]!=MULTI_FINISH_GAME)
 		return;
 
-	if (Current_level_num!=Last_level)
+	if (Current_level_num != Current_mission->last_level)
 		return;
 
 	do_final_boss_hacks();

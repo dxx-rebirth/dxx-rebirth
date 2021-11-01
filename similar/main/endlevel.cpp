@@ -522,13 +522,11 @@ static movie_play_status start_endlevel_movie()
 
 	//Assert(PLAYING_BUILTIN_MISSION); //only play movie for built-in mission
 
-	//Assert(N_MOVIES >= Last_level);
-
 	const auto current_level_num = Current_level_num;
 	if (is_SHAREWARE)
 		return movie_play_status::skipped;
 	if (!is_D2_OEM)
-		if (current_level_num == Last_level)
+		if (current_level_num == Current_mission->last_level)
 			return movie_play_status::started;   //don't play movie
 
 	if (!(current_level_num > 0))

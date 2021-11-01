@@ -3265,7 +3265,7 @@ static int newdemo_read_frame_information(int rewrite)
 						DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
 					}
 				}
-				if (loaded_level < Current_mission->last_secret_level || loaded_level > Last_level)
+				if (loaded_level < Current_mission->last_secret_level || loaded_level > Current_mission->last_level)
 				{
 					nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT);
 					Current_mission.reset();
@@ -3423,7 +3423,7 @@ window_event_result newdemo_goto_end(int to_rewrite)
 
 	if (!to_rewrite)
 	{
-		if (level < Current_mission->last_secret_level || level > Last_level)
+		if (level < Current_mission->last_secret_level || level > Current_mission->last_level)
 		{
 			nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT);
 			Current_mission.reset();

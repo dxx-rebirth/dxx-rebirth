@@ -255,7 +255,7 @@ static bool null_or_space(char c)
 static void allocate_levels(const unsigned count_regular_level, const unsigned count_secret_level)
 {
 	Current_mission->level_names = std::make_unique<d_fname[]>(count_regular_level);
-	Last_level = count_regular_level;
+	Current_mission->last_level = count_regular_level;
 	Current_mission->n_secret_levels = count_secret_level;
 	Current_mission->last_secret_level = -static_cast<signed>(count_secret_level);
 	if (count_secret_level)
@@ -924,7 +924,7 @@ static const char *load_mission(const mle *const mission)
 #endif
 
 	//init vars
-	Last_level = 0;
+	Current_mission->last_level = 0;
 	Current_mission->last_secret_level = 0;
 	Briefing_text_filename = {};
 	Ending_text_filename = {};
@@ -1054,7 +1054,7 @@ static const char *load_mission(const mle *const mission)
 					else
 						break;
 				}
-				Last_level = level_names_loaded;
+				Current_mission->last_level = level_names_loaded;
 				Current_mission->level_names = std::move(names);
 			}
 		}
@@ -1096,7 +1096,7 @@ static const char *load_mission(const mle *const mission)
 					if (name.copy_if(line, std::distance(lb, s)))
 					{
 						unsigned long ls = strtoul(t + 1, &ip, 10);
-						if (ls < 1 || ls > Last_level)
+						if (ls < 1 || ls > Current_mission->last_level)
 							break;
 						table_cell = ls;
 						++ level_names_loaded;
@@ -1129,7 +1129,7 @@ static const char *load_mission(const mle *const mission)
 			}
 			else {
 				con_printf(CON_URGENT, "Mission %s uses unsupported critical directive \"%s\".", Current_mission->path.c_str(), static_cast<const char *>(buf));
-				Last_level = 0;
+				Current_mission->last_level = 0;
 				break;
 			}
 		}
@@ -1137,7 +1137,8 @@ static const char *load_mission(const mle *const mission)
 
 	}
 	mfile.reset();
-	if (Last_level <= 0) {
+	if (Current_mission->last_level <= 0)
+	{
 		Current_mission.reset();		//no valid mission loaded
 		return "Failed to parse mission file";
 	}
@@ -1507,9 +1508,9 @@ static int write_mission(void)
 	if (Ending_text_filename[0])
 		PHYSFSX_printf(mfile, "ending = %s\n", static_cast<const char *>(Ending_text_filename));
 
-	PHYSFSX_printf(mfile, "num_levels = %i\n", Last_level);
+	PHYSFSX_printf(mfile, "num_levels = %i\n", Current_mission->last_level);
 
-	range_for (auto &i, unchecked_partial_range(Current_mission->level_names.get(), Last_level))
+	range_for (auto &i, unchecked_partial_range(Current_mission->level_names.get(), Current_mission->last_level))
 		PHYSFSX_printf(mfile, "%s\n", static_cast<const char *>(i));
 
 	if (Current_mission->n_secret_levels)
@@ -1543,7 +1544,7 @@ void create_new_mission(void)
 	}
 
 	Current_mission->level_names[0] = "GAMESAVE.LVL";
-	Last_level = 1;
+	Current_mission->last_level = 1;
 	Current_mission->n_secret_levels = 0;
 	Current_mission->last_secret_level = 0;
 	Briefing_text_filename = {};
