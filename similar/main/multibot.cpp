@@ -364,7 +364,6 @@ void multi_send_claim_robot(const vmobjptridx_t objnum)
 void multi_send_release_robot(const vmobjptridx_t objnum)
 {
 	multi_command<MULTI_ROBOT_RELEASE> multibuf;
-	short s;
 	if (objnum->type != OBJ_ROBOT)
 	{
 		Int3(); // See rob
@@ -374,8 +373,9 @@ void multi_send_release_robot(const vmobjptridx_t objnum)
 	multi_delete_controlled_robot(objnum);
 
 	multibuf[1] = Player_num;
-	s = objnum_local_to_remote(objnum, reinterpret_cast<int8_t *>(&multibuf[4]));
-	PUT_INTEL_SHORT(&multibuf[2], s);
+	const auto &&[obj_owner, remote_objnum] = objnum_local_to_remote(objnum);
+	multibuf[4] = obj_owner;
+	PUT_INTEL_SHORT(&multibuf[2], remote_objnum);
 
 	multi_send_data(multibuf, 2);
 }
@@ -456,12 +456,12 @@ void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
 {
 	multi_command<MULTI_ROBOT_POSITION> multibuf;
 	int loc = 0;
-	short s;
 
 	loc += 1;
 	multibuf[loc] = Player_num;                                            loc += 1;
-	s = objnum_local_to_remote(objnum, reinterpret_cast<int8_t *>(&multibuf[loc+2]));
-	PUT_INTEL_SHORT(&multibuf[loc], s);                                      loc += 3; // 5
+	const auto &&[obj_owner, remote_objnum] = objnum_local_to_remote(objnum);
+	multibuf[loc+2] = obj_owner;
+	PUT_INTEL_SHORT(&multibuf[loc], remote_objnum);                                      loc += 3; // 5
 
 	quaternionpos qpp{};
 	create_quaternionpos(qpp, objnum);
@@ -513,12 +513,12 @@ void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vecto
 	multi_command<MULTI_ROBOT_FIRE> multibuf;
         // Send robot fire event
         int loc = 0;
-        short s;
 
                                                                         loc += 1;
         multibuf[loc] = Player_num;                                     loc += 1;
-        s = objnum_local_to_remote(obj, reinterpret_cast<int8_t *>(&multibuf[loc+2]));
-        PUT_INTEL_SHORT(&multibuf[loc], s);
+	const auto &&[obj_owner, remote_objnum] = objnum_local_to_remote(obj);
+	multibuf[loc+2] = obj_owner;
+	PUT_INTEL_SHORT(&multibuf[loc], remote_objnum);
                                                                         loc += 3;
         multibuf[loc] = gun_num;                                        loc += 1;
         if constexpr (words_bigendian)
@@ -1348,9 +1348,6 @@ void multi_drop_robot_powerups(const vmobjptr_t del_obj)
 namespace dsx {
 void multi_robot_request_change(const vmobjptridx_t robot, int player_num)
 {
-	int remote_objnum;
-	sbyte dummy;
-
 	if (!(Game_mode & GM_MULTI_ROBOTS))
 		return;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1372,8 +1369,8 @@ void multi_robot_request_change(const vmobjptridx_t robot, int player_num)
 	if (robot_controlled[slot] == object_none)
 		return;
 	const auto &&rcrobot = robot.absolute_sibling(robot_controlled[slot]);
-	remote_objnum = objnum_local_to_remote(robot, &dummy);
-	if (remote_objnum < 0)
+	const auto remote_objnum = objnum_local_to_remote(robot).objnum;
+	if (remote_objnum >= MAX_OBJECTS)
 		return;
 
 	if ( (robot_agitation[slot] < 70) || (MULTI_ROBOT_PRIORITY(remote_objnum, player_num) > MULTI_ROBOT_PRIORITY(remote_objnum, Player_num)) || (d_rand() > 0x4400))

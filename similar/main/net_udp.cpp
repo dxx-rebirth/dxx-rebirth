@@ -2150,9 +2150,9 @@ void net_udp_send_objects(void)
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	sbyte owner, player_num = UDP_sync_player.player.connected;
+	sbyte player_num = UDP_sync_player.player.connected;
 	static int obj_count = 0;
-	int loc = 0, remote_objnum = 0, obj_count_frame = 0;
+	int loc = 0, obj_count_frame = 0;
 	static fix64 last_send_time = 0;
 	
 	if (last_send_time + (F1_0/50) > timer_query())
@@ -2213,7 +2213,7 @@ void net_udp_send_objects(void)
 		obj_count_frame++;
 		obj_count++;
 
-		remote_objnum = objnum_local_to_remote(i, &owner);
+		const auto &&[owner, remote_objnum] = objnum_local_to_remote(i);
 		Assert(owner == object_owner[i]);
 
 		PUT_INTEL_INT(&object_buffer[loc], i);                        loc += 4;

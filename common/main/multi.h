@@ -435,7 +435,6 @@ enum class trgnum_t : uint8_t;
 extern int GetMyNetRanking();
 extern void ClipRank (ubyte *rank);
 objnum_t objnum_remote_to_local(uint16_t remote_obj, int8_t owner);
-uint16_t objnum_local_to_remote(objnum_t local_obj, int8_t *owner);
 owned_remote_objnum objnum_local_to_remote(objnum_t local);
 void map_objnum_local_to_remote(int local, int remote, int owner);
 void map_objnum_local_to_local(objnum_t objnum);

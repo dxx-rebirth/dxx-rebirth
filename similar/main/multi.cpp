@@ -366,13 +366,6 @@ owned_remote_objnum objnum_local_to_remote(objnum_t local_objnum)
 	return {owner, result};
 }
 
-uint16_t objnum_local_to_remote(objnum_t local_objnum, int8_t *owner)
-{
-	auto r = objnum_local_to_remote(local_objnum);
-	*owner = r.owner;
-	return r.objnum;
-}
-
 void map_objnum_local_to_remote(const int local_objnum, const int remote_objnum, const int owner)
 {
 	// Add a mapping from a network remote object number to a local one
@@ -2534,10 +2527,7 @@ void multi_send_fire(int laser_gun, const laser_level level, int laser_flags, in
 	}
 	else if (multibuf[0] == MULTI_FIRE_TRACK)
 	{
-		sbyte remote_owner;
-		short remote_laser_track = -1;
-
-		remote_laser_track = objnum_local_to_remote(laser_track, &remote_owner);
+		const auto &&[remote_owner, remote_laser_track] = objnum_local_to_remote(laser_track);
 		PUT_INTEL_SHORT(&multibuf[18], remote_laser_track);
 		multibuf[20] = remote_owner;
 		multi_send_data<MULTI_FIRE_TRACK>(multibuf, 21, 1);
@@ -2786,8 +2776,9 @@ void multi_send_kill(const vmobjptridx_t objnum)
 
 	if (killer_objnum != object_none)
 	{
-		const auto s = objnum_local_to_remote(killer_objnum, reinterpret_cast<int8_t *>(&multibufh[count+2])); // do it with variable since INTEL_SHORT won't work on return val from function.
-		PUT_INTEL_SHORT(&multibufh[count], s);
+		const auto &&[remote_owner, remote_objnum] = objnum_local_to_remote(killer_objnum); // do it with variable since INTEL_SHORT won't work on return val from function.
+		multibufh[count+2] = remote_owner;
+		PUT_INTEL_SHORT(&multibufh[count], remote_objnum);
 	}
 	else
 	{
@@ -2815,12 +2806,7 @@ void multi_send_kill(const vmobjptridx_t objnum)
 void multi_send_remobj(const vmobjidx_t objnum)
 {
 	// Tell the other guy to remove an object from his list
-
-	sbyte obj_owner;
-	short remote_objnum;
-
-	remote_objnum = objnum_local_to_remote(objnum, &obj_owner);
-
+	const auto &&[obj_owner, remote_objnum] = objnum_local_to_remote(objnum);
 	multi_command<MULTI_REMOVE_OBJECT> multibuf;
 	PUT_INTEL_SHORT(&multibuf[1], remote_objnum); // Map to network objnums
 
@@ -3841,9 +3827,7 @@ static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, co
 // We collected some ammo from a vulcan/gauss cannon powerup. Now we need to let everyone else know about its new ammo count.
 void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum)
 {
-	sbyte obj_owner;
-	const auto remote_objnum = objnum_local_to_remote(objnum, &obj_owner);
-
+	const auto &&[obj_owner, remote_objnum] = objnum_local_to_remote(objnum);
 	multi_command<MULTI_VULWPN_AMMO_ADJ> multibuf;
 	PUT_INTEL_SHORT(&multibuf[1], remote_objnum); // Map to network objnums
 
