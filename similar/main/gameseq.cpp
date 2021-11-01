@@ -941,7 +941,8 @@ static ushort netmisc_calc_checksum()
 		s = INTEL_SHORT(i.u.objects);
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 #if defined(DXX_BUILD_DESCENT_I)
-		do_checksum_calc(&i.s.special, 1, &sum1, &sum2);
+		const auto special = underlying_value(i.s.special);
+		do_checksum_calc(&special, 1, &sum1, &sum2);
 		do_checksum_calc(reinterpret_cast<const uint8_t *>(&i.s.matcen_num), 1, &sum1, &sum2);
 		t = INTEL_INT(i.u.static_light);
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&t), 4, &sum1, &sum2);

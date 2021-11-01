@@ -399,7 +399,7 @@ static void write_control_center_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my
 	count = 0;
 	range_for (const auto &&segp, vcsegptridx)
 	{
-		if (segp->special == SEGMENT_IS_CONTROLCEN)
+		if (segp->special == segment_special::controlcen)
 		{
 			count++;
 			PHYSFSX_printf(my_file, "Segment %3hu is a control center.\n", static_cast<uint16_t>(segp));
@@ -426,16 +426,16 @@ static void write_control_center_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my
 static void write_fuelcen_text(PHYSFS_File *my_file)
 {
 	auto &Station = LevelUniqueFuelcenterState.Station;
-	int	i;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Fuel Center stuff: (Note: This means fuel, repair, materialize, control centers!)\n");
 
 	const auto Num_fuelcenters = LevelUniqueFuelcenterState.Num_fuelcenters;
-	for (i=0; i<Num_fuelcenters; i++) {
-		PHYSFSX_printf(my_file, "Fuelcenter %i: Type=%i (%s), segment = %3i\n", i, Station[i].Type, Special_names[Station[i].Type], Station[i].segnum);
-		if (Segments[Station[i].segnum].special != Station[i].Type)
-			err_printf(my_file, "Error: Conflicting data: Segment %i has special type %i (%s), expected to be %i", Station[i].segnum, Segments[Station[i].segnum].special, Special_names[Segments[Station[i].segnum].special], Station[i].Type);
+	for (auto &&[i, f] : enumerate(partial_const_range(Station, Num_fuelcenters)))
+	{
+		PHYSFSX_printf(my_file, "Fuelcenter %lu: Type=%i (%s), segment = %3i\n", i, underlying_value(f.Type), Special_names[f.Type], f.segnum);
+		if (Segments[f.segnum].special != f.Type)
+			err_printf(my_file, "Error: Conflicting data: Segment %i has special type %i (%s), expected to be %i", f.segnum, underlying_value(Segments[f.segnum].special), Special_names[Segments[f.segnum].special], underlying_value(f.Type));
 	}
 }
 
@@ -450,8 +450,8 @@ static void write_segment_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 	range_for (const auto &&segp, vcsegptridx)
 	{
 		PHYSFSX_printf(my_file, "Segment %4hu:", static_cast<uint16_t>(segp));
-		if (segp->special != 0)
-			PHYSFSX_printf(my_file, " special = %3i (%s), station_idx=%3i", segp->special, Special_names[segp->special], segp->station_idx);
+		if (segp->special != segment_special::nothing)
+			PHYSFSX_printf(my_file, " special = %3i (%s), station_idx=%3i", underlying_value(segp->special), Special_names[segp->special], segp->station_idx);
 		if (segp->matcen_num != -1)
 			PHYSFSX_printf(my_file, " matcen = %3i", segp->matcen_num);
 		PHYSFSX_puts_literal(my_file, "\n");
@@ -498,8 +498,8 @@ static void write_matcen_text(PHYSFS_File *my_file)
 		PHYSFSX_printf(my_file, "Segment[%04i].matcen_num = %02i  ", Station[i].segnum, Segments[Station[i].segnum].matcen_num);
 
 		fuelcen_num = RobotCenters[i].fuelcen_num;
-		if (Station[fuelcen_num].Type != SEGMENT_IS_ROBOTMAKER)
-			err_printf(my_file, "Error: Matcen %i corresponds to Station %i, which has type %i (%s).", i, fuelcen_num, Station[fuelcen_num].Type, Special_names[Station[fuelcen_num].Type]);
+		if (Station[fuelcen_num].Type != segment_special::robotmaker)
+			err_printf(my_file, "Error: Matcen %i corresponds to Station %i, which has type %i (%s).", i, fuelcen_num, underlying_value(Station[fuelcen_num].Type), Special_names[Station[fuelcen_num].Type]);
 
 		auto segnum = Station[fuelcen_num].segnum;
 

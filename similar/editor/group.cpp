@@ -598,7 +598,7 @@ static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_se
 	{
 		shared_segment &s = *vmsegptr(gs);
 		s.group = new_current_group;
-		s.special = SEGMENT_IS_NOTHING;
+		s.special = segment_special::nothing;
 		s.matcen_num = -1;
 	}
 

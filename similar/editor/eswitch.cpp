@@ -174,7 +174,7 @@ static int bind_matcen_to_trigger() {
 		return 0;
 	}
 
-	if (!(Cursegp->special & SEGMENT_IS_ROBOTMAKER))
+	if (!(Cursegp->special == segment_special::robotmaker))
 	{
 		editor_status("No Matcen at Cursegp.");
 		return 0;

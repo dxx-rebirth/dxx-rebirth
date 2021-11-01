@@ -3555,11 +3555,11 @@ void multi_apply_goal_textures()
 	range_for (const auto &&seg, vmsegptr)
 	{
 		texture1_value tex;
-		if (seg->special==SEGMENT_IS_GOAL_BLUE)
+		if (seg->special == segment_special::goal_blue)
 		{
 			tex = tex_blue;
 		}
-		else if (seg->special==SEGMENT_IS_GOAL_RED)
+		else if (seg->special == segment_special::goal_red)
 		{
 			// Make both textures the same if Hoard mode
 			tex = tex_red;

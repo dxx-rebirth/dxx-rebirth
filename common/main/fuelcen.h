@@ -30,11 +30,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-object.h"
 #include "fwd-segment.h"
 #include "fwd-vecmat.h"
+#include "d_array.h"
 
 //------------------------------------------------------------
 // A refueling center is one segment... to identify it in the
 // segment structure, the "special" field is set to
-// SEGMENT_IS_FUELCEN.  The "value" field is then used for how
+// segment_special::fuelcen.  The "value" field is then used for how
 // much fuel the center has left, with a maximum value of 100.
 
 //-------------------------------------------------------------
@@ -102,7 +103,7 @@ namespace dcx {
 struct FuelCenter : public prohibit_void_ptr<FuelCenter>
 {
 	segnum_t     segnum;
-	uint8_t     Type;
+	segment_special     Type;
 	sbyte   Flag;
 	sbyte   Enabled;
 	sbyte   Lives;          // Number of times this can be enabled.
@@ -146,7 +147,9 @@ struct matcen_info : public prohibit_void_ptr<matcen_info>
 void matcen_info_read(PHYSFS_File *fp, matcen_info &ps);
 #endif
 
-extern const char Special_names[MAX_CENTER_TYPES][11];
+#if DXX_USE_EDITOR
+extern const enumerated_array<char[11], MAX_CENTER_TYPES, segment_special> Special_names;
+#endif
 
 struct d_level_shared_robotcenter_state
 {

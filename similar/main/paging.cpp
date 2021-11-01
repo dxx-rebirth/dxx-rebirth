@@ -296,7 +296,7 @@ static void paging_touch_robot_maker(const d_level_shared_robot_info_state::d_ro
 
 static void paging_touch_segment(const d_eclip_array &Effects, const d_level_shared_robot_info_state::d_robot_info_array &Robot_info, const Textures_array &Textures, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const fvcobjptridx &vcobjptridx, const fvcsegptr &vcsegptr, const cscusegment segp)
 {
-	if (segp.s.special == SEGMENT_IS_ROBOTMAKER )
+	if (segp.s.special == segment_special::robotmaker)
 		paging_touch_robot_maker(Robot_info, Vclip, Weapon_info, segp);
 
 	for (int sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {

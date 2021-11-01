@@ -1331,7 +1331,7 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 	usp.objects = object_none;		//no objects in this segment
 
 	// Assume nothing special about this segment
-	sp->special = 0;
+	sp->special = segment_special::nothing;
 	sp->station_idx = station_none;
 	usp.static_light = 0;
 	sp->matcen_num = -1;
@@ -1388,7 +1388,7 @@ void med_create_new_segment(const vms_vector &scale)
 	assign_default_uvs_to_segment(sp);
 
 	// Assume nothing special about this segment
-	sp->special = 0;
+	sp->special = segment_special::nothing;
 	sp->station_idx = station_none;
 	usp.static_light = 0;
 	sp->matcen_num = -1;

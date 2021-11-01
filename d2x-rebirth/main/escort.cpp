@@ -663,7 +663,7 @@ static std::pair<icsegidx_t, d_unique_buddy_state::Escort_goal_reachability> exi
 	const auto length = create_bfs_list(vmobjptr(Buddy_objnum), start_seg, powerup_flags, bfs_list);
 	{
 		const auto &&predicate = [](const segnum_t &s) {
-			return vcsegptr(s)->special == SEGMENT_IS_FUELCEN;
+			return vcsegptr(s)->special == segment_special::fuelcen;
 		};
 		const auto &&rb = partial_const_range(bfs_list, length);
 		const auto i = std::find_if(rb.begin(), rb.end(), predicate);
@@ -673,7 +673,7 @@ static std::pair<icsegidx_t, d_unique_buddy_state::Escort_goal_reachability> exi
 	{
 		const auto &rh = vcsegptridx;
 		const auto &&predicate = [](const shared_segment &s) {
-			return s.special == SEGMENT_IS_FUELCEN;
+			return s.special == segment_special::fuelcen;
 		};
 		const auto i = std::find_if(rh.begin(), rh.end(), predicate);
 		if (i != rh.end())

@@ -1470,14 +1470,19 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 		}
 
 		switch( seg->special )	{
-		case SEGMENT_IS_FUELCEN:
+			case segment_special::nothing:
+			case segment_special::repaircen:
+			case segment_special::goal_blue:
+			case segment_special::goal_red:
+				break;
+			case segment_special::fuelcen:
 			color = BM_XRGB( 29, 27, 13 );
 			break;
-		case SEGMENT_IS_CONTROLCEN:
+			case segment_special::controlcen:
 			if (ControlCenterState.Control_center_present)
 				color = BM_XRGB( 29, 0, 0 );
 			break;
-		case SEGMENT_IS_ROBOTMAKER:
+			case segment_special::robotmaker:
 			color = BM_XRGB( 29, 0, 31 );
 			break;
 		}

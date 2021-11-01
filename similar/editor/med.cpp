@@ -466,7 +466,7 @@ int SetPlayerFromCurseg()
 
 int fuelcen_create_from_curseg()
 {
-	Cursegp->special = SEGMENT_IS_FUELCEN;
+	Cursegp->special = segment_special::fuelcen;
 	fuelcen_activate(Cursegp);
 	return 1;
 }
@@ -474,21 +474,21 @@ int fuelcen_create_from_curseg()
 int repaircen_create_from_curseg()
 {
 	Int3();	//	-- no longer supported!
-//	Cursegp->special = SEGMENT_IS_REPAIRCEN;
+//	Cursegp->special = segment_special::repaircen;
 //	fuelcen_activate(Cursegp, Cursegp->special);
 	return 1;
 }
 
 int controlcen_create_from_curseg()
 {
-	Cursegp->special = SEGMENT_IS_CONTROLCEN;
+	Cursegp->special = segment_special::controlcen;
 	fuelcen_activate(Cursegp);
 	return 1;
 }
 
 int robotmaker_create_from_curseg()
 {
-	Cursegp->special = SEGMENT_IS_ROBOTMAKER;
+	Cursegp->special = segment_special::robotmaker;
 	fuelcen_activate(Cursegp);
 	return 1;
 }

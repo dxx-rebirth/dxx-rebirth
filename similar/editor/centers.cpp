@@ -50,6 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 #include <memory>
 
 //-------------------------------------------------------------------------
@@ -64,7 +65,7 @@ struct centers_dialog : UI_DIALOG
 {
 	using UI_DIALOG::UI_DIALOG;
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
-	std::array<std::unique_ptr<UI_GADGET_RADIO>, MAX_CENTER_TYPES> centerFlag;
+	enumerated_array<std::unique_ptr<UI_GADGET_RADIO>, MAX_CENTER_TYPES, segment_special> centerFlag;
 	std::array<std::unique_ptr<UI_GADGET_CHECKBOX>, MAX_ROBOT_TYPES> robotMatFlag;
 	int old_seg_num;
 	virtual window_event_result callback_handler(const d_event &) override;
@@ -111,14 +112,14 @@ static window_event_result centers_dialog_created(centers_dialog *const c)
 #endif
 	c->quitButton = ui_add_gadget_button(*c, 20, 252, 48, 40, "Done", nullptr);
 	// These are the checkboxes for each door flag.
-	c->centerFlag[0] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "NONE"); 			i += 24;
-	c->centerFlag[1] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "FuelCen");		i += 24;
-	c->centerFlag[2] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "RepairCen");	i += 24;
-	c->centerFlag[3] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "ControlCen");	i += 24;
-	c->centerFlag[4] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "RobotCen");		i += 24;
+	c->centerFlag[segment_special::nothing] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "NONE"); 			i += 24;
+	c->centerFlag[segment_special::fuelcen] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "FuelCen");		i += 24;
+	c->centerFlag[segment_special::repaircen] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "RepairCen");	i += 24;
+	c->centerFlag[segment_special::controlcen] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "ControlCen");	i += 24;
+	c->centerFlag[segment_special::robotmaker] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "RobotCen");		i += 24;
 #if defined(DXX_BUILD_DESCENT_II)
-	c->centerFlag[5] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "Blue Goal");		i += 24;
-	c->centerFlag[6] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "Red Goal");		i += 24;
+	c->centerFlag[segment_special::goal_blue] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "Blue Goal");		i += 24;
+	c->centerFlag[segment_special::goal_red] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "Red Goal");		i += 24;
 #endif
 	// These are the checkboxes for each robot flag.
 #if defined(DXX_BUILD_DESCENT_I)
@@ -178,7 +179,6 @@ window_event_result centers_dialog::callback_handler(const d_event &event)
 		range_for (auto &i, centerFlag)
 			ui_radio_set_value(*i, 0);
 
-		Assert(Cursegp->special < MAX_CENTER_TYPES);
 		ui_radio_set_value(*centerFlag[Cursegp->special], 1);
 
 		//	Read materialization center robot bit flags
@@ -191,11 +191,11 @@ window_event_result centers_dialog::callback_handler(const d_event &event)
 	// update the corresponding center.
 	//------------------------------------------------------------
 
-	for (unsigned i = 0; i < MAX_CENTER_TYPES; ++i)
+	for (auto &&[i, flag] : enumerate(centerFlag))
 	{
-		if (GADGET_PRESSED(centerFlag[i].get()))
+		if (GADGET_PRESSED(flag.get()))
 		{
-			if ( i == 0)
+			if (i == segment_special::nothing)
 				fuelcen_delete(Cursegp);
 			else if (Cursegp->special != i)
 			{

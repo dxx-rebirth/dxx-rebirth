@@ -105,6 +105,7 @@ struct unique_side;
 
 struct vertex;
 enum class vertnum_t : uint32_t;
+enum class segment_special : uint8_t;
 }
 
 /* `vertex` has only integer members, so wild reads are unlikely to
@@ -119,12 +120,6 @@ enum class vertnum_t : uint32_t;
 #define DXX_VALPTRIDX_REPORT_ERROR_STYLE_mutable_vertex trap_terse
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, vertex, vertnum_t, MAX_VERTICES);
 
-typedef unsigned segment_type_t;
-constexpr segment_type_t SEGMENT_IS_NOTHING = 0;
-constexpr segment_type_t SEGMENT_IS_FUELCEN = 1;
-constexpr segment_type_t SEGMENT_IS_REPAIRCEN = 2;
-constexpr segment_type_t SEGMENT_IS_CONTROLCEN = 3;
-constexpr segment_type_t SEGMENT_IS_ROBOTMAKER = 4;
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr std::integral_constant<std::size_t, 5> MAX_CENTER_TYPES{};
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -132,8 +127,6 @@ typedef unsigned s2f_ambient_t;
 constexpr std::integral_constant<s2f_ambient_t, 1> S2F_AMBIENT_WATER{};
 constexpr std::integral_constant<s2f_ambient_t, 2> S2F_AMBIENT_LAVA{};
 constexpr std::integral_constant<std::size_t, 7> MAX_CENTER_TYPES{};
-constexpr segment_type_t SEGMENT_IS_GOAL_BLUE = 5;
-constexpr segment_type_t SEGMENT_IS_GOAL_RED = 6;
 #endif
 
 namespace dcx {

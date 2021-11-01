@@ -1105,7 +1105,7 @@ static int load_game_data(
 #endif
 			//	Set links in RobotCenters to Station array
 		range_for (const shared_segment &seg, partial_const_range(Segments, Highest_segment_index + 1))
-			if (seg.special == SEGMENT_IS_ROBOTMAKER)
+			if (seg.special == segment_special::robotmaker)
 				if (seg.matcen_num == i)
 					r.fuelcen_num = seg.station_idx;
 	}
@@ -1237,7 +1237,7 @@ static int load_game_data(
 				const auto seg_num = tr.seg[l];
 				if (trigger_is_matcen(tr))
 				{
-					if (Segments[seg_num].special != SEGMENT_IS_ROBOTMAKER)
+					if (Segments[seg_num].special != segment_special::robotmaker)
 						con_printf(CON_URGENT, "matcen %u triggers non-matcen segment %hu", underlying_value(t.get_unchecked_index()), seg_num);
 				}
 #if defined(DXX_BUILD_DESCENT_II)

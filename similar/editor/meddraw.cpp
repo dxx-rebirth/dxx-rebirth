@@ -636,13 +636,13 @@ static void draw_special_segments(void)
 			unsigned r, g, b;
 			switch(segp->special)
 			{
-			case SEGMENT_IS_FUELCEN:
+				case segment_special::fuelcen:
 					r = 29 * 2, g = 27 * 2, b = 13 * 2;
 				break;
-			case SEGMENT_IS_CONTROLCEN:
+				case segment_special::controlcen:
 					r = 29 * 2, g = 0, b = 0;
 				break;
-			case SEGMENT_IS_ROBOTMAKER:
+				case segment_special::robotmaker:
 					r = 29 * 2, g = 0, b = 31 * 2;
 				break;
 				default:

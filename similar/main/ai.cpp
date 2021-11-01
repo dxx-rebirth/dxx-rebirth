@@ -3513,7 +3513,7 @@ _exit_cheat:
 	if (!(Game_mode & GM_MULTI))
 	{
 		const shared_segment &seg = *vcsegptr(obj->segnum);
-		if (seg.special == SEGMENT_IS_ROBOTMAKER)
+		if (seg.special == segment_special::robotmaker)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			if (Station[seg.station_idx].Enabled)

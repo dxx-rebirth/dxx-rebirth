@@ -267,7 +267,7 @@ void connected_segment_raw_distances::builder::visit_segment(const vcsegidx_t cu
 	if (current_depth >= max_depth)
 		return;
 	const shared_segment &seg = vcsegptr(current_segment_idx);
-	if (seg.special == SEGMENT_IS_CONTROLCEN)
+	if (seg.special == segment_special::controlcen)
 	{
 		/* Every caller wants to exclude the control-center segment from
 		 * the set of choices.  If the segment is encountered here,
@@ -685,7 +685,7 @@ static unsigned disallowed_cc_dist(fvcsegptr &vcsegptr, fvcvertptr &vcvertptr, c
 		if (!IS_CHILD(ch))
 			continue;
 		const shared_segment &childsegp = *vcsegptr(ch);
-		if (childsegp.special == SEGMENT_IS_CONTROLCEN)
+		if (childsegp.special == segment_special::controlcen)
 			return 1;
 	}
 	//bail if not far enough from original position
@@ -1744,7 +1744,7 @@ vmsegidx_t choose_thief_recreation_segment(fvcsegptr &vcsegptr, fvcwallptr &vcwa
 	const connected_segment_raw_distances rd(vcsegptr, vcwallptr, thief_max_depth, plrseg);
 	auto mrd = std::minstd_rand(d_rand());
 	/* connected_segment_raw_distances explicitly avoids reporting any
-	 * segment with a ->special of SEGMENT_IS_CONTROLCEN, even if that
+	 * segment with a ->special of segment_special::controlcen, even if that
 	 * segment is in range.  Therefore, any returned segment of the
 	 * appropriate distance is usable.
 	 */

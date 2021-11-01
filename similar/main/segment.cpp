@@ -15,13 +15,9 @@
 #include "segment.h"
 #include "physfsx.h"
 #include "physfs-serial.h"
+#include "d_underlying_value.h"
 
 namespace dcx {
-
-#if 0
-DEFINE_SERIAL_UDT_TO_MESSAGE(wallnum_t, w, (w.value));
-ASSERT_SERIAL_UDT_MESSAGE_SIZE(wallnum_t, 2);
-#endif
 
 namespace {
 
@@ -74,7 +70,7 @@ void dl_index_read(dl_index *di, PHYSFS_File *fp)
 
 void segment2_write(const cscusegment s2, PHYSFS_File *fp)
 {
-	PHYSFSX_writeU8(fp, s2.s.special);
+	PHYSFSX_writeU8(fp, underlying_value(s2.s.special));
 	PHYSFSX_writeU8(fp, s2.s.matcen_num);
 	PHYSFSX_writeU8(fp, s2.s.station_idx);
 	PHYSFSX_writeU8(fp, s2.s.s2_flags);

@@ -1503,7 +1503,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	{
 #if defined(DXX_BUILD_DESCENT_I)
 		// NOTE: Usually Descent1 handles countdown by Timer value of the Reactor Station. Since we now use Descent2 code to handle countdown (which we do in case there IS NO Reactor Station which causes potential trouble in Multiplayer), let's find the Reactor here and store the timer in it.
-		if (s.Type == SEGMENT_IS_CONTROLCEN)
+		if (s.Type == segment_special::controlcen)
 			s.Timer = LevelUniqueControlCenterState.Countdown_timer;
 #endif
 		fuelcen_write(fp, s);
@@ -2198,7 +2198,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		fuelcen_read(fp, s);
 #if defined(DXX_BUILD_DESCENT_I)
 		// NOTE: Usually Descent1 handles countdown by Timer value of the Reactor Station. Since we now use Descent2 code to handle countdown (which we do in case there IS NO Reactor Station which causes potential trouble in Multiplayer), let's find the Reactor here and read the timer from it.
-		if (s.Type == SEGMENT_IS_CONTROLCEN)
+		if (s.Type == segment_special::controlcen)
 			LevelUniqueControlCenterState.Countdown_timer = s.Timer;
 #endif
 	}

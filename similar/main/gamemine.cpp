@@ -57,22 +57,22 @@ int New_file_format_load = 1; // "new file format" is everything newer than d1 s
 namespace dsx {
 namespace {
 
-static uint8_t build_segment_special_from_untrusted(uint8_t untrusted)
+static segment_special build_segment_special_from_untrusted(uint8_t untrusted)
 {
 	switch (untrusted)
 	{
-		case SEGMENT_IS_NOTHING:
-		case SEGMENT_IS_FUELCEN:
-		case SEGMENT_IS_REPAIRCEN:
-		case SEGMENT_IS_CONTROLCEN:
-		case SEGMENT_IS_ROBOTMAKER:
+		case static_cast<uint8_t>(segment_special::nothing):
+		case static_cast<uint8_t>(segment_special::fuelcen):
+		case static_cast<uint8_t>(segment_special::repaircen):
+		case static_cast<uint8_t>(segment_special::controlcen):
+		case static_cast<uint8_t>(segment_special::robotmaker):
 #if defined(DXX_BUILD_DESCENT_II)
-		case SEGMENT_IS_GOAL_BLUE:
-		case SEGMENT_IS_GOAL_RED:
+		case static_cast<uint8_t>(segment_special::goal_blue):
+		case static_cast<uint8_t>(segment_special::goal_red):
 #endif
-			return untrusted;
+			return segment_special{untrusted};
 		default:
-			return SEGMENT_IS_NOTHING;
+			return segment_special::nothing;
 	}
 }
 
@@ -418,7 +418,7 @@ static void read_special(shared_segment &segp, const unsigned bit_mask, PHYSFS_F
 		// Read short	Segments[segnum].value
 		segp.station_idx = PHYSFSX_readShort(LoadFile);
 	} else {
-		segp.special = 0;
+		segp.special = segment_special::nothing;
 		segp.matcen_num = -1;
 		segp.station_idx = station_none;
 	}

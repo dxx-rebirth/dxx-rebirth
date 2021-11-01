@@ -71,17 +71,17 @@ static int Num_extry_robots = 15;
 }
 namespace dsx {
 #if DXX_USE_EDITOR
-const char	Special_names[MAX_CENTER_TYPES][11] = {
-	"NOTHING   ",
-	"FUELCEN   ",
-	"REPAIRCEN ",
-	"CONTROLCEN",
-	"ROBOTMAKER",
+const enumerated_array<char[11], MAX_CENTER_TYPES, segment_special> Special_names = {{{
+	{"NOTHING"},
+	{"FUELCEN"},
+	{"REPAIRCEN"},
+	{"CONTROLCEN"},
+	{"ROBOTMAKER"},
 #if defined(DXX_BUILD_DESCENT_II)
-	"GOAL_RED",
-	"GOAL_BLUE",
+	{"GOAL_RED"},
+	{"GOAL_BLUE"},
 #endif
-};
+}}};
 #endif
 
 //------------------------------------------------------------
@@ -95,7 +95,7 @@ void fuelcen_reset()
 	LevelSharedRobotcenterState.Num_robot_centers = 0;
 	LevelUniqueFuelcenterState.Num_fuelcenters = 0;
 	range_for (shared_segment &i, Segments)
-		i.special = SEGMENT_IS_NOTHING;
+		i.special = segment_special::nothing;
 }
 
 #ifndef NDEBUG		//this is sometimes called by people from the debugger
@@ -104,9 +104,9 @@ static void reset_all_robot_centers()
 {
 	// Remove all materialization centers
 	range_for (shared_segment &i, partial_range(Segments, LevelSharedSegmentState.Num_segments))
-		if (i.special == SEGMENT_IS_ROBOTMAKER)
+		if (i.special == segment_special::robotmaker)
 		{
-			i.special = SEGMENT_IS_NOTHING;
+			i.special = segment_special::nothing;
 			i.matcen_num = -1;
 		}
 }
@@ -117,24 +117,22 @@ static void reset_all_robot_centers()
 void fuelcen_create(const vmsegptridx_t segp)
 {
 	auto &Station = LevelUniqueFuelcenterState.Station;
-	int	station_type;
-
-	station_type = segp->special;
-
-	switch( station_type )	{
-	case SEGMENT_IS_NOTHING:
+	auto station_type = segp->special;
+	switch(station_type)
+	{
+		case segment_special::nothing:
 #if defined(DXX_BUILD_DESCENT_II)
-	case SEGMENT_IS_GOAL_BLUE:
-	case SEGMENT_IS_GOAL_RED:
+		case segment_special::goal_blue:
+		case segment_special::goal_red:
 #endif
 		return;
-	case SEGMENT_IS_FUELCEN:
-	case SEGMENT_IS_REPAIRCEN:
-	case SEGMENT_IS_CONTROLCEN:
-	case SEGMENT_IS_ROBOTMAKER:
+		case segment_special::fuelcen:
+		case segment_special::repaircen:
+		case segment_special::controlcen:
+		case segment_special::robotmaker:
 		break;
 	default:
-		Error( "Invalid station type %d in fuelcen.c\n", station_type );
+			Error("Invalid station type %d in fuelcen.c\n", underlying_value(station_type));
 	}
 
 	const auto next_fuelcenter_idx = LevelUniqueFuelcenterState.Num_fuelcenters++;
@@ -154,9 +152,9 @@ static void matcen_create(const vmsegptridx_t segp)
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
-	int	station_type = segp->special;
+	const auto station_type = segp->special;
 
-	Assert(station_type == SEGMENT_IS_ROBOTMAKER);
+	assert(station_type == segment_special::robotmaker);
 
 	const auto next_fuelcenter_idx = LevelUniqueFuelcenterState.Num_fuelcenters++;
 	segp->station_idx = next_fuelcenter_idx;
@@ -180,7 +178,7 @@ static void matcen_create(const vmsegptridx_t segp)
 // Adds a segment that already is a special type into the Station array.
 void fuelcen_activate(const vmsegptridx_t segp)
 {
-	if (segp->special == SEGMENT_IS_ROBOTMAKER)
+	if (segp->special == segment_special::robotmaker)
 		matcen_create( segp);
 	else
 		fuelcen_create( segp);
@@ -201,7 +199,7 @@ void trigger_matcen(const vmsegptridx_t segp)
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	FuelCenter	*robotcen;
 
-	Assert(segp->special == SEGMENT_IS_ROBOTMAKER);
+	assert(segp->special == segment_special::robotmaker);
 	assert(segp->matcen_num < LevelUniqueFuelcenterState.Num_fuelcenters);
 	Assert((segp->matcen_num >= 0) && (segp->matcen_num <= Highest_segment_index));
 
@@ -249,7 +247,7 @@ void fuelcen_delete(shared_segment &segp)
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	auto Num_fuelcenters = LevelUniqueFuelcenterState.Num_fuelcenters;
 Restart: ;
-	segp.special = 0;
+	segp.special = segment_special::nothing;
 
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++ )	{
 		FuelCenter &fi = Station[i];
@@ -258,7 +256,8 @@ Restart: ;
 
 			auto &Num_robot_centers = LevelSharedRobotcenterState.Num_robot_centers;
 			// If Robot maker is deleted, fix Segments and RobotCenters.
-			if (fi.Type == SEGMENT_IS_ROBOTMAKER) {
+			if (fi.Type == segment_special::robotmaker)
+			{
 				if (!Num_robot_centers)
 				{
 					con_printf(CON_URGENT, "%s:%u: error: Num_robot_centers=0 while deleting robot maker", __FILE__, __LINE__);
@@ -269,7 +268,7 @@ Restart: ;
 				std::move(std::next(range.begin()), range.end(), range.begin());
 				range_for (auto &fj, partial_const_range(Station, Num_fuelcenters))
 				{
-					if ( fj.Type == SEGMENT_IS_ROBOTMAKER )
+					if (fj.Type == segment_special::robotmaker)
 					{
 						shared_segment &sfj = vmsegptr(fj.segnum);
 						if (sfj.matcen_num > segp.matcen_num)
@@ -548,7 +547,7 @@ void fuelcen_update_all()
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	for (auto &&[idx, i] : enumerate(partial_range(Station, LevelUniqueFuelcenterState.Num_fuelcenters)))
 	{
-		if (i.Type == SEGMENT_IS_ROBOTMAKER)
+		if (i.Type == segment_special::robotmaker)
 		{
 			if (! (Game_suspended & SUSP_ROBOTS))
 				robotmaker_proc(Vclip, vmsegptridx, &i, idx);
@@ -570,7 +569,7 @@ fix fuelcen_give_fuel(const shared_segment &segp, fix MaxAmountCanTake)
 {
 	static fix64 last_play_time = 0;
 
-	if (segp.special == SEGMENT_IS_FUELCEN)
+	if (segp.special == segment_special::fuelcen)
 	{
 		fix amount;
 
@@ -607,7 +606,7 @@ fix repaircen_give_shields(const shared_segment &segp, const fix MaxAmountCanTak
 {
 	static fix last_play_time=0;
 
-	if (segp.special == SEGMENT_IS_REPAIRCEN)
+	if (segp.special == segment_special::repaircen)
 	{
 		fix amount;
 		if (MaxAmountCanTake <= 0 ) {
@@ -634,7 +633,7 @@ void disable_matcens(void)
 {
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	range_for (auto &s, partial_range(Station, LevelUniqueFuelcenterState.Num_fuelcenters))
-		if (s.Type == SEGMENT_IS_ROBOTMAKER)
+		if (s.Type == segment_special::robotmaker)
 		{
 			s.Enabled = 0;
 			s.Disable_time = 0;
@@ -651,7 +650,8 @@ void init_all_matcens(void)
 	const auto Num_fuelcenters = LevelUniqueFuelcenterState.Num_fuelcenters;
 	const auto &&robot_range = partial_const_range(RobotCenters, LevelSharedRobotcenterState.Num_robot_centers);
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++)
-		if (Station[i].Type == SEGMENT_IS_ROBOTMAKER) {
+		if (Station[i].Type == segment_special::robotmaker)
+		{
 			Station[i].Lives = 3;
 			Station[i].Enabled = 0;
 			Station[i].Disable_time = 0;
@@ -671,7 +671,7 @@ void init_all_matcens(void)
 	{
 		auto	fuelcen_num = i.fuelcen_num;
 		Assert(fuelcen_num < Num_fuelcenters);
-		Assert(Station[fuelcen_num].Type == SEGMENT_IS_ROBOTMAKER);
+		assert(Station[fuelcen_num].Type == segment_special::robotmaker);
 	}
 #endif
 
@@ -731,11 +731,11 @@ void fuelcen_check_for_goal(object &plrobj, const shared_segment &segp)
 	powerup_type_t powerup_to_drop;
 	switch(segp.special)
 	{
-		case SEGMENT_IS_GOAL_BLUE:
+		case segment_special::goal_blue:
 			check_team = TEAM_BLUE;
 			powerup_to_drop = POW_FLAG_RED;
 			break;
-		case SEGMENT_IS_GOAL_RED:
+		case segment_special::goal_red:
 			check_team = TEAM_RED;
 			powerup_to_drop = POW_FLAG_BLUE;
 			break;
@@ -761,7 +761,7 @@ void fuelcen_check_for_hoard_goal(object &plrobj, const shared_segment &segp)
 		return;
 
 	const auto special = segp.special;
-	if (special==SEGMENT_IS_GOAL_BLUE || special==SEGMENT_IS_GOAL_RED)
+	if (special == segment_special::goal_blue || special == segment_special::goal_red)
 	{
 		auto &player_info = plrobj.ctype.player_info;
 		if (auto &hoard_orbs = player_info.hoard.orbs)
@@ -805,7 +805,7 @@ void matcen_info_write(PHYSFS_File *fp, const matcen_info &mi, short version)
 }
 }
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(FuelCenter, fc, (serial::sign_extend<int>(fc.Type), serial::sign_extend<int>(fc.segnum), fc.Flag, fc.Enabled, fc.Lives, serial::pad<1>(), fc.Capacity, serial::pad<sizeof(fix)>(), fc.Timer, fc.Disable_time, serial::pad<3 * sizeof(fix)>()));
+DEFINE_SERIAL_UDT_TO_MESSAGE(FuelCenter, fc, (fc.Type, serial::pad<3>(), serial::sign_extend<int>(fc.segnum), fc.Flag, fc.Enabled, fc.Lives, serial::pad<1>(), fc.Capacity, serial::pad<sizeof(fix)>(), fc.Timer, fc.Disable_time, serial::pad<3 * sizeof(fix)>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(FuelCenter, 40);
 
 void fuelcen_read(PHYSFS_File *fp, FuelCenter &fc)

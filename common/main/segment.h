@@ -71,72 +71,16 @@ enum class side_type : uint8_t
 	tri_13 = 3,	// render side as two triangles, triangulated along edge from 1 to 3
 };
 
-#if 0
-struct wallnum_t : prohibit_void_ptr<wallnum_t>
+enum class segment_special : uint8_t
 {
-	typedef int16_t integral_type;
-	integral_type value;
-	wallnum_t() = default;
-	wallnum_t(const integral_type &v) : value(v)
-	{
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-		if (__builtin_constant_p(v))
-			DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_constant_wall, "constant wall number constructed");
-#endif
-	}
-	wallnum_t &operator=(integral_type v)
-	{
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-		if (__builtin_constant_p(v))
-			DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_constant_wall, "constant wall number assigned");
-#endif
-		value = v;
-		return *this;
-	}
-	template <integral_type I>
-		wallnum_t &operator=(const wall_magic_constant_t<I> &)
-		{
-			value = I;
-			return *this;
-		}
-	bool operator==(const wallnum_t &v) const { return value == v.value; }
-	bool operator==(const int &v) const
-	{
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-		if (__builtin_constant_p(v))
-			DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_constant_wall, "constant wall number compared");
-#endif
-		return value == v;
-	}
-	template <integral_type I>
-		bool operator==(const wall_magic_constant_t<I> &) const { return value == I; }
-	template <typename T>
-		bool operator!=(const T &v) const { return !(*this == v); }
-	template <typename T>
-		bool operator==(const T &v) const = delete;
-	template <typename T>
-		bool operator<(const T &v) const
-		{
-			static_assert(std::is_integral<T>::value, "non-integral wall number compared");
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-			if (__builtin_constant_p(v))
-				DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_constant_wall, "constant wall number compared");
-#endif
-			return value < v;
-		}
-	template <typename T>
-		bool operator>(const T &v) const
-		{
-			return v < *this;
-		}
-	template <typename T>
-		bool operator<=(const T &) const = delete;
-	template <typename T>
-		bool operator>=(const T &) const = delete;
-	constexpr operator integral_type() const { return value; }
-	operator integral_type &() { return value; }
+	nothing,
+	fuelcen,
+	repaircen,
+	controlcen,
+	robotmaker,
+	goal_blue,
+	goal_red,
 };
-#endif
 
 struct shared_side
 {
@@ -244,7 +188,7 @@ struct shared_segment
 #endif
 	std::array<segnum_t, MAX_SIDES_PER_SEGMENT>   children;    // indices of 6 children segments, front, left, top, right, bottom, back
 	std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> verts;    // vertex ids of 4 front and 4 back vertices
-	uint8_t special;    // what type of center this is
+	segment_special special;    // what type of center this is
 	int8_t matcen_num; // which center segment is associated with.
 	uint8_t station_idx;
 	/* if DXX_BUILD_DESCENT_II */
