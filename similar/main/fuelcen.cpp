@@ -135,7 +135,7 @@ void fuelcen_create(const vmsegptridx_t segp)
 			Error("Invalid station type %d in fuelcen.c\n", underlying_value(station_type));
 	}
 
-	const auto next_fuelcenter_idx = LevelUniqueFuelcenterState.Num_fuelcenters++;
+	const auto next_fuelcenter_idx = static_cast<station_number>(LevelUniqueFuelcenterState.Num_fuelcenters++);
 	segp->station_idx = next_fuelcenter_idx;
 	auto &station = Station.at(next_fuelcenter_idx);
 	station.Type = station_type;
@@ -156,7 +156,7 @@ static void matcen_create(const vmsegptridx_t segp)
 
 	assert(station_type == segment_special::robotmaker);
 
-	const auto next_fuelcenter_idx = LevelUniqueFuelcenterState.Num_fuelcenters++;
+	const auto next_fuelcenter_idx = static_cast<station_number>(LevelUniqueFuelcenterState.Num_fuelcenters++);
 	segp->station_idx = next_fuelcenter_idx;
 	auto &station = Station.at(next_fuelcenter_idx);
 
@@ -171,7 +171,6 @@ static void matcen_create(const vmsegptridx_t segp)
 	auto &robotcenter = RobotCenters[next_robot_center_idx];
 	robotcenter.fuelcen_num = next_fuelcenter_idx;
 	robotcenter.segnum = segp;
-	robotcenter.fuelcen_num = next_fuelcenter_idx;
 }
 
 //------------------------------------------------------------
@@ -262,7 +261,7 @@ Restart: ;
 					con_printf(CON_URGENT, "%s:%u: error: Num_robot_centers=0 while deleting robot maker", __FILE__, __LINE__);
 					return;
 				}
-				const auto &&range = partial_range(RobotCenters, static_cast<unsigned>(segp.matcen_num), Num_robot_centers--);
+				const auto &&range = partial_range(RobotCenters, underlying_value(segp.matcen_num), Num_robot_centers--);
 
 				std::move(std::next(range.begin()), range.end(), range.begin());
 				range_for (auto &fj, partial_const_range(Station, Num_fuelcenters))
@@ -279,12 +278,12 @@ Restart: ;
 			//fix RobotCenters so they point to correct fuelcenter
 			range_for (auto &j, partial_range(RobotCenters, Num_robot_centers))
 				if (j.fuelcen_num > i)		//this robotcenter's fuelcen is changing
-					j.fuelcen_num--;
+					j.fuelcen_num = static_cast<station_number>(underlying_value(j.fuelcen_num) - 1);
 			Assert(Num_fuelcenters > 0);
 			Num_fuelcenters--;
-			for (auto &&[j, fj] : enumerate(partial_range(Station, i, Num_fuelcenters)))
+			for (auto &&[j, fj] : enumerate(partial_range(Station, underlying_value(i), Num_fuelcenters)))
 			{
-				fj = std::move(Station[j + 1]);
+				fj = std::move(Station[static_cast<station_number>(underlying_value(j) + 1)]);
 				Segments[fj.segnum].station_idx = j;
 			}
 			goto Restart;
@@ -350,7 +349,7 @@ imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &obj
 }
 
 //	----------------------------------------------------------------------------------------------------------
-static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, FuelCenter *const robotcen, const unsigned numrobotcen)
+static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, FuelCenter *const robotcen, const station_number numrobotcen)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
@@ -427,7 +426,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 
 		if (robotcen->Timer > top_time )	{
 			int	count=0;
-			const auto biased_matcen_creator = numrobotcen ^ 0x80;
+			const auto biased_matcen_creator = underlying_value(numrobotcen) ^ 0x80;
 
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
 			range_for (const auto &&objp, vcobjptr)
@@ -518,7 +517,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 				if (obj != object_none) {
 					if (Game_mode & GM_MULTI)
 						multi_send_create_robot(numrobotcen, obj, type);
-					obj->matcen_creator = (numrobotcen) | 0x80;
+					obj->matcen_creator = underlying_value(numrobotcen) | 0x80;
 
 					// Make object faces player...
 					const auto direction = vm_vec_sub(ConsoleObject->pos,obj->pos );
@@ -659,7 +658,7 @@ void init_all_matcens(void)
 			}) == robot_range.end())
 			{
 				station.Lives = 0;
-				LevelError("Station %" PRIuFAST32 " has type robotmaker, but no robotmaker uses it; ignoring.", i);
+				LevelError("Station %i has type robotmaker, but no robotmaker uses it; ignoring.", underlying_value(i));
 			}
 		}
 
@@ -668,7 +667,7 @@ void init_all_matcens(void)
 	range_for (auto &i, robot_range)
 	{
 		auto	fuelcen_num = i.fuelcen_num;
-		Assert(fuelcen_num < Num_fuelcenters);
+		assert(underlying_value(fuelcen_num) < Num_fuelcenters);
 		assert(Station[fuelcen_num].Type == segment_special::robotmaker);
 	}
 #endif
@@ -689,7 +688,7 @@ struct d1cmi_v25
 	d1cmi_v25(const matcen_info &mi) : m(&mi) {}
 };
 
-#define D1_MATCEN_V25_MEMBERLIST	(p.m->robot_flags[0], serial::pad<sizeof(fix) * 2>(), p.m->segnum, p.m->fuelcen_num)
+#define D1_MATCEN_V25_MEMBERLIST	(p.m->robot_flags[0], serial::pad<sizeof(fix) * 2>(), p.m->segnum, p.m->fuelcen_num, serial::pad<1>())
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1mi_v25, p, D1_MATCEN_V25_MEMBERLIST);
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1cmi_v25, p, D1_MATCEN_V25_MEMBERLIST);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1mi_v25, 16);
@@ -708,7 +707,7 @@ struct d1cmi_v26
 	d1cmi_v26(const matcen_info &mi) : m(&mi) {}
 };
 
-#define D1_MATCEN_V26_MEMBERLIST	(p.m->robot_flags[0], serial::pad<sizeof(uint32_t)>(), serial::pad<sizeof(fix) * 2>(), p.m->segnum, p.m->fuelcen_num)
+#define D1_MATCEN_V26_MEMBERLIST	(p.m->robot_flags[0], serial::pad<sizeof(uint32_t)>(), serial::pad<sizeof(fix) * 2>(), p.m->segnum, p.m->fuelcen_num, serial::pad<1>())
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1mi_v26, p, D1_MATCEN_V26_MEMBERLIST);
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1cmi_v26, p, D1_MATCEN_V26_MEMBERLIST);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1mi_v26, 20);
@@ -781,7 +780,7 @@ void d1_matcen_info_read(PHYSFS_File *fp, matcen_info &mi)
 	mi.robot_flags[1] = 0;
 }
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(matcen_info, m, (m.robot_flags, serial::pad<sizeof(fix) * 2>(), m.segnum, m.fuelcen_num));
+DEFINE_SERIAL_UDT_TO_MESSAGE(matcen_info, m, (m.robot_flags, serial::pad<sizeof(fix) * 2>(), m.segnum, m.fuelcen_num, serial::pad<1>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(matcen_info, 20);
 
 void matcen_info_read(PHYSFS_File *fp, matcen_info &mi)

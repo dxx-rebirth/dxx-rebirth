@@ -84,6 +84,14 @@ static materialization_center_number build_materialization_center_number_from_un
 		return materialization_center_number::None;
 }
 
+static station_number build_station_number_from_untrusted(uint8_t untrusted)
+{
+	if (decltype(d_level_unique_fuelcenter_state::Station)::valid_index(untrusted))
+		return station_number{untrusted};
+	else
+		return station_number::None;
+}
+
 /*
  * reads a segment2 structure from a PHYSFS_File
  */
@@ -93,7 +101,7 @@ static void segment2_read(const msmusegment s2, PHYSFS_File *fp)
 	s2.s.matcen_num = build_materialization_center_number_from_untrusted(PHYSFSX_readByte(fp));
 	/* station_idx is overwritten by the caller in some cases, but set
 	 * it here for compatibility with how the game previously worked */
-	s2.s.station_idx = PHYSFSX_readByte(fp);
+	s2.s.station_idx = build_station_number_from_untrusted(PHYSFSX_readByte(fp));
 	const auto s2_flags = PHYSFSX_readByte(fp);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)s2_flags;	// descent 2 ambient sound handling
@@ -424,11 +432,11 @@ static void read_special(shared_segment &segp, const unsigned bit_mask, PHYSFS_F
 		// Read byte	Segments[segnum].matcen_num
 		segp.matcen_num = build_materialization_center_number_from_untrusted(PHYSFSX_readByte(LoadFile));
 		// Read short	Segments[segnum].value
-		segp.station_idx = PHYSFSX_readShort(LoadFile);
+		segp.station_idx = build_station_number_from_untrusted(PHYSFSX_readShort(LoadFile));
 	} else {
 		segp.special = segment_special::nothing;
 		segp.matcen_num = materialization_center_number::None;
-		segp.station_idx = station_none;
+		segp.station_idx = station_number::None;
 	}
 }
 

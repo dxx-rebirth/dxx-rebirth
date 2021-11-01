@@ -578,7 +578,7 @@ void multi_send_robot_explode(const imobjptridx_t objnum, objnum_t killer)
 	multi_delete_controlled_robot(objnum);
 }
 
-void multi_send_create_robot(int station, objnum_t objnum, int type)
+void multi_send_create_robot(const station_number station, const objnum_t objnum, const int type)
 {
 	multi_command<MULTI_CREATE_ROBOT> multibuf;
 	// Send create robot information
@@ -587,7 +587,8 @@ void multi_send_create_robot(int station, objnum_t objnum, int type)
 
 	loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
-	multibuf[loc] = static_cast<int8_t>(station);                         loc += 1;
+	static_assert(sizeof(underlying_value(station)) == 1);
+	multibuf[loc] = underlying_value(station);                         loc += 1;
 	PUT_INTEL_SHORT(&multibuf[loc], objnum);                  loc += 2;
 	multibuf[loc] = type;									loc += 1;
 
@@ -1019,19 +1020,21 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	const uint_fast32_t fuelcen_num = buf[2];
+	const auto untrusted_fuelcen_num = buf[2];
 	int type = buf[5];
 
 	objnum_t objnum;
 	objnum = GET_INTEL_SHORT(buf + 3);
 
-	if (fuelcen_num >= LevelUniqueFuelcenterState.Num_fuelcenters || pnum >= N_players)
+	if (!LevelUniqueFuelcenterState.Station.valid_index(untrusted_fuelcen_num))
+		return;
+	if (untrusted_fuelcen_num >= LevelUniqueFuelcenterState.Num_fuelcenters || pnum >= N_players)
 	{
 		Int3(); // Bogus data
 		return;
 	}
 
-	auto &robotcen = Station[fuelcen_num];
+	auto &robotcen = Station[(station_number{untrusted_fuelcen_num})];
 
 	// Play effect and sound
 
@@ -1053,7 +1056,7 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 	if (obj == object_none)
 		return; // Cannot create object!
 	
-	obj->matcen_creator = fuelcen_num | 0x80;
+	obj->matcen_creator = untrusted_fuelcen_num | 0x80;
 //	extract_orient_from_segment(&obj->orient, &Segments[robotcen->segnum]);
 	const auto direction = vm_vec_sub(ConsoleObject->pos, obj->pos );
 	vm_vector_2_matrix( obj->orient, direction, &obj->orient.uvec, nullptr);

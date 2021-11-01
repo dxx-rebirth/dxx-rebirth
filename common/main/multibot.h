@@ -44,7 +44,7 @@ void multi_send_robot_position(object &objnum, int fired);
 void multi_send_robot_fire(vmobjptridx_t objnum, int gun_num, const vms_vector &fire);
 void multi_send_claim_robot(vmobjptridx_t objnum);
 void multi_send_robot_explode(imobjptridx_t objnum, objnum_t killer);
-void multi_send_create_robot(int robotcen, objnum_t objnum, int type);
+void multi_send_create_robot(station_number robotcen, objnum_t objnum, int type);
 #ifdef dsx
 namespace dsx {
 void multi_send_boss_teleport(vmobjptridx_t bossobjnum, vcsegidx_t where);

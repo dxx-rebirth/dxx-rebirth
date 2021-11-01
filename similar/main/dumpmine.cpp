@@ -438,7 +438,7 @@ static void write_fuelcen_text(PHYSFS_File *my_file)
 	const auto Num_fuelcenters = LevelUniqueFuelcenterState.Num_fuelcenters;
 	for (auto &&[i, f] : enumerate(partial_const_range(Station, Num_fuelcenters)))
 	{
-		PHYSFSX_printf(my_file, "Fuelcenter %lu: Type=%i (%s), segment = %3i\n", i, underlying_value(f.Type), Special_names[f.Type], f.segnum);
+		PHYSFSX_printf(my_file, "Fuelcenter %u: Type=%i (%s), segment = %3i\n", underlying_value(i), underlying_value(f.Type), Special_names[f.Type], f.segnum);
 		if (Segments[f.segnum].special != f.Type)
 			err_printf(my_file, "Error: Conflicting data: Segment %i has special type %i (%s), expected to be %i", f.segnum, underlying_value(Segments[f.segnum].special), Special_names[Segments[f.segnum].special], underlying_value(f.Type));
 	}
@@ -456,7 +456,7 @@ static void write_segment_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 	{
 		PHYSFSX_printf(my_file, "Segment %4hu:", static_cast<uint16_t>(segp));
 		if (segp->special != segment_special::nothing)
-			PHYSFSX_printf(my_file, " special = %3i (%s), station_idx=%3i", underlying_value(segp->special), Special_names[segp->special], segp->station_idx);
+			PHYSFSX_printf(my_file, " special = %3i (%s), station_idx=%3u", underlying_value(segp->special), Special_names[segp->special], underlying_value(segp->station_idx));
 		if (segp->matcen_num != materialization_center_number::None)
 			PHYSFSX_printf(my_file, " matcen = %3i", underlying_value(segp->matcen_num));
 		PHYSFSX_puts_literal(my_file, "\n");
@@ -498,7 +498,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 		auto &station = Station[fuelcen_num];
 		if (station.Type != segment_special::robotmaker)
 		{
-			err_printf(my_file, "Error: Matcen %i corresponds to Station %i, which has type %i (%s).", underlying_value(i), fuelcen_num, underlying_value(station.Type), Special_names[station.Type]);
+			err_printf(my_file, "Error: Matcen %u corresponds to Station %u, which has type %i (%s).", underlying_value(i), underlying_value(fuelcen_num), underlying_value(station.Type), Special_names[station.Type]);
 			continue;
 		}
 		int	trigger_count=0;

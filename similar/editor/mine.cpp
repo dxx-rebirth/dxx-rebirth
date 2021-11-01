@@ -541,7 +541,7 @@ static void write_special(const shared_segment &seg, const unsigned bit_mask, PH
 	{
 		PHYSFSX_writeU8(SaveFile, underlying_value(seg.special));
 		PHYSFSX_writeU8(SaveFile, underlying_value(seg.matcen_num));
-		PHYSFS_writeULE16(SaveFile, seg.station_idx);
+		PHYSFS_writeULE16(SaveFile, underlying_value(seg.station_idx));
 	}
 }
 
@@ -604,7 +604,7 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 				bit_mask |= (1 << sidenum);
 		}
 
-		if (seg.s.special != segment_special::nothing || seg.s.matcen_num != materialization_center_number::None || seg.s.station_idx != station_none)
+		if (seg.s.special != segment_special::nothing || seg.s.matcen_num != materialization_center_number::None || seg.s.station_idx != station_number::None)
 			bit_mask |= (1 << MAX_SIDES_PER_SEGMENT);
 
 		if (New_file_format_save)

@@ -947,7 +947,10 @@ static ushort netmisc_calc_checksum()
 		t = INTEL_INT(i.u.static_light);
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&t), 4, &sum1, &sum2);
 #endif
-		do_checksum_calc(&i.s.station_idx, 1, &sum1, &sum2);
+		{
+			const auto station_idx = underlying_value(i.s.station_idx);
+			do_checksum_calc(&station_idx, 1, &sum1, &sum2);
+		}
 	}
 	sum2 %= 255;
 	return ((sum1<<8)+ sum2);

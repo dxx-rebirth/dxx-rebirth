@@ -1332,7 +1332,7 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 
 	// Assume nothing special about this segment
 	sp->special = segment_special::nothing;
-	sp->station_idx = station_none;
+	sp->station_idx = station_number::None;
 	usp.static_light = 0;
 	sp->matcen_num = materialization_center_number::None;
 
@@ -1389,7 +1389,7 @@ void med_create_new_segment(const vms_vector &scale)
 
 	// Assume nothing special about this segment
 	sp->special = segment_special::nothing;
-	sp->station_idx = station_none;
+	sp->station_idx = station_number::None;
 	usp.static_light = 0;
 	sp->matcen_num = materialization_center_number::None;
 }

@@ -87,6 +87,11 @@ enum class materialization_center_number : uint8_t
 	None = 0xff,
 };
 
+enum class station_number : uint8_t
+{
+	None = 0xff,
+};
+
 struct shared_side
 {
 	struct illegal_type;
@@ -195,7 +200,7 @@ struct shared_segment
 	std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> verts;    // vertex ids of 4 front and 4 back vertices
 	segment_special special;    // what type of center this is
 	materialization_center_number matcen_num; // which center segment is associated with.
-	uint8_t station_idx;
+	station_number station_idx;
 	/* if DXX_BUILD_DESCENT_II */
 	uint8_t s2_flags;
 	/* endif */
