@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-poison.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
+#include "d_zip.h"
 #include <memory>
 
 #define BIMD1_BRIEFING_FILE		"briefing.txb"
@@ -1038,8 +1039,9 @@ static const char *load_mission(const mle *const mission)
 					if (*ip && *ip != ';')
 						continue;
 				}
-				Level_names = std::make_unique<d_fname[]>(n_levels);
-				range_for (auto &i, unchecked_partial_range(Level_names.get(), n_levels))
+				auto names = std::make_unique<d_fname[]>(n_levels);
+				uint8_t level_names_loaded = 0;
+				for (auto &i : unchecked_partial_range(names.get(), n_levels))
 				{
 					if (!PHYSFSX_fgets(buf, mfile))
 						break;
@@ -1047,12 +1049,13 @@ static const char *load_mission(const mle *const mission)
 					auto s = std::find_if(line.begin(), line.end(), null_or_space);
 					if (i.copy_if(buf.line(), std::distance(line.begin(), s)))
 					{
-						Last_level++;
+						++level_names_loaded;
 					}
 					else
 						break;
 				}
-
+				Last_level = level_names_loaded;
+				Level_names = std::move(names);
 			}
 		}
 		else if (istok(buf,"num_secrets")) {
@@ -1070,9 +1073,11 @@ static const char *load_mission(const mle *const mission)
 						continue;
 				}
 				N_secret_levels = n_levels;
-				Secret_level_names = std::make_unique<d_fname[]>(n_levels);
-				Secret_level_table = std::make_unique<uint8_t[]>(n_levels);
-				for (int i=0;i<N_secret_levels;i++) {
+				uint8_t level_names_loaded = 0;
+				auto names = std::make_unique<d_fname[]>(n_levels);
+				auto table = std::make_unique<uint8_t[]>(n_levels);
+				for (auto &&[name, table_cell] : zip(unchecked_partial_range(names.get(), n_levels), unchecked_partial_range(table.get(), n_levels)))
+				{
 					if (!PHYSFSX_fgets(buf, mfile))
 						break;
 					const auto &line = buf.line();
@@ -1088,18 +1093,20 @@ static const char *load_mission(const mle *const mission)
 						return isspace(static_cast<unsigned>(c));
 					};
 					auto s = std::find_if(lb, t, a);
-					if (Secret_level_names[i].copy_if(line, std::distance(lb, s)))
+					if (name.copy_if(line, std::distance(lb, s)))
 					{
 						unsigned long ls = strtoul(t + 1, &ip, 10);
 						if (ls < 1 || ls > Last_level)
 							break;
-						Secret_level_table[i] = ls;
-						Last_secret_level--;
+						table_cell = ls;
+						++ level_names_loaded;
 					}
 					else
 						break;
 				}
-
+				Last_secret_level = -static_cast<signed>(level_names_loaded);
+				Secret_level_names = std::move(names);
+				Secret_level_table = std::move(table);
 			}
 		}
 #if defined(DXX_BUILD_DESCENT_II)
