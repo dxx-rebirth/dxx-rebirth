@@ -270,7 +270,7 @@ static void allocate_levels(const unsigned count_regular_level, const unsigned c
 //  Special versions of mission routines for d1 builtins
 //
 
-static const char *load_mission_d1()
+static void load_mission_d1()
 {
 	switch (PHYSFSX_fsize("descent.hog"))
 	{
@@ -348,7 +348,6 @@ static const char *load_mission_d1()
 			break;
 			}
 	}
-	return nullptr;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -356,7 +355,7 @@ static const char *load_mission_d1()
 //  Special versions of mission routines for shareware
 //
 
-static const char *load_mission_shareware()
+static void load_mission_shareware()
 {
     Current_mission->mission_name.copy_if(SHAREWARE_MISSION_NAME);
     Current_mission->descent_version = Mission::descent_version_type::descent2;
@@ -383,7 +382,6 @@ static const char *load_mission_shareware()
 			Level_names[2] = "d2leva-3.sl2";
 			break;
 	}
-	return nullptr;
 }
 
 
@@ -391,7 +389,7 @@ static const char *load_mission_shareware()
 //  Special versions of mission routines for Diamond/S3 version
 //
 
-static const char *load_mission_oem()
+static void load_mission_oem()
 {
     Current_mission->mission_name.copy_if(OEM_MISSION_NAME);
     Current_mission->descent_version = Mission::descent_version_type::descent2;
@@ -410,7 +408,6 @@ static const char *load_mission_oem()
 	Secret_level_names[1] = "d2levb-s.rl2";
 	Secret_level_table[0] = 1;
 	Secret_level_table[1] = 5;
-	return nullptr;
 }
 #endif
 
@@ -951,7 +948,10 @@ static const char *load_mission(const mle *const mission)
 			Warning("descent.hog not available!\n%s\nThis mission may be missing some files required for briefings and exit sequence\n", PHYSFS_getErrorByCode(r));
 #endif
 		if (!d_stricmp(Current_mission->path.c_str(), D1_MISSION_FILENAME))
-			return load_mission_d1();
+		{
+			load_mission_d1();
+			return nullptr;
+		}
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	else
@@ -965,11 +965,13 @@ static const char *load_mission(const mle *const mission)
 		case MAC_SHARE_MISSION_HOGSIZE:
 			Briefing_text_filename = "brief2.txb";
 			Ending_text_filename = BIMD2_ENDING_FILE_SHARE;
-			return load_mission_shareware();
+			load_mission_shareware();
+			return nullptr;
 		case OEM_MISSION_HOGSIZE:
 			Briefing_text_filename = "brief2o.txb";
 			Ending_text_filename = BIMD2_ENDING_FILE_OEM;
-			return load_mission_oem();
+			load_mission_oem();
+			return nullptr;
 		default:
 			Int3();
 			DXX_BOOST_FALLTHROUGH;
