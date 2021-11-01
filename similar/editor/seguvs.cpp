@@ -596,18 +596,17 @@ static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned c
 	vv1 = -1;	vv2 = -1;
 	auto &base_uvls = base_seg.u.sides[base_common_side].uvls;
 	const uvl *uv1 = nullptr, *uv2 = nullptr;
-	for (const auto v : xrange(4u))
+	auto &svbase = Side_to_verts[base_common_side];
+	auto &svconn = Side_to_verts[con_common_side];
+	for (auto &&[v, base_uvl, svb, svc] : enumerate(zip(base_uvls, svbase, svconn)))
 	{
-		if (bv1 == Side_to_verts[base_common_side][v])
-			uv1 = &base_uvls[v];
-
-		if (bv2 == Side_to_verts[base_common_side][v])
-			uv2 = &base_uvls[v];
-
-		if (cv1 == Side_to_verts[con_common_side][v])
+		if (bv1 == svb)
+			uv1 = &base_uvl;
+		if (bv2 == svb)
+			uv2 = &base_uvl;
+		if (cv1 == svc)
 			vv1 = v;
-
-		if (cv2 == Side_to_verts[con_common_side][v])
+		if (cv2 == svc)
 			vv2 = v;
 	}
 
