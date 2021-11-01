@@ -85,10 +85,10 @@ enum class game_mode_flag : uint16_t
 	unknown			= 1u << 6,
 	team			= 1u << 8,
 	bounty			= 1u << 9,
-#if defined(DXX_BUILD_DESCENT_II)
+	/* if DXX_BUILD_DESCENT_II */
 	capture			= 1u << 10,
 	hoard			= 1u << 11,
-#endif
+	/* endif */
 };
 
 enum class game_mode_flags : uint16_t
@@ -99,11 +99,11 @@ enum class game_mode_flags : uint16_t
 	anarchy_with_robots = static_cast<uint16_t>(game_mode_flag::network) | static_cast<uint16_t>(game_mode_flag::multi_robots),
 	cooperative = static_cast<uint16_t>(game_mode_flag::network) | static_cast<uint16_t>(game_mode_flag::multi_robots) | static_cast<uint16_t>(game_mode_flag::multi_coop),
 	bounty = static_cast<uint16_t>(game_mode_flag::network) | static_cast<uint16_t>(game_mode_flag::bounty),
-#if defined(DXX_BUILD_DESCENT_II)
+	/* if DXX_BUILD_DESCENT_II */
 	capture_flag = static_cast<uint16_t>(game_mode_flag::network) | static_cast<uint16_t>(game_mode_flag::team) | static_cast<uint16_t>(game_mode_flag::capture),
 	hoard = static_cast<uint16_t>(game_mode_flag::network) | static_cast<uint16_t>(game_mode_flag::hoard),
 	team_hoard = static_cast<uint16_t>(game_mode_flag::network) | static_cast<uint16_t>(game_mode_flag::team) | static_cast<uint16_t>(game_mode_flag::hoard),
-#endif
+	/* endif */
 };
 
 // The following bits define the game modes.
