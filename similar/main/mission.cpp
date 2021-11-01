@@ -266,6 +266,28 @@ static void allocate_levels(const unsigned count_regular_level, const unsigned c
 	}
 }
 
+static void allocate_shareware_levels(const unsigned count_regular_level, const unsigned count_secret_level)
+{
+	Briefing_text_filename = BIMD1_BRIEFING_FILE;
+	Ending_text_filename = BIMD1_ENDING_FILE_SHARE;
+	allocate_levels(count_regular_level, count_secret_level);
+	//build level names
+	for (const auto &&[idx, name] : enumerate(unchecked_partial_range(Level_names.get(), count_regular_level), 1u))
+		snprintf(&name[0u], name.size(), "level%02u.sdl", idx);
+}
+
+static void build_rdl_regular_level_names(const unsigned count_regular_level, std::unique_ptr<d_fname[]> &names)
+{
+	for (auto &&[idx, name] : enumerate(unchecked_partial_range(names.get(), count_regular_level), 1u))
+		snprintf(&name[0u], name.size(), "level%02u.rdl", idx);
+}
+
+static void build_rdl_secret_level_names(const unsigned count_secret_level, std::unique_ptr<d_fname[]> &names)
+{
+	for (auto &&[idx, name] : enumerate(unchecked_partial_range(names.get(), count_secret_level), 1u))
+		snprintf(&name[0u], name.size(), "levels%1u.rdl", idx);
+}
+
 //
 //  Special versions of mission routines for d1 builtins
 //
@@ -276,20 +298,10 @@ static void load_mission_d1()
 	{
 		case D1_SHAREWARE_MISSION_HOGSIZE:
 		case D1_SHAREWARE_10_MISSION_HOGSIZE:
-			allocate_levels(7, 0);
-			//build level names
-			for (int i=0;i<Last_level;i++)
-				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.sdl", i+1);
-			Briefing_text_filename = BIMD1_BRIEFING_FILE;
-			Ending_text_filename = BIMD1_ENDING_FILE_SHARE;
+			allocate_shareware_levels(7, 0);
 			break;
 		case D1_MAC_SHARE_MISSION_HOGSIZE:
-			allocate_levels(3, 0);
-			//build level names
-			for (int i=0;i<Last_level;i++)
-				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.sdl", i+1);
-			Briefing_text_filename = BIMD1_BRIEFING_FILE;
-			Ending_text_filename = BIMD1_ENDING_FILE_SHARE;
+			allocate_shareware_levels(3, 0);
 			break;
 		case D1_OEM_MISSION_HOGSIZE:
 		case D1_OEM_10_MISSION_HOGSIZE:
@@ -298,20 +310,12 @@ static void load_mission_d1()
 			constexpr unsigned last_secret_level = 1;
 			allocate_levels(last_level, last_secret_level);
 			//build level names
-			for (unsigned i = 0; i < last_level - 1; ++i)
-			{
-				auto &ln = Level_names[i];
-				snprintf(&ln[0u], ln.size(), "level%02u.rdl", i + 1);
-			}
+			build_rdl_regular_level_names(last_level - 1, Level_names);
 			{
 				auto &ln = Level_names[last_level - 1];
 				snprintf(&ln[0u], ln.size(), "saturn%02d.rdl", last_level);
 			}
-			for (int i = 0; i < last_secret_level; ++i)
-			{
-				auto &sn = Secret_level_names[i];
-				snprintf(&sn[0u], sn.size(), "levels%1d.rdl", i + 1);
-			}
+			build_rdl_secret_level_names(last_secret_level, Secret_level_names);
 			Secret_level_table[0] = 10;
 			Briefing_text_filename = "briefsat.txb";
 			Ending_text_filename = BIMD1_ENDING_FILE_OEM;
@@ -330,16 +334,8 @@ static void load_mission_d1()
 			allocate_levels(last_level, last_secret_level);
 
 			//build level names
-			for (unsigned i = 0; i < last_level; ++i)
-			{
-				auto &ln = Level_names[i];
-				snprintf(&ln[0u], ln.size(), "level%02u.rdl", i + 1);
-			}
-			for (int i = 0; i < last_secret_level; ++i)
-			{
-				auto &sn = Secret_level_names[i];
-				snprintf(&sn[0u], sn.size(), "levels%1d.rdl", i + 1);
-			}
+			build_rdl_regular_level_names(last_level, Level_names);
+			build_rdl_secret_level_names(last_secret_level, Secret_level_names);
 			Secret_level_table[0] = 10;
 			Secret_level_table[1] = 21;
 			Secret_level_table[2] = 24;
