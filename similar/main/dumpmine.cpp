@@ -95,6 +95,7 @@ static void dump_used_textures_level(PHYSFS_File *my_file, int level_num, const 
 static void say_totals(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file, const char *level_name);
 
 namespace dsx {
+namespace {
 const std::array<char[9], MAX_OBJECT_TYPES> Object_type_names{{
 	"WALL    ",
 	"FIREBALL",
@@ -124,6 +125,9 @@ static const char *object_types(const object_base &objp)
 	return &Object_type_names[type][0];
 }
 }
+}
+
+namespace {
 
 // ----------------------------------------------------------------------------
 static const char *object_ids(const object_base &objp)
@@ -197,9 +201,11 @@ static void warning_printf(PHYSFS_File *my_file, const char * format, ... )
 	va_end(args);
 	warning_puts(my_file, message);
 }
+}
 
 // ----------------------------------------------------------------------------
 namespace dsx {
+namespace {
 static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptridx, PHYSFS_File *my_file)
 {
 	int	count;
@@ -273,6 +279,7 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 		PHYSFSX_puts_literal(my_file, "\n");
 }
 }
+}
 
 namespace {
 
@@ -327,8 +334,6 @@ public:
 			err_printf(fp, "Error: There are %i %s keys!", powerup_count, label);
 	}
 };
-
-}
 
 // ----------------------------------------------------------------------------
 static void write_key_text(fvcobjptridx &vcobjptridx, segment_array &segments, fvcwallptridx &vcwallptridx, PHYSFS_File *my_file)
@@ -478,12 +483,8 @@ static void write_segment_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 }
 
 // ----------------------------------------------------------------------------
-// This routine is bogus.  It assumes that all centers are matcens,
-// which is not true.  The setting of segnum is bogus.
 static void write_matcen_text(PHYSFS_File *my_file)
 {
-	int	i;
-
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Materialization centers:\n");
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
@@ -491,17 +492,20 @@ static void write_matcen_text(PHYSFS_File *my_file)
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vctrgptridx = Triggers.vcptridx;
 	const auto Num_robot_centers = LevelSharedRobotcenterState.Num_robot_centers;
-	for (i=0; i<Num_robot_centers; i++) {
-		int	trigger_count=0, fuelcen_num;
+	for (auto &&[i, robotcen] : enumerate(partial_const_range(RobotCenters, Num_robot_centers)))
+	{
+		const auto fuelcen_num = robotcen.fuelcen_num;
+		auto &station = Station[fuelcen_num];
+		if (station.Type != segment_special::robotmaker)
+		{
+			err_printf(my_file, "Error: Matcen %" PRIuFAST32 " corresponds to Station %i, which has type %i (%s).", i, fuelcen_num, underlying_value(station.Type), Special_names[station.Type]);
+			continue;
+		}
+		int	trigger_count=0;
 
-		PHYSFSX_printf(my_file, "FuelCenter[%02i].Segment = %04i  ", i, Station[i].segnum);
-		PHYSFSX_printf(my_file, "Segment[%04i].matcen_num = %02i  ", Station[i].segnum, Segments[Station[i].segnum].matcen_num);
-
-		fuelcen_num = RobotCenters[i].fuelcen_num;
-		if (Station[fuelcen_num].Type != segment_special::robotmaker)
-			err_printf(my_file, "Error: Matcen %i corresponds to Station %i, which has type %i (%s).", i, fuelcen_num, underlying_value(Station[fuelcen_num].Type), Special_names[Station[fuelcen_num].Type]);
-
-		auto segnum = Station[fuelcen_num].segnum;
+		const auto segnum = station.segnum;
+		PHYSFSX_printf(my_file, "FuelCenter[%02" PRIuFAST32 "].Segment = %04i  ", i, segnum);
+		PHYSFSX_printf(my_file, "Segment[%04i].matcen_num = %02i  ", segnum, Segments[segnum].matcen_num);
 
 		//	Find trigger for this materialization center.
 		range_for (auto &&t, vctrgptridx)
@@ -519,13 +523,15 @@ static void write_matcen_text(PHYSFS_File *my_file)
 		PHYSFSX_puts_literal(my_file, "\n");
 
 		if (trigger_count == 0)
-			err_printf(my_file, "Error: Matcen %i in segment %i has no trigger!", i, segnum);
-
+			err_printf(my_file, "Error: Matcen %" PRIuFAST32 " in segment %i has no trigger!", i, segnum);
 	}
+}
+
 }
 
 // ----------------------------------------------------------------------------
 namespace dsx {
+namespace {
 static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptridx, PHYSFS_File *my_file)
 {
 	enumerated_array<int8_t, MAX_WALLS, wallnum_t> wall_flags;
@@ -573,10 +579,8 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 	}
 
 }
-}
 
 // ----------------------------------------------------------------------------
-namespace dsx {
 static void write_player_text(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file)
 {
 	int	num_players=0;
@@ -599,10 +603,8 @@ static void write_player_text(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file)
 	if (num_players > MAX_MULTI_PLAYERS)
 		err_printf(my_file, "Error: %i player objects.  %i are required.", num_players, MAX_PLAYERS);
 }
-}
 
 // ----------------------------------------------------------------------------
-namespace dsx {
 static void write_trigger_text(PHYSFS_File *my_file)
 {
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
@@ -635,6 +637,7 @@ static void write_trigger_text(PHYSFS_File *my_file)
 			PHYSFSX_printf(my_file, "Attached to seg:side = %i:%i, wall %hi\n", w->segnum, w->sidenum, static_cast<int16_t>(vcsegptr(w->segnum)->shared_segment::sides[w->sidenum].wall_num));
 		}
 	}
+}
 }
 }
 
