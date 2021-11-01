@@ -1022,8 +1022,6 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 	const uint_fast32_t fuelcen_num = buf[2];
 	int type = buf[5];
 
-	FuelCenter *robotcen;
-
 	objnum_t objnum;
 	objnum = GET_INTEL_SHORT(buf + 3);
 
@@ -1033,11 +1031,17 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 		return;
 	}
 
-	robotcen = &Station[fuelcen_num];
+	auto &robotcen = Station[fuelcen_num];
 
 	// Play effect and sound
 
-	const auto &&robotcen_segp = vmsegptridx(robotcen->segnum);
+	// Set robot center flags, in case we become the master for the next one
+
+	robotcen.Flag = 0;
+	robotcen.Capacity -= EnergyToCreateOneRobot;
+	robotcen.Timer = 0;
+
+	const auto &&robotcen_segp = vmsegptridx(robotcen.segnum);
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&cur_object_loc = compute_segment_center(vcvertptr, robotcen_segp);
 	if (const auto &&obj = object_create_explosion(robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT))
@@ -1045,13 +1049,7 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 	if (Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1)
 		digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen_segp, 0, cur_object_loc, 0, F1_0);
 
-	// Set robot center flags, in case we become the master for the next one
-
-	robotcen->Flag = 0;
-	robotcen->Capacity -= EnergyToCreateOneRobot;
-	robotcen->Timer = 0;
-
-	const auto &&obj = create_morph_robot(vmsegptridx(robotcen->segnum), cur_object_loc, type);
+	const auto &&obj = create_morph_robot(robotcen_segp, cur_object_loc, type);
 	if (obj == object_none)
 		return; // Cannot create object!
 	

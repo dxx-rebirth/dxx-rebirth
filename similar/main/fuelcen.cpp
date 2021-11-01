@@ -248,8 +248,8 @@ void fuelcen_delete(shared_segment &segp)
 Restart: ;
 	segp.special = segment_special::nothing;
 
-	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++ )	{
-		FuelCenter &fi = Station[i];
+	for (auto &&[i, fi] : enumerate(partial_range(Station, Num_fuelcenters)))
+	{
 		if (vmsegptr(fi.segnum) == &segp)
 		{
 
@@ -282,9 +282,10 @@ Restart: ;
 					j.fuelcen_num--;
 			Assert(Num_fuelcenters > 0);
 			Num_fuelcenters--;
-			for (uint_fast32_t j = i; j < Num_fuelcenters; j++ )	{
-				Station[j] = Station[j+1];
-				Segments[Station[j].segnum].station_idx = j;
+			for (auto &&[j, fj] : enumerate(partial_range(Station, i, Num_fuelcenters)))
+			{
+				fj = std::move(Station[j + 1]);
+				Segments[fj.segnum].station_idx = j;
 			}
 			goto Restart;
 		}
@@ -426,14 +427,14 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 
 		if (robotcen->Timer > top_time )	{
 			int	count=0;
-			int	my_station_num = numrobotcen;
+			const auto biased_matcen_creator = numrobotcen ^ 0x80;
 
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
 			range_for (const auto &&objp, vcobjptr)
 			{
 				auto &obj = *objp;
 				if (obj.type == OBJ_ROBOT)
-					if ((obj.matcen_creator ^ 0x80) == my_station_num)
+					if (obj.matcen_creator == biased_matcen_creator)
 						count++;
 			}
 			if (count > GameUniqueState.Difficulty_level + 3) {
@@ -646,18 +647,18 @@ void init_all_matcens(void)
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	const auto Num_fuelcenters = LevelUniqueFuelcenterState.Num_fuelcenters;
 	const auto &&robot_range = partial_const_range(RobotCenters, LevelSharedRobotcenterState.Num_robot_centers);
-	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++)
-		if (Station[i].Type == segment_special::robotmaker)
+	for (auto &&[i, station] : enumerate(partial_range(Station, Num_fuelcenters)))
+		if (station.Type == segment_special::robotmaker)
 		{
-			Station[i].Lives = 3;
-			Station[i].Enabled = 0;
-			Station[i].Disable_time = 0;
+			station.Lives = 3;
+			station.Enabled = 0;
+			station.Disable_time = 0;
 			//	Make sure this fuelcen is pointed at by a matcen.
 			if (std::find_if(robot_range.begin(), robot_range.end(), [i](const matcen_info &mi) {
 				return mi.fuelcen_num == i;
 			}) == robot_range.end())
 			{
-				Station[i].Lives = 0;
+				station.Lives = 0;
 				LevelError("Station %" PRIuFAST32 " has type robotmaker, but no robotmaker uses it; ignoring.", i);
 			}
 		}
