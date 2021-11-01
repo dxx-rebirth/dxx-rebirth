@@ -4212,7 +4212,7 @@ window_event_result net_udp_setup_game()
 #endif
 
 	Netgame.mission_name.copy_if(&*Current_mission->filename, Netgame.mission_name.size());
-	Netgame.mission_title = Current_mission_longname;
+	Netgame.mission_title = Current_mission->mission_name;
 
 	Netgame.levelnum = 1;
 

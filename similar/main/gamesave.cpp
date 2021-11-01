@@ -1424,7 +1424,7 @@ int load_level(
 	 * HACK to make this issue less visible by moving one vertex a little.
 	 */
 	auto &vmvertptr = Vertices.vmptr;
-	if (Current_mission && !d_stricmp("Descent: First Strike",Current_mission_longname) && !d_stricmp("level19.rdl",filename) && PHYSFS_fileLength(LoadFile) == 136706)
+	if (Current_mission && !d_stricmp("Descent: First Strike", Current_mission->mission_name) && !d_stricmp("level19.rdl", filename) && PHYSFS_fileLength(LoadFile) == 136706)
 		vmvertptr(vertnum_t{1905u})->z = -385 * F1_0;
 #if defined(DXX_BUILD_DESCENT_II)
 	/* !!!HACK!!!
@@ -1432,7 +1432,7 @@ int load_level(
 	 * HACK to fix this by moving the Vertex and fixing the associated Normals.
 	 * NOTE: This only fixes the normals of segment 104, not the other ones connected to this Vertex but this is unsignificant.
 	 */
-	if (Current_mission && !d_stricmp("Descent 2: Counterstrike!",Current_mission_longname) && !d_stricmp("d2levc-4.rl2",filename))
+	if (Current_mission && !d_stricmp("Descent 2: Counterstrike!", Current_mission->mission_name) && !d_stricmp("d2levc-4.rl2", filename))
 	{
 		shared_segment &s104 = *vmsegptr(vmsegidx_t(104));
 		auto &s104v0 = *vmvertptr(s104.verts[0]);
