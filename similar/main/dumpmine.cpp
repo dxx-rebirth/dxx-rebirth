@@ -541,7 +541,7 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 		int	sidenum;
 
 		const auto i = underlying_value(wallnum_t{wp});
-		PHYSFSX_printf(my_file, "Wall %03hu: seg=%3i, side=%2i, linked_wall=%3hu, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i, w.segnum, w.sidenum, underlying_value(wallnum_t{w.linked_wall}), Wall_names[w.type], underlying_value(w.flags), w.hps >> 16, underlying_value(w.trigger), w.clip_num, underlying_value(w.keys), w.state);
+		PHYSFSX_printf(my_file, "Wall %03hu: seg=%3i, side=%2i, linked_wall=%3hu, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i, w.segnum, w.sidenum, underlying_value(wallnum_t{w.linked_wall}), Wall_names[w.type], underlying_value(w.flags), w.hps >> 16, underlying_value(w.trigger), w.clip_num, underlying_value(w.keys), underlying_value(w.state));
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (const auto utw = underlying_value(w.trigger); utw >= Triggers.get_count())

@@ -1859,7 +1859,7 @@ int ai_door_is_openable(
 	{
 		const auto wt = wall.type;
 		if (wall.flags & wall_flag::buddy_proof) {
-			if (wt == WALL_DOOR && wall.state == WALL_DOOR_CLOSED)
+			if (wt == WALL_DOOR && wall.state == wall_state::closed)
 				return 0;
 			else if (wt == WALL_CLOSED)
 				return 0;
@@ -1893,7 +1893,7 @@ int ai_door_is_openable(
 			if (wt == WALL_CLOSED)
 				return 0;
 			if (wt == WALL_DOOR) {
-				if ((wall.flags & wall_flag::door_locked) && (wall.state == WALL_DOOR_CLOSED))
+				if ((wall.flags & wall_flag::door_locked) && (wall.state == wall_state::closed))
 					return 0;
 			}
 		}
@@ -1905,8 +1905,8 @@ int ai_door_is_openable(
 			if (clip_num == -1)
 				return clip_num;
 			else if (WallAnims[clip_num].flags & WCF_HIDDEN) {
-				static_assert(WALL_DOOR_CLOSED == 0, "WALL_DOOR_CLOSED must be zero for this shortcut to work properly.");
-				return wall.state;
+				static_assert(static_cast<unsigned>(wall_state::closed) == 0, "wall_state::closed must be zero for this shortcut to work properly.");
+				return underlying_value(wall.state);
 			} else
 				return 1;
 		}
@@ -1918,8 +1918,8 @@ int ai_door_is_openable(
 					return clip_num;
 				//	Buddy allowed to go through secret doors to get to player.
 				else if ((ailp_mode != ai_mode::AIM_GOTO_PLAYER) && (WallAnims[clip_num].flags & WCF_HIDDEN)) {
-					static_assert(WALL_DOOR_CLOSED == 0, "WALL_DOOR_CLOSED must be zero for this shortcut to work properly.");
-					return wall.state;
+					static_assert(static_cast<unsigned>(wall_state::closed) == 0, "wall_state::closed must be zero for this shortcut to work properly.");
+					return underlying_value(wall.state);
 				} else
 					return 1;
 		}
@@ -1960,7 +1960,7 @@ static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_se
 				continue;
 			if (w.keys != wall_key::none)
 				continue;
-			if (w.state != WALL_DOOR_CLOSED)
+			if (w.state != wall_state::closed)
 				continue;
 			if (w.flags & wall_flag::door_locked)
 				continue;

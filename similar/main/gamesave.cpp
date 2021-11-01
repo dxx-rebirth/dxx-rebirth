@@ -1038,7 +1038,7 @@ static int load_game_data(
 			nw.clip_num	= w.clip_num;
 #endif
 			nw.keys		= static_cast<wall_key>(w.keys);
-			nw.state		= WALL_DOOR_CLOSED;
+			nw.state		= wall_state::closed;
 		} else {
 			v16_wall w;
 			v16_wall_read(LoadFile, w);

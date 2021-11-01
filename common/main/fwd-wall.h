@@ -53,22 +53,7 @@ enum wall_type_t : uint8_t
 namespace dcx {
 
 enum class wall_flag : uint8_t;
-
-typedef unsigned wall_state_t;
-constexpr std::integral_constant<wall_state_t, 0> WALL_DOOR_CLOSED{};       // Door is closed
-constexpr std::integral_constant<wall_state_t, 1> WALL_DOOR_OPENING{};       // Door is opening.
-constexpr std::integral_constant<wall_state_t, 2> WALL_DOOR_WAITING{};       // Waiting to close
-constexpr std::integral_constant<wall_state_t, 3> WALL_DOOR_CLOSING{};       // Door is closing
-}
-#if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
-constexpr std::integral_constant<wall_state_t, 4> WALL_DOOR_OPEN{};       // Door is open, and staying open
-constexpr std::integral_constant<wall_state_t, 5> WALL_DOOR_CLOAKING{};       // Wall is going from closed -> open
-constexpr std::integral_constant<wall_state_t, 6> WALL_DOOR_DECLOAKING{};       // Wall is going from open -> closed
-}
-#endif
-
-namespace dcx {
+enum class wall_state : uint8_t;
 enum class wall_key : uint8_t;
 
 constexpr std::integral_constant<fix, 100 * F1_0> WALL_HPS{};    // Normal wall's hp

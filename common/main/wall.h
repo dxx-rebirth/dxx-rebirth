@@ -148,6 +148,19 @@ enum class wall_flag : uint8_t
 
 enum class wall_flags : uint8_t;
 
+enum class wall_state : uint8_t
+{
+	closed,		// Door is closed
+	opening,	// Door is opening.
+	waiting,	// Waiting to close
+	closing,	// Door is closing
+	/* if DXX_BUILD_DESCENT_II */
+	open,		// Door is open, and staying open
+	cloaking,	// Wall is going from closed -> open
+	decloaking,	// Wall is going from open -> closed
+	/* endif */
+};
+
 static constexpr auto &operator|=(wall_flags &wall, const wall_flag f)
 {
 	return wall = static_cast<wall_flags>(underlying_value(wall) | underlying_value(f));
@@ -202,7 +215,7 @@ struct wall : public prohibit_void_ptr<wall>
 	uint16_t explode_time_elapsed;
 	wallnum_t linked_wall;        // number of linked wall
 	wall_flags flags;              // Flags for the wall.
-	ubyte   state;              // Opening, closing, etc.
+	wall_state state;              // Opening, closing, etc.
 	trgnum_t trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.
 	wall_key keys;               // which keys are required

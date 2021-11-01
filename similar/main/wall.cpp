@@ -207,7 +207,7 @@ static WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBit
 	{
 	if (unlikely(flags & wall_flag::door_opened))
 		return WID_TRANSILLUSORY_WALL;
-	if (likely(type == WALL_DOOR) && unlikely(w.state == WALL_DOOR_OPENING))
+	if (likely(type == WALL_DOOR) && unlikely(w.state == wall_state::opening))
 		return WID_TRANSPARENT_WALL;
 	}
 // If none of the above flags are set, there is no doorway.
@@ -424,17 +424,17 @@ void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 	wall *const w = vmwallptr(wall_num);
 	LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, wall_num);
 
-	if ((w->state == WALL_DOOR_OPENING) ||		//already opening
-		 (w->state == WALL_DOOR_WAITING))		//open, waiting to close
+	if (w->state == wall_state::opening ||		//already opening
+		w->state == wall_state::waiting)		//open, waiting to close
 		return;
 #if defined(DXX_BUILD_DESCENT_II)
-	if (w->state == WALL_DOOR_OPEN)			//open, & staying open
+	if (w->state == wall_state::open)			//open, & staying open
 		return;
 #endif
 
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	auto &vmactdoorptr = ActiveDoors.vmptr;
-	if (w->state == WALL_DOOR_CLOSING) {		//closing, so reuse door
+	if (w->state == wall_state::closing) {		//closing, so reuse door
 		const auto &&r = make_range(vmactdoorptr);
 		const auto &&i = std::find_if(r.begin(), r.end(), find_active_door_predicate(wall_num));
 		if (i == r.end())	// likely in demo playback or multiplayer
@@ -453,7 +453,7 @@ void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 		}
 	}
 	else {											//create new door
-		Assert(w->state == WALL_DOOR_CLOSED);
+		Assert(w->state == wall_state::closed);
 		const auto i = ActiveDoors.get_count();
 		ActiveDoors.set_count(i + 1);
 		d = vmactdoorptr(static_cast<actdoornum_t>(i));
@@ -461,7 +461,7 @@ void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 	}
 
 
-	w->state = WALL_DOOR_OPENING;
+	w->state = wall_state::opening;
 
 	// So that door can't be shot while opening
 	const auto &&csegp = vcsegptr(seg->shared_segment::children[side]);
@@ -472,7 +472,7 @@ void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 		auto &imwallptr = Walls.imptr;
 		if (const auto &&w1 = imwallptr(cwall_num))
 		{
-			w1->state = WALL_DOOR_OPENING;
+			w1->state = wall_state::opening;
 			d->back_wallnum[0] = cwall_num;
 		}
 		d->front_wallnum[0] = seg->shared_segment::sides[side].wall_num;
@@ -491,7 +491,7 @@ void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 		Assert(w2->linked_wall == seg->shared_segment::sides[side].wall_num);
 		//Assert(!(w2->flags & WALL_DOOR_OPENING  ||  w2->flags & WALL_DOOR_OPENED));
 
-		w2->state = WALL_DOOR_OPENING;
+		w2->state = wall_state::opening;
 
 		const auto &&seg2 = vcsegptridx(w2->segnum);
 		const auto &&csegp2 = vcsegptr(seg2->shared_segment::children[w2->sidenum]);
@@ -500,7 +500,7 @@ void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 		const auto cwall_num = csegp2->shared_segment::sides[Connectside].wall_num;
 		auto &imwallptr = Walls.imptr;
 		if (const auto &&w3 = imwallptr(cwall_num))
-			w3->state = WALL_DOOR_OPENING;
+			w3->state = wall_state::opening;
 
 		d->n_parts = 2;
 		d->front_wallnum[1] = w->linked_wall;
@@ -536,7 +536,7 @@ void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	const auto &&w = Walls.vmptridx(seg->shared_segment::sides[side].wall_num);
 
-	if (w->type == WALL_OPEN || w->state == WALL_DOOR_CLOAKING)		//already open or cloaking
+	if (w->type == WALL_OPEN || w->state == wall_state::cloaking)		//already open or cloaking
 		return;
 
 	const auto &&csegp = vcsegptr(seg->children[side]);
@@ -545,7 +545,8 @@ void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
 	const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 
 	auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
-	if (w->state == WALL_DOOR_DECLOAKING) {	//decloaking, so reuse door
+	if (w->state == wall_state::decloaking)
+	{	//decloaking, so reuse door
 		const auto &&r = make_range(CloakingWalls.vmptr);
 		const auto i = std::find_if(r.begin(), r.end(), find_cloaked_wall_predicate(w));
 		if (i == r.end())
@@ -556,7 +557,7 @@ void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
 		d = *i;
 		d->time = CLOAKING_WALL_TIME - d->time;
 	}
-	else if (w->state == WALL_DOOR_CLOSED) {	//create new door
+	else if (w->state == wall_state::closed) {	//create new door
 		const clwallnum_t c = CloakingWalls.get_count();
 		if (c >= CloakingWalls.size())
 		{
@@ -575,9 +576,9 @@ void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
 		return;
 	}
 
-	w->state = WALL_DOOR_CLOAKING;
+	w->state = wall_state::cloaking;
 	if (const auto &&w1 = Walls.imptr(cwall_num))
-		w1->state = WALL_DOOR_CLOAKING;
+		w1->state = wall_state::cloaking;
 
 	d->front_wallnum = seg->shared_segment::sides[side].wall_num;
 	d->back_wallnum = cwall_num;
@@ -617,11 +618,11 @@ void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	const auto &&w = Walls.vmptridx(sside.wall_num);
 
-	if (w->type == WALL_CLOSED || w->state == WALL_DOOR_DECLOAKING)		//already closed or decloaking
+	if (w->type == WALL_CLOSED || w->state == wall_state::decloaking)		//already closed or decloaking
 		return;
 
 	auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
-	if (w->state == WALL_DOOR_CLOAKING) {	//cloaking, so reuse door
+	if (w->state == wall_state::cloaking) {	//cloaking, so reuse door
 		const auto &&r = make_range(CloakingWalls.vmptr);
 		const auto i = std::find_if(r.begin(), r.end(), find_cloaked_wall_predicate(w));
 		if (i == r.end())
@@ -632,7 +633,7 @@ void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 		d = *i;
 		d->time = CLOAKING_WALL_TIME - d->time;
 	}
-	else if (w->state == WALL_DOOR_CLOSED) {	//create new door
+	else if (w->state == wall_state::closed) {	//create new door
 		const clwallnum_t c = CloakingWalls.get_count();
 		if (c >= CloakingWalls.size())
 		{
@@ -652,7 +653,7 @@ void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 		return;
 	}
 
-	w->state = WALL_DOOR_DECLOAKING;
+	w->state = wall_state::decloaking;
 
 	// So that door can't be shot while opening
 	const auto &&csegp = vcsegptr(seg->children[side]);
@@ -661,7 +662,7 @@ void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
 	auto &csside = csegp->shared_segment::sides[Connectside];
 	const auto cwall_num = csside.wall_num;
 	if (const auto &&w1 = Walls.imptr(cwall_num))
-		w1->state = WALL_DOOR_DECLOAKING;
+		w1->state = wall_state::decloaking;
 
 	d->front_wallnum = seg->shared_segment::sides[side].wall_num;
 	d->back_wallnum = csside.wall_num;
@@ -697,7 +698,7 @@ void wall_close_door_ref(fvmsegptridx &vmsegptridx, wall_array &Walls, const wal
 
 		const auto &&seg = vmsegptridx(w.segnum);
 		const auto side = w.sidenum;
-		w.state = WALL_DOOR_CLOSED;
+		w.state = wall_state::closed;
 
 		assert(seg->shared_segment::sides[side].wall_num != wall_none);		//Closing door on illegal wall
 
@@ -706,7 +707,7 @@ void wall_close_door_ref(fvmsegptridx &vmsegptridx, wall_array &Walls, const wal
 		Assert(Connectside != side_none);
 		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 		if (const auto &&w1 = Walls.imptr(cwall_num))
-			w1->state = WALL_DOOR_CLOSED;
+			w1->state = wall_state::closed;
 
 		wall_set_tmap_num(WallAnims[w.clip_num], seg, side, csegp, Connectside, 0);
 	}
@@ -782,9 +783,9 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned 
 
 	const auto wall_num = seg->shared_segment::sides[side].wall_num;
 	wall *const w = Walls.vmptr(wall_num);
-	if ((w->state == WALL_DOOR_CLOSING) ||		//already closing
-		 (w->state == WALL_DOOR_WAITING)	||		//open, waiting to close
-		 (w->state == WALL_DOOR_CLOSED))			//closed
+	if ((w->state == wall_state::closing) ||		//already closing
+		 (w->state == wall_state::waiting)	||		//open, waiting to close
+		 (w->state == wall_state::closed))			//closed
 		return;
 
 	if (is_door_obstructed(vcobjptridx, vcsegptr, seg, side))
@@ -792,7 +793,8 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned 
 
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	auto &vmactdoorptr = ActiveDoors.vmptr;
-	if (w->state == WALL_DOOR_OPENING) {	//reuse door
+	if (w->state == wall_state::opening)
+	{	//reuse door
 		const auto &&r = make_range(vmactdoorptr);
 		const auto &&i = std::find_if(r.begin(), r.end(), find_active_door_predicate(wall_num));
 		if (i == r.end())
@@ -808,14 +810,14 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned 
 
 	}
 	else {											//create new door
-		Assert(w->state == WALL_DOOR_OPEN);
+		assert(w->state == wall_state::open);
 		const auto i = ActiveDoors.get_count();
 		ActiveDoors.set_count(i + 1);
 		d = vmactdoorptr(static_cast<actdoornum_t>(i));
 		d->time = 0;
 	}
 
-	w->state = WALL_DOOR_CLOSING;
+	w->state = wall_state::closing;
 
 	// So that door can't be shot while opening
 	const auto &&csegp = vcsegptr(seg->children[side]);
@@ -823,7 +825,7 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned 
 	Assert(Connectside != side_none);
 	const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 	if (const auto &&w1 = Walls.imptr(cwall_num))
-		w1->state = WALL_DOOR_CLOSING;
+		w1->state = wall_state::closing;
 
 	d->front_wallnum[0] = seg->shared_segment::sides[side].wall_num;
 	d->back_wallnum[0] = cwall_num;
@@ -917,13 +919,13 @@ static bool do_door_open(active_door &d)
 			{
 				remove = true;
 #if defined(DXX_BUILD_DESCENT_II)
-				w.state = WALL_DOOR_OPEN;
-				w1.state = WALL_DOOR_OPEN;
+				w.state = wall_state::open;
+				w1.state = wall_state::open;
 #endif
 			}
 			else {
-				w.state = WALL_DOOR_WAITING;
-				w1.state = WALL_DOOR_WAITING;
+				w.state = wall_state::waiting;
+				w1.state = wall_state::waiting;
 			}
 		}
 
@@ -1027,8 +1029,8 @@ static bool do_door_close(active_door &d)
 		if (i > 0) {
 			wall_set_tmap_num(wa, seg, side, csegp, Connectside, i);
 
-			wp.state = WALL_DOOR_CLOSING;
-			w1.state = WALL_DOOR_CLOSING;
+			wp.state = wall_state::closing;
+			w1.state = wall_state::closing;
 		} else
 			remove = true;
 	}
@@ -1186,7 +1188,7 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 			return wall_hit_process_t::WHP_NO_KEY;
 		}
 		else {
-			if (w->state != WALL_DOOR_OPENING)
+			if (w->state != wall_state::opening)
 			{
 				wall_open_door(seg, side);
 				if (Game_mode & GM_MULTI)
@@ -1231,7 +1233,7 @@ void wall_toggle(fvmwallptr &vmwallptr, const vmsegptridx_t segp, const unsigned
 	if (w->type == WALL_BLASTABLE)
 		wall_destroy(segp, side);
 
-	if (w->type == WALL_DOOR && w->state == WALL_DOOR_CLOSED)
+	if (w->type == WALL_DOOR && w->state == wall_state::closed)
 		wall_open_door(segp, side);
 }
 
@@ -1243,11 +1245,12 @@ bool ad_removal_predicate::operator()(active_door &d) const
 #endif
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	wall &w = *Walls.vmptr(d.front_wallnum[0]);
-	if (w.state == WALL_DOOR_OPENING)
+	if (w.state == wall_state::opening)
 		return do_door_open(d);
-	else if (w.state == WALL_DOOR_CLOSING)
+	else if (w.state == wall_state::closing)
 		return do_door_close(d);
-	else if (w.state == WALL_DOOR_WAITING) {
+	else if (w.state == wall_state::waiting)
+	{
 		d.time += FrameTime;
 		// set flags to fix occasional netgame problem where door is waiting to close but open flag isn't set
 		w.flags |= wall_flag::door_opened;
@@ -1258,7 +1261,7 @@ bool ad_removal_predicate::operator()(active_door &d) const
 			if (!is_door_obstructed(vcobjptridx, vcsegptr, vcsegptridx(w.segnum), w.sidenum))
 #endif
 			{
-				w.state = WALL_DOOR_CLOSING;
+				w.state = wall_state::closing;
 				d.time = 0;
 			}
 	}
@@ -1291,7 +1294,7 @@ static cwresult do_cloaking_wall_frame(const bool initial, cloaking_wall &d, con
 	cwresult r(initial);
 	if (d.time > CLOAKING_WALL_TIME) {
 		front.w.type = back.w.type = WALL_OPEN;
-		front.w.state = back.w.state = WALL_DOOR_CLOSED;		//why closed? why not?
+		front.w.state = back.w.state = wall_state::closed;		//why closed? why not?
 		r.remove = true;
 	}
 	else if (d.time > CLOAKING_WALL_TIME/2) {
@@ -1321,8 +1324,8 @@ static cwresult do_decloaking_wall_frame(const bool initial, cloaking_wall &d, c
 	cwresult r(initial);
 	if (d.time > CLOAKING_WALL_TIME) {
 
-		back.w.state = WALL_DOOR_CLOSED;
-		front.w.state = WALL_DOOR_CLOSED;
+		back.w.state = wall_state::closed;
+		front.w.state = wall_state::closed;
 		copy_cloaking_wall_light_to_wall(back.uvls, front.uvls, d);
 		r.remove = true;
 	}
@@ -1355,9 +1358,9 @@ bool cw_removal_predicate::operator()(cloaking_wall &d)
 	d.time += FrameTime;
 
 	cwresult r;
-	if (front.w.state == WALL_DOOR_CLOAKING)
+	if (front.w.state == wall_state::cloaking)
 		r = do_cloaking_wall_frame(initial, d, front, back);
-	else if (front.w.state == WALL_DOOR_DECLOAKING)
+	else if (front.w.state == wall_state::decloaking)
 		r = do_decloaking_wall_frame(initial, d, front, back);
 	else
 	{

@@ -1607,14 +1607,14 @@ void newdemo_record_laser_level(const laser_level old_level, const laser_level n
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
-void newdemo_record_cloaking_wall(wallnum_t front_wall_num, wallnum_t back_wall_num, ubyte type, ubyte state, fix cloak_value, fix l0, fix l1, fix l2, fix l3)
+void newdemo_record_cloaking_wall(wallnum_t front_wall_num, wallnum_t back_wall_num, ubyte type, const wall_state state, fix cloak_value, fix l0, fix l1, fix l2, fix l3)
 {
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_CLOAKING_WALL);
 	nd_write_byte(static_cast<uint8_t>(front_wall_num));
 	nd_write_byte(static_cast<uint8_t>(back_wall_num));
 	nd_write_byte(type);
-	nd_write_byte(state);
+	nd_write_byte(underlying_value(state));
 	nd_write_byte(cloak_value);
 	nd_write_short(l0>>8);
 	nd_write_short(l1>>8);
@@ -1640,11 +1640,11 @@ void newdemo_set_new_level(int level_num)
 			auto &w = *wp;
 			nd_write_byte (w.type);
 			nd_write_byte (underlying_value(w.flags));
-			nd_write_byte (w.state);
+			nd_write_byte (underlying_value(w.state));
 
 			const auto &side = vcsegptr(w.segnum)->unique_segment::sides[w.sidenum];
-			nd_write_short(static_cast<uint16_t>(side.tmap_num));
-			nd_write_short(static_cast<uint16_t>(side.tmap_num2));
+			nd_write_short(underlying_value(side.tmap_num));
+			nd_write_short(underlying_value(side.tmap_num2));
 			nd_record_v_juststarted=0;
 		}
 	}
@@ -3209,7 +3209,7 @@ static int newdemo_read_frame_information(int rewrite)
 			{
 				auto &w = *vmwallptr(front_wall_num);
 				w.type = type;
-				w.state = state;
+				w.state = wall_state{state};
 				w.cloak_value = cloak_value;
 				auto &uvl = vmsegptr(w.segnum)->unique_segment::sides[w.sidenum].uvls;
 				uvl[0].l = (static_cast<int>(l0)) << 8;
@@ -3220,7 +3220,7 @@ static int newdemo_read_frame_information(int rewrite)
 			{
 				auto &w = *vmwallptr(back_wall_num);
 				w.type = type;
-				w.state = state;
+				w.state = wall_state{state};
 				w.cloak_value = cloak_value;
 				auto &uvl = vmsegptr(w.segnum)->unique_segment::sides[w.sidenum].uvls;
 				uvl[0].l = (static_cast<int>(l0)) << 8;
@@ -3294,7 +3294,9 @@ static int newdemo_read_frame_information(int rewrite)
 					uint8_t wf;
 					nd_read_byte(&wf);
 					w.flags = wall_flags{wf};
-					nd_read_byte(&w.state);
+					uint8_t ws;
+					nd_read_byte(&ws);
+					w.state = wall_state{ws};
 
 					auto &side = vmsegptr(w.segnum)->unique_segment::sides[w.sidenum];
 					uint16_t tmap_num1;
@@ -3308,7 +3310,7 @@ static int newdemo_read_frame_information(int rewrite)
 					{
 						nd_write_byte (w.type);
 						nd_write_byte (underlying_value(w.flags));
-						nd_write_byte (w.state);
+						nd_write_byte (underlying_value(w.state));
 						nd_write_short(underlying_value(side.tmap_num));
 						nd_write_short(underlying_value(side.tmap_num2));
 					}

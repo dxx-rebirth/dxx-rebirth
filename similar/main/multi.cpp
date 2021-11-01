@@ -2126,7 +2126,7 @@ static void multi_do_door_open(fvmwallptr &vmwallptr, const uint8_t *const buf)
 		}
 		return;
 	}
-	else if (w.state != WALL_DOOR_OPENING)
+	else if (w.state != wall_state::opening)
 	{
 		wall_open_door(seg, side);
 	}
@@ -3959,7 +3959,7 @@ static void multi_do_stolen_items(const uint8_t *const buf)
 
 }
 
-void multi_send_wall_status_specific(const playernum_t pnum, wallnum_t wallnum, uint8_t type, const wall_flags flags, uint8_t state)
+void multi_send_wall_status_specific(const playernum_t pnum, wallnum_t wallnum, uint8_t type, const wall_flags flags, const wall_state state)
 {
 	// Send wall states a specific rejoining player
 
@@ -3974,7 +3974,7 @@ void multi_send_wall_status_specific(const playernum_t pnum, wallnum_t wallnum, 
 	count+=2;
 	multibuf[count]=type;                 count++;
 	multibuf[count] = underlying_value(flags); count++;
-	multibuf[count]=state;                count++;
+	multibuf[count] = underlying_value(state); count++;
 
 	multi_send_data_direct(multibuf, pnum, 2);
 }
@@ -3993,7 +3993,7 @@ static void multi_do_wall_status(fvmwallptr &vmwallptr, const uint8_t *const buf
 	auto &w = *vmwallptr(wallnum);
 	w.type = type;
 	w.flags = wall_flags{flag};
-	w.state = state;
+	w.state = wall_state{state};
 
 	if (w.type == WALL_OPEN)
 	{

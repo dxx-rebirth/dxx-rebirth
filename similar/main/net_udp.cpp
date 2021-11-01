@@ -1973,7 +1973,7 @@ static void net_udp_send_door_updates(void)
 	range_for (const auto &&p, vcwallptridx)
 	{
 		auto &w = *p;
-		if ((w.type == WALL_DOOR && (w.state == WALL_DOOR_OPENING || w.state == WALL_DOOR_WAITING)) || (w.type == WALL_BLASTABLE && (w.flags & wall_flag::blasted)))
+		if ((w.type == WALL_DOOR && (w.state == wall_state::opening || w.state == wall_state::waiting)) || (w.type == WALL_BLASTABLE && (w.flags & wall_flag::blasted)))
 			multi_send_door_open(w.segnum, w.sidenum, {});
 		else if (w.type == WALL_BLASTABLE && w.hps != WALL_HPS)
 			multi_send_hostage_door_status(p);
@@ -1989,7 +1989,7 @@ static void net_udp_send_door_updates(const playernum_t pnum)
 	range_for (const auto &&p, vcwallptridx)
 	{
 		auto &w = *p;
-		if ((w.type == WALL_DOOR && (w.state == WALL_DOOR_OPENING || w.state == WALL_DOOR_WAITING || w.state == WALL_DOOR_OPEN)) || (w.type == WALL_BLASTABLE && (w.flags & wall_flag::blasted)))
+		if ((w.type == WALL_DOOR && (w.state == wall_state::opening || w.state == wall_state::waiting || w.state == wall_state::open)) || (w.type == WALL_BLASTABLE && (w.flags & wall_flag::blasted)))
 			multi_send_door_open_specific(pnum,w.segnum, w.sidenum,w.flags);
 		else if (w.type == WALL_BLASTABLE && w.hps != WALL_HPS)
 			multi_send_hostage_door_status(p);
