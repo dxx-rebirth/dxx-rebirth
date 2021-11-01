@@ -199,7 +199,7 @@ void gr_ubitmap(grs_canvas &canvas, grs_bitmap &bm)
 			return;
 #if DXX_USE_OGL
 		case bm_mode::ogl:
-			ogl_ubitmapm_cs(canvas, x, y, -1, -1, bm, ogl_colors::white, F1_0);
+			ogl_ubitmapm_cs(canvas, x, y, -1, -1, bm, ogl_colors::white);
 			return;
 #endif
 		default:
@@ -309,7 +309,7 @@ void gr_bitmap(grs_canvas &canvas, const unsigned x, const unsigned y, grs_bitma
 		return;
 	// Draw bitmap bm[x,y] into (dx1,dy1)-(dx2,dy2)
 #if DXX_USE_OGL
-	ogl_ubitmapm_cs(canvas, x, y, 0, 0, bm, ogl_colors::white, F1_0);
+	ogl_ubitmapm_cs(canvas, x, y, 0, 0, bm, ogl_colors::white);
 #else
 	int sx = 0, sy = 0;
 	if ( dx1 < 0 )
@@ -495,7 +495,7 @@ void show_fullscr(grs_canvas &canvas, grs_bitmap &bm)
 	if (bm.get_type() == bm_mode::linear && scr.get_type() == bm_mode::ogl &&
 		bm.bm_w <= grd_curscreen->get_screen_width() && bm.bm_h <= grd_curscreen->get_screen_height()) // only scale with OGL if bitmap is not bigger than screen size
 	{
-		ogl_ubitmapm_cs(canvas, 0, 0, -1, -1, bm, ogl_colors::white, F1_0);//use opengl to scale, faster and saves ram. -MPM
+		ogl_ubitmapm_cs(canvas, 0, 0, -1, -1, bm, ogl_colors::white);//use opengl to scale, faster and saves ram. -MPM
 		return;
 	}
 #endif

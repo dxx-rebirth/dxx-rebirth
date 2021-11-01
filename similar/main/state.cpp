@@ -249,7 +249,7 @@ void savegame_chooser_newmenu::draw_handler(grs_canvas &canvas, const grs_bitmap
 	scale_bitmap(bmp, vertbuf, 0, temp_canv->cv_bitmap);
 	const auto bx = (canvas.cv_bitmap.bm_w / 2) - fspacx(THUMBNAIL_W / 2);
 #if DXX_USE_OGL
-	ogl_ubitmapm_cs(canvas, bx, m[0].y - fspacy(3), fspacx(THUMBNAIL_W), fspacy(THUMBNAIL_H), temp_canv->cv_bitmap, ogl_colors::white, F1_0);
+	ogl_ubitmapm_cs(canvas, bx, m[0].y - fspacy(3), fspacx(THUMBNAIL_W), fspacy(THUMBNAIL_H), temp_canv->cv_bitmap, ogl_colors::white);
 #else
 	gr_bitmap(canvas, bx, m[0].y - 3, temp_canv->cv_bitmap);
 #endif

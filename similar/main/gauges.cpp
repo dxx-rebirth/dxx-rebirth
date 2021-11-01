@@ -861,7 +861,7 @@ enumerated_array<gauge_inset_window, 2, gauge_inset_window_view> inset_window;
 static inline void hud_bitblt_free(grs_canvas &canvas, const unsigned x, const unsigned y, const unsigned w, const unsigned h, grs_bitmap &bm)
 {
 #if DXX_USE_OGL
-	ogl_ubitmapm_cs(canvas, x, y, w, h, bm, ogl_colors::white, F1_0);
+	ogl_ubitmapm_cs(canvas, x, y, w, h, bm, ogl_colors::white);
 #else
 	gr_ubitmapm(canvas, x, y, bm);
 #endif
@@ -2117,7 +2117,7 @@ static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *c
 #endif
 	gr_set_transparent(WinBoxOverlay.decoded_full_cockpit_image, 1);
 #if DXX_USE_OGL
-	ogl_ubitmapm_cs(hudctx.canvas, 0, 0, -1, -1, WinBoxOverlay.decoded_full_cockpit_image, 255, F1_0); // render one time to init the texture
+	ogl_ubitmapm_cs(hudctx.canvas, 0, 0, -1, -1, WinBoxOverlay.decoded_full_cockpit_image, 255); // render one time to init the texture
 #endif
 	WinBoxOverlay[0] = gr_create_sub_bitmap(WinBoxOverlay.decoded_full_cockpit_image, (PRIMARY_W_BOX_LEFT) - 2, (PRIMARY_W_BOX_TOP) - 2, (PRIMARY_W_BOX_RIGHT - PRIMARY_W_BOX_LEFT + 4), (PRIMARY_W_BOX_BOT - PRIMARY_W_BOX_TOP + 4));
 	WinBoxOverlay[1] = gr_create_sub_bitmap(WinBoxOverlay.decoded_full_cockpit_image, (SECONDARY_W_BOX_LEFT) - 2, (SECONDARY_W_BOX_TOP) - 2, (SECONDARY_W_BOX_RIGHT - SECONDARY_W_BOX_LEFT) + 4, (SECONDARY_W_BOX_BOT - SECONDARY_W_BOX_TOP) + 4);

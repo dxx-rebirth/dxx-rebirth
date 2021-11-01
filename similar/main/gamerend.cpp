@@ -931,7 +931,7 @@ static void update_cockpits(grs_canvas &canvas)
 			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
 #if DXX_USE_OGL
-			ogl_ubitmapm_cs(canvas, 0, 0, -1, -1, *bm, 255, F1_0);
+			ogl_ubitmapm_cs(canvas, 0, 0, -1, -1, *bm, 255);
 #else
 			gr_ubitmapm(canvas, 0, 0, *bm);
 #endif
@@ -944,7 +944,7 @@ static void update_cockpits(grs_canvas &canvas)
 			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
 #if DXX_USE_OGL
-			ogl_ubitmapm_cs(canvas, 0, (HIRESMODE ? (SHEIGHT * 2) / 2.6 : (SHEIGHT * 2) / 2.72), -1, (static_cast<int>(static_cast<double>(bm->bm_h) * (HIRESMODE ? static_cast<double>(SHEIGHT) / 480 : static_cast<double>(SHEIGHT) / 200) + 0.5)), *bm, 255, F1_0);
+			ogl_ubitmapm_cs(canvas, 0, (HIRESMODE ? (SHEIGHT * 2) / 2.6 : (SHEIGHT * 2) / 2.72), -1, (static_cast<int>(static_cast<double>(bm->bm_h) * (HIRESMODE ? static_cast<double>(SHEIGHT) / 480 : static_cast<double>(SHEIGHT) / 200) + 0.5)), *bm, 255);
 #else
 			gr_ubitmapm(canvas, 0, SHEIGHT - bm->bm_h, *bm);
 #endif

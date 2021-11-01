@@ -1954,18 +1954,18 @@ const ogl_colors::array_type &ogl_colors::init_palette(const unsigned c)
 	return a;
 }
 
-bool ogl_ubitmapm_cs(grs_canvas &canvas, int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scale) // to scale bitmaps
+bool ogl_ubitmapm_cs(grs_canvas &canvas, int x, int y,int dw, int dh, grs_bitmap &bm, int c)
 {
 	ogl_colors color;
-	return ogl_ubitmapm_cs(canvas, x, y, dw, dh, bm, color.init(c), scale);
+	return ogl_ubitmapm_cs(canvas, x, y, dw, dh, bm, color.init(c));
 }
 
 /*
  * Menu / gauges 
  */
-bool ogl_ubitmapm_cs(grs_canvas &canvas, int x, int y,int dw, int dh, grs_bitmap &bm, const ogl_colors::array_type &color_array, int scale) // to scale bitmaps
+bool ogl_ubitmapm_cs(grs_canvas &canvas, int x, int y, int dw, int dh, grs_bitmap &bm, const ogl_colors::array_type &color_array)
 {
-	GLfloat yo,xf,yf,u1,u2,v1,v2,h;
+	GLfloat yo,xf,yf,u1,u2,v1,v2;
 	ogl_client_states<GLfloat, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
 	auto &xo = std::get<0>(cs);
 	x += canvas.cv_bitmap.bm_x;
@@ -1984,12 +1984,10 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, int x, int y,int dw, int dh, grs_bitmap
 	else if (dh == 0)
 		dh = bm.bm_h;
 
-	h = static_cast<double>(scale) / static_cast<double>(F1_0);
-
-	xo = x / (static_cast<double>(last_width) * h);
-	xf = (dw + x) / (static_cast<double>(last_width) * h);
-	yo = 1.0 - y / (static_cast<double>(last_height) * h);
-	yf = 1.0 - (dh + y) / (static_cast<double>(last_height) * h);
+	xo = x / (static_cast<double>(last_width));
+	xf = (dw + x) / (static_cast<double>(last_width));
+	yo = 1.0 - y / (static_cast<double>(last_height));
+	yf = 1.0 - (dh + y) / (static_cast<double>(last_height));
 
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm, 0);

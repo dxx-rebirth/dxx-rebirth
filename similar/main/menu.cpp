@@ -3009,7 +3009,7 @@ window_event_result gamebitmaps_viewer_window::event_handler(const d_event &even
 				gr_clear_canvas(canvas, BM_XRGB(0,0,0));
 #if DXX_USE_OGL
 				scale = (bm->bm_w > bm->bm_h)?(SHEIGHT/bm->bm_w)*0.8:(SHEIGHT/bm->bm_h)*0.8;
-				ogl_ubitmapm_cs(canvas, (SWIDTH / 2) - (bm->bm_w * scale / 2), (SHEIGHT / 2) - (bm->bm_h * scale / 2), bm->bm_w * scale, bm->bm_h * scale, *bm, ogl_colors::white, F1_0);
+				ogl_ubitmapm_cs(canvas, (SWIDTH / 2) - (bm->bm_w * scale / 2), (SHEIGHT / 2) - (bm->bm_h * scale / 2), bm->bm_w * scale, bm->bm_h * scale, *bm, ogl_colors::white);
 #else
 				gr_bitmap(canvas, (SWIDTH / 2) - (bm->bm_w / 2), (SHEIGHT / 2) - (bm->bm_h / 2), *bm);
 #endif

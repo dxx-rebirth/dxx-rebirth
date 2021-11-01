@@ -659,7 +659,7 @@ static void ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, con
 				? cv_font.ft_widths[letter]
 				: cv_font.ft_w;
 
-			ogl_ubitmapm_cs(canvas, line_x, yy, fontscale_x(ft_w), FONTSCALE_Y_ft_h, cv_font.ft_bitmaps[letter], (cv_font.ft_flags & FT_COLOR) ? colors.white : (canvas.cv_bitmap.get_type() == bm_mode::ogl) ? colors.init(canvas.cv_font_fg_color) : throw std::runtime_error("non-color string to non-ogl dest"), F1_0);
+			ogl_ubitmapm_cs(canvas, line_x, yy, fontscale_x(ft_w), FONTSCALE_Y_ft_h, cv_font.ft_bitmaps[letter], (cv_font.ft_flags & FT_COLOR) ? colors.white : (canvas.cv_bitmap.get_type() == bm_mode::ogl) ? colors.init(canvas.cv_font_fg_color) : throw std::runtime_error("non-color string to non-ogl dest"));
 
 			line_x += spacing;
 			text_ptr++;
