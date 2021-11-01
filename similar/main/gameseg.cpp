@@ -69,7 +69,7 @@ class abs_vertex_lists_predicate
 	const std::array<unsigned, 4> &m_sv;
 public:
 	abs_vertex_lists_predicate(const shared_segment &seg, const uint_fast32_t sidenum) :
-		m_vp(seg.verts), m_sv(Side_to_verts_int[sidenum])
+		m_vp(seg.verts), m_sv(Side_to_verts[sidenum])
 	{
 	}
 	vertnum_t operator()(const uint_fast32_t vv) const
@@ -260,8 +260,8 @@ namespace dsx {
 //   adjacent on the diagonal edge
 uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const uint_fast32_t sidenum)
 {
-	assert(sidenum < Side_to_verts_int.size());
-	auto &sv = Side_to_verts_int[sidenum];
+	assert(sidenum < Side_to_verts.size());
+	auto &sv = Side_to_verts[sidenum];
 	return create_vertex_lists_by_predicate(vertices, segp, sidep, [&sv](const uint_fast32_t vv) {
 		return sv[vv];
 	});

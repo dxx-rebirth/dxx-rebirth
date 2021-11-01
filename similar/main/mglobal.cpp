@@ -86,7 +86,7 @@ const std::array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite{{
 
 #define TOLOWER(c) ((((c)>='A') && ((c)<='Z'))?((c)+('a'-'A')):(c))
 
-const std::array<std::array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int{{
+const std::array<std::array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts{{
 	{{7,6,2,3}},			// left
 	{{0,4,7,3}},			// top
 	{{0,1,5,4}},			// right
