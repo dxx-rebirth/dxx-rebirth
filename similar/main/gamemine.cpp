@@ -57,12 +57,31 @@ int New_file_format_load = 1; // "new file format" is everything newer than d1 s
 namespace dsx {
 namespace {
 
+static uint8_t build_segment_special_from_untrusted(uint8_t untrusted)
+{
+	switch (untrusted)
+	{
+		case SEGMENT_IS_NOTHING:
+		case SEGMENT_IS_FUELCEN:
+		case SEGMENT_IS_REPAIRCEN:
+		case SEGMENT_IS_CONTROLCEN:
+		case SEGMENT_IS_ROBOTMAKER:
+#if defined(DXX_BUILD_DESCENT_II)
+		case SEGMENT_IS_GOAL_BLUE:
+		case SEGMENT_IS_GOAL_RED:
+#endif
+			return untrusted;
+		default:
+			return SEGMENT_IS_NOTHING;
+	}
+}
+
 /*
  * reads a segment2 structure from a PHYSFS_File
  */
 static void segment2_read(const msmusegment s2, PHYSFS_File *fp)
 {
-	s2.s.special = PHYSFSX_readByte(fp);
+	s2.s.special = build_segment_special_from_untrusted(PHYSFSX_readByte(fp));
 	s2.s.matcen_num = PHYSFSX_readByte(fp);
 	/* station_idx is overwritten by the caller in some cases, but set
 	 * it here for compatibility with how the game previously worked */
@@ -70,8 +89,6 @@ static void segment2_read(const msmusegment s2, PHYSFS_File *fp)
 	const auto s2_flags = PHYSFSX_readByte(fp);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)s2_flags;	// descent 2 ambient sound handling
-	if (s2.s.special >= MAX_CENTER_TYPES)
-		s2.s.special = SEGMENT_IS_NOTHING; // remove goals etc.
 #elif defined(DXX_BUILD_DESCENT_II)
 	s2.s.s2_flags = s2_flags;
 #endif
@@ -395,7 +412,7 @@ static void read_special(shared_segment &segp, const unsigned bit_mask, PHYSFS_F
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
 		// Read ubyte	Segments[segnum].special
-		segp.special = PHYSFSX_readByte(LoadFile);
+		segp.special = build_segment_special_from_untrusted(PHYSFSX_readByte(LoadFile));
 		// Read byte	Segments[segnum].matcen_num
 		segp.matcen_num = PHYSFSX_readByte(LoadFile);
 		// Read short	Segments[segnum].value
