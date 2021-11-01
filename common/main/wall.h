@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-object.h"
 #include "pack.h"
 #include "switch.h"
+#include "d_underlying_value.h"
 
 namespace dcx {
 
@@ -44,7 +45,7 @@ enum class wall_key : uint8_t
 
 constexpr uint8_t operator&(const wall_key a, const wall_key b)
 {
-	return static_cast<uint8_t>(a) & static_cast<uint8_t>(b);
+	return underlying_value(a) & underlying_value(b);
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -132,6 +133,46 @@ public:
 };
 #endif
 
+enum class wall_flag : uint8_t
+{
+	blasted = 1,	// Blasted out wall.
+	door_opened = 1u << 1,	// Open door.
+	door_locked = 1u << 3,	// Door is locked.
+	door_auto = 1u << 4,	// Door automatically closes after time.
+	illusion_off = 1u << 5,	// Illusionary wall is shut off.
+	exploding = 1u << 6,
+#if defined(DXX_BUILD_DESCENT_II)
+	buddy_proof = 1u << 7,	// Buddy assumes he cannot get through this wall.
+#endif
+};
+
+using wall_flags = uint8_t;
+
+static constexpr auto &operator|=(wall_flags &wall, const wall_flag f)
+{
+	return wall |= underlying_value(f);
+}
+
+static constexpr auto &operator&=(wall_flags &wall, const wall_flag f)
+{
+	return wall &= underlying_value(f);
+}
+
+static constexpr auto operator~(const wall_flag f)
+{
+	return static_cast<wall_flag>(~underlying_value(f));
+}
+
+static constexpr auto operator&(const wall_flags wall, const wall_flag f)
+{
+	return wall & underlying_value(f);
+}
+
+static constexpr auto operator|(const wall_flag f1, const wall_flag f2)
+{
+	return static_cast<wall_flag>(underlying_value(f1) | underlying_value(f2));
+}
+
 }
 
 //End old wall structures
@@ -160,7 +201,7 @@ struct wall : public prohibit_void_ptr<wall>
 	fix     hps;                // "Hit points" of the wall.
 	uint16_t explode_time_elapsed;
 	wallnum_t linked_wall;        // number of linked wall
-	ubyte   flags;              // Flags for the wall.
+	wall_flags flags;              // Flags for the wall.
 	ubyte   state;              // Opening, closing, etc.
 	trgnum_t trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.

@@ -525,9 +525,9 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 			auto &current_wall = w.get_checked_reference();
 			const auto wall_flags = current_wall.flags;
 			const auto wall_keys = current_wall.keys;
-			ui_checkbox_check(doorFlag[0].get(), wall_flags & WALL_DOOR_LOCKED);
-			ui_checkbox_check(doorFlag[1].get(), wall_flags & WALL_DOOR_AUTO);
-			ui_checkbox_check(doorFlag[2].get(), wall_flags & WALL_ILLUSION_OFF);
+			ui_checkbox_check(doorFlag[0].get(), wall_flags & wall_flag::door_locked);
+			ui_checkbox_check(doorFlag[1].get(), wall_flags & wall_flag::door_auto);
+			ui_checkbox_check(doorFlag[2].get(), wall_flags & wall_flag::illusion_off);
 
 			ui_radio_set_value(*keyFlag[0], wall_keys & wall_key::none);
 			ui_radio_set_value(*keyFlag[1], wall_keys & wall_key::blue);
@@ -546,17 +546,17 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 		if (GADGET_PRESSED(doorFlag[0].get()))
 		{
 			if (doorFlag[0]->flag == 1)
-				wp->flags |= WALL_DOOR_LOCKED;
+				wp->flags |= wall_flag::door_locked;
 			else
-				wp->flags &= ~WALL_DOOR_LOCKED;
+				wp->flags &= ~wall_flag::door_locked;
 			rval = window_event_result::handled;
 		}
 		else if (GADGET_PRESSED(doorFlag[1].get()))
 		{
 			if (doorFlag[1]->flag == 1)
-				wp->flags |= WALL_DOOR_AUTO;
+				wp->flags |= wall_flag::door_auto;
 			else
-				wp->flags &= ~WALL_DOOR_AUTO;
+				wp->flags &= ~wall_flag::door_auto;
 			rval = window_event_result::handled;
 		}
 
@@ -584,9 +584,9 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 		{
 			auto &wf = wp->flags;
 			if (doorFlag[2]->flag == 1)
-				wf |= WALL_ILLUSION_OFF;
+				wf |= wall_flag::illusion_off;
 			else
-				wf &= ~WALL_ILLUSION_OFF;
+				wf &= ~wall_flag::illusion_off;
 			rval = window_event_result::handled;
 		}
 	} else 
@@ -707,10 +707,11 @@ int wall_restore_all()
 	range_for (const auto &&wp, vmwallptr)
 	{
 		auto &w = *wp;
-		if (w.flags & WALL_BLASTED) {
+		if (w.flags & wall_flag::blasted)
+		{
 			w.hps = WALL_HPS;
 		}
-		w.flags &= ~(WALL_BLASTED | WALL_DOOR_OPENED | WALL_DOOR_OPENING | WALL_EXPLODING);
+		w.flags &= ~(wall_flag::blasted | wall_flag::door_opened | wall_flag::exploding);
 	}
 
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
@@ -876,8 +877,8 @@ static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmse
 			}
 
 		if (type == WALL_DOOR) {
-	  		w0.flags |= WALL_DOOR_AUTO;
-			w1.flags |= WALL_DOOR_AUTO;
+	  		w0.flags |= wall_flag::door_auto;
+			w1.flags |= wall_flag::door_auto;
 
 			w0.clip_num = Current_door_type;
 			w1.clip_num = Current_door_type;

@@ -51,21 +51,9 @@ enum wall_type_t : uint8_t
 }
 
 namespace dcx {
-typedef unsigned wall_flag_t;
-constexpr std::integral_constant<wall_flag_t, 1> WALL_BLASTED{};   // Blasted out wall.
-constexpr std::integral_constant<wall_flag_t, 2> WALL_DOOR_OPENED{};   // Open door.
-constexpr std::integral_constant<wall_flag_t, 8> WALL_DOOR_LOCKED{};   // Door is locked.
-constexpr std::integral_constant<wall_flag_t, 16> WALL_DOOR_AUTO{};  // Door automatically closes after time.
-constexpr std::integral_constant<wall_flag_t, 32> WALL_ILLUSION_OFF{};  // Illusionary wall is shut off.
-constexpr std::integral_constant<wall_flag_t, 64> WALL_EXPLODING{};
-}
-#if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
-constexpr std::integral_constant<wall_flag_t, 128> WALL_BUDDY_PROOF{}; // Buddy assumes he cannot get through this wall.
-}
-#endif
 
-namespace dcx {
+enum class wall_flag : uint8_t;
+
 typedef unsigned wall_state_t;
 constexpr std::integral_constant<wall_state_t, 0> WALL_DOOR_CLOSED{};       // Door is closed
 constexpr std::integral_constant<wall_state_t, 1> WALL_DOOR_OPENING{};       // Door is opening.

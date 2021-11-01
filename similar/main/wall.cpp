@@ -189,7 +189,7 @@ static WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBit
 
 	const auto flags = w.flags;
 	if (type == WALL_ILLUSION) {
-		if (flags & WALL_ILLUSION_OFF)
+		if (flags & wall_flag::illusion_off)
 			return WID_NO_WALL;
 		else {
 			if (check_transparency(GameBitmaps, Textures, uside))
@@ -200,12 +200,12 @@ static WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBit
 	}
 
 	if (type == WALL_BLASTABLE) {
-	 	if (flags & WALL_BLASTED)
+	 	if (flags & wall_flag::blasted)
 			return WID_TRANSILLUSORY_WALL;
 	}	
 	else
 	{
-	if (unlikely(flags & WALL_DOOR_OPENED))
+	if (unlikely(flags & wall_flag::door_opened))
 		return WID_TRANSILLUSORY_WALL;
 	if (likely(type == WALL_DOOR) && unlikely(w.state == WALL_DOOR_OPENING))
 		return WID_TRANSPARENT_WALL;
@@ -331,9 +331,9 @@ static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side, w
 	else {
 		//if not exploding, set final frame, and make door passable
 		const auto n = wa.num_frames;
-		w0.flags |= WALL_BLASTED;
+		w0.flags |= wall_flag::blasted;
 		if (w1)
-			w1->flags |= WALL_BLASTED;
+			w1->flags |= wall_flag::blasted;
 		wall_set_tmap_num(wa, seg, side, csegp, Connectside, n - 1);
 	}
 
@@ -373,7 +373,7 @@ void wall_damage(const vmsegptridx_t seg, const unsigned side, fix damage)
 	if (w0.type != WALL_BLASTABLE)
 		return;
 	
-	if (!(w0.flags & WALL_BLASTED) && w0.hps >= 0)
+	if (!(w0.flags & wall_flag::blasted) && w0.hps >= 0)
 		{
 		const auto &&csegp = seg.absolute_sibling(seg->shared_segment::children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
@@ -905,15 +905,16 @@ static bool do_door_open(active_door &d)
 		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 		auto &w1 = *vmwallptr(cwall_num);
 		if (i> n/2) {
-			w.flags |= WALL_DOOR_OPENED;
-			w1.flags |= WALL_DOOR_OPENED;
+			w.flags |= wall_flag::door_opened;
+			w1.flags |= wall_flag::door_opened;
 		}
 
 		if (i >= n-1) {
 			wall_set_tmap_num(wa, seg, side, csegp, Connectside, n - 1);
 
 			// If our door is not automatic just remove it from the list.
-			if (!(w.flags & WALL_DOOR_AUTO)) {
+			if (!(w.flags & wall_flag::door_auto))
+			{
 				remove = true;
 #if defined(DXX_BUILD_DESCENT_II)
 				w.state = WALL_DOOR_OPEN;
@@ -947,7 +948,7 @@ static bool do_door_close(active_door &d)
 	const auto &&seg0 = vmsegptridx(w0.segnum);
 
 	//check for objects in doorway before closing
-	if (w0.flags & WALL_DOOR_AUTO)
+	if (w0.flags & wall_flag::door_auto)
 		if (is_door_obstructed(vcobjptridx, vcsegptr, seg0, w0.sidenum))
 		{
 #if defined(DXX_BUILD_DESCENT_II)
@@ -977,7 +978,7 @@ static bool do_door_close(active_door &d)
 #if defined(DXX_BUILD_DESCENT_I)
 		//if here, must be auto door
 //don't assert here, because now we have triggers to close non-auto doors
-		Assert(wp.flags & WALL_DOOR_AUTO);
+		assert(wp.flags & wall_flag::door_auto);
 #endif
 
 		// Otherwise, close it.
@@ -1018,8 +1019,8 @@ static bool do_door_close(active_door &d)
 		const auto cwall_num = csegp->shared_segment::sides[Connectside].wall_num;
 		auto &w1 = *vmwallptr(cwall_num);
 		if (i < n/2) {
-			wp.flags &= ~WALL_DOOR_OPENED;
-			w1.flags &= ~WALL_DOOR_OPENED;
+			wp.flags &= ~wall_flag::door_opened;
+			w1.flags &= ~wall_flag::door_opened;
 		}
 
 		// Animate door.
@@ -1074,7 +1075,7 @@ static void wall_illusion_op(fvmwallptr &vmwallptr, const vcsegptridx_t seg, con
 void wall_illusion_off(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const unsigned side)
 {
 	const auto &&op = [](wall &w) {
-		w.flags |= WALL_ILLUSION_OFF;
+		w.flags |= wall_flag::illusion_off;
 	};
 	wall_illusion_op(vmwallptr, seg, side, op);
 }
@@ -1085,7 +1086,7 @@ void wall_illusion_off(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const uns
 void wall_illusion_on(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const unsigned side)
 {
 	const auto &&op = [](wall &w) {
-		w.flags &= ~WALL_ILLUSION_OFF;
+		w.flags &= ~wall_flag::illusion_off;
 	};
 	wall_illusion_op(vmwallptr, seg, side, op);
 }
@@ -1178,7 +1179,8 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 
 	if (w->type == WALL_DOOR)
 	{
-		if ((w->flags & WALL_DOOR_LOCKED ) && !(special_boss_opening_allowed(seg, side)) ) {
+		if ((w->flags & wall_flag::door_locked) && !special_boss_opening_allowed(seg, side))
+		{
 				if (show_message)
 					HUD_init_message_literal(HM_DEFAULT, TXT_CANT_OPEN_DOOR);
 			return wall_hit_process_t::WHP_NO_KEY;
@@ -1249,9 +1251,9 @@ bool ad_removal_predicate::operator()(active_door &d) const
 	else if (w.state == WALL_DOOR_WAITING) {
 		d.time += FrameTime;
 		// set flags to fix occasional netgame problem where door is waiting to close but open flag isn't set
-		w.flags |= WALL_DOOR_OPENED;
+		w.flags |= wall_flag::door_opened;
 		if (wall *const w1 = Walls.imptr(d.back_wallnum[0]))
-			w1->flags |= WALL_DOOR_OPENED;
+			w1->flags |= wall_flag::door_opened;
 		if (d.time > DOOR_WAIT_TIME)
 #if defined(DXX_BUILD_DESCENT_II)
 			if (!is_door_obstructed(vcobjptridx, vcsegptr, vcsegptridx(w.segnum), w.sidenum))
@@ -1389,7 +1391,7 @@ static void process_exploding_walls()
 		range_for (auto &&wp, Walls.vmptr)
 		{
 			auto &w1 = *wp;
-			if (w1.flags & WALL_EXPLODING)
+			if (w1.flags & wall_flag::exploding)
 			{
 				assert(num_exploding_walls);
 				const auto n = do_exploding_wall_frame(w1);
@@ -1434,7 +1436,7 @@ void d_level_unique_stuck_object_state::add_stuck_object(fvcwallptr &vcwallptr, 
 	const auto wallnum = segp.sides[sidenum].wall_num;
 	if (wallnum != wall_none)
 	{
-		if (vcwallptr(wallnum)->flags & WALL_BLASTED)
+		if (vcwallptr(wallnum)->flags & wall_flag::blasted)
 		{
 			objp->flags |= OF_SHOULD_BE_DEAD;
 			return;
@@ -1722,7 +1724,7 @@ namespace dsx {
 void wall_read(PHYSFS_File *fp, wall &w)
 {
 	PHYSFSX_serialize_read(fp, w);
-	w.flags &= ~WALL_EXPLODING;
+	w.flags &= ~wall_flag::exploding;
 }
 
 }

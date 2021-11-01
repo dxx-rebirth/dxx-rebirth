@@ -136,7 +136,7 @@ static void do_unlock_doors(fvcsegptr &vcsegptr, fvmwallptr &vmwallptr, const tr
 		if (wall_num == wall_none)
 			return;
 		auto &w = *vmwallptr(wall_num);
-		w.flags &= ~WALL_DOOR_LOCKED;
+		w.flags &= ~wall_flag::door_locked;
 		w.keys = wall_key::none;
 	};
 	trigger_wall_op(t, vcsegptr, op);
@@ -150,7 +150,7 @@ static void do_lock_doors(fvcsegptr &vcsegptr, fvmwallptr &vmwallptr, const trig
 		if (wall_num == wall_none)
 			return;
 		auto &w = *vmwallptr(wall_num);
-		w.flags |= WALL_DOOR_LOCKED;
+		w.flags |= wall_flag::door_locked;
 	};
 	trigger_wall_op(t, vcsegptr, op);
 }

@@ -305,7 +305,7 @@ static uint8_t ok_for_buddy_to_talk(void)
 
 		if (wall_num != wall_none) {
 			auto &w = *vcwallptr(wall_num);
-			if (w.type == WALL_BLASTABLE && !(w.flags & WALL_BLASTED))
+			if (w.type == WALL_BLASTABLE && !(w.flags & wall_flag::blasted))
 				return 0;
 		}
 
@@ -319,7 +319,7 @@ static uint8_t ok_for_buddy_to_talk(void)
 				auto wall2 = j.wall_num;
 				if (wall2 != wall_none) {
 					auto &w = *vcwallptr(wall2);
-					if (w.type == WALL_BLASTABLE && !(w.flags & WALL_BLASTED))
+					if (w.type == WALL_BLASTABLE && !(w.flags & wall_flag::blasted))
 						return 0;
 				}
 			}

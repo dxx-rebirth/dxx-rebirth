@@ -2120,7 +2120,7 @@ static void multi_do_door_open(fvmwallptr &vmwallptr, const uint8_t *const buf)
 
 	if (w.type == WALL_BLASTABLE)
 	{
-		if (!(w.flags & WALL_BLASTED))
+		if (!(w.flags & wall_flag::blasted))
 		{
 			wall_destroy(seg, side);
 		}

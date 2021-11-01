@@ -305,7 +305,7 @@ void connected_segment_raw_distances::builder::visit_segment(const vcsegidx_t cu
 			auto &w = *vcwallptr(wall_num);
 			if (w.type == WALL_CLOSED)
 				continue;
-			if (w.type == WALL_DOOR && (w.flags & WALL_DOOR_LOCKED))
+			if (w.type == WALL_DOOR && (w.flags & wall_flag::door_locked))
 				continue;
 		}
 		visit_segment(child_segnum, current_depth + 1);
@@ -1530,11 +1530,11 @@ void do_explosion_sequence(object &obj)
 //explode the given wall
 void explode_wall(fvcvertptr &vcvertptr, const vcsegptridx_t segnum, const unsigned sidenum, wall &w)
 {
-	if (w.flags & WALL_EXPLODING)
+	if (w.flags & wall_flag::exploding)
 		/* Already exploding */
 		return;
 	w.explode_time_elapsed = 0;
-	w.flags |= WALL_EXPLODING;
+	w.flags |= wall_flag::exploding;
 	++ Num_exploding_walls;
 
 	//play one long sound for whole door wall explosion
@@ -1547,7 +1547,7 @@ unsigned do_exploding_wall_frame(wall &w1)
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &WallAnims = GameSharedState.WallAnims;
-	assert(w1.flags & WALL_EXPLODING);
+	assert(w1.flags & wall_flag::exploding);
 	fix w1_explode_time_elapsed = w1.explode_time_elapsed;
 	const fix oldfrac = fixdiv(w1_explode_time_elapsed, EXPL_WALL_TIME);
 
@@ -1577,21 +1577,21 @@ unsigned do_exploding_wall_frame(wall &w1)
 		{
 			auto &w2 = *vmwallptr(cwall_num);
 			assert(&w1 != &w2);
-			w2.flags |= WALL_BLASTED;
-			assert((w1.flags & WALL_EXPLODING) || (w2.flags & WALL_EXPLODING));
-			if (w1_explode_time_elapsed >= EXPL_WALL_TIME && w2.flags & WALL_EXPLODING)
+			w2.flags |= wall_flag::blasted;
+			assert((w1.flags & wall_flag::exploding) || (w2.flags & wall_flag::exploding));
+			if (w1_explode_time_elapsed >= EXPL_WALL_TIME && w2.flags & wall_flag::exploding)
 			{
-				w2.flags &= ~WALL_EXPLODING;
+				w2.flags &= ~wall_flag::exploding;
 				++ walls_updated;
 			}
 		}
 		else
-			assert(w1.flags & WALL_EXPLODING);
+			assert(w1.flags & wall_flag::exploding);
 
-		w1.flags |= WALL_BLASTED;
-		if (w1_explode_time_elapsed >= EXPL_WALL_TIME && w1.flags & WALL_EXPLODING)
+		w1.flags |= wall_flag::blasted;
+		if (w1_explode_time_elapsed >= EXPL_WALL_TIME && w1.flags & wall_flag::exploding)
 		{
-			w1.flags &= ~WALL_EXPLODING;
+			w1.flags &= ~wall_flag::exploding;
 			++ walls_updated;
 		}
 
@@ -1708,7 +1708,7 @@ void expl_wall_read_n_swap(fvmwallptr &vmwallptr, PHYSFS_File *const fp, const i
 				continue;
 			if (w.sidenum != d.sidenum)
 				continue;
-			w.flags |= WALL_EXPLODING;
+			w.flags |= wall_flag::exploding;
 			w.explode_time_elapsed = d.time;
 			++ num_exploding_walls;
 			break;
@@ -1724,7 +1724,7 @@ void expl_wall_write(fvcwallptr &vcwallptr, PHYSFS_File *const fp)
 	range_for (auto &&wp, vcwallptr)
 	{
 		auto &e = *wp;
-		if (!(e.flags & WALL_EXPLODING))
+		if (!(e.flags & wall_flag::exploding))
 			continue;
 		disk_expl_wall d;
 		d.segnum = e.segnum;

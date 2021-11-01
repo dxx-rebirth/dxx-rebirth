@@ -1845,7 +1845,7 @@ int ai_door_is_openable(
 		if (wall_num != wall_none)
 		{
 			const auto wt = wall.type;
-			if (wt == WALL_DOOR && wall.keys == wall_key::none && !(wall.flags & WALL_DOOR_LOCKED))
+			if (wt == WALL_DOOR && wall.keys == wall_key::none && !(wall.flags & wall_flag::door_locked))
 			{
 				static_assert(WALL_DOOR != 0, "WALL_DOOR must be nonzero for this shortcut to work properly.");
 				return wt;
@@ -1858,12 +1858,12 @@ int ai_door_is_openable(
 	if (Robot_info[get_robot_id(objp)].companion)
 	{
 		const auto wt = wall.type;
-		if (wall.flags & WALL_BUDDY_PROOF) {
+		if (wall.flags & wall_flag::buddy_proof) {
 			if (wt == WALL_DOOR && wall.state == WALL_DOOR_CLOSED)
 				return 0;
 			else if (wt == WALL_CLOSED)
 				return 0;
-			else if (wt == WALL_ILLUSION && !(wall.flags & WALL_ILLUSION_OFF))
+			else if (wt == WALL_ILLUSION && !(wall.flags & wall_flag::illusion_off))
 				return 0;
 		}
 		switch (const auto wall_keys = wall.keys)
@@ -1888,12 +1888,12 @@ int ai_door_is_openable(
 
 		// -- if (Buddy_got_stuck) {
 		if (ailp_mode == ai_mode::AIM_GOTO_PLAYER) {
-			if (wt == WALL_BLASTABLE && !(wall.flags & WALL_BLASTED))
+			if (wt == WALL_BLASTABLE && !(wall.flags & wall_flag::blasted))
 				return 0;
 			if (wt == WALL_CLOSED)
 				return 0;
 			if (wt == WALL_DOOR) {
-				if ((wall.flags & WALL_DOOR_LOCKED) && (wall.state == WALL_DOOR_CLOSED))
+				if ((wall.flags & wall_flag::door_locked) && (wall.state == WALL_DOOR_CLOSED))
 					return 0;
 			}
 		}
@@ -1927,7 +1927,7 @@ int ai_door_is_openable(
 		if (wall_num != wall_none)
 		{
 			const auto wt = wall.type;
-			if (wt == WALL_DOOR && (wall.keys == wall_key::none) && !(wall.flags & WALL_DOOR_LOCKED))
+			if (wt == WALL_DOOR && (wall.keys == wall_key::none) && !(wall.flags & wall_flag::door_locked))
 			{
 				static_assert(WALL_DOOR != 0, "WALL_DOOR must be nonzero for this shortcut to work properly.");
 				return wt;
@@ -1962,7 +1962,7 @@ static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_se
 				continue;
 			if (w.state != WALL_DOOR_CLOSED)
 				continue;
-			if (w.flags & WALL_DOOR_LOCKED)
+			if (w.flags & wall_flag::door_locked)
 				continue;
 #if defined(DXX_BUILD_DESCENT_II)
 			if (WallAnims[w.clip_num].flags & WCF_HIDDEN)

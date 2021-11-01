@@ -153,7 +153,7 @@ static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const v
 		const auto wall_num = hitseg->shared_segment::sides[hitwall].wall_num;
 		if (wall_num != wall_none) {
 			auto &w = *vcwallptr(wall_num);
-			if (w.type == WALL_DOOR && w.keys == wall_key::none && w.state == WALL_DOOR_CLOSED && !(w.flags & WALL_DOOR_LOCKED))
+			if (w.type == WALL_DOOR && w.keys == wall_key::none && w.state == WALL_DOOR_CLOSED && !(w.flags & wall_flag::door_locked))
 			{
 				wall_open_door(hitseg, hitwall);
 			// -- Changed from this, 10/19/95, MK: Don't want buddy getting stranded from player
@@ -170,7 +170,7 @@ static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const v
 						if (player_info.powerup_flags & static_cast<PLAYER_FLAG>(w.keys))
 							wall_open_door(hitseg, hitwall);
 					}
-					else if (!(w.flags & WALL_DOOR_LOCKED))
+					else if (!(w.flags & wall_flag::door_locked))
 						wall_open_door(hitseg, hitwall);
 				}
 			} else if (Robot_info[get_robot_id(robot)].thief) {		//	Thief allowed to go through doors to which player has key.

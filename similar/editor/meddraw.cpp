@@ -465,9 +465,9 @@ static void draw_special_wall(const shared_segment &seg, const unsigned side)
 		if (type != WALL_OPEN)
 		{
 			const auto flags = w.flags;
-			if (flags & WALL_DOOR_LOCKED)
-				return (flags & WALL_DOOR_AUTO) ? WALL_AUTO_DOOR_LOCKED_COLOR : WALL_DOOR_LOCKED_COLOR;
-			if (flags & WALL_DOOR_AUTO)
+			if (flags & wall_flag::door_locked)
+				return (flags & wall_flag::door_auto) ? WALL_AUTO_DOOR_LOCKED_COLOR : WALL_DOOR_LOCKED_COLOR;
+			if (flags & wall_flag::door_auto)
 				return WALL_AUTO_DOOR_COLOR;
 			if (type == WALL_BLASTABLE)
 				return WALL_BLASTABLE_COLOR;
