@@ -1337,7 +1337,7 @@ try_again:
 	;
 
 	if (level_num<0)		//secret level
-		filename = Secret_level_names[-level_num-1];
+		filename = Current_mission->secret_level_names[-level_num - 1];
 	else					//normal level
 		filename = Level_names[level_num-1];
 
