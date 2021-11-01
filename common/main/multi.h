@@ -558,7 +558,14 @@ extern std::array<int16_t, 2> team_kills;
 extern ushort my_segments_checksum;
 
 //do we draw the kill list on the HUD?
-extern int Show_kill_list;
+enum class show_kill_list_mode : int8_t
+{
+	None,
+	_1,
+	efficiency = 2,
+	team_kills = 3,
+};
+extern show_kill_list_mode Show_kill_list;
 extern int Show_reticle_name;
 extern fix Show_kill_list_timer;
 

@@ -3303,12 +3303,12 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 	{
 		Show_kill_list_timer -= FrameTime;
 		if (Show_kill_list_timer < 0)
-			Show_kill_list = 0;
+			Show_kill_list = show_kill_list_mode::None;
 	}
 
 	n_players = multi_get_kill_list(player_list);
 
-	if (Show_kill_list == 3)
+	if (Show_kill_list == show_kill_list_mode::team_kills)
 		n_players = 2;
 
 	if (n_players <= 4)
@@ -3369,7 +3369,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 			x1 -= fspacx18;
 		}
 
-		if (Show_kill_list == 3)
+		if (Show_kill_list == show_kill_list_mode::team_kills)
 			player_num = i;
 		else
 			player_num = player_list[i];
@@ -3377,7 +3377,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 
 		color_t fontcolor;
 		rgb color;
-		if (Show_kill_list == 1 || Show_kill_list==2)
+		if (Show_kill_list == show_kill_list_mode::_1 || Show_kill_list == show_kill_list_mode::efficiency)
 		{
 			if (vcplayerptr(player_num)->connected != CONNECT_PLAYING)
 				color.r = color.g = color.b = 12;
@@ -3392,7 +3392,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 		fontcolor = BM_XRGB(color.r, color.g, color.b);
 		gr_set_fontcolor(canvas, fontcolor, -1);
 
-		if (Show_kill_list == 3)
+		if (Show_kill_list == show_kill_list_mode::team_kills)
 			name = Netgame.team_name[i];
 		else if ((Game_mode & GM_BOUNTY) && player_num == Bounty_target && (GameTime64 & 0x10000))
 		{
@@ -3415,7 +3415,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 		gr_string(canvas, game_font, x0, y, name, sw, sh);
 
 		auto &player_info = vcobjptr(p.objnum)->ctype.player_info;
-		if (Show_kill_list==2)
+		if (Show_kill_list == show_kill_list_mode::efficiency)
 		{
 			const int eff = (player_info.net_killed_total + player_info.net_kills_total <= 0)
 				? 0
@@ -3426,7 +3426,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 				);
 			gr_printf(canvas, game_font, x1, y, "%i%%", eff <= 0 ? 0 : eff);
 		}
-		else if (Show_kill_list == 3)
+		else if (Show_kill_list == show_kill_list_mode::team_kills)
 			gr_printf(canvas, game_font, x1, y, "%3d", team_kills[i]);
 		else if (is_multiplayer_cooperative)
 			gr_printf(canvas, game_font, x1, y, "%-6d", player_info.mission.score);
@@ -3435,7 +3435,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 		else
 			gr_printf(canvas, game_font, x1, y, "%3d", player_info.net_kills_total);
 
-                if (PlayerCfg.MultiPingHud && Show_kill_list != 3)
+		if (PlayerCfg.MultiPingHud && Show_kill_list != show_kill_list_mode::team_kills)
                 {
 					if (is_multiplayer_cooperative)
                                 x2 = SWIDTH - (fspacx64/2);
@@ -3703,7 +3703,7 @@ void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Cont
 		}
 
 #ifndef RELEASE
-		if (!(Game_mode&GM_MULTI && Show_kill_list))
+		if (!(Game_mode&GM_MULTI && Show_kill_list != show_kill_list_mode::None))
 			show_time(canvas, *canvas.cv_font);
 #endif
 
@@ -3718,7 +3718,7 @@ void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Cont
 
 		if (PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR)
 			hud_show_lives(hudctx, HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic), player_info, Game_mode & GM_MULTI);
-		if (Game_mode&GM_MULTI && Show_kill_list)
+		if (Game_mode&GM_MULTI && Show_kill_list != show_kill_list_mode::None)
 			hud_show_kill_list(vcobjptr, canvas, Game_mode);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
 			show_reticle(canvas, player_info, PlayerCfg.ReticleType, 1);

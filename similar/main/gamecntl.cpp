@@ -630,7 +630,7 @@ static window_event_result HandleDemoKey(int key)
 		case KEY_F4:	Newdemo_show_percentage = !Newdemo_show_percentage; break;
 		KEY_MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
-			Show_kill_list = (Show_kill_list+1) % ((Newdemo_game_mode & GM_TEAM) ? 4 : 3);
+			Show_kill_list = static_cast<show_kill_list_mode>((underlying_value(Show_kill_list) + 1) % ((Newdemo_game_mode & GM_TEAM) ? 4 : 3));
 			break;
 		case KEY_ESC:
 			if (CGameArg.SysAutoDemo)
@@ -883,7 +883,7 @@ static window_event_result HandleSystemKey(int key)
 
 		KEY_MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
-			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
+			Show_kill_list = static_cast<show_kill_list_mode>((underlying_value(Show_kill_list) + 1) % ((Game_mode & GM_TEAM) ? 4 : 3));
 			if (Game_mode & GM_MULTI)
 				multi_sort_kill_list();
 			break;

@@ -150,7 +150,7 @@ namespace dcx {
 int multi_protocol=0; // set and determinate used protocol
 
 //do we draw the kill list on the HUD?
-int Show_kill_list = 1;
+show_kill_list_mode Show_kill_list = show_kill_list_mode::_1;
 int Show_reticle_name = 1;
 fix Show_kill_list_timer = 0;
 
@@ -540,7 +540,7 @@ void multi_new_game()
 	team_kills = {};
 	imulti_new_game=1;
 	multi_quit_game = 0;
-	Show_kill_list = 1;
+	Show_kill_list = show_kill_list_mode::_1;
 	game_disable_cheats();
 }
 
@@ -617,7 +617,7 @@ void multi_sort_kill_list()
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		else
-		if (Show_kill_list==2)
+		if (Show_kill_list == show_kill_list_mode::efficiency)
 		{
 			const auto kk = player_info.net_killed_total + player_info.net_kills_total;
 			// always draw the ones without any ratio last
@@ -1096,11 +1096,11 @@ void multi_show_player_list()
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_COOP))
 		return;
 
-	if (Show_kill_list)
+	if (Show_kill_list != show_kill_list_mode::None)
 		return;
 
 	Show_kill_list_timer = F1_0*5; // 5 second timer
-	Show_kill_list = 1;
+	Show_kill_list = show_kill_list_mode::_1;
 }
 
 }
@@ -1369,7 +1369,8 @@ static void multi_send_message_end(fvmobjptr &vmobjptr, control_info &Controls)
 			playernum_array_t players;
 			int listpos = Network_message[name_index+1] - '0';
 
-			if (Show_kill_list==1 || Show_kill_list==2) {
+			if (Show_kill_list == show_kill_list_mode::_1 || Show_kill_list == show_kill_list_mode::efficiency)
+			{
 				if (listpos == 0 || listpos >= N_players) {
 					HUD_init_message_literal(HM_MULTI, "Invalid player number for kick.");
 					multi_message_index = 0;

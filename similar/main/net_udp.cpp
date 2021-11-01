@@ -4299,7 +4299,7 @@ menu_subtitle{"Rebirth now supports automatic\n"
 
 static void net_udp_set_game_mode(const network_game_type gamemode)
 {
-	Show_kill_list = 1;
+	Show_kill_list = show_kill_list_mode::_1;
 
 	if (gamemode == network_game_type::anarchy)
 		Game_mode = game_mode_flags::anarchy_no_robots;
@@ -4311,14 +4311,14 @@ static void net_udp_set_game_mode(const network_game_type gamemode)
 	else if (gamemode == network_game_type::capture_flag)
 		{
 		 Game_mode = game_mode_flags::capture_flag;
-		 Show_kill_list=3;
+		Show_kill_list = show_kill_list_mode::team_kills;
 		}
 	else if (HoardEquipped() && gamemode == network_game_type::hoard)
 		Game_mode = game_mode_flags::hoard;
 	else if (HoardEquipped() && gamemode == network_game_type::team_hoard)
 		 {
 		Game_mode = game_mode_flags::team_hoard;
- 		  Show_kill_list=3;
+ 		Show_kill_list = show_kill_list_mode::team_kills;
 		 }
 #endif
 	else if (gamemode == network_game_type::bounty)
@@ -4326,7 +4326,7 @@ static void net_udp_set_game_mode(const network_game_type gamemode)
 	else if (gamemode == network_game_type::team_anarchy)
 	{
 		Game_mode = game_mode_flags::team_anarchy_no_robots;
-		Show_kill_list = 3;
+		Show_kill_list = show_kill_list_mode::team_kills;
 	}
 	else
 		Int3();
