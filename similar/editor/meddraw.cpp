@@ -79,6 +79,10 @@ constexpr std::integral_constant<unsigned, MAX_VERTICES * 4> MAX_EDGES{};
 
 namespace {
 
+enum class packed_edge : uint8_t
+{
+};
+
 static int     Search_mode=0;                      //if true, searching for segments at given x,y
 static int Search_x,Search_y;
 static int	Automap_test=0;		//	Set to 1 to show wireframe in automap mode.
@@ -223,14 +227,9 @@ int Show_triangulations=0;
 
 #define ET_EMPTY		255	//this entry in array is empty
 
-//colors for those types
-//int edge_colors[] = {BM_RGB(45/2,45/2,45/2),
-//							BM_RGB(45/3,45/3,45/3),		//BM_RGB(0,0,45),	//
-//							BM_RGB(45/4,45/4,45/4)};	//BM_RGB(0,45,0)};	//
-
 static
 #if defined(DXX_BUILD_DESCENT_I)
-const
+constexpr
 #endif
 std::array<color_palette_index, 3> edge_colors{{54, 59, 64}};
 
@@ -247,65 +246,55 @@ static int n_used;
 
 static unsigned edge_list_size;		//set each frame
 
-//define edge numberings
-constexpr int edges[] = {
-		0*8+1,	// edge  0
-		0*8+3,	// edge  1
-		0*8+4,	// edge  2
-		1*8+2,	// edge  3
-		1*8+5,	//	edge  4
-		2*8+3,	//	edge  5
-		2*8+6,	//	edge  6
-		3*8+7,	//	edge  7
-		4*8+5,	//	edge  8
-		4*8+7,	//	edge  9
-		5*8+6,	//	edge 10
-		6*8+7,	//	edge 11
+static constexpr packed_edge pack_edge(const unsigned a, const unsigned b)
+{
+	return static_cast<packed_edge>((a << 3) | b);
+}
 
-		0*8+5,	//	right cross
-		0*8+7,	// top cross
-		1*8+3,	//	front  cross
-		2*8+5,	// bottom cross
-		2*8+7,	// left cross
-		4*8+6,	//	back cross
+//define edge numberings
+constexpr std::array<packed_edge, 24> edges = {{
+	pack_edge(0, 1),	// edge  0
+	pack_edge(0, 3),	// edge  1
+	pack_edge(0, 4),	// edge  2
+	pack_edge(1, 2),	// edge  3
+	pack_edge(1, 5),	//	edge  4
+	pack_edge(2, 3),	//	edge  5
+	pack_edge(2, 6),	//	edge  6
+	pack_edge(3, 7),	//	edge  7
+	pack_edge(4, 5),	//	edge  8
+	pack_edge(4, 7),	//	edge  9
+	pack_edge(5, 6),	//	edge 10
+	pack_edge(6, 7),	//	edge 11
+
+	pack_edge(0, 5),	//	right cross
+	pack_edge(0, 7),	// top cross
+	pack_edge(1, 3),	//	front  cross
+	pack_edge(2, 5),	// bottom cross
+	pack_edge(2, 7),	// left cross
+	pack_edge(4, 6),	//	back cross
 
 //crosses going the other way
 
-		1*8+4,	//	other right cross
-		3*8+4,	// other top cross
-		0*8+2,	//	other front  cross
-		1*8+6,	// other bottom cross
-		3*8+6,	// other left cross
-		5*8+7,	//	other back cross
-};
+	pack_edge(1, 4),	//	other right cross
+	pack_edge(3, 4),	// other top cross
+	pack_edge(0, 2),	//	other front  cross
+	pack_edge(1, 6),	// other bottom cross
+	pack_edge(3, 6),	// other left cross
+	pack_edge(5, 7),	//	other back cross
+}};
 
 #define N_NORMAL_EDGES			12		//the normal edges of a box
 #define N_EXTRA_EDGES			12		//ones created by triangulation
 #define N_EDGES_PER_SEGMENT (N_NORMAL_EDGES+N_EXTRA_EDGES)
 
 //given two vertex numbers on a segment (range 0..7), tell what edge number it is
-static int find_edge_num(const int ev0, const int ev1)
+static std::size_t find_edge_num(const int ev0, const int ev1)
 {
-	int		i;
-	int		vv;
-	const int		*edgep = edges;
-
 	const auto &&[v0, v1] = std::minmax(ev0, ev1);
-
-	vv = v0*8+v1;
-
-//	for (i=0;i<N_EDGES_PER_SEGMENT;i++)
-//		if (edges[i]==vv) return i;
-
-	for (i=N_EDGES_PER_SEGMENT; i; i--)
-		if (*edgep++ == vv)
-			return (N_EDGES_PER_SEGMENT-i);
-
-	Error("Could not find edge for %d,%d",v0,v1);
-
-	//return -1;
+	const auto vv = pack_edge(v0, v1);
+	const auto iter = std::find(edges.begin(), edges.end(), vv);
+	return std::distance(edges.begin(), iter);
 }
-
 
 //finds edge, filling in edge_ptr. if found old edge, returns index, else return -1
 static std::pair<seg_edge &, std::size_t> find_edge(const vertnum_t v0, const vertnum_t v1)
@@ -367,8 +356,7 @@ static void add_edges(const shared_segment &seg)
 	{		//all off screen?
 		int	i,fn,vn;
 		int	flag;
-		ubyte	edge_flags[N_EDGES_PER_SEGMENT];
-
+		std::array<uint8_t, std::size(edges)> edge_flags;
 		for (i=0;i<N_NORMAL_EDGES;i++) edge_flags[i]=ET_NOTUSED;
 		for (;i<N_EDGES_PER_SEGMENT;i++) edge_flags[i]=ET_NOTEXTANT;
 
@@ -382,8 +370,6 @@ static void add_edges(const shared_segment &seg)
 				num_vertices = 3;
 
 			for (fn=0; fn<num_faces; fn++) {
-				int	en;
-
 				//Note: normal check appears to be the wrong way since the normals points in, but we're looking from the outside
 				if (g3_check_normal_facing(vcvertptr(seg.verts[vertex_list[fn*3]]), sidep.normals[fn]))
 					flag = ET_NOTFACING;
@@ -392,24 +378,19 @@ static void add_edges(const shared_segment &seg)
 
 				auto v0 = &vertex_list[fn*3];
 				for (vn=0; vn<num_vertices-1; vn++) {
-
-					// en = find_edge_num(vertex_list[fn*3 + vn], vertex_list[fn*3 + (vn+1)%num_vertices]);
-					en = find_edge_num(*v0, *(v0+1));
-					
-					if (en!=edge_none)
+					if (const auto en = find_edge_num(*v0, *(v0 + 1)); en != edges.size())
 						if (flag < edge_flags[en]) edge_flags[en] = flag;
 
 					v0++;
 				}
-				en = find_edge_num(*v0, vertex_list[fn*3]);
-				if (en!=edge_none)
+				if (const auto en = find_edge_num(*v0, vertex_list[fn * 3]); en != edges.size())
 					if (flag < edge_flags[en]) edge_flags[en] = flag;
 			}
 		}
 
 		for (i=0; i<N_EDGES_PER_SEGMENT; i++)
 			if (i<N_NORMAL_EDGES || (edge_flags[i]!=ET_NOTEXTANT && Show_triangulations))
-				add_edge(seg.verts[edges[i] / 8], seg.verts[edges[i] & 7], edge_flags[i]);
+				add_edge(seg.verts[static_cast<uint8_t>(edges[i]) >> 3], seg.verts[static_cast<uint8_t>(edges[i]) & 7], edge_flags[i]);
 	}
 }
 
