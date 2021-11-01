@@ -298,11 +298,12 @@ namespace {
 //	(Actually, assign them to the coordinates in the faces.)
 //	va, vb = face-relative vertex indices corresponding to uva, uvb.  Ie, they are always in 0..3 and should be looked up in
 //	Side_to_verts[side] to get the segment relative index.
-static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, int sidenum, uvl *uva, uvl *uvb, int va, int vb)
+static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, int sidenum, const uvl &uva, const uvl &uvb, int va, int vb)
 {
 	int			vlo,vhi;
 	std::array<uvl, 4> uvls;
-	uvl ruvmag,fuvmag,uvlo,uvhi;
+	uvl ruvmag,fuvmag;
+	const uvl *uvlo, *uvhi;
 	fix			fmag,mag01;
 	Assert( (va<4) && (vb<4) );
 	Assert((abs(va - vb) == 1) || (abs(va - vb) == 3));		// make sure the verticies specify an edge
@@ -313,34 +314,34 @@ static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, 
 	if (va == ((vb + 1) % 4)) {		// va = vb + 1
 		vlo = vb;
 		vhi = va;
-		uvlo = *uvb;
-		uvhi = *uva;
+		uvlo = &uvb;
+		uvhi = &uva;
 	} else {
 		vlo = va;
 		vhi = vb;
-		uvlo = *uva;
-		uvhi = *uvb;
+		uvlo = &uva;
+		uvhi = &uvb;
 	}
 
 	Assert(((vlo+1) % 4) == vhi);	// If we are on an edge, then uvhi is one more than uvlo (mod 4)
-	uvls[vlo] = uvlo;
-	uvls[vhi] = uvhi;
+	uvls[vlo] = *uvlo;
+	uvls[vhi] = *uvhi;
 
 	// Now we have vlo precedes vhi, compute vertices ((vhi+1) % 4) and ((vhi+2) % 4)
 
 	// Assign u,v scale to a unit length right vector.
-	fmag = zhypot(uvhi.v - uvlo.v,uvhi.u - uvlo.u);
+	fmag = zhypot(uvhi->v - uvlo->v, uvhi->u - uvlo->u);
 	if (fmag < 64) {		// this is a fix, so 64 = 1/1024
 		ruvmag.u = F1_0*256;
 		ruvmag.v = F1_0*256;
 		fuvmag.u = F1_0*256;
 		fuvmag.v = F1_0*256;
 	} else {
-		ruvmag.u = uvhi.v - uvlo.v;
-		ruvmag.v = uvlo.u - uvhi.u;
+		ruvmag.u = uvhi->v - uvlo->v;
+		ruvmag.v = uvlo->u - uvhi->u;
 
-		fuvmag.u = uvhi.u - uvlo.u;
-		fuvmag.v = uvhi.v - uvlo.v;
+		fuvmag.u = uvhi->u - uvlo->u;
+		fuvmag.v = uvhi->v - uvlo->v;
 	}
 
 	const auto v0 = segp->verts[vp[vlo]];
@@ -382,7 +383,7 @@ static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, 
 			vv1v0,
 			vv3v0
 		};
-		const auto assign_uvl = [&](const vms_vector &tvec, const uvl &uvi) {
+		const auto build_uvl = [&](const vms_vector &tvec, const uvl &uvi) {
 			const auto drt = vm_vec_dot(fr.rvec, tvec);
 			const auto dft = vm_vec_dot(fr.fvec, tvec);
 			return uvl{
@@ -395,8 +396,8 @@ static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, 
 				uvi.l
 			};
 		};
-		uvls[(vhi+1)%4] = assign_uvl(vm_vec_sub(vcvertptr(v2), vcvertptr(v1)), uvhi);
-		uvls[(vhi+2)%4] = assign_uvl(vv3v0, uvlo);
+		uvls[(vhi + 1) % 4] = build_uvl(vm_vec_sub(vcvertptr(v2), vcvertptr(v1)), *uvhi);
+		uvls[(vhi + 2) % 4] = build_uvl(vv3v0, *uvlo);
 		//	For all faces in side, copy uv coordinates from uvs array to face.
 		segp->unique_segment::sides[sidenum].uvls = uvls;
 	}
@@ -427,7 +428,7 @@ void assign_default_uvs_to_side(const vmsegptridx_t segp, const unsigned side)
 	auto &vcvertptr = Vertices.vcptr;
 	uv1.v = Num_tilings * fixmul(Vmag, vm_vec_dist(vcvertptr(segp->verts[vp[1]]), vcvertptr(segp->verts[vp[0]])));
 
-	assign_uvs_to_side(vcvertptr, segp, side, &uv0, &uv1, 0, 1);
+	assign_uvs_to_side(vcvertptr, segp, side, uv0, uv1, 0, 1);
 }
 
 // -----------------------------------------------------------------------------------------------------------
@@ -454,7 +455,7 @@ void stretch_uvs_from_curedge(const vmsegptridx_t segp, int side)
 	uv1.v = uvls[v1].v;
 
 	auto &vcvertptr = Vertices.vcptr;
-	assign_uvs_to_side(vcvertptr, segp, side, &uv0, &uv1, v0, v1);
+	assign_uvs_to_side(vcvertptr, segp, side, uv0, uv1, v0, v1);
 }
 
 // --------------------------------------------------------------------------------------------------------------
@@ -566,7 +567,6 @@ static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned c
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	uvl		uv1,uv2;
         int             bv1,bv2, vv1, vv2;
         int             cv1=0, cv2=0;
 
@@ -595,13 +595,14 @@ static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned c
 	//	Set vv1, vv2 to relative vertex ids (in 0..3) in connecting side which correspond to cv1, cv2
 	vv1 = -1;	vv2 = -1;
 	auto &base_uvls = base_seg.u.sides[base_common_side].uvls;
+	const uvl *uv1 = nullptr, *uv2 = nullptr;
 	for (const auto v : xrange(4u))
 	{
 		if (bv1 == Side_to_verts[base_common_side][v])
-			uv1 = base_uvls[v];
+			uv1 = &base_uvls[v];
 
 		if (bv2 == Side_to_verts[base_common_side][v])
-			uv2 = base_uvls[v];
+			uv2 = &base_uvls[v];
 
 		if (cv1 == Side_to_verts[con_common_side][v])
 			vv1 = v;
@@ -610,10 +611,10 @@ static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned c
 			vv2 = v;
 	}
 
-	Assert((uv1.u != uv2.u) || (uv1.v != uv2.v));
+	assert(uv1->u != uv2->u || uv1->v != uv2->v);
 	Assert( (vv1 != -1) && (vv2 != -1) );
 	auto &vcvertptr = Vertices.vcptr;
-	assign_uvs_to_side(vcvertptr, con_seg, con_common_side, &uv1, &uv2, vv1, vv2);
+	assign_uvs_to_side(vcvertptr, con_seg, con_common_side, *uv1, *uv2, vv1, vv2);
 }
 
 
