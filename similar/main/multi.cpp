@@ -6373,7 +6373,8 @@ void show_netgame_info(const netgame_info &netgame)
 			array_snprintf(lines[game_name], "Game Name\t  %s", netgame.game_name.data());
 			array_snprintf(lines[mission_name], "Mission Name\t  %s", netgame.mission_title.data());
 			array_snprintf(lines[level_number], "Level\t  %s%i", (netgame.levelnum < 0) ? "S" : " ", abs(netgame.levelnum));
-			array_snprintf(lines[game_mode], "Game Mode\t  %s", netgame.gamemode < GMNames.size() ? GMNames[netgame.gamemode] : "INVALID");
+			const auto gamemode = underlying_value(netgame.gamemode);
+			array_snprintf(lines[game_mode], "Game Mode\t  %s", gamemode < GMNames.size() ? GMNames[gamemode] : "INVALID");
 			array_snprintf(lines[player_counts], "Players\t  %i/%i", netgame.numplayers, netgame.max_numplayers);
 			array_snprintf(lines[difficulty], "Difficulty\t  %s", MENU_DIFFICULTY_TEXT(netgame.difficulty));
 			array_snprintf(lines[reactor_life], "Reactor Life\t  %i %s", netgame.control_invul_time / F1_0 / 60, TXT_MINUTES_ABBREV);

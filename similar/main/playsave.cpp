@@ -1605,7 +1605,11 @@ void read_netgame_profile(netgame_info *ng)
 		if (cmp(lb, eq, GameNameStr))
 			convert_string(ng->game_name, value, eol);
 		else if (cmp(lb, eq, GameModeStr))
-			convert_integer(ng->gamemode, value);
+		{
+			uint8_t gamemode;
+			if (convert_integer(gamemode, value))
+				ng->gamemode = network_game_type{gamemode};
+		}
 		else if (cmp(lb, eq, RefusePlayersStr))
 			convert_integer(ng->RefusePlayers, value);
 		else if (cmp(lb, eq, DifficultyStr))
@@ -1697,7 +1701,7 @@ void write_netgame_profile(netgame_info *ng)
 		return;
 
 	PHYSFSX_printf(file, GameNameStr "=%s\n", ng->game_name.data());
-	PHYSFSX_printf(file, GameModeStr "=%i\n", ng->gamemode);
+	PHYSFSX_printf(file, GameModeStr "=%i\n", underlying_value(ng->gamemode));
 	PHYSFSX_printf(file, RefusePlayersStr "=%i\n", ng->RefusePlayers);
 	PHYSFSX_printf(file, DifficultyStr "=%i\n", ng->difficulty);
 	PHYSFSX_printf(file, GameFlagsStr "=%i\n", pack_game_flags(&ng->game_flag).value);

@@ -137,7 +137,7 @@ struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 	ntstring<MISSION_NAME_LEN> mission_title;
 	ntstring<8> mission_name;
 	int32_t                         levelnum;
-	ubyte                           gamemode;
+	network_game_type               gamemode;
 	ubyte                           RefusePlayers;
 	ubyte                           difficulty;
 	ubyte                           game_status;

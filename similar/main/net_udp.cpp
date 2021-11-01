@@ -1507,7 +1507,7 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 		else
 			status = "BETWEEN ";
 		
-		unsigned gamemode = augi.gamemode;
+		const auto gamemode = underlying_value(augi.gamemode);
 		auto &p = ljtext[i];
 		snprintf(&p[0], p.size(), "%d.\t%.24s \t%.7s \t%3u/%u \t%.24s \t %s \t%s", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1, GameName.data(), (gamemode < std::size(GMNamesShrt)) ? GMNamesShrt[gamemode] : "INVALID", nplayers, augi.max_numplayers, MissName.data(), levelname, status);
 	}
@@ -2729,7 +2729,7 @@ static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MICROi); 						len += 2;			// 7
 		PUT_INTEL_INT(buf + len, Netgame.protocol.udp.GameID);				len += 4;			// 11
 		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
-		buf[len] = Netgame.gamemode;							len++;
+		buf[len] = underlying_value(Netgame.gamemode);							len++;
 		buf[len] = Netgame.RefusePlayers;						len++;
 		buf[len] = Netgame.difficulty;							len++;
 	const auto tmpvar = get_effective_netgame_status(LevelUniqueControlCenterState);
@@ -2764,7 +2764,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 				your_index = i;
 		}
 		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
-		buf[len] = Netgame.gamemode;							len++;
+		buf[len] = underlying_value(Netgame.gamemode);							len++;
 		buf[len] = Netgame.RefusePlayers;						len++;
 		buf[len] = Netgame.difficulty;							len++;
 	const auto tmpvar = get_effective_netgame_status(LevelUniqueControlCenterState);
@@ -2932,7 +2932,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 
 		recv_game.GameID = GET_INTEL_INT(&(data[len]));					len += 4;
 		recv_game.levelnum = GET_INTEL_INT(&(data[len]));				len += 4;
-		recv_game.gamemode = data[len];							len++;
+		recv_game.gamemode = network_game_type{data[len]};							len++;
 		recv_game.RefusePlayers = data[len];						len++;
 		recv_game.difficulty = data[len];						len++;
 		recv_game.game_status = data[len];						len++;
@@ -2963,11 +2963,11 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		{
 			if (i->game_flag.hoard)
 			{
-				i->gamemode=NETGAME_HOARD;
+				i->gamemode = network_game_type::hoard;
 				i->game_status=NETSTAT_PLAYING;
 				
 				if (i->game_flag.team_hoard)
-					i->gamemode=NETGAME_TEAM_HOARD;
+					i->gamemode = network_game_type::team_hoard;
 				if (i->game_flag.endlevel)
 					i->game_status=NETSTAT_ENDLEVEL;
 				if (i->game_flag.forming)
@@ -3004,7 +3004,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 			i.rank = data[len];					len++;
 		}
 		Netgame.levelnum = GET_INTEL_INT(&(data[len]));					len += 4;
-		Netgame.gamemode = data[len];							len++;
+		Netgame.gamemode = network_game_type{data[len]};							len++;
 		Netgame.RefusePlayers = data[len];						len++;
 		Netgame.difficulty = cast_clamp_difficulty(data[len]);
 		len++;
@@ -4076,21 +4076,21 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			if ((citem >= opt->mode) && (citem <= opt->mode_end))
 			{
 				if ( menus[opt->anarchy].value )
-					Netgame.gamemode = NETGAME_ANARCHY;
+					Netgame.gamemode = network_game_type::anarchy;
 				
 				else if (menus[opt->team_anarchy].value) {
-					Netgame.gamemode = NETGAME_TEAM_ANARCHY;
+					Netgame.gamemode = network_game_type::team_anarchy;
 				}
 #if defined(DXX_BUILD_DESCENT_II)
 				else if (menus[opt->capture].value)
-					Netgame.gamemode = NETGAME_CAPTURE_FLAG;
+					Netgame.gamemode = network_game_type::capture_flag;
 				else if (HoardEquipped() && menus[opt->hoard].value)
-					Netgame.gamemode = NETGAME_HOARD;
+					Netgame.gamemode = network_game_type::hoard;
 				else if (HoardEquipped() && menus[opt->team_hoard].value)
-					Netgame.gamemode = NETGAME_TEAM_HOARD;
+					Netgame.gamemode = network_game_type::team_hoard;
 #endif
 				else if( menus[opt->bounty].value )
-					Netgame.gamemode = NETGAME_BOUNTY;
+					Netgame.gamemode = network_game_type::bounty;
 		 		else if (ANARCHY_ONLY_MISSION) {
 					int i = 0;
 		 			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_ANARCHY_ONLY_MISSION});
@@ -4100,9 +4100,9 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 		 			return 0;
 		 		}
 				else if ( menus[opt->robot_anarchy].value ) 
-					Netgame.gamemode = NETGAME_ROBOT_ANARCHY;
+					Netgame.gamemode = network_game_type::robot_anarchy;
 				else if ( menus[opt->coop].value ) 
-					Netgame.gamemode = NETGAME_COOPERATIVE;
+					Netgame.gamemode = network_game_type::cooperative;
 				else Int3(); // Invalid mode -- see Rob
 			}
 
@@ -4189,8 +4189,8 @@ window_event_result net_udp_setup_game()
 	read_netgame_profile(&Netgame);
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (!HoardEquipped() && (Netgame.gamemode == NETGAME_HOARD || Netgame.gamemode == NETGAME_TEAM_HOARD)) // did we restore a hoard mode but don't have hoard installed right now? then fall back to anarchy!
-		Netgame.gamemode = NETGAME_ANARCHY;
+	if (!HoardEquipped() && (Netgame.gamemode == network_game_type::hoard || Netgame.gamemode == network_game_type::team_hoard)) // did we restore a hoard mode but don't have hoard installed right now? then fall back to anarchy!
+		Netgame.gamemode = network_game_type::anarchy;
 #endif
 
 	Netgame.mission_name.copy_if(&*Current_mission->filename, Netgame.mission_name.size());
@@ -4227,24 +4227,24 @@ window_event_result net_udp_setup_game()
 	nm_set_item_text(m[optnum], TXT_OPTIONS); optnum++;
 
 	opt.mode = optnum;
-	nm_set_item_radio(m[optnum], TXT_ANARCHY,(Netgame.gamemode == NETGAME_ANARCHY),0); opt.anarchy=optnum; optnum++;
-	nm_set_item_radio(m[optnum], TXT_TEAM_ANARCHY,(Netgame.gamemode == NETGAME_TEAM_ANARCHY),0); opt.team_anarchy=optnum; optnum++;
-	nm_set_item_radio(m[optnum], TXT_ANARCHY_W_ROBOTS,(Netgame.gamemode == NETGAME_ROBOT_ANARCHY),0); opt.robot_anarchy=optnum; optnum++;
-	nm_set_item_radio(m[optnum], TXT_COOPERATIVE,(Netgame.gamemode == NETGAME_COOPERATIVE),0); opt.coop=optnum; optnum++;
+	nm_set_item_radio(m[optnum], TXT_ANARCHY, Netgame.gamemode == network_game_type::anarchy, 0); opt.anarchy=optnum; optnum++;
+	nm_set_item_radio(m[optnum], TXT_TEAM_ANARCHY, Netgame.gamemode == network_game_type::team_anarchy, 0); opt.team_anarchy=optnum; optnum++;
+	nm_set_item_radio(m[optnum], TXT_ANARCHY_W_ROBOTS, Netgame.gamemode == network_game_type::robot_anarchy, 0); opt.robot_anarchy=optnum; optnum++;
+	nm_set_item_radio(m[optnum], TXT_COOPERATIVE, Netgame.gamemode == network_game_type::cooperative, 0); opt.coop=optnum; optnum++;
 #if defined(DXX_BUILD_DESCENT_II)
-	nm_set_item_radio(m[optnum], "Capture the flag",(Netgame.gamemode == NETGAME_CAPTURE_FLAG),0); opt.capture=optnum; optnum++;
+	nm_set_item_radio(m[optnum], "Capture the flag", Netgame.gamemode == network_game_type::capture_flag, 0); opt.capture=optnum; optnum++;
 
 	if (HoardEquipped())
 	{
-		nm_set_item_radio(m[optnum], "Hoard",(Netgame.gamemode == NETGAME_HOARD),0); opt.hoard=optnum; optnum++;
-		nm_set_item_radio(m[optnum], "Team Hoard",(Netgame.gamemode == NETGAME_TEAM_HOARD),0); opt.team_hoard=optnum; optnum++;
+		nm_set_item_radio(m[optnum], "Hoard", Netgame.gamemode == network_game_type::hoard, 0); opt.hoard=optnum; optnum++;
+		nm_set_item_radio(m[optnum], "Team Hoard", Netgame.gamemode == network_game_type::team_hoard, 0); opt.team_hoard=optnum; optnum++;
 	}
 	else
 	{
 		opt.hoard = opt.team_hoard = 0; // NOTE: Make sure if you use these, use them in connection with HoardEquipped() only!
 	}
 #endif
-	nm_set_item_radio(m[optnum], "Bounty", ( Netgame.gamemode & NETGAME_BOUNTY ), 0); opt.mode_end=opt.bounty=optnum; optnum++;
+	nm_set_item_radio(m[optnum], "Bounty", Netgame.gamemode == network_game_type::bounty, 0); opt.mode_end=opt.bounty=optnum; optnum++;
 
 	nm_set_item_text(m[optnum], ""); optnum++;
 
@@ -4296,36 +4296,34 @@ menu_subtitle{"Rebirth now supports automatic\n"
 
 	return (i >= 0) ? window_event_result::close : window_event_result::handled;
 }
-}
 
-namespace dsx {
-static void net_udp_set_game_mode(const int gamemode)
+static void net_udp_set_game_mode(const network_game_type gamemode)
 {
 	Show_kill_list = 1;
 
-	if ( gamemode == NETGAME_ANARCHY )
+	if (gamemode == network_game_type::anarchy)
 		Game_mode = game_mode_flags::anarchy_no_robots;
-	else if ( gamemode == NETGAME_ROBOT_ANARCHY )
+	else if (gamemode == network_game_type::robot_anarchy)
 		Game_mode = game_mode_flags::anarchy_with_robots;
-	else if ( gamemode == NETGAME_COOPERATIVE ) 
+	else if (gamemode == network_game_type::cooperative) 
 		Game_mode = game_mode_flags::cooperative;
 #if defined(DXX_BUILD_DESCENT_II)
-	else if (gamemode == NETGAME_CAPTURE_FLAG)
+	else if (gamemode == network_game_type::capture_flag)
 		{
 		 Game_mode = game_mode_flags::capture_flag;
 		 Show_kill_list=3;
 		}
-	else if (HoardEquipped() && gamemode == NETGAME_HOARD)
+	else if (HoardEquipped() && gamemode == network_game_type::hoard)
 		Game_mode = game_mode_flags::hoard;
-	else if (HoardEquipped() && gamemode == NETGAME_TEAM_HOARD)
+	else if (HoardEquipped() && gamemode == network_game_type::team_hoard)
 		 {
 		Game_mode = game_mode_flags::team_hoard;
  		  Show_kill_list=3;
 		 }
 #endif
-	else if( gamemode == NETGAME_BOUNTY )
+	else if (gamemode == network_game_type::bounty)
 		Game_mode = game_mode_flags::bounty;
-	else if ( gamemode == NETGAME_TEAM_ANARCHY )
+	else if (gamemode == network_game_type::team_anarchy)
 	{
 		Game_mode = game_mode_flags::team_anarchy_no_robots;
 		Show_kill_list = 3;
@@ -4619,11 +4617,11 @@ abort:
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if (Netgame.gamemode == NETGAME_TEAM_ANARCHY)
+	if (Netgame.gamemode == network_game_type::team_anarchy)
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (Netgame.gamemode == NETGAME_TEAM_ANARCHY ||
-	    Netgame.gamemode == NETGAME_CAPTURE_FLAG ||
-		 Netgame.gamemode == NETGAME_TEAM_HOARD)
+	if (Netgame.gamemode == network_game_type::team_anarchy ||
+	    Netgame.gamemode == network_game_type::capture_flag ||
+		Netgame.gamemode == network_game_type::team_hoard)
 #endif
 		 if (run_blocking_newmenu<net_udp_select_teams_menu>(N_players, *grd_curcanv) == -1)
 			goto abort;
@@ -4896,7 +4894,7 @@ int net_udp_do_join_game()
 		}
 	}
 
-	if ( !HoardEquipped() && (Netgame.gamemode == NETGAME_HOARD || Netgame.gamemode == NETGAME_TEAM_HOARD) )
+	if (!HoardEquipped() && (Netgame.gamemode == network_game_type::hoard || Netgame.gamemode == network_game_type::team_hoard))
 	{
 		struct error_hoard_not_available : passive_messagebox
 		{
@@ -6080,7 +6078,7 @@ const std::array<char, 512> &show_game_info_menu::setup_subtitle_text(std::array
 #define DXX_SECRET_LEVEL_FORMAT
 #define DXX_SECRET_LEVEL_PARAMETER
 #endif
-	unsigned gamemode = netgame.gamemode;
+	const auto gamemode = underlying_value(netgame.gamemode);
 	const unsigned
 #if defined(DXX_BUILD_DESCENT_I)
 	players = netgame.numplayers;

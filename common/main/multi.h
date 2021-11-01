@@ -92,6 +92,18 @@ struct _sockaddr
 // PROTOCOL VARIABLES AND DEFINES
 extern int multi_protocol; // set and determinate used protocol
 
+enum class network_game_type : uint8_t
+{
+	anarchy,
+	team_anarchy,
+	robot_anarchy,
+	cooperative,
+	capture_flag,
+	hoard,
+	team_hoard,
+	bounty,
+};
+
 }
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
@@ -106,7 +118,6 @@ extern int multi_protocol; // set and determinate used protocol
 
 #define MAX_MESSAGE_LEN 35
 
-
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_NET_CREATE_OBJECTS 20
 #define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
@@ -115,17 +126,6 @@ extern int multi_protocol; // set and determinate used protocol
 #define MAX_MULTI_MESSAGE_LEN   120
 
 #endif
-
-#define NETGAME_ANARCHY         0
-#define NETGAME_TEAM_ANARCHY    1
-#define NETGAME_ROBOT_ANARCHY   2
-#define NETGAME_COOPERATIVE     3
-#if defined(DXX_BUILD_DESCENT_II)
-#define NETGAME_CAPTURE_FLAG    4
-#define NETGAME_HOARD           5
-#define NETGAME_TEAM_HOARD      6
-#endif
-#define NETGAME_BOUNTY		7
 
 #define NETSTAT_MENU                0
 #define NETSTAT_PLAYING             1
@@ -807,7 +807,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 	ntstring<8> mission_name;
 	int     					levelnum;
 	Difficulty_level_type difficulty;
-	ubyte   					gamemode;
+	network_game_type   		gamemode;
 	ubyte   					RefusePlayers;
 	ubyte   					game_status;
 	ubyte   					numplayers;
