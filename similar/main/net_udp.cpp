@@ -1645,7 +1645,7 @@ int dispatch_table::end_current_level(int *secret) const
 #endif
 	{
 		// We do not really check if a player has actually found a secret level... yeah, I am too lazy! So just go there and pretend we did!
-		range_for (const auto i, unchecked_partial_range(Current_mission->secret_level_table.get(), N_secret_levels))
+		range_for (const auto i, unchecked_partial_range(Current_mission->secret_level_table.get(), Current_mission->n_secret_levels))
 		{
 			if (Current_level_num == i)
 			{

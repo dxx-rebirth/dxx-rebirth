@@ -1158,7 +1158,7 @@ static void DoEndLevelScoreGlitz()
 	//	Compute level player is on, deal with secret levels (negative numbers)
 	mine_level = get_local_player().level;
 	if (mine_level < 0)
-		mine_level *= -(Last_level/N_secret_levels);
+		mine_level *= -(Last_level / Current_mission->n_secret_levels);
 #endif
 
 	auto &plrobj = get_local_plrobj();
@@ -2126,7 +2126,7 @@ static void ShowLevelIntro(int level_num)
 //	Sets the global First_secret_visit if necessary.  Otherwise leaves it unchanged.
 static void maybe_set_first_secret_visit(int level_num)
 {
-	range_for (auto &i, unchecked_partial_range(Current_mission->secret_level_table.get(), N_secret_levels))
+	range_for (auto &i, unchecked_partial_range(Current_mission->secret_level_table.get(), Current_mission->n_secret_levels))
 	{
 		if (i == level_num)
 		{

@@ -256,7 +256,7 @@ static void allocate_levels(const unsigned count_regular_level, const unsigned c
 {
 	Current_mission->level_names = std::make_unique<d_fname[]>(count_regular_level);
 	Last_level = count_regular_level;
-	N_secret_levels = count_secret_level;
+	Current_mission->n_secret_levels = count_secret_level;
 	Last_secret_level = -static_cast<signed>(count_secret_level);
 	if (count_secret_level)
 	{
@@ -1072,7 +1072,7 @@ static const char *load_mission(const mle *const mission)
 					if (*ip && *ip != ';')
 						continue;
 				}
-				N_secret_levels = n_levels;
+				Current_mission->n_secret_levels = n_levels;
 				uint8_t level_names_loaded = 0;
 				auto names = std::make_unique<d_fname[]>(n_levels);
 				auto table = std::make_unique<uint8_t[]>(n_levels);
@@ -1512,11 +1512,11 @@ static int write_mission(void)
 	range_for (auto &i, unchecked_partial_range(Current_mission->level_names.get(), Last_level))
 		PHYSFSX_printf(mfile, "%s\n", static_cast<const char *>(i));
 
-	if (N_secret_levels)
+	if (Current_mission->n_secret_levels)
 	{
-		PHYSFSX_printf(mfile, "num_secrets = %i\n", N_secret_levels);
+		PHYSFSX_printf(mfile, "num_secrets = %i\n", Current_mission->n_secret_levels);
 
-		for (int i = 0; i < N_secret_levels; i++)
+		for (int i = 0; i < Current_mission->n_secret_levels; i++)
 			PHYSFSX_printf(mfile, "%s,%i\n", static_cast<const char *>(Current_mission->secret_level_names[i]), Current_mission->secret_level_table[i]);
 	}
 
@@ -1544,7 +1544,7 @@ void create_new_mission(void)
 
 	Current_mission->level_names[0] = "GAMESAVE.LVL";
 	Last_level = 1;
-	N_secret_levels = 0;
+	Current_mission->n_secret_levels = 0;
 	Last_secret_level = 0;
 	Briefing_text_filename = {};
 	Ending_text_filename = {};
