@@ -47,7 +47,7 @@ fix compute_dx_dy(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix reci
 void compute_y_bounds(const g3ds_tmap &t, int &vlt, int &vlb, int &vrt, int &vrb,int &bottom_y_ind);
 
 extern int	fx_y,fx_xleft,fx_xright;
-extern const unsigned char *pixptr;
+extern const color_palette_index *pixptr;
 // texture mapper scanline renderers
 // Interface variables to assembler code
 extern	fix	fx_u,fx_v,fx_z,fx_du_dx,fx_dv_dx,fx_dz_dx;

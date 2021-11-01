@@ -59,7 +59,7 @@ unsigned char *write_buffer;
 
 fix fx_l, fx_u, fx_v, fx_z, fx_du_dx, fx_dv_dx, fx_dz_dx, fx_dl_dx;
 int fx_xleft, fx_xright, fx_y;
-const unsigned char *pixptr;
+const color_palette_index *pixptr;
 uint8_t Transparency_on = 0;
 uint8_t tmap_flat_color;
 
