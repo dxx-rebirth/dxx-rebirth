@@ -4132,7 +4132,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 #if defined(DXX_BUILD_DESCENT_I)
-			if ((Netgame.levelnum < Last_secret_level) || (Netgame.levelnum > Last_level) || (Netgame.levelnum == 0))
+			if (Netgame.levelnum < Current_mission->last_secret_level || Netgame.levelnum > Last_level || Netgame.levelnum == 0)
 #elif defined(DXX_BUILD_DESCENT_II)
 			if ((Netgame.levelnum < 1) || (Netgame.levelnum > Last_level))
 #endif
@@ -4226,12 +4226,12 @@ window_event_result net_udp_setup_game()
 #define DXX_LEVEL_FORMAT_LEADER	"%s (1-%d"
 #define DXX_LEVEL_FORMAT_TRAILER	")"
 #if defined(DXX_BUILD_DESCENT_I)
-	if (Last_secret_level == -1)
+	if (Current_mission->last_secret_level == -1)
 		/* Exactly one secret level */
 		snprintf(level_text, sizeof(level_text), DXX_LEVEL_FORMAT_LEADER ", S1" DXX_LEVEL_FORMAT_TRAILER, TXT_LEVEL_, Last_level);
-	else if (Last_secret_level)
+	else if (Current_mission->last_secret_level)
 		/* More than one secret level */
-		snprintf(level_text, sizeof(level_text), DXX_LEVEL_FORMAT_LEADER ", S1-S%d" DXX_LEVEL_FORMAT_TRAILER, TXT_LEVEL_, Last_level, -Last_secret_level);
+		snprintf(level_text, sizeof(level_text), DXX_LEVEL_FORMAT_LEADER ", S1-S%d" DXX_LEVEL_FORMAT_TRAILER, TXT_LEVEL_, Last_level, -Current_mission->last_secret_level);
 	else
 		/* No secret levels */
 #endif

@@ -316,7 +316,7 @@ void do_replacements_all(void)
 			Current_mission->level_names[i]);
 	}
 
-	for (int i = 0; i < -Last_secret_level; i++)
+	for (int i = 0; i < -Current_mission->last_secret_level; ++i)
 	{
 		load_level(
 #if defined(DXX_BUILD_DESCENT_II)

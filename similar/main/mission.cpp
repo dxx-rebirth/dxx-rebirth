@@ -257,7 +257,7 @@ static void allocate_levels(const unsigned count_regular_level, const unsigned c
 	Current_mission->level_names = std::make_unique<d_fname[]>(count_regular_level);
 	Last_level = count_regular_level;
 	Current_mission->n_secret_levels = count_secret_level;
-	Last_secret_level = -static_cast<signed>(count_secret_level);
+	Current_mission->last_secret_level = -static_cast<signed>(count_secret_level);
 	if (count_secret_level)
 	{
 		auto secret_level_names = std::make_unique<d_fname[]>(count_secret_level);
@@ -925,7 +925,7 @@ static const char *load_mission(const mle *const mission)
 
 	//init vars
 	Last_level = 0;
-	Last_secret_level = 0;
+	Current_mission->last_secret_level = 0;
 	Briefing_text_filename = {};
 	Ending_text_filename = {};
 	Current_mission->secret_level_table.reset();
@@ -1104,7 +1104,7 @@ static const char *load_mission(const mle *const mission)
 					else
 						break;
 				}
-				Last_secret_level = -static_cast<signed>(level_names_loaded);
+				Current_mission->last_secret_level = -static_cast<signed>(level_names_loaded);
 				Current_mission->secret_level_names = std::move(names);
 				Current_mission->secret_level_table = std::move(table);
 			}
@@ -1545,7 +1545,7 @@ void create_new_mission(void)
 	Current_mission->level_names[0] = "GAMESAVE.LVL";
 	Last_level = 1;
 	Current_mission->n_secret_levels = 0;
-	Last_secret_level = 0;
+	Current_mission->last_secret_level = 0;
 	Briefing_text_filename = {};
 	Ending_text_filename = {};
 	Current_mission->secret_level_table.reset();

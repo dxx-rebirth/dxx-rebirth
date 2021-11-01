@@ -991,7 +991,7 @@ void LoadLevel(int level_num,int page_in_textures)
 	auto &plr = get_local_player();
 	auto save_player = plr;
 
-	Assert(level_num <= Last_level  && level_num >= Last_secret_level  && level_num != 0);
+	Assert(level_num <= Last_level && level_num >= Current_mission->last_secret_level && level_num != 0);
 	const d_fname &level_name = get_level_file(level_num);
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!load_level(level_name))
@@ -1565,7 +1565,7 @@ void EnterSecretLevel(void)
 
 	//	Find secret level number to go to, stuff in Next_level_num.
 	int8_t Next_level_num{};
-	for (i=0; i<-Last_secret_level; i++)
+	for (i = 0; i < -Current_mission->last_secret_level; ++i)
 		if (Current_mission->secret_level_table[i] == Current_level_num)
 		{
 			Next_level_num = -(i+1);
@@ -1577,8 +1577,8 @@ void EnterSecretLevel(void)
 			break;
 		}
 
-	if (! (i<-Last_secret_level))		//didn't find level, so must be last
-		Next_level_num = Last_secret_level;
+	if (! (i < -Current_mission->last_secret_level))		//didn't find level, so must be last
+		Next_level_num = Current_mission->last_secret_level;
 
 	// NMN 04/09/07  Do a REAL start level routine if we are playing a D1 level so we have
 	//               briefings
@@ -1758,19 +1758,19 @@ static window_event_result AdvanceLevel(int secret_flag)
 		if (secret_flag) {			//go to secret level instead
 			int i;
 
-			for (i=0;i<-Last_secret_level;i++)
+			for (i = 0; i < -Current_mission->last_secret_level; ++i)
 				if (Current_mission->secret_level_table[i] == Current_level_num)
 				{
 					Next_level_num = -(i+1);
 					break;
 				}
-			Assert(i<-Last_secret_level);		//couldn't find which secret level
+			assert(i < -Current_mission->last_secret_level);		//couldn't find which secret level
 		}
 
 		if (Current_level_num < 0)	{			//on secret level, where to go?
 
 			Assert(!secret_flag);				//shouldn't be going to secret level
-			Assert(Current_level_num<=-1 && Current_level_num>=Last_secret_level);
+			assert(Current_level_num <= -1 && Current_level_num >= Current_mission->last_secret_level);
 
 			Next_level_num = Current_mission->secret_level_table[(-Current_level_num) - 1] + 1;
 		}

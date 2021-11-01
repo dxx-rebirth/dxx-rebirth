@@ -523,7 +523,6 @@ static movie_play_status start_endlevel_movie()
 	//Assert(PLAYING_BUILTIN_MISSION); //only play movie for built-in mission
 
 	//Assert(N_MOVIES >= Last_level);
-	//Assert(N_MOVIES_SECRET >= -Last_secret_level);
 
 	const auto current_level_num = Current_level_num;
 	if (is_SHAREWARE)
