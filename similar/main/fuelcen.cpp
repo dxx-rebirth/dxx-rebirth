@@ -653,7 +653,7 @@ void init_all_matcens(void)
 			station.Enabled = 0;
 			station.Disable_time = 0;
 			//	Make sure this fuelcen is pointed at by a matcen.
-			if (std::find_if(robot_range.begin(), robot_range.end(), [i](const matcen_info &mi) {
+			if (std::find_if(robot_range.begin(), robot_range.end(), [i = i](const matcen_info &mi) {
 				return mi.fuelcen_num == i;
 			}) == robot_range.end())
 			{
