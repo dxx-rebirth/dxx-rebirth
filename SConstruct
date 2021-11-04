@@ -265,7 +265,10 @@ class ConfigureTests(_ConfigureTests):
 		__slots__ = ('main', 'name', 'text')
 		def __init__(self,name,text,main=''):
 			self.name = name
-			name = {'N' : 'test_' + ''.join([c if c.isalnum() else '_' for c in name])}
+			# Avoid generating consecutive underscores if the input
+			# string has multiple adjacent unacceptable characters.
+			f = '_{:x}'.format
+			name = {'N' : 'test_' + ''.join([c if c.isalnum() else f(ord(c)) for c in name])}
 			self.text = text % name
 			self.main = ('{' + (main % name) + '}\n') if main else ''
 	class Cxx11RequiredFeature(CxxRequiredFeature):
