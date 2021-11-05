@@ -5288,7 +5288,7 @@ class DXXProgram(DXXCommon):
 					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
 					resources=[[os.path.join(self.srcdir, s), s] for s in ['English.lproj/InfoPlist.strings']])
 			if self.user_settings.macos_bundle_libs and not self.user_settings.macos_add_frameworks:
-				print('Bundling libraries for  %s' % self.PROGRAM_NAME)
+				print('Bundling libraries for %s' % self.PROGRAM_NAME)
 				dylibbundler_process = StaticSubprocess.pcall(('dylibbundler', '-od', '-b', '-x', '%s.app/Contents/MacOS/%s-rebirth' % (self.PROGRAM_NAME, dxxstr), '-d', '%s.app/Contents/libs' % self.PROGRAM_NAME))
 
 class D1XProgram(DXXProgram):
