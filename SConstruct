@@ -2885,8 +2885,8 @@ BOOST_AUTO_TEST_CASE(f)
 	# however it's only meaningful for macOS builds, and, for those,
 	# only required when frameworks are not used for the build.  Builds
 	# should not fail on other operating system targets if it's absent.
-	@GuardedCollector(_guarded_test_darwin, lambda user_settings: not user_settings.macos_add_frameworks)
-	def _check_dylibbundler(self, context, _common_error_text='; dylibbundler is required for compilation for a macOS target when not using frameworks.  Set macos_add_frameworks=True or install dylibbundler.'):
+	@GuardedCollector(_guarded_test_darwin, lambda user_settings: user_settings.macos_bundle_libs and not user_settings.macos_add_frameworks)
+	def _check_dylibbundler(self, context, _common_error_text='; dylibbundler is required for compilation for a macOS target when not using frameworks and bundling libraries.  Set macos_bundle_libs=False or macos_add_frameworks=True, or install dylibbundler.'):
 		context.Display('%s: checking whether dylibbundler is installed and accepts -h...' % self.msgprefix)
 		try:
 			p = StaticSubprocess.pcall(('dylibbundler', '-h'), stderr=subprocess.PIPE)
@@ -2912,7 +2912,7 @@ BOOST_AUTO_TEST_CASE(f)
 scons: dylibbundler stdout: %r
 scons: dylibbundler stderr: %r
 '''  % (p.returncode, p.out, p.err))
-		raise SCons.Errors.StopError('`dylibbundler -h` failed to return expected output; dylibbundler is required for compilation for a macOS target when not using frameworks.  Set macos_add_frameworks=False (and handle the libraries manually) or install dylibbundler.')
+		raise SCons.Errors.StopError('`dylibbundler -h` failed to return expected output; dylibbundler is required for compilation for a macOS target when not using frameworks.  Set macos_bundle_libs=False or macos_add_frameworks=False (and handle the libraries manually), or install dylibbundler.')
 
 	# This must be the last custom test.  It does not test the environment,
 	# but is responsible for reversing test-environment-specific changes made
@@ -3862,6 +3862,14 @@ class DXXCommon(LazyObjectConstructor):
 					# SCons should find the headers and libraries
 					# automatically.
 					('macos_add_frameworks', True, 'add required frameworks to CPPPATH, FRAMEWORKS, and FRAMEWORKPATH search variables (MacOS only); Homebrew users may want macos_add_frameworks=False'),
+					# This is only examined for Mac OS X targets.
+					#
+					# dylibbundler can have issues on some systems, so
+					# it is an optional step.  If used (and successful),
+					# dylibbundler includes required libraries in the
+					# generated app bundle and updates the executable
+					# to reference them within the bundle.
+					('macos_bundle_libs', False, 'bundle required libs into app bundle using dylibbundler'),
 					# This is only examined for Windows targets, so
 					# there is no need to make the default value depend
 					# on the host_platform.
@@ -5279,10 +5287,8 @@ class DXXProgram(DXXCommon):
 					typecode='APPL', creator='DCNT',
 					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
 					resources=[[os.path.join(self.srcdir, s), s] for s in ['English.lproj/InfoPlist.strings']])
-			if not self.user_settings.macos_add_frameworks:
-				Command('%s.app/Contents/libs' % self.PROGRAM_NAME,
-						'%s.app/Contents/MacOS/%s-rebirth' % (self.PROGRAM_NAME, dxxstr),
-						"dylibbundler -od -b -x $SOURCE -d $TARGET")
+			if self.user_settings.macos_bundle_libs and not self.user_settings.macos_add_frameworks:
+				dylibbundler_process = StaticSubprocess.pcall(('dylibbundler', '-od', '-b', '-x', '%s.app/Contents/MacOS/%s-rebirth' % (self.PROGRAM_NAME, dxxstr), '-d', '%s.app/Contents/libs' % self.PROGRAM_NAME))
 
 class D1XProgram(DXXProgram):
 	LazyObjectState = DXXProgram.LazyObjectState
