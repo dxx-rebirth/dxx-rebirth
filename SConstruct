@@ -5282,14 +5282,32 @@ class DXXProgram(DXXCommon):
 			import tool_bundle
 			sys.path = syspath
 			tool_bundle.TOOL_BUNDLE(env)
-			env.MakeBundle(os.path.join(self.user_settings.builddir, '%s.app' % self.PROGRAM_NAME), exe_node,
+			# bundledir is an SCons.Environment.Dir corresponding to the
+			# first argument passed to MakeBundle, after any adjustments
+			# made inside MakeBundle.
+			#
+			# appfile is an SCons.Environment.File corresponding to the
+			# game executable copied into the `.app` directory.
+			bundledir_list = env.MakeBundle(os.path.join(self.user_settings.builddir, '%s.app' % self.PROGRAM_NAME), exe_node,
 					'free.%s-rebirth' % dxxstr, os.path.join(cocoa, 'Info.plist'),
 					typecode='APPL', creator='DCNT',
 					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
 					resources=[[os.path.join(self.srcdir, s), s] for s in ['English.lproj/InfoPlist.strings']])
+			bundledir = bundledir_list[0]
+			appfile = SCons.Node.FS.default_fs.File(str(bundledir.Dir('Contents/MacOS')) + '/%s-rebirth' % dxxstr)
 			if self.user_settings.macos_bundle_libs and not self.user_settings.macos_add_frameworks:
-				print('Bundling libraries for %s' % self.PROGRAM_NAME)
-				dylibbundler_process = StaticSubprocess.pcall(('dylibbundler', '-od', '-b', '-x', '%s.app/Contents/MacOS/%s-rebirth' % (self.PROGRAM_NAME, dxxstr), '-d', '%s.app/Contents/libs' % self.PROGRAM_NAME))
+				message(self, 'Bundling libraries for %s' % (str(bundledir),))
+				# If the user has set $PATH, use it in preference to the
+				# built-in SCons path.
+				dylibenv = env['ENV']
+				user_environment_path = os.environ.get('PATH')
+				if user_environment_path:
+					dylibenv = dylibenv.copy()
+					dylibenv['PATH'] = user_environment_path
+				env.Command(target=bundledir.Dir('Contents/libs'),
+						source=appfile,
+						action="dylibbundler -od -b -x $SOURCE -d $TARGET",
+						ENV = dylibenv)
 
 class D1XProgram(DXXProgram):
 	LazyObjectState = DXXProgram.LazyObjectState
