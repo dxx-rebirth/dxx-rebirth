@@ -125,7 +125,6 @@ def TOOL_BUNDLE(env):
         env['BUNDLEFLAGS'] = ' -bundle'
         env['BUNDLECOM'] = '$BUNDLE $BUNDLEFLAGS -o ${TARGET} $SOURCES $_LIBDIRFLAGS $_LIBFLAGS $FRAMEWORKS'
         # This requires some other tools:
-        TOOL_WRITE_VAL(env)
         TOOL_SUBST(env)
         # Common type codes are BNDL for generic bundle and APPL for application.
         def MakeBundle(env, bundledir, app,
@@ -161,31 +160,21 @@ def TOOL_BUNDLE(env):
                             '%CREATOR%': creator,
                             '%TYPE%': typecode,
                             '%BUNDLE_KEY%': key}
-            env.Install(bundledir+'/Contents/MacOS', app)
-            f=env.SubstInFile(bundledir+'/Contents/Info.plist', info_plist,
+            bundledir = env.Dir(bundledir)
+            appfile = env.Install(bundledir.Dir('Contents/MacOS'), app)
+            f = env.SubstInFile(bundledir.File('Contents/Info.plist'), info_plist,
                             SUBST_DICT=subst_dict)
-            env.Depends(f,SCons.Node.Python.Value(key+creator+typecode+env['VERSION_NUM']+env['VERSION_NAME']))
-            env.WriteVal(target=bundledir+'/Contents/PkgInfo',
-                         source=SCons.Node.Python.Value(typecode+creator))
+            env.Depends(f, env.Value(key + creator + typecode + env['VERSION_NUM'] + env['VERSION_NAME']))
+            env.Textfile(target=bundledir.File('Contents/PkgInfo'),
+                         source=env.Value(typecode+creator))
             resources.append(icon_file)
+            resource_directory = bundledir.Dir('Contents/Resources')
             for r in resources:
                 if SCons.Util.is_List(r):
-                    env.InstallAs(bundledir+'/Contents/Resources/'+r[1],
-                                  r[0])
+                    env.InstallAs(resource_directory.File(r[1]), r[0])
                 else:
-                    env.Install(bundledir+'/Contents/Resources', r)
-            return [ SCons.Node.FS.default_fs.Dir(bundledir) ]
+                    env.Install(resource_directory, r)
+            return bundledir, appfile
         # This is not a regular Builder; it's a wrapper function.
         # So just make it available as a method of Environment.
         SConsEnvironment.MakeBundle = MakeBundle
-def TOOL_WRITE_VAL(env):
-    #if tools_verbose:
-    print(" running tool: TOOL_WRITE_VAL")
-    env.Append(TOOLS = 'WRITE_VAL')
-    def write_val(target, source, env):
-        """Write the contents of the first source into the target.
-        source is usually a Value() node, but could be a file."""
-        f = open(str(target[0]), 'wb')
-        f.write(source[0].get_contents())
-        f.close()
-    env['BUILDERS']['WriteVal'] = env.Builder(action=write_val)
