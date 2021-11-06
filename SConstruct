@@ -5294,7 +5294,7 @@ class DXXProgram(DXXCommon):
 					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
 					resources=[[os.path.join(self.srcdir, s), s] for s in ['English.lproj/InfoPlist.strings']])
 			bundledir = bundledir_list[0]
-			appfile = SCons.Node.FS.default_fs.File(str(bundledir.Dir('Contents/MacOS')) + '/%s-rebirth' % dxxstr)
+			appfile = bundledir.File('Contents/MacOS/%s-rebirth' % dxxstr)
 			if self.user_settings.macos_bundle_libs and not self.user_settings.macos_add_frameworks:
 				message(self, 'Bundling libraries for %s' % (str(bundledir),))
 				# If the user has set $PATH, use it in preference to the
