@@ -3870,6 +3870,17 @@ class DXXCommon(LazyObjectConstructor):
 					# generated app bundle and updates the executable
 					# to reference them within the bundle.
 					('macos_bundle_libs', False, 'bundle required libs into app bundle using dylibbundler'),
+					# This is only examined for Mac OS X targets.
+					#
+					# In order for an application to run without displaying
+					# a warning the first time it's run, it needs to be
+					# both signed with an Apple-issued certificate and
+					# notarized by Apple to assert that it does not contain
+					# malicious software.  This stages a build for submission
+					# to the notarization service, which can be done via the
+					# commands outlined at:
+					# https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
+					('macos_stage_for_notarization', False, 'stage code signed bundle for submission for notarization'),
 					# This is only examined for Windows targets, so
 					# there is no need to make the default value depend
 					# on the host_platform.
@@ -3904,6 +3915,15 @@ class DXXCommon(LazyObjectConstructor):
 					('compilation_database', None, None),
 					('distcc', None, 'path to distcc'),
 					('distcc_hosts', getenv('DISTCC_HOSTS'), 'hosts to distribute compilation'),
+					# This is only examined for Mac OS X targets.
+					#
+					# This option signs a bundle (and the libraries
+					# if embedded with macos_bundle_libs) with the
+					# designated code signing identity.  To use it,
+					# pass the common name of the certificate in the
+					# Keychain you wish to use to side the bundle and
+					# libraries (as applicable).
+					('macos_code_signing_identity', None, 'sign app bundle and embedded libs (if applicable) with this identity'),
 				),
 			},
 			{
@@ -5130,6 +5150,10 @@ class DXXProgram(DXXCommon):
 			ToolchainInformation.show_partial_environ(env, user_settings, SCons.Script.Main.progress_display, self.program_message_prefix, append_newline='')
 		if user_settings.register_install_target:
 			self._register_install(self.shortname, exe_target)
+		if user_settings.macos_code_signing_identity is not None:
+			self._macos_sign_code(self.shortname)
+		if user_settings.macos_stage_for_notarization:
+			self._macos_stage_for_notarization(self.shortname)
 
 	def _register_program(self,exe_target):
 		env = self.env
@@ -5306,6 +5330,39 @@ class DXXProgram(DXXCommon):
 						source=appfile,
 						action="dylibbundler -od -b -x $SOURCE -d $TARGET",
 						ENV = dylibenv)
+
+	def _macos_sign_code(self,dxxstr):
+		if self.user_settings.host_platform == 'darwin':
+			env = self.env
+			bundledir = SCons.Node.FS.default_fs.Dir(os.path.join(self.user_settings.builddir, '%s.app' % self.PROGRAM_NAME))
+			if self.user_settings.macos_code_signing_identity:
+				macos_code_signing_identity = self.user_settings.macos_code_signing_identity
+				if self.user_settings.macos_bundle_libs and not self.user_settings.macos_add_frameworks:
+					message(self, 'Signing bundled dylibs with identity: %s' % macos_code_signing_identity)
+					dylib_files = bundledir.Dir('Contents/libs').glob('*.dylib')
+					for dylib_file in dylib_files:
+						env.Command(target=dylib_file,
+								source=None,
+								action="codesign --timestamp --options=runtime -v -f -s \"%s\" \"$TARGET\"" % macos_code_signing_identity)
+				message(self, 'Signing executable with identity: %s' % macos_code_signing_identity)
+				env.Command(target=str(bundledir.File('Contents/MacOS/%s-rebirth' % dxxstr)),
+						source=None,
+						action="codesign --timestamp --options=runtime -v -f -s \"%s\" \"$TARGET\"" % macos_code_signing_identity)
+				message(self, 'Signing code bundle with identity: %s' % macos_code_signing_identity)
+				env.Command(target=str(bundledir),
+						source=None,
+						action="codesign --timestamp --options=runtime -v -f -s \"%s\" \"$TARGET\"" % macos_code_signing_identity)
+
+	def _macos_stage_for_notarization(self,dxxstr):
+		if self.user_settings.host_platform == 'darwin':
+			env = self.env
+			bundledir = SCons.Node.FS.default_fs.Dir(os.path.join(self.user_settings.builddir, '%s.app' % self.PROGRAM_NAME))
+			compressed_bundle = SCons.Node.FS.default_fs.File(os.path.join(self.user_settings.builddir, '%s.zip' % self.PROGRAM_NAME))
+			if self.user_settings.macos_stage_for_notarization:
+				message(self, 'Compressing %s.app to %s.zip for notarization' % (self.PROGRAM_NAME, self.PROGRAM_NAME))
+				env.Command(target=str(compressed_bundle),
+						source=str(bundledir),
+						action="/usr/bin/ditto -c -k --keepParent \"$SOURCE\" \"$TARGET\"")
 
 class D1XProgram(DXXProgram):
 	LazyObjectState = DXXProgram.LazyObjectState
