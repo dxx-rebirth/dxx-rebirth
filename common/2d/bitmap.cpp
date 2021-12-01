@@ -126,8 +126,8 @@ void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint1
 	if (x > bmParent.bm_w ||
 		y > bmParent.bm_h)
 		throw std::overflow_error("offset beyond parent dimensions");
-	bm.bm_w = std::min<uint16_t>(w, bmParent.bm_w - subx);
-	bm.bm_h = std::min<uint16_t>(h, bmParent.bm_h - suby);
+	bm.bm_w = std::min<uint16_t>(w, bmParent.bm_w - x);
+	bm.bm_h = std::min<uint16_t>(h, bmParent.bm_h - y);
 	bm.set_flags(bmParent.get_flags());
 	bm.set_type(bmParent.get_type());
 	bm.bm_rowsize = bmParent.bm_rowsize;
