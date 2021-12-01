@@ -110,3 +110,26 @@ BOOST_AUTO_TEST_CASE(xrange_contents_start_down_variable)
 	std::vector<unsigned> expected{5, 4, 3};
 	BOOST_TEST(out == expected);
 }
+
+/* Test that pairs of iterators pulled from a shared xrange are
+ * independent.  If traversing an xrange modified the state of the
+ * xrange object, this test would either hang due to the inner loop
+ * resetting state, or produce incorrect output.
+ */
+BOOST_AUTO_TEST_CASE(xrange_self_nest)
+{
+	std::vector<unsigned> out;
+	auto &&r = xrange(2u);
+	for (auto &&ov : r)
+		for (auto &&iv : r)
+			out.emplace_back((ov << 8) | iv);
+	std::vector<unsigned> expected{0, 1, (1 << 8), (1 << 8) + 1};
+	BOOST_TEST(out == expected);
+}
+
+BOOST_AUTO_TEST_CASE(xrange_iter_values)
+{
+	auto &&r = xrange(2u);
+	BOOST_TEST(*r.begin() == 0);
+	BOOST_TEST(*r.end() == 2);
+}

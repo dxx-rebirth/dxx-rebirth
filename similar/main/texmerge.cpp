@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 
 #include "compiler-range_for.h"
+#include "d_range.h"
 #include "partial_range.h"
 
 #if DXX_USE_OGL
@@ -121,8 +122,9 @@ struct merge_transform_new
 template <typename texture_transform, typename get_index>
 static void merge_textures_case(const unsigned wh, const uint8_t *const top_data, const uint8_t *const bottom_data, uint8_t *dest_data)
 {
-	for (unsigned y = 0; y < wh; ++y)
-		for (unsigned x = 0; x < wh; ++x)
+	const auto &&whr = xrange(wh);
+	for (const auto y : whr)
+		for (const auto x : whr)
 		{
 			const auto c = top_data[get_index::get_top_data_index(wh, y, x)];
 			/* All merged textures support TRANSPARENCY_COLOR, so handle
