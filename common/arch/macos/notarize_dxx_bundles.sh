@@ -67,9 +67,9 @@ fi
 
 DXX_BINARY_PATH="${app_bundle_path[2]}/Contents/MacOS"
 
-echo "Signing dylibs..."
-
 if [[ ! -z "$DXX_DYLIB_PATH" ]]; then
+  echo "Signing dylibs..."
+
   codesign --timestamp --options=runtime --verbose --force --sign "$signing_identity[2]" "$DXX_DYLIB_PATH"/*.dylib
   if [[ $? -ne 0 ]]; then
     echo "Failed to sign dylibs."
