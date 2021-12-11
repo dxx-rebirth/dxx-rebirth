@@ -135,6 +135,8 @@ else
   fi
 fi
 
+echo "Stapling ticket to app bundle..."
+
 xcrun stapler staple "$app_bundle_path[2]"
 if [[ $? -ne 0 ]]; then
   echo "Failed to staple ticket to app bundle."
@@ -146,5 +148,7 @@ rm -f "$DXX_TMP_ZIP_PATH"
 if [[ -f "$zip_path[2]" ]]; then
   rm -f "$zip_path[2]"
 fi
+
+echo "Creating $zip_path[2]..."
 
 /usr/bin/ditto -c -k --keepParent "$app_bundle_path[2]" "$zip_path[2]"
