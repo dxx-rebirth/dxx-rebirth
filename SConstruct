@@ -3870,17 +3870,6 @@ class DXXCommon(LazyObjectConstructor):
 					# generated app bundle and updates the executable
 					# to reference them within the bundle.
 					('macos_bundle_libs', False, 'bundle required libs into app bundle using dylibbundler'),
-					# This is only examined for Mac OS X targets.
-					#
-					# In order for an application to run without displaying
-					# a warning the first time it's run, it needs to be
-					# both signed with an Apple-issued certificate and
-					# notarized by Apple to assert that it does not contain
-					# malicious software.  This stages a build for submission
-					# to the notarization service, which can be done via the
-					# commands outlined at:
-					# https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
-					('macos_stage_for_notarization', False, 'stage code signed bundle for submission for notarization'),
 					# This is only examined for Windows targets, so
 					# there is no need to make the default value depend
 					# on the host_platform.
@@ -3924,6 +3913,37 @@ class DXXCommon(LazyObjectConstructor):
 					# Keychain you wish to use to side the bundle and
 					# libraries (as applicable).
 					('macos_code_signing_identity', None, 'sign app bundle and embedded libs (if applicable) with this identity'),
+					# This is only examined for Mac OS X targets.
+					#
+					# This option specifies a Keychain item to use
+					# for credientials when submitting a signed app
+					# bundle for notarization.  If this is not specified,
+					# then specifying an Apple ID and team ID is required.
+					# For details about storing credientials in a
+					# compatible Keychain entry, see the store-credentials
+					# example at:
+					# https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
+					('macos_notarization_keychain_item', None, 'keychain item for notarization credientials'),
+					# This is only examined for Mac OS X targets.
+					#
+					# An Apple ID to be used for notarization submissions.
+					# If a valid Keychain item is not used, then this is
+					# required.
+					('macos_notarization_apple_id', None, 'apple id for notarization submissions'),
+					# This is only examined for Mac OS X targets.
+					#
+					# The Apple team ID to use for notarization submissions.
+					# If a valid Keychain item is not used, then this is
+					# required.
+					('macos_notarization_team_id', None, 'apple team id for notarization submissions'),
+					# This is only examined for Mac OS X targets.
+					#
+					# The Apple app-specific password to use for
+					# notarization submissions.  If a valid Keychain item
+					# is not used, then this will be used if provided.
+					# Otherwise, the submission process will provide an
+					# interactive prompt for the password.
+					('macos_notarization_password', None, 'apple app-specific password for notarization submissions'),
 				),
 			},
 			{
@@ -5151,9 +5171,7 @@ class DXXProgram(DXXCommon):
 		if user_settings.register_install_target:
 			self._register_install(self.shortname, exe_target)
 		if user_settings.macos_code_signing_identity is not None:
-			self._macos_sign_code(self.shortname)
-		if user_settings.macos_stage_for_notarization:
-			self._macos_stage_for_notarization(self.shortname)
+			self._macos_sign_and_notarize_bundle(self.shortname)
 
 	def _register_program(self,exe_target):
 		env = self.env
@@ -5331,38 +5349,31 @@ class DXXProgram(DXXCommon):
 						action="dylibbundler -od -b -x $SOURCE -d $TARGET",
 						ENV = dylibenv)
 
-	def _macos_sign_code(self,dxxstr):
-		if self.user_settings.host_platform == 'darwin':
-			env = self.env
-			bundledir = SCons.Node.FS.default_fs.Dir(os.path.join(self.user_settings.builddir, '%s.app' % self.PROGRAM_NAME))
-			if self.user_settings.macos_code_signing_identity:
-				macos_code_signing_identity = self.user_settings.macos_code_signing_identity
-				if self.user_settings.macos_bundle_libs and not self.user_settings.macos_add_frameworks:
-					message(self, 'Signing bundled dylibs with identity: %s' % macos_code_signing_identity)
-					dylib_files = bundledir.Dir('Contents/libs').glob('*.dylib')
-					for dylib_file in dylib_files:
-						env.Command(target=dylib_file,
-								source=None,
-								action="codesign --timestamp --options=runtime -v -f -s \"%s\" \"$TARGET\"" % macos_code_signing_identity)
-				message(self, 'Signing executable with identity: %s' % macos_code_signing_identity)
-				env.Command(target=str(bundledir.File('Contents/MacOS/%s-rebirth' % dxxstr)),
-						source=None,
-						action="codesign --timestamp --options=runtime -v -f -s \"%s\" \"$TARGET\"" % macos_code_signing_identity)
-				message(self, 'Signing code bundle with identity: %s' % macos_code_signing_identity)
-				env.Command(target=str(bundledir),
-						source=None,
-						action="codesign --timestamp --options=runtime -v -f -s \"%s\" \"$TARGET\"" % macos_code_signing_identity)
-
-	def _macos_stage_for_notarization(self,dxxstr):
-		if self.user_settings.host_platform == 'darwin':
-			env = self.env
-			bundledir = SCons.Node.FS.default_fs.Dir(os.path.join(self.user_settings.builddir, '%s.app' % self.PROGRAM_NAME))
-			compressed_bundle = SCons.Node.FS.default_fs.File(os.path.join(self.user_settings.builddir, '%s.zip' % self.PROGRAM_NAME))
-			if self.user_settings.macos_stage_for_notarization:
-				message(self, 'Compressing %s.app to %s.zip for notarization' % (self.PROGRAM_NAME, self.PROGRAM_NAME))
+	def _macos_sign_and_notarize_bundle(self,dxxstr):
+		if self.user_settings.host_platform != 'darwin' or self.user_settings.macos_code_signing_identity is None:
+			return
+		env = self.env
+		bundledir = env.Dir(os.path.join(self.user_settings.builddir, '%s.app' % self.PROGRAM_NAME))
+		compressed_bundle = env.File(os.path.join(self.user_settings.builddir, '%s.zip' % self.PROGRAM_NAME))
+		if self.user_settings.macos_notarization_keychain_item is not None:
+			message(self, 'Signing %s.app, notarizing with Keychain item %s, and generating %s.zip for distribution' % (self.PROGRAM_NAME, self.user_settings.macos_notarization_keychain_item, self.PROGRAM_NAME))
+			env.Command(target=str(compressed_bundle),
+					source=str(bundledir),
+					action="common/arch/macos/notarize_dxx_bundles.sh --signing-identity \"%s\" --notarization-keychain-profile \"%s\" --app-bundle-path \"$SOURCE\" --zip-path \"$TARGET\"" % (self.user_settings.macos_code_signing_identity, self.user_settings.macos_notarization_keychain_item))
+		elif self.user_settings.macos_notarization_apple_id is not None and self.user_settings.macos_notarization_team_id is not None:
+			message(self, 'Signing %s.app, notarizing with Apple ID %s and team ID %s, and generating %s.zip for distribution' % (self.PROGRAM_NAME, self.user_settings.macos_notarization_apple_id, self.user_settings.macos_notarization_team_id, self.PROGRAM_NAME))
+			if self.user_settings.macos_notarization_password is None:
 				env.Command(target=str(compressed_bundle),
 						source=str(bundledir),
-						action="/usr/bin/ditto -c -k --keepParent \"$SOURCE\" \"$TARGET\"")
+						action="common/arch/macos/notarize_dxx_bundles.sh --signing-identity \"%s\" --apple-id \"%s\" --team-id \"%s\" --app-bundle-path \"$SOURCE\" --zip-path \"$TARGET\"" % (self.user_settings.macos_code_signing_identity, self.user_settings.macos_notarization_apple_id, self.user_settings.macos_notarization_team_id))
+			else:
+				env.Command(target=str(compressed_bundle),
+						source=str(bundledir),
+						action="common/arch/macos/notarize_dxx_bundles.sh --signing-identity \"%s\" --apple-id \"%s\" --team-id \"%s\" --apple-password \"%s\" --app-bundle-path \"$SOURCE\" --zip-path \"$TARGET\"" % (self.user_settings.macos_code_signing_identity, self.user_settings.macos_notarization_apple_id, self.user_settings.macos_notarization_team_id, self.user_settings.macos_notarization_password))
+		else:
+			message(self, 'either macos_notarization_keychain_item or both macos_notarization_apple_id and macos_notarization_team_id must be specified for notarization')
+			# Figure out a better way to error on this
+			exit(1)
 
 class D1XProgram(DXXProgram):
 	LazyObjectState = DXXProgram.LazyObjectState
