@@ -9,6 +9,8 @@
 *.so
 *.pyc
 build
+/d1x-rebirth/d1x-rebirth
+/d2x-rebirth/d2x-rebirth
 
 # Packages #
 ############
@@ -52,3 +54,12 @@ xcuserdata
 # PyCharm generated files #
 ###########################
 .idea
+
+# SConstruct generated files #
+##############################
+/.sconf_temp
+/d1x-rebirth/kconfig.udlr.h
+/d2x-rebirth/kconfig.udlr.h
+/dxxsconf.h
+/similar/main/.d1x-rebirth.kconfig.ui-table.i
+/similar/main/.d2x-rebirth.kconfig.ui-table.i
