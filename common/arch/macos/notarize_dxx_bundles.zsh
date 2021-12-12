@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
 function dxx_codesign {
-  codesign --timestamp --options=runtime --verbose --force --sign "$signing_identity[2]" "$@"
+  codesign --timestamp --options=runtime --verbose --force --sign "${signing_identity[2]}" "$@"
 }
 
 zmodload zsh/zutil
@@ -48,7 +48,7 @@ if [[ DXX_SIGN_HAS_ERROR -ne 0 ]]; then
   exit 1
 fi
 
-echo "Signing ${app_bundle_path} ..."
+echo "Signing ${app_bundle_path} with identity ${signing_identity[2]} ..."
 
 if [[ -d "${app_bundle_path[2]}/Contents/libs" ]]; then
   DXX_DYLIB_PATH="${app_bundle_path[2]}/Contents/libs"
@@ -68,7 +68,7 @@ if [[ ! -z "${DXX_DYLIB_PATH}" ]]; then
   fi
 fi
 
-echo "Signing application binary ..."
+echo "Signing application binary with identity ${signing_identity[2]} ..."
 
 dxx_codesign "${DXX_BINARY_PATH}"/*
 if [[ $? -ne 0 ]]; then
@@ -76,7 +76,7 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-echo "Signing app bundle ..."
+echo "Signing app bundle with identity ${signing_identity[2]} ..."
 
 dxx_codesign "${app_bundle_path[2]}"
 if [[ $? -ne 0 ]]; then
@@ -109,7 +109,9 @@ fi
 echo "Beginning notarization process.  This may take a few minutes."
 
 if [[ -z "${notarization_keychain_profile}" ]]; then
+  echo "Using Apple ID ${apple_id[2]} and Apple team ID ${team_id[2]} for notarization credentials."
   if [[ ! -z "${apple_password}" ]]; then
+    echo "Using password passed in via CLI parameter."
     xcrun notarytool submit "${DXX_TMP_ZIP_PATH}" --apple-id "${apple_id[2]}" --team-id "${team_id[2]}" --password "${apple_password[2]}" --wait
     if [[ $? -ne 0 ]]; then
       echo "Error notarizing application.  Check history for details."
@@ -124,6 +126,7 @@ if [[ -z "${notarization_keychain_profile}" ]]; then
     fi
   fi
 else
+  echo "Using Keychain item specified in ${notarization_keychain_profile[2]} for notarization credentials."
   xcrun notarytool submit "${DXX_TMP_ZIP_PATH}" --keychain-profile "${notarization_keychain_profile[2]}" --wait
   if [[ $? -ne 0 ]]; then
     echo "Error notarizing application.  Check history for details."

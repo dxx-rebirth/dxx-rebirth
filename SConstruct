@@ -5356,19 +5356,15 @@ class DXXProgram(DXXCommon):
 		bundledir = env.Dir(os.path.join(self.user_settings.builddir, '%s.app' % self.PROGRAM_NAME))
 		compressed_bundle = env.File(os.path.join(self.user_settings.builddir, '%s.zip' % self.PROGRAM_NAME))
 		if self.user_settings.macos_notarization_keychain_item is not None:
-			message(self, 'Signing %s, notarizing with Keychain item %s, and generating %s for distribution' % (str(bundledir), self.user_settings.macos_notarization_keychain_item, str(compressed_bundle)))
 			env.Command(target=compressed_bundle,
 					source=bundledir,
 					action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--notarization-keychain-profile', self.user_settings.macos_notarization_keychain_item, '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
 		elif self.user_settings.macos_notarization_apple_id is not None and self.user_settings.macos_notarization_team_id is not None:
-			message(self, 'Signing %s, notarizing with Apple ID %s and team ID %s, and generating %s for distribution' % (str(bundledir), self.user_settings.macos_notarization_apple_id, self.user_settings.macos_notarization_team_id, str(compressed_bundle)))
 			if self.user_settings.macos_notarization_password is None:
-				message(self, 'Password not specified in macos_notarization_password; will prompt for password')
 				env.Command(target=compressed_bundle,
 						source=bundledir,
 						action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--apple-id', self.user_settings.macos_notarization_apple_id, '--team-id', self.user_settings.macos_notarization_team_id, '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
 			else:
-				message(self, 'Using password specified in macos_notarization_password')
 				env.Command(target=compressed_bundle,
 						source=bundledir,
 						action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--apple-id', self.user_settings.macos_notarization_apple_id, '--apple-password', self.user_settings.macos_notarization_password, '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
