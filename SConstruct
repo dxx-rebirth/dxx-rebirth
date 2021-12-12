@@ -3910,32 +3910,32 @@ class DXXCommon(LazyObjectConstructor):
 					# if embedded with macos_bundle_libs) with the
 					# designated code signing identity.  To use it,
 					# pass the common name of the certificate in the
-					# Keychain you wish to use to side the bundle and
+					# Keychain you wish to use to sign the bundle and
 					# libraries (as applicable).
 					('macos_code_signing_identity', None, 'sign app bundle and embedded libs (if applicable) with this identity'),
 					# This is only examined for Mac OS X targets.
 					#
 					# This option specifies a Keychain item to use
-					# for credientials when submitting a signed app
+					# for credentials when submitting a signed app
 					# bundle for notarization.  If this is not specified,
 					# then specifying an Apple ID and team ID is required.
-					# For details about storing credientials in a
+					# For details about storing credentials in a
 					# compatible Keychain entry, see the store-credentials
 					# example at:
 					# https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
-					('macos_notarization_keychain_item', None, 'keychain item for notarization credientials'),
+					('macos_notarization_keychain_item', None, 'keychain item for notarization credentials'),
 					# This is only examined for Mac OS X targets.
 					#
 					# An Apple ID to be used for notarization submissions.
 					# If a valid Keychain item is not used, then this is
 					# required.
-					('macos_notarization_apple_id', None, 'apple id for notarization submissions'),
+					('macos_notarization_apple_id', None, 'Apple ID for notarization submissions'),
 					# This is only examined for Mac OS X targets.
 					#
 					# The Apple team ID to use for notarization submissions.
 					# If a valid Keychain item is not used, then this is
 					# required.
-					('macos_notarization_team_id', None, 'apple team id for notarization submissions'),
+					('macos_notarization_team_id', None, 'Apple team ID for notarization submissions'),
 					# This is only examined for Mac OS X targets.
 					#
 					# The Apple app-specific password to use for
@@ -3943,7 +3943,7 @@ class DXXCommon(LazyObjectConstructor):
 					# is not used, then this will be used if provided.
 					# Otherwise, the submission process will provide an
 					# interactive prompt for the password.
-					('macos_notarization_password', None, 'apple app-specific password for notarization submissions'),
+					('macos_notarization_password', None, 'Apple app-specific password for notarization submissions'),
 				),
 			},
 			{
@@ -5350,30 +5350,30 @@ class DXXProgram(DXXCommon):
 						ENV = dylibenv)
 
 	def _macos_sign_and_notarize_bundle(self,dxxstr):
-		if self.user_settings.host_platform != 'darwin' or self.user_settings.macos_code_signing_identity is None:
+		if self.user_settings.host_platform != 'darwin':
 			return
 		env = self.env
 		bundledir = env.Dir(os.path.join(self.user_settings.builddir, '%s.app' % self.PROGRAM_NAME))
 		compressed_bundle = env.File(os.path.join(self.user_settings.builddir, '%s.zip' % self.PROGRAM_NAME))
 		if self.user_settings.macos_notarization_keychain_item is not None:
-			message(self, 'Signing %s.app, notarizing with Keychain item %s, and generating %s.zip for distribution' % (self.PROGRAM_NAME, self.user_settings.macos_notarization_keychain_item, self.PROGRAM_NAME))
-			env.Command(target=str(compressed_bundle),
-					source=str(bundledir),
-					action="common/arch/macos/notarize_dxx_bundles.sh --signing-identity \"%s\" --notarization-keychain-profile \"%s\" --app-bundle-path \"$SOURCE\" --zip-path \"$TARGET\"" % (self.user_settings.macos_code_signing_identity, self.user_settings.macos_notarization_keychain_item))
+			message(self, 'Signing %s, notarizing with Keychain item %s, and generating %s for distribution' % (str(bundledir), self.user_settings.macos_notarization_keychain_item, str(compressed_bundle)))
+			env.Command(target=compressed_bundle,
+					source=bundledir,
+					action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--notarization-keychain-profile', self.user_settings.macos_notarization_keychain_item, '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
 		elif self.user_settings.macos_notarization_apple_id is not None and self.user_settings.macos_notarization_team_id is not None:
-			message(self, 'Signing %s.app, notarizing with Apple ID %s and team ID %s, and generating %s.zip for distribution' % (self.PROGRAM_NAME, self.user_settings.macos_notarization_apple_id, self.user_settings.macos_notarization_team_id, self.PROGRAM_NAME))
+			message(self, 'Signing %s, notarizing with Apple ID %s and team ID %s, and generating %s for distribution' % (str(bundledir), self.user_settings.macos_notarization_apple_id, self.user_settings.macos_notarization_team_id, str(compressed_bundle)))
 			if self.user_settings.macos_notarization_password is None:
-				env.Command(target=str(compressed_bundle),
-						source=str(bundledir),
-						action="common/arch/macos/notarize_dxx_bundles.sh --signing-identity \"%s\" --apple-id \"%s\" --team-id \"%s\" --app-bundle-path \"$SOURCE\" --zip-path \"$TARGET\"" % (self.user_settings.macos_code_signing_identity, self.user_settings.macos_notarization_apple_id, self.user_settings.macos_notarization_team_id))
+				message(self, 'Password not specified in macos_notarization_password; will prompt for password')
+				env.Command(target=compressed_bundle,
+						source=bundledir,
+						action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--apple-id', self.user_settings.macos_notarization_apple_id, '--team-id', self.user_settings.macos_notarization_team_id, '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
 			else:
-				env.Command(target=str(compressed_bundle),
-						source=str(bundledir),
-						action="common/arch/macos/notarize_dxx_bundles.sh --signing-identity \"%s\" --apple-id \"%s\" --team-id \"%s\" --apple-password \"%s\" --app-bundle-path \"$SOURCE\" --zip-path \"$TARGET\"" % (self.user_settings.macos_code_signing_identity, self.user_settings.macos_notarization_apple_id, self.user_settings.macos_notarization_team_id, self.user_settings.macos_notarization_password))
+				message(self, 'Using password specified in macos_notarization_password')
+				env.Command(target=compressed_bundle,
+						source=bundledir,
+						action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--apple-id', self.user_settings.macos_notarization_apple_id, '--apple-password', self.user_settings.macos_notarization_password, '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
 		else:
-			message(self, 'either macos_notarization_keychain_item or both macos_notarization_apple_id and macos_notarization_team_id must be specified for notarization')
-			# Figure out a better way to error on this
-			exit(1)
+			raise SCons.Errors.StopError('Either macos_notarization_keychain_item or both macos_notarization_apple_id and macos_notarization_team_id must be specified for notarization')
 
 class D1XProgram(DXXProgram):
 	LazyObjectState = DXXProgram.LazyObjectState
