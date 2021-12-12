@@ -1,12 +1,5 @@
 #!/bin/zsh
 
-function array-has-value() {
-  local testVariable=$1
-  local keyValue=$2
-
-  [[ $(eval "echo \${${testVariable}[$keyValue]+1}") == 1 ]] && return 0 || return 1
-}
-
 zmodload zsh/zutil
 autoload is-at-least
 
