@@ -12,7 +12,7 @@ if ! is-at-least 5.8 ${ZSH_VERSION}; then
   exit 1
 fi
 
-zparseopts -D -E -F - s:=signing_identity -signing-identity:=signing_identity a:=app_bundle_path -app-bundle-path:=app_bundle_path z:=zip_path -zip-path:=zip_path k:=notarization_keychain_profile -notarization-keychain-profile:=notarization_keychain_profile i:=apple_id -apple-id:=apple_id t:=team_id -team-id:=team_id p:=apple_password -apple-password:=apple_password || exit 1
+zparseopts -D -E -F - s:=signing_identity -signing-identity:=signing_identity a:=app_bundle_path -app-bundle-path:=app_bundle_path b:=binary_name -binary-name:=binary_name z:=zip_path -zip-path:=zip_path k:=notarization_keychain_profile -notarization-keychain-profile:=notarization_keychain_profile i:=apple_id -apple-id:=apple_id t:=team_id -team-id:=team_id p:=apple_password -apple-password:=apple_password || exit 1
 
 end_opts=$@[(i)(--|-)]
 set -- "${@[0,end_opts-1]}" "${@[end_opts+1,-1]}"
@@ -32,6 +32,14 @@ elif [[ ! -d "${app_bundle_path[2]}" ]]; then
   DXX_SIGN_HAS_ERROR=1
 fi
 
+if [[ -z "${binary_name}" ]]; then
+  echo "--binary-name is required"
+  DXX_SIGN_HAS_ERROR=1
+elif [[ ! -f "${app_bundle_path[2]}/Contents/MacOS/${binary_name[2]}" ]]; then
+  echo "Binary specified in --binary-name (${binary_name[2]}) does not exist."
+  DXX_SIGN_HAS_ERROR=1
+fi
+
 if [[ -z "${zip_path}" ]]; then
   echo "--zip-path is required."
   DXX_SIGN_HAS_ERROR=1
@@ -48,18 +56,16 @@ if [[ DXX_SIGN_HAS_ERROR -ne 0 ]]; then
   exit 1
 fi
 
-echo "Signing ${app_bundle_path} with identity ${signing_identity[2]} ..."
-
 if [[ -d "${app_bundle_path[2]}/Contents/libs" ]]; then
   DXX_DYLIB_PATH="${app_bundle_path[2]}/Contents/libs"
 else
   unset DXX_DYLIB_PATH
 fi
 
-DXX_BINARY_PATH="${app_bundle_path[2]}/Contents/MacOS"
+DXX_BINARY_PATH="${app_bundle_path[2]}/Contents/MacOS/${binary_name[2]}"
 
 if [[ ! -z "${DXX_DYLIB_PATH}" ]]; then
-  echo "Signing dylibs ..."
+  echo "Signing dylibs at ${app_bundle_path[2]}/Contents/libs with identity ${signing_identity[2]} ..."
 
   dxx_codesign "${DXX_DYLIB_PATH}"/*.dylib
   if [[ $? -ne 0 ]]; then
@@ -68,15 +74,15 @@ if [[ ! -z "${DXX_DYLIB_PATH}" ]]; then
   fi
 fi
 
-echo "Signing application binary with identity ${signing_identity[2]} ..."
+echo "Signing application binary at ${DXX_BINARY_PATH} with identity ${signing_identity[2]} ..."
 
-dxx_codesign "${DXX_BINARY_PATH}"/*
+dxx_codesign "${DXX_BINARY_PATH}"
 if [[ $? -ne 0 ]]; then
   echo "Failed to sign application binary."
   exit 1
 fi
 
-echo "Signing app bundle with identity ${signing_identity[2]} ..."
+echo "Signing app bundle at ${app_bundle_path[2]} with identity ${signing_identity[2]} ..."
 
 dxx_codesign "${app_bundle_path[2]}"
 if [[ $? -ne 0 ]]; then

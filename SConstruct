@@ -5358,16 +5358,16 @@ class DXXProgram(DXXCommon):
 		if self.user_settings.macos_notarization_keychain_item is not None:
 			env.Command(target=compressed_bundle,
 					source=bundledir,
-					action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--notarization-keychain-profile', self.user_settings.macos_notarization_keychain_item, '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
+					action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--notarization-keychain-profile', self.user_settings.macos_notarization_keychain_item, '--binary-name', '%s-rebirth' % (dxxstr), '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
 		elif self.user_settings.macos_notarization_apple_id is not None and self.user_settings.macos_notarization_team_id is not None:
 			if self.user_settings.macos_notarization_password is None:
 				env.Command(target=compressed_bundle,
 						source=bundledir,
-						action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--apple-id', self.user_settings.macos_notarization_apple_id, '--team-id', self.user_settings.macos_notarization_team_id, '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
+						action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--apple-id', self.user_settings.macos_notarization_apple_id, '--team-id', self.user_settings.macos_notarization_team_id, '--binary-name', '%s-rebirth' % (dxxstr), '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
 			else:
 				env.Command(target=compressed_bundle,
 						source=bundledir,
-						action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--apple-id', self.user_settings.macos_notarization_apple_id, '--apple-password', self.user_settings.macos_notarization_password, '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
+						action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--apple-id', self.user_settings.macos_notarization_apple_id, '--apple-password', self.user_settings.macos_notarization_password, '--binary-name', '%s-rebirth' % (dxxstr), '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
 		else:
 			raise SCons.Errors.StopError('Either macos_notarization_keychain_item or both macos_notarization_apple_id and macos_notarization_team_id must be specified for notarization')
 
