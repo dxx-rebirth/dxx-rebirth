@@ -5335,6 +5335,7 @@ class DXXProgram(DXXCommon):
 					typecode='APPL', creator='DCNT',
 					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
 					resources=[[os.path.join(self.srcdir, s), s] for s in ['English.lproj/InfoPlist.strings']])
+			self.bundledir = bundledir
 			if self.user_settings.macos_bundle_libs and not self.user_settings.macos_add_frameworks:
 				message(self, 'Bundling libraries for %s' % (str(bundledir),))
 				# If the user has set $PATH, use it in preference to the
@@ -5353,7 +5354,7 @@ class DXXProgram(DXXCommon):
 		if self.user_settings.host_platform != 'darwin':
 			return
 		env = self.env
-		bundledir = env.Dir(os.path.join(self.user_settings.builddir, '%s.app' % self.PROGRAM_NAME))
+		bundledir = self.bundledir
 		compressed_bundle = env.File(os.path.join(self.user_settings.builddir, '%s.zip' % self.PROGRAM_NAME))
 		if self.user_settings.macos_notarization_keychain_item is not None:
 			env.Command(target=compressed_bundle,
