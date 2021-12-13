@@ -1,6 +1,12 @@
 #!/usr/bin/env zsh
 
 function dxx_codesign {
+  # codesign parameters:
+  # --timestamp: Request a signing tiemstamp from Apple's servers (required for notarization).
+  # --options=runtime: Enable a hardened runtime (required for notarization).
+  # --verbose: More verbose output for tracking status.
+  # --force: Force overwriting existing ad hoc or identity-signed signatures.  Existing resources are likely to have at least one signature (likely ad hoc) to replace.
+  # --sign: The signing idnetity to use to sign the resource.
   codesign --timestamp --options=runtime --verbose --force --sign "${signing_identity[2]}" "$@"
 }
 
@@ -8,7 +14,7 @@ zmodload zsh/zutil
 autoload is-at-least
 
 if ! is-at-least 5.8 ${ZSH_VERSION}; then
-  echo "zsh 5.8 is required for the notarization script.  Please update to macOS 12 or higher, or install zsh 5.8 and place it before the system zsh in your path."
+  echo "zsh 5.8 is required for the notarization script.  Please update to macOS 12 or higher, or install zsh 5.8 or higher and place it before the system zsh in your path."
   exit 1
 fi
 
