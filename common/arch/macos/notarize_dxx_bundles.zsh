@@ -98,7 +98,7 @@ fi
 
 DXX_ZIP_NAME=${zip_path[2]##*/}
 
-DXX_TMP_ZIP_PATH="${TMPDIR}""${DXX_ZIP_NAME}"
+DXX_TMP_ZIP_PATH="${TMPDIR}${DXX_ZIP_NAME}"
 
 echo "Compressing $app_bundle_path[2] to temporary ZIP file at ${DXX_TMP_ZIP_PATH} ..."
 
