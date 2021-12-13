@@ -5351,7 +5351,7 @@ class DXXProgram(DXXCommon):
 						ENV = dylibenv)
 
 	def _macos_sign_and_notarize_bundle(self,dxxstr):
-		if self.user_settings.host_platform != 'darwin':
+		if self.user_settings.host_platform != 'darwin' or self.bundledir is None:
 			return
 		env = self.env
 		bundledir = self.bundledir
