@@ -118,6 +118,15 @@ if [[ ! -f "${DXX_TMP_ZIP_PATH}" ]]; then
   exit 1
 fi
 
+# Note that the notarization process does NOT change the app bundle or the ZIP file.
+# Instead, Apple reads the signature associated with the submitted resources and, if
+# they don't detect any malicious code, create a ticket on their side that can be
+# requested by a macOS client for the specific resource that was signed in order to
+# validate that it went through the notarization process.  This ticket can also be
+# stapled to the app bundle for offline validation by macOS clients which are not
+# connected to the Internet at the time.  This stapling process happens further in
+# the script.
+
 echo "Beginning notarization process.  This may take a few minutes."
 
 if [[ -z "${notarization_keychain_profile}" ]]; then
