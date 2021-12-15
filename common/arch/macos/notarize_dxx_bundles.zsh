@@ -18,7 +18,7 @@ if ! is-at-least 5.8 ${ZSH_VERSION}; then
   exit 1
 fi
 
-zparseopts -D -E -F - s:=signing_identity -signing-identity:=signing_identity a:=app_bundle_path -app-bundle-path:=app_bundle_path b:=binary_name -binary-name:=binary_name z:=zip_path -zip-path:=zip_path k:=notarization_keychain_profile -notarization-keychain-profile:=notarization_keychain_profile i:=apple_id -apple-id:=apple_id t:=team_id -team-id:=team_id p:=apple_password -apple-password:=apple_password || exit 1
+zparseopts -D -E -F - s:=signing_identity -signing-identity:=signing_identity a:=app_bundle_path -app-bundle-path:=app_bundle_path b:=binary_name -binary-name:=binary_name z:=zip_path -zip-path:=zip_path k:=notarization_keychain_profile -notarization-keychain-profile:=notarization_keychain_profile i:=apple_id -apple-id:=apple_id t:=team_id -team-id:=team_id || exit 1
 
 end_opts=$@[(i)(--|-)]
 set -- "${@[0,end_opts-1]}" "${@[end_opts+1,-1]}"
@@ -131,9 +131,9 @@ echo "Beginning notarization process.  This may take a few minutes."
 
 if [[ -z "${notarization_keychain_profile}" ]]; then
   echo "Using Apple ID ${apple_id[2]} and Apple team ID ${team_id[2]} for notarization credentials."
-  if [[ ! -z "${apple_password}" ]]; then
-    echo "Using password passed in via CLI parameter."
-    xcrun notarytool submit "${DXX_TMP_ZIP_PATH}" --apple-id "${apple_id[2]}" --team-id "${team_id[2]}" --password "${apple_password[2]}" --wait
+  if [[ ! -z "${DXX_NOTARIZATION_PASSWORD}" ]]; then
+    echo "Using password passed in via DXX_NOTARIZATION_PASSWORD environment variable."
+    xcrun notarytool submit "${DXX_TMP_ZIP_PATH}" --apple-id "${apple_id[2]}" --team-id "${team_id[2]}" --password "${DXX_NOTARIZATION_PASSWORD}" --wait
     if [[ $? -ne 0 ]]; then
       echo "Error notarizing application.  Check history for details."
       exit 1
