@@ -3630,7 +3630,6 @@ class DXXCommon(LazyObjectConstructor):
 		def default_builddir(self):
 			builddir_prefix = self.builddir_prefix
 			builddir_suffix = self.builddir_suffix
-			default_builddir = builddir_prefix or ''
 			if builddir_prefix is not None or builddir_suffix is not None:
 				fields = [
 					self.host_platform,
@@ -3658,9 +3657,11 @@ class DXXCommon(LazyObjectConstructor):
 					('opengles', 'es'),
 					('raspberrypi', 'rpi'),
 				)))
-				default_builddir += '-'.join([f for f in fields if f])
+				default_builddir = (builddir_prefix or '') + '-'.join([f for f in fields if f])
 				if builddir_suffix is not None:
 					default_builddir += builddir_suffix
+			else:
+				default_builddir = 'build/'
 			return default_builddir
 		def default_memdebug(self):
 			return self.debug
