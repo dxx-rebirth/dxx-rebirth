@@ -27,7 +27,7 @@ zmodload zsh/zutil
 autoload is-at-least
 
 if ! is-at-least 5.8 ${ZSH_VERSION}; then
-  eerror "zsh 5.8 is required for the notarization script.  Please update to macOS 12 or higher, or install zsh 5.8 or higher and place it before the system zsh in your path."
+  eerror "zsh 5.8 is required for the notarization script, but zsh version ${ZSH_VERSION} was used.  Please update to macOS 12 or higher, or install zsh 5.8 or higher and place it before the system zsh in your \$PATH."
   exit 1
 fi
 
