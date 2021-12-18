@@ -2,11 +2,11 @@
 
 function dxx_codesign {
   # codesign parameters:
-  # --timestamp: Request a signing tiemstamp from Apple's servers (required for notarization).
+  # --timestamp: Request a signing timestamp from Apple's servers (required for notarization).
   # --options=runtime: Enable a hardened runtime (required for notarization).
   # --verbose: More verbose output for tracking status.
   # --force: Force overwriting existing ad hoc or identity-signed signatures.  Existing resources are likely to have at least one signature (likely ad hoc) to replace.
-  # --sign: The signing idnetity to use to sign the resource.
+  # --sign: The signing identity to use to sign the resource.
   codesign --timestamp --options=runtime --verbose --force --sign "${signing_identity[2]}" "$@"
 }
 
