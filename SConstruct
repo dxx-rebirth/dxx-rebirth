@@ -5169,9 +5169,9 @@ class DXXProgram(DXXCommon):
 			exe_target = self._register_program(exe_target)
 			ToolchainInformation.show_partial_environ(env, user_settings, SCons.Script.Main.progress_display, self.program_message_prefix, append_newline='')
 		if user_settings.register_install_target:
-			self._register_install(self.shortname, exe_target)
-		if user_settings.macos_code_signing_identity is not None:
-			self._macos_sign_and_notarize_bundle(self.shortname)
+			bundledir = self._register_install(self.shortname, exe_target)
+			if user_settings.macos_code_signing_identity is not None:
+				self._macos_sign_and_notarize_bundle(self.shortname, bundledir)
 
 	def _register_program(self,exe_target):
 		env = self.env
@@ -5335,7 +5335,6 @@ class DXXProgram(DXXCommon):
 					typecode='APPL', creator='DCNT',
 					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
 					resources=[[os.path.join(self.srcdir, s), s] for s in ['English.lproj/InfoPlist.strings']])
-			self.bundledir = bundledir
 			if self.user_settings.macos_bundle_libs and not self.user_settings.macos_add_frameworks:
 				message(self, 'Bundling libraries for %s' % (str(bundledir),))
 				# If the user has set $PATH, use it in preference to the
@@ -5349,12 +5348,12 @@ class DXXProgram(DXXCommon):
 						source=appfile,
 						action="dylibbundler -od -b -x $SOURCE -d $TARGET",
 						ENV = dylibenv)
+			return bundledir
 
-	def _macos_sign_and_notarize_bundle(self,dxxstr):
-		if self.user_settings.host_platform != 'darwin' or not hasattr(self, 'bundledir') or self.bundledir is None:
+	def _macos_sign_and_notarize_bundle(self,dxxstr,bundledir):
+		if self.user_settings.host_platform != 'darwin' or bundledir is None:
 			return
 		env = self.env
-		bundledir = self.bundledir
 		compressed_bundle = env.File(os.path.join(self.user_settings.builddir, '%s.zip' % self.PROGRAM_NAME))
 		if self.user_settings.macos_notarization_keychain_item is not None:
 			env.Command(target=compressed_bundle,
