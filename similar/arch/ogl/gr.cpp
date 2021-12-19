@@ -454,7 +454,7 @@ static int ogl_init_window(int w, int h)
 #ifdef RPI
 		eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, static_cast<EGLNativeWindowType>(&nativewindow), winAttribs);
 #else
-		eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, static_cast<NativeWindowType>(x11Window), winAttribs);
+		eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, x11Window, winAttribs);
 #endif
 		if ((!TestEGLError("eglCreateWindowSurface")) || eglSurface == EGL_NO_SURFACE) {
 			con_printf(CON_URGENT, "EGL: Error creating window surface");
