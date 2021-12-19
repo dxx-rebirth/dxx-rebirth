@@ -419,11 +419,13 @@ static int ogl_init_window(int w, int h)
 	}
 
 	if (eglDisplay == EGL_NO_DISPLAY) {
+		const EGLNativeDisplayType desiredEGLDisplay =
 #ifdef RPI
-		eglDisplay = eglGetDisplay((EGLNativeDisplayType)EGL_DEFAULT_DISPLAY);
+		EGL_DEFAULT_DISPLAY;
 #else
-		eglDisplay = eglGetDisplay((EGLNativeDisplayType)x11Display);
+		x11Display;
 #endif
+		eglDisplay = eglGetDisplay(desiredEGLDisplay);
 		if (eglDisplay == EGL_NO_DISPLAY) {
 			con_printf(CON_URGENT, "EGL: Error querying EGL Display");
 		}
