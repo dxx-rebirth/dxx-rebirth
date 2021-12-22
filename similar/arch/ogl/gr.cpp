@@ -835,6 +835,9 @@ int gr_init()
 		sdl_window_flags |= SDL_WINDOW_BORDERLESS;
 	if (!CGameCfg.WindowMode && !CGameArg.SysWindow)
 		sdl_window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+#if defined(__APPLE__) && defined(__MACH__)
+	sdl_window_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+#endif
 	const auto mode = Game_screen_mode;
 	const auto SDLWindow = SDL_CreateWindow(DESCENT_VERSION, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SM_W(mode), SM_H(mode), sdl_window_flags);
 	if (!SDLWindow)
