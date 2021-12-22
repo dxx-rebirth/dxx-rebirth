@@ -4178,6 +4178,7 @@ class DXXCommon(LazyObjectConstructor):
 				env.Append(FRAMEWORKS = ['SDL'])
 			if self.user_settings.opengl or self.user_settings.opengles:
 				env.Append(FRAMEWORKS = ['OpenGL'])
+				env.Append(CXXFLAGS = ['-DGL_SILENCE_DEPRECATION'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
 		sharepath = '{prefix}/share/games/{program_target}'.format
