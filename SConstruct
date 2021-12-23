@@ -4177,7 +4177,10 @@ class DXXCommon(LazyObjectConstructor):
 			if macos_add_frameworks:
 				env.Append(FRAMEWORKS = ['SDL'])
 			if self.user_settings.opengl or self.user_settings.opengles:
-				env.Append(FRAMEWORKS = ['OpenGL'])
+				env.Append(
+					CPPDEFINES = [('GL_SILENCE_DEPRECATION',)],
+					FRAMEWORKS = ['OpenGL'],
+				)
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
 		sharepath = '{prefix}/share/games/{program_target}'.format

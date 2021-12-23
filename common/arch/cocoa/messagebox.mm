@@ -24,7 +24,7 @@ void display_cocoa_alert(const char *message, int error)
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	NSAlert *alert = [[NSAlert alloc] init];
-	alert.alertStyle = error == 1 ? NSCriticalAlertStyle : NSWarningAlertStyle;
+	alert.alertStyle = error == 1 ? NSAlertStyleCritical : NSAlertStyleWarning;
 	alert.messageText = error ? @"Sorry, a critical error has occurred." : @"Attention!";
 	alert.informativeText = [NSString stringWithUTF8String:message];
 	
