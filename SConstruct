@@ -4361,6 +4361,21 @@ class DXXCommon(LazyObjectConstructor):
 			for o in objects])
 		return objects
 
+	def _compilation_database_Program(self,target=None,source=None,*args,**kwargs):
+		env = self.env
+		Program = env.__compilation_database_Program
+		objects = Program(target=target, source=source, *args, **kwargs)
+		source = [s[0] for s in source] if source else []
+		directory = env.Dir('.').get_abspath()
+		self._compilation_database_entries.extend([
+			{
+				'command' : env.Override(kwargs).subst(env['LINKCOM'], target=[o], source=source),
+				'directory' : directory,
+				'output' : str(o),
+				}
+			for o in objects])
+		return objects
+
 	def create_special_target_nodes(self,archive):
 		env = self.env
 		StaticObject = env.StaticObject
@@ -4372,6 +4387,8 @@ class DXXCommon(LazyObjectConstructor):
 		if user_settings.compilation_database:
 			env.__compilation_database_StaticObject = StaticObject
 			env.StaticObject = self._compilation_database_StaticObject
+			env.__compilation_database_Program = env.Program
+			env.Program = self._compilation_database_Program
 		if user_settings.check_header_includes:
 			# Create header targets before creating the PCHManager, so that
 			# create_header_targets() does not call the PCHManager
