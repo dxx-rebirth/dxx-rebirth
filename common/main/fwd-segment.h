@@ -170,7 +170,7 @@ void delta_light_write(const delta_light *dl, PHYSFS_File *fp);
 
 void dl_index_read(dl_index *di, PHYSFS_File *fp);
 void dl_index_write(const dl_index *di, PHYSFS_File *fp);
-using dlindexnum_t = uint16_t;
+enum class dlindexnum_t : uint16_t;
 }
 #define DXX_VALPTRIDX_REPORT_ERROR_STYLE_default_dl_index trap_terse
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, dl_index, ::dsx::dlindexnum_t, 500);
