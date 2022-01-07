@@ -1204,7 +1204,7 @@ int properties_init(void)
 void piggy_read_sounds(int pc_shareware)
 {
 	uint8_t * ptr;
-	int i, sbytes;
+	int i;
 
 	if (MacPig)
 	{
@@ -1239,7 +1239,6 @@ void piggy_read_sounds(int pc_shareware)
 	}
 
 	ptr = SoundBits.get();
-	sbytes = 0;
 
 	std::vector<uint8_t> lastbuf;
 	for (i=0; i<Num_sound_files; i++ )
@@ -1256,10 +1255,8 @@ void piggy_read_sounds(int pc_shareware)
 				snd->data = ptr;
 #ifdef ALLEGRO
 				ptr += snd->len;
-				sbytes += snd->len;
 #else
 				ptr += snd->length;
-				sbytes += snd->length;
 #endif
 		//Arne's decompress for shareware on all soundcards - Tim@Rikers.org
 				if (pc_shareware)
@@ -1283,10 +1280,9 @@ void piggy_read_sounds(int pc_shareware)
 void piggy_read_sounds(void)
 {
 	uint8_t * ptr;
-	int i, sbytes;
+	int i;
 
 	ptr = SoundBits.get();
-	sbytes = 0;
 	auto fp = PHYSFSX_openReadBuffered(DEFAULT_SNDFILE).first;
 	if (!fp)
 		return;
@@ -1301,7 +1297,6 @@ void piggy_read_sounds(void)
 				// Read in the sound data!!!
 				snd->data = ptr;
 				ptr += snd->length;
-				sbytes += snd->length;
 				PHYSFS_read( fp, snd->data, snd->length, 1 );
 			}
 			else
