@@ -50,22 +50,16 @@ auto dereference_iterator(const std::tuple<range_iterator_type...> &iterator, st
 		>(*(std::get<N>(iterator))...);
 }
 
+/* The overloads of get_static_size are declared, but never defined.  They
+ * exist only for use in decltype() expressions.
+ */
 template <typename T, std::size_t N>
-static constexpr std::integral_constant<std::size_t, N> get_static_size(const T (&)[N])
-{
-	return {};
-}
+std::integral_constant<std::size_t, N> get_static_size(const T (&)[N]);
 
 template <typename T, std::size_t N>
-static constexpr std::integral_constant<std::size_t, N> get_static_size(const std::array<T, N> &)
-{
-	return {};
-}
+std::integral_constant<std::size_t, N> get_static_size(const std::array<T, N> &);
 
-static constexpr std::nullptr_t get_static_size(...)
-{
-	return nullptr;
-}
+std::nullptr_t get_static_size(...);
 
 template <typename range0, typename rangeN, typename range0_extent = decltype(get_static_size(std::declval<range0>())), typename rangeN_extent = decltype(get_static_size(std::declval<rangeN>()))>
 struct check_static_size_pair : std::true_type
