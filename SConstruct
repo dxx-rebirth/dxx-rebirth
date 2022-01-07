@@ -4384,11 +4384,21 @@ class DXXCommon(LazyObjectConstructor):
 		if user_settings.register_cpp_output_targets:
 			env.__cpp_output_StaticObject = StaticObject
 			env.StaticObject = StaticObject = self._cpp_output_StaticObject
-		if user_settings.compilation_database:
+		compilation_database = user_settings.compilation_database
+		if compilation_database:
 			env.__compilation_database_StaticObject = StaticObject
 			env.StaticObject = self._compilation_database_StaticObject
 			env.__compilation_database_Program = env.Program
 			env.Program = self._compilation_database_Program
+			# Only set self._compilation_database_entries if collection
+			# of the compilation database is enabled.
+			try:
+				compilation_database_entries = self.compilation_database_dict_fn_to_entries[compilation_database][1]
+			except KeyError:
+				compilation_database_entries = []
+				self.compilation_database_dict_fn_to_entries[compilation_database] = (env, compilation_database_entries)
+			self._compilation_database_entries = compilation_database_entries
+
 		if user_settings.check_header_includes:
 			# Create header targets before creating the PCHManager, so that
 			# create_header_targets() does not call the PCHManager
@@ -4598,16 +4608,6 @@ class DXXCommon(LazyObjectConstructor):
 	def process_user_settings(self):
 		env = self.env
 		user_settings = self.user_settings
-		compilation_database = self.user_settings.compilation_database
-		if compilation_database:
-			# Only set self._compilation_database_entries if collection
-			# of the compilation database is enabled.
-			try:
-				compilation_database_entries = self.compilation_database_dict_fn_to_entries[compilation_database][1]
-			except KeyError:
-				compilation_database_entries = []
-				self.compilation_database_dict_fn_to_entries[compilation_database] = (env, compilation_database_entries)
-			self._compilation_database_entries = compilation_database_entries
 
 		# Insert default CXXFLAGS.  User-specified CXXFLAGS, if any, are
 		# appended to this list and will override these defaults.  The
