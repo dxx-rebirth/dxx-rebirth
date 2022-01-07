@@ -56,6 +56,8 @@ window_event_result standard_handler(const d_event &event);
 // a filename, useful for declaring arrays of filenames
 struct d_fname : ntstring<FILENAME_LEN - 1>
 {
+	d_fname() = default;
+	d_fname(const d_fname &) = default;
 	d_fname &operator=(const d_fname &) = default;
 	template <std::size_t N>
 		void operator=(char (&i)[N]) const = delete;
