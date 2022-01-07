@@ -38,7 +38,7 @@ struct d_level_unique_object_state
 	d_thief_unique_state ThiefState;
 	d_guided_missile_indices Guided_missile;
 #endif
-	object_number_array<imobjidx_t, MAX_OBJECTS> free_obj_list;
+	std::array<imobjidx_t, MAX_OBJECTS> free_obj_list = init_object_number_array<imobjidx_t>(std::make_index_sequence<MAX_OBJECTS>());
 	object_array Objects;
 	d_level_unique_boss_state BossState;
 	d_level_unique_control_center_state ControlCenterState;
