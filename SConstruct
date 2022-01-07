@@ -4200,8 +4200,17 @@ class DXXCommon(LazyObjectConstructor):
 		self.program_instance = next(__program_instance)
 		self.user_settings = user_settings
 
+	@staticmethod
+	def __get_found_includes(node, env, scanner, path):
+		# Always call the original and always return at
+		# least what it returned.  If this node is in the
+		# whitelist, then also apply the hook logic.
+		# Otherwise, this is a pass-through.
+		r = node.__get_found_includes(env, scanner, path)
+		return (r + [env.File(env['DXX_EFFECTIVE_SOURCE'])]) \
+			if node in node._dxx_node_header_target_set else r
+
 	def create_header_targets(self,__shared_header_file_list=[],__shared_cpp_dict={}):
-		fs = SCons.Node.FS.get_default_fs()
 		env = self.env
 		builddir = self.builddir
 		check_header_includes = __shared_cpp_dict.get(builddir)
@@ -4248,16 +4257,8 @@ class DXXCommon(LazyObjectConstructor):
 			# storing the hook whitelist in it.
 			if not hasattr(c, '_dxx_node_header_target_set'):
 				c._dxx_node_header_target_set = set()
-				def __get_found_includes(node, env, scanner, path):
-					# Always call the original and always return at
-					# least what it returned.  If this node is in the
-					# whitelist, then also apply the hook logic.
-					# Otherwise, this is a pass-through.
-					r = node.__get_found_includes(env, scanner, path)
-					return (r + [fs.File(env['DXX_EFFECTIVE_SOURCE'])]) \
-						if node in node._dxx_node_header_target_set else r
 				c.__get_found_includes = c.get_found_includes
-				c.get_found_includes = __get_found_includes
+				c.get_found_includes = self.__get_found_includes
 			# Update the whitelist here, outside the hasattr block.
 			# This is necessary so that the hook is created once, but
 			# every env.Textfile created by this block is whitelisted.
@@ -4798,22 +4799,21 @@ class DXXArchive(DXXCommon):
 		self.create_special_target_nodes(self)
 
 	def configure_environment(self):
-		fs = SCons.Node.FS.get_default_fs()
 		user_settings = self.user_settings
 		builddir = user_settings.builddir or '.'
+		env = self.env
 		try:
-			builddir = fs.Dir(builddir)
+			builddir = env.Dir(builddir)
 		except TypeError as e:
 			raise SCons.Errors.StopError(e.args[0])
 		tests = ConfigureTests(self.program_message_prefix, user_settings, self.platform_settings)
 		log_file = builddir.File('sconf.log')
-		env = self.env
 		conf = env.Configure(custom_tests = {
 				k.name:getattr(tests, k.name) for k in tests.custom_tests
 			},
-			conf_dir=fs.Dir('.sconf_temp', builddir),
+			conf_dir=builddir.Dir('.sconf_temp'),
 			log_file=log_file,
-			config_h=fs.File('dxxsconf.h', builddir),
+			config_h=builddir.File('dxxsconf.h'),
 			clean=False,
 			help=False
 		)
