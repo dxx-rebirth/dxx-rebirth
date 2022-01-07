@@ -603,7 +603,6 @@ static void hmptrk2mid(ubyte* data, int size, std::vector<uint8_t> &midbuf)
 {
 	uint8_t *dptr = data;
 	ubyte lc1 = 0,last_com = 0;
-	uint d;
 	int n1;
 
 	while (data < dptr + size)
@@ -613,12 +612,6 @@ static void hmptrk2mid(ubyte* data, int size, std::vector<uint8_t> &midbuf)
 			midbuf.emplace_back(b);
 		}
 		else {
-			d = (data[0] & 0x7F);
-			n1 = 0;
-			while ((data[n1] & 0x80) == 0) {
-				n1++;
-				d += (data[n1] & 0x7F) << (n1 * 7);
-				}
 			n1 = 1;
 			while ((data[n1] & 0x80) == 0) {
 				n1++;
