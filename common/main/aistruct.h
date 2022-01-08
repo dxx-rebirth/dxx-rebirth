@@ -174,12 +174,11 @@ enum class ai_mode : uint8_t
 #endif
 
 //  Constants defining meaning of flags in ai_state
-#define MAX_AI_FLAGS    4          // This MUST cause word (4 bytes) alignment in ai_static, allowing for one byte mode
+#define MAX_AI_FLAGS    3          // This MUST cause word (4 bytes) alignment in ai_static, allowing for one byte mode
 
 #define CURRENT_GUN     flags[0]    // This is the last gun the object fired from
 #define CURRENT_STATE   flags[1]    // current behavioral state
 #define GOAL_STATE      flags[2]    // goal state
-#define PATH_DIR        flags[3]    // direction traveling path, 1 = forward, -1 = backward, other = error!
 
 // This is the stuff that is permanent for an AI object.
 #ifdef dsx
@@ -216,6 +215,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 {
 	ai_behavior behavior = static_cast<ai_behavior>(0);               //
 	std::array<sbyte, MAX_AI_FLAGS> flags{};    // various flags, meaning defined by constants
+	int8_t PATH_DIR;
 #if defined(DXX_BUILD_DESCENT_I)
 	int8_t SUBMODE;					//	submode, eg AISM_HIDING if mode == AIM_HIDE
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -247,7 +247,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 struct ai_static_rw
 {
 	ubyte   behavior;               //
-	int8_t  flags[MAX_AI_FLAGS + 7];    // various flags, meaning defined by constants
+	int8_t  flags[MAX_AI_FLAGS + 8];    // various flags, meaning defined by constants
 	short   hide_segment;           // Segment to go to for hiding.
 	short   hide_index;             // Index in Path_seg_points
 	short   path_length;            // Length of hide path.
