@@ -213,7 +213,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 {
 	ai_behavior behavior = static_cast<ai_behavior>(0);               //
 	int8_t CURRENT_GUN;
-	int8_t CURRENT_STATE;
+	ai_static_state CURRENT_STATE;
 	ai_static_state GOAL_STATE;
 	int8_t PATH_DIR;
 #if defined(DXX_BUILD_DESCENT_I)

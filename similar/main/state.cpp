@@ -604,7 +604,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 		{
 			obj.ctype.ai_info.behavior               = static_cast<ai_behavior>(obj_rw->ctype.ai_info.behavior);
 			obj.ctype.ai_info.CURRENT_GUN = obj_rw->ctype.ai_info.flags[0];
-			obj.ctype.ai_info.CURRENT_STATE = obj_rw->ctype.ai_info.flags[1];
+			obj.ctype.ai_info.CURRENT_STATE = build_ai_state_from_untrusted(obj_rw->ctype.ai_info.flags[1]).value();
 			obj.ctype.ai_info.GOAL_STATE = build_ai_state_from_untrusted(obj_rw->ctype.ai_info.flags[2]).value();
 			obj.ctype.ai_info.PATH_DIR = obj_rw->ctype.ai_info.flags[3];
 #if defined(DXX_BUILD_DESCENT_I)
