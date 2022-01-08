@@ -397,10 +397,8 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 			
 		case object::control_type::ai:
 		{
-			int i;
 			obj_rw->ctype.ai_info.behavior               = static_cast<uint8_t>(obj.ctype.ai_info.behavior);
-			for (i = 0; i < MAX_AI_FLAGS; i++)
-				obj_rw->ctype.ai_info.flags[i]       = obj.ctype.ai_info.flags[i]; 
+			obj_rw->ctype.ai_info.flags[0] = obj.ctype.ai_info.CURRENT_GUN;
 			obj_rw->ctype.ai_info.flags[1] = obj.ctype.ai_info.CURRENT_STATE;
 			obj_rw->ctype.ai_info.flags[2] = obj.ctype.ai_info.GOAL_STATE;
 			obj_rw->ctype.ai_info.flags[3] = obj.ctype.ai_info.PATH_DIR;
@@ -604,10 +602,8 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			
 		case object::control_type::ai:
 		{
-			int i;
 			obj.ctype.ai_info.behavior               = static_cast<ai_behavior>(obj_rw->ctype.ai_info.behavior);
-			for (i = 0; i < MAX_AI_FLAGS; i++)
-				obj.ctype.ai_info.flags[i]       = obj_rw->ctype.ai_info.flags[i]; 
+			obj.ctype.ai_info.CURRENT_GUN = obj_rw->ctype.ai_info.flags[0];
 			obj.ctype.ai_info.CURRENT_STATE = obj_rw->ctype.ai_info.flags[1];
 			obj.ctype.ai_info.GOAL_STATE = obj_rw->ctype.ai_info.flags[2];
 			obj.ctype.ai_info.PATH_DIR = obj_rw->ctype.ai_info.flags[3];

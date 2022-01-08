@@ -480,11 +480,9 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 		case object::control_type::ai: {
 			obj->ctype.ai_info.behavior				= static_cast<ai_behavior>(PHYSFSX_readByte(f));
 
-			range_for (auto &i, obj->ctype.ai_info.flags)
-				i = PHYSFSX_readByte(f);
-
 			std::array<int8_t, 11> ai_info_flags{};
-			PHYSFS_read(f, &ai_info_flags[1], 1, 10);
+			PHYSFS_read(f, &ai_info_flags[0], 1, 11);
+			obj->ctype.ai_info.CURRENT_GUN = ai_info_flags[0];
 			obj->ctype.ai_info.CURRENT_STATE = ai_info_flags[1];
 			obj->ctype.ai_info.GOAL_STATE = ai_info_flags[2];
 			obj->ctype.ai_info.PATH_DIR = ai_info_flags[3];
@@ -750,10 +748,8 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 		case object::control_type::ai: {
 			PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.ctype.ai_info.behavior));
 
-			range_for (auto &i, obj.ctype.ai_info.flags)
-				PHYSFSX_writeU8(f, i);
-
 			std::array<int8_t, 11> ai_info_flags{};
+			ai_info_flags[0] = obj.ctype.ai_info.CURRENT_GUN;
 			ai_info_flags[1] = obj.ctype.ai_info.CURRENT_STATE;
 			ai_info_flags[2] = obj.ctype.ai_info.GOAL_STATE;
 			ai_info_flags[3] = obj.ctype.ai_info.PATH_DIR;
@@ -767,7 +763,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 			ai_info_flags[7] = obj.ctype.ai_info.SKIP_AI_COUNT;
 			ai_info_flags[8] = obj.ctype.ai_info.REMOTE_OWNER;
 			ai_info_flags[9] = obj.ctype.ai_info.REMOTE_SLOT_NUM;
-			PHYSFS_write(f, &ai_info_flags[1], 1, 10);
+			PHYSFS_write(f, &ai_info_flags[0], 1, 11);
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.hide_segment);
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.hide_index);
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.path_length);

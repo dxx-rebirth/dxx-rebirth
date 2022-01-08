@@ -173,11 +173,6 @@ enum class ai_mode : uint8_t
 #define SUB_FLAGS_CAMERA_AWAKE  0x04    // If set, a camera (on a missile) woke this robot up, so don't fire at player.  Can look real stupid!
 #endif
 
-//  Constants defining meaning of flags in ai_state
-#define MAX_AI_FLAGS    1          // This MUST cause word (4 bytes) alignment in ai_static, allowing for one byte mode
-
-#define CURRENT_GUN     flags[0]    // This is the last gun the object fired from
-
 // This is the stuff that is permanent for an AI object.
 #ifdef dsx
 namespace dsx {
@@ -212,7 +207,7 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 struct ai_static : public prohibit_void_ptr<ai_static>
 {
 	ai_behavior behavior = static_cast<ai_behavior>(0);               //
-	std::array<sbyte, MAX_AI_FLAGS> flags{};    // various flags, meaning defined by constants
+	int8_t CURRENT_GUN;
 	int8_t CURRENT_STATE;
 	int8_t GOAL_STATE;
 	int8_t PATH_DIR;
@@ -247,7 +242,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 struct ai_static_rw
 {
 	ubyte   behavior;               //
-	int8_t  flags[MAX_AI_FLAGS + 10];    // various flags, meaning defined by constants
+	int8_t  flags[11];    // various flags, meaning defined by constants
 	short   hide_segment;           // Segment to go to for hiding.
 	short   hide_index;             // Index in Path_seg_points
 	short   path_length;            // Length of hide path.
