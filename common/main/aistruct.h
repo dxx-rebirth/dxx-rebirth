@@ -149,7 +149,6 @@ enum class ai_mode : uint8_t
 #define AISM_HIDING                 1
 
 #define AI_MAX_STATE    7
-#define AI_MAX_EVENT    4
 
 #define AIE_FIRE        0
 #define AIE_HITT        1
