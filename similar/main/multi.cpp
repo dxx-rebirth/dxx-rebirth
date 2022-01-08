@@ -5996,6 +5996,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 			obj_rw->ctype.ai_info.behavior               = static_cast<uint8_t>(obj.ctype.ai_info.behavior);
 			for (i = 0; i < MAX_AI_FLAGS; i++)
 				obj_rw->ctype.ai_info.flags[i]       = obj.ctype.ai_info.flags[i]; 
+			obj_rw->ctype.ai_info.flags[7] = obj.ctype.ai_info.SKIP_AI_COUNT;
 			obj_rw->ctype.ai_info.flags[8] = obj.ctype.ai_info.REMOTE_OWNER;
 			obj_rw->ctype.ai_info.flags[9] = obj.ctype.ai_info.REMOTE_SLOT_NUM;
 			obj_rw->ctype.ai_info.hide_segment           = obj.ctype.ai_info.hide_segment;
@@ -6180,6 +6181,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 			obj.ctype.ai_info.behavior               = static_cast<ai_behavior>(obj_rw->ctype.ai_info.behavior);
 			for (i = 0; i < MAX_AI_FLAGS; i++)
 				obj.ctype.ai_info.flags[i]       = obj_rw->ctype.ai_info.flags[i]; 
+			obj.ctype.ai_info.SKIP_AI_COUNT = obj_rw->ctype.ai_info.flags[7];
 			obj.ctype.ai_info.REMOTE_OWNER = obj_rw->ctype.ai_info.flags[8];
 			obj.ctype.ai_info.REMOTE_SLOT_NUM = obj_rw->ctype.ai_info.flags[9];
 			obj.ctype.ai_info.hide_segment           = obj_rw->ctype.ai_info.hide_segment;

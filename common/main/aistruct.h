@@ -174,7 +174,7 @@ enum class ai_mode : uint8_t
 #endif
 
 //  Constants defining meaning of flags in ai_state
-#define MAX_AI_FLAGS    8          // This MUST cause word (4 bytes) alignment in ai_static, allowing for one byte mode
+#define MAX_AI_FLAGS    7          // This MUST cause word (4 bytes) alignment in ai_static, allowing for one byte mode
 
 #define CURRENT_GUN     flags[0]    // This is the last gun the object fired from
 #define CURRENT_STATE   flags[1]    // current behavioral state
@@ -187,7 +187,6 @@ enum class ai_mode : uint8_t
 #endif
 #define GOALSIDE        flags[5]    // for guys who open doors, this is the side they are going after.
 #define CLOAKED         flags[6]    // Cloaked now.
-#define SKIP_AI_COUNT   flags[7]    // Skip AI this frame, but decrement in do_ai_frame.
 
 // This is the stuff that is permanent for an AI object.
 #ifdef dsx
@@ -224,6 +223,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 {
 	ai_behavior behavior = static_cast<ai_behavior>(0);               //
 	std::array<sbyte, MAX_AI_FLAGS> flags{};    // various flags, meaning defined by constants
+	int8_t SKIP_AI_COUNT{};			// Skip AI this frame, but decrement in do_ai_frame.
 	int8_t REMOTE_OWNER{};			// Who is controlling this remote AI object (multiplayer use only)
 	int8_t REMOTE_SLOT_NUM{};		// What slot # is this robot in for remote control purposes (multiplayer use only)
 	segnum_t hide_segment{};           // Segment to go to for hiding.
@@ -247,7 +247,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 struct ai_static_rw
 {
 	ubyte   behavior;               //
-	int8_t  flags[MAX_AI_FLAGS + 3];    // various flags, meaning defined by constants
+	int8_t  flags[MAX_AI_FLAGS + 4];    // various flags, meaning defined by constants
 	short   hide_segment;           // Segment to go to for hiding.
 	short   hide_index;             // Index in Path_seg_points
 	short   path_length;            // Length of hide path.
