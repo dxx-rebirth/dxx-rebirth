@@ -101,6 +101,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fmtcheck.h"
 
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "partial_range.h"
 #include "d_range.h"
@@ -111,6 +112,34 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "custom.h"
 #define GLITZ_BACKGROUND	Menu_pcx_name
 
+namespace d1x {
+namespace {
+
+static int8_t find_next_level(const int secret_flag, const int current_level_num, const Mission &mission)
+{
+	if (secret_flag) {			//go to secret level instead
+		for (const auto &&[idx, table_entry] : enumerate(
+				unchecked_partial_range(
+					mission.secret_level_table.get(),
+					static_cast<unsigned>(-mission.last_secret_level)
+				)
+		))
+			if (table_entry == current_level_num)
+				return -(idx + 1);
+		//couldn't find which secret level
+		LevelError("secret exit from level %u failed to find secret level; continuing to next normal level", current_level_num);
+	}
+	else if (current_level_num < 0)
+	{			//on secret level, where to go?
+		//shouldn't be going to secret level
+		assert(current_level_num <= -1 && current_level_num >= mission.last_secret_level);
+		return mission.secret_level_table[(-current_level_num) - 1] + 1;
+	}
+	return current_level_num + 1;		//assume go to next normal level
+}
+
+}
+}
 #elif defined(DXX_BUILD_DESCENT_II)
 #include "movie.h"
 #define GLITZ_BACKGROUND	STARS_BACKGROUND
@@ -1758,27 +1787,7 @@ static window_event_result AdvanceLevel(int secret_flag)
 
 	} else {
 #if defined(DXX_BUILD_DESCENT_I)
-		int8_t Next_level_num = Current_level_num+1;		//assume go to next normal level
-
-		if (secret_flag) {			//go to secret level instead
-			int i;
-
-			for (i = 0; i < -Current_mission->last_secret_level; ++i)
-				if (Current_mission->secret_level_table[i] == Current_level_num)
-				{
-					Next_level_num = -(i+1);
-					break;
-				}
-			assert(i < -Current_mission->last_secret_level);		//couldn't find which secret level
-		}
-
-		if (Current_level_num < 0)	{			//on secret level, where to go?
-
-			Assert(!secret_flag);				//shouldn't be going to secret level
-			assert(Current_level_num <= -1 && Current_level_num >= Current_mission->last_secret_level);
-
-			Next_level_num = Current_mission->secret_level_table[(-Current_level_num) - 1] + 1;
-		}
+		const auto Next_level_num = find_next_level(secret_flag, Current_level_num, *Current_mission.get());
 #elif defined(DXX_BUILD_DESCENT_II)
 		int8_t Next_level_num;
 
