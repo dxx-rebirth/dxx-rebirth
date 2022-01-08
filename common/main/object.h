@@ -519,6 +519,8 @@ struct object_rw
 	} __pack__ rtype;
 } __pack__;
 
+static_assert(sizeof(object_rw) == 264);
+
 struct obj_position
 {
 	vms_vector  pos;        // absolute x,y,z coordinate of center of object

@@ -383,8 +383,8 @@ player_flags map_granted_flags_to_player_flags(packed_spawn_granted_items grant)
 uint_fast32_t map_granted_flags_to_primary_weapon_flags(packed_spawn_granted_items grant);
 uint16_t map_granted_flags_to_vulcan_ammo(packed_spawn_granted_items grant);
 void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, unsigned sidenum, const vms_vector &pos, int forever, fix max_volume);
-void multi_object_to_object_rw(object &obj, object_rw *obj_rw);
-void multi_object_rw_to_object(object_rw *obj_rw, object &obj);
+void multi_object_to_object_rw(const object &obj, object_rw *obj_rw);
+void multi_object_rw_to_object(const object_rw *obj_rw, object &obj);
 
 using GMNames_array = std::array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT>;
 extern const GMNames_array GMNames;

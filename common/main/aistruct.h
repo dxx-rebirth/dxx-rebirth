@@ -174,7 +174,7 @@ enum class ai_mode : uint8_t
 #endif
 
 //  Constants defining meaning of flags in ai_state
-#define MAX_AI_FLAGS    11          // This MUST cause word (4 bytes) alignment in ai_static, allowing for one byte mode
+#define MAX_AI_FLAGS    9          // This MUST cause word (4 bytes) alignment in ai_static, allowing for one byte mode
 
 #define CURRENT_GUN     flags[0]    // This is the last gun the object fired from
 #define CURRENT_STATE   flags[1]    // current behavioral state
@@ -189,7 +189,6 @@ enum class ai_mode : uint8_t
 #define CLOAKED         flags[6]    // Cloaked now.
 #define SKIP_AI_COUNT   flags[7]    // Skip AI this frame, but decrement in do_ai_frame.
 #define  REMOTE_OWNER   flags[8]    // Who is controlling this remote AI object (multiplayer use only)
-#define  REMOTE_SLOT_NUM flags[9]   // What slot # is this robot in for remote control purposes (multiplayer use only)
 
 // This is the stuff that is permanent for an AI object.
 #ifdef dsx
@@ -226,6 +225,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 {
 	ai_behavior behavior = static_cast<ai_behavior>(0);               //
 	std::array<sbyte, MAX_AI_FLAGS> flags{};    // various flags, meaning defined by constants
+	int8_t REMOTE_SLOT_NUM{};		// What slot # is this robot in for remote control purposes (multiplayer use only)
 	segnum_t hide_segment{};           // Segment to go to for hiding.
 	short hide_index{};             // Index in Path_seg_points
 	short path_length{};            // Length of hide path.
@@ -247,7 +247,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 struct ai_static_rw
 {
 	ubyte   behavior;               //
-	sbyte   flags[MAX_AI_FLAGS];    // various flags, meaning defined by constants
+	int8_t  flags[MAX_AI_FLAGS + 2];    // various flags, meaning defined by constants
 	short   hide_segment;           // Segment to go to for hiding.
 	short   hide_index;             // Index in Path_seg_points
 	short   path_length;            // Length of hide path.
@@ -265,6 +265,8 @@ struct ai_static_rw
 	fix     dying_start_time;       // Time at which this robot started dying.
 #endif
 } __pack__;
+
+static_assert(sizeof(ai_static_rw) == 30);
 
 // Same as above but structure Savegames expect
 struct ai_local_rw

@@ -122,7 +122,7 @@ int multi_can_move_robot(const vmobjptridx_t objnum, int agitation)
 		return 0;
 	else if (objnum->ctype.ai_info.REMOTE_OWNER == Player_num) // Already my robot!
 	{
-		int slot_num = objnum->ctype.ai_info.REMOTE_SLOT_NUM;
+		const auto slot_num = objnum->ctype.ai_info.REMOTE_SLOT_NUM;
 
       if ((slot_num < 0) || (slot_num >= MAX_ROBOTS_CONTROLLED))
 		 {
@@ -539,7 +539,7 @@ void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vecto
 
         if (obj->ctype.ai_info.REMOTE_OWNER == Player_num)
         {
-                int slot = obj->ctype.ai_info.REMOTE_SLOT_NUM;
+                const auto slot = obj->ctype.ai_info.REMOTE_SLOT_NUM;
                 if (slot<0 || slot>=MAX_ROBOTS_CONTROLLED)
                 {
                         return;

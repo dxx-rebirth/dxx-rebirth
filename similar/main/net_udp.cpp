@@ -2153,8 +2153,7 @@ void net_udp_send_objects(void)
 		return;
 	}
 
-	std::array<uint8_t, UPID_MAX_SIZE> object_buffer;
-	object_buffer = {};
+	std::array<uint8_t, UPID_MAX_SIZE> object_buffer{};
 	object_buffer[0] = UPID_OBJECT_DATA;
 	loc = 5;
 
