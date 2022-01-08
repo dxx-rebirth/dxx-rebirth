@@ -484,7 +484,8 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 				i = PHYSFSX_readByte(f);
 
 			std::array<int8_t, 11> ai_info_flags{};
-			PHYSFS_read(f, &ai_info_flags[7], 1, 4);
+			PHYSFS_read(f, &ai_info_flags[6], 1, 5);
+			obj->ctype.ai_info.CLOAKED = ai_info_flags[6];
 			obj->ctype.ai_info.SKIP_AI_COUNT = ai_info_flags[7];
 			obj->ctype.ai_info.REMOTE_OWNER = ai_info_flags[8];
 			obj->ctype.ai_info.REMOTE_SLOT_NUM = ai_info_flags[9];
@@ -744,10 +745,11 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 				PHYSFSX_writeU8(f, i);
 
 			std::array<int8_t, 11> ai_info_flags{};
+			ai_info_flags[6] = obj.ctype.ai_info.CLOAKED;
 			ai_info_flags[7] = obj.ctype.ai_info.SKIP_AI_COUNT;
 			ai_info_flags[8] = obj.ctype.ai_info.REMOTE_OWNER;
 			ai_info_flags[9] = obj.ctype.ai_info.REMOTE_SLOT_NUM;
-			PHYSFS_write(f, &ai_info_flags[7], 1, 4);
+			PHYSFS_write(f, &ai_info_flags[6], 1, 5);
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.hide_segment);
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.hide_index);
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.path_length);
