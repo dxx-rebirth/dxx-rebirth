@@ -4965,7 +4965,7 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_File *fp)
 		range_for (auto &j, ail->goal_state)
 			j = build_ai_state_from_untrusted(PHYSFSX_readByte(fp)).value();
 		range_for (auto &j, ail->achieved_state)
-			j = PHYSFSX_readByte(fp);
+			j = build_ai_state_from_untrusted(PHYSFSX_readByte(fp)).value();
 	}
 }
 

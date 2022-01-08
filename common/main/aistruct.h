@@ -206,7 +206,7 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 	std::array<vms_angvec, MAX_SUBMODELS> goal_angles{};    // angles for each subobject
 	std::array<vms_angvec, MAX_SUBMODELS> delta_angles{};   // angles for each subobject
 	std::array<ai_static_state, MAX_SUBMODELS> goal_state{};     // Goal state for this sub-object
-	std::array<sbyte, MAX_SUBMODELS> achieved_state{}; // Last achieved state
+	std::array<ai_static_state, MAX_SUBMODELS> achieved_state{}; // Last achieved state
 };
 
 struct ai_static : public prohibit_void_ptr<ai_static>
