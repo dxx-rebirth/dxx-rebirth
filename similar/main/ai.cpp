@@ -196,6 +196,25 @@ point_seg_array_t::iterator       Point_segs_free_ptr;
 constexpr std::array<int8_t, 21> Super_boss_gate_list{{
 	0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8
 }};
+
+std::optional<ai_static_state> build_ai_state_from_untrusted(const uint8_t untrusted)
+{
+	switch (untrusted)
+	{
+		case static_cast<uint8_t>(ai_static_state::AIS_NONE):
+		case static_cast<uint8_t>(ai_static_state::AIS_REST):
+		case static_cast<uint8_t>(ai_static_state::AIS_SRCH):
+		case static_cast<uint8_t>(ai_static_state::AIS_LOCK):
+		case static_cast<uint8_t>(ai_static_state::AIS_FLIN):
+		case static_cast<uint8_t>(ai_static_state::AIS_FIRE):
+		case static_cast<uint8_t>(ai_static_state::AIS_RECO):
+		case static_cast<uint8_t>(ai_static_state::AIS_ERR_):
+			return ai_static_state{untrusted};
+		default:
+			return std::nullopt;
+	}
+}
+
 }
 #define	MAX_GATE_INDEX	(Super_boss_gate_list.size())
 
@@ -346,7 +365,7 @@ constexpr std::array<char[9], 6> behavior_text{
 // Third dimension is goal state.
 // Result is new goal state.
 // ERR_ means something impossible has happened.
-constexpr int8_t Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE] = {
+constexpr ai_static_state Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE] = {
 	{
 		// Event = AIE_FIRE, a nearby object fired
 		// none     rest      srch      lock      flin      fire      reco        // CURRENT is rows, GOAL is columns
@@ -1587,6 +1606,11 @@ static void do_firing_stuff(object &obj, const player_flags powerup_flags, const
 						ailp->player_awareness_time = PLAYER_AWARENESS_INITIAL_TIME;
 					}
 					break;
+				case ai_static_state::AIS_FLIN:
+				case ai_static_state::AIS_FIRE:
+				case ai_static_state::AIS_RECO:
+				case ai_static_state::AIS_ERR_:
+					break;
 			}
 		} else if (dot >= F1_0/2) {
 			ai_static *const aip = &obj.ctype.ai_info;
@@ -1595,6 +1619,12 @@ static void do_firing_stuff(object &obj, const player_flags powerup_flags, const
 				case AIS_REST:
 				case AIS_SRCH:
 					aip->GOAL_STATE = AIS_LOCK;
+					break;
+				case ai_static_state::AIS_LOCK:
+				case ai_static_state::AIS_FLIN:
+				case ai_static_state::AIS_FIRE:
+				case ai_static_state::AIS_RECO:
+				case ai_static_state::AIS_ERR_:
 					break;
 			}
 		}
@@ -3181,7 +3211,6 @@ void do_ai_frame(const vmobjptridx_t obj)
 	ai_local &ailp = obj->ctype.ai_info.ail;
 	int			obj_ref;
 	int			object_animates;
-	int			new_goal_state;
 	vms_vector	gun_point;
 	vms_vector	vis_vec_pos;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -4228,7 +4257,7 @@ _exit_cheat:
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	if (ailp.player_awareness_type != player_awareness_type_t::PA_NONE) {
-		new_goal_state = Ai_transition_table[static_cast<unsigned>(ailp.player_awareness_type) - 1][aip->CURRENT_STATE][aip->GOAL_STATE];
+		auto new_goal_state = Ai_transition_table[static_cast<unsigned>(ailp.player_awareness_type) - 1][aip->CURRENT_STATE][aip->GOAL_STATE];
 		if (ailp.player_awareness_type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION)
 		{
 			// Decrease awareness, else this robot will flinch every frame.

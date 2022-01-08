@@ -484,7 +484,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 			PHYSFS_read(f, &ai_info_flags[0], 1, 11);
 			obj->ctype.ai_info.CURRENT_GUN = ai_info_flags[0];
 			obj->ctype.ai_info.CURRENT_STATE = ai_info_flags[1];
-			obj->ctype.ai_info.GOAL_STATE = ai_info_flags[2];
+			obj->ctype.ai_info.GOAL_STATE = build_ai_state_from_untrusted(ai_info_flags[2]).value();
 			obj->ctype.ai_info.PATH_DIR = ai_info_flags[3];
 #if defined(DXX_BUILD_DESCENT_I)
 			obj->ctype.ai_info.SUBMODE = ai_info_flags[4];

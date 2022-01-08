@@ -29,8 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <physfs.h>
-
-#ifdef __cplusplus
+#include <optional>
 #include "polyobj.h"
 #include "pack.h"
 #include "objnum.h"
@@ -59,10 +58,25 @@ enum class player_visibility_state : int8_t
 	visible_and_in_field_of_view,
 };
 
+enum ai_static_state : uint8_t
+{
+	AIS_NONE = 0,
+	AIS_REST = 1,
+	AIS_SRCH = 2,
+	AIS_LOCK = 3,
+	AIS_FLIN = 4,
+	AIS_FIRE = 5,
+	AIS_RECO = 6,
+	AIS_ERR_ = 7,
+};
+
 static inline unsigned player_is_visible(const player_visibility_state s)
 {
 	return static_cast<unsigned>(s) > 0;
 }
+
+[[nodiscard]]
+std::optional<ai_static_state> build_ai_state_from_untrusted(uint8_t untrusted);
 
 }
 
@@ -137,15 +151,6 @@ enum class ai_mode : uint8_t
 #define AI_MAX_STATE    7
 #define AI_MAX_EVENT    4
 
-#define AIS_NONE        0
-#define AIS_REST        1
-#define AIS_SRCH        2
-#define AIS_LOCK        3
-#define AIS_FLIN        4
-#define AIS_FIRE        5
-#define AIS_RECO        6
-#define AIS_ERR_        7
-
 #define AIE_FIRE        0
 #define AIE_HITT        1
 #define AIE_COLL        2
@@ -209,7 +214,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 	ai_behavior behavior = static_cast<ai_behavior>(0);               //
 	int8_t CURRENT_GUN;
 	int8_t CURRENT_STATE;
-	int8_t GOAL_STATE;
+	ai_static_state GOAL_STATE;
 	int8_t PATH_DIR;
 #if defined(DXX_BUILD_DESCENT_I)
 	int8_t SUBMODE;					//	submode, eg AISM_HIDING if mode == AIM_HIDE
@@ -360,6 +365,4 @@ constexpr std::integral_constant<unsigned, 2500> MAX_POINT_SEGS{};
 namespace dsx {
 extern void ai_do_cloak_stuff(void);
 }
-#endif
-
 #endif
