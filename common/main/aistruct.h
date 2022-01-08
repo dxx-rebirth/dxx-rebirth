@@ -205,7 +205,7 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 	fix64      next_misc_sound_time = 0;          // absolute time in seconds at which this robot last made an angry or lurking sound.
 	std::array<vms_angvec, MAX_SUBMODELS> goal_angles{};    // angles for each subobject
 	std::array<vms_angvec, MAX_SUBMODELS> delta_angles{};   // angles for each subobject
-	std::array<sbyte, MAX_SUBMODELS> goal_state{};     // Goal state for this sub-object
+	std::array<ai_static_state, MAX_SUBMODELS> goal_state{};     // Goal state for this sub-object
 	std::array<sbyte, MAX_SUBMODELS> achieved_state{}; // Last achieved state
 };
 
