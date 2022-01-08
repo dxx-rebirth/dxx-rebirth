@@ -491,7 +491,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.ai_info.SUB_FLAGS = ai_info_flags[4];
 #endif
-			obj->ctype.ai_info.GOALSIDE = ai_info_flags[5];
+			obj->ctype.ai_info.GOALSIDE = build_sidenum_from_untrusted(ai_info_flags[5]).value();
 			obj->ctype.ai_info.CLOAKED = ai_info_flags[6];
 			obj->ctype.ai_info.SKIP_AI_COUNT = ai_info_flags[7];
 			obj->ctype.ai_info.REMOTE_OWNER = ai_info_flags[8];

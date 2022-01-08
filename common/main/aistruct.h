@@ -216,7 +216,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 #elif defined(DXX_BUILD_DESCENT_II)
 	int8_t SUB_FLAGS;				// bit 0: Set -> Robot's current gun in different segment than robot's center.
 #endif
-	int8_t GOALSIDE;				// for guys who open doors, this is the side they are going after.
+	sidenum_t GOALSIDE;				// for guys who open doors, this is the side they are going after.
 	int8_t CLOAKED{};					// Cloaked now.
 	int8_t SKIP_AI_COUNT{};			// Skip AI this frame, but decrement in do_ai_frame.
 	int8_t REMOTE_OWNER{};			// Who is controlling this remote AI object (multiplayer use only)

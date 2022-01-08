@@ -612,7 +612,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj.ctype.ai_info.SUB_FLAGS = obj_rw->ctype.ai_info.flags[4];
 #endif
-			obj.ctype.ai_info.GOALSIDE = obj_rw->ctype.ai_info.flags[5];
+			obj.ctype.ai_info.GOALSIDE = build_sidenum_from_untrusted(obj_rw->ctype.ai_info.flags[5]).value();
 			obj.ctype.ai_info.CLOAKED = obj_rw->ctype.ai_info.flags[6];
 			obj.ctype.ai_info.SKIP_AI_COUNT = obj_rw->ctype.ai_info.flags[7];
 			obj.ctype.ai_info.REMOTE_OWNER = obj_rw->ctype.ai_info.flags[8];

@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <optional>
 #include <type_traits>
 #include <physfs.h>
 #include "maths.h"
@@ -80,6 +81,9 @@ enum sidenum_t : uint8_t
 	WBACK = 4,
 	WFRONT = 5
 };
+
+[[nodiscard]]
+std::optional<sidenum_t> build_sidenum_from_untrusted(uint8_t untrusted);
 
 using texture_index = uint16_t;
 enum class texture1_value : uint16_t;

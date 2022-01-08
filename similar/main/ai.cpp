@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdlib>
 #include <stdio.h>
 #include <time.h>
+#include <optional>
 
 #include "inferno.h"
 #include "game.h"
@@ -1954,7 +1955,7 @@ namespace {
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Return side of openable door in segment, if any.  If none, return side_none.
-static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_segment &segp)
+static std::optional<sidenum_t> openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_segment &segp)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &WallAnims = GameSharedState.WallAnims;
@@ -1977,10 +1978,10 @@ static unsigned openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_se
 			if (WallAnims[w.clip_num].flags & WCF_HIDDEN)
 				continue;
 #endif
-			return idx;
+			return static_cast<sidenum_t>(idx);
 		}
 	}
-	return side_none;
+	return std::nullopt;
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -3056,8 +3057,8 @@ static int openable_door_on_near_path(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr
 	const auto path_length = aip.path_length;
 	if (path_length < 1)
 		return 0;
-	if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(obj.segnum)) - side_none)
-		return r;
+	if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(obj.segnum)); r.has_value())
+		return *r;
 	if (path_length < 2)
 		return 0;
 	size_t idx;
@@ -3068,16 +3069,16 @@ static int openable_door_on_near_path(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr
 	 */
 	if (idx < Point_segs.size() && Point_segs[idx].segnum != segment_none)
 	{
-		if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)) - side_none)
-			return r;
+		if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)); r.has_value())
+			return *r;
 	}
 	if (path_length < 3)
 		return 0;
 	idx = aip.hide_index + aip.cur_path_index + 2*aip.PATH_DIR;
 	if (idx < Point_segs.size() && Point_segs[idx].segnum != segment_none)
 	{
-		if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)) - side_none)
-			return r;
+		if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)); r.has_value())
+			return *r;
 	}
 	return 0;
 }
@@ -3651,11 +3652,10 @@ _exit_cheat:
 			{
 				auto &Walls = LevelUniqueWallSubsystemState.Walls;
 				auto &vcwallptr = Walls.vcptr;
-				const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(obj->segnum));
-				if (r != side_none)
+				if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(obj->segnum)); r.has_value())
 				{
 					ailp.mode = ai_mode::AIM_OPEN_DOOR;
-					aip->GOALSIDE = r;
+					aip->GOALSIDE = *r;
 				}
 				else if (ailp.mode != ai_mode::AIM_FOLLOW_PATH)
 				{

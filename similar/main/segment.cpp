@@ -32,6 +32,22 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(composite_side, 6);
 
 }
 
+std::optional<sidenum_t> build_sidenum_from_untrusted(const uint8_t untrusted)
+{
+	switch (untrusted)
+	{
+		case static_cast<uint8_t>(sidenum_t::WLEFT):
+		case static_cast<uint8_t>(sidenum_t::WTOP):
+		case static_cast<uint8_t>(sidenum_t::WRIGHT):
+		case static_cast<uint8_t>(sidenum_t::WBOTTOM):
+		case static_cast<uint8_t>(sidenum_t::WBACK):
+		case static_cast<uint8_t>(sidenum_t::WFRONT):
+			return sidenum_t{untrusted};
+		default:
+			return std::nullopt;
+	}
+}
+
 void segment_side_wall_tmap_write(PHYSFS_File *fp, const shared_side &sside, const unique_side &uside)
 {
 	PHYSFSX_serialize_write(fp, composite_side{sside, uside});
