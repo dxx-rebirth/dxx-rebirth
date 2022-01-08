@@ -484,7 +484,12 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 				i = PHYSFSX_readByte(f);
 
 			std::array<int8_t, 11> ai_info_flags{};
-			PHYSFS_read(f, &ai_info_flags[5], 1, 6);
+			PHYSFS_read(f, &ai_info_flags[4], 1, 7);
+#if defined(DXX_BUILD_DESCENT_I)
+			obj->ctype.ai_info.SUBMODE = ai_info_flags[4];
+#elif defined(DXX_BUILD_DESCENT_II)
+			obj->ctype.ai_info.SUB_FLAGS = ai_info_flags[4];
+#endif
 			obj->ctype.ai_info.GOALSIDE = ai_info_flags[5];
 			obj->ctype.ai_info.CLOAKED = ai_info_flags[6];
 			obj->ctype.ai_info.SKIP_AI_COUNT = ai_info_flags[7];
@@ -746,12 +751,17 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 				PHYSFSX_writeU8(f, i);
 
 			std::array<int8_t, 11> ai_info_flags{};
+#if defined(DXX_BUILD_DESCENT_I)
+			ai_info_flags[4] = obj.ctype.ai_info.SUBMODE;
+#elif defined(DXX_BUILD_DESCENT_II)
+			ai_info_flags[4] = obj.ctype.ai_info.SUB_FLAGS;
+#endif
 			ai_info_flags[5] = obj.ctype.ai_info.GOALSIDE;
 			ai_info_flags[6] = obj.ctype.ai_info.CLOAKED;
 			ai_info_flags[7] = obj.ctype.ai_info.SKIP_AI_COUNT;
 			ai_info_flags[8] = obj.ctype.ai_info.REMOTE_OWNER;
 			ai_info_flags[9] = obj.ctype.ai_info.REMOTE_SLOT_NUM;
-			PHYSFS_write(f, &ai_info_flags[5], 1, 6);
+			PHYSFS_write(f, &ai_info_flags[4], 1, 7);
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.hide_segment);
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.hide_index);
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.path_length);

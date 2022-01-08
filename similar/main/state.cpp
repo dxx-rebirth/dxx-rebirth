@@ -401,6 +401,11 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 			obj_rw->ctype.ai_info.behavior               = static_cast<uint8_t>(obj.ctype.ai_info.behavior);
 			for (i = 0; i < MAX_AI_FLAGS; i++)
 				obj_rw->ctype.ai_info.flags[i]       = obj.ctype.ai_info.flags[i]; 
+#if defined(DXX_BUILD_DESCENT_I)
+			obj_rw->ctype.ai_info.flags[4] = obj.ctype.ai_info.SUBMODE;
+#elif defined(DXX_BUILD_DESCENT_II)
+			obj_rw->ctype.ai_info.flags[4] = obj.ctype.ai_info.SUB_FLAGS;
+#endif
 			obj_rw->ctype.ai_info.flags[5] = obj.ctype.ai_info.GOALSIDE;
 			obj_rw->ctype.ai_info.flags[6] = obj.ctype.ai_info.CLOAKED;
 			obj_rw->ctype.ai_info.flags[7] = obj.ctype.ai_info.SKIP_AI_COUNT;
@@ -600,6 +605,11 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			obj.ctype.ai_info.behavior               = static_cast<ai_behavior>(obj_rw->ctype.ai_info.behavior);
 			for (i = 0; i < MAX_AI_FLAGS; i++)
 				obj.ctype.ai_info.flags[i]       = obj_rw->ctype.ai_info.flags[i]; 
+#if defined(DXX_BUILD_DESCENT_I)
+			obj.ctype.ai_info.SUBMODE = obj_rw->ctype.ai_info.flags[4];
+#elif defined(DXX_BUILD_DESCENT_II)
+			obj.ctype.ai_info.SUB_FLAGS = obj_rw->ctype.ai_info.flags[4];
+#endif
 			obj.ctype.ai_info.GOALSIDE = obj_rw->ctype.ai_info.flags[5];
 			obj.ctype.ai_info.CLOAKED = obj_rw->ctype.ai_info.flags[6];
 			obj.ctype.ai_info.SKIP_AI_COUNT = obj_rw->ctype.ai_info.flags[7];
