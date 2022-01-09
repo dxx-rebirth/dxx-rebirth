@@ -96,16 +96,15 @@ int CreateAdjacentJoint()
 //  ---------- Create a bridge segment between current segment:side adjacent segment:side ----------
 int CreateSloppyAdjacentJoint()
 {
-	int		adj_side;
-	imsegptridx_t adj_sp = segment_none;
-
 	save_level(
 #if defined(DXX_BUILD_DESCENT_II)
 		LevelSharedSegmentState.DestructibleLights,
 #endif
 		"SLOPPY.LVL");
 
-	if (med_find_closest_threshold_segment_side(Cursegp, Curside, adj_sp, &adj_side, 20*F1_0)) {
+	if (const auto o = med_find_closest_threshold_segment_side(Cursegp, Curside, 20*F1_0))
+	{
+		const auto [adj_sp, adj_side] = *o;
 		if (Cursegp->children[Curside] != adj_sp) {
 			if (!med_form_joint(Cursegp,Curside,adj_sp,adj_side))
 				{
@@ -129,7 +128,6 @@ int CreateSloppyAdjacentJoint()
 //  -------------- Create all sloppy joints within CurrentGroup ------------------
 int CreateSloppyAdjacentJointsGroup()
 {
-	int		adj_side;
 	int		done_been_a_change = 0;
 	range_for(const auto &gs, GroupList[current_group].segments)
 	{
@@ -138,8 +136,9 @@ int CreateSloppyAdjacentJointsGroup()
 		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 			if (!IS_CHILD(segp->children[sidenum]))
 			{
-				imsegptridx_t adj_sp = segment_none;
-				if (med_find_closest_threshold_segment_side(segp, sidenum, adj_sp, &adj_side, 5*F1_0)) {
+				if (const auto o = med_find_closest_threshold_segment_side(segp, sidenum, 5*F1_0))
+				{
+					const auto [adj_sp, adj_side] = *o;
 					if (adj_sp->group == segp->group) {
 						if (segp->children[sidenum] != adj_sp)
 							if (!med_form_joint(segp, sidenum, adj_sp,adj_side))

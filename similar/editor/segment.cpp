@@ -1579,20 +1579,21 @@ std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_adjacent_segment_sid
 //	Find segment closest to sp:side.
 //	Return true if segment found and fill in segment in adj_sp and side in adj_side.
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
-int med_find_closest_threshold_segment_side(const vmsegptridx_t sp, int side, imsegptridx_t &adj_sp, int *adj_side, fix threshold)
+std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_closest_threshold_segment_side(const vmsegptridx_t sp, int side, const fix threshold)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	fix			current_dist, closest_seg_dist;
+	fix			closest_seg_dist;
 
 	if (IS_CHILD(sp->children[side]))
-		return 0;
+		return std::nullopt;
 
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&vsc = compute_center_point_on_side(vcvertptr, sp, side);
 
 	closest_seg_dist = JOINT_THRESHOLD;
 
+	std::optional<std::pair<vmsegptridx_t, sidenum_t>> result;
 	//	Scan all segments, looking for a segment which contains the four abs_verts
 	range_for (const auto &&segp, vmsegptridx)
 	{
@@ -1602,10 +1603,10 @@ int med_find_closest_threshold_segment_side(const vmsegptridx_t sp, int side, im
 				if (!IS_CHILD(value))
 				{
 					const auto &&vtc = compute_center_point_on_side(vcvertptr, segp, idx);
-					current_dist = vm_vec_dist( vsc, vtc );
-					if (current_dist < closest_seg_dist) {
-						adj_sp = segp;
-						*adj_side = idx;
+					const auto current_dist = vm_vec_dist(vsc, vtc);
+					if (closest_seg_dist > current_dist)
+					{
+						result = {segp, static_cast<sidenum_t>(idx)};
 						closest_seg_dist = current_dist;
 					}
 				}
@@ -1613,9 +1614,9 @@ int med_find_closest_threshold_segment_side(const vmsegptridx_t sp, int side, im
 	}
 
 	if (closest_seg_dist < threshold)
-		return 1;
+		return result;
 	else
-		return 0;
+		return std::nullopt;
 }
 
 }
