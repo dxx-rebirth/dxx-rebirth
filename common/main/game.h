@@ -413,7 +413,7 @@ static inline int game_mode_hoard()
 //Flickering light system
 struct flickering_light {
 	segnum_t segnum;
-	uint8_t sidenum;
+	sidenum_t sidenum;
 	uint32_t mask;     // determines flicker pattern
 	fix timer;              // time until next change
 	fix delay;              // time between changes

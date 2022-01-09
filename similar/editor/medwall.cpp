@@ -84,7 +84,7 @@ struct count_wall
 {
 	wallnum_t wallnum;
 	segnum_t	segnum;
-	short sidenum;
+	sidenum_t sidenum;
 };
 
 static unsigned predicate_find_nonblastable_wall(const wclip &w)
@@ -188,7 +188,7 @@ static int wall_assign_door(int door_type)
 	return 1;
 }
 
-static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t segp, unsigned side, unsigned type);
+static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t segp, sidenum_t side, unsigned type);
 
 }
 
@@ -839,7 +839,7 @@ namespace {
 
 //---------------------------------------------------------------------
 // Add a wall to curside
-static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t segp, const unsigned side, const unsigned type)
+static int wall_add_to_side(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t segp, const sidenum_t side, const unsigned type)
 {
 	if (add_wall(vcvertptr, Walls, segp, side)) {
 		const auto &&csegp = segp.absolute_sibling(segp->children[side]);
@@ -972,7 +972,7 @@ int bind_wall_to_control_center() {
 
 	// Error checking completed, actual binding begins
 	ControlCenterTriggers.seg[link_num] = Cursegp;
-	ControlCenterTriggers.side[link_num] = static_cast<sidenum_t>(Curside);
+	ControlCenterTriggers.side[link_num] = Curside;
 	ControlCenterTriggers.num_links++;
 
 	editor_status("Wall linked to control center");
@@ -1071,7 +1071,7 @@ int check_walls()
 				if (s.wall_num != wall_none) {
 					CountedWalls[wall_count].wallnum = s.wall_num;
 					CountedWalls[wall_count].segnum = segp;
-					CountedWalls[wall_count].sidenum = idx;
+					CountedWalls[wall_count].sidenum = static_cast<sidenum_t>(idx);
 					wall_count++;
 				}
 			}

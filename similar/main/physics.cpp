@@ -323,7 +323,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 	int fate=0;
 	vms_vector ipos;		//position after this frame
 	segnum_t WallHitSeg;
-	int WallHitSide;
+	sidenum_t WallHitSide;
 	fvi_info hit_info;
 	fvi_query fq;
 	vms_vector save_pos;
@@ -576,7 +576,6 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 					Player_ScrapeFrame = scrape_player_on_wall(obj, Segments.vmptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
 
 				Assert( WallHitSeg != segment_none );
-				Assert( WallHitSide > -1 );
 
 				if ( !(obj->flags&OF_SHOULD_BE_DEAD) )	{
 #if defined(DXX_BUILD_DESCENT_II)

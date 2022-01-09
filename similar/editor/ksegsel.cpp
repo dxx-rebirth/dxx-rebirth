@@ -75,7 +75,7 @@ static std::pair<vmsegptridx_t, sidenum_t> get_previous_segment_side(const vmseg
 //	If there is a connection on the current side, then choose that segment.
 // If there is no connecting segment on the current side, try any segment.
 [[nodiscard]]
-static std::pair<vmsegptridx_t, uint_fast32_t> get_next_segment_side(const vmsegptridx_t curseg_num, uint_fast32_t curside)
+static std::pair<vmsegptridx_t, sidenum_t> get_next_segment_side(const vmsegptridx_t curseg_num, sidenum_t curside)
 {
 	const auto side_child = curseg_num->children[curside];
 	if (IS_CHILD(side_child))
@@ -152,8 +152,23 @@ int SelectCurrentSegBackward()
 // ---------- select next/previous side on current segment ----------
 int SelectNextSide()
 {
-	if (++Curside >= MAX_SIDES_PER_SEGMENT)
-		Curside = 0;
+	sidenum_t s;
+	switch (const auto cs = Curside)
+	{
+		case sidenum_t::WLEFT:
+		case sidenum_t::WTOP:
+		case sidenum_t::WRIGHT:
+		case sidenum_t::WBOTTOM:
+		case sidenum_t::WBACK:
+			s = static_cast<sidenum_t>(static_cast<unsigned>(cs) + 1);
+			break;
+		case sidenum_t::WFRONT:
+			s = sidenum_t::WLEFT;
+			break;
+		default:
+			return 0;
+	}
+	Curside = s;
 	Update_flags |= UF_ED_STATE_CHANGED;
 	mine_changed = 1;
 	return 1;
@@ -161,8 +176,23 @@ int SelectNextSide()
 
 int SelectPrevSide()
 {
-	if (--Curside < 0)
-		Curside = MAX_SIDES_PER_SEGMENT-1;
+	sidenum_t s;
+	switch (const auto cs = Curside)
+	{
+		case sidenum_t::WLEFT:
+			s = sidenum_t::WFRONT;
+			break;
+		case sidenum_t::WTOP:
+		case sidenum_t::WRIGHT:
+		case sidenum_t::WBOTTOM:
+		case sidenum_t::WBACK:
+		case sidenum_t::WFRONT:
+			s = static_cast<sidenum_t>(static_cast<unsigned>(cs) - 1);
+			break;
+		default:
+			return 0;
+	}
+	Curside = s;
 	Update_flags |= UF_ED_STATE_CHANGED;
 	mine_changed = 1;
 	return 1;

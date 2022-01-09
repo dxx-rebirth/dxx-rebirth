@@ -34,11 +34,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Global pointer to current vertices, right now always Vertices.  Set in create_new_mine.
 imsegptridx_t Cursegp = segment_none;        // Pointer to current segment in mine.
 imsegptridx_t Markedsegp = segment_none;     // Marked segment, used in conjunction with *Cursegp to form joints.
-int Curside;             // Side index in 0..MAX_SIDES_PER_SEGMENT of active side.
+sidenum_t Curside;             // Side index in 0..MAX_SIDES_PER_SEGMENT of active side.
 int Curedge;             // Current edge on current side, in 0..3
 int Curvert;             // Current vertex on current side, in 0..3
-int AttachSide = WFRONT; // Side on segment to attach.
-int Markedside;          // Marked side on Markedsegp.
+sidenum_t AttachSide = WFRONT; // Side on segment to attach.
+sidenum_t Markedside;          // Marked side on Markedsegp.
 
 int Draw_all_segments;   // Set to 1 means draw_world draws all segments in Segments, else draw only connected segments
 

@@ -71,8 +71,6 @@ namespace dcx {
 enum class materialization_center_number : uint8_t;
 enum class station_number : uint8_t;
 
-typedef uint_fast32_t sidenum_fast_t;
-
 enum sidenum_t : uint8_t
 {
 	WLEFT = 0,
@@ -184,8 +182,8 @@ enum class dlindexnum_t : uint16_t;
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, dl_index, ::dsx::dlindexnum_t, 500);
 namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(dl_index, dlindex);
-int subtract_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, vmsegptridx_t segnum, sidenum_fast_t sidenum);
-int add_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, vmsegptridx_t segnum, sidenum_fast_t sidenum);
+int subtract_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, vmsegptridx_t segnum, sidenum_t sidenum);
+int add_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, vmsegptridx_t segnum, sidenum_t sidenum);
 }
 #endif
 

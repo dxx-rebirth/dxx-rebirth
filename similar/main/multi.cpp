@@ -2278,7 +2278,6 @@ namespace {
 
 static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 {
-	int side;
 	vms_vector hitpnt;
 
 	if (pnum >= N_players || pnum == Player_num)
@@ -2289,7 +2288,10 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	const auto &&useg = vmsegptridx.check_untrusted(GET_INTEL_SHORT(&buf[2]));
 	if (!useg)
 		return;
-	side = buf[4];
+	const auto uside = build_sidenum_from_untrusted(buf[4]);
+	if (!uside)
+		return;
+	const auto side = *uside;
 	hitpnt.x = GET_INTEL_INT(buf + 5);
 	hitpnt.y = GET_INTEL_INT(buf + 9);
 	hitpnt.z = GET_INTEL_INT(buf + 13);
@@ -4149,7 +4151,6 @@ namespace {
 
 static void multi_do_light (const ubyte *buf)
 {
-	int i;
 	const auto sides = buf[3];
 
 	const segnum_t seg = GET_INTEL_SHORT(&buf[1]);
@@ -4158,7 +4159,7 @@ static void multi_do_light (const ubyte *buf)
 		return;
 	const auto &&segp = *usegp;
 	auto &side_array = segp->unique_segment::sides;
-	for (i=0;i<6;i++)
+	for (const auto i : MAX_SIDES_PER_SEGMENT)
 	{
 		if ((sides & (1<<i)))
 		{

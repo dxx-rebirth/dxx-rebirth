@@ -199,7 +199,7 @@ namespace dsx {
 class d_level_unique_stuck_object_state : public ::dcx::d_level_unique_stuck_object_state
 {
 public:
-	void add_stuck_object(fvcwallptr &, vmobjptridx_t objp, const shared_segment &segp, unsigned sidenum);
+	void add_stuck_object(fvcwallptr &, vmobjptridx_t objp, const shared_segment &segp, sidenum_t sidenum);
 	void remove_stuck_object(vcobjidx_t);
 	void kill_stuck_objects(fvmobjptr &, vcwallidx_t wallnum);
 };
@@ -209,7 +209,7 @@ extern d_level_unique_stuck_object_state LevelUniqueStuckObjectState;
 struct wall : public prohibit_void_ptr<wall>
 {
 	segnum_t segnum;
-	uint8_t  sidenum;     // Seg & side for this wall
+	sidenum_t sidenum;     // Seg & side for this wall
 	uint8_t type;               // What kind of special wall.
 	fix     hps;                // "Hit points" of the wall.
 	uint16_t explode_time_elapsed;

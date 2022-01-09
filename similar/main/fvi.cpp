@@ -614,7 +614,7 @@ struct fvi_segments_visited_t : public fvi_segment_visit_count_t, public visited
 
 namespace dsx {
 namespace {
-static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, const icobjptridx_t thisobjnum, const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited, unsigned &fvi_hit_side, icsegidx_t &fvi_hit_side_seg, unsigned &fvi_nest_count, icsegidx_t &fvi_hit_pt_seg, const vms_vector *&wall_norm, icobjidx_t &fvi_hit_object);
+static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, const icobjptridx_t thisobjnum, const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited, sidenum_t &fvi_hit_side, icsegidx_t &fvi_hit_side_seg, unsigned &fvi_nest_count, icsegidx_t &fvi_hit_pt_seg, const vms_vector *&wall_norm, icobjidx_t &fvi_hit_object);
 }
 
 //What the hell is fvi_hit_seg for???
@@ -650,7 +650,8 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 		Assert(fq.startseg <= Highest_segment_index);
 		hit_data.hit_type = HIT_BAD_P0;
 		hit_data.hit_pnt = *fq.p0;
-		hit_data.hit_seg = hit_data.hit_side = hit_data.hit_object = 0;
+		hit_data.hit_seg = hit_data.hit_object = 0;
+		hit_data.hit_side = side_none;
 		hit_data.hit_side_seg = segment_none;
 
 		return hit_data.hit_type;
@@ -664,7 +665,8 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 		hit_data.hit_type = HIT_BAD_P0;
 		hit_data.hit_pnt = *fq.p0;
 		hit_data.hit_seg = fq.startseg;
-		hit_data.hit_side = hit_data.hit_object = 0;
+		hit_data.hit_side = side_none;
+		hit_data.hit_object = 0;
 		hit_data.hit_side_seg = segment_none;
 
 		return hit_data.hit_type;
@@ -673,7 +675,7 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	fvi_segments_visited_t visited;
 	visited[fq.startseg] = true;
 
-	unsigned fvi_hit_side = ~0u;
+	sidenum_t fvi_hit_side;
 	icsegidx_t fvi_hit_side_seg = segment_none;	// what seg the hitside is in
 	unsigned fvi_nest_count = 0;
 
@@ -800,7 +802,7 @@ static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segm
 
 namespace dsx {
 namespace {
-static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, icobjptridx_t thisobjnum, const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited, unsigned &fvi_hit_side, icsegidx_t &fvi_hit_side_seg, unsigned &fvi_nest_count, icsegidx_t &fvi_hit_pt_seg, const vms_vector *&wall_norm, icobjidx_t &fvi_hit_object)
+static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, icobjptridx_t thisobjnum, const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited, sidenum_t &fvi_hit_side, icsegidx_t &fvi_hit_side_seg, unsigned &fvi_nest_count, icsegidx_t &fvi_hit_pt_seg, const vms_vector *&wall_norm, icobjidx_t &fvi_hit_object)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -901,11 +903,15 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 
 	if (endmask != 0) {                             //on the back of at least one face
 
-		int side,bit,face;
+		int face;
 
 		//for each face we are on the back of, check if intersected
 
-		for (side=0,bit=1;side<6 && endmask>=bit;side++) {
+		int bit = 1;
+		for (const auto side : MAX_SIDES_PER_SEGMENT)
+		{
+			if (endmask < bit)
+				break;
 			const unsigned nv = get_side_is_quad(startseg->shared_segment::sides[side]) ? 4 : 3;
 			// commented out by mk on 02/13/94:: if ((num_faces=seg->sides[side].num_faces)==0) num_faces=1;
 

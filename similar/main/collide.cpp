@@ -554,7 +554,7 @@ static int effect_parent_is_guidebot(fvcobjptr &vcobjptr, const laser_parent &la
 
 //if an effect is hit, and it can blow up, then blow it up
 //returns true if it blew up
-int check_effect_blowup(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, const vmsegptridx_t seg, unsigned side, const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
+int check_effect_blowup(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, const vmsegptridx_t seg, sidenum_t side, const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
@@ -744,7 +744,7 @@ static window_event_result collide_weapon_and_wall(
 #if defined(DXX_BUILD_DESCENT_II)
 	const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
-	object_array &Objects, fvmsegptridx &vmsegptridx, const vmobjptridx_t weapon, const vmsegptridx_t hitseg, const unsigned hitwall, const vms_vector &hitpt)
+	object_array &Objects, fvmsegptridx &vmsegptridx, const vmobjptridx_t weapon, const vmsegptridx_t hitseg, const sidenum_t hitwall, const vms_vector &hitpt)
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &imobjptridx = Objects.imptridx;
@@ -2715,7 +2715,7 @@ window_event_result collide_object_with_wall(
 #if defined(DXX_BUILD_DESCENT_II)
 	const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
-	const vmobjptridx_t A, fix hitspeed, const vmsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
+	const vmobjptridx_t A, fix hitspeed, const vmsegptridx_t hitseg, const sidenum_t hitwall, const vms_vector &hitpt)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 

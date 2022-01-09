@@ -1267,7 +1267,7 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 		(GADGET_PRESSED(LargeViewBox.get()) && render_3d_in_big_window))
 	{
 		int	xcrd,ycrd;
-		int side,face;
+		int face;
 
 		if (render_3d_in_big_window) {
 			xcrd = LargeViewBox->b1_drag_x1;
@@ -1282,6 +1282,7 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 
 		segnum_t seg;
 		objnum_t obj;
+		sidenum_t side;
 		if (find_seg_side_face(xcrd,ycrd,seg,obj,side,face))
 		{
 

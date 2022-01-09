@@ -967,7 +967,7 @@ int rotate_segment_new(const vms_angvec &pbh)
 		med_create_new_segment_from_cursegp();
 //		validate_selected_segments();
 		med_propagate_tmaps_to_segments(basesegp, newseg, 1);
-		med_propagate_tmaps_to_back_side(newseg, static_cast<sidenum_t>(Curside), 1);
+		med_propagate_tmaps_to_back_side(newseg, Curside, 1);
 	}
 
 	GroupList[current_group].segments = selected_segs_save;

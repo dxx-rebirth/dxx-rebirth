@@ -244,7 +244,7 @@ void wall_init()
 	range_for (auto &w, Walls)
 	{
 		w.segnum = segment_none;
-		w.sidenum = -1;
+		w.sidenum = side_none;
 		w.type = WALL_NORMAL;
 		w.flags = {};
 		w.hps = 0;
@@ -1433,7 +1433,7 @@ d_level_unique_stuck_object_state LevelUniqueStuckObjectState;
 
 //	An object got stuck in a door (like a flare).
 //	Add global entry.
-void d_level_unique_stuck_object_state::add_stuck_object(fvcwallptr &vcwallptr, const vmobjptridx_t objp, const shared_segment &segp, const unsigned sidenum)
+void d_level_unique_stuck_object_state::add_stuck_object(fvcwallptr &vcwallptr, const vmobjptridx_t objp, const shared_segment &segp, const sidenum_t sidenum)
 {
 	const auto wallnum = segp.sides[sidenum].wall_num;
 	if (wallnum != wall_none)
@@ -1599,7 +1599,7 @@ void blast_nearby_glass_context::process_segment(const vmsegptridx_t segp, const
 					if ((dist > 0) && (dist < damage/2))
 					{
 						assert(objp.type == OBJ_WEAPON);
-						check_effect_blowup(LevelSharedSegmentState.DestructibleLights, Vclip, segp, sidenum, pnt, objp.ctype.laser_info, 1, 0);
+						check_effect_blowup(LevelSharedSegmentState.DestructibleLights, Vclip, segp, static_cast<sidenum_t>(sidenum), pnt, objp.ctype.laser_info, 1, 0);
 					}
 				}
 			}

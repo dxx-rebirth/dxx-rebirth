@@ -120,7 +120,8 @@ int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
 #if DXX_USE_EDITOR
 int _search_mode = 0;			//true if looking for curseg,side,face
 short _search_x,_search_y;	//pixel we're looking at
-static int found_side,found_face;
+static int found_face;
+static sidenum_t found_side;
 static segnum_t found_seg;
 static objnum_t found_obj;
 #else
@@ -219,7 +220,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
-static void render_face(grs_canvas &canvas, const shared_segment &segp, const unsigned sidenum, const unsigned nv, const std::array<vertnum_t, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, std::array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
+static void render_face(grs_canvas &canvas, const shared_segment &segp, const sidenum_t sidenum, const unsigned nv, const std::array<vertnum_t, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, std::array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
@@ -380,7 +381,7 @@ namespace {
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
-static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const std::array<vertnum_t, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<g3s_uvl, 4> &uvl_copy)
+static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const sidenum_t sidenum, const unsigned facenum, const unsigned nv, const std::array<vertnum_t, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<g3s_uvl, 4> &uvl_copy)
 {
 #if DXX_USE_EDITOR
 	if (_search_mode) {
@@ -445,7 +446,7 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const unsign
 }
 
 template <std::size_t... N>
-static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N...>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<vertnum_t, 4> &ovp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N...>, const vcsegptridx_t segnum, const sidenum_t sidenum, const unsigned facenum, const std::array<vertnum_t, 4> &ovp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
 {
 	const std::array<vertnum_t, 4> vp{{ovp[N]...}};
 	const std::array<g3s_uvl, 4> uvl_copy{{
@@ -456,7 +457,7 @@ static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N..
 }
 
 template <std::size_t N0, std::size_t N1, std::size_t N2, std::size_t N3>
-static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<vertnum_t, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, const sidenum_t sidenum, const unsigned facenum, const std::array<vertnum_t, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(canvas, is, segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 4);
 }
@@ -465,7 +466,7 @@ static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0,
  * are default constructed, gcc zero initializes all members.
  */
 template <std::size_t N0, std::size_t N1, std::size_t N2>
-static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const std::array<vertnum_t, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(grs_canvas &canvas, std::index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, const sidenum_t sidenum, const unsigned facenum, const std::array<vertnum_t, 4> &vp, const texture1_value tmap1, const texture2_value tmap2, const std::array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(canvas, std::index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
 }
@@ -480,7 +481,7 @@ constexpr std::integral_constant<fix, (F1_0*15/16)> Min_n0_n1_dot{};
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
 namespace dsx {
 namespace {
-static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegptridx_t segp, const unsigned sidenum, const WALL_IS_DOORWAY_result_t wid_flags, const vms_vector &Viewer_eye)
+static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegptridx_t segp, const sidenum_t sidenum, const WALL_IS_DOORWAY_result_t wid_flags, const vms_vector &Viewer_eye)
 {
 	fix		min_dot, max_dot;
 
@@ -998,7 +999,7 @@ static std::optional<sidenum_t> find_seg_side(const shared_segment &seg, const s
 }
 
 [[nodiscard]]
-static bool compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const shared_segment &seg, const shared_segment &cseg, const sidenum_fast_t edgeside)
+static bool compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const shared_segment &seg, const shared_segment &cseg, const sidenum_t edgeside)
 {
 	const auto &cside = cseg.sides[edgeside];
 	const auto &sv = Side_to_verts[edgeside][cside.get_type() == side_type::tri_13 ? 1 : 0];
@@ -1749,7 +1750,7 @@ void draw_hostage(const d_vclip_array &Vclip, grs_canvas &canvas, const d_level_
 //finds what segment is at a given x&y -  seg,side,face are filled in
 //works on last frame rendered. returns true if found
 //if seg<0, then an object was found, and the object number is -seg-1
-int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int &face)
+int find_seg_side_face(short x, short y, segnum_t &seg, objnum_t &obj, sidenum_t &side, int &face)
 {
 	_search_mode = -1;
 

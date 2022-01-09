@@ -1294,7 +1294,7 @@ static int load_game_data(
 				{
 					auto &w = *vmwallptr(wallnum);
 					w.segnum = segp;
-					w.sidenum = sidenum;
+					w.sidenum = static_cast<sidenum_t>(sidenum);
 				}
 			}
 		}

@@ -1712,7 +1712,7 @@ game_window *game_setup()
 	if (!Cursegp)
 	{
 		Cursegp = imsegptridx(segment_first);
-		Curside = 0;
+		Curside = sidenum_t::WLEFT;
 	}
 #endif
 
@@ -2449,10 +2449,16 @@ namespace dsx {
 void flickering_light_read(flickering_light &fl, PHYSFS_File *fp)
 {
 	fl.segnum = PHYSFSX_readShort(fp);
-	fl.sidenum = PHYSFSX_readShort(fp);
+	const auto sidenum = build_sidenum_from_untrusted(PHYSFSX_readShort(fp));
 	fl.mask = PHYSFSX_readInt(fp);
 	fl.timer = PHYSFSX_readFix(fp);
 	fl.delay = PHYSFSX_readFix(fp);
+	if (!sidenum)
+	{
+		fl = {};
+		return;
+	}
+	fl.sidenum = sidenum.value();
 }
 
 void flickering_light_write(const flickering_light &fl, PHYSFS_File *fp)

@@ -44,8 +44,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static imsegptridx_t OriginalSeg = segment_none;
 static imsegptridx_t OriginalMarkedSeg = segment_none;
-static int OriginalSide;
-static int OriginalMarkedSide;
+static sidenum_t OriginalSide;
+static sidenum_t OriginalMarkedSide;
 static std::array<segment *, MAX_SEGMENTS> CurveSegs;
 static unsigned CurveNumSegs;
 

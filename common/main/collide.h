@@ -42,7 +42,7 @@ window_event_result collide_object_with_wall(
 #if defined(DXX_BUILD_DESCENT_II)
 	const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
-	vmobjptridx_t A, fix hitspeed, vmsegptridx_t hitseg, short hitwall, const vms_vector &hitpt);
+	vmobjptridx_t A, fix hitspeed, vmsegptridx_t hitseg, sidenum_t hitwall, const vms_vector &hitpt);
 void apply_damage_to_player(object &player, icobjptridx_t killer, fix damage, uint8_t possibly_friendly);
 }
 
@@ -75,7 +75,7 @@ void collide_live_local_player_and_powerup(vmobjptridx_t powerup);
 #ifdef dsx
 namespace dsx {
 void net_destroy_controlcen_object(imobjptridx_t controlcen);
-int check_effect_blowup(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, vmsegptridx_t seg, unsigned side, const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
+int check_effect_blowup(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, vmsegptridx_t seg, sidenum_t side, const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
 void apply_damage_to_controlcen(vmobjptridx_t controlcen, fix damage, const object &who);
 void drop_player_eggs(vmobjptridx_t playerobj);
 enum class volatile_wall_result : int8_t

@@ -780,7 +780,7 @@ found1: ;
 
 int fix_bogus_uvs_on_side(void)
 {
-	med_propagate_tmaps_to_back_side(Cursegp, static_cast<sidenum_t>(Curside), 1);
+	med_propagate_tmaps_to_back_side(Cursegp, Curside, 1);
 	return 0;
 }
 

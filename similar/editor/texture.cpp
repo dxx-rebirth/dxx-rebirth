@@ -37,8 +37,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 
-static uvl compute_uv_side_center(const unique_segment &segp, sidenum_fast_t sidenum);
-static void rotate_uv_points_on_side(unique_segment &segp, sidenum_fast_t sidenum, const std::array<fix, 4> &rotmat, const uvl &uvcenter);
+static uvl compute_uv_side_center(const unique_segment &segp, sidenum_t sidenum);
+static void rotate_uv_points_on_side(unique_segment &segp, sidenum_t sidenum, const std::array<fix, 4> &rotmat, const uvl &uvcenter);
 
 //	-----------------------------------------------------------
 int	TexFlipX()
@@ -200,7 +200,7 @@ int TexSlideDownBig()
 
 //	-----------------------------------------------------------
 //	Compute the center of the side in u,v coordinates.
-static uvl compute_uv_side_center(const unique_segment &segp, const sidenum_fast_t sidenum)
+static uvl compute_uv_side_center(const unique_segment &segp, const sidenum_t sidenum)
 {
 	uvl uvcenter{};
 	range_for (auto &v, segp.sides[sidenum].uvls)
@@ -228,7 +228,7 @@ static uvl rotate_uv_point(const std::array<fix, 4> &rotmat, const uvl &uv, cons
 
 //	-----------------------------------------------------------
 //	Compute the center of the side in u,v coordinates.
-static void rotate_uv_points_on_side(unique_segment &segp, const sidenum_fast_t sidenum, const std::array<fix, 4> &rotmat, const uvl &uvcenter)
+static void rotate_uv_points_on_side(unique_segment &segp, const sidenum_t sidenum, const std::array<fix, 4> &rotmat, const uvl &uvcenter)
 {
 	range_for (auto &v, segp.sides[sidenum].uvls)
 	{

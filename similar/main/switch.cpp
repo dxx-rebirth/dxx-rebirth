@@ -69,7 +69,7 @@ template <typename SF, typename O, typename... Oa>
 static inline void trigger_wall_op(const trigger &t, SF &segment_factory, const O &op, Oa &&... oargs)
 {
 	for (unsigned i = 0, num_links = t.num_links; i != num_links; ++i)
-		op(std::forward<Oa>(oargs)..., segment_factory(t.seg[i]), t.side[i]);
+		op(std::forward<Oa>(oargs)..., segment_factory(t.seg[i]), static_cast<sidenum_t>(t.side[i]));
 }
 
 //-----------------------------------------------------------------
@@ -97,7 +97,7 @@ static void do_close_door(const trigger &t)
 static int do_light_on(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_level_unique_tmap_info_state::TmapInfo_array &TmapInfo, d_flickering_light_state &Flickering_light_state, const trigger &t)
 {
 	int ret=0;
-	const auto op = [&LevelSharedDestructibleLightState, &Flickering_light_state, &TmapInfo, &ret](const vmsegptridx_t segnum, const unsigned sidenum) {
+	const auto op = [&LevelSharedDestructibleLightState, &Flickering_light_state, &TmapInfo, &ret](const vmsegptridx_t segnum, const sidenum_t sidenum) {
 			//check if tmap2 casts light before turning the light on.  This
 			//is to keep us from turning on blown-out lights
 		const auto tm2 = get_texture_index(segnum->unique_segment::sides[sidenum].tmap_num2);
@@ -115,7 +115,7 @@ static int do_light_on(const d_level_shared_destructible_light_state &LevelShare
 static int do_light_off(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_level_unique_tmap_info_state::TmapInfo_array &TmapInfo, d_flickering_light_state &Flickering_light_state, const trigger &t)
 {
 	int ret=0;
-	const auto op = [&LevelSharedDestructibleLightState, &Flickering_light_state, &TmapInfo, &ret](const vmsegptridx_t segnum, const unsigned sidenum) {
+	const auto op = [&LevelSharedDestructibleLightState, &Flickering_light_state, &TmapInfo, &ret](const vmsegptridx_t segnum, const sidenum_t sidenum) {
 			//check if tmap2 casts light before turning the light off.  This
 			//is to keep us from turning off blown-out lights
 		const auto tm2 = get_texture_index(segnum->unique_segment::sides[sidenum].tmap_num2);
@@ -604,7 +604,10 @@ void v26_trigger_read(PHYSFS_File *fp, trigger &t)
 	for (unsigned i=0; i < MAX_WALLS_PER_LINK; i++ )
 		t.seg[i] = PHYSFSX_readShort(fp);
 	for (unsigned i=0; i < MAX_WALLS_PER_LINK; i++ )
-		t.side[i] = PHYSFSX_readShort(fp);
+	{
+		auto s = build_sidenum_from_untrusted(PHYSFSX_readShort(fp));
+		t.side[i] = s.value_or(sidenum_t::WLEFT);
+	}
 }
 
 void v25_trigger_read(PHYSFS_File *fp, trigger *t)
@@ -625,7 +628,10 @@ extern void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp)
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->seg[i] = PHYSFSX_readShort(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
-		t->side[i] = PHYSFSX_readShort(fp);
+	{
+		auto s = build_sidenum_from_untrusted(PHYSFSX_readShort(fp));
+		t->side[i] = s.value_or(sidenum_t::WLEFT);
+	}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

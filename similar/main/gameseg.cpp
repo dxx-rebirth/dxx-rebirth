@@ -1770,7 +1770,7 @@ static void change_light(const d_level_shared_destructible_light_state &LevelSha
 //	Subtract light cast by a light source from all surfaces to which it applies light.
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 // returns 1 if lights actually subtracted, else 0
-int subtract_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, const sidenum_fast_t sidenum)
+int subtract_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, const sidenum_t sidenum)
 {
 	unique_segment &useg = segnum;
 	auto &light_subtracted = useg.light_subtracted;
@@ -1786,7 +1786,7 @@ int subtract_light(const d_level_shared_destructible_light_state &LevelSharedDes
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 //	You probably only want to call this after light has been subtracted.
 // returns 1 if lights actually added, else 0
-int add_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, sidenum_fast_t sidenum)
+int add_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, sidenum_t sidenum)
 {
 	const auto mask = 1u << sidenum;
 	unique_segment &useg = segnum;

@@ -87,7 +87,6 @@ void flash_frame();
 
 }
 #endif
-int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int &face);
 
 // these functions change different rendering parameters
 // all return the new value of the parameter
@@ -116,6 +115,7 @@ extern uint8_t RenderingType;
 extern fix flash_scale;
 
 #if DXX_USE_EDITOR
+int find_seg_side_face(short x, short y, segnum_t &seg, objnum_t &obj, sidenum_t &side, int &face);
 extern int Render_only_bottom;
 #endif
 

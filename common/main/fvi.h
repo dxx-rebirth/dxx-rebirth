@@ -48,7 +48,7 @@ struct fvi_info : prohibit_void_ptr<fvi_info>
 	int hit_type;					//what sort of intersection
 	vms_vector hit_pnt;			//where we hit
 	segnum_t hit_seg;					//what segment hit_pnt is in
-	int hit_side;					//if hit wall, which side
+	sidenum_t hit_side;					//if hit wall, which side
 	segnum_t hit_side_seg;				//what segment the hit side is in
 	objnum_t hit_object;				//if object hit, which object
 	vms_vector hit_wallnorm;	//if hit wall, ptr to its surface normal
