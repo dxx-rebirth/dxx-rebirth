@@ -39,6 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/kdefs.h"
 #include "bm.h"		//	Needed for TmapInfo
 #include "fvi.h"
+#include "render.h"
 #include "seguvs.h"
 
 #include "compiler-range_for.h"
@@ -717,27 +718,10 @@ static void propagate_tmaps_to_segment_side(const vcsegptridx_t base_seg, const 
 
 }
 
-}
-
-namespace dcx {
-
-constexpr int8_t Edge_between_sides[MAX_SIDES_PER_SEGMENT][MAX_SIDES_PER_SEGMENT][2] = {
-//		left		top		right		bottom	back		front
-	{ {-1,-1}, { 3, 7}, {-1,-1}, { 2, 6}, { 6, 7}, { 2, 3} },	// left
-	{ { 3, 7}, {-1,-1}, { 0, 4}, {-1,-1}, { 4, 7}, { 0, 3} },	// top
-	{ {-1,-1}, { 0, 4}, {-1,-1}, { 1, 5}, { 4, 5}, { 0, 1} },	// right
-	{ { 2, 6}, {-1,-1}, { 1, 5}, {-1,-1}, { 5, 6}, { 1, 2} },	// bottom
-	{ { 6, 7}, { 4, 7}, { 4, 5}, { 5, 6}, {-1,-1}, {-1,-1} },	// back
-	{ { 2, 3}, { 0, 3}, { 0, 1}, { 1, 2}, {-1,-1}, {-1,-1} }};	// front
-
-}
-
-namespace dsx {
-
 // -----------------------------------------------------------------------------
 //	Propagate texture map u,v coordinates to base_seg:back_side from base_seg:some-other-side
 //	There is no easy way to figure out which side is adjacent to another side along some edge, so we do a bit of searching.
-void med_propagate_tmaps_to_back_side(const vmsegptridx_t base_seg, int back_side, int uv_only_flag)
+void med_propagate_tmaps_to_back_side(const vmsegptridx_t base_seg, const sidenum_t back_side, int uv_only_flag)
 {
         int     v1=0,v2=0;
 
@@ -745,7 +729,7 @@ void med_propagate_tmaps_to_back_side(const vmsegptridx_t base_seg, int back_sid
 		return;		// connection, so no sides here.
 
 	//	Scan all sides, look for an occupied side which is not back_side or Side_opposite[back_side]
-	for (const auto &&[s, ebs] : enumerate(Edge_between_sides))
+	for (const auto &&[s, ebs] : enumerate(Two_sides_to_edge))
 	{
 		if ((s != back_side) && (s != Side_opposite[back_side])) {
 			v1 = ebs[back_side][0];
@@ -789,7 +773,7 @@ found1: ;
 
 int fix_bogus_uvs_on_side(void)
 {
-	med_propagate_tmaps_to_back_side(Cursegp, Curside, 1);
+	med_propagate_tmaps_to_back_side(Cursegp, static_cast<sidenum_t>(Curside), 1);
 	return 0;
 }
 
@@ -800,7 +784,7 @@ static void fix_bogus_uvs_on_side1(const vmsegptridx_t sp, const unsigned sidenu
 	auto &uvls = sp->unique_segment::sides[sidenum].uvls;
 	if (uvls[0].u == 0 && uvls[1].u == 0 && uvls[2].u == 0)
 	{
-		med_propagate_tmaps_to_back_side(sp, sidenum, uvonly_flag);
+		med_propagate_tmaps_to_back_side(sp, static_cast<sidenum_t>(sidenum), uvonly_flag);
 	}
 }
 

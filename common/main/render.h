@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include "dxxsconf.h"
 #include "3d.h"
 #include <vector>
 #include "objnum.h"
@@ -32,6 +33,22 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-segment.h"
 #include "fwd-vclip.h"
 #include "lighting.h"
+#include "d_array.h"
+
+#if DXX_USE_EDITOR
+namespace dcx {
+	/* When DXX_USE_EDITOR is enabled, this symbol is needed in editor
+	 * code.  When DXX_USE_EDITOR is disabled, this symbol is only
+	 * needed in the file where it is defined.  Therefore, preprocess
+	 * out the extern declaration when !DXX_USE_EDITOR.
+	 */
+extern const enumerated_array<
+	enumerated_array<
+		std::array<int_fast8_t, 2>,
+		6, sidenum_t>,
+	6, sidenum_t> Two_sides_to_edge;
+}
+#endif
 
 #ifdef dsx
 namespace dsx {

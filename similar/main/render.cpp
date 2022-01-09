@@ -835,6 +835,8 @@ static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, cons
 #endif
 #endif
 
+namespace dcx {
+
 namespace {
 
 static ubyte code_window_point(fix x,fix y,const rect &w)
@@ -848,6 +850,8 @@ static ubyte code_window_point(fix x,fix y,const rect &w)
 	if (y >= w.bot) code |= 8;
 
 	return code;
+}
+
 }
 
 //Given two sides of segment, tell the two verts which form the 
@@ -907,6 +911,8 @@ constexpr enumerated_array<
 	}}},
 }}};
 
+namespace {
+
 //given an edge specified by two verts, give the two sides on that edge
 constexpr std::array<
 	std::array<
@@ -941,6 +947,7 @@ constexpr std::array<
 //@@
 //@@}
 
+}
 
 //given an edge, tell what side is on that edge
 static std::optional<sidenum_t> find_seg_side(const shared_segment &seg, const std::array<vertnum_t, 2> &verts, const unsigned notside)

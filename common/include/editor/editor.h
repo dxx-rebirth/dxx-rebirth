@@ -360,7 +360,7 @@ extern texture_index CurrentTexture;
 
 namespace dsx {
 void med_propagate_tmaps_to_segments(vcsegptridx_t base_seg,vmsegptridx_t con_seg, int uv_only_flag);
-void med_propagate_tmaps_to_back_side(vmsegptridx_t base_seg, int back_side, int uv_only_flag);
+void med_propagate_tmaps_to_back_side(vmsegptridx_t base_seg, sidenum_t back_side, int uv_only_flag);
 
 //	Find segment adjacent to sp:side.
 //	Adjacent means a segment which shares all four vertices.
