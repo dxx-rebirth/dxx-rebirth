@@ -678,7 +678,7 @@ constexpr enumerated_array<
 
 struct d_gauge_span
 {
-	unsigned l, r;
+	uint16_t l, r;
 };
 
 struct dspan
@@ -687,7 +687,7 @@ struct dspan
 };
 
 //store delta x values from left of box
-const std::array<dspan, 43> weapon_windows_lowres = {{
+constexpr std::array<dspan, 43> weapon_windows_lowres = {{
 	{{71,114},		{208,255}},
 	{{69,116},		{206,257}},
 	{{68,117},		{205,258}},
@@ -734,7 +734,7 @@ const std::array<dspan, 43> weapon_windows_lowres = {{
 }};
 
 //store delta x values from left of box
-const std::array<dspan, 107> weapon_windows_hires = {{
+constexpr std::array<dspan, 107> weapon_windows_hires = {{
 	{{141,231},		{416,509}},
 	{{139,234},		{413,511}},
 	{{137,235},		{412,513}},
@@ -2060,8 +2060,7 @@ static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *c
 #endif
 	}
 
-	RAIIdmem<uint8_t[]> cockpitbuf;
-	MALLOC(cockpitbuf, uint8_t[], DXX_MAX_COCKPIT_BITMAP_SIZE);
+	auto cockpitbuf = std::make_unique<uint8_t[]>(DXX_MAX_COCKPIT_BITMAP_SIZE);
 
 	// decode the bitmap
 	if (bm->get_flag_mask(BM_FLAG_RLE))
@@ -2103,28 +2102,57 @@ static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *c
 		fill_alpha_one_line(i, s.r);
 		i += bm_w;
 	}
+	constexpr auto lowres_primary_height = PRIMARY_W_BOX_BOT_L - PRIMARY_W_BOX_TOP_L;
+	constexpr auto highres_primary_height = PRIMARY_W_BOX_BOT_H - PRIMARY_W_BOX_TOP_H;
+	static_assert(lowres_primary_height == SECONDARY_W_BOX_BOT_L - SECONDARY_W_BOX_TOP_L);
+	static_assert(highres_primary_height == SECONDARY_W_BOX_BOT_H - SECONDARY_W_BOX_TOP_H);
+	const auto primary_left = (PRIMARY_W_BOX_LEFT) - 2;
+	const auto primary_top = (PRIMARY_W_BOX_TOP) - 2;
+	const auto primary_width = PRIMARY_W_BOX_RIGHT - PRIMARY_W_BOX_LEFT + 4;
+	const auto primary_height = PRIMARY_W_BOX_BOT - PRIMARY_W_BOX_TOP + 4;
+	const auto secondary_left = (SECONDARY_W_BOX_LEFT) - 2;
+	const auto secondary_top = (SECONDARY_W_BOX_TOP) - 2;
+	const auto secondary_width = (SECONDARY_W_BOX_RIGHT - SECONDARY_W_BOX_LEFT) + 4;
+	const auto sum_box_width = primary_width + secondary_width;
+	RAIIdmem<uint8_t[]> inset_window_buffer;
+	MALLOC(inset_window_buffer, uint8_t[], primary_height * sum_box_width);
+	{
+		const uint8_t *primary_src_iter = &cockpitbuf[primary_left + (primary_top * bm_w)];
+		const uint8_t *secondary_src_iter = &cockpitbuf[secondary_left + (secondary_top * bm_w)];
+		uint8_t *primary_dst_iter = &inset_window_buffer[0];
+		for (const auto iter_y : xrange(primary_height, std::integral_constant<unsigned, 0>(), xrange_descending()))
+		{
+			(void)iter_y;
+			std::move(primary_src_iter, std::next(primary_src_iter, primary_width), primary_dst_iter);
+			std::move(secondary_src_iter, std::next(secondary_src_iter, secondary_width), std::next(primary_dst_iter, primary_width));
+			primary_src_iter += bm_w;
+			primary_dst_iter += sum_box_width;
+			secondary_src_iter += bm_w;
+		}
+		cockpitbuf.reset();
+	}
 #if DXX_USE_OGL
 	ogl_freebmtexture(*bm);
 	/* In the OpenGL build, copy the data pointer into the bitmap for
 	 * use until the OpenGL texture is created.
 	 */
-	gr_init_bitmap(WinBoxOverlay.decoded_full_cockpit_image, bm_mode::linear, 0, 0, bm_w, bm_h, bm_w, cockpitbuf.get());
+	gr_init_bitmap(WinBoxOverlay.decoded_full_cockpit_image, bm_mode::linear, 0, 0, sum_box_width, primary_height, sum_box_width, inset_window_buffer.get());
 #else
 	/* In the SDL-only build, move the data pointer into the bitmap so
 	 * that the underlying data buffer remains allocated.
 	 */
-	gr_init_main_bitmap(WinBoxOverlay.decoded_full_cockpit_image, bm_mode::linear, 0, 0, bm_w, bm_h, bm_w, std::move(cockpitbuf));
+	gr_init_main_bitmap(WinBoxOverlay.decoded_full_cockpit_image, bm_mode::linear, 0, 0, sum_box_width, primary_height, sum_box_width, std::move(inset_window_buffer));
 #endif
 	gr_set_transparent(WinBoxOverlay.decoded_full_cockpit_image, 1);
 #if DXX_USE_OGL
 	ogl_ubitmapm_cs(hudctx.canvas, 0, 0, opengl_bitmap_use_dst_canvas, opengl_bitmap_use_dst_canvas, WinBoxOverlay.decoded_full_cockpit_image, 255); // render one time to init the texture
 #endif
-	WinBoxOverlay[0] = gr_create_sub_bitmap(WinBoxOverlay.decoded_full_cockpit_image, (PRIMARY_W_BOX_LEFT) - 2, (PRIMARY_W_BOX_TOP) - 2, (PRIMARY_W_BOX_RIGHT - PRIMARY_W_BOX_LEFT + 4), (PRIMARY_W_BOX_BOT - PRIMARY_W_BOX_TOP + 4));
-	WinBoxOverlay[1] = gr_create_sub_bitmap(WinBoxOverlay.decoded_full_cockpit_image, (SECONDARY_W_BOX_LEFT) - 2, (SECONDARY_W_BOX_TOP) - 2, (SECONDARY_W_BOX_RIGHT - SECONDARY_W_BOX_LEFT) + 4, (SECONDARY_W_BOX_BOT - SECONDARY_W_BOX_TOP) + 4);
+	WinBoxOverlay[0] = gr_create_sub_bitmap(WinBoxOverlay.decoded_full_cockpit_image, 0, 0, primary_width, primary_height);
+	WinBoxOverlay[1] = gr_create_sub_bitmap(WinBoxOverlay.decoded_full_cockpit_image, primary_width, 0, secondary_width, primary_height);
 #if DXX_USE_OGL
 	/* The image has been copied to OpenGL as a texture.  The underlying
-	 * main application memory will be freed when `cockpitbuf` goes out
-	 * of scope.
+	 * main application memory will be freed when `inset_window_buffer`
+	 * goes out of scope.
 	 * Clear bm_data to avoid leaving a dangling pointer.
 	 */
 	WinBoxOverlay.decoded_full_cockpit_image.bm_data = nullptr;
