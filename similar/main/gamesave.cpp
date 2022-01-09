@@ -965,8 +965,8 @@ static int load_game_data(
 	PHYSFSX_fseek(LoadFile, 24, SEEK_CUR);
 
 	trig_size = PHYSFSX_readInt(LoadFile);
-	Assert(trig_size == sizeof(ControlCenterTriggers));
-	(void)trig_size;
+	if (trig_size != sizeof(v1_control_center_triggers))
+		throw std::runtime_error("wrong size for v1_control_center_triggers");
 	PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 
 	const unsigned Num_robot_centers = PHYSFSX_readInt(LoadFile);
@@ -1114,7 +1114,7 @@ static int load_game_data(
 
 	//================ READ CONTROL CENTER TRIGGER INFO ===============
 
-	control_center_triggers_read(&ControlCenterTriggers, LoadFile);
+	control_center_triggers_read(ControlCenterTriggers, LoadFile);
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============
 
@@ -1789,7 +1789,7 @@ static int save_game_data(
 	//================ SAVE CONTROL CENTER TRIGGER INFO ===============
 
 	control_offset = PHYSFS_tell(SaveFile);
-	control_center_triggers_write(&ControlCenterTriggers, SaveFile);
+	control_center_triggers_write(ControlCenterTriggers, SaveFile);
 
 
 	//================ SAVE MATERIALIZATION CENTER TRIGGER INFO ===============

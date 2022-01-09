@@ -52,17 +52,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
 #include "partial_range.h"
+#include "d_zip.h"
 
 namespace dsx {
 std::array<reactor, MAX_REACTORS> Reactors;
 #if defined(DXX_BUILD_DESCENT_II)
 unsigned Num_reactors;
 #endif
-}
-
-control_center_triggers ControlCenterTriggers;
-
-namespace dsx {
 
 static window_event_result do_countdown_frame();
 
@@ -126,6 +122,8 @@ static int calc_best_gun(const unsigned num_guns, const object &objreactor, cons
 }
 
 namespace dcx {
+control_center_triggers ControlCenterTriggers;
+
 constexpr int	D1_Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
 }
 namespace dsx {
@@ -551,18 +549,44 @@ void reactor_read_n(PHYSFS_File *fp, partial_range_t<reactor *> r)
 #endif
 }
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(control_center_triggers, cct, (cct.num_links, cct.seg, cct.side));
-ASSERT_SERIAL_UDT_MESSAGE_SIZE(control_center_triggers, 42);
+namespace dcx {
+
+DEFINE_SERIAL_UDT_TO_MESSAGE(v1_control_center_triggers, cct, (cct.num_links, cct.seg, cct.side));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(v1_control_center_triggers, 42);
+
+v1_control_center_triggers::v1_control_center_triggers(PHYSFS_File *fp)
+{
+	PHYSFSX_serialize_read(fp, *this);
+}
+
+v1_control_center_triggers::v1_control_center_triggers(const control_center_triggers &cct) :
+	num_links(cct.num_links), seg(cct.seg)
+{
+	for (auto &&[w, r] : zip(side, cct.side))
+		w = r;
+}
 
 /*
  * reads n control_center_triggers structs from a PHYSFS_File and swaps if specified
  */
-void control_center_triggers_read(control_center_triggers *cct, PHYSFS_File *fp)
+void control_center_triggers_read(control_center_triggers &cct, PHYSFS_File *fp)
 {
-	PHYSFSX_serialize_read(fp, *cct);
+	const v1_control_center_triggers v1cct{fp};
+	cct.seg = {};
+	cct.side = {};
+	const auto num_links = cct.num_links = v1cct.num_links;
+	if (unlikely(!num_links))
+		return;
+	for (auto &&[w, r] : zip(partial_range(cct.seg, num_links), v1cct.seg))
+		w = r;
+	for (auto &&[w, r] : zip(unchecked_partial_range(cct.side, num_links), v1cct.side))
+		w = build_sidenum_from_untrusted(r).value();
 }
 
-void control_center_triggers_write(const control_center_triggers *cct, PHYSFS_File *fp)
+void control_center_triggers_write(const control_center_triggers &cct, PHYSFS_File *fp)
 {
-	PHYSFSX_serialize_write(fp, *cct);
+	const v1_control_center_triggers v1cct{cct};
+	PHYSFSX_serialize_write(fp, v1cct);
+}
+
 }

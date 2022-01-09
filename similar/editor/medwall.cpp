@@ -972,7 +972,7 @@ int bind_wall_to_control_center() {
 
 	// Error checking completed, actual binding begins
 	ControlCenterTriggers.seg[link_num] = Cursegp;
-	ControlCenterTriggers.side[link_num] = Curside;
+	ControlCenterTriggers.side[link_num] = static_cast<sidenum_t>(Curside);
 	ControlCenterTriggers.num_links++;
 
 	editor_status("Wall linked to control center");

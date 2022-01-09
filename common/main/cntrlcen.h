@@ -27,7 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <physfs.h>
 
-#ifdef __cplusplus
 #include "fwd-object.h"
 #include "pack.h"
 #include "fwd-segment.h"
@@ -35,17 +34,35 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "fwd-partial_range.h"
 
+namespace dcx {
+
 struct control_center_triggers : public prohibit_void_ptr<control_center_triggers>
 {
-	enum {
-		max_links = 10
-	};
+	static constexpr std::integral_constant<std::size_t, 10> max_links{};
+	uint8_t num_links;
+	std::array<segnum_t, max_links>   seg;
+	std::array<sidenum_t, max_links>  side;
+};
+
+struct v1_control_center_triggers
+{
+	v1_control_center_triggers(PHYSFS_File *);
+	v1_control_center_triggers(const control_center_triggers &);
+	static constexpr std::integral_constant<std::size_t, 10> max_links{};
 	uint16_t num_links;
 	std::array<segnum_t, max_links>   seg;
 	std::array<uint16_t, max_links>   side;
 };
-
+static_assert(sizeof(v1_control_center_triggers) == (2 + (2 * 10) + (2 * 10)));
 extern control_center_triggers ControlCenterTriggers;
+
+/*
+ * reads 1 control_center_triggers struct from a PHYSFS_File
+ */
+void control_center_triggers_read(control_center_triggers &cct, PHYSFS_File *fp);
+void control_center_triggers_write(const control_center_triggers &cct, PHYSFS_File *fp);
+
+}
 
 #ifdef dsx
 #include "vecmat.h"
@@ -119,12 +136,4 @@ void calc_controlcen_gun_point(object &obj);
 void do_controlcen_destroyed_stuff(imobjidx_t objp);
 window_event_result do_controlcen_dead_frame();
 }
-#endif
-
-/*
- * reads n control_center_triggers structs from a PHYSFS_File
- */
-void control_center_triggers_read(control_center_triggers *cct, PHYSFS_File *fp);
-void control_center_triggers_write(const control_center_triggers *cct, PHYSFS_File *fp);
-
 #endif
