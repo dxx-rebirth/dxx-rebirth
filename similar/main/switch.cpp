@@ -612,7 +612,7 @@ void v26_trigger_read(PHYSFS_File *fp, trigger &t)
 
 void v25_trigger_read(PHYSFS_File *fp, trigger *t)
 #elif defined(DXX_BUILD_DESCENT_II)
-extern void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp)
+void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp)
 #endif
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -651,22 +651,7 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp)
 		t->side[i] = PHYSFSX_readShort(fp);
 }
 
-/*
- * reads a trigger structure from a PHYSFS_File
- */
-extern void trigger_read(trigger *t, PHYSFS_File *fp)
-{
-	t->type = trigger_action{static_cast<uint8_t>(PHYSFSX_readByte(fp))};
-	t->flags = trigger_behavior_flags{static_cast<uint8_t>(PHYSFSX_readByte(fp))};
-	t->num_links = PHYSFSX_readByte(fp);
-	PHYSFSX_readByte(fp);
-	t->value = PHYSFSX_readFix(fp);
-	PHYSFSX_readFix(fp);
-	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
-		t->seg[i] = PHYSFSX_readShort(fp);
-	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
-		t->side[i] = PHYSFSX_readShort(fp);
-}
+namespace {
 
 static trigger_action trigger_type_from_flags(short flags)
 {
@@ -720,6 +705,8 @@ static void v29_trigger_read_as_v30(PHYSFS_File *fp, v30_trigger &trig)
 	trig.side = trig29.side;
 }
 
+}
+
 void v29_trigger_read_as_v31(PHYSFS_File *fp, trigger &t)
 {
 	v30_trigger trig;
@@ -743,9 +730,6 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (t.type, t.flags, t.num_links, serial::
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 52);
 #endif
 
-/*
- * reads n trigger structs from a PHYSFS_File and swaps if specified
- */
 void trigger_read(PHYSFS_File *fp, trigger &t)
 {
 	PHYSFSX_serialize_read(fp, t);

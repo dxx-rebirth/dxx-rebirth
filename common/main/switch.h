@@ -105,7 +105,7 @@ static constexpr trigger_behavior_flags &operator&=(trigger_behavior_flags &valu
 
 //old trigger structs
 
-struct v29_trigger
+struct v29_trigger : prohibit_void_ptr<v29_trigger>
 {
 	sbyte   type;
 	short   flags;
@@ -115,9 +115,9 @@ struct v29_trigger
 	short   num_links;
 	std::array<segnum_t, MAX_WALLS_PER_LINK>   seg;
 	std::array<short, MAX_WALLS_PER_LINK>   side;
-} __pack__;
+};
 
-struct v30_trigger
+struct v30_trigger : prohibit_void_ptr<v30_trigger>
 {
 	short   flags;
 	sbyte   num_links;
@@ -126,7 +126,7 @@ struct v30_trigger
 	fix     time;
 	std::array<segnum_t, MAX_WALLS_PER_LINK>   seg;
 	std::array<short, MAX_WALLS_PER_LINK>   side;
-} __pack__;
+};
 #endif
 
 enum TRIGGER_FLAG : uint16_t
@@ -241,18 +241,14 @@ extern void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp);
  * reads a v30_trigger structure from a PHYSFS_File
  */
 extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp);
-#endif
 
 /*
  * reads a trigger structure from a PHYSFS_File
  */
-extern void trigger_read(trigger *t, PHYSFS_File *fp);
 void v29_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
 void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
+#endif
 
-/*
- * reads n trigger structs from a PHYSFS_File and swaps if specified
- */
 void trigger_read(PHYSFS_File *fp, trigger &t);
 void trigger_write(PHYSFS_File *fp, const trigger &t);
 

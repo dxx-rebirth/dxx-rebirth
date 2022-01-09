@@ -1108,7 +1108,7 @@ static int load_game_data(
 				v30_trigger_read_as_v31(LoadFile, i);
 		}
 		else
-			trigger_read(&i, LoadFile);
+			trigger_read(LoadFile, i);
 #endif
 	}
 
