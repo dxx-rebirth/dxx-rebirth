@@ -118,7 +118,6 @@ struct polyobj_info;
 struct polyobj_info_rw;
 
 struct obj_position;
-struct object_rw;
 
 enum class collision_result : uint8_t
 {
@@ -138,6 +137,7 @@ constexpr std::integral_constant<unsigned, 8> MAX_CONTROLCEN_GUNS{};
 struct d_unique_buddy_state;
 #endif
 
+struct object_rw;
 struct powerup_info_rw;
 struct window_rendered_data;
 struct reactor_static;

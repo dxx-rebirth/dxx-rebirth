@@ -468,10 +468,6 @@ struct object : public ::dcx::object_base
 	} ctype;
 };
 
-}
-
-namespace dcx {
-
 // Same as above but structure Savegames/Multiplayer objects expect
 struct object_rw
 {
@@ -519,7 +515,11 @@ struct object_rw
 	} __pack__ rtype;
 } __pack__;
 
+}
+
 static_assert(sizeof(object_rw) == 264);
+
+namespace dcx {
 
 struct obj_position
 {
