@@ -612,6 +612,43 @@ struct %(N)s {
 	(void)b;
 '''
 ),
+		Cxx11RequiredFeature('inheriting constructors', '''
+/* Test for bug where clang + libc++ + constructor inheritance causes a
+ * compilation failure when returning nullptr.
+ *
+ * Works: gcc
+ * Works: clang + gcc libstdc++
+ * Works: old clang + old libc++ (cutoff date unknown).
+ * Works: new clang + new libc++ + unique_ptr<T>
+ * Fails: new clang + new libc++ + unique_ptr<T[]> (v3.6.0 confirmed broken).
+
+memory:2676:32: error: no type named 'type' in 'std::__1::enable_if<false, std::__1::unique_ptr<int [], std::__1::default_delete<int []> >::__nat>'; 'enable_if' cannot be used to disable this declaration
+            typename enable_if<__same_or_less_cv_qualified<_Pp, pointer>::value, __nat>::type = __nat()) _NOEXCEPT
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.sconf_temp/conftest_43.cpp:26:11: note: in instantiation of member function 'std::__1::unique_ptr<int [], std::__1::default_delete<int []> >::unique_ptr' requested here
+        using B::B;
+                 ^
+.sconf_temp/conftest_43.cpp:30:2: note: while substituting deduced template arguments into function template 'I' [with _Pp = I]
+        return nullptr;
+        ^
+ */
+#include <memory>
+class I%(N)s : std::unique_ptr<int[]>
+{
+public:
+	typedef std::unique_ptr<int[]> b%(N)s;
+	using b%(N)s::b%(N)s;
+};
+I%(N)s a%(N)s();
+I%(N)s a%(N)s()
+{
+	return nullptr;
+}
+''', '''
+	I%(N)s i = a%(N)s();
+	(void)i;
+'''
+),
 ])
 	def __init__(self,msgprefix,user_settings,platform_settings):
 		self.msgprefix = msgprefix
@@ -2255,97 +2292,6 @@ help:assume compiler supports explicitly deleted functions with anonymous parame
 """
 		return self.Compile(context, text=f % '', msg='for explicitly deleted functions with anonymous parameters')
 
-	@_implicit_test
-	def check_cxx11_inherit_constructor(self,context,text,_macro_value=_quote_macro_value('''
-/* Use a typedef for the base type to avoid parsing issues when type
- * B is a qualified name.  Without this typedef, B = std::BASE would
- * expand as `using std::BASE::std::BASE`, which causes a parsing error.
- * The correct way to inherit from std::BASE is `using std::BASE::BASE;`.
- * With using dxx_constructor_base_type = std::BASE;`,
- * `using dxx_constructor_base_type::dxx_constructor_base_type` produces
- * the correct result.
- */
-	using dxx_constructor_base_type = B,##__VA_ARGS__;
-	using dxx_constructor_base_type::dxx_constructor_base_type;'''),
-		**kwargs):
-		"""
-help:assume compiler supports inheriting constructors
-"""
-		blacklist_clang_libcxx = '''
-/* Test for bug where clang + libc++ + constructor inheritance causes a
- * compilation failure when returning nullptr.
- *
- * Works: gcc
- * Works: clang + gcc libstdc++
- * Works: old clang + old libc++ (cutoff date unknown).
- * Works: new clang + new libc++ + unique_ptr<T>
- * Fails: new clang + new libc++ + unique_ptr<T[]> (v3.6.0 confirmed broken).
-
-memory:2676:32: error: no type named 'type' in 'std::__1::enable_if<false, std::__1::unique_ptr<int [], std::__1::default_delete<int []> >::__nat>'; 'enable_if' cannot be used to disable this declaration
-            typename enable_if<__same_or_less_cv_qualified<_Pp, pointer>::value, __nat>::type = __nat()) _NOEXCEPT
-                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.sconf_temp/conftest_43.cpp:26:11: note: in instantiation of member function 'std::__1::unique_ptr<int [], std::__1::default_delete<int []> >::unique_ptr' requested here
-        using B::B;
-                 ^
-.sconf_temp/conftest_43.cpp:30:2: note: while substituting deduced template arguments into function template 'I' [with _Pp = I]
-        return nullptr;
-        ^
- */
-#include <memory>
-class I : std::unique_ptr<int[]>
-{
-public:
-	typedef std::unique_ptr<int[]> B;
-	using B::B;
-};
-I a();
-I a()
-{
-	return nullptr;
-}
-'''
-		return _macro_value \
-			if self.Compile(context, text=text.format(leading_text=blacklist_clang_libcxx, macro_value=_macro_value), msg='for C++11 inherited constructors with good unique_ptr<T[]> support', **kwargs) \
-			else None
-
-	@_implicit_test
-	def check_cxx11_variadic_forward_constructor(self,context,text,_macro_value=_quote_macro_value('''
-    template <typename... Args>
-        constexpr D(Args&&... args) :
-            B,##__VA_ARGS__(std::forward<Args>(args)...) {}
-'''),**kwargs):
-		"""
-help:assume compiler supports variadic template-based constructor forwarding
-"""
-		return _macro_value \
-			if self.Compile(context, text=text.format(leading_text='#include <algorithm>\n', macro_value=_macro_value), msg='for C++11 variadic templates on constructors', **kwargs) \
-			else None
-
-	@_custom_test
-	def _check_forward_constructor(self,context,_text='''
-{leading_text}
-#define DXX_INHERIT_CONSTRUCTORS(D,B,...) {macro_value}
-struct A {{
-	A(int){{}}
-}};
-struct B:A {{
-DXX_INHERIT_CONSTRUCTORS(B,A);
-}};
-''',
-		_macro_define='DXX_INHERIT_CONSTRUCTORS(D,B,...)',
-		_methods=(check_cxx11_inherit_constructor, check_cxx11_variadic_forward_constructor)
-):
-		for f in _methods:
-			macro_value = f(self, context, text=_text, main='B(0)')
-			if macro_value:
-				context.sconf.Define(_macro_define, macro_value, '''
-Declare that derived type D inherits applicable constructors from base
-type B.  Use a variadic macro with the base type second so that types
-such as std::pair<int,int> pass through correctly without the need to
-parenthesize them.
-''')
-				return
-		raise SCons.Errors.StopError("C++ compiler does not support constructor forwarding.")
 	@_custom_test
 	def check_deep_tuple(self,context):
 		text = '''

@@ -438,7 +438,7 @@ template <char>
 class hud_scaled_int : public base_hud_scaled_int
 {
 public:
-	DXX_INHERIT_CONSTRUCTORS(hud_scaled_int, base_hud_scaled_int);
+	using base_hud_scaled_int::base_hud_scaled_int;
 };
 
 class base_hud_scale_float
@@ -466,7 +466,7 @@ class hud_scale_float : base_hud_scale_float
 public:
 	using scaled = hud_scaled_int<tag>;
 	using base_hud_scale_float::get;
-	DXX_INHERIT_CONSTRUCTORS(hud_scale_float, base_hud_scale_float);
+	using base_hud_scale_float::base_hud_scale_float;
 	scaled operator()(const int i) const
 	{
 		return scaled(this->base_hud_scale_float::operator()(i));

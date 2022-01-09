@@ -38,6 +38,8 @@ enum E { ... };`)
 std::unique_ptr<int[]> j;`)
 * [Static assertions][cppr:cpp/language/static_assert]
 * `std::addressof`
+* [inheriting constructors][cppr:cpp/language/using_declaration]
+* [Range-based for][cppr:cpp/language/range-for]
 
 # Required C++14 features
 * [`std::index_sequence`][cppr:cpp/utility/integer_sequence] is a compile-time sequence of integers.
@@ -45,19 +47,9 @@ std::unique_ptr<int[]> j;`)
 * [`std::make_unique`][cppr:cpp/memory/unique_ptr/make_unique] is a convenience utility function for constructing `std::unique_ptr` with a managed value.
 
 # Optional C++11/C++14 features
-DXX-Rebirth code may use C++11 or C++14 features not present in the minimum supported compiler if the feature can be emulated easily (C++11: [inheriting constructors][cppr:cpp/language/using_declaration], [Range-based for][cppr:cpp/language/range-for]) or if the feature can be removed by a macro and the removal does not change the correctness of the program (C++11: [rvalue-qualified member methods][scppr:rvalue method]).
+DXX-Rebirth code may use C++11 or C++14 features not present in the minimum supported compiler if the feature can be removed by a macro and the removal does not change the correctness of the program (C++11: [rvalue-qualified member methods][scppr:rvalue method]).
 
 ## Optional C++11 features
-### Emulated if absent
-
-* [Inheriting constructors][cppr:cpp/language/using_declaration] are wrapped by the macro `DXX_INHERIT_CONSTRUCTORS`.
-If inherited constructors are supported, then `DXX_INHERIT_CONSTRUCTORS` expands to a `using` declaration.
-If inherited constructors are not supported, then `DXX_INHERIT_CONSTRUCTORS` defines a [variadic template][cppr:cpp/language/parameter_pack] constructor to forward arguments to the base class.
-* [Range-based for][cppr:cpp/language/range-for] is wrapped by the macro `range_for`.
-This feature is present in the current minimum supported compiler versions.
-It was first used when >=gcc-4.5 was the minimum.
-Use of the `range_for` macro continues because it improves readability.
-
 ### Preprocessed out if absent
 
 * [Reference-qualified methods][scppr:rvalue method] check that an rvalue which may or may not hold a valid pointer is not used in a context where the caller assumes the rvalue holds a valid pointer.

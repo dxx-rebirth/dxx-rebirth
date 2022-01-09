@@ -400,7 +400,7 @@ class RAIIPHYSFS_File : public std::unique_ptr<PHYSFS_File, PHYSFS_File_deleter>
 {
 	typedef std::unique_ptr<PHYSFS_File, PHYSFS_File_deleter> base_t;
 public:
-	DXX_INHERIT_CONSTRUCTORS(RAIIPHYSFS_File, base_t);
+	using base_t::base_t;
 	using base_t::operator bool;
 	operator PHYSFS_File *() const && = delete;
 	operator PHYSFS_File *() const &

@@ -277,7 +277,7 @@ template <int r, int g, int b, powerup_type_t id>
 struct player_hit_basic_sound_powerup : player_hit_basic_silent_powerup<r, g, b>
 {
 	using base_type = player_hit_basic_silent_powerup<r, g, b>;
-	DXX_INHERIT_CONSTRUCTORS(player_hit_basic_sound_powerup, base_type);
+	using base_type::base_type;
 	template <PLAYER_FLAG player_flag>
 		void pickup(player_flags &powerup_flags) const
 		{
@@ -291,7 +291,7 @@ using player_hit_silent_rb_powerup = player_hit_basic_silent_powerup<15, 0, 15>;
 struct player_hit_afterburner_powerup : player_hit_basic_sound_powerup<15, 15, 15, POW_AFTERBURNER>
 {
 	using base_type = player_hit_basic_sound_powerup<15, 15, 15, POW_AFTERBURNER>;
-	DXX_INHERIT_CONSTRUCTORS(player_hit_afterburner_powerup, base_type);
+	using base_type::base_type;
 	template <PLAYER_FLAG player_flag>
 		void pickup(player_flags &powerup_flags) const
 		{

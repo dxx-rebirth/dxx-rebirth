@@ -495,7 +495,7 @@ protected:
 	template <typename R>
 	struct maskproxy_assignable_type : maskproxy_byte_reference<R>
 	{
-		DXX_INHERIT_CONSTRUCTORS(maskproxy_assignable_type, maskproxy_byte_reference<R>);
+		using maskproxy_byte_reference<R>::maskproxy_byte_reference;
 		using typename maskproxy_shift_count_type::bitmask_low_aligned;
 		maskproxy_assignable_type &operator=(const uint8_t u)
 		{
@@ -538,7 +538,7 @@ template <>
 template <typename R>
 struct visited_segment_mask_base<1>::maskproxy_assignable_type : maskproxy_byte_reference<R>
 {
-	DXX_INHERIT_CONSTRUCTORS(maskproxy_assignable_type, maskproxy_byte_reference<R>);
+	using maskproxy_byte_reference<R>::maskproxy_byte_reference;
 	maskproxy_assignable_type &operator=(const bool b)
 	{
 		const auto m = this->mask();

@@ -683,7 +683,7 @@ struct RAIIpng_struct
 
 struct d_screenshot : RAIIpng_struct
 {
-	DXX_INHERIT_CONSTRUCTORS(d_screenshot,RAIIpng_struct);
+	using RAIIpng_struct::RAIIpng_struct;
 	/* error handling callbacks */
 	[[noreturn]]
 	static void png_error_cb(png_struct *png, const char *str);

@@ -59,7 +59,7 @@ struct d_event_joystickbutton : d_event
 
 struct d_event_joystick_moved : d_event, d_event_joystick_axis_value
 {
-	DXX_INHERIT_CONSTRUCTORS(d_event_joystick_moved, d_event);
+	using d_event::d_event;
 };
 
 class SDL_Joystick_deleter

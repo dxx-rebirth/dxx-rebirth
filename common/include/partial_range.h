@@ -204,7 +204,7 @@ struct partial_range_t<range_iterator, range_index_type>::partial_range_error
 #endif
 	final : std::out_of_range
 {
-	DXX_INHERIT_CONSTRUCTORS(partial_range_error, out_of_range);
+	using std::out_of_range::out_of_range;
 	template <std::size_t N>
 		[[noreturn]]
 		__attribute_cold

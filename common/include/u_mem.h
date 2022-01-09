@@ -138,7 +138,7 @@ class RAIIdmem : public std::unique_ptr<T, RAIIdmem_deleter<T>>
 	typedef std::unique_ptr<T, RAIIdmem_deleter<T>> base_ptr;
 public:
 	static_assert(std::is_pod<typename base_ptr::element_type>::value, "RAIIdmem cannot manage non-POD");
-	DXX_INHERIT_CONSTRUCTORS(RAIIdmem, base_ptr);
+	using base_ptr::base_ptr;
 };
 
 /* Disallow C-style arrays of known bound.  Use RAIIdmem<std::array<T, N>>

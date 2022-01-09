@@ -18,10 +18,6 @@
 #define DXX_HAVE_CXX11_TYPE_TRAITS
 #define DXX_HAVE_CXX11_BEGIN
 #define dxx_builtin_constant_p(A)	(false)
-#define DXX_INHERIT_CONSTRUCTORS(D,B,...)	\
-	template <typename... Args> \
-		D(Args&&... args) : \
-			B,##__VA_ARGS__(std::forward<Args>(args)...) {}
 #define DXX_ptrdiff_cast_int	static_cast<int>
 #define DXX_WORDS_BIGENDIAN	0
 

@@ -157,7 +157,7 @@ template <typename P>
 class valptridx<P>::index_mismatch_exception :
 	public std::logic_error
 {
-	DXX_INHERIT_CONSTRUCTORS(index_mismatch_exception, logic_error);
+	using std::logic_error::logic_error;
 public:
 	[[noreturn]]
 	__attribute_cold
@@ -169,7 +169,7 @@ template <typename P>
 class valptridx<P>::index_range_exception :
 	public std::out_of_range
 {
-	DXX_INHERIT_CONSTRUCTORS(index_range_exception, out_of_range);
+	using std::out_of_range::out_of_range;
 public:
 	[[noreturn]]
 	__attribute_cold
@@ -181,7 +181,7 @@ template <typename P>
 class valptridx<P>::null_pointer_exception :
 	public std::logic_error
 {
-	DXX_INHERIT_CONSTRUCTORS(null_pointer_exception, logic_error);
+	using std::logic_error::logic_error;
 public:
 	[[noreturn]]
 	__attribute_cold
