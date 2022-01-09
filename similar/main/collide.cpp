@@ -2271,7 +2271,7 @@ static vms_vector find_exit_direction(vms_vector result, const object &objp, con
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	for (unsigned side = MAX_SIDES_PER_SEGMENT; side --;)
+	for (const auto side : MAX_SIDES_PER_SEGMENT)
 		if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, side) & WALL_IS_DOORWAY_FLAG::fly)
 		{
 			const auto &&exit_point = compute_center_point_on_side(vcvertptr, segp, side);

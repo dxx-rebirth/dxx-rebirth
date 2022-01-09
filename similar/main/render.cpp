@@ -780,7 +780,7 @@ static void render_segment(fvcvertptr &vcvertptr, fvcwallptr &vcwallptr, const v
 			LevelUniqueAutomapState.Automap_visited[seg] = 1;
 		}
 
-		range_for (const uint_fast32_t sn, xrange(MAX_SIDES_PER_SEGMENT))
+		for (const auto sn : MAX_SIDES_PER_SEGMENT)
 			render_side(vcvertptr, canvas, seg, sn, WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn), Viewer_eye);
 	}
 
@@ -1637,7 +1637,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 					if (Viewer->type!=OBJ_ROBOT)
 						LevelUniqueAutomapState.Automap_visited[segnum] = 1;
 
-					range_for (const uint_fast32_t sn, xrange(MAX_SIDES_PER_SEGMENT))
+					for (const auto sn : MAX_SIDES_PER_SEGMENT)
 					{
 						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn);
 						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
@@ -1686,7 +1686,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 					if (Viewer->type!=OBJ_ROBOT)
 						LevelUniqueAutomapState.Automap_visited[segnum] = 1;
 
-					range_for (const uint_fast32_t sn, xrange(MAX_SIDES_PER_SEGMENT))
+					for (const auto sn : MAX_SIDES_PER_SEGMENT)
 					{
 						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn);
 						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL

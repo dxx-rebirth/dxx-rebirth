@@ -298,7 +298,8 @@ static int find_exit_side(const d_level_shared_segment_state &LevelSharedSegment
 	const auto segcenter = compute_segment_center(vcvertptr, pseg);
 
 	best_side=-1;
-	for (int i=MAX_SIDES_PER_SEGMENT;--i >= 0;) {
+	for (const auto i : MAX_SIDES_PER_SEGMENT)
+	{
 		fix d;
 
 		if (pseg.children[i] != segment_none)

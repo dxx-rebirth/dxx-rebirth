@@ -1194,7 +1194,7 @@ static int load_game_data(
 
 	// Make sure non-transparent doors are set correctly.
 	range_for (auto &&i, vmsegptridx)
-		for (auto &&[sside, uside, side_idx] : zip(i->shared_segment::sides, i->unique_segment::sides, xrange(MAX_SIDES_PER_SEGMENT)))
+		for (auto &&[side_idx, sside, uside] : enumerate(zip(i->shared_segment::sides, i->unique_segment::sides)))
 		{
 			if (sside.wall_num == wall_none)
 				continue;

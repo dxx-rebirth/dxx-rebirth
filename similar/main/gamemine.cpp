@@ -404,7 +404,8 @@ namespace {
 
 static void read_children(shared_segment &segp, const unsigned bit_mask, PHYSFS_File *const LoadFile)
 {
-	for (int bit=0; bit<MAX_SIDES_PER_SEGMENT; bit++) {
+	for (const auto bit : MAX_SIDES_PER_SEGMENT)
+	{
 		if (bit_mask & (1 << bit)) {
 			segp.children[bit] = PHYSFSX_readShort(LoadFile);
 		} else
@@ -537,8 +538,8 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 			bit_mask = PHYSFSX_readByte(LoadFile);
 		else
 			bit_mask = 0x3f; // read all six sides
-		for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-
+		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
+		{
 			auto &sside = segp.s.sides[sidenum];
 			if (bit_mask & (1 << sidenum)) {
 				const uint8_t byte_wallnum = PHYSFSX_readByte(LoadFile);
@@ -550,7 +551,8 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 					sside.wall_num = wall_none;
 		}
 
-		for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ ) {
+		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
+		{
 			auto &uside = segp.u.sides[sidenum];
 			if (segp.s.children[sidenum] == segment_none || segp.s.sides[sidenum].wall_num != wall_none)	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;

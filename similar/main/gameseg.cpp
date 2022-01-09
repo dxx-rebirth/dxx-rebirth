@@ -899,10 +899,8 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 
 	while (cur_seg != seg1) {
 		const cscusegment segp = *vmsegptr(cur_seg);
-		for (int sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
-
-			int	snum = sidenum;
-
+		for (const auto snum : MAX_SIDES_PER_SEGMENT)
+		{
 			const auto this_seg = segp.s.children[snum];
 			if (!IS_CHILD(this_seg))
 				continue;
@@ -1265,7 +1263,7 @@ static unsigned check_for_degenerate_segment(fvcvertptr &vcvertptr, const shared
 	}
 
 	//	Now, see if degenerate because of any side.
-	range_for (const uint_fast32_t i, xrange(MAX_SIDES_PER_SEGMENT))
+	for (const auto i : MAX_SIDES_PER_SEGMENT)
 		degeneracy_flag |= check_for_degenerate_side(vcvertptr, sp, i);
 
 #if DXX_USE_EDITOR
@@ -1560,7 +1558,7 @@ void validate_segment(fvcvertptr &vcvertptr, const vmsegptridx_t sp)
 {
 	check_for_degenerate_segment(vcvertptr, sp);
 
-	for (int side = 0; side < MAX_SIDES_PER_SEGMENT; side++)
+	for (const auto side : MAX_SIDES_PER_SEGMENT)
 		validate_segment_side(vcvertptr, sp, side);
 }
 
@@ -1805,7 +1803,7 @@ void apply_all_changed_light(const d_level_shared_destructible_light_state &Leve
 {
 	range_for (const auto &&segp, vmsegptridx)
 	{
-		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
+		for (const auto j : MAX_SIDES_PER_SEGMENT)
 		{
 			unique_segment &useg = segp;
 			if (useg.light_subtracted & (1 << j))
@@ -1851,7 +1849,7 @@ static void ambient_mark_bfs(const vmsegptridx_t segp, segment_lava_depth_array 
 
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	for (unsigned i = 0; i < MAX_SIDES_PER_SEGMENT; ++i)
+	for (const auto i : MAX_SIDES_PER_SEGMENT)
 	{
 		const auto child = segp->children[i];
 
@@ -1883,7 +1881,7 @@ void set_ambient_sound_flags()
 
 	range_for (const auto &&segp, vmsegptridx)
 	{
-		for (unsigned j = 0; j < MAX_SIDES_PER_SEGMENT; ++j)
+		for (const auto j : MAX_SIDES_PER_SEGMENT)
 		{
 			const auto &sside = segp->shared_segment::sides[j];
 			const auto &uside = segp->unique_segment::sides[j];

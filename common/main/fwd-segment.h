@@ -15,6 +15,7 @@
 
 #include <cstdint>
 #include "cpp-valptridx.h"
+#include "d_crange.h"
 
 namespace dcx {
 constexpr std::integral_constant<std::size_t, 9000> MAX_SEGMENTS{};
@@ -44,7 +45,6 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, segment, segnum_t, MAX_SEGMENTS);
 
 namespace dcx {
 constexpr std::integral_constant<std::size_t, 8> MAX_VERTICES_PER_SEGMENT{};
-constexpr std::integral_constant<std::size_t, 6> MAX_SIDES_PER_SEGMENT{};
 constexpr std::integral_constant<std::size_t, 4> MAX_VERTICES_PER_POLY{};
 
 constexpr std::size_t MAX_SEGMENTS_ORIGINAL = 900;
@@ -84,6 +84,7 @@ enum sidenum_t : uint8_t
 
 [[nodiscard]]
 std::optional<sidenum_t> build_sidenum_from_untrusted(uint8_t untrusted);
+constexpr constant_xrange<sidenum_t, sidenum_t{0}, sidenum_t{6}> MAX_SIDES_PER_SEGMENT{};
 constexpr std::integral_constant<sidenum_t, sidenum_t{MAX_SIDES_PER_SEGMENT.value}> side_none{};
 
 using texture_index = uint16_t;

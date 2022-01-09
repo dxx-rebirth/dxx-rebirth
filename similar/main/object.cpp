@@ -1934,7 +1934,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj, control_info
 			auto &vcvertptr = Vertices.vcptr;
 			if (const auto sidemask = get_seg_masks(vcvertptr, obj->pos, segp, obj->size).sidemask)
 			{
-				range_for (const unsigned sidenum, xrange(MAX_SIDES_PER_SEGMENT))
+				for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 				{
 					if (!(sidemask & (1 << sidenum)))
 						continue;

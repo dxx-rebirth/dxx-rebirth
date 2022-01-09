@@ -299,7 +299,8 @@ static void paging_touch_segment(const d_eclip_array &Effects, const d_level_sha
 	if (segp.s.special == segment_special::robotmaker)
 		paging_touch_robot_maker(Robot_info, Vclip, Weapon_info, segp);
 
-	for (int sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
+	for (const auto sn : MAX_SIDES_PER_SEGMENT)
+	{
 		paging_touch_side(Effects, Textures, Vclip, segp, sn);
 	}
 

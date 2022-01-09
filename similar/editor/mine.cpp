@@ -44,8 +44,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 #include "d_range.h"
-#include "partial_range.h"
 #include "d_underlying_value.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
@@ -521,11 +521,10 @@ static void dump_fix_as_ushort( fix value, int nbits, PHYSFS_File *SaveFile )
 
 static void write_children(const shared_segment &seg, const unsigned bit_mask, PHYSFS_File *const SaveFile)
 {
-	auto &children = seg.children;
-	for (int bit = 0; bit < MAX_SIDES_PER_SEGMENT; bit++)
+	for (const auto &&[bit, child] : enumerate(seg.children))
 	{
 		if (bit_mask & (1 << bit))
-			PHYSFS_writeSLE16(SaveFile, children[bit]);
+			PHYSFS_writeSLE16(SaveFile, child);
 	}
 }
 
@@ -598,9 +597,9 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 	for (segnum_t segnum = 0; segnum < Num_segments; segnum++)
 	{
 		const cscusegment &&seg = vcsegptr(segnum);
-		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		for (const auto &&[sidenum, child] : enumerate(seg.s.children))
 		{
-			if (seg.s.children[sidenum] != segment_none)
+			if (child != segment_none)
 				bit_mask |= (1 << sidenum);
 		}
 
@@ -631,9 +630,9 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 	
 		// Write the walls as a 6 byte array
 		bit_mask = 0;
-		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		for (const auto &&[sidenum, side] : enumerate(seg.s.sides))
 		{
-			if (seg.s.sides[sidenum].wall_num != wall_none)
+			if (side.wall_num != wall_none)
 			{
 				bit_mask |= (1 << sidenum);
 			}
@@ -643,13 +642,13 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 		else
 			bit_mask = 0x3F;
 
-		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		for (const auto &&[sidenum, side] : enumerate(seg.s.sides))
 		{
 			if (bit_mask & (1 << sidenum))
-				PHYSFSX_writeU8(SaveFile, underlying_value(seg.s.sides[sidenum].wall_num));
+				PHYSFSX_writeU8(SaveFile, underlying_value(side.wall_num));
 		}
 
-		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 		{
 			if (seg.s.children[sidenum] == segment_none || seg.s.sides[sidenum].wall_num != wall_none)
 			{

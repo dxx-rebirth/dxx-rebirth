@@ -685,7 +685,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmuseg
 	copy_tmap_ids(nsp,newseg);
 
 	// clear all connections
-	for (unsigned side = 0; side < MAX_SIDES_PER_SEGMENT; ++side)
+	for (const auto side : MAX_SIDES_PER_SEGMENT)
 	{
 		nsp->children[side] = segment_none;
 		nsp->shared_segment::sides[side].wall_num = wall_none;	
@@ -894,7 +894,7 @@ int med_delete_segment(const vmsegptridx_t sp)
 	-- LevelSharedSegmentState.Num_segments;
 
 	// If deleted segment has walls on any side, wipe out the wall.
-	for (unsigned side = 0; side < MAX_SIDES_PER_SEGMENT; ++side)
+	for (const auto side : MAX_SIDES_PER_SEGMENT)
 		if (sp->shared_segment::sides[side].wall_num != wall_none) 
 			wall_remove_side(sp, side);
 
@@ -903,7 +903,7 @@ int med_delete_segment(const vmsegptridx_t sp)
 	range_for (auto &side, sp->children)
 		if (IS_CHILD(side)) {
 			const auto &&csp = sp.absolute_sibling(side);
-			for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+			for (const auto s : MAX_SIDES_PER_SEGMENT)
 				if (csp->children[s] == segnum) {
 					csp->children[s] = segment_none;				// this is the side of connection, break it
 					validate_segment_side(vcvertptr, csp, s);					// we have converted a connection to a side so validate the segment
@@ -1284,17 +1284,15 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 	unique_segment &usp = sp;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	int			f;
 	++ LevelSharedSegmentState.Num_segments;
 
 	sp->segnum = 1;						// What to put here?  I don't know.
 
 	// Form connections to children, of which it has none.
-	for (unsigned i = 0; i < MAX_SIDES_PER_SEGMENT; ++i)
+	for (auto &&[child, side] : zip(sp->children, sp->shared_segment::sides))
 	{
-		sp->children[i] = segment_none;
-//		sp->sides[i].render_flag = 0;
-		sp->shared_segment::sides[i].wall_num  = wall_none;
+		child = segment_none;
+		side.wall_num  = wall_none;
 	}
 
 	sp->group = -1;
@@ -1325,7 +1323,7 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 
 	//	Add faces to all sides.
 	auto &vcvertptr = Vertices.vcptr;
-	for (f=0; f<MAX_SIDES_PER_SEGMENT; f++)
+	for (const auto f : MAX_SIDES_PER_SEGMENT)
 		create_walls_on_side(vcvertptr, sp, f);
 
 	usp.objects = object_none;		//no objects in this segment

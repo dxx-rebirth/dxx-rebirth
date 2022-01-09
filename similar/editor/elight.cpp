@@ -120,7 +120,7 @@ static void apply_light_intensity(const csmusegment segp, const unsigned sidenum
 		if (!intensity)
 			return;
 		const csmusegment &&csegp = vmsegptr(segp.s.children[sidenum]);
-		for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+		for (const auto s : MAX_SIDES_PER_SEGMENT)
 			apply_light_intensity(csegp, s, intensity, depth+1);
 	}
 
@@ -149,7 +149,7 @@ static void propagate_light_intensity(const csmusegment segp, const unsigned sid
 	
 		//	Now, for all sides which are not the same as sidenum (the side casting the light),
 		//	add a light value to them (if they have no children, ie, they have a wall there).
-		for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+		for (const auto s : MAX_SIDES_PER_SEGMENT)
 			if (s != sidenum)
 				apply_light_intensity(segp, s, intensity/2, 1);
 	}
@@ -164,7 +164,7 @@ int LightAmbientLighting()
 {
 	range_for (const auto &&segp, vmsegptr)
 	{
-		for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
+		for (const auto side : MAX_SIDES_PER_SEGMENT)
 			propagate_light_intensity(segp, side);
 	}
 	return 0;
@@ -220,7 +220,7 @@ int LightCopyIntensitySegment(void)
 	unique_segment &segp = Cursegp;
 	intensity = get_light_intensity(segp, Curside, Curvert);
 
-	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+	for (const auto s : MAX_SIDES_PER_SEGMENT)
 		range_for (const int v, xrange(4u))
 			if ((s != Curside) || (v != Curvert))
 				set_light_intensity(segp, s, v, intensity);
@@ -270,7 +270,7 @@ int LightIncreaseLightSide(void)
 int LightDecreaseLightSegment(void)
 {
 	unique_segment &segp = Cursegp;
-	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+	for (const auto s : MAX_SIDES_PER_SEGMENT)
 		range_for (const int v, xrange(4u))
 			set_light_intensity(segp, s, v, get_light_intensity(segp, s, v) - F1_0 / NUM_LIGHTING_LEVELS);
 
@@ -281,7 +281,7 @@ int LightDecreaseLightSegment(void)
 int LightIncreaseLightSegment(void)
 {
 	unique_segment &segp = Cursegp;
-	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+	for (const auto s : MAX_SIDES_PER_SEGMENT)
 		range_for (const int v, xrange(4u))
 			set_light_intensity(segp, s, v, get_light_intensity(segp, s, v) + F1_0 / NUM_LIGHTING_LEVELS);
 

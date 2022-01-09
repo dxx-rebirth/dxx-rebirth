@@ -821,7 +821,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 
 	range_for (const auto &&seg, vcsegptridx)
 	{
-		range_for (const uint_fast32_t sidenum, xrange(MAX_SIDES_PER_SEGMENT))
+		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 		{
 			int sn;
 

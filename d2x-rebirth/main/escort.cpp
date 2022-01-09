@@ -68,10 +68,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "segiter.h"
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "d_range.h"
-#include "partial_range.h"
-#include <utility>
+#include "d_zip.h"
 
 #if DXX_USE_EDITOR
 #include "editor/editor.h"
@@ -254,9 +254,8 @@ std::size_t create_bfs_list(const vmobjptr_t robot, const vcsegidx_t start_seg, 
 	while ((head != tail) && (head < max_segs)) {
 		auto curseg = bfs_list[tail++];
 		const auto &&cursegp = vcsegptr(curseg);
-		for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-			auto connected_seg = cursegp->children[i];
-
+		for (const auto &&[i, connected_seg] : enumerate(cursegp->children))
+		{
 			if (IS_CHILD(connected_seg) && (!visited[connected_seg])) {
 				if (segment_is_reachable(robot, cursegp, i, powerup_flags)) {
 					bfs_list[head++] = connected_seg;
@@ -300,9 +299,9 @@ static uint8_t ok_for_buddy_to_talk(void)
 
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		const auto wall_num = segp.sides[i].wall_num;
-
+	for (const auto &&[side, child] : zip(segp.sides, segp.children))
+	{
+		const auto wall_num = side.wall_num;
 		if (wall_num != wall_none) {
 			auto &w = *vcwallptr(wall_num);
 			if (w.type == WALL_BLASTABLE && !(w.flags & wall_flag::blasted))
@@ -310,7 +309,6 @@ static uint8_t ok_for_buddy_to_talk(void)
 		}
 
 		//	Check one level deeper.
-		const auto child = segp.children[i];
 		if (IS_CHILD(child))
 		{
 			const shared_segment &cseg = *vcsegptr(child);

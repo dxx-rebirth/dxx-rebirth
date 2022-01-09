@@ -136,7 +136,7 @@ int CreateSloppyAdjacentJointsGroup()
 	{
 		auto segp = vmsegptridx(gs);
 
-		for (int sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 			if (!IS_CHILD(segp->children[sidenum]))
 			{
 				imsegptridx_t adj_sp = segment_none;
@@ -172,7 +172,8 @@ int CreateAdjacentJointsSegment()
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	med_combine_duplicate_vertices(Vertex_active);
 
-	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
+	for (const auto s : MAX_SIDES_PER_SEGMENT)
+	{
 		imsegptridx_t adj_sp = segment_none;
 		if (med_find_adjacent_segment_side(Cursegp, s, adj_sp, &adj_side))
 			if (Cursegp->children[s] != adj_sp)
@@ -201,7 +202,7 @@ int CreateAdjacentJointsAll()
 
 	range_for (const auto &&segp, vmsegptridx)
 	{
-		for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+		for (const auto s : MAX_SIDES_PER_SEGMENT)
 		{
 			imsegptridx_t adj_sp = segment_none;
 			if (med_find_adjacent_segment_side(segp, s, adj_sp, &adj_side))

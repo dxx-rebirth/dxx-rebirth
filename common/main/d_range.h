@@ -92,7 +92,7 @@ class xrange_endpoint
 public:
 	const T value;
 	constexpr xrange_endpoint(T v) :
-		value(v)
+		value(std::move(v))
 	{
 	}
 	constexpr operator T() const
@@ -157,6 +157,7 @@ class xrange :
 	public xrange_endpoint<B, true>,
 	public xrange_endpoint<E, false>
 {
+protected:
 	using begin_type = xrange_endpoint<B, true>;
 	using end_type = xrange_endpoint<E, false>;
 	using iterator = xrange_iterator<index_type, step_type>;
@@ -167,7 +168,7 @@ class xrange :
 	 */
 	static_assert(detail::xrange_check_constant_endpoints<B, E, step_type>::value);
 	static_assert(!std::is_reference<E>::value, "xrange<E> must be a value, not a reference");
-	static B init_begin(B b, E e)
+	static constexpr B init_begin(B b, E e)
 	{
 		if constexpr (std::is_convertible<E, B>::value)
 		{
@@ -190,7 +191,7 @@ class xrange :
 	}
 public:
 	using range_owns_iterated_storage = std::false_type;
-	xrange(B b, E e) :
+	constexpr xrange(B b, E e) :
 		begin_type(init_begin(std::move(b), e)), end_type(std::move(e))
 	{
 	}
@@ -200,12 +201,12 @@ public:
 	 * and so does not need to be recorded in the object.
 	 */
 	template <typename T, T step>
-		xrange(B b, E e, std::integral_constant<T, step>) :
-			xrange(b, e)
+		constexpr xrange(B b, E e, std::integral_constant<T, step>) :
+			xrange(std::move(b), std::move(e))
 	{
 	}
-	xrange(E e) :
-		begin_type(), end_type(e)
+	constexpr xrange(E e) :
+		begin_type(), end_type(std::move(e))
 	{
 		static_assert(detail::xrange_is_unsigned<E>::value, "xrange(E) requires unsigned E; use xrange(B, E) if E must be signed");
 	}

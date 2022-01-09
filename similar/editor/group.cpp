@@ -1285,7 +1285,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 				}
 
 			// Fix children and walls.
-			for (unsigned j = 0; j < MAX_SIDES_PER_SEGMENT; ++j)
+			for (const auto j : MAX_SIDES_PER_SEGMENT)
 			{
 				auto &seg = Segments[gs];
 				shared_segment &useg = seg;

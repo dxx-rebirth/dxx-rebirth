@@ -57,6 +57,11 @@ static inline bool IS_CHILD(segnum_t s)
 
 namespace dcx {
 
+static constexpr sidenum_t &operator++(sidenum_t &a)
+{
+	return a = static_cast<sidenum_t>(static_cast<unsigned>(a) + 1);
+}
+
 //Structure for storing u,v,light values.
 //NOTE: this structure should be the same as the one in 3d.h
 struct uvl

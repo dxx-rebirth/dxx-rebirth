@@ -1179,7 +1179,8 @@ void copy_group_walls(int old_group, int new_group)
 		const auto new_seg = *bn++;
 		auto &os = vcsegptr(old_seg)->shared_segment::sides;
 		auto &ns = vmsegptr(new_seg)->shared_segment::sides;
-		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
+		for (const auto j : MAX_SIDES_PER_SEGMENT)
+		{
 			if (os[j].wall_num != wall_none) {
 				const auto nw = static_cast<wallnum_t>(Walls.get_count());
 				ns[j].wall_num = nw;
@@ -1232,7 +1233,8 @@ void check_wall_validity(void)
 	range_for (const auto &&segp, vmsegptridx)
 	{
 		if (segp->segnum != segment_none)
-			for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
+			for (const auto j : MAX_SIDES_PER_SEGMENT)
+			{
 				// Check walls
 				auto wall_num = segp->shared_segment::sides[j].wall_num;
 				if (wall_num != wall_none) {

@@ -462,7 +462,7 @@ void stretch_uvs_from_curedge(const vmsegptridx_t segp, int side)
 //	Assign default uvs to a segment.
 void assign_default_uvs_to_segment(const vmsegptridx_t segp)
 {
-	range_for (const uint_fast32_t s, xrange(MAX_SIDES_PER_SEGMENT))
+	for (const auto s : MAX_SIDES_PER_SEGMENT)
 	{
 		assign_default_uvs_to_side(segp,s);
 		assign_light_to_side(segp, s);
@@ -769,9 +769,9 @@ found1: ;
 			if (idx != back_side)
 				if (value.tmap_num == back_side_tmap)
 				{
-					range_for (const uint_fast32_t tmap_num, xrange(MAX_SIDES_PER_SEGMENT))
+					for (const auto tmap_num : MAX_SIDES_PER_SEGMENT)
 					{
-						range_for (const uint_fast32_t ss, xrange(MAX_SIDES_PER_SEGMENT))
+						for (const auto ss : MAX_SIDES_PER_SEGMENT)
 							if (ss != back_side)
 								if (base_seg->unique_segment::sides[ss].tmap_num == New_segment.unique_segment::sides[tmap_num].tmap_num)
 									goto found2;		// current texture map (tmap_num) is used on current (ss) side, so try next one

@@ -37,7 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 [[nodiscard]]
 static vmsegptridx_t get_any_attached_segment(const vmsegptridx_t curseg_num, const uint_fast32_t skipside)
 {
-	range_for (const uint_fast32_t s, xrange(MAX_SIDES_PER_SEGMENT))
+	for (const auto s : MAX_SIDES_PER_SEGMENT)
 	{
 		if (unlikely(s == skipside))
 			continue;
@@ -85,7 +85,7 @@ static std::pair<vmsegptridx_t, uint_fast32_t> get_next_segment_side(const vmseg
 		const auto newside = Side_opposite[find_connect_side(curseg_num, newseg_num)];
 		// If there is nothing attached on the side opposite to what we came in (*newside), pick any other side
 		if (!IS_CHILD(newseg_num->children[newside]))
-			range_for (const uint_fast32_t s, xrange(MAX_SIDES_PER_SEGMENT))
+			for (const auto s : MAX_SIDES_PER_SEGMENT)
 			{
 				const auto cseg = newseg_num->children[s];
 				if (cseg != curseg_num && IS_CHILD(cseg))

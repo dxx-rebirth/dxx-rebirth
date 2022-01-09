@@ -68,7 +68,8 @@ static void validate_modified_segments(void)
 					{
 						modified_segments[segp] = true;
 						validate_segment(vcvertptr, segp);
-						for (unsigned s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
+						for (const auto s : MAX_SIDES_PER_SEGMENT)
+						{
 							Num_tilings = 1;
 							assign_default_uvs_to_side(segp, s);
 						}
@@ -254,7 +255,7 @@ static int segsize_common(int dimension, fix amount)
 	//	segment back to Cursegp.  This will meaningfully propagate uv coordinates to all sides which havve
 	//	an incident edge.  It will also do some sides more than once.  And it is probably just not what you want.
 	std::array<int, MAX_SIDES_PER_SEGMENT> propagated = {};
-	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++)
+	for (const auto i : MAX_SIDES_PER_SEGMENT)
 	{
 		const auto c = Cursegp->children[i];
 		if (IS_CHILD(c))
@@ -268,7 +269,7 @@ static int segsize_common(int dimension, fix amount)
 
 	//	Now, for all sides that were not adjacent to another side, and therefore did not get tmaps
 	//	propagated to them, treat as a back side.
-	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++)
+	for (const auto i : MAX_SIDES_PER_SEGMENT)
 		if (!propagated[i]) {
 			med_propagate_tmaps_to_back_side(Cursegp, i, 1);
 		}

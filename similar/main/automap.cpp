@@ -76,10 +76,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 
 #include "compiler-range_for.h"
+#include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "d_range.h"
 #include "d_zip.h"
-#include "partial_range.h"
 #include <memory>
 
 #define LEAVE_TIME 0x4000
@@ -1458,7 +1458,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 #endif
 	ubyte	color;
 	
-	for (unsigned sn = 0; sn < MAX_SIDES_PER_SEGMENT; ++sn)
+	for (const auto sn : MAX_SIDES_PER_SEGMENT)
 	{
 		uint8_t hidden_flag = 0;
 		uint8_t is_grate = 0;
@@ -1593,10 +1593,11 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 
 static void add_unknown_segment_edges(automap &am, const shared_segment &seg)
 {
-	for (const auto sn : xrange(MAX_SIDES_PER_SEGMENT))
+	for (const auto &&[sn, child] : enumerate(seg.children))
 	{
 		// Only add edges that have no children
-		if (seg.children[sn] == segment_none) {
+		if (child == segment_none)
+		{
 			const auto vertex_list = get_side_verts(seg, sn);
 	
 			add_one_unknown_edge( am, vertex_list[0], vertex_list[1] );
