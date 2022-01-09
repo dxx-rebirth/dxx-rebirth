@@ -554,7 +554,7 @@ static int effect_parent_is_guidebot(fvcobjptr &vcobjptr, const laser_parent &la
 
 //if an effect is hit, and it can blow up, then blow it up
 //returns true if it blew up
-int check_effect_blowup(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, const vmsegptridx_t seg, sidenum_t side, const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
+int check_effect_blowup(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const d_vclip_array &Vclip, const vmsegptridx_t seg, const sidenum_t side, const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;

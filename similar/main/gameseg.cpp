@@ -68,7 +68,7 @@ class abs_vertex_lists_predicate
 	const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &m_vp;
 	const std::array<segment_relative_vertnum, 4> &m_sv;
 public:
-	abs_vertex_lists_predicate(const shared_segment &seg, const uint_fast32_t sidenum) :
+	abs_vertex_lists_predicate(const shared_segment &seg, const sidenum_t sidenum) :
 		m_vp(seg.verts), m_sv(Side_to_verts[sidenum])
 	{
 	}
@@ -140,7 +140,7 @@ static void create_vertex_list_from_invalid_side(const shared_segment &segp, con
 }
 
 // Fill in array with four absolute point numbers for a given side
-static void get_side_verts(side_vertnum_list_t &vertlist, const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &vp, const unsigned sidenum)
+static void get_side_verts(side_vertnum_list_t &vertlist, const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &vp, const sidenum_t sidenum)
 {
 	auto &sv = Side_to_verts[sidenum];
 	for (auto &&[ovl, isv] : zip(vertlist, sv))
@@ -189,7 +189,7 @@ bool get_side_is_quad(const shared_side &sidep)
 	}
 }
 
-void get_side_verts(side_vertnum_list_t &vertlist, const shared_segment &segp, const unsigned sidenum)
+void get_side_verts(side_vertnum_list_t &vertlist, const shared_segment &segp, const sidenum_t sidenum)
 {
 	get_side_verts(vertlist, segp.verts, sidenum);
 }
@@ -258,9 +258,9 @@ namespace dsx {
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const uint_fast32_t sidenum)
+uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
 {
-	assert(sidenum < Side_to_verts.size());
+	assert(Side_to_verts.valid_index(sidenum));
 	auto &sv = Side_to_verts[sidenum];
 	return create_vertex_lists_by_predicate(vertices, segp, sidep, [&sv](const uint_fast32_t vv) {
 		return sv[vv];
@@ -274,14 +274,14 @@ uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const share
 //	If there is one face, it has 4 vertices.
 //	If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //	face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_segment &segp, const shared_side &sidep, const uint_fast32_t sidenum)
+void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
 {
 	create_vertex_lists_by_predicate(vertnums, segp, sidep, all_vertnum_lists_predicate(segp, sidenum));
 }
 
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
-uint_fast32_t create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const uint_fast32_t sidenum)
+uint_fast32_t create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
 {
 	return create_vertex_lists_by_predicate(vertices, segp, sidep, abs_vertex_lists_predicate(segp, sidenum));
 }
@@ -290,12 +290,14 @@ uint_fast32_t create_abs_vertex_lists(vertnum_array_list_t &vertices, const shar
 //this segment.  See segmasks structure for info on fields  
 segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &seg, const fix rad)
 {
-	int			sn,facebit,sidebit;
 	segmasks		masks{};
 
 	//check point against each side of segment. return bitmask
 
-	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
+	int facebit = 1;
+	for (const auto sn : MAX_SIDES_PER_SEGMENT)
+	{
+		const auto sidebit = 1 << sn;
 		auto &s = seg.sides[sn];
 		
 		// Get number of faces on this side, and at vertex_list, store vertices.
@@ -383,7 +385,6 @@ namespace {
 //only gets centermask, and assumes zero rad
 static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &segnum, std::array<fix, 6> &side_dists)
 {
-	int			sn,facebit,sidebit;
 	ubyte			mask;
 	auto &sides = segnum.sides;
 
@@ -392,7 +393,10 @@ static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, c
 	mask = 0;
 
 	side_dists = {};
-	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
+	int facebit = 1;
+	for (const auto sn : MAX_SIDES_PER_SEGMENT)
+	{
+		const auto sidebit = 1 << sn;
 		auto &s = sides[sn];
 
 		// Get number of faces on this side, and at vertex_list, store vertices.
@@ -511,7 +515,8 @@ int check_segment_connections(void)
 
 	range_for (const auto &&seg, vmsegptridx)
 	{
-		range_for (const int sidenum, xrange(6u)) {
+		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
+		{
 #ifndef NDEBUG
 			const auto &&[num_faces, vertex_list] = create_abs_vertex_lists(seg, sidenum);
 #endif
@@ -1127,7 +1132,7 @@ namespace {
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
-static void extract_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, vms_vector &vp, const uint_fast32_t istart, const uint_fast32_t iend)
+static void extract_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, vms_vector &vp, const sidenum_t istart, const sidenum_t iend)
 {
 	vp = {};
 	auto &start = Side_to_verts[istart];
@@ -1194,7 +1199,7 @@ namespace {
 //	----
 //	A side is determined to be degenerate if the cross products of 3 consecutive points does not point outward.
 [[nodiscard]]
-static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_segment &sp, const unsigned sidenum)
+static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_segment &sp, const sidenum_t sidenum)
 {
 	auto &vp = Side_to_verts[sidenum];
 	vms_vector	vec1, vec2;
@@ -1336,7 +1341,7 @@ namespace dsx {
 namespace {
 
 // -------------------------------------------------------------------------------
-static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, const unsigned sidenum)
+static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, const sidenum_t sidenum)
 {
 	auto &vs = Side_to_verts[sidenum];
 	fix			dot;
@@ -1419,7 +1424,7 @@ namespace {
 #endif
 
 // -------------------------------------------------------------------------------
-void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const unsigned sidenum)
+void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const sidenum_t sidenum)
 {
 	auto &vs = Side_to_verts[sidenum];
 	const auto v0 = sp.verts[vs[0]];
@@ -1467,7 +1472,7 @@ void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const unsig
 
 // -------------------------------------------------------------------------------
 //	Make a just-modified segment side valid.
-void validate_segment_side(fvcvertptr &vcvertptr, const vmsegptridx_t sp, const unsigned sidenum)
+void validate_segment_side(fvcvertptr &vcvertptr, const vmsegptridx_t sp, const sidenum_t sidenum)
 {
 	auto &sside = sp->shared_segment::sides[sidenum];
 	auto &uside = sp->unique_segment::sides[sidenum];

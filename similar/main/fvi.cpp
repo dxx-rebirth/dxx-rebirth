@@ -240,7 +240,7 @@ static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal,
 //facenum determines which of four possible faces we have
 //note: the seg parm is temporary, until the face itself has a point field
 [[nodiscard]]
-static int check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const unsigned side, const unsigned facenum, const unsigned nv, const fix rad)
+static int check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const sidenum_t side, const unsigned facenum, const unsigned nv, const fix rad)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -315,7 +315,7 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector &p1,const vms_vec
 //the plane of a side.  In this case, we must do checks against the edge
 //of faces
 [[nodiscard]]
-static int special_check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const unsigned side, const unsigned facenum, const unsigned nv, const fix rad)
+static int special_check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const sidenum_t side, const unsigned facenum, const unsigned nv, const fix rad)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -785,7 +785,7 @@ static bool obj_in_list(const vcobjidx_t objnum, const std::pair<const vcobjidx_
 	return std::find(obj_list.first, obj_list.second, objnum) != obj_list.second;
 }
 
-static int check_trans_wall(const vms_vector &pnt,vcsegptridx_t seg,int sidenum,int facenum);
+static int check_trans_wall(const vms_vector &pnt, vcsegptridx_t seg, sidenum_t sidenum, int facenum);
 }
 }
 
@@ -1120,7 +1120,7 @@ quit_looking:
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also
 namespace dsx {
-fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const cscusegment seg, const uint_fast32_t sidenum, const uint_fast32_t facenum)
+fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const cscusegment seg, const sidenum_t sidenum, const uint_fast32_t facenum)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -1192,7 +1192,7 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const cscusegment seg, cons
 namespace {
 //check if a particular point on a wall is a transparent pixel
 //returns 1 if can pass though the wall, else 0
-int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,int facenum)
+int check_trans_wall(const vms_vector &pnt, const vcsegptridx_t seg, const sidenum_t sidenum, const int facenum)
 {
 	auto &side = seg->unique_segment::sides[sidenum];
 	int bmx,bmy;
@@ -1249,13 +1249,14 @@ static sphere_intersects_wall_result sphere_intersects_wall(fvcsegptridx &vcsegp
 
 	if (facemask != 0) {				//on the back of at least one face
 
-		int bit,face;
-		uint_fast32_t side;
-
+		int face;
 		//for each face we are on the back of, check if intersected
 
-		for (side=0,bit=1;side<6 && facemask>=bit;side++) {
-
+		int bit = 1;
+		for (const auto side : MAX_SIDES_PER_SEGMENT)
+		{
+			if (facemask < bit)
+				break;
 			for (face=0;face<2;face++,bit<<=1) {
 
 				if (facemask & bit) {            //on the back of this face

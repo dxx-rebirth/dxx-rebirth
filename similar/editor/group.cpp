@@ -96,7 +96,7 @@ struct group_editor {
 
 std::array<group, MAX_GROUPS+1> GroupList;
 std::array<segment *, MAX_GROUPS+1> Groupsegp;
-std::array<int, MAX_GROUPS+1> Groupside;
+std::array<sidenum_t, MAX_GROUPS+1> Groupside;
 std::array<int, MAX_GROUPS+1> Group_orientation;
 int		current_group=-1;
 unsigned num_groups;
@@ -532,7 +532,7 @@ static int in_group(segnum_t segnum, int group_num)
 //	The group is copied so group_seg:group_side is incident upon base_seg:base_side.
 //	group_seg and its vertices are bashed to coincide with base_seg.
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
-static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_seg, const unsigned base_side, vcsegptr_t group_seg, const unsigned group_side, const vms_matrix &orient_matrix)
+static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_seg, const sidenum_t base_side, vcsegptr_t group_seg, const unsigned group_side, const vms_matrix &orient_matrix)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -613,7 +613,7 @@ static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_se
 				if (!in_group(child_segnum, new_current_group))
 				{
 					child_segnum = segment_none;
-					validate_segment_side(vcvertptr, segp, sidenum);					// we have converted a connection to a side so validate the segment
+					validate_segment_side(vcvertptr, segp, static_cast<sidenum_t>(sidenum));					// we have converted a connection to a side so validate the segment
 				}
 			}
 	}
@@ -673,7 +673,7 @@ static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_se
 //	The group is moved so group_seg:group_side is incident upon base_seg:base_side.
 //	group_seg and its vertices are bashed to coincide with base_seg.
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
-static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base_side, const vmsegptridx_t group_seg, int group_side, const vms_matrix &orient_matrix, int orientation)
+static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, const sidenum_t base_side, const vmsegptridx_t group_seg, const sidenum_t group_side, const vms_matrix &orient_matrix, int orientation)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -755,11 +755,11 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, int base
 							if (dsegp.group == current_group)
 								{
 								value1 = segment_none;
-								validate_segment_side(vcvertptr, csegp, idx1);					// we have converted a connection to a side so validate the segment
+								validate_segment_side(vcvertptr, csegp, static_cast<sidenum_t>(idx1));					// we have converted a connection to a side so validate the segment
 								}
 							}
 					value0 = segment_none;
-					validate_segment_side(vcvertptr, segp, idx0);					// we have converted a connection to a side so validate the segment
+					validate_segment_side(vcvertptr, segp, static_cast<sidenum_t>(idx0));					// we have converted a connection to a side so validate the segment
 					}
 				}
 		}
@@ -913,7 +913,6 @@ void add_segment_to_group(segnum_t segment_num, int group_num)
 //	-----------------------------------------------------------------------------
 int rotate_segment_new(const vms_angvec &pbh)
 {
-	int			newseg_side;
 	vms_matrix	tm1;
 	group::segment_array_type_t selected_segs_save;
 	int			child_save;
@@ -933,7 +932,7 @@ int rotate_segment_new(const vms_angvec &pbh)
 	selected_segs_save = GroupList[current_group].segments;
 	GroupList[ROT_GROUP].segments.clear();
 	const auto newseg = Cursegp;
-	newseg_side = Side_opposite[Curside];
+	const auto newseg_side = Side_opposite[Curside];
 
 	// Create list of segments to rotate.
 	//	Sever connection between first seg to rotate and its connection on Side_opposite[Curside].

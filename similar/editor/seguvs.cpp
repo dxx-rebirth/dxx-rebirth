@@ -157,7 +157,7 @@ static void set_average_light_at_vertex(vertnum_t vnum)
 	Update_flags |= UF_WORLD_CHANGED;
 }
 
-static void set_average_light_on_side(const shared_segment &segp, const unsigned sidenum)
+static void set_average_light_on_side(const shared_segment &segp, const sidenum_t sidenum)
 {
 	if (!IS_CHILD(segp.children[sidenum]))
 		range_for (const auto v, Side_to_verts[sidenum])
@@ -301,7 +301,7 @@ namespace {
 //	(Actually, assign them to the coordinates in the faces.)
 //	va, vb = face-relative vertex indices corresponding to uva, uvb.  Ie, they are always in 0..3 and should be looked up in
 //	Side_to_verts[side] to get the segment relative index.
-static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, int sidenum, const uvl &uva, const uvl &uvb, int va, int vb)
+static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, const sidenum_t sidenum, const uvl &uva, const uvl &uvb, int va, int vb)
 {
 	int			vlo,vhi;
 	std::array<uvl, 4> uvls;
@@ -419,7 +419,7 @@ namespace dsx {
 //		v0 = 0,0
 //		v1 = k,0 where k is 3d size dependent
 //	v2, v3 assigned by assign_uvs_to_side
-void assign_default_uvs_to_side(const vmsegptridx_t segp, const unsigned side)
+void assign_default_uvs_to_side(const vmsegptridx_t segp, const sidenum_t side)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -440,7 +440,7 @@ void assign_default_uvs_to_side(const vmsegptridx_t segp, const unsigned side)
 //		v0 = 0,0
 //		v1 = k,0 where k is 3d size dependent
 //	v2, v3 assigned by assign_uvs_to_side
-void stretch_uvs_from_curedge(const vmsegptridx_t segp, int side)
+void stretch_uvs_from_curedge(const vmsegptridx_t segp, const sidenum_t side)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -566,7 +566,7 @@ namespace {
 // --------------------------------------------------------------------------------------------------------------
 //	Assign u,v coordinates to con_seg, con_common_side from base_seg, base_common_side
 //	They are connected at the edge defined by the vertices abs_id1, abs_id2.
-static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned con_common_side, const cscusegment base_seg, const unsigned base_common_side, const vertnum_t abs_id1, const vertnum_t abs_id2)
+static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const sidenum_t con_common_side, const cscusegment base_seg, const sidenum_t base_common_side, const vertnum_t abs_id1, const vertnum_t abs_id2)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -710,7 +710,7 @@ static void propagate_tmaps_to_segment_side(const vcsegptridx_t base_seg, const 
 			}
 
 			if (uv_only_flag != -1)
-				med_assign_uvs_to_side(con_seg, con_common_side, base_seg, base_common_side, abs_id1, abs_id2);
+				med_assign_uvs_to_side(con_seg, static_cast<sidenum_t>(con_common_side), base_seg, static_cast<sidenum_t>(base_common_side), abs_id1, abs_id2);
 
 		} else {			// There are no faces here, there is a connection, trace through the connection.
 			const auto &&csegp = base_seg.absolute_sibling(base_seg->children[base_common_side]);
@@ -824,7 +824,7 @@ namespace {
 //	from that side in base_seg to the wall in con_seg.  If the wall in base_seg is not present
 //	(ie, there is another segment connected through it), follow the connection through that
 //	segment to get the wall in the connected segment which shares the edge, and get tmap_num from there.
-static void propagate_tmaps_to_segment_sides(const vcsegptridx_t base_seg, const int base_side, const vmsegptridx_t con_seg, const int con_side, const int uv_only_flag)
+static void propagate_tmaps_to_segment_sides(const vcsegptridx_t base_seg, const sidenum_t base_side, const vmsegptridx_t con_seg, const int con_side, const int uv_only_flag)
 {
 	int		v;
 
@@ -851,7 +851,7 @@ void med_propagate_tmaps_to_segments(const vcsegptridx_t base_seg, const vmsegpt
 {
 	for (const auto &&[idx, value] : enumerate(base_seg->children))
 		if (value == con_seg)
-			propagate_tmaps_to_segment_sides(base_seg, idx, con_seg, find_connect_side(base_seg, con_seg), uv_only_flag);
+			propagate_tmaps_to_segment_sides(base_seg, static_cast<sidenum_t>(idx), con_seg, find_connect_side(base_seg, con_seg), uv_only_flag);
 
 	const unique_segment &ubase = base_seg;
 	unique_segment &ucon = con_seg;
@@ -922,7 +922,7 @@ static int Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 //	light surface itself, light will be properly cast on the light surface.  Otherwise, the
 //	vector V would be the null vector.
 //	If quick_light set, then don't use find_vector_intersection
-static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
+static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light_side, fix light_intensity, int quick_light)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -966,9 +966,11 @@ static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix l
 					{
 						auto &side_normalp = srside.normals[0];	//	kinda stupid? always use vector 0.
 
+						auto &sv_side = Side_to_verts[static_cast<sidenum_t>(sidenum)];
 						for (const auto vertnum : xrange(4u))
 						{
-							const auto abs_vertnum = rsegp->verts[Side_to_verts[sidenum][vertnum]];
+							const auto segment_relative_vert = sv_side[vertnum];
+							const auto abs_vertnum = rsegp->verts[segment_relative_vert];
 							vms_vector vert_location = *vcvertptr(abs_vertnum);
 							const fix distance_to_point = vm_vec_dist_quick(vert_location, light_location);
 							const auto vector_to_light = vm_vec_normalized(vm_vec_sub(light_location, vert_location));
@@ -993,7 +995,7 @@ static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix l
 									vert_location = vert_location_1;
 
 									if (!quick_light) {
-										auto hash_value = underlying_value(Side_to_verts[sidenum][vertnum]);
+										auto hash_value = underlying_value(segment_relative_vert);
 										hash_info	*hashp = &fvi_cache[hash_value];
 										while (1) {
 											if (hashp->flag) {
@@ -1077,7 +1079,7 @@ static void calim_zero_light_values(void)
 //	------------------------------------------------------------------------------------------
 //	Used in setting average light value in a segment, cast light from a side to the center
 //	of all segments.
-static void cast_light_from_side_to_center(const vmsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
+static void cast_light_from_side_to_center(const vmsegptridx_t segp, const sidenum_t light_side, fix light_intensity, int quick_light)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -1185,8 +1187,8 @@ static void calim_process_all_lights(int quick_light)
 
 				if (light_intensity) {
 					light_intensity /= 4;			// casting light from four spots, so divide by 4.
-					cast_light_from_side(segp, sidenum, light_intensity, quick_light);
-					cast_light_from_side_to_center(segp, sidenum, light_intensity, quick_light);
+					cast_light_from_side(segp, static_cast<sidenum_t>(sidenum), light_intensity, quick_light);
+					cast_light_from_side_to_center(segp, static_cast<sidenum_t>(sidenum), light_intensity, quick_light);
 				}
 			}
 		}

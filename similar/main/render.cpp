@@ -802,7 +802,7 @@ constexpr fix CROSS_WIDTH = i2f(8);
 constexpr fix CROSS_HEIGHT = i2f(8);
 
 //draw outline for curside
-static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, const unsigned _side, const unsigned edge, const unsigned vert)
+static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, const sidenum_t _side, const unsigned edge, const unsigned vert)
 {
 	auto &verts = seg.verts;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();

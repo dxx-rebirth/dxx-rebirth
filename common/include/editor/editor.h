@@ -210,7 +210,7 @@ namespace dsx {
 //  0 = successful attach
 //  1 = No room in Segments[].
 //  2 = No room in Vertices[].
-int med_attach_segment(vmsegptridx_t destseg, csmusegment newseg, unsigned destside, unsigned newside);
+int med_attach_segment(vmsegptridx_t destseg, csmusegment newseg, sidenum_t destside, sidenum_t newside);
 
 // Delete a segment.
 // Deletes a segment from the global array Segments.
@@ -237,7 +237,7 @@ int med_rotate_segment(vmsegptridx_t seg, const vms_matrix &rotmat);
 //    Creates wall at sp->sides[side], making it part of segment sp
 //    Removable walls must be placed between two connected segments.  You should add the removable
 //    wall on both sides.  In fact, you really must.
-void create_removable_wall(fvcvertptr &vcvertptr, vmsegptridx_t sp, unsigned side, texture1_value tmap_num);
+void create_removable_wall(fvcvertptr &vcvertptr, vmsegptridx_t sp, sidenum_t side, texture1_value tmap_num);
 }
 #endif
 
@@ -286,7 +286,7 @@ extern void med_create_new_segment_from_cursegp(void);
 //		0	bridge segment formed
 //		1	unable to form bridge because one (or both) of the sides is not open.
 //	Note that no new vertices are created by this process.
-int med_form_bridge_segment(vmsegptridx_t seg1, int side1, vmsegptridx_t seg2, int side2);
+int med_form_bridge_segment(vmsegptridx_t seg1, sidenum_t side1, vmsegptridx_t seg2, sidenum_t side2);
 }
 #endif
 
@@ -334,7 +334,7 @@ void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotma
 //	This routine should only be used for segments which are not connected to anything else,
 //	ie the segment created at mine creation.
 void assign_default_uvs_to_segment(vmsegptridx_t segp);
-void assign_default_uvs_to_side(vmsegptridx_t segp, unsigned side);
+void assign_default_uvs_to_side(vmsegptridx_t segp, sidenum_t side);
 
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
 void create_coordinate_axes_from_segment(const shared_segment &sp, std::array<vertnum_t, 16> &vertnums);
@@ -352,7 +352,7 @@ extern	void set_vertex_counts(void);
 //		0			joint formed
 //		1			unable to form joint because one or more vertices of side2 is not free
 //		2			unable to form joint because side1 is already used
-int med_form_joint(vmsegptridx_t seg1, int side1, vmsegptridx_t seg2, int side2);
+int med_form_joint(vmsegptridx_t seg1, sidenum_t side1, vmsegptridx_t seg2, sidenum_t side2);
 }
 
 // The current texture... use by saying something=bm_lock_bitmap(CurrentTexture)
@@ -366,7 +366,7 @@ void med_propagate_tmaps_to_back_side(vmsegptridx_t base_seg, sidenum_t back_sid
 //	Adjacent means a segment which shares all four vertices.
 //	If found, return a pair containing the found segment and side.
 //	If not found, return an empty optional.
-std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_adjacent_segment_side(vmsegptridx_t sp, int side);
+std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_adjacent_segment_side(vmsegptridx_t sp, sidenum_t side);
 
 // Finds the closest segment and side to sp:side.
 std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_closest_threshold_segment_side(vmsegptridx_t sp, int side, fix threshold);
@@ -542,8 +542,8 @@ namespace dsx {
 int place_object(vmsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id);
 
 // from ksegsize.c
-void med_extract_up_vector_from_segment_side(const shared_segment &sp, int sidenum, vms_vector &vp);
-void med_extract_right_vector_from_segment_side(const shared_segment &sp, int sidenum, vms_vector &vp);
+void med_extract_up_vector_from_segment_side(const shared_segment &sp, sidenum_t sidenum, vms_vector &vp);
+void med_extract_right_vector_from_segment_side(const shared_segment &sp, sidenum_t sidenum, vms_vector &vp);
 }
 #endif
 

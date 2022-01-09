@@ -252,7 +252,7 @@ vertnum_t med_set_vertex(d_level_shared_vertex_state &LevelSharedVertexState, co
 namespace dsx {
 
 // -------------------------------------------------------------------------------
-void create_removable_wall(fvcvertptr &vcvertptr, const vmsegptridx_t sp, const unsigned sidenum, const texture1_value tmap_num)
+void create_removable_wall(fvcvertptr &vcvertptr, const vmsegptridx_t sp, const sidenum_t sidenum, const texture1_value tmap_num)
 {
 	create_walls_on_side(vcvertptr, sp, sidenum);
 
@@ -651,7 +651,7 @@ static void copy_tmap_ids(unique_segment &dseg, const unique_segment &sseg)
 //  2 = No room in Vertices[].
 //  3 = newside != WFRONT -- for now, the new segment must be attached at its (own) front side
 //	 4 = already a face attached on destseg:destside
-static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmusegment newseg, const unsigned destside, const unsigned newside, const vms_matrix &attmat)
+static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmusegment newseg, const sidenum_t destside, const sidenum_t newside, const vms_matrix &attmat)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -766,7 +766,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmuseg
 //  2 = No room in Vertices[].
 //  3 = newside != WFRONT -- for now, the new segment must be attached at its (own) front side
 //	 4 = already a face attached on side newside
-int med_attach_segment(const vmsegptridx_t destseg, const csmusegment newseg, const unsigned destside, const unsigned newside)
+int med_attach_segment(const vmsegptridx_t destseg, const csmusegment newseg, const sidenum_t destside, const sidenum_t newside)
 {
 	int		rval;
 	const auto ocursegp = Cursegp;
@@ -993,7 +993,7 @@ static void copy_tmaps_to_segment(segment &dstseg, const segment &srcseg)
 //	 3 = Unable to rotate because not connected to exactly 1 segment.
 int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 {
-	int             newside=0,destside;
+	int             newside=0;
 	int		count;
 
 	// Find side of attachment
@@ -1011,17 +1011,17 @@ int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 
 	const auto &&destseg = seg.absolute_sibling(seg->children[newside]);
 
-	destside = 0;
-	while (destside < MAX_SIDES_PER_SEGMENT && destseg->children[destside] != seg)
-		destside++;
-		
-	// Before deleting the segment, copy its texture maps to New_segment
-	copy_tmaps_to_segment(vmsegptr(&New_segment), seg);
-
 	if (Curside == WFRONT)
 		Curside = WBACK;
 
-	med_attach_segment_rotated(destseg, vmsegptr(&New_segment), destside, AttachSide, rotmat);
+	// Before deleting the segment, copy its texture maps to New_segment
+	copy_tmaps_to_segment(vmsegptr(&New_segment), seg);
+	for (const auto &&[destside, child] : enumerate(destseg->children))
+		if (child == seg)
+		{
+			med_attach_segment_rotated(destseg, vmsegptr(&New_segment), static_cast<sidenum_t>(destside), AttachSide, rotmat);
+			break;
+		}
 
 	//	Save tmap_num on each side to restore after call to med_propagate_tmaps_to_segments and _back_side
 	//	which will change the tmap nums.
@@ -1054,7 +1054,7 @@ namespace {
 //	Compute the sum of the distances between the four pairs of points.
 //	The connections are:
 //		firstv1 : 0		(firstv1+1)%4 : 1		(firstv1+2)%4 : 2		(firstv1+3)%4 : 3
-static fix seg_seg_vertex_distsum(const shared_segment &seg1, const unsigned side1, const shared_segment &seg2, const unsigned side2, const unsigned firstv1)
+static fix seg_seg_vertex_distsum(const shared_segment &seg1, const sidenum_t side1, const shared_segment &seg2, const sidenum_t side2, const unsigned firstv1)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -1083,7 +1083,7 @@ static fix seg_seg_vertex_distsum(const shared_segment &seg1, const unsigned sid
 //		to the other.  Compute the dot products of these vectors with the original vector.  Add them up.
 //		The close we are to 3, the better fit we have.  Reason:  The largest value for the dot product is
 //		1.0, and this occurs for a parallel set of vectors.
-static int get_index_of_best_fit(const shared_segment &seg1, const unsigned side1, const shared_segment &seg2, const unsigned side2)
+static int get_index_of_best_fit(const shared_segment &seg1, const sidenum_t side1, const shared_segment &seg2, const sidenum_t side2)
 {
 	int	firstv;
 	fix	min_distance;
@@ -1117,7 +1117,7 @@ static int get_index_of_best_fit(const shared_segment &seg1, const unsigned side
 //		0			joint formed
 //		1			-- no, this is legal! -- unable to form joint because one or more vertices of side2 is not free
 //		2			unable to form joint because side1 is already used
-int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2, int side2)
+int med_form_joint(const vmsegptridx_t seg1, const sidenum_t side1, const vmsegptridx_t seg2, const sidenum_t side2)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -1200,7 +1200,7 @@ int med_form_joint(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2
 //		0	bridge segment formed
 //		1	unable to form bridge because one (or both) of the sides is not open.
 //	Note that no new vertices are created by this process.
-int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptridx_t seg2, int side2)
+int med_form_bridge_segment(const vmsegptridx_t seg1, const sidenum_t side1, const vmsegptridx_t seg2, const sidenum_t side2)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -1371,7 +1371,7 @@ void med_create_new_segment(const vms_vector &scale)
 	{
 		child = segment_none;
 		ss.wall_num = wall_none;
-		create_walls_on_side(vcvertptr, sp, s);
+		create_walls_on_side(vcvertptr, sp, static_cast<sidenum_t>(s));
 		us.tmap_num = build_texture1_value(s + 1);					// assign some stupid old tmap to this side.
 		us.tmap_num2 = texture2_value::None;
 	}
@@ -1524,7 +1524,7 @@ void warn_if_concave_segment(const vmsegptridx_t s)
 //	Adjacent means a segment which shares all four vertices.
 //	If found, return a pair containing the found segment and side.
 //	If not found, return an empty optional.
-std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_adjacent_segment_side(const vmsegptridx_t sp, int side)
+std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_adjacent_segment_side(const vmsegptridx_t sp, sidenum_t side)
 {
 	std::array<vertnum_t, 4> abs_verts;
 

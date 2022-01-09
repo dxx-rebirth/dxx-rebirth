@@ -312,8 +312,8 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 
-	std::array<uint8_t, MAX_SIDES_PER_SEGMENT> side_traversal_translation;
-	std::iota(side_traversal_translation.begin(), side_traversal_translation.end(), 0);
+	std::array<sidenum_t, MAX_SIDES_PER_SEGMENT> side_traversal_translation;
+	std::iota(side_traversal_translation.begin(), side_traversal_translation.end(), sidenum_t{});
 #if defined(DXX_BUILD_DESCENT_I)
 	/* Descent 1 can only shuffle once, before the loop begins.
 	 * Descent 2 can shuffle on every pass of the loop.

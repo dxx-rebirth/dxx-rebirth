@@ -113,7 +113,7 @@ static wallnum_t allocate_wall(wall_array &Walls)
 
 //---------------------------------------------------------------------
 // Add a wall (removable 2 sided)
-static int add_wall(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t seg, const unsigned side)
+static int add_wall(fvcvertptr &vcvertptr, wall_array &Walls, const vmsegptridx_t seg, const sidenum_t side)
 {
 	if (Walls.get_count() < MAX_WALLS-2)
   	if (IS_CHILD(seg->children[side])) {

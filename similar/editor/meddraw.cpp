@@ -185,7 +185,7 @@ static void check_segment(const vmsegptridx_t seg)
 }
 
 // ----------------------------------------------------------------------------
-static void draw_seg_side(const shared_segment &seg, const unsigned side, const color_palette_index color)
+static void draw_seg_side(const shared_segment &seg, const sidenum_t side, const color_palette_index color)
 {
 	auto &svp = seg.verts;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -203,7 +203,7 @@ static void draw_seg_side(const shared_segment &seg, const unsigned side, const 
 	}
 }
 
-static void draw_side_edge(const shared_segment &seg, const unsigned side, const unsigned edge, const color_palette_index color)
+static void draw_side_edge(const shared_segment &seg, const sidenum_t side, const unsigned edge, const color_palette_index color)
 {
 	auto &svp = seg.verts;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -363,7 +363,7 @@ static void add_edges(const shared_segment &seg)
 		for (auto &&[idx, sidep] : enumerate(seg.sides))
 		{
 			int	num_vertices;
-			const auto &&[num_faces, vertex_list] = create_all_vertex_lists(seg, sidep, idx);
+			const auto &&[num_faces, vertex_list] = create_all_vertex_lists(seg, sidep, static_cast<sidenum_t>(idx));
 			if (num_faces == 1)
 				num_vertices = 4;
 			else
@@ -399,7 +399,7 @@ static void add_edges(const shared_segment &seg)
 }
 
 // ----------------------------------------------------------------------------
-static void draw_trigger_side(const shared_segment &seg, const unsigned side, const color_palette_index color)
+static void draw_trigger_side(const shared_segment &seg, const sidenum_t side, const color_palette_index color)
 {
 	auto &svp = seg.verts;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -414,7 +414,7 @@ static void draw_trigger_side(const shared_segment &seg, const unsigned side, co
 }
 
 // ----------------------------------------------------------------------------
-static void draw_wall_side(const shared_segment &seg, const unsigned side, const color_palette_index color)
+static void draw_wall_side(const shared_segment &seg, const sidenum_t side, const color_palette_index color)
 {
 	auto &svp = seg.verts;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -440,7 +440,7 @@ static void draw_wall_side(const shared_segment &seg, const unsigned side, const
 
 // ----------------------------------------------------------------------------------------------------------------
 // Draws special walls (for now these are just removable walls.)
-static void draw_special_wall(const shared_segment &seg, const unsigned side)
+static void draw_special_wall(const shared_segment &seg, const sidenum_t side)
 {
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
@@ -494,7 +494,7 @@ static void draw_mine_sub(const vmsegptridx_t segnum,int depth, visited_segment_
 				if (IS_CHILD(child_segnum))
 				{
 					if (sside.wall_num != wall_none)
-						draw_special_wall(mine_ptr, idx);
+						draw_special_wall(mine_ptr, static_cast<sidenum_t>(idx));
 					draw_mine_sub(segnum.absolute_sibling(child_segnum), depth-1, visited);
 				}
 			}
@@ -564,7 +564,7 @@ static void draw_mine_all(int automap_flag)
 		{
 			for (auto &&[idx, value] : enumerate(segp->shared_segment::sides))
 				if (value.wall_num != wall_none)
-					draw_special_wall(segp, idx);
+					draw_special_wall(segp, static_cast<sidenum_t>(idx));
 			if (Search_mode)
 				check_segment(segp);
 			else {

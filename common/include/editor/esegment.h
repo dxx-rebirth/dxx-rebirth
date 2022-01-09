@@ -29,7 +29,7 @@ extern sidenum_t Markedside;				// Marked side on Markedsegp.
 
 // The extra group in the following arrays is used for group rotation.
 extern std::array<group, MAX_GROUPS+1> GroupList;
-extern std::array<int, MAX_GROUPS+1> Groupside;
+extern std::array<sidenum_t, MAX_GROUPS+1> Groupside;
 extern	int 		current_group;
 extern unsigned num_groups;
 extern	int		Current_group;

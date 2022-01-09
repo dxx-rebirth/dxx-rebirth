@@ -1598,7 +1598,7 @@ static void add_unknown_segment_edges(automap &am, const shared_segment &seg)
 		// Only add edges that have no children
 		if (child == segment_none)
 		{
-			const auto vertex_list = get_side_verts(seg, sn);
+			const auto vertex_list = get_side_verts(seg, static_cast<sidenum_t>(sn));
 	
 			add_one_unknown_edge( am, vertex_list[0], vertex_list[1] );
 			add_one_unknown_edge( am, vertex_list[1], vertex_list[2] );

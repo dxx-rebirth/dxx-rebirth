@@ -1636,8 +1636,8 @@ int create_new_mine(void)
 	for (int s=0;s<MAX_GROUPS+1;s++) {
 		GroupList[s].clear();
 		Groupsegp[s] = NULL;
-		Groupside[s] = 0;
 	}
+	Groupside = {};
 	
 	LevelSharedRobotcenterState.Num_robot_centers = 0;
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
