@@ -724,20 +724,18 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmuseg
 	const auto &&vc0 = compute_center_point_on_side(vcvertptr, newseg, newside);
 	const auto vr = vm_vec_rotate(vc0,rotmat2);
 
-	// Now rotate the free vertices in the segment
-	std::array<vertex, 4> tvs;
-	range_for (const unsigned v, xrange(4u))
-		vm_vec_rotate(tvs[v], vcvertptr(newseg.s.verts[v + 4]), rotmat2);
-
 	// Now translate the new segment so that the center point of the attaching faces are the same.
 	const auto &&vc1 = compute_center_point_on_side(vcvertptr, destseg, destside);
 	const auto xlate_vec = vm_vec_sub(vc1,vr);
 
+	// Now rotate the free vertices in the segment
 	// Create and add the 4 new vertices.
-	range_for (const unsigned v, xrange(4u))
+	for (const auto v : xrange(4u, MAX_VERTICES_PER_SEGMENT))
 	{
-		vm_vec_add2(tvs[v],xlate_vec);
-		nsp->verts[v+4] = med_add_vertex(tvs[v]);
+		vertex tv;
+		vm_vec_rotate(tv, vcvertptr(newseg.s.verts[v]), rotmat2);
+		vm_vec_add2(tv, xlate_vec);
+		nsp->verts[v] = med_add_vertex(tv);
 	}
 
 	set_vertex_counts();
