@@ -294,6 +294,7 @@ static constexpr vertnum_t operator++(vertnum_t &v)
 {
 	return (v = static_cast<vertnum_t>(static_cast<unsigned>(v) + 1));
 }
+
 }
 
 #ifdef dsx

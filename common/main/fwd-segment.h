@@ -84,6 +84,7 @@ enum sidenum_t : uint8_t
 
 [[nodiscard]]
 std::optional<sidenum_t> build_sidenum_from_untrusted(uint8_t untrusted);
+constexpr std::integral_constant<sidenum_t, sidenum_t{MAX_SIDES_PER_SEGMENT.value}> side_none{};
 
 using texture_index = uint16_t;
 enum class texture1_value : uint16_t;
@@ -191,7 +192,6 @@ template <unsigned bits>
 class visited_segment_mask_t;
 using visited_segment_bitarray_t = visited_segment_mask_t<1>;
 
-constexpr std::integral_constant<int, MAX_SIDES_PER_SEGMENT> side_none{};
 constexpr std::integral_constant<int, -1> edge_none{};
 
 }

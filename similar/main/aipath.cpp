@@ -95,7 +95,7 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 		auto connect_side = find_connect_side(vcsegptridx(psegs[i].segnum), seg1);
 		Assert(connect_side != side_none);	//	Impossible!  These two segments must be connected, they were created by create_path_points (which was created by mk!)
 		if (connect_side == side_none)			//	Try to blow past the assert, this should at least prevent a hang.
-			connect_side = 0;
+			connect_side = sidenum_t::WLEFT;
 		auto &vcvertptr = Vertices.vcptr;
 		const auto &&center_point = compute_center_point_on_side(vcvertptr, seg1, connect_side);
 		auto new_point = vm_vec_sub(psegs[i-1].point, center_point);

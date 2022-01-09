@@ -145,10 +145,10 @@ static fixang delta_ang(fixang a,fixang b)
 }
 
 //return though which side of seg0 is seg1
-static size_t matt_find_connect_side(const shared_segment &seg0, const vcsegidx_t seg1)
+static sidenum_t matt_find_connect_side(const shared_segment &seg0, const vcsegidx_t seg1)
 {
 	auto &children = seg0.children;
-	return std::distance(children.begin(), std::find(children.begin(), children.end(), seg1));
+	return static_cast<sidenum_t>(std::distance(children.begin(), std::find(children.begin(), children.end(), seg1)));
 }
 
 static unsigned get_tunnel_length(fvcsegptridx &vcsegptridx, const vcsegptridx_t console_seg, const unsigned exit_console_side)
@@ -437,7 +437,7 @@ static int convert_ext(d_fname &dest, const char (&ext)[4])
 		return 0;
 }
 
-static std::pair<icsegidx_t, sidenum_fast_t> find_exit_segment_side(fvcsegptridx &vcsegptridx)
+static std::pair<icsegidx_t, sidenum_t> find_exit_segment_side(fvcsegptridx &vcsegptridx)
 {
 	range_for (const auto &&segp, vcsegptridx)
 	{
@@ -445,7 +445,7 @@ static std::pair<icsegidx_t, sidenum_fast_t> find_exit_segment_side(fvcsegptridx
 		{
 			if (child_segnum == segment_exit)
 			{
-				return {segp, sidenum};
+				return {segp, static_cast<sidenum_t>(sidenum)};
 			}
 		}
 	}
@@ -1216,10 +1216,10 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg
 		fix seg_time;
-		short entry_side,exit_side = -1;//what sides we entry and leave through
+		short exit_side = -1;//what side we leave through
 		int up_side=0;
 
-		entry_side=0;
+		sidenum_t entry_side{};	//what side we enter through
 
 		//find new exit side
 

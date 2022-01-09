@@ -31,7 +31,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "segment.h"
 
-#ifdef __cplusplus
 #include <utility>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
@@ -60,7 +59,7 @@ using vertex_vertnum_array_list = std::array<vertex_vertnum_pair, 6>;
 
 #ifdef dsx
 [[nodiscard]]
-uint_fast32_t find_connect_side(vcsegidx_t base_seg, const shared_segment &con_seg);
+sidenum_t find_connect_side(vcsegidx_t base_seg, const shared_segment &con_seg);
 
 void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp, unsigned side);
 static inline vms_vector compute_center_point_on_side(fvcvertptr &vcvertptr, const shared_segment &sp, const unsigned side)
@@ -224,6 +223,4 @@ void apply_all_changed_light(const d_level_shared_destructible_light_state &Leve
 void	set_ambient_sound_flags(void);
 #endif
 }
-#endif
-
 #endif

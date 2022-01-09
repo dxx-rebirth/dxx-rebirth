@@ -108,10 +108,10 @@ namespace {
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
 
-static uint_fast32_t find_connect_child(const vcsegidx_t base_seg, const std::array<segnum_t, MAX_SIDES_PER_SEGMENT> &children)
+static sidenum_t find_connect_child(const vcsegidx_t base_seg, const std::array<segnum_t, MAX_SIDES_PER_SEGMENT> &children)
 {
 	const auto &&b = begin(children);
-	return std::distance(b, std::find(b, end(children), base_seg));
+	return static_cast<sidenum_t>(std::distance(b, std::find(b, end(children), base_seg)));
 }
 
 static void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &r, const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &verts, const unsigned side)
@@ -168,7 +168,7 @@ void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &vp, const shared_
 // -----------------------------------------------------------------------------
 //	Given two segments, return the side index in the connecting segment which connects to the base segment
 //	Optimized by MK on 4/21/94 because it is a 2% load.
-uint_fast32_t find_connect_side(const vcsegidx_t base_seg, const shared_segment &con_seg)
+sidenum_t find_connect_side(const vcsegidx_t base_seg, const shared_segment &con_seg)
 {
 	return find_connect_child(base_seg, con_seg.children);
 }

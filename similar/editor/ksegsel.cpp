@@ -63,11 +63,11 @@ static vmsegptridx_t get_previous_segment(const vmsegptridx_t curseg_num, const 
 //	If there is a connection on the side opposite to the current side, then choose that segment.
 // If there is no connecting segment on the opposite face, try any segment.
 [[nodiscard]]
-static std::pair<vmsegptridx_t, uint_fast32_t> get_previous_segment_side(const vmsegptridx_t curseg_num, const uint_fast32_t curside)
+static std::pair<vmsegptridx_t, sidenum_t> get_previous_segment_side(const vmsegptridx_t curseg_num, const uint_fast32_t curside)
 {
 	const auto &newseg_num = get_previous_segment(curseg_num, curside);
 	// Now make Curside point at the segment we just left (unless we couldn't leave it).
-	return {newseg_num, newseg_num == curseg_num ? curside : find_connect_side(curseg_num, newseg_num)};
+	return {newseg_num, newseg_num == curseg_num ? static_cast<sidenum_t>(curside) : find_connect_side(curseg_num, newseg_num)};
 }
 
 // --------------------------------------------------------------------------------------
