@@ -1301,7 +1301,7 @@ static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
 	{
 		default:
 			Int3();
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case CONCUSSION_INDEX:	return TXT_CONCUSSION;
 		case HOMING_INDEX:		return TXT_HOMING;
 		case PROXIMITY_INDEX:	return TXT_PROXBOMB;

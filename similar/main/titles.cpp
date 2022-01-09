@@ -1585,7 +1585,7 @@ window_event_result briefing::event_handler(const d_event &event)
 				case KEY_SPACEBAR:
 				case KEY_ENTER:
 					this->delay_count = 0;
-					DXX_BOOST_FALLTHROUGH;
+					[[fallthrough]];
 				default:
 					if ((result = call_default_handler(event)) != window_event_result::ignored)
 						return result;

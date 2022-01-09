@@ -1340,7 +1340,7 @@ void ogl_stereo_frame(const bool left_eye, const int xoff)
 					// center unsqueezed side-by-side format
 				case StereoFormat::SideBySideHalfHeight:
 					ogl_stereo_viewport[1] -= ogl_stereo_viewport[3] / 2;		// y = h/4
-					DXX_BOOST_FALLTHROUGH;
+					[[fallthrough]];
 					// half-width viewports for side-by-side format
 				case StereoFormat::SideBySideFullHeight:
 					ogl_stereo_viewport[0] += ogl_stereo_viewport[2];		// x = w/2
@@ -1471,7 +1471,7 @@ static void ogl_filltexbuf(const palette_array_t &pal, const uint8_t *const data
 					case GL_RGBA:
 						(*(texp++)) = 255;
 						(*(texp++)) = 255;
-						DXX_BOOST_FALLTHROUGH;
+						[[fallthrough]];
 					case GL_LUMINANCE_ALPHA:
 						(*(texp++)) = 255;
 						(*(texp++)) = 0; // transparent pixel
@@ -1492,13 +1492,13 @@ static void ogl_filltexbuf(const palette_array_t &pal, const uint8_t *const data
 				{
 					case GL_RGBA:
 						(*(texp++))=0;
-						DXX_BOOST_FALLTHROUGH;
+						[[fallthrough]];
 					case GL_RGB:
 						(*(texp++))=0;
-						DXX_BOOST_FALLTHROUGH;
+						[[fallthrough]];
 					case GL_LUMINANCE_ALPHA:
 						(*(texp++))=0;
-						DXX_BOOST_FALLTHROUGH;
+						[[fallthrough]];
 					case GL_LUMINANCE:
 						(*(texp++))=0;//transparent pixel
 						break;
@@ -1518,7 +1518,7 @@ static void ogl_filltexbuf(const palette_array_t &pal, const uint8_t *const data
 				{
 					case GL_LUMINANCE_ALPHA:
 						(*(texp++))=255;
-						DXX_BOOST_FALLTHROUGH;
+						[[fallthrough]];
 					case GL_LUMINANCE://these could prolly be done to make the intensity based upon the intensity of the resulting color, but its not needed for anything (yet?) so no point. :)
 						(*(texp++))=255;
 						break;

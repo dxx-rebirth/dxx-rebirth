@@ -74,7 +74,7 @@ window_event_result UI_DIALOG::event_handler(const d_event &event)
 	{
 		case EVENT_IDLE:
 			timer_delay2(50);
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_MOVED:

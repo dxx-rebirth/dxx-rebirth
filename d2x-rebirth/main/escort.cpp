@@ -957,7 +957,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 				Int3();	//	Oops, Illegal value in Escort_goal_object.
 				con_printf(CON_URGENT, "BUG: buddy goal is %.8x, resetting to SCRAM", Escort_goal_object);
 				BuddyState.Escort_goal_object = ESCORT_GOAL_SCRAM;
-				DXX_BOOST_FALLTHROUGH;
+				[[fallthrough]];
 			case ESCORT_GOAL_SCRAM:
 				set_escort_goal_non_object(BuddyState);
 				create_n_segment_path(objp, 16 + d_rand() * 16, segment_none);
@@ -1659,7 +1659,7 @@ static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, const primary
 			if (!player_info.vulcan_ammo)
 				return 0;
 			is_energy_weapon = false;
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		default:
 			if (!(player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)))
 				return 0;

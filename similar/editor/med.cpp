@@ -1063,7 +1063,7 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 			case EVENT_MOUSE_MOVED:
 				if (!keyd_pressed[ KEY_LCTRL ] && !keyd_pressed[ KEY_RCTRL ])
 					break;
-				DXX_BOOST_FALLTHROUGH;
+				[[fallthrough]];
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 			case EVENT_JOYSTICK_BUTTON_UP:
 			case EVENT_JOYSTICK_BUTTON_DOWN:

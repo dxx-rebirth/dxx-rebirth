@@ -725,10 +725,10 @@ static int select_next_window_function(const gauge_inset_window_view w)
 				break;
 			}
 			//if no ecort, fall through
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case cockpit_3d_view::Escort:
 			Coop_view_player[w] = UINT_MAX;		//force first player
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case cockpit_3d_view::Coop:
 			Marker_viewer_num[w] = game_marker_index::None;
 			if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) {
@@ -754,7 +754,7 @@ static int select_next_window_function(const gauge_inset_window_view w)
 				break;
 			}
 			//if not multi,
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case cockpit_3d_view::Marker:
 		case_marker:;
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view) {	//anarchy only

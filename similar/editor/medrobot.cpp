@@ -731,7 +731,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 				editor_status_fmt("Illegal contained object type (%i), changing to powerup.", Cur_goody_type);
 				Cur_goody_type = OBJ_POWERUP;
 				Cur_goody_id = 0;
-				DXX_BOOST_FALLTHROUGH;
+				[[fallthrough]];
 			case OBJ_POWERUP:
 				type_text = "Powerup";
 				id_text = Powerup_names[Cur_goody_id].data();

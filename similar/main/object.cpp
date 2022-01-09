@@ -1812,7 +1812,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj, control_info
 		case object::control_type::morph:			//morph implies AI
 			do_morph_frame(obj);
 			//NOTE: FALLS INTO AI HERE!!!!
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 
 		case object::control_type::ai:
 			//NOTE LINK TO object::control_type::morph ABOVE!!!

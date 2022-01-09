@@ -849,7 +849,7 @@ void draw_tmap(grs_canvas &canvas, const grs_bitmap &rbp, uint_fast32_t nverts, 
 				}
 				else
 				{
-					DXX_BOOST_FALLTHROUGH;
+					[[fallthrough]];
 				case 2:								// perspective every 8th pixel interpolation
 				case 3:								// perspective every pixel interpolation
 					ntexture_map_lighted(*bp, Tmap1);

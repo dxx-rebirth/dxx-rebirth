@@ -324,7 +324,7 @@ static void load_mission_d1()
 			break;
 		default:
 			Int3();
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case D1_MISSION_HOGSIZE:
 		case D1_MISSION_HOGSIZE2:
 		case D1_10_MISSION_HOGSIZE:
@@ -371,7 +371,7 @@ static void load_mission_shareware()
 			break;
 		default:
 			Int3();
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case SHAREWARE_MISSION_HOGSIZE:
 			allocate_levels(3, 0);
 			Current_mission->level_names[0] = "d2leva-1.sl2";
@@ -584,7 +584,7 @@ static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 	default:
 		Warning("Unknown D1 hogsize %d\n", size);
 		Int3();
-		DXX_BOOST_FALLTHROUGH;
+		[[fallthrough]];
 	case D1_MISSION_HOGSIZE:
 	case D1_MISSION_HOGSIZE2:
 	case D1_10_MISSION_HOGSIZE:
@@ -631,7 +631,7 @@ static void add_builtin_mission_to_list(mission_list_type &mission_list, d_fname
 	default:
 		Warning("Unknown hogsize %d, trying %s\n", size, FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II);
 		Int3();
-		DXX_BOOST_FALLTHROUGH;
+		[[fallthrough]];
 	case FULL_MISSION_HOGSIZE:
 	case FULL_10_MISSION_HOGSIZE:
 	case MAC_FULL_MISSION_HOGSIZE:
@@ -971,7 +971,7 @@ static const char *load_mission(const mle *const mission)
 			return nullptr;
 		default:
 			Int3();
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case FULL_MISSION_HOGSIZE:
 		case FULL_10_MISSION_HOGSIZE:
 		case MAC_FULL_MISSION_HOGSIZE:

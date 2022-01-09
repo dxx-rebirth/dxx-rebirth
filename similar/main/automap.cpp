@@ -1758,7 +1758,7 @@ window_event_result MarkerInputMessage(int key, control_info &Controls)
 				MarkerState.message[game_marker_num] = Marker_input;
 				DropMarker(vmobjptridx, vmsegptridx, get_local_plrobj(), game_marker_num, player_marker_num);
 			}
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case KEY_F8:
 		case KEY_ESC:
 			MarkerState.MarkerBeingDefined = player_marker_index::None;

@@ -459,7 +459,7 @@ static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item 
 				nm_string(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, tabs_flag);
 				break;
 			}
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case nm_type::input:
 			nm_string_inputbox(canvas, cv_font, item.w, item.x, item.y - (line_spacing * scroll_offset), item.text, is_current);
 			break;

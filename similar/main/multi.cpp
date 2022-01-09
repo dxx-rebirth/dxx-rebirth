@@ -3403,7 +3403,7 @@ void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_
 			{
 				case POW_EXTRA_LIFE:
 					set_powerup_id(Powerup_info, Vclip, o, POW_INVULNERABILITY);
-					DXX_BOOST_FALLTHROUGH;
+					[[fallthrough]];
 				case POW_INVULNERABILITY:
 					if (inv_remaining)
 						-- inv_remaining;
@@ -5266,7 +5266,7 @@ static void MultiLevelInv_CountLevelPowerups()
 #endif
 						MultiLevelInv.Current[POW_VULCAN_AMMO] += objp->ctype.powerup_info.count; // add contained ammo so we do not lose this from level when used up
 						/* fall through to increment Current[pid] */
-						DXX_BOOST_FALLTHROUGH;
+						[[fallthrough]];
                         case POW_LASER:
                         case POW_QUAD_FIRE:
                         case POW_SPREADFIRE_WEAPON:

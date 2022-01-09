@@ -119,7 +119,7 @@ static void con_scrub_markup(char *buffer)
 			case CC_LSPACING:
 				if (!*++p1)
 					break;
-				DXX_BOOST_FALLTHROUGH;
+				[[fallthrough]];
 			case CC_UNDERLINE:
 				p1++;
 				break;

@@ -271,7 +271,7 @@ window_event_result movie_pause_window::event_handler(const d_event &event)
 		case EVENT_MOUSE_BUTTON_DOWN:
 			if (event_mouse_get_button(event) != 0)
 				return window_event_result::ignored;
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case EVENT_KEY_COMMAND:
 			if (const auto result = call_default_handler(event); result == window_event_result::ignored)
 				return window_event_result::close;

@@ -463,6 +463,20 @@ void f_%(N)s()
 	(void)b_%(N)s;
 	(void)c_%(N)s;
 '''),
+		Cxx17RequiredFeature('attribute [[fallthrough]]', '''
+static inline void f_%(N)s() {}
+''',
+'''
+	switch (argc)
+	{
+		case 1:
+			f_%(N)s();
+			[[fallthrough]];
+		case 2:
+			f_%(N)s();
+			break;
+	}
+'''),
 		Cxx14RequiredFeature('template variables', '''
 template <unsigned U_%(N)s>
 int a_%(N)s = U_%(N)s + 1;
@@ -2646,21 +2660,14 @@ where the cast is useless.
 	def check_warn_implicit_fallthrough(self,context,text,main,testflags,_successflags={'CXXFLAGS' : ['-Wimplicit-fallthrough=5']}):
 		self.Compile(context, text=text, main=main, msg='for -Wimplicit-fallthrough=5', testflags=testflags, successflags=_successflags)
 
-	@_implicit_test
-	def check_no_warn_implicit_fallthrough(self,context,_successflags={'CXXFLAGS' : ['-Wno-implicit-fallthrough']}):
-		self.Compile(context, text='', main='', msg='for -Wno-implicit-fallthrough', successflags=_successflags)
-
 	@_custom_test
-	def check_boost_config(self,context,_successflags={'CPPDEFINES' : [('DXX_BOOST_FALLTHROUGH', 'BOOST_FALLTHROUGH')]}):
-		text ='''
-#include <boost/config.hpp>
-'''
+	def check_warn_implicit_fallthrough(self,context,_successflags={'CXXFLAGS' : ['-Wimplicit-fallthrough=5']}):
 		main = '''
 	int a = 1;
 	switch (argc) {
 		case 1:
 			++ a;
-			DXX_BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case 2:
 			++ a;
 			break;
@@ -2668,18 +2675,7 @@ where the cast is useless.
 	(void)a;
 '''
 		sconf = context.sconf
-		if not self.Compile(context, text=text, main=main, msg='for Boost.Config', successflags=_successflags):
-			sconf.Define('DXX_BOOST_FALLTHROUGH', '((void)0)')
-			self.check_no_warn_implicit_fallthrough(context)
-			return
-		else:
-			sconf.config_h_text += '''
-#ifndef DXX_SCONF_NO_INCLUDES
-/* For BOOST_FALLTHROUGH */
-#include <boost/config.hpp>
-#endif
-'''
-		self.check_warn_implicit_fallthrough(context, text, main, testflags=_successflags)
+		self.Compile(context, text='', main=main, msg='whether compiler accepts -Wimplicit-fallthrough=5', successflags=_successflags)
 
 	@_custom_test
 	def check_compiler_overzealous_unused_lambda_capture(self,context):

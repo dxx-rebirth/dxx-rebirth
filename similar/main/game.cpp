@@ -294,7 +294,7 @@ void init_cockpit()
 						/* Change width */
 						/* Change height */
 						h /= 2;
-						DXX_BOOST_FALLTHROUGH;
+						[[fallthrough]];
 					case StereoFormat::SideBySideFullHeight:
 						/* Change width */
 						/* Preserve height */
