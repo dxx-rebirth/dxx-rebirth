@@ -74,10 +74,9 @@ int FormJoint()
 //  ---------- Create a bridge segment between current segment:side adjacent segment:side ----------
 int CreateAdjacentJoint()
 {
-	int		adj_side;
-	imsegptridx_t adj_sp = segment_none;
-
-	if (med_find_adjacent_segment_side(Cursegp, Curside, adj_sp, &adj_side)) {
+	if (const auto o = med_find_adjacent_segment_side(Cursegp, Curside))
+	{
+		const auto [adj_sp, adj_side] = *o;
 		if (Cursegp->children[Curside] != adj_sp) {
 			med_form_joint(Cursegp,Curside,adj_sp,adj_side);
 			Update_flags |= UF_WORLD_CHANGED;
@@ -167,15 +166,15 @@ int CreateSloppyAdjacentJointsGroup()
 int CreateAdjacentJointsSegment()
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	int		adj_side;
 
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	med_combine_duplicate_vertices(Vertex_active);
 
 	for (const auto s : MAX_SIDES_PER_SEGMENT)
 	{
-		imsegptridx_t adj_sp = segment_none;
-		if (med_find_adjacent_segment_side(Cursegp, s, adj_sp, &adj_side))
+		if (const auto o = med_find_adjacent_segment_side(Cursegp, s))
+		{
+			const auto [adj_sp, adj_side] = *o;
 			if (Cursegp->children[s] != adj_sp)
 					{
 					med_form_joint(Cursegp,s,adj_sp,adj_side);
@@ -186,6 +185,7 @@ int CreateAdjacentJointsSegment()
 				undo_status[Autosave_count] = "Adjacent Joint segment UNDONE.";
 	    			warn_if_concave_segments();
 					}
+		}
 	}
 
 	return 1;
@@ -195,7 +195,6 @@ int CreateAdjacentJointsSegment()
 int CreateAdjacentJointsAll()
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	int		adj_side;
 
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	med_combine_duplicate_vertices(Vertex_active);
@@ -204,10 +203,12 @@ int CreateAdjacentJointsAll()
 	{
 		for (const auto s : MAX_SIDES_PER_SEGMENT)
 		{
-			imsegptridx_t adj_sp = segment_none;
-			if (med_find_adjacent_segment_side(segp, s, adj_sp, &adj_side))
+			if (const auto o = med_find_adjacent_segment_side(segp, s))
+			{
+				const auto [adj_sp, adj_side] = *o;
 				if (segp->children[s] != adj_sp)
 						med_form_joint(segp,s,adj_sp,adj_side);
+			}
 		}
 	}
 
