@@ -224,7 +224,7 @@ void trigger_matcen(const vmsegptridx_t segp)
 	//	Create a bright object in the segment.
 	auto &vcvertptr = Vertices.vcptr;
 	auto &&pos = compute_segment_center(vcvertptr, segp);
-	const auto &&delta = vm_vec_sub(vcvertptr(segp->verts[0]), pos);
+	const auto &&delta = vm_vec_sub(vcvertptr(segp->verts.front()), pos);
 	vm_vec_scale_add2(pos, delta, F1_0/2);
 	const auto &&objnum = obj_create(OBJ_LIGHT, 0, segp, pos, nullptr, 0, object::control_type::light, object::movement_type::None, RT_NONE);
 	if (objnum != object_none) {

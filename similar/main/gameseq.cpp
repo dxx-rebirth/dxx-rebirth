@@ -285,13 +285,13 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 		auto &plr = *Players.vcptr(i);
 		auto &old_player_obj = *vcobjptr(plr.objnum);
 		const vm_distance_squared size2(fixmul64(old_player_obj.size * old_player_obj.size, size_scalar));
-		auto &v0 = *vcvertptr(seg.verts[0]);
+		auto &v0 = *vcvertptr(seg.verts[segment_relative_vertnum::_0]);
 		uint8_t capacity_flag = 0;
-		if (vm_vec_dist2(v0, vcvertptr(seg.verts[1])) > size2)
+		if (vm_vec_dist2(v0, vcvertptr(seg.verts[segment_relative_vertnum::_1])) > size2)
 			capacity_flag |= capacity_x;
-		if (vm_vec_dist2(v0, vcvertptr(seg.verts[3])) > size2)
+		if (vm_vec_dist2(v0, vcvertptr(seg.verts[segment_relative_vertnum::_3])) > size2)
 			capacity_flag |= capacity_y;
-		if (vm_vec_dist2(v0, vcvertptr(seg.verts[4])) > size2)
+		if (vm_vec_dist2(v0, vcvertptr(seg.verts[segment_relative_vertnum::_4])) > size2)
 			capacity_flag |= capacity_z;
 		player_init_segment_capacity_flag[i] = capacity_flag;
 		con_printf(CON_NORMAL, "Original player %u has size %u, starts in segment #%hu, and has segment capacity flags %x.", i, old_player_obj.size, static_cast<segnum_t>(segnum), capacity_flag);

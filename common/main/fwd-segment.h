@@ -15,6 +15,7 @@
 
 #include <cstdint>
 #include "cpp-valptridx.h"
+#include "d_array.h"
 #include "d_crange.h"
 
 namespace dcx {
@@ -114,6 +115,7 @@ struct unique_side;
 
 struct vertex;
 enum class vertnum_t : uint32_t;
+enum class segment_relative_vertnum : uint8_t;
 enum class segment_special : uint8_t;
 }
 
@@ -147,7 +149,7 @@ struct d_level_shared_vertex_state;
 struct d_level_shared_segment_state;
 struct d_level_unique_segment_state;
 
-extern const std::array<std::array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts;    // Side_to_verts[my_side] is list of vertices forming side my_side.
+extern const std::array<std::array<segment_relative_vertnum, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts;    // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern const std::array<sidenum_t, MAX_SIDES_PER_SEGMENT> Side_opposite;                                // Side_opposite[my_side] returns side opposite cube from my_side.
 
 void segment_side_wall_tmap_write(PHYSFS_File *fp, const shared_side &sside, const unique_side &uside);

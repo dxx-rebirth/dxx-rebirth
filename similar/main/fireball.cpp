@@ -1525,7 +1525,7 @@ void do_explosion_sequence(object &obj)
 #endif
 
 //explode the given wall
-void explode_wall(fvcvertptr &vcvertptr, const vcsegptridx_t segnum, const unsigned sidenum, wall &w)
+void explode_wall(fvcvertptr &vcvertptr, const vcsegptridx_t segnum, const sidenum_t sidenum, wall &w)
 {
 	if (w.flags & wall_flag::exploding)
 		/* Already exploding */

@@ -261,8 +261,8 @@ static void info_display_default(grs_canvas &canvas, const grs_font &cv_font)
 
 	{
 		using U = std::underlying_type<vertnum_t>::type;
-		gr_uprintf(canvas, cv_font, 0, 64, "{%3u,%3u,%3u,%3u,", static_cast<U>(Cursegp->verts[0]), static_cast<U>(Cursegp->verts[1]), static_cast<U>(Cursegp->verts[2]), static_cast<U>(Cursegp->verts[3]));
-		gr_uprintf(canvas, cv_font, 0, 80, " %3u,%3u,%3u,%3u}", static_cast<U>(Cursegp->verts[4]), static_cast<U>(Cursegp->verts[5]), static_cast<U>(Cursegp->verts[6]), static_cast<U>(Cursegp->verts[7]));
+		gr_uprintf(canvas, cv_font, 0, 64, "{%3u,%3u,%3u,%3u,", static_cast<U>(Cursegp->verts[segment_relative_vertnum::_0]), static_cast<U>(Cursegp->verts[segment_relative_vertnum::_1]), static_cast<U>(Cursegp->verts[segment_relative_vertnum::_2]), static_cast<U>(Cursegp->verts[segment_relative_vertnum::_3]));
+		gr_uprintf(canvas, cv_font, 0, 80, " %3u,%3u,%3u,%3u}", static_cast<U>(Cursegp->verts[segment_relative_vertnum::_4]), static_cast<U>(Cursegp->verts[segment_relative_vertnum::_5]), static_cast<U>(Cursegp->verts[segment_relative_vertnum::_6]), static_cast<U>(Cursegp->verts[segment_relative_vertnum::_7]));
 	}
 
 	//--------------- Num walls/links/triggers -------------------------

@@ -126,17 +126,17 @@ static void draw_segment(grs_canvas &canvas, const shared_segment &seg, const co
 	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
-		range_for (const unsigned i, xrange(4u))
-			draw_line(canvas, svp[i], svp[i+4], color);
+		for (const uint8_t i : xrange(4u))
+			draw_line(canvas, svp[(segment_relative_vertnum{i})], svp[(segment_relative_vertnum{static_cast<uint8_t>(i + 4)})], color);
 
-		range_for (const unsigned i, xrange(3u))
+		for (const uint8_t i : xrange(3u))
 		{
-			draw_line(canvas, svp[i], svp[i+1], color);
-			draw_line(canvas, svp[i+4], svp[i+4+1], color);
+			draw_line(canvas, svp[(segment_relative_vertnum{i})], svp[(segment_relative_vertnum{static_cast<uint8_t>(i + 1)})], color);
+			draw_line(canvas, svp[(segment_relative_vertnum{static_cast<uint8_t>(i + 4)})], svp[(segment_relative_vertnum{static_cast<uint8_t>(i + 4 + 1)})], color);
 		}
 
-		draw_line(canvas, svp[0], svp[3], color);
-		draw_line(canvas, svp[4], svp[3+4], color);
+		draw_line(canvas, svp[segment_relative_vertnum::_0], svp[segment_relative_vertnum::_3], color);
+		draw_line(canvas, svp[segment_relative_vertnum::_4], svp[segment_relative_vertnum::_7], color);
 	}
 }
 
@@ -288,10 +288,10 @@ constexpr std::array<packed_edge, 24> edges = {{
 #define N_EDGES_PER_SEGMENT (N_NORMAL_EDGES+N_EXTRA_EDGES)
 
 //given two vertex numbers on a segment (range 0..7), tell what edge number it is
-static std::size_t find_edge_num(const int ev0, const int ev1)
+static std::size_t find_edge_num(const segment_relative_vertnum ev0, const segment_relative_vertnum ev1)
 {
 	const auto &&[v0, v1] = std::minmax(ev0, ev1);
-	const auto vv = pack_edge(v0, v1);
+	const auto vv = pack_edge(static_cast<uint8_t>(v0), static_cast<uint8_t>(v1));
 	const auto iter = std::find(edges.begin(), edges.end(), vv);
 	return std::distance(edges.begin(), iter);
 }
@@ -390,7 +390,11 @@ static void add_edges(const shared_segment &seg)
 
 		for (i=0; i<N_EDGES_PER_SEGMENT; i++)
 			if (i<N_NORMAL_EDGES || (edge_flags[i]!=ET_NOTEXTANT && Show_triangulations))
-				add_edge(seg.verts[static_cast<uint8_t>(edges[i]) >> 3], seg.verts[static_cast<uint8_t>(edges[i]) & 7], edge_flags[i]);
+			{
+				const uint8_t e0 = static_cast<uint8_t>(edges[i]) >> 3;
+				const uint8_t e1 = static_cast<uint8_t>(edges[i]) & 7;
+				add_edge(seg.verts[(segment_relative_vertnum{e0})], seg.verts[(segment_relative_vertnum{e1})], edge_flags[i]);
+			}
 	}
 }
 

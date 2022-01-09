@@ -91,13 +91,13 @@ const std::array<sidenum_t, MAX_SIDES_PER_SEGMENT> Side_opposite{{
 
 #define TOLOWER(c) ((((c)>='A') && ((c)<='Z'))?((c)+('a'-'A')):(c))
 
-const std::array<std::array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts{{
-	{{7,6,2,3}},			// left
-	{{0,4,7,3}},			// top
-	{{0,1,5,4}},			// right
-	{{2,6,5,1}},			// bottom
-	{{4,5,6,7}},			// back
-	{{3,2,1,0}},			// front
+const std::array<std::array<segment_relative_vertnum, 4>, MAX_SIDES_PER_SEGMENT> Side_to_verts{{
+	{{segment_relative_vertnum::_7, segment_relative_vertnum::_6, segment_relative_vertnum::_2, segment_relative_vertnum::_3}}, 			// left
+	{{segment_relative_vertnum::_0, segment_relative_vertnum::_4, segment_relative_vertnum::_7, segment_relative_vertnum::_3}}, 			// top
+	{{segment_relative_vertnum::_0, segment_relative_vertnum::_1, segment_relative_vertnum::_5, segment_relative_vertnum::_4}}, 			// right
+	{{segment_relative_vertnum::_2, segment_relative_vertnum::_6, segment_relative_vertnum::_5, segment_relative_vertnum::_1}}, 			// bottom
+	{{segment_relative_vertnum::_4, segment_relative_vertnum::_5, segment_relative_vertnum::_6, segment_relative_vertnum::_7}}, 			// back
+	{{segment_relative_vertnum::_3, segment_relative_vertnum::_2, segment_relative_vertnum::_1, segment_relative_vertnum::_0}}, 			// front
 }};
 
 // Texture map stuff

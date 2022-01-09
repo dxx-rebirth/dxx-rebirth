@@ -72,7 +72,7 @@ void do_debris_frame(vmobjptridx_t obj);      // deal with debris for this frame
 
 void draw_fireball(const d_vclip_array &Vclip, grs_canvas &, vcobjptridx_t obj);
 
-void explode_wall(fvcvertptr &, vcsegptridx_t, unsigned sidenum, wall &);
+void explode_wall(fvcvertptr &, vcsegptridx_t, sidenum_t sidenum, wall &);
 unsigned do_exploding_wall_frame(wall &);
 void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool random_player);
 void maybe_replace_powerup_with_energy(object_base &del_obj);

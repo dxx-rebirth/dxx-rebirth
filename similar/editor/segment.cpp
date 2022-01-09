@@ -700,8 +700,8 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmuseg
 	auto &dvp = Side_to_verts[destside];
 
 	// Set the vertex indices for the four vertices forming the front of the new side
-	range_for (const unsigned v, xrange(4u))
-                nsp->verts[v] = destseg->verts[static_cast<int>(dvp[v])];
+	for (auto &&[dst, src] : zip(unchecked_partial_range(nsp->verts, 4u), dvp))
+		dst = destseg->verts[src];
 
 	// The other 4 vertices must be created.
 	// Their coordinates are determined by the 4 welded vertices and the vector from front
@@ -730,12 +730,12 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmuseg
 
 	// Now rotate the free vertices in the segment
 	// Create and add the 4 new vertices.
-	for (const auto v : xrange(4u, MAX_VERTICES_PER_SEGMENT))
+	for (auto &&[dst, src] : zip(unchecked_partial_range(nsp->verts, 4u, MAX_VERTICES_PER_SEGMENT.value), newseg.s.verts))
 	{
 		vertex tv;
-		vm_vec_rotate(tv, vcvertptr(newseg.s.verts[v]), rotmat2);
+		vm_vec_rotate(tv, vcvertptr(src), rotmat2);
 		vm_vec_add2(tv, xlate_vec);
-		nsp->verts[v] = med_add_vertex(tv);
+		dst = med_add_vertex(tv);
 	}
 
 	set_vertex_counts();
@@ -1204,7 +1204,6 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptri
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	int			v,bfi;
 
 	if (IS_CHILD(seg1->children[side1]) || IS_CHILD(seg2->children[side2]))
 		return 1;
@@ -1218,24 +1217,24 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, int side1, const vmsegptri
 	// Copy vertices from seg2 into last 4 vertices of bridge segment.
 	{
 	auto &sv = Side_to_verts[side2];
-	for (v=0; v<4; v++)
-		sbs.verts[(3-v)+4] = seg2->verts[static_cast<int>(sv[v])];
+		for (const auto v : xrange(4u))
+			sbs.verts[(segment_relative_vertnum{static_cast<uint8_t>((3 - v) + 4)})] = seg2->verts[sv[v]];
 	}
 
 	// Copy vertices from seg1 into first 4 vertices of bridge segment.
-	bfi = get_index_of_best_fit(seg1, side1, seg2, side2);
+	const auto bfi = get_index_of_best_fit(seg1, side1, seg2, side2);
 
 	{
 	auto &sv = Side_to_verts[side1];
-	for (v=0; v<4; v++)
-                bs->verts[(v + bfi) % 4] = seg1->verts[static_cast<int>(sv[v])];
+		for (const auto v : xrange(4u))
+			bs->verts[(segment_relative_vertnum{static_cast<uint8_t>((v + bfi) % 4)})] = seg1->verts[sv[v]];
 	}
 
 	// Form connections to children, first initialize all to unconnected.
-	range_for (const auto &&z, zip(sbs.children, sbs.sides))
+	for (auto &&[child, side] : zip(sbs.children, sbs.sides))
 	{
-		std::get<0>(z) = segment_none;
-		std::get<1>(z).wall_num = wall_none;
+		child = segment_none;
+		side.wall_num = wall_none;
 	}
 
 	// Now form connections between segments.
@@ -1297,14 +1296,14 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 	sp->matcen_num = materialization_center_number::None;
 
 	//	Create relative-to-center vertices, which are the rotated points on the box defined by length, width, height
-	sp->verts[0] = med_add_vertex(vertex{vm_vec_rotate({+width/2, +height/2, -length/2}, mp)});
-	sp->verts[1] = med_add_vertex(vertex{vm_vec_rotate({+width/2, -height/2, -length/2}, mp)});
-	sp->verts[2] = med_add_vertex(vertex{vm_vec_rotate({-width/2, -height/2, -length/2}, mp)});
-	sp->verts[3] = med_add_vertex(vertex{vm_vec_rotate({-width/2, +height/2, -length/2}, mp)});
-	sp->verts[4] = med_add_vertex(vertex{vm_vec_rotate({+width/2, +height/2, +length/2}, mp)});
-	sp->verts[5] = med_add_vertex(vertex{vm_vec_rotate({+width/2, -height/2, +length/2}, mp)});
-	sp->verts[6] = med_add_vertex(vertex{vm_vec_rotate({-width/2, -height/2, +length/2}, mp)});
-	sp->verts[7] = med_add_vertex(vertex{vm_vec_rotate({-width/2, +height/2, +length/2}, mp)});
+	sp->verts[segment_relative_vertnum::_0] = med_add_vertex(vertex{vm_vec_rotate({+width/2, +height/2, -length/2}, mp)});
+	sp->verts[segment_relative_vertnum::_1] = med_add_vertex(vertex{vm_vec_rotate({+width/2, -height/2, -length/2}, mp)});
+	sp->verts[segment_relative_vertnum::_2] = med_add_vertex(vertex{vm_vec_rotate({-width/2, -height/2, -length/2}, mp)});
+	sp->verts[segment_relative_vertnum::_3] = med_add_vertex(vertex{vm_vec_rotate({-width/2, +height/2, -length/2}, mp)});
+	sp->verts[segment_relative_vertnum::_4] = med_add_vertex(vertex{vm_vec_rotate({+width/2, +height/2, +length/2}, mp)});
+	sp->verts[segment_relative_vertnum::_5] = med_add_vertex(vertex{vm_vec_rotate({+width/2, -height/2, +length/2}, mp)});
+	sp->verts[segment_relative_vertnum::_6] = med_add_vertex(vertex{vm_vec_rotate({-width/2, -height/2, +length/2}, mp)});
+	sp->verts[segment_relative_vertnum::_7] = med_add_vertex(vertex{vm_vec_rotate({-width/2, +height/2, +length/2}, mp)});
 
 	// Now create the vector which is the center of the segment and add that to all vertices.
 	const vms_vector cv{cx, cy, cz};
@@ -1354,14 +1353,14 @@ void med_create_new_segment(const vms_vector &scale)
 
 	//	Create relative-to-center vertices, which are the points on the box defined by length, width, height
 	auto &verts = sp->verts;
-	verts[0] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 0}, {+width / 2, +height / 2, -length / 2});
-	verts[1] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 1}, {+width / 2, -height / 2, -length / 2});
-	verts[2] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 2}, {-width / 2, -height / 2, -length / 2});
-	verts[3] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 3}, {-width / 2, +height / 2, -length / 2});
-	verts[4] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 4}, {+width / 2, +height / 2, +length / 2});
-	verts[5] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 5}, {+width / 2, -height / 2, +length / 2});
-	verts[6] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 6}, {-width / 2, -height / 2, +length / 2});
-	verts[7] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 7}, {-width / 2, +height / 2, +length / 2});
+	verts[segment_relative_vertnum::_0] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 0}, {+width / 2, +height / 2, -length / 2});
+	verts[segment_relative_vertnum::_1] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 1}, {+width / 2, -height / 2, -length / 2});
+	verts[segment_relative_vertnum::_2] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 2}, {-width / 2, -height / 2, -length / 2});
+	verts[segment_relative_vertnum::_3] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 3}, {-width / 2, +height / 2, -length / 2});
+	verts[segment_relative_vertnum::_4] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 4}, {+width / 2, +height / 2, +length / 2});
+	verts[segment_relative_vertnum::_5] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 5}, {+width / 2, -height / 2, +length / 2});
+	verts[segment_relative_vertnum::_6] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 6}, {-width / 2, -height / 2, +length / 2});
+	verts[segment_relative_vertnum::_7] = med_set_vertex(LevelSharedVertexState, vertnum_t{NEW_SEGMENT_VERTICES + 7}, {-width / 2, +height / 2, +length / 2});
 
 //	sp->scale = *scale;
 

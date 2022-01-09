@@ -108,7 +108,7 @@ namespace {
 d_unique_endlevel_state UniqueEndlevelState;
 static void generate_starfield(d_unique_endlevel_state::starfield_type &stars);
 static void draw_stars(grs_canvas &, const d_unique_endlevel_state::starfield_type &stars);
-static int find_exit_side(const d_level_shared_segment_state &LevelSharedSegmentState, const d_level_shared_vertex_state &LevelSharedVertexState, const vms_vector &last_console_player_position, const object_base &obj);
+static sidenum_t find_exit_side(const d_level_shared_segment_state &LevelSharedSegmentState, const d_level_shared_vertex_state &LevelSharedVertexState, const vms_vector &last_console_player_position, const object_base &obj);
 
 static fix cur_fly_speed, desired_fly_speed;
 static grs_bitmap *satellite_bitmap;
@@ -280,12 +280,11 @@ static void get_angs_to_object(vms_angvec &av,const vms_vector &targ_pos,const v
 #define MIN_D 0x100
 
 //find which side to fly out of
-static int find_exit_side(const d_level_shared_segment_state &LevelSharedSegmentState, const d_level_shared_vertex_state &LevelSharedVertexState, const vms_vector &last_console_player_position, const object_base &obj)
+static sidenum_t find_exit_side(const d_level_shared_segment_state &LevelSharedSegmentState, const d_level_shared_vertex_state &LevelSharedVertexState, const vms_vector &last_console_player_position, const object_base &obj)
 {
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	vms_vector prefvec;
 	fix best_val=-f2_0;
-	int best_side;
 
 	//find exit side
 
@@ -295,24 +294,26 @@ static int find_exit_side(const d_level_shared_segment_state &LevelSharedSegment
 	auto &vcvertptr = Vertices.vcptr;
 	const auto segcenter = compute_segment_center(vcvertptr, pseg);
 
-	best_side=-1;
-	for (const auto i : MAX_SIDES_PER_SEGMENT)
+	sidenum_t best_side = side_none;
+	for (const auto &&[i, child] : enumerate(pseg.children))
 	{
 		fix d;
 
-		if (pseg.children[i] != segment_none)
+		if (child != segment_none)
 		{
-			auto sidevec = compute_center_point_on_side(vcvertptr, pseg, i);
+			auto sidevec = compute_center_point_on_side(vcvertptr, pseg, static_cast<sidenum_t>(i));
 			vm_vec_normalized_dir_quick(sidevec,sidevec,segcenter);
 			d = vm_vec_dot(sidevec,prefvec);
 
 			if (labs(d) < MIN_D) d=0;
 
-			if (d > best_val) {best_val=d; best_side=i;}
+			if (d > best_val)
+			{
+				best_val = d;
+				best_side = static_cast<sidenum_t>(i);
+			}
 		}
 	}
-
-	Assert(best_side!=-1);
 	return best_side;
 }
 
@@ -1215,9 +1216,9 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg
 		fix seg_time;
-		short exit_side = -1;//what side we leave through
 		int up_side=0;
 
+		sidenum_t exit_side;	//what side we leave through
 		sidenum_t entry_side{};	//what side we enter through
 
 		//find new exit side
@@ -1256,7 +1257,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 			int s0=-1,s1=0;
 			fix dist;
 
-			range_for (const int i, xrange(6u))
+			for (const auto i : MAX_SIDES_PER_SEGMENT)
 				if (i!=entry_side && i!=exit_side && i!=up_side && i!=Side_opposite[up_side])
 				 {
 					if (s0==-1)

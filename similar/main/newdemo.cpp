@@ -269,7 +269,7 @@ static void my_extract_shortpos(object_base &objp, const shortpos *const spp)
 	objp.segnum = segnum;
 
 	auto &vcvertptr = Vertices.vcptr;
-	auto &v = *vcvertptr(vcsegptr(segnum)->verts[0]);
+	auto &v = *vcvertptr(vcsegptr(segnum)->verts[segment_relative_vertnum::_0]);
 	objp.pos.x = (spp->xo << RELPOS_PRECISION) + v.x;
 	objp.pos.y = (spp->yo << RELPOS_PRECISION) + v.y;
 	objp.pos.z = (spp->zo << RELPOS_PRECISION) + v.z;
@@ -2450,10 +2450,14 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_WALL_TOGGLE:
 		{
-			int side;
+			sidenum_t side;
 			segnum_t segnum;
 			nd_read_segnum32(segnum);
-			nd_read_int(&side);
+			{
+				int iside;
+				nd_read_int(&iside);
+				side = static_cast<sidenum_t>(iside);
+			}
 			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{

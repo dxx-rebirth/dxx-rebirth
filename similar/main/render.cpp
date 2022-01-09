@@ -858,57 +858,57 @@ static ubyte code_window_point(fix x,fix y,const rect &w)
 //edge between them
 constexpr enumerated_array<
 	enumerated_array<
-		std::array<int_fast8_t, 2>,
+		std::array<segment_relative_vertnum, 2>,
 		6, sidenum_t>,
 	6, sidenum_t> Two_sides_to_edge = {{{
 	{{{
-		{{edge_none, edge_none}},
-		{{3, 7}},
-		{{edge_none, edge_none}},
-		{{2, 6}},
-		{{6, 7}},
-		{{2, 3}},
+		{{segment_relative_vertnum{0xff}, segment_relative_vertnum{0xff}}},
+		{{segment_relative_vertnum::_3, segment_relative_vertnum::_7}},
+		{{segment_relative_vertnum{0xff}, segment_relative_vertnum{0xff}}},
+		{{segment_relative_vertnum::_2, segment_relative_vertnum::_6}},
+		{{segment_relative_vertnum::_6, segment_relative_vertnum::_7}},
+		{{segment_relative_vertnum::_2, segment_relative_vertnum::_3}}
 	}}},
 	{{{
-		{{3, 7}},
-		{{edge_none, edge_none}},
-		{{0, 4}},
-		{{edge_none, edge_none}},
-		{{4, 7}},
-		{{0, 3}},
+		{{segment_relative_vertnum::_3, segment_relative_vertnum::_7}},
+		{{segment_relative_vertnum{0xff}, segment_relative_vertnum{0xff}}},
+		{{segment_relative_vertnum::_0, segment_relative_vertnum::_4}},
+		{{segment_relative_vertnum{0xff}, segment_relative_vertnum{0xff}}},
+		{{segment_relative_vertnum::_4, segment_relative_vertnum::_7}},
+		{{segment_relative_vertnum::_0, segment_relative_vertnum::_3}}
 	}}},
 	{{{
-		{{edge_none, edge_none}},
-		{{0, 4}},
-		{{edge_none, edge_none}},
-		{{1, 5}},
-		{{4, 5}},
-		{{0, 1}},
+		{{segment_relative_vertnum{0xff}, segment_relative_vertnum{0xff}}},
+		{{segment_relative_vertnum::_0, segment_relative_vertnum::_4}},
+		{{segment_relative_vertnum{0xff}, segment_relative_vertnum{0xff}}},
+		{{segment_relative_vertnum::_1, segment_relative_vertnum::_5}},
+		{{segment_relative_vertnum::_4, segment_relative_vertnum::_5}},
+		{{segment_relative_vertnum::_0, segment_relative_vertnum::_1}}
 	}}},
 	{{{
-		{{2, 6}},
-		{{edge_none, edge_none}},
-		{{1, 5}},
-		{{edge_none, edge_none}},
-		{{5, 6}},
-		{{1, 2}},
+		{{segment_relative_vertnum::_2, segment_relative_vertnum::_6}},
+		{{segment_relative_vertnum{0xff}, segment_relative_vertnum{0xff}}},
+		{{segment_relative_vertnum::_1, segment_relative_vertnum::_5}},
+		{{segment_relative_vertnum{0xff}, segment_relative_vertnum{0xff}}},
+		{{segment_relative_vertnum::_5, segment_relative_vertnum::_6}},
+		{{segment_relative_vertnum::_1, segment_relative_vertnum::_2}}
 	}}},
 	{{{
-		{{6, 7}},
-		{{4, 7}},
-		{{4, 5}},
-		{{5, 6}},
-		{{edge_none, edge_none}},
-		{{edge_none, edge_none}},
+		{{segment_relative_vertnum::_6, segment_relative_vertnum::_7}},
+		{{segment_relative_vertnum::_4, segment_relative_vertnum::_7}},
+		{{segment_relative_vertnum::_4, segment_relative_vertnum::_5}},
+		{{segment_relative_vertnum::_5, segment_relative_vertnum::_6}},
+		{{segment_relative_vertnum{0xff}, segment_relative_vertnum{0xff}}},
+		{{segment_relative_vertnum{0xff}, segment_relative_vertnum{0xff}}}
 	}}},
 	{{{
-		{{2, 3}},
-		{{0, 3}},
-		{{0, 1}},
-		{{1, 2}},
-		{{edge_none, edge_none}},
-		{{edge_none, edge_none}},
-	}}},
+		{{segment_relative_vertnum::_2, segment_relative_vertnum::_3}},
+		{{segment_relative_vertnum::_0, segment_relative_vertnum::_3}},
+		{{segment_relative_vertnum::_0, segment_relative_vertnum::_1}},
+		{{segment_relative_vertnum::_1, segment_relative_vertnum::_2}},
+		{{segment_relative_vertnum{0xff}, segment_relative_vertnum{0xff}}},
+		{{segment_relative_vertnum{0xff}, segment_relative_vertnum{0xff}}}
+	}}}
 }}};
 
 namespace {

@@ -49,7 +49,7 @@ struct segment_depth_array_t : public std::array<ubyte, MAX_SEGMENTS> {};
 struct side_vertnum_list_t : std::array<vertnum_t, 4> {};
 
 struct vertnum_array_list_t : std::array<vertnum_t, 6> {};
-struct vertex_array_list_t : std::array<unsigned, 6> {};
+struct vertex_array_list_t : std::array<segment_relative_vertnum, 6> {};
 struct vertex_vertnum_pair
 {
 	vertnum_t vertex;

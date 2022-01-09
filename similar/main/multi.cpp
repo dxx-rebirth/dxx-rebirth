@@ -3317,11 +3317,14 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 	{
 		assert(o.movement_source == object::movement_type::None);
 		assert(o.render_type == RT_POWERUP);
-		const auto &&no = obj_create(OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, vcvertptr(seg_verts[i % seg_verts.size()])), &vmd_identity_matrix, o.size, object::control_type::powerup, object::movement_type::None, RT_POWERUP);
+		const auto &&no = obj_create(OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, vcvertptr(seg_verts[static_cast<segment_relative_vertnum>(i % seg_verts.size())])), &vmd_identity_matrix, o.size, object::control_type::powerup, object::movement_type::None, RT_POWERUP);
 		if (no == object_none)
 			return;
 		m_modified.set(no);
 		no->rtype.vclip_info = o.rtype.vclip_info;
+		/* Vary the frame number so that the powerups are not animated
+		 * in sync.
+		 */
 		no->rtype.vclip_info.framenum = (o.rtype.vclip_info.framenum + (i * vc_num_frames) / count) % vc_num_frames;
 		no->ctype.powerup_info = o.ctype.powerup_info;
 	}

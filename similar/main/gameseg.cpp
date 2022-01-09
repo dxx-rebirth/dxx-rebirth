@@ -65,8 +65,8 @@ struct segment_water_depth_array : std::array<uint8_t, MAX_SEGMENTS> {};
 
 class abs_vertex_lists_predicate
 {
-	const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &m_vp;
-	const std::array<unsigned, 4> &m_sv;
+	const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &m_vp;
+	const std::array<segment_relative_vertnum, 4> &m_sv;
 public:
 	abs_vertex_lists_predicate(const shared_segment &seg, const uint_fast32_t sidenum) :
 		m_vp(seg.verts), m_sv(Side_to_verts[sidenum])
@@ -114,7 +114,7 @@ static sidenum_t find_connect_child(const vcsegidx_t base_seg, const std::array<
 	return static_cast<sidenum_t>(std::distance(b, std::find(b, end(children), base_seg)));
 }
 
-static void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &r, const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &verts, const unsigned side)
+static void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &r, const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &verts, const sidenum_t side)
 {
 	vms_vector vp;
 	vm_vec_zero(vp);
@@ -140,7 +140,7 @@ static void create_vertex_list_from_invalid_side(const shared_segment &segp, con
 }
 
 // Fill in array with four absolute point numbers for a given side
-static void get_side_verts(side_vertnum_list_t &vertlist, const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &vp, const unsigned sidenum)
+static void get_side_verts(side_vertnum_list_t &vertlist, const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &vp, const unsigned sidenum)
 {
 	auto &sv = Side_to_verts[sidenum];
 	for (auto &&[ovl, isv] : zip(vertlist, sv))
@@ -154,7 +154,7 @@ static void get_side_verts(side_vertnum_list_t &vertlist, const std::array<vertn
 //	The center point is defined to be the average of the 4 points defining the side.
 void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp, const unsigned side)
 {
-	compute_center_point_on_side(vcvertptr, vp, sp.verts, side);
+	compute_center_point_on_side(vcvertptr, vp, sp.verts, static_cast<sidenum_t>(side));
 }
 
 // ------------------------------------------------------------------------------------------
@@ -1028,7 +1028,7 @@ void create_shortpos_native(const d_level_shared_segment_state &LevelSharedSegme
 
 	spp.segment = objp.segnum;
 	const shared_segment &segp = *vcsegptr(objp.segnum);
-	auto &vert = *vcvertptr(segp.verts[0]);
+	auto &vert = *vcvertptr(segp.verts[segment_relative_vertnum::_0]);
 	spp.xo = (objp.pos.x - vert.x) >> RELPOS_PRECISION;
 	spp.yo = (objp.pos.y - vert.y) >> RELPOS_PRECISION;
 	spp.zo = (objp.pos.z - vert.z) >> RELPOS_PRECISION;
@@ -1079,7 +1079,7 @@ void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 
 	const auto &&segp = vmsegptridx(segnum);
 	auto &vcvertptr = Vertices.vcptr;
-	auto &vp = *vcvertptr(segp->verts[0]);
+	auto &vp = *vcvertptr(segp->verts[segment_relative_vertnum::_0]);
 	objp->pos.x = (INTEL_SHORT(spp->xo) << RELPOS_PRECISION) + vp.x;
 	objp->pos.y = (INTEL_SHORT(spp->yo) << RELPOS_PRECISION) + vp.y;
 	objp->pos.z = (INTEL_SHORT(spp->zo) << RELPOS_PRECISION) + vp.z;
@@ -1596,7 +1596,7 @@ void validate_segment_all(d_level_shared_segment_state &LevelSharedSegmentState)
 void pick_random_point_in_seg(fvcvertptr &vcvertptr, vms_vector &new_pos, const shared_segment &sp, std::minstd_rand r)
 {
 	compute_segment_center(vcvertptr, new_pos, sp);
-	const auto vnum = std::uniform_int_distribution<unsigned>(0, MAX_VERTICES_PER_SEGMENT - 1)(r);
+	const auto vnum = segment_relative_vertnum{std::uniform_int_distribution<uint8_t>(0, MAX_VERTICES_PER_SEGMENT - 1)(r)};
 	auto &&vec2 = vm_vec_sub(vcvertptr(sp.verts[vnum]), new_pos);
 	vm_vec_scale(vec2, std::uniform_int_distribution<fix>(0, f0_5 - 1)(r));          // always in 0..1/2 fix
 	vm_vec_add2(new_pos, vec2);

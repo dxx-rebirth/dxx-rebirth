@@ -467,7 +467,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 
 	if (newseg_verts_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	PHYSFS_write( SaveFile, &Vertices[New_segment.verts[0]], sizeof(vms_vector), 8 );
+	PHYSFS_write( SaveFile, &Vertices[New_segment.verts.front()], sizeof(vms_vector), 8 );
 
 	//==================== CLOSE THE FILE =============================
 

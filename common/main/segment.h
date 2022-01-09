@@ -76,6 +76,18 @@ enum class side_type : uint8_t
 	tri_13 = 3,	// render side as two triangles, triangulated along edge from 1 to 3
 };
 
+enum class segment_relative_vertnum : uint8_t
+{
+	_0,
+	_1,
+	_2,
+	_3,
+	_4,
+	_5,
+	_6,
+	_7,
+};
+
 enum class segment_special : uint8_t
 {
 	nothing,
@@ -202,7 +214,7 @@ struct shared_segment
 	short   group;      // group number to which the segment belongs.
 #endif
 	std::array<segnum_t, MAX_SIDES_PER_SEGMENT>   children;    // indices of 6 children segments, front, left, top, right, bottom, back
-	std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> verts;    // vertex ids of 4 front and 4 back vertices
+	enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> verts;    // vertex ids of 4 front and 4 back vertices
 	segment_special special;    // what type of center this is
 	materialization_center_number matcen_num; // which center segment is associated with.
 	station_number station_idx;

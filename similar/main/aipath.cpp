@@ -199,7 +199,7 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 	Int3();
 
 		const shared_segment &segp = *vcsegptr(segnum);
-		segment_size = vm_vec_dist_quick(vcvertptr(segp.verts[0]), vcvertptr(segp.verts[6]));
+		segment_size = vm_vec_dist_quick(vcvertptr(segp.verts[segment_relative_vertnum::_0]), vcvertptr(segp.verts[segment_relative_vertnum::_6]));
 		if (segment_size > F1_0*40)
 			segment_size = F1_0*40;
 

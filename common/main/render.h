@@ -44,7 +44,7 @@ namespace dcx {
 	 */
 extern const enumerated_array<
 	enumerated_array<
-		std::array<int_fast8_t, 2>,
+		std::array<segment_relative_vertnum, 2>,
 		6, sidenum_t>,
 	6, sidenum_t> Two_sides_to_edge;
 }

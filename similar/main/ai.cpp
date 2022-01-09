@@ -2160,15 +2160,17 @@ static const shared_segment *boss_intersects_wall(fvcvertptr &vcvertptr, const o
 {
 	const auto size = boss_objp.size;
 	const auto &&segcenter = compute_segment_center(vcvertptr, segp);
+	const auto &&r = make_range(segp->verts);
+	const auto re = r.end();
 	auto pos = segcenter;
-	for (uint_fast32_t posnum = 0;;)
+	for (auto ri = r.begin();; ++ri)
 	{
 		const auto seg = sphere_intersects_wall(vcsegptridx, vcvertptr, pos, segp, size).seg;
 		if (!seg)
 			return seg;
-		if (posnum == segp->verts.size())
+		if (ri == re)
 			return seg;
-		auto &vertex_pos = *vcvertptr(segp->verts[posnum ++]);
+		auto &vertex_pos = *vcvertptr(*ri);
 		vm_vec_avg(pos, vertex_pos, segcenter);
 	}
 }

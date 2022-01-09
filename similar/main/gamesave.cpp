@@ -1050,7 +1050,7 @@ static int load_game_data(
 			v19_wall w;
 			v19_wall_read(LoadFile, w);
 			nw.segnum	        = w.segnum;
-			nw.sidenum	= w.sidenum;
+			nw.sidenum	= build_sidenum_from_untrusted(w.sidenum).value();
 			nw.linked_wall	= w.linked_wall;
 			nw.type		= w.type;
 			auto wf = static_cast<wall_flags>(w.flags);
@@ -1069,7 +1069,7 @@ static int load_game_data(
 			v16_wall w;
 			v16_wall_read(LoadFile, w);
 			nw.segnum = segment_none;
-			nw.sidenum = -1;
+			nw.sidenum = {};
 			nw.linked_wall = wall_none;
 			nw.type		= w.type;
 			auto wf = static_cast<wall_flags>(w.flags);
@@ -1287,9 +1287,9 @@ static int load_game_data(
 	if (game_top_fileinfo_version < 17) {
 		range_for (const auto &&segp, vcsegptridx)
 		{
-			range_for (const int sidenum, xrange(6u))
+			for (const auto &&[sidenum, side] : enumerate(segp->shared_segment::sides))
 			{
-				const auto wallnum = segp->shared_segment::sides[sidenum].wall_num;
+				const auto wallnum = side.wall_num;
 				if (wallnum != wall_none)
 				{
 					auto &w = *vmwallptr(wallnum);
@@ -1465,7 +1465,7 @@ int load_level(
 	if (Current_mission && !d_stricmp("Descent 2: Counterstrike!", Current_mission->mission_name) && !d_stricmp("d2levc-4.rl2", filename))
 	{
 		shared_segment &s104 = *vmsegptr(vmsegidx_t(104));
-		auto &s104v0 = *vmvertptr(s104.verts[0]);
+		auto &s104v0 = *vmvertptr(s104.verts[segment_relative_vertnum::_0]);
 		auto &s104s1 = s104.sides[1];
 		auto &s104s1n0 = s104s1.normals[0];
 		auto &s104s1n1 = s104s1.normals[1];

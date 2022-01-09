@@ -326,7 +326,7 @@ static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side, w
 	if (wa.flags & WCF_EXPLODES)
 	{
 		auto &vcvertptr = Vertices.vcptr;
-		explode_wall(vcvertptr, seg, side, w0);
+		explode_wall(vcvertptr, seg, static_cast<sidenum_t>(side), w0);
 	}
 	else {
 		//if not exploding, set final frame, and make door passable

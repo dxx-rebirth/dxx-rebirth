@@ -78,9 +78,11 @@ static fix get_average_light_at_vertex(const vertnum_t vnum, segnum_t *segs)
 	range_for (const auto &&segp, vcsegptridx)
 	{
 		auto e = end(segp->verts);
-		auto relvnum = std::distance(std::find(begin(segp->verts), e, vnum), e);
-		if (relvnum < MAX_VERTICES_PER_SEGMENT) {
-
+		auto it = std::find(begin(segp->verts), e, vnum);
+		if (it == e)
+			continue;
+		auto relvnum = static_cast<segment_relative_vertnum>(std::distance(it, e));
+		{
 			*segs++ = segp;
 			Assert(segs - original_segs < MAX_LIGHT_SEGS);
 			(void)original_segs;
@@ -568,13 +570,13 @@ static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned c
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-        int             bv1,bv2, vv1, vv2;
-        int             cv1=0, cv2=0;
-
-	bv1 = -1;	bv2 = -1;
+	int             vv1, vv2;
+	constexpr segment_relative_vertnum invalid_vertnum{0xff};
+	segment_relative_vertnum cv1 = invalid_vertnum, cv2 = invalid_vertnum;
+	segment_relative_vertnum bv1 = invalid_vertnum, bv2 = invalid_vertnum;
 
 	// Find which vertices in segment match abs_id1, abs_id2
-	for (const auto &&[v, b, c] : enumerate(zip(base_seg.s.verts, con_seg->verts)))
+	for (const auto &&[v, b, c] : enumerate(zip(base_seg.s.verts, con_seg->verts), segment_relative_vertnum{}))
 	{
 		if (b == abs_id1)
 			bv1 = v;
@@ -589,7 +591,10 @@ static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const unsigned c
 	//	Now, bv1, bv2 are segment relative vertices in base segment which are the same as absolute vertices abs_id1, abs_id2
 	//	     cv1, cv2 are segment relative vertices in conn segment which are the same as absolute vertices abs_id1, abs_id2
 
-	Assert((bv1 != -1) && (bv2 != -1) && (cv1 != -1) && (cv2 != -1));
+	assert(bv1 != invalid_vertnum);
+	assert(bv2 != invalid_vertnum);
+	assert(cv1 != invalid_vertnum);
+	assert(cv2 != invalid_vertnum);
 
 	//	Now, scan 4 vertices in base side and 4 vertices in connected side.
 	//	Set uv1, uv2 to uv coordinates from base side which correspond to vertices bv1, bv2.
@@ -636,8 +641,8 @@ static void get_side_ids(const shared_segment &base_seg, const shared_segment &c
 			for (const auto v0 : xrange(4u))
 			{
 				auto &verts = base_seg.verts;
-				if ((verts[static_cast<int>(base_vp[v0])] == abs_id1 && verts[static_cast<int>(base_vp[(v0+1) % 4])] == abs_id2) ||
-					(verts[static_cast<int>(base_vp[v0])] == abs_id2 && verts[static_cast<int>(base_vp[ (v0+1) % 4])] == abs_id1))
+				if ((verts[base_vp[v0]] == abs_id1 && verts[base_vp[(v0+1) % 4]] == abs_id2) ||
+					(verts[base_vp[v0]] == abs_id2 && verts[base_vp[ (v0+1) % 4]] == abs_id1))
 				{
 					Assert(*base_common_side == -1);		// This means two different sides shared the same edge with base_side == impossible!
 					*base_common_side = idx;
@@ -656,8 +661,8 @@ static void get_side_ids(const shared_segment &base_seg, const shared_segment &c
 			for (const auto v0 : xrange(4u))
 			{
 				auto &verts = con_seg.verts;
-				if ((verts[static_cast<int>(con_vp[(v0 + 1) % 4])] == abs_id1 && verts[static_cast<int>(con_vp[v0])] == abs_id2) ||
-					(verts[static_cast<int>(con_vp[(v0 + 1) % 4])] == abs_id2 && verts[static_cast<int>(con_vp[v0])] == abs_id1))
+				if ((verts[con_vp[(v0 + 1) % 4]] == abs_id1 && verts[con_vp[v0]] == abs_id2) ||
+					(verts[con_vp[(v0 + 1) % 4]] == abs_id2 && verts[con_vp[v0]] == abs_id1))
 				{
 					Assert(*con_common_side == -1);		// This means two different sides shared the same edge with con_side == impossible!
 					*con_common_side = idx;
@@ -723,8 +728,6 @@ static void propagate_tmaps_to_segment_side(const vcsegptridx_t base_seg, const 
 //	There is no easy way to figure out which side is adjacent to another side along some edge, so we do a bit of searching.
 void med_propagate_tmaps_to_back_side(const vmsegptridx_t base_seg, const sidenum_t back_side, int uv_only_flag)
 {
-        int     v1=0,v2=0;
-
 	if (IS_CHILD(base_seg->children[back_side]))
 		return;		// connection, so no sides here.
 
@@ -732,15 +735,19 @@ void med_propagate_tmaps_to_back_side(const vmsegptridx_t base_seg, const sidenu
 	for (const auto &&[s, ebs] : enumerate(Two_sides_to_edge))
 	{
 		if ((s != back_side) && (s != Side_opposite[back_side])) {
-			v1 = ebs[back_side][0];
-			v2 = ebs[back_side][1];
+			const auto v1 = ebs[back_side][0];
+			const auto v2 = ebs[back_side][1];
+			if (!base_seg->verts.valid_index(v1))
+				// This means there was no shared edge between the two sides.
+				return;
+			if (!base_seg->verts.valid_index(v2))
+				return;
 			propagate_tmaps_to_segment_side(base_seg, s, base_seg, back_side, base_seg->verts[v1], base_seg->verts[v2], uv_only_flag);
 			goto found1;
 		}
 	}
-	Assert(0);		// Error -- couldn't find edge != back_side and Side_opposite[back_side]
+	return;		// Error -- couldn't find edge != back_side and Side_opposite[back_side]
 found1: ;
-	Assert( (v1 != -1) && (v2 != -1));		// This means there was no shared edge between the two sides.
 
 	//	Assign an unused tmap id to the back side.
 	//	Note that this can get undone by the caller if this was not part of a new attach, but a rotation or a scale (which
@@ -825,8 +832,8 @@ static void propagate_tmaps_to_segment_sides(const vcsegptridx_t base_seg, const
 
 	// Do for each edge on connecting face.
 	for (v=0; v<4; v++) {
-		const auto abs_id1 = base_seg->verts[static_cast<int>(base_vp[v])];
-		const auto abs_id2 = base_seg->verts[static_cast<int>(base_vp[(v+1) % 4])];
+		const auto abs_id1 = base_seg->verts[base_vp[v]];
+		const auto abs_id2 = base_seg->verts[base_vp[(v + 1) % 4]];
 		propagate_tmaps_to_segment_side(base_seg, base_side, con_seg, con_side, abs_id1, abs_id2, uv_only_flag);
 	}
 
@@ -985,12 +992,8 @@ static void cast_light_from_side(const vmsegptridx_t segp, int light_side, fix l
 									const auto vert_location_1 = vm_vec_scale_add(vert_location, r_vector_to_center, inverse_segment_magnitude);
 									vert_location = vert_location_1;
 
-//if ((segp-Segments == 199) && (rsegp-Segments==199))
-//	Int3();
-// Seg0 = segp-Segments;
-// Seg1 = rsegp-Segments;
 									if (!quick_light) {
-										int hash_value = Side_to_verts[sidenum][vertnum];
+										auto hash_value = underlying_value(Side_to_verts[sidenum][vertnum]);
 										hash_info	*hashp = &fvi_cache[hash_value];
 										while (1) {
 											if (hashp->flag) {
