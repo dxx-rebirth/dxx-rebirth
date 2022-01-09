@@ -24,6 +24,7 @@ namespace dcx {
 //#define USE_ISQRT 1
 
 constexpr vms_matrix vmd_identity_matrix = IDENTITY_MATRIX;
+constexpr vms_vector vmd_zero_vector{};
 
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so

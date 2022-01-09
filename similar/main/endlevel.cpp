@@ -105,8 +105,6 @@ namespace {
 #define FLY_ACCEL i2f(5)
 #define MAX_FLY_OBJECTS 2
 
-constexpr vms_vector vmd_zero_vector{};
-
 d_unique_endlevel_state UniqueEndlevelState;
 static void generate_starfield(d_unique_endlevel_state::starfield_type &stars);
 static void draw_stars(grs_canvas &, const d_unique_endlevel_state::starfield_type &stars);

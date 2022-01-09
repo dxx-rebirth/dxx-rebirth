@@ -1040,9 +1040,6 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 	}
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
-static
-#endif
 imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
 {
 	imobjptridx_t	objnum = object_none;

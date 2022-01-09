@@ -90,9 +90,9 @@ enum class explosion_vclip_stage : int
 namespace dsx {
 int get_explosion_vclip(const object_base &obj, explosion_vclip_stage stage);
 
-#if defined(DXX_BUILD_DESCENT_II)
 imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, unsigned num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player);
 
+#if defined(DXX_BUILD_DESCENT_II)
 // creates afterburner blobs behind the specified object
 void drop_afterburner_blobs(object &obj, int count, fix size_scale, fix lifetime);
 

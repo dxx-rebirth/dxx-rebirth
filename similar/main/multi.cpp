@@ -2167,7 +2167,7 @@ static void multi_do_controlcen_fire(const ubyte *buf)
 	Laser_create_new_easy(to_target, objp->ctype.reactor_info.gun_pos[gun_num], objp, weapon_id_type::CONTROLCEN_WEAPON_NUM, 1);
 }
 
-static void multi_do_create_powerup(fvmobjptr &vmobjptr, fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int count = 1;
@@ -2194,7 +2194,7 @@ static void multi_do_create_powerup(fvmobjptr &vmobjptr, fvmsegptridx &vmsegptri
 	}
 
 	Net_create_loc = 0;
-	const auto &&my_objnum = call_object_create_egg(vmobjptr(vcplayerptr(pnum)->objnum), 1, powerup_type);
+	const auto &&my_objnum = drop_powerup(Vclip, powerup_type, 1, vmd_zero_vector, new_pos, segnum, true);
 
 	if (my_objnum == object_none) {
 		return;
@@ -2204,12 +2204,6 @@ static void multi_do_create_powerup(fvmobjptr &vmobjptr, fvmsegptridx &vmsegptri
 	{
 		Network_send_objnum = -1;
 	}
-
-	my_objnum->pos = new_pos;
-
-	vm_vec_zero(my_objnum->mtype.phys_info.velocity);
-
-	obj_relink(vmobjptr, vmsegptr, my_objnum, segnum);
 
 	map_objnum_local_to_remote(my_objnum, objnum, pnum);
 
@@ -5809,7 +5803,7 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_CONTROLCEN_FIRE:
 			multi_do_controlcen_fire(buf); break;
 		case MULTI_CREATE_POWERUP:
-			multi_do_create_powerup(vmobjptr, vmsegptridx, pnum, buf);
+			multi_do_create_powerup(vmsegptridx, pnum, buf);
 			break;
 		case MULTI_PLAY_SOUND:
 			multi_do_play_sound(Objects, pnum, buf);

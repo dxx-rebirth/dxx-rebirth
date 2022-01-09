@@ -410,6 +410,8 @@ static inline void vm_angvec_make(vms_angvec *v, fixang p, fixang b, fixang h)
 	v->h = h;
 }
 
+extern const vms_vector vmd_zero_vector;
+
 }
 
 #endif
