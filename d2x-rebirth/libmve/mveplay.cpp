@@ -271,7 +271,9 @@ static std::unique_ptr<SDL_AudioSpec> mve_audio_spec;
 
 static void mve_audio_callback(void *, unsigned char *stream, int len)
 {
+#ifdef DXX_REPORT_TOTAL_LENGTH
 	int total=0;
+#endif
 	int length;
 	if (mve_audio_bufhead == mve_audio_buftail)
 		return /* 0 */;
@@ -286,7 +288,9 @@ static void mve_audio_callback(void *, unsigned char *stream, int len)
 		       (reinterpret_cast<uint8_t *>(mve_audio_buffers[mve_audio_bufhead].get()))+mve_audio_curbuf_curpos,           /* cur input position  */
 		       length);                                                                 /* cur input length    */
 
+#ifdef DXX_REPORT_TOTAL_LENGTH
 		total += length;
+#endif
 		stream += length;                                                               /* advance output */
 		len -= length;                                                                  /* decrement avail ospace */
 		mve_audio_buffers[mve_audio_bufhead].reset();                                 /* free the buffer */
@@ -297,7 +301,9 @@ static void mve_audio_callback(void *, unsigned char *stream, int len)
 		mve_audio_curbuf_curpos = 0;
 	}
 
+#ifdef DXX_REPORT_TOTAL_LENGTH
 	//con_printf(CON_CRITICAL, "= <%d (%d), %d, %d>: %d", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len, total);
+#endif
 	/*    return total; */
 
 	if (len != 0                                                                        /* ospace remaining  */
